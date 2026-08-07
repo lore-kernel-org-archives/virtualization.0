@@ -1,129 +1,137 @@
-Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com [209.85.214.199])
+Received: from mail-qt1-f180.google.com (mail-qt1-f180.google.com [209.85.160.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 711D24AD67B
-	for <virtualization@lists.linux.dev>; Thu,  6 Aug 2026 23:37:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.199
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786059450; cv=none; b=SwfQcYNp4J/XNzdsn7xbFiVVnaFCEjxZfq5RQJ3sBpiorOZzGJ94Rzy07ogdgxL5xmzssFQ+CFdv/ayFwMkhBtqVNaKZ+QRatztc+2/V8/0/iYeaypHZHdFjz5TA5kDNP/OYN5vLZtwjG+sC86Vdxwcomrirb+oaEmqT6JXsVwc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786059450; c=relaxed/simple;
-	bh=UjpjKwl+lBUDjSIYpCNArAdlu1FqZC9gy6u6ndRSMj4=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=nONGoogEeOMbi7/a51IHJOlDkoujI5832c7NqL5CT0miXvJ7Y1ItmSqvIuLJST1RWlRyrAeCRktV8Wj8LN3p4uqnreUckpFmKrD6rL1u6LjGrKuB4X157bo11YWu0GNe7BX2UZN4ZBQbQ5WoV1k049Eo9fw2fUF4AS4PuolEcQY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Sdadce8L; arc=none smtp.client-ip=209.85.214.199
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84D0719046E
+	for <virtualization@lists.linux.dev>; Fri,  7 Aug 2026 00:38:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.180
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786063092; cv=pass; b=PVIzY7mE9x97kZWAE2wDZhiF9owSXYAiqk0fpbi0FQMA7v4VvycdN5AkwNS42nBomMckVy0vcwqZd56VSHd4xsf/jhcmAKpNgMsAJvksyUR87kUjTVUuMTQgr6quqOsA3bqzR9L3zz/VXvORC5nuBOh+VrA3130GCaB0efFS9NA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786063092; c=relaxed/simple;
+	bh=MRJZIG7PpGC8GI3G9OdkHZpvyVmLP1ZrEzMgLyM7g80=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=EhQ7zNmUBSuWuYLut2Z5LxW21D+SAkvxOa97FKUrFj4J1RPfP0FGEE9iDmE79Vyx6iGJ79LPA4ixWo4cUZ9eFc8F5j67zQcQCC5MG1Vwuecx17BFa1Uzf8skT+KqqU02LO7wiQfdIKXGgmVwhb/gXGs/gydvTmkvf+HZ8+qHQro=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=m3oCtzqv; arc=pass smtp.client-ip=209.85.160.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Sdadce8L"
-Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-2ce7dfd33ffso32944765ad.0
-        for <virtualization@lists.linux.dev>; Thu, 06 Aug 2026 16:37:28 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="m3oCtzqv"
+Received: by mail-qt1-f180.google.com with SMTP id d75a77b69052e-51c10ed63c0so71331cf.1
+        for <virtualization@lists.linux.dev>; Thu, 06 Aug 2026 17:38:11 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1786063090; cv=none;
+        d=google.com; s=arc-20260327;
+        b=iD58TNBhOuk/FdivjJMasLZ9rj3EI4TBYuyAZ8VJ9HrpadfvZ9AlNLaCAXWQRJcPQF
+         WZ5jSX8fO7aByHvqs+oe4lSaDA61y3tDJ+U3LqPF7oB9JQmY/qpC3HBXMFxChnT2iATQ
+         aq10LupLOZx2f8jH16oNve1RDfp5iTbBZ5dBtNxfrIsjUvv4+eVPC+M87dS+95I6HMbP
+         qocGWo6AlDFRkFIvvEejmcmTjmwhquF6yqV/YmoC2Q2CGX7TWL0/4zemLb+gKL9eIWYC
+         p0XuJmRPfrvkzv5TvGJ573BzoCcThHhnPf1107zdb6xJjZLkqPfVX6AnRP7Gl4MsaP8w
+         3leQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=MRJZIG7PpGC8GI3G9OdkHZpvyVmLP1ZrEzMgLyM7g80=;
+        fh=Fqm/qK64mztjP7Owbubtpad0Swm2deHj02oAZYyfm/Y=;
+        b=jgmmCCap37y+ImzaozhAWgYaYsKbMFout7eUpjGDU3LTfhCsikukuyN9WCQmEY95ar
+         ibNKd/1EWUVOCq3sNlywCk0iuOA36fEeMTH1XZDyN9VMCTE1JmwHZIKywX/VGkDW1dYL
+         0no08O30bW3VL7SjGrY6pG/6C1HVMblQr7LxerRPu50LxjJGXruJzTPGA5mrAxOhZbB6
+         ptUIW83lq0caNawCn9zwp9kmbikN/bHkhPijyBUTaHynZ54+7/umziDSZ++6aVDgGCH2
+         dbN/z6VLvu29TQU/YlX+3Rnprxm2U6GitoXU6cSXNrvnPje1/RD+wilhQiLcQ3C8rqIb
+         2bxA==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1786059447; x=1786664247; darn=lists.linux.dev;
-        h=content-type:cc:to:from:subject:message-id:references:mime-version
-         :in-reply-to:date:reply-to:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=WG6tzs8/D5vUVAMD7J6BXfy7SNaM+XPXtfc+RTelhM8=;
-        b=Sdadce8L1Uey/RrE80FFKRg9hf2Q+r1JpMEB3n/LUm/5DkGJh7+TKrd+DJ71IlNty4
-         i4csEalG53wgVJnsEFc1i3Kju3TvSYIEKkmwf4FkmBj+TeeyO/bmjQED9RsV2vpIt9AH
-         +4iHYMM5dQMH0NO4/ZePXyZ3mtz9WUBJPMFTnZ2WvKkrzml58+dn9ihZaFZDguKoLJDo
-         OyV0f4RQEzJbBjQe7SlDGHDWwADB7KOQmoVvJeb0lWPo6zxXyH7uaWt7vRuzuHyryjse
-         nNFwrSaKUPyzcROCfLyPdyNGqvUZKn8U3NFHIrOLUmOyovVcWPGUm16Ybh0sF86Av4PI
-         UgHA==
+        d=google.com; s=20251104; t=1786063090; x=1786667890; darn=lists.linux.dev;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=MRJZIG7PpGC8GI3G9OdkHZpvyVmLP1ZrEzMgLyM7g80=;
+        b=m3oCtzqv2hlodjaA1GfrnRuYSNkx26f+GGDY21BcYK2QrLPSmEF1txeHYlvGTZJRWB
+         ew/UGmD4WSthubWo4Amg868RQ23dY8WvSd4CDOoIH99f6TUnYB14Jr6UNarWv/gd9ofS
+         4n6OzNSgdwB97B33prwjfxTnX1N8yK+aPVx0n5ElMrp7/t2dQ7Yvpe6EjsE/ViGci5nI
+         YJKinCgVtGw2TXYRTlipp0MXiT4x9WgkhcBJSLiaz2VFCk6NL2XKFt9BQa5k3rUG5XaJ
+         MgMMFsichZuD7VJLNuF29esfRHRuwQYmhbIHwsioWSSh/d2ULHUzsMe2lHuclSVPDZXu
+         2eWg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786059447; x=1786664247;
-        h=content-type:cc:to:from:subject:message-id:references:mime-version
-         :in-reply-to:date:reply-to:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=WG6tzs8/D5vUVAMD7J6BXfy7SNaM+XPXtfc+RTelhM8=;
-        b=f8XCd3x7+qciS0nwkTVyNxJbDvhTYuUekf8Zwhnvs9S3FwTW+D1mh8qXh5uTIC0/tf
-         jJzpmXYJJAETFd/Hitzeyeihlr45deHRKH6Pm7nsskmDddrHhLxCr1Dxq6TJmVYEEkyn
-         8u4Dw1Y+FiKEQi6sf9fRJ09kuEXRu7dF+A+n0kuZVDUEiXj7yfn+jCFp1jsZZ7shCMXc
-         oaJ6v/fWBJyZwWGqy0rUG/BkbsRUs7SEvYF3veiOmOSoKa28P3phGZK5ijohimszSyU5
-         5NBIMTF0c3DLWLtoLXHksHNnSBrSm7GOVLbL+5LYwn8kIJTeOEKaZ0tBIWechCtME4ox
-         4KOA==
-X-Forwarded-Encrypted: i=1; AHgh+Rq0f6nDBVmgkWNrICQypVm/Wg4tpUls5sOsL5fsMMP/EstTL2am3hEUy1O+QeNttilncyslal4DUZwL+4lKBA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YynAbi2LI4wYFTkBxjoO6fwO6Dx+WyYhB8RtfwhGaCzysxGU5hO
-	b5dsf8mSZ5P7UD6NzoxSdY6e8UGazOIaGwVgay3ksiiftN5AvZa4I8VhtmyRuCQ7Qpc74FqlOsY
-	Zgrqn6w==
-X-Received: from pjgg14.prod.google.com ([2002:a17:90b:57ce:b0:380:f969:825e])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:2590:b0:38f:2168:b9cb
- with SMTP id 98e67ed59e1d1-3903c572a05mr18788898a91.9.1786059447175; Thu, 06
- Aug 2026 16:37:27 -0700 (PDT)
-Reply-To: Sean Christopherson <seanjc@google.com>
-Date: Thu,  6 Aug 2026 16:36:08 -0700
-In-Reply-To: <20260806233609.212337-1-seanjc@google.com>
+        d=1e100.net; s=20251104; t=1786063090; x=1786667890;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=MRJZIG7PpGC8GI3G9OdkHZpvyVmLP1ZrEzMgLyM7g80=;
+        b=G6nSnmMkY6RHXQta83jXEH459XPr+lzI/l6xKqGyolsj1Y0ELGORIpSfF4+iQOtjA4
+         sJ+NwDAeCZpW2Hs55NPquJ06cL9H4zAFbijgbEN9IkETujRR37qLj3ZcufsrLJC6ZO5v
+         jg7GBj6JAadsw4Z37erUlp2lYAOBBIU5wJy150Uq9sQzg8DGwS9Tesn5SnEGRDoUNeih
+         rnYXU5Q6jcGXA6vrbLikWlkVqD5fgclA9Leba1oIgB222DeNaSe75CDmCQRN4jlh+ZDK
+         pUFwbQWvvJEnNmRaMcbftTNdFP+aTgJYwBcltHtx3AmDTxmIpSHd26RgQLomASsuZQBP
+         hkKA==
+X-Forwarded-Encrypted: i=1; AHgh+RpXOID0Y5ytuWhHn2haKfq6oOXz6fqSY4nyHRtBmTTm0rQrrjJYWLeXrhOUHsHkBGIcV8CkEH0ZS4C+ETP9EA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Ywi7+Fqis6tLpATv8jmSSTGnLvssOgHfbTpKwvJzxnIZQUFbL8X
+	W7OW7zV6yHLZP/IF3KJViHSrT4tgbASWGvC5f//OFIC2OHGCgV302N5KerJFeIMMAd7gMDUg9ZK
+	i/3NEPBi57POXKrZzAPhU4+yQ7OVSchLdReh8xZQP
+X-Gm-Gg: AR+sD10Snh05tbKWmgeqaD2+pydK7O0WbMz7yF7JjDW/Nn5xb7uNObUEiY1UznT7gg/
+	6dgcaSwqWVxk+ywZp+C52ce09to8LXMPZao8Z7TrRjwyLU8U9OssC+1qw1F1RxVh/L00HWHpeqK
+	5jbHfz8UlCeXLO2q7hKzmoxEgk6xFftQ4rgUjygixU/O9NTgzuwEDm4U2cfRUPfH3mtRv3j1oQN
+	RejM70Z8VXBOLlZ9iWDrMnMHAmo/WDEuXG7nwSlLlg9qk92Bj3D6Xsg8zGkBtgLqL3It8bng+DH
+	cnmP0InM7rcnTSudMsSpgeHxJB8qNdnAgWLocaddsi8qnqyUJdgRcBZ30xaFZw9OK3sAgrYqp62
+	+CSpU91IQ+N8=
+X-Received: by 2002:ac8:5893:0:b0:51c:104c:100c with SMTP id
+ d75a77b69052e-52d106def12mr7006611cf.2.1786063089410; Thu, 06 Aug 2026
+ 17:38:09 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <20260806233609.212337-1-seanjc@google.com>
-X-Mailer: git-send-email 2.55.0.679.g6767b8d81c-goog
-Message-ID: <20260806233609.212337-52-seanjc@google.com>
-Subject: [PATCH v6 51/51] x86/kvm: Get local APIC bus frequency from PV CPUID
- Timing Info
-From: Sean Christopherson <seanjc@google.com>
-To: Kiryl Shutsemau <kas@kernel.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, 
-	Sean Christopherson <seanjc@google.com>, Paolo Bonzini <pbonzini@redhat.com>, 
-	"K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
-	Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>, 
-	Ajay Kaher <ajay.kaher@broadcom.com>, Alexey Makhalov <alexey.makhalov@broadcom.com>, 
-	Jan Kiszka <jan.kiszka@siemens.com>, Dave Hansen <dave.hansen@linux.intel.com>, 
-	Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Juergen Gross <jgross@suse.com>, 
-	Daniel Lezcano <daniel.lezcano@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
-	John Stultz <jstultz@google.com>
-Cc: Vitaly Kuznetsov <vkuznets@redhat.com>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
-	Boris Ostrovsky <boris.ostrovsky@oracle.com>, Stephen Boyd <sboyd@kernel.org>, 
-	Miroslav Lichvar <mlichvar@redhat.com>, x86@kernel.org, linux-coco@lists.linux.dev, 
-	kvm@vger.kernel.org, linux-hyperv@vger.kernel.org, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	xen-devel@lists.xenproject.org, Michael Kelley <mhklinux@outlook.com>, 
-	Tom Lendacky <thomas.lendacky@amd.com>, Nikunj A Dadhania <nikunj@amd.com>, 
-	David Woodhouse <dwmw@amazon.co.uk>, David Woodhouse <dwmw2@infradead.org>, 
-	Thomas Gleixner <tglx@linutronix.de>
+MIME-Version: 1.0
+References: <20260724014605.3377283-1-linkl@google.com> <20260806185414-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20260806185414-mutt-send-email-mst@kernel.org>
+From: Link Lin <linkl@google.com>
+Date: Thu, 6 Aug 2026 17:37:56 -0700
+X-Gm-Features: AUfX_mzsCL5eLjoVeX8KOZ2z_HBCF8ziBwe-qf9RCI-8JSE_RZaQA3PJ8CCVsKw
+Message-ID: <CALUx4KSGtvswSARWZ9L8rbWsPmSorHaonaSWMT5UvQX9SQSqFA@mail.gmail.com>
+Subject: Re: [RFC PATCH] virtio_balloon: add VIRTIO_BALLOON_F_REPORTING_PM_SAFE
+ feature bit
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@kernel.org>, 
+	Vlastimil Babka <vbabka@kernel.org>, virtualization@lists.linux.dev, linux-mm@kvack.org, 
+	linux-kernel@vger.kernel.org, prasin@google.com, rientjes@google.com, 
+	duenwen@google.com, jiaqiyan@google.com, ahwilkins@google.com, 
+	Greg Thelen <gthelen@google.com>, Alexander Duyck <alexander.duyck@gmail.com>, jthoughton@google.com, 
+	stable@vger.kernel.org, Cory Maccarrone <maccarro@google.com>, 
+	Taylor Scanlon <tayy@google.com>
 Content-Type: text/plain; charset="UTF-8"
 
-When running as a KVM guest with PV timing info provided by the host,
-stuff the APIC timer period/frequency with the local APIC bus frequency
-reported in CPUID.0x40000010.EBX instead of trying to calibrate/guess the
-frequency.
+On Thu, Aug 6, 2026 at 4:00 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+>
+> This makes no sense to me. So there's a bug in the guest and it crashes.
+> Patch the guest.
+>
+> There's just no chance we'll add flags every time some guest drivers
+> on some OSes have a UAF.
+>
+> What makes this specific bug special?
+>
+> Trust me when I say UAF issues e.g. around hotplug are a dime a dozen.
+> Now what, let's add another one around hotplug? And so on.
 
-See Documentation/virt/kvm/x86/cpuid.rst for details.
+Hi Michael,
 
-Reviewed-by: David Woodhouse <dwmw@amazon.co.uk>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
----
- arch/x86/kernel/kvm.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+Thanks for the candid feedback. I completely agree that adding feature
+bits to the virtio specification to paper over guest OS bugs sets a bad
+precedent, and we will drop this RFC.
 
-diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
-index b954238b09fc..edeff41c03c2 100644
---- a/arch/x86/kernel/kvm.c
-+++ b/arch/x86/kernel/kvm.c
-@@ -992,7 +992,7 @@ static void __init kvm_init_platform(void)
- 		.mask_lo = (u32)(~(SZ_4G - tolud - 1)) | MTRR_PHYSMASK_V,
- 		.mask_hi = (BIT_ULL(boot_cpu_data.x86_phys_bits) - 1) >> 32,
- 	};
--	u32 timing_info_leaf;
-+	u32 timing_info_leaf, apic_khz;
- 	bool tsc_is_reliable;
- 
- 	if (cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT) &&
-@@ -1054,6 +1054,11 @@ static void __init kvm_init_platform(void)
- 			x86_init.hyper.get_tsc_khz = kvm_get_tsc_khz;
- 			x86_init.hyper.get_cpu_khz = kvm_get_tsc_khz;
- 		}
-+
-+		/* The leaf also includes the local APIC bus/timer frequency.*/
-+		apic_khz = cpuid_ebx(timing_info_leaf);
-+		if (apic_khz)
-+			apic_set_timer_frequency_khz(apic_khz, "KVM hypervisor");
- 	}
- 
- 	/*
--- 
-2.55.0.679.g6767b8d81c-goog
+To answer your question on why this felt special from our side: in public
+cloud fleets with unmanaged customer images (BYOS), we cannot patch the
+guest kernel. If the hypervisor turns on VIRTIO_BALLOON_F_REPORTING globally
+for memory reclamation, unpatched guest kernels negotiate it blindly and
+subsequently crash upon PM suspend. That makes a host-side feature rollout
+act as a latent crash trigger for older guests.
 
+We understand your point that the spec is not the place for driver bug
+workarounds. We will handle this compatibility gating out-of-band in the
+hypervisor / management layer instead.
+
+Thanks for your time and review.
+
+Sincerely,
+Link
