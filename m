@@ -1,37 +1,38 @@
 Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75EC23806D7
-	for <virtualization@lists.linux.dev>; Fri,  7 Aug 2026 01:32:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69DAA37D124
+	for <virtualization@lists.linux.dev>; Fri,  7 Aug 2026 01:32:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786066356; cv=none; b=gBD8QM8hJ4P9NtTg+O2/BMqjLvzDRBn/QDXFwecsN0CGiYYwnvghnF7QeyL66hdTSiP+P5Up3sAwDQXi57YgaHsOxM8jNv2uS9VboMM3evH1wH+ecwAfKZHHGKofpiiJvHkjHuvzmY2UutH3lR4ZWI4dFo6TDce03WqxRRiD1oo=
+	t=1786066361; cv=none; b=LY1Ikn1jcRxP2sd8EZthD1HTeIIidJWJ6vcvjyRxTK5cXslyyqMTSwu+nrbMgFpbu+GxTb3dDSJOI/8497soOHOL+OXxVjCVPiryrkb4Li9n0gxdlyoiNIugqi73Y5hIuUdbVdnKCYyKifU/SHQ44PrMCDlUby1Xh0CShWBDYc4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786066356; c=relaxed/simple;
-	bh=VFX53KzQM2qEgP9mFKjgry9XD7/Ah7IVDbXDv5M0AiE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Nj+XsYWeNsRaVP6a1wIHEYnfphd7/9Mxt7lOHDkpsOehmYY/53onH3k6NVcxo5q9nhZf2gwVXqTvAfIXSnt/t039qVzhlTNRO6E/q+BJHB1uOaDeeNs9H1JQZrX+EpH9v4/gtoHkl8WKMq2pirQIQM0wBn8U34771427kjew0lY=
+	s=arc-20240116; t=1786066361; c=relaxed/simple;
+	bh=+/BoZ/5Mhz419XFav3gh2eRJNigBg3v4/Xv7DhhucV0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=azto0GZ0Y2fS+TRJo+n38hWXv6eTjbA0yEjHjmcqPR3YBuSwo+ZVtjyathLQE/hp4FGFtt0r1eqx8YNNRNtFiqDVGinnaniyl14VSV68k8VmhLiLGiW5fbnieglNqTKnrP8V518/80edypsua/n4KUsOJzJhNFJj5a9xUJQ+wW8=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: d748795a91ff11f1aa26b74ffac11d73-20260807
+X-UUID: d78fa44291ff11f1aa26b74ffac11d73-20260807
 X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.3.12,REQID:2230873a-e80d-4119-8a7d-cd4b679327d8,IP:0,U
-	RL:0,TC:0,Content:-25,EDM:25,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTI
-	ON:release,TS:0
-X-CID-META: VersionHash:e7bac3a,CLOUDID:321251d9f6ffadff5b29864f53d29c4e,BulkI
-	D:nil,BulkQuantity:0,Recheck:0,SF:102|136|865|898,TC:nil,Content:0|15|50,E
-	DM:5|-100,IP:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0
-	,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
+X-CID-O-INFO: VERSION:1.3.12,REQID:bd8c7a32-b5b8-4dfb-8670-5d7a69013c6a,IP:0,U
+	RL:0,TC:0,Content:0,EDM:25,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION
+	:release,TS:25
+X-CID-META: VersionHash:e7bac3a,CLOUDID:91950fb70802eaac80b89ae02481d9b2,BulkI
+	D:nil,BulkQuantity:0,Recheck:0,SF:81|82|102|136|865|898,TC:nil,Content:0|1
+	5|50,EDM:5|-100,IP:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0
+	,OSI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
 X-CID-BVR: 2,SSN|SDN
 X-CID-BAS: 2,SSN|SDN,0,_
 X-CID-FACTOR: TF_CID_SPAM_SNR
 X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
-X-UUID: d748795a91ff11f1aa26b74ffac11d73-20260807
+X-UUID: d78fa44291ff11f1aa26b74ffac11d73-20260807
 X-User: xiongweimin@kylinos.cn
 Received: from xwm-tianyi510pro-14imb.. [(10.44.16.150)] by mailgw.kylinos.cn
 	(envelope-from <xiongweimin@kylinos.cn>)
 	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
-	with ESMTP id 57141345; Fri, 07 Aug 2026 09:32:23 +0800
+	with ESMTP id 664917844; Fri, 07 Aug 2026 09:32:24 +0800
 From: Xiong Weimin <xiongweimin@kylinos.cn>
 To: netdev@vger.kernel.org
 Cc: "Michael S . Tsirkin" <mst@redhat.com>,
@@ -46,10 +47,12 @@ Cc: "Michael S . Tsirkin" <mst@redhat.com>,
 	Paolo Abeni <pabeni@redhat.com>,
 	virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH net v2 1/2] virtio_net: fix AF_XDP pool disable after queue shrink
-Date: Fri,  7 Aug 2026 09:32:19 +0800
-Message-ID: <20260807013220.2130441-1-xiongweimin@kylinos.cn>
+Subject: [PATCH net v2 2/2] virtio_net: refuse XDP queue shrink while AF_XDP is bound
+Date: Fri,  7 Aug 2026 09:32:20 +0800
+Message-ID: <20260807013220.2130441-2-xiongweimin@kylinos.cn>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260807013220.2130441-1-xiongweimin@kylinos.cn>
+References: <20260807013220.2130441-1-xiongweimin@kylinos.cn>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -58,93 +61,51 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-xp_clear_dev() calls the driver to unbind an AF_XDP pool, then frees
-the pool.  virtnet_xsk_pool_disable() currently rejects qid >=
-curr_queue_pairs, so if XDP detach (or another path) has already shrunk
-curr_queue_pairs below a still-bound qid, disable returns -EINVAL.
-The core only WARNs, clears the netdev pool pointer, and destroys the
-pool, which leaks the driver's DMA mappings and xsk_buffs and leaves
-rq/sq->xsk_pool dangling for a use-after-free if those queues are
-brought back later.
+virtnet_xdp_set() can lower curr_queue_pairs when an XDP program is
+detached.  Unlike ethtool channel updates, that path does not check for
+AF_XDP zero-copy pools on the queues being dropped.  A pool can remain
+bound on a qid that is no longer covered by curr_queue_pairs, which
+breaks later unbind and can leave stale rq/sq->xsk_pool pointers.
 
-Use max_queue_pairs for the bounds check so cleanup can still run,
-null the freed pointers, and avoid refill on inactive queues when
-unbinding.  Also unmap the shared TX header with sq->vq on the enable
-error path to match the mapping side (no functional change while
-rq/sq share a DMA device).
+Refuse the shrink with -EBUSY while any AF_XDP pool is still bound on a
+queue that would become inactive.
 
 Fixes: 09d2b3182c8e ("virtio_net: xsk: bind/unbind xsk for rx")
 Signed-off-by: Xiong Weimin <xiongweimin@kylinos.cn>
 ---
 v2:
-- rewrite as a real fix for disable-after-shrink (leak / UAF)
-- drop the previous "check queue index before use" reorder patch
-- fold sq->vq unmap symmetry here as NFC (no separate Fixes for that)
+- new patch: block XDP-driven queue shrink while AF_XDP is bound
+- replaces the previous series' approach after review
 
- drivers/net/virtio_net.c | 24 ++++++++++++++++++------
- 1 file changed, 18 insertions(+), 6 deletions(-)
+ drivers/net/virtio_net.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 3e2a587..d07ccef 100644
+index d07ccef..3bd220d 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -5848,7 +5848,7 @@ static int virtnet_rq_bind_xsk_pool(struct virtnet_info *vi, struct receive_queu
- 
- 	rq->xsk_pool = pool;
- 
--	virtnet_rx_resume(vi, rq, true);
-+	virtnet_rx_resume(vi, rq, qindex < vi->curr_queue_pairs);
- 
- 	if (pool)
+@@ -6064,6 +6064,21 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
+ 	if (!prog && !old_prog)
  		return 0;
-@@ -5959,10 +5959,11 @@ err_sq:
- err_rq:
- 	xsk_pool_dma_unmap(pool, 0);
- err_xsk_map:
--	virtqueue_unmap_single_attrs(rq->vq, hdr_dma, vi->hdr_len,
-+	virtqueue_unmap_single_attrs(sq->vq, hdr_dma, vi->hdr_len,
- 				     DMA_TO_DEVICE, 0);
- err_free_buffs:
- 	kvfree(rq->xsk_buffs);
-+	rq->xsk_buffs = NULL;
- 	return err;
- }
  
-@@ -5974,7 +5975,12 @@ static int virtnet_xsk_pool_disable(struct net_device *dev, u16 qid)
- 	struct send_queue *sq;
- 	int err;
- 
--	if (qid >= vi->curr_queue_pairs)
-+	/* rq/sq are sized by max_queue_pairs.  Allow cleanup even if
-+	 * curr_queue_pairs has shrunk below qid (e.g. after XDP detach),
-+	 * otherwise disable fails, leaks mappings/xsk_buffs, and leaves
-+	 * dangling rq/sq->xsk_pool pointers to a soon-to-be-freed pool.
++	/* ethtool channel shrink is gated on xsk_get_pool_from_qid(), but
++	 * XDP detach shrinks curr_queue_pairs here without that check.
++	 * Refusing the shrink keeps AF_XDP queues active until the socket
++	 * unbinds them.
 +	 */
-+	if (qid >= vi->max_queue_pairs)
- 		return -EINVAL;
- 
- 	sq = &vi->sq[qid];
-@@ -5985,11 +5991,17 @@ static int virtnet_xsk_pool_disable(struct net_device *dev, u16 qid)
- 	err = virtnet_rq_bind_xsk_pool(vi, rq, NULL);
- 	err |= virtnet_sq_bind_xsk_pool(vi, sq, NULL);
- 
--	xsk_pool_dma_unmap(pool, 0);
-+	if (pool)
-+		xsk_pool_dma_unmap(pool, 0);
-+
-+	if (sq->xsk_hdr_dma_addr) {
-+		virtqueue_unmap_single_attrs(sq->vq, sq->xsk_hdr_dma_addr,
-+					     vi->hdr_len, DMA_TO_DEVICE, 0);
-+		sq->xsk_hdr_dma_addr = 0;
++	if (curr_qp + xdp_qp < vi->curr_queue_pairs) {
++		for (i = curr_qp + xdp_qp; i < vi->curr_queue_pairs; i++) {
++			if (vi->rq[i].xsk_pool || vi->sq[i].xsk_pool) {
++				NL_SET_ERR_MSG_MOD(extack,
++						   "Cannot reduce queues while AF_XDP is bound");
++				return -EBUSY;
++			}
++		}
 +	}
++
+ 	if (prog)
+ 		bpf_prog_add(prog, vi->max_queue_pairs - 1);
  
--	virtqueue_unmap_single_attrs(sq->vq, sq->xsk_hdr_dma_addr,
--				     vi->hdr_len, DMA_TO_DEVICE, 0);
- 	kvfree(rq->xsk_buffs);
-+	rq->xsk_buffs = NULL;
- 
- 	return err;
- }
 -- 
 2.43.0
 
