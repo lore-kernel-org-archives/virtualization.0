@@ -1,232 +1,870 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8928648551A
-	for <virtualization@lists.linux.dev>; Fri,  7 Aug 2026 13:14:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5698E312832
+	for <virtualization@lists.linux.dev>; Fri,  7 Aug 2026 14:09:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786108451; cv=none; b=G2V41m4Bs8eywPbgGT7j6tOy4Qnl0bnFRjmEGv8Dfu/VHg5aHvxqSIDUVBTUmtvvCkbOwUNIuH65haiYCYsRmEJefa/MEu6OSTbBPA/iQaujPc49VyCvNKsWXkgTyNsjHEC/3btJGNqhbhTpEp0p1oUv789t/rj1yY5nvuXcilo=
+	t=1786111772; cv=none; b=j/70Zn2lWl2OLdLEYlKa2IIefjzbcDhi2L9HXx1coblSP7H0AYbZU67zj+fBJmOaNdLn6XMEB3e5+ty37UkAhZQUVP59pAmgAnGby48aSW1IdtKdx35qmCRwpCUnb6Gr3Hgh2QYKfr7G6woK/dX4f6xWgtq5OTLeBvjFMIt/ffY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786108451; c=relaxed/simple;
-	bh=WzpJDU9FbKqDMi0AmEFKjRX4c4fT3hvj8KwBS7N71qQ=;
+	s=arc-20240116; t=1786111772; c=relaxed/simple;
+	bh=TlmwLf3trg9BQ0veZ2mCsGdbH3a+ENRbJEVBcvSvaYE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=ORAUImFZSXVgfci76Uz12xpW4+8FvA6BpSRPI+nRL7M7fxq7DCn2P17n7pmnMRRIUAVxXlBfQAL5dmR1pyuw7QgSGWBMOJVFKMbVpeCtRyc7qrMq1Ms1FYZRogo/krX4McQSn6UE3lx+5UjmeEcMnkIThj9HcKs5oek8tZyumYE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=A2ddCFRd; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=aaWYlP49v9O1+UGvnRZFIr41qrxtVHgqjr5TtYEURMj7pDhtZc5Jj/V/qFXxxQr428tRGjGr/hQ2CCA1hcEPKYqNcQqLkc52cjEhiEgry+ZJoU9fTmLR2e3hoMg+43vGsHf/9rFoR3TOXb1YinAt5wxfap4WleBN5pZHyHiLJvk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hPAOdy0Z; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="A2ddCFRd"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hPAOdy0Z"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1786108437;
+	s=mimecast20190719; t=1786111764;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=xUbzS3I8i6QFWa+8ZY5NS44GUz1hHJ0wwcZwZwY6pas=;
-	b=A2ddCFRdZBU53EgewIoEwjpBvMk8TkVNoHVo0s0IGBzeO0UXKw/NEtzZJQ3RaeBwHbpsG2
-	YnaCCZrpjzitbBlXb4QQVeiL3QTmNMweHSS0EZ9NHwGH1f0X+vzBW5dtxz3wPnBQEiCvEd
-	7uG+1XPnNoibXIGNh8QDxQwy1Eu1fkE=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=Eov3BeVvHFt//8xlh3ZDGtY67Cw28KsQxUVsXyTOjcU=;
+	b=hPAOdy0ZDLwkBa7D6ViRBPUOPi9fWBsACMvZ3Lj48FxAS864cQFKWIqBMllIoTWATqfVZB
+	txPzJ7adwywpWKDMsWsOzrrij8Cnwo2a361GhQYvkdTimMNwJzxOgbuSbaDgBYcCE8rB/b
+	pNnwqf75fZvgci/s7b47t8gzmf59YEQ=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-91-azAdvyIKMAmQo_nF6KJ0AQ-1; Fri, 07 Aug 2026 09:13:54 -0400
-X-MC-Unique: azAdvyIKMAmQo_nF6KJ0AQ-1
-X-Mimecast-MFC-AGG-ID: azAdvyIKMAmQo_nF6KJ0AQ_1786108433
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-493a7fa8481so13595925e9.1
-        for <virtualization@lists.linux.dev>; Fri, 07 Aug 2026 06:13:53 -0700 (PDT)
+ us-mta-618-pFakVU28Pvue1bpKroHqhA-1; Fri, 07 Aug 2026 10:09:22 -0400
+X-MC-Unique: pFakVU28Pvue1bpKroHqhA-1
+X-Mimecast-MFC-AGG-ID: pFakVU28Pvue1bpKroHqhA_1786111753
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-47fecbb553bso2689536f8f.2
+        for <virtualization@lists.linux.dev>; Fri, 07 Aug 2026 07:09:13 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786108433; x=1786713233;
+        d=1e100.net; s=20251104; t=1786111753; x=1786716553;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=xUbzS3I8i6QFWa+8ZY5NS44GUz1hHJ0wwcZwZwY6pas=;
-        b=Ot0EbHr8KZ3AeEOlnGvraBwMXWeb8eYOq47Tv1t92Ejqo5iGid6D8/6sZujzzxCwpK
-         z00HV2nJ/xXXZi/OuAtrUGdHnEJ9KXHjlOGxY+Nl89wt3XtzFTFrLoHCihxe1NHDMJeW
-         7T61Id6FHGinJ2uHznMU3YndTI7yEAMsWbrjlGYenVRNMqQJLDy7kYYl4iB1FPLG6vfJ
-         P8GYgZrmcPYq0n+KVSd8PZle8ZBQvH+gPeYP1XmRES4gp/GuMc6T/7S9TRLzL4aD/s+t
-         vR/cKFTNFmHpwq6s8y1v7yY2lDWi8Wd5qPG23T51CurQ3kgQTA6ZJaEmhHQZXATkgagY
-         qfWA==
-X-Forwarded-Encrypted: i=1; AHgh+RpoJNDTR0FLKJ9/mGVVw3FmECIV4Apw07TmpIjzqmAkeXSZE/PQRuOPk9ev7TfFVXNJ3BS88FLdGI+5Ryko6Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzX+DVVfw3E5CxR7eh5Vd8x1Sjr0NV/dT1N3gNbXeosGACaZSHV
-	U8CKIMV3Edg+vmtob/VUdUTAatkZJBsKTcRXkUoyPtSFVsXFtOw+tOxVC3osEDz8A/v5rZkoYWk
-	/vpyizI42Ysb2d0F5pNgtsmj7wlWRM7cK5hNdc6yeniHUspCSqIRTkjo3ctG/OIyR6YLu
-X-Gm-Gg: AR+sD13M9UVDd7fb6TRsGKvamUib47CaX79AUrn3MBQpH7ZHoyerBez+gf15zIW1UHC
-	XHtIzoRn79b8k0NaIPnUIjsW3a3NA6jGhHNtVwY9U3PdtreFyTMiY/hX4sz6iUnr9b8vqVBFjLP
-	9H6ye7dZiB7eMf9xz5YLgVMxKunBwz2COlWuj2bt5ir86RSrOlMMGYQK2NxfUEKPkTsTKkcYJHP
-	S+2eE2uq5iH4G46/3Xa+aN+X1Zlq9SxnioIVEhafiiBtfO5jWuayeO2cXs242s2xv44FDpz/G82
-	GRVZZbgnn3RmAC45XSR41ZxmWD6xpaWgX45TpmPgbZyu3liBblRmokcGQf2eS8xfVMxXCa90uxK
-	wiw==
-X-Received: by 2002:a05:600c:a48:b0:495:69eb:27d3 with SMTP id 5b1f17b1804b1-499553f4c4cmr145495185e9.8.1786108432785;
-        Fri, 07 Aug 2026 06:13:52 -0700 (PDT)
-X-Received: by 2002:a05:600c:a48:b0:495:69eb:27d3 with SMTP id 5b1f17b1804b1-499553f4c4cmr145494565e9.8.1786108432334;
-        Fri, 07 Aug 2026 06:13:52 -0700 (PDT)
+        bh=Eov3BeVvHFt//8xlh3ZDGtY67Cw28KsQxUVsXyTOjcU=;
+        b=SvoH5n3mJKA3VqiGiu1CjyKYojT0V2NR4RCp0yKdnqhM3x2gHEyyRYfZQ4Kit3qdqO
+         rXKqAkLZ6GMVEUrOoqq5/R65SIrbkC7CG1jTb0+7DYGypb1jyTe47oCfKXUWni3w2UlA
+         TLBu5UlGfygFAcoOMLR7u10a+7QtBpRXBVh/DLRgUvqm4Ox8D/u47nNH3YGGznv0Bwgr
+         ShsD1GAuJPdVo4IuCxfbWgRzbTpwDZC1P8M6L2xj+hL4hGfOm77c8QfblQ03Bdc84G2q
+         12/9bs6ZfGlI2wdhUGpZblMnls/4fqOKDkSc+6t+RiWhsWnV+Csv5tFoec9Y+fDy46Wh
+         E6WQ==
+X-Forwarded-Encrypted: i=1; AHgh+Ro3JKyYnrrwZb1xhxvy2+iiF0s5wat6HGP90wyImJ19mWNNmN6czp972CZGKkZkTr1mOECGk2ibCTPrcbWvKg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz1zYU//4n/k8yzVXyMaDI50x3bcaDBHfG8lwukLCTyRh0FVxtA
+	ceNnM+JFskmw4W0qrTMGehLl3vc6KMFSGX2snBfxmGVFe2/PgCVEsBy0B2UneuyJatmhdJHjdA2
+	TsseLXNZ/x2wjiMJawL1vCEdKnyDmvYvtgGHVbLS9hq6b/0Pszz1KeqWLPke9nl5PJcWF
+X-Gm-Gg: AR+sD12Lt5bbwleCaNBxxNhqTEU8px5ifqd85FHa7Ru922bko1vSA9/cQCo/5uWDjIX
+	L0CBLChfXZWNOk7qf+LrRrqZjVqmWMhkILtv91h+hpTU+B17KfTaoCkkDc5/0EkRG39M/fOhmjb
+	9cVrznC0csvu1yElcn7ZxpEUWmPRy8BiuAf7hh//xiKSLnpKA7mIfRn05qzoJX1d0aFrMA3ueyp
+	ZsTlIih4hfn4jYhLjhmdSdLQFQsNypKB1pKgkUt/kWyhLszkNPGr0878B0jTIYyngz95DVPPny1
+	Xo2hz0TtZlbJOuoAm434GkE1ZA7NBq7/zZfhKVFqoCW4KgZjYuTU7AoOmCIQmNAcRzCqkQKNLnz
+	eag==
+X-Received: by 2002:a5d:68c9:0:b0:474:18d9:8371 with SMTP id ffacd0b85a97d-47fec6359c1mr25283063f8f.28.1786111752473;
+        Fri, 07 Aug 2026 07:09:12 -0700 (PDT)
+X-Received: by 2002:a5d:68c9:0:b0:474:18d9:8371 with SMTP id ffacd0b85a97d-47fec6359c1mr25282961f8f.28.1786111751715;
+        Fri, 07 Aug 2026 07:09:11 -0700 (PDT)
 Received: from sgarzare-redhat ([5.77.96.150])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4995bdca3ddsm51398005e9.1.2026.08.07.06.13.40
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-480021f8b9bsm6990792f8f.25.2026.08.07.07.09.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 07 Aug 2026 06:13:51 -0700 (PDT)
-Date: Fri, 7 Aug 2026 15:13:35 +0200
+        Fri, 07 Aug 2026 07:09:10 -0700 (PDT)
+Date: Fri, 7 Aug 2026 16:09:03 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
-To: Chaithanya Lagisetty <nagachaithanya9911@gmail.com>, 
-	phind.uet@gmail.com
-Cc: "David S . Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	"Michael S . Tsirkin" <mst@redhat.com>, Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>, 
-	Asias He <asias@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
-	virtualization@lists.linux.dev, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	syzbot+53515d23498d641e21ea@syzkaller.appspotmail.com
-Subject: Re: [PATCH] vsock: fix memory leak of rejected child sockets in
- vsock_accept()
-Message-ID: <anXZQSE4Bh8ilEHo@sgarzare-redhat>
-References: <20260807114804.320862-1-nagachaithanya9911@gmail.com>
+To: Manos Pitsidianakis <manos@pitsidianak.is>
+Cc: Miguel Ojeda <ojeda@kernel.org>, 
+	Manos Pitsidianakis <manos.pitsidianakis@linaro.org>, Peter Hilber <peter.hilber@oss.qualcomm.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, Viresh Kumar <viresh.kumar@linaro.org>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Boqun Feng <boqun@kernel.org>, Gary Guo <gary@garyguo.net>, 
+	=?utf-8?B?QmrDtnJu?= Roy Baron <bjorn3_gh@protonmail.com>, Benno Lossin <lossin@kernel.org>, 
+	Andreas Hindborg <a.hindborg@kernel.org>, Alice Ryhl <aliceryhl@google.com>, 
+	Trevor Gross <tmgross@umich.edu>, Danilo Krummrich <dakr@kernel.org>, 
+	Daniel Almeida <daniel.almeida@collabora.com>, rust-for-linux@vger.kernel.org, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH RFC v3 4/6] rust: add virtio module
+Message-ID: <anXddihIKoU9ZxmT@sgarzare-redhat>
+References: <20260510-rust-virtio-v3-0-1427f14d67e1@pitsidianak.is>
+ <20260510-rust-virtio-v3-4-1427f14d67e1@pitsidianak.is>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260807114804.320862-1-nagachaithanya9911@gmail.com>
+In-Reply-To: <20260510-rust-virtio-v3-4-1427f14d67e1@pitsidianak.is>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: -sO0XBEhEx6pwX4EEr0dGkk7uKr41-hvuVQpcaKfRqo_1786108433
+X-Mimecast-MFC-PROC-ID: lIUjIR-B7C8C4kRg-5WU7mxFPa-TVRP31XAKVpIAee0_1786111753
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
 
-On Fri, Aug 07, 2026 at 11:48:04AM +0000, Chaithanya Lagisetty wrote:
->When a listener socket carries an error (e.g. sk_err set by a connect()
->issued on the socket before listen()), vsock_accept() dequeues the child
->from the accept queue but rejects it. Previously it only marked the child
->as rejected and relied on vsock_pending_work() to clean it up. However,
->rejected child sockets created through virtio_transport and vsock_loopback
->never reach that cleanup path, causing the child socket, along with its
->LSM blob and transport-specific state, to leak permanently.
+On Sun, May 10, 2026 at 04:38:17PM +0300, Manos Pitsidianakis wrote:
+>Add module that exposes bindings for the virtio API.
 >
->Fix this by releasing the child's references directly in vsock_accept()
->on the reject path: remove it from the connected table and drop the
->references taken by sk_alloc(), __vsock_insert_connected() and
->vsock_enqueue_accept(), so the socket reaches vsock_sk_destruct() and is
->freed. The now-unused 'rejected' flag and its handling in
->vsock_pending_work() are removed.
->
->Fixes: 06a8fc78367d ("VSOCK: Introduce virtio_vsock_common.ko")
->Reported-by: syzbot+53515d23498d641e21ea@syzkaller.appspotmail.com
->Closes: https://syzkaller.appspot.com/bug?extid=53515d23498d641e21ea
->Signed-off-by: Chaithanya Lagisetty <nagachaithanya9911@gmail.com>
+>Signed-off-by: Manos Pitsidianakis <manos@pitsidianak.is>
 >---
-> include/net/af_vsock.h   |  4 +---
-> net/vmw_vsock/af_vsock.c | 38 ++++++++++++++++++++------------------
-> 2 files changed, 21 insertions(+), 21 deletions(-)
+> MAINTAINERS                     |   2 +
+> rust/kernel/lib.rs              |   2 +
+> rust/kernel/virtio.rs           | 423 ++++++++++++++++++++++++++++++++++++++++
+> rust/kernel/virtio/utils.rs     |  57 ++++++
+> rust/kernel/virtio/virtqueue.rs | 314 +++++++++++++++++++++++++++++
+> 5 files changed, 798 insertions(+)
+>
+>diff --git a/MAINTAINERS b/MAINTAINERS
+>index 48c9c666d90b5a256ab6fae1f42508b789a0ce50..e8012f708df5d4ee858c82aec3269e615fc8caad 100644
+>--- a/MAINTAINERS
+>+++ b/MAINTAINERS
+>@@ -27935,6 +27935,8 @@ M:	Manos Pitsidianakis <manos@pitsidianak.is>
+> L:	virtualization@lists.linux.dev
+> S:	Maintained
+> F:	rust/helpers/virtio.c
+>+F:	rust/kernel/virtio.rs
+>+F:	rust/kernel/virtio/
+>
+> VIRTIO CRYPTO DRIVER
+> M:	Gonglei <arei.gonglei@huawei.com>
+>diff --git a/rust/kernel/lib.rs b/rust/kernel/lib.rs
+>index d93292d47420f1f298a452ade5feefedce5ade86..061394f441dfa27f99939b5c4160e4161a7eaa1e 100644
+>--- a/rust/kernel/lib.rs
+>+++ b/rust/kernel/lib.rs
+>@@ -161,6 +161,8 @@
+> pub mod uaccess;
+> #[cfg(CONFIG_USB = "y")]
+> pub mod usb;
+>+#[cfg(CONFIG_VIRTIO = "y")]
+>+pub mod virtio;
+> pub mod workqueue;
+> pub mod xarray;
+>
+>diff --git a/rust/kernel/virtio.rs b/rust/kernel/virtio.rs
+>new file mode 100644
+>index 0000000000000000000000000000000000000000..a5a4e2cfec55bc7cbca0d42b198fde6cd2b25f1c
+>--- /dev/null
+>+++ b/rust/kernel/virtio.rs
+>@@ -0,0 +1,423 @@
+>+// SPDX-License-Identifier: GPL-2.0
+>+
+>+//! VIRTIO abstraction.
+>+//!
+>+//! To implement a VIRTIO driver:
+>+//!
+>+//! - Implement the [`Driver`] trait for your driver type (use [`virtio_device_table`] macro to
+>+//!   declare the `ID_TABLE` associated item)
+>+//! - Use the [`module_virtio_driver`] macro to declare your module
+>+
+>+use crate::{
+>+    bindings,
+>+    device_id::RawDeviceId,
+>+    error::{
+>+        from_result,
+>+        to_result,
+>+        Error,
+>+        Result, //
+>+    },
+>+    ffi::c_uint,
+>+    prelude::*,
+>+    types::Opaque, //
+>+};
+>+
+>+use core::{
+>+    marker::PhantomData,
+>+    pin::Pin,
+>+    ptr::NonNull, //
+>+};
+>+
+>+pub mod utils;
+>+pub mod virtqueue;
+>+
+>+/// IdTable type for virtio drivers.
+>+pub type IdTable<T> = &'static dyn crate::device_id::IdTable<DeviceId, T>;
+>+
+>+/// A VIRTIO device id.
+>+///
+>+/// [`struct virtio_device_id`]: srctree/include/linux/mod_devicetable.h
+>+#[repr(transparent)]
+>+#[derive(Clone, Copy)]
+>+pub struct DeviceId(bindings::virtio_device_id);
+>+
+>+// SAFETY: `DeviceId` is a `#[repr(transparent)]` wrapper of `struct virtio_device_id` and
+>+// does not add additional invariants, so it's safe to transmute to `RawType`.
+>+unsafe impl RawDeviceId for DeviceId {
+>+    type RawType = bindings::virtio_device_id;
+>+}
+>+
+>+impl DeviceId {
+>+    #[inline]
+>+    /// Create a new device id
+>+    pub const fn new(device: VirtioID) -> Self {
+>+        Self::new_with_vendor(device, VIRTIO_DEV_ANY_ID)
+>+    }
+>+
+>+    #[inline]
+>+    /// Create a new device id with vendor
+>+    pub const fn new_with_vendor(device: VirtioID, vendor: u32) -> Self {
+>+        // Replace with `bindings::virtio_device_id::default()` once stabilized for `const`.
+>+        // SAFETY: FFI type is valid to be zero-initialized.
+>+        let mut ret: bindings::virtio_device_id = unsafe { core::mem::zeroed() };
+>+        ret.device = device as u32;
+>+        ret.vendor = vendor;
+>+        Self(ret)
+>+    }
+>+}
+>+
+>+/// Create a virtio `IdTable` with its alias for modpost.
+>+#[macro_export]
+>+macro_rules! virtio_device_table {
+>+    ($table_name:ident, $module_table_name:ident, $id_info_type: ty, $table_data:expr) => {
+>+        const $table_name: $crate::device_id::IdArray<
+>+            $crate::virtio::DeviceId,
+>+            $id_info_type,
+>+            { $table_data.len() },
+>+        > = $crate::device_id::IdArray::new_without_index($table_data);
+>+
+>+        $crate::module_device_table!("virtio", $module_table_name, $table_name);
+>+    };
+>+}
+>+
+>+/// Declares a kernel module that exposes a single virtio driver.
+>+#[macro_export]
+>+macro_rules! module_virtio_driver {
+>+($($f:tt)*) => {
+>+    $crate::module_driver!(<T>, $crate::virtio::Adapter<T>, { $($f)* });
+>+};
+>+}
+>+
+>+/// The Virtio driver trait.
+>+///
+>+/// Drivers must implement this trait in order to get a virtio driver registered.
+>+pub trait Driver: Send {
+>+    /// The type holding information about each device id supported by the driver.
+>+    // TODO: Use `associated_type_defaults` once stabilized:
+>+    //
+>+    // ```
+>+    // type IdInfo: 'static = ();
+>+    // ```
+>+    type IdInfo: 'static;
+>+
+>+    /// The table of device ids supported by the driver.
+>+    const ID_TABLE: IdTable<Self::IdInfo>;
+>+
+>+    /// virtio driver probe.
+>+    ///
+>+    /// Called when a new virtio device is added or discovered. Implementers should
+>+    /// attempt to initialize the device here, but should try not sleep since driver data is set
+>+    /// after this method returns successfully.
+>+    fn probe(dev: &Device<crate::device::Core>) -> impl PinInit<Self, Error>;
+>+
+>+    /// virtio driver init.
+>+    ///
+>+    /// Called after a virtio device is probed successfully, can sleep.
+>+    fn init(&self, dev: &Device<crate::device::Bound>) -> Result;
+>+
+>+    /// virtio driver remove.
+>+    ///
+>+    /// Called when a [`Device`] is removed from its [`Driver`]. Implementing this callback
+>+    /// is optional.
+>+    ///
+>+    /// This callback serves as a place for drivers to perform teardown operations that require a
+>+    /// `&Device<Core>` or `&Device<Bound>` reference. For instance, drivers may try to perform I/O
+>+    /// operations to gracefully tear down the device.
+>+    ///
+>+    /// Otherwise, release operations for driver resources should be performed in `Self::drop`.
+>+    fn remove(dev: &Device<crate::device::Core>, this: Pin<&Self>) {
+>+        _ = (dev, this);
+>+    }
+>+}
+>+
+>+/// Abstraction for the virtio device structure (`struct virtio_device`).
+>+///
+>+/// [`struct virtio_device`]: srctree/include/linux/virtio.h
+>+#[repr(transparent)]
+>+pub struct Device<Ctx: crate::device::DeviceContext = crate::device::Normal>(
+>+    Opaque<bindings::virtio_device>,
+>+    PhantomData<Ctx>,
+>+);
+>+
+>+impl<Ctx: crate::device::DeviceContext> Device<Ctx> {
+>+    #[inline]
+>+    fn as_raw(&self) -> *mut bindings::virtio_device {
+>+        self.0.get()
+>+    }
+>+}
+>+
+>+// SAFETY: `virtio::Device` is a transparent wrapper of `struct virtio_device`.
+>+// The offset is guaranteed to point to a valid device field inside `virtio::Device`.
+>+unsafe impl<Ctx: crate::device::DeviceContext> crate::device::AsBusDevice<Ctx> for Device<Ctx> {
+>+    const OFFSET: usize = core::mem::offset_of!(bindings::virtio_device, dev);
+>+}
+>+
+>+// SAFETY: `Device` is a transparent wrapper of a type that doesn't depend on `Device`'s generic
+>+// argument.
+>+kernel::impl_device_context_deref!(unsafe { Device });
+>+
+>+impl<Ctx: crate::device::DeviceContext> Device<Ctx> {
+>+    // TODO: return VirtioID
+>+    /// Returns the virtio device ID.
+>+    #[inline]
+>+    pub fn device_id(&self) -> u32 {
+>+        // SAFETY: By its type invariant `self.as_raw` is always a valid pointer to a
+>+        // `struct virtio_device`.
+>+        unsafe { (*self.as_raw()).id.device }
+>+    }
+>+
+>+    /// Returns the virtio vendor ID.
+>+    #[inline]
+>+    pub fn vendor_id(&self) -> u32 {
+>+        // SAFETY: `self.as_raw` is a valid pointer to a `struct virtio_device`.
+>+        unsafe { (*self.as_raw()).id.vendor }
+>+    }
+>+
+>+    /// Reset device.
+>+    #[doc(alias = "virtio_reset_device")]
+>+    #[inline]
+>+    pub fn reset(&self) {
+>+        // SAFETY: By its type invariant `self.as_raw` is always a valid pointer to a
+>+        // `struct virtio_device`.
+>+        unsafe { bindings::virtio_reset_device(self.as_raw()) }
+>+    }
+>+
+>+    /// Mark device as ready.
+>+    #[doc(alias = "virtio_device_ready")]
+>+    #[inline]
+>+    pub fn ready(&self) {
+>+        // SAFETY: By its type invariant `self.as_raw` is always a valid pointer to a
+>+        // `struct virtio_device`.
+>+        unsafe { bindings::virtio_device_ready(self.as_raw()) }
+>+    }
+>+
+>+    /// Return virtqueues for this device.
+>+    #[doc(alias = "virtio_find_vqs")]
+>+    pub fn find_vqs(&self, info: &[virtqueue::VirtqueueInfo]) -> Result<virtqueue::Virtqueues> {
+>+        let mut vqs = KVec::with_capacity(info.len(), GFP_KERNEL)?;
+>+        // SAFETY: By its type invariant `self.as_raw` is always a valid pointer to a
+>+        // `struct virtio_device`.
+>+        to_result(unsafe {
+>+            bindings::virtio_find_vqs(
+>+                self.as_raw(),
+>+                info.len().try_into()?,
+>+                vqs.spare_capacity_mut().as_mut_ptr().cast(),
+>+                info.as_ptr().cast_mut().cast(),
+>+                core::ptr::null_mut(),
+>+            )
+>+        })?;
+>+        // SAFETY: virtio_find_vqs returned successfully so `vqs` must be populated.
+>+        unsafe { vqs.inc_len(info.len()) };
+>+        let mut inner = KVec::with_capacity(vqs.len(), GFP_KERNEL)?;
+>+        for vq in vqs {
+>+            inner.push(NonNull::new(vq).ok_or(EINVAL)?, GFP_KERNEL)?;
+>+        }
+>+        Ok(virtqueue::Virtqueues { inner })
+>+    }
+>+
+>+    /// Delete virtqueues from this device.
+>+    pub(crate) fn del_vqs(&self) {
+>+        // SAFETY: By its type invariant `self.as_raw` is always a valid pointer to a
+>+        // `struct virtio_device`.
+>+        let config = unsafe { (*self.as_raw()).config };
+>+        // SAFETY: `config` points to a valid virtqueue config struct.
+>+        if let Some(del_vqs) = unsafe { (*config).del_vqs } {
+>+            // SAFETY: By its type invariant `self.as_raw` is always a valid pointer to a
+>+            // `struct virtio_device`.
+>+            unsafe { del_vqs(self.as_raw()) }
+>+        }
+>+    }
+>+
+>+    /// Checks if the device has a feature bit.
+>+    #[inline]
+>+    pub fn has_feature(&self, fbit: c_uint) -> bool {
+>+        // SAFETY: By its type invariant `self.as_raw` is always a valid pointer to a
+>+        // `struct virtio_device`.
+>+        unsafe { bindings::virtio_has_feature(self.as_raw(), fbit) }
+>+    }
+>+}
+>+
+>+impl<Ctx: crate::device::DeviceContext> AsRef<crate::device::Device<Ctx>> for Device<Ctx> {
+>+    #[inline]
+>+    fn as_ref(&self) -> &crate::device::Device<Ctx> {
+>+        // SAFETY: By the type invariant of `Self`, `self.as_raw()` is a pointer to a valid
+>+        // `struct virtio_device`.
+>+        let dev = unsafe { core::ptr::addr_of_mut!((*self.as_raw()).dev) };
+>+
+>+        // SAFETY: `dev` points to a valid `struct device`.
+>+        unsafe { crate::device::Device::from_raw(dev) }
+>+    }
+>+}
+>+
+>+/// An adapter for the registration of virtio drivers.
+>+pub struct Adapter<T: Driver>(T);
+>+
+>+// SAFETY:
+>+// - `bindings::virtio_driver` is a C type declared as `repr(C)`.
+>+// - `T` is the type of the driver's device private data.
+>+// - `struct virtio_driver` embeds a `struct device_driver`.
+>+// - `DEVICE_DRIVER_OFFSET` is the correct byte offset to the embedded `struct device_driver`.
+>+unsafe impl<T: Driver + 'static> crate::driver::DriverLayout for Adapter<T> {
+>+    type DriverType = bindings::virtio_driver;
+>+    type DriverData = T;
+>+    const DEVICE_DRIVER_OFFSET: usize = core::mem::offset_of!(Self::DriverType, driver);
+>+}
+>+
+>+// SAFETY: A call to `unregister` for a given instance of `DriverType` is guaranteed to be valid if
+>+// a preceding call to `register` has been successful.
+>+unsafe impl<T: Driver + 'static> crate::driver::RegistrationOps for Adapter<T> {
+>+    unsafe fn register(
+>+        vdrv: &Opaque<Self::DriverType>,
+>+        name: &'static CStr,
+>+        module: &'static ThisModule,
+>+    ) -> Result {
+>+        // SAFETY: It's safe to set the fields of `struct virtio_driver` on initialization.
+>+        unsafe {
+>+            (*vdrv.get()).driver.name = name.as_char_ptr();
+>+            (*vdrv.get()).id_table = T::ID_TABLE.as_ptr();
+>+            (*vdrv.get()).probe = Some(Self::probe_callback);
+>+            (*vdrv.get()).remove = Some(Self::remove_callback);
+>+        }
+>+
+>+        // SAFETY: `vdrv` is guaranteed to be a valid `DriverType`.
+>+        to_result(unsafe { bindings::__register_virtio_driver(vdrv.get(), module.0) })
+>+    }
+>+
+>+    unsafe fn unregister(vdrv: &Opaque<Self::DriverType>) {
+>+        // SAFETY: `vdrv` is guaranteed to be a valid `DriverType`.
+>+        unsafe { bindings::unregister_virtio_driver(vdrv.get()) }
+>+    }
+>+}
+>+
+>+impl<T: Driver + 'static> Adapter<T> {
+>+    extern "C" fn probe_callback(vdev: *mut bindings::virtio_device) -> c_int {
+>+        // SAFETY: The kernel only ever calls the probe callback with a valid pointer to a `struct
+>+        // virtio_device`.
+>+        //
+>+        // INVARIANT: `vdev` is valid for the duration of `probe_callback()`.
+>+        let dev = unsafe { &*vdev.cast::<Device<crate::device::CoreInternal>>() };
+>+        from_result(|| {
+>+            let data = T::probe(dev);
+>+
+>+            dev.as_ref().set_drvdata(data)?;
+>+            // SAFETY: `Device::set_drvdata()` was just called so it's safe to borrow the data.
+>+            let data = unsafe { dev.as_ref().drvdata_borrow::<T>() };
+>+            dev.ready();
+>+            if let Err(err) = T::init(&data, dev) {
+>+                // SAFETY: `Device::set_drvdata()` was just called so it's safe to re-obtain the
+>+                // data.
+>+                let data = unsafe { dev.as_ref().drvdata_obtain::<T>() }.unwrap();
+>+                T::remove(dev, data.as_ref());
+>+                drop(data);
+>+                return Err(err);
+>+            }
+>+            Ok(0)
+>+        })
+>+    }
+>+
+>+    extern "C" fn remove_callback(vdev: *mut bindings::virtio_device) {
+>+        // SAFETY: The kernel only ever calls the remove callback with a valid pointer to a `struct
+>+        // virtio_device`.
+>+        //
+>+        // INVARIANT: `vdev` is valid for the duration of `remove_callback()`.
+>+        let dev = unsafe { &*vdev.cast::<Device<crate::device::CoreInternal>>() };
+>+
+>+        // SAFETY: `remove_callback` is only ever called after a successful call to
+>+        // `probe_callback`, hence it's guaranteed that `Device::set_drvdata()` has been called
+>+        // and stored a `Pin<KBox<T>>`.
+>+        let data = unsafe { dev.as_ref().drvdata_borrow::<T>() };
+>+
+>+        T::remove(dev, data);
+>+        dev.reset();
+>+    }
+>+}
+>+
+>+/// Any vendor
+>+pub const VIRTIO_DEV_ANY_ID: u32 = 0xffffffff;
+>+
+>+/// Virtio IDs
+>+///
+>+/// C header: [`include/uapi/linux/virtio_ids.h`](srctree/include/uapi/linux/virtio_ids.h)
+>+#[repr(u32)]
+>+pub enum VirtioID {
+>+    /// virtio net
+>+    Net = bindings::VIRTIO_ID_NET,
+>+    /// virtio block
+>+    Block = bindings::VIRTIO_ID_BLOCK,
+>+    /// virtio console
+>+    Console = bindings::VIRTIO_ID_CONSOLE,
+>+    /// virtio rng
+>+    Rng = bindings::VIRTIO_ID_RNG,
+>+    /// virtio balloon
+>+    Balloon = bindings::VIRTIO_ID_BALLOON,
+>+    /// virtio ioMemory
+>+    IOMem = bindings::VIRTIO_ID_IOMEM,
+>+    /// virtio remote processor messaging
+>+    RPMSG = bindings::VIRTIO_ID_RPMSG,
+>+    /// virtio scsi
+>+    Scsi = bindings::VIRTIO_ID_SCSI,
+>+    /// 9p virtio console
+>+    NineP = bindings::VIRTIO_ID_9P,
+>+    /// virtio WLAN MAC
+>+    Mac80211Wlan = bindings::VIRTIO_ID_MAC80211_WLAN,
+>+    /// virtio remoteproc serial link
+>+    RPROCSerial = bindings::VIRTIO_ID_RPROC_SERIAL,
+>+    /// Virtio caif
+>+    CAIF = bindings::VIRTIO_ID_CAIF,
+>+    /// virtio memory balloon
+>+    MemoryBalloon = bindings::VIRTIO_ID_MEMORY_BALLOON,
+>+    /// virtio GPU
+>+    GPU = bindings::VIRTIO_ID_GPU,
+>+    /// virtio clock/timer
+>+    Clock = bindings::VIRTIO_ID_CLOCK,
+>+    /// virtio input
+>+    Input = bindings::VIRTIO_ID_INPUT,
+>+    /// virtio vsock transport
+>+    VSock = bindings::VIRTIO_ID_VSOCK,
+>+    /// virtio crypto
+>+    Crypto = bindings::VIRTIO_ID_CRYPTO,
+>+    /// virtio signal distribution device
+>+    SignalDist = bindings::VIRTIO_ID_SIGNAL_DIST,
+>+    /// virtio pstore device
+>+    Pstore = bindings::VIRTIO_ID_PSTORE,
+>+    /// virtio IOMMU
+>+    Iommu = bindings::VIRTIO_ID_IOMMU,
+>+    /// virtio mem
+>+    Mem = bindings::VIRTIO_ID_MEM,
+>+    /// virtio sound
+>+    Sound = bindings::VIRTIO_ID_SOUND,
+>+    /// virtio filesystem
+>+    FS = bindings::VIRTIO_ID_FS,
+>+    /// virtio pmem
+>+    PMem = bindings::VIRTIO_ID_PMEM,
+>+    /// virtio rpmb
+>+    RPMB = bindings::VIRTIO_ID_RPMB,
+>+    /// virtio mac80211-hwsim
+>+    Mac80211Hwsim = bindings::VIRTIO_ID_MAC80211_HWSIM,
+>+    /// virtio video encoder
+>+    VideoEncoder = bindings::VIRTIO_ID_VIDEO_ENCODER,
+>+    /// virtio video decoder
+>+    VideoDecoder = bindings::VIRTIO_ID_VIDEO_DECODER,
+>+    /// virtio SCMI
+>+    SCMI = bindings::VIRTIO_ID_SCMI,
+>+    /// virtio nitro secure module
+>+    NitroSecMod = bindings::VIRTIO_ID_NITRO_SEC_MOD,
+>+    /// virtio i2c adapter
+>+    I2CAdapter = bindings::VIRTIO_ID_I2C_ADAPTER,
+>+    /// virtio watchdog
+>+    Watchdog = bindings::VIRTIO_ID_WATCHDOG,
+>+    /// virtio can
+>+    CAN = bindings::VIRTIO_ID_CAN,
+>+    /// virtio dmabuf
+>+    DMABuf = bindings::VIRTIO_ID_DMABUF,
+>+    /// virtio parameter server
+>+    ParamServ = bindings::VIRTIO_ID_PARAM_SERV,
+>+    /// virtio audio policy
+>+    AudioPolicy = bindings::VIRTIO_ID_AUDIO_POLICY,
+>+    /// virtio bluetooth
+>+    BT = bindings::VIRTIO_ID_BT,
+>+    /// virtio gpio
+>+    GPIO = bindings::VIRTIO_ID_GPIO,
+>+    /// virtio spi
+>+    SPI = bindings::VIRTIO_ID_SPI,
+>+}
+>diff --git a/rust/kernel/virtio/utils.rs b/rust/kernel/virtio/utils.rs
+>new file mode 100644
+>index 0000000000000000000000000000000000000000..8dca373f10a6906b891a9420c13cd8e9e929c412
+>--- /dev/null
+>+++ b/rust/kernel/virtio/utils.rs
+>@@ -0,0 +1,57 @@
+>+// SPDX-License-Identifier: GPL-2.0
+>+
+>+//! Helper types and utilities
+>+
+>+macro_rules! endian_type {
+>+    ($old_type:ident, $new_type:ident, $to_new:ident, $from_new:ident) => {
+>+        /// An unsigned integer type of with an explicit endianness.
+>+        #[derive(Copy, Clone, Eq, PartialEq, Debug, Default, pin_init::Zeroable)]
+>+        #[repr(transparent)]
+>+        pub struct $new_type($old_type);
+>+
+>+        $crate::static_assert!(
+>+            ::core::mem::align_of::<$new_type>() == ::core::mem::align_of::<$old_type>()
+>+        );
+>+        $crate::static_assert!(
+>+            ::core::mem::size_of::<$new_type>() == ::core::mem::size_of::<$old_type>()
+>+        );
+>+
+>+        impl $new_type {
+>+            /// Convert to CPU/native endianness.
+>+            pub const fn to_cpu(self) -> $old_type {
+>+                $old_type::$from_new(self.0)
+>+            }
+>+        }
+>+
+>+        impl PartialEq<$old_type> for $new_type {
+>+            fn eq(&self, other: &$old_type) -> bool {
+>+                self.0 == $old_type::$to_new(*other)
+>+            }
+>+        }
+>+
+>+        impl PartialEq<$new_type> for $old_type {
+>+            fn eq(&self, other: &$new_type) -> bool {
+>+                $old_type::$to_new(other.0) == *self
+>+            }
+>+        }
+>+
+>+        impl From<$new_type> for $old_type {
+>+            fn from(v: $new_type) -> $old_type {
+>+                v.to_cpu()
+>+            }
+>+        }
+>+
+>+        impl From<$old_type> for $new_type {
+>+            fn from(v: $old_type) -> $new_type {
+>+                $new_type($old_type::$to_new(v))
+>+            }
+>+        }
+>+    };
+>+}
+>+
+>+endian_type!(u16, Le16, to_le, from_le);
+>+endian_type!(u32, Le32, to_le, from_le);
+>+endian_type!(u64, Le64, to_le, from_le);
+>+endian_type!(u16, Be16, to_be, from_be);
+>+endian_type!(u32, Be32, to_be, from_be);
+>+endian_type!(u64, Be64, to_be, from_be);
+>diff --git a/rust/kernel/virtio/virtqueue.rs b/rust/kernel/virtio/virtqueue.rs
+>new file mode 100644
+>index 0000000000000000000000000000000000000000..781326c1723eb67a8c62524795ba431141fea202
+>--- /dev/null
+>+++ b/rust/kernel/virtio/virtqueue.rs
+>@@ -0,0 +1,314 @@
+>+// SPDX-License-Identifier: GPL-2.0
+>+
+>+//! Virtqueue functionality.
+>+//!
+>+//! # Discovering virtqueues
+>+//!
+>+//! Inside your driver's [`kernel::virtio::Driver::probe`] method, call
+>+//! [`kernel::virtio::Device::find_vqs`] method with your [`VirtqueueInfo`] struct.
+>+//!
+>+//! # Passing data to virtqueues
+>+//!
+>+//! Create your data as owned [`SGTable`] with:
+>+//!
+>+//! - [`Virtqueue::new_readable_sgtable`] for data that can be read from the device, and
+>+//! - [`Virtqueue::new_writable_sgtable`] for data that can be written from the device
+>+//!
+>+//! These methods will make sure to create the scatter-gather tables and DMA map them to the
+>+//! appropriate VIRTIO transport.
+>+//!
+>+//! To add the tables to the virtqueue, call [`Virtqueue::add_sgs`].
+>+
+>+use crate::{
+>+    alloc::{
+>+        allocator::VmallocPageIter,
+>+        Flags, //
+>+    },
+>+    bindings,
+>+    device::Bound,
+>+    dma::DataDirection,
+>+    error::{
+>+        code::{
+>+            EINVAL,
+>+            ENOENT, //
+>+        },
+>+        to_result,
+>+        Error,
+>+        Result, //
+>+    },
+>+    page::AsPageIter,
+>+    prelude::*,
+>+    scatterlist::{
+>+        Owned,
+>+        SGTable, //
+>+    },
+>+    str::{
+>+        self,
+>+        CStr, //
+>+    },
+>+    types::Opaque,
+>+    virtio::Device, //
+>+};
+>+
+>+use core::{
+>+    ptr::NonNull, //
+>+};
+>+
+>+/// Info for a virtqueue.
+>+///
+>+/// [`struct virtqueue_info`]: srctree/include/linux/virtio_config.h
+>+#[doc(alias = "virtqueue_info")]
+>+#[repr(transparent)]
+>+pub struct VirtqueueInfo(Opaque<bindings::virtqueue_info>);
+>+
+>+impl VirtqueueInfo {
+>+    #[inline]
+>+    /// Create a new [`VirtqueueInfo`]
+>+    pub const fn new(
+>+        name: &'static CStr,
+>+        ctx: bool,
+>+        callback: Option<unsafe extern "C" fn(*mut bindings::virtqueue)>,
+>+    ) -> Self {
+>+        Self(Opaque::new(bindings::virtqueue_info {
+>+            name: str::as_char_ptr_in_const_context(name),
+>+            ctx,
+>+            callback,
+>+        }))
+>+    }
+>+}
+>+
+>+/// A container for discovered virtqueues returned by [`Device::find_vqs`] method.
+>+///
+>+/// This type dereferences to a `NonNull<Virtqueue>` slice.
+>+///
+>+/// It deletes the virtqueues when dropped.
+>+pub struct Virtqueues {
+>+    pub(crate) inner: KVec<NonNull<Virtqueue>>,
+>+}
+>+
+>+impl Drop for Virtqueues {
+>+    fn drop(&mut self) {
+>+        let inner = core::mem::take(&mut self.inner);
+>+        let Some(first) = inner.into_iter().next() else {
+>+            return;
+>+        };
+>+        let first_ref = unsafe { first.as_ref() };
+>+        let Ok(vdev) = first_ref.dev() else {
+>+            return;
+>+        };
+>+        vdev.del_vqs();
+>+    }
+>+}
+>+
+>+impl core::ops::Deref for Virtqueues {
+>+    type Target = [NonNull<Virtqueue>];
+>+
+>+    #[inline]
+>+    fn deref(&self) -> &Self::Target {
+>+        &self.inner
+>+    }
+>+}
+>+
+>+/// An opaque handler for a virtqueue.
+>+///
+>+/// [`struct virtqueue`]: srctree/include/linux/virtio.h
+>+#[repr(transparent)]
+>+pub struct Virtqueue(Opaque<bindings::virtqueue>);
+>+
+>+impl Virtqueue {
+>+    /// Create a [`Virtqueue`] from a raw pointer.
+>+    ///
+>+    /// # Safety
+>+    ///
+>+    /// Callers must ensure that `ptr` is a properly initialized valid `virtqueue` pointer.
+>+    #[inline]
+>+    pub unsafe fn from_raw<'a>(ptr: *mut bindings::virtqueue) -> &'a Self {
+>+        // SAFETY: The safety requirements of this function guarantee that `ptr` is a valid
+>+        // pointer to a `struct virtqueue` for the duration of `'a`.
+>+        unsafe { &*ptr.cast() }
+>+    }
+>+
+>+    /// Obtain the raw `struct virtqueue *`.
+>+    #[inline]
+>+    pub(crate) fn as_raw(&self) -> *mut bindings::virtqueue {
+>+        self.0.get()
+>+    }
+>+
+>+    /// Get the [`Device`] associated with this virtqueue.
+>+    #[inline]
+>+    pub fn dev(&self) -> Result<&Device<Bound>> {
+>+        // SAFETY: By the type invariants, `self.as_raw()` is a valid pointer to a `struct
+>+        // virtqueue`.
+>+        if unsafe { (*self.as_raw()).vdev }.is_null() {
+>+            return Err(ENOENT);
+>+        }
+>+        // SAFETY: the pointer has been promised to be valid when self was created
+>+        Ok(unsafe { &*(&*self.as_raw()).vdev.cast::<Device<Bound>>() })
+>+    }
+>+
+>+    /// Get the vring size.
+>+    #[inline]
+>+    #[doc(alias = "virtqueue_get_vring_size")]
+>+    pub fn vring_size(&self) -> u32 {
+>+        // SAFETY: the pointer has been promised to be valid when self was created
+>+        unsafe { bindings::virtqueue_get_vring_size(self.as_raw()) }
+>+    }
+>+
+>+    /// Notify virtqueue.
+>+    #[inline]
+>+    #[doc(alias = "virtqueue_notify")]
+>+    pub fn notify(&self) -> bool {
+>+        // SAFETY: the pointer has been promised to be valid when self was created
+>+        unsafe { bindings::virtqueue_notify(self.as_raw()) }
+>+    }
+>+
+>+    /// Kick and prepare virtqueue.
+>+    #[inline]
+>+    #[doc(alias = "virtqueue_kick_prepare")]
+>+    pub fn kick_prepare(&self) -> bool {
+>+        // SAFETY: the pointer has been promised to be valid when self was created
+>+        unsafe { bindings::virtqueue_kick_prepare(self.as_raw()) }
+>+    }
+>+
+>+    /// Kick virtqueue.
+>+    #[inline]
+>+    #[doc(alias = "virtqueue_kick")]
+>+    pub fn kick(&self) -> bool {
+>+        // SAFETY: the pointer has been promised to be valid when self was created
+>+        unsafe { bindings::virtqueue_kick(self.as_raw()) }
+>+    }
+>+
+>+    /// Enable virtqueue's callback.
+>+    #[inline]
+>+    #[doc(alias = "virtqueue_enable_cb")]
+>+    pub fn enable_cb(&self) -> bool {
+>+        // SAFETY: the pointer has been promised to be valid when self was created
+>+        unsafe { bindings::virtqueue_enable_cb(self.as_raw()) }
+>+    }
+>+
+>+    /// Disable virtqueue's callback.
+>+    #[inline]
+>+    #[doc(alias = "virtqueue_disable_cb")]
+>+    pub fn disable_cb(&self) {
+>+        // SAFETY: the pointer has been promised to be valid when self was created
+>+        unsafe { bindings::virtqueue_disable_cb(self.as_raw()) }
+>+    }
+>+
+>+    /// Get a buffer from the virtqueue, if available.
+>+    ///
+>+    /// This method returns a pointer to the `token` value passed in [`Virtqueue::add_sgs`] method
+>+    /// and the amount of bytes that were written by the device.
+>+    #[inline]
+>+    #[doc(alias = "virtqueue_get_buf")]
+>+    pub fn get_buf(&'_ self) -> Option<(NonNull<u8>, u32)> {
+>+        let mut len = 0;
+>+        // SAFETY: the pointer has been promised to be valid when self was created
+>+        let ptr = unsafe { bindings::virtqueue_get_buf(self.as_raw(), &mut len) };
+>+        Some((NonNull::new(ptr.cast())?, len))
+>+    }
+>+
+>+    /// Add a list of scatter-gather lists to virtqueue.
+>+    #[inline]
+>+    #[doc(alias = "virtqueue_add_sgs")]
+>+    pub fn add_sgs<'token, PIn, POut, Token>(
+>+        &'_ self,
+>+        out_sgs: &'token SGTableReadable<POut>,
+>+        in_sgs: &'token SGTableWritable<PIn>,
+>+        token: Pin<&'token Token>,
+>+        gfp: Flags,
+>+    ) -> Result
+>+    where
+>+        for<'a> PIn: AsPageIter<Iter<'a> = VmallocPageIter<'a>> + 'static,
+>+        for<'a> POut: AsPageIter<Iter<'a> = VmallocPageIter<'a>> + 'static,
+>+    {
+>+        let out_sgs_num = u32::try_from(out_sgs.inner.iter().count())?;
+>+        let in_sgs_num = u32::try_from(in_sgs.inner.iter().count())?;
+>+
+>+        let Some(total_size) = out_sgs_num.checked_add(in_sgs_num) else {
+>+            return Err(EINVAL);
+>+        };
+>+
+>+        let mut sgs = KVec::with_capacity(2, GFP_KERNEL)?;
 
-Thanks for this, this is something similar of what I suggested some days 
-ago to Phi in 
-https://lore.kernel.org/netdev/anLuRE4ix5-BZ7-t@sgarzare-redhat/
+Should we use the `gfp` flags insteaf of GFP_KERNEL in this function ?
 
-Phi's work also includes more cleanups, so let's avoid duplicated work.
-
-Please test Phi's v5 series that should include something similar, plus 
-other stuff that should fix exaclty the same report.
+The rest LGTM with a quick look.
 
 Stefano
-
->
->diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
->index 30046a3c20f7..b70cea7f754f 100644
->--- a/include/net/af_vsock.h
->+++ b/include/net/af_vsock.h
->@@ -53,12 +53,10 @@ struct vsock_sock {
-> 	 * for connection requests are placed in the pending list until they
-> 	 * are connected, at which point they are put in the accept queue list
-> 	 * so they can be accepted in accept().  If accept() cannot accept the
->-	 * connection, it is marked as rejected so the cleanup function knows
->-	 * to clean up the socket.
->+	 * connection, the child is cleaned up directly in vsock_accept().
-> 	 */
-> 	struct list_head pending_links;
-> 	struct list_head accept_queue;
->-	bool rejected;
-> 	struct delayed_work connect_work;
-> 	struct delayed_work pending_work;
-> 	struct delayed_work close_work;
->diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
->index 622dbd046799..2084c88ac836 100644
->--- a/net/vmw_vsock/af_vsock.c
->+++ b/net/vmw_vsock/af_vsock.c
->@@ -39,9 +39,9 @@
->  * from the listener socket's pending list and enqueued in the listener
->  * socket's accept queue.  Callers of accept(2) will accept connected sockets
->  * from the listener socket's accept queue.  If the socket cannot be accepted
->- * for some reason then it is marked rejected.  Once the connection is
->- * accepted, it is owned by the user process and the responsibility for cleanup
->- * falls with that user process.
->+ * for some reason then it is cleaned up directly in vsock_accept().  Once the
->+ * connection is accepted, it is owned by the user process and the
->+ * responsibility for cleanup falls with that user process.
->  *
->  * - It is possible that these pending sockets will never reach the connected
->  * state; in fact, we may never receive another packet after the connection
->@@ -49,9 +49,7 @@
->  * future, after some amount of time passes where a connection should have been
->  * established.  This function ensures that the socket is off all lists so it
->  * cannot be retrieved, then drops all references to the socket so it is cleaned
->- * up (sock_put() -> sk_free() -> our sk_destruct implementation).  Note this
->- * function will also cleanup rejected sockets, those that reach the connected
->- * state but leave it before they have been accepted.
->+ * up (sock_put() -> sk_free() -> our sk_destruct implementation).
->  *
->  * - Lock ordering for pending or accept queue sockets is:
->  *
->@@ -774,11 +772,11 @@ static void vsock_pending_work(struct work_struct *work)
->
-> 	if (vsock_is_pending(sk)) {
-> 		vsock_remove_pending(listener, sk);
->-	} else if (!vsk->rejected) {
->-		/* We are not on the pending list and accept() did not reject
->-		 * us, so we must have been accepted by our user process.  We
->-		 * just need to drop our references to the sockets and be on
->-		 * our way.
->+	} else {
->+		/* We are not on the pending list, so we must have been accepted
->+		 * by our user process (rejected sockets are cleaned up directly
->+		 * in vsock_accept()).  We just need to drop our references to
->+		 * the sockets and be on our way.
-> 		 */
-> 		cleanup = false;
-> 		goto out;
->@@ -942,7 +940,6 @@ static struct sock *__vsock_create(struct net *net,
-> 	vsk->listener = NULL;
-> 	INIT_LIST_HEAD(&vsk->pending_links);
-> 	INIT_LIST_HEAD(&vsk->accept_queue);
->-	vsk->rejected = false;
-> 	vsk->sent_request = false;
-> 	vsk->ignore_connecting_rst = false;
-> 	WRITE_ONCE(vsk->peer_shutdown, 0);
->@@ -1919,14 +1916,19 @@ static int vsock_accept(struct socket *sock, struct socket *newsock,
-> 		vconnected = vsock_sk(connected);
->
-> 		/* If the listener socket has received an error, then we should
->-		 * reject this socket and return.  Note that we simply mark the
->-		 * socket rejected, drop our reference, and let the cleanup
->-		 * function handle the cleanup; the fact that we found it in
->-		 * the listener's accept queue guarantees that the cleanup
->-		 * function hasn't run yet.
->+		 * reject this socket and return.  The child was found on the
->+		 * listener's accept queue, so it still holds the references
->+		 * taken by sk_alloc(), __vsock_insert_connected() and
->+		 * vsock_enqueue_accept().  Drop them here so the socket is
->+		 * destroyed.  We cannot defer this to vsock_pending_work():
->+		 * rejected child sockets created through virtio_transport and
->+		 * vsock_loopback are not cleaned up by that worker, so the
->+		 * child would otherwise leak permanently.
-> 		 */
-> 		if (err) {
->-			vconnected->rejected = true;
->+			vsock_remove_connected(vconnected);
->+			connected->sk_state = TCP_CLOSE;
->+			sock_put(connected);
-> 		} else {
-> 			newsock->state = SS_CONNECTED;
-> 			sock_graft(connected, newsock);
->-- 
->2.43.0
->
 
