@@ -1,79 +1,82 @@
-Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
+Received: from mail-pg1-f170.google.com (mail-pg1-f170.google.com [209.85.215.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C1F938DC58
-	for <virtualization@lists.linux.dev>; Fri,  7 Aug 2026 10:01:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6DB87411A04
+	for <virtualization@lists.linux.dev>; Fri,  7 Aug 2026 11:48:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786096878; cv=none; b=Gs2wukBoQMT9TBJZKn5XFcvmeBRv8hCpIXSdT5A9D/2QqFfFw2f0y3LSKew5X/TYev15AUkDrFNG310P0D2ng33f//xhIXEqhcXth/BjRE6vfCxA0CDotZTKtoOB3FVHGuPc5hbvLLAkjS9vieHSILXVgrz7hXbvEQjf8Z0WQmw=
+	t=1786103323; cv=none; b=tRAmGUnHxyyUb6KI5ohyyMLDRMUm9fFEFQGNVUX26lYEzIgP6PbnQrklzMB4St4hvnPXysRrIwefJ1paDg32Ri1JJodwqktRuMvXQd8b2t5A58ISUBo2zEQ+1wF02jAP+lFXLvAixK4Gaa4t2osU74B3guutK1CjnKx5I3/cPns=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786096878; c=relaxed/simple;
-	bh=WRblBsIe9oNVkt2I3kyXT3rZMZlv0teuEBRSGedeze4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=P4/iLewYS3FhZOctmZaFAQDD6DiGGXUnxpxbkzK2TgCyg6wLfq83UHWaG9MOn12et7uHcu/FQcJumq2rUwStahEr+W3IUXQwVtLqW6Fw0IF95q5sTt4t/jNQ8edb1+aGWPYGlZzZP9zlvZNbYF+BWael4BHU34BMMEv8pslvPhQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CLbdA0yw; arc=none smtp.client-ip=209.85.214.173
+	s=arc-20240116; t=1786103323; c=relaxed/simple;
+	bh=dBRcctB1HbE1wp3EANcrd4ceGJoZwfhb665DWjmN70M=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=o4dfIxiYxRr9ycSTZ1Y0X+hKIPOksBjtQZIktLPyqajfDaZsGRSn01cevz3KeNj/Kh4vfYWcNR+nufti+z49Dfp7EcHDfzj4V9/Yepq7+jGKu89hTj7830cH6xm21ol7EmOq91XGlaCyNoXwuCzWaX4a/wLMORTk60Vu++B+UAI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=du7aO6vt; arc=none smtp.client-ip=209.85.215.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CLbdA0yw"
-Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-2cf452def93so15114065ad.1
-        for <virtualization@lists.linux.dev>; Fri, 07 Aug 2026 03:01:16 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="du7aO6vt"
+Received: by mail-pg1-f170.google.com with SMTP id 41be03b00d2f7-cbb8b54fcf8so2998882a12.0
+        for <virtualization@lists.linux.dev>; Fri, 07 Aug 2026 04:48:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786096876; x=1786701676; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=VHf8GCKQo1jv7HW3zO9fz6VriXYAKorx9FGJYJOkndc=;
-        b=CLbdA0yw3SEtd0MU3B/fL1YR3rqe93yZgdP99cti03QB2BygU/dJOPaDPWZAyMTmns
-         Sdn7xkU4ogazffazAnoATWEy9IU1X5yWqGd0zYLmrRj96FIMMUSz30KZLGq7OnVRihqf
-         uln3GcWKooOL1Vgtq6aS7JUD7+l2tFZuw9Z6d+fpPE7b/8UE/kg1Uv1FLIroT6NaqThn
-         78mU6ZM64evB/4XE0l8RH70R26aT9oaRPoHCf8IHv1jTK8O3OYRmRJpuMPo/KgOVArmk
-         sWg/TkhAXilptQWJQWj+/sYG8NMGPx859T6Wc/WbyOC1gWNU9q56IoHranU4rLUgboCd
-         R8Zg==
+        d=gmail.com; s=20251104; t=1786103309; x=1786708109; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=n7mwOnPyfiCCwq729LgAnh/HsggJnMmpUOleEikcENM=;
+        b=du7aO6vtFtsbxE7TlAbRFC9dDM4120CGTEV/kb7JaLNLNlnAS92jAmltoRriD7dPZf
+         AQoQ/stQ5m1lHvHP8wFz2Y8twQ4Vij88UEXxNIyLG6865gbtJNWFvqiq7MAtiqJr0zpa
+         O6dfY9gNU993EwRpxurq5hcVRc3SDoFALg+ZIW0arBab+5nVnIDEUjz39q8kZ24h+svE
+         vcay3KrHdEQHAO8es1jXrOqV0wosSYBrxxvG+ujXEr5+EzN0F+hCLMH69zYiiBycrIPA
+         JwRe80Bgn6+4eODeK3ESIc5TCtkYUYtqS2Rc5e650hphpweWn1SaWN9tnAymkrclVtdj
+         tjCA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786096876; x=1786701676;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=VHf8GCKQo1jv7HW3zO9fz6VriXYAKorx9FGJYJOkndc=;
-        b=OAdwbQmnbmULOuRwew/TcNCxyd1xOUUW84nz1wiLl7sFQeOo0STyUNFctkTA128a3b
-         z3HzkbzevDAmuhOPf2F+eb9qVqs4T/9icQdrCM9x1kqyT+ig+7esIXjnotNCOflcVjrw
-         hihBMPbjyQJ0vZM7Uk+vVowZjc6UpcGAlcCKkIDt5jyUeZklvPU68azoVnXE4DdXeg8g
-         ySxZA8jzhXEsRofc69lcl4vmT+BgfeBEACA9dcUj7+8+CslPHxG4rNUqjqN+QhrbqWip
-         XRZ7Bh2aoUQMzL+0T/cOFjZi/QsfzdLR0saTUwzRYoh/PVa4mVcupLB500f/0y68ybBe
-         W6+Q==
-X-Forwarded-Encrypted: i=1; AHgh+Rr/cdUmx99EkyBf82xY5V42EldSuovMEdKF8gNVr4fkj46y7xNMNuVaR+XgTMQ0YIVRQmHDeKjreESo2fMajw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwRKSj4s/Waxxl8c3yVjG8iG1+70KoepSP6Apz1Xm29Xd93jl0o
-	3sCA2aUTkqos0JZqbM99YjMHnonT1Iv5ky6uoOhSSvox71vRyS+eEzDV
-X-Gm-Gg: AR+sD114vZW21m3egBhAXG0YXvFaPIB60LtPiq0evrrLB2NpcLMpjSxPSXvRAUDDLnq
-	mqMbJxrcT9wCoOh8JYilDNwf+Z5MvvBPGCgpqwh0hXihM5cgj2QDfVgxWE9j1lMi3WczkNrmMBm
-	AZ2owhj/VgUeCZGxQs86IjM2QZsBWddo97ctDLrctlJ5FtSuF6IlWci97PLvSXOgbBdJ7b10bZz
-	i0IQBB50kNtsEBLjuuYPzoYp5uhlxX0ciGBSIjD8JwS4YflzLv+d4DBERzRZDQZbJ7gFeO3QzzP
-	cggUPVMdPmOATB0UbPGoSEuDxeDILJxaF6tngqa2bOaPOdsdg4RUSm9/tuCBVeq3WrsISOs0Stc
-	pr0MdrxGZR8uZxNw8FqMSyaAtEJeIbESJ/v/vHx1kGvh1vz2KbQqnMZeII5BKUmnbBeqxnFKpXL
-	PrlzrevDrwpu++d83YO8TvKCE2pm3Jx0daW0XbycjvVBacTYGqOgJeUnu1/t+h4YOxirW4txxNO
-	prgW7fK+WUcjguo3fJg+sOIsnhSgSxEsX69oKlYX1AqaEDoaT1rSwyhcQeO1AqRSw==
-X-Received: by 2002:a17:903:1847:b0:2bf:13af:b077 with SMTP id d9443c01a7336-2d0f70f54bfmr62139835ad.14.1786096875757;
-        Fri, 07 Aug 2026 03:01:15 -0700 (PDT)
-Received: from EAIT-H54D9Q2FJQ.eait.uq.edu.au ([130.102.10.60])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2d16c4a9f0fsm6500035ad.68.2026.08.07.03.01.11
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Fri, 07 Aug 2026 03:01:14 -0700 (PDT)
-From: Yu Zhang <yuz08559@gmail.com>
-To: mst@redhat.com,
-	jasowangio@gmail.com
-Cc: eperezma@redhat.com,
-	kvm@vger.kernel.org,
+        d=1e100.net; s=20251104; t=1786103309; x=1786708109;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=n7mwOnPyfiCCwq729LgAnh/HsggJnMmpUOleEikcENM=;
+        b=G7SDJOlSNDFTY4raozIPDByN8IUhc2nkb0jNpmCdhX6p4ehlcDK/fJLFDfh0Zi2nHu
+         Ux5fXCCimKL2lAZ1HHr44fRs4g9zzAkSJ7Q+zopwakjyezxiat4lUOHYJx3syg9dFSwh
+         7BI9DojBRfPuUvLquXRyT8oGWinrTdek7gcepSFCV0RPH6L554qtLvCymQhmhKScns4I
+         dYurIZ5z2FcXns/ZXH/peWsNtye7viT58FeDTO5Anl2ycXIxSuselnBs1FTAPgUPvnwk
+         uSdwXy9m+p4CjefH3YdmokwJ4LPw2sKXhj4H+XQtZMSQH2wqDRNBnouIjF0MgX5xGgLz
+         IKwA==
+X-Forwarded-Encrypted: i=1; AHgh+RrEh3Owz1rVBMPd+iq1Syh2UcYgNWlvwTCHcZwt1CNx1WAiMZoNdy99qMFAtGSFpeO5pDb2WL22uzU9rvqw8Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzyxJHWs63ptvCkoCLib5SjLNXmsyK5MrKzBqYZQqJM39N9zTMk
+	UXDz1E+5Oa/T8FnzqRBTea33qO/2edNN2txdQOD77zVnH83GI1S00pzN
+X-Gm-Gg: AR+sD135QXboi2DPqkk/IUigN+hXCia5VbDbM4+u53VRSZn0OqT/HuW56Hf/uUV+b+Z
+	DaRRklznQRqzSz9CWvVj9FJMGe3q8cKgRQ8JduRbfRVLPIcF/Ns9qcgdnq+xOnps+T6EgOEqwe1
+	p2M4hnf7pN28o2F8RB4uWyCsLMOaJM9Ashg8qVIvHrsSehe3VxHfHL05W84do1KpFvGGPHy9mvZ
+	5y8vDcV7+J5NptPfeBGgc7K/Mv9sQdafop8DTlXrBl71jxL5YsamJMKPzKN2uVuqPSPEjPSK8m1
+	3dTh801v3hz1uR1vJkcp/0wk928r0wRe+XJM05wGnCtFPjls9HNoKU/FX51moenmue0Bt/rus57
+	x6q0f5yvl3deFmPYWEmZxXqXA4ls39z+XIsPmcq3R+L3R3ER7E9Hwyhv+cbhbkplsCXsATtJ+VP
+	8HH/DPfkmyFn2iuVApO+UifvitFIYvNO8Vohm0Ua8FNZ8su5yohZdjzoQK9fLaUJ9tOvZV7PTkx
+	A==
+X-Received: by 2002:a05:6a20:3d1a:b0:3c3:719d:dfe2 with SMTP id adf61e73a8af0-3cb85f4e179mr25112695637.36.1786103308527;
+        Fri, 07 Aug 2026 04:48:28 -0700 (PDT)
+Received: from amd.ban-spse ([165.204.217.251])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-315be86fc7bsm7011180eec.1.2026.08.07.04.48.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 07 Aug 2026 04:48:28 -0700 (PDT)
+From: Chaithanya Lagisetty <nagachaithanya9911@gmail.com>
+To: Stefano Garzarella <sgarzare@redhat.com>,
+	"David S . Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>
+Cc: Simon Horman <horms@kernel.org>,
+	"Michael S . Tsirkin" <mst@redhat.com>,
+	Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>,
+	Asias He <asias@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
 	virtualization@lists.linux.dev,
 	netdev@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Yu Zhang <yuz08559@gmail.com>
-Subject: [PATCH 2/2] vhost-vdpa: protect config_ctx from being freed under the config callback
-Date: Fri,  7 Aug 2026 20:00:25 +1000
-Message-ID: <20260807100025.19750-3-yuz08559@gmail.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260807100025.19750-1-yuz08559@gmail.com>
-References: <20260807100025.19750-1-yuz08559@gmail.com>
+	Chaithanya Lagisetty <nagachaithanya9911@gmail.com>,
+	syzbot+53515d23498d641e21ea@syzkaller.appspotmail.com
+Subject: [PATCH] vsock: fix memory leak of rejected child sockets in vsock_accept()
+Date: Fri,  7 Aug 2026 11:48:04 +0000
+Message-ID: <20260807114804.320862-1-nagachaithanya9911@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -82,155 +85,127 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-vhost_vdpa_config_cb() loads v->config_ctx and signals it without taking
-a reference and without holding any lock:
+When a listener socket carries an error (e.g. sk_err set by a connect()
+issued on the socket before listen()), vsock_accept() dequeues the child
+from the accept queue but rejects it. Previously it only marked the child
+as rejected and relied on vsock_pending_work() to clean it up. However,
+rejected child sockets created through virtio_transport and vsock_loopback
+never reach that cleanup path, causing the child socket, along with its
+LSM blob and transport-specific state, to leak permanently.
 
-	struct eventfd_ctx *config_ctx = v->config_ctx;
+Fix this by releasing the child's references directly in vsock_accept()
+on the reject path: remove it from the connected table and drop the
+references taken by sk_alloc(), __vsock_insert_connected() and
+vsock_enqueue_accept(), so the socket reaches vsock_sk_destruct() and is
+freed. The now-unused 'rejected' flag and its handling in
+vsock_pending_work() are removed.
 
-	if (config_ctx)
-		eventfd_signal(config_ctx);
-
-VHOST_VDPA_SET_CONFIG_CALL replaces that field and drops what is normally
-the last reference to the old context:
-
-	swap(ctx, v->config_ctx);
-
-	if (ctx)
-		eventfd_ctx_put(ctx);
-
-eventfd_ctx_put() drops the last kref and frees the context immediately,
-with no RCU grace period, so a callback that has already loaded the
-pointer goes on to dereference freed memory.  The two sides share no
-lock: the ioctl runs under vhost_dev.mutex, while the parent invokes the
-callback from its own interrupt or workqueue context.
-
-This is not the reopen refcount underflow fixed by commit f6bbf0010ba0
-("vhost-vdpa: fix use-after-free of v->config_ctx"), which was about
-vhost_vdpa_config_put() leaving a stale pointer behind.  Here the pointer
-is maintained correctly and it is the read side that is unprotected.
-
-With VDUSE as the parent this is reachable from userspace with access to
-/dev/vduse (root by default).  VDUSE_DEV_INJECT_CONFIG_IRQ queues
-dev->inject, and vduse_dev_irq_inject() runs the callback under VDUSE's
-own dev->irq_lock, which vhost does not hold.  vduse_dev_reset() does
-flush_work(&dev->inject), but VHOST_VDPA_SET_CONFIG_CALL never goes
-through reset, so an inject already in flight is not waited for.  A
-process that injects config interrupts on the VDUSE fd while another
-thread swaps the call fd on the vhost-vdpa fd hits it in seconds:
-
-  BUG: KASAN: slab-use-after-free in native_queued_spin_lock_slowpath
-  Read of size 4 at addr ffff888107d21808 by task kworker/u17:1/2993
-  Workqueue: vduse-irq vduse_dev_irq_inject
-  Call Trace:
-   native_queued_spin_lock_slowpath+0x97/0x5b0
-   _raw_spin_lock_irqsave+0xd4/0xe0
-   eventfd_signal_mask+0x69/0x120
-   vhost_vdpa_config_cb+0x34/0x50
-   vduse_dev_irq_inject+0x46/0x60
-   process_one_work+0x468/0x950
-
-  Allocated by task 2992:
-   do_eventfd+0x50/0x200
-   __x64_sys_eventfd2+0x2e/0x40
-
-  Freed by task 2992:
-   eventfd_ctx_put+0xb9/0xc0
-   vhost_vdpa_unlocked_ioctl+0x116c/0x2190
-
-Add a spinlock covering every access to config_ctx, so the callback
-either signals a context that is still alive or observes NULL, and the
-put happens only once no callback can reach the old value.
-
-Clearing the parent's callback before the put would not be enough: of the
-in-tree set_config_cb() implementations only VDUSE takes a lock, the rest
-store the pointer unlocked, so that would not order against an in-flight
-invocation.
-
-Fixes: 776f395004d8 ("vhost_vdpa: Support config interrupt in vdpa")
-Signed-off-by: Yu Zhang <yuz08559@gmail.com>
+Fixes: 06a8fc78367d ("VSOCK: Introduce virtio_vsock_common.ko")
+Reported-by: syzbot+53515d23498d641e21ea@syzkaller.appspotmail.com
+Closes: https://syzkaller.appspot.com/bug?extid=53515d23498d641e21ea
+Signed-off-by: Chaithanya Lagisetty <nagachaithanya9911@gmail.com>
 ---
- drivers/vhost/vdpa.c | 32 +++++++++++++++++++++++++-------
- 1 file changed, 25 insertions(+), 7 deletions(-)
+ include/net/af_vsock.h   |  4 +---
+ net/vmw_vsock/af_vsock.c | 38 ++++++++++++++++++++------------------
+ 2 files changed, 21 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-index e5e47f6..272d506 100644
---- a/drivers/vhost/vdpa.c
-+++ b/drivers/vhost/vdpa.c
-@@ -56,6 +56,8 @@ struct vhost_vdpa {
- 	int virtio_id;
- 	int minor;
- 	struct eventfd_ctx *config_ctx;
-+	/* Serialises vhost_vdpa_config_cb() against config_ctx being replaced. */
-+	spinlock_t config_lock;
- 	int in_batch;
- 	struct vdpa_iova_range range;
- 	u32 batch_asid;
-@@ -187,10 +189,12 @@ static irqreturn_t vhost_vdpa_virtqueue_cb(void *private)
- static irqreturn_t vhost_vdpa_config_cb(void *private)
- {
- 	struct vhost_vdpa *v = private;
--	struct eventfd_ctx *config_ctx = v->config_ctx;
-+	unsigned long flags;
+diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+index 30046a3c20f7..b70cea7f754f 100644
+--- a/include/net/af_vsock.h
++++ b/include/net/af_vsock.h
+@@ -53,12 +53,10 @@ struct vsock_sock {
+ 	 * for connection requests are placed in the pending list until they
+ 	 * are connected, at which point they are put in the accept queue list
+ 	 * so they can be accepted in accept().  If accept() cannot accept the
+-	 * connection, it is marked as rejected so the cleanup function knows
+-	 * to clean up the socket.
++	 * connection, the child is cleaned up directly in vsock_accept().
+ 	 */
+ 	struct list_head pending_links;
+ 	struct list_head accept_queue;
+-	bool rejected;
+ 	struct delayed_work connect_work;
+ 	struct delayed_work pending_work;
+ 	struct delayed_work close_work;
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 622dbd046799..2084c88ac836 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -39,9 +39,9 @@
+  * from the listener socket's pending list and enqueued in the listener
+  * socket's accept queue.  Callers of accept(2) will accept connected sockets
+  * from the listener socket's accept queue.  If the socket cannot be accepted
+- * for some reason then it is marked rejected.  Once the connection is
+- * accepted, it is owned by the user process and the responsibility for cleanup
+- * falls with that user process.
++ * for some reason then it is cleaned up directly in vsock_accept().  Once the
++ * connection is accepted, it is owned by the user process and the
++ * responsibility for cleanup falls with that user process.
+  *
+  * - It is possible that these pending sockets will never reach the connected
+  * state; in fact, we may never receive another packet after the connection
+@@ -49,9 +49,7 @@
+  * future, after some amount of time passes where a connection should have been
+  * established.  This function ensures that the socket is off all lists so it
+  * cannot be retrieved, then drops all references to the socket so it is cleaned
+- * up (sock_put() -> sk_free() -> our sk_destruct implementation).  Note this
+- * function will also cleanup rejected sockets, those that reach the connected
+- * state but leave it before they have been accepted.
++ * up (sock_put() -> sk_free() -> our sk_destruct implementation).
+  *
+  * - Lock ordering for pending or accept queue sockets is:
+  *
+@@ -774,11 +772,11 @@ static void vsock_pending_work(struct work_struct *work)
  
--	if (config_ctx)
--		eventfd_signal(config_ctx);
-+	spin_lock_irqsave(&v->config_lock, flags);
-+	if (v->config_ctx)
-+		eventfd_signal(v->config_ctx);
-+	spin_unlock_irqrestore(&v->config_lock, flags);
+ 	if (vsock_is_pending(sk)) {
+ 		vsock_remove_pending(listener, sk);
+-	} else if (!vsk->rejected) {
+-		/* We are not on the pending list and accept() did not reject
+-		 * us, so we must have been accepted by our user process.  We
+-		 * just need to drop our references to the sockets and be on
+-		 * our way.
++	} else {
++		/* We are not on the pending list, so we must have been accepted
++		 * by our user process (rejected sockets are cleaned up directly
++		 * in vsock_accept()).  We just need to drop our references to
++		 * the sockets and be on our way.
+ 		 */
+ 		cleanup = false;
+ 		goto out;
+@@ -942,7 +940,6 @@ static struct sock *__vsock_create(struct net *net,
+ 	vsk->listener = NULL;
+ 	INIT_LIST_HEAD(&vsk->pending_links);
+ 	INIT_LIST_HEAD(&vsk->accept_queue);
+-	vsk->rejected = false;
+ 	vsk->sent_request = false;
+ 	vsk->ignore_connecting_rst = false;
+ 	WRITE_ONCE(vsk->peer_shutdown, 0);
+@@ -1919,14 +1916,19 @@ static int vsock_accept(struct socket *sock, struct socket *newsock,
+ 		vconnected = vsock_sk(connected);
  
- 	return IRQ_HANDLED;
- }
-@@ -511,15 +515,22 @@ static long vhost_vdpa_get_vring_num(struct vhost_vdpa *v, u16 __user *argp)
- 
- static void vhost_vdpa_config_put(struct vhost_vdpa *v)
- {
--	if (v->config_ctx) {
--		eventfd_ctx_put(v->config_ctx);
--		v->config_ctx = NULL;
--	}
-+	struct eventfd_ctx *ctx;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&v->config_lock, flags);
-+	ctx = v->config_ctx;
-+	v->config_ctx = NULL;
-+	spin_unlock_irqrestore(&v->config_lock, flags);
-+
-+	if (ctx)
-+		eventfd_ctx_put(ctx);
- }
- 
- static long vhost_vdpa_set_config_call(struct vhost_vdpa *v, u32 __user *argp)
- {
- 	struct vdpa_callback cb;
-+	unsigned long flags;
- 	int fd;
- 	struct eventfd_ctx *ctx;
- 
-@@ -532,8 +543,14 @@ static long vhost_vdpa_set_config_call(struct vhost_vdpa *v, u32 __user *argp)
- 	if (IS_ERR(ctx))
- 		return PTR_ERR(ctx);
- 
-+	spin_lock_irqsave(&v->config_lock, flags);
- 	swap(ctx, v->config_ctx);
-+	spin_unlock_irqrestore(&v->config_lock, flags);
- 
-+	/*
-+	 * The callback can no longer reach the old context, so this is the
-+	 * last reference to it.
-+	 */
- 	if (ctx)
- 		eventfd_ctx_put(ctx);
- 
-@@ -1595,6 +1612,7 @@ static int vhost_vdpa_probe(struct vdpa_device *vdpa)
- 	}
- 
- 	atomic_set(&v->opened, 0);
-+	spin_lock_init(&v->config_lock);
- 	v->minor = minor;
- 	v->vdpa = vdpa;
- 	v->nvqs = vdpa->nvqs;
+ 		/* If the listener socket has received an error, then we should
+-		 * reject this socket and return.  Note that we simply mark the
+-		 * socket rejected, drop our reference, and let the cleanup
+-		 * function handle the cleanup; the fact that we found it in
+-		 * the listener's accept queue guarantees that the cleanup
+-		 * function hasn't run yet.
++		 * reject this socket and return.  The child was found on the
++		 * listener's accept queue, so it still holds the references
++		 * taken by sk_alloc(), __vsock_insert_connected() and
++		 * vsock_enqueue_accept().  Drop them here so the socket is
++		 * destroyed.  We cannot defer this to vsock_pending_work():
++		 * rejected child sockets created through virtio_transport and
++		 * vsock_loopback are not cleaned up by that worker, so the
++		 * child would otherwise leak permanently.
+ 		 */
+ 		if (err) {
+-			vconnected->rejected = true;
++			vsock_remove_connected(vconnected);
++			connected->sk_state = TCP_CLOSE;
++			sock_put(connected);
+ 		} else {
+ 			newsock->state = SS_CONNECTED;
+ 			sock_graft(connected, newsock);
 -- 
 2.43.0
 
