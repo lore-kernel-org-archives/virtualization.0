@@ -1,141 +1,129 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f170.google.com (mail-pg1-f170.google.com [209.85.215.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A16D36896D
-	for <virtualization@lists.linux.dev>; Sat,  8 Aug 2026 10:39:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60DC71A08AF
+	for <virtualization@lists.linux.dev>; Sat,  8 Aug 2026 11:25:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786185559; cv=none; b=j9N6zJjjvbJ5TRpEq162ARyZ2NBurU/N3sEhZHiDbmClGKcCNghc4XBOGR0672VPbTxvKCtlQrU6mvbwUm6q7KxpiYFhSQslV41jvvc4j3qpMxn9QnH7UP3g8FWknYN2VEWmwtj8eMsttMNhu3AqQC/WQ35l5y/OuU/OZOHVzts=
+	t=1786188312; cv=none; b=QdZoFT/TOpbyU/v0gFSOGkObYx30BOQ3B5hmaWPUIgzY9r7CRhH81pLCTFydeQdCRvQbFTsUTbClpjuspwl+T2oITzzwkP4XwN6/eDqMSHYQJ06UuNhpJwkIY5v+IjbVTKdJdUKjGJYoR1bKrvajfQzBtFZiU8mi0n5CibsyvYg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786185559; c=relaxed/simple;
-	bh=IsWbm760O9I15mA7fvW+rKkxvqhQsLCH30zSXYJ8nsw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=i7M5Ts04UqK6KAunMBPnNQOH2Yo1fDeNXZeTekD9k6X3bISvB+YcuNOebIpCi3aMHlCpNP/UcVMIUKWJ5Pnng/Jk7d5R2E1SOSOFuDyQMU+JIKmHB9YxOPilfm6CAAVaq7UexEGGxpp3r4ejMEtJSanOGqnoPd9obioubcpCnD4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AlHWG023; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1786188312; c=relaxed/simple;
+	bh=S06gw4GaTWEIrO/scYSHRfENLicYT3okDY8QqVj7Uok=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=WdxaNq9XsYrr0wqV7xt3EMbuwdr7sXEOWgFyE0s5rM7fRcMvssmL4zyuzuf4dL58nIAdBjoEEY/RPXRRqQT+kzZ6k7cHzAevfs8nOqSRiWG9C3/fpc6VB49sI++3m+07i/qJEG8PRIQYE8m/ovpMSSYSfxOFzTEWl5xZkwB6Xjg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NWbRckPG; arc=none smtp.client-ip=209.85.215.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AlHWG023"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1786185557;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=p8pmDKziJnJ1aHFZKG0c6hFog+fOESVRfbMD1dM6B7Y=;
-	b=AlHWG023Y6wheF1uZyVNlIC01f/iI3Oai3AsERKclppoa5pbQN4mViGFgwXGwejtBCppmj
-	3K11gNpI3eFIeMYYdo6B6ISXAfBlHhqlLx7gGp/pxRUmJ7/MUejxKcRpqke00Nn7N7Kra8
-	ahmgdHhA9oqENVU1TmC5pcjMozjejjY=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-619-UfBZuduGMuuaYnrctXoldQ-1; Sat, 08 Aug 2026 06:39:15 -0400
-X-MC-Unique: UfBZuduGMuuaYnrctXoldQ-1
-X-Mimecast-MFC-AGG-ID: UfBZuduGMuuaYnrctXoldQ_1786185554
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4994aebe932so4453525e9.3
-        for <virtualization@lists.linux.dev>; Sat, 08 Aug 2026 03:39:15 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NWbRckPG"
+Received: by mail-pg1-f170.google.com with SMTP id 41be03b00d2f7-ca88130e09aso224917a12.3
+        for <virtualization@lists.linux.dev>; Sat, 08 Aug 2026 04:25:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1786188311; x=1786793111; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=1TJD+ZNU8p0QF/zIOcyyYdEmIZzKa2aJynIM7jFFyUQ=;
+        b=NWbRckPG15+C7alMT3zXlzKfXmREynt8+OR6yodeIGOAFJvfblJMrlAOWEtWW3rFut
+         IoV81iSkHfWhs2q0QzcLJWqQN0kL7vBQ0SzkcFFidRqupeUnb/p21I+buYwT+GJ/umMI
+         UItoEzSK3tKD5pgBn28BXEA2vbesYbBHqo7l2CPEQ03S7FBI4SmUSs9qnmK5gGrPxIBD
+         taaXbWqjClMI1N/ZI369MFQ9dUkfhlrtr/ubaa6N/UjfRzqEOmaVx9sZDjvjBBe/N9/A
+         zV+IfKe5JHUfkdx81CUXP8U2ByUFGKzuHBX+SNkIbqkwQo3h6zlu8JjsXAhDCx/wlOWk
+         M8Mg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786185554; x=1786790354;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=p8pmDKziJnJ1aHFZKG0c6hFog+fOESVRfbMD1dM6B7Y=;
-        b=DdCiKkv8nypX17RQVzesXtGRrpRQimxQcLmcLCHkWN2IAQK5DCHsMtdfpaue6+3mkH
-         zSqASjg52p0F9QIMb1hDaPw9t62nkNNattfXtEj1GCrjYdnQr13jJlxE6hfxvLmKFloQ
-         3V3MMQPVUReHJeIOjPr9Xf74Mvu/sqYFgVMVsglIzWykdM76/plAcJwe09O1bWgd/MjZ
-         sCtjTG0fksrNGYaHfIfDtGNx4mAUIAwurYaUzDa9ErCcWFyVvBOcgSO3Hx/Fb94vCOeU
-         RV//84Y7qyiATPHawyyFJcdQLbTPIB5fW9FgTIuUjFei+lDXRn8L4RINh4I5lDeYcNNl
-         X8nA==
-X-Forwarded-Encrypted: i=1; AHgh+Rr2JeZfrn/VAGrelb93SYrpNj1SdHWFESMIW7ha3gtibjoDTP7oJ5Ve8SyJN/Uu5kugO1JdcRgjJ7sRVPeYEQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy5WsQa+V3S1iltQqaIAxYwcyZlYUpwGMKYHZWPwEHgp0S1Tx7S
-	4J9Nd1dkGjoE0oua3B+KQklpSLTaQQe5WexQZ3S6Ubtf7c1m5DBfizuWaIqoVDwPR+4OKvz1qUc
-	s+m+lUP0BgC4XmZHR9AgWY1sjLOvqmzMkF3AvN7oTLXeGN5e+z/mmlNuynHV/ccU1DIz8
-X-Gm-Gg: AR+sD11RVdC9byj5tvm8YIhNx4CXfEl4I3Nf5QxSoURAPpoUYaBMpJhwg4e2Rm//Wc3
-	Nbcgu3MxRk3wW2yIx+i/lpIHXxyBThQi4ohXcnmFqGc/NDHIOuV9/SUpxdI0bB8bedNIb/36zmj
-	WT0qrVUWL8IYMWAR730G5uIptYxJ1VondTxJsZkmIFr/VPWeIgFzSNY3RIpbLH4UeYI/8YYGRMX
-	N6PprBHpM0qCA84N4qNE3BP/imP32vV520nU2K698+08/ppfAF+B4fWZN4t7AM9iLb0qs+4W+F/
-	bugQVZ+YNRWU6zH6gfq/UPbAMCpht2tIroubr2JgRCQMaPy8MWcUR2ft1mUvPY68dXySKmKbp1d
-	WKMqkhMzKqVU8yWhS3mCuNPrT1Rz/yMg=
-X-Received: by 2002:a05:600c:630c:b0:493:f140:c3fb with SMTP id 5b1f17b1804b1-4994e71c87bmr305222635e9.7.1786185554367;
-        Sat, 08 Aug 2026 03:39:14 -0700 (PDT)
-X-Received: by 2002:a05:600c:630c:b0:493:f140:c3fb with SMTP id 5b1f17b1804b1-4994e71c87bmr305222285e9.7.1786185553786;
-        Sat, 08 Aug 2026 03:39:13 -0700 (PDT)
-Received: from redhat.com (bzq-79-177-145-168.red.bezeqint.net. [79.177.145.168])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4995c7b2898sm99603235e9.4.2026.08.08.03.39.11
+        d=1e100.net; s=20251104; t=1786188311; x=1786793111;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=1TJD+ZNU8p0QF/zIOcyyYdEmIZzKa2aJynIM7jFFyUQ=;
+        b=DEx1+FCqnWtacx1i3FcGUrVzqPMd0XydIb90zSbHJV/Yh4DB2oUuEQ0KUbkQCWrH2C
+         6puAenF47d1n4Go1r/Y5oK3vlC4cU6B+3GK5EueHQChjJijFhehUM2NwGFz049JiF6ID
+         Gxcs7oMAjcJ4nnW/aoJl1fInpOzYnojIeYLgCZ/rghIhrjoxfakiz9HKhhTqkD5KgWjM
+         jD48f5/ORDoKgJ1MSHQB3t2qp3Ed5+pIguXqQPzoFH4FOkuM3/72GEOJOPkmEgyGU6Xd
+         G3Xj8gt9EbJZD0nV65eTjbahWNu13gzovoYu9bPlx1lT8EjnZAxGik0JT7xiqaqUTp+d
+         DhfQ==
+X-Forwarded-Encrypted: i=1; AHgh+RrT0LJ2tutPpMzo2IokD2tQeQ58TaXz+TNFhR82tlVFkJekPQhakraMrIseZ+Vhp7jQGwjNnmunD8/lOxuWBg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxWWVuHBq7csfBAWKh1dPTZUQIYVo8HyokPm7JuxXF8jcSbFhdd
+	jrf3Yfa6YPsNJ7/MU86fNX9VzIP/Cd0FjNXTto904ka3Uuzoq+qaXbLL
+X-Gm-Gg: AR+sD12EDUgFiwuLUpT6hESPzeOkKxYLAHJbwl/utcxxbPitbyBnLWLhXxSM/JRVU9O
+	OpHGlrM65tyB6U3TQ6GauBbkK5XN4MV9fUYwtxM1p4eGF44vcfl7iTg1lrDbQ7ojuRxccmTXisI
+	lhKO/jztBDpuJc19vOUtzQ6ORXYJMVWRV1AJx2acyQpQnPZ5KS+q29ne9MToMOgOpj4aEXwDwqL
+	nb3cC41z2Ges58lblJ1XMzCSH2d1F0QQl4pqJy3754fX/spVjIYfQp6Y08/+5qoac9pWduwhZmQ
+	Ms1NFVnS8vHCwOy5g0PHvGFFrGvv5qqbIzUp/Z8DOGATVUh90ELxxC5qosS1k7RZ4m+00HCW51k
+	9RiG78BsOOCSynTMfsm6bxafX54IUvwcOKrGuaRA4yJW4bVryS0FJJoV06YsACvuCFwbKMg4DjN
+	dKs/SNO8S2IIBd1YgNxXK2rWN5s3NeR53qHq02UGO24pMEE3+SUFy1D2CCUPvg/EJw7VymDlc=
+X-Received: by 2002:a05:6300:4045:b0:3bf:83f3:b810 with SMTP id adf61e73a8af0-3cb85ef7f63mr36662806637.29.1786188310005;
+        Sat, 08 Aug 2026 04:25:10 -0700 (PDT)
+Received: from gmail.com ([188.253.12.32])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-315bebee8d0sm17746334eec.24.2026.08.08.04.25.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 08 Aug 2026 03:39:12 -0700 (PDT)
-Date: Sat, 8 Aug 2026 06:39:09 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jia Jia <physicalmtea@gmail.com>
-Cc: Jason Wang <jasowangio@gmail.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Tiwei Bie <tiwei.bie@intel.com>, kvm@vger.kernel.org,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
+        Sat, 08 Aug 2026 04:25:09 -0700 (PDT)
+From: Jia Jia <physicalmtea@gmail.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>
+Cc: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Tiwei Bie <tiwei.bie@intel.com>,
+	kvm@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	netdev@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] vhost/vdpa: reject VRING_NUM larger than device max
-Message-ID: <20260808063901-mutt-send-email-mst@kernel.org>
-References: <20260808103415.101261-1-physicalmtea@gmail.com>
+Subject: [PATCH v2] vhost/vdpa: reject VRING_NUM larger than device max
+Date: Sat,  8 Aug 2026 19:24:58 +0800
+Message-Id: <20260808112458.101616-1-physicalmtea@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260808103415.101261-1-physicalmtea@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: k04H70_OE8bbxaP_pVnHnO4bl9ijfpZqBa00kgHRCYI_1786185554
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Sat, Aug 08, 2026 at 06:34:15PM +0800, Jia Jia wrote:
-> vhost_vring_set_num() only requires a non-zero power-of-two that fits
-> in 16 bits. vhost-vdpa then hands that value to the backend through
-> set_vq_num() without comparing it to get_vq_num_max().
-> 
-> A local process with access to /dev/vhost-vdpa-* can therefore set a
-> queue size larger than the device advertises. On the vdpa_sim backend,
-> the worker then walks descriptors beyond the mapped descriptor ring.
-> KASAN reports a 16-byte out-of-bounds read, corresponding to one
-> vring_desc, in the vringh IOTLB path:
-> 
->   BUG: KASAN: out-of-bounds in _copy_from_iter
->   Read of size 16
->   copy_from_iotlb
->   copydesc_iotlb
->   vringh_getdesc_iotlb
->   vdpasim_net_work
-> 
-> Check the requested size against get_vq_num_max() in
-> vhost_vdpa_vring_ioctl() before calling vhost_vring_ioctl(), and return
-> -EINVAL when the request is too large.
-> 
-> Fixes: 4c8cf31885f6 ("vhost: introduce vDPA-based backend")
+vhost_vring_set_num() only requires a non-zero power-of-two that fits
+in 16 bits. vhost-vdpa then hands that value to the backend through
+set_vq_num() without comparing it to get_vq_num_max().
 
-sign off missing
+A local process with access to /dev/vhost-vdpa-* can therefore set a
+queue size larger than the device advertises. On the vdpa_sim backend,
+the worker then walks descriptors beyond the mapped descriptor ring.
+KASAN reports a 16-byte out-of-bounds read, corresponding to one
+vring_desc, in the vringh IOTLB path:
 
-> ---
->  drivers/vhost/vdpa.c | 7 +++++++
->  1 file changed, 7 insertions(+)
-> 
-> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-> index ac55275fa0d0..b2083e1ef150 100644
-> --- a/drivers/vhost/vdpa.c
-> +++ b/drivers/vhost/vdpa.c
-> @@ -716,6 +716,13 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
->  				vhost_vdpa_unsetup_vq_irq(v, idx);
->  		}
->  		break;
-> +	case VHOST_SET_VRING_NUM:
-> +		/* Reject sizes above the max reported by the device. */
-> +		if (copy_from_user(&s, argp, sizeof(s)))
-> +			return -EFAULT;
-> +		if (s.num > ops->get_vq_num_max(vdpa))
-> +			return -EINVAL;
-> +		break;
->  	}
->  
->  	r = vhost_vring_ioctl(&v->vdev, cmd, argp);
-> -- 
-> 2.34.1
+  BUG: KASAN: out-of-bounds in _copy_from_iter
+  Read of size 16
+  copy_from_iotlb
+  copydesc_iotlb
+  vringh_getdesc_iotlb
+  vdpasim_net_work
 
+Check the requested size against get_vq_num_max() in
+vhost_vdpa_vring_ioctl() before calling vhost_vring_ioctl(), and return
+-EINVAL when the request is too large.
+
+Fixes: 4c8cf31885f6 ("vhost: introduce vDPA-based backend")
+Signed-off-by: Jia Jia <physicalmtea@gmail.com>
+---
+v2:
+- Add the missing Signed-off-by tag.
+
+ drivers/vhost/vdpa.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index ac55275fa0d0..b2083e1ef150 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -716,6 +716,13 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
+ 				vhost_vdpa_unsetup_vq_irq(v, idx);
+ 		}
+ 		break;
++	case VHOST_SET_VRING_NUM:
++		/* Reject sizes above the max reported by the device. */
++		if (copy_from_user(&s, argp, sizeof(s)))
++			return -EFAULT;
++		if (s.num > ops->get_vq_num_max(vdpa))
++			return -EINVAL;
++		break;
+ 	}
+ 
+ 	r = vhost_vring_ioctl(&v->vdev, cmd, argp);
+-- 
+2.34.1
