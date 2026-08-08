@@ -1,125 +1,204 @@
-Received: from mail-pg1-f172.google.com (mail-pg1-f172.google.com [209.85.215.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFF6E3B6346
-	for <virtualization@lists.linux.dev>; Sat,  8 Aug 2026 10:34:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F04A3C279B;
+	Sat,  8 Aug 2026 10:36:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786185270; cv=none; b=LGlAUaEIvhsKcqP06e+6wF2urtsZBXM0eQBX3CRrOSmlo9v9lmIATz+v1RaM8P5VzdxTQK/FZBFmZw0zNXqGij8CbttbeMW16N0iGnzU3vS2WhJjOjcM4w1Ad+maqeHGaJWytaCaYHBF5powXeC3Y6g3/GraqJg2XblVgT2dfx0=
+	t=1786185405; cv=none; b=JyEHaV0cpXqF9c7yT+HeBPBMp8/ZUNTTKvtp/2TBX27xgkiT/8ObG7vkeLJCCixN33piNbWisKHupYRBA1TG0qsx3d76DHF1NFPBCXxZzHJO9IBHR+U4jAcbSX6R/2KI2KHiPUWrjY4dzITFUHIZ01vGDn9a1zGsqXuY9BslStc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786185270; c=relaxed/simple;
-	bh=8cLsyOrjXGvoCCKeyA9EG98ua8ktDWJeJNjwpR7WQKs=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=DQUVe/GihfP0Dn8nxiRYAjhW4dohf1l2Jqiwp4MtLl25pWDoL3SCI/l8Di4jwwoN8JdIuuLAdxsiZZoAT7sMmW+CSgjIHKPpyOiqUHgQILK3OlRaVe6yeVm7HwlIgwQnvuhPYiN7e80yM1p4ch3nqwIVgtgQqKUEMLyOAScTY/k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nbpH3GFq; arc=none smtp.client-ip=209.85.215.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1786185405; c=relaxed/simple;
+	bh=RBMyDlI9bYhhju6SazkJ74+FPw4KUUTT3qdlDDFzYVg=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:Content-Type:
+	 MIME-Version; b=oeLp8FTfMy0ee4u1jLZiLeN4Kmu1oyCFqjzhzKX57nWWHH0V+nzxLNC+X2w10kVKeVxWCsi20t3dLX3yRMLV8pYwi/eqU3ckaqyaUI+NPpwp7YC6ruHBgJQBpg2fPNmnSsrcjxL9EzzFOBJAenQL7gNAgsvfGyNBIsUIMjOqEyc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=casper.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=MiHbwmDI; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=casper.srs.infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nbpH3GFq"
-Received: by mail-pg1-f172.google.com with SMTP id 41be03b00d2f7-c9e7391839cso306184a12.0
-        for <virtualization@lists.linux.dev>; Sat, 08 Aug 2026 03:34:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786185268; x=1786790068; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=LMt2HBv95FWkEezOYc96XrHhu7tFutq5B2cwfp/ralY=;
-        b=nbpH3GFqqSU26kl02uZLKrcwZ8pRwT/OcH61ukg23uWeBhZei6q1eM3w71fM4dhFWI
-         XctBM9JfZurgHMX3OCIH7jPC0WKxZJwAi4wNhEqruPt8mifDV0EpR4gBLzHERhZYS9y/
-         3r+47gQ4uawxw4P66qvvk9afl34FDDljFFSabFzStPMPpdsmROXP0bCcY3NS6qoxWW/T
-         AHROc70foUi5Ld08F22XjGKJuR7SomIAAhxyfQcQa6HPK0ff6RXEvTUxI4JMLlxvbePu
-         NflqrbYZjo3XppYszDdQQZ9700aijbUZckcKlOSxV1RN+GLv3dHvQH5YW24RSUp/C4al
-         PJBw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786185268; x=1786790068;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=LMt2HBv95FWkEezOYc96XrHhu7tFutq5B2cwfp/ralY=;
-        b=LRqjuhYeXPj5sLx6VnyZz1PkngwOuYeSjJLet7L2MzTEnUzdBcLrvREawvu4oK2tR3
-         WPolwgYpsUBhhpjNflO+CaNsRVkJ6lWxBsGtlD5edUVD03GY8n1t+wp0ro9sy7FrXY1X
-         PPDQ/fXm7WRVxCC56kkMh65BB0/EmZirPJ1FZeBAYIFptCEYd67AnPOrZoHTrNGw2kBu
-         Hf+sA6ThbqEF0eDRC4S/N/G61DPvj1cUs53a94qQYvZq9IsjI2b6UPrcBztIFDY7i9f4
-         y+E2NHRwKTYmU3ovDuHvUvjlr+QL3p+4NuhU9KoKOuBYnZqWptCNti/FWfAepfQRiIe4
-         2Qfg==
-X-Forwarded-Encrypted: i=1; AHgh+Rrx4zwRfpfQpamwDprz2RK13XwJhj7E0XakjGsRUL1L8DNE8L726/8J1K/y4vG0UpqNPxLbY3slwV+HZro6Dw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyiOGugaV946a+wX1U7CzHd3CMHZcASPS8jpBaG2Xu3HU9uJkiL
-	FQaUKyXU8IgMWDMwsZyoL42HNaDfjLTh/b6RdKnDu0Xqk7ESuEnLQ0zD
-X-Gm-Gg: AR+sD10knyqpcjznNjFS3zS68/ezFA1Emx0Yugu5H3AH6YlPXd6scPACFQld0bDHLtb
-	8H4AdMEWhLr0Fl03F/w9CDOT1AnkAEbJhohFewp88edUMsUdgaK/nIHefFKLJGr24z3ZT4CSodO
-	8+kpG9siLFclyTwE+EmnvuokO4L1h87bV+1o7gxwgCBLt2+jlvTbrAFyLAp0IXA3zJO8lffXT+v
-	jgxIkwGB0pGGHVyB5dfXZskzsyQJs2c3pBHtW6co7uHdd99Gh8/r+HCns2+RTcbwZnxI9yXl4hc
-	/U8iV6kQ29sQuJPFC7JGOMhVfCqqxU5BdJnJDoZpICKz2I+yLRbCeptH6OV+6zJgaACdZhyqq2J
-	ZSM0fqIIWAEzffGRM/psvQPGmBPyjCNgXEi/iSavCVLD2Niv80KilJw7uo0MgvNQEKGlNJrns3f
-	cCXJdAlYfKDFF/gNl1JAITDumZD7xlvloGkIZsdzXN1J7hXRn3eusF0qZdyQDhpZh8GJQTTuY=
-X-Received: by 2002:a05:6a20:3d0b:b0:3bf:b1d3:393e with SMTP id adf61e73a8af0-3cbc01011aemr11771109637.2.1786185267762;
-        Sat, 08 Aug 2026 03:34:27 -0700 (PDT)
-Received: from gmail.com ([188.253.12.32])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-315be86d3fcsm18060034eec.4.2026.08.08.03.34.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 08 Aug 2026 03:34:27 -0700 (PDT)
-From: Jia Jia <physicalmtea@gmail.com>
-To: "Michael S . Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowangio@gmail.com>
-Cc: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Tiwei Bie <tiwei.bie@intel.com>,
-	kvm@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] vhost/vdpa: reject VRING_NUM larger than device max
-Date: Sat,  8 Aug 2026 18:34:15 +0800
-Message-Id: <20260808103415.101261-1-physicalmtea@gmail.com>
-X-Mailer: git-send-email 2.34.1
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="MiHbwmDI"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=MIME-Version:Content-Type:In-Reply-To:
+	Date:Cc:To:From:Subject:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
+	Content-ID:Content-Description:References;
+	bh=mrC+xOT3bpITTMAExjiGGBzjrg3sW5ihiujwcUvw5oE=; b=MiHbwmDIzYwEe6BwoNHGeNjHq7
+	f65veJY5YjTHd83AKNHa4qlLhl2EUZpbVBaKqJiRZbtmu20uTY06o1B9vUPmy9ooa0TSwVbO5SmyB
+	Xy0GLrvdIYt0ZVf9LjZ9Y5CZGlIdKAAMhY3vBTHKxjBRud+sPw9U/bCbRI6kAK+1MRJ14Lqdn74XU
+	imEjrXxYVgSdeKhaTEfdqtWfdcNVAMSL8GeyMQWoCow4VfoKrqiLLHSIhmsGgpzr51rHAAQTat189
+	ObgOshNFcjyaEjVmhcISSqs8Yd6VuRoErbndkGqxAkVjftfRavz/HKtgRiucilnU6E14iBEd/ZZjN
+	z8nvzx4A==;
+Received: from [54.239.6.187] (helo=u09cd745991455d.ant.amazon.com)
+	by casper.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
+	id 1wsePo-00000006Fn4-0KfB;
+	Sat, 08 Aug 2026 10:36:32 +0000
+Message-ID: <f00c9f7af1d24f833dbca0958e54cae989994ae1.camel@infradead.org>
+Subject: Re: [PATCH v6 01/51] x86/apic: Provide helpers to set local APIC
+ timer frequency in hz and khz
+From: David Woodhouse <dwmw2@infradead.org>
+To: seanjc@google.com
+Cc: kas@kernel.org, rick.p.edgecombe@intel.com, pbonzini@redhat.com, 
+	kys@microsoft.com, haiyangz@microsoft.com, wei.liu@kernel.org,
+ decui@microsoft.com, 	longli@microsoft.com, ajay.kaher@broadcom.com,
+ alexey.makhalov@broadcom.com, 	jan.kiszka@siemens.com,
+ dave.hansen@linux.intel.com, luto@kernel.org, 	peterz@infradead.org,
+ jgross@suse.com, daniel.lezcano@kernel.org, tglx@kernel.org, 
+	jstultz@google.com, x86@kernel.org, linux-coco@lists.linux.dev, 
+	kvm@vger.kernel.org, linux-hyperv@vger.kernel.org, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	xen-devel@lists.xenproject.org
+Date: Sat, 08 Aug 2026 11:36:30 +0100
+In-Reply-To: <20260806233609.212337-2-seanjc@google.com>
+Content-Type: multipart/signed; micalg="sha-256"; protocol="application/pkcs7-signature";
+	boundary="=-+oD9ig9rliifEw/S0oU7"
+User-Agent: Evolution 3.60.3-0ubuntu1~ppa9~24.04 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
 
-vhost_vring_set_num() only requires a non-zero power-of-two that fits
-in 16 bits. vhost-vdpa then hands that value to the backend through
-set_vq_num() without comparing it to get_vq_num_max().
 
-A local process with access to /dev/vhost-vdpa-* can therefore set a
-queue size larger than the device advertises. On the vdpa_sim backend,
-the worker then walks descriptors beyond the mapped descriptor ring.
-KASAN reports a 16-byte out-of-bounds read, corresponding to one
-vring_desc, in the vringh IOTLB path:
+--=-+oD9ig9rliifEw/S0oU7
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-  BUG: KASAN: out-of-bounds in _copy_from_iter
-  Read of size 16
-  copy_from_iotlb
-  copydesc_iotlb
-  vringh_getdesc_iotlb
-  vdpasim_net_work
+On Thu, 2026-08-06 at 16:35 -0700, Sean Christopherson wrote:
+> Add and use APIs to set the local APIC timer period (given a frequency)
+> instead of open coding the subtle HZ math in all external callers, and
+> make lapic_timer_period local to apic.c.  Provide APIs to specify the
+> frequency in both hertz and kilohertz so that Hyper-V and VMware code
+> aren't forced to lose precision.
+>
+> Opportunistically take the frequency as a u64 to harden against the
+> possibility that the frequency (in Khz) is greater than 4294967, i.e. if
+> the APIC timer runs at ~4.29 GHz.  As pointed out by Sashiko,
+> 4294968 * 1000 =3D=3D 0x1_000002c0, and thus a Khz period of 4294968 woul=
+d
+> silently overflow the 32-bit unsigned integer used by most callers.
+>
+> Print out who set the period to maintain equivalent Hyper-V and VMware
+> functionality, and in general to make it easier to triage/debug issues.
+>
+> Cc: Michael Kelley <mhklinux@outlook.com>
+> Signed-off-by: Sean Christopherson <seanjc@google.com>
 
-Check the requested size against get_vq_num_max() in
-vhost_vdpa_vring_ioctl() before calling vhost_vring_ioctl(), and return
--EINVAL when the request is too large.
+Reviewed-by: David Woodhouse <dwmw@amazon.co.uk>
 
-Fixes: 4c8cf31885f6 ("vhost: introduce vDPA-based backend")
----
- drivers/vhost/vdpa.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+--=-+oD9ig9rliifEw/S0oU7
+Content-Type: application/pkcs7-signature; name="smime.p7s"
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Transfer-Encoding: base64
 
-diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-index ac55275fa0d0..b2083e1ef150 100644
---- a/drivers/vhost/vdpa.c
-+++ b/drivers/vhost/vdpa.c
-@@ -716,6 +716,13 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
- 				vhost_vdpa_unsetup_vq_irq(v, idx);
- 		}
- 		break;
-+	case VHOST_SET_VRING_NUM:
-+		/* Reject sizes above the max reported by the device. */
-+		if (copy_from_user(&s, argp, sizeof(s)))
-+			return -EFAULT;
-+		if (s.num > ops->get_vq_num_max(vdpa))
-+			return -EINVAL;
-+		break;
- 	}
- 
- 	r = vhost_vring_ioctl(&v->vdev, cmd, argp);
--- 
-2.34.1
+MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiG9w0BBwEAAKCCE8Ew
+ggWvMIIEl6ADAgECAhANkOKMSmGXhF5eMl0rsRhvMA0GCSqGSIb3DQEBDAUAMGUxCzAJBgNVBAYT
+AlVTMRUwEwYDVQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdpY2VydC5jb20xJDAi
+BgNVBAMTG0RpZ2lDZXJ0IEFzc3VyZWQgSUQgUm9vdCBHMjAeFw0yNDAzMTMwMDAwMDBaFw0zNDAz
+MTIyMzU5NTlaMGIxCzAJBgNVBAYTAlVTMRcwFQYDVQQKEw5EaWdpQ2VydCwgSW5jLjE6MDgGA1UE
+AxMxRGlnaUNlcnQgQXNzdXJlZCBHMiBTTUlNRSBSU0E0MDk2IFNIQTM4NCAyMDI0IENBMTCCAiIw
+DQYJKoZIhvcNAQEBBQADggIPADCCAgoCggIBAOfSIeC0vv1xPQ+dgSxbIIrkaru6skAWJYaGFzmv
+q4Kq+2wU2jxhcWlJg/JeP5jEkq/LM3pn5aaLao79j+XRmS7J1ZpJKUODJVoM4s9MQJhTMvo4qS5Z
+S64g6QR7Obkz3I1Lr3aWeSBmDDEyzue+NKtuWZ1Cxy3RdXo/w5HgRc3l2AercOM3Gt1XonTzEtTb
+Z/Hwc0Sn9Gz8RmGRK6Ka4hVDl8q/2l110KaV233Kh5etP0csXS8MIMdVRfRu3sc5hp13DG7lCKzK
+72a2GEpI8Wpl26G6I1/LMzz/98T+FqjTqxsdquk7Cj7m2vKGLW1BorpQH7WFGPdJQXJe1hfbfiZA
+CcVdCtl4nAacFacmsiArZBfX7AQGL7isvHUwwYFEtcApyGW4p2Lt+t8nvU0CANA6BHOpOz1xOP8W
+mAESbUriIjyuTUf3fJ9oDNCurVqhASMJCDaWI3lYX/QAoiAzt6akqbbZxo2ujW7mGGqc0KxqE2cs
+h2T79v7pC8aUtHBfwNrTR19GnZVxE0eQ7ViIQhR6mpSaUQFA9sG+cmD2G8TnCgYsLa0q8De6F61a
+CBevQGHNzrbZ3JAMneveYg/Jy1XxQHDRcvrMfWKe0jjcWbdKYlaGVPm5V1ILwYz7Yv5ewo3NUrxI
+GJiywe9qPhuJSDZs7VehTuI0FxGIsgKzVjgbAgMBAAGjggFcMIIBWDASBgNVHRMBAf8ECDAGAQH/
+AgEAMB0GA1UdDgQWBBT3m6JO05fF9DQPQw6Bhc6RkzKv+TAfBgNVHSMEGDAWgBTOw0q5mVXyuNtg
+v6l+vVa1lzan1jAOBgNVHQ8BAf8EBAMCAYYwHQYDVR0lBBYwFAYIKwYBBQUHAwQGCCsGAQUFBwMC
+MHkGCCsGAQUFBwEBBG0wazAkBggrBgEFBQcwAYYYaHR0cDovL29jc3AuZGlnaWNlcnQuY29tMEMG
+CCsGAQUFBzAChjdodHRwOi8vY2FjZXJ0cy5kaWdpY2VydC5jb20vRGlnaUNlcnRBc3N1cmVkSURS
+b290RzIuY3J0MEUGA1UdHwQ+MDwwOqA4oDaGNGh0dHA6Ly9jcmwzLmRpZ2ljZXJ0LmNvbS9EaWdp
+Q2VydEFzc3VyZWRJRFJvb3RHMi5jcmwwEQYDVR0gBAowCDAGBgRVHSAAMA0GCSqGSIb3DQEBDAUA
+A4IBAQA+b8Uw53sDspdZgukU+qzLyyHkcjlxGGhHlP+zrmDLKm1wEFvCRS2pili3Hy67i8N4N5NU
+vw5Rg6kv3lxb9S9Rktxk43k+tvm68pl7OxQE55ZjVY87P0lUPGwEqOOwLLyH02ZQcsfq5p5LrOH9
+0JvmvZ1yy73HS+VpDAqOlytE0NSvTIRqFFkKQGQwfjvtql9YflujuNNvJztjBaHKYZsnNSg+J38o
+jYq4TP3pSg3UdVH0PncVjPQyqxC9xef5Xae92Kbkzol3x7Nel3A1bwAkalrDMspvTHvey6LfiBks
+FIqviTnoy7fgjaRAJgHS+RXx/cmuRd3rUAclSVVrYu8RMIIHAzCCBOugAwIBAgIQAzUotrsybJHx
+HTjKOIVdIDANBgkqhkiG9w0BAQsFADBiMQswCQYDVQQGEwJVUzEXMBUGA1UEChMORGlnaUNlcnQs
+IEluYy4xOjA4BgNVBAMTMURpZ2lDZXJ0IEFzc3VyZWQgRzIgU01JTUUgUlNBNDA5NiBTSEEzODQg
+MjAyNCBDQTEwHhcNMjYwNzE4MDAwMDAwWhcNMjgwMTA0MjM1OTU5WjAeMRwwGgYDVQQDDBNkd213
+MkBpbmZyYWRlYWQub3JnMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA2pYux73kdbYX
+sWF8f1u6DJP91qcqaZetsyfPkZk0B+MmXmAEv0kVes5n15V2mbDThOnpoPFly0UugQO9JYqLfrtD
+tKD5yL58fgrDB9Dw+LQikgrHafl6YSCds5AvUu/8hw2J6noKrcOLJpKlKn9Fl/4IB9Q3JIdLx5aa
+EtTqMalIPqHFOlgrJ7s+aua8xbB8YQ9ahqYBXWRJNv3P/2b1DYtdrz1oqZPE3CcB8Pc6Gf2a1Tcm
+6TAgtEx7Cf1BFcrsrMz7TWHmGQITieNb2r9UYWSc2Gp+GtYFNJCgT0JJXKUBIauPMKBLteYrL8Fo
+ff/uY44dC/mDWjdCP/5x0qelPQjlBvWdHL5zvBTOj06rJ0m3HNI/hnIcDh0Qu2j9reb9rLVcdym6
+bWmBM4uDEB8Zv9Ph0KTBFSy1IosyakuD1j1Os30EzjGfbi0EUXIvnOcYbTBAbM5UAzrxEHMhBvoX
+Pvnx+OyvjJmc9tWxTX6AcSz+m40esbT17URBeZS18afgieiikm5TynlUYP1LciR3hSgGVzvGXnKO
+02VDFR5itGWdRKZ2W5wIShNfWfhSa0D0K5UdIDt5Qc7sjzwK1Yb1sY5Tu0uA5mhIS82q1ov83uxB
+sFkriNnhGv/M1NCDVLBiOMsHu73qUM+yKmgKLwF9Hfn9WI25glbAMI4S5r3hYzcCAwEAAaOCAfcw
+ggHzMB8GA1UdIwQYMBaAFPebok7Tl8X0NA9DDoGFzpGTMq/5MB0GA1UdDgQWBBRcYhqbcGzn1jrT
+JOZaB8O7qllDpzAwBgNVHREEKTAngRNkd213MkBpbmZyYWRlYWQub3JngRBkYXZpZEB3b29kaG91
+LnNlMBQGA1UdIAQNMAswCQYHZ4EMAQUBAjAOBgNVHQ8BAf8EBAMCBeAwHQYDVR0lBBYwFAYIKwYB
+BQUHAwIGCCsGAQUFBwMEMIGpBgNVHR8EgaEwgZ4wTaBLoEmGR2h0dHA6Ly9jcmwzLmRpZ2ljZXJ0
+LmNvbS9EaWdpQ2VydEFzc3VyZWRHMlNNSU1FUlNBNDA5NlNIQTM4NDIwMjRDQTEuY3JsME2gS6BJ
+hkdodHRwOi8vY3JsNC5kaWdpY2VydC5jb20vRGlnaUNlcnRBc3N1cmVkRzJTTUlNRVJTQTQwOTZT
+SEEzODQyMDI0Q0ExLmNybDCBjQYIKwYBBQUHAQEEgYAwfjAkBggrBgEFBQcwAYYYaHR0cDovL29j
+c3AuZGlnaWNlcnQuY29tMFYGCCsGAQUFBzAChkpodHRwOi8vY2FjZXJ0cy5kaWdpY2VydC5jb20v
+RGlnaUNlcnRBc3N1cmVkRzJTTUlNRVJTQTQwOTZTSEEzODQyMDI0Q0ExLmNydDANBgkqhkiG9w0B
+AQsFAAOCAgEAocabrh1cPd5s3vY5rnlBVQSTc7zs2ZWs67dAIltR+05WELrYClVzzUhMs/LOJPlr
+EUo45UDDomXq38DxFepaPd9+iNLjXfn33EX/IG44j04lU/oF/Rg9VeQILkYLbCZ/x9wOjNHZc4SN
+ydY7Dhvf/sT5aBz88u7D5+azZJ7Qf1U57wYseCH1Mt0nDrtr5y19IJ8D9xJJ33RFL6vfpHZBBAQ8
++3RqkKNxLoV2aFvQhxdhjNLDqTv3LjUIdicwPraN7JkxEu7CV2Lka7eRqJgkWL7SK0YmBjGpRafs
++icP/ON5RCCKTTb6VlX8eTG2sJJfsFhvJNCCt6xexbWzWtIrfP7NvPBvwBB737AyEGBZkS5aNizT
+McURJGTv9UKvBh1LF/+tNhYtLvPCN7oecGzhCHht9jcwSkygTo3Y6YlK3QgOu+ncmiBbfeuwlLZ1
+LxbYvG6hgNqXv7u6YyADbYajAQJXJ2OQen39pm3Q/AQSyLYG+B8lDglWsM8tYXPlEdrYJcksGK6F
+nqIX6Bumn43rBooLJdiZp4WmfWdL2pxe+LxRDjprmqu1WprixDxULSTOKJZoqTlugs6y3Bc+if+s
+gHnBBtz9WQ6MtPHkh7zONDAFIKcBmv8OqPQCx0F3Wv3OEybwMpXx0OsKgK8wLldaX1pXcMuyDgTL
+Sqs0AV0OHUgwggcDMIIE66ADAgECAhADNSi2uzJskfEdOMo4hV0gMA0GCSqGSIb3DQEBCwUAMGIx
+CzAJBgNVBAYTAlVTMRcwFQYDVQQKEw5EaWdpQ2VydCwgSW5jLjE6MDgGA1UEAxMxRGlnaUNlcnQg
+QXNzdXJlZCBHMiBTTUlNRSBSU0E0MDk2IFNIQTM4NCAyMDI0IENBMTAeFw0yNjA3MTgwMDAwMDBa
+Fw0yODAxMDQyMzU5NTlaMB4xHDAaBgNVBAMME2R3bXcyQGluZnJhZGVhZC5vcmcwggIiMA0GCSqG
+SIb3DQEBAQUAA4ICDwAwggIKAoICAQDali7HveR1thexYXx/W7oMk/3Wpyppl62zJ8+RmTQH4yZe
+YAS/SRV6zmfXlXaZsNOE6emg8WXLRS6BA70liot+u0O0oPnIvnx+CsMH0PD4tCKSCsdp+XphIJ2z
+kC9S7/yHDYnqegqtw4smkqUqf0WX/ggH1Dckh0vHlpoS1OoxqUg+ocU6WCsnuz5q5rzFsHxhD1qG
+pgFdZEk2/c//ZvUNi12vPWipk8TcJwHw9zoZ/ZrVNybpMCC0THsJ/UEVyuyszPtNYeYZAhOJ41va
+v1RhZJzYan4a1gU0kKBPQklcpQEhq48woEu15isvwWh9/+5jjh0L+YNaN0I//nHSp6U9COUG9Z0c
+vnO8FM6PTqsnSbcc0j+GchwOHRC7aP2t5v2stVx3KbptaYEzi4MQHxm/0+HQpMEVLLUiizJqS4PW
+PU6zfQTOMZ9uLQRRci+c5xhtMEBszlQDOvEQcyEG+hc++fH47K+MmZz21bFNfoBxLP6bjR6xtPXt
+REF5lLXxp+CJ6KKSblPKeVRg/UtyJHeFKAZXO8Zeco7TZUMVHmK0ZZ1EpnZbnAhKE19Z+FJrQPQr
+lR0gO3lBzuyPPArVhvWxjlO7S4DmaEhLzarWi/ze7EGwWSuI2eEa/8zU0INUsGI4ywe7vepQz7Iq
+aAovAX0d+f1YjbmCVsAwjhLmveFjNwIDAQABo4IB9zCCAfMwHwYDVR0jBBgwFoAU95uiTtOXxfQ0
+D0MOgYXOkZMyr/kwHQYDVR0OBBYEFFxiGptwbOfWOtMk5loHw7uqWUOnMDAGA1UdEQQpMCeBE2R3
+bXcyQGluZnJhZGVhZC5vcmeBEGRhdmlkQHdvb2Rob3Uuc2UwFAYDVR0gBA0wCzAJBgdngQwBBQEC
+MA4GA1UdDwEB/wQEAwIF4DAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwQwgakGA1UdHwSB
+oTCBnjBNoEugSYZHaHR0cDovL2NybDMuZGlnaWNlcnQuY29tL0RpZ2lDZXJ0QXNzdXJlZEcyU01J
+TUVSU0E0MDk2U0hBMzg0MjAyNENBMS5jcmwwTaBLoEmGR2h0dHA6Ly9jcmw0LmRpZ2ljZXJ0LmNv
+bS9EaWdpQ2VydEFzc3VyZWRHMlNNSU1FUlNBNDA5NlNIQTM4NDIwMjRDQTEuY3JsMIGNBggrBgEF
+BQcBAQSBgDB+MCQGCCsGAQUFBzABhhhodHRwOi8vb2NzcC5kaWdpY2VydC5jb20wVgYIKwYBBQUH
+MAKGSmh0dHA6Ly9jYWNlcnRzLmRpZ2ljZXJ0LmNvbS9EaWdpQ2VydEFzc3VyZWRHMlNNSU1FUlNB
+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
+KYW1bIAgIYcNvvK8GmKR4aQAAAAAAAA=
+
+
+--=-+oD9ig9rliifEw/S0oU7--
