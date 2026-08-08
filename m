@@ -1,196 +1,161 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 212421E2834;
-	Sat,  8 Aug 2026 15:07:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 112374B04B4
+	for <virtualization@lists.linux.dev>; Sat,  8 Aug 2026 23:10:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786201624; cv=none; b=W3dCLiOqbvaBscdwhfaxJo9se0StenWqQWc1nxnC3q7ZBZ6nX9kqPhkO0ZmD7MFa1nQPpQMHJGcCU3Sy/X3akpXFvTvejnd6DYxUVuy28Yoaq6VzSVTSrZOSw0YXbdoLkFVSSYmfp6ZLjtbnXVmWGeVOBQf+E8kClpwVHLmu7tI=
+	t=1786230604; cv=none; b=lnp6583D5RKtvFYsNaAYK9gs0xrNbvFtLe/qBGhAvLqEHGA7hU6+lD5vSn4BSfTqyGBp9SXSDQ7yuy6+MmJlBq2vAHSpghgDN3g8/btYPGURQ54PQGwfjN1kkb2+y50fkb7qFNZ/fVTuoVzirY8crCQEV7DdiQB83DTQXnva7D0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786201624; c=relaxed/simple;
-	bh=Fbbn9MQ4G6MUWNu9/+/GjCMrKWLmyryuw2S3ABmDA6I=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:Content-Type:
-	 MIME-Version; b=LdDh4hMZoT4XjhAkyOlzj/Qf23Zlp4hS1st85+Q5kzoflOXTPMv6NyeWPiMVsiQKnkC6fvFm28ehXx69TTMlgIGqpgLoKRGYG1Fq5yvEG1NwzT/awyTyIEApsIXUxNno3wLIDsTaAdTP0X7uammfSBzH2N7DSO4tkXWMg+LX334=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=casper.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=YoP6gRks; arc=none smtp.client-ip=90.155.50.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=casper.srs.infradead.org
+	s=arc-20240116; t=1786230604; c=relaxed/simple;
+	bh=veI2S5AkKBecHOHYnAhkOXWI5HAFW6XLJIyvcYMukME=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=aL9H6T2AkJkzB4/qIFA/ZGULiBKORcko4m5oDidHdRccT6tz4u6OVm7Mi8pSG+1VdCLbqqK70eo63toP8R/oOYrenm/o+QfJuhkn1ZXoC/pBQl/omVFqzd+KSsZ71TeeAUXbpzPA7IHoFpSaKrmMKlVOSqbnq2/Aj0uh9TdkNsI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gHlqXSb9; arc=none smtp.client-ip=209.85.214.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="YoP6gRks"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=MIME-Version:Content-Type:In-Reply-To:
-	Date:Cc:To:From:Subject:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
-	Content-ID:Content-Description:References;
-	bh=5/jyAha6D+U5zzU3W+cCpJ3j4Z4I6ySL2lxtV4bdMdQ=; b=YoP6gRksn/p59tVjUCAEqmph19
-	weP9rQo8AlW5WV2KQS0n5f4YHgiz2Pl+8aPdOGfzFhagy5y5Ssii1oWx+2ScxbgznxW9qpWhhA/0A
-	ajwu5drZGj+3XNpCbCT46fXxUbrOlkD2uJ83sZVbE1SzC7/Di1WJW6k7VapxZ+2HdMQAaQlznVIEV
-	+UQAWE1PdzjUoASLyv+2+mTRbnshLC2mqyc36EQJN0F4qjxxBpnPX2O1viAXFperEWI4HRTjeTjR6
-	xIeK1PAAwGivwf9G5AboB23MahXCwnXhFTAhLz7GC1wb64934IM9q5kZI67h4UKuWxz1s50LqEWAp
-	oaelbJ3g==;
-Received: from [54.239.6.187] (helo=u09cd745991455d.ant.amazon.com)
-	by casper.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
-	id 1wsidV-00000006ZMH-1xgd;
-	Sat, 08 Aug 2026 15:06:57 +0000
-Message-ID: <908a4fd0ec4498c907decfd105e1662fb4ce19eb.camel@infradead.org>
-Subject: Re: [PATCH v6 24/51] x86/kvm: Get CPU base frequency from CPUID
- when it's available
-From: David Woodhouse <dwmw2@infradead.org>
-To: seanjc@google.com
-Cc: kas@kernel.org, rick.p.edgecombe@intel.com, pbonzini@redhat.com, 
-	kys@microsoft.com, haiyangz@microsoft.com, wei.liu@kernel.org,
- decui@microsoft.com, 	longli@microsoft.com, ajay.kaher@broadcom.com,
- alexey.makhalov@broadcom.com, 	jan.kiszka@siemens.com,
- dave.hansen@linux.intel.com, luto@kernel.org, 	peterz@infradead.org,
- jgross@suse.com, daniel.lezcano@kernel.org, tglx@kernel.org, 
-	jstultz@google.com, x86@kernel.org, linux-coco@lists.linux.dev, 
-	kvm@vger.kernel.org, linux-hyperv@vger.kernel.org, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	xen-devel@lists.xenproject.org
-Date: Sat, 08 Aug 2026 16:06:56 +0100
-In-Reply-To: <20260806233609.212337-25-seanjc@google.com>
-Content-Type: multipart/signed; micalg="sha-256"; protocol="application/pkcs7-signature";
-	boundary="=-5qVG4UC9E8Q5nQrvV8Pq"
-User-Agent: Evolution 3.60.3-0ubuntu1~ppa9~24.04 
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gHlqXSb9"
+Received: by mail-pl1-f172.google.com with SMTP id d9443c01a7336-2cc7e86e7aeso6978695ad.2
+        for <virtualization@lists.linux.dev>; Sat, 08 Aug 2026 16:10:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1786230602; x=1786835402; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=rH2W1wopjxMu7bNPTu3XbUp0wkIuNWweLs/V8E2Ud3Y=;
+        b=gHlqXSb94vUnNyKxFv17SkuAHX8BDeNUqtm0GYXJ/2RXKvWHI3mMgThSta1Z8Xe87J
+         /5SV8WpEXw4YYxtX8EeFPHhy4gmqQhMTYiwKCAz8J8ocQQduKciydGM3Zx6wvkH1EeDO
+         cRm71TYc+I/uxx424OO94PmOHVZPAb2N81jBKR7TPMWzUTL3t754hhn5dv5hIeU0SqcO
+         fjGNEeaxMKerneVjjO7AeOqr5+vUzIe0RdbOB1cF0Q93BryDRo/z7hdGXETJQXd9PW+w
+         Ew5slJXaP0K/XMg1CadBjwC4ArGxugEVivRgkVRY7Y8/zVWufhRR1Zay3cTQiioJZpLE
+         JWRA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786230602; x=1786835402;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=rH2W1wopjxMu7bNPTu3XbUp0wkIuNWweLs/V8E2Ud3Y=;
+        b=VTWnGumcm/XRYgal3Rogb8sKcEWSqUEpuf8JoGYj0lYprb1T8/KsRyCIFxJvQaLJ/J
+         YEym4S+ROkS6nDW5VdM9xvhu1s7Q+PMSEwsC3j+VWmjlnE7ssoUeBbVO+HgvajCVjIk6
+         +vlLmZ6bIyhoFRDYPGTnvg3Nx9ezRJb5Q6DnhdHHlTptfaVir35VppNY3c+EN81PfPzA
+         qACZIj6OGLud56zx3NQCUhoSqjvL64AwTWB/Dz7yTaalK4bPBKgZKCT6hKPLgyzjhaH+
+         0+D5NDCbpWtu9Inf6yCH86S1XLTRcFYlc6j0zhI4ta8XBTwFNe3mek3SRNFo1YdDYjk1
+         Es3w==
+X-Forwarded-Encrypted: i=1; AHgh+RpN6IM78pwZ5cZ0dexQPI52QxXrFZItJFx0/wSaiuvhyGdLGJJUrJNNHrATWgwyUEOol5b0c9MkVy3BbyVjxQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwbaOs+K3+J8GQohCBAnOMYM+U1FUk7BkIFRFZyJUkREMbLVMJQ
+	7kGOzc/mx/QE8C+FtXvEAxTbMMyer4wK7alUoQHiFV8Bomqkyk1GkFeu
+X-Gm-Gg: AR+sD12FFm1VZGdySnA+WHDGzhfc1xuEC7/Sv66eShb+avUYcaXwiboeZSpwwwsnG3Q
+	maaz5WALPfW4kgqNtICe1hYG19YBTJ09maKGZOJkvT2x+7jZnsT6KpOvFVnJWPkSpRCcT7umtrb
+	EVD5vtJ5TB63VEDmKHYTBZECFFECZ7Wz2mubDcon60wib3gdJgyBks4gXupQFDppuinLag1wxjE
+	Cr+++clRUg//sfLs5nidl9S/K4GuOzD+CDRP+ZoezX7WJTxMZI7pQiwEOAYcnhhvyVA/x15GAJP
+	wjG4rIBOhOgbzOGBDbx1DIdRvp98lsf9Z+r7M+yBXrPGbpmEG8nWKfukuooHF6EfNrERgMHw2uP
+	cjnRsqiIbcLxdXjSiL5mB8gL13vSSHSIMcFnlIhACkkthLNvCuweNJWjHppQMmXuZtQ21WZVVpb
+	gP9pCoQO40tIt+M+8CNhO8v2VigTCfiNdm8J76KWbp96i8+qCuQpoJ
+X-Received: by 2002:a05:6a20:9c17:b0:3c4:397a:69b0 with SMTP id adf61e73a8af0-3cbadc17561mr24004662637.21.1786230602271;
+        Sat, 08 Aug 2026 16:10:02 -0700 (PDT)
+Received: from beelink.. ([186.22.57.86])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-315bec26a5dsm23319791eec.26.2026.08.08.16.09.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 08 Aug 2026 16:10:01 -0700 (PDT)
+From: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
+To: Dave Airlie <airlied@redhat.com>,
+	Gerd Hoffmann <kraxel@redhat.com>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	David Airlie <airlied@gmail.com>,
+	Simona Vetter <simona@ffwll.ch>,
+	virtualization@lists.linux.dev,
+	spice-devel@lists.freedesktop.org,
+	dri-devel@lists.freedesktop.org,
+	linux-kernel@vger.kernel.org,
+	Aldo Ariel Panzardo <qwe.aldo@gmail.com>
+Subject: [PATCH] drm/qxl: fix 32-bit overflow in the ALLOC_SURF size computation
+Date: Sat,  8 Aug 2026 20:09:45 -0300
+Message-ID: <20260808230945.67525-1-qwe.aldo@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
+Content-Transfer-Encoding: 8bit
 
+qxl_alloc_surf_ioctl() works out the backing size of a surface with
 
---=-5qVG4UC9E8Q5nQrvV8Pq
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+	actual_stride = param->stride < 0 ? -param->stride : param->stride;
+	size = actual_stride * param->height + actual_stride;
 
-On Thu, 2026-08-06 at 16:35 -0700, Sean Christopherson wrote:
-> If CPUID.0x16 is present and valid, use the CPU frequency provided by
-> CPUID instead of assuming that the virtual CPU runs at the same
-> frequency as TSC and/or kvmclock.  Back before constant TSCs were a
-> thing, treating the TSC and CPU frequencies as one and the same was
-> somewhat reasonable, but now it's nonsensical, especially if the
-> hypervisor explicitly enumerates the CPU frequency.
->
-> Signed-off-by: Sean Christopherson <seanjc@google.com>
+where size and actual_stride are int and param->height is __u32.  Every
+operand comes straight from userspace through DRM_IOCTL_QXL_ALLOC_SURF,
+which is DRM_AUTH, and the expression is evaluated modulo 2^32 with no
+overflow check.
 
-I still don't think I care about Sashiko's complaint.
+The wrapped value is what reaches qxl_bo_create(), which only rounds it
+up to a page.  The original width, height and stride are kept verbatim
+in bo->surf and are later handed to the device by qxl_hw_surface_alloc()
+together with the address of that undersized allocation, so the driver
+tells the host about a surface far larger than the memory backing it.
 
-Reviewed-by: David Woodhouse <dwmw@amazon.co.uk>
+For example stride=4096, height=1048576 gives
+4096 * (1048576 + 1) = 0x1_0000_1000, which truncates to 4096: a
+one-page buffer object described to the device as a 4 GiB surface.
+Measured on 6.12.101 by probing mmap() lengths against the resulting
+GEM object, the backing is 4096 bytes while the surface declared to the
+device is 4294967296 bytes.
 
---=-5qVG4UC9E8Q5nQrvV8Pq
-Content-Type: application/pkcs7-signature; name="smime.p7s"
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Transfer-Encoding: base64
+Two smaller problems are fixed at the same time.  Negating param->stride
+is undefined for INT_MIN, and unlike QXL_ALLOC there is no rejection of
+a zero-sized request.
 
-MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiG9w0BBwEAAKCCE8Ew
-ggWvMIIEl6ADAgECAhANkOKMSmGXhF5eMl0rsRhvMA0GCSqGSIb3DQEBDAUAMGUxCzAJBgNVBAYT
-AlVTMRUwEwYDVQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdpY2VydC5jb20xJDAi
-BgNVBAMTG0RpZ2lDZXJ0IEFzc3VyZWQgSUQgUm9vdCBHMjAeFw0yNDAzMTMwMDAwMDBaFw0zNDAz
-MTIyMzU5NTlaMGIxCzAJBgNVBAYTAlVTMRcwFQYDVQQKEw5EaWdpQ2VydCwgSW5jLjE6MDgGA1UE
-AxMxRGlnaUNlcnQgQXNzdXJlZCBHMiBTTUlNRSBSU0E0MDk2IFNIQTM4NCAyMDI0IENBMTCCAiIw
-DQYJKoZIhvcNAQEBBQADggIPADCCAgoCggIBAOfSIeC0vv1xPQ+dgSxbIIrkaru6skAWJYaGFzmv
-q4Kq+2wU2jxhcWlJg/JeP5jEkq/LM3pn5aaLao79j+XRmS7J1ZpJKUODJVoM4s9MQJhTMvo4qS5Z
-S64g6QR7Obkz3I1Lr3aWeSBmDDEyzue+NKtuWZ1Cxy3RdXo/w5HgRc3l2AercOM3Gt1XonTzEtTb
-Z/Hwc0Sn9Gz8RmGRK6Ka4hVDl8q/2l110KaV233Kh5etP0csXS8MIMdVRfRu3sc5hp13DG7lCKzK
-72a2GEpI8Wpl26G6I1/LMzz/98T+FqjTqxsdquk7Cj7m2vKGLW1BorpQH7WFGPdJQXJe1hfbfiZA
-CcVdCtl4nAacFacmsiArZBfX7AQGL7isvHUwwYFEtcApyGW4p2Lt+t8nvU0CANA6BHOpOz1xOP8W
-mAESbUriIjyuTUf3fJ9oDNCurVqhASMJCDaWI3lYX/QAoiAzt6akqbbZxo2ujW7mGGqc0KxqE2cs
-h2T79v7pC8aUtHBfwNrTR19GnZVxE0eQ7ViIQhR6mpSaUQFA9sG+cmD2G8TnCgYsLa0q8De6F61a
-CBevQGHNzrbZ3JAMneveYg/Jy1XxQHDRcvrMfWKe0jjcWbdKYlaGVPm5V1ILwYz7Yv5ewo3NUrxI
-GJiywe9qPhuJSDZs7VehTuI0FxGIsgKzVjgbAgMBAAGjggFcMIIBWDASBgNVHRMBAf8ECDAGAQH/
-AgEAMB0GA1UdDgQWBBT3m6JO05fF9DQPQw6Bhc6RkzKv+TAfBgNVHSMEGDAWgBTOw0q5mVXyuNtg
-v6l+vVa1lzan1jAOBgNVHQ8BAf8EBAMCAYYwHQYDVR0lBBYwFAYIKwYBBQUHAwQGCCsGAQUFBwMC
-MHkGCCsGAQUFBwEBBG0wazAkBggrBgEFBQcwAYYYaHR0cDovL29jc3AuZGlnaWNlcnQuY29tMEMG
-CCsGAQUFBzAChjdodHRwOi8vY2FjZXJ0cy5kaWdpY2VydC5jb20vRGlnaUNlcnRBc3N1cmVkSURS
-b290RzIuY3J0MEUGA1UdHwQ+MDwwOqA4oDaGNGh0dHA6Ly9jcmwzLmRpZ2ljZXJ0LmNvbS9EaWdp
-Q2VydEFzc3VyZWRJRFJvb3RHMi5jcmwwEQYDVR0gBAowCDAGBgRVHSAAMA0GCSqGSIb3DQEBDAUA
-A4IBAQA+b8Uw53sDspdZgukU+qzLyyHkcjlxGGhHlP+zrmDLKm1wEFvCRS2pili3Hy67i8N4N5NU
-vw5Rg6kv3lxb9S9Rktxk43k+tvm68pl7OxQE55ZjVY87P0lUPGwEqOOwLLyH02ZQcsfq5p5LrOH9
-0JvmvZ1yy73HS+VpDAqOlytE0NSvTIRqFFkKQGQwfjvtql9YflujuNNvJztjBaHKYZsnNSg+J38o
-jYq4TP3pSg3UdVH0PncVjPQyqxC9xef5Xae92Kbkzol3x7Nel3A1bwAkalrDMspvTHvey6LfiBks
-FIqviTnoy7fgjaRAJgHS+RXx/cmuRd3rUAclSVVrYu8RMIIHAzCCBOugAwIBAgIQAzUotrsybJHx
-HTjKOIVdIDANBgkqhkiG9w0BAQsFADBiMQswCQYDVQQGEwJVUzEXMBUGA1UEChMORGlnaUNlcnQs
-IEluYy4xOjA4BgNVBAMTMURpZ2lDZXJ0IEFzc3VyZWQgRzIgU01JTUUgUlNBNDA5NiBTSEEzODQg
-MjAyNCBDQTEwHhcNMjYwNzE4MDAwMDAwWhcNMjgwMTA0MjM1OTU5WjAeMRwwGgYDVQQDDBNkd213
-MkBpbmZyYWRlYWQub3JnMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA2pYux73kdbYX
-sWF8f1u6DJP91qcqaZetsyfPkZk0B+MmXmAEv0kVes5n15V2mbDThOnpoPFly0UugQO9JYqLfrtD
-tKD5yL58fgrDB9Dw+LQikgrHafl6YSCds5AvUu/8hw2J6noKrcOLJpKlKn9Fl/4IB9Q3JIdLx5aa
-EtTqMalIPqHFOlgrJ7s+aua8xbB8YQ9ahqYBXWRJNv3P/2b1DYtdrz1oqZPE3CcB8Pc6Gf2a1Tcm
-6TAgtEx7Cf1BFcrsrMz7TWHmGQITieNb2r9UYWSc2Gp+GtYFNJCgT0JJXKUBIauPMKBLteYrL8Fo
-ff/uY44dC/mDWjdCP/5x0qelPQjlBvWdHL5zvBTOj06rJ0m3HNI/hnIcDh0Qu2j9reb9rLVcdym6
-bWmBM4uDEB8Zv9Ph0KTBFSy1IosyakuD1j1Os30EzjGfbi0EUXIvnOcYbTBAbM5UAzrxEHMhBvoX
-Pvnx+OyvjJmc9tWxTX6AcSz+m40esbT17URBeZS18afgieiikm5TynlUYP1LciR3hSgGVzvGXnKO
-02VDFR5itGWdRKZ2W5wIShNfWfhSa0D0K5UdIDt5Qc7sjzwK1Yb1sY5Tu0uA5mhIS82q1ov83uxB
-sFkriNnhGv/M1NCDVLBiOMsHu73qUM+yKmgKLwF9Hfn9WI25glbAMI4S5r3hYzcCAwEAAaOCAfcw
-ggHzMB8GA1UdIwQYMBaAFPebok7Tl8X0NA9DDoGFzpGTMq/5MB0GA1UdDgQWBBRcYhqbcGzn1jrT
-JOZaB8O7qllDpzAwBgNVHREEKTAngRNkd213MkBpbmZyYWRlYWQub3JngRBkYXZpZEB3b29kaG91
-LnNlMBQGA1UdIAQNMAswCQYHZ4EMAQUBAjAOBgNVHQ8BAf8EBAMCBeAwHQYDVR0lBBYwFAYIKwYB
-BQUHAwIGCCsGAQUFBwMEMIGpBgNVHR8EgaEwgZ4wTaBLoEmGR2h0dHA6Ly9jcmwzLmRpZ2ljZXJ0
-LmNvbS9EaWdpQ2VydEFzc3VyZWRHMlNNSU1FUlNBNDA5NlNIQTM4NDIwMjRDQTEuY3JsME2gS6BJ
-hkdodHRwOi8vY3JsNC5kaWdpY2VydC5jb20vRGlnaUNlcnRBc3N1cmVkRzJTTUlNRVJTQTQwOTZT
-SEEzODQyMDI0Q0ExLmNybDCBjQYIKwYBBQUHAQEEgYAwfjAkBggrBgEFBQcwAYYYaHR0cDovL29j
-c3AuZGlnaWNlcnQuY29tMFYGCCsGAQUFBzAChkpodHRwOi8vY2FjZXJ0cy5kaWdpY2VydC5jb20v
-RGlnaUNlcnRBc3N1cmVkRzJTTUlNRVJTQTQwOTZTSEEzODQyMDI0Q0ExLmNydDANBgkqhkiG9w0B
-AQsFAAOCAgEAocabrh1cPd5s3vY5rnlBVQSTc7zs2ZWs67dAIltR+05WELrYClVzzUhMs/LOJPlr
-EUo45UDDomXq38DxFepaPd9+iNLjXfn33EX/IG44j04lU/oF/Rg9VeQILkYLbCZ/x9wOjNHZc4SN
-ydY7Dhvf/sT5aBz88u7D5+azZJ7Qf1U57wYseCH1Mt0nDrtr5y19IJ8D9xJJ33RFL6vfpHZBBAQ8
-+3RqkKNxLoV2aFvQhxdhjNLDqTv3LjUIdicwPraN7JkxEu7CV2Lka7eRqJgkWL7SK0YmBjGpRafs
-+icP/ON5RCCKTTb6VlX8eTG2sJJfsFhvJNCCt6xexbWzWtIrfP7NvPBvwBB737AyEGBZkS5aNizT
-McURJGTv9UKvBh1LF/+tNhYtLvPCN7oecGzhCHht9jcwSkygTo3Y6YlK3QgOu+ncmiBbfeuwlLZ1
-LxbYvG6hgNqXv7u6YyADbYajAQJXJ2OQen39pm3Q/AQSyLYG+B8lDglWsM8tYXPlEdrYJcksGK6F
-nqIX6Bumn43rBooLJdiZp4WmfWdL2pxe+LxRDjprmqu1WprixDxULSTOKJZoqTlugs6y3Bc+if+s
-gHnBBtz9WQ6MtPHkh7zONDAFIKcBmv8OqPQCx0F3Wv3OEybwMpXx0OsKgK8wLldaX1pXcMuyDgTL
-Sqs0AV0OHUgwggcDMIIE66ADAgECAhADNSi2uzJskfEdOMo4hV0gMA0GCSqGSIb3DQEBCwUAMGIx
-CzAJBgNVBAYTAlVTMRcwFQYDVQQKEw5EaWdpQ2VydCwgSW5jLjE6MDgGA1UEAxMxRGlnaUNlcnQg
-QXNzdXJlZCBHMiBTTUlNRSBSU0E0MDk2IFNIQTM4NCAyMDI0IENBMTAeFw0yNjA3MTgwMDAwMDBa
-Fw0yODAxMDQyMzU5NTlaMB4xHDAaBgNVBAMME2R3bXcyQGluZnJhZGVhZC5vcmcwggIiMA0GCSqG
-SIb3DQEBAQUAA4ICDwAwggIKAoICAQDali7HveR1thexYXx/W7oMk/3Wpyppl62zJ8+RmTQH4yZe
-YAS/SRV6zmfXlXaZsNOE6emg8WXLRS6BA70liot+u0O0oPnIvnx+CsMH0PD4tCKSCsdp+XphIJ2z
-kC9S7/yHDYnqegqtw4smkqUqf0WX/ggH1Dckh0vHlpoS1OoxqUg+ocU6WCsnuz5q5rzFsHxhD1qG
-pgFdZEk2/c//ZvUNi12vPWipk8TcJwHw9zoZ/ZrVNybpMCC0THsJ/UEVyuyszPtNYeYZAhOJ41va
-v1RhZJzYan4a1gU0kKBPQklcpQEhq48woEu15isvwWh9/+5jjh0L+YNaN0I//nHSp6U9COUG9Z0c
-vnO8FM6PTqsnSbcc0j+GchwOHRC7aP2t5v2stVx3KbptaYEzi4MQHxm/0+HQpMEVLLUiizJqS4PW
-PU6zfQTOMZ9uLQRRci+c5xhtMEBszlQDOvEQcyEG+hc++fH47K+MmZz21bFNfoBxLP6bjR6xtPXt
-REF5lLXxp+CJ6KKSblPKeVRg/UtyJHeFKAZXO8Zeco7TZUMVHmK0ZZ1EpnZbnAhKE19Z+FJrQPQr
-lR0gO3lBzuyPPArVhvWxjlO7S4DmaEhLzarWi/ze7EGwWSuI2eEa/8zU0INUsGI4ywe7vepQz7Iq
-aAovAX0d+f1YjbmCVsAwjhLmveFjNwIDAQABo4IB9zCCAfMwHwYDVR0jBBgwFoAU95uiTtOXxfQ0
-D0MOgYXOkZMyr/kwHQYDVR0OBBYEFFxiGptwbOfWOtMk5loHw7uqWUOnMDAGA1UdEQQpMCeBE2R3
-bXcyQGluZnJhZGVhZC5vcmeBEGRhdmlkQHdvb2Rob3Uuc2UwFAYDVR0gBA0wCzAJBgdngQwBBQEC
-MA4GA1UdDwEB/wQEAwIF4DAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwQwgakGA1UdHwSB
-oTCBnjBNoEugSYZHaHR0cDovL2NybDMuZGlnaWNlcnQuY29tL0RpZ2lDZXJ0QXNzdXJlZEcyU01J
-TUVSU0E0MDk2U0hBMzg0MjAyNENBMS5jcmwwTaBLoEmGR2h0dHA6Ly9jcmw0LmRpZ2ljZXJ0LmNv
-bS9EaWdpQ2VydEFzc3VyZWRHMlNNSU1FUlNBNDA5NlNIQTM4NDIwMjRDQTEuY3JsMIGNBggrBgEF
-BQcBAQSBgDB+MCQGCCsGAQUFBzABhhhodHRwOi8vb2NzcC5kaWdpY2VydC5jb20wVgYIKwYBBQUH
-MAKGSmh0dHA6Ly9jYWNlcnRzLmRpZ2ljZXJ0LmNvbS9EaWdpQ2VydEFzc3VyZWRHMlNNSU1FUlNB
-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
-snTppZI8KQqD0ALD+ClLQUYAAAAAAAA=
+Compute the size in a type that cannot wrap, reject INT_MIN and zero
+dimensions, and bound the result so it still fits the int parameter of
+qxl_gem_object_create().
 
+Fixes: f64122c1f6ad ("drm: add new QXL driver. (v1.4)")
+Cc: stable@vger.kernel.org
+Signed-off-by: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
+---
+ drivers/gpu/drm/qxl/qxl_ioctl.c | 19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
 
---=-5qVG4UC9E8Q5nQrvV8Pq--
+diff --git a/drivers/gpu/drm/qxl/qxl_ioctl.c b/drivers/gpu/drm/qxl/qxl_ioctl.c
+--- a/drivers/gpu/drm/qxl/qxl_ioctl.c
++++ b/drivers/gpu/drm/qxl/qxl_ioctl.c
+@@ -23,6 +23,7 @@
+  *          Alon Levy
+  */
+ 
++#include <linux/overflow.h>
+ #include <linux/pci.h>
+ #include <linux/uaccess.h>
+ 
+@@ -386,12 +387,26 @@
+ 	struct drm_qxl_alloc_surf *param = data;
+ 	int handle;
+ 	int ret;
+-	int size, actual_stride;
++	int actual_stride;
++	size_t size;
+ 	struct qxl_surface surf;
+ 
+ 	/* work out size allocate bo with handle */
++	if (param->stride == INT_MIN)
++		return -EINVAL;
+ 	actual_stride = param->stride < 0 ? -param->stride : param->stride;
+-	size = actual_stride * param->height + actual_stride;
++	if (!actual_stride || !param->width || !param->height)
++		return -EINVAL;
++	/*
++	 * size = actual_stride * (height + 1), evaluated in a type that cannot
++	 * wrap, then bounded so it survives the int parameter of
++	 * qxl_gem_object_create().
++	 */
++	if (check_mul_overflow((size_t)actual_stride,
++			       (size_t)param->height + 1, &size))
++		return -EINVAL;
++	if (size > INT_MAX)
++		return -EINVAL;
+ 
+ 	surf.format = param->format;
+ 	surf.width = param->width;
