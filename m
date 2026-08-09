@@ -1,208 +1,83 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73AA737F8C0
-	for <virtualization@lists.linux.dev>; Sun,  9 Aug 2026 22:48:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AAFF42E401;
+	Sun,  9 Aug 2026 23:15:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786315724; cv=none; b=HO1Ay0gb5uSYO8xGO/AAjmZjRMXECGGThAiaCwLmhR6GqFcu3zGwoaEJHxaqs8yjwoX/176fzvIRr+9WF5+DHy69tTdc0H53c1ks1HP2Cg7wzH5t7PGrt6c0HGzBbqdgwiWzN5uct7wfeZSUZjnBujm3WoQyd3byt711Ktj+aI8=
+	t=1786317337; cv=none; b=PPCfFCtOJ6tZGQEbfiJ+e1v8VE4FWKObUKX9TkYp6VNTgMcpx0fdAdnY/fljpGMiNxuZ2G/HLo0NZsqi+dgqWYAxpiSVqnKXo+OFHY6AOJcKZrBBBZmeNV3lR083xi0gYdLvGR3cPGNQw6pjqVQiPvmMmc8vwIPMHUQV6WLvgtk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786315724; c=relaxed/simple;
-	bh=KM8prxrVrtAsOR6nP5susi/p8S+6RyFtfZi+PBXuziI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=VSDMd+1isCju+rUwFGMgxdvFBrB9HjgfWmzBbq/AnAYSV6DXQF9sDabWxefqmeiGbpZcuqhfzYK56Qz3s1gkQikAQVPniBOcff5+I3Fh5b4EG42vo+cQqzlOOuQeZaPz+t/E7O2dxUdfoRkB5rdVooICS8uoTQDOkpRrWEZDm6I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XJnXpNtz; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1786317337; c=relaxed/simple;
+	bh=HkgiL877x1NhAZjHcTrix8HGGel5Y3l+BrxwBDUSSPU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=F/XUeoFnz66PAV1liy00qjWvM0H3wGk0+f9gENbXDqoKq5kyveZM9ZRYeuAj2Pvxd4nUCGngyG0CCPNtPs/RbAhT5biIoCKeSQRm8dvy49ThHY/wRPwOYqNOiKMdCTxGwJdGpar0Vs1rBjV+3DbNMnTa6BSee4sLzD2IZ1gG9Pk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=pass smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=oo+FFzlK; arc=none smtp.client-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XJnXpNtz"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1786315721;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=vdUvLyEIlQ9ZJUxPR28fKR6RB33aERo4aOGowMmRbvM=;
-	b=XJnXpNtzYkv0zi6fzZZe1UU9lmcJJ+c0/2sv4AURrLE9+YV036UA6uX6aKrAJuTDUnuiJA
-	4TfEDn99DNeSwt7KwVIkeOAyMAOEzmjn7Uwn6oJZZVflGNy0JGRgyU2tUM2wIOzM7Dojf+
-	WmCs0A0lVPIF1L4nhCk2s/8Hz5JmniI=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-696-nCvKNkBQNLCr14QJgutGGg-1; Sun, 09 Aug 2026 18:48:40 -0400
-X-MC-Unique: nCvKNkBQNLCr14QJgutGGg-1
-X-Mimecast-MFC-AGG-ID: nCvKNkBQNLCr14QJgutGGg_1786315719
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-495474a5fbcso11952045e9.1
-        for <virtualization@lists.linux.dev>; Sun, 09 Aug 2026 15:48:39 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786315719; x=1786920519;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=vdUvLyEIlQ9ZJUxPR28fKR6RB33aERo4aOGowMmRbvM=;
-        b=CS45VbDHGA82dkTnnY04rjCl1jJugn+4hmLH5z3I9op0CmfUPrRY4jNLNvZsFcGdYT
-         Iv4OmK/I9KsmIlyAfjt1c3QZlQHfpUPefko+Olu3ZwwxBSa3aj2nGt9TOEzYGvooofmB
-         bm/JLY/iEUq2bSMqTpVQkmQUldFzlyR6f/pSTbSdvT6209QYERqhreI9bhScLYH+KGTA
-         a5Br9+jqYUtZ3sRkKE71uaMcy95f8zOXdd23JrRjdSw+JNWwzHDRTnS4Irz3bqxA9T7r
-         /KekgiGfh/Zmo9GEw7ic5VSbZed9TloiDcSQ5I2/AJVRnFgduc/yUke7AL5mxLoP9v5k
-         hRRA==
-X-Forwarded-Encrypted: i=1; AHgh+Rr9GzCd+h70dNecTTVaX+qP9h/9SUnLkmHhMBQ6Qq0WTexyHpl8Z1wxVQp4WMeAw10aR0Eh4lhG2UJ8WSN+yw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwEBUJeaGkbu5wOi+qzlRXIYxH5D/h0n8NVsu92uc6iJqBOlFv+
-	23/JTH7HeVj+jbTfyr/W1tlw99gAz63Dwf02cJO+83jHNM0Bqj5xGu1LZ0wjcp9na0Ueo3UVQj6
-	uqEgWQXW7NsQgbo8qA9bZZQ9boTcNQV7TACn+fD8OxNn1dp0cfSzyCM9+FnJ4Lb/6YTcUUAVwX4
-	VJ
-X-Gm-Gg: AR+sD13BdFJJk/hbn1CHk4UqXNyDRkda0F5Zz0GNTNCP1eIbZmVae6dXV4uwaGxiOo7
-	Y7kcqlI5B02MnScpP2ze+oUaaIIk+OEAem7zsRYtb3rg97JBUD+3v1nH9B3bVx20DY5D1iRbNS/
-	JoiCBehQFmqNhonuF8abtWQAa9CqjkF8G9h9CiDIpB7ttXu1yvQo2D9R1dqzlUbgM2PnMn39OlM
-	3+4yjPFQyJbdMkTuNeP6pjShRyNxgcb7ytiYF5j23VtcKQqJUx5Tyk+Zseh6cMgBli6MU7m37Q+
-	KyHbuUjAV+b+ZHlbtBy2FEUqvhPMJrNI4kYcAXv26g6VO9h8Ue7bdRMakNlmfxQHxZryIWFvDOs
-	vXVyvmhnu8eWhT8+tOlPlbw==
-X-Received: by 2002:a05:600c:c8a:b0:493:eed4:7210 with SMTP id 5b1f17b1804b1-49961992a4amr220473745e9.11.1786315718615;
-        Sun, 09 Aug 2026 15:48:38 -0700 (PDT)
-X-Received: by 2002:a05:600c:c8a:b0:493:eed4:7210 with SMTP id 5b1f17b1804b1-49961992a4amr220473375e9.11.1786315718192;
-        Sun, 09 Aug 2026 15:48:38 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-39-98.inter.net.il. [80.230.39.98])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-480021509a5sm25733149f8f.16.2026.08.09.15.48.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 09 Aug 2026 15:48:37 -0700 (PDT)
-Date: Sun, 9 Aug 2026 18:48:34 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Alexander Graf <graf@amazon.com>
-Cc: Jason Wang <jasowangio@gmail.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	nh-open-source@amazon.com, Stefan Hajnoczi <stefanha@redhat.com>,
-	Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [RFC PATCH 02/12] virtio_ring: validate premapped addresses
- through the device's map
-Message-ID: <20260809184247-mutt-send-email-mst@kernel.org>
-References: <20260809182010.32931-1-graf@amazon.com>
- <20260809182010.32931-3-graf@amazon.com>
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="oo+FFzlK"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+	Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
+	Message-ID:Sender:Reply-To:Content-ID:Content-Description;
+	bh=SoBiIcUKkLsP6UDETpX1PzwZE2TvLHRfs52WUirHK+E=; b=oo+FFzlKcz078c83/WyrtUw+PW
+	iA1GgatjSrSZ2aKBBZC/4vkfPF9T1Y1YCL1Yr1HT9o1ckIjoA2fHIzbQnIyNNHZFN4JMDq3rLPLMe
+	7BRSTJfDx8CxljivNobV952ucQx5CxpBXMD4RV8UBLifcaqTkyytP46D3OeKMHd3EL9OfTUNFAXD2
+	bRqfB5c4Jq8Gp97Us1mvgXuwJFQML2kXk/v5Z3ApgazaGTdm3yUo4ZcRRO+e2jKKueche8CA1W2fU
+	VKSDlERWqeFW8c8MWJDknrnSXTDqlfMrLsDTbta6D73qrB9EpFtO4NuL+SLT+fgjsVPbOidC10FQj
+	Mpn919Tw==;
+Received: from [50.53.43.113] (helo=[192.168.254.34])
+	by bombadil.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
+	id 1wtCjn-0000000Ap9n-1LGv;
+	Sun, 09 Aug 2026 23:15:28 +0000
+Message-ID: <3f225be6-c87d-433d-9589-231d37ca6360@infradead.org>
+Date: Sun, 9 Aug 2026 16:15:25 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260809182010.32931-3-graf@amazon.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: LC1fRJW6EiIMGyjnzbSQxNW6_2sIglupB_1teabXOQY_1786315719
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Sun, Aug 09, 2026 at 06:20:00PM +0000, Alexander Graf wrote:
-> Callers that forget to handle a mapping failure may accidentally pass
-> DMA_MAPPING_ERROR as target map address and we don't error out for it.
-> The mapped path in vring_map_one_sg() checks the result, but the
-> premapped path takes the address as given. That makes it more difficult
-> to identify accidental API misuse.
-
-
-Nah.
-
-We don't spread null checks all over the place and this is the same.
-
-
-> 
-> Run the address through the existing vring_mapping_error(), which asks
-> the device's virtio_map_ops mapping_error op or dma_mapping_error(),
-> warn once and return -ENOMEM when it rejects the address. Document
-> where the premapped helpers expect their addresses to come from, since
-> an address from any other source is indistinguishable from a valid one.
-> That way an API misuse shows up at the call that made it.
-
-Commit log does not match what doc patches do.
-
-> Assisted-by: Kiro:claude-opus-5 checkpatch sparse
-> Signed-off-by: Alexander Graf <graf@amazon.com>
-> ---
->  drivers/virtio/virtio_ring.c | 40 ++++++++++++++++++++++++++++++++++--
->  1 file changed, 38 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index b438dc2ce1b8..9caa4f96204f 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -499,6 +499,19 @@ static int vring_map_one_sg(const struct vring_virtqueue *vq, struct scatterlist
->  	if (premapped) {
->  		*addr = sg_dma_address(sg);
->  		*len = sg_dma_len(sg);
-> +
-> +		/*
-> +		 * The caller mapped this itself, so the map it used is the
-> +		 * only thing that can judge the result.  Ask it rather than
-> +		 * skipping the check the mapped path performs: a caller that
-> +		 * ignored a failed mapping would otherwise publish the
-> +		 * reserved error value to the device.
-> +		 */
-> +		if (dev_WARN_ONCE(&vq->vq.vdev->dev,
-> +				  vring_mapping_error(vq, *addr),
-> +				  "premapped buffer holds no valid mapping\n"))
-> +			return -ENOMEM;
-> +
->  		return 0;
->  	}
->  
-> @@ -2910,6 +2923,14 @@ EXPORT_SYMBOL_GPL(virtqueue_add_outbuf);
->   * @data: the token identifying the buffer.
->   * @gfp: how to do memory allocations (if necessary).
->   *
-> + * Each entry of @sg must carry an address the caller obtained for this
-> + * virtqueue: from the DMA API when virtqueue_dma_dev() returns a device, and
-> + * from virtqueue_map_page_attrs() when it returns NULL, because the device
-> + * then interprets every address published to it in its own terms.  Only an
-> + * address the map itself rejects is caught here; an address from any other
-> + * source is indistinguishable from a valid one and reaches the device
-> + * unchanged.
-> + *
->   * Caller must ensure we don't call this with other virtqueue operations
->   * at the same time (except where noted).
->   *
-> @@ -3008,6 +3029,14 @@ EXPORT_SYMBOL_GPL(virtqueue_add_inbuf_ctx);
->   * @ctx: extra context for the token
->   * @gfp: how to do memory allocations (if necessary).
->   *
-> + * Each entry of @sg must carry an address the caller obtained for this
-> + * virtqueue: from the DMA API when virtqueue_dma_dev() returns a device, and
-> + * from virtqueue_map_page_attrs() when it returns NULL, because the device
-> + * then interprets every address published to it in its own terms.  Only an
-> + * address the map itself rejects is caught here; an address from any other
-> + * source is indistinguishable from a valid one and reaches the device
-> + * unchanged.
-
-I don't see what this comment gets us.
-And let's not do this half hearted validation.
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH 12/12] virtio: guarantee a virtqueue can publish its
+ first descriptor chain
+To: "Michael S. Tsirkin" <mst@redhat.com>, Alexander Graf <graf@amazon.com>
+Cc: Jason Wang <jasowangio@gmail.com>, Xuan Zhuo
+ <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Jonathan Corbet <corbet@lwn.net>,
+ Shuah Khan <skhan@linuxfoundation.org>, virtualization@lists.linux.dev,
+ linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ nh-open-source@amazon.com, Stefan Hajnoczi <stefanha@redhat.com>,
+ Paolo Bonzini <pbonzini@redhat.com>
+References: <20260809182010.32931-1-graf@amazon.com>
+ <20260809182010.32931-13-graf@amazon.com>
+ <20260809184014-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+From: Randy Dunlap <rdunlap@infradead.org>
+In-Reply-To: <20260809184014-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
 
-> + *
->   * Caller must ensure we don't call this with other virtqueue operations
->   * at the same time (except where noted).
->   *
-> @@ -3025,10 +3054,17 @@ int virtqueue_add_inbuf_premapped(struct virtqueue *vq,
->  EXPORT_SYMBOL_GPL(virtqueue_add_inbuf_premapped);
->  
->  /**
-> - * virtqueue_dma_dev - get the dma dev
-> + * virtqueue_dma_dev - get the device to use for DMA API calls
->   * @_vq: the struct virtqueue we're talking about.
->   *
-> - * Returns the dma dev. That can been used for dma api.
-> + * A NULL return means this virtqueue publishes no DMA addresses: either it
-> + * needs no mapping at all, or the device supplies its own virtio_map_ops and
-> + * interprets every address published to it in its own terms.  A caller that
-> + * maps buffers itself must therefore check for NULL before using the DMA API
-> + * on this virtqueue's behalf, and use virtqueue_map_page_attrs() when it is,
-> + * which maps through whichever of the two the device uses.
+On 8/9/26 3:41 PM, Michael S. Tsirkin wrote:
+> On Sun, Aug 09, 2026 at 06:20:10PM +0000, Alexander Graf wrote:
+>> A device's pool is shared by every virtqueue it has and nothing
+>> partitions it between them, so a virtqueue that asks late can get
+>> nothing at all. virtnet_open() pre-fills the receive queues in index
+>> order and discards the result, and a queue that came up with nothing is
+>> one the device cannot signal a completion on.
+>>
+>> Withhold a range of the pool from ordinary claims and let a virtqueue
+>> whose ring is empty draw on it for one descriptor chain.
+> Why bother? one chain can just go inline in the ring.
 
+https://people.kernel.org/tglx/notes-about-netiquette
+or
+https://subspace.kernel.org/etiquette.html
 
-Too verbose and repetetive. E.g. of course people who call virtqueue_dma_dev
-do it to "map bufers itself".
+It would be good if 100s (or 1000s) or people didn't need to scan a 65 KB
+email to see that most of it can be ignored.
 
-> + *
-> + * Return: the device to use for DMA API calls, or NULL when there is none.
->   */
->  struct device *virtqueue_dma_dev(struct virtqueue *_vq)
->  {
+-- 
+~Randy
 
