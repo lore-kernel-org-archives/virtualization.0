@@ -1,61 +1,61 @@
-Received: from pdx-out-004.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-004.esa.us-west-2.outbound.mail-perimeter.amazon.com [44.246.77.92])
+Received: from pdx-out-009.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-009.esa.us-west-2.outbound.mail-perimeter.amazon.com [35.155.198.111])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8E9135CB7B
-	for <virtualization@lists.linux.dev>; Sun,  9 Aug 2026 18:20:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=44.246.77.92
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1CBD37C0E2
+	for <virtualization@lists.linux.dev>; Sun,  9 Aug 2026 18:20:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=35.155.198.111
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786299647; cv=none; b=dg/0tT8v/Vpg64zVLu/AA9ehHMjJPucj4Y2/Z2dBImLGjHDFg0Vp2mmh+o/i/7q6sthMNLVYLu9O7XXoP4dzYkmqfIt3jmEtk5yhquGsLnqcmD6RnArAm23CSgHkRcX/o9xRTdN5FTSEI4kmBlpR2mfJUNoJqWQK44AdC2KqrBw=
+	t=1786299650; cv=none; b=gwFnLGoyydnjEg3fXChSSXDLIdboIq7aC+dNppt2/ji3/QfrO5PGXYMh6m9raT/iPkbPEOfQLaFy2bNLc4H847tAGjARkMPAvbeWqfgyCth+LY9YLyy3hPuJ6S1Jw2CbxP7WjZ2aE47qV5yC1BpVIb6beGt4BNBbR9IyYcT0DlI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786299647; c=relaxed/simple;
-	bh=js1xNr3lPht0sT8p2tMOogwLbJAFyOPBU4L3h/xMZsg=;
+	s=arc-20240116; t=1786299650; c=relaxed/simple;
+	bh=UpSklniRYvM1jOwXC9qKeQR408LhTPkVknKi5vZdDBM=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=PCMd7lCa946QtgVC7B6AicjevSAECV17M+7CF9frY/7DigZ+TQ5zVOqMjooy90BdE8ZyfY8nE3wEJh1qLXTOzbkhp1YJvLw98kvj5Tp9F0aImBB7s0eb3aK6ylcbtidiv/d7xF448IzIwKLkdtzHkxUTobUILWR5n9pa0La3zpM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.de; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=suZbrFJg; arc=none smtp.client-ip=44.246.77.92
+	 MIME-Version:Content-Type; b=pE8b9xGblhmgAN/zsgUFnnJButOk5qKMUJUcWUEu0zCurYdh1MMQiiQDtyIR5cLggL89TrrBjxko3DwGea15FQRbedhXjWDpSTUc/OP68z7VbiYmrUuzKla4N+lUdvdQHAMZv/glOyahB0ZZphnZBelNL/kEWH8QM84LnxFmhOI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.de; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=OI8HKH09; arc=none smtp.client-ip=35.155.198.111
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="suZbrFJg"
+	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="OI8HKH09"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
-  t=1786299645; x=1817835645;
+  t=1786299648; x=1817835648;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=iybfP7f6LBxlJmNoFYXHpDFTtr6xuR9T27xQFliCRME=;
-  b=suZbrFJg0l7J4gQyxQau/JYXCmWQz8eLdzv5auB54/BAmo3i/ZSEW3IY
-   GnlOsR4iAr90tWTqAreSmAsQbnj53RYJZpEHxnXwcZ5ACurs35uTmCp2C
-   s0KFLrtZeg0gcejEuq/pyHopYoH61UntAex7TdNgsWdSf0ttyH0dew65y
-   CyxzleM8smbYkW6Zr/VKRFwwp+RHGdwgp+946SuwjIF4yTDjLjCSDw/MO
-   tN0/WT6kJ23qBqqZTCCC4S3xTmH19pMUGKGYnd8VB4ZpcjTk2dwqZeP0Z
-   RHAhb88iciGZpGELd1bKLzurm2JgHTFHiaqHxQGj9kks5/2Bm44fiUOBG
-   w==;
-X-CSE-ConnectionGUID: twIFBTtiR/SM3xbFn8maPA==
-X-CSE-MsgGUID: hqi5oq8vSgyPPpZD2NEHfw==
+  bh=o47xSUAJjSkI+7xfGGQqd+W9hTYM04zaBrXdkO5FaB4=;
+  b=OI8HKH09E8gnKhpXlokfJ1ktvvUl7NHnrNfHufJy9/ImsYeS3dLX737M
+   TfIdb7LeLrIcw5XlDthGRjDeFRYEx3M0UzJTxQaspDKZnSMZoBAMWUWWK
+   wywx8DnTusr/ByICvGZ49oa26uF+EzYbnJ7xFNyp0NbGBQi4KG7CH2qjK
+   U8R+FLIZGwhlyJASTbcOJEbXHbGbU/oKipXHp34F3o4khOHTB0ya8WGt9
+   LA2kqYpF9zO6EUgL3lDPCPTffE1hskx/ftFrbvbOiKhuZR87N5Qq+W7nq
+   u1vEjZygkYRr74iBRYrrlXAvS0ckyxNFoHFM0pm6TH4yVo1oclYoKOkgr
+   Q==;
+X-CSE-ConnectionGUID: KfApvsFoTF2O23nk8nFfag==
+X-CSE-MsgGUID: Y3OG7g5RTJGC1nVjhhq4ug==
 X-IronPort-AV: E=Sophos;i="6.25,214,1779148800"; 
-   d="scan'208";a="25518625"
-Received: from ip-10-5-0-115.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.0.115])
-  by internal-pdx-out-004.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Aug 2026 18:20:43 +0000
-Received: from EX19MTAUWC002.ant.amazon.com [205.251.233.51:26162]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.10.57:2525] with esmtp (Farcaster)
- id 9bf96873-3dbd-42a7-96b8-9d58065dc8bd; Sun, 9 Aug 2026 18:20:43 +0000 (UTC)
-X-Farcaster-Flow-ID: 9bf96873-3dbd-42a7-96b8-9d58065dc8bd
+   d="scan'208";a="25415435"
+Received: from ip-10-5-6-203.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.6.203])
+  by internal-pdx-out-009.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Aug 2026 18:20:46 +0000
+Received: from EX19MTAUWC001.ant.amazon.com [205.251.233.53:25043]
+ by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.60.103:2525] with esmtp (Farcaster)
+ id 69ba2a84-8ff1-4856-af59-f9de74bbe5fd; Sun, 9 Aug 2026 18:20:46 +0000 (UTC)
+X-Farcaster-Flow-ID: 69ba2a84-8ff1-4856-af59-f9de74bbe5fd
 Received: from EX19D001UWA001.ant.amazon.com (10.13.138.214) by
- EX19MTAUWC002.ant.amazon.com (10.250.64.143) with Microsoft SMTP Server
+ EX19MTAUWC001.ant.amazon.com (10.250.64.174) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.45;
- Sun, 9 Aug 2026 18:20:42 +0000
+ Sun, 9 Aug 2026 18:20:46 +0000
 Received: from ip-10-253-83-51.amazon.com (172.19.99.218) by
  EX19D001UWA001.ant.amazon.com (10.13.138.214) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.45;
- Sun, 9 Aug 2026 18:20:41 +0000
+ Sun, 9 Aug 2026 18:20:44 +0000
 From: Alexander Graf <graf@amazon.com>
 To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>
 CC: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?q?Eugenio=20P=C3=A9rez?=
 	<eperezma@redhat.com>, <virtualization@lists.linux.dev>,
 	<linux-kernel@vger.kernel.org>, <nh-open-source@amazon.com>, Stefan Hajnoczi
 	<stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
-Subject: [RFC PATCH 03/12] virtio: add the VIRTIO_F_DMB feature bit
-Date: Sun, 9 Aug 2026 18:20:01 +0000
-Message-ID: <20260809182010.32931-4-graf@amazon.com>
+Subject: [RFC PATCH 05/12] virtio_pci: create virtqueues with the device's mapping token
+Date: Sun, 9 Aug 2026 18:20:03 +0000
+Message-ID: <20260809182010.32931-6-graf@amazon.com>
 X-Mailer: git-send-email 2.47.1
 In-Reply-To: <20260809182010.32931-1-graf@amazon.com>
 References: <20260809182010.32931-1-graf@amazon.com>
@@ -70,71 +70,61 @@ Content-Type: text/plain
 X-ClientProxiedBy: EX19D031UWC004.ant.amazon.com (10.13.139.246) To
  EX19D001UWA001.ant.amazon.com (10.13.138.214)
 
-In preparation to support VIRTIO_F_DMB, define the feature bit. A
-device that negotiates it holds its virtqueues and the buffers they
-reference in a Device Memory Buffer, a shared memory region the device
-owns. Every address the driver publishes to such a device is an offset
-into that region, so the device can only reach memory the driver placed
-there.
+In preparation to support VIRTIO_F_DMB, create the modern PCI
+transport's virtqueues with the mapping token held on the
+virtio_device. Every mapping call for a virtqueue is handed a union
+virtio_map token, and vring_create_virtqueue() derives that token as
+{.dma_dev = vdev->dev.parent} without letting its callers choose.
 
-Define VIRTIO_F_DMB as 44 and raise VIRTIO_TRANSPORT_F_END to 45, so
-virtio_dev_probe() preserves the bit into finalize_features() where a
-transport can act on it. VIRTIO_DEVICE_F_MASK derives from the same
-bound, and the expansion drivers/vdpa/vdpa.c writes out by hand moves
-with it. The feature is a proposal before the virtio Technical
-Committee and has no allocated number, so 44 is provisional.
+Set vdev->vmap.dma_dev in virtio_pci_modern_probe() and create the
+virtqueues through vring_create_virtqueue_map() instead. That covers
+both the virtqueues from vp_modern_find_vqs() and the admin virtqueue,
+which go through the same setup_vq(). virtio_pci_probe() assigns
+vdev->dev.parent first, so the token holds the pointer
+vring_create_virtqueue() would have derived.
 
-Link: https://lore.kernel.org/virtio-comment/20260804161202.38619-1-graf@amazon.com/
+The legacy transport keeps its own vring_create_virtqueue() call:
+vp_legacy_get_features() reads 32 feature bits, so VIRTIO_F_DMB cannot
+reach it.
+
 Assisted-by: Kiro:claude-opus-5 checkpatch sparse
 Signed-off-by: Alexander Graf <graf@amazon.com>
 ---
- drivers/vdpa/vdpa.c                |  2 +-
- include/uapi/linux/virtio_config.h | 17 ++++++++++++++++-
- 2 files changed, 17 insertions(+), 2 deletions(-)
+ drivers/virtio/virtio_pci_modern.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
-index 1757a33f298f..ae9326394c2e 100644
---- a/drivers/vdpa/vdpa.c
-+++ b/drivers/vdpa/vdpa.c
-@@ -548,7 +548,7 @@ vdpa_nl_cmd_mgmtdev_get_dumpit(struct sk_buff *msg, struct netlink_callback *cb)
+diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
+index 6d8ae2a6a8ca..565d37b630b3 100644
+--- a/drivers/virtio/virtio_pci_modern.c
++++ b/drivers/virtio/virtio_pci_modern.c
+@@ -715,10 +715,11 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+ 	info->msix_vector = msix_vec;
  
- /*
-  * Bitmask for all per-device features: feature bits VIRTIO_TRANSPORT_F_START
-- * through VIRTIO_TRANSPORT_F_END are unset, i.e. 0xfffff8000fffffff for
-+ * through VIRTIO_TRANSPORT_F_END are unset, i.e. 0xffffc0000fffffff for
-  * all 64bit features. If the features are extended beyond 64 bits, or new
-  * "holes" are reserved for other type of features than per-device, this
-  * macro would have to be updated.
-diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
-index 2445f365bce7..986e2b5fb3c8 100644
---- a/include/uapi/linux/virtio_config.h
-+++ b/include/uapi/linux/virtio_config.h
-@@ -52,7 +52,7 @@
-  * rest are per-device feature bits.
-  */
- #define VIRTIO_TRANSPORT_F_START	28
--#define VIRTIO_TRANSPORT_F_END		42
-+#define VIRTIO_TRANSPORT_F_END		45
+ 	/* create the vring */
+-	vq = vring_create_virtqueue(index, num,
+-				    SMP_CACHE_BYTES, &vp_dev->vdev,
+-				    true, true, ctx,
+-				    notify, callback, name);
++	vq = vring_create_virtqueue_map(index, num,
++					SMP_CACHE_BYTES, &vp_dev->vdev,
++					true, true, ctx,
++					notify, callback, name,
++					vp_dev->vdev.vmap);
+ 	if (!vq)
+ 		return ERR_PTR(-ENOMEM);
  
- #ifndef VIRTIO_CONFIG_NO_LEGACY
- /* Do we get callbacks when the ring is completely used, even if we've
-@@ -120,4 +120,19 @@
-  */
- #define VIRTIO_F_ADMIN_VQ		41
+@@ -1289,6 +1290,14 @@ int virtio_pci_modern_probe(struct virtio_pci_device *vp_dev)
+ 	vp_dev->isr = mdev->isr;
+ 	vp_dev->vdev.id = mdev->id;
  
-+/*
-+ * This feature indicates that the device offers a Device Memory Buffer: a
-+ * shared memory region, owned by the device, that holds the virtqueues and
-+ * the buffers they reference.  When this feature is negotiated, every address
-+ * that the driver places in a virtqueue is an offset into the Device Memory
-+ * Buffer region rather than a physical address or a bus address.  The device
-+ * is thereby confined to memory the driver has published in that region.
-+ *
-+ * The feature is a specification proposal before the virtio Technical
-+ * Committee, not a ratified feature.  The number below is provisional: the
-+ * committee has allocated none for it, and it will change if the committee
-+ * allocates a different one.  Do not treat it as a stable interface yet.
-+ */
-+#define VIRTIO_F_DMB			44
++	/*
++	 * The mapping token every virtqueue of this device is created with.
++	 * This is the same value vring_create_virtqueue() would derive from
++	 * vdev->dev.parent, kept here so that a transport feature can replace
++	 * it in one place.
++	 */
++	vp_dev->vdev.vmap.dma_dev = &pci_dev->dev;
 +
- #endif /* _UAPI_LINUX_VIRTIO_CONFIG_H */
+ 	spin_lock_init(&vp_dev->admin_vq.lock);
+ 	return 0;
+ }
