@@ -1,1350 +1,1584 @@
-Received: from pdx-out-008.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-008.esa.us-west-2.outbound.mail-perimeter.amazon.com [52.42.203.116])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30FCE3016E0
-	for <virtualization@lists.linux.dev>; Sun,  9 Aug 2026 18:22:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.42.203.116
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 083DB189F43
+	for <virtualization@lists.linux.dev>; Sun,  9 Aug 2026 22:06:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786299732; cv=none; b=S0w+QWC0RMEdPaR4QhGhY5zivgIgk/lhKiGnrbo/r1k2iZaMKYGGPvj5IVZx47/YpAdmRD4EauopO0cqiDlhHl00po6a8ZBwJrbLk7Kxe0dTrmre5Et7WIQF0hT6DAIxLxIKzXV9cCAQndjJfl5de3wrdbostxlqgM0G7yd5fV8=
+	t=1786313217; cv=none; b=ZuxQwcqr+EXUQTAcPtuG1OCz2RbTd5kb6qhGOGqG8Kq8Ek9x/WCVTpVJNRXGXnES2rWHvyspurORSIVIVfCc2tzEr3E1dL4KOTmZ5NEmbflop8rREjDuql5JMDjl6ga1HqCwy6kJeVsz1X+qWefkR0pJ+HYKtRw4KVl+dHn0K24=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786299732; c=relaxed/simple;
-	bh=bnJKTG0nidINrA6BoUVNxu1I36m5Sz+bZD32xqDmMaM=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Vhxeqx89NUP84R6sXI0rXHlGYP84NZuu38gdvJ8BoR5qt8EiJoIgLN5rj1QMEO/R0YPd6NOYe16WVmLcvhw0HJXKJRrvrWD3X0y43/o6kLebcFEOTgzYhmpTEGg/rk6BYD4J7m06RclqDXQvkoFs7xKhg9YWi6TYZn4s+blJ3mY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.de; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=Gpo0Hgmh; arc=none smtp.client-ip=52.42.203.116
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.de
+	s=arc-20240116; t=1786313217; c=relaxed/simple;
+	bh=OT4QXPnFhIqx1ZysMUZXsLu8NvyM8uYAPh5FkGrWr/M=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=UA6ia7FMA0Tc2pKV6MVmfLi1LshwCmXjYF50VvlAExcDGgXjMcjkz5Z6U71aoPLyCsQ1mjRU/ajxZ2edhp+4EyyTyJwJ2vsyEOHRIqJEurdzumWOGThGqCL5vyx+bxs6hJb4T8IFJDwfg29aO5+iz3hYkI5wz+EvvJqEqt0Qw+Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=byAs2MNN; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="Gpo0Hgmh"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
-  t=1786299729; x=1817835729;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=fDY8Nt5HeTNm8g1LUKnWtoj0HVblP9xXqUYeTyk5B68=;
-  b=Gpo0Hgmh0EwAdBu4PJTBG78Zltj7RwPD2nOY4q5Prt1jDdHUTbBRBVsy
-   aHpelr5Owb8y9DsHF6I3jUGt8+ruFeWbCGuF5grXICbXY7Djka8Bba5cD
-   8yV3Ui6Vcc6w2qoA2hPFFp8ru7qXBP9kKFhoPWN+3R53pQmi1Xz7tO5pc
-   3ghN9g+XbYLX1nG/uhDxDaqIPlxbza9jG1nWyq2YCZdDbeoDfsaIQKAk2
-   204ZTReO4A4ttNy0VxrUjFdW36WwSnbML7I1t8YlxA/aSBaVEQMzQU2uW
-   eRssaZ+N4gxY8v1DA2C/V5gMHskFyuv91zS1m8uZqGCTxAST0By4xYEao
-   g==;
-X-CSE-ConnectionGUID: Tk2v1b/aRBqEtjwI4GfRXA==
-X-CSE-MsgGUID: Ji5GrQl5Q8ybRfP7A8biSg==
-X-IronPort-AV: E=Sophos;i="6.25,214,1779148800"; 
-   d="scan'208";a="25540693"
-Received: from ip-10-5-0-115.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.0.115])
-  by internal-pdx-out-008.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Aug 2026 18:22:06 +0000
-Received: from EX19MTAUWB002.ant.amazon.com [205.251.233.48:17781]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.37.134:2525] with esmtp (Farcaster)
- id da160e83-2e0b-4447-91e0-182d7df7fbce; Sun, 9 Aug 2026 18:22:06 +0000 (UTC)
-X-Farcaster-Flow-ID: da160e83-2e0b-4447-91e0-182d7df7fbce
-Received: from EX19D001UWA001.ant.amazon.com (10.13.138.214) by
- EX19MTAUWB002.ant.amazon.com (10.250.64.231) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.45;
- Sun, 9 Aug 2026 18:22:06 +0000
-Received: from ip-10-253-83-51.amazon.com (172.19.99.218) by
- EX19D001UWA001.ant.amazon.com (10.13.138.214) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.45;
- Sun, 9 Aug 2026 18:22:03 +0000
-From: Alexander Graf <graf@amazon.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>
-CC: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?q?Eugenio=20P=C3=A9rez?=
-	<eperezma@redhat.com>, Jonathan Corbet <corbet@lwn.net>, Shuah Khan
-	<skhan@linuxfoundation.org>, <virtualization@lists.linux.dev>,
-	<linux-doc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<nh-open-source@amazon.com>, Stefan Hajnoczi <stefanha@redhat.com>, "Paolo
- Bonzini" <pbonzini@redhat.com>
-Subject: [RFC PATCH 12/12] virtio: guarantee a virtqueue can publish its first descriptor chain
-Date: Sun, 9 Aug 2026 18:20:10 +0000
-Message-ID: <20260809182010.32931-13-graf@amazon.com>
-X-Mailer: git-send-email 2.47.1
-In-Reply-To: <20260809182010.32931-1-graf@amazon.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="byAs2MNN"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1786313211;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ILZfjfsqA0aWCCdqoR9xQyRsF5XV6LaiRz7bO8TwejU=;
+	b=byAs2MNNymYv+A1eLGpY2hQm1WeXmB2yflo2iN87k53OZ2dcmwNLyCI4Lj3JTWPQAQypXi
+	x5EvJ/Usk/JOE1/Ifi3adHq4O75LFXyQEubIyH//lvL6UZPYBlts6E+rFnl5+sLN1ArPbS
+	qc8NnJjM/xy7SQJpYxIXYyMofpZ5Hj4=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-637-FyA_sB1uPDWGkI81b-AMoQ-1; Sun, 09 Aug 2026 18:06:50 -0400
+X-MC-Unique: FyA_sB1uPDWGkI81b-AMoQ-1
+X-Mimecast-MFC-AGG-ID: FyA_sB1uPDWGkI81b-AMoQ_1786313209
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4957287363bso7481795e9.0
+        for <virtualization@lists.linux.dev>; Sun, 09 Aug 2026 15:06:49 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786313209; x=1786918009;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=ILZfjfsqA0aWCCdqoR9xQyRsF5XV6LaiRz7bO8TwejU=;
+        b=au0aslRmj8wu+sGhGVW7Nc1k3BoOvr5dwx+9MB0nEoLQyszyh0k/nHBfrc539d7uC/
+         Umjiif2Hk/tNM5lz/YxgwVsX/Aqky9ih2ybCsXik/jaTDQxwX83hZ8bNoJQnbIKA4Yyx
+         LRBRwWkV2/MsQKYzegKGFLfS+VeS89YeldPE3BvKDZv5I9Nqlw/O0Cub3UCTlCJNnnzD
+         eGsa7QFij3Fx7qDTUaa18l1rOVns1zgkkdj/jZpS8qjKai0zoeDH4mbqW9eMG8HQRXYT
+         fbgbYFwoTpCDAk3S4ER+gpmXjLWXqTgMnAVGX/+RxskxEBMYJGKKoPAsEIvX966zEoIX
+         k4kA==
+X-Forwarded-Encrypted: i=1; AHgh+RoLDATqrBDeam64zEpHnqjg1PX3dwySA4bsbrCR0YbCWqKxq6ggpDR5bAOaNMPHX9gAaJaQC2nCCFH36HLOOQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy+q0/brlybUtsrK6vTWtmtTjhpEmygH6CVqIXlltkrgvhn6Bg2
+	TUX6SPk94dpMpoThA/DYcXlnM+6L80Pou4Yu+YFnKRaF0xXRoTpphC3faI/BZaMjAAETvGOXPHv
+	76JXVePp62erIX7cludRxOs1vVXx+Zw2OPZWyvzxEU1zcDD4Yw3Oqqrl2cF14Oquki0vb
+X-Gm-Gg: AR+sD12Cu3b2cNXag3uoPWfpZTqur8TUshheOMP8htA78AOxcIThHmHvoHVsEFIy/do
+	kN2hGxp062h5Xl61QRQU9LmRBktMbIdLnRoASeurCPAgJVxSmaolyBd0t7X9Cq5jwSxNBmmgHgL
+	JCSpfjtmi85JI0r8bNfu/juncIAFIHSZfNQOSTTUTwZvq17nLy09wd3hiws5FpL4vDWqWJe57n9
+	lX+8G/VJFcPp43jn6IM6uGhTH/6wSU06DMQ9Q1mx0l17N4YgANnFv85EChRv3C5ss4Y4IuGW0v7
+	fyjZ7HhwgczXK+GAgEySnxAQhR/8JsuFrMjECEDvPGwjKlSxOVPQTxf3ln6sRVe0KDkPiu1ZzYD
+	zGc3Mm512a9By8ZRfV1VmgA==
+X-Received: by 2002:a05:600c:3226:b0:490:e5c1:b8bf with SMTP id 5b1f17b1804b1-4994e7ce0dcmr339807665e9.13.1786313207593;
+        Sun, 09 Aug 2026 15:06:47 -0700 (PDT)
+X-Received: by 2002:a05:600c:3226:b0:490:e5c1:b8bf with SMTP id 5b1f17b1804b1-4994e7ce0dcmr339807315e9.13.1786313206388;
+        Sun, 09 Aug 2026 15:06:46 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-39-98.inter.net.il. [80.230.39.98])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4800220ab11sm29198041f8f.35.2026.08.09.15.06.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 09 Aug 2026 15:06:45 -0700 (PDT)
+Date: Sun, 9 Aug 2026 18:06:43 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Alexander Graf <graf@amazon.com>
+Cc: Jason Wang <jasowangio@gmail.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+	nh-open-source@amazon.com, Stefan Hajnoczi <stefanha@redhat.com>,
+	Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [RFC PATCH 06/12] virtio: add a device memory buffer region
+ allocator
+Message-ID: <20260809180339-mutt-send-email-mst@kernel.org>
 References: <20260809182010.32931-1-graf@amazon.com>
+ <20260809182010.32931-7-graf@amazon.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: EX19D037UWC001.ant.amazon.com (10.13.139.197) To
- EX19D001UWA001.ant.amazon.com (10.13.138.214)
+In-Reply-To: <20260809182010.32931-7-graf@amazon.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 7FVm6kvOqw0LjDZGCvzB4ig3I2yz5ejTRGo7kD37DI4_1786313209
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-A device's pool is shared by every virtqueue it has and nothing
-partitions it between them, so a virtqueue that asks late can get
-nothing at all. virtnet_open() pre-fills the receive queues in index
-order and discards the result, and a queue that came up with nothing is
-one the device cannot signal a completion on.
+On Sun, Aug 09, 2026 at 06:20:04PM +0000, Alexander Graf wrote:
+> In preparation to support VIRTIO_F_DMB, create a mechanism to allocate
+> and map memory from the Device Memory Buffer (DMB). The DMB is a shared
+> memory region a device exposes and owns. A device that negotiates the
+> feature expects its virtqueues and all the buffers we hand it to live in
+> that region, and every address we publish to it is a byte offset into
+> the region.
+> 
+> Add virtio_dmb_init(), which locates the region by the shared memory id
+> the device reports and builds a page-granular allocator over it, and
+> virtio_dmb_destroy() to tear that down. Add virtio_dmb_map_ops, a struct
+> virtio_map_ops implementation that hands out allocations from that
+> allocator as region offsets: alloc() places a virtqueue area in the
+> region, map_page() copies a buffer that lives elsewhere into it and
+> copies it back on unmap. The map operations reach that allocator through
+> a new dmb member of union virtio_map.
+> 
+> The shared memory id is transport specific, so add a get_dmb_shm_id()
+> callback to struct virtio_config_ops for a transport to report it. A
+> transport that does not implement it must not accept VIRTIO_F_DMB. Add
+> CONFIG_VIRTIO_DMB to enable this support. It defaults to y, and a kernel
+> that will never meet such a device can turn it off to leave the
+> allocator and its bookkeeping out.
+> 
+> Link: https://lore.kernel.org/virtio-comment/20260804161202.38619-1-graf@amazon.com/
+> Assisted-by: Kiro:claude-opus-5 checkpatch sparse
+> Signed-off-by: Alexander Graf <graf@amazon.com>
+> ---
+>  drivers/virtio/Kconfig        |   15 +
+>  drivers/virtio/Makefile       |    3 +-
+>  drivers/virtio/virtio_dmb.c   | 1317 +++++++++++++++++++++++++++++++++
+>  drivers/virtio/virtio_dmb.h   |   28 +
+>  include/linux/virtio.h        |    3 +
+>  include/linux/virtio_config.h |    8 +
+>  6 files changed, 1373 insertions(+), 1 deletion(-)
+>  create mode 100644 drivers/virtio/virtio_dmb.c
+>  create mode 100644 drivers/virtio/virtio_dmb.h
+> 
+> diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
+> index ce5bc0d9ea28..b6b5a36c3c21 100644
+> --- a/drivers/virtio/Kconfig
+> +++ b/drivers/virtio/Kconfig
+> @@ -188,6 +188,21 @@ config VIRTIO_DEBUG
+>  
+>  	  If unsure, say N.
+>  
+> +config VIRTIO_DMB
+> +	bool "Device Memory Buffer support"
+> +	depends on VIRTIO
+> +	default y
+> +	help
+> +	  Support devices that place their virtqueues and buffers in a shared
+> +	  memory region they own, rather than in memory the driver allocates.
+> +
+> +	  Enabling this adds a page allocator and per-page bookkeeping, both
+> +	  of which are set up only for a device that negotiates the feature.
+> +	  When disabled the feature is never accepted and such a device is
+> +	  driven as an ordinary one.
+> +
+> +	  If unsure, say Y.
+> +
+>  config VIRTIO_RTC
+>  	tristate "Virtio RTC driver"
+>  	depends on VIRTIO
+> diff --git a/drivers/virtio/Makefile b/drivers/virtio/Makefile
+> index eefcfe90d6b8..ba785ff44a16 100644
+> --- a/drivers/virtio/Makefile
+> +++ b/drivers/virtio/Makefile
+> @@ -1,5 +1,6 @@
+>  # SPDX-License-Identifier: GPL-2.0
+> -obj-$(CONFIG_VIRTIO) += virtio.o virtio_ring.o
+> +virtio-dmb-$(CONFIG_VIRTIO_DMB) := virtio_dmb.o
+> +obj-$(CONFIG_VIRTIO) += virtio.o virtio_ring.o $(virtio-dmb-y)
+>  obj-$(CONFIG_VIRTIO_ANCHOR) += virtio_anchor.o
+>  obj-$(CONFIG_VIRTIO_PCI_LIB) += virtio_pci_modern_dev.o
+>  obj-$(CONFIG_VIRTIO_PCI_LIB_LEGACY) += virtio_pci_legacy_dev.o
+> diff --git a/drivers/virtio/virtio_dmb.c b/drivers/virtio/virtio_dmb.c
+> new file mode 100644
+> index 000000000000..42126f928bc0
+> --- /dev/null
+> +++ b/drivers/virtio/virtio_dmb.c
+> @@ -0,0 +1,1317 @@
+> +// SPDX-License-Identifier: GPL-2.0-only
+> +/*
+> + * Device Memory Buffer support for virtio devices.
+> + *
+> + * A device that negotiates VIRTIO_F_DMB owns one shared memory region, the
+> + * Device Memory Buffer, that holds its virtqueues and the buffers they
+> + * reference.  Every address the driver publishes to such a device is a byte
+> + * offset from the start of that region.
+> + *
+> + * This file provides an allocator over the region and the virtio_map_ops
+> + * implementation that turns allocations into those offsets.  A mapping handle
+> + * belonging to a DMB device is a region offset and nothing else: no code
+> + * outside these operations may treat it as a DMA address.
+> + *
+> + * The region is shared with the device, which may read or write any of it at
+> + * any time.  Nothing this file reads back from the region is used to compute
+> + * a kernel address, a length or an index.  Handles and their sizes arrive
+> + * from the ring's own bookkeeping in kernel memory, and are range-checked
+> + * anyway so that a bug there cannot reach outside the arrays below.
+> + */
+> +
+> +#include <linux/align.h>
+> +#include <linux/bitmap.h>
+> +#include <linux/bits.h>
+> +#include <linux/cache.h>
+> +#include <linux/cpumask.h>
+> +#include <linux/dma-mapping.h>
+> +#include <linux/export.h>
+> +#include <linux/highmem.h>
+> +#include <linux/io.h>
+> +#include <linux/ioport.h>
+> +#include <linux/limits.h>
+> +#include <linux/log2.h>
+> +#include <linux/math.h>
+> +#include <linux/minmax.h>
+> +#include <linux/module.h>
+> +#include <linux/overflow.h>
+> +#include <linux/slab.h>
+> +#include <linux/smp.h>
+> +#include <linux/spinlock.h>
+> +#include <linux/virtio.h>
+> +#include <linux/virtio_config.h>
+> +
+> +#include "virtio_dmb.h"
+> +
+> +/* No source recorded for this slot: it holds no bounced mapping. */
+> +#define DMB_SRC_NONE		((phys_addr_t)-1)
+> +
+> +/**
+> + * struct virtio_dmb_slot - what one PAGE_SIZE slot of the pool records
+> + * @src: physical address this slot bounces, DMB_SRC_NONE for a virtqueue area
+> + * @end: one past the last slot of the allocation this slot belongs to, or
+> + *	zero when the slot is free
+> + * @tail: how many bytes of slot @end - 1 the allocation covers, PAGE_SIZE when
+> + *	its length is a whole number of pages, zero when the slot is free
+> + *
+> + * Every slot of an allocation records the same @end and the same @tail, so a
+> + * handle that points into the middle of one still yields both the allocation's
+> + * extent in slots and its end in bytes from a single read.
+> + *
+> + * @tail is what makes the length a mapping is bounced against a byte count
+> + * rather than a page count.  It is bounded by PAGE_SIZE, so u32 holds it on
+> + * every configuration, which a whole length would not: virtio_dmb_op_alloc()
+> + * bounds a request by the entire pool and a pool may exceed 4 GiB.
+> + */
+> +struct virtio_dmb_slot {
+> +	phys_addr_t	src;
+> +	u32		end;
+> +	u32		tail;
+> +};
+> +
+> +/*
+> + * Bounds on how many slots one area covers.
+> + *
+> + * The floor is one cacheline of bitmap, so that no two areas contend on the
+> + * line their separate locks exist to keep apart, and at least 512 slots.  On a
+> + * 64-byte line those coincide; a wider line raises the floor, which is
+> + * correct.  Either way the floor is a power of two of at least BITS_PER_LONG,
+> + * which is what makes an area own whole bitmap words and what makes the area
+> + * of a slot a shift; virtio_dmb_init() asserts both rather than leaving them
+> + * to inspection.
+> + *
+> + * The ceiling has no counterpart in kernel/dma/swiotlb.c, which this geometry
+> + * otherwise follows, and it is needed because the search differs: swiotlb
+> + * finds a run through a per-slot free-run list, while this sweeps a bitmap,
+> + * so the cost of one search here is linear in the size of an area.  Without a
+> + * ceiling that cost grows with the region, which is the thing being bounded.
+> + */
+> +#define DMB_AREA_CACHELINE_SLOTS	((unsigned int)L1_CACHE_BYTES * BITS_PER_BYTE)
+> +#define DMB_AREA_MIN_SLOTS		(DMB_AREA_CACHELINE_SLOTS > 512u ? \
+> +					 DMB_AREA_CACHELINE_SLOTS : 512u)
+> +#define DMB_AREA_MAX_SLOTS		4096u
+> +
+> +/**
+> + * struct virtio_dmb_area - one independently locked range of the pool
+> + * @used: slots of this area that are allocated; exact under @lock
+> + * @index: slot this area's next search starts from, relative to the area base
+> + * @lock: covers this area's bits of the pool bitmap, @used and @index
+> + *
+> + * Cacheline-aligned where that means anything, so that two areas' locks do not
+> + * share a line; the alignment compiles away on !SMP, where nothing contends.
+> + */
+> +struct virtio_dmb_area {
+> +	unsigned int	used;
+> +	unsigned int	index;
+> +	/* Serialises this area's bits of the pool bitmap, @used and @index. */
+> +	spinlock_t	lock;
+> +} ____cacheline_aligned_in_smp;
+> +
+> +/**
+> + * struct virtio_dmb - driver-side state for one Device Memory Buffer
+> + * @vdev: the device that owns the region, for message context
+> + * @map_va: what memremap() returned, for memunmap()
+> + * @map_phys: physical base of the region, for release_mem_region()
+> + * @map_len: length of the claimed and mapped part of the region
+> + * @map_claimed: whether request_mem_region() succeeded for that range
+> + * @prev_map: map operations the transport had installed, restored on teardown
+> + * @prev_vmap: mapping token that went with @prev_map
+> + * @base_va: kernel address the pool starts at, inside the mapping
+> + * @base_off: pool start as an offset from the start of the region
+> + * @nslots: pool size in PAGE_SIZE slots
+> + * @bitmap: @nslots bits, set when the slot is allocated
+> + * @slots: @nslots slot records
+> + * @areas: the @nareas ranges the pool is divided into
+> + * @nareas: how many areas the pool is divided into
+> + * @area_slots: slots one area covers, a power of two; the last area covers
+> + *	fewer when @nslots is not a multiple of it
+> + * @area_shift: ilog2(@area_slots), so slot >> @area_shift names its area
+> + * @shm_id: shared memory id the device reported for the region
+> + */
+> +struct virtio_dmb {
+> +	struct virtio_device	*vdev;
+> +	void			*map_va;
+> +	phys_addr_t		 map_phys;
+> +	size_t			 map_len;
+> +	bool			 map_claimed;
+> +	const struct virtio_map_ops *prev_map;
+> +	union virtio_map	 prev_vmap;
+> +	void			*base_va;
+> +	u64			 base_off;
+> +	unsigned int		 nslots;
+> +	unsigned long		*bitmap;
+> +	struct virtio_dmb_slot	*slots;
+> +	struct virtio_dmb_area	*areas;
+> +	unsigned int		 nareas;
+> +	unsigned int		 area_slots;
+> +	unsigned int		 area_shift;
+> +	u16			 shm_id;
+> +};
+> +
+> +/* First slot of area @i. */
+> +static unsigned int virtio_dmb_area_base(const struct virtio_dmb *dmb,
+> +					 unsigned int i)
+> +{
+> +	return i << dmb->area_shift;
+> +}
+> +
+> +/* Slots area @i covers.  The last area is short unless nslots divides. */
+> +static unsigned int virtio_dmb_area_len(const struct virtio_dmb *dmb,
+> +					unsigned int i)
+> +{
+> +	return min(dmb->area_slots,
+> +		   dmb->nslots - virtio_dmb_area_base(dmb, i));
+> +}
+> +
+> +static unsigned int virtio_dmb_slots(size_t size)
+> +{
+> +	return DIV_ROUND_UP(size, PAGE_SIZE);
+> +}
+> +
+> +static size_t virtio_dmb_pool_size(const struct virtio_dmb *dmb)
+> +{
+> +	return (size_t)dmb->nslots << PAGE_SHIFT;
+> +}
+> +
+> +/*
+> + * The largest buffer mapping this pool will serve: the smaller of an eighth of
+> + * the pool and half of one area, but never less than one page.  That floor is
+> + * what governs a region at the four-slot minimum, since an eighth of four
+> + * pages rounds down to nothing.
+> + *
+> + * The eighth is a choice, not a derived value: it bounds the capacity one
+> + * mapping can deny the rest of the device to seven eighths of the pool, so
+> + * that a device with several virtqueues can still make forward progress while
+> + * one large mapping is outstanding.
+> + *
+> + * The half-area is derived, and it is the reason this function has to be
+> + * consulted rather than the eighth alone.  An allocation has to lie inside one
+> + * area, because that is what lets one lock cover it and what lets the release
+> + * path find that lock from the slot index.  Half rather than all of an area is
+> + * headroom: a request the size of a whole area could only ever be satisfied by
+> + * a completely empty one, and an area may be as small as
+> + * DMB_AREA_MIN_SLOTS, so there is no expectation that one is empty.  The
+> + * figure is half of the nominal area size, so a request at the cap can exceed
+> + * the short last area outright; that costs a claim in one area out of nareas
+> + * and the walk tries the others.
+> + *
+> + * The cap applies to map_page() only.  An alloc() is a virtqueue area, which
+> + * is structural rather than in-flight: it lives for as long as the queue
+> + * does and no back-pressure can defer it, so a cap on it could only shrink a
+> + * queue on a region that is too small, or refuse one outright where the ring
+> + * layout cannot be shrunk.  Sizing the region for the areas as well as the
+> + * buffers is the device's obligation.
+> + */
+> +static size_t virtio_dmb_max_mapping(const struct virtio_dmb *dmb)
+> +{
+> +	size_t eighth = ALIGN_DOWN(virtio_dmb_pool_size(dmb) / 8, PAGE_SIZE);
+> +	size_t half_area = ((size_t)dmb->area_slots / 2) << PAGE_SHIFT;
+> +
+> +	return max_t(size_t, min(eighth, half_area), PAGE_SIZE);
+> +}
+> +
+> +/*
+> + * Claim @nr contiguous slots from area @i, or -ENOMEM when that one area
+> + * cannot satisfy the request.  Takes and drops that area's lock and touches
+> + * no other area's state, so no path ever holds two of these locks and there
+> + * is no ordering between them to get right.
+> + */
+> +static long virtio_dmb_area_claim(struct virtio_dmb *dmb, unsigned int i,
+> +				  unsigned int nr)
+> +{
+> +	struct virtio_dmb_area *area = &dmb->areas[i];
+> +	unsigned int base = virtio_dmb_area_base(dmb, i);
+> +	unsigned int end = base + virtio_dmb_area_len(dmb, i);
+> +	unsigned long flags, slot;
+> +
+> +	spin_lock_irqsave(&area->lock, flags);
+> +
+> +	/*
+> +	 * Exact, and inside the lock.  Written as a subtraction from the
+> +	 * area's own length rather than as len - used < nr, which underflows.
+> +	 */
+> +	if (nr > (end - base) - area->used)
+> +		goto not_found;
+> +
+> +	/*
+> +	 * Both sweeps are bounded at the area end, so an allocation cannot
+> +	 * span two areas and the release path can find one lock from the slot
+> +	 * index.  bitmap_find_next_zero_area() returns a value whose sum with
+> +	 * @nr exceeds the size it was given when it finds nothing, so that sum
+> +	 * is the test; the whole-pool "slot >= nslots" form does not transfer.
+> +	 */
+> +	slot = bitmap_find_next_zero_area(dmb->bitmap, end,
+> +					  base + area->index, nr, 0);
+> +	if (slot + nr > end && area->index)
+> +		slot = bitmap_find_next_zero_area(dmb->bitmap, end, base,
+> +						  nr, 0);
+> +	if (slot + nr > end)
+> +		goto not_found;
+> +
+> +	bitmap_set(dmb->bitmap, slot, nr);
+> +	area->used += nr;
+> +	area->index = slot + nr < end ? slot + nr - base : 0;
+> +
+> +	spin_unlock_irqrestore(&area->lock, flags);
+> +
+> +	return slot;
+> +
+> +not_found:
+> +	spin_unlock_irqrestore(&area->lock, flags);
+> +
+> +	return -ENOMEM;
+> +}
+> +
+> +/*
+> + * Claim @nr contiguous slots.  Returns the first slot, or -ENOMEM when no
+> + * area can satisfy the request.  Exhaustion is a routine condition: the
+> + * region's length bounds how much virtqueue data can be in flight.  What a
+> + * caller makes of it is the caller's, and it is not always back-pressure: a
+> + * network receive fill has nothing to push back on when it cannot post a
+> + * buffer, and repolls instead.  Reporting it at any level a working device
+> + * would print would therefore be a log flood, and it is the only signal an
+> + * undersized region produces at all, so it is reported through dynamic debug
+> + * where it costs nothing until somebody asks for it.
+> + *
+> + * Next fit within one area, from a hint that advances past each claim and
+> + * rewinds to each release, beginning in the area belonging to the running CPU
+> + * and then trying each other area in turn.  So a multi-slot request can fail
+> + * while the total free count would have satisfied it: a map_page() request is
+> + * bounded by virtio_dmb_max_mapping(), which keeps it inside one area, but
+> + * fragmentation within that area can still cost capacity and fail an
+> + * individual mapping.  Nothing is moved to recover: handles are live in
+> + * descriptors the device is reading.
+> + *
+> + * The walk visits every area and tests capacity inside that area's lock, so a
+> + * refusal is a true statement about the pool rather than about one area.  It
+> + * releases the lock and restores interrupts between areas, which is what
+> + * bounds the interrupts-off window to a single area's sweep; the total work in
+> + * the failing case is a whole-pool sweep either way.
+> + */
+> +static long virtio_dmb_claim(struct virtio_dmb *dmb, unsigned int nr)
+> +{
+> +	unsigned int i, start;
+> +	long ret;
+> +
+> +	/*
+> +	 * raw_smp_processor_id() and not smp_processor_id(): the index is
+> +	 * computed before any lock is taken, so preemption or migration
+> +	 * between the read and the claim only changes which area is tried
+> +	 * first.  kernel/dma/swiotlb.c picks its home area on the same
+> +	 * reasoning.
+> +	 */
+> +	start = raw_smp_processor_id() % dmb->nareas;
+> +	i = start;
+> +	do {
+> +		ret = virtio_dmb_area_claim(dmb, i, nr);
+> +		if (ret >= 0)
+> +			return ret;
+> +
+> +		if (++i >= dmb->nareas)
+> +			i = 0;
+> +	} while (i != start);
+> +
+> +	/*
+> +	 * The geometry rather than a free count: there is no instant at which
+> +	 * a total free count is true under per-area locking, so printing one
+> +	 * would mean either a walk taking every lock or a torn read.
+> +	 */
+> +	dev_dbg_ratelimited(&dmb->vdev->dev,
+> +			    "device memory buffer has no run of %u pages in any of %u areas of %u pages\n",
+> +			    nr, dmb->nareas, dmb->area_slots);
+> +
+> +	return -ENOMEM;
+> +}
+> +
+> +static void virtio_dmb_release(struct virtio_dmb *dmb, unsigned int slot,
+> +			       unsigned int nr)
+> +{
+> +	struct virtio_dmb_area *area;
+> +	unsigned long flags;
+> +	unsigned int i, a;
+> +
+> +	if (dev_WARN_ONCE(&dmb->vdev->dev,
+> +			  !nr || slot >= dmb->nslots || nr > dmb->nslots - slot,
+> +			  "bad device memory buffer slot range %u+%u\n",
+> +			  slot, nr))
+> +		return;
+> +
+> +	/*
+> +	 * One area holds the whole allocation, so one lock covers it.  The
+> +	 * allocator establishes that by bounding both of its sweeps at an area
+> +	 * end; enforce it here rather than inherit it, because this is the path
+> +	 * that depends on it to pick a lock at all, and picking the wrong one
+> +	 * would clear bits and adjust a count under a lock that does not cover
+> +	 * either.
+> +	 */
+> +	a = slot >> dmb->area_shift;
+> +	if (dev_WARN_ONCE(&dmb->vdev->dev,
+> +			  ((slot + nr - 1) >> dmb->area_shift) != a,
+> +			  "device memory buffer allocation %u+%u spans two areas\n",
+> +			  slot, nr))
+> +		return;
+> +	area = &dmb->areas[a];
+> +
+> +	spin_lock_irqsave(&area->lock, flags);
+> +
+> +	/*
+> +	 * Releasing a range that is not wholly allocated would put slots that
+> +	 * a different allocation now owns back on the free list, which is what
+> +	 * a second release of one handle does.  The bitmap is the only record
+> +	 * that can answer whether that is happening, and the test costs less
+> +	 * than the bitmap_clear() it guards.
+> +	 */
+> +	if (dev_WARN_ONCE(&dmb->vdev->dev,
+> +			  find_next_zero_bit(dmb->bitmap, slot + nr, slot) <
+> +				slot + nr,
+> +			  "device memory buffer double release %u+%u\n",
+> +			  slot, nr))
+> +		goto out;
+> +
+> +	/*
+> +	 * Clear the records before the bits, so that a slot reachable from the
+> +	 * free list never carries an extent that virtio_dmb_resolve() would
+> +	 * trust.  Doing it here rather than in the callers covers every
+> +	 * release path with one copy of the invariant.
+> +	 *
+> +	 * WRITE_ONCE() because virtio_dmb_resolve() reads these three fields
+> +	 * without the lock, which is the pattern
+> +	 * tools/memory-model/Documentation/access-marking.txt calls
+> +	 * "Lock-Protected Writes With Lockless Reads" and asks to be marked on
+> +	 * both sides.
+> +	 */
+> +	for (i = slot; i < slot + nr; i++) {
+> +		WRITE_ONCE(dmb->slots[i].src, DMB_SRC_NONE);
+> +		WRITE_ONCE(dmb->slots[i].end, 0);
+> +		WRITE_ONCE(dmb->slots[i].tail, 0);
+> +	}
+> +
+> +	bitmap_clear(dmb->bitmap, slot, nr);
+> +	area->used -= nr;
+> +	area->index = slot - virtio_dmb_area_base(dmb, a);
+> +
+> +out:
+> +	spin_unlock_irqrestore(&area->lock, flags);
+> +}
+> +
+> +/**
+> + * struct virtio_dmb_ref - a handle resolved against the pool
+> + * @slot: the slot the handle lands in
+> + * @nr: slots the allocation still holds from @slot on
+> + * @src: the physical address @slot bounces, or DMB_SRC_NONE for a queue area
+> + *
+> + * @nr and @src are derived from the same read of the record that validated the
+> + * handle, so the extent a caller releases and the pages the copy touches are
+> + * the ones that were checked and not a later re-read of a field another CPU may
+> + * meanwhile have cleared.
+> + */
+> +struct virtio_dmb_ref {
+> +	unsigned int	slot;
+> +	unsigned int	nr;
+> +	phys_addr_t	src;
+> +};
+> +
+> +/* Extra conditions virtio_dmb_resolve() enforces for particular callers. */
+> +#define DMB_RESOLVE_BOUNCED	BIT(0)	/* must be a mapping, not a queue area */
+> +#define DMB_RESOLVE_WHOLE	BIT(1)	/* must be the allocation's first slot */
+> +
+> +/*
+> + * Turn a handle and a length into a slot index and an extent, rejecting
+> + * anything that does not lie wholly inside the pool.  The bound is exclusive,
+> + * so a handle at the end of the pool and a zero length are both refused.  The
+> + * arithmetic is done in u64 so that it cannot wrap where dma_addr_t is
+> + * narrower.
+> + *
+> + * A handle may point into the middle of a mapping, because
+> + * virtqueue_map_sync_single_range_for_cpu() and its counterpart pass
+> + * handle + offset, so the extent is taken from the slot the handle lands in
+> + * rather than from the first slot of the allocation.  That rejects a handle
+> + * released twice, a length that runs past the end of its allocation, and a
+> + * range that would continue into a neighbouring one.
+> + *
+> + * The length is checked in bytes, not in pages.  A page-granular check would
+> + * pass a length ending anywhere inside the allocation's last slot, which is up
+> + * to PAGE_SIZE - 1 bytes past what was mapped, and virtio_dmb_copy() would
+> + * then touch the page after the source run.  swiotlb_bounce() keeps the same
+> + * bound in alloc_size (kernel/dma/swiotlb.c:890) and clamps an over-long
+> + * mapping to it, because it has callers it cannot refuse.  Every caller here
+> + * passes a length the map side recorded, so an over-long one is a caller bug
+> + * and the copy is refused outright rather than truncated.
+> + *
+> + * DMB_RESOLVE_BOUNCED additionally requires the allocation to be one this file
+> + * bounced rather than a virtqueue area.  DMB_RESOLVE_WHOLE requires the handle
+> + * to be the start of its allocation, which is what the callers that release it
+> + * need: mid-extent tolerance exists for the sync ops alone, and a mid-extent
+> + * release would free the tail of an allocation and leak its head for good.
+> + *
+> + * The resolved slot is read without the lock, which is legitimate for a caller
+> + * that owns it: virtio_dmb_claim() published it exclusively to this caller, so
+> + * nothing else writes it.  The DMB_RESOLVE_WHOLE test also reads the preceding
+> + * slot, which the caller does not own, and that read rests on a different
+> + * argument, stated where it is made.
+> + */
+> +static bool virtio_dmb_resolve(struct virtio_dmb *dmb, dma_addr_t handle,
+> +			       size_t size, unsigned int rflags,
+> +			       struct virtio_dmb_ref *ref)
+> +{
+> +	u64 off, end, limit;
+> +	phys_addr_t src;
+> +	u32 slot_end, tail;
+> +
+> +	if (!size || (u64)handle < dmb->base_off)
+> +		goto bad_handle;
+> +
+> +	off = (u64)handle - dmb->base_off;
+> +	if (check_add_overflow(off, (u64)size, &end))
+> +		goto bad_handle;
+> +	if (end > (u64)virtio_dmb_pool_size(dmb))
+> +		goto bad_handle;
+> +
+> +	ref->slot = off >> PAGE_SHIFT;
+> +
+> +	/*
+> +	 * Snapshot the record here, once.  Every test below, the extent the
+> +	 * caller goes on to release and the pages virtio_dmb_copy() touches are
+> +	 * taken from these three reads rather than from a second look at the
+> +	 * entry, so what was validated is what gets used.  Reading the slot
+> +	 * without the lock is legitimate for a caller that owns it, as above,
+> +	 * but the callers these tests exist to catch are exactly the ones that
+> +	 * do not own it, and for those another CPU may be writing the entry.
+> +	 */
+> +	slot_end = READ_ONCE(dmb->slots[ref->slot].end);
+> +	tail = READ_ONCE(dmb->slots[ref->slot].tail);
+> +	src = READ_ONCE(dmb->slots[ref->slot].src);
+> +
+> +	if (dev_WARN_ONCE(&dmb->vdev->dev, !slot_end,
+> +			  "device memory buffer handle %pad holds no allocation\n",
+> +			  &handle))
+> +		return false;
+> +
+> +	/* The allocation's exclusive end in bytes, reachable from any slot. */
+> +	limit = ((u64)(slot_end - 1) << PAGE_SHIFT) + tail;
+> +
+> +	if (dev_WARN_ONCE(&dmb->vdev->dev, end > limit,
+> +			  "device memory buffer handle %pad length %zu leaves its allocation\n",
+> +			  &handle, size))
+> +		return false;
+> +
+> +	/*
+> +	 * Allocations are disjoint and every slot of one records the same end,
+> +	 * so the preceding slot shares that end if and only if this slot is not
+> +	 * the first of the allocation.
+> +	 *
+> +	 * That slot may belong to another caller, which is the read the
+> +	 * ownership argument above does not cover.  Disjointness covers it
+> +	 * instead: a neighbouring allocation ends at or before this slot and a
+> +	 * free slot records zero, so whichever of the two a concurrent
+> +	 * virtio_dmb_record() or virtio_dmb_release() leaves visible, neither
+> +	 * can equal slot_end.
+> +	 */
+> +	if ((rflags & DMB_RESOLVE_WHOLE) &&
+> +	    dev_WARN_ONCE(&dmb->vdev->dev,
+> +			  !IS_ALIGNED(off, PAGE_SIZE) ||
+> +			  (ref->slot &&
+> +			   READ_ONCE(dmb->slots[ref->slot - 1].end) == slot_end),
+> +			  "device memory buffer handle %pad is not the start of its allocation\n",
+> +			  &handle))
+> +		return false;
+> +
+> +	if ((rflags & DMB_RESOLVE_BOUNCED) &&
+> +	    dev_WARN_ONCE(&dmb->vdev->dev, src == DMB_SRC_NONE,
+> +			  "device memory buffer handle %pad holds no mapping\n",
+> +			  &handle))
+> +		return false;
+> +
+> +	ref->nr = slot_end - ref->slot;
+> +	ref->src = src;
+> +	return true;
+> +
+> +bad_handle:
+> +	dev_WARN_ONCE(&dmb->vdev->dev, 1,
+> +		      "device memory buffer handle %pad length %zu out of range\n",
+> +		      &handle, size);
+> +	return false;
+> +}
+> +
+> +/*
+> + * Copy between the region and the pages a mapping bounces.  @ref is what
+> + * virtio_dmb_resolve() validated for this handle, or what the map side has just
+> + * recorded; every source address is derived from its snapshot rather than from
+> + * dmb->slots[], which this function does not read at all, so validation and use
+> + * cannot disagree about where the source is.  Walk the source one page at a
+> + * time through kmap_local_page(): the source may be highmem, and the per-slot
+> + * record is a physical address precisely so that no assumption about a linear
+> + * kernel mapping across the mapping's pages is needed.  The region side needs
+> + * no such split, being one contiguous mapping.
+> + */
+> +static void virtio_dmb_copy(struct virtio_dmb *dmb,
+> +			    const struct virtio_dmb_ref *ref,
+> +			    dma_addr_t handle, size_t size, bool to_region)
+> +{
+> +	size_t off = (size_t)((u64)handle - dmb->base_off);
+> +	phys_addr_t base = ref->src - ((phys_addr_t)ref->slot << PAGE_SHIFT);
+> +	size_t done = 0;
+> +
+> +	while (done < size) {
+> +		size_t pos = off + done;
+> +		phys_addr_t src = base + pos;
+> +		unsigned int in_src = offset_in_page(src);
+> +		void *region = dmb->base_va + pos;
+> +		size_t n;
+> +		void *va;
+> +
+> +		n = min(size - done, (size_t)PAGE_SIZE - in_src);
+> +
+> +		va = kmap_local_page(pfn_to_page(PHYS_PFN(src)));
+> +		if (to_region)
+> +			memcpy(region, va + in_src, n);
+> +		else
+> +			memcpy(va + in_src, region, n);
+> +		kunmap_local(va);
+> +
+> +		done += n;
+> +	}
+> +}
+> +
+> +/*
+> + * Record @nr slots from @slot as one allocation of @size bytes bouncing @src.
+> + *
+> + * Each slot carries the source address of its own page rather than only the
+> + * first slot carrying the address of the mapping.  That is what makes
+> + * virtio_dmb_copy() independent of which slot of the allocation a handle
+> + * resolved to: taking the slot index back off the recorded address yields the
+> + * same base from any slot of the mapping.  The sync ops do resolve to a slot
+> + * in the middle of one, being handed handle + offset.
+> + *
+> + * The tail is recorded on every slot for the same reason, so that the byte end
+> + * of the allocation is derivable from a mid-extent handle without also knowing
+> + * which slot the allocation starts at.
+> + */
+> +static void virtio_dmb_record(struct virtio_dmb *dmb, unsigned int slot,
+> +			      unsigned int nr, size_t size, phys_addr_t src)
+> +{
+> +	unsigned int i;
+> +	u32 tail;
+> +
+> +	/*
+> +	 * @nr is virtio_dmb_slots(size) at both call sites, so the last slot
+> +	 * carries between 1 and PAGE_SIZE bytes and the cast cannot truncate.
+> +	 */
+> +	tail = (u32)(size - ((size_t)(nr - 1) << PAGE_SHIFT));
+> +
+> +	for (i = 0; i < nr; i++) {
+> +		WRITE_ONCE(dmb->slots[slot + i].src,
+> +			   src == DMB_SRC_NONE ?
+> +			   DMB_SRC_NONE : src + ((phys_addr_t)i << PAGE_SHIFT));
+> +		WRITE_ONCE(dmb->slots[slot + i].end, slot + nr);
+> +		WRITE_ONCE(dmb->slots[slot + i].tail, tail);
+> +	}
+> +}
+> +
+> +static void *virtio_dmb_op_alloc(union virtio_map map, size_t size,
+> +				 dma_addr_t *map_handle, gfp_t gfp)
+> +{
+> +	struct virtio_dmb *dmb = map.dmb;
+> +	unsigned int nr, slot;
+> +	void *va;
+> +	long ret;
+> +
+> +	/*
+> +	 * The allocation-behaviour bits of gfp are ignored, because claiming
+> +	 * slots neither sleeps nor allocates; __GFP_NOWARN is honoured, for
+> +	 * the reason the failure path below gives.  The result is zeroed
+> +	 * because this stands in for dma_alloc_coherent(), whose callers rely
+> +	 * on that.
+> +	 */
+> +	if (!size)
+> +		return NULL;
+> +
+> +	/*
+> +	 * Bound the request before a slot count is derived from it, as
+> +	 * map_page() does.  The bound is the whole pool rather than the
+> +	 * fraction of it virtio_dmb_max_mapping() reports, for the reason
+> +	 * that function gives.  It is not the effective limit: every search
+> +	 * is bounded at one pool area, so an allocation larger than
+> +	 * area_slots pages fails even on an empty pool.
+> +	 */
+> +	if (size > virtio_dmb_pool_size(dmb))
+> +		goto no_room;
+> +
+> +	nr = virtio_dmb_slots(size);
+> +	ret = virtio_dmb_claim(dmb, nr);
+> +	if (ret < 0)
+> +		goto no_room;
+> +	slot = ret;
+> +
+> +	va = dmb->base_va + ((size_t)slot << PAGE_SHIFT);
+> +	memset(va, 0, (size_t)nr << PAGE_SHIFT);
+> +	virtio_dmb_record(dmb, slot, nr, size, DMB_SRC_NONE);
+> +
+> +	*map_handle = dmb->base_off + ((u64)slot << PAGE_SHIFT);
+> +	return va;
+> +
+> +no_room:
+> +	/*
+> +	 * A buffer that does not fit is back-pressure and stays quiet, but
+> +	 * this is a virtqueue area: no back-pressure can defer it, and a
+> +	 * region sized for the buffers but not for the areas otherwise fails
+> +	 * queue setup with nothing to tell it apart from every other reason
+> +	 * find_vqs() can fail, and it is the one of those a larger region
+> +	 * fixes.
+> +	 *
+> +	 * Which is why __GFP_NOWARN has to be honoured rather than ignored.
+> +	 * vring_alloc_queue_split() walks the queue size down from the size
+> +	 * the device asked for and marks every attempt but the last with the
+> +	 * flag, so warning regardless would print a line for every attempt
+> +	 * but the last, for a probe that then succeeds.  Dynamic debug still carries the
+> +	 * message, which is what a packed ring has to rely on: none of its
+> +	 * three areas can be made smaller and all three set the flag.
+> +	 */
+> +	if (gfp & __GFP_NOWARN)
+> +		dev_dbg(&dmb->vdev->dev,
+> +			"no room for a %zu-byte virtqueue area in %u pages\n",
+> +			size, dmb->nslots);
+> +	else
+> +		dev_warn(&dmb->vdev->dev,
+> +			 "no room for a %zu-byte virtqueue area in %u pages\n",
+> +			 size, dmb->nslots);
+> +	return NULL;
+> +}
+> +
+> +/*
+> + * DMB_RESOLVE_WHOLE alone: there is deliberately no converse of
+> + * DMB_RESOLVE_BOUNCED insisting that the allocation is a virtqueue area.  A
+> + * caller reaching this with a mapping has called free() on something it got
+> + * from map_page(), and would lose the copy-out that unmap_page() does; the
+> + * bytes it loses are its own, and the only in-tree caller of the exported
+> + * virtqueue_map_free_coherent() is vring_free_queue(), which frees an area.
+> + * Refusing here would trade that for a leak of the slots, which is worse.
+> + */
+> +static void virtio_dmb_op_free(union virtio_map map, size_t size, void *vaddr,
+> +			       dma_addr_t map_handle, unsigned long attrs)
+> +{
+> +	struct virtio_dmb *dmb = map.dmb;
+> +	struct virtio_dmb_ref ref;
+> +
+> +	if (!virtio_dmb_resolve(dmb, map_handle, size, DMB_RESOLVE_WHOLE, &ref))
+> +		return;
+> +
+> +	virtio_dmb_release(dmb, ref.slot, ref.nr);
+> +}
+> +
+> +static dma_addr_t virtio_dmb_op_map_page(union virtio_map map,
+> +					 struct page *page,
+> +					 unsigned long offset, size_t size,
+> +					 enum dma_data_direction dir,
+> +					 unsigned long attrs)
+> +{
+> +	struct virtio_dmb *dmb = map.dmb;
+> +	phys_addr_t src = page_to_phys(page) + offset;
+> +	struct virtio_dmb_ref ref;
+> +	unsigned int nr, slot;
+> +	dma_addr_t handle;
+> +	long ret;
+> +
+> +	if (!size || size > virtio_dmb_max_mapping(dmb))
+> +		return DMA_MAPPING_ERROR;
+> +
+> +	nr = virtio_dmb_slots(size);
+> +	ret = virtio_dmb_claim(dmb, nr);
+> +	if (ret < 0)
+> +		return DMA_MAPPING_ERROR;
+> +	slot = ret;
+> +
+> +	virtio_dmb_record(dmb, slot, nr, size, src);
+> +
+> +	handle = dmb->base_off + ((u64)slot << PAGE_SHIFT);
+> +
+> +	ref.slot = slot;
+> +	ref.nr = nr;
+> +	ref.src = src;
+> +
+> +	/*
+> +	 * Copy the caller's buffer in whatever the direction is, and without
+> +	 * honouring DMA_ATTR_SKIP_CPU_SYNC.  swiotlb_tbl_map_single() bounces
+> +	 * unconditionally for the same two reasons: a device that writes less
+> +	 * than the whole buffer must leave the rest of the caller's bytes
+> +	 * intact, and the mapped bytes must not reach the device as whatever
+> +	 * the slot held before.
+> +	 *
+> +	 * Those bytes and no others.  size need not be a multiple of
+> +	 * PAGE_SIZE, and [size, nr << PAGE_SHIFT) keeps what the slots held
+> +	 * before: a freed virtqueue area, an earlier mapping of this device,
+> +	 * or what the device left there itself.  Nothing outside a mapping's
+> +	 * own length is ever copied in, so the device reads nothing there
+> +	 * that the region did not already hold for it, and the descriptor
+> +	 * carries a length.  swiotlb leaves the remainder of its last slot
+> +	 * the same way.
+> +	 */
+> +	virtio_dmb_copy(dmb, &ref, handle, size, true);
+> +
+> +	return handle;
+> +}
+> +
+> +static void virtio_dmb_op_unmap_page(union virtio_map map,
+> +				     dma_addr_t map_handle, size_t size,
+> +				     enum dma_data_direction dir,
+> +				     unsigned long attrs)
+> +{
+> +	struct virtio_dmb *dmb = map.dmb;
+> +	struct virtio_dmb_ref ref;
+> +
+> +	if (!virtio_dmb_resolve(dmb, map_handle, size,
+> +				DMB_RESOLVE_BOUNCED | DMB_RESOLVE_WHOLE, &ref))
+> +		return;
+> +
+> +	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC) &&
+> +	    (dir == DMA_FROM_DEVICE || dir == DMA_BIDIRECTIONAL))
+> +		virtio_dmb_copy(dmb, &ref, map_handle, size, false);
+> +
+> +	/*
+> +	 * The slot count comes from what map_page() recorded rather than from
+> +	 * the caller's size, so a mismatched size cannot release a different
+> +	 * number of slots than were claimed.
+> +	 */
+> +	virtio_dmb_release(dmb, ref.slot, ref.nr);
+> +}
+> +
+> +static void virtio_dmb_op_sync_single_for_cpu(union virtio_map map,
+> +					      dma_addr_t map_handle,
+> +					      size_t size,
+> +					      enum dma_data_direction dir)
+> +{
+> +	struct virtio_dmb *dmb = map.dmb;
+> +	struct virtio_dmb_ref ref;
+> +
+> +	/* A zero-length sync is a no-op and not a bad handle. */
+> +	if (!size)
+> +		return;
+> +
+> +	if (!virtio_dmb_resolve(dmb, map_handle, size, DMB_RESOLVE_BOUNCED,
+> +				&ref))
+> +		return;
+> +
+> +	if (dir == DMA_FROM_DEVICE || dir == DMA_BIDIRECTIONAL)
+> +		virtio_dmb_copy(dmb, &ref, map_handle, size, false);
+> +}
+> +
+> +static void virtio_dmb_op_sync_single_for_device(union virtio_map map,
+> +						 dma_addr_t map_handle,
+> +						 size_t size,
+> +						 enum dma_data_direction dir)
+> +{
+> +	struct virtio_dmb *dmb = map.dmb;
+> +	struct virtio_dmb_ref ref;
+> +
+> +	/* A zero-length sync is a no-op and not a bad handle. */
+> +	if (!size)
+> +		return;
+> +
+> +	if (!virtio_dmb_resolve(dmb, map_handle, size, DMB_RESOLVE_BOUNCED,
+> +				&ref))
+> +		return;
+> +
+> +	if (dir == DMA_TO_DEVICE || dir == DMA_BIDIRECTIONAL)
+> +		virtio_dmb_copy(dmb, &ref, map_handle, size, true);
+> +}
+> +
+> +static bool virtio_dmb_op_need_sync(union virtio_map map, dma_addr_t map_handle)
+> +{
+> +	/* Every mapping is a bounce, so every sync is a real copy. */
+> +	return true;
+> +}
+> +
+> +static int virtio_dmb_op_mapping_error(union virtio_map map,
+> +				       dma_addr_t map_handle)
+> +{
+> +	/*
+> +	 * DMA_MAPPING_ERROR is the value virtio_ring reserves.  Offset 0 is
+> +	 * reserved too, by the proposal and by every device implementation
+> +	 * that reads a queue address of zero as a queue that was never
+> +	 * programmed, so it is not an address this driver may publish either.
+> +	 * Nothing allocated here yields it, because the pool starts after the
+> +	 * first byte of the region for the reason virtio_dmb_init() gives, but
+> +	 * a premapped buffer carries an address its caller obtained and
+> +	 * vring_map_one_sg() asks this operation to judge that one.  Whether
+> +	 * such an address came from this map cannot be answered here, and a
+> +	 * containment test would answer a different question, but zero can be
+> +	 * answered: it is the one value the proposal rules out outright.
+> +	 */
+> +	if (map_handle == DMA_MAPPING_ERROR || !map_handle)
+> +		return -ENOMEM;
+> +
+> +	return 0;
+> +}
+> +
+> +static size_t virtio_dmb_op_max_mapping_size(union virtio_map map)
+> +{
+> +	return virtio_dmb_max_mapping(map.dmb);
+> +}
+> +
+> +static const struct virtio_map_ops virtio_dmb_map_ops = {
+> +	.map_page		= virtio_dmb_op_map_page,
+> +	.unmap_page		= virtio_dmb_op_unmap_page,
+> +	.sync_single_for_cpu	= virtio_dmb_op_sync_single_for_cpu,
+> +	.sync_single_for_device	= virtio_dmb_op_sync_single_for_device,
+> +	.alloc			= virtio_dmb_op_alloc,
+> +	.free			= virtio_dmb_op_free,
+> +	.need_sync		= virtio_dmb_op_need_sync,
+> +	.mapping_error		= virtio_dmb_op_mapping_error,
+> +	.max_mapping_size	= virtio_dmb_op_max_mapping_size,
+> +};
+> +
+> +/*
+> + * Whether the device still has virtqueues.  vqs_list_lock is what protects
+> + * that list against a concurrent adder.  No caller here can race one, because
+> + * every path that reaches this runs under the device lock and before or after
+> + * the driver's find_vqs(), but the invariant is worth enforcing rather than
+> + * inheriting from callers this file does not control.
+> + */
+> +static bool virtio_dmb_vqs_live(struct virtio_device *vdev)
+> +{
+> +	bool live;
+> +
+> +	spin_lock(&vdev->vqs_list_lock);
+> +	live = !list_empty(&vdev->vqs);
+> +	spin_unlock(&vdev->vqs_list_lock);
+> +
+> +	return live;
+> +}
+> +
+> +/**
+> + * virtio_dmb_destroy - release the Device Memory Buffer state of a device
+> + * @vdev: the device
+> + *
+> + * Does nothing unless @vdev is currently using a Device Memory Buffer, and
+> + * refuses if the device still has virtqueues: they would be left pointing
+> + * into a region that is no longer mapped.  The mapping and the physical
+> + * region claim then stay behind until something deletes those virtqueues and
+> + * calls again, which unbinding the driver does: virtio_dev_remove() calls the
+> + * driver's remove() before this.
+> + */
+> +void virtio_dmb_destroy(struct virtio_device *vdev)
+> +{
+> +	struct virtio_dmb *dmb;
+> +
+> +	/*
+> +	 * vdev->map identifies which member of vdev->vmap is live, so it is
+> +	 * also the test for whether the union holds a Device Memory Buffer.
+> +	 */
+> +	if (vdev->map != &virtio_dmb_map_ops)
+> +		return;
+> +
+> +	/*
+> +	 * A virtqueue keeps the mapping token it was created with, while
+> +	 * vdev->map is consulted afresh on every dispatch.  Clearing vdev->map
+> +	 * therefore does not disarm a live virtqueue, it redirects that
+> +	 * virtqueue's copy of the token into the DMA API, where the pointer
+> +	 * this frees would be used as a struct device.  Refuse instead and
+> +	 * leak the mapping, which is unconditionally better than a
+> +	 * use-after-free.
+> +	 *
+> +	 * Reported rather than warned about, because a driver that left its
+> +	 * virtqueues in place is not the only way to get here.  A device that
+> +	 * fails to report its region on the way back from a suspend takes
+> +	 * virtio_device_restore() to its error path, which calls this, and a
+> +	 * driver with no freeze callback still has its virtqueues at that
+> +	 * point, correctly.  A condition a correct driver can satisfy must
+> +	 * not taint the kernel.
+> +	 */
+> +	if (virtio_dmb_vqs_live(vdev)) {
+> +		dev_warn(&vdev->dev,
+> +			 "device memory buffer not released, virtqueues are still live\n");
+> +		return;
+> +	}
+> +
+> +	dmb = vdev->vmap.dmb;
+> +
+> +	/* Put back exactly what the transport had installed. */
+> +	vdev->map = dmb->prev_map;
+> +	vdev->vmap = dmb->prev_vmap;
+> +
+> +	memunmap(dmb->map_va);
+> +	if (dmb->map_claimed)
+> +		release_mem_region(dmb->map_phys, dmb->map_len);
+> +	kvfree(dmb->slots);
+> +	kfree(dmb->areas);
+> +	bitmap_free(dmb->bitmap);
+> +	kfree(dmb);
+> +}
+> +EXPORT_SYMBOL_GPL(virtio_dmb_destroy);
+> +
+> +/**
+> + * virtio_dmb_init - make a device's Device Memory Buffer state current
+> + * @vdev: the device, with feature negotiation complete
+> + *
+> + * Reads the shared memory id the device reports, locates the region, builds
+> + * an allocator over it and routes every mapping of the device through it.
+> + * When the feature is not negotiated, releases any state a previous
+> + * negotiation left behind.
+> + *
+> + * The operation is "make the state match what the device reports now", and it
+> + * is reached again from resume and from reset completion.  A device that
+> + * reports the region it reported last time keeps the state it already has, so
+> + * handles held by a virtqueue that outlived the transition stay valid.  A
+> + * device that reports a different region has the state rebuilt when no
+> + * virtqueue is live, and is refused otherwise: a virtqueue holds kernel
+> + * addresses inside the mapping and cannot be redirected into a new one.
+> + *
+> + * A caller that gets an error must set the FAILED device status bit, and must
+> + * not touch the device for anything else before it does.  The device has
+> + * already confirmed the feature by the time this runs, so it is entitled to
+> + * assume the driver will address it through the region; the bit is what tells
+> + * it the driver gave up instead.
+> + *
+> + * Return: 0 on success, or a negative errno.
+> + */
+> +int virtio_dmb_init(struct virtio_device *vdev)
+> +{
+> +	struct virtio_shm_region region;
+> +	struct virtio_dmb *dmb;
+> +	unsigned int nslots, skew;
+> +	unsigned int area_slots, nareas, target, i;
+> +	u64 base_off, slots = 0;
+> +	size_t map_len;
+> +	u16 shm_id;
+> +	int err;
+> +
+> +	if (!virtio_has_feature(vdev, VIRTIO_F_DMB)) {
+> +		/*
+> +		 * The feature may have been withdrawn across re-negotiation.
+> +		 *
+> +		 * virtio_dmb_destroy() refuses under live virtqueues, and
+> +		 * returning 0 after a refusal would leave this file's map
+> +		 * operations installed for a device that has not negotiated the
+> +		 * feature, so every later mapping would resolve a handle
+> +		 * against a region the device no longer agrees it has.  Report
+> +		 * the refusal to the caller instead, which sets the FAILED
+> +		 * device status bit.  No path reaches this today: it needs map
+> +		 * operations an earlier negotiation installed, which unbinding
+> +		 * destroys, so only the restore path can find them, and that
+> +		 * path hands finalize_features() the word already accepted
+> +		 * rather than the offer, so a transport could drop the feature
+> +		 * there only in reaction to a device that changed what it
+> +		 * offers after the driver bound, and no reset does that.
+> +		 */
+> +		virtio_dmb_destroy(vdev);
+> +		if (vdev->map == &virtio_dmb_map_ops)
+> +			return -EBUSY;
+> +		return 0;
+> +	}
+> +
+> +	/*
+> +	 * Without both of these the region cannot be located at all, which is
+> +	 * what keeps a transport that does not implement them from offering
+> +	 * the feature in the first place.
+> +	 */
+> +	if (!vdev->config->get_dmb_shm_id || !vdev->config->get_shm_region) {
+> +		dev_warn(&vdev->dev,
+> +			 "transport cannot locate a device memory buffer\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	/* The feature is only defined together with VIRTIO_F_ACCESS_PLATFORM. */
+> +	if (!virtio_has_feature(vdev, VIRTIO_F_ACCESS_PLATFORM)) {
+> +		dev_warn(&vdev->dev,
+> +			 "device memory buffer without VIRTIO_F_ACCESS_PLATFORM\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	err = vdev->config->get_dmb_shm_id(vdev, &shm_id);
+> +	if (err)
+> +		return err;
+> +
+> +	/* A region is looked up by a u8 id. */
+> +	if (shm_id > U8_MAX) {
+> +		dev_warn(&vdev->dev,
+> +			 "device memory buffer id %u out of range\n", shm_id);
+> +		return -EINVAL;
+> +	}
+> +
+> +	if (!virtio_get_shm_region(vdev, &region, shm_id)) {
+> +		dev_warn(&vdev->dev,
+> +			 "cannot locate device memory buffer region %u\n",
+> +			 shm_id);
+> +		return -ENODEV;
+> +	}
+> +
+> +	/*
+> +	 * The region base carries no alignment guarantee, but every virtqueue
+> +	 * layout requires one of the areas placed in it.  Start the pool at a
+> +	 * PAGE_SIZE-aligned address and record the skew, so that page-granular
+> +	 * allocation makes every absolute address aligned.
+> +	 *
+> +	 * PAGE_SIZE - skew is the distance from the start of the region to the
+> +	 * first aligned address strictly after it, so the pool never begins at
+> +	 * the region's first byte and no handle is ever 0.  The proposal
+> +	 * reserves offset 0: it is not the address of any structure the driver
+> +	 * places in the region, and a device may treat it as an error.  A device
+> +	 * that predates the reservation reads a queue address of 0 as the queue
+> +	 * never having been programmed and ignores it, so the value is unusable
+> +	 * either way.  Keeping it out of the pool costs one page of an
+> +	 * already-aligned region and nothing at all of a misaligned one, whose
+> +	 * leading partial page was unusable regardless.
+> +	 */
+> +	skew = offset_in_page(region.addr);
+> +	base_off = PAGE_SIZE - skew;
+> +
+> +	if (region.len > base_off)
+> +		slots = (region.len - base_off) >> PAGE_SHIFT;
+> +
+> +	/*
+> +	 * The least a region could hold: one minimally-sized virtqueue plus
+> +	 * one buffer in flight against it.  A packed queue costs three
+> +	 * allocations, a descriptor ring and two event structures, and a split
+> +	 * queue up to two when the transport aligns its areas to PAGE_SIZE, so
+> +	 * four slots is the floor for either layout.
+> +	 *
+> +	 * Four slots is four pages of pool, which is five pages of region for
+> +	 * a region whose base is already aligned, since the page the pool
+> +	 * starts after is not part of it.
+> +	 *
+> +	 * That derivation counts one virtqueue.  A device that also offers an
+> +	 * administration virtqueue has its areas allocated from the same region
+> +	 * through the same path, and one administration command occupies
+> +	 * several slots more, so four pages is a floor such a device is
+> +	 * misconfigured to sit on rather than a size it can work at.
+> +	 *
+> +	 * This floor is enforced, but it is a floor and not a sufficiency
+> +	 * check.  How much a device actually needs depends on how many
+> +	 * virtqueues its driver creates and how deep they are, neither of
+> +	 * which is known here: this runs during feature negotiation, before
+> +	 * find_vqs().  A region above this floor but still too small fails
+> +	 * there instead, which for a split ring reduces the queue depth and
+> +	 * for a packed ring fails the queue.
+> +	 *
+> +	 * The upper bounds are what a slot index, a mapping length and a
+> +	 * published handle can each represent.  The mapping length bound is
+> +	 * exclusive because the length mapped is base_off larger than the
+> +	 * pool, and base_off is a whole page where the region base is
+> +	 * aligned: at the last representable slot count that sum would wrap
+> +	 * to zero on a 32-bit size_t.
+> +	 */
+> +	if (slots < 4 || slots > UINT_MAX ||
+> +	    slots >= (u64)(SIZE_MAX >> PAGE_SHIFT) ||
+> +	    base_off + (slots << PAGE_SHIFT) - 1 >
+> +			DMA_BIT_MASK(BITS_PER_TYPE(dma_addr_t))) {
+> +		dev_warn(&vdev->dev,
+> +			 "device memory buffer region holds %llu usable pages\n",
+> +			 slots);
+> +		return -EINVAL;
+> +	}
+> +	nslots = slots;
+> +
+> +	/* Nothing outside the pool and the bytes ahead of it is used. */
+> +	map_len = base_off + ((size_t)nslots << PAGE_SHIFT);
+> +
+> +	/*
+> +	 * The transport reports the region in 64 bits while a resource is
+> +	 * addressed in resource_size_t.  Refuse a region that does not fit
+> +	 * rather than claim and map a truncated one.
+> +	 */
+> +	if (region.addr > (u64)(resource_size_t)-1 - map_len) {
+> +		dev_warn(&vdev->dev,
+> +			 "device memory buffer region at 0x%llx is not addressable\n",
+> +			 region.addr);
+> +		return -EINVAL;
+> +	}
+> +
+> +	/*
+> +	 * Everything that identifies the region is known now and nothing has
+> +	 * been touched yet, so an unchanged region can be adopted instead of
+> +	 * being torn down and rebuilt identically.  That is what lets a
+> +	 * virtqueue which outlived a suspend or a reset keep handles that are
+> +	 * still valid, and it is why no separate freeze-time teardown is
+> +	 * needed.  A region that moved can be neither adopted nor replaced
+> +	 * under live virtqueues, so refuse without a warning: a device that
+> +	 * moves its region while its driver still has virtqueues is
+> +	 * misbehaving, which is not evidence of a kernel bug.
+> +	 */
+> +	if (vdev->map == &virtio_dmb_map_ops) {
+> +		dmb = vdev->vmap.dmb;
+> +
+> +		if (dmb->shm_id == shm_id && dmb->map_phys == region.addr &&
+> +		    dmb->map_len == map_len)
+> +			return 0;
+> +
+> +		if (virtio_dmb_vqs_live(vdev))
+> +			return -EBUSY;
+> +
+> +		virtio_dmb_destroy(vdev);
+> +	}
+> +
+> +	dmb = kzalloc(sizeof(*dmb), GFP_KERNEL);
+> +	if (!dmb)
+> +		return -ENOMEM;
+> +
+> +	dmb->vdev = vdev;
+> +	dmb->shm_id = shm_id;
+> +	dmb->base_off = base_off;
+> +	dmb->map_phys = region.addr;
+> +	dmb->map_len = map_len;
+> +
+> +	/*
+> +	 * A shared memory region need not lie in a BAR the transport already
+> +	 * claimed, so record a claim on the range here.  The claim is
+> +	 * advisory: where the region does lie in such a BAR the transport's
+> +	 * own claim already covers it, and that is not a conflict with
+> +	 * anything, so it must not fail the device.  A foreign driver cannot
+> +	 * own another device's BAR range either, so a refusal here is not
+> +	 * evidence that anything is wrong.
+> +	 */
+> +	dmb->map_claimed = request_mem_region(region.addr, map_len,
+> +					      "virtio-dmb") != NULL;
+> +	if (!dmb->map_claimed)
+> +		dev_dbg(&vdev->dev,
+> +			"device memory buffer region at 0x%llx already reserved\n",
+> +			region.addr);
+> +
+> +	/*
+> +	 * MEMREMAP_DEC because the region is memory shared with the device,
 
-Withhold a range of the pool from ordinary claims and let a virtqueue
-whose ring is empty draw on it for one descriptor chain.
-vring_map_reserve_attr() marks those mappings with a new attrs bit,
-VIRTIO_MAP_ATTR_RESERVE, which asks a bounded map implementation to
-serve them out of the withheld range and which it may ignore.
-VIRTIO_MAP_ATTR_MASK collects the attrs bits virtio owns, which
-virtqueue_map_page_attrs() strips before any dma_map_*() call.
+Ah this is what it means there. Decrypted. But ...
 
-VIRTIO_MAP_RESERVE_PAGES bounds what one chain may draw at 32 pages,
-enough for a page-granular chain at the default CONFIG_MAX_SKB_FRAGS.
-Size the withheld range as one chain's allowance plus one page for each
-virtqueue beyond the one drawing the chain; an allowance per virtqueue
-would be a permanent shortage, since only an empty ring may draw.
-virtio_dmb_note_vqs() takes the count from vp_modern_find_vqs(), which
-counts the administration virtqueue too, and the size it arrives at
-appears in a second probe-time message and in dmb/reserved_pages.
 
-The new VIRTIO_DMB_KUNIT_TEST option covers the range's geometry and the
-withdrawal of the feature, neither of which we reach on a real device.
+> +	 * which is what the proposal requires of a driver wherever the platform
+> +	 * distinguishes that from memory private to the driver.  Without it
+> +	 * x86's arch_memremap_wb() applies the guest's own encryption to the
+> +	 * mapping, and the device would see ciphertext wherever a guest encrypts
+> +	 * its memory.  x86 is the only architecture that reads the flag; arm64
+> +	 * ignores it and reaches ioremap_prot() instead, where a realm guest's
+> +	 * hook finds the region is not protected memory and shares the mapping.
+> +	 * Anywhere else that draws the distinction, the proposal forbids the
+> +	 * device from offering the feature at all.
+> +	 */
+> +	dmb->map_va = memremap(region.addr, map_len,
+> +			       MEMREMAP_WB | MEMREMAP_DEC);
 
-That way a virtqueue that comes up against a full pool publishes its
-first chain and gets a completion to wait for.
 
-Assisted-by: Kiro:claude-opus-5 checkpatch sparse
-Signed-off-by: Alexander Graf <graf@amazon.com>
----
- .../driver-api/virtio/virtio-dmb.rst          | 178 +++++++++--
- drivers/virtio/Kconfig                        |  13 +
- drivers/virtio/virtio_dmb.c                   | 247 ++++++++++++++--
- drivers/virtio/virtio_dmb.h                   |   6 +
- drivers/virtio/virtio_dmb_test.c              | 279 ++++++++++++++++++
- drivers/virtio/virtio_pci_modern.c            |  18 +-
- drivers/virtio/virtio_ring.c                  |  84 +++++-
- include/linux/virtio_config.h                 |  33 +++
- 8 files changed, 784 insertions(+), 74 deletions(-)
- create mode 100644 drivers/virtio/virtio_dmb_test.c
+But where is MEMREMAP_WB from?
 
-diff --git a/Documentation/driver-api/virtio/virtio-dmb.rst b/Documentation/driver-api/virtio/virtio-dmb.rst
-index 610db080dee5..d84f0771f010 100644
---- a/Documentation/driver-api/virtio/virtio-dmb.rst
-+++ b/Documentation/driver-api/virtio/virtio-dmb.rst
-@@ -302,15 +302,18 @@ So a device must offer at least::
-                 + sum over virtqueues of
-                     [ ring_pages(num) + num * slots(max_request) ]
-                     * PAGE_SIZE
-+                + reserved * PAGE_SIZE
- 
-   where the leading PAGE_SIZE covers the bytes ahead of the pool, and is
-   a whole page because a device cannot know the guest's page size and so
-   cannot know whether its region base is aligned to one,
-   slots(max_request) is the largest slots(request) value from the
-   formula above the driver can produce for one request on that queue,
--  and ring_pages(num) is the pages one virtqueue's Descriptor, Driver and
-+  ring_pages(num) is the pages one virtqueue's Descriptor, Driver and
-   Device Areas occupy: ceil(vring_size(num, align) / PAGE_SIZE) for a
--  split ring, and ceil(num * 16 / PAGE_SIZE) + 2 for a packed one
-+  split ring, and ceil(num * 16 / PAGE_SIZE) + 2 for a packed one,
-+  and reserved is the range withheld from ordinary claims, described
-+  under "The withheld range" below
- 
- A device that also offers an administration virtqueue pays for it out of
- the same region: its virtqueue areas are allocated through the same path,
-@@ -391,6 +394,13 @@ the ones it goes on to use: ``virtnet_find_vqs()`` creates
-   floor_slots = rings + Q * B_rx + tx_min + ctrl   multi-queue works: one
-                                                    receive buffer per queue
-   work_slots  = rings + rx_fill + tx_min + ctrl    receive rings full
-+  reserved    = min(32 + V - 1, pages / 2)     withheld, and zero below 256
-+                                               pages; a short last pool
-+                                               area can add to it, see
-+                                               below.  The V there counts
-+                                               an administration virtqueue
-+                                               too where a device has one
-+  region_slots = work_slots + reserved         what a device must offer
- 
- Every term above assumes ``VIRTIO_F_INDIRECT_DESC``, which is what the
- ``+ 3`` and the ``ctrl`` table account for.  Without it a chain occupies one
-@@ -402,25 +412,33 @@ so ``rx_fill`` and not ``floor_slots`` is the working figure.  For a split
- ring, x86_64, 4 KiB pages, ``MAX_SKB_FRAGS`` 17, mergeable receive buffers
- and ``C = 1``:
- 
--=====  =====  =======  =========  ============  ==========
--Q      num    rings    rx_fill    work_slots    work MiB
--=====  =====  =======  =========  ============  ==========
--1      256    6        256        287           1.1
--4      256    18       1024       1127          4.4
--8      256    34       2048       2247          8.8
--8      1024   119      8192       8476          33.1
--16     1024   231      16384      16940         66.2
--32     1024   455      32768      33868         132.3
--64     1024   903      65536      67724         264.5
--=====  =====  =======  =========  ============  ==========
--
--Two things to take from it.  ``rx_fill`` dominates: it is 65536 slots of the
--67724 sixty-four queue pairs come to, so sizing a region for multiple queues
--is "how many receive buffers will be posted" to within three and a quarter
--percent, and the virtqueue rings are the smaller part of what is left -- 903
--slots against ``tx_min``'s 1280.  And the pool areas of the previous
--subsection do not appear at all, because they cost guest memory rather than
--region pages.
-+=====  =====  =======  =========  ============  ==========  ========  ========
-+Q      num    rings    rx_fill    work_slots    work MiB    reserved  region
-+=====  =====  =======  =========  ============  ==========  ========  ========
-+1      256    6        256        287           1.1         34        321
-+4      256    18       1024       1127          4.4         40        1167
-+8      256    34       2048       2247          8.8         48        2295
-+8      1024   119      8192       8476          33.1        48        8524
-+16     1024   231      16384      16940         66.2        64        17004
-+32     1024   455      32768      33868         132.3       96        33964
-+64     1024   903      65536      67724         264.5       160       67884
-+=====  =====  =======  =========  ============  ==========  ========  ========
-+
-+``region`` is ``region_slots``, the figure to offer; ``work MiB`` is
-+``work_slots`` in mebibytes and excludes ``reserved``.  The
-+sixty-four-queue-pair row is 265.2 MiB of region against the 264.5
-+``work_slots`` alone comes to.
-+
-+Three things to take from it.  ``rx_fill`` dominates: it is 65536 slots of
-+the 67884 a sixty-four-queue-pair region comes to, so sizing a region for
-+multiple queues is "how many receive buffers will be posted" to within three
-+and a half percent, and the virtqueue rings are the smaller part of what is
-+left -- 903 slots against ``tx_min``'s 1280.  ``reserved`` is small and grows
-+with the virtqueue count rather than with the region -- 160 slots at
-+sixty-four queue pairs, under a quarter of one percent -- but it is not
-+optional, because it is withheld rather than merely spent.  And the pool
-+areas of the previous subsection do not appear at all, because they cost
-+guest memory rather than region pages.
- 
- The receive buffer mode is a twenty-fold multiplier the device cannot
- predict.  A driver that negotiates any of ``VIRTIO_NET_F_GUEST_TSO4``,
-@@ -432,6 +450,83 @@ which is 160.8 MiB instead of 8.8.  A device offering guest segmentation
- offload without ``MRG_RXBUF`` must size for that.  Offering ``MRG_RXBUF``
- is the better answer.
- 
-+The withheld range
-+------------------
-+
-+Part of the pool is withheld from ordinary claims so that a virtqueue
-+whose ring is empty can publish a chain whatever the others have mapped::
-+
-+  reserved = 0                            if pages < 256
-+           = min(32 + V - 1, pages / 2)   otherwise, plus the last pool
-+                                          area's page count where that
-+                                          area is short enough to split
-+                                          the range -- see below
-+
-+One page for each of the ``V`` virtqueues, and a chain's allowance of 32
-+pages on top, less the one page already counted for whichever virtqueue
-+draws the chain.  A virtqueue may draw on the range only while its ring is
-+empty, and only for one chain of up to 32 pages, which the ring asks for by
-+setting ``VIRTIO_MAP_ATTR_RESERVE`` on the mapping.  That is the case worth
-+protecting: a virtqueue with nothing published has no completion of its own
-+to be woken by, because the device cannot signal a used buffer on a queue
-+with no buffers posted, so it depends entirely on its owner retrying.  A
-+virtqueue that has published a chain does not need the guarantee, and does
-+not get it.
-+
-+Both terms follow from that restriction.  Because a running virtqueue
-+cannot draw, the range is contended only by the virtqueues that have
-+published nothing; there are at most ``V`` of those, and what each of them
-+needs is the one page that takes its ring from empty to non-empty.  The 31
-+pages left over, plus that virtqueue's own one, are then a whole chain for
-+whichever of them is publishing more than a single page.
-+
-+So the guarantee is: every virtqueue can obtain one page that no running
-+virtqueue can take, and one virtqueue at a time can obtain a whole chain.
-+For virtio_net that is the whole of it at any queue count, because a
-+mergeable receive buffer is one slot and a linear transmit is one slot: the
-+resident draw is ``2 * Q + 5`` pages against the ``31 + V`` withheld, and
-+``2 * Q + 5 <= 2 * Q + 32`` holds for every ``Q``.  What is *not*
-+guaranteed is ``V`` simultaneous multi-page first chains.  A second
-+virtqueue whose first chain needs more than its one page competes for the
-+32 and, losing, gets ``-ENOMEM`` -- the value it got before the range
-+existed, and one every caller answers by retrying later rather than by
-+waiting for a completion it has not got.  Sizing the range for ``V`` whole
-+chains instead would withhold ``32 * V``, which on a small region is a
-+fixed fraction of the pool and is capacity the transmit path then does not
-+have; that trades a rare mapping failure for a permanent shortage, so the
-+quantity is deliberately not the product of the two worst cases.
-+
-+The range is the tail of the pool, and an allocation has to lie inside one
-+pool area, so a whole chain needs 32 of the withheld pages contiguous within
-+one area and not merely free.  Where the last pool area is shorter than 32
-+pages the range straddles the boundary below it, and where the piece above
-+that boundary and the piece below are both shorter than a chain, the range
-+is widened by the short area's length so that the piece below it is a whole
-+``31 + V`` pages.  That costs under 32 pages and only where ``pages`` is just
-+above a multiple of ``area_pages``; no row of the table above reaches it, and
-+neither does any region whose page count is a multiple of ``area_pages`` or at
-+least 32 above one.
-+
-+The guarantee holds for every virtqueue on any pool of 256 pages or more, and
-+below that the range is inert altogether, because it would withhold more than
-+it protects.  Above ninety-seven virtqueues the half-of-the-pool bound is the
-+later of the two conditions, and the pool has to be ``62 + 2 * V`` pages or
-+more instead.  Every row of the table above is far clear of both: the
-+tightest is 287 pages against the 68 three virtqueues need.  That bound is
-+not a policy, only what keeps the ordinary range non-empty; where it does
-+bind, the pool has fewer pages than the virtqueues alone want and the
-+guarantee covers as many of them as it has pages for.
-+
-+This is a floor and not a fair share.  A single busy virtqueue may still
-+use everything outside the withheld range: on a 16 MiB region with eight
-+queue pairs and depth-1024 rings that is 3928 of 4095 pages, the region
-+less the 48 withheld and the 119 the virtqueue areas hold.  The range is
-+sized from every virtqueue the transport creates, which is the driver's
-+count plus an administration virtqueue where the device offers one, and
-+which over-counts a device that offers more queue pairs than the driver
-+uses; over-counting withholds one page per unused virtqueue and never
-+denies capacity.
-+
- An undersized multi-queue region fails in two ways, and both are
- properties of the network driver's existing behaviour rather than of the
- region.
-@@ -439,12 +534,16 @@ region.
- First, cross-queue starvation.  ``virtnet_open()`` pre-fills the receive
- queues in index order and discards the result, so queue 0 takes what it
- needs before queue 1 asks.  A region that cannot hold every queue's fill
--leaves the later queues with no buffers at all; the device's receive
--steering then drops whatever it sends to them, and transmit fails on every
--queue with ``tx_fifo_errors``, ``tx_dropped`` and a rate-limited
--``Unexpected TXQ`` message.  Pool areas do not help: at
--``virtnet_open()`` every fill runs on whichever CPU brought the link up, so
--they all share one home area.  Areas give preference, never reservation.
-+leaves the later queues with far fewer buffers than the earlier ones; the
-+device's receive steering then drops most of what it sends to them, and
-+transmit fails on those queues with ``tx_fifo_errors``, ``tx_dropped`` and
-+a rate-limited ``Unexpected TXQ`` message.  Pool areas do not help: at
-+``virtnet_open()`` every fill runs on whichever CPU brought the link up,
-+so they all share one home area, and areas give preference rather than
-+reservation.  The withheld range bounds how bad this gets -- no virtqueue
-+is left unable to publish anything at all -- but one buffer per queue is a
-+floor for forward progress, not a working receive ring.  Sizing the region
-+for ``region_slots`` is what avoids it.
- 
- Second, a receive queue that holds no buffers and cannot refill spends
- softirq time without making progress.  ``try_fill_recv()`` reports failure
-@@ -624,6 +723,14 @@ The claimed range also appears in ``/proc/iomem`` as
- appears nowhere else at all.  The three counts appear again in
- ``dmb/pages``, ``dmb/areas`` and ``dmb/area_pages`` below.
- 
-+A second line follows when the driver creates its virtqueues, because the
-+count they come to is not known any earlier::
-+
-+  virtio_net virtio5: device memory buffer withholds 48 of 4095 pages for 17 virtqueues
-+
-+That is the withheld range of the previous section, and the virtqueue count
-+it was sized from.  It appears again in ``dmb/reserved_pages``.
-+
- With ``CONFIG_VIRTIO_DEBUG`` the state of the region is also available
- under the device's virtio debugfs directory, in ``dmb/``.  The directory
- exists only while the device has a region, so a device that did not
-@@ -643,11 +750,20 @@ they accept may change or go away.
-   ``area_pages`` divides ``pages``.  Both are fixed when the region is
-   installed and are the same two values the probe-time message prints.
- 
-+``reserved_pages``
-+  how many pages are withheld from ordinary claims so that a virtqueue whose
-+  ring is empty can publish a chain.  Zero until the driver asks for its
-+  virtqueues, and zero for good on a pool too small for the mechanism to
-+  mean anything.  Not subtracted from ``pages``: the withheld pages are
-+  part of the pool and are counted in ``used_pages`` when a virtqueue draws
-+  on them.
-+
- ``used_pages``
--  how many of them are allocated.  One counter maintained across all areas
--  rather than a sum of per-area figures read at different moments, so it
--  never reports a torn total; it is raised just outside the area lock, so a
--  read taken during a claim or a release can lag the bitmap by that claim.
-+  how many of the pool's pages are allocated.  One counter maintained
-+  across all areas rather than a sum of per-area figures read at different
-+  moments, so it never reports a torn total; it is raised just outside the
-+  area lock, so a read taken during a claim or a release can lag the bitmap
-+  by that claim.
- 
- ``used_pages_hiwater``
-   the largest ``used_pages`` has been.  This, rather than a sample of
-diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
-index 67a7dc1a87df..628ce92edf81 100644
---- a/drivers/virtio/Kconfig
-+++ b/drivers/virtio/Kconfig
-@@ -204,6 +204,19 @@ config VIRTIO_DMB
- 
- 	  If unsure, say Y.
- 
-+config VIRTIO_DMB_KUNIT_TEST
-+	bool "Device Memory Buffer allocator tests" if !KUNIT_ALL_TESTS
-+	depends on VIRTIO_DMB && KUNIT=y
-+	default KUNIT_ALL_TESTS
-+	help
-+	  Tests for the geometry of the range the allocator withholds so that
-+	  a virtqueue with an empty ring can publish its first descriptor
-+	  chain, and for what becomes of a region when a negotiation drops
-+	  the feature.  Neither case arises on a device anyone is likely to
-+	  build, so a test rather than a measurement is what keeps both true.
-+
-+	  If unsure, say N.
-+
- config VIRTIO_RTC
- 	tristate "Virtio RTC driver"
- 	depends on VIRTIO
-diff --git a/drivers/virtio/virtio_dmb.c b/drivers/virtio/virtio_dmb.c
-index fe556d585f24..773b5bb38dc6 100644
---- a/drivers/virtio/virtio_dmb.c
-+++ b/drivers/virtio/virtio_dmb.c
-@@ -128,6 +128,7 @@ struct virtio_dmb_area {
-  * @area_slots: slots one area covers, a power of two; the last area covers
-  *	fewer when @nslots is not a multiple of it
-  * @area_shift: ilog2(@area_slots), so slot >> @area_shift names its area
-+ * @nvqs: virtqueues the transport created, which sizes the withheld range
-  * @total_used: slots allocated across every area, exact; CONFIG_VIRTIO_DEBUG
-  * @used_hiwater: the largest @total_used has been since the last reset through
-  *	debugfs, or since init; CONFIG_VIRTIO_DEBUG
-@@ -152,6 +153,7 @@ struct virtio_dmb {
- 	unsigned int		 nareas;
- 	unsigned int		 area_slots;
- 	unsigned int		 area_shift;
-+	unsigned int		 nvqs;
- #ifdef CONFIG_VIRTIO_DEBUG
- 	/*
- 	 * Exact occupancy for the two debugfs files, kept outside the area
-@@ -286,26 +288,116 @@ static void virtio_dmb_inc_alloc_failed(struct virtio_dmb *dmb)
- #endif /* CONFIG_VIRTIO_DEBUG */
- 
- /*
-- * Claim @nr contiguous slots from area @i, or -ENOMEM when that one area
-- * cannot satisfy the request.  Takes and drops that area's lock and touches
-- * no other area's state, so no path ever holds two of these locks and there
-- * is no ordering between them to get right.
-+ * Slots withheld from ordinary claims so that a virtqueue with an empty ring
-+ * can publish a chain even when every other virtqueue has filled the rest of
-+ * the pool.  A virtqueue with nothing published has no completion of its own
-+ * to be woken by, because the device cannot signal a used buffer on a queue
-+ * with no buffers posted, so it depends entirely on its owner retrying; one
-+ * that has published a chain does not.
-+ *
-+ * One page for every virtqueue, and the rest of one chain's allowance on top.
-+ * Both terms follow from who can draw: only a virtqueue whose ring is empty
-+ * may, so the range is contended by the virtqueues that have published
-+ * nothing and never by the ones that are running.  At most nvqs of those
-+ * exist, each needing the one page that takes its ring from empty to
-+ * non-empty, and VIRTIO_MAP_RESERVE_PAGES less that one page is then what is
-+ * left for whichever of them is publishing a chain longer than a single page.
-+ *
-+ * Withholding a whole chain's allowance for every virtqueue instead would be
-+ * sizing for a state the device cannot be in, and it costs
-+ * nvqs * VIRTIO_MAP_RESERVE_PAGES -- on a small pool a fixed fraction of it,
-+ * which is capacity the transmit path then does not have.  That trades a
-+ * mapping failure which is rare for a shortage which is permanent, so the
-+ * quantity is deliberately not a product of the two worst cases.
-+ *
-+ * The range is the tail of the pool, but an allocation lies inside one area,
-+ * so a whole chain needs VIRTIO_MAP_RESERVE_PAGES of the range contiguous
-+ * within one area rather than merely free.  Where the last area is short the
-+ * range straddles the boundary below it and the two pieces are the last
-+ * area's length and the remainder; when both fall short of a chain, no area
-+ * holds one however much of the range is free.  Widening the range by the
-+ * short area's length in that case moves its start down to the boundary,
-+ * which gives the piece below a full VIRTIO_MAP_RESERVE_PAGES + nvqs - 1
-+ * slots.  It costs the short area's length, which is under
-+ * VIRTIO_MAP_RESERVE_PAGES because that is the case being tested for, and it
-+ * is reached only where nslots is just above a multiple of area_slots, so no
-+ * geometry in Documentation/driver-api/virtio/virtio-dmb.rst pays for it.
-+ *
-+ * Sized for every virtqueue the transport creates, which over-counts a device
-+ * offering more queue pairs than the driver uses.  Over-counting withholds one
-+ * page per unused virtqueue and never denies capacity.  The half-of-the-pool
-+ * bound is not part of the policy: it is what keeps the ordinary range
-+ * non-empty, and where it binds the pool has fewer pages than the virtqueues
-+ * alone want, so the guarantee covers as many of them as it has pages for.
-+ * Zero on a pool too small for the mechanism to mean anything, where it is
-+ * inert rather than crippling, and zero until the count is known.
-+ */
-+static unsigned int virtio_dmb_reserved(const struct virtio_dmb *dmb)
-+{
-+	unsigned int nvqs = READ_ONCE(dmb->nvqs);
-+	unsigned int last, reserved;
-+
-+	if (!nvqs || dmb->nslots < 8 * VIRTIO_MAP_RESERVE_PAGES)
-+		return 0;
-+
-+	reserved = min(VIRTIO_MAP_RESERVE_PAGES + nvqs - 1, dmb->nslots / 2);
-+
-+	/*
-+	 * reserved is at least VIRTIO_MAP_RESERVE_PAGES here, so the
-+	 * subtraction cannot wrap: the branch is taken only where last is
-+	 * below it.  Both pieces short of a chain bounds reserved below 2 *
-+	 * VIRTIO_MAP_RESERVE_PAGES, and nslots is at least 8 of them, so the
-+	 * widened range is still inside the half-of-the-pool bound and leaves
-+	 * the ordinary range a whole area less the reserve.
-+	 */
-+	last = virtio_dmb_area_len(dmb, dmb->nareas - 1);
-+	if (last < VIRTIO_MAP_RESERVE_PAGES &&
-+	    reserved - last < VIRTIO_MAP_RESERVE_PAGES)
-+		reserved += last;
-+
-+	return reserved;
-+}
-+
-+/*
-+ * virtio_dmb_note_vqs() records the count that sizes the range above.  It is
-+ * defined further down, next to the other entry points, because it has to test
-+ * vdev->map against this file's operations.
-+ */
-+
-+/*
-+ * Claim @nr contiguous slots from area @i, bounded above at @end_max so that
-+ * an ordinary claim cannot reach the withheld range.  Returns the first slot,
-+ * or -ENOMEM when that one area cannot satisfy the request.  Takes and drops
-+ * that area's lock and touches no other area's state, so no path ever holds
-+ * two of these locks and there is no ordering between them to get right.
-  */
- static long virtio_dmb_area_claim(struct virtio_dmb *dmb, unsigned int i,
--				  unsigned int nr)
-+				  unsigned int nr, unsigned int end_max)
- {
- 	struct virtio_dmb_area *area = &dmb->areas[i];
- 	unsigned int base = virtio_dmb_area_base(dmb, i);
--	unsigned int end = base + virtio_dmb_area_len(dmb, i);
-+	unsigned int len = virtio_dmb_area_len(dmb, i);
-+	unsigned int end = min(base + len, end_max);
- 	unsigned long flags, slot;
- 
-+	if (end <= base)
-+		return -ENOMEM;
-+
- 	spin_lock_irqsave(&area->lock, flags);
- 
- 	/*
- 	 * Exact, and inside the lock.  Written as a subtraction from the
--	 * area's own length rather than as len - used < nr, which underflows.
-+	 * length being searched rather than as len - used < nr, which
-+	 * underflows.
-+	 *
-+	 * @area->used counts the whole area, including any withheld slots in
-+	 * use, so for the one area that straddles @end_max this is
-+	 * conservative: it can refuse an ordinary claim that area could have
-+	 * satisfied, and the walk then tries the next one.  It cannot admit a
-+	 * claim the area could not satisfy.  That is the only approximation
-+	 * here, and it is confined to at most one area out of @nareas.
- 	 */
--	if (nr > (end - base) - area->used)
-+	if (area->used >= end - base || nr > (end - base) - area->used)
- 		goto not_found;
- 
- 	/*
-@@ -314,9 +406,13 @@ static long virtio_dmb_area_claim(struct virtio_dmb *dmb, unsigned int i,
- 	 * index.  bitmap_find_next_zero_area() returns a value whose sum with
- 	 * @nr exceeds the size it was given when it finds nothing, so that sum
- 	 * is the test; the whole-pool "slot >= nslots" form does not transfer.
-+	 *
-+	 * @area->index is relative to the whole area, so it can point past a
-+	 * clamped @end; starting the sweep there would search nothing, hence
-+	 * the min().  The second sweep from the base then covers the range.
- 	 */
- 	slot = bitmap_find_next_zero_area(dmb->bitmap, end,
--					  base + area->index, nr, 0);
-+					  min(base + area->index, end), nr, 0);
- 	if (slot + nr > end && area->index)
- 		slot = bitmap_find_next_zero_area(dmb->bitmap, end, base,
- 						  nr, 0);
-@@ -325,7 +421,7 @@ static long virtio_dmb_area_claim(struct virtio_dmb *dmb, unsigned int i,
- 
- 	bitmap_set(dmb->bitmap, slot, nr);
- 	area->used += nr;
--	area->index = slot + nr < end ? slot + nr - base : 0;
-+	area->index = slot + nr < base + len ? slot + nr - base : 0;
- 
- 	spin_unlock_irqrestore(&area->lock, flags);
- 
-@@ -343,9 +439,39 @@ static long virtio_dmb_area_claim(struct virtio_dmb *dmb, unsigned int i,
- 	return -ENOMEM;
- }
- 
-+/* One pass over every area, each bounded at @end_max. */
-+static long virtio_dmb_walk(struct virtio_dmb *dmb, unsigned int nr,
-+			    unsigned int end_max)
-+{
-+	unsigned int i, start;
-+	long ret;
-+
-+	/*
-+	 * raw_smp_processor_id() and not smp_processor_id(): the index is
-+	 * computed before any lock is taken, so preemption or migration
-+	 * between the read and the claim only changes which area is tried
-+	 * first.  kernel/dma/swiotlb.c picks its home area on the same
-+	 * reasoning.
-+	 */
-+	start = raw_smp_processor_id() % dmb->nareas;
-+	i = start;
-+	do {
-+		ret = virtio_dmb_area_claim(dmb, i, nr, end_max);
-+		if (ret >= 0)
-+			return ret;
-+
-+		if (++i >= dmb->nareas)
-+			i = 0;
-+	} while (i != start);
-+
-+	return -ENOMEM;
-+}
-+
- /*
-  * Claim @nr contiguous slots.  Returns the first slot, or -ENOMEM when no
-- * area can satisfy the request.  Exhaustion is a routine condition: the
-+ * area can satisfy the request.  @reserved permits the withheld tail of the
-+ * pool, and is set only for a mapping of the first chain a virtqueue is
-+ * publishing.  Exhaustion is a routine condition: the
-  * region's length bounds how much virtqueue data can be in flight.  What a
-  * caller makes of it is the caller's, and it is not always back-pressure: a
-  * network receive fill has nothing to push back on when it cannot post a
-@@ -371,28 +497,32 @@ static long virtio_dmb_area_claim(struct virtio_dmb *dmb, unsigned int i,
-  * bounds the interrupts-off window to a single area's sweep; the total work in
-  * the failing case is a whole-pool sweep either way.
-  */
--static long virtio_dmb_claim(struct virtio_dmb *dmb, unsigned int nr)
-+static long virtio_dmb_claim(struct virtio_dmb *dmb, unsigned int nr,
-+			     bool reserved)
- {
--	unsigned int i, start;
- 	long ret;
- 
- 	/*
--	 * raw_smp_processor_id() and not smp_processor_id(): the index is
--	 * computed before any lock is taken, so preemption or migration
--	 * between the read and the claim only changes which area is tried
--	 * first.  kernel/dma/swiotlb.c picks its home area on the same
--	 * reasoning.
-+	 * The bitmap is its own accounting for the withheld range: bounding
-+	 * the search is what bounds the sum, so no counter is added to a
-+	 * production build's hot path.
- 	 */
--	start = raw_smp_processor_id() % dmb->nareas;
--	i = start;
--	do {
--		ret = virtio_dmb_area_claim(dmb, i, nr);
-+	ret = virtio_dmb_walk(dmb, nr, dmb->nslots - virtio_dmb_reserved(dmb));
-+	if (ret >= 0)
-+		return ret;
-+
-+	/*
-+	 * The second walk runs only once the first has failed in every area,
-+	 * so the withheld range is a last resort rather than a second pool.
-+	 * That is not the same as "only when the pool is full": next fit can
-+	 * fail on fragmentation while capacity remains, and this reaches the
-+	 * withheld range then too.
-+	 */
-+	if (reserved) {
-+		ret = virtio_dmb_walk(dmb, nr, dmb->nslots);
- 		if (ret >= 0)
- 			return ret;
--
--		if (++i >= dmb->nareas)
--			i = 0;
--	} while (i != start);
-+	}
- 
- 	/*
- 	 * The geometry rather than a free count: there is no instant at which
-@@ -733,7 +863,13 @@ static void *virtio_dmb_op_alloc(union virtio_map map, size_t size,
- 		goto no_room;
- 
- 	nr = virtio_dmb_slots(size);
--	ret = virtio_dmb_claim(dmb, nr);
-+	/*
-+	 * false: a virtqueue area is structural, claimed when a queue is
-+	 * created or resized and never under back-pressure, so letting it into
-+	 * the withheld range would consume the reserve for the life of the
-+	 * queue rather than for one chain.
-+	 */
-+	ret = virtio_dmb_claim(dmb, nr, false);
- 	if (ret < 0)
- 		goto no_room;
- 	slot = ret;
-@@ -811,7 +947,7 @@ static dma_addr_t virtio_dmb_op_map_page(union virtio_map map,
- 		return DMA_MAPPING_ERROR;
- 
- 	nr = virtio_dmb_slots(size);
--	ret = virtio_dmb_claim(dmb, nr);
-+	ret = virtio_dmb_claim(dmb, nr, attrs & VIRTIO_MAP_ATTR_RESERVE);
- 	if (ret < 0) {
- 		/*
- 		 * Counted here rather than in virtio_dmb_claim(), which
-@@ -1023,6 +1159,21 @@ static int virtio_dmb_alloc_failed_get(void *data, u64 *val)
- DEFINE_DEBUGFS_ATTRIBUTE(virtio_dmb_alloc_failed_fops,
- 			 virtio_dmb_alloc_failed_get, NULL, "%llu\n");
- 
-+/*
-+ * A getter rather than debugfs_create_u32(), because the value is derived
-+ * from @nvqs and the pool size rather than stored.
-+ */
-+static int virtio_dmb_reserved_get(void *data, u64 *val)
-+{
-+	struct virtio_dmb *dmb = data;
-+
-+	*val = virtio_dmb_reserved(dmb);
-+
-+	return 0;
-+}
-+DEFINE_DEBUGFS_ATTRIBUTE(virtio_dmb_reserved_fops, virtio_dmb_reserved_get,
-+			 NULL, "%llu\n");
-+
- /*
-  * The files go under the device's existing virtio debugfs directory, and exist
-  * only while the device has a region.  They describe one, so their presence is
-@@ -1049,6 +1200,8 @@ static void virtio_dmb_debugfs_init(struct virtio_dmb *dmb)
- 			    &virtio_dmb_hiwater_fops);
- 	debugfs_create_file("alloc_failed", 0400, dir, dmb,
- 			    &virtio_dmb_alloc_failed_fops);
-+	debugfs_create_file("reserved_pages", 0400, dir, dmb,
-+			    &virtio_dmb_reserved_fops);
- }
- 
- static void virtio_dmb_debugfs_exit(struct virtio_dmb *dmb)
-@@ -1068,6 +1221,40 @@ static void virtio_dmb_debugfs_exit(struct virtio_dmb *dmb)
- 
- #endif /* CONFIG_VIRTIO_DEBUG */
- 
-+/**
-+ * virtio_dmb_note_vqs - record how many virtqueues the transport created
-+ * @vdev: the device
-+ * @nvqs: virtqueues about to be created
-+ *
-+ * Sizes the range withheld so that a virtqueue whose ring is empty can
-+ * publish a chain.  Does nothing unless @vdev is using a Device Memory
-+ * Buffer.
-+ *
-+ * Called before the virtqueues exist, so the ring allocations that follow are
-+ * ordinary claims and cannot land in the withheld range; and @nvqs therefore
-+ * only ever changes while the device has no virtqueues and so no mappings.
-+ * WRITE_ONCE() because the claim path reads it without any lock.
-+ */
-+void virtio_dmb_note_vqs(struct virtio_device *vdev, unsigned int nvqs)
-+{
-+	struct virtio_dmb *dmb;
-+
-+	if (vdev->map != &virtio_dmb_map_ops)
-+		return;
-+
-+	dmb = vdev->vmap.dmb;
-+	WRITE_ONCE(dmb->nvqs, nvqs);
-+
-+	/*
-+	 * Reported here rather than from virtio_dmb_init(), which runs during
-+	 * feature negotiation and cannot know the count.  One line per probe.
-+	 */
-+	dev_info(&vdev->dev,
-+		 "device memory buffer withholds %u of %u pages for %u virtqueues\n",
-+		 virtio_dmb_reserved(dmb), dmb->nslots, nvqs);
-+}
-+EXPORT_SYMBOL_GPL(virtio_dmb_note_vqs);
-+
- /*
-  * Whether the device still has virtqueues.  vqs_list_lock is what protects
-  * that list against a concurrent adder.  No caller here can race one, because
-@@ -1524,5 +1711,9 @@ int virtio_dmb_init(struct virtio_device *vdev)
- }
- EXPORT_SYMBOL_GPL(virtio_dmb_init);
- 
-+#if IS_ENABLED(CONFIG_VIRTIO_DMB_KUNIT_TEST)
-+#include "virtio_dmb_test.c"
-+#endif
-+
- MODULE_DESCRIPTION("Virtio device memory buffer allocator");
- MODULE_LICENSE("GPL");
-diff --git a/drivers/virtio/virtio_dmb.h b/drivers/virtio/virtio_dmb.h
-index 69fbcbb9c2c0..38e4c3ecc9cb 100644
---- a/drivers/virtio/virtio_dmb.h
-+++ b/drivers/virtio/virtio_dmb.h
-@@ -11,6 +11,7 @@ struct virtio_device;
- 
- int virtio_dmb_init(struct virtio_device *vdev);
- void virtio_dmb_destroy(struct virtio_device *vdev);
-+void virtio_dmb_note_vqs(struct virtio_device *vdev, unsigned int nvqs);
- 
- #else
- 
-@@ -23,6 +24,11 @@ static inline void virtio_dmb_destroy(struct virtio_device *vdev)
- {
- }
- 
-+static inline void virtio_dmb_note_vqs(struct virtio_device *vdev,
-+				       unsigned int nvqs)
-+{
-+}
-+
- #endif /* CONFIG_VIRTIO_DMB */
- 
- #endif /* _DRIVERS_VIRTIO_VIRTIO_DMB_H */
-diff --git a/drivers/virtio/virtio_dmb_test.c b/drivers/virtio/virtio_dmb_test.c
-new file mode 100644
-index 000000000000..d9dff81a8eb3
---- /dev/null
-+++ b/drivers/virtio/virtio_dmb_test.c
-@@ -0,0 +1,279 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * Tests for the geometry of the withheld range, and for what becomes of a
-+ * region when a negotiation drops the feature.
-+ *
-+ * Included by virtio_dmb.c rather than compiled on its own, so that the tests
-+ * reach its static functions and its private structure without widening
-+ * either into a header for their benefit.
-+ *
-+ * The geometry cases test a property rather than a value: that whatever the
-+ * pool size, the area size and the virtqueue count, the withheld range holds
-+ * VIRTIO_MAP_RESERVE_PAGES slots that are contiguous *within one area*.  That
-+ * qualifier is the whole point.  An allocation cannot span two areas, so a
-+ * range that is merely large enough does not guarantee a chain, and a pool
-+ * whose last area is short can withhold a range whose two pieces are each too
-+ * small.  A region has to be just above a multiple of the area size to reach
-+ * it, which no plausible device offers and so no test on real hardware
-+ * exercises.
-+ */
-+#include <kunit/test.h>
-+
-+/* Geometry only: virtio_dmb_reserved() reads no more of the structure. */
-+static void dmb_test_shape(struct kunit *test, struct virtio_dmb *dmb,
-+			   unsigned int nslots, unsigned int area_slots,
-+			   unsigned int nvqs)
-+{
-+	KUNIT_ASSERT_TRUE(test, is_power_of_2(area_slots));
-+
-+	dmb->nslots = nslots;
-+	dmb->area_slots = area_slots;
-+	dmb->area_shift = ilog2(area_slots);
-+	dmb->nareas = DIV_ROUND_UP(nslots, area_slots);
-+	dmb->nvqs = nvqs;
-+}
-+
-+static struct virtio_dmb *dmb_test_pool(struct kunit *test)
-+{
-+	struct virtio_dmb *dmb = kunit_kzalloc(test, sizeof(*dmb), GFP_KERNEL);
-+
-+	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, dmb);
-+
-+	return dmb;
-+}
-+
-+/*
-+ * The longest run of withheld slots that lies inside a single area, which is
-+ * the largest chain the range can serve.
-+ */
-+static unsigned int dmb_test_longest_run(const struct virtio_dmb *dmb,
-+					 unsigned int reserved)
-+{
-+	unsigned int i, best = 0;
-+	unsigned int start;
-+
-+	if (!reserved)
-+		return 0;
-+
-+	start = dmb->nslots - reserved;
-+
-+	for (i = 0; i < dmb->nareas; i++) {
-+		unsigned int base = virtio_dmb_area_base(dmb, i);
-+		unsigned int end = base + virtio_dmb_area_len(dmb, i);
-+		unsigned int lo = max(start, base);
-+
-+		if (end > lo)
-+			best = max(best, end - lo);
-+	}
-+
-+	return best;
-+}
-+
-+static void dmb_test_assert_guarantees(struct kunit *test,
-+				       const struct virtio_dmb *dmb)
-+{
-+	unsigned int reserved = virtio_dmb_reserved(dmb);
-+	unsigned int run;
-+
-+	if (!reserved)
-+		return;
-+
-+	/* One virtqueue at a time can obtain a whole chain. */
-+	run = dmb_test_longest_run(dmb, reserved);
-+	KUNIT_EXPECT_GE_MSG(test, run, VIRTIO_MAP_RESERVE_PAGES,
-+			    "nslots=%u area_slots=%u nareas=%u nvqs=%u reserved=%u",
-+			    dmb->nslots, dmb->area_slots, dmb->nareas,
-+			    dmb->nvqs, reserved);
-+
-+	/* Every virtqueue can obtain one page no running virtqueue can take. */
-+	KUNIT_EXPECT_GE_MSG(test, reserved,
-+			    min(dmb->nvqs, dmb->nslots / 2),
-+			    "nslots=%u nvqs=%u reserved=%u",
-+			    dmb->nslots, dmb->nvqs, reserved);
-+
-+	/* The range never takes more than half the pool, nor all of it. */
-+	KUNIT_EXPECT_LE_MSG(test, reserved, dmb->nslots / 2,
-+			    "nslots=%u nvqs=%u reserved=%u",
-+			    dmb->nslots, dmb->nvqs, reserved);
-+}
-+
-+/*
-+ * Every area size the allocator can derive, against pool sizes that put the
-+ * last area at every length a straddle needs, and virtqueue counts either
-+ * side of a chain's allowance.
-+ */
-+static void dmb_test_reserve_geometry(struct kunit *test)
-+{
-+	static const unsigned int area_sizes[] = { 512, 1024, 2048, 4096 };
-+	struct virtio_dmb *dmb = dmb_test_pool(test);
-+	unsigned int a, k, tail, nvqs;
-+
-+	for (a = 0; a < ARRAY_SIZE(area_sizes); a++) {
-+		unsigned int area_slots = area_sizes[a];
-+
-+		for (k = 1; k <= 3; k++) {
-+			for (tail = 0; tail <= 2 * VIRTIO_MAP_RESERVE_PAGES;
-+			     tail++) {
-+				unsigned int nslots = k * area_slots + tail;
-+
-+				for (nvqs = 1; nvqs <= 40; nvqs++) {
-+					dmb_test_shape(test, dmb, nslots,
-+						       area_slots, nvqs);
-+					dmb_test_assert_guarantees(test, dmb);
-+				}
-+			}
-+		}
-+	}
-+}
-+
-+/*
-+ * The geometries that showed the guarantee was conditional.  Named so that a
-+ * revision that reintroduces the pool-tail bound fails here rather than in
-+ * the sweep, where the reason is harder to read off.
-+ */
-+static void dmb_test_reserve_straddle(struct kunit *test)
-+{
-+	static const struct {
-+		unsigned int nslots, area_slots, nvqs;
-+	} cases[] = {
-+		{ 528, 512, 3 },	/* last area 16, pieces 18 and 16 */
-+		{ 527, 512, 1 },	/* last area 15, pieces 17 and 15 */
-+		{ 4114, 4096, 7 },	/* last area 18, pieces 20 and 18 */
-+		{ 4114, 1024, 7 },	/* same tail, more areas */
-+		{ 1048600, 512, 17 },	/* last area 24, pieces 24 and 24 */
-+		{ 4097, 4096, 17 },	/* last area 1, but 47 below it: fine */
-+		{ 2100, 512, 7 },	/* last area 52: whole range fits it */
-+	};
-+	struct virtio_dmb *dmb = dmb_test_pool(test);
-+	unsigned int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(cases); i++) {
-+		dmb_test_shape(test, dmb, cases[i].nslots, cases[i].area_slots,
-+			       cases[i].nvqs);
-+		dmb_test_assert_guarantees(test, dmb);
-+	}
-+}
-+
-+/*
-+ * The sizing table in Documentation/driver-api/virtio/virtio-dmb.rst states a
-+ * withheld count for each of its rows, and a device implementer sizes against
-+ * it.  Every row's last area is long enough to hold the range, so the area
-+ * term must not change any of them.
-+ */
-+static void dmb_test_reserve_documented_sizing(struct kunit *test)
-+{
-+	static const struct {
-+		unsigned int nslots, nvqs, reserved;
-+	} rows[] = {
-+		{ 321, 3, 34 },
-+		{ 1167, 9, 40 },
-+		{ 2295, 17, 48 },
-+		{ 8524, 17, 48 },
-+		{ 17004, 33, 64 },
-+		{ 33964, 65, 96 },
-+		{ 67884, 129, 160 },
-+	};
-+	static const unsigned int area_sizes[] = { 512, 1024, 2048, 4096 };
-+	struct virtio_dmb *dmb = dmb_test_pool(test);
-+	unsigned int i, a;
-+
-+	for (i = 0; i < ARRAY_SIZE(rows); i++) {
-+		for (a = 0; a < ARRAY_SIZE(area_sizes); a++) {
-+			dmb_test_shape(test, dmb, rows[i].nslots,
-+				       area_sizes[a], rows[i].nvqs);
-+
-+			KUNIT_EXPECT_EQ_MSG(test, virtio_dmb_reserved(dmb),
-+					    rows[i].reserved,
-+					    "nslots=%u nvqs=%u area_slots=%u",
-+					    rows[i].nslots, rows[i].nvqs,
-+					    area_sizes[a]);
-+			dmb_test_assert_guarantees(test, dmb);
-+		}
-+	}
-+}
-+
-+/* Inert below the threshold, and before the transport reports a count. */
-+static void dmb_test_reserve_inert(struct kunit *test)
-+{
-+	struct virtio_dmb *dmb = dmb_test_pool(test);
-+	unsigned int nslots;
-+
-+	dmb_test_shape(test, dmb, 4096, 512, 0);
-+	KUNIT_EXPECT_EQ(test, virtio_dmb_reserved(dmb), 0);
-+
-+	for (nslots = 4; nslots < 8 * VIRTIO_MAP_RESERVE_PAGES; nslots++) {
-+		dmb_test_shape(test, dmb, nslots, 512, 3);
-+		KUNIT_EXPECT_EQ_MSG(test, virtio_dmb_reserved(dmb), 0,
-+				    "nslots=%u", nslots);
-+	}
-+
-+	dmb_test_shape(test, dmb, 8 * VIRTIO_MAP_RESERVE_PAGES, 512, 1);
-+	KUNIT_EXPECT_EQ(test, virtio_dmb_reserved(dmb),
-+			VIRTIO_MAP_RESERVE_PAGES);
-+}
-+
-+/*
-+ * What virtio_dmb_init() does with state an earlier negotiation left behind
-+ * when this one did not accept the feature: releases it, and refuses to
-+ * release it under a live virtqueue, which holds kernel addresses inside the
-+ * mapping.  The refusal is the only error it returns for a device it is taking
-+ * the region away from, so it is the one a caller turns into the FAILED status
-+ * bit; releasing it is not an error and sets nothing.  Nothing can reach the
-+ * refusal, for the reason the function itself gives, so a test is what covers
-+ * it.  Its dev_warn() is expected output.
-+ */
-+static void dmb_test_withdrawn_feature(struct kunit *test)
-+{
-+	struct virtio_device *vdev;
-+	const struct virtio_map_ops *prev;
-+	struct virtqueue *vq;
-+	struct virtio_dmb *dmb;
-+
-+	vdev = kunit_kzalloc(test, sizeof(*vdev), GFP_KERNEL);
-+	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, vdev);
-+	vq = kunit_kzalloc(test, sizeof(*vq), GFP_KERNEL);
-+	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, vq);
-+	prev = kunit_kzalloc(test, sizeof(*prev), GFP_KERNEL);
-+	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, prev);
-+
-+	spin_lock_init(&vdev->vqs_list_lock);
-+	INIT_LIST_HEAD(&vdev->vqs);
-+
-+	/* Nothing installed: nothing to release, and not an error. */
-+	KUNIT_EXPECT_EQ(test, virtio_dmb_init(vdev), 0);
-+
-+	/* Not kunit_kzalloc(): the last call below frees this. */
-+	dmb = kzalloc_obj(*dmb, GFP_KERNEL);
-+	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, dmb);
-+	dmb->prev_map = prev;
-+	vdev->map = &virtio_dmb_map_ops;
-+	vdev->vmap.dmb = dmb;
-+	list_add(&vq->list, &vdev->vqs);
-+
-+	/* Installed, under a virtqueue: refused, and left addressable. */
-+	KUNIT_EXPECT_EQ(test, virtio_dmb_init(vdev), -EBUSY);
-+	KUNIT_EXPECT_PTR_EQ(test, vdev->map, &virtio_dmb_map_ops);
-+	KUNIT_EXPECT_PTR_EQ(test, vdev->vmap.dmb, dmb);
-+
-+	/* The same withdrawal with no virtqueue left: released, and no error. */
-+	list_del(&vq->list);
-+	KUNIT_EXPECT_EQ(test, virtio_dmb_init(vdev), 0);
-+	KUNIT_EXPECT_PTR_EQ(test, vdev->map, prev);
-+}
-+
-+static struct kunit_case virtio_dmb_test_cases[] = {
-+	/* Slow: the sweep is tens of thousands of geometries. */
-+	KUNIT_CASE_SLOW(dmb_test_reserve_geometry),
-+	KUNIT_CASE(dmb_test_reserve_straddle),
-+	KUNIT_CASE(dmb_test_reserve_documented_sizing),
-+	KUNIT_CASE(dmb_test_reserve_inert),
-+	KUNIT_CASE(dmb_test_withdrawn_feature),
-+	{}
-+};
-+
-+static struct kunit_suite virtio_dmb_test_suite = {
-+	.name = "virtio_dmb",
-+	.test_cases = virtio_dmb_test_cases,
-+};
-+
-+kunit_test_suite(virtio_dmb_test_suite);
-diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-index c43c1fc6e843..635ff8012f4c 100644
---- a/drivers/virtio/virtio_pci_modern.c
-+++ b/drivers/virtio/virtio_pci_modern.c
-@@ -19,6 +19,7 @@
- #define VIRTIO_PCI_NO_LEGACY
- #define VIRTIO_RING_NO_LEGACY
- #include "virtio_pci_common.h"
-+#include "virtio_dmb.h"
- 
- #define VIRTIO_AVQ_SGS_MAX	4
- 
-@@ -803,8 +804,23 @@ static int vp_modern_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
- 	struct virtqueue *vq;
--	int rc = vp_find_vqs(vdev, nvqs, vqs, vqs_info, desc);
-+	int rc;
- 
-+	/*
-+	 * Before vp_find_vqs(), so that no virtqueue exists yet: the ring
-+	 * allocations it makes are ordinary claims and cannot land in the
-+	 * range this withholds.
-+	 *
-+	 * nvqs counts the virtqueues the driver asked for.  vp_find_vqs()
-+	 * creates one more when the device offers an administration
-+	 * virtqueue, and that one draws on the guarantee like any other -- its
-+	 * only response to a refusal is a cpu_relax() spin -- so count it here
-+	 * rather than leave it as the one virtqueue without a floor.
-+	 */
-+	virtio_dmb_note_vqs(vdev, nvqs +
-+			    virtio_has_feature(vdev, VIRTIO_F_ADMIN_VQ));
-+
-+	rc = vp_find_vqs(vdev, nvqs, vqs, vqs_info, desc);
- 	if (rc)
- 		return rc;
- 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 641ab07be931..6cd82d418c37 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -527,10 +527,44 @@ static int vring_map_errno(const struct vring_virtqueue *vq)
- 	return -ENOMEM;
- }
- 
-+/*
-+ * Whether this mapping may draw on capacity a bounded map implementation
-+ * withholds, and account it against the chain's allowance if so.
-+ *
-+ * Only while the ring is empty, which is exactly the window in which this
-+ * virtqueue has no completion of its own to be woken by: the device cannot
-+ * signal a used buffer on a queue with no buffers posted.  Every
-+ * virtqueue_add_*() path decrements num_free after its mapping loop, so the
-+ * test is true for every mapping of a chain going into an empty ring and
-+ * false for every mapping after it, with nothing to keep in step.
-+ *
-+ * @chain_pages accumulates within one virtqueue_add_*() call and dies with
-+ * it.  It is charged whether or not the mapping later fails, and a chain that
-+ * fails half way therefore over-counts its own allowance and nothing else, so
-+ * no bookkeeping can leak.
-+ */
-+static unsigned long vring_map_reserve_attr(const struct vring_virtqueue *vq,
-+					    unsigned int *chain_pages,
-+					    size_t size)
-+{
-+	unsigned int pages = DIV_ROUND_UP(size, PAGE_SIZE);
-+
-+	if (*chain_pages + pages > VIRTIO_MAP_RESERVE_PAGES)
-+		return 0;
-+
-+	if (vq->vq.num_free != vring_num(vq))
-+		return 0;
-+
-+	*chain_pages += pages;
-+
-+	return VIRTIO_MAP_ATTR_RESERVE;
-+}
-+
- /* Map one sg entry. */
- static int vring_map_one_sg(const struct vring_virtqueue *vq, struct scatterlist *sg,
- 			    enum dma_data_direction direction, dma_addr_t *addr,
--			    u32 *len, bool premapped, unsigned long attr)
-+			    u32 *len, bool premapped, unsigned long attr,
-+			    unsigned int *chain_pages)
- {
- 	if (premapped) {
- 		*addr = sg_dma_address(sg);
-@@ -577,7 +611,9 @@ static int vring_map_one_sg(const struct vring_virtqueue *vq, struct scatterlist
- 	 */
- 	*addr = virtqueue_map_page_attrs(&vq->vq, sg_page(sg),
- 					 sg->offset, sg->length,
--					 direction, attr);
-+					 direction,
-+					 attr | vring_map_reserve_attr(vq, chain_pages,
-+								       sg->length));
- 
- 	if (vring_mapping_error(vq, *addr))
- 		return vring_map_errno(vq);
-@@ -587,13 +623,15 @@ static int vring_map_one_sg(const struct vring_virtqueue *vq, struct scatterlist
- 
- static dma_addr_t vring_map_single(const struct vring_virtqueue *vq,
- 				   void *cpu_addr, size_t size,
--				   enum dma_data_direction direction)
-+				   enum dma_data_direction direction,
-+				   unsigned int *chain_pages)
- {
- 	if (!vq->use_map_api)
- 		return (dma_addr_t)virt_to_phys(cpu_addr);
- 
--	return virtqueue_map_single_attrs(&vq->vq, cpu_addr,
--					  size, direction, 0);
-+	return virtqueue_map_single_attrs(&vq->vq, cpu_addr, size, direction,
-+					  vring_map_reserve_attr(vq, chain_pages,
-+								 size));
- }
- 
- static void virtqueue_init(struct vring_virtqueue *vq, u32 num)
-@@ -717,6 +755,7 @@ static inline int virtqueue_add_split(struct vring_virtqueue *vq,
- 	unsigned int i, n, avail, descs_used, err_idx, sg_count = 0;
- 	/* Total length for in-order */
- 	unsigned int total_in_len = 0;
-+	unsigned int chain_pages = 0;
- 	int head;
- 	bool indirect;
- 	int err;
-@@ -783,7 +822,8 @@ static inline int virtqueue_add_split(struct vring_virtqueue *vq,
- 				flags |= VRING_DESC_F_NEXT;
- 
- 			err = vring_map_one_sg(vq, sg, DMA_TO_DEVICE, &addr,
--					       &len, premapped, attr);
-+					       &len, premapped, attr,
-+				       &chain_pages);
- 			if (err)
- 				goto unmap_release;
- 
-@@ -804,7 +844,8 @@ static inline int virtqueue_add_split(struct vring_virtqueue *vq,
- 				flags |= VRING_DESC_F_NEXT;
- 
- 			err = vring_map_one_sg(vq, sg, DMA_FROM_DEVICE, &addr,
--					       &len, premapped, attr);
-+					       &len, premapped, attr,
-+				       &chain_pages);
- 			if (err)
- 				goto unmap_release;
- 
-@@ -821,7 +862,8 @@ static inline int virtqueue_add_split(struct vring_virtqueue *vq,
- 		/* Now that the indirect table is filled in, map it. */
- 		dma_addr_t addr = vring_map_single(
- 			vq, desc, total_sg * sizeof(struct vring_desc),
--			DMA_TO_DEVICE);
-+			DMA_TO_DEVICE,
-+			&chain_pages);
- 		if (vring_mapping_error(vq, addr)) {
- 			err = vring_map_errno(vq);
- 			goto unmap_release;
-@@ -1601,6 +1643,7 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
- 	struct vring_packed_desc *desc;
- 	struct scatterlist *sg;
- 	unsigned int i, n, err_idx, len, total_in_len = 0;
-+	unsigned int chain_pages = 0;
- 	u16 head;
- 	dma_addr_t addr;
- 
-@@ -1624,7 +1667,8 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
- 		for (sg = sgs[n]; sg; sg = sg_next(sg)) {
- 			if (vring_map_one_sg(vq, sg, n < out_sgs ?
- 					     DMA_TO_DEVICE : DMA_FROM_DEVICE,
--					     &addr, &len, premapped, attr))
-+					     &addr, &len, premapped, attr,
-+				       &chain_pages))
- 				goto unmap_release;
- 
- 			desc[i].flags = cpu_to_le16(n < out_sgs ?
-@@ -1647,7 +1691,8 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
- 	/* Now that the indirect table is filled in, map it. */
- 	addr = vring_map_single(vq, desc,
- 			total_sg * sizeof(struct vring_packed_desc),
--			DMA_TO_DEVICE);
-+			DMA_TO_DEVICE,
-+			&chain_pages);
- 	if (vring_mapping_error(vq, addr))
- 		goto unmap_release;
- 
-@@ -1740,6 +1785,7 @@ static inline int virtqueue_add_packed(struct vring_virtqueue *vq,
- 	struct vring_packed_desc *desc;
- 	struct scatterlist *sg;
- 	unsigned int i, n, c, descs_used, err_idx, len;
-+	unsigned int chain_pages = 0;
- 	__le16 head_flags, flags;
- 	u16 head, id, prev, curr, avail_used_flags;
- 	int err;
-@@ -1799,7 +1845,8 @@ static inline int virtqueue_add_packed(struct vring_virtqueue *vq,
- 
- 			err = vring_map_one_sg(vq, sg, n < out_sgs ?
- 					       DMA_TO_DEVICE : DMA_FROM_DEVICE,
--					       &addr, &len, premapped, attr);
-+					       &addr, &len, premapped, attr,
-+				       &chain_pages);
- 			if (err)
- 				goto unmap_release;
- 
-@@ -1899,6 +1946,7 @@ static inline int virtqueue_add_packed_in_order(struct vring_virtqueue *vq,
- 	struct vring_packed_desc *desc;
- 	struct scatterlist *sg;
- 	unsigned int i, n, sg_count, err_idx, total_in_len = 0;
-+	unsigned int chain_pages = 0;
- 	__le16 head_flags, flags;
- 	u16 head, avail_used_flags;
- 	bool avail_wrap_counter;
-@@ -1961,7 +2009,8 @@ static inline int virtqueue_add_packed_in_order(struct vring_virtqueue *vq,
- 
- 			err = vring_map_one_sg(vq, sg, n < out_sgs ?
- 					       DMA_TO_DEVICE : DMA_FROM_DEVICE,
--					       &addr, &len, premapped, attr);
-+					       &addr, &len, premapped, attr,
-+				       &chain_pages);
- 			if (err)
- 				goto unmap_release;
- 
-@@ -3880,9 +3929,15 @@ dma_addr_t virtqueue_map_page_attrs(const struct virtqueue *_vq,
- 					   page, offset, size,
- 					   dir, attrs);
- 
-+	/*
-+	 * Strip the bits virtio owns before the DMA API sees them: it defines
-+	 * DMA_ATTR_* over the same word, and a bit outside that set has no
-+	 * defined meaning there.  A map implementation is the only reader of
-+	 * them.
-+	 */
- 	return dma_map_page_attrs(vring_dma_dev(vq),
- 				  page, offset, size,
--				  dir, attrs);
-+				  dir, attrs & ~VIRTIO_MAP_ATTR_MASK);
- }
- EXPORT_SYMBOL_GPL(virtqueue_map_page_attrs);
- 
-@@ -3907,7 +3962,8 @@ void virtqueue_unmap_page_attrs(const struct virtqueue *_vq,
- 				      map_handle, size, dir, attrs);
- 	else
- 		dma_unmap_page_attrs(vring_dma_dev(vq), map_handle,
--				     size, dir, attrs);
-+				     size, dir,
-+				     attrs & ~VIRTIO_MAP_ATTR_MASK);
- }
- EXPORT_SYMBOL_GPL(virtqueue_unmap_page_attrs);
- 
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index a6780aa85966..a25552862ec4 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -3,6 +3,7 @@
- #define _LINUX_VIRTIO_CONFIG_H
- 
- #include <linux/err.h>
-+#include <linux/bits.h>
- #include <linux/bug.h>
- #include <linux/virtio.h>
- #include <linux/virtio_byteorder.h>
-@@ -219,6 +220,38 @@ struct virtio_map_ops {
- 	size_t (*max_mapping_size)(union virtio_map map);
- };
- 
-+/*
-+ * Pages one virtqueue at a time is guaranteed to be able to map through a map
-+ * implementation with a bounded pool, whatever the other virtqueues of the
-+ * device have mapped.  Enough for one page-granular descriptor chain at the
-+ * default CONFIG_MAX_SKB_FRAGS: a network receive buffer in the non-mergeable
-+ * case is MAX_SKB_FRAGS + 2 scatterlist entries plus an indirect table, which
-+ * is 20 pages where a page is 4 KiB and MAX_SKB_FRAGS is 17.  A chain larger
-+ * than this -- a raised CONFIG_MAX_SKB_FRAGS, or entries spanning more than a
-+ * page each -- draws on the reserve for as much of itself as fits and is not
-+ * guaranteed.  Neither is a second chain of more than one page concurrent
-+ * with the first: what every virtqueue is guaranteed is the single page that
-+ * takes its ring from empty to non-empty.  Both hold on any pool of eight
-+ * times this many pages or more, which is where an implementation withholds
-+ * anything at all; below that there is no range and no guarantee.
-+ */
-+#define VIRTIO_MAP_RESERVE_PAGES	32u
-+
-+/*
-+ * map_page() attrs bits owned by virtio rather than by the DMA API.
-+ * DMA_ATTR_* occupies bits 1 to 13 today; these sit above it, and
-+ * virtqueue_map_page_attrs() masks them off before any dma_map_*() call, so
-+ * the DMA API never sees one.  The gap is deliberate headroom rather than a
-+ * partition: whoever grows either range has to check the other.
-+ *
-+ * VIRTIO_MAP_ATTR_RESERVE: this mapping is part of the first descriptor chain
-+ * a virtqueue is publishing, and an implementation with a bounded pool should
-+ * satisfy it from capacity withheld for that purpose if it has no other.
-+ * An implementation that ignores the bit behaves exactly as before.
-+ */
-+#define VIRTIO_MAP_ATTR_RESERVE		BIT(24)
-+#define VIRTIO_MAP_ATTR_MASK		VIRTIO_MAP_ATTR_RESERVE
-+
- /* If driver didn't advertise the feature, it will never appear. */
- void virtio_check_driver_offered_feature(const struct virtio_device *vdev,
- 					 unsigned int fbit);
+
+
+
+> +	if (!dmb->map_va) {
+> +		/*
+> +		 * memremap() is silent, and every sibling failure in this
+> +		 * function names itself.  Without this the device is left with
+> +		 * the FAILED status bit set and nothing saying why.
+> +		 */
+> +		dev_warn(&vdev->dev,
+> +			 "cannot map device memory buffer region at 0x%llx\n",
+> +			 region.addr);
+> +		err = -ENOMEM;
+> +		goto err_unclaim;
+> +	}
+> +
+> +	/*
+> +	 * The skew was derived from the physical base, so the pool is aligned
+> +	 * in the mapping only if the mapping kept that page offset.  Check it
+> +	 * rather than assume it.
+> +	 */
+> +	if (offset_in_page(dmb->map_va) != skew) {
+> +		dev_warn(&vdev->dev,
+> +			 "device memory buffer mapping is not page-congruent\n");
+> +		err = -EINVAL;
+> +		goto err_unmap;
+> +	}
+> +
+> +	dmb->base_va = dmb->map_va + (size_t)base_off;
+> +
+> +	dmb->bitmap = bitmap_zalloc(nslots, GFP_KERNEL);
+> +	if (!dmb->bitmap) {
+> +		err = -ENOMEM;
+> +		goto err_unmap;
+> +	}
+> +
+> +	/* A zeroed record has end == 0, which is what marks a slot free. */
+> +	dmb->slots = kvcalloc(nslots, sizeof(*dmb->slots), GFP_KERNEL);
+> +	if (!dmb->slots) {
+> +		err = -ENOMEM;
+> +		goto err_free_bitmap;
+> +	}
+> +
+> +	/*
+> +	 * Divide the pool into independently locked areas, so that mappings on
+> +	 * different CPUs do not serialise on one lock and the interrupts-off
+> +	 * window of one search does not grow with the region.  This is the
+> +	 * structure kernel/dma/swiotlb.c adopted in commit 20347fca71a3
+> +	 * ("swiotlb: split up the global swiotlb lock"), for the same reason.
+> +	 *
+> +	 * area_slots is the power of two and nareas is derived from it, which
+> +	 * is the reverse of swiotlb.  swiotlb indexes areas with a mask and
+> +	 * rounds its pool size up to suit; a region's length is the device's
+> +	 * and cannot be rounded up, and dividing a power-of-two area count into
+> +	 * it would leave area_slots neither a power of two nor a multiple of
+> +	 * BITS_PER_LONG.  That matters for correctness rather than for tuning:
+> +	 * bitmap_set() and bitmap_clear() are non-atomic read-modify-write on
+> +	 * an unsigned long, so two areas sharing a bitmap word under separate
+> +	 * locks would lose updates.  A power-of-two area_slots at least
+> +	 * BITS_PER_LONG makes every area own whole words, and makes the area of
+> +	 * a slot a shift.  The cost is one division per claim where swiotlb has
+> +	 * a mask, which is a fraction of the two copies every mapping already
+> +	 * performs.
+> +	 *
+> +	 * num_possible_cpus() and not num_online_cpus(), so that the division
+> +	 * is sized for the CPUs that can run rather than for the ones running
+> +	 * when the region is installed, which on a guest that onlines the rest
+> +	 * later would divide the pool for one.  Nothing is allocated per CPU
+> +	 * and no area belongs to one, so a CPU going away strands no capacity
+> +	 * and there is no hotplug callback.  A pool too small to divide that
+> +	 * far yields fewer areas than CPUs, which then share.
+> +	 */
+> +	BUILD_BUG_ON(DMB_AREA_MIN_SLOTS > DMB_AREA_MAX_SLOTS);
+> +	BUILD_BUG_ON(DMB_AREA_MIN_SLOTS < BITS_PER_LONG);
+> +	BUILD_BUG_ON(!is_power_of_2(DMB_AREA_MIN_SLOTS));
+> +
+> +	target = nslots / roundup_pow_of_two(num_possible_cpus());
+> +	if (target < DMB_AREA_MIN_SLOTS)
+> +		/* rounddown_pow_of_two(0) is undefined. */
+> +		area_slots = DMB_AREA_MIN_SLOTS;
+> +	else
+> +		area_slots = clamp_t(unsigned int,
+> +				     rounddown_pow_of_two(target),
+> +				     DMB_AREA_MIN_SLOTS, DMB_AREA_MAX_SLOTS);
+> +
+> +	nareas = DIV_ROUND_UP(nslots, area_slots);
+> +
+> +	dmb->areas = kcalloc(nareas, sizeof(*dmb->areas), GFP_KERNEL);
+> +	if (!dmb->areas) {
+> +		err = -ENOMEM;
+> +		goto err_free_slots;
+> +	}
+> +
+> +	for (i = 0; i < nareas; i++)
+> +		spin_lock_init(&dmb->areas[i].lock);
+> +
+> +	dmb->nslots = nslots;
+> +	dmb->nareas = nareas;
+> +	dmb->area_slots = area_slots;
+> +	dmb->area_shift = ilog2(area_slots);
+> +
+> +	/* Published last: until now nothing routes a mapping here. */
+> +	dmb->prev_map = vdev->map;
+> +	dmb->prev_vmap = vdev->vmap;
+> +	vdev->vmap.dmb = dmb;
+> +	vdev->map = &virtio_dmb_map_ops;
+> +
+> +	/*
+> +	 * The feature moves every virtqueue of this device into a region and
+> +	 * changes what every address published to it means, and it activates
+> +	 * from a value the device supplies that nothing else records.  Report
+> +	 * the three facts about it that are recoverable nowhere else, on the
+> +	 * device that negotiated it, and the derived area geometry with them so
+> +	 * that it is visible without debugfs.
+> +	 */
+> +	dev_info(&vdev->dev,
+> +		 "device memory buffer %u at %pa, %u usable pages in %u areas of %u pages\n",
+> +		 shm_id, &dmb->map_phys, nslots, dmb->nareas,
+> +		 dmb->area_slots);
+> +
+> +	return 0;
+> +
+> +err_free_slots:
+> +	kvfree(dmb->slots);
+> +err_free_bitmap:
+> +	bitmap_free(dmb->bitmap);
+> +err_unmap:
+> +	memunmap(dmb->map_va);
+> +err_unclaim:
+> +	if (dmb->map_claimed)
+> +		release_mem_region(dmb->map_phys, dmb->map_len);
+> +	kfree(dmb);
+> +	return err;
+> +}
+> +EXPORT_SYMBOL_GPL(virtio_dmb_init);
+> +
+> +MODULE_DESCRIPTION("Virtio device memory buffer allocator");
+> +MODULE_LICENSE("GPL");
+> diff --git a/drivers/virtio/virtio_dmb.h b/drivers/virtio/virtio_dmb.h
+> new file mode 100644
+> index 000000000000..69fbcbb9c2c0
+> --- /dev/null
+> +++ b/drivers/virtio/virtio_dmb.h
+> @@ -0,0 +1,28 @@
+> +/* SPDX-License-Identifier: GPL-2.0-only */
+> +/*
+> + * Device Memory Buffer support for virtio devices.
+> + */
+> +#ifndef _DRIVERS_VIRTIO_VIRTIO_DMB_H
+> +#define _DRIVERS_VIRTIO_VIRTIO_DMB_H
+> +
+> +struct virtio_device;
+> +
+> +#if IS_ENABLED(CONFIG_VIRTIO_DMB)
+> +
+> +int virtio_dmb_init(struct virtio_device *vdev);
+> +void virtio_dmb_destroy(struct virtio_device *vdev);
+> +
+> +#else
+> +
+> +static inline int virtio_dmb_init(struct virtio_device *vdev)
+> +{
+> +	return 0;
+> +}
+> +
+> +static inline void virtio_dmb_destroy(struct virtio_device *vdev)
+> +{
+> +}
+> +
+> +#endif /* CONFIG_VIRTIO_DMB */
+> +
+> +#endif /* _DRIVERS_VIRTIO_VIRTIO_DMB_H */
+> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> index 93e573c56563..cd3fe82ff328 100644
+> --- a/include/linux/virtio.h
+> +++ b/include/linux/virtio.h
+> @@ -44,12 +44,15 @@ struct virtqueue {
+>  };
+>  
+>  struct vduse_vq_group;
+> +struct virtio_dmb;
+>  
+>  union virtio_map {
+>  	/* Device that performs DMA */
+>  	struct device *dma_dev;
+>  	/* VDUSE specific virtqueue group for doing map */
+>  	struct vduse_vq_group *group;
+> +	/* Device Memory Buffer holding the virtqueues and their buffers */
+> +	struct virtio_dmb *dmb;
+>  };
+>  
+>  int virtqueue_add_outbuf(struct virtqueue *vq,
+> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+> index 69f84ea85d71..a6780aa85966 100644
+> --- a/include/linux/virtio_config.h
+> +++ b/include/linux/virtio_config.h
+> @@ -96,6 +96,13 @@ struct virtqueue_info {
+>   * @set_vq_affinity: set the affinity for a virtqueue (optional).
+>   * @get_vq_affinity: get the affinity for a virtqueue (optional).
+>   * @get_shm_region: get a shared memory region based on the index.
+> + * @get_dmb_shm_id: get the shared memory id of the Device Memory Buffer
+> + *	(optional).
+> + *	vdev: the device
+> + *	id: where to store the shared memory id
+> + *	Returns 0 on success or error status
+> + *	Only valid once VIRTIO_F_DMB has been negotiated.  A transport that
+> + *	does not implement this must not accept VIRTIO_F_DMB.
+>   * @disable_vq_and_reset: reset a queue individually (optional).
+>   *	vq: the virtqueue
+>   *	Returns 0 on success or error status
+> @@ -135,6 +142,7 @@ struct virtio_config_ops {
+>  						 int index);
+>  	bool (*get_shm_region)(struct virtio_device *vdev,
+>  			       struct virtio_shm_region *region, u8 id);
+> +	int (*get_dmb_shm_id)(struct virtio_device *vdev, u16 *id);
+>  	int (*disable_vq_and_reset)(struct virtqueue *vq);
+>  	int (*enable_vq_after_reset)(struct virtqueue *vq);
+>  };
+
