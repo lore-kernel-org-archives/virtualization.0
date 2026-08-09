@@ -1,78 +1,70 @@
-Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from pdx-out-012.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-012.esa.us-west-2.outbound.mail-perimeter.amazon.com [35.162.73.231])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F5791A6830
-	for <virtualization@lists.linux.dev>; Sun,  9 Aug 2026 00:26:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B86FD3016E0;
+	Sun,  9 Aug 2026 18:20:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=35.162.73.231
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786235204; cv=none; b=C9z7u0YYijS6qwMhv0ilZzJE51wI3kTXgydcJYW3BlR2XuNYWjNUHhZ4vhlcmlPXaV1H0WOgopmOrht1o0fuv6rBfCcbZbIX/CzQLSSVVvjavAso0ODn6UFQOxfQoGk7SRdnP8qiKL00Ba2erAmcjdOTJJ5AimC6z/t23+ZssSA=
+	t=1786299620; cv=none; b=fgCZ3zul5FBqxPWxWkSE+8/+n4au/7pbrfegywEVN9Q4yaPMhSSRelpbACHFQaLLNtofCXvvoj7/dpOi1bxW6aVHsvAAIlBi1NajpDn18Sg3sum+gX3sMOI1Vx9Olnbf14n8eJVjdPu/lAEAES54nf+I0mc7kEfUG8w0zV5JhVA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786235204; c=relaxed/simple;
-	bh=cD6iwbu7Yz4gJgFpHxHHjHRe6DiqimV0yMAD6yEPlqE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=sXW11mObp+mc6NvMWm7/I43vjgFmhbCfD/+PS211Y2TDpJfWi2o+23sDFcQ2YRftZgaTXxwZSj4UQsZl1+MwZxbxh1a4pJRkxzgSn/oOable7ZIci3hY3BXhRLhTDa1Ic6qKcasgpOY90w9EcRpH2kUTnbqdcQzmt/QwroUm5F4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=j2a7VvQQ; arc=none smtp.client-ip=209.85.214.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1786299620; c=relaxed/simple;
+	bh=muuYC3bEfvcLbQJngM2QJPxRHYfV5Ab1/8PytcUZjeU=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=o4KPbfZL7vWpZmv+DJB+FIjLr+hYYDvuGNHtVlT+cgCxmypnI2sl40eMnKbnqMV7LkfQVPtdzt0+s9W6qdx4+4p/tVoCYmvRh+znzA8glP2M9PONzBW2NQpNu4JF0oz6wHylpQA0lHjdnAns29/ZXwARC9CynehriBm7Msaixlk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.de; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=MXlADZ6S; arc=none smtp.client-ip=35.162.73.231
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="j2a7VvQQ"
-Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-2cc97653887so7913725ad.1
-        for <virtualization@lists.linux.dev>; Sat, 08 Aug 2026 17:26:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="MXlADZ6S"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786235202; x=1786840002; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=EgyjptlT6DdPuhzR18wm1dZCjjUWW4FZP2FThtl49rY=;
-        b=j2a7VvQQt0fTkP0kcgRKajb3ENOslffbZnv9y9O0gbnTdRl0BpZRr1/GtWXTb8UVPt
-         U/uurr6zMjQXTXMMjnoB+thKI5MlvczCd9aVHK7JKB/sjtiIBYMok0LhUagFAq1IcfdX
-         vqX98LDAg+vDHGIO87Yi+iGIqgMKCTPwboPk2/5+nzoJwRbmitjhcMs+uHDvqC/Mvxij
-         pZ1zLv+JeKVdJf0t86c1seUbtoGBXM/LZvCk1LZrMqr8d9oEfLUjpBOxNjzfUw5fS7lX
-         GeJbGF5hVXK4JLrtV/SJWDWnQKSDlLpTf/odLzdZfaOVLRSnfzUnub1uFBUFG7rvtxJ9
-         wDCg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786235202; x=1786840002;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=EgyjptlT6DdPuhzR18wm1dZCjjUWW4FZP2FThtl49rY=;
-        b=KHtFocNm6Mt7dhZV60OyxobV1wSn7cshlf2mbqnHYFybZjNWFPamDB4dxmb66VqWrx
-         nZSDJ62EvFxtJwjaLfzs5v7y5nEnSmlmYlRv7Z1+6UPNg4KQ5szmuon0x5EjCbSYgol7
-         /7D1vfeHxDKi6J+YQuZhTIqkDnCIV8/hCQlTOIh3GlYlFTBPWES8nWhotqEP50ChOPWm
-         KofV9ca9R7tsx7uMiXTA/MYl5w83tAFCNNKsJESR9bnjIPkTW1faCiJNepSFr4NwuUd9
-         RfP6x9iczmJBVEthTCwwDbQ4C/wAnKRhKkNxNn6W1Y9qJRFRPY9nv1opecPi46ZLWysI
-         0aEg==
-X-Forwarded-Encrypted: i=1; AHgh+Rr2+iLajbDuW++9r89/JTGnJdBWKmno8ucmsuelS27JvVCEk59qBQZDeIvLZ7hOEyVWKRwc5FVf1aWajyYndg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyzaH0/YUv27K5VWRZE68+CX93ruhBy3H8uIkGlE32pMsFhX7I0
-	vSDMaCCOqWuTRvczaAX1CXMgFvr+g6cJ1HRpkvAwfiO/DeUChlTZ+Jaz
-X-Gm-Gg: AR+sD13kAZ6wVDAOTsH0d/DV707PLLCc7A8I2/us8NR4Qrshl2MFeZ9ltpJfu9QaIOx
-	awa9q8LrU23AI6i4A8ObTGTUwfYUUUQmcywWXjRho1ij71JT054xVkZLAUmGcq3QlvxUR11Tcik
-	D32A5nfiFPUM4/Ceh68O0Ojcmu6aB3OULPZbZId5jRUiQwCgo188ovBWYzlVfj7BtnodohoFMQT
-	IEqKlwsafdct74mK6f2ctKgv8tVXFGspzQFRAB/EaxrbxHEJIzkOGno2mgZWr9Z3pMmcXcZ+xDa
-	K6vVf32s3NOHmpU/RWhSHJeh+CFexRXcinAwt+bIwUYOaDuWpsKhYj8tCoNnR0086VcQfxQoIWr
-	7M2q63C0oB1PQg3PUnDFwX9oC9GTYFTpoLIS/tzv3i0W8Rd0R/9XyNtAvVltDhIFl7IY3KlHkn8
-	PdpcQfpeydm7iGoX0OvLrPVVQWCnpT0FNQNq6RH16R3SF+CJX6Fvj0cTBuULXs7Jw=
-X-Received: by 2002:a17:90b:1843:b0:37f:bfa2:1887 with SMTP id 98e67ed59e1d1-3903c53639amr35887499a91.8.1786235202259;
-        Sat, 08 Aug 2026 17:26:42 -0700 (PDT)
-Received: from beelink.. ([186.22.57.86])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-315beb8844fsm25270201eec.16.2026.08.08.17.26.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 08 Aug 2026 17:26:41 -0700 (PDT)
-From: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
-To: Dave Airlie <airlied@redhat.com>,
-	Gerd Hoffmann <kraxel@redhat.com>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	David Airlie <airlied@gmail.com>,
-	Simona Vetter <simona@ffwll.ch>,
-	virtualization@lists.linux.dev,
-	spice-devel@lists.freedesktop.org,
-	dri-devel@lists.freedesktop.org,
-	linux-kernel@vger.kernel.org,
-	Aldo Ariel Panzardo <qwe.aldo@gmail.com>
-Subject: [PATCH v2] drm/qxl: fix 32-bit overflow in the ALLOC_SURF size computation
-Date: Sat,  8 Aug 2026 21:26:21 -0300
-Message-ID: <20260809002621.122832-1-qwe.aldo@gmail.com>
-X-Mailer: git-send-email 2.43.0
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
+  t=1786299618; x=1817835618;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=np8xnS7sS1FdXM6aVqe0nnnEDhdIlmtRw58MDPrm9L4=;
+  b=MXlADZ6S1VHFnUulh5FsZc157XjJ8K2hrPuX7SbvxS6Q+f72E2NKLTJi
+   MCTB8RHJzuUFcdSWpglcVEQ3wEuUUbtAI8GZI9U4p993HmE83jsjQAJRi
+   qcBEuemqDZ+YUyo677CgH1take00Jrt1Q56+vu7HE92hxoh2E+iw9ta+5
+   1MU4WU+KSWE2eQgbUfdawwNWerk1rMAOYiDGeZDeM1KQ43ci/64rjmFYZ
+   UnU28NuVL+MiCMpx0XHwIu1visRa78bwNUvPl3isAUiDHuJ253hcl4+KQ
+   1wS3gq4z/nEDrX1FHY+pxPx/2lIr20u5e5kIuR2o4I252seOYtAp7DtE8
+   w==;
+X-CSE-ConnectionGUID: ME0H33klSu+09uE+ht1k6w==
+X-CSE-MsgGUID: w9tths7NSliwt9tbagACmg==
+X-IronPort-AV: E=Sophos;i="6.25,214,1779148800"; 
+   d="scan'208";a="25318976"
+Received: from ip-10-5-6-203.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.6.203])
+  by internal-pdx-out-012.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Aug 2026 18:20:16 +0000
+Received: from EX19MTAUWB002.ant.amazon.com [205.251.233.111:6171]
+ by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.5.32:2525] with esmtp (Farcaster)
+ id cdf4fcda-b791-4f20-afcb-4b86013918bf; Sun, 9 Aug 2026 18:20:16 +0000 (UTC)
+X-Farcaster-Flow-ID: cdf4fcda-b791-4f20-afcb-4b86013918bf
+Received: from EX19D001UWA001.ant.amazon.com (10.13.138.214) by
+ EX19MTAUWB002.ant.amazon.com (10.250.64.231) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.45;
+ Sun, 9 Aug 2026 18:20:15 +0000
+Received: from ip-10-253-83-51.amazon.com (172.19.99.218) by
+ EX19D001UWA001.ant.amazon.com (10.13.138.214) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.45;
+ Sun, 9 Aug 2026 18:20:11 +0000
+From: Alexander Graf <graf@amazon.com>
+To: Jason Wang <jasowangio@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>
+CC: Alex Williamson <alex@shazbot.org>, David Airlie <airlied@redhat.com>,
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+	<dri-devel@lists.freedesktop.org>, =?UTF-8?q?Eugenio=20P=C3=A9rez?=
+	<eperezma@redhat.com>, Feng Liu <feliu@nvidia.com>, Gerd Hoffmann
+	<kraxel@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, Jens Axboe
+	<axboe@kernel.dk>, Jiri Pirko <jiri@resnulli.us>, Jonathan Corbet
+	<corbet@lwn.net>, <linux-block@vger.kernel.org>, <linux-doc@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <nh-open-source@amazon.com>,
+	<nvdimm@lists.linux.dev>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, "Paolo
+ Bonzini" <pbonzini@redhat.com>, Parav Pandit <parav@nvidia.com>, Shuah Khan
+	<skhan@linuxfoundation.org>, Stefan Hajnoczi <stefanha@redhat.com>,
+	<virtualization@lists.linux.dev>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Yishai Hadas <yishaih@nvidia.com>
+Subject: [RFC PATCH 00/12] virtio: support devices that own their virtqueue memory
+Date: Sun, 9 Aug 2026 18:19:58 +0000
+Message-ID: <20260809182010.32931-1-graf@amazon.com>
+X-Mailer: git-send-email 2.47.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -80,80 +72,125 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: EX19D043UWC001.ant.amazon.com (10.13.139.202) To
+ EX19D001UWA001.ant.amazon.com (10.13.138.214)
 
-qxl_alloc_surf_ioctl() works out the backing size of a surface with
+Virtio drivers use guest memory to back virtqueues and their buffers.
+That means a VMM needs to be able to map guest memory. That is ok in the
+normal virt case. It gets icky with confidential computing (where we use
+swiotlb as workaround) and it defeats the purpose of isolated vhost-user
+backing devices, because they end up with full RAM access to the guest.
 
-	actual_stride = param->stride < 0 ? -param->stride : param->stride;
-	size = actual_stride * param->height + actual_stride;
+So instead, I'm proposing an extension to virtio which allows it to give
+each virtio device its own dedicated memory region to communicate with the
+host, called DMB (Device Memory Buffer). A trusted hypervisor can force
+DMB to be present, which then enables safer, more isolated and resilient
+communication between guest and host.
 
-where size and actual_stride are int and param->height is __u32.  Every
-operand comes straight from userspace through DRM_IOCTL_QXL_ALLOC_SURF,
-which is DRM_AUTH, and the expression is evaluated modulo 2^32 with no
-overflow check.
+With DMB, the device provides a shared memory region that both parties
+agree is the full memory map both have access to. All memory offsets
+that previously would have been into guest RAM, are then offsets into
+this shared memory buffer region. One nice property of this is that it
+is a generic mechanism in the virtio transport layer, so higher level
+drivers work unmodified.
 
-The wrapped value is what reaches qxl_bo_create(), which only rounds it
-up to a page.  The original width, height and stride are kept verbatim
-in bo->surf and are later handed to the device by qxl_hw_surface_alloc()
-together with the address of that undersized allocation, so the driver
-tells the host about a surface far larger than the memory backing it.
+I was exploring to use swiotlb instead to create individual pools. But
+that approach has multiple downsides:
 
-For example stride=4096, height=1048576 gives
-4096 * (1048576 + 1) = 0x1_0000_1000, which truncates to 4096: a
-one-page buffer object described to the device as a 4 GiB surface.
-Measured on 6.12.101 by probing mmap() lengths against the resulting
-GEM object, the backing is 4096 bytes while the surface declared to the
-device is 4294967296 bytes.
+1. Swiotlb is an OS primitive which is not available in all Operating
+Systems. DMB however lives in the virtio transport layer, which means we
+can add support for it in any OS independent of generic layers. This
+helps with Windows support.
 
-Two smaller problems are fixed at the same time.  Negating param->stride
-is undefined for INT_MIN, and unlike QXL_ALLOC there is no rejection of
-a zero-sized request.
+2. We munge DMA space together. DMB provides a separate DMA space per
+virtio device. This means we can for example implement a device in
+vhost-user and give the implementing process only visibility to the DMB
+region, not all of guest memory. That reduces the exposure the
+vhost-user provider has, improving security.
 
-Compute the size in u64, which cannot wrap for the u32 inputs, reject
-INT_MIN and zero dimensions, and bound the result so it still fits the
-int parameter of qxl_gem_object_create().
+3. Devices can opt-in. A hypervisor can choose to use standard virtio
+semantics for self-implemented devices (e.g. NSM), while requiring DMB
+for devices implemented by less trustworthy providers. The
+non-trustworthy devices do not get any visibility into the trustworthy
+ones, even with DMB in place for both.
 
-Fixes: f64122c1f6ad ("drm: add new QXL driver. (v1.4)")
-Cc: stable@vger.kernel.org
-Signed-off-by: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
----
-v2: compute the size in u64 instead of size_t, so the (height + 1)
-    addition cannot wrap on 32-bit either (reported by Sashiko AI review);
-    the v1 <linux/overflow.h> include is no longer needed.
+== Limitations ==
 
- drivers/gpu/drm/qxl/qxl_ioctl.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+  - Only PCI is wired up.
+  - Feature bit 44 and the shared memory id register at offset 0x40 of the
+    PCI common configuration are provisional: the OASIS technical
+    committee has the specification and has allocated neither.
 
-diff --git a/drivers/gpu/drm/qxl/qxl_ioctl.c b/drivers/gpu/drm/qxl/qxl_ioctl.c
-index cd1901d5c7c0..75abfc1db0f5 100644
---- a/drivers/gpu/drm/qxl/qxl_ioctl.c
-+++ b/drivers/gpu/drm/qxl/qxl_ioctl.c
-@@ -385,12 +385,24 @@ int qxl_alloc_surf_ioctl(struct drm_device *dev, void *data, struct drm_file *fi
- 	struct drm_qxl_alloc_surf *param = data;
- 	int handle;
- 	int ret;
--	int size, actual_stride;
-+	int actual_stride;
-+	u64 size;
- 	struct qxl_surface surf;
- 
- 	/* work out size allocate bo with handle */
-+	if (param->stride == INT_MIN)
-+		return -EINVAL;
- 	actual_stride = param->stride < 0 ? -param->stride : param->stride;
--	size = actual_stride * param->height + actual_stride;
-+	if (!actual_stride || !param->width || !param->height)
-+		return -EINVAL;
-+	/*
-+	 * size = actual_stride * (height + 1), computed in u64 so it cannot
-+	 * wrap on any architecture, then bounded so it still fits the int
-+	 * parameter of qxl_gem_object_create().
-+	 */
-+	size = (u64)actual_stride * ((u64)param->height + 1);
-+	if (size > INT_MAX)
-+		return -EINVAL;
- 
- 	surf.format = param->format;
- 	surf.width = param->width;
--- 
-2.43.0
+  https://lore.kernel.org/virtio-comment/20260804161202.38619-1-graf@amazon.com/
 
+  - The device I ran this against is not public, so you cannot reproduce
+    the numbers below. The KUnit test you can.
+
+== Testing ==
+
+Without patches 10 and 12 a receive refill livelocks and queues starve
+each other: 29,319,791 receive softirqs in five seconds with not one
+packet received, against 4 with them, and 2 of 7 receive queues that never
+see a buffer, against none. Earlier revisions moved 512 MiB of O_DIRECT
+block I/O and 2.7 GB of verified vsock through a region with no error.
+
+The KUnit test for patch 12's guarantee you can run yourself, and two of
+its five cases fail if I take the fix out:
+
+  tools/testing/kunit/kunit.py run --arch=x86_64 \
+      --kconfig_add CONFIG_VIRTIO_MMIO=y \
+      --kconfig_add CONFIG_VIRTIO_DMB=y virtio_dmb
+
+Patch 1 can be taken on its own: a stale worked example in a vdpa
+comment. Patch 10 fixes something older than this series too, a failed
+mapping arriving as -EIO from a packed ring, failing an I/O that on a
+split ring is only back-pressure, but it does not apply alone: it wants
+patch 2, and patch 9 for the file its documentation hunk edits. Both
+carry Fixes:. Patch 12 wants 10 first.
+
+I wrote this series with an AI coding assistant, which drafted the code,
+the changelogs and this cover letter. I reviewed and reworked all of it,
+and every commit carries an Assisted-by: trailer.
+
+Alex
+
+Alexander Graf (12):
+  vdpa: correct the VIRTIO_DEVICE_F_MASK example value
+  virtio_ring: validate premapped addresses through the device's map
+  virtio: add the VIRTIO_F_DMB feature bit
+  virtio_pci: read the device memory buffer shared memory id
+  virtio_pci: create virtqueues with the device's mapping token
+  virtio: add a device memory buffer region allocator
+  virtio: locate the device memory buffer after feature negotiation
+  virtio_pci: support VIRTIO_F_DMB
+  Documentation: virtio: describe the device memory buffer
+  virtio_ring: report a bounded pool's exhaustion as -ENOSPC
+  virtio: expose device memory buffer occupancy over debugfs
+  virtio: guarantee a virtqueue can publish its first descriptor chain
+
+ Documentation/driver-api/virtio/index.rst     |    1 +
+ .../driver-api/virtio/virtio-dmb.rst          |  803 ++++++++
+ drivers/vdpa/vdpa.c                           |    2 +-
+ drivers/virtio/Kconfig                        |   29 +
+ drivers/virtio/Makefile                       |    3 +-
+ drivers/virtio/virtio.c                       |   15 +-
+ drivers/virtio/virtio_dmb.c                   | 1719 +++++++++++++++++
+ drivers/virtio/virtio_dmb.h                   |   34 +
+ drivers/virtio/virtio_dmb_test.c              |  279 +++
+ drivers/virtio/virtio_pci_modern.c            |  100 +-
+ drivers/virtio/virtio_pci_modern_dev.c        |   23 +-
+ drivers/virtio/virtio_ring.c                  |  216 ++-
+ include/linux/virtio.h                        |    3 +
+ include/linux/virtio_config.h                 |   41 +
+ include/linux/virtio_pci_modern.h             |    1 +
+ include/uapi/linux/virtio_config.h            |   17 +-
+ include/uapi/linux/virtio_pci.h               |   10 +
+ 17 files changed, 3254 insertions(+), 42 deletions(-)
+ create mode 100644 Documentation/driver-api/virtio/virtio-dmb.rst
+ create mode 100644 drivers/virtio/virtio_dmb.c
+ create mode 100644 drivers/virtio/virtio_dmb.h
+ create mode 100644 drivers/virtio/virtio_dmb_test.c
+
+
+base-commit: fc02acf6ac0ccde0c805c2daa9148683cdd01ba8
