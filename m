@@ -1,63 +1,67 @@
-Received: from pdx-out-002.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-002.esa.us-west-2.outbound.mail-perimeter.amazon.com [44.246.1.125])
+Received: from pdx-out-015.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-015.esa.us-west-2.outbound.mail-perimeter.amazon.com [50.112.246.219])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C5A3361DAB
-	for <virtualization@lists.linux.dev>; Sun,  9 Aug 2026 18:21:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=44.246.1.125
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAF7937648F;
+	Sun,  9 Aug 2026 18:21:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=50.112.246.219
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786299701; cv=none; b=U3Bz5Oeuxv3bU0NpRFpsKssgB+0XbJPlgISjHajm0NxYLhKHSYcEhtgT3YQ7cw2u1v5pIG3fCwh5siWIo70UiLirp3oGm5jMV6VrSNGog3AVUqd1Zs+uJk6PmR6lJc+0gqYzJJMMIrKFT9sG0gppGmRcfMVCwSR4nUR3VyCijOI=
+	t=1786299708; cv=none; b=s/PKJBT0FVL93hPj4FsQbpL/BJmKzUEkddK6hB1+Rf99lURdMBNWVpEmjIhq4oslJn6AH3HvXQz5QWTsihvBr55Zn3mBM/f9lIbuFKWnBy72ITj2f5gsArbCPfcRFjj6kzcZRchIu5885npfiSWeSINwWDkky3huPJlBPZ/b1bs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786299701; c=relaxed/simple;
-	bh=DRAZsgOl1qqzf65YiDOTALAb6txnLdZU6YpHhbUgAyo=;
+	s=arc-20240116; t=1786299708; c=relaxed/simple;
+	bh=J+30Nzlnc59X91Bo0RHuiOtOVXbqmP/Ow6OyZxvLSFI=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=qmaoS6+dHaQ6DAjWq0c1pUTT4otdEOTht14SegpWpywqd7UbOQU1/4uwRH/pKrtXHWXx8vFH78qtirEMN/QwIcijr8OFMtltWlvN/NJD31XkfLO9EiLDMYefVtRm9kC0jAf4DZpQq4VkFOB/6p56a2yBE6ucHtEEK8tzhWFxX5o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.de; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=eue8AQ6i; arc=none smtp.client-ip=44.246.1.125
+	 MIME-Version:Content-Type; b=pTYHwZQywUMu+oPk8iRVtOTZDoiOwvbwcZyM4LU7V9e1JRQwvVgheAWXrgf9kf/6vAhJaoboIXejoRBcgG0m5w3IaUU4ZqKV4E3YoiiY4XZbHM/dgEKi3XY7542MlfqbBFXioa8hROH2b24B/OPLNnBIDt5s8i8TpFHfuOdOUR0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.de; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=XF9w49Jg; arc=none smtp.client-ip=50.112.246.219
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="eue8AQ6i"
+	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="XF9w49Jg"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
-  t=1786299700; x=1817835700;
+  t=1786299706; x=1817835706;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=vzL6Syiexp2mLHc2NqdKms5lj+Y2ja6OvvHtC7EZF74=;
-  b=eue8AQ6iXm1jCi8/hIqrxaK+K5ImnAM1C6YYKIVfiZHzJJe1jpyU/1sv
-   y/lwQA+OLw51fZKfnsZ0anhXiBk83IWQ/QYq+TVouP5+YJyyMFz76SEYA
-   Wbk1Ur/EY88Pddcml5+JPgA2EjKW7zGxanhs3taMeXVAzo/bTHWCtaBO7
-   BWF8QySLJf1hAaSCayB7b9Fd2SyB0tFvNRl0fzGJYic7o7cKWjgxk1HNx
-   P48zAW9du04PbKZcVs9I/IOD3TD4Y/NoNKRA+igytTTQ5nBFF40at1nLD
-   yNq22B/Fr7hzm1xg4v76gY+JA/OTxM0cT+M8N6xJk6UrwD10e4F++zCoI
-   A==;
-X-CSE-ConnectionGUID: nja4c6HQQfC1CmUCia0OCQ==
-X-CSE-MsgGUID: IXJovujMQG6d9o7eBMnL+A==
+  bh=3ZohG5gy9QOsMsldJtnm8SZT4TUIYoDQX1T75IzNTaY=;
+  b=XF9w49Jg0TUatCyo0JtIexDXOEdK/ZRpaenKjeAn87qrOXmaoJm1bbl7
+   Ojpgw5a1pSOhP8BZ7GultCHpBq9RuvySKIdUkXM+6MWcrfVOMEdIfRF1N
+   ipubHqzACmzv2H4vtZHXMbwe3oOZxtBObRo6ROIeSTxv7uPuuFIrRX1mH
+   ZE5QayMST0npRvA61ikyeNmV7DG4AFagesSh9xvbrMQTOmja780ODKLXm
+   BWyZBbP2dFdBpkjGGa8kNE4DLqOu4Dq4MB/gZGK8fHl7ivdKB8SgsVHAW
+   Bf6ArCDR7mYZbQTy9mBYp4p+rILBzSqyHOBgEa9cIX/JvxNcXq4ST9dqJ
+   Q==;
+X-CSE-ConnectionGUID: MAxwrWlMTqK30MRFk/cRJw==
+X-CSE-MsgGUID: p2nOzCqUTeSBkNvs1LVtow==
 X-IronPort-AV: E=Sophos;i="6.25,214,1779148800"; 
-   d="scan'208";a="25521012"
+   d="scan'208";a="25317679"
 Received: from ip-10-5-6-203.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.6.203])
-  by internal-pdx-out-002.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Aug 2026 18:21:39 +0000
-Received: from EX19MTAUWA001.ant.amazon.com [205.251.233.236:26930]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.19.171:2525] with esmtp (Farcaster)
- id f61689f6-416b-4ee2-ace5-56cf2a8bcbb8; Sun, 9 Aug 2026 18:21:39 +0000 (UTC)
-X-Farcaster-Flow-ID: f61689f6-416b-4ee2-ace5-56cf2a8bcbb8
+  by internal-pdx-out-015.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Aug 2026 18:21:42 +0000
+Received: from EX19MTAUWC001.ant.amazon.com [205.251.233.53:26917]
+ by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.58.172:2525] with esmtp (Farcaster)
+ id cdbce74b-36db-44c6-840a-130baee747a8; Sun, 9 Aug 2026 18:21:42 +0000 (UTC)
+X-Farcaster-Flow-ID: cdbce74b-36db-44c6-840a-130baee747a8
 Received: from EX19D001UWA001.ant.amazon.com (10.13.138.214) by
- EX19MTAUWA001.ant.amazon.com (10.250.64.204) with Microsoft SMTP Server
+ EX19MTAUWC001.ant.amazon.com (10.250.64.174) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.45;
- Sun, 9 Aug 2026 18:21:39 +0000
+ Sun, 9 Aug 2026 18:21:42 +0000
 Received: from ip-10-253-83-51.amazon.com (172.19.99.218) by
  EX19D001UWA001.ant.amazon.com (10.13.138.214) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.45;
- Sun, 9 Aug 2026 18:21:37 +0000
+ Sun, 9 Aug 2026 18:21:39 +0000
 From: Alexander Graf <graf@amazon.com>
 To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>
 CC: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?q?Eugenio=20P=C3=A9rez?=
 	<eperezma@redhat.com>, Jonathan Corbet <corbet@lwn.net>, Shuah Khan
-	<skhan@linuxfoundation.org>, Halil Pasic <pasic@linux.ibm.com>,
-	<virtualization@lists.linux.dev>, <linux-doc@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <nh-open-source@amazon.com>, Stefan Hajnoczi
-	<stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
-Subject: [RFC PATCH 10/12] virtio_ring: report a bounded pool's exhaustion as -ENOSPC
-Date: Sun, 9 Aug 2026 18:20:08 +0000
-Message-ID: <20260809182010.32931-11-graf@amazon.com>
+	<skhan@linuxfoundation.org>, <virtualization@lists.linux.dev>,
+	<linux-doc@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Jens Axboe
+	<axboe@kernel.dk>, <linux-block@vger.kernel.org>, David Airlie
+	<airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, Dmitry Osipenko
+	<dmitry.osipenko@collabora.com>, <dri-devel@lists.freedesktop.org>, "Pankaj
+ Gupta" <pankaj.gupta.linux@gmail.com>, <nvdimm@lists.linux.dev>,
+	<nh-open-source@amazon.com>, Stefan Hajnoczi <stefanha@redhat.com>, "Paolo
+ Bonzini" <pbonzini@redhat.com>
+Subject: [RFC PATCH 11/12] virtio: expose device memory buffer occupancy over debugfs
+Date: Sun, 9 Aug 2026 18:20:09 +0000
+Message-ID: <20260809182010.32931-12-graf@amazon.com>
 X-Mailer: git-send-email 2.47.1
 In-Reply-To: <20260809182010.32931-1-graf@amazon.com>
 References: <20260809182010.32931-1-graf@amazon.com>
@@ -72,325 +76,415 @@ Content-Type: text/plain
 X-ClientProxiedBy: EX19D042UWA002.ant.amazon.com (10.13.139.17) To
  EX19D001UWA001.ant.amazon.com (10.13.138.214)
 
-A failed mapping reaches the caller as -ENOMEM from
-virtqueue_add_split() and as -EIO from the two packed paths. -EIO is a
-fatal I/O error that virtblk_fail_to_queue() has no case for, so a
-packed-ring bounce that cannot be satisfied fails the I/O to the
-filesystem, where the same failure on a split ring is only
-back-pressure. -ENOMEM is little better: a map implementation's pool
-belongs to one device and only that device's completions free it, so a
-caller we tell -ENOMEM retries against a pool nothing else refills.
+Running out of room in the pool is routine for a device with a bounded
+one: vring_map_errno() reports it as the -ENOSPC a full queue reports,
+so the driver retries and carries on. The allocator must not log that at
+any level a working device prints, or an undersized region turns into a
+log flood. That leaves an operator nothing but unexplained throughput
+loss to go on.
 
-Report -ENOSPC from vring_map_errno() when the failure came from a map
-implementation and num_free is not vring_num(), so the completion the
-caller waits for provably exists. include/linux/blk_types.h states that
-precondition for the BLK_STS_DEV_RESOURCE virtio_blk maps -ENOSPC to,
-and reporting it with nothing outstanding would put nd_virtio into a
-non-killable wait_event() that only a host completion wakes.
-virtio_map_ops.mapping_error() is handed no virtqueue, so a map
-implementation cannot draw the distinction for us.
+swiotlb can afford dev_warn_ratelimited() because exhaustion there is a
+misconfiguration, and it exports io_tlb_used and io_tlb_used_hiwater
+through debugfs, which a log line cannot do for a sampled quantity.
+Follow it, plus one file swiotlb has no need for:
 
-VDUSE reports -ENOSPC for its own mapping failures as a result, and
-drm/virtio's cursor queue, which waits for num_free to rise, retries in
-a tight loop because a failed mapping does not move it. The kerneldoc of
-virtqueue_add_sgs() said only a full queue reports -ENOSPC, so correct
-that as well.
+  dmb/pages              pages the allocator can hand out
+  dmb/areas              pool areas the pool is divided into
+  dmb/area_pages         pages one pool area covers
+  dmb/used_pages         pages allocated now
+  dmb/used_pages_hiwater the largest used_pages has been
+  dmb/alloc_failed       buffer mappings the pool had no room for
 
-That way a bounce that could not be satisfied arrives at a block driver
-as back-pressure it can retry on either ring layout.
+used_pages_hiwater is the number to size a region against, because a
+burst that fills the pool between two samples of used_pages leaves no
+other trace. Writing 0 restarts the measurement from the occupancy now,
+so a peak never reads below the used_pages read alongside it.
 
-Fixes: f7728002c1c7 ("virtio_ring: fix return code on DMA mapping fails")
+alloc_failed counts only the mapping path, so that a virtqueue area
+rejected during vring_alloc_queue_split()'s search for a size that fits
+does not make a correctly sized region look undersized.
+
+There is no sysfs file, because a sysfs attribute is ABI and nothing
+here should be. Every file and every counter behind one sits
+under CONFIG_VIRTIO_DEBUG, so a production build carries none of them.
+
 Assisted-by: Kiro:claude-opus-5 checkpatch sparse
 Signed-off-by: Alexander Graf <graf@amazon.com>
 ---
- .../driver-api/virtio/virtio-dmb.rst          |  49 +++++++--
- drivers/virtio/virtio_ring.c                  | 100 ++++++++++++++----
- 2 files changed, 118 insertions(+), 31 deletions(-)
+ .../driver-api/virtio/virtio-dmb.rst          |  52 ++++-
+ drivers/virtio/virtio_dmb.c                   | 215 +++++++++++++++++-
+ 2 files changed, 262 insertions(+), 5 deletions(-)
 
 diff --git a/Documentation/driver-api/virtio/virtio-dmb.rst b/Documentation/driver-api/virtio/virtio-dmb.rst
-index 5975948165c9..4cd23e25901f 100644
+index 4cd23e25901f..610db080dee5 100644
 --- a/Documentation/driver-api/virtio/virtio-dmb.rst
 +++ b/Documentation/driver-api/virtio/virtio-dmb.rst
-@@ -444,14 +444,19 @@ queue with ``tx_fifo_errors``, ``tx_dropped`` and a rate-limited
- ``virtnet_open()`` every fill runs on whichever CPU brought the link up, so
- they all share one home area.  Areas give preference, never reservation.
+@@ -255,8 +255,10 @@ The last area is short unless ``area_pages`` divides ``pages``.  A region
+ small enough for one area to cover behaves exactly as a single lock over
+ the whole pool does, which includes every region up to 2 MiB on a 4 KiB
+ page, and more than that on a guest with few possible CPUs.
+-Both values are printed at probe time, so a device implementer can read
+-back what a guest derived from the region it offered.
++Both values are printed at probe time and are readable under
++``CONFIG_VIRTIO_DEBUG`` in ``dmb/areas`` and ``dmb/area_pages``, so a
++device implementer can read back what a guest derived from the region it
++offered.
  
--Second, a receive queue that cannot refill spends softirq time without
--making progress.  ``try_fill_recv()`` reports failure, ``virtnet_receive()``
--returns the full budget to force a repoll, and ``virtnet_poll()`` therefore
--never completes NAPI.  There is no delayed worker behind that: commit
-+Second, a receive queue that holds no buffers and cannot refill spends
-+softirq time without making progress.  ``try_fill_recv()`` reports failure
-+for the ``-ENOMEM`` such a queue gets, ``virtnet_receive()`` returns the
-+full budget to force a repoll, and ``virtnet_poll()`` therefore never
-+completes NAPI.  There is no delayed worker behind that: commit
- 1e7b90aa7988 ("virtio-net: remove unused delayed refill worker") removed it
- deliberately, "since we switched to retry refilling receive buffer in NAPI
- poll instead of delayed worker".  The repoll always recovers once capacity
--is released, and it burns a CPU until then.
-+is released, and it burns a CPU until then.  That is the only recovery a
-+queue with nothing posted can have, because the device cannot signal a used
-+buffer on it.  A queue that does hold buffers gets ``-ENOSPC`` instead,
-+completes NAPI, and is woken by its own completions, so it stops cleanly;
-+the errno section below has the whole rule.
+ A device cannot influence the count and should not try to: it is derived
+ from the guest's page size, cacheline size and possible-CPU count, none of
+@@ -619,7 +621,51 @@ a guest with three or more possible CPUs; a guest with one or two derives
+ fewer, larger areas from the same region.
+ The claimed range also appears in ``/proc/iomem`` as
+ ``virtio-dmb``, but only where the claim was granted, and the ``shmid``
+-appears nowhere else at all.
++appears nowhere else at all.  The three counts appear again in
++``dmb/pages``, ``dmb/areas`` and ``dmb/area_pages`` below.
++
++With ``CONFIG_VIRTIO_DEBUG`` the state of the region is also available
++under the device's virtio debugfs directory, in ``dmb/``.  The directory
++exists only while the device has a region, so a device that did not
++negotiate the feature has no ``dmb/`` at all.  These files are
++diagnostics and not ABI: their names, their contents and the one write
++they accept may change or go away.
++
++``pages``
++  how many pages the allocator can hand out.
++
++``areas``
++  how many pool areas the pool is divided into.
++
++``area_pages``
++  how many pages one pool area covers.  ``areas`` is
++  ``ceil(pages / area_pages)``, so the last area covers fewer unless
++  ``area_pages`` divides ``pages``.  Both are fixed when the region is
++  installed and are the same two values the probe-time message prints.
++
++``used_pages``
++  how many of them are allocated.  One counter maintained across all areas
++  rather than a sum of per-area figures read at different moments, so it
++  never reports a torn total; it is raised just outside the area lock, so a
++  read taken during a claim or a release can lag the bitmap by that claim.
++
++``used_pages_hiwater``
++  the largest ``used_pages`` has been.  This, rather than a sample of
++  ``used_pages``, is what a region should be sized against: a burst
++  that fills the region between two samples leaves no other trace.
++  Writing ``0`` restarts the measurement from the current occupancy.
++
++``alloc_failed``
++  how many buffer mappings the pool had no room for.  Because running
++  out of room is an ordinary condition it is not logged above debug
++  level, so this is the cheapest indication that a region is too small
++  for what is running on it: a non-zero value means the pool could not
++  fit a mapping the workload asked for, either because it is smaller
++  than the workload needs or because no single pool area held a long
++  enough run of free pages.  A virtqueue area that did not fit is not
++  counted here, since it is logged instead, and neither is a mapping
++  refused for exceeding the per-mapping cap, which ``max_mapping_size``
++  advertises.
  
- What the driver does
- ====================
-@@ -530,12 +535,34 @@ suspend for the whole system.
- The region's length bounds how much virtqueue data can be in flight at
- once.  Running out of room is therefore an ordinary condition and not an
- error: a mapping fails and the driver applies the back-pressure it
--already has for a full queue.  The errno is whichever the ring already
--reports for a failed mapping, which is ``-ENOMEM`` from a split ring and
--from a packed indirect table, and ``-EIO`` from a packed ring using
--direct descriptors.  A driver must therefore treat any error from
--``virtqueue_add_*()`` as back-pressure, and must not treat a particular
--errno as the only indication of exhaustion.
-+already has for a full queue.  Which errno the ring reports for it
-+depends on whether the failing virtqueue has a chain outstanding:
-+
-+* ``-ENOSPC`` when it has.  This is the value a full ring already
-+  reports, and it means what it means there: capacity that a completion
-+  on this virtqueue will return.  A caller may stop the queue and wait,
-+  because the completion it waits for provably exists.
-+
-+* ``-ENOMEM`` when it has not.  Nothing is outstanding to free capacity,
-+  so there is no completion to wait for, and the caller must retry rather
-+  than stop.  A shortage the caller cannot wait out is reported the same
-+  way whatever its origin, which is also what a failed
-+  ``dma_map_page()`` on an ordinary device reports.
-+
-+The distinction matters because the two demand opposite responses, and a
-+caller that stops on the second never restarts.  ``virtio_blk`` already
-+keys on exactly this: ``-ENOSPC`` stops the hardware queue, which
-+``virtblk_done()`` restarts on any completion, while ``-ENOMEM`` leaves it
-+running for the block layer to re-run after a delay.  For a virtio_net
-+receive fill the split is the same one: a queue holding buffers stops
-+cleanly and its own completions wake it, and a queue holding none keeps
-+the NAPI repoll described above, which costs softirq time but recovers
-+without needing an interrupt the device cannot send.
-+
-+A driver must still treat any error from ``virtqueue_add_*()`` as
-+back-pressure and must not treat a particular errno as the only
-+indication of exhaustion.  A mapping failure no longer produces
-+``-EIO``, on any ring layout.
+ Notes for kernel code
+ =====================
+diff --git a/drivers/virtio/virtio_dmb.c b/drivers/virtio/virtio_dmb.c
+index 42126f928bc0..fe556d585f24 100644
+--- a/drivers/virtio/virtio_dmb.c
++++ b/drivers/virtio/virtio_dmb.c
+@@ -20,10 +20,12 @@
+  */
  
- Under this feature the virtqueue data path calls no DMA mapping function
- at all, so no bus address is ever passed to the device and the
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 9caa4f96204f..641ab07be931 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -337,6 +337,13 @@ static inline bool virtqueue_is_packed(const struct vring_virtqueue *vq)
- 	       vq->layout == VQ_LAYOUT_PACKED_IN_ORDER;
+ #include <linux/align.h>
++#include <linux/atomic.h>
+ #include <linux/bitmap.h>
+ #include <linux/bits.h>
+ #include <linux/cache.h>
+ #include <linux/cpumask.h>
++#include <linux/debugfs.h>
+ #include <linux/dma-mapping.h>
+ #include <linux/export.h>
+ #include <linux/highmem.h>
+@@ -126,7 +128,12 @@ struct virtio_dmb_area {
+  * @area_slots: slots one area covers, a power of two; the last area covers
+  *	fewer when @nslots is not a multiple of it
+  * @area_shift: ilog2(@area_slots), so slot >> @area_shift names its area
++ * @total_used: slots allocated across every area, exact; CONFIG_VIRTIO_DEBUG
++ * @used_hiwater: the largest @total_used has been since the last reset through
++ *	debugfs, or since init; CONFIG_VIRTIO_DEBUG
++ * @alloc_failed: buffer mappings the pool had no room for; CONFIG_VIRTIO_DEBUG
+  * @shm_id: shared memory id the device reported for the region
++ * @debugfs_dir: directory holding this region's debugfs files
+  */
+ struct virtio_dmb {
+ 	struct virtio_device	*vdev;
+@@ -145,7 +152,20 @@ struct virtio_dmb {
+ 	unsigned int		 nareas;
+ 	unsigned int		 area_slots;
+ 	unsigned int		 area_shift;
++#ifdef CONFIG_VIRTIO_DEBUG
++	/*
++	 * Exact occupancy for the two debugfs files, kept outside the area
++	 * locks.  A production build has neither: summing the per-area counts
++	 * would need every lock, and the hot path is what this file exists to
++	 * make cheap.  kernel/dma/swiotlb.c draws the same line at
++	 * CONFIG_DEBUG_FS.
++	 */
++	atomic_long_t		 total_used;
++	atomic_long_t		 used_hiwater;
++	atomic_long_t		 alloc_failed;
++#endif
+ 	u16			 shm_id;
++	struct dentry		*debugfs_dir;
+ };
+ 
+ /* First slot of area @i. */
+@@ -210,6 +230,61 @@ static size_t virtio_dmb_max_mapping(const struct virtio_dmb *dmb)
+ 	return max_t(size_t, min(eighth, half_area), PAGE_SIZE);
  }
  
-+/* Descriptors this virtqueue's ring holds, whatever its layout. */
-+static inline u32 vring_num(const struct vring_virtqueue *vq)
-+{
-+	return virtqueue_is_packed(vq) ? vq->packed.vring.num :
-+					 vq->split.vring.num;
-+}
++#ifdef CONFIG_VIRTIO_DEBUG
 +
- static inline bool virtqueue_is_in_order(const struct vring_virtqueue *vq)
- {
- 	return vq->layout == VQ_LAYOUT_SPLIT_IN_ORDER ||
-@@ -491,6 +498,35 @@ static int vring_mapping_error(const struct vring_virtqueue *vq,
- 		return dma_mapping_error(vring_dma_dev(vq), addr);
- }
- 
 +/*
-+ * The errno a failed mapping reports to the caller.
++ * Exact global occupancy, kept outside every area lock.
 + *
-+ * A map implementation owns a bounded pool that belongs to this device, so a
-+ * failure to map into it while this virtqueue has a descriptor chain
-+ * outstanding means capacity that this virtqueue's own completions will
-+ * return: -ENOSPC, the value a full ring reports, which a caller that waits
-+ * for a completion already answers correctly.  With nothing outstanding there is no
-+ * such guarantee -- the pool may be held entirely by other virtqueues, or by
-+ * structural allocations no completion frees -- and a shortage the caller
-+ * cannot wait out is -ENOMEM whatever its origin.  That is the precondition
-+ * include/linux/blk_types.h states for BLK_STS_DEV_RESOURCE, which
-+ * virtio_blk maps -ENOSPC to.
++ * Summing the per-area counts would be imprecise, because no two of them are
++ * read under the same lock, and taking every lock to read one debugfs file
++ * would put a whole-pool serialisation back into a file whose only purpose is
++ * to observe.  An atomic add-return instead yields a value @total_used
++ * genuinely held, so raising the high-water mark to the largest such value
++ * makes both figures exact rather than approximate: two racing claims each
++ * observe a distinct real total and the larger wins.
 + *
-+ * num_free != vring_num() is this tree's own definition of a non-empty ring;
-+ * both teardown paths assert the equality as the definition of an empty one.
-+ * All four virtqueue_add_*() paths decrement num_free after their mapping
-+ * loop, below the last goto to their unmap_release label, so the value read
-+ * here counts chains already published and not the one being built.  A
-+ * refactor that moved either would break this silently.
++ * This is kernel/dma/swiotlb.c's inc_used_and_hiwater()/dec_used() pair, for
++ * the same reason and with the same empty stubs when the option is off.
 + */
-+static int vring_map_errno(const struct vring_virtqueue *vq)
++static void virtio_dmb_inc_used(struct virtio_dmb *dmb, unsigned int nr)
 +{
-+	if (vq->vq.vdev->map && vq->vq.num_free != vring_num(vq))
-+		return -ENOSPC;
++	long old_hiwater, new_used;
 +
-+	return -ENOMEM;
++	new_used = atomic_long_add_return(nr, &dmb->total_used);
++	old_hiwater = atomic_long_read(&dmb->used_hiwater);
++	do {
++		if (new_used <= old_hiwater)
++			break;
++	} while (!atomic_long_try_cmpxchg(&dmb->used_hiwater, &old_hiwater,
++					 new_used));
 +}
 +
- /* Map one sg entry. */
- static int vring_map_one_sg(const struct vring_virtqueue *vq, struct scatterlist *sg,
- 			    enum dma_data_direction direction, dma_addr_t *addr,
-@@ -510,6 +546,12 @@ static int vring_map_one_sg(const struct vring_virtqueue *vq, struct scatterlist
- 		if (dev_WARN_ONCE(&vq->vq.vdev->dev,
- 				  vring_mapping_error(vq, *addr),
- 				  "premapped buffer holds no valid mapping\n"))
-+			/*
-+			 * Deliberately not vring_map_errno(): no capacity is
-+			 * involved, the caller published an invalid address,
-+			 * and reporting that as back-pressure would have the
-+			 * caller wait for a completion that will not fix it.
-+			 */
- 			return -ENOMEM;
++static void virtio_dmb_dec_used(struct virtio_dmb *dmb, unsigned int nr)
++{
++	atomic_long_sub(nr, &dmb->total_used);
++}
++
++static void virtio_dmb_inc_alloc_failed(struct virtio_dmb *dmb)
++{
++	atomic_long_inc(&dmb->alloc_failed);
++}
++
++#else /* !CONFIG_VIRTIO_DEBUG */
++
++static void virtio_dmb_inc_used(struct virtio_dmb *dmb, unsigned int nr)
++{
++}
++
++static void virtio_dmb_dec_used(struct virtio_dmb *dmb, unsigned int nr)
++{
++}
++
++static void virtio_dmb_inc_alloc_failed(struct virtio_dmb *dmb)
++{
++}
++
++#endif /* CONFIG_VIRTIO_DEBUG */
++
+ /*
+  * Claim @nr contiguous slots from area @i, or -ENOMEM when that one area
+  * cannot satisfy the request.  Takes and drops that area's lock and touches
+@@ -254,6 +329,12 @@ static long virtio_dmb_area_claim(struct virtio_dmb *dmb, unsigned int i,
  
- 		return 0;
-@@ -538,7 +580,7 @@ static int vring_map_one_sg(const struct vring_virtqueue *vq, struct scatterlist
- 					 direction, attr);
+ 	spin_unlock_irqrestore(&area->lock, flags);
  
- 	if (vring_mapping_error(vq, *addr))
--		return -ENOMEM;
-+		return vring_map_errno(vq);
++	/*
++	 * Outside the lock, which is where swiotlb_search_pool_area() does it
++	 * too: it touches no area state, so holding one buys nothing.
++	 */
++	virtio_dmb_inc_used(dmb, nr);
++
+ 	return slot;
  
- 	return 0;
- }
-@@ -677,6 +719,7 @@ static inline int virtqueue_add_split(struct vring_virtqueue *vq,
- 	unsigned int total_in_len = 0;
- 	int head;
- 	bool indirect;
-+	int err;
+ not_found:
+@@ -271,7 +352,9 @@ static long virtio_dmb_area_claim(struct virtio_dmb *dmb, unsigned int i,
+  * buffer, and repolls instead.  Reporting it at any level a working device
+  * would print would therefore be a log flood, and it is the only signal an
+  * undersized region produces at all, so it is reported through dynamic debug
+- * where it costs nothing until somebody asks for it.
++ * where it costs nothing until somebody asks for it.  The map_page() caller
++ * counts it as well, so that a debug build offers a sampled reader as well as
++ * a log.
+  *
+  * Next fit within one area, from a hint that advances past each claim and
+  * rewinds to each release, beginning in the area belonging to the running CPU
+@@ -390,6 +473,18 @@ static void virtio_dmb_release(struct virtio_dmb *dmb, unsigned int slot,
+ 	area->used -= nr;
+ 	area->index = slot - virtio_dmb_area_base(dmb, a);
  
- 	START_USE(vq);
- 
-@@ -739,8 +782,9 @@ static inline int virtqueue_add_split(struct vring_virtqueue *vq,
- 			if (++sg_count != total_sg)
- 				flags |= VRING_DESC_F_NEXT;
- 
--			if (vring_map_one_sg(vq, sg, DMA_TO_DEVICE, &addr, &len,
--					     premapped, attr))
-+			err = vring_map_one_sg(vq, sg, DMA_TO_DEVICE, &addr,
-+					       &len, premapped, attr);
-+			if (err)
- 				goto unmap_release;
- 
- 			/* Note that we trust indirect descriptor
-@@ -759,8 +803,9 @@ static inline int virtqueue_add_split(struct vring_virtqueue *vq,
- 			if (++sg_count != total_sg)
- 				flags |= VRING_DESC_F_NEXT;
- 
--			if (vring_map_one_sg(vq, sg, DMA_FROM_DEVICE, &addr, &len,
--					     premapped, attr))
-+			err = vring_map_one_sg(vq, sg, DMA_FROM_DEVICE, &addr,
-+					       &len, premapped, attr);
-+			if (err)
- 				goto unmap_release;
- 
- 			/* Note that we trust indirect descriptor
-@@ -777,8 +822,10 @@ static inline int virtqueue_add_split(struct vring_virtqueue *vq,
- 		dma_addr_t addr = vring_map_single(
- 			vq, desc, total_sg * sizeof(struct vring_desc),
- 			DMA_TO_DEVICE);
--		if (vring_mapping_error(vq, addr))
-+		if (vring_mapping_error(vq, addr)) {
-+			err = vring_map_errno(vq);
- 			goto unmap_release;
-+		}
- 
- 		virtqueue_add_desc_split(vq, vq->split.vring.desc,
- 					 vq->split.desc_extra,
-@@ -850,7 +897,7 @@ static inline int virtqueue_add_split(struct vring_virtqueue *vq,
- 		kfree(desc);
- 
- 	END_USE(vq);
--	return -ENOMEM;
-+	return err;
- }
- 
- static bool virtqueue_kick_prepare_split(struct vring_virtqueue *vq)
-@@ -1665,6 +1712,17 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
- 	kfree(desc);
- 
- 	END_USE(vq);
++	spin_unlock_irqrestore(&area->lock, flags);
 +
 +	/*
-+	 * Not vring_map_errno(), unlike the three add paths a driver can
-+	 * reach.  This value never leaves virtio_ring: both callers treat
-+	 * anything but -ENOMEM as final and return it, and use -ENOMEM as
-+	 * the signal to retry the same chain with direct descriptors.  The
-+	 * direct attempt maps the same scatterlist and reports the errno for
-+	 * it, so a caller still learns that the pool is exhausted -- while a
-+	 * chain that failed only because the indirect table did not fit is
-+	 * still published, which is what it can be.
++	 * Outside the lock, and deliberately not below the label: the guard
++	 * above rejects a range that is not wholly allocated, and only slots
++	 * that were counted in are counted out, so the total tracks the bitmap
++	 * rather than the caller's arithmetic.
 +	 */
- 	return -ENOMEM;
++	virtio_dmb_dec_used(dmb, nr);
++
++	return;
++
+ out:
+ 	spin_unlock_irqrestore(&area->lock, flags);
  }
+@@ -717,8 +812,22 @@ static dma_addr_t virtio_dmb_op_map_page(union virtio_map map,
  
-@@ -1739,9 +1797,10 @@ static inline int virtqueue_add_packed(struct vring_virtqueue *vq,
- 		for (sg = sgs[n]; sg; sg = sg_next(sg)) {
- 			dma_addr_t addr;
+ 	nr = virtio_dmb_slots(size);
+ 	ret = virtio_dmb_claim(dmb, nr);
+-	if (ret < 0)
++	if (ret < 0) {
++		/*
++		 * Counted here rather than in virtio_dmb_claim(), which
++		 * virtio_dmb_op_alloc() reaches as well.  A virtqueue area
++		 * that does not fit is a step of vring_alloc_queue_split()'s
++		 * search for a size that does, so counting it would have a
++		 * correctly sized region boot with a failure for every
++		 * attempt but the last, in the one file whose purpose is to
++		 * answer whether the region is too small for the traffic.  A
++		 * request over the per-mapping cap is not counted either: the
++		 * cap is what max_mapping_size() advertises, so exceeding it
++		 * is a caller bug rather than a property of the region.
++		 */
++		virtio_dmb_inc_alloc_failed(dmb);
+ 		return DMA_MAPPING_ERROR;
++	}
+ 	slot = ret;
  
--			if (vring_map_one_sg(vq, sg, n < out_sgs ?
--					     DMA_TO_DEVICE : DMA_FROM_DEVICE,
--					     &addr, &len, premapped, attr))
-+			err = vring_map_one_sg(vq, sg, n < out_sgs ?
-+					       DMA_TO_DEVICE : DMA_FROM_DEVICE,
-+					       &addr, &len, premapped, attr);
-+			if (err)
- 				goto unmap_release;
+ 	virtio_dmb_record(dmb, slot, nr, size, src);
+@@ -860,6 +969,105 @@ static const struct virtio_map_ops virtio_dmb_map_ops = {
+ 	.max_mapping_size	= virtio_dmb_op_max_mapping_size,
+ };
  
- 			flags = cpu_to_le16(vq->packed.avail_used_flags |
-@@ -1823,7 +1882,7 @@ static inline int virtqueue_add_packed(struct vring_virtqueue *vq,
- 	}
++#ifdef CONFIG_VIRTIO_DEBUG
++
++static int virtio_dmb_used_get(void *data, u64 *val)
++{
++	struct virtio_dmb *dmb = data;
++
++	*val = atomic_long_read(&dmb->total_used);
++
++	return 0;
++}
++DEFINE_DEBUGFS_ATTRIBUTE(virtio_dmb_used_fops, virtio_dmb_used_get, NULL,
++			 "%llu\n");
++
++static int virtio_dmb_hiwater_get(void *data, u64 *val)
++{
++	struct virtio_dmb *dmb = data;
++
++	*val = atomic_long_read(&dmb->used_hiwater);
++
++	return 0;
++}
++
++static int virtio_dmb_hiwater_set(void *data, u64 val)
++{
++	struct virtio_dmb *dmb = data;
++
++	/* Restarting the measurement is the only meaningful write. */
++	if (val)
++		return -EINVAL;
++
++	/*
++	 * Restart from what is allocated now rather than from zero, so that
++	 * the file never reports a peak below the occupancy it is read
++	 * alongside.
++	 */
++	atomic_long_set(&dmb->used_hiwater,
++			atomic_long_read(&dmb->total_used));
++
++	return 0;
++}
++DEFINE_DEBUGFS_ATTRIBUTE(virtio_dmb_hiwater_fops, virtio_dmb_hiwater_get,
++			 virtio_dmb_hiwater_set, "%llu\n");
++
++static int virtio_dmb_alloc_failed_get(void *data, u64 *val)
++{
++	struct virtio_dmb *dmb = data;
++
++	*val = atomic_long_read(&dmb->alloc_failed);
++
++	return 0;
++}
++DEFINE_DEBUGFS_ATTRIBUTE(virtio_dmb_alloc_failed_fops,
++			 virtio_dmb_alloc_failed_get, NULL, "%llu\n");
++
++/*
++ * The files go under the device's existing virtio debugfs directory, and exist
++ * only while the device has a region.  They describe one, so their presence is
++ * also the answer to whether the device is using the feature.
++ *
++ * Every file is served through DEFINE_DEBUGFS_ATTRIBUTE, either directly or by
++ * a debugfs_create_*() helper that uses it, so each read takes a reference
++ * that debugfs_remove_recursive() waits for.  That is what lets the caller
++ * free the state these files point at once the directory is gone.
++ */
++static void virtio_dmb_debugfs_init(struct virtio_dmb *dmb)
++{
++	struct dentry *dir;
++
++	dir = debugfs_create_dir("dmb", dmb->vdev->debugfs_dir);
++	dmb->debugfs_dir = dir;
++
++	debugfs_create_u32("pages", 0400, dir, &dmb->nslots);
++	debugfs_create_u32("areas", 0400, dir, &dmb->nareas);
++	debugfs_create_u32("area_pages", 0400, dir, &dmb->area_slots);
++	debugfs_create_file("used_pages", 0400, dir, dmb,
++			    &virtio_dmb_used_fops);
++	debugfs_create_file("used_pages_hiwater", 0600, dir, dmb,
++			    &virtio_dmb_hiwater_fops);
++	debugfs_create_file("alloc_failed", 0400, dir, dmb,
++			    &virtio_dmb_alloc_failed_fops);
++}
++
++static void virtio_dmb_debugfs_exit(struct virtio_dmb *dmb)
++{
++	debugfs_remove_recursive(dmb->debugfs_dir);
++}
++
++#else /* !CONFIG_VIRTIO_DEBUG */
++
++static void virtio_dmb_debugfs_init(struct virtio_dmb *dmb)
++{
++}
++
++static void virtio_dmb_debugfs_exit(struct virtio_dmb *dmb)
++{
++}
++
++#endif /* CONFIG_VIRTIO_DEBUG */
++
+ /*
+  * Whether the device still has virtqueues.  vqs_list_lock is what protects
+  * that list against a concurrent adder.  No caller here can race one, because
+@@ -929,6 +1137,7 @@ void virtio_dmb_destroy(struct virtio_device *vdev)
+ 	vdev->map = dmb->prev_map;
+ 	vdev->vmap = dmb->prev_vmap;
  
- 	END_USE(vq);
--	return -EIO;
-+	return err;
- }
++	virtio_dmb_debugfs_exit(dmb);
+ 	memunmap(dmb->map_va);
+ 	if (dmb->map_claimed)
+ 		release_mem_region(dmb->map_phys, dmb->map_len);
+@@ -1278,6 +1487,8 @@ int virtio_dmb_init(struct virtio_device *vdev)
+ 	dmb->area_slots = area_slots;
+ 	dmb->area_shift = ilog2(area_slots);
  
- static inline int virtqueue_add_packed_in_order(struct vring_virtqueue *vq,
-@@ -1900,9 +1959,10 @@ static inline int virtqueue_add_packed_in_order(struct vring_virtqueue *vq,
- 			if (n >= out_sgs)
- 				flags |= cpu_to_le16(VRING_DESC_F_WRITE);
- 
--			if (vring_map_one_sg(vq, sg, n < out_sgs ?
--					     DMA_TO_DEVICE : DMA_FROM_DEVICE,
--					     &addr, &len, premapped, attr))
-+			err = vring_map_one_sg(vq, sg, n < out_sgs ?
-+					       DMA_TO_DEVICE : DMA_FROM_DEVICE,
-+					       &addr, &len, premapped, attr);
-+			if (err)
- 				goto unmap_release;
- 
- 			flags |= cpu_to_le16(vq->packed.avail_used_flags);
-@@ -1979,7 +2039,7 @@ static inline int virtqueue_add_packed_in_order(struct vring_virtqueue *vq,
- 	}
- 
- 	END_USE(vq);
--	return -EIO;
-+	return err;
- }
- 
- static bool virtqueue_kick_prepare_packed(struct vring_virtqueue *vq)
-@@ -2868,9 +2928,10 @@ static inline int virtqueue_add(struct virtqueue *_vq,
-  *
-  * Returns zero or a negative error (ie. ENOSPC, ENOMEM, EIO).
-  *
-- * NB: ENOSPC is a special code that is only returned on an attempt to add a
-- * buffer to a full VQ. It indicates that some buffers are outstanding and that
-- * the operation can be retried after some buffers have been used.
-+ * NB: ENOSPC indicates that some buffers are outstanding and that the
-+ * operation can be retried after some buffers have been used. A full VQ
-+ * reports it, and so does a failure to map into a bounded pool a map
-+ * implementation owns while this virtqueue has a chain outstanding.
-  */
- int virtqueue_add_sgs(struct virtqueue *_vq,
- 		      struct scatterlist *sgs[],
-@@ -3623,8 +3684,7 @@ unsigned int virtqueue_get_vring_size(const struct virtqueue *_vq)
- 
- 	const struct vring_virtqueue *vq = to_vvq(_vq);
- 
--	return virtqueue_is_packed(vq) ? vq->packed.vring.num :
--				      vq->split.vring.num;
-+	return vring_num(vq);
- }
- EXPORT_SYMBOL_GPL(virtqueue_get_vring_size);
- 
++	virtio_dmb_debugfs_init(dmb);
++
+ 	/* Published last: until now nothing routes a mapping here. */
+ 	dmb->prev_map = vdev->map;
+ 	dmb->prev_vmap = vdev->vmap;
