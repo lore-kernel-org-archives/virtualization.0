@@ -1,61 +1,61 @@
 Received: from pdx-out-010.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-010.esa.us-west-2.outbound.mail-perimeter.amazon.com [52.12.53.23])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E9B935F5E3
-	for <virtualization@lists.linux.dev>; Sun,  9 Aug 2026 18:20:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39F0F306B3D
+	for <virtualization@lists.linux.dev>; Sun,  9 Aug 2026 18:20:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.12.53.23
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786299623; cv=none; b=c4xMb6HSv53dywW0YEzpQ7/QG62G46NkqURDv1c7sk5ZIeI2op4jeFjbP0uTQlVRHEkL+nrTV8oi0bTBmOtTJxPDMEUKhpushRzQFS/kMdNOB/dDnav0/t0sXS3IFn4h1GEm2iUtbdjM7nIaGjAXWuX6YKN55bc5jneEhuTwd2Y=
+	t=1786299646; cv=none; b=mwSAXJ3FfOv+LtFIHxsRgjCM/slepwmlxR7NvXx3qsdsS634fGs6mYq23pp3XeCEIHM+Vy5rEOmF+3DnzlC20HotA5NfbWwbFuoetFI5ID0K+feZ3ZJPXkpp3S0qPd9lTbNvNfvEedu443hZ0ZbI6lIDDMBiA7ynoylBWTlnKJY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786299623; c=relaxed/simple;
-	bh=gjlLwSNnFDEPAFVzQhoA8ipTHI1t2/ZcdBup/Ck6aaE=;
+	s=arc-20240116; t=1786299646; c=relaxed/simple;
+	bh=VQxsBCBv3cflFMsN0lZ7zQ5TL/y8JS8pQ3kpAcS9A80=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=jxibJ4WJHIGayc2fIs/p0WYYN5gTklimEK5jBhHDqBJ2HuFRO0A5dRDLE3IU07Cn9Q/oLtfmKBoe2vEOUnuPPU/3la+kpbms7G58Hrn7JZdfn1SJHTmlaaWDA976prIDev7UJyYTJR5fnGsH6edXeemFoIyiM7FCWhlUD3jy0V4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.de; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=UMwXBGTH; arc=none smtp.client-ip=52.12.53.23
+	 MIME-Version:Content-Type; b=BrsK74E03Gj66EhqYqSuYXXfBK6BEXG92NorfZd1DC/kXJXCaVHhwpHnkDZov8JzvOz+pTSLfbGKfTKpB7dlJyG/M+JReuCAQeuHh9Ady8KCMZUdERZopmhZZ9Stt7T2hqxS/36voDveBvjsU3ENl2U1B9+UgsKgdw/+DVNtbps=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.de; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=cITf8BgQ; arc=none smtp.client-ip=52.12.53.23
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="UMwXBGTH"
+	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="cITf8BgQ"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
-  t=1786299622; x=1817835622;
+  t=1786299645; x=1817835645;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=84/xp2Y+X18kdGch+tpdJM7HA+HBrJiXOp2jp+iO4aU=;
-  b=UMwXBGTHDm2xLOXlXL0CMzKgXOaerRLEZDd9m4UO4u7TMyPryoTZY7a4
-   sTDbTRN5rXMVNHVuWuEDY3Oa6arqJDIDrMF+l1p/0ZqiqG5I78K8u49BW
-   ywdloXcJ7ikUk85x41roBitUQRzAutMJXDYvBOF2PKrrVGTMItCS/7uP3
-   GL5r6hV1mYs6NaSJ2fcvYD3v8CRaWAtmNmaIlgVX5YY+OPtBivCT4Etyw
-   Ru6DlI3WO/Gwf6AMSgnIdAifzPeWouDtQ9kn5P4IH0qSTThJ/ssjMSAq4
-   uhhdNquJgLmBmniKaw9Gsp0TwyXvAJHgtnRRw7WNSS1ZiHWZk4aymMpjK
-   w==;
-X-CSE-ConnectionGUID: dhgwElU8R/ShSAX2NjCLzg==
-X-CSE-MsgGUID: 1vXdf49BQsifaZJnFixo+w==
+  bh=c5qlgOuPfQrZFw2BxM5Ltl1DEUaFpcSxDb9rLnEjs6E=;
+  b=cITf8BgQKvsGl9toh/R8M+0EalQX9OOmBrIaWKNuVn6Q7CwoASkokcUz
+   mD90gfkvQTP67VuBZI90tbcdpVckOv1A0MP/GwWlFzyXDxruRs6BAJwXx
+   zKranprRnc43o1OAbJRJvjRPby8ybnAXxkOSYCGbpE5V5lIUWflP2QSZv
+   FLkotuXqLu7EvgCRdUA/Ncb3MTmUNegHkx0E9KMrOEWO3F38diMVU0RJ7
+   PUmHCarIQm7+2BZPEB2qbJYKDQv3oCzQ6nBCUHjkowR+vO32pXhwpbt1H
+   jHbwfn+ZLILo+kd8Ber5jOZ9bKUMYEokBuJYo4YhtoL+JjsKTbTA7Xq69
+   Q==;
+X-CSE-ConnectionGUID: 0pNN5iPJTCmBu/xl52gJ4Q==
+X-CSE-MsgGUID: ztppbCuCT/2miS+w/ePxQA==
 X-IronPort-AV: E=Sophos;i="6.25,214,1779148800"; 
-   d="scan'208";a="25395366"
-Received: from ip-10-5-9-48.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.9.48])
-  by internal-pdx-out-010.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Aug 2026 18:20:20 +0000
-Received: from EX19MTAUWB001.ant.amazon.com [205.251.233.51:11000]
+   d="scan'208";a="25395390"
+Received: from ip-10-5-0-115.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.0.115])
+  by internal-pdx-out-010.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Aug 2026 18:20:45 +0000
+Received: from EX19MTAUWA001.ant.amazon.com [205.251.233.236:9195]
  by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.19.171:2525] with esmtp (Farcaster)
- id e378ef4f-fe59-44b5-b2e4-eab231faa2d1; Sun, 9 Aug 2026 18:20:19 +0000 (UTC)
-X-Farcaster-Flow-ID: e378ef4f-fe59-44b5-b2e4-eab231faa2d1
+ id eb4c9b36-36ab-44c4-8e42-937775d9e01d; Sun, 9 Aug 2026 18:20:44 +0000 (UTC)
+X-Farcaster-Flow-ID: eb4c9b36-36ab-44c4-8e42-937775d9e01d
 Received: from EX19D001UWA001.ant.amazon.com (10.13.138.214) by
- EX19MTAUWB001.ant.amazon.com (10.250.64.248) with Microsoft SMTP Server
+ EX19MTAUWA001.ant.amazon.com (10.250.64.204) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.45;
- Sun, 9 Aug 2026 18:20:19 +0000
+ Sun, 9 Aug 2026 18:20:44 +0000
 Received: from ip-10-253-83-51.amazon.com (172.19.99.218) by
  EX19D001UWA001.ant.amazon.com (10.13.138.214) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.45;
- Sun, 9 Aug 2026 18:20:17 +0000
+ Sun, 9 Aug 2026 18:20:42 +0000
 From: Alexander Graf <graf@amazon.com>
 To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>
 CC: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?q?Eugenio=20P=C3=A9rez?=
 	<eperezma@redhat.com>, <virtualization@lists.linux.dev>,
 	<linux-kernel@vger.kernel.org>, <nh-open-source@amazon.com>, Stefan Hajnoczi
 	<stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
-Subject: [RFC PATCH 02/12] virtio_ring: validate premapped addresses through the device's map
-Date: Sun, 9 Aug 2026 18:20:00 +0000
-Message-ID: <20260809182010.32931-3-graf@amazon.com>
+Subject: [RFC PATCH 04/12] virtio_pci: read the device memory buffer shared memory id
+Date: Sun, 9 Aug 2026 18:20:02 +0000
+Message-ID: <20260809182010.32931-5-graf@amazon.com>
 X-Mailer: git-send-email 2.47.1
 In-Reply-To: <20260809182010.32931-1-graf@amazon.com>
 References: <20260809182010.32931-1-graf@amazon.com>
@@ -67,99 +67,118 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-ClientProxiedBy: EX19D043UWC001.ant.amazon.com (10.13.139.202) To
+X-ClientProxiedBy: EX19D031UWC004.ant.amazon.com (10.13.139.246) To
  EX19D001UWA001.ant.amazon.com (10.13.138.214)
 
-Callers that forget to handle a mapping failure may accidentally pass
-DMA_MAPPING_ERROR as target map address and we don't error out for it.
-The mapped path in vring_map_one_sg() checks the result, but the
-premapped path takes the address as given. That makes it more difficult
-to identify accidental API misuse.
+In preparation to support VIRTIO_F_DMB, read the shared memory id of
+the Device Memory Buffer. A device that negotiates VIRTIO_F_DMB reports
+it in a read-only le16 at the end of the common configuration
+structure, and it names the VIRTIO_PCI_CAP_SHARED_MEMORY_CFG capability
+that virtio_pci_find_shm_cap() has to find to map the region.
 
-Run the address through the existing vring_mapping_error(), which asks
-the device's virtio_map_ops mapping_error op or dma_mapping_error(),
-warn once and return -ENOMEM when it rejects the address. Document
-where the premapped helpers expect their addresses to come from, since
-an address from any other source is indistinguishable from a valid one.
-That way an API misuse shows up at the call that made it.
+Add the dmb_shm_id field, VIRTIO_PCI_COMMON_DMB_SHM_ID for the offset
+check_offsets() asserts it against, and vp_modern_get_dmb_shm_id() to
+read the register. vp_modern_probe() capped the common cfg mapping at
+the end of admin_queue_num, exactly where the new field starts, so
+extend it to the end of dmb_shm_id. vp_modern_map_capability() takes
+that as an upper bound, so a device with a shorter common cfg maps what
+it has and mdev->common_len records how much.
 
+The offset and VIRTIO_F_DMB are provisional until the virtio Technical
+Committee allocates them.
+
+Link: https://lore.kernel.org/virtio-comment/20260804161202.38619-1-graf@amazon.com/
 Assisted-by: Kiro:claude-opus-5 checkpatch sparse
 Signed-off-by: Alexander Graf <graf@amazon.com>
 ---
- drivers/virtio/virtio_ring.c | 40 ++++++++++++++++++++++++++++++++++--
- 1 file changed, 38 insertions(+), 2 deletions(-)
+ drivers/virtio/virtio_pci_modern_dev.c | 23 ++++++++++++++++++++++-
+ include/linux/virtio_pci_modern.h      |  1 +
+ include/uapi/linux/virtio_pci.h        | 10 ++++++++++
+ 3 files changed, 33 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index b438dc2ce1b8..9caa4f96204f 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -499,6 +499,19 @@ static int vring_map_one_sg(const struct vring_virtqueue *vq, struct scatterlist
- 	if (premapped) {
- 		*addr = sg_dma_address(sg);
- 		*len = sg_dma_len(sg);
-+
-+		/*
-+		 * The caller mapped this itself, so the map it used is the
-+		 * only thing that can judge the result.  Ask it rather than
-+		 * skipping the check the mapped path performs: a caller that
-+		 * ignored a failed mapping would otherwise publish the
-+		 * reserved error value to the device.
-+		 */
-+		if (dev_WARN_ONCE(&vq->vq.vdev->dev,
-+				  vring_mapping_error(vq, *addr),
-+				  "premapped buffer holds no valid mapping\n"))
-+			return -ENOMEM;
-+
- 		return 0;
- 	}
+diff --git a/drivers/virtio/virtio_pci_modern_dev.c b/drivers/virtio/virtio_pci_modern_dev.c
+index 413a8c353463..7fbfcb305a62 100644
+--- a/drivers/virtio/virtio_pci_modern_dev.c
++++ b/drivers/virtio/virtio_pci_modern_dev.c
+@@ -211,6 +211,8 @@ static inline void check_offsets(void)
+ 		     offsetof(struct virtio_pci_modern_common_cfg, admin_queue_index));
+ 	BUILD_BUG_ON(VIRTIO_PCI_COMMON_ADM_Q_NUM !=
+ 		     offsetof(struct virtio_pci_modern_common_cfg, admin_queue_num));
++	BUILD_BUG_ON(VIRTIO_PCI_COMMON_DMB_SHM_ID !=
++		     offsetof(struct virtio_pci_modern_common_cfg, dmb_shm_id));
+ }
  
-@@ -2910,6 +2923,14 @@ EXPORT_SYMBOL_GPL(virtqueue_add_outbuf);
-  * @data: the token identifying the buffer.
-  * @gfp: how to do memory allocations (if necessary).
-  *
-+ * Each entry of @sg must carry an address the caller obtained for this
-+ * virtqueue: from the DMA API when virtqueue_dma_dev() returns a device, and
-+ * from virtqueue_map_page_attrs() when it returns NULL, because the device
-+ * then interprets every address published to it in its own terms.  Only an
-+ * address the map itself rejects is caught here; an address from any other
-+ * source is indistinguishable from a valid one and reaches the device
-+ * unchanged.
-+ *
-  * Caller must ensure we don't call this with other virtqueue operations
-  * at the same time (except where noted).
-  *
-@@ -3008,6 +3029,14 @@ EXPORT_SYMBOL_GPL(virtqueue_add_inbuf_ctx);
-  * @ctx: extra context for the token
-  * @gfp: how to do memory allocations (if necessary).
-  *
-+ * Each entry of @sg must carry an address the caller obtained for this
-+ * virtqueue: from the DMA API when virtqueue_dma_dev() returns a device, and
-+ * from virtqueue_map_page_attrs() when it returns NULL, because the device
-+ * then interprets every address published to it in its own terms.  Only an
-+ * address the map itself rejects is caught here; an address from any other
-+ * source is indistinguishable from a valid one and reaches the device
-+ * unchanged.
-+ *
-  * Caller must ensure we don't call this with other virtqueue operations
-  * at the same time (except where noted).
-  *
-@@ -3025,10 +3054,17 @@ int virtqueue_add_inbuf_premapped(struct virtqueue *vq,
- EXPORT_SYMBOL_GPL(virtqueue_add_inbuf_premapped);
+ /*
+@@ -300,7 +302,7 @@ int vp_modern_probe(struct virtio_pci_modern_device *mdev)
+ 	mdev->common = vp_modern_map_capability(mdev, common,
+ 			      sizeof(struct virtio_pci_common_cfg), 4, 0,
+ 			      offsetofend(struct virtio_pci_modern_common_cfg,
+-					  admin_queue_num),
++					  dmb_shm_id),
+ 			      &mdev->common_len, NULL);
+ 	if (!mdev->common)
+ 		goto err_map_common;
+@@ -752,6 +754,25 @@ u16 vp_modern_avq_index(struct virtio_pci_modern_device *mdev)
+ }
+ EXPORT_SYMBOL_GPL(vp_modern_avq_index);
  
- /**
-- * virtqueue_dma_dev - get the dma dev
-+ * virtqueue_dma_dev - get the device to use for DMA API calls
-  * @_vq: the struct virtqueue we're talking about.
-  *
-- * Returns the dma dev. That can been used for dma api.
-+ * A NULL return means this virtqueue publishes no DMA addresses: either it
-+ * needs no mapping at all, or the device supplies its own virtio_map_ops and
-+ * interprets every address published to it in its own terms.  A caller that
-+ * maps buffers itself must therefore check for NULL before using the DMA API
-+ * on this virtqueue's behalf, and use virtqueue_map_page_attrs() when it is,
-+ * which maps through whichever of the two the device uses.
++/*
++ * vp_modern_get_dmb_shm_id - read the Device Memory Buffer shared memory id
++ * @mdev: the modern virtio-pci device
 + *
-+ * Return: the device to use for DMA API calls, or NULL when there is none.
-  */
- struct device *virtqueue_dma_dev(struct virtqueue *_vq)
- {
++ * The value identifies the VIRTIO_PCI_CAP_SHARED_MEMORY_CFG capability that
++ * describes the Device Memory Buffer region.  Only valid once VIRTIO_F_DMB
++ * has been negotiated.
++ *
++ * Returns the shared memory id.
++ */
++u16 vp_modern_get_dmb_shm_id(struct virtio_pci_modern_device *mdev)
++{
++	struct virtio_pci_modern_common_cfg __iomem *cfg;
++
++	cfg = (struct virtio_pci_modern_common_cfg __iomem *)mdev->common;
++	return vp_ioread16(&cfg->dmb_shm_id);
++}
++EXPORT_SYMBOL_GPL(vp_modern_get_dmb_shm_id);
++
+ MODULE_VERSION("0.1");
+ MODULE_DESCRIPTION("Modern Virtio PCI Device");
+ MODULE_AUTHOR("Jason Wang <jasowang@redhat.com>");
+diff --git a/include/linux/virtio_pci_modern.h b/include/linux/virtio_pci_modern.h
+index 9a3f2fc53bd6..c396f8e6055b 100644
+--- a/include/linux/virtio_pci_modern.h
++++ b/include/linux/virtio_pci_modern.h
+@@ -162,4 +162,5 @@ int vp_modern_get_queue_reset(struct virtio_pci_modern_device *mdev, u16 index);
+ void vp_modern_set_queue_reset(struct virtio_pci_modern_device *mdev, u16 index);
+ u16 vp_modern_avq_num(struct virtio_pci_modern_device *mdev);
+ u16 vp_modern_avq_index(struct virtio_pci_modern_device *mdev);
++u16 vp_modern_get_dmb_shm_id(struct virtio_pci_modern_device *mdev);
+ #endif
+diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
+index e732e3456e27..052a1047f48f 100644
+--- a/include/uapi/linux/virtio_pci.h
++++ b/include/uapi/linux/virtio_pci.h
+@@ -193,6 +193,15 @@ struct virtio_pci_modern_common_cfg {
+ 
+ 	__le16 admin_queue_index;	/* read-only */
+ 	__le16 admin_queue_num;		/* read-only */
++
++	/*
++	 * Reports the shmid of the Device Memory Buffer region.  The feature
++	 * is a specification proposal before the virtio Technical Committee,
++	 * and both this offset and the VIRTIO_F_DMB feature bit are
++	 * provisional: neither has been allocated, so a device must not rely
++	 * on either until they have been.
++	 */
++	__le16 dmb_shm_id;		/* read-only */
+ };
+ 
+ /* Fields in VIRTIO_PCI_CAP_PCI_CFG: */
+@@ -235,6 +244,7 @@ struct virtio_pci_cfg_cap {
+ #define VIRTIO_PCI_COMMON_Q_RESET	58
+ #define VIRTIO_PCI_COMMON_ADM_Q_IDX	60
+ #define VIRTIO_PCI_COMMON_ADM_Q_NUM	62
++#define VIRTIO_PCI_COMMON_DMB_SHM_ID	64
+ 
+ #endif /* VIRTIO_PCI_NO_MODERN */
+ 
