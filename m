@@ -1,113 +1,94 @@
-Received: from mail-pf1-f173.google.com (mail-pf1-f173.google.com [209.85.210.173])
+Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com [209.85.214.199])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD4E83E173D
-	for <virtualization@lists.linux.dev>; Mon, 10 Aug 2026 13:41:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 743383D9DB0
+	for <virtualization@lists.linux.dev>; Mon, 10 Aug 2026 13:56:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786369268; cv=none; b=ZvGlvU7gfWk4PE+d8iEa70id3M7mvuKbJuQUAGLKKv9rwN+/2jJ2UKCIPeUZHGuKGkwOVggoAhuZ6qwQjRefn+3KtezSRiqYkbjlogNYnpp23zxMQ9fU8lqIw1cMwp0CL+eEOpNIN9cDP9ZfDfYdcR3LU8aVhQeeXky0ewEFMGk=
+	t=1786370193; cv=none; b=Qb3KpQ26z0QJ3h1mGad8MNdCUcilBkoZoXzaHsfz+kN+iiJVPqemhlJENzGWZTNaA+LFVQZjpEDyxxV9VB70xmKZbarhtp7JOQ3fO52hDPW3n/F2Ar9nXJW3r++0mv+agqNVJoiM8Z06WroXAWz+/abCQ8aKEedsRNXTbXEz5xE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786369268; c=relaxed/simple;
-	bh=OR5SJbAjYqfNbWbLK/Xp9DBpEIRw6MZvXrZYmbjvOZs=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=i8lbCM9QWAPD19h2joojQivNov3ipGJx7ylSJOG7yhmuuHhXlivYM5sxIFTpgaFLqaldprvxNLRh2tbYcxNozEEL1pyXBOv2VO6qB0FxYVPe913qmGw2Zgx12N+qYjNp6at9AM1hlTIM6PGoj+jOZPjR80gCpWR1hCd/BXEGZSk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aZT6j1G1; arc=none smtp.client-ip=209.85.210.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1786370193; c=relaxed/simple;
+	bh=T4h+0OngmiFLBNepEjU3d20+8UJV2w5wRPCm1XE6zT0=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=eAttsJRHIbE/MgQ34y5fxWfD3dfZ/oIuB5t8Eidt9wa9KFeldjVhdCoe1lmvMA8RXcb8tYCK0j5RwQn2T6V5mg9BiM4qL+4Iq7Nri4oKyOyfHcG1oTVkblCzxhHNgIzjC8dquj3DiiUvJgL9x+MS4LirD1OqSTaHk9pMhBJuezI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=fVoxqVSx; arc=none smtp.client-ip=209.85.214.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aZT6j1G1"
-Received: by mail-pf1-f173.google.com with SMTP id d2e1a72fcca58-84e84a6c4bfso1805035b3a.1
-        for <virtualization@lists.linux.dev>; Mon, 10 Aug 2026 06:41:06 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="fVoxqVSx"
+Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-2d001671a54so46409515ad.2
+        for <virtualization@lists.linux.dev>; Mon, 10 Aug 2026 06:56:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786369266; x=1786974066; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=WBpRbjDpae64ONOAIzC7CQyuvwbiULpdksSC8EfBNlY=;
-        b=aZT6j1G1ECqCYKmPOvWTGHhQ2/bbcVaao58751eyuoyNc54WGQ61FB5m68gZ43dQEq
-         DMvtChBvjDuOfBs4KJeZIaMCLLrUeNFeXUUO+To0khambW0MfLKHYQx0c+TXdO6eZb4w
-         kChE78PRaxPRvVqIGr9HiGGXpuNXqRMy1gAmX8noASzJAkRw8IRzgByntfEYSpBJG/53
-         KtPU//+Tf1iiZJBuLZmEwFpjudRe1XBGaJpguvv/CXjm9w8MdmnNgd2tcXmBzTbNwkjN
-         wIOCH2yvayTiFTby+a8hsrEIh4qTHivzlIHIAufNJtVYjLfp5nl2hBjfHhxtVPg/DkFg
-         gC9A==
+        d=google.com; s=20251104; t=1786370192; x=1786974992; darn=lists.linux.dev;
+        h=content-type:cc:to:from:subject:message-id:references:mime-version
+         :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=scUOSvWK83pq1cJ9Y23cB7+1ZF4+W+kSdr2X3LP0fns=;
+        b=fVoxqVSxYkduSOFbjvc8ClJk0S42eYldS4hGWuI7oIsMZyOiK9uoZAg/1gX6U0yasa
+         teK6JrCwKfZJHgXF9FOm23O/IRh7YYRp82LWo30F3+9g8MNsZULmYjaqLq93SOSlCjo3
+         DnIDLGI2hypGhsATQJq23gMvi9VgYSLMWHTPowHoUqazmF6rdUI+RzwIbDNZPY2IfOgC
+         IwyCtYl7StLU+v2EDcpTmnnlf+FNEIIlpD/eIp4vv4vFiB0KfTVT1iytfASuIJhGj0d8
+         Mg6t7FgFh5NDLEBZSXK8poiW/PE3ZaKodlyg7DkXznp7oaZj1mL/27cf0TYCAv1xABAv
+         fAfw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786369266; x=1786974066;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=WBpRbjDpae64ONOAIzC7CQyuvwbiULpdksSC8EfBNlY=;
-        b=XAYwy21Pb42FlUWM+Iyu48wQclrMtkf7ZSORKMrgO24nUGNpyvzrLyGIVRRast+Mz5
-         ZCgnxdJBAFfoIIorm7Z3QopyblAfzNkhHy0JnBH8jeTMKk3v571WMpNHIqs/p/MXq0AO
-         YcHl07T9u4uHB3CwG+Tm9sQPzNXqnWR1h3cG202cXmlxa6Bk8ZMqMP8vb68A8mkANuLb
-         slZ4BdHFqbz2UuPpjqssU1DBlJNTkbUYLC62lJlX12qQm5XLo4LrBz5GOB9CAmlLcwyU
-         1y0TtA0kV1nmlhMyZ1ylubUim25MU8i1d//O5btKZXnK2Coyqm3EaYqb8KOfgJAGAri3
-         e8FQ==
-X-Forwarded-Encrypted: i=1; AHgh+RpuWF7wyAy1wVkmVlLoatD1PleVQuMNGeunT93PTYLygDF03tvU12ELwO5gImdKF455yN3vBvQ6muxxmdCaCQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzWn8/b0KH7hzIXFYP/RqIawkUQkfQ7m+8M15zlyLb24SCVIyv6
-	CI8ALn8IbAAW6t8HqghhSrGfeCsID5NtinIFH/gC7/v+GEp6h9K/n8Wn
-X-Gm-Gg: AR+sD121wM5eD2i9xNHtt1/wAdzau7OomSnCAWkyq+p8KGzFn/TZxBsvMERzhiNClNX
-	2ELEp3SjqIGkM5KsUkt2GoFytuHq/NVsL3iOVv2yAm2xXdT6Y3vMnKSBZt9odVz4zDnl4mcPPm9
-	MhArSE6AJJVbTub2EiQ5AEWgwyc6GQSiLtoAPx6/5d41uFS+fEGdabuquB9f39n/shZ4TX10rJu
-	aVhXW/j0maqZBOjqzrxloKTejq1q+pCI0ALHvGOOa40XSiMM/L2n3xrvT0367T9rUgmCtolbhj6
-	LmhCz3SGz7J+J/iWNBPlAo1hk1ZIL6PsWxWVFdlI5zkOePWvIN7BrKH0Bogw8vX+Y0EsDjfc5JP
-	XM+VXuHY73ecj863GAC1RVxM/uIzHYOHYJWUb0TdzzTv4+4p8F6uZC4FRK9zulHDJlY9mrLJcfi
-	hYN40vyjShs4V1jeExG7AJdpz0AA7KkQ75cf31kBn0DHiu6CkfZWtbezO96HR4/YVvy7DrFaY=
-X-Received: by 2002:a05:6a00:4b45:b0:84e:cd14:aeba with SMTP id d2e1a72fcca58-84f6b6f2e61mr17355422b3a.6.1786369265853;
-        Mon, 10 Aug 2026 06:41:05 -0700 (PDT)
-Received: from gmail.com ([123.118.75.63])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84f5a51f166sm4006236b3a.35.2026.08.10.06.41.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 10 Aug 2026 06:41:05 -0700 (PDT)
-From: Jia Jia <physicalmtea@gmail.com>
-To: stefanha@redhat.com,
-	sgarzare@redhat.com,
-	mst@redhat.com,
-	jasowangio@gmail.com
-Cc: eperezma@redhat.com,
-	kvm@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v3 2/2] vhost/vsock: keep IOTLB across feature updates
-Date: Mon, 10 Aug 2026 21:40:18 +0800
-Message-Id: <20260810134018.143973-3-physicalmtea@gmail.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20260810134018.143973-1-physicalmtea@gmail.com>
-References: <20260810134018.143973-1-physicalmtea@gmail.com>
+        d=1e100.net; s=20251104; t=1786370192; x=1786974992;
+        h=content-type:cc:to:from:subject:message-id:references:mime-version
+         :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=scUOSvWK83pq1cJ9Y23cB7+1ZF4+W+kSdr2X3LP0fns=;
+        b=B2XhXWlcifEz7vfaD/7YpQgWsYHZcq0n6qCoEB5v6TM5VMl0gG7Hp3lPPepfYjIPs1
+         ADXum0foUqEuH+Cu21znkvVuLyhLJFJeBWmQu+m+ocWBT27L7jK2A3R/C4KZoJevlROn
+         9MdJy+IpJAUDCbmB+917epAbWsejKzhkbkSkrjUVs/A/TB45Fn84qYddj7iw5+MwbosT
+         VtS5UZWKhCISfGdJbvdaOA8Ld8IFKeZ/fnX91xXLE7ImdvEQH97G3QOw5cZYy/vjqbaR
+         u68MQ1D+rHHIe5jPuXn5KYm9IDfuRLopcOxqlszcpCzjvapkALmF3OkspXKg85R26eXh
+         vj8A==
+X-Forwarded-Encrypted: i=1; AHgh+Ros8UJgitB7I4ZZ5VRojV4bkvqey24aXGR5N72HUeqjAJ3pIWsKEypVRNJvpqxM1Q2pgK0dZ2qeZSaNaMW/AQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxuzaCVAurNdOAhxQ4sJPMSYKAlKJk21LnMYlD57FxSqu3Tr/fr
+	v12bAhtqEwr+kVN8XDoHpZ+XoBM7PNxXCExSM6WK2dKVjnkXU4HoOA3xt/Sse2nd353/vblCiYS
+	W+VbB7A==
+X-Received: from plml3.prod.google.com ([2002:a17:903:1843:b0:2cc:7ef7:ea41])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:903:13c7:b0:2ce:9c48:22d3
+ with SMTP id d9443c01a7336-2d30033718fmr21913835ad.11.1786370191619; Mon, 10
+ Aug 2026 06:56:31 -0700 (PDT)
+Date: Mon, 10 Aug 2026 06:56:31 -0700
+In-Reply-To: <d0ee3cf97854b904323db3799e05117d065a6ba0.camel@infradead.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Mime-Version: 1.0
+References: <20260806233609.212337-14-seanjc@google.com> <d0ee3cf97854b904323db3799e05117d065a6ba0.camel@infradead.org>
+Message-ID: <annYj0zj68hH8zIu@google.com>
+Subject: Re: [PATCH v6 13/51] x86/acrn: Mark TSC frequency as known when using
+ ACRN for calibration
+From: Sean Christopherson <seanjc@google.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: kas@kernel.org, rick.p.edgecombe@intel.com, pbonzini@redhat.com, 
+	kys@microsoft.com, haiyangz@microsoft.com, wei.liu@kernel.org, 
+	decui@microsoft.com, longli@microsoft.com, ajay.kaher@broadcom.com, 
+	alexey.makhalov@broadcom.com, jan.kiszka@siemens.com, 
+	dave.hansen@linux.intel.com, luto@kernel.org, peterz@infradead.org, 
+	jgross@suse.com, daniel.lezcano@kernel.org, tglx@kernel.org, 
+	jstultz@google.com, x86@kernel.org, linux-coco@lists.linux.dev, 
+	kvm@vger.kernel.org, linux-hyperv@vger.kernel.org, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	xen-devel@lists.xenproject.org
+Content-Type: text/plain; charset="us-ascii"
 
-VHOST_SET_FEATURES is also used to update logging while a device is
-running. When ACCESS_PLATFORM stays enabled, allocating a new empty
-IOTLB on every call drops valid translations and forces avoidable
-misses.
+On Sat, Aug 08, 2026, David Woodhouse wrote:
+> On Thu, 2026-08-06 at 16:35 -0700, Sean Christopherson wrote:
+> > Mark the TSC frequency as known when using ACRN's PV CPUID information.
+> > Per commit 81a71f51b89e ("x86/acrn: Set up timekeeping") and common sense,
+> > the TSC freq is explicitly provided by the hypervisor.
+> >
+> > Signed-off-by: Sean Christopherson <seanjc@google.com>
+> 
+> Huh... does this literally get reverted completely in the very *next*
+> patch in the series? Kind of weird, but I guess in some ways it makes
+> sense...
 
-Initialize the device IOTLB only when one does not already exist.
-
-Signed-off-by: Jia Jia <physicalmtea@gmail.com>
----
- drivers/vhost/vsock.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index 7372c22691de..1beae7f5b9a9 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -889,7 +889,8 @@ static int vhost_vsock_set_features(struct vhost_vsock *vsock, u64 features)
- 		goto err;
- 	}
- 
--	if ((features & (1ULL << VIRTIO_F_ACCESS_PLATFORM))) {
-+	if ((features & (1ULL << VIRTIO_F_ACCESS_PLATFORM)) &&
-+	    !vsock->dev.iotlb) {
- 		if (vhost_init_device_iotlb(&vsock->dev))
- 			goto err;
- 	}
--- 
-2.34.1
-
+The literal code gets reverted, but the functional change does not.  Before this
+change, ACRN is the only guest-side PV code that doesn't set X86_FEATURE_TSC_KNOWN_FREQ
+when the hypervisor provides the exact frequency.  I.e. this patch allows for
+making the "No functional change intended" claim in the next patch.
