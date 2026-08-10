@@ -1,324 +1,139 @@
-Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [213.167.242.64])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0AD23C1081
-	for <virtualization@lists.linux.dev>; Mon, 10 Aug 2026 11:21:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.167.242.64
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59CF43C3F6A
+	for <virtualization@lists.linux.dev>; Mon, 10 Aug 2026 11:57:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786360909; cv=none; b=UZkMaifKu07FsXWlE5utCsSK4fYAx4tRu7R3DdLRQeWYTe3uKCATUqCXQdiqqcSwabBAIxXP2nCxVpWZuR1nDGDLC7dJbNBQgGjyUkuOacR2xQ9/GbM38+cZ92I9B729Q4Fy6b40SxaNSnOcVAUpZw8m3g33Hqq5V4Xb6UKwfqY=
+	t=1786363038; cv=none; b=CK/p4zcn73MjZOlPfnhz23/0deMNNyk/3It1UE3LUnbdvqxVOxkZLgBWy+pHuVt27ooGQqhcpG6dU/RLJUoUkl69FCBYY/xdBuL5piT3Xmh5np5KEcTD6qeuSRe0nvy6OHHQTbJaj6oDS0SXtgV5zTXRhhnS8YF18UKn6pocX4c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786360909; c=relaxed/simple;
-	bh=uGVq6Q55GjK0RBlUs6eIITKHKa6Q9+s8MlIaPDS/yn8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Zgn6IvXYcm50K3KWPsRchetu+n60LUlnwPP9xX2TmzJp8rCr0yctjh98kjZx9e3tG9yFDOV5BBdOY0TFSRM5GU3m3tMlY6l40d/ZPe4Ja9+jPadfQSDAlqG6k8JXIq8vS/HeNtcRrcANXy89UNXHguyzkfjh/j3MD1I9y2K7eWM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ideasonboard.com; spf=pass smtp.mailfrom=ideasonboard.com; dkim=pass (1024-bit key) header.d=ideasonboard.com header.i=@ideasonboard.com header.b=Ov7RO552; arc=none smtp.client-ip=213.167.242.64
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ideasonboard.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ideasonboard.com
+	s=arc-20240116; t=1786363038; c=relaxed/simple;
+	bh=FaheUX33TRJ4qYN53f+S4rMRfVUaGE8qHSXgcixbUww=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=sPillsyYd81LViuJ08Il2Zdms0OZWa8kKQsToINz1kVB769FNRmBoAyNfWWejQ+NFaGigaMZKhUGnSrWNlAtH4RmFwB48aant83tOTd8GCEmPVY4p2TH7lwC/O5L0ok31zatciCFXCjXoz3wQUTjsrun61am+WJ1X1QH7WPmdLE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bLlpIrPp; arc=none smtp.client-ip=209.85.128.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ideasonboard.com header.i=@ideasonboard.com header.b="Ov7RO552"
-Received: from killaraus.ideasonboard.com (2001-14ba-70f3-e800--a06.rev.dnainternet.fi [IPv6:2001:14ba:70f3:e800::a06])
-	by perceval.ideasonboard.com (Postfix) with ESMTPSA id 5F8161F8;
-	Mon, 10 Aug 2026 13:20:30 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-	s=mail; t=1786360830;
-	bh=uGVq6Q55GjK0RBlUs6eIITKHKa6Q9+s8MlIaPDS/yn8=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=Ov7RO552zuaaKltlNeaCunKPiw7HG5JXwr2kx6CrVdHbu7/jp+8DFoT8doDzk7GsH
-	 AWZoyFuGS6m7j+FW+6Vz2wuaBVMzM3SeMGlqeFWMVc2jpJxeXLalHK1oOk3LfXwK1y
-	 nkU2sROSZEf11RrHONS6t5mI6VvJUbHKQeAzZkpc=
-Date: Mon, 10 Aug 2026 14:21:43 +0300
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-To: Brian Daniels <briandaniels@google.com>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>, adelva@google.com,
-	aesteve@redhat.com, changyeon@google.com,
-	daniel.almeida@collabora.com, eperezma@redhat.com, gnurou@gmail.com,
-	gurchetansingh@google.com, hverkuil@xs4all.nl, jasowang@redhat.com,
-	linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
-	mst@redhat.com, nicolas.dufresne@collabora.com,
-	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com
-Subject: Re: [PATCH v5 5/5] media: virtio: Add USERPTR memory type support
-Message-ID: <20260810112143.GA2967445@killaraus.ideasonboard.com>
-References: <20260723183219.737296-1-briandaniels@google.com>
- <20260723183219.737296-6-briandaniels@google.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bLlpIrPp"
+Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-49556f97a9dso12109705e9.1
+        for <virtualization@lists.linux.dev>; Mon, 10 Aug 2026 04:57:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1786363034; x=1786967834; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=lTRbu60u5fOzuvM1p0IBRxQ+W8tiNJ4MYzXEdegdXNo=;
+        b=bLlpIrPptaQ8kr/10NTtXCb/AOxM/K6JRHpdgtbhyQ/SOgFt8LXHJoRA+mF3xNWFyo
+         gFT7udJmytJadl7k5jWnpUejjvLZFbXaqndKyNr6x9FwYlvasxYRrE+d0UNSO6/IMlfK
+         4CzD7jWIIjaisNbHO3EBJbl7RzzWCu04pcROeWXtqhkw0MtEKc6p196Fp3kw0yL1s2I9
+         bogvFE7tHKWPZ4H7YMiZaySGaosH4Pa/vhkZSM2N+WUnRB8Z4TVTeYqRW1CTShq9wps0
+         n+zgnMCnKwv1ECOUakxNgZ6jCaYgEIprGBDGsqINuZt29tbsc8FDW2IW+jhQ7/xmZMpn
+         Fsug==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786363034; x=1786967834;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=lTRbu60u5fOzuvM1p0IBRxQ+W8tiNJ4MYzXEdegdXNo=;
+        b=gZua7h+uYlcRfXfkbkFCBWegrOxOKZVMTFKaOdogIaDcyQmRrY6YLMiDCsgBTAv2JJ
+         ez7DImbEuTwrBUCh749xZ0yYsLi3/AUnoSp7l4SqoXnu5ZHJXNpyw64fX+S98dlac08G
+         7y+ExdF8+J0lKDUL4l/I1r3ickvexT+w9U6/6aI0Mq+jXgyOEPUMsW4VQHEowjFFFrjH
+         GOzaDHiX8tP0rWAebFVAbjSICN0RupqaQwZEquesS4fLBqt2G8vL5lSDm8pyTwNp8YO9
+         gMXSFC0saxTng5lZ/jyAyFe1yVPBAIXYCAF4MkXBYqli91jfEAckmV0VfZJDUlRNFdFj
+         yBkA==
+X-Forwarded-Encrypted: i=1; AHgh+Romyqg5ex5fwV2yGCtptz2N9g+Uygtk71joOaxKh6gsEgQQPqVF5epfHWE8d+YVsrjWyIFFq8xM+57CbKQgDQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwsML3pJnftrIuLatKaGpgeKn0A0s3/G13xEztYpNUrekxBn+Jw
+	mvyd1/8tJXg4h6lawRESg6pqZFPvhzaBGMJWA6sPa23GuHPJG+hSty6u
+X-Gm-Gg: AR+sD10ThM6zJZIJ6MkQORje0h1pedpOB9b96WupbZ7OZW5pWZZC1EMC2jSiUqZD87K
+	iamN7nCx07Y1UvhDe0R/If/ussuNKwy5Q4Bd1O3+KnYAMyQYRQxXlNYdcVL5bt6aR3WRAg8eKTj
+	rSFt5pha6GDakyIb2L9Ry4Smuww/rZbOGllfnRu8aDfuwBgL80BOmcgaJ0MYmPOh2+zjAIPtHyo
+	p65P1uk9GeMicYY2dxJBTw6bhuuB0TalA0vf5Gj2HtkvYLyFg3Z8IGoWTf21GCDmT9njuip7M8C
+	a7yMKRl51vaIeJMXpU39+anf/kux5f1EWvJraO/G73OByYczzbnKKepjsEm3uo+6RzLWYe2n73W
+	Rxm/a9RXE+HbV/rdMoyz7o4UVjiezFOb9piTPesjk9QtzRqAq3wspgHanC0DKbMWxJfVA1sRqBa
+	v9mAhZ9qzPYU/xOMC1491o9kxPKQtM0f0ZPLgwT/ZqRWRFL26GYef51QU9AVRgIPQh8qgUKC+st
+	s/LkmA60XBDvHUAsB1VCFvklBnMkA==
+X-Received: by 2002:a05:600c:470a:b0:495:6338:1453 with SMTP id 5b1f17b1804b1-499727a866amr14257735e9.16.1786363033266;
+        Mon, 10 Aug 2026 04:57:13 -0700 (PDT)
+Received: from localhost.localdomain ([2a04:ee41:4:b2de:1ac0:4dff:fe0f:3782])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-480021f9182sm34997090f8f.28.2026.08.10.04.57.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 10 Aug 2026 04:57:12 -0700 (PDT)
+From: Anton Protopopov <a.s.protopopov@gmail.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	netdev@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Cc: Anton Protopopov <a.s.protopopov@gmail.com>
+Subject: [PATCH net] virtio_net: Fix resize of the RX ring
+Date: Mon, 10 Aug 2026 12:07:25 +0000
+Message-ID: <20260810120728.47445-1-a.s.protopopov@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260723183219.737296-6-briandaniels@google.com>
+Content-Transfer-Encoding: 8bit
 
-On Thu, Jul 23, 2026 at 02:32:19PM -0400, Brian Daniels wrote:
-> From: Alexandre Courbot <gnurou@gmail.com>
-> 
-> This patch adds support for the USERPTR memory type to the virtio-media
-> driver.
-> 
-> It adds the allow_userptr module parameter, implements the userptr
-> mapping logic in the scatterlist builder, and enables USERPTR in
-> reqbufs if allowed.
+When a AF_XDP socket is attached, the virtnet_rx_resize
+should resize the rq->xsk_buffs XSK buffer array. Otherwise,
+when the size grows, the virtnet_rx_resume() causes a write
+past the end of the array. This is easily reproducable with
 
-USERPTR is deprecated, it shouldn't be used in new drivers or in new
-userspace code.
+    ethtool -G ens3 rx 32
+    ./xdpsock -i eth0 -q 0 -r -z &
+    ethtool -G eth0 rx 256
 
-> Signed-off-by: Alexandre Courbot <gnurou@gmail.com>
-> Assisted-by: Antigravity:gemini-3.5-flash
-> Co-developed-by: Brian Daniels <briandaniels@google.com>
-> Signed-off-by: Brian Daniels <briandaniels@google.com>
-> ---
->  drivers/media/virtio/scatterlist_builder.c | 64 ++++++++++++++++++++++
->  drivers/media/virtio/scatterlist_builder.h |  3 +
->  drivers/media/virtio/virtio_media_driver.c | 42 +++++++++-----
->  drivers/media/virtio/virtio_media_ioctls.c | 11 +++-
->  4 files changed, 104 insertions(+), 16 deletions(-)
-> 
-> diff --git a/drivers/media/virtio/scatterlist_builder.c b/drivers/media/virtio/scatterlist_builder.c
-> index 97925b277..85c6a36b4 100644
-> --- a/drivers/media/virtio/scatterlist_builder.c
-> +++ b/drivers/media/virtio/scatterlist_builder.c
-> @@ -349,14 +349,30 @@ static int scatterlist_builder_add_userptr(struct scatterlist_builder *builder,
->  int scatterlist_builder_add_buffer(struct scatterlist_builder *builder,
->  				   struct v4l2_buffer *b)
->  {
-> +	int i;
->  	int ret;
->  
-> +	/* Fixup: plane length must be zero if userptr is NULL */
-> +	if (!V4L2_TYPE_IS_MULTIPLANAR(b->type) &&
-> +	    b->memory == V4L2_MEMORY_USERPTR && b->m.userptr == 0)
-> +		b->length = 0;
-> +
->  	/* v4l2_buffer */
->  	ret = scatterlist_builder_add_data(builder, b, sizeof(*b));
->  	if (ret)
->  		return ret;
->  
->  	if (V4L2_TYPE_IS_MULTIPLANAR(b->type) && b->length > 0) {
-> +		/* Fixup: plane length must be zero if userptr is NULL */
-> +		if (b->memory == V4L2_MEMORY_USERPTR) {
-> +			for (i = 0; i < b->length; i++) {
-> +				struct v4l2_plane *plane = &b->m.planes[i];
-> +
-> +				if (plane->m.userptr == 0)
-> +					plane->length = 0;
-> +			}
-> +		}
-> +
->  		/* Array of v4l2_planes */
->  		ret = scatterlist_builder_add_data(builder, b->m.planes,
->  						   sizeof(struct v4l2_plane) *
-> @@ -368,6 +384,54 @@ int scatterlist_builder_add_buffer(struct scatterlist_builder *builder,
->  	return 0;
->  }
->  
-> +/**
-> + * scatterlist_builder_add_buffer_userptr() - Add the payload of a ``USERPTR``
-> + *                                            &struct v4l2_buffer to the
-> + *                                            descriptor chain.
-> + * @builder: builder to use.
-> + * @b: &struct v4l2_buffer whose ``USERPTR`` payload we want to add.
-> + *
-> + * Add an array of &struct virtio_media_sg_entry pointing to a ``USERPTR``
-> + * buffer's contents. Does nothing if the buffer is not of type ``USERPTR``.
-> + * This is split out of scatterlist_builder_add_buffer() because we only want
-> + * to add these to the device-readable part of the descriptor chain.
-> + */
-> +int scatterlist_builder_add_buffer_userptr(struct scatterlist_builder *builder,
-> +					   struct v4l2_buffer *b)
-> +{
-> +	int i;
-> +	int ret;
-> +
-> +	if (b->memory != V4L2_MEMORY_USERPTR)
-> +		return 0;
-> +
-> +	if (V4L2_TYPE_IS_MULTIPLANAR(b->type)) {
-> +		for (i = 0; i < b->length; i++) {
-> +			struct v4l2_plane *plane = &b->m.planes[i];
-> +
-> +			if (b->memory == V4L2_MEMORY_USERPTR &&
-> +			    plane->length > 0) {
-> +				unsigned long uptr = plane->m.userptr;
-> +				unsigned long len = plane->length;
-> +
-> +				ret =
-> +				scatterlist_builder_add_userptr(builder,
-> +								uptr,
-> +								len);
-> +				if (ret)
-> +					return ret;
-> +			}
-> +		}
-> +	} else if (b->length > 0) {
-> +		ret = scatterlist_builder_add_userptr(builder, b->m.userptr,
-> +						      b->length);
-> +		if (ret)
-> +			return ret;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
->  /**
->   * scatterlist_builder_retrieve_buffer() - Retrieve a &struct v4l2_buffer
->   *                                         written by the device on the shadow
-> diff --git a/drivers/media/virtio/scatterlist_builder.h b/drivers/media/virtio/scatterlist_builder.h
-> index 47bfd7ae0..53d964a48 100644
-> --- a/drivers/media/virtio/scatterlist_builder.h
-> +++ b/drivers/media/virtio/scatterlist_builder.h
-> @@ -90,6 +90,9 @@ int scatterlist_builder_add_ioctl_resp(struct scatterlist_builder *builder,
->  int scatterlist_builder_add_buffer(struct scatterlist_builder *builder,
->  				   struct v4l2_buffer *buffer);
->  
-> +int scatterlist_builder_add_buffer_userptr(struct scatterlist_builder *builder,
-> +					   struct v4l2_buffer *b);
-> +
->  int scatterlist_builder_retrieve_buffer(struct scatterlist_builder *builder,
->  					size_t sg_index,
->  					struct v4l2_buffer *buffer,
-> diff --git a/drivers/media/virtio/virtio_media_driver.c b/drivers/media/virtio/virtio_media_driver.c
-> index c431c3eb2..b6f79593d 100644
-> --- a/drivers/media/virtio/virtio_media_driver.c
-> +++ b/drivers/media/virtio/virtio_media_driver.c
-> @@ -7,26 +7,29 @@
->   */
->  
->  #include <linux/bits.h>
-> +#include <linux/delay.h>
->  #include <linux/device.h>
->  #include <linux/dev_printk.h>
-> +#include <linux/mm.h>
->  #include <linux/mutex.h>
-> +#include <linux/scatterlist.h>
->  #include <linux/types.h>
-> +#include <linux/videodev2.h>
-> +#include <linux/vmalloc.h>
-> +#include <linux/wait.h>
-> +#include <linux/workqueue.h>
->  #include <linux/module.h>
-> +#include <linux/moduleparam.h>
->  #include <linux/virtio.h>
->  #include <linux/virtio_config.h>
->  #include <linux/virtio_ids.h>
-> -#include <linux/slab.h>
-> -#include <linux/scatterlist.h>
-> -#include <linux/vmalloc.h>
-> -#include <linux/workqueue.h>
-> -#include <linux/dma-mapping.h>
-> -#include <linux/poll.h>
-> -#include <linux/mm.h>
->  
-> +#include <media/frame_vector.h>
->  #include <media/v4l2-dev.h>
-> -#include <media/v4l2-device.h>
-> -#include <media/v4l2-fh.h>
->  #include <media/v4l2-event.h>
-> +#include <media/videobuf2-memops.h>
-> +#include <media/v4l2-device.h>
-> +#include <media/v4l2-ioctl.h>
->  
->  #include "uapi/linux/virtio_media.h"
->  #include "session.h"
-> @@ -40,6 +43,15 @@
->  /* Bit mask for the VIRTIO_MEDIA_MMAP_FLAG_RW flag */
->  #define VIRTIO_MEDIA_MMAP_FLAG_RW_MASK BIT(VIRTIO_MEDIA_MMAP_FLAG_RW)
->  
-> +/*
-> + * Whether USERPTR buffers are allowed.
-> + *
-> + * This is disabled by default as USERPTR buffers are dangerous, but the option
-> + * is left to enable them if desired.
-> + */
-> +bool virtio_media_allow_userptr;
-> +module_param_named(allow_userptr, virtio_media_allow_userptr, bool, 0660);
-> +
->  /**
->   * virtio_media_session_alloc() - Allocate a new session.
->   * @vv: virtio-media device the session belongs to.
-> @@ -849,15 +861,11 @@ static int virtio_media_probe(struct virtio_device *virtio_dev)
->  			      VIRTIO_MEDIA_SHM_MMAP);
->  
->  	vd = &vv->video_dev;
-> +
->  	vd->v4l2_dev = &vv->v4l2_dev;
->  	vd->vfl_type = VFL_TYPE_VIDEO;
->  	vd->ioctl_ops = &virtio_media_ioctl_ops;
->  	vd->fops = &virtio_media_fops;
-> -	vd->release = video_device_release_empty;
-> -	strscpy(vd->name, "virtio-media", sizeof(vd->name));
-> -
-> -	video_set_drvdata(vd, vv);
-> -
->  	vd->device_caps = virtio_cread32(virtio_dev, 0);
->  	if (vd->device_caps & (V4L2_CAP_VIDEO_M2M | V4L2_CAP_VIDEO_M2M_MPLANE))
->  		vd->vfl_dir = VFL_DIR_M2M;
-> @@ -866,6 +874,10 @@ static int virtio_media_probe(struct virtio_device *virtio_dev)
->  		vd->vfl_dir = VFL_DIR_TX;
->  	else
->  		vd->vfl_dir = VFL_DIR_RX;
-> +	vd->release = video_device_release_empty;
-> +	strscpy(vd->name, "virtio-media", sizeof(vd->name));
-> +
-> +	video_set_drvdata(vd, vv);
->  
->  	ret = video_register_device(vd, virtio_cread32(virtio_dev, 4), 0);
->  	if (ret)
-> @@ -890,6 +902,7 @@ static int virtio_media_probe(struct virtio_device *virtio_dev)
->  	virtio_dev->config->del_vqs(virtio_dev);
->  err_find_vqs:
->  	v4l2_device_unregister(&vv->v4l2_dev);
-> +
->  	return ret;
->  }
->  
-> @@ -900,6 +913,7 @@ static void virtio_media_remove(struct virtio_device *virtio_dev)
->  
->  	cancel_work_sync(&vv->eventq_work);
->  	virtio_reset_device(virtio_dev);
-> +
->  	v4l2_device_unregister(&vv->v4l2_dev);
->  	virtio_dev->config->del_vqs(virtio_dev);
->  	video_unregister_device(&vv->video_dev);
-> diff --git a/drivers/media/virtio/virtio_media_ioctls.c b/drivers/media/virtio/virtio_media_ioctls.c
-> index f0b82b5ec..88465f239 100644
-> --- a/drivers/media/virtio/virtio_media_ioctls.c
-> +++ b/drivers/media/virtio/virtio_media_ioctls.c
-> @@ -273,6 +273,12 @@ static int virtio_media_send_buffer_ioctl(struct v4l2_fh *fh, u32 ioctl,
->  		return ret;
->  
->  	end_buf_sg = builder.cur_sg;
-> +
-> +	/* Payload of SHARED_PAGES buffers, if relevant */
-> +	ret = scatterlist_builder_add_buffer_userptr(&builder, b);
-> +	if (ret < 0)
-> +		return ret;
-> +
->  	num_cmd_sgs = builder.cur_sg;
->  
->  	/* Response descriptor */
-> @@ -719,7 +725,7 @@ static int virtio_media_reqbufs(struct file *file, void *fh,
->  	if (b->type > VIRTIO_MEDIA_LAST_QUEUE)
->  		return -EINVAL;
->  
-> -	if (b->memory == V4L2_MEMORY_USERPTR)
-> +	if (b->memory == V4L2_MEMORY_USERPTR && !virtio_media_allow_userptr)
->  		return -EINVAL;
->  
->  	ret = virtio_media_send_wr_ioctl(vfh, VIDIOC_REQBUFS, b, sizeof(*b),
-> @@ -752,7 +758,8 @@ static int virtio_media_reqbufs(struct file *file, void *fh,
->  	if (V4L2_TYPE_IS_MULTIPLANAR(b->type))
->  		session->uses_mplane = true;
->  
-> -	b->capabilities &= ~V4L2_BUF_CAP_SUPPORTS_USERPTR;
-> +	if (!virtio_media_allow_userptr)
-> +		b->capabilities &= ~V4L2_BUF_CAP_SUPPORTS_USERPTR;
->  
->  	/* We do not support DMABUF yet. */
->  	b->capabilities &= ~V4L2_BUF_CAP_SUPPORTS_DMABUF;
+Fixes: e9f3962441c0 ("virtio_net: xsk: rx: support fill with xsk buffer")
+Signed-off-by: Anton Protopopov <a.s.protopopov@gmail.com>
+---
+ drivers/net/virtio_net.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 3e2a5876c6c8..e34c52d059d3 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -3444,17 +3444,31 @@ static void virtnet_rx_resume_all(struct virtnet_info *vi)
+ static int virtnet_rx_resize(struct virtnet_info *vi,
+ 			     struct receive_queue *rq, u32 ring_num)
+ {
++	unsigned int old_ring_num = virtqueue_get_vring_size(rq->vq);
++	struct xdp_buff **tmp_xsk_buffs = NULL;
+ 	int err, qindex;
+ 
+ 	qindex = rq - vi->rq;
+ 
++	if (rq->xsk_pool && ring_num > old_ring_num) {
++		tmp_xsk_buffs = kvzalloc_objs(*tmp_xsk_buffs, ring_num);
++		if (!tmp_xsk_buffs)
++			return -ENOMEM;
++	}
++
+ 	virtnet_rx_pause(vi, rq);
+ 
+ 	err = virtqueue_resize(rq->vq, ring_num, virtnet_rq_unmap_free_buf, NULL);
++
++	/* virtqueue_resize may have changed the size even if err != 0 */
++	if (tmp_xsk_buffs && virtqueue_get_vring_size(rq->vq) > old_ring_num)
++		swap(rq->xsk_buffs, tmp_xsk_buffs);
++
+ 	if (err)
+ 		netdev_err(vi->dev, "resize rx fail: rx queue index: %d err: %d\n", qindex, err);
+ 
+ 	virtnet_rx_resume(vi, rq, true);
++	kvfree(tmp_xsk_buffs);
+ 	return err;
+ }
+ 
 -- 
-Regards,
+2.43.0
 
-Laurent Pinchart
