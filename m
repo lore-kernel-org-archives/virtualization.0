@@ -1,150 +1,227 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B8A539CCE9
-	for <virtualization@lists.linux.dev>; Mon, 10 Aug 2026 07:05:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1687339CD09
+	for <virtualization@lists.linux.dev>; Mon, 10 Aug 2026 07:13:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786345555; cv=none; b=ccX3PHNQgfoRziaA5sZDDcZoCy/kxOttSbtyCnaX7tlePkcn+8J316IQwhqEp6BCuV5/hevwfuJxBw3y6/Eu0e21i1qAroNqFIJ3Fm7HkcOvl4Qczye07KBnXIahYDNeeuzMJumBIu+50GwRxaewcBcb136ZraG/lz0YN0UjMaM=
+	t=1786346003; cv=none; b=Otb6LkorhcLiOyGYU+LBW8qfqZiuRX9ufoECMBU03tvjea2pa7n+SGJN6YCHif3kDpwPf10+eTOiyXrZ8dhidnJlp/pGOxjoELS7jnDurmo7ssE9UngdowyQBZ3F2Qomfbkfr5XIr0zJYfevYC2pbxLy3780rGzUr1OHtk7DLT8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786345555; c=relaxed/simple;
-	bh=KiYTJr6ciY41S0faZ/K7ky6D53SOLmHv6iAAKkbh7HQ=;
+	s=arc-20240116; t=1786346003; c=relaxed/simple;
+	bh=LnmoEoIHzucGEVHBMwtNUytTrxg9QJ7e1LZHTMZafds=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=MW/okTylgLpuMp31KHwG7L50Xc2FgJBxO7w7mr0GTR+PoipUJqno1QfEMf63q9f4vfLbWbYQ75UGNYctSedCDvQ+SHCEx/CmN7ZziG49IBHiNzipI4XXqiGDdaYGdmOshtLSzSx3wqScFLREep1JmabzPO5Mg7Shj2P0Urtd2YU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=he/wr1Cu; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=hKHjYU3geCVA1yyqnEX+D7oKWwNxyk4dQPo76ytH2ItnB0tykVnwO7BVe1+H9FENCqTGn6ZheP/YrAUThErmzylz8oyHGoCOHexUNhKOUOkYxWsa8gxP0ip6q3QiEvdxJ4CE9WDeIph5DvStk9SG+NtbISOUhVo6ZzvszL+rQWQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=C/I+JngB; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="he/wr1Cu"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="C/I+JngB"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1786345553;
+	s=mimecast20190719; t=1786346000;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Vr3vIYuq7lla3+ZHZmoYb7uvd3kFa0mXYvvwO+akg2g=;
-	b=he/wr1CuC4TL9D0W5teddTTuPh/0gADFFzReWtVd0juNwj+d/ns7iDSzqharv9zO0u5tMC
-	RPkw5m20S4N22mUw/MdTsJd9dLumN6MGxR/eYwabLgATRHudXUUs2YI2ybW33AY+wPc8Fv
-	LPrr8mACpsCSqBZoOm7tF6auPZ5AStI=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=EryXU9pxF3wIK7cI2Iyw+BOCGpwNx4GOIKA2uqo9JSs=;
+	b=C/I+JngBvZW8qsbOAxorcd7+n7A3pRvEGoiM0+Rrpaaw1p085ORXk0CvH/qYljZABcHTqx
+	78Gv8TvIqn/GHlYyE6nTs6k1i8L43SovkkelQBKiOU9ziBVZ8ty1hQcFdW5yx6vfc8AKel
+	W0nl8T/OU+esnIoEdId4Yx5DXI2VW58=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-641-0eC_AxUtMPiJfpHvK1LGag-1; Mon, 10 Aug 2026 03:05:51 -0400
-X-MC-Unique: 0eC_AxUtMPiJfpHvK1LGag-1
-X-Mimecast-MFC-AGG-ID: 0eC_AxUtMPiJfpHvK1LGag_1786345550
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-496bbcf7d1eso10540645e9.0
-        for <virtualization@lists.linux.dev>; Mon, 10 Aug 2026 00:05:51 -0700 (PDT)
+ us-mta-678-YB0PuHIVM3qRvNg1swHptw-1; Mon, 10 Aug 2026 03:13:19 -0400
+X-MC-Unique: YB0PuHIVM3qRvNg1swHptw-1
+X-Mimecast-MFC-AGG-ID: YB0PuHIVM3qRvNg1swHptw_1786345998
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-47f83450a8eso1269550f8f.0
+        for <virtualization@lists.linux.dev>; Mon, 10 Aug 2026 00:13:19 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786345550; x=1786950350;
+        d=1e100.net; s=20251104; t=1786345998; x=1786950798;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=Vr3vIYuq7lla3+ZHZmoYb7uvd3kFa0mXYvvwO+akg2g=;
-        b=jway51nlLptTfKdrBF94mwk5QonfJ12/8Ot4dY2jFczC9SIx8p0KB2xYXQFZtDYhdv
-         0zXJXd+NgehhJPVdTI/w3Z6Lz2rSl5qVhG82CRqcIxjLGr3dlQQ5X+Za+0BWVa4Ni8DV
-         IeTFHesrheDIwgHtVZzmrmljNKQK7xeVfyRXTobbzz+ysRa/J7VNB0aUfUkAZUfHicrB
-         PXoORv6onBDF00wIiXUQnDLFiqnL20UexuGZZvu1WRjYoJ6IpKonbZWZuRDL1LKGGwP2
-         XzH8IBbhg0tLk/1Iw5+U66hmyY+sgcgW+00VyUfK/E6ns8IM66AYp/2JwMeffUdXHtZu
-         V71w==
-X-Forwarded-Encrypted: i=1; AHgh+RqrLJKyDHvZJzJeBI7iL9JHzyJhEdMRLqxMN9IveDUsyIAP5Frn6Djn4TUNMvuved/j0YzA1TAPoJFKVCbisQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxUBGlK3C1njg4gYjHffiPwG5idPBoiajLPjPsPWBcYrIUTZ0tp
-	H9H6zxvx8i449MzZ0p8XXAcLuaSbN711HJTPduu9ycnPvatknjQof9zFYOZM3ojgK2KZdCzt6N5
-	oQbI9peD6nOuectUYguNhTAjLBPkGIhYpeH/YpYMla3t0ZRCCaHVfhQNiQjzSior/YAqy
-X-Gm-Gg: AR+sD10diKYloAd6IJHdrMOzMukGeAm5ZgRUqrwqLgrNYZRhs+hkf2k9/ycc+5HVLJZ
-	2cXQeMCWL7rOtwma1UtQyvPX+ODK6J5LPKTB3LMTdPcrKsR5jTgXNmDzuS7PlS/Sr7XHVBk4D10
-	JsMsi/IKjPTeMm+AwCANu3afTSLk2u6kryhm7kk7j0s0QVZQCkrbXdcvGwt+lmBmOkVCSk6ZxVw
-	JkCRwpxufFjK29jTA7TWq9qaZWEft4XLh1QiHw0jispp1deJEPtl70O5p6xWunD4UbPFaSLqnVM
-	8K8cGAaNJ13FaPEwnSpfPSfnxiDB+dimoxnf5bUQ6CFVNIiUXR0NGJKdE3/C9RlDmYOu1T2nwTn
-	AD7dcqaN8dI7Qf21q/q9pkA==
-X-Received: by 2002:a05:600c:3b88:b0:499:52ab:a50c with SMTP id 5b1f17b1804b1-4996194e24bmr260255005e9.1.1786345550228;
-        Mon, 10 Aug 2026 00:05:50 -0700 (PDT)
-X-Received: by 2002:a05:600c:3b88:b0:499:52ab:a50c with SMTP id 5b1f17b1804b1-4996194e24bmr260254165e9.1.1786345549684;
-        Mon, 10 Aug 2026 00:05:49 -0700 (PDT)
+        bh=EryXU9pxF3wIK7cI2Iyw+BOCGpwNx4GOIKA2uqo9JSs=;
+        b=YrFNFO63QVV6KZgYOzfKfhHZW21X7qgBzAZyu6JvWbdLTg5BqvcaC0EjSMeB/dFFCs
+         yoFtyUMgNvtXAbORm9NkvMs48zCRDl6pYfPpaQbBflwWyqU7efhNHuvR9Djx4qbmvsfI
+         p60dcR40G6jcVP8wi8URw4ABZDfOYNcd67YMXUJDQgLeveIShyhK9bUvoPOJipWFq1kR
+         xXB2cqICsqrlMAo3360E+Q/JZ3hEXhmlsMtDw43MV9+DDEc6FjTrxXCNQBb41Dddw0yS
+         XhnGm7sMc95Hnsjf6/ANY3Zr4TkSCAqCJhGEDe8fqDaEIO7/tsoI60wU/hFo2AcMUmn4
+         9b9A==
+X-Forwarded-Encrypted: i=1; AHgh+Rr5dAMOJS+HIPGQiH2D+0jAAjEGgue/TyWi5hOt8coB6enF3VAQf7IIcDcpiKjdbI4nj3ssgWI61t0tW9pzpw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Ywp/RBQyLfKP5Roozl5Nd6wUMIROD0p/nlF48FsR5xYSMgvCgU6
+	oNN4iZtX5d56j9r5AYZk+iVEp3n0JqyeeZrOJh9w1U7LI3S7Fq1eoptEhGnLXBa5LTNininr7PS
+	6DShjdpr5Ju4B6hrX8KRqhnmlc4w7Bvo2bzdPlp1woCw1qbvEHWWXix4spTCHfUi8gfvN
+X-Gm-Gg: AR+sD10FmTgc1z/Grb0ZpAB74zxypMQSV/xs48pQVLhD7nFwFFJqYfDB30DdWkjhX22
+	U1KfYhtU1fD3RRyZ5m+LhthcOFqufwhqFcTq7/C+sJtB3Q+kuGepYFB4qdC2W+WbYOlqhZbxfZt
+	pBwcmDiKVZtcX8YPFlU2BQ2qnvMLQ79Dl1nBIs5vJTTULug5GFpYVqaLiNARBXgL9h0Sxh/zHjC
+	Kd3zO0fAkDCybLV+9KKZJ0kuDOJlndyh6rFY/uDd77MHjiiF6tnythWQzXZWOBNcf1vQ4FPOzh8
+	J0o1zT00mmLnPJLoS7pSOzF+z213mbmJea4OadRlgONd7zlgvTKQ+SuVNBKmBIb5iSoOwETz3m/
+	udUAkmtZ+IRKkcBjYtvDEpg==
+X-Received: by 2002:a05:600c:8b75:b0:495:4fd4:619b with SMTP id 5b1f17b1804b1-4994e70a6eamr620588215e9.1.1786345998020;
+        Mon, 10 Aug 2026 00:13:18 -0700 (PDT)
+X-Received: by 2002:a05:600c:8b75:b0:495:4fd4:619b with SMTP id 5b1f17b1804b1-4994e70a6eamr620587165e9.1.1786345997414;
+        Mon, 10 Aug 2026 00:13:17 -0700 (PDT)
 Received: from redhat.com (IGLD-80-230-39-98.inter.net.il. [80.230.39.98])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4995420bd1csm395892805e9.3.2026.08.10.00.05.47
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4995420c68fsm360359385e9.1.2026.08.10.00.13.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 10 Aug 2026 00:05:49 -0700 (PDT)
-Date: Mon, 10 Aug 2026 03:05:46 -0400
+        Mon, 10 Aug 2026 00:13:16 -0700 (PDT)
+Date: Mon, 10 Aug 2026 03:13:14 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hari Mishal <harimishal1@gmail.com>, Amit Shah <amit@kernel.org>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Gerd Hoffmann <kraxel@redhat.com>,
-	Jason Wang <jasowangio@gmail.com>,
-	David Hildenbrand <david@kernel.org>,
-	Henrik Rydberg <rydberg@bitmath.org>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	linux-input@vger.kernel.org
-Subject: Re: [PATCH 2/4] virtio_input: validate device-reported multitouch
- slot count
-Message-ID: <20260810030400-mutt-send-email-mst@kernel.org>
-References: <20260715142337.22811-1-harimishal1@gmail.com>
- <20260715142337.22811-3-harimishal1@gmail.com>
- <20260715115018-mutt-send-email-mst@kernel.org>
- <CAMmC+=AnE-p7B=DbBPYeNzJdcdiBf7q=5bfcuV0VQrPRK+pmug@mail.gmail.com>
- <20260715120911-mutt-send-email-mst@kernel.org>
- <alfPcWKMGL-S9BRl@google.com>
- <CAMmC+=DXS=xs0CZyf+N-71NT8D51xQYatBv=dfVQC1aBohDdmA@mail.gmail.com>
- <alkTnRb9qhgcMGGi@google.com>
- <alkU66ViqO8pnjQQ@google.com>
+To: Lange Tang <lange_tang@163.com>
+Cc: "xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
+	"edumazet@google.com" <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	Tang Longjun <tanglongjun@kylinos.cn>,
+	"jasowang@redhat.com" <jasowang@redhat.com>
+Subject: Re: Re:Re:Re: [PATCH] virtio_net: disable cb when napi_schedule_prep
+ fails during busy-poll
+Message-ID: <20260810031128-mutt-send-email-mst@kernel.org>
+References: <20260615094550.106391-1-lange_tang@163.com>
+ <1781517700.4206195-1-xuanzhuo@linux.alibaba.com>
+ <19692a81.3001.19ece5f8ddc.Coremail.lange_tang@163.com>
+ <1781580432.712892-1-xuanzhuo@linux.alibaba.com>
+ <4118686.4d22.19ecf0ad78e.Coremail.lange_tang@163.com>
+ <1781592565.1172295-1-xuanzhuo@linux.alibaba.com>
+ <2f42f4e.1e16.19ed356b302.Coremail.lange_tang@163.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <alkU66ViqO8pnjQQ@google.com>
+In-Reply-To: <2f42f4e.1e16.19ed356b302.Coremail.lange_tang@163.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: s8R7U-6YCicTGudxoMT6osuuuD_fbAz8YOSee9BKsDc_1786345550
+X-Mimecast-MFC-PROC-ID: 84sP63GWf1zZvSh5f7MEfHI7WBX3FUg4xSbs2CLN-mg_1786345998
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Thu, Jul 16, 2026 at 10:33:04AM -0700, Dmitry Torokhov wrote:
-> [ Just realized that CC was dropped in the email I was replying to, so
->   restoring and resending... ]
+On Wed, Jun 17, 2026 at 10:08:55AM +0800, Lange Tang wrote:
+> At 2026-06-16 14:49:25, "Xuan Zhuo" <xuanzhuo@linux.alibaba.com> wrote:
+> >On Tue, 16 Jun 2026 14:07:34 +0800 (CST), Lange Tang <lange_tang@163.com> wrote:
+> >> At 2026-06-16 11:27:12, "Xuan Zhuo" <xuanzhuo@linux.alibaba.com> wrote:
+> >> >On Tue, 16 Jun 2026 11:00:29 +0800 (CST), Lange Tang <lange_tang@163.com> wrote:
+> >> >> At 2026-06-15 18:01:40, "Xuan Zhuo" <xuanzhuo@linux.alibaba.com> wrote:
+> >> >> >On Mon, 15 Jun 2026 17:45:50 +0800, Longjun Tang <lange_tang@163.com> wrote:
+> >> >> >> From: Longjun Tang <tanglongjun@kylinos.cn>
+> >> >> >>
+> >> >> >> When busy-poll is active, napi_schedule_prep() returns false in
+> >> >> >> skb_recv_done(), so virtqueue_disable_cb() is skipped. The device
+> >> >> >> may keep firing irqs until the next poll round reaches
+> >> >> >> virtqueue_napi_complete(). If cb is enabled under busy-poll case,
+> >> >> >> it will lead to a large number of spurious interrupts. Explicitly
+> >> >> >> disable callbacks in this case to prevent spurious interrupts.
+> >> >> >>
+> >> >> >> Signed-off-by: Longjun Tang <tanglongjun@kylinos.cn>
+> >> >> >> ---
+> >> >> >>  drivers/net/virtio_net.c | 2 ++
+> >> >> >>  1 file changed, 2 insertions(+)
+> >> >> >>
+> >> >> >> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> >> >> >> index f4adcfee7a80..6d675fddc59b 100644
+> >> >> >> --- a/drivers/net/virtio_net.c
+> >> >> >> +++ b/drivers/net/virtio_net.c
+> >> >> >> @@ -728,6 +728,8 @@ static void virtqueue_napi_schedule(struct napi_struct *napi,
+> >> >> >>  	if (napi_schedule_prep(napi)) {
+> >> >> >>  		virtqueue_disable_cb(vq);
+> >> >> >>  		__napi_schedule(napi);
+> >> >> >> +	} else if (test_bit(NAPI_STATE_IN_BUSY_POLL, &napi->state)) {
+> >> >> >> +		virtqueue_disable_cb(vq);
+> >> >> >
+> >> >> >I see, but we should avoid checking NAPI_STATE_IN_BUSY_POLL directly in the
+> >> >> >drivers. The NIC driver should remain agnostic to busy polling. I think we need
+> >> >> >a better way, maybe we should rewrite virtqueue_napi_schedule instead.
+> >> >>
+> >> >> How about rewrite it like this?
+> >> >> static void virtqueue_napi_schedule(struct napi_struct *napi,
+> >> >>                                     struct virtqueue *vq)
+> >> >> {
+> >> >>         virtqueue_disable_cb(vq);
+> >> >>         if (napi_schedule_prep(napi))
+> >> >>                 __napi_schedule(napi);
+> >> >> }
+> >> >> Any comments are welcome.
+> >> >
+> >> >
+> >> >Another CPU could be running NAPI and has just enabled the callbacks (cb).
+> >> >Meanwhile, this side unconditionally disables the cb. Since NAPI on the other
+> >> >CPU hasn't exited yet, the subsequent prep on this side fails, leaving no one to
+> >> >re-enable the cb.
+> >> >
+> >> >Thanks.
+> >>
+> >> Regarding the case you described, when NAPI on another CPU exits, the virtqueue_napi_complete func
+> >> will be executed to re-enable cb.  and if there is still unconsumed data in the virtqueue, virtqueue_napi_schedule
+> >> will be called again to schedule NAPI.
+> >>
+> >> In summary, I think that the disable_cb and __napi_schedule within the virtqueue_napi_schedule func do not need to be bound together.
+> >>
+> >> Any comments are welcome. Thinks.
+> >
+> >
+> ><Your code>
+> >static void virtqueue_napi_schedule(struct napi_struct *napi,
+> >                                    struct virtqueue *vq)
+> >{
+> >
+> >							       |static bool virtqueue_napi_complete(struct napi_struct *napi,
+> >							       |				    struct virtqueue *vq, int processed)
+> >							       |{
+> >							       |	int opaque;
+> >							       |
+> >							       |	opaque = virtqueue_enable_cb_prepare(vq);
+> >                                                               |
+> >        virtqueue_disable_cb(vq);                              |
+> >        if (napi_schedule_prep(napi))                          |
+> >                __napi_schedule(napi);                         |
+> >							       |	if (napi_complete_done(napi, processed)) {
+> >							       |		if (unlikely(virtqueue_poll(vq, opaque)))
+> >							       |			virtqueue_napi_schedule(napi, vq);
+> >							       |		else
+> >							       |			 return true; // return directly
+> >							       |	} else {
+> >							       |		virtqueue_disable_cb(vq);
+> >							       |	}
+> >							       |
+> >							       |	return false;
+> >							       |}
+> >}
+> >
+> >1. new packets (notified by irq) are consumed by napi before virtqueue_napi_complete
+> >2. poll is not called by irq, maybe xsk wake up. So irq is not disabled.
+> >
+> >
+> >Thanks.
 > 
-> On Thu, Jul 16, 2026 at 10:28:36AM -0700, Dmitry Torokhov wrote:
-> > On Thu, Jul 16, 2026 at 12:34:57PM +0200, Hari Mishal wrote:
-> > > > What is the failure mode if we keep the ABS_MT_SLOT capability? Does the
-> > > > kernel crash? And if this can cause crash then we should fix
-> > > > input_mt_init_slots() to reject requests for 0 slots with -EINVAL.
-> > > >
-> > > 
-> > > No, it doesn't crash. I think every place in the input core that touches
-> > > dev->mt guards against it being NULL: input_handle_abs_event() and
-> > > the mt_slots check in input.c, and evdev's EVIOCGMTSLOTS ioctl
-> > > handler all explicitly check for NULL and degrade cleanly instead of
-> > > dereferencing. From my understanding, the worst case is what the
-> > > original commit message already covers: the device advertises
-> > > multitouch support it can't back.
-> > 
-> > So what? I still do not see the problem. Let's say I have a device that
-> > properly supports multitouch and has slots, but then never sends any
-> > events because firmware is buggy. How would that affect anything?
-> > 
-> > If there is no crash that I would leave the driver alone.
-> > 
-> > And we need to remember that we are dealing with a hypervisor here that
-> > normally had higher level of trust than the VM. If it messes up we do
-> > not have to clean up after it. This scenario is different from user
-> > attaching a malicious USB device to their system and getting owned.
-
-
-This last part isn't always true, while hypervisors are generally
-more trusted than a random usb device, the level of trust isn't
-always higher level than the VM.
-
-Still if it's a theoretical misconfiguration that leads to
-nothing bad, not worth special casing it.
-
-
-> > Thanks.
-> > 
+> Based on your code analysis above, I got .  thanks.
+> disable_cb and __napi_schedule in the virtqueue_napi_schedule func indeed cannot be separated.
 > 
-> -- 
-> Dmitry
+> Regarding the issue of not being able to disable cb in a busy-poll context, do you have any suggestions?
+> 
+> Any comments are welcome. Thanks.
+
+
+Add a netdev core API that basically does:
+
+test_bit(NAPI_STATE_IN_BUSY_POLL, &napi->state)
+
+add documentation, either netdev maintainers merge it, or
+alternatively they will tell you what to do)
+
+> >
+> >
+> >>
+> >> >
+> >> >
+> >> >> >
+> >> >> >
+> >> >> >>  	}
+> >> >> >>  }
+> >> >> >>
+> >> >> >> --
+> >> >> >> 2.25.1
+> >> >> >>
+> >> >>
+> >>
+> 
 
