@@ -1,212 +1,244 @@
-Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8295617B505
-	for <virtualization@lists.linux.dev>; Mon, 10 Aug 2026 01:03:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B8593803D7
+	for <virtualization@lists.linux.dev>; Mon, 10 Aug 2026 06:23:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786323808; cv=none; b=qI2ouj9VEvGmI4VUumcB3PPDC5l5JkWvtffxGD0QDzNCkJjFLO3zdrD/4CG2lXTrUN38jx2xcTjCecoynSyIr0KTkpHOnytnlIOEBMujq4qGaWQcvhImy+OE3w56rN/qXF0BWYHcLfZEsQoKleSXSx5AJJ8pKqmYjf5pZgIGCfY=
+	t=1786342991; cv=none; b=R90AjLHMkEHpUpid1BbHDfdOAXcoOslczqQ1Gf9k3zUPZwJMREBrSJTGH1Fe1tvNmQV9Y5X7vsj+up03bdH01s1dUvTvS7UaqcQbobBM9a5whZjEA4LMlNMaEsET6kou1iQ7eXdD2YzaJXm5QGh2Qk4y66GsoWBaLw2gVOaHaH8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786323808; c=relaxed/simple;
-	bh=/UNLEhTBAnch36SgaK4rfVGlQTG/rEakKekLFDXlBQc=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=upk4C7vAAWZw0VWJDLwbUzFwO4PoActwh5nyOJsbppo5aIMZrDoqC8NwoTtlROOUiVWK+QSJ9OWxHFfDJzlj9Cny9bxGUmwqAg8X/jG/O4WMYr6USkUu6nosDJSNZVrMm7Zq8fKTmEFhIwXSgr4tvs7O6wshIZMwKyT/Nq6doOE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FhT5Oxgj; arc=none smtp.client-ip=209.85.216.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1786342991; c=relaxed/simple;
+	bh=CL3X1O2vNTR8rCDYsz1fgV8vYCK1Bc4ZPwJoxBwu00c=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=EdJO8PX+mr0SwNuAPH7nrXv5OGSLOYBm1w2R0wYlkomf7fz4Zn5FkCQiIxC2uHlRJRbz8zDm+chdvg8MPZBFlYiDAWbUGQCKSDqniYpeHT2/ZaecEuvSmV/F1ozQAT8cMHqXeEDEsyzm6xtGuqU/GSfJBXvDDBaJgsU/oRcNASg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ITx7t0Vk; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FhT5Oxgj"
-Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-38e88b60121so1094631a91.3
-        for <virtualization@lists.linux.dev>; Sun, 09 Aug 2026 18:03:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786323807; x=1786928607; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=MbbU/F/djf22NMRk+tFA6K7hMv5blZDiEPyCufD11oE=;
-        b=FhT5Oxgjqwg2lWE4qiJyc/Ok2p3R5Ef+jz7+MPeBEb8PiBhwdmF7H0IIHRtSmrhEsc
-         a9iif8xr1QAH6BSyjFHO81/jjBd4CTtYeAOooq3nEC3Pehe4PZLrOn52e9NHe+XhQ6Jq
-         KG1Tzm00qZy/Db/EF7CxiKr/g7EchASPQKXqNWK/hP30l53OIpnkmAb1p/E4JVaHONrM
-         P71+ar+jfQPmZ4NISLggLkb2KDTwhTreHeZnBNohFWJJdt25Bym5VfZv07CeBY+P97KW
-         n0Xm8YCf+Yqg9qH1xbhQKNTX8QOaUSFwIalZrqTOVNO+0djSGHgY7pzaugHKra8qrpwD
-         I2+A==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ITx7t0Vk"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1786342988;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=HzXPQnozqWnPo5236EWypdZ47CBguSfl6g0bCZAQVQ4=;
+	b=ITx7t0VkdU8SdayRlji5gOnUN6dDimWMN2n8kdgcc/6xml/BSlUwiZOVDSqMOCqWhaXiAT
+	QcqouPBM4XFVkwb9hzx6zyHE4rP52CjGAaeoY2g1hCffjyJYcTv+lcOBN5NyusLCfCIgW1
+	JMRrYqnQhDWE9+4cEl0KxB2846sGNXI=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-630-wuYyJ4BeMxO1enr8AsRt3w-1; Mon, 10 Aug 2026 02:23:06 -0400
+X-MC-Unique: wuYyJ4BeMxO1enr8AsRt3w-1
+X-Mimecast-MFC-AGG-ID: wuYyJ4BeMxO1enr8AsRt3w_1786342986
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-47485fde05aso869082f8f.0
+        for <virtualization@lists.linux.dev>; Sun, 09 Aug 2026 23:23:06 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786323807; x=1786928607;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=MbbU/F/djf22NMRk+tFA6K7hMv5blZDiEPyCufD11oE=;
-        b=jldxGCOtT/VtVzmo6JqNYVwVgMftUy3YCwCRXYRN5VgmXGsx8z7ykJxAiFXKBjEtkD
-         ghG8AIiLOIRdCVC9A2z0IpUdGyvgVmKkWCGNCpqPllzlkS+S2JwPu8iI5vQFyum6Fo0r
-         LtrW5BGtIkwJ73u6ixMIHBpVsBiZm88GEq6mJsBiUphYlsDfIWpoc+UryM54Gwkk5jjZ
-         rKXR6wh5SpU2HvxtmHEj1qSsSuy+kBXNuIs5rZ3zpQpKB1vX2UeMGiIk065MDOhf1SGu
-         5OL7kNXDRg09hMVxwPGJTs8LccDDySXvhfuCvowoGbiic/fTX+vTHOafFBiKZhQHOXzb
-         quzA==
-X-Forwarded-Encrypted: i=1; AHgh+Rq9G9k/+CyBN+owMZSmDS7UB8KsjsPKyVyNdur+oGV/KtWp60lLVdL2k70LwBiyfWIm0kck7zTR7bvZ6XNGyA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxh96fjeVexk8vP5Tfqb7AIR7EEemJVsh+sXHwJfIBPcuGFZVJ2
-	1h1lUcyu1Aib3GT2yaNnEP8mDwYG2JEORe7/1TsU0HEMByr1BA+qFoC8
-X-Gm-Gg: AR+sD13i37bFhTdjRAZQW0HMlMCe1dNpqIFGLo82C13Xow3NkNl3sr1LI6erTH9pi9t
-	j8ofNwQOH1tVlEcSdql1KMHeX0ATpvI9l9AkzFfi0641eYK7mUSgx/xQzxq6hxPk+h9I9ee6HQk
-	O40A/mqNVY0BUKXVZms0+2Bz3EOKkKeD68rWVmzCca6byU3a8nya0LWtEU3GR5pbBBQc4JaBn62
-	aLG0fGHfrcX4JNiTBmU0SbQ4M7nYQ+66RZAexH9eO+WGW52xbDav2dhK6JOgZTZd7rsFMqMfYKV
-	y9w3xo4xum0DtMHV5OUWnaz9yl3frJwnCwPtsgTGgZOHyL1DWdHXvQsRJyr3uEROJgwE81T8Gpu
-	MHbpeD/kR5VQXMauCZdfpE7oLncC6K8MSjzQKXl25z5R8lUs7ZCslpI/DqnW6K0ZK5Fgwrep8XC
-	BVrXgKrdciXlmyHs5N0YOnScgKAG0TBWb8SNbVKB3RT89syLqXq1CSRn0y3jU=
-X-Received: by 2002:a17:90b:4a0f:b0:38e:9045:bac0 with SMTP id 98e67ed59e1d1-392823340e5mr16894066a91.5.1786323806331;
-        Sun, 09 Aug 2026 18:03:26 -0700 (PDT)
-Received: from gmail.com ([123.118.75.63])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3925ff64b1dsm10138275a91.13.2026.08.09.18.03.23
+        d=1e100.net; s=20251104; t=1786342985; x=1786947785;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=HzXPQnozqWnPo5236EWypdZ47CBguSfl6g0bCZAQVQ4=;
+        b=Ye8ijsPLP3qmgS+aKRTWqCaBn8KdHKDqLgfKnBrH5I3p5oVS+z7odp0Or4ZK02h4Vh
+         CVEDDXoZ2TNEDNiPQQneyn7AgdKQWsw2gQZA+DRe8RasBuLFyeH+scV1yWUBgJBJD04x
+         mmlWuV+aL4kz7MyGiOL0DNJ1eL1FP+lb3qBCqLVs88JpkPcQp57eA6XT8usBgCGUmpl6
+         Y5QKQIlieL2Acf6tENr5RVLAocwPpu9pJgVUJfbfqO6j0nYJWXrLcW4eMVbXSUBLk2p9
+         GTlrA/ivffzsdImYKpi8xsboTeqMR9sxhoDlevQEYSkF7gTYxpbItmkk6RLA2j5y2DkS
+         wtEQ==
+X-Forwarded-Encrypted: i=1; AHgh+RrxtFfBP5Vx8E7XpyXDM0L+FMorECR5wFbKeMZQklsAgS2KrUwm0MRA4lYhubNI4cwEjvBE6sEwDRZvorIfbA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yzi+cIDi/qE176QXaAjIWnkdLJhCmb6W9ZNqHPMQdx1UQayDHYp
+	/03XKCD5oIv0jRJjqelvTSf78TKZVDyMpwGIWlK7k7CQJ5caSDby1a2GUpLL6Ns5taP5GEXW92G
+	kOiUxMmVR9Pa4D0uOyeL4r03sjBGtfV0+GAv8VebZhDeLFxZpXp2MUWyTVKCFpdQLjV+5
+X-Gm-Gg: AR+sD12Iyi0D3Vutes9qtspP0f1u+P2RtUUtBFaKvhloNbOX45O2Yd3noCAcFvu9oJI
+	6KydhfMEA2OTeqRHhFi3IjMzDNbRmpAOx9G2/oqxBcRmW5y++v4HWprjy99o3k2+QU21vA7LRwY
+	U9EITw7YpWY4UmnJwrjePqbaJI7+7fvYUZUIbwkmdW/Ae3nbiY0oED8cTBqCQ8tEnt7cfjQWhyY
+	jMp9/STbRlMiilIGor1ZLRuqGqEZsc5c3uHusN/D5XUET1Pa70GruAfOVve1pfDL4UdmDqOPXnv
+	PaigcHrLEvzdar2V7SxylNvIG94qR7XI82TUmoOAoQvMimPIE2TjlE1/n0uz0/oEE65yYUgJTa5
+	6RFwgY/mgLTjuRREE2NelcA==
+X-Received: by 2002:a05:6000:41d3:b0:45e:e1a4:c4c3 with SMTP id ffacd0b85a97d-47fec628b57mr64771506f8f.15.1786342985405;
+        Sun, 09 Aug 2026 23:23:05 -0700 (PDT)
+X-Received: by 2002:a05:6000:41d3:b0:45e:e1a4:c4c3 with SMTP id ffacd0b85a97d-47fec628b57mr64771414f8f.15.1786342984878;
+        Sun, 09 Aug 2026 23:23:04 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-39-98.inter.net.il. [80.230.39.98])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4800220aa83sm26809797f8f.36.2026.08.09.23.23.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 09 Aug 2026 18:03:25 -0700 (PDT)
-From: Jia Jia <physicalmtea@gmail.com>
-To: mst@redhat.com,
-	jasowang@redhat.com
-Cc: kvm@vger.kernel.org,
+        Sun, 09 Aug 2026 23:23:04 -0700 (PDT)
+Date: Mon, 10 Aug 2026 02:23:00 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Alexander Graf <graf@amazon.com>
+Cc: Jason Wang <jasowangio@gmail.com>, Alex Williamson <alex@shazbot.org>,
+	David Airlie <airlied@redhat.com>,
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+	dri-devel@lists.freedesktop.org,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Feng Liu <feliu@nvidia.com>, Gerd Hoffmann <kraxel@redhat.com>,
+	Halil Pasic <pasic@linux.ibm.com>, Jens Axboe <axboe@kernel.dk>,
+	Jiri Pirko <jiri@resnulli.us>, Jonathan Corbet <corbet@lwn.net>,
+	linux-block@vger.kernel.org, linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org, nh-open-source@amazon.com,
+	nvdimm@lists.linux.dev, Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Parav Pandit <parav@nvidia.com>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
 	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v3] vhost/vdpa: reject VRING_NUM larger than device max
-Date: Mon, 10 Aug 2026 09:03:00 +0800
-Message-Id: <20260810010300.132959-1-physicalmtea@gmail.com>
-X-Mailer: git-send-email 2.34.1
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Yishai Hadas <yishaih@nvidia.com>
+Subject: Re: [RFC PATCH 00/12] virtio: support devices that own their
+ virtqueue memory
+Message-ID: <20260810021450-mutt-send-email-mst@kernel.org>
+References: <20260809182010.32931-1-graf@amazon.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260809182010.32931-1-graf@amazon.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: sjAnYARxhGlp4b7iMOBr8g-GHZNEP6kFUYP81spckYg_1786342986
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-vhost_vring_set_num() accepts any non-zero power-of-two queue size that
-fits in 16 bits. vhost-vdpa then passes that value to set_vq_num()
-without comparing it with get_vq_num_max().
+On Sun, Aug 09, 2026 at 06:19:58PM +0000, Alexander Graf wrote:
+> Virtio drivers use guest memory to back virtqueues and their buffers.
+> That means a VMM needs to be able to map guest memory. That is ok in the
+> normal virt case. It gets icky with confidential computing (where we use
+> swiotlb as workaround) and it defeats the purpose of isolated vhost-user
+> backing devices, because they end up with full RAM access to the guest.
+> 
+> So instead, I'm proposing an extension to virtio which allows it to give
+> each virtio device its own dedicated memory region to communicate with the
+> host, called DMB (Device Memory Buffer). A trusted hypervisor can force
+> DMB to be present, which then enables safer, more isolated and resilient
+> communication between guest and host.
+> 
+> With DMB, the device provides a shared memory region that both parties
+> agree is the full memory map both have access to. All memory offsets
+> that previously would have been into guest RAM, are then offsets into
+> this shared memory buffer region. One nice property of this is that it
+> is a generic mechanism in the virtio transport layer, so higher level
+> drivers work unmodified.
+> 
+> I was exploring to use swiotlb instead to create individual pools. But
+> that approach has multiple downsides:
+> 
+> 1. Swiotlb is an OS primitive which is not available in all Operating
+> Systems. DMB however lives in the virtio transport layer, which means we
+> can add support for it in any OS independent of generic layers. This
+> helps with Windows support.
 
-A process with access to /dev/vhost-vdpa-* can therefore configure a
-queue larger than the device advertises. With vdpa_sim, the worker can
-walk descriptors beyond the mapped descriptor ring. KASAN reports a
-16-byte out-of-bounds read, corresponding to one vring_desc, in the
-vringh IOTLB path:
 
-  BUG: KASAN: out-of-bounds in _copy_from_iter
-  Read of size 16
-  copy_from_iotlb
-  copydesc_iotlb
-  vringh_getdesc_iotlb
-  vdpasim_net_work
+How does it help, if you are going to put a pool in
+the driver, put a pool in the driver. Maybe with virtio mem to
+simplify allocation.
 
-Cache get_vq_num_max() immediately after reset. Some backends derive
-it from writable queue-size state, so querying it after SET_NUM may
-return the current size instead of the device capability. Invalidate
-the cached value before reset so a failed reset leaves SET_NUM
-disabled.
+> 2. We munge DMA space together. DMB provides a separate DMA space per
+> virtio device. This means we can for example implement a device in
+> vhost-user and give the implementing process only visibility to the DMB
+> region, not all of guest memory. That reduces the exposure the
+> vhost-user provider has, improving security.
+> 
+> 3. Devices can opt-in. A hypervisor can choose to use standard virtio
+> semantics for self-implemented devices (e.g. NSM), while requiring DMB
+> for devices implemented by less trustworthy providers. The
+> non-trustworthy devices do not get any visibility into the trustworthy
+> ones, even with DMB in place for both.
 
-For VHOST_SET_VRING_NUM, copy the complete vring state once and use
-the same index and size for validation, vq->num, and set_vq_num().
-This ensures that validation and use operate on the same copied values.
 
-Fixes: 4c8cf31885f6 ("vhost: introduce vDPA-based backend")
-Signed-off-by: Jia Jia <physicalmtea@gmail.com>
----
-v3:
-- Copy VHOST_SET_VRING_NUM once and use the copied values throughout,
-  avoiding the double-fetch race in v2.
-- Cache the device-wide maximum after reset so mutable queue state
-  cannot break a later legal resize; fail closed if reset fails.
 
-v2:
-- Add the missing Signed-off-by tag.
+So I am not sure whether the implication is that it's purely a software
+construct. But if it is, can we extend virtio iommu to
+add a way to discover and enforce trust boundaries?
+And maybe translate offsets to BARs, if that is desired?
 
- drivers/vhost/vdpa.c | 44 +++++++++++++++++++++++++++++++++++++-------
- 1 file changed, 37 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-index 692564b1bcbb..f2eedb0464c2 100644
---- a/drivers/vhost/vdpa.c
-+++ b/drivers/vhost/vdpa.c
-@@ -53,6 +53,7 @@ struct vhost_vdpa {
- 	struct cdev cdev;
- 	atomic_t opened;
- 	u32 nvqs;
-+	u16 vq_num_max;
- 	int virtio_id;
- 	int minor;
- 	struct eventfd_ctx *config_ctx;
-@@ -229,7 +230,9 @@ static void vhost_vdpa_unsetup_vq_irq(struct vhost_vdpa *v, u16 qid)
- static int _compat_vdpa_reset(struct vhost_vdpa *v)
- {
- 	struct vdpa_device *vdpa = v->vdpa;
-+	const struct vdpa_config_ops *ops = vdpa->config;
- 	u32 flags = 0;
-+	int ret;
- 
- 	v->suspended = false;
- 
-@@ -239,7 +242,14 @@ static int _compat_vdpa_reset(struct vhost_vdpa *v)
- 			 VDPA_RESET_F_CLEAN_MAP : 0;
- 	}
- 
--	return vdpa_reset(vdpa, flags);
-+	v->vq_num_max = 0;
-+	ret = vdpa_reset(vdpa, flags);
-+	if (!ret) {
-+		/* Some backends derive the max from mutable queue state. */
-+		v->vq_num_max = ops->get_vq_num_max(vdpa);
-+	}
-+
-+	return ret;
- }
- 
- static int vhost_vdpa_reset(struct vhost_vdpa *v)
-@@ -641,9 +651,15 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
- 	u32 idx;
- 	long r;
- 
--	r = get_user(idx, (u32 __user *)argp);
--	if (r < 0)
--		return r;
-+	if (cmd == VHOST_SET_VRING_NUM) {
-+		if (copy_from_user(&s, argp, sizeof(s)))
-+			return -EFAULT;
-+		idx = s.index;
-+	} else {
-+		r = get_user(idx, (u32 __user *)argp);
-+		if (r < 0)
-+			return r;
-+	}
- 
- 	if (idx >= v->nvqs)
- 		return -ENOBUFS;
-@@ -652,6 +668,23 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
- 	vq = &v->vqs[idx];
- 
- 	switch (cmd) {
-+	case VHOST_SET_VRING_NUM:
-+		mutex_lock(&vq->mutex);
-+		if (vq->private_data) {
-+			r = -EBUSY;
-+		} else if (!s.num || s.num > 0xffff ||
-+			   s.num > v->vq_num_max ||
-+			   (s.num & (s.num - 1))) {
-+			r = -EINVAL;
-+		} else {
-+			vq->num = s.num;
-+			r = 0;
-+		}
-+		mutex_unlock(&vq->mutex);
-+		if (r)
-+			return r;
-+		ops->set_vq_num(vdpa, idx, s.num);
-+		return 0;
- 	case VHOST_VDPA_SET_VRING_ENABLE:
- 		if (copy_from_user(&s, argp, sizeof(s)))
- 			return -EFAULT;
-@@ -765,9 +798,6 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
- 		ops->set_vq_cb(vdpa, idx, &cb);
- 		break;
- 
--	case VHOST_SET_VRING_NUM:
--		ops->set_vq_num(vdpa, idx, vq->num);
--		break;
- 	}
- 
- 	return r;
--- 
-2.34.1
+
+It seems to be that the result would be that we don't need fiddly
+special casing in virtio ring specifically, and a lot of things like
+pre-mapped dma will begin to work.
+
+
+
+> == Limitations ==
+> 
+>   - Only PCI is wired up.
+>   - Feature bit 44 and the shared memory id register at offset 0x40 of the
+>     PCI common configuration are provisional: the OASIS technical
+>     committee has the specification and has allocated neither.
+> 
+>   https://lore.kernel.org/virtio-comment/20260804161202.38619-1-graf@amazon.com/
+> 
+>   - The device I ran this against is not public, so you cannot reproduce
+>     the numbers below. The KUnit test you can.
+> 
+> == Testing ==
+> 
+> Without patches 10 and 12 a receive refill livelocks and queues starve
+> each other: 29,319,791 receive softirqs in five seconds with not one
+> packet received, against 4 with them, and 2 of 7 receive queues that never
+> see a buffer, against none. Earlier revisions moved 512 MiB of O_DIRECT
+> block I/O and 2.7 GB of verified vsock through a region with no error.
+> 
+> The KUnit test for patch 12's guarantee you can run yourself, and two of
+> its five cases fail if I take the fix out:
+> 
+>   tools/testing/kunit/kunit.py run --arch=x86_64 \
+>       --kconfig_add CONFIG_VIRTIO_MMIO=y \
+>       --kconfig_add CONFIG_VIRTIO_DMB=y virtio_dmb
+> 
+> Patch 1 can be taken on its own: a stale worked example in a vdpa
+> comment. Patch 10 fixes something older than this series too, a failed
+> mapping arriving as -EIO from a packed ring, failing an I/O that on a
+> split ring is only back-pressure, but it does not apply alone: it wants
+> patch 2, and patch 9 for the file its documentation hunk edits. Both
+> carry Fixes:. Patch 12 wants 10 first.
+> 
+> I wrote this series with an AI coding assistant, which drafted the code,
+> the changelogs and this cover letter. I reviewed and reworked all of it,
+> and every commit carries an Assisted-by: trailer.
+> 
+> Alex
+> 
+> Alexander Graf (12):
+>   vdpa: correct the VIRTIO_DEVICE_F_MASK example value
+>   virtio_ring: validate premapped addresses through the device's map
+>   virtio: add the VIRTIO_F_DMB feature bit
+>   virtio_pci: read the device memory buffer shared memory id
+>   virtio_pci: create virtqueues with the device's mapping token
+>   virtio: add a device memory buffer region allocator
+>   virtio: locate the device memory buffer after feature negotiation
+>   virtio_pci: support VIRTIO_F_DMB
+>   Documentation: virtio: describe the device memory buffer
+>   virtio_ring: report a bounded pool's exhaustion as -ENOSPC
+>   virtio: expose device memory buffer occupancy over debugfs
+>   virtio: guarantee a virtqueue can publish its first descriptor chain
+> 
+>  Documentation/driver-api/virtio/index.rst     |    1 +
+>  .../driver-api/virtio/virtio-dmb.rst          |  803 ++++++++
+>  drivers/vdpa/vdpa.c                           |    2 +-
+>  drivers/virtio/Kconfig                        |   29 +
+>  drivers/virtio/Makefile                       |    3 +-
+>  drivers/virtio/virtio.c                       |   15 +-
+>  drivers/virtio/virtio_dmb.c                   | 1719 +++++++++++++++++
+>  drivers/virtio/virtio_dmb.h                   |   34 +
+>  drivers/virtio/virtio_dmb_test.c              |  279 +++
+>  drivers/virtio/virtio_pci_modern.c            |  100 +-
+>  drivers/virtio/virtio_pci_modern_dev.c        |   23 +-
+>  drivers/virtio/virtio_ring.c                  |  216 ++-
+>  include/linux/virtio.h                        |    3 +
+>  include/linux/virtio_config.h                 |   41 +
+>  include/linux/virtio_pci_modern.h             |    1 +
+>  include/uapi/linux/virtio_config.h            |   17 +-
+>  include/uapi/linux/virtio_pci.h               |   10 +
+>  17 files changed, 3254 insertions(+), 42 deletions(-)
+>  create mode 100644 Documentation/driver-api/virtio/virtio-dmb.rst
+>  create mode 100644 drivers/virtio/virtio_dmb.c
+>  create mode 100644 drivers/virtio/virtio_dmb.h
+>  create mode 100644 drivers/virtio/virtio_dmb_test.c
+> 
+> 
+> base-commit: fc02acf6ac0ccde0c805c2daa9148683cdd01ba8
+
