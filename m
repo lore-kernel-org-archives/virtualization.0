@@ -1,132 +1,124 @@
-Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f172.google.com (mail-pg1-f172.google.com [209.85.215.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DAF142641B;
-	Mon, 10 Aug 2026 16:40:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=82.195.75.108
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E3E73382E8
+	for <virtualization@lists.linux.dev>; Mon, 10 Aug 2026 17:10:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786380023; cv=none; b=sHhZF4a7j6yDQUWSzZdtw9zD4yQC3XkCdDw++HFT9emevS985Vy+/jM7QYdF7NIZZdqbOc7ylj20GtvF4suAoGAs6aVtqYpG0khWwA7F21iQmlX+2QxMv1daj/Hao0FySI96uyiOpDlD0ekZkJ2qke1j6sYC3h+x0n6A8RxujhQ=
+	t=1786381844; cv=none; b=bTsxjoMenmUSGEeuf98tSksGv7douD25HZlFdSLGZC+bTNKYGkfWPKYYZxIUX3F1tTFdBkBvRkXwucBCT8f97B0IFOR8lJhkcMb9zZP5jXAXyU9WzoZ3I8QsAw79i+9iTB+INGrgK9GpxZg/8BZ4QySSJl2ySCojjxNKIib4ypw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786380023; c=relaxed/simple;
-	bh=AQ1oun/6qosgKY6n4kYQLUjA92UVpoAqVkAfGokSIqc=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=Zf2JpsfBLXqSXocP3LZy9WP7wR/EvEqjOxMkOzNqM2RpqQBzBghW5BkikeWIsnJ94ktmJA9WMjx6T4YhU0LsVljsu5ahoDj6u1qXFACzm30OUrPuTrXrmhz1JM/u8sH7BZbFpDmxDJd7gE1B5MsBZxMRWTzaZ087dia71LzLkNQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=debian.org; dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b=hBmi4cV9; arc=none smtp.client-ip=82.195.75.108
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=debian.org
+	s=arc-20240116; t=1786381844; c=relaxed/simple;
+	bh=u/03OJopUWpYIZLPOmNno1ZcdLO9Vd/Dsn+H/2t7RQE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=nQy9WEb/0aIuMsSvoM3qZe2tD0+m5bddErHdXl7wbU+7I5DdSvUgGRr3nOXQsODgVoPJyxY8eUPCui/0G/swodUTIEy7d+67cciqRaApgvd1IzQMf4CCzspwGlLazvkt1c/uMlMPcT9TxdKKOJfQ+fW5/8HVRFUTFcRXgK///5Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XhcG12jg; arc=none smtp.client-ip=209.85.215.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b="hBmi4cV9"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
-	s=smtpauto.stravinsky; h=X-Debian-User:Cc:To:Message-Id:
-	Content-Transfer-Encoding:Content-Type:MIME-Version:Subject:Date:From:
-	Reply-To:Content-ID:Content-Description:In-Reply-To:References;
-	bh=FcdtcF+yPR4yRlsq2nKgHkbYHOu0vQYWCUN4KSaMCnA=; b=hBmi4cV9FnYTDqsdNoINoYkL3p
-	wbHy4FbLYGmGDvbKvjlxlH6A0us53PpJxwVotTY3EiecUZHOc/vqlKP056camhdoKfqkDYDMfdRrj
-	tUZrW8B+6IDJHUvC/JnkWXCxnHF2zIJsE6PhDcOTeAlhuAI7221e7tilaviRKjr3Tm/RPRrTvyq2D
-	ElZ0Ifzm5WdxlI/MglUqL7/CwtaT36GHk/xgu8fvEAONkBTK541uiKptSh02uX6Xhs7BDsvLxpKZc
-	49qSY+W2pPvtBlRuSqsZ7tE4hFubLKxSLNL8D49KCHIKhTUd+9NnOqETZY0NAPXO+hO2W66975Tz8
-	rYiR9Wlw==;
-Received: from authenticated-user
-	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.96)
-	(envelope-from <leitao@debian.org>)
-	id 1wtT2s-002vPa-1m;
-	Mon, 10 Aug 2026 16:40:15 +0000
-From: Breno Leitao <leitao@debian.org>
-Date: Mon, 10 Aug 2026 09:40:00 -0700
-Subject: [PATCH] virtio_console: allocate the port_buffer with the caller's
- gfp
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XhcG12jg"
+Received: by mail-pg1-f172.google.com with SMTP id 41be03b00d2f7-c981c2c37cbso1532897a12.0
+        for <virtualization@lists.linux.dev>; Mon, 10 Aug 2026 10:10:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1786381842; x=1786986642; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=YwnNatVO8vJ44aB8viIABkdP11ZOZYuCLz8W0eTqLj8=;
+        b=XhcG12jgc/VAogEruBHqU16cIIAYwCvJp0WB77Zr8KVTTJ8aCIzhq7pgLFNkOll3kL
+         nGip/YhdvUNci7B62H2ph3lckt4ayCX1OjnjpZ4YuCncblyu++azApyjhD8UMsRuqKYn
+         nqy82iSjuZ0mfxwD37LXuBEQpLjMcmAApTtRpPK4WzBxv7muhERhl91veUPI4KnPOIe6
+         nbeObxA/IO3wxjbFNrN7yvxykdFoqwYjPAMVsJPIzInugqGGLHHy8MAQalzROU2TQS/S
+         Ks0RuJtPWg2qHs/Ebdh+AVrP4L6herzv98c0rHYwsQcrzlwjLbJKzCmF2WyB8lRTpo7Y
+         0org==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786381842; x=1786986642;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=YwnNatVO8vJ44aB8viIABkdP11ZOZYuCLz8W0eTqLj8=;
+        b=PS7GwtY9DDQS20/6Kap7g/wI3H+8nz0J3JB1CrEJskVWI8zBdEU4SZf4ndpcXwFS64
+         z8+wGxEv77cFJafAFcy7ngHa/zOBqGJLkPveT51CQE3lRcFqRzpdeEFuaQ5kt8LxFCtG
+         9DGScCfYiFCEoJBUz1NUd1lfO2t2VBP46b2gx/k6LnRxu2NmlbEJXGRvMRuUM3nLm/gA
+         NWBNj86JwK/Jb3uF9POc8BWu/OukReoqBsYPqkq2ustiKY6ivD4ape+MiJVGlYQ8wvTt
+         nwxI+Zlv9CaSKD/1pXp7tjz7hIRVf2Mwx7Eaxb0oJSfVyI+rAt1DtAM/v726mWqzXUlN
+         DB0g==
+X-Forwarded-Encrypted: i=1; AHgh+RotgaGD9Pl30q+8MholJ4ZWcqe69xYPXGrKHXMUpQjwiXP1EXgRwuNXqZqjvjZKG5sMVJwtdnB1XB6Dz16EOA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwxgsKVk6Y6HOZ3ZJi719m+1/eBD5ewYSQJIIKNk4IyETOMQy/g
+	LLY5nd2vpAtNpMZkun0ER8FkTsC44KgUi+5xPNIroQxHaCUshp8uAgeR
+X-Gm-Gg: AR+sD10MvXewXmqGJr2JjcwaGvHfK5Xq9Rg4lwfCQnaNiJSNTqdrSysNAqnBMsohfN1
+	FuhtO9eYWJblCImmQHZauN07ifg7OshwisRBwTObt/q5VqybW8OGEyAVE4fVsVbb+nuN1ylzBgP
+	m8RNrfXXCrvkY5K+fNtMwJRzEbI61Udu/PGe5i/SywxK45ebhPKUR5hnvU54CgAtvC46tzr2bWq
+	ppHJ4iuhZ0v9/4C6pnkBVGVFxzIHi4eoMzE8lnp9zkU4womMvgwrUR/PyPVdhPOILP3SEDnmmtH
+	hfF9TZySVKJEGRlYyH37oGz0JyO+WEFotQGNRLM+qCs7Qv4gIP1DJnJMM3HmUtpZ4yngbMEMLg2
+	6mNUf9YNrLGOHYkaPvokfLXdjTy4v/P6Yj5uaelBzPs0qavjBs7sJE9BpSODOn97hXCavtj2Q0L
+	KHkekpucYfBd8OKy6dIy2fsGNBZcdmzO1qD/K9k0zpFskr5RH0fuOA7rRdKe2znA==
+X-Received: by 2002:a05:6a20:6a05:b0:3c4:3112:3b with SMTP id adf61e73a8af0-3cb85e771acmr47912530637.18.1786381842462;
+        Mon, 10 Aug 2026 10:10:42 -0700 (PDT)
+Received: from phi.nguyendp ([116.86.160.247])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1410199cf49sm37194663c88.3.2026.08.10.10.10.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 10 Aug 2026 10:10:41 -0700 (PDT)
+From: Nguyen Dinh Phi <phind.uet@gmail.com>
+To: Stefano Garzarella <sgarzare@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Andy King <acking@vmware.com>,
+	Dmitry Torokhov <dtor@vmware.com>,
+	George Zhang <georgezhang@vmware.com>
+Cc: Nguyen Dinh Phi <phind.uet@gmail.com>,
+	virtualization@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v5 0/3]  vsock: fix stale sk_err handling after a failed connect
+Date: Tue, 11 Aug 2026 01:09:29 +0800
+Message-ID: <20260810170935.2242314-1-phind.uet@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260810-serial-v1-1-abbe51602c13@debian.org>
-X-B4-Tracking: v=1; b=H4sIAN/+eWoC/x3MQQqAIBAF0KsMf50wCkV6lWhRNtVAWChEEN09a
- v94N4pklYJAN7KcWnRPCGQrQlyHtIjRCYHg2DXcWjafHzYz+dHVXqK3zKgIR5ZZrz/q+ud5AVY
- 7/v1YAAAA
-X-Change-ID: 20260810-serial-d9b259ec9100
-To: Amit Shah <amit@kernel.org>, Arnd Bergmann <arnd@arndb.de>, 
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
- Sungho Bae <baver.bae@lge.com>
-Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
- kernel-team@meta.com, Breno Leitao <leitao@debian.org>
-X-Mailer: b4 0.16-dev-f8e9d
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2002; i=leitao@debian.org;
- h=from:subject:message-id; bh=AQ1oun/6qosgKY6n4kYQLUjA92UVpoAqVkAfGokSIqc=;
- b=owEBbQKS/ZANAwAIATWjk5/8eHdtAcsmYgBqef7pRmv7V6/qdwMuQXlRm+LfqYlS63tgEHil4
- /kV9h3GGoyJAjMEAAEIAB0WIQSshTmm6PRnAspKQ5s1o5Of/Hh3bQUCann+6QAKCRA1o5Of/Hh3
- bZGMD/9hwPBteGx/tTogR1lDDfAUgSgkRWUgpZGhOxRimIVe7IPRcstJIBxoJslP0btmbEr8PZx
- UQ4SiiByq8Tp0h3TyyE6XyLFdrcUrBs+Df0XkaHdGFuiAQegjBBu1+cK1/AU4ZWE/2citItqW7k
- yw0U8Xn8vqtv/12W744V5d4ANvbkKwtBLdebP57dRvLv6lcFXd4Q1WDIfVhhUFh9kJRHe3FRrP7
- G58qRcIzsT2QLjXaTPoleJVN6snQ9ew8KjwdiMXjoeWOFWHYi6rIzcGfx3ZRxvSJH3yZRPXFBlJ
- paZqkXnTxr762QYK1JQVCCCIH8T0Zy3kzWT+79/l987Gj3gt4M2U/rNyrUe7w87YsYKc+3CEb3w
- b4WJxaVyG1oyAMcrKwwd9UDF3UAlpr6UjhQseXvRpY5Txg9HRKILc+TxYY8+2MzmAajpt2NcdcX
- qky48N7E5Zi8WlsNkblanDKzHlEG68trMMzO6bk2WU1OprkirrfPJ+mx70MjSvnh+Vd8ih32yob
- 4pZ7wE/nzdAffAvFUomuWcO5NNwjARZnuaxmExzL+SMSY8ILj7cto4HlzNEQbXKOYU12m7BrU4f
- Sk0e69RoGy4pQZZw0tIvgDdXfZGlUe88DL5QC+LNzDcV17nXTS8oVDKzXlCuYvavJgU8ULD+jJS
- 7teqooD80YzDgDQ==
-X-Developer-Key: i=leitao@debian.org; a=openpgp;
- fpr=AC8539A6E8F46702CA4A439B35A3939FFC78776D
-X-Debian-User: leitao
+Content-Transfer-Encoding: 8bit
 
-put_chars() runs from the hvc console write path with preemption
-disabled, so it asks alloc_buf() for GFP_ATOMIC. Only the data buffer
-gets it: the struct port_buffer itself keeps the GFP_KERNEL default, so
-the allocation can enter direct reclaim and sleep. A write to /dev/kmsg
-on a CONFIG_DEBUG_ATOMIC_SLEEP kernel splats:
+A socket whose connect() failed keeps sk_err set. If that socket is
+later reused as a listener, vsock_accept() rejects an unrelated
+incoming connection, and on virtio/hyperv the resulting child socket
+is leaked.
 
-  BUG: sleeping function called from invalid context at ./include/linux/sched/mm.h:320
-  in_atomic(): 1, irqs_disabled(): 1, non_block: 0, pid: 1, name: virtme-ng-init
-  preempt_count: 1, expected: 0
-  Preemption disabled at:
-  [<ffffffff813fd90d>] vprintk_emit+0x17d/0x510
-  Call Trace:
-   <TASK>
-   dump_stack_lvl+0x69/0xa0
-   __might_resched+0x37a/0x4d0
-   __kmalloc_cache_noprof+0x94/0x5f0
-   put_chars+0x209/0x3e0
-   hvc_console_print+0x234/0x640
-   console_flush_all+0x4fc/0x950
-   console_unlock+0xbf/0x1b0
-   vprintk_emit+0x312/0x510
-   devkmsg_emit+0xba/0x110
-   devkmsg_write+0x21b/0x2e0
-   vfs_write+0x4dc/0x9d0
-   ksys_write+0x108/0x1e0
-   do_syscall_64+0xfa/0x460
-   </TASK>
+Patch 1 removes the listener's sk_err check from vsock_accept(), since
+no vsock transport ever sets sk_err on a TCP_LISTEN socket. This will
+fix what the syzbot reported.
 
-Pass gfp on to that allocation too.
+Patch 2 removes vsock_sock.rejected, now unreachable after patch 1.
 
-Fixes: fc220d6be3c7 ("virtio_console: refactor __send_to_port() buffer ownership")
-Signed-off-by: Breno Leitao <leitao@debian.org>
----
- drivers/char/virtio_console.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 62eecfa61646d..7f6cbe851d1e1 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -426,7 +426,7 @@ static struct port_buffer *alloc_buf(struct virtio_device *vdev, size_t buf_size
- 	 * Allocate buffer and the sg list. The sg list array is allocated
- 	 * directly after the port_buffer struct.
- 	 */
--	buf = kmalloc_flex(*buf, sg, pages);
-+	buf = kmalloc_flex(*buf, sg, pages, gfp);
- 	if (!buf)
- 		goto fail;
- 
+Patch 3 is a related but separate fix: vsock_connect() now consumes
+sk_err via sock_error() once it has been returned to userspace, so a
+failed blocking connect() doesn't keep reporting the same error a
+second time.
 
 ---
-base-commit: 6b8c8af514d739d0335f5579b585e02babe8a727
-change-id: 20260810-serial-d9b259ec9100
+Changes in v5:
+- Split into a series
+- Remove the now-unused rejected flag from vsock_sock
+v4: https://lore.kernel.org/netdev/20260804135238.386417-1-phind.uet@gmail.com/
+- Remove sk_err checks from vsock_accept()
+v3: https://lore.kernel.org/netdev/20260730081843.287563-1-phind.uet@gmail.com/
+- Fix truncated title and add annotations to reproducer steps.
+v2: https://lore.kernel.org/netdev/20260727071305.45826-1-phind.uet@gmail.com/
+- Add reproducer steps to commit message.
+v1: https://lore.kernel.org/netdev/20260719220103.684489-1-phind.uet@gmail.com/
 
-Best regards,
---  
-Breno Leitao <leitao@debian.org>
+Nguyen Dinh Phi (3):
+  vsock: don't check the listener's sk_err in vsock_accept()
+  vsock: remove the now-unused rejected flag
+  vsock: use sock_error() to consume sk_err after a failed connect
+
+ include/net/af_vsock.h   |  5 +---
+ net/vmw_vsock/af_vsock.c | 62 +++++++++++++---------------------------
+ 2 files changed, 21 insertions(+), 46 deletions(-)
+
+-- 
+2.53.0
 
