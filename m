@@ -1,180 +1,231 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0091A3D3CF7
-	for <virtualization@lists.linux.dev>; Mon, 10 Aug 2026 12:12:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EC64344DB9;
+	Mon, 10 Aug 2026 13:01:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786363954; cv=none; b=PIt0YUc6MQca26NBU8cLJKaikgX05a4PJyS/TSV3nSUdvKmH67OVhHj/4nILAlc1rZt3kI777nP7m4gNJO09TPlm9JWvDD6IAtRLApXQNisKMklGLp29M50cQlei/t7BrDFZmubUJ9FpZ+MhR+ixGFo4H4RkjujqXXrYR7x8zvo=
+	t=1786366880; cv=none; b=MY2ToK3VgCRqM4VG50/FlK94FaimGi0AxGtFpU04Po8wdQBh9oBqL4/+W6CsMtqWI8WBgWVF4v6kiHPL2nBLgrcD/b7OI78JSLsEg7+KPr/cK8yiA8NIiefOFFylMaQ41pXFreu+zz6ouQqhb9++VV34uhAAPmNvJlU6NPEn9jk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786363954; c=relaxed/simple;
-	bh=dIPyDEB/cW5VCCWLlYlPUMGmsUr9+irWujmR0rAZ0So=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=iFFZN2jzHZgcq2RuoffjB3ueXVC8VjZ1zqkdYlQmst2NN81f/9yJq/xLA/8FJjJ9BG9PUZDvYYPGjzjbDkI9hOzMhFgUp+d9jZCKaW5VKK6KSzIFIZswFilnwZ5tTYTaHzulcmZFHW5eKhpfe8XfrDdB/TCm9r8YO7mKpOh416I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=WdaiOpNu; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1786366880; c=relaxed/simple;
+	bh=nb1lpZ0/AdZPjWGiF6JucKUqoreag7z50n+DVnB6utQ=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=Q3BBo4fDQZ7ubKBHFJE65GZmoQyXhSmHDmRPgaqkmoy0XtonNY7bhg8b6LtsHdsLAnEnPh7dSgAeRD8ZyI6OeQaUsdHbAnnFOaUUNSyuh9cJYQVbi8XqfgRn8pXIi+pEf+tMOhmLsmRqp8QII4pSuYaTIs3y6ijuy7pVqWHpEaE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MF87dA4H; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WdaiOpNu"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67A9Vri2157137;
-	Mon, 10 Aug 2026 12:12:16 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=rsnV3L
-	RMaraTYgo0wJ/PM9LCV+tF3mHthX0fEe8e/bA=; b=WdaiOpNuPVJEQoxK78ncWN
-	UIp0JBmBK+y4d5GVcUttMXIGM/eajMnXqtQVpgQAxaoCjNO8cifzBDSy08278Am7
-	khXd2Qz8Nou1f8OsRvV7yP7xDWTzOBilYRX9ag8WHILxJEFfB+UqHncNz9Zahp5V
-	FhCB8rAJl+NTTdTzMhyhpnIBLo6VfhGDYqFsGUsbp4suLoIZNSVpqO3BdJbagkdj
-	kC6FI7YOA0oDS9qpkiLUa5CuTGdTpht8Ey80otDRXpkouC936HFq5nMQBVgDeAc9
-	dGsUSJhs0q52gqhSYNkN/G4ooH0PB1se03MHB8t99kP1EMqs+bQC1B20mJFm/sog
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fyb23gt9q-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 10 Aug 2026 12:12:15 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67ACBJ54002791;
-	Mon, 10 Aug 2026 12:12:14 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fxh0g4hk4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 10 Aug 2026 12:12:14 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67ACCACi35520948
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 10 Aug 2026 12:12:10 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 978842004D;
-	Mon, 10 Aug 2026 12:12:10 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1F8DA20043;
-	Mon, 10 Aug 2026 12:12:09 +0000 (GMT)
-Received: from [9.111.54.108] (unknown [9.111.54.108])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 10 Aug 2026 12:12:09 +0000 (GMT)
-Message-ID: <69fe90e5-9288-4a36-8599-205e9a061b7d@linux.ibm.com>
-Date: Mon, 10 Aug 2026 14:12:07 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MF87dA4H"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 1711BC2BCF4;
+	Mon, 10 Aug 2026 13:01:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1786366880;
+	bh=nb1lpZ0/AdZPjWGiF6JucKUqoreag7z50n+DVnB6utQ=;
+	h=From:Subject:Date:To:Cc:From;
+	b=MF87dA4Hwuj3rCMVTvC3Fb1voy3qRxC2A8SE83NfuggEKXcD/lkJxGJuwDKc8WBjj
+	 s0zsg123Kwsc4Xf09Laf7wqcL1VL41cytVjAw1C0ypxnMsBuQgQmIJuOLGYULlEn/4
+	 GLyGVyu2AnEx/zvKK8Jyp6dWAqkI7VS9zKFqi9MeRoTjS69QygXnwtUqEgrQLdhM5t
+	 Zlj3eQ5s/l99/efO3zIMAFoZJ4/GJ/yujVs/xl6QWeGrb3ClF1IQFHDaN6J/L7v2ao
+	 nwIOZOdxKQXUKeJgP1lbmJ7pyZzYAOH8w4Z8PfMZxjZ0jfx3z9HnkMX2VDUiopV/y8
+	 /odt+X8avSgrg==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EBFABC5AE49;
+	Mon, 10 Aug 2026 13:01:19 +0000 (UTC)
+From: Joel Granados <joel.granados@kernel.org>
+Subject: [PATCH v4 0/3] net: sysctl: Const Qualify sysctl ctl_table arrays
+Date: Mon, 10 Aug 2026 15:01:01 +0200
+Message-Id: <20260810-jag-net_const_qualify-v4-0-77e888237c69@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v9 10/11] virt/steal_governor: Implement steal_governor
- policy loop
-To: Shrikanth Hegde <sshegde@linux.ibm.com>, Yury Norov <ynorov@nvidia.com>
-Cc: linux-kernel@vger.kernel.org, mingo@kernel.org, peterz@infradead.org,
-        juri.lelli@redhat.com, vincent.guittot@linaro.org,
-        yury.norov@gmail.com, kprateek.nayak@amd.com, iii@linux.ibm.com,
-        corbet@lwn.net, tglx@kernel.org, gregkh@linuxfoundation.org,
-        pbonzini@redhat.com, seanjc@google.com, vschneid@redhat.com,
-        huschle@linux.ibm.com, rostedt@goodmis.org, dietmar.eggemann@arm.com,
-        maddy@linux.ibm.com, srikar@linux.ibm.com, hdanton@sina.com,
-        chleroy@kernel.org, vineeth@bitbyteword.org, frederic@kernel.org,
-        arighi@nvidia.com, pauld@redhat.com, christian.loehle@arm.com,
-        tj@kernel.org, tommaso.cucinotta@gmail.com, maz@kernel.org,
-        rafael@kernel.org, rdunlap@infradead.org, kernellwp@gmail.com,
-        linux-doc@vger.kernel.org, jgross@suse.com,
-        virtualization@lists.linux.dev
-References: <20260724140732.2683314-1-sshegde@linux.ibm.com>
- <20260724140732.2683314-11-sshegde@linux.ibm.com> <amPTg78qsOw4WpqB@yury>
- <d3533cdb-d32a-4d75-84d5-a2908ecc7bfa@linux.ibm.com>
-Content-Language: en-US
-From: Mete Durlu <meted@linux.ibm.com>
-In-Reply-To: <d3533cdb-d32a-4d75-84d5-a2908ecc7bfa@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=XqfK/1F9 c=1 sm=1 tr=0 ts=6a79c01f cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=4jQyYO4Id7rgjPpGlYcA:9
- a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODEwMDEwMyBTYWx0ZWRfX8DCm7BhRcDjm
- uKcHIHY0q8GURwiY7QTNl1opl13EsOzQAcpdlCnckTly+FQ0aQQQOs+FsM/Ws11FKTp0y6DBCfS
- XJriVyrSusyKRkPXS267L2dPgXwR6jndmoXOTKQ3PHB5Wb+dAR4xsC8IsxqkgEP+CvMiU0pKkdp
- WS6qYDd8pHua8WOfS6aEOAJSTwFcGd1fVujklAJXO0G6NcYQDiOp9JD+qzCH5k/Y2K3vl37Z3XL
- mlEflB/F9Tb6hHY7BqHj+ig/FfNU9MeEPMG3iIcV7C5Y8bUytbgwfoJ7l9lZepssgZyvDktAuas
- nRkEW6IkFiC/w5LDg71qXUsapthSCD8L8QgHqebGXdRjp4dvAfS/+Ve5aQIyEXistQ03wdSip5W
- hey2SvjCwVyjxS0mn91XQutjtBMb2PvhDU7ssq0JpMUuCpE5Pj1bMYKbYfzupAt36zfqxpVZ/6T
- k8JukH5NGyVz1lobzKA==
-X-Proofpoint-ORIG-GUID: VHuIP8-nzRSaetE1KmPe3BYo8a3Vjg7X
-X-Proofpoint-GUID: vPJ7KtsPyZb6_v7UGbebunOfFMr81WUd
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODEwMDEwMyBTYWx0ZWRfX0/8OIBwCyxey
- fDi4mCmPc/L38heCRSBmngKMVxegXEH4F2X92cLJDzpD72+vFAVPhunDG76euHkL6w4ouO8MSMH
- 6eiuxv2VyoxZNUX2Bc6EV4E8+hmrufY=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-10_02,2026-08-07_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 spamscore=0 adultscore=0 malwarescore=0 clxscore=1011
- suspectscore=0 priorityscore=1501 impostorscore=0 phishscore=0 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608100103
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAI3LeWoC/4XN3w6CIBTH8VdpXEcD/IN01Xu05ggPSjkoMJdzv
+ nvoTbXmuvz+tvM5IwrgDQS034zIQ2+CcTZGut0g1UhbAzZVbMQIy0nOBL7IGlvoSuVs6Mr7Q7Z
+ GD1inQATPRCUVR/H25kGb5+IeT7EbEzrnh+VNT+f1n9hTTDGAKM6FVikh6nAFb6HdOV+jmezZm
+ +GErzEsMpnMVMZIQkFWP0zywdBkjUkwwZwVQoMACTL/YqZpegGPNhJWSQEAAA==
+X-Change-ID: 20260629-jag-net_const_qualify-f4e09759dac7
+To: "David S. Miller" <davem@davemloft.net>, 
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+ Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+ David Ahern <dsahern@kernel.org>, Ido Schimmel <idosch@nvidia.com>, 
+ Pablo Neira Ayuso <pablo@netfilter.org>, Florian Westphal <fw@strlen.de>, 
+ Phil Sutter <phil@nwl.cc>, 
+ Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>, 
+ Xin Long <lucien.xin@gmail.com>, 
+ Steffen Klassert <steffen.klassert@secunet.com>, 
+ Herbert Xu <herbert@gondor.apana.org.au>, 
+ "D. Wythe" <alibuda@linux.alibaba.com>, Dust Li <dust.li@linux.alibaba.com>, 
+ Sidraya Jayagond <sidraya@linux.ibm.com>, 
+ Wenjia Zhang <wenjia@linux.ibm.com>, 
+ Mahanta Jambigi <mjambigi@linux.ibm.com>, 
+ Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>, 
+ Kuniyuki Iwashima <kuniyu@google.com>, 
+ Stefano Garzarella <sgarzare@redhat.com>
+Cc: chia-yu.chang@nokia-bell-labs.com, netdev@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org, 
+ coreteam@netfilter.org, linux-sctp@vger.kernel.org, 
+ linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, 
+ virtualization@lists.linux.dev, Joel Granados <joel.granados@kernel.org>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=5898;
+ i=joel.granados@kernel.org; h=from:subject:message-id;
+ bh=nb1lpZ0/AdZPjWGiF6JucKUqoreag7z50n+DVnB6utQ=;
+ b=owJ4nAHtARL+kA0DAAoBupfNUreWQU8ByyZiAGp5y5twjBp9PkaBkJVArZV0vNU+Y5SyiRu0I
+ gY8qTif8U7UuIkBswQAAQoAHRYhBK5HCVcl5jElzssnkLqXzVK3lkFPBQJqecubAAoJELqXzVK3
+ lkFPNYoL/2yPuP9Ro5Gv2xl1JABHhoOLEFlO2RFgGzQ9RwzM4oFc+czv9e31UtVyXC2DwVdtTtT
+ otBeXQSxIwV8UaZbcFX6GTMB/x1vRIhDgl6UNP9l+FKduQjZLmO/Gmn8bYxGx3aY/ZkQOL+1H1i
+ Dvo5yvsNn0j4QYgDnYk5x2q9zJz7Eng2JXPqq6RnJZf/q6QobJKrqDJ3qhbvvFmyFRk/dxLvpPJ
+ D2gy9Aw2Jk0Q2IOXvp2V6Yialv72aXGUO4YX8u2IKwtkqLgZmCanWWzWeDcOA6/XaRFMmHqgnhR
+ atl78dncx2r66L5J2ew8TwEc2MtFL/vnLqfPOUgW5rEM7W2G8tOYGFyANhoKwK/kREXV5bmE9Ul
+ iWxxcO1Rbv1onvtzIBgvuE1JMvGTiJRBZ1BslXjCbrc6eLvS6+dX2O1XcThuXo85zv6WHeT6YA3
+ OqSnEzHdueRSfS3pC/fNxEO3UojWnxR8KZ+GHwjn1eCmJbNaoom22pVh6LnF5l9ueMMiaKVynR7
+ T8=
+X-Developer-Key: i=joel.granados@kernel.org; a=openpgp;
+ fpr=F1F8E46D30F0F6C4A45FF4465895FAAC338C6E77
+X-Endpoint-Received: by B4 Relay for joel.granados@kernel.org/default with
+ auth_id=239
 
-On 27/07/2026 16:42, Shrikanth Hegde wrote:
-> Hi Yury,
-> 
-> On 7/25/26 2:35 AM, Yury Norov wrote:
-> 
->>
->> In v8 I pointed to the identical function in s390 code, and you agreed
->> to unify them, but that didn't happen. Please do that in the next
->> version.
->>
-> 
-> This is diff i have now. I assume this is what you had suggested.
-> Let me know if it differs.
-> 
+What?
+=====
+We do two things:
+1. Reject netns-unsafe: Replace warning and file permission change with
+   an error (reject registration) when an "unsafe" net sysctl
+   registration is detected.
+2. Const qualify: Const qualify network templated ctl_table arrays and
+   unconditional kmemdup'ed ctl_table arrays.
 
-The chunk below for s390 looks correct to me. I don't see any
-difference functionality wise.
+Why?
+====
+The main motivation for this is to continue with the const qualification
+of the ctl_table arrays [1]. The permission change inside
+ensure_safe_net_sysctl disallows cons qualifiaction as it basically
+modifies the entries before running the sysctl registration.
 
-> 
-> diff --git a/arch/s390/kernel/hiperdispatch.c b/arch/s390/kernel/ 
-> hiperdispatch.c
-> index 217206522266..0c658f229b17 100644
-> --- a/arch/s390/kernel/hiperdispatch.c
-> +++ b/arch/s390/kernel/hiperdispatch.c
-> @@ -210,13 +210,10 @@ static unsigned long 
-> hd_calculate_steal_percentage(void)
->          int cpus, cpu;
->          ktime_t now;
-> 
-> -       cpus = 0;
-> -       steal = 0;
->          percentage = 0;
-> -       for_each_cpu(cpu, &hd_vmvl_cpumask) {
-> -               steal += kcpustat_cpu(cpu).cpustat[CPUTIME_STEAL];
-> -               cpus++;
-> -       }
-> +       steal = kcpustat_field_total(CPUTIME_STEAL, &hd_vmvl_cpumask);
-> +       cpus = cpumask_weight(&hd_vmvl_cpumask);
-> +
+      ent->mode &= ~0222;
 
-[..snip..]
+On reject netns-unsafe?
+=======================
+* I believe that there is currently now way that the permission change
+  gets executed [2]
+* I found one case where the warning message was posted to lore
+  (vsock_sysctl_register) [3], but it made its to mainline as part of
+  the second case in [2].
+* We should error anyway because writing to the global sysctl value
+  through a child netns is indicative of a bug [4].
 
-> --- a/include/linux/kernel_stat.h
-> +++ b/include/linux/kernel_stat.h
-> @@ -196,6 +196,17 @@ static inline void kcpustat_cpu_fetch(struct 
-> kernel_cpustat *dst, int cpu)
->   }
->   #endif /* !CONFIG_VIRT_CPU_ACCOUNTING_GEN */
-> 
-> +static inline u64 kcpustat_field_total(enum cpu_usage_stat usage, const 
-> struct cpumask *cpus)
-> +{
-> +       u64 total = 0;
-> +       int cpu;
-> +
-> +       for_each_cpu(cpu, cpus)
-> +               total += kcpustat_field(usage, cpu);
-> +
-> +       return total;
-> +}
-> +
+On Const qualification?
+=======================
+We can separate the places where network registers sysctl tables into
+three groups:
+1. Static global: The unchanged global static arrays are passed along to
+   sysctl register.
+2. Always kmemdup: The global static arrays are always kmemdup'ed before
+   passing them along to sysctl register.
+3. Dynamic global: The global static array is changed in place before
+   passing it along to sysctl register.
+
+This series handles case 1 and 2. It leaves 3 for a later point as
+const qualifying those global ctl_tables is more involved.
+
+I would be very thankful if you point me to anything that I have missed
+in my analysis that shows that this cannot/shouldn't be done.
+
+Changes in v4:
+- Addressed comments contained in [5]
+- Removed the RFC tag. Get back to me if you want me to restart the
+  patch versions
+- Link to v3: https://lore.kernel.org/r/20260713-jag-net_const_qualify-v3-0-7289fe9eaea6@kernel.org
+
+Changes in v3:
+- Const qualified 2 of the 3 cases within the net directory ctl_table
+  register sites.
+- Link to v2: https://lore.kernel.org/r/20260707-jag-net_const_qualify-v2-1-5a5c52031ead@kernel.org
+
+Changes in v2:
+- Rebased on top of net-next
+- Updated subject to "RFC net-next"
+- Link to v1: https://lore.kernel.org/r/20260629-jag-net_const_qualify-v1-1-ee98b8fc400c@kernel.org
+
+Best
+
+[1]
+  https://git.kernel.org/pub/scm/linux/kernel/git/sysctl/sysctl.git/commit/?h=constfy-sysctl-6.14-rc1&id=1751f872cc97f992ed5c4c72c55588db1f0021e1
+
+[2]
+  I have identified 4 contexts relevant to the ensure_safe_net_sysctl call
+  inside the network sysctl registration.
+
+  1. When the (struct net) == &init_net (like in iw_cm_init): In this case
+     ensure_safe_net_sysctl is not executed and permission modification
+     never happens.
+
+  2. When the ctl_table data (->data) gets "manually" assigned to
+     something other init_net (like in vsock_sysctl_register): In this
+     case ensure_safe_net_sysctl *is* executed but the data that is passed
+     is neither a module address (!is_module_address) nor a kernel core
+     address (!is_kernel_core_data); so the permission modification never
+     happens.
+
+  3. When the permissions are explicitly changed on a kmemdup'ed ctl_table
+     array (like in sysctl_core_net_init): in this case
+     ensure_safe_net_sysctl *is* executed but the permission modification
+     never happens as the mode is not writable.
+
+  4. When ctl have custom proc_handlers (like in nf_lwtunnel_net_init): In
+     this case ->data is NULL so it is not a module address
+     (!is_module_address) nor a kernel core address
+     (!is_kernel_core_data), so permission modification never happens.
+
+  It seems like there is no way of executing the permission change in
+  ensure_safe_net_sysctl. Please correct me if this is inaccurate and help
+  me find the case that I missed.
+
+[3]
+  https://lore.kernel.org/all/20260302194926.90378-1-graf@amazon.com/
+
+[4]
+  The ensure_safe_net_sysctl function was introduced in Commit:
+  31c4d2f160eb7b17cbead24dc6efed06505a3fee ("net: Ensure net namespace
+  isolation of sysctls") which states that it is trying to prevent a
+  leak (indicative of a bug).
+
+[5]
+  https://patchwork.kernel.org/project/netdevbpf/patch/20260713-jag-net_const_qualify-v3-1-7289fe9eaea6@kernel.org/
+
+---
+Signed-off-by: Joel Granados <joel.granados@kernel.org>
+
+---
+Joel Granados (3):
+      net: enforce net sysctl registration
+      net: Const qualify ctl_tables that kmemdup unconditionally
+      net: Const qualify network templated ctl_tables Arrays
+
+ include/net/net_namespace.h             |  5 +--
+ net/core/sysctl_net_core.c              | 38 +++++++++++++++--------
+ net/ipv4/devinet.c                      |  2 +-
+ net/ipv4/sysctl_net_ipv4.c              | 54 +++++++++++++++++++--------------
+ net/ipv4/xfrm4_policy.c                 | 22 +++++++++++---
+ net/ipv6/icmp.c                         |  2 +-
+ net/ipv6/route.c                        |  2 +-
+ net/ipv6/sysctl_net_ipv6.c              |  2 +-
+ net/ipv6/xfrm6_policy.c                 | 22 +++++++++++---
+ net/netfilter/nf_conntrack_standalone.c |  2 +-
+ net/netfilter/nf_hooks_lwtunnel.c       |  4 +--
+ net/sctp/sysctl.c                       |  2 +-
+ net/smc/smc_sysctl.c                    | 26 +++++++++++-----
+ net/sysctl_net.c                        | 25 +++++++--------
+ net/unix/sysctl_net_unix.c              | 21 ++++++++++---
+ net/vmw_vsock/af_vsock.c                | 25 ++++++++++-----
+ net/xfrm/xfrm_sysctl.c                  |  2 +-
+ 17 files changed, 169 insertions(+), 87 deletions(-)
+---
+base-commit: 001b5d347d8ba39b2dccaefcc57967b18caec8fe
+change-id: 20260629-jag-net_const_qualify-f4e09759dac7
+
+Best regards,
+-- 
+Joel Granados <joel.granados@kernel.org>
 
 
