@@ -1,164 +1,324 @@
-Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.4])
+Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [213.167.242.64])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33A7F396D38
-	for <virtualization@lists.linux.dev>; Mon, 10 Aug 2026 09:21:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0AD23C1081
+	for <virtualization@lists.linux.dev>; Mon, 10 Aug 2026 11:21:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.167.242.64
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786353685; cv=none; b=hXmk2J2LdTPw+WI1OuRN1lLlPFQH0kuY4ONdqO3BZC6nhhdD1bolYtu5hWapRc5YhCNpowyhTWchlHiRjB2iJFSHbD7IqXlh5rfkonoN2jRRU58P17SKi3sCoE5SBSFwgkzGKlAHNrOdZ/PYcB7m1e8VTtBE7acbYRAsD6+Rf7k=
+	t=1786360909; cv=none; b=UZkMaifKu07FsXWlE5utCsSK4fYAx4tRu7R3DdLRQeWYTe3uKCATUqCXQdiqqcSwabBAIxXP2nCxVpWZuR1nDGDLC7dJbNBQgGjyUkuOacR2xQ9/GbM38+cZ92I9B729Q4Fy6b40SxaNSnOcVAUpZw8m3g33Hqq5V4Xb6UKwfqY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786353685; c=relaxed/simple;
-	bh=AzovRYGhIOX7Dbd5WBpQvjoPgnAw4NVviyaWglxtamU=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:Content-Type:
-	 MIME-Version:Message-ID; b=GZ2kVB0GU9hyvavrrGHXZ7076HXVP9N1m1Kt5E/OHVuGV5NiS3KSSloz/TPq/k8TIfkoWKYKWkNWq3yaQ7E2O6QVvTTp6zVFVuAFSqQ564wWZ8jmqqEdwZvYmoKqlD+dZbFpRBODd2GY0gxAKsdQkI4ndyNJ3FhMdy/oym9NaOo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=dkJNTJH4; arc=none smtp.client-ip=117.135.210.4
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1786360909; c=relaxed/simple;
+	bh=uGVq6Q55GjK0RBlUs6eIITKHKa6Q9+s8MlIaPDS/yn8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Zgn6IvXYcm50K3KWPsRchetu+n60LUlnwPP9xX2TmzJp8rCr0yctjh98kjZx9e3tG9yFDOV5BBdOY0TFSRM5GU3m3tMlY6l40d/ZPe4Ja9+jPadfQSDAlqG6k8JXIq8vS/HeNtcRrcANXy89UNXHguyzkfjh/j3MD1I9y2K7eWM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ideasonboard.com; spf=pass smtp.mailfrom=ideasonboard.com; dkim=pass (1024-bit key) header.d=ideasonboard.com header.i=@ideasonboard.com header.b=Ov7RO552; arc=none smtp.client-ip=213.167.242.64
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ideasonboard.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ideasonboard.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="dkJNTJH4"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=Date:From:To:Subject:Content-Type:MIME-Version:
-	Message-ID; bh=AzovRYGhIOX7Dbd5WBpQvjoPgnAw4NVviyaWglxtamU=; b=d
-	kJNTJH4EXMlCpXNADDRzmhCfN4I2ZA7SCfhupfK9NPJXzwL3a4RWBNeg+1MiDXNv
-	I1r/s8sWFl+tpFYRNKS1MhY2wdAuxcPzzmqBqPw4+RNTt6LBYqjWOYfspiYA21+U
-	MxfFI1Sovd+wU7JcRjJgQ0eJqj+LuIuergrHUOzQHI=
-Received: from lange_tang$163.com ( [116.128.244.169] ) by
- ajax-webmail-wmsvr-40-133 (Coremail) ; Mon, 10 Aug 2026 17:20:56 +0800
- (CST)
-Date: Mon, 10 Aug 2026 17:20:56 +0800 (CST)
-From: "Lange Tang" <lange_tang@163.com>
-To: "mst@redhat.com" <mst@redhat.com>
-Cc: "xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
-	"edumazet@google.com" <edumazet@google.com>,
-	"Jakub Kicinski" <kuba@kernel.org>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"Tang Longjun" <tanglongjun@kylinos.cn>,
-	"jasowang@redhat.com" <jasowang@redhat.com>
-Subject: Re:Re: Re:Re:Re: [PATCH] virtio_net: disable cb when
- napi_schedule_prep fails during busy-poll
-X-Priority: 3
-X-Mailer: Coremail Webmail Server Version 2023.4-cmXT build
- 20260511(2e539873) Copyright (c) 2002-2026 www.mailtech.cn 163com
-In-Reply-To: <20260810031128-mutt-send-email-mst@kernel.org>
-References: <20260615094550.106391-1-lange_tang@163.com>
- <1781517700.4206195-1-xuanzhuo@linux.alibaba.com>
- <19692a81.3001.19ece5f8ddc.Coremail.lange_tang@163.com>
- <1781580432.712892-1-xuanzhuo@linux.alibaba.com>
- <4118686.4d22.19ecf0ad78e.Coremail.lange_tang@163.com>
- <1781592565.1172295-1-xuanzhuo@linux.alibaba.com>
- <2f42f4e.1e16.19ed356b302.Coremail.lange_tang@163.com>
- <20260810031128-mutt-send-email-mst@kernel.org>
-X-NTES-SC: AL_Qu2TBP+evE4u4CeeZekfmUgRg+c/XsK4svUj24VVOJF8jAHoxDI9VmVgOH3y1uefEiCNrTaKWTNU1+lBfq99fokZDRFmu43oyBCzYG6om1c8yA==
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset=GBK
+	dkim=pass (1024-bit key) header.d=ideasonboard.com header.i=@ideasonboard.com header.b="Ov7RO552"
+Received: from killaraus.ideasonboard.com (2001-14ba-70f3-e800--a06.rev.dnainternet.fi [IPv6:2001:14ba:70f3:e800::a06])
+	by perceval.ideasonboard.com (Postfix) with ESMTPSA id 5F8161F8;
+	Mon, 10 Aug 2026 13:20:30 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
+	s=mail; t=1786360830;
+	bh=uGVq6Q55GjK0RBlUs6eIITKHKa6Q9+s8MlIaPDS/yn8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=Ov7RO552zuaaKltlNeaCunKPiw7HG5JXwr2kx6CrVdHbu7/jp+8DFoT8doDzk7GsH
+	 AWZoyFuGS6m7j+FW+6Vz2wuaBVMzM3SeMGlqeFWMVc2jpJxeXLalHK1oOk3LfXwK1y
+	 nkU2sROSZEf11RrHONS6t5mI6VvJUbHKQeAzZkpc=
+Date: Mon, 10 Aug 2026 14:21:43 +0300
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+To: Brian Daniels <briandaniels@google.com>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>, adelva@google.com,
+	aesteve@redhat.com, changyeon@google.com,
+	daniel.almeida@collabora.com, eperezma@redhat.com, gnurou@gmail.com,
+	gurchetansingh@google.com, hverkuil@xs4all.nl, jasowang@redhat.com,
+	linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
+	mst@redhat.com, nicolas.dufresne@collabora.com,
+	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com
+Subject: Re: [PATCH v5 5/5] media: virtio: Add USERPTR memory type support
+Message-ID: <20260810112143.GA2967445@killaraus.ideasonboard.com>
+References: <20260723183219.737296-1-briandaniels@google.com>
+ <20260723183219.737296-6-briandaniels@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Message-ID: <7f5d92c1.76e0.19feaf9a3bf.Coremail.lange_tang@163.com>
-X-Coremail-Locale: zh_CN
-X-CM-TRANSID:hSgvCgDH7wT5l3lq8fguAA--.2415W
-X-CM-SenderInfo: 5odqwvxbwd0wi6rwjhhfrp/xtbC-hkdS2p5l-lgXQAA3x
-X-Coremail-Antispam: 1U5529EdanIXcx71UUUUU7vcSsGvfC2KfnxnUU==
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20260723183219.737296-6-briandaniels@google.com>
 
-QXQgMjAyNi0wOC0xMCAxNToxMzoxNCwgIk1pY2hhZWwgUy4gVHNpcmtpbiIgPG1zdEByZWRoYXQu
-Y29tPiB3cm90ZToKPk9uIFdlZCwgSnVuIDE3LCAyMDI2IGF0IDEwOjA4OjU1QU0gKzA4MDAsIExh
-bmdlIFRhbmcgd3JvdGU6Cj4+IEF0IDIwMjYtMDYtMTYgMTQ6NDk6MjUsICJYdWFuIFpodW8iIDx4
-dWFuemh1b0BsaW51eC5hbGliYWJhLmNvbT4gd3JvdGU6Cj4+ID5PbiBUdWUsIDE2IEp1biAyMDI2
-IDE0OjA3OjM0ICswODAwIChDU1QpLCBMYW5nZSBUYW5nIDxsYW5nZV90YW5nQDE2My5jb20+IHdy
-b3RlOgo+PiA+PiBBdCAyMDI2LTA2LTE2IDExOjI3OjEyLCAiWHVhbiBaaHVvIiA8eHVhbnpodW9A
-bGludXguYWxpYmFiYS5jb20+IHdyb3RlOgo+PiA+PiA+T24gVHVlLCAxNiBKdW4gMjAyNiAxMTow
-MDoyOSArMDgwMCAoQ1NUKSwgTGFuZ2UgVGFuZyA8bGFuZ2VfdGFuZ0AxNjMuY29tPiB3cm90ZToK
-Pj4gPj4gPj4gQXQgMjAyNi0wNi0xNSAxODowMTo0MCwgIlh1YW4gWmh1byIgPHh1YW56aHVvQGxp
-bnV4LmFsaWJhYmEuY29tPiB3cm90ZToKPj4gPj4gPj4gPk9uIE1vbiwgMTUgSnVuIDIwMjYgMTc6
-NDU6NTAgKzA4MDAsIExvbmdqdW4gVGFuZyA8bGFuZ2VfdGFuZ0AxNjMuY29tPiB3cm90ZToKPj4g
-Pj4gPj4gPj4gRnJvbTogTG9uZ2p1biBUYW5nIDx0YW5nbG9uZ2p1bkBreWxpbm9zLmNuPgo+PiA+
-PiA+PiA+Pgo+PiA+PiA+PiA+PiBXaGVuIGJ1c3ktcG9sbCBpcyBhY3RpdmUsIG5hcGlfc2NoZWR1
-bGVfcHJlcCgpIHJldHVybnMgZmFsc2UgaW4KPj4gPj4gPj4gPj4gc2tiX3JlY3ZfZG9uZSgpLCBz
-byB2aXJ0cXVldWVfZGlzYWJsZV9jYigpIGlzIHNraXBwZWQuIFRoZSBkZXZpY2UKPj4gPj4gPj4g
-Pj4gbWF5IGtlZXAgZmlyaW5nIGlycXMgdW50aWwgdGhlIG5leHQgcG9sbCByb3VuZCByZWFjaGVz
-Cj4+ID4+ID4+ID4+IHZpcnRxdWV1ZV9uYXBpX2NvbXBsZXRlKCkuIElmIGNiIGlzIGVuYWJsZWQg
-dW5kZXIgYnVzeS1wb2xsIGNhc2UsCj4+ID4+ID4+ID4+IGl0IHdpbGwgbGVhZCB0byBhIGxhcmdl
-IG51bWJlciBvZiBzcHVyaW91cyBpbnRlcnJ1cHRzLiBFeHBsaWNpdGx5Cj4+ID4+ID4+ID4+IGRp
-c2FibGUgY2FsbGJhY2tzIGluIHRoaXMgY2FzZSB0byBwcmV2ZW50IHNwdXJpb3VzIGludGVycnVw
-dHMuCj4+ID4+ID4+ID4+Cj4+ID4+ID4+ID4+IFNpZ25lZC1vZmYtYnk6IExvbmdqdW4gVGFuZyA8
-dGFuZ2xvbmdqdW5Aa3lsaW5vcy5jbj4KPj4gPj4gPj4gPj4gLS0tCj4+ID4+ID4+ID4+ICBkcml2
-ZXJzL25ldC92aXJ0aW9fbmV0LmMgfCAyICsrCj4+ID4+ID4+ID4+ICAxIGZpbGUgY2hhbmdlZCwg
-MiBpbnNlcnRpb25zKCspCj4+ID4+ID4+ID4+Cj4+ID4+ID4+ID4+IGRpZmYgLS1naXQgYS9kcml2
-ZXJzL25ldC92aXJ0aW9fbmV0LmMgYi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPj4gPj4gPj4g
-Pj4gaW5kZXggZjRhZGNmZWU3YTgwLi42ZDY3NWZkZGM1OWIgMTAwNjQ0Cj4+ID4+ID4+ID4+IC0t
-LSBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+PiA+PiA+PiA+PiArKysgYi9kcml2ZXJzL25l
-dC92aXJ0aW9fbmV0LmMKPj4gPj4gPj4gPj4gQEAgLTcyOCw2ICs3MjgsOCBAQCBzdGF0aWMgdm9p
-ZCB2aXJ0cXVldWVfbmFwaV9zY2hlZHVsZShzdHJ1Y3QgbmFwaV9zdHJ1Y3QgKm5hcGksCj4+ID4+
-ID4+ID4+ICAJaWYgKG5hcGlfc2NoZWR1bGVfcHJlcChuYXBpKSkgewo+PiA+PiA+PiA+PiAgCQl2
-aXJ0cXVldWVfZGlzYWJsZV9jYih2cSk7Cj4+ID4+ID4+ID4+ICAJCV9fbmFwaV9zY2hlZHVsZShu
-YXBpKTsKPj4gPj4gPj4gPj4gKwl9IGVsc2UgaWYgKHRlc3RfYml0KE5BUElfU1RBVEVfSU5fQlVT
-WV9QT0xMLCAmbmFwaS0+c3RhdGUpKSB7Cj4+ID4+ID4+ID4+ICsJCXZpcnRxdWV1ZV9kaXNhYmxl
-X2NiKHZxKTsKPj4gPj4gPj4gPgo+PiA+PiA+PiA+SSBzZWUsIGJ1dCB3ZSBzaG91bGQgYXZvaWQg
-Y2hlY2tpbmcgTkFQSV9TVEFURV9JTl9CVVNZX1BPTEwgZGlyZWN0bHkgaW4gdGhlCj4+ID4+ID4+
-ID5kcml2ZXJzLiBUaGUgTklDIGRyaXZlciBzaG91bGQgcmVtYWluIGFnbm9zdGljIHRvIGJ1c3kg
-cG9sbGluZy4gSSB0aGluayB3ZSBuZWVkCj4+ID4+ID4+ID5hIGJldHRlciB3YXksIG1heWJlIHdl
-IHNob3VsZCByZXdyaXRlIHZpcnRxdWV1ZV9uYXBpX3NjaGVkdWxlIGluc3RlYWQuCj4+ID4+ID4+
-Cj4+ID4+ID4+IEhvdyBhYm91dCByZXdyaXRlIGl0IGxpa2UgdGhpcz8KPj4gPj4gPj4gc3RhdGlj
-IHZvaWQgdmlydHF1ZXVlX25hcGlfc2NoZWR1bGUoc3RydWN0IG5hcGlfc3RydWN0ICpuYXBpLAo+
-PiA+PiA+PiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBzdHJ1Y3QgdmlydHF1
-ZXVlICp2cSkKPj4gPj4gPj4gewo+PiA+PiA+PiAgICAgICAgIHZpcnRxdWV1ZV9kaXNhYmxlX2Ni
-KHZxKTsKPj4gPj4gPj4gICAgICAgICBpZiAobmFwaV9zY2hlZHVsZV9wcmVwKG5hcGkpKQo+PiA+
-PiA+PiAgICAgICAgICAgICAgICAgX19uYXBpX3NjaGVkdWxlKG5hcGkpOwo+PiA+PiA+PiB9Cj4+
-ID4+ID4+IEFueSBjb21tZW50cyBhcmUgd2VsY29tZS4KPj4gPj4gPgo+PiA+PiA+Cj4+ID4+ID5B
-bm90aGVyIENQVSBjb3VsZCBiZSBydW5uaW5nIE5BUEkgYW5kIGhhcyBqdXN0IGVuYWJsZWQgdGhl
-IGNhbGxiYWNrcyAoY2IpLgo+PiA+PiA+TWVhbndoaWxlLCB0aGlzIHNpZGUgdW5jb25kaXRpb25h
-bGx5IGRpc2FibGVzIHRoZSBjYi4gU2luY2UgTkFQSSBvbiB0aGUgb3RoZXIKPj4gPj4gPkNQVSBo
-YXNuJ3QgZXhpdGVkIHlldCwgdGhlIHN1YnNlcXVlbnQgcHJlcCBvbiB0aGlzIHNpZGUgZmFpbHMs
-IGxlYXZpbmcgbm8gb25lIHRvCj4+ID4+ID5yZS1lbmFibGUgdGhlIGNiLgo+PiA+PiA+Cj4+ID4+
-ID5UaGFua3MuCj4+ID4+Cj4+ID4+IFJlZ2FyZGluZyB0aGUgY2FzZSB5b3UgZGVzY3JpYmVkLCB3
-aGVuIE5BUEkgb24gYW5vdGhlciBDUFUgZXhpdHMsIHRoZSB2aXJ0cXVldWVfbmFwaV9jb21wbGV0
-ZSBmdW5jCj4+ID4+IHdpbGwgYmUgZXhlY3V0ZWQgdG8gcmUtZW5hYmxlIGNiLiAgYW5kIGlmIHRo
-ZXJlIGlzIHN0aWxsIHVuY29uc3VtZWQgZGF0YSBpbiB0aGUgdmlydHF1ZXVlLCB2aXJ0cXVldWVf
-bmFwaV9zY2hlZHVsZQo+PiA+PiB3aWxsIGJlIGNhbGxlZCBhZ2FpbiB0byBzY2hlZHVsZSBOQVBJ
-Lgo+PiA+Pgo+PiA+PiBJbiBzdW1tYXJ5LCBJIHRoaW5rIHRoYXQgdGhlIGRpc2FibGVfY2IgYW5k
-IF9fbmFwaV9zY2hlZHVsZSB3aXRoaW4gdGhlIHZpcnRxdWV1ZV9uYXBpX3NjaGVkdWxlIGZ1bmMg
-ZG8gbm90IG5lZWQgdG8gYmUgYm91bmQgdG9nZXRoZXIuCj4+ID4+Cj4+ID4+IEFueSBjb21tZW50
-cyBhcmUgd2VsY29tZS4gVGhpbmtzLgo+PiA+Cj4+ID4KPj4gPjxZb3VyIGNvZGU+Cj4+ID5zdGF0
-aWMgdm9pZCB2aXJ0cXVldWVfbmFwaV9zY2hlZHVsZShzdHJ1Y3QgbmFwaV9zdHJ1Y3QgKm5hcGks
-Cj4+ID4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBzdHJ1Y3QgdmlydHF1ZXVl
-ICp2cSkKPj4gPnsKPj4gPgo+PiA+CQkJCQkJCSAgICAgICB8c3RhdGljIGJvb2wgdmlydHF1ZXVl
-X25hcGlfY29tcGxldGUoc3RydWN0IG5hcGlfc3RydWN0ICpuYXBpLAo+PiA+CQkJCQkJCSAgICAg
-ICB8CQkJCSAgICBzdHJ1Y3QgdmlydHF1ZXVlICp2cSwgaW50IHByb2Nlc3NlZCkKPj4gPgkJCQkJ
-CQkgICAgICAgfHsKPj4gPgkJCQkJCQkgICAgICAgfAlpbnQgb3BhcXVlOwo+PiA+CQkJCQkJCSAg
-ICAgICB8Cj4+ID4JCQkJCQkJICAgICAgIHwJb3BhcXVlID0gdmlydHF1ZXVlX2VuYWJsZV9jYl9w
-cmVwYXJlKHZxKTsKPj4gPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgIHwKPj4gPiAgICAgICAgdmlydHF1ZXVlX2Rpc2FibGVfY2Io
-dnEpOyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwKPj4gPiAgICAgICAgaWYgKG5hcGlf
-c2NoZWR1bGVfcHJlcChuYXBpKSkgICAgICAgICAgICAgICAgICAgICAgICAgIHwKPj4gPiAgICAg
-ICAgICAgICAgICBfX25hcGlfc2NoZWR1bGUobmFwaSk7ICAgICAgICAgICAgICAgICAgICAgICAg
-IHwKPj4gPgkJCQkJCQkgICAgICAgfAlpZiAobmFwaV9jb21wbGV0ZV9kb25lKG5hcGksIHByb2Nl
-c3NlZCkpIHsKPj4gPgkJCQkJCQkgICAgICAgfAkJaWYgKHVubGlrZWx5KHZpcnRxdWV1ZV9wb2xs
-KHZxLCBvcGFxdWUpKSkKPj4gPgkJCQkJCQkgICAgICAgfAkJCXZpcnRxdWV1ZV9uYXBpX3NjaGVk
-dWxlKG5hcGksIHZxKTsKPj4gPgkJCQkJCQkgICAgICAgfAkJZWxzZQo+PiA+CQkJCQkJCSAgICAg
-ICB8CQkJIHJldHVybiB0cnVlOyAvLyByZXR1cm4gZGlyZWN0bHkKPj4gPgkJCQkJCQkgICAgICAg
-fAl9IGVsc2Ugewo+PiA+CQkJCQkJCSAgICAgICB8CQl2aXJ0cXVldWVfZGlzYWJsZV9jYih2cSk7
-Cj4+ID4JCQkJCQkJICAgICAgIHwJfQo+PiA+CQkJCQkJCSAgICAgICB8Cj4+ID4JCQkJCQkJICAg
-ICAgIHwJcmV0dXJuIGZhbHNlOwo+PiA+CQkJCQkJCSAgICAgICB8fQo+PiA+fQo+PiA+Cj4+ID4x
-LiBuZXcgcGFja2V0cyAobm90aWZpZWQgYnkgaXJxKSBhcmUgY29uc3VtZWQgYnkgbmFwaSBiZWZv
-cmUgdmlydHF1ZXVlX25hcGlfY29tcGxldGUKPj4gPjIuIHBvbGwgaXMgbm90IGNhbGxlZCBieSBp
-cnEsIG1heWJlIHhzayB3YWtlIHVwLiBTbyBpcnEgaXMgbm90IGRpc2FibGVkLgo+PiA+Cj4+ID4K
-Pj4gPlRoYW5rcy4KPj4gCj4+IEJhc2VkIG9uIHlvdXIgY29kZSBhbmFseXNpcyBhYm92ZSwgSSBn
-b3QgLiAgdGhhbmtzLgo+PiBkaXNhYmxlX2NiIGFuZCBfX25hcGlfc2NoZWR1bGUgaW4gdGhlIHZp
-cnRxdWV1ZV9uYXBpX3NjaGVkdWxlIGZ1bmMgaW5kZWVkIGNhbm5vdCBiZSBzZXBhcmF0ZWQuCj4+
-IAo+PiBSZWdhcmRpbmcgdGhlIGlzc3VlIG9mIG5vdCBiZWluZyBhYmxlIHRvIGRpc2FibGUgY2Ig
-aW4gYSBidXN5LXBvbGwgY29udGV4dCwgZG8geW91IGhhdmUgYW55IHN1Z2dlc3Rpb25zPwo+PiAK
-Pj4gQW55IGNvbW1lbnRzIGFyZSB3ZWxjb21lLiBUaGFua3MuCj4KPgo+QWRkIGEgbmV0ZGV2IGNv
-cmUgQVBJIHRoYXQgYmFzaWNhbGx5IGRvZXM6Cj4KPnRlc3RfYml0KE5BUElfU1RBVEVfSU5fQlVT
-WV9QT0xMLCAmbmFwaS0+c3RhdGUpCj4KPmFkZCBkb2N1bWVudGF0aW9uLCBlaXRoZXIgbmV0ZGV2
-IG1haW50YWluZXJzIG1lcmdlIGl0LCBvcgo+YWx0ZXJuYXRpdmVseSB0aGV5IHdpbGwgdGVsbCB5
-b3Ugd2hhdCB0byBkbykKClRoaXMgaXNzdWUgaGFzIGFscmVhZHkgYmVlbiBmaXhlZCB3aXRoIGh0
-dHBzOi8vZ2l0Lmtlcm5lbC5vcmcvcHViL3NjbS9saW51eC9rZXJuZWwvZ2l0L3RvcnZhbGRzL2xp
-bnV4LmdpdC9jb21taXQvP2lkPTFlYjhmYzY3Y2E0MWRiNzFjOTA4NjZmZjc2Yzk5MGQ4NTI0N2Rh
-ZWYsCmFuZCBpdCB3YXMgbWVyZ2VkLiBzbyBtYXliZSBuZXRkZXYgY29yZSBBUEkgbm8gbG9uZ2Vy
-IG5lZWRlZC4KCnRoYW5rcy4KTGFuZ2UKPgo+PiA+Cj4+ID4KPj4gPj4KPj4gPj4gPgo+PiA+PiA+
-Cj4+ID4+ID4+ID4KPj4gPj4gPj4gPgo+PiA+PiA+PiA+PiAgCX0KPj4gPj4gPj4gPj4gIH0KPj4g
-Pj4gPj4gPj4KPj4gPj4gPj4gPj4gLS0KPj4gPj4gPj4gPj4gMi4yNS4xCj4+ID4+ID4+ID4+Cj4+
-ID4+ID4+Cj4+ID4+Cj4+IAo=
+On Thu, Jul 23, 2026 at 02:32:19PM -0400, Brian Daniels wrote:
+> From: Alexandre Courbot <gnurou@gmail.com>
+> 
+> This patch adds support for the USERPTR memory type to the virtio-media
+> driver.
+> 
+> It adds the allow_userptr module parameter, implements the userptr
+> mapping logic in the scatterlist builder, and enables USERPTR in
+> reqbufs if allowed.
+
+USERPTR is deprecated, it shouldn't be used in new drivers or in new
+userspace code.
+
+> Signed-off-by: Alexandre Courbot <gnurou@gmail.com>
+> Assisted-by: Antigravity:gemini-3.5-flash
+> Co-developed-by: Brian Daniels <briandaniels@google.com>
+> Signed-off-by: Brian Daniels <briandaniels@google.com>
+> ---
+>  drivers/media/virtio/scatterlist_builder.c | 64 ++++++++++++++++++++++
+>  drivers/media/virtio/scatterlist_builder.h |  3 +
+>  drivers/media/virtio/virtio_media_driver.c | 42 +++++++++-----
+>  drivers/media/virtio/virtio_media_ioctls.c | 11 +++-
+>  4 files changed, 104 insertions(+), 16 deletions(-)
+> 
+> diff --git a/drivers/media/virtio/scatterlist_builder.c b/drivers/media/virtio/scatterlist_builder.c
+> index 97925b277..85c6a36b4 100644
+> --- a/drivers/media/virtio/scatterlist_builder.c
+> +++ b/drivers/media/virtio/scatterlist_builder.c
+> @@ -349,14 +349,30 @@ static int scatterlist_builder_add_userptr(struct scatterlist_builder *builder,
+>  int scatterlist_builder_add_buffer(struct scatterlist_builder *builder,
+>  				   struct v4l2_buffer *b)
+>  {
+> +	int i;
+>  	int ret;
+>  
+> +	/* Fixup: plane length must be zero if userptr is NULL */
+> +	if (!V4L2_TYPE_IS_MULTIPLANAR(b->type) &&
+> +	    b->memory == V4L2_MEMORY_USERPTR && b->m.userptr == 0)
+> +		b->length = 0;
+> +
+>  	/* v4l2_buffer */
+>  	ret = scatterlist_builder_add_data(builder, b, sizeof(*b));
+>  	if (ret)
+>  		return ret;
+>  
+>  	if (V4L2_TYPE_IS_MULTIPLANAR(b->type) && b->length > 0) {
+> +		/* Fixup: plane length must be zero if userptr is NULL */
+> +		if (b->memory == V4L2_MEMORY_USERPTR) {
+> +			for (i = 0; i < b->length; i++) {
+> +				struct v4l2_plane *plane = &b->m.planes[i];
+> +
+> +				if (plane->m.userptr == 0)
+> +					plane->length = 0;
+> +			}
+> +		}
+> +
+>  		/* Array of v4l2_planes */
+>  		ret = scatterlist_builder_add_data(builder, b->m.planes,
+>  						   sizeof(struct v4l2_plane) *
+> @@ -368,6 +384,54 @@ int scatterlist_builder_add_buffer(struct scatterlist_builder *builder,
+>  	return 0;
+>  }
+>  
+> +/**
+> + * scatterlist_builder_add_buffer_userptr() - Add the payload of a ``USERPTR``
+> + *                                            &struct v4l2_buffer to the
+> + *                                            descriptor chain.
+> + * @builder: builder to use.
+> + * @b: &struct v4l2_buffer whose ``USERPTR`` payload we want to add.
+> + *
+> + * Add an array of &struct virtio_media_sg_entry pointing to a ``USERPTR``
+> + * buffer's contents. Does nothing if the buffer is not of type ``USERPTR``.
+> + * This is split out of scatterlist_builder_add_buffer() because we only want
+> + * to add these to the device-readable part of the descriptor chain.
+> + */
+> +int scatterlist_builder_add_buffer_userptr(struct scatterlist_builder *builder,
+> +					   struct v4l2_buffer *b)
+> +{
+> +	int i;
+> +	int ret;
+> +
+> +	if (b->memory != V4L2_MEMORY_USERPTR)
+> +		return 0;
+> +
+> +	if (V4L2_TYPE_IS_MULTIPLANAR(b->type)) {
+> +		for (i = 0; i < b->length; i++) {
+> +			struct v4l2_plane *plane = &b->m.planes[i];
+> +
+> +			if (b->memory == V4L2_MEMORY_USERPTR &&
+> +			    plane->length > 0) {
+> +				unsigned long uptr = plane->m.userptr;
+> +				unsigned long len = plane->length;
+> +
+> +				ret =
+> +				scatterlist_builder_add_userptr(builder,
+> +								uptr,
+> +								len);
+> +				if (ret)
+> +					return ret;
+> +			}
+> +		}
+> +	} else if (b->length > 0) {
+> +		ret = scatterlist_builder_add_userptr(builder, b->m.userptr,
+> +						      b->length);
+> +		if (ret)
+> +			return ret;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+>  /**
+>   * scatterlist_builder_retrieve_buffer() - Retrieve a &struct v4l2_buffer
+>   *                                         written by the device on the shadow
+> diff --git a/drivers/media/virtio/scatterlist_builder.h b/drivers/media/virtio/scatterlist_builder.h
+> index 47bfd7ae0..53d964a48 100644
+> --- a/drivers/media/virtio/scatterlist_builder.h
+> +++ b/drivers/media/virtio/scatterlist_builder.h
+> @@ -90,6 +90,9 @@ int scatterlist_builder_add_ioctl_resp(struct scatterlist_builder *builder,
+>  int scatterlist_builder_add_buffer(struct scatterlist_builder *builder,
+>  				   struct v4l2_buffer *buffer);
+>  
+> +int scatterlist_builder_add_buffer_userptr(struct scatterlist_builder *builder,
+> +					   struct v4l2_buffer *b);
+> +
+>  int scatterlist_builder_retrieve_buffer(struct scatterlist_builder *builder,
+>  					size_t sg_index,
+>  					struct v4l2_buffer *buffer,
+> diff --git a/drivers/media/virtio/virtio_media_driver.c b/drivers/media/virtio/virtio_media_driver.c
+> index c431c3eb2..b6f79593d 100644
+> --- a/drivers/media/virtio/virtio_media_driver.c
+> +++ b/drivers/media/virtio/virtio_media_driver.c
+> @@ -7,26 +7,29 @@
+>   */
+>  
+>  #include <linux/bits.h>
+> +#include <linux/delay.h>
+>  #include <linux/device.h>
+>  #include <linux/dev_printk.h>
+> +#include <linux/mm.h>
+>  #include <linux/mutex.h>
+> +#include <linux/scatterlist.h>
+>  #include <linux/types.h>
+> +#include <linux/videodev2.h>
+> +#include <linux/vmalloc.h>
+> +#include <linux/wait.h>
+> +#include <linux/workqueue.h>
+>  #include <linux/module.h>
+> +#include <linux/moduleparam.h>
+>  #include <linux/virtio.h>
+>  #include <linux/virtio_config.h>
+>  #include <linux/virtio_ids.h>
+> -#include <linux/slab.h>
+> -#include <linux/scatterlist.h>
+> -#include <linux/vmalloc.h>
+> -#include <linux/workqueue.h>
+> -#include <linux/dma-mapping.h>
+> -#include <linux/poll.h>
+> -#include <linux/mm.h>
+>  
+> +#include <media/frame_vector.h>
+>  #include <media/v4l2-dev.h>
+> -#include <media/v4l2-device.h>
+> -#include <media/v4l2-fh.h>
+>  #include <media/v4l2-event.h>
+> +#include <media/videobuf2-memops.h>
+> +#include <media/v4l2-device.h>
+> +#include <media/v4l2-ioctl.h>
+>  
+>  #include "uapi/linux/virtio_media.h"
+>  #include "session.h"
+> @@ -40,6 +43,15 @@
+>  /* Bit mask for the VIRTIO_MEDIA_MMAP_FLAG_RW flag */
+>  #define VIRTIO_MEDIA_MMAP_FLAG_RW_MASK BIT(VIRTIO_MEDIA_MMAP_FLAG_RW)
+>  
+> +/*
+> + * Whether USERPTR buffers are allowed.
+> + *
+> + * This is disabled by default as USERPTR buffers are dangerous, but the option
+> + * is left to enable them if desired.
+> + */
+> +bool virtio_media_allow_userptr;
+> +module_param_named(allow_userptr, virtio_media_allow_userptr, bool, 0660);
+> +
+>  /**
+>   * virtio_media_session_alloc() - Allocate a new session.
+>   * @vv: virtio-media device the session belongs to.
+> @@ -849,15 +861,11 @@ static int virtio_media_probe(struct virtio_device *virtio_dev)
+>  			      VIRTIO_MEDIA_SHM_MMAP);
+>  
+>  	vd = &vv->video_dev;
+> +
+>  	vd->v4l2_dev = &vv->v4l2_dev;
+>  	vd->vfl_type = VFL_TYPE_VIDEO;
+>  	vd->ioctl_ops = &virtio_media_ioctl_ops;
+>  	vd->fops = &virtio_media_fops;
+> -	vd->release = video_device_release_empty;
+> -	strscpy(vd->name, "virtio-media", sizeof(vd->name));
+> -
+> -	video_set_drvdata(vd, vv);
+> -
+>  	vd->device_caps = virtio_cread32(virtio_dev, 0);
+>  	if (vd->device_caps & (V4L2_CAP_VIDEO_M2M | V4L2_CAP_VIDEO_M2M_MPLANE))
+>  		vd->vfl_dir = VFL_DIR_M2M;
+> @@ -866,6 +874,10 @@ static int virtio_media_probe(struct virtio_device *virtio_dev)
+>  		vd->vfl_dir = VFL_DIR_TX;
+>  	else
+>  		vd->vfl_dir = VFL_DIR_RX;
+> +	vd->release = video_device_release_empty;
+> +	strscpy(vd->name, "virtio-media", sizeof(vd->name));
+> +
+> +	video_set_drvdata(vd, vv);
+>  
+>  	ret = video_register_device(vd, virtio_cread32(virtio_dev, 4), 0);
+>  	if (ret)
+> @@ -890,6 +902,7 @@ static int virtio_media_probe(struct virtio_device *virtio_dev)
+>  	virtio_dev->config->del_vqs(virtio_dev);
+>  err_find_vqs:
+>  	v4l2_device_unregister(&vv->v4l2_dev);
+> +
+>  	return ret;
+>  }
+>  
+> @@ -900,6 +913,7 @@ static void virtio_media_remove(struct virtio_device *virtio_dev)
+>  
+>  	cancel_work_sync(&vv->eventq_work);
+>  	virtio_reset_device(virtio_dev);
+> +
+>  	v4l2_device_unregister(&vv->v4l2_dev);
+>  	virtio_dev->config->del_vqs(virtio_dev);
+>  	video_unregister_device(&vv->video_dev);
+> diff --git a/drivers/media/virtio/virtio_media_ioctls.c b/drivers/media/virtio/virtio_media_ioctls.c
+> index f0b82b5ec..88465f239 100644
+> --- a/drivers/media/virtio/virtio_media_ioctls.c
+> +++ b/drivers/media/virtio/virtio_media_ioctls.c
+> @@ -273,6 +273,12 @@ static int virtio_media_send_buffer_ioctl(struct v4l2_fh *fh, u32 ioctl,
+>  		return ret;
+>  
+>  	end_buf_sg = builder.cur_sg;
+> +
+> +	/* Payload of SHARED_PAGES buffers, if relevant */
+> +	ret = scatterlist_builder_add_buffer_userptr(&builder, b);
+> +	if (ret < 0)
+> +		return ret;
+> +
+>  	num_cmd_sgs = builder.cur_sg;
+>  
+>  	/* Response descriptor */
+> @@ -719,7 +725,7 @@ static int virtio_media_reqbufs(struct file *file, void *fh,
+>  	if (b->type > VIRTIO_MEDIA_LAST_QUEUE)
+>  		return -EINVAL;
+>  
+> -	if (b->memory == V4L2_MEMORY_USERPTR)
+> +	if (b->memory == V4L2_MEMORY_USERPTR && !virtio_media_allow_userptr)
+>  		return -EINVAL;
+>  
+>  	ret = virtio_media_send_wr_ioctl(vfh, VIDIOC_REQBUFS, b, sizeof(*b),
+> @@ -752,7 +758,8 @@ static int virtio_media_reqbufs(struct file *file, void *fh,
+>  	if (V4L2_TYPE_IS_MULTIPLANAR(b->type))
+>  		session->uses_mplane = true;
+>  
+> -	b->capabilities &= ~V4L2_BUF_CAP_SUPPORTS_USERPTR;
+> +	if (!virtio_media_allow_userptr)
+> +		b->capabilities &= ~V4L2_BUF_CAP_SUPPORTS_USERPTR;
+>  
+>  	/* We do not support DMABUF yet. */
+>  	b->capabilities &= ~V4L2_BUF_CAP_SUPPORTS_DMABUF;
+
+-- 
+Regards,
+
+Laurent Pinchart
