@@ -1,221 +1,230 @@
-Received: from fra-out-004.esa.eu-central-1.outbound.mail-perimeter.amazon.com (fra-out-004.esa.eu-central-1.outbound.mail-perimeter.amazon.com [3.74.81.189])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57254306B3D
-	for <virtualization@lists.linux.dev>; Mon, 10 Aug 2026 07:57:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=3.74.81.189
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786348648; cv=fail; b=bZk2/VkOJju7sDcAaL2rTCVKYjpgiEqkcOWUZCR8pg04J+YKIDlIcHblGDWrQ2dISdF5gcKZ79kJIhssjutfSXeQ5Ohdv8Pfi00ZdR+nUDgpKjRah4gfQE6YfCSc9fyVncBht0DwNLtjYcCWmoau4DTdK3LDJ0bGDXxLu3HSY2g=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786348648; c=relaxed/simple;
-	bh=vq+VbzwQEes7IRNNA7yDX/zEV5SqvZzgZaknyV1pCfg=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=GYWJHP95F/p1WiUKumJ1QpuQaYO6v20Vd2ZdEa9Iq0b798RIWGNsohk6iLyosagHtdd20YfM3mHy27OXzpJFtd5rLPYYZ6NEOJQiyOVzR/5Ta1gCEyu8XVcb/V1L0EEZoGq0lcoQck0bat6ss+g4frJKNWiyH1s9GaHnQR7aaO4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.de; spf=pass smtp.mailfrom=amazon.de; dkim=pass (2048-bit key) header.d=amazon.de header.i=@amazon.de header.b=ibMTJbDb; arc=fail smtp.client-ip=3.74.81.189
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B785D390C95
+	for <virtualization@lists.linux.dev>; Mon, 10 Aug 2026 08:05:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786349108; cv=none; b=SpfKOYLqR2OwTWOOhfOmrNnMFDQbnG5FSzL3I+PGrNDaF3VUfBa41Agl0bG/lOV1m88V6FAQbVBeiFgeAJRIBg329yyXWQ6og/mbXjmAVDrCHgSHn8QOBp0ppIYtxz09bV/gbm1yo7zo26iv/sERWpv+igVn4MQHUpLHT0dtw+c=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786349108; c=relaxed/simple;
+	bh=+lkuVQnHgrhF7fjMdkJDE/fkoUTrWZAAHCdTOrn70ZQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=POrA6+mXw2ph+9kRETLcLwsl5pl38dgqQnNXbucrAh4gLWedC5btoD+xJMG89uEABjFeMXlUUoOH9tCFnRMjpS9kjel7OI+12Dbm0Majh/DFSXxafK6PG4nnK34N/uwK1eegvVTqRnS2Y89fZaGjqLr4wmnP6yE9l1dFSYSE2Os=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=flsLNBX2; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.de header.i=@amazon.de header.b="ibMTJbDb"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.de; i=@amazon.de; q=dns/txt; s=amazoncorp2;
-  t=1786348646; x=1817884646;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-id:content-transfer-encoding:
-   mime-version;
-  bh=vq+VbzwQEes7IRNNA7yDX/zEV5SqvZzgZaknyV1pCfg=;
-  b=ibMTJbDbHO63yoiCmDJuGs24FVUgXVRhuioGcRWVG3p7xX2tHbUXkgXD
-   Br1HPP4gkGoJ8I8bdTW5cmiOVGYxJEjpp8JjL2Bsg4qnsLmzLb34c+m7b
-   tEbM1HR/vto7gvW1LWbrtKOkSRwf1ezaVORVxGjarspMSODvEtcKbU03J
-   A8mr1KcY5dz88DbpOUIfSgCGhYcay1nmvwkMfM4OKD+jDDoOR8WrQOlds
-   qPeb5Cq1fXzwAv0D1mZZIQdx7Jt1od8VehPFq6IFPVlylpDbrLdRryKzc
-   IFlSKlLvIMDiiTA8+grNLW7lnp4YROC0sUydvfuP1bZP+xeo/doHVpIIr
-   w==;
-X-CSE-ConnectionGUID: wqnL83yVTxyuwXll/ZN3qg==
-X-CSE-MsgGUID: kgBBxdhdRtKmZGtEuhNfdA==
-X-IronPort-AV: E=Sophos;i="6.25,215,1779148800"; 
-   d="scan'208";a="17637712"
-Received: from ip-10-6-3-216.eu-central-1.compute.internal (HELO smtpout.naws.eu-central-1.prod.farcaster.email.amazon.dev) ([10.6.3.216])
-  by internal-fra-out-004.esa.eu-central-1.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Aug 2026 07:57:23 +0000
-Received: from EX19MTAEUC001.ant.amazon.com [54.240.197.233:8420]
- by smtpin.naws.eu-central-1.prod.farcaster.email.amazon.dev [10.0.26.8:2525] with esmtp (Farcaster)
- id 772f8b3e-89ff-48ee-ae5f-15ce5faebf2e; Mon, 10 Aug 2026 07:57:23 +0000 (UTC)
-X-Farcaster-Flow-ID: 772f8b3e-89ff-48ee-ae5f-15ce5faebf2e
-Received: from EX19EXOEUC001.ant.amazon.com (10.252.51.133) by
- EX19MTAEUC001.ant.amazon.com (10.252.51.193) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.45;
- Mon, 10 Aug 2026 07:57:23 +0000
-Received: from EX19EXOEUC001.ant.amazon.com (10.252.51.133) by
- EX19EXOEUC001.ant.amazon.com (10.252.51.133) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.45;
- Mon, 10 Aug 2026 07:57:22 +0000
-Received: from BEUP281CU002.outbound.protection.outlook.com (10.252.51.199) by
- EX19EXOEUC001.ant.amazon.com (10.252.51.133) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.45
- via Frontend Transport; Mon, 10 Aug 2026 07:57:22 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=seuu0SBz/eIkfNP6jQJEUILaAcpvn3aD4oV1SrxtB0sFvNaZ61/kbHWUctMPsHnK6xjbisp68T/NBFBk05Q00EtnhzDvaOBybKuhcSdsb1FIIptMW8uy6Onh6BCN0X/v1LnR/MSQuSxC05yZMLgSBTRL3rGJCav01jO6xTG2KWsOsAmzV/uLh0dGaH3I9SyNt09JiuKrWP/40u7WYeySp4NSoXTbz5FSAmTntXscHKrjor6DvOi6/aE6Bm31CCV0+uancCEMTUtnAea2SFRpSiIXRy0YBMYYQpZs95FltwS3KxyR9GuL5qgzPZrzfqgzy++gwjNMjVTy4YPfpLvNeQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=vq+VbzwQEes7IRNNA7yDX/zEV5SqvZzgZaknyV1pCfg=;
- b=zW238Db6IHGbIhxFlonN1hDrH5qZYd5J387DDfZUj2wm9QBOBay7PcRi/A4M+GlvBw4IUb5OQxm8/AMPC0Zljip+bxOC3VDjt81ULz1wJg+1v834wboYRgpyAeBh1piAZnGfSmV06Uc46mGPKn9uncbGWlLjjARZcJoQcJuw9kNjjggZMhkzTv9aaNIzrwfAWIvjr/U45NvEEwXO0ojshlLsEBF3KcmYLiKgTvbDHAwNWezK0Yq9u7V0qB04OjPpskKuamVk2db+6N7846P6PEFMuJT4PXpwqKVIYl5yyY2wWJJVI3T6J2YpJfiOVwT+rOEsdN3vKtLPDr1tysKPUQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amazon.de; dmarc=pass action=none header.from=amazon.de;
- dkim=pass header.d=amazon.de; arc=none
-Received: from FRSP281MB6250.DEUP281.PROD.OUTLOOK.COM (2603:10a6:d10:1e0::23)
- by FR3P281MB1661.DEUP281.PROD.OUTLOOK.COM (2603:10a6:d10:7c::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.292.25; Mon, 10 Aug
- 2026 07:57:13 +0000
-Received: from FRSP281MB6250.DEUP281.PROD.OUTLOOK.COM
- ([fe80::7ad:f028:e0a7:bd4b]) by FRSP281MB6250.DEUP281.PROD.OUTLOOK.COM
- ([fe80::7ad:f028:e0a7:bd4b%6]) with mapi id 15.21.0292.024; Mon, 10 Aug 2026
- 07:57:13 +0000
-From: "Graf (AWS), Alexander" <graf@amazon.de>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-CC: Jason Wang <jasowangio@gmail.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?utf-8?B?RXVnZW5pbyBQw6lyZXo=?= <eperezma@redhat.com>,
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="flsLNBX2"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1786349105;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=/+a+0U5GgUWNz5gXhQg+X0ag29Jj0knQnRmccGbHPwc=;
+	b=flsLNBX2c/kJfYqhHn32viV+AGYEzz92YBbsXbZPHMkE5eMmDpOZ2PeYr4cNN6RcC3xQZa
+	wmNOYhxCDUNKS98Y12kYTvP5iy+Ftl2E/QlXx80Y+jadxdqlxotyyyNZTybpfD2jpCEoC9
+	wNslmqVehVQHAV5jbg6ix1PG5QyLKy8=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-26-j9y_bZmsM7iFTJWpWFIjQg-1; Mon, 10 Aug 2026 04:05:02 -0400
+X-MC-Unique: j9y_bZmsM7iFTJWpWFIjQg-1
+X-Mimecast-MFC-AGG-ID: j9y_bZmsM7iFTJWpWFIjQg_1786349102
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-47f6e8b5996so1618550f8f.2
+        for <virtualization@lists.linux.dev>; Mon, 10 Aug 2026 01:05:02 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786349101; x=1786953901;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=/+a+0U5GgUWNz5gXhQg+X0ag29Jj0knQnRmccGbHPwc=;
+        b=bwAPpy9oS8rJBnm9+VIMkNLNjlDbQrQUpI2zc75/2ZRPwEJg5K+j0VmKxfd50wJrwV
+         4njfyu5mglsvrJliTYOLMvDQKK3bWZEdNsic6qGkZ10kllGDkT1M3EeDmbPWjUEt1L+G
+         Eh+j0ghjg16qEllU5aPqQ8clnMVN1/TgxvgQLdobcDNuJSu8QUIVOy6rxDGcfpBDTjHU
+         B0YUZycGokIYYAhCCTzseUCQKqDvRkQoYZzSbGkSprkco2XZynNUaBkW8ej+fLp8NXe0
+         NQrrJh35EsE9pqPDzhMt831hbvurrLsSnCxJeeaESPfi1xpC4SWDeZkvXzhXPK/KUJbc
+         9Ibw==
+X-Forwarded-Encrypted: i=1; AHgh+Rq9FInIJ+MkS9tUcHYxwCkfTx5mX2AU18gtlqh1RDC/tZrHFRuun9OftjPpIyep/eqzE/Y7AyurYSQpY3w0zg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yzmr41/dHiIB9QaFphDhKTLGKp6xUhwzn78g1uHbwxLxEMsa8Fl
+	bvpptrQqTvXTF/ZNido/TIgMt3JN+gceGh6H3LgNzxhRhRfheIjTm3/ilfdw8VMu8PXBzgFFA2G
+	IdJshZEN4qJKiTdxWAIM/DhETmYkSvMXG3XPbTWLidDhdnKIY22In/p3B9PMg9J7KKxmr
+X-Gm-Gg: AR+sD12SxlJj0VR5cSM7GAPG64W3TtT5oW2eQjpjHr8yuGtbLTIjGJmcGCfAX4UIHig
+	qeMyIxxc6dkYgeNHsNVxBLLR+mKKoFMgawJTAK2G57syvXDa0bdLxP6G/zwxe1CLoY77aFvCn1R
+	zWIo9++9SlK5jrevjpkH+94vWPgld7vLKqq7ZcNeOKLDo7t4g4HMTwFuI8nBl9I0XfPSEaNl0kU
+	eoG9MIAUp25k+dHxcUiWR9oi8U4hhRBAGWaC+7gGgQ9CmYuvbfBiBIuvHi5RIj5RUjch8YwXDv3
+	50DHMyb5RKLZW7Wkqh2d5cwCyyc0+b34f/4v+DGmNWw92QYAbeRHxSKs44LO8PGw/sw91y60UBY
+	cuf7xzwurdqdu5b3fybudzg==
+X-Received: by 2002:a05:6000:430a:b0:47f:71a6:970e with SMTP id ffacd0b85a97d-47ffd203e5emr38268912f8f.2.1786349101191;
+        Mon, 10 Aug 2026 01:05:01 -0700 (PDT)
+X-Received: by 2002:a05:6000:430a:b0:47f:71a6:970e with SMTP id ffacd0b85a97d-47ffd203e5emr38268788f8f.2.1786349100617;
+        Mon, 10 Aug 2026 01:05:00 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-39-98.inter.net.il. [80.230.39.98])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-480021e8b09sm35811136f8f.23.2026.08.10.01.04.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 10 Aug 2026 01:05:00 -0700 (PDT)
+Date: Mon, 10 Aug 2026 04:04:55 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: "Graf (AWS), Alexander" <graf@amazon.de>
+Cc: Jason Wang <jasowangio@gmail.com>, Alex Williamson <alex@shazbot.org>,
+	David Airlie <airlied@redhat.com>,
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+	"dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Feng Liu <feliu@nvidia.com>, Gerd Hoffmann <kraxel@redhat.com>,
+	Halil Pasic <pasic@linux.ibm.com>, Jens Axboe <axboe@kernel.dk>,
+	Jiri Pirko <jiri@resnulli.us>, Jonathan Corbet <corbet@lwn.net>,
+	"linux-block@vger.kernel.org" <linux-block@vger.kernel.org>,
+	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
 	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"nh-open-source@amazon.com" <nh-open-source@amazon.com>,
+	"nvdimm@lists.linux.dev" <nvdimm@lists.linux.dev>,
+	Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Parav Pandit <parav@nvidia.com>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
 	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"nh-open-source@amazon.com" <nh-open-source@amazon.com>, Stefan Hajnoczi
-	<stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [RFC PATCH 06/12] virtio: add a device memory buffer region
- allocator
-Thread-Topic: [RFC PATCH 06/12] virtio: add a device memory buffer region
- allocator
-Thread-Index: AQHdKJ3a7qi0KJDGLkCAMU3zrvky1Q==
-Date: Mon, 10 Aug 2026 07:57:13 +0000
-Message-ID: <6f34275a-6320-4be1-b8e4-b96aa3289344@amazon.com>
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Yishai Hadas <yishaih@nvidia.com>
+Subject: Re: [RFC PATCH 00/12] virtio: support devices that own their
+ virtqueue memory
+Message-ID: <20260810035246-mutt-send-email-mst@kernel.org>
 References: <20260809182010.32931-1-graf@amazon.com>
- <20260809182010.32931-7-graf@amazon.com>
- <20260809181455-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20260809181455-mutt-send-email-mst@kernel.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amazon.de;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: FRSP281MB6250:EE_|FR3P281MB1661:EE_
-x-ms-office365-filtering-correlation-id: d2a63884-3050-4dd7-5e6c-08def6b4fcf3
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|366016|1800799024|376014|23010399003|10067099003|11063799006|4143699003|56012099006|38070700021|6133799003|22082099003|18002099003;
-x-microsoft-antispam-message-info: KdZiKFL0ZIsnkT8LACH6URb5X3FP2y/LyAh4tMxn3e7XrpgGPwqyW7I9t35i4BEcBfr6LyF0qnnFSxUwaWkrg/EZu7jlDk61SIXpS+7B0QmIN8rLOaO+Ca2evEyRIi5LGPDIkvaN7PCdmb35SQrsPsKhTWtCYslAKJTLfaInqsMhY6+1zQUKmwBNkwvSaA9hnW37weJfW5u07kSzb/reqYwihmTIsrF/qlJCp8rtaG0w9W4YVlD16YOaJ0Ty8zvR/UgmR8qM0ey0KueIZqSESR39qJvo28rrPVmToVgv+QQCO6dpdzBjM+ddeM3GM84aF1jZ9bI7LDIKD1Xe2QTs1jBAder5Iz7UGvGmwQzkbY1B3nxBcAlL70Xkkv4Xm9OuAGtpd0GUbwmGBzGKAtobQ1z824wCf1+V9zJ5F6fTwAQShqVNHdi4lGMeABxAQy9cTtAahL2uyTWPTgCeAEAeUW9FPq9StknD9N9sEVOJfJbopf/2weN8XgdiMMYm1wjzeC+sqxbSshfShmz+YjCXlA1pp4iWOMrIks8a20//d38kshiykZmRjx8ePMr4Xy1hJfoHLmCghXuz6BeyzaHZMmB2hatUejTYa6jgOUUpQcFwsuRkRTqjSaW/nkQBG3QgZoCN1eNYUmtVAt5kvhZcbLXiaBM0vtjrmWMPa/hJ74/+I3o0XwAQkdSuoSxazP4IfgWr9c6nh8IH5ip8REKYANQv4qI9Kga8W/hAtaLi1V4=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:FRSP281MB6250.DEUP281.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014)(23010399003)(10067099003)(11063799006)(4143699003)(56012099006)(38070700021)(6133799003)(22082099003)(18002099003);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?utf-8?B?QWtRTVdib1FzYmkrcElZWVFmY1BSbmN4ZTRTRUYvVWJabG9oVFhJNEJ3dHRT?=
- =?utf-8?B?ZXdaYjVQM3JkTjlMcTVsaTdrSzQ3M1pWeVBZZG16V0FqQWF6RVNGU1EwVHF1?=
- =?utf-8?B?aTFRdGRYL0Y5N3BHU3dVWXJ6QjEwZWNpZXhJVVlFR0F1WDVYMmhoSU5ma0RH?=
- =?utf-8?B?d3dRZml2RHJzSjFKaHJSa0lxMmErV1d5WklkV0F1T2d3WEk3TExGdXp0cFFJ?=
- =?utf-8?B?OVVKcU5RQ09PSUFFYXdremN1eW1peVFnS1Q2NHhMYXJPNUpzTmhMbkpHWlFr?=
- =?utf-8?B?aFc1cjJoWWxNVm16WjhnWFZ6Zm0wWmJpMSs3N3ZaZjE0Qzh6QmlqanQvL2gr?=
- =?utf-8?B?dzd3MXBDL0laVnNTSHNUd3VsNHVucmtMdnI4UG9CaFNoUE1KbW9TYnJZdXY3?=
- =?utf-8?B?Z0IxL3M2MnFINkNKdTlLVnQwd3lRdTVMOWxnNUFEL1lDUkdydVl1VFJrL0ZR?=
- =?utf-8?B?NmJUN21hTndIUHhJL1FYaDFkb3JYK3pDRzhvbXpZQzJ6Vk9HZSsycHVFOU1v?=
- =?utf-8?B?NHJKVWVOMTZMNWY1cEMrUmxoWWY2SC9qdkVJeUlNQzZGeDQ5WUtDenNpanU3?=
- =?utf-8?B?U0RoWSsxMVVGdTBaZzlnN0U1R1dWOHJ6eXV1aks0NXcxekVpZncwbjljTDBJ?=
- =?utf-8?B?WHBNUDJuRWlsTnEzemJFY2pKWmtSb0ZCZW5vbExSdjk4c29wRzVWcVFpajV1?=
- =?utf-8?B?ditrVUZtbWxUZ21DRDZWd3Z1ZUs0RVcwZWo1SW5uWXhLcldyeFd5cUx6aWU1?=
- =?utf-8?B?L241Vjk5anJLZWV3UHZBbEgwNVhtNkJwUm5rOWJoQzl6dWU2N1J1NXg1Tkxl?=
- =?utf-8?B?OEJMbTcyTlpRMS9OUkV0N05YZmczUzhBd0cxUVNQMFlxVWpCNHAycE9UMTVE?=
- =?utf-8?B?T3IxTkVnVDNmM1IrOVk3N1VGb1NQSFo1Mlk0cTBzandUY211dk04aGpGMFZm?=
- =?utf-8?B?aTJhdUZkenBJeS9GTlBNZ2ZIR0RPTmFJeUFxUURYekVGK3RFY25JT3ZNLzND?=
- =?utf-8?B?N0xxTHJUdXVCV2hKR0pla0dBTzFlbTE1WGY2YXhYWG5tMngreWxZZ2F6bnNa?=
- =?utf-8?B?MVkzUFlwVVlkL1RqTkIzMVU1Ri9tK0VjaEZyNk9Tb0c0MS9ERGxsK3lwNGRH?=
- =?utf-8?B?eXEwKzk2UDhwWEpwU3hwV0lpZkdEcW9wbCtvbXhtd0lyZHlMaG1QL2tpbStT?=
- =?utf-8?B?SXJPZVNRbjhBTDlmUFU2SXJuUUJuaStIanEwU0ZKeDdQYkRTVS9HNUF6bUVq?=
- =?utf-8?B?bnZzbnJWQnBvTWxQVWVmUDFXSGNqSXdwcWxqazJZK3Y3Ujd5bEw1WStWbytP?=
- =?utf-8?B?YmtjMkxDVjY0ZytqR3ZOWml2Sm1ickQyRFYzcldENW8yTklnbTJuVW53ZEpG?=
- =?utf-8?B?YWpqT2QxYUpCM0FJTnlqK1IxS2NZVzc0Mk5MZTNPTGZJTVlwVnlUUXVTR3cv?=
- =?utf-8?B?K25pREh0ZTUxR0Zicmk3Y2VtUmZjcW53aVZKYUhBQVQ5RUJQQ3J5dVBqV0Yz?=
- =?utf-8?B?elAwVkFpbW1USUphczRwWUE0U1BCdkhRbkRuVkUxUzBqOVRiekFPUmxtQ1J5?=
- =?utf-8?B?cmhIK0MwNTVMMEVzM1RGcXJWS0tKVkRRRkNMMHl3c21hQWFOUjRscmpFelFn?=
- =?utf-8?B?OWdvcFUweU9SWjFjT2xNSUVvbDBUL2dDenZNQkV2Ukk5azEzTTZxci9zcU1S?=
- =?utf-8?B?UGNzQThNZEFUQkkvWlg3S2VseUdmYmQranFjNEFWSGVaSzYzemxWY1lzcFlO?=
- =?utf-8?B?a3VyL2JpYlB3VkxEaHByYzArcW93a25zUWFHUGlqcFRqbTJGcEZoa2tQVE91?=
- =?utf-8?B?dFliN2NSQWZGUERVZlFkSGh1eGhQZklvQzdXNmc2d3QzNit5UDV4K2tRc29m?=
- =?utf-8?B?RTc3eFhWWUdPY3dzL2d6Z2EyT1liaDVxM3Y2SjgrQ2FyMjdJVTBZNjJKT2xu?=
- =?utf-8?B?aHFWdWJvZVlJR2hSYWllYVR1NjJnWHZXUTRSekRtcTN0RkJvV2Ewbmh0MVdw?=
- =?utf-8?B?ektlOGhKN1d0STBQNm9yeEZ6SmdRc1lBTmNqRjRGWXFSV0JJSE1DcDA5S2FS?=
- =?utf-8?B?bXZZSjdXcnNzRy9lMEtSQS9FREpobkxGZzJ2MG1EaXEwSE1XL1ZpVTZZOXhV?=
- =?utf-8?B?RkhNZ0ZEWFpWWEpvbnUrUXAwUFUwUHhTSGpxaGRjdDV6WlZ3Ym1WaDRWNTlK?=
- =?utf-8?B?ZWpuWnUzNmxpSkdHQlBZVTIyc1M2MTdwRzhobjFPRkJCSzBrVmFjc29OMjF0?=
- =?utf-8?B?Uzc4Q3I5a0ZEMkhnYlFVeFBQeTJ1Z3BWZ3d1NVZxd1FHcXF3UWg1U1k4Mkl5?=
- =?utf-8?Q?8QJJCcBGRUKMJlH1jG?=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <305F49E7E6744349AD8D3FC55315ABDB@DEUP281.PROD.OUTLOOK.COM>
-Content-Transfer-Encoding: base64
+ <20260810021450-mutt-send-email-mst@kernel.org>
+ <c56fb4d0-33ef-4e9b-ac18-ac4e896957cd@amazon.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Exchange-RoutingPolicyChecked: MFuwY84drdG1GbTV2pCOy1a/WQw6c8SPCegi2640/2+WhO7uSwYH/U6Eo3C4zEcQAa1e19O3Kt6W79DqVxNJJ8mpFVlke0RBzS15U9cx2NvPg5ESqRibDWVjNc4gYFeTz2+UzL0Vw+xge8P1S7Ox9gaqIiJE707DQ+NLQitT+drid3R/sDxmuM59VQFvnkQgDwi4DrhNMZrm/RpXKkdTLdyu1b9qAaLK54QR6cbwVtdZADY+cQQRhqozOPxgLo7jI7rV2byqHO8IJ5ouB1De737AqXaZ+Gi2bZJPa6qTqiYg1k2dorwaDpUMn9HTRMlLH945OiJklb54vSpUDZmjEg==
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: FRSP281MB6250.DEUP281.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-Network-Message-Id: d2a63884-3050-4dd7-5e6c-08def6b4fcf3
-X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Aug 2026 07:57:13.1211
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 5280104a-472d-4538-9ccf-1e1d0efe8b1b
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: U2smaRq8HGqTufO18lOcD8ZdffSSGiQ2Pxk9RcFPpLmbd/tIKl0Gd6C0BU1stn5P
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: FR3P281MB1661
-X-OriginatorOrg: amazon.de
+In-Reply-To: <c56fb4d0-33ef-4e9b-ac18-ac4e896957cd@amazon.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: R4g_-oMZQ3kc_jUPepXzeB7sZTStMeiHEJXOSoSvbg8_1786349102
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-DQpPbiAxMC4wOC4yNiAwMDozOCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOg0KPiBPbiBTdW4s
-IEF1ZyAwOSwgMjAyNiBhdCAwNjoyMDowNFBNICswMDAwLCBBbGV4YW5kZXIgR3JhZiB3cm90ZToN
-Cj4+IEluIHByZXBhcmF0aW9uIHRvIHN1cHBvcnQgVklSVElPX0ZfRE1CLCBjcmVhdGUgYSBtZWNo
-YW5pc20gdG8gYWxsb2NhdGUNCj4+IGFuZCBtYXAgbWVtb3J5IGZyb20gdGhlIERldmljZSBNZW1v
-cnkgQnVmZmVyIChETUIpLiBUaGUgRE1CIGlzIGEgc2hhcmVkDQo+PiBtZW1vcnkgcmVnaW9uIGEg
-ZGV2aWNlIGV4cG9zZXMgYW5kIG93bnMuIEEgZGV2aWNlIHRoYXQgbmVnb3RpYXRlcyB0aGUNCj4+
-IGZlYXR1cmUgZXhwZWN0cyBpdHMgdmlydHF1ZXVlcyBhbmQgYWxsIHRoZSBidWZmZXJzIHdlIGhh
-bmQgaXQgdG8gbGl2ZSBpbg0KPj4gdGhhdCByZWdpb24sIGFuZCBldmVyeSBhZGRyZXNzIHdlIHB1
-Ymxpc2ggdG8gaXQgaXMgYSBieXRlIG9mZnNldCBpbnRvDQo+PiB0aGUgcmVnaW9uLg0KPj4NCj4+
-IEFkZCB2aXJ0aW9fZG1iX2luaXQoKSwgd2hpY2ggbG9jYXRlcyB0aGUgcmVnaW9uIGJ5IHRoZSBz
-aGFyZWQgbWVtb3J5IGlkDQo+PiB0aGUgZGV2aWNlIHJlcG9ydHMgYW5kIGJ1aWxkcyBhIHBhZ2Ut
-Z3JhbnVsYXIgYWxsb2NhdG9yIG92ZXIgaXQsIGFuZA0KPj4gdmlydGlvX2RtYl9kZXN0cm95KCkg
-dG8gdGVhciB0aGF0IGRvd24uIEFkZCB2aXJ0aW9fZG1iX21hcF9vcHMsIGEgc3RydWN0DQo+PiB2
-aXJ0aW9fbWFwX29wcyBpbXBsZW1lbnRhdGlvbiB0aGF0IGhhbmRzIG91dCBhbGxvY2F0aW9ucyBm
-cm9tIHRoYXQNCj4+IGFsbG9jYXRvciBhcyByZWdpb24gb2Zmc2V0czogYWxsb2MoKSBwbGFjZXMg
-YSB2aXJ0cXVldWUgYXJlYSBpbiB0aGUNCj4+IHJlZ2lvbiwgbWFwX3BhZ2UoKSBjb3BpZXMgYSBi
-dWZmZXIgdGhhdCBsaXZlcyBlbHNld2hlcmUgaW50byBpdCBhbmQNCj4+IGNvcGllcyBpdCBiYWNr
-IG9uIHVubWFwLiBUaGUgbWFwIG9wZXJhdGlvbnMgcmVhY2ggdGhhdCBhbGxvY2F0b3IgdGhyb3Vn
-aA0KPj4gYSBuZXcgZG1iIG1lbWJlciBvZiB1bmlvbiB2aXJ0aW9fbWFwLg0KPj4NCj4+IFRoZSBz
-aGFyZWQgbWVtb3J5IGlkIGlzIHRyYW5zcG9ydCBzcGVjaWZpYywgc28gYWRkIGEgZ2V0X2RtYl9z
-aG1faWQoKQ0KPj4gY2FsbGJhY2sgdG8gc3RydWN0IHZpcnRpb19jb25maWdfb3BzIGZvciBhIHRy
-YW5zcG9ydCB0byByZXBvcnQgaXQuIEENCj4+IHRyYW5zcG9ydCB0aGF0IGRvZXMgbm90IGltcGxl
-bWVudCBpdCBtdXN0IG5vdCBhY2NlcHQgVklSVElPX0ZfRE1CLiBBZGQNCj4+IENPTkZJR19WSVJU
-SU9fRE1CIHRvIGVuYWJsZSB0aGlzIHN1cHBvcnQuIEl0IGRlZmF1bHRzIHRvIHksIGFuZCBhIGtl
-cm5lbA0KPj4gdGhhdCB3aWxsIG5ldmVyIG1lZXQgc3VjaCBhIGRldmljZSBjYW4gdHVybiBpdCBv
-ZmYgdG8gbGVhdmUgdGhlDQo+PiBhbGxvY2F0b3IgYW5kIGl0cyBib29ra2VlcGluZyBvdXQuDQo+
-Pg0KPj4gTGluazogaHR0cHM6Ly9sb3JlLmtlcm5lbC5vcmcvdmlydGlvLWNvbW1lbnQvMjAyNjA4
-MDQxNjEyMDIuMzg2MTktMS1ncmFmQGFtYXpvbi5jb20vDQo+PiBBc3Npc3RlZC1ieTogS2lybzpj
-bGF1ZGUtb3B1cy01IGNoZWNrcGF0Y2ggc3BhcnNlDQo+PiBTaWduZWQtb2ZmLWJ5OiBBbGV4YW5k
-ZXIgR3JhZiA8Z3JhZkBhbWF6b24uY29tPg0KPg0KPg0KPg0KPj4gLS0tDQo+PiAgIGRyaXZlcnMv
-dmlydGlvL0tjb25maWcgICAgICAgIHwgICAxNSArDQo+PiAgIGRyaXZlcnMvdmlydGlvL01ha2Vm
-aWxlICAgICAgIHwgICAgMyArLQ0KPj4gICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fZG1iLmMgICB8
-IDEzMTcgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrDQo+PiAgIGRyaXZlcnMvdmly
-dGlvL3ZpcnRpb19kbWIuaCAgIHwgICAyOCArDQo+PiAgIGluY2x1ZGUvbGludXgvdmlydGlvLmgg
-ICAgICAgIHwgICAgMyArDQo+PiAgIGluY2x1ZGUvbGludXgvdmlydGlvX2NvbmZpZy5oIHwgICAg
-OCArDQo+DQo+IFJlYWxseSA+MTAwMCBsaW5lcyB0byBpbXBsZW1lbnQgYSB2aXJ0aW8gc3BlY2lm
-aWMgYWxsb2NhdG9yPw0KPg0KPiBDYW4ndCB3ZSBzdGFydCBlLmcuIHdpdGggZ2VuIGFsbG9jIGFu
-ZCBtYXliZSB4YXJyYXkgaWYgeW91DQo+IG5lZWQgc29tZSBtZXRhZGF0YT8NCj4NCj4NCj4gSSBn
-dWVzcyB2aXJ0aW8gc3luYyBpcyBhbm5veWluZywgaXQgZ2V0cyBoYW5kbGUgKyBvZmZzZXQgaXMg
-dGhhdCB0aGUNCj4gaXNzdWU/IFdlIGNhbiBmaXggdGhlbSB0aG91Z2guIE9yIGxldCdzIGp1c3Qg
-bm90IHN1cHBvcnQgdGhlbS4gVGhlcmUNCj4gd2VyZSB0aGVyZSBmb3IgcHJlbWFwcGVkIG9yaWdp
-bmFsbHkgYnV0IG5vdyBpdCB1c2VzIHBhZ2UgcG9vbC4NCj4NCj4gTWF5YmUgSSB3aWxsIHNlbmQg
-YSBwYXRjaCB0byBkcm9wIHN5bmMgY29tcGxldGVseS4NCg0KDQpJIHN0YXJ0ZWQgb2ZmIHdpdGgg
-Z2VuX2FsbG9jLiBBbmQgdGhlbiBvdmVyIHRpbWUgaXQgc2xvd2x5IG1vcnBoZWQgaW50byANCndo
-YXQgeW91J3JlIHNlZWluZyBoZXJlIHdoZW4gSSByYW4gaW50byBpc3N1ZXMgd2l0aCBtdWx0aS1x
-dWV1ZSANCmFsbG9jYXRpb25zIChzcGxpdCB0aGUgYnVmZmVyIGJ5IFZRIHBhaXIgc28gdGhhdCB3
-ZSBkb24ndCBydW4gaW50byBsb2NrIA0KY29udGVudGlvbikgYW5kIHplcm8tY29weSB2c29jayB0
-cmFuc2ZlcnMgKGJ5IGtlZXBpbmcgRE1CIGJ1ZmZlcnMgDQpzdGF0aWNhbGx5IGFsbG9jYXRlZCku
-DQoNCkkgYWdyZWUgdGhhdCBpdCdzIGEgYml0IG11Y2ggZm9yIHRoZSBpbml0aWFsIHBvc3QuIEhv
-dyBhYm91dCBJIHJldmVydCANCmJhY2sgdG8gdGhlIGdlbl9hbGxvYyB2YXJpYW50IGFuZCB3ZSBs
-b29rIGF0IHRoZSBvcHRpbWl6YXRpb25zIGFzIA0KZm9sbG93LXVwPyBTaW5jZSBldmVyeXRoaW5n
-IGlzIGd1ZXN0IGRyaXZlbiwgd2UgY2FuIHBsYXkgd2l0aCB0aGVtIGFzIA0KbXVjaCBhcyB3ZSBs
-aWtlIGluIGZ1dHVyZSBpbXByb3ZlbWVudHMuDQoNCg0KQWxleA0K
+On Mon, Aug 10, 2026 at 07:39:02AM +0000, Graf (AWS), Alexander wrote:
+> Hey Michael,
+> 
+> Thanks a bunch for having a detailed and quick look!
+> 
+> On 10.08.26 08:23, Michael S. Tsirkin wrote:
+> > On Sun, Aug 09, 2026 at 06:19:58PM +0000, Alexander Graf wrote:
+> >> Virtio drivers use guest memory to back virtqueues and their buffers.
+> >> That means a VMM needs to be able to map guest memory. That is ok in the
+> >> normal virt case. It gets icky with confidential computing (where we use
+> >> swiotlb as workaround) and it defeats the purpose of isolated vhost-user
+> >> backing devices, because they end up with full RAM access to the guest.
+> >>
+> >> So instead, I'm proposing an extension to virtio which allows it to give
+> >> each virtio device its own dedicated memory region to communicate with the
+> >> host, called DMB (Device Memory Buffer). A trusted hypervisor can force
+> >> DMB to be present, which then enables safer, more isolated and resilient
+> >> communication between guest and host.
+> >>
+> >> With DMB, the device provides a shared memory region that both parties
+> >> agree is the full memory map both have access to. All memory offsets
+> >> that previously would have been into guest RAM, are then offsets into
+> >> this shared memory buffer region. One nice property of this is that it
+> >> is a generic mechanism in the virtio transport layer, so higher level
+> >> drivers work unmodified.
+> >>
+> >> I was exploring to use swiotlb instead to create individual pools. But
+> >> that approach has multiple downsides:
+> >>
+> >> 1. Swiotlb is an OS primitive which is not available in all Operating
+> >> Systems. DMB however lives in the virtio transport layer, which means we
+> >> can add support for it in any OS independent of generic layers. This
+> >> helps with Windows support.
+> >
+> > How does it help, if you are going to put a pool in
+> > the driver, put a pool in the driver. Maybe with virtio mem to
+> > simplify allocation.
+> 
+> 
+> I'm not sure I understand the suggestion :)
+> 
+
+
+I'm not sure what the problem is for windows :)
+
+But if you want a chunk of contiguos memory that windows
+does not poke at without a driver, virtio mem is that :)
+
+> >
+> >> 2. We munge DMA space together. DMB provides a separate DMA space per
+> >> virtio device. This means we can for example implement a device in
+> >> vhost-user and give the implementing process only visibility to the DMB
+> >> region, not all of guest memory. That reduces the exposure the
+> >> vhost-user provider has, improving security.
+> >>
+> >> 3. Devices can opt-in. A hypervisor can choose to use standard virtio
+> >> semantics for self-implemented devices (e.g. NSM), while requiring DMB
+> >> for devices implemented by less trustworthy providers. The
+> >> non-trustworthy devices do not get any visibility into the trustworthy
+> >> ones, even with DMB in place for both.
+> >
+> > So I am not sure whether the implication is that it's purely a software
+> > construct. But if it is, can we extend virtio iommu to
+> > add a way to discover and enforce trust boundaries?
+> > And maybe translate offsets to BARs, if that is desired?
+> >
+> > It seems to be that the result would be that we don't need fiddly
+> > special casing in virtio ring specifically, and a lot of things like
+> > pre-mapped dma will begin to work.
+> 
+> 
+> On thing I'm trying to avoid is dynamicity. Anything that dynamically 
+> changes visibility or needs state tracking is something that can go 
+> wrong. By keeping everything self-contained within the guest, I can 
+> reason about what is visible and what is not easily. Especially for 
+> confidential computing, IMHO static wins over dynamic in general.
+> 
+> Or did I misunderstand your suggestion?
+
+
+I get this part. But we can absolutely make it static.
+
+
+Let's start by replicating your functionality with virtio-iommu.  So:
+
+-device is behind virtio-iommu
+-virtio-iommu tells guest "this device can only consume memory from that range,"
+-and maybe: ...and translation is 1:1 with this offset
+
+if guest does not acknowledge it will just fail?
+
+
+this covers the proposal here simply by using a dedicated range
+per device, right?
+
+
+
+But look what we can easily add later: share a range
+between devices, now you can move data between them with zero copies.
+
+
+Isn't that better?
+
+
+> As to pure software construct: With CXL, you can implement the exact 
+> same protocol on real hardware as well. All it takes is cache coherency 
+> of the BAR (or whatever the transport uses) region.
+> 
+> 
+> 
+> Alex
+
+Yes this is what I thought originally, that you intend to
+do it in hardware. But re-reading it, it begins to look like
+that's not really the case, it's only "theoretically possible"?
+
+
+
+-- 
+MST
+
