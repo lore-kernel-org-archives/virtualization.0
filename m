@@ -1,193 +1,98 @@
-Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.3])
+Received: from canpmsgout02.his.huawei.com (canpmsgout02.his.huawei.com [113.46.200.217])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E48B2426422
-	for <virtualization@lists.linux.dev>; Tue, 11 Aug 2026 09:11:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.3
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71BA03B058E
+	for <virtualization@lists.linux.dev>; Tue, 11 Aug 2026 13:32:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.217
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786439474; cv=none; b=ROkMN2ld83nZwJhv4xFTIEzLKp+3vAwEOqcXm4s8XprtVg5EQz4ZLFQvaU3Wr08coj9ZotIzyYdv7QDpuONHrhdE6LwDHXOayFOHvOiNA/lWrFurvPtwd7ISTAV9rZEo+qJKKOjWIwVsAoiqgwoAQ3N7bhmmug0U1nCWhTHmiNU=
+	t=1786455139; cv=none; b=N2pRAgHqaxYgom6v4OlxtnSFGU1bSC6Jyu3qozJFGn/Ocmcj5kfgQJZB5aOpfBVqDsEYv1g4k2Q0xGXsftbrlKwr53029n7PzZn+UT+K2vxl612GvBP/7XBBQChBZY6XFvKk1nAEgxNCV8QaJLKgVFXoYf/Yns+In6/bIs2MTOc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786439474; c=relaxed/simple;
-	bh=2Ic8nn1IjdeLMlFMkUBGlTSzq7P/pdhz3OTLOKObDQc=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=AsA504WSePIMSKvPPUbGtQQ2rPpuRB6HF+Nz5hIRoSSnHn844+aov3Alb9MjAU7z1lRKINLoULePM91DXX+/8x1eC2T/w1Ey57hYQggdb4j1Zf0EzdRTW/KIDgTVVdIfaMknN00uFW8FqSPLXHjn4byR6DjiqE//qaqcdTSKk3g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=MEQvQZLS; arc=none smtp.client-ip=117.135.210.3
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1786455139; c=relaxed/simple;
+	bh=7oUk7vcZMZh7Kmnjr0sRE4TUfpBeeMTt+zlm+6qAkq8=;
+	h=Message-ID:Date:MIME-Version:CC:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=lf3NUTjbLURSFcNqxw0eAan+jZwuhtCyuaOMLBoaHHvfUjkFIt9KmScO/B+9J7KpjoNzTke6SVuB/1+RKPFsQVmnTFtde4JufOIW3XmdOZqoQMCqbmT2BmN8UK/u/GeUuc1419bta4c0OyyZyQf8txs7Gy9JM4bUZUK8NMTq7c4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=1eWBaKqw; arc=none smtp.client-ip=113.46.200.217
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="MEQvQZLS"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=sL
-	m/oYLqe0SOnYjUJ8EtOecmT7yfbzQszZNvFCe2dIY=; b=MEQvQZLSHJnB6H6U7h
-	czBvWdelvamtY7jtVKhjAa3ZX4SMtFsV9mlc/7eLHv4g49h/iytehhpTUDPlxpEF
-	5wZ+FSXeFDTO654WPmo+6v8oMbWr5D3wlSKoiGy0LXeawE0P8a7307jN0JHPvERX
-	6Kx2ZpkF4KLPlkOWDP1lahEVk=
-Received: from localhost.localdomain (unknown [])
-	by gzsmtp2 (Coremail) with SMTP id PSgvCgD3P_4X53pq++EnKw--.16774S2;
-	Tue, 11 Aug 2026 17:10:49 +0800 (CST)
-From: Longjun Tang <lange_tang@163.com>
-To: mst@redhat.com,
-	kuba@kernel.org,
-	jasowangio@gmail.com
-Cc: xuanzhuo@linux.alibaba.com,
-	virtualization@lists.linux.dev,
-	tanglongjun@kylinos.cn,
-	lange_tang@163.com
-Subject: [PATCH] virtio_net: add rx-alloc-fail counter
-Date: Tue, 11 Aug 2026 17:10:45 +0800
-Message-Id: <20260811091045.115238-1-lange_tang@163.com>
-X-Mailer: git-send-email 2.25.1
+	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="1eWBaKqw"
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=7oUk7vcZMZh7Kmnjr0sRE4TUfpBeeMTt+zlm+6qAkq8=;
+	b=1eWBaKqwvWQTJuOPnnjp6koX97ircDeqhOomYz9PRZGrQn38a3eLyzDdexfoau1XDMSz5J6Fz
+	pD7EntVYieru84JzuQ+bD0FXZZgNx9weiEXKuBMH4JiZ/jSSxBwoqAIShMwcwpky75vbO8ZWZVW
+	HV6pLlt7Sm86/Cixlkdd+Z8=
+Received: from mail.maildlp.com (unknown [172.19.162.197])
+	by canpmsgout02.his.huawei.com (SkyGuard) with ESMTPS id 4hKC2T5jlGzcb0T;
+	Tue, 11 Aug 2026 21:21:53 +0800 (CST)
+Received: from kwepemo500018.china.huawei.com (unknown [7.202.195.199])
+	by mail.maildlp.com (Postfix) with ESMTPS id 73EB34057D;
+	Tue, 11 Aug 2026 21:31:59 +0800 (CST)
+Received: from [10.67.120.192] (10.67.120.192) by
+ kwepemo500018.china.huawei.com (7.202.195.199) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.45; Tue, 11 Aug 2026 21:31:58 +0800
+Message-ID: <61721708-0d77-4f59-aa08-02562af282bb@huawei.com>
+Date: Tue, 11 Aug 2026 21:31:57 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+CC: <shaojijie@huawei.com>
+Subject: Re: [PATCH v5 net-next 2/2] net: hns3: fix GSO_ECN flag setting in
+ the RX path
+To: <chia-yu.chang@nokia-bell-labs.com>, <shenjian15@huawei.com>,
+	<linux-rdma@vger.kernel.org>, <eperezma@redhat.com>, <jasowang@redhat.com>,
+	<virtualization@lists.linux.dev>, <mst@redhat.com>,
+	<xuanzhuo@linux.alibaba.com>, <pabeni@redhat.com>, <edumazet@google.com>,
+	<linux-doc@vger.kernel.org>, <corbet@lwn.net>, <horms@kernel.org>,
+	<dsahern@kernel.org>, <kuniyu@google.com>, <bpf@vger.kernel.org>,
+	<netdev@vger.kernel.org>, <dave.taht@gmail.com>, <jhs@mojatatu.com>,
+	<kuba@kernel.org>, <stephen@networkplumber.org>, <xiyou.wangcong@gmail.com>,
+	<jiri@resnulli.us>, <davem@davemloft.net>, <andrew+netdev@lunn.ch>,
+	<donald.hunter@gmail.com>, <ast@fiberby.net>, <liuhangbin@gmail.com>,
+	<shuah@kernel.org>, <linux-kselftest@vger.kernel.org>, <ij@kernel.org>,
+	<ncardwell@google.com>, <koen.de_schepper@nokia-bell-labs.com>,
+	<g.white@cablelabs.com>, <ingemar.s.johansson@ericsson.com>,
+	<mirja.kuehlewind@ericsson.com>, <cheshire@apple.com>, <rs.ietf@gmx.at>,
+	<Jason_Livingood@comcast.com>, <vidhi_goel@apple.com>
+References: <20260804213510.673084-1-chia-yu.chang@nokia-bell-labs.com>
+ <20260804213510.673084-3-chia-yu.chang@nokia-bell-labs.com>
+From: Jijie Shao <shaojijie@huawei.com>
+In-Reply-To: <20260804213510.673084-3-chia-yu.chang@nokia-bell-labs.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:PSgvCgD3P_4X53pq++EnKw--.16774S2
-X-Coremail-Antispam: 1Uf129KBjvJXoWxZw1DGF15CF1UWF45WF4Uurg_yoWrurW8pr
-	43AasIyFWkXwn7JFWrKryUZr1Yywnayay3GFyag34I93W5Kr1FkF10gayYkF43AFZ5AF1U
-	Xw4vyrZxKayj9r7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0pRaiisUUUUU=
-X-CM-SenderInfo: 5odqwvxbwd0wi6rwjhhfrp/xtbC4hk5Z2p65xnBaQAA3j
+X-ClientProxiedBy: kwepems100001.china.huawei.com (7.221.188.238) To
+ kwepemo500018.china.huawei.com (7.202.195.199)
 
-From: tanglongjun <tanglongjun@kylinos.cn>
 
-Count buffer and skb allocation failures on the rx queue and
-report them via rx-alloc-fail in netdev qstats.
+on 2026/8/5 5:35, chia-yu.chang@nokia-bell-labs.com wrote:
+> From: Chia-Yu Chang <chia-yu.chang@nokia-bell-labs.com>
+>
+> Currently, the hns3 Rx path sets the SKB_GSO_TCP_ECN flag when a TCP
+> segment with the CWR flag set is received. This is incorrect because
+> the hns3 hardware GRO resets the IP ToS byte to 0 during packet
+> aggregation. Consequently, no valid ECN signals are carreid, meaning
+> that it cannot support RFC3168 ECN or Accurate ECN protocols. Setting
+> SKB_GSO_TCP_ECN or SKB_GSO_TCP_ACCECN under these conditions misleads
+> the upper network stack.
+>
+> Fix this by removing the incorrect SKB_GSO_TCP_ECN flag assignment
+> in hns3_gro_complete().
 
-$ ./tools/net/ynl/ynltool/ynltool qstats show --json scope queue
-[{"ifname":"ens3",
-"ifindex":2,
-"queue-type":"rx",
-"queue-id":0,
-"rx":{"packets":3722,"bytes":374806,"alloc-fail":0}},
-{"ifname":"ens3",
-"ifindex":2,
-"queue-type":"tx",
-"queue-id":0,
-"tx":{"packets":622,"bytes":77495,"stop":0,"wake":0}}]
 
-Signed-off-by: Longjun Tang <tanglongjun@kylinos.cn>
----
- drivers/net/virtio_net.c | 32 ++++++++++++++++++++++++--------
- 1 file changed, 24 insertions(+), 8 deletions(-)
+Tested on hns3 HW (2x 100G, direct cable, openEuler 24.03, kernel 7.2.0-rc6).
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 3e2a5876c6c8..f9d15c618d3b 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -125,6 +125,7 @@ struct virtnet_rq_stats {
- 	u64_stats_t packets;
- 	u64_stats_t bytes;
- 	u64_stats_t drops;
-+	u64_stats_t alloc_fail;
- 	u64_stats_t xdp_packets;
- 	u64_stats_t xdp_tx;
- 	u64_stats_t xdp_redirects;
-@@ -173,8 +174,9 @@ static const struct virtnet_stat_desc virtnet_sq_stats_desc_qstat[] = {
- };
- 
- static const struct virtnet_stat_desc virtnet_rq_stats_desc_qstat[] = {
--	VIRTNET_RQ_STAT_QSTAT("packets", packets),
--	VIRTNET_RQ_STAT_QSTAT("bytes",   bytes),
-+	VIRTNET_RQ_STAT_QSTAT("packets",    packets),
-+	VIRTNET_RQ_STAT_QSTAT("bytes",      bytes),
-+	VIRTNET_RQ_STAT_QSTAT("alloc_fail", alloc_fail),
- };
- 
- #define VIRTNET_STATS_DESC_CQ(name) \
-@@ -1917,8 +1919,10 @@ static struct sk_buff *receive_small_xdp(struct net_device *dev,
- 	}
- 
- 	skb = virtnet_build_skb(buf, buflen, xdp.data - buf, len);
--	if (unlikely(!skb))
-+	if (unlikely(!skb)) {
-+		u64_stats_inc(&stats->alloc_fail);
- 		goto err;
-+	}
- 
- 	if (metasize)
- 		skb_metadata_set(skb, metasize);
-@@ -1985,6 +1989,7 @@ static struct sk_buff *receive_small(struct net_device *dev,
- 		return skb;
- 	}
- 
-+	u64_stats_inc(&stats->alloc_fail);
- err:
- 	u64_stats_inc(&stats->drops);
- 	page_pool_put_page(rq->page_pool, page, -1, true);
-@@ -2016,8 +2021,10 @@ static struct sk_buff *receive_big(struct net_device *dev,
- 
- 	skb = page_to_skb(vi, rq, page, 0, len, PAGE_SIZE, 0);
- 	u64_stats_add(&stats->bytes, len - vi->hdr_len);
--	if (unlikely(!skb))
-+	if (unlikely(!skb)) {
-+		u64_stats_inc(&stats->alloc_fail);
- 		goto err;
-+	}
- 
- 	return skb;
- 
-@@ -2298,8 +2305,10 @@ static struct sk_buff *receive_mergeable_xdp(struct net_device *dev,
- 	switch (act) {
- 	case XDP_PASS:
- 		head_skb = build_skb_from_xdp_buff(dev, vi, &xdp, xdp_frags_truesz);
--		if (unlikely(!head_skb))
-+		if (unlikely(!head_skb)) {
-+			u64_stats_inc(&stats->alloc_fail);
- 			break;
-+		}
- 
- 		skb_mark_for_recycle(head_skb);
- 		return head_skb;
-@@ -2414,8 +2423,10 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
- 	head_skb = page_to_skb(vi, rq, page, offset, len, truesize, headroom);
- 	curr_skb = head_skb;
- 
--	if (unlikely(!curr_skb))
-+	if (unlikely(!curr_skb)) {
-+		u64_stats_inc(&stats->alloc_fail);
- 		goto err_skb;
-+	}
- 
- 	skb_mark_for_recycle(head_skb);
- 	while (--num_buf) {
-@@ -2444,8 +2455,10 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
- 		truesize = mergeable_ctx_to_truesize(ctx);
- 		curr_skb  = virtnet_skb_append_frag(rq, head_skb, curr_skb, page,
- 						    buf, len, truesize);
--		if (!curr_skb)
-+		if (!curr_skb) {
-+			u64_stats_inc(&stats->alloc_fail);
- 			goto err_skb;
-+		}
- 	}
- 
- 	ewma_pkt_len_add(&rq->mrg_avg_pkt_len, head_skb->len);
-@@ -2928,12 +2941,14 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
- 
- 	u64_stats_set(&stats.packets, packets);
- 	if (rq->vq->num_free > min((unsigned int)budget, virtqueue_get_vring_size(rq->vq)) / 2) {
--		if (!try_fill_recv(vi, rq, GFP_ATOMIC))
-+		if (!try_fill_recv(vi, rq, GFP_ATOMIC)) {
- 			/* We need to retry refilling in the next NAPI poll so
- 			 * we must return budget to make sure the NAPI is
- 			 * repolled.
- 			 */
- 			packets = budget;
-+			u64_stats_inc(&stats.alloc_fail);
-+		}
- 	}
- 
- 	u64_stats_update_begin(&rq->stats.syncp);
-@@ -2948,6 +2963,7 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
- 
- 	u64_stats_add(&rq->stats.packets, u64_stats_read(&stats.packets));
- 	u64_stats_add(&rq->stats.bytes, u64_stats_read(&stats.bytes));
-+	u64_stats_add(&rq->stats.alloc_fail, u64_stats_read(&stats.alloc_fail));
- 
- 	u64_stats_update_end(&rq->stats.syncp);
- 
--- 
-2.51.0
+tcpdump confirms HW GRO zeroes IP ToS: aggregated (>MTU) packets carry
+tos 0x0, while non-aggregated packets keep their ToS/ECN marks — so the
+zeroing is done by HW GRO, not the sender. Before patch, CWR packets had
+SKB_GSO_TCP_ECN set (0x5 = SKB_GSO_TCPV4 | SKB_GSO_TCP_ECN). After patch,
+all GRO events gso_type=0x1 (SKB_GSO_TCPV4 only), no 0x5 observed.
+
+Tested-by: Jijie Shao <shaojijie@huawei.com>
+
 
