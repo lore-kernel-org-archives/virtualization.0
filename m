@@ -1,194 +1,215 @@
-Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from fra-out-014.esa.eu-central-1.outbound.mail-perimeter.amazon.com (fra-out-014.esa.eu-central-1.outbound.mail-perimeter.amazon.com [18.199.210.3])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9ED5C38BF81
-	for <virtualization@lists.linux.dev>; Tue, 11 Aug 2026 18:34:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5B1C3DBD48;
+	Tue, 11 Aug 2026 19:33:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=18.199.210.3
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786473261; cv=pass; b=LHnZJL4z3WbTi85xk8i2MG6h0wqptNmhJMQ5nkGdiGM5es0VlbTFqpPpYU1VoFonU49xSARzU0jkjbW17xl8jxQcBCthEr2Ajec5o0f7s43pKRgRvvdRk0jszwEQFOMQYpHAV5l2WXfD9Jk1ptaigLN5cW20CHZKB320CikNqbw=
+	t=1786476817; cv=fail; b=FuoAhj9xSmGRbi3fh7wBZ31fc1d/JG3j7yWmG2Bh1q18slfDS4rhge8Zn+8bdgdCwBMXTJlnuMpSoSzKXhEnfwuB39GXLqpstbA2Aon7byJ5IVsa5Cw+bqgoyhlegBSo7/YLX6auXB/njI1bRTEhzeKDLiuOlxpJ3te7ULeYiOc=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786473261; c=relaxed/simple;
-	bh=kLCANoNRd4l6pDLkn5bqVm7bHB+PCvgLtEbTkT1Q00k=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Fkvo26vOvb2umxlEEyXi/NPhtuRozJBeN7GKYqFwp5lx4yDG4w2BvJVr+OMtMrDHXL1KCE9YdnbTYXlOWvcK0jqljYKFfM20Mif/J7G3WqGq9QM7MWRXs+6ozxT1ORYOP/B8o1h90HJbgg/F56FzgyosI10LqV4uxYPgVj0mEnY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=JmTbm7mU; arc=pass smtp.client-ip=209.85.214.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1786476817; c=relaxed/simple;
+	bh=6KCgRu57nWhaDVMB6y+KpxUEj/MkgSrDcNOCLLcfjOs=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=icypA8lr3nqw4/0mltvhMcaK6uTCi9Qufs8n6+ssIqJ5W/1u5hHVVAzLkShMOTHTVJuaCuZnLSgpTMH4aAnCUHbbUMplXtmqO6HnpO6fK5rQxUF39CKJF/wbxfqkxiUcOa43oyXjn//cdpprBeWxLBI+cPzYURK0gMaxKE5JAjo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.de; spf=pass smtp.mailfrom=amazon.de; dkim=pass (2048-bit key) header.d=amazon.de header.i=@amazon.de header.b=S3gaH36E; arc=fail smtp.client-ip=18.199.210.3
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="JmTbm7mU"
-Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-2cede6375caso17395ad.0
-        for <virtualization@lists.linux.dev>; Tue, 11 Aug 2026 11:34:19 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1786473259; cv=none;
-        d=google.com; s=arc-20260327;
-        b=Js+/ic2LXujwjXbwxKhBGaxHiPwGVzNPUAdh9TUAn4ZSb2z+uHgboqKlBPjsYU4yan
-         XkHxX5Npm5YYvKB/hgHn10ADGhNH02pJxUBpnIoDwyrFiy2X1599yKGj/YwX2yxh+3UP
-         WgOq/7OpseJjxFl59vh8XMAnsS9+HbV0+Dh47qm3qS3VjvZEjPe4dSJe0M7n36MAZiCM
-         wcamTgDifsCW7wO/5t/Rk50/wOeVZYEu4mLprDXIxd8DDuEZp5lCcU23boMM6BdFAdrY
-         eAhJsA8J4L7gzsnMp8Zpc3OOED9o77+CBVue4VtxTMWaLwgkYmrVdLDg0GEX+1MVEgZs
-         6c6A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=kLCANoNRd4l6pDLkn5bqVm7bHB+PCvgLtEbTkT1Q00k=;
-        fh=Q9ZZevP21AQIMiXWUNW9n7SXwwlI8/xA3mLzXyxZukU=;
-        b=nmaPJO7H71/OY71xfyr6BafHW/49TXMeGyFe+sGJ6rOWIzxnUzQNo5qlOyYW/ajs5C
-         E/v8rwycxW6pmoXJWiciazzqjp4MJUazvUeHAyjK1Ngt7JdklDhRvbtUh1maLH90wol/
-         KKo8tQ5lbHyXvBetNztBETBHsNZpUt3QG+scD+AX5HWWiLvI5ooipzXIe6McCe6XwE9m
-         R8iPZeOZizwNUdSc47YC5uiJxnnkb22TrHyobIiImOERj2LIHTkAURon9c6ADUGF4Nvb
-         2a9nn4LPTrjEgDaE34X3gaAf8A2yuFY8eHmdGOUQ9hlJFBVEkR8pDmqXCggYacF5m8fx
-         lGvw==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=amazon.de header.i=@amazon.de header.b="S3gaH36E"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1786473259; x=1787078059; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=kLCANoNRd4l6pDLkn5bqVm7bHB+PCvgLtEbTkT1Q00k=;
-        b=JmTbm7mUrGsGWNT0EM7oSBwRSRMEtCIVKGp+v81ObxJ4rTEoIXEUh3ua2KKzw+YZNG
-         UjIsZrrdiRLvaBzXNEIS5xjqW/GCYu8r0UIZaI6tqgoRupNkZafIe0Rg/t4hfixKLKku
-         o8XwV5tVA4+AcKI9F2SuGrr3FIrFl6aamd+MY82u9X8fs3DWXZO/iylkJYvzfr/qVl2e
-         UiZNHehqy48FyldRzwemdw+Gk+aXigE6gd1WL3zjJ71y4yo4Gxu8W1fdTYagFVhqjPWx
-         +mytEoo8gL+t2JRs4dFM+FZ0prhzGJnLK4FhtlQ4rFVTQa/J6Z9+vdgYInviEyEaw7mU
-         MOoA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786473259; x=1787078059;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=kLCANoNRd4l6pDLkn5bqVm7bHB+PCvgLtEbTkT1Q00k=;
-        b=eyQbSeZxMNYq7p/v4SrHCig/q/pO4/K4OMY1WpNIivF5zAro/HIgeBHjIY3T2t01km
-         WCnc+C3K9AF4u2uV64gqUpt9nHCiJnQUR2ajFpr8iEWcIBwowcBiIDnsI8T69giEhhKR
-         J5mQ7hzg3jcemT7Tsnvtw4jCL/EzhCbXT/tcORlW61ZBKyuSzLNw7VFoBPedfCoql+Lw
-         ItyvJmaaR3pk2HcWhZK3JQ9G9K3CA2LRdSflXiFBLPUMwGs+MFpBlb50HCCNv+wfxlG2
-         5CafDRQfvMTLZH/3T9kM3t2Pywdn98olmdZSw2X/INrNFZ/8CprfZfMabeKkdvhaHx8p
-         O4PQ==
-X-Forwarded-Encrypted: i=1; AHgh+RrYPPTFmrwbualdC1hDCeMOwGoiiUI16MorLd4GvoBKJ4MZvuKqPI7Ufxjp3lI1BwDF8cLo1jAX9NY3UKDgrw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz5IgsepkwGaLuJ3be6qg2isckoMixAOFWr2xnKU9hnc8q8Mngp
-	VVhsGzHAINnI3pl+wNE11UEeEvbZbRfZFKQQGOcuIhsIdXCsfVITQ7ysF93T/0gs6UJ3y1+m6sA
-	F/R7SyDzH/WwkpZJRfN/9tJnvZFtwnqa3vJos4qg=
-X-Gm-Gg: AR+sD102anI+Znx6F0CWukNRbyXdK7sJkOnV8jVpdM84JSP5m1zwmuTx2oqsMYcBhmq
-	aObI3uEm1IDJyL/sjEtcf3uIuq+s90YsSuLs/eEJh2HlbaJvILV3ZsVZ8rjemG+ffXsWV61/gPu
-	0nypz/+p3uwFncdhEnarZkg/gC/xZ8LH0lgi4XXAR3LMpCBJeROiTuDGcAbUkJq6cnDlfig3u7x
-	uHNgNvamTOULstCcxBl5K9zj026W0C3K8LxMkerRgHY7f5cu2nC9eBmz0r9DPiEA5MZmdby41dh
-	qSPcRyH53aud2Bmip+d3wrBP0q7I04W8G/qV6HMHyNCeKpsRRvYXvjJkvMHyqGBkwRfjm/dR4TS
-	NBQ4=
-X-Received: by 2002:a17:902:c40e:b0:2c0:defb:557e with SMTP id
- d9443c01a7336-2d33a963518mr1426215ad.1.1786473258400; Tue, 11 Aug 2026
- 11:34:18 -0700 (PDT)
+  d=amazon.de; i=@amazon.de; q=dns/txt; s=amazoncorp2;
+  t=1786476816; x=1818012816;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-id:content-transfer-encoding:
+   mime-version;
+  bh=6KCgRu57nWhaDVMB6y+KpxUEj/MkgSrDcNOCLLcfjOs=;
+  b=S3gaH36Emh4hfHlRVVRqazKwLNnffQJiRmhHTWiABOVTb0oTqE5TxOCf
+   m6OWLcQE+GeTUkLR/t7CLW+dMKY2XW01iACiQXpk38QM5AT/CU35trrrk
+   l3caLrjI3xz4oVIoMS026wHdez6wfg3haNvVwNAqSyly50eXL5xANZP5f
+   qsQqfk9I0HRhshdjdHJYTaI/g21wwoGAGKZ6SmYDr6rlxh9ffLK9Ymevb
+   J0cvgMdOqCEd12W+HOVIhy9a35OSI4D/WV8yH3bQNAICGb4Eul+M+eWZV
+   XJ7zUQIpBvR/IzaTSgoPYRPvavnkO4T/4jfEzS8jcphBRVhRhdSP9sCs+
+   Q==;
+X-CSE-ConnectionGUID: UotRurfNQNKckIanhX8oPQ==
+X-CSE-MsgGUID: JN2LHAxHRuCG6ZQ5wzonaQ==
+X-IronPort-AV: E=Sophos;i="6.25,218,1779148800"; 
+   d="scan'208";a="17604226"
+Received: from ip-10-6-11-83.eu-central-1.compute.internal (HELO smtpout.naws.eu-central-1.prod.farcaster.email.amazon.dev) ([10.6.11.83])
+  by internal-fra-out-014.esa.eu-central-1.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Aug 2026 19:33:31 +0000
+Received: from EX19MTAEUA002.ant.amazon.com [54.240.197.232:12574]
+ by smtpin.naws.eu-central-1.prod.farcaster.email.amazon.dev [10.0.29.62:2525] with esmtp (Farcaster)
+ id 5a8fd43b-57f0-48a2-b152-f0322f179708; Tue, 11 Aug 2026 19:33:31 +0000 (UTC)
+X-Farcaster-Flow-ID: 5a8fd43b-57f0-48a2-b152-f0322f179708
+Received: from EX19EXOEUC002.ant.amazon.com (10.252.51.145) by
+ EX19MTAEUA002.ant.amazon.com (10.252.50.126) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.45;
+ Tue, 11 Aug 2026 19:33:31 +0000
+Received: from FR4P281CU032.outbound.protection.outlook.com (10.252.51.94) by
+ EX19EXOEUC002.ant.amazon.com (10.252.51.145) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.45
+ via Frontend Transport; Tue, 11 Aug 2026 19:33:31 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=ayu2g4QehFq8gh1T3tF/GYTRWvdsmL84zPTCaEm6hlHpG02ql7ABxDRmGo343pUUteEIHWcw2dnBuTtahyvjAAjkoK2XmS0Tmb8SDkhzbYHDHIG7zRnn2NB+GtNVFPo/B6vpqUaJfcR4NQABHeu7LfBXrvNbixXEhJzTdvQ14X3nplysSPrnKd/k6lmEFJH2i87AJyE0XYXTctu8fRZok74NspyzhItadHQpeapIkAtDce/NR2+yaiyVe3quf277x5VYrsEOuZIKUJeYZkHyyQQVbUcKIW4u8xwqqh86hOJ22IiK/2XbkHmZRHgSm0AGEqL0hvGhWTmC5jut1mJQfg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=6KCgRu57nWhaDVMB6y+KpxUEj/MkgSrDcNOCLLcfjOs=;
+ b=qAZXorK58LYg+4kB6m56yydsWl0q6X+g+I5yruenu2lVUzdEfORFyw81ZQsq8zZ2p7HroUajxfZ0MJSIahDBEyqjNGFnL64Nw0zPG3hGp14wWQomO0hbwwRlnGh2Wn/mdcQOyWiMCmUCeUiVDV4HzQMir/Drzqhj3NOrDf8fv4vZ2GngUQiFw0+lPBiT7hr0Z4Tp6VH/yaguhYDUp7k0bTwK3aNWH9ITg1JCAc9YaAIJBaNxDqIHoDjPrXbUNZXG0fTNncZDEIHoCZ+/rl9Hx20ndj6oUjYsawzqSu5uEL0JNVlb1TIy/DUbXTrai/0eNKu0JFzi6wOKvb6ktDQJ9g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amazon.de; dmarc=pass action=none header.from=amazon.de;
+ dkim=pass header.d=amazon.de; arc=none
+Received: from BE3P281MB6244.DEUP281.PROD.OUTLOOK.COM (2603:10a6:b10:103::21)
+ by FR0P281MB2891.DEUP281.PROD.OUTLOOK.COM (2603:10a6:d10:57::7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.315.11; Tue, 11 Aug
+ 2026 19:33:27 +0000
+Received: from BE3P281MB6244.DEUP281.PROD.OUTLOOK.COM
+ ([fe80::6854:a8a7:80a6:2c71]) by BE3P281MB6244.DEUP281.PROD.OUTLOOK.COM
+ ([fe80::6854:a8a7:80a6:2c71%6]) with mapi id 15.21.0315.008; Tue, 11 Aug 2026
+ 19:33:27 +0000
+From: "Graf (AWS), Alexander" <graf@amazon.de>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+CC: Jason Wang <jasowangio@gmail.com>, Alex Williamson <alex@shazbot.org>,
+	David Airlie <airlied@redhat.com>, Dmitry Osipenko
+	<dmitry.osipenko@collabora.com>, "dri-devel@lists.freedesktop.org"
+	<dri-devel@lists.freedesktop.org>, =?utf-8?B?RXVnZW5pbyBQw6lyZXo=?=
+	<eperezma@redhat.com>, Feng Liu <feliu@nvidia.com>, Gerd Hoffmann
+	<kraxel@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, Jens Axboe
+	<axboe@kernel.dk>, Jiri Pirko <jiri@resnulli.us>, Jonathan Corbet
+	<corbet@lwn.net>, "linux-block@vger.kernel.org"
+	<linux-block@vger.kernel.org>, "linux-doc@vger.kernel.org"
+	<linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, "nh-open-source@amazon.com"
+	<nh-open-source@amazon.com>, "nvdimm@lists.linux.dev"
+	<nvdimm@lists.linux.dev>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, "Paolo
+ Bonzini" <pbonzini@redhat.com>, Parav Pandit <parav@nvidia.com>, Shuah Khan
+	<skhan@linuxfoundation.org>, Stefan Hajnoczi <stefanha@redhat.com>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, Xuan Zhuo
+	<xuanzhuo@linux.alibaba.com>, Yishai Hadas <yishaih@nvidia.com>
+Subject: Re: [RFC PATCH 00/12] virtio: support devices that own their
+ virtqueue memory
+Thread-Topic: [RFC PATCH 00/12] virtio: support devices that own their
+ virtqueue memory
+Thread-Index: AQHdKchHcVe2KOeMjkSNLqlP5cvryA==
+Date: Tue, 11 Aug 2026 19:33:26 +0000
+Message-ID: <8c31b1a0-b9c1-4580-9589-9f868da42785@amazon.de>
+References: <20260809182010.32931-1-graf@amazon.com>
+ <20260810021450-mutt-send-email-mst@kernel.org>
+ <c56fb4d0-33ef-4e9b-ac18-ac4e896957cd@amazon.com>
+ <20260810035246-mutt-send-email-mst@kernel.org>
+ <bdcec878-d627-4d0f-a97c-35e596363b20@amazon.de>
+ <21714074-dc1e-4ef3-a515-6602bd19f055@amazon.de>
+ <20260810162924-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20260810162924-mutt-send-email-mst@kernel.org>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amazon.de;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: BE3P281MB6244:EE_|FR0P281MB2891:EE_
+x-ms-office365-filtering-correlation-id: b8d24dc4-c58b-4c3f-3884-08def7df6a80
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230040|23010399003|7416014|366016|1800799024|376014|38070700021|6133799003|11063799006|10067099003|56012099006|4143699003|18002099003|22082099003;
+x-microsoft-antispam-message-info: RGzaMntpl2hoG567kwVJfOmWV3qbDF6bpJHiJHEy3bHiOQxBgHkw7f6pqlqztilGGQpjnwpzU7NGrScBq8qmBbtBYZBo7IOO41JBavecu+aqPSQgVMD5Yk1UiAd+pKliyqwPC0no3ZLic7Uc4OMUy+uwLeacOkLynx7yw1uUdELsFs6VeWXB91lIo63HTxNBmXTpDbgKsKqZDhz5G+W6xqrVMTNyHW0GgiSkudTPtMtgA/pzIuDXPPYYQJD9Kxra7YE0seEiyHi5ezMHwf/6/IoEXvaSClEnngdtzRmPIL3jgB/64KCybLl8Ir8syNUCt9H3eI14IL7jtr9emqoHBukIBgVc5OPr4feEgDIB9vdIAm5+/TPJSk82K4WvZMU/vwe6PoJl9SRDmIDq/uWQTg5KgsrmLdPQvFovmKG2R4DJNkcqWAX/9ABBtZ6p66B5uvezETFjm9/T4wE52RfQgdrF+1v+TBHn43EBF7I6Bm1bkQ2/js5j06gn34DXu05u1zNGOKFSJq8d9P7Nh3PI8Yjo/9f9y9Sm/2XFNTH0p/HnYPgCe5t+QKZC1idw60Jz98OKnKxYaKzN9SGToZWBo3JjinUC8Q8cEQ2di5bEupKja92liy1jDIhjWbN4cqO6uO/IDfetDs5hu+DdekIrFbCo36h9OjEedx/hKUGRs5icV2u16d/b8IIWyhzMaO0DD3zBfQnqSq1+EtVBAC081EkWwUHJyExHlnRtvmSFyNo=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BE3P281MB6244.DEUP281.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(7416014)(366016)(1800799024)(376014)(38070700021)(6133799003)(11063799006)(10067099003)(56012099006)(4143699003)(18002099003)(22082099003);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?utf-8?B?R1NrbUVZZjNsdFZ1ZzFvVXZuMWtURGhNaGZmbkJJNFBEQnVVcUR6dU9BNFVV?=
+ =?utf-8?B?SDBJN0FWMkt6eGI3R2RjZUNvaGNQQzFYSDZlMUJ5UkRHQVI3VmxURWpsdTAy?=
+ =?utf-8?B?d3lvV3BPS0diZE42Qk9FWEROMXFjNHNTMmZvdUtUMVVONnNHUG40TlR3b3dQ?=
+ =?utf-8?B?c2grNmRXcW4rUWtVQ3ZsMEdsdittTW5sc2JPdDU3VnBSTXp2bU5aeGZmNGN1?=
+ =?utf-8?B?VWJETWNFOHNqUExUWVkxODAySlo1U0g4czRjRlMrYkgrZEIzb3J0UjJENGo4?=
+ =?utf-8?B?WkVwWUVNM0t3ZU9DY2t1alk3ZnJSMUdPZmNRT3dXWG51RXpoenp0Zms3MzJQ?=
+ =?utf-8?B?cnltSnVoeEk1R0lwYjk4VC83VjlNSS9BUzdMenR4WGtpTTZTRlQzcWxqZFAw?=
+ =?utf-8?B?NXBBSnMwc2pqbDgwZDhHaU42UXJLbEw3aWpqUWtybDdRYmZXRzNDaEtqNXMw?=
+ =?utf-8?B?RnFRR0MxazFoV3FzMCt0bXd1TllzdGJZVm9GWGo0WEhydzJQWWZqYlV3ZEg0?=
+ =?utf-8?B?MnR3WGx4RkU3dW9DNkk2c2kyWm9FSUxqbUNWUytGWnUxMnNGRUJwVklCZ0g1?=
+ =?utf-8?B?WEtRM1Y2d0szV1FVckp3UzBZcFl6ZW9TTzlUeVRWWFN6NU5MNjZheDE0a3Nt?=
+ =?utf-8?B?aUJLamRSa0d0eU9qL1FiN25tRTJIVW5nWWZ0dUlnNndtcWw3MlZ0cEp6UlZF?=
+ =?utf-8?B?dktyQW9SZS9qdTVLc2pmMElSaDA5cWVEbFRyelNvZWw2TjcxRDkzNzBpekVz?=
+ =?utf-8?B?U0gyOGpxZ1JHcWNDVFBYRDBmV2pNU3Bkdnc1VGpZTHN1ZFc0UHhEZFBQa0sx?=
+ =?utf-8?B?T3QrLzQrY0dZU2Z1MVNadlRCaEUrVkNqMS9NdlpFQ2JZSGcvdEtENzRhZ2p2?=
+ =?utf-8?B?UmZMbnY0Tzh0L3lXbHFuTXVUTXc1dk1oS0N1RUNJZWJGR21yZDBrOGxGa1ZR?=
+ =?utf-8?B?UmlUdFJpNzN0a2hkOVVYQmFTV0lSc1pROTk3SDRqYWNscWdGOVY0SmZiRndE?=
+ =?utf-8?B?aVpLU2pNRjNzNXBOQzREL0tISENRVC9Od0RNanBqcTBueDZHRzA4NmphTkNp?=
+ =?utf-8?B?UXlGdzZ0eHMyc2NrbHVKbzM2OTdyQmx6YjRjMEVKUXlTTVN3N2xGbk8vRDlR?=
+ =?utf-8?B?YnY4V2VBZUpsVHA3bGJSalVQYTRMWEFYMXk4a3M0VnN1cUwyTlkyZjRUb3RX?=
+ =?utf-8?B?dHhscFVGMkpBUHFFZ1JkdTBpL0dVeFkrcXlacUNEck9waGYxaWFGMWRNd01N?=
+ =?utf-8?B?djlJUkNhT2lHQnRpWkFkSHJ4ME9tdDJ5eVhIb3hHQWE3N0RqUDdVck80dzU3?=
+ =?utf-8?B?azlQK2hvNUpiblQ4RWlKT2wzNTN1NUczS3Q2R283SDBiamx5bUU4RmsxM3Vj?=
+ =?utf-8?B?VitpS0RrNjJiNFhMT1lNMEpJNSs4Q2c3alJyeTlsN29Qc1piVVpCVlRWRDQ0?=
+ =?utf-8?B?SHp3UEVQbzRyMURXSVEzYzM0RjdLdG55R1BLMC81cGpTbEQzb01NMmZ4RVhL?=
+ =?utf-8?B?N0N5NjEvZ2RpYWlWdlY3ME45SjJDUWJqR3Jna05UTy9hdlRKUTVEQytpcFFR?=
+ =?utf-8?B?bEswS3A0czRZKzNtQ1FFa2g1Nk1iN1E2TVVmTkNjZEcvRGtJdlg5QXJ4L1ly?=
+ =?utf-8?B?SmUreWQ1ZDBVYWdyZDk4SGl0RGdaU1RVblFBM3FXYzZxZ3c3STZTU3hmUTBh?=
+ =?utf-8?B?VTE3NnhjM2RGRzJtaytxdlBQaVhkK2hoRkRVYVBTSk9tazhiRjBiTDZGMlpO?=
+ =?utf-8?B?bTQ5dmVJbWUxbVBNSFdsTkJGYjJuUzVkeUkxTXJ3b3UyOGcrYmpzazVmYXd1?=
+ =?utf-8?B?bkdzR0tHUlMwTFRYakJ0V296N0kvZTF5ZkUwNkJhV1AzMGFxaHBwakxQRndZ?=
+ =?utf-8?B?Y0ZxVE5jbkgvVFFaWGNhZHRHK1p6RU5XZCtDWjlhdzhhOElJcGlpUTB4d3Bv?=
+ =?utf-8?B?VFErRDlZOWpITlNCMXJqV1RaZEU0bzFXdkswOTAzSlJxbndlZWxZeU9VSGla?=
+ =?utf-8?B?RFdpSVhCN1VHT21jZVZOSTU0M3o3cUlZOFFOSkVwcEhESGNQcFJ4c2dFWS9l?=
+ =?utf-8?B?Vllhd1UwSjM1UzVZbkxCU1FIbGgwa1pQRkxGcXhPUW1HM08vRXVxTW1JQVRu?=
+ =?utf-8?B?ZHlsS25EdVBva1NnYTJUbEhCZy8xdzZrcGE3TzJNZnE4WjlyUlNRRU9RWlRo?=
+ =?utf-8?B?ZHZaS2RHMmg1T1FOTzBsQStYNUkzUXdxS2FZZVhQNW5GanBhRlp1MXJzUUtD?=
+ =?utf-8?B?ZUt4Mkd5MjNWeWNsdU9LWlpibFBiaWJRa0xhUDVkK2ZOT01GaWcweG1udjdD?=
+ =?utf-8?Q?fH0zQmWrAvyrsdcAGo?=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <2E7680D0CB34944DB02A08C7FB1238AC@DEUP281.PROD.OUTLOOK.COM>
+Content-Transfer-Encoding: base64
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <CACzuRyy8_x2XW4hbWn6uzZZjj4LbxpMN_a81Tub-=WSop4anhg@mail.gmail.com>
-In-Reply-To: <CACzuRyy8_x2XW4hbWn6uzZZjj4LbxpMN_a81Tub-=WSop4anhg@mail.gmail.com>
-From: Brian Daniels <briandaniels@google.com>
-Date: Tue, 11 Aug 2026 14:34:06 -0400
-X-Gm-Features: AUfX_mxPh1QeCdRNQsNlfbzsj86xBjIyw-ELTDIVTWXToZomyGre9ZVhhK3ENGk
-Message-ID: <CAD4i_GTB9Uk=Kd=zZPAdXNZv0Xjvb5i8oHJHLA-ieCxLJHbmzg@mail.gmail.com>
-Subject: Re: [PATCH v4 0/8] media: add virtio-media driver
-To: Dorinda Bassey <dbassey@redhat.com>
-Cc: acourbot@google.com, adelva@google.com, Albert Esteve <aesteve@redhat.com>, 
-	changyeon@google.com, daniel.almeida@collabora.com, 
-	Eugenio Perez Martin <eperezma@redhat.com>, gnurou@gmail.com, 
-	Gurchetan Singh <gurchetansingh@google.com>, hverkuil@xs4all.nl, 
-	Jason Wang <jasowang@redhat.com>, linux-kernel@vger.kernel.org, 
-	linux-media@vger.kernel.org, mchehab@kernel.org, 
-	Michael Tsirkin <mst@redhat.com>, nicolas.dufresne@collabora.com, 
-	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-Exchange-RoutingPolicyChecked: Zo33V/j/tClOF7+Nt+5QTMJA50Nf2EavTia5rcQZv/9oa6Hn8SYHl8YI8hX6edSGKcZx0eB7ELi+vYg1Cyflq1dtLrtTpK9tyNXUy3Kgd4MZoxSqZn/JONEX2VUDgety0LwWhnpS5uE5MQJUfFLG7YggH4h/jZG0ngC5yH4AiDbfYpkCSftpzUi93P7YknHPV76ZVctLTLkDk0nIODeFFqttf7Z6EYMAoAjiO1jQz9K8zmmSiFc1PCBMOLFisnk71fQEnSxMoAYyNtdhU2YNGl+h95mTg3roY1UePmFwcmpAi9+XeNDbdi457Y7uIMhLEnz8L+Kflh4GUPX5FL1H1w==
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BE3P281MB6244.DEUP281.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-Network-Message-Id: b8d24dc4-c58b-4c3f-3884-08def7df6a80
+X-MS-Exchange-CrossTenant-originalarrivaltime: 11 Aug 2026 19:33:26.9087
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 5280104a-472d-4538-9ccf-1e1d0efe8b1b
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: /pWH+44CCLFS6qqilNCN+eJYH68nh2hd5BRHBbBB17FS2sJOoYls+oWBMjvoKzJ2
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: FR0P281MB2891
+X-OriginatorOrg: amazon.de
 
-On Tue, Aug 11, 2026 at 4:43=E2=80=AFAM Dorinda Bassey <dbassey@redhat.com>=
- wrote:
->
-> Hi Brian,
->
-> I've been working on a vhost-user frontend for virtio-media
-> in libkrun[1] and tested this series with vhost-device-media[2].
-> A few things I noticed:
->
-> 1. Wrong constant in vfl_dir detection in virtio_media_driver.c:
-> >
-> > + if (vd->device_caps & (V4L2_CAP_VIDEO_M2M | V4L2_CAP_VIDEO_M2M_MPLANE=
-))
-> > + vd->vfl_dir =3D VFL_DIR_M2M;
-> > + else if (vd->device_caps &
-> > + (V4L2_CAP_VIDEO_OUTPUT | V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE))
-> > + vd->vfl_dir =3D VFL_DIR_TX;
->
-> V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE is a buffer
-> type enum, not a capability flag. So it should be
-> V4L2_CAP_VIDEO_OUTPUT_MPLANE.
-
-Good catch! I've staged the fix in v7.
-
-> 2. Kconfig architecture support
->
-> > + depends on VIRTIO && VIDEO_DEV && 64BIT && (X86 || (ARM && CPU_LITTLE=
-_ENDIAN))
->
-> ARM64 is missing here, so the driver cannot be selected on
-> aarch64. Also, CONFIG_ARM is 32-bit only, so 64BIT && ARM
-> can never be true; that branch is dead code.
-
-I was able to confirm that you can't build it for ARM64 as written in
-v6, I've updated it for v7 as you suggested, thanks!
-
-> Since the driver
-> has no platform specific code, this could just be:
->
-> + depends on VIRTIO && VIDEO_DEV && 64BIT
->
-> as it already covers x86_64, ARM64, and any other 64 bit
-> architecture without listing them individually.
-
-While it covers the 64 bit requirement, it does not cover the little
-endian requirement.
-
-The virtio spec states that the v4l2 structs transferred should be in
-little endian format (section 5.22.6.1.5) [1]. Currently, the driver
-does not do any translation on big endian guests, so for now the
-driver should be restricted to little endian guests.
-
-As far as I can tell, ``CPU_LITTLE_ENDIAN`` isn't specified for all
-architectures (importantly, it does't cover x86). Perhaps this could
-be made less restrictive with:
-
-+ depends on VIRTIO && VIDEO_DEV && 64BIT && (x86 || CPU_LITTLE_ENDIAN)
-
-I'd lean on others' expertise here if they have suggestions.
-
-I should note this driver has only been tested on x86 and ARM64
-platforms, so I can't make any guarantees on compatibility :)
-
-> 3. Error sign convention:
->
-> > + resp_header =3D sg_virt(sgs[out_sgs]);
-> > + if (resp_header->status)
-> > + /* Host returns a positive error code. */
-> > + return -resp_header->status;
->
-> The comment in the driver and the protocol spec contradict
-> each other. The protocol.h describes the status field as
-> "one of the standard Linux error codes" without specifying
-> a sign. It's probably worth making the protocol spec explicit
-> that the host returns positive error codes to match the driver's
-> assumption.
-
-I'll update the comment in protocol.h to explicitly state the error
-code is positive in v7.
-
-> [1] https://github.com/libkrun/libkrun/pull/811
-> [2] https://github.com/rust-vmm/vhost-device/tree/main/vhost-device-media
->
-> BR,
-> Dorinda.
-
-Thanks again for testing and for sending fixes!
-
-[1] https://docs.oasis-open.org/virtio/virtio/v1.4/csprd01/virtio-v1.4-cspr=
-d01-diff-from-v1.2-cs01.html#x1-8360005
+DQpPbiAxMC4wOC4yNiAyMzo0MiwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOg0KPiBPbiBNb24s
+IEF1ZyAxMCwgMjAyNiBhdCAwNzoxNDowOVBNICswMDAwLCBHcmFmIChBV1MpLCBBbGV4YW5kZXIg
+d3JvdGU6DQo+PiBNYXliZSBJJ20gbWlzc2luZyB0aGUgcmVhbCBwb2ludCB5b3UncmUgdHJ5aW5n
+IHRvIG1ha2U/IDopDQo+IEF0IGxlYXN0IG9uZSBwb2ludCBpcyBub3QgdG8gaGF2ZSB0ZXh0IGxp
+a2UgImludGVwcmV0IGV2ZXJ5IGFkZHJlc3MgYXMNCj4gYW4gb2Zmc2V0IiBpbiB0aGUgc3BlYyBh
+bmQgYWN0dWFsbHkgbWFrZSBpdCBhbiBhZGRyZXNzLg0KDQoNCkkgYW0gZ2VudWluZWx5IHVuYWJs
+ZSB0byBzZWUgaG93IHdlIGNhbiBtYWtlIGl0IHByZXR0aWVyLg0KDQpXaGF0IEknbSB0cnlpbmcg
+dG8gdHJhbnNtaXQgaXMgdGhhdCBlYWNoIGRldmljZSBzaG91bGQgbGl2ZSBpbiBpdHMgb3duIA0K
+YWRkcmVzcyBzcGFjZSwgd2l0aCB0aGUgaG9zdCBzcGVjaWZ5aW5nIHdoaWNoIGJvdW5kYXJ5IGFu
+IGFkZHJlc3Mgc3BhY2UgDQpoYXMuIEkgYWdyZWUgdGhhdCBvbiBzdXJmYWNlIGl0IHNvdW5kcyBh
+IGJpdCBsaWtlIGFuIElPTU1VLiBBbmQgeWVzLCB3ZSANCmNhbiBjb21iaW5lIHRoYXQgd2l0aCB2
+aXJ0aW8taW9tbXUsIGJ1dCB0aGF0J3MgcmVhbGx5IGp1c3QgcHVudGluZyB0aGUgDQpwcm9ibGVt
+IGRvd24gb25lIGxheWVyIGFuZCBtYWtlcyBpdCBtb3JlIGRpZmZpY3VsdCB0byByZWNyZWF0ZSB0
+aGUgdGllcyANCnRoYXQgYSBuYXRpdmUgcGVyLWRldmljZSBtZWNoYW5pc20gYWxyZWFkeSBnaXZl
+cyB1cy4NCg0KV2l0aCBhIHB1cmUgdmlydGlvLWlvbW11IGltcGxlbWVudGF0aW9uLCB0aGUgbW9z
+dCBvYnZpb3VzIHdheSB0byBjcmVhdGUgDQphIHByaXZhdGUgbWVtb3J5IHJlZ2lvbiAobm90IFJB
+TSwgYmVjYXVzZSB0aGlzIHJlZ2lvbiBzaG91bGQgbmV2ZXIgYmUgDQp1c2VkIGJ5IGFueXRoaW5n
+IGFzIFJBTSkgdmlhIGFuIFNITSByZWdpb24gdG8gdGhlIHZpcnRpby1pb21tdSBkZXZpY2UuDQoN
+Ck5vdyB3ZSdyZSBtb3ZpbmcgdGhlIHdvcmRpbmcgaW4gdGhlIHNwZWMgZnJvbSAiRGV2aWNlIERN
+QSBpcyByb3V0ZWQgdG8gYSANCnByaXZhdGUgYWRkcmVzcyBzcGFjZSB3aGljaCBpcyBiYWNrZWQg
+YnkgdGhlIERNQiBTSE0gcmVnaW9uIiBpbnRvIA0KIlZpcnRpby1pb21tdSBoYXMgdGhlIGFiaWxp
+dHkgdG8gdGFyZ2V0IGEgc3BlY2lhbCBhZGRyZXNzIHNwYWNlLCBiYWNrZWQgDQpieSBhbiBTSE0g
+cmVnaW9uIi4gQW5kIHdlIHRoZW4gbmVlZCB0byBmaW5kIGEgd2F5IHRvIHNpemUgdGhhdCByZWdp
+b24sIA0KZHluYW1pY2FsbHkgc2xpY2UgaXQgKGZvciBob3RwbHVnIHN1cHBvcnQpIGFuZCBjb21t
+dW5pY2F0ZSBiZXR3ZWVuIGFsbCANCmNvbXBvbmVudHMgd2hlcmUgYW5kIGhvdyB0byB1c2UgdGhl
+IHZpcnRpby1pb21tdSBTSE0gcmVnaW9uIGluc3RlYWQuDQoNCklmIHdlIGRvbid0IHdhbnQgdG8g
+dXNlIGEgdmlydGlvLWlvbW11IFNITSByZWdpb24sIGJ1dCBwdW50IGl0IGRvd24gb25lIA0KbGF5
+ZXIgdG8gdmlydGlvLW1lbSwgaXQgZ2V0cyBldmVuIG1vcmUgZGlmZmljdWx0LiBXZSdkIGhhdmUg
+YWxsIG9mIHRoZSANCnByb2JsZW1zIHRoYXQgd2UgZ2V0IHdoZW4gdXNpbmcgdmlydGlvLWlvbW11
+LCBidXQgb24gdG9wIG9mIHRoYXQgd2Ugbm93IA0KbmVlZCB0byBlbmxpZ2h0ZW4gdmlydGlvLW1l
+bSB3aXRoIGEgc3BlY2lhbCAicHJpdmF0ZSIgbWVtb3J5IHJlZ2lvbiB0aGF0IA0KaXMgbm90IFJB
+TS4gQW5kIHRoZW4gY29ubmVjdCB0aGF0IGJhY2sgaW50byB2aXJ0aW8taW9tbXUuDQoNClNvIHdo
+aWxlIEkgdW5kZXJzdGFuZCB5b3VyIGNvbmNlcm4sIEkgZmFpbCB0byBzZWUgYSBwYXRoIHRvd2Fy
+ZHMgYW4gDQphY3R1YWxseSB2aWFibGUsIGdlbnVpbmVseSBiZXR0ZXIgKHByZXR0aWVyIC8gbW9y
+ZSBtYWludGFpbmFibGUgLyBlYXNpZXIgDQovIGxlc3MgZXJyb3IgcHJvbmUgLyBldGMpIGltcGxl
+bWVudGF0aW9uIHdpdGggdmlydGlvLWlvbW11Lg0KDQoNCkFsZXgNCg==
