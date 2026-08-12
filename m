@@ -1,87 +1,194 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3F9334E777;
-	Wed, 12 Aug 2026 00:30:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 822BC34EEEA
+	for <virtualization@lists.linux.dev>; Wed, 12 Aug 2026 01:23:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786494621; cv=none; b=s+pVa3V9WCtKefYak7nGyA0KpRIqfm1yQOGJ105kUjwomdHtXdZnQIZfxtJ/P5cm3yF161uO9nO4Sokhplcv9JHXF9bLcaU/hyplaVR6D6bqIYwHzYs/A7FTpXgipimibKRfBdVHGaCgYlfIc69yQu+BNM8DscTq1qE+BNJeiPA=
+	t=1786497804; cv=none; b=H3ZYfCECeTmxmCRHV3gp0y/azat2VCo+QF+b90kTZBDoL8i9Pp1kvcUDjFZ3Wnr9f926m4p1445dPd+HFwzc6Y6wnu+AFnTlp3Rp383088+lZdPFltFwQqBl649PDlv/iolL/0XZRTzbtN5v7lz88SiiJdKIaHdTpkYgbQp0fLI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786494621; c=relaxed/simple;
-	bh=okRGTHj9xe02E3+2vllt76mrLoc9xeWeOr/WI/Hs9ss=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ExCpzWAtIAlxN/bZwBtcZwkyd5wvZJ4as2tXJxfc0u9R3s5ThS5INnUvU8Kg16diYHsCh7i9t6hK6qZmmQAGy9QsX8kWDhki2RnbbhAzL9abWVLnZp2rgjC8iNlp6gKpa752VD22fWF3MOieWqNIPbCQqAiyIZk+dg6umuIGRM8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PF29UAPz; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786497804; c=relaxed/simple;
+	bh=2Ic8nn1IjdeLMlFMkUBGlTSzq7P/pdhz3OTLOKObDQc=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=VdN7fstJhA8TLkEOVy0TjoQfXimxhdMBErEmbclJw7eFnxxmluVO4UeWm3IQyxOA57x8JfqeC6zoedEO7NUXjlNSz9Yf5mIq90iepotmvNSxlfN8D7iz0r0RPfZJHFPTdoXJQdTboE6/FpBbIvBBvhFEKvYNeJZHj2XjtOhs+DU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=KQWdHd02; arc=none smtp.client-ip=117.135.210.4
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PF29UAPz"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 571271F00A3A;
-	Wed, 12 Aug 2026 00:30:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786494619;
-	bh=vBGCSWHaGMmkmmP6yi4Nc/OgFCtfvJsC1RNn5pkjCgg=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=PF29UAPzPh1648sUupk3yfPPS8lvAWVb7VDO27PVC7jtt/EnlHV64lWDGwg63V+WH
-	 yqBRc68+AeMKJWQLroLC4SHU9+h+OX4ZTBEUyI3EltWHfKaewCsksOGHkSyLoViRKW
-	 NnjBcWG3lJtPbw5n0wJcmnK7TbT4rM5u+fePCjZ7Dfa/snQDKLyGJSsskGu3i2cVxj
-	 Ttcv88MMLW3zbve6ZLK1xt9kR0klDNwUkpjmM5YJ78dNaZB1XbRUPxRQQs0qnil/Ce
-	 BQn4ez36ahFzEjrSvabfgx7pTkVnTG4ogTiD664GAusBj75WoszJwN1kHZlM35OLst
-	 D+gDoE7aisySg==
-Date: Tue, 11 Aug 2026 17:30:17 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: chia-yu.chang@nokia-bell-labs.com
-Cc: shaojijie@huawei.com, shenjian15@huawei.com, linux-rdma@vger.kernel.org,
- eperezma@redhat.com, jasowang@redhat.com, virtualization@lists.linux.dev,
- mst@redhat.com, xuanzhuo@linux.alibaba.com, pabeni@redhat.com,
- edumazet@google.com, linux-doc@vger.kernel.org, corbet@lwn.net,
- horms@kernel.org, dsahern@kernel.org, kuniyu@google.com,
- bpf@vger.kernel.org, netdev@vger.kernel.org, dave.taht@gmail.com,
- jhs@mojatatu.com, stephen@networkplumber.org, xiyou.wangcong@gmail.com,
- jiri@resnulli.us, davem@davemloft.net, andrew+netdev@lunn.ch,
- donald.hunter@gmail.com, ast@fiberby.net, liuhangbin@gmail.com,
- shuah@kernel.org, linux-kselftest@vger.kernel.org, ij@kernel.org,
- ncardwell@google.com, koen.de_schepper@nokia-bell-labs.com,
- g.white@cablelabs.com, ingemar.s.johansson@ericsson.com,
- mirja.kuehlewind@ericsson.com, cheshire@apple.com, rs.ietf@gmx.at,
- Jason_Livingood@comcast.com, vidhi_goel@apple.com, Parav Pandit
- <parav@nvidia.com>
-Subject: Re: [PATCH v5 net-next 1/2] net: update comments for
- SKB_GSO_TCP_ECN and SKB_GSO_TCP_ACCECN
-Message-ID: <20260811173017.3d18dfdc@kernel.org>
-In-Reply-To: <20260804213510.673084-2-chia-yu.chang@nokia-bell-labs.com>
-References: <20260804213510.673084-1-chia-yu.chang@nokia-bell-labs.com>
-	<20260804213510.673084-2-chia-yu.chang@nokia-bell-labs.com>
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="KQWdHd02"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=sL
+	m/oYLqe0SOnYjUJ8EtOecmT7yfbzQszZNvFCe2dIY=; b=KQWdHd029JwaLae0bR
+	ZCK5DMRLeKElzQKLSCcsRgIpzIhEO5rJMeZdU5Jta9PZmhwdZCoiqICATqYe6Nzy
+	24qqHv7QPNZCrZdfWLayA+7oNNgpcftUCx3Rqq/cAe/MHelj9I3350lcVdbTkCfO
+	+3v4s0CJVmn4uFIWawOKUvR6s=
+Received: from localhost.localdomain (unknown [])
+	by gzsmtp2 (Coremail) with SMTP id PSgvCgCHzfPwyntqj8OMKw--.32351S2;
+	Wed, 12 Aug 2026 09:22:57 +0800 (CST)
+From: Longjun Tang <lange_tang@163.com>
+To: mst@redhat.com,
+	kuba@kernel.org,
+	jasowangio@gmail.com
+Cc: xuanzhuo@linux.alibaba.com,
+	virtualization@lists.linux.dev,
+	netdev@vger.kernel.org,
+	tanglongjun@kylinos.cn,
+	lange_tang@163.com
+Subject: [PATCH] virtio_net: add rx-alloc-fail counter
+Date: Wed, 12 Aug 2026 09:22:54 +0800
+Message-Id: <20260812012254.27668-1-lange_tang@163.com>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:PSgvCgCHzfPwyntqj8OMKw--.32351S2
+X-Coremail-Antispam: 1Uf129KBjvJXoWxZw1DGF15CF1UWF45WF4Uurg_yoWrurW8pr
+	43AasIyFWkXwn7JFWrKryUZr1Yywnayay3GFyag34I93W5Kr1FkF10gayYkF43AFZ5AF1U
+	Xw4vyrZxKayj9r7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0pRveH-UUUUU=
+X-CM-SenderInfo: 5odqwvxbwd0wi6rwjhhfrp/xtbC-hJolmp7yvKDdgAA3O
 
-On Tue,  4 Aug 2026 23:35:09 +0200 chia-yu.chang@nokia-bell-labs.com
-wrote:
-> This corresponds to discussions in virtio mailing list:
-> https://lore.kernel.org/all/20250814120118.81787-1-chia-yu.chang@nokia-bell-labs.com/
-> And it was suggested to clarify SKB_GSO_TCP_ECN and SKB_GSO_TCP_ACCECN.
+From: tanglongjun <tanglongjun@kylinos.cn>
 
-> -	/* This indicates the tcp segment has CWR set. */
-> +	/* For TX, this indicates that the first TCP segment has CWR set, and
-> +	 * any subsequent segment in the same skb has CWR cleared. This flag
-> +	 * must not be used in RX, because the connection to which the segment
-> +	 * belongs is not tracked to use RFC3168 or AccECN. Using RFC3168 ECN
-> +	 * offload may clear CWR and corrupt ACE signal (CWR is part of it).
-> +	 * Instead, SKB_GSO_TCP_ACCECN shall be used to avoid CWR corruption.
-> +	 */
+Count buffer and skb allocation failures on the rx queue and
+report them via rx-alloc-fail in netdev qstats.
 
-I still can't wrap my head around this TBH.
+$ ./tools/net/ynl/ynltool/ynltool qstats show --json scope queue
+[{"ifname":"ens3",
+"ifindex":2,
+"queue-type":"rx",
+"queue-id":0,
+"rx":{"packets":3722,"bytes":374806,"alloc-fail":0}},
+{"ifname":"ens3",
+"ifindex":2,
+"queue-type":"tx",
+"queue-id":0,
+"tx":{"packets":622,"bytes":77495,"stop":0,"wake":0}}]
 
-SKB_GSO_TCP_ECN means RFC3168
-SKB_GSO_TCP_ACCECN means AccECN
+Signed-off-by: Longjun Tang <tanglongjun@kylinos.cn>
+---
+ drivers/net/virtio_net.c | 32 ++++++++++++++++++++++++--------
+ 1 file changed, 24 insertions(+), 8 deletions(-)
 
-If the HW can correctly detect cwr on first frame and then no cwr 
-and report that as ECN/RFC3168 - what's the problem? TSO will produce
-the exact expected segment sequence.
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 3e2a5876c6c8..f9d15c618d3b 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -125,6 +125,7 @@ struct virtnet_rq_stats {
+ 	u64_stats_t packets;
+ 	u64_stats_t bytes;
+ 	u64_stats_t drops;
++	u64_stats_t alloc_fail;
+ 	u64_stats_t xdp_packets;
+ 	u64_stats_t xdp_tx;
+ 	u64_stats_t xdp_redirects;
+@@ -173,8 +174,9 @@ static const struct virtnet_stat_desc virtnet_sq_stats_desc_qstat[] = {
+ };
+ 
+ static const struct virtnet_stat_desc virtnet_rq_stats_desc_qstat[] = {
+-	VIRTNET_RQ_STAT_QSTAT("packets", packets),
+-	VIRTNET_RQ_STAT_QSTAT("bytes",   bytes),
++	VIRTNET_RQ_STAT_QSTAT("packets",    packets),
++	VIRTNET_RQ_STAT_QSTAT("bytes",      bytes),
++	VIRTNET_RQ_STAT_QSTAT("alloc_fail", alloc_fail),
+ };
+ 
+ #define VIRTNET_STATS_DESC_CQ(name) \
+@@ -1917,8 +1919,10 @@ static struct sk_buff *receive_small_xdp(struct net_device *dev,
+ 	}
+ 
+ 	skb = virtnet_build_skb(buf, buflen, xdp.data - buf, len);
+-	if (unlikely(!skb))
++	if (unlikely(!skb)) {
++		u64_stats_inc(&stats->alloc_fail);
+ 		goto err;
++	}
+ 
+ 	if (metasize)
+ 		skb_metadata_set(skb, metasize);
+@@ -1985,6 +1989,7 @@ static struct sk_buff *receive_small(struct net_device *dev,
+ 		return skb;
+ 	}
+ 
++	u64_stats_inc(&stats->alloc_fail);
+ err:
+ 	u64_stats_inc(&stats->drops);
+ 	page_pool_put_page(rq->page_pool, page, -1, true);
+@@ -2016,8 +2021,10 @@ static struct sk_buff *receive_big(struct net_device *dev,
+ 
+ 	skb = page_to_skb(vi, rq, page, 0, len, PAGE_SIZE, 0);
+ 	u64_stats_add(&stats->bytes, len - vi->hdr_len);
+-	if (unlikely(!skb))
++	if (unlikely(!skb)) {
++		u64_stats_inc(&stats->alloc_fail);
+ 		goto err;
++	}
+ 
+ 	return skb;
+ 
+@@ -2298,8 +2305,10 @@ static struct sk_buff *receive_mergeable_xdp(struct net_device *dev,
+ 	switch (act) {
+ 	case XDP_PASS:
+ 		head_skb = build_skb_from_xdp_buff(dev, vi, &xdp, xdp_frags_truesz);
+-		if (unlikely(!head_skb))
++		if (unlikely(!head_skb)) {
++			u64_stats_inc(&stats->alloc_fail);
+ 			break;
++		}
+ 
+ 		skb_mark_for_recycle(head_skb);
+ 		return head_skb;
+@@ -2414,8 +2423,10 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+ 	head_skb = page_to_skb(vi, rq, page, offset, len, truesize, headroom);
+ 	curr_skb = head_skb;
+ 
+-	if (unlikely(!curr_skb))
++	if (unlikely(!curr_skb)) {
++		u64_stats_inc(&stats->alloc_fail);
+ 		goto err_skb;
++	}
+ 
+ 	skb_mark_for_recycle(head_skb);
+ 	while (--num_buf) {
+@@ -2444,8 +2455,10 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+ 		truesize = mergeable_ctx_to_truesize(ctx);
+ 		curr_skb  = virtnet_skb_append_frag(rq, head_skb, curr_skb, page,
+ 						    buf, len, truesize);
+-		if (!curr_skb)
++		if (!curr_skb) {
++			u64_stats_inc(&stats->alloc_fail);
+ 			goto err_skb;
++		}
+ 	}
+ 
+ 	ewma_pkt_len_add(&rq->mrg_avg_pkt_len, head_skb->len);
+@@ -2928,12 +2941,14 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
+ 
+ 	u64_stats_set(&stats.packets, packets);
+ 	if (rq->vq->num_free > min((unsigned int)budget, virtqueue_get_vring_size(rq->vq)) / 2) {
+-		if (!try_fill_recv(vi, rq, GFP_ATOMIC))
++		if (!try_fill_recv(vi, rq, GFP_ATOMIC)) {
+ 			/* We need to retry refilling in the next NAPI poll so
+ 			 * we must return budget to make sure the NAPI is
+ 			 * repolled.
+ 			 */
+ 			packets = budget;
++			u64_stats_inc(&stats.alloc_fail);
++		}
+ 	}
+ 
+ 	u64_stats_update_begin(&rq->stats.syncp);
+@@ -2948,6 +2963,7 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
+ 
+ 	u64_stats_add(&rq->stats.packets, u64_stats_read(&stats.packets));
+ 	u64_stats_add(&rq->stats.bytes, u64_stats_read(&stats.bytes));
++	u64_stats_add(&rq->stats.alloc_fail, u64_stats_read(&stats.alloc_fail));
+ 
+ 	u64_stats_update_end(&rq->stats.syncp);
+ 
+-- 
+2.51.0
 
-Is the program that if we re-GRO that frame in SW we end up with
-ECN+ACCECN on the same skb?
