@@ -1,194 +1,258 @@
-Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.4])
+Received: from BN1PR04CU002.outbound.protection.outlook.com (mail-eastus2azon11010027.outbound.protection.outlook.com [52.101.56.27])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 822BC34EEEA
-	for <virtualization@lists.linux.dev>; Wed, 12 Aug 2026 01:23:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.4
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786497804; cv=none; b=H3ZYfCECeTmxmCRHV3gp0y/azat2VCo+QF+b90kTZBDoL8i9Pp1kvcUDjFZ3Wnr9f926m4p1445dPd+HFwzc6Y6wnu+AFnTlp3Rp383088+lZdPFltFwQqBl649PDlv/iolL/0XZRTzbtN5v7lz88SiiJdKIaHdTpkYgbQp0fLI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786497804; c=relaxed/simple;
-	bh=2Ic8nn1IjdeLMlFMkUBGlTSzq7P/pdhz3OTLOKObDQc=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=VdN7fstJhA8TLkEOVy0TjoQfXimxhdMBErEmbclJw7eFnxxmluVO4UeWm3IQyxOA57x8JfqeC6zoedEO7NUXjlNSz9Yf5mIq90iepotmvNSxlfN8D7iz0r0RPfZJHFPTdoXJQdTboE6/FpBbIvBBvhFEKvYNeJZHj2XjtOhs+DU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=KQWdHd02; arc=none smtp.client-ip=117.135.210.4
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5879821D591
+	for <virtualization@lists.linux.dev>; Wed, 12 Aug 2026 02:25:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.56.27
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786501510; cv=fail; b=NpAIVhO6xMF523SPizLZtxbbGO0nnPEhlyviQJZak6Hu++U/KMiun49a58DRrXnMboaMdQaN2jKjrExWcTcgrrlwbxOvy3OFB4TlzUciLliLcH8hUsVMC2cE18i/RI40B9Tb+l5i5m1S8WqtJtdF3DSqzWPsf4l4um79Weoovv4=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786501510; c=relaxed/simple;
+	bh=eggVsc/ikLXjgU+w6PQTe9GPCOfLGcCnBMJDx/E8plU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=flWHs+V6LeOppulnEY7yg6vFqmqBooJBPABaq2sxzfnX0p5bhzXyplP1CDd+MK5EIpv9SKPsgBewO89wf9Gqxcb0ZWWJ4Wql2hEgqHD9f47hj6dbOaevGisbX/98IBCXkFPTOyd7rrRCwHTJMt844yNSjhr6TEjQkYJaPVkKuKE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=IvMtu5Tb; arc=fail smtp.client-ip=52.101.56.27
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="KQWdHd02"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=sL
-	m/oYLqe0SOnYjUJ8EtOecmT7yfbzQszZNvFCe2dIY=; b=KQWdHd029JwaLae0bR
-	ZCK5DMRLeKElzQKLSCcsRgIpzIhEO5rJMeZdU5Jta9PZmhwdZCoiqICATqYe6Nzy
-	24qqHv7QPNZCrZdfWLayA+7oNNgpcftUCx3Rqq/cAe/MHelj9I3350lcVdbTkCfO
-	+3v4s0CJVmn4uFIWawOKUvR6s=
-Received: from localhost.localdomain (unknown [])
-	by gzsmtp2 (Coremail) with SMTP id PSgvCgCHzfPwyntqj8OMKw--.32351S2;
-	Wed, 12 Aug 2026 09:22:57 +0800 (CST)
-From: Longjun Tang <lange_tang@163.com>
-To: mst@redhat.com,
-	kuba@kernel.org,
-	jasowangio@gmail.com
-Cc: xuanzhuo@linux.alibaba.com,
-	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org,
-	tanglongjun@kylinos.cn,
-	lange_tang@163.com
-Subject: [PATCH] virtio_net: add rx-alloc-fail counter
-Date: Wed, 12 Aug 2026 09:22:54 +0800
-Message-Id: <20260812012254.27668-1-lange_tang@163.com>
-X-Mailer: git-send-email 2.25.1
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="IvMtu5Tb"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=M6jImMKsyGAQtIj5uHMqLMU7z9NXbBpWYbhTt3i4wVDS+Z5abElgXtN4K6ftE4eKYMyYKZ9w2ODGRG8QLDAeXWP/Y68MhJPnDMIlmVaGdfR2V8+YQpfxA5BBMVTLIfADUxV79o9YI/jgUgNG4VwncCQ99JgzSVpNZNGSIlyaOn2n0t8kSofD6WYTuwYJOJUylptf4ECx8Dj7j5qYgzlzwZYszL5uvLqs8DNoh8NYX+8076VruSNQA1zNhmUNfbOfejfVwj3e0LUnHJ2wsqc73ZGFT4iQ+PI8nrlMrQ5DnvDZk82Dor1bhx7fWlI8JfmyFiXHZFEKrf05ogo7hysoSQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=SpseDICmhes/177I3em6bJCyW9HHZ+UT5I0wmQePEE8=;
+ b=sSHdhMSy6KEhHoah/bPV18MfnX/zAAc4sXCRtNu0el/aYVdssYAfuHdjgdd1vR8HA9mronxpFhvrnxJdlexrGr9msR7lnhu7nBI/dV0gZln5gVl4qUlT687PocF+9cySJy4kHqpzJLH5tDxiC6D1dvpKR+NgCCQs5Mw7l3CfzOqlC4ulWHxTFDv3puRkl3bVhpTOuDUw3D4lqn9CptVEzjbc3YmbPT4fSfL73NLHEYWxYcuMMX3Uxlu8gd4xZ+MihexT9HqusR6nGSnqJhsMBfVr6qkmLeqI3K1jp5rp43UhisCiYFvjdJtjNPaup1Je4Mg81FUama/snczCcdQ0Lg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=SpseDICmhes/177I3em6bJCyW9HHZ+UT5I0wmQePEE8=;
+ b=IvMtu5TbV3IyDFhLYAN+8Ueyeoh+ki8u7rBHJpKixQJ86ZpZ9+kuPSlBHV+znpxo5VFH1QAf7nd/K2+KvEmp1dX4CwIqdg8V84BLqeZanRtsOB33cA2B+u+1ZiT/YLTSxzrbYeC7BYIGQqkrOvhE4lSh/OS5q6mVd/gqJne1tk1hvvjftTHSw52KsIoh5jWqE3/wEhVTMtomIKQ+cGZGzhF7rxctDs7ZFYqF5gt6mRh2gRDKDn4jQHRPbzWXgGcwSE6H7QKFtKE75GE0SkD+NZoE/pODGevDmfOAEwce+5lN4ROmVQFEwkiVqgP4l8oTbveCozo0ykXHFM83I7hySw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from CH1PR12MB9573.namprd12.prod.outlook.com (2603:10b6:610:2ae::5)
+ by PH8PR12MB7421.namprd12.prod.outlook.com (2603:10b6:510:22b::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.315.12; Wed, 12 Aug
+ 2026 02:25:03 +0000
+Received: from CH1PR12MB9573.namprd12.prod.outlook.com
+ ([fe80::d88f:a143:5f79:c148]) by CH1PR12MB9573.namprd12.prod.outlook.com
+ ([fe80::d88f:a143:5f79:c148%5]) with mapi id 15.21.0315.011; Wed, 12 Aug 2026
+ 02:25:03 +0000
+Date: Wed, 12 Aug 2026 10:25:01 +0800
+From: "Liu, Changcheng" <jerrliu@nvidia.com>
+To: Stefan Hajnoczi <stefanha@gmail.com>
+Cc: pbonzini@redhat.com, virtualization@lists.linux.dev,
+	changcheng.liu@aliyun.com
+Subject: Re: [PATCH] virtio_blk: add use_irq_affinity module parameter
+Message-ID: <anvZfVak5FVjuJSZ@yokbvdiprd370.nvidia.com>
+References: <am2QeS/lS+Cova+I@yokbvdiprd370.nvidia.com>
+ <CAJSP0QVSBsg0_pCaxy8Sar3=G+sdj5Z8R5yNmUomGy+C5YrHJQ@mail.gmail.com>
+ <anP0FimfttCpDMKW@yokbvdiprd370.nvidia.com>
+ <CAJSP0QV1=SUYFy3XKe8tWeore3EVQEjN7EWfLZ8QLm8qY4rEtg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAJSP0QV1=SUYFy3XKe8tWeore3EVQEjN7EWfLZ8QLm8qY4rEtg@mail.gmail.com>
+X-ClientProxiedBy: FR2P281CA0076.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:9a::18) To CH1PR12MB9573.namprd12.prod.outlook.com
+ (2603:10b6:610:2ae::5)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:PSgvCgCHzfPwyntqj8OMKw--.32351S2
-X-Coremail-Antispam: 1Uf129KBjvJXoWxZw1DGF15CF1UWF45WF4Uurg_yoWrurW8pr
-	43AasIyFWkXwn7JFWrKryUZr1Yywnayay3GFyag34I93W5Kr1FkF10gayYkF43AFZ5AF1U
-	Xw4vyrZxKayj9r7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0pRveH-UUUUU=
-X-CM-SenderInfo: 5odqwvxbwd0wi6rwjhhfrp/xtbC-hJolmp7yvKDdgAA3O
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CH1PR12MB9573:EE_|PH8PR12MB7421:EE_
+X-MS-Office365-Filtering-Correlation-Id: 96ae7dc5-9bf9-4e19-35b6-08def818eac1
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|23010399003|1800799024|366016|376014|6133799003|56012099006|10067099003|11063799006|4143699003|22082099003|18002099003;
+X-Microsoft-Antispam-Message-Info:
+	dTafkHybGlY3HqHCgecL0cYK6t6mhiW6Z0HIHg37Hc3lucf1e9lQbIrAc/UQMW0S5yJneHZ9dlEbjhKhEJVQjj4AOrEKbYqxOjGTgLmvXLca9ldXZYIFlN9soLKxVmXQk7EtlLGlAADDV316FRD/P3ufct9TSUbb3Oie3NEij4KNE5lsgbtpqFlq6ipgnC9V0yMcXwvFL2T+Qd6RApyb0SgdjlJeQ7XFch19yuc8C3UqsdkrCnFM9r8rxqP6fcqDeatqK6NzkER82nHAYG64WjjlKgYP5OU8IecY/aSeZivtQ4eReKXN0gzuLwo9MUv+TjHQhItNCzB2MeB2INTywANMFJvVEMGCysLZxxYZtlvs+cbqfSJPOHI2ZeWphyZtkgYPV3o1T3JfdBz1G2cK2Jpneb+e20mdLhNyNMdBqjg/VS1+xO0usSpNVYaB61pJ6lo7+qtXBiIo3pHqQvrHPtoF+Uk4t2eoJ+YQcUrxp4GtqS/7KojXxDvfi6R7PyT0deSeWjW7mSdS1foyswgnvIu8Ree/KVGqgFyB3izBzVpHVvpN/2V77zG02S3iGBynADHMaTKOrn2RAOq/M55YKUuVDgeUGW2XLdVfFvdeOU4XhexsIqPKanCxuR8N0cHbb6AhhXAVTtDPYdjbF+BrLV2kUzb7xZThLNbXaT3scl4=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH1PR12MB9573.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(1800799024)(366016)(376014)(6133799003)(56012099006)(10067099003)(11063799006)(4143699003)(22082099003)(18002099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?OGFBVmptVTVQTWg2Tm5DUFVrdC9YbnVWcnRZcHFxR0hodGR3dnNBZVJReGs4?=
+ =?utf-8?B?MEdscmt1RDVCN3JNYWhGNTFlUHpkUnJUaWNVa3dYZEo3TDFmM2htN1l2d2tk?=
+ =?utf-8?B?bXdrZnJnK3gyQVZudUFNSjZYS0JraDVVT01uc0dvc2o2N2pucVhhNGdQWWwz?=
+ =?utf-8?B?NERlbFFkT1Zndk1FV0lXQ2liOENrOXV1VnoyTyszaytkN0VBRjFWeHkydy91?=
+ =?utf-8?B?eGFFNmlmdHBJWCsyN2Y2aVUzZzBsRm9pb29RZHM2aW5FVy83eUo1OVQ0NVhY?=
+ =?utf-8?B?bi9JbFZVK1N1OWI0bnMyY09YdEtrR2ozMVc3aUdLazZkTkVGc0FKdVpvbFZZ?=
+ =?utf-8?B?V3VROFBXVEMyL3RCRFFHMzFEYVk5dmdOT0l2aDFIY0UyazBsd1FNTlJMWEFX?=
+ =?utf-8?B?empEN0hxTjRnRzNTZ21pSTZoaXRZMHlHN2F6VW9tV1FIWFAzV1hiSVM4YlYr?=
+ =?utf-8?B?M3dYRlBLWkZDdGd5MXlPUDJuc2UrV0wybW5ncVF5V1J6UzdvQjJhZC93ZTZz?=
+ =?utf-8?B?NmJ1ZEFHbDZ1WEsvQjh0RGM3NGRTZ2lDQkxVdTR6OXo3S1IyMjc2Nldibktn?=
+ =?utf-8?B?cjR6WGkxdW11amdTUlJWTmtSakFWUUxuQW5mTXJndS9BMktiQUphWVJYQXh4?=
+ =?utf-8?B?aGlpWlJyaUZkTnpreXRIMnBGZ0dJTGdZbjMxelhyaElVZUkrN0ROdCtTSUE5?=
+ =?utf-8?B?TmYzc1FROWlHOE83enJHRjZaNDVGWHVCSURwcGtNbGRkU3BvRTJPZU5YTCtr?=
+ =?utf-8?B?SU1ya05hSjlVemtSYVNreTNGQUxXNHVxdE5wQTlFdVBhT0I0eDA5YW5PYndY?=
+ =?utf-8?B?Vkthc0tOWnorK3UwdkVaUkoxcVBkRUNJbmg2S3JKdnhtNDVNeGJaalI4V2xY?=
+ =?utf-8?B?UkFlL1ZyMlRDT1lvWFdtVjdyRk5QbURnUVFhQnJ4K05nbHJqMkRXNksvT01M?=
+ =?utf-8?B?RElGNmQyMFFEclNZYlNhd2h5MThjcTJna1RLLzJhLzl4Ny9yelQ3RWxHRmZD?=
+ =?utf-8?B?dE1KYVllbnl6Z3M3NUFGZE5GSy9OWGtJVllHTVRZeXhZdmhDak1iMHBsQzI5?=
+ =?utf-8?B?MFYyY25YSkxhVXZTWGEzbjR1bmh2Sm5oZlJxQUV0a2ZXZkNtSUJVM3Z1eG9o?=
+ =?utf-8?B?cktIRmF3RnY5MjZySFF6UllhNURpNmw2VUxURStjNzFaK1VtbDU3eXQzdktk?=
+ =?utf-8?B?REpMVHZKcXM3d3FEV1lxUzNQdm1JR2V3cE9hTmhOR1VyUW5takk1RmhDQUNm?=
+ =?utf-8?B?eStpUjFtMktCYVJoQ1BERklsczY1VkVvV3daVzRmNlhDa3VtazB5aGl5ODdZ?=
+ =?utf-8?B?dlYwaWh2VE5GOUV3U0Zmc3lsR1M2TW56dDYrN1F2YXdVQWJmVHhjQ0wzb2JC?=
+ =?utf-8?B?RXEzWnprMEhLWXNUbzVyMVlrUmxFa0h3U0UvMkR1bUxXN21ZK2dGakU0WUp5?=
+ =?utf-8?B?MlpxUGtyVzdpYnBsUTF4NVJzM2RSN2RBQXQzanpPa3RHellGRkxHR2RSMGlz?=
+ =?utf-8?B?UVpFU213N1Q0THZ1YnUwai93VGc0Z3VhZFRCM0VxWE4vRE1qakVYQWREcGI1?=
+ =?utf-8?B?eXlBUlJWRTRLNjJWdHMraUVaeHdEcGFGb1ViN2RmclZsMmgwWWtycGpHMFFo?=
+ =?utf-8?B?RWdZMmtsZnFCeWtLMGRtS3JLcE14L2ljL1JJQkduSWwzekhFYitCbjBNNGJs?=
+ =?utf-8?B?endRMHVmYytOVWdMS05WdUpqaURKUmJUbVNpWUhFRE9MZ0cxT1VsNmJkd242?=
+ =?utf-8?B?UGQ5aUppczJ5bGFHelhqZ2dBQVJRSE9QTHhWWHhHRTRvTytzcUo4M296QWVl?=
+ =?utf-8?B?V2JuNjA4aHhNbDd0SGthSUJZQ2JndWMwclZGUVZsNkNrTFVKYTlZbUpnZExJ?=
+ =?utf-8?B?aUdhdVR2SFVUc2ZxVFdJL25rQzZ2Q2NLRW1yYmcwNUJUYnNkbWxrSlRudndu?=
+ =?utf-8?B?NWJEMEtJTEp1ME9kNkVTNkFlYjhVbjNueStsQXgyVXB5STN6d1VpdHJ1WEp0?=
+ =?utf-8?B?SjlkaTBCUmI1QVVOeU42MDFSL2J0RFF4VlhmWlZoKzNZNmNBRmZjY2VTL2xP?=
+ =?utf-8?B?NktYNG9zTDhxajAzWENoN0s0dnlDSVIzbTZjd3k2M01pakVkaWViQzJFZGw0?=
+ =?utf-8?B?cmpGVGVNNy9CRVlYREdzZFNoSFl6SU4rblZvS0JZUllrR04vU2FDOXQ0R3NZ?=
+ =?utf-8?B?c09hTThmMGRmY1RIT0tqK0RoWDBUcDlpcCt4a1ErZjkySVJXVk1Va25obmZr?=
+ =?utf-8?B?clpnSWVDa0dRZmduRTB3M1pVWXNXaUpFSlYvU21JNDA2Tjg5Q2ZBbW8xWTBk?=
+ =?utf-8?Q?vw0vZ6vkloyS6bJ35z?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 96ae7dc5-9bf9-4e19-35b6-08def818eac1
+X-MS-Exchange-CrossTenant-AuthSource: CH1PR12MB9573.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Aug 2026 02:25:03.6066
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: l3JneDudfhLv2eLsD/TW/UAdfWMahEiIP1Rg3gFnbWBBwCF4B5wnTj7AjWRV0JL802NEDVf2IpTn96JoFB/nOw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH8PR12MB7421
 
-From: tanglongjun <tanglongjun@kylinos.cn>
+On Tue, Aug 11, 2026 at 10:37:28AM -0400, Stefan Hajnoczi wrote:
+> External email: Use caution opening links or attachments
+> 
+> 
+> On Wed, Aug 5, 2026 at 10:40 PM Liu, Changcheng <jerrliu@nvidia.com> wrote:
+> >
+> > On Wed, Aug 05, 2026 at 01:45:58PM -0400, Stefan Hajnoczi wrote:
+> > >
+> > > On Sat, Aug 1, 2026 at 2:21 AM Liu, Changcheng <jerrliu@nvidia.com> wrote:
+> > > >
+> > > > When creating many virtio-blk devices, probe starts failing with
+> > > > -ENOSPC (-28) because the system runs out of interrupt vectors:
+> > > >
+> > > >   virtio_blk virtioNNN: probe with driver virtio_blk failed with error -28
+> > > >
+> > > > By default virtio-blk uses managed IRQ affinity, which reserves an
+> > > > interrupt vector on every CPU for each device (about nr_cpus vectors per
+> > > > device). On a host with many CPUs and many devices this exhausts the
+> > > > vectors long before all devices are probed.
+> > > >
+> > > > Add use_irq_affinity (default true, no behaviour change). Set it to 0 to
+> > > > use unmanaged interrupts, so each device only uses a couple of vectors
+> > > > instead of one per CPU, allowing far more devices to probe.
+> > > >
+> > > > Signed-off-by: Liu, Changcheng <jerrliu@nvidia.com>
+> > >
+> > > There is already a num_request_queues module parameter for cases where
+> > > the user wishes to reduce the number of virtqueues. Did you benchmark
+> > > that and decide the performance of many queues sharing a single irq
+> > > makes it worth adding another module parameter?
+> > >
+> > > Stefan
+> >
+> > num_request_queues does not address this case because each virtio-blk device
+> > already has only one request virtqueue when the failure occurs, so the queue
+> > count cannot be reduced further.
+> 
+> Okay.
+> 
+> > The issue is reproduced after probing approximately 800 virtio-blk devices on
+> > a 64-core bare-metal host. With managed IRQ affinity, the IRQ-vector reservations
+> > are eventually exhausted and probing additional devices fails with -ENOSPC.
+> > Disabling managed IRQ affinity avoids these per-CPU vector reservations and
+> > allows more devices to be probed successfully.
+> 
+> I don't follow. My understanding was that non-managed IRQ vectors are
+> allocated by request_irq(), which is called during virtio_find_vqs().
+> Probing 800 devices would still require 800 * (1 virtqueue irq + 1
+> config change irq) = 1,600 vectors. How come non-managed IRQs do not
+> hit the limit here?
+> 
+> Thanks,
+> Stefan
+> 
 
-Count buffer and skb allocation failures on the rx queue and
-report them via rx-alloc-fail in netdev qstats.
+With one request queue, virtio-blk allocates two MSI-X interrupts: an
+unmanaged configuration interrupt and a managed request-queue interrupt.
 
-$ ./tools/net/ynl/ynltool/ynltool qstats show --json scope queue
-[{"ifname":"ens3",
-"ifindex":2,
-"queue-type":"rx",
-"queue-id":0,
-"rx":{"packets":3722,"bytes":374806,"alloc-fail":0}},
-{"ifname":"ens3",
-"ifindex":2,
-"queue-type":"tx",
-"queue-id":0,
-"tx":{"packets":622,"bytes":77495,"stop":0,"wake":0}}]
+The request-queue interrupt's managed affinity mask covers all possible
+CPUs. On x86, irq_matrix_reserve_managed() reserves one vector slot on
+every CPU in that mask so the interrupt can migrate safely during CPU
+hotplug. Consequently, every virtio-blk device consumes one managed
+vector slot on every CPU for its lifetime.
 
-Signed-off-by: Longjun Tang <tanglongjun@kylinos.cn>
----
- drivers/net/virtio_net.c | 32 ++++++++++++++++++++++++--------
- 1 file changed, 24 insertions(+), 8 deletions(-)
+Once any CPU exhausts its roughly 200 usable vector slots, managed vector
+allocation fails even if other CPUs still have capacity. virtio-pci then
+falls back to its shared-vector MSI-X allocation, for which the affinity
+descriptor is discarded and the interrupts are unmanaged. Allocation can
+continue using capacity on the other CPUs, explaining the observed limit
+of approximately 800 devices.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 3e2a5876c6c8..f9d15c618d3b 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -125,6 +125,7 @@ struct virtnet_rq_stats {
- 	u64_stats_t packets;
- 	u64_stats_t bytes;
- 	u64_stats_t drops;
-+	u64_stats_t alloc_fail;
- 	u64_stats_t xdp_packets;
- 	u64_stats_t xdp_tx;
- 	u64_stats_t xdp_redirects;
-@@ -173,8 +174,9 @@ static const struct virtnet_stat_desc virtnet_sq_stats_desc_qstat[] = {
- };
- 
- static const struct virtnet_stat_desc virtnet_rq_stats_desc_qstat[] = {
--	VIRTNET_RQ_STAT_QSTAT("packets", packets),
--	VIRTNET_RQ_STAT_QSTAT("bytes",   bytes),
-+	VIRTNET_RQ_STAT_QSTAT("packets",    packets),
-+	VIRTNET_RQ_STAT_QSTAT("bytes",      bytes),
-+	VIRTNET_RQ_STAT_QSTAT("alloc_fail", alloc_fail),
- };
- 
- #define VIRTNET_STATS_DESC_CQ(name) \
-@@ -1917,8 +1919,10 @@ static struct sk_buff *receive_small_xdp(struct net_device *dev,
- 	}
- 
- 	skb = virtnet_build_skb(buf, buflen, xdp.data - buf, len);
--	if (unlikely(!skb))
-+	if (unlikely(!skb)) {
-+		u64_stats_inc(&stats->alloc_fail);
- 		goto err;
-+	}
- 
- 	if (metasize)
- 		skb_metadata_set(skb, metasize);
-@@ -1985,6 +1989,7 @@ static struct sk_buff *receive_small(struct net_device *dev,
- 		return skb;
- 	}
- 
-+	u64_stats_inc(&stats->alloc_fail);
- err:
- 	u64_stats_inc(&stats->drops);
- 	page_pool_put_page(rq->page_pool, page, -1, true);
-@@ -2016,8 +2021,10 @@ static struct sk_buff *receive_big(struct net_device *dev,
- 
- 	skb = page_to_skb(vi, rq, page, 0, len, PAGE_SIZE, 0);
- 	u64_stats_add(&stats->bytes, len - vi->hdr_len);
--	if (unlikely(!skb))
-+	if (unlikely(!skb)) {
-+		u64_stats_inc(&stats->alloc_fail);
- 		goto err;
-+	}
- 
- 	return skb;
- 
-@@ -2298,8 +2305,10 @@ static struct sk_buff *receive_mergeable_xdp(struct net_device *dev,
- 	switch (act) {
- 	case XDP_PASS:
- 		head_skb = build_skb_from_xdp_buff(dev, vi, &xdp, xdp_frags_truesz);
--		if (unlikely(!head_skb))
-+		if (unlikely(!head_skb)) {
-+			u64_stats_inc(&stats->alloc_fail);
- 			break;
-+		}
- 
- 		skb_mark_for_recycle(head_skb);
- 		return head_skb;
-@@ -2414,8 +2423,10 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
- 	head_skb = page_to_skb(vi, rq, page, offset, len, truesize, headroom);
- 	curr_skb = head_skb;
- 
--	if (unlikely(!curr_skb))
-+	if (unlikely(!curr_skb)) {
-+		u64_stats_inc(&stats->alloc_fail);
- 		goto err_skb;
-+	}
- 
- 	skb_mark_for_recycle(head_skb);
- 	while (--num_buf) {
-@@ -2444,8 +2455,10 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
- 		truesize = mergeable_ctx_to_truesize(ctx);
- 		curr_skb  = virtnet_skb_append_frag(rq, head_skb, curr_skb, page,
- 						    buf, len, truesize);
--		if (!curr_skb)
-+		if (!curr_skb) {
-+			u64_stats_inc(&stats->alloc_fail);
- 			goto err_skb;
-+		}
- 	}
- 
- 	ewma_pkt_len_add(&rq->mrg_avg_pkt_len, head_skb->len);
-@@ -2928,12 +2941,14 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
- 
- 	u64_stats_set(&stats.packets, packets);
- 	if (rq->vq->num_free > min((unsigned int)budget, virtqueue_get_vring_size(rq->vq)) / 2) {
--		if (!try_fill_recv(vi, rq, GFP_ATOMIC))
-+		if (!try_fill_recv(vi, rq, GFP_ATOMIC)) {
- 			/* We need to retry refilling in the next NAPI poll so
- 			 * we must return budget to make sure the NAPI is
- 			 * repolled.
- 			 */
- 			packets = budget;
-+			u64_stats_inc(&stats.alloc_fail);
-+		}
- 	}
- 
- 	u64_stats_update_begin(&rq->stats.syncp);
-@@ -2948,6 +2963,7 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
- 
- 	u64_stats_add(&rq->stats.packets, u64_stats_read(&stats.packets));
- 	u64_stats_add(&rq->stats.bytes, u64_stats_read(&stats.bytes));
-+	u64_stats_add(&rq->stats.alloc_fail, u64_stats_read(&stats.alloc_fail));
- 
- 	u64_stats_update_end(&rq->stats.syncp);
- 
--- 
-2.51.0
+When managed affinity is disabled, both interrupts are activated on
+individual CPUs and distributed by the vector allocator. APIC vector
+numbers are per-CPU, so the same vector number can be reused on different
+CPUs. On a 64-CPU system, 800 devices therefore consume approximately
+800 * 2 / 64 = 25 vector slots per CPU.
 
+Thanks
+Changcheng
+
+>
+> > This patch does not cause multiple virtqueues to share a single IRQ. Passing a
+> > NULL affinity descriptor only disables managed IRQ affinity. Regardless of the
+> > number of virtqueues, virtio-pci still first attempts to allocate a separate
+> > interrupt vector for each interrupt-driven virtqueue. Only if per-VQ vector
+> > allocation fails does the existing virtio-pci fallback share a vector among
+> > the virtqueues, and that fallback is independent of this patch.
+> >
+> > The new parameter defaults to enabled, so the existing driver behavior remains
+> > unchanged unless the option is explicitly disabled. The option is intended for
+> > environments with a very large number of devices, particularly for functional
+> > device testing.
+> >
+> > - Changcheng
+> >
+> > >
+> > > > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> > > > index 32bf3ba07a9d..184f1c1f4485 100644
+> > > > --- a/drivers/block/virtio_blk.c
+> > > > +++ b/drivers/block/virtio_blk.c
+> > > > @@ -41,6 +41,11 @@ static unsigned int poll_queues;
+> > > >  module_param(poll_queues, uint, 0644);
+> > > >  MODULE_PARM_DESC(poll_queues, "The number of dedicated virtqueues for polling I/O");
+> > > >
+> > > > +static bool use_irq_affinity = true;
+> > > > +module_param(use_irq_affinity, bool, 0644);
+> > > > +MODULE_PARM_DESC(use_irq_affinity,
+> > > > +                "Use managed IRQ affinity for virtqueues (default: true)");
+> > > > +
+> > > >  static int major;
+> > > >  static DEFINE_IDA(vd_index_ida);
+> > > >
+> > > > @@ -1016,7 +1021,8 @@ static int init_vq(struct virtio_blk *vblk)
+> > > >         }
+> > > >
+> > > >         /* Discover virtqueues and write information to configuration.  */
+> > > > -       err = virtio_find_vqs(vdev, num_vqs, vqs, vqs_info, &desc);
+> > > > +       err = virtio_find_vqs(vdev, num_vqs, vqs, vqs_info,
+> > > > +                             use_irq_affinity ? &desc : NULL);
+> > > >         if (err)
+> > > >                 goto out;
+> > > >
+> > > > --
+> > > > 2.43.7
+> > > >
+> > > >
