@@ -1,171 +1,154 @@
-Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01EE936CDF8
-	for <virtualization@lists.linux.dev>; Wed, 12 Aug 2026 20:13:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 598F4495051;
+	Wed, 12 Aug 2026 22:54:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786565596; cv=none; b=lEOR7/K2Ajnvs5FwhZ1hnGGKKE6q/VTNOtYyZgIVSqxrK55O1InhKUpBkbFxPl7RktmjmInoFUT2zordSlrKqU2yos4IhH1nBkJmJNUGVuAMPjtEWVZOb8MfCionJjYctLrSBBiqCbm8obuLnY5Y983eP9woJ6SBVol1V1EuQB0=
+	t=1786575273; cv=none; b=YJxZYQD6xrh/f3uNVqROTvMJIKzqIz2tvAtqOE62VM4S5sNaMNw7RT0p/8L443s4B65PEjWSeC5LNhoTleVjoSJQ755RklenYWjMx2Gny8mBZkjJTKMSHUyyyKtrO0HLXksWCfxwYWVB5qPuQG6CKuk0JjQKqfXGbHKAhIJqw8I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786565596; c=relaxed/simple;
-	bh=atcv5mB75yvrhGDP+UBiVutUbuMq+/hDkVgOZSQoEek=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=qvg8ftrSmCLsCltMPvOJIWRtCPPZBGo4xs0Sd56GTVvSoeLmH6Vdmg3yv76jBaL2UTAoXp+gWlOvpdv7BmLQTm2qFBtMPvoUoLYtct81iaU+Gk2Nhlf5QQB+UWnRwQkjdrb3T3fhMq8CLTlQohggskqRmwBOyWHalyaild/q07k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rZyxiPeN; arc=none smtp.client-ip=209.85.216.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1786575273; c=relaxed/simple;
+	bh=k/MgVsA/uFlaI/R1VXL8YigOwc9vssvt8SzVRj/Dzb0=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=BbDrXrdvcHOKq28RVN3OFCj5FVgSR3DXWTaVzkdsLU4U3WLa74mlR9kLZZjbZVZUzg0A0+wUyd6bwn665xEyf0dNCndNYgB4DoYwy/atIyzCZYKr4h5e0EdUS0SCsN1pylmalnDsuSymzyKGf4yctBUAeBv+ZbPoJAKRodpCktY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=n8b276l4; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rZyxiPeN"
-Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-38101f85591so271707a91.1
-        for <virtualization@lists.linux.dev>; Wed, 12 Aug 2026 13:13:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786565594; x=1787170394; darn=lists.linux.dev;
-        h=content-disposition:content-type:mime-version:message-id:subject:cc
-         :to:from:date:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=50/tctT413AwEP9BINIhVKAqs22RAZ6gO6ugPDW/HS8=;
-        b=rZyxiPeNa8a3iclFLbR1++6zCf3a6miK+tt3biBcODby44haMMkeoPzncxHBE3ZeR9
-         aDBDWeJ002z9DHiBFcHv/BNpLut0o/pZhaRGF+dpwiBZWNqv5bvKQp/RHLvUX08l51s7
-         a903BdOeXOgLhH6bqcOg1JdEzJAm/hnS0G0ayTPAknxktaffIwUbhIbzNgeN7u6tyv4b
-         2mKr3QnNN1cSAMBqbEhv4VhCt23pJa5WOljntH/mHM7jHlaGztBWaOAWnrggj44hlW5c
-         WeedG76HD0d26mwudHOpIVwYuFqreEMqiz3bNEx1N5UMe+tM8/B3Kgrrpqg0zC1SOBTd
-         Um4w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786565594; x=1787170394;
-        h=content-disposition:content-type:mime-version:message-id:subject:cc
-         :to:from:date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=50/tctT413AwEP9BINIhVKAqs22RAZ6gO6ugPDW/HS8=;
-        b=kkijULDjuwotFbWbp1XIkXGj4uYzC6PVvCQCtVP9yWu7D95dg7LX9V2i9JLm9glAlS
-         fCNeJB9j5XLqHTSw9kTNOBRmXu6oNRSgaTyYgFGoioA2wKIj4s40o33kuv/p4nHVpM8q
-         eu82m5TZJhUiQ9hNCv5+KjtTIvny4B049UYHEY8lOchgk3gq2wZR+7HszmbmPWf+de9u
-         07KiFN2yQIHWdn1sO2Gx+g40bUjFZ3VJ9ttpRiblGQDz94EwZ/rho0jL/1Gw6RTIBjt3
-         4tBo8eZEPNUsm0GISqt6qoREh3kKDhBmgG68kSNh14pXqaU/1CQOI115AJu5D8V8xAkZ
-         M3cg==
-X-Gm-Message-State: AOJu0Yx6YMefx2Z1c+7slxlrGD+VvyaVGQtbURF5yzHKDlkdb7Popek/
-	c+lUzNG5L5DKcRo8dylw49xrjRDjZMFJ6uh9o+n8psvVXtWrXInCb7xh
-X-Gm-Gg: AR+sD12N+28usxpRudADihjkwuO6fjn9U5H6wESjP/RkFrAb8b7vXpowoJltJCCXZPs
-	7EP/ctptekl0BZoKksZqP8qYLpJTMD7q2ZVmwxsxHZYH4k2P/9ymXm8UQDiCx4fvcEDlX+wdrve
-	hH1G8mTINmZqb6lWNkpUDUkigOOHZUbfHjwtR5M91mdw1ubOBZih6/GFhYyDzGbg8FdH8dw83TT
-	cy79b7VZjEEzq28NHVZ82svpJL1gM34lJbH1yYN8XGRM/1O+KJkae3zc354UEFyYa/C32f8dc6R
-	kR5rzwV2QlP7g8d/F+LWHw94E/98dlKwttQCQcqtpUl+4AOWjQkyAKcLzkKd3ctsi+wOs5yqxnq
-	XH5aCNdTlf/wiSUV8L8fl7yHOuDCxCv9lObVlmq6D9LW/S8G0PCVS3XNrHAUlPY/wD03jZQq3nT
-	X5/HLiigIQTXeGAySZy03XnGAzmjetSfL1dSKL3BlS6+w+phtvrpdcffVpC018eZX7SkhtVYN5u
-	tgHSFap
-X-Received: by 2002:a17:90b:35d2:b0:38f:1a29:7a82 with SMTP id 98e67ed59e1d1-3931f89bb03mr72845a91.6.1786565593913;
-        Wed, 12 Aug 2026 13:13:13 -0700 (PDT)
-Received: from v4bel ([58.123.110.97])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3931f44dcbbsm183267a91.16.2026.08.12.13.13.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 12 Aug 2026 13:13:13 -0700 (PDT)
-Date: Thu, 13 Aug 2026 05:13:09 +0900
-From: Hyunwoo Kim <imv4bel@gmail.com>
-To: sgarzare@redhat.com, davem@davemloft.net, edumazet@google.com,
-	kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, mhal@rbox.co,
-	leonardi@redhat.com, bobbyeshleman@meta.com, stefanha@redhat.com,
-	mst@redhat.com
-Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	imv4bel@gmail.com
-Subject: [PATCH net] vsock: do not reset a socket in connect() once it has
- connected
-Message-ID: <anzT1fREOSyHT99k@v4bel>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="n8b276l4"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2DBB1F000E9;
+	Wed, 12 Aug 2026 22:54:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786575271;
+	bh=LRaU12k2z7NCZ51+sUUgUOkWKL/LvwrzQm2TPKyk7O0=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=n8b276l4O9vawyoI7A8FfXVV/rpvdQbgTbsbPPaxxRreX/gm9MpEUlRbh8ogQbGrE
+	 1Wh516SZCWoTbjEqKtyIuWwXlQOFAHSOS3gcRPkxfhq5ebOFOEC8bqpwMY2dCt4ZWB
+	 Eb56AdtGLcKIyOqS8ecTu2Sgoh6RU5ANwAJ19ZMIloNTGoJKIKwV/UYBDPNZd2vmZ0
+	 4FUS7STKOzm4JXG7CFnGmhv6BmaRSMAOWHrdznMrU15Pang+x6oV9fHrGtkp96kXLT
+	 YDsgSwURhixE1NSyMFU984nUrnIWpfEkTJU42OZW83lPDzrNsD3gCsFxKL1Ena4CIA
+	 N1ZFKrrxgh7vg==
+Date: Wed, 12 Aug 2026 15:54:30 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: "Chia-Yu Chang (Nokia)" <chia-yu.chang@nokia-bell-labs.com>
+Cc: "shaojijie@huawei.com" <shaojijie@huawei.com>, "shenjian15@huawei.com"
+ <shenjian15@huawei.com>, "linux-rdma@vger.kernel.org"
+ <linux-rdma@vger.kernel.org>, "eperezma@redhat.com" <eperezma@redhat.com>,
+ "jasowang@redhat.com" <jasowang@redhat.com>,
+ "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+ "mst@redhat.com" <mst@redhat.com>, "xuanzhuo@linux.alibaba.com"
+ <xuanzhuo@linux.alibaba.com>, "pabeni@redhat.com" <pabeni@redhat.com>,
+ "edumazet@google.com" <edumazet@google.com>, "linux-doc@vger.kernel.org"
+ <linux-doc@vger.kernel.org>, "corbet@lwn.net" <corbet@lwn.net>,
+ "horms@kernel.org" <horms@kernel.org>, "dsahern@kernel.org"
+ <dsahern@kernel.org>, "kuniyu@google.com" <kuniyu@google.com>,
+ "bpf@vger.kernel.org" <bpf@vger.kernel.org>, "netdev@vger.kernel.org"
+ <netdev@vger.kernel.org>, "dave.taht@gmail.com" <dave.taht@gmail.com>,
+ "jhs@mojatatu.com" <jhs@mojatatu.com>, "stephen@networkplumber.org"
+ <stephen@networkplumber.org>, "xiyou.wangcong@gmail.com"
+ <xiyou.wangcong@gmail.com>, "jiri@resnulli.us" <jiri@resnulli.us>,
+ "davem@davemloft.net" <davem@davemloft.net>, "andrew+netdev@lunn.ch"
+ <andrew+netdev@lunn.ch>, "donald.hunter@gmail.com"
+ <donald.hunter@gmail.com>, "ast@fiberby.net" <ast@fiberby.net>,
+ "liuhangbin@gmail.com" <liuhangbin@gmail.com>, "shuah@kernel.org"
+ <shuah@kernel.org>, "linux-kselftest@vger.kernel.org"
+ <linux-kselftest@vger.kernel.org>, "ij@kernel.org" <ij@kernel.org>,
+ "ncardwell@google.com" <ncardwell@google.com>, "Koen De Schepper (Nokia)"
+ <koen.de_schepper@nokia-bell-labs.com>, "g.white@cablelabs.com"
+ <g.white@cablelabs.com>, "ingemar.s.johansson@ericsson.com"
+ <ingemar.s.johansson@ericsson.com>, "mirja.kuehlewind@ericsson.com"
+ <mirja.kuehlewind@ericsson.com>, "cheshire@apple.com" <cheshire@apple.com>,
+ "rs.ietf@gmx.at" <rs.ietf@gmx.at>, "Jason_Livingood@comcast.com"
+ <Jason_Livingood@comcast.com>, "vidhi_goel@apple.com"
+ <vidhi_goel@apple.com>, Parav Pandit <parav@nvidia.com>, Willem de Bruijn
+ <willemb@google.com>
+Subject: Re: [PATCH v5 net-next 1/2] net: update comments for
+ SKB_GSO_TCP_ECN and SKB_GSO_TCP_ACCECN
+Message-ID: <20260812155430.6ec81eec@kernel.org>
+In-Reply-To: <PAXPR07MB79849A3F1724DBB2DA8EA20AA3DC2@PAXPR07MB7984.eurprd07.prod.outlook.com>
+References: <20260804213510.673084-1-chia-yu.chang@nokia-bell-labs.com>
+	<20260804213510.673084-2-chia-yu.chang@nokia-bell-labs.com>
+	<20260811173017.3d18dfdc@kernel.org>
+	<PAXPR07MB79849A3F1724DBB2DA8EA20AA3DC2@PAXPR07MB7984.eurprd07.prod.outlook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-commit 002541ef650b ("vsock: Ignore signal/timeout on connect() if
-already established") stopped connect() from resetting an established
-socket. The check only looks at whether sk_state is TCP_ESTABLISHED at
-that moment, and the state can change while connect() sleeps.
+On Wed, 12 Aug 2026 10:33:19 +0000 Chia-Yu Chang (Nokia) wrote:
+> > > -     /* This indicates the tcp segment has CWR set. */
+> > > +     /* For TX, this indicates that the first TCP segment has CWR set, and
+> > > +      * any subsequent segment in the same skb has CWR cleared. This flag
+> > > +      * must not be used in RX, because the connection to which the segment
+> > > +      * belongs is not tracked to use RFC3168 or AccECN. Using RFC3168 ECN
+> > > +      * offload may clear CWR and corrupt ACE signal (CWR is part of it).
+> > > +      * Instead, SKB_GSO_TCP_ACCECN shall be used to avoid CWR corruption.
+> > > +      */  
+> > 
+> > I still can't wrap my head around this TBH.
+> > 
+> > SKB_GSO_TCP_ECN means RFC3168
+> > SKB_GSO_TCP_ACCECN means AccECN
+> > 
+> > If the HW can correctly detect cwr on first frame and then no cwr and report that as ECN/RFC3168 - what's the problem? TSO will produce the exact expected segment sequence.
+> > 
+> > Is the program that if we re-GRO that frame in SW we end up with
+> > ECN+ACCECN on the same skb?  
+> 
+> Yes, this is the problem.
+> The HW does not know whether the received packets belong to an RFC3168 ECN flow or an AccECN flow on the RX path.
+> For example, HW GRO may set SKB_GSO_TCP_ECN after observing that the first packet has CWR=1:
+> 
+> +===================+==========+=================+================+
+> |     Packet id     | CWR flag |       Flag      | Flushed as SKB |
+> +===================+==========+=================+================+
+> |         0         |     1    | SKB_GSO_TCP_ECN |        0       |
+> |         1         |     0    |         -       |        0       |
+> |         2         |     1    |         -       |        0       |
+> |         3         |     1    |         -       |        1       |
+> +===================+==========+=================+================+
+> 
+> If the aggregated skb is forwarded through a device using GSO, e.g.,
+> HW RX (GRO) -> veth TX (GSO), the SKB_GSO_TCP_ECN applies RFC3168
+> semantics. This means that only the 1st segment keeps the CWR flag
+> while all subsequent segments have CWR cleared:
+> 
+> +===================+==========+
+> |     Packet id     | CWR flag |
+> +===================+==========+
+> |         0         |     1    |
+> |         1         |     0    |
+> |         2         |     0    |
+> |         3         |     0    |
+> +===================+==========+
+> 
+> This behavior is ok for RFC3168, since CWR is expected to appear only
+> once. However, for AccECN, CWR is part of the ACE signal and must be
+> preserved across all segments.
 
-A peer RST moves the socket to TCP_CLOSING, and it is not removed from
-vsock_connected_table on that path. connect() then wakes up, fails the
-check, and resets a socket that had actually connected to TCP_CLOSE and
-SS_UNCONNECTED.
+But this would be obviously a buggy HW-GRO implementation.
+The rules for HW-GRO RFC3168 are -- ignore CWR on first segment
+(host responsible for populating SKB_GSO_TCP_ECN), and CWR
+_must be 0_ for all subsequent segments.
 
-The socket can now be connected again while it is still on the table.
-Reconnecting to an address served by a different transport makes
-vsock_assign_transport() drop the transport from a live socket and free
-vsk->trans, even if skbs it already sent are still in flight.
-Reconnecting to the same address inserts a node that is already on the
-table, provided shutdown() has cleared SOCK_DONE in between.
+> In the example above, the original CWR sequence was 1,0,1,1.
+> But after re-segmentation it becomes: 1,0,0,0.
+> This is why SKB_GSO_TCP_ECN should not be used in RX/GRO paths.
 
-sock->state cannot be used for the check either. shutdown() overwrites
-SS_CONNECTED with SS_DISCONNECTING.
+We have extensive gro tests under 
+tools/testing/selftests/drivers/net/gro.py
 
-Record on the socket that the connection completed, and check that
-instead. The sk_err path after the loop does the same reset, so guard it
-as well.
+If you want to catch bad devices - add appropriate test cases there.
 
-Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
-Cc: stable@vger.kernel.org
-Signed-off-by: Hyunwoo Kim <imv4bel@gmail.com>
----
- include/net/af_vsock.h   |  2 ++
- net/vmw_vsock/af_vsock.c | 12 ++++++++----
- 2 files changed, 10 insertions(+), 4 deletions(-)
+The comment as stated seems to be misleading - there's nothing wrong
+with using the flag if the device follows the RFC3168 semantics
+correctly.
 
-diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
-index 30046a3c20f735..d7ec976ed6e272 100644
---- a/include/net/af_vsock.h
-+++ b/include/net/af_vsock.h
-@@ -63,6 +63,8 @@ struct vsock_sock {
- 	struct delayed_work pending_work;
- 	struct delayed_work close_work;
- 	bool close_work_scheduled;
-+	/* Set once the connection completed; never cleared. */
-+	bool ever_connected;
- 	u32 peer_shutdown;
- 	bool sent_request;
- 	bool ignore_connecting_rst;
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index 622dbd04679944..735c91bb762242 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -351,6 +351,8 @@ void vsock_insert_connected(struct vsock_sock *vsk)
- 	struct list_head *list = vsock_connected_sockets(
- 		&vsk->remote_addr, &vsk->local_addr);
- 
-+	vsk->ever_connected = true;
-+
- 	spin_lock_bh(&vsock_table_lock);
- 	__vsock_insert_connected(list, vsk);
- 	spin_unlock_bh(&vsock_table_lock);
-@@ -1814,14 +1816,14 @@ static int vsock_connect(struct socket *sock, struct sockaddr_unsized *addr,
- 		 * Note that allowing to "reset" an already established socket
- 		 * here is racy and insecure.
- 		 */
--		if (sk->sk_state == TCP_ESTABLISHED)
-+		if (vsk->ever_connected)
- 			break;
- 
- 		/* If connection was _not_ established and a signal/timeout came
- 		 * to be, we want the socket's state reset. User space may want
- 		 * to retry.
- 		 *
--		 * sk_state != TCP_ESTABLISHED implies that socket is not on
-+		 * !ever_connected implies that socket is not on
- 		 * vsock_connected_table. We keep the binding and the transport
- 		 * assigned.
- 		 */
-@@ -1849,8 +1851,10 @@ static int vsock_connect(struct socket *sock, struct sockaddr_unsized *addr,
- 
- 	if (sk->sk_err) {
- 		err = -sk->sk_err;
--		sk->sk_state = TCP_CLOSE;
--		sock->state = SS_UNCONNECTED;
-+		if (!vsk->ever_connected) {
-+			sk->sk_state = TCP_CLOSE;
-+			sock->state = SS_UNCONNECTED;
-+		}
- 	} else {
- 		err = 0;
- 	}
--- 
-2.43.0
+And of course, adding a comment and hoping people will find it is much
+weaker than adding tests.
 
+Again, maybe I'm missing what _actually_ doesn't work here.
+You mention veth but veth does not participate in GRO directly, 
+it's not a HW driver either.
