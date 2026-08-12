@@ -1,57 +1,57 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7C1F3914F5
-	for <virtualization@lists.linux.dev>; Wed, 12 Aug 2026 05:41:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78CB24B04B7
+	for <virtualization@lists.linux.dev>; Wed, 12 Aug 2026 05:41:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786513300; cv=none; b=olz0q7W5OxR46RjbqMT1O9n39o+eP/DNXvCJFDCXd9PVgnd59x8aIa+KW2jypadoBBrennbvLw0xp7JnrOnJLMy0qVHL2SXcwILkKMcrLM5mIc8fUOqkRsuxf8PRgaSo5221CssVeAjkFMreovKyumKpNwSUUbyQ67kbt2hwsvI=
+	t=1786513311; cv=none; b=dSeNo4DN5xqTgFtGeHiVo5+rLNP8zMfRPxIRumm5bZZ8utLxkrtIjlbRJLwLG9bHB+v6pxPu0l9IhPJzAl65PVhTguFMzUU8Wj3gx2zUoWMQL3mzU3ks3RzlEAa7j8NT72+zJOhUc6qK5no1i+UO+q90n6Mgoff4AYZuWMg8MVU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786513300; c=relaxed/simple;
-	bh=TDsgIO48g+8UYi8pPB4M66fYIvYKuUVdrZMjt9LJrYw=;
+	s=arc-20240116; t=1786513311; c=relaxed/simple;
+	bh=kVarbSkXTaCjfYt1E/AFEKjccs8bdUv0Uv4GGJyo+os=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=eqigMMMViSgGdGQ3TIrRf6mIhSqB+inqQuAa2i7dbHXxWtB9F8IEtDspLk++863/Eta+KvfRUkHUndfg16k1thCaPuA+oq2cgZCwp6+b2dw9t9SVrLEtPbaXZeLzYRvQLLm9HYCOr7xzjzOL1bwyVQBSCCsdYKmLWwIQErhy6M0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Aakdkec+; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=QXPw4mr9fYHKu35I3s0+4iYf+o1HETjAU7QUKgV6+Na0DQcFfQOclJQdMq/YwiUS9jIv0LArWp+TY6O3RKUNTX+8Bew0jvVYpIuetaOcGJfWhgA0zkdctBpJeAIqvM+ZCAC9YoZnjiIb6IqZ1ZzrJC0MfZka1sly/yrib3JdECc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Bru99dPX; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Aakdkec+"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67C31qaO2196318;
-	Wed, 12 Aug 2026 05:41:26 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Bru99dPX"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67C31Vsr416373;
+	Wed, 12 Aug 2026 05:41:35 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=IdIQVMSRh1tQgR1Q2
-	N7Opt2bZYabyV8zrFakwyWbq7c=; b=Aakdkec+6/XV4RR7DK7nAiVKxLxsOfE/y
-	JS+GLg2nvK8Id1u4576x98BAoPQtU4/IZ8jGk3b3mLdwKci/tLeVS4u10fNG/DTb
-	fzZVlZ12VK9kefVhir+XtNnZucyYGzGhnLlPGCQlKOCRGtr1+tcKWglvV3bhMP+p
-	EhJxJiYVTq897w8asuvReUGuxwb4Ar9Osl0lEUhguQICkiZaAWCDfoVqlNpdaP5h
-	56fLLJPdEI62E4PFXhOUsWfAyuFnQ4g0TK3zXThWXF9UF5NIIrCnoxvXVKDEJ16J
-	B9o4f6QWQq6/CRNdflzi+l2hsADnRIHldQKdhSVs2+pzZb2c7TY4Q==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvp308a4-1
+	:mime-version:references:subject:to; s=pp1; bh=QJ4UHhGufY3DzvJa7
+	xsdGTzizaUXF5U10Kzs9dh5iU4=; b=Bru99dPXlNUomok69+P36MzQZOn0sa46S
+	uWbRrrsoLDDQIzDCl8hOmN1MIobFh1inqLSObQ3XWCSojtms6KDYcMLOObChVk03
+	B/NM4KviPQ6Fz/cE3JTPkuVgf1cf8iaJ2Rb64QFB+iBd0w0JmInUdZt5lrxQdOkR
+	jIe3IL/rSTiQ89HnvyFAFaig8h6xHvBzW6hIQUw0GXCRerMU4rfhHMYfA8ZmgzSs
+	Cf2fq1fLdERJSDFYoVxUI8y2gW2ShSwZXxjVRm8//6Qp30M6rwfO26UOoQEkrxiR
+	5XhP1tuIj9MCUtKs4Ic5rB5FyQqMLU3/F8Dz5RSIm69aZNfP+Wycw==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvk00yk5-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 12 Aug 2026 05:41:24 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67C5fGRi022468;
-	Wed, 12 Aug 2026 05:41:23 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fxesq4uj5-1
+	Wed, 12 Aug 2026 05:41:34 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67C5fJ3e012748;
+	Wed, 12 Aug 2026 05:41:33 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fxfsjvpat-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 12 Aug 2026 05:41:23 +0000 (GMT)
+	Wed, 12 Aug 2026 05:41:33 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67C5fKJD38207816
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67C5fTIg35783088
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 12 Aug 2026 05:41:20 GMT
+	Wed, 12 Aug 2026 05:41:29 GMT
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 033B120043;
+	by IMSVA (Postfix) with ESMTP id 0F36D2004B;
+	Wed, 12 Aug 2026 05:41:29 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7168820040;
 	Wed, 12 Aug 2026 05:41:20 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 820DE20040;
-	Wed, 12 Aug 2026 05:41:11 +0000 (GMT)
 Received: from li-7bb28a4c-2dab-11b2-a85c-887b5c60d769.ibm.com.com (unknown [9.124.217.151])
 	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 12 Aug 2026 05:41:11 +0000 (GMT)
+	Wed, 12 Aug 2026 05:41:20 +0000 (GMT)
 From: Shrikanth Hegde <sshegde@linux.ibm.com>
 To: linux-kernel@vger.kernel.org, mingo@kernel.org, peterz@infradead.org,
         juri.lelli@redhat.com, vincent.guittot@linaro.org,
@@ -67,9 +67,9 @@ Cc: sshegde@linux.ibm.com, tglx@kernel.org, gregkh@linuxfoundation.org,
         rafael@kernel.org, rdunlap@infradead.org, kernellwp@gmail.com,
         linux-doc@vger.kernel.org, jgross@suse.com,
         virtualization@lists.linux.dev
-Subject: [PATCH v10 04/12] sysfs: Add preferred CPU file
-Date: Wed, 12 Aug 2026 11:10:25 +0530
-Message-ID: <20260812054033.95658-5-sshegde@linux.ibm.com>
+Subject: [PATCH v10 05/12] sched/core: Try to use a preferred CPU in is_cpu_allowed
+Date: Wed, 12 Aug 2026 11:10:26 +0530
+Message-ID: <20260812054033.95658-6-sshegde@linux.ibm.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260812054033.95658-1-sshegde@linux.ibm.com>
 References: <20260812054033.95658-1-sshegde@linux.ibm.com>
@@ -82,110 +82,114 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=AMtp2X5w c=1 sm=1 tr=0 ts=6a7c0785 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODEyMDA0MSBTYWx0ZWRfX3TJOJUgymRxJ
+ U4z0Hp4ruUSaYEF+7pMpnxIyspR3rMDgRBHpmSutDFuVV1Zy+QqDg4gh61fTWK/rguez+MIPwD5
+ v9Nb33dHWKGzn3OQOB8HbT5Xim9CSb9ZRnr1pWYt9glwy/zYTsTwBj5Jp4M90AdQj6htyRHHtGi
+ kicAlSamw0wtGPkxNR+uHWvGo7I2Z9t0+iZRYrqPteVmf854HwMqitiV91SQkGQ69t7/4/tGf59
+ BsvRArOubwbwUAbmdwnCKs4VzyjvZjlTToTUDDYGLOda/tVQ2yLoYs7v3fMkStfFs/UQtQHxTC+
+ 4E2XTMdaRfhpi+Z+9Is421yNepuDVPX/LiOLdk9mYTaUk0h5ASIh57mgKEv5+FNmVxISlkXsn+A
+ GiPp3/okNQnj2+fG1psTnrdivT/Ts0bGJxWrVgCNialXDx39G7E/3LiM6kGQcnNnLXTzcLhW93c
+ UzEtN8+9CoVS2hkHgjQ==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODEyMDA0MSBTYWx0ZWRfX2yaZ6tRQHiX3
+ ttBJkrIZvb9VQRT6ORMOKckhyWxKWVDMbyF8YkaqYI+7zKPonEco+d1SuF/pIwQTcM4ubA1WY9K
+ XfYv3+hs1Ea81ZTkBxKSbkucgtI3Xcg=
+X-Authority-Analysis: v=2.4 cv=RqD16imK c=1 sm=1 tr=0 ts=6a7c078f cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
  a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8
- a=94fVmjRkuoLjN79_KVgA:9
-X-Proofpoint-GUID: BOaivE1vu7VPLZvSOs8ftXtZTlbaeij-
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODEyMDA0MSBTYWx0ZWRfX2ScjYVITBIGW
- ePJ0pbPsI7Ku4uaM6t20mVwXzrveq6rNqWo8+5YWRcqGoNMPixP3C3uuvaljPLlZR3KphoN+ieu
- 157WqguRlGGcXumwstIhcXBANRZwnkvRnIA8b4UdhJFdzA2NoY4IdCuwQemT/LpazX7yTtCsP1j
- 4XdudSzFqY/F/283f+zrygsb+1N88xsTfovFd9E1AO9G101/GK/HfP3U7nTIgmcCHLmTf/ageok
- mk7zXCdJQ+IYVaCdVlyS0xoz5SeAod1qTkfWd8bY/S7S75UpYAWYlDL8gDQ3JCzgNcmkKCir2Bb
- irW/6Kc6SLy0qFScWJtdGBBnBTmofQ0zrYUln2yc1/SHk3Co+NLIjpmUUmfVoGSc/U3OmMnGHaY
- MSBGaoweW/fi/tTA5mBUoDZ/ou3iSKNb6IXVYUhLVwhEVPhKHRUMvvfODLED8V+Rnw2iFnTW7Uf
- 6rWGAJyDL516zmQetbA==
-X-Proofpoint-ORIG-GUID: 3YsrwT2rmgUJ8fPXLjU7JF_GUO1FyY7s
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODEyMDA0MSBTYWx0ZWRfXymW7kKc2JnzJ
- Sb8LhktD45iGwJecingMZEn/HQc0NXS3fjOKyt8w4utDgEtuMtsJlP0z4WFTea0D1IK2s4ds/GJ
- KfUHITtvjsDyJZYQym25eNcNsoiTFQU=
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=TBRyIjXBjLUW-Ng_AUEA:9
+X-Proofpoint-GUID: KpscK3vHwCeCHyXvco_HNY3LSCneEIZ0
+X-Proofpoint-ORIG-GUID: g-Gl2t0XYBoQIM-mxrMhN1kx24tk9fC6
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-12_01,2026-08-10_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 adultscore=0 lowpriorityscore=0 clxscore=1015
- priorityscore=1501 impostorscore=0 phishscore=0 spamscore=0 bulkscore=0
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ phishscore=0 priorityscore=1501 suspectscore=0 lowpriorityscore=0
+ clxscore=1015 adultscore=0 bulkscore=0 malwarescore=0 impostorscore=0
+ spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
  definitions=main-2608120041
 
-Add a "preferred" file in /sys/devices/system/cpu/ when kernel is
-built with CONFIG_PREFERRED_CPU=y.
+When possible, try to choose a preferred CPU.
 
-This would help
-- Users to quickly check which CPUs are marked as preferred.
-- Userspace daemons such as irqbalance to use this mask to
-  route irqs into preferred CPUs.
+This is essential to maintain user affinities when preferred
+CPUs change. A task pinned on a non-preferred CPU should continue
+to run there, since this is a non-user triggered event.
 
-For example:
-cat /sys/devices/system/cpu/online
-0-719
-cat /sys/devices/system/cpu/preferred
-0-599        <<< Implies 0-599 are preferred for workloads and 600-719
-                 should be avoided at this moment.
+If a CPU is non-preferred and the task can run on other CPUs which are
+currently preferred, then choose a preferred CPU instead.
+This is decided by checking if cpus_ptr and cpu_preferred_mask
+intersect or not. If yes, then the task has other preferred CPUs.
 
-cat /sys/devices/system/cpu/preferred
-0-719        <<< All CPUs are usable. There is no preference.
+The push task mechanism uses a stopper thread which calls
+select_fallback_rq() and uses this mechanism to pick a preferred CPU.
+
+This takes care of the wakeup path for FAIR tasks too.
+is_cpu_allowed() is called to ensure wakeups happen on preferred CPUs.
+With that, additional checks in available_idle_cpu() are not necessary.
+
+For the majority of cases, this would still keep select_fallback_rq()
+as O(N). cpumask_intersects(), which is O(N), is called only if
+!cpu_preferred. The task running there is expected to move out.
+Subsequently, it should run on a preferred CPU. This becomes O(N**2)
+only for tasks pinned solely to non-preferred CPUs. That is a rare case.
+
+Overhead is minimal when the CPU is preferred.
 
 Signed-off-by: Shrikanth Hegde <sshegde@linux.ibm.com>
 ---
- Documentation/ABI/testing/sysfs-devices-system-cpu | 14 ++++++++++++++
- drivers/base/cpu.c                                 | 12 ++++++++++++
- 2 files changed, 26 insertions(+)
+ kernel/sched/core.c | 24 ++++++++++++++++++++++--
+ 1 file changed, 22 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/ABI/testing/sysfs-devices-system-cpu b/Documentation/ABI/testing/sysfs-devices-system-cpu
-index 82d10d556cc8..080c69aca4f0 100644
---- a/Documentation/ABI/testing/sysfs-devices-system-cpu
-+++ b/Documentation/ABI/testing/sysfs-devices-system-cpu
-@@ -806,3 +806,17 @@ Date:		Nov 2022
- Contact:	Linux kernel mailing list <linux-kernel@vger.kernel.org>
- Description:
- 		(RO) the list of CPUs that can be brought online.
-+
-+What:		/sys/devices/system/cpu/preferred
-+Date:		Aug 2026
-+Contact:	Linux kernel mailing list <linux-kernel@vger.kernel.org>
-+Description:
-+		(RO) the list of preferred CPUs applicable in
-+		paravirtualized environments.
-+
-+		The steal governor driver dynamically adjusts this mask
-+		based on observed steal time. Scheduling tasks on
-+		CPUs outside of this list may lead to performance
-+		degradations due to underlying physical CPU contention.
-+
-+		See Documentation/scheduler/sched-paravirt.rst for more details.
-diff --git a/drivers/base/cpu.c b/drivers/base/cpu.c
-index 19d288a3c80c..5da2a96fb37e 100644
---- a/drivers/base/cpu.c
-+++ b/drivers/base/cpu.c
-@@ -391,6 +391,15 @@ static int cpu_uevent(const struct device *dev, struct kobj_uevent_env *env)
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index a45f7c308329..1c90bcad0a75 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -2494,6 +2494,18 @@ static inline bool rq_has_pinned_tasks(struct rq *rq)
+ 	return rq->nr_pinned;
  }
- #endif
  
-+#ifdef CONFIG_PREFERRED_CPU
-+static ssize_t preferred_show(struct device *dev,
-+			      struct device_attribute *attr, char *buf)
++static inline bool task_can_sched_on_preferred(int cpu, struct task_struct *p)
 +{
-+	return sysfs_emit(buf, "%*pbl\n", cpumask_pr_args(cpu_preferred_mask));
-+}
-+static DEVICE_ATTR_RO(preferred);
-+#endif
++	if (cpu_preferred(cpu))
++		return false;
 +
- const struct bus_type cpu_subsys = {
- 	.name = "cpu",
- 	.dev_name = "cpu",
-@@ -531,6 +540,9 @@ static struct attribute *cpu_root_attrs[] = {
- #endif
- #ifdef CONFIG_GENERIC_CPU_AUTOPROBE
- 	&dev_attr_modalias.attr,
-+#endif
-+#ifdef CONFIG_PREFERRED_CPU
-+	&dev_attr_preferred.attr,
- #endif
- 	NULL
- };
++	/* Only FAIR tasks honor preferred CPU state */
++	if (unlikely(p->sched_class != &fair_sched_class))
++		return false;
++
++	return cpumask_intersects(p->cpus_ptr, cpu_preferred_mask);
++}
++
+ /*
+  * Per-CPU kthreads are allowed to run on !active && online CPUs, see
+  * __set_cpus_allowed_ptr() and select_fallback_rq().
+@@ -2509,8 +2521,12 @@ static inline bool is_cpu_allowed(struct task_struct *p, int cpu)
+ 		return cpu_online(cpu);
+ 
+ 	/* Non kernel threads are not allowed during either online or offline. */
+-	if (!(p->flags & PF_KTHREAD))
++	if (!(p->flags & PF_KTHREAD)) {
++		/* Try to use preferred CPU if task's affinity allows */
++		if (task_can_sched_on_preferred(cpu, p))
++			return false;
+ 		return cpu_active(cpu);
++	}
+ 
+ 	/* KTHREAD_IS_PER_CPU is always allowed. */
+ 	if (kthread_is_per_cpu(p))
+@@ -2520,7 +2536,11 @@ static inline bool is_cpu_allowed(struct task_struct *p, int cpu)
+ 	if (cpu_dying(cpu))
+ 		return false;
+ 
+-	/* But are allowed during online. */
++	/* Try to keep unbound kthreads on a preferred CPU if possible. */
++	if (task_can_sched_on_preferred(cpu, p))
++		return false;
++
++	/* Otherwise, they are allowed to run on online CPU. */
+ 	return cpu_online(cpu);
+ }
+ 
 -- 
 2.47.3
 
