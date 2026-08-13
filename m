@@ -1,148 +1,115 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f179.google.com (mail-qk1-f179.google.com [209.85.222.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 299BF413D62
-	for <virtualization@lists.linux.dev>; Thu, 13 Aug 2026 06:51:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C5FF35975
+	for <virtualization@lists.linux.dev>; Thu, 13 Aug 2026 07:08:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786603868; cv=none; b=hEy2FefBPjFFGONJ8Gub01VJ1ZvItw2lChlODvV50dVWDlRLzfz1R0kxatqrR4pjckTFMib05Xtm++6M4ew0gePtlCW7TUsaGA61H0OMTShjbPqTz97p0/h6CRJ4iO6goRWSey7Y1VYYLdBvjq+QFgVEkJgwFU8QoKl5dsv5fPE=
+	t=1786604897; cv=none; b=ly88QNzv2Han6jxGfr6K+BaYyrN0lIeJcOm7lOnm/GktFGgwO4N/hEb8ZWWxAGn33fl3+2nVG+PYd/5YaBPvhdOgxfGqU+VqlMC+Z3R3Glh5R9DbtUdlf2YEXogZAmtJIunaeOly6mxVrR1kbQmi61GIo8FqishAyIzjU5WAL/s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786603868; c=relaxed/simple;
-	bh=x75rfk3/xcVtDXBNa8u/YzzObGZuj8q0jI1mJ67Lbss=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=RLx76cWBUgFK4S8KCINM817OCBOKncMvgQizuWJurhobZTjRUBcFQ4MhD/R0nGqUoAG6/ohsjsOx+iGC9oa/8rwQv/4pZq90bZ+lf7cumPOWdRvRrVsM0d3ATpGjPVr6YuTjngB9ouEio0Uz5mESBfXhYDQCBU6dnZ2gbej4rnY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=LzhNYloX; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1786604897; c=relaxed/simple;
+	bh=bh4B7O/nniVK1wq8M9cB8RIRsbzfRKwBou+ARWbIlmA=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=XXq+GtSxpJxiFXINBmMpm8on99+S0cpZgRu46AyxomJJtuCO9qe4XkwF0dOP7oGnAtz52Ry6R/ExnmV50icPhy/6L9f6xcwWOK4Oo1y7Z6hwtUqrwllASG25PYXFoSTh/tWdfVvvYUB4HjmG/9dgsldQUtsBIQAQP3/N49OXRyU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=e7DS1zMk; arc=none smtp.client-ip=209.85.222.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="LzhNYloX"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67D61nMQ1430735;
-	Thu, 13 Aug 2026 06:50:50 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=aBqLCs
-	TQ7rFTSJJarqDaEDm6W1gTw6QjhWITYjimLPo=; b=LzhNYloXpWrrZ5WXbBQyBl
-	kjRQBNbL5khVgr4OOBrgQ1k0oQfOuorj9IhD20b6wzHqW/6ixwuyyQgR5wBrAfNg
-	W7Ta3SvAVrA32l8zHV6lMdO2+yAP4M8OGJSAMNrvrPPDneKV07elir2a3C7IEOqr
-	xFmLr8qBAdZPaa5rOdfRd/Qrytpu8FuBOOBbxodN45sAIj+1/UAkRnkuqJrWJj7x
-	sNUXBn7P4VSe7BMXLQG2fmbC2bsV5+ZPTZZACltLD5DhfqVhCAduIXL06c979mS/
-	ccc7QQrzzPRVvRDivLP15d7P3FcS95GzxyIaox5QdCcOUpQ6/bfdyWeiDpzRSjOg
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvp35p3p-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 13 Aug 2026 06:50:49 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67D6fWud030960;
-	Thu, 13 Aug 2026 06:50:49 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fxfsk1w8e-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 13 Aug 2026 06:50:49 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67D6oipw41156884
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 13 Aug 2026 06:50:45 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CAA3D20049;
-	Thu, 13 Aug 2026 06:50:44 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 46EA920040;
-	Thu, 13 Aug 2026 06:50:44 +0000 (GMT)
-Received: from [9.224.76.67] (unknown [9.224.76.67])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 13 Aug 2026 06:50:44 +0000 (GMT)
-Message-ID: <a4478425-1914-47d1-b5ec-5e11dba048dd@linux.ibm.com>
-Date: Thu, 13 Aug 2026 08:50:43 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="e7DS1zMk"
+Received: by mail-qk1-f179.google.com with SMTP id af79cd13be357-930f72317a6so108355685a.3
+        for <virtualization@lists.linux.dev>; Thu, 13 Aug 2026 00:08:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1786604895; x=1787209695; darn=lists.linux.dev;
+        h=content-disposition:content-type:mime-version:message-id:subject:cc
+         :to:from:date:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=SSbJwX3mVENBYQLVT50jOp9wDyIPziduBiZzfCOk5ZY=;
+        b=e7DS1zMkeO+b/UGnka9/FWIpol5vG4AZ3bSRgrfSK9fvCU8RUqlwkF4CZqfWebun/F
+         G89tU0kIJgMcwOHWPrfg96N8ih7QKZsaI0O8FU6KOBQe8yZm9velRkrgeAUzKsmNSk2Z
+         yn83FJNYbm+FKVj6Dt8OurPJRnrvrklgv4/vBdyzR1NpZH7unlBwxblu1yXUNAvH1vED
+         y5gXSZuHO7uMW3RDKzy7sjqnKRV09xPsjCTeqxN0vGFmZXDgi2YiKN8zwirixHQ8KeRE
+         Zp37BcKgiqImFiY5kIZDvWnvSPGcvNozz0E/wlU6NsOD5Z8IedNEnDJO5saI01RICM/q
+         wbBA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786604895; x=1787209695;
+        h=content-disposition:content-type:mime-version:message-id:subject:cc
+         :to:from:date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=SSbJwX3mVENBYQLVT50jOp9wDyIPziduBiZzfCOk5ZY=;
+        b=OIK/dVVaBiHU9+pxlTfa0X8i6IxEn4i0Z6mORTWx7SKGK1vB0YL149+A/E7NpA16Vc
+         Ll1A2iJbNWkRN3sHD+so3MAC1nfdS5kUltl07JJkPx9if7s95XyoICSaTPyGYPR/CJ9v
+         2ZFDCxcjwDT1nFG7WkS3lF+okE/LP+7hXqYE+VbFEzQrOlCGk351XEWN/nHHh5zB0FSG
+         /QGeEqx/9WxG3Y24Km1L3eDcrD15xBaNVG4Q2L4CZN0i9lw6pfLOvrYTazeavl4vSWBT
+         030/BIwAN6YD/5MXK7hkhDwaCE7PSSwxGkR5tGdoGPhthcxvysSAQPFbvdIaq0tjm3dt
+         Rsaw==
+X-Forwarded-Encrypted: i=1; AHgh+RpMMhzcWnlh/ftbzx1Iw2OTigrbebVXHIo8XvlVnwfG1k/kY/8kJ5+nc5DqXWoIIEnYsuZuZo3wAKS+XZCXBQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxsJQkSf8nIqcZXZ51vX0mso5lvcAXYqFPIfe/0M5EPzVZk8vMl
+	jTfRW1diUctRaqqvNUYB8J4QE2UfUb1Sk8lpD0C0lZrUfBnkjk3LprIr
+X-Gm-Gg: AR+sD13HVdMYIqaj+oUHqfR7wGHWSpRGQAWRb0ajrWfjqLnVup4kxZLXefhabpZQ8HP
+	2jubbdO3nU4gVObtp5rda7zRLJwvxiJdW/+b3TVf84ixiUSmVhf0QGpdVmJg5rv3e1EawOG7aud
+	QH+GiFKwUs+ABuqICPCzGESfgI235Am4d00++PLQGNYYS57IE3YZhSoQ8h75OeN+YwcrWbpTFkS
+	aKF3/74r0Ep/lg7bqdOAtqVD2lQRgABTe01gpW9UAFPIVuHr7UD1MagYYlBOGMdP8OA6g8by1CI
+	pgGdsyF8Apzr44s+IJsSTsenPRblfAr+Kqx2ASVvgKcdZYNE2bWCh4W5awp69gK5gkZk0hQA2QW
+	uoAUsWrLSVC+xapvH7k9cZrZLjfFCpDgO41oQHbNzmrCOetomjw415yrK7ZY/YU8JLEx11H/gG+
+	Bn0wpzw4ZHNAOonkaNtSVgWfd0yXSn3/oL/q1c0duxIikhpew3gJHcJEe89YoxfTA=
+X-Received: by 2002:ac8:7d0f:0:b0:519:8b76:2ce0 with SMTP id d75a77b69052e-52d73e0144cmr31264241cf.37.1786604894953;
+        Thu, 13 Aug 2026 00:08:14 -0700 (PDT)
+Received: from localhost ([37.19.206.57])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-52d73dfaf51sm11432531cf.6.2026.08.13.00.08.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 13 Aug 2026 00:08:14 -0700 (PDT)
+Date: Thu, 13 Aug 2026 10:08:09 +0300
+From: Dan Carpenter <error27@gmail.com>
+To: Dave Airlie <airlied@gmail.com>
+Cc: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Chia-I Wu <olvaffe@gmail.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Simona Vetter <simona@ffwll.ch>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
+Subject: [PATCH] drm/virtio: Fix a NULL vs ERR_PTR() bug in
+ virtio_gpu_user_framebuffer_create()
+Message-ID: <an1tWfHIHwtXd9SO@stanley.mountain>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] Re: [PATCH v10 00/12] sched, steal_governor: Introduce
- preferred CPUs and steal-driven vCPU backoff
-To: Yury Norov <ynorov@nvidia.com>,
-        "Ionut Nechita (Sunlight Linux)" <sunlightlinux@gmail.com>
-Cc: Shrikanth Hegde <sshegde@linux.ibm.com>, arighi@nvidia.com,
-        chleroy@kernel.org, christian.loehle@arm.com, corbet@lwn.net,
-        dietmar.eggemann@arm.com, frederic@kernel.org,
-        gregkh@linuxfoundation.org, hdanton@sina.com, huschle@linux.ibm.com,
-        iii@linux.ibm.com, jgross@suse.com, juri.lelli@redhat.com,
-        kernellwp@gmail.com, kprateek.nayak@amd.com, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, maddy@linux.ibm.com, maz@kernel.org,
-        mingo@kernel.org, pauld@redhat.com, pbonzini@redhat.com,
-        peterz@infradead.org, rafael@kernel.org, rdunlap@infradead.org,
-        rostedt@goodmis.org, seanjc@google.com, tglx@kernel.org, tj@kernel.org,
-        tommaso.cucinotta@gmail.com, vincent.guittot@linaro.org,
-        vineeth@bitbyteword.org, virtualization@lists.linux.dev,
-        vschneid@redhat.com, yury.norov@gmail.com
-References: <20260812054033.95658-1-sshegde@linux.ibm.com>
- <20260812194600.52516-1-sunlightlinux@gmail.com> <an0MMNBkyeeZEa8f@yury>
-Content-Language: en-US
-From: Mete Durlu <meted@linux.ibm.com>
-In-Reply-To: <an0MMNBkyeeZEa8f@yury>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=AMtp2X5w c=1 sm=1 tr=0 ts=6a7d694a cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=ytvUXjNDRGHaUZttXtEA:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: no_RzowkTuFFWN43HBrYVKw0wweS2OeI
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODEzMDA0NCBTYWx0ZWRfX7kmkn7sBut12
- mAYZIy4OUVv6XC2KDQIUVliN9/u5sGqSPE/wckOsHUCCzK6arq914B+LkJh0ls8w0Kz+AJbnzgb
- DVxS0tyMSeEij++a1oKCrddG16kgEzAMgvTpIKruJ5/hqH1WrUadjDQ/GeO2t1SxhdRqkENXgj0
- 1NsFNTxzU783vqz5yxa+zJsiIYq7KtE374n1fHejPzc6FVcRMf055tRHz0mD6xyXNnx3PsMwsNt
- WCvql6rOcCuzE6EE/101zbweMmb2OUm6FiBM01vg69USxcJ1GYX/eUqNXC2qEROm7srk95N1vFl
- 4afGXdrj4zSASG6MAmgKBhgcoGhqXGXFaZFScRmjfNLUBqQu1/CLgd3V8vliRofb2LI2W1dFjyZ
- h7oAwmu+KmXuUWaJSdlqvRqLr2fOmHPFZ2Okh7F8+ibWmdSyCTCYcL8//TObJeWSLaFCL6F/tYK
- HWI+evlQngFKactSBWg==
-X-Proofpoint-ORIG-GUID: 2fE5d4xrKH3ReufcYIxjdH0yP9eBmjIU
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODEzMDA0NCBTYWx0ZWRfX8x7U8lZAJsRm
- nyQMikEHXeCeYnbrHa1q5+ow0mF0kVw30XJ6nHIE6wF197WqqWaPqpgk2+NOarkiT7Ca0+/OknA
- SZkI8WPGHVZDcP8MJd5w4pdq3FvlQq0=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-13_02,2026-08-12_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 adultscore=0 lowpriorityscore=0 clxscore=1015
- priorityscore=1501 impostorscore=0 phishscore=0 spamscore=0 bulkscore=0
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608130044
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Mailer: git-send-email haha only kidding
 
-Hi all,
+Smatch complains that returning a NULL here will lead to a NULL pointer
+dereference in drm_mode_addfb2().  Return an error pointer instead.
 
-All of the points raised by Ionut are about governor lacking
-certain logic for a specific arch. Considering what Shrikanth
-mentions under "Future Work";
+Fixes: dc5698e80cf7 ("Add virtio gpu driver.")
+Signed-off-by: Dan Carpenter <error27@gmail.com>
+---
+This code is obviously over a decade old.  I think this patch is correct.
+None of the other implementations return NULL, but I haven't tested it.
+---
+ drivers/gpu/drm/virtio/virtgpu_display.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-"""
-Known Limitations & Future Work
-===============================
-...
-- Arch specific hints and framework for it as been deferred to
-   the future.
-...
-"""
+diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
+index 44ffffec550f..85ea252c658e 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_display.c
++++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+@@ -344,7 +344,7 @@ virtio_gpu_user_framebuffer_create(struct drm_device *dev,
+ 	if (ret) {
+ 		kfree(virtio_gpu_fb);
+ 		drm_gem_object_put(obj);
+-		return NULL;
++		return ERR_PTR(ret);
+ 	}
+ 
+ 	return &virtio_gpu_fb->base;
+-- 
+2.53.0
 
-I think all of these points can be addressed better if
-Xen used said framework and implemented their own governor
-module. That way we wouldn't see an overinflated single
-steal_governor but instead nicely separated arch/platform
-specific ones, that are tailored best for their needs.
-The current implementation could be the fallback option
-if platform does not implement their own and would also
-serve as an example.
-
-I really think we should follow the example of cpuidle
-drivers and how their framework brings together so many
-platforms under a single roof.
-
-Thanks!
--Mete
