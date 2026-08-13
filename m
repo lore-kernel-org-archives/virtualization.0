@@ -1,194 +1,224 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2359B36B93C
-	for <virtualization@lists.linux.dev>; Thu, 13 Aug 2026 08:24:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E0273DC4D3
+	for <virtualization@lists.linux.dev>; Thu, 13 Aug 2026 08:38:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786609475; cv=none; b=Lx+NTNqvU49EIn1Z8LqMLlkQpZaOZ9YyP9EgvmtGss8PXYQ2RRm7QbmIznjvriTjkgdzK/UGHSv+6+WkBnxMj8Wz3VSh0mlPiIWbcHLOqzOk+kzWjiZNfPqfNii6WSfRW1NRStUyyoBa5whcO+gewOOp1ckCjems68iqHE4/Tdk=
+	t=1786610318; cv=none; b=YPI04FBAIDp0lBlcpr/fUokCzeeWPVD/vhVjtUnsDKv0AVAIplhEezVnALN5kgvxCa8UBPnTKIdtBtjwcLyqh9y0DrLRhbWIXpc/sRNImhEukewxVLU80hn6qaWHvHUdjJmPGFpX+RmGkWF+uPSTlsiJ72cp8pOOe/CBXCD/K7A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786609475; c=relaxed/simple;
-	bh=ekNRTv/TL9qdTGaqKTU3xjKI2pnys6eRJiotTASXKJY=;
+	s=arc-20240116; t=1786610318; c=relaxed/simple;
+	bh=3A1TTzgx3HjDy337B7QEOqwQ54G9OEVp/xDl3QsWJGU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=kGXEbYfj321jj4E0Sc2MNgyQtZNv58wYgGKDNQ7KMX1vdTp1f/EkYc/XGyHnJRDPpXY/RZTGvrzMSUTWIp/qM1HYXW/mk/0HMgXu222P6pHCoMB4mXRPwDbFxac7JZVmJ+IwAOkq3i2R7RRVUjJMrENeqALfS7hYX95wz8aN228=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AFdy0VQA; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=O8Gtpv/qXYH6xgBMzyB0OZmjBKgjAWgKZ0fds/qua/psIz6Lzg6vPj8YDVyvTmH4Y/ui9jOk0oByeatALQQkxVM6ZpjO2Ltaagv2yuUiNgmgYA4TbiUEYS4vs5oOlaoTMBpfg3iWt9xn5y8Lnq7G6eAF/dUbOycHqRSsM15HATc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VWX7d7kI; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AFdy0VQA"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VWX7d7kI"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1786609473;
+	s=mimecast20190719; t=1786610315;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=F7osRv4SiTFi2D7w5M5+xxh/Lfv3v0Z21SGPsrlY9PI=;
-	b=AFdy0VQAcFqnk8EVLZHWgXn+qu8v+3KbuJ+5TfcPJSkvPkkdWFHBKvJgyWOyReQeswmri4
-	doA/Wx7pYF7jgeH9xuNxNIYNZ5/w7tC+Fg0lJmn4oe1bJ2Ev4CG1QBNnISK/tAZcR7uLz8
-	BQT1toXKWH66x+1vwHoug4tV0u59VyI=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=smAcv540nFYZlu+sSf+onJiRx1q/LBaPc+nj8Z/q0is=;
+	b=VWX7d7kI06grmSAQsoOeVpI+U7SJqINHFm6u9Q1xwsdY9GrYfJTB7jTFFe5i+uOBSppkv2
+	/iF31dIjSHAEdiuA6oObxYr1ujSFwtCtxy1ePsATd94nMd7a8nmwCetQFTR9ZCulTAQaRH
+	ZJjt69qzeChrdSsYliERx/Kau3JGx3U=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-63-mdLuKcx9MK-Th2J5tMbBYQ-1; Thu, 13 Aug 2026 04:24:31 -0400
-X-MC-Unique: mdLuKcx9MK-Th2J5tMbBYQ-1
-X-Mimecast-MFC-AGG-ID: mdLuKcx9MK-Th2J5tMbBYQ_1786609470
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-49554715277so15361915e9.1
-        for <virtualization@lists.linux.dev>; Thu, 13 Aug 2026 01:24:31 -0700 (PDT)
+ us-mta-668-STZsEOPqPkCHnfLoB2S77g-1; Thu, 13 Aug 2026 04:38:34 -0400
+X-MC-Unique: STZsEOPqPkCHnfLoB2S77g-1
+X-Mimecast-MFC-AGG-ID: STZsEOPqPkCHnfLoB2S77g_1786610313
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-49808ea1b64so7842065e9.1
+        for <virtualization@lists.linux.dev>; Thu, 13 Aug 2026 01:38:33 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786609470; x=1787214270;
+        d=1e100.net; s=20251104; t=1786610313; x=1787215113;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=F7osRv4SiTFi2D7w5M5+xxh/Lfv3v0Z21SGPsrlY9PI=;
-        b=R+m0FILivqf8Nhum7tuHG/plPaJhfabyPh+7PB49gDTijlnVQZXRPzUuqMnvv8Jxeg
-         XNUQKMOwurwSV81N0wwsU9/g0AGUALXoKruvGzLb6iZkZUvRRGezwFNf02XuxUszXgpv
-         NGE1aoRGJvWpbfu90UeE3iZC3FEBUPEslrLCaI8FxO/fb+0kgg2Wi6yUNClXSCR71Gfs
-         p3bm0LowFhwKPjHG90aYXed8ufb9Y50BQBNDihHnHMSP7a4QMye/rlTjlrlDFDHOIC3e
-         LWRF0myC5iwlD5+3eUggtR9D5PZOmN8AeR6mEGUZv43oTI5dbb07xwvK5sBJ7piip44r
-         ODgw==
-X-Forwarded-Encrypted: i=1; AHgh+Rpf2SFNfM/hZZLWKmrF1xYJsA54QxSnM5LjV6Cs1/uu+qHyXzg3uaYKsKiiMMn06L4+I8djrrV+ue77ocOE4w==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwQNP9aBlBIvpyHZGEimIwiiX5OkAean3l8ilUL0kTTbqrmH5gP
-	HXno+YTKu1an4OuW0X1uHD8ElNIgoXzc70nO1cPqQmR95g1iqRQR+19cLiyCdMI+ezhfUmArzb5
-	J2H2NFFWwMA4FHuzqW8zevW9OqD2O5zYTU8cT0EdjE5d0U7SAblp3aznhmqgnPiJjatZ8
-X-Gm-Gg: AR+sD135fSGWj5dICv/JkRNUUqeVOGG4DfQuuqDqL9JF0nu/mn85ow/vzlbDIbPsTBp
-	JAlBkx5hwuDfFjSx4+1pRShyDiUvFbaGlOzMMbLKg3GhDbZ77BI5pYqbgi9biRpbruvmJBIcU6J
-	RrpiODvNANJMEypItC1X3jEmy/Dma2LiKrpJwHeYmLjpWuGfsj0pgOD5GOKID+lxTqQKX9vKt94
-	f6g3xF/Aw6nF9fxqoSBWrl1uLP0ryUAvZPjT6GO9DATTXJokNhzm4HFfvfKRh5bk30MNVX94HqC
-	zr0pNb1zyuW3522ttxPbG0cuW0JhwGwQPJnYvDorXHN2AIp+sNcwrXjIVxotkaiJ6b2VpavEYk1
-	RBKm0oBmSY737X37wX3rM96XSE8xukwuiybZJl2jML+4GFZJI7sZI
-X-Received: by 2002:a05:600c:1c21:b0:495:6396:8b67 with SMTP id 5b1f17b1804b1-499821c335amr48238805e9.4.1786609470442;
-        Thu, 13 Aug 2026 01:24:30 -0700 (PDT)
-X-Received: by 2002:a05:600c:1c21:b0:495:6396:8b67 with SMTP id 5b1f17b1804b1-499821c335amr48237755e9.4.1786609469913;
-        Thu, 13 Aug 2026 01:24:29 -0700 (PDT)
+        bh=smAcv540nFYZlu+sSf+onJiRx1q/LBaPc+nj8Z/q0is=;
+        b=MIxYUpWvAfZqfUqFmZoTDy3trb/1K5xUSfTs7H6fXniu3FfjzVskuYdPLzFUUZOnuc
+         JLDNzdXdeeRjohiPVBg78Vxu29anGIJ0FA2JSdXClsNZwLNpcSjTXBuZoZkAdpX9uOiw
+         EK0Z9oOFvm3ldreewgWFJBgrb2tP9QrX8LFuF/ge3yNpEPyI9jqBkMBaX9I8xpranWUt
+         2dMYyRiYioDPcNhEcLTaS4vqjc+eNPQZ+ZShUdKyv8hQkIyovZBNwM257BLz1Yk+7btx
+         VU4Qft0wVwj8uC4hx0fZHRShK1ZbXoRbwswXI8LrbGGUYkuz31iCwMWGYlMYLsqteOg7
+         QX/g==
+X-Forwarded-Encrypted: i=1; AHgh+RpR5Bfh+SPRLRvAOSNTsrMZwmY8Ux0K61SK2k9ak4o6fXpw78XkFoY96Xc9Lz+7haoxvPzCe7NRCniiacXsag==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwBB5QVJFpVTe+hZisrF4d5qx0a4IB4SqVQjWm3UzmCJq7iBJCV
+	c5dRjNuYPlRyMSjPEOG7lY17MWN8JV+Rb8FKYe/43iwtTkcus6L3g4joOjASq1k7WFYblbAh2wk
+	q+xZBvht68pL2M1rSmMboZdIiPaBscoFlDo5ITisiRn/iTACTfMKXC8uLHCMJplHQuj4x71Mk/C
+	hC
+X-Gm-Gg: AR+sD10eOLacstdToLnKoRLxRn7a9fdJ6GNcu6GLufhis9Se6+0swXUiSPL+pg34x40
+	yMuAM2pz67VyVorTOMYw6wUFRK+eYKoZdg6yiAx9+VLjm58foqBJ0HQKQTnLGd/RLyVGxzbdmsI
+	SZVt5HNSwqcYFckQMuqUlTyD7qAqUMGIriNjjNU40qHy8njLvgf5yBN7VdhCa0ZSQwPsqof7NuL
+	lQmgEsmcMe1Bw1BOJvRXt9VxRzNog5lZ2SfrnHne2s3G6uLNIhr2QpAamjJtKD01qLfpyOf08QC
+	QkR5JugsqaAKeTfj9IomhMJbL5mHgrPtjfWGV2wH5cBlDDuZNOiKncR6wI7UI9C6u6czgM5plTr
+	QE0NXuMJxMfE5YPAuLyuNqYz82Z5LC7ZpiQOfawsyMo9T0j84l5kj
+X-Received: by 2002:a05:600d:6409:10b0:499:84fc:4548 with SMTP id 5b1f17b1804b1-49984fc45c0mr2858005e9.5.1786610312818;
+        Thu, 13 Aug 2026 01:38:32 -0700 (PDT)
+X-Received: by 2002:a05:600d:6409:10b0:499:84fc:4548 with SMTP id 5b1f17b1804b1-49984fc45c0mr2857405e9.5.1786610312345;
+        Thu, 13 Aug 2026 01:38:32 -0700 (PDT)
 Received: from sgarzare-redhat (host-82-53-135-154.retail.telecomitalia.it. [82.53.135.154])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49981b1063esm57093855e9.6.2026.08.13.01.24.28
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49981b62894sm46251145e9.13.2026.08.13.01.38.31
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 13 Aug 2026 01:24:29 -0700 (PDT)
-Date: Thu, 13 Aug 2026 10:24:02 +0200
+        Thu, 13 Aug 2026 01:38:31 -0700 (PDT)
+Date: Thu, 13 Aug 2026 10:38:29 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Nguyen Dinh Phi <phind.uet@gmail.com>
 Cc: "David S. Miller" <davem@davemloft.net>, 
 	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	George Zhang <georgezhang@vmware.com>, Dmitry Torokhov <dtor@vmware.com>, Andy King <acking@vmware.com>, 
-	syzbot+1b2c9c4a0f8708082678@syzkaller.appspotmail.com, Michal Luczaj <mhal@rbox.co>, virtualization@lists.linux.dev, 
+	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, virtualization@lists.linux.dev, 
 	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v5 1/3] vsock: don't check the listener's sk_err in
- vsock_accept()
-Message-ID: <an14GupikpFAtRHn@sgarzare-redhat>
+Subject: Re: [PATCH v5 2/3] vsock: remove the now-unused rejected flag
+Message-ID: <an15JxACeo30Owo_@sgarzare-redhat>
 References: <20260810170935.2242314-1-phind.uet@gmail.com>
- <20260810170935.2242314-2-phind.uet@gmail.com>
+ <20260810170935.2242314-3-phind.uet@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260810170935.2242314-2-phind.uet@gmail.com>
+In-Reply-To: <20260810170935.2242314-3-phind.uet@gmail.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: aGFsMmmOtfqEdxg1Qq5qeXgc9TB-dDkRjXRl1v7DoRs_1786609470
+X-Mimecast-MFC-PROC-ID: rez_p3-6Ad4suFyx0RlPc3xMf3eTZkCwa6BDLJPZpTU_1786610313
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
 
-On Tue, Aug 11, 2026 at 01:09:30AM +0800, Nguyen Dinh Phi wrote:
->Syzbot reported an issue which can be reproduced with these steps:
->	r0 = socket(AF_VSOCK, SOCK_STREAM, 0)
->	bind(r0, {VMADDR_CID_ANY, PORT})
->	connect(r0, {VMADDR_CID_LOCAL, PORT}) -> -1, EPROTO (self-connect)
->	listen(r0, backlog)                   -> 0
->	r1 = socket(AF_VSOCK, SOCK_STREAM, 0)
->	connect(r1, {VMADDR_CID_LOCAL, PORT}) -> 0
->	accept(r0)                            -> -1, EPROTO (stale sk_err)
+On Tue, Aug 11, 2026 at 01:09:31AM +0800, Nguyen Dinh Phi wrote:
+>After previous patch, the branch marking a socket rejected in
+>vsock_accept() is unreachable, and nothing ever sets vsk->rejected
+>elsewhere.
 >
->Basically, it creates a socket (r0) and triggers a self-connect after
->binding it. This self-connect fails with EPROTO because it loops back
->to r0 while the socket is still in the TCP_SYN_SENT state, causing it
->to be incorrectly dispatched to the connecting-client path. The
->unexpected packet type encountered there sets sk_err to EPROTO.
->
->After that, it invokes a listen() call on the same socket. This
->listen() call succeeds because the kernel's listening path never
->inspects or clears sk_err. Then, a new socket (r1) is created as a
->normal client and connects to r0. However, vsock_accept() rejects this
->incoming connection because the listener's sk_err still holds the
->EPROTO error from the earlier failed self-connect.
->
->This rejection causes the child socket created for r1's connection to
->never be freed on virtio or hyperv transports; only the VMCI transport
->implements pending_work to revisit and clean up a rejected socket.
->
->For a non-blocking connect(), vsock_connect() may return -EINPROGRESS
->immediately, and vsock_connect_timeout() can later set sk->sk_err
->asynchronously.
->
->Since no vsock transport ever sets sk_err on a socket while it is in
->TCP_LISTEN state, checking it in vsock_accept() serves no purpose and
->only carries forward errors left behind by earlier, unrelated
->connection attempts on the same socket. Remove the checks so accept()
->no longer rejects valid incoming connections because of a stale
->error, which also avoids the resource leak described above.
->
->Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
->Reported-by: syzbot+1b2c9c4a0f8708082678@syzkaller.appspotmail.com
->Closes: https://syzkaller.appspot.com/bug?extid=1b2c9c4a0f8708082678
->Suggested-by: Michal Luczaj <mhal@rbox.co>
->Signed-off-by: Nguyen Dinh Phi <phind.uet@gmail.com>
->---
-> net/vmw_vsock/af_vsock.c | 10 +++-------
-> 1 file changed, 3 insertions(+), 7 deletions(-)
->
->diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
->index 622dbd046799..ff507761f472 100644
->--- a/net/vmw_vsock/af_vsock.c
->+++ b/net/vmw_vsock/af_vsock.c
->@@ -1893,7 +1893,7 @@ static int vsock_accept(struct socket *sock, struct socket *newsock,
-> 	timeout = sock_rcvtimeo(listener, arg->flags & O_NONBLOCK);
->
-> 	while ((connected = vsock_dequeue_accept(listener)) == NULL &&
->-	       listener->sk_err == 0 && timeout != 0) {
->+		timeout != 0) {
-> 		prepare_to_wait(sk_sleep(listener), &wait, TASK_INTERRUPTIBLE);
-> 		release_sock(listener);
-> 		timeout = schedule_timeout(timeout);
->@@ -1906,12 +1906,6 @@ static int vsock_accept(struct socket *sock, struct socket *newsock,
-> 		}
-> 	}
->
->-	if (listener->sk_err) {
->-		err = -listener->sk_err;
->-	} else if (!connected) {
->-		err = -EAGAIN;
->-	}
->-
+>Therefore, we can remove the `rejected` field from vsock_sock structure.
 
-As I suggested in v4, please just add here:
-	if (!connected) {
-		err = -EAGAIN;
-	} else {
+I'd like to mention here that since commit d021c344051a ("VSOCK: 
+Introduce VM Sockets") where `rejected` was introduced, we didn't have 
+any path where sk_err is set on a listener socket, so that path was dead 
+since the beginning.
 
-I prefer the `goto`, but I understand that for a stable patch it might 
-affect too much code, so we can do that later as part of a cleanup.
-Anyway having the smallest block at the beginning of an `if/else` 
-statement greatly improves readability IMO.
-
-The rest LGTM.
+The rest LGTM!
 
 Thanks,
 Stefano
 
-> 	if (connected) {
-> 		sk_acceptq_removed(listener);
+>Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
+>Signed-off-by: Nguyen Dinh Phi <phind.uet@gmail.com>
+>---
+> include/net/af_vsock.h   |  5 +----
+> net/vmw_vsock/af_vsock.c | 46 +++++++++++++---------------------------
+> 2 files changed, 16 insertions(+), 35 deletions(-)
 >
->@@ -1941,6 +1935,8 @@ static int vsock_accept(struct socket *sock, struct socket *newsock,
+>diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+>index 30046a3c20f7..3357ee62d10b 100644
+>--- a/include/net/af_vsock.h
+>+++ b/include/net/af_vsock.h
+>@@ -52,13 +52,10 @@ struct vsock_sock {
+> 	 * The listening socket is the head for both lists.  Sockets created
+> 	 * for connection requests are placed in the pending list until they
+> 	 * are connected, at which point they are put in the accept queue list
+>-	 * so they can be accepted in accept().  If accept() cannot accept the
+>-	 * connection, it is marked as rejected so the cleanup function knows
+>-	 * to clean up the socket.
+>+	 * so they can be accepted in accept().
+> 	 */
+> 	struct list_head pending_links;
+> 	struct list_head accept_queue;
+>-	bool rejected;
+> 	struct delayed_work connect_work;
+> 	struct delayed_work pending_work;
+> 	struct delayed_work close_work;
+>diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+>index ff507761f472..b59890bbd217 100644
+>--- a/net/vmw_vsock/af_vsock.c
+>+++ b/net/vmw_vsock/af_vsock.c
+>@@ -38,10 +38,9 @@
+>  * pending socket.  When that socket reaches the connected state, it is removed
+>  * from the listener socket's pending list and enqueued in the listener
+>  * socket's accept queue.  Callers of accept(2) will accept connected sockets
+>- * from the listener socket's accept queue.  If the socket cannot be accepted
+>- * for some reason then it is marked rejected.  Once the connection is
+>- * accepted, it is owned by the user process and the responsibility for cleanup
+>- * falls with that user process.
+>+ * from the listener socket's accept queue. Once the connection is accepted,
+>+ * it is owned by the user process and the responsibility for cleanup falls
+>+ * with that user process.
+>  *
+>  * - It is possible that these pending sockets will never reach the connected
+>  * state; in fact, we may never receive another packet after the connection
+>@@ -49,9 +48,7 @@
+>  * future, after some amount of time passes where a connection should have been
+>  * established.  This function ensures that the socket is off all lists so it
+>  * cannot be retrieved, then drops all references to the socket so it is cleaned
+>- * up (sock_put() -> sk_free() -> our sk_destruct implementation).  Note this
+>- * function will also cleanup rejected sockets, those that reach the connected
+>- * state but leave it before they have been accepted.
+>+ * up (sock_put() -> sk_free() -> our sk_destruct implementation).
+>  *
+>  * - Lock ordering for pending or accept queue sockets is:
+>  *
+>@@ -774,11 +771,10 @@ static void vsock_pending_work(struct work_struct *work)
+>
+> 	if (vsock_is_pending(sk)) {
+> 		vsock_remove_pending(listener, sk);
+>-	} else if (!vsk->rejected) {
+>-		/* We are not on the pending list and accept() did not reject
+>-		 * us, so we must have been accepted by our user process.  We
+>-		 * just need to drop our references to the sockets and be on
+>-		 * our way.
+>+	} else {
+>+		/* We are not on the pending list so we must have been accepted
+>+		 * by our user process. We just need to drop our references to
+>+		 * the sockets and be on our way.
+> 		 */
+> 		cleanup = false;
+> 		goto out;
+>@@ -942,7 +938,6 @@ static struct sock *__vsock_create(struct net *net,
+> 	vsk->listener = NULL;
+> 	INIT_LIST_HEAD(&vsk->pending_links);
+> 	INIT_LIST_HEAD(&vsk->accept_queue);
+>-	vsk->rejected = false;
+> 	vsk->sent_request = false;
+> 	vsk->ignore_connecting_rst = false;
+> 	WRITE_ONCE(vsk->peer_shutdown, 0);
+>@@ -1912,26 +1907,15 @@ static int vsock_accept(struct socket *sock, struct socket *newsock,
+> 		lock_sock_nested(connected, SINGLE_DEPTH_NESTING);
+> 		vconnected = vsock_sk(connected);
+>
+>-		/* If the listener socket has received an error, then we should
+>-		 * reject this socket and return.  Note that we simply mark the
+>-		 * socket rejected, drop our reference, and let the cleanup
+>-		 * function handle the cleanup; the fact that we found it in
+>-		 * the listener's accept queue guarantees that the cleanup
+>-		 * function hasn't run yet.
+>-		 */
+>-		if (err) {
+>-			vconnected->rejected = true;
+>-		} else {
+>-			newsock->state = SS_CONNECTED;
+>-			sock_graft(connected, newsock);
+>+		newsock->state = SS_CONNECTED;
+>+		sock_graft(connected, newsock);
+>
+>-			set_bit(SOCK_CUSTOM_SOCKOPT,
+>-				&connected->sk_socket->flags);
+>+		set_bit(SOCK_CUSTOM_SOCKOPT,
+>+			&connected->sk_socket->flags);
+>
+>-			if (vsock_msgzerocopy_allow(vconnected->transport))
+>-				set_bit(SOCK_SUPPORT_ZC,
+>-					&connected->sk_socket->flags);
+>-		}
+>+		if (vsock_msgzerocopy_allow(vconnected->transport))
+>+			set_bit(SOCK_SUPPORT_ZC,
+>+				&connected->sk_socket->flags);
 >
 > 		release_sock(connected);
 > 		sock_put(connected);
->+	} else {
->+		err = -EAGAIN;
-> 	}
->
-> out:
 >-- 
 >2.53.0
 >
