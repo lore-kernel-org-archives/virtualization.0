@@ -1,133 +1,58 @@
-Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C24D847126D
-	for <virtualization@lists.linux.dev>; Thu, 13 Aug 2026 12:12:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0691E3B71C0;
+	Thu, 13 Aug 2026 15:29:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786623174; cv=none; b=KJetpRs/FLqOJ8sxUjg3CfrMH5U6YK2SxKOqPdmaPYYWVq+pWu++M3OFoqJzT+8a2xAj5HqIEPat2Qpjp0FpCMHXhp9hl71bxW3KNFiqnb2iJMwZGOWp13duCL8+Uh1mVv1OwQLhjomq5wN79sSmDhxYJFsFCZTxap8F3QHbHjg=
+	t=1786634965; cv=none; b=rCkrj2zx/vVJ3AvGIid/TqZwfXWdl4cyZg25YGd6ea/WTaPd7Z5Aad+yRqGDYamCwkkSGDEXSU+sZXnF2KgP+XvVMQLZ1vc1DWOn9cGa7wksoWhd/gbzYzrHEkNXLA2VkfFFMuRWmSArcMLMVpiwujZh+v4nWwyVL2EngNPx/nU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786623174; c=relaxed/simple;
-	bh=/17flycYSc19MMlgQ2UNX8D5txCWeH/AzDfCPa7n4L8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=DJsqxuttBQhK9VXS1BGMm1SfUZz0+lti1ABjHcIhmSwbVf7xaUeU1nUEPcdncvDn42vhMwpdN3HQBaU5jrcZCSDm3abrUFl5RlLtWBOBLauIgDDYW57sU6iBk66BLx/JpzalpEji/jIHVnUt2NH/QuK+JHc9JktJ8wfgbjZf3NY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kp5UYtvl; arc=none smtp.client-ip=209.85.216.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1786634965; c=relaxed/simple;
+	bh=hPTFqUWtuZiGVbJaJeZh1GEXRkIOuWjk1cToAtx1WBI=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=p3aZ0zikaSmwqyfBgK8BubDx7Sy35RC8Fzy4brN0+1vCW0pu5lXhX8nMlt01eYMvsWs2oRUgDqeLUdZbqGzJfktRFWzI+Fz6RAwUlFsLT3ca/HgrDEtlnnZte/s/8SXO4JDgW1ZMl65j06F+xY8QNj8Dc7g+chEswJ3gECTuUDs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AJyldb3G; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kp5UYtvl"
-Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-38e08baf860so689124a91.2
-        for <virtualization@lists.linux.dev>; Thu, 13 Aug 2026 05:12:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786623172; x=1787227972; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=P7D5ColudFir3efNk2jSAtS6dOixRUPB2JAx0kV9F6Y=;
-        b=kp5UYtvlTP6Xm49RKCgofr0+IDQbpB8UHrUiZjNf1VxcuDivTF/Lgi/lKQvAT68qXe
-         WaB/s8KSM6eBbQ7mWmYz9q731IzmJBKIl35SWbZQAxBwLonTxwYQNoudnIgJH5XaEDA5
-         wpjutb5UYAs4dKBMp+sN3/xVQdndFMJJ8NAzli0Eumy3Ap4IORN9Fl66E5TKCHypyDgY
-         l4ZHDcZRYQHTcnGIBFAh9bAJLFTE+JZ8ge0O9JK7DzRf1okZKNdHLNVXiHKbKRbswSWd
-         MrF3f9z3Vzwmw5Ude4qoXLvXW/qb2+4cK/J+kXJ0wzQASR2NP8n51q68uht7CFOFzvdU
-         4mRQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786623172; x=1787227972;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=P7D5ColudFir3efNk2jSAtS6dOixRUPB2JAx0kV9F6Y=;
-        b=J3i5+dUDL9Y213XXmcPGiVQBdGnzpZAzPhSbHwsFi4xD3ZDbAnT9TfRi4U7TmeotT7
-         QtgOAUFT6nSWd86kvW6BsA7pD2jT5z7PSaqLd+24nuW9nAReKaowQ/yOVfwvuMkTifp1
-         hxWDU29M49SAZNULbIhxAvkgEcxnMiJsSAzaU/E2bXL6hhMtoZpWesGaFy7nirZbnZvi
-         DTavbo47aGgh2QZQaA8EMU1vHCmsE22cE6MgBFDJ0OFnBlrE7xC8oR92L+wwWiXL6Zt2
-         MyWua/VJKVbkiSA0aKCtkurKmCzmLbzaJEWMqCpnkuAoZt+knHqedHp6vIq7YXa1PpQw
-         H9Tg==
-X-Forwarded-Encrypted: i=1; AHgh+RoJ8PnYCD1uUAvXjbp6gU92xINnobFDDzHsy6Zu45wRcJ9L4wNachtMK+q82RXyjAxD1bI6Rwe1ACj+n+Dh/w==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzNO/b7nwudBf8ESFGUP1a8jz95JfHwBAy+CgC63pMZEsuqID+0
-	x5mVZBdZcbqQz2Jq+lVbD9jKx4Qcx7NjRdyxjowxa/Iyxs/5eScVmK8j
-X-Gm-Gg: AR+sD11OoZHxZ+7QwEPoo3Q65XPkXIgBKWu+eFrCw3WZVcw5T6cAdXJEnWyTAzlD3J0
-	sGxranUkgoAbVhw4HbQCJ7AdVMspE6npzC5gZtkbWeCHxZ5LNOInfHvQNygSdsyC2lmwzVTloHq
-	VXGfdOQy990yLNadaKUKpFFpRSaTSRJ+scxYaORfKLnk/rxlPjbcZJi9tCKe0K/OSGksctooFBd
-	BPaKglz3Z5U6r91BzMPNkwCh9ss/rYWkatK8yTPBPVqxroqTLrYZHdgcs8teRtaZjzXjcPF6YQH
-	ZQwcOsIevJyyco2Ojkr3MxWBu0s4T+8dCQYrmNVCJrwxJUuJGTEyyjxzTahdA2fBXySGn/Ti583
-	5DktciCRaIBBf27m0E0LNrKK8PdXGfV9eMZtcpZPUFab9lW7AIHdFYJyTXCniPtpZwxbqgTuVhJ
-	BtIJbl+T+B4C7vnsCByo37MytAkJXEip7lp3TkINL5IwG3xy6P6YyCijGkgdSiRzzMeSevZsYL
-X-Received: by 2002:a17:90b:53cb:b0:381:1c96:829b with SMTP id 98e67ed59e1d1-3931e0241cemr6853696a91.3.1786623171943;
-        Thu, 13 Aug 2026 05:12:51 -0700 (PDT)
-Received: from ancienth-X870E-Nova-WiFi ([125.186.72.2])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3931d872ec5sm1069999a91.0.2026.08.13.05.12.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 13 Aug 2026 05:12:51 -0700 (PDT)
-From: Daehyeon Ko <4ncienth@gmail.com>
-To: netdev@vger.kernel.org
-Cc: Stefan Hajnoczi <stefanha@redhat.com>,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	virtualization@lists.linux.dev,
-	kvm@vger.kernel.org,
-	Daehyeon Ko <4ncienth@gmail.com>
-Subject: [PATCH net] vsock/virtio: validate packet source for connected sockets
-Date: Thu, 13 Aug 2026 21:12:36 +0900
-Message-ID: <20260813121236.2328599-1-4ncienth@gmail.com>
-X-Mailer: git-send-email 2.54.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AJyldb3G"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BF821F000E9;
+	Thu, 13 Aug 2026 15:29:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786634963;
+	bh=hPTFqUWtuZiGVbJaJeZh1GEXRkIOuWjk1cToAtx1WBI=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=AJyldb3GPtDqLRh5LeeOLFWFeOiyPPryZ/tUji8lqboLG7bHCwBOwGisLppEfdspF
+	 CdKAt0kDSz4do4xWdJkzRbwg5ALafMPKYlBZB6/C8gU3+NurFi+ATDoQ/Xnl/tK9Uh
+	 kIQGB1hPl4ujdckYTjwJhte+NKV+L8J2P18pi1g0TuvRM7RgzoTGKowrOLUcRQYj0K
+	 tblKrsFmC+TXIwJv4QqZ7QWg4JrKvYjFedRqr4YMQe1QwefBlh5/Xj5xctq1da8Fqc
+	 o9tGV1GQlBz8Qi3dN7mol0/AFHDtFQBkjf+aT938d5z3BacywBchk5K9MXJwrrYPQ1
+	 +pZOxGCVQCE7w==
+Date: Thu, 13 Aug 2026 08:29:22 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: "Lange Tang" <lange_tang@163.com>
+Cc: "mst@redhat.com" <mst@redhat.com>, jasowangio@gmail.com,
+ "xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
+ "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+ "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "Tang Longjun"
+ <tanglongjun@kylinos.cn>
+Subject: Re: [PATCH] virtio_net: add rx-alloc-fail counter
+Message-ID: <20260813082922.19194916@kernel.org>
+In-Reply-To: <290bce53.25b3.19ff90e755a.Coremail.lange_tang@163.com>
+References: <20260812012254.27668-1-lange_tang@163.com>
+	<20260812163427.3c44ac4d@kernel.org>
+	<290bce53.25b3.19ff90e755a.Coremail.lange_tang@163.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-virtio_transport_recv_pkt() first looks up a socket using the full source
-and destination tuple.  If that misses, it falls back to a bound-socket
-lookup using only the destination address.  The fallback is needed for
-listening and connecting sockets, but it can also select an established
-socket that remains in the bound table.
+On Thu, 13 Aug 2026 10:58:22 +0800 (CST) Lange Tang wrote:
+> Regarding why i didn't into virtnet_get_base_stats, TBH i didn't give it
+> much thought. If you think it's necessary ,i can add it in the next version.
 
-As a result, a packet from an unrelated source can be dispatched to a
-non-listening socket.  In TCP_SYN_SENT, a source-blind RESPONSE marks the
-selected socket established while retaining its original remote address.
-Subsequent RW packets can likewise be delivered through the
-destination-only fallback.
-
-This was reproduced with two capless processes under different UIDs.  The
-attacker discovered the victim tuple through unprivileged AF_VSOCK
-sock_diag and injected a chosen 16-byte payload into the victim established
-loopback socket.  The legitimate peer received none of those bytes.
-
-After taking the socket lock, verify that packets for non-listening sockets
-come from the peer stored in remote_addr.  Listening sockets continue to
-accept packets from any source.
-
-Fixes: 06a8fc78367d ("VSOCK: Introduce virtio_vsock_common.ko")
-Cc: stable@vger.kernel.org
-Signed-off-by: Daehyeon Ko <4ncienth@gmail.com>
----
- net/vmw_vsock/virtio_transport_common.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
-
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index 8becad812..f73e0406a 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -1822,11 +1822,15 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
- 
- 	lock_sock(sk);
- 
--	/* Check if sk has been closed or assigned to another transport before
--	 * lock_sock (note: listener sockets are not assigned to any transport)
-+	/* Check if sk has been closed, assigned to another transport, or if the
-+	 * packet is from a different peer than the one connected to sk.  These
-+	 * properties could have changed before lock_sock.  Listener sockets are
-+	 * not assigned to any transport and accept packets from any peer.
- 	 */
- 	if (sock_flag(sk, SOCK_DONE) ||
--	    (sk->sk_state != TCP_LISTEN && vsk->transport != &t->transport)) {
-+	    (sk->sk_state != TCP_LISTEN &&
-+	     (vsk->transport != &t->transport ||
-+	      !vsock_addr_equals_addr(&src, &vsk->remote_addr)))) {
- 		(void)virtio_transport_reset_no_sock(t, skb, net);
- 		release_sock(sk);
- 		sock_put(sk);
-
-base-commit: 9006c116dd111d457bf5d074990210f70a4ad2c8
--- 
-2.54.0
-
+It'd be ideal if you were the one doing the thinking if you are the one
+sending the patches. Think about it and include what you concluded in
+the commit msg for v2.
