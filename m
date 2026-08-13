@@ -1,72 +1,113 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.3])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 952041F8691;
-	Thu, 13 Aug 2026 01:49:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 205332EAB6F
+	for <virtualization@lists.linux.dev>; Thu, 13 Aug 2026 02:58:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.3
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786585746; cv=none; b=Ib5YE0Drm2rkWKT5LtRbwrSRX+5uzgXEXZ5ilv2QnfoTgaTxQxL6Nl8ezqTsZy42Ggy3IdfjkEsv5uGeQBn1HIQnCE42OETbiXp+SbhV9GRKZjSiqAyhPZK+0qJMo2zMdlI7tttuoWAMzQLWcEEjaHKv8Ha/47yx/sh5+UyBBMo=
+	t=1786589936; cv=none; b=n6MJAWPZwHJF2lnoGKk88Yr5lk2MluY3avPUdP11GQDePamnZYbZKBk3bWPAebcMkcrYTMkCa5v1moKxWFRPtKV1QfuLpYiChv0fqQKp7YVo+Oc98arOp+t/R03ymAMhAqEobZs3TPgMW8KIZw/bA1j6suL3voTXCB0mGNyMry8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786585746; c=relaxed/simple;
-	bh=0U680LeW7vTkGON73EYi1Tv5zWSqI/1M9rs/m0IQK34=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=HOJPrcwmjWt6eIsJfml77t2nO8u8SL6IaKRgGlu3D/ZBAb4ExDD3NBfsppqwgMlu6UppH3niqlEZO7X0bUbhPv9oY6zzQux+WXyuLCUJif5s/ISoZKrYj692DMOoGUGKIXKC2NXyaOFYAOlTIDKcUrCeD1iSikL8uM7m4UlDOac=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VU8sFSYT; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786589936; c=relaxed/simple;
+	bh=SSIS66HuEe1Zon1uqQcO2mtIo5/d3TyQFLrQt7/aasU=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:Content-Type:
+	 MIME-Version:Message-ID; b=OQHt7GVf6Frcqvoh7zOv8npUmkXDrola45kpa5nLJNHJLI6s0JQkFsWRhCyJqjufEBy6CyzV17WYs+CTTguQ+dSokxmEMKaSVzMBhdJKoMx7b8tRwWQ6ZlM4lILxDCIjpEMrY2WLGa6dC4K0Np/hg+7EOvI0S6uukvKbHgxNMA4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=WfngGjvI; arc=none smtp.client-ip=117.135.210.3
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VU8sFSYT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2AD81F000E9;
-	Thu, 13 Aug 2026 01:49:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786585745;
-	bh=3FIfmdBDj7y+E80KXVO9Y5kFPzVxznZnfzd+5WDpN50=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=VU8sFSYTyyJ9taU34+yR09PRUP6H26nUPsjJP/B6eD5BlDU+e/pLaE6UXWM241+1y
-	 5JUWnVOpLqlIXlLHs0xRfUUqenPDK6Mi8jla98zBFjPV8Oo4Vi0B3OFYDW14DUSjZf
-	 HrA9zLYMRmXqaGvto9GF4XywBeNEHFRESK9wrE9kE3mzdznKyntjYcLtOuvCsC18MH
-	 hrQqvKk1jA0IAgzCzg89ZywKhcDYpZQsHvm/DVuTcQeFa8fZAzRCmsmq9CnLXxGZWt
-	 g5GylIdjqYKII0RoL86PIAjYzsM8AJwECPA75ORicPqArMEJzWyDNp4sCMZon10yI1
-	 dp7YWhMoNrWng==
-Date: Wed, 12 Aug 2026 18:49:04 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Xiong Weimin <xiongweimin@kylinos.cn>
-Cc: netdev@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, Jason
- Wang <jasowangio@gmail.com>, Jason Wang <jasowang@redhat.com>, Xuan Zhuo
- <xuanzhuo@linux.alibaba.com>, Eugenio =?UTF-8?B?UMOpcmV6?=
- <eperezma@redhat.com>, Andrew Lunn <andrew+netdev@lunn.ch>, "David S .
- Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Paolo
- Abeni <pabeni@redhat.com>, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net v2 2/2] virtio_net: refuse XDP queue shrink while
- AF_XDP is bound
-Message-ID: <20260812184904.50dda8ac@kernel.org>
-In-Reply-To: <20260807013220.2130441-2-xiongweimin@kylinos.cn>
-References: <20260807013220.2130441-1-xiongweimin@kylinos.cn>
-	<20260807013220.2130441-2-xiongweimin@kylinos.cn>
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="WfngGjvI"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=Date:From:To:Subject:Content-Type:MIME-Version:
+	Message-ID; bh=SSIS66HuEe1Zon1uqQcO2mtIo5/d3TyQFLrQt7/aasU=; b=W
+	fngGjvIZBJijs+1D6XQCYYdUcDUsFg1nhTC7zPfu2XvNFgpi+2vAG2dtTOdVC4Zf
+	XKoiHY45mD/ElpH2509pm1M5PuH5abQ9eFnkZkc32CjAUHLc0z6h41aafzNj0DAm
+	8NxbNtn3y7MVD7S/MeLXmSYBlaFenkurG4vXD56cG0=
+Received: from lange_tang$163.com ( [116.128.244.169] ) by
+ ajax-webmail-wmsvr-40-137 (Coremail) ; Thu, 13 Aug 2026 10:58:22 +0800
+ (CST)
+Date: Thu, 13 Aug 2026 10:58:22 +0800 (CST)
+From: "Lange Tang" <lange_tang@163.com>
+To: "Jakub Kicinski" <kuba@kernel.org>
+Cc: "mst@redhat.com" <mst@redhat.com>, jasowangio@gmail.com,
+	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+	"Tang Longjun" <tanglongjun@kylinos.cn>
+Subject: Re:Re: [PATCH] virtio_net: add rx-alloc-fail counter
+X-Priority: 3
+X-Mailer: Coremail Webmail Server Version 2023.4-cmXT build
+ 20260511(2e539873) Copyright (c) 2002-2026 www.mailtech.cn 163com
+In-Reply-To: <20260812163427.3c44ac4d@kernel.org>
+References: <20260812012254.27668-1-lange_tang@163.com>
+ <20260812163427.3c44ac4d@kernel.org>
+X-NTES-SC: AL_Qu2TBPmTtkEr5CGeZekfmUgRg+c/XsK4svUj24VVOJF8jBLo6A8JQnRkJlbs3/yqDDGzqhK4cwpw1sRqYoZdTqY0juOokbaQF7IX3AcSQQnUuw==
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=GBK
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Message-ID: <290bce53.25b3.19ff90e755a.Coremail.lange_tang@163.com>
+X-Coremail-Locale: zh_CN
+X-CM-TRANSID:iSgvCgDX3xfPMn1qHcIwAA--.7607W
+X-CM-SenderInfo: 5odqwvxbwd0wi6rwjhhfrp/xtbC4g+552p9Ms-aOgAA35
+X-Coremail-Antispam: 1U5529EdanIXcx71UUUUU7vcSsGvfC2KfnxnUU==
 
-On Fri,  7 Aug 2026 09:32:20 +0800 Xiong Weimin wrote:
-> virtnet_xdp_set() can lower curr_queue_pairs when an XDP program is
-> detached.  Unlike ethtool channel updates, that path does not check for
-> AF_XDP zero-copy pools on the queues being dropped.  A pool can remain
-> bound on a qid that is no longer covered by curr_queue_pairs, which
-> breaks later unbind and can leave stale rq/sq->xsk_pool pointers.
-> 
-> Refuse the shrink with -EBUSY while any AF_XDP pool is still bound on a
-> queue that would become inactive.
-
-This is really odd. The extra XDP queues should not be visible to the
-stack and therefore to AF_XDP. AF_XDP and XDP only share the name for
-"marketing reasons", they are distinct things.
-
-We should try to prevent this oddity and prevent the XDP queues from
-being exposed to the stack. let's see if anyone complains.
-
-The patch as posted is only going to create problems further down the
-line, the stack assumes that XDP detach can never fail.
+CgpBdCAyMDI2LTA4LTEzIDA3OjM0OjI3LCAiSmFrdWIgS2ljaW5za2kiIDxrdWJhQGtlcm5lbC5v
+cmc+IHdyb3RlOgo+T24gV2VkLCAxMiBBdWcgMjAyNiAwOToyMjo1NCArMDgwMCBMb25nanVuIFRh
+bmcgd3JvdGU6Cj4+IEZyb206IHRhbmdsb25nanVuIDx0YW5nbG9uZ2p1bkBreWxpbm9zLmNuPgo+
+PiAKPj4gQ291bnQgYnVmZmVyIGFuZCBza2IgYWxsb2NhdGlvbiBmYWlsdXJlcyBvbiB0aGUgcngg
+cXVldWUgYW5kCj4+IHJlcG9ydCB0aGVtIHZpYSByeC1hbGxvYy1mYWlsIGluIG5ldGRldiBxc3Rh
+dHMuCj4KPllvdSBhcmUgbm90IHBsdW1iaW5nIHRoZSBuZXcgc3RhdCBpbnRvIHZpcnRuZXRfZ2V0
+X2Jhc2Vfc3RhdHMoKQo+VGhpcyBtYXkgYmUgYW4gZW50aXJlbHkgcmVhc29uYWJsZSBjaG9pY2Ug
+aWYgeW91IGNhbid0IC8gZG9uJ3QgCj53YW50IHRvIHJldGFpbiB0aGUgc3RhdHMgZm9yIHRoZSBl
+bnRpcmUgZGV2aWNlIChlLmcuIHdoZW4gcXVldWVzCj5nZXQgZGlzYWJsZWQpLiBCdXQgcGxlYXNl
+IGV4cGxhaW4gdGhlIGNob2ljZSBpbiB0aGUgY29tbWl0IG1zZy4KPgo+UGxlYXNlIGV4cGxhaW4g
+eW91ciBtb3RpdmF0aW9uIC8gd2hhdCBtYWRlIHlvdSB3cml0ZSB0aGlzIHBhdGNoLgo+VEJIIHRo
+ZSBwYXRjaGVzIGZyb20gS3lsaW5PUyBhZGRyZXNzZXMgYXJlIG9mdGVuIHNsb3Agc28gaXQgd291
+bGQKPmJlIHVzZWZ1bCB0byB1bmRlcnN0YW5kIHdoZXRoZXIgeW91ciBjaG9pY2VzIGhlcmUgYXJl
+IGd1aWRlZCBieQo+cHJvZHVjdGlvbiBleHBlcmllbmNlLCBvciBub3QuCgpJbiBteSB3b3JrLCBp
+IG9uY2UgZm91bmQgdGhhdCB0cnlfZmlsbF9yZWN2IHJldHVybmluZyBFTk9NRU0gbGVkIHRvCnRo
+ZSBxdWV1ZSBoYXZpbmcgbm8gYXZhaWxhYmxlIGRlc2NyaXB0b3JzLiBUbyBhZGRyZXNzIHRoaXMs
+IGkgd2FudGVkCnRvIHByb3ZpZGUgc29tZSBzdGF0cyB0byBpbmZvcm0gdXNlciB3aGVuIGl0IG9j
+Y3Vycy4gRm9ydHVuYXRlbHksIApyeC1hbGxvYy1mYWlsIGluIERvY3VtZW50YXRpb24vbmV0bGlu
+ay9zcGVjcy9uZXRkZXYueWFtbCBmaXQgdGhlIGJpbGwsCgpSZWdhcmRpbmcgd2h5IGkgZGlkbid0
+IGludG8gdmlydG5ldF9nZXRfYmFzZV9zdGF0cywgVEJIIGkgZGlkbid0IGdpdmUgaXQKbXVjaCB0
+aG91Z2h0LiBJZiB5b3UgdGhpbmsgaXQncyBuZWNlc3NhcnkgLGkgY2FuIGFkZCBpdCBpbiB0aGUg
+bmV4dCB2ZXJzaW9uLgoKCj5MYXN0IGJ1dCBub3QgbGVhc3QsIEFJIHN1Z2dlc3RzOgo+Cj4+IEBA
+IC0xOTE3LDggKzE5MTksMTAgQEAgc3RhdGljIHN0cnVjdCBza19idWZmICpyZWNlaXZlX3NtYWxs
+X3hkcChzdHJ1Y3QgbmV0X2RldmljZSAqZGV2LAo+PiAgCX0KPj4gIAo+PiAgCXNrYiA9IHZpcnRu
+ZXRfYnVpbGRfc2tiKGJ1ZiwgYnVmbGVuLCB4ZHAuZGF0YSAtIGJ1ZiwgbGVuKTsKPj4gLQlpZiAo
+dW5saWtlbHkoIXNrYikpCj4+ICsJaWYgKHVubGlrZWx5KCFza2IpKSB7Cj4+ICsJCXU2NF9zdGF0
+c19pbmMoJnN0YXRzLT5hbGxvY19mYWlsKTsKPj4gIAkJZ290byBlcnI7Cj4+ICsJfQo+PiAgCj4+
+ICAJaWYgKG1ldGFzaXplKQo+PiAgCQlza2JfbWV0YWRhdGFfc2V0KHNrYiwgbWV0YXNpemUpOwo+
+VGhlIGNvbW1pdCBtZXNzYWdlIHNheXMgdGhlIHBhdGNoIGNvdW50cyAiYnVmZmVyIGFuZCBza2Ig
+YWxsb2NhdGlvbgo+ZmFpbHVyZXMgb24gdGhlIHJ4IHF1ZXVlIiwgYW5kIHRoZSB1QVBJIGRlc2Ny
+aXB0aW9uIGluCj5Eb2N1bWVudGF0aW9uL25ldGxpbmsvc3BlY3MvbmV0ZGV2LnlhbWwgZm9yIHJ4
+LWFsbG9jLWZhaWwgc2F5cyAiTnVtYmVyIG9mCj50aW1lcyBza2Igb3IgYnVmZmVyIGFsbG9jYXRp
+b24gZmFpbGVkIG9uIHRoZSBSeCBkYXRhcGF0aCIuICBDYW4gc2V2ZXJhbAo+YWxsb2NhdGlvbiBm
+YWlsdXJlIHNpdGVzIG9uIHRoZSBzYW1lIGRhdGFwYXRoIHN0aWxsIGJlIG1pc3NlZD8KPkluIHRo
+aXMgc2FtZSBmdW5jdGlvbiB0aGUgZWFybGllciBidWZmZXIgYWxsb2NhdGlvbiBmYWlsdXJlIGlz
+IG5vdCBjb3VudGVkOgo+CXhkcF9wYWdlID0geGRwX2xpbmVhcml6ZV9wYWdlKGRldiwgcnEsICZu
+dW1fYnVmLCBwYWdlLAo+CQkJCSAgICAgIG9mZnNldCwgaGVhZGVyX29mZnNldCwKPgkJCQkgICAg
+ICAmdGxlbik7Cj4JaWYgKCF4ZHBfcGFnZSkKPgkJZ290byBlcnJfeGRwOwo+YW5kIHhkcF9saW5l
+YXJpemVfcGFnZSgpIHJldHVybnMgTlVMTCBleGFjdGx5IG9uIGFsbG9jYXRpb24gZmFpbHVyZToK
+PglwYWdlID0gcGFnZV9wb29sX2FsbG9jX3BhZ2VzKHJxLT5wYWdlX3Bvb2wsIEdGUF9BVE9NSUMp
+Owo+CWlmICghcGFnZSkKPgkJcmV0dXJuIE5VTEw7Cj5UaGUgbWVyZ2VhYmxlIFhEUCBwYXRoIGhh
+cyB0aGUgc2FtZSBzaGFwZSBpbiByZWNlaXZlX21lcmdlYWJsZV94ZHAoKToKPm1lcmdlYWJsZV94
+ZHBfZ2V0X2J1ZigpIHJldHVybnMgTlVMTCB3aGVuIGl0cyBwYWdlX3Bvb2xfYWxsb2NfcGFnZXMo
+KSBjYWxsCj5mYWlscywgYW5kIHRoYXQgZ29lcyB0byBlcnJfeGRwIGNvdW50aW5nIG9ubHkgeGRw
+X2Ryb3BzL2Ryb3BzLgo+VGhlIEFGX1hEUCByZWNlaXZlIHBhdGggaXMgbm90IGluc3RydW1lbnRl
+ZCBhdCBhbGwuICB4c2tfY29uc3RydWN0X3NrYigpLAo+Y2FsbGVkIGZyb20gdmlydG5ldF9yZWNl
+aXZlX3hza19zbWFsbCgpIGFuZCB2aXJ0bmV0X3JlY2VpdmVfeHNrX21lcmdlKCksCj5mYWlscyBs
+aWtlIHRoaXM6Cj4Jc2tiID0gbmFwaV9hbGxvY19za2IoJnJxLT5uYXBpLCBzaXplKTsKPglpZiAo
+dW5saWtlbHkoIXNrYikpIHsKPgkJeHNrX2J1ZmZfZnJlZSh4ZHApOwo+CQlyZXR1cm4gTlVMTDsK
+Pgl9Cj5hbmQgeHNrX2FwcGVuZF9tZXJnZV9idWZmZXIoKSBkcm9wcyB0aGUgcmVtYWluaW5nIGJ1
+ZmZlcnMgd2hlbgo+bmFwaV9hbGxvY19mcmFnKCkgb3IgdmlydG5ldF9za2JfYXBwZW5kX2ZyYWco
+KSBmYWlscywgYWdhaW4gd2l0aG91dAo+dG91Y2hpbmcgYWxsb2NfZmFpbC4KPlNvIHdpdGggYW4g
+WFNLIHBvb2wgYm91bmQgdG8gYSBxdWV1ZSwgb3Igd2l0aCBhbiBYRFAgcHJvZ3JhbSB0aGF0IG5l
+ZWRzCj5saW5lYXJpemF0aW9uLCBjYW4gcngtYWxsb2MtZmFpbCBzdGF5IGF0IDAgd2hpbGUgbWVt
+b3J5IHByZXNzdXJlIGlzCj5hY3R1YWxseSBjYXVzaW5nIHRoZSBkcm9wcz8KPi0tIAo+cHctYm90
+OiBjcgo=
