@@ -1,139 +1,140 @@
-Received: from sg-3-43.ptr.tlmpb.com (sg-3-43.ptr.tlmpb.com [101.45.255.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E253433026
-	for <virtualization@lists.linux.dev>; Fri, 14 Aug 2026 08:02:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=101.45.255.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F17D4432BF1
+	for <virtualization@lists.linux.dev>; Fri, 14 Aug 2026 08:02:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786694545; cv=none; b=CsMIG1xUrecEBKOZF/tSmnL2Y2+AWOVZc/fuziS/AMTh/kinrwzLoG7rfnlqvE2r60oIqedzBh8LgNVzg6AuPGXGLrhhvhcY5ExzFGFZ47OFniUUBOgnLBDMHAv5ngS1KPI78BK73SAlps2Yt7Na2qvF5q4bovm5kQYMLnO2g0Q=
+	t=1786694558; cv=none; b=to7Ae60a8X1uqVMvv0z+1rL2qfneazD95RvdpxkQrIL0xdAqX3tmZfjY3FTrXriNDEp2FcB/l4o/zEkLNON57jRKnhQhlYutpy4sbyIacT5eXKDJkg/n2AcOJM0iX0Z2xVQbMDOONOfWLMSIe4R1RQLYWSpLVY4vaYXhvsA5yh4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786694545; c=relaxed/simple;
-	bh=Y2jZkZG5IdEinfxaABKa1bNtQfxrrDOJa1w7kxN9I5Y=;
-	h=References:Content-Type:Cc:In-Reply-To:To:Date:Subject:Message-Id:
-	 Mime-Version:From; b=rgp2ABbKhsZsWrS6cZTUf+UZ5l4ivVSttDwaDGHWQuDz6McjTqnbmrqX3ZICDXPWUDnAn3wqmvL+HEuJZhG3i2Yi+Ur/3A1lIlGynhR/tI6hOG6qWise/1SXod5Sn9+h+f+zyuaD6B/BrulKR0sstRuC2UJwf7ZPWjYT5S2RFD8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=fnnas.com; spf=pass smtp.mailfrom=fnnas.com; dkim=pass (2048-bit key) header.d=fnnas-com.20200927.dkim.feishu.cn header.i=@fnnas-com.20200927.dkim.feishu.cn header.b=L7/Sqr2Y; arc=none smtp.client-ip=101.45.255.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=fnnas.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fnnas.com
+	s=arc-20240116; t=1786694558; c=relaxed/simple;
+	bh=Vc1VdbJaZLwkkuXSzA3lP748RejM2wNnDWqBh3Asdxc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=vCG6m0S9CsPoxZ66ui168MIx92NmlcDVkggfiuDkhn426I7pjJrrKv9Q6r17llUAM3v7uhPN5s3/n7tMZPx0TZzAsP6wv7/yriJ0LzjkxKQq0FjNCU9e9iuUWExncdGR8NEy2APBoz4YU1O264IJqjIV0tYxVneClVFNfyXQu3o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LkjP6JmQ; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=fnnas-com.20200927.dkim.feishu.cn header.i=@fnnas-com.20200927.dkim.feishu.cn header.b="L7/Sqr2Y"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- s=s1; d=fnnas-com.20200927.dkim.feishu.cn; t=1786693811;
-  h=from:subject:mime-version:from:date:message-id:subject:to:cc:
- reply-to:content-type:mime-version:in-reply-to:message-id;
- bh=JbnLgklqOUcOfZtgfE8qoZAa4WQi1t4pHM8VNSJ95PY=;
- b=L7/Sqr2YloWcCd+CLuHsctvb17T7wRA1u8EeyL71rexTLznirImCcRNGShoamsifvNP838
- CY/EyFMwObsNum1JoF8LIjq/RFrSC8vStettKoF6i51yLAW07hcudtN3mivQCrsafYgAl4
- KkT7BYhMbbM5oNRcU+Nh6x34Y1KgWh9in+oxdMjmqF45CRc0eLxrise6z06fzJ7uQc/NuN
- 0y1mz0aUe8jnT/KsiQ+e1V3qFagpdJUZGm3swFRJLfIImlS3w1nJI9e2LTDiiVEW9uIaYp
- UatwlhWuY5fbRtuq6gNXTOQ7brg2wieqFZPdJEkCgsBRf04R6+onPRRTelpNfw==
-References: <20260811064744.1139446-1-yukuai@kernel.org> <20260811064744.1139446-3-yukuai@kernel.org> <20260814071232.GA9784@lst.de>
-Content-Type: text/plain; charset=UTF-8
-Received: from [192.168.1.104] ([39.182.0.156]) by smtp.feishu.cn with ESMTPS; Fri, 14 Aug 2026 15:50:07 +0800
-Cc: "Jens Axboe" <axboe@kernel.dk>, "Tejun Heo" <tj@kernel.org>, 
-	"Josef Bacik" <josef@toxicpanda.com>, 
-	"Johannes Weiner" <hannes@cmpxchg.org>, 
-	=?utf-8?q?Michal_Koutn=C3=BD?= <mkoutny@suse.com>, 
-	"Yu Kuai" <yukuai@fygo.io>, "Tao Cui" <cui.tao@linux.dev>, 
-	"Jan Kara" <jack@suse.cz>, "Ming Lei" <ming.lei@redhat.com>, 
-	"Jonathan Corbet" <corbet@lwn.net>, 
-	"Shuah Khan" <skhan@linuxfoundation.org>, "Coly Li" <colyli@fygo.io>, 
-	"Kent Overstreet" <kent.overstreet@linux.dev>, 
-	"Alasdair Kergon" <agk@redhat.com>, "Mike Snitzer" <snitzer@kernel.org>, 
-	"Mikulas Patocka" <mpatocka@redhat.com>, 
-	"Benjamin Marzinski" <bmarzins@redhat.com>, "Song Liu" <song@kernel.org>, 
-	"Li Nan" <magiclinan@didiglobal.com>, "Xiao Ni" <xiao@kernel.org>, 
-	"Pankaj Gupta" <pankaj.gupta.linux@gmail.com>, 
-	"Dan Williams" <djbw@kernel.org>, 
-	"Vishal Verma" <vishal.l.verma@intel.com>, 
-	"Dave Jiang" <dave.jiang@intel.com>, 
-	"Alison Schofield" <alison.schofield@intel.com>, 
-	"Ira Weiny" <iweiny@kernel.org>, 
-	"Andreas Gruenbacher" <agruenba@redhat.com>, 
-	"Matthew Wilcox" <willy@infradead.org>, 
-	"Andrew Morton" <akpm@linux-foundation.org>, 
-	"Chris Li" <chrisl@kernel.org>, "Kairui Song" <kasong@tencent.com>, 
-	"Kemeng Shi" <shikemeng@huaweicloud.com>, 
-	"Nhat Pham" <nphamcs@gmail.com>, "Baoquan He" <baoquan.he@linux.dev>, 
-	"Barry Song" <baohua@kernel.org>, 
-	"Youngjun Park" <youngjun.park@lge.com>, <cgroups@vger.kernel.org>, 
-	<linux-doc@vger.kernel.org>, <linux-kernel@vger.kernel.org>, 
-	<linux-block@vger.kernel.org>, <linux-bcache@vger.kernel.org>, 
-	<dm-devel@lists.linux.dev>, <linux-raid@vger.kernel.org>, 
-	<nvdimm@lists.linux.dev>, <virtualization@lists.linux.dev>, 
-	<gfs2@lists.linux.dev>, <linux-fsdevel@vger.kernel.org>, 
-	<linux-mm@kvack.org>
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20260814071232.GA9784@lst.de>
-User-Agent: Mozilla Thunderbird
-X-Lms-Return-Path: <lba+26a7ec8b1+184449+lists.linux.dev+yukuai@fnnas.com>
-X-Original-From: Yu Kuai <yukuai@fnnas.com>
-To: "Christoph Hellwig" <hch@lst.de>, "yu kuai" <yukuai@fygo.io>
-Date: Fri, 14 Aug 2026 15:50:04 +0800
-Subject: Re: [RFC PATCH v2 2/4] blk-cgroup: use a request_queue rhashtable for blkg lookup
-Message-Id: <f7350050-062a-4ced-9396-05ac33ac3e60@fnnas.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LkjP6JmQ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1786694555;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=xuTGLTHVcUVUR8K491MTuND5/r0LYsPN8mtppCx6Zuw=;
+	b=LkjP6JmQ1X3aG60uDRgK46fRi9ozhdu9p/Ik8EHjwPfUOC4sFqePJGgqd072gJQ08JbqtT
+	LNQVAAMHLKLpamVCQSRdeolLRsFSSfDbQSpgYNcLVJvG+pkpsaVCbo3BJXU4M2+5GuI3lE
+	acP9+nA9Z7Xi1IueExU6eSXEynHWl1o=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-255-Nsn94-zLNxKTxsn5u8XKuQ-1; Fri, 14 Aug 2026 04:02:34 -0400
+X-MC-Unique: Nsn94-zLNxKTxsn5u8XKuQ-1
+X-Mimecast-MFC-AGG-ID: Nsn94-zLNxKTxsn5u8XKuQ_1786694553
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-493fa6e28a7so7491195e9.1
+        for <virtualization@lists.linux.dev>; Fri, 14 Aug 2026 01:02:34 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786694553; x=1787299353;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=xuTGLTHVcUVUR8K491MTuND5/r0LYsPN8mtppCx6Zuw=;
+        b=K7ymFuF8H773pYAOscEmsFCYm9ECdKf3brDwGEWHaYfBxYj/P+cOCJZnIVokMIvUBQ
+         J84ddhzwBsmAO58OnRQl043Ox9D4ulbWnqVs/HyrlyjeosYC9feF09T2Lieo/Vh1vj/p
+         +bBz9mZGkme6ngCVMqF1s5M/2iIdrDdfpWQCbaSnaX4Eo1WD8DFi359vNaq0fRdZcV+N
+         7S0PT1CzrYGeidn1jEW/SGMczhabXUZiDVIwyw40FZ4YM/5q5Cb8hKRaXnoh06K38wKc
+         /cKCEDEqIfmxfIbLX+0QBVnRU7Dp8i4yeSLbGd+UY6mfKb33JRBN2XgUnwSTk8SpEv7S
+         iZ0Q==
+X-Forwarded-Encrypted: i=1; AHgh+RpIA9WCBrhEdCvQj8hmPskoN8XbbrhIPpAtjoK7ij0qCWTy1AYTMaITdDhWpa/SC4rHCL6Vt2izs+K60jbeEQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yzd3Hd918MZOA+kucK2zI4ZnxbgC08fFJLP1ythe+kuZQKJMyKn
+	GjcHVasmU5Q7cH17giVRDHPuEg0D3og9qn8JYCWQqeZteE6oAY0HEATfelFHDnta+snNYfZ/b/5
+	62NlYJIxz8o5BO/dA171BvqBKa6Dhz4kcvVCUrgks2zpzPkFNwCw8PHdCyUyQAd5WX7dh
+X-Gm-Gg: AR+sD11rB2kL5F+smtq+2RiDn7qCOf87rMJhFnLjlyVLlRCUIVLgWq/l8+dmOlL4l4S
+	sI9atMVJt+tyAUtrMM60u/LhHOA7NNFzfUMAGCp3+lwDhgHGZyZ+UcZMFDOfHI3SB9+0+G+1NY6
+	dWsw5jfj94i3kjB3fiQmShh7kRz6fxixDNlfrUBnEVFDjKRkqwAPlMOvKC0CQMev0Ya11XNwctZ
+	O9WxW2NmWazXeia110S8Gj2cGGzohHXC7/O/SK3BaKsN2v4r2H/CW6LtqQn3edwV7k/E8ZKFXEF
+	N/Yn4CQUsGmJvRjfjCa5zEw3rmXYgRxpOhcUwOvjJbjdow5L657CDVm5tbGAO8Cc4vu2SiZ1v2D
+	rGnlsQgUk15dZqRCXEVGOSQKUm/8j4OQaClFZSFlKViXYT1VRqRna
+X-Received: by 2002:a05:600c:3e15:b0:498:ee7:e407 with SMTP id 5b1f17b1804b1-49987999622mr51703125e9.17.1786694553399;
+        Fri, 14 Aug 2026 01:02:33 -0700 (PDT)
+X-Received: by 2002:a05:600c:3e15:b0:498:ee7:e407 with SMTP id 5b1f17b1804b1-49987999622mr51702145e9.17.1786694552788;
+        Fri, 14 Aug 2026 01:02:32 -0700 (PDT)
+Received: from sgarzare-redhat (host-82-53-135-154.retail.telecomitalia.it. [82.53.135.154])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49988adfbd5sm33234215e9.1.2026.08.14.01.02.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 14 Aug 2026 01:02:32 -0700 (PDT)
+Date: Fri, 14 Aug 2026 10:02:24 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Jia Jia <physicalmtea@gmail.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>, 
+	"Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>, 
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4 3/3] vhost/vsock: keep IOTLB across feature updates
+Message-ID: <an7KyotZ5vZOURu2@sgarzare-redhat>
+References: <20260814072903.124991-1-physicalmtea@gmail.com>
+ <20260814072903.124991-4-physicalmtea@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-Reply-To: yukuai@fygo.io
-From: "Yu Kuai" <yukuai@fnnas.com>
+MIME-Version: 1.0
+In-Reply-To: <20260814072903.124991-4-physicalmtea@gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: maPmx62Mp86a6AjUreBKpcS9CiFRLx2gAU6_CMdh2D0_1786694553
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-Hi=EF=BC=8C
-
-=E5=9C=A8 2026/8/14 15:12, Christoph Hellwig =E5=86=99=E9=81=93:
-> On Tue, Aug 11, 2026 at 02:47:42PM +0800, Yu Kuai wrote:
->> Keep q->blkg_list for ordered policy and scheduler walks. Initialize and
->> destroy the hash with request_queue, and remove the radix-tree preload
->> paths which are no longer needed.
-> Are these fast path operations?  Otherwise we can walk all rhashtable
-> entries without an extra list, but it might be slower.
-
-All users are from sysfs/cgroupfs API, I think they can be considered slow =
-path,
-however currently spinlock is held in these procedures, I think it's better=
- to
-convert them to blkg_lookup based iterate after spinlock is converted to th=
-e
-blkcg_mutex.
-
+On Fri, Aug 14, 2026 at 03:29:03PM +0800, Jia Jia wrote:
+>VHOST_SET_FEATURES is also used to update logging while a device is
+>running. When ACCESS_PLATFORM stays enabled, allocating a new empty
+>IOTLB on every call drops valid translations and forces avoidable
+>misses.
 >
->> @@ -191,10 +198,15 @@ static void blkg_release(struct percpu_ref *ref)
->>   {
->>   	struct blkcg_gq *blkg =3D container_of(ref, struct blkcg_gq, refcnt);
->>   	struct blkcg *blkcg =3D blkg->blkcg;
->>   	int cpu;
->>  =20
->> +	if (!list_empty(&blkg->q_node))
->> +		WARN_ON_ONCE(rhashtable_remove_fast(&blkg->q->blkg_hash,
->> +						    &blkg->q_hash_node,
->> +						    blkg_hash_params));
->> +
-> The list_empty case is for initialization failure?  Or can we end up
-> with that by other means?
-
-Yes, this is for initialization failure, blkg_alloc() failure after percpu_=
-ref_init(),
-or blkg_create() failure before rhashtable_insert succeed.
-
+>Initialize the device IOTLB only when one does not already exist.
 >
->> + * Lookup a blkg for the @blkcg - @q pair, whether it is online or dyin=
-g.
->> + *
->> + * Must be called in a RCU critical section.
->> + */
-> Please add must_hold and/or lockdep annotations for this instead of just
-> a comment.
+>Fixes: e13a6915a03f ("vhost/vsock: add IOTLB API support")
+>Signed-off-by: Jia Jia <physicalmtea@gmail.com>
+>---
+> drivers/vhost/vsock.c | 3 ++-
+> 1 file changed, 2 insertions(+), 1 deletion(-)
 >
-> Also maybe mention that this does not acquire a reference and the caller
-> must already hold one?
+>diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+>index b69c260eaeff..9142fa1143b2 100644
+>--- a/drivers/vhost/vsock.c
+>+++ b/drivers/vhost/vsock.c
+>@@ -869,6 +869,7 @@ static int vhost_vsock_set_features(struct vhost_vsock *vsock, u64 features)
+> 	    vsock->dev.iotlb)
+> 		vhost_clear_device_iotlb(&vsock->dev);
+>
 
-Perhaps it's more accurate that the blkg is pinned by IO or caller already
-hold one?
+Ah, okay, now I see why you did it in the other patch, but if we move 
+dev.iotlb checks in the functions we can still do that.
 
->
->
---=20
+>-	if ((features & (1ULL << VIRTIO_F_ACCESS_PLATFORM))) {
+>+	if ((features & (1ULL << VIRTIO_F_ACCESS_PLATFORM)) &&
+>+	    !vsock->dev.iotlb) {
+> 		if (vhost_init_device_iotlb(&vsock->dev))
+
+IIUC vhost_init_device_iotlb() handles the case where dev.iotlb is 
+already initialized and override it. Here we are preventing that.
+
+Will we do the same in vhost-net? If yes, all the callers will call 
+vhost_init_device_iotlb() with `dev.iotlb` NULL, so should we remove 
+that behaviour and add the check we are adding here inside the 
+vhost_init_device_iotlb()?
+
+Or there is an use case where vhost_init_device_iotlb() is called with 
+an already initialized dev.iotlb ?
+
 Thanks,
-Kuai
+Stefano
+
+> 			goto err;
+>-- 
+>2.34.1
+>
+
