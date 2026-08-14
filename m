@@ -1,133 +1,230 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from va-2-45.ptr.blmpb.com (va-2-45.ptr.blmpb.com [209.127.231.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DBC242D757
-	for <virtualization@lists.linux.dev>; Fri, 14 Aug 2026 07:53:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B15194189C2
+	for <virtualization@lists.linux.dev>; Fri, 14 Aug 2026 07:55:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.127.231.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786693991; cv=none; b=gThNuavyJ8l/ESJPWnFLOSX/7W7+x28x0nK8uzGvnjRFeS/U5+Xa4L7WABQ77j0QYBg48qzhCNE9VAt4Fr6/lN26WihAv2aVYj/j5JsdLhO4wXKck20kBsLpZRAMyZNdD9ZPZVmPcLcQM3eLONg//tLZFowy5gWqkKJM+q9+HjU=
+	t=1786694156; cv=none; b=EQxvOfafyhc0n5ECL0u/+pOXdIdVbjSZnAa5QuK7HKxRAC6ItgrlWl/fSC/Q6lIf/nCDLGNTVgcC41kO6444UzNkUI1ZH/0GZ+dPtYPKE1nOKYAYtPyTycdAlsMAxfrvEhWv2OVZnsdnY8MbUN/+Z9YTzlykiaOIZWodPIupqwc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786693991; c=relaxed/simple;
-	bh=H+L3QTFFkyCFXwrBvc0mOg6GVJz81+DSixh03RV0aKI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=WkCc6v0z6FNWT8jWphSIeKREZxUJFpErII+146olq/BXOC7gqYBIyjXElwsopginPWTY5ouSwsSzf+Rh/eIXb3ISBPPcCpr8H5ovTHpaVHgHxmxBoc6hLogHPNgNFuiOCALZkda2ahIALcCsQId9Z9vKLbxAOYY5qtNsksmYF/U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CFlSikGh; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1786694156; c=relaxed/simple;
+	bh=QFfjU+Q2WwZUl8Er+UJiH8Rzzjka7vbj49Vhc47ZS7k=;
+	h=Date:Message-Id:In-Reply-To:Content-Type:Cc:References:To:Subject:
+	 Mime-Version:From; b=N6Iv1aZGG7alyx6qb36I+XetK7PSlWyZY0FYA2AafCywDwjNyX0B94uVDQ7/UNyVzie8JnmaXYGQ12WblNtaBEOCdh6iyZGwgUpvuRT7hyBxCf7uddzoOfTd9xbgEZGuXobAF5Q0aBVuVZMYwDlWiuVL34XpjikmAgfnzSMwhlk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fygo.io; spf=pass smtp.mailfrom=fygo.io; dkim=pass (2048-bit key) header.d=fygo-io.20200929.dkim.larksuite.com header.i=@fygo-io.20200929.dkim.larksuite.com header.b=C+kIyFuY; arc=none smtp.client-ip=209.127.231.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fygo.io
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fygo.io
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CFlSikGh"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1786693988;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=IBgk91sGaugiFnpdKSnVzGaySlJCzjj+raiMAVYJqa0=;
-	b=CFlSikGhvTqCzK4HG0RzR72BSVA/9w3CBhywsL4rBi1aAWSFkJCR3vM0S/h7L/vzIRB56i
-	3IsPJIkd07yVFi8BuBf7WULku/RZ5voEFAwUOCFw1p+G4A6vBoVhD0JYRKSRn/L0+PR4Qi
-	iPOYQpxMQwvxPuvJAdU9T8vUyy5V7bM=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-297-LwAjfDzGNRW7CsdpwbUdVA-1; Fri, 14 Aug 2026 03:52:52 -0400
-X-MC-Unique: LwAjfDzGNRW7CsdpwbUdVA-1
-X-Mimecast-MFC-AGG-ID: LwAjfDzGNRW7CsdpwbUdVA_1786693972
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-49571407d1dso4896595e9.0
-        for <virtualization@lists.linux.dev>; Fri, 14 Aug 2026 00:52:52 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786693972; x=1787298772;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=IBgk91sGaugiFnpdKSnVzGaySlJCzjj+raiMAVYJqa0=;
-        b=KhFVTvnMYzAv1uRt6KIF3NsP8C4VcF6rHdVll96t+klS3horPYjiWr8nnM4lt8r70i
-         PJ8IunOYWyqx7Q86EZ9lkowT86agKKNB73S1NoyCzJwUMWcZPIlQZwZPkjmxgRTb12lh
-         0h5z5pOgsDMlsBQHH4UXal7sYdAH2slYJhKXzyfuflkwLeBKM/8Bh1UwP+HPrLH0N4Gp
-         DineDfRdm8FalbePBiXevrPrKzahVy08XNVP0sgEjg1C7khCRQayfE/LwFiH1vxLt+1r
-         vjo+14WfSthVw9a9ep+1oJJjumG/TBV/1wDuRnWU3WMeYL45UWm0PCJ3ZNIKt44gok7f
-         SDLA==
-X-Forwarded-Encrypted: i=1; AHgh+RoqL2wuXQQrEJjr+Jsg2nDO0CkACjnWTL2gjfotXjHdveHNfi0ZYIrSM0DjGHjcCzpy2VYOfZCgXaALY7w3zg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yze4jqJeuz8ROl4XzK9VwqSyPqALLZMcKLLe8RDgySQlgn995vM
-	R8NlbAYatlssIzpP7q+SXYzUD672PKSjXxGqcUlgpfiAixbDrNP2a2W+RDRPwARUb2DDQuyxCAn
-	f+oqwOKNNbz1lyrblhtDLL5oE5rVoP9zTxIEPhetIOK6FvdP0RYztwBxbCr76kNdaDw0q
-X-Gm-Gg: AR+sD10P8mFxYyhWHDbXovkliZjqPvFdHGcbCWXqwdZ83UyHk2b+mPa4SbazQEJTbXg
-	q9LN2BiHuMfdbzArxAdNSKlbcwsFnCEpPwPlCI7KeiAQv5qA7LiniDkhgdKbUGFIreCE6ph9Lpf
-	SrbxQWfzumTl7N2bvI+uBoMCK0dlGH+QpQNVsdjBhktPiiMqWmLcXPOO1LphR8/T1A4WWttLGZD
-	mIgyQGldxAqr0M5KwbmUL2s4Q/2gocxpKWKXPJBlxl52PN03MNfRA5PZb7ipNkc3RADDSgjbcUA
-	3N+AZt2GY0f+pBBXiY8aCBZwuJ8scWQcBcNKiZt9VaK9HgZhSoxbs2YZuk+nBFlia7KWApyCQyc
-	vkAhwfQwW25jXzy2B0vJ7WPSxrLKtpCMN519iuIeEdC1DXifQe/hZ
-X-Received: by 2002:a05:600c:1da8:b0:496:bbce:fc with SMTP id 5b1f17b1804b1-4998798467amr50729595e9.12.1786693971591;
-        Fri, 14 Aug 2026 00:52:51 -0700 (PDT)
-X-Received: by 2002:a05:600c:1da8:b0:496:bbce:fc with SMTP id 5b1f17b1804b1-4998798467amr50729125e9.12.1786693971141;
-        Fri, 14 Aug 2026 00:52:51 -0700 (PDT)
-Received: from sgarzare-redhat (host-82-53-135-154.retail.telecomitalia.it. [82.53.135.154])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49988b1d33asm33182265e9.10.2026.08.14.00.52.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 14 Aug 2026 00:52:50 -0700 (PDT)
-Date: Fri, 14 Aug 2026 09:52:44 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Jia Jia <physicalmtea@gmail.com>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>, 
-	"Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v4 0/3] vhost/vsock: fix device IOTLB feature lifecycle
-Message-ID: <an7JAlFpRVOiC4WQ@sgarzare-redhat>
-References: <20260814072903.124991-1-physicalmtea@gmail.com>
+	dkim=pass (2048-bit key) header.d=fygo-io.20200929.dkim.larksuite.com header.i=@fygo-io.20200929.dkim.larksuite.com header.b="C+kIyFuY"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ s=s1; d=fygo-io.20200929.dkim.larksuite.com; t=1786694034;
+  h=from:subject:mime-version:from:date:message-id:subject:to:cc:
+ reply-to:content-type:mime-version:in-reply-to:message-id;
+ bh=d5X4CvU+1L3LRx9eYxrJOuZyHPoADtah9tMj/5sRYWk=;
+ b=C+kIyFuY5Y/bvPNvTJ+xbcMYIkxz55i1ZKwol98/UpscSvJuvFaVOSKqHv6Bnold2SAj7X
+ wEvEvfW0Hs+HAvFSWDsyJXULpaid0K9t7Ln9ef3ZjBshUJGFAVdonZa07Wsx4zqeG0ngSv
+ xwJ2FuAdRcwP1MzmFBS/6kIxqx2QTVsZie8qipkEwVP2cy1qFIPjWfcNphITqAX8+2jExW
+ FU9IrXGFjOYNQYAu71ij7jqcgFhtWP/vFDy7Izw9T6fEfMLKcg06WmxvfqdLVbw4jNeukq
+ lTbMvfW4AQWdp5XD5KwG4wqN1MG7GV8FUb4rUe9QTYJlo4oPqZIZQ219AXkxsg==
+Received: from [192.168.1.104] ([39.182.0.156]) by smtp.larksuite.com with ESMTPS; Fri, 14 Aug 2026 07:53:53 +0000
+Date: Fri, 14 Aug 2026 15:53:44 +0800
+Message-Id: <d1d47b32-b746-42d1-a391-5e37d4e373fb@fygo.io>
+X-Original-From: yu kuai <yukuai@fygo.io>
+In-Reply-To: <20260814064537.GA9355@lst.de>
+User-Agent: Mozilla Thunderbird
+Content-Type: text/plain; charset=UTF-8
+Reply-To: yukuai@fygo.io
+Cc: "Jens Axboe" <axboe@kernel.dk>, "Tejun Heo" <tj@kernel.org>, 
+	"Josef Bacik" <josef@toxicpanda.com>, 
+	"Johannes Weiner" <hannes@cmpxchg.org>, 
+	=?utf-8?q?Michal_Koutn=C3=BD?= <mkoutny@suse.com>, 
+	"Yu Kuai" <yukuai@fygo.io>, "Tao Cui" <cui.tao@linux.dev>, 
+	"Jan Kara" <jack@suse.cz>, "Ming Lei" <ming.lei@redhat.com>, 
+	"Jonathan Corbet" <corbet@lwn.net>, 
+	"Shuah Khan" <skhan@linuxfoundation.org>, "Coly Li" <colyli@fygo.io>, 
+	"Kent Overstreet" <kent.overstreet@linux.dev>, 
+	"Alasdair Kergon" <agk@redhat.com>, "Mike Snitzer" <snitzer@kernel.org>, 
+	"Mikulas Patocka" <mpatocka@redhat.com>, 
+	"Benjamin Marzinski" <bmarzins@redhat.com>, "Song Liu" <song@kernel.org>, 
+	"Li Nan" <magiclinan@didiglobal.com>, "Xiao Ni" <xiao@kernel.org>, 
+	"Pankaj Gupta" <pankaj.gupta.linux@gmail.com>, 
+	"Dan Williams" <djbw@kernel.org>, 
+	"Vishal Verma" <vishal.l.verma@intel.com>, 
+	"Dave Jiang" <dave.jiang@intel.com>, 
+	"Alison Schofield" <alison.schofield@intel.com>, 
+	"Ira Weiny" <iweiny@kernel.org>, 
+	"Andreas Gruenbacher" <agruenba@redhat.com>, 
+	"Matthew Wilcox" <willy@infradead.org>, 
+	"Andrew Morton" <akpm@linux-foundation.org>, 
+	"Chris Li" <chrisl@kernel.org>, "Kairui Song" <kasong@tencent.com>, 
+	"Kemeng Shi" <shikemeng@huaweicloud.com>, 
+	"Nhat Pham" <nphamcs@gmail.com>, "Baoquan He" <baoquan.he@linux.dev>, 
+	"Barry Song" <baohua@kernel.org>, 
+	"Youngjun Park" <youngjun.park@lge.com>, <cgroups@vger.kernel.org>, 
+	<linux-doc@vger.kernel.org>, <linux-kernel@vger.kernel.org>, 
+	<linux-block@vger.kernel.org>, <linux-bcache@vger.kernel.org>, 
+	<dm-devel@lists.linux.dev>, <linux-raid@vger.kernel.org>, 
+	<nvdimm@lists.linux.dev>, <virtualization@lists.linux.dev>, 
+	<gfs2@lists.linux.dev>, <linux-fsdevel@vger.kernel.org>, 
+	<linux-mm@kvack.org>
+References: <20260811064744.1139446-1-yukuai@kernel.org> <20260814064537.GA9355@lst.de>
+To: "Christoph Hellwig" <hch@lst.de>, "yu kuai" <yukuai@fygo.io>
+Subject: Re: [RFC PATCH v2 0/4] blk-cgroup: store blkcg in bio before blkcg_mutex conversion
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-In-Reply-To: <20260814072903.124991-1-physicalmtea@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: nAVSVFElQ6vs1_gyJ_hQ9lvIgkwAFNygpNcL3i5a6Z0_1786693972
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Lms-Return-Path: <lba+26a7ec991+22c2d5+lists.linux.dev+yukuai@fygo.io>
+From: "yu kuai" <yukuai@fygo.io>
 
-On Fri, Aug 14, 2026 at 03:29:00PM +0800, Jia Jia wrote:
->vhost-vsock leaves the device IOTLB attached when userspace clears
->VIRTIO_F_ACCESS_PLATFORM. It also replaces an existing IOTLB with an
->empty one whenever a later feature update keeps ACCESS_PLATFORM enabled.
+Hi,
+
+=E5=9C=A8 2026/8/14 14:45, Christoph Hellwig =E5=86=99=E9=81=93:
+> What tree does this apply to?  I get failures both for Jens'
+> for-7.3/block and for-next trees in bfq-cgroups.c and bio.c
+
+Oh, just realize this set is cooked based on Jens' initial for-7.3/block
+branch. With the other set that is already applied:
+
+30d0c34b72f8 (HEAD -> block-7.3-blkg_list-rhashtable) blk-cgroup: move asyn=
+c bio punt state to blkcg
+1aa13cdcc027 blk-cgroup: store blkcg in bio instead of blkg
+058ff5f9c8ac blk-cgroup: use a request_queue rhashtable for blkg lookup
+fefb6604e496 blk-cgroup: wait for old blkgs to leave queue before disk rebi=
+nd
+f2690679ecf3 (for-7.3/block) blk-cgroup: factor policy pd teardown loop int=
+o helper
+ed3105cce735 blk-cgroup: skip dying blkg in blkcg_activate_policy()
+415bd622f1a3 blk-cgroup: fix race between policy activation and blkg destru=
+ction
+4cc0299aea5d blk-cgroup: protect q->blkg_list iteration in blkg_destroy_all=
+() with blkcg_mutex
+f5098b6bae76 (tag: v7.2-rc5, block-7.2) Linux 7.2-rc5
+
+I'll rebase to the latest for-7.3/block branch in the next version.
+
 >
->Patch 1 adds a common vhost helper that detaches the device IOTLB from
->all virtqueues, clears their metadata caches, drops queued IOTLB miss
->messages, and frees the old table after all virtqueues have released
->their pointers.
-
-In the v3 you mentioned that this could be used also in vhost-net and 
-maybe vhost-scsi. Would it be better to include the other patches in 
-this series as well, since we're basically fixing the same issues, or 
-have they already been merged?
-
+> On Tue, Aug 11, 2026 at 02:47:40PM +0800, Yu Kuai wrote:
+>> From: Yu Kuai <yukuai@fygo.io>
+>>
+>> This RFC remains a preparatory series for the blkcg_mutex conversion
+>> proposed in the related blkcg_mutex RFC v2 series [1].  That conversion
+>> moves queue-local blkg topology synchronization from q->queue_lock to
+>> q->blkcg_mutex, which is awkward while bios directly store queue-local
+>> blkg references.
+>>
+>> v1 made the stored bio association queue-independent by replacing bi_blk=
+g
+>> with bi_blkcg, but a bio-owned blkg reference still had to be recovered =
+by
+>> looking up the bio's blkcg and current request_queue.  Tao Cui reported =
+that
+>> cgroup removal deletes a dying blkg from the per-blkcg radix tree before=
+ a
+>> throttled bio drops its reference.  A later lookup for that pinned blkg =
+then
+>> fails, triggers the warning in bio_pinned_blkg(), and leaks the referenc=
+e.
+>>
+>> v2 makes request_queue the authoritative lookup owner before converting =
+the
+>> bio association.  A queue-owned rhashtable, keyed by the blkcg CSS ID, k=
+eeps
+>> dying blkgs discoverable until their references drain while q->blkg_list
+>> remains available for ordered walks.  The bio conversion then stores and
+>> pins the blkcg CSS, lazily creates a blkg only for users which need one,=
+ and
+>> uses lookup-only access for completion and accounting paths which alread=
+y
+>> own a blkg reference.  Async bio punt state is finally moved from blkg t=
+o
+>> blkcg so punting alone does not instantiate a queue-local blkg.
+>>
+>> Changes since v1:
+>>
+>>    - Add patch 1 to wait for every old blkg to leave q->blkg_list before=
+ a
+>>      shared request_queue is rebound, instead of treating root_blkg =3D=
+=3D NULL
+>>      as completion of asynchronous blkg teardown.
+>>    - Add patch 2 to replace the per-blkcg radix tree and lookup hint wit=
+h a
+>>      request_queue rhashtable keyed by blkcg->css.id, as suggested by
+>>      Christoph Hellwig.  Keep dying pinned blkgs in the hash until
+>>      blkg_release() so bio-owned references remain discoverable.
+>>    - Fold the v1 helper-only patch into patch 3, as suggested by Jan Kar=
+a and
+>>      Christoph Hellwig, and make bio_blkcg() naturally return NULL for a=
+n
+>>      unassociated bio.
+>>    - Rework patch 3 so blkg_lookup_create() acquires the bio-owned refer=
+ence,
+>>      falls back to a live parent when creation or tryget fails, and upda=
+tes
+>>      bi_blkcg when the returned blkg belongs to an ancestor.
+>>    - Make bio_blkg_lookup() lookup-only: it returns NULL unless BIO_BLKG=
+_REF
+>>      is already set.  Use bio_blkg() in the BFQ and IOCOST merge paths w=
+hich
+>>      may need to create a blkg, while keeping blk_cgroup_bio_start() and
+>>      completion paths lookup-only.
+>>    - Move CSS online-reference handling into
+>>      bio_associate_blkcg_from_css(), including fallback to the root blkc=
+g, so
+>>      bio_associate_blkcg() does not take a redundant reference.
+>>    - Keep the v1 async bio punt conversion as patch 4 and document that
+>>      async_bio_lock protects async_bios.
+>>
+>> Previous versions:
+>>    v1: https://lore.kernel.org/r/20260804065313.2092022-1-yukuai@kernel.=
+org
+>>
+>> Related series:
+>>    [1] RFC v2 blk-cgroup: protect blkgs with blkcg_mutex
+>>        https://lore.kernel.org/r/20260724123037.3004560-1-yukuai@kernel.=
+org
+>>
+>> Yu Kuai (4):
+>>    blk-cgroup: wait for old blkgs to leave queue before disk rebind
+>>    blk-cgroup: use a request_queue rhashtable for blkg lookup
+>>    blk-cgroup: store blkcg in bio instead of blkg
+>>    blk-cgroup: move async bio punt state to blkcg
+>>
+>>   Documentation/admin-guide/cgroup-v2.rst |   2 +-
+>>   block/bfq-cgroup.c                      |  16 +-
+>>   block/bfq-iosched.c                     |  19 +-
+>>   block/bio.c                             |  22 +-
+>>   block/blk-cgroup-fc-appid.c             |  10 +-
+>>   block/blk-cgroup.c                      | 348 ++++++++++++++----------
+>>   block/blk-cgroup.h                      |  82 ++++--
+>>   block/blk-core.c                        |   9 +-
+>>   block/blk-crypto-fallback.c             |   2 +-
+>>   block/blk-iocost.c                      |  12 +-
+>>   block/blk-iolatency.c                   |  11 +-
+>>   block/blk-ioprio.c                      |   2 +-
+>>   block/blk-throttle.c                    |   2 +-
+>>   block/blk-throttle.h                    |   2 +-
+>>   drivers/md/bcache/request.c             |   2 +-
+>>   drivers/md/dm.c                         |   2 +-
+>>   drivers/md/md.c                         |   2 +-
+>>   drivers/nvdimm/nd_virtio.c              |   2 +-
+>>   fs/gfs2/lops.c                          |   3 +-
+>>   include/linux/bio.h                     |  26 +-
+>>   include/linux/blk_types.h               |   9 +-
+>>   include/linux/blkdev.h                  |   2 +
+>>   include/linux/writeback.h               |   2 +-
+>>   mm/page_io.c                            |  13 +-
+>>   24 files changed, 357 insertions(+), 245 deletions(-)
+>>
+>>
+>> base-commit: f2690679ecf3a3151688ebef766dd2512ff95854
+>> --=20
+>> 2.51.0
+> ---end quoted text---
+>
+--=20
 Thanks,
-Stefano
-
->
->Patch 2 uses the helper when vhost-vsock clears ACCESS_PLATFORM. The
->acked_features update remains in the vhost-vsock-specific loop.
->
->Patch 3 avoids replacing an existing IOTLB when ACCESS_PLATFORM remains
->enabled across a feature update.
->
->Changes since v3:
->- move the IOTLB teardown helper from vhost-vsock into common vhost code
->- keep acked_features updates in the backend-specific loop
->- add the common helper as a separate first patch
->
->Jia Jia (3):
->  vhost: add helper to clear device IOTLB
->  vhost/vsock: discard IOTLB when ACCESS_PLATFORM is cleared
->  vhost/vsock: keep IOTLB across feature updates
->
-> drivers/vhost/vhost.c | 24 ++++++++++++++++++++++++
-> drivers/vhost/vhost.h |  1 +
-> drivers/vhost/vsock.c |  7 ++++++-
-> 3 files changed, 31 insertions(+), 1 deletion(-)
->
->-- 
->2.34.1
->
-
+Kuai
