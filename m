@@ -1,195 +1,377 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f172.google.com (mail-yw1-f172.google.com [209.85.128.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1FAF352C4F
-	for <virtualization@lists.linux.dev>; Fri, 14 Aug 2026 12:23:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78F62440A33
+	for <virtualization@lists.linux.dev>; Fri, 14 Aug 2026 13:34:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786710198; cv=none; b=AogiaZgApTS/394bf7qeUcVLE6tyHuq4NbgxuizkGCl+EAcIpbND44/vp26NM/A/afXxcTnbHynumfObvHlvItrpWf4LM2MwTooLWEbGm9OlS8nFG5oRN74q/5BWaiwNJ4kJyfqnqmZK6DLsGyYjOxg979VfT+aH1qBfhv2ZQEA=
+	t=1786714448; cv=none; b=sKz9ECTlKqoTpprRFcb4zzwNYKwOl+cuYiwrYA8qC1Hw08jm2JGPuMCINBDySUlf5IfNesuoxbuKhZG3Po88hme65C9VL1s32c7ERZZyslPGW250Ma3g0J4Bdj/r4D/TtnlGDyY7HZiUGNB6u2LMMZcxikYnBiAmmYIYGtGa8vk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786710198; c=relaxed/simple;
-	bh=PjgjwZnGgTn6iqnEiUJ3bPEVMifERR8pCitafp8p2xk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=MGzIR0Fh+q/9XOp9YrjywZ0VGdQte0LfZX9JutNarq9rVhZFE7i5jfEQDygI5BUqro/27Oqm+ax9XTOoR70hbOP7QQAyL+AgA8uFrntUNuBeWQm0bWbTsKGBwt5t9/pFUJDoLwWIR2LjLzHrrudbPdmbHeRrFEOQBQ+qJYIyxEY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NyfKtwFJ; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1786714448; c=relaxed/simple;
+	bh=KLPBe7MmMT+rRxR0SQnKlMKqxOvfblXjnlpnb8WUCTE=;
+	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
+	 Mime-Version:Content-Type; b=lsu3akyZedxhvF4IWpLOkOzDlxETRq+UdVN8FUervSNUiR4Kx9OF8lQemv8PKUliNwJLHqapibbFC6pewGpO7fKUU6HEgp0D32eEdXxK5wMvLinkTLxv/snQFpZ9UTlqx8p9+1PDEgrZD80Z1/RuA9sYUgbz/RLZuO/m5PYLP6Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=craiWU8M; arc=none smtp.client-ip=209.85.128.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NyfKtwFJ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1786710195;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=PdXWuErOvyDV9Y8ztCqoO/f6xuxZcnsGekDRRKOGqDQ=;
-	b=NyfKtwFJg40KApYJl7HMc5X/BHYsCfipWWJbE7G7rfTniXhpV3Nc6eTpW4ZuRC82N5pjW4
-	7A7BqGs5QBltHw9v7MohdKA1sku94li4uveIlVNoG6HJcML18GOgSnHYVNCy6MhphoHq+L
-	VaGxxw/XbM75XpoSmIFFnN349SGHZjQ=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-441--weuqWC-PeOQ6qpCHUF0vA-1; Fri, 14 Aug 2026 08:23:14 -0400
-X-MC-Unique: -weuqWC-PeOQ6qpCHUF0vA-1
-X-Mimecast-MFC-AGG-ID: -weuqWC-PeOQ6qpCHUF0vA_1786710193
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-495529a93f9so9511395e9.3
-        for <virtualization@lists.linux.dev>; Fri, 14 Aug 2026 05:23:14 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="craiWU8M"
+Received: by mail-yw1-f172.google.com with SMTP id 00721157ae682-8111c0c7561so12904777b3.3
+        for <virtualization@lists.linux.dev>; Fri, 14 Aug 2026 06:34:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1786714443; x=1787319243; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:mime-version:subject
+         :references:in-reply-to:message-id:cc:to:from:date:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=OJqvMkGymJf5lK4k8ANoduG6M5FSqz82g4dX9Jup2y4=;
+        b=craiWU8MeBOiKAUpfz1d3UmbC7L9HKy72r+V+TJsaDqQKlrLmW7BxHOUOYHwOL5eDI
+         eytkzxCNUxZXALtz9yV/OJozO4T5mKU43hwRFOWOSqOP3dmpbUUt2dKCe0rqDXnblN88
+         Pbx32xjxNYZhlC3xC1BA43wdEFSJ1FbkYT0YZugPL1H8LGpbcjYN2luojk5alk1OMhxo
+         W2ouN7ufVy23h5Z6DHGMetv+dzCeusMrtD1OfcjRwxD6SP25l2sEW70HQUIqMKOZhk1c
+         RIxl21vXXs2bbLC5wKJat0dQIEDRIt8SxOMKVHozbQJEc/NBX3cc4GYANWu1rH3wDkNW
+         9pGA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786710193; x=1787314993;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
+        d=1e100.net; s=20251104; t=1786714443; x=1787319243;
+        h=content-transfer-encoding:content-type:mime-version:subject
+         :references:in-reply-to:message-id:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=PdXWuErOvyDV9Y8ztCqoO/f6xuxZcnsGekDRRKOGqDQ=;
-        b=bAGNa3rllmXB4hsXAaQGrxHwALlqqoOeHgFo3OUM+Uh0Z3h2wnUDdaRfg/K/n7vSYt
-         tkXG9q3OaQMh1xRLyvJGglG0GfgjC0rEI/OAtujpsG5ct/lbdUHziEW8LvpYHv+sg04v
-         JNKrU1/tfkadqSMf2bZrWO1hZYhXlLIrPaum3NZPFEr/n3oasLpQxPOCkjbPoK3tXQbs
-         6IycUuUo9XZ2/JvritqSBhMjcmNAtteLIGZoBJB2I41HT1oqqE5SIaxPeFVXtI6nm7I6
-         DDQ2TtXvDO3gllnp0PdX//YZ1oBPeV1vAUs8pqy/r1bjlMV8Gw/WThIAl0SmZkwafDsV
-         uT/A==
-X-Forwarded-Encrypted: i=1; AHgh+RpX9qblIuKfye4ocmp7SBsZcLYC7e5YyaRr91dRRGKCDGsifrru57TA3PHVUZ26cMuVC7HbSNIZ6qNvcACrtg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzUBYW8NmnYh6x1xkAFVBRix0FQe1aH7YKqFxsWmK0gwrudiNGX
-	10ys5Ph9mmTyi/edTg6btVh0+CmPQsa8zQH2g0xaSfI3rvfa1gvrEo+0XroJNv5Wx3FqgORBNb0
-	aiI9k/PbkYazmklhC2aV0Luy1mKI9gT+qvQfk4eHxZM8mei2gMmJSAsuw3eW/sCUxfW7Q
-X-Gm-Gg: AR+sD13JlZVLWQGP9aUnzwZAmFF+GluLhd0Kmh/gXfZweQ4ecBt9uoQg2wteZ0krQ1Z
-	p2DUMIiLexTJtDsVM4OkVQUfAVb/DqCCw7trNKwK8+htatNWx2BAAb/LIMel6vlD9w49igLovwO
-	u3sjNXz1qlHjMpelFf9U/6MYRh5+1cbwbVuPZosztAIbJnJVa5iEhfTItyZsEqAvkwZdJk7hu8m
-	K5VqcSAl1N6jDBcYl1BddEKfO5oxKBtzU8+GLzZ0Gp0aDX8D2qA3cnoTlDMXxHWlOpxonKkkOPz
-	x+vKM4oy0tx725BaLjpR5yo7goFfCWYpUWcJJr0KYR6dTfBIEw5uDa2H7yDaXDnVE84wHCMnKWL
-	/7LZ7k298MGqrDZM2jerzuREOxd7vmxoP1UKWtn7RLB369Lvwbimd
-X-Received: by 2002:a05:600c:1d1e:b0:496:bbcb:b0bb with SMTP id 5b1f17b1804b1-49987992addmr59968695e9.18.1786710193302;
-        Fri, 14 Aug 2026 05:23:13 -0700 (PDT)
-X-Received: by 2002:a05:600c:1d1e:b0:496:bbcb:b0bb with SMTP id 5b1f17b1804b1-49987992addmr59967975e9.18.1786710192832;
-        Fri, 14 Aug 2026 05:23:12 -0700 (PDT)
-Received: from sgarzare-redhat (host-82-53-135-154.retail.telecomitalia.it. [82.53.135.154])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4815f2b27bfsm7763993f8f.23.2026.08.14.05.23.11
+        bh=OJqvMkGymJf5lK4k8ANoduG6M5FSqz82g4dX9Jup2y4=;
+        b=nXeWXpHXqoXhyggIBcnZ9isDXK45pgJ15ol7SU8Y3OxP+ISdNsHEnRqA7mir9DpFi8
+         Lrn/0zTAgNdzuwmqxWho1cJutL4diwjyE0Lz9Sfyu6cYY+alashuu+KanrXmIMmTwTxZ
+         JDjhFYLgbHPKwhjmujXZIEmSFHDXbou+pLnAfEBwoODp5kvwRC9RFc3AUcX9Cdpjh0Ti
+         lSNzTtLCdRD5duIlWWRV3hn09g3570+TK9ucM1egIJiymtkFPkIc/EIuaQ6PlMeuJiFr
+         IgOpjGBgZ7Yb4giA1NCVzZUAx4R7+r70a05z6QxVG42+Zinsw/TDa/IxaYJx9+/0ZL0g
+         kVNg==
+X-Forwarded-Encrypted: i=1; AHgh+Rq9Hu0RMLLJ2WVw3tdskp6yURWnaMf8VMldx2BDdctxEEJj14SHDF+U5Lt90IFQO897Q796NwZQ4psaOAeMiw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxigjt3aiEQfNOr2twzmsHXGhiCAXYvvghQeVirRZweFlvqGm1V
+	qa+nBMGi7r5qPFi6jC/V5CrvoXvXLmCyDk+ZU6gZWKuP7MkdWx+7ZrM8
+X-Gm-Gg: AR+sD11q/zPejjtflBuIzXvcBfwFb4+MZ+ktRL5uwpoXgCx4JDBHAElOoSF4iETkKHd
+	lrcVrPima+NS8ZYWSNChnlOez3eADilTHf/9guCGBfk76Hg+dYTwI/iAasdy1m/bbb1YvojvdMv
+	ASEH37qnsDjR663eLqX2izetaKXHMPqc7AQ3EgKBjvHCybgg+19eKX+kGlfEvvdDKCRLr23bDH6
+	sfUcbtznIMqHxuzOUUse8PYID9PYysKXuYcVF342YjtQQ87A/sOBbXSHELX0NysqynBTmSoSYW4
+	PKkMZLLinXOrEsIs0U8ug8AL/0e23lkfQZrsuFGKm2X9sTBi4tiQ71Tq0dx6jYvG2Dx8wHKD2uH
+	e5aaO9QPJ//SFifgW2Cl2M5MXjtB23M1HY7lOCR0H+WdO6YoskbmFYUzZXevPLOxQDkBgdAjZyu
+	ABecgCVqiSi90xu46IEUNLVTyJ3DUOOWD4dFoZXLCWDwsItPobfX+Y78nyo300LJypFyRNFYp1E
+	wFux9MLcuRpRj85rYgrF8+VmHluLOqWGQm+
+X-Received: by 2002:a05:690c:a6cc:b0:80b:9f4e:a70 with SMTP id 00721157ae682-837124de3b4mr18643737b3.26.1786714442899;
+        Fri, 14 Aug 2026 06:34:02 -0700 (PDT)
+Received: from gmail.com (250.4.48.34.bc.googleusercontent.com. [34.48.4.250])
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-836bc689e3asm12934997b3.17.2026.08.14.06.34.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 14 Aug 2026 05:23:12 -0700 (PDT)
-Date: Fri, 14 Aug 2026 14:23:05 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Daehyeon Ko <4ncienth@gmail.com>
-Cc: netdev@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, 
-	virtualization@lists.linux.dev, kvm@vger.kernel.org
-Subject: Re: [PATCH net] vsock/virtio: validate packet source for connected
- sockets
-Message-ID: <an7vDxDT-N6xi-3l@sgarzare-redhat>
-References: <20260813121236.2328599-1-4ncienth@gmail.com>
+        Fri, 14 Aug 2026 06:34:01 -0700 (PDT)
+Date: Fri, 14 Aug 2026 09:34:01 -0400
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+To: "Chia-Yu Chang (Nokia)" <chia-yu.chang@nokia-bell-labs.com>, 
+ Mirja Kuehlewind <mirja.kuehlewind@ericsson.com>, 
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: Jakub Kicinski <kuba@kernel.org>, 
+ "shaojijie@huawei.com" <shaojijie@huawei.com>, 
+ "shenjian15@huawei.com" <shenjian15@huawei.com>, 
+ "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>, 
+ "eperezma@redhat.com" <eperezma@redhat.com>, 
+ "jasowang@redhat.com" <jasowang@redhat.com>, 
+ "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, 
+ "mst@redhat.com" <mst@redhat.com>, 
+ "xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>, 
+ "pabeni@redhat.com" <pabeni@redhat.com>, 
+ "edumazet@google.com" <edumazet@google.com>, 
+ "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, 
+ "corbet@lwn.net" <corbet@lwn.net>, 
+ "horms@kernel.org" <horms@kernel.org>, 
+ "dsahern@kernel.org" <dsahern@kernel.org>, 
+ "kuniyu@google.com" <kuniyu@google.com>, 
+ "bpf@vger.kernel.org" <bpf@vger.kernel.org>, 
+ "netdev@vger.kernel.org" <netdev@vger.kernel.org>, 
+ "dave.taht@gmail.com" <dave.taht@gmail.com>, 
+ "jhs@mojatatu.com" <jhs@mojatatu.com>, 
+ "stephen@networkplumber.org" <stephen@networkplumber.org>, 
+ "xiyou.wangcong@gmail.com" <xiyou.wangcong@gmail.com>, 
+ "jiri@resnulli.us" <jiri@resnulli.us>, 
+ "davem@davemloft.net" <davem@davemloft.net>, 
+ "andrew+netdev@lunn.ch" <andrew+netdev@lunn.ch>, 
+ "donald.hunter@gmail.com" <donald.hunter@gmail.com>, 
+ "ast@fiberby.net" <ast@fiberby.net>, 
+ "liuhangbin@gmail.com" <liuhangbin@gmail.com>, 
+ "shuah@kernel.org" <shuah@kernel.org>, 
+ "linux-kselftest@vger.kernel.org" <linux-kselftest@vger.kernel.org>, 
+ "ij@kernel.org" <ij@kernel.org>, 
+ "ncardwell@google.com" <ncardwell@google.com>, 
+ "Koen De Schepper (Nokia)" <koen.de_schepper@nokia-bell-labs.com>, 
+ "g.white@cablelabs.com" <g.white@cablelabs.com>, 
+ Ingemar Johansson S <ingemar.s.johansson@ericsson.com>, 
+ "cheshire@apple.com" <cheshire@apple.com>, 
+ "rs.ietf@gmx.at" <rs.ietf@gmx.at>, 
+ "Jason_Livingood@comcast.com" <Jason_Livingood@comcast.com>, 
+ "vidhi_goel@apple.com" <vidhi_goel@apple.com>, 
+ Parav Pandit <parav@nvidia.com>, 
+ Willem de Bruijn <willemb@google.com>
+Message-ID: <willemdebruijn.kernel.c248a28f9c86@gmail.com>
+In-Reply-To: <PAXPR07MB7984ED42ED0849D3A9AB8C19A3DA2@PAXPR07MB7984.eurprd07.prod.outlook.com>
+References: <20260804213510.673084-1-chia-yu.chang@nokia-bell-labs.com>
+ <20260804213510.673084-2-chia-yu.chang@nokia-bell-labs.com>
+ <20260811173017.3d18dfdc@kernel.org>
+ <PAXPR07MB79849A3F1724DBB2DA8EA20AA3DC2@PAXPR07MB7984.eurprd07.prod.outlook.com>
+ <20260812155430.6ec81eec@kernel.org>
+ <PAXPR07MB7984E3E73868BF8966821C27A3DB2@PAXPR07MB7984.eurprd07.prod.outlook.com>
+ <CAF=yD-LQbndjPZiXcfA6fMp6msza_+YdzqqwyeUDVTdOCOHhDw@mail.gmail.com>
+ <47BE8A8A-F80C-4C30-BC95-C85FEBFFB606@ericsson.com>
+ <PAXPR07MB7984ED42ED0849D3A9AB8C19A3DA2@PAXPR07MB7984.eurprd07.prod.outlook.com>
+Subject: RE: [PATCH v5 net-next 1/2] net: update comments for SKB_GSO_TCP_ECN
+ and SKB_GSO_TCP_ACCECN
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-In-Reply-To: <20260813121236.2328599-1-4ncienth@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: -iKRPBUItrvZH8rDsD8lnHs9tKBqwA31Y9wUoumMLng_1786710193
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Mime-Version: 1.0
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 13, 2026 at 09:12:36PM +0900, Daehyeon Ko wrote:
->virtio_transport_recv_pkt() first looks up a socket using the full source
->and destination tuple.  If that misses, it falls back to a bound-socket
->lookup using only the destination address.  The fallback is needed for
->listening and connecting sockets, but it can also select an established
->socket that remains in the bound table.
->
->As a result, a packet from an unrelated source can be dispatched to a
->non-listening socket.  In TCP_SYN_SENT, a source-blind RESPONSE marks the
->selected socket established while retaining its original remote address.
->Subsequent RW packets can likewise be delivered through the
->destination-only fallback.
->
->This was reproduced with two capless processes under different UIDs.  The
->attacker discovered the victim tuple through unprivileged AF_VSOCK
->sock_diag and injected a chosen 16-byte payload into the victim established
->loopback socket.  The legitimate peer received none of those bytes.
+Chia-Yu Chang (Nokia) wrote:
+> > From: Mirja Kuehlewind <mirja.kuehlewind@ericsson.com> =
 
-I don't understand this, what it means? If the receiver doesn't receive
-those injected bytes, should be fine, no?
+> > Sent: Friday, August 14, 2026 10:57 AM
+> > To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>; Chia-Yu Chang=
+ (Nokia) <chia-yu.chang@nokia-bell-labs.com>
+> > Cc: Jakub Kicinski <kuba@kernel.org>; shaojijie@huawei.com; shenjian1=
+5@huawei.com; linux-rdma@vger.kernel.org; eperezma@redhat.com; jasowang@r=
+edhat.com; virtualization@lists.linux.dev; mst@redhat.com; xuanzhuo@linux=
+.alibaba.com; pabeni@redhat.com; edumazet@google.com; linux-doc@vger.kern=
+el.org; corbet@lwn.net; horms@kernel.org; dsahern@kernel.org; kuniyu@goog=
+le.com; bpf@vger.kernel.org; netdev@vger.kernel.org; dave.taht@gmail.com;=
+ jhs@mojatatu.com; stephen@networkplumber.org; xiyou.wangcong@gmail.com; =
+jiri@resnulli.us; davem@davemloft.net; andrew+netdev@lunn.ch; donald.hunt=
+er@gmail.com; ast@fiberby.net; liuhangbin@gmail.com; shuah@kernel.org; li=
+nux-kselftest@vger.kernel.org; ij@kernel.org; ncardwell@google.com; Koen =
+De Schepper (Nokia) <koen.de_schepper@nokia-bell-labs.com>; g.white@cable=
+labs.com; Ingemar Johansson S <ingemar.s.johansson@ericsson.com>; cheshir=
+e@apple.com; rs.ietf@gmx.at; Jason_Livingood@comcast.com; vidhi_goel@appl=
+e.com; Parav Pandit <parav@nvidia.com>; Willem de Bruijn <willemb@google.=
+com>
+> > Subject: Re: [PATCH v5 net-next 1/2] net: update comments for SKB_GSO=
+_TCP_ECN and SKB_GSO_TCP_ACCECN
+> > =
 
->
->After taking the socket lock, verify that packets for non-listening sockets
->come from the peer stored in remote_addr.  Listening sockets continue to
->accept packets from any source.
+> > Hi Willem,
+> > =
 
-IMO this description should be improved, it's quite hard to follow.
-This is an idea IIUC the issue:
+> > The current function of is SKB_GSO_TCP_ECN wrong. Fixing this causes =
+the regression.
+> > =
 
-   virtio_transport_recv_pkt() looks up sockets in two steps: first by
-   the full source and destination tuple in the connected table, then by
-   destination only in the bound table. The fallback is needed for
-   listening and connecting sockets, but it never validates the source
-   address in the packet header. Since sockets remain in the bound table
-   after connect(), a packet from any source can be dispatched to a
-   non-listening socket.
+> > Mirja
+> > =
 
-   An unprivileged process can discover the target tuple through AF_VSOCK
-   sock_diag (no capabilities required), send a forged RESPONSE to a
-   TCP_SYN_SENT socket to establish the connection, and then inject
-   arbitrary data through subsequent RW packets, all delivered via the
-   destination-only fallback.
+> > =
 
-   After lock_sock(), verify that the packet source matches the
-   remote_addr stored during connect().
+> > =
 
->
->Fixes: 06a8fc78367d ("VSOCK: Introduce virtio_vsock_common.ko")
->Cc: stable@vger.kernel.org
->Signed-off-by: Daehyeon Ko <4ncienth@gmail.com>
->---
-> net/vmw_vsock/virtio_transport_common.c | 10 +++++++---
-> 1 file changed, 7 insertions(+), 3 deletions(-)
->
->diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->index 8becad812..f73e0406a 100644
->--- a/net/vmw_vsock/virtio_transport_common.c
->+++ b/net/vmw_vsock/virtio_transport_common.c
->@@ -1822,11 +1822,15 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
->
-> 	lock_sock(sk);
->
->-	/* Check if sk has been closed or assigned to another transport before
->-	 * lock_sock (note: listener sockets are not assigned to any transport)
->+	/* Check if sk has been closed, assigned to another transport, or if the
->+	 * packet is from a different peer than the one connected to sk.  These
->+	 * properties could have changed before lock_sock.  Listener sockets are
->+	 * not assigned to any transport and accept packets from any peer.
+> > From: Willem de Bruijn <mailto:willemdebruijn.kernel@gmail.com>
+> > Subject: Re: [PATCH v5 net-next 1/2] net: update comments for SKB_GSO=
+_TCP_ECN and SKB_GSO_TCP_ACCECN
+> > =
 
-Please keeps changes minimal, why adding "These properties could have
-changed before lock_sock." and changing the phrase related to listener
-socket?
+> > On Thu, Aug 13, 2026 at 6:33=E2=80=AFAM Chia-Yu Chang (Nokia)
+> > <mailto:chia-yu.chang@nokia-bell-labs.com> wrote:
+> > =
 
-Also the new part is not clear IMO, we should explain why we are adding
-this new check, not what we are doing which is clear looking at the
-code.
+> > > On Wed, 12 Aug 2026 10:33:19 +0000 Chia-Yu Chang (Nokia) wrote:
+> > > > > > -     /* This indicates the tcp segment has CWR set. */
+> > > > > > +     /* For TX, this indicates that the first TCP segment ha=
+s CWR set, and
+> > > > > > +      * any subsequent segment in the same skb has CWR clear=
+ed. This flag
+> > > > > > +      * must not be used in RX, because the connection to wh=
+ich the segment
+> > > > > > +      * belongs is not tracked to use RFC3168 or AccECN. Usi=
+ng RFC3168 ECN
+> > > > > > +      * offload may clear CWR and corrupt ACE signal (CWR is=
+ part of it).
+> > > > > > +      * Instead, SKB_GSO_TCP_ACCECN shall be used to avoid C=
+WR corruption.
+> > > > > > +      */
+> > > > >
+> > > > > I still can't wrap my head around this TBH.
+> > > > >
+> > > > > SKB_GSO_TCP_ECN means RFC3168
+> > > > > SKB_GSO_TCP_ACCECN means AccECN
+> > > > >
+> > > > > If the HW can correctly detect cwr on first frame and then no c=
+wr and report that as ECN/RFC3168 - what's the problem? TSO will produce =
+the exact expected segment sequence.
+> > > > >
+> > > > > Is the program that if we re-GRO that frame in SW we end up wit=
+h
+> > > > > ECN+ACCECN on the same skb?
+> > > >
+> > > > Yes, this is the problem.
+> > > > The HW does not know whether the received packets belong to an RF=
+C3168 ECN flow or an AccECN flow on the RX path.
+> > > > For example, HW GRO may set SKB_GSO_TCP_ECN after observing that =
+the first packet has CWR=3D1:
+> > > >
+> > > > +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D+=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D+
+> > > > |     Packet id     | CWR flag |       Flag      | Flushed as SKB=
+ |
+> > > > +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D+=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D+
+> > > > |         0         |     1    | SKB_GSO_TCP_ECN |        0      =
+ |
+> > > > |         1         |     0    |         -       |        0      =
+ |
+> > > > |         2         |     1    |         -       |        0      =
+ |
+> > > > |         3         |     1    |         -       |        1      =
+ |
+> > > > +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D+=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D+
+> > > >
+> > > > If the aggregated skb is forwarded through a device using GSO, e.=
+g.,
+> > > > HW RX (GRO) -> veth TX (GSO), the SKB_GSO_TCP_ECN applies RFC3168=
 
-IMO we should just add something like this (feel free to change it):
+> > > > semantics. This means that only the 1st segment keeps the CWR fla=
+g
+> > > > while all subsequent segments have CWR cleared:
+> > > >
+> > > > +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D+=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D+
+> > > > |     Packet id     | CWR flag |
+> > > > +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D+=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D+
+> > > > |         0         |     1    |
+> > > > |         1         |     0    |
+> > > > |         2         |     0    |
+> > > > |         3         |     0    |
+> > > > +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D+=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D+
+> > > >
+> > > > This behavior is ok for RFC3168, since CWR is expected to appear =
+only
+> > > > once. However, for AccECN, CWR is part of the ACE signal and must=
+ be
+> > > > preserved across all segments.
+> > >
+> > > But this would be obviously a buggy HW-GRO implementation.
+> > > The rules for HW-GRO RFC3168 are -- ignore CWR on first segment (ho=
+st responsible for populating SKB_GSO_TCP_ECN), and CWR _must be 0_ for a=
+ll subsequent segments.
+> > >
+> > > > In the example above, the original CWR sequence was 1,0,1,1.
+> > > > But after re-segmentation it becomes: 1,0,0,0.
+> > > > This is why SKB_GSO_TCP_ECN should not be used in RX/GRO paths.
+> > >
+> > > We have extensive gro tests under
+> > > tools/testing/selftests/drivers/net/gro.py
+> > >
+> > > If you want to catch bad devices - add appropriate test cases there=
+.
+> > >
+> > =
 
-   Also verify the packet source: the bound-table fallback lookup
-   matches by destination only, so a non-listening socket can be
-   reached by a packet from an unrelated peer. Drop it unless the
-   source matches the peer the socket is connecting or connected to.
+> > I added a test case in patch 6f74bc8b6e8d related to the CWR flag.
+> > In that case, there are 5 packets with CWR values of 0, 1, 1, 0, and =
+0, and packets are flushed after the 1st, 3rd, and 5th packets.
+> > The gro.py uses this case in tools/testing/selftests/net/lib/gro.c to=
+ verify CWR behavior.
+> > But indeed, that does not cover whether SKB_GSO_TCP_ECN or SKB_GSO_TC=
+P_ACCECN shall be set during the GRO.
+> > So, a test might be added to verify the SKB_GSO_TCP_ECN or SKB_GSO_TC=
+P_ACCECN flags (if there is another suggested way, please let me know)?
+> > =
 
-> 	 */
-> 	if (sock_flag(sk, SOCK_DONE) ||
->-	    (sk->sk_state != TCP_LISTEN && vsk->transport != &t->transport)) {
->+	    (sk->sk_state != TCP_LISTEN &&
->+	     (vsk->transport != &t->transport ||
->+	      !vsock_addr_equals_addr(&src, &vsk->remote_addr)))) {
+> > > The comment as stated seems to be misleading - there's nothing wron=
+g with using the flag if the device follows the RFC3168 semantics correct=
+ly.
+> > >
+> > > And of course, adding a comment and hoping people will find it is m=
+uch weaker than adding tests.
+> > >
+> > > Again, maybe I'm missing what _actually_ doesn't work here.
+> > =
 
-Do we need to add the same check also in the VMCI transport?
+> > Before adding an extra test, we need to clarify the definition and us=
+ages of these flags.
+> > At the TX path, in tcp_gso_segment() of net/ipv4/tcp_offload.c, the S=
+KB_GSO_TCP_ACCECN flag is used to preserve the CWR flags for AccECN flows=
+.
+> > Otherwise, when without SKB_GSO_TCP_ACCECN (RFC3168 ECN or Non-ECN fl=
+ows), cwr will be cleared from the following packets.
+> > =
 
-Hyper-V seems different.
+> > For the RX path, unfortunately I do not find a clear rule of when SKB=
+_GSO_TCP_ECN shall be set except in include/linux/skbuff.h.
+> > Plus, the device usually does not track packets belonging to RFC3168 =
+ECN or ACCECN flows.
+> > So, my previous thought is to always use SKB_GSO_TCP_ACCECN in the RX=
+ path to avoid any potential CWR bleaching.
+> > =
 
-Thanks,
-Stefano
+> > This would be a case where AccECN support causes a regression for
+> > regular ECN handling, if that is no longer allowed to be coalesced.
+> > =
 
-> 		(void)virtio_transport_reset_no_sock(t, skb, net);
-> 		release_sock(sk);
-> 		sock_put(sk);
->
->base-commit: 9006c116dd111d457bf5d074990210f70a4ad2c8
->-- 
->2.54.0
->
+> > Most HW-GRO hardware out there today likely only supports ECN. In
+> > which case they can set SKB_GSO_TCP_ECN fine.
+> > =
+
+> > If AccECN flows cannot be differentiated from ECN flows, on such
+> > devices, does the admin have to disable HW-GRO with ECN if they care
+> > about preserving AccECN signals?
+> > =
+
+> > What does SW GRO do here?
+> =
+
+> Hi Willem,
+> =
+
+> Current SW GRO sets SKB_GSO_TCP_ACCECN when the flushed skb carries CWR=
+ in tcp_gro_complete():
+> if (th->cwr)
+>     shinfo->gso_type |=3D SKB_GSO_TCP_ACCECN;
+
+And I suppose it follows correct AccECN rules for coalescing.
+
+That is a performance regression from RFC 3168 ECN, as it allows for
+less effective coalescing. I have no intuition how much it will
+differ in practice.
+
+> =
+
+> For HW GRO of a legacy device that implementing RFC3168 semantics, sett=
+ing SKB_GSO_TCP_ECN seems reasonable.
+> However, such a device would not be able to preserve ACCECN signaling a=
+cross the GRO/GSO.
+> In that case, if preserving AccECN signaling is required, disabling HW =
+GRO may indeed be necessary.
+
+Right. And there currently is no kernel API to disable only ECN
+coalescing. NETIF_F_GRO_HW enables or disables HW-GRO entirely.
+Or even to signal whether a HW-GRO implementation is AccECN
+capable.
+
+Disabling HW-GRO can be a huge efficiency regression. I suspect
+many users will prioritize the efficiency over preserving the AccECN
+signal.
+
+That said, some devices may have other ways to configure such
+finer details of their HW-GRO, even though not available through
+Ethtool.
+
+> And I still think the SKB_GSO_TCP_ECN comment could be clarified.
+> For example, by stating that "RX GRO implementations which need to pres=
+erve CWR information across re-segmentation should use SKB_GSO_TCP_ACCECN=
+."?
+> =
+
+> Thanks!
+> Chia-Yu
+
 
