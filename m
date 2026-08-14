@@ -1,36 +1,36 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A5A03D47B8;
-	Fri, 14 Aug 2026 19:59:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0074C3E4C61;
+	Fri, 14 Aug 2026 21:22:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786737578; cv=none; b=uOktbTZ1LtoYumjNtRTKUCdqZhRnMQORe2Kdf2b0X4Rd8m4KcR6Mwe9YJoHdG6riSssQ0wDH+n8rDUF9Wc9qDdo1TezNmKfeJj1anbqqPUe5VsAiHOb5PmlYZwVrCUe+XQ2cp72w0p08R6JSAR346VK/NGuiHBh9YzGg7l1jmUA=
+	t=1786742524; cv=none; b=pAltMph2DO9A4y/KWrxMmOmp2LXD8Mueb5eFXFx39XgrmJbS7Edq29tJpReAfGQXD86LoZHk1t6jBg+eOiMPQlrtNOt2O37vGetVI5wXxIew4qY46IC1VGP91EdFRmuN9DzCT9ACV2c023z0qFEPeggoTUi35UqunwBvxY1zleI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786737578; c=relaxed/simple;
-	bh=e3GEkJSJUEFNA56THMAVxPhJnGgq55nQyBggPt/Y27I=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=gK/ZrdL4xQWCzNVXKkPtTYOXEt3ulf2p5IoPKF9sG/E/Tb1iezz0wfv+JXUcdmahhiVijBLZFfAlEPo5rrlqVhMFT3q7yD0yMv2sIedmq/dotnsgezN9guUjNSkuDJqqrS5FsUlR5ngpdWfOxS3DZpwU0yeXRnRW5oa09SwhLO8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=u7wvDfOz; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1786742524; c=relaxed/simple;
+	bh=Sdwy4fsW1rrgJc9P9RdMJgmx4Sf8jQJkOxzxA8zS+I8=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=A7JbGRPBhTNcSGPWhhZU0BnZ4GT4ZLhrYSNfTzwRuLj4ZRwjdyqoKQnVwhHUI7A4warswOpcRpOqfJEPFThZz/r+UXLqAkXQpbkPzyys1xRqIj1fpv8iKqF7cs8W+3oyfyUZvDR9J/4qt7stSzWRZyBw4sZQv6EeZ4OMoX0+Lvw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YOwMpOrw; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="u7wvDfOz"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id E68F4C2BCB3;
-	Fri, 14 Aug 2026 19:59:37 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YOwMpOrw"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 7DB15C2BCC7;
+	Fri, 14 Aug 2026 21:22:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1786737578;
-	bh=e3GEkJSJUEFNA56THMAVxPhJnGgq55nQyBggPt/Y27I=;
+	s=k20201202; t=1786742523;
+	bh=Sdwy4fsW1rrgJc9P9RdMJgmx4Sf8jQJkOxzxA8zS+I8=;
 	h=From:Date:Subject:To:Cc:Reply-To:From;
-	b=u7wvDfOzv3VN5RhTBftlqrS80hdfSkYT92oOKWvK1VsJhxzAJECvvGug5Kj7qaZVB
-	 YO5+kETVw2RPHUwR0a+UXuWzNDdOOFA1zYBpXOWmYe8ajc02AMze89ELmmy+qbKbS6
-	 rR4ph1D44M+6rSPfwHOQKuAEtgdeq0PWgfuDx4Wn/2OV5OhwJ2AW4Nhq8tYbgsCNUe
-	 0gycpf/W/zPMZ7J45v7T2PBwfxKcgAxHZ40ZPMdcMJvdCtReyl4GPCZKrlgH1fl50C
-	 ry+hWuf76UJE0lTWGv9TcryIwDLYFlYVe/rxVv7zmIlyGqQBtbPQqUVCvKSXf6DLsW
-	 hMb8scEigW0nA==
+	b=YOwMpOrw8L9qsKsvk3fwfx1mBnYSVlbMlWjQsj0tHgFrm93rNJOtaHIACe7+qZD34
+	 n+5rjuaUE7orfl62D2E2kPp3pTxWLhuryTVqp0M+vgw2HE9fbu9lIGss8GrOIF0127
+	 ZD8oxNYfa+6bCb5nCPTHjxZFLwX1U/XVMUg7tmIa0qrDmyVMn16m6Dt3tBxWOJfcUj
+	 D+8Xb0wWRKT4h+muOaa4vfFIYVTQyb8p3/qlZgggo6I+csvUhV7OSWX0nUtJDK16uu
+	 wdaFV4ch9H7pUNwOTkp5A2EzFVTGnQsMwQyfBt3PBlUEQ619Coy3aKejcvFITueYen
+	 KeXxOaO0RBG3A==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D3523C5B572;
-	Fri, 14 Aug 2026 19:59:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6823EC5CFCF;
+	Fri, 14 Aug 2026 21:22:03 +0000 (UTC)
 From: Benjamin Leggett via B4 Relay <devnull+benjamin.edera.io@kernel.org>
-Date: Fri, 14 Aug 2026 15:59:36 -0400
-Subject: [PATCH] drm/virtio: sync shmem backing on guest-bound transfers
+Date: Fri, 14 Aug 2026 17:21:55 -0400
+Subject: [PATCH v2] drm/virtio: sync shmem backing on guest-bound transfers
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -39,10 +39,11 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260814-virtgpu-from-host-sync-v1-1-814e3afb5b08@edera.io>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yWMQQ7CIBBFr9KwdmIhVYlXMS5goGUWQDPTNpqmd
- xd18Rcv+e/tSiJTFHXvdsVxI6FaGuhTpzC5MkWg0FiZ3lx7qwfYiJdpXmHkmiFVWUDeBcHq4IP
- B2wXtoJo8cxzp9Qs/no29kwieXcH0zQXO5zbIJAj/43F8AA6LuxyNAAAA
+Message-Id: <20260814-virtgpu-from-host-sync-v2-1-fa3910caf3e5@edera.io>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/4WOSw6CMBCGr0K6dpQiaOPKexgWfQwwC1oyxUZCu
+ LsFD+DiX3zJ/1pFRCaM4lGsgjFRpOAzVKdC2EH7HoFcZlGV1a1UsoZEPPfTGzoOIwwhzhAXb0F
+ JZ1xl741VtcjhibGjz1H8ajMbHREMa2+Hvc7xeMmCkaKFnzGbBopz4OU4k+Qe/bubJMg8XuNVd
+ 6YxpXqiQ9ZnCqLdtu0LAnTngeAAAAA=
 X-Change-ID: 20260814-virtgpu-from-host-sync-81dbd2c75c84
 To: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
  Dmitry Osipenko <dmitry.osipenko@collabora.com>, 
@@ -55,11 +56,11 @@ Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
  linux-kernel@vger.kernel.org, Sashiko AI review <sashiko-bot@kernel.org>, 
  Benjamin Leggett <benjamin@edera.io>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1786737577; l=8547;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1786742522; l=10431;
  i=benjamin@edera.io; s=20260806; h=from:subject:message-id;
- bh=4hKNfIPVOkjwHDAteH2YUkkO1h3jt9wixwZKxEbzZfs=;
- b=KIP055KX66Qbm+feLcTCwQ3AFaNxkjfREBqf8+UY21Fyfk19gHX2bc1Wpjtzz/3ON3PFURe1c
- P8KOlFpr4FfBnzz+5gKX57kll7DtsyKUMyCX/JUxnItCmIh7Il7f/zf
+ bh=Q48RitstjVkcmNz3grfIAtP0/bAL8w0Cxpw+3k9Fn6c=;
+ b=uleENpmff90A1ssc7GyWl1gtU0zp1W7/ug4AxedIFDGOzapqXg/9y0+ytyy0k8MwolUuD00RF
+ Dc3J5lCLD+YB0hv7GAgrDepGwcRjJbn+d1yqzpB/qnHCpQvlqP7yghF
 X-Developer-Key: i=benjamin@edera.io; a=ed25519;
  pk=prj3m3DtYeYw1akLHnM/sXm8eau0Ar/IO93YoYnOr+I=
 X-Endpoint-Received: by B4 Relay for benjamin@edera.io/20260806 with
@@ -136,6 +137,10 @@ lost, where before it survived and the transfer was lost instead. Priming
 captures the pages as of queueing, so a write landing before completion is
 overwritten by the sync.
 
+- TRANSFER_TO_HOST can also block now, but only while a guest-bound
+transfer on the same resource is outstanding, which the flag confines to
+callers that issue both without waiting.
+
 - Where a batch of completions contains a guest-bound transfer, the sync
 pass delays fence signalling for the whole batch. Only bounced pages are
 copied and the swiotlb pool bounds it. A batch with no such transfer is
@@ -152,16 +157,29 @@ Signed-off-by: Benjamin Leggett <benjamin@edera.io>
 This depends on 6a736d2f9d0c ("drm/virtio: use the DMA API for resource backing on Xen"), currently in
 drm-misc-fixes only, so it needs to go through the same branch.
 ---
- drivers/gpu/drm/virtio/virtgpu_drv.h   |  3 +++
- drivers/gpu/drm/virtio/virtgpu_ioctl.c | 19 +++++++++++++++++++
- drivers/gpu/drm/virtio/virtgpu_vq.c    | 30 ++++++++++++++++++++++++++++++
- 3 files changed, 52 insertions(+)
+Changes in v2:
+- drm/virtio: add guard on virtio_gpu_transfer_to_host_ioctl.
+- Link to v1: https://lore.kernel.org/r/20260814-virtgpu-from-host-sync-v1-1-814e3afb5b08@edera.io
+---
+ drivers/gpu/drm/virtio/virtgpu_drv.h   |  5 +++++
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c | 40 ++++++++++++++++++++++++++++++++++
+ drivers/gpu/drm/virtio/virtgpu_vq.c    | 37 +++++++++++++++++++++++++++++++
+ 3 files changed, 82 insertions(+)
 
 diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index 626aadf680bd..550c732947f6 100644
+index 626aadf680bd..5faff0d1861d 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
 +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -192,6 +192,9 @@ struct virtio_gpu_vbuffer {
+@@ -114,6 +114,8 @@ struct virtio_gpu_object {
+ 	bool dumb;
+ 	bool created;
+ 	bool attached;
++	/* a guest-bound transfer is queued and its mapping not yet synced */
++	bool from_host_pending;
+ 	bool host3d_blob, guest_blob;
+ 	uint32_t blob_mem, blob_flags;
+ 
+@@ -192,6 +194,9 @@ struct virtio_gpu_vbuffer {
  	struct list_head list;
  
  	uint32_t seqno;
@@ -172,7 +190,7 @@ index 626aadf680bd..550c732947f6 100644
  
  struct virtio_gpu_output {
 diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index 3d8e4ccdb7c1..88320275eadb 100644
+index 3d8e4ccdb7c1..a041b8e336e9 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
 +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
 @@ -261,6 +261,25 @@ static int virtio_gpu_transfer_from_host_ioctl(struct drm_device *dev,
@@ -201,11 +219,39 @@ index 3d8e4ccdb7c1..88320275eadb 100644
  	fence = virtio_gpu_fence_alloc(vgdev, vgdev->fence_drv.context, 0);
  	if (!fence) {
  		ret = -ENOMEM;
+@@ -320,6 +339,27 @@ static int virtio_gpu_transfer_to_host_ioctl(struct drm_device *dev, void *data,
+ 		if (ret != 0)
+ 			goto err_put_free;
+ 
++		if (READ_ONCE(bo->from_host_pending)) {
++			/*
++			 * A transfer the other way has queued but not yet
++			 * synced its mapping. Pushing the guest pages into it
++			 * now would discard what the device wrote there, so
++			 * wait for that sync: it runs before the fence it
++			 * belongs to is signalled. The flag is only set under
++			 * this reservation, so it cannot appear behind our
++			 * back; a stale read merely waits for nothing.
++			 */
++			long wait = dma_resv_wait_timeout(objs->objs[0]->resv,
++							  DMA_RESV_USAGE_WRITE,
++							  true,
++							  MAX_SCHEDULE_TIMEOUT);
++
++			if (wait < 0) {
++				ret = wait;
++				goto err_unlock;
++			}
++		}
++
+ 		ret = -ENOMEM;
+ 		fence = virtio_gpu_fence_alloc(vgdev, vgdev->fence_drv.context,
+ 					       0);
 diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index 5e9b7b192db0..c419df8ff31f 100644
+index 5e9b7b192db0..0f5317f3da8a 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
 +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -256,6 +256,23 @@ void virtio_gpu_dequeue_ctrl_func(struct work_struct *work)
+@@ -256,6 +256,24 @@ void virtio_gpu_dequeue_ctrl_func(struct work_struct *work)
  	} while (!virtqueue_enable_cb(vgdev->ctrlq.vq));
  	spin_unlock(&vgdev->ctrlq.qlock);
  
@@ -223,13 +269,14 @@ index 5e9b7b192db0..c419df8ff31f 100644
 +
 +			dma_sync_sgtable_for_cpu(vgdev->vdev->dev.parent,
 +						 bo->base.sgt, DMA_FROM_DEVICE);
++			WRITE_ONCE(bo->from_host_pending, false);
 +		}
 +	}
 +
  	list_for_each_entry(entry, &reclaim_list, list) {
  		resp = (struct virtio_gpu_ctrl_hdr *)entry->resp_buf;
  
-@@ -1238,12 +1255,25 @@ void virtio_gpu_cmd_transfer_from_host_3d(struct virtio_gpu_device *vgdev,
+@@ -1238,12 +1256,31 @@ void virtio_gpu_cmd_transfer_from_host_3d(struct virtio_gpu_device *vgdev,
  	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(objs->objs[0]);
  	struct virtio_gpu_transfer_host_3d *cmd_p;
  	struct virtio_gpu_vbuffer *vbuf;
@@ -250,6 +297,12 @@ index 5e9b7b192db0..c419df8ff31f 100644
 +		dma_sync_sgtable_for_device(vgdev->vdev->dev.parent,
 +					    bo->base.sgt, DMA_TO_DEVICE);
 +		vbuf->sync_for_cpu = true;
++		/*
++		 * Set under the reservation the caller holds, so a transfer
++		 * the other way cannot miss it and push the guest pages into
++		 * the mapping while the device still owns it.
++		 */
++		WRITE_ONCE(bo->from_host_pending, true);
 +	}
 +
  	cmd_p->hdr.type = cpu_to_le32(VIRTIO_GPU_CMD_TRANSFER_FROM_HOST_3D);
