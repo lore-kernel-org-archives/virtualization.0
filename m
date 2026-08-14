@@ -1,158 +1,113 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BD6335E930
-	for <virtualization@lists.linux.dev>; Fri, 14 Aug 2026 09:04:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C56341930D
+	for <virtualization@lists.linux.dev>; Fri, 14 Aug 2026 09:04:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786698245; cv=none; b=ruAVvPqiMawWYUn2DGvGD8Y6QGhvhj6wgUgFhkLI55YoaStophNAMJ4WXLd3JXYS179ODO6/QSWlL2KWh6hYzwWC7NrLBFNDZNoGKYY5uqw5eSk0gkpqlLCSF66hRrsu7vXuUXLwPi7qvLnLSG4fx96wqCNuBYByIJ1VwmY5FHg=
+	t=1786698270; cv=none; b=nDBgOW2Biq/JQE2xAsgV2Un2sW1ZvzgmCX/jbIPraa/Nk0l5vImmv8Om6+gqfMS4tCFpIiqAq6bmWGgxBSkUUb6zXh4BT1BUwAFKa9axGms2Aa1c6KWbmH2ASQQc3KqcfMyuxX3bNblxJcn+CUmfTXqU2DCQ/c1pqPUHP3a0hok=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786698245; c=relaxed/simple;
-	bh=BJOf/NYSz5FG6Adem09lwkZwKWp2jY+TOiFmVjNC3eo=;
+	s=arc-20240116; t=1786698270; c=relaxed/simple;
+	bh=TVKuU78In4WxRZQ7vl+bTB0idxpevDUhM2Pvt8vSg4c=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=asLxaTzbXnscApJ4seFIz+7njOhaWtxf5VumEBTodGAYNrJX3nicvtpfWruOabaMLN6x3s+bJ5rDHQPMy6gJsKQIrvfE2uupzpVBloaU50s0UBIF2VD3cu32UK8zZFuKq/sg8LqnX+6ooNFxKImQGverzXv7XYAoC+TNyusRiw0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Xx/n3Bmp; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=tbhT+RcmNwdnts4Zpv/XPVEaNyX3BO9D7PpOoXFX3q+x07dMXiF2I9tovwRJVxQb9NjVRMAvu70QijqWsIOuY0rSmqV8YGmGdEWwWq/hMIxc6fHVMrzirxuoLUoUXB+CGcj/Er7oj6XW72uCpRYrqvUMrx3P+YsJ/pBl2s2Ad+8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WOx653Dv; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Xx/n3Bmp"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WOx653Dv"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1786698242;
+	s=mimecast20190719; t=1786698267;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=2zwZEotU4Mzq+YNLMdkEnsd0V5EVOvlW1UTGUzYHRYk=;
-	b=Xx/n3BmpbSn7GiifkMVAcEfFk+prkbP/3cieyqNUwuHbTk2wOfgxltn81SsTEYC5LRUW2H
-	VGl2IoH4Nd0+y6gwos7ApgHXHPpMSwKng6yybFdNA2kyxplCY34iZciGVID+X3ES5Y8wH9
-	enprjmnR0AlZIOVdFxFQxtNRF/MXD+c=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=331Qtlk7U5woKtN1s72ENWMljrsHjQpeFCMNumZM9Pc=;
+	b=WOx653Dv4CxbYaHkK/PwLPs0giyHoL0qAIm1pvOsE2kGCyAbZNJ6/+GurYLTkp962L/olB
+	WtzvjQ28S/sPehzJVucAWQ88aj7A2AZR9ZbytO4vrtc8taHM8hQAlCPVcCrQD2gmPugz26
+	VO3u3VEnCUZlKMpBxIK46pXewAUW2Us=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-260-u2j1vv_hMrWZ6HuNyOkuSw-1; Fri, 14 Aug 2026 05:04:01 -0400
-X-MC-Unique: u2j1vv_hMrWZ6HuNyOkuSw-1
-X-Mimecast-MFC-AGG-ID: u2j1vv_hMrWZ6HuNyOkuSw_1786698240
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-47d81cf0c4cso444031f8f.2
-        for <virtualization@lists.linux.dev>; Fri, 14 Aug 2026 02:04:01 -0700 (PDT)
+ us-mta-347-PXJ3M0LdPs2_ZUX8-VA10Q-1; Fri, 14 Aug 2026 05:04:26 -0400
+X-MC-Unique: PXJ3M0LdPs2_ZUX8-VA10Q-1
+X-Mimecast-MFC-AGG-ID: PXJ3M0LdPs2_ZUX8-VA10Q_1786698265
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-47f753a0aa0so440915f8f.3
+        for <virtualization@lists.linux.dev>; Fri, 14 Aug 2026 02:04:26 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786698240; x=1787303040;
+        d=1e100.net; s=20251104; t=1786698265; x=1787303065;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=2zwZEotU4Mzq+YNLMdkEnsd0V5EVOvlW1UTGUzYHRYk=;
-        b=GaOK8w1DdI29OTj+fYV9ejTKCWPP8c7rDXekvYZ0JcY7q9agPsa/gtcvU696MLUP8g
-         PIr4KsEdZvdMyGkttLNfeVT70i2Fo7d/Pb/PF1AgeO9RC08plzSeiwVedSqoqU4hMaPx
-         j2fJ67l9J+VEQnMEcfbxUoclyIvUNSX7KoskhjI9plrIS1DM1LiJBUYwX+ZUMMJMnfD6
-         E8lM+TJ8UhTy9+wf0YEbnrgVhp99L4U8eodU+Jp6sExsNYRDAH2odzL+4GcaLeyVt7Ly
-         QYsJAzLzk/DqZMtrDKSqWhoaRxQOQcOrQ+Q/LAUompTPj8hMX7Rua/sEZ2wDeWtEyIrj
-         DtkQ==
-X-Forwarded-Encrypted: i=1; AHgh+Rrq44TNiNkFmSeCf51oQ8G00WRSLMHlwV0Dm1UnxY9pkWHKYEpLhf7s7H8Wjeum2yis5XYlSy+jdAvR5pJttQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YybK/1/UoXGPdnI/GLq7Rf1hwGG0BB7AKnNGFxrG8ZuavbYg5tp
-	MK0YGlrmcNF/ME5sUXRsG75pnDew7NjYOGhMEzhrW23kNPz9wM9fG+KJVBPuokvp8KDJUHk4Nhg
-	PNn3SfnR5EfugtB09WDqa1p/aFMdF553HO337ar4/VC0jc2otz/HHTqi2BLRIN/ytoixY
-X-Gm-Gg: AR+sD11A6bTOxc4h1w3gyNphv02cDEjt/SlVsy7O+of8UmhasyZmst9IDlxksIL82Di
-	XrPB6TjxsVRSiIwYnYGzSXooYJHXD6zdH7DtO5DcYjma7ith4Yxd6vjOv1AG+u809da5GE5Eiyo
-	jS8hs40V7BHckWoWLo4/nO7QmMUn9mG1vmS7xubycz80N50egCZbLEA1xZDUpLFZjDI1x1Wekfp
-	qOw2NUgLT+bhuJw1cG+JKePrixtCt5PD7Vwzm2EN3ftVRP3WB3pohusscLktrk1QLDNNSKSJhp7
-	GcWdz/tgKFMcWEJ05LXG7JGQPkEB+Qyzd0qpbdhFDGBa+l0LhFET9+4FYHSecU2C8vWQUi6IbWX
-	Z0c9xTAsniZfGqCUTMKZbnnmjpt/hnwsFUZkXI3V/DmMcHl6MJ21U
-X-Received: by 2002:a05:600c:4688:b0:499:8807:345f with SMTP id 5b1f17b1804b1-49988073627mr38667075e9.13.1786698240070;
-        Fri, 14 Aug 2026 02:04:00 -0700 (PDT)
-X-Received: by 2002:a05:600c:4688:b0:499:8807:345f with SMTP id 5b1f17b1804b1-49988073627mr38665965e9.13.1786698239643;
-        Fri, 14 Aug 2026 02:03:59 -0700 (PDT)
+        bh=331Qtlk7U5woKtN1s72ENWMljrsHjQpeFCMNumZM9Pc=;
+        b=isDD1lM7Yv70Pfnv4tTfm8EOhwjw6OZ3NPJz3LSDH1Lh+aVP6U6JheJKB1yRaCQ6lH
+         sT03ClUzWabz/ozwQC9rXRcHSVe0zfjWqVWBWv02RY1O8EeHxKbfLUDeMm6x3Uh8MvMr
+         JAFuVC90e2hAXJvbC1u/tF/5E9LW2hfs3qAgph7dn57KBkeR6DXGy52B/6Oftdbk7Di4
+         btIcjQRnWL6Xm5gInFBH+2m8PhQcsfh2Dypbzg52mnGNzDN0WEychx8pe+zyMSlgG/5I
+         cA5e9o9b3l8AMVEYettMNlcOMDyT2+qMV1SLbNFDd5l0hs5MWiMDkgKHOQBeMol6BYBM
+         LnQA==
+X-Forwarded-Encrypted: i=1; AHgh+Rr8d2WHkGfP/345yK8bqNLCDZ34CPvOiYQpZkH+6HohSso7aBGYldmPD4NglR4yTuPRrLG5w0WMtgRcUYlFog==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzSBK64QyHrTLwGwlCfz04rlX4nOs2a5cvRKby/eg1/rTv4H/tn
+	QizxliDMaN8kzVCSvyZD4UI+FXLZ0zpjq/O8jPXNrAudQmsiajORNNZVaQCYk9dQmhy6A07ushc
+	NYcdFaedkEvodqjwzxR9PVabRc23qUtulhXmK7CGX51cr6C4tW5bsqvzwSmBdBS9S3ix+
+X-Gm-Gg: AR+sD12iwcwWYLGbS/rOs6xeamQCw894q2bkLdnqIaVePJ0AX6i++cemL9X0rXZwa14
+	o2zuv8DhO1VufR8mtiXOUo8PiT2HdbX1oUSYyDbtcif1vl87wELZlE6xBVS6Ddl5i7sFOWFhbmd
+	/zo0UrhPSUx5BDEvjp2VpGe5zMnqa1ghmszqe8u2gqMI7BKfLb4Y8YW2xBvh1Nm84IBKh15gILF
+	wXzevn3g63vcQh1MYDCKWXx/iSmguDl64vkQAXlCMFYydW0ZtSGi8oRFb0U1C+TJapbeT5YO7JI
+	OLNnRWOYuuSD/6VHiDAYcZ9T5F5zQh3BIJeof9Isj5YqkeeFJMPE65nOvXQTYHj/YyJK2vMacu3
+	Sk64ExgujVzSuEcJrkDsqjoL3dKXIkBilZf7HlHnVG8ha+pOfUjkM
+X-Received: by 2002:a05:6000:250a:b0:47f:7e8f:d62d with SMTP id ffacd0b85a97d-48160732f09mr5564485f8f.10.1786698265190;
+        Fri, 14 Aug 2026 02:04:25 -0700 (PDT)
+X-Received: by 2002:a05:6000:250a:b0:47f:7e8f:d62d with SMTP id ffacd0b85a97d-48160732f09mr5564376f8f.10.1786698264582;
+        Fri, 14 Aug 2026 02:04:24 -0700 (PDT)
 Received: from sgarzare-redhat (host-82-53-135-154.retail.telecomitalia.it. [82.53.135.154])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49988b24746sm58416435e9.12.2026.08.14.02.03.58
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4815f1fff25sm10217805f8f.3.2026.08.14.02.04.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 14 Aug 2026 02:03:58 -0700 (PDT)
-Date: Fri, 14 Aug 2026 11:03:53 +0200
+        Fri, 14 Aug 2026 02:04:24 -0700 (PDT)
+Date: Fri, 14 Aug 2026 11:04:22 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Nguyen Dinh Phi <phind.uet@gmail.com>
 Cc: "David S. Miller" <davem@davemloft.net>, 
 	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	George Zhang <georgezhang@vmware.com>, Dmitry Torokhov <dtor@vmware.com>, Andy King <acking@vmware.com>, 
-	syzbot+1b2c9c4a0f8708082678@syzkaller.appspotmail.com, Michal Luczaj <mhal@rbox.co>, virtualization@lists.linux.dev, 
+	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, virtualization@lists.linux.dev, 
 	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v6 1/3] vsock: don't check the listener's sk_err in
- vsock_accept()
-Message-ID: <an7ZiFM2nmb6kn2_@sgarzare-redhat>
+Subject: Re: [PATCH v6 2/3] vsock: remove the now-unused rejected flag
+Message-ID: <an7aAsvcpoRd00ya@sgarzare-redhat>
 References: <20260813173024.2362935-1-phind.uet@gmail.com>
- <20260813173024.2362935-2-phind.uet@gmail.com>
+ <20260813173024.2362935-3-phind.uet@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260813173024.2362935-2-phind.uet@gmail.com>
+In-Reply-To: <20260813173024.2362935-3-phind.uet@gmail.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: arOTzVcn9MjkARWDUCRoPkXb8N7ZO1MEC1_25L1UhfQ_1786698240
+X-Mimecast-MFC-PROC-ID: Tx26jeTlCOWmNMIY0IOKE8ZC6XpNewT7KoIyoMAGGTE_1786698265
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
 
-On Fri, Aug 14, 2026 at 01:30:18AM +0800, Nguyen Dinh Phi wrote:
->Syzbot reported an issue which can be reproduced with these steps:
->	r0 = socket(AF_VSOCK, SOCK_STREAM, 0)
->	bind(r0, {VMADDR_CID_ANY, PORT})
->	connect(r0, {VMADDR_CID_LOCAL, PORT}) -> -1, EPROTO (self-connect)
->	listen(r0, backlog)                   -> 0
->	r1 = socket(AF_VSOCK, SOCK_STREAM, 0)
->	connect(r1, {VMADDR_CID_LOCAL, PORT}) -> 0
->	accept(r0)                            -> -1, EPROTO (stale sk_err)
+On Fri, Aug 14, 2026 at 01:30:19AM +0800, Nguyen Dinh Phi wrote:
+>After previous patch, the branch marking a socket rejected in
+>vsock_accept() is unreachable, and nothing ever sets vsk->rejected
+>elsewhere.
 >
->Basically, it creates a socket (r0) and triggers a self-connect after
->binding it. This self-connect fails with EPROTO because it loops back
->to r0 while the socket is still in the TCP_SYN_SENT state, causing it
->to be incorrectly dispatched to the connecting-client path. The
->unexpected packet type encountered there sets sk_err to EPROTO.
+>In fact, since commit d021c344051a ("VSOCK: Introduce VM Sockets"),
+>where `rejected` was introduced, there has never been a path that sets
+>sk_err on a listening socket, so that branch has been dead code since
+>the beginning.
 >
->After that, it invokes a listen() call on the same socket. This
->listen() call succeeds because the kernel's listening path never
->inspects or clears sk_err. Then, a new socket (r1) is created as a
->normal client and connects to r0. However, vsock_accept() rejects this
->incoming connection because the listener's sk_err still holds the
->EPROTO error from the earlier failed self-connect.
+>Therefore, we can remove the `rejected` field from vsock_sock structure.
 >
->This rejection causes the child socket created for r1's connection to
->never be freed on virtio or hyperv transports; only the VMCI transport
->implements pending_work to revisit and clean up a rejected socket.
->
->For a non-blocking connect(), vsock_connect() may return -EINPROGRESS
->immediately, and vsock_connect_timeout() can later set sk->sk_err
->asynchronously.
->
->Since no vsock transport ever sets sk_err on a socket while it is in
->TCP_LISTEN state, checking it in vsock_accept() serves no purpose and
->only carries forward errors left behind by earlier, unrelated
->connection attempts on the same socket. Remove the checks so accept()
->no longer rejects valid incoming connections because of a stale
->error, which also avoids the resource leak described above.
->
->Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
->Reported-by: syzbot+1b2c9c4a0f8708082678@syzkaller.appspotmail.com
->Closes: https://syzkaller.appspot.com/bug?extid=1b2c9c4a0f8708082678
->Suggested-by: Michal Luczaj <mhal@rbox.co>
+>Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
 >Signed-off-by: Nguyen Dinh Phi <phind.uet@gmail.com>
 >---
-> net/vmw_vsock/af_vsock.c | 10 +++-------
-> 1 file changed, 3 insertions(+), 7 deletions(-)
->
->diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
->index 622dbd046799..3cd5c3561be3 100644
->--- a/net/vmw_vsock/af_vsock.c
->+++ b/net/vmw_vsock/af_vsock.c
->@@ -1893,7 +1893,7 @@ static int vsock_accept(struct socket *sock, struct socket *newsock,
-> 	timeout = sock_rcvtimeo(listener, arg->flags & O_NONBLOCK);
->
-> 	while ((connected = vsock_dequeue_accept(listener)) == NULL &&
->-	       listener->sk_err == 0 && timeout != 0) {
->+		timeout != 0) {
-                 ^
-nit: I think the alignment is wrong, maybe if you need to respin you can 
-fix it
+> include/net/af_vsock.h   |  5 +----
+> net/vmw_vsock/af_vsock.c | 46 +++++++++++++---------------------------
+> 2 files changed, 16 insertions(+), 35 deletions(-)
 
-Anyway, this LGTM
+Thanks for improving the commit description!
 
 Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 
