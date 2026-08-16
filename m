@@ -1,124 +1,108 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f179.google.com (mail-pg1-f179.google.com [209.85.215.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C079346AE3;
-	Sat, 15 Aug 2026 06:16:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D3923DD51E
+	for <virtualization@lists.linux.dev>; Sun, 16 Aug 2026 10:27:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786774593; cv=none; b=IN0Y+ay2NkE8m2IzSFb1pISWVQelMKW0VzH006KKviohhDvhPrB6sIivu6oFv4hS6iu7lp1s4dcIn3cwA+ihzocu+bXSjrTmNMqizJMEa6/0U0QRzz5pndQPLQ+vM2AiQOgPOnCkJzuiKVI1Ibz9vys08wL5eWZlv8DfXr/IxK8=
+	t=1786876035; cv=none; b=fmzQMqYZ8yi7XZt8BVPdAOcbA+d9Obrnh+ovtyAfLC3DwpZfKu4IpTACAz9T68WmXBlBdCtm+cl1XNYObFmCrtRMIR12FNSyuZbOKOsxn1gKktUNgbTmCECmiiaMKVmnxmvuxRf20As10RH6Hc4oVWEzVyNHr+PPZg44hfZcQFE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786774593; c=relaxed/simple;
-	bh=IvccXk+JHDQI/jPZIKIPAYAFAKVkdiqnwotIh+CixBI=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=M3yvP2TJLFvjws+QrXzyh+63J2Pic335eNOpIY+h9l6SOLItUgD/XEcek4z8ym//B6+cI6ZlAGGJDEaeudkPoineyDd++RZtrOv16NtCB1rRnDs9BwpkVPKIfLwxAnrrZzEj+22PdrJhCxalNMRrRxgPdXfEJhOmW93W/eIbVGg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OEwUY1oG; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1786876035; c=relaxed/simple;
+	bh=MUhl6pyDa4/jlZ7yWjmBEuMvbCqtRmSqF9TiFB0Lmys=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=AQjPok/ITVntOXiPkybTP/xx5gNUH6bnQqjFKh+upxp9+eIaREM/NRC2RjSfHslqqw/xvgKc/i6raJzufz6Yl1fkTqaBG+6s/cWwrc1oLCXXNC6fooq8q2p1+Pu/v37cHRqxzcs6/b+Upev62F/zlRnclU3KRsW8sjlg4O7D5/c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=p1zjveBK; arc=none smtp.client-ip=209.85.215.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OEwUY1oG"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id D12E5C19425;
-	Sat, 15 Aug 2026 06:16:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1786774592;
-	bh=IvccXk+JHDQI/jPZIKIPAYAFAKVkdiqnwotIh+CixBI=;
-	h=From:Date:Subject:To:Cc:Reply-To:From;
-	b=OEwUY1oGw305MxYPeNlU9Ww+UykOdGB1z2MVN06pfnD8tEEVHCkzCefH7GtvTEbBG
-	 epkJgYlwmIeNx1E50RT7bJ8oWZv7BvzlqIr+xSF4/QL9ipCrQQAt9k2ShXVBhzXUi3
-	 U10486rV2px/wEEC+qXbEBI+b3bQN4rziUpTJDLEDrjSoT/5DeBx/fHW7IHZRESFFs
-	 cKvPdo/P/9/ufnwvcxDhvSu3Uep0axPoG5aWCYyUUkVHetgAVu6zEsT1/PhpfzwjxN
-	 mDnL7Oufpmeeig4MAqYvF/QGqBosTlL+MQ65OI1NTA9GgZmBEMzv4Xb6DE3J30x5o5
-	 Rp91rajQd7N8A==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ADA4BC5DF67;
-	Sat, 15 Aug 2026 06:16:32 +0000 (UTC)
-From: Junrui Luo via B4 Relay <devnull+moonafterrain.outlook.com@kernel.org>
-Date: Sat, 15 Aug 2026 14:16:29 +0800
-Subject: [PATCH] drm/virtio: fix object leak when drm_gem_handle_create()
- fails
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="p1zjveBK"
+Received: by mail-pg1-f179.google.com with SMTP id 41be03b00d2f7-c9cf07d2df6so1432267a12.2
+        for <virtualization@lists.linux.dev>; Sun, 16 Aug 2026 03:27:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1786876033; x=1787480833; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=PdkrMc9DhMp/prIWFy0w2tuUoEKS5220Jm/KkOhdl3M=;
+        b=p1zjveBKt89JhL+4tuo19icQcEJzr7Ey0Zra1qj0eejfQ8j4xpcCeQmiWfd50zJ8tJ
+         fZH1a8xv9KTPD0ZDlG+BiHnIBenenGvp2+UhbB9LKz9HiXoRje03R6YP6y7X2o9B7wuO
+         hnT3OtK4Ha5HW+DBFyJWHTYjg8Mc/DSONfWVyYT//026Lxw0YEloQA/SvfJViM6ptecr
+         DWZoRtWQH++0ElEhvjgpI8SLtmRuRAskfG9wG1m108avDhqolx1IXJ2mvVM/9jc4DyLs
+         TQQk2HD8CnBe1gmplwgASfOEMZyI6TCZmAafaoPWwmOjbsVGu8lWbTObCwk6zmqMaEih
+         yqsQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786876033; x=1787480833;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=PdkrMc9DhMp/prIWFy0w2tuUoEKS5220Jm/KkOhdl3M=;
+        b=YZhllROw4wwRFDzU7r75erC7lydrOm5GeRZN/F5EYszkI6yR/wKfJ4aMs6D//32jrO
+         /f3fSl04+aNYBHCaOHkZxj7yVWLAuf1g5jvmcNyuycebzoay4LAGkuNOBwnlLH5ExsOR
+         atZgF+pYCFs/+J4RSnxYDhZj4oh5pHrc80dDNjCCz3DQz7dkUAx+urX2n+I7Rk3u7Lgb
+         fv8W69gvA84DsyyxLQeUPokTAeJJd8EIDvPSrNlr76HL+zJyXLPLUMj3PXeIuFhSLMpX
+         nG39H6XMGZD1dmL1yzYF1OmCOl+Wgqp74s5KyVyXeIkC/zzSwMcYiofg1Tl8p937s1XO
+         KPpw==
+X-Gm-Message-State: AOJu0YxTt6IzZqIRjNUE3Zn801qYeNoI6CCRakCtOTwhO+LSxyM4wpGq
+	jstp1Qldq28x3xZ2BX7UyE5jLG4Qsuu8WOMmVZliYE27tlUMyrpqkBL7JjqOmPXW
+X-Gm-Gg: AR+sD12xEu0p28AW5xvVObc24z53J77QahQ4JG6jIgWnBGtYAlySAvwOv0zSP59JyKI
+	QUNDcH3ufn7zu7+6+6AYNxh28GFDNFZipfQm1NUoKpNV4itrAJ6dF27ASPhCxEtBokV+/ZyTZE+
+	ybI+4OpI01abp+GWitHsbyaL5bpfqw8OnAn1tWgSvm5Q0hPeggI3MEUVHQa7u8WEAfpNIvJxcr/
+	JEvRe9uBBG/be1VpwK6bmYJUqCa2K5oAw1PrFuJPUyrfMQdAvkD1b74TkOdBUW2w9TExMrWJ6JX
+	bxRFjiyIgIfDUNnZYuqTPX6HT57w2jk3anPjikUMkIzlHwfR6Z+rYgVinpMifDqfZoziieAAG72
+	Tgr2fVvkxDBgaGinefBquORMTybJL6buAZ7ChGoTQ4wKbTYgU1Ja9KvVWw1mXyRf4JbEoYRdnU8
+	VrG/3zE5l5t2/gJMbQxaiqodErLfPd7a8feXMpOjXmnEM6Gm/IxIs1oiyStTT4hvMjSyCHhfDqk
+	sQRei1DB6vuCeRgM+Q2Htu/Vdjz+aZG/QI=
+X-Received: by 2002:a05:6a20:94c8:b0:3c4:3b16:2979 with SMTP id adf61e73a8af0-3cc71d80e38mr18233699637.30.1786876033351;
+        Sun, 16 Aug 2026 03:27:13 -0700 (PDT)
+Received: from Debian.tail44843d.ts.net ([183.82.161.178])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-141387ed5b1sm49210284c88.8.2026.08.16.03.27.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 16 Aug 2026 03:27:12 -0700 (PDT)
+From: Mirza Ishan Beg <seedandsyntax@gmail.com>
+To: virtualization@lists.linux.dev
+Cc: linux-kernel@vger.kernel.org,
+	"Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Mirza Ishan Beg <seedandsyntax@gmail.com>
+Subject: [PATCH] virtio_pci_modern: replace msleep(1) with usleep_range(1000, 2000)
+Date: Sun, 16 Aug 2026 15:13:19 +0530
+Message-ID: <20260816094318.8083-2-seedandsyntax@gmail.com>
+X-Mailer: git-send-email 2.47.3
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260815-virtgpu-gem-create-leak-v1-1-a4e9fb18caa3@outlook.com>
-X-B4-Tracking: v=1; b=H4sIADwEgGoC/x3MywqDMBBG4VeRWXcgiSjBVyldhORvOnipTFQE8
- d0buvwW51xUoIJCQ3OR4pAi36XCPhqKn7BksKRqcsb1xtuOD9EtrztnzBwVYQNPCCP73pmutTG
- 1yVOtV8Vbzv/5+brvH6YzuTppAAAA
-X-Change-ID: 20260815-virtgpu-gem-create-leak-8620531cd3d8
-To: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
- Dmitry Osipenko <dmitry.osipenko@collabora.com>, 
- Gurchetan Singh <gurchetansingh@chromium.org>, 
- Chia-I Wu <olvaffe@gmail.com>, 
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
- Simona Vetter <simona@ffwll.ch>, Dave Airlie <airlied@gmail.com>, 
- "Michael S. Tsirkin" <mst@redhat.com>
-Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev, 
- linux-kernel@vger.kernel.org, Yuhao Jiang <danisjiang@gmail.com>, 
- Junrui Luo <moonafterrain@outlook.com>
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1922;
- i=moonafterrain@outlook.com; h=from:subject:message-id;
- bh=+H0YnFkWSIHfk+tlYOEarUiRI6w/1HSszt61Rigu8cs=;
- b=owJ4nJvAy8zAJVb4wiKgu++DA+NptSSGrAYW+5uftEubcjyFuTgt3/zke+oxsVxm+uVlDR+Ov
- ntW9q28+EhHKQuDGBeDrJgiy/GCS98sfLfobvHZkgwzh5UJZAgDF6cATOQpEyPDrUf3jI7cUH64
- fFbIp5JoqZAteyWnsL588s7K8dfODL1N5gx/+Na1zvoZ8zu24c3ia81MGx8VnU913n714DxV74R
- lktKVvABoRU6s
-X-Developer-Key: i=moonafterrain@outlook.com; a=openpgp;
- fpr=C770D2F6384DB42DB44CB46371E838508B8EF040
-X-Endpoint-Received: by B4 Relay for moonafterrain@outlook.com/default with
- auth_id=909
-X-Original-From: Junrui Luo <moonafterrain@outlook.com>
-Reply-To: moonafterrain@outlook.com
+Content-Transfer-Encoding: 8bit
 
-From: Junrui Luo <moonafterrain@outlook.com>
+Replace msleep(1) with usleep_range(1000, 2000) in the queue reset
+loops.
+msleep(1) relies on jiffies and can sleep up to 4-10 ms depending on HZ,
+whereas usleep_range provides predictable microsecond-level delay.
 
-virtio_gpu_gem_create() owns the reference taken by
-virtio_gpu_object_create(). On the drm_gem_handle_create() error path it
-calls drm_gem_object_release() instead of dropping that reference.
-
-drm_gem_object_release() is the inverse of drm_gem_object_init() and does
-not touch the reference count or call obj->funcs->free(), so it is only
-correct as the last step of a destructor, as in
-virtio_gpu_cleanup_object(). Using it here leaves the bo at refcount 1
-with no remaining reference, so virtio_gpu_free_object() never runs and
-the shmem pages, sg table and virtio_gpu_object are leaked. Since
-virtio_gpu_object_create() has already set bo->created,
-VIRTIO_GPU_CMD_RESOURCE_UNREF is not queued either, leaking the host-side
-resource and the resource id.
-
-drm_gem_handle_create_tail() drops the handle reference on all of its
-internal error paths, so the caller only has to drop its own. Use
-drm_gem_object_put(), matching the success path below.
-
-Fixes: dc5698e80cf7 ("Add virtio gpu driver.")
-Reported-by: Yuhao Jiang <danisjiang@gmail.com>
-Assisted-by: Claude:claude-opus-5
-Signed-off-by: Junrui Luo <moonafterrain@outlook.com>
+Signed-off-by: Mirza Ishan Beg <seedandsyntax@gmail.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_gem.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/virtio/virtio_pci_modern_dev.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
-index 66c3f6f74e9c..d2f0b8a3f172 100644
---- a/drivers/gpu/drm/virtio/virtgpu_gem.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
-@@ -45,7 +45,7 @@ static int virtio_gpu_gem_create(struct drm_file *file,
+diff --git a/drivers/virtio/virtio_pci_modern_dev.c b/drivers/virtio/virtio_pci_modern_dev.c
+index 413a8c353463..8e74a813ca97 100644
+--- a/drivers/virtio/virtio_pci_modern_dev.c
++++ b/drivers/virtio/virtio_pci_modern_dev.c
+@@ -535,10 +535,10 @@ void vp_modern_set_queue_reset(struct virtio_pci_modern_device *mdev, u16 index)
+ 	vp_iowrite16(1, &cfg->queue_reset);
  
- 	ret = drm_gem_handle_create(file, &obj->base.base, &handle);
- 	if (ret) {
--		drm_gem_object_release(&obj->base.base);
-+		drm_gem_object_put(&obj->base.base);
- 		return ret;
- 	}
+ 	while (vp_ioread16(&cfg->queue_reset))
+-		msleep(1);
++		usleep_range(1000, 2000);
  
-
----
-base-commit: f5bbbfec59b4e2fb7520a91de3df8a6174325d6a
-change-id: 20260815-virtgpu-gem-create-leak-8620531cd3d8
-
-Best regards,
+ 	while (vp_ioread16(&cfg->cfg.queue_enable))
+-		msleep(1);
++		usleep_range(1000, 2000);
+ }
+ EXPORT_SYMBOL_GPL(vp_modern_set_queue_reset);
+ 
 -- 
-Junrui Luo <moonafterrain@outlook.com>
-
+2.47.3
 
