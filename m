@@ -1,123 +1,239 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from forwardcorp1a.mail.yandex.net (forwardcorp1a.mail.yandex.net [178.154.239.72])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5469924E4A1
-	for <virtualization@lists.linux.dev>; Sun, 16 Aug 2026 21:38:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 661963E3140;
+	Sun, 16 Aug 2026 21:40:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.154.239.72
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786916309; cv=none; b=qmT232s9HXvM0Infd38d8bRLCrrlxOJ3xmOWgj4h6vcrYW1MMT/38U73sC9QU6sl/ZRlqRtXLHdgcGCSVmoOoFDYafOZlBsUfpk7OvEaHuHrN6GV03S+4SnXRjrvvNmo/7IDHoV1In7b0z4OLpSrLAUwYMz8dnwNVLFb5I1KfRI=
+	t=1786916446; cv=none; b=hIHFPP/zALwP6ueeSzWRvoz9OIWD+IbRMlyf1HCILlb5Is28e+2oBu7dxlSLf294+TPTafyNcG6zu80x0OGobZK/uJdCHn+j99sZTyNyIWcEeGolAFMOM4kf/etnCSVnAUolzZlAZV+cDoYxm86pp3JaztxPAhDuSPvyggXnxE8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786916309; c=relaxed/simple;
-	bh=+edz4roaeFYDUhu/iJloVGgjpqHGvC7c3P2vbLyN+/I=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=jDJ1nbT4U/vY7hEwjLlhMvW20VP6BNPzgtaezekE9A009SD/3rKCTO65V7VLghOlwcq7IZ7E2MupPRhUvqF6IgIC1iMEq7rT7Uxsqw72okKI81epUvPHv2E50UHj9JjJUdfSrMQvlfEeC/zYPdm59gJMzNvALo0GS71Tlcm91Gw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=F6xB6Hx7; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1786916446; c=relaxed/simple;
+	bh=ZB292vkVVNBTKtO9ry3cUjDaGUckWvj4vjdB2SPakNI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=pq3n/+4oifUYUxLUr5ipfmQ1JNuQ7b6lBM3WeHjMq7LhmA9y6yQ9qi5lge89b6GHYwo0k/oXqWT3SDfNOly0Ju2QtFy6p19PiaYsgpjRvvrCGB3d1sne2692IdwTgcdcc/zfLafz8atl3KtJirzSiExEAbZ+ZPd1LFj/YI0h56Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex-team.ru; spf=pass smtp.mailfrom=yandex-team.ru; dkim=pass (1024-bit key) header.d=yandex-team.ru header.i=@yandex-team.ru header.b=1EmW++Up; arc=none smtp.client-ip=178.154.239.72
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex-team.ru
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yandex-team.ru
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="F6xB6Hx7"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1786916307;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=deEjGWQhm2dA68+gnhA68cTQSmkVCK/4uu8LxzANGWM=;
-	b=F6xB6Hx7xdTbsJhPYgTyhaW8QuZrrGWRZX3za9QKmROX4GXCUh0I2xzVqZPas0jNyDpZGI
-	Mwzc8eSxukDZyAiio/jMpdwD7pL28hlFGIPxSv9WhMkE/qEFU4LivsarW9XQvsE++W4LHQ
-	st/bqRwkeSBdSrCfOJDXADt8Gg7biv8=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-37-bzBjXMRqMXOjserc42GAdQ-1; Sun, 16 Aug 2026 17:38:20 -0400
-X-MC-Unique: bzBjXMRqMXOjserc42GAdQ-1
-X-Mimecast-MFC-AGG-ID: bzBjXMRqMXOjserc42GAdQ_1786916300
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-49991beee7aso11424345e9.2
-        for <virtualization@lists.linux.dev>; Sun, 16 Aug 2026 14:38:20 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786916299; x=1787521099;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=deEjGWQhm2dA68+gnhA68cTQSmkVCK/4uu8LxzANGWM=;
-        b=J4ON8uo1wwm/Ur9HuL6Gxhi6n/HpaKIRSFXL0Qc7+5pEVC8cABcV0L5FWTJtbdK7JH
-         yAKyofmZA43HkGSIqvlttzDxc9Ru19Y2HWBiV1WzcaoHXMNHi0JOnjsgnuyQvUrDcJ+b
-         U0brUn/ObznfSbfHBmmmTV/HV18kYr/6Xi2Rqjw6Lemx9pYd/Tna295upqw1tx0DIKoE
-         ZDlaKFoXiEjQfgdWZnq4oHDrURsoVExeRJsBZkWxl5f42tq3d5hRUW7sPDqruD5Fxm0w
-         af04h/qBCBGXzbK3qwzpQqlpp5laWQp72EqIWiC2bBGZVv286vKvM0QA9Irfy72N/pV4
-         lwjg==
-X-Gm-Message-State: AOJu0YxnVNtNA+T+D4NTbSXsX4C+nr0ossF8v/RWZUXW+lMeSUKM5qL0
-	0zeKqWgh27gE0iOq1/rOjMUzqpTF0eY+EpR/8d40PO6jOxlsPey6fwl33aho+J7ar+OMWia9zC8
-	OnLySG6Zjnjg/dPuwpzYcgjRSU5qfR/TaaUL6UMNgoOlpvmFI6pT7BfihJuhyCb2nv80G
-X-Gm-Gg: AR+sD11Xv/xbtUqDXLZvU+7u8EmKnEytsgJQjWPe36FGRlS+65XEhXLF0Hi9Tl6ksCB
-	6khqdonnTSTiKqljITOJlYgs7HgHSaHOO9G1mW8CFYIVw3xmPOHiI7aDfY80zq2+CL4k7ncYyGe
-	MtSveFSmzbk5YYY0p+B/zQYyUySXPewgBMNzJy75uoV0GMF//4/KH9czrBWY6jPGzBTV9X4mYxu
-	kVwx0N7A+pH49K58g7/oOuSZ9EtB7/0sr5a0hjzbXPobwRJ00MMDIFLQrcgOyPvD5IHilXafW78
-	9/bzlC9/OPs8aAzKfsP2A1ocRAkAXcPDc50FHcx+IyrNghIK5NMjb3tIu0LuM57nPTrSq9YSLuL
-	/ZFw2V5FRLG9koSlrjNMn3Eng
-X-Received: by 2002:a05:600c:5754:b0:493:f140:c3fb with SMTP id 5b1f17b1804b1-49987951a06mr194801755e9.7.1786916299435;
-        Sun, 16 Aug 2026 14:38:19 -0700 (PDT)
-X-Received: by 2002:a05:600c:5754:b0:493:f140:c3fb with SMTP id 5b1f17b1804b1-49987951a06mr194801575e9.7.1786916299031;
-        Sun, 16 Aug 2026 14:38:19 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-47-107.inter.net.il. [80.230.47.107])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49987b36370sm188653365e9.4.2026.08.16.14.38.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 16 Aug 2026 14:38:18 -0700 (PDT)
-Date: Sun, 16 Aug 2026 17:38:15 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Mirza Ishan Beg <seedandsyntax@gmail.com>
-Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	Jason Wang <jasowangio@gmail.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
-Subject: Re: [PATCH] virtio_pci_modern: replace msleep(1) with
- usleep_range(1000, 2000)
-Message-ID: <20260816173806-mutt-send-email-mst@kernel.org>
-References: <20260816094318.8083-2-seedandsyntax@gmail.com>
+	dkim=pass (1024-bit key) header.d=yandex-team.ru header.i=@yandex-team.ru header.b="1EmW++Up"
+Received: from mail-nwsmtp-smtp-corp-main-69.vla.yp-c.yandex.net (mail-nwsmtp-smtp-corp-main-69.vla.yp-c.yandex.net [IPv6:2a02:6b8:c1f:3a87:0:640:845c:0])
+	by forwardcorp1a.mail.yandex.net (postfix) with ESMTPS id 4843FC04B1;
+	Mon, 17 Aug 2026 00:38:43 +0300 (MSK)
+Received: from [IPV6:2a02:6bf:8080:d7d::1:36] (unknown [2a02:6bf:8080:d7d::1:36])
+	by mail-nwsmtp-smtp-corp-main-69.vla.yp-c.yandex.net (smtpcorp) with ESMTPSA id dcbpcP7WMGk0-PuYxShe7;
+	Mon, 17 Aug 2026 00:38:42 +0300
+X-Yandex-Fwd: 1
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex-team.ru;
+	s=default; t=1786916322;
+	bh=s7HcjQ73f1ZgIcnWaPQZHhDiaXl1DsseYtimaK/ef9o=;
+	h=From:In-Reply-To:Cc:Date:References:To:Subject:Message-ID;
+	b=1EmW++UpFleYRX06kyKiftI59lLPaM4PFEKfv9Jmm9rhNokSq1pNou5tw0+HPmPfO
+	 qmQ8e3vRCmSD5lH56597DsCXvtLegbox74YhTR3svKed+E/U4G5GxLG1Ac/Cl3q7RB
+	 SK6n7VHiAjNBdT+15kEWI/E3qFJUcj3T2QcUTjRI=
+Authentication-Results: mail-nwsmtp-smtp-corp-main-69.vla.yp-c.yandex.net; dkim=pass header.i=@yandex-team.ru
+Message-ID: <ef3b56bf-8df0-4a40-82c7-bd2d65eec71e@yandex-team.ru>
+Date: Mon, 17 Aug 2026 00:38:39 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260816094318.8083-2-seedandsyntax@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: VSxjVNukr03Iyrl3UR763dn0js83dUDItU0W4Swdjes_1786916300
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v6 21/51] x86/kvm: Obtain TSC frequency from PV CPUID if
+ present
+To: Sean Christopherson <seanjc@google.com>, Kiryl Shutsemau
+ <kas@kernel.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>,
+ Paolo Bonzini <pbonzini@redhat.com>, "K. Y. Srinivasan" <kys@microsoft.com>,
+ Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
+ Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>,
+ Ajay Kaher <ajay.kaher@broadcom.com>,
+ Alexey Makhalov <alexey.makhalov@broadcom.com>,
+ Jan Kiszka <jan.kiszka@siemens.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski
+ <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
+ Juergen Gross <jgross@suse.com>, Daniel Lezcano <daniel.lezcano@kernel.org>,
+ Thomas Gleixner <tglx@kernel.org>, John Stultz <jstultz@google.com>
+Cc: Vitaly Kuznetsov <vkuznets@redhat.com>,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>, Stephen Boyd
+ <sboyd@kernel.org>, Miroslav Lichvar <mlichvar@redhat.com>, x86@kernel.org,
+ linux-coco@lists.linux.dev, kvm@vger.kernel.org,
+ linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org,
+ Michael Kelley <mhklinux@outlook.com>, Tom Lendacky
+ <thomas.lendacky@amd.com>, Nikunj A Dadhania <nikunj@amd.com>,
+ David Woodhouse <dwmw@amazon.co.uk>, David Woodhouse <dwmw2@infradead.org>,
+ Thomas Gleixner <tglx@linutronix.de>
+References: <20260806233609.212337-1-seanjc@google.com>
+ <20260806233609.212337-22-seanjc@google.com>
+Content-Language: en-US
+From: Maksim Davydov <davydov-max@yandex-team.ru>
+In-Reply-To: <20260806233609.212337-22-seanjc@google.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Sun, Aug 16, 2026 at 03:13:19PM +0530, Mirza Ishan Beg wrote:
-> Replace msleep(1) with usleep_range(1000, 2000) in the queue reset
-> loops.
-> msleep(1) relies on jiffies and can sleep up to 4-10 ms depending on HZ,
-> whereas usleep_range provides predictable microsecond-level delay.
+
+
+On 8/7/26 02:35, Sean Christopherson wrote:
+> From: David Woodhouse <dwmw@amazon.co.uk>
 > 
-> Signed-off-by: Mirza Ishan Beg <seedandsyntax@gmail.com>
-
-why do we care?
-
+> In https://lkml.org/lkml/2008/10/1/246 a proposal was made for generic
+> CPUID conventions across hypervisors. It was mostly shot down in flames,
+> but the leaf at 0x40000010 containing timing information didn't die.
+> 
+> It's used by XNU and FreeBSD guests under all hypervisors¹² to determine
+> the TSC frequency, and also exposed by the EC2 Nitro hypervisor (as
+> well as, presumably, VMware). FreeBSD's Bhyve is probably just about
+> to start exposing it too.
+> 
+> Use it under KVM to obtain the TSC frequency more accurately, instead of
+> reverse-calculating the frequency from the mul/shift values in the KVM
+> clock.  Use the information to get the CPU frequency as well (kvmclock
+> feeds in kvm_get_tsc_khz() for both TSC and CPU calibration), as the info
+> from CPUID is superior in every way; whether or not kvmclock should be
+> overriding CPU calibration in the first place is an entirely different
+> question.
+> 
+> Use the info from CPUID even if the user explicitly disables kvmclock, or
+> if it's unsupported.  The PV CPUID leaf has no dependency on kvmclock, and
+> is in fact more useful if kvmclock is disabled since the kernel won't be
+> able to use kvmclock to derive a derive the TSC frequency.
+> 
+> Before:
+> [    0.000020] tsc: Detected 2900.014 MHz processor
+> 
+> After:
+> [    0.000020] tsc: Detected 2900.015 MHz processor
+> 
+> $ cpuid -1 -l 0x40000010
+> CPU:
+>    hypervisor generic timing information (0x40000010):
+>       TSC frequency (Hz) = 2900015
+>       bus frequency (Hz) = 1000000
+> 
+> Note!  *Independently* query for non-null get_{cpu,tsc}_khz() overrides so
+> that kvmclock doesn't clobber x86_init.hyper.get_cpu_khz() if/when KVM adds
+> support for getting the CPU frequency separately from the TSC frequency.
+> 
+> ¹ https://github.com/apple/darwin-xnu/blob/main/osfmk/i386/cpuid.c
+> ² https://github.com/freebsd/freebsd-src/commit/4a432614f68
+> 
+> Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
+> Co-developed-by: Sean Christopherson <seanjc@google.com>
+> Signed-off-by: Sean Christopherson <seanjc@google.com>
 > ---
->  drivers/virtio/virtio_pci_modern_dev.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+>  arch/x86/kernel/kvm.c      | 33 +++++++++++++++++++++++++++++++++
+>  arch/x86/kernel/kvmclock.c |  6 ++++--
+>  2 files changed, 37 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/virtio/virtio_pci_modern_dev.c b/drivers/virtio/virtio_pci_modern_dev.c
-> index 413a8c353463..8e74a813ca97 100644
-> --- a/drivers/virtio/virtio_pci_modern_dev.c
-> +++ b/drivers/virtio/virtio_pci_modern_dev.c
-> @@ -535,10 +535,10 @@ void vp_modern_set_queue_reset(struct virtio_pci_modern_device *mdev, u16 index)
->  	vp_iowrite16(1, &cfg->queue_reset);
+> diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+> index 5b554e480c0e..8ed02f4f5775 100644
+> --- a/arch/x86/kernel/kvm.c
+> +++ b/arch/x86/kernel/kvm.c
+> @@ -49,6 +49,8 @@
+>  #include <asm/svm.h>
+>  #include <asm/e820/api.h>
 >  
->  	while (vp_ioread16(&cfg->queue_reset))
-> -		msleep(1);
-> +		usleep_range(1000, 2000);
+> +static unsigned int kvm_tsc_khz_cpuid __initdata;
+> +
+>  DEFINE_STATIC_KEY_FALSE_RO(kvm_async_pf_enabled);
 >  
->  	while (vp_ioread16(&cfg->cfg.queue_enable))
-> -		msleep(1);
-> +		usleep_range(1000, 2000);
+>  static int kvmapf = 1;
+> @@ -913,6 +915,21 @@ bool kvm_para_available(void)
 >  }
->  EXPORT_SYMBOL_GPL(vp_modern_set_queue_reset);
+>  EXPORT_SYMBOL_GPL(kvm_para_available);
 >  
-> -- 
-> 2.47.3
+> +static u32 __init kvm_cpuid_timing_info_leaf(void)
+> +{
+> +	u32 base = kvm_cpuid_base();
+> +
+> +	if (!base || cpuid_eax(base) < (base | KVM_CPUID_TIMING_INFO))
+> +		return 0;
+> +
+> +	return base | KVM_CPUID_TIMING_INFO;
+> +}
+> +
+> +static unsigned int __init kvm_get_tsc_khz(void)
+> +{
+> +	return kvm_tsc_khz_cpuid;
+> +}
+> +
+>  unsigned int kvm_arch_para_features(void)
+>  {
+>  	return cpuid_eax(kvm_cpuid_base() | KVM_CPUID_FEATURES);
+> @@ -962,6 +979,7 @@ static void __init kvm_init_platform(void)
+>  		.mask_lo = (u32)(~(SZ_4G - tolud - 1)) | MTRR_PHYSMASK_V,
+>  		.mask_hi = (BIT_ULL(boot_cpu_data.x86_phys_bits) - 1) >> 32,
+>  	};
+> +	u32 timing_info_leaf;
+>  
+>  	if (cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT) &&
+>  	    kvm_para_has_feature(KVM_FEATURE_MIGRATION_CONTROL)) {
+> @@ -1009,6 +1027,21 @@ static void __init kvm_init_platform(void)
+>  			wrmsrq(MSR_KVM_MIGRATION_CONTROL,
+>  			       KVM_MIGRATION_READY);
+>  	}
+> +
+> +	/*
+> +	 * If KVM advertises the frequency directly in CPUID, use that instead
+> +	 * of reverse-calculating it from the KVM clock data, or worse, trying
+> +	 * to calibratate the TSC using an emulated device.
+> +	 */
+> +	timing_info_leaf = kvm_cpuid_timing_info_leaf();
+> +	if (timing_info_leaf) {
+> +		kvm_tsc_khz_cpuid = cpuid_eax(timing_info_leaf);
+> +		if (kvm_tsc_khz_cpuid) {
+> +			x86_init.hyper.get_tsc_khz = kvm_get_tsc_khz;
+> +			x86_init.hyper.get_cpu_khz = kvm_get_tsc_khz;
+> +		}
+> +	}
+> +
+>  	kvmclock_init();
+>  	x86_platform.apic_post_init = kvm_apic_init;
+>  
+> diff --git a/arch/x86/kernel/kvmclock.c b/arch/x86/kernel/kvmclock.c
+> index 29ca37e9a3bc..f55d0305d1f3 100644
+> --- a/arch/x86/kernel/kvmclock.c
+> +++ b/arch/x86/kernel/kvmclock.c
+> @@ -342,8 +342,10 @@ void __init kvmclock_init(void)
+>  	flags = pvclock_read_flags(&hv_clock_boot[0].pvti);
+>  	kvm_sched_clock_init(flags & PVCLOCK_TSC_STABLE_BIT);
+>  
+> -	x86_init.hyper.get_tsc_khz = kvmclock_get_tsc_khz;
+> -	x86_init.hyper.get_cpu_khz = kvmclock_get_tsc_khz;
+> +	if (!x86_init.hyper.get_tsc_khz)
+> +		x86_init.hyper.get_tsc_khz = kvmclock_get_tsc_khz;
+> +	if (!x86_init.hyper.get_cpu_khz)
+> +		x86_init.hyper.get_cpu_khz = kvmclock_get_tsc_khz;
+>  	x86_platform.get_wallclock = kvm_get_wallclock;
+>  	x86_platform.set_wallclock = kvm_set_wallclock;
+>  #ifdef CONFIG_X86_LOCAL_APIC
+
+
+I cannot test this right now as I lack two servers with different CPU
+base frequencies, but it seems that this patch might break something in
+guests:
+After migrating a VM (QEMU + KVM) from a host with one base frequency to
+another host with a different base frequency, the value in CPUID leaf
+0x40000010 EAX changes and becomes the same as the destination host base
+frequency instead of remaining the source base frequency.
+The main reason for this behaviour is that setting the TSC frequency via
+ioctl(KVM_SET_TSC_KHZ) doesn't change the value in CPUID leaf 0x40000010
+EAX and these two entities are still not connected.
+I saw this behaviour with QEMU 7, but I've checked the code of the
+latest version and it seems that the described behaviour still exists.
+So, in that case, it's possible that with these changes a VM will use
+the wrong TSC frequency from CPUID leaf 0x40000010 EAX if it's migrated
+and then rebooted.
+
+Putting it all together, after the previous patch ("KVM: x86: Officially
+define CPUID 0x40000010 as PV Timing Info (TSC and Bus)") a new way to
+show the guest that CPUID leaf 0x40000010 is valid should be implemented
+and only then this leaf can be used to get the TSC frequency.
+
+-- 
+Best regards,
+Maksim Davydov
 
