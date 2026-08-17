@@ -1,196 +1,126 @@
-Received: from PA4PR04CU001.outbound.protection.outlook.com (mail-francecentralazon11023124.outbound.protection.outlook.com [40.107.162.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com [209.85.128.70])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3916A3B83E3
-	for <virtualization@lists.linux.dev>; Mon, 17 Aug 2026 13:01:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.162.124
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786971691; cv=fail; b=ov7RnZQR8BuX7sKDychIqBvJrtyL6rUxN2p9v3nCh9OHbwu5tA0gie5+eSwfiPXceCZHS9ukG5B8WvG+GbN6SAkYZW9O5XSKGkp3Hie1olG4Vpealoi0dY43kPBPrqJD8B6SzujwBEOpwvWIPiCzTWBieHU0CmZXIJwbDYZMNHY=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786971691; c=relaxed/simple;
-	bh=gwnbMRX6snLzL7cgrHyKuUZ5Zg89/13UJXJhsu7PnR0=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=dWlmiXeyJ3JZpSwkqlpwfpRoHQWoMc4HFA9Q35c5F5XEbyKfxPTRXDxq/L/fc+RHW24NUrBIW8ahIiTc95FVMw4UHI90cYPuSNB6pj7DqXnOZc397j7ZsciicG96fxEBBHkzP28jxbCL8J5HRkpgBYdnPOCEQNdRd2uerr2C9ic=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=studenti.unipi.it; spf=pass smtp.mailfrom=studenti.unipi.it; dkim=pass (1024-bit key) header.d=studenti.unipi.it header.i=@studenti.unipi.it header.b=hdNjrHCj; arc=fail smtp.client-ip=40.107.162.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=studenti.unipi.it
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=studenti.unipi.it
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95ABC43B3CB
+	for <virtualization@lists.linux.dev>; Mon, 17 Aug 2026 13:42:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.70
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786974133; cv=none; b=dWGdiHkISnDjQUrPIQBZT3bAX2s4XTHAMKmYkPfo8QAQ8/ZuHoAIYbNhyTzSXVNQJuCRT4n8v/qPzwBTXE0Nhgf8uO3mzh+kKHa/2p8EDSphGKxErDa1RPkYIqPl4NsL2q//ULHezDsGJu8Mh9Q1g37qsz2bmiqnPVDcEjemXM0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786974133; c=relaxed/simple;
+	bh=O/bTkpfxDK7wgp8C77ivdtmEVT3RkPujsiRjYOIdbTQ=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=mwBIKnLgpE5p36G3h3OUXdB35V35Ba3B8blNvJ1eWDfaICY7WA4cRtOhnSgMWGMuUnuNfKmzYRHrM90VRgmX0cb9QeFF0WUgvR/YoSDx5maPfyFCk9tF8IJxYxbfwJzva+Nj77IKeDkOnlBiWJVBbPUEoo+hq3/PznE+sKSl4z8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--sergiiushakov.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=ewZoXo0B; arc=none smtp.client-ip=209.85.128.70
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--sergiiushakov.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=studenti.unipi.it header.i=@studenti.unipi.it header.b="hdNjrHCj"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=r4muf9Pt/1WN1K/SimnAtcPs3iTu9hdKiQeloiEXJuBfEWBBMl5b5q/Rno/pFg19MOCKSi8A5HlCWkeDPX41UXhRnWePGTpeYe/D/oDglPFFgxyag2zVVpcfbZKpGGUKN9IqBfhmjC+5yJC3Z3Q5jTKaBh56nyfAdq5RUS0d5XQnD3CmSVjpV+it1sEXJEbeFlei6CosWytNfieK273RNe0ARbOuKI/m24k4g+HQSul7J672XPz8WYmj7lqEDjL2RNMPXDsibv6sm1qiD6/UCfyT+WCGd6J4Ag3PPITZLCOMskrqqA19fGuXdBJQdg2XZuPe14rsYBxZMQBXuOl7sQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=gwnbMRX6snLzL7cgrHyKuUZ5Zg89/13UJXJhsu7PnR0=;
- b=woug/bX02LjaYfyKh6mbKaN58aQFCeGWBvq69Xb2jfCjM8k31IgOeqaF9dpUbGna3gFpV7hy7IY3XQ6HOLSD2Zh/K577Zliu+gFXrAqklCuDXgVcmz+h7p41o742qdbMwQd50elnosSNIU0h+fmFJ3uxVBFxdfqxltZl6p+oc7TLrv/2yEp6avhYjQnXSHY6D5WrPwMWbWd58Glm/ID/oseBJpij0iHVWaS+v9utM2ZHYJz0IaWJcvNz/9LlZXMBh9e467HqKl2tPqqmHJ6E1tvb4IC6x521r1zuR1jQQcXLpNP0dfBs8NCVA1ihX2v6Scw2Fv+b0vqqYVn+QVyN4Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=studenti.unipi.it; dmarc=pass action=none
- header.from=studenti.unipi.it; dkim=pass header.d=studenti.unipi.it; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=studenti.unipi.it;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=gwnbMRX6snLzL7cgrHyKuUZ5Zg89/13UJXJhsu7PnR0=;
- b=hdNjrHCjmP7c+lYyTjhw5SX33tB8fUkGv8HBLcU7ISwAI8MMgO4WGuMOsZ8kRaBof2oqxQ2ogtgEzOfKFUIvjG3n7zRf5D0fCKW/Q4SUZRvZfCK/Te1XshojHaoVycwHaWdkQhpF/04ANT4pprc46y/N1Z/5bB08E+c+DSUoxog=
-Received: from DB5PR07MB9477.eurprd07.prod.outlook.com (2603:10a6:10:4a8::18)
- by DU0PR07MB8764.eurprd07.prod.outlook.com (2603:10a6:10:310::18) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.339.8; Mon, 17 Aug
- 2026 13:01:24 +0000
-Received: from DB5PR07MB9477.eurprd07.prod.outlook.com
- ([fe80::d1be:a299:c9b9:ddf0]) by DB5PR07MB9477.eurprd07.prod.outlook.com
- ([fe80::d1be:a299:c9b9:ddf0%5]) with mapi id 15.21.0339.007; Mon, 17 Aug 2026
- 13:01:24 +0000
-From: Matteo Giugni <m.giugni1@studenti.unipi.it>
-To: Stefano Garzarella <sgarzare@redhat.com>, Manos Pitsidianakis
-	<manos@pitsidianak.is>, German Maglione <gmaglione@redhat.com>, Leonardo
- Giovannoni <leonardo.giovannoni@ing.unipi.it>, Giuseppe Lettieri
-	<giuseppe.lettieri@unipi.it>
-CC: Miguel Ojeda <ojeda@kernel.org>, Manos Pitsidianakis
-	<manos.pitsidianakis@linaro.org>, Peter Hilber
-	<peter.hilber@oss.qualcomm.com>, Stefan Hajnoczi <stefanha@redhat.com>,
-	Viresh Kumar <viresh.kumar@linaro.org>, "Michael S. Tsirkin"
-	<mst@redhat.com>, Boqun Feng <boqun@kernel.org>, Gary Guo <gary@garyguo.net>,
-	=?iso-8859-1?Q?Bj=F6rn_Roy_Baron?= <bjorn3_gh@protonmail.com>, Benno Lossin
-	<lossin@kernel.org>, Andreas Hindborg <a.hindborg@kernel.org>, Alice Ryhl
-	<aliceryhl@google.com>, Trevor Gross <tmgross@umich.edu>, Danilo Krummrich
-	<dakr@kernel.org>, Daniel Almeida <daniel.almeida@collabora.com>,
-	"rust-for-linux@vger.kernel.org" <rust-for-linux@vger.kernel.org>, Jason Wang
-	<jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?iso-8859-1?Q?Eugenio_P=E9rez?= <eperezma@redhat.com>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: R: [PATCH RFC v3 0/6] Add Rust virtio bindings and sample device
-Thread-Topic: [PATCH RFC v3 0/6] Add Rust virtio bindings and sample device
-Thread-Index: AQHdJnlcNrl6Tzh57UqO2XafG8uVA7aiQv7T
-Date: Mon, 17 Aug 2026 13:01:24 +0000
-Message-ID:
- <DB5PR07MB9477B461B0993275162F08E2E5A72@DB5PR07MB9477.eurprd07.prod.outlook.com>
-References: <20260510-rust-virtio-v3-0-1427f14d67e1@pitsidianak.is>
- <anXnRcX65PnfMe9W@sgarzare-redhat>
-In-Reply-To: <anXnRcX65PnfMe9W@sgarzare-redhat>
-Accept-Language: it-IT, en-US
-Content-Language: it-IT
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-msip_labels:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=studenti.unipi.it;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: DB5PR07MB9477:EE_|DU0PR07MB8764:EE_
-x-ms-office365-filtering-correlation-id: 0b89b2b8-04cf-4a0c-4254-08defc5fa447
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam:
- BCL:0;ARA:13230040|23010399003|7416014|376014|786006|1800799024|366016|38070700021|3023799007|56012099006|10067099003|4143699003|11063799006|22082099003|18002099003;
-x-microsoft-antispam-message-info:
- iyH2B9SiE914lUc7u4ZL/xaTCccan7Gg/TM3xRbQrXd4OCltb2LMImVG68DdPb45QFrnbusb435sB+dJ0neAByXFQAGoikoHYa5qPZ2OndyCIMRYdt89kVStcbZ444y9rLy18KttojZuDJWvVtAmAI49V749uW1s2mPGyF90L90n26Dt0REi/ZYq10XIRDSqRp7VnLZijbovldEenNGbKzYTbF+HSVKSN32a0HZydu9cSUQzRSX9FuKblOR947CTD1GvJ+jeiWwR3StpRqYAik3ZKH+mDntToKrqCZzA2A2Ao1Cwq7con+t09hQC8rjIhaU4w1+UkpexI9XAW6UAMWuJ0jzFhQGKzXfYa+mH5fDCzUo5OSgVduaEU+pM6B0HPrP/YtlJrvxCESpymsNr4+afr3JT61u9+GTlpvfR3Y2+CrdC3Wm6S+Qt1NBQuW3J8qhKf5VEI+odwNG81H58SLGVCOoNtlK2fAECGx493JBS+mGXgEz8Rc9UUTezqBaWxQBSTSKuo+6LIwbHqZAS8uIgnnBRcuAXyn29Q0z0QOW+giuvjOKZkaBGZx08XsJo0xG4NfgBFwJ3+ceFoPTwRFLE3IjjTrRCNWe1Rwqznev3DvRC8wJaloCTFW8t1Bsbq+6gm2yxi1Bj2yLeoMsKXY5aPEtzLPnPmHuzq9aoipVl87XcsaErHNWrhwonoIOU2OLLAgYvFcQxGO0FlO59mvarM73GQhXBw4aw7zVFRhI=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DB5PR07MB9477.eurprd07.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(7416014)(376014)(786006)(1800799024)(366016)(38070700021)(3023799007)(56012099006)(10067099003)(4143699003)(11063799006)(22082099003)(18002099003);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?iso-8859-1?Q?tivrpoD3pr+SDHhJg9vLGlFpry06brxfltC7nTPzRttShbGw6jloT/6qiI?=
- =?iso-8859-1?Q?lm9AI8tsBn2h/ufvS5cGlUC2gZDqj+s9SbvoD3sdHuobSpm1vPvTL4fOji?=
- =?iso-8859-1?Q?fFpyDAZxNIrCrKE9PoGcaYnB3+UHGZqFDJLL0cKM63q0/lFtqThncXooMq?=
- =?iso-8859-1?Q?4rs8mKk7o6cNNqKoeWqjwWOUHnB838OKuGKb9S2pvHX/T4r+iHOQ4rcE/P?=
- =?iso-8859-1?Q?LAsRDTq8w+XhkptGFPJGQnij0EtXqeS9Sz3GMHDAX55JyLAGtlN8Z8s07B?=
- =?iso-8859-1?Q?fajP+pZcrWD57Vxfd2Vtfrko7pONZ76dIXl5qqVRbllX+Jdb0GTOgmlQbF?=
- =?iso-8859-1?Q?Wx4Bd/RchivNPmpBHw3hMs8f9emal8q3iUvZfxdPfYti0C5LRf/ixKL6Oc?=
- =?iso-8859-1?Q?sXQAwQfPiWQAb49eSjNB9/N0koMijoxgfMWzE9ahL8We1EoX63AnwUgfBi?=
- =?iso-8859-1?Q?c9/RzLRA2Ce8HWyyjzfKrvPXNAeK17g2kULp88T+r4FS2i+Gb8D6FJ9/4Y?=
- =?iso-8859-1?Q?xfGL3QbW2Or6FSQ3BhZpgHpYxjLieHPiJ4wH1olgFqrBFL3RLiOj97ytUb?=
- =?iso-8859-1?Q?INFjNJxVZw2kJfYVbQ2k0duuz/6TQroFxAJ3s02fW3BRMwHsnEHVuLUalk?=
- =?iso-8859-1?Q?vjEOgbLbd0vadAgXulktNEEvporVOnBQ4G9f2sYUPxtLVIbIutQNaUsNBy?=
- =?iso-8859-1?Q?EiqrJ/mqr7e6PvzbEUztL3qWOwSaTnnOzkO4y2GFd7NdHui8MshkSP/5IH?=
- =?iso-8859-1?Q?3nPpNCPXQXUlpth++e/PXKO+fDdDmO4rq5/mk4D41zDv/clk9g4sNFuEKx?=
- =?iso-8859-1?Q?HFIr6Z65NS+2vxA8qUG6YLMvfXe6TmHMBC8RfvpIRj/7kyXinT1Iz2Q5Ke?=
- =?iso-8859-1?Q?kEUMmfspknxon2CgACUtrdVPQZGyBlYZaZtLhvCicvUYf3qiriFAo6ua0y?=
- =?iso-8859-1?Q?oQPPRe0gGRsHyQdysTfVfCo6bIlyb2JNIqplmO1j/8cgmO1BVwskOGFtRV?=
- =?iso-8859-1?Q?5wIAqCb1+7F8OyLSwNSkklfL3CQ0XPMtoHvZX3hTpEM1TzIqUVMSvo/Y0A?=
- =?iso-8859-1?Q?Enbrt+3kWdWVwaNWyxqMVHorkFxXrxQMfnq8KRssEeVSZSJQwAAl3x6PXS?=
- =?iso-8859-1?Q?TMaudNnSJ+jRAKUFQl7k1W5MOYqppSkwyDpCXCFKf80gvmg159lx9dY3cs?=
- =?iso-8859-1?Q?e4G0/bGIQFKiJQFy8x0CHOwRSLdQh+CypW3af5pEwxICpNRCDSbop6J3Bm?=
- =?iso-8859-1?Q?bDG3XZpr1XYme1BElRzgqgA1tINFaP988E2iUNpRq0Y8s16KkJA4jln1Gw?=
- =?iso-8859-1?Q?y3V9JqcQy5c0E6fbGdwdaXfFbX/Cf/9RSQ8N9nMlpZsVCge9YVv6cT2U9X?=
- =?iso-8859-1?Q?yEH1RigY14vZPWsaDNqKHlJuMVmPuD+9ju9kQwF9slgkXVZNh2NiuAHuyz?=
- =?iso-8859-1?Q?hGUk/ybDBa7eEDLQ0/wOuDk25Mv9+4j8/XmmFhvuADpbLkC94O9b82I7sm?=
- =?iso-8859-1?Q?dEX6ii93stD8u4Hcwe7Nc7IHwe0JBupr2YN8PTRHibpEk3Z/BUeS05WVBA?=
- =?iso-8859-1?Q?JJdC6SGytLmq3IgNVuvkMMBJCTi6ZgY2IPP4mLWGt4SZysCCz2E77A5OXy?=
- =?iso-8859-1?Q?aAb5w4BJA1svvrMjh0MCjaNh95StE2Tp0RrwFoS3KMWsH1yeAt4qonCXU5?=
- =?iso-8859-1?Q?VUHqFUIiu4PTbngAPwpU0C0iqAu7V/0gF+pbpADJT5iG7zFUszOScYMtha?=
- =?iso-8859-1?Q?T8aDALiabGhxmP3CZhl9O1HkhxGoR56+D6CLcy/QR8t3qctF5G8O53B2fM?=
- =?iso-8859-1?Q?b4Hl+SIyqw=3D=3D?=
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="ewZoXo0B"
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4997b060af8so20630395e9.1
+        for <virtualization@lists.linux.dev>; Mon, 17 Aug 2026 06:42:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1786974130; x=1787578930; darn=lists.linux.dev;
+        h=content-type:cc:to:from:subject:message-id:references:mime-version
+         :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=+a64Ot6/PzSxx+bPX9pOVSI6enVUF78QeyJyJScORM8=;
+        b=ewZoXo0BpCGTcq1xZRBNJ6hs44WHz4OPPii3BwTIcZKfXNix1aVKrYhQepo9R1PGyR
+         ny7FIigkvg9F8aic4Nct9m4pz81R2RG2IXoI5dgwynfiOsfWk6BnOEEAUXXUwMcH6RaF
+         fJyvZIQX17OIaIml0MOMNtxyocetO1n/zK+Q3j3ob9ybNoe31DRdEHBZ2gBPgwA6UXX6
+         PS2dH0SzIWaKVEl9gP7PHbFALQe5hIUM4uvCHYytGqPQDFhUHvgLxpYSDy2S/FabmnJw
+         H0GTkfcvvgGnkzBlTuKgSgTvMg7tzU3BNnu1+CxuaQFzXztPXOyd52vfV1fDHfrDyMbU
+         ub8w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786974130; x=1787578930;
+        h=content-type:cc:to:from:subject:message-id:references:mime-version
+         :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=+a64Ot6/PzSxx+bPX9pOVSI6enVUF78QeyJyJScORM8=;
+        b=rGwHUcHD4Yea6FrfpAGE32+bTYawiSX+a6vlSeSTfyzEiIWnW2VPRLxmB7zG5JxkHY
+         QSeMYWgQ4wXSM438SBkYWKMcL5Jdq8UZSOL7YkNO0xNo93qEUBxzpJWJrB1IBkAD10LI
+         lSeOOwg2QrBRBMY8jGtX3BvfezJhqusFuT88sjRYCgEWy0U5cKleEfdv/z49seg/DRY3
+         z07q/JdL8dvoMcBvD25D5F7XGD08ePzvT0uY4gJm4WILkYMvKYezAqBzd4jGqIBFSOeW
+         QdNc+2YRS4JbL+BS5HdSDPLw8tPyGk32SarVmCj/VgWNDPJ/UbjKPBXO1WSqSHEDCyK3
+         8omg==
+X-Gm-Message-State: AOJu0YwLbqiFpa1Uk0Mnhf2wnSqNpQ0h2fQim9YN//O0SGAP+P7UC7E4
+	JgWE4mV6qwjuYmhu+7YW/sx00W6JvawiJ0GcVhWvnvU80AFH6OfSiZ23+hdZMKk0mONBiUMKbo7
+	RBRUxwxPu/nOVv+lvZfL4EFPcVqSYmAJuroidhMpSbXnlyFCn3rOMuHxXtIKpmlkEawdQUdgkPl
+	5F1bBqfkRA6Mr3NG0lS/PEdeSo53yUnT/wf8GuXWRZsK1ZbN6cE5AzwR+5Aon7cSqlFGiaV+NlN
+	80e1kNRPyet
+X-Received: from wmbes12.prod.google.com ([2002:a05:600c:810c:b0:495:713d:cc69])
+ (user=sergiiushakov job=prod-delivery.src-stubby-dispatcher) by
+ 2002:a05:600c:4003:b0:495:3de8:33a6 with SMTP id 5b1f17b1804b1-4998798db40mr336981795e9.16.1786974129626;
+ Mon, 17 Aug 2026 06:42:09 -0700 (PDT)
+Date: Mon, 17 Aug 2026 15:42:02 +0200
+In-Reply-To: <20260814105954.4060627-1-sergiiushakov@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-X-OriginatorOrg: studenti.unipi.it
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: DB5PR07MB9477.eurprd07.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0b89b2b8-04cf-4a0c-4254-08defc5fa447
-X-MS-Exchange-CrossTenant-originalarrivaltime: 17 Aug 2026 13:01:24.0932
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: c7456b31-a220-47f5-be52-473828670aa1
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: ci7xaazBm/Gcf9Dd28yZwxyIfOP94r8JqGgU3sEy0I4OBGLJTWxRDgGsC/0NepMSUjdsoej03JAYqrpO6EvIoboz+IhPeVqpliKiZoFPDko=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DU0PR07MB8764
+Mime-Version: 1.0
+References: <20260814105954.4060627-1-sergiiushakov@google.com>
+X-Mailer: git-send-email 2.55.0.691.gc56d675ccc-goog
+Message-ID: <20260817134202.160669-1-sergiiushakov@google.com>
+Subject: [PATCH v2] virtio-blk: clamp max_segments when indirect descriptors
+ are disabled
+From: Sergii Ushakov <sergiiushakov@google.com>
+To: virtualization@lists.linux.dev, linux-block@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>, 
+	"Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>, Jens Axboe <axboe@kernel.dk>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	"=?UTF-8?q?Eugenio=20P=C3=A9rez?=" <eperezma@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, Sergii Ushakov <sergiiushakov@google.com>
+Content-Type: text/plain; charset="UTF-8"
 
-> We are mentoring Matteo who is working on his Master thesis at University=
-=0A=
-> of Pisa. His main effort is to provide crates for virtio drivers (e.g.=A0=
-=0A=
-> virtqueue, driver-specific request/reply processing, etc.) that can be=0A=
-> generic enough to be used in different OSes, providing the right=0A=
-> abstraction.=0A=
-> We pointed out to this series and he would like to collaborate.=0A=
-> Matteo and others can add more on this of course :-)=0A=
-> Feel free to continue in-list or off-list for sync.=0A=
-=0A=
-Hello,=0A=
-=0A=
-As Stefano said, our purpose is to provide generic OS-independent crates fo=
-r virtio drivers.=0A=
-To begin working on it, I started from the VirtIO framework introduced by t=
-his patchset and=0A=
-extended it to support the virtio-rng driver, both to take confidence with =
-the current=0A=
-implementation and also having at disposal a simple driver for tests.=0A=
-This means that I also had to add the HwRandom wrappers.=0A=
-=0A=
-You can find the virtio_rng source code in the following repository:=0A=
-https://github.com/matteogiugni/rust-virtio-rng-driver=0A=
-You can find the HwRandom extension to this patchset in the following repos=
-itory:=0A=
-https://github.com/matteogiugni/linux/tree/virtio-base=0A=
-at rust/kernel/HwRng.rs=0A=
-=0A=
-I have recently seen that you implemented yourself the HwRandom wrapper, wh=
-ich followed=0A=
-a different approach from mine, but did not have the time yet to study it.=
-=0A=
-I used the same pattern as in miscdevice.rs registration instead.=0A=
-=0A=
-The framework was missing a few bindings for my driver and in particular th=
-e scan=A0callback,=0A=
-you can check the modifications in the commits.=0A=
-The driver is a simple baseline that can be optimized and improved.=0A=
-=0A=
-After the driver implementation I moved to the implementation of the generi=
-c Virtqueue crate.=0A=
-I am currently working on it and i will be pushing the current work soon in=
- this branch of the repository:=0A=
-https://github.com/matteogiugni/linux/tree/rust-virtqueue=0A=
-The aim is to make it work with Linux at least, with your implementation of=
- the VirtIO framework=0A=
-and then extract the OS-independent logic.=0A=
-=0A=
-This is just a recap of what i am currently doing to get in sync with you, =
-feel free to look at it and=0A=
-ask whatever question you please or problem you see.=0A=
-=0A=
-Kind Regards,=0A=
-Matteo Giugni.=0A=
+When VIRTIO_RING_F_INDIRECT_DESC is not negotiated by the host, every
+scatter-gather segment in a request must consume a physical slot in
+the virtqueue ring.
+
+If the host does not advertise VIRTIO_BLK_F_SEG_MAX and provides a small
+virtqueue (e.g. 128 descriptors on QNX Hypervisor), the block layer
+defaults max_segments to BLK_MAX_SEGMENTS (1024). When a multi-page
+compound bio arrives from the page cache, virtqueue_add_split() rejects
+the request with -ENOSPC and triggers:
+
+  WARNING: at drivers/virtio/virtio_ring.c:1493 virtqueue_add+...
+  WARN_ON_ONCE(total_sg > vq->split.vring.num && !vq->indirect);
+
+This permanently wedges the blk-mq queue and blocks all subsequent disk
+I/O in uninterruptible sleep (D state).
+
+Automatically clamp sg_elems to (ring_size - 2) when indirect
+descriptors are disabled.
+
+Signed-off-by: Sergii Ushakov <sergiiushakov@google.com>
+---
+v1 -> v2:
+- Drop max_segments module parameter and rely solely on automatic clamping
+  when indirect descriptors are disabled (suggested by Christoph Hellwig).
+- Guard (ring_size - 2) calculation with ring_size > 2 to prevent underflow.
+- Update commit description accordingly.
+
+ drivers/block/virtio_blk.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 32bf3ba07a9d..8f5a2d5323a6 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -1267,6 +1267,13 @@ static int virtblk_read_limits(struct virtio_blk *vblk,
+ 	/* Prevent integer overflows and honor max vq size */
+ 	sg_elems = min_t(u32, sg_elems, VIRTIO_BLK_MAX_SG_ELEMS - 2);
+ 
++	if (!virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC)) {
++		u32 ring_size = virtqueue_get_vring_size(vblk->vqs[0].vq);
++
++		if (ring_size > 2)
++			sg_elems = min(sg_elems, ring_size - 2);
++	}
++
+ 	/* We can handle whatever the host told us to handle. */
+ 	lim->max_segments = sg_elems;
+ 
+-- 
+2.55.0.691.gc56d675ccc-goog
+
