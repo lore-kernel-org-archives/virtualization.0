@@ -1,156 +1,175 @@
-Received: from mail-pg1-f198.google.com (mail-pg1-f198.google.com [209.85.215.198])
+Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95D653EB0EF
-	for <virtualization@lists.linux.dev>; Mon, 17 Aug 2026 14:08:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.198
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C5683AFD16
+	for <virtualization@lists.linux.dev>; Mon, 17 Aug 2026 14:24:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786975695; cv=none; b=Twt2fy5nzuvkjLVTvblFpAFOiyMm2nujwgGZtm35AyCYbv4Pnja36TbGkZ4k7UpvZ3HCGQY8NRVia5pubNdHvePGpB/+7L2nMxWkJCibZcB5CCmIMGHrFPi4jlfnr/zNEnMHA6y1tM7nrAHgJMasU9/ig7sgD4iVuAzpKjcgf9Y=
+	t=1786976698; cv=none; b=MEZa6lo2OGarWb0GyuhJZ1QdcOeM/3iuRE50YjUyyIknzWL6hXX1YHyZDrz1+vSzoMxWV/G0V/z2SxnnPwtyMwz6LWxdvoLfKgE7v1YPZ8bBusS5q03C9RwYKKJBwiWrTbJoglouNkQ8n5gbPd9/qCmTCPJW/QTCf5Pm4gJsCT4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786975695; c=relaxed/simple;
-	bh=Z++qbsFvNFaqswUiDPrL5l0cnunUo2XMhKxY3WDiNMc=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=qqOPh70pgQD+NzVHeOcYCe/e7e0CLvoYo+fGE8EmosKMexC+8FW3ufa8x5XGzFinBp/lTfqa5SmMcrkC49KvdVWCYwyflokg9NyHbXb4+NmVIjU3UIkk15Bh0x+DjYS49uimiQyN0v0DdBjG9aSukxQl6DwCaFn6b1QHs5LQYc4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=XbsK/omo; arc=none smtp.client-ip=209.85.215.198
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+	s=arc-20240116; t=1786976698; c=relaxed/simple;
+	bh=/DTqqG3V7U7WfD1BzSnvfO5TKElZ9Vr+nrizGyb2ukE=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=YPaGJ5dgCe8pR5899O/OeumBfMMZ/ZS5nARnz+hqbDd0yxdGBuf443Y+36REJbQI3JTR7nX1Xu4RCzZ/093bceeEhY8QcgyTMBm4ivNNuIbyb403waj+eGxx3f0CaSAm/GCIXWgEUwidQBQIt8csMEl23hvlt3oRHw1Dp6j7VAo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=jQ3vAmO7; arc=none smtp.client-ip=209.85.128.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="XbsK/omo"
-Received: by mail-pg1-f198.google.com with SMTP id 41be03b00d2f7-cbef1d25500so3633758a12.1
-        for <virtualization@lists.linux.dev>; Mon, 17 Aug 2026 07:08:13 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="jQ3vAmO7"
+Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-495590dde14so43628055e9.0
+        for <virtualization@lists.linux.dev>; Mon, 17 Aug 2026 07:24:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1786975693; x=1787580493; darn=lists.linux.dev;
-        h=content-type:cc:to:from:subject:message-id:references:mime-version
-         :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=K+H/tJA5lC7k+sRi7jSoRnwTUnMixNT0suJnv/pAfq4=;
-        b=XbsK/omoCzVvfkeTjKFCatfeK7PYXpGghAkoiOJUtNkhnwDhbpZAeNYF1BefQCrIkp
-         foJuY6N410T6AMYvUAAIN414K+/YaJqEsvNknuYpO6XJUG5Yt85DH8iGyVGrKvsa/z6W
-         lFS52O9V2lTbjPW2eknvani0O7QggFMonHQNpPI6zsqQVLaXWPjuVFRGNnwjLUm5GINC
-         SAPh0KNl/t3q5vbc71vcfm9Fm4UlR4o6NriWuczYppH2M07ZcSqHaMq3yC6edBFPYYrK
-         FwHJZBfUeCfyk7SSt/F7jyjwVOgLHImP/vShyfis6iON+assmCZdYJ+MAx0Y28FnkDdx
-         /8zw==
+        d=linaro.org; s=google; t=1786976695; x=1787581495; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :user-agent:references:in-reply-to:subject:cc:to:from:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=/DTqqG3V7U7WfD1BzSnvfO5TKElZ9Vr+nrizGyb2ukE=;
+        b=jQ3vAmO7TbPEqvhIdm9L/4rF23O3LqG1n5Ztge823Ju6zNAhS4Ka6UYMIV+70WAUy8
+         LKSyDYVfGVtuyUr6M8dBt8NFDDXokeXIenVjqUug2Q49HmxTb3v7sKyF1w7ztaNsP9Cw
+         V8IZHihOHQBWf9QiFJF/7oiThqqlzeG7vVZcakzj4MneYfR1FAEkAZ2tStphv3T1nMnc
+         MK/LMk6Ns75ADbAYQAn5/8UsAN7+V437OqJGmhVztpH28bdrkj/QD43T6lg/pAV4eH6L
+         S0+9tmLTBUw2+d8H+aaPb0HY4mqW4jTxmIhOm1JB4uGkMi9UB3zTzKdeGNYn7kEskQ5k
+         JqhA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786975693; x=1787580493;
-        h=content-type:cc:to:from:subject:message-id:references:mime-version
-         :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=K+H/tJA5lC7k+sRi7jSoRnwTUnMixNT0suJnv/pAfq4=;
-        b=lK1z5cNhKdIi09dvedUxk2bYIAtfwDuIl2N4Rno+aAlGwhGf1T8mLhFXiHRC+C/fv+
-         12IbwVfosj2Qxr4WED9m7A6rJBWxUNyFeDlWwAwXP/9JElZeOf56oe3DbK3hNwO8gK6j
-         Yx29g72yTfMZsv7n02ZshjyAI0Nh6Yn+G9qVNER8+fP32fmAOZf2/VhNpXVKB1ak9Q0A
-         jr32kdYowj0zPTQ9neaxe0M2avPuagRirClkyjBL4GeWk1dnpzvEULTVftX4bVxDtNHE
-         n/EF/mNZVf45KkFZbW0EVmPy8tHisZlalukDSemy3oyPmfgc4SLCUr3qiFDbDtgjqlQL
-         9QJA==
-X-Forwarded-Encrypted: i=1; AHgh+Rpf/+9Gdxv/ILz5pl7raAJhrWtGrVLuqX+l8sq+kU+bTF7xaE7u/uiU87RqciKYpi4SxxKIGEJOp3PBlVF0Vw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy5N31HcpVz/sPqOfwZeRlwlVvpzkUb6W8h5L07j3rhTWCDKZkT
-	4tLv/Qeyiz+n1ol1Cm7b28ALgYuSEqVzq6Uvwc1xYrMZXT914sU+W4KN1gldk+7iGFy4pTVAmHV
-	VqYsCPQ==
-X-Received: from pgcz4.prod.google.com ([2002:a63:7e04:0:b0:c92:29d5:1f29])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a20:12d2:b0:3c3:9746:1fcb
- with SMTP id adf61e73a8af0-3cc71dc524bmr27787783637.35.1786975692489; Mon, 17
- Aug 2026 07:08:12 -0700 (PDT)
-Date: Mon, 17 Aug 2026 07:08:11 -0700
-In-Reply-To: <ef3b56bf-8df0-4a40-82c7-bd2d65eec71e@yandex-team.ru>
+        d=1e100.net; s=20251104; t=1786976695; x=1787581495;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :user-agent:references:in-reply-to:subject:cc:to:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=/DTqqG3V7U7WfD1BzSnvfO5TKElZ9Vr+nrizGyb2ukE=;
+        b=Ti21c9C8VVFtzvzG0tgWOqJe+KIgRiSCf6pAybdoV8euUrTc/39wUeiiIBW+EieHsC
+         QtSBtHh/kFuIYB9p2C1+k85oOoRF48seMyuWU0zwgvgGxz9gXElnIbvgqJTrPy0g/zgz
+         AEHFrjhZZucUoh5NqY6ZDOxgUeMJbwO0Gm40UjoxJs/j7WEvRCTcMstAnMD4v/I//2jJ
+         0SzdtoEtd6t8M16EV+nDR62UOQHxbJdgWcCNsiPZcs097OmdLWb2fPquroK9Gh9qXfXm
+         JXExIo5wOMktpgDfLeAdGYzWWZLfBOSoMKW1uhwzz8s95g6zc5h9Hr5hsVNEos3kXsci
+         bEqg==
+X-Forwarded-Encrypted: i=1; AHgh+Rr0cETmwyjaBAL1Zfbl+bXMxEVxMlh4qXx/SYGd/CwoWVN2ijZyLTAw7ht8aNaaEZa+mgmrJTQilrvCMMlmEw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzXfugNu3yxHwvH3t73aVcOyfuA7mEy+67bMthHbmMVWmaLoW1r
+	jKgBUjP9mS+eIh7RZhW+T2knDZo1ltUNDxUto/aeBtFnQi+EFGV4kdirO0bdSHS+JOBIiKQ1tRA
+	8AA8b
+X-Gm-Gg: AR+sD13O/DTV7aN+1WDoMlb5lWg+Lajg8O/XfbLF8CH1qcahwEwmRRaimxPgie3jM6M
+	stcpQYH58hrz/Or6Q9PmYnkd+cPFwrvc6UNP9PBTngmEdWdxqOEi9FE6+QeutQIENK5eM32uGOA
+	4e7fKQxTq/HU3QS1B9wP3yksyWrZd21osmlIripwudPIVdA7lBM8kSAD0IXBXz1FEyIDxKQ1+F1
+	6mN6Mhn1EnwUaNmmuiFJu2ABLQg+tVsKTKOyXYg6Mc+iDb/vawOcHYjwXE4SwIBAUikegA8WSeO
+	UZ7aqM9Szm4+ekS0Idn6AAwAPlhbs6gck/NySWVEvd5ey9Hmm+uTdU7wdAKF1onGQ3TVFqQPyBw
+	NHjdL3CiEErX8SUYlrFHNV5GVlNkjUbUgNy5NS4xGLrrHR43lEoz00qD6u4gdy0jB8G+G8uyMXI
+	rTCHmVEm1gAfgtZ9XfOSkcH10jSn/k+wGTGF9n0RMDcD1g1oDAeomOllea1jMK
+X-Received: by 2002:a05:600c:348b:b0:499:5282:f8d1 with SMTP id 5b1f17b1804b1-4999fb76c29mr9022705e9.12.1786976694599;
+        Mon, 17 Aug 2026 07:24:54 -0700 (PDT)
+Received: from draig.lan ([185.124.0.156])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49996183b89sm185398105e9.12.2026.08.17.07.24.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 17 Aug 2026 07:24:53 -0700 (PDT)
+Received: from draig (localhost [IPv6:::1])
+	by draig.lan (Postfix) with ESMTP id 0C3B05F86C;
+	Mon, 17 Aug 2026 15:24:53 +0100 (BST)
+From: =?utf-8?Q?Alex_Benn=C3=A9e?= <alex.bennee@linaro.org>
+To: "Huang, Honglei" <honghuan@amd.com>
+Cc: Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>,  qemu-devel@nongnu.org,
+  virtio-comment@lists.oasis-open.org,  dri-devel@lists.freedesktop.org,
+  virtualization@lists.linux.dev,  Honglei Huang <honglei1.huang@amd.com>,
+  Huang Rui <Ray.Huang@amd.com>,  "Michael S. Tsirkin" <mst@redhat.com>,
+  Dmitry Osipenko <dmitry.osipenko@collabora.com>,  =?utf-8?Q?Marc-Andr?=
+ =?utf-8?Q?=C3=A9?= Lureau
+ <marcandre.lureau@redhat.com>,  Stefano Garzarella <sgarzare@redhat.com>,
+  Gerd Hoffmann <kraxel@redhat.com>,  David Airlie <airlied@redhat.com>,
+  Peter Maydell <peter.maydell@linaro.org>
+Subject: Re: About new backend for GPU compute ROCm in qemu
+In-Reply-To: <78f0583f-93c0-4374-ba37-fd36f6388f0e@amd.com> (Honglei Huang's
+	message of "Mon, 17 Aug 2026 21:44:21 +0800")
+References: <ba0b1bbf-5ebf-4ac3-9f7b-8740e3bc283b@amd.com>
+	<ea899a6b-0a59-4a9c-9e81-3ed70711da59@rsg.ci.i.u-tokyo.ac.jp>
+	<78f0583f-93c0-4374-ba37-fd36f6388f0e@amd.com>
+User-Agent: mu4e 1.14.3; emacs 30.1
+Date: Mon, 17 Aug 2026 15:24:52 +0100
+Message-ID: <87pkzgsu2z.fsf@draig.linaro.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <20260806233609.212337-1-seanjc@google.com> <20260806233609.212337-22-seanjc@google.com>
- <ef3b56bf-8df0-4a40-82c7-bd2d65eec71e@yandex-team.ru>
-Message-ID: <aoMVy4VB1sq4T-ys@google.com>
-Subject: Re: [PATCH v6 21/51] x86/kvm: Obtain TSC frequency from PV CPUID if present
-From: Sean Christopherson <seanjc@google.com>
-To: Maksim Davydov <davydov-max@yandex-team.ru>
-Cc: Kiryl Shutsemau <kas@kernel.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, 
-	Paolo Bonzini <pbonzini@redhat.com>, "K. Y. Srinivasan" <kys@microsoft.com>, 
-	Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
-	Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>, 
-	Ajay Kaher <ajay.kaher@broadcom.com>, Alexey Makhalov <alexey.makhalov@broadcom.com>, 
-	Jan Kiszka <jan.kiszka@siemens.com>, Dave Hansen <dave.hansen@linux.intel.com>, 
-	Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Juergen Gross <jgross@suse.com>, 
-	Daniel Lezcano <daniel.lezcano@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
-	John Stultz <jstultz@google.com>, Vitaly Kuznetsov <vkuznets@redhat.com>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
-	Boris Ostrovsky <boris.ostrovsky@oracle.com>, Stephen Boyd <sboyd@kernel.org>, 
-	Miroslav Lichvar <mlichvar@redhat.com>, x86@kernel.org, linux-coco@lists.linux.dev, 
-	kvm@vger.kernel.org, linux-hyperv@vger.kernel.org, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	xen-devel@lists.xenproject.org, Michael Kelley <mhklinux@outlook.com>, 
-	Tom Lendacky <thomas.lendacky@amd.com>, Nikunj A Dadhania <nikunj@amd.com>, 
-	David Woodhouse <dwmw@amazon.co.uk>, David Woodhouse <dwmw2@infradead.org>, 
-	Thomas Gleixner <tglx@linutronix.de>
-Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Aug 17, 2026, Maksim Davydov wrote:
-> On 8/7/26 02:35, Sean Christopherson wrote:
-> > diff --git a/arch/x86/kernel/kvmclock.c b/arch/x86/kernel/kvmclock.c
-> > index 29ca37e9a3bc..f55d0305d1f3 100644
-> > --- a/arch/x86/kernel/kvmclock.c
-> > +++ b/arch/x86/kernel/kvmclock.c
-> > @@ -342,8 +342,10 @@ void __init kvmclock_init(void)
-> >  	flags = pvclock_read_flags(&hv_clock_boot[0].pvti);
-> >  	kvm_sched_clock_init(flags & PVCLOCK_TSC_STABLE_BIT);
-> >  
-> > -	x86_init.hyper.get_tsc_khz = kvmclock_get_tsc_khz;
-> > -	x86_init.hyper.get_cpu_khz = kvmclock_get_tsc_khz;
-> > +	if (!x86_init.hyper.get_tsc_khz)
-> > +		x86_init.hyper.get_tsc_khz = kvmclock_get_tsc_khz;
-> > +	if (!x86_init.hyper.get_cpu_khz)
-> > +		x86_init.hyper.get_cpu_khz = kvmclock_get_tsc_khz;
-> >  	x86_platform.get_wallclock = kvm_get_wallclock;
-> >  	x86_platform.set_wallclock = kvm_set_wallclock;
-> >  #ifdef CONFIG_X86_LOCAL_APIC
-> 
-> 
-> I cannot test this right now as I lack two servers with different CPU
-> base frequencies, but it seems that this patch might break something in
-> guests:
-> After migrating a VM (QEMU + KVM) from a host with one base frequency to
-> another host with a different base frequency, the value in CPUID leaf
-> 0x40000010 EAX changes and becomes the same as the destination host base
-> frequency instead of remaining the source base frequency.
+"Huang, Honglei" <honghuan@amd.com> writes:
 
-That's a bug in whatever is orchestrating the migration, and/or QEMU if QEMU is
-handing the upper layers a loaded footgun.
+> On 8/17/2026 7:44 PM, Akihiko Odaki wrote:
+>> On 2026/08/17 12:19, Huang, Honglei wrote:
+>>>
+>>> Hi Michael, Alex, Dmitry, Akihiko,
+>> Hi Honglei,
+>>=20
+>>>
+>>> I'm bringing AMD GPU compute ROCm based on virtio. I posted a ROCm
+>>> over virtio
+>>> implementation to virglrenderer nine months ago (MR !1568 [1]). The
+>>> ROCm side has
+>>> been supportted by ROCm offical.
+>>>
+>>> Current implementation is a virtio gpu context type capset handled insi=
+de
+>>> virglrenderer, sharing the display path. That's an awkward fit, many
+>>> compute GPUs have no display engine at all.
+<snip>
+>>> =C2=A0=C2=A0 - that instance served by a separate ROCm backend library =
+loaded
+>>> =C2=A0=C2=A0=C2=A0=C2=A0 in-process by QEMU.
+>> First, I think we need to establish why ROCm cannot or should not
+>> remain
+>> in virglrenderer. The virglrenderer, Venus, and VCL maintainers are
+>> likely better placed to advise on that boundary. Once the protocol
+>> requirements and performance measurements are clear, we can assess the
+>> appropriate QEMU integration.
+>
+> venus is borned for GFX.
+> virCL not merged.
+>
+> To be clear, I'm not saying virglrenderer can't host a ROCm native
+> context it clearly can. My hesitation is more about fit and direction:
+> virglrenderer has grown up around GL/graphics, and I haven't yet found
+> compute oriented plumbing there to build on, while ROCm moves very
+> fast and I need something I can keep current with low friction.
 
-> The main reason for this behaviour is that setting the TSC frequency via
-> ioctl(KVM_SET_TSC_KHZ) doesn't change the value in CPUID leaf 0x40000010
-> EAX and these two entities are still not connected.
+I'm unsure what the current development status of virglrenderer is but
+it does see a continuing stream of merges. However the threading model
+does make things tricky for QEMU when we are sharing lifetime of blobs
+between QEMU proper and the virglrenderer thread. Perhaps there is a
+better way to organise things?
 
-And they never will be.  It's userspace's responsibility to fill the correct
-values for 0x40000010.
+Could we do the marshalling of VirtIO GPU commands into ROCm directly
+inside QEMU rather than going through additional plumbing? Are the
+sequences we need to handle more or less complex than your general gfx
+rendering? How might this work with other frameworks?
 
-But AFAICT, QEMU does the right thing.  env->tsc_khz is used for both the CPUID
-leaf and for KVM_SET_TSC_KHZ.
+>
+> Regards,
+> Honglei
+>
+>
+>> [2]
+>> https://developers.redhat.com/articles/2025/06/05/how-we-improved-
+>> ai-inference-macos-podman-containers
+>> [3] https://www.qualcomm.com/developer/blog/2024/10/vcl-virtio-gpu-
+>> opencl-driver
+>> Regards,
+>> Akihiko Odaki
+>>=20
+>>>
+>>> That reuses the existing pluggable backend model, a second virtio gpu +=
+ a
+>>> backend library. It doesn't add dedicated queues for
+>>> debug/profiling currently.
+>>>
+>>> Waiting for reply and=C2=A0 happy to share more detail. Thanks!
+>>>
+>>> [1] https://gitlab.freedesktop.org/virgl/virglrenderer/-/
+>>> merge_requests/1568
+>>>
+>>> Regards,
+>>> Honglei
+>>=20
 
-kvm_arch_init_vcpu():
-
-        c = &cpuid_data.entries[cpuid_i++];
-        c->function = KVM_CPUID_SIGNATURE | 0x10;
-        c->eax = env->tsc_khz;
-        c->ebx = env->apic_bus_freq / 1000; /* Hz to KHz */
-        c->ecx = c->edx = 0;
-
-kvm_arch_set_tsc_khz():
-
-    r = set_ioctl ?
-        kvm_vcpu_ioctl(cs, KVM_SET_TSC_KHZ, env->tsc_khz) :
-        -ENOTSUP;
-
-> I saw this behaviour with QEMU 7, but I've checked the code of the
-> latest version and it seems that the described behaviour still exists.
-> So, in that case, it's possible that with these changes a VM will use
-> the wrong TSC frequency from CPUID leaf 0x40000010 EAX if it's migrated
-> and then rebooted.
-> 
-> Putting it all together, after the previous patch ("KVM: x86: Officially
-> define CPUID 0x40000010 as PV Timing Info (TSC and Bus)") a new way to
-> show the guest that CPUID leaf 0x40000010 is valid should be implemented
-> and only then this leaf can be used to get the TSC frequency.
-
-No, there are already non-Linux kernels that consume 0x40000010, e.g. FreeBSD.
-In my very strong opinion, if this problematic for a deployment, then that
-deployment needs to urgently fix their broken setup.
+--=20
+Alex Benn=C3=A9e
+Virtualisation Tech Lead @ Linaro
