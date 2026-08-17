@@ -1,211 +1,134 @@
-Received: from www3579.sakura.ne.jp (www3579.sakura.ne.jp [49.212.243.89])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC34B390229
-	for <virtualization@lists.linux.dev>; Mon, 17 Aug 2026 12:21:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=49.212.243.89
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E591241D202
+	for <virtualization@lists.linux.dev>; Mon, 17 Aug 2026 12:41:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786969280; cv=none; b=nHxefkwCLGTuxcI/HeLZYobUD6uqRxzYcdIjriSBA4Gvx4rbCTiLC2W50ba8ZXw+YcJvhEHDonl1QE/0jBaRXSGY1SiFfEqyn+bRzM5e/0NEt1aruo/FS2V0DWHSrFf/Fxb4+zFOHwLKQnnoSCxd3BIa8k6xlX96QL9wWcP4Pas=
+	t=1786970481; cv=none; b=L1gY5WpXMnQ+61fFL88iYwDD0HnVoatsw99avQ4TtIqFrnYuiaBipK6Vp9YqBpkhh6z+/WjpP8qLcskKyrZWn5rhqSt1yUmtwFcuY2dsbEIilleB5szBBbeSGrIIaatpziYEC4lfnpRC7qcAH4L2XZmoNAMk489pHbtjYVhlVjU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786969280; c=relaxed/simple;
-	bh=WFPrLag9482u11+mk1JS7Fh0ynqOfEWYM/JOL//G+RU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ewYjCTBGlV4XhEjBXHtZHAFOU0h+2q5Sw0Gq5OEWQXh3Yud52y7vCcTaX1C/7swGhNNiSL2r3TpxePXf9SGZkb5F3ZuV0GHUTDZ/pHB6Wvq1BDnUQU2hTa29+UJ2p4x8JyronG1yyFranK8LUKSHiCpzrHeVi8IgFrlbEaRHAwc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rsg.ci.i.u-tokyo.ac.jp; spf=pass smtp.mailfrom=rsg.ci.i.u-tokyo.ac.jp; dkim=pass (2048-bit key) header.d=rsg.ci.i.u-tokyo.ac.jp header.i=@rsg.ci.i.u-tokyo.ac.jp header.b=BQTdu1Nh; arc=none smtp.client-ip=49.212.243.89
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rsg.ci.i.u-tokyo.ac.jp
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rsg.ci.i.u-tokyo.ac.jp
+	s=arc-20240116; t=1786970481; c=relaxed/simple;
+	bh=XpzDSGLqZ8oshW6QLL6AkRrKripZJSM32hTiHlFT9Ek=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=p+GLn+x/kqEZ/13GAEODsJTBQOlApWxBGaAq5cZnYJOORFowMQGahp97qkjtf4rz7VKYmdLY1hQV6Tx38bg3rg3vn2mj1R2HAI0gdNB/CSiT3AOLjTNEqHSgdVDLzoxvceGI9FMcFGKwZdTu21ZOJ2DRZ7goOD/vKcCyjYjpCuI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=a4ykMbQ4; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rsg.ci.i.u-tokyo.ac.jp header.i=@rsg.ci.i.u-tokyo.ac.jp header.b="BQTdu1Nh"
-Received: from [133.11.54.183] (h183.csg.ci.i.u-tokyo.ac.jp [133.11.54.183])
-	(authenticated bits=0)
-	by www3579.sakura.ne.jp (8.16.1/8.16.1) with ESMTPSA id 67HBifTx071369
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO);
-	Mon, 17 Aug 2026 20:44:41 +0900 (JST)
-	(envelope-from odaki@rsg.ci.i.u-tokyo.ac.jp)
-DKIM-Signature: a=rsa-sha256; bh=lPUNZG6ebfDXN3Bnz8ZUjlswPwbP+Dv8XgcC/jdD9FY=;
-        c=relaxed/relaxed; d=rsg.ci.i.u-tokyo.ac.jp;
-        h=From:Message-ID:To:Subject:Date;
-        s=rs20250326; t=1786967081; v=1;
-        b=BQTdu1NhLrpTqEthG4vddOeuDZDU6eR+DR5NxuttTitagRXgcK5w7MF78mtpcs4d
-         oLICXB0ko9V0gNAmkduYBm7VLaOxnfOVs//Kcvif52TVz7f+5II/54D2HHwNfcoo
-         Y6PdSjZlo8inqW7mroTq6576KysePCRPtSBn829t+qfXeXaK4Dn2OgUfst9PKAhK
-         /bvubIt0kBUNxjjso5ZrsZFozl0xpiyIIJTS7zKOAUR4ChN/JXWY0yGascMXk9t6
-         MybV9CUyNE1G2EpilBYDDt3R0nntwIor6Gu1NwQlVodTZxJ+iU6GD2c9wZHUqkRb
-         ERnr5Wx4KUsvNfUqHOl2qA==
-Message-ID: <ea899a6b-0a59-4a9c-9e81-3ed70711da59@rsg.ci.i.u-tokyo.ac.jp>
-Date: Mon, 17 Aug 2026 20:44:40 +0900
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="a4ykMbQ4"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1786970478;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=QT5P0FjYJIXNb5bpOKh/Iv+72OmLL9osWf81HjiuK1Q=;
+	b=a4ykMbQ4xJdtpUQiDa0Af8pS+G2QWT6mhvb1vckttMX39NUyMFFBUKEP9h6OczsHJDXoWz
+	QIQGW+a2An6FW8yv4tztK8unHcG3YXraQzrLz4BU8vzE7yV88YE6/gNuH3fKnakLYr2LZZ
+	IGcbAFnSjjFJIJIa5twfBhTRU8y98n4=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-74-eJYPm-oAMICfhn-Lh8_ukg-1; Mon, 17 Aug 2026 08:41:15 -0400
+X-MC-Unique: eJYPm-oAMICfhn-Lh8_ukg-1
+X-Mimecast-MFC-AGG-ID: eJYPm-oAMICfhn-Lh8_ukg_1786970474
+Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-c15e555a164so284592066b.1
+        for <virtualization@lists.linux.dev>; Mon, 17 Aug 2026 05:41:15 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786970474; x=1787575274;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=QT5P0FjYJIXNb5bpOKh/Iv+72OmLL9osWf81HjiuK1Q=;
+        b=cfbpsOE4kiospYMAg51LR9sM9VloxjFFk+jIdbnUFBXqO6DsnN7k6cTn4TkOUi6jZG
+         ae+QhaEN/5/6QBjnYg4WvMdTYLVTVw+rK1FysyyDFDOGL3uV+0iI6Wp6jX3+NU6NLVfr
+         XW94nIx+E3kPZxB1zmOad85SiCGK7QiObHiS1PIITtBnKITRU2ZVip6/9iasSAx8ru7J
+         ibGCm7MBRsmQ6zfp3eQPsW/eYpsSvTnnqpjrR06H2FyuO9mq2abY0+ilio5fvZiQDllr
+         78xhAzXyCPQiInGpiVPny5dyqFICw/T5DHyAgnjcMzVC6gDgq/vyh2eE4ZsbYxo9ykab
+         tfUg==
+X-Forwarded-Encrypted: i=1; AHgh+RqNgJUkhkwqA7uma3eYTkjOxKIsPAKqIFcy+oR5p0Pw7Ws/SYFB1E7M2PapmKFX7dz0jc29pggDkAVLvGznNw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzXXtO0EuAJc+URnzzpIkOniWEdIhfIj+O+BapNkUiQa8m4B4X9
+	OqRsbYNQSH6ATnEcHi/CAyNmqPsIrtlbLnM9FY9IP7nmm6MdMBoomZnlrxH0FbqIMGfrhTgmLRU
+	xX5TNQwqYha08A1K/rT6/QXZ6+DT3Mtjb7LvhxHKXcNzR5VmG6hFnlXdgSbnSgdD4RSji
+X-Gm-Gg: AR+sD11TI6ecgAp1Vc0NbW1VEDWWaYAKe7AbCJyuIoWGf0exRjqhZuvN+8MF4zS1NNV
+	USeTF74AXpNzvo16x96l8GwsjdDwoWdWHFauOXZkeGDuwqcdXx76sUDY0z1M6ysC3G33qXx40Jr
+	mjcvSjXK3NowIlSvBi1fVVGxU0bI/Da2iMil4YYHoRCIr9ZL0P0tY3w+dISIeeSvGSHN+dCwAwE
+	7OsZcQqBYX6A95dxl0xFuhgo6DOVB/l/uH3zKqq73bUtvAZLy2Aa22p4qMr4HStpc/G0nbVhi8J
+	POsoJIKgrlOdXGQse2WjsBEH2/Mog6zenhS21kbcXhO9eRJk/EEXsyxNdUegdeLCMB1Vktu/JGP
+	l5WuFe/2o4wTlVN3BdG5ykRKb
+X-Received: by 2002:a17:907:d0f:b0:c08:580e:899a with SMTP id a640c23a62f3a-c212aa1d477mr1206731366b.10.1786970474023;
+        Mon, 17 Aug 2026 05:41:14 -0700 (PDT)
+X-Received: by 2002:a17:907:d0f:b0:c08:580e:899a with SMTP id a640c23a62f3a-c212aa1d477mr1206726566b.10.1786970473289;
+        Mon, 17 Aug 2026 05:41:13 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-47-107.inter.net.il. [80.230.47.107])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c217fea2cdcsm52972566b.18.2026.08.17.05.41.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 17 Aug 2026 05:41:12 -0700 (PDT)
+Date: Mon, 17 Aug 2026 08:41:09 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Sergii Ushakov <sergiiushakov@google.com>
+Cc: Christoph Hellwig <hch@infradead.org>, virtualization@lists.linux.dev,
+	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Jason Wang <jasowangio@gmail.com>, Jens Axboe <axboe@kernel.dk>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [PATCH] virtio-blk: clamp max_segments when indirect descriptors
+ are disabled
+Message-ID: <20260817084042-mutt-send-email-mst@kernel.org>
+References: <20260814105954.4060627-1-sergiiushakov@google.com>
+ <aoK8fF27_nu1ux9s@infradead.org>
+ <CADhvd_MfDwX=Ebwt3XQJrzYkvACGCdAq1VYT585Bv2v37Zu2rg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: About new backend for GPU compute ROCm in qemu
-To: "Huang, Honglei" <honghuan@amd.com>,
-        "Michael S. Tsirkin"
- <mst@redhat.com>,
-        =?UTF-8?Q?Alex_Benn=C3=A9e?= <alex.bennee@linaro.org>,
-        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-        =?UTF-8?Q?Marc-Andr=C3=A9_Lureau?= <marcandre.lureau@redhat.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@redhat.com>,
-        Peter Maydell <peter.maydell@linaro.org>
-Cc: qemu-devel@nongnu.org, virtio-comment@lists.oasis-open.org,
-        dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
-        Honglei Huang <honglei1.huang@amd.com>, Huang Rui <Ray.Huang@amd.com>
-References: <ba0b1bbf-5ebf-4ac3-9f7b-8740e3bc283b@amd.com>
-Content-Language: en-US
-From: Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>
-In-Reply-To: <ba0b1bbf-5ebf-4ac3-9f7b-8740e3bc283b@amd.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <CADhvd_MfDwX=Ebwt3XQJrzYkvACGCdAq1VYT585Bv2v37Zu2rg@mail.gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: a3PAZWFQDrdegmVZyLDMa7nXaBJXs9_vAPyCP1RmRHY_1786970474
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 2026/08/17 12:19, Huang, Honglei wrote:
+On Mon, Aug 17, 2026 at 10:08:21AM +0200, Sergii Ushakov wrote:
+> On Mon, 17 Aug 2026 at 09:47, Christoph Hellwig <hch@infradead.org> wrote:
+> >
+> > On Fri, Aug 14, 2026 at 12:59:54PM +0200, Sergii Ushakov wrote:
+> > > When VIRTIO_RING_F_INDIRECT_DESC is not negotiated by the host, every
+> > > scatter-gather segment in a request must consume a physical slot in
+> > > the virtqueue ring.
+> > >
+> > > If the host does not advertise VIRTIO_BLK_F_SEG_MAX and provides a small
+> > > virtqueue (e.g. 128 descriptors on QNX Hypervisor), the block layer
+> > > defaults max_segments to BLK_MAX_SEGMENTS (1024). When a multi-page
+> > > compound bio arrives from the page cache, virtqueue_add_split() rejects
+> > > the request with -ENOSPC and triggers:
+> > >
+> > >   WARNING: at drivers/virtio/virtio_ring.c:1493 virtqueue_add+...
+> > >   WARN_ON_ONCE(total_sg > vq->split.vring.num && !vq->indirect);
+> > >
+> > > This permanently wedges the blk-mq queue and blocks all subsequent disk
+> > > I/O in uninterruptible sleep (D state).
+> > >
+> > > Add a virtio_blk.max_segments module parameter to allow runtime cmdline
+> > > overrides, and automatically clamp sg_elems to
+> > > (virtqueue_get_vring_size - 2) when indirect descriptors are disabled.
+> >
+> > What is the reason for the override?
 > 
-> Hi Michael, Alex, Dmitry, Akihiko,
+> The module parameter was intended for two main reasons:
+> 1. A safety fallback for non-compliant/buggy hypervisors that may have
+>    internal segment limits lower than the advertised ring size without
+>    advertising VIRTIO_BLK_F_SEG_MAX.
+> 2. Debugging and performance benchmarking of smaller scatter-gather lists
+>    without needing kernel rebuilds.
+> That said, the automatic clamping to (vring_size - 2) resolves the
+> hang and panic out-of-the-box. If the preference is to avoid adding a new
+> module parameter, we may drop it and keep only the automatic
+> clamping.
 
-Hi Honglei,
-
-> 
-> I'm bringing AMD GPU compute ROCm based on virtio. I posted a ROCm over 
-> virtio
-> implementation to virglrenderer nine months ago (MR !1568 [1]). The ROCm 
-> side has
-> been supportted by ROCm offical.
-> 
-> Current implementation is a virtio gpu context type capset handled inside
-> virglrenderer, sharing the display path. That's an awkward fit, many
-> compute GPUs have no display engine at all.
-
-I think "sharing the display path" conflates several layers and makes 
-the problem difficult to assess. It would help to identify the concrete 
-constraint behind "awkward fit."
-
-End-to-end, there are four relevant layers:
-
-1. Host GPU stack: hardware, host kernel, and host userspace
-2. Paravirtualization stack: virglrenderer and QEMU
-3. Host/guest interface: virtio and the capset-specific command stream
-4. Guest GPU stack: guest kernel and guest userspace
-
-Orthogonally, acceleration is separate from display and scanout. A
-physical device may provide both, but acceleration does not require a
-display engine. Linux likewise exposes render and compute interfaces
-separately from modesetting. The userspace interface virglrenderer uses 
-is messy; there is Vulkan, EGL, OpenGL, and now you are adding ROCm. But 
-there is one thing I must note is that acceleration and display is 
-decoupled, and acceleration does not require display.
-
-At the protocol layer, context command buffers are carried by 
-VIRTIO_GPU_CMD_SUBMIT_3D. Scanout uses separate core virtio-gpu 
-commands, and VIRTIO_GPU_CMD_GET_DISPLAY_INFO may report no enabled 
-displays. At the implementation layer, QEMU handles scanout 
-presentation. virgl_cmd_set_scanout() obtains resource information 
-through virgl_renderer_resource_get_info() or 
-virgl_renderer_resource_get_info_ext(). That does not make scanout a 
-virglrenderer-owned display path.
-
-Therefore, if "sharing the display path" means sharing the same device, 
-control queue, and QEMU execution context, that identifies a possible 
-source of contention. If it means that capsets or virglrenderer are 
-inherently tied to display, I do not think that is accurate. Vulkan 
-compute is already used through Venus with libkrun [2], and VCL proposes 
-OpenCL support through virglrenderer [3].
-> Beyond that, sharing the display path is increasingly painful:
-> 
->    - Compute hammers the queues more than graphics, so sharing
->      virtio gpu's single control queue with display/virgl causes contention
->      and display stutter.
-
-All non-cursor commands do share one control queue, but a fence avoids 
-serialization.
-
-There may still be implementation-level contention, and it is not
-necessarily specific to compute. A sufficiently busy graphics workload
-could expose the same bottlenecks. Possible contributors in current QEMU
-include:
-
-a) qemu_console_hw_gl_block() blocks the entire queue when QEMU only
-    needs to fence scanout commands.
-
-b) virtio_gpu_virgl_unmap_resource_blob() may also block the entire
-    queue just to delay one command.
-
-c) QEMU dispatches the control queue and calls into virglrenderer from
-    its main-loop thread along with display work and many other things.
-    Venus's render server can offload renderer work, but control-queue
-    dispatch remains in QEMU's main loop.
-
-In any case, I think you need to do some experiments to track down the 
-real cause. a) is easy to check: just comment out all 
-qemu_console_hw_gl_block() calls; it may corrupt display but removes the 
-blocking. b) can also be tested by leaking the mappings instead of 
-blocking the whole queue. Using a different display device like qxl 
-tells whether c) is causing contention.
-
->    - Compute contexts need far more blob / shared memory than a display 
-> one.
-
-It is not a problem by itself. Frequent mapping and unmapping might 
-amplify the second issue above, but that needs to be measured.
-
->    - Maybe needs a wider ROCm / compute stack, cause the render model 
-> fits poorly:
->      rocprofiler (PC sampling, SQTT/SPM, counters, high bandwidth streams)
->      and ROCgdb (wave control, address watch, async exceptions an
->      out of band channel that must not block display).
-
-virglrenderer does not impose a particular render model. That's why 
-Vulkan Compute just works with Venus.
-
->    - Events, faults and GPU reset/SMI are async and don't map onto fences.>    - All of this is hard to extend cleanly inside a display capset.
-Capset is not about display but determines the protocol of the 
-VIRTIO_GPU_CMD_SUBMIT_3D command stream. You have described events, 
-faults and GPU reset/SMI are async don't map onto fences that may be 
-associated with VIRTIO_GPU_CMD_SUBMIT_3D which is dictated by capset. An 
-additional feature may be necessary, and it may or may not be dictated 
-by capset. The other things are irrelevant with the protocol capset 
-represents; they are either behavioral or about different commands.
-
-> 
-> On the QEMU/host side, would something like this be OK? One step, two 
-> parts:
-> 
->    - a dedicated headless virtio gpu instance for compute.
-
-A second device would isolate its virtqueues and device-wide
-renderer_blocked state. That may be useful if measurements show that
-these are the bottlenecks, but it is not yet clear that they are or that
-a second device is the appropriate solution.
-
->    - that instance served by a separate ROCm backend library loaded
->      in-process by QEMU.
-
-First, I think we need to establish why ROCm cannot or should not remain
-in virglrenderer. The virglrenderer, Venus, and VCL maintainers are
-likely better placed to advise on that boundary. Once the protocol
-requirements and performance measurements are clear, we can assess the
-appropriate QEMU integration.
-
-[2] 
-https://developers.redhat.com/articles/2025/06/05/how-we-improved-ai-inference-macos-podman-containers
-[3] 
-https://www.qualcomm.com/developer/blog/2024/10/vcl-virtio-gpu-opencl-driver
-
-Regards,
-Akihiko Odaki
-
-> 
-> That reuses the existing pluggable backend model, a second virtio gpu + a
-> backend library. It doesn't add dedicated queues for debug/profiling 
-> currently.
-> 
-> Waiting for reply and  happy to share more detail. Thanks!
-> 
-> [1] https://gitlab.freedesktop.org/virgl/virglrenderer/-/ 
-> merge_requests/1568
-> 
-> Regards,
-> Honglei
+sounds better to me.
 
