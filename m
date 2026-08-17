@@ -1,175 +1,251 @@
-Received: from SJ2PR03CU001.outbound.protection.outlook.com (mail-westusazon11012047.outbound.protection.outlook.com [52.101.43.47])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B04B265606
-	for <virtualization@lists.linux.dev>; Mon, 17 Aug 2026 03:19:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.43.47
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786936798; cv=fail; b=PROeL/z/gPLY8c+JmSxdyaIxVIUesQub88OGHwZT/zJS2EDX1CQCibha0veDsz7NEFjqdk/+EWmXuPgbKtLuFMILYqsWxMtaOyCvjanalQ2ctn2K65Dcqtv3P7bjYfusBvs/SEs5saW23sh7GOz+4wf5qWS9jMeTO46bZgWxJBQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786936798; c=relaxed/simple;
-	bh=m/Sl/WIFmOJyv6DAED6tYbnEhOMRUmFMk8ES/yXuSAc=;
-	h=Message-ID:Date:To:Cc:From:Subject:Content-Type:MIME-Version; b=Z3zVUCUjgDClqq2XcyicqfM5L+JwkVS/CJ3UEvGwzNk/TGvZ07SHSNXjQkODXhR1EqV1ho4p6nrmKErfBRgJJlkfgO1p+2TAmPgUcZTpBE8TbCJvieZTda8OzumnjeP8C7SATjJ35zLpUbgWWU2pP2n7gXs0c+tt/1HNy/ulMYk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=MZ/Na02b; arc=fail smtp.client-ip=52.101.43.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84AF726CE05;
+	Mon, 17 Aug 2026 03:42:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.12
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786938181; cv=none; b=AF6Q/yGLojwReMtERYdz2oQvwjKkrJ7kLfgBQQB4X9XCuiqJ/o4EnvVnYzk/7r7SxacultY5Ygy1GUunUAE7SDWv0UKZqUYFJakt4omncfEAwQjBu1ACTJJkEeGDR5wKgvcmoszEnvrH4Phol/iXbYdFIqY2+wt/q/tjpxWGM30=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786938181; c=relaxed/simple;
+	bh=EOSrGCtHavRxv/H+5lc0NwtUfIULbsCDZofDEHB+59g=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=t6SuID6BkzoIA29eSvm+FluT3IaP2XSbIUqJVWnA5TGEf5JL9t5Rs4FjHvfD8UYCPNQVM8CXQi1oO4APEraZdz6SSkMtKr/yueH7kSqRZ3LAMTbZrfRhC31Zz4JOYSHU9lof2jLHh8qAuBcMXaDT7sVDwINJLe4UxBgEEcn/JYk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=GlQeqTrM; arc=none smtp.client-ip=198.175.65.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="MZ/Na02b"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=ymtGwdar0egUiw0gN5eU+gQs5RkoO1Znh978z30Htw+FNrAm2Koddmr+T9gKvQBVNYaFqrfVcUCqr6AOesVaPI1DFPfp5a660HQw/1vZmbEAib2LYOoMKknPbNs97Mcw+BLAzAKAlk16cz7JsKuWGhHBtD19Ci+V6kWwbSISOK4NoYQM+JSEsL/w7g2OnSzZq0c8tS23zlDOJza9/LBYj7sphDORtUUX6/VuPDI3zR3ArrsPsE553W2plCGSOEeT8uLt1f17ZvBEI59droyiQmtv8zh1DOf1e9XuNUDC0GDbPbLSEqsB1AR3oWRnXOwa8p0HcNoYekdWhxacj4NMjg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=ECuQ5EbxfrTfvi4azIJpb3E4SlIYnRRm0WZNmNa61J4=;
- b=XUxevspsaQEGDsy3I0Dv/8SAXTxbWY4cjXNFIuVscC6avx6NAg0OhBJBRU0JyG3ptr1SvYJGQfWdgdUzU8GeM6dJimn7J8LTCt0j6zIAotKGO7wpntv4sBlpn7e4xk83YnPOGVJIJzZxF0HiLGbxiQjkwG5DU9XFLVP4x3ICOr0tgqKL0kDrkA9wY5v6JtCCApm+/1+nWlzVz22NkskjkcM5MCii/BHUaSJ8qmbOXxF9BXjA2NCIdkBGtHRUFS0g9fz+pAUYX3IpKR/DLqOJSeDBvgLl59qg4p6KLj5hYJITDeX/ushD6olsS+QzF6OCfShbJrbPV5LZjJCEjzefRw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ECuQ5EbxfrTfvi4azIJpb3E4SlIYnRRm0WZNmNa61J4=;
- b=MZ/Na02b9BtcUPXkzhjTkjSjGS7MdSB3bbJDS3U6CmEn016AX8bjsdbjxKXTgJEiFPJ5tCBgKLm+6b9WnU5Luo9nC84tqwR7b9A7bCRW8q+M184zw6KGhTooxPw//RThY5mHySD8Y7Bz0EdBckwKNsGedfoXhn8VjWpgLbf2dco=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from CY8PR12MB7170.namprd12.prod.outlook.com (2603:10b6:930:5a::18)
- by CY3PR12MB9632.namprd12.prod.outlook.com (2603:10b6:930:100::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.315.17; Mon, 17 Aug
- 2026 03:19:52 +0000
-Received: from CY8PR12MB7170.namprd12.prod.outlook.com
- ([fe80::7565:bdd3:383a:de5f]) by CY8PR12MB7170.namprd12.prod.outlook.com
- ([fe80::7565:bdd3:383a:de5f%6]) with mapi id 15.21.0315.014; Mon, 17 Aug 2026
- 03:19:51 +0000
-Message-ID: <ba0b1bbf-5ebf-4ac3-9f7b-8740e3bc283b@amd.com>
-Date: Mon, 17 Aug 2026 11:19:44 +0800
-User-Agent: Mozilla Thunderbird
-Content-Language: en-US
-To: "Michael S. Tsirkin" <mst@redhat.com>,
- =?UTF-8?Q?Alex_Benn=C3=A9e?= <alex.bennee@linaro.org>,
- Dmitry Osipenko <dmitry.osipenko@collabora.com>,
- Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>,
- =?UTF-8?Q?Marc-Andr=C3=A9_Lureau?= <marcandre.lureau@redhat.com>,
- Stefano Garzarella <sgarzare@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
- David Airlie <airlied@redhat.com>, Peter Maydell <peter.maydell@linaro.org>
-Cc: qemu-devel@nongnu.org, virtio-comment@lists.oasis-open.org,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
- Honglei Huang <honglei1.huang@amd.com>, Huang Rui <Ray.Huang@amd.com>
-From: "Huang, Honglei" <honghuan@amd.com>
-Subject: About new backend for GPU compute ROCm in qemu
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: TP0P295CA0006.TWNP295.PROD.OUTLOOK.COM (2603:1096:910:2::6)
- To CY8PR12MB7170.namprd12.prod.outlook.com (2603:10b6:930:5a::18)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="GlQeqTrM"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1786938180; x=1818474180;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=EOSrGCtHavRxv/H+5lc0NwtUfIULbsCDZofDEHB+59g=;
+  b=GlQeqTrMvBiZ2hrbOyXQ79kNIezmr6FCoTP2PRwduPBC2FFryNf2CG64
+   ncvFJZPRiH8MZkazkpBBSaVav6Ph7yE4Y7W+LEl2sbnkM4QS+HEi++bMs
+   iqs9a9tPjE1rOlmD2xYlxMsYPtFXB412HLZw2tKrZK5giB5nO7npbKMk2
+   tdaNsoGxSefQXw0tTuGh/MhQIyuDUGwmwH/1gGTl2aze9QIa1G71Ht/HG
+   mQ0JQyndL5aXZz+FaB/SQ82VYU7HLCtuaB+fwFrdW6tD9exzwQCN6ntAL
+   oE3z32il+320gtV6zjPok1QOQI/JIcYLczDuwQNXvtcziI+gxqkm9v5fr
+   A==;
+X-CSE-ConnectionGUID: neJBoHKjRNutwwf+E5aKAw==
+X-CSE-MsgGUID: rghLhq07Tn2Oj5cQ1RxBlg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11877"; a="98924235"
+X-IronPort-AV: E=Sophos;i="6.25,228,1779174000"; 
+   d="scan'208";a="98924235"
+Received: from orviesa002.jf.intel.com ([10.64.159.142])
+  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Aug 2026 20:42:51 -0700
+X-CSE-ConnectionGUID: LT8Q1vA0TW+TswP7amppGA==
+X-CSE-MsgGUID: Eo3je0FOTNqyFXh6yGSEMg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,228,1779174000"; 
+   d="scan'208";a="294711622"
+Received: from lkp-server01.sh.intel.com (HELO 6eda058d650d) ([10.239.97.150])
+  by orviesa002.jf.intel.com with ESMTP; 16 Aug 2026 20:41:59 -0700
+Received: from kbuild by 6eda058d650d with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1wvoEV-00000000dHS-41QH;
+	Mon, 17 Aug 2026 03:41:55 +0000
+Date: Mon, 17 Aug 2026 11:41:45 +0800
+From: kernel test robot <lkp@intel.com>
+To: LiMing Wu <liming.wu@jaguarmicro.com>,
+	Jean-Philippe Brucker <jpb@kernel.org>,
+	"Joerg Roedel (AMD)" <joro@8bytes.org>
+Cc: oe-kbuild-all@lists.linux.dev, Will Deacon <will@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>, virtualization@lists.linux.dev,
+	iommu@lists.linux.dev, angus.chen@jaguarmicro.com,
+	Liming Wu <liming.wu@jaguarmicro.com>
+Subject: Re: [PATCH] iommu/virtio: Add debugfs state dump
+Message-ID: <202608171132.xtGhKM9V-lkp@intel.com>
+References: <20260731014838.31187-1-liming.wu@jaguarmicro.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY8PR12MB7170:EE_|CY3PR12MB9632:EE_
-X-MS-Office365-Filtering-Correlation-Id: 66b9299a-f382-4203-2406-08defc0e66b7
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|23010399003|366016|376014|7416014|1800799024|10067099003|56012099006|18002099003|11063799006;
-X-Microsoft-Antispam-Message-Info:
-	qrtkCuuwrFKjoEisXqy0tViiOgwlX9/6h6Yr4DDZ4BF+DwYOYtbZCFCxs9UllFPfikeQOQJ1aaTyumFt2OXyG2kHL6wuskuTbc7/Fu5WUSZCOSVSsDEVK0zu86EgvBh/WNj3YbZj+knvJvgZBNmJYz5U0R2Rb2+DrI5PMIZI8BSHNch2z19Y2TQp/5PBm9vouUo1RroOB6UffYJW2qlfC5XxcGraDsXUVGVfsvYQQyewsBh70LhmOWYCiM9YTjolgSM8byc4xtLYtIu5urPo8aKji/O6Q2oXq+1b6erm6/mxuGQcGRRS7Ghn82/8qFwTSwQAaeIHRs9Tp5lDj6g/YuE7X3q0LX94XyiNtP5Oycnc1mbOUY+kU0XcfqXvHS8yMhzGpuUMuXpKF8p0DkIO/+IAIcC3e0kjnbqe9DnX8vUMiSHqGr4KfhXcfLjghGAySXUdKQkszM5CLfzBuydLSwPQJlEujSbN+eE0QKJUxYqkL+nnD7xCeji1oG4/2fpfqp4W8nMjARZfYAIg8wk5y0I9+ApNUmFAUWiRq2bXRae4dJD2dl8fw8NZ3/PCL9l26OKF/qDYaBU8pZPF0an9H+BY2r/vx9IDt9FRmUy4OL26ZQw7j4XC0rj/ApUDnU4Q
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR12MB7170.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(366016)(376014)(7416014)(1800799024)(10067099003)(56012099006)(18002099003)(11063799006);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?YTZhL1drSlFwLzR2MFZ1bnhDZmhuLzBaVVNJSG5VSHVEcE8wQThZNzVWeEk5?=
- =?utf-8?B?WEk2OHgvZHEwZGF1T2Nnb1puVWdPYXhoY1lYU2F0UWdOb3pKRUNPRkJXZHJU?=
- =?utf-8?B?OXM3dDdFSm42U3FiUkRJOVBSdXRSY2J4TzkyUmc5U3YyaERPd0VrUEtOMkta?=
- =?utf-8?B?Rlh3VDFCN05jZ2taSVpWN1cvRUpFZTVBVThFbHJBODBTYTNCNHYwZzR3Smd4?=
- =?utf-8?B?ZStFNTYrdDk4UExWb3Rpbk1sbjlMUy9iaGdlanBoTW0yZjlnQXhWQnNQek9o?=
- =?utf-8?B?WWZYcWhtZDFtM2wrQjB5WFBnd0Y4cXhMd2JBd1REY0Z2eXlCdTBVVmVQUlNR?=
- =?utf-8?B?SkpRV2huQ0REaDBvTzFKa1BKZXY0S2l3aE1HdlhGTi9vZVZwTXMzeTA3SU5s?=
- =?utf-8?B?MEpURjB4aTRjelJRdXZhdlBLSUY2THBFT2dMVC9VcUtzSXIyNEd1SCtFT3V1?=
- =?utf-8?B?SUhSYWxBQUNRR2kzQXlpUnB1NzdRbGQyQzFCR2tCYndvdG5FMTI4OUtaVjVn?=
- =?utf-8?B?S3FXYVl1cTYrZzd5dkczMFlmYjF3RzZhNXlhdjVSUnlsM29icHNrRXhPRmIx?=
- =?utf-8?B?WkJZcC9ncnhjUjdLNlBPdGhlNzYwaGtEVDVlbjVSdFVud1Y5KzBxempKOG4z?=
- =?utf-8?B?MXZqSVpTeDBjZFVuTE91TnFlTDJDMzM1YjVYTFZ2eUtYUmc2bDdpOFRDdlNi?=
- =?utf-8?B?MC9peTRpakhTYzZIK3JYQ0tUZGUzV2w3UXFaU0JlV1FEWlgyb3FIQUxkNlpN?=
- =?utf-8?B?OGpIeEJnWTVCZ1Y5SEhFTkVpaEt5bTZvV3Z5a2VqcjBBeCtwNmJHZUpuQW5G?=
- =?utf-8?B?QmV1cDR1aVdsUW85VE1TMmkzblNLemlRNTUrU2tBbE5HSkl1dU0wZStMMWMw?=
- =?utf-8?B?emZ0ZEcvLysyN05jTjVRVVNGZnFTU0xEelhISDIvNFBiaWJxV2I3N1psL0Fp?=
- =?utf-8?B?UEZBbXJqZHE5b3JHb3pHK2JJd2t4b2N5Z3hUcVEyVjVuSkRKZXNpUHRBNExq?=
- =?utf-8?B?eUl4a0VBdTNBQmRXMU9EaVdlaVNBN05pS3oyempCMXNtR1lMUThuMHlTeXls?=
- =?utf-8?B?cm13R00zQzh5bWJUdnNHOFdrMUxWck5rMGgyVTNWaUFvK00zNi9XOXVScm9w?=
- =?utf-8?B?QmttTUM5Tmt2V1VvUUtONEQxcVVFVGt0RlhuMjhLU2h2akdwQmpzSmwvTENR?=
- =?utf-8?B?UVJJcGc3aUNNZlltWk95S2N6QVM2Z2w2WkxTT1NKY2doV3JmYm9Fay9ZUXkw?=
- =?utf-8?B?ZDArRWQrcWtET0JsNEt3RFp1a2lQRENsTHY2ejBCb1d1amRqWmxUK0FuQW03?=
- =?utf-8?B?RXBZd3VmQ2d4Mm9BOTY2ZjhVYmgza1dPakgyY3FMQmZsN2ZHdEhhWFVlRTZn?=
- =?utf-8?B?R3JPdVVWam4wTCtEMnNCc211VHh5b0tUUnJMdFlzRElUaVlxanlpemxmVzVQ?=
- =?utf-8?B?MXJHcEQ2UEgrL3BYOUpZOGhGSWxZM21PaFpxUkJqTy9DWkVHM0ZENEN1WitM?=
- =?utf-8?B?Ny8yeWlWUXBRenUxMFZsVVd1Yk9BTWpLcW9EeGgyNk5YbVUvRkM1UkN1Y2lh?=
- =?utf-8?B?NWttZzF4TTZXTFBFWGRYNXoybDJUYUR1NXNZWkFoQ3RzWXRVRDU0QWo4bkZT?=
- =?utf-8?B?SGRzY0pJRUVXSmFsTHB4eFp2dTkzK3VlUUtXY2p3cDdlZklvR1ZwWUtFdXAz?=
- =?utf-8?B?MUt6U0lJM1dTejU0Y2IwczJ2blNsb0RZNGc0bVBzSlZQcTg2WkVFMVU4UU03?=
- =?utf-8?B?Y09QQklWWW1pWG4wY3dDVG1ZekxEekpSbnF4MXVGVlUwQWNsM0hRY2U5MURH?=
- =?utf-8?B?TEVaS051dllLWC9ORlhXV3h4Vlp4bmxrMmJBUG9rM1M1d20xWnBQRGwrTlFr?=
- =?utf-8?B?enVRVmVGU1lHcjNiSENNTFJPc2lJNGdqSy9kRi9uSytsR2g0YVZUeFNDWXB6?=
- =?utf-8?B?U1VPYTMwRUtjYVI5TG1ZRVkxdVM2TTRpRHFDY05SNHJBVUF3c1FocFNYRWF3?=
- =?utf-8?B?T1F2dU43ZXQ4bmI4VnE5a0ZJTUc0Z1NlVEZ0UEdzWnlVOWFtbUNHaFZtc1FY?=
- =?utf-8?B?R3UrSnNIRnFoYmlzQUZwSnFieU5aM25zVXE4UXhZcG1TMzN0SGFwK1lyNW5S?=
- =?utf-8?B?TVp3dU5Sd0NpeTFTTVFLcTVQMkd5K1RkOXFGMEwrOGNOUmdSd1FOeldqY255?=
- =?utf-8?B?WWJUL0FEZUNsaEZiakM5c0ZkUmNQRHRlcmpSOVF4QkNvSllSYzlCTXlkZnVP?=
- =?utf-8?B?N2pjeUdaQ2VTb0c2bjU2K0tlNEhXem4wcnpDVzl6NVAyRU1uU1hlbll0L3pv?=
- =?utf-8?B?YjBxWkVZVTYwaDlLWnpzU1dTT3RGZjZobHZ6SW9QdVhKMGtSMHE2QT09?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 66b9299a-f382-4203-2406-08defc0e66b7
-X-MS-Exchange-CrossTenant-AuthSource: CY8PR12MB7170.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Aug 2026 03:19:51.8835
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: cKk/zMzNY/eK2KlUToB3JtP1O292bc0sE5Ca0uSaOBZga1LGlrvDpjq2Lmt8MonYgWgJeW9iGY7aslFk0KVWTw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY3PR12MB9632
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260731014838.31187-1-liming.wu@jaguarmicro.com>
+
+Hi LiMing,
+
+kernel test robot noticed the following build warnings:
+
+[auto build test WARNING on linus/master]
+[also build test WARNING on arm-perf/for-next/perf v7.2-rc7 next-20260814]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/LiMing-Wu/iommu-virtio-Add-debugfs-state-dump/20260815-175817
+base:   linus/master
+patch link:    https://lore.kernel.org/r/20260731014838.31187-1-liming.wu%40jaguarmicro.com
+patch subject: [PATCH] iommu/virtio: Add debugfs state dump
+config: i386-randconfig-141-20260817 (https://download.01.org/0day-ci/archive/20260817/202608171132.xtGhKM9V-lkp@intel.com/config)
+compiler: clang version 22.1.3 (https://github.com/llvm/llvm-project e9846648fd6183ee6d8cbdb4502213fcf902a211)
+smatch: v0.5.0-9187-g5189e3fb
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260817/202608171132.xtGhKM9V-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202608171132.xtGhKM9V-lkp@intel.com/
+
+All warnings (new ones prefixed by >>):
+
+>> drivers/iommu/virtio-iommu.c:165:6: warning: format specifies type 'unsigned long long' but the argument has type 'dma_addr_t' (aka 'unsigned int') [-Wformat]
+     164 |         seq_printf(s, "input_range: %#llx-%#llx\n",
+         |                                     ~~~~~
+         |                                     %#x
+     165 |                    viommu->geometry.aperture_start,
+         |                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   drivers/iommu/virtio-iommu.c:166:6: warning: format specifies type 'unsigned long long' but the argument has type 'dma_addr_t' (aka 'unsigned int') [-Wformat]
+     164 |         seq_printf(s, "input_range: %#llx-%#llx\n",
+         |                                           ~~~~~
+         |                                           %#x
+     165 |                    viommu->geometry.aperture_start,
+     166 |                    viommu->geometry.aperture_end);
+         |                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+>> drivers/iommu/virtio-iommu.c:242:62: warning: implicit conversion from 'unsigned long long' to 'unsigned long' changes value from 18446744073709551615 to 4294967295 [-Wconstant-conversion]
+     242 |         for (node = interval_tree_iter_first(&vdomain->mappings, 0, ULLONG_MAX);
+         |                     ~~~~~~~~~~~~~~~~~~~~~~~~                        ^~~~~~~~~~
+   include/vdso/limits.h:16:21: note: expanded from macro 'ULLONG_MAX'
+      16 | #define ULLONG_MAX      (~0ULL)
+         |                          ^~~~~
+   drivers/iommu/virtio-iommu.c:243:53: warning: implicit conversion from 'unsigned long long' to 'unsigned long' changes value from 18446744073709551615 to 4294967295 [-Wconstant-conversion]
+     243 |              node; node = interval_tree_iter_next(node, 0, ULLONG_MAX))
+         |                           ~~~~~~~~~~~~~~~~~~~~~~~          ^~~~~~~~~~
+   include/vdso/limits.h:16:21: note: expanded from macro 'ULLONG_MAX'
+      16 | #define ULLONG_MAX      (~0ULL)
+         |                          ^~~~~
+   drivers/iommu/virtio-iommu.c:263:6: warning: format specifies type 'unsigned long long' but the argument has type 'dma_addr_t' (aka 'unsigned int') [-Wformat]
+     260 |                    "id=%u type=%s endpoints=%lu mappings=%lu aperture=%#llx-%#llx pgsize_bitmap=%#lx map_flags=%#x\n",
+         |                                                                       ~~~~~
+         |                                                                       %#x
+     261 |                    vdomain->id, viommu_domain_type_name(vdomain->domain.type),
+     262 |                    vdomain->nr_endpoints, mappings,
+     263 |                    vdomain->domain.geometry.aperture_start,
+         |                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   drivers/iommu/virtio-iommu.c:264:6: warning: format specifies type 'unsigned long long' but the argument has type 'dma_addr_t' (aka 'unsigned int') [-Wformat]
+     260 |                    "id=%u type=%s endpoints=%lu mappings=%lu aperture=%#llx-%#llx pgsize_bitmap=%#lx map_flags=%#x\n",
+         |                                                                             ~~~~~
+         |                                                                             %#x
+     261 |                    vdomain->id, viommu_domain_type_name(vdomain->domain.type),
+     262 |                    vdomain->nr_endpoints, mappings,
+     263 |                    vdomain->domain.geometry.aperture_start,
+     264 |                    vdomain->domain.geometry.aperture_end,
+         |                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   drivers/iommu/virtio-iommu.c:296:62: warning: implicit conversion from 'unsigned long long' to 'unsigned long' changes value from 18446744073709551615 to 4294967295 [-Wconstant-conversion]
+     296 |         for (node = interval_tree_iter_first(&vdomain->mappings, 0, ULLONG_MAX);
+         |                     ~~~~~~~~~~~~~~~~~~~~~~~~                        ^~~~~~~~~~
+   include/vdso/limits.h:16:21: note: expanded from macro 'ULLONG_MAX'
+      16 | #define ULLONG_MAX      (~0ULL)
+         |                          ^~~~~
+   drivers/iommu/virtio-iommu.c:297:53: warning: implicit conversion from 'unsigned long long' to 'unsigned long' changes value from 18446744073709551615 to 4294967295 [-Wconstant-conversion]
+     297 |              node; node = interval_tree_iter_next(node, 0, ULLONG_MAX)) {
+         |                           ~~~~~~~~~~~~~~~~~~~~~~~          ^~~~~~~~~~
+   include/vdso/limits.h:16:21: note: expanded from macro 'ULLONG_MAX'
+      16 | #define ULLONG_MAX      (~0ULL)
+         |                          ^~~~~
+   8 warnings generated.
 
 
-Hi Michael, Alex, Dmitry, Akihiko,
+vim +165 drivers/iommu/virtio-iommu.c
 
-I'm bringing AMD GPU compute ROCm based on virtio. I posted a ROCm over 
-virtio
-implementation to virglrenderer nine months ago (MR !1568 [1]). The ROCm 
-side has
-been supportted by ROCm offical.
+   158	
+   159	static int viommu_debugfs_status_show(struct seq_file *s, void *unused)
+   160	{
+   161		struct viommu_dev *viommu = s->private;
+   162	
+   163		seq_printf(s, "device: %s\n", virtio_bus_name(viommu->vdev));
+   164		seq_printf(s, "input_range: %#llx-%#llx\n",
+ > 165			   viommu->geometry.aperture_start,
+   166			   viommu->geometry.aperture_end);
+   167		seq_printf(s, "page_size_mask: %#llx\n", viommu->pgsize_bitmap);
+   168		seq_printf(s, "domain_range: %u-%u\n", viommu->first_domain,
+   169			   viommu->last_domain);
+   170		seq_printf(s, "identity_domain_id: %u\n",
+   171			   viommu->identity_domain_id);
+   172		seq_printf(s, "probe_size: %u\n", viommu->probe_size);
+   173		seq_printf(s, "map_flags: %#x\n", viommu->map_flags);
+   174		seq_puts(s, "features:\n");
+   175		viommu_debugfs_feature(s, viommu, VIRTIO_IOMMU_F_MAP_UNMAP,
+   176				       "map_unmap");
+   177		viommu_debugfs_feature(s, viommu, VIRTIO_IOMMU_F_INPUT_RANGE,
+   178				       "input_range");
+   179		viommu_debugfs_feature(s, viommu, VIRTIO_IOMMU_F_DOMAIN_RANGE,
+   180				       "domain_range");
+   181		viommu_debugfs_feature(s, viommu, VIRTIO_IOMMU_F_PROBE, "probe");
+   182		viommu_debugfs_feature(s, viommu, VIRTIO_IOMMU_F_MMIO, "mmio");
+   183		viommu_debugfs_feature(s, viommu, VIRTIO_IOMMU_F_BYPASS_CONFIG,
+   184				       "bypass_config");
+   185	
+   186		return 0;
+   187	}
+   188	DEFINE_SHOW_ATTRIBUTE(viommu_debugfs_status);
+   189	
+   190	static void viommu_debugfs_print_endpoint(struct seq_file *s,
+   191						  struct viommu_endpoint *vdev)
+   192	{
+   193		int i;
+   194		u32 domain_id = 0;
+   195		const char *domain_type = "none";
+   196		struct iommu_group *group;
+   197		struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(vdev->dev);
+   198	
+   199		if (vdev->vdomain) {
+   200			domain_type = viommu_domain_type_name(vdev->vdomain->domain.type);
+   201			if (vdev->vdomain == &viommu_identity_domain)
+   202				domain_id = vdev->viommu->identity_domain_id;
+   203			else
+   204				domain_id = vdev->vdomain->id;
+   205		}
+   206	
+   207		group = iommu_group_get(vdev->dev);
+   208		seq_printf(s, "endpoint=%s group_id=%d domain_type=%s",
+   209			   dev_name(vdev->dev), group ? iommu_group_id(group) : -1,
+   210			   domain_type);
+   211		if (vdev->vdomain)
+   212			seq_printf(s, " domain_id=%u", domain_id);
+   213		if (fwspec) {
+   214			seq_puts(s, " ids=");
+   215			for (i = 0; i < fwspec->num_ids; i++)
+   216				seq_printf(s, "%s%u", i ? "," : "", fwspec->ids[i]);
+   217		}
+   218		seq_putc(s, '\n');
+   219	
+   220		iommu_group_put(group);
+   221	}
+   222	
+   223	static int viommu_debugfs_endpoints_show(struct seq_file *s, void *unused)
+   224	{
+   225		struct viommu_dev *viommu = s->private;
+   226		struct viommu_endpoint *vdev;
+   227	
+   228		mutex_lock(&viommu->debugfs_lock);
+   229		list_for_each_entry(vdev, &viommu->debugfs_endpoints, debugfs_node)
+   230			viommu_debugfs_print_endpoint(s, vdev);
+   231		mutex_unlock(&viommu->debugfs_lock);
+   232	
+   233		return 0;
+   234	}
+   235	DEFINE_SHOW_ATTRIBUTE(viommu_debugfs_endpoints);
+   236	
+   237	static unsigned long viommu_debugfs_count_mappings(struct viommu_domain *vdomain)
+   238	{
+   239		unsigned long count = 0;
+   240		struct interval_tree_node *node;
+   241	
+ > 242		for (node = interval_tree_iter_first(&vdomain->mappings, 0, ULLONG_MAX);
+   243		     node; node = interval_tree_iter_next(node, 0, ULLONG_MAX))
+   244			count++;
+   245	
+   246		return count;
+   247	}
+   248	
 
-Current implementation is a virtio gpu context type capset handled inside
-virglrenderer, sharing the display path. That's an awkward fit, many
-compute GPUs have no display engine at all.
-
-Beyond that, sharing the display path is increasingly painful:
-
-   - Compute hammers the queues more than graphics, so sharing
-     virtio gpu's single control queue with display/virgl causes contention
-     and display stutter.
-   - Compute contexts need far more blob / shared memory than a display one.
-   - Maybe needs a wider ROCm / compute stack, cause the render model 
-fits poorly:
-     rocprofiler (PC sampling, SQTT/SPM, counters, high bandwidth streams)
-     and ROCgdb (wave control, address watch, async exceptions an
-     out of band channel that must not block display).
-   - Events, faults and GPU reset/SMI are async and don't map onto fences.
-   - All of this is hard to extend cleanly inside a display capset.
-
-On the QEMU/host side, would something like this be OK? One step, two parts:
-
-   - a dedicated headless virtio gpu instance for compute.
-   - that instance served by a separate ROCm backend library loaded
-     in-process by QEMU.
-
-That reuses the existing pluggable backend model, a second virtio gpu + a
-backend library. It doesn't add dedicated queues for debug/profiling 
-currently.
-
-Waiting for reply and  happy to share more detail. Thanks!
-
-[1] https://gitlab.freedesktop.org/virgl/virglrenderer/-/merge_requests/1568
-
-Regards,
-Honglei
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
