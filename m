@@ -1,129 +1,168 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from forwardcorp1a.mail.yandex.net (forwardcorp1a.mail.yandex.net [178.154.239.72])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA7673F12D3
-	for <virtualization@lists.linux-foundation.org>; Mon, 17 Aug 2026 19:56:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6DE231F989;
+	Mon, 17 Aug 2026 22:16:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.154.239.72
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786996597; cv=none; b=cVppxsSmM1YAcbVSQvuf1FT2EtCmK+48N7pjnGHNoTz7rpXb102lxwlHLeLlTrWS0WG3XZ1Dv13jvcvigW4+ykNm0UOYSQo16+I3S0f3TxWQGZB8T6T/Vyg2+rN9NbTwDFRfFs1BnzaDTvQB0gYa+cS03IsdPAJSZDBhGYvwCns=
+	t=1787004988; cv=none; b=dYQ6qpTa+EOYpfbecbCXH/iEzyvigBiiEyLKpXO/IzqOlVaEB9m4qIK3Og1wiAixv5AdyijUBc7fdEIGCU62PzaCueAhNQdBdKqYKuq3NJ9IZ+uBqoZveL0ZRqp11WDgy2Sj+WuKWjcTSu8l9neJ3wc2aJxyiZAe/REBIYX/k+A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786996597; c=relaxed/simple;
-	bh=MPUMAyaoXA+ATmNEWYMduJ0U43rj2zACcDoE42A3bWc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=Ja51vwaD9GWy3/A+huP/hRCNBP8mIhKxo6L6Vr672fFSYc+xAsTzohjJUkPEbAtTeHakYWyXWCP4iIhhgUEb74QmAAvD6HTnIPREN1f5NvBcKi2ApOncExyaFRvAsqUEpqno86lh0rSm7/dhtVXXaMERCUy6RzaoTwQIISDKwnc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=F3EokeXY; arc=none smtp.client-ip=140.211.166.138
+	s=arc-20240116; t=1787004988; c=relaxed/simple;
+	bh=0pp1Vxu+goQlHbq1pQ07TMz1QvRgRhvkA4HKqSMY60U=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=snvEiDlA4fKmGmq9dd0UUKZrbqvTyATe7lK5nk1MfoaPTXl2cVU+uZNvkiM5ThIfEhQZFUmWF40tDGGboSqYPb5JA/i0MVdUCM/GI8WOKwu2o3kQ0hv+BGOg0/bD0tl7/nPG4rRJMun7v/TKBmb8UtX/iFxlh/eVkXQYEFZflo0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex-team.ru; spf=pass smtp.mailfrom=yandex-team.ru; dkim=pass (1024-bit key) header.d=yandex-team.ru header.i=@yandex-team.ru header.b=Bqo7B2+O; arc=none smtp.client-ip=178.154.239.72
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex-team.ru
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yandex-team.ru
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="F3EokeXY"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 57A2C8111A
-	for <virtualization@lists.linux-foundation.org>; Mon, 17 Aug 2026 19:56:36 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.794
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id oehJrq_fr-U4 for <virtualization@lists.linux-foundation.org>;
- Mon, 17 Aug 2026 19:56:31 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 8C669810F8
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8C669810F8
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=F3EokeXY
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 8C669810F8
-	for <virtualization@lists.linux-foundation.org>; Mon, 17 Aug 2026 19:56:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1786996534;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=m6qoLRi3d/qgKme1hLFtPPwOyg4guDiZooOy9zIyOW4=;
-	b=F3EokeXYvbtfCSjdzzFNrD3qxjr+Jr+23DPjLXO9M7i7wXlgQPEddoF2JuvNI9c0IQ97mV
-	o5e2el2/eQT2ob3JwvGvGH/wC4iAihc/ryRMtXgMUX7ptxaaCZF52DZirxBZY8N2iBLBA7
-	xh743jO5QV27gEcY96fBPH/0ZAeBylM=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-633-MT0vbMPFO_W57B0TB0Ir6Q-1; Mon, 17 Aug 2026 15:55:21 -0400
-X-MC-Unique: MT0vbMPFO_W57B0TB0Ir6Q-1
-X-Mimecast-MFC-AGG-ID: MT0vbMPFO_W57B0TB0Ir6Q_1786996521
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4954fd771baso1043265e9.0
-        for <virtualization@lists.linux-foundation.org>; Mon, 17 Aug 2026 12:55:21 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786996520; x=1787601320;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=m6qoLRi3d/qgKme1hLFtPPwOyg4guDiZooOy9zIyOW4=;
-        b=owc3Y4pOhkDjx4lM38ld6aCXpTG7JZWhwGnsWLQdmJnbz0JMElYiXu89Qu86FFK3og
-         /S+D/zPsCkcJ0GprIhhp3Vue/Sgx3aIPBGM2EqFsK1q91zwvPOtYjaMSJj+K6ElflI5q
-         nwKPSD7Dy1mKwSrDoXEfiwx53dK+pwLZalfCdJ8JKuFuLLn/AkjjI67QbblKQqPmizl8
-         lrbr5CzFY0pcBPPgsRuXjue/UEQkRr7GWrFx+yWcU6q9Qc6qXmSrE3H0/tgkmP/Wckd+
-         9KD0mV30TOP+2QlhZiM0nTJG31zl8X5tFMKoTW+3WGObmTvwOR5mkFvZXqwuCOTNoW0Q
-         XoSA==
-X-Gm-Message-State: AOJu0Yx2w7lH3mIBKT0C456uVMH4JXJ7/xrY9ryuNJtgQ5HnHBNdh7+D
-	vRuaNFTGn7W7NDD+y+fX/9gJYvo2SF0uoeqNnZHeKx88fq/I5U9G6v8vd/3knEwqLlijNx8OQZp
-	Fu/q2VYQMcnY7GowI44a6MjV2/Sf36LukGQZXGY62SXqsfNzyTxOag4a+97zrPxAFzuQ60m2HMq
-	aO5ih4AEQ=
-X-Gm-Gg: AR+sD10z76PTgEBxVsWJDsCZMhtUmpgxRFxxmzFIvCe3DxcCq+U1/+eNiymbQretgEm
-	N+rDwqrz9CKIrf2ONTp5NsqPIMY+i8Ow/x0vfbCMKw+FtYczp7xbNtUrl8QospgxP/c72Q6+eZG
-	Mb19Zbj8uKI14AE1rI2lBlDQiEs+ASqZ5NFqiEoZzOyFqCnKFX8W9XgwKi5dMMCPcNiORB4Tjvk
-	zWIgixM8DUeirrAeJB3EEfgaw12vx9/FFxYgw3HMcFtHYZwOHj4O0HRVnqcLIMf8UVWFlnC1nkj
-	q8JakIKVOOHY9KIRGJC9hKRDLq7zLtWBecU7E+c5gQek+BYox8fXZUg46h4uo6bVq6g8tW8WQsC
-	hqCKtcgxMjjqrLd4PJZiZPfbx
-X-Received: by 2002:a05:600c:468a:b0:499:596b:2e91 with SMTP id 5b1f17b1804b1-499a205b082mr2234165e9.3.1786996520331;
-        Mon, 17 Aug 2026 12:55:20 -0700 (PDT)
-X-Received: by 2002:a05:600c:468a:b0:499:596b:2e91 with SMTP id 5b1f17b1804b1-499a205b082mr2233655e9.3.1786996519868;
-        Mon, 17 Aug 2026 12:55:19 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-47-107.inter.net.il. [80.230.47.107])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49996100184sm215978925e9.1.2026.08.17.12.55.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 17 Aug 2026 12:55:19 -0700 (PDT)
-Date: Mon, 17 Aug 2026 15:55:16 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Mirza Ishan Beg <seedandsyntax@gmail.com>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
-Subject: Re: [PATCH] virtio_pci_modern: replace msleep(1) with
- usleep_range(1000, 2000)
-Message-ID: <20260817155125-mutt-send-email-mst@kernel.org>
-References: <20260816173806-mutt-send-email-mst@kernel.org>
- <20260817170331.219615-2-seedandsyntax@gmail.com>
+	dkim=pass (1024-bit key) header.d=yandex-team.ru header.i=@yandex-team.ru header.b="Bqo7B2+O"
+Received: from mail-nwsmtp-smtp-corp-main-83.vla.yp-c.yandex.net (mail-nwsmtp-smtp-corp-main-83.vla.yp-c.yandex.net [IPv6:2a02:6b8:c2d:3530:0:640:eca4:0])
+	by forwardcorp1a.mail.yandex.net (postfix) with ESMTPS id DB311C0A13;
+	Tue, 18 Aug 2026 01:16:14 +0300 (MSK)
+Received: from [IPV6:2a02:6bf:8080:636::1:14] (unknown [2a02:6bf:8080:636::1:14])
+	by mail-nwsmtp-smtp-corp-main-83.vla.yp-c.yandex.net (smtpcorp) with ESMTPSA id AGdauh9aNOs0-b6cs1GW7;
+	Tue, 18 Aug 2026 01:16:14 +0300
+X-Yandex-Fwd: 1
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex-team.ru;
+	s=default; t=1787004974;
+	bh=b0Z0/tXuCNUd1fMwZ+IpDj+Wo0HtUhiZ0PxFs9YzGJE=;
+	h=From:In-Reply-To:Cc:Date:References:To:Subject:Message-ID;
+	b=Bqo7B2+OcvbL6jkoeu5ZtQ58ESgMa5yx1X9ZY/km3cBov6qCeQ5SDsgsZ0U86Rt5d
+	 uYvDSlYKTy4SV0n31y+JkkPZM+aJbk85EmEmmi+5ZG2KRLadsxdZofEw9k/LGvaPc2
+	 rA3R7E8/1y06BWknqf88/HkaFxTe9jLnAMqszcpg=
+Authentication-Results: mail-nwsmtp-smtp-corp-main-83.vla.yp-c.yandex.net; dkim=pass header.i=@yandex-team.ru
+Message-ID: <0d1f0afe-74f0-4adb-a7cf-2d4efd001de3@yandex-team.ru>
+Date: Tue, 18 Aug 2026 01:16:10 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260817170331.219615-2-seedandsyntax@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: VMoAu11kcQNe8gJ0swd2eCPZCdPQcJV-V-woRj6Z0cI_1786996521
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v6 21/51] x86/kvm: Obtain TSC frequency from PV CPUID if
+ present
+To: Sean Christopherson <seanjc@google.com>
+Cc: Kiryl Shutsemau <kas@kernel.org>,
+ Rick Edgecombe <rick.p.edgecombe@intel.com>,
+ Paolo Bonzini <pbonzini@redhat.com>, "K. Y. Srinivasan" <kys@microsoft.com>,
+ Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
+ Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>,
+ Ajay Kaher <ajay.kaher@broadcom.com>,
+ Alexey Makhalov <alexey.makhalov@broadcom.com>,
+ Jan Kiszka <jan.kiszka@siemens.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski
+ <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
+ Juergen Gross <jgross@suse.com>, Daniel Lezcano <daniel.lezcano@kernel.org>,
+ Thomas Gleixner <tglx@kernel.org>, John Stultz <jstultz@google.com>,
+ Vitaly Kuznetsov <vkuznets@redhat.com>,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>, Stephen Boyd
+ <sboyd@kernel.org>, Miroslav Lichvar <mlichvar@redhat.com>, x86@kernel.org,
+ linux-coco@lists.linux.dev, kvm@vger.kernel.org,
+ linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org,
+ Michael Kelley <mhklinux@outlook.com>, Tom Lendacky
+ <thomas.lendacky@amd.com>, Nikunj A Dadhania <nikunj@amd.com>,
+ David Woodhouse <dwmw@amazon.co.uk>, David Woodhouse <dwmw2@infradead.org>,
+ Thomas Gleixner <tglx@linutronix.de>
+References: <20260806233609.212337-1-seanjc@google.com>
+ <20260806233609.212337-22-seanjc@google.com>
+ <ef3b56bf-8df0-4a40-82c7-bd2d65eec71e@yandex-team.ru>
+ <aoMVy4VB1sq4T-ys@google.com>
+Content-Language: en-US
+From: Maksim Davydov <davydov-max@yandex-team.ru>
+In-Reply-To: <aoMVy4VB1sq4T-ys@google.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Mon, Aug 17, 2026 at 10:33:31PM +0530, Mirza Ishan Beg wrote:
-> On Sun, Aug 16, 2026 at 05:38:06PM -0400, Michael S. Tsirkin wrote:
-> > why do we care?
-> 
-> Hi Michael,
-> 
-> The motivation originally came from a checkpatch.pl warning, but looking directly at Documentation/timers/timers-howto.rst,
-> there is a practical penalty here.
-> 
-> The documentation explicitly notes for the 1-20ms range: "msleep(1~20) may not do what the caller intends, and will often sleep longer (~20 ms actual sleep for any value given in the 1~20ms range)."
-> 
-> In these queue reset loops, using msleep(1) means each iteration may be extended to 10-20ms depending on HZ and timer slack. The document recommends using usleep_range() to avoid this overhead and provide the intended precision.
-> 
-> Let me know if you'd like this explanation folded into a v2 commit message.
-> 
-> --
-> Mirza
 
-I don't think we care anyway. We probably just want fsleep?
+
+On 8/17/26 17:08, Sean Christopherson wrote:
+> On Mon, Aug 17, 2026, Maksim Davydov wrote:
+>> On 8/7/26 02:35, Sean Christopherson wrote:
+>>> diff --git a/arch/x86/kernel/kvmclock.c b/arch/x86/kernel/kvmclock.c
+>>> index 29ca37e9a3bc..f55d0305d1f3 100644
+>>> --- a/arch/x86/kernel/kvmclock.c
+>>> +++ b/arch/x86/kernel/kvmclock.c
+>>> @@ -342,8 +342,10 @@ void __init kvmclock_init(void)
+>>>  	flags = pvclock_read_flags(&hv_clock_boot[0].pvti);
+>>>  	kvm_sched_clock_init(flags & PVCLOCK_TSC_STABLE_BIT);
+>>>  
+>>> -	x86_init.hyper.get_tsc_khz = kvmclock_get_tsc_khz;
+>>> -	x86_init.hyper.get_cpu_khz = kvmclock_get_tsc_khz;
+>>> +	if (!x86_init.hyper.get_tsc_khz)
+>>> +		x86_init.hyper.get_tsc_khz = kvmclock_get_tsc_khz;
+>>> +	if (!x86_init.hyper.get_cpu_khz)
+>>> +		x86_init.hyper.get_cpu_khz = kvmclock_get_tsc_khz;
+>>>  	x86_platform.get_wallclock = kvm_get_wallclock;
+>>>  	x86_platform.set_wallclock = kvm_set_wallclock;
+>>>  #ifdef CONFIG_X86_LOCAL_APIC
+>>
+>>
+>> I cannot test this right now as I lack two servers with different CPU
+>> base frequencies, but it seems that this patch might break something in
+>> guests:
+>> After migrating a VM (QEMU + KVM) from a host with one base frequency to
+>> another host with a different base frequency, the value in CPUID leaf
+>> 0x40000010 EAX changes and becomes the same as the destination host base
+>> frequency instead of remaining the source base frequency.
+> 
+> That's a bug in whatever is orchestrating the migration, and/or QEMU if QEMU is
+> handing the upper layers a loaded footgun.
+> 
+>> The main reason for this behaviour is that setting the TSC frequency via
+>> ioctl(KVM_SET_TSC_KHZ) doesn't change the value in CPUID leaf 0x40000010
+>> EAX and these two entities are still not connected.
+> 
+> And they never will be.  It's userspace's responsibility to fill the correct
+> values for 0x40000010.
+> 
+> But AFAICT, QEMU does the right thing.  env->tsc_khz is used for both the CPUID
+> leaf and for KVM_SET_TSC_KHZ.
+> 
+> kvm_arch_init_vcpu():
+> 
+>         c = &cpuid_data.entries[cpuid_i++];
+>         c->function = KVM_CPUID_SIGNATURE | 0x10;
+>         c->eax = env->tsc_khz;
+>         c->ebx = env->apic_bus_freq / 1000; /* Hz to KHz */
+>         c->ecx = c->edx = 0;
+> 
+> kvm_arch_set_tsc_khz():
+> 
+>     r = set_ioctl ?
+>         kvm_vcpu_ioctl(cs, KVM_SET_TSC_KHZ, env->tsc_khz) :
+>         -ENOTSUP;
+> 
+
+Agreed.
+However, kvm_arch_set_tsc_khz() is also used at the end of migration
+(qemu_loadvm_state -> cpu_synchronize_post_init).
+So, the new value of env->tsc_khz from the source host can be loaded
+during migration via KVM_SET_TSC_KHZ. However, the frequency in CPUID
+leaf 0x40000010 remains the same as on the destination host (the TSC
+frequency can differ from the source host's frequency). Thus, it's
+possible to have unsynchronized CPUID leaf 0x40000010 when using default
+QEMU parameters.
+
+>> I saw this behaviour with QEMU 7, but I've checked the code of the
+>> latest version and it seems that the described behaviour still exists.
+>> So, in that case, it's possible that with these changes a VM will use
+>> the wrong TSC frequency from CPUID leaf 0x40000010 EAX if it's migrated
+>> and then rebooted.
+>>
+>> Putting it all together, after the previous patch ("KVM: x86: Officially
+>> define CPUID 0x40000010 as PV Timing Info (TSC and Bus)") a new way to
+>> show the guest that CPUID leaf 0x40000010 is valid should be implemented
+>> and only then this leaf can be used to get the TSC frequency.
+> 
+> No, there are already non-Linux kernels that consume 0x40000010, e.g. FreeBSD.
+> In my very strong opinion, if this problematic for a deployment, then that
+> deployment needs to urgently fix their broken setup.
+
+-- 
+Best regards,
+Maksim Davydov
 
