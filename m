@@ -1,251 +1,196 @@
-Received: from BL0PR03CU003.outbound.protection.outlook.com (mail-eastusazon11012006.outbound.protection.outlook.com [52.101.53.6])
+Received: from PA4PR04CU001.outbound.protection.outlook.com (mail-francecentralazon11023124.outbound.protection.outlook.com [40.107.162.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79A372836A6
-	for <virtualization@lists.linux.dev>; Mon, 17 Aug 2026 12:47:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.53.6
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3916A3B83E3
+	for <virtualization@lists.linux.dev>; Mon, 17 Aug 2026 13:01:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.162.124
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786970829; cv=fail; b=u/xeROhrCAoc++1CsQ0eGhaHBnSLQ54OBVwQoYLUyXdHZaHeJ7BHnk8rNNbl1M6nlSLMPWPtox5LPVOTbWkieYztxVzep5QnMWpEDTxekxAqdA+uKcwNLb5pnY8H3CoGrQIJfHYCUHto7CK02har9ox3Yn7SjBvjG0cwB0niC/I=
+	t=1786971691; cv=fail; b=ov7RnZQR8BuX7sKDychIqBvJrtyL6rUxN2p9v3nCh9OHbwu5tA0gie5+eSwfiPXceCZHS9ukG5B8WvG+GbN6SAkYZW9O5XSKGkp3Hie1olG4Vpealoi0dY43kPBPrqJD8B6SzujwBEOpwvWIPiCzTWBieHU0CmZXIJwbDYZMNHY=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786970829; c=relaxed/simple;
-	bh=bA5+uMG5rAqY7IBpu7o/tdUuxTLnpyEjLmeYC6nnsOU=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=ia8x4MVdTzPTcspVU17XmV2EwsPR3IZLzHstpsOyoDV4LANARJF081gLjW0TCYolW317QcYeCNae4um5fh7lgIwfQBHXZCCTkd9mZskMo7vnSRPFGlSdod+kGWhFxL+UnmeeBOB5vAMIZiiQW34ygWgM1WTsuN5s8EyL0zkzhzk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=YxzNcjCl; arc=fail smtp.client-ip=52.101.53.6
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	s=arc-20240116; t=1786971691; c=relaxed/simple;
+	bh=gwnbMRX6snLzL7cgrHyKuUZ5Zg89/13UJXJhsu7PnR0=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=dWlmiXeyJ3JZpSwkqlpwfpRoHQWoMc4HFA9Q35c5F5XEbyKfxPTRXDxq/L/fc+RHW24NUrBIW8ahIiTc95FVMw4UHI90cYPuSNB6pj7DqXnOZc397j7ZsciicG96fxEBBHkzP28jxbCL8J5HRkpgBYdnPOCEQNdRd2uerr2C9ic=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=studenti.unipi.it; spf=pass smtp.mailfrom=studenti.unipi.it; dkim=pass (1024-bit key) header.d=studenti.unipi.it header.i=@studenti.unipi.it header.b=hdNjrHCj; arc=fail smtp.client-ip=40.107.162.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=studenti.unipi.it
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=studenti.unipi.it
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="YxzNcjCl"
+	dkim=pass (1024-bit key) header.d=studenti.unipi.it header.i=@studenti.unipi.it header.b="hdNjrHCj"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=EkdCUqi2c3riUf96KSKo2fcWjNjUHnXKHMZT49t6gfpD4m6dn6egZeElIzP6VJoV2OxTMZB2TjT6db8dMmm5SdMBUJ2F2l02g88y6vtV333+JQ3V5dEqJwxBrbr79cY+S+Fp0m2lrd/iDiR3HKWiYxuhAeJcpMsuIwk5W/fMoUU8g/x9NAREEoLvOlS6lasUxcvzibALffxZ9em5bosXkiFDkbWfPLNUwgJF8/wbb0I0FDscSsufTUmLB0T/+S7vfCgtcucQyP5v+15sxsifFndDD+TjrqLMTcdZQ3lyZtwA/lFYgkEYTbFTMHMC2LRhFXK5ovHCGjyVyU+10XfuJQ==
+ b=r4muf9Pt/1WN1K/SimnAtcPs3iTu9hdKiQeloiEXJuBfEWBBMl5b5q/Rno/pFg19MOCKSi8A5HlCWkeDPX41UXhRnWePGTpeYe/D/oDglPFFgxyag2zVVpcfbZKpGGUKN9IqBfhmjC+5yJC3Z3Q5jTKaBh56nyfAdq5RUS0d5XQnD3CmSVjpV+it1sEXJEbeFlei6CosWytNfieK273RNe0ARbOuKI/m24k4g+HQSul7J672XPz8WYmj7lqEDjL2RNMPXDsibv6sm1qiD6/UCfyT+WCGd6J4Ag3PPITZLCOMskrqqA19fGuXdBJQdg2XZuPe14rsYBxZMQBXuOl7sQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=rZ/LqbYnInl2xnTvevUiedD/vAhonPCyGPUBy7NIjt0=;
- b=xbf2LLK/hAquVNRRtXUB0BbomNGwsDcgso2lPX47ltNbpCCNlRXmXv6n3tS8LE4LyFKVoTp5ibrzzOBfOQnGvF18TqkjDCzZcNa8cak4QhMntXXj1YPr9ivs2nrN90ppuLGir3HVNe2Ud49XNm9gA3v09h9IlN9ZlSqnVeDbiLvMMLIIEfbpQmicpW7GSnJq2Nwoxh2+kkRniQ7fKP0g/HPXytmf/gDqwcCetCky8Qvibwom7q1gWeysm8Fdvu0bn93AuvcTry2FGvGmRO1Im1fT65istKErNs1aZ3MFllFnloLe/GYUR3Ojgs/2eayJoWEVdtMrkHpRZYNzrTQPuw==
+ bh=gwnbMRX6snLzL7cgrHyKuUZ5Zg89/13UJXJhsu7PnR0=;
+ b=woug/bX02LjaYfyKh6mbKaN58aQFCeGWBvq69Xb2jfCjM8k31IgOeqaF9dpUbGna3gFpV7hy7IY3XQ6HOLSD2Zh/K577Zliu+gFXrAqklCuDXgVcmz+h7p41o742qdbMwQd50elnosSNIU0h+fmFJ3uxVBFxdfqxltZl6p+oc7TLrv/2yEp6avhYjQnXSHY6D5WrPwMWbWd58Glm/ID/oseBJpij0iHVWaS+v9utM2ZHYJz0IaWJcvNz/9LlZXMBh9e467HqKl2tPqqmHJ6E1tvb4IC6x521r1zuR1jQQcXLpNP0dfBs8NCVA1ihX2v6Scw2Fv+b0vqqYVn+QVyN4Q==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ smtp.mailfrom=studenti.unipi.it; dmarc=pass action=none
+ header.from=studenti.unipi.it; dkim=pass header.d=studenti.unipi.it; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=studenti.unipi.it;
+ s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=rZ/LqbYnInl2xnTvevUiedD/vAhonPCyGPUBy7NIjt0=;
- b=YxzNcjClkKsZA0pzz2gInQd3IuLmCtejTS+Zo9gRNyVrS416V8pC1dpvY782VTQAQsq0MAfLujIWr+Dy0NFMs/H8EjSdRBmo9P+8bOqywQW/tWEi+EsB3PVoqTpipKPF0ZQvA5HIhK9K5qaCFLG5FWtXPVHGjRfirfw2jEP/QP0=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from CY8PR12MB7170.namprd12.prod.outlook.com (2603:10b6:930:5a::18)
- by DM6PR12MB4354.namprd12.prod.outlook.com (2603:10b6:5:28f::22) with
+ bh=gwnbMRX6snLzL7cgrHyKuUZ5Zg89/13UJXJhsu7PnR0=;
+ b=hdNjrHCjmP7c+lYyTjhw5SX33tB8fUkGv8HBLcU7ISwAI8MMgO4WGuMOsZ8kRaBof2oqxQ2ogtgEzOfKFUIvjG3n7zRf5D0fCKW/Q4SUZRvZfCK/Te1XshojHaoVycwHaWdkQhpF/04ANT4pprc46y/N1Z/5bB08E+c+DSUoxog=
+Received: from DB5PR07MB9477.eurprd07.prod.outlook.com (2603:10a6:10:4a8::18)
+ by DU0PR07MB8764.eurprd07.prod.outlook.com (2603:10a6:10:310::18) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.315.17; Mon, 17 Aug
- 2026 12:47:02 +0000
-Received: from CY8PR12MB7170.namprd12.prod.outlook.com
- ([fe80::7565:bdd3:383a:de5f]) by CY8PR12MB7170.namprd12.prod.outlook.com
- ([fe80::7565:bdd3:383a:de5f%6]) with mapi id 15.21.0315.014; Mon, 17 Aug 2026
- 12:47:02 +0000
-Message-ID: <4673d669-b350-4723-b74e-6e1ea5f09c22@amd.com>
-Date: Mon, 17 Aug 2026 20:46:51 +0800
-User-Agent: Mozilla Thunderbird
-Subject: Re: About new backend for GPU compute ROCm in qemu
-To: =?UTF-8?Q?Alex_Benn=C3=A9e?= <alex.bennee@linaro.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
- Dmitry Osipenko <dmitry.osipenko@collabora.com>,
- Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>,
- =?UTF-8?Q?Marc-Andr=C3=A9_Lureau?= <marcandre.lureau@redhat.com>,
- Stefano Garzarella <sgarzare@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
- David Airlie <airlied@redhat.com>, Peter Maydell <peter.maydell@linaro.org>,
- qemu-devel@nongnu.org, virtio-comment@lists.oasis-open.org,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
- Honglei Huang <honglei1.huang@amd.com>, Huang Rui <Ray.Huang@amd.com>
-References: <ba0b1bbf-5ebf-4ac3-9f7b-8740e3bc283b@amd.com>
- <87v799ru8w.fsf@draig.linaro.org>
-Content-Language: en-US
-From: "Huang, Honglei" <honghuan@amd.com>
-In-Reply-To: <87v799ru8w.fsf@draig.linaro.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: TP0P295CA0006.TWNP295.PROD.OUTLOOK.COM (2603:1096:910:2::6)
- To CY8PR12MB7170.namprd12.prod.outlook.com (2603:10b6:930:5a::18)
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.339.8; Mon, 17 Aug
+ 2026 13:01:24 +0000
+Received: from DB5PR07MB9477.eurprd07.prod.outlook.com
+ ([fe80::d1be:a299:c9b9:ddf0]) by DB5PR07MB9477.eurprd07.prod.outlook.com
+ ([fe80::d1be:a299:c9b9:ddf0%5]) with mapi id 15.21.0339.007; Mon, 17 Aug 2026
+ 13:01:24 +0000
+From: Matteo Giugni <m.giugni1@studenti.unipi.it>
+To: Stefano Garzarella <sgarzare@redhat.com>, Manos Pitsidianakis
+	<manos@pitsidianak.is>, German Maglione <gmaglione@redhat.com>, Leonardo
+ Giovannoni <leonardo.giovannoni@ing.unipi.it>, Giuseppe Lettieri
+	<giuseppe.lettieri@unipi.it>
+CC: Miguel Ojeda <ojeda@kernel.org>, Manos Pitsidianakis
+	<manos.pitsidianakis@linaro.org>, Peter Hilber
+	<peter.hilber@oss.qualcomm.com>, Stefan Hajnoczi <stefanha@redhat.com>,
+	Viresh Kumar <viresh.kumar@linaro.org>, "Michael S. Tsirkin"
+	<mst@redhat.com>, Boqun Feng <boqun@kernel.org>, Gary Guo <gary@garyguo.net>,
+	=?iso-8859-1?Q?Bj=F6rn_Roy_Baron?= <bjorn3_gh@protonmail.com>, Benno Lossin
+	<lossin@kernel.org>, Andreas Hindborg <a.hindborg@kernel.org>, Alice Ryhl
+	<aliceryhl@google.com>, Trevor Gross <tmgross@umich.edu>, Danilo Krummrich
+	<dakr@kernel.org>, Daniel Almeida <daniel.almeida@collabora.com>,
+	"rust-for-linux@vger.kernel.org" <rust-for-linux@vger.kernel.org>, Jason Wang
+	<jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?iso-8859-1?Q?Eugenio_P=E9rez?= <eperezma@redhat.com>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: R: [PATCH RFC v3 0/6] Add Rust virtio bindings and sample device
+Thread-Topic: [PATCH RFC v3 0/6] Add Rust virtio bindings and sample device
+Thread-Index: AQHdJnlcNrl6Tzh57UqO2XafG8uVA7aiQv7T
+Date: Mon, 17 Aug 2026 13:01:24 +0000
+Message-ID:
+ <DB5PR07MB9477B461B0993275162F08E2E5A72@DB5PR07MB9477.eurprd07.prod.outlook.com>
+References: <20260510-rust-virtio-v3-0-1427f14d67e1@pitsidianak.is>
+ <anXnRcX65PnfMe9W@sgarzare-redhat>
+In-Reply-To: <anXnRcX65PnfMe9W@sgarzare-redhat>
+Accept-Language: it-IT, en-US
+Content-Language: it-IT
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+msip_labels:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=studenti.unipi.it;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: DB5PR07MB9477:EE_|DU0PR07MB8764:EE_
+x-ms-office365-filtering-correlation-id: 0b89b2b8-04cf-4a0c-4254-08defc5fa447
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam:
+ BCL:0;ARA:13230040|23010399003|7416014|376014|786006|1800799024|366016|38070700021|3023799007|56012099006|10067099003|4143699003|11063799006|22082099003|18002099003;
+x-microsoft-antispam-message-info:
+ iyH2B9SiE914lUc7u4ZL/xaTCccan7Gg/TM3xRbQrXd4OCltb2LMImVG68DdPb45QFrnbusb435sB+dJ0neAByXFQAGoikoHYa5qPZ2OndyCIMRYdt89kVStcbZ444y9rLy18KttojZuDJWvVtAmAI49V749uW1s2mPGyF90L90n26Dt0REi/ZYq10XIRDSqRp7VnLZijbovldEenNGbKzYTbF+HSVKSN32a0HZydu9cSUQzRSX9FuKblOR947CTD1GvJ+jeiWwR3StpRqYAik3ZKH+mDntToKrqCZzA2A2Ao1Cwq7con+t09hQC8rjIhaU4w1+UkpexI9XAW6UAMWuJ0jzFhQGKzXfYa+mH5fDCzUo5OSgVduaEU+pM6B0HPrP/YtlJrvxCESpymsNr4+afr3JT61u9+GTlpvfR3Y2+CrdC3Wm6S+Qt1NBQuW3J8qhKf5VEI+odwNG81H58SLGVCOoNtlK2fAECGx493JBS+mGXgEz8Rc9UUTezqBaWxQBSTSKuo+6LIwbHqZAS8uIgnnBRcuAXyn29Q0z0QOW+giuvjOKZkaBGZx08XsJo0xG4NfgBFwJ3+ceFoPTwRFLE3IjjTrRCNWe1Rwqznev3DvRC8wJaloCTFW8t1Bsbq+6gm2yxi1Bj2yLeoMsKXY5aPEtzLPnPmHuzq9aoipVl87XcsaErHNWrhwonoIOU2OLLAgYvFcQxGO0FlO59mvarM73GQhXBw4aw7zVFRhI=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DB5PR07MB9477.eurprd07.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(7416014)(376014)(786006)(1800799024)(366016)(38070700021)(3023799007)(56012099006)(10067099003)(4143699003)(11063799006)(22082099003)(18002099003);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?iso-8859-1?Q?tivrpoD3pr+SDHhJg9vLGlFpry06brxfltC7nTPzRttShbGw6jloT/6qiI?=
+ =?iso-8859-1?Q?lm9AI8tsBn2h/ufvS5cGlUC2gZDqj+s9SbvoD3sdHuobSpm1vPvTL4fOji?=
+ =?iso-8859-1?Q?fFpyDAZxNIrCrKE9PoGcaYnB3+UHGZqFDJLL0cKM63q0/lFtqThncXooMq?=
+ =?iso-8859-1?Q?4rs8mKk7o6cNNqKoeWqjwWOUHnB838OKuGKb9S2pvHX/T4r+iHOQ4rcE/P?=
+ =?iso-8859-1?Q?LAsRDTq8w+XhkptGFPJGQnij0EtXqeS9Sz3GMHDAX55JyLAGtlN8Z8s07B?=
+ =?iso-8859-1?Q?fajP+pZcrWD57Vxfd2Vtfrko7pONZ76dIXl5qqVRbllX+Jdb0GTOgmlQbF?=
+ =?iso-8859-1?Q?Wx4Bd/RchivNPmpBHw3hMs8f9emal8q3iUvZfxdPfYti0C5LRf/ixKL6Oc?=
+ =?iso-8859-1?Q?sXQAwQfPiWQAb49eSjNB9/N0koMijoxgfMWzE9ahL8We1EoX63AnwUgfBi?=
+ =?iso-8859-1?Q?c9/RzLRA2Ce8HWyyjzfKrvPXNAeK17g2kULp88T+r4FS2i+Gb8D6FJ9/4Y?=
+ =?iso-8859-1?Q?xfGL3QbW2Or6FSQ3BhZpgHpYxjLieHPiJ4wH1olgFqrBFL3RLiOj97ytUb?=
+ =?iso-8859-1?Q?INFjNJxVZw2kJfYVbQ2k0duuz/6TQroFxAJ3s02fW3BRMwHsnEHVuLUalk?=
+ =?iso-8859-1?Q?vjEOgbLbd0vadAgXulktNEEvporVOnBQ4G9f2sYUPxtLVIbIutQNaUsNBy?=
+ =?iso-8859-1?Q?EiqrJ/mqr7e6PvzbEUztL3qWOwSaTnnOzkO4y2GFd7NdHui8MshkSP/5IH?=
+ =?iso-8859-1?Q?3nPpNCPXQXUlpth++e/PXKO+fDdDmO4rq5/mk4D41zDv/clk9g4sNFuEKx?=
+ =?iso-8859-1?Q?HFIr6Z65NS+2vxA8qUG6YLMvfXe6TmHMBC8RfvpIRj/7kyXinT1Iz2Q5Ke?=
+ =?iso-8859-1?Q?kEUMmfspknxon2CgACUtrdVPQZGyBlYZaZtLhvCicvUYf3qiriFAo6ua0y?=
+ =?iso-8859-1?Q?oQPPRe0gGRsHyQdysTfVfCo6bIlyb2JNIqplmO1j/8cgmO1BVwskOGFtRV?=
+ =?iso-8859-1?Q?5wIAqCb1+7F8OyLSwNSkklfL3CQ0XPMtoHvZX3hTpEM1TzIqUVMSvo/Y0A?=
+ =?iso-8859-1?Q?Enbrt+3kWdWVwaNWyxqMVHorkFxXrxQMfnq8KRssEeVSZSJQwAAl3x6PXS?=
+ =?iso-8859-1?Q?TMaudNnSJ+jRAKUFQl7k1W5MOYqppSkwyDpCXCFKf80gvmg159lx9dY3cs?=
+ =?iso-8859-1?Q?e4G0/bGIQFKiJQFy8x0CHOwRSLdQh+CypW3af5pEwxICpNRCDSbop6J3Bm?=
+ =?iso-8859-1?Q?bDG3XZpr1XYme1BElRzgqgA1tINFaP988E2iUNpRq0Y8s16KkJA4jln1Gw?=
+ =?iso-8859-1?Q?y3V9JqcQy5c0E6fbGdwdaXfFbX/Cf/9RSQ8N9nMlpZsVCge9YVv6cT2U9X?=
+ =?iso-8859-1?Q?yEH1RigY14vZPWsaDNqKHlJuMVmPuD+9ju9kQwF9slgkXVZNh2NiuAHuyz?=
+ =?iso-8859-1?Q?hGUk/ybDBa7eEDLQ0/wOuDk25Mv9+4j8/XmmFhvuADpbLkC94O9b82I7sm?=
+ =?iso-8859-1?Q?dEX6ii93stD8u4Hcwe7Nc7IHwe0JBupr2YN8PTRHibpEk3Z/BUeS05WVBA?=
+ =?iso-8859-1?Q?JJdC6SGytLmq3IgNVuvkMMBJCTi6ZgY2IPP4mLWGt4SZysCCz2E77A5OXy?=
+ =?iso-8859-1?Q?aAb5w4BJA1svvrMjh0MCjaNh95StE2Tp0RrwFoS3KMWsH1yeAt4qonCXU5?=
+ =?iso-8859-1?Q?VUHqFUIiu4PTbngAPwpU0C0iqAu7V/0gF+pbpADJT5iG7zFUszOScYMtha?=
+ =?iso-8859-1?Q?T8aDALiabGhxmP3CZhl9O1HkhxGoR56+D6CLcy/QR8t3qctF5G8O53B2fM?=
+ =?iso-8859-1?Q?b4Hl+SIyqw=3D=3D?=
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY8PR12MB7170:EE_|DM6PR12MB4354:EE_
-X-MS-Office365-Filtering-Correlation-Id: a070d88a-d929-4111-7636-08defc5da27b
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|366016|1800799024|7416014|23010399003|376014|22082099003|18002099003|56012099006|3023799007|5023799004|11063799006|10067099003|4143699003;
-X-Microsoft-Antispam-Message-Info:
-	gOnmMOpN/PZlFTDyvRi4OHs9f54oovh3Q6/BHjYPTac6P07zwxXOlZ15qBFagjghqwIcWNafr8aYQhYiksdB7SHovUzSV4cuJ/dDt6eXuflTIL8/jLCfcqDg/9qLNibU6ltDzK/Ku9q+1Ox4DTwsxF5Fqiw0eiptsCxUVDtjqaSK+4Ks/PtXAm0LrdFSGm04jv3Lx6O+cdhDIugquck3Vc7QrO+RxHp3ZqCME0DG8rGXJn2uZnzNWwhZbQ52VnK6Xk1Y5cuoVo6o2VeAoEXfTRsCSxkqRLzLMK2H8m0qV3NmIOv7yp33ZPzOEiII7WhXIxMkqj6yQSostyS9Z0ySYqEEzukbao7wTq/oVcm/YgwNPNNERC1PBwknzd+zmu45Y/oPw2NryB1AQpAH+yofSn+LiVh92akdzghJti3NeKvpCvZw5GCJjJlgEHnQToEcAUFccpzntRj16Wk2QunQQble43Ar4KuA8LZR8qfWc/z6qGekfLZuOjd86U6dAw2YYXzZ9UskTrR4sPUG2DBd9zlDCLQ8kRJ9M3Np6ITaRCg4TS+OAJn7j0xVvTi+q5g9ZfLxYO52kbYtOOCKgAioDbXEMYBdA4Uutwe6EcYEX3Oipof1C/UyrmUDpoC8gQQP
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR12MB7170.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(7416014)(23010399003)(376014)(22082099003)(18002099003)(56012099006)(3023799007)(5023799004)(11063799006)(10067099003)(4143699003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?dWZNdDdQNHNwSzduWXhVaFBza2x6UGIxZkZTUkhBQXhsWkFaWjJDbVduVmF0?=
- =?utf-8?B?dUgwRUJjVU1FTzNpdHAyUzh0My82STJ4VDIwY1lQSTFRZi80a3BqdjRURHdh?=
- =?utf-8?B?dGlkem5mZGFSbkFkWW81czE1MmJGSlEwU2RUdjBDRzFjU29wcHBZeDUrOHZI?=
- =?utf-8?B?dFh5T3QvVHdrb3l2SGoxQzJmOFZrWEdWc09oR1JsU2N0dGh6MXdrenU2TEtT?=
- =?utf-8?B?ckRyS2dGVVFDS3BkaTh1ZG1ySmpEZCtFN0VQdGNmNkdHV2xyekViZWRpaDZL?=
- =?utf-8?B?ckJjZFgzZEhmT21xUUcvOTBLZEMrUWNCam1CZVVlZnNtZVRGOVlGbjNXU3J6?=
- =?utf-8?B?bjRRZkVjT3pRazBMYnY2RlEvdnk3M1B4Z2xrcWhFdkpIQTl6NlZuVm9VYlpI?=
- =?utf-8?B?eTEzcHhhcklZYUcrcUkzNkhwU2JmQ1BCQkpsNEkwdlk4aUJHbDV3UU8ySzRN?=
- =?utf-8?B?R05CTm01NnVYR2FLOHZIcUxLL0t3WUlLL0tLaCtpYzV0NWozaUlST29KbWtU?=
- =?utf-8?B?cG01Yi9MZ1F6a0FhSGk2NzUrZGk5cW83aEVMdDNUTlVqcllzRWMwaXJCRmtu?=
- =?utf-8?B?ejQ2K1lGSDhsWXJxc3VVTlZlcmdKb1FUUVNHS1R1dHowZnl3bWJSUGpoSXUw?=
- =?utf-8?B?aXZwUzkvRWg2Mlc4aGw5OWhZQlB1d2lpQWpNbWtsNXU0NXFKNkRCaFhHT2Fl?=
- =?utf-8?B?TjhicjRXQ2tJaG5KbG1ydWxLZTlFN29Mb2hPMkhpclZ3a29PaTNUODZkYlRG?=
- =?utf-8?B?cE0yWFRCdUsvSW90cGRkWVpjRkpvOXY1aEhGTkFxai9UTk1BWCtaaXozTnZO?=
- =?utf-8?B?eUdxVi9wUkE4a2padWw3RHZwbkNlZjVueERWbHJlV2RiNTBVMjZDZi9HYU44?=
- =?utf-8?B?TmhqbjRiTk5pd2hwdXRvWUdiY0pldFJISzFtOFNBVC9iZDVHM21vSnNEdkZW?=
- =?utf-8?B?d3l6MTRqQjEvNUdleDc0ZTBhMXF2Z1hQeTNkR1Rlb1VXVUNnelRvNXFSWWY0?=
- =?utf-8?B?Uk5qSnlVVzlxaWladnI4OVRSOC9tMCtZbGxDNkozenB3UzJDNm9FeURwTmVC?=
- =?utf-8?B?b3BBblliZ2NrUXdmR2J2SmRyYzA0NUowVi9HNUptMVcxeHJkd1hVa3B1c0tu?=
- =?utf-8?B?UDA5Q1gyY2RMaWZ3c1NkdEh1a3JrcGZBT3ZOalVhakwxM3ZqVGRaalBIb1Fa?=
- =?utf-8?B?ekRjTGFycGs0UzhjQXJRZytia2lndHVjOEhrd0hoS2YybTdKTG4xSFZmdCtB?=
- =?utf-8?B?RHhRSmhXMEZiWkdqUWVIbE5ZN01JRDZGVEI1ZXh2ZjBKTWZ3VmdFMEFDMk9q?=
- =?utf-8?B?Y0tsNHJvNDBsbHJIT2R0b3pVSDJFTGdFcVdmSmxNYnhZMm9oRWpiZ0xVRXl2?=
- =?utf-8?B?RVhucG9ua0lKRjJZa2JMQlZEUWJaemlhOG80eC9UR0tlYUhpL1JBVDRlK3Qx?=
- =?utf-8?B?YWw1WHp1TTI4Njc3WVlHMFlVc0hWSDNva2RCdXIzMGZVZzgwWm4wNGllcGIy?=
- =?utf-8?B?ZklYSlFmSm1uWkhOQ3lXUzVwa0U4dzdSbFVyOUkzS3RGRTd5VkwzRkJwc0NZ?=
- =?utf-8?B?ZXJWTGxWUm9ZN2ozU1RCTVp3VWRKZTRJaFk4bDhlMUFCc1c4Mm9yOUhjN0RF?=
- =?utf-8?B?V21McFdnUEJuOHYzYVZSWVg0RFAva1Z4QlNpbHJCZGljdCt4bFJldis0NmRw?=
- =?utf-8?B?RWZ4Vm9JdDZZNmI2NnI5Zk1UeWN1VDkvMWU4bjZjTFZQaWRyVHlrR2txa3hO?=
- =?utf-8?B?M1pma3RZQzdIYjhWb0ZsTGljVE9pNWtYMWd5LzJxa0s5TUxwZU5scXNEcnM1?=
- =?utf-8?B?QTU0RHpxc244ZUpKODhTMjRnTFpTVHIyQXlFWWJ2NCtLMDhsdE5XN2o1M09h?=
- =?utf-8?B?aG1ZV1I3T2grSFZMOExqSnowU0dHNE9GdTNMc2RSUmdOTHdlK21PTUczR2tB?=
- =?utf-8?B?NFdLZGI5ckFERUp0MnRmUzFKWHlZbThwQWN0bmwzendiRlVBS2d6aGpjaTFG?=
- =?utf-8?B?OFNBSnJ5S0dpbmJlcUJWNmtLSFFTTnVYSTJNOGEyVUZja21RaDJGbmdCUDRI?=
- =?utf-8?B?dGp4VnBmU0xjZUw1aTN1aVJjVmNFMXNKTmNqSHdpdmhMZ3BBM2c2M1I1Uml5?=
- =?utf-8?B?NXJpbzQ0Q1RQUDJPTTVRL2tQOUx4L1Q2dnVReDFmb2E3VzRRMXgycmxlUGwr?=
- =?utf-8?B?czlzaXU1MCs1RVd2SndsOXpyeUx0YmRKeUx1clkyWURzdnJhU0Y2WStTTUU0?=
- =?utf-8?B?ZEtEeE1Na3poYUphUkZoYWQ1NHd0NWhKRDNZQWZmc2RRU1VXZHMxWVM4QmVp?=
- =?utf-8?B?NnBTZlVTa0VLY2c3KzNYWm4vQk1pSzUrbjF2RFo1TnJoN0NhVllNQT09?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: a070d88a-d929-4111-7636-08defc5da27b
-X-MS-Exchange-CrossTenant-AuthSource: CY8PR12MB7170.namprd12.prod.outlook.com
+X-OriginatorOrg: studenti.unipi.it
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Aug 2026 12:47:02.3229
+X-MS-Exchange-CrossTenant-AuthSource: DB5PR07MB9477.eurprd07.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 0b89b2b8-04cf-4a0c-4254-08defc5fa447
+X-MS-Exchange-CrossTenant-originalarrivaltime: 17 Aug 2026 13:01:24.0932
  (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 3PalKmoz2QphR3zr1PH4x2DD9DMc1sDBnDbEjTehPgQj4ZdFwP6Gjj0XFprqKMgrULH+WcO/Qq2/2yJJmmpqnw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4354
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: c7456b31-a220-47f5-be52-473828670aa1
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: ci7xaazBm/Gcf9Dd28yZwxyIfOP94r8JqGgU3sEy0I4OBGLJTWxRDgGsC/0NepMSUjdsoej03JAYqrpO6EvIoboz+IhPeVqpliKiZoFPDko=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DU0PR07MB8764
 
-
-
-On 8/17/2026 5:06 PM, Alex Bennée wrote:
-> "Huang, Honglei" <honghuan@amd.com> writes:
-> 
->> Hi Michael, Alex, Dmitry, Akihiko,
->>
->> I'm bringing AMD GPU compute ROCm based on virtio. I posted a ROCm
->> over virtio
->> implementation to virglrenderer nine months ago (MR !1568 [1]). The
->> ROCm side has
->> been supportted by ROCm offical.
->>
->> Current implementation is a virtio gpu context type capset handled inside
->> virglrenderer, sharing the display path. That's an awkward fit, many
->> compute GPUs have no display engine at all.
->>
->> Beyond that, sharing the display path is increasingly painful:
->>
->>    - Compute hammers the queues more than graphics, so sharing
->>      virtio gpu's single control queue with display/virgl causes contention
->>      and display stutter.
-> 
-> Is this just due to iteration? From a layman's point of view I'm curious
-> as to what the queues are doing.
-
-Really thanks for the reply.
-
-The load is mostly memory management. Running an AI model allocates and 
-frees a large number of blobs. We already did some optimization release 
-them asynchronously, but the host processing is a single queue one
-process_cmdq, this is where the main bottleneck in my debugging work / 
-my understanding so far. I'm not certain it's the whole picture, so 
-please correct if I am wrong.
-
-A model load or unload frees a large batch of BOs and allocates another. 
-Some of those commands are async in the virtio-gpu guest driver, but 
-QEMU still has to work through them on the one queue, which takes time; 
-so even though any single command is quick, there are simply too many of 
-them, the single queue backs up, and everything behind it, gets delayed.
-
-real work load (a few downstream customisations): loading one 16 GB 
-model (gemm4 e4b), drives ~1200 blob creates, a burst of
-~1400 resource frees at teardown, ~3700 submits and ~6000 virtqueue 
-notifies, caused a 22 s guest soft lockup. And the behavior of memory 
-operations are controlled by upper layer like pytorch / HIP / runtime,
-we can not control it.
-
-To be honest, a separate backend won't fix this. But the real solution 
-maybe is compute specific. That logic is only useful to the compute 
-path, and folding it into the shared display device / renderer would 
-mean churning code that is mature and stable for graphics, with 
-regression risk. Keeping compute on its own instance and backend lets us 
-iterate on these compute only optimisations.
-
-> 
->>    - Compute contexts need far more blob / shared memory than a display
->>    one.
-> 
-> I guess weights and context are long lived blobs compared to rendering assets?
-
-Exactly, weights, KV caches, scratch heaps and the userptr/SVM arenas 
-are large and long-lived, unlike per frame rendering assets, so an AI 
-context maps far more memory than a display one.
-
-> 
->>    - Maybe needs a wider ROCm / compute stack, cause the render model
->>      fits poorly:
->>      rocprofiler (PC sampling, SQTT/SPM, counters, high bandwidth streams)
->>      and ROCgdb (wave control, address watch, async exceptions an
->>      out of band channel that must not block display).
->>    - Events, faults and GPU reset/SMI are async and don't map onto fences.
->>    - All of this is hard to extend cleanly inside a display capset.
->>
->> On the QEMU/host side, would something like this be OK? One step, two parts:
->>
->>    - a dedicated headless virtio gpu instance for compute.
-> 
-> An oft-asked for VirtIO model is virtio-npu but I wonder if there is
-> enough commonality for a virtio-compute device with the same sort native
-> context type handling to deal with the those that want to have guests
-> targeting specific hardware rather than going through an abstraction
-> like Vulkan Computer or OpenGL CL.
-
-Agreed there's likely enough commonality. The idea would be for the 
-device to provide mechanism, not hardware policy. And actually the 
-current ROCm implementation is doing like this, it can also support 
-OPENCL and HIP.
-
-> 
->>    - that instance served by a separate ROCm backend library loaded
->>      in-process by QEMU.
-> 
-> Is this library a binary blob or open source? The last time I looked at
-> ROCm I had to give up as my AMD card was in an Aarch64 AVA machine.
-
-It is open source, we are planing put it into ROCm stack, let it be a 
-part of ROCm.
-
-Regards,
-Honglei
-
-> 
->> That reuses the existing pluggable backend model, a second virtio gpu + a
->> backend library. It doesn't add dedicated queues for debug/profiling
->> currently.
->>
->> Waiting for reply and  happy to share more detail. Thanks!
->>
->> [1] https://gitlab.freedesktop.org/virgl/virglrenderer/-/merge_requests/1568
->>
->> Regards,
->> Honglei
-> 
-
+> We are mentoring Matteo who is working on his Master thesis at University=
+=0A=
+> of Pisa. His main effort is to provide crates for virtio drivers (e.g.=A0=
+=0A=
+> virtqueue, driver-specific request/reply processing, etc.) that can be=0A=
+> generic enough to be used in different OSes, providing the right=0A=
+> abstraction.=0A=
+> We pointed out to this series and he would like to collaborate.=0A=
+> Matteo and others can add more on this of course :-)=0A=
+> Feel free to continue in-list or off-list for sync.=0A=
+=0A=
+Hello,=0A=
+=0A=
+As Stefano said, our purpose is to provide generic OS-independent crates fo=
+r virtio drivers.=0A=
+To begin working on it, I started from the VirtIO framework introduced by t=
+his patchset and=0A=
+extended it to support the virtio-rng driver, both to take confidence with =
+the current=0A=
+implementation and also having at disposal a simple driver for tests.=0A=
+This means that I also had to add the HwRandom wrappers.=0A=
+=0A=
+You can find the virtio_rng source code in the following repository:=0A=
+https://github.com/matteogiugni/rust-virtio-rng-driver=0A=
+You can find the HwRandom extension to this patchset in the following repos=
+itory:=0A=
+https://github.com/matteogiugni/linux/tree/virtio-base=0A=
+at rust/kernel/HwRng.rs=0A=
+=0A=
+I have recently seen that you implemented yourself the HwRandom wrapper, wh=
+ich followed=0A=
+a different approach from mine, but did not have the time yet to study it.=
+=0A=
+I used the same pattern as in miscdevice.rs registration instead.=0A=
+=0A=
+The framework was missing a few bindings for my driver and in particular th=
+e scan=A0callback,=0A=
+you can check the modifications in the commits.=0A=
+The driver is a simple baseline that can be optimized and improved.=0A=
+=0A=
+After the driver implementation I moved to the implementation of the generi=
+c Virtqueue crate.=0A=
+I am currently working on it and i will be pushing the current work soon in=
+ this branch of the repository:=0A=
+https://github.com/matteogiugni/linux/tree/rust-virtqueue=0A=
+The aim is to make it work with Linux at least, with your implementation of=
+ the VirtIO framework=0A=
+and then extract the OS-independent logic.=0A=
+=0A=
+This is just a recap of what i am currently doing to get in sync with you, =
+feel free to look at it and=0A=
+ask whatever question you please or problem you see.=0A=
+=0A=
+Kind Regards,=0A=
+Matteo Giugni.=0A=
