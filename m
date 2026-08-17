@@ -1,138 +1,129 @@
-Received: from mail-ot1-f54.google.com (mail-ot1-f54.google.com [209.85.210.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9CAD3783CC
-	for <virtualization@lists.linux.dev>; Mon, 17 Aug 2026 17:56:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA7673F12D3
+	for <virtualization@lists.linux-foundation.org>; Mon, 17 Aug 2026 19:56:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786989407; cv=none; b=L3FlcKieAVaz+ApFWPWBB0BSecN9b68DGOzdwOBHMEgjn8qaHP5bZVQbAjMFqkGjFNUxKPVH4AJtqrxZCwGpn3Aa60aZubFA6J6WjCagXjIMcTr77MSTii+BmcyEfSOvgEojG9WyZd2A6dK3k/vpm4C/UeMx2QyDHWqW5L/xez8=
+	t=1786996597; cv=none; b=cVppxsSmM1YAcbVSQvuf1FT2EtCmK+48N7pjnGHNoTz7rpXb102lxwlHLeLlTrWS0WG3XZ1Dv13jvcvigW4+ykNm0UOYSQo16+I3S0f3TxWQGZB8T6T/Vyg2+rN9NbTwDFRfFs1BnzaDTvQB0gYa+cS03IsdPAJSZDBhGYvwCns=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786989407; c=relaxed/simple;
-	bh=9JWIDMRvb6uL0k6LrrHl7ti08cD3k8wEjt9ZJwkEjxg=;
+	s=arc-20240116; t=1786996597; c=relaxed/simple;
+	bh=MPUMAyaoXA+ATmNEWYMduJ0U43rj2zACcDoE42A3bWc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=a0mz4KaE9+47BJ1Eq6AkqmDFGWnziMbugdYTSV+xrRCkkr3BUdntj0IBi7l1nkqVApL2ZoOebjeToPspYW9Izwjey2SvnnmHQGb7pklzbYSw8jmO4VTFOf7J0kYoeOAOK6tP8kGt85KtLXmtlAvx4yR/8ii5rBYW60q6RYW+d/k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CtW+EF46; arc=none smtp.client-ip=209.85.210.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 In-Reply-To:Content-Type:Content-Disposition; b=Ja51vwaD9GWy3/A+huP/hRCNBP8mIhKxo6L6Vr672fFSYc+xAsTzohjJUkPEbAtTeHakYWyXWCP4iIhhgUEb74QmAAvD6HTnIPREN1f5NvBcKi2ApOncExyaFRvAsqUEpqno86lh0rSm7/dhtVXXaMERCUy6RzaoTwQIISDKwnc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=F3EokeXY; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CtW+EF46"
-Received: by mail-ot1-f54.google.com with SMTP id 46e09a7af769-7eb34c17b96so2730896a34.2
-        for <virtualization@lists.linux.dev>; Mon, 17 Aug 2026 10:56:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786989404; x=1787594204; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=8k1YxolwhVR5S1sB1XwRYtHWGpS7hH+697FP1h9LyqI=;
-        b=CtW+EF46HT0VghwgjBy0oj6fFoNECpnk2gSPQB9co8SCY3dbyRjGlMYoqgJiTuLXWV
-         tVW+IhivB6Lq/uKpUhVBrOWzik3wKr2zxTFGF8vzZqf/AS8ZLuKJE+tPHYrcueQYnsoi
-         IvhDSD0QXn1EoF08+Zbh0Q4/dWBXSTnExW27F8N98Sn7MAKlywMJMfE4IWTnclc5ZUHo
-         Dah9xWAaaeBwzmYqmagwtc9F6qYPMLuXrTQj2dcFwulynXB6y5RfMx5tsAuHHt0IMQkR
-         H3Vpd+6+r/m/kN6Joo/5ZpKc0XOvNrUiaG4jsepKUHki9i6Qq7Tr9iL5DuP+c0zVbPLC
-         aIbA==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="F3EokeXY"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 57A2C8111A
+	for <virtualization@lists.linux-foundation.org>; Mon, 17 Aug 2026 19:56:36 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.794
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id oehJrq_fr-U4 for <virtualization@lists.linux-foundation.org>;
+ Mon, 17 Aug 2026 19:56:31 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 8C669810F8
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8C669810F8
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=F3EokeXY
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 8C669810F8
+	for <virtualization@lists.linux-foundation.org>; Mon, 17 Aug 2026 19:56:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1786996534;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=m6qoLRi3d/qgKme1hLFtPPwOyg4guDiZooOy9zIyOW4=;
+	b=F3EokeXYvbtfCSjdzzFNrD3qxjr+Jr+23DPjLXO9M7i7wXlgQPEddoF2JuvNI9c0IQ97mV
+	o5e2el2/eQT2ob3JwvGvGH/wC4iAihc/ryRMtXgMUX7ptxaaCZF52DZirxBZY8N2iBLBA7
+	xh743jO5QV27gEcY96fBPH/0ZAeBylM=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-633-MT0vbMPFO_W57B0TB0Ir6Q-1; Mon, 17 Aug 2026 15:55:21 -0400
+X-MC-Unique: MT0vbMPFO_W57B0TB0Ir6Q-1
+X-Mimecast-MFC-AGG-ID: MT0vbMPFO_W57B0TB0Ir6Q_1786996521
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4954fd771baso1043265e9.0
+        for <virtualization@lists.linux-foundation.org>; Mon, 17 Aug 2026 12:55:21 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786989404; x=1787594204;
+        d=1e100.net; s=20251104; t=1786996520; x=1787601320;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=8k1YxolwhVR5S1sB1XwRYtHWGpS7hH+697FP1h9LyqI=;
-        b=V5fqfiHLIAm0XdHjvs7qnYQCMWoVJxQ+S7SuYzmG9kRR0sH5fHo1r/7MpkBLZSBzKI
-         U0GeVsH8XqKDBdKBYENdz5pwsnSESSNFnbtYEXyM9QcJddyPm14j7miDqLaYEHNKoGGr
-         BI8z68XsDwr6coGUIwJ/tl79u1J6pjK/QkcT6EZJERXN6ekuSIAkLXeyq+xAhRbb9xoy
-         zlhBtvnvNUvvAGs6us6frpnb1KbKf4N5cFDHyvOWz3kfndbI/m4UufiCb+plJf+Vy9ye
-         xwpUuf+kjeHyHR4npCKOE6q3k3DEb95Pgkn8bnI61euF4r1GjFcLVbVH8d9zcUVXu0M4
-         LZYg==
-X-Forwarded-Encrypted: i=1; AHgh+Rp68OV7C5HerYc5D7JSjpWTREojyk/b25Y3+9UHHYNLCaain80C2dRB0mgB//VtjwgY7ZB8WqF59/vp3kl6hQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwXFcTLYfyUlLiO6tHzREVuk4wkLHG+EemU2CZbrzUuWBfFLkoS
-	vFpXe5wW0WeO7a3fN145RzfXisc8rwXgrg+RVe9div+sgpV8r/pXfYU2
-X-Gm-Gg: AR+sD10Nt/Io0in68eU2kgx9Vumt9Pwy6NMLPmy7kqX+PN6V9T1pLjLJgq2LcRVnCRP
-	LQmHFE8NFIxgTaQa4KJ1ZHFaClsVaCe5LeQ7K/L9V2w1T0s2v48UgHPxLZdSo8vjXxywgzhitvv
-	zajVzq3mE0XnlzIPFw4zA9/n12H2QZWhgDZHIfR+WeVjRFycDELbU1EYncxLXeof5PABKNAphKM
-	G6j5rv0hSa5ho8q+EXn6YUcJpVRLZCle5gS5GFcmDpA9X5GEvN765A/B3eLgNmVIkjzONBXMiHO
-	RNZYAJ2lOsgdd5ctvHSAIuqc0ZaDV5obBEORX5JJ5etpoLUEbGgiPzQQtOeqABToUu4TnDGTE8j
-	MV3uuBicJlEOsFb1p0rI+tWXxm+6JqahKa3KCE5EcLw8HP9Tk5zrca2ZoR7Xp1sa2dWG8fhdrNz
-	VM2OZbE1WThKbCSRg4p5G6LLT+rrzUEAAvlr7w8BQfoVG9flAqidCoe2ZTBxjG8ilDacGVcZI+C
-	bJQ8F+vkA==
-X-Received: by 2002:a05:6830:6809:b0:7e7:5e4:ee11 with SMTP id 46e09a7af769-7f3de809148mr27312808a34.16.1786989404542;
-        Mon, 17 Aug 2026 10:56:44 -0700 (PDT)
-Received: from devvm29614.prn0.facebook.com ([2a03:2880:ff:52::])
-        by smtp.gmail.com with ESMTPSA id 46e09a7af769-7f41c0b935bsm2004457a34.14.2026.08.17.10.56.43
+        bh=m6qoLRi3d/qgKme1hLFtPPwOyg4guDiZooOy9zIyOW4=;
+        b=owc3Y4pOhkDjx4lM38ld6aCXpTG7JZWhwGnsWLQdmJnbz0JMElYiXu89Qu86FFK3og
+         /S+D/zPsCkcJ0GprIhhp3Vue/Sgx3aIPBGM2EqFsK1q91zwvPOtYjaMSJj+K6ElflI5q
+         nwKPSD7Dy1mKwSrDoXEfiwx53dK+pwLZalfCdJ8JKuFuLLn/AkjjI67QbblKQqPmizl8
+         lrbr5CzFY0pcBPPgsRuXjue/UEQkRr7GWrFx+yWcU6q9Qc6qXmSrE3H0/tgkmP/Wckd+
+         9KD0mV30TOP+2QlhZiM0nTJG31zl8X5tFMKoTW+3WGObmTvwOR5mkFvZXqwuCOTNoW0Q
+         XoSA==
+X-Gm-Message-State: AOJu0Yx2w7lH3mIBKT0C456uVMH4JXJ7/xrY9ryuNJtgQ5HnHBNdh7+D
+	vRuaNFTGn7W7NDD+y+fX/9gJYvo2SF0uoeqNnZHeKx88fq/I5U9G6v8vd/3knEwqLlijNx8OQZp
+	Fu/q2VYQMcnY7GowI44a6MjV2/Sf36LukGQZXGY62SXqsfNzyTxOag4a+97zrPxAFzuQ60m2HMq
+	aO5ih4AEQ=
+X-Gm-Gg: AR+sD10z76PTgEBxVsWJDsCZMhtUmpgxRFxxmzFIvCe3DxcCq+U1/+eNiymbQretgEm
+	N+rDwqrz9CKIrf2ONTp5NsqPIMY+i8Ow/x0vfbCMKw+FtYczp7xbNtUrl8QospgxP/c72Q6+eZG
+	Mb19Zbj8uKI14AE1rI2lBlDQiEs+ASqZ5NFqiEoZzOyFqCnKFX8W9XgwKi5dMMCPcNiORB4Tjvk
+	zWIgixM8DUeirrAeJB3EEfgaw12vx9/FFxYgw3HMcFtHYZwOHj4O0HRVnqcLIMf8UVWFlnC1nkj
+	q8JakIKVOOHY9KIRGJC9hKRDLq7zLtWBecU7E+c5gQek+BYox8fXZUg46h4uo6bVq6g8tW8WQsC
+	hqCKtcgxMjjqrLd4PJZiZPfbx
+X-Received: by 2002:a05:600c:468a:b0:499:596b:2e91 with SMTP id 5b1f17b1804b1-499a205b082mr2234165e9.3.1786996520331;
+        Mon, 17 Aug 2026 12:55:20 -0700 (PDT)
+X-Received: by 2002:a05:600c:468a:b0:499:596b:2e91 with SMTP id 5b1f17b1804b1-499a205b082mr2233655e9.3.1786996519868;
+        Mon, 17 Aug 2026 12:55:19 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-47-107.inter.net.il. [80.230.47.107])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49996100184sm215978925e9.1.2026.08.17.12.55.18
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 17 Aug 2026 10:56:43 -0700 (PDT)
-Date: Mon, 17 Aug 2026 10:56:38 -0700
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-To: Daehyeon Ko <4ncienth@gmail.com>
-Cc: netdev@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	virtualization@lists.linux.dev, kvm@vger.kernel.org
-Subject: Re: [PATCH net] vsock/virtio: validate packet source for connected
- sockets
-Message-ID: <aoNLVoPQssG1V6bt@devvm29614.prn0.facebook.com>
-References: <20260813121236.2328599-1-4ncienth@gmail.com>
+        Mon, 17 Aug 2026 12:55:19 -0700 (PDT)
+Date: Mon, 17 Aug 2026 15:55:16 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Mirza Ishan Beg <seedandsyntax@gmail.com>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
+Subject: Re: [PATCH] virtio_pci_modern: replace msleep(1) with
+ usleep_range(1000, 2000)
+Message-ID: <20260817155125-mutt-send-email-mst@kernel.org>
+References: <20260816173806-mutt-send-email-mst@kernel.org>
+ <20260817170331.219615-2-seedandsyntax@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <20260817170331.219615-2-seedandsyntax@gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: VMoAu11kcQNe8gJ0swd2eCPZCdPQcJV-V-woRj6Z0cI_1786996521
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260813121236.2328599-1-4ncienth@gmail.com>
 
-On Thu, Aug 13, 2026 at 09:12:36PM +0900, Daehyeon Ko wrote:
-> virtio_transport_recv_pkt() first looks up a socket using the full source
-> and destination tuple.  If that misses, it falls back to a bound-socket
-> lookup using only the destination address.  The fallback is needed for
-> listening and connecting sockets, but it can also select an established
-> socket that remains in the bound table.
+On Mon, Aug 17, 2026 at 10:33:31PM +0530, Mirza Ishan Beg wrote:
+> On Sun, Aug 16, 2026 at 05:38:06PM -0400, Michael S. Tsirkin wrote:
+> > why do we care?
 > 
-> As a result, a packet from an unrelated source can be dispatched to a
-> non-listening socket.  In TCP_SYN_SENT, a source-blind RESPONSE marks the
-> selected socket established while retaining its original remote address.
-> Subsequent RW packets can likewise be delivered through the
-> destination-only fallback.
+> Hi Michael,
 > 
-> This was reproduced with two capless processes under different UIDs.  The
-> attacker discovered the victim tuple through unprivileged AF_VSOCK
-> sock_diag and injected a chosen 16-byte payload into the victim established
-> loopback socket.  The legitimate peer received none of those bytes.
+> The motivation originally came from a checkpatch.pl warning, but looking directly at Documentation/timers/timers-howto.rst,
+> there is a practical penalty here.
 > 
-> After taking the socket lock, verify that packets for non-listening sockets
-> come from the peer stored in remote_addr.  Listening sockets continue to
-> accept packets from any source.
+> The documentation explicitly notes for the 1-20ms range: "msleep(1~20) may not do what the caller intends, and will often sleep longer (~20 ms actual sleep for any value given in the 1~20ms range)."
 > 
-> Fixes: 06a8fc78367d ("VSOCK: Introduce virtio_vsock_common.ko")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Daehyeon Ko <4ncienth@gmail.com>
-> ---
->  net/vmw_vsock/virtio_transport_common.c | 10 +++++++---
->  1 file changed, 7 insertions(+), 3 deletions(-)
+> In these queue reset loops, using msleep(1) means each iteration may be extended to 10-20ms depending on HZ and timer slack. The document recommends using usleep_range() to avoid this overhead and provide the intended precision.
 > 
-> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-> index 8becad812..f73e0406a 100644
-> --- a/net/vmw_vsock/virtio_transport_common.c
-> +++ b/net/vmw_vsock/virtio_transport_common.c
-> @@ -1822,11 +1822,15 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
->  
->  	lock_sock(sk);
->  
-> -	/* Check if sk has been closed or assigned to another transport before
-> -	 * lock_sock (note: listener sockets are not assigned to any transport)
-> +	/* Check if sk has been closed, assigned to another transport, or if the
-> +	 * packet is from a different peer than the one connected to sk.  These
-> +	 * properties could have changed before lock_sock.  Listener sockets are
-> +	 * not assigned to any transport and accept packets from any peer.
->  	 */
->  	if (sock_flag(sk, SOCK_DONE) ||
-> -	    (sk->sk_state != TCP_LISTEN && vsk->transport != &t->transport)) {
-> +	    (sk->sk_state != TCP_LISTEN &&
-> +	     (vsk->transport != &t->transport ||
-> +	      !vsock_addr_equals_addr(&src, &vsk->remote_addr)))) {
+> Let me know if you'd like this explanation folded into a v2 commit message.
+> 
+> --
+> Mirza
 
-Does this equality work for loopback, when the CID may be
-VMADDR_CID_LOCAL and/or VMADDR_CID_HOST on host or the guest CID in
-guest?
+I don't think we care anyway. We probably just want fsleep?
 
-Best,
-Bobby
