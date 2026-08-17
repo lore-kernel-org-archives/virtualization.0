@@ -1,175 +1,165 @@
-Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from OSPPR02CU001.outbound.protection.outlook.com (mail-norwayeastazon11023117.outbound.protection.outlook.com [40.107.159.117])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C5683AFD16
-	for <virtualization@lists.linux.dev>; Mon, 17 Aug 2026 14:24:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.41
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786976698; cv=none; b=MEZa6lo2OGarWb0GyuhJZ1QdcOeM/3iuRE50YjUyyIknzWL6hXX1YHyZDrz1+vSzoMxWV/G0V/z2SxnnPwtyMwz6LWxdvoLfKgE7v1YPZ8bBusS5q03C9RwYKKJBwiWrTbJoglouNkQ8n5gbPd9/qCmTCPJW/QTCf5Pm4gJsCT4=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786976698; c=relaxed/simple;
-	bh=/DTqqG3V7U7WfD1BzSnvfO5TKElZ9Vr+nrizGyb2ukE=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=YPaGJ5dgCe8pR5899O/OeumBfMMZ/ZS5nARnz+hqbDd0yxdGBuf443Y+36REJbQI3JTR7nX1Xu4RCzZ/093bceeEhY8QcgyTMBm4ivNNuIbyb403waj+eGxx3f0CaSAm/GCIXWgEUwidQBQIt8csMEl23hvlt3oRHw1Dp6j7VAo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=jQ3vAmO7; arc=none smtp.client-ip=209.85.128.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42B903B5E10
+	for <virtualization@lists.linux.dev>; Mon, 17 Aug 2026 15:53:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.159.117
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786981983; cv=fail; b=Gt2VtYLEeMOr07+DyZU2y1XSMHHn9zIRvAVYg4Kwks9+PfkS1smh8KLI0uU4rs+wfOewjE2x8VynYXKzEiDGyHsaE3gc3dCU2zA08aS1ApdmBEjHRKDduoRJlew7Vacx/lalkc5yUHLioiocdYW30nftEsGWl7YLex9K/cHhqjM=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786981983; c=relaxed/simple;
+	bh=QEiwhtb16KKTxnSNJvcWA5VSHV7yPSwD5tBHmgBK8e4=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=oMBFHjwZt/6TIyupC3YqCP8i0s3cH7IxGGa9oj2g8mSs9PT4lUN0Sz2w9o9cw2nXF40LITNHXRf5BrOkpoKvSbngnCDF5iMpocxRn7UxtGsYfyIRvxpb/TMELFqbuD/ouRJVV1CfAguq0Ae/IyandEvMsAdvSDbJGT4Kz2vM1DE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=studenti.unipi.it; spf=pass smtp.mailfrom=studenti.unipi.it; dkim=pass (1024-bit key) header.d=studenti.unipi.it header.i=@studenti.unipi.it header.b=FAK0d25+; arc=fail smtp.client-ip=40.107.159.117
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=studenti.unipi.it
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=studenti.unipi.it
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="jQ3vAmO7"
-Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-495590dde14so43628055e9.0
-        for <virtualization@lists.linux.dev>; Mon, 17 Aug 2026 07:24:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1786976695; x=1787581495; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :user-agent:references:in-reply-to:subject:cc:to:from:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=/DTqqG3V7U7WfD1BzSnvfO5TKElZ9Vr+nrizGyb2ukE=;
-        b=jQ3vAmO7TbPEqvhIdm9L/4rF23O3LqG1n5Ztge823Ju6zNAhS4Ka6UYMIV+70WAUy8
-         LKSyDYVfGVtuyUr6M8dBt8NFDDXokeXIenVjqUug2Q49HmxTb3v7sKyF1w7ztaNsP9Cw
-         V8IZHihOHQBWf9QiFJF/7oiThqqlzeG7vVZcakzj4MneYfR1FAEkAZ2tStphv3T1nMnc
-         MK/LMk6Ns75ADbAYQAn5/8UsAN7+V437OqJGmhVztpH28bdrkj/QD43T6lg/pAV4eH6L
-         S0+9tmLTBUw2+d8H+aaPb0HY4mqW4jTxmIhOm1JB4uGkMi9UB3zTzKdeGNYn7kEskQ5k
-         JqhA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786976695; x=1787581495;
-        h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :user-agent:references:in-reply-to:subject:cc:to:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=/DTqqG3V7U7WfD1BzSnvfO5TKElZ9Vr+nrizGyb2ukE=;
-        b=Ti21c9C8VVFtzvzG0tgWOqJe+KIgRiSCf6pAybdoV8euUrTc/39wUeiiIBW+EieHsC
-         QtSBtHh/kFuIYB9p2C1+k85oOoRF48seMyuWU0zwgvgGxz9gXElnIbvgqJTrPy0g/zgz
-         AEHFrjhZZucUoh5NqY6ZDOxgUeMJbwO0Gm40UjoxJs/j7WEvRCTcMstAnMD4v/I//2jJ
-         0SzdtoEtd6t8M16EV+nDR62UOQHxbJdgWcCNsiPZcs097OmdLWb2fPquroK9Gh9qXfXm
-         JXExIo5wOMktpgDfLeAdGYzWWZLfBOSoMKW1uhwzz8s95g6zc5h9Hr5hsVNEos3kXsci
-         bEqg==
-X-Forwarded-Encrypted: i=1; AHgh+Rr0cETmwyjaBAL1Zfbl+bXMxEVxMlh4qXx/SYGd/CwoWVN2ijZyLTAw7ht8aNaaEZa+mgmrJTQilrvCMMlmEw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzXfugNu3yxHwvH3t73aVcOyfuA7mEy+67bMthHbmMVWmaLoW1r
-	jKgBUjP9mS+eIh7RZhW+T2knDZo1ltUNDxUto/aeBtFnQi+EFGV4kdirO0bdSHS+JOBIiKQ1tRA
-	8AA8b
-X-Gm-Gg: AR+sD13O/DTV7aN+1WDoMlb5lWg+Lajg8O/XfbLF8CH1qcahwEwmRRaimxPgie3jM6M
-	stcpQYH58hrz/Or6Q9PmYnkd+cPFwrvc6UNP9PBTngmEdWdxqOEi9FE6+QeutQIENK5eM32uGOA
-	4e7fKQxTq/HU3QS1B9wP3yksyWrZd21osmlIripwudPIVdA7lBM8kSAD0IXBXz1FEyIDxKQ1+F1
-	6mN6Mhn1EnwUaNmmuiFJu2ABLQg+tVsKTKOyXYg6Mc+iDb/vawOcHYjwXE4SwIBAUikegA8WSeO
-	UZ7aqM9Szm4+ekS0Idn6AAwAPlhbs6gck/NySWVEvd5ey9Hmm+uTdU7wdAKF1onGQ3TVFqQPyBw
-	NHjdL3CiEErX8SUYlrFHNV5GVlNkjUbUgNy5NS4xGLrrHR43lEoz00qD6u4gdy0jB8G+G8uyMXI
-	rTCHmVEm1gAfgtZ9XfOSkcH10jSn/k+wGTGF9n0RMDcD1g1oDAeomOllea1jMK
-X-Received: by 2002:a05:600c:348b:b0:499:5282:f8d1 with SMTP id 5b1f17b1804b1-4999fb76c29mr9022705e9.12.1786976694599;
-        Mon, 17 Aug 2026 07:24:54 -0700 (PDT)
-Received: from draig.lan ([185.124.0.156])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49996183b89sm185398105e9.12.2026.08.17.07.24.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 17 Aug 2026 07:24:53 -0700 (PDT)
-Received: from draig (localhost [IPv6:::1])
-	by draig.lan (Postfix) with ESMTP id 0C3B05F86C;
-	Mon, 17 Aug 2026 15:24:53 +0100 (BST)
-From: =?utf-8?Q?Alex_Benn=C3=A9e?= <alex.bennee@linaro.org>
-To: "Huang, Honglei" <honghuan@amd.com>
-Cc: Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>,  qemu-devel@nongnu.org,
-  virtio-comment@lists.oasis-open.org,  dri-devel@lists.freedesktop.org,
-  virtualization@lists.linux.dev,  Honglei Huang <honglei1.huang@amd.com>,
-  Huang Rui <Ray.Huang@amd.com>,  "Michael S. Tsirkin" <mst@redhat.com>,
-  Dmitry Osipenko <dmitry.osipenko@collabora.com>,  =?utf-8?Q?Marc-Andr?=
- =?utf-8?Q?=C3=A9?= Lureau
- <marcandre.lureau@redhat.com>,  Stefano Garzarella <sgarzare@redhat.com>,
-  Gerd Hoffmann <kraxel@redhat.com>,  David Airlie <airlied@redhat.com>,
-  Peter Maydell <peter.maydell@linaro.org>
-Subject: Re: About new backend for GPU compute ROCm in qemu
-In-Reply-To: <78f0583f-93c0-4374-ba37-fd36f6388f0e@amd.com> (Honglei Huang's
-	message of "Mon, 17 Aug 2026 21:44:21 +0800")
-References: <ba0b1bbf-5ebf-4ac3-9f7b-8740e3bc283b@amd.com>
-	<ea899a6b-0a59-4a9c-9e81-3ed70711da59@rsg.ci.i.u-tokyo.ac.jp>
-	<78f0583f-93c0-4374-ba37-fd36f6388f0e@amd.com>
-User-Agent: mu4e 1.14.3; emacs 30.1
-Date: Mon, 17 Aug 2026 15:24:52 +0100
-Message-ID: <87pkzgsu2z.fsf@draig.linaro.org>
+	dkim=pass (1024-bit key) header.d=studenti.unipi.it header.i=@studenti.unipi.it header.b="FAK0d25+"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=NzujJc9VQbweqeDPn1CkS/nox+E2h49D04mfb+hmL/bYUevcDVaSFj/n5Qm5yZ8vkNRAQTOxh4TmUNcveHwBzVCe9dfxnbkz8V8D6WEaU9kjgUEGmOv6nj/R4RvKYWVDSkf9OGgeh3kh/5AED2dpcYLo1Gs6XzojgO/Kk098jjJBVPul4X796Bjw9HdLY+yt5+rO1Pdyx//vMUTlcrIpY8Kt3qP6z7gLrrVwAARtsrmIIbgU6CCiIkPb9m4FzobR74EnZFSc25JdQQ/0NYLkqM33TbXxu7j+B9saj+psYHVDvEowMupr9rw4q7JsPotoMg/075/piXpkAbOsyHFhBw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=QEiwhtb16KKTxnSNJvcWA5VSHV7yPSwD5tBHmgBK8e4=;
+ b=aEIyqaxNnkVDZyFCjEKBhk535Z039d/isarw3Y7AlcgzQ72WEKZNxzHet0MhPQm4CHJEJDoWEDssLY62gxFTyRGAWxDxdrC0nHQ8p/h0xk4uj3XjHYczSlPyteB+TKmedV505PPRCE4E0vA3nFORIZJ95MrD/49Ti0LJwzC7TJaFcByg3rmCToGtVdlMd5t/DCsShms64Z7k21PqTkv9zQ2B/OO3YzdoFwWWKypFmPis+bYKrvmWeF5f2h36pei/gxcM5mSOn4Ow1OfVEQAcwXICF/GgrrdmW2wY2/Ml8LiwGDFCJf1xxejlhA4PtGSiZe7zOZ9cdGCvGbKela36HQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=studenti.unipi.it; dmarc=pass action=none
+ header.from=studenti.unipi.it; dkim=pass header.d=studenti.unipi.it; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=studenti.unipi.it;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=QEiwhtb16KKTxnSNJvcWA5VSHV7yPSwD5tBHmgBK8e4=;
+ b=FAK0d25+vw5qJIOAJ+GBdc78pNPe7ukCg2bBruhGdBRy0WZ5mWMDgbYESqbHj8wnWwLEJrSOWqlRk2QxudgD7YoXUJcnz//vE7MMVul6q4PlpLEwtkQhDIWrTUjUaOaGYAqnSYRbai/q9TscfuZHpZI0oPUzygvvWH08C4rkUvU=
+Received: from DB5PR07MB9477.eurprd07.prod.outlook.com (2603:10a6:10:4a8::18)
+ by VI0PR07MB12317.eurprd07.prod.outlook.com (2603:10a6:800:346::22) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.339.8; Mon, 17 Aug
+ 2026 15:52:56 +0000
+Received: from DB5PR07MB9477.eurprd07.prod.outlook.com
+ ([fe80::d1be:a299:c9b9:ddf0]) by DB5PR07MB9477.eurprd07.prod.outlook.com
+ ([fe80::d1be:a299:c9b9:ddf0%5]) with mapi id 15.21.0339.007; Mon, 17 Aug 2026
+ 15:52:55 +0000
+From: Matteo Giugni <m.giugni1@studenti.unipi.it>
+To: Stefano Garzarella <sgarzare@redhat.com>, Manos Pitsidianakis
+	<manos@pitsidianak.is>, German Maglione <gmaglione@redhat.com>, Leonardo
+ Giovannoni <leonardo.giovannoni@ing.unipi.it>, Giuseppe Lettieri
+	<giuseppe.lettieri@unipi.it>
+CC: Miguel Ojeda <ojeda@kernel.org>, Manos Pitsidianakis
+	<manos.pitsidianakis@linaro.org>, Peter Hilber
+	<peter.hilber@oss.qualcomm.com>, Stefan Hajnoczi <stefanha@redhat.com>,
+	Viresh Kumar <viresh.kumar@linaro.org>, "Michael S. Tsirkin"
+	<mst@redhat.com>, Boqun Feng <boqun@kernel.org>, Gary Guo <gary@garyguo.net>,
+	=?iso-8859-1?Q?Bj=F6rn_Roy_Baron?= <bjorn3_gh@protonmail.com>, Benno Lossin
+	<lossin@kernel.org>, Andreas Hindborg <a.hindborg@kernel.org>, Alice Ryhl
+	<aliceryhl@google.com>, Trevor Gross <tmgross@umich.edu>, Danilo Krummrich
+	<dakr@kernel.org>, Daniel Almeida <daniel.almeida@collabora.com>,
+	"rust-for-linux@vger.kernel.org" <rust-for-linux@vger.kernel.org>, Jason Wang
+	<jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?iso-8859-1?Q?Eugenio_P=E9rez?= <eperezma@redhat.com>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: R: [PATCH RFC v3 0/6] Add Rust virtio bindings and sample device
+Thread-Topic: [PATCH RFC v3 0/6] Add Rust virtio bindings and sample device
+Thread-Index: AQHdJnlcNrl6Tzh57UqO2XafG8uVA7aiQv7TgAAwGYc=
+Date: Mon, 17 Aug 2026 15:52:55 +0000
+Message-ID:
+ <DB5PR07MB9477346A42A4178FC9F20BB8E5A72@DB5PR07MB9477.eurprd07.prod.outlook.com>
+References: <20260510-rust-virtio-v3-0-1427f14d67e1@pitsidianak.is>
+ <anXnRcX65PnfMe9W@sgarzare-redhat>
+ <DB5PR07MB9477B461B0993275162F08E2E5A72@DB5PR07MB9477.eurprd07.prod.outlook.com>
+In-Reply-To:
+ <DB5PR07MB9477B461B0993275162F08E2E5A72@DB5PR07MB9477.eurprd07.prod.outlook.com>
+Accept-Language: it-IT, en-US
+Content-Language: it-IT
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+msip_labels:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=studenti.unipi.it;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: DB5PR07MB9477:EE_|VI0PR07MB12317:EE_
+x-ms-office365-filtering-correlation-id: 151cd85f-6c88-4374-234f-08defc779a80
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam:
+ BCL:0;ARA:13230040|366016|1800799024|786006|376014|7416014|23010399003|22082099003|18002099003|38070700021|10067099003|11063799006|56012099006|4143699003;
+x-microsoft-antispam-message-info:
+ xjBPbenuYtLOZ0Xo7n5H5FHJ/gdcOFRYizXTViXjCizniH7LWIU1mguQ8rQ/+JeeYErksdr9r3ZT8BDyk27y1RE/2DhN9lmVwC6qtIJPczQULbR1Y9hTQEs91H3Az8MdgaD9LNB8rUN4U2YZk21cxKPuzZ0OudDWyqem4qyZ1+ZqTVcbO2EqvYlEEu2Fhq2DCb707oAU7dkHj2eqEZMgmygTxgEnQi5KDuj0uSgooQvU/zS9MO5eD/UtXc3YhB+EsKTppUlo0jGz3HwtrS6tq8uNOZBi8LbK8HjW1TpEWnorrFZco6nUTG1AMjZqrMB7jgg9lmRcOLXUhW0nNNKEgo2dh3OdHSNP2bA1SBSvzMJ7MZfp8lapgBpGWvExSWy6xTYCGR7vlkksciimPtISRnsM5Qp66raxgyS8Bv0VMGBTVRcH17K7vgO+gKT1rVHsDAwpaElvHMsJS1vx5Clu7351vBlRRb+wZzXOqSWAKXb4uTnWq21oxvNMRPSQcgqvYkVCKduHzi+5/OcR9waXP/Q/8qq+bMVWP8zZfwRdxrWpSy3oVfkunFN/KuWTQWQy5up0oAAl0O+Le224zi68Gj7KkMDhBqpOAAMFaQ2N1z4mGEQ6aewgnczMCqmojjF+L5t9+pflPNb5eqQfaaXly7XPJnqBu5dnyEqe3Lc0Y8L1MAboKcKDpQ/R+gSoFkY2A30/Cl5ATX381vWNUMtiifWkqnQAQXCs8mMtqL+31Dw=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DB5PR07MB9477.eurprd07.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(786006)(376014)(7416014)(23010399003)(22082099003)(18002099003)(38070700021)(10067099003)(11063799006)(56012099006)(4143699003);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?iso-8859-1?Q?03ngFVAdK0n4bYZNV98cUq8NldpMQELnq5hcHo70gdF4m0e1c9aakg+D3W?=
+ =?iso-8859-1?Q?gdzLtQaYoDbbiE992DY7PBMIrCG63CLa70xLLNcI2vQJZR5weW39qo6FEH?=
+ =?iso-8859-1?Q?xQpZjv5WFBB6eOBPtAMsFZjd1wB+LglTHGFJn/5/uIh/7pbhsqYuJOdJpH?=
+ =?iso-8859-1?Q?yEyXSK7hq4QofHIO/3M/g7DKeNyobPKALNEV4lwverNPMgW2GqRKHLTFsv?=
+ =?iso-8859-1?Q?vwNURydFVszKrX106oBZJ3qYyKr8rutHbEH6KBYLZd3CsLspZP1BQYl1Vs?=
+ =?iso-8859-1?Q?ELlLGoAdv1NJn82zmMPhJPuPp6eHJZx98O3HOEBjVonEedoVY50VbCToDh?=
+ =?iso-8859-1?Q?J0m6gObPaOVlOJ9l82XRQdqu6SufAk8jjDgrTSzO86wwv2a+OIt1tSZEMd?=
+ =?iso-8859-1?Q?T5ex+dpgnFDLHbQr48XCMjvBopvyWN9K3SDIULPVsOnbCJgkiNIoBxfS92?=
+ =?iso-8859-1?Q?UClZ+SZnCuvn1CqYb3vMGpftWeqcRZOgWiUgtEE3+FoRXtWt84HHWSfDZt?=
+ =?iso-8859-1?Q?0lLhlQU4p3I/RO9+1I02LnSMQKLRGbzK5yQQf1l8LyI4ihQiI5ngjAlMgP?=
+ =?iso-8859-1?Q?jTKpug7RYfpCV1Mi2sTTDRkPWullmWA44t2C9h+G72WBf3DOgFKxvefadx?=
+ =?iso-8859-1?Q?naXj8WGMyxovDr5JjDdEuaOODKP/Dd0BkUQCLIwahMaQ45AenemOH8vnwk?=
+ =?iso-8859-1?Q?g5+SlQah8SQrxGT3mdB2z9y3iEkmCBSP2i8NZHsKHqZ9QJ+g4b9wFjFUL6?=
+ =?iso-8859-1?Q?kf575BufJ3b/VIeffXzqX03+duRqH40ZkVlQHXM+xfOnLi32Kppoo3p3uV?=
+ =?iso-8859-1?Q?UoA87Tdxv8Gj77sjF0sBfi+NX1c0fCKrtzB6Ulc18CAb6m1AB6+/0qDwV4?=
+ =?iso-8859-1?Q?LFYW9G6JfP2bTqOGj2rsdL1HHzZOyf3K7ASrv/BJDDlrrxE52GIbDVKD45?=
+ =?iso-8859-1?Q?c1fCA8wF3YGKP+1zZwebf/CfDnJMH2M7GQSkY/0wRiA1dWLPwaNqZ0w81a?=
+ =?iso-8859-1?Q?SCPz5qnSpaJ8DNTcv71M68L3b/6pejbzhMvahQe18viZ5lUvpEouAzI8wY?=
+ =?iso-8859-1?Q?gY07NL/AOMkn1l5e++vDGVt4SWq2RE8QROqUKdkJH7oREoYi1Mp+WUnuvw?=
+ =?iso-8859-1?Q?q0L+j1Z9O2z8llPIS+oWJiqw7Xreu3Z4CumUTtnc9OoRkVXjxjx4HQS/xo?=
+ =?iso-8859-1?Q?uuuogKhElziPeb+KVAnRyN7sO5gcdKRZ7YHPwk2FJJby80fqJ8JqbIAYk5?=
+ =?iso-8859-1?Q?LdFaU3OVxmcGRSro/qeQ+AN3uFP78uzgrtqVVv1Wcil+ZpbiWUowmRHbXq?=
+ =?iso-8859-1?Q?66jkcRptT61BzKRv+VUtheJI+YNK0zac5YlO1UGJWanpdoNL9l1wIhUCiQ?=
+ =?iso-8859-1?Q?AYOaBtnAJf1jwdjFaW4tUZDK1bRqhGzrvtbnB6M8quoewqXbh3BJ2MId2H?=
+ =?iso-8859-1?Q?L0ev2XoQE4YCt93BRAzi+NK28t0GUMLf/YCypaQyyrY9p/fM/Y1qf9tkpJ?=
+ =?iso-8859-1?Q?KPIEft37dGTEJASf2kNY+rDgDgYFQyif6I4L3oNMjF/P5XCx5E2TIzDX3u?=
+ =?iso-8859-1?Q?eee4Wp7jlgR9EZpSkWCQNUcsMDcG0xyJ8PqwRx9gc/LBat77+mVpgF7o3x?=
+ =?iso-8859-1?Q?ts6ka57zKnv1fRYYp5DmBc27aA8tmSULVcz9teNWojHVK4OQ4dJjTFgB4x?=
+ =?iso-8859-1?Q?BHLxzx0uG3Xkj83TL/phyaVWWYerGxs6Boce4/ONxqFOmLR0XNJIFRmhVt?=
+ =?iso-8859-1?Q?pP6Ip9JiwslmVIfIYGH9E4TNCytOd4AzMK0GW4oCDMinP0li3A45cXa2n2?=
+ =?iso-8859-1?Q?ixHZjn1ZAw=3D=3D?=
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+X-OriginatorOrg: studenti.unipi.it
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: DB5PR07MB9477.eurprd07.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 151cd85f-6c88-4374-234f-08defc779a80
+X-MS-Exchange-CrossTenant-originalarrivaltime: 17 Aug 2026 15:52:55.6093
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: c7456b31-a220-47f5-be52-473828670aa1
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: q+hb43zfYQxhwQs0mQylTz6oo5zoRK1EorpGCqjVEHtgmpUHR4Np6B8r/cUTnw0wTrtFFhlBxIUtsV3B5g1zYuM6lgWRmf5zxsyB3FZeno4=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI0PR07MB12317
 
-"Huang, Honglei" <honghuan@amd.com> writes:
-
-> On 8/17/2026 7:44 PM, Akihiko Odaki wrote:
->> On 2026/08/17 12:19, Huang, Honglei wrote:
->>>
->>> Hi Michael, Alex, Dmitry, Akihiko,
->> Hi Honglei,
->>=20
->>>
->>> I'm bringing AMD GPU compute ROCm based on virtio. I posted a ROCm
->>> over virtio
->>> implementation to virglrenderer nine months ago (MR !1568 [1]). The
->>> ROCm side has
->>> been supportted by ROCm offical.
->>>
->>> Current implementation is a virtio gpu context type capset handled insi=
-de
->>> virglrenderer, sharing the display path. That's an awkward fit, many
->>> compute GPUs have no display engine at all.
-<snip>
->>> =C2=A0=C2=A0 - that instance served by a separate ROCm backend library =
-loaded
->>> =C2=A0=C2=A0=C2=A0=C2=A0 in-process by QEMU.
->> First, I think we need to establish why ROCm cannot or should not
->> remain
->> in virglrenderer. The virglrenderer, Venus, and VCL maintainers are
->> likely better placed to advise on that boundary. Once the protocol
->> requirements and performance measurements are clear, we can assess the
->> appropriate QEMU integration.
->
-> venus is borned for GFX.
-> virCL not merged.
->
-> To be clear, I'm not saying virglrenderer can't host a ROCm native
-> context it clearly can. My hesitation is more about fit and direction:
-> virglrenderer has grown up around GL/graphics, and I haven't yet found
-> compute oriented plumbing there to build on, while ROCm moves very
-> fast and I need something I can keep current with low friction.
-
-I'm unsure what the current development status of virglrenderer is but
-it does see a continuing stream of merges. However the threading model
-does make things tricky for QEMU when we are sharing lifetime of blobs
-between QEMU proper and the virglrenderer thread. Perhaps there is a
-better way to organise things?
-
-Could we do the marshalling of VirtIO GPU commands into ROCm directly
-inside QEMU rather than going through additional plumbing? Are the
-sequences we need to handle more or less complex than your general gfx
-rendering? How might this work with other frameworks?
-
->
-> Regards,
-> Honglei
->
->
->> [2]
->> https://developers.redhat.com/articles/2025/06/05/how-we-improved-
->> ai-inference-macos-podman-containers
->> [3] https://www.qualcomm.com/developer/blog/2024/10/vcl-virtio-gpu-
->> opencl-driver
->> Regards,
->> Akihiko Odaki
->>=20
->>>
->>> That reuses the existing pluggable backend model, a second virtio gpu +=
- a
->>> backend library. It doesn't add dedicated queues for
->>> debug/profiling currently.
->>>
->>> Waiting for reply and=C2=A0 happy to share more detail. Thanks!
->>>
->>> [1] https://gitlab.freedesktop.org/virgl/virglrenderer/-/
->>> merge_requests/1568
->>>
->>> Regards,
->>> Honglei
->>=20
-
---=20
-Alex Benn=C3=A9e
-Virtualisation Tech Lead @ Linaro
+Hello,=0A=
+=0A=
+Just a few remarks.=0A=
+You need any help with your work?=0A=
+For example trying to resolve the concerns you pointed out in the patchset,=
+=0A=
+trying to remove the unsafe code in the drivers' code,=A0=0A=
+adding the missing callbacks (restore, freeze..) and bindings etc.=0A=
+=0A=
+Do you think the virtqueue implementation might be useful?=0A=
+Do you have any opinion on the approach?=0A=
+In the previous email I mentioned that the current Virtqueue work I'm doing=
+ will be tested with=0A=
+your VirtIO framework in Linux, maybe you want to collaborate on that.=0A=
+=0A=
+One of the reasons I wrote with detail what I'm doing is also to avoid dupl=
+icate work,=A0=0A=
+as it already happened with the HwRandom wrapper. Are you also working on s=
+omething similar?=0A=
+=0A=
+Kind Regards,=0A=
+Matteo Giugni.=
