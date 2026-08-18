@@ -1,61 +1,63 @@
-Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com [209.85.216.42])
+Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 465C433B6F4
-	for <virtualization@lists.linux.dev>; Tue, 18 Aug 2026 04:26:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB401339714
+	for <virtualization@lists.linux.dev>; Tue, 18 Aug 2026 04:26:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787027191; cv=none; b=TiiGb9NvEniwyvhSg4Q10MvQqVxxVhOYr+lPUeWUkv9L/gj0wJgwWRZq/M8zGp7uHQSv2q8o/rQ0E8kKRjYTU0zrCrN52UCI/6QYsdI/XhmgRwJyao+wLIHwkWMn1+eU7ehvJTzUSn3KHQK217Q4hYxjALMl9WUPSf+U0MabYIw=
+	t=1787027204; cv=none; b=MmqrkbZc8MAM8VJHKy86zpzppcWL6Uf/ESP+ZSzagSFb2Fm3495oLdlPLjPro5t7nRxi8B7tM2f67RN0G1UdsDmf3eND4v1S5pQ4P3Gd48mLxWK00AZtKtGTPuZiwHr6fLcHtI9gZT+zffoTcX0KPO7JA/aMz1x1JgzVrh+8OIM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787027191; c=relaxed/simple;
-	bh=0EL2LR7po/s9DUjjNqlWFSV+gjd+xJ1WILPheMV+JFc=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=sptY6KJk6q5xU+k51Hxo1jlv3cdOdDFTimcwK3p03Be2eqokE1N7JlylNaM8e4FiRyvKEsrvyy+mo4TEOJMd/ngVApFfmx4s04VW9iOaWesaXhI0aFgpMx8c2Daa3W+SbnQtpvP/Hbo2imsWJcLchH0KfpdYDjhdci8rn5zH+4I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=L1VDHFkD; arc=none smtp.client-ip=209.85.216.42
+	s=arc-20240116; t=1787027204; c=relaxed/simple;
+	bh=i5lJDuKpaj451ORek1RkuNKvrVPA7j5ESmxEVRGGCBY=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=Wx0jPshQzsbhtoEaQ9rTZTKcgpNI5M7F90+NZ+ifqryOWfQahqasHQmo/dIgiTpxB3pweCr7rCUuqE5t68pcFagrkKn5EHvT+NmQCHx4dzM0cPUz4sjYGpzK3GHZxhJ6uZBS6hrcqoQ+0gUTFqdf3D0TMHLKULEtRGdgjmj6xNM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QCf4QtOH; arc=none smtp.client-ip=209.85.210.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="L1VDHFkD"
-Received: by mail-pj1-f42.google.com with SMTP id 98e67ed59e1d1-3811f512167so5844287a91.3
-        for <virtualization@lists.linux.dev>; Mon, 17 Aug 2026 21:26:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QCf4QtOH"
+Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-84a2dcede83so5694017b3a.3
+        for <virtualization@lists.linux.dev>; Mon, 17 Aug 2026 21:26:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787027189; x=1787631989; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=WjmxRYlcS6K8pKZdReOoWwINkSByDyWzsirONrxxVnM=;
-        b=L1VDHFkD9c2b/b9hFodGu338w+y04t7gpVmYguq2Votr6HbNy9PUkJhVPeirCjbgLR
-         eXzYbivCRxX1FC1i63rImZccoujRfeb0Cu4tYlsn2tpDiR+Pgt2TPr4/z2oYj28JidTC
-         o8CiK0uhU6HdGrY+YPyHjeMgBI1aGZuiDe0nAWtyy5q4PtBk44hCHimt+1db24cikMVX
-         d1rWIXWveuJoyUAtxnjWr0n6e8c7RlnjF4YZDcFUHk1e63ivPZLS2YOGrzhoQ3qv4/bc
-         CIe2K4MraYjLTVI5tOKGcp+FxIHu0f/89EHUPUAUsls52NlXK5oSvQbnV68pv97GPiwH
-         dfMw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787027189; x=1787631989;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1787027202; x=1787632002; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=WjmxRYlcS6K8pKZdReOoWwINkSByDyWzsirONrxxVnM=;
-        b=eiKau7V0OzqiH2PjI3vZlA6dqBVGfjd+nFLXqRSIdiAt6JOJWWP0qFs/QAKs62OEBF
-         aBHZTnaJ8K9Lplh+Q0iavxn1mxrd9XJ2SJ0QexvxQlK7GR0TXsFuhoxXf/mu9UqFXUlg
-         pWsGx8sacg3Xyj6EjuWPpwrI7mM4unlmrnEhukWcpnz44WOB6cOcToudKw6e+KgllxlZ
-         iy3FgVoDdDV2kqOja140KFaUhqimUTaGKCDr3hWWO4iOhVYxcr5dCJctO3ymGjZAliqQ
-         cn4qdPTrqEvK8Lex/UH+6bTzp7faPoQ+krUd+EfeTA9ZRIM4ykAKMB2Ia2YrE327l2qX
-         A9Yw==
-X-Forwarded-Encrypted: i=1; AHgh+RrfSqToRCjIDvkktJyBrUmDhoutfHEWAwGuSTMH79uVtMeMoRV2QTX8jv/M672LeVhYX5Jnsef4pXFdw1QrKQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwOkBQHfwQZHTNXLbnHM5jRKXFn+0Yj4zKCWdhA0wan+dnT5FEe
-	Gh9SZh2WwZDv1p/UTh05C3HMTRw9Sb7vTxr4zRy9HrX0RspclEI7L5kA
-X-Gm-Gg: AR+sD12aILTUzET390wjF48QjrRP1dsK2boehuXWlVqCxZ9U4yuPeEXeaxlNPJSoHU2
-	pAUqcU+9wKzWeD2XpzZOkS8d8DAm/aLITZ0wVYPyyIck+a43hV8tZ3Qz1Etdn9CQGWLULNacBIV
-	TSZ9HofIyqQAHUDptqDzmnGO/3/bRnmyBuYzNDaYiswD2f8stp/kpoxgO1oNLZOCTyTv8neU2bU
-	VssnvvdrnfMKNatsteV/BToMaJa2gpRznCRKE65XDxaPpQkqweEIc9C0wzw4qxk4kvZoSj1pnzz
-	9XzdTbM+rDqJh5jjwMakuziRaM/KWa0wSlwUmm5L30A4BtzN6eg6MwZLpxMUvc0JkDyvMhxncUp
-	J1msgUOLQGUN/fldK3cNCwJclhX9QIAIY/3QPrVJwSk++BhhRxzHKFHCWi0a0pXG7aVMcJOO1Iw
-	HGQuNfe9+0gWn9BkmYI5BWtnnxjtCSnOuTggn7wXg0O5KS/oNwbgkG9fiVRf2RGOb2
-X-Received: by 2002:a17:90b:1801:b0:37f:e1af:df22 with SMTP id 98e67ed59e1d1-3955aa0826emr5406167a91.17.1787027189224;
-        Mon, 17 Aug 2026 21:26:29 -0700 (PDT)
+        bh=UpRGh7AB0RzVN4Z1bHcSA/fyKDz1HZtg4D8+CDGvt3U=;
+        b=QCf4QtOHdOOymGaUwT/11CX7UrI8vlCVBPfW8eM07hwskdSFHvOQs4buTixMxTuiBd
+         PaX3NNnRImF2I+/NJvUmEyU2TtJQxN+h+gAhFBFHMJ0E2pRN9wmPBGI6p9BlISEeWKgH
+         8LY2C11FcZ/uDuHP8KQpU25N97/gEdRORy+qPI/UBrBSdN3CGRo4cZnhT3gC55CRwRla
+         TOV1vGigcKBOQ1HSqH0EQAOhInsLB0m/L6Xzvn88luLavnf1M/WfsCAQFQYDLxy11IoM
+         NbhP5ZDVmOF3lXskbJmjQF7GkKYycPMm/3QuDIK+4cEjIG+3Hd3sLZi+bWgvKjxKv2j5
+         Qd4A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787027202; x=1787632002;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=UpRGh7AB0RzVN4Z1bHcSA/fyKDz1HZtg4D8+CDGvt3U=;
+        b=l9JPwfvXpmNdpEXVgT4LdCIis0/hy+bFRt61IFOkdhITiLdOC7NG1d2ElJ0gu91cYe
+         CGe09Ng08V6jiNoG/i1IaCmfjUryDOhkX1V8HpWTimPaVAY7mO2FmGujiE2fI2ZtGbo3
+         q8x5k0P979IQjxC8R68189g4WMD7jtqo1HOVjYa4qfQ3ONbJODIUvXgRtDPPTtHIyaz8
+         eOtQmPwFao5KHNtQbFQXIzmMP37bSO3EuFAmRY8glSu+RvAzOASyOkWrK5DWB+Gx7fsR
+         nKX9tmWE6dpo98NWn+lhCM6tQcVwB97A4hfZ6HbBbnshoUjybzNu40ep3uxAf5Afh0V2
+         2N5g==
+X-Forwarded-Encrypted: i=1; AHgh+RqDZb+Dbxp+41mHLrkRPECmhzbTrYNJ3+zpM8RJ5LUuUzb1O6/yeSM3U9zCV0bO3CiXXBn9ydqJ2xyusuyW/g==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzcVc66Vtwyq3B4IJ6HzBn8wsYIIdUtOb972kDQae59axgndr/Y
+	+xaBTMXF8rtXaynN5fbFUKU7ZVB0FHqD27KS44uFyMjwhCsmODq8bZbq
+X-Gm-Gg: AR+sD13Kau/osbYJLY0Vl708UPTxb0LbBjGkWAT/0HdquLw/Cbf/rwOUJ0CXPzzbAqC
+	PCrW48fZvWv7V5pkHvwShCrGVEbqJ2NcuNTmaVm2pG/1VxKGk+QyrOl7Igot08PYxLAUrv1wh9w
+	0/EtLch6HvKuXsOKzifzYkmHhVulSy0trwRmLBVOURzvYJxdKfgNyL5IJSMgeAyqjpdYlqWs0Vo
+	qF3Vg7bDO35RcRLEqwGQruc0PZlVwbAib/cKHGFiNKtzERC39NE9NVLheo03LM/PEKpE4aEo9Wc
+	/f9DgEBDJg1Kgjlhc6qYAo0OSPJIP5rdwcQQvJB4dRu65rkAQvPOl59Gbh7Zeb16OUxRtuVtd4+
+	g3Y76Qs4Tu+WV2xpfsG/PZSeEpBYVwOgNogd2EqdRBTFYX3IX8dlaYkuFp3+SOcMyLPyiLelz4S
+	WCSIkBzzBnTThJ+Qrs/FuJW6xaf/mjHrUxHgrmlS5i710vJm5RmtPt3Co800Rljgrtb71Xjg==
+X-Received: by 2002:a05:6a00:4ac3:b0:82f:50cd:e586 with SMTP id d2e1a72fcca58-84fde001affmr33624373b3a.13.1787027201198;
+        Mon, 17 Aug 2026 21:26:41 -0700 (PDT)
 Received: from jia ([188.253.126.51])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3954d1b0143sm4527762a91.0.2026.08.17.21.26.21
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-851b6fefb3asm1005919b3a.53.2026.08.17.21.26.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 17 Aug 2026 21:26:28 -0700 (PDT)
+        Mon, 17 Aug 2026 21:26:40 -0700 (PDT)
 From: Jia Jia <physicalmtea@gmail.com>
 To: mst@redhat.com
 Cc: jasowangio@gmail.com,
@@ -68,10 +70,12 @@ Cc: jasowangio@gmail.com,
 	netdev@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Jia Jia <physicalmtea@gmail.com>
-Subject: [PATCH v6 0/3] vhost: fix device IOTLB feature lifecycle
-Date: Tue, 18 Aug 2026 12:26:10 +0800
-Message-Id: <20260818042613.281125-1-physicalmtea@gmail.com>
+Subject: [PATCH v6 1/3] vhost: invalidate vring access on IOTLB transitions
+Date: Tue, 18 Aug 2026 12:26:11 +0800
+Message-Id: <20260818042613.281125-2-physicalmtea@gmail.com>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20260818042613.281125-1-physicalmtea@gmail.com>
+References: <20260818042613.281125-1-physicalmtea@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -80,45 +84,128 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Both vhost-vsock and vhost-net can leave the device IOTLB attached when
-userspace clears VIRTIO_F_ACCESS_PLATFORM. They can also replace an
-existing IOTLB with a new empty table when a later feature update keeps
-ACCESS_PLATFORM enabled, for example when updating logging.
+When ACCESS_PLATFORM changes, the addresses cached in desc, avail, and
+used change meaning with the address space. Clear the cached vring access
+state when the device IOTLB is installed or removed so stale IOVAs cannot
+be reused as direct userspace addresses.
 
-When the IOTLB mode changes, the vring addresses previously supplied by
-userspace no longer have the same address-space meaning. Leaving those
-addresses installed would allow an old IOVA to be used as a direct
-userspace address after the IOTLB is detached.
-
-This series invalidates the vring access state during IOTLB transitions,
-makes IOTLB initialization idempotent, and uses a common teardown helper
-for vhost-vsock and vhost-net. IOTLB mode changes are applied even while a
-virtqueue backend is attached. The device-wide IOTLB is dropped first, each
-virtqueue then clears its IOTLB pointer and cached ring access under its own
-mutex, and the old table is freed only after every virtqueue has completed
-the handoff.
+Keep device IOTLB initialization idempotent and apply the mode change even
+when a virtqueue backend is attached. Drop the device-wide IOTLB first,
+then clear each VQ state under its own mutex, and keep the old table alive
+until every VQ has completed the handoff.
 
 A successful live mode change leaves the backend attached but invalidates
-the cached vring addresses. Userspace must configure the vring addresses for
-the new address mode before data processing can resume. When
-ACCESS_PLATFORM is enabled, the usual IOTLB miss/update protocol repopulates
-the new table.
+the cached vring addresses. Userspace must configure the vring addresses
+for the new address mode before data processing can resume.
 
-Changes since v5:
-- invalidate desc, avail, used, logging state, and metadata on IOTLB
-  transitions;
-- apply IOTLB mode changes while a backend is attached, following the
-  per-virtqueue handoff suggested in review;
-- apply the IOTLB teardown to vhost-net as well as vhost-vsock.
+Fixes: 6b1e6cc7855b ("vhost: new device IOTLB API")
 
-Jia Jia (3):
-  vhost: invalidate vring access on IOTLB transitions
-  vhost/vsock: discard IOTLB when ACCESS_PLATFORM is cleared
-  vhost/net: discard IOTLB when ACCESS_PLATFORM is cleared
-
- drivers/vhost/net.c   |  8 ++++++--
- drivers/vhost/vhost.c | 53 ++++++++++++++++++++++++++++++++++++++++-
+Signed-off-by: Jia Jia <physicalmtea@gmail.com>
+---
+ drivers/vhost/vhost.c | 53 ++++++++++++++++++++++++++++++++++++++++++-
  drivers/vhost/vhost.h |  1 +
- drivers/vhost/vsock.c | 10 ++++++---
- 4 files changed, 66 insertions(+), 6 deletions(-)
+ 2 files changed, 53 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 4c525b3e16ea..9f74537b1c1c 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -344,6 +344,17 @@ static void __vhost_vq_meta_reset(struct vhost_virtqueue *vq)
+ 		vq->meta_iotlb[j] = NULL;
+ }
+ 
++/* Caller must hold the virtqueue mutex. */
++static void vhost_vq_invalidate_access(struct vhost_virtqueue *vq)
++{
++	vq->desc = NULL;
++	vq->avail = NULL;
++	vq->used = NULL;
++	vq->log_used = false;
++	vq->log_addr = -1ull;
++	__vhost_vq_meta_reset(vq);
++}
++
+ static void vhost_vq_meta_reset(struct vhost_dev *d)
+ {
+ 	int i;
+@@ -1911,6 +1922,9 @@ int vq_meta_prefetch(struct vhost_virtqueue *vq)
+ {
+ 	unsigned int num = vq->num;
+ 
++	if (!vq->desc || !vq->avail || !vq->used)
++		return 0;
++
+ 	if (!vq->iotlb)
+ 		return 1;
+ 
+@@ -2270,11 +2284,48 @@ long vhost_vring_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *arg
+ }
+ EXPORT_SYMBOL_GPL(vhost_vring_ioctl);
+ 
++/* Caller must hold the device mutex. */
++void vhost_clear_device_iotlb(struct vhost_dev *d)
++{
++	struct vhost_iotlb *iotlb;
++	int i;
++
++	iotlb = d->iotlb;
++	if (!iotlb)
++		return;
++
++	/*
++	 * Drop the device-wide view first.  Each VQ then drops its
++	 * per-VQ view and its cached ring access under its own mutex.
++	 * Keep the old table alive until every VQ has completed this
++	 * handoff, since a worker may still be using it while waiting
++	 * for its VQ mutex.
++	 */
++	d->iotlb = NULL;
++
++	for (i = 0; i < d->nvqs; ++i) {
++		struct vhost_virtqueue *vq = d->vqs[i];
++
++		mutex_lock(&vq->mutex);
++		vq->iotlb = NULL;
++		vhost_vq_invalidate_access(vq);
++		mutex_unlock(&vq->mutex);
++	}
++
++	vhost_clear_msg(d);
++	vhost_iotlb_free(iotlb);
++	wake_up_interruptible_poll(&d->wait, EPOLLIN | EPOLLRDNORM);
++}
++EXPORT_SYMBOL_GPL(vhost_clear_device_iotlb);
++
+ int vhost_init_device_iotlb(struct vhost_dev *d)
+ {
+ 	struct vhost_iotlb *niotlb, *oiotlb;
+ 	int i;
+ 
++	if (d->iotlb)
++		return 0;
++
+ 	niotlb = iotlb_alloc();
+ 	if (!niotlb)
+ 		return -ENOMEM;
+@@ -2287,7 +2338,7 @@ int vhost_init_device_iotlb(struct vhost_dev *d)
+ 
+ 		mutex_lock(&vq->mutex);
+ 		vq->iotlb = niotlb;
+-		__vhost_vq_meta_reset(vq);
++		vhost_vq_invalidate_access(vq);
+ 		mutex_unlock(&vq->mutex);
+ 	}
+ 
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index 0192ade6e749..3c75e8089373 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -277,6 +277,7 @@ ssize_t vhost_chr_read_iter(struct vhost_dev *dev, struct iov_iter *to,
+ 			    int noblock);
+ ssize_t vhost_chr_write_iter(struct vhost_dev *dev,
+ 			     struct iov_iter *from);
++void vhost_clear_device_iotlb(struct vhost_dev *d);
+ int vhost_init_device_iotlb(struct vhost_dev *d);
+ 
+ void vhost_iotlb_map_free(struct vhost_iotlb *iotlb,
 
