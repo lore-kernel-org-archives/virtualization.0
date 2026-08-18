@@ -1,105 +1,35 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B5E6476079
-	for <virtualization@lists.linux.dev>; Tue, 18 Aug 2026 12:55:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBF1419046E;
+	Tue, 18 Aug 2026 13:01:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787057726; cv=none; b=q8a85cTAGoJMAU0+BKEFnOo9tNpFHP62f7belZhVMANyewyQziOkpNI/qQAj9U9RT6+VK/fYM8uSsh2RXiKFppI+ZWsmONAXDN98Uf3V/J8pDlQfJQX+fCqRRQHtCYVPxBSaUNNZJEIGlU6LaNOa6iuVCdipaQ3uzENqlIczBVM=
+	t=1787058104; cv=none; b=Y8MP0JPJKXAvKIoRohDgTlo7IydBknaCW2aZObc5l25g6WAsU0cKoh2kVxYSjXgn5YoHHl28R0dk7ZEIGg8LoZiz9YWsH3+J52f+tTeZ8m5ptbM8hYB95JsGq400TviYVGaBqAr5RjvOJ8glWOmifptatAMAlIRovpP0xgGVtt4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787057726; c=relaxed/simple;
-	bh=QL0X6pTTavKTFei5lSC5sB2J1NhdSdOGYGzTaL3tIwg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=NjYjhDvQtPdDLj8LTVozgYcAGw54rcHeS/3Ta32nI8NJQptK3K/M5gVZadyMS3NC+LcOajckPaZdtG5QG0WA6UQcoeMYR9ZzWg0ZM/QjxbEjLop/1dnhw/I+YrSjc03DA/CADUllQeiCzolf15LRChgXhr7NoJbnVtEo7dl6EQc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=Z88GztwC; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=0A1c5aPM; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=bnvWNKN3; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=UEgg4hEl; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1787058104; c=relaxed/simple;
+	bh=qPf0L/zcpkllaObsPOSTHmFdzqvK8eYTGpixcTGcHNc=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=ajLOrJlV8k5SJjKJn5Vtp8DXsPc5zyqybexmP9saZaWQNEZZrffVvCA9UojJlUucSoMeNFjYXRzjrvFafoXRxNCOr2qoGucPeBfl1zD9pjUdcPRVnvX+bL9cB0HjvJJNX19hAbRcSy3jUt/Px963ZQ5yy5YKILyJUDfAymbEyBs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BecyXK5B; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="Z88GztwC";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="0A1c5aPM";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="bnvWNKN3";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="UEgg4hEl"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 82F8C3EBD;
-	Tue, 18 Aug 2026 12:50:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1787057427; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=H+bcWc4T/rU3VJYnflqTO5mpTU63URyw7VznDPWHcA0=;
-	b=Z88GztwCCatW/H/uskajNcA46j7QOQcPqEU8P20avJdJy2CXcGyyRYDwE5CAYFDKfLc86B
-	FyQFPjmqhjtyXuwo8l3P6gK225jif20wFcvlJtyrWL3x3imHQAfFoXrwZRitDlGSN0jkvc
-	UqWjML9tMqvfq6jkYsy7nmE772IVCFc=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1787057427;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=H+bcWc4T/rU3VJYnflqTO5mpTU63URyw7VznDPWHcA0=;
-	b=0A1c5aPMTnHHEJ6rIXyy/+peCcZQ4ykHjlRriaEYQJ0Dc4YZ/NQ0K7GF/GrO0xsc7KPpwh
-	g2c6xZkRgOJi57CA==
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1787057423; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=H+bcWc4T/rU3VJYnflqTO5mpTU63URyw7VznDPWHcA0=;
-	b=bnvWNKN3izrmYsYYhi2y/HstSlabK46I1lmloa4ucnshsOeH1Jv+ZIbBJwvbnG+YQXR2+3
-	mZuRKWk9Wm0TmR5GPR6Br8wJ0g2VgTe+6hNVyHTCA/hAQXGTMMhDYCxY0gvy4u2Oh1nzCY
-	MX/BgqaTSjQdtWjD283xUc87+W6LoaQ=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1787057423;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=H+bcWc4T/rU3VJYnflqTO5mpTU63URyw7VznDPWHcA0=;
-	b=UEgg4hEljsD5umpamNvvTFD9Rohmv/TNMp3RHFalLPZNYh0eWj0BY8P0N6FZwh5cF7RVOB
-	ehRyK6Vsen6pjKDQ==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 475D6367E;
-	Tue, 18 Aug 2026 12:50:21 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id sG9SEA1VhGojIAAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Tue, 18 Aug 2026 12:50:21 +0000
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: jfalempe@redhat.com,
-	javierm@redhat.com,
-	airlied@gmail.com,
-	simona@ffwll.ch,
-	maarten.lankhorst@linux.intel.com,
-	mripard@kernel.org
-Cc: dri-devel@lists.freedesktop.org,
-	linux-doc@vger.kernel.org,
-	amd-gfx@lists.freedesktop.org,
-	rust-for-linux@vger.kernel.org,
-	linux-hyperv@vger.kernel.org,
-	intel-gfx@lists.freedesktop.org,
-	intel-xe@lists.freedesktop.org,
-	imx@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	nouveau@lists.freedesktop.org,
-	linux-renesas-soc@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	sashiko-reviews@lists.linux.dev,
-	Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 08/12] drm/panic: Split draw_panic_plane()
-Date: Tue, 18 Aug 2026 14:28:06 +0200
-Message-ID: <20260818125012.468092-9-tzimmermann@suse.de>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260818125012.468092-1-tzimmermann@suse.de>
-References: <20260818125012.468092-1-tzimmermann@suse.de>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BecyXK5B"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AE841F000E9;
+	Tue, 18 Aug 2026 13:01:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787058103;
+	bh=gdUf+JvPTrd9D/HoyORD69Di0LvdQ3GcxLEooZloo5o=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc;
+	b=BecyXK5BtjfDIxFMRwKYL1pcxo5Z6VbqTLLAzeLzECD+sTpGIAwZAQOaNf/Jq2KLC
+	 c+6jBJ5y+5EV1uCSdXy0aGPpZYiGBDi6qJIbn6vVFbb5CTha/htnoXfUHi9HaMQpHB
+	 2UZNJUEIhsrzpv0QoOTabpj4FoM8WEYP3MnxoqJGxk+imFUmvrGnJB02VPNQ9WacYC
+	 EGWMgD17xZHbvHbbSh5R43Bo6JkpHB1Cczy1KpYCs/Do26lXqM58s358iuqIT6hOFm
+	 urz834k794ibPP/7EpmpH5ZsjUH9U37JuFKEPey3q5k7Me2xbwBCYDMJwHzEjqOG/b
+	 aJhO70CrRXrpw==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 5690B3926661;
+	Tue, 18 Aug 2026 13:00:56 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -107,152 +37,48 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Score: -6.80
-X-Spam-Level: 
-X-Spam-Flag: NO
-X-Spamd-Result: default: False [-6.80 / 50.00];
-	REPLY(-4.00)[];
-	BAYES_HAM(-3.00)[100.00%];
-	MID_CONTAINS_FROM(1.00)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_MISSING_CHARSET(0.50)[];
-	NEURAL_HAM_SHORT(-0.20)[-0.998];
-	MIME_GOOD(-0.10)[text/plain];
-	RCVD_COUNT_TWO(0.00)[2];
-	FROM_HAS_DN(0.00)[];
-	ARC_NA(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	TO_DN_SOME(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[20];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	FREEMAIL_TO(0.00)[redhat.com,gmail.com,ffwll.ch,linux.intel.com,kernel.org];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:email,suse.de:mid];
-	FROM_EQ_ENVFROM(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	RCVD_TLS_ALL(0.00)[];
-	R_RATELIMIT(0.00)[to_ip_from(RLqirfcw6gnbcr9a9yhi49fhi6)];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com]
+Subject: Re: [PATCH v6 0/3]  vsock: fix stale sk_err handling after a failed
+ connect
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <178705805497.2073627.6439611667147974216.git-patchwork-notify@kernel.org>
+Date: Tue, 18 Aug 2026 13:00:54 +0000
+References: <20260813173024.2362935-1-phind.uet@gmail.com>
+In-Reply-To: <20260813173024.2362935-1-phind.uet@gmail.com>
+To: Nguyen Dinh Phi <phind.uet@gmail.com>
+Cc: sgarzare@redhat.com, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, dtor@vmware.com,
+ acking@vmware.com, georgezhang@vmware.com, virtualization@lists.linux.dev,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Move locking and parameters from draw_panic_plane() into the new
-helper drm_panic_display_panic_screen(). Call draw_panic_plane() from
-there.
+Hello:
 
-The new helper drm_panic_display_panic_screen() is now the DRM core's
-interface for displaying a panic screen. The code remaining in
-draw_panic_plane() still does all the heavy lifting. It will become a
-plane helper for DRM drivers.
+This series was applied to netdev/net.git (main)
+by Paolo Abeni <pabeni@redhat.com>:
 
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
----
- drivers/gpu/drm/drm_panic.c | 60 ++++++++++++++++++++-----------------
- 1 file changed, 33 insertions(+), 27 deletions(-)
+On Fri, 14 Aug 2026 01:30:17 +0800 you wrote:
+> A socket whose connect() failed keeps sk_err set. If that socket is
+> later reused as a listener, vsock_accept() rejects an unrelated
+> incoming connection, and on virtio/hyperv the resulting child socket
+> is leaked.
+> 
+> Patch 1 removes the listener's sk_err check from vsock_accept(), since
+> no vsock transport ever sets sk_err on a TCP_LISTEN socket. This will
+> fix what the syzbot reported.
+> 
+> [...]
 
-diff --git a/drivers/gpu/drm/drm_panic.c b/drivers/gpu/drm/drm_panic.c
-index 0960750bfce2..2263a11efdf6 100644
---- a/drivers/gpu/drm/drm_panic.c
-+++ b/drivers/gpu/drm/drm_panic.c
-@@ -940,38 +940,21 @@ static void drm_panic_clear_description(void)
- 	desc_line->txt = NULL;
- }
- 
--static void draw_panic_plane(struct drm_plane *plane, const char *description)
-+static void draw_panic_plane(struct drm_plane *plane, const char *description,
-+			     enum drm_panic_type panic_type, u32 fg_color, u32 bg_color,
-+			     unsigned int qr_version)
- {
- 	struct drm_scanout_buffer sb = { };
- 	int ret;
--	unsigned long flags;
--#if defined(CONFIG_DRM_PANIC_FOREGROUND_COLOR)
--	u32 fg_color = CONFIG_DRM_PANIC_FOREGROUND_COLOR;
--#else
--	u32 fg_color = 0x00ffffff;
--#endif
--#if defined(CONFIG_DRM_PANIC_BACKGROUND_COLOR)
--	u32 bg_color = CONFIG_DRM_PANIC_BACKGROUND_COLOR;
--#else
--	u32 bg_color = 0x00000000;
--#endif
--#if IS_ENABLED(CONFIG_DRM_PANIC_SCREEN_QR_CODE)
--	unsigned int qr_version = panic_qr_version;
--#else
--	unsigned int qr_version = 0;
--#endif
--
--	if (!drm_panic_trylock(plane->dev, flags))
--		return;
- 
- 	ret = plane->helper_private->get_scanout_buffer(plane, &sb);
- 
- 	if (ret || !drm_panic_is_format_supported(sb.format))
--		goto unlock;
-+		return;
- 
- 	/* One of these should be set, or it can't draw pixels */
- 	if (!sb.set_pixel && !sb.pages && iosys_map_is_null(&sb.map[0]))
--		goto unlock;
-+		return;
- 
- 	drm_panic_set_description(description);
- 
-@@ -986,9 +969,33 @@ static void draw_panic_plane(struct drm_plane *plane, const char *description)
- 	}
- 
- 	drm_panic_clear_description();
-+}
- 
--unlock:
--	drm_panic_unlock(plane->dev, flags);
-+static void drm_panic_display_panic_screen(struct drm_plane *plane, const char *description)
-+{
-+#if defined(CONFIG_DRM_PANIC_FOREGROUND_COLOR)
-+	u32 fg_color = CONFIG_DRM_PANIC_FOREGROUND_COLOR;
-+#else
-+	u32 fg_color = 0x00ffffff;
-+#endif
-+#if defined(CONFIG_DRM_PANIC_BACKGROUND_COLOR)
-+	u32 bg_color = CONFIG_DRM_PANIC_BACKGROUND_COLOR;
-+#else
-+	u32 bg_color = 0x00000000;
-+#endif
-+#if IS_ENABLED(CONFIG_DRM_PANIC_SCREEN_QR_CODE)
-+	unsigned int qr_version = panic_qr_version;
-+#else
-+	unsigned int qr_version = 0;
-+#endif
-+	struct drm_device *dev = plane->dev;
-+	unsigned long flags;
-+
-+	if (drm_panic_trylock(dev, flags)) {
-+		draw_panic_plane(plane, description, drm_panic_type,
-+				 fg_color, bg_color, qr_version);
-+		drm_panic_unlock(dev, flags);
-+	}
- }
- 
- static struct drm_plane *to_drm_plane(struct kmsg_dumper *kd)
-@@ -1001,10 +1008,9 @@ static void drm_panic(struct kmsg_dumper *dumper, struct kmsg_dump_detail *detai
- 	struct drm_plane *plane = to_drm_plane(dumper);
- 
- 	if (detail->reason == KMSG_DUMP_PANIC)
--		draw_panic_plane(plane, detail->description);
-+		drm_panic_display_panic_screen(plane, detail->description);
- }
- 
--
- /*
-  * DEBUG FS, This is currently unsafe.
-  * Create one file per plane, so it's possible to debug one plane at a time.
-@@ -1021,7 +1027,7 @@ static ssize_t debugfs_trigger_write(struct file *file, const char __user *user_
- 	if (kstrtobool_from_user(user_buf, count, &run) == 0 && run) {
- 		struct drm_plane *plane = file->private_data;
- 
--		draw_panic_plane(plane, "Test from debugfs");
-+		drm_panic_display_panic_screen(plane, "Test from debugfs");
- 	}
- 	return count;
- }
+Here is the summary with links:
+  - [v6,1/3] vsock: don't check the listener's sk_err in vsock_accept()
+    https://git.kernel.org/netdev/net/c/b8c899cf5e7b
+  - [v6,2/3] vsock: remove the now-unused rejected flag
+    https://git.kernel.org/netdev/net/c/81fc0f369637
+  - [v6,3/3] vsock: use sock_error() to consume sk_err after a failed connect
+    https://git.kernel.org/netdev/net/c/96cbf8999309
+
+You are awesome, thank you!
 -- 
-2.55.0
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
