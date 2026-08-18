@@ -1,84 +1,217 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from canpmsgout07.his.huawei.com (canpmsgout07.his.huawei.com [113.46.200.222])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBF1419046E;
-	Tue, 18 Aug 2026 13:01:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D512F470EB5
+	for <virtualization@lists.linux.dev>; Tue, 18 Aug 2026 13:32:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.222
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787058104; cv=none; b=Y8MP0JPJKXAvKIoRohDgTlo7IydBknaCW2aZObc5l25g6WAsU0cKoh2kVxYSjXgn5YoHHl28R0dk7ZEIGg8LoZiz9YWsH3+J52f+tTeZ8m5ptbM8hYB95JsGq400TviYVGaBqAr5RjvOJ8glWOmifptatAMAlIRovpP0xgGVtt4=
+	t=1787059959; cv=none; b=lRXmgY0oDvYYuuhi2QF+bOJ4z+3IRDc1UdRpAEikxvC43uzmorWxen1D1wa4DzWR/kXbMwgB+7yghKRsG2mH40usmHjcNbBYbPHjLq0a/4kDdn1qeTTOcSUAbojERECr6OS1uno+x+sU7T6lphZFoZuGA3xVAdPYLNNrcu1xwfQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787058104; c=relaxed/simple;
-	bh=qPf0L/zcpkllaObsPOSTHmFdzqvK8eYTGpixcTGcHNc=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=ajLOrJlV8k5SJjKJn5Vtp8DXsPc5zyqybexmP9saZaWQNEZZrffVvCA9UojJlUucSoMeNFjYXRzjrvFafoXRxNCOr2qoGucPeBfl1zD9pjUdcPRVnvX+bL9cB0HjvJJNX19hAbRcSy3jUt/Px963ZQ5yy5YKILyJUDfAymbEyBs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BecyXK5B; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787059959; c=relaxed/simple;
+	bh=zODo0YxaK8EvQyzyub97afGLMRh9681+5f+JksrYehQ=;
+	h=Message-ID:Date:MIME-Version:CC:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=P6vf70LlwJFDaaflu5jg5YWiu+rY/+9MkwxPl11PGLKTjPpJMtGbn+GWV5gz/+ZMcO6fZA9mOfWePVNw1Fc6zG3yZ/impSwhvcWgn5iVno6rR3r787lOtl0sJuPSn3lSjhHwaMqOqlXu+fhGph1iQiNaWJjZhQUrN5xG5PPtw2w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=loEDKz/q; arc=none smtp.client-ip=113.46.200.222
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BecyXK5B"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AE841F000E9;
-	Tue, 18 Aug 2026 13:01:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787058103;
-	bh=gdUf+JvPTrd9D/HoyORD69Di0LvdQ3GcxLEooZloo5o=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc;
-	b=BecyXK5BtjfDIxFMRwKYL1pcxo5Z6VbqTLLAzeLzECD+sTpGIAwZAQOaNf/Jq2KLC
-	 c+6jBJ5y+5EV1uCSdXy0aGPpZYiGBDi6qJIbn6vVFbb5CTha/htnoXfUHi9HaMQpHB
-	 2UZNJUEIhsrzpv0QoOTabpj4FoM8WEYP3MnxoqJGxk+imFUmvrGnJB02VPNQ9WacYC
-	 EGWMgD17xZHbvHbbSh5R43Bo6JkpHB1Cczy1KpYCs/Do26lXqM58s358iuqIT6hOFm
-	 urz834k794ibPP/7EpmpH5ZsjUH9U37JuFKEPey3q5k7Me2xbwBCYDMJwHzEjqOG/b
-	 aJhO70CrRXrpw==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 5690B3926661;
-	Tue, 18 Aug 2026 13:00:56 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="loEDKz/q"
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=5Ao0mjFbvVNW/izzO3jvpj6rQ9rGRmC29qURkFZh6ME=;
+	b=loEDKz/qrpzbvC0Lh9UjT1BLiZqEz5h3Fgx0xNC6h/0utCONZfj9gJxFUI9wWKVaZTuJfmffK
+	7S3eS70EYvMPfFus94IwKTMYKXd5JQ8EdS5aR1dCPT/BmpIjoY3aJyPJvE1YRIqSzH+47+68a+4
+	LQhcHzRcKKboSqyIuM0NyTU=
+Received: from mail.maildlp.com (unknown [172.19.163.214])
+	by canpmsgout07.his.huawei.com (SkyGuard) with ESMTPS id 4hPVj20XhbzLlTg;
+	Tue, 18 Aug 2026 21:21:42 +0800 (CST)
+Received: from kwepemo500018.china.huawei.com (unknown [7.202.195.199])
+	by mail.maildlp.com (Postfix) with ESMTPS id C5D2A4056C;
+	Tue, 18 Aug 2026 21:32:22 +0800 (CST)
+Received: from [10.67.120.192] (10.67.120.192) by
+ kwepemo500018.china.huawei.com (7.202.195.199) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.45; Tue, 18 Aug 2026 21:32:21 +0800
+Message-ID: <dd817755-eb4d-4ac2-b282-ac06f847270d@huawei.com>
+Date: Tue, 18 Aug 2026 21:32:20 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+CC: <shaojijie@huawei.com>
+Subject: Re: [PATCH v5 net-next 2/2] net: hns3: fix GSO_ECN flag setting in
+ the RX path
+To: <chia-yu.chang@nokia-bell-labs.com>, <shenjian15@huawei.com>,
+	<linux-rdma@vger.kernel.org>, <eperezma@redhat.com>, <jasowang@redhat.com>,
+	<virtualization@lists.linux.dev>, <mst@redhat.com>,
+	<xuanzhuo@linux.alibaba.com>, <pabeni@redhat.com>, <edumazet@google.com>,
+	<linux-doc@vger.kernel.org>, <corbet@lwn.net>, <horms@kernel.org>,
+	<dsahern@kernel.org>, <kuniyu@google.com>, <bpf@vger.kernel.org>,
+	<netdev@vger.kernel.org>, <dave.taht@gmail.com>, <jhs@mojatatu.com>,
+	<kuba@kernel.org>, <stephen@networkplumber.org>, <xiyou.wangcong@gmail.com>,
+	<jiri@resnulli.us>, <davem@davemloft.net>, <andrew+netdev@lunn.ch>,
+	<donald.hunter@gmail.com>, <ast@fiberby.net>, <liuhangbin@gmail.com>,
+	<shuah@kernel.org>, <linux-kselftest@vger.kernel.org>, <ij@kernel.org>,
+	<ncardwell@google.com>, <koen.de_schepper@nokia-bell-labs.com>,
+	<g.white@cablelabs.com>, <ingemar.s.johansson@ericsson.com>,
+	<mirja.kuehlewind@ericsson.com>, <cheshire@apple.com>, <rs.ietf@gmx.at>,
+	<Jason_Livingood@comcast.com>, <vidhi_goel@apple.com>
+References: <20260804213510.673084-1-chia-yu.chang@nokia-bell-labs.com>
+ <20260804213510.673084-3-chia-yu.chang@nokia-bell-labs.com>
+ <61721708-0d77-4f59-aa08-02562af282bb@huawei.com>
+From: Jijie Shao <shaojijie@huawei.com>
+In-Reply-To: <61721708-0d77-4f59-aa08-02562af282bb@huawei.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH v6 0/3]  vsock: fix stale sk_err handling after a failed
- connect
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <178705805497.2073627.6439611667147974216.git-patchwork-notify@kernel.org>
-Date: Tue, 18 Aug 2026 13:00:54 +0000
-References: <20260813173024.2362935-1-phind.uet@gmail.com>
-In-Reply-To: <20260813173024.2362935-1-phind.uet@gmail.com>
-To: Nguyen Dinh Phi <phind.uet@gmail.com>
-Cc: sgarzare@redhat.com, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, dtor@vmware.com,
- acking@vmware.com, georgezhang@vmware.com, virtualization@lists.linux.dev,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+X-ClientProxiedBy: kwepems100001.china.huawei.com (7.221.188.238) To
+ kwepemo500018.china.huawei.com (7.202.195.199)
 
-Hello:
 
-This series was applied to netdev/net.git (main)
-by Paolo Abeni <pabeni@redhat.com>:
+on 2026/8/11 21:31, Jijie Shao wrote:
+>
+> on 2026/8/5 5:35, chia-yu.chang@nokia-bell-labs.com wrote:
+>> From: Chia-Yu Chang <chia-yu.chang@nokia-bell-labs.com>
+>>
+>> Currently, the hns3 Rx path sets the SKB_GSO_TCP_ECN flag when a TCP
+>> segment with the CWR flag set is received. This is incorrect because
+>> the hns3 hardware GRO resets the IP ToS byte to 0 during packet
+>> aggregation. Consequently, no valid ECN signals are carreid, meaning
+>> that it cannot support RFC3168 ECN or Accurate ECN protocols. Setting
+>> SKB_GSO_TCP_ECN or SKB_GSO_TCP_ACCECN under these conditions misleads
+>> the upper network stack.
+>>
+>> Fix this by removing the incorrect SKB_GSO_TCP_ECN flag assignment
+>> in hns3_gro_complete().
+>
+>
+> Tested on hns3 HW (2x 100G, direct cable, openEuler 24.03, kernel 
+> 7.2.0-rc6).
+>
+> tcpdump confirms HW GRO zeroes IP ToS: aggregated (>MTU) packets carry
+> tos 0x0, while non-aggregated packets keep their ToS/ECN marks — so the
+> zeroing is done by HW GRO, not the sender. Before patch, CWR packets had
+> SKB_GSO_TCP_ECN set (0x5 = SKB_GSO_TCPV4 | SKB_GSO_TCP_ECN). After patch,
+> all GRO events gso_type=0x1 (SKB_GSO_TCPV4 only), no 0x5 observed.
+>
+> Tested-by: Jijie Shao <shaojijie@huawei.com>
 
-On Fri, 14 Aug 2026 01:30:17 +0800 you wrote:
-> A socket whose connect() failed keeps sk_err set. If that socket is
-> later reused as a listener, vsock_accept() rejects an unrelated
-> incoming connection, and on virtio/hyperv the resulting child socket
-> is leaked.
-> 
-> Patch 1 removes the listener's sk_err check from vsock_accept(), since
-> no vsock transport ever sets sk_err on a TCP_LISTEN socket. This will
-> fix what the syzbot reported.
-> 
-> [...]
 
-Here is the summary with links:
-  - [v6,1/3] vsock: don't check the listener's sk_err in vsock_accept()
-    https://git.kernel.org/netdev/net/c/b8c899cf5e7b
-  - [v6,2/3] vsock: remove the now-unused rejected flag
-    https://git.kernel.org/netdev/net/c/81fc0f369637
-  - [v6,3/3] vsock: use sock_error() to consume sk_err after a failed connect
-    https://git.kernel.org/netdev/net/c/96cbf8999309
+I need to correct my earlier test report where I stated:
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+   "tcpdump confirms HW GRO zeroes IP ToS: aggregated (>MTU) packets
+    carry tos 0x0, while non-aggregated packets keep their ToS/ECN
+    marks — so the zeroing is done by HW GRO, not the sender"
+
+This conclusion was wrong. I am withdrawing that Tested-by tag.
+
+Root cause of the error
+========================
+
+I mixed two test tools with different sender-side paths and incorrectly
+compared their results:
+
+1. The observation that "non-aggregated packets keep their ToS/ECN
+    marks" came from a Python script (scapy). Scapy constructs L2/L3
+    packets directly, bypassing the kernel TCP stack, so the ToS value
+    on the wire is exactly what the script sets — this says nothing
+    about whether a kernel-stack sender would clear ToS or not.
+
+2. The observation that "aggregated packets carry tos 0x0" came from
+    iperf3 with --tos. iperf3 goes through the kernel TCP stack, and I
+    did not set net.ipv4.tcp_ecn=1, so the kernel cleared the ECN bits
+    (low 2 bits of ToS) before the packets hit the wire. The tos=0x0 on
+    aggregated packets was already tos=0x0 on the wire at the sender
+    side — it was a TX-side kernel behavior, not HW GRO zeroing.
+
+I mistakenly used the scapy observation ("non-aggregated packets keep
+ToS") as evidence that "the sender didn't clear ToS", then concluded
+that iperf3's tos=0x0 must be caused by HW GRO. But these two
+observations came from different sender paths and cannot be compared
+this way. I only captured at the receiver side with no sender-side
+wire capture to compare against, so I wrongly attributed the TX-side
+clearing to HW GRO.
+
+New test with tesgine (direct packet construction)
+===================================================
+
+To eliminate the kernel TCP stack interference, I retested using
+tesgine, a packet generator that constructs TCP segments directly at
+L2/L3 with full control over the IP ToS byte. This bypasses the kernel
+TCP ECN state machine entirely, so the ToS value on the wire is exactly
+what was configured.
+
+Test setup:
+   - hns3 NIC, HW GRO on, software GRO off (ethtool -K <dev> gro off)
+   - tesgine sends 1460-byte TCP segments with controlled ToS values
+   - Capture at receiver post-GRO
+
+Four test cases were run, each verifying a different ToS boundary:
+
+Test 1: Non-ECT <-> ECT(0)
+   Sent:  4x tos=0x00 + 1x tos=0x02 + 4x tos=0x00 + 2x tos=0x02 + 1x tos=0x00
+   Got:   4 aggregated (tos=0x00) | 1 single (tos=0x02)
+        | 4 aggregated (tos=0x00) | 2 aggregated (tos=0x02)
+        | 1 single (tos=0x00)
+   => GRO segments at every ToS change, each group keeps its ToS.
+
+Test 2: ECT(0) <-> CE
+   Sent:  4x tos=0x02 + 1x tos=0x03 (CE) + 4x tos=0x02
+   Got:   4 aggregated (tos=0x02) | 1 single (tos=0x03 CE)
+        | 4 aggregated (tos=0x02)
+   => CE packet is delivered independently, CE mark preserved.
+
+Test 3: Non-ECT <-> CE
+   Sent:  4x tos=0x00 + 1x tos=0x03 (CE)
+   Got:   4 aggregated (tos=0x00) | 1 single (tos=0x03 CE)
+   => Same behavior: CE is segmented out, ToS preserved.
+
+Test 4: Pure DSCP change (ECN bits identical)
+   Sent:  4x tos=0x10 (DSCP4) + 4x tos=0xB8 (DSCP46)
+   Got:   4 aggregated (tos=0x10) | 4 aggregated (tos=0xB8)
+   => Even pure DSCP change (no ECN bit change) triggers segmentation.
+
+Conclusions from tesgine testing
+================================
+
+   1. HW GRO does NOT zero IP ToS. Each aggregate group retains the
+      head packet's ToS value (verified with 0x00/0x02/0x03/0x10/0xB8).
+
+   2. HW GRO segments flows by ToS boundaries. Any ToS change — whether
+      DSCP (bits 0-5) or ECN (bits 6-7) — terminates the current
+      aggregate group and starts a new one.
+
+   3. ECN signals are preserved: CE packets (tos=0x03) are delivered
+      independently with the CE mark intact, not merged into non-CE
+      aggregates.
+
+Impact on this patch
+====================
+
+The commit message states:
+
+   "the hns3 hardware GRO resets the IP ToS byte to 0 during packet
+    aggregation. Consequently, no valid ECN signals are carried"
+
+This factual claim is incorrect per the tesgine test results above.
+HW GRO preserves ToS and segments by ToS boundaries, so ECN signals
+are not lost during aggregation.
+
+The code change itself (removing the SKB_GSO_TCP_ECN assignment in
+hns3_gro_complete) may still be correct, but the justification should
+be based on the RX-path semantic argument from patch 1/2 (SKB_GSO_TCP_ECN
+is a TX-path flag; using it in RX can corrupt the ACE signal in AccECN
+forwarding scenarios), not on the ToS-zeroing claim. Or change to AccECN.
+
+I will re-verify and provide a new Tested-by once the commit message is
+updated. Sorry for the confusion caused by my earlier report.
+
+Test captures and methodology details available on request.
+
+Regards,
+Jijie Shao
 
 
