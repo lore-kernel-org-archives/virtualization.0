@@ -1,102 +1,61 @@
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E84A73CF1FD;
-	Tue, 18 Aug 2026 15:55:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3944742E8FA;
+	Tue, 18 Aug 2026 17:13:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787068524; cv=none; b=c9Rtw9W2l4ZJg7ivSNKHw9+0wZNRN4lW5zYEVfb/kJc3TZHL4u8FTIP3rN7ePSJ4aeQ8VCPAf3uxEWHAgYWJ51WMCPouS1Fq0WwALmCq8c/F0LQpl1KdBXuWFk6DAb55mpJRpwgDtRUj4AoLewEDbt/sa++2fcsnew02u++zvPg=
+	t=1787073232; cv=none; b=teHK2HQwEy22YYX0Gv6l6p5MMW/SY1sR1uNQqvHFA1jLWOW8duxABcfjHKrd0NDXCBzb9zQS191KA9/M6HeO5pbmTGt4Qg+MtkgAqsX3gnliulzGg7/bOjr7S6AK9WUkgV72MUeC8jg2ZjDJqUhLhaRyz5CNRfDHnIoqm3G/RlM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787068524; c=relaxed/simple;
-	bh=yBB5Ah18TwalqEmv2x0ZGwuCUI1Tc8gkXWpKPtytP4I=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=I3zsbNc6w0XOKnbiU3FRMIIJOAvezv5UyihMi+pscw2M4s7gFC2ytWnRKPN99HM/xNhNeqAq/MCGpQpfuOTjOiMCB/rVbvfTAYzpPM3KKykAy1+ZyePXSxb98PTZAsZmB9DXmi1+AP4LBLukXvbo2QGA07kegHcuz85inFpybOE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=pass smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=Ui5KdUDl; arc=none smtp.client-ip=198.137.202.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
+	s=arc-20240116; t=1787073232; c=relaxed/simple;
+	bh=lVebo+yy+MYi+1KDP4SQDlB87QU8PilaapWnJMupzCA=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=SaNhsE+MOLRnezH2WGqvp6Cnuj30r4HX32aYMKupgbI1/7hGTLGfFk13XgkGGNurSfC/kBNMuVvOYTZ4Y6+d5vkuo+F2Rz0oLCHl9skyVItKkj2BljbOCtCSmjF60KhEP8MI5sZJegj2d5aDJQJs/6p3rQ6o3VhfzE3sEVTPsXU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eqsbnfDY; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="Ui5KdUDl"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-	Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
-	Message-ID:Sender:Reply-To:Content-ID:Content-Description;
-	bh=Oib1sAGemzHmu6ROtRkEHyhCtwDTicVNKskycatCaao=; b=Ui5KdUDlipNO9Vm4nINkg/+v4R
-	bOUqu7BxrFpPjJPyyxL5/SQNc4/JySqtBdMrb5CyEz/IRILpW8+YnFuGzsaYbvWJv+9e0YtT8uwx/
-	eE0eXe6fRPjm1sfCVSmOReeGwtH7/zEHlNxdnu5tpHNRyMiy4cejksDu81kvbeMEFRTaItbMt/IGi
-	Q61CWpoF2IThZoi159FSHVf/TCVp1AzMzc9ZSRaQVSMkGFqvkSEm1dUtgG8Qvp88FNz5jkcBhNEOs
-	ACjeQ2XWgqHevHSOffjhKrvnRBjt4Y+4cNGXzMxdf7NzZpsvk2bac1B5a/UMTuKt7keKswSiklY2c
-	JG0mN6zA==;
-Received: from [50.53.43.113] (helo=[192.168.254.34])
-	by bombadil.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
-	id 1wwM9g-00000008JC7-1PPo;
-	Tue, 18 Aug 2026 15:55:12 +0000
-Message-ID: <916c4bd5-c73f-466e-8e9b-aee9d4d7d742@infradead.org>
-Date: Tue, 18 Aug 2026 08:55:11 -0700
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eqsbnfDY"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01D051F000E9;
+	Tue, 18 Aug 2026 17:13:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787073230;
+	bh=exy8tCyjH4qq6b9KIMiZmFaUSgJu+qjUSjqFhbLG+b4=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=eqsbnfDYWg5w1uyGk7UqGDUATDSBLag5uuml8r7tuYv55TBAWxuycyiEGTszO0Ky1
+	 D9JuOYM0a+h25VZ2a9Jj3pCwOG03rOz6asSsiY5ZLkD+zcj8tCIM5eXat3yxsulRZA
+	 cztmJBeFXi6py9DKBHRaF0F07EShRPfJCjUXfT8z1+S9fvfDyCvCp+pZ0tyWKL3A5f
+	 xZJEjVbWC5Z4Ch7xpG3CRZWWeeroDe3M6Ejc4Cfc7IIAuS+QeZisv+T33esh5nIrI9
+	 ZBbhqM8d1E/YhwcTt47N8rMhJ3KhzVX63IeGMJ3+hv6Cdc2LNzkSgHbBok92DxafaW
+	 mQDDzsdRo2F1A==
+Date: Tue, 18 Aug 2026 10:13:49 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: Shahar Shitrit <shshitrit@nvidia.com>
+Cc: netdev@vger.kernel.org, mst@redhat.com, jasowang@redhat.com,
+ pabeni@redhat.com, virtualization@lists.linux.dev, parav@nvidia.com,
+ yohadt@nvidia.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+ jgg@ziepe.ca, kevin.tian@intel.com, andrew+netdev@lunn.ch,
+ edumazet@google.com, danielj@nvidia.com, gal@nvidia.com, tariqt@nvidia.com
+Subject: Re: [PATCH net-next v22 00/14] virtio_net: Add ethtool flow rules
+ support
+Message-ID: <20260818101349.377d9351@kernel.org>
+In-Reply-To: <20260816122111.2495240-1-shshitrit@nvidia.com>
+References: <20260816122111.2495240-1-shshitrit@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 11/12] drm/panic: Move panic display code into helper
- library
-To: Thomas Zimmermann <tzimmermann@suse.de>, jfalempe@redhat.com,
- javierm@redhat.com, airlied@gmail.com, simona@ffwll.ch,
- maarten.lankhorst@linux.intel.com, mripard@kernel.org
-Cc: dri-devel@lists.freedesktop.org, linux-doc@vger.kernel.org,
- amd-gfx@lists.freedesktop.org, rust-for-linux@vger.kernel.org,
- linux-hyperv@vger.kernel.org, intel-gfx@lists.freedesktop.org,
- intel-xe@lists.freedesktop.org, imx@lists.linux.dev,
- linux-arm-kernel@lists.infradead.org, nouveau@lists.freedesktop.org,
- linux-renesas-soc@vger.kernel.org, virtualization@lists.linux.dev,
- sashiko-reviews@lists.linux.dev
-References: <20260818125012.468092-1-tzimmermann@suse.de>
- <20260818125012.468092-12-tzimmermann@suse.de>
-Content-Language: en-US
-From: Randy Dunlap <rdunlap@infradead.org>
-In-Reply-To: <20260818125012.468092-12-tzimmermann@suse.de>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-Hi,
+On Sun, 16 Aug 2026 15:20:57 +0300 Shahar Shitrit wrote:
+> This series implements ethtool flow rules support for virtio_net using the
+> virtio flow filter (FF) specification. The implementation allows users to
+> configure packet filtering rules through ethtool commands, directing
+> packets to specific receive queues, or dropping them based on various
+> header fields.
 
-On 8/18/26 5:28 AM, Thomas Zimmermann wrote:
->  M:	Hans de Goede <hansg@kernel.org>
-> diff --git a/drivers/gpu/drm/Kconfig b/drivers/gpu/drm/Kconfig
-> index 323422861e8f..cdfd72d9a9c5 100644
-> --- a/drivers/gpu/drm/Kconfig
-> +++ b/drivers/gpu/drm/Kconfig
-> @@ -45,6 +45,7 @@ config DRM_MIPI_DSI
->  config DRM_KMS_HELPER
->  	tristate
->  	depends on DRM
-> +	select DRM_PANIC_HELPER if DRM_PANIC
-
-but DRM_PANIC_HELPER depends on DRM_TTM so
-DRM_KMS_HELPER should also depend on DRM_TTM. Otherwise:
-
-WARNING: unmet direct dependencies detected for DRM_PANIC_HELPER
-  Depends on [n]: HAS_IOMEM [=y] && DRM [=y] && DRM_TTM [=n]
-  Selected by [y]:
-  - DRM_KMS_HELPER [=y] && HAS_IOMEM [=y] && DRM [=y] && DRM_PANIC [=y]
-
-
->  	select FB_CORE if DRM_FBDEV_EMULATION
->  	help
->  	  CRTC helpers for KMS drivers.
-> @@ -130,6 +131,10 @@ config DRM_PANIC_SCREEN_QR_VERSION
->  	  Smaller QR code are easier to read, but will contain less debugging
->  	  data. Default is 40.
->  
-> +config DRM_PANIC_HELPER
-> +	bool
-> +	depends on DRM_TTM
-> +
->  config DRM_RAS
->  	bool "DRM RAS support"
->  	depends on DRM
-
+Missing some acks from virtio maintainers and we gotta wrap up 7.3
+please repost after the merge window
 -- 
-~Randy
-
+pw-bot: defer
