@@ -1,77 +1,84 @@
-Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3208368D50
-	for <virtualization@lists.linux.dev>; Tue, 18 Aug 2026 05:47:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76051175A74;
+	Tue, 18 Aug 2026 07:07:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787032077; cv=none; b=kZX21WvEcjETKxUWrQGIL1ggGvyipJI0CU+vDncDu2DxzV90a6QdaveMB7SxDJJqo3Iat7g9mT/AXf0C/3GqyWWBaTfF2lU1dTa3Ipw0R6UxGvDy2qrkwpsxtSySExhuBO65OpH+C+9y3Ik+oi4+HZjvElL0GinTFSdHwd/YJ9E=
+	t=1787036839; cv=none; b=XT3v2fYsMiR6F8Yuf93fnEFpOBGMbNMvzffP+dpYyn1spxVs8ksv8PfO0ejPpoozocW5NuuZ1W/yOehqQhU4wQJxpmjWvsX2tLLwkQD1r0wvmvhyGRLGKFVMrADzsQ5lEwqqVRt9UR5+eLx9P7phhkJCwzilgWnzVkrYZDeGZ3Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787032077; c=relaxed/simple;
-	bh=3kwUH9VjOFNvtVGD9P+Sv3DG838jDeBeyfBh1fP55f0=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=XnIyVk4MglHdhcKVDYkH/RiTZ+fcO/+eNRXn48PSJgUH2EixcnpQI/IM6ZzBuAlsOT7/wdKpJHlAFzWgKxX7u7OFTWi50uIbENWv2Y3SCJOyDIKNvHw3htEtNB0VbSRn2VyMktrPLhNMY7poYF++bA2KGmD/mvRA7ZXyQYqGAJc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FjtrY5TY; arc=none smtp.client-ip=209.85.214.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1787036839; c=relaxed/simple;
+	bh=PwxuxxOQhh1KTK7b+FD1f79AWdhuYNNhbg5F06dhitI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ELUtz2ChyQA7O6XeE/LSp9ovQiv3/Q+mGolJiBCWQv5z6zjZCqKTiOjF68FQ4ZiGO7wUckwbq79OM4iMbTpeO621Yk0iTg1DGRv15/yKne7U3cggOWhb0wiuCTYglix2LWJpz8DedSMKynyzKENE11xSnAdWB+Wj5DJmPKRy/fg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=f7Q/JaIa; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FjtrY5TY"
-Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2caced6038eso8505595ad.0
-        for <virtualization@lists.linux.dev>; Mon, 17 Aug 2026 22:47:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787032075; x=1787636875; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=yeF5s/zx6+8hMLW6H+qKAJyqoTB1cdRg+gT9WgtCNI4=;
-        b=FjtrY5TYOM143cR2N9GX7Q5Xxz4TWzGwQopDt9mk5QDZNQ/M8yI1LfKSN/+N4g3O2N
-         HCQVJfv+pnRa7roJW+I5CLjh3p5syx9aTKdS0/2mKtiH5eUct0RS4IKp9zV0qBQ6Ko2H
-         bPtXC0uwdRtHP3ghAKkJPP6DaokFPjFgFeeJQX945+PoFa6MvM8ZzwJxw1NtKHBiDX9s
-         YSlRlUjk21jsYBUabjIngVh5EcbMGNfRFb33UGgmy/aABKCBs6fYxH/Kd0GaW3UCBpO+
-         a+PMJy6PU0I9RptOQN8bjBt9nfTOfz7C8sPKMvLMXKo9PIlwP5qiDh7J1VJl/iyZF36Q
-         WfqQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787032075; x=1787636875;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=yeF5s/zx6+8hMLW6H+qKAJyqoTB1cdRg+gT9WgtCNI4=;
-        b=Ufvo8ZfYUR1azmgXV6jBvcjw67EOLeMGvovVlOiv9nffws+awX6ymKqtizsmVOifQP
-         yvp97zdvvtWXYFZDdlxDW57RygcCrOmUsUrXWuzQk+9l3ccA3q2vjAegG6eoXxBL+MFu
-         2Ou3zHeyjWbAEnF3n6/3vJ8+Z/2VekOAxclXLyht5aKrBR+kRqZ8FrfCwmo99ImZhb7G
-         crpJEivDuyRPtEfH9KXuNIxPatRb4I121YFmPmNQxZemwV2++4RjrpsZJqmZzJsoH9I7
-         rhb10URP/Clw63sfa+P5Qra0HBAsYfqjHcAHT/M819E5+uE+ULYI5cQZkkPX8HdUnBxX
-         z0mw==
-X-Forwarded-Encrypted: i=1; AHgh+Rp20ikckoWsg4vf+Hg9kMMa2s5/1pI5B3l4sDIhGB2FcJKw+nI5FSN4bgpmtOyoqnUObZinvpwXuL48CDDG7g==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzYSd9qLnArxbL4CfI8pw0rlKiwL9GHvfLtF4vigBI4o5M3Od4B
-	CsFitAscrIUpBkEvghZpnsyxKGDChMmHG/gqXxtVmsaXucMEvGNiMNTvAaaByQ/QjTB2kQ==
-X-Gm-Gg: AR+sD13Pp79f8wgde1bYfLbBTLipmyZkRMlJ4jdseFZQVhRU5pcs8qaxPR7ZhBuDoHS
-	MjS162i5TYGABFjdP0V3lymVO3hJIFS7q4ltCdUUB0ngwsKlxEvlf1yMlyAJsgu6aDKjkFwsKa7
-	R2bzMe2G8iAyNXGGdCR4QUNDBD6gW/bz+IWC/wowtUqIUfCI5ff1qnMKXuD7uOCAGAz2dGK1S/A
-	8nrZvC2dAA7PvkWhRV7qKjmd1Uowv+WyMfpZem9WdjVT21xikiW+Bh3JZVfo19osExlqyddTmRw
-	LyqRYiigyh8UhUM5XjLgwUUjqVdRIljwdhtbwDagoNjeQQo3yIw8uPY4MdOuyQhtLoFGQbyHNLh
-	mjv6TDeoNQTpaw68O3LvXLREriwmnyvy56/kszu8tvBql3K3+6f/kGNKVE2ZpR4mHLbvn0mfrEB
-	EHfWRlQYUo88QFSNcXiQPct93cBEKrgVfWmiC5I4BPzNV0IbwhLHocsI29FP0L6d55WG8Q72Q9K
-	eQ=
-X-Received: by 2002:a17:902:e78e:b0:2c7:f5c6:c4a6 with SMTP id d9443c01a7336-2d5d149bafamr31963995ad.7.1787032074635;
-        Mon, 17 Aug 2026 22:47:54 -0700 (PDT)
-Received: from [127.0.1.1] ([188.253.126.51])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2d5bb514bacsm13097505ad.27.2026.08.17.22.47.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 17 Aug 2026 22:47:54 -0700 (PDT)
-From: Jia Jia <physicalmtea@gmail.com>
-To: amit@kernel.org,
-	mst@redhat.com,
-	jasowangio@gmail.com
-Cc: xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
-	gregkh@linuxfoundation.org,
-	arnd@arndb.de,
-	virtualization@lists.linux.dev,
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="f7Q/JaIa"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A4721F000E9;
+	Tue, 18 Aug 2026 07:06:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787036837;
+	bh=RNvoeC0JEXeBglk9uCkZKrFP7tQLecq/zIhUBpbbNJU=;
+	h=From:To:Cc:Subject:Date;
+	b=f7Q/JaIaMl86dmjnFfyr2kSJU4hsCbDnFS4xWvkYwDU8g4aSuVyXa9+GHJKcdIiw7
+	 DxU6in0bDgKlHhbpAbPaOtDielfMvAZ4xxMS2FdRb1DAldqufqTV0/aMcUJ2xiNDmU
+	 efY6eMjABNG2upUM/p3MESs1xKCrnD8fwBsM/96GXwwYLaDm7c6mZKIHT8hGJBfpgK
+	 mVopXLxlbEd+mhg/iIGeE/V2uFgr86/trU10wAjQ27mBaSPta4axKQuXN5bS0I+NoZ
+	 nvl75La8qKMGLJx/ShWuXY1Jl2sDPQg5ridFKsAbvfCX2O+lCwwSca7/fcB71KqU7b
+	 9yIq5JhwNIEtg==
+From: Yu Kuai <yukuai@kernel.org>
+To: Jens Axboe <axboe@kernel.dk>,
+	Tejun Heo <tj@kernel.org>,
+	Josef Bacik <josef@toxicpanda.com>,
+	Johannes Weiner <hannes@cmpxchg.org>,
+	=?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>
+Cc: Yu Kuai <yukuai@fygo.io>,
+	Christoph Hellwig <hch@lst.de>,
+	Tao Cui <cui.tao@linux.dev>,
+	Jan Kara <jack@suse.cz>,
+	Ming Lei <ming.lei@redhat.com>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Coly Li <colyli@fygo.io>,
+	Kent Overstreet <kent.overstreet@linux.dev>,
+	Alasdair Kergon <agk@redhat.com>,
+	Mike Snitzer <snitzer@kernel.org>,
+	Mikulas Patocka <mpatocka@redhat.com>,
+	Benjamin Marzinski <bmarzins@redhat.com>,
+	Song Liu <song@kernel.org>,
+	Li Nan <magiclinan@didiglobal.com>,
+	Xiao Ni <xiao@kernel.org>,
+	Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
+	Dan Williams <djbw@kernel.org>,
+	Vishal Verma <vishal.l.verma@intel.com>,
+	Dave Jiang <dave.jiang@intel.com>,
+	Alison Schofield <alison.schofield@intel.com>,
+	Ira Weiny <iweiny@kernel.org>,
+	Andreas Gruenbacher <agruenba@redhat.com>,
+	Matthew Wilcox <willy@infradead.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Chris Li <chrisl@kernel.org>,
+	Kairui Song <kasong@tencent.com>,
+	Kemeng Shi <shikemeng@huaweicloud.com>,
+	Nhat Pham <nphamcs@gmail.com>,
+	Baoquan He <baoquan.he@linux.dev>,
+	Barry Song <baohua@kernel.org>,
+	Youngjun Park <youngjun.park@lge.com>,
+	cgroups@vger.kernel.org,
+	linux-doc@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: [PATCH] virtio_console: do not free control-out buffers on remove
-Date: Tue, 18 Aug 2026 13:47:09 +0800
-Message-Id: <20260818054709.282196-1-physicalmtea@gmail.com>
-X-Mailer: git-send-email 2.34.1
+	linux-block@vger.kernel.org,
+	linux-bcache@vger.kernel.org,
+	dm-devel@lists.linux.dev,
+	linux-raid@vger.kernel.org,
+	nvdimm@lists.linux.dev,
+	virtualization@lists.linux.dev,
+	gfs2@lists.linux.dev,
+	linux-fsdevel@vger.kernel.org,
+	linux-mm@kvack.org
+Subject: [RFC PATCH v3 0/3] blk-cgroup: store blkcg in bio before blkcg_mutex conversion
+Date: Tue, 18 Aug 2026 15:06:38 +0800
+Message-ID: <20260818070641.756747-1-yukuai@kernel.org>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -80,62 +87,108 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-__send_control_msg() publishes &portdev->cpkt as the control-out
-virtqueue cookie. remove_vqs() walks every virtqueue and passes leftover
-cookies to free_buf(), which treats them as struct port_buffer and
-reads sgpages.
+From: Yu Kuai <yukuai@fygo.io>
 
-If a control message is still on c_ovq when the device is unbound,
-free_buf() reads past the ports_device object.
+This RFC remains a preparatory series for the blkcg_mutex conversion
+proposed in the related blkcg_mutex RFC v2 series [1].  That conversion
+moves queue-local blkg topology synchronization from q->queue_lock to
+q->blkcg_mutex, which is awkward while bios directly store queue-local
+blkg references.
 
-KASAN reported the use through:
+v1 made the stored bio association queue-independent by replacing bi_blkg
+with bi_blkcg, but a bio-owned blkg reference still had to be recovered by
+looking up the bio's blkcg and current request_queue.  Tao Cui reported that
+cgroup removal deletes a dying blkg from the per-blkcg radix tree before a
+throttled bio drops its reference.  A later lookup for that pinned blkg then
+fails, triggers the warning in bio_pinned_blkg(), and leaks the reference.
 
-	free_buf
-	remove_vqs
-	virtcons_remove
-	unbind_store
+v2 makes request_queue the authoritative lookup owner before converting the
+bio association.  A queue-owned rhashtable, keyed by the blkcg CSS ID, keeps
+dying blkgs discoverable until their references drain while q->blkg_list
+remains available for ordered walks.  The bio conversion then stores and
+pins the blkcg CSS, lazily creates a blkg only for users which need one, and
+uses lookup-only access for completion and accounting paths which already
+own a blkg reference.  Async bio punt state is finally moved from blkg to
+blkcg so punting alone does not instantiate a queue-local blkg.
 
-Drain c_ovq without freeing. The packet lives in portdev and is released
-with it.
+A git branch is available at:
+  https://git.kernel.org/pub/scm/linux/kernel/git/yukuai/linux.git/log/?h=block-7.3-blkg_list-rhashtable-v3
 
-Fixes: a7a69ec0d8e4 ("virtio_console: free buffers after reset")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jia Jia <physicalmtea@gmail.com>
----
- drivers/char/virtio_console.c | 20 +++++++++++++++++---
- 1 file changed, 17 insertions(+), 3 deletions(-)
+Changes since v2:
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 9a33217c68d9..6e9bf064826e 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -1886,10 +1886,24 @@ static void remove_vqs(struct ports_device *portdev)
- 
- 	virtio_device_for_each_vq(portdev->vdev, vq) {
- 		struct port_buffer *buf;
-+		unsigned int len;
- 
--		flush_bufs(vq, true);
--		while ((buf = virtqueue_detach_unused_buf(vq)))
--			free_buf(buf, true);
-+		/*
-+		 * c_ovq cookies are &portdev->cpkt, not port_buffer.
-+		 * Detach them but do not free_buf().
-+		 */
-+		if (vq == portdev->c_ovq) {
-+			spin_lock(&portdev->c_ovq_lock);
-+			while (virtqueue_get_buf(vq, &len))
-+				;
-+			while (virtqueue_detach_unused_buf(vq))
-+				;
-+			spin_unlock(&portdev->c_ovq_lock);
-+		} else {
-+			flush_bufs(vq, true);
-+			while ((buf = virtqueue_detach_unused_buf(vq)))
-+				free_buf(buf, true);
-+		}
- 		cond_resched();
- 	}
- 	portdev->vdev->config->del_vqs(portdev->vdev);
+  - Drop the old patch 1 and send it separately as a bugfix for 7.3 and
+    -stable, as suggested by Christoph Hellwig.
+  - Rebase onto the latest for-7.3/block branch.
+  - In the new patch 1, note that the remaining q->blkg_list walkers are
+    cgroupfs/sysfs slow paths and can move to rhashtable iteration after
+    the queue_lock-to-blkcg_mutex conversion.
+  - In the new patch 1, explain the list_empty case in blkg_release(), and
+    add an RCU lockdep assertion plus documentation that blkg_lookup_any()
+    does not acquire a reference.
+
+Changes since v1:
+
+  - Add patch 1 to wait for every old blkg to leave q->blkg_list before a
+    shared request_queue is rebound, instead of treating root_blkg == NULL
+    as completion of asynchronous blkg teardown.
+  - Add patch 2 to replace the per-blkcg radix tree and lookup hint with a
+    request_queue rhashtable keyed by blkcg->css.id, as suggested by
+    Christoph Hellwig.  Keep dying pinned blkgs in the hash until
+    blkg_release() so bio-owned references remain discoverable.
+  - Fold the v1 helper-only patch into patch 3, as suggested by Jan Kara and
+    Christoph Hellwig, and make bio_blkcg() naturally return NULL for an
+    unassociated bio.
+  - Rework patch 3 so blkg_lookup_create() acquires the bio-owned reference,
+    falls back to a live parent when creation or tryget fails, and updates
+    bi_blkcg when the returned blkg belongs to an ancestor.
+  - Make bio_blkg_lookup() lookup-only: it returns NULL unless BIO_BLKG_REF
+    is already set.  Use bio_blkg() in the BFQ and IOCOST merge paths which
+    may need to create a blkg, while keeping blk_cgroup_bio_start() and
+    completion paths lookup-only.
+  - Move CSS online-reference handling into
+    bio_associate_blkcg_from_css(), including fallback to the root blkcg, so
+    bio_associate_blkcg() does not take a redundant reference.
+  - Keep the v1 async bio punt conversion as patch 4 and document that
+    async_bio_lock protects async_bios.
+
+Previous versions:
+  v2: https://lore.kernel.org/r/20260811064744.1139446-1-yukuai@kernel.org
+  v1: https://lore.kernel.org/r/20260804065313.2092022-1-yukuai@kernel.org
+
+Related series:
+  [1] RFC v2 blk-cgroup: protect blkgs with blkcg_mutex
+      https://lore.kernel.org/r/20260724123037.3004560-1-yukuai@kernel.org
+
+Yu Kuai (3):
+  blk-cgroup: use a request_queue rhashtable for blkg lookup
+  blk-cgroup: store blkcg in bio instead of blkg
+  blk-cgroup: move async bio punt state to blkcg
+
+ Documentation/admin-guide/cgroup-v2.rst |   2 +-
+ block/bfq-cgroup.c                      |  16 +-
+ block/bfq-iosched.c                     |  19 +-
+ block/bio.c                             |  22 +-
+ block/blk-cgroup-fc-appid.c             |  10 +-
+ block/blk-cgroup.c                      | 339 ++++++++++++++----------
+ block/blk-cgroup.h                      |  89 +++++--
+ block/blk-core.c                        |   9 +-
+ block/blk-crypto-fallback.c             |   2 +-
+ block/blk-iocost.c                      |  12 +-
+ block/blk-iolatency.c                   |  11 +-
+ block/blk-ioprio.c                      |   2 +-
+ block/blk-throttle.c                    |   2 +-
+ block/blk-throttle.h                    |   2 +-
+ drivers/md/bcache/request.c             |   2 +-
+ drivers/md/dm.c                         |   2 +-
+ drivers/md/md.c                         |   2 +-
+ drivers/nvdimm/nd_virtio.c              |   2 +-
+ fs/gfs2/lops.c                          |   3 +-
+ include/linux/bio.h                     |  26 +-
+ include/linux/blk_types.h               |   9 +-
+ include/linux/blkdev.h                  |   2 +
+ include/linux/writeback.h               |   2 +-
+ mm/page_io.c                            |  13 +-
+ 24 files changed, 364 insertions(+), 236 deletions(-)
+
 -- 
-2.34.1
+2.51.0
