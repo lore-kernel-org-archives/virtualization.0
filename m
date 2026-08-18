@@ -1,77 +1,69 @@
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from pdx-out-007.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-007.esa.us-west-2.outbound.mail-perimeter.amazon.com [52.34.181.151])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E49773EC69A
-	for <virtualization@lists.linux.dev>; Tue, 18 Aug 2026 18:38:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B1D835C190;
+	Tue, 18 Aug 2026 21:14:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.34.181.151
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787078288; cv=none; b=ib7tu21TIte10vFzXS+dclvKn5HjXhB20qHIr/3hQAMgGobpLF7v9c/tL6QrR6G4cIhfcyzeETVmhfrE34FWrtHz9RrJMFABvBYm56WqjYkRz7M2kqXwMC5c4KVb64kw/g8CKkp1Qb9il7eA1CFKmrh0EmxxpjOIzLDo8xtukqI=
+	t=1787087675; cv=none; b=pH3FRnyDDOFofGnuZ0Tbw/jhlzcHXSmx34YONjptwOznz4PbCIZOWl5u0NgkyLuKKVeaPc6E+yzkVnsrDJa7t6MDSUzRVoDdVo+M3IzNkvk/3nY/azAIvuGg2sdLq6mXUgSI76FCnOgCnYiWtgXdWTsQmJW2yZJwi3iXfHAMtLs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787078288; c=relaxed/simple;
-	bh=UVBY7I/rBszBv2OjNaycTI0+LnLLwgzt5ty2Q+F5/BA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=dGdA68zfuC6k+Vt9DrOB0nT+FhfeGFawU9HYfZDHo/a+X+U+88yWsEgEl1XM7DihfENw9+USE/++3xs4MThSStWHNXigOeyLLbm9J6Dj4RWueGW8NDVisM2KVr4hzuNw5DayNiHJqDuZFMxtljuKX3JCTvG6SyKoTDZyumXG8sU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qBr0Ypwn; arc=none smtp.client-ip=209.85.216.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1787087675; c=relaxed/simple;
+	bh=EtgII+6aFzxtL9xEcTtjczBjknxrb73HycvECBG2Bnw=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=FH66z83eTd2qWLCJcp5cniQxE14YUKiGGWsOSyevEgUBbDOeJH6R5M8M+IPpQ8DsqlrxNDci/IyhcixfClsRY2kPGNoWUW7EHGBNIn4RoaumgxjXmA1tu2yrPd2+o4qCQyChKQ2Kll3VoEz5p9qSzNsE4hnd40o0HxF7WgDWWiU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.de; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=nA+JwJhq; arc=none smtp.client-ip=52.34.181.151
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qBr0Ypwn"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-38dc4553f62so384643a91.0
-        for <virtualization@lists.linux.dev>; Tue, 18 Aug 2026 11:38:06 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="nA+JwJhq"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787078286; x=1787683086; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=UVBY7I/rBszBv2OjNaycTI0+LnLLwgzt5ty2Q+F5/BA=;
-        b=qBr0YpwnANEUI5aOwe9hK5sAQ0+0IB/P9pZlOPnZ2R2BhI4jy9OPTRicI8GgxaPSNB
-         j66I6lG9iGeuMhoHzubp+Cmcb4P9Codxd50Uzxx/yBWHuF9c8cmH/AydmhcgCUQrQsYx
-         AmwM+QsrSCxDjQvPGAhzzHoCpnd59kuQZFitaEWmkj7pQk1gkGaHn3fWQiw9d9MUS6MT
-         727eToYF8bdUz0I1JOpdvd4CyjTConxYoRX69K/oZ6gc1hOBXQcDLv9BRzoubi6+fuMG
-         mNveiVFdCuZXkcQUSHz1MN9FPDVDdRJERIlTdk+73qwVb/ZAkN1amLbCoaub4VC0dfa0
-         nVog==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787078286; x=1787683086;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=UVBY7I/rBszBv2OjNaycTI0+LnLLwgzt5ty2Q+F5/BA=;
-        b=ViF9rB5BgM0glu691zW7VXhrWfwzhARb44iH7xncYf9HrQNwGPswQWNQsO/2euzMFL
-         XlI+etaf+TMRdbFQaReLUlJOb+t/aO9W87EcSOAZX40XNWCm3Ep+2P4a/GlkCSJGwdyu
-         EgfUexl2a4ixhHPfVf1oVXTGZoHahT2Ap1Pu/ILPz3J790JAGUx+wK7WljwZ1MOAeV55
-         DHQLXan6996jIM3GrUUUJfGheSXaayxJ4j3J+0hOtDXLVklExqxJRP8p90u1w2TDL3Iv
-         6zGNbnv1j7OrWpZ35ITQVtjfpFx9xyI3NwG156CCEgaX0+sugGgFswYMmrkniF6JgbAd
-         0Sbg==
-X-Forwarded-Encrypted: i=1; AHgh+RrnO51blTdy3qF211kwal0IBFonquVaTwDumhmX+RCcVJIheZnw0+N0DdwtQtbglTlGmDvqYEpk+3azSKGn5Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw71EBBSdmWbOgRlw9eTv7vEfy2Jtz01ExDY+VmaMNjDmAyKhBg
-	JFaTDSZb5VRmSrOM/8v1m6E1m/y+WWPOxCP0uSvFLKcZg2s/rmmhAtpg
-X-Gm-Gg: AR+sD10+FWZxs2sgxP3zWPblaWsL/tcZbMG+CjJpjxF6BjHo5UfmeoQLLREKrxnAEGC
-	uKsfbI4hBi7UM8KJrVgqSXiZagC1wXqJAPt6KKJXVc5Y0PyWN64hxA7uIg3DZZU0M0UA/F50liP
-	KxACPqf1RPgYyzS38fT3Ncye4Am7/ahMkU/x0fxXYUVpyX2ttmvfRCD2F8yjU+YoEaPIVmh7Hwm
-	eOijYMzdjIwYL42kySlR8FZW2lyo9QJ1jWyDWflZuS2MOJaChAl3m2/S5Vd2JCGOiLWfACpM3fQ
-	78OuI3PbUn7cm6GOZjR3EwwmCoxVW0itw5mFh9d29kfhrjcxCTsp+lO9GSTJo7xU8n7mUmJHfNU
-	o5pnJLRqtT5UA9GiqlIczMtnV737nIP9c74O744Ra9VfkWljuWfyBeycuUMjTxeSrwKqRsXXTsC
-	InrLkbylJYxl1WPhHrOnTxnC/ofo3a6dwDpVmQb39LdAwFzfPBoAl+L+NoYY7QPuMziTkZPvabn
-	ayjXckl79w=
-X-Received: by 2002:a17:90b:57c7:b0:37f:c97a:939f with SMTP id 98e67ed59e1d1-3955a724c64mr14674987a91.7.1787078286069;
-        Tue, 18 Aug 2026 11:38:06 -0700 (PDT)
-Received: from ancienth-X870E-Nova-WiFi ([125.186.72.2])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3954d2de41dsm6684128a91.5.2026.08.18.11.38.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Aug 2026 11:38:05 -0700 (PDT)
-From: Daehyeon Ko <4ncienth@gmail.com>
-To: Bobby Eshleman <bobbyeshleman@gmail.com>
-Cc: netdev@vger.kernel.org,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	virtualization@lists.linux.dev,
-	kvm@vger.kernel.org
-Subject: Re: [PATCH net] vsock/virtio: validate packet source for connected sockets
-Date: Wed, 19 Aug 2026 03:37:47 +0900
-Message-ID: <20260818183747.3382905-1-4ncienth@gmail.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <aoNLVoPQssG1V6bt@devvm29614.prn0.facebook.com>
-References: <20260813121236.2328599-1-4ncienth@gmail.com> <aoNLVoPQssG1V6bt@devvm29614.prn0.facebook.com>
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
+  t=1787087674; x=1818623674;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=eS2+jMJ39vieGJ8Hcj7Y1Wa3CkrQMnaJIAG8TuvM7Mw=;
+  b=nA+JwJhqBTi3GgirMhZ6Slt9JMLX//eQVmCzXVu7ADOtgKfjLv5TpPIK
+   A/0zwqYtNBEdRnn7fZ39LPnSCUd57GSvPXuV0nqCOwc51aETJq+Ew/HWI
+   tBPWRCJ6XGKVcLf46bl+Q3AKkHgcAQxIlgQNpRKQQHKXVPM2e16VTsNip
+   E1xOLboJ8obyQ0ctFwzIbBVZ8IyxTdGNbvJxE++c+0qFxh+A6EPhWXn87
+   w31HZ3Z2wIDXuD9wcx486JpHGmkEDxCWSw/4qdn3tlZffCWdyXVU9oZsa
+   AZaSlqPSjNjZk96hWZU/v3U8A4/Y7S0t1kiJlyuZya+wA6g8omiw10tr8
+   g==;
+X-CSE-ConnectionGUID: P4lFDOY3T5CSk48EPUWUaw==
+X-CSE-MsgGUID: jJ/hbMEKTTeRfa9R2DxdcQ==
+X-IronPort-AV: E=Sophos;i="6.25,230,1779148800"; 
+   d="scan'208";a="26303260"
+Received: from ip-10-5-12-219.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.12.219])
+  by internal-pdx-out-007.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Aug 2026 21:14:31 +0000
+Received: from EX19MTAUWB001.ant.amazon.com [205.251.233.104:10500]
+ by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.22.18:2525] with esmtp (Farcaster)
+ id f7d7b8ba-428e-4ab2-a0ac-0d66c74ec954; Tue, 18 Aug 2026 21:14:31 +0000 (UTC)
+X-Farcaster-Flow-ID: f7d7b8ba-428e-4ab2-a0ac-0d66c74ec954
+Received: from EX19D001UWA001.ant.amazon.com (10.13.138.214) by
+ EX19MTAUWB001.ant.amazon.com (10.250.64.248) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.45;
+ Tue, 18 Aug 2026 21:14:30 +0000
+Received: from ip-10-253-83-51.amazon.com (172.19.99.218) by
+ EX19D001UWA001.ant.amazon.com (10.13.138.214) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.45;
+ Tue, 18 Aug 2026 21:14:27 +0000
+From: Alexander Graf <graf@amazon.com>
+To: Jason Wang <jasowangio@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>
+CC: <nh-open-source@amazon.com>, Alex Williamson <alex@shazbot.org>, "David
+ Airlie" <airlied@redhat.com>, Dmitry Osipenko
+	<dmitry.osipenko@collabora.com>, <dri-devel@lists.freedesktop.org>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>, Feng Liu
+	<feliu@nvidia.com>, Gerd Hoffmann <kraxel@redhat.com>, Halil Pasic
+	<pasic@linux.ibm.com>, Jens Axboe <axboe@kernel.dk>, Jiri Pirko
+	<jiri@resnulli.us>, <linux-block@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <nvdimm@lists.linux.dev>, Pankaj Gupta
+	<pankaj.gupta.linux@gmail.com>, Paolo Bonzini <pbonzini@redhat.com>, "Parav
+ Pandit" <parav@nvidia.com>, Stefan Hajnoczi <stefanha@redhat.com>,
+	<virtualization@lists.linux.dev>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Yishai Hadas <yishaih@nvidia.com>
+Subject: [PATCH v2 00/12] virtio: support devices that own their virtqueue memory
+Date: Tue, 18 Aug 2026 21:14:13 +0000
+Message-ID: <20260818211425.91009-1-graf@amazon.com>
+X-Mailer: git-send-email 2.47.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -79,34 +71,135 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: EX19D032UWA003.ant.amazon.com (10.13.139.37) To
+ EX19D001UWA001.ant.amazon.com (10.13.138.214)
 
-On Mon, Aug 17, 2026 at 10:56:38AM -0700, Bobby Eshleman wrote:
-> Does this equality work for loopback, when the CID may be
-> VMADDR_CID_LOCAL and/or VMADDR_CID_HOST on host or the guest CID in
-> guest?
+Virtio drivers use guest memory to back virtqueues and their buffers.
+That means a VMM needs to be able to map guest memory. That is ok in the
+normal virt case. It gets icky with confidential computing (where we use
+swiotlb as workaround) and it defeats the purpose of isolated vhost-user
+backing devices, because they end up with full RAM access to the guest.
 
-Not in all cases. I tested VMADDR_CID_HOST with no guest-to-host transport,
-where it is routed over loopback but packets carry VMADDR_CID_LOCAL as their
-source. The unpatched kernel transferred data in 3/3 runs, while v1 timed out
-in 3/3 runs.
+So instead, I'm proposing an extension to virtio which allows it to give
+each virtio device its own dedicated memory region to communicate with the
+host, called DMB (Device Memory Buffer). A trusted hypervisor can force
+DMB to be present, which then enables safer, more isolated and resilient
+communication between guest and host.
 
-The v2 candidate requires the source port to match the socket's remote port
-and accepts VMADDR_CID_LOCAL as the canonical source CID for loopback. It
-preserved the CID_LOCAL, CID_HOST, and guest-CID loopback cases in my tests,
-while the original cross-UID injection remained blocked. The selected VSOCK
-selftests also passed with no KASAN report.
+With DMB, the device provides a shared memory region that both parties
+agree is the full memory map both have access to. All memory offsets
+that previously would have been into guest RAM, are then offsets into
+this shared memory buffer region. One nice property of this is that it
+is a generic mechanism in the virtio transport layer, so higher level
+drivers work unmodified.
 
-Stefano, to clarify the original description: the victim socket received the
-exact 16 attacker-chosen bytes; the intended peer-side socket received none.
-I will use your clearer description and keep the comment minimal in v2.
+I was exploring to use swiotlb instead to create individual pools. But
+that approach has multiple downsides:
 
-I also confirmed the analogous VMCI destination-only fallback. With two VMCI
-contexts, an RST from a mismatched context reset another context's pending
-connection in 3/3 runs. VMCI also has a notification fast path before the
-workqueue handler, so I will address it separately with validation in both
-paths. Hyper-V does not appear to share this packet lookup path.
+1. Swiotlb is an OS primitive which is not available in all Operating
+Systems. DMB however lives in the virtio transport layer, which means we
+can add support for it in any OS independent of generic layers. This
+helps with Windows support.
 
-I will post the virtio v2 as a separate thread.
+2. We munge DMA space together. DMB provides a separate DMA space per
+virtio device. This means we can for example implement a device in
+vhost-user and give the implementing process only visibility to the DMB
+region, not all of guest memory. That reduces the exposure the
+vhost-user provider has, improving security.
 
-Thanks,
-Daehyeon
+3. Devices can opt-in. A hypervisor can choose to use standard virtio
+semantics for self-implemented devices (e.g. NSM), while requiring DMB
+for devices implemented by less trustworthy providers. The
+non-trustworthy devices do not get any visibility into the trustworthy
+ones, even with DMB in place for both.
+
+I also looked at virtio-iommu. To restrict DMA visibility, virtio-iommu
+allows the guest to open specific windows into guest memory to the
+device, but it comes with its own bag of problems, such as dynamic
+allocations and complicated device <-> iommu connections that need to be
+represented reliably.
+
+== Limitations ==
+
+  - Only PCI is wired up.
+  - Feature bit 44 and the two registers at offsets 0x40 and 0x42 of the
+    PCI common configuration are provisional: the OASIS technical
+    committee has the specification and has allocated none of them.
+
+  https://lore.kernel.org/virtio-comment/20260818060255.6853-1-graf@amazon.com/
+
+== Testing ==
+
+I ran this against a device that offers DMB and not
+VIRTIO_F_ACCESS_PLATFORM, with a 16 MiB region on each device. A kernel
+without patch 10 finds the region and then hangs with nothing in the log;
+with it, 512 MiB of O_DIRECT block reads and 137 MiB of loopback network
+traffic go through the regions with no allocation failure.
+
+Patches 1 to 4 do not need the rest of the series. They remove an API no
+driver calls and a stale worked example in a vdpa comment. Patch 3 and
+patch 4 carry Fixes:; patch 4's are older than this series, a failed
+mapping arriving from a packed ring as -EIO, which fails an I/O that on a
+split ring is only back-pressure.
+
+I wrote this series with an AI coding assistant, which drafted the code,
+the changelogs and this cover letter. I reviewed and reworked all of it,
+and every commit carries an Assisted-by: trailer.
+
+Alex
+
+v1: https://lore.kernel.org/all/20260809182010.32931-1-graf@amazon.com/
+
+v1 -> v2:
+
+  - Remove the unused map sync API (Michael)
+  - Drop the sync operations from virtio_map_ops (Michael)
+  - Drop the stale mask expansion instead of correcting it (Michael)
+  - Treat VIRTIO_F_DMB as implying VIRTIO_F_ACCESS_PLATFORM
+  - Read the region's memory type and accept only a coherent one
+  - Rewrite the region allocator over gen_pool
+  - Return -ENOMEM instead of -EIO from a failed packed ring mapping
+  - Drop the patch validating premapped addresses through the map
+  - Drop the patch reporting a bounded pool's exhaustion as -ENOSPC
+  - Drop the range withheld for a virtqueue's first descriptor chain
+  - Drop the .rst and describe the region in the headers instead
+
+Alexander Graf (12):
+  virtio_ring: remove the unused map sync API
+  virtio: drop the sync operations from virtio_map_ops
+  vdpa: drop the VIRTIO_DEVICE_F_MASK example value
+  virtio_ring: return -ENOMEM when a packed ring mapping fails
+  virtio: add the VIRTIO_F_DMB feature bit
+  virtio_pci: read the device memory buffer registers
+  virtio_pci: create virtqueues with the device's mapping token
+  virtio: add a device memory buffer region allocator
+  virtio: locate the device memory buffer after feature negotiation
+  virtio: treat VIRTIO_F_DMB as implying VIRTIO_F_ACCESS_PLATFORM
+  virtio_pci: support VIRTIO_F_DMB
+  virtio: expose device memory buffer occupancy over debugfs
+
+ drivers/vdpa/vdpa.c                    |   7 +-
+ drivers/vdpa/vdpa_user/iova_domain.c   |  20 -
+ drivers/vdpa/vdpa_user/iova_domain.h   |   8 -
+ drivers/vdpa/vdpa_user/vduse_dev.c     |  40 --
+ drivers/virtio/Kconfig                 |  17 +
+ drivers/virtio/Makefile                |   3 +-
+ drivers/virtio/virtio.c                |  25 +-
+ drivers/virtio/virtio_dmb.c            | 959 +++++++++++++++++++++++++
+ drivers/virtio/virtio_dmb.h            |  28 +
+ drivers/virtio/virtio_pci_modern.c     |  75 +-
+ drivers/virtio/virtio_pci_modern_dev.c |  47 +-
+ drivers/virtio/virtio_ring.c           |  93 +--
+ include/linux/virtio.h                 |  11 +-
+ include/linux/virtio_config.h          |  41 +-
+ include/linux/virtio_pci_modern.h      |   2 +
+ include/uapi/linux/virtio_config.h     |  24 +-
+ include/uapi/linux/virtio_pci.h        |  19 +
+ tools/virtio/linux/dma-mapping.h       |   7 -
+ 18 files changed, 1217 insertions(+), 209 deletions(-)
+ create mode 100644 drivers/virtio/virtio_dmb.c
+ create mode 100644 drivers/virtio/virtio_dmb.h
+
+
+base-commit: fc02acf6ac0ccde0c805c2daa9148683cdd01ba8
