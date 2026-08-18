@@ -1,62 +1,61 @@
-Received: from pdx-out-002.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-002.esa.us-west-2.outbound.mail-perimeter.amazon.com [44.246.1.125])
+Received: from pdx-out-004.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-004.esa.us-west-2.outbound.mail-perimeter.amazon.com [44.246.77.92])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB33B36A34D
-	for <virtualization@lists.linux.dev>; Tue, 18 Aug 2026 21:14:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=44.246.1.125
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A25C37E5C5
+	for <virtualization@lists.linux.dev>; Tue, 18 Aug 2026 21:14:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=44.246.77.92
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787087677; cv=none; b=AqDmSNz5ICpyCCjGOuauv6na3qjTbPYiAtR8Pq5d1e2d2A5GdgnX2WdKphEPvmjSU/t/R3pOG7+EY7NoFtNB5pIjeqjaC/7KEwPUmkth0Miw/xf5F3dhhsrn+VKa23R6uMQBqZKi4Brvul8Tnuc9djyCc8P3K54qBgqTpkmeR+M=
+	t=1787087678; cv=none; b=Paj1nU/d8hZXLmHiW8BIv6Cpva+89sDycxbdvFyLUFtiu/RHv1L6nMt+9vdFGqp7ZvKzPBTwfCFc6ePNyUlvItTaaITpqw7BrBMJmrTCduMXwvUHb4+o50mFRms6R1yuFMKP5F1g1uU2/p6FaKUnyPx1gonogTl/zrc/MNUtTsE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787087677; c=relaxed/simple;
-	bh=sQ4O2jTkJyVANwguPKTX7uSE+0uEUWAyONehAUPRYKU=;
+	s=arc-20240116; t=1787087678; c=relaxed/simple;
+	bh=CXevXFcEe5yAQgDustCLZyeQtEsmuo8/JhSQAryM+Fo=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ra9CiLHQ8WIYSiFe89L5TWrqACVf48CUDJ3V5Ul6KeyJ4+HLcEptWxyK5auJstyJj2s4CDDCSDb7E/iWdIitQM/F6CRopqdVTgDRi+5NIS9pwdoyf9TiHyNdoLYxrwLcusGxZjq+fRC/5glnPGFQ5OFSzROowlYu7CgdzcsjiBg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.de; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=Ug/AE7Jz; arc=none smtp.client-ip=44.246.1.125
+	 MIME-Version:Content-Type; b=Z73MiQ0B5r8I2AG5/f7UPaLKLpMv6ihxonlfkueXCSwD6l23GVxot3E/vVaB2XLQzzChpqh0Z3xY8bDnjRRCiRnSn0e+JlaBrp27KEpwnwoKPBFoBz+7rK5PG61xLP7/XHpWcKLLMoGcWWt+5a8KmCwRMyvfhM0MtDgwcn+zO8k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.de; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=sux4/a8T; arc=none smtp.client-ip=44.246.77.92
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="Ug/AE7Jz"
+	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="sux4/a8T"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
-  t=1787087675; x=1818623675;
+  t=1787087677; x=1818623677;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=eBm0I6pljeRS5P8NSJP3GZxfiYJqndB1Fee3unaYmjY=;
-  b=Ug/AE7Jz930pwO2Kb+aNV/d4lQAEcEk7PkEToxTNTFhb7IsakI8c8xHj
-   2wq7e3wFHgkj2T2092CW7/1c+o+FqEn2LmU0CbQGlyaZawauX6tmE7luM
-   2wPQaL6mN8WX/MrjRxEV6d9BxJGzBWbpZ2rgO43GVWi031g+lMI9DoqMs
-   1MKklNYimOdKt8li+wuggv+x/v0X9IFKfDjpkf+jB2SGprQjTl5kRC5yS
-   Tg5BZH5crXUqcR2deLCqahOKbUDIIf3pNkfaNswLhiTeWhYEOoZjfWw0S
-   OhN4d8ob1isXaTWtAW+inUfePI7OWt1TTtUsobbzgK04IYFRhmqHWTVSA
-   g==;
-X-CSE-ConnectionGUID: P9Kxuw+ZRmaJ+4Kbo/mksg==
-X-CSE-MsgGUID: JwaPAgBfS4+kT/8inOXy7w==
+  bh=n7veFhxpt1ZiUHTdI8AdtWDRskJzgpE4wDktGq4tKkE=;
+  b=sux4/a8TO6+0Zz8bTjOSELz6SQq8905XMpJECpSIONPgZTjt5uM2u/Td
+   Qfr0K9TyFXC1ZxBCPqHNetTKQTAPelOsUvxc+vROxSAjivfVcJLouT5Z9
+   /v3NhyD1+JaFHO8PW54pj8X7w3PKIENQUP0jTltE0zY1eqz61Aq+pjOSb
+   xxdA8hViXTgBCr5isjRLvTIKfR478aLqyrZpIngBO3MOkJjpRKP3sIiaJ
+   VfqECUDtuxiL079PH4lkiTlYbSxjOqfEd4SaM9WsU51U+6gnTVRUtgwVr
+   nwe2+c4gC+0nlOwBvk0eLaQUE1KZ+athP8LBCR6kXIJLrvUgjmnN13IC7
+   w==;
+X-CSE-ConnectionGUID: bXMxsTsxSlaqw+WSlXctxA==
+X-CSE-MsgGUID: sT4ztmkoTU657651sTj8Nw==
 X-IronPort-AV: E=Sophos;i="6.25,230,1779148800"; 
-   d="scan'208";a="26314366"
+   d="scan'208";a="26307959"
 Received: from ip-10-5-0-115.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.0.115])
-  by internal-pdx-out-002.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Aug 2026 21:14:33 +0000
-Received: from EX19MTAUWC002.ant.amazon.com [205.251.233.51:2070]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.43.40:2525] with esmtp (Farcaster)
- id e23a89a7-918c-4ef9-bb7e-5436830d62c0; Tue, 18 Aug 2026 21:14:33 +0000 (UTC)
-X-Farcaster-Flow-ID: e23a89a7-918c-4ef9-bb7e-5436830d62c0
+  by internal-pdx-out-004.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Aug 2026 21:14:34 +0000
+Received: from EX19MTAUWA001.ant.amazon.com [205.251.233.182:2307]
+ by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.54.183:2525] with esmtp (Farcaster)
+ id 7ead279c-fd53-45ab-a60b-626deb58a021; Tue, 18 Aug 2026 21:14:34 +0000 (UTC)
+X-Farcaster-Flow-ID: 7ead279c-fd53-45ab-a60b-626deb58a021
 Received: from EX19D001UWA001.ant.amazon.com (10.13.138.214) by
- EX19MTAUWC002.ant.amazon.com (10.250.64.143) with Microsoft SMTP Server
+ EX19MTAUWA001.ant.amazon.com (10.250.64.217) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.45;
- Tue, 18 Aug 2026 21:14:32 +0000
+ Tue, 18 Aug 2026 21:14:34 +0000
 Received: from ip-10-253-83-51.amazon.com (172.19.99.218) by
  EX19D001UWA001.ant.amazon.com (10.13.138.214) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.45;
- Tue, 18 Aug 2026 21:14:30 +0000
+ Tue, 18 Aug 2026 21:14:32 +0000
 From: Alexander Graf <graf@amazon.com>
 To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>
 CC: <nh-open-source@amazon.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
 	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	<virtualization@lists.linux.dev>, <linux-kernel@vger.kernel.org>, "Parav
- Pandit" <parav@nvidia.com>, Stefan Hajnoczi <stefanha@redhat.com>, "Paolo
- Bonzini" <pbonzini@redhat.com>
-Subject: [PATCH v2 01/12] virtio_ring: remove the unused map sync API
-Date: Tue, 18 Aug 2026 21:14:14 +0000
-Message-ID: <20260818211425.91009-2-graf@amazon.com>
+	<virtualization@lists.linux.dev>, <linux-kernel@vger.kernel.org>, "Stefan
+ Hajnoczi" <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH v2 02/12] virtio: drop the sync operations from virtio_map_ops
+Date: Tue, 18 Aug 2026 21:14:15 +0000
+Message-ID: <20260818211425.91009-3-graf@amazon.com>
 X-Mailer: git-send-email 2.47.1
 In-Reply-To: <20260818211425.91009-1-graf@amazon.com>
 References: <20260818211425.91009-1-graf@amazon.com>
@@ -71,161 +70,192 @@ Content-Type: text/plain
 X-ClientProxiedBy: EX19D032UWA003.ant.amazon.com (10.13.139.37) To
  EX19D001UWA001.ant.amazon.com (10.13.138.214)
 
-virtqueue_map_need_sync(), virtqueue_map_sync_single_range_for_cpu() and
-virtqueue_map_sync_single_range_for_device() are exported, but no driver
-in the tree calls them. They are the only path into the sync members of
-struct virtio_map_ops, so whoever implements that struct next has to
-decide what those members do with no caller to learn it from.
+With the map sync API gone, sync_single_for_cpu, sync_single_for_device
+and need_sync in struct virtio_map_ops are members the virtqueue never
+calls. vduse is the only implementation in the tree and provides all
+three, and the next implementer has to decide what to put in them.
 
-Remove the three functions, their prototypes and their exports, and the
-DMA sync shims that the virtio userspace harness kept for them. With
-this, virtio_ring no longer exports a way to sync a mapping.
+Drop the three members and their kernel-doc, and remove the vduse
+functions that provided them. vduse_domain_bounce() stays, because
+vduse_domain_map_page() and vduse_domain_unmap_page() bounce through it
+as well. That way the struct asks an implementation for six operations
+instead of nine.
 
 Suggested-by: Michael S. Tsirkin <mst@redhat.com>
 Assisted-by: Kiro:claude-opus-5 checkpatch
 Signed-off-by: Alexander Graf <graf@amazon.com>
 ---
- drivers/virtio/virtio_ring.c     | 89 --------------------------------
- include/linux/virtio.h           |  8 ---
- tools/virtio/linux/dma-mapping.h |  7 ---
- 3 files changed, 104 deletions(-)
+ drivers/vdpa/vdpa_user/iova_domain.c | 20 --------------
+ drivers/vdpa/vdpa_user/iova_domain.h |  8 ------
+ drivers/vdpa/vdpa_user/vduse_dev.c   | 40 ----------------------------
+ include/linux/virtio_config.h        | 20 --------------
+ 4 files changed, 88 deletions(-)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index b438dc2ce1b8..ea8e774b6d8e 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -3890,94 +3890,5 @@ int virtqueue_map_mapping_error(const struct virtqueue *_vq, dma_addr_t addr)
+diff --git a/drivers/vdpa/vdpa_user/iova_domain.c b/drivers/vdpa/vdpa_user/iova_domain.c
+index 4dc76c0d0d13..094fe1ec02c3 100644
+--- a/drivers/vdpa/vdpa_user/iova_domain.c
++++ b/drivers/vdpa/vdpa_user/iova_domain.c
+@@ -424,26 +424,6 @@ static void vduse_domain_free_iova(struct iova_domain *iovad,
+ 	free_iova_fast(iovad, iova >> shift, iova_len);
  }
- EXPORT_SYMBOL_GPL(virtqueue_map_mapping_error);
  
--/**
-- * virtqueue_map_need_sync - check a dma address needs sync
-- * @_vq: the struct virtqueue we're talking about.
-- * @addr: DMA address
-- *
-- * Check if the dma address mapped by the virtqueue_map_* APIs needs to be
-- * synchronized
-- *
-- * return bool
-- */
--bool virtqueue_map_need_sync(const struct virtqueue *_vq, dma_addr_t addr)
+-void vduse_domain_sync_single_for_device(struct vduse_iova_domain *domain,
+-				      dma_addr_t dma_addr, size_t size,
+-				      enum dma_data_direction dir)
 -{
--	const struct vring_virtqueue *vq = to_vvq(_vq);
--	struct virtio_device *vdev = _vq->vdev;
--
--	if (!vq->use_map_api)
--		return false;
--
--	if (vdev->map)
--		return vdev->map->need_sync(vq->map, addr);
--	else
--		return dma_need_sync(vring_dma_dev(vq), addr);
+-	read_lock(&domain->bounce_lock);
+-	if (dir == DMA_TO_DEVICE || dir == DMA_BIDIRECTIONAL)
+-		vduse_domain_bounce(domain, dma_addr, size, DMA_TO_DEVICE);
+-	read_unlock(&domain->bounce_lock);
 -}
--EXPORT_SYMBOL_GPL(virtqueue_map_need_sync);
 -
--/**
-- * virtqueue_map_sync_single_range_for_cpu - map sync for cpu
-- * @_vq: the struct virtqueue we're talking about.
-- * @addr: DMA address
-- * @offset: DMA address offset
-- * @size: buf size for sync
-- * @dir: DMA direction
-- *
-- * Before calling this function, use virtqueue_map_need_sync() to confirm that
-- * the DMA address really needs to be synchronized
-- *
-- */
--void virtqueue_map_sync_single_range_for_cpu(const struct virtqueue *_vq,
--					     dma_addr_t addr,
--					     unsigned long offset, size_t size,
+-void vduse_domain_sync_single_for_cpu(struct vduse_iova_domain *domain,
+-				      dma_addr_t dma_addr, size_t size,
+-				      enum dma_data_direction dir)
+-{
+-	read_lock(&domain->bounce_lock);
+-	if (dir == DMA_FROM_DEVICE || dir == DMA_BIDIRECTIONAL)
+-		vduse_domain_bounce(domain, dma_addr, size, DMA_FROM_DEVICE);
+-	read_unlock(&domain->bounce_lock);
+-}
+-
+ dma_addr_t vduse_domain_map_page(struct vduse_iova_domain *domain,
+ 				 struct page *page, unsigned long offset,
+ 				 size_t size, enum dma_data_direction dir,
+diff --git a/drivers/vdpa/vdpa_user/iova_domain.h b/drivers/vdpa/vdpa_user/iova_domain.h
+index e50e55d1396f..66f14764a5db 100644
+--- a/drivers/vdpa/vdpa_user/iova_domain.h
++++ b/drivers/vdpa/vdpa_user/iova_domain.h
+@@ -48,14 +48,6 @@ int vduse_domain_set_map(struct vduse_iova_domain *domain,
+ void vduse_domain_clear_map(struct vduse_iova_domain *domain,
+ 			    struct vhost_iotlb *iotlb);
+ 
+-void vduse_domain_sync_single_for_device(struct vduse_iova_domain *domain,
+-				      dma_addr_t dma_addr, size_t size,
+-				      enum dma_data_direction dir);
+-
+-void vduse_domain_sync_single_for_cpu(struct vduse_iova_domain *domain,
+-				      dma_addr_t dma_addr, size_t size,
+-				      enum dma_data_direction dir);
+-
+ dma_addr_t vduse_domain_map_page(struct vduse_iova_domain *domain,
+ 				 struct page *page, unsigned long offset,
+ 				 size_t size, enum dma_data_direction dir,
+diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
+index 10dcf016bfb0..7a1a344539b8 100644
+--- a/drivers/vdpa/vdpa_user/vduse_dev.c
++++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+@@ -932,34 +932,6 @@ static const struct vdpa_config_ops vduse_vdpa_config_ops = {
+ 	.free			= vduse_vdpa_free,
+ };
+ 
+-static void vduse_dev_sync_single_for_device(union virtio_map token,
+-					     dma_addr_t dma_addr, size_t size,
 -					     enum dma_data_direction dir)
 -{
--	const struct vring_virtqueue *vq = to_vvq(_vq);
--	struct virtio_device *vdev = _vq->vdev;
+-	struct vduse_iova_domain *domain;
 -
--	if (!vq->use_map_api)
+-	if (!token.group)
 -		return;
 -
--	if (vdev->map)
--		vdev->map->sync_single_for_cpu(vq->map,
--					       addr + offset, size, dir);
--	else
--		dma_sync_single_range_for_cpu(vring_dma_dev(vq),
--					      addr, offset, size, dir);
+-	guard(vq_group_as_read_lock)(token.group);
+-	domain = token.group->as->domain;
+-	vduse_domain_sync_single_for_device(domain, dma_addr, size, dir);
 -}
--EXPORT_SYMBOL_GPL(virtqueue_map_sync_single_range_for_cpu);
 -
--/**
-- * virtqueue_map_sync_single_range_for_device - map sync for device
-- * @_vq: the struct virtqueue we're talking about.
-- * @addr: DMA address
-- * @offset: DMA address offset
-- * @size: buf size for sync
-- * @dir: DMA direction
-- *
-- * Before calling this function, use virtqueue_map_need_sync() to confirm that
-- * the DMA address really needs to be synchronized
-- */
--void virtqueue_map_sync_single_range_for_device(const struct virtqueue *_vq,
--						dma_addr_t addr,
--						unsigned long offset, size_t size,
--						enum dma_data_direction dir)
+-static void vduse_dev_sync_single_for_cpu(union virtio_map token,
+-					     dma_addr_t dma_addr, size_t size,
+-					     enum dma_data_direction dir)
 -{
--	const struct vring_virtqueue *vq = to_vvq(_vq);
--	struct virtio_device *vdev = _vq->vdev;
+-	struct vduse_iova_domain *domain;
 -
--	if (!vq->use_map_api)
+-	if (!token.group)
 -		return;
 -
--	if (vdev->map)
--		vdev->map->sync_single_for_device(vq->map,
--						  addr + offset,
--						  size, dir);
--	else
--		dma_sync_single_range_for_device(vring_dma_dev(vq), addr,
--						 offset, size, dir);
+-	guard(vq_group_as_read_lock)(token.group);
+-	domain = token.group->as->domain;
+-	vduse_domain_sync_single_for_cpu(domain, dma_addr, size, dir);
 -}
--EXPORT_SYMBOL_GPL(virtqueue_map_sync_single_range_for_device);
 -
- MODULE_DESCRIPTION("Virtio ring implementation");
- MODULE_LICENSE("GPL");
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index 93e573c56563..3122fc52a7c3 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -312,14 +312,6 @@ void virtqueue_unmap_single_attrs(const struct virtqueue *_vq, dma_addr_t addr,
- 				      unsigned long attrs);
- int virtqueue_map_mapping_error(const struct virtqueue *_vq, dma_addr_t addr);
+ static dma_addr_t vduse_dev_map_page(union virtio_map token, struct page *page,
+ 				     unsigned long offset, size_t size,
+ 				     enum dma_data_direction dir,
+@@ -1037,15 +1009,6 @@ static void vduse_dev_free_coherent(union virtio_map token, size_t size,
+ 	free_pages_exact(vaddr, size);
+ }
  
--bool virtqueue_map_need_sync(const struct virtqueue *_vq, dma_addr_t addr);
--void virtqueue_map_sync_single_range_for_cpu(const struct virtqueue *_vq, dma_addr_t addr,
--					     unsigned long offset, size_t size,
--					     enum dma_data_direction dir);
--void virtqueue_map_sync_single_range_for_device(const struct virtqueue *_vq, dma_addr_t addr,
--						unsigned long offset, size_t size,
--						enum dma_data_direction dir);
+-static bool vduse_dev_need_sync(union virtio_map token, dma_addr_t dma_addr)
+-{
+-	if (!token.group)
+-		return false;
 -
- #ifdef CONFIG_VIRTIO_DEBUG
- void virtio_debug_device_init(struct virtio_device *dev);
- void virtio_debug_device_exit(struct virtio_device *dev);
-diff --git a/tools/virtio/linux/dma-mapping.h b/tools/virtio/linux/dma-mapping.h
-index b9fc5e8338e3..eae160ce7142 100644
---- a/tools/virtio/linux/dma-mapping.h
-+++ b/tools/virtio/linux/dma-mapping.h
-@@ -36,16 +36,9 @@ enum dma_data_direction {
+-	guard(vq_group_as_read_lock)(token.group);
+-	return dma_addr < token.group->as->domain->bounce_size;
+-}
+-
+ static int vduse_dev_mapping_error(union virtio_map token, dma_addr_t dma_addr)
+ {
+ 	if (unlikely(dma_addr == DMA_MAPPING_ERROR))
+@@ -1063,13 +1026,10 @@ static size_t vduse_dev_max_mapping_size(union virtio_map token)
+ }
  
- #define sg_dma_address(sg) (0)
- #define sg_dma_len(sg) (0)
--#define dma_need_sync(v, a) (0)
- #define dma_unmap_single_attrs(d, a, s, r, t) do { \
- 	(void)(d); (void)(a); (void)(s); (void)(r); (void)(t); \
- } while (0)
--#define dma_sync_single_range_for_cpu(d, a, o, s, r) do { \
--	(void)(d); (void)(a); (void)(o); (void)(s); (void)(r); \
--} while (0)
--#define dma_sync_single_range_for_device(d, a, o, s, r) do { \
--	(void)(d); (void)(a); (void)(o); (void)(s); (void)(r); \
--} while (0)
- #define dma_max_mapping_size(...) SIZE_MAX
- 
- /*
+ static const struct virtio_map_ops vduse_map_ops = {
+-	.sync_single_for_device = vduse_dev_sync_single_for_device,
+-	.sync_single_for_cpu = vduse_dev_sync_single_for_cpu,
+ 	.map_page = vduse_dev_map_page,
+ 	.unmap_page = vduse_dev_unmap_page,
+ 	.alloc = vduse_dev_alloc_coherent,
+ 	.free = vduse_dev_free_coherent,
+-	.need_sync = vduse_dev_need_sync,
+ 	.mapping_error = vduse_dev_mapping_error,
+ 	.max_mapping_size = vduse_dev_max_mapping_size,
+ };
+diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+index 69f84ea85d71..eb38c876a628 100644
+--- a/include/linux/virtio_config.h
++++ b/include/linux/virtio_config.h
+@@ -157,16 +157,6 @@ struct virtio_config_ops {
+  *      size: the buffer size
+  *      dir: mapping direction
+  *      attrs: unmapping attributes
+- * @sync_single_for_cpu: sync a single buffer from device to cpu
+- *      map: metadata for performing mapping
+- *      map_handle: the mapping address to sync
+- *      size: the size of the buffer
+- *      dir: synchronization direction
+- * @sync_single_for_device: sync a single buffer from cpu to device
+- *      map: metadata for performing mapping
+- *      map_handle: the mapping address to sync
+- *      size: the size of the buffer
+- *      dir: synchronization direction
+  * @alloc: alloc a coherent buffer mapping
+  *      map: metadata for performing mapping
+  *      size: the size of the buffer
+@@ -179,10 +169,6 @@ struct virtio_config_ops {
+  *      vaddr: virtual address of the buffer
+  *      map_handle: the mapping address that needs to be freed
+  *      attrs: unmapping attributes
+- * @need_sync: if the buffer needs synchronization
+- *      map: metadata for performing mapping
+- *      map_handle: the mapped address
+- *      Returns whether the buffer needs synchronization
+  * @mapping_error: if the mapping address is error
+  *      map: metadata for performing mapping
+  *      map_handle: the mapped address
+@@ -197,16 +183,10 @@ struct virtio_map_ops {
+ 	void (*unmap_page)(union virtio_map map, dma_addr_t map_handle,
+ 			   size_t size, enum dma_data_direction dir,
+ 			   unsigned long attrs);
+-	void (*sync_single_for_cpu)(union virtio_map map, dma_addr_t map_handle,
+-				    size_t size, enum dma_data_direction dir);
+-	void (*sync_single_for_device)(union virtio_map map,
+-				       dma_addr_t map_handle, size_t size,
+-				       enum dma_data_direction dir);
+ 	void *(*alloc)(union virtio_map map, size_t size,
+ 		       dma_addr_t *map_handle, gfp_t gfp);
+ 	void (*free)(union virtio_map map, size_t size, void *vaddr,
+ 		     dma_addr_t map_handle, unsigned long attrs);
+-	bool (*need_sync)(union virtio_map map, dma_addr_t map_handle);
+ 	int (*mapping_error)(union virtio_map map, dma_addr_t map_handle);
+ 	size_t (*max_mapping_size)(union virtio_map map);
+ };
