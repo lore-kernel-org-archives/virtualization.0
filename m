@@ -1,133 +1,112 @@
-Received: from mail-qv1-f44.google.com (mail-qv1-f44.google.com [209.85.219.44])
+Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 691CD48424D
-	for <virtualization@lists.linux.dev>; Tue, 18 Aug 2026 17:48:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E49773EC69A
+	for <virtualization@lists.linux.dev>; Tue, 18 Aug 2026 18:38:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787075324; cv=none; b=Nsog4UlfkM0ZMj7jUYwMJxQzAgOkfxwlPs9axnIz1VxQAdqeCl+SU3hLOZY7EuJDRhTQp4RC+4B6Qw70URZNeHPSJEFNW2BnAVoPYXw7Oqw95jo5YihSOAzE+sUUQoL5e4lkBwfCsBz4VFbtyVNDUApVYwK9/9/iYB3hwx8Xld0=
+	t=1787078288; cv=none; b=ib7tu21TIte10vFzXS+dclvKn5HjXhB20qHIr/3hQAMgGobpLF7v9c/tL6QrR6G4cIhfcyzeETVmhfrE34FWrtHz9RrJMFABvBYm56WqjYkRz7M2kqXwMC5c4KVb64kw/g8CKkp1Qb9il7eA1CFKmrh0EmxxpjOIzLDo8xtukqI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787075324; c=relaxed/simple;
-	bh=AQMdFN7bk5Vi64trWrWw3isTNps9BgI9KO/GKD/+ywk=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=sLvxP2v+eCgIkQ2NrKJKPm1K9h+kx3unExVBqyiqZVS9PFgWp/7ubbCW3mC9b/IsaErUVOZrnL5Qhfa936XL6HBCvBqAWfbQmwISX2yNvM7H0AJNH91ZcoDC6BoJOSkUqTBg3HaMFvlPGEs9JWeXztZqXcV8jeCtQWlKEAYUUSc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=edera.io; spf=pass smtp.mailfrom=edera.dev; dkim=pass (2048-bit key) header.d=edera.io header.i=@edera.io header.b=oFe7Gqi4; arc=none smtp.client-ip=209.85.219.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=edera.io
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=edera.dev
+	s=arc-20240116; t=1787078288; c=relaxed/simple;
+	bh=UVBY7I/rBszBv2OjNaycTI0+LnLLwgzt5ty2Q+F5/BA=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=dGdA68zfuC6k+Vt9DrOB0nT+FhfeGFawU9HYfZDHo/a+X+U+88yWsEgEl1XM7DihfENw9+USE/++3xs4MThSStWHNXigOeyLLbm9J6Dj4RWueGW8NDVisM2KVr4hzuNw5DayNiHJqDuZFMxtljuKX3JCTvG6SyKoTDZyumXG8sU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qBr0Ypwn; arc=none smtp.client-ip=209.85.216.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=edera.io header.i=@edera.io header.b="oFe7Gqi4"
-Received: by mail-qv1-f44.google.com with SMTP id 6a1803df08f44-8eeb4508f29so1568946d6.0
-        for <virtualization@lists.linux.dev>; Tue, 18 Aug 2026 10:48:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qBr0Ypwn"
+Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-38dc4553f62so384643a91.0
+        for <virtualization@lists.linux.dev>; Tue, 18 Aug 2026 11:38:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=edera.io; s=google; t=1787075321; x=1787680121; darn=lists.linux.dev;
-        h=content-type:mime-version:message-id:date:user-agent:references
-         :in-reply-to:subject:cc:to:from:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=sZfKlpmmAGMPY0pYQ5qB8sNVCzbuLBNICRyvhJ/UKoY=;
-        b=oFe7Gqi4p1eLSjECJDSmmj7aTkopXnSX9gHYWMgQ1RYQHvGUv3nkSmd1Tzm8JGkZZ9
-         26GE+5Q9E5WtgoWPKfwZpSdpyY9eGVV9PUeiw1VU7f+UVlHnM2A9GPdGmiYQCQ8ORb7f
-         02wJ2tFL52hJ/MuRFZuS2ySLE/6IyVvfN4ZHJqeujYO/52asXY5Cfm3LkJ+Kleyc8IaQ
-         kAgzjRACIeix99csIbU4Y0+G8o2Dcil3PH85NQ/M3XTbcTDbBTCf4OCWud59jCYygKNP
-         ay8ymV9ntUUj0OHbBnRObgw/3wR+2OhbADSzXwvwjFpnSd/usnxRfJcmZ6biwlzRzV4y
-         yCYQ==
+        d=gmail.com; s=20251104; t=1787078286; x=1787683086; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=UVBY7I/rBszBv2OjNaycTI0+LnLLwgzt5ty2Q+F5/BA=;
+        b=qBr0YpwnANEUI5aOwe9hK5sAQ0+0IB/P9pZlOPnZ2R2BhI4jy9OPTRicI8GgxaPSNB
+         j66I6lG9iGeuMhoHzubp+Cmcb4P9Codxd50Uzxx/yBWHuF9c8cmH/AydmhcgCUQrQsYx
+         AmwM+QsrSCxDjQvPGAhzzHoCpnd59kuQZFitaEWmkj7pQk1gkGaHn3fWQiw9d9MUS6MT
+         727eToYF8bdUz0I1JOpdvd4CyjTConxYoRX69K/oZ6gc1hOBXQcDLv9BRzoubi6+fuMG
+         mNveiVFdCuZXkcQUSHz1MN9FPDVDdRJERIlTdk+73qwVb/ZAkN1amLbCoaub4VC0dfa0
+         nVog==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787075321; x=1787680121;
-        h=content-type:mime-version:message-id:date:user-agent:references
-         :in-reply-to:subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to:content-type;
-        bh=sZfKlpmmAGMPY0pYQ5qB8sNVCzbuLBNICRyvhJ/UKoY=;
-        b=VBwLspZRJrezkz8Ruee+eabI5wVmZHw1nRFYdZyE7d6CywZK/ivZxD+1XOOKkUO1oH
-         x23ip3rIwRxxkbGvmBK927IkjtHOX/le+n9DltuBqkzNngAexv0TWmLLW332z+wvw7Cn
-         Dm1d1pTNVLyHcGrOTU6QdCrWeC20tlrN9YJaK15bWx8S3Rq8TerMRCx01idQVjs+yFX3
-         bsyQDLhd85UQ8MV80DFsXyHFvh3XUjj72dPanwGT3wDNxapURtNm8xr44ZzJOsKJJyZQ
-         vlpS6xt6X3Rx16v481RBaT9//Xeww9bIjwmDn2Wimg2itRNTsDvPEwLXGo56lVty59Gg
-         Y3sA==
-X-Forwarded-Encrypted: i=1; AHgh+Rrz4u6oNqgztaKLutpdQnv22YEkyLgBWptkvQIrlnyvpowfehgn69yPFlYDVeh7H0oCT3r+TOnDRBixl1jKYA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzqKo2JJ8JEZxM8XuW28Gfoh17HkLOK/bSouQGXw3fIzLNr/B9y
-	1tLDRunXzlHEUQr07f4BQQQ4QmGpxDAm33K5QUitVnkGanGHWSDavVrMbjqtctCWXuY=
-X-Gm-Gg: AR+sD13gRSQE3eyVN2SvACnATNJMNKpgISfKJZG6h2wIG/9Y94b0QXODlIwaDk7SD82
-	ddYsYw1GGx140XOwEdj0KO78T/qci3vep6B+n+d26BiVgCnISAl2ZuLAdu2D2w2b/6uuaEdn+m0
-	M5bogeztXery9IY03STmUAl7scIpPZPNli+yIc1PTOCD5LfNSxKW+xfsuOshBtBMPcXLJo9rq5y
-	mv4YQGrFJfURWGOqBwFnUmckmxkWftY8rckjhCLYMuiD706rCSqFWRTOrXEjvesWZINNUWGlhtj
-	m4BYRhxnLn4s75mta9ofYkI4H2qPSeIoQ1wZ42CnYFfmvYvnzGljWLzDeda1ZYPbS0XSovQNBmO
-	bid0S9DXO6ER03zYkiq4Bza6OAlFxSZTMk4sVXq+Sh+wyhbxWR0SbFiMl/EvAbOx7lNta4ASN4u
-	teRVMCRQSpvG5W9w7jfnKL2pEJRRK/HEvclHpHiD6BJfWDcD6iEYv3rW6+VU6kIxtTIrKDRjXlV
-	2GH6A+BtC9fietXbCcnjQ+S2SwLOJr2CcNQM9httlN9
-X-Received: by 2002:a05:6214:860d:b0:8ec:235c:7a66 with SMTP id 6a1803df08f44-90c5c12de8dmr1581236d6.27.1787075321126;
-        Tue, 18 Aug 2026 10:48:41 -0700 (PDT)
-Received: from StolidWingnut ([174.80.170.224])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-90c4597b7desm36800736d6.46.2026.08.18.10.48.40
+        d=1e100.net; s=20251104; t=1787078286; x=1787683086;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=UVBY7I/rBszBv2OjNaycTI0+LnLLwgzt5ty2Q+F5/BA=;
+        b=ViF9rB5BgM0glu691zW7VXhrWfwzhARb44iH7xncYf9HrQNwGPswQWNQsO/2euzMFL
+         XlI+etaf+TMRdbFQaReLUlJOb+t/aO9W87EcSOAZX40XNWCm3Ep+2P4a/GlkCSJGwdyu
+         EgfUexl2a4ixhHPfVf1oVXTGZoHahT2Ap1Pu/ILPz3J790JAGUx+wK7WljwZ1MOAeV55
+         DHQLXan6996jIM3GrUUUJfGheSXaayxJ4j3J+0hOtDXLVklExqxJRP8p90u1w2TDL3Iv
+         6zGNbnv1j7OrWpZ35ITQVtjfpFx9xyI3NwG156CCEgaX0+sugGgFswYMmrkniF6JgbAd
+         0Sbg==
+X-Forwarded-Encrypted: i=1; AHgh+RrnO51blTdy3qF211kwal0IBFonquVaTwDumhmX+RCcVJIheZnw0+N0DdwtQtbglTlGmDvqYEpk+3azSKGn5Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw71EBBSdmWbOgRlw9eTv7vEfy2Jtz01ExDY+VmaMNjDmAyKhBg
+	JFaTDSZb5VRmSrOM/8v1m6E1m/y+WWPOxCP0uSvFLKcZg2s/rmmhAtpg
+X-Gm-Gg: AR+sD10+FWZxs2sgxP3zWPblaWsL/tcZbMG+CjJpjxF6BjHo5UfmeoQLLREKrxnAEGC
+	uKsfbI4hBi7UM8KJrVgqSXiZagC1wXqJAPt6KKJXVc5Y0PyWN64hxA7uIg3DZZU0M0UA/F50liP
+	KxACPqf1RPgYyzS38fT3Ncye4Am7/ahMkU/x0fxXYUVpyX2ttmvfRCD2F8yjU+YoEaPIVmh7Hwm
+	eOijYMzdjIwYL42kySlR8FZW2lyo9QJ1jWyDWflZuS2MOJaChAl3m2/S5Vd2JCGOiLWfACpM3fQ
+	78OuI3PbUn7cm6GOZjR3EwwmCoxVW0itw5mFh9d29kfhrjcxCTsp+lO9GSTJo7xU8n7mUmJHfNU
+	o5pnJLRqtT5UA9GiqlIczMtnV737nIP9c74O744Ra9VfkWljuWfyBeycuUMjTxeSrwKqRsXXTsC
+	InrLkbylJYxl1WPhHrOnTxnC/ofo3a6dwDpVmQb39LdAwFzfPBoAl+L+NoYY7QPuMziTkZPvabn
+	ayjXckl79w=
+X-Received: by 2002:a17:90b:57c7:b0:37f:c97a:939f with SMTP id 98e67ed59e1d1-3955a724c64mr14674987a91.7.1787078286069;
+        Tue, 18 Aug 2026 11:38:06 -0700 (PDT)
+Received: from ancienth-X870E-Nova-WiFi ([125.186.72.2])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3954d2de41dsm6684128a91.5.2026.08.18.11.38.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Aug 2026 10:48:40 -0700 (PDT)
-From: Benjamin Leggett <benjamin@edera.io>
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Cc: David Airlie <airlied@redhat.com>,  Gerd Hoffmann <kraxel@redhat.com>,
-  Gurchetan Singh <gurchetansingh@chromium.org>,  Chia-I Wu
- <olvaffe@gmail.com>,  Maarten Lankhorst
- <maarten.lankhorst@linux.intel.com>,  Maxime Ripard <mripard@kernel.org>,
-  Thomas Zimmermann <tzimmermann@suse.de>,  Simona Vetter
- <simona@ffwll.ch>,  dri-devel@lists.freedesktop.org,
-  virtualization@lists.linux.dev,  linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] drm/virtio: use the DMA API for resource backing on Xen
-In-Reply-To: <657a88d7-e1d4-46ee-9b79-b33144e749dd@collabora.com>
-References: <20260806-virtgpu-xen-dma-v1-1-e499b345bbad@edera.io>
-	<657a88d7-e1d4-46ee-9b79-b33144e749dd@collabora.com>
-User-Agent: mu4e 1.12.12; emacs 32.0.50
-Date: Tue, 18 Aug 2026 13:48:37 -0400
-Message-ID: <875x17tj4a.fsf@edera.io>
+        Tue, 18 Aug 2026 11:38:05 -0700 (PDT)
+From: Daehyeon Ko <4ncienth@gmail.com>
+To: Bobby Eshleman <bobbyeshleman@gmail.com>
+Cc: netdev@vger.kernel.org,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	virtualization@lists.linux.dev,
+	kvm@vger.kernel.org
+Subject: Re: [PATCH net] vsock/virtio: validate packet source for connected sockets
+Date: Wed, 19 Aug 2026 03:37:47 +0900
+Message-ID: <20260818183747.3382905-1-4ncienth@gmail.com>
+X-Mailer: git-send-email 2.54.0
+In-Reply-To: <aoNLVoPQssG1V6bt@devvm29614.prn0.facebook.com>
+References: <20260813121236.2328599-1-4ncienth@gmail.com> <aoNLVoPQssG1V6bt@devvm29614.prn0.facebook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 
-Dmitry Osipenko <dmitry.osipenko@collabora.com> writes:
+On Mon, Aug 17, 2026 at 10:56:38AM -0700, Bobby Eshleman wrote:
+> Does this equality work for loopback, when the CID may be
+> VMADDR_CID_LOCAL and/or VMADDR_CID_HOST on host or the guest CID in
+> guest?
 
-> On 8/7/26 01:54, Benjamin Leggett via B4 Relay wrote:
->> From: Benjamin Leggett <benjamin@edera.io>
->> 
->> On a Xen PV domain page addresses bear no relation to the real machine
->> addresses the host would have to use to reach it.
->> virtio_ring.c handles this correctly, vring_use_map_api() returns true
->> for any xen_domain() regardless of VIRTIO_F_ACCESS_PLATFORM.
->> 
->> virtio-gpu makes the same decision independently, but its copy
->> looks only at the feature bit:
->> 
->> 	bool use_dma_api = !virtio_has_dma_quirk(vgdev->vdev);
->> 
->> QEMU does not set iommu_platform on virtio-vga by default, so
->> VIRTIO_F_ACCESS_PLATFORM is not negotiated, use_dma_api is false, and
->> virtio_gpu_object_shmem_init() describes the framebuffer's backing pages
->> to the host with sg_phys().  Those are guest-physical addresses. In a PV
->> domain they resolve, on the host side, to pages belonging to some other
->> domain, so the host scans out unrelated memory.
->> 
->> Move the decision into virtio_gpu_use_dma_api() and give it the
->> xen_domain() check, like vring_use_map_api() has. This
->> additionally enables the dma_sync_sgtable_for_device() calls in
->> virtgpu_vq.c, which are required for correctness whenever swiotlb
->> is in play.
->> 
->> Reproduced with a Xen 4.21 PV dom0 nested inside QEMU 8.2 with
->> virtio-vga, on both a distro 6.8 kernel and 6.18 LTS. A PVH dom0
->> works fine and doesn't need this fix because it is identity-mapped,
->> only PV dom0s are affected.
->> 
->> Fixes: a3b815f09bb8 ("drm/virtio: add iommu support.")
->> Signed-off-by: Ben Leggett <benjamin@edera.io>
->> ---
->>  drivers/gpu/drm/virtio/virtgpu_drv.h    | 20 ++++++++++++++++++++
->>  drivers/gpu/drm/virtio/virtgpu_object.c |  2 +-
->>  drivers/gpu/drm/virtio/virtgpu_vq.c     |  6 +++---
->>  3 files changed, 24 insertions(+), 4 deletions(-)
->
-> Feel free to send follow-up patches to fix problems reported by the
-> Sashiko bot.
->
-> Applied to drm-misc-fixes, thanks!
+Not in all cases. I tested VMADDR_CID_HOST with no guest-to-host transport,
+where it is routed over loopback but packets carry VMADDR_CID_LOCAL as their
+source. The unpatched kernel transferred data in 3/3 runs, while v1 timed out
+in 3/3 runs.
 
-Thanks, a proposed followup for the Sashiko-bot reported issue
-submitted: https://lore.kernel.org/dri-devel/20260814-virtgpu-from-host-sync-v4-1-64dd736b1779@edera.io/
+The v2 candidate requires the source port to match the socket's remote port
+and accepts VMADDR_CID_LOCAL as the canonical source CID for loopback. It
+preserved the CID_LOCAL, CID_HOST, and guest-CID loopback cases in my tests,
+while the original cross-UID injection remained blocked. The selected VSOCK
+selftests also passed with no KASAN report.
+
+Stefano, to clarify the original description: the victim socket received the
+exact 16 attacker-chosen bytes; the intended peer-side socket received none.
+I will use your clearer description and keep the comment minimal in v2.
+
+I also confirmed the analogous VMCI destination-only fallback. With two VMCI
+contexts, an RST from a mismatched context reset another context's pending
+connection in 3/3 runs. VMCI also has a notification fast path before the
+workqueue handler, so I will address it separately with validation in both
+paths. Hyper-V does not appear to share this packet lookup path.
+
+I will post the virtio v2 as a separate thread.
+
+Thanks,
+Daehyeon
