@@ -1,243 +1,179 @@
-Received: from mail-qk1-f174.google.com (mail-qk1-f174.google.com [209.85.222.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E67AD37C927
-	for <virtualization@lists.linux.dev>; Wed, 19 Aug 2026 14:09:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.222.174
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787148594; cv=pass; b=hSUVE3RTtyZzslvU+Tft3yzVAWj5whdA0212KRVkrOsoFsz09K0MnqUNY9Xe+jRzNhRvL/9SwotOPWOOw/uUvHS1YZ4I+oHn0c0ezsNw674CCguKMnB5E6QfhupPYR6jaqKUK0hqhF7sWYATkTaxuyH08tDveNyCRDhuWxrLV84=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787148594; c=relaxed/simple;
-	bh=mQJhKOEjw9O3sNOjoGU+M3F8LtVcSFzmDVvu0spcCd4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=hR4yCuSeQv+u53no6+Z60jCPcwrhRe3xy1vEq4YPGd3/2mSo4O3J3oug2IKh17+wSnkMsOq9QK+W4ybuB96oHVWLKw7SMczGFdMK4Xdnh3NFu4AK5iWyF/+PJL2qsaULNgdUVXCSEE5laR/e9oEzAyoCY3AaavMQSVfqYTJV7SE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KSlRU/rn; arc=pass smtp.client-ip=209.85.222.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40D363AE194;
+	Wed, 19 Aug 2026 14:40:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1787150416; cv=none; b=t59ZvuR6M4un3D2b6pfGJ+3hYVdQpvnPvPFM52XYahiBQdve0w6FmBXmCxkQfVWXHj4Tn34I9hnv8PBpVNcUp8ZkTeK55yIW3u9kuhMnCU8T3eiLHtrV4Oa+XX2AIJZE5hva40loFca956hFV2CT4fzwbRDXBvA6HogZJ2n5GDE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1787150416; c=relaxed/simple;
+	bh=vymarJZh4YqC2L7NKmpGaLSs+LwWBnjm4Ga1t8pq/Yg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Tk0qRS81CUiOjgvOwgnWe+f39VWhg7EjFUsyVWUeF0L5DFCMwaOWNAoT+9nf18Gsno6HL+TM5NE1+HMWca9QpQnfUK/Z4FgGdMPlL0XQs20tgUF0OvkIk53MttXMLEZwr+QYpa3Qjn2rm+CSBHWknH/pYZ3HYKLUFv5Nbtga0ts=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Pewjlzfq; arc=none smtp.client-ip=192.198.163.18
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KSlRU/rn"
-Received: by mail-qk1-f174.google.com with SMTP id af79cd13be357-934944f2d22so75081485a.0
-        for <virtualization@lists.linux.dev>; Wed, 19 Aug 2026 07:09:52 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1787148592; cv=none;
-        d=google.com; s=arc-20260327;
-        b=Mfb1mbeoX5zwKay9j+BZ6dRyt5rEaK0Mkl8KG0H7ETnz+/RBfR/NhcFNoLTE3p+/GX
-         arJpfsGQ25GppttIm2KEepWcn7lerjuxeAxWLh4pEyiEExTZU0+0IeGcnJnJjkb+TVLG
-         slAxkCevmh3AYLhGFcF/35d6PZ904xTvJQpXTQHcpGGjeM85T15Hbtx0sy9YE9Ixu7cM
-         i7kE+j09FKJSOYTivgnGbdr+Gppzzz0SxGMqjdWQQWwOZGWbCTbiI/h4lmpFmPkMKTwS
-         7IxqgeGkEQfL/v95x3K5//VeuYk++H1SedoJswuoUA882WW1Ox+k3PJT/8CH6T37/Vw6
-         fI+g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=3K0kn1fHbJEcdZDTCVctcTgJzJz/9hoM0nwTQCh+f8E=;
-        fh=JT6KGmlpdDiOdPc2wO3mxjM5XSOUXiPNpccl8xXN5+8=;
-        b=qxSKXcPY3tBqBu4dxIJJiLuwx51FryOCzN47tHqmJeob7ap4RxbecnDBrtL9XZ1dCM
-         a9ZGwjScVzACHi56pgSVo+XJljHAJVGmX3dl3fIxjTXraeWPlnOLHH63GxkaK6V5+0uW
-         EeqnRpavFVdOVi3Q+jhzKJAWbu0QLkvhGY/WlGughu0Cm9XGglxrVb7WCt+dQJb2gyvw
-         mW9aNISrkD96SrUqwtItD7Nx4u/JrMq8Q91L+QtihrqcTs1QhDHVislXn7VlHJEj1C6+
-         NMPveQP7m1UiDUNoSEuZuHkBh66lTh6yop1ARmx4tNvFgoeZSVKFgufKN32gF2keQbic
-         YKaw==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787148592; x=1787753392; darn=lists.linux.dev;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=3K0kn1fHbJEcdZDTCVctcTgJzJz/9hoM0nwTQCh+f8E=;
-        b=KSlRU/rnPzX5DfvQSN/HROfljjl1s+7JHEhZ32LhOq67C9i0Vi1udKCURtdesh/vkH
-         FjE8Gzv93K7X19p7DXVnH5VzcF+CW/FHMMOJahoZNwaM5VzE6IB0/gbZtrYD8fv5q/xk
-         oN5gQkefL/9u5CNkdCda/N7q7HUCMz/wxdaJLSHrvN6rX4iX6G7ptJwKRoHxTrLoHyrf
-         /anLed5aT5IIA6JHseLuEyY4lEgCuZ94a1I7vlyrKHGVzIqKHXATgnHz+boLIbkZ389y
-         zLlli4UsvSVqvKo+R6K1YF7cyOQoiGunOya/HHMaORWz7kSpkjhOiFuOmiM/bA4kvFH/
-         EPsQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787148592; x=1787753392;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=3K0kn1fHbJEcdZDTCVctcTgJzJz/9hoM0nwTQCh+f8E=;
-        b=gHRsUV5zjCi0BX0+9mN/JjynPmdMHzEUvoQ6/o6etlC62HpdBREUnTiW12EZDrKGfT
-         PuS3te/64KRVOMR6LK7dd4k//8qWX/K6O03ndNXnABnKDIYRKN5S0k/P20ljKMJRTNYG
-         5/T9JJHk4m8wEn9c+O1hPpWf3mL/YRmdIIJMPyBJvEnW/zw/Tj8lx5SBP+g4RicyJpum
-         SZwrm4J/vWHmKjbhAOK2pEJWZwh0T+nPE0zfuj2CxZGRrELBata8WRQdmV99zrwKK+wQ
-         rv1WEPKIGa9a3pspI7TVQmQRWd63Xk2BgdkVUu+z3URRC0IGXzjao8PYjmOes9F0IULB
-         6HUw==
-X-Forwarded-Encrypted: i=1; AHgh+Rr2AE7ItMVEcAikZpe625ewUybdFm7tKABnfKOQeesbRlS88xZYgvi6AyK9PeBbNr8ZVWiiWl22TpUw93Ydpw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxcIC1q/pAEp6dIDocD4XajDZCtCBlmEQ2Bh8yUzwI9pW9/gz3p
-	yiVEFvPNOH87ViNJO4NucsYgvrWG51g67VRWMsj0lEeZ6Bb7e0bOcCq2mhkvb56aErqxbqJcGuS
-	JWuwTvByYHidSr2ixzKj8XQcfIRJCs48=
-X-Gm-Gg: AR+sD11X4clQAlfxCcKl7CBemfBIr8q4NJ0I5VNcuoBgi6dcBqgqvFPZOxtRMqrUSyy
-	Av43xj0/OUQPVNSQgNRhvHgMwdF6JGWAJvkN5W4mwbsZ2DacFEPEfdsXZOoomZjuz9gGSmJfyVt
-	G3BHeKp6ukM3+earg5r5bDTZdWDJ+nwPMSas8887LxlfLcAFPjfX1oJ+s/L+V90h0rVboogGCTt
-	BG5uyHOvZXS3iBg8370afGMhHgEWKoGEL+fGAw6cqr1BijNwD2VOqLpq8Ju21DDcYvnv2wjNqQe
-	gbgwpHofK/AJ7KvziZosr0d2QMBNz19WKYkwoa0Abs2I2g==
-X-Received: by 2002:a05:620a:6989:b0:915:6a2b:6265 with SMTP id
- af79cd13be357-9371e67768fmr433513185a.44.1787148590518; Wed, 19 Aug 2026
- 07:09:50 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Pewjlzfq"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1787150415; x=1818686415;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=vymarJZh4YqC2L7NKmpGaLSs+LwWBnjm4Ga1t8pq/Yg=;
+  b=PewjlzfqVvICmM3Y+gzYqT+lnKBDTWNxA6c9IwR+UDi+JCRZq1z+j+xD
+   P6lG4HNHEBpxJo7kqN0SOguxmpKEMbKs6BSEPnlG6Aew8wE6LZ40bh8t6
+   kLMJ2sHoFSg0kOQcb7BCa0gFCbMMs26iJPINMsoliGpXIjNt7blZvuKmy
+   FnOYYjAGi74sn6qeuQgecxWIrC1gH1fJt0snFLRh4G8KKgxdER8lxAcat
+   RkLBPtsnntifFsGsRppmdZuM0wNZfM/S0QLzY39hgxHQ6elMYhHKF2Srl
+   JVhHJnBM8i3f2Dl61S5rOxwxt3A9xLO8Vy9j/U6AvBy7q3XLNduYerUIB
+   g==;
+X-CSE-ConnectionGUID: nFpskmV9Ryylh0dZCTo+dw==
+X-CSE-MsgGUID: 4TUryJTySgGj4gkjBvd4tA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11880"; a="86787547"
+X-IronPort-AV: E=Sophos;i="6.25,231,1779174000"; 
+   d="scan'208";a="86787547"
+Received: from fmviesa006.fm.intel.com ([10.60.135.146])
+  by fmvoesa112.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Aug 2026 07:40:14 -0700
+X-CSE-ConnectionGUID: DLD05uXOSQS3eQ3eQ3POPA==
+X-CSE-MsgGUID: nBdVyMTXSn+BXYA1OEkKQA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,231,1779174000"; 
+   d="scan'208";a="261366363"
+Received: from bradocaj-mobl.ger.corp.intel.com (HELO [10.125.111.233]) ([10.125.111.233])
+  by fmviesa006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Aug 2026 07:40:10 -0700
+Message-ID: <bd9e5b6e-07f2-459d-bca6-e290585060aa@intel.com>
+Date: Wed, 19 Aug 2026 07:40:09 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260818042613.281125-1-physicalmtea@gmail.com>
- <20260818042613.281125-2-physicalmtea@gmail.com> <aoVkRe_BN6L_5XZn@sgarzare-redhat>
-In-Reply-To: <aoVkRe_BN6L_5XZn@sgarzare-redhat>
-From: Jia Jia <physicalmtea@gmail.com>
-Date: Wed, 19 Aug 2026 22:09:13 +0800
-X-Gm-Features: AcwNN1Wyv_sTsBQBf0-FqnHUDP5OfgUj3xn0SY-WfGW-HK_cGsBtdxAB-mDAfmg
-Message-ID: <CAJwVaML_qrz3hu-7ZyFDEz2M3vAsGPnmNua35dAgn52E+jOxUw@mail.gmail.com>
-Subject: Re: [PATCH v6 1/3] vhost: invalidate vring access on IOTLB transitions
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: mst@redhat.com, jasowangio@gmail.com, eperezma@redhat.com, 
-	stefanha@redhat.com, weiyj.lk@gmail.com, kvm@vger.kernel.org, 
-	virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 00/13] x86/msr: Drop 32-bit MSR interfaces
+To: Juergen Gross <jgross@suse.com>, linux-kernel@vger.kernel.org,
+ x86@kernel.org, virtualization@lists.linux.dev, linux-ide@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org,
+ linux-crypto@vger.kernel.org, linux-gpio@vger.kernel.org,
+ linux-perf-users@vger.kernel.org, linux-hyperv@vger.kernel.org,
+ kvm@vger.kernel.org, linux-edac@vger.kernel.org, linux-pci@vger.kernel.org,
+ linux-pm@vger.kernel.org, linux-coco@lists.linux.dev,
+ linux-acpi@vger.kernel.org, linux-hwmon@vger.kernel.org,
+ linux-mtd@lists.infradead.org, platform-driver-x86@vger.kernel.org
+Cc: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ "H. Peter Anvin" <hpa@zytor.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
+ Alexey Makhalov <alexey.makhalov@broadcom.com>,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>, Damien Le Moal
+ <dlemoal@kernel.org>, Niklas Cassel <cassel@kernel.org>,
+ David Airlie <airlied@redhat.com>, Helge Deller <deller@gmx.de>,
+ linux-geode@lists.infradead.org, Olivia Mackall <olivia@selenic.com>,
+ Herbert Xu <herbert@gondor.apana.org.au>, Linus Walleij <linusw@kernel.org>,
+ Bartosz Golaszewski <brgl@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Peter Zijlstra <peterz@infradead.org>,
+ Arnaldo Carvalho de Melo <acme@kernel.org>,
+ Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+ Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+ Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
+ Adrian Hunter <adrian.hunter@intel.com>, James Clark
+ <james.clark@linaro.org>, "K. Y. Srinivasan" <kys@microsoft.com>,
+ Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
+ Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>,
+ Sean Christopherson <seanjc@google.com>, Paolo Bonzini
+ <pbonzini@redhat.com>, Josh Poimboeuf <jpoimboe@kernel.org>,
+ Pawan Gupta <pawan.kumar.gupta@linux.intel.com>, Pu Wen <puwen@hygon.cn>,
+ Tony Luck <tony.luck@intel.com>, Reinette Chatre
+ <reinette.chatre@intel.com>, Dave Martin <Dave.Martin@arm.com>,
+ James Morse <james.morse@arm.com>, Babu Moger <babu.moger@amd.com>,
+ Tony W Wang-oc <TonyWWang-oc@zhaoxin.com>,
+ Vitaly Kuznetsov <vkuznets@redhat.com>, Andy Lutomirski <luto@kernel.org>,
+ Bjorn Helgaas <bhelgaas@google.com>, "Rafael J. Wysocki"
+ <rafael@kernel.org>, Pavel Machek <pavel@kernel.org>,
+ Kiryl Shutsemau <kas@kernel.org>, Rick Edgecombe
+ <rick.p.edgecombe@intel.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ Len Brown <lenb@kernel.org>, Viresh Kumar <viresh.kumar@linaro.org>,
+ Huang Rui <ray.huang@amd.com>, Mario Limonciello
+ <mario.limonciello@amd.com>, Perry Yuan <perry.yuan@amd.com>,
+ K Prateek Nayak <kprateek.nayak@amd.com>,
+ Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+ Yazen Ghannam <yazen.ghannam@amd.com>, Guenter Roeck <linux@roeck-us.net>,
+ Artem Bityutskiy <artem.bityutskiy@linux.intel.com>,
+ Artem Bityutskiy <dedekind1@gmail.com>,
+ Miquel Raynal <miquel.raynal@bootlin.com>,
+ Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>,
+ Ashok Raj <ashok.raj.linux@gmail.com>, Hans de Goede <hansg@kernel.org>,
+ =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+ Rajneesh Bhardwaj <irenic.rajneesh@gmail.com>,
+ David E Box <david.e.box@intel.com>,
+ Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>,
+ Lukasz Luba <lukasz.luba@arm.com>, xen-devel@lists.xenproject.org
+References: <20260819102314.1499258-1-jgross@suse.com>
+From: Dave Hansen <dave.hansen@intel.com>
+Content-Language: en-US
+Autocrypt: addr=dave.hansen@intel.com; keydata=
+ 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
+In-Reply-To: <20260819102314.1499258-1-jgross@suse.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
->
-> On Tue, Aug 18, 2026 at 12:26:11PM +0800, Jia Jia wrote:
-> >When ACCESS_PLATFORM changes, the addresses cached in desc, avail, and
-> >used change meaning with the address space. Clear the cached vring access
-> >state when the device IOTLB is installed or removed so stale IOVAs cannot
-> >be reused as direct userspace addresses.
-> >
-> >Keep device IOTLB initialization idempotent and apply the mode change even
-> >when a virtqueue backend is attached. Drop the device-wide IOTLB first,
-> >then clear each VQ state under its own mutex, and keep the old table alive
-> >until every VQ has completed the handoff.
-> >
-> >A successful live mode change leaves the backend attached but invalidates
-> >the cached vring addresses. Userspace must configure the vring addresses
-> >for the new address mode before data processing can resume.
-> >
-> >Fixes: 6b1e6cc7855b ("vhost: new device IOTLB API")
-> >
->
-> Please don't leave spaces here!
->
-> >Signed-off-by: Jia Jia <physicalmtea@gmail.com>
-> >---
-> > drivers/vhost/vhost.c | 53 ++++++++++++++++++++++++++++++++++++++++++-
-> > drivers/vhost/vhost.h |  1 +
-> > 2 files changed, 53 insertions(+), 1 deletion(-)
->
->
-> This patch doesn't apply, I tried vhost tree, net tree, and master.
-> On which tree is this based?
->
-> Stefano
->
+Hey Juergen,
 
-Thanks for checking. I confirmed that v6 was generated from an older
-local linux-next snapshot with local changes on top,
-so it does not apply cleanly to the current tree. Sorry for taking up
-your time. I will fix this first. Thanks again.
+These look great. Thanks for doing it!
 
+The only wonky thing is how we're going to actually merge it. We
+obviously can't do patches 10-11 until all the "stop using" patches have
+been applied.
 
-> >
-> >diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> >index 4c525b3e16ea..9f74537b1c1c 100644
-> >--- a/drivers/vhost/vhost.c
-> >+++ b/drivers/vhost/vhost.c
-> >@@ -344,6 +344,17 @@ static void __vhost_vq_meta_reset(struct vhost_virtqueue *vq)
-> >               vq->meta_iotlb[j] = NULL;
-> > }
-> >
-> >+/* Caller must hold the virtqueue mutex. */
-> >+static void vhost_vq_invalidate_access(struct vhost_virtqueue *vq)
-> >+{
-> >+      vq->desc = NULL;
-> >+      vq->avail = NULL;
-> >+      vq->used = NULL;
-> >+      vq->log_used = false;
-> >+      vq->log_addr = -1ull;
-> >+      __vhost_vq_meta_reset(vq);
-> >+}
-> >+
-> > static void vhost_vq_meta_reset(struct vhost_dev *d)
-> > {
-> >       int i;
-> >@@ -1911,6 +1922,9 @@ int vq_meta_prefetch(struct vhost_virtqueue *vq)
-> > {
-> >       unsigned int num = vq->num;
-> >
-> >+      if (!vq->desc || !vq->avail || !vq->used)
-> >+              return 0;
-> >+
-> >       if (!vq->iotlb)
-> >               return 1;
-> >
-> >@@ -2270,11 +2284,48 @@ long vhost_vring_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *arg
-> > }
-> > EXPORT_SYMBOL_GPL(vhost_vring_ioctl);
-> >
-> >+/* Caller must hold the device mutex. */
-> >+void vhost_clear_device_iotlb(struct vhost_dev *d)
-> >+{
-> >+      struct vhost_iotlb *iotlb;
-> >+      int i;
-> >+
-> >+      iotlb = d->iotlb;
-> >+      if (!iotlb)
-> >+              return;
-> >+
-> >+      /*
-> >+       * Drop the device-wide view first.  Each VQ then drops its
-> >+       * per-VQ view and its cached ring access under its own mutex.
-> >+       * Keep the old table alive until every VQ has completed this
-> >+       * handoff, since a worker may still be using it while waiting
-> >+       * for its VQ mutex.
-> >+       */
-> >+      d->iotlb = NULL;
-> >+
-> >+      for (i = 0; i < d->nvqs; ++i) {
-> >+              struct vhost_virtqueue *vq = d->vqs[i];
-> >+
-> >+              mutex_lock(&vq->mutex);
-> >+              vq->iotlb = NULL;
-> >+              vhost_vq_invalidate_access(vq);
-> >+              mutex_unlock(&vq->mutex);
-> >+      }
-> >+
-> >+      vhost_clear_msg(d);
-> >+      vhost_iotlb_free(iotlb);
-> >+      wake_up_interruptible_poll(&d->wait, EPOLLIN | EPOLLRDNORM);
-> >+}
-> >+EXPORT_SYMBOL_GPL(vhost_clear_device_iotlb);
-> >+
-> > int vhost_init_device_iotlb(struct vhost_dev *d)
-> > {
-> >       struct vhost_iotlb *niotlb, *oiotlb;
-> >       int i;
-> >
-> >+      if (d->iotlb)
-> >+              return 0;
-> >+
-> >       niotlb = iotlb_alloc();
-> >       if (!niotlb)
-> >               return -ENOMEM;
-> >@@ -2287,7 +2338,7 @@ int vhost_init_device_iotlb(struct vhost_dev *d)
-> >
-> >               mutex_lock(&vq->mutex);
-> >               vq->iotlb = niotlb;
-> >-              __vhost_vq_meta_reset(vq);
-> >+              vhost_vq_invalidate_access(vq);
-> >               mutex_unlock(&vq->mutex);
-> >       }
-> >
-> >diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-> >index 0192ade6e749..3c75e8089373 100644
-> >--- a/drivers/vhost/vhost.h
-> >+++ b/drivers/vhost/vhost.h
-> >@@ -277,6 +277,7 @@ ssize_t vhost_chr_read_iter(struct vhost_dev *dev, struct iov_iter *to,
-> >                           int noblock);
-> > ssize_t vhost_chr_write_iter(struct vhost_dev *dev,
-> >                            struct iov_iter *from);
-> >+void vhost_clear_device_iotlb(struct vhost_dev *d);
-> > int vhost_init_device_iotlb(struct vhost_dev *d);
-> >
-> > void vhost_iotlb_map_free(struct vhost_iotlb *iotlb,
-> >
->
+I obviously 100% realize that it's during the merge window, but any acks
+that the maintainers of 5-9 provide in the next few weeks would be super
+helpful. Or, if any of those maintainers want to cherry pick their
+subsystem's stuff out of this series and apply it, that would be great too.
+
+But, the last time we did some MSR function munging, the tip tree
+carried most of the patches. I would expect we'll have a repeat of that
+here too. I'll pencil in the idea of just merging the lot around -rc1 time.
