@@ -1,58 +1,58 @@
 Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6DBD412C14
-	for <virtualization@lists.linux.dev>; Wed, 19 Aug 2026 10:24:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86C2844A412
+	for <virtualization@lists.linux.dev>; Wed, 19 Aug 2026 10:24:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787135066; cv=none; b=mH4/XNC1fkP8hPYYwLklZ8H8/NVTYvoTBlRuSBjky8JisdH44m3o3Tw66U3zFUBtL09EctCaxDjW8RLqHfdB94Rnb7jYZAEiw1yVsMD9LsYtawNahvXUh6k3aEEvwNvjF5DhvSgNeBA43/aN5xnLs8RPeiOy+X+I2rozifMX/PY=
+	t=1787135072; cv=none; b=ACpA83txnBbWZjsMmQ6zWImI8r+1+wsg/t/e58tf52MiHkGN+pEWiUh8gqi+MNqeVmuoA4tO9LEkUDVYbZHd2lEr4uQ/tbIFttPTH1tMLiVghfRp4o2bg53C4kivgXSJJm1F866e08hC3/iuv+2Sdz8AIZsB5jpUV9TxRDFX9rA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787135066; c=relaxed/simple;
-	bh=/kzVoVk5PsNlCLxCkKXedZDtmSZUJBXARrSyIWflFsE=;
+	s=arc-20240116; t=1787135072; c=relaxed/simple;
+	bh=rzLwArAda9EFnuuP3t+Y981C2O1OrmodTAiCAeP5NPA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=mGmRWH+9ddLKRgRDRjEKXOZxfxa8Bpyuax2mLLMVDOd/3x4cQwF0uAX0zsU25D+sqJD1OYyvzlkjj5lBWzx/7bLnTpE+I7N2njN9T3oqIlPHOODhw192YN/I7qT8h/gGiiuyZ2TF2JUxlf4Qoy+8wp6FH8R0Z5OuIunllGL4p1w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=WlWZBGZ+; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=BHPR4D8W; arc=none smtp.client-ip=195.135.223.130
+	 MIME-Version; b=M0onquz1EpyYN8SCKVgJaYBpwlaUqf+4Zt2bXEAnPOWMCrDOvgOtKcRgmgj/8SmOVfSCOrmO2GCRWJQi+WpOYn8nxgZVCByYlBS4gnuVr5WvUrSSvyFnP9zCPJD3o8sdNL+F5EVrF+k3Qh2+gMs9oH2vplfhH9LYIe8RdSn0Pz0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=jiVvuIQk; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=sIu4ScTW; arc=none smtp.client-ip=195.135.223.130
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="WlWZBGZ+";
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="BHPR4D8W"
+	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="jiVvuIQk";
+	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="sIu4ScTW"
 Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id CEE2E84A7C;
-	Wed, 19 Aug 2026 10:24:14 +0000 (UTC)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 7371F84A8C;
+	Wed, 19 Aug 2026 10:24:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1787135059; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1787135064; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=23wKnKIGZ//sFWUCC7QjeElWSrPpl0DsxSAH3Gys8R8=;
-	b=WlWZBGZ+oYU1zvTS0VCiTPE2MWN2uMZHPwmhHLC0xmNGNl0daGzGxFUIRS4ts4kjvIp52J
-	Z6y1PVnLDZBBlPbIuU1AxC/ahz20ISSdptbLkZNyEDp8OAAWJLQ547hjORrH078309m8Rz
-	F+bXJMxFeX94aCLj130funWE94HAJOg=
+	bh=DtSBOhbPSYfOorSkQqHi63N9+clGucYRe7dUwXwwSqA=;
+	b=jiVvuIQkEZZgZSl/ZLUrM5bQdmYRP8+cSgZI3XdW0qTP1O1VLQQfRJGTyZ/55mw3gnVbyB
+	dGaiCCMgjh3d5JMRz6CDvxkfTRTX1VRQHjQCqKcANMAOoxsQRvGG1HYE6raHHp7VPJe+hC
+	YtdCmcktu/V1QgsTaYqbjoWxbk+rG34=
 Authentication-Results: smtp-out1.suse.de;
 	none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1787135054; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1787135060; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=23wKnKIGZ//sFWUCC7QjeElWSrPpl0DsxSAH3Gys8R8=;
-	b=BHPR4D8WE0WB2R84BHl87nYYvW256eWsf3QwaBuDWduxv6qaKG8MbcSNHtgHDDvVHHIKKL
-	y3KZ4zJQw76pENrRoL6G/GZ3U2S6qMAHZVASFTg6czDXD+0bwmIDEPfvlQ5cSzB+wj7Ipn
-	xfX+Rgjh3NhC41bsECbu2ISLoRU9BVA=
+	bh=DtSBOhbPSYfOorSkQqHi63N9+clGucYRe7dUwXwwSqA=;
+	b=sIu4ScTWThmEa80YPiGbMcoKYqwWtt5uTf896vweW5gs+KkVprgjQYT0Gk3aPrOnDp7hAz
+	WCiiJZz4Igr70BMlqZg9I79LolmXW5YE9G2GcIBm22Q75N9o9LnLbewqLQfuVjX/55T3Xa
+	KMwQQbMXIpk+yfr8p3lzdoZuVFDJlkY=
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 8AB502F81;
-	Wed, 19 Aug 2026 10:24:14 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 2A4F0367A;
+	Wed, 19 Aug 2026 10:24:20 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id +6W5IE6EhWrVEgAAD6G6ig
-	(envelope-from <jgross@suse.com>); Wed, 19 Aug 2026 10:24:14 +0000
+	id PJ0fCVSEhWrgEgAAD6G6ig
+	(envelope-from <jgross@suse.com>); Wed, 19 Aug 2026 10:24:20 +0000
 From: Juergen Gross <jgross@suse.com>
 To: linux-kernel@vger.kernel.org,
 	x86@kernel.org,
@@ -66,9 +66,9 @@ Cc: Juergen Gross <jgross@suse.com>,
 	Ajay Kaher <ajay.kaher@broadcom.com>,
 	Alexey Makhalov <alexey.makhalov@broadcom.com>,
 	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>
-Subject: [PATCH v2 10/13] x86/msr: Remove wrmsr()
-Date: Wed, 19 Aug 2026 12:23:11 +0200
-Message-ID: <20260819102314.1499258-11-jgross@suse.com>
+Subject: [PATCH v2 11/13] x86/msr: Remove rdmsr()
+Date: Wed, 19 Aug 2026 12:23:12 +0200
+Message-ID: <20260819102314.1499258-12-jgross@suse.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260819102314.1499258-1-jgross@suse.com>
 References: <20260819102314.1499258-1-jgross@suse.com>
@@ -79,6 +79,9 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Spam-Score: -6.80
+X-Spam-Level: 
+X-Spam-Flag: NO
 X-Spamd-Result: default: False [-6.80 / 50.00];
 	REPLY(-4.00)[];
 	BAYES_HAM(-3.00)[100.00%];
@@ -98,48 +101,49 @@ X-Spamd-Result: default: False [-6.80 / 50.00];
 	DKIM_SIGNED(0.00)[suse.com:s=susede1];
 	RCVD_VIA_SMTP_AUTH(0.00)[];
 	R_RATELIMIT(0.00)[to_ip_from(RLfdszjqhz8kzzb9uwpzdm8png)];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.com:mid,suse.com:email];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:email,suse.com:mid,imap1.dmz-prg2.suse.org:helo];
 	RCVD_TLS_ALL(0.00)[]
-X-Spam-Flag: NO
-X-Spam-Score: -6.80
-X-Spam-Level: 
 
-wrmsr() has no users left. Delete it.
+rdmsr() has no users left. Delete it.
 
 Signed-off-by: Juergen Gross <jgross@suse.com>
 ---
- arch/x86/include/asm/msr.h      | 5 -----
- arch/x86/include/asm/paravirt.h | 5 -----
- 2 files changed, 10 deletions(-)
+ arch/x86/include/asm/msr.h      | 7 -------
+ arch/x86/include/asm/paravirt.h | 7 -------
+ 2 files changed, 14 deletions(-)
 
 diff --git a/arch/x86/include/asm/msr.h b/arch/x86/include/asm/msr.h
-index 776a2daa2ba2..badab5762f3a 100644
+index badab5762f3a..6d7bab33af71 100644
 --- a/arch/x86/include/asm/msr.h
 +++ b/arch/x86/include/asm/msr.h
-@@ -186,11 +186,6 @@ do {								\
- 	(void)((high) = (u32)(__val >> 32));			\
- } while (0)
+@@ -179,13 +179,6 @@ static inline u64 native_read_pmc(int counter)
+  * pointer indirection), this allows gcc to optimize better
+  */
  
--static inline void wrmsr(u32 msr, u32 low, u32 high)
--{
--	native_write_msr(msr, (u64)high << 32 | low);
--}
+-#define rdmsr(msr, low, high)					\
+-do {								\
+-	u64 __val = native_read_msr((msr));			\
+-	(void)((low) = (u32)__val);				\
+-	(void)((high) = (u32)(__val >> 32));			\
+-} while (0)
 -
  #define rdmsrq(msr, val)			\
  	((val) = native_read_msr((msr)))
  
 diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index 97b082095572..47d4e36d14cb 100644
+index 47d4e36d14cb..93754aa60d5e 100644
 --- a/arch/x86/include/asm/paravirt.h
 +++ b/arch/x86/include/asm/paravirt.h
-@@ -157,11 +157,6 @@ do {						\
- 	val2 = _l >> 32;			\
- } while (0)
+@@ -150,13 +150,6 @@ static inline int paravirt_write_msr_safe(u32 msr, u64 val)
+ 	return PVOP_CALL2(int, pv_ops, cpu.write_msr_safe, msr, val);
+ }
  
--static __always_inline void wrmsr(u32 msr, u32 low, u32 high)
--{
--	paravirt_write_msr(msr, (u64)high << 32 | low);
--}
+-#define rdmsr(msr, val1, val2)			\
+-do {						\
+-	u64 _l = paravirt_read_msr(msr);	\
+-	val1 = (u32)_l;				\
+-	val2 = _l >> 32;			\
+-} while (0)
 -
  #define rdmsrq(msr, val)			\
  do {						\
