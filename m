@@ -1,135 +1,131 @@
-Received: from mail-pg1-f175.google.com (mail-pg1-f175.google.com [209.85.215.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from canpmsgout03.his.huawei.com (canpmsgout03.his.huawei.com [113.46.200.218])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DD7A3BB9EB
-	for <virtualization@lists.linux.dev>; Wed, 19 Aug 2026 02:39:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41F492C15AB
+	for <virtualization@lists.linux.dev>; Wed, 19 Aug 2026 02:51:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.218
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787107171; cv=none; b=mQnmUwDfgVbyypVTvB22YD/OPGhNBoFhv0H945gMHXl52LFmxVd8OfW5fLXoMSg13XQdSflLfX4k9Hf+ytB7adsEuhEQJTs9O+Lrymm3uof09ySDcGtIqBPmkau5jFVFjyGfuU3UikTerPckmUKDHJCyDRaSNRnQajTUB9bCxUQ=
+	t=1787107912; cv=none; b=NRP6Ckya26igxMPyGkWuTgVHImWYtkrjnteXJ4NmyWLjHI6rvcKJYchf2b0BECINF3Y/K/sK1ur5HdhZh5Tn0SmTkTF3XAOUtU/4B4tsnlaXkPxs6ZRgJOsGQ0L1xStr2jJzLpzzjDsDSlRMbNmUP0rpbb5A784wEx4YWMpQ3do=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787107171; c=relaxed/simple;
-	bh=mqfcpoab9k8WhlBl2faNXU5zZtz9PCikczEVHCi9ucA=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
-	 MIME-Version:Content-Type; b=sVXXPjLPha3oCAgiwZA1E7+d10wm6azn3FCjjia4kzi2SDAZij2BLgHku9qmfvSaoBb5WGTyLYJpesht15XctIcx4AbEz6Gg6XthI59selzAdgroBIN9xfS//Kebkh/uMy9g/ImlLnJVZge8Fukmtm9TFN+oRdmeA5yRxlUOXm8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cpIxj6Zc; arc=none smtp.client-ip=209.85.215.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1787107912; c=relaxed/simple;
+	bh=/806s9Z6FPuQkp69sO+d1jlqaLHZbcjzztrS7iCpl9o=;
+	h=Message-ID:Date:MIME-Version:CC:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=PzsC2rBabfrtkQeqnHYWeaepEvSsmRO2uTGi5lDM4tiIhPpwxaAgFyFqGM1pdloM8j/uMHUxKKgqQXkHrpb1U8CZRgJ+28UTeBs0IHgvu+BFdG0Hf0gwA9sTkBzSxep9/n6rsURlLRALIwt1boZSNziWE1rRZAsEdY6KSrOfT2A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=XHNqjnFw; arc=none smtp.client-ip=113.46.200.218
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cpIxj6Zc"
-Received: by mail-pg1-f175.google.com with SMTP id 41be03b00d2f7-ca80d708489so271645a12.1
-        for <virtualization@lists.linux.dev>; Tue, 18 Aug 2026 19:39:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787107170; x=1787711970; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:mime-version:message-id
-         :references:in-reply-to:user-agent:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to:content-type;
-        bh=eQyoOyf6SSUoapDzSHBCy3JEgU3A95lRqlJ7qpIL3Tw=;
-        b=cpIxj6Zccz8dNDVPpwh8zPzlI4OjNjX0nefnKZJO8go3DXTamQNh2AZW+LgJpeFpHA
-         o1k+QP9Vy7LWSi1gPdrBTyUDm5QI6K+TC8ZU/CR4246DAnWJUXri62GCCxr2qBU6sHem
-         y/zRH8NSxMsYseK6mYtHgUuqxKpEn+orOGbxF7dIUk56Og87yS56CNuJ2+5/eT27w4kX
-         pCgKn5uLEfXLnxCBMZi1OlT9yvPN0EQfUdKRmH64mR94J5oSPvAE/Pk83wqo8UE2cZyM
-         bWqIYH3DDvL9YU3yzGvdfSHvX29YMyJGGTILarvs8qam+qs3rPTztO9DBi4nOCYnejXh
-         UQug==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787107170; x=1787711970;
-        h=content-transfer-encoding:content-type:mime-version:message-id
-         :references:in-reply-to:user-agent:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=eQyoOyf6SSUoapDzSHBCy3JEgU3A95lRqlJ7qpIL3Tw=;
-        b=MQfB00NMmUFdEGJb98Sa/ks6uSAkiYkOArM8/Sk74yykBgvvE5zzAjj2dm4sVd99ZG
-         qw5qikJvQ3tWB7MT+SMw6RnRiqIQ+l4MJ3joCYNXwzTQ5+0klTpAbhiEerZeKGfQaAx8
-         +u4+qN+/Bbg2OfKiXaD41sDWefBLUS6lG6BZDrTnfOPXRUMcXEKZx6gu8n06M8BzrC5z
-         wZq5cZjV0uXuNNysBAJEfUWmtzCVfcJcnP9MDG+WsyLJ2kPegau83Yxg7O1cgWvpboqC
-         PfBz/8xVL+BJgLV7i34BgsKOI+189AkNAgXrBl40C/PLMFg/W6FzqvZcGhH/TGlX3BE2
-         ZQyg==
-X-Gm-Message-State: AOJu0YypecszE2purEjM/FVfRdrrGMM+I92aRFysRVtF1wgnd3qU/FtM
-	SJ4OCi2roB+v+OntXtYUT9g3ZlHW0PMgKQOwA7Oh5Y7Pxfs0LJ6OCvzG
-X-Gm-Gg: AR+sD10cvTQ5eOq2xRIkrKSn3syxVIEO3B35mxnLtm8kU1n9Eer4/FGR1zgnN8Q1XRS
-	2Ol/yvVCOht8aU2tvpVHtS7R0fhc809tA971/7YOQM1hv+mDW5+7IeCO3O6T0VPrDht9UxmWElv
-	NtIuyuxMeAcBEvCL83R1iR/9Tog/0ZEnGEe0+yAO8fZuCHBeEo7dj13OsL5/3kQ7/0WtYpvGIvb
-	frWVYqtKKQZwWfzi6OqVReI3VwWGbfqkVYf5dssg1mcR+k+IwRrVp+vzRiLbXrsvelHyjmDBJ+L
-	/K98ZKtjeQbW2B+gWs33lqacp17R777YMIypIOhKc45NFmOWC2B/7/iMzdXTuXOCkKc1AYuF8hW
-	V8d/CZ9OewvFlbk2zMAb3y15l7cD+4H93XCjxXHe/q1oAtsFriVPCTh7X45HGJNAI6k0PEkDFJj
-	tdkHyC23gx7xCeYS9pi4UJxbTxUymPypQlILSQ00CWWVkLLPSXeeeQEjMCisdCofhhwGNTsVxvE
-	Cpma8EAFUYvMf5xHSnprRZZwmomFQNPYNwFAHk3eRTsMmygHbLoYGJN13X/AUdX
-X-Received: by 2002:a17:90a:ec83:b0:36b:b903:994 with SMTP id 98e67ed59e1d1-3957f86d960mr2483000a91.4.1787107169635;
-        Tue, 18 Aug 2026 19:39:29 -0700 (PDT)
-Received: from ehlo.thunderbird.net ([2001:4430:c218:3060:358c:2257:2fee:9457])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3957fb60a2bsm818814a91.17.2026.08.18.19.39.28
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 18 Aug 2026 19:39:29 -0700 (PDT)
-Date: Wed, 19 Aug 2026 11:39:26 +0900
-From: Sungho Bae <baver.bae@gmail.com>
-To: Breno Leitao <leitao@debian.org>, Amit Shah <amit@kernel.org>,
- Arnd Bergmann <arnd@arndb.de>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Sungho Bae <baver.bae@lge.com>
-CC: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- kernel-team@meta.com
-Subject: =?US-ASCII?Q?Re=3A_=5BPATCH=5D_virtio=5Fconsole=3A_allocate_?=
- =?US-ASCII?Q?the_port=5Fbuffer_with_the_caller=27s_gfp?=
-User-Agent: K-9 Mail for Android
-In-Reply-To: <aoQggUaBZC9GeY1Y@gmail.com>
-References: <20260810-serial-v1-1-abbe51602c13@debian.org> <aoQggUaBZC9GeY1Y@gmail.com>
-Message-ID: <6B66D650-D65F-4176-ACBF-DC42488883AB@gmail.com>
+	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="XHNqjnFw"
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=xhtZRXjoCnMWn9mFXaTj7fZKbM8NqbXiis/kR/upGLo=;
+	b=XHNqjnFwQ8sme/7g89G8PlcjwNXIUE9tyH0qII8KGgLBvvQ7VkPstRJuLBOLan4VKem0teuBz
+	xa3eejrWZwF10E9W+MyaHv0o1xvI8uel43bsbfnuifTMSwXU0OPBADf7ys0t2Y8CNUnwFb8QQZH
+	rd0/aVbjTzJWr4vmM8HQHx0=
+Received: from mail.maildlp.com (unknown [172.19.162.223])
+	by canpmsgout03.his.huawei.com (SkyGuard) with ESMTPS id 4hPrQv5CwkzpSvB;
+	Wed, 19 Aug 2026 10:40:39 +0800 (CST)
+Received: from kwepemo500018.china.huawei.com (unknown [7.202.195.199])
+	by mail.maildlp.com (Postfix) with ESMTPS id 35A5F40561;
+	Wed, 19 Aug 2026 10:51:35 +0800 (CST)
+Received: from [10.67.120.192] (10.67.120.192) by
+ kwepemo500018.china.huawei.com (7.202.195.199) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.45; Wed, 19 Aug 2026 10:51:33 +0800
+Message-ID: <b1aa6136-3dc1-4190-beaa-32bee88b7091@huawei.com>
+Date: Wed, 19 Aug 2026 10:51:33 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+CC: <shaojijie@huawei.com>, "shenjian15@huawei.com" <shenjian15@huawei.com>,
+	"linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
+	"eperezma@redhat.com" <eperezma@redhat.com>, "jasowang@redhat.com"
+	<jasowang@redhat.com>, "virtualization@lists.linux.dev"
+	<virtualization@lists.linux.dev>, "mst@redhat.com" <mst@redhat.com>,
+	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
+	"pabeni@redhat.com" <pabeni@redhat.com>, "edumazet@google.com"
+	<edumazet@google.com>, "linux-doc@vger.kernel.org"
+	<linux-doc@vger.kernel.org>, "corbet@lwn.net" <corbet@lwn.net>,
+	"horms@kernel.org" <horms@kernel.org>, "dsahern@kernel.org"
+	<dsahern@kernel.org>, "kuniyu@google.com" <kuniyu@google.com>,
+	"bpf@vger.kernel.org" <bpf@vger.kernel.org>, "netdev@vger.kernel.org"
+	<netdev@vger.kernel.org>, "dave.taht@gmail.com" <dave.taht@gmail.com>,
+	"jhs@mojatatu.com" <jhs@mojatatu.com>, "stephen@networkplumber.org"
+	<stephen@networkplumber.org>, "xiyou.wangcong@gmail.com"
+	<xiyou.wangcong@gmail.com>, "jiri@resnulli.us" <jiri@resnulli.us>,
+	"davem@davemloft.net" <davem@davemloft.net>, "andrew+netdev@lunn.ch"
+	<andrew+netdev@lunn.ch>, "donald.hunter@gmail.com" <donald.hunter@gmail.com>,
+	"ast@fiberby.net" <ast@fiberby.net>, "liuhangbin@gmail.com"
+	<liuhangbin@gmail.com>, "shuah@kernel.org" <shuah@kernel.org>,
+	"linux-kselftest@vger.kernel.org" <linux-kselftest@vger.kernel.org>,
+	"ij@kernel.org" <ij@kernel.org>, "ncardwell@google.com"
+	<ncardwell@google.com>, "Koen De Schepper (Nokia)"
+	<koen.de_schepper@nokia-bell-labs.com>, "g.white@cablelabs.com"
+	<g.white@cablelabs.com>, "ingemar.s.johansson@ericsson.com"
+	<ingemar.s.johansson@ericsson.com>, "mirja.kuehlewind@ericsson.com"
+	<mirja.kuehlewind@ericsson.com>, "cheshire@apple.com" <cheshire@apple.com>,
+	"rs.ietf@gmx.at" <rs.ietf@gmx.at>, "Jason_Livingood@comcast.com"
+	<Jason_Livingood@comcast.com>, "vidhi_goel@apple.com" <vidhi_goel@apple.com>
+Subject: Re: [PATCH v5 net-next 2/2] net: hns3: fix GSO_ECN flag setting in
+ the RX path
+To: Jakub Kicinski <kuba@kernel.org>, "Chia-Yu Chang (Nokia)"
+	<chia-yu.chang@nokia-bell-labs.com>
+References: <20260804213510.673084-1-chia-yu.chang@nokia-bell-labs.com>
+ <20260804213510.673084-3-chia-yu.chang@nokia-bell-labs.com>
+ <61721708-0d77-4f59-aa08-02562af282bb@huawei.com>
+ <PAXPR07MB79842CC27C2F5CF9BD40E007A3DC2@PAXPR07MB7984.eurprd07.prod.outlook.com>
+ <20260812155927.57ee295b@kernel.org>
+From: Jijie Shao <shaojijie@huawei.com>
+In-Reply-To: <20260812155927.57ee295b@kernel.org>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: kwepems200001.china.huawei.com (7.221.188.67) To
+ kwepemo500018.china.huawei.com (7.202.195.199)
 
-I am sorry for the late reply=2E
-I fully agree with your patch=2E
-It was my mistake=2E I should have to allocate the buffer with gfp flags=
-=2E
-Thank you for the corrections=2E
 
-
-On 2026=EB=85=84 8=EC=9B=94 18=EC=9D=BC =EC=98=A4=ED=9B=84 6=EC=8B=9C 6=EB=
-=B6=84 37=EC=B4=88 GMT+09:00, Breno Leitao <leitao@debian=2Eorg> =EC=9E=91=
-=EC=84=B1=ED=95=A8:
->On Mon, Aug 10, 2026 at 09:40:00AM -0700, Breno Leitao wrote:
->> put_chars() runs from the hvc console write path with preemption
->> disabled, so it asks alloc_buf() for GFP_ATOMIC=2E Only the data buffer
->> gets it: the struct port_buffer itself keeps the GFP_KERNEL default, so
->> the allocation can enter direct reclaim and sleep=2E A write to /dev/km=
-sg
->> on a CONFIG_DEBUG_ATOMIC_SLEEP kernel splats:
->>=20
->>   BUG: sleeping function called from invalid context at =2E/include/lin=
-ux/sched/mm=2Eh:320
->>   in_atomic(): 1, irqs_disabled(): 1, non_block: 0, pid: 1, name: virtm=
-e-ng-init
->>   preempt_count: 1, expected: 0
->>   Preemption disabled at:
->>   [<ffffffff813fd90d>] vprintk_emit+0x17d/0x510
->>   Call Trace:
->>    <TASK>
->>    dump_stack_lvl+0x69/0xa0
->>    __might_resched+0x37a/0x4d0
->>    __kmalloc_cache_noprof+0x94/0x5f0
->>    put_chars+0x209/0x3e0
->>    hvc_console_print+0x234/0x640
->>    console_flush_all+0x4fc/0x950
->>    console_unlock+0xbf/0x1b0
->>    vprintk_emit+0x312/0x510
->>    devkmsg_emit+0xba/0x110
->>    devkmsg_write+0x21b/0x2e0
->>    vfs_write+0x4dc/0x9d0
->>    ksys_write+0x108/0x1e0
->>    do_syscall_64+0xfa/0x460
->>    </TASK>
->>=20
->> Pass gfp on to that allocation too=2E
->>=20
->> Fixes: fc220d6be3c7 ("virtio_console: refactor __send_to_port() buffer =
-ownership")
->> Signed-off-by: Breno Leitao <leitao@debian=2Eorg>
+on 2026/8/13 6:59, Jakub Kicinski wrote:
+> On Wed, 12 Aug 2026 10:35:25 +0000 Chia-Yu Chang (Nokia) wrote:
+>>> Tested on hns3 HW (2x 100G, direct cable, openEuler 24.03, kernel 7.2.0-rc6).
+>>>
+>>> tcpdump confirms HW GRO zeroes IP ToS: aggregated (>MTU) packets carry tos 0x0, while non-aggregated packets keep their ToS/ECN marks — so the zeroing is done by HW GRO, not the sender. Before patch, CWR packets had SKB_GSO_TCP_ECN set (0x5 = SKB_GSO_TCPV4 | SKB_GSO_TCP_ECN). After patch, all GRO events gso_type=0x1 (SKB_GSO_TCPV4 only), no 0x5 observed.
+>>>
+>>> Tested-by: Jijie Shao <shaojijie@huawei.com>
+>> Thanks Jijie for confirmation, I will submit to net in the next round.
+> Hold on.. Sounds like hns3 zeros ToS out (?!)
 >
->Ping?=20
->
+> This would be invalid and illegal for HW-GRO. If hns3 nukes crucial IP
+> header fields it should probably be advertising LRO not HW-GRO in the
+> first place.
+
+Your assessment is correct — HW GRO on hns3 does NOT zero IP ToS.
+
+My earlier Tested-by claiming "HW GRO zeroes IP ToS" was wrong. The
+tos=0x0 I observed was caused by a test methodology error: I used
+iperf3 with --tos but did not set net.ipv4.tcp_ecn=1, so the sender's
+kernel TCP stack cleared the ECN bits before the packets hit the wire.
+I mistakenly attributed this TX-side clearing to HW GRO.
+
+I have retested with tesgine (direct packet construction, bypassing
+the kernel TCP stack) and confirmed:
+   - HW GRO preserves IP ToS — each aggregate group retains the head
+     packet's ToS value (verified with 0x00/0x02/0x03/0x10/0xB8)
+   - HW GRO segments flows by ToS boundaries — any ToS change (DSCP or
+     ECN bits) terminates the current aggregate group
+   - ECN signals are intact — CE packets (tos=0x03) are delivered
+     independently with the CE mark preserved
+     
+hns3 HW GRO is behaving correctly. Sorry for the confusion caused by
+my earlier report.
+
+Full test details in my correction reply to the patch 2/2 thread:
+https://lore.kernel.org/all/dd817755-eb4d-4ac2-b282-ac06f847270d@huawei.com/
+
+Regards,
+Jijie Shao
+
+
