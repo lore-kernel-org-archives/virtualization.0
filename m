@@ -1,227 +1,356 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from TYDPR03CU002.outbound.protection.outlook.com (mail-japaneastazon11023079.outbound.protection.outlook.com [52.101.127.79])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 892883F86F0
-	for <virtualization@lists.linux.dev>; Wed, 19 Aug 2026 08:09:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787126957; cv=none; b=PvQjBBmTE31JxCf1ZpM1ixBlkipaLFjkllqEYPjQbzKLJAIRN5CYaNWhww6yxDcaXmHvDwfSPNPUOgQDjJJbE96EQ01rE9hrU+mI24iWVh9SAp1vq4rqMO3RN7u15tC1GxrGc3cVgisWtnojcE390lu/jlLMBc7fvSi/+MrJ520=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787126957; c=relaxed/simple;
-	bh=j+gVWaBheHtgcMbGe74/jYIUWmpVeo4REI3joDdZInY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=CFGEksv0P8UbuLw6DaLm/q60y1AaGkm4khb/3LXL1mtg9ZmijWuI4AIqR/JiuIz3M/xR8KKFAQbz2QbTs2Mq23rju1iZ3ZfwSzFG2soByBBo8inBl5gB5wiaeRVr8A9tO86DBupEPRaxrB6QxqmH2/0KlWR9oTkM4xx7ZjIoOSg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FVBJTL3c; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53F044119EE;
+	Wed, 19 Aug 2026 08:12:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.127.79
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1787127148; cv=fail; b=Q/jql/1pE71NXjaWL9nVjrDCnqHS2KDaDEBMaA1rdrGVs5sEwYrNnbMbv9/x1AYCQ8oiy6XScyKB0ytJjE4WnlgpKlHACjxiQUKflTpfmLeBxo4gM+kIg5fQT3DXkXoeo93JCXEjGNo8qLAulcx2BMcsVvcWuNhA4x7Ephw+soI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1787127148; c=relaxed/simple;
+	bh=iDuqb8Qn6J5FOmN6tsgNqElx+l9UFvtH9RJcmjTuYeA=;
+	h=From:To:CC:Subject:Date:Message-ID:Content-Type:MIME-Version; b=mpNGLpKGDPKEed2xAVRiYA6jrLEX7LSauez53PjMrod2WiKeNnSe8L7IDJ7ZpU65yfvV9hksX9UtKzyaIhr5rxZ+mtrKsXW0cDEQcbIjJ5iVvgiuKw0ZhpfEkZWLx+g9oVdZA8LBYbsi/paw0O/SxvB5FrxdmZA80yehhHgBf6c=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=transsion.com; spf=pass smtp.mailfrom=transsion.com; dkim=pass (1024-bit key) header.d=transsion.com header.i=@transsion.com header.b=trS+M/3+; arc=fail smtp.client-ip=52.101.127.79
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=transsion.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=transsion.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FVBJTL3c"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1787126954;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=nxIGNpX1bEb8ZoU7IALqEmofFiDxquDbYKReTWVCnAw=;
-	b=FVBJTL3csZWvfO7fUFs3z0+Co2ydTF7OBCJZ0ocEZLtZ0bfFpOHRU7vqW2XcMQCSM+WK5n
-	B/x4bdtsrhDQVjvTJyEH4ZElLXykdY/euG4vGsl/GqBZTLYtZ1D78bSmHPyf3xfeWfEBKm
-	Zu0T6wfVJY4P/pIZVm8+mZwvXVJOwwM=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-213-1eQ4ryF1PTybWorDlV-MYg-1; Wed, 19 Aug 2026 04:09:07 -0400
-X-MC-Unique: 1eQ4ryF1PTybWorDlV-MYg-1
-X-Mimecast-MFC-AGG-ID: 1eQ4ryF1PTybWorDlV-MYg_1787126946
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4954c2d4081so6451665e9.2
-        for <virtualization@lists.linux.dev>; Wed, 19 Aug 2026 01:09:07 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787126946; x=1787731746;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=nxIGNpX1bEb8ZoU7IALqEmofFiDxquDbYKReTWVCnAw=;
-        b=CIfjaAAmkwoHket/IahvDV6NM3sv5qbM/ltaYgCVz6I5V1RX2niAUCGXLFSPnogMyY
-         wbnnAa7Q1xCDOmWWdLvBp8+zZ0MzTp6fhfwg1hbjjMBDLkj79DnidqMrtnLiZcDMKQMp
-         l1RQw3Bv3BqYjbZlLlZXyvp4hgJr1c4Z/xgwEGeTN9/Zu/G89lCm0yKJtAC0Vg/h8j/A
-         j1PHACzfjYsJ5y+5UwwaKSZs8l1IIPa6J3od7yMthdN5ycFLSWjvHVeTHKZhPmtMN8cc
-         KE+sfsmqycT++76NdWN4T0yIh/uek7Ozsm9BLAa9nWQGvkKjeKTcU7ONqg3Hz5OBAF47
-         +O5w==
-X-Forwarded-Encrypted: i=1; AHgh+RqMCPzG9avuqqQ457uX/kkRFi3adrRGe+SSA4mwMLHIh9uFZZNOeOPsbKiC5OqFRClEvKru/dUr8VdtFlpGCw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyRatXJXAAU8ipWyjAcEVbY0JXkk6Clm3rl1/j4Exq5ieGz7wbI
-	8/aw55iHSVjVt6R2EhgYY3VuwBA6mBbiiFZIlxoBAVwalM3wNi8buZhz2qiMhwFWiA0KOkgRroG
-	XVrNjjR5eI7/f3y3gQX1Y7z1FChRi8fDWExYDLzp4qEwZ7fE9xaLtS61VwzgbHfAydjDN
-X-Gm-Gg: AR+sD12hB5ObIptFX1WmWhBuaGsYHBMHux3a8GpBbNUpKqXlrIrBk1GcFtsDz31woYS
-	gDz50XXlkZQoJs4h2kZmm6C2QWNxJ7D+b20q5eN6AvtnjJ7U0EwUwLMsFbLouBdIzozFYRCyoAO
-	fXaBOAVz/y1853Z0IIjwVzzSIVmMIIPspywen6XxXGsltROGBQwP0FbtJMMda0TDc+DIQbhfPyB
-	1lGnFnZ0QGzf5Z5zJlC/y3TetMlty2A3KuKYIKRKsWrR+Ebur3ojf3cxUAtbusgQgGNSOOP5ZKc
-	rJfe+MOlc/9UE//yOaq5jy2LHbHZGEKHDgLiCZgnmdFyo9Qdao1u91pexGkQSxLibUZ8/R+HqCI
-	XEWdD1ljxtKldGoA1D1W6lB67e0NtfQ0Fk3clqXnwctgb2I7J2kgZ
-X-Received: by 2002:a05:600c:a42:b0:499:484a:98e7 with SMTP id 5b1f17b1804b1-499aa1ef085mr46678825e9.14.1787126946065;
-        Wed, 19 Aug 2026 01:09:06 -0700 (PDT)
-X-Received: by 2002:a05:600c:a42:b0:499:484a:98e7 with SMTP id 5b1f17b1804b1-499aa1ef085mr46677575e9.14.1787126945570;
-        Wed, 19 Aug 2026 01:09:05 -0700 (PDT)
-Received: from sgarzare-redhat (host-82-53-135-154.retail.telecomitalia.it. [82.53.135.154])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-499a9e00bddsm36778675e9.3.2026.08.19.01.09.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 19 Aug 2026 01:09:05 -0700 (PDT)
-Date: Wed, 19 Aug 2026 10:08:59 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Jia Jia <physicalmtea@gmail.com>
-Cc: mst@redhat.com, jasowangio@gmail.com, eperezma@redhat.com, 
-	stefanha@redhat.com, weiyj.lk@gmail.com, kvm@vger.kernel.org, 
-	virtualization@lists.linux.dev, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v6 1/3] vhost: invalidate vring access on IOTLB
- transitions
-Message-ID: <aoVkRe_BN6L_5XZn@sgarzare-redhat>
-References: <20260818042613.281125-1-physicalmtea@gmail.com>
- <20260818042613.281125-2-physicalmtea@gmail.com>
+	dkim=pass (1024-bit key) header.d=transsion.com header.i=@transsion.com header.b="trS+M/3+"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=HfS+ewTrYSphbObGuzP/RgPvbx7O9b41zYlm6vkq/vPGksWVGJrnz+gVj1Qr2dyWXn4R70qEAY3gzQGHXAEWFO8IhDNO4uoOb5AOQxEGn857AjSz+0zlvmG/ZYUfMZiiDa6KIqOLbDZm9iB5S2sFfuP0a2uCx7L9ZzCx/NggjDA7/f2LhWBDIAaOEKk32ntKR+7rJqSWy0qEclTnVKemqQZqwGdlSuIIkTDnjgx2IvQuVGcNTffpr56J0sLHGPUNj7JnQkMcRY7TgYzLyNyqibxaXAMWOdqsgE1Rq0MCRWJIF6DHOf7vYNPkO94zGy/9Fn3Qae6mdnnKIPWTiBQeLw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=d84hCATNqnUCsUt/1WDjP8LtD1u8eNmXIKR7OiNQFo0=;
+ b=BQDNrsbZqqJHSxYmmZv+K31QGGbQIOrz4WPrN3gxVhssdFluwtqCBd347CsL6beQCqTXXc7V08JbGZYrcm469Qk3c4086Yvwv7YdaFwkI7y5alaMPaMqwxRIlXDd+CmE0VH9yQn0vplV+RBzgMdbBfg22eDPG0SnPK3834pYMb9QQsWs787cIByGttOhhRNxm3ob5GTF9URWEbDEKQrt3k7N9z5gCqpxLkaRIDoyjWr8CqPWPse6IuhC7ovzPjhh3nQe1v0w9PjLoCY/XQvpSL4DevNUQjTKk1bewdDz743ipSh44ZtvAbbFMScBSHjCiuKZD51pb7xo7kPWsUiSgg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=transsion.com; dmarc=pass action=none
+ header.from=transsion.com; dkim=pass header.d=transsion.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=transsion.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=d84hCATNqnUCsUt/1WDjP8LtD1u8eNmXIKR7OiNQFo0=;
+ b=trS+M/3+1UuFoHFDnAG5KK1O3hlYMw8+9RjteJDPP/QvYvDOH4JfgTBepxUxzt8/EJzzg3QCsYTkzF3wzBmukSuwLhHDDMIjghwD+KrVh3wpr0qcJOEN8z+0jSpuynJWuVk1I/xCwqp1Obe2Pej9Ob/EnyIr4ORvGC+b1qCG/Go=
+Received: from KL1PR0401MB6196.apcprd04.prod.outlook.com
+ (2603:1096:820:c7::13) by SEZPR04MB6432.apcprd04.prod.outlook.com
+ (2603:1096:101:a8::6) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.339.8; Wed, 19 Aug
+ 2026 08:12:09 +0000
+Received: from KL1PR0401MB6196.apcprd04.prod.outlook.com
+ ([fe80::f2ee:1e28:9022:99f3]) by KL1PR0401MB6196.apcprd04.prod.outlook.com
+ ([fe80::f2ee:1e28:9022:99f3%3]) with mapi id 15.21.0339.007; Wed, 19 Aug 2026
+ 08:12:09 +0000
+From: Hongyan Xia <hongyan.xia@transsion.com>
+To: Juergen Gross <jgross@suse.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>, Broadcom internal kernel
+ review list <bcm-kernel-feedback-list@broadcom.com>, Catalin Marinas
+	<catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Huacai Chen
+	<chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, Madhavan Srinivasan
+	<maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin
+	<npiggin@gmail.com>, "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, Paul
+ Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou
+	<aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, Thomas Gleixner
+	<tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov
+	<bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, "x86@kernel.org"
+	<x86@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Paolo Bonzini
+	<pbonzini@redhat.com>, Vitaly Kuznetsov <vkuznets@redhat.com>, Stefano
+ Stabellini <sstabellini@kernel.org>, Oleksandr Tyshchenko
+	<oleksandr_tyshchenko@epam.com>, Peter Zijlstra <peterz@infradead.org>, Juri
+ Lelli <juri.lelli@redhat.com>, Vincent Guittot <vincent.guittot@linaro.org>,
+	Dietmar Eggemann <dietmar.eggemann@arm.com>, Steven Rostedt
+	<rostedt@goodmis.org>, Ben Segall <bsegall@google.com>, Mel Gorman
+	<mgorman@suse.de>, Valentin Schneider <vschneid@redhat.com>, K Prateek Nayak
+	<kprateek.nayak@amd.com>
+CC: Jiazi Li <jiazi.li@transsion.com>, "virtualization@lists.linux.dev"
+	<virtualization@lists.linux.dev>, "linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, "loongarch@lists.linux.dev"
+	<loongarch@lists.linux.dev>, "linuxppc-dev@lists.ozlabs.org"
+	<linuxppc-dev@lists.ozlabs.org>, "linux-riscv@lists.infradead.org"
+	<linux-riscv@lists.infradead.org>, "kvm@vger.kernel.org"
+	<kvm@vger.kernel.org>, "xen-devel@lists.xenproject.org"
+	<xen-devel@lists.xenproject.org>
+Subject: [PATCH RESEND] sched: Convert paravirt_steal to new static key APIs
+Thread-Topic: [PATCH RESEND] sched: Convert paravirt_steal to new static key
+ APIs
+Thread-Index: AQHdL7JurDcnsknKnUOaLMvw1Db+YA==
+Date: Wed, 19 Aug 2026 08:12:09 +0000
+Message-ID: <20260819081207.12150-1-hongyan.xia@transsion.com>
+Accept-Language: zh-CN, en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=transsion.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: KL1PR0401MB6196:EE_|SEZPR04MB6432:EE_
+x-ms-office365-filtering-correlation-id: befa3bdb-2ae8-4060-d27d-08defdc990d6
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam:
+ BCL:0;ARA:13230040|7416014|376014|1800799024|23010399003|366016|921020|38070700021|6133799003|10067099003|56012099006|11063799006|18002099003;
+x-microsoft-antispam-message-info:
+ d8clx7CxpRAa7wDJWB7i0klecT0DiSo22kLcX70H82L7a4gg0NdJrkEtcqUOdNIwosLMHYe0XUNDBVs/NhktiHHwHtj2QkCeGcdpxFPmMls2XC9RBCwVVgm2ajs5N8t3HtkgZnqReAMJZyywnq5d0jTTwIpfpYfFgXawESMmAmNkzzsr1SLWruQ7f4Hk2+gqcd5wZgkTLPFyoTVtNCCeE8rKsrwkPQ31BzI78TZkhXdSB+Qv2V6DOz0VdMRgHa17lQgcC5jTj9HL5zCBF5b+12FstdHYISJnh6p7CPkpw0PGXa7NiXmP1lhk0Cl2/zUOUc/ZeqGsSdNNPinZUEnqGgBuDL/GTGURucPA1mkxl77PohNaXuFesP70S6swapKFVd2aT+VoEQYdsXzIn5yxpnQ3LsSWO7Fc+xKO8LPExZdQnyJ9jem0WSG83F+B83Ie70hWFEGgyqRY6S5LiLULNsU0/NgrnvnHMgYJxhCC26g8jo3Ffv2CpChLMP9NIUSb8FGN4UoTH7QbmzSE6GcDTXLUTUv0qYJu+CzmFq23IlmJzl2eYM4AtOdXj7ysaQh//Mp0+fAhaX5/P+B/UnDJMc/DsuUHCniw6UZr9PnCGl91OYWZ4VOnmhBFmx7mOMf9a6nXAGId+79AyywjQM0dRQPZ9qPDNMbk1vCFkup7X8dmcCn2LhK0EQgWh3hT8/YLc/DSTF3IvXgZTxQ6QS9Hi7dRtqbmxG/nWOWxynlfK9nqP7LJ7uQl5q4OJkn8mwKz
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:KL1PR0401MB6196.apcprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(1800799024)(23010399003)(366016)(921020)(38070700021)(6133799003)(10067099003)(56012099006)(11063799006)(18002099003);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?iso-8859-1?Q?Odxo+I8eXOuMeqm5vDHyLaZpOpKBP20/pEIg1Hlaiw95uP2SsGAv55wdQt?=
+ =?iso-8859-1?Q?jlKFqPTVy5IDwLR2OYSi3i5HDYkolIrBk4IzV5padxa9xV7CmWgGu8URpP?=
+ =?iso-8859-1?Q?t7052kutoeHqgA1aYkEDgSOr9KxClnZXitRKRR+QkprYVc4gIlrH1/ZNCk?=
+ =?iso-8859-1?Q?PWgIhgJZrH6hxr3IP8KtAp6xqGQZa2kHkGp5YaobRA4BZAWweUmEYkfnps?=
+ =?iso-8859-1?Q?e4G4RKGWuk0EpcOpebrPROUoK61gfIgZmnXEAOZn/Be+jA6ZFJlcmuB7YW?=
+ =?iso-8859-1?Q?IHhAOyIlG9lDaGCEsjAzhbJo2okmJMaT/au92Emk9cZXd0TBntWM4nr9e/?=
+ =?iso-8859-1?Q?sf9cY8FKxM5zzW473dLU5nEpYwVBsGo+tJ3JCZGdTuguYKFoVKx9oEU2A5?=
+ =?iso-8859-1?Q?0QtCucd1NT3fgyKSuv9fu2+Pdx4mSjVdy31OGxiFA6UpL10WTM7j+dDp/b?=
+ =?iso-8859-1?Q?9/ZXNREcScYt64xbi1xEjpuN47e7D82SiKnJtjhmFsfs3uRiUwvPBKbJF3?=
+ =?iso-8859-1?Q?mrJv9+d3QcVv00QavF1CCPigmkmCgf9IYH11vuj5dUPCsrTXIND7+OlRhz?=
+ =?iso-8859-1?Q?FfaS8JFp8x61NPINL+nUGHSwgFbufz8Jo3X8hDCHT1zaGAJYyrB0ExyNYi?=
+ =?iso-8859-1?Q?XieQwJUVwVfiLk3lRnJ1qY/wJSxGAudDvy7SiUKbBbsqQQMZ4UKJDd9JSa?=
+ =?iso-8859-1?Q?jRRcdwK+jcmnwrAIHSOrQilwj3BY3dshkpd8ZyAHNGG/7XFu70smJyiUQ0?=
+ =?iso-8859-1?Q?wl6VgF0XPmtSI3PsxD4AyhWrZLjZ9y3Dx78c3sYI+/rdc2ReD6y8CZuDob?=
+ =?iso-8859-1?Q?rIbA/ZNPmanTxBfjiYnXwGYg+4a1oUf7KizvVHz1EYrLcYX7qwBHVScYjT?=
+ =?iso-8859-1?Q?xm71PHk7txJvONIV9gS4+3o7pVmN+E1XfBCpGgGtLoyYUF7nWMJyLQW3FA?=
+ =?iso-8859-1?Q?79/iiIGV6/cy+J8cIvFL36LJxWN+7ohTFj1ZXLSxWuVi63fxGEDbR5Sx+O?=
+ =?iso-8859-1?Q?CgRp8osfe3EIn9Rfp6OCs8lfIeoYykDcj/eJI6/F2Hks661vxFFxsHm9Jc?=
+ =?iso-8859-1?Q?+F96FhqTOz2Mr7E9QRx/L2mSacCCzXmyhYRccypaYwrphTw6Ao12OGHnpG?=
+ =?iso-8859-1?Q?k9leOs5rCL3+vknwnr25r1wmEhuTzZeWuAbZVhfIiAuoWc9VMOczjvLA5d?=
+ =?iso-8859-1?Q?o9fL1xPyoS9YqdvmcYrLAhDF2EWkWXdzKt7MqeDDw5YsHHrlIigociDETA?=
+ =?iso-8859-1?Q?VcxU2hKOvjHHzW+1qO5v0xXqOHdJZC8gZDmYK1s+YaZOSbPZiQDCCmemPT?=
+ =?iso-8859-1?Q?YyPVgnGfnO4waCsIpSjtaJWAl5CIaI5T0rthGoLSQafPEU+Ett9d0YB9DL?=
+ =?iso-8859-1?Q?IoNQtJUR1p5vHLr88Dno+vgnpvP/cMgVCiqBhveIsmVDPuolcMCI688H5I?=
+ =?iso-8859-1?Q?anOB5/CIDLviX1uBhb3NKAAB9iCxjzSKFfggywHvZmJnhMBTX3UBtC4CDd?=
+ =?iso-8859-1?Q?Da+6ipEMVhyemyHz3BMqdVt8CqGITjqM7APWVk3aaoDrQuYGn6l1p51MDS?=
+ =?iso-8859-1?Q?Ydm1JUPePZn/y30L0hxz4JkoNuJtWGtUXqXlGWo/d/bc9qiK0dWPuVK9zW?=
+ =?iso-8859-1?Q?vF1L9KW0r3hVibwZFfszwHNF/4GQ0HTZYWJK4quj6tiVgT7dih2DIuMtv2?=
+ =?iso-8859-1?Q?G1gJSCEEQ3v+h99lggXlOS7nuTwplaUm2nWw7DExOEO9wGfl+WuCBitgRP?=
+ =?iso-8859-1?Q?KIfUQxSNSigKdin9PzRYWMxH+/hM+j0Zr9ypkUpWbKuzrhoGTlDaf0uwAr?=
+ =?iso-8859-1?Q?JYyUZT+kVg=3D=3D?=
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260818042613.281125-2-physicalmtea@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Rt8700STkabJzLWaaNUgXrgMYoFLczulLvOoe9fa_sw_1787126946
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+X-OriginatorOrg: transsion.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: KL1PR0401MB6196.apcprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: befa3bdb-2ae8-4060-d27d-08defdc990d6
+X-MS-Exchange-CrossTenant-originalarrivaltime: 19 Aug 2026 08:12:09.3185
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 2e8503a6-2d01-4333-8e36-6ab7c8cd7ae2
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: hahIfAI68GG4NH7OftBS1CZP1PWA2JXjn6x51ud59dJAgdzNyPwXHPNEGP9iVwarDN/dWZFuGQaIOxQqZF0lS26mGmSBp4GhxB4Us/HB+tE=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SEZPR04MB6432
 
-On Tue, Aug 18, 2026 at 12:26:11PM +0800, Jia Jia wrote:
->When ACCESS_PLATFORM changes, the addresses cached in desc, avail, and
->used change meaning with the address space. Clear the cached vring access
->state when the device IOTLB is installed or removed so stale IOVAs cannot
->be reused as direct userspace addresses.
->
->Keep device IOTLB initialization idempotent and apply the mode change even
->when a virtqueue backend is attached. Drop the device-wide IOTLB first,
->then clear each VQ state under its own mutex, and keep the old table alive
->until every VQ has completed the handoff.
->
->A successful live mode change leaves the backend attached but invalidates
->the cached vring addresses. Userspace must configure the vring addresses
->for the new address mode before data processing can resume.
->
->Fixes: 6b1e6cc7855b ("vhost: new device IOTLB API")
->
-
-Please don't leave spaces here!
-
->Signed-off-by: Jia Jia <physicalmtea@gmail.com>
->---
-> drivers/vhost/vhost.c | 53 ++++++++++++++++++++++++++++++++++++++++++-
-> drivers/vhost/vhost.h |  1 +
-> 2 files changed, 53 insertions(+), 1 deletion(-)
-
-
-This patch doesn't apply, I tried vhost tree, net tree, and master.
-On which tree is this based?
-
-Stefano
-
->
->diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
->index 4c525b3e16ea..9f74537b1c1c 100644
->--- a/drivers/vhost/vhost.c
->+++ b/drivers/vhost/vhost.c
->@@ -344,6 +344,17 @@ static void __vhost_vq_meta_reset(struct vhost_virtqueue *vq)
-> 		vq->meta_iotlb[j] = NULL;
-> }
->
->+/* Caller must hold the virtqueue mutex. */
->+static void vhost_vq_invalidate_access(struct vhost_virtqueue *vq)
->+{
->+	vq->desc = NULL;
->+	vq->avail = NULL;
->+	vq->used = NULL;
->+	vq->log_used = false;
->+	vq->log_addr = -1ull;
->+	__vhost_vq_meta_reset(vq);
->+}
->+
-> static void vhost_vq_meta_reset(struct vhost_dev *d)
-> {
-> 	int i;
->@@ -1911,6 +1922,9 @@ int vq_meta_prefetch(struct vhost_virtqueue *vq)
-> {
-> 	unsigned int num = vq->num;
->
->+	if (!vq->desc || !vq->avail || !vq->used)
->+		return 0;
->+
-> 	if (!vq->iotlb)
-> 		return 1;
->
->@@ -2270,11 +2284,48 @@ long vhost_vring_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *arg
-> }
-> EXPORT_SYMBOL_GPL(vhost_vring_ioctl);
->
->+/* Caller must hold the device mutex. */
->+void vhost_clear_device_iotlb(struct vhost_dev *d)
->+{
->+	struct vhost_iotlb *iotlb;
->+	int i;
->+
->+	iotlb = d->iotlb;
->+	if (!iotlb)
->+		return;
->+
->+	/*
->+	 * Drop the device-wide view first.  Each VQ then drops its
->+	 * per-VQ view and its cached ring access under its own mutex.
->+	 * Keep the old table alive until every VQ has completed this
->+	 * handoff, since a worker may still be using it while waiting
->+	 * for its VQ mutex.
->+	 */
->+	d->iotlb = NULL;
->+
->+	for (i = 0; i < d->nvqs; ++i) {
->+		struct vhost_virtqueue *vq = d->vqs[i];
->+
->+		mutex_lock(&vq->mutex);
->+		vq->iotlb = NULL;
->+		vhost_vq_invalidate_access(vq);
->+		mutex_unlock(&vq->mutex);
->+	}
->+
->+	vhost_clear_msg(d);
->+	vhost_iotlb_free(iotlb);
->+	wake_up_interruptible_poll(&d->wait, EPOLLIN | EPOLLRDNORM);
->+}
->+EXPORT_SYMBOL_GPL(vhost_clear_device_iotlb);
->+
-> int vhost_init_device_iotlb(struct vhost_dev *d)
-> {
-> 	struct vhost_iotlb *niotlb, *oiotlb;
-> 	int i;
->
->+	if (d->iotlb)
->+		return 0;
->+
-> 	niotlb = iotlb_alloc();
-> 	if (!niotlb)
-> 		return -ENOMEM;
->@@ -2287,7 +2338,7 @@ int vhost_init_device_iotlb(struct vhost_dev *d)
->
-> 		mutex_lock(&vq->mutex);
-> 		vq->iotlb = niotlb;
->-		__vhost_vq_meta_reset(vq);
->+		vhost_vq_invalidate_access(vq);
-> 		mutex_unlock(&vq->mutex);
-> 	}
->
->diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
->index 0192ade6e749..3c75e8089373 100644
->--- a/drivers/vhost/vhost.h
->+++ b/drivers/vhost/vhost.h
->@@ -277,6 +277,7 @@ ssize_t vhost_chr_read_iter(struct vhost_dev *dev, struct iov_iter *to,
-> 			    int noblock);
-> ssize_t vhost_chr_write_iter(struct vhost_dev *dev,
-> 			     struct iov_iter *from);
->+void vhost_clear_device_iotlb(struct vhost_dev *d);
-> int vhost_init_device_iotlb(struct vhost_dev *d);
->
-> void vhost_iotlb_map_free(struct vhost_iotlb *iotlb,
->
-
+From: Hongyan Xia <hongyan.xia@transsion.com>=0A=
+=0A=
+paravirt_steal_rq_enabled and paravirt_steal_enabled use raw static_key=0A=
+APIs which are now deprecated. Use the new API instead.=0A=
+=0A=
+No functional change.=0A=
+=0A=
+Signed-off-by: Hongyan Xia <hongyan.xia@transsion.com>=0A=
+Acked-by: Juergen Gross <jgross@suse.com>=0A=
+---=0A=
+Changed in RESEND:=0A=
+- Separate the original series into individual patches. They aren't easy=0A=
+  to review as a series.=0A=
+=0A=
+ arch/arm64/kernel/paravirt.c           | 4 ++--=0A=
+ arch/loongarch/kernel/paravirt.c       | 4 ++--=0A=
+ arch/powerpc/platforms/pseries/setup.c | 4 ++--=0A=
+ arch/riscv/kernel/paravirt.c           | 4 ++--=0A=
+ arch/x86/kernel/cpu/vmware.c           | 4 ++--=0A=
+ arch/x86/kernel/kvm.c                  | 4 ++--=0A=
+ drivers/xen/time.c                     | 4 ++--=0A=
+ include/linux/sched/cputime.h          | 6 +++---=0A=
+ kernel/sched/core.c                    | 4 ++--=0A=
+ kernel/sched/cputime.c                 | 4 ++--=0A=
+ 10 files changed, 21 insertions(+), 21 deletions(-)=0A=
+=0A=
+diff --git a/arch/arm64/kernel/paravirt.c b/arch/arm64/kernel/paravirt.c=0A=
+index 572efb96b23f..30bf61d031eb 100644=0A=
+--- a/arch/arm64/kernel/paravirt.c=0A=
++++ b/arch/arm64/kernel/paravirt.c=0A=
+@@ -157,9 +157,9 @@ int __init pv_time_init(void)=0A=
+ =0A=
+ 	static_call_update(pv_steal_clock, para_steal_clock);=0A=
+ =0A=
+-	static_key_slow_inc(&paravirt_steal_enabled);=0A=
++	static_branch_inc(&paravirt_steal_enabled);=0A=
+ 	if (steal_acc)=0A=
+-		static_key_slow_inc(&paravirt_steal_rq_enabled);=0A=
++		static_branch_inc(&paravirt_steal_rq_enabled);=0A=
+ =0A=
+ 	pr_info("using stolen time PV\n");=0A=
+ =0A=
+diff --git a/arch/loongarch/kernel/paravirt.c b/arch/loongarch/kernel/parav=
+irt.c=0A=
+index 10821cce554c..e8965a3f8082 100644=0A=
+--- a/arch/loongarch/kernel/paravirt.c=0A=
++++ b/arch/loongarch/kernel/paravirt.c=0A=
+@@ -308,10 +308,10 @@ int __init pv_time_init(void)=0A=
+ =0A=
+ 	static_call_update(pv_steal_clock, paravt_steal_clock);=0A=
+ =0A=
+-	static_key_slow_inc(&paravirt_steal_enabled);=0A=
++	static_branch_inc(&paravirt_steal_enabled);=0A=
+ #ifdef CONFIG_PARAVIRT_TIME_ACCOUNTING=0A=
+ 	if (steal_acc)=0A=
+-		static_key_slow_inc(&paravirt_steal_rq_enabled);=0A=
++		static_branch_inc(&paravirt_steal_rq_enabled);=0A=
+ #endif=0A=
+ =0A=
+ 	if (static_key_enabled(&virt_preempt_key))=0A=
+diff --git a/arch/powerpc/platforms/pseries/setup.c b/arch/powerpc/platform=
+s/pseries/setup.c=0A=
+index 1223dc961242..8dcbc4bb7025 100644=0A=
+--- a/arch/powerpc/platforms/pseries/setup.c=0A=
++++ b/arch/powerpc/platforms/pseries/setup.c=0A=
+@@ -852,9 +852,9 @@ static void __init pSeries_setup_arch(void)=0A=
+ 			static_branch_enable(&shared_processor);=0A=
+ 			pv_spinlocks_init();=0A=
+ #ifdef CONFIG_PARAVIRT_TIME_ACCOUNTING=0A=
+-			static_key_slow_inc(&paravirt_steal_enabled);=0A=
++			static_branch_inc(&paravirt_steal_enabled);=0A=
+ 			if (steal_acc)=0A=
+-				static_key_slow_inc(&paravirt_steal_rq_enabled);=0A=
++				static_branch_inc(&paravirt_steal_rq_enabled);=0A=
+ #endif=0A=
+ 		}=0A=
+ =0A=
+diff --git a/arch/riscv/kernel/paravirt.c b/arch/riscv/kernel/paravirt.c=0A=
+index 5f56be79cd06..9c13a6f1ea2a 100644=0A=
+--- a/arch/riscv/kernel/paravirt.c=0A=
++++ b/arch/riscv/kernel/paravirt.c=0A=
+@@ -116,9 +116,9 @@ int __init pv_time_init(void)=0A=
+ =0A=
+ 	static_call_update(pv_steal_clock, pv_time_steal_clock);=0A=
+ =0A=
+-	static_key_slow_inc(&paravirt_steal_enabled);=0A=
++	static_branch_inc(&paravirt_steal_enabled);=0A=
+ 	if (steal_acc)=0A=
+-		static_key_slow_inc(&paravirt_steal_rq_enabled);=0A=
++		static_branch_inc(&paravirt_steal_rq_enabled);=0A=
+ =0A=
+ 	pr_info("Computing paravirt steal-time\n");=0A=
+ =0A=
+diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c=0A=
+index 34b73573b108..f7ab9e7902cf 100644=0A=
+--- a/arch/x86/kernel/cpu/vmware.c=0A=
++++ b/arch/x86/kernel/cpu/vmware.c=0A=
+@@ -328,9 +328,9 @@ static int vmware_cpu_down_prepare(unsigned int cpu)=0A=
+ static __init int activate_jump_labels(void)=0A=
+ {=0A=
+ 	if (has_steal_clock) {=0A=
+-		static_key_slow_inc(&paravirt_steal_enabled);=0A=
++		static_branch_inc(&paravirt_steal_enabled);=0A=
+ 		if (steal_acc)=0A=
+-			static_key_slow_inc(&paravirt_steal_rq_enabled);=0A=
++			static_branch_inc(&paravirt_steal_rq_enabled);=0A=
+ 	}=0A=
+ =0A=
+ 	return 0;=0A=
+diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c=0A=
+index dcef84da304b..d3dcd64f22c2 100644=0A=
+--- a/arch/x86/kernel/kvm.c=0A=
++++ b/arch/x86/kernel/kvm.c=0A=
+@@ -1052,9 +1052,9 @@ const __initconst struct hypervisor_x86 x86_hyper_kvm=
+ =3D {=0A=
+ static __init int activate_jump_labels(void)=0A=
+ {=0A=
+ 	if (has_steal_clock) {=0A=
+-		static_key_slow_inc(&paravirt_steal_enabled);=0A=
++		static_branch_inc(&paravirt_steal_enabled);=0A=
+ 		if (steal_acc)=0A=
+-			static_key_slow_inc(&paravirt_steal_rq_enabled);=0A=
++			static_branch_inc(&paravirt_steal_rq_enabled);=0A=
+ 	}=0A=
+ =0A=
+ 	return 0;=0A=
+diff --git a/drivers/xen/time.c b/drivers/xen/time.c=0A=
+index a2be0a4d45b0..a02d48a2aa68 100644=0A=
+--- a/drivers/xen/time.c=0A=
++++ b/drivers/xen/time.c=0A=
+@@ -169,7 +169,7 @@ void __init xen_time_setup_guest(void)=0A=
+ =0A=
+ 	static_call_update(pv_steal_clock, xen_steal_clock);=0A=
+ =0A=
+-	static_key_slow_inc(&paravirt_steal_enabled);=0A=
++	static_branch_inc(&paravirt_steal_enabled);=0A=
+ 	if (xen_runstate_remote)=0A=
+-		static_key_slow_inc(&paravirt_steal_rq_enabled);=0A=
++		static_branch_inc(&paravirt_steal_rq_enabled);=0A=
+ }=0A=
+diff --git a/include/linux/sched/cputime.h b/include/linux/sched/cputime.h=
+=0A=
+index e90efaf6d26e..694126411dfe 100644=0A=
+--- a/include/linux/sched/cputime.h=0A=
++++ b/include/linux/sched/cputime.h=0A=
+@@ -182,9 +182,9 @@ extern unsigned long long=0A=
+ task_sched_runtime(struct task_struct *task);=0A=
+ =0A=
+ #ifdef CONFIG_PARAVIRT=0A=
+-struct static_key;=0A=
+-extern struct static_key paravirt_steal_enabled;=0A=
+-extern struct static_key paravirt_steal_rq_enabled;=0A=
++#include <linux/jump_label.h>=0A=
++DECLARE_STATIC_KEY_FALSE(paravirt_steal_enabled);=0A=
++DECLARE_STATIC_KEY_FALSE(paravirt_steal_rq_enabled);=0A=
+ =0A=
+ #ifdef CONFIG_HAVE_PV_STEAL_CLOCK_GEN=0A=
+ u64 dummy_steal_clock(int cpu);=0A=
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c=0A=
+index 5c07d53e43b5..84d090581a08 100644=0A=
+--- a/kernel/sched/core.c=0A=
++++ b/kernel/sched/core.c=0A=
+@@ -795,7 +795,7 @@ struct rq *_task_rq_lock(struct task_struct *p, struct =
+rq_flags *rf)=0A=
+ =0A=
+ /* Use CONFIG_PARAVIRT as this will avoid more #ifdef in arch code. */=0A=
+ #ifdef CONFIG_PARAVIRT=0A=
+-struct static_key paravirt_steal_rq_enabled;=0A=
++DEFINE_STATIC_KEY_FALSE(paravirt_steal_rq_enabled);=0A=
+ #endif=0A=
+ =0A=
+ static void update_rq_clock_task(struct rq *rq, s64 delta)=0A=
+@@ -834,7 +834,7 @@ static void update_rq_clock_task(struct rq *rq, s64 del=
+ta)=0A=
+ 	}=0A=
+ #endif=0A=
+ #ifdef CONFIG_PARAVIRT_TIME_ACCOUNTING=0A=
+-	if (static_key_false((&paravirt_steal_rq_enabled))) {=0A=
++	if (static_branch_unlikely(&paravirt_steal_rq_enabled)) {=0A=
+ 		u64 prev_steal;=0A=
+ =0A=
+ 		steal =3D prev_steal =3D paravirt_steal_clock(cpu_of(rq));=0A=
+diff --git a/kernel/sched/cputime.c b/kernel/sched/cputime.c=0A=
+index 06bddaa738e5..f16970ca81d0 100644=0A=
+--- a/kernel/sched/cputime.c=0A=
++++ b/kernel/sched/cputime.c=0A=
+@@ -255,7 +255,7 @@ void __account_forceidle_time(struct task_struct *p, u6=
+4 delta)=0A=
+  * occasion account more time than the calling functions think elapsed.=0A=
+  */=0A=
+ #ifdef CONFIG_PARAVIRT=0A=
+-struct static_key paravirt_steal_enabled;=0A=
++DEFINE_STATIC_KEY_FALSE(paravirt_steal_enabled);=0A=
+ =0A=
+ #ifdef CONFIG_HAVE_PV_STEAL_CLOCK_GEN=0A=
+ static u64 native_steal_clock(int cpu)=0A=
+@@ -270,7 +270,7 @@ DEFINE_STATIC_CALL(pv_steal_clock, native_steal_clock);=
+=0A=
+ static __always_inline u64 steal_account_process_time(u64 maxtime)=0A=
+ {=0A=
+ #ifdef CONFIG_PARAVIRT=0A=
+-	if (static_key_false(&paravirt_steal_enabled)) {=0A=
++	if (static_branch_unlikely(&paravirt_steal_enabled)) {=0A=
+ 		u64 steal;=0A=
+ =0A=
+ 		steal =3D paravirt_steal_clock(smp_processor_id());=0A=
+-- =0A=
+2.47.3=0A=
+=0A=
