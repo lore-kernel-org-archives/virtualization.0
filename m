@@ -1,215 +1,227 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A406F306779
-	for <virtualization@lists.linux.dev>; Wed, 19 Aug 2026 06:17:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 892883F86F0
+	for <virtualization@lists.linux.dev>; Wed, 19 Aug 2026 08:09:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787120276; cv=none; b=W+DVABTJhaUW6PIqw1871RJPvf1glAh3x/aCawpJrM8sCtvUwScMSlknjfMsJr+goybLJZTBD1eZUDGFkax8RH81W4XfOdd7CH1gsYAXgzy0qOOXYoR72lRufENiOp9Oyf7Ts7UZr6k2JHERH/hkg1STS0T4osPG+yKulwEnkvc=
+	t=1787126957; cv=none; b=PvQjBBmTE31JxCf1ZpM1ixBlkipaLFjkllqEYPjQbzKLJAIRN5CYaNWhww6yxDcaXmHvDwfSPNPUOgQDjJJbE96EQ01rE9hrU+mI24iWVh9SAp1vq4rqMO3RN7u15tC1GxrGc3cVgisWtnojcE390lu/jlLMBc7fvSi/+MrJ520=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787120276; c=relaxed/simple;
-	bh=3EajQNbjuEt3B0aP/HWXhloydBrWAMv9GoLKHiDXcSw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=bIYuHXmoVNFzJrkOEjTioIIXU/V9ME96OKxBQkLZ+axDs6aBX6CdLnpsr/z8Org/uWXWn+f8BqAHVykYdFo6Egtaw2M5bAfokI4O4SVyv+TL/q8ROUEuWRaadefuMO7SdT3P7EzOfSRk3ksLB+lAv5PwhjhMwv1IzdJZFsZOqL4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=dO720plT; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=3Q9NN6B3; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=L8HnCUTS; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=eaPdP7nU; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1787126957; c=relaxed/simple;
+	bh=j+gVWaBheHtgcMbGe74/jYIUWmpVeo4REI3joDdZInY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=CFGEksv0P8UbuLw6DaLm/q60y1AaGkm4khb/3LXL1mtg9ZmijWuI4AIqR/JiuIz3M/xR8KKFAQbz2QbTs2Mq23rju1iZ3ZfwSzFG2soByBBo8inBl5gB5wiaeRVr8A9tO86DBupEPRaxrB6QxqmH2/0KlWR9oTkM4xx7ZjIoOSg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FVBJTL3c; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="dO720plT";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="3Q9NN6B3";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="L8HnCUTS";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="eaPdP7nU"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 168B33E69;
-	Wed, 19 Aug 2026 06:16:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1787120204; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=c/AzOS9nYCn1gKcDW+iR9M86QEqFfEOWGqdTZE1/Q8A=;
-	b=dO720plTJcEcHC+arFs6mB/9g8FDyt9rYEInkQG8s2VxFn+S+3tlBdg/z0/AE76kVegV/J
-	po0cwcLIJ0eVH1dO9hOcYHWbGx/nXdmjU0jchzVB/Ap9d4oLj2BeJMXDhXaD1gW3tzAHoa
-	VMq/ekbE9a8qAKfFTXWZ3jSUpCcnGBI=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1787120204;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=c/AzOS9nYCn1gKcDW+iR9M86QEqFfEOWGqdTZE1/Q8A=;
-	b=3Q9NN6B3P//DA/0r1qISw0CBzYxq34c3kFnAVy/gpQSWIUSsUBzu81MGBqHvUkojiRlIT4
-	IvkPnljiLo7vL3CA==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=L8HnCUTS;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=eaPdP7nU
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1787120200; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=c/AzOS9nYCn1gKcDW+iR9M86QEqFfEOWGqdTZE1/Q8A=;
-	b=L8HnCUTSvXwz89JqoFEUVGXfyBa/oJZAT7BC7J3w1uwidMcKF4OuijNQdTHOe7KdU9uEgh
-	5FjLcKdQXjz0iGVcE0TMronQ79HDZTovL3ne4XDVb7NDRzvZyTBD8D37rgnErtXW0X/CoY
-	vMYe1wsMsZ1pQJYvLMtEzC1qL6dpgqk=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1787120200;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=c/AzOS9nYCn1gKcDW+iR9M86QEqFfEOWGqdTZE1/Q8A=;
-	b=eaPdP7nUjcgGMN2xiwEPnkNBTlV45RYeLfigA5z8I3ZRnJMisCHgbu0N+Luewac2zV75sO
-	rnXH4UsE7FZEdMAg==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 960AA2F81;
-	Wed, 19 Aug 2026 06:16:39 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id B2BRI0dKhWpUcwAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Wed, 19 Aug 2026 06:16:39 +0000
-Message-ID: <614bdf7b-031d-444b-a30c-132daa55ce3e@suse.de>
-Date: Wed, 19 Aug 2026 08:16:39 +0200
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FVBJTL3c"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1787126954;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=nxIGNpX1bEb8ZoU7IALqEmofFiDxquDbYKReTWVCnAw=;
+	b=FVBJTL3csZWvfO7fUFs3z0+Co2ydTF7OBCJZ0ocEZLtZ0bfFpOHRU7vqW2XcMQCSM+WK5n
+	B/x4bdtsrhDQVjvTJyEH4ZElLXykdY/euG4vGsl/GqBZTLYtZ1D78bSmHPyf3xfeWfEBKm
+	Zu0T6wfVJY4P/pIZVm8+mZwvXVJOwwM=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-213-1eQ4ryF1PTybWorDlV-MYg-1; Wed, 19 Aug 2026 04:09:07 -0400
+X-MC-Unique: 1eQ4ryF1PTybWorDlV-MYg-1
+X-Mimecast-MFC-AGG-ID: 1eQ4ryF1PTybWorDlV-MYg_1787126946
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4954c2d4081so6451665e9.2
+        for <virtualization@lists.linux.dev>; Wed, 19 Aug 2026 01:09:07 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787126946; x=1787731746;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=nxIGNpX1bEb8ZoU7IALqEmofFiDxquDbYKReTWVCnAw=;
+        b=CIfjaAAmkwoHket/IahvDV6NM3sv5qbM/ltaYgCVz6I5V1RX2niAUCGXLFSPnogMyY
+         wbnnAa7Q1xCDOmWWdLvBp8+zZ0MzTp6fhfwg1hbjjMBDLkj79DnidqMrtnLiZcDMKQMp
+         l1RQw3Bv3BqYjbZlLlZXyvp4hgJr1c4Z/xgwEGeTN9/Zu/G89lCm0yKJtAC0Vg/h8j/A
+         j1PHACzfjYsJ5y+5UwwaKSZs8l1IIPa6J3od7yMthdN5ycFLSWjvHVeTHKZhPmtMN8cc
+         KE+sfsmqycT++76NdWN4T0yIh/uek7Ozsm9BLAa9nWQGvkKjeKTcU7ONqg3Hz5OBAF47
+         +O5w==
+X-Forwarded-Encrypted: i=1; AHgh+RqMCPzG9avuqqQ457uX/kkRFi3adrRGe+SSA4mwMLHIh9uFZZNOeOPsbKiC5OqFRClEvKru/dUr8VdtFlpGCw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyRatXJXAAU8ipWyjAcEVbY0JXkk6Clm3rl1/j4Exq5ieGz7wbI
+	8/aw55iHSVjVt6R2EhgYY3VuwBA6mBbiiFZIlxoBAVwalM3wNi8buZhz2qiMhwFWiA0KOkgRroG
+	XVrNjjR5eI7/f3y3gQX1Y7z1FChRi8fDWExYDLzp4qEwZ7fE9xaLtS61VwzgbHfAydjDN
+X-Gm-Gg: AR+sD12hB5ObIptFX1WmWhBuaGsYHBMHux3a8GpBbNUpKqXlrIrBk1GcFtsDz31woYS
+	gDz50XXlkZQoJs4h2kZmm6C2QWNxJ7D+b20q5eN6AvtnjJ7U0EwUwLMsFbLouBdIzozFYRCyoAO
+	fXaBOAVz/y1853Z0IIjwVzzSIVmMIIPspywen6XxXGsltROGBQwP0FbtJMMda0TDc+DIQbhfPyB
+	1lGnFnZ0QGzf5Z5zJlC/y3TetMlty2A3KuKYIKRKsWrR+Ebur3ojf3cxUAtbusgQgGNSOOP5ZKc
+	rJfe+MOlc/9UE//yOaq5jy2LHbHZGEKHDgLiCZgnmdFyo9Qdao1u91pexGkQSxLibUZ8/R+HqCI
+	XEWdD1ljxtKldGoA1D1W6lB67e0NtfQ0Fk3clqXnwctgb2I7J2kgZ
+X-Received: by 2002:a05:600c:a42:b0:499:484a:98e7 with SMTP id 5b1f17b1804b1-499aa1ef085mr46678825e9.14.1787126946065;
+        Wed, 19 Aug 2026 01:09:06 -0700 (PDT)
+X-Received: by 2002:a05:600c:a42:b0:499:484a:98e7 with SMTP id 5b1f17b1804b1-499aa1ef085mr46677575e9.14.1787126945570;
+        Wed, 19 Aug 2026 01:09:05 -0700 (PDT)
+Received: from sgarzare-redhat (host-82-53-135-154.retail.telecomitalia.it. [82.53.135.154])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-499a9e00bddsm36778675e9.3.2026.08.19.01.09.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 19 Aug 2026 01:09:05 -0700 (PDT)
+Date: Wed, 19 Aug 2026 10:08:59 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Jia Jia <physicalmtea@gmail.com>
+Cc: mst@redhat.com, jasowangio@gmail.com, eperezma@redhat.com, 
+	stefanha@redhat.com, weiyj.lk@gmail.com, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v6 1/3] vhost: invalidate vring access on IOTLB
+ transitions
+Message-ID: <aoVkRe_BN6L_5XZn@sgarzare-redhat>
+References: <20260818042613.281125-1-physicalmtea@gmail.com>
+ <20260818042613.281125-2-physicalmtea@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 11/12] drm/panic: Move panic display code into helper
- library
-To: Randy Dunlap <rdunlap@infradead.org>, jfalempe@redhat.com,
- javierm@redhat.com, airlied@gmail.com, simona@ffwll.ch,
- maarten.lankhorst@linux.intel.com, mripard@kernel.org
-Cc: dri-devel@lists.freedesktop.org, linux-doc@vger.kernel.org,
- amd-gfx@lists.freedesktop.org, rust-for-linux@vger.kernel.org,
- linux-hyperv@vger.kernel.org, intel-gfx@lists.freedesktop.org,
- intel-xe@lists.freedesktop.org, imx@lists.linux.dev,
- linux-arm-kernel@lists.infradead.org, nouveau@lists.freedesktop.org,
- linux-renesas-soc@vger.kernel.org, virtualization@lists.linux.dev,
- sashiko-reviews@lists.linux.dev
-References: <20260818125012.468092-1-tzimmermann@suse.de>
- <20260818125012.468092-12-tzimmermann@suse.de>
- <916c4bd5-c73f-466e-8e9b-aee9d4d7d742@infradead.org>
-Content-Language: en-US
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <916c4bd5-c73f-466e-8e9b-aee9d4d7d742@infradead.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spamd-Result: default: False [-4.50 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.19)[-0.973];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FREEMAIL_TO(0.00)[infradead.org,redhat.com,gmail.com,ffwll.ch,linux.intel.com,kernel.org];
-	MIME_TRACE(0.00)[0:+];
-	ARC_NA(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[20];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_TRACE(0.00)[suse.de:+];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	MID_RHS_MATCH_FROM(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:url,suse.de:mid,suse.de:dkim,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo]
-X-Spam-Flag: NO
-X-Spam-Score: -4.50
-X-Spam-Level: 
-X-Rspamd-Queue-Id: 168B33E69
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Rspamd-Action: no action
+In-Reply-To: <20260818042613.281125-2-physicalmtea@gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: Rt8700STkabJzLWaaNUgXrgMYoFLczulLvOoe9fa_sw_1787126946
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-Hi
-
-Am 18.08.26 um 17:55 schrieb Randy Dunlap:
-> Hi,
+On Tue, Aug 18, 2026 at 12:26:11PM +0800, Jia Jia wrote:
+>When ACCESS_PLATFORM changes, the addresses cached in desc, avail, and
+>used change meaning with the address space. Clear the cached vring access
+>state when the device IOTLB is installed or removed so stale IOVAs cannot
+>be reused as direct userspace addresses.
 >
-> On 8/18/26 5:28 AM, Thomas Zimmermann wrote:
->>   M:	Hans de Goede <hansg@kernel.org>
->> diff --git a/drivers/gpu/drm/Kconfig b/drivers/gpu/drm/Kconfig
->> index 323422861e8f..cdfd72d9a9c5 100644
->> --- a/drivers/gpu/drm/Kconfig
->> +++ b/drivers/gpu/drm/Kconfig
->> @@ -45,6 +45,7 @@ config DRM_MIPI_DSI
->>   config DRM_KMS_HELPER
->>   	tristate
->>   	depends on DRM
->> +	select DRM_PANIC_HELPER if DRM_PANIC
-> but DRM_PANIC_HELPER depends on DRM_TTM so
-> DRM_KMS_HELPER should also depend on DRM_TTM. Otherwise:
+>Keep device IOTLB initialization idempotent and apply the mode change even
+>when a virtqueue backend is attached. Drop the device-wide IOTLB first,
+>then clear each VQ state under its own mutex, and keep the old table alive
+>until every VQ has completed the handoff.
+>
+>A successful live mode change leaves the backend attached but invalidates
+>the cached vring addresses. Userspace must configure the vring addresses
+>for the new address mode before data processing can resume.
+>
+>Fixes: 6b1e6cc7855b ("vhost: new device IOTLB API")
+>
 
-Oops, how did that creep in?  There's no TTM dependency. This Kconfig 
-change appears to be a copy-paste accident. Thanks for noting.
+Please don't leave spaces here!
 
-Best regards
-Thomas
+>Signed-off-by: Jia Jia <physicalmtea@gmail.com>
+>---
+> drivers/vhost/vhost.c | 53 ++++++++++++++++++++++++++++++++++++++++++-
+> drivers/vhost/vhost.h |  1 +
+> 2 files changed, 53 insertions(+), 1 deletion(-)
+
+
+This patch doesn't apply, I tried vhost tree, net tree, and master.
+On which tree is this based?
+
+Stefano
 
 >
-> WARNING: unmet direct dependencies detected for DRM_PANIC_HELPER
->    Depends on [n]: HAS_IOMEM [=y] && DRM [=y] && DRM_TTM [=n]
->    Selected by [y]:
->    - DRM_KMS_HELPER [=y] && HAS_IOMEM [=y] && DRM [=y] && DRM_PANIC [=y]
+>diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+>index 4c525b3e16ea..9f74537b1c1c 100644
+>--- a/drivers/vhost/vhost.c
+>+++ b/drivers/vhost/vhost.c
+>@@ -344,6 +344,17 @@ static void __vhost_vq_meta_reset(struct vhost_virtqueue *vq)
+> 		vq->meta_iotlb[j] = NULL;
+> }
 >
+>+/* Caller must hold the virtqueue mutex. */
+>+static void vhost_vq_invalidate_access(struct vhost_virtqueue *vq)
+>+{
+>+	vq->desc = NULL;
+>+	vq->avail = NULL;
+>+	vq->used = NULL;
+>+	vq->log_used = false;
+>+	vq->log_addr = -1ull;
+>+	__vhost_vq_meta_reset(vq);
+>+}
+>+
+> static void vhost_vq_meta_reset(struct vhost_dev *d)
+> {
+> 	int i;
+>@@ -1911,6 +1922,9 @@ int vq_meta_prefetch(struct vhost_virtqueue *vq)
+> {
+> 	unsigned int num = vq->num;
 >
->>   	select FB_CORE if DRM_FBDEV_EMULATION
->>   	help
->>   	  CRTC helpers for KMS drivers.
->> @@ -130,6 +131,10 @@ config DRM_PANIC_SCREEN_QR_VERSION
->>   	  Smaller QR code are easier to read, but will contain less debugging
->>   	  data. Default is 40.
->>   
->> +config DRM_PANIC_HELPER
->> +	bool
->> +	depends on DRM_TTM
->> +
->>   config DRM_RAS
->>   	bool "DRM RAS support"
->>   	depends on DRM
-
--- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
-GF: Jochen Jaser, Andrew McDonald, (HRB 36809, AG Nürnberg)
-
+>+	if (!vq->desc || !vq->avail || !vq->used)
+>+		return 0;
+>+
+> 	if (!vq->iotlb)
+> 		return 1;
+>
+>@@ -2270,11 +2284,48 @@ long vhost_vring_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *arg
+> }
+> EXPORT_SYMBOL_GPL(vhost_vring_ioctl);
+>
+>+/* Caller must hold the device mutex. */
+>+void vhost_clear_device_iotlb(struct vhost_dev *d)
+>+{
+>+	struct vhost_iotlb *iotlb;
+>+	int i;
+>+
+>+	iotlb = d->iotlb;
+>+	if (!iotlb)
+>+		return;
+>+
+>+	/*
+>+	 * Drop the device-wide view first.  Each VQ then drops its
+>+	 * per-VQ view and its cached ring access under its own mutex.
+>+	 * Keep the old table alive until every VQ has completed this
+>+	 * handoff, since a worker may still be using it while waiting
+>+	 * for its VQ mutex.
+>+	 */
+>+	d->iotlb = NULL;
+>+
+>+	for (i = 0; i < d->nvqs; ++i) {
+>+		struct vhost_virtqueue *vq = d->vqs[i];
+>+
+>+		mutex_lock(&vq->mutex);
+>+		vq->iotlb = NULL;
+>+		vhost_vq_invalidate_access(vq);
+>+		mutex_unlock(&vq->mutex);
+>+	}
+>+
+>+	vhost_clear_msg(d);
+>+	vhost_iotlb_free(iotlb);
+>+	wake_up_interruptible_poll(&d->wait, EPOLLIN | EPOLLRDNORM);
+>+}
+>+EXPORT_SYMBOL_GPL(vhost_clear_device_iotlb);
+>+
+> int vhost_init_device_iotlb(struct vhost_dev *d)
+> {
+> 	struct vhost_iotlb *niotlb, *oiotlb;
+> 	int i;
+>
+>+	if (d->iotlb)
+>+		return 0;
+>+
+> 	niotlb = iotlb_alloc();
+> 	if (!niotlb)
+> 		return -ENOMEM;
+>@@ -2287,7 +2338,7 @@ int vhost_init_device_iotlb(struct vhost_dev *d)
+>
+> 		mutex_lock(&vq->mutex);
+> 		vq->iotlb = niotlb;
+>-		__vhost_vq_meta_reset(vq);
+>+		vhost_vq_invalidate_access(vq);
+> 		mutex_unlock(&vq->mutex);
+> 	}
+>
+>diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+>index 0192ade6e749..3c75e8089373 100644
+>--- a/drivers/vhost/vhost.h
+>+++ b/drivers/vhost/vhost.h
+>@@ -277,6 +277,7 @@ ssize_t vhost_chr_read_iter(struct vhost_dev *dev, struct iov_iter *to,
+> 			    int noblock);
+> ssize_t vhost_chr_write_iter(struct vhost_dev *dev,
+> 			     struct iov_iter *from);
+>+void vhost_clear_device_iotlb(struct vhost_dev *d);
+> int vhost_init_device_iotlb(struct vhost_dev *d);
+>
+> void vhost_iotlb_map_free(struct vhost_iotlb *iotlb,
+>
 
