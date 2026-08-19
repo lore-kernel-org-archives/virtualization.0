@@ -1,136 +1,282 @@
-Received: from mail-pf1-f197.google.com (mail-pf1-f197.google.com [209.85.210.197])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5317344AB80
-	for <virtualization@lists.linux.dev>; Wed, 19 Aug 2026 15:33:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.197
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82C9B48A2B1
+	for <virtualization@lists.linux-foundation.org>; Wed, 19 Aug 2026 16:46:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787153630; cv=none; b=TY94TSYoVf7w5vJuvDzgd4vgjsI2yf1y/BrVTWgEf+Yq6rfLb1xqI9rxPnPvWm0FTG2qimMJ5XgwcxQkzlso5uQlp7C0QLPqFC1vH3o5YP9VwTDY0YAYA2DAH+1+PgcoJETJDmWfn/lWTCQny2KfexzcltD9Y7WMtNy0jAhjOhI=
+	t=1787157977; cv=none; b=VY6FYyXC3g60NryzBIHPoKzB3fDaHoHkY1sdbAEQs2jucwmsxLvxxuVgohgLU6+sQWYaXFYAZ4kdKvpuncY9mq7fGPuZbnhagtJTVH68nV5A3SRsjERwzaoJ1QvdnUMTNAw7N1dng+GkDtVq5OxHQzSgZHoafvjvZ0GONsOMsKE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787153630; c=relaxed/simple;
-	bh=4Yli6tecyJEHplZwFU9XXAL6o7x1WGOP/NVWujBjOgo=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=M3wTxSYzZHrmoB2J1o6uwLim10g/11FuoO1VbqLJtdIGlqpvKWKA5DMJ29NftS9Il/jQy1AsGgYt/xwxnj57cd2nPQlhq0Uq466NTHFR1D8c3iH2+nm1qJlSnixJD05WF+sOVXAj8U8C0wAN05wCjaycXN/FA/8B9dM7BjqExXc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=pSNWrHaj; arc=none smtp.client-ip=209.85.210.197
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+	s=arc-20240116; t=1787157977; c=relaxed/simple;
+	bh=IdAftmlo+mRu7lXc9MDZJxVDs0JaB7Zc6ukdt6z39t0=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=VjqRxcUARbcsdREsI5S+ePt7ZyISThc2oHo8OUMTyjqHkRE19Az0OU+fKyfR4sXLZqGBgjxhVrTI3JlrgmoxJ+wCMydwzz1qVYONXlGtDgAKyLv0cRefeoMlt1MD6ROutxQiSDUBsp+vZFdmlb/5qaUHglmhKWYQpJ+yyr7hxwg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gfB18EyU; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gfB18EyU; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="pSNWrHaj"
-Received: by mail-pf1-f197.google.com with SMTP id d2e1a72fcca58-84c4cd31b51so15770b3a.0
-        for <virtualization@lists.linux.dev>; Wed, 19 Aug 2026 08:33:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1787153627; x=1787758427; darn=lists.linux.dev;
-        h=content-type:cc:to:from:subject:message-id:references:mime-version
-         :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=c2FvzDQHxVaueg4hvKJpjDuB27Njlxwegg3SIxYd2Fg=;
-        b=pSNWrHajIOnaltErP12ZQp5a+h/iqSqPKCMLDesfgcIdD0c5MP0g6AYQJ5D79fWLUU
-         PvNII4Z6QlOTUNepXghAlIqtsXcGvh/x340wjql1QrKljGNgUFrfP9oKTsALq/Vdo8qt
-         rQyXKqbDQLNZNGAig05SIfZprzpT62IC3KocSMBMFe5lrRi9y6921GGVQo14KC/lI7G9
-         XhgffkCzuZoS5Q2Kc+Y8tCxfh16jps4G5XBWk79jmyXoXfdJU/UmWcpxGdjEsnULkV1E
-         j+06mvqaNnXstr/Qvs6gRVs0vMbRqrpVG2VGAU8dDTpU7w9882ZFZg6pos6fiVF06E4s
-         KbNA==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gfB18EyU";
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gfB18EyU"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 34E3F605FC
+	for <virtualization@lists.linux-foundation.org>; Wed, 19 Aug 2026 16:46:16 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.792
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id Cg27mT9pu1An for <virtualization@lists.linux-foundation.org>;
+ Wed, 19 Aug 2026 16:46:15 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gfB18EyU;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gfB18EyU
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 135B8605D9
+	for <virtualization@lists.linux-foundation.org>; Wed, 19 Aug 2026 16:46:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1787157972;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=kKB6a7tb48I7KIcMKOrkf8BWQaXL7teAC4Q0HqgLOxc=;
+	b=gfB18EyUZLLRMIV2jgW8UkzvE6/kh32h/8cbeKeZmoEBIg97LR7g+GmUEdrvzdzBy6tLLT
+	aXF1rio7ISzhdvbDKX43uK2TaMYiwfO8jw9+5iRpgrVOIfdIbru69MyV5mLW3yifpLSdRX
+	pAqZKgyobGsE0R5WmOTPl3HUKvgyh0c=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1787157972;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=kKB6a7tb48I7KIcMKOrkf8BWQaXL7teAC4Q0HqgLOxc=;
+	b=gfB18EyUZLLRMIV2jgW8UkzvE6/kh32h/8cbeKeZmoEBIg97LR7g+GmUEdrvzdzBy6tLLT
+	aXF1rio7ISzhdvbDKX43uK2TaMYiwfO8jw9+5iRpgrVOIfdIbru69MyV5mLW3yifpLSdRX
+	pAqZKgyobGsE0R5WmOTPl3HUKvgyh0c=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-98-tnLatDmDN8q9QdRsioCLpA-1; Wed, 19 Aug 2026 12:46:10 -0400
+X-MC-Unique: tnLatDmDN8q9QdRsioCLpA-1
+X-Mimecast-MFC-AGG-ID: tnLatDmDN8q9QdRsioCLpA_1787157969
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-481514be433so534822f8f.2
+        for <virtualization@lists.linux-foundation.org>; Wed, 19 Aug 2026 09:46:09 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787153627; x=1787758427;
-        h=content-type:cc:to:from:subject:message-id:references:mime-version
-         :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=c2FvzDQHxVaueg4hvKJpjDuB27Njlxwegg3SIxYd2Fg=;
-        b=Ey6ZHkL5CUV7V9NUV7PrWZ2ISjkHeF3HpANg2a40MyZ39ldy2ZrU48U8w+PWsdspLl
-         HE9LaNJmE/iVqql52OnIPV9WI49EjCj79lbUqjpf0hSq6jRFJoMYIba26A3l3uIBwTYX
-         PQBKL03YsPnlWxWPI/UFxS+sq2E5iRLVj+lrtPVdRa26foIdBHoS7weJdzwRUXD5Q5CW
-         /CKDm04NIM9J5KE2T/aJ0dD3268tHJo2mWG7R17RgvGvMuSA/QoVihkhyvc98+KgnB6l
-         tjKbXDXxseIbLXMRtwDTysUaBsxzTgOhQi7bWsV+KEYlFBuxq50/+X+Rak7ODf7BiJrw
-         X2bw==
-X-Forwarded-Encrypted: i=1; AHgh+RrVMsTiZxZDl7cv25c8sDqd9ABoOS9XkBeJB+MQhHqoATl03pg8oGkloR5vY/j2YMtAcFCXbpdcEgvrRB2tVw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw593+TmtEniWMJh7WU0Tar+go2Jax0mneI0bTWlkQNvpJuCHmN
-	NZLQT2RCx5qkH6mOcMJxwZwpxxwGaFHIMAW9ghInZuzGByDd8P7B7C6rxKrkwfI0sIVHgXtuEAi
-	O3a7/vw==
-X-Received: from pfoo3.prod.google.com ([2002:a05:6a00:1a03:b0:84f:df8f:5a90])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a00:2913:b0:84b:9a69:156d
- with SMTP id d2e1a72fcca58-851df6dc419mr109732b3a.0.1787153626373; Wed, 19
- Aug 2026 08:33:46 -0700 (PDT)
-Date: Wed, 19 Aug 2026 08:33:45 -0700
-In-Reply-To: <bd9e5b6e-07f2-459d-bca6-e290585060aa@intel.com>
+        d=1e100.net; s=20251104; t=1787157969; x=1787762769;
+        h=content-transfer-encoding:content-disposition:content-type
+         :mime-version:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=kKB6a7tb48I7KIcMKOrkf8BWQaXL7teAC4Q0HqgLOxc=;
+        b=ewR96mqNiiW+71BpFd6KgvicwPqiXRz1K2tRdDBMrSkHBybnlBxwYkZBc0MuERNuPQ
+         VntggLCzY/Az8R3lKXTe0ezUGq7EE+DEeA57bdySsdyMwBs0e1I808oMrU0EmRzQY0lv
+         wNpKo8PMvnjpXXT92mbXNwWW5BVrFtCIS9cS+Vqvpv0MakEk2W/AkycTyOgbYSyJ+wkw
+         CzYxlAoJlT1sNNbyUlaLsBtRtmo3V5f7OmM736w8q7bUDGg61iYZL7+BBTWYpL+yx0wc
+         BDhsHfHfwW45fWIFE6OqiDvrSe618s9vdWLQ6gU80kACyG3JDVznUx4lF9SJR9kNPcOf
+         r8NQ==
+X-Forwarded-Encrypted: i=1; AHgh+RqrhaWMnbfXUDPMHCKCsaYP/xKIUPskGI2aXP9moIv+xBO16MT7goWFHLWMaqHRMV6Q1Spdke9oWyb9u0BDVw==@lists.linux-foundation.org
+X-Gm-Message-State: AFuF++kd/jfqBpJ3E9+Kc7eaHcDLZITkJdUORJdiJPXMoy13KN+Zqhrm
+	YqQC3BQqU88DlhHxOAsAt5/U7lBXYLUQtfMk7mCN80zczagA6wo05FFWmrVGSA9HwV93TW7YiVH
+	iIaAcXL6GGF9/zOLUpBZUv+CPFq7BB2zjhsmaO29CNIGVTpkL9j78r+tW/WwyFxfjuS0QVyV1RZ
+	jdxcSZR6g=
+X-Gm-Gg: AR+sD138d8m0df7E64Iazi7PWmnA4zE6mmtTUfGLQBEkHWmR6Vfkd3h+TrPK/VY1z5V
+	bl30YY4r9ltelOJfkbbtZJ8p8V+TTKy5yLv7QHo6AhI7e9uwXIh/DmXLFVRQ+gb/ZjYN7nx2n3p
+	0WB9wIwtAimZSAPZ3VBozEDeBOQ8IBRs0H9pEWoLfEdHG7VUqefnqKcMaXNCLjxt5eMlPVVCeQw
+	5LXXDp82lVcjlDCG/z2tDrc4iKHmF0Lh2XkPr/NKCHs4eFQ289yS4U52I86+09sFVkznkJvRVoL
+	neC+KlukL4lLOVcQ5Tung4IiKgHnhC8E9XyXi7ws2lzdoj985WeepspjI4itveN13IpDpMjUDbC
+	DFedaNFmj1VDPz9fL57V7u39y
+X-Received: by 2002:a05:6000:1445:b0:47f:8b24:ef01 with SMTP id ffacd0b85a97d-482b1e837ddmr10403296f8f.1.1787157968685;
+        Wed, 19 Aug 2026 09:46:08 -0700 (PDT)
+X-Received: by 2002:a05:6000:1445:b0:47f:8b24:ef01 with SMTP id ffacd0b85a97d-482b1e837ddmr10403179f8f.1.1787157968144;
+        Wed, 19 Aug 2026 09:46:08 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-47-107.inter.net.il. [80.230.47.107])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-482b14c45f1sm6670328f8f.31.2026.08.19.09.46.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 19 Aug 2026 09:46:07 -0700 (PDT)
+Date: Wed, 19 Aug 2026 12:46:04 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+	aesteve@redhat.com, ben.dooks@codethink.co.uk,
+	chenyichong@uniontech.com, david@kernel.org, den@openvz.org,
+	eperezma@redhat.com, gsomlo@gmail.com, hexlabsecurity@proton.me,
+	linfeng.sun.dev@gamil.com, lirongqing@baidu.com, me@linux.beauty,
+	mst@redhat.com, panchuang@vivo.com, pankaj.gupta.linux@gmail.com,
+	pengpeng@iscas.ac.cn, peter.hilber@oss.qualcomm.com,
+	sgarzare@redhat.com, stable@vger.kernel.org,
+	syzbot+28e5f3d207b14bae122a@syzkaller.appspotmail.com,
+	tavip@google.com, wangyufeng@kylinos.cn, xiongweimin@kylinos.cn,
+	xiongwm2026@163.com, yangjinqian1@huawei.com, zhaoguohan@kylinos.cn
+Subject: [GIT PULL] vhost,vdpa,virtio: fixes, features
+Message-ID: <20260819124604-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <20260819102314.1499258-1-jgross@suse.com> <bd9e5b6e-07f2-459d-bca6-e290585060aa@intel.com>
-Message-ID: <aoXM2f1YTwgVj8KL@google.com>
-Subject: Re: [PATCH v2 00/13] x86/msr: Drop 32-bit MSR interfaces
-From: Sean Christopherson <seanjc@google.com>
-To: Dave Hansen <dave.hansen@intel.com>
-Cc: Juergen Gross <jgross@suse.com>, linux-kernel@vger.kernel.org, x86@kernel.org, 
-	virtualization@lists.linux.dev, linux-ide@vger.kernel.org, 
-	dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org, 
-	linux-crypto@vger.kernel.org, linux-gpio@vger.kernel.org, 
-	linux-perf-users@vger.kernel.org, linux-hyperv@vger.kernel.org, 
-	kvm@vger.kernel.org, linux-edac@vger.kernel.org, linux-pci@vger.kernel.org, 
-	linux-pm@vger.kernel.org, linux-coco@lists.linux.dev, 
-	linux-acpi@vger.kernel.org, linux-hwmon@vger.kernel.org, 
-	linux-mtd@lists.infradead.org, platform-driver-x86@vger.kernel.org, 
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>, 
-	Ajay Kaher <ajay.kaher@broadcom.com>, Alexey Makhalov <alexey.makhalov@broadcom.com>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, Damien Le Moal <dlemoal@kernel.org>, 
-	Niklas Cassel <cassel@kernel.org>, David Airlie <airlied@redhat.com>, Helge Deller <deller@gmx.de>, 
-	linux-geode@lists.infradead.org, Olivia Mackall <olivia@selenic.com>, 
-	Herbert Xu <herbert@gondor.apana.org.au>, Linus Walleij <linusw@kernel.org>, 
-	Bartosz Golaszewski <brgl@kernel.org>, Arnd Bergmann <arnd@arndb.de>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Peter Zijlstra <peterz@infradead.org>, 
-	Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>, 
-	Mark Rutland <mark.rutland@arm.com>, 
-	Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@kernel.org>, 
-	Ian Rogers <irogers@google.com>, Adrian Hunter <adrian.hunter@intel.com>, 
-	James Clark <james.clark@linaro.org>, "K. Y. Srinivasan" <kys@microsoft.com>, 
-	Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
-	Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>, 
-	Paolo Bonzini <pbonzini@redhat.com>, Josh Poimboeuf <jpoimboe@kernel.org>, 
-	Pawan Gupta <pawan.kumar.gupta@linux.intel.com>, Pu Wen <puwen@hygon.cn>, 
-	Tony Luck <tony.luck@intel.com>, Reinette Chatre <reinette.chatre@intel.com>, 
-	Dave Martin <Dave.Martin@arm.com>, James Morse <james.morse@arm.com>, 
-	Babu Moger <babu.moger@amd.com>, Tony W Wang-oc <TonyWWang-oc@zhaoxin.com>, 
-	Vitaly Kuznetsov <vkuznets@redhat.com>, Andy Lutomirski <luto@kernel.org>, 
-	Bjorn Helgaas <bhelgaas@google.com>, "Rafael J. Wysocki" <rafael@kernel.org>, Pavel Machek <pavel@kernel.org>, 
-	Kiryl Shutsemau <kas@kernel.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, 
-	Boris Ostrovsky <boris.ostrovsky@oracle.com>, Len Brown <lenb@kernel.org>, 
-	Viresh Kumar <viresh.kumar@linaro.org>, Huang Rui <ray.huang@amd.com>, 
-	Mario Limonciello <mario.limonciello@amd.com>, Perry Yuan <perry.yuan@amd.com>, 
-	K Prateek Nayak <kprateek.nayak@amd.com>, 
-	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Yazen Ghannam <yazen.ghannam@amd.com>, 
-	Guenter Roeck <linux@roeck-us.net>, Artem Bityutskiy <artem.bityutskiy@linux.intel.com>, 
-	Artem Bityutskiy <dedekind1@gmail.com>, Miquel Raynal <miquel.raynal@bootlin.com>, 
-	Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>, Ashok Raj <ashok.raj.linux@gmail.com>, 
-	Hans de Goede <hansg@kernel.org>, 
-	"Ilpo =?utf-8?B?SsOkcnZpbmVu?=" <ilpo.jarvinen@linux.intel.com>, 
-	Rajneesh Bhardwaj <irenic.rajneesh@gmail.com>, David E Box <david.e.box@intel.com>, 
-	Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>, 
-	Lukasz Luba <lukasz.luba@arm.com>, xen-devel@lists.xenproject.org
-Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+X-Mutt-Fcc: =sent
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: Z61YXf1WubhXA-jWYFoItpSpoSBcnJW9XbfQlhCmHmw_1787157969
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Wed, Aug 19, 2026, Dave Hansen wrote:
-> Hey Juergen,
-> 
-> These look great. Thanks for doing it!
-> 
-> The only wonky thing is how we're going to actually merge it. We
-> obviously can't do patches 10-11 until all the "stop using" patches have
-> been applied.
-> 
-> I obviously 100% realize that it's during the merge window, but any acks
-> that the maintainers of 5-9 provide in the next few weeks would be super
-> helpful. Or, if any of those maintainers want to cherry pick their
-> subsystem's stuff out of this series and apply it, that would be great too.
-> 
-> But, the last time we did some MSR function munging, the tip tree
-> carried most of the patches. I would expect we'll have a repeat of that
-> here too. I'll pencil in the idea of just merging the lot around -rc1 time.
+The following changes since commit 8d3ae59288f1e7d58d76558a6ee96d533bc5019f:
 
-Note, patch 12 "treewide: convert rdmsrq() from a macro to an inline function"
-is going to conflict with the KVM changes for 7.3; kvm_access_xstate_msr() is
-getting moved from x86.c to msrs.c.  Somewhat surprisingly, AFAICT that's the
-only conflict with KVM's code movement, so it's probably not strictly required
-to send a new version after the KVM pull request?
+  Linux 7.2 (2026-08-16 14:32:26 -0700)
+
+are available in the Git repository at:
+
+  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+
+for you to fetch changes up to b282418bc366194677eafd1dad180d92254586ac:
+
+  vduse: Add suspend (2026-08-19 06:38:48 -0400)
+
+----------------------------------------------------------------
+vhost,vdpa,virtio: fixes, features
+
+- transport v3 support in virtio-mmio
+- suspend support in vduse
+- fixes, cleanups all over the place
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Albert Esteve (1):
+      virtio: Add ID for virtio media
+
+Ben Dooks (1):
+      crypto: virtio - fix missing le64_to_cpu() conversions
+
+Bryam Vargas (1):
+      crypto: virtio - bound the akcipher result length
+
+Denis V. Lunev (5):
+      virtio: add virtio_device_shutdown() helper
+      virtio_balloon: factor out virtballoon_quiesce()
+      virtio_balloon: quiesce balloon work before device shutdown
+      virtio_balloon: warn on failed buffer add in tell_host()
+      virtio_balloon: warn on failed buffer add in stats_handle_request()
+
+Eugenio Pérez (6):
+      vduse: store control device pointer
+      vduse: add VDUSE_GET_FEATURES ioctl
+      vduse: add VDUSE_SET_FEATURES ioctl
+      vduse: add F_QUEUE_READY feature
+      vduse: do not take rwsem at reset work flush
+      vduse: Add suspend
+
+Gabriel Somlo (1):
+      MAINTAINERS: remove Gabriel from LiteX and fw-cfg drivers
+
+GuoHan Zhao (3):
+      virtio: rtc: time out alarm requests
+      tools/virtio: Fix userspace typo in vringh test comment
+      tools/virtio: Fix control typo in trace agent comment
+
+Jinqian Yang (1):
+      virtio_ring: fix infinite loop in virtnet_poll_cleantx when device is broken
+
+Li Chen (12):
+      nvdimm: preserve flush callback -ENOMEM
+      nvdimm: pmem: keep PREFLUSH before data writes
+      nvdimm: pmem: guard data loop for dataless bios
+      nvdimm: virtio_pmem: stop allocating child flush bio
+      nvdimm: virtio_pmem: use GFP_NOIO for flush requests
+      nvdimm: virtio_pmem: always wake -ENOSPC waiters
+      nvdimm: virtio_pmem: use READ_ONCE()/WRITE_ONCE() for wait flags
+      nvdimm: virtio_pmem: refcount requests for token lifetime
+      nvdimm: virtio_pmem: publish done with release/acquire
+      nvdimm: virtio_pmem: isolate DMA request buffers
+      nvdimm: virtio_pmem: converge broken virtqueue to -EIO
+      nvdimm: virtio_pmem: drain requests in freeze
+
+Li RongQing (5):
+      virtio_dma_buf: fix typo in kdoc comment: get_uid -> get_uuid
+      virtio_mem: fix hardcoded 'vm' variable in bbm iteration macros
+      virtio_pci: fix wrong queue index for admin vq in intx path
+      vdpa/mlx5: fix wrong list iterated in add_direct_chain error path
+      vdpa/mlx5: fix wrong MLX5_ADDR_OF struct type in alloc_inout()
+
+Linfeng Sun  (1):
+      vdpa_sim: fix cleanup after worker creation failure
+
+Michael S. Tsirkin (1):
+      virtio_balloon: disable indirect descriptors
+
+Octavian Purdila (2):
+      iov_iter: export iov_iter_restore
+      vsock/virtio: restore msg_iter on transmission failure
+
+Pan Chuang (1):
+      vdpa: Remove redundant dev_err()
+
+Pengpeng Hou (2):
+      vdpa: alibaba: add missing MODULE_DEVICE_TABLE()
+      vdpa: octeon_ep: add missing MODULE_DEVICE_TABLE()
+
+Peter Hilber (1):
+      virtio-mmio: add support for transport version 3
+
+Weimin Xiong (1):
+      vdpa/mlx5: roll back MR update after VQ setup failure
+
+Xiong Weimin (2):
+      vdpa_sim: clear pending_kick on device reset
+      vdpa_sim: hold iommu_lock across dma_unmap passthrough transition
+
+Yichong Chen (1):
+      tools/virtio: Remove unsupported --batch option from vhost_net_test
+
+Yufeng Wang (1):
+      vhost/net: fix clear_user start address in VHOST_GET_FEATURES_ARRAY
+
+xiongweimin (5):
+      vhost: fix inaccurate kdoc in iotlb helpers
+      virtio: fix article before virtio in dma-buf comment
+      vdpa/solidrun: fix typos in snet_ctrl comments
+      virtio_mem: fix typo in comment
+      vhost: reject zero-size IOTLB INVALIDATE
+
+ MAINTAINERS                                        |   2 -
+ .../crypto/virtio/virtio_crypto_akcipher_algs.c    |   6 +-
+ .../crypto/virtio/virtio_crypto_skcipher_algs.c    |   3 +-
+ drivers/nvdimm/nd_virtio.c                         | 263 ++++++++++++++++----
+ drivers/nvdimm/pmem.c                              |  53 +++--
+ drivers/nvdimm/region_devs.c                       |   5 +-
+ drivers/nvdimm/virtio_pmem.c                       |  65 ++++-
+ drivers/nvdimm/virtio_pmem.h                       |  22 +-
+ drivers/vdpa/alibaba/eni_vdpa.c                    |   1 +
+ drivers/vdpa/mlx5/core/mr.c                        |   2 +-
+ drivers/vdpa/mlx5/net/mlx5_vnet.c                  |  27 ++-
+ drivers/vdpa/octeon_ep/octep_vdpa_main.c           |   5 +-
+ drivers/vdpa/solidrun/snet_ctrl.c                  |   4 +-
+ drivers/vdpa/vdpa_sim/vdpa_sim.c                   |  29 ++-
+ drivers/vdpa/vdpa_user/vduse_dev.c                 | 265 ++++++++++++++++-----
+ drivers/vdpa/virtio_pci/vp_vdpa.c                  |  12 +-
+ drivers/vhost/iotlb.c                              |   6 +-
+ drivers/vhost/net.c                                |   3 +-
+ drivers/vhost/vhost.c                              |   4 +
+ drivers/virtio/virtio.c                            |  41 ++--
+ drivers/virtio/virtio_balloon.c                    |  51 +++-
+ drivers/virtio/virtio_dma_buf.c                    |   2 +-
+ drivers/virtio/virtio_mem.c                        |  10 +-
+ drivers/virtio/virtio_mmio.c                       |  13 +-
+ drivers/virtio/virtio_pci_common.c                 |   2 +-
+ drivers/virtio/virtio_ring.c                       |   8 +
+ drivers/virtio/virtio_rtc_driver.c                 |  14 +-
+ include/linux/libnvdimm.h                          |   9 +
+ include/linux/virtio.h                             |   1 +
+ include/linux/virtio_dma_buf.h                     |   2 +-
+ include/uapi/linux/vduse.h                         |  28 +++
+ include/uapi/linux/virtio_ids.h                    |   1 +
+ lib/iov_iter.c                                     |   1 +
+ net/vmw_vsock/virtio_transport_common.c            |  13 +
+ tools/virtio/vhost_net_test.c                      |   5 -
+ tools/virtio/virtio-trace/trace-agent-ctl.c        |   2 +-
+ tools/virtio/vringh_test.c                         |   2 +-
+ 37 files changed, 760 insertions(+), 222 deletions(-)
+
