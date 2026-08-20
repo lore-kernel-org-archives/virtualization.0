@@ -1,135 +1,207 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62DE73AE6E5;
-	Thu, 20 Aug 2026 06:06:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5F813ABD91
+	for <virtualization@lists.linux.dev>; Thu, 20 Aug 2026 06:10:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.2
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787205986; cv=none; b=gw+nKe+YV1MkTZMcldu7LRg1adatU9FscRk+hLbXkjNBKthPEE5oAOj3KYmzmXdP97hTkl9NCaXuxVkxoiJtIfBhoS34zQDBn5sAlkJzBgkFvT6MIVrDxUzieqYk9pAlla1S7lgWcxhC8Ik+szqeHGwk27yasPYO3bsK5DiMt+s=
+	t=1787206208; cv=none; b=ezY1ySLe76ZQ17DFX6W7Xdu+fbxn5WB4EjiYUVYlyZW2lX+8CEW8AnlUqcEfol8jiLv7SV+TAy6v8KGAadJQKy5jO43M8bk6wHSql9P3bIjdQ0IrqiS0jdHlsFW13rxg/7WvuFbwdg38MjBlIYqnv6qGRcQBjqVQ5MYSoXy6OCM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787205986; c=relaxed/simple;
-	bh=z7pB0ckMr2OaLmwtRf84WyK35FfiHatfdlZmGKp64pU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=kZH6EITTkhFeqOSGpXQbGY/E+y8qay6sOqnFc7nIKZCI0bjraZxn2VnpYbAyQU9OHxbxdhzq+6CuKsEmjLm7c84hfoQTJHdoMVz+Qe7ptZhK8XV78v8AJmZuUBIRAYIuHrMORhTjfNS5MstiaoelBlJaEWWmheAN3pY8JTs7oE8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=n7FFTwj8; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787206208; c=relaxed/simple;
+	bh=D8JsoveCFfmkq6V6WHhJNi0sSgdxqlQmSZgaa7HuHhU=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=pxyFphdlCuiL2uBcuuxDVrTCR/RwclQds5wpU3M4olIcWe60eZPCoNect5q4kYZn0jQaxPMzJ9Gx5TXEsu6RP9ntUbkMxTNxi17gSAH/D3UZB0NuT1xJu8zhP7xWoHCgdQUw3AHNekiQQ7a05gYY8EWQYN9mr5p4pex7pKVQNbA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=C62NVFla; arc=none smtp.client-ip=220.197.31.2
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="n7FFTwj8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 106F71F000E9;
-	Thu, 20 Aug 2026 06:06:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787205985;
-	bh=8Ul4LcNKNGu0Z584PICkjX7+P+obMk+pMAEdlAEtBLc=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=n7FFTwj85oHM8+Z0bncLFNY9/eW5UxEc3LeFSPwVmM/J0yU3NCrZjNz2zCIEYZwLE
-	 VkUDYV1ptH6tax/0F1oXiJjDiE4SC7hgcWjk/xP+EHEssecT4QfZMP4aTD2PVsDkB/
-	 PHZc88roAXGNSFiQUibZJ0cNvxEnz09z/agN4p5AbkwKKXMWc8TIrdxjcPbruKZSKu
-	 3OPsCjNo23WGFwZ6ajg3ye5CpkwpwGndpwB3CJOPi5MYLZRxkxBpTyt0laVyIVRSIA
-	 t9R0jcmDR/EPUk7IXvEelvCevQFSUrNEUzW4iSTQEsCRum1JwmrzWQUfF/uSY/YiLe
-	 LHO1ski2SQNRg==
-Message-ID: <21d31639-4d16-4ee2-8ff3-18877636aa8b@kernel.org>
-Date: Thu, 20 Aug 2026 15:06:10 +0900
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="C62NVFla"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=Jr
+	KnqmADX2MjYmF62UtCRDfcnhlu2NLZiiiAU3Z5Xho=; b=C62NVFlaK62pGD//Aq
+	Y7gStfie4z2KvixR1lES9AF5uaJdvrCp5FF61cVRr9sdsaTThm1qA3nHhGwyW6sN
+	OQW+ngfekCKNrCg2Z1qL/OZk95mQorPt7O7K3cwvgvAMfDjt1UIMY6LP7N8o226K
+	CvBp9/FCfxXp6EKfUGvlNPoYM=
+Received: from localhost.localdomain (unknown [])
+	by gzsmtp5 (Coremail) with SMTP id QCgvCgDHCxwamoZq66_pNA--.10850S2;
+	Thu, 20 Aug 2026 14:09:31 +0800 (CST)
+From: Longjun Tang <lange_tang@163.com>
+To: mst@redhat.com,
+	kuba@kernel.org,
+	jasowangio@gmail.com
+Cc: xuanzhuo@linux.alibaba.com,
+	virtualization@lists.linux.dev,
+	netdev@vger.kernel.org,
+	tanglongjun@kylinos.cn,
+	lange_tang@163.com
+Subject: [PATCH v2] virtio_net: add rx-alloc-fail counter
+Date: Thu, 20 Aug 2026 14:09:29 +0800
+Message-Id: <20260820060929.69576-1-lange_tang@163.com>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 12/13] treewide: convert rdmsrq() from a macro to an
- inline function
-To: Juergen Gross <jgross@suse.com>, linux-kernel@vger.kernel.org,
- x86@kernel.org, linux-perf-users@vger.kernel.org,
- linux-hyperv@vger.kernel.org, kvm@vger.kernel.org,
- virtualization@lists.linux.dev, linux-edac@vger.kernel.org,
- linux-pci@vger.kernel.org, linux-pm@vger.kernel.org,
- linux-coco@lists.linux.dev, linux-acpi@vger.kernel.org,
- linux-ide@vger.kernel.org, dri-devel@lists.freedesktop.org,
- linux-crypto@vger.kernel.org, linux-gpio@vger.kernel.org,
- linux-hwmon@vger.kernel.org, linux-mtd@lists.infradead.org,
- platform-driver-x86@vger.kernel.org, linux-fbdev@vger.kernel.org
-Cc: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- "H. Peter Anvin" <hpa@zytor.com>, Peter Zijlstra <peterz@infradead.org>,
- Arnaldo Carvalho de Melo <acme@kernel.org>,
- Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
- Alexander Shishkin <alexander.shishkin@linux.intel.com>,
- Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
- Adrian Hunter <adrian.hunter@intel.com>, James Clark
- <james.clark@linaro.org>, "K. Y. Srinivasan" <kys@microsoft.com>,
- Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
- Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>,
- Sean Christopherson <seanjc@google.com>, Paolo Bonzini
- <pbonzini@redhat.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
- Alexey Makhalov <alexey.makhalov@broadcom.com>,
- Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>, Josh Poimboeuf
- <jpoimboe@kernel.org>, Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
- Pu Wen <puwen@hygon.cn>, Tony Luck <tony.luck@intel.com>,
- Reinette Chatre <reinette.chatre@intel.com>,
- Dave Martin <Dave.Martin@arm.com>, James Morse <james.morse@arm.com>,
- Babu Moger <babu.moger@amd.com>, Tony W Wang-oc <TonyWWang-oc@zhaoxin.com>,
- Vitaly Kuznetsov <vkuznets@redhat.com>, Andy Lutomirski <luto@kernel.org>,
- Bjorn Helgaas <bhelgaas@google.com>, "Rafael J. Wysocki"
- <rafael@kernel.org>, Pavel Machek <pavel@kernel.org>,
- Kiryl Shutsemau <kas@kernel.org>, Rick Edgecombe
- <rick.p.edgecombe@intel.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>,
- Len Brown <lenb@kernel.org>, Niklas Cassel <cassel@kernel.org>,
- David Airlie <airlied@redhat.com>, Olivia Mackall <olivia@selenic.com>,
- Herbert Xu <herbert@gondor.apana.org.au>,
- Viresh Kumar <viresh.kumar@linaro.org>, Huang Rui <ray.huang@amd.com>,
- Mario Limonciello <mario.limonciello@amd.com>,
- Perry Yuan <perry.yuan@amd.com>, K Prateek Nayak <kprateek.nayak@amd.com>,
- Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
- Yazen Ghannam <yazen.ghannam@amd.com>, Linus Walleij <linusw@kernel.org>,
- Bartosz Golaszewski <brgl@kernel.org>, Guenter Roeck <linux@roeck-us.net>,
- Artem Bityutskiy <artem.bityutskiy@linux.intel.com>,
- Artem Bityutskiy <dedekind1@gmail.com>, Arnd Bergmann <arnd@arndb.de>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Miquel Raynal <miquel.raynal@bootlin.com>,
- Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>,
- Ashok Raj <ashok.raj.linux@gmail.com>, Hans de Goede <hansg@kernel.org>,
- =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
- Rajneesh Bhardwaj <irenic.rajneesh@gmail.com>,
- David E Box <david.e.box@intel.com>,
- Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>,
- Lukasz Luba <lukasz.luba@arm.com>, Helge Deller <deller@gmx.de>,
- xen-devel@lists.xenproject.org, linux-geode@lists.infradead.org
-References: <20260819102314.1499258-1-jgross@suse.com>
- <20260819102314.1499258-13-jgross@suse.com>
-Content-Language: en-US
-From: Damien Le Moal <dlemoal@kernel.org>
-Organization: Western Digital Research
-In-Reply-To: <20260819102314.1499258-13-jgross@suse.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:QCgvCgDHCxwamoZq66_pNA--.10850S2
+X-Coremail-Antispam: 1Uf129KBjvJXoWxXw4DKr1kWFyDXr4xuF4kWFg_yoW7Gr4kpr
+	43Cas0yFWDXwn7JrWfKrWUZr1Yywnayay3GFyag34I93Z8Gr1FyF10gFWFkF43AFZ5A3WU
+	Xw4vy39xK3yj9F7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0pRvfOOUUUUU=
+X-CM-SenderInfo: 5odqwvxbwd0wi6rwjhhfrp/xtbC-RvoF2qGmhsDFAAA3j
 
-On 8/19/26 19:23, Juergen Gross wrote:
-> Today rdmsrq() is a macro using its second parameter as the target for
-> storing the read MSR value.
-> 
-> Convert rdmsrq() to an inline function returning the MSR value.
-> 
-> The users have been converted using the following semantic patch:
-> 
->   // Options: --include-headers
-> 
->   virtual patch
->   virtual report
-> 
->   @@
->   expression msr, val;
->   @@
->   (
->   - rdmsrq(msr,val)
->   + val = rdmsrq(msr)
->   )
-> 
-> Signed-off-by: Juergen Gross <jgross@suse.com>
+From: Longjun Tang <tanglongjun@kylinos.cn>
 
-For the ata bits,
+Count the cases where the driver fails to allocate a buffer or an skb,
+such as when try_fill_recv() fails with ENOMEM, and report them via the
+rx-alloc-fail qstat.
 
-Acked-by: Damien Le Moal <dlemoal@kernel.org>
+Plumb alloc-fail into virtnet_get_base_stats() to keep this new stat
+reported consistently at both queue and device scope, matching how
+packets, bytes, stop and wake are handled.
 
+$ ./tools/net/ynl/ynltool/ynltool qstats show --json scope queue
+[{"ifname":"ens3",
+"ifindex":2,
+"queue-type":"rx",
+"queue-id":0,
+"rx":{"packets":3722,"bytes":374806,"alloc-fail":0}},
+{"ifname":"ens3",
+"ifindex":2,
+"queue-type":"tx",
+"queue-id":0,
+"tx":{"packets":622,"bytes":77495,"stop":0,"wake":0}}]
+
+Signed-off-by: Longjun Tang <tanglongjun@kylinos.cn>
+---
+ drivers/net/virtio_net.c | 33 +++++++++++++++++++++++++--------
+ 1 file changed, 25 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 3e2a5876c6c8..2eeff9c46309 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -125,6 +125,7 @@ struct virtnet_rq_stats {
+ 	u64_stats_t packets;
+ 	u64_stats_t bytes;
+ 	u64_stats_t drops;
++	u64_stats_t alloc_fail;
+ 	u64_stats_t xdp_packets;
+ 	u64_stats_t xdp_tx;
+ 	u64_stats_t xdp_redirects;
+@@ -173,8 +174,9 @@ static const struct virtnet_stat_desc virtnet_sq_stats_desc_qstat[] = {
+ };
+ 
+ static const struct virtnet_stat_desc virtnet_rq_stats_desc_qstat[] = {
+-	VIRTNET_RQ_STAT_QSTAT("packets", packets),
+-	VIRTNET_RQ_STAT_QSTAT("bytes",   bytes),
++	VIRTNET_RQ_STAT_QSTAT("packets",    packets),
++	VIRTNET_RQ_STAT_QSTAT("bytes",      bytes),
++	VIRTNET_RQ_STAT_QSTAT("alloc_fail", alloc_fail),
+ };
+ 
+ #define VIRTNET_STATS_DESC_CQ(name) \
+@@ -1917,8 +1919,10 @@ static struct sk_buff *receive_small_xdp(struct net_device *dev,
+ 	}
+ 
+ 	skb = virtnet_build_skb(buf, buflen, xdp.data - buf, len);
+-	if (unlikely(!skb))
++	if (unlikely(!skb)) {
++		u64_stats_inc(&stats->alloc_fail);
+ 		goto err;
++	}
+ 
+ 	if (metasize)
+ 		skb_metadata_set(skb, metasize);
+@@ -1985,6 +1989,7 @@ static struct sk_buff *receive_small(struct net_device *dev,
+ 		return skb;
+ 	}
+ 
++	u64_stats_inc(&stats->alloc_fail);
+ err:
+ 	u64_stats_inc(&stats->drops);
+ 	page_pool_put_page(rq->page_pool, page, -1, true);
+@@ -2016,8 +2021,10 @@ static struct sk_buff *receive_big(struct net_device *dev,
+ 
+ 	skb = page_to_skb(vi, rq, page, 0, len, PAGE_SIZE, 0);
+ 	u64_stats_add(&stats->bytes, len - vi->hdr_len);
+-	if (unlikely(!skb))
++	if (unlikely(!skb)) {
++		u64_stats_inc(&stats->alloc_fail);
+ 		goto err;
++	}
+ 
+ 	return skb;
+ 
+@@ -2298,8 +2305,10 @@ static struct sk_buff *receive_mergeable_xdp(struct net_device *dev,
+ 	switch (act) {
+ 	case XDP_PASS:
+ 		head_skb = build_skb_from_xdp_buff(dev, vi, &xdp, xdp_frags_truesz);
+-		if (unlikely(!head_skb))
++		if (unlikely(!head_skb)) {
++			u64_stats_inc(&stats->alloc_fail);
+ 			break;
++		}
+ 
+ 		skb_mark_for_recycle(head_skb);
+ 		return head_skb;
+@@ -2414,8 +2423,10 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+ 	head_skb = page_to_skb(vi, rq, page, offset, len, truesize, headroom);
+ 	curr_skb = head_skb;
+ 
+-	if (unlikely(!curr_skb))
++	if (unlikely(!curr_skb)) {
++		u64_stats_inc(&stats->alloc_fail);
+ 		goto err_skb;
++	}
+ 
+ 	skb_mark_for_recycle(head_skb);
+ 	while (--num_buf) {
+@@ -2444,8 +2455,10 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+ 		truesize = mergeable_ctx_to_truesize(ctx);
+ 		curr_skb  = virtnet_skb_append_frag(rq, head_skb, curr_skb, page,
+ 						    buf, len, truesize);
+-		if (!curr_skb)
++		if (!curr_skb) {
++			u64_stats_inc(&stats->alloc_fail);
+ 			goto err_skb;
++		}
+ 	}
+ 
+ 	ewma_pkt_len_add(&rq->mrg_avg_pkt_len, head_skb->len);
+@@ -2928,12 +2941,14 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
+ 
+ 	u64_stats_set(&stats.packets, packets);
+ 	if (rq->vq->num_free > min((unsigned int)budget, virtqueue_get_vring_size(rq->vq)) / 2) {
+-		if (!try_fill_recv(vi, rq, GFP_ATOMIC))
++		if (!try_fill_recv(vi, rq, GFP_ATOMIC)) {
+ 			/* We need to retry refilling in the next NAPI poll so
+ 			 * we must return budget to make sure the NAPI is
+ 			 * repolled.
+ 			 */
+ 			packets = budget;
++			u64_stats_inc(&stats.alloc_fail);
++		}
+ 	}
+ 
+ 	u64_stats_update_begin(&rq->stats.syncp);
+@@ -2948,6 +2963,7 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
+ 
+ 	u64_stats_add(&rq->stats.packets, u64_stats_read(&stats.packets));
+ 	u64_stats_add(&rq->stats.bytes, u64_stats_read(&stats.bytes));
++	u64_stats_add(&rq->stats.alloc_fail, u64_stats_read(&stats.alloc_fail));
+ 
+ 	u64_stats_update_end(&rq->stats.syncp);
+ 
+@@ -5652,6 +5668,7 @@ static void virtnet_get_base_stats(struct net_device *dev,
+ 	 */
+ 	rx->bytes = 0;
+ 	rx->packets = 0;
++	rx->alloc_fail = 0;
+ 
+ 	if (vi->device_stats_cap & VIRTIO_NET_STATS_TYPE_RX_BASIC) {
+ 		rx->hw_drops = 0;
 -- 
-Damien Le Moal
-Western Digital Research
+2.43.0
+
