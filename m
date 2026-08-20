@@ -1,119 +1,176 @@
-Received: from mail-pf1-f171.google.com (mail-pf1-f171.google.com [209.85.210.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9A0C3D2FE6
-	for <virtualization@lists.linux.dev>; Thu, 20 Aug 2026 08:05:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 747393E120E
+	for <virtualization@lists.linux.dev>; Thu, 20 Aug 2026 08:59:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787213151; cv=none; b=c4miz4Q/+16gHA7yC5HKvOrtD5ff88tA228fNAS0SlrcyjHVfa6QyoQIuTz9is6wEPC7OZF+Kti+efxjdOaBCJcmN4SDlF+yULwYgWKmxHVp/qzRz1odyCaph35BKyv55Sh6CaRiLCGRfCGi/w772dZYNdW/PS7d17jPlFXqWfU=
+	t=1787216365; cv=none; b=HWovTlCuNxnDEC1TuaouMmYt/ynTQJogQ+PFSaDSraj1gLjhuPUBKSH4dZw2nhwI5moSgSBak83QOz+M1un3ANU2wkomcn0K1u42nJq+iZbiDUzSMVeNeEViyTzfTsFc9GDbjUnpvaPoZjDicSNHYCDKwvSHB4e15WgMKsiEwtc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787213151; c=relaxed/simple;
-	bh=qgynlLSlE9GedrgWrdeKiRWEM+qpmwf3VbwiSO5eBQY=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=mnCIpuUzaz5nXPq2qbol2RyorH+/c0GgPi0HNw1XfGF0h84B2hq1L7D2Nj7f9Uk1V5sqxqqIAnzQFMWj+BHuPzxib/rX5SUcPqYZXex4kWNXI2M1MGZwq2rdbL0EpkMf8vcZfJ3e3Rg+tyCjaDREonRuJ//vR9whNcmZDydcIKo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lYNZT6cT; arc=none smtp.client-ip=209.85.210.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1787216365; c=relaxed/simple;
+	bh=A+zUCLXifVgTuHB4fPwTYTmQVtckKJL/x1J77vP12OQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=jzMU1eGGqBc6yqrXmhx6RGblyui0kf5U6F3Mr6fX3BgWt4OJFrPshFId7C0aq51nTo1dbbVDDK6lscGiFCQJMUgkBuBlOkctCouarOIYkbur/sT01dcRivMo1OUimdpgfBZTd4+V6WxyZ0tgz3TfTefC421lI7q5Vx0ncwIWw/s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DnvSgCcU; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lYNZT6cT"
-Received: by mail-pf1-f171.google.com with SMTP id d2e1a72fcca58-84fa3b14ee1so1522189b3a.0
-        for <virtualization@lists.linux.dev>; Thu, 20 Aug 2026 01:05:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787213149; x=1787817949; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=GNr0zjEJARTG031KsfcMOG4mbwEr/hGSSzyVmooR7Lg=;
-        b=lYNZT6cTywyixI14Kt0MWtCGG++A6JUV8jXb+qDS5sdc7FHTHvSIAEE38Udp+pa7F8
-         a3N7WwWN1Hq+g8PwtnYBaT7xV/89zdBq53jRbO7S7QIzMNewmBKxYbTIhsTHyi8A9inE
-         q6WlHyYiLmzga2QgjTcmLoTOaR6jgr1tx4J0WBBL7tN0KCh2mwHL7tYYAn4pQpr5LK3R
-         WOccCEImh3P54MjWII82GYHI2WAbpsDXeKXGtetb62xXyRqVV0NQxzs64aVhw9DG6g93
-         oz60w8H0xosyxkuqtptY4tRar44AQEIcsEWS+BeBKGaWV+fs7Trt3abzFM9PPaSEddyi
-         w4EQ==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DnvSgCcU"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1787216362;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=DTl22GoWoyN6aViItfu2yJEcGK2iytdtHBsWnD7u58U=;
+	b=DnvSgCcU3U6O6jWd6inFHOzD2W+28rTrSbAFdLqeUYDcKt4ACYMeO6IA1Xqibzd4wHQ6x/
+	ZqizsO7qPCvKflRwWoQlcVwyH1na4vvaa0GqPelg3whVAbMfl2uuiQI7qX247DaB6JFuI6
+	Cdf0SCsC5aw37f6MYBNzU2ylljtEeK8=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-203-M2bhN5pCNiWATJZvRlE95g-1; Thu, 20 Aug 2026 04:59:20 -0400
+X-MC-Unique: M2bhN5pCNiWATJZvRlE95g-1
+X-Mimecast-MFC-AGG-ID: M2bhN5pCNiWATJZvRlE95g_1787216360
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4957287363bso13388755e9.0
+        for <virtualization@lists.linux.dev>; Thu, 20 Aug 2026 01:59:20 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787213149; x=1787817949;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=GNr0zjEJARTG031KsfcMOG4mbwEr/hGSSzyVmooR7Lg=;
-        b=dyod4qwykO4eHcpBEJi1hVdVts3xZkrBqa+Fayk3411E03mrh1p3LrJ9ZoF45PA1YQ
-         /A3Z8x7KfguvNGQTQevAq7rD8I5O9Y3Kbe55RQCK4XwzDpfb6sPkFS+2K8IJTDCo6PZr
-         G4bfBveLyvBuWJcZRVu1GoibF8NFuvL5EYuC8Rl6OkvT0KtnFlgqjF7PUiRCtRaI17Jz
-         XeARB9c0ew6fp3K9XnjAxBplMtNgWnkymW3hOPbPe/pNOhXJhML64Qlhod8ERzhOSR8w
-         vYMQUc6JdNa1449RYYagw3NVUZ62zRSAJNjRIsy2jhJtH5tCxXlkN2zRxyx35D8lDF8+
-         XOQg==
-X-Forwarded-Encrypted: i=1; AHgh+Rp2eaG0e1E8DJnMch1TiNQGitouaLz7AKrh5T9m2dbU6oCZT2Y4ZcQuzOYHphOC1ymburOJ5k8m/0vA2HsLTQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyHD7GQaLv+vcF1ry8/s40wU3DLOYt58atmNzOu+4jRsOtV0Ou8
-	StVB3PZH6CBCAY48HZum4VWjPSK6s2LiDj1s3P9mAmBAE3lsc9Lwh+/Q
-X-Gm-Gg: AR+sD106omDfDckPd7iO/szflpD8/stwub1X8GlfARB6I+NQpGTHqsJJeWUEs4qGLaE
-	4qt7aeCYO89qZqipbiMOxjWOHstLyitVcTxEc5/umRjRLqW4Yb+MQW6fQzPKTavO4GwDknqlLFT
-	bJAuIDHjOzTl8vP5oS9/A5n+9pn6Ph0KWgUHIA0+G9smarhEiYXoveeAQrkh1+qSVV0CpiaWNxA
-	PIQsB1KjXw6cbmCyp+Dj/hxv6pYW84fBBAANisaeeZKW2z9FDBmVAE8NmB7HzllSlxePIg/X5MD
-	8XE7kz5oq8ElXMv1o9UAUpU/SA4UxPaSUQ7e+dCNukTNbtQ13bWT1ruKAiVFt0k+6+3gXCvUqnW
-	uX1GdR01DcBresTdMXH3/aZUP92m4pwDBmyCKbP3TQA7Lp93zJS/KJXsNWhsMSwWPoH4VE1Gdu4
-	rVTQnZuSieNrAPyG4Ph3xyq8nieNpFrhgB+1YNOQBXtRnY1dlApn7MwQdrDW95UOGW
-X-Received: by 2002:a05:6a00:2301:b0:847:7ffd:ce35 with SMTP id d2e1a72fcca58-851d382e720mr17907618b3a.8.1787213148258;
-        Thu, 20 Aug 2026 01:05:48 -0700 (PDT)
-Received: from [127.0.1.1] ([188.253.126.51])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-851d366d65dsm1412020b3a.50.2026.08.20.01.05.44
+        d=1e100.net; s=20251104; t=1787216360; x=1787821160;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=DTl22GoWoyN6aViItfu2yJEcGK2iytdtHBsWnD7u58U=;
+        b=qqwAKV1hYPc8lEKOu7i1pAFg8h1vM2cC58Y2PqPnbTQk226Ff5zTtXhaAXBF4f8hNP
+         aqeESs/BtdI3c3TSDvqtG/aEQVUCRArGVCrcrjs1n6NiXHUXcAGJbtjLIefJatSrrYpl
+         Tupb+BuWr294dH6kkHH+1qXOKCSjSGtICblSXwJ4h7SnbIVk0aN0oAKIY07SkxFrJ496
+         cXE250wxrYJDhK2jscc0gOpASs/NWeqwNLt8EI2r7V/XNdQlMJEK1XonCX3JMk+9bAUq
+         H/1CVgoTtat+z29D4s9k57ycOy6pP22PalJsOkJtkfokKZ0yjz561DS6B3oI5zZokvfV
+         zhAQ==
+X-Forwarded-Encrypted: i=1; AHgh+RqqZlG7vwU2ovRQipoffqNipfi/I31J3Yt5t0uh6eMQFC/XlArcErwpp/o0WoUCA0g3qztpXujcrhPTGpcntw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx3rkte27GUcEMQT/pwp4D/jVlAOnGb3n5M9ZBinRwzeuVUuDZ/
+	6K3Fssb4yjcqFKnIBa/W/W4bPabrEY3RwbzBdiFbcPJHVzVraBS7fbmkOqtN1BvG+Age5vpCExm
+	pxW+OrDeH4ZJa3zyps4TgnUYkHDW8dgtUlZqO/oIvjBU+4fOpNBEwRjHg4Zb5FDf3jBWI
+X-Gm-Gg: AR+sD13CJFTTMcWP414Oy304xw7mrF0qNpIiuwYKA5O+2/5fpFDt0ty4wgsy1UmEIcE
+	e0APj1dIssEX8qIJloGikqYV6ixmLOhEeqsSVwnU0T+PPrFsgySLrNMGUl/hxaWCzjFtoB2FvCr
+	J/mVZXnpzjjcBu/bNJe0WkKOgwcH7EtipHAOgdwsVZ6c9xJjIoQLkCh9wS622aezhPh87I+EhO+
+	0uNJMRYAHdZXsPo+myGoWQiIxJOfNbpTcgL2K4/rjUndgW0x/wihI/I1HlSP/dO4OXSaBc3G3bh
+	XY+F5CIhMe03AspJQnEjRn6/TAHAvvmoFDX0kQxGlt5as7zXqLxTUY9scS5DqP+jBbsini+eLTl
+	me1N2tWwVwODP8WZnY33Nks0IoYMDaW4EQommoA5DNM5XbidBKSdx
+X-Received: by 2002:a05:600c:5253:b0:499:79b9:e226 with SMTP id 5b1f17b1804b1-499aa109edbmr172010445e9.0.1787216359756;
+        Thu, 20 Aug 2026 01:59:19 -0700 (PDT)
+X-Received: by 2002:a05:600c:5253:b0:499:79b9:e226 with SMTP id 5b1f17b1804b1-499aa109edbmr172009765e9.0.1787216359289;
+        Thu, 20 Aug 2026 01:59:19 -0700 (PDT)
+Received: from sgarzare-redhat (host-82-53-135-154.retail.telecomitalia.it. [82.53.135.154])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-499b3c556a3sm17318315e9.3.2026.08.20.01.59.18
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Aug 2026 01:05:47 -0700 (PDT)
-From: Jia Jia <physicalmtea@gmail.com>
-To: stefanha@redhat.com,
-	sgarzare@redhat.com,
-	mst@redhat.com,
-	jasowangio@gmail.com
-Cc: eperezma@redhat.com,
-	weiyj.lk@gmail.com,
-	kvm@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject:
- [PATCH v7 3/3] vhost/net: discard IOTLB when ACCESS_PLATFORM is cleared
-Date: Thu, 20 Aug 2026 16:03:32 +0800
-Message-Id: <20260820080332.313933-4-physicalmtea@gmail.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20260820080332.313933-1-physicalmtea@gmail.com>
-References: <20260820080332.313933-1-physicalmtea@gmail.com>
+        Thu, 20 Aug 2026 01:59:18 -0700 (PDT)
+Date: Thu, 20 Aug 2026 10:59:13 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Andrey Drobyshev <andrey.drobyshev@virtuozzo.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, mst@redhat.com, stefanha@redhat.com, 
+	jasowangio@gmail.com, eperezma@redhat.com
+Subject: Re: [PATCH v2] vhost: clear vq->worker under vq->mutex when freeing
+ workers
+Message-ID: <aobAlM7l67fpDaPO@sgarzare-redhat>
+References: <20260819114328.426131-1-andrey.drobyshev@virtuozzo.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260819114328.426131-1-andrey.drobyshev@virtuozzo.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: kUEEhFZ0XZJ1LPk5venjX86frCzKSqPC0Yxw7Q3o3N8_1787216360
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-Apply the common device IOTLB teardown when userspace clears
-VIRTIO_F_ACCESS_PLATFORM. This drops stale translations and avoids
-rebuilding an existing IOTLB during feature updates that keep
-ACCESS_PLATFORM enabled.
+On Wed, Aug 19, 2026 at 02:43:28PM +0300, Andrey Drobyshev wrote:
+>Every other update of vq->worker is done under vq->mutex - the worker
+>attach/swap ioctls and vhost_worker_killed().  vhost_workers_free() is
+>the sole exception: it clears vq->worker without holding the lock.
+>
+>The effect is harmless in practice, as this only happens while the
+>owning process (and thus the whole device) is dying, but the lockless
+>write is inconsistent with the rest of the code.  Clear vq->worker under
+>vq->mutex, like everyone else, so that all writers of vq->worker follow
+>the same locking rule.
+>
+>vhost_vq_reset() also used to clear vq->worker locklessly, earlier on
+>the same teardown path, making the write in vhost_workers_free()
+>redundant.  Drop the clear from vhost_vq_reset() and initialize the
+>pointer in vhost_dev_init() instead, so that vhost_workers_free() is the
+>only place clearing vq->worker on teardown.  Any work queued while
+>vq->worker is still set is drained by the synchronize_rcu() +
+>vhost_dev_flush() in vhost_workers_free() before the workers are freed.
+>
+>Reported-by: Sashiko Bot <sashiko-bot@kernel.org>
+>Closes: https://lore.kernel.org/kvm/20260721102325.1BD6C1F00A3A@smtp.kernel.org
+>Link: https://lore.kernel.org/kvm/20260724153334.1BCBF1F000E9@smtp.kernel.org
+>Signed-off-by: Andrey Drobyshev <andrey.drobyshev@virtuozzo.com>
+>---
+>
+>v1 -> v2:
+>
+>  * Drop the lockless vq->worker clear from vhost_vq_reset(), initialize
+>    vq->worker in vhost_dev_init() instead;
+>  * Rebase onto Michael's mst/linux-next tree (with my previously merged
+>    vsock patches);
+>  * Add links to Sashiko reports and adjust commit message.
+>
+>v1: https://lore.kernel.org/kvm/20260723153310.745855-1-andrey.drobyshev@virtuozzo.com
+>
+> drivers/vhost/vhost.c | 12 +++++++++---
+> 1 file changed, 9 insertions(+), 3 deletions(-)
+>
+>diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+>index a0c1d54019aa..5764a54ddc92 100644
+>--- a/drivers/vhost/vhost.c
+>+++ b/drivers/vhost/vhost.c
+>@@ -392,7 +392,6 @@ static void vhost_vq_reset(struct vhost_dev *dev,
+> 	vq->busyloop_timeout = 0;
+> 	vq->umem = NULL;
+> 	vq->iotlb = NULL;
+>-	rcu_assign_pointer(vq->worker, NULL);
+> 	vhost_vring_call_reset(&vq->call_ctx);
+> 	__vhost_vq_meta_reset(vq);
+> }
+>@@ -613,6 +612,7 @@ void vhost_dev_init(struct vhost_dev *dev,
+> 		vq->heads = NULL;
+> 		vq->nheads = NULL;
+> 		vq->dev = dev;
+>+		RCU_INIT_POINTER(vq->worker, NULL);
+> 		mutex_init(&vq->mutex);
+> 		vhost_vq_reset(dev, vq);
+> 		if (vq->handle_kick)
+>@@ -722,13 +722,19 @@ static void vhost_worker_destroy(struct vhost_dev *dev,
+> static void vhost_workers_free(struct vhost_dev *dev)
+> {
+> 	struct vhost_worker *worker;
+>+	struct vhost_virtqueue *vq;
 
-The transition invalidates cached vring access even with an attached
-backend. The backend remains attached, but userspace must configure the
-vring addresses for the new address mode after a successful live
-transition.
+nit: `vq` is used only in the for loop, so you can move this declaration 
+inside the loop. (I'm not asking to respin for just this)
 
-Fixes: 6b1e6cc7855b ("vhost: new device IOTLB API")
-Link: https://lore.kernel.org/all/20260726141158.1652386-1-physicalmtea@gmail.com/
-Signed-off-by: Jia Jia <physicalmtea@gmail.com>
----
- drivers/vhost/net.c | 2 ++
- 1 file changed, 2 insertions(+)
+> 	unsigned long i;
+>
+> 	if (!dev->use_worker)
+> 		return;)
+>
+>-	for (i = 0; i < dev->nvqs; i++)
+>-		rcu_assign_pointer(dev->vqs[i]->worker, NULL);
+>+	for (i = 0; i < dev->nvqs; i++) {
+>+		vq = dev->vqs[i];
+>+
+>+		mutex_lock(&vq->mutex);
+>+		rcu_assign_pointer(vq->worker, NULL);
+>+		mutex_unlock(&vq->mutex);
+>+	}
+>
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 38d9c184082d..4d9d7c2216ed 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -1696,6 +1696,8 @@ static int vhost_net_set_features(struct vhost_net *n, const u64 *features)
- 	if (virtio_features_test_bit(features, VIRTIO_F_ACCESS_PLATFORM)) {
- 		if (vhost_init_device_iotlb(&n->dev))
- 			goto out_unlock;
-+	} else {
-+		vhost_clear_device_iotlb(&n->dev);
- 	}
- 
- 	for (i = 0; i < VHOST_NET_VQ_MAX; ++i) {
--- 
-2.34.1
+LGTM!
+
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 
