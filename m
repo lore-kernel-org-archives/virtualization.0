@@ -1,63 +1,63 @@
-Received: from mail-pg1-f181.google.com (mail-pg1-f181.google.com [209.85.215.181])
+Received: from mail-pf1-f171.google.com (mail-pf1-f171.google.com [209.85.210.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 440153C1D7A
-	for <virtualization@lists.linux.dev>; Thu, 20 Aug 2026 08:05:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9A0C3D2FE6
+	for <virtualization@lists.linux.dev>; Thu, 20 Aug 2026 08:05:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787213113; cv=none; b=oVUEuNlwLerhc9RZUCxnhyojezgJpp243VvHBEnHfv0UaiVbg3x1SIUy9l6hDQvBVWnNJLz+IbZO6K4OZ5jCEr48Z75hivlNDMOgmNUit86txBLFZ7vkMwMcFbzZK+cKx3ibPRWbwlJR58ZBeY9G0Ev+AEGjGniIweF2FFtXb6w=
+	t=1787213151; cv=none; b=c4miz4Q/+16gHA7yC5HKvOrtD5ff88tA228fNAS0SlrcyjHVfa6QyoQIuTz9is6wEPC7OZF+Kti+efxjdOaBCJcmN4SDlF+yULwYgWKmxHVp/qzRz1odyCaph35BKyv55Sh6CaRiLCGRfCGi/w772dZYNdW/PS7d17jPlFXqWfU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787213113; c=relaxed/simple;
-	bh=dKGHt4r84CpOxIzBLIbsre1FSK83Rg5xkKpViCYYB1w=;
+	s=arc-20240116; t=1787213151; c=relaxed/simple;
+	bh=qgynlLSlE9GedrgWrdeKiRWEM+qpmwf3VbwiSO5eBQY=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=Dtht96oY9tYVLcMZCp51pBP+m946iT1q3pv7ldir2E7HrggnLeNCbTXweyO+4oTO8z/OdTzHxY+lUQ+rpNvtIf+q42ZoBBAmHq2fo5JcCeBxaZSM9g9IqSa8Q20SGLfCwv0qltTxkBgP8tKarx8pl7Fl3UaRSY2IjxAZIOKr8K8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=h3DCnevx; arc=none smtp.client-ip=209.85.215.181
+	 MIME-Version; b=mnCIpuUzaz5nXPq2qbol2RyorH+/c0GgPi0HNw1XfGF0h84B2hq1L7D2Nj7f9Uk1V5sqxqqIAnzQFMWj+BHuPzxib/rX5SUcPqYZXex4kWNXI2M1MGZwq2rdbL0EpkMf8vcZfJ3e3Rg+tyCjaDREonRuJ//vR9whNcmZDydcIKo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lYNZT6cT; arc=none smtp.client-ip=209.85.210.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="h3DCnevx"
-Received: by mail-pg1-f181.google.com with SMTP id 41be03b00d2f7-cbedf318752so1161867a12.0
-        for <virtualization@lists.linux.dev>; Thu, 20 Aug 2026 01:05:12 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lYNZT6cT"
+Received: by mail-pf1-f171.google.com with SMTP id d2e1a72fcca58-84fa3b14ee1so1522189b3a.0
+        for <virtualization@lists.linux.dev>; Thu, 20 Aug 2026 01:05:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787213111; x=1787817911; darn=lists.linux.dev;
+        d=gmail.com; s=20251104; t=1787213149; x=1787817949; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=lTb4s8ilSvnVrxrv/sl/GlxziAICPTcGZMT22LW8F5Y=;
-        b=h3DCnevxhHf57BrUkgl2AUAEoo3Mqi3tqPXJXk3SsB1St2jCm73Z7ZcnwSOBNFhwWE
-         0O83GQ0k7lz4wSlvOfmW1/6xLsnoiRbLs0GSyk49AqxpYFVwHfvCZd13wpWGLQT0/2qY
-         mS0dhd4esO1zanwLafU4XccRhl/unsoGK34+I9v2kfbOWZjAyqRTkglset/gMI+2xGM0
-         /VyyT4ojPZKEbC6jjZHa8Jwisph1rPvzjXayAx97UACDfqvBBeKD885d6DRh/m4gBhdv
-         hr/AvMWSCXyofUWb3mPRMsb/G0e5UZcBuLNAtBIqs4KIaA/ll0p12gmQxDEnHTD5TzQT
-         qQjQ==
+        bh=GNr0zjEJARTG031KsfcMOG4mbwEr/hGSSzyVmooR7Lg=;
+        b=lYNZT6cTywyixI14Kt0MWtCGG++A6JUV8jXb+qDS5sdc7FHTHvSIAEE38Udp+pa7F8
+         a3N7WwWN1Hq+g8PwtnYBaT7xV/89zdBq53jRbO7S7QIzMNewmBKxYbTIhsTHyi8A9inE
+         q6WlHyYiLmzga2QgjTcmLoTOaR6jgr1tx4J0WBBL7tN0KCh2mwHL7tYYAn4pQpr5LK3R
+         WOccCEImh3P54MjWII82GYHI2WAbpsDXeKXGtetb62xXyRqVV0NQxzs64aVhw9DG6g93
+         oz60w8H0xosyxkuqtptY4tRar44AQEIcsEWS+BeBKGaWV+fs7Trt3abzFM9PPaSEddyi
+         w4EQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787213111; x=1787817911;
+        d=1e100.net; s=20251104; t=1787213149; x=1787817949;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=lTb4s8ilSvnVrxrv/sl/GlxziAICPTcGZMT22LW8F5Y=;
-        b=gV792UjpS80JY0b1dg7F+zfOcjxl//0MsTc/2mWGv+C/4MRoCnQUo3WwUl7Rwq5612
-         nVmrXvS/v2mXdlXvo8/nZ/VHUZfZb7DRmrph7r8jrGoL4lvCtActfr5c/sBe6jyesd8J
-         roc0cyRE2YUrKzso+1dxzi8HHb6vPArMWUNanwdf1fqbORxPrLQif8n218cHR5ADD5cf
-         LmyorL2ONgJAG9fxA3A868x6XwhuCBAuriMOwOtaoJm91kNtuz/oQ8M9StCL8BvX4F3i
-         RyEnsnc1+vStoNFr5r2u2QdntYz7V1qOILvIyJMpD0wT5jtO1G8tD/1jKTf4hXqON8BI
-         gHAA==
-X-Forwarded-Encrypted: i=1; AHgh+Rr/3tXeFjdpf1KMWDI5NUjIWX/rBAU4WwA9xZC2CIuTL3OU/tRbnXxoY59XATmZiCBrLjCJC9kuMBslBZ8Ecw==@lists.linux.dev
-X-Gm-Message-State: AFuF++m+lHBgQm0tBziGD5aj+ARHR5nM7bODkoaxtA3Utt+JeDWeaQAb
-	CyK+HqRH7tmqa++0cFRKDOzsQWALfVFjgkM9KZsXzlW5mpqZ3xLFMY5u
-X-Gm-Gg: AR+sD114rnpYJV24bDVW2wxHoa5tEhnCJjNHge6c9dKcPwfS1hxqdMLivaJHY8r/boN
-	bzEUNi1vk22lfXG4Uf2ktSfMLfSrPh7PLRbOl3efOr6EF9r90NLwHHIiA9aAsO3kJ8gvlsjbXyo
-	znSvgGy5PwZ9oUrq04afJ9S4iFlUuNTaOKeqc8F+s9StlSY2ClQ1CX76CJP7pgL/H0JWfUgr79U
-	GxJaUAKSpNJE9ufCY7yX64T2QjRnBvd4MgybTI1EZE/QmSjlRCyk/QHdFglSq9Ixqqt/cWh44uz
-	ClEoKTsf2GDl2CY1phpfQcPynABJTvo8+yHdAYuuweno0nk/ezlegn8i8WY3yjpRWYUqUHfR588
-	8+T2nciqg3JZqkYIhNVxzUSTEhYUsP+KUja3rMooQhMrR4uI1V/7Ev9VONt3/oXdjNGBkXkcMwR
-	E1+wes1JpKGtaGbvEBXKT9djQG/W4muFZsXPUNnrG6MEaDJPdGNSGtAVsjq4qgNFcA
-X-Received: by 2002:a17:90b:4fd0:b0:38e:5b59:c2ff with SMTP id 98e67ed59e1d1-39580a4d031mr20764760a91.3.1787213111062;
-        Thu, 20 Aug 2026 01:05:11 -0700 (PDT)
+        bh=GNr0zjEJARTG031KsfcMOG4mbwEr/hGSSzyVmooR7Lg=;
+        b=dyod4qwykO4eHcpBEJi1hVdVts3xZkrBqa+Fayk3411E03mrh1p3LrJ9ZoF45PA1YQ
+         /A3Z8x7KfguvNGQTQevAq7rD8I5O9Y3Kbe55RQCK4XwzDpfb6sPkFS+2K8IJTDCo6PZr
+         G4bfBveLyvBuWJcZRVu1GoibF8NFuvL5EYuC8Rl6OkvT0KtnFlgqjF7PUiRCtRaI17Jz
+         XeARB9c0ew6fp3K9XnjAxBplMtNgWnkymW3hOPbPe/pNOhXJhML64Qlhod8ERzhOSR8w
+         vYMQUc6JdNa1449RYYagw3NVUZ62zRSAJNjRIsy2jhJtH5tCxXlkN2zRxyx35D8lDF8+
+         XOQg==
+X-Forwarded-Encrypted: i=1; AHgh+Rp2eaG0e1E8DJnMch1TiNQGitouaLz7AKrh5T9m2dbU6oCZT2Y4ZcQuzOYHphOC1ymburOJ5k8m/0vA2HsLTQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyHD7GQaLv+vcF1ry8/s40wU3DLOYt58atmNzOu+4jRsOtV0Ou8
+	StVB3PZH6CBCAY48HZum4VWjPSK6s2LiDj1s3P9mAmBAE3lsc9Lwh+/Q
+X-Gm-Gg: AR+sD106omDfDckPd7iO/szflpD8/stwub1X8GlfARB6I+NQpGTHqsJJeWUEs4qGLaE
+	4qt7aeCYO89qZqipbiMOxjWOHstLyitVcTxEc5/umRjRLqW4Yb+MQW6fQzPKTavO4GwDknqlLFT
+	bJAuIDHjOzTl8vP5oS9/A5n+9pn6Ph0KWgUHIA0+G9smarhEiYXoveeAQrkh1+qSVV0CpiaWNxA
+	PIQsB1KjXw6cbmCyp+Dj/hxv6pYW84fBBAANisaeeZKW2z9FDBmVAE8NmB7HzllSlxePIg/X5MD
+	8XE7kz5oq8ElXMv1o9UAUpU/SA4UxPaSUQ7e+dCNukTNbtQ13bWT1ruKAiVFt0k+6+3gXCvUqnW
+	uX1GdR01DcBresTdMXH3/aZUP92m4pwDBmyCKbP3TQA7Lp93zJS/KJXsNWhsMSwWPoH4VE1Gdu4
+	rVTQnZuSieNrAPyG4Ph3xyq8nieNpFrhgB+1YNOQBXtRnY1dlApn7MwQdrDW95UOGW
+X-Received: by 2002:a05:6a00:2301:b0:847:7ffd:ce35 with SMTP id d2e1a72fcca58-851d382e720mr17907618b3a.8.1787213148258;
+        Thu, 20 Aug 2026 01:05:48 -0700 (PDT)
 Received: from [127.0.1.1] ([188.253.126.51])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3957fb321dfsm6047155a91.16.2026.08.20.01.05.07
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-851d366d65dsm1412020b3a.50.2026.08.20.01.05.44
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Aug 2026 01:05:10 -0700 (PDT)
+        Thu, 20 Aug 2026 01:05:47 -0700 (PDT)
 From: Jia Jia <physicalmtea@gmail.com>
 To: stefanha@redhat.com,
 	sgarzare@redhat.com,
@@ -70,9 +70,9 @@ Cc: eperezma@redhat.com,
 	netdev@vger.kernel.org,
 	linux-kernel@vger.kernel.org
 Subject:
- [PATCH v7 2/3] vhost/vsock: discard IOTLB when ACCESS_PLATFORM is cleared
-Date: Thu, 20 Aug 2026 16:03:31 +0800
-Message-Id: <20260820080332.313933-3-physicalmtea@gmail.com>
+ [PATCH v7 3/3] vhost/net: discard IOTLB when ACCESS_PLATFORM is cleared
+Date: Thu, 20 Aug 2026 16:03:32 +0800
+Message-Id: <20260820080332.313933-4-physicalmtea@gmail.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20260820080332.313933-1-physicalmtea@gmail.com>
 References: <20260820080332.313933-1-physicalmtea@gmail.com>
@@ -84,39 +84,36 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Clear the device IOTLB when userspace clears VIRTIO_F_ACCESS_PLATFORM.
-Otherwise descriptor translation can continue to use mappings installed
-before the feature change.
+Apply the common device IOTLB teardown when userspace clears
+VIRTIO_F_ACCESS_PLATFORM. This drops stale translations and avoids
+rebuilding an existing IOTLB during feature updates that keep
+ACCESS_PLATFORM enabled.
 
-The common helper invalidates cached vring access and applies the
-transition even while a backend is attached. The backend remains attached,
-but userspace must configure the vring addresses for the new address mode
-after a successful live transition.
+The transition invalidates cached vring access even with an attached
+backend. The backend remains attached, but userspace must configure the
+vring addresses for the new address mode after a successful live
+transition.
 
-Fixes: e13a6915a03f ("vhost/vsock: add IOTLB API support")
-Suggested-by: Michael S. Tsirkin <mst@redhat.com>
+Fixes: 6b1e6cc7855b ("vhost: new device IOTLB API")
+Link: https://lore.kernel.org/all/20260726141158.1652386-1-physicalmtea@gmail.com/
 Signed-off-by: Jia Jia <physicalmtea@gmail.com>
 ---
- drivers/vhost/vsock.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/vhost/net.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index 9aaab6bb8061..e1e9d002d6ae 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -865,9 +865,11 @@ static int vhost_vsock_set_features(struct vhost_vsock *vsock, u64 features)
- 		goto err;
- 	}
- 
--	if ((features & (1ULL << VIRTIO_F_ACCESS_PLATFORM))) {
-+	if (features & (1ULL << VIRTIO_F_ACCESS_PLATFORM)) {
- 		if (vhost_init_device_iotlb(&vsock->dev))
- 			goto err;
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 38d9c184082d..4d9d7c2216ed 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -1696,6 +1696,8 @@ static int vhost_net_set_features(struct vhost_net *n, const u64 *features)
+ 	if (virtio_features_test_bit(features, VIRTIO_F_ACCESS_PLATFORM)) {
+ 		if (vhost_init_device_iotlb(&n->dev))
+ 			goto out_unlock;
 +	} else {
-+		vhost_clear_device_iotlb(&vsock->dev);
++		vhost_clear_device_iotlb(&n->dev);
  	}
  
- 	vsock->seqpacket_allow = features & (1ULL << VIRTIO_VSOCK_F_SEQPACKET);
+ 	for (i = 0; i < VHOST_NET_VQ_MAX; ++i) {
 -- 
 2.34.1
 
