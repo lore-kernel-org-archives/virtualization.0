@@ -1,310 +1,128 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51DF53B71B0;
-	Thu, 20 Aug 2026 12:51:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13FC0377A89
+	for <virtualization@lists.linux.dev>; Thu, 20 Aug 2026 17:05:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787230280; cv=none; b=jjadXVcvAAbjWeMIGIRu2vj6csW84+itzZPeWNLe428dXXppBYmX42ID9IJsNhiZ42TCNgLFOD5ZcveKwtIinzq3lsWO+aNeU9nUsAMd8WaxLfJpUHy4juaaACbUJZO5LCh+XVY3O//jvMLR+MiRjnaC+HKo3V/2ebOPMKITWjE=
+	t=1787245504; cv=none; b=Q2PgmDEgXNMdx54edJaL3d6gT8vMpzI7WDZ5cqDsEhHm0NSxkeN6OT9H+zufoETVHxNNi3/FNxhbpLb+hNT5cES+dm3BYPeKYVKSTdMSaVXZVOE68aIdlqrVEsszSY7aGNgv2aczPcavAmDV/CK2LYfN5pUn+xs0UtjnK5SxW9U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787230280; c=relaxed/simple;
-	bh=+NwI7DnwDdTsowchvimqS/YkH1pK80UzasLtbzB4IKk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=uam5zmFTh4VWnLfbwX5RNpH495OBTEYuK+61WaYOpomcs5R/CKBu7retcygUYsq5XaMYdNZbd+XhKna7CFp4N3hGo3vH0eii7ORK6tYGIUvxxH1Gc978qWmScfUahk9ji6+snPMTHyN8UwEF+1uTG6xEunWMDw7N6Iw9wbTlLuI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mgPgh60B; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787245504; c=relaxed/simple;
+	bh=OOvAhEjtRhOw0a+UjXxcotOqI4sqWEFsEYl3cZ0ejEg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=mgsFlE1xXN+8FkoU5AbvQlxba2X0pgslFkogZf+WTrdE3CnHhB4bjyBiBr/zFKk0JqXtKg38miFjUwUHZ8CJ5MCasl8TsaW0gzHyWWb5LugIYVu+AyeoRrTiwXYPP1yJrTMSb/N/ebbgWMTbHUUXrLrPrWdw+LyHI2J4lLqdPVY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VT3MNaw1; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mgPgh60B"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A92C1F00A3A;
-	Thu, 20 Aug 2026 12:51:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787230278;
-	bh=dAVoYnB5WFPNY5isnPlH4ce36KYRKmD4kl/YEQC1mAY=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=mgPgh60BEcNbFO4U1gRCt9kcXAEhf35i+NR7lVlBIJfL1JrKFx8tZSR2qz91zSrlz
-	 z9lWyjXulNRc788+A/flCzJSMEvOTbqaErTUClDB/Pwf2BHH9kGuE/jQt4VJXeD9W0
-	 aPZYoxKP547bHPpxHi6RvVMcfQFLgiymPSuPUWifcNjpsHodGXHMfRcn71+lqY1iZs
-	 W3NkS6xQCc7i2QT3WxbtlnkVYMhF0msyNhGdfVmSkuKJAImGyyzO/PdZpoHd80Sx6a
-	 kOEvHUrTKfcuaq12LUBuDii7XCYfFDDAel9Royb7P0CD21Kj/xsRXikwNpZ7EhK9tK
-	 UY4XPo9KHgERw==
-Date: Thu, 20 Aug 2026 14:51:13 +0200
-From: Joel Granados <joel.granados@kernel.org>
-To: Mauricio Faria de Oliveira <mfo@igalia.com>
-Cc: Kees Cook <kees@kernel.org>, Nathan Chancellor <nathan@kernel.org>, 
-	Nicolas Schier <nsc@kernel.org>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, kernel-dev@igalia.com, 
-	linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org, fsverity@lists.linux.dev, 
-	keyrings@vger.kernel.org, bpf@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-kbuild@vger.kernel.org, netdev@vger.kernel.org, linux-wpan@vger.kernel.org, 
-	lvs-devel@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, 
-	linux-sctp@vger.kernel.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, 
-	bridge@lists.linux.dev, mptcp@lists.linux.dev, rds-devel@oss.oracle.com, 
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH RFC v3 00/13] sysctl: add module aliases
-Message-ID: <bpnqwggtidgiec5akns3fa5edbsvl7xf55dxabtwng2xspy4pn@ue554aii2ngk>
-References: <20260819-sysctl-module-aliases-v3-0-aab90569365d@igalia.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VT3MNaw1"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1787245501;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=TF+roY3oCVB3u96D2m+Kn+7JYFil1XkjxfPcXPVAxaA=;
+	b=VT3MNaw1PWbotehwX0vuAXoeYQmzYimt6gxj0aBL11nHU+2lEIKLsSKHbCH0r+Ab2Y44gS
+	MWIze5ArnjLmYqt0knQWSfuP/oz/BX6WoXDZZFwxKduQ0S3DZ+OftitT1IGNuzZIGMv+Na
+	wpQ+k883sJrORu99zRMZPu5WGjWP3ok=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-650-ky5LCCdZMS6NwImSS0Ntlg-1; Thu, 20 Aug 2026 13:05:00 -0400
+X-MC-Unique: ky5LCCdZMS6NwImSS0Ntlg-1
+X-Mimecast-MFC-AGG-ID: ky5LCCdZMS6NwImSS0Ntlg_1787245499
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-496bbcf7d1eso393715e9.0
+        for <virtualization@lists.linux.dev>; Thu, 20 Aug 2026 10:05:00 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787245499; x=1787850299;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=TF+roY3oCVB3u96D2m+Kn+7JYFil1XkjxfPcXPVAxaA=;
+        b=WRaLOIfSWhorHQue5WsRN2xdTPJrbDP7/R2nwkl6mns2sjXJ2aRaWON02R8ZkHgNjb
+         7r9iNC0xIDJWN2A/mvH4WjGG1lcbImvmtIbiHnK2nwcGaZRyz/UxQBiIcK4ibq5GeT2n
+         hTCXBZVS7CUwOCFWmz11lOqIGbTrG+ygvHdQoKwcvH7mtNvPD3MYa8ByzZRZRqtyQoLh
+         I8lL8yCHcOuz6o8p2oEp6QQibgtfBN7zQUIr/sB+xVw68HTpvtNtQk3+O0okDNcaqMfr
+         RuMlf/RSsl7dTmZC0QzgCb/+VpLATUAEO7z23fkmTkVer0j9eqxzVfA6kA+h2M3CjL34
+         ULJA==
+X-Forwarded-Encrypted: i=1; AHgh+Roea8vMSUfyVT91wjy2brURUVuRJwuT+nyeJANidkXVVbQHu9ZdWXCd6+eWc7WwlnZggTjQRbA71zjhr38rew==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzIUgNPgdNvU+jzLK3ch5wEJe0ro+wvECDBA6CgDGxiYsICZ/x4
+	80iImAA+3P8j+dqOfxUdF/kVFFD9pmR5hy9CkTs5/GSBQif32Z5lTe5JydEKqfiXd6FkDuRiWY5
+	boIE1QiKDUgyO4E9vmeqHCHt0IMu8+J8KT3ECtOJPXy5y8TbX4upUp5/RwVqrmrKlJl9z
+X-Gm-Gg: AR+sD12JqmXcKIPeR3SsskuoqbHRtbChOKX8P7CrU5hEMv6pTxiNQg6Ij4raRbiJ9CZ
+	TMe4q0ZMx9I6Yvj4UXEdY1Uz1BEuI40ep1qUh5jhEcxdjiNczUx7pvY6nHZv/9Gtn9KKI7HWfon
+	EelRYQ9EUaAVfy7HFVgN7cn2EuBKlrydKPbbbSTx2Mn6ZpibG0vm7NFibooSd+pEmfRPao63BoR
+	n3Us6TbPyAfHw1Sn1sojUUX/+blpKXso3tBi3uwaIE7NyQmqbYln6oGCXat0Cm7LsPaeAJkeJvt
+	hfXaHmakxljtOhKo0VlyGBvhVddLrB1lRCmAB7ZDOd29E9PLOYw3S5nQ44DmK1Ma3JXOvXsx0HU
+	L7UPln8wJTj0u11X8zCCA22i4f9G4UdT3nECZ9Ovn565zVg==
+X-Received: by 2002:a05:600c:6211:b0:495:4d88:e630 with SMTP id 5b1f17b1804b1-499b8465f7dmr5016955e9.10.1787245499089;
+        Thu, 20 Aug 2026 10:04:59 -0700 (PDT)
+X-Received: by 2002:a05:600c:6211:b0:495:4d88:e630 with SMTP id 5b1f17b1804b1-499b8465f7dmr5015695e9.10.1787245498659;
+        Thu, 20 Aug 2026 10:04:58 -0700 (PDT)
+Received: from ?IPV6:2a01:e0a:11aa:87f0:935:4f8e:b423:64eb? ([2a01:e0a:11aa:87f0:935:4f8e:b423:64eb])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-482b14c33b3sm13157002f8f.27.2026.08.20.10.04.57
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 20 Aug 2026 10:04:58 -0700 (PDT)
+Message-ID: <cb784cf6-f3d8-41aa-9f71-c197a5eba7f2@redhat.com>
+Date: Thu, 20 Aug 2026 19:04:51 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="llmpbpsieq7v5rwe"
-Content-Disposition: inline
-In-Reply-To: <20260819-sysctl-module-aliases-v3-0-aab90569365d@igalia.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 03/12] drm/panic: Return -EINVAL if font is not available
+To: Thomas Zimmermann <tzimmermann@suse.de>, javierm@redhat.com,
+ airlied@gmail.com, simona@ffwll.ch, maarten.lankhorst@linux.intel.com,
+ mripard@kernel.org
+Cc: dri-devel@lists.freedesktop.org, linux-doc@vger.kernel.org,
+ amd-gfx@lists.freedesktop.org, rust-for-linux@vger.kernel.org,
+ linux-hyperv@vger.kernel.org, intel-gfx@lists.freedesktop.org,
+ intel-xe@lists.freedesktop.org, imx@lists.linux.dev,
+ linux-arm-kernel@lists.infradead.org, nouveau@lists.freedesktop.org,
+ linux-renesas-soc@vger.kernel.org, virtualization@lists.linux.dev,
+ sashiko-reviews@lists.linux.dev
+References: <20260818125012.468092-1-tzimmermann@suse.de>
+ <20260818125012.468092-4-tzimmermann@suse.de>
+From: Jocelyn Falempe <jfalempe@redhat.com>
+In-Reply-To: <20260818125012.468092-4-tzimmermann@suse.de>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: DkbdLxX-EFotxth_djeXrt5Y4_9mot0iee0-1_EXKpY_1787245499
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US, fr
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
+On 18/08/2026 14:28, Thomas Zimmermann wrote:
+> Font lookup does not allocate memory. Hence reporting ENOMEM on
+> failed lookups is misleading. Report EINVAL instead.
 
---llmpbpsieq7v5rwe
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks, it looks good to me.
 
-On Wed, Aug 19, 2026 at 03:16:13PM -0300, Mauricio Faria de Oliveira wrote:
-> This series adds 'sysctl:' aliases to modules that register sysctl tables=
-; e.g.:
->=20
->         $ modinfo ./mpls_router.ko  | grep sysctl:
->         alias:          sysctl:*/net/mpls/conf/*/input
->         alias:          sysctl:*/net/mpls/default_ttl
->         alias:          sysctl:*/net/mpls/ip_ttl_propagate
->         alias:          sysctl:*/net/mpls/platform_labels
->=20
-> It provides a trivial way to map /proc/sys files to modules (not trivial =
-today),
-> and for userspace to handle nonexistent /proc/sys files (e.g., procps's s=
-ysctl
-> and systemd-sysctl applying tunables) with "modprobe sysctl:<...>" and a =
-retry.
->=20
-> This is done almost automatically with register_sysctl(), register_net_sy=
-sctl()
-> and friends as wrappers of MODULE_SYSCTL_TABLE (similar to MODULE_DEVICE_=
-TABLE),
-> which emits symbols for file2alias/modpost to find and parse the sysctl t=
-ables.
->=20
-> The big exception to 'almost' are sysctl tables and paths allocated or de=
-fined
-> at runtime (e.g., per-namespace or per-device), as all information is req=
-uired
-> at build-time. Fortunately, such tables and paths are often based on 'tem=
-plates'
-> which are static and can be used.
->=20
-> This is done by plumbing the template table/path as optional arguments (m=
-acros
-> with default values as default_gfp()), so not to create functions for all=
- cases:
->=20
->         register_sysctl(path, table [, table_tmpl [, path_tmpl]]);
->         register_net_sysctl(net, path, table [, table_tmpl[, path_tmpl]]);
->         register_net_sysctl_sz(net, path, table, size [, table_tmpl[, pat=
-h_tmpl]]);
-
-The "what" is described but I'm missing more clarity on the "why". Why
-does this need to be trivial? Where is it that you will know the sysctl
-file path of a module and not the module name or alias?
-
-Additionally, sysctls are not module specific; they are a way to
-read/write kernel variables. Putting a module specific aspect in the
-function arguments (that needs to be ignored in non-module cases) seems
-wrong. Why not use the module subsys to add sysctl alias instead of the
-sysctl subsys?
-
->=20
-> In this series:
-> - Patch 1 prevents a build error later.
-> - Patch 2 adds CONFIG_SYSCTL_MODULE_ALIASES.
-> - Patch 3 adds MODULE_SYSCTL_TABLE().
-> - Patches 4-5 add register_sysctl() wrapper and update some callers.
-> - Patches 6-10 add register_net_sysctl[_sz]() wrappers and update some ca=
-llers.
-> - Patches 11-13 add file2alias support.
->=20
-> Not all maintainers/reviewers (specially for the many changes in net/) are
-> in To/Cc in respect of their time, as this RFC probably needs more general
-> and earlier feedback before settling on specific changes for their review.
-> All lists are included for visibility, though.
->=20
-> Example
-> =3D=3D=3D=3D=3D=3D=3D
->=20
-> To put it all together, 'mpls_router.ko' (used above) from 'net/mpls/af_m=
-pls.c':
->        =20
-> - Tables:
->=20
->         static const struct ctl_table mpls_table[] =3D {
->                 {
->                         .procname       =3D "platform_labels",
->                 ...
->                         .procname       =3D "ip_ttl_propagate",
->                 ...
->                         .procname       =3D "default_ttl",
->                 },
->         };
-<... snip ...>
->=20
-> - Per-file:
->=20
->   Use '#define SYSCTL_MODULE_ALIASES_DISABLE'.
->=20
-> - System-wide:
->=20
->   Maybe something along these lines:
->=20
->         # cat /etc/modprobe.d/no-sysctl.conf
->         alias sysctl:* no-sysctl
->         install no-sysctl /bin/false
->=20
->         # modinfo -F name sysctl:/proc/net/mpls/default_ttl
->         mpls_router
->=20
->         # modprobe sysctl:/proc/net/mpls/default_ttl
->         modprobe: ERROR: Error running install command '/bin/false' for m=
-odule no_sysctl: retcode 1
->         modprobe: ERROR: could not insert 'no_sysctl': Invalid argument
->=20
-> P.S.
-> =3D=3D=3D=3D
->=20
-> I wrote proof-of-concept patches for procps sysctl and systemd-sysctl som=
-e time
-> ago, which worked as expected, i.e., successfully set sysctl tunables whi=
-ch did
-> not exist in /proc/sys, by running 'modprobe sysctl:/proc/sys/...' and re=
-trying.
-
-Do you have links to this? To the old one, not necessarily a new
-version.
-
-Best
->=20
-> Should this series eventually be merged, the patches will be submitted up=
-stream
-> as well, for userspace to start consuming it.
->=20
-> Signed-off-by: Mauricio Faria de Oliveira <mfo@igalia.com>
->=20
-> Changes in v3:
-> - All issues were reported by sashiko-bot@kernel.org.
-> - Tested allmodconfig with option enabled on x86_64.
-> - Patch 2:
->   - Fix typo ('s/options/option/').
-> - Patch 3:
->   - Fix usage of __UNIQUE_ID().
->   - Add __must_be_array() in MODULE_SYSCTL_TABLE().
-> - Patch 4:
->   - Remove trailing backslash in register_sysctl().
-> - Patch 6:
->   - Fix missing __register_net_sysctl_sz() in !CONFIG_SYSCTL.
-> - Patch 13:
->   - Fix potential out-of-bounds read in do_sysctl_entry().
->   - Add check for entry size of zero.
-> - Link to v2: https://lore.kernel.org/r/20260818-sysctl-module-aliases-v2=
--0-d5a69dae5798@igalia.com
->=20
-> Changes in v2:
-> - This is based on the series submitted 4 years ago,
->   with Originally-by: tags added in related patches.
-> - Link to v1: https://lore.kernel.org/linux-fsdevel/20220722022416.137548=
--1-mfo@canonical.com/
->=20
+Reviewed-by: Jocelyn Falempe <jfalempe@redhat.com>
+> 
+> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 > ---
-> Mauricio Faria de Oliveira (13):
->       keys, pidns, fs/verity, riscv/vector: reorder '#include <linux/sysc=
-tl.h>'
->       proc: add config option SYSCTL_MODULE_ALIASES
->       sysctl, mod_devicetable: add macro MODULE_SYSCTL_TABLE
->       sysctl: add register_sysctl() wrapper for MODULE_SYSCTL_TABLE
->       sysctl, parport: update register_sysctl() callers with template arg=
-uments
->       sysctl, net: add register_net_sysctl{_sz}() wrappers for MODULE_SYS=
-CTL_TABLE
->       sysctl, net: update register_net_sysctl{_sz}() callers with templat=
-e arguments
->       sysctl, net: update register_net_sysctl_sz(ARRAY_SIZE(table_tmpl)) =
-with template arguments
->       sysctl, ipv6: update register_net_sysctl{_sz}() callers with templa=
-te arguments
->       sysctl, net: update register_net_sysctl_sz() edge case
->       sysctl: unrandomize struct ctl_table.procname
->       modpost: move addend_*_rel() calls into addend_rel()
->       modpost: handle MODULE_SYSCTL_TABLE symbols
->=20
->  arch/riscv/kernel/vector.c              |   1 +
->  drivers/net/vrf.c                       |   3 +-
->  drivers/parport/procfs.c                |  26 +++-
->  fs/proc/Kconfig                         |  13 ++
->  fs/verity/init.c                        |   1 +
->  include/linux/key.h                     |   1 -
->  include/linux/mod_devicetable.h         |   7 +
->  include/linux/pid_namespace.h           |   1 +
->  include/linux/sysctl.h                  | 110 ++++++++++++++-
->  include/net/ipv6.h                      |   6 +-
->  include/net/net_namespace.h             |  47 ++++++-
->  net/bridge/br_netfilter_hooks.c         |   3 +-
->  net/core/neighbour.c                    |  11 +-
->  net/core/sysctl_net_core.c              |   3 +-
->  net/ieee802154/6lowpan/reassembly.c     |   2 +-
->  net/ipv4/devinet.c                      |  12 +-
->  net/ipv4/ip_fragment.c                  |   3 +-
->  net/ipv4/route.c                        |   3 +-
->  net/ipv4/sysctl_net_ipv4.c              |   2 +-
->  net/ipv4/xfrm4_policy.c                 |   3 +-
->  net/ipv6/addrconf.c                     |   7 +-
->  net/ipv6/icmp.c                         |   6 +-
->  net/ipv6/netfilter/nf_conntrack_reasm.c |   4 +-
->  net/ipv6/reassembly.c                   |   3 +-
->  net/ipv6/route.c                        |  10 +-
->  net/ipv6/sysctl_net_ipv6.c              |  13 +-
->  net/ipv6/xfrm6_policy.c                 |   3 +-
->  net/mpls/af_mpls.c                      |   9 +-
->  net/mptcp/ctrl.c                        |   3 +-
->  net/netfilter/ipvs/ip_vs_ctl.c          |   4 +-
->  net/netfilter/ipvs/ip_vs_lblc.c         |   3 +-
->  net/netfilter/ipvs/ip_vs_lblcr.c        |   3 +-
->  net/netfilter/nf_conntrack_standalone.c |   5 +-
->  net/netfilter/nf_log.c                  |   9 +-
->  net/rds/tcp.c                           |   4 +-
->  net/sctp/sysctl.c                       |   3 +-
->  net/smc/smc_sysctl.c                    |   2 +-
->  net/sysctl_net.c                        |  10 +-
->  net/unix/sysctl_net_unix.c              |   3 +-
->  net/vmw_vsock/af_vsock.c                |   4 +-
->  net/xfrm/xfrm_sysctl.c                  |   2 +-
->  scripts/mod/devicetable-offsets.c       |   6 +
->  scripts/mod/file2alias.c                | 237 ++++++++++++++++++++++++++=
-++++++
->  scripts/mod/modpost.c                   |  46 ++++---
->  scripts/mod/modpost.h                   |  25 ++++
->  45 files changed, 575 insertions(+), 107 deletions(-)
-> ---
-> base-commit: 2697ef8943c9985c14708a6429e21812693857b2
-> change-id: 20260818-sysctl-module-aliases-2f5801b1eb71
->=20
-> Best regards,
-> --=20
-> Mauricio Faria de Oliveira <mfo@igalia.com>
->=20
+>   drivers/gpu/drm/drm_panic.c | 4 +++-
+>   1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/gpu/drm/drm_panic.c b/drivers/gpu/drm/drm_panic.c
+> index 705b72bf0d83..96d238bfceee 100644
+> --- a/drivers/gpu/drm/drm_panic.c
+> +++ b/drivers/gpu/drm/drm_panic.c
+> @@ -757,8 +757,10 @@ static int _draw_panic_screen_qr_code(struct drm_scanout_buffer *sb)
+>   	int qr_width, qr_canvas_width, qr_pitch, v_margin;
+>   	u8 *qr_image;
+>   
+> -	if (!font || !stream.workspace)
+> +	if (!stream.workspace)
+>   		return -ENOMEM;
+> +	if (!font)
+> +		return -EINVAL;
+>   
+>   	r_screen = DRM_RECT_INIT(0, 0, sb->width, sb->height);
+>   
 
---llmpbpsieq7v5rwe
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQGzBAABCgAdFiEErkcJVyXmMSXOyyeQupfNUreWQU8FAmqG+DkACgkQupfNUreW
-QU9KzQwAhnJv61O/aMHJoyHWwD3V+aqe2io3c+exriyswf+YGkguC5yyn032XIx6
-Ibx+W62lH2/mPJSnsg/YyCksI/isYesqXra6cysOt8n8IVaZbkJp5izyWqjxpPKI
-AMrrhalbZPm1CuhneeQl9RPWYZi3byxOz9XrAaJW3ub+9aT7qMsqdRr2nKeBDKNb
-arfqwZhcigESQ05YkHEDbccIUTNOjk639/fLlILoYDVhpXhUl2p2Th8kZwXf3nAJ
-paRh9FhTA52dNDIA8rakiMk5GFctCcKw4dxujLjdRCjaCcyU1bkhZOhvPGhySCHL
-C6v5ixdwhitvddzp6plBXGEVHohgh9n0WjRJ+eRzZiqK7GA63wM7145k1FSk2Ejr
-ofvPKQQcY1f5O44JM7EhJjzrNUU3rMdxQUXz0iZP6YnYmCym4mZxIXzRxd4uneQT
-jvy6cExOstetUU0qCj9qwQSvTJR8ibnMFDG/d845/FSBYC/vZyotBtkzOh/Eenj9
-K+vFLC58
-=87kF
------END PGP SIGNATURE-----
-
---llmpbpsieq7v5rwe--
