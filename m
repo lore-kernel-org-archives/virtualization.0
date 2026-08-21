@@ -1,230 +1,213 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D79E40F74A
-	for <virtualization@lists.linux.dev>; Fri, 21 Aug 2026 06:39:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73F2433A9F8
+	for <virtualization@lists.linux.dev>; Fri, 21 Aug 2026 08:51:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787294374; cv=none; b=lOKBs4HwAyfdGljOuxrsGId1RmFdSe13ofDtAMrKpr/qYjIJXKsxvS+Bg5susddjMyTaPhoSwtJ/zwSNZeJFQokxh1/+xIBNBqOXjmJibE+CV8gnEIATS6WHxNnSNM1OuC8L3kOqhBbXLP/XetZ3yHhwysZi2y3FJP8dZHelReY=
+	t=1787302283; cv=none; b=XigAEzD8m7cvMazQbSv2PcDpL9dH5Ixb7HryVsIollxKtEpuej+/oENVmqM4ozavRUPhMIOE5rtboZYCJ70zS4pYKTeIygWhasKM3/CljeVXsGxRWz+RFMigHNoPFSatvX838Oda1rdyM1eDgE70A/4Ym9S/aEYLT5dpg94uVZQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787294374; c=relaxed/simple;
-	bh=Q+P3w2dr2jKrwoP0NuqdHvJM0nrzfqOzaVZKW3DU1vM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Tf7o61WPWHU47K6WOL2JwTjcLJ6SyD+fqFNN+CKOUGwV7MBl/dbEOmrVf20gBx93qXsXeBpUW6QPhlORpkfa0xOlvlwIX+Q8YKTfM7/f0zObACezHIeebCEbILStugITf5QNVeGz29wkBUTCtQTe8ExVvIbOTeCJtmXK9x/iZKU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=bwcBwS0+; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=6Z4vcbQC; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=mL9/9Iir; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=xbk2DB96; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1787302283; c=relaxed/simple;
+	bh=1Tod6uMNvMI753P4muUbJppzBeqFN07J+ccstjPlhiI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=ozuHM+Exhi/IgLrexcSZGuNKPocDI8/o8Xf1hvVwCNuuvi5B5aLzF+8p5rMHcF/EvxWz/ZFN+M/lFtoZRIMgili2gFpCrYEZrYT1CnjIaBfjL46sAWJQWsjXx2IiR/Tw8L+631EaYeu7PE9GS7gRq36EesfKglnxJ8hoF7gUEtM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cpKmr0W5; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="bwcBwS0+";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="6Z4vcbQC";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="mL9/9Iir";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="xbk2DB96"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 3284B3EAF;
-	Fri, 21 Aug 2026 06:38:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1787294328; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=IMECoYsWSShMDNVZ8JDbQREho5iWl1tF8HaXKW+o8bY=;
-	b=bwcBwS0+RC4EqtR9XE60Dr7YThswkD9m/wJHGl0tYz+b+jnsCbHokMe2hGq/Uqk4uzT50A
-	eo3102wp6SGIjVNcjni9XRheTPpNywHtnve3o/8JTxEV7f0KyAXhdofQzz/9ZLDSC0zYU4
-	Y6GN1+Rph/uZtJg+IxXU5IT21JaHaQE=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1787294328;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=IMECoYsWSShMDNVZ8JDbQREho5iWl1tF8HaXKW+o8bY=;
-	b=6Z4vcbQCxluqvDsyVW5JOdb+VetFkKQe/E/aiunFRyGnD0F+w7Vd66aAq33oo/wFBvKlfS
-	DD681hcQkd6gUCBw==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b="mL9/9Iir";
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=xbk2DB96
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1787294324; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=IMECoYsWSShMDNVZ8JDbQREho5iWl1tF8HaXKW+o8bY=;
-	b=mL9/9IirJ/hFuHoEJ9tqN6Gyj/BzCxbBnS8Vhpd9olYi8cAzb5Q7wleR0jkMWFnb6EQXj4
-	MbELBsuGxlTEhOXwdoUh5C2t3dHRphQ2taTyOQWKik5ErjYPYnJRZqA4MOEXeGdv8z+pmE
-	DnM6e+TO6hELLfr5XGJHojqd0ilrLZA=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1787294324;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=IMECoYsWSShMDNVZ8JDbQREho5iWl1tF8HaXKW+o8bY=;
-	b=xbk2DB96M/yt8An1/BaVXFIB/WVgjEWwzS3BFmfjzbloxDMaBSaA5lj+zU3stDKov/MLO3
-	gePOA+Nf5lkyeWCw==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id BBCDE3329;
-	Fri, 21 Aug 2026 06:38:43 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id us1oLHPyh2pUAgAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Fri, 21 Aug 2026 06:38:43 +0000
-Message-ID: <3d0d14e6-05d2-4fc4-befe-e1d0cafc91db@suse.de>
-Date: Fri, 21 Aug 2026 08:38:43 +0200
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cpKmr0W5"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1787302280;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=dAMfT7dZIDZktTjpF23N4xlIpV3/mfSKrwhJnlOP5bk=;
+	b=cpKmr0W5/TNE2aPIm04bU3gb0r4SZ8VS/PQ2fuerPr7jRy1B4P7RQfTZ3eU77vE18H/ziS
+	K0J8SmldN+XqeQXsO0EVrxpi4NDRxTVvaSw3bQjH4AaIlZvcER+4gwiDZCdmvMYaabGqEi
+	2kGcF6Aut/yeJ7ptyqSn6j2n2Sg9HoM=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-418-8V6sLUJQPa-JSzcQJqU1Cg-1; Fri, 21 Aug 2026 04:51:18 -0400
+X-MC-Unique: 8V6sLUJQPa-JSzcQJqU1Cg-1
+X-Mimecast-MFC-AGG-ID: 8V6sLUJQPa-JSzcQJqU1Cg_1787302278
+Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-c11f2b9f62fso52747266b.2
+        for <virtualization@lists.linux.dev>; Fri, 21 Aug 2026 01:51:18 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787302277; x=1787907077;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=dAMfT7dZIDZktTjpF23N4xlIpV3/mfSKrwhJnlOP5bk=;
+        b=Q5Nx6PEsdhDTNtF2FXyFFXne8tf/Wo2HeJN9OWCMhupI1hYGIDNVvxbINwairOwAf8
+         mYw1gOYFZiB9RmAZW0MyicjFWO4QJg82S9s8PZSrROr1dKPm9UVDmxGVrzou3bMFwtNE
+         ks3jWJXnDYp3FlvouZpyptiFcS4EY77aKdOF137J1tP4lUMUNlhAXvjeoap8JliEExbN
+         cNKj84+79eyk1M0ZuEpnHyaedCz+jUeWf0A6X75ZIuRBDz+kr3kaH2xqSzQkuAF6tfg8
+         zw/xWZBqze3oHo377wgtsCFRwdo5MfgbtIjNVXnIVhkHE+uc6/jWJveLC9ywQssE9vYy
+         roeA==
+X-Forwarded-Encrypted: i=1; AHgh+RpkGtKjoeZH336W/HDFPVlwEhdjFp+P8bXCEl7jZBePSb5/TvjMeKZRbany25sYJMekbDQHKb4kozhNWC2GYg==@lists.linux.dev
+X-Gm-Message-State: AFuF++kQvBmG6MBjep/KFOT3deVz+KqlTMKZKzLim1VzEjRqDztA5V8u
+	oWoSDthTwO4QTIkuEySPA40bX0ksW+kphl09Z+0PgxkblmtSqq7TFnaCQuvZxabATIWFrhx886q
+	AR1xgCd1LYuKRX2Hlq5Lb3h97fh9b8AyVB/Yhq8js4hhJRofsZbjRs+IvMMaoF9KcxdGs
+X-Gm-Gg: AR+sD13PuYgzK1hKYWT0Z1nl+UwGft5F3ve9B29UDmBWBQ9uFbBCtB1DJ8neqogNy9M
+	jjRHffalFw+Bsii3yGJM1gbBlt33J8UZtnDzL30IPGteFE3n5NSe0ADygs1Glvfh9dEiLrcBSve
+	kuronSiDWjZPYjx1hm+PoBBhkNqO9irZWaj3ScqGq+F+UyclORs9hEXhPyygeCuTAWTnDdJsTNb
+	GHTR0ruFjIU0goxx8uFgQ4fz9ZAHjavwKk02wE/B/7UdovAt1x9R5KODiBGdvJxudK1Nzzvp+Sq
+	F7iwgYCq0xwme22zDwRlDNUl8m3X7w0Xj0fMfp+p4azjxZ11LDbX4GekyoIgyyHkSCbeEDuRMDT
+	QsQ==
+X-Received: by 2002:a17:906:6b86:b0:c21:74ad:8b7a with SMTP id a640c23a62f3a-c246a398994mr383580366b.9.1787302277588;
+        Fri, 21 Aug 2026 01:51:17 -0700 (PDT)
+X-Received: by 2002:a17:906:6b86:b0:c21:74ad:8b7a with SMTP id a640c23a62f3a-c246a398994mr383574666b.9.1787302277050;
+        Fri, 21 Aug 2026 01:51:17 -0700 (PDT)
+Received: from sgarzare-redhat ([5.77.88.208])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c2458b09349sm360276866b.19.2026.08.21.01.51.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 21 Aug 2026 01:51:16 -0700 (PDT)
+Date: Fri, 21 Aug 2026 10:51:11 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Daehyeon Ko <4ncienth@gmail.com>
+Cc: netdev@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, 
+	Bobby Eshleman <bobbyeshleman@gmail.com>, virtualization@lists.linux.dev, kvm@vger.kernel.org
+Subject: Re: [PATCH net v2] vsock/virtio: validate packet source for
+ connected sockets
+Message-ID: <aogL1SZD9lsE5qyC@sgarzare-redhat>
+References: <20260820001517.2148196-1-4ncienth@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 00/12] drm/panic: Split into core and helpers
-To: Jocelyn Falempe <jfalempe@redhat.com>, javierm@redhat.com,
- airlied@gmail.com, simona@ffwll.ch, maarten.lankhorst@linux.intel.com,
- mripard@kernel.org
-Cc: dri-devel@lists.freedesktop.org, linux-doc@vger.kernel.org,
- amd-gfx@lists.freedesktop.org, rust-for-linux@vger.kernel.org,
- linux-hyperv@vger.kernel.org, intel-gfx@lists.freedesktop.org,
- intel-xe@lists.freedesktop.org, imx@lists.linux.dev,
- linux-arm-kernel@lists.infradead.org, nouveau@lists.freedesktop.org,
- linux-renesas-soc@vger.kernel.org, virtualization@lists.linux.dev,
- sashiko-reviews@lists.linux.dev
-References: <20260818125012.468092-1-tzimmermann@suse.de>
- <e4da5ba4-9a02-4080-9a83-19d401017910@redhat.com>
-Content-Language: en-US
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <e4da5ba4-9a02-4080-9a83-19d401017910@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Score: -4.51
-X-Spam-Level: 
-X-Rspamd-Action: no action
-X-Rspamd-Queue-Id: 3284B3EAF
-X-Spamd-Result: default: False [-4.51 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-0.999];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FREEMAIL_TO(0.00)[redhat.com,gmail.com,ffwll.ch,linux.intel.com,kernel.org];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	MIME_TRACE(0.00)[0:+];
-	ARC_NA(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[19];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	RCVD_TLS_ALL(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	MID_RHS_MATCH_FROM(0.00)[];
-	DKIM_TRACE(0.00)[suse.de:+];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:url,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.de:mid,suse.de:dkim]
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Spam-Flag: NO
+In-Reply-To: <20260820001517.2148196-1-4ncienth@gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 8VxPiWxMCEOhnXlrUgexf_IowNTqPZ79YGzJiahRduM_1787302278
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-Hi Jocelyn
-
-Am 20.08.26 um 19:49 schrieb Jocelyn Falempe:
-> On 18/08/2026 14:27, Thomas Zimmermann wrote:
->> Split DRM's current panic handling into a core and a helper module.
->> The core is still part of DRM's core library. The panic helpers are
->> part of DRM's KMS helper module (for now).
->>
->> The motivation behind this series is to get panic handling's drawing
->> code out of the DRM core. At some point it should share a single
->> module with DRM's other drawing and format conversion.
->>
->> With the series applied, panic hanlding follows DRM's established
->> design pattern of having a DRM core interface with an dedicated
->> implementation in each driver. Drivers share common code in helper
->> modules. For panic handling, the DRM core still contains the panic
->> entry points, the parameters and the debugfs interface. All drawing
->> is now located in the panic helpers.
->>
->> Patches 1 to 4 improve several issues in the current panic code. It
->> makes sense to fix them before moving the core around.
->>
->> Patches 5 to 8 put handling of all panic state and locking into a
->> single place, drm_panic_display_panic_screen(). It is maintained by
->> panic handling's DRM core code. This also enables the test cases to
->> work more independently from the kernel's configuration.
->>
->> Patches 9 to 11 split the panic-handling code into the core and panic
->> helpers. The former maintain all state, locking and public interfaces.
->> The latter handles drawing and details of the involved framebuffers.
->>
->> DRM devices that offer panic handling provide a single callback, struct
->> drm_plane_funcs.display_panic_screen. A new initializer macro makes it
->> point to the existing panic-drawing implementation. Hence there's no
->> change in features or functionality. If panic handling is configured
->> off, it all clears out to NULL.
->>
->> Patch 12 reworks the test cases slighly, so that they can be build as
->> a separate module. Do 'modprobe drm_panic_helper_test' to run them.
->>
->> Tested under bochs with debugfs and test cases.
+On Thu, Aug 20, 2026 at 09:15:17AM +0900, Daehyeon Ko wrote:
+>virtio_transport_recv_pkt() looks up sockets first by the full source and
+>destination tuple, then by destination only in the bound table.  The
+>fallback is needed for listening and connecting sockets, but sockets remain
+>in the bound table after connect(), so it can also return a non-listening
+>socket.
 >
-> Overall the series looks good to me, and I like the split between the 
-> helper and the core.
-> I would just drop the first two patches, as I don't see much 
-> difference between static allocation or kmalloc() at init, and I think 
-> that memset() the buffers to 0 is not useful in this case.
-
-Ok. Geert also expressed a dislike for these changes.
-
-I have a number of changes done from the Sashiko review and will post an 
-update to the series early next week.
-
-Thanks for reviewing.
-
-Best regards
-Thomas
-
-
+>The fallback does not validate the source address.  In TCP_SYN_SENT, a
+>RESPONSE from an unrelated source can transition the victim socket to
+>TCP_ESTABLISHED while its stored remote address remains unchanged.
+>Subsequent RW packets from that source are delivered through the same
+>destination-only fallback.
 >
-> Best regards,
+>This was reproduced with capability-empty processes under different UIDs.
+>The attacker discovered the target tuple through unprivileged AF_VSOCK
+>sock_diag and caused the victim socket to read 16 attacker-chosen bytes;
+>the intended peer-side socket read 0 of those 16 bytes.
 >
+>After lock_sock(), reject packets for non-listening sockets unless their
+>source port matches the stored remote port.  Require the CID to match too,
+>except that the loopback transport uses VMADDR_CID_LOCAL as the packet
+>source for connections addressed through its valid CID aliases.
+>
+>Fixes: 06a8fc78367d ("VSOCK: Introduce virtio_vsock_common.ko")
+>Closes: https://lore.kernel.org/netdev/20260813121236.2328599-1-4ncienth@gmail.com/
+>Cc: stable@vger.kernel.org
+>Assisted-by: Codex:gpt-5.6-sol
+>Signed-off-by: Daehyeon Ko <4ncienth@gmail.com>
+>---
+>Changes in v2:
+>- Preserve valid loopback CID aliases by matching the source port and
+>  accepting VMADDR_CID_LOCAL only for the loopback transport.
+>- Rewrite the commit message and receive-path comment for clarity.
+>
+>v1: https://lore.kernel.org/netdev/20260813121236.2328599-1-4ncienth@gmail.com/
+>
+> net/vmw_vsock/virtio_transport_common.c | 24 ++++++++++++++++++++++--
+> 1 file changed, 22 insertions(+), 2 deletions(-)
+>
+>diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+>index 8becad812..d8990f5f6 100644
+>--- a/net/vmw_vsock/virtio_transport_common.c
+>+++ b/net/vmw_vsock/virtio_transport_common.c
+>@@ -1764,6 +1764,21 @@ static bool virtio_transport_valid_type(u16 type)
+> 	       (type == VIRTIO_VSOCK_TYPE_SEQPACKET);
+> }
+>
+>+static bool virtio_transport_source_matches(const struct virtio_transport *t,
 
--- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
-GF: Jochen Jaser, Andrew McDonald, (HRB 36809, AG Nürnberg)
+This doesn't seem virtio-specific, so why introducing this function 
+here?
 
+IIRC we agreed that also VMCI has the same issue, so what about adding 
+this function in af_vsock.c?
+
+Also I don't see VMCI changes, why not doing them together in a series 
+since they are strictly related?
+
+>+					    const struct sockaddr_vm *src,
+>+					    const struct sockaddr_vm *remote)
+>+{
+
+What about moving here also the transport check?
+
+So we can have something like this (with some documentation):
+
+bool vsock_check_source(const struct vsock_sock *vsk,
+			const struct vsock_transport *transport,
+			const struct sockaddr_vm *src)
+{
+	if (vsk->transport != transport)
+		return false;
+
+	if (src->svm_port != vsk->remote_addr.svm_port)
+		return false;
+
+etc.
+
+>+	if (src->svm_port != remote->svm_port)
+>+		return false;
+>+
+>+	if (src->svm_cid == remote->svm_cid)
+>+		return true;
+>+
+>+	/* The loopback transport represents its peer as VMADDR_CID_LOCAL. */
+>+	return t->transport.get_local_cid() == VMADDR_CID_LOCAL &&
+>+	       src->svm_cid == VMADDR_CID_LOCAL;
+
+Could this be just `t->transport.get_local_cid() == VMADDR_CID_LOCAL` ?
+
+I guess the source is trusted and if we are in a local transport, it's 
+always set to it, no?
+
+Thanks,
+Stefano
+
+>+}
+>+
+> /* We are under the virtio-vsock's vsock->rx_lock or vhost-vsock's vq->mutex
+>  * lock.
+>  */
+>@@ -1823,10 +1838,15 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
+> 	lock_sock(sk);
+>
+> 	/* Check if sk has been closed or assigned to another transport before
+>-	 * lock_sock (note: listener sockets are not assigned to any transport)
+>+	 * lock_sock (note: listener sockets are not assigned to any transport).
+>+	 * The bound-table fallback matches only the destination, so reject packets
+>+	 * from a peer other than the one stored in the socket.
+> 	 */
+> 	if (sock_flag(sk, SOCK_DONE) ||
+>-	    (sk->sk_state != TCP_LISTEN && vsk->transport != &t->transport)) {
+>+	    (sk->sk_state != TCP_LISTEN &&
+>+	     (vsk->transport != &t->transport ||
+>+	      !virtio_transport_source_matches(t, &src,
+>+					       &vsk->remote_addr)))) {
+> 		(void)virtio_transport_reset_no_sock(t, skb, net);
+> 		release_sock(sk);
+> 		sock_put(sk);
+>
+>base-commit: e2466392a0b8496000e12181cb1ee1535eb0da25
+>-- 
+>2.54.0
+>
 
