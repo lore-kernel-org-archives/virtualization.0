@@ -1,146 +1,148 @@
-Received: from mail-ej1-f43.google.com (mail-ej1-f43.google.com [209.85.218.43])
+Received: from mail-pg1-f180.google.com (mail-pg1-f180.google.com [209.85.215.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD2343AB28C
-	for <virtualization@lists.linux.dev>; Sat, 22 Aug 2026 13:41:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E46B3C199A
+	for <virtualization@lists.linux.dev>; Sat, 22 Aug 2026 16:46:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787406119; cv=none; b=BeNpFfSHzcEXG6BmStEI2TllPhhSdpvZSOvfLVrxMtebsxFoZiHDLvNiK9O54VGU2ZuX2dXMH2bkqXjlUKSYDabn+2s9jFRYq5IfPIPt5mAd6TuAqatUiMmhIpm8zhojMo1T4nWWUMhhMinYeie0SAaVzX7Tohf8+bibd0Nsnt8=
+	t=1787417168; cv=none; b=cPK0S9zIpMqlHZOIKZCp+WqOjA2xq1ZPt9gCkjVodySB8Z27wDu9EnhAio9zO2pGPHDrppcnI52qyLuLeiZhv+eTijulio7bOW34tXPDfu35ICDSWb6hBylqZ3rjq9Ry+9a4RjySw1H7P8wku9+Nnb25L6P6HQTzWHeKAXY9qUQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787406119; c=relaxed/simple;
-	bh=ShtTkIU3ezbFJIydaBLYCMvhC/wGsulze2uz5bQe5G4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=fqDGkBcvOV4xbBLMGAdU9fQ/H4OYs+AUyAr5vrXzmzHlJh6M3cM3CnGETa4CKEGlmqOPRQHCA5iklS+YDBwu5uV259R72NbUwG40arytROg8JR2kTc5KBXKjXq7kPfyKIRsTYEV/uFHZsUx6GidjKkOBNPIK3P2tIF+1ucutFFY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=m7ARVDz0; arc=none smtp.client-ip=209.85.218.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	s=arc-20240116; t=1787417168; c=relaxed/simple;
+	bh=RZnSBXG7H5IfVESK5dV+papTZf4bB2+5pFdMF6y80Cc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=G6l+ojrHvnB4wiwAKeFcvy1VSdPVr2wUVe8GzHmuvUt7HRtOQypDAjbbjsntIFaqUVkEMvPmRh8ho5WDKF6hBKsWzvy+7A2qYjmaA9OYPT6GHizG+GR9GckivNbx7TxaTFX+EMPHAbjcCP3n96koo5dtdlU7wiE2X3+9PUiag5o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=R9gU3UxM; arc=none smtp.client-ip=209.85.215.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="m7ARVDz0"
-Received: by mail-ej1-f43.google.com with SMTP id a640c23a62f3a-c197e7e4e94so355076266b.2
-        for <virtualization@lists.linux.dev>; Sat, 22 Aug 2026 06:41:55 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="R9gU3UxM"
+Received: by mail-pg1-f180.google.com with SMTP id 41be03b00d2f7-cbe4c537ad6so239585a12.0
+        for <virtualization@lists.linux.dev>; Sat, 22 Aug 2026 09:46:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1787406114; x=1788010914; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=Aj3ZYubTvLgnR11pZYHVat4EVUJdKX6AnHgTVge4+Wc=;
-        b=m7ARVDz0+tsAgVTJG5RARAOMnpQnZzJ1TOPyGGj10sNI7L0waOq//ywaRJV4NQRxif
-         8tnHfjm+tphsuEqmxX0rrvT5AeZTcbFEuZ/fyqyHL7q2gZdJ+8Wv9m5JAO7yhdZtOGuS
-         I2Y/+cSIW1S+zvXmvh+M8a8ExdKlcqgxY54Nn4au83qia4qDGfHfwte/fImIy0QQI6Yz
-         BFTtyWEH3b19yLryO+W/F62RCL1KFgDhKs90rRdVFZ/qI0BBfQRWZadjDpzbZ0LXVcpK
-         daleagdCmdZFumcLMJOyi6Ff20WlWyYPAFkrl6yALoLlY6tKS9yFIW5A+vgW4wCfun8Q
-         Vf0w==
+        d=gmail.com; s=20251104; t=1787417165; x=1788021965; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=zxjo65j0/PC8LNmS95fdZuou6hT1feMI3IHbQQyBjIE=;
+        b=R9gU3UxMqdkK9pqdi12+38Xf0a/6BHuo77kVYgLkS1HP7aZYa6/NXGXBXmMY2y1did
+         zqc6hMWt4Afll+5pnIPkbrFFPOel73al8VcFQ1rono7FBwk9o5BtTAhvp2N47LvVK6Qe
+         C7Ra7DqqT1iwV9PeSdjPHeMoYPLoBgJDAv4EZDcnqBTH1ob4E7bRgQ6StJWKlTfujQFX
+         Sf4oNYsHFim2F9j/YPRcWXl8kRBC8qe6pFdOFVKEAoCo2+pdmVrtXKGylQV4ycToEilj
+         QWwKMTcFe1m6IlTaOtdJIUhzMmPvKExIdd5lm14X032GAdoNghLgZceMu0yM2eT44eQ5
+         qPrg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787406114; x=1788010914;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=Aj3ZYubTvLgnR11pZYHVat4EVUJdKX6AnHgTVge4+Wc=;
-        b=aNz08nE73mFpZPCVwxCMHob5c9esRvH7OggqY6rfmVdJBmvs3/BA3oYSI+WqVPGDHG
-         uU6s8uDD4XTZuycgq9AIT+9mGlj6hR073Ch/SDEiFm426kon4oiz8/v5YFFK7wHYStz5
-         FDzSug3iPYT3rVqo7Nf24Sm9EYwlJocVmAW0o1qbTjpdYuPozjf+RcJiCcQi8wkvGPlT
-         +xJttPiGtpQUWh/0OR/Kbt6+bHANWq2FalVUNY9ECRNZ+BAyWEMBh0nRNDnEf30FI7aC
-         R5KHiwi+ZO1gXzPdlYJmvEd0csXjw9UHK50I6SlTzjVyKcCU9u2UfO9+n/0DsviqNw8i
-         9Ivw==
-X-Forwarded-Encrypted: i=1; AHgh+RpaEikG1iTqnN6t/mSe4jiJdRGJ7pjIK1VV94BUV+ZgrEdz432iOBvd+13y9RZlgZvK7zE9fzB5uiFLtXxYUA==@lists.linux.dev
-X-Gm-Message-State: AFuF++nvkL3EQCMZEyKLZIfy8CCDnBPbFt81G8B8PQAf4HK9ANE2BrU0
-	bmyenFAv/Bdw0UOafrdFNBGO2ilYJ7JSTyBwqnM5oENim16b/ekTgJcT1nEWu0C6R0o=
-X-Gm-Gg: AR+sD10XoUYxDMM+jix23Jm4p1AKt4pQGXth87NPk3dBlD08k9oqO9WtYCOrQ1XyDpC
-	uhmlqSVkxLNWaCq+BGnyh15C/2XWrAk495x85ku29+wWAKXTkRaYLPx2OssRWMMUNGWL7Du4J48
-	akBcr/BPssLxp3nyQRYiIlEYQexTCQOTHCtyVc5E6YBy3nqN5ldStc3wtdSFz4mo5+dX6W4G038
-	23M7CO3gho9Lu30W1qugq9lIETrJ8QNHQEiQejn/7QJtuurpXRoYq1aKoFV6FM30NoYSbUgt6KA
-	N7sUNFuThHeR6eWcHjRGW6MogDFYxzQf5MWWdikaw/FpZtvhcZgyzjNK32SjntjP0L33bN97QTf
-	YTxU/B0U+6bqYHlftQ66ieNHYtDtbneI67MAswOZlLsyhXzF9c55H9rXSWolezOEnC2xAeX3H+f
-	maE0c/UT3OM50XtGTmV9z4tGyeGNbFCOrZCzI9BHO2b+dtR4+6XcC4iEgWWiTLRwN+yw==
-X-Received: by 2002:a17:907:8908:b0:c21:35d0:f435 with SMTP id a640c23a62f3a-c24924db408mr547750766b.10.1787406113365;
-        Sat, 22 Aug 2026 06:41:53 -0700 (PDT)
-Received: from localhost ([2a02:8071:56d1:2de0:1d24:d58d:2b65:c291])
-        by smtp.gmail.com with UTF8SMTPSA id a640c23a62f3a-c249606a8fasm387614266b.8.2026.08.22.06.41.52
+        d=1e100.net; s=20251104; t=1787417165; x=1788021965;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=zxjo65j0/PC8LNmS95fdZuou6hT1feMI3IHbQQyBjIE=;
+        b=MqQo6/rKY/C6O2z6qvOIs9NH7wIug1oIhaNeS5y3/F90VaT3CtJOq8dXbNPYvErUnk
+         DY1rml4Rg4k1iFxIefzpSrmbXqcGM9UdeHtriKLTszT8xt1PldSUnc0tiqyD+qfKJ4Sy
+         YqtwH2x44QP6IE6MEl6Ft+iIHiuU2DI/07g+RTQc93N9qV8U0rPL6+Ug+1uUSOTBGhen
+         /Pl3TCmSISNZ8JIO/zLXPcZuDxYYURESI5r5g+D4qkPAz8BTG5UjLdqKB1Y11je/wqGj
+         FvZcT5+JvtRA141huzlrQK7k/wOhyt+mNSa6TeA1a0hI/lXHocy9VjS7DpoDnITSyx2N
+         CCzQ==
+X-Forwarded-Encrypted: i=1; AHgh+RpX/N9KvU7fez0vaKydKHAbtSCB5esLfOZ4G7pY90bA3oHxD40ai/sPmB7I1B49MRML0ZDAo0H7lm+8C1HDGQ==@lists.linux.dev
+X-Gm-Message-State: AFuF++k/7zuCoij6lcuKrXlknW+4tRZOpUS3XvUpR79KFjIMaPcsnL4h
+	oDCYoPTbw6DEB0Ba+TMejdLXRImOAB7/mknoAb/ztX/x3Dg5B3wG+Da/
+X-Gm-Gg: AR+sD112w4V7yZvqQahphci1cVOXfKyPxXRyYQNuzcEGgauk7NOB+YgxMQU3atLdsFq
+	T8D2NTftCq1zluALMHCiQXuh/auDcvoytum/vBW8MSsQ3+Y67GHQyg8+3uWpKTcOJiSJIsw4HSv
+	T3FSmh4OkApkl+bN1NymwFEqQb/paJPz0NWYwaFYp/ICXn1xV+5zmfT78Gd0sJKeKQgQDm7HBHP
+	/2Ldr00EC1f2mb8ox8cQElSaM9RBkpDD1ZrmmSdFlonHzMK0ouWKhQw9G3akyxNGsdN4QkFgxig
+	cOk1Dnyw1W7Gk0f/TKsdDghhyrFnWi2zu4fFFHUj27qibsnqcqgTFGkb9c/w/WIs6rzQAyWn1yp
+	1wPpHY00JfaTXtOtAt/sn3i6eRPdO/opCQvnlqWrj/yPO41gXXpm9glLH72R7e5WYbTy4wnHpw4
+	2XGgaFOE3H4iKwppJ6mwKAnaWV7gT2CFy+j45lhSKBJ1HqeqgEXFyxutMSF4sPZQAO2XwaXxJaS
+	ee81CiNcFA+YHDvihH9qXlCWT+JYVdNjFerien5Xdkbo8Y+MX3d7fk=
+X-Received: by 2002:a17:903:b43:b0:2d2:a952:2628 with SMTP id d9443c01a7336-2d64b0d7b26mr129424855ad.2.1787417164695;
+        Sat, 22 Aug 2026 09:46:04 -0700 (PDT)
+Received: from localhost.localdomain (45.78.65.84.16clouds.com. [45.78.65.84])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-327f9209fafsm15623986eec.23.2026.08.22.09.46.00
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 22 Aug 2026 06:41:52 -0700 (PDT)
-Date: Sat, 22 Aug 2026 15:41:50 +0200
-From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
-To: Mauricio Faria de Oliveira <mfo@igalia.com>
-Cc: Kees Cook <kees@kernel.org>, Joel Granados <joel.granados@kernel.org>, 
-	Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	kernel-dev@igalia.com, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org, 
-	fsverity@lists.linux.dev, keyrings@vger.kernel.org, bpf@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, linux-kbuild@vger.kernel.org, netdev@vger.kernel.org, 
-	linux-wpan@vger.kernel.org, lvs-devel@vger.kernel.org, netfilter-devel@vger.kernel.org, 
-	coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-rdma@vger.kernel.org, 
-	linux-s390@vger.kernel.org, bridge@lists.linux.dev, mptcp@lists.linux.dev, 
-	rds-devel@oss.oracle.com, virtualization@lists.linux.dev
-Subject: Re: [PATCH RFC v3 03/13] sysctl, mod_devicetable: add macro
- MODULE_SYSCTL_TABLE
-Message-ID: <aomlfGJM61qZKxx2@monoceros>
-References: <20260819-sysctl-module-aliases-v3-0-aab90569365d@igalia.com>
- <20260819-sysctl-module-aliases-v3-3-aab90569365d@igalia.com>
+        Sat, 22 Aug 2026 09:46:04 -0700 (PDT)
+From: Chengfeng Ye <nicoyip.dev@gmail.com>
+To: Stefan Hajnoczi <stefanha@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Asias He <asias@redhat.com>
+Cc: kvm@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Chengfeng Ye <nicoyip.dev@gmail.com>,
+	stable@vger.kernel.org
+Subject: [PATCH net] vsock/virtio: flush works in dependency order
+Date: Sun, 23 Aug 2026 00:45:56 +0800
+Message-ID: <20260822164556.3750959-1-nicoyip.dev@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="akn7oxv4v2qk2wdq"
-Content-Disposition: inline
-In-Reply-To: <20260819-sysctl-module-aliases-v3-3-aab90569365d@igalia.com>
+Content-Transfer-Encoding: 8bit
 
+virtio_vsock_remove() stops the virtqueues and then flushes each work
+item before freeing the enclosing virtio_vsock.  The current order does
+not account for dependencies between those items: tx_work may queue
+send_pkt_work, and send_pkt_work may queue rx_work.
 
---akn7oxv4v2qk2wdq
-Content-Type: text/plain; protected-headers=v1; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH RFC v3 03/13] sysctl, mod_devicetable: add macro
- MODULE_SYSCTL_TABLE
-MIME-Version: 1.0
+In particular, send_pkt_work can set restart_rx and release tx_lock.
+The remove path can then stop the queues and flush rx_work before
+send_pkt_work queues it.  Although the later send_pkt_work flush waits
+for that producer to finish, nothing waits for the newly queued rx_work,
+so kfree(vsock) can race with it.
 
-Hello,
+KASAN reported:
 
-On Wed, Aug 19, 2026 at 03:16:16PM -0300, Mauricio Faria de Oliveira wrote:
-> The MODULE_SYSCTL_TABLE macro emits a struct module_sysctl_table variable
-> with pointers to a sysctl table's path and entries, and table/entry sizes.
+  BUG: KASAN: slab-use-after-free in
+  virtio_transport_rx_work+0x487/0x4b0
+  Read of size 8 at addr ffff888114c2b008 by task kworker/1:1/47
+  Workqueue: virtio_vsock virtio_transport_rx_work
+  Call Trace:
+   virtio_transport_rx_work+0x487/0x4b0
+   process_one_work+0x688/0x1120
+   worker_thread+0x45b/0xd10
+  Allocated by task 1:
+   virtio_vsock_probe+0xef/0x6b0
+  Freed by task 84:
+   kfree+0x131/0x3c0
+   virtio_vsock_remove+0xd1/0x100
 
-That new struct doesn't seem to contain any pointer?
+Flush the works in producer-to-consumer order.  virtio_vsock_vqs_del()
+has already disabled the queue callbacks and cleared the run flags, so
+after tx_work and send_pkt_work are drained, no source remains that can
+queue rx_work after its flush.
 
-> That symbol will be handled by file2alias.c (modpost) with the changes in
-> mod_devicetable.h and devicetable-offsets.c.
->=20
-> The option macros MODULE_SYSCTL_TABLE_{DISABLE,UNIQUE_ID} can be used on
-> a per-file basis to disable the macro and change the symbol name pattern.
->=20
-> Signed-off-by: Mauricio Faria de Oliveira <mfo@igalia.com>
-> ---
->  include/linux/mod_devicetable.h   |  7 +++++++
->  include/linux/sysctl.h            | 42 +++++++++++++++++++++++++++++++++=
-++++++
->  scripts/mod/devicetable-offsets.c |  6 ++++++
->  3 files changed, 55 insertions(+)
+Fixes: 0ea9e1d3a9e3 ("VSOCK: Introduce virtio_transport.ko")
+Cc: stable@vger.kernel.org
+Signed-off-by: Chengfeng Ye <nicoyip.dev@gmail.com>
+---
+ net/vmw_vsock/virtio_transport.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Please put the new struct in a separate header. Apart from not being
-about a device table, I'm currently work on removing
-<linux/mod_devicetable.h>. See commit
-ad428f5811bd7fb3d91fa002174de533f9da94d7 for more details.
+diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+index 96c9fe8d357c..4f9aa9c4c3aa 100644
+--- a/net/vmw_vsock/virtio_transport.c
++++ b/net/vmw_vsock/virtio_transport.c
+@@ -872,10 +872,10 @@ static void virtio_vsock_remove(struct virtio_device *vdev)
+ 	/* Other works can be queued before 'config->del_vqs()', so we flush
+ 	 * all works before to free the vsock object to avoid use after free.
+ 	 */
+-	flush_work(&vsock->rx_work);
+ 	flush_work(&vsock->tx_work);
+ 	flush_work(&vsock->event_work);
+ 	flush_work(&vsock->send_pkt_work);
++	flush_work(&vsock->rx_work);
+ 
+ 	mutex_unlock(&the_virtio_vsock_mutex);
+ 
+-- 
+2.43.0
 
-Best regards
-Uwe
-
---akn7oxv4v2qk2wdq
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmqJpxsACgkQj4D7WH0S
-/k5bfgf9HJoNnVEr9RCdAghOTP5QqFmH5ae7Kbmnodv6c6Pi9JGIjjGbeT5eKw3e
-JkSKqdEnlVMrLoKrhneRsxwTDGPrZvrLZrPLdZwJmPWZn5Fg+kkOO9yFAGPeMsPX
-S6UP1NY9kaCiBtlcsGT9EvMWz0jWVAWX1xb7Y2WcVZJsCWdcPhvWc3/lIbw3E4o7
-PqLtSFblkQmtGl2OL4WkP6xhEPH6qQO9BAmhLVKKZwFW5/l4sHmXRrpgSJlroR3b
-iH3liIeS6wxFp/fMYuFRryGHNMXn6gC447OnOCTmGNEj7+7Y3COwSGivgubcRIzI
-RkmxkMf2Iuntnwp4oQzCbipE5EiKGA==
-=SPY4
------END PGP SIGNATURE-----
-
---akn7oxv4v2qk2wdq--
