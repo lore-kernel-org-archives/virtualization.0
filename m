@@ -1,90 +1,84 @@
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
+Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BAAF38B7D1
-	for <virtualization@lists.linux.dev>; Sun, 23 Aug 2026 17:59:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B3BD339375
+	for <virtualization@lists.linux.dev>; Sun, 23 Aug 2026 18:35:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787507991; cv=none; b=MLjS0htv2DFyTOOeTn+AKdm/ehLROj2STeZM47HET+dj7GidHZ2u/zyVTt/q1UnSiI6gJb7tDl4Hw6NOnaSThKukUsazJ05rYl24hXu6Bl/LoQqpTnAMyG3mL0VXBnSVDchdNwIzRHyOb5XbpivV8QFf5V6HFhRF80dP1k0wQ0c=
+	t=1787510108; cv=none; b=qT0PIBkIoc0pb+nN2chUPtWFVIUF0oyIci1DGiIpuW14O1DBtCuAszZtAgJlCdtRYhpTaPhI2jJ2NzSXak7po2HT5y+KS0XWoHQqoCDZyrz1U9kS+ZhDKxVHWKB+X+O7ZPjyzBZa37endJsrRbWiyFip0e9rfDnxkIhS2ndSdFY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787507991; c=relaxed/simple;
-	bh=Q5N8akU4x+F36ss1pZ0xBmq2Yh+ClMoeMJuX3SACBjM=;
+	s=arc-20240116; t=1787510108; c=relaxed/simple;
+	bh=yjdXslBGbzwFdci6QHpbbFDvYKSeF4IauobuIUcSXCA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=a9ftjPTiOe6j+1ChiAIRMRp7j/JAGe0+EewEJyHFuk5WIAq0IXH1a028Cxfw5qt4etzP6L2hg7m4gUnT/YXe8f+VdzzIA7e2xwQFBZdds9Dk5cSL2PKSJLXhclZh5uKsrjG9CnL0dcNHyRvUSD2uRwQgjfDEaEnpFD2il5Pzut0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FoRV2g2y; arc=none smtp.client-ip=209.85.216.43
+	 MIME-Version; b=V5o5nfi114QvzmjXx7onIBpk+14RHhqnrLp80Bf0m6Om/oIN163B0IJQbShML5HerUU+KakarBWr3gLuDqoE8Rpul4uAVW8wxOpdYUFE06X46mDxFRxeGwSRQb4VU7PGafoC7O8xGVPVpAvk0CX53+sy33UAou4FnzhIrY/G7Y4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fCN6+wPI; arc=none smtp.client-ip=209.85.218.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FoRV2g2y"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-381c51fde6bso3061728a91.2
-        for <virtualization@lists.linux.dev>; Sun, 23 Aug 2026 10:59:48 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fCN6+wPI"
+Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-c1712a04ddaso458226166b.2
+        for <virtualization@lists.linux.dev>; Sun, 23 Aug 2026 11:35:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787507987; x=1788112787; darn=lists.linux.dev;
+        d=gmail.com; s=20251104; t=1787510104; x=1788114904; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=ECOspUthc7jBrs5mtjKd9RwO1oTEgx0ts6iTJsWVuOY=;
-        b=FoRV2g2yrEUJEnlvJGG/aW26EHHviau0/UvvfOw0+xmQLz+mR4/u+3ANoGDu/F5tCd
-         q90CgJgaAX8PGyJgL0Z7kRbh+7TynT0gVF3fPqrzP00HturWQYCrDOIiC78D4YtHTbBi
-         xmCCb7zXLdMdN3wLHSl7qINsjfF3ISAx641wLaMvHXJNC3KRnTvAn1+SXThcW4bqI80u
-         UfDZvaAF6Vp18NNtb8xrMhKXPqhGRYaHD8Oy6prWQ+NIPzZsKiv/1JvDBueal1STZ0aV
-         DNj4EJgtPSaKfJPyDsKUyDIA3WBuwLX9yemi6e7m1oVBRjvmGqK2AblOT54yfnnhG9/P
-         PACw==
+        bh=rhR6A6pOlxFnDseZWXN693d/vUJe+c8P3tz2lrasiRw=;
+        b=fCN6+wPImDC/+db2eaQPMXXc37H6pZ9/oNWiDdXUovcyBh4ZmbxFv/Iz0cLMQckSyO
+         A7om+yik4HUzWCkFr56dWNHyQQzoB0nK6ZxW57jzYlPKRAT19ZjIkJzoXdb9yUOQDivw
+         HAKYtD3zpezjKGtD7TAi2rUlwL8xVzPWJqYEv4YMCDqVq9Zeoml0+S1tbQMy9GRSMEib
+         M46V1pMC9Eft/5gDQFVVuZo2jQM7ko1RH3+klK8DqcFFeNyhjy0alxeNvxbkE/18TckD
+         9v4E2ettetNQEJlW0fP0FkEcAKcxTGVHTxzBiULLHrpgmORf7/b2Uc6ERRl3m0V2OlZK
+         L3Yw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787507987; x=1788112787;
+        d=1e100.net; s=20251104; t=1787510104; x=1788114904;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=ECOspUthc7jBrs5mtjKd9RwO1oTEgx0ts6iTJsWVuOY=;
-        b=tM7PqNJOPDJAd23LdRQT0oVjgB4PICBiA/cNb6MZMBxdv7eLYLMuJWVqYjXtKw9AKm
-         97WAKBwYU++eoYnlboeWYYQxyDhrQYMNZamH6o4HRK7Y1tIp/YmT9hboPaFvmVp4i8hz
-         xWjrQitUodu8ypw2JGhU2wNX/PntJbeegHVMkYSFncfU4GcoruYAXiH3Wlt/u40JmPHE
-         qDoC2V9xobYmTHvgTN6dcY77N/zAmwLFpFoG3zE6C8ZXGcmu3XDeEOeayV2HHW/URduE
-         9jDSZMR7OV1/XYBMo2neor7UuL8NzTp+7Clgv0ZDC1kzaP1ecj9s6pPUpkV4fAhJ2ZQt
-         4heQ==
-X-Forwarded-Encrypted: i=1; AHgh+RpDnXDUw5iVwif+V0dMM9rgcsp08FbN0dbBECYAx6jPvy3bLl14rdwtrx54hwxY0eIcoCvDEO53adPwonrbcQ==@lists.linux.dev
-X-Gm-Message-State: AFuF++lfCludfyoV7BwjNx33kAxnOTlRCAFC85QWVibnsZ0xznBMf6Kx
-	foTLireNxzzFvx7TpuBH0J1IRvRsf6jGOETzokek0l7DLLefm+7+OfKr
-X-Gm-Gg: AR+sD10r73qi9fTdp8LiRohfLTeT7fsrxmhl+W5IC9vhXTzrwKg61Plg8GKcb443N+0
-	XOsNj8Vpi/vTV4+HO8e0j4yZzN2lmfjsJkqU8360mM/IUGcR58fjyuvMdAo0nB8H+oaGYA1Tq0O
-	8ZiV/lq/s4KeFsCdzdc6iYG3RcV5XZWm8wwJlkJNtky79+kkd3kNlq9Vw57KiPs1mWycwwyiyNI
-	0pXkbf46/MPrHXRVzqnDj09I47m+tVWb8/Dy6mLht3d7CPy31gse6lpCCrAtRFj34iPUSSAGY3E
-	Zz2yeX7nxTQAfEcYIMTi4ggSsZmam2GS5oW9PZn61VhMnm6gGHbIkUhqhaOPCHf6FmZkh1cKIwh
-	iPUk+mTpXM2JJydw8JfdiywIRIGWWOObws/BoGuAP2SAcLIj+PtT9bsnhjGrdCc0in3BiAZQlSl
-	HMXxcEhcjHHIFZyI6zGjLZuL25/awEHuB5AwEb64xc1DIU5lXbRpFpJUdlBbgPtsYkgMUX6/57
-X-Received: by 2002:a17:90b:4c84:b0:38e:2517:5d1f with SMTP id 98e67ed59e1d1-395df2595d4mr19966783a91.9.1787507987364;
-        Sun, 23 Aug 2026 10:59:47 -0700 (PDT)
-Received: from ancienth-X870E-Nova-WiFi ([125.186.72.2])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-395c8fd34d9sm3722818a91.1.2026.08.23.10.59.42
+        bh=rhR6A6pOlxFnDseZWXN693d/vUJe+c8P3tz2lrasiRw=;
+        b=RSyiD7n4oIgAGu+cjtS0t39l+MaTIKyNCsd38rK5XNZ/vD0javcC6LvMHHNR742W5n
+         zjQw8HJvBfpMV3A1AN1I3G3NSMOjU0K5MNkVC8QMTlswzaS/ymyOVYGNoqr+6dgegDY9
+         KisZiy8K2cGO64+w3xFPhoEMiaPm5qEt6XElC0ePejHVwvsI1QuPfAf8iy1s6z6sJog9
+         TblUMEiK+Xg410UkB7NbyqrTh1fs5WWTG/IdKD/2c29IDkWt4nVOp4t7lcRT6ij17lLb
+         C01TP0sT3LyOTxi0dHlQgqS2MZ97ZG98oTHZtMf8Kest3YoCOAd2whHnR6OQxr2+7Ehi
+         8MGQ==
+X-Gm-Message-State: AFuF++msL0/cfi3fEa/xMuJs0ToSrkmKpDYN5N0UEyKZPwdGYxb0zsBU
+	EEZgKzsR6eyZJr8YxAk9UtpNLX87Mw7LlMH86JsrnQi3k2bn/7C3nAlw
+X-Gm-Gg: AR+sD11XfOzqAxpDZfcmJ7OPpEyRdJhKZtNz9oHAYl/rsA5Grll9YWoSHd52REZcPJD
+	G2u/tS/77BeTvXVeAqK2bJiWCpD/H6UjgNWjoAAnW0rWZVH3aqa2Yn9aR5zsPUq/bVkOZVlWEOp
+	V6m9WwVcM7SSFnNv/+yjLidzvYaAqR/VZkZnu2mfONM5udSNxGc5EbFBSiy9auKdgOp0Gl3R3mG
+	OApAKh05wybhWF+lGhX/94Jqfg+Oynd1awfIapl1kt1rAxZ73+13YGCV/ocFIEb1xxhfwREeIRq
+	3Vr1ZhM4Ml2MPENqfbDiRan5VoyexMK3nWZ9nh0jXf6AUd5jf7NcC+MlQD8CR/c5bPJF9wNGp5n
+	GfMt9WBvs0CZpydZMGj8SIEdVgmYyJaV9rIYp7ApBICqXPoJkI9Z6JOCdPhcSHVMCEOseG5s6EJ
+	FL6ZUr1N01DQ+IcCHcpEqDMYHoEq7nN1F+nGIyAjHxBSeJA4i6v5bRkmlNG+AnZ2s/dhTqUjTFw
+	cqye3ABftPr/aLhyXDV97+eS14CoNAAPkze7dbQbIhJ7qIc2RI74yE=
+X-Received: by 2002:a17:907:72c4:b0:c24:4128:c19f with SMTP id a640c23a62f3a-c2491e838dcmr1642086166b.11.1787510104071;
+        Sun, 23 Aug 2026 11:35:04 -0700 (PDT)
+Received: from 1c44f78ca37e.fritz.box (dynamic-002-214-002-133.2.214.pool.telefonica.de. [2.214.2.133])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c24962bbea6sm805385066b.27.2026.08.23.11.35.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 23 Aug 2026 10:59:46 -0700 (PDT)
-From: Daehyeon Ko <4ncienth@gmail.com>
-To: netdev@vger.kernel.org
-Cc: sgarzare@redhat.com,
-	stefanha@redhat.com,
-	bobbyeshleman@gmail.com,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	horms@kernel.org,
-	mst@redhat.com,
-	jasowangio@gmail.com,
-	xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
-	bryan-bt.tan@broadcom.com,
-	vishnu.dasa@broadcom.com,
-	bcm-kernel-feedback-list@broadcom.com,
-	virtualization@lists.linux.dev,
-	kvm@vger.kernel.org,
+        Sun, 23 Aug 2026 11:35:03 -0700 (PDT)
+From: Abhin Parekadan Jose <abhinjoses@gmail.com>
+To: lukas@wunner.de,
+	mst@redhat.com
+Cc: virtualization@lists.linux.dev,
+	linux-pci@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Sashiko <sashiko-bot@kernel.org>
-Subject: [PATCH net v3 2/2] vsock/vmci: validate packet source for connected sockets
-Date: Mon, 24 Aug 2026 02:58:58 +0900
-Message-ID: <20260823175858.351431-3-4ncienth@gmail.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260823175858.351431-1-4ncienth@gmail.com>
-References: <20260823175858.351431-1-4ncienth@gmail.com>
+	bhelgaas@google.com,
+	kbusch@kernel.org,
+	stefanha@redhat.com,
+	parav@nvidia.com,
+	axboe@kernel.dk,
+	kees@kernel.org,
+	ilpo.jarvinen@linux.intel.com,
+	xueshuai@linux.alibaba.com,
+	Abhin Parekadan Jose <abhinjoses@gmail.com>
+Subject: [PATCH RFC 0/3] pci_hp: fix surprise removal hang during safe removal
+Date: Sun, 23 Aug 2026 18:34:52 +0000
+Message-ID: <20260823183458.982699-1-abhinjoses@gmail.com>
+X-Mailer: git-send-email 2.51.1
+In-Reply-To: <cover.1752094439.git.mst@redhat.com>
+References: <cover.1752094439.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -93,110 +87,61 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-vmci_transport_recv_stream_cb() looks up sockets first by the full source
-and destination tuple, then by destination only in the bound table. The
-fallback can select a non-listening socket without checking whether the
-packet came from its stored peer.
+This series is based on top of MST's RFC v5
+(cover.1752094439.git.mst@redhat.com) and tries to address the architectural
+gap identified by Lukas Wunner in that thread.
 
-This was reproduced with two VMCI contexts. A RST from the context not
-stored in a TCP_SYN_SENT socket reset that socket after it was selected by
-the destination-only lookup.
+Context:
 
-VMCI can process notification packets in bottom-half context when the
-socket is not owned by user context, or defer packets to a workqueue. Use
-vsock_check_source() after taking the socket lock in the bottom-half path,
-and recheck after lock_sock() in the workqueue path. Listening sockets
-continue to accept packets from any source.
+MST's RFC v5 adds disconnect_work infrastructure so drivers can be
+notified of surprise removal. Lukas identified a race that the
+series cannot address: if safe removal is already in progress when the
+device is yanked, pciehp_ist() is blocked and cannot deliver the
+disconnect event.
 
-Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
-Reported-by: Sashiko <sashiko-bot@kernel.org>
-Closes: https://lore.kernel.org/netdev/20260814121255.6B5001F000E9@smtp.kernel.org/
-Cc: stable@vger.kernel.org
-Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
-Assisted-by: Codex:gpt-5.6-sol
-Signed-off-by: Daehyeon Ko <4ncienth@gmail.com>
----
- net/vmw_vsock/vmci_transport.c | 29 +++++++++++++++++++++++------
- 1 file changed, 23 insertions(+), 6 deletions(-)
+Potential fix:
 
-diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
-index 1c4ee039c..b612a9893 100644
---- a/net/vmw_vsock/vmci_transport.c
-+++ b/net/vmw_vsock/vmci_transport.c
-@@ -680,11 +680,13 @@ static int vmci_transport_recv_stream_cb(void *data, struct vmci_datagram *dg)
- 	struct vmci_transport_packet *pkt;
- 	struct vsock_sock *vsk;
- 	bool bh_process_pkt;
-+	bool drop_pkt;
- 	int err;
- 
- 	sk = NULL;
- 	err = VMCI_SUCCESS;
- 	bh_process_pkt = false;
-+	drop_pkt = false;
- 
- 	/* Ignore incoming packets from resources that aren't vsock
- 	 * implementations.
-@@ -765,17 +767,26 @@ static int vmci_transport_recv_stream_cb(void *data, struct vmci_datagram *dg)
- 	bh_lock_sock(sk);
- 
- 	if (!sock_owned_by_user(sk)) {
--		/* The local context ID may be out of date, update it. */
--		vsk->local_addr.svm_cid = dst.svm_cid;
-+		if (sk->sk_state != TCP_LISTEN &&
-+		    !vsock_check_source(vsk, &vmci_transport, &src)) {
-+			drop_pkt = true;
-+			err = VMCI_ERROR_NO_ACCESS;
-+		} else {
-+			/* The local context ID may be out of date, update it. */
-+			vsk->local_addr.svm_cid = dst.svm_cid;
- 
--		if (sk->sk_state == TCP_ESTABLISHED)
--			vmci_trans(vsk)->notify_ops->handle_notify_pkt(
--					sk, pkt, true, &dst, &src,
--					&bh_process_pkt);
-+			if (sk->sk_state == TCP_ESTABLISHED)
-+				vmci_trans(vsk)->notify_ops->handle_notify_pkt(sk, pkt, true,
-+									       &dst, &src,
-+									       &bh_process_pkt);
-+		}
- 	}
- 
- 	bh_unlock_sock(sk);
- 
-+	if (drop_pkt)
-+		goto out;
-+
- 	if (!bh_process_pkt) {
- 		struct vmci_transport_recv_pkt_info *recv_pkt_info;
- 
-@@ -900,6 +911,7 @@ static void vmci_transport_recv_pkt_work(struct work_struct *work)
- {
- 	struct vmci_transport_recv_pkt_info *recv_pkt_info;
- 	struct vmci_transport_packet *pkt;
-+	struct sockaddr_vm src;
- 	struct sock *sk;
- 
- 	recv_pkt_info =
-@@ -908,6 +920,10 @@ static void vmci_transport_recv_pkt_work(struct work_struct *work)
- 	pkt = &recv_pkt_info->pkt;
- 
- 	lock_sock(sk);
-+	vsock_addr_init(&src, pkt->dg.src.context, pkt->src_port);
-+	if (sk->sk_state != TCP_LISTEN &&
-+	    !vsock_check_source(vsock_sk(sk), &vmci_transport, &src))
-+		goto out;
- 
- 	/* The local context ID may be out of date. */
- 	vsock_sk(sk)->local_addr.svm_cid = pkt->dg.dst.context;
-@@ -937,6 +953,7 @@ static void vmci_transport_recv_pkt_work(struct work_struct *work)
- 		break;
- 	}
- 
-+out:
- 	release_sock(sk);
- 	kfree(recv_pkt_info);
- 	/* Release reference obtained in the stream callback when we fetched
--- 
-2.54.0
+I reproduced this with a simple edu device driver (patch 1) that blocks
+in remove() waiting for an interrupt. Same as blk_mq_freeze_queue_wait().
 
+deadlock in pciehp_ist() is avoided by adding a workaround in pciehp_isr() (patch 3)
+where a disconnect_work is scheduled and as this is a different thread it runs and
+dispatches the disconnect event to the driver. The driver can then unblock and complete
+the remove() and thus breaking the deadlock and also overcoming the problem of
+not waiting in pciehp_isr().This is only schduled if the PDS is set to 0
+indicating that there is no card attached at this slot in pciehp_isr().
+
+Tested using qemu:
+- Hacked the edu device to raise a delayed interrupt.
+- Hacked qemu to actually act like suprise removal by adding a simple monitor cmd
+  `pcie_surprise_del` to remove the device and genrate PDC=1, DLLSC = 1 and PDS=0.
+1. Launched qemu with the edu device:
+    `-device pcie-root-port,id=rp1,chassis=1,slot=1   -device edu,bus=rp1,id=edu0`
+2. Ran `echo 1 > /sys/bus/pci/devices/0000:01:00.0/remove` to start safe removal
+3. Ran `pcie_surprise_del edu0` to surprise remove the device while safe removal
+    is in progress.
+4. Verified that `edu_remove()` and `edu_disconnect()` are called.
+
+Without the fix: remove() hangs permanently.
+With the fix: pciehp_isr() fires, pciehp_disconnect_work() schedules
+pci_dev_set_disconnected(), edu_disconnect() completes the wait, remove()
+proceeds.
+
+Would this be a viable approach?
+
+Assisted-by: Claude:claude-sonnet-4-6
+
+Abhin Parekadan Jose (3):
+  misc: add edu_srpoc surprise removal POC driver
+  pciehp: add disconnect_work work_struct
+  pciehp_hpc: workaround to not wait in pciehp_isr on surprise removal
+
+ drivers/misc/Makefile            |   1 +
+ drivers/misc/edu_srpoc.c         | 180 +++++++++++++++++++++++++++++++
+ drivers/pci/hotplug/pciehp.h     |   1 +
+ drivers/pci/hotplug/pciehp_hpc.c |  47 ++++++++
+ 4 files changed, 229 insertions(+)
+ create mode 100644 drivers/misc/edu_srpoc.c
+
+--
+2.51.1
