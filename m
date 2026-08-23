@@ -1,181 +1,187 @@
-Received: from mail-ej1-f46.google.com (mail-ej1-f46.google.com [209.85.218.46])
+Received: from mail-ed1-f43.google.com (mail-ed1-f43.google.com [209.85.208.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93987339375
-	for <virtualization@lists.linux.dev>; Sun, 23 Aug 2026 18:35:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B45D3AE715
+	for <virtualization@lists.linux.dev>; Sun, 23 Aug 2026 22:12:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787510118; cv=none; b=iotuC0Scbh8t0rDCQSSL0nVzTikVUkbv1VlOoYtQToazZsvCePZM+dfYfeahyrcwFcZYqSnsdBxL6FnvEAL9S0AvfBKSZmjC8OkvQW/lok40vxNwTgRdHz9QlER5ahXZoZEDerOG7x3qKqxgrsfz7ZM62urWH/NwLteaUKX4G/w=
+	t=1787523165; cv=none; b=a6xTxNXy5tevQ4mO56bSjY5BvZcwJ9Yl7c8lO+DwAzhV66Vb3waczTQPvtaxEQOGVfcZ2tnHxCowwJAEYGrnmN7L2oaQvnKFb70tSK1rH2Zv5TU5XbuwVIhD1npAwwnonGDAMFESr+5/R7QJVrCodLk7pvq2Gg/yxo3zxIBFKLQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787510118; c=relaxed/simple;
-	bh=NvYRVXgFjcjQEUe8XA3TmxPUCrloiIqrGqm28dvgLK4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=mrxApLVSNVeKfMNDIKbDe/24JDXFz02WOEGd32rMIsaojeft7zheamXEcKA8GX3npTfNd/amvQ5hGejCBT35Z4b83Yzi63mBQ27rZGz9ajkMH7dSu59hAk2e0wu8NxsrKz3PLBCS2niQw2YsSocCjnvjdwqFrGW3HggBt1RWwAo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YgfUvW/I; arc=none smtp.client-ip=209.85.218.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1787523165; c=relaxed/simple;
+	bh=GqPg7liRNMqrm8j4qggfPJWb6w6iifsnP6+v+SgJcSk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=UJoLWNww6ir0/qNi9RS4Mv9hPhkZMhwfT/sJczH1hYBvhxK6UfMEPJxhAGPYmKNT8MR4z5zK027vRQVjFvsVsszpL91vk9cOayryfdYuFUeP0e7dJeCe/sUF4noDfT3SKjjuhx6aZB/FbHhLB8q5MYE0Fg3TFsB+lTb5J9fhUPY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=FPfqc06J; arc=none smtp.client-ip=209.85.208.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YgfUvW/I"
-Received: by mail-ej1-f46.google.com with SMTP id a640c23a62f3a-c1f758014b8so285822866b.3
-        for <virtualization@lists.linux.dev>; Sun, 23 Aug 2026 11:35:12 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="FPfqc06J"
+Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-6a38098734bso4955053a12.1
+        for <virtualization@lists.linux.dev>; Sun, 23 Aug 2026 15:12:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787510111; x=1788114911; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=BIXCeWqSrCQg2g+vGMEBn3omtTu0U5s8PS5zUr5JWZM=;
-        b=YgfUvW/IuOjoHSzfJelV4Cn6aED6FH2dZGDiwRM/od9LnqjZYZe6Sv31NIqu1pHNoG
-         00dS6gDgqqY/aGt7SJXHTOqKoap8EhSuRylnHH045OCDyOYIcPhewiuRNmIP2mWcihT+
-         kSXlB588+qERsO8HfLADrpms24Z1cFuv9vQ9wBaoBgTQ/E1nzKAfX2lgGEHCL4CUcHHg
-         rjgDdxbTdUWbEJ0d65LundEQLcsOggQ5Br/mvAj0ZSmb6mEVJrYMbtCv0T5kmwBLUAoX
-         1tnoOPR9qmtd8IzWSHCO4pUHMOlqEyqHgSh+UJ4MhgAS7GL9nZYgYrsg3/64vFGzEcQ1
-         AKWA==
+        d=baylibre.com; s=google; t=1787523160; x=1788127960; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=//7iEXuM0dwaErrYwlxiIsbco7Xb10BSWAJJRQqIeEQ=;
+        b=FPfqc06Jb3ITFgV1DG3qV2CPOcxOxTNhFSrjBwOPkCMCz17ZRp2+6V4ZbQ7XLsPcTO
+         R9V+oRekps23w4ZcqeUA/y9rlEwc3KNa9ansJxDTz07/jmKAI8p+Nn0iMZ+DLU5KvqaS
+         taIQxLGjXIJfNOK9CX40J4vLOtu6zKpzgO0RMTbjZCQMBdk1Lsae7fP3EMqgTxu/ggju
+         E2Q2vtWA5pqCjAt3KkpzWycNCJqqwIDrur4h4E7Z2+3n1n3X0uF6TUFmCl/FDYiV34iz
+         KGpEShIqs4vS7RNaGkqwNTjm1V5otMFKFYo0df0tl3zH2/l7yzYKHt/Ftv8hxAMFG9R5
+         kICw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787510111; x=1788114911;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=BIXCeWqSrCQg2g+vGMEBn3omtTu0U5s8PS5zUr5JWZM=;
-        b=IeIe7feU5XnzdNuqmO6nikoH6ysyQ+F11hkVtN5m2NR7Qzr/ImZybqydXvgeKUDCGG
-         mYWNa4llt2+cnnB6lMKP77sIUnNBKi0T1GENZ1tnIpfkZkLpIZ7hZxIHvxzvoW8n5ar9
-         IxoxZaParM/pT7FzM9AvAVMygzjg+kQCsiidx9oR971fDJyCQA92aKitcs7G6JGunkMW
-         aZVNQk8tmHLICoMuokSxaGKRUB0hbN/xZE29Maz0P6K2lx5db/7kvweIBCyxh/QT+gB4
-         CHVv0QEh82ZNDi6FBFPO8roUwxlE6LKrbsBRpyeZKpXss9LYRq+ndi9nOOa0xy9nXnPv
-         i0tQ==
-X-Gm-Message-State: AFuF++m1jyOOkPASdjWOCDNUhhB0yGrAKXxGdoPAyUKz/v486wL5WXxd
-	Oqn3zPjqm/glsZ9G2C0RLZP2x3W9zOvnCLsJnOfQjOuj9VMtt4fsD0jC
-X-Gm-Gg: AR+sD11kQADvvHQe6GbWGflQ1GpyLcBBAT3eSGf5z7Tk3EjnL5lp+PFuoppaIb8LHEa
-	jLg9XF59TmytNZdKFzsf24AltZ5JQ4Pm1EqaigtJpEEuuyagOcoj4tKA6Mthb5rIE0XOFzg1TYJ
-	uYzmaBIierLGADVBtpeZxx4TYWtx7ZwYgi5jGcyn7Y8YrWuKmLv6hb01ns9IFBp6i30Ijbnaydq
-	qiowKqaaxQaqOEiGx6vhbdyfRc6uasQq1LbgwLNprebLbP2OQHbVbSFNWbByvfVV2x2Wp/lfkUK
-	x1Ld9EVt4zEvyuVGkXUkrHK5FDzGXGwssUQzev8NqCug2Ntkscvrrai9630b8N3WrHdPR5XsSGe
-	P5pfUdZDTa95gFtCeK3auNAmgG+7z+S9PujiY/Rqx98Ii5vFKjwFqF1UMfsIMQ8AoBlFkO8Vs/z
-	r64VU8UYx3OumH3Pd/C5+Et5wdTnhbWkxRK9UBCGt/kLvXOoWAfIWecNrQp6gcCOy1QMaIDYklU
-	vcqTi1DzV7wGuzZsoIvFB1MmQs6K5D7ns3gZ42xme8ufzD58HRVlDw=
-X-Received: by 2002:a17:906:5183:10b0:c16:84dc:9607 with SMTP id a640c23a62f3a-c246a704562mr1871998066b.19.1787510110478;
-        Sun, 23 Aug 2026 11:35:10 -0700 (PDT)
-Received: from 1c44f78ca37e.fritz.box (dynamic-002-214-002-133.2.214.pool.telefonica.de. [2.214.2.133])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c24962bbea6sm805385066b.27.2026.08.23.11.35.09
+        d=1e100.net; s=20251104; t=1787523160; x=1788127960;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=//7iEXuM0dwaErrYwlxiIsbco7Xb10BSWAJJRQqIeEQ=;
+        b=CAK0ZOR2RnIzuuL3lMm6zMNA//AHM6sY+rKR5sFe+UuZBl7hD60nXbfW3srx8fb1xV
+         OuRjGkYMg7QGxNwXvItbcGCQX1U72B17r/Ruz0AinONE6AQfnWTrNKnx/gC/NH3nW+Fd
+         Jl8ocUQwmdG2V1knSqYAIN3VXsl27cR30uWfDolSlbEdPXAYKdGEtpKSaBPBJTBQDOOD
+         HFjQMDvZL0ZuIyfubCOKi3SkaSAJoMVlWvrKOQIkVEywTgW/fR3LJLrvDbyZpHihJZ6V
+         Dst69d2OIvZVQ53/zjkY/6Vcz83eS9tOjLWrTBuDKkpf9O0YBAckHSc4Vr3EKI3abClZ
+         arVA==
+X-Forwarded-Encrypted: i=1; AHgh+Rps39Ngb1DXZ46v6pwTs8jg5o9ETUC8PBb71P6BO8XW7EFEC+1Wprxnjw+6c1aQU8Uqxn9Pm7Qx8AEOfmiQCQ==@lists.linux.dev
+X-Gm-Message-State: AFuF++m85JP2DmDABngW8POASRxHTP3nOot45gyE8bjWkE6EI4n9XiQH
+	QQvfSbLOUxdvS269RRYRdIrCqtefkj8yWHOx2+nL2DK636pH71CaOkuGNR8nR8amEPc=
+X-Gm-Gg: AR+sD11xnpBaOa8SeNAnZKJOr61BAqcr+yLddhx9BtCZkP+p3B3H/CdY6Cr+ILq8ZgC
+	0uiajBxgB1jV9+ftE49GJbbzuvex9LWIGOiw/AcoqPlkxc0P9SPQha0oMMWsf9UUWIKBSJzud7v
+	XVwR2qzHVmLX+rnkJiHecuNF1j5aWgDLYJdvaGOG90t43wZYwS+yAYHa1ZIFf2dV2Mk2zOvHRW4
+	JoDXdYMXtRo0S2K7jN/A+sCSc37wpiHStCqj9rQYVJhbWh/U/pmXijvS2bBL0B8lzKIEpo7qds/
+	34auggFWzBomH12iyNcPnm9Dvf2+fHhoRWNHqzfXGIoOhsJRl//NwriVyR0Gz4Nuj0BR64UYGep
+	W3u2+edd3wMLNMDUWE8V5699WHwaeAUL3djOMOC4UhuV6GsKLSIxJfmlP0/GbyxWe1bI0vwB63t
+	9Ep30KHyPstIvTpfiwSTdcmvT8sFI/aJYBnZtj3waIUH6OF527kGnDYsQcbupxAfXwCSHbd8+Dg
+	qwD
+X-Received: by 2002:a05:6402:505b:b0:69c:811f:8f5 with SMTP id 4fb4d7f45d1cf-6a42f1b9325mr25356134a12.6.1787523160405;
+        Sun, 23 Aug 2026 15:12:40 -0700 (PDT)
+Received: from localhost ([2a02:8071:56d1:2de0:1d24:d58d:2b65:c291])
+        by smtp.gmail.com with UTF8SMTPSA id 4fb4d7f45d1cf-6a59e00108asm7547158a12.2.2026.08.23.15.12.39
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 23 Aug 2026 11:35:10 -0700 (PDT)
-From: Abhin Parekadan Jose <abhinjoses@gmail.com>
-To: lukas@wunner.de,
-	mst@redhat.com
-Cc: virtualization@lists.linux.dev,
-	linux-pci@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	bhelgaas@google.com,
-	kbusch@kernel.org,
-	stefanha@redhat.com,
-	parav@nvidia.com,
-	axboe@kernel.dk,
-	kees@kernel.org,
-	ilpo.jarvinen@linux.intel.com,
-	xueshuai@linux.alibaba.com,
-	Abhin Parekadan Jose <abhinjoses@gmail.com>
-Subject: [PATCH RFC 3/3] pciehp_hpc: workaround to not wait in pciehp_isr on surprise removal
-Date: Sun, 23 Aug 2026 18:34:55 +0000
-Message-ID: <20260823183458.982699-4-abhinjoses@gmail.com>
-X-Mailer: git-send-email 2.51.1
-In-Reply-To: <20260823183458.982699-1-abhinjoses@gmail.com>
-References: <cover.1752094439.git.mst@redhat.com>
- <20260823183458.982699-1-abhinjoses@gmail.com>
+        Sun, 23 Aug 2026 15:12:39 -0700 (PDT)
+Date: Mon, 24 Aug 2026 00:12:38 +0200
+From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
+To: Mauricio Faria de Oliveira <mfo@igalia.com>
+Cc: Kees Cook <kees@kernel.org>, Joel Granados <joel.granados@kernel.org>, 
+	Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	kernel-dev@igalia.com, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org, 
+	fsverity@lists.linux.dev, keyrings@vger.kernel.org, bpf@vger.kernel.org, 
+	linux-fsdevel@vger.kernel.org, linux-kbuild@vger.kernel.org, netdev@vger.kernel.org, 
+	linux-wpan@vger.kernel.org, lvs-devel@vger.kernel.org, netfilter-devel@vger.kernel.org, 
+	coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-rdma@vger.kernel.org, 
+	linux-s390@vger.kernel.org, bridge@lists.linux.dev, mptcp@lists.linux.dev, 
+	rds-devel@oss.oracle.com, virtualization@lists.linux.dev
+Subject: Re: [PATCH RFC v3 03/13] sysctl, mod_devicetable: add macro
+ MODULE_SYSCTL_TABLE
+Message-ID: <aotteDcc588iwC6g@monoceros>
+References: <20260819-sysctl-module-aliases-v3-0-aab90569365d@igalia.com>
+ <20260819-sysctl-module-aliases-v3-3-aab90569365d@igalia.com>
+ <aomlfGJM61qZKxx2@monoceros>
+ <4e3eaf1d3419e808be046035f114bf6c@igalia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="6dsww6grbwx7uy7i"
+Content-Disposition: inline
+In-Reply-To: <4e3eaf1d3419e808be046035f114bf6c@igalia.com>
 
-- Add pciehp_disconnect_work() , this function is used using schedule_work from pciehp_isr allowing us to not wait in pciehp_isr()
-- pciehp_disconnect_work() is scheduled only if the card is not detected (PDS bit = 0).
-       The PDS bit can be used to differentiate between a safe and surprise removal.
 
-Signed-off-by: Abhin Parekadan Jose <abhinjoses@gmail.com>
----
- drivers/pci/hotplug/pciehp_hpc.c | 47 ++++++++++++++++++++++++++++++++
- 1 file changed, 47 insertions(+)
+--6dsww6grbwx7uy7i
+Content-Type: text/plain; protected-headers=v1; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH RFC v3 03/13] sysctl, mod_devicetable: add macro
+ MODULE_SYSCTL_TABLE
+MIME-Version: 1.0
 
-diff --git a/drivers/pci/hotplug/pciehp_hpc.c b/drivers/pci/hotplug/pciehp_hpc.c
-index 4c62140a3cb4..69ed6b060e9d 100644
---- a/drivers/pci/hotplug/pciehp_hpc.c
-+++ b/drivers/pci/hotplug/pciehp_hpc.c
-@@ -620,6 +620,40 @@ static void pciehp_ignore_link_change(struct controller *ctrl,
- 	up_read(&ctrl->reset_lock);
- }
- 
-+/*
-+ * Workaround to not wait in the isr.
-+ */
-+static void pciehp_disconnect_work(struct work_struct *work)
-+{
-+	struct controller *ctrl = container_of(work, struct controller,
-+					       disconnect_work);
-+	struct pci_dev *pdev = ctrl_dev(ctrl);
-+	int events;
-+
-+	events = atomic_read(&ctrl->pending_events);
-+
-+	/*
-+	 * Ignore Link Down/Up events caused by Downstream Port Containment
-+	 * if recovery succeeded, or caused by Secondary Bus Reset,
-+	 * suspend to D3cold, firmware update, FPGA reconfiguration, etc.
-+	 */
-+	if ((events & (PCI_EXP_SLTSTA_PDC | PCI_EXP_SLTSTA_DLLSC)) &&
-+	    (pci_dpc_recovered(pdev) || pci_hp_spurious_link_change(pdev)) &&
-+	    ctrl->state == ON_STATE) {
-+		// Ignore the link change events and return to normal operation.
-+		// Could also wait here if needed.
-+		return;
-+	}
-+
-+	struct pci_bus *bus = ctrl->pcie->port->subordinate;
-+
-+	/* the card may have returned. */
-+	if (!bus || pciehp_card_present(ctrl) != 0)
-+		return;
-+
-+	pci_walk_bus(bus, pci_dev_set_disconnected, NULL);
-+}
-+
- static irqreturn_t pciehp_isr(int irq, void *dev_id)
- {
- 	struct controller *ctrl = (struct controller *)dev_id;
-@@ -722,6 +756,17 @@ static irqreturn_t pciehp_isr(int irq, void *dev_id)
- 
- 	/* Save pending events for consumption by IRQ thread. */
- 	atomic_or(events, &ctrl->pending_events);
-+
-+	// presence change events
-+	if (events & (PCI_EXP_SLTSTA_PDC | PCI_EXP_SLTSTA_DLLSC)) {
-+		// Get PDS bit to determine if card is present or not
-+		int present = pciehp_card_present(ctrl);
-+		if (!present) { // for sure the card is not present
-+			schedule_work(&ctrl->disconnect_work);
-+			// After this we are no longer in isr and can wait.
-+		}
-+	}
-+
- 	return IRQ_WAKE_THREAD;
- }
- 
-@@ -1036,6 +1081,7 @@ struct controller *pcie_init(struct pcie_device *dev)
- 	init_waitqueue_head(&ctrl->requester);
- 	init_waitqueue_head(&ctrl->queue);
- 	INIT_DELAYED_WORK(&ctrl->button_work, pciehp_queue_pushbutton_work);
-+	INIT_WORK(&ctrl->disconnect_work, pciehp_disconnect_work);
- 	dbg_ctrl(ctrl);
- 
- 	down_read(&pci_bus_sem);
-@@ -1096,6 +1142,7 @@ struct controller *pcie_init(struct pcie_device *dev)
- void pciehp_release_ctrl(struct controller *ctrl)
- {
- 	cancel_delayed_work_sync(&ctrl->button_work);
-+	cancel_work_sync(&ctrl->disconnect_work);
- 	kfree(ctrl);
- }
- 
--- 
-2.51.1
+Hello Mauricio,
 
+On Sat, Aug 22, 2026 at 01:57:24PM -0300, Mauricio Faria de Oliveira wrote:
+> On 2026-08-22 10:41, Uwe Kleine-K=F6nig wrote:
+> > On Wed, Aug 19, 2026 at 03:16:16PM -0300, Mauricio Faria de Oliveira wr=
+ote:
+> >> The MODULE_SYSCTL_TABLE macro emits a struct module_sysctl_table varia=
+ble
+> >> with pointers to a sysctl table's path and entries, and table/entry si=
+zes.
+> >=20
+> > That new struct doesn't seem to contain any pointer?
+>=20
+> The struct module_sysctl_table fields .path and .table are pointers,
+> although with kernel_ulong_t type so that the same 32/64-bit size is
+> used in file2alias.c based on KERNEL_ELFCLASS (and not on the host,
+> which might differ with CROSS_COMPILE).
+
+Cross compilation isn't an issue for the already existing device id
+structures; many of them also contain pointers.
+(While modpost doesn't use the pointers, the size of the structures must
+be known to correctly interpret the arrays.)
+Also sizeof(long) differs between architectures and I can compile for
+arm(32) just fine on amd64.
+
+Additionally there is hardware out there that has sizeof(void *) =3D 16
+but sizeof(long) =3D 8. Up until recently I worked on mainlining that (and
+it has business reasons only I stopped, so I guess and hope I will
+continue at some point in the future). See
+https://lwn.net/Articles/1037974/ for some details if you're interested.
+
+I would be great if your series didn't introduce a new obstacle for
+that.
+
+> >> That symbol will be handled by file2alias.c (modpost) with the changes=
+ in
+> >> mod_devicetable.h and devicetable-offsets.c.
+> >>=20
+> >> The option macros MODULE_SYSCTL_TABLE_{DISABLE,UNIQUE_ID} can be used =
+on
+> >> a per-file basis to disable the macro and change the symbol name patte=
+rn.
+> >>=20
+> >> Signed-off-by: Mauricio Faria de Oliveira <mfo@igalia.com>
+> >> ---
+> >>  include/linux/mod_devicetable.h   |  7 +++++++
+> >>  include/linux/sysctl.h            | 42 ++++++++++++++++++++++++++++++=
++++++++++
+> >>  scripts/mod/devicetable-offsets.c |  6 ++++++
+> >>  3 files changed, 55 insertions(+)
+> >=20
+> > Please put the new struct in a separate header. Apart from not being
+> > about a device table, I'm currently work on removing
+> > <linux/mod_devicetable.h>. See commit
+> > ad428f5811bd7fb3d91fa002174de533f9da94d7 for more details.
+>=20
+> Sure; I looked at that earlier (thanks for the instructive commit
+> message, by the way) and found the new struct to be similar to "struct
+> cpu_feature isn't really a device_id struct" (not moved), but apparently
+> missed the trailing "fow now", which is clearer now. Fixed for v4.
+
+Yeah, I didn't move that because it was an outlier in the header as it's
+not a device id. IMHO it should go to something like
+include/linux/cpu_feature.h.
+
+Best regards
+Uwe
+
+--6dsww6grbwx7uy7i
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmqLcFMACgkQj4D7WH0S
+/k74fgf+L2E+C5s7/Uv60MggM8SluqqYOIYVRQMrJ0YZ292Po2lSpcrxuhUuQU2B
+oXhO4fsc1HgZsK331x/O/bMuTOPLltQaKOsxLiMi24UglNQqmujyzSUFLnsr9NlL
+1xjI1icd6tMaie8k1PK7ynotnvtfYE9Fbl/52MAUgNFbTbWqnaXhNv+fzm/C72Cc
+xjp+GuDi0DimbriiFBYP3aUccUEUCgsrwh3Zwss3iQSaV2gZ3Y+jYlUBB3YlBSZQ
++m5a8ZWC4FeqCD+8NXyqc01adbOF9gkilqmoa2KsUhRY9+jPqn0pQhpfPxEl6Lf9
+/YNG96sk855Er0BHcQ1R8Pg+AcsRrg==
+=t37g
+-----END PGP SIGNATURE-----
+
+--6dsww6grbwx7uy7i--
