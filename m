@@ -1,61 +1,43 @@
-Received: from szxga04-in.huawei.com (szxga04-in.huawei.com [45.249.212.190])
+Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7D8713777E
-	for <virtualization@lists.linux.dev>; Mon, 24 Aug 2026 03:31:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.190
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CF183EDE78
+	for <virtualization@lists.linux.dev>; Mon, 24 Aug 2026 09:13:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787542269; cv=none; b=WH+aZpQsGcVhPjroPD6OQTn68f0dybHvBDJeAEq7CkhtIySL00iTbmVzSlZ92aJhIRBpy4A3q+HlhdqzduzRIIE7iJXQeE0C8RK3BTYkAHEbtbAy2rcK6SXdSE/QV2rECdvkC61f7V21Dt/F3zJF72BxGVODvjP97dpaE7/C8ZQ=
+	t=1787562824; cv=none; b=Ul4QY4WdB5uxAI0XxmfnKKZpiieX64qZ4Q8JYb+pRcd+5BxEliagk6DdgkhZvkagVntyNxOK2pMJbO3by2PqCuB+sjfQzYFoklc6tuiPgBdhd+IVyyLITWYqth6++KL2NjbyglPQvJS+E2zb5nTZVOqd+FVLzG0ERR7D0Nb3mzw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787542269; c=relaxed/simple;
-	bh=jjyOmc2K8X0ppmoPKALpru79/0BCrfyz/m43wThbzoU=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=YRkqfntNXwi8mS4+Pb5cf3ZOo0eYIzEEbyXgYBGvt/MVIC0jnxHH7ADEV2CnQmhCx3AR9IYec36ZNbVy9Y7m36Bgm3nVyUSPayijS9uehynNZ7Qj36ZJQfSu+atCoBHq19wQI3DXj7HCtDd5zqGHJPKlN/H/0X0YxWLjqEn7cio=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=V7hazroh; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=V7hazroh; arc=none smtp.client-ip=45.249.212.190
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+	s=arc-20240116; t=1787562824; c=relaxed/simple;
+	bh=+nOV6NkIgUqBKBqIy66tJwhBsmV6pwSIrq/6q0PXurs=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=SKIjA8PmRjIyta1W9+TDPWKYVku5OEHU0/Mv29yXdy9m10EtBbyUtETWrgx1NY3WoRUC3OHmFGmipBtugbOU7eYNLskgb5gJGRyMaOwgIc1IJVf90uFgXFgXR4apCBaNC5Xi95nj9uVsdQWf8t2aCtHYIUzSS5e9poOK2GvGgKI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=SgrloLNY; arc=none smtp.client-ip=117.135.210.4
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="V7hazroh";
-	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="V7hazroh"
-dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
-	c=relaxed/relaxed; q=dns/txt;
-	h=From;
-	bh=jjyOmc2K8X0ppmoPKALpru79/0BCrfyz/m43wThbzoU=;
-	b=V7hazroh1fKtCcWYtjhxleGaONrY89x2ZBES+112YfpwS4//KpEEq/ETsSTkbF+buk057OSwR
-	mq9FJnRTvR7ZLk6/+dgcRTsa4DJvPEH0GhkdY7bsG6FyrwECaxVTwfhEUFxigrjMDY6nVLfh8gN
-	d+J6/tMcptJ24Mdqe6OG1Po=
-Received: from canpmsgout01.his.huawei.com (unknown [172.19.92.178])
-	by szxga04-in.huawei.com (SkyGuard) with ESMTPS id 4hSxHj31TBz126Lwq
-	for <virtualization@lists.linux.dev>; Mon, 24 Aug 2026 11:30:09 +0800 (CST)
-dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
-	c=relaxed/relaxed; q=dns/txt;
-	h=From;
-	bh=jjyOmc2K8X0ppmoPKALpru79/0BCrfyz/m43wThbzoU=;
-	b=V7hazroh1fKtCcWYtjhxleGaONrY89x2ZBES+112YfpwS4//KpEEq/ETsSTkbF+buk057OSwR
-	mq9FJnRTvR7ZLk6/+dgcRTsa4DJvPEH0GhkdY7bsG6FyrwECaxVTwfhEUFxigrjMDY6nVLfh8gN
-	d+J6/tMcptJ24Mdqe6OG1Po=
-Received: from mail.maildlp.com (unknown [172.19.163.104])
-	by canpmsgout01.his.huawei.com (SkyGuard) with ESMTPS id 4hSx4j5VMbz1T4Fq;
-	Mon, 24 Aug 2026 11:20:37 +0800 (CST)
-Received: from dggpemr500006.china.huawei.com (unknown [7.185.36.185])
-	by mail.maildlp.com (Postfix) with ESMTPS id D04B54057F;
-	Mon, 24 Aug 2026 11:30:44 +0800 (CST)
-Received: from localhost.localdomain (10.50.85.180) by
- dggpemr500006.china.huawei.com (7.185.36.185) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.45; Mon, 24 Aug 2026 11:30:44 +0800
-From: Yao Kai <yaokai34@huawei.com>
-To: <yaokai34@huawei.com>
-CC: <airlied@redhat.com>, <dmitry.osipenko@collabora.com>,
-	<dri-devel@lists.freedesktop.org>, <gurchetansingh@chromium.org>,
-	<jifa@huawei.com>, <kraxel@redhat.com>, <liuyongqiang13@huawei.com>,
-	<olvaffe@gmail.com>, <virtualization@lists.linux.dev>
-Subject: Re: [PATCH 0/2] drm/virtio: fix control-buffer leaks on queueing errors
-Date: Mon, 24 Aug 2026 11:50:17 +0800
-Message-ID: <20260824035017.2725625-1-yaokai34@huawei.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260731092236.2262403-1-yaokai34@huawei.com>
-References: <20260731092236.2262403-1-yaokai34@huawei.com>
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="SgrloLNY"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=xz
+	6Zn8pKxyQnTNAKDy7+cGCULMrW3RLqW541vFp+R6k=; b=SgrloLNYJQXLOoFJyO
+	rwRCIMTXiED56NMsB61/HstWJoVezBqx0WW3QmnKC2g4Cupy2khFuE7XazDy8etL
+	wU8OE71da8l7DzoM8bN0yuc2AmBUR6xKB0ZldcPCaPg2pyk9a765XEG7TO3Tu+Nv
+	+2PGHFMwDQSd9OicUVw/ZLD8o=
+Received: from localhost.localdomain (unknown [])
+	by gzga-smtp-mtada-g1-4 (Coremail) with SMTP id _____wDX7osaC4xq61QtRw--.13833S2;
+	Mon, 24 Aug 2026 17:12:59 +0800 (CST)
+From: Rongguang Wei <clementwei90@163.com>
+To: sgarzare@redhat.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	horms@kernel.org
+Cc: virtualization@lists.linux.dev,
+	netdev@vger.kernel.org,
+	Rongguang Wei <weirongguang@kylinos.cn>
+Subject: [PATCH net v1] vsock: validate buffer min/max size in setsockopt
+Date: Mon, 24 Aug 2026 17:12:57 +0800
+Message-Id: <20260824091257.136269-1-clementwei90@163.com>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -63,11 +45,76 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: kwepems100002.china.huawei.com (7.221.188.206) To
- dggpemr500006.china.huawei.com (7.185.36.185)
+X-CM-TRANSID:_____wDX7osaC4xq61QtRw--.13833S2
+X-Coremail-Antispam: 1Uf129KBjvJXoW7uw4fGry8CrWrKFW8AFy8Grg_yoW8tF1kpF
+	yakrWIqw4DJry2q3ZYyrn0qay5Aan5Xw4UWrWxtF97Jr1DKrZ2grW8Ar9xKrW7AFs3Ga4r
+	Xr98Wr1vk3Wjq3DanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07jjtC7UUUUU=
+X-CM-SenderInfo: 5fohzv5qwzvxizq6il2tof0z/xtbC-huG8WqMCxuyTAAA3a
 
-Gentle ping. Any comments on this series?
+From: Rongguang Wei <weirongguang@kylinos.cn>
 
-Thanks,
-Yao
+SO_VM_SOCKETS_BUFFER_MIN_SIZE and SO_VM_SOCKETS_BUFFER_MAX_SIZE
+do not cross-validate against each other, allowing userspace to
+set buffer_min_size > buffer_max_size.
+When min > max, buffer_size is silently clamped to an incorrect
+value. For example, setting min=512KB then max=128 results in
+buffer_size=128 despite the user requesting much larger buffers
+via SO_VM_SOCKETS_BUFFER_SIZE.
+
+Reproduced with a test program:
+setsockopt(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_MIN_SIZE,
+	   512 * 1024, sizeof(int));
+setsockopt(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_MAX_SIZE,
+	   128, sizeof(int));
+// User asked for 1MB but got 128 bytes silently
+setsockopt(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_SIZE,
+	   1024 * 1024, sizeof(int));
+
+After that use getsockopt to get the buffer_size = 128 and
+buffer_min_size = 524288, buffer_max_size = 128.
+The buffer_min_size > buffer_max_size and the kernel accepted
+contradictory values without error.
+
+Add value check to fix this issue. Return -EINVAL to userspace
+when setting MAX_SIZE to a value smaller than the current MIN_SIZE
+or setting MIN_SIZE to a value larger than the current MAX_SIZE.
+
+Fixes: b9f2b0ffde0c ("vsock: handle buffer_size sockopts in the core")
+Signed-off-by: Rongguang Wei <weirongguang@kylinos.cn>
+---
+ net/vmw_vsock/af_vsock.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index a33b2a2d381d..5faa30ee8745 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -2050,12 +2050,20 @@ static int vsock_connectible_setsockopt(struct socket *sock,
+ 
+ 	case SO_VM_SOCKETS_BUFFER_MAX_SIZE:
+ 		COPY_IN(val);
++		if (val < vsk->buffer_min_size) {
++			err = -EINVAL;
++			goto exit;
++		}
+ 		vsk->buffer_max_size = val;
+ 		vsock_update_buffer_size(vsk, transport, vsk->buffer_size);
+ 		break;
+ 
+ 	case SO_VM_SOCKETS_BUFFER_MIN_SIZE:
+ 		COPY_IN(val);
++		if (val > vsk->buffer_max_size) {
++			err = -EINVAL;
++			goto exit;
++		}
+ 		vsk->buffer_min_size = val;
+ 		vsock_update_buffer_size(vsk, transport, vsk->buffer_size);
+ 		break;
+-- 
+2.25.1
+
+
+No virus found
+		Checked by Hillstone Network AntiVirus
+
