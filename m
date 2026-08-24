@@ -1,255 +1,150 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6369E423761
-	for <virtualization@lists.linux.dev>; Mon, 24 Aug 2026 12:57:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3124841DE02;
+	Mon, 24 Aug 2026 12:57:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787576231; cv=none; b=WSOf0RKO6P14AdygCKSH6GrZnC82rAQAG6b6KS9NiyE1Ozq89nFcnP6F0g2ZKZrYSoFlDgyE2cVzyO+na2psfvR06e2D9Z3juNTZMuHfKVUeK4FljxtZQ7Ds0ic6zs1GptImrH0fEIIl/wFMfxroqnfpog0GsLkWIEdHdUSKOTM=
+	t=1787576239; cv=none; b=FP0a9BnfZ579qfjuAbLVrT4/2lreGHm3WatDnU4UXZwDtJZIyTp/N45n2XMFOlx0OoOWrHaTInmuk83ZhqXrlp0MfePhWcrZEGZl4KWtIWrvVCHU/qAjEh6kFD9xqmerKqMZahpzcZQC9gKYr0rDJ4H3e3D6ex3HtU1VlliHgOc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787576231; c=relaxed/simple;
-	bh=Hgzu/aTqGgpWftoDfichdxt+TjW0mzlTI6alWxrxj5c=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=gu2tE8lg9jGKO0bW3hi+dNxSq+oYdEiBqzJfMEy9MltJ1RG5ydA44tb8uRsNU7jTK6Tig2xWR6k3yRf/H+v7FKJhvhZbonlRA3Qw7tSiRs2O0W57r5ewJx8UWlMjG6oe+LD9gEzkH61UbPIa3TT8JluEnp9qrVwKNoweJzs+Zzc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=RgOzaE9S; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=919aQov6; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=kvb2GBXy; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=Gis60qH+; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1787576239; c=relaxed/simple;
+	bh=gFPkcIHnQkRgZ6LvoT82P7KXrjaxtmSA5hYHJkD/53k=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=pQinPk8FnwiXnKbVP/KVH0DZer+NIIh5bsq9r67SVdr6yiT+3lpGO9ujfSMlw64Q+B+Tb46//QyQDj0autzVtWAdzZUaGTTN87AjbXilNZZqZCfBHOTE9uytoa1f+pprdMAsX6Wzz+jqmqL9DCxr81SbxGeBFyGHF0N6GCC5UrA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UELVG1hp; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="RgOzaE9S";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="919aQov6";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="kvb2GBXy";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="Gis60qH+"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 355D41F78D;
-	Mon, 24 Aug 2026 12:52:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1787575930; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=Y4Rt8us7KI8CytgLhmA5lh8x+Gadd2RdxeTeBmbBBCM=;
-	b=RgOzaE9S+HYlAglV9BpmsudO5/gKS03qrN19AX7VA84YNBypoV1s7TYrBfSh73gqj/O0do
-	qyIixOajyJ2RS6TJcR9vOHJYHp0IVYgaC6hgtolU22PbS97SWpG5sBEO+O89VV+BZKojjZ
-	Aq6Pj9RCWSBBofyuO203nFy0+tYee8w=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1787575930;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=Y4Rt8us7KI8CytgLhmA5lh8x+Gadd2RdxeTeBmbBBCM=;
-	b=919aQov6dWtPIV6Oxs6qVgMKm0rO2Hbdr8b8b5+j/KYdI/9Ou4NRCMuNBMNt2GQK25JJ9I
-	fLGh4EergfVJS6AA==
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1787575926; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=Y4Rt8us7KI8CytgLhmA5lh8x+Gadd2RdxeTeBmbBBCM=;
-	b=kvb2GBXypsijxw7CuZUwEcBSkoH/Ynz3bQYZVWPEK17qYH9iyVcPQeNJgr5mo76BPqh0se
-	4tvWz2Aq5/pWNBN95pfVNrjWwAwnr0B6yKhz5GVs9nfI3pBC0ygHGUBf13NNKP9j8g4Khe
-	HXBEVIsayxD8H6aVQvuX5UsWn5VzREk=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1787575926;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=Y4Rt8us7KI8CytgLhmA5lh8x+Gadd2RdxeTeBmbBBCM=;
-	b=Gis60qH+QDuqJW6hGG3iTTPhGQQ2NG/9IWW7bHVGqMPmgj9fJUSlUvg+hNqOtzGT1PwOfk
-	FYOVY8rYMGX+cTAA==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id ACCAB13335;
-	Mon, 24 Aug 2026 12:52:05 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id xYHvKHU+jGpyNwAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Mon, 24 Aug 2026 12:52:05 +0000
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: jfalempe@redhat.com,
-	javierm@redhat.com,
-	airlied@gmail.com,
-	simona@ffwll.ch,
-	maarten.lankhorst@linux.intel.com,
-	mripard@kernel.org,
-	geert@linux-m68k.org,
-	rdunlap@infradead.org
-Cc: dri-devel@lists.freedesktop.org,
-	linux-doc@vger.kernel.org,
-	amd-gfx@lists.freedesktop.org,
-	rust-for-linux@vger.kernel.org,
-	linux-hyperv@vger.kernel.org,
-	intel-gfx@lists.freedesktop.org,
-	intel-xe@lists.freedesktop.org,
-	imx@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	nouveau@lists.freedesktop.org,
-	linux-renesas-soc@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	sashiko-reviews@lists.linux.dev,
-	Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v2 00/13] drm/panic: Split into core and helpers
-Date: Mon, 24 Aug 2026 14:43:31 +0200
-Message-ID: <20260824125201.218863-1-tzimmermann@suse.de>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UELVG1hp"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D244C1F000E9;
+	Mon, 24 Aug 2026 12:57:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787576237;
+	bh=wCQGBGKrnXzElrElzJa+hggu/yGdQXuY5mcnoZzygSg=;
+	h=Date:Subject:To:References:From:In-Reply-To;
+	b=UELVG1hprXVRRgMB5RGtVROPuTKxv2LSMQF9qPKNg33hKdTyfASd75+SI4DupNVWb
+	 jhESm3EATnoBEvg7egA1HEGZIQ8hY2Q+RDVDYDOXI9ZjE7nmmrxtl6v4LTeks40GYd
+	 so7o+nDOjGeAq2z6p7MW/AYlOKW30CF1Bw5Mcet7tEBfoiCXLoL0oWdiO9JUfvzwim
+	 pspPheZ57oQncrkDKoC3uaJvSmTqWHV0RLbdibb2ntdakLqmdodJXei0LRtYy5Meko
+	 z5T+/mUnwH5O6iRRlgvMZtEGTT/0pUYtRUGsZuLPmJV/3X4Sj1Zp/8BFT2hZ+oH+dW
+	 z3gMl3TbIf6Jw==
+Message-ID: <0e69abdc-0127-45dc-9bc1-bf48772cc7ea@kernel.org>
+Date: Mon, 24 Aug 2026 14:57:12 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spamd-Result: default: False [-2.80 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	MID_CONTAINS_FROM(1.00)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_MISSING_CHARSET(0.50)[];
-	NEURAL_HAM_SHORT(-0.20)[-0.999];
-	MIME_GOOD(-0.10)[text/plain];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	ARC_NA(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	TO_DN_SOME(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[22];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[drm_panic_qr.rs:url,imap1.dmz-prg2.suse.org:helo,suse.de:mid,drm_panic_helper_qr.rs:url];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	FREEMAIL_TO(0.00)[redhat.com,gmail.com,ffwll.ch,linux.intel.com,kernel.org,linux-m68k.org,infradead.org];
-	RCVD_TLS_ALL(0.00)[];
-	R_RATELIMIT(0.00)[to_ip_from(RLqirfcw6gnbcr9a9yhi49fhi6)];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com]
-X-Spam-Flag: NO
-X-Spam-Score: -2.80
-X-Spam-Level: 
+User-Agent: Mozilla Thunderbird
+Subject: Re: [syzbot] [virt?] INFO: trying to register non-static key in
+ stats_request (2)
+To: syzbot <syzbot+13df72e0dc4be5c62215@syzkaller.appspotmail.com>,
+ eperezma@redhat.com, jasowangio@gmail.com, linux-kernel@vger.kernel.org,
+ mst@redhat.com, syzkaller-bugs@googlegroups.com,
+ virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com
+References: <6a88e933.ae6ddae5.3da009.0046.GAE@google.com>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=david@kernel.org; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <6a88e933.ae6ddae5.3da009.0046.GAE@google.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Split DRM's current panic handling into a core and a helper module.
-The core is still part of DRM's core library. The panic helpers are
-part of DRM's KMS helper module (for now).
+On 8/22/26 02:11, syzbot wrote:
+> Hello,
+> 
+> syzbot found the following issue on:
+> 
+> HEAD commit:    8d3ae59288f1 Linux 7.2
+> git tree:       upstream
+> console output: https://syzkaller.appspot.com/x/log.txt?x=10240679580000
+> kernel config:  https://syzkaller.appspot.com/x/.config?x=4c9eb8e593cf8c5c
+> dashboard link: https://syzkaller.appspot.com/bug?extid=13df72e0dc4be5c62215
+> compiler:       Debian clang version 22.1.8 (++20260613092233+e80beda6e255-1~exp1~20260613092250.77), Debian LLD 22.1.8
+> 
 
-The motivation behind this series is to get panic handling's drawing
-code out of the DRM core. At some point it should share a single
-module with DRM's other drawing and format conversion.
+virtio-balloon in an RT kernel/environment, unlikely in pactice ... :)
 
-With the series applied, panic handling follows DRM's established
-design pattern of having a DRM core interface with a dedicated
-implementation in each driver. Drivers share common code in helper
-modules. For panic handling, the DRM core still contains the panic
-entry points, the parameters and the debugfs interface. All drawing
-is now located in the panic helpers.
-
-Patches 1 to 4 improve several issues in the current panic code. It
-makes sense to fix them before moving the core around.
-
-Patches 5 to 8 put handling of all panic state and locking into a
-single place, drm_panic_display_panic_screen(). It is maintained by
-panic handling's DRM core code. This also enables the test cases to
-work more independently from the kernel's configuration.
-
-Patches 9 to 12 split the panic-handling code into the core and panic
-helpers. The former maintain all state, locking and public interfaces.
-The latter handles drawing and details of the involved framebuffers.
-
-DRM devices that offer panic handling provide a single callback, struct
-drm_plane_funcs.display_panic_screen. A new initializer macro makes it
-point to the existing panic-drawing implementation. Hence there's no
-change in features or functionality. If panic handling is configured
-off, it all clears out to NULL.
-
-Patch 13 reworks the test cases slighly, so that they can be build as
-a separate module. Do 'modprobe drm_panic_helper_test' to run them.
-
-Tested under bochs, i915, amdgpu with debugfs and test cases.
-
-Future directions:
-
-- Panic handling shares drawing code with format conversion and
-clients. There's even more drawing code in vkms. Later series' can
-attempt to unify and harmonize all these implementations in a single
-draw module.
-
-- The drawing helper drm_plane_helper_display_panic_screen() still
-implements various access schemes (map, set_pixel, memcpy) in a single
-function. It could be split up into specialized helpers.
-
-- If we ever need a driver-specific helper, it is now possible to
-implement a custom version of display_panic_screen.
-
-v2:
-- resolve the various Kconfig issues (Randy)
-- remove changes to qrbuf allocation (Jocelyn, Geert)
-- fix possible URL format-string attack
-- make test cases work again uder certain edge cases
-- add better error reporting from failed draw_screen
-- filter out non-primary planes from panic handling
-
-Thomas Zimmermann (13):
-  drm/panic: Do not use un-escaped URL as format string
-  drm/panic: Test address from kmap op for NULL
-  drm/panic: Return -EINVAL if font is not available
-  drm/panic: Return errno codes if panic output fails
-  drm/panic: Pass colors to draw_panic_dispatch()
-  drm/panic: Pass global module parameters to drm_panic_dispatch()
-  drm/panic: Retry in dispatch function if panic output fails
-  drm/panic: Split draw_panic_plane()
-  drm/panic: Restrict to primary planes; unconditionally unregister
-  drm/panic: Display panic screen via per-plane callback
-  drm/panic: Internalize panic locking in DRM core and helpers
-  drm/panic: Move panic display code into helper library
-  drm/panic: Compile KUnit tests as module
-
- Documentation/gpu/drm-kms-helpers.rst         |  11 +-
- Documentation/gpu/drm-kms.rst                 |   3 +
- MAINTAINERS                                   |  11 +-
- drivers/gpu/drm/Kconfig                       |   9 +-
- drivers/gpu/drm/Kconfig.debug                 |   1 +
- drivers/gpu/drm/Makefile                      |   3 +-
- .../amd/display/amdgpu_dm/amdgpu_dm_plane.c   |   2 +
- drivers/gpu/drm/ast/ast_mode.c                |   2 +
- drivers/gpu/drm/drm_atomic_helper.c           |   2 +-
- drivers/gpu/drm/drm_crtc_internal.h           |   2 -
- drivers/gpu/drm/drm_drv.c                     |   3 +-
- drivers/gpu/drm/drm_kms_helper_common.c       |  14 +
- drivers/gpu/drm/drm_modeset_helper.c          |   2 +
- drivers/gpu/drm/drm_panic.c                   | 919 +-----------------
- drivers/gpu/drm/drm_panic_helper.c            | 918 +++++++++++++++++
- ...drm_panic_qr.rs => drm_panic_helper_qr.rs} |   4 +-
- drivers/gpu/drm/drm_panic_internal.h          |  69 ++
- drivers/gpu/drm/hyperv/hyperv_drm_modeset.c   |   2 +
- drivers/gpu/drm/i915/display/i9xx_plane.c     |   3 +
- .../drm/i915/display/skl_universal_plane.c    |   4 +
- drivers/gpu/drm/imx/ipuv3/ipuv3-plane.c       |   2 +
- drivers/gpu/drm/mgag200/mgag200_drv.h         |   4 +-
- drivers/gpu/drm/nouveau/dispnv50/wndw.c       |   2 +
- .../gpu/drm/renesas/rcar-du/rcar_du_plane.c   |   2 +
- .../drm/renesas/shmobile/shmob_drm_plane.c    |   2 +
- drivers/gpu/drm/sysfb/drm_sysfb_helper.h      |   4 +-
- drivers/gpu/drm/sysfb/vesadrm.c               |   1 +
- drivers/gpu/drm/tests/Makefile                |   1 +
- ...m_panic_test.c => drm_panic_helper_test.c} |  67 +-
- drivers/gpu/drm/tidss/tidss_plane.c           |   2 +
- drivers/gpu/drm/tiny/bochs.c                  |   4 +-
- drivers/gpu/drm/virtio/virtgpu_plane.c        |   2 +
- include/drm/drm_mode_config.h                 |   4 +-
- include/drm/drm_modeset_helper_vtables.h      |  11 +-
- include/drm/drm_panic.h                       | 117 +--
- include/drm/drm_panic_helper.h                |  40 +
- include/drm/drm_plane.h                       |  57 ++
- rust/bindings/bindings_helper.h               |   4 +-
- 38 files changed, 1273 insertions(+), 1037 deletions(-)
- create mode 100644 drivers/gpu/drm/drm_panic_helper.c
- rename drivers/gpu/drm/{drm_panic_qr.rs => drm_panic_helper_qr.rs} (99%)
- create mode 100644 drivers/gpu/drm/drm_panic_internal.h
- rename drivers/gpu/drm/tests/{drm_panic_test.c => drm_panic_helper_test.c} (79%)
- create mode 100644 include/drm/drm_panic_helper.h
+> Unfortunately, I don't have any reproducer for this issue yet.
+> 
+> Downloadable assets:
+> disk image: https://storage.googleapis.com/syzbot-assets/cd49b631c498/disk-8d3ae592.raw.xz
+> vmlinux: https://storage.googleapis.com/syzbot-assets/05d3ad83c130/vmlinux-8d3ae592.xz
+> kernel image: https://storage.googleapis.com/syzbot-assets/3a2efa4a6769/bzImage-8d3ae592.xz
+> 
+> IMPORTANT: if you fix the issue, please add the following tag to the commit:
+> Reported-by: syzbot+13df72e0dc4be5c62215@syzkaller.appspotmail.com
+> 
+> INFO: trying to register non-static key.
+> The code is fine but needs lockdep annotation, or maybe
+> you didn't initialize this object before use?
+> turning off the locking correctness validator.
+> CPU: 0 UID: 0 PID: 20235 Comm: irq/10-virtio2 Tainted: G             L      syzkaller #0 PREEMPT_{RT,(full)} 
+> Tainted: [L]=SOFTLOCKUP
+> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 07/24/2026
+> Call Trace:
+>  <TASK>
+>  dump_stack_lvl+0xe8/0x150 lib/dump_stack.c:120
+>  assign_lock_key+0x133/0x150 kernel/locking/lockdep.c:984
+>  register_lock_class+0xcc/0x2e0 kernel/locking/lockdep.c:1299
+>  __lock_acquire+0xab/0x2ce0 kernel/locking/lockdep.c:5112
+>  lock_acquire+0x106/0x350 kernel/locking/lockdep.c:5868
+>  rt_spin_lock+0x83/0x400 kernel/locking/spinlock_rt.c:56
+>  spin_lock include/linux/spinlock_rt.h:45 [inline]
+>  start_wakeup_event drivers/virtio/virtio_balloon.c:150 [inline]
+>  stats_request+0xa5/0x1f0 drivers/virtio/virtio_balloon.c:435
 
 
-base-commit: dc462ab791b686c48545c160ecc81be64f77a846
-prerequisite-patch-id: c67e5d886a47b7d0266d81100837557fda34cb24
-prerequisite-patch-id: a5a973e527c88a5b47053d7a72aefe0b550197cb
-prerequisite-patch-id: b9adc9622920a3e70168e672c2c92795b3e3a106
-prerequisite-patch-id: 5030de433a01c2e99056cadb676a8e2ba35f055a
+I don't really understand what's happening here, Is the register_lock_class()
+trying to reguster a non-static key?
+
+I don't immediately see how virtio-balloon is doing something odd here, all it
+does is a spin_lock_irqsave(&vb->wakeup_lock, flags), that was earlier
+initialized with spin_lock_init(&vb->wakeup_lock), before the device was ready.
+
 -- 
-2.55.0
+Cheers,
 
+David
