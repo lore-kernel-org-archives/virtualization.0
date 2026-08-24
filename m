@@ -1,395 +1,238 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from MRWPR03CU001.outbound.protection.outlook.com (mail-francesouthazon11011055.outbound.protection.outlook.com [40.107.130.55])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAB0C359A6B
-	for <virtualization@lists.linux.dev>; Mon, 24 Aug 2026 12:59:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787576371; cv=none; b=LdsZGmGAo9bdksx+KIshE2H5TT7jQj3DUdIh4r5yZXuvG7rJLPecdkDxV9hqOsmCKJUO72iIidTGtV+Mi5No9IDHh5snA9kjUETMiUHrnzVMqB8kF0fw3noNDcm8a+VvF0FACWRxtYdplNCfeNJ4g9AaevAN5uMlXMEmTpuGlR4=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787576371; c=relaxed/simple;
-	bh=IVeMo9Mu3c7BvXEMgN+1FnpdhEfbIPzcjDkBI9MEWw0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=rMLZlN4FY6NGahbvx1y5pgXC7BlobCk+1n1WAYtFcH24ArHXE3g0xMz7Z/8yliW2CHNECaK/7YQIg6gxp98eYXkKwo2rhs/fmDwUbJHA2f+sMEW1Uw8NWmP0p8pFBROSiEZ1ekHH6VZ74e99/YC+w73rr8oUy/UclQLKsByClZo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=b4nMG6oI; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=R8q1M4c+; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=aBIRFlP6; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=+QrvSpZB; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C8003FCB11
+	for <virtualization@lists.linux.dev>; Mon, 24 Aug 2026 17:24:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.130.55
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1787592296; cv=fail; b=aFZ2EuP0xxE7ULT2nMO6iXzscwHjjGXvkFjbluX+9ecbJ0o2ZXrFCNcw3SnFRQ8o8JO4fj6rCzBUHkHmzYLi0sD7I139qr11uha81JLOojQS/ZK6p+TCSzqp6N7EvbkkH/tpMTOVCC+19rFtTRRAG/HGIw1Rp/pTox//4odRsl8=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1787592296; c=relaxed/simple;
+	bh=1vbj/dAGlTQsCZw80PAh64V05oEODoE873h7vrqy6WU=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=L9F2spSIPJOnI8LteL7OPzArHtPDIOlJg0VyEQB6NgkWVNrBQMaHRkBmF6g/F4ALmCsZDL8r83CtkyvyHJqRH4JtCpITcgfeweDg5YQUVr5WxnczWeVVoHulDpwAuSFmeR7L4Z/UvP2ZBAuptIE+DwpFr0k303Qi8X2Vgt0va1w=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nokia-bell-labs.com; spf=fail smtp.mailfrom=nokia-bell-labs.com; dkim=pass (2048-bit key) header.d=nokia-bell-labs.com header.i=@nokia-bell-labs.com header.b=EHZCsa4k; arc=fail smtp.client-ip=40.107.130.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nokia-bell-labs.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nokia-bell-labs.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="b4nMG6oI";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="R8q1M4c+";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="aBIRFlP6";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="+QrvSpZB"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 0CB6F1F45F;
-	Mon, 24 Aug 2026 12:52:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1787575936; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=vDSmxFASz+fkrhZzUl77TDXseYfLE5/RPWlWXgBn8tc=;
-	b=b4nMG6oIR8iSZpPaxrfQN5El39KyJKWOEUkCl5OpvExfqATh7u37VIHqx0UpbT7dzcyHEG
-	K4vV6RD0Om6GKZQcrBs5K9EaY1FzQuFh/Z+sKJHf9sG+PpMbTK8DDGWc9XOTG4yc4dS5Re
-	PklyOhYU70PfsEeeipUqnvzVv3RqA6c=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1787575936;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=vDSmxFASz+fkrhZzUl77TDXseYfLE5/RPWlWXgBn8tc=;
-	b=R8q1M4c+MTfap+bhVzUARZPw+Ip5Cx2kFP2H4j43ky/kG30qAYU0IK3vKqihQHuDtZz/tm
-	35RFhgjyy1dy8RAQ==
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1787575932; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=vDSmxFASz+fkrhZzUl77TDXseYfLE5/RPWlWXgBn8tc=;
-	b=aBIRFlP6paT4N3trcB0wPfhixBBoQsU36F61Y0v/hO7DXQYNDSa9zd5H7K7ncQxcr9tPsi
-	xvzYmMOVBJh2p8VBqzHj4FE1LiGmN/AMxW4zUs6eqVfFlY/oEK9aQGNq61pEKImaPkzmbc
-	Ceu8+9dRXR4/fdalXZJnU5QaNM/Lyzo=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1787575932;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=vDSmxFASz+fkrhZzUl77TDXseYfLE5/RPWlWXgBn8tc=;
-	b=+QrvSpZBbEhaJ/Ac1pHKNBtWLjVml1HSeW+8DbrU/qF0mIG/CYkefnNqcpB6FMAUIZxejZ
-	LWyBVGsREBZCYsBg==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 8768513331;
-	Mon, 24 Aug 2026 12:52:11 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id MLvbH3s+jGpyNwAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Mon, 24 Aug 2026 12:52:11 +0000
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: jfalempe@redhat.com,
-	javierm@redhat.com,
-	airlied@gmail.com,
-	simona@ffwll.ch,
-	maarten.lankhorst@linux.intel.com,
-	mripard@kernel.org,
-	geert@linux-m68k.org,
-	rdunlap@infradead.org
-Cc: dri-devel@lists.freedesktop.org,
-	linux-doc@vger.kernel.org,
-	amd-gfx@lists.freedesktop.org,
-	rust-for-linux@vger.kernel.org,
-	linux-hyperv@vger.kernel.org,
-	intel-gfx@lists.freedesktop.org,
-	intel-xe@lists.freedesktop.org,
-	imx@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	nouveau@lists.freedesktop.org,
-	linux-renesas-soc@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	sashiko-reviews@lists.linux.dev,
-	Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v2 11/13] drm/panic: Internalize panic locking in DRM core and helpers
-Date: Mon, 24 Aug 2026 14:43:42 +0200
-Message-ID: <20260824125201.218863-12-tzimmermann@suse.de>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260824125201.218863-1-tzimmermann@suse.de>
-References: <20260824125201.218863-1-tzimmermann@suse.de>
+	dkim=pass (2048-bit key) header.d=nokia-bell-labs.com header.i=@nokia-bell-labs.com header.b="EHZCsa4k"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=djkDKb6VKMChlEejCwgMPUPDheGt5OqjkTNqI6wjUMS22rEKJOA7Kpg0J6PCxqBCKdW0gZZKqzhE8b6EWUvm4vs9x8mMWiKhO5QMDjbpNuzJrHfAPVbZEWRUn7haj2MlKzNfsgJkwPBblkjgV0QIdaCeww3I/M358e2ZXnC4akV3J9szCcGFNSGZ7CQtWQ8hHOOXiNhJY3sZz3XZrIQ5yqsr1kewbZqrxy4OQKj+DbpKg3DnXcPAPu0y0Z5rKqvuig1mMYXz/vWOcH4T7Ha0W0bTHnX2L/U4aOy4MJbU17fYnRnjQgHK9QiyN0UQFpFzPrs7JWu9gUtdRYW0kFWgNQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=IF7WvxO1pgPjTKRVlEbDus9sinWcH8DbQul9YMGpJxk=;
+ b=q2HmAIVMvlUw5MovTkKITNi2ad7W4BxQEGti2ZlrZgzd3zru3MPnf6XEEJD/Heh1686N3s0O0k3qT1eEYIdP4p6iVAvzcTT9TYGkoAPLF/GnyHHUmZN5rBt4q394fKqJ5bTwIjlMTXuw1n6PFtKudlQJS1XgNMed9PgUToFwWo8De7mSVbngOHTXIDb/u9TleVApRanwBA8edbAWpPd4VX3b9D7WvTH+qVSkjLdW3Y4hdrn2wks86iWcObejZ6mflls5zP2psHtxKPWx+EPGGGi3OAClkg85MwZyaD/ifjBORJS9Ju8pBFDKeGHaF6FPe6gX+HYaHqaAj/zbBKCRhQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nokia-bell-labs.com; dmarc=pass action=none
+ header.from=nokia-bell-labs.com; dkim=pass header.d=nokia-bell-labs.com;
+ arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nokia-bell-labs.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=IF7WvxO1pgPjTKRVlEbDus9sinWcH8DbQul9YMGpJxk=;
+ b=EHZCsa4kyAgscskFrvuJTO4GFamgYaN6UGnHzp8wmMjP8Saomwmc4a5kVvRFs+HtUpuHxsN/bkArCc3DwQaYvrKpfGzLQXlt0RXjHFcXAknfcFy1Ux6EdPBxqpg3g4RjGMlJCmBDjsvtZPOZIZmj8r2yma1O9RVOptg8hv3R6ier3PY7k6iuR0A9WkCv+po7A26ku+1dMZEAe2Cvt6qQ5FtyQJy9dEbtoCq6ZQDOknVkq+XDO1wHoj8bwzK8lMY9tax5JPBf0HFal5kDkP43u9X6l7DI8sCfmJ0o2Ru58NprFNMWb6CnE5lINeyxeg5nOLbsTzk5mLBOmbvjqtRW9g==
+Received: from PAXPR07MB7984.eurprd07.prod.outlook.com (2603:10a6:102:133::12)
+ by DU2PR07MB8255.eurprd07.prod.outlook.com (2603:10a6:10:278::19) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.360.6; Mon, 24 Aug
+ 2026 17:24:50 +0000
+Received: from PAXPR07MB7984.eurprd07.prod.outlook.com
+ ([fe80::f708:4bd3:9987:b9e5]) by PAXPR07MB7984.eurprd07.prod.outlook.com
+ ([fe80::f708:4bd3:9987:b9e5%2]) with mapi id 15.21.0360.005; Mon, 24 Aug 2026
+ 17:24:49 +0000
+From: "Chia-Yu Chang (Nokia)" <chia-yu.chang@nokia-bell-labs.com>
+To: Jijie Shao <shaojijie@huawei.com>, Jakub Kicinski <kuba@kernel.org>
+CC: "shenjian15@huawei.com" <shenjian15@huawei.com>,
+	"linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
+	"eperezma@redhat.com" <eperezma@redhat.com>, "jasowang@redhat.com"
+	<jasowang@redhat.com>, "virtualization@lists.linux.dev"
+	<virtualization@lists.linux.dev>, "mst@redhat.com" <mst@redhat.com>,
+	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
+	"pabeni@redhat.com" <pabeni@redhat.com>, "edumazet@google.com"
+	<edumazet@google.com>, "linux-doc@vger.kernel.org"
+	<linux-doc@vger.kernel.org>, "corbet@lwn.net" <corbet@lwn.net>,
+	"horms@kernel.org" <horms@kernel.org>, "dsahern@kernel.org"
+	<dsahern@kernel.org>, "kuniyu@google.com" <kuniyu@google.com>,
+	"bpf@vger.kernel.org" <bpf@vger.kernel.org>, "netdev@vger.kernel.org"
+	<netdev@vger.kernel.org>, "dave.taht@gmail.com" <dave.taht@gmail.com>,
+	"jhs@mojatatu.com" <jhs@mojatatu.com>, "stephen@networkplumber.org"
+	<stephen@networkplumber.org>, "xiyou.wangcong@gmail.com"
+	<xiyou.wangcong@gmail.com>, "jiri@resnulli.us" <jiri@resnulli.us>,
+	"davem@davemloft.net" <davem@davemloft.net>, "andrew+netdev@lunn.ch"
+	<andrew+netdev@lunn.ch>, "donald.hunter@gmail.com" <donald.hunter@gmail.com>,
+	"ast@fiberby.net" <ast@fiberby.net>, "liuhangbin@gmail.com"
+	<liuhangbin@gmail.com>, "shuah@kernel.org" <shuah@kernel.org>,
+	"linux-kselftest@vger.kernel.org" <linux-kselftest@vger.kernel.org>,
+	"ij@kernel.org" <ij@kernel.org>, "ncardwell@google.com"
+	<ncardwell@google.com>, "Koen De Schepper (Nokia)"
+	<koen.de_schepper@nokia-bell-labs.com>, "g.white@cablelabs.com"
+	<g.white@cablelabs.com>, "ingemar.s.johansson@ericsson.com"
+	<ingemar.s.johansson@ericsson.com>, "mirja.kuehlewind@ericsson.com"
+	<mirja.kuehlewind@ericsson.com>, "cheshire@apple.com" <cheshire@apple.com>,
+	"rs.ietf@gmx.at" <rs.ietf@gmx.at>, "Jason_Livingood@comcast.com"
+	<Jason_Livingood@comcast.com>, "vidhi_goel@apple.com" <vidhi_goel@apple.com>
+Subject: RE: [PATCH v5 net-next 2/2] net: hns3: fix GSO_ECN flag setting in
+ the RX path
+Thread-Topic: [PATCH v5 net-next 2/2] net: hns3: fix GSO_ECN flag setting in
+ the RX path
+Thread-Index: AQHdJFknwofVPz0NnEuqy57Qt9muFbaY4t2AgAFg0yCAANAQgIAJrtaAgAjHFcA=
+Date: Mon, 24 Aug 2026 17:24:49 +0000
+Message-ID:
+ <PAXPR07MB7984BC22EF5F2BCE5319D8A1A3A02@PAXPR07MB7984.eurprd07.prod.outlook.com>
+References: <20260804213510.673084-1-chia-yu.chang@nokia-bell-labs.com>
+ <20260804213510.673084-3-chia-yu.chang@nokia-bell-labs.com>
+ <61721708-0d77-4f59-aa08-02562af282bb@huawei.com>
+ <PAXPR07MB79842CC27C2F5CF9BD40E007A3DC2@PAXPR07MB7984.eurprd07.prod.outlook.com>
+ <20260812155927.57ee295b@kernel.org>
+ <b1aa6136-3dc1-4190-beaa-32bee88b7091@huawei.com>
+In-Reply-To: <b1aa6136-3dc1-4190-beaa-32bee88b7091@huawei.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nokia-bell-labs.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: PAXPR07MB7984:EE_|DU2PR07MB8255:EE_
+x-ms-office365-filtering-correlation-id: 7a747943-2038-42bc-0f02-08df02049a20
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam:
+ BCL:0;ARA:13230040|366016|7416014|1800799024|376014|23010399003|10067099003|56012099006|6133799003|4133799003|22082099003|18002099003|4143699003|11063799006|38070700021;
+x-microsoft-antispam-message-info:
+ 1p6oevB/XMeJVLIbwXqFst3wNqEpCDlLMfnkXblPLugt8yJfeFM6U7BIGwdxo5Jcziba77y4+lr1Kn7idAJADAINjiFC+HPFJrIaRP7aUvWtxUSZxEQ4n1/l6qYLC71H2KSa8zvcvtgAqNftFXpF5PjQNv/QXHwL2ditJCKa1Ti0JZ3w1TujGVgqXL5f2UV2jcTobQ1rQ0+UADQRlGzObMsbncmvXD3BIBZ0oYM0E8ZSskSG43BUS3gOwtP0tm8WOD/W/q+uqRklSFoEw5beSCmgsy7N6wZtfnNJdlrVpRLKwaxV+u0yb4XaM/WU4yBGONmFPuWTrCcrbaXFRbdBMjVhxQY8hGxyCB1q7yg9jUY9yY/suXcRVqu/g7VxL4r+opfCiM3sQKpHLhdaq6wSBS9Jhz6yMxOCyt+mcArWWr9HucuGclnbsFuLXvNmuLtjHEvSKr2E7S6D6xXon0fE+k9C6zoAXXBMDeXYQ9xh/4nmoRezS7cqSQcjwDxwZY5oZyqnfURlIYhZQlKsSC7xbEqHDS6OtFW+yl0m8+61zaxWt9Xh5ASyaDUVbOHINPLOSOAPF9gINsIhwLB2ok4ld2ZNWgfyy3C8J0kwKuceZ5FFKNCEha5ef63fHpxZaQP89xF9e5R988Ud25dmK4JpuHf654+LWYB4SQW3e/5TP9NTO0D2ECR/+FtkFHJbs/aZ7KBJXWLURLt4RTcunlzXPLSB4C/yY1RQc7z4ab1JNQQ=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PAXPR07MB7984.eurprd07.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(7416014)(1800799024)(376014)(23010399003)(10067099003)(56012099006)(6133799003)(4133799003)(22082099003)(18002099003)(4143699003)(11063799006)(38070700021);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?Hnp2mIfuI0QYucNSpIAi/BAqTYd9Ake3E43dhsp6wg/hBSWl+miP/sNLwlq/?=
+ =?us-ascii?Q?rd5KDxcd85RdHUDTePZ4mxr4tI+lipKlVwpT9iqAIzVlwPFkdg3VR8QivKnk?=
+ =?us-ascii?Q?Wg3KACq/CDGhHjb5jVfXr/J0TgS1X/4wIylLfyV7bY8XXWduXR02l6FKZfsc?=
+ =?us-ascii?Q?37QmUa8F7ZduUVhFlEDbxq/p26nTPUOWSxnIfkfjlk23B481aTV9N4HuOGxn?=
+ =?us-ascii?Q?yxu9MlpJdnUc+8PcKFv7oYJXaWxRhUQVD1xOpR7GFBU6Xx+QDfGdBZkET3PR?=
+ =?us-ascii?Q?FbSKfcn5FjslVHCOafISQqdtgo9b8aiGkbbd2VMV9SDkQIP1frJyzluqn7GV?=
+ =?us-ascii?Q?1ZsCz5WwAhVI/0Os3GqLyajSsfn2/FlDKRmY0/s93oIJB2bzK7rmqfuqIdzh?=
+ =?us-ascii?Q?cMpN1pzGbuMutwbpmoYmLrt8S9wy6OTLzARxeIhm4E89eP3oD6DHMc7b9yjd?=
+ =?us-ascii?Q?E9SNv5LYpHzZG1+hluqij4Sos1/qtVGVnmKzXc4ndabsdOAlHzZtudNOepCy?=
+ =?us-ascii?Q?kkXZj0wlg++xmtvIsJNW3RcjZbAHGmfxQhabjvzVCMAlZAn+xMoLZTZc+OvT?=
+ =?us-ascii?Q?LGnFJWHGjRxOmYEBt9TQy9/emGjB2h8LkA7ZqmuEBDw6ZmpzSxMXfABxYgKt?=
+ =?us-ascii?Q?p2KIjUWE2exrBVXebLUuDfshFWpQVWg96IBtmc7VRpaHIss9Te9pWbkKnp9P?=
+ =?us-ascii?Q?c9xUu9SO7i/2Ful1982f4YVy+FRsMLMAKJeoZnEGV1tcCVmr+8GZ6W3pzDHR?=
+ =?us-ascii?Q?uUFwAdrlPoJvkHTLVOxzmj4N382UgUVQBIi6ykZXaXUZT2Ew9ypkrdOQu9KY?=
+ =?us-ascii?Q?6gx/T2BIqqspBzJ9VvosO44Ozi1c9z5iYdHeMvcQmR03Lx3McnXfyxjw69Hr?=
+ =?us-ascii?Q?+xWkaAss/cxsBMSmz8chJ3KUUJNW+peVhdNFsfh4WJt9FuDRF5AaYNOjB26i?=
+ =?us-ascii?Q?HynI35wUn4+D4Ae5s52ZTo80tjvcIrk8HS1T5+bna/tgIkDgCb6yMVsjj7eh?=
+ =?us-ascii?Q?Yr1exA0k53+84UIDCFlWs3m7tjnrwuavbWWwCZnig1JC5S8BQamw5Fdv8HkM?=
+ =?us-ascii?Q?NmtEwBOEOlF3uU1wPdALXx6MAk6VXNF/pDw66EqbUD0O7OfWJpDHjkQkCEJS?=
+ =?us-ascii?Q?Cy5cbqwjL9Qh/jDIP576YHzDxL65iWTovypvvbRmPPjH1MaojGHagsqXszY2?=
+ =?us-ascii?Q?/h2Ias2qAXWY3t0emDNovsgdN4ya7Coy0JKqsJNPy9jCcpiVfQO1o/JE9j+T?=
+ =?us-ascii?Q?R1msRwTtGNh1HbPZvWrjl4Kt2acgAo8XvYmNwosXB7ys5e1CMkV5S1qU+YVt?=
+ =?us-ascii?Q?7B2aAWrg1NqDqYbQOnYmA5WSRsjGDDMZmd7dESC7G+agy+lPMLzyEKebhX61?=
+ =?us-ascii?Q?KK1JwXFMppPO7yPELDKd6PzQfybjXBajq6GjsmkpLVz4TyvtDp8hX963njnX?=
+ =?us-ascii?Q?6FCP9a3wnCiSeHZk5OXdZ18PlWuXXd2qq4kPphtdOYpmWMHAi/xwWMyxBK6y?=
+ =?us-ascii?Q?6arv0IN7yTjnPrAEG7i198BmYWiWWLtJe4BitzAGzuYVGUNxFAUga7gUU55d?=
+ =?us-ascii?Q?CxtMI8YzGSDowyQetw1Y2t6WWL6wkczMy6TxJAFjDUIkuh+3s908YNL7kzoF?=
+ =?us-ascii?Q?Inqo38RpgXF8IUjBH3qDWJZJ+siAlIt1KzX+DCEebc3MJjz8pqObIvps+7SZ?=
+ =?us-ascii?Q?rNBEnx45cGtJM8Vub0GdMLxW7PPmhbPxc2OnSNk/hIDkOLwlb8JrO5VZAJyE?=
+ =?us-ascii?Q?/YhqdCAgjvZffyIHPu12JxKnOqLKrkk=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Score: -7.30
-X-Spam-Level: 
-X-Spam-Flag: NO
-X-Spamd-Result: default: False [-7.30 / 50.00];
-	REPLY(-4.00)[];
-	BAYES_HAM(-3.00)[100.00%];
-	MID_CONTAINS_FROM(1.00)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-0.999];
-	MIME_GOOD(-0.10)[text/plain];
-	RCPT_COUNT_TWELVE(0.00)[22];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	TO_DN_SOME(0.00)[];
-	ARC_NA(0.00)[];
-	FREEMAIL_TO(0.00)[redhat.com,gmail.com,ffwll.ch,linux.intel.com,kernel.org,linux-m68k.org,infradead.org];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	R_RATELIMIT(0.00)[to_ip_from(RLqirfcw6gnbcr9a9yhi49fhi6)];
-	RCVD_TLS_ALL(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:email,suse.de:mid,imap1.dmz-prg2.suse.org:helo,gitlab.freedesktop.org:url]
+X-OriginatorOrg: nokia-bell-labs.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: PAXPR07MB7984.eurprd07.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7a747943-2038-42bc-0f02-08df02049a20
+X-MS-Exchange-CrossTenant-originalarrivaltime: 24 Aug 2026 17:24:49.8778
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 5d471751-9675-428d-917b-70f44f9630b0
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: My8Q79kYWrX4DSPZDeNrQg8zRN80KSnyriy6/C9y4fety/M6bc66y4Fg9Zb8InBtlS02c/zeYq8sz/gEpis+CBEtFPoqG3DwN2mY/GWYWs8qyDbVSzObNefu+wA6nuBM
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DU2PR07MB8255
 
-None of the DRM drivers handles panic locking. Declare the interfaces
-in an internal header file. Move the trylock required during the panic
-into the DRM core's sources.
+-----Original Message-----
+From: Jijie Shao <shaojijie@huawei.com>
+Sent: Wednesday, August 19, 2026 4:52 AM
+To: Jakub Kicinski <kuba@kernel.org>; Chia-Yu Chang (Nokia) <chia-yu.chang@=
+nokia-bell-labs.com>
+Cc: shaojijie@huawei.com; shenjian15@huawei.com; linux-rdma@vger.kernel.org=
+; eperezma@redhat.com; jasowang@redhat.com; virtualization@lists.linux.dev;=
+ mst@redhat.com; xuanzhuo@linux.alibaba.com; pabeni@redhat.com; edumazet@go=
+ogle.com; linux-doc@vger.kernel.org; corbet@lwn.net; horms@kernel.org; dsah=
+ern@kernel.org; kuniyu@google.com; bpf@vger.kernel.org; netdev@vger.kernel.=
+org; dave.taht@gmail.com; jhs@mojatatu.com; stephen@networkplumber.org; xiy=
+ou.wangcong@gmail.com; jiri@resnulli.us; davem@davemloft.net; andrew+netdev=
+@lunn.ch; donald.hunter@gmail.com; ast@fiberby.net; liuhangbin@gmail.com; s=
+huah@kernel.org; linux-kselftest@vger.kernel.org; ij@kernel.org; ncardwell@=
+google.com; Koen De Schepper (Nokia) <koen.de_schepper@nokia-bell-labs.com>=
+; g.white@cablelabs.com; ingemar.s.johansson@ericsson.com; mirja.kuehlewind=
+@ericsson.com; cheshire@apple.com; rs.ietf@gmx.at; Jason_Livingood@comcast.=
+com; vidhi_goel@apple.com
+Subject: Re: [PATCH v5 net-next 2/2] net: hns3: fix GSO_ECN flag setting in=
+ the RX path
 
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
----
- Documentation/gpu/drm-kms.rst        |  3 ++
- MAINTAINERS                          |  3 +-
- drivers/gpu/drm/drm_atomic_helper.c  |  2 +-
- drivers/gpu/drm/drm_drv.c            |  2 +-
- drivers/gpu/drm/drm_panic.c          |  4 ++
- drivers/gpu/drm/drm_panic_internal.h | 55 +++++++++++++++++++++++
- include/drm/drm_panic.h              | 65 ----------------------------
- 7 files changed, 66 insertions(+), 68 deletions(-)
- create mode 100644 drivers/gpu/drm/drm_panic_internal.h
 
-diff --git a/Documentation/gpu/drm-kms.rst b/Documentation/gpu/drm-kms.rst
-index 0dd440a14946..8988fd64369b 100644
---- a/Documentation/gpu/drm-kms.rst
-+++ b/Documentation/gpu/drm-kms.rst
-@@ -421,6 +421,9 @@ Plane Panic Functions Reference
- .. kernel-doc:: include/drm/drm_panic.h
-    :internal:
- 
-+.. kernel-doc:: drivers/gpu/drm/drm_panic_internal.h
-+   :internal:
-+
- .. kernel-doc:: drivers/gpu/drm/drm_panic.c
-    :export:
- 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 472c5c48729d..f3dfdd9314bd 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -9018,7 +9018,8 @@ S:	Supported
- T:	git https://gitlab.freedesktop.org/drm/misc/kernel.git
- F:	drivers/gpu/drm/drm_draw.c
- F:	drivers/gpu/drm/drm_draw_internal.h
--F:	drivers/gpu/drm/drm_panic*.c
-+F:	drivers/gpu/drm/drm_panic.c
-+F:	drivers/gpu/drm/drm_panic_internal.h
- F:	drivers/gpu/drm/tests/drm_panic_test.c
- F:	include/drm/drm_panic.h
- F:	include/drm/drm_panic_helper.h
-diff --git a/drivers/gpu/drm/drm_atomic_helper.c b/drivers/gpu/drm/drm_atomic_helper.c
-index 285aac3554df..af3934df3313 100644
---- a/drivers/gpu/drm/drm_atomic_helper.c
-+++ b/drivers/gpu/drm/drm_atomic_helper.c
-@@ -41,7 +41,6 @@
- #include <drm/drm_drv.h>
- #include <drm/drm_framebuffer.h>
- #include <drm/drm_gem_atomic_helper.h>
--#include <drm/drm_panic.h>
- #include <drm/drm_print.h>
- #include <drm/drm_self_refresh_helper.h>
- #include <drm/drm_vblank.h>
-@@ -49,6 +48,7 @@
- 
- #include "drm_crtc_helper_internal.h"
- #include "drm_crtc_internal.h"
-+#include "drm_panic_internal.h"
- 
- /**
-  * DOC: overview
-diff --git a/drivers/gpu/drm/drm_drv.c b/drivers/gpu/drm/drm_drv.c
-index c808958a2188..02ff02931515 100644
---- a/drivers/gpu/drm/drm_drv.c
-+++ b/drivers/gpu/drm/drm_drv.c
-@@ -50,13 +50,13 @@
- #include <drm/drm_file.h>
- #include <drm/drm_managed.h>
- #include <drm/drm_mode_object.h>
--#include <drm/drm_panic.h>
- #include <drm/drm_print.h>
- #include <drm/drm_privacy_screen_machine.h>
- #include <drm/drm_ras_genl_family.h>
- 
- #include "drm_crtc_internal.h"
- #include "drm_internal.h"
-+#include "drm_panic_internal.h"
- 
- MODULE_AUTHOR("Gareth Hughes, Leif Delgass, José Fonseca, Jon Smirl");
- MODULE_DESCRIPTION("DRM shared core routines");
-diff --git a/drivers/gpu/drm/drm_panic.c b/drivers/gpu/drm/drm_panic.c
-index 0fe9a0d67db3..9a6e3704bf09 100644
---- a/drivers/gpu/drm/drm_panic.c
-+++ b/drivers/gpu/drm/drm_panic.c
-@@ -35,6 +35,7 @@
- 
- #include "drm_crtc_internal.h"
- #include "drm_draw_internal.h"
-+#include "drm_panic_internal.h"
- 
- MODULE_AUTHOR("Jocelyn Falempe");
- MODULE_DESCRIPTION("DRM panic handler");
-@@ -976,6 +977,9 @@ int drm_plane_helper_display_panic_screen(struct drm_plane *plane, const char *d
- }
- EXPORT_SYMBOL(drm_plane_helper_display_panic_screen);
- 
-+#define drm_panic_trylock(dev, flags) \
-+	raw_spin_trylock_irqsave(&(dev)->mode_config.panic_lock, flags)
-+
- static void drm_panic_display_panic_screen(struct drm_plane *plane, const char *description)
- {
- #if defined(CONFIG_DRM_PANIC_FOREGROUND_COLOR)
-diff --git a/drivers/gpu/drm/drm_panic_internal.h b/drivers/gpu/drm/drm_panic_internal.h
-new file mode 100644
-index 000000000000..c68d64c56e15
---- /dev/null
-+++ b/drivers/gpu/drm/drm_panic_internal.h
-@@ -0,0 +1,55 @@
-+/* SPDX-License-Identifier: GPL-2.0 or MIT */
-+
-+/*
-+ * Copyright (c) 2024 Intel
-+ * Copyright (c) 2024 Red Hat
-+ */
-+
-+#ifndef __DRM_PANIC_INTERNAL_H__
-+#define __DRM_PANIC_INTERNAL_H__
-+
-+#include <linux/spinlock.h>
-+
-+struct drm_device;
-+
-+#ifdef CONFIG_DRM_PANIC
-+
-+/**
-+ * drm_panic_lock - protect panic printing relevant state
-+ * @dev: struct drm_device
-+ * @flags: unsigned long irq flags you need to pass to the unlock() counterpart
-+ *
-+ * This function must be called to protect software and hardware state that the
-+ * panic printing code must be able to rely on. The protected sections must be
-+ * as small as possible. It uses the irqsave/irqrestore variant, and can be
-+ * called from irq handler. Examples include:
-+ *
-+ * - Access to peek/poke or other similar registers, if that is the way the
-+ *   driver prints the pixels into the scanout buffer at panic time.
-+ *
-+ * - Updates to pointers like &drm_plane.state, allowing the panic handler to
-+ *   safely deference these. This is done in drm_atomic_helper_swap_state().
-+ *
-+ * - An state that isn't invariant and that the driver must be able to access
-+ *   during panic printing.
-+ */
-+#define drm_panic_lock(dev, flags) \
-+	raw_spin_lock_irqsave(&(dev)->mode_config.panic_lock, flags)
-+
-+/**
-+ * drm_panic_unlock - end of the panic printing critical section
-+ * @dev: struct drm_device
-+ * @flags: irq flags that were returned when acquiring the lock
-+ *
-+ * Unlocks the raw spinlock acquired by either drm_panic_lock() or
-+ * drm_panic_trylock().
-+ */
-+#define drm_panic_unlock(dev, flags) \
-+	raw_spin_unlock_irqrestore(&(dev)->mode_config.panic_lock, flags)
-+
-+#else
-+static inline void drm_panic_lock(struct drm_device *dev, unsigned long flags) {}
-+static inline void drm_panic_unlock(struct drm_device *dev, unsigned long flags) {}
-+#endif
-+
-+#endif /* __DRM_PANIC_INTERNAL_H__ */
-diff --git a/include/drm/drm_panic.h b/include/drm/drm_panic.h
-index 430df536de14..99572b7eeab9 100644
---- a/include/drm/drm_panic.h
-+++ b/include/drm/drm_panic.h
-@@ -8,11 +8,9 @@
- #ifndef __DRM_PANIC_H__
- #define __DRM_PANIC_H__
- 
--#include <linux/module.h>
- #include <linux/types.h>
- #include <linux/iosys-map.h>
- 
--#include <drm/drm_device.h>
- #include <drm/drm_fourcc.h>
- 
- struct page;
-@@ -85,71 +83,8 @@ struct drm_scanout_buffer {
- 	 * set_pixel()
- 	 */
- 	void *private;
--
- };
- 
--#ifdef CONFIG_DRM_PANIC
--
--/**
-- * drm_panic_trylock - try to enter the panic printing critical section
-- * @dev: struct drm_device
-- * @flags: unsigned long irq flags you need to pass to the unlock() counterpart
-- *
-- * The panic-printing code calls this function. The panic printing attempt must
-- * be aborted if the trylock fails.
-- *
-- * Return:
-- * %0 when failing to acquire the raw spinlock, nonzero on success.
-- */
--#define drm_panic_trylock(dev, flags) \
--	raw_spin_trylock_irqsave(&(dev)->mode_config.panic_lock, flags)
--
--/**
-- * drm_panic_lock - protect panic printing relevant state
-- * @dev: struct drm_device
-- * @flags: unsigned long irq flags you need to pass to the unlock() counterpart
-- *
-- * This function must be called to protect software and hardware state that the
-- * panic printing code must be able to rely on. The protected sections must be
-- * as small as possible. It uses the irqsave/irqrestore variant, and can be
-- * called from irq handler. Examples include:
-- *
-- * - Access to peek/poke or other similar registers, if that is the way the
-- *   driver prints the pixels into the scanout buffer at panic time.
-- *
-- * - Updates to pointers like &drm_plane.state, allowing the panic handler to
-- *   safely deference these. This is done in drm_atomic_helper_swap_state().
-- *
-- * - An state that isn't invariant and that the driver must be able to access
-- *   during panic printing.
-- */
--
--#define drm_panic_lock(dev, flags) \
--	raw_spin_lock_irqsave(&(dev)->mode_config.panic_lock, flags)
--
--/**
-- * drm_panic_unlock - end of the panic printing critical section
-- * @dev: struct drm_device
-- * @flags: irq flags that were returned when acquiring the lock
-- *
-- * Unlocks the raw spinlock acquired by either drm_panic_lock() or
-- * drm_panic_trylock().
-- */
--#define drm_panic_unlock(dev, flags) \
--	raw_spin_unlock_irqrestore(&(dev)->mode_config.panic_lock, flags)
--
--#else
--
--static inline bool drm_panic_trylock(struct drm_device *dev, unsigned long flags)
--{
--	return true;
--}
--
--static inline void drm_panic_lock(struct drm_device *dev, unsigned long flags) {}
--static inline void drm_panic_unlock(struct drm_device *dev, unsigned long flags) {}
--
--#endif
--
- #if defined(CONFIG_DRM_PANIC_SCREEN_QR_CODE)
- size_t drm_panic_qr_max_data_size(u8 version, size_t url_len);
- 
--- 
-2.55.0
+> on 2026/8/13 6:59, Jakub Kicinski wrote:
+> > On Wed, 12 Aug 2026 10:35:25 +0000 Chia-Yu Chang (Nokia) wrote:
+> >>> Tested on hns3 HW (2x 100G, direct cable, openEuler 24.03, kernel 7.2=
+.0-rc6).
+> >>>
+> >>> tcpdump confirms HW GRO zeroes IP ToS: aggregated (>MTU) packets carr=
+y tos 0x0, while non-aggregated packets keep their ToS/ECN marks - so the z=
+eroing is done by HW GRO, not the sender. Before patch, CWR packets had SKB=
+_GSO_TCP_ECN set (0x5 =3D SKB_GSO_TCPV4 | SKB_GSO_TCP_ECN). After patch, al=
+l GRO events gso_type=3D0x1 (SKB_GSO_TCPV4 only), no 0x5 observed.
+> >>>
+> >>> Tested-by: Jijie Shao <shaojijie@huawei.com>
+> >> Thanks Jijie for confirmation, I will submit to net in the next round.
+> > Hold on.. Sounds like hns3 zeros ToS out (?!)
+> >
+> > This would be invalid and illegal for HW-GRO. If hns3 nukes crucial IP
+> > header fields it should probably be advertising LRO not HW-GRO in the
+> > first place.
+>
+> Your assessment is correct - HW GRO on hns3 does NOT zero IP ToS.
+>
+> My earlier Tested-by claiming "HW GRO zeroes IP ToS" was wrong. The
+> tos=3D0x0 I observed was caused by a test methodology error: I used
+> iperf3 with --tos but did not set net.ipv4.tcp_ecn=3D1, so the sender's k=
+ernel TCP stack cleared the ECN bits before the packets hit the wire.
+> I mistakenly attributed this TX-side clearing to HW GRO.
+>
+> I have retested with tesgine (direct packet construction, bypassing the k=
+ernel TCP stack) and confirmed:
+>    - HW GRO preserves IP ToS - each aggregate group retains the head
+>      packet's ToS value (verified with 0x00/0x02/0x03/0x10/0xB8)
+>    - HW GRO segments flows by ToS boundaries - any ToS change (DSCP or
+>      ECN bits) terminates the current aggregate group
+>    - ECN signals are intact - CE packets (tos=3D0x03) are delivered
+>      independently with the CE mark preserved
+>
+> hns3 HW GRO is behaving correctly. Sorry for the confusion caused by my e=
+arlier report.
+>
+> Full test details in my correction reply to the patch 2/2 thread:
+> https://lore.kernel.org/all/dd817755-eb4d-4ac2-b282-ac06f847270d@huawei.c=
+om/
+>
+> Regards,
+> Jijie Shao
 
+Hi Jijie,
+
+Thank you for the update, but I'd like to follow up on the CWR flag issue.
+How does your HW-GRO determine whether to flush packages related to the CWR=
+ flag?
+
+Currently, the software approach (see the test case in 6f74bc8b6e8d) flushe=
+s only when the CWR value is different.
+This behavior has changed since patch  ab4c8b6f7fcb.
+
+Thanks.
+Chia-Yu
