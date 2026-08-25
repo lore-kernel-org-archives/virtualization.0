@@ -1,236 +1,134 @@
-Received: from mail-yw1-f169.google.com (mail-yw1-f169.google.com [209.85.128.169])
+Received: from mail-oa1-f52.google.com (mail-oa1-f52.google.com [209.85.160.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25E9C33C1B4
-	for <virtualization@lists.linux.dev>; Tue, 25 Aug 2026 16:12:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.169
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787674348; cv=none; b=Y6hUpkqp4uydeMyta413I77nQIRWwt6dTpa4eSHHOMyLJI+Z+3+wv4Rm7cPjqmxk5v1s47B3Tz9zwAuhbmjRJxZHAuiLMGEk81Gnh7ZHaEnz7JRO6WZ+DtEJ4XhC0dkVopQatYRsatggGEJ1rujNbKQrjJDkFBw/B/XUFHoOS3c=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787674348; c=relaxed/simple;
-	bh=wXrgHy62T0tNDn8P/4NZ8q+YEMGB8yHeI1pf6IWRHTM=;
-	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
-	 Mime-Version:Content-Type; b=dFbl891y+bJGydfCfN2P6s+rm8PjvUcgOtDBfz8ATT5/cRxCA5Vgx3wjaK0Bk62k4wpOJkjW0DE0z48i0MnIbzIscVsWRjyhQ78L1dRlvPKfrqpxYvzW3WMYxCdazFHZ30Utxb1p5erD4HUY59dlhl0mKcq3UQsG0TOxvhg97eg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PTaLxHkM; arc=none smtp.client-ip=209.85.128.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 627FA4369A
+	for <virtualization@lists.linux.dev>; Tue, 25 Aug 2026 18:40:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.52
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1787683203; cv=pass; b=bTtZBUBDePv3B6stYqV5M4NM7JyC5wdBYOGLoqtOp1M1ffaxn3xdVAtGTBPfHsrVJ1AxA2e7RzdwdgtsdQbnRvvfBK6Hx5t2plitXZnAh8KlxoLwnI+pcVriDVFJdVSJBLveqhq+EeSz/x2aq9gMd0J2lJxa+N7Uz2uU9s3WyyI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1787683203; c=relaxed/simple;
+	bh=SSi+4NmtMxNkZmxsfuesKYnZ20ScCmyOkzMthR0BMj0=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=sJRNvw1ta0SMid9Ow5nkcpcbodb7ySyCwVJDmvVMTMgUi3mR77r+3gPpKlSX+QYGEBENvCkoJL1GnuvTsgiuUL/Uej9p1vA++XodNBRnb774ZYPQeX6Spm5RkeQaKNgFR2u9LV+Ybf08cDPYqLpL35RUxwCxJ26fKZmLnuBskeo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DKmZ1buW; arc=pass smtp.client-ip=209.85.160.52
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PTaLxHkM"
-Received: by mail-yw1-f169.google.com with SMTP id 00721157ae682-836cde02992so60168007b3.2
-        for <virtualization@lists.linux.dev>; Tue, 25 Aug 2026 09:12:27 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DKmZ1buW"
+Received: by mail-oa1-f52.google.com with SMTP id 586e51a60fabf-45eb2e6402aso166186fac.0
+        for <virtualization@lists.linux.dev>; Tue, 25 Aug 2026 11:40:01 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1787683200; cv=none;
+        d=google.com; s=arc-20260327;
+        b=A2VoFAj/TzXtXUhWn4MUU0CwDbF0MneT9O0lSbnRhswAHyLmzdbR4bEwNl0GyCUWzb
+         GMprNzLx2mz4+DiXp/CZmz90qwMJBGXYgJZsvbJZoF3WbD60Vg5FyrXOWBGFOeks9QTo
+         8dy3sT8ieHaW/bcIXktwZpFGVFA5NZaeRQh0q1Qr9Pu6bOl7xC7FaKXokQy5bQMN6CeG
+         2dq51EsbSayxbxwtQsV2ODuAy0Kkj2mrWssPZdhOcEYq7HGXcrniD8lYReJFzNOKuazg
+         pgGYpoTKh6QceK9bPAxZrEcqOq4fKmc5zD+mp59ru9kSSpg4OglbtinqrHCuVepvRjm5
+         NxSw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=SSi+4NmtMxNkZmxsfuesKYnZ20ScCmyOkzMthR0BMj0=;
+        fh=G6SholskF+A9kbBwokuoTjw6OKsJgG2MH1r397F4WZ4=;
+        b=ZE2uvVWRZMohhC7gJWXuJ2FH48o4RyC9TDStIJgon5H0+CD0dxWpuCdavYwyuTPOBH
+         Tn1BVcTXOunqotHlfGqLL/nnvwUWgpA5qCsbt4huGSEVKXARULXAuzNeM9cIOG/Mcxng
+         l6gQAnoO2+6SdDFmxXZEnhVSFTGzzw4r9jZ/51pRtl/ykyIrAFlofbal9gIOE2xe6EiA
+         AlmxAyFKZETCRb7lotJI8Z8TeCaD0JWzow7TpefbbfeRFAgGEQNWiUXlr/qJzNB67Yc6
+         oU03bcgTOsewgafFdWph/0hjEobdXFU3YW2Xldr7Y8tWCEIItJvD3LQlDbxNc+ZlMdP1
+         +wfA==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787674346; x=1788279146; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:mime-version:subject
-         :references:in-reply-to:message-id:cc:to:from:date:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=01+frOfya8cSKRerweuTqMaNxLlq2qDmJSW1y4jWqwo=;
-        b=PTaLxHkMQquLU4Vz4KX20pIQl8mOS18yr4dX4pG4dOCf9vU9ddhi2ZQxRBZt0XyhTt
-         3JTf5qqCb5k2gRjQQgwJSsMmzhpPfRFRVhQEQA2mI9u09puLWsnxgvNw1PWl7wmzKdqb
-         qlvGHYCxoKjEKNdgvR6/tU1ecrQGUmDNyUB29ZF27v1EvaT+lscJ9fOiHo1ueM1bhGpF
-         UehGMEvGjPx+wpERcvv/Ob+4o1pKXzqZO3tUDd9DqMYe8kRdo7BGzTTkCxq3kgVmHa7A
-         QdeC6KIbQgkc2SQCJzE5byTDHAOALkmgQWoxOjGVbs5AJEedCylKEmStaCN/spt3D2dp
-         Db6g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787674346; x=1788279146;
-        h=content-transfer-encoding:content-type:mime-version:subject
-         :references:in-reply-to:message-id:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+        d=gmail.com; s=20251104; t=1787683200; x=1788288000; darn=lists.linux.dev;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=01+frOfya8cSKRerweuTqMaNxLlq2qDmJSW1y4jWqwo=;
-        b=GhCF6WelmNoZS8q7c4LfNvaSfxtIBXA5ikjHiQLaCqXJLAlCl9A7jO1VFuhphl+My4
-         3FtF3SRST00g2KW6ABlopC2fWnNc8SnwFcOK9f2N/EZIIFZ5QRdnbxu8g6Z5jhVtJcwr
-         ss7uMJvdUiBlVKApyokBC+TbE4KGU74hWjVGwCBXRDOTGYiK4qRU6QM4r31c31fsjWKN
-         BVjt09rUej/jmq2oXx4V/ac1CQwlcMxz93Hc/ENJm3g6YqpQAamQA3Q9rvN7zakaajbb
-         wj1evHhJNQb5dWVSa3xw9pREmpMR94b2uiw1/IPKxSHM7yPXxHzxYsjxsqtPEqe30HmB
-         u0dg==
-X-Forwarded-Encrypted: i=1; AHgh+Ro2C/6hVCf0t6osQbfM53bPqOR5TUGe9li85OnCDzYAMHAnx8349JL68mzLAfBaxMhRqAcUpkNWgPMRnM3f6Q==@lists.linux.dev
-X-Gm-Message-State: AFuF++kLlgYKS9I95ToTr4ZObW2x3AR8pAWQWF2yze0b9v7ED7rvd75U
-	UCz9P4oj16Lm/cBwDl+FvSFQFC8JEUOk/hQb9SjeJ3KPJyQp5PsRSHCH
-X-Gm-Gg: AR+sD12WjU6X8Bq1TvbEbw1yiXG1rZqEfylO/E6YOJx83uoAa7qvW2plG+cIJAukSkE
-	8eq8CLlTjaT5bYt4OutZRRgghdMiB0NQniscERbVjetaHHXovHTa7rT/dkKCEn8n//6Dp30yfxT
-	qCOrSSAj6VzoWD69iT9OK4VyAtpKo/skoNuQdJD/rb7dj35CJ7xCI/DsZKQks7dT4HyFl4xRVGM
-	gNYrBQgIJwOfJqI3P8TweDIGLHp2h09JuzH3kPMg3bNhLrVrLNUKA9HMUfyiQ34pZOCeo/jmgJw
-	guWtpIf7n1qDyM/YgSqOLvswvNxyrKRBTLATF4gmQqwNx2QyAiVb7xUFU0eQtQhheQK4cWcRqlO
-	hUos0T6urxUw5dZVAQ2Q952vC23ULXDLv55yyqFgURXuc68VbO8PFsfbIcS0DaLO24aV1lawTvP
-	CpFNaP9W27uM9u1BWEN4PZ0CB4xbEHUlZrNyZm80RJp8y42K5fejZwthWESIC5aVmH6r+VAPf1S
-	4fz4zMzc7ykGffPkasdX3yggkvS6LbaXD7zORiqrxfJoSGZH3Hy
-X-Received: by 2002:a05:690c:e1d7:20b0:80e:5236:b944 with SMTP id 00721157ae682-85473d9e59amr26963037b3.10.1787674345937;
-        Tue, 25 Aug 2026 09:12:25 -0700 (PDT)
-Received: from gmail.com (234.207.85.34.bc.googleusercontent.com. [34.85.207.234])
-        by smtp.gmail.com with ESMTPSA id 00721157ae682-85705387614sm2221077b3.2.2026.08.25.09.12.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Aug 2026 09:12:25 -0700 (PDT)
-Date: Tue, 25 Aug 2026 12:12:24 -0400
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-To: "Chia-Yu Chang (Nokia)" <chia-yu.chang@nokia-bell-labs.com>, 
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
- Jakub Kicinski <kuba@kernel.org>
-Cc: Mirja Kuehlewind <mirja.kuehlewind@ericsson.com>, 
- "shaojijie@huawei.com" <shaojijie@huawei.com>, 
- "shenjian15@huawei.com" <shenjian15@huawei.com>, 
- "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>, 
- "eperezma@redhat.com" <eperezma@redhat.com>, 
- "jasowang@redhat.com" <jasowang@redhat.com>, 
- "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, 
- "mst@redhat.com" <mst@redhat.com>, 
- "xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>, 
- "pabeni@redhat.com" <pabeni@redhat.com>, 
- "edumazet@google.com" <edumazet@google.com>, 
- "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, 
- "corbet@lwn.net" <corbet@lwn.net>, 
- "horms@kernel.org" <horms@kernel.org>, 
- "dsahern@kernel.org" <dsahern@kernel.org>, 
- "kuniyu@google.com" <kuniyu@google.com>, 
- "bpf@vger.kernel.org" <bpf@vger.kernel.org>, 
- "netdev@vger.kernel.org" <netdev@vger.kernel.org>, 
- "dave.taht@gmail.com" <dave.taht@gmail.com>, 
- "jhs@mojatatu.com" <jhs@mojatatu.com>, 
- "stephen@networkplumber.org" <stephen@networkplumber.org>, 
- "xiyou.wangcong@gmail.com" <xiyou.wangcong@gmail.com>, 
- "jiri@resnulli.us" <jiri@resnulli.us>, 
- "davem@davemloft.net" <davem@davemloft.net>, 
- "andrew+netdev@lunn.ch" <andrew+netdev@lunn.ch>, 
- "donald.hunter@gmail.com" <donald.hunter@gmail.com>, 
- "ast@fiberby.net" <ast@fiberby.net>, 
- "liuhangbin@gmail.com" <liuhangbin@gmail.com>, 
- "shuah@kernel.org" <shuah@kernel.org>, 
- "linux-kselftest@vger.kernel.org" <linux-kselftest@vger.kernel.org>, 
- "ij@kernel.org" <ij@kernel.org>, 
- "ncardwell@google.com" <ncardwell@google.com>, 
- "Koen De Schepper (Nokia)" <koen.de_schepper@nokia-bell-labs.com>, 
- "g.white@cablelabs.com" <g.white@cablelabs.com>, 
- Ingemar Johansson S <ingemar.s.johansson@ericsson.com>, 
- "cheshire@apple.com" <cheshire@apple.com>, 
- "rs.ietf@gmx.at" <rs.ietf@gmx.at>, 
- "Jason_Livingood@comcast.com" <Jason_Livingood@comcast.com>, 
- "vidhi_goel@apple.com" <vidhi_goel@apple.com>, 
- Parav Pandit <parav@nvidia.com>, 
- Willem de Bruijn <willemb@google.com>, 
- ij@kernel.org
-Message-ID: <willemdebruijn.kernel.28ce4bc2544df@gmail.com>
-In-Reply-To: <PAXPR07MB7984F0C072220066856DD8ACA3AF2@PAXPR07MB7984.eurprd07.prod.outlook.com>
-References: <20260804213510.673084-1-chia-yu.chang@nokia-bell-labs.com>
- <20260804213510.673084-2-chia-yu.chang@nokia-bell-labs.com>
- <20260811173017.3d18dfdc@kernel.org>
- <PAXPR07MB79849A3F1724DBB2DA8EA20AA3DC2@PAXPR07MB7984.eurprd07.prod.outlook.com>
- <20260812155430.6ec81eec@kernel.org>
- <PAXPR07MB7984E3E73868BF8966821C27A3DB2@PAXPR07MB7984.eurprd07.prod.outlook.com>
- <CAF=yD-LQbndjPZiXcfA6fMp6msza_+YdzqqwyeUDVTdOCOHhDw@mail.gmail.com>
- <47BE8A8A-F80C-4C30-BC95-C85FEBFFB606@ericsson.com>
- <PAXPR07MB7984ED42ED0849D3A9AB8C19A3DA2@PAXPR07MB7984.eurprd07.prod.outlook.com>
- <willemdebruijn.kernel.c248a28f9c86@gmail.com>
- <20260814120121.50e61d01@kernel.org>
- <CAF=yD-L1-Sxz9uyP_4WqtNRJHnwTVMhQba_KF-=Eiy=d9Jf-qA@mail.gmail.com>
- <PAXPR07MB7984F0C072220066856DD8ACA3AF2@PAXPR07MB7984.eurprd07.prod.outlook.com>
-Subject: RE: [PATCH v5 net-next 1/2] net: update comments for SKB_GSO_TCP_ECN
- and SKB_GSO_TCP_ACCECN
+        bh=SSi+4NmtMxNkZmxsfuesKYnZ20ScCmyOkzMthR0BMj0=;
+        b=DKmZ1buWnr04B3CxxhZftQjZkWhSCD5gle9AjMdQPDoNUOj1GQm52ap7IiP3Um61i1
+         rEoa8NhXwYoOOJthK/Fy3H6tr1+447WHxRb01vWa+7+pv7/uIXdg9odWObRfksWo/t0x
+         vRGMY65pbThVSGx+7BsYm8re+gpGDypmYNL3zMxBzVsxk0srl9j1A1YUtbeShLZ/qxWg
+         mFPCUiy1DZlPwSzUxq8eBEhs9Yuw9haBhamzKhoEGUK+ld9qkNfSjbNoxpMc0tIfrOc/
+         Y7csbM4FLUkhICXOiR0twpJ+pl/xwtvpCIqWAIPUZAqpC3X9DAfOtZl/ee7Z4W6z9Ux0
+         X+9A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787683200; x=1788288000;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=SSi+4NmtMxNkZmxsfuesKYnZ20ScCmyOkzMthR0BMj0=;
+        b=EKTkNqj7p+12O8xZNGlsLlC06RVy1YG+jl13ZvosTEHFEgZtR17pKvPXPtMb3o9SsM
+         4mfKTGzO97wewf8AgFWn2vZocxr8QcQdFx8UmUMK6p5axczSy+pstb5hTcYeEgKtj/OU
+         f/VloHvFU52J2hQnjKl39ujDn+TCGeQpMHu1sP0xYNlnjdAeZBw86tudjBjVdEQU9EuP
+         HEx6g22dsV3lLfC3ey5RRGSzBnAF6lu1LqhS8qtCRu4mENYO9i9tcFlfEvnNY14SU0Wy
+         VIsJtJlCFFas7lFc9Ak28WpAdCdFRcFi5vlP+pN/5ju6V+8QrZxudAAU5XCcNvpjAxLd
+         5/pA==
+X-Forwarded-Encrypted: i=1; AHgh+RpikAI1j6YVLwNzEfB/lq0N4rLibAcA16UY5y36co0Fw/tEzeeHR3K34B5blzYmAuowl0g4DIp86DNU5zJ2yQ==@lists.linux.dev
+X-Gm-Message-State: AFuF++msdXCN5AOaFUNB6H4S6AVaH3gecY/XcXmh99q8y9spBzL2mYiN
+	+qor4zZyrO5hkOtWaIutR7+G6D7QdSRb6p0yKSl6Z2G/+DHfNfk4KcFJjRnyjj2M/EQBtUfY74T
+	cb+kkIb6SEY4dodjIcKxwptcIyjrUKow=
+X-Gm-Gg: AR+sD13qrVBwJzftyPJr4zb+iER0ZqmZPdKnbKjpVD5ftIKCK6NGo1QsNf/yu+tj75C
+	MENeisKJIZcH4P68i1X0sHc6AWM14KdYW1aCP7OGMqQJw9o3uZh+2sBcdUvubLcPztawhJFVS5j
+	upSpOIilB7Vhiv57tHql9HSKgbG04yijGNCorlNa9FEgG4qh6gGa7Jnrp/bJx35i2pTnxyaJpjW
+	WoUjwP1C9Ys7SQ+29zJxndW8ufn6w+hZOeT4kB0e9k9nLqFGTSiQ82Qfns4aUc6T78mIGZljSeW
+	NmNm6aMME5oQwLCahteHJKxgWxflgsIo98KQcBGJf+qKng==
+X-Received: by 2002:a05:6870:f623:b0:435:16e9:f288 with SMTP id
+ 586e51a60fabf-4659bb24b93mr1602806fac.20.1787683200126; Tue, 25 Aug 2026
+ 11:40:00 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+References: <20260720-drm_simple_encoder_init-v2-0-5020b630668a@gmail.com> <e393996a-3ef1-4c43-b762-af8cd0f2a4b6@suse.de>
+In-Reply-To: <e393996a-3ef1-4c43-b762-af8cd0f2a4b6@suse.de>
+From: Diogo Silva <diogompaissilva@gmail.com>
+Date: Tue, 25 Aug 2026 20:39:49 +0200
+X-Gm-Features: AcwNN1Va3aTr02pKhzBqoinFUkwxjfSbh2WQ-EpZwUvKwCIdS5rdnwq9NOj-ZWw
+Message-ID: <CAJpoHp56yo+eQAYjvR3ez=HTSzapCd3dYppo=MdPx-Lm4J4DQg@mail.gmail.com>
+Subject: Re: [PATCH v2 00/15] drm/drm_simple: remove drm_simple_encoder_init
+To: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: Jingoo Han <jingoohan1@gmail.com>, Inki Dae <inki.dae@samsung.com>, 
+	Seung-Woo Kim <sw0312.kim@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>, 
+	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
+	Krzysztof Kozlowski <krzk@kernel.org>, Peter Griffin <peter.griffin@linaro.org>, 
+	Alim Akhtar <alim.akhtar@samsung.com>, 
+	Laurent Pinchart <laurent.pinchart@ideasonboard.com>, 
+	Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>, 
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
+	Michal Simek <michal.simek@amd.com>, Thierry Reding <thierry.reding@kernel.org>, 
+	Mikko Perttunen <mperttunen@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>, 
+	Stefan Agner <stefan@agner.ch>, Alison Wang <alison.wang@nxp.com>, 
+	Anitha Chrisanthus <anitha.chrisanthus@intel.com>, David Airlie <airlied@redhat.com>, 
+	Gerd Hoffmann <kraxel@redhat.com>, Dmitry Osipenko <dmitry.osipenko@collabora.com>, 
+	Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, 
+	Jyri Sarha <jyri.sarha@iki.fi>, Liu Ying <victor.liu@nxp.com>, Frank Li <Frank.Li@nxp.com>, 
+	Sascha Hauer <s.hauer@pengutronix.de>, Pengutronix Kernel Team <kernel@pengutronix.de>, 
+	Fabio Estevam <festevam@gmail.com>, Chun-Kuang Hu <chunkuang.hu@kernel.org>, 
+	Philipp Zabel <p.zabel@pengutronix.de>, Matthias Brugger <matthias.bgg@gmail.com>, 
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
+	Geert Uytterhoeven <geert+renesas@glider.be>, Xinliang Liu <xinliang.liu@linaro.org>, 
+	Sumit Semwal <sumit.semwal@linaro.org>, Yongqin Liu <yongqin.liu@linaro.org>, 
+	John Stultz <jstultz@google.com>, Liviu Dudau <liviu.dudau@arm.com>, 
+	Neil Armstrong <neil.armstrong@linaro.org>, Kevin Hilman <khilman@baylibre.com>, 
+	Jerome Brunet <jbrunet@baylibre.com>, 
+	Martin Blumenstingl <martin.blumenstingl@googlemail.com>, Jonathan Corbet <corbet@lwn.net>, 
+	Shuah Khan <skhan@linuxfoundation.org>, dri-devel@lists.freedesktop.org, 
+	linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-tegra@vger.kernel.org, 
+	virtualization@lists.linux.dev, imx@lists.linux.dev, 
+	linux-mediatek@lists.infradead.org, linux-renesas-soc@vger.kernel.org, 
+	linux-amlogic@lists.infradead.org, linux-doc@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-> > > On Fri, 14 Aug 2026 09:34:01 -0400 Willem de Bruijn wrote:
-> > > > > Current SW GRO sets SKB_GSO_TCP_ACCECN when the flushed skb carries CWR in tcp_gro_complete():
-> > > > > if (th->cwr)
-> > > > >     shinfo->gso_type |= SKB_GSO_TCP_ACCECN;
-> > > >
-> > > > And I suppose it follows correct AccECN rules for coalescing.
-> > > >
-> > > > That is a performance regression from RFC 3168 ECN, as it allows for 
-> > > > less effective coalescing. I have no intuition how much it will 
-> > > > differ in practice.
-> > > >
-> > > > > For HW GRO of a legacy device that implementing RFC3168 semantics, setting SKB_GSO_TCP_ECN seems reasonable.
-> > > > > However, such a device would not be able to preserve ACCECN signaling across the GRO/GSO.
-> > > > > In that case, if preserving AccECN signaling is required, disabling HW GRO may indeed be necessary.
-> > > >
-> > > > Right.
-> > >
-> > > I'm still not following.. Maybe Willem can ELI5 what the problem is.
-> > >
-> > > _SW_ GRO follows only the AccECN rules.
-> > > But if HW GRO follows RFC 3168 and we mark the aggregate as 
-> > > SKB_GSO_TCP_ECN - TSO will also abide, and segmented output will be 
-> > > identical to pre-GRO input.
-> > 
-> > +1
-> > 
-> > > Are we trying to ban RFC 3168 behavior in HW purely to match SW?
-> > 
-> > I think that's the intent here?
-> Hi Willem,
-> 
-> I think we can still change SKB_GSO_TCP_ECN into SKB_GSO_TCP_ACCECN on the RX path, even if HW GRO and SW GRO use different aggregation rules.
-> Currently, SW GRO flushes when the CWR state changes and sets SKB_GSO_TCP_ACCECN when the resulting skb carries CWR=1.
->
-> 
-> For HW GRO, if the device flushes immediately when a CWR=1 packet arrives, there is no need to set either SKB_GSO_TCP_ECN or SKB_GSO_TCP_ACCECN.
-> In that case, each CWR=1 packet is emitted separately, and there is no need to preserve multiple CWR indications through GSO.
-> So, if the HW can be confirmed to always flush CWR-marked packets without coalescing them, preserving multiple CWR indications through GSO is not required.
-> In that case, using SKB_GSO_TCP_ACCECN would not provide any additional benefit.
+Hey,
 
-I agree.
+> Diogo, do you want to send out another revision? Otherwise it's time to
+> get these patches merged.
 
-The difference on transmit is that SKB_GSO_TCP_ACCECN will copy the
-ECN bits to every segment, whereas SKB_GSO_TCP_ECN will only set the
-bits on the first segment.
+I would keep them as is, unless you see anything that should really be
+improved before merging.
 
-From commit 023af5a72ab1 ("gso: AccECN support") that introduced
-SKB_GSO_TCP_ACCECN:
-
-    With RFC 3168 ECN aware TSO (NETIF_F_TSO_ECN) CWR flag is cleared
-    starting from 2nd segment which is incompatible how AccECN handles
-    the CWR flag. Such super-segments are indicated by SKB_GSO_TCP_ECN.
-    With AccECN, CWR flag (or more accurately, the ACE field that also
-    includes ECE & AE flags) changes only when new packet(s) with CE
-    mark arrives so the flag should not be changed within a super-skb.
-
-Makes me wonder what SKB_GS_TCP_ACCECN adds. Copying bits
-from the GSO skb to all segments is the default. SKB_GSO_TCP_ECN is
-an indication that the NIC knows how to diverge from this default for
-these specific bits.
-
-That commit confirms this:
-
-    If NIC is completely unaware of RFC3168 ECN (doesn't support
-    NETIF_F_TSO_ECN) or its TSO engine can be set to not touch CWR flag
-    despite supporting also NETIF_F_TSO_ECN, TSO could be safely used
-    with AccECN on such NIC. This should be evaluated per NIC basis
-    (not done in this patch series for any NICs).`
-
-> 
-> The problematic case is when a HW GRO aggregates multiple packets carrying CWR=1 and only sets SKB_GSO_TCP_ECN.
-
-The driver of such a device could be updated to set SKB_GSO_TCP_ACCECN
-or not set any such ECN GSO flag.
-
-The driver of other devices that do follow RFC 3168 semantics will
-continue to have to set SKB_GSO_TCP_ECN on the GSO skb. It is quite
-plausible that few or no devices currently support ECN in their HW-GRO
-coalescing.
-
-> During GSO, only the first output segment would carry CWR=1, which loses the remaining CWR signaling information required by AccECN.
-> In that case, changing from SKB_GSO_TCP_ECN to SKB_GSO_TCP_ACCECN would preserve the original signaling by ensuring that the segmented packets carry the correct CWR information.
-> As I understand RFC3168, receiving additional CWR-marked packets is harmless, because once a valid CWR has been received, the receiver already stops echoing ECE.
-
-Agreed.
-
-> Additional CWR indications do not change the receiver state.
-> This would have a performance impact since it disables HW TSO for the skb and falls back to software segmentation.
-
-You mean if the device advertises NETIF_F_TSO_ECN, and GSO skbs may
-contain AccECN signals, the host must downgrade from TSO to GSO to
-avoid corrupting the signal?
-
-The cost of that would be significant. Not something to do for
-established environments. But technically seemingly correct, at least
-for packets with non-zero ECN bits.
-
-> But IMO it preserves correctness for both RFC3168 ECN and AccECN.
-
-Side-note: this thread probably has way too many Cc: for this narrow topic.
+Best regards,
+Diogo
