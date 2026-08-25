@@ -1,166 +1,161 @@
-Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
+Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3CDB38E8A7;
-	Mon, 24 Aug 2026 21:04:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.97.179.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0ECC30D3EF
+	for <virtualization@lists.linux.dev>; Tue, 25 Aug 2026 02:17:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787605474; cv=none; b=KMisXyDPE8iQzJgKO4IoXM/RU4TcrkRtJe/1ibppRWAUh3lGF+GVJGFJAQbOIIkJs85X1ZgZ1pL1nkyWzy8QcpPmpiuG9QX2Xn5eb5JOPHbUdNiN3ivkhuEM3ycqQXF3FS4CHvY3O007CYHZ0Q+FN5tWaehWbVY/HmZNF0VHl/4=
+	t=1787624281; cv=none; b=FdPrHZqp3kY3AoAHPFnQOhxGAe+CpwDr2eJWJc1LVbkBGGSt4DlIti+i86F6mcj7EnVMYycqCy7segI3gpwVx0nbhwCZXEQ97o4aQR84HUZsxYMBX9h2u0Adav9iEig6/ejNcqYtCGad+RHiGGzK7ET2FFy65Q7aUrAIwZGudqU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787605474; c=relaxed/simple;
-	bh=lxWgaRS9cMBj7nzIKwYlcYTMb1BOWwOR02+GTkayrjs=;
-	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=tOJcsLmxSt32AlM8oGbzxW3CAcfdRTAb+tn11139PffJiCr5hehlx8+2AVFXu30urmDTAvjcAotF+sKrJBLl0x4CiDhdqiuJOBB85wCO54imV5b9COHMGuTK43tM6l2tksifIbWRaBa2PB9gzdd1VLOBn9S1qql6YVhPMuhEsO4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com; spf=pass smtp.mailfrom=igalia.com; dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b=iN4IZpg9; arc=none smtp.client-ip=213.97.179.56
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igalia.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b="iN4IZpg9"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
-	s=20170329; h=Content-Transfer-Encoding:Content-Type:Message-ID:Subject:Cc:To
-	:From:Date:MIME-Version:From:Reply-To;
-	bh=8Sz3WqkTSXrjfECQs9syX3OabIkTQfaoXng/2r3y3YI=; b=iN4IZpg94uQW7Qq71fa8RM3vEW
-	kYkZAE7Go3UMAHPCbMam59vi5F2G4bm4hWXaQvDe+IlXyYEvE3ysOyCUtZqscnptJn7q2InbNaFyu
-	soOubYTTGaNo34QYmi9ty2VVZJpRy9sTLLWPw/LK3yUGKpUbS/U50cLhVIERjuM4Ft+aoWfPy9dJE
-	gK9eUfYGXhRTBPX+kELcjgSnMYflg6ghgE0MkoYvLv42MzvqNcu61ANFS228b1Ien6EVqp3z8FXTb
-	NuEjADHZt8gwoX1gXWGgh+2+Dm/yjJ9PlQHQ27wXDkIEUhwmsrSPlTWDbQQk59YiDr1KX9MY2E47t
-	G2P9q0Eg==;
-Received: from maestria.local.igalia.com ([192.168.10.14] helo=mail.igalia.com)
-	by fanzine2.igalia.com with esmtps 
-	(Cipher TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim)
-	id 1wybpt-008hfh-DY; Mon, 24 Aug 2026 23:04:05 +0200
-Received: from webmail.service.igalia.com ([192.168.21.45])
-	by mail.igalia.com with esmtp (Exim)
-	id 1wybps-003b3A-2i; Mon, 24 Aug 2026 23:04:05 +0200
-Received: from localhost ([127.0.0.1] helo=webmail.igalia.com)
-	by webmail.service.igalia.com with esmtp (Exim 4.98.2)
-	(envelope-from <mfo@igalia.com>)
-	id 1wybps-00000003RKa-04eN;
-	Mon, 24 Aug 2026 23:04:03 +0200
+	s=arc-20240116; t=1787624281; c=relaxed/simple;
+	bh=3OA1/xixfyppJthmSg4mc3vejG0dxTu9z8eAvuYaOA8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=uHdkV5cC3S+swzes/O0e8OrL+i5G4JhZDspRbTX2Ude9RpXbcrKl3hwdx3rKfcQfCjLwHGDHNVcQtAYPG6i37aMAiL1UnagJ81JjhRMf2imJldSnM+6uQhU2/0C3r7fGHJ4CrIbahLNtAn+uTZrGkNxfS+38YmcVQuW+Z2S0epY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
+X-UUID: 2e17daeea02b11f19a56ed5b684f684d-20260825
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.3.19,REQID:8ea89c65-1019-40ef-b576-17bda8d562c0,IP:0,U
+	RL:0,TC:0,Content:3,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION:
+	release,TS:3
+X-CID-META: VersionHash:7db8b62,CLOUDID:40307ff2581ad035ccd0d2e3ec1965b2,BulkI
+	D:nil,BulkQuantity:0,SF:80|81|82|83|102|865|898,TC:nil,Content:4|15|50,EDM
+	:-3,IP:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OSA:0
+	,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
+X-CID-BVR: 2,SSN|SDN
+X-CID-BAS: 2,SSN|SDN,0,_
+X-CID-FACTOR: TF_CID_SPAM_SNR
+X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
+X-UUID: 2e17daeea02b11f19a56ed5b684f684d-20260825
+X-User: weirongguang@kylinos.cn
+Received: from [10.42.124.137] [(10.44.16.150)] by mailgw.kylinos.cn
+	(envelope-from <weirongguang@kylinos.cn>)
+	(Generic MTA with TLSv1.3 TLS_AES_128_GCM_SHA256 128/128)
+	with ESMTP id 2126084261; Tue, 25 Aug 2026 10:17:54 +0800
+Message-ID: <3e0b03d4-ddd7-4952-bb5e-f73881bfec95@kylinos.cn>
+Date: Tue, 25 Aug 2026 10:17:51 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Date: Mon, 24 Aug 2026 18:04:03 -0300
-From: Mauricio Faria de Oliveira <mfo@igalia.com>
-To: =?UTF-8?Q?Uwe_Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
-Cc: Kees Cook <kees@kernel.org>, Joel Granados <joel.granados@kernel.org>,
- Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon
- Horman <horms@kernel.org>, kernel-dev@igalia.com,
- linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
- fsverity@lists.linux.dev, keyrings@vger.kernel.org, bpf@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, linux-kbuild@vger.kernel.org,
- netdev@vger.kernel.org, linux-wpan@vger.kernel.org,
- lvs-devel@vger.kernel.org, netfilter-devel@vger.kernel.org,
- coreteam@netfilter.org, linux-sctp@vger.kernel.org,
- linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
- bridge@lists.linux.dev, mptcp@lists.linux.dev, rds-devel@oss.oracle.com,
- virtualization@lists.linux.dev
-Subject: Re: [PATCH RFC v3 03/13] sysctl, mod_devicetable: add macro
- MODULE_SYSCTL_TABLE
-In-Reply-To: <aotteDcc588iwC6g@monoceros>
-References: <20260819-sysctl-module-aliases-v3-0-aab90569365d@igalia.com>
- <20260819-sysctl-module-aliases-v3-3-aab90569365d@igalia.com>
- <aomlfGJM61qZKxx2@monoceros> <4e3eaf1d3419e808be046035f114bf6c@igalia.com>
- <aotteDcc588iwC6g@monoceros>
-Message-ID: <4aa22e41e8ff4bab6638cf0baaa9d07b@igalia.com>
-X-Sender: mfo@igalia.com
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net v1] vsock: validate buffer min/max size in setsockopt
+To: David Laight <david.laight.linux@gmail.com>,
+ Rongguang Wei <clementwei90@163.com>
+Cc: sgarzare@redhat.com, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
+ virtualization@lists.linux.dev, netdev@vger.kernel.org
+References: <20260824091257.136269-1-clementwei90@163.com>
+ <20260824131632.2d325c42@pumpkin>
+Content-Language: en-US
+From: weirongguang <weirongguang@kylinos.cn>
+In-Reply-To: <20260824131632.2d325c42@pumpkin>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Report: NO, Score=-2.1, Tests=ALL_TRUSTED=-3,BAYES_50=0.8,KAM_DMARC_NONE=0.125,KAM_DMARC_STATUS=0.005,KAM_SHORT=0.001
-X-Spam-Score: -20
-X-Spam-Bar: --
+Content-Transfer-Encoding: 7bit
 
-On 2026-08-23 19:12, Uwe Kleine-König wrote:
-> Hello Mauricio,
+
+
+On 2026/8/24 20:16, David Laight wrote:
+> On Mon, 24 Aug 2026 17:12:57 +0800
+> Rongguang Wei <clementwei90@163.com> wrote:
 > 
-> On Sat, Aug 22, 2026 at 01:57:24PM -0300, Mauricio Faria de Oliveira wrote:
->> On 2026-08-22 10:41, Uwe Kleine-König wrote:
->> > On Wed, Aug 19, 2026 at 03:16:16PM -0300, Mauricio Faria de Oliveira wrote:
->> >> The MODULE_SYSCTL_TABLE macro emits a struct module_sysctl_table variable
->> >> with pointers to a sysctl table's path and entries, and table/entry sizes.
->> > 
->> > That new struct doesn't seem to contain any pointer?
->> 
->> The struct module_sysctl_table fields .path and .table are pointers,
->> although with kernel_ulong_t type so that the same 32/64-bit size is
->> used in file2alias.c based on KERNEL_ELFCLASS (and not on the host,
->> which might differ with CROSS_COMPILE).
+>> From: Rongguang Wei <weirongguang@kylinos.cn>
+>>
+>> SO_VM_SOCKETS_BUFFER_MIN_SIZE and SO_VM_SOCKETS_BUFFER_MAX_SIZE
+>> do not cross-validate against each other, allowing userspace to
+>> set buffer_min_size > buffer_max_size.
+>> When min > max, buffer_size is silently clamped to an incorrect
+>> value. For example, setting min=512KB then max=128 results in
+>> buffer_size=128 despite the user requesting much larger buffers
+>> via SO_VM_SOCKETS_BUFFER_SIZE.
+>>
+>> Reproduced with a test program:
+>> setsockopt(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_MIN_SIZE,
+>> 	   512 * 1024, sizeof(int));
+>> setsockopt(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_MAX_SIZE,
+>> 	   128, sizeof(int));
+>> // User asked for 1MB but got 128 bytes silently
+>> setsockopt(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_SIZE,
+>> 	   1024 * 1024, sizeof(int));
+>>
+>> After that use getsockopt to get the buffer_size = 128 and
+>> buffer_min_size = 524288, buffer_max_size = 128.
+>> The buffer_min_size > buffer_max_size and the kernel accepted
+>> contradictory values without error.
+>>
+>> Add value check to fix this issue. Return -EINVAL to userspace
+>> when setting MAX_SIZE to a value smaller than the current MIN_SIZE
+>> or setting MIN_SIZE to a value larger than the current MAX_SIZE.
 > 
-> Cross compilation isn't an issue for the already existing device id
-> structures; many of them also contain pointers.
-> (While modpost doesn't use the pointers, the size of the structures must
-> be known to correctly interpret the arrays.)
-
-Indeed. I missed some device_id structures with pointers, and that
-devicetable-offsets.c is cross-compiled to generate
-devicetable-offsets.h for file2alias.c to use offsets and sizes of the
-target architecture.
-
-I'll change .path and .table to pointers in the next version.
-
-> Also sizeof(long) differs between architectures and I can compile for
-> arm(32) just fine on amd64.
+> That is going to break userspace that sets the minimum before the maximum
+> when the new minimum is larger than the old maximum.
 > 
-> Additionally there is hardware out there that has sizeof(void *) = 16
-> but sizeof(long) = 8. Up until recently I worked on mainlining that (and
-> it has business reasons only I stopped, so I guess and hope I will
-> continue at some point in the future). See
-> https://lwn.net/Articles/1037974/ for some details if you're interested.
-
-Cool.
-
+> David
 > 
-> I would be great if your series didn't introduce a new obstacle for
-> that.
+Hi, David.
+Thanks for pointing out the issue.
 
-Absolutely. I'll be happy to adjust the series and testing for that.
+Here is an alternative approach:
+instead of returning -EINVAL, automatically adjust the other value to preserve buffer_min_size <= buffer_max_size.
+The trade-off is that setting one parameter may implicitly adjust the other, but this is preferable to breaking existing applications.
+Does this approach look reasonable?
+---
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index a33b2a2d381d..bd4646115af5 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -2050,12 +2050,18 @@ static int vsock_connectible_setsockopt(struct socket *sock,
+ 
+        case SO_VM_SOCKETS_BUFFER_MAX_SIZE:
+                COPY_IN(val);
++               /* If the new max is less than current min, shrink min to match. */
++               if (val < vsk->buffer_min_size)
++                       vsk->buffer_min_size = val;
+                vsk->buffer_max_size = val;
+                vsock_update_buffer_size(vsk, transport, vsk->buffer_size);
+                break;
+ 
+        case SO_VM_SOCKETS_BUFFER_MIN_SIZE:
+                COPY_IN(val);
++               /* If the new min is greater than current max, expand max to match. */
++               if (val > vsk->buffer_max_size)
++                       vsk->buffer_max_size = val;
+                vsk->buffer_min_size = val;
+                vsock_update_buffer_size(vsk, transport, vsk->buffer_size);
+                break;                                                           
 
-Could you please confirm one should just follow [1], which uses [2] to
-build the LLVM toolchain, and use it to build the kernel [3]?
-
-[1] https://github.com/cheri-linux#building-and-running
-[2] https://github.com/cheri-linux/buildroot
-[3] https://github.com/CHERI-Alliance/linux/tree/codasip-cheri-riscv-7.1
-
->> >> That symbol will be handled by file2alias.c (modpost) with the changes in
->> >> mod_devicetable.h and devicetable-offsets.c.
->> >> 
->> >> The option macros MODULE_SYSCTL_TABLE_{DISABLE,UNIQUE_ID} can be used on
->> >> a per-file basis to disable the macro and change the symbol name pattern.
->> >> 
->> >> Signed-off-by: Mauricio Faria de Oliveira <mfo@igalia.com>
->> >> ---
->> >>  include/linux/mod_devicetable.h   |  7 +++++++
->> >>  include/linux/sysctl.h            | 42 +++++++++++++++++++++++++++++++++++++++
->> >>  scripts/mod/devicetable-offsets.c |  6 ++++++
->> >>  3 files changed, 55 insertions(+)
->> > 
->> > Please put the new struct in a separate header. Apart from not being
->> > about a device table, I'm currently work on removing
->> > <linux/mod_devicetable.h>. See commit
->> > ad428f5811bd7fb3d91fa002174de533f9da94d7 for more details.
->> 
->> Sure; I looked at that earlier (thanks for the instructive commit
->> message, by the way) and found the new struct to be similar to "struct
->> cpu_feature isn't really a device_id struct" (not moved), but apparently
->> missed the trailing "fow now", which is clearer now. Fixed for v4.
-> 
-> Yeah, I didn't move that because it was an outlier in the header as it's
-> not a device id. IMHO it should go to something like
-> include/linux/cpu_feature.h.
-
-Ack.
-
-cheers,
-
-> 
-> Best regards
-> Uwe
-
--- 
-Mauricio
+>>
+>> Fixes: b9f2b0ffde0c ("vsock: handle buffer_size sockopts in the core")
+>> Signed-off-by: Rongguang Wei <weirongguang@kylinos.cn>
+>> ---
+>>  net/vmw_vsock/af_vsock.c | 8 ++++++++
+>>  1 file changed, 8 insertions(+)
+>>
+>> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+>> index a33b2a2d381d..5faa30ee8745 100644
+>> --- a/net/vmw_vsock/af_vsock.c
+>> +++ b/net/vmw_vsock/af_vsock.c
+>> @@ -2050,12 +2050,20 @@ static int vsock_connectible_setsockopt(struct socket *sock,
+>>  
+>>  	case SO_VM_SOCKETS_BUFFER_MAX_SIZE:
+>>  		COPY_IN(val);
+>> +		if (val < vsk->buffer_min_size) {
+>> +			err = -EINVAL;
+>> +			goto exit;
+>> +		}
+>>  		vsk->buffer_max_size = val;
+>>  		vsock_update_buffer_size(vsk, transport, vsk->buffer_size);
+>>  		break;
+>>  
+>>  	case SO_VM_SOCKETS_BUFFER_MIN_SIZE:
+>>  		COPY_IN(val);
+>> +		if (val > vsk->buffer_max_size) {
+>> +			err = -EINVAL;
+>> +			goto exit;
+>> +		}
+>>  		vsk->buffer_min_size = val;
+>>  		vsock_update_buffer_size(vsk, transport, vsk->buffer_size);
+>>  		break;
