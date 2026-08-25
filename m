@@ -1,200 +1,201 @@
-Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oa1-f45.google.com (mail-oa1-f45.google.com [209.85.160.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8533A3B6BFE;
-	Tue, 25 Aug 2026 19:10:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.97.179.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 428E448F855
+	for <virtualization@lists.linux.dev>; Tue, 25 Aug 2026 22:32:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787685054; cv=none; b=MBPFQ3JgaDmKBiwp2KDEEb4ecL+mLtph2ZDH5dUDq281tYFeEFrYTLqmj0fBsymWglvCHWxzIyTDZH9MReokSD6fJm8HvhUVSdj64YaC6gFEul3gP+c1AhtP9aAPtjK4OhXlImrdGrh8yAEgF7mDS3GGgLhWgOKsl1c6AF3TeI4=
+	t=1787697165; cv=none; b=lErjsl7H5Ej+VrgZFqNetaqMmuwpQGDJz0vi4/keouzOGbITbDivo31kx5vIYP1aI0VrKQwiwE9EO96xyz6MzjCs+ndmH/d3rzegDXOja8Hruz+PSfsEN+5VScM59/8t3BM4/jhNqMoC2bO7bnwvoy8SisbZJsTU2jUXXjn1DsM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787685054; c=relaxed/simple;
-	bh=OtchHb6GBRRv68k/gioU/7xbxZ19B8WsvvWJaYWNtpk=;
-	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=ipvLNwRYVe5qMCdwNi3DiLYUr8wa3BDCTTRR0oDbzguPyZv8t4cUzxHe9TeftT02dHk+LbW69SxsAwO7zSBhor2O9024k3t1P3Jqc+SNVIrIC9YItyp7L0nInMqvVzRwIKyPuzRPy4Mm4VQ7gBGxSu1mtANzzbw4nfK7j1dIW1A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com; spf=pass smtp.mailfrom=igalia.com; dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b=RHvx1Ado; arc=none smtp.client-ip=213.97.179.56
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igalia.com
+	s=arc-20240116; t=1787697165; c=relaxed/simple;
+	bh=4iqJpbtutOm4R3XsSRye/BVM3lSHQyMhCGLpVeYI+dk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=GwXi46KoX676bs1EoVg8r7VaGgqnyjzGRa9iZdaHdw/+Zn9Lh6+yJT6iHDokRgp0simhc6unanxlB1pBBtqT+GrirMKCYmQ/nE4f4tpG3bdAiSr2FIHwR1kzE29HdLWOW1DP8y0grsv5qJZgrGjB+DlP2fjFkJMXHb2CDpSrpOA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RMHM0AkA; arc=none smtp.client-ip=209.85.160.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b="RHvx1Ado"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
-	s=20170329; h=Content-Transfer-Encoding:Content-Type:Message-ID:Subject:Cc:To
-	:From:Date:MIME-Version:From:Reply-To;
-	bh=elAJm2a/yvCuwNZQN8cT8iWBlOljI1OpyGvFLYC11uo=; b=RHvx1Ado+WH9EzbHIOX+ZddNR4
-	p497xG/usjgdtyDE/kA/xbjOpyLIBJuOI92EZRwc1yOZOItUmNe5+oSRd4oxCZHOSJIg77xqmE+Tc
-	K5PFV0rWFpwnhQ6m9KAj6Aq1yxVDoopN2BKsaUVqLC48h9H3wG5IGBXSnMlrjvxadR17ZpA62zFv6
-	qnk+hsPSnk1nJmmcLcs7OjTT5cXXOefE42zyl0b94RK82DSvgwElUXWEAW9MTO2l5NBp9Zejkwn6T
-	YNgx8l8tDqfY2WGCtiFY0jVvYc0jEiv34rN7tch6qSf2TkOPn3XRxDKM1uTJZIDi4f2h9zACbsB7B
-	9kW+H63w==;
-Received: from maestria.local.igalia.com ([192.168.10.14] helo=mail.igalia.com)
-	by fanzine2.igalia.com with esmtps 
-	(Cipher TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim)
-	id 1wywXL-009BHb-A7; Tue, 25 Aug 2026 21:10:19 +0200
-Received: from webmail.service.igalia.com ([192.168.21.45])
-	by mail.igalia.com with esmtp (Exim)
-	id 1wywXJ-00530G-Og; Tue, 25 Aug 2026 21:10:19 +0200
-Received: from localhost ([127.0.0.1] helo=webmail.igalia.com)
-	by webmail.service.igalia.com with esmtp (Exim 4.98.2)
-	(envelope-from <mfo@igalia.com>)
-	id 1wywXJ-00000003he5-2ugE;
-	Tue, 25 Aug 2026 21:10:17 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RMHM0AkA"
+Received: by mail-oa1-f45.google.com with SMTP id 586e51a60fabf-455ca262ccbso410104fac.1
+        for <virtualization@lists.linux.dev>; Tue, 25 Aug 2026 15:32:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1787697161; x=1788301961; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=oAPCDDssQLWXyDbqpT5diYKMULhijQjsUnk18J2kiPw=;
+        b=RMHM0AkA4l/ahbICeS9fx5Hu5y/kPvFFpuaJXeTwY0R4x0wUwwMr6KyT3wl3mDT1CV
+         f+SQwfYpwLGCWkRuIaEuSIin+QqT150ZFrU/h9Rry/wGmnFFQJrzB3YD/LtWyixLtsM/
+         /evoeYDERcfl/eFAt+CMdV7bg32+qZadOzJmFh+MOz29UPszfrmwxkFkdqlHiCMiNnD7
+         HI9r+uQPzlf4jrlEG9WCMpNm75Q07LUb3yujerrS69dOP0itvblXIB7/z1c16yV1aJgW
+         fkErDZmwe55PaSeHlYd4iR1HAghAM5CCzpzuQMNIlnrocuJCST6PEEQG42kRBHV5K4OO
+         4IHw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787697161; x=1788301961;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=oAPCDDssQLWXyDbqpT5diYKMULhijQjsUnk18J2kiPw=;
+        b=jqEOhu+Mc+UNA4OpMdel7raqIvxiaYRfFhuqHvr63mBxZz6Ff1Yqi+SzYSwIkS9XWt
+         wrNhXqfQ58YKiZTV48cemu+X4DJOB6iglS4BBj0wJEnQUz17Qsf4H0R+8ds9O9T+hedu
+         pBzfV2Ed31Sxep1LowOrqMrqTfxB4fru6cbZiXSB5h2AEmbbs4IwXuNUUdxUKP3k95z7
+         yI2y71MweBCW94Mm1HJa1syt344nLmJfmMCfQHfIro3pxojjdFa2xo0JYY2av4PBknti
+         Y0T2u4osu3VvutmmaxsraR6vHZYynGk7YzqgowAlORZAJL/RRuzebeFec/9KmPneFdPE
+         /saA==
+X-Forwarded-Encrypted: i=1; AHgh+RpzuxAIUgczc5g/Dq1n31zNQlir6eaThGcahav28SgKEVNaDJZZiMcU1o6uZ5Carz2FmYQmMDcWAP/pH6esfg==@lists.linux.dev
+X-Gm-Message-State: AFuF++klHMOkJ2bO5nD50VwcWYjjTwqOHBJnx+LvUIL6XM4rtRyKJ0Fp
+	LOVeSViFnj2A7gNuWd87kNB6/GUVF0PKYLOAZufn7CzFJ+sk+SKgXLe4
+X-Gm-Gg: AR+sD13bNwbK182J91o4SaAnxFvHVf3PO36DgFfftXW6ibV3y8n7qmCoKxNUOvrFDpt
+	3poqhPIkW/UqdNzTILw6w4MuVx7iQKa9DDuV2Ur3d0q+GfSv6ADAWwcg1d8UBXl0he7HxrpkReR
+	+reUEswKw2qdIprCMEh+gI6L9RWBYBw8RPdXoCgy6eLaNpUj91ImTtofdczOs6uyoxRl1FNLfRu
+	govNpnYPSLj1Emt6SaxVoV97xzG6PMbmIG0YeH3qRFn+R0sL0CuBypbXRFLmsc40VayfDcr6WAM
+	Q/PmvilHK1LlpqVZlryqWGPD0ItCEN+F2D6VN37XNKJfWQ5bK8eqXNW7zMVAAs+OlWuB3Tbwgrd
+	63WAF1e0HylUubQnqtoE89PGmcSq7DdkIrgXPZ26JdMfIWRMGOmaIoXPntjtbNWQSBrg4Xx+7hn
+	WFHIfyavlFpxvL3VQTvcNCZCuKYG7PmDaMH2hkF+hry4dPV3gsUmJQAUp3QvNRAP61mka32aKfZ
+	qy6CYmCTg==
+X-Received: by 2002:a05:6820:2016:b0:6ac:9729:6710 with SMTP id 006d021491bc7-6b1a049e03bmr2588322eaf.18.1787697160680;
+        Tue, 25 Aug 2026 15:32:40 -0700 (PDT)
+Received: from devvm29614.prn0.facebook.com ([2a03:2880:ff:4d::])
+        by smtp.gmail.com with ESMTPSA id 006d021491bc7-6b1a24bdb31sm194474eaf.2.2026.08.25.15.32.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 25 Aug 2026 15:32:40 -0700 (PDT)
+Date: Tue, 25 Aug 2026 15:32:36 -0700
+From: Bobby Eshleman <bobbyeshleman@gmail.com>
+To: Daehyeon Ko <4ncienth@gmail.com>
+Cc: netdev@vger.kernel.org, sgarzare@redhat.com, stefanha@redhat.com,
+	davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+	pabeni@redhat.com, horms@kernel.org, mst@redhat.com,
+	jasowangio@gmail.com, xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com, bryan-bt.tan@broadcom.com,
+	vishnu.dasa@broadcom.com, bcm-kernel-feedback-list@broadcom.com,
+	virtualization@lists.linux.dev, kvm@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net v3 1/2] vsock/virtio: validate packet source for
+ connected sockets
+Message-ID: <ao4YBNYwQ9PGC0CN@devvm29614.prn0.facebook.com>
+References: <20260823175858.351431-1-4ncienth@gmail.com>
+ <20260823175858.351431-2-4ncienth@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Date: Tue, 25 Aug 2026 16:10:17 -0300
-From: Mauricio Faria de Oliveira <mfo@igalia.com>
-To: =?UTF-8?Q?Uwe_Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
-Cc: Kees Cook <kees@kernel.org>, Joel Granados <joel.granados@kernel.org>,
- Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon
- Horman <horms@kernel.org>, kernel-dev@igalia.com,
- linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
- fsverity@lists.linux.dev, keyrings@vger.kernel.org, bpf@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, linux-kbuild@vger.kernel.org,
- netdev@vger.kernel.org, linux-wpan@vger.kernel.org,
- lvs-devel@vger.kernel.org, netfilter-devel@vger.kernel.org,
- coreteam@netfilter.org, linux-sctp@vger.kernel.org,
- linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
- bridge@lists.linux.dev, mptcp@lists.linux.dev, rds-devel@oss.oracle.com,
- virtualization@lists.linux.dev
-Subject: Re: [PATCH RFC v3 03/13] sysctl, mod_devicetable: add macro
- MODULE_SYSCTL_TABLE
-In-Reply-To: <ao1P_mEJdyRExG3v@monoceros>
-References: <20260819-sysctl-module-aliases-v3-0-aab90569365d@igalia.com>
- <20260819-sysctl-module-aliases-v3-3-aab90569365d@igalia.com>
- <aomlfGJM61qZKxx2@monoceros> <4e3eaf1d3419e808be046035f114bf6c@igalia.com>
- <aotteDcc588iwC6g@monoceros> <4aa22e41e8ff4bab6638cf0baaa9d07b@igalia.com>
- <ao1P_mEJdyRExG3v@monoceros>
-Message-ID: <4a7925a800f0c9b36078a70bf35e960d@igalia.com>
-X-Sender: mfo@igalia.com
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Report: NO, Score=-2.1, Tests=ALL_TRUSTED=-3,BAYES_50=0.8,KAM_DMARC_NONE=0.125,KAM_DMARC_STATUS=0.005
-X-Spam-Score: -20
-X-Spam-Bar: --
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260823175858.351431-2-4ncienth@gmail.com>
 
-On 2026-08-25 05:24, Uwe Kleine-König wrote:
-> Hello,
+On Mon, Aug 24, 2026 at 02:58:57AM +0900, Daehyeon Ko wrote:
+> virtio_transport_recv_pkt() looks up sockets first by the full source and
+> destination tuple, then by destination only in the bound table. The
+> fallback is needed for listening and connecting sockets, but sockets remain
+> in the bound table after connect(), so it can also return a non-listening
+> socket.
 > 
-> On Mon, Aug 24, 2026 at 06:04:03PM -0300, Mauricio Faria de Oliveira wrote:
->> On 2026-08-23 19:12, Uwe Kleine-König wrote:
->> > On Sat, Aug 22, 2026 at 01:57:24PM -0300, Mauricio Faria de Oliveira wrote:
->> >> On 2026-08-22 10:41, Uwe Kleine-König wrote:
->> >> > On Wed, Aug 19, 2026 at 03:16:16PM -0300, Mauricio Faria de Oliveira wrote:
->> >> >> The MODULE_SYSCTL_TABLE macro emits a struct module_sysctl_table variable
->> >> >> with pointers to a sysctl table's path and entries, and table/entry sizes.
->> >> >
->> >> > That new struct doesn't seem to contain any pointer?
->> >>
->> >> The struct module_sysctl_table fields .path and .table are pointers,
->> >> although with kernel_ulong_t type so that the same 32/64-bit size is
->> >> used in file2alias.c based on KERNEL_ELFCLASS (and not on the host,
->> >> which might differ with CROSS_COMPILE).
->> >
->> > Cross compilation isn't an issue for the already existing device id
->> > structures; many of them also contain pointers.
->> > (While modpost doesn't use the pointers, the size of the structures must
->> > be known to correctly interpret the arrays.)
->> 
->> Indeed. I missed some device_id structures with pointers, and that
->> devicetable-offsets.c is cross-compiled to generate
->> devicetable-offsets.h for file2alias.c to use offsets and sizes of the
->> target architecture.
->> 
->> I'll change .path and .table to pointers in the next version.
+> The fallback does not validate the source address. In TCP_SYN_SENT, a
+> RESPONSE from an unrelated source can transition the victim socket to
+> TCP_ESTABLISHED while its stored remote address remains unchanged.
+> Subsequent RW packets from that source are delivered through the same
+> destination-only fallback.
 > 
-> I *think* the existing device-id structs use char[] for strings that are
-> relevant for modpost. I look forward to you finding out if there is
-> still a justification for that :-D
-
-AFAICT, an array is simpler to read in file2alias as it is stored
-directly in the symbol:
-
-For example:
-
-@ include/linux/device-id/of.h 
-
-	struct of_device_id {
-	...
-		char compatible[128];
-	...
-
-@ drivers/net/ethernet/korina.c
-
-	static const struct of_device_id korina_match[] = {
-		{
-		        .compatible = "idt,3243x-emac",
-	...
-	MODULE_DEVICE_TABLE(of, korina_match);
-
-which builds
-
-	$ objdump -t drivers/net/ethernet/korina.o | grep __mod_device_table
-	0000000000001020 l     O .rodata	0000000000000190
-__mod_device_table__kmod_korina__of__korina_match
-
-	$ objdump -s -j .rodata --start-address=0x1020
---stop-address=$((0x1020+0x190)) drivers/net/ethernet/korina.o
-	...
-	 1020 00000000 00000000 00000000 00000000  ................
-	 1030 00000000 00000000 00000000 00000000  ................
-	 1040 00000000 00000000 00000000 00000000  ................
-	 1050 00000000 00000000 00000000 00000000  ................
-	 1060 6964742c 33323433 782d656d 61630000  idt,3243x-emac..
-	 1070 00000000 00000000 00000000 00000000  ................
-	...
-
-@ scripts/mod/file2lias.c
-
-	#define DEF_FIELD_ADDR(m, devid, f) \
-		typeof(((struct devid *)0)->f) *f = ((m) + OFF_##devid##_##f)
-
-	static void do_of_entry(struct module *mod, void *symval)
-	{
-	...
-		DEF_FIELD_ADDR(symval, of_device_id, compatible);
-	...
-	
-void handle_moddevtable(struct module *mod, struct elf_info *info,
-                        Elf_Sym *sym, const char *symname)
-{
-        void *symval;
-...
-                symval = sym_get_data(info, sym);
-
-On the other hand, a pointer is stored indirectly through a relocation
-in the symbol, which is not as simple to read (i.e., 1. find the
-relocation section for the symbol's section; 2. find the relocation in
-that section by matching relocation offsets with an offset in the symbol
-+ symbol address; 3. finally read the relocation's target).
-
->> > I would be great if your series didn't introduce a new obstacle for
->> > [CHERI].
->> 
->> Absolutely. I'll be happy to adjust the series and testing for that.
->> 
->> Could you please confirm one should just follow [1], which uses [2] to
->> build the LLVM toolchain, and use it to build the kernel [3]?
->> 
->> [1] https://github.com/cheri-linux#building-and-running
->> [2] https://github.com/cheri-linux/buildroot
->> [3] https://github.com/CHERI-Alliance/linux/tree/codasip-cheri-riscv-7.1
+> This was reproduced with capability-empty processes under different UIDs.
+> The attacker discovered the target tuple through unprivileged AF_VSOCK
+> sock_diag and caused the victim socket to read 16 attacker-chosen bytes;
+> the intended peer-side socket read 0 of those 16 bytes.
 > 
-> I used
-> https://github.com/CHERI-Alliance/meta-cheri/tree/codasip-scarthgap and
-> didn't care about toolchain and rootfs. It also has qemu integrated, so
-> you can actually test it.
-
-I'll take a look; thanks!
-
-cheers,
-
+> Add vsock_check_source() to validate the transport, source port and source
+> CID against the peer stored in a non-listening socket. The local transport
+> is the CID exception because its packets are generated internally with
+> VMADDR_CID_LOCAL as their source, including connections using CID aliases.
 > 
-> Best regards
-> Uwe
+> Use the helper after lock_sock() in the virtio receive path.
+> 
+> Fixes: 06a8fc78367d ("VSOCK: Introduce virtio_vsock_common.ko")
+> Closes: https://lore.kernel.org/netdev/20260813121236.2328599-1-4ncienth@gmail.com/
+> Cc: stable@vger.kernel.org
+> Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
+> Assisted-by: Codex:gpt-5.6-sol
+> Signed-off-by: Daehyeon Ko <4ncienth@gmail.com>
+> ---
+>  include/net/af_vsock.h                  |  3 +++
+>  net/vmw_vsock/af_vsock.c                | 32 +++++++++++++++++++++++++
+>  net/vmw_vsock/virtio_transport_common.c |  3 ++-
+>  3 files changed, 37 insertions(+), 1 deletion(-)
+> 
+> diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+> index 3357ee62d..5549298c1 100644
+> --- a/include/net/af_vsock.h
+> +++ b/include/net/af_vsock.h
+> @@ -229,6 +229,9 @@ struct sock *vsock_find_bound_socket_net(struct sockaddr_vm *addr,
+>  struct sock *vsock_find_connected_socket_net(struct sockaddr_vm *src,
+>  					     struct sockaddr_vm *dst,
+>  					     struct net *net);
+> +bool vsock_check_source(const struct vsock_sock *vsk,
+> +			const struct vsock_transport *transport,
+> +			const struct sockaddr_vm *src);
+>  void vsock_remove_sock(struct vsock_sock *vsk);
+>  void vsock_for_each_connected_socket(struct vsock_transport *transport,
+>  				     void (*fn)(struct sock *sk));
+> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+> index a33b2a2d3..f840498b5 100644
+> --- a/net/vmw_vsock/af_vsock.c
+> +++ b/net/vmw_vsock/af_vsock.c
+> @@ -438,6 +438,38 @@ struct sock *vsock_find_connected_socket(struct sockaddr_vm *src,
+>  }
+>  EXPORT_SYMBOL_GPL(vsock_find_connected_socket);
+>  
+> +/**
+> + * vsock_check_source - validate a packet source against a socket peer
+> + * @vsk: socket receiving the packet
+> + * @transport: transport receiving the packet
+> + * @src: source address from the packet
+> + *
+> + * Return: true if the packet arrived on the socket's assigned transport and
+> + * its source matches the stored peer. Loopback packets are generated
+> + * internally and always use the local CID as their source, including
+> + * connections using a valid CID alias.
+> + *
+> + * The caller must hold the socket lock and must not call this for listening
+> + * sockets, which accept packets from any source and have no assigned
+> + * transport.
+> + */
+> +bool vsock_check_source(const struct vsock_sock *vsk,
+> +			const struct vsock_transport *transport,
+> +			const struct sockaddr_vm *src)
+> +{
+> +	if (vsk->transport != transport)
+> +		return false;
+> +
+> +	if (src->svm_port != vsk->remote_addr.svm_port)
+> +		return false;
+> +
+> +	if (src->svm_cid == vsk->remote_addr.svm_cid)
+> +		return true;
+> +
+> +	return transport->get_local_cid() == VMADDR_CID_LOCAL;
+> +}
+> +EXPORT_SYMBOL_GPL(vsock_check_source);
+> +
+>  void vsock_remove_sock(struct vsock_sock *vsk)
+>  {
+>  	/* Transport reassignment must not remove the binding. */
+> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+> index e4ebaa70f..6301c108a 100644
+> --- a/net/vmw_vsock/virtio_transport_common.c
+> +++ b/net/vmw_vsock/virtio_transport_common.c
+> @@ -1823,7 +1823,8 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
+>  	 * lock_sock (note: listener sockets are not assigned to any transport)
+>  	 */
+>  	if (sock_flag(sk, SOCK_DONE) ||
+> -	    (sk->sk_state != TCP_LISTEN && vsk->transport != &t->transport)) {
+> +	    (sk->sk_state != TCP_LISTEN &&
+> +	     !vsock_check_source(vsk, &t->transport, &src))) {
+>  		(void)virtio_transport_reset_no_sock(t, skb, net);
+>  		release_sock(sk);
+>  		sock_put(sk);
+> -- 
+> 2.54.0
+> 
 
--- 
-Mauricio
+Reviewed-by: Bobby Eshleman <bobbyeshleman@meta.com>
