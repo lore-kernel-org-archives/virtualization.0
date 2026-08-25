@@ -1,81 +1,178 @@
-Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.2])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f52.google.com (mail-ej1-f52.google.com [209.85.218.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4C953DB63D
-	for <virtualization@lists.linux.dev>; Tue, 25 Aug 2026 08:14:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.2
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F3BD3DDAE3
+	for <virtualization@lists.linux.dev>; Tue, 25 Aug 2026 08:24:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787645656; cv=none; b=HyYCz/qnGbfQaDAPTzyHRL5Vs4rMX4EZQOH4+lt3Iy8GQA/hoj50fZLg9jacHHBf8Kr4sJ+AJQl4ewDpGVxwFupOJNjpzqhWqeuAugCyaxwl02P1GOBh9T/2fU6h1bLZve9lXBXdi/rKJaRAqau3XVeZ/XDLUAIIcIQyExy7j2U=
+	t=1787646261; cv=none; b=XXXJdGqvi3XxizAKRGoGO09V2SQppeftfl3vPq8CxY31z2mGpwWVzn36RHp/8/uY8aor18NFmR4ERzlrBnpioNjPz7xcG3PlN1tS54NOIpcZHVgHmWheEWaC82uDyZxz7e4A952WgXwDgWxyswcFkdc/CcgpoTKY9RFjsWDByuI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787645656; c=relaxed/simple;
-	bh=vmeagQmHgmqDHl8uivB7+4iX27w03s0n3GIWhsfm/74=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:Content-Type:
-	 MIME-Version:Message-ID; b=APJg3eis+Oump1eFrqzGiH0f1UgL7xCE7OGNriy1CJPjoPZineKmAiIFzDnZFKdGxaJjhanbhJ6RoBWY108WaQs6D7SKiqOmBdusj+Y97psfqcp6fr1sER8eRT8Ptpz3yCBaMfO34LXj0wg/BmHaeFU289ocQW8LbSShnfZQQbY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=INLxCGra; arc=none smtp.client-ip=220.197.31.2
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1787646261; c=relaxed/simple;
+	bh=DZQvgMF9MtoSMKn9/xxgPT3t+kYxUHeBLkPFZwmxGy0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=CCLQ2OsQdlvNQXBPQSrB3pEuust6mBTTC0qFY9cFJ4CF83bB0ZNAn0M5j3sLmgEKrJzb1BGxCEnffix/bNjLxNokmTUGbz2hDVgRW8tCcF6O+pHW6fW64xuz5Tj+7y+4peg24fQqpKdQ0rjUnJwKgCttxn2UyZ3YVDSChKKSI6A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=Vfv8ATx5; arc=none smtp.client-ip=209.85.218.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="INLxCGra"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=Date:From:To:Subject:Content-Type:MIME-Version:
-	Message-ID; bh=vmeagQmHgmqDHl8uivB7+4iX27w03s0n3GIWhsfm/74=; b=I
-	NLxCGra9hbCS+gqxSrumDKMHO21KhwCXx/VQJkt7z30b+UUceFrIjGCJsq5bLyU3
-	vCOoyyY8Mw0XpJl5H153+mlw3FGqtoLn9web9yNBy0b4U+MOiXd9ruxiEnkusXyv
-	wSB8LxL7KHTLIh84Xhj+Mrq1jhvncsbtuy1qIwNZwA=
-Received: from lange_tang$163.com ( [116.128.244.169] ) by
- ajax-webmail-wmsvr-40-143 (Coremail) ; Tue, 25 Aug 2026 16:13:44 +0800
- (CST)
-Date: Tue, 25 Aug 2026 16:13:44 +0800 (CST)
-From: "Lange Tang" <lange_tang@163.com>
-To: "Jakub Kicinski" <kuba@kernel.org>
-Cc: "mst@redhat.com" <mst@redhat.com>,
-	"jasowangio@gmail.com" <jasowangio@gmail.com>,
-	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-	"Tang Longjun" <tanglongjun@kylinos.cn>
-Subject: Re:Re: [PATCH v2] virtio_net: add rx-alloc-fail counter
-X-Priority: 3
-X-Mailer: Coremail Webmail Server Version 2023.4-cmXT build
- 20260511(2e539873) Copyright (c) 2002-2026 www.mailtech.cn 163com
-In-Reply-To: <20260824112050.02623327@kernel.org>
-References: <20260820060929.69576-1-lange_tang@163.com>
- <20260824112050.02623327@kernel.org>
-X-NTES-SC: AL_Qu2TBfqfuk4p4iaYYukfmUgRg+c/XsK4svUj24VVOJF8jC/r2DghekBCPHTT4v2hKSq0sRGoVgBV4edDU4lKergrdrroI039T0SXu0yFrclJYw==
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset=GBK
+	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="Vfv8ATx5"
+Received: by mail-ej1-f52.google.com with SMTP id a640c23a62f3a-c1c50c1e29bso719084266b.3
+        for <virtualization@lists.linux.dev>; Tue, 25 Aug 2026 01:24:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre.com; s=google; t=1787646255; x=1788251055; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=DZQvgMF9MtoSMKn9/xxgPT3t+kYxUHeBLkPFZwmxGy0=;
+        b=Vfv8ATx5myKLdruW2Q6qlyPJhtDXbb+NqHcCEdACWK6rrXfodarpnzkRsnRbUbLTLt
+         W71ELgrloG3Dksjd4q26mj9dkyjrurgaEI06szGtPm0b5fBpyZhr0M/+vKJ9rXhVsaEa
+         CVtfPd0bIA/tLvp8cDdqghEf7S5YWax19Ukdn18pmzvf0ZI2g7KXKaKVC/hwCBhDXGk5
+         3g0TIjpCV2BEEZld1esKmtUjHrPkXlv+3Thwfn0FJtxVRCgiv/wFjMnXUO1xXj7e03Uh
+         7qeMS+9/NBhOt/gvmGH5s7l6mJo5lR5u/CnDn02iUmkejX+8uVPoOxQfogXDujC5gY/i
+         ScQQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787646255; x=1788251055;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=DZQvgMF9MtoSMKn9/xxgPT3t+kYxUHeBLkPFZwmxGy0=;
+        b=aTsZTc0/cNMWSND266wbiYs66M+L/lup28OYwdJztWuQ69ecKTr9C86bbwgY3jwx2p
+         GSvVCZER3fvH6XN44ddhfTyHSXgng5u52RP9Rrcna79eWflvZC93O2a5AHcY2Ib92Ssq
+         GDE4M1dKEb14c+kqc16a6Bw3hVY9dYoSMi560IotQPN2HtXRoojrzwIhyD6TpFRoFmiN
+         mgt5359FWp4gCBgsoPm8N4CSLTijraI5022X/5hAzr+jVwjXNyx/hFYMztLP+NBgmSUW
+         X9006T4zYT5SNNeSKFAtVNdO+9hkXgK8GDskhfzSJZxFmVGNzKUWNpur+hDUt8UKylrH
+         ty1Q==
+X-Forwarded-Encrypted: i=1; AHgh+RqOd1h089tQX6EpijgnEE8tcrCGFTcwfdVOgq6nC1TYD3rvLX5SBjcBuZI6M5knpMwcuFyvxkdIxsQZ98SDCw==@lists.linux.dev
+X-Gm-Message-State: AFuF++kD9jkRRreso2HE5ot82w5/mZFmCkmzFD3lqGNqZv+Q6IaGZD2D
+	MyBQRoiBBMH7VoPxDBDTdBvIz3/s0pKjr2YtLWuX4dmdrqmpV2X6wEgwlx7zKQjOkzk=
+X-Gm-Gg: AR+sD10DSv116Mph4gKWiG67LpVzO06rtY+HYh7fOm4b88F+qGIpNrQtClfMpY2ImOC
+	HGjiBDN/KZCAbuywDdLH/hQ+NZT4hkxNuRlQM9BSrgR5SISU3htEtcsPYWHVdRzwE9My3qlINql
+	Q78S3V/q2+VD7pmqnyUeJBwaU1AhX3GuULgEVfQDebDjw9lJvuNAiOggCRgHIfwFr6dOWZDP1Bf
+	+roAssrx/QzN3FmJhsNz6T1e3AMIQMgiPZP4854MjF6PG63fZlDaTWoR1BlaUoXZyCBNsINKMhM
+	qsY2r7i+qwEaBz6jBwtdHUOXy06kb9/jlJh+4WKDztjnmh8jldjJ9/FrfCOrhgs4bdFnfZ/mGxq
+	ViQuWrH2v+uQnPXg2KEcm+fcInarOY4K44yJGMVm2zEqn6PIalTW2X45DJwtUJdWS16SWSQSUyb
+	zJYh5SjEn9nZHAkfNAwGZJjm13VJ2dyAZrfz5/S22r/oZZmxBpHlglwtqnvFtc7uCDb+dBs/nh/
+	TMapyLTFouTkLLFm+AZrccpxOQDPy4P1mz56Gi+eDFF+8WsdQ==
+X-Received: by 2002:a17:907:1c07:b0:c15:f26a:3438 with SMTP id a640c23a62f3a-c24e5c1ffd3mr497229766b.24.1787646255345;
+        Tue, 25 Aug 2026 01:24:15 -0700 (PDT)
+Received: from localhost (p200300f65f19a904037016a565660d5e.dip0.t-ipconnect.de. [2003:f6:5f19:a904:370:16a5:6566:d5e])
+        by smtp.gmail.com with UTF8SMTPSA id a640c23a62f3a-c24966f9cbcsm1874351966b.29.2026.08.25.01.24.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 25 Aug 2026 01:24:14 -0700 (PDT)
+Date: Tue, 25 Aug 2026 10:24:12 +0200
+From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
+To: Mauricio Faria de Oliveira <mfo@igalia.com>
+Cc: Kees Cook <kees@kernel.org>, Joel Granados <joel.granados@kernel.org>, 
+	Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	kernel-dev@igalia.com, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org, 
+	fsverity@lists.linux.dev, keyrings@vger.kernel.org, bpf@vger.kernel.org, 
+	linux-fsdevel@vger.kernel.org, linux-kbuild@vger.kernel.org, netdev@vger.kernel.org, 
+	linux-wpan@vger.kernel.org, lvs-devel@vger.kernel.org, netfilter-devel@vger.kernel.org, 
+	coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-rdma@vger.kernel.org, 
+	linux-s390@vger.kernel.org, bridge@lists.linux.dev, mptcp@lists.linux.dev, 
+	rds-devel@oss.oracle.com, virtualization@lists.linux.dev
+Subject: Re: [PATCH RFC v3 03/13] sysctl, mod_devicetable: add macro
+ MODULE_SYSCTL_TABLE
+Message-ID: <ao1P_mEJdyRExG3v@monoceros>
+References: <20260819-sysctl-module-aliases-v3-0-aab90569365d@igalia.com>
+ <20260819-sysctl-module-aliases-v3-3-aab90569365d@igalia.com>
+ <aomlfGJM61qZKxx2@monoceros>
+ <4e3eaf1d3419e808be046035f114bf6c@igalia.com>
+ <aotteDcc588iwC6g@monoceros>
+ <4aa22e41e8ff4bab6638cf0baaa9d07b@igalia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Message-ID: <60cd1569.6b2c.1a037fb8129.Coremail.lange_tang@163.com>
-X-Coremail-Locale: zh_CN
-X-CM-TRANSID:jygvCgDn_4K5To1qpFE4AA--.4873W
-X-CM-SenderInfo: 5odqwvxbwd0wi6rwjhhfrp/xtbC-Rm-7WqNTrmjxwAA3C
-X-Coremail-Antispam: 1U5529EdanIXcx71UUUUU7vcSsGvfC2KfnxnUU==
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="ajsyed3ibfmsggn6"
+Content-Disposition: inline
+In-Reply-To: <4aa22e41e8ff4bab6638cf0baaa9d07b@igalia.com>
 
-QXQgMjAyNi0wOC0yNSAwMjoyMDo1MCwgIkpha3ViIEtpY2luc2tpIiA8a3ViYUBrZXJuZWwub3Jn
-PiB3cm90ZToKPk9uIFRodSwgMjAgQXVnIDIwMjYgMTQ6MDk6MjkgKzA4MDAgTG9uZ2p1biBUYW5n
-IHdyb3RlOgo+PiBDb3VudCB0aGUgY2FzZXMgd2hlcmUgdGhlIGRyaXZlciBmYWlscyB0byBhbGxv
-Y2F0ZSBhIGJ1ZmZlciBvciBhbiBza2IsCj4+IHN1Y2ggYXMgd2hlbiB0cnlfZmlsbF9yZWN2KCkg
-ZmFpbHMgd2l0aCBFTk9NRU0sIGFuZCByZXBvcnQgdGhlbSB2aWEgdGhlCj4+IHJ4LWFsbG9jLWZh
-aWwgcXN0YXQuCj4+IAo+PiBQbHVtYiBhbGxvYy1mYWlsIGludG8gdmlydG5ldF9nZXRfYmFzZV9z
-dGF0cygpIHRvIGtlZXAgdGhpcyBuZXcgc3RhdAo+PiByZXBvcnRlZCBjb25zaXN0ZW50bHkgYXQg
-Ym90aCBxdWV1ZSBhbmQgZGV2aWNlIHNjb3BlLCBtYXRjaGluZyBob3cKPj4gcGFja2V0cywgYnl0
-ZXMsIHN0b3AgYW5kIHdha2UgYXJlIGhhbmRsZWQuCj4KPlRoZSBzdGF0cyBoYW5kbGluZyBpbiB2
-aXJ0aW9fbmV0IGlzIHN1cGVyIGNvbnZvbHV0ZWQgYnV0IEFGQUlDVAo+eW91ciBwYXRjaCBpcyBn
-b29kLiBVbmZvcnR1bmF0ZWx5LCBuZXQtbmV4dCBpcyBjbG9zZWQgcmlnaHQgbm93Cj4obWVyZ2Ug
-d2luZG93KSB0byB5b3Ugd2lsbCBoYXZlIHRvIHJlcG9zdCBuZXh0IHdlZWsuCj4KPk1heWJlIHlv
-dSBjYW4gdHJ5IHRvIGNvdmVyIG1vcmUgYWxsb2NhdGlvbiBmYWlsdXJlcyBwZXI6Cj5odHRwczov
-L25ldGRldi1haS5ib3RzLmxpbnV4LmRldi9zYXNoaWtvLyMvcGF0Y2hzZXQvMjAyNjA4MjAwNjA5
-MjkuNjk1NzYtMS1sYW5nZV90YW5nQDE2My5jb20KPk9yIGFkZCBhIHNlbnRlbmNlIG9yIHR3byB0
-byB0aGUgY29tbWl0IG1lc3NhZ2UgdGhhdCB3ZSBkbyBub3QgaW50ZW5kCj50byBjb3ZlciAxMDAl
-IG9mIGNhc2VzIHdoZXJlIHBhY2tldCBpcyBkcm9wcGVkLgoKVGhhbmsgeW91IGZvciB5b3VyIHJl
-dmlldyBhbmQgcmVwbHkuCkkgd2lsbCByZXBvc3QgdjMgbmV4dCB3ZWVrIGFuZCBhZGQgc29tZSBk
-ZXNjcmlwdGlvbiB0byB0aGUgY29tbWl0IG1lc3NhZ2U6ClRoaXMgY291bnRlciBkb2VzIG5vdCBj
-b3ZlciBldmVyeSBhbGxvY2F0aW9uIGZhaWx1cmUgaW4gYWxsIFJYIHBhdGhzLgpJdCBpcyBpbnRl
-bnRpb25hbGx5IGxpbWl0ZWQgdG8gdGhlIGNvbW1vbiBza2IgYW5kIFJYIGJ1ZmZlciBhbGxvY2F0
-aW9uCnBhdGhzIHRvIGtlZXAgaXRzIG1lYW5pbmcgY2xlYXIuCgp0aGFua3MuCkxvbmdqdW4gVGFu
-Zw==
+
+--ajsyed3ibfmsggn6
+Content-Type: text/plain; protected-headers=v1; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH RFC v3 03/13] sysctl, mod_devicetable: add macro
+ MODULE_SYSCTL_TABLE
+MIME-Version: 1.0
+
+Hello,
+
+On Mon, Aug 24, 2026 at 06:04:03PM -0300, Mauricio Faria de Oliveira wrote:
+> On 2026-08-23 19:12, Uwe Kleine-K=F6nig wrote:
+> > On Sat, Aug 22, 2026 at 01:57:24PM -0300, Mauricio Faria de Oliveira wr=
+ote:
+> >> On 2026-08-22 10:41, Uwe Kleine-K=F6nig wrote:
+> >> > On Wed, Aug 19, 2026 at 03:16:16PM -0300, Mauricio Faria de Oliveira=
+ wrote:
+> >> >> The MODULE_SYSCTL_TABLE macro emits a struct module_sysctl_table va=
+riable
+> >> >> with pointers to a sysctl table's path and entries, and table/entry=
+ sizes.
+> >> >=20
+> >> > That new struct doesn't seem to contain any pointer?
+> >>=20
+> >> The struct module_sysctl_table fields .path and .table are pointers,
+> >> although with kernel_ulong_t type so that the same 32/64-bit size is
+> >> used in file2alias.c based on KERNEL_ELFCLASS (and not on the host,
+> >> which might differ with CROSS_COMPILE).
+> >=20
+> > Cross compilation isn't an issue for the already existing device id
+> > structures; many of them also contain pointers.
+> > (While modpost doesn't use the pointers, the size of the structures must
+> > be known to correctly interpret the arrays.)
+>=20
+> Indeed. I missed some device_id structures with pointers, and that
+> devicetable-offsets.c is cross-compiled to generate
+> devicetable-offsets.h for file2alias.c to use offsets and sizes of the
+> target architecture.
+>=20
+> I'll change .path and .table to pointers in the next version.
+
+I *think* the existing device-id structs use char[] for strings that are
+relevant for modpost. I look forward to you finding out if there is
+still a justification for that :-D
+
+> > I would be great if your series didn't introduce a new obstacle for
+> > [CHERI].
+>=20
+> Absolutely. I'll be happy to adjust the series and testing for that.
+>=20
+> Could you please confirm one should just follow [1], which uses [2] to
+> build the LLVM toolchain, and use it to build the kernel [3]?
+>=20
+> [1] https://github.com/cheri-linux#building-and-running
+> [2] https://github.com/cheri-linux/buildroot
+> [3] https://github.com/CHERI-Alliance/linux/tree/codasip-cheri-riscv-7.1
+
+I used
+https://github.com/CHERI-Alliance/meta-cheri/tree/codasip-scarthgap and
+didn't care about toolchain and rootfs. It also has qemu integrated, so
+you can actually test it.
+
+Best regards
+Uwe
+
+--ajsyed3ibfmsggn6
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmqNUSoACgkQj4D7WH0S
+/k5rHwf/eQKyjSm4dfYOnpO+kyESzhGSDXacrU0BK/nrQ7Z3BN+QipNdHe9BZ4f7
+k+3uxaB8pZmyHeh98alfg/5Bq9HBt62YSsVo0f1LrxdEuw+otojZstZ5BajlC1fB
+uCZWsGYJ1lROqcGUkm3WTuwmO+VkI4no1e0+OMnKjMkIdarwm+SRxroNmGXPxjFS
+0c5XzO8ufI4T330xBhTtUCfIGtmOib0XeyZT/dCtT8wNoKlznA36ojMl4ZOArWgW
+VYBN9/JdmoDGTZxdbWqXoETzY//dT0yaCQF2J8+eM7vMW+ay0vkBIpxXkR9QmIGF
+KIDH4l3txv82X35T5GJP5y9myooT6g==
+=Ph6i
+-----END PGP SIGNATURE-----
+
+--ajsyed3ibfmsggn6--
