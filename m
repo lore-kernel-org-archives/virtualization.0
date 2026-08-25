@@ -1,178 +1,232 @@
-Received: from mail-ej1-f52.google.com (mail-ej1-f52.google.com [209.85.218.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F3BD3DDAE3
-	for <virtualization@lists.linux.dev>; Tue, 25 Aug 2026 08:24:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EEDCF3AA182
+	for <virtualization@lists.linux.dev>; Tue, 25 Aug 2026 09:19:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787646261; cv=none; b=XXXJdGqvi3XxizAKRGoGO09V2SQppeftfl3vPq8CxY31z2mGpwWVzn36RHp/8/uY8aor18NFmR4ERzlrBnpioNjPz7xcG3PlN1tS54NOIpcZHVgHmWheEWaC82uDyZxz7e4A952WgXwDgWxyswcFkdc/CcgpoTKY9RFjsWDByuI=
+	t=1787649583; cv=none; b=FgJOihJtNL22BMiIkZ2YhQjmyDyXhlGl2yAR7VYmBRMWvV+am55a16LMSyNOc5Pu0p1oRYNk8TOxuy9ASMspJFbXJJm0vk7UqJc+u+9Bq4vPcorWBCjKrU9fnhihJXyPci/XWH+kAeCyNS2OvPsndVPLMSqZpsqaqXjY3SWDczg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787646261; c=relaxed/simple;
-	bh=DZQvgMF9MtoSMKn9/xxgPT3t+kYxUHeBLkPFZwmxGy0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=CCLQ2OsQdlvNQXBPQSrB3pEuust6mBTTC0qFY9cFJ4CF83bB0ZNAn0M5j3sLmgEKrJzb1BGxCEnffix/bNjLxNokmTUGbz2hDVgRW8tCcF6O+pHW6fW64xuz5Tj+7y+4peg24fQqpKdQ0rjUnJwKgCttxn2UyZ3YVDSChKKSI6A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=Vfv8ATx5; arc=none smtp.client-ip=209.85.218.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	s=arc-20240116; t=1787649583; c=relaxed/simple;
+	bh=Pm4PUWeW2L1To4s2otVLTBJ5/BTIITsknwFytr+zxUA=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:content-type; b=ZjGIWxKWz158AlUXfJVtooY3fQkEwdQjjMQM4lhUcO0Cx0T7YWzWpq9dGyTCC7EFVsdmsDg87YNAV4Dcae1UeVia7tOhp1ZegvcIJ2i3bPsmudp/1rUNT/A0RTuVbd2vaBKoMqGgmi2irmTWKKumhxEX/qm+P+kBBQE3GknfNeo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hNw0OjVJ; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="Vfv8ATx5"
-Received: by mail-ej1-f52.google.com with SMTP id a640c23a62f3a-c1c50c1e29bso719084266b.3
-        for <virtualization@lists.linux.dev>; Tue, 25 Aug 2026 01:24:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1787646255; x=1788251055; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=DZQvgMF9MtoSMKn9/xxgPT3t+kYxUHeBLkPFZwmxGy0=;
-        b=Vfv8ATx5myKLdruW2Q6qlyPJhtDXbb+NqHcCEdACWK6rrXfodarpnzkRsnRbUbLTLt
-         W71ELgrloG3Dksjd4q26mj9dkyjrurgaEI06szGtPm0b5fBpyZhr0M/+vKJ9rXhVsaEa
-         CVtfPd0bIA/tLvp8cDdqghEf7S5YWax19Ukdn18pmzvf0ZI2g7KXKaKVC/hwCBhDXGk5
-         3g0TIjpCV2BEEZld1esKmtUjHrPkXlv+3Thwfn0FJtxVRCgiv/wFjMnXUO1xXj7e03Uh
-         7qeMS+9/NBhOt/gvmGH5s7l6mJo5lR5u/CnDn02iUmkejX+8uVPoOxQfogXDujC5gY/i
-         ScQQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787646255; x=1788251055;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=DZQvgMF9MtoSMKn9/xxgPT3t+kYxUHeBLkPFZwmxGy0=;
-        b=aTsZTc0/cNMWSND266wbiYs66M+L/lup28OYwdJztWuQ69ecKTr9C86bbwgY3jwx2p
-         GSvVCZER3fvH6XN44ddhfTyHSXgng5u52RP9Rrcna79eWflvZC93O2a5AHcY2Ib92Ssq
-         GDE4M1dKEb14c+kqc16a6Bw3hVY9dYoSMi560IotQPN2HtXRoojrzwIhyD6TpFRoFmiN
-         mgt5359FWp4gCBgsoPm8N4CSLTijraI5022X/5hAzr+jVwjXNyx/hFYMztLP+NBgmSUW
-         X9006T4zYT5SNNeSKFAtVNdO+9hkXgK8GDskhfzSJZxFmVGNzKUWNpur+hDUt8UKylrH
-         ty1Q==
-X-Forwarded-Encrypted: i=1; AHgh+RqOd1h089tQX6EpijgnEE8tcrCGFTcwfdVOgq6nC1TYD3rvLX5SBjcBuZI6M5knpMwcuFyvxkdIxsQZ98SDCw==@lists.linux.dev
-X-Gm-Message-State: AFuF++kD9jkRRreso2HE5ot82w5/mZFmCkmzFD3lqGNqZv+Q6IaGZD2D
-	MyBQRoiBBMH7VoPxDBDTdBvIz3/s0pKjr2YtLWuX4dmdrqmpV2X6wEgwlx7zKQjOkzk=
-X-Gm-Gg: AR+sD10DSv116Mph4gKWiG67LpVzO06rtY+HYh7fOm4b88F+qGIpNrQtClfMpY2ImOC
-	HGjiBDN/KZCAbuywDdLH/hQ+NZT4hkxNuRlQM9BSrgR5SISU3htEtcsPYWHVdRzwE9My3qlINql
-	Q78S3V/q2+VD7pmqnyUeJBwaU1AhX3GuULgEVfQDebDjw9lJvuNAiOggCRgHIfwFr6dOWZDP1Bf
-	+roAssrx/QzN3FmJhsNz6T1e3AMIQMgiPZP4854MjF6PG63fZlDaTWoR1BlaUoXZyCBNsINKMhM
-	qsY2r7i+qwEaBz6jBwtdHUOXy06kb9/jlJh+4WKDztjnmh8jldjJ9/FrfCOrhgs4bdFnfZ/mGxq
-	ViQuWrH2v+uQnPXg2KEcm+fcInarOY4K44yJGMVm2zEqn6PIalTW2X45DJwtUJdWS16SWSQSUyb
-	zJYh5SjEn9nZHAkfNAwGZJjm13VJ2dyAZrfz5/S22r/oZZmxBpHlglwtqnvFtc7uCDb+dBs/nh/
-	TMapyLTFouTkLLFm+AZrccpxOQDPy4P1mz56Gi+eDFF+8WsdQ==
-X-Received: by 2002:a17:907:1c07:b0:c15:f26a:3438 with SMTP id a640c23a62f3a-c24e5c1ffd3mr497229766b.24.1787646255345;
-        Tue, 25 Aug 2026 01:24:15 -0700 (PDT)
-Received: from localhost (p200300f65f19a904037016a565660d5e.dip0.t-ipconnect.de. [2003:f6:5f19:a904:370:16a5:6566:d5e])
-        by smtp.gmail.com with UTF8SMTPSA id a640c23a62f3a-c24966f9cbcsm1874351966b.29.2026.08.25.01.24.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Aug 2026 01:24:14 -0700 (PDT)
-Date: Tue, 25 Aug 2026 10:24:12 +0200
-From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
-To: Mauricio Faria de Oliveira <mfo@igalia.com>
-Cc: Kees Cook <kees@kernel.org>, Joel Granados <joel.granados@kernel.org>, 
-	Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	kernel-dev@igalia.com, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org, 
-	fsverity@lists.linux.dev, keyrings@vger.kernel.org, bpf@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, linux-kbuild@vger.kernel.org, netdev@vger.kernel.org, 
-	linux-wpan@vger.kernel.org, lvs-devel@vger.kernel.org, netfilter-devel@vger.kernel.org, 
-	coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-rdma@vger.kernel.org, 
-	linux-s390@vger.kernel.org, bridge@lists.linux.dev, mptcp@lists.linux.dev, 
-	rds-devel@oss.oracle.com, virtualization@lists.linux.dev
-Subject: Re: [PATCH RFC v3 03/13] sysctl, mod_devicetable: add macro
- MODULE_SYSCTL_TABLE
-Message-ID: <ao1P_mEJdyRExG3v@monoceros>
-References: <20260819-sysctl-module-aliases-v3-0-aab90569365d@igalia.com>
- <20260819-sysctl-module-aliases-v3-3-aab90569365d@igalia.com>
- <aomlfGJM61qZKxx2@monoceros>
- <4e3eaf1d3419e808be046035f114bf6c@igalia.com>
- <aotteDcc588iwC6g@monoceros>
- <4aa22e41e8ff4bab6638cf0baaa9d07b@igalia.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hNw0OjVJ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1787649581;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=cmi+Rp+tDcGWO2/8+NKpz2hFhBNW78Pt0j3naNDc5pc=;
+	b=hNw0OjVJDnnpqqCGfuATxoJGws8Ghh9kjtYSfTkGZt+N3ERIIEb2F/R+KT0NJt7hG8cQ86
+	DkUcok/v/4L8ksQ8g0bF+eQPZEus/fCkHy1LDtkF9SkL9N7dje4TJ/mg2sVML1oFU0kPFg
+	FOUDifXc/kbiikAnnZ24otzWPuk10zw=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-110-M-Aid7pYN-K2AZ7R06Kolw-1; Tue,
+ 25 Aug 2026 05:19:34 -0400
+X-MC-Unique: M-Aid7pYN-K2AZ7R06Kolw-1
+X-Mimecast-MFC-AGG-ID: M-Aid7pYN-K2AZ7R06Kolw_1787649572
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 3C9BC195608F;
+	Tue, 25 Aug 2026 09:19:32 +0000 (UTC)
+Received: from gerbillo.redhat.com (unknown [10.44.48.127])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id BEEDC195604A;
+	Tue, 25 Aug 2026 09:19:25 +0000 (UTC)
+From: Paolo Abeni <pabeni@redhat.com>
+To: 4ncienth@gmail.com
+Cc: netdev@vger.kernel.org,
+	sgarzare@redhat.com,
+	stefanha@redhat.com,
+	bobbyeshleman@gmail.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	horms@kernel.org,
+	mst@redhat.com,
+	jasowangio@gmail.com,
+	xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com,
+	bryan-bt.tan@broadcom.com,
+	vishnu.dasa@broadcom.com,
+	bcm-kernel-feedback-list@broadcom.com,
+	virtualization@lists.linux.dev,
+	kvm@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	sashiko-bot@kernel.org
+Subject: Re: [PATCH net v3 2/2] vsock/vmci: validate packet source for connected sockets
+Date: Tue, 25 Aug 2026 11:19:21 +0200
+Message-ID: <20260825091921.105436-1-pabeni@redhat.com>
+In-Reply-To: <20260823175858.351431-3-4ncienth@gmail.com>
+References: <20260823175858.351431-3-4ncienth@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="ajsyed3ibfmsggn6"
-Content-Disposition: inline
-In-Reply-To: <4aa22e41e8ff4bab6638cf0baaa9d07b@igalia.com>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
+X-Mimecast-MFC-PROC-ID: nGBGw65ZaYuAdoWnS9svwcIAs-a9oDzpNhgZ75YIe_w_1787649572
+X-Mimecast-Originator: redhat.com
+Content-Transfer-Encoding: 8bit
+content-type: text/plain; charset="US-ASCII"; x-default=true
 
+This is an AI-generated review of your patch. The human sending this
+email has considered the AI review valid, or at least plausible.
+Full review at: https://netdev-ai.bots.linux.dev/sashiko/
+---
+vsock/vmci: validate packet source for connected sockets
 
---ajsyed3ibfmsggn6
-Content-Type: text/plain; protected-headers=v1; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH RFC v3 03/13] sysctl, mod_devicetable: add macro
- MODULE_SYSCTL_TABLE
-MIME-Version: 1.0
+This adds a vsock_check_source() test to the VMCI stream receive paths so
+that a non-listening socket found by the destination-only bound-table
+lookup no longer processes packets from a context other than its stored
+peer. The check is applied both under bh_lock_sock() in
+vmci_transport_recv_stream_cb() and after lock_sock() in
+vmci_transport_recv_pkt_work().
 
-Hello,
+Closes: https://lore.kernel.org/netdev/20260814121255.6B5001F000E9@smtp.kernel.org/
 
-On Mon, Aug 24, 2026 at 06:04:03PM -0300, Mauricio Faria de Oliveira wrote:
-> On 2026-08-23 19:12, Uwe Kleine-K=F6nig wrote:
-> > On Sat, Aug 22, 2026 at 01:57:24PM -0300, Mauricio Faria de Oliveira wr=
-ote:
-> >> On 2026-08-22 10:41, Uwe Kleine-K=F6nig wrote:
-> >> > On Wed, Aug 19, 2026 at 03:16:16PM -0300, Mauricio Faria de Oliveira=
- wrote:
-> >> >> The MODULE_SYSCTL_TABLE macro emits a struct module_sysctl_table va=
-riable
-> >> >> with pointers to a sysctl table's path and entries, and table/entry=
- sizes.
-> >> >=20
-> >> > That new struct doesn't seem to contain any pointer?
-> >>=20
-> >> The struct module_sysctl_table fields .path and .table are pointers,
-> >> although with kernel_ulong_t type so that the same 32/64-bit size is
-> >> used in file2alias.c based on KERNEL_ELFCLASS (and not on the host,
-> >> which might differ with CROSS_COMPILE).
-> >=20
-> > Cross compilation isn't an issue for the already existing device id
-> > structures; many of them also contain pointers.
-> > (While modpost doesn't use the pointers, the size of the structures must
-> > be known to correctly interpret the arrays.)
->=20
-> Indeed. I missed some device_id structures with pointers, and that
-> devicetable-offsets.c is cross-compiled to generate
-> devicetable-offsets.h for file2alias.c to use offsets and sizes of the
-> target architecture.
->=20
-> I'll change .path and .table to pointers in the next version.
+> diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+> index 1c4ee039c1662..b612a9893856a 100644
+> --- a/net/vmw_vsock/vmci_transport.c
+> +++ b/net/vmw_vsock/vmci_transport.c
 
-I *think* the existing device-id structs use char[] for strings that are
-relevant for modpost. I look forward to you finding out if there is
-still a justification for that :-D
+[ ... ]
 
-> > I would be great if your series didn't introduce a new obstacle for
-> > [CHERI].
->=20
-> Absolutely. I'll be happy to adjust the series and testing for that.
->=20
-> Could you please confirm one should just follow [1], which uses [2] to
-> build the LLVM toolchain, and use it to build the kernel [3]?
->=20
-> [1] https://github.com/cheri-linux#building-and-running
-> [2] https://github.com/cheri-linux/buildroot
-> [3] https://github.com/CHERI-Alliance/linux/tree/codasip-cheri-riscv-7.1
+> @@ -765,17 +767,26 @@ static int vmci_transport_recv_stream_cb(void *data, struct vmci_datagram *dg)
+>  	bh_lock_sock(sk);
+>  
+>  	if (!sock_owned_by_user(sk)) {
+> -		/* The local context ID may be out of date, update it. */
+> -		vsk->local_addr.svm_cid = dst.svm_cid;
+> +		if (sk->sk_state != TCP_LISTEN &&
+> +		    !vsock_check_source(vsk, &vmci_transport, &src)) {
+> +			drop_pkt = true;
+> +			err = VMCI_ERROR_NO_ACCESS;
+> +		} else {
+> +			/* The local context ID may be out of date, update it. */
+> +			vsk->local_addr.svm_cid = dst.svm_cid;
+>  
+> -		if (sk->sk_state == TCP_ESTABLISHED)
+> -			vmci_trans(vsk)->notify_ops->handle_notify_pkt(
+> -					sk, pkt, true, &dst, &src,
+> -					&bh_process_pkt);
+> +			if (sk->sk_state == TCP_ESTABLISHED)
+> +				vmci_trans(vsk)->notify_ops->handle_notify_pkt(sk, pkt, true,
+> +									       &dst, &src,
+> +									       &bh_process_pkt);
+> +		}
+>  	}
+>  
+>  	bh_unlock_sock(sk);
+>  
+> +	if (drop_pkt)
+> +		goto out;
+> +
 
-I used
-https://github.com/CHERI-Alliance/meta-cheri/tree/codasip-scarthgap and
-didn't care about toolchain and rootfs. It also has qemu integrated, so
-you can actually test it.
+[Severity: Medium]
+Should these two new exits still emit an RST before dropping the packet?
 
-Best regards
-Uwe
+Consider a stream socket that called bind() but never listen().
+__vsock_bind_connectible() puts it in the bound table with sk_state
+TCP_CLOSE, remote_addr left as {VMADDR_CID_ANY, VMADDR_PORT_ANY}, and
+vsk->transport still NULL, because vsock_assign_transport() is only
+called for connectible sockets from vsock_connect() (and at create time
+for SOCK_DGRAM).
 
---ajsyed3ibfmsggn6
-Content-Type: application/pgp-signature; name="signature.asc"
+A REQUEST from a remote context to that port misses
+vsock_find_connected_socket(), is matched by vsock_find_bound_socket(),
+and then reaches the new check.  vsock_check_source() fails on its very
+first test:
 
------BEGIN PGP SIGNATURE-----
+net/vmw_vsock/af_vsock.c:vsock_check_source() {
+	if (vsk->transport != transport)
+		return false;
+	...
+}
 
-iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmqNUSoACgkQj4D7WH0S
-/k5rHwf/eQKyjSm4dfYOnpO+kyESzhGSDXacrU0BK/nrQ7Z3BN+QipNdHe9BZ4f7
-k+3uxaB8pZmyHeh98alfg/5Bq9HBt62YSsVo0f1LrxdEuw+otojZstZ5BajlC1fB
-uCZWsGYJ1lROqcGUkm3WTuwmO+VkI4no1e0+OMnKjMkIdarwm+SRxroNmGXPxjFS
-0c5XzO8ufI4T330xBhTtUCfIGtmOib0XeyZT/dCtT8wNoKlznA36ojMl4ZOArWgW
-VYBN9/JdmoDGTZxdbWqXoETzY//dT0yaCQF2J8+eM7vMW+ay0vkBIpxXkR9QmIGF
-KIDH4l3txv82X35T5GJP5y9myooT6g==
-=Ph6i
------END PGP SIGNATURE-----
+So drop_pkt is set and "goto out" skips the kmalloc/schedule_work()
+handoff entirely.  vmci_transport_send_reset_bh() is only reached on the
+"no socket found" and allocation-failure paths, so nothing is sent back.
 
---ajsyed3ibfmsggn6--
+The same happens on the deferred path below, where the new "goto out"
+jumps over the whole sk_state switch, including the default: arm whose
+in-tree comment says the reset is required:
+
+> @@ -908,6 +920,10 @@ static void vmci_transport_recv_pkt_work(struct work_struct *work)
+>  	pkt = &recv_pkt_info->pkt;
+>  
+>  	lock_sock(sk);
+> +	vsock_addr_init(&src, pkt->dg.src.context, pkt->src_port);
+> +	if (sk->sk_state != TCP_LISTEN &&
+> +	    !vsock_check_source(vsock_sk(sk), &vmci_transport, &src))
+> +		goto out;
+>  
+>  	/* The local context ID may be out of date. */
+>  	vsock_sk(sk)->local_addr.svm_cid = pkt->dg.dst.context;
+
+net/vmw_vsock/vmci_transport.c:vmci_transport_recv_pkt_work() {
+	...
+	default:
+		/* Because this function does not run in the same context as
+		 * vmci_transport_recv_stream_cb it is possible that the
+		 * socket has closed. We need to let the other side know or it
+		 * could be sitting in a connect and hang forever. Send a
+		 * reset to prevent that.
+		 */
+		vmci_transport_send_reset(sk, pkt);
+		break;
+	}
+
+Before this change that arm did transmit an RST for exactly this case,
+since vmci_transport_send_reset() handles an unbound remote_addr by
+replying to the packet's own source:
+
+net/vmw_vsock/vmci_transport.c:vmci_transport_send_reset() {
+	...
+	if (vsock_addr_bound(&vsk->remote_addr)) {
+		dst_ptr = &vsk->remote_addr;
+	} else {
+		vsock_addr_init(&dst, pkt->dg.src.context,
+				pkt->src_port);
+		dst_ptr = &dst;
+	}
+	...
+}
+
+With the reply gone, does the remote connect() now block for
+vsk->connect_timeout and return -ETIMEDOUT instead of -ECONNRESET?  The
+same loss of the reply would apply to a socket disconnected via
+connect(AF_UNSPEC), which resets remote_addr to {VMADDR_CID_ANY,
+VMADDR_PORT_ANY}.
+
+Returning VMCI_ERROR_NO_ACCESS from the datagram callback does not turn
+into a protocol reply, so is there anything left that notifies the peer?
+
+For comparison, the virtio side runs the same source test but resets the
+sender before dropping:
+
+net/vmw_vsock/virtio_transport_common.c:virtio_transport_recv_pkt() {
+	...
+	if (sock_flag(sk, SOCK_DONE) ||
+	    (sk->sk_state != TCP_LISTEN &&
+	     !vsock_check_source(vsk, &t->transport, &src))) {
+		(void)virtio_transport_reset_no_sock(t, skb, net);
+	...
+}
+
+Would it make sense to follow that convention here, and to mention the
+new drop-without-reply semantics in the changelog?
+-- 
+This is an AI-generated review.
+
