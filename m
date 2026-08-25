@@ -1,249 +1,334 @@
-Received: from mailgw01.mediatek.com (unknown [60.244.123.138])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8A383D79E5;
-	Tue, 25 Aug 2026 08:01:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=60.244.123.138
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787644905; cv=fail; b=LcZzfIAegJKHMFCkAxEPN6rS6YQ9T8+bmHQ9fDQ2nWVsWXAq/QSUFhCQxPtD6e3jD6ztQs5CjdxFS4pCJRf+CmpChhfP23pftm/Qk89riN1r3cVAXTSy6Fi8e5snz1k67LclNHva7vYohu5DWEDc6r18xyZagVRPlWI+z1CfnOI=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787644905; c=relaxed/simple;
-	bh=by1Gyo6e488w9yEhTX7kgQxzvdSGh3GfVvmBQ7I7XGU=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=ZeTwL/ulU2maailaXKr13XVDRWvjSMWRRi6jFPudsohxXuJWygNAWSD3kM4SxZ+U0v1pXwlww16gsfzQR8CVqh+36N09Evn7ggmgDqRLGfdfJX4zyEotOmN4hi9Hu8GBMd/BOwGZ5T8JszPLgxnal+2g/l3yNjFysycS1ZSuMy4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mediatek.com; spf=pass smtp.mailfrom=mediatek.com; dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b=FHygB37N; dkim=pass (1024-bit key) header.d=mediateko365.onmicrosoft.com header.i=@mediateko365.onmicrosoft.com header.b=oakX2T+l; arc=fail smtp.client-ip=60.244.123.138
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mediatek.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mediatek.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 137EF3DB337;
+	Tue, 25 Aug 2026 08:08:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1787645290; cv=none; b=mgNEFFulLXHRsEuqC744ATy0vvQjMKbDBRpeuAFxPAmBIcHH5XwVi2sEYdcqNwdrkzWeZ369259+WlSBiR4LEv0WZ8CMxib+TBpYTMCuqg39ZLHKHKyO5YPYQYRmarilBwmEM+nH+Z2f0AMZnIIt/3T9f8VapvJD9KRXwRQ3K0s=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1787645290; c=relaxed/simple;
+	bh=Ul3FGDKjBRPHwVKW8bK4lJDUlQtQMKy+8szv5WSLCY8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=UMxawlO/jnyDaACKuxTnm1Zl7PKgG7321i1ZY5snQ/yxWstbkf5n3bAyZ9BVXfFlEgFcJZNcOdtc48Yl9auO5tyRoST/jK1iK9lJb1hzbOPgpjeOAquCr0VHsRgucXrNgk8RXk3bNFN/X4oRQhdy08QBltmhjDyDIb+aNoFkvp8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=IQAgRM8B; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=lz48kjJy; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=NaOJKmg8; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=qF8jGasF; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="FHygB37N";
-	dkim=pass (1024-bit key) header.d=mediateko365.onmicrosoft.com header.i=@mediateko365.onmicrosoft.com header.b="oakX2T+l"
-X-UUID: 2d4cb438a05b11f1b1788b6acf885367-20260825
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-	h=MIME-Version:Content-Transfer-Encoding:Content-ID:Content-Type:In-Reply-To:References:Message-ID:Date:Subject:CC:To:From; bh=by1Gyo6e488w9yEhTX7kgQxzvdSGh3GfVvmBQ7I7XGU=;
-	b=FHygB37NiNiJHsg1CCbZruzsTuCxIBZWmNzZM0s5TWE0737FbPxzQbqPTT6xG/No1x17Kwc3Ufev71II/Zp7/XJl0kp1ndwapBW3xAXSEWEZmkOdoCJ84IsH1yyv9PbSOgw0T9ZW6Fdlw29/Mlcwxg2+nvqQlvB/44t1QTQF9J0=;
-X-CID-CACHE: Type:Local,Time:202608251601+08,HitQuantity:4
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.3.19,REQID:5a0e2055-af1b-42ca-a145-2dfa1d6d19b3,IP:0,U
-	RL:0,TC:0,Content:0,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION:
-	release,TS:0
-X-CID-META: VersionHash:7db8b62,CLOUDID:46733d5a-b6df-4ccc-9d42-d55c18672e6e,B
-	ulkID:nil,BulkQuantity:0,SF:80|81|82|83|102|110|111|836|865|888|898,TC:-5,
-	Content:0|15|50|99,EDM:-3,IP:nil,URL:0,File:130,RT:0,Bulk:nil,QS:nil,BEC:-
-	1,COL:0,OSI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
-X-CID-BVR: 2,SSN|SDN
-X-CID-BAS: 2,SSN|SDN,0,_
-X-CID-FACTOR: TF_CID_SPAM_SNR
-X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
-X-UUID: 2d4cb438a05b11f1b1788b6acf885367-20260825
-Received: from mtkmbs09n1.mediatek.inc [(172.21.101.35)] by mailgw01.mediatek.com
-	(envelope-from <ck.hu@mediatek.com>)
-	(Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
-	with ESMTP id 615949842; Tue, 25 Aug 2026 16:01:28 +0800
-Received: from mtkmbs10n1.mediatek.inc (172.21.101.34) by
- MTKMBS09N1.mediatek.inc (172.21.101.35) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.29; Tue, 25 Aug 2026 16:01:27 +0800
-Received: from SI4PR04CU002.outbound.protection.outlook.com (172.21.101.237)
- by mtkmbs10n1.mediatek.inc (172.21.101.34) with Microsoft SMTP Server id
- 15.2.2562.29 via Frontend Transport; Tue, 25 Aug 2026 16:01:27 +0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=f6N3uvvzH+zZfQTBzq+PxL1NWaOjaFrilhjwBPj5i7xWJxZOeArWHFxY2MuONZrMdwXj974spCcsUy1T57nJhyOQMCqHf/sZJiizqDZ/efGs2dbeR60xDWt7kheCLriyt6QX9kspXXtrj3tvKCcpDE7o2ZpcTrPdkXb+gah7mJnqpkvNTG/Dnz7vHoRIafK4/5yQ/zvT+f3HfrO3NSWcGNeFxaxL3ezIe+f6ab4dFqwSNjEO1fYIfopZw74gq9iT3jrCmPCq4o8tQKT26zhz2joNvuYoYn6/F5fBioJC5YvvgXUYsxDpdfn5cusCpN3z9wEdAsYGdMqtaFMG892bAg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=by1Gyo6e488w9yEhTX7kgQxzvdSGh3GfVvmBQ7I7XGU=;
- b=PMtkKfS2j0tt+1lsheqlEaMn3ShlEQwIBsCZkMMdWL1G1ntNoGFHm0IikvYV5wdwk/gfgbmulND2ayGgJvczkBTgeWat21mq3/RYJ42BjHpzDyU206yPlTtJabAMl17SI5yCDL7+DL+M+2Nx+hFUgVKjXcIyGTTU5mMmmaP+Nd+lIRxBIzyfKn/85KUpEajgbxbGFF/RztYFtRQUJ0ZqNGqU1EoTC06QzTMpTg8cRKtHwyLXnM8Tj0L3xyv6ZnJCROkcaqX37Hy/rkXIeyhS67ENTcYtObzstWPcY3LsJOFb8GtfKohkzfYNJQSCOQr9G/hCP56j40LNqdCpAi66jA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=mediatek.com; dmarc=pass action=none header.from=mediatek.com;
- dkim=pass header.d=mediatek.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=mediateko365.onmicrosoft.com; s=selector2-mediateko365-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=by1Gyo6e488w9yEhTX7kgQxzvdSGh3GfVvmBQ7I7XGU=;
- b=oakX2T+lGMB1r9b9AHLa6q6ZqB3i0V6owdnEWzlch0QVgxADXVMT1R3iJ2hfrjFi16MRFOBEqkgq4IJ+eMwiiWTFA9ZK3s1wIu2DzByxk6jAJT1P1sqlYzz6g3pwWXE7P7T0LhInN5+MHOXVRVpsx5OAqnzjZYLIY013Th+Ml5U=
-Received: from TYZPR03MB6624.apcprd03.prod.outlook.com (2603:1096:400:1f4::13)
- by SE2PPFE7689B606.apcprd03.prod.outlook.com (2603:1096:108:1::4ae) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.339.12; Tue, 25 Aug
- 2026 08:01:11 +0000
-Received: from TYZPR03MB6624.apcprd03.prod.outlook.com
- ([fe80::a3c2:b94a:70f:e640]) by TYZPR03MB6624.apcprd03.prod.outlook.com
- ([fe80::a3c2:b94a:70f:e640%4]) with mapi id 15.21.0339.012; Tue, 25 Aug 2026
- 08:01:10 +0000
-From: =?utf-8?B?Q0sgSHUgKOiDoeS/iuWFiSk=?= <ck.hu@mediatek.com>
-To: "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
-	"neil.armstrong@linaro.org" <neil.armstrong@linaro.org>,
-	"khilman@baylibre.com" <khilman@baylibre.com>, "chunkuang.hu@kernel.org"
-	<chunkuang.hu@kernel.org>, AngeloGioacchino Del Regno
-	<angelogioacchino.delregno@collabora.com>, "kraxel@redhat.com"
-	<kraxel@redhat.com>, "mripard@kernel.org" <mripard@kernel.org>,
-	"thierry.reding@kernel.org" <thierry.reding@kernel.org>,
-	"jonathanh@nvidia.com" <jonathanh@nvidia.com>, "jingoohan1@gmail.com"
-	<jingoohan1@gmail.com>, "corbet@lwn.net" <corbet@lwn.net>,
-	"sw0312.kim@samsung.com" <sw0312.kim@samsung.com>, "stefan@agner.ch"
-	<stefan@agner.ch>, "matthias.bgg@gmail.com" <matthias.bgg@gmail.com>,
-	"airlied@redhat.com" <airlied@redhat.com>, "tomi.valkeinen@ideasonboard.com"
-	<tomi.valkeinen@ideasonboard.com>, "peter.griffin@linaro.org"
-	<peter.griffin@linaro.org>, "p.zabel@pengutronix.de"
-	<p.zabel@pengutronix.de>, "alim.akhtar@samsung.com"
-	<alim.akhtar@samsung.com>, "anitha.chrisanthus@intel.com"
-	<anitha.chrisanthus@intel.com>, "mperttunen@nvidia.com"
-	<mperttunen@nvidia.com>, "krzk@kernel.org" <krzk@kernel.org>,
-	"geert+renesas@glider.be" <geert+renesas@glider.be>,
-	"sumit.semwal@linaro.org" <sumit.semwal@linaro.org>, "jstultz@google.com"
-	<jstultz@google.com>, "gurchetansingh@chromium.org"
-	<gurchetansingh@chromium.org>, "simona@ffwll.ch" <simona@ffwll.ch>,
-	"airlied@gmail.com" <airlied@gmail.com>, "kernel@pengutronix.de"
-	<kernel@pengutronix.de>, "laurent.pinchart@ideasonboard.com"
-	<laurent.pinchart@ideasonboard.com>, "kyungmin.park@samsung.com"
-	<kyungmin.park@samsung.com>, "alison.wang@nxp.com" <alison.wang@nxp.com>,
-	"jbrunet@baylibre.com" <jbrunet@baylibre.com>, "skhan@linuxfoundation.org"
-	<skhan@linuxfoundation.org>, "inki.dae@samsung.com" <inki.dae@samsung.com>,
-	"xinliang.liu@linaro.org" <xinliang.liu@linaro.org>,
-	"diogompaissilva@gmail.com" <diogompaissilva@gmail.com>,
-	"michal.simek@amd.com" <michal.simek@amd.com>, "olvaffe@gmail.com"
-	<olvaffe@gmail.com>, "jyri.sarha@iki.fi" <jyri.sarha@iki.fi>,
-	"festevam@gmail.com" <festevam@gmail.com>, "yongqin.liu@linaro.org"
-	<yongqin.liu@linaro.org>, "maarten.lankhorst@linux.intel.com"
-	<maarten.lankhorst@linux.intel.com>, "Frank.Li@nxp.com" <Frank.Li@nxp.com>,
-	"liviu.dudau@arm.com" <liviu.dudau@arm.com>, "victor.liu@nxp.com"
-	<victor.liu@nxp.com>, "tzimmermann@suse.de" <tzimmermann@suse.de>,
-	"dmitry.osipenko@collabora.com" <dmitry.osipenko@collabora.com>,
-	"martin.blumenstingl@googlemail.com" <martin.blumenstingl@googlemail.com>
-CC: "linux-amlogic@lists.infradead.org" <linux-amlogic@lists.infradead.org>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-	"linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>, "linux-renesas-soc@vger.kernel.org"
-	<linux-renesas-soc@vger.kernel.org>, "linux-mediatek@lists.infradead.org"
-	<linux-mediatek@lists.infradead.org>, "imx@lists.linux.dev"
-	<imx@lists.linux.dev>, "linux-doc@vger.kernel.org"
-	<linux-doc@vger.kernel.org>
-Subject: Re: [PATCH v2 09/15] drm/mediatek: remove dependency on DRM simple
- helpers
-Thread-Topic: [PATCH v2 09/15] drm/mediatek: remove dependency on DRM simple
- helpers
-Thread-Index: AQHdGF5JFreZDChBQUm8+HaJgsVP8raunwsA
-Date: Tue, 25 Aug 2026 08:01:10 +0000
-Message-ID: <072f91fcf9c2ad8e5c4ac86171e5949a429efe56.camel@mediatek.com>
-References: <20260720-drm_simple_encoder_init-v2-0-5020b630668a@gmail.com>
-	 <20260720-drm_simple_encoder_init-v2-9-5020b630668a@gmail.com>
-In-Reply-To: <20260720-drm_simple_encoder_init-v2-9-5020b630668a@gmail.com>
-Accept-Language: zh-TW, en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-user-agent: Evolution 3.52.3-0ubuntu1 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=mediatek.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: TYZPR03MB6624:EE_|SE2PPFE7689B606:EE_
-x-ms-office365-filtering-correlation-id: a9068845-646b-4cfe-6bb4-08df027f06e0
-x-ld-processed: a7687ede-7a6b-4ef6-bace-642f677fbe31,ExtAddr
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|366016|1800799024|42112799006|376014|7416014|23010399003|18002099003|22082099003|11063799006|56012099006|38070700021|4143699003|10067099003|921020;
-x-microsoft-antispam-message-info: jZaYo0j9YA7fF+enasH7yObJCzUtCwwx9P3wNQ++hQiKZSxfyhQnjDKb5hvTTQ/LiHY8G1T2y/7ndMC7VhqGbcDHG+k0eHfDxQ4p58bxNL58D5uI4TVfDVdhZp9/DrDpsC5PPpC7fAVKPhJgoMBMm/Ldy6vPyhJRv1OkYlnc4Li0GXOjqUP4RjPvlI+rsKsZplH8F3Nw7yUg6TW0QeJVBzpeuIyjh3S1D57xs8nqnxT3xwehIJ6lCzS6l1q2OgehbZkq2T+CWeBa4855xm6KF8XfrAopshcptpcPyJJ6y3xDI0BH+RlQcT/20wgpxPNTOIekaaJbbD1ZwND0XhvnFGw9PZeN34BTz9XjtCU2hMe/0FrRkpK8AR0yRd4AoGMSO/8LZQd38A6Q2QvCQS4S54AwUQreao7SQcmAOryTn4YjuLPy8+iL3fvBr/+xiUfPBYuRaG1h8YlTPDPv46cDLWgRZLYTwR5KXK64jCJD742cw33PmJ/drwillZejTH2N3ZEL+is6q4DvSQMt8z1fOhJADU3r9Vyd4kbIl/RKS3I0i3KCxMjVgM06nKz1bN44EFUYwar0cqGlU4SIbPiuK0d5vtKTSTJs0GLLuZYSmwO2bcIAvx+ZeEr7Vw8yQpYC1nlOe59ChfR1OmPOeEykwgxAGOD2CvJAF0AIsoyPbe6Yw2Oxd3zfkDTFrr8OQ/L/Of3QAYm0Z1OrgIM1uQsXNEyHjv/A377CuRofoqRtGk7+6nwjaGrZIyQukC8yQ9M9
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:TYZPR03MB6624.apcprd03.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(42112799006)(376014)(7416014)(23010399003)(18002099003)(22082099003)(11063799006)(56012099006)(38070700021)(4143699003)(10067099003)(921020);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?utf-8?B?Q2NBeHJSLy8yb3lTaTFheFJsSFIvYjVISFBQWHNlVGN6NVJXd1J4VHdxOFUv?=
- =?utf-8?B?cUpENUQxQlk2V2V4cWVOdXFjMWZkdjA0SzBYM2pxZjFGYkRNWm1Fd0k5Rzhq?=
- =?utf-8?B?VWtiT2thWW9SMG1GSXJkMWFzZ3RXUXV5UGplZk54NTVnR0VMU1Zpb1g2L3Zw?=
- =?utf-8?B?VHpmTnBWM3p1b1VmWTloVWM4QUZYSXpCRTVKNWJBdHA5S1FOM0dWNGh3YWZV?=
- =?utf-8?B?bEVHRkVJVklTVE5BS3lPMGM3eHp5eC9wSUFBcGhiWnY3NlhFbi85QmJnVHJC?=
- =?utf-8?B?Z01OQUtEVFpUaS9xS2hYLzdKdWxoNHpEY1VTdGlsTmMvenAvZDU1dDE5T2Fn?=
- =?utf-8?B?bTVYVXVRdUoybG9JWjVOTVFBc2VXdndEUzI1ekY4L1E4Q2tKTkJsYWFTTkdk?=
- =?utf-8?B?eUM3c0lDbGVwRVpJVzJ2L0V2eVBDV1JXa0lzZ0lZWkxiQTlJdEhrbkp3ckZU?=
- =?utf-8?B?c1B0SFdyYVBBVFhQZ3ZsN0MvSlRTT3pEemFjRERBSmg5ZFFjYjMyMnQ3ck90?=
- =?utf-8?B?ZVZhMGdZSDhoa2pCQWZ0aGJQdUZTaWtnNzduVWxpY3F3Zk44cS9rOTlnZ2x2?=
- =?utf-8?B?U3hsRzhrL0c5eUVteHJvUzM2NkN5NnJOaktIRmpIT3h3Si9GQkdpSUkvcGRh?=
- =?utf-8?B?UG8xYTJlVkxJN2RZQUlxRkJRSXkraDkxc04rdHNwOEJDOTcydnBmY3ZxS2Zw?=
- =?utf-8?B?ODZYY0FUMjdSYlVtZjJNc2NoRXh1dHNYMk1pVCtLQ3A3aW9CL0FIRnRtOW5a?=
- =?utf-8?B?NG90aGdqYWI0eDBsSFoyNHF2bzAwQ0w4TVd2ZWQ2K0xwQkFSaEFaUFVqSDFX?=
- =?utf-8?B?alVzeFh6Rm9IOE5XYmZBZEsvL0pEeitxNHR5QVpOSDMvODhYSUk0Y1NBY2t5?=
- =?utf-8?B?Q0tsY3JmeFpWNCtRRVVYRkNpR0VYWmVIbjBhakJlaTRwOHdYaHFSeGZIWjl5?=
- =?utf-8?B?cGFDZGJwVWFvNmdTM0lkUUtDWjQyVE1NZWZ4ZERDUE0xU28xTUFTNkxlSDBR?=
- =?utf-8?B?ejUzcU5Ja1dWRS9JQWlmdFRyR2JOcXgrdENpUFcwS2xpYXB6dmxDR0YxRWVW?=
- =?utf-8?B?QmhVSVBnUkFud0QrYXBTTnZZUzEyS3BZVkJ4anIrQUhsSjErbnlrS1IyZ2dT?=
- =?utf-8?B?MDUwR3BqTXVlWm5WWHBIa1R6SXdORXZRcEZFK2JEVnpwNEFVS0dKTDI1d2ZG?=
- =?utf-8?B?c1pHc1hWMnNpWFgxMVh6S1ZQb0hScXYvZnYxVEhKUFBMY2lCajVDMzJWcDBZ?=
- =?utf-8?B?NzNiMGh4aGNXUlFLVlRwQkpscXBFRGgwNm9JWURpTW5LY0tNS0E3dExzRWtX?=
- =?utf-8?B?SWsrd3QzMjRGL2grRUJBbUF1Qjl1VkdUMkdySFhNR2NoUjduSzFKaTJ4WEZ1?=
- =?utf-8?B?aTRzVWx2Sm14Z1hlQ3pQNnBGcUtpWjd2QzNCNkJBZmc4OUcrbWVNYWNTeEZ3?=
- =?utf-8?B?RHNTMFowY25mZmZXUXdxTkpXcUhCL1VZQXRTM2lRZzAwZCsrMExwUU9BNkFh?=
- =?utf-8?B?WFMyU1d0UWpreXY3Yld2ZHByNDBtTW9XOEhBWFhjYURyK015amQ4K2tOdGpN?=
- =?utf-8?B?UHAza1VnUXFMa2tpci82MS9tQW8xZ0RraEdOK2M4b0wzY0Y1em1pVmh6NzZS?=
- =?utf-8?B?cGx0bEI3akw4dWlVWlV1RE1JTUk0dDhnVDVWejB4cS9tblJMVks1VGRrTEtD?=
- =?utf-8?B?TGI0WnI0S204Y2xzT1pkajJQTUMvQktCdGlMZ3ltRG5janYybGNBYld3ZWpC?=
- =?utf-8?B?OVg3dnRqL0w4SnlsLy85TWlNZEovS1g1bGd6NUF3Mm51eCtad3JaYXQ3OWFq?=
- =?utf-8?B?U293V1hMRFQzRkMvV28yeExnTDdDY3pqc3lENVRnYUpzUVcweXRHMFR5VW5C?=
- =?utf-8?B?OVhHTGEyTjMyaFhVNTlCVkd6VGxUVzRTY2taK25Ld3RueXl0UW1sZnl4QVR5?=
- =?utf-8?B?ckMySWVHVzRPMjNna1l3bitRNWdrb0NRd2M1a2VPNWhtbFVvOFcycE05QUpL?=
- =?utf-8?B?SFg2WG1GQmlka3k1NG0yaUxjcGVBaThjOWFyVWs2MW03UWFTVFdPSVV4cFZN?=
- =?utf-8?B?QkUxYkduRnM1K2NsdXRIOUEwVTBRNFFQTTF1UGVsbGlYYUFxTjdUdGp3cFM0?=
- =?utf-8?B?T3VOSTZXaXoyRXBnNmk2OFovQWlCMmJ3UC9DL25keW4remtYSk5KdEVlNHg5?=
- =?utf-8?B?LzFnaHdRWDFXM1hqOXlyRDdQQTl3ME1QVDA0bjBlL0ZhWTM5b2Z5a284M0NH?=
- =?utf-8?B?c1N0aTdQRkF4TStrUk9tUHNJalZ4T1NJU3hTNTlUdmlubG02MmlqSXpIWnNm?=
- =?utf-8?B?ODB1M2lUK2JBbWtCUWNBb3hUSmF4MHl1enFPak40Kzk5SUp5WHdpUT09?=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <D6B19C64BA4CEB48AD16E56144802F75@apcprd03.prod.outlook.com>
-Content-Transfer-Encoding: base64
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="IQAgRM8B";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="lz48kjJy";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="NaOJKmg8";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="qF8jGasF"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 9810086CDC;
+	Tue, 25 Aug 2026 08:07:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1787645278; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=MDJ3jw29gkr7CXJOmn+O4FQkSRmuVB8deXVafri3TZo=;
+	b=IQAgRM8BPMUn5sHFI1grgs4nJQTd6F3Rx2whrXFyjtSvTBSo4RNud4zSbNMWjrjUCtHbTH
+	HzbGP8BFF3Hqzpp/O5ayOaQU8p14eAK94kvzygmYEhRWEFfrN38BsloEdCH5oNnY2mW0Kf
+	mEJMeCcfT8xtnvPLDLUC0H9f3NFXdcM=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1787645278;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=MDJ3jw29gkr7CXJOmn+O4FQkSRmuVB8deXVafri3TZo=;
+	b=lz48kjJy+seOuVlUp+acwQRZVTZ2iA60K+m54O/ej3Ln/0b2/ql0P1JR5aCCbGu5HPLw3p
+	FDCglF2avAag9RCw==
+Authentication-Results: smtp-out1.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1787645274; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=MDJ3jw29gkr7CXJOmn+O4FQkSRmuVB8deXVafri3TZo=;
+	b=NaOJKmg8/6Jtc9UrizZTFae3bZZvxq7jJdGL+hrZgri9FuewUeGvVBWhJNPGTdIHplWTbv
+	MiHphBABFps99GP3HDGC6Q1QiutfEqTD16qr4ngJ5g4s9kbMd8a7ChwUHkUddYWVnSOXbW
+	z2buJYwztzuZszI10ZCXL/AHk3WOQ4s=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1787645274;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=MDJ3jw29gkr7CXJOmn+O4FQkSRmuVB8deXVafri3TZo=;
+	b=qF8jGasF5tDU5HpAPDHta87N+gATgr1VtRSt4MiBP2zDZ3Oc5cPfp6DxD6W70pdnom0/6e
+	RBON95eh7BsISVCg==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 4FBF713332;
+	Tue, 25 Aug 2026 08:07:53 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id svAVEllNjWrMeAAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Tue, 25 Aug 2026 08:07:53 +0000
+Message-ID: <e393996a-3ef1-4c43-b762-af8cd0f2a4b6@suse.de>
+Date: Tue, 25 Aug 2026 10:07:52 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Exchange-RoutingPolicyChecked: 0GjxKc/MO5YSD4c05ofT22LtOFYc35Yve6HCBcyVw+WlJxjzAtt4mprxR10Q47o7P3DNA6lPLIgrz/raUnnIG6MZGULFFtmB4uwCOUv3GBU1bcxJkt7UgbSf2hTZyfvi9w3YMDkJnB17eWO+CqxHtZOgQEg3nOdvAINB6CoiYC0PaXyTXd7rrCgCvrc3c3yBKNz3JN6qb5I2EHDTU8u2ZR1JfzB7YxJzSMtIMH+NuKlCrYj1BIEsUXX9OyFbq+vqgPXKZLl74qXqcdoeTKW3x0ggeHPycxug/zqH09oMJdzMmGSLSiNTE97VQ1bBDNV870lLjmQIYj9zuevWG4ISSw==
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: TYZPR03MB6624.apcprd03.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: a9068845-646b-4cfe-6bb4-08df027f06e0
-X-MS-Exchange-CrossTenant-originalarrivaltime: 25 Aug 2026 08:01:10.9241
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: a7687ede-7a6b-4ef6-bace-642f677fbe31
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 2BPsES1aqHdUm9Vfno2E6hqAH712lg+wbaRw0Sek/oapyhGQ9ZAO9cNy+bU9HtskE/qxrbVSFW69zUX60XQ+hA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SE2PPFE7689B606
-X-MTK: N
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 00/15] drm/drm_simple: remove drm_simple_encoder_init
+To: Diogo Silva <diogompaissilva@gmail.com>, Jingoo Han
+ <jingoohan1@gmail.com>, Inki Dae <inki.dae@samsung.com>,
+ Seung-Woo Kim <sw0312.kim@samsung.com>,
+ Kyungmin Park <kyungmin.park@samsung.com>, David Airlie <airlied@gmail.com>,
+ Simona Vetter <simona@ffwll.ch>, Krzysztof Kozlowski <krzk@kernel.org>,
+ Peter Griffin <peter.griffin@linaro.org>,
+ Alim Akhtar <alim.akhtar@samsung.com>,
+ Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+ Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Michal Simek <michal.simek@amd.com>,
+ Thierry Reding <thierry.reding@kernel.org>,
+ Mikko Perttunen <mperttunen@nvidia.com>,
+ Jonathan Hunter <jonathanh@nvidia.com>, Stefan Agner <stefan@agner.ch>,
+ Alison Wang <alison.wang@nxp.com>,
+ Anitha Chrisanthus <anitha.chrisanthus@intel.com>,
+ David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Jyri Sarha <jyri.sarha@iki.fi>,
+ Liu Ying <victor.liu@nxp.com>, Frank Li <Frank.Li@nxp.com>,
+ Sascha Hauer <s.hauer@pengutronix.de>,
+ Pengutronix Kernel Team <kernel@pengutronix.de>,
+ Fabio Estevam <festevam@gmail.com>, Chun-Kuang Hu <chunkuang.hu@kernel.org>,
+ Philipp Zabel <p.zabel@pengutronix.de>,
+ Matthias Brugger <matthias.bgg@gmail.com>,
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+ Geert Uytterhoeven <geert+renesas@glider.be>,
+ Xinliang Liu <xinliang.liu@linaro.org>,
+ Sumit Semwal <sumit.semwal@linaro.org>, Yongqin Liu
+ <yongqin.liu@linaro.org>, John Stultz <jstultz@google.com>,
+ Liviu Dudau <liviu.dudau@arm.com>, Neil Armstrong
+ <neil.armstrong@linaro.org>, Kevin Hilman <khilman@baylibre.com>,
+ Jerome Brunet <jbrunet@baylibre.com>,
+ Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+ Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>
+Cc: dri-devel@lists.freedesktop.org, linux-arm-kernel@lists.infradead.org,
+ linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-tegra@vger.kernel.org, virtualization@lists.linux.dev,
+ imx@lists.linux.dev, linux-mediatek@lists.infradead.org,
+ linux-renesas-soc@vger.kernel.org, linux-amlogic@lists.infradead.org,
+ linux-doc@vger.kernel.org
+References: <20260720-drm_simple_encoder_init-v2-0-5020b630668a@gmail.com>
+Content-Language: en-US
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <20260720-drm_simple_encoder_init-v2-0-5020b630668a@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spamd-Result: default: False [-2.80 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	FREEMAIL_TO(0.00)[gmail.com,samsung.com,ffwll.ch,kernel.org,linaro.org,ideasonboard.com,linux.intel.com,amd.com,nvidia.com,agner.ch,nxp.com,intel.com,redhat.com,collabora.com,chromium.org,iki.fi,pengutronix.de,glider.be,google.com,arm.com,baylibre.com,googlemail.com,lwn.net,linuxfoundation.org];
+	TAGGED_RCPT(0.00)[renesas];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	ARC_NA(0.00)[];
+	TO_DN_SOME(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	MID_RHS_MATCH_FROM(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	R_RATELIMIT(0.00)[to_ip_from(RL6e75e7xiqh135443e1d3zo16)];
+	RCVD_TLS_ALL(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_SOME(0.00)[];
+	RCPT_COUNT_GT_50(0.00)[59];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo]
+X-Spam-Flag: NO
+X-Spam-Score: -2.80
+X-Spam-Level: 
 
-T24gTW9uLCAyMDI2LTA3LTIwIGF0IDE3OjQwICswMjAwLCBEaW9nbyBTaWx2YSB3cm90ZToNCj4g
-RXh0ZXJuYWwgZW1haWwgOiBQbGVhc2UgZG8gbm90IGNsaWNrIGxpbmtzIG9yIG9wZW4gYXR0YWNo
-bWVudHMgdW50aWwgeW91IGhhdmUgdmVyaWZpZWQgdGhlIHNlbmRlciBvciB0aGUgY29udGVudC4N
-Cj4gDQo+IA0KPiBUaGUgc2ltcGxlIEtNUyBoZWxwZXJzIGFyZSBkZXByZWNhdGVkIGJlY2F1c2Ug
-dGhleSBvbmx5IGFkZCBhbg0KPiBpbnRlcm1lZGlhdGUgbGF5ZXIgYmV0d2VlbiBkcml2ZXJzIGFu
-ZCBhdG9taWMgbW9kZXNldHRpbmcuDQo+IA0KPiBPcGVuLWNvZGUgZHJtX3NpbXBsZV9lbmNvZGVy
-X2luaXQoKSBieSBjYWxsaW5nIGRybV9lbmNvZGVyX2luaXQoKQ0KPiBkaXJlY3RseSBhbmQgcHJv
-dmlkaW5nIGRyaXZlci1sb2NhbCBkcm1fZW5jb2Rlcl9mdW5jcy4NCg0KUmV2aWV3ZWQtYnk6IENL
-IEh1IDxjay5odUBtZWRpYXRlay5jb20+DQoNCj4gDQo+IFNpZ25lZC1vZmYtYnk6IERpb2dvIFNp
-bHZhIDxkaW9nb21wYWlzc2lsdmFAZ21haWwuY29tPg0KPiAtLS0NCj4gIGRyaXZlcnMvZ3B1L2Ry
-bS9tZWRpYXRlay9tdGtfZHNpLmMgfCAxMCArKysrKysrLS0tDQo+ICAxIGZpbGUgY2hhbmdlZCwg
-NyBpbnNlcnRpb25zKCspLCAzIGRlbGV0aW9ucygtKQ0KPiANCj4gZGlmZiAtLWdpdCBhL2RyaXZl
-cnMvZ3B1L2RybS9tZWRpYXRlay9tdGtfZHNpLmMgYi9kcml2ZXJzL2dwdS9kcm0vbWVkaWF0ZWsv
-bXRrX2RzaS5jDQo+IGluZGV4IDNmM2Y1NmVlZDNmOS4uN2NkMTM2YmQ5NjA1IDEwMDY0NA0KPiAt
-LS0gYS9kcml2ZXJzL2dwdS9kcm0vbWVkaWF0ZWsvbXRrX2RzaS5jDQo+ICsrKyBiL2RyaXZlcnMv
-Z3B1L2RybS9tZWRpYXRlay9tdGtfZHNpLmMNCj4gQEAgLTIxLDEyICsyMSwxMiBAQA0KPiAgI2lu
-Y2x1ZGUgPGRybS9kcm1fYXRvbWljX2hlbHBlci5oPg0KPiAgI2luY2x1ZGUgPGRybS9kcm1fYnJp
-ZGdlLmg+DQo+ICAjaW5jbHVkZSA8ZHJtL2RybV9icmlkZ2VfY29ubmVjdG9yLmg+DQo+ICsjaW5j
-bHVkZSA8ZHJtL2RybV9lbmNvZGVyLmg+DQo+ICAjaW5jbHVkZSA8ZHJtL2RybV9taXBpX2RzaS5o
-Pg0KPiAgI2luY2x1ZGUgPGRybS9kcm1fb2YuaD4NCj4gICNpbmNsdWRlIDxkcm0vZHJtX3BhbmVs
-Lmg+DQo+ICAjaW5jbHVkZSA8ZHJtL2RybV9wcmludC5oPg0KPiAgI2luY2x1ZGUgPGRybS9kcm1f
-cHJvYmVfaGVscGVyLmg+DQo+IC0jaW5jbHVkZSA8ZHJtL2RybV9zaW1wbGVfa21zX2hlbHBlci5o
-Pg0KPiANCj4gICNpbmNsdWRlICJtdGtfZGRwX2NvbXAuaCINCj4gICNpbmNsdWRlICJtdGtfZGlz
-cF9kcnYuaCINCj4gQEAgLTkxMywxMiArOTEzLDE2IEBAIHZvaWQgbXRrX2RzaV9kZHBfc3RvcChz
-dHJ1Y3QgZGV2aWNlICpkZXYpDQo+ICAgICAgICAgbXRrX2RzaV9wb3dlcm9mZihkc2kpOw0KPiAg
-fQ0KPiANCj4gK3N0YXRpYyBjb25zdCBzdHJ1Y3QgZHJtX2VuY29kZXJfZnVuY3MgbXRrX2RzaV9l
-bmNvZGVyX2Z1bmNzID0gew0KPiArICAgICAgIC5kZXN0cm95ID0gZHJtX2VuY29kZXJfY2xlYW51
-cCwNCj4gK307DQo+ICsNCj4gIHN0YXRpYyBpbnQgbXRrX2RzaV9lbmNvZGVyX2luaXQoc3RydWN0
-IGRybV9kZXZpY2UgKmRybSwgc3RydWN0IG10a19kc2kgKmRzaSkNCj4gIHsNCj4gICAgICAgICBp
-bnQgcmV0Ow0KPiANCj4gLSAgICAgICByZXQgPSBkcm1fc2ltcGxlX2VuY29kZXJfaW5pdChkcm0s
-ICZkc2ktPmVuY29kZXIsDQo+IC0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-RFJNX01PREVfRU5DT0RFUl9EU0kpOw0KPiArICAgICAgIHJldCA9IGRybV9lbmNvZGVyX2luaXQo
-ZHJtLCAmZHNpLT5lbmNvZGVyLCAmbXRrX2RzaV9lbmNvZGVyX2Z1bmNzLA0KPiArICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgRFJNX01PREVfRU5DT0RFUl9EU0ksIE5VTEwpOw0KPiAgICAg
-ICAgIGlmIChyZXQpIHsNCj4gICAgICAgICAgICAgICAgIGRybV9lcnIoZHJtLCAiRmFpbGVkIHRv
-IGVuY29kZXIgaW5pdCB0byBkcm1cbiIpOw0KPiAgICAgICAgICAgICAgICAgcmV0dXJuIHJldDsN
-Cj4gDQo+IC0tDQo+IDIuNTQuMA0KPiANCj4gDQoNCg==
+Hi
+
+Am 20.07.26 um 17:40 schrieb Diogo Silva:
+> The simple KMS helpers are deprecated because they only add an
+> intermediate layer between drivers and atomic modesetting.
+>
+> This series open-codes all remaining drm_simple_encoder_init() users by
+> calling drm_encoder_init() directly and providing driver-local
+> drm_encoder_funcs where needed. After the driver conversions, the helper
+> is removed and the completed DRM todo item is dropped.
+>
+> Signed-off-by: Diogo Silva <diogompaissilva@gmail.com>
+
+For the whole series:
+
+Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
+
+Diogo, do you want to send out another revision? Otherwise it's time to 
+get these patches merged.
+
+Best regards
+Thomas
+
+
+
+> ---
+> Changes in v2:
+> - Change logging to consistently use drm_err()
+> - Link to v1: https://patch.msgid.link/20260719-drm_simple_encoder_init-v1-0-a78c509e3062@gmail.com
+>
+> To: Jingoo Han <jingoohan1@gmail.com>
+> To: Inki Dae <inki.dae@samsung.com>
+> To: Seung-Woo Kim <sw0312.kim@samsung.com>
+> To: Kyungmin Park <kyungmin.park@samsung.com>
+> To: David Airlie <airlied@gmail.com>
+> To: Simona Vetter <simona@ffwll.ch>
+> To: Krzysztof Kozlowski <krzk@kernel.org>
+> To: Peter Griffin <peter.griffin@linaro.org>
+> To: Alim Akhtar <alim.akhtar@samsung.com>
+> To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+> To: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
+> To: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+> To: Maxime Ripard <mripard@kernel.org>
+> To: Thomas Zimmermann <tzimmermann@suse.de>
+> To: Michal Simek <michal.simek@amd.com>
+> To: Thierry Reding <thierry.reding@kernel.org>
+> To: Mikko Perttunen <mperttunen@nvidia.com>
+> To: Jonathan Hunter <jonathanh@nvidia.com>
+> To: Stefan Agner <stefan@agner.ch>
+> To: Alison Wang <alison.wang@nxp.com>
+> To: Anitha Chrisanthus <anitha.chrisanthus@intel.com>
+> To: David Airlie <airlied@redhat.com>
+> To: Gerd Hoffmann <kraxel@redhat.com>
+> To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+> To: Gurchetan Singh <gurchetansingh@chromium.org>
+> To: Chia-I Wu <olvaffe@gmail.com>
+> To: Jyri Sarha <jyri.sarha@iki.fi>
+> To: Liu Ying <victor.liu@nxp.com>
+> To: Frank Li <Frank.Li@nxp.com>
+> To: Sascha Hauer <s.hauer@pengutronix.de>
+> To: Pengutronix Kernel Team <kernel@pengutronix.de>
+> To: Fabio Estevam <festevam@gmail.com>
+> To: Chun-Kuang Hu <chunkuang.hu@kernel.org>
+> To: Philipp Zabel <p.zabel@pengutronix.de>
+> To: Matthias Brugger <matthias.bgg@gmail.com>
+> To: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+> To: Geert Uytterhoeven <geert+renesas@glider.be>
+> To: Xinliang Liu <xinliang.liu@linaro.org>
+> To: Sumit Semwal <sumit.semwal@linaro.org>
+> To: Yongqin Liu <yongqin.liu@linaro.org>
+> To: John Stultz <jstultz@google.com>
+> To: Liviu Dudau <liviu.dudau@arm.com>
+> To: Neil Armstrong <neil.armstrong@linaro.org>
+> To: Kevin Hilman <khilman@baylibre.com>
+> To: Jerome Brunet <jbrunet@baylibre.com>
+> To: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+> To: Jonathan Corbet <corbet@lwn.net>
+> To: Shuah Khan <skhan@linuxfoundation.org>
+> Cc: dri-devel@lists.freedesktop.org
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: linux-samsung-soc@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Cc: linux-tegra@vger.kernel.org
+> Cc: virtualization@lists.linux.dev
+> Cc: imx@lists.linux.dev
+> Cc: linux-mediatek@lists.infradead.org
+> Cc: linux-renesas-soc@vger.kernel.org
+> Cc: linux-amlogic@lists.infradead.org
+> Cc: linux-doc@vger.kernel.org
+>
+> ---
+> Diogo Silva (15):
+>        drm/exynos: remove dependency on DRM simple helpers
+>        drm/xlnx/zynqmp_dpsub: remove dependency on DRM simple helpers
+>        drm/tegra: remove dependency on DRM simple helpers
+>        drm/fsl-dcu: remove dependency on DRM simple helpers
+>        drm/kmb: remove dependency on DRM simple helpers
+>        drm/virtio: remove dependency on DRM simple helpers
+>        drm/tidss: remove dependency on DRM simple helpers
+>        drm/imx: remove dependency on DRM simple helpers
+>        drm/mediatek: remove dependency on DRM simple helpers
+>        drm/renesas/shmobile: remove dependency on DRM simple helpers
+>        drm/hisilicon/kirin: remove dependency on DRM simple helpers
+>        drm/arm/komeda: remove dependency on DRM simple helpers
+>        drm/meson: remove dependency on DRM simple helpers
+>        drm/drm_simple: remove deprecated drm_simple_encoder_init function
+>        Documentation/gpu: remove completed drm_simple_encoder_init() todo
+>
+>   Documentation/gpu/todo.rst                        | 15 ---------------
+>   drivers/gpu/drm/arm/display/komeda/komeda_crtc.c  |  9 +++++++--
+>   drivers/gpu/drm/drm_simple_kms_helper.c           | 13 ++-----------
+>   drivers/gpu/drm/exynos/exynos_dp.c                | 13 +++++++++++--
+>   drivers/gpu/drm/exynos/exynos_drm_dpi.c           | 13 +++++++++++--
+>   drivers/gpu/drm/exynos/exynos_drm_dsi.c           | 11 +++++++++--
+>   drivers/gpu/drm/exynos/exynos_drm_vidi.c          | 13 +++++++++++--
+>   drivers/gpu/drm/exynos/exynos_hdmi.c              | 14 ++++++++++++--
+>   drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c         | 10 +++++++---
+>   drivers/gpu/drm/hisilicon/kirin/dw_drm_dsi.c      |  9 +++++++--
+>   drivers/gpu/drm/imx/dc/dc-kms.c                   |  8 ++++++--
+>   drivers/gpu/drm/kmb/kmb_dsi.c                     |  9 +++++++--
+>   drivers/gpu/drm/mediatek/mtk_dsi.c                | 10 +++++++---
+>   drivers/gpu/drm/meson/meson_encoder_cvbs.c        | 11 ++++++++---
+>   drivers/gpu/drm/meson/meson_encoder_dsi.c         | 11 ++++++++---
+>   drivers/gpu/drm/meson/meson_encoder_hdmi.c        | 11 ++++++++---
+>   drivers/gpu/drm/renesas/shmobile/shmob_drm_crtc.c | 10 +++++++---
+>   drivers/gpu/drm/tegra/dsi.c                       | 16 +++++++++++++---
+>   drivers/gpu/drm/tegra/rgb.c                       | 15 +++++++++++++--
+>   drivers/gpu/drm/tidss/tidss_encoder.c             | 10 +++++++---
+>   drivers/gpu/drm/virtio/virtgpu_display.c          | 12 ++++++++++--
+>   drivers/gpu/drm/xlnx/zynqmp_kms.c                 | 14 ++++++++++++--
+>   include/drm/drm_simple_kms_helper.h               |  4 ----
+>   23 files changed, 183 insertions(+), 78 deletions(-)
+> ---
+> base-commit: e1113c37ba4f166e37dec74a729e6dfd8cba1687
+> change-id: 20260718-drm_simple_encoder_init-d069a4cc7f8b
+>
+> Best regards,
+> --
+> Diogo Silva <diogompaissilva@gmail.com>
+>
+
+-- 
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
+GF: Jochen Jaser, Andrew McDonald, (HRB 36809, AG Nürnberg)
+
+
