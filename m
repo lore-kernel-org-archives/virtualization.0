@@ -1,235 +1,275 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 766C8340282;
-	Wed, 26 Aug 2026 06:57:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A45B33B4E8C
+	for <virtualization@lists.linux.dev>; Wed, 26 Aug 2026 08:31:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787727474; cv=none; b=FkD7cEeRLTNovypt1AOJzbLWcFR4dojzfXnBReIYNrBSOXomJcSBVBmV/YJktQP+FBQtSzSrwzJ6fegDkQiKSQjH4YOgaI7WPi7cLJzHdJaLV9UprB2mL2baDA1x1271pRBt24MitJbI2mHLLsxaUjgi2iozFJA6+f4u1sEages=
+	t=1787733106; cv=none; b=c6LX2jBm8XnM1wqdzqYCooYFjh03aVywp3GIRU6Cld4vDEsetWnIAqSDqVXQNQXdbyDmZpFRySoGQ4JhDD/k9f6HVVH7ti0eZP527zpFQU6kdeRMFCcthRdu8n27KFE7Ntokzh8K9RP6WfS34DRHaLGfIPhuc2PU5iyjDCuO+uE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787727474; c=relaxed/simple;
-	bh=8kIL6rfYZGU93VPgF4RHtZ/NmSk+6kT2wyBnkTxQ2js=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Q59iN+weBJydFKaR/C5+rkuukYJk8tdg7bVLGiowWRkDiaGYpVp8Zt+TJCIoiFvadB/kEpKrPSv6EO5tzjFSU6R8kp/9k35naMW8KGR2inRuqAeuWM+r+6R0mNo/6eHbZYSTImV3U39x+2rkNsa5ILBenzkzLaq4V7c/FYdCT7I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=1dopK4gm; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=1HDIgZRC; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=jxzi81Wq; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=qfiqrytB; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1787733106; c=relaxed/simple;
+	bh=WmBMLh9fOW3ulFZCNkqSj5P9KFYq6NqEHsa9honNhkU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=SbSHcmI7DdW/wg9hV8MU4qZFDLG495s9apT9nNeRfbR+pVmWtxV49s4TvPt+46MfoHMH/gIz0gCKWPCQMG/lBtUtvFPmrRxqZa/Py+ZQx1VaVr49BsWcG/K58oCozB3xErrUVXTSKSFPeKOPSpiEegATJfV3EdkNXsiLen+HRz8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=evqLnnqq; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="1dopK4gm";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="1HDIgZRC";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="jxzi81Wq";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="qfiqrytB"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 1239E1F7F6;
-	Wed, 26 Aug 2026 06:57:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1787727452; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="evqLnnqq"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1787733101;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=sBfgI5vwAaQkNS2Sqa0AXBE6+/CTnkGwvymAGJWg9RE=;
-	b=1dopK4gmbdUGldC8wPoHsZ/q91A8028zEwWab1SqBcu2lqkRmdOCwqcvkTNTC+foFmnDpf
-	LraETcBNykLGV6yZ4MyxyHXZtqZw09FWWQITEbGc67kHTHpTQq5UeWx+Rj9d86p0dO6XqA
-	VeY4R6zF/HCB9/KUleC/6099ZXU14NU=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1787727452;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=sBfgI5vwAaQkNS2Sqa0AXBE6+/CTnkGwvymAGJWg9RE=;
-	b=1HDIgZRCX3PAYrMZ+8Cjv+dl468knsXrys4RScm6BIcnGbwrns29gGDBP30j9lWtRGj/a3
-	8EbrPdxWfzRVRACw==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=jxzi81Wq;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=qfiqrytB
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1787727448; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=sBfgI5vwAaQkNS2Sqa0AXBE6+/CTnkGwvymAGJWg9RE=;
-	b=jxzi81Wq/ORegKCwe5YqxK/kUKzRQXd3SGYysLGmtSOW7rGvf0iDZNvRks1r6EMaOVV7a1
-	7tn65HQc+dWJbW5Tsl0QWPJY5KrWvDb4qULm5g4JcsWulTtP1xQ+1XeIEcNDnRSi3vNV5N
-	2CwRuDfsrHrz0RTHpDTDjRVRYsbAVRY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1787727448;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=sBfgI5vwAaQkNS2Sqa0AXBE6+/CTnkGwvymAGJWg9RE=;
-	b=qfiqrytBjmFogEQnk7guycXfrOVc0q9/7qMFJe8uoUpEffgYKlB7WR/Zz2ub3B932wK5WR
-	m1TGu6BYAyk03ICA==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id B03B813533;
-	Wed, 26 Aug 2026 06:57:27 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id KtzaKVeOjmpjVQAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Wed, 26 Aug 2026 06:57:27 +0000
-Message-ID: <03ab9470-60c6-40fe-8d24-89c820b978ec@suse.de>
-Date: Wed, 26 Aug 2026 08:57:27 +0200
+	 in-reply-to:in-reply-to:references:references;
+	bh=g5+E0CrDcVzKdOOfJ1xFDjBrfYLvEca/2hrgwSPEku4=;
+	b=evqLnnqqD/oQfN2x+5sBoW/LJo7rKqFyURU8TCJS4ggqcixhYJ/eXaUNClQHFYrJ6qU63w
+	aLU/NC4jtJYZQvbIVCCrhmLFpp25n4p5ILuWh9bXGGaAr2D9GkOlyza0ewVsl1ESS0WGDq
+	ZXX33fKWRtshSRizOEG5WLVNEGXPajw=
+Received: from mail-yw1-f199.google.com (mail-yw1-f199.google.com
+ [209.85.128.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-325-oGv_sjbANF2EyCJTZlsuaQ-1; Wed, 26 Aug 2026 04:31:40 -0400
+X-MC-Unique: oGv_sjbANF2EyCJTZlsuaQ-1
+X-Mimecast-MFC-AGG-ID: oGv_sjbANF2EyCJTZlsuaQ_1787733100
+Received: by mail-yw1-f199.google.com with SMTP id 00721157ae682-81e735bcceaso12035387b3.3
+        for <virtualization@lists.linux.dev>; Wed, 26 Aug 2026 01:31:40 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787733099; x=1788337899;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=g5+E0CrDcVzKdOOfJ1xFDjBrfYLvEca/2hrgwSPEku4=;
+        b=C8qEDDYHaURaPw5wwX6lNvpwtjbIs2aZYZMIg6aOLyeq3t2dUcSzdBIDek8+OlbrC8
+         ANT4E1Lts3Lea4dCvS0XPQXjzwKeQdyQbg+77Qc8+tLeZzn+6M51fruOIEagwwYiEDhN
+         rVEoUGYRBZz2GdX4QBqHrKakmKT8hSQX+kDXDSbdSGaRdI8TDlvQ1V2B/c3RigiN8m8N
+         QPDPvTDNPVIQYsND8kQUv9aTy41cJNt63XLnOQHC8OE8EyH3zBWEDMcWjDNzxJ/yRWhl
+         k/BslHYqtzRnfP+tvlPPp87PUp83wvre8lwdATKM4iV2dvtCjijE7XOmHZafGRA0vsUN
+         5WwA==
+X-Forwarded-Encrypted: i=1; AHgh+Rohlif8vl9jV8Umy0xQwrPjeMxdZYU2+rZ7AMob+jhQcWFeyydbOTo17Si/+784uFFVEk4XrYzb/1ZP4Nhjag==@lists.linux.dev
+X-Gm-Message-State: AFuF++nL18dHZYn48ffH9U93IPdSF5KZ5lZ8b+cOsuN3t/vQ+rv8AHFS
+	Jt/UpK2wPklQ/qWsl9CSU5UzoOamD6mrBCCa6mr5k3FHF4BnwEiFSdiZEzICKS0iduUJt/1ro88
+	7FgpzLHwoPALEn5Y7fU6HFXKasf7TySSCSzW+Xy7eF5CIgW0+0R8xwGtvkUkQBwhxO/pD/24cyt
+	dhB8PvABiUyjWpyjaobYPY6PfYXchcbuXavp2HS/dWW/Q=
+X-Gm-Gg: AR+sD11VOmFU/2AzDwxFMi19ahpnm2WE23BDLVRNv9P2Ah20SenfsJRJOTIAzyirBf/
+	4VlMi0aipyx3fk5leWLggQg2uIZkbRseOUm8XnHe1wfZlshnNsMyXBNb1dlX6CpQVdOg9z2pyf6
+	rV7jrpjKILgC3P+LCU+jdwgRkCkb0c34DHN6fwOy3RRvGj0UHMFNWkEl91Px807t3lw0fy7yrc1
+	+ss3zG2Yzm817TXVdfxzVesjpqg3Bvtu2ajZH3Z7nELbW68BpJGGKiozfE=
+X-Received: by 2002:a53:d00e:0:b0:66c:fb45:77e2 with SMTP id 956f58d0204a3-66d2575a752mr1279680d50.28.1787733099285;
+        Wed, 26 Aug 2026 01:31:39 -0700 (PDT)
+X-Received: by 2002:a53:d00e:0:b0:66c:fb45:77e2 with SMTP id
+ 956f58d0204a3-66d2575a752mr1279656d50.28.1787733098755; Wed, 26 Aug 2026
+ 01:31:38 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] drm/cirrus-qemu: Validate BAR0 size during probe
-To: Slawomir Stepien <sst@poczta.fm>, syzkaller-bugs@googlegroups.com,
- airlied@gmail.com, airlied@redhat.com, dri-devel@lists.freedesktop.org,
- kraxel@redhat.com, maarten.lankhorst@linux.intel.com, mripard@kernel.org,
- simona@ffwll.ch, virtualization@lists.linux.dev
-Cc: jani.nikula@intel.com, linux-kernel@vger.kernel.org,
- syzbot@lists.linux.dev, syzbot+2442951a6abb004df963@syzkaller.appspotmail.com
-References: <20260825120729.493611-1-sst@poczta.fm>
-Content-Language: en-US
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <20260825120729.493611-1-sst@poczta.fm>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spamd-Result: default: False [-3.01 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FREEMAIL_TO(0.00)[poczta.fm,googlegroups.com,gmail.com,redhat.com,lists.freedesktop.org,linux.intel.com,kernel.org,ffwll.ch,lists.linux.dev];
-	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	ARC_NA(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[14];
-	MIME_TRACE(0.00)[0:+];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com,poczta.fm];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_TRACE(0.00)[suse.de:+];
-	RCVD_COUNT_TWO(0.00)[2];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from,2a07:de40:b281:106:10:150:64:167:received];
-	TAGGED_RCPT(0.00)[2442951a6abb004df963];
-	MID_RHS_MATCH_FROM(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid,suse.de:dkim,suse.com:url,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo,appspotmail.com:email]
-X-Spam-Flag: NO
-X-Spam-Score: -3.01
-X-Spam-Level: 
-X-Rspamd-Queue-Id: 1239E1F7F6
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Rspamd-Action: no action
+References: <20260818211425.91009-1-graf@amazon.com> <20260818211425.91009-2-graf@amazon.com>
+In-Reply-To: <20260818211425.91009-2-graf@amazon.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Wed, 26 Aug 2026 10:31:02 +0200
+X-Gm-Features: AcwNN1UkVvtz0AftdF5pqYUDLlDPvjVn0MFdlINFqHbpJay-uZ3ZmdWsHYJsr4c
+Message-ID: <CAJaqyWcYqZ7gjtSW=DXeX2gkTij-kO=hc0dOzHAdY7jvTvfsDg@mail.gmail.com>
+Subject: Re: [PATCH v2 01/12] virtio_ring: remove the unused map sync API
+To: Alexander Graf <graf@amazon.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>, nh-open-source@amazon.com, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev, 
+	linux-kernel@vger.kernel.org, Parav Pandit <parav@nvidia.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: FVj7LBIS4aZvS-DYIzrzsikqmS1xgKxDjQoSlJL6428_1787733100
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Merged into drm-misc-fixes
+On Tue, Aug 18, 2026 at 11:14=E2=80=AFPM Alexander Graf <graf@amazon.com> w=
+rote:
+>
+> virtqueue_map_need_sync(), virtqueue_map_sync_single_range_for_cpu() and
+> virtqueue_map_sync_single_range_for_device() are exported, but no driver
+> in the tree calls them. They are the only path into the sync members of
+> struct virtio_map_ops, so whoever implements that struct next has to
+> decide what those members do with no caller to learn it from.
+>
+> Remove the three functions, their prototypes and their exports, and the
+> DMA sync shims that the virtio userspace harness kept for them. With
+> this, virtio_ring no longer exports a way to sync a mapping.
+>
+> Suggested-by: Michael S. Tsirkin <mst@redhat.com>
 
-Am 25.08.26 um 14:07 schrieb Slawomir Stepien:
-> The `cirrus-qemu` driver relies on `CIRRUS_VRAM_SIZE` (4 MB) to validate
-> framebuffer sizes. However, during PCI probe, the driver mapped BAR0
-> without verifying that its size matches `CIRRUS_VRAM_SIZE`.
->
-> If a PCI device with a BAR0 smaller than 4 MB is bound to the driver, the
-> mapped VRAM will be smaller than expected. Because validation checks assume
-> 4 MB VRAM, framebuffers larger than the mapped memory can be created.
->
-> When the display plane is updated (e.g. during release),
-> `cirrus_primary_plane_helper_atomic_update()` copies the framebuffer to
-> VRAM using `drm_fb_memcpy()`. Writing past the end of the mapped I/O memory
-> causes a supervisor write page fault:
->
-> BUG: unable to handle page fault for address: ffffc9000389c000
-> ...
-> RIP: 0010:memcpy_toio+0x7c/0xe0 arch/x86/lib/iomem.c:110
-> ...
-> Call Trace:
->   <TASK>
->   iosys_map_memcpy_to include/linux/iosys-map.h:285 [inline]
->   drm_fb_memcpy+0x325/0x5d0 drivers/gpu/drm/drm_format_helper.c:442
->   cirrus_primary_plane_helper_atomic_update+0x98a/0xb00
->   drivers/gpu/drm/tiny/cirrus-qemu.c:358
->   drm_atomic_helper_commit_planes+0x626/0xea0
->   drivers/gpu/drm/drm_atomic_helper.c:3038
->   drm_atomic_helper_commit_tail+0x60/0x510
->   drivers/gpu/drm/drm_atomic_helper.c:1989
->   commit_tail+0x2b1/0x3c0 drivers/gpu/drm/drm_atomic_helper.c:2074
->   drm_atomic_helper_commit+0xa77/0xb10
->   drivers/gpu/drm/drm_atomic_helper.c:2312
->
-> Fix this by validating in `cirrus_pci_probe()` that the PCI BAR0 resource
-> is not less than `CIRRUS_VRAM_SIZE`, returning `-ENODEV` if it is less.
->
-> Fixes: ab3e023b1b4c ("drm/cirrus: rewrite and modernize driver.")
-> Assisted-by: Gemini:gemini-3.6-flash Gemini:gemini-3.1-pro-preview syzbot
-> Reported-by: syzbot+2442951a6abb004df963@syzkaller.appspotmail.com
-> Closes: https://syzkaller.appspot.com/bug?extid=2442951a6abb004df963
-> Link: https://syzkaller.appspot.com/ai_job?id=ba262a3a-bccf-4ad8-a1b0-583c55d34fd6
-> Signed-off-by: Slawomir Stepien <sst@poczta.fm>
+Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+
+Thanks!
+
+> Assisted-by: Kiro:claude-opus-5 checkpatch
+> Signed-off-by: Alexander Graf <graf@amazon.com>
 > ---
-> v2:
-> * move the check before aperture_remove_conflicting_pci_devices() as suggested by sashiko.
-> * check if the pci_resource_len() for BAR0 is less than CIRRUS_VRAM_SIZE as suggested by Thomas. The
->    qemu emulates 4, (8 and 16 MB for compatibility) - never less than 4MB.
+>  drivers/virtio/virtio_ring.c     | 89 --------------------------------
+>  include/linux/virtio.h           |  8 ---
+>  tools/virtio/linux/dma-mapping.h |  7 ---
+>  3 files changed, 104 deletions(-)
 >
-> v1:
-> * https://lore.kernel.org/all/b11f8965-5896-4119-98b7-6bd0eb9fa139@mail.kernel.org/T/
-> ---
->   drivers/gpu/drm/tiny/cirrus-qemu.c | 3 +++
->   1 file changed, 3 insertions(+)
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index b438dc2ce1b8..ea8e774b6d8e 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -3890,94 +3890,5 @@ int virtqueue_map_mapping_error(const struct virtq=
+ueue *_vq, dma_addr_t addr)
+>  }
+>  EXPORT_SYMBOL_GPL(virtqueue_map_mapping_error);
 >
-> diff --git a/drivers/gpu/drm/tiny/cirrus-qemu.c b/drivers/gpu/drm/tiny/cirrus-qemu.c
-> index 075221b431d3..3bf23fcf6574 100644
-> --- a/drivers/gpu/drm/tiny/cirrus-qemu.c
-> +++ b/drivers/gpu/drm/tiny/cirrus-qemu.c
-> @@ -582,6 +582,9 @@ static int cirrus_pci_probe(struct pci_dev *pdev,
->   	struct cirrus_device *cirrus;
->   	int ret;
->   
-> +	if (pci_resource_len(pdev, 0) < CIRRUS_VRAM_SIZE)
-> +		return -ENODEV;
-> +
->   	ret = aperture_remove_conflicting_pci_devices(pdev, cirrus_driver.name);
->   	if (ret)
->   		return ret;
-
--- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
-GF: Jochen Jaser, Andrew McDonald, (HRB 36809, AG Nürnberg)
-
+> -/**
+> - * virtqueue_map_need_sync - check a dma address needs sync
+> - * @_vq: the struct virtqueue we're talking about.
+> - * @addr: DMA address
+> - *
+> - * Check if the dma address mapped by the virtqueue_map_* APIs needs to =
+be
+> - * synchronized
+> - *
+> - * return bool
+> - */
+> -bool virtqueue_map_need_sync(const struct virtqueue *_vq, dma_addr_t add=
+r)
+> -{
+> -       const struct vring_virtqueue *vq =3D to_vvq(_vq);
+> -       struct virtio_device *vdev =3D _vq->vdev;
+> -
+> -       if (!vq->use_map_api)
+> -               return false;
+> -
+> -       if (vdev->map)
+> -               return vdev->map->need_sync(vq->map, addr);
+> -       else
+> -               return dma_need_sync(vring_dma_dev(vq), addr);
+> -}
+> -EXPORT_SYMBOL_GPL(virtqueue_map_need_sync);
+> -
+> -/**
+> - * virtqueue_map_sync_single_range_for_cpu - map sync for cpu
+> - * @_vq: the struct virtqueue we're talking about.
+> - * @addr: DMA address
+> - * @offset: DMA address offset
+> - * @size: buf size for sync
+> - * @dir: DMA direction
+> - *
+> - * Before calling this function, use virtqueue_map_need_sync() to confir=
+m that
+> - * the DMA address really needs to be synchronized
+> - *
+> - */
+> -void virtqueue_map_sync_single_range_for_cpu(const struct virtqueue *_vq=
+,
+> -                                            dma_addr_t addr,
+> -                                            unsigned long offset, size_t=
+ size,
+> -                                            enum dma_data_direction dir)
+> -{
+> -       const struct vring_virtqueue *vq =3D to_vvq(_vq);
+> -       struct virtio_device *vdev =3D _vq->vdev;
+> -
+> -       if (!vq->use_map_api)
+> -               return;
+> -
+> -       if (vdev->map)
+> -               vdev->map->sync_single_for_cpu(vq->map,
+> -                                              addr + offset, size, dir);
+> -       else
+> -               dma_sync_single_range_for_cpu(vring_dma_dev(vq),
+> -                                             addr, offset, size, dir);
+> -}
+> -EXPORT_SYMBOL_GPL(virtqueue_map_sync_single_range_for_cpu);
+> -
+> -/**
+> - * virtqueue_map_sync_single_range_for_device - map sync for device
+> - * @_vq: the struct virtqueue we're talking about.
+> - * @addr: DMA address
+> - * @offset: DMA address offset
+> - * @size: buf size for sync
+> - * @dir: DMA direction
+> - *
+> - * Before calling this function, use virtqueue_map_need_sync() to confir=
+m that
+> - * the DMA address really needs to be synchronized
+> - */
+> -void virtqueue_map_sync_single_range_for_device(const struct virtqueue *=
+_vq,
+> -                                               dma_addr_t addr,
+> -                                               unsigned long offset, siz=
+e_t size,
+> -                                               enum dma_data_direction d=
+ir)
+> -{
+> -       const struct vring_virtqueue *vq =3D to_vvq(_vq);
+> -       struct virtio_device *vdev =3D _vq->vdev;
+> -
+> -       if (!vq->use_map_api)
+> -               return;
+> -
+> -       if (vdev->map)
+> -               vdev->map->sync_single_for_device(vq->map,
+> -                                                 addr + offset,
+> -                                                 size, dir);
+> -       else
+> -               dma_sync_single_range_for_device(vring_dma_dev(vq), addr,
+> -                                                offset, size, dir);
+> -}
+> -EXPORT_SYMBOL_GPL(virtqueue_map_sync_single_range_for_device);
+> -
+>  MODULE_DESCRIPTION("Virtio ring implementation");
+>  MODULE_LICENSE("GPL");
+> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> index 93e573c56563..3122fc52a7c3 100644
+> --- a/include/linux/virtio.h
+> +++ b/include/linux/virtio.h
+> @@ -312,14 +312,6 @@ void virtqueue_unmap_single_attrs(const struct virtq=
+ueue *_vq, dma_addr_t addr,
+>                                       unsigned long attrs);
+>  int virtqueue_map_mapping_error(const struct virtqueue *_vq, dma_addr_t =
+addr);
+>
+> -bool virtqueue_map_need_sync(const struct virtqueue *_vq, dma_addr_t add=
+r);
+> -void virtqueue_map_sync_single_range_for_cpu(const struct virtqueue *_vq=
+, dma_addr_t addr,
+> -                                            unsigned long offset, size_t=
+ size,
+> -                                            enum dma_data_direction dir)=
+;
+> -void virtqueue_map_sync_single_range_for_device(const struct virtqueue *=
+_vq, dma_addr_t addr,
+> -                                               unsigned long offset, siz=
+e_t size,
+> -                                               enum dma_data_direction d=
+ir);
+> -
+>  #ifdef CONFIG_VIRTIO_DEBUG
+>  void virtio_debug_device_init(struct virtio_device *dev);
+>  void virtio_debug_device_exit(struct virtio_device *dev);
+> diff --git a/tools/virtio/linux/dma-mapping.h b/tools/virtio/linux/dma-ma=
+pping.h
+> index b9fc5e8338e3..eae160ce7142 100644
+> --- a/tools/virtio/linux/dma-mapping.h
+> +++ b/tools/virtio/linux/dma-mapping.h
+> @@ -36,16 +36,9 @@ enum dma_data_direction {
+>
+>  #define sg_dma_address(sg) (0)
+>  #define sg_dma_len(sg) (0)
+> -#define dma_need_sync(v, a) (0)
+>  #define dma_unmap_single_attrs(d, a, s, r, t) do { \
+>         (void)(d); (void)(a); (void)(s); (void)(r); (void)(t); \
+>  } while (0)
+> -#define dma_sync_single_range_for_cpu(d, a, o, s, r) do { \
+> -       (void)(d); (void)(a); (void)(o); (void)(s); (void)(r); \
+> -} while (0)
+> -#define dma_sync_single_range_for_device(d, a, o, s, r) do { \
+> -       (void)(d); (void)(a); (void)(o); (void)(s); (void)(r); \
+> -} while (0)
+>  #define dma_max_mapping_size(...) SIZE_MAX
+>
+>  /*
+>
 
