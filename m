@@ -1,210 +1,235 @@
-Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68FE925E469
-	for <virtualization@lists.linux.dev>; Wed, 26 Aug 2026 00:40:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 766C8340282;
+	Wed, 26 Aug 2026 06:57:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787704811; cv=none; b=HUQaVrmNtALraVmxa2qklUkRhgD2aVuAP5yUJTDGalXwmAAup+OdAQRMTfHoD6a0yRbPVojTj9ruwiCXmJ0deAaHHI/9eCkUho8Zqv+N3i4bBIMtyZsgAttG8YZURevEQIJkqn4zOTqIHzhMVcjs8VaYUcNp0mQYPCLeDjBlOkQ=
+	t=1787727474; cv=none; b=FkD7cEeRLTNovypt1AOJzbLWcFR4dojzfXnBReIYNrBSOXomJcSBVBmV/YJktQP+FBQtSzSrwzJ6fegDkQiKSQjH4YOgaI7WPi7cLJzHdJaLV9UprB2mL2baDA1x1271pRBt24MitJbI2mHLLsxaUjgi2iozFJA6+f4u1sEages=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787704811; c=relaxed/simple;
-	bh=FcFN70EMn3NFxzjIeQEMtx0bY3hAkneIIufEHZNApnw=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Ab4HrUGaZ+ctm6y1D7Yefu4/qfHfHShIbm1PZ1UqSIs5rp8+iVUF8huTRrtyN7qeimOOIxFCWxds5AFzzC1KxB1XssPv48kmYtH/mUBwlAcu4niYOEmEul69rOkn/7U1fyw5AjLSbCpF0lhBZvcFqcu3xQpHBy5YH5brvKU26ZA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Y0lNn3AG; arc=none smtp.client-ip=209.85.210.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1787727474; c=relaxed/simple;
+	bh=8kIL6rfYZGU93VPgF4RHtZ/NmSk+6kT2wyBnkTxQ2js=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Q59iN+weBJydFKaR/C5+rkuukYJk8tdg7bVLGiowWRkDiaGYpVp8Zt+TJCIoiFvadB/kEpKrPSv6EO5tzjFSU6R8kp/9k35naMW8KGR2inRuqAeuWM+r+6R0mNo/6eHbZYSTImV3U39x+2rkNsa5ILBenzkzLaq4V7c/FYdCT7I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=1dopK4gm; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=1HDIgZRC; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=jxzi81Wq; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=qfiqrytB; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Y0lNn3AG"
-Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-84830c774a0so574183b3a.1
-        for <virtualization@lists.linux.dev>; Tue, 25 Aug 2026 17:40:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787704810; x=1788309610; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=JuJMd61vQn7VC6GY3r3MpRqnhIXcz7QetrZGVrziers=;
-        b=Y0lNn3AGbRCmjTQazR6dt1EjWHiCFGnJlzvxuNCZwnru6vLHVpmIzceyUBfZPQmsj8
-         L8V02Q4X6+SJo36QWP1GcEuWRjuOL2+FGXvCVYBv2RsRzIEUhttF+oPBjsCMqsv9Y85r
-         8DjxpPXeEzzKndB9kXAwjgmKOhdk4ODGxkvQ62/+0nqd8j6t/F4bTSFPjyuA8v3PCjGS
-         qQ2c2mQ6wXr/EH+xFo1Pi3hIJmVSQz4NSiI+xFrwBtQ0AcskygvN+CalGe4XeMfqJ3Nc
-         /58FpoG92XYcifTTNxsg39UeOzBFSxAxUZ/5lJ/esA2N6mb0HyIi0D2gFMsOAAUsQOFZ
-         Fm8Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787704810; x=1788309610;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=JuJMd61vQn7VC6GY3r3MpRqnhIXcz7QetrZGVrziers=;
-        b=eOe/7BuQpRKC+/VWhv+cT7NXijSUUZGUkIJAdvIjS98QD4Aq+bAUf1f62lVbvgM9NJ
-         4e7Oz1Wy91U490iv43oeR7b0MMZOjiAlm1owvUdh3EBJrpSr/gdt/Deh9H19euj1V9wn
-         Uoc43/i15yqMpqqKFVCOup7FUocOEfMod13bLp661+UiNh+vjxHT5JWc4x1DVZ3Vg9hE
-         QWz7BgEptTKfxeMFLUb8bX/5vIPERi/d0PhaxCAAgqFnwba74juHM+j2RD5yRKNb908r
-         nO0yWGEcZTPPlrkgEpQYxcO1vSxNSt2Aq2a3gvjx70yX/uHNX86FEDo0tepGOK3lQJsk
-         +Ddw==
-X-Forwarded-Encrypted: i=1; AHgh+RrQowtKDJv8J025uweh13wXKuqc6eCqpMqJT3hb23AFqW2I4kv7IEA4mUaUPPY7z6vVszq1Pxe6fxl4rx5SZQ==@lists.linux.dev
-X-Gm-Message-State: AFuF++kSfSzqC7zGr1GEYOZtUgYLr3UEVNgrdbJjmERi9l/NBnhKc0jS
-	+1nf4WdU7MqTp6BmQPpZeGcQjQexJDCCaLK+yrZJH5n4iJ/n+zITekHx
-X-Gm-Gg: AR+sD13ncP9/GGiAH+0m/NpSgQL32bpRvP6NEuSN1twY3rFgkqUFyQSYbuHtiDyXkQ/
-	ppVUNdtQB0TXF9UkPV3mtgA3sSsS+0CDVMWlZUyG0VBF98civDRcCJLXdc/z8nARU1+vIHRWIIE
-	QWArjVcvGseq3fE6w4bFs3O1JOdp7l+ssuTZYCp5ES58czXjb5M2FjzQmQ5MDWkueROEgvRjPk2
-	yL7qk9PuGLcpRoc/voe6b2hXaOjsk3D7qoXwjDBRorRiyTxXktYPCoz9KcFPbPJB8BLlv+pynCE
-	zEHLJH9s8u8H6Sr67pxXRVr2Wm91nFwxvyWuAJPV++Qqi8lOr6ADT+qWTMMygGaoGUo1HQTk6kb
-	unNixrDyRUttdH9zuOaxNAneMWR/PkFJeZfMr5ZL2R5EoMp266sZFhOjgWe2GjmP3CHv+pfKLpa
-	0I0tnYrnvlNTsx7xe+q35BmSduAS7zLsh4907D7uv/bTAPBl9W6Zfj4BqW9QxrAijOXsCqK5wi
-X-Received: by 2002:a05:6a00:464e:b0:847:881c:7026 with SMTP id d2e1a72fcca58-85371baa990mr4853484b3a.3.1787704809556;
-        Tue, 25 Aug 2026 17:40:09 -0700 (PDT)
-Received: from ancienth-X870E-Nova-WiFi ([125.186.72.2])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8535cdc038dsm339377b3a.38.2026.08.25.17.40.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Aug 2026 17:40:09 -0700 (PDT)
-From: Daehyeon Ko <4ncienth@gmail.com>
-To: netdev@vger.kernel.org
-Cc: sgarzare@redhat.com,
-	stefanha@redhat.com,
-	bobbyeshleman@gmail.com,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	horms@kernel.org,
-	mst@redhat.com,
-	jasowangio@gmail.com,
-	xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
-	bryan-bt.tan@broadcom.com,
-	vishnu.dasa@broadcom.com,
-	bcm-kernel-feedback-list@broadcom.com,
-	virtualization@lists.linux.dev,
-	kvm@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	sashiko-bot@kernel.org
-Subject: [PATCH net v4 2/2] vsock/vmci: validate packet source for connected sockets
-Date: Wed, 26 Aug 2026 09:39:28 +0900
-Message-ID: <20260826003929.966160-3-4ncienth@gmail.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260826003929.966160-1-4ncienth@gmail.com>
-References: <20260826003929.966160-1-4ncienth@gmail.com>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="1dopK4gm";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="1HDIgZRC";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="jxzi81Wq";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="qfiqrytB"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 1239E1F7F6;
+	Wed, 26 Aug 2026 06:57:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1787727452; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=sBfgI5vwAaQkNS2Sqa0AXBE6+/CTnkGwvymAGJWg9RE=;
+	b=1dopK4gmbdUGldC8wPoHsZ/q91A8028zEwWab1SqBcu2lqkRmdOCwqcvkTNTC+foFmnDpf
+	LraETcBNykLGV6yZ4MyxyHXZtqZw09FWWQITEbGc67kHTHpTQq5UeWx+Rj9d86p0dO6XqA
+	VeY4R6zF/HCB9/KUleC/6099ZXU14NU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1787727452;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=sBfgI5vwAaQkNS2Sqa0AXBE6+/CTnkGwvymAGJWg9RE=;
+	b=1HDIgZRCX3PAYrMZ+8Cjv+dl468knsXrys4RScm6BIcnGbwrns29gGDBP30j9lWtRGj/a3
+	8EbrPdxWfzRVRACw==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=jxzi81Wq;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=qfiqrytB
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1787727448; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=sBfgI5vwAaQkNS2Sqa0AXBE6+/CTnkGwvymAGJWg9RE=;
+	b=jxzi81Wq/ORegKCwe5YqxK/kUKzRQXd3SGYysLGmtSOW7rGvf0iDZNvRks1r6EMaOVV7a1
+	7tn65HQc+dWJbW5Tsl0QWPJY5KrWvDb4qULm5g4JcsWulTtP1xQ+1XeIEcNDnRSi3vNV5N
+	2CwRuDfsrHrz0RTHpDTDjRVRYsbAVRY=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1787727448;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=sBfgI5vwAaQkNS2Sqa0AXBE6+/CTnkGwvymAGJWg9RE=;
+	b=qfiqrytBjmFogEQnk7guycXfrOVc0q9/7qMFJe8uoUpEffgYKlB7WR/Zz2ub3B932wK5WR
+	m1TGu6BYAyk03ICA==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id B03B813533;
+	Wed, 26 Aug 2026 06:57:27 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id KtzaKVeOjmpjVQAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Wed, 26 Aug 2026 06:57:27 +0000
+Message-ID: <03ab9470-60c6-40fe-8d24-89c820b978ec@suse.de>
+Date: Wed, 26 Aug 2026 08:57:27 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] drm/cirrus-qemu: Validate BAR0 size during probe
+To: Slawomir Stepien <sst@poczta.fm>, syzkaller-bugs@googlegroups.com,
+ airlied@gmail.com, airlied@redhat.com, dri-devel@lists.freedesktop.org,
+ kraxel@redhat.com, maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+ simona@ffwll.ch, virtualization@lists.linux.dev
+Cc: jani.nikula@intel.com, linux-kernel@vger.kernel.org,
+ syzbot@lists.linux.dev, syzbot+2442951a6abb004df963@syzkaller.appspotmail.com
+References: <20260825120729.493611-1-sst@poczta.fm>
+Content-Language: en-US
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <20260825120729.493611-1-sst@poczta.fm>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+X-Spamd-Result: default: False [-3.01 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FREEMAIL_TO(0.00)[poczta.fm,googlegroups.com,gmail.com,redhat.com,lists.freedesktop.org,linux.intel.com,kernel.org,ffwll.ch,lists.linux.dev];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	ARC_NA(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[14];
+	MIME_TRACE(0.00)[0:+];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com,poczta.fm];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from,2a07:de40:b281:106:10:150:64:167:received];
+	TAGGED_RCPT(0.00)[2442951a6abb004df963];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid,suse.de:dkim,suse.com:url,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo,appspotmail.com:email]
+X-Spam-Flag: NO
+X-Spam-Score: -3.01
+X-Spam-Level: 
+X-Rspamd-Queue-Id: 1239E1F7F6
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Rspamd-Action: no action
 
-vmci_transport_recv_stream_cb() looks up sockets first by the full source
-and destination tuple, then by destination only in the bound table. The
-fallback can select a non-listening socket without checking whether the
-packet came from its stored peer.
+Merged into drm-misc-fixes
 
-This was reproduced with two VMCI contexts. A RST from the context not
-stored in a TCP_SYN_SENT socket reset that socket after it was selected by
-the destination-only lookup.
+Am 25.08.26 um 14:07 schrieb Slawomir Stepien:
+> The `cirrus-qemu` driver relies on `CIRRUS_VRAM_SIZE` (4 MB) to validate
+> framebuffer sizes. However, during PCI probe, the driver mapped BAR0
+> without verifying that its size matches `CIRRUS_VRAM_SIZE`.
+>
+> If a PCI device with a BAR0 smaller than 4 MB is bound to the driver, the
+> mapped VRAM will be smaller than expected. Because validation checks assume
+> 4 MB VRAM, framebuffers larger than the mapped memory can be created.
+>
+> When the display plane is updated (e.g. during release),
+> `cirrus_primary_plane_helper_atomic_update()` copies the framebuffer to
+> VRAM using `drm_fb_memcpy()`. Writing past the end of the mapped I/O memory
+> causes a supervisor write page fault:
+>
+> BUG: unable to handle page fault for address: ffffc9000389c000
+> ...
+> RIP: 0010:memcpy_toio+0x7c/0xe0 arch/x86/lib/iomem.c:110
+> ...
+> Call Trace:
+>   <TASK>
+>   iosys_map_memcpy_to include/linux/iosys-map.h:285 [inline]
+>   drm_fb_memcpy+0x325/0x5d0 drivers/gpu/drm/drm_format_helper.c:442
+>   cirrus_primary_plane_helper_atomic_update+0x98a/0xb00
+>   drivers/gpu/drm/tiny/cirrus-qemu.c:358
+>   drm_atomic_helper_commit_planes+0x626/0xea0
+>   drivers/gpu/drm/drm_atomic_helper.c:3038
+>   drm_atomic_helper_commit_tail+0x60/0x510
+>   drivers/gpu/drm/drm_atomic_helper.c:1989
+>   commit_tail+0x2b1/0x3c0 drivers/gpu/drm/drm_atomic_helper.c:2074
+>   drm_atomic_helper_commit+0xa77/0xb10
+>   drivers/gpu/drm/drm_atomic_helper.c:2312
+>
+> Fix this by validating in `cirrus_pci_probe()` that the PCI BAR0 resource
+> is not less than `CIRRUS_VRAM_SIZE`, returning `-ENODEV` if it is less.
+>
+> Fixes: ab3e023b1b4c ("drm/cirrus: rewrite and modernize driver.")
+> Assisted-by: Gemini:gemini-3.6-flash Gemini:gemini-3.1-pro-preview syzbot
+> Reported-by: syzbot+2442951a6abb004df963@syzkaller.appspotmail.com
+> Closes: https://syzkaller.appspot.com/bug?extid=2442951a6abb004df963
+> Link: https://syzkaller.appspot.com/ai_job?id=ba262a3a-bccf-4ad8-a1b0-583c55d34fd6
+> Signed-off-by: Slawomir Stepien <sst@poczta.fm>
+> ---
+> v2:
+> * move the check before aperture_remove_conflicting_pci_devices() as suggested by sashiko.
+> * check if the pci_resource_len() for BAR0 is less than CIRRUS_VRAM_SIZE as suggested by Thomas. The
+>    qemu emulates 4, (8 and 16 MB for compatibility) - never less than 4MB.
+>
+> v1:
+> * https://lore.kernel.org/all/b11f8965-5896-4119-98b7-6bd0eb9fa139@mail.kernel.org/T/
+> ---
+>   drivers/gpu/drm/tiny/cirrus-qemu.c | 3 +++
+>   1 file changed, 3 insertions(+)
+>
+> diff --git a/drivers/gpu/drm/tiny/cirrus-qemu.c b/drivers/gpu/drm/tiny/cirrus-qemu.c
+> index 075221b431d3..3bf23fcf6574 100644
+> --- a/drivers/gpu/drm/tiny/cirrus-qemu.c
+> +++ b/drivers/gpu/drm/tiny/cirrus-qemu.c
+> @@ -582,6 +582,9 @@ static int cirrus_pci_probe(struct pci_dev *pdev,
+>   	struct cirrus_device *cirrus;
+>   	int ret;
+>   
+> +	if (pci_resource_len(pdev, 0) < CIRRUS_VRAM_SIZE)
+> +		return -ENODEV;
+> +
+>   	ret = aperture_remove_conflicting_pci_devices(pdev, cirrus_driver.name);
+>   	if (ret)
+>   		return ret;
 
-VMCI can process notification packets in bottom-half context when the
-socket is not owned by user context, or defer packets to a workqueue. Use
-vsock_check_source() after taking the socket lock in the bottom-half path,
-and recheck after lock_sock() in the workqueue path. Listening sockets
-continue to accept packets from any source.
+-- 
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
+GF: Jochen Jaser, Andrew McDonald, (HRB 36809, AG Nürnberg)
 
-Reply with a RST addressed from the received packet before dropping a
-source that fails validation. This preserves the existing reset behavior
-for bound non-listening and concurrently closed sockets without directing
-the reset to a connected socket's stored peer.
 
-Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
-Reported-by: Sashiko <sashiko-bot@kernel.org>
-Closes: https://lore.kernel.org/netdev/20260814121255.6B5001F000E9@smtp.kernel.org/
-Cc: stable@vger.kernel.org
-Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
-Suggested-by: Paolo Abeni <pabeni@redhat.com>
-Assisted-by: Codex:gpt-5.6-sol
-Signed-off-by: Daehyeon Ko <4ncienth@gmail.com>
----
- net/vmw_vsock/vmci_transport.c | 34 ++++++++++++++++++++++++++++------
- 1 file changed, 28 insertions(+), 6 deletions(-)
-
-diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
-index 1c4ee039c..1f186e8f8 100644
---- a/net/vmw_vsock/vmci_transport.c
-+++ b/net/vmw_vsock/vmci_transport.c
-@@ -680,11 +680,13 @@ static int vmci_transport_recv_stream_cb(void *data, struct vmci_datagram *dg)
- 	struct vmci_transport_packet *pkt;
- 	struct vsock_sock *vsk;
- 	bool bh_process_pkt;
-+	bool drop_pkt;
- 	int err;
- 
- 	sk = NULL;
- 	err = VMCI_SUCCESS;
- 	bh_process_pkt = false;
-+	drop_pkt = false;
- 
- 	/* Ignore incoming packets from resources that aren't vsock
- 	 * implementations.
-@@ -765,17 +767,29 @@ static int vmci_transport_recv_stream_cb(void *data, struct vmci_datagram *dg)
- 	bh_lock_sock(sk);
- 
- 	if (!sock_owned_by_user(sk)) {
--		/* The local context ID may be out of date, update it. */
--		vsk->local_addr.svm_cid = dst.svm_cid;
-+		if (sk->sk_state != TCP_LISTEN &&
-+		    !vsock_check_source(vsk, &vmci_transport, &src)) {
-+			drop_pkt = true;
-+			err = VMCI_ERROR_NO_ACCESS;
-+		} else {
-+			/* The local context ID may be out of date, update it. */
-+			vsk->local_addr.svm_cid = dst.svm_cid;
- 
--		if (sk->sk_state == TCP_ESTABLISHED)
--			vmci_trans(vsk)->notify_ops->handle_notify_pkt(
--					sk, pkt, true, &dst, &src,
--					&bh_process_pkt);
-+			if (sk->sk_state == TCP_ESTABLISHED)
-+				vmci_trans(vsk)->notify_ops->handle_notify_pkt(sk, pkt, true,
-+									       &dst, &src,
-+									       &bh_process_pkt);
-+		}
- 	}
- 
- 	bh_unlock_sock(sk);
- 
-+	if (drop_pkt) {
-+		if (vmci_transport_send_reset_bh(&dst, &src, pkt) < 0)
-+			pr_err("unable to send reset\n");
-+		goto out;
-+	}
-+
- 	if (!bh_process_pkt) {
- 		struct vmci_transport_recv_pkt_info *recv_pkt_info;
- 
-@@ -900,6 +914,7 @@ static void vmci_transport_recv_pkt_work(struct work_struct *work)
- {
- 	struct vmci_transport_recv_pkt_info *recv_pkt_info;
- 	struct vmci_transport_packet *pkt;
-+	struct sockaddr_vm src;
- 	struct sock *sk;
- 
- 	recv_pkt_info =
-@@ -908,6 +923,12 @@ static void vmci_transport_recv_pkt_work(struct work_struct *work)
- 	pkt = &recv_pkt_info->pkt;
- 
- 	lock_sock(sk);
-+	vsock_addr_init(&src, pkt->dg.src.context, pkt->src_port);
-+	if (sk->sk_state != TCP_LISTEN &&
-+	    !vsock_check_source(vsock_sk(sk), &vmci_transport, &src)) {
-+		vmci_transport_reply_reset(pkt);
-+		goto out;
-+	}
- 
- 	/* The local context ID may be out of date. */
- 	vsock_sk(sk)->local_addr.svm_cid = pkt->dg.dst.context;
-@@ -937,6 +958,7 @@ static void vmci_transport_recv_pkt_work(struct work_struct *work)
- 		break;
- 	}
- 
-+out:
- 	release_sock(sk);
- 	kfree(recv_pkt_info);
- 	/* Release reference obtained in the stream callback when we fetched
