@@ -1,61 +1,63 @@
-Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
+Received: from mail-pf1-f177.google.com (mail-pf1-f177.google.com [209.85.210.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6C0B229B38
-	for <virtualization@lists.linux.dev>; Wed, 26 Aug 2026 00:39:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E320E22A80D
+	for <virtualization@lists.linux.dev>; Wed, 26 Aug 2026 00:40:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787704787; cv=none; b=hDXudsNLdIqsCelY8TLUymnSnuHgTQ2Px4yEYl3H1HRRgxLyf9PcNquHA1/iSE+EHTgooNGHTZtvycJKoopqG/3Ylw6XxAAOvb5uTiNVu28lWUyIeZqV5CZMvlMEzWNitFMUj5LOWyiPyc2JdwYYQRV2XbjE7iCZCc5+iT4nK6Q=
+	t=1787704806; cv=none; b=YQ3VbwRPE5RDlnTOryIfe9ojGZZqHDrlM9OPXYGp1opZbAj3BQBKBsuc3FY+1YVfqqOY09HD0vOm48M6VMUkKm4bNv/2+Ruk28df4cUdxofgiweToXjiDJ0HRvkg868tC6VSpRTjOWLNekR6kTGgAnq/utBNZw0ZSSZ/lAPrDRQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787704787; c=relaxed/simple;
-	bh=kHJYeCK03N4sVT6BcZHnRJF/EyIgOKmsMbTVuSX3Q8E=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Huxy4GXWdRy6uMjLBySzBxUSTlodoxTonkrxdEnAfOf+Qa6WQffp0+QHUzRY1qse63eIi4LKV91mJOyvy5y1tOpEzq/LZqt50F/MJwBl2TpSQL6D1DtuTyl2xTiqe9D/wPri0IdER6aB7aWQ6W0DQGzInyeEN9q8vOCqsC/4mNo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LFJ7JlD/; arc=none smtp.client-ip=209.85.210.179
+	s=arc-20240116; t=1787704806; c=relaxed/simple;
+	bh=QX/vn9JHBDF1P5ti7air7BXUMt6TE73hYnNrwXMaVVM=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=dXY1jQmn9VLTNsUIf6Zo8BX83J+cGJL9IK1iX4gnupGhfD4SfSvVUJJWu7q+Lp55/3E9+4ADB11mzYcT5UN9AwHFZw//P0zpPdo5cGPsctUdMyN2fQS/zMGf4uiCeoxVApmzGESOSqB0dzcj8Coqp6NfsN265z9d1NoJePHvWJc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GwfPKetd; arc=none smtp.client-ip=209.85.210.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LFJ7JlD/"
-Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-84830c774a0so573841b3a.1
-        for <virtualization@lists.linux.dev>; Tue, 25 Aug 2026 17:39:45 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GwfPKetd"
+Received: by mail-pf1-f177.google.com with SMTP id d2e1a72fcca58-84f38f3b36eso401717b3a.1
+        for <virtualization@lists.linux.dev>; Tue, 25 Aug 2026 17:40:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787704785; x=1788309585; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=oi+0Ngf9vOWuRTniUDFfPIIsu68mB10Me8n+jj7RJuY=;
-        b=LFJ7JlD/eVTk912ovT37bHWHzLMr0hHPDTZgRUUkT5kz/GysEMFV+y8qbB4H+OUmb7
-         O35jB8frWFVaCRpy+mA9gi+JbB7g3CPurQwZjPzhBSW54bEwly0lTTOIQVFAmdQGNWiS
-         LhRcqrdPTe1Dxhm7GmQSZeQ0yiapu4AXjzoifxNyr0qDsvEQWZxVTZYaMpQuDOAEkEPI
-         LCpXWVnIz4g3QNpN3EMkvlqaTe1t2D3mONF6Odlg6IlyzcQAz06TiZNrx1ODNoZKdccw
-         /r1yL76hJ10vvfPFn3i2iZHw73i69uDRM9yuvSVG92IUBAWtsmPh8MA6YM9W3n27qn0L
-         GyhQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787704785; x=1788309585;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1787704804; x=1788309604; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=oi+0Ngf9vOWuRTniUDFfPIIsu68mB10Me8n+jj7RJuY=;
-        b=aXUcq0estcnIi9Y46zh+KqTbifTIHl0XDSz5364TxbE0S9UuT+uC49ZVjseSBH600P
-         WR3bRiayx4Z+u23mpdHKQLzEPo5GGVmp0YXg3UrPUNhfifsSX9jw55L+y7Hme8Uf/6Po
-         bqufSA+OpU5jgpScmRUeZvjKSE+WX5t+T/XmL2EQhjAfXO+H/KFnlhcERIK8b9VnJ5FL
-         pyAiHwCUAbV9kXhwWbnqldffJx/IgZU1Az5xZYXrJIpvoIl6dsSgIZXs+bpvK8ml7Gvq
-         OCK+aDjqOfgaqIAHWEE+V49c7jZBhjtCO/2TwsuXsj7qRzhPW6sPuumRj3iJz9lrhyWs
-         qbqA==
-X-Forwarded-Encrypted: i=1; AHgh+Rq7XdhbtALPJDOakR9xgq8ynw2wpxCYxKh6w9vnhynl4LVsMqwmGqbiier+STiqscmQQPOuAjk+dq5CAHEK9A==@lists.linux.dev
-X-Gm-Message-State: AFuF++nfS8GnDOTmrE+/uyQZaxFMuLn6N4m+15+rfL76Di7kYgpSjehH
-	lwqMDBGp87wOSWFwP6CR6vESwatL+W4cPomuAj6Mc5j0k+7L1ZY+c4/Y
-X-Gm-Gg: AR+sD12Os1XSIUG0gRL+se857zXBIc3Fs7/+j0MMFXn95MqmRYtTQtPeIoCwfbr6sjW
-	cRg/XfDPA5O2RU1Qse7uvEEEJg0f7eAdRe/+0s48yln379Ulk2wWpEfUbyGOAPLB18GWFIXY0WF
-	tZsYkB6tUmCQ5LqRxbi5L3XJ4SLaYsllrkOdvt55LiHJFFh1xRWiNRgpE6N47oz+QpcJzI1HbLs
-	RFHpT9mwiBe97cFYOi1QYzdYFkt8g/mUJqvOtFVan66aH56SNWOTaW2o99fSRLxhZ9dOR8Cso8k
-	sah5w/CY0t4uw5ngBOsqIDWkLjSpZZ/YsFaR9d1xKcJMh6gh2Psitk8yyZxO2SICZH9+UOpUZNL
-	VQRnIYsTRl0g/64u6JBepbEO72xZwbdwe2WNRIQxgFTpfw2GFEPtlq/jBFWR8GRgOYZmE9flmbm
-	rZ0q4cMfQ6S6Ttd5+YP3he+z2rPrbUhJti0yUG2U3SUvkomNRTSxkeH4k2uDEX0kn9vqVbbwJS
-X-Received: by 2002:a05:6a00:6c83:b0:845:e7ee:eae7 with SMTP id d2e1a72fcca58-853720ab337mr5049138b3a.5.1787704784879;
-        Tue, 25 Aug 2026 17:39:44 -0700 (PDT)
+        bh=a/eP+e7q3408itBdeYjBe53xJJY4zYLdPkL6W0uiwF0=;
+        b=GwfPKetdUSLpTP35bhs2MRDSSDJEwPAFHvxZbehENEHERQDna/2DQypuzfU3nVUBD/
+         EP9A+xev+4av1xnMo57bqR8sk1l6JaczZbpetpc0D+DqvccB5s9S1dVY5O77G5MaRnVp
+         fxlSiBzvIAG2E5oGl0ihauwzNc/5FesCBYc4/vYtHbKkKlfjAaV3TKddVNs1x51oJQr4
+         4ewirwPmXvym9+W2g19uAa4y0jrrrcYwZ4XdYg+sqiAMdaj4wci/krJ7Qjcmnm58+HXY
+         Y84+/ofzogfv+i+5Z78FEsR/Y8inAWJ9GeWUMzyYgtXgfB2s/5H+VR9q+8fUK9aslZ+C
+         y/Jg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787704804; x=1788309604;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=a/eP+e7q3408itBdeYjBe53xJJY4zYLdPkL6W0uiwF0=;
+        b=oCDZb6JfTZl0+1iinvsst/+BvVcXhFCEZdN9WS5qx1XNJXoXabjUNXeC6nEX+Mqd9X
+         u7a+W6w8tSSMg2tyrtC3wHP+HVmO0bowWwPIK+LJjS3aEg7tjMjxWvKwHpS11JUI/p1e
+         7Swl4aDb1gQ2/MibszXS20XQKB9zsg8pIcxuGVPBWb/xlqxaDbNaU+K4n2g4hNK70CfF
+         EC6WSbRAoSY9gJxHnxbI7XIzgaPA0RL9qJ3BICIHee/JVJz1lNxwb5zwzpQW7bVBcgOv
+         vLG/5KJELz+K/oFed+3gbWvb1IAUllIqeeLe2kXSO2xGeMvXQ8Jo+CJ8bvcPVnJO/yj4
+         ZXmw==
+X-Forwarded-Encrypted: i=1; AHgh+Rp3C08u1cOSZ4RQra8u0jauPEt6Td0Y9tNwQ84wD/+xiXeSVkkeurHjwqoVaelM7JIOmEOgPgaRE4qzmylHzg==@lists.linux.dev
+X-Gm-Message-State: AFuF++n5E6XRKKXSCE91IrbdMw6FPI4CMWGuKO2Jc5kPsq4ZdOgbucn3
+	yS39wRugJXqwbdL9y+tbuKFxFATFuXXX7Im925gOlcpEQ70Rla/IKr7S
+X-Gm-Gg: AR+sD13TA6r2x0/CIVKf8qoPAoRiinKPf+CyIaf9UzQh09g7fxKyCPl41uDEyLfYNW+
+	AE/pjJ4ApW6an2jBEWsDqIik2Lkc3yBsB6ebWK0NngIkojooK0k+APSRFWG574BcFW9achgeV5F
+	NVfh+8FO2tYkibzNO2iLtWQ2jJm9m7ReLlI7F97+wTpZjN4pcIwctay+DVYuqWX6jSlkc6DgJQ/
+	6zjotxJqBBfcJwvaPwQTSsdTgUNYRsjTKUeSy17VIDXTmTP3swDdV7TllU/PW+QD30zAbTyG8vD
+	erCNh83SuWHo0hbzDCpFBwwZB6XL0CACsHsDIaTIxIuh2xpxo+EqqSfuFldu30Ppi2jVvXk2PMR
+	brhJLvVw6xz+3BVD3U3ZrgujXZ81HwzZvdzNpP1PzeGfkNtTadmw8TRTN/MchyfVEfMAYoqG+5m
+	x7SKn050XVQIWvUm1eRM42fkDlYDVwDr3lNyIwFbmkBf+JRFmT82QRMNbKe3rj60a867/7vl2n
+X-Received: by 2002:a05:6a00:4f92:b0:848:2e3c:9955 with SMTP id d2e1a72fcca58-85371fa599amr4496713b3a.4.1787704804199;
+        Tue, 25 Aug 2026 17:40:04 -0700 (PDT)
 Received: from ancienth-X870E-Nova-WiFi ([125.186.72.2])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8535cdc038dsm339377b3a.38.2026.08.25.17.39.39
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8535cdc038dsm339377b3a.38.2026.08.25.17.39.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Aug 2026 17:39:44 -0700 (PDT)
+        Tue, 25 Aug 2026 17:40:03 -0700 (PDT)
 From: Daehyeon Ko <4ncienth@gmail.com>
 To: netdev@vger.kernel.org
 Cc: sgarzare@redhat.com,
@@ -76,10 +78,12 @@ Cc: sgarzare@redhat.com,
 	virtualization@lists.linux.dev,
 	kvm@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH net v4 0/2] vsock: validate packet sources after bound lookup fallback
-Date: Wed, 26 Aug 2026 09:39:26 +0900
-Message-ID: <20260826003929.966160-1-4ncienth@gmail.com>
+Subject: [PATCH net v4 1/2] vsock/virtio: validate packet source for connected sockets
+Date: Wed, 26 Aug 2026 09:39:27 +0900
+Message-ID: <20260826003929.966160-2-4ncienth@gmail.com>
 X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260826003929.966160-1-4ncienth@gmail.com>
+References: <20260826003929.966160-1-4ncienth@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -88,67 +92,113 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Both virtio and VMCI look up connected sockets by the full tuple before
-falling back to a destination-only bound lookup. The fallback can select a
-non-listening socket without validating the packet source.
+virtio_transport_recv_pkt() looks up sockets first by the full source and
+destination tuple, then by destination only in the bound table. The
+fallback is needed for listening and connecting sockets, but sockets remain
+in the bound table after connect(), so it can also return a non-listening
+socket.
 
-V2 covered only the virtio path. Following Stefano's review, this series
-moves the source and transport validation into a documented AF_VSOCK helper
-and uses it for both virtio and VMCI. The VMCI patch checks both its
-bottom-half and deferred workqueue receive paths.
+The fallback does not validate the source address. In TCP_SYN_SENT, a
+RESPONSE from an unrelated source can transition the victim socket to
+TCP_ESTABLISHED while its stored remote address remains unchanged.
+Subsequent RW packets from that source are delivered through the same
+destination-only fallback.
 
-V4 preserves VMCI's existing RST behavior when source validation fails.
-The reset is addressed from the received packet so that a bound but
-non-listening or concurrently closed socket still notifies the sender,
-without directing the reset to a connected socket's stored peer.
+This was reproduced with capability-empty processes under different UIDs.
+The attacker discovered the target tuple through unprivileged AF_VSOCK
+sock_diag and caused the victim socket to read 16 attacker-chosen bytes;
+the intended peer-side socket read 0 of those 16 bytes.
 
-The v3 regression was reproduced in three x86_64 KASAN boots: a REQUEST to
-a bound but non-listening socket returned VMCI_ERROR_NO_ACCESS but no RST
-arrived within one second. With v4, the sending context received the
-expected RST in all three boots. The original VMCI source-validation oracle
-also passed in three v4 boots: a matched RST reset the pending socket while
-a mismatched-context RST left it pending. No KASAN report occurred.
+Add vsock_check_source() to validate the transport, source port and source
+CID against the peer stored in a non-listening socket. The local transport
+is the CID exception because its packets are generated internally with
+VMADDR_CID_LOCAL as their source, including connections using CID aliases.
 
-Patch 1 is unchanged from v3 (identical stable patch-id) and carries
-Bobby's Reviewed-by for that revision. Its v3 validation covered the
-cross-UID injection oracle, local CID aliases, selected VSOCK selftests,
-and W=1 changed-object builds under allmodconfig and allyesconfig.
+Use the helper after lock_sock() in the virtio receive path.
 
-The current-tree guest-CID vhost probe could not be rerun because the test
-user lacks access to /dev/vhost-vsock.
-
+Fixes: 06a8fc78367d ("VSOCK: Introduce virtio_vsock_common.ko")
+Closes: https://lore.kernel.org/netdev/20260813121236.2328599-1-4ncienth@gmail.com/
+Cc: stable@vger.kernel.org
+Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
+Reviewed-by: Bobby Eshleman <bobbyeshleman@meta.com>
+Assisted-by: Codex:gpt-5.6-sol
+Signed-off-by: Daehyeon Ko <4ncienth@gmail.com>
 ---
-Changes in v4:
-- Preserve RST replies when VMCI source validation rejects a packet.
-- Address those replies from the received packet rather than the socket's
-  stored peer.
-- Add a bound-but-not-listening VMCI regression oracle.
-- Rebase to the current net tree.
-
-Changes in v3:
-- Move transport and source validation into vsock_check_source().
-- Trust the internally generated source CID for the local transport.
-- Add VMCI validation in the bottom-half and workqueue receive paths.
-- Send the related virtio and VMCI fixes in one series.
-- Do not carry Bobby's v2 Reviewed-by because the helper and loopback logic
-  changed; renewed review is requested.
-
-v3:
-https://lore.kernel.org/r/20260823175858.351431-1-4ncienth@gmail.com
-v2:
-https://lore.kernel.org/r/20260820001517.2148196-1-4ncienth@gmail.com
-v1:
-https://lore.kernel.org/r/20260813121236.2328599-1-4ncienth@gmail.com
-
-Daehyeon Ko (2):
-  vsock/virtio: validate packet source for connected sockets
-  vsock/vmci: validate packet source for connected sockets
-
  include/net/af_vsock.h                  |  3 +++
- net/vmw_vsock/af_vsock.c                | 32 +++++++++++++++++++++++
+ net/vmw_vsock/af_vsock.c                | 32 +++++++++++++++++++++++++
  net/vmw_vsock/virtio_transport_common.c |  3 ++-
- net/vmw_vsock/vmci_transport.c          | 34 ++++++++++++++++++++-----
- 4 files changed, 65 insertions(+), 7 deletions(-)
+ 3 files changed, 37 insertions(+), 1 deletion(-)
 
+diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+index 3357ee62d..5549298c1 100644
+--- a/include/net/af_vsock.h
++++ b/include/net/af_vsock.h
+@@ -229,6 +229,9 @@ struct sock *vsock_find_bound_socket_net(struct sockaddr_vm *addr,
+ struct sock *vsock_find_connected_socket_net(struct sockaddr_vm *src,
+ 					     struct sockaddr_vm *dst,
+ 					     struct net *net);
++bool vsock_check_source(const struct vsock_sock *vsk,
++			const struct vsock_transport *transport,
++			const struct sockaddr_vm *src);
+ void vsock_remove_sock(struct vsock_sock *vsk);
+ void vsock_for_each_connected_socket(struct vsock_transport *transport,
+ 				     void (*fn)(struct sock *sk));
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index a33b2a2d3..f840498b5 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -438,6 +438,38 @@ struct sock *vsock_find_connected_socket(struct sockaddr_vm *src,
+ }
+ EXPORT_SYMBOL_GPL(vsock_find_connected_socket);
+ 
++/**
++ * vsock_check_source - validate a packet source against a socket peer
++ * @vsk: socket receiving the packet
++ * @transport: transport receiving the packet
++ * @src: source address from the packet
++ *
++ * Return: true if the packet arrived on the socket's assigned transport and
++ * its source matches the stored peer. Loopback packets are generated
++ * internally and always use the local CID as their source, including
++ * connections using a valid CID alias.
++ *
++ * The caller must hold the socket lock and must not call this for listening
++ * sockets, which accept packets from any source and have no assigned
++ * transport.
++ */
++bool vsock_check_source(const struct vsock_sock *vsk,
++			const struct vsock_transport *transport,
++			const struct sockaddr_vm *src)
++{
++	if (vsk->transport != transport)
++		return false;
++
++	if (src->svm_port != vsk->remote_addr.svm_port)
++		return false;
++
++	if (src->svm_cid == vsk->remote_addr.svm_cid)
++		return true;
++
++	return transport->get_local_cid() == VMADDR_CID_LOCAL;
++}
++EXPORT_SYMBOL_GPL(vsock_check_source);
++
+ void vsock_remove_sock(struct vsock_sock *vsk)
+ {
+ 	/* Transport reassignment must not remove the binding. */
+diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+index e4ebaa70f..6301c108a 100644
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -1823,7 +1823,8 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
+ 	 * lock_sock (note: listener sockets are not assigned to any transport)
+ 	 */
+ 	if (sock_flag(sk, SOCK_DONE) ||
+-	    (sk->sk_state != TCP_LISTEN && vsk->transport != &t->transport)) {
++	    (sk->sk_state != TCP_LISTEN &&
++	     !vsock_check_source(vsk, &t->transport, &src))) {
+ 		(void)virtio_transport_reset_no_sock(t, skb, net);
+ 		release_sock(sk);
+ 		sock_put(sk);
 
 base-commit: dc4b95b8fee95113587e93ca116356032d271371
