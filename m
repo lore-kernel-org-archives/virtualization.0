@@ -1,157 +1,243 @@
-Received: from bg-bec.cloudflare-smtp.org (bg-bec.cloudflare-smtp.org [104.30.16.142])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A58E2F0661
-	for <virtualization@lists.linux.dev>; Thu, 27 Aug 2026 12:42:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=104.30.16.142
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D47D7456DF0
+	for <virtualization@lists.linux.dev>; Thu, 27 Aug 2026 13:37:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787834579; cv=none; b=dfV/iWY+PAQdwxV2CTtGpu2nzDSLnLF8SVoJoxpAIuZxeLIFv1PhShOrkF1JYSrC5ImZ2aKnUK/Kxw8p1M+kTxJ+9+qJjLIAZlKh4PchPvLnD61KYqXAiCW6bdxQBOM0MkJRZ81tN8vrqiiEdrd0HA1hnBP71gl1y9AZy6E2hdw=
+	t=1787837826; cv=none; b=RUAMRKKfuOiabEV2P/co4xmbEmbA8BFHpefAuyltCEQ5GJJ5uFnh6gXC8SWxGpJw2ZAcT0aCOOb5cUksdIwbjVI8IlA1ZnignBKZWBf+VPQgRKIN92kj1IypG56Oocyomg/VPPIDyYomwJocZL7lCOEqbbTJ+xQ9AZ+ypqoRH6I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787834579; c=relaxed/simple;
-	bh=fbxDeYvyvxjoR5ZFTwmONVXbzci/IqOHoqKa7M5aQpg=;
-	h=From:Message-ID:Date:Subject:To:MIME-Version:Content-Type; b=lWVx8uhSbBSA0KFcHa2N6xcnV3sXp3A4fLp6TaVLDWK7PM6driWPgqf3sz26HFmGbPL8wpujO8J+f9k1ElOoEjLLaWADjXHyxmYw9HEODWqZxGPk7uf2+bIPd0RWumCgFHrZYmfRy24j3xVpRH4rnXPLtW73NdIF/+qeRBkL2hY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bugs.sh; spf=pass smtp.mailfrom=cf-bounce.bugs.sh; dkim=pass (2048-bit key) header.d=cloudflare-smtp.org header.i=@cloudflare-smtp.org header.b=G69/3lBk; dkim=pass (2048-bit key) header.d=bugs.sh header.i=@bugs.sh header.b=TkEO/kMc; arc=none smtp.client-ip=104.30.16.142
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bugs.sh
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cf-bounce.bugs.sh
+	s=arc-20240116; t=1787837826; c=relaxed/simple;
+	bh=LqJgBmDOQ1LG3LaNhUmRwZ2veh5Z168guNPJTWnTZw0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=hjlrKdunOv2sT/BIPbFdUwYo1ZACljcZFAnyx1iA8D8MZ5tjj2Tc23BR2mCP55k1DhZD2+aNI82YTXArnjuelNn8hmTfghNGWhZJSgwiGLC2ZStDS5TSR8EF6oZQ+zK1Q8LBh9Sk2aemkqB/wz6BpisImfgqWpWZ/4OoEMtb9Ps=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OAFT2pto; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=cloudflare-smtp.org header.i=@cloudflare-smtp.org header.b="G69/3lBk";
-	dkim=pass (2048-bit key) header.d=bugs.sh header.i=@bugs.sh header.b="TkEO/kMc"
-DKIM-Signature: v=1; a=rsa-sha256; s=cf2024-1; d=cloudflare-smtp.org; c=relaxed/relaxed;
-	h=To:Subject:Date:From:Feedback-ID:from:reply-to:cc:resent-date
-	:resent-from:resent-to:resent-cc:in-reply-to:references:list-id:list-help
-	:list-unsubscribe:list-unsubscribe-post:list-subscribe:list-post
-	:list-owner:list-archive; t=1787834570; x=1788439370; bh=xolQtDTvcx7Ik7f2ae
-	NUamIlZy97liYAIRbX4sTp+f0=; b=G69/3lBklflC7YrNW/j+EJdPep2EqfmTxt80/w9Q5lVNp
-	ORG5XAMIXdM4uqq3RWLiuXGpGM8Y5ArL7E3aJZL/s68+v1E6RSWuG+o2E4rZ0W/y9xuJmOAzLzD
-	r9d34bizivge2OnTh9/OVQFiz7n0rHb2zkfTj1JrhWcBSRPG/Be3rco4AiDUy4HcBSKEfjAAry9
-	8RUYrdpdJB+sUDEQXqDbGbQMgLQTUMv0ZfS9GvfmnS9VYWc4SFq4n1pptPc3QYwe8bzhGn+0CF5
-	0/c+beysb4AMWn2RBa7IaOeFqaweeT4jJ3GdQGZ1AhfAIpaWb0+Q8N4mqxVHAbnRtqM5Yhfg==;
-DKIM-Signature: v=1; a=rsa-sha256; s=cf-bounce; d=bugs.sh; c=relaxed/relaxed;
-	h=To:Subject:Date:From:Feedback-ID:from:reply-to:cc:resent-date
-	:resent-from:resent-to:resent-cc:in-reply-to:references:list-id:list-help
-	:list-unsubscribe:list-unsubscribe-post:list-subscribe:list-post
-	:list-owner:list-archive; t=1787834570; x=1788439370; bh=xolQtDTvcx7Ik7f2ae
-	NUamIlZy97liYAIRbX4sTp+f0=; b=TkEO/kMcXCLa1kpLf+TWbbklQigspml+s4nOGj+jKMaEN
-	fYhepbWSUbrfyJWy9rfO/dCIgHRfcnOb8AFL33XWAfnoHyvtEz0iQr/K4NgBReD7uO+l8vA7lJC
-	Tg6OVz5q43bLo2YVJ23eTAT7b2TlDB5GLHOuOtk57QPj9EvFJxNs2qySsqiIPF1jJ98/1dNFoX9
-	/2PLtICTVA0ZwFEjIfaQK/RSaXt9Q/Y3F7EvOqWPLoqhDkn4w9I3b+f6m86FSP3CnIfYZCVNxWw
-	+0mcMIW7ZQkHazuF7KQu3obChC5APDEv5xaW4TEbQZK/deJrEncE1R7xwYQkE3EPDYp73h9w==;
-Feedback-ID: bugs.sh:5:6:Cloudflare
-From: co <co+6dcbccedc9ec6452@bugs.sh>
-Message-ID: <ILTHcT8oe1HP47sY25JVxssvKmkCTjYlX9Hs@bugs.sh>
-Date: Thu, 27 Aug 2026 12:42:43 +0000
-Subject: [BUG] drivers/vdpa: use-after-free in sk_skb_reason_drop()
-To: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Jason
- Wang" <jasowangio@gmail.com>, "Xuan Zhuo" <xuanzhuo@linux.alibaba.com>,
- =?utf-8?b?RXVnZW5pbyBQw6lyZXo=?= <eperezma@redhat.com>, "Parav Pandit" <parav@nvidia.com>, "Eli
- Cohen" <elic@nvidia.com>, linux-kernel@vger.kernel.org
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OAFT2pto"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67RCVY6Y1126149;
+	Thu, 27 Aug 2026 13:36:42 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=QWywEV
+	5XG7SYEGf+hf5Kx484qrYYwrU7s/T/Cwx3JGo=; b=OAFT2ptoPJwfCbO7Ovoabh
+	hyGFTyiC7tMuHWjtM6Dts16DRfzXnxfyzyO/cWHUCZtJI3LOLSCBAwVALOLA33f+
+	HQqXd3VkWjLxBfQq3XW4OAUIgmNDYl19nQ5dzsIRRR9k4vry9i3v5AT6JcdekqcW
+	82N/jpnFF8hwI0iWA2kLvdUyl+AKXngRe3osGNLVYefls1X9ZeVqkeEYcYLTWSER
+	li7wcqo4WTaE6YxZlLZZrUV1F2iZwAukrxhBsbLwIrMv2E3IZdkB578A6YhTcCXG
+	xyQXZtWxy9PLrVpsmmbvI2gMpgRS9t2LrLmiwe6SX1Ou1fZAQeWks5gBiZWwLUNQ
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g73er5kr5-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 27 Aug 2026 13:36:41 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67RDQI9i027466;
+	Thu, 27 Aug 2026 13:36:40 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g7q3k8a66-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 27 Aug 2026 13:36:39 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67RDaZmP42664410
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 27 Aug 2026 13:36:35 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C44EE2004E;
+	Thu, 27 Aug 2026 13:36:35 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0A2482004B;
+	Thu, 27 Aug 2026 13:36:25 +0000 (GMT)
+Received: from [9.39.21.111] (unknown [9.39.21.111])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 27 Aug 2026 13:36:24 +0000 (GMT)
+Message-ID: <0a62143d-6d8d-46a4-ac92-f8ca7268e555@linux.ibm.com>
+Date: Thu, 27 Aug 2026 19:06:23 +0530
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-
-We found a bug reachable in:
-
-    path    drivers/vdpa
-    crash   use-after-free in sk_skb_reason_drop()
-    commit  bd5f485f3f02 ("Merge tag 'soc-arm-7.3' of git://git.kernel.org/=
-pub/scm/linux/kernel/git/soc/soc")
-
-Config, environment, the sanitizer report and a C reproducer follow.
-
-=3D=3D Notes =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-    If you patch the bug based on our artifacts, a tag would be
-    appreciated:
-
-Reported-by: co+6dcbccedc9ec6452@bugs.sh
-
-    Everything in this mail is validated by the reproducer below.
-
-    We also hold an LLM-generated root-cause analysis and a candidate
-    patch. The patch passes an A/B test: the same reproducer panics the
-    unpatched kernel and runs clean on the patched one. Neither has had
-    human review, so both still require validation before you send or
-    apply them. Available on:
-
-        patch.diff  https://bugs.sh/b/6dcbccedc9ec6452/patch.diff
-        report.md   https://bugs.sh/b/6dcbccedc9ec6452/report.md
-
-    This is an open science project. The code and the full set of PoCs
-    are not public at this moment, as we intend to disclose our findings
-    in an ethical way.
-
-    Happy to test patches. Complaints and suggestions about our work
-    are welcome at:
-
-        cedalion@bugs.sh
-
-=3D=3D Environment =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-    Reproduced on  bd5f485f3f02 ("Merge tag 'soc-arm-7.3' of git://git.kern=
-el.org/pub/scm/linux/kernel/git/soc/soc")
-    VM setup       https://bugs.sh/b/6dcbccedc9ec6452/run.sh
-    config         https://bugs.sh/b/6dcbccedc9ec6452/config.gz
-    poc            https://bugs.sh/b/6dcbccedc9ec6452/repro.c
-
-=3D=3D Sanitizer Report =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-BUG: KASAN: slab-use-after-free in sk_skb_reason_drop (./include/linux/inst=
-rumented.h:82 ./include/linux/atomic/atomic-instrumented.h:32 ./include/lin=
-ux/refcount.h:170 ./include/linux/skbuff.h:1290 net/core/skbuff.c:1220 net/=
-core/skbuff.c:1249)
-Read of size 4 at addr ffff888013ca3adc by task exploit/145
-CPU: 1 UID: 65534 PID: 145 Comm: exploit Not tainted 7.2.0+ #8 PREEMPTLAZY
-Call Trace:
-dump_stack_lvl (lib/dump_stack.c:94 lib/dump_stack.c:120)
-print_report (mm/kasan/report.c:378 mm/kasan/report.c:482)
-kasan_report (mm/kasan/report.c:595)
-kasan_check_range (mm/kasan/generic.c:186 mm/kasan/generic.c:200)
-sk_skb_reason_drop (./include/linux/instrumented.h:82 ./include/linux/atomi=
-c/atomic-instrumented.h:32 ./include/linux/refcount.h:170 ./include/linux/s=
-kbuff.h:1290 net/core/skbuff.c:1220 net/core/skbuff.c:1249)
-vdpa_nl_cmd_dev_config_get_doit (./include/linux/skbuff.h:1323 ./include/li=
-nux/skbuff.h:1332 ./include/net/netlink.h:1131 drivers/vdpa/vdpa.c:1324)
-genl_family_rcv_msg_doit (net/netlink/genetlink.c:1114)
-genl_rcv_msg (net/netlink/genetlink.c:1194 net/netlink/genetlink.c:1209)
-netlink_rcv_skb (net/netlink/af_netlink.c:2556)
-genl_rcv (net/netlink/genetlink.c:1218)
-netlink_unicast (net/netlink/af_netlink.c:1319 net/netlink/af_netlink.c:134=
-5)
-netlink_sendmsg (net/netlink/af_netlink.c:1900)
-__sys_sendto (net/socket.c:800 (discriminator 1) net/socket.c:815 (discrimi=
-nator 1) net/socket.c:2277 (discriminator 1))
-__x64_sys_sendto (net/socket.c:2284 net/socket.c:2280 net/socket.c:2280)
-do_syscall_64 (arch/x86/entry/syscall_64.c:61 arch/x86/entry/syscall_64.c:8=
-4)
-entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:121)
-The buggy address belongs to the object at ffff888013ca3a00
-which belongs to the cache skbuff_head_cache of size 232
-The buggy address is located 220 bytes inside of
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v10 00/12] sched, steal_governor: Introduce preferred CPUs
+ and steal-driven vCPU backoff
+To: Dietmar Eggemann <dietmar.eggemann@arm.com>, linux-kernel@vger.kernel.org,
+        mingo@kernel.org, peterz@infradead.org, juri.lelli@redhat.com,
+        vincent.guittot@linaro.org, yury.norov@gmail.com,
+        kprateek.nayak@amd.com, iii@linux.ibm.com, corbet@lwn.net,
+        meted@linux.ibm.com, ynorov@nvidia.com
+Cc: tglx@kernel.org, gregkh@linuxfoundation.org, pbonzini@redhat.com,
+        seanjc@google.com, vschneid@redhat.com, huschle@linux.ibm.com,
+        rostedt@goodmis.org, maddy@linux.ibm.com, srikar@linux.ibm.com,
+        hdanton@sina.com, chleroy@kernel.org, vineeth@bitbyteword.org,
+        frederic@kernel.org, arighi@nvidia.com, pauld@redhat.com,
+        christian.loehle@arm.com, tj@kernel.org, tommaso.cucinotta@gmail.com,
+        maz@kernel.org, rafael@kernel.org, rdunlap@infradead.org,
+        kernellwp@gmail.com, linux-doc@vger.kernel.org, jgross@suse.com,
+        virtualization@lists.linux.dev,
+        "Ionut Nechita (Sunlight Linux)" <sunlightlinux@gmail.com>
+References: <20260812054033.95658-1-sshegde@linux.ibm.com>
+ <0f3307c8-6fc9-49b6-93e4-7ffd85dd0c16@linux.ibm.com>
+ <2e1085f1-82f2-42dc-ae72-0bedffb414f3@arm.com>
+Content-Language: en-US
+From: Shrikanth Hegde <sshegde@linux.ibm.com>
+In-Reply-To: <2e1085f1-82f2-42dc-ae72-0bedffb414f3@arm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-GUID: GNkNoyaP7R-XV0vc-jkB0SRU52ylNKEd
+X-Proofpoint-ORIG-GUID: 3sZQs5z622aU_2AblTGosj3ABFGT6lRt
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI3MDExMyBTYWx0ZWRfXzqtJ8d3xzNFc
+ JmK+ORvd2KVsqVUoV798k5hLW1/qzQILWau16ymVrHyG5GJTEqQM5y3H+rNJBKjvmodA2KzIlpD
+ hICu8GKnRUVhU9EjlEJyrvCy/oOjrbk/7OcddXst5QVkO7ukS8ypINdnlyj5aqpIjg0sAD3kdR/
+ i+jJwKFfj0EFX1JE/WyrXnI5gGGe75Q1BvcpIKcObKSnzdMHfscQ9iDe4ur2mb7qPWKivNXrJLU
+ MxQIU/drlRHWPPl8ZKUv3r4XHuKEWx0FWLzv5d4C6FOglMkS1v2DSsEWyeIeqw4MQuTT63bwxQN
+ X2f96bScGTFw1ylT83F5wNntO7z3yvR5hMyIVPXt91wHIuEtGMWFunge84/TZ92PXz3s7JwO/re
+ /9gmvIwPSVqyz5fRd9BcbHUlkST9Mdq3ayFJo9cD+yb8o8oSSb0ue234oVihp3vmYedqLzxJ7mL
+ m60almwDqWZkDv0wUbw==
+X-Authority-Analysis: v=2.4 cv=QsRuG1yd c=1 sm=1 tr=0 ts=6a903d6a cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8
+ a=c92rfblmAAAA:8 a=VnNF1IyMAAAA:8 a=RITs98ljX8s46FUaRsIA:9 a=3ZKOabzyN94A:10
+ a=QEXdDO2ut3YA:10 a=GvGzcOZaWPEFPQC_NcjD:22
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODI3MDExMyBTYWx0ZWRfX4VGsz3rhje25
+ uJETd9epERXNMq+ybJd+lfkOhwAvQdBOve+Ne2nSGNBH2gw+6unvMcSzUClDVB+zqEZ0SvmNeLR
+ Gbw6LcA1tUUKNJm7nKAJwK1pJk+IlL0=
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-27_05,2026-08-26_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 adultscore=0 suspectscore=0 priorityscore=1501 impostorscore=0
+ spamscore=0 lowpriorityscore=0 clxscore=1015 bulkscore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608270113
 
 
----
-The report format is based on syzbot bug report.
 
-This report is generated by a bot. It may contain errors.
-See https://github.com/n132/cedalion for more information.
+On 8/27/26 4:20 PM, Dietmar Eggemann wrote:
+> Hi Shrikanth,
+> 
 
-For any issue with this report, reach out to cedalion@bugs.sh
+Hi Dietmar. Thanks for checking it.
 
-If the report is already addressed, let us know by replying with:
-#co fix: <commit hash>
+> On 17.08.26 09:39, Shrikanth Hegde wrote:
+>> Hi.
+>>
+>> In addition to what's currently planned for v11 which was posted here,
+>> https://lore.kernel.org/all/895a058a-475e-42ca-
+>> a7a3-2c854598eea4@linux.ibm.com/
+>>
+>> I was going through sashiko's comments at:
+>> https://sashiko.dev/#/patchset/20260812054033.95658-1-
+>> sshegde%40linux.ibm.com
+>> This has revealed some gaps. Thanks to some really nice insights too.
+>> Report quality improving day by day!
+>>
+>>
+>> Vincent, Dietmar, please check the 32-bit task issue fix on ARM64.
+> 
+> See below.
+> 
+>> On 8/12/26 11:10 AM, Shrikanth Hegde wrote:
+> 
+> [...]
+> 
+>> Issue1: Possible crash on 32-bit tasks on ARM64.
+>> =======
+>>>> +static inline bool task_can_sched_on_preferred(int cpu, struct
+>>>> task_struct *p)
+>>>> +{
+>>>> +    if (cpu_preferred(cpu))
+>>>> +        return false;
+>>>> +
+>>>> +    /* Only FAIR tasks honor preferred CPU state */
+>>>> +    if (unlikely(p->sched_class != &fair_sched_class))
+>>>> +        return false;
+>>>> +
+>>>> +    return cpumask_intersects(p->cpus_ptr, cpu_preferred_mask);
+>>>> +}
+>>> Does this intersection check need to account for the architectural CPU
+>>> mask?
+>>> On asymmetric systems, 32-bit tasks are architecturally restricted by
+>>> task_cpu_possible_mask(). If a 32-bit task's mask intersects with
+>>> 64-bit-only preferred CPUs, this function might return true, causing
+>>> is_cpu_allowed() to falsely return false for valid 32-bit non-
+>>> preferred CPUs.
+>>> Since 64-bit CPUs are rightfully rejected by task_allowed_on_cpu(),
+>>> all CPUs
+>>> end up rejected. Could this regression cause the select_fallback_rq()
+>>> loop
+>>> to exhaust all options and hit the BUG() case for 32-bit tasks?
+>>
+>> Fix:
+>> ====
+>> I wasn;t aware of this case, thanks to sashiko for bring it up.
+>> Yes, it could potentially cause a BUG in select_fallback_rq.
+>>
+>> Do a simple check if mask differ from possible mask which indicates we
+>> are on 32-bit task on 64 bit
+>> kernel. Do the below. I think that should solve it.
+>>
+>>   static inline bool task_can_sched_on_preferred(int cpu, struct
+>> task_struct *p)
+>>   {
+>> +    const struct cpumask *valid_mask;
+>> +    int i;
+>> [...]
+>> +    valid_mask = task_cpu_possible_mask(p);
+>> +    if (likely(valid_mask == cpu_possible_mask))
+>> +        return cpumask_intersects(p->cpus_ptr, cpu_preferred_mask);
+>> +
+>> +    /* 32-bit task */
+>> +    for_each_cpu_and(i, p->cpus_ptr, cpu_preferred_mask) {
+>> +        if (cpumask_test_cpu(i, valid_mask))
+>> +            return true;
+>> +    }
+> 
+> I assume the question is whether task_can_sched_on_preferred() would
+> have to be changed:
+> 
+> - return cpumask_intersects(p->cpus_ptr, cpu_preferred_mask);
+> + return cpumask_first_and_and(p->cpus_ptr, cpu_preferred_mask,
+> +                               task_cpu_possible_mask(p)) < nr_cpu_ids;
+>> so that cpu_preferred_mask can play together nicely with the 'asymmetric
+> AArch32 EL0 (executing 32-bit Arm userspace under an AArch64 kernel)
+> support' feature on some mobile Arm64 Socs.
+> 
+> IMHO, this is not necessary since for those tasks p->cpus_ptr is always
+> a subset of task_cpu_possible_mask(p). 'p->cpus_ptr ∩
+> cpu_preferred_mask' already cannot contain an architecturally impossible
+> CPU for those 32-bit Arm userspace tasks.
+> 
+> [...]
+> 
 
-If the report is a duplicate of another one, reply with:
-#co dup: <lore link>
+Based on the report, I thought there maybe cases where p->cpus_ptr may contain.
+Specifically after looking at:
 
-If you want to undo deduplication, reply with:
-#co undup
+static inline bool task_allowed_on_cpu(struct task_struct *p, int cpu)
+{
+         /* When not in the task's cpumask, no point in looking further. */
+         if (!cpumask_test_cpu(cpu, p->cpus_ptr))
+                 return false;
 
+         /* Can @cpu run a user thread? */
+         if (!(p->flags & PF_KTHREAD) && !task_cpu_possible(cpu, p))
+                 return false;
 
+         return true;
+}
+
+If p->cpus_ptr is cannot contain an architecturally impossible, then check for
+task_cpu_possible again is necessary? I thought there may be cases.
+So i kept the defensive check not to fall into BUG later on.
+
+If you think cpumask_intersects(p->cpus_ptr, cpu_preferred_mask) is sufficient and cover
+all cases of 32 bit tasks, then i can drop that v11 change specific to 32-bit tasks.
+
+What do you suggest?
