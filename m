@@ -1,83 +1,84 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3F8D486E6D
-	for <virtualization@lists.linux.dev>; Thu, 27 Aug 2026 16:08:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21E7C48BD34
+	for <virtualization@lists.linux.dev>; Thu, 27 Aug 2026 16:08:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787846922; cv=none; b=T0gFpdO3kOOt8qp3VyvHGBa3x/lL8dv22Tf90OYCdBBaCfcALSq6SU56qSXdJvz4jeeiajS4Cz6aodC9Go1up03hZOVhNLoHVFdiIEh/IdKK96X5f9nxmX1rG9oEdlNv/QMKF9PyaeT5ifpoI9vX/C1MqwVGEycGaKhHZlxPupQ=
+	t=1787846926; cv=none; b=SftO5ispIpNDEkxjYsnChnAy7pnlhld6c0mHad0YW+n06uRcPlTE+u8BBvqXwC6AdFKKfnFI8XE92KyeuMHQcVmLpwkhIMjc2vLShvE6KIFIXVDiDkDdj39bbABoF9VHH0AH/Fj1QbhgBC9vsm81cA5sgx0yP7wYl3hGdyeJwvM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787846922; c=relaxed/simple;
-	bh=XzVRSJskkXzsRQMCF0q2XHzItKnQaDkIqK2bV/uMi6Q=;
+	s=arc-20240116; t=1787846926; c=relaxed/simple;
+	bh=I8krKhJahgIEJ7HiEH76lvoj/BYjFhFqiLB5U5WP74A=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=RZWrG0bz3UJ1YE4vnViCkHmvP2YotcVGO8pbW6ocbRXAhX+aqeb802v7pMCv15Q0Oaw7XlNEZic+wbIE08UjXiYGasu1jZhGaazHTKUXaTVGQQAFbP/yyelXZ+oT74OpcKXrXTESSLtI2WbLlCsD0diixcQYd21zAQg+XDOh+j4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=oFwTjd6O; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=LyXWt7EG; arc=none smtp.client-ip=205.220.180.131
+	 MIME-Version:Content-Type; b=DTSknrdwKhUkQyUnuuXqWaRnVAUAPes7gQJV5zrt6haBkLFRrZsJAsJwSwTSeDypot8mjzk4AiysI8gjdv3Yhw4LRgNVrZmVVa1sbtFt9mLdg68bNHlhxWa5tmYh1tgdbNkjkcr7UtmiP6cEHqJh6eu0L4EagTyEN+pl5QEl7Fs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=JVwY129Y; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=NecdNAIb; arc=none smtp.client-ip=205.220.168.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="oFwTjd6O";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="LyXWt7EG"
-Received: from pps.filterd (m0279871.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67RFbsW9618149
-	for <virtualization@lists.linux.dev>; Thu, 27 Aug 2026 16:08:38 GMT
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="JVwY129Y";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="NecdNAIb"
+Received: from pps.filterd (m0279862.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67RFc9Jr3941736
+	for <virtualization@lists.linux.dev>; Thu, 27 Aug 2026 16:08:43 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=qcppdkim1; bh=GQuf/V68eCT
-	XXH2b/XlQO3XYqlyP/kTHk7utlZNkRig=; b=oFwTjd6O46+rn3wQuhLnjLfejRI
-	JzlkxQSt3yFeu41vHuEDRwREWQb/MqlkNuVm1K7rXRrb1LnCdn7kasEpR73XcA4I
-	0RUsK5WYrYHBR+ekT3kOuxUJTj9DvpOV7EJQJZ7kZTPydi9vTE5SM5FJFJaM4swO
-	6cx951RiLv1XwxTtlcUdL7qyWC83c9a0lrDN9Ro7St3H1fkKn1PDPGNdgkyYf+n4
-	0I05RdmD/c3T6KmB5Jo2tG6ZNq9g0uOiMJHwGomEX1zaxpZNwDz3WJFIzCPUKQC5
-	VUHQzo0KHoD6lNydXTaSoa7h/p4k7EROq3txUc2+bYHsHO/xDvwP/N2vM7Q==
-Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com [209.85.215.200])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4ga4egmkw6-1
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	IPlM6Y0iVHV+fOjO00taADkuu2MuBiXuc3s9hjMOFU0=; b=JVwY129YOPuk83p1
+	OS9RZY4wq1W/fBzbVhYuzQ46IQYLJu9nhcJJE3s/iD58RZC46hZDN3V9kJ3WjGOs
+	hWPlvWLjLUQ0T22iu+0H4ntZykCjCuf2OaAcjGenuInkJrWOeCUlLVEKSNUDx9nP
+	B4YyI+t7M/DENNv+8QgnCzMs4sg6DtTTSwdgGZ1PDwXzvXcUJMvvja9rHLz5hsH6
+	33R0G2Ko8JB+pczAODx9Z9UsnljogPXcdL+eVMH3u50OiGsgNXOr8e7MICq9OOjw
+	gfjl46ekKYQ47F+KzWahu7RUDq5W7u5DRom1anSB+zQ58GtxwMEVTHOOQdTwI/n4
+	UIvvxA==
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com [209.85.216.70])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4ga6etv4fr-1
 	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <virtualization@lists.linux.dev>; Thu, 27 Aug 2026 16:08:38 +0000 (GMT)
-Received: by mail-pg1-f200.google.com with SMTP id 41be03b00d2f7-cbee6bb8408so49621a12.3
-        for <virtualization@lists.linux.dev>; Thu, 27 Aug 2026 09:08:38 -0700 (PDT)
+	for <virtualization@lists.linux.dev>; Thu, 27 Aug 2026 16:08:43 +0000 (GMT)
+Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-38e22137fb3so130731a91.0
+        for <virtualization@lists.linux.dev>; Thu, 27 Aug 2026 09:08:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1787846917; x=1788451717; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=GQuf/V68eCTXXH2b/XlQO3XYqlyP/kTHk7utlZNkRig=;
-        b=LyXWt7EGtzSmU+Rzyg8yn/ve0eW60TuZBBfMogcl8/CU9SMjXian1pQIPTb9eSaKYP
-         cXuWCWu5Sm3bPmFGHPXQBSLF8N8mSoCt3adqVwafzZ59ajSFe3A7LCqkcSoS7WVvuoPE
-         RWWhME3VPCKTysT+51jnuvNdfak6ZdPHa2TNYleTxDnRzyuG+duESwjNcv/t0VjUydVk
-         9aEH659Mb4JPDuEzG4yruOOo1mnDXTxx1XtUuIGrRrKj1wFUWUnsT2yt3gFkGz6Yjn0j
-         7H/ci9kawmFT7+qBOWUl4qepkYOUbnAUqWm4b8nm96AHTprNeSu1IZvSYuey7G0JMtG2
-         UT4A==
+        d=oss.qualcomm.com; s=google; t=1787846922; x=1788451722; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=IPlM6Y0iVHV+fOjO00taADkuu2MuBiXuc3s9hjMOFU0=;
+        b=NecdNAIbCWIbJDAKVQuySRDVqGp/jRU5QPKwWePS49+26CIZLE8lERv6jC9iKmgApI
+         3UF4SYlSILYFJN6y1Plm8ABElxuhTmc1Ds8ybsur5vobC5W44eucUDS0LJdveIBi2Kl5
+         hpkuTShWZFEpN6yNuX38F9f5aDxaTEusArgZhvNkHBl6ey0gsKCnqKnmhDpJsTOaCAf0
+         3vn/dR6HrKg6NU/tzESgG0KzYt/l6pIZAPZ+2Fepvx+Ez7jA/zQ4WdYF2PsQN/2R4MTv
+         0mj+V55o65heZBJh11Mkf9iyq/LsqGubE4OWkEb4nG/7k4EuMcy1UeQEEFNAYeP3cM2H
+         /Aig==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787846917; x=1788451717;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=GQuf/V68eCTXXH2b/XlQO3XYqlyP/kTHk7utlZNkRig=;
-        b=i47r7nyFj8Ps4RLKqiIXnEhuW1bf/xpFlriuZiOttcqnbiFQU8YVcN4eFoTuD0Qmof
-         6KniwEdheI+jTvLRQHDM0xb00WuYAFa2U7FRJ4HdivthmSPVSpr/qJINAfaRKVNUoPXB
-         1mrIEgluUytmtpO5ba6hSUEXkE8h1OXCDgcDgP7HTHJOZHknvd0VwBCuCQR/GVLZAmWh
-         gZDoN4e8QIx3j2efxmns42L5SUDz8aqLo9OKAPNn5aGgKIkQi0qGhN5tqKBEJvUxbgG5
-         S6UZHqxEaJfOfqBVQdODlm8MbSTRQyQOfN9mSXnfKtitP3bK1MPyXW6YxZMd1N+vaTQ2
-         CcTw==
-X-Forwarded-Encrypted: i=1; AHgh+RruVL57DAN94OUdZDxMaoX7sO1n706weCevxOyUWFqd2BBgrbe7Ajg9OATx7p4ZbGZ2KcFBObcdRAEyUoKuVg==@lists.linux.dev
-X-Gm-Message-State: AFuF++kjwot77inxYwMBwiznxfW+4itQ2oN6YEdqWQEB25MUGewrzplK
-	Utbb3T5aaH+1e6TBUu8jJoHSp6qTHCe7qZzdeVa4ecrLUiDdG+kkHt1uoaiZG4hHEt8ENqU4COG
-	ULRv9gdDhT6EYPmmOQ8ilwnWEBXEMWUfCGx8ljG4oxK1Y3K6+qWkk7kTBk8PPj4w7KO0tAFTLq3
-	l/u3Fd
-X-Gm-Gg: AR+sD10y+W37C19KKu3+PmtGz2YGjTO0JNRHlNFn9D7HBDA/3P4x77QctIQHd3L2Wg8
-	X1YHMnHxqikriJcXZiwKQ2nHb5b2nAqam5EJdlUYh0xxluDp68zHeIYKJUzN5DOB/CTkbbF0eTq
-	WjVho9b3iqQkqTaIWTzulcALGzc5H2dIUgbDZKHLTzgFD0nJ+dTkKDIT2TWXh3mEh9pIu3toJF9
-	AiyA7tZQJ+9TGvlknU85Y/3A0EH2NJ5NxfXDkWzXNQ+e1aFKmCa8SFSQksAyVWjV/iaQTlI6V8m
-	iDiIUWenuyYJeFe0rSovbBzej+oywnaNSECL6IY4seI2cXN4urgE+0wI1FlIQG2N7DpgDA88+U8
-	a1hUCvj0xJS8W7hY7HkHa45qRYMh/Do28VtPgfQUyHij/yZMAciHDFI8Nbtw=
-X-Received: by 2002:a17:90b:51c7:b0:38f:5801:dc0e with SMTP id 98e67ed59e1d1-396d0f52b2amr503446a91.15.1787846917350;
-        Thu, 27 Aug 2026 09:08:37 -0700 (PDT)
-X-Received: by 2002:a17:90b:51c7:b0:38f:5801:dc0e with SMTP id 98e67ed59e1d1-396d0f52b2amr503276a91.15.1787846916655;
-        Thu, 27 Aug 2026 09:08:36 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1787846922; x=1788451722;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=IPlM6Y0iVHV+fOjO00taADkuu2MuBiXuc3s9hjMOFU0=;
+        b=V2myfSRgp3EeQkJ3FQmRrHPtMHD0WXTE+sz42+G1W/UhRub+7rkumHSlbENy6Wr718
+         msReHX5hn6YTn5muXl+Kl1JOoZDfle83O8N4pJl5wpvs7/zG5wycLxHVMX+bV62cws0o
+         /3YKIJDpcdr+UABrPCoBfUSYZAm25Sp82MCiXjAAHLZhHo1d/0z+iqEPIbOjKXYBGX4q
+         cet9PZKtPP7saEl/LbcSawwiW//+YLjHltEP3rUthx2VuVNoz1F8pc+KWjU8UMsDa2Vc
+         7grKz77Pxd073ebO/YE/pg4xKwluX1buGpj3yNYoRVEN2lg6P2iW82Ofs/xIBAXCPXuE
+         n+XQ==
+X-Forwarded-Encrypted: i=1; AHgh+RrCqD2rrB4uQ2t1SnSiZxCk1yJssbrp/z5dtALTXFdvptEkPYlN24thKkgQJrWxutcMCMVSvAtmA8TSQG8rbw==@lists.linux.dev
+X-Gm-Message-State: AFuF++lsApr0JwZi+pnV30KjpJMfcR3xLa2i1dEjKxaRKXLDM5e/K4WT
+	f08GNL39nFdeqfqVwkWkDmAb71TP/TuxsTgVB509UOgeOJGWAOvMV9eBeWpAYDmW5nFW073vyF/
+	RtMR4p11s5ObdHp/MFf0NanwhTwkTpY6Dnw34DmDaJBaUAs4LX5lHN7x+eWissOlz5zdptg==
+X-Gm-Gg: AR+sD11wSQsAtJpj+0FHL8Lj+dPQ74PcguUOhU1v5w3Uax9xxwI8SyDBSuUvkaNRj9p
+	JhcrE9jVOCdNI+O88Olh53tshxlTq0Dnk2xniIandpVH5zFlO9AoURnvDahm7TnZsd/B/CiV4+c
+	/Ms74VIH8mIY79SfPXrOp2KWOY4N7evXjJ4yfiHNdCF9I8oZCLtKhDlhdur+wsPFRXQGfuqhdMe
+	3LmifXQE7rXoLN/8HpyoNh0RKWBIsZrKc4w6+jyh6bNxLV7+x2eS2fVRocuerGB1Lamf1Sf5+Oc
+	sbO5JFT6E6RCxx3x3i1UvNtRelw5jgs+FaQ8x8mDj3N630vtlLuYLdMhAZIQAV1aMr4IeW88Sya
+	556Gqt3Ul3PXbPMOiyULaHsZ8kb0td2IMazXNKrhMp3/yHLezr8i8Ldw8ozo=
+X-Received: by 2002:a17:90b:4d0c:b0:37f:c97a:939f with SMTP id 98e67ed59e1d1-396d0dd5069mr450674a91.7.1787846922299;
+        Thu, 27 Aug 2026 09:08:42 -0700 (PDT)
+X-Received: by 2002:a17:90b:4d0c:b0:37f:c97a:939f with SMTP id 98e67ed59e1d1-396d0dd5069mr450573a91.7.1787846921737;
+        Thu, 27 Aug 2026 09:08:41 -0700 (PDT)
 Received: from u24-san1p10108.qualcomm.com (i-global254.qualcomm.com. [199.106.103.254])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-396b0fd9085sm3245892a91.12.2026.08.27.09.08.34
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-396b0fd9085sm3245892a91.12.2026.08.27.09.08.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 27 Aug 2026 09:08:36 -0700 (PDT)
+        Thu, 27 Aug 2026 09:08:41 -0700 (PDT)
 From: Linlin Zhang <linlin.zhang@oss.qualcomm.com>
 To: ebiggers@kernel.org, axboe@kernel.dk, mst@redhat.com, jasowangio@gmail.com,
         James.Bottomley@HansenPartnership.com, martin.petersen@oracle.com,
@@ -90,9 +91,9 @@ Cc: neeraj.soni@oss.qualcomm.com, gaurav.kashyap@oss.qualcomm.com,
         bvanassche@acm.org, alim.akhtar@samsung.com, avri.altman@sandisk.com,
         stefanha@redhat.com, pbonzini@redhat.com, eperezma@redhat.com,
         xuanzhuo@linux.alibaba.com, linux-kernel@vger.kernel.org
-Subject: [PATCH v1 07/11] blk-crypto: move bio_crypt_dun_increment() to the public header
-Date: Thu, 27 Aug 2026 09:07:16 -0700
-Message-ID: <20260827160806.1295313-8-linlin.zhang@oss.qualcomm.com>
+Subject: [PATCH v1 09/11] soc: qcom: add ICE keyslot partitioning driver for guest VMs
+Date: Thu, 27 Aug 2026 09:07:18 -0700
+Message-ID: <20260827160806.1295313-10-linlin.zhang@oss.qualcomm.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260827160806.1295313-1-linlin.zhang@oss.qualcomm.com>
 References: <20260827160806.1295313-1-linlin.zhang@oss.qualcomm.com>
@@ -102,83 +103,362 @@ List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Proofpoint-GUID: 7Z1CRoZKbWAjQFnF8gEhKqXgNiPEeNLV
-X-Proofpoint-ORIG-GUID: 7Z1CRoZKbWAjQFnF8gEhKqXgNiPEeNLV
-X-Authority-Analysis: v=2.4 cv=DsRmPm/+ c=1 sm=1 tr=0 ts=6a906106 cx=c_pps
- a=oF/VQ+ItUULfLr/lQ2/icg==:117 a=JYp8KDb2vCoCEuGobkYCKw==:17
- a=Sv0fKeRqtYgA:10 a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=u7WPNUs3qKkmUXheDGA7:22 a=3WHJM1ZQz_JShphwDgj5:22 a=EUspDBNiAAAA:8
- a=Dog9NmGJ06mbJvtOeFoA:9 a=3WC7DwWrALyhR5TkjVHa:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI3MDEzNiBTYWx0ZWRfX0PX7TgbGQhIM
- 3buxTDbzLIdjj1rfsu/+H8/I9wR3nPsZAdv9bUkFFB3MnuRSQJbMuKs5ck1w2JUD6dM5buboe0f
- 9SPTXXqj1+qC7nKHXkj2e9aXU/orvvkPIspeZkzHSfBT4keb+8Jhv64KhFuDFmDAPTO0tzDUIge
- y4zpXH0Lnz8TB+VsAoukqj+O9yu4nyc2/J+wOEIeXB3DzVWCSVvjRn+BpuPFg+dPJwJARVDI7Au
- v1Ef9iLIL73klCkLpC8t0gJpn2KjFlbFkI3LijDhwCJZphG4J+zMYI10p0HQTC8spGB3nYMK8U1
- 6rjst6f9DVfcjmkvBJT9ccqiDPA/E6sI2I8FIt5i1BNUA5d2DhKgPsCD3b7ejET9R106ATFulLZ
- rSK13X9B/Jy4oTBuIWqd6E3w3u7T0CDkQeFgSF6dhKHz7JFQV9/nwW45hCPdB0+su5K6L/2qhtq
- dInYs+wWI13tWFTSzRg==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODI3MDEzNiBTYWx0ZWRfX4E2yEhxmvzyf
- O+wbZRB1F1TFIaLDhOuuHAUHpA7Gw+ibiUz0LIy+Dan7mfXyl5KXJo/tD307iXdOUGPqF90/jbZ
- Pv/osvqh7/Egx3S+5vgsQEa967HULQU=
+X-Authority-Analysis: v=2.4 cv=NrThtcdJ c=1 sm=1 tr=0 ts=6a90610b cx=c_pps
+ a=0uOsjrqzRL749jD1oC5vDA==:117 a=JYp8KDb2vCoCEuGobkYCKw==:17
+ a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=_K5XuSEh1TEqbUxoQ0s3:22
+ a=EUspDBNiAAAA:8 a=w3opuUzClo5xMoDqJE4A:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+ a=mQ_c8vxmzFEMiUWkPHU9:22
+X-Proofpoint-ORIG-GUID: gkUjgRENWW_VV0RH50yTwbCZDxlEVw0w
+X-Proofpoint-GUID: gkUjgRENWW_VV0RH50yTwbCZDxlEVw0w
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI3MDEzNiBTYWx0ZWRfX2V74/oZ5NECe
+ G6+rGp67TYOmolVlfRThQB9qDLnh9cR5KQlur8e+7zXkr9tq0kv1IlYCNFly0Fc82NkH7KQXtyV
+ 6+B4S7RblPvpCh0oI2FWlTtDE77CIyfb3llR7ABiVVLLM9Lx+u6TCAs9oCjQYhRzAliIICQvWLQ
+ l8wjupJYBjKj5NnZI7iiaFmedBSXpFDMRqpN2Qrkv29TKMyhUWfDJCnvfchxVaNklogYlnj4vcJ
+ 2MnLNsiZzqRjqy1nXk/c3kYSHADneSKi5fpkst403nOMe/gGUM7JnuYk0KmVGLvm58hnD1elCQz
+ XSL5/L6tf/UYa54qUWUoWO0v5KzVahMcnGKB45p8EwkTSrWNlWCsA+yCK1Tu/GLw8XjiqInIwO4
+ /WzyXCnCDLbiwoDIwAZru+i+19atcIiZOxloWG/v6fnUGaBPwjL7HMaUaIAL2vg3RXmf2nZln6o
+ oH+TEMfRoqFXaAsaPoQ==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODI3MDEzNiBTYWx0ZWRfX29LeXgo9AS9U
+ +6KcLR3BC5XRDGFPiPJyWZmqpjvg5YX3iVVf261YuTktb7j680e25GwlqhKkpdYrZVcMENt/kwG
+ jiMuqdvPWXwY+b/sFHWMR8K9UNaCKPA=
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-27_07,2026-08-27_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 lowpriorityscore=0 impostorscore=0 bulkscore=0 malwarescore=0
- clxscore=1011 priorityscore=1501 phishscore=0 adultscore=0 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608270136
+ impostorscore=0 spamscore=0 adultscore=0 suspectscore=0 phishscore=0
+ priorityscore=1501 lowpriorityscore=0 malwarescore=0 clxscore=1015
+ bulkscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2608270136
 
 From: linlzhan <linlin.zhang@oss.qualcomm.com>
 
-bio_crypt_dun_increment() is currently declared only in
-block/blk-crypto-internal.h, which is not accessible to code
-outside of block/.  Drivers that manage inline-encrypted I/O
-directly need to advance the DUN across bio_vecs within a bio,
-or across multiple bios in a request, and have no other way
-to call this function.
+On Qualcomm platforms the ICE hardware has a fixed number of physical
+keyslots shared across the host and all guest VMs.  A userspace
+virtio-blk backend handling VIRTIO_BLK_T_CRYPTO_IN/OUT requests needs
+to translate a guest's virtual keyslot index to the corresponding
+physical ICE keyslot without letting one VM access another VM's slots.
 
-Move the declaration from block/blk-crypto-internal.h to
-include/linux/blk-crypto.h alongside the existing
-bio_crypt_dun_is_contiguous() and blk_crypto_init_key()
-declarations. The implementation in block/blk-crypto.c is
-unchanged.
+Add QCOM_ICE_SLOTS, a platform driver that implements bcp_slot_virt_ops
+for the /dev/blk-crypto-proxy device.  It parses a
+qcom,ice-keyslot-map device-tree node describing the per-VM keyslot
+allocation table, where each child entry maps a guest_id to a
+contiguous physical slot range [slot_offset .. slot_offset +
+max_ice_slots).  Entry 0 is reserved for the host; guest entries start
+at index 1 and are excluded from the guest-facing translation so that
+blk-crypto-proxy cannot accidentally route a guest request into the
+host's physical keyslots.
+
+The driver exposes two callbacks:
+
+  get_guest_slots()  — return the number of ICE keyslots allocated to
+                       a given guest_id; used by BCP_GET_CRYPTO_CAPS to
+                       populate the max_slots field in the virtio config
+                       space.
+  vslot_to_pslot()   — translate a (guest_id, virtual-slot) pair to the
+                       corresponding physical ICE keyslot index; used by
+                       BCP_SUBMIT_IO_BY_VSLOT before calling
+                       bio_crypt_set_ctx_by_slot().
+
+The singleton pointer to the parsed table is RCU-protected; the hot
+path reads it lock-free.  Probe validates that no two VM entries share
+a guest_id or overlapping physical slot ranges.
+
+Note: This patch is submitted for visibility. The keyslot partitioning
+is based on the current DT-based keyslot allocation with vm_id known.
+We are aware this may be revised to use a TZ SCM query interface in a
+future version of this series, submit it RFC for design discussion.
 
 Signed-off-by: linlzhan <linlin.zhang@oss.qualcomm.com>
 ---
- block/blk-crypto-internal.h | 3 ---
- include/linux/blk-crypto.h  | 3 +++
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/soc/qcom/Kconfig          |  18 +++
+ drivers/soc/qcom/Makefile         |   1 +
+ drivers/soc/qcom/qcom_ice_slots.c | 232 ++++++++++++++++++++++++++++++
+ 3 files changed, 251 insertions(+)
+ create mode 100644 drivers/soc/qcom/qcom_ice_slots.c
 
-diff --git a/block/blk-crypto-internal.h b/block/blk-crypto-internal.h
-index 04035d237f03..32c720aabba7 100644
---- a/block/blk-crypto-internal.h
-+++ b/block/blk-crypto-internal.h
-@@ -26,9 +26,6 @@ int blk_crypto_sysfs_register(struct gendisk *disk);
+diff --git a/drivers/soc/qcom/Kconfig b/drivers/soc/qcom/Kconfig
+index 6c632d114d45..e1f383b4dc63 100644
+--- a/drivers/soc/qcom/Kconfig
++++ b/drivers/soc/qcom/Kconfig
+@@ -294,6 +294,24 @@ endif
+ # Options selected by other drivers from different subsystems must be outside
+ # of the menuconfig if-block:
  
- void blk_crypto_sysfs_unregister(struct gendisk *disk);
- 
--void bio_crypt_dun_increment(u64 dun[BLK_CRYPTO_DUN_ARRAY_SIZE],
--			     unsigned int inc);
--
- bool bio_crypt_rq_ctx_compatible(struct request *rq, struct bio *bio);
- 
- bool bio_crypt_ctx_mergeable(struct bio_crypt_ctx *bc1, unsigned int bc1_bytes,
-diff --git a/include/linux/blk-crypto.h b/include/linux/blk-crypto.h
-index 33ae52b77522..c9f436b6b2ef 100644
---- a/include/linux/blk-crypto.h
-+++ b/include/linux/blk-crypto.h
-@@ -181,6 +181,9 @@ bool bio_crypt_dun_is_contiguous(const struct bio_crypt_ctx *bc,
- 				 unsigned int bytes,
- 				 const u64 next_dun[BLK_CRYPTO_DUN_ARRAY_SIZE]);
- 
-+void bio_crypt_dun_increment(u64 dun[BLK_CRYPTO_DUN_ARRAY_SIZE],
-+			     unsigned int inc);
++config QCOM_ICE_SLOTS
++	tristate "Qualcomm ICE keyslot partitioning for VM guests"
++	depends on ARCH_QCOM || COMPILE_TEST
++	depends on BLK_CRYPTO_PROXY
++	depends on BLK_INLINE_ENCRYPTION
++	help
++	  Parses the qcom,ice-keyslot-map device-tree node and provides
++	  per-VM ICE keyslot accounting and virtual-to-physical slot
++	  translation for guest VMs sharing ICE hardware on Qualcomm
++	  platforms.
 +
- int blk_crypto_init_key(struct blk_crypto_key *blk_key,
- 			const u8 *key_bytes, size_t key_size,
- 			enum blk_crypto_key_type key_type,
++	  When enabled, guest virtual keyslot indices are mapped to the
++	  physical ICE keyslot range allocated to each VM, preventing one
++	  VM from accessing another VM's keyslots.
++
++	  Say M here when multiple VMs share ICE keyslots on a Qualcomm
++	  platform.  If unsure, say N.
++
+ config QCOM_INLINE_CRYPTO_ENGINE
+ 	tristate
+ 	select QCOM_SCM
+diff --git a/drivers/soc/qcom/Makefile b/drivers/soc/qcom/Makefile
+index 6d4b7546d1fb..952a57554f9d 100644
+--- a/drivers/soc/qcom/Makefile
++++ b/drivers/soc/qcom/Makefile
+@@ -38,6 +38,7 @@ obj-$(CONFIG_QCOM_LLCC) += llcc-qcom.o
+ obj-$(CONFIG_QCOM_KRYO_L2_ACCESSORS) +=	kryo-l2-accessors.o
+ obj-$(CONFIG_QCOM_ICC_BWMON)	+= icc-bwmon.o
+ qcom_ice-objs			+= ice.o
++obj-$(CONFIG_QCOM_ICE_SLOTS)	+= qcom_ice_slots.o
+ obj-$(CONFIG_QCOM_INLINE_CRYPTO_ENGINE)	+= qcom_ice.o
+ obj-$(CONFIG_QCOM_CRYPTO_VIRT)	+= crypto_virt.o
+ obj-$(CONFIG_QCOM_PBS) +=	qcom-pbs.o
+diff --git a/drivers/soc/qcom/qcom_ice_slots.c b/drivers/soc/qcom/qcom_ice_slots.c
+new file mode 100644
+index 000000000000..364ac93077c1
+--- /dev/null
++++ b/drivers/soc/qcom/qcom_ice_slots.c
+@@ -0,0 +1,232 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * qcom_ice_slots.c - Qualcomm ICE keyslot partitioning for guest VMs
++ *
++ * Implements bcp_slot_virt_ops: translates a (guest_id, virtual-slot) pair to
++ * a physical ICE keyslot index using a per-VM allocation table parsed from
++ * the device-tree node with compatible = "qcom,ice-keyslot-map".
++ *
++ * Device-tree layout:
++ *
++ *   ice_keyslot_map: ice-keyslot-map {
++ *       compatible = "qcom,ice-keyslot-map";
++ *       #address-cells = <1>;
++ *       #size-cells = <0>;
++ *
++ *       vm@3  { reg = <3>;  qcom,max-ice-slots = <16>; qcom,ice-slot-offset = <0>;  };
++ *       vm@52 { reg = <52>; qcom,max-ice-slots = <32>; qcom,ice-slot-offset = <16>; };
++ *   };
++ *
++ * Each child entry maps a guest (reg = guest_id) to a contiguous physical keyslot
++ * range [slot_offset .. slot_offset + max_ice_slots).
++ *
++ * Entry 0 is always the host's own reservation.  Entries 1+ are guest
++ * reservations.  The host's entry is used by ufs-qcom to size its
++ * blk_crypto_profile; it is excluded from the guest-facing translation table
++ * so that blk-crypto-proxy can never accidentally route a guest request into
++ * the host's physical keyslots.
++ *
++ * The ufs-qcom driver reads the host slot info and validates all entries
++ * against the hardware slot count directly via the OF API, with no symbol
++ * dependency on this module.
++ */
++
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/platform_device.h>
++#include <linux/rcupdate.h>
++#include <linux/slab.h>
++#include <linux/blk-crypto-profile.h>
++#include <linux/blk-crypto-proxy.h>
++
++#define QCOM_ICE_SLOTS_MAX_ENTRIES	8
++
++struct qcom_ice_slot_entry {
++	u32 guest_id;
++	u32 max_slots;
++	u32 slot_offset;
++};
++
++struct qcom_ice_slots {
++	struct qcom_ice_slot_entry entries[QCOM_ICE_SLOTS_MAX_ENTRIES];
++	unsigned int num_entries;
++};
++
++/*
++ * There is at most one qcom,ice-keyslot-map platform node per SoC.  A single
++ * global pointer is set at probe time and cleared at remove time.  The
++ * hot-path read (from bcp_slot_virt_ops callbacks) is protected by RCU;
++ * probe/remove serialise via the platform driver guarantee.
++ */
++static struct qcom_ice_slots __rcu *g_ice_slots;
++
++static struct qcom_ice_slots *virt_lookup(struct blk_crypto_profile *profile)
++{
++	/* Single UFS controller: profile argument is not needed. */
++	return rcu_dereference(g_ice_slots);
++}
++
++static int qcom_ice_slots_get_guest_slots(struct blk_crypto_profile *profile,
++					  u32 guest_id)
++{
++	struct qcom_ice_slots *virt = virt_lookup(profile);
++	unsigned int i;
++
++	if (!virt)
++		return -ENOKEY;
++
++	/* entries[0] is the host; guest entries start at index 1. */
++	for (i = 1; i < virt->num_entries; i++) {
++		if (virt->entries[i].guest_id == guest_id)
++			return virt->entries[i].max_slots;
++	}
++	return -ENOKEY;
++}
++
++static int qcom_ice_slots_vslot_to_pslot(struct blk_crypto_profile *profile,
++					 u32 guest_id, u32 virt_slot,
++					 unsigned int *phy_slot_out)
++{
++	struct qcom_ice_slots *virt = virt_lookup(profile);
++	unsigned int i;
++
++	if (!virt)
++		return -ENOKEY;
++
++	for (i = 1; i < virt->num_entries; i++) {
++		if (virt->entries[i].guest_id != guest_id)
++			continue;
++		if (virt_slot >= virt->entries[i].max_slots)
++			return -EINVAL;
++		*phy_slot_out = virt->entries[i].slot_offset + virt_slot;
++		return 0;
++	}
++	return -ENOKEY;
++}
++
++static const struct bcp_slot_virt_ops qcom_slot_virt_ops = {
++	.get_guest_slots = qcom_ice_slots_get_guest_slots,
++	.vslot_to_pslot = qcom_ice_slots_vslot_to_pslot,
++};
++
++static int qcom_ice_slots_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct device_node *child;
++	struct qcom_ice_slots *virt;
++	unsigned int idx = 0, total_slots = 0;
++	int ret = 0;
++
++	virt = devm_kzalloc(dev, sizeof(*virt), GFP_KERNEL);
++	if (!virt)
++		return -ENOMEM;
++
++	for_each_child_of_node(dev->of_node, child) {
++		u32 guest_id, max_slots, slot_offset;
++		unsigned int j;
++
++		if (idx >= QCOM_ICE_SLOTS_MAX_ENTRIES) {
++			dev_err(dev, "too many vm entries (> %u)\n",
++				QCOM_ICE_SLOTS_MAX_ENTRIES);
++			ret = -EINVAL;
++			of_node_put(child);
++			goto err_free;
++		}
++
++		if (of_property_read_u32(child, "reg", &guest_id))
++			continue;
++		if (of_property_read_u32(child, "qcom,max-ice-slots", &max_slots))
++			continue;
++		if (of_property_read_u32(child, "qcom,ice-slot-offset", &slot_offset)) {
++			dev_err(dev, "missing qcom,ice-slot-offset for guest_id=%u\n",
++				guest_id);
++			ret = -EINVAL;
++			of_node_put(child);
++			goto err_free;
++		}
++
++		if (idx > 0 &&
++		    slot_offset <
++		    virt->entries[idx - 1].slot_offset +
++		    virt->entries[idx - 1].max_slots) {
++			dev_err(dev, "slot overlap: guest_id=%u overlaps guest_id=%u\n",
++				guest_id, virt->entries[idx - 1].guest_id);
++			ret = -EINVAL;
++			of_node_put(child);
++			goto err_free;
++		}
++
++		for (j = 0; j < idx; j++) {
++			if (virt->entries[j].guest_id == guest_id) {
++				dev_err(dev, "duplicate guest_id=%u\n", guest_id);
++				ret = -EINVAL;
++				of_node_put(child);
++				goto err_free;
++			}
++		}
++
++		virt->entries[idx].guest_id = guest_id;
++		virt->entries[idx].max_slots = max_slots;
++		virt->entries[idx].slot_offset = slot_offset;
++		total_slots += max_slots;
++		idx++;
++	}
++
++	if (idx == 0) {
++		dev_err(dev, "no VM entries found in qcom,ice-keyslot-map\n");
++		ret = -EINVAL;
++		goto err_free;
++	}
++
++	virt->num_entries = idx;
++
++	/*
++	 * Publish the singleton.  From this point on, bcp_slot_virt_ops
++	 * callbacks can resolve virt via rcu_dereference(g_ice_slots).
++	 */
++	rcu_assign_pointer(g_ice_slots, virt);
++
++	ret = bcp_register_slot_virt_ops(&qcom_slot_virt_ops);
++	if (ret) {
++		dev_err(dev, "failed to register slot_virt_ops: %d\n", ret);
++		goto err_free;
++	}
++
++	dev_info(dev, "registered: %u VMs, %u total ICE slots\n",
++		 idx, total_slots);
++	return 0;
++
++err_free:
++	return ret;
++}
++
++static void qcom_ice_slots_remove(struct platform_device *pdev)
++{
++	bcp_unregister_slot_virt_ops(&qcom_slot_virt_ops);
++	/*
++	 * Clear the singleton under RCU so that any concurrent ioctl that
++	 * already took the read lock and is mid-lookup sees either the old
++	 * valid pointer or NULL, never a freed pointer.
++	 */
++	rcu_assign_pointer(g_ice_slots, NULL);
++	synchronize_rcu();
++}
++
++static const struct of_device_id qcom_ice_slots_of_match[] = {
++	{ .compatible = "qcom,ice-keyslot-map" },
++	{}
++};
++MODULE_DEVICE_TABLE(of, qcom_ice_slots_of_match);
++
++static struct platform_driver qcom_ice_slots_driver = {
++	.probe  = qcom_ice_slots_probe,
++	.remove = qcom_ice_slots_remove,
++	.driver = {
++		.name           = "qcom-ice-slots",
++		.of_match_table = qcom_ice_slots_of_match,
++	},
++};
++module_platform_driver(qcom_ice_slots_driver);
++
++MODULE_DESCRIPTION("Qualcomm ICE keyslot partitioning for guest VMs");
++MODULE_LICENSE("GPL");
 -- 
 2.34.1
 
