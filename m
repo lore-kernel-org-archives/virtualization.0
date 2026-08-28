@@ -1,37 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D786A3EB11C;
-	Fri, 28 Aug 2026 08:45:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDC1B3CB56B;
+	Fri, 28 Aug 2026 08:51:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787906760; cv=none; b=Ev5nTgsVSE6tMHYAW8nmtqAg99dli449NlUUj2p0hjyb0o/DsOB3lXr/N/5C+7VR6S6QMu5kanzgpfBD8wO4p2xVlCD2EMmJOEL4QMSjHTbACN7JKfGM7u+Me16S79rHWfTzr5fXd81tT8Bq0jdXk8L8dRoalxIKoXl1QxdmrXw=
+	t=1787907103; cv=none; b=LhgLw2MrLY09xjRo7YpTAfJhybxPALyzO3/ANMzkZU1mk1D4Jb8NiH3tyrOzdBE5on1TLFJh2BFiosWtJKCnMgH4IJBizdQNp+LMaKLzoUT50YeVHdiIKJiVDRFcFHzOvFTzM95QtuWrjBdXYQbStqnJ0iT/oyzcVZIrXEQFY78=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787906760; c=relaxed/simple;
-	bh=Vk/Jx5HL1xRIxo0j0/Ivy2To1Yi2AQV0lo9JC6GWpWo=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=iKLa4t6otTPIPAoTs32kuUs4dVcWLIf/uCQY5+Q2AYHItUmlu4jtmyPk4jLULvCwP/0Qw+6REidyIdX3v0FQFzD++lAy8WDAnDDuJLHc5Iovn5UcROS+5BHd8AmK6RnW6scdO6KHowPusxdgLzTXdmU6XBP7h0ZJzakUkLl3PVE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=J0GmtX80; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787907103; c=relaxed/simple;
+	bh=Lehy00NdNljvDsHtHs9Ikhbdp0KCBAIDSAWxSxpM5Qc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=oHVVg9Ug5JgQaKEp6i/I4VFOaiZrpSqyQs81l/BTStxAnKq7SHU1Z45M54b/hvgdGSSUOHjYe45hqDOY05Gkx1TwBG31R7fi8Otvv64JiQEqlIQYysZuzUY0qSYfCVYh4dXBVL2S7touz1+0Kl1k7lDI06ls8ILThwl/5w6Lp/U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MwwoebXP; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="J0GmtX80"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23C351F000E9;
-	Fri, 28 Aug 2026 08:45:54 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MwwoebXP"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DDB21F000E9;
+	Fri, 28 Aug 2026 08:51:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787906758;
-	bh=0TR0uRWDlZn4hcSy+1eDkkclABFE/m9WQ+o6MX2CdCM=;
+	s=k20260515; t=1787907101;
+	bh=iHBSUDDx1WbolXW0Nyh2IRj9cxuhb4M6H5r9hbv6v5w=;
 	h=From:To:Cc:Subject:Date;
-	b=J0GmtX80uQS026ZsfQnLaoxoBfWyF6vVp48IDugUpD9xUxLN8qDIG/ssWecLbpjIs
-	 sxV9ziTgc4hZVZDHMB5ymCey4Td+d7BXMyjcEo65YPjlC9Jy2kwQEWE7RQrTcWj+pF
-	 qldTn06x4bF0fmquVfS7SJX63APOjM7y7eMtSH/CnpAsrmdw5WlS66e4DD4En7LWj3
-	 Ar+YKM4yUE8hUkC+ugDir81mw38ld/b9SRyW5fJK71PZvJ9Tvg7aWa1omwqVSVvmMi
-	 b5vEvjL0uLPavSIGD+5IBtT5g/XyEbzdAdRcJiYQ6nEaALcHTvHt7xmHsYdxHZ+A3Q
-	 nn8YlAIHHP0iw==
+	b=MwwoebXPHKhkZn8W5TgPtCIHt2/bh0gn5bc3Op2iQ31YgzRxFScemnTxhXARslqi1
+	 Yr6FVrT05g5hYx0UTnd8lheht+h9oqNXjqp1uFdgM5hBslha1xIAi3O/pfSCvwaAZG
+	 13tIaTynKi1BrzAbc27OhQ01GK/rWqjFrEHtfJOgUtvDo/bTwLSA8PsZNf0vBlA1JQ
+	 lDHEo+YlF66FWIZ0wAMlDVeggU+Fbbvv/ddBithXCM83xLYAjMwytdgVZWB3MgjNtj
+	 bM1XyS4iXqTwQB7FsXYefGA4qA1uSKbJlym1Gp+tgtLZGCbJ66dn31s4GB6/ybmfwd
+	 c4NC5D8Hafz6g==
 From: "Jiri Slaby (SUSE)" <jirislaby@kernel.org>
-To: airlied@redhat.com
-Cc: linux-kernel@vger.kernel.org,
-	"Jiri Slaby (SUSE)" <jirislaby@kernel.org>,
+To: devel@lists.crash-utility.osci.io
+Cc: "Jiri Slaby (SUSE)" <jirislaby@kernel.org>,
 	Gemini <gemini@google.com>,
 	=?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
 	Tvrtko Ursulin <tvrtko.ursulin@igalia.com>,
+	Dave Airlie <airlied@redhat.com>,
 	Gerd Hoffmann <kraxel@redhat.com>,
 	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
 	Maxime Ripard <mripard@kernel.org>,
@@ -42,9 +42,9 @@ Cc: linux-kernel@vger.kernel.org,
 	virtualization@lists.linux.dev,
 	spice-devel@lists.freedesktop.org,
 	dri-devel@lists.freedesktop.org
-Subject: [PATCH] drm/qxl: fix use-after-free and NULL pointer deref
-Date: Fri, 28 Aug 2026 10:45:53 +0200
-Message-ID: <20260828084553.124037-1-jirislaby@kernel.org>
+Subject: [PATCH v2] drm/qxl: fix use-after-free and NULL pointer deref
+Date: Fri, 28 Aug 2026 10:51:36 +0200
+Message-ID: <20260828085136.128561-1-jirislaby@kernel.org>
 X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -68,9 +68,10 @@ attempted to put/free an uninitialized `dma_fence`, leading to refcount
 underflows (`refcount_t: underflow; use-after-free`) and subsequent NULL
 pointer dereferences in `dma_fence_signal_timestamp_locked()`.
 
-Fix this by switching from `kmalloc()` to `kzalloc()` in `qxl_release_alloc()`,
-ensuring all fields (including embedded fence flags) are properly zero-initialized
-upon allocation, and remove redundant explicit zero-initializations.
+Fix this by switching from `kmalloc()` to `kzalloc_obj()` in
+`qxl_release_alloc()`, ensuring all fields (including embedded fence
+flags) are properly zero-initialized upon allocation, and remove
+redundant explicit zero-initializations.
 
 The dumps in question:
  refcount_t: underflow; use-after-free.
@@ -110,20 +111,24 @@ Cc: stable@vger.kernel.org
 Cc: virtualization@lists.linux.dev
 Cc: spice-devel@lists.freedesktop.org
 Cc: dri-devel@lists.freedesktop.org
+
+[v2] use kzalloc_obj() instead of bare kzalloc()
 ---
- drivers/gpu/drm/qxl/qxl_release.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/gpu/drm/qxl/qxl_release.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
 diff --git a/drivers/gpu/drm/qxl/qxl_release.c b/drivers/gpu/drm/qxl/qxl_release.c
-index 06979d0e8a9f..92c88f9c17a8 100644
+index 06979d0e8a9f..07dc6eafe6f7 100644
 --- a/drivers/gpu/drm/qxl/qxl_release.c
 +++ b/drivers/gpu/drm/qxl/qxl_release.c
-@@ -91,15 +91,12 @@ qxl_release_alloc(struct qxl_device *qdev, int type,
+@@ -89,17 +89,13 @@ qxl_release_alloc(struct qxl_device *qdev, int type,
+ {
+ 	struct qxl_release *release;
  	int handle;
- 	size_t size = sizeof(*release);
+-	size_t size = sizeof(*release);
  
 -	release = kmalloc(size, GFP_KERNEL);
-+	release = kzalloc(size, GFP_KERNEL);
++	release = kzalloc_obj(*release);
  	if (!release) {
  		DRM_ERROR("Out of memory\n");
  		return -ENOMEM;
