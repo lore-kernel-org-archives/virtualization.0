@@ -1,227 +1,156 @@
-Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.4])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64C0B3D955B
-	for <virtualization@lists.linux.dev>; Fri, 28 Aug 2026 07:43:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.4
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 8BBB73C3F44
+	for <virtualization@lists.linux.dev>; Fri, 28 Aug 2026 07:51:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787903031; cv=none; b=kkDArE/Pm+y87BH+GYSDAGJuFgx+iMJVFS+8+yb0bFgWKUN88iAtxTmqfuN/+IsXXS3Uj1KAcZ7RZ446JyLgInhI5XdkyXfdMf71uuasNpmz3jjjI99blyhf0rZFlNuerlu5KjwBtTQyL+FtwAMsUH0AWfHKYOjH7eREvhAyBUg=
+	t=1787903516; cv=none; b=Bb3VoIZZBw9N1nONlleEIUsIcGndDYHmq2d3XzkCI/DnWUU1J6IpypCNopSJgo60PHB5S2Arduq+AOhy0Nyn7X2Y2VCKERj5pkn7a3wcpgBsLlkKe8QXBIXNOjhHobUV9IoQq2dkCVKdLsmyx2MawoQqdxyhfuxnJqAOrQzdH9Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787903031; c=relaxed/simple;
-	bh=6+8SCkeE5GDewaVcyBIFJDde+1jl9GEd5NXujbQqRK4=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=TBbyFnhEZxl0JI695HsE+oAB021TZDK2/AzcOG1epZPQyyq+e/djEFgYb3WfXvn4dSrb2RODvEgQrs5eXuF3xaFncHQyi4uUSrGKPLsp/uaX53dyll0fJB8jkdM9csmg8sxlgLhxuOufIfMGXqZB9y8+klKTksxRKVOKc8DYZKo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=gIY+0di5; arc=none smtp.client-ip=220.197.31.4
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1787903516; c=relaxed/simple;
+	bh=/r42OzRKbehNytUbS0AlwvQqha8Fg7tNiKCBIbEVdb4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=P5Cc2q3hoyvpoM/YsShtz5hkyeKlGrYrgl2j8bPDp8HVB+Geas8ceJiayw2Jsqpv3OYO+5jhK6GVxqxfCJQOZnfhJiEZPNDUtQeFLJpAHnlershOk9xdL6edUACMhYl6m4MReclWDNm6HBhK1/Cgj3RERQwjBmNr1Wu5T+e/8l0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=qyRs1slP; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="gIY+0di5"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=RN
-	bG4smiAer10VHrwAAiPyMG2/S+zhchKudn52VSqHk=; b=gIY+0di52HoYHN+72u
-	ucRUE6aF6gCF21hMOvYv9BmDnZ+z7a9IkIYasPTVPntYy9NsJnmP641/Ky4GazKF
-	Eb4kbgYFNTedYT0AZR9bhojSN9O6gqBfxzqvtAAMdUP71i3Nr4lEINjSRdkAiRvZ
-	f4etTbnhXp4sDwFkNLznC1oUQ=
-Received: from localhost.localdomain (unknown [])
-	by gzsmtp3 (Coremail) with SMTP id PigvCgD31xMfPJFqXWYePg--.48947S4;
-	Fri, 28 Aug 2026 15:43:29 +0800 (CST)
-From: Longjun Tang <lange_tang@163.com>
-To: mst@redhat.com,
-	kuba@kernel.org
-Cc: jasowangio@gmail.com,
-	xuanzhuo@linux.alibaba.com,
-	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org,
-	tanglongjun@kylinos.cn
-Subject: [RFC PATCH 2/3] virtio_net: introduce an RX queue watchdog for stuck detection
-Date: Fri, 28 Aug 2026 15:43:25 +0800
-Message-Id: <20260828074326.65594-3-lange_tang@163.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20260828074326.65594-1-lange_tang@163.com>
-References: <20260828074326.65594-1-lange_tang@163.com>
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="qyRs1slP"
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id EF1BD1516;
+	Fri, 28 Aug 2026 00:51:49 -0700 (PDT)
+Received: from [192.168.178.100] (usa-sjc-mx-foss1.foss.arm.com [172.31.20.19])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id AE5183F7D8;
+	Fri, 28 Aug 2026 00:51:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
+	t=1787903513; bh=/r42OzRKbehNytUbS0AlwvQqha8Fg7tNiKCBIbEVdb4=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=qyRs1slPyzy4qtN6fU37FQs+l+H3jAYpbcC2h3UtcVrvo5z3SjmO2VTAOAEJZq2pq
+	 sHFeMdQE0ndRCz4WEiemVcxCS+ga6h2GvUQYZ96jeNg/pJWgoneG18bdCG72uzzOxG
+	 guo214JrPJiRPBGaqWZv8B5+sDYd7e9nwQUPLyqo=
+Message-ID: <8262d2f9-9f2f-4821-8497-991d7c8448a3@arm.com>
+Date: Fri, 28 Aug 2026 09:51:47 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:PigvCgD31xMfPJFqXWYePg--.48947S4
-X-Coremail-Antispam: 1Uf129KBjvJXoW3Xr17Jw15tF4UWF43Zw4xJFb_yoW7CryfpF
-	W3Cwn8trWktr4xuryft397JFy5KF97Xry7Gryft3y5ZF98Kr1rZFn2kFy5Ga909FZ3Xr17
-	ZF4qy3yfCaykuFJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07jqoGPUUUUU=
-X-CM-SenderInfo: 5odqwvxbwd0wi6rwjhhfrp/xtbC-QEWRGqRPCFZMwAA3i
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v11 05/12] sched/core: Try to use a preferred CPU in
+ is_cpu_allowed
+To: Shrikanth Hegde <sshegde@linux.ibm.com>, linux-kernel@vger.kernel.org,
+ mingo@kernel.org, peterz@infradead.org, juri.lelli@redhat.com,
+ vincent.guittot@linaro.org, yury.norov@gmail.com, kprateek.nayak@amd.com,
+ iii@linux.ibm.com, corbet@lwn.net, meted@linux.ibm.com, ynorov@nvidia.com
+Cc: tglx@kernel.org, gregkh@linuxfoundation.org, pbonzini@redhat.com,
+ seanjc@google.com, vschneid@redhat.com, huschle@linux.ibm.com,
+ rostedt@goodmis.org, maddy@linux.ibm.com, srikar@linux.ibm.com,
+ hdanton@sina.com, chleroy@kernel.org, vineeth@bitbyteword.org,
+ frederic@kernel.org, arighi@nvidia.com, pauld@redhat.com,
+ christian.loehle@arm.com, tj@kernel.org, tommaso.cucinotta@gmail.com,
+ maz@kernel.org, rafael@kernel.org, rdunlap@infradead.org,
+ kernellwp@gmail.com, linux-doc@vger.kernel.org, jgross@suse.com,
+ virtualization@lists.linux.dev, sunlightlinux@gmail.com
+References: <20260825103855.721013-1-sshegde@linux.ibm.com>
+ <20260825103855.721013-6-sshegde@linux.ibm.com>
+Content-Language: en-GB
+From: Dietmar Eggemann <dietmar.eggemann@arm.com>
+In-Reply-To: <20260825103855.721013-6-sshegde@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-From: Longjun Tang <tanglongjun@kylinos.cn>
+On 25.08.26 12:38, Shrikanth Hegde wrote:
+> When possible, try to choose a preferred CPU.
+> 
+> This is essential to maintain user affinities when preferred
+> CPUs change. A task pinned on a non-preferred CPU should continue
+> to run there, since this is a non-user triggered event.
+> 
+> If a CPU is non-preferred and the task can run on other CPUs which are
+> currently preferred, then choose a preferred CPU instead.
+> This is decided by checking if cpus_ptr and cpu_preferred_mask
+> intersect or not. If yes, then the task has other preferred CPUs.
+> 
+> The push task mechanism uses a stopper thread which calls
+> select_fallback_rq() and uses this mechanism to pick a preferred CPU.
+> 
+> This takes care of the wakeup path for FAIR tasks too.
+> is_cpu_allowed() is called to ensure wakeups happen on preferred CPUs.
+> With that, additional checks in available_idle_cpu() are not necessary.
+> 
+> Ignore the preferred CPU state if a task's affinity is changing and
+> its new mask no longer includes the CPU it is currently running on.
+> This ensures migration_cpu_stop() does not abort, preventing the task
+> from being stranded outside its allowed affinity.
+> 
+> Account for tasks with architecture-specific CPU masks
+> (e.g., 32-bit tasks on arm64). For such tasks, explicitly check against
+> the arch-allowed CPUs to determine if any of the preferred CPUs are
+> actually valid.
+> 
+> For the majority of cases, this would still keep select_fallback_rq()
+> as O(N). cpumask_intersects(), which is O(N), is called only if
+> !cpu_preferred. The task running there is expected to move out.
+> Subsequently, it should run on a preferred CPU. This becomes O(N**2)
+> only for tasks pinned solely to non-preferred CPUs. That is a rare case.
+> 
+> Overhead is minimal when the CPU is preferred.
+> 
+> Signed-off-by: Shrikanth Hegde <sshegde@linux.ibm.com>
+> ---
+>  kernel/sched/core.c | 41 +++++++++++++++++++++++++++++++++++++++--
+>  1 file changed, 39 insertions(+), 2 deletions(-)
+> 
+> diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+> index a45f7c308329..f71317fe281d 100644
+> --- a/kernel/sched/core.c
+> +++ b/kernel/sched/core.c
+> @@ -2494,6 +2494,35 @@ static inline bool rq_has_pinned_tasks(struct rq *rq)
+>  	return rq->nr_pinned;
+>  }
+>  
+> +static inline bool task_can_sched_on_preferred(int cpu, struct task_struct *p)
+> +{
+> +	const struct cpumask *valid_mask;
+> +	int i;
+> +
+> +	if (cpu_preferred(cpu))
+> +		return false;
+> +
+> +	/* Only FAIR tasks honor preferred CPU state */
+> +	if (unlikely(p->sched_class != &fair_sched_class))
+> +		return false;
+> +
+> +	/* Ignore preferred state if task affinity is changing */
+> +	if (unlikely(!cpumask_test_cpu(task_cpu(p), p->cpus_ptr)))
+> +		return false;
+> +
+> +	valid_mask = task_cpu_possible_mask(p);
+> +	if (likely(valid_mask == cpu_possible_mask))
+> +		return cpumask_intersects(p->cpus_ptr, cpu_preferred_mask);
+> +
+> +	/* Tasks with arch-specific CPU masks. e.g. 32-bit tasks on arm64. */
+> +	for_each_cpu_and(i, p->cpus_ptr, cpu_preferred_mask) {
+> +		if (cpumask_test_cpu(i, valid_mask))
+> +			return true;
+> +	}
 
-The backend raises an interrupt after adding buffers to the used ring,
-and the hypervisor injects it. If one is lost (e.g., a transient KVM
-failure), NAPI will not be scheduled and the driver stops consuming
-buffers. The ring eventually fills up, the backend stops notifying, and
-the queue is left permanently stuck.
+Looking more into this, there might be a window in 64-32-bit execve()
+for 32bit EL0 tasks on Arm64 (w/ allow_mismatched_32bit_el0 command line
+option).
 
-Add a per-device watchdog that scans the RX queues once per second and
-detects a queue that has a non-zero backlog while making no consumption
-progress and receiving no new interrupt for rx_watchdog_timeo seconds
-(default 5, 0 disables it). On detection it logs a warning, rate-limited
-to once per timeout.
+The time before arch_setup_new_exec() calls
+force_compatible_cpus_allowed_ptr() to restrict CPU affinity for those
+tasks.
 
-Assisted-by: Kilo:deepseek-v4-pro
-Signed-off-by: Longjun Tang <tanglongjun@kylinos.cn>
----
- drivers/net/virtio_net.c | 96 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 96 insertions(+)
+Let me run more test on this ...
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index e34c52d059d3..02d0c4a67360 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -36,6 +36,10 @@ module_param(csum, bool, 0444);
- module_param(gso, bool, 0444);
- module_param(napi_tx, bool, 0644);
- 
-+/* RX queue stall timeout in seconds; 0 disables the watchdog. */
-+static unsigned int rx_watchdog_timeo = 5;
-+module_param(rx_watchdog_timeo, uint, 0644);
-+
- #define VIRTIO_OFFLOAD_MAP_MIN	46
- #define VIRTIO_OFFLOAD_MAP_MAX	47
- #define VIRTIO_FEATURES_MAP_MIN	65
-@@ -330,6 +334,11 @@ struct receive_queue {
- 	/* The number of rx notifications */
- 	u16 calls;
- 
-+	/* RX watchdog state for lost-interrupt detection. */
-+	u16 watchdog_last_used_idx;
-+	u16 watchdog_calls;
-+	unsigned long watchdog_jiffies;
-+
- 	/* Is dynamic interrupt moderation enabled? */
- 	bool dim_enabled;
- 
-@@ -441,6 +450,9 @@ struct virtnet_info {
- 	/* Work struct for setting rx mode */
- 	struct work_struct rx_mode_work;
- 
-+	/* RX watchdog timer for lost-interrupt detection */
-+	struct timer_list rx_watchdog;
-+
- 	/* OK to queue work setting RX mode? */
- 	bool rx_mode_work_enabled;
- 
-@@ -3046,6 +3058,85 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
- 	return received;
- }
- 
-+/*
-+ * The RX path is entirely event driven: the driver relies on the
-+ * hypervisor injecting an interrupt for every used buffer. If an
-+ * interrupt is lost (e.g. a transient KVM failure), NAPI is never
-+ * scheduled, the driver stops consuming buffers, the backend fills the
-+ * ring and, once it runs out of descriptors, stops sending further
-+ * notifications. Both sides then wait for the other and the queue is
-+ * permanently stuck.
-+ *
-+ * This watchdog detects that state: a queue is considered stalled when
-+ * it has a non-zero backlog, makes no consumption progress and receives
-+ * no new interrupt for rx_watchdog_timeo seconds. On detection it logs
-+ * a warning.
-+ */
-+static void virtnet_rx_watchdog(struct timer_list *t)
-+{
-+	struct virtnet_info *vi = timer_container_of(vi, t, rx_watchdog);
-+	unsigned long timeout = rx_watchdog_timeo * HZ;
-+	int i;
-+
-+	if (!rx_watchdog_timeo)
-+		return;
-+
-+	for (i = 0; i < vi->curr_queue_pairs; i++) {
-+		struct receive_queue *rq = &vi->rq[i];
-+		u16 last_used = virtqueue_get_last_used_idx(rq->vq);
-+		u16 calls = rq->calls;
-+		bool backlog = virtqueue_poll(rq->vq, last_used);
-+
-+		if (!backlog || last_used != rq->watchdog_last_used_idx ||
-+		    calls != rq->watchdog_calls) {
-+			/* No pending data, or the queue made progress, or a
-+			 * new interrupt arrived: restart the window.
-+			 */
-+			rq->watchdog_last_used_idx = last_used;
-+			rq->watchdog_calls = calls;
-+			rq->watchdog_jiffies = jiffies;
-+			continue;
-+		}
-+
-+		if (time_after(jiffies, rq->watchdog_jiffies + timeout)) {
-+			unsigned int stall_ms =
-+				jiffies_to_msecs(jiffies - rq->watchdog_jiffies);
-+
-+			netdev_warn(vi->dev, "RX queue %u stalled for %u ms\n",
-+				    i, stall_ms);
-+
-+			/* Rate-limit to one event per timeout. */
-+			rq->watchdog_jiffies = jiffies;
-+		}
-+	}
-+
-+	mod_timer(&vi->rx_watchdog, jiffies + HZ);
-+}
-+
-+static void virtnet_rx_watchdog_start(struct virtnet_info *vi)
-+{
-+	int i;
-+
-+	if (!rx_watchdog_timeo)
-+		return;
-+
-+	for (i = 0; i < vi->curr_queue_pairs; i++) {
-+		struct receive_queue *rq = &vi->rq[i];
-+
-+		rq->watchdog_last_used_idx =
-+			virtqueue_get_last_used_idx(rq->vq);
-+		rq->watchdog_calls = rq->calls;
-+		rq->watchdog_jiffies = jiffies;
-+	}
-+
-+	mod_timer(&vi->rx_watchdog, jiffies + HZ);
-+}
-+
-+static void virtnet_rx_watchdog_stop(struct virtnet_info *vi)
-+{
-+	timer_delete_sync(&vi->rx_watchdog);
-+}
-+
- static void virtnet_disable_queue_pair(struct virtnet_info *vi, int qp_index)
- {
- 	virtnet_napi_tx_disable(&vi->sq[qp_index]);
-@@ -3209,6 +3300,8 @@ static int virtnet_open(struct net_device *dev)
- 		netif_carrier_on(dev);
- 	}
- 
-+	virtnet_rx_watchdog_start(vi);
-+
- 	return 0;
- 
- err_enable_qp:
-@@ -3802,6 +3895,8 @@ static int virtnet_close(struct net_device *dev)
- 	struct virtnet_info *vi = netdev_priv(dev);
- 	int i;
- 
-+	virtnet_rx_watchdog_stop(vi);
-+
- 	/* Prevent the config change callback from changing carrier
- 	 * after close
- 	 */
-@@ -6869,6 +6964,7 @@ static int virtnet_probe(struct virtio_device *vdev)
- 
- 	INIT_WORK(&vi->config_work, virtnet_config_changed_work);
- 	INIT_WORK(&vi->rx_mode_work, virtnet_rx_mode_work);
-+	timer_setup(&vi->rx_watchdog, virtnet_rx_watchdog, 0);
- 
- 	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF)) {
- 		vi->mergeable_rx_bufs = true;
--- 
-2.43.0
+Why not simply:
 
+- return cpumask_intersects(p->cpus_ptr, cpu_preferred_mask);
++ return cpumask_first_and_and(p->cpus_ptr, cpu_preferred_mask,
++                              task_cpu_possible_mask(p)) < nr_cpu_ids;
+
+IMHO, you want to know whether there is at least one CPU that belongs to
+all three CPU masks?
+
+[...]
