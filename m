@@ -1,30 +1,29 @@
-Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.2])
+Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.3])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED6E13E022C
-	for <virtualization@lists.linux.dev>; Fri, 28 Aug 2026 07:43:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.2
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 187DF3DDAFB
+	for <virtualization@lists.linux.dev>; Fri, 28 Aug 2026 07:43:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.3
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787903030; cv=none; b=ptiy/kI7d7wYj3EeFm0RPOZLwZqlgoP4m44FzTNJ+k0Uah+zG7QoaUXFEFzA/JqHVX+zy781Pqzql3kvVjdrFCad25/i7Y/YDmM1+9eqPyscjwz5sJl6LV8z3O45MBlFD6gD2snt/9bHWaUJOkKkqjCkLJnPz5OgzcCeFNDSRSc=
+	t=1787903030; cv=none; b=fOLbpccGegoeF9Hoc4YM1rwAuaVQa2WeAtwGSI8VhouSGvWAJvL2CGoRt+SQpjNRd9bd368Yia2fsq7RKKl5dm6dY1HovLpFDeatIZrQXyAjrbQ+A815/K3lrGt2EB1Tp7Mnj1NMFfWXFwtvNliuYcLFyzm6niKoxpFqyGe0+dk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1787903030; c=relaxed/simple;
-	bh=LI9Quol+nMgp/OX9SBZkoQDiofWyejDL3d7Pi2BEK6U=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=GqoDDyO5pOUN2XeVHcUV+r5MIuOYPgVjiZdlqJkdR/w8Fn+eTchamEp2oWtuvZmN2vo7q0ETRVglHyOHOol1QOWPblU05i1M5nLT68LXbXUQBp4lX1fyqkriefIHjUawkk4OvC8SqTgw+bNiI667piXEUOxypyHIGC92reGKeho=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=hCdty1Pw; arc=none smtp.client-ip=117.135.210.2
+	bh=Dj2o9yBOxhObKHe7sLDHOkOrcVlZdUFIa4I2lCSjkMY=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=r+DCtul/KJVVyDhGvXgGqyMzEqdioe/YDtftjxYspn5JJdHCtpBEZkjh1IUh83RehyazCyJ0x1At3Kf8kM3hXp9dnyWaQV4zTHrYC21gg5tgOLVAKOHcFSJmb7CUbH0K2fibKO5A8Umbx8WpZiHmXZcuqSdsAK3qfYIu/Q/UXh8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=AxuwQEsM; arc=none smtp.client-ip=117.135.210.3
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="hCdty1Pw"
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="AxuwQEsM"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=wv
-	1N4lWbfgZMBDJNbukHBckk+7/7CyVr7NXZ98QYgkw=; b=hCdty1PwkwUluBXdo+
-	RaXUlupbAlzvbWlDby371kVbzorXaKphY+6W+z+xxOkjKkQ9BuS05t8MU8hl0ysL
-	QfgsJ9L/iJYZaEtZHFZRNQ9jvDenqff3aPFGIXN+dChHFrxPkDRAkGHsCnZ+ggnU
-	DCS1r0jvjm86TJ7VfNtgmz9sE=
+	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=St
+	ZHzbsLVXBknff1WbHxETGXdM3xYic3VlsdTy66Nxk=; b=AxuwQEsMCizu/P1r8i
+	1p+3mPYGUryH2oRs+Ks9IDwK8PmDM36zP9QDzR0WQgpOs+OBnqAboD2EE6tBWbc/
+	eNmKCO/kt86wtM3Wwec7uvxPdsaKhjtlCcdlfE3Z8oCaH2PaZt1yWkCWKZ8CCUYH
+	zW/D3ucPtVLdGTs+imqk1QfP8=
 Received: from localhost.localdomain (unknown [])
-	by gzsmtp3 (Coremail) with SMTP id PigvCgD31xMfPJFqXWYePg--.48947S5;
-	Fri, 28 Aug 2026 15:43:29 +0800 (CST)
+	by gzsmtp3 (Coremail) with SMTP id PigvCgD31xMfPJFqXWYePg--.48947S2;
+	Fri, 28 Aug 2026 15:43:27 +0800 (CST)
 From: Longjun Tang <lange_tang@163.com>
 To: mst@redhat.com,
 	kuba@kernel.org
@@ -33,12 +32,10 @@ Cc: jasowangio@gmail.com,
 	virtualization@lists.linux.dev,
 	netdev@vger.kernel.org,
 	tanglongjun@kylinos.cn
-Subject: [RFC PATCH 3/3] virtio_net: add rx_timeouts per-queue statistic
-Date: Fri, 28 Aug 2026 15:43:26 +0800
-Message-Id: <20260828074326.65594-4-lange_tang@163.com>
+Subject: [RFC PATCH 0/3] virtio_net: introduce an RX queue watchdog for stuck detection
+Date: Fri, 28 Aug 2026 15:43:23 +0800
+Message-Id: <20260828074326.65594-1-lange_tang@163.com>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20260828074326.65594-1-lange_tang@163.com>
-References: <20260828074326.65594-1-lange_tang@163.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -46,68 +43,89 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:PigvCgD31xMfPJFqXWYePg--.48947S5
-X-Coremail-Antispam: 1Uf129KBjvJXoW7Kr4fXryDCr45Ary7Zw1UKFg_yoW8uFWfpF
-	4Yy3ZFyFyrXw47Xa4fG3yDZF15K3s3JrW7Gry7K345CFn8KrnYyr10grWUKFyakFZ8Zr1j
-	vwsYv398W3yUuF7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07j-2-nUUUUU=
-X-CM-SenderInfo: 5odqwvxbwd0wi6rwjhhfrp/xtbC-QIWRGqRPCJZPQAA3s
+X-CM-TRANSID:PigvCgD31xMfPJFqXWYePg--.48947S2
+X-Coremail-Antispam: 1Uf129KBjvJXoWxCFW8tryfCw4ktF1rXw4fXwb_yoW5ZrWDpF
+	WYka90vr1kGryS9a4ftF4UJry5Ka93Ar42yrn2q348Can0kr40qr1IkFy5KFyUCrZ7Cw1j
+	vr4F93s5uw1DZaDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07jouWdUUUUU=
+X-CM-SenderInfo: 5odqwvxbwd0wi6rwjhhfrp/xtbC4gAWRGqRPCACTQAA3Y
 
 From: Longjun Tang <tanglongjun@kylinos.cn>
 
-Add an rx_timeouts field to the per-queue RX statistics, expose
-it via ethtool and increment it when the RX watchdog fires,
-so RX watchdog timeouts can be observed per queue.
+The virtio_net RX path relies on backend interrupt notifications. 
+The backend(vhost_net/vhost-user) appends buffers to the used ring
+and then notifies the guest, relying on the hypervisor(KVM) to inject
+the interrupt. On receiving it, virtio_net schedules NAPI, drains the
+used ring and refills descriptors.
 
-Assisted-by: Kilo:deepseek-v4-pro
-Signed-off-by: Longjun Tang <tanglongjun@kylinos.cn>
+If the hypervisor fails to inject the interrupt(e.g. a transient KVM
+failure), the guest never schedules NAPI, so it neither consumes buffers
+nor returns descriptors. The backend keeps appending until the ring is full,
+then stops and, with no free descriptors left, also stops sending
+notifications. Both sides now wait for the other, and the RX queue is
+permanently stuck.
+
+The root cause is the lost interrupt in the hypervisor, and the proper
+fix belongs there. Nevertheless, I believe virtio_net needs a way to 
+observe and diagnose it. Today, once a queue hangs, there is no signal
+to the operator that anything is wrong: the RX path has no equivalent of
+the TX watchdog (ndo_tx_timeout). This series lets virtio_net detect a 
+stuck RX queue. It is detection only: the driver records the event and 
+logs a warning, leaving recovery to a follow-up if desired.
+
+
+Implementation
+--------------
+
+Patch 1 exports virtqueue_get_last_used_idx(), a read-only accessor for
+the last_used_idx. Together with the existing virtqueue_poll(), it lets
+a driver ask whether the device has produced buffers that the driver has
+not consumed yet ("backlog").
+
+Patch 2 adds a per-device RX watchdog that scans all RX queues once per
+second. A queue is considered stuck when, for rx_watchdog_timeo seconds
+(default 5, 0 disables it), all of the following hold simultaneously:
+  - the queue has a non-zero backlog (used.idx != last_used_idx);
+  - the driver makes no consumption progress (last_used_idx unchanged);
+  - no new interrupt arrives (rq->calls unchanged).
+On detection it logs a warning, rate-limited to once per timeout.
+
+Patch 3 adds a per-queue rx_timeouts statistic, exposed via ethtool -S,
+so the number of watchdog events can be observed per queue.
+
+
+RFC
 ---
- drivers/net/virtio_net.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 02d0c4a67360..44a093604d82 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -134,6 +134,7 @@ struct virtnet_rq_stats {
- 	u64_stats_t xdp_redirects;
- 	u64_stats_t xdp_drops;
- 	u64_stats_t kicks;
-+	u64_stats_t rx_timeouts;
- };
- 
- #define VIRTNET_SQ_STAT(name, m) {name, offsetof(struct virtnet_sq_stats, m), -1}
-@@ -167,6 +168,7 @@ static const struct virtnet_stat_desc virtnet_rq_stats_desc[] = {
- 	VIRTNET_RQ_STAT("xdp_redirects", xdp_redirects),
- 	VIRTNET_RQ_STAT("xdp_drops",     xdp_drops),
- 	VIRTNET_RQ_STAT("kicks",         kicks),
-+	VIRTNET_RQ_STAT("rx_timeouts",   rx_timeouts),
- };
- 
- static const struct virtnet_stat_desc virtnet_sq_stats_desc_qstat[] = {
-@@ -3069,8 +3071,9 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
-  *
-  * This watchdog detects that state: a queue is considered stalled when
-  * it has a non-zero backlog, makes no consumption progress and receives
-- * no new interrupt for rx_watchdog_timeo seconds. On detection it logs
-- * a warning.
-+ * no new interrupt for rx_watchdog_timeo seconds. On detection it
-+ * records the event in the per-queue rx_timeouts statistic and logs a
-+ * warning.
-  */
- static void virtnet_rx_watchdog(struct timer_list *t)
- {
-@@ -3102,6 +3105,10 @@ static void virtnet_rx_watchdog(struct timer_list *t)
- 			unsigned int stall_ms =
- 				jiffies_to_msecs(jiffies - rq->watchdog_jiffies);
- 
-+			u64_stats_update_begin(&rq->stats.syncp);
-+			u64_stats_inc(&rq->stats.rx_timeouts);
-+			u64_stats_update_end(&rq->stats.syncp);
-+
- 			netdev_warn(vi->dev, "RX queue %u stalled for %u ms\n",
- 				    i, stall_ms);
- 
+This is sent as an RFC to gather feedback on a few open points:
+
+  - Scope: this series only detects the stuck queue. Is it better to
+    keep detection and recovery separate, or should recovery (forcing a
+    NAPI poll to drain the queue) be included?
+
+  - Default: rx_watchdog_timeo defaults to 5 seconds (enabled). Should
+    the watchdog be enabled by default, or disabled unless explicitly
+    requested?
+
+Parts of this series, including portions of this cover letter, were drafted
+with AI assistance. I have carefully reviewed everything; 
+questions and comments are welcome. 
+
+Thanks!
+Lange
+
+Longjun Tang (3):
+  virtio: add virtqueue_get_last_used_idx() helper
+  virtio_net: introduce an RX queue watchdog for stuck detection
+  virtio_net: add rx_timeouts per-queue statistic
+
+ drivers/net/virtio_net.c     | 103 +++++++++++++++++++++++++++++++++++
+ drivers/virtio/virtio_ring.c |  23 +++++++-
+ include/linux/virtio.h       |   2 +
+ 3 files changed, 126 insertions(+), 2 deletions(-)
+
+
+base-commit: 2709dd5ae32f0828f386327c76bba9f39f63a1c6
 -- 
 2.43.0
 
