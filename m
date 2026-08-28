@@ -1,156 +1,140 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 8BBB73C3F44
-	for <virtualization@lists.linux.dev>; Fri, 28 Aug 2026 07:51:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D786A3EB11C;
+	Fri, 28 Aug 2026 08:45:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787903516; cv=none; b=Bb3VoIZZBw9N1nONlleEIUsIcGndDYHmq2d3XzkCI/DnWUU1J6IpypCNopSJgo60PHB5S2Arduq+AOhy0Nyn7X2Y2VCKERj5pkn7a3wcpgBsLlkKe8QXBIXNOjhHobUV9IoQq2dkCVKdLsmyx2MawoQqdxyhfuxnJqAOrQzdH9Y=
+	t=1787906760; cv=none; b=Ev5nTgsVSE6tMHYAW8nmtqAg99dli449NlUUj2p0hjyb0o/DsOB3lXr/N/5C+7VR6S6QMu5kanzgpfBD8wO4p2xVlCD2EMmJOEL4QMSjHTbACN7JKfGM7u+Me16S79rHWfTzr5fXd81tT8Bq0jdXk8L8dRoalxIKoXl1QxdmrXw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787903516; c=relaxed/simple;
-	bh=/r42OzRKbehNytUbS0AlwvQqha8Fg7tNiKCBIbEVdb4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=P5Cc2q3hoyvpoM/YsShtz5hkyeKlGrYrgl2j8bPDp8HVB+Geas8ceJiayw2Jsqpv3OYO+5jhK6GVxqxfCJQOZnfhJiEZPNDUtQeFLJpAHnlershOk9xdL6edUACMhYl6m4MReclWDNm6HBhK1/Cgj3RERQwjBmNr1Wu5T+e/8l0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=qyRs1slP; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+	s=arc-20240116; t=1787906760; c=relaxed/simple;
+	bh=Vk/Jx5HL1xRIxo0j0/Ivy2To1Yi2AQV0lo9JC6GWpWo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=iKLa4t6otTPIPAoTs32kuUs4dVcWLIf/uCQY5+Q2AYHItUmlu4jtmyPk4jLULvCwP/0Qw+6REidyIdX3v0FQFzD++lAy8WDAnDDuJLHc5Iovn5UcROS+5BHd8AmK6RnW6scdO6KHowPusxdgLzTXdmU6XBP7h0ZJzakUkLl3PVE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=J0GmtX80; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="qyRs1slP"
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id EF1BD1516;
-	Fri, 28 Aug 2026 00:51:49 -0700 (PDT)
-Received: from [192.168.178.100] (usa-sjc-mx-foss1.foss.arm.com [172.31.20.19])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id AE5183F7D8;
-	Fri, 28 Aug 2026 00:51:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
-	t=1787903513; bh=/r42OzRKbehNytUbS0AlwvQqha8Fg7tNiKCBIbEVdb4=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=qyRs1slPyzy4qtN6fU37FQs+l+H3jAYpbcC2h3UtcVrvo5z3SjmO2VTAOAEJZq2pq
-	 sHFeMdQE0ndRCz4WEiemVcxCS+ga6h2GvUQYZ96jeNg/pJWgoneG18bdCG72uzzOxG
-	 guo214JrPJiRPBGaqWZv8B5+sDYd7e9nwQUPLyqo=
-Message-ID: <8262d2f9-9f2f-4821-8497-991d7c8448a3@arm.com>
-Date: Fri, 28 Aug 2026 09:51:47 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="J0GmtX80"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23C351F000E9;
+	Fri, 28 Aug 2026 08:45:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787906758;
+	bh=0TR0uRWDlZn4hcSy+1eDkkclABFE/m9WQ+o6MX2CdCM=;
+	h=From:To:Cc:Subject:Date;
+	b=J0GmtX80uQS026ZsfQnLaoxoBfWyF6vVp48IDugUpD9xUxLN8qDIG/ssWecLbpjIs
+	 sxV9ziTgc4hZVZDHMB5ymCey4Td+d7BXMyjcEo65YPjlC9Jy2kwQEWE7RQrTcWj+pF
+	 qldTn06x4bF0fmquVfS7SJX63APOjM7y7eMtSH/CnpAsrmdw5WlS66e4DD4En7LWj3
+	 Ar+YKM4yUE8hUkC+ugDir81mw38ld/b9SRyW5fJK71PZvJ9Tvg7aWa1omwqVSVvmMi
+	 b5vEvjL0uLPavSIGD+5IBtT5g/XyEbzdAdRcJiYQ6nEaALcHTvHt7xmHsYdxHZ+A3Q
+	 nn8YlAIHHP0iw==
+From: "Jiri Slaby (SUSE)" <jirislaby@kernel.org>
+To: airlied@redhat.com
+Cc: linux-kernel@vger.kernel.org,
+	"Jiri Slaby (SUSE)" <jirislaby@kernel.org>,
+	Gemini <gemini@google.com>,
+	=?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+	Tvrtko Ursulin <tvrtko.ursulin@igalia.com>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	David Airlie <airlied@gmail.com>,
+	Simona Vetter <simona@ffwll.ch>,
+	stable@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	spice-devel@lists.freedesktop.org,
+	dri-devel@lists.freedesktop.org
+Subject: [PATCH] drm/qxl: fix use-after-free and NULL pointer deref
+Date: Fri, 28 Aug 2026 10:45:53 +0200
+Message-ID: <20260828084553.124037-1-jirislaby@kernel.org>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v11 05/12] sched/core: Try to use a preferred CPU in
- is_cpu_allowed
-To: Shrikanth Hegde <sshegde@linux.ibm.com>, linux-kernel@vger.kernel.org,
- mingo@kernel.org, peterz@infradead.org, juri.lelli@redhat.com,
- vincent.guittot@linaro.org, yury.norov@gmail.com, kprateek.nayak@amd.com,
- iii@linux.ibm.com, corbet@lwn.net, meted@linux.ibm.com, ynorov@nvidia.com
-Cc: tglx@kernel.org, gregkh@linuxfoundation.org, pbonzini@redhat.com,
- seanjc@google.com, vschneid@redhat.com, huschle@linux.ibm.com,
- rostedt@goodmis.org, maddy@linux.ibm.com, srikar@linux.ibm.com,
- hdanton@sina.com, chleroy@kernel.org, vineeth@bitbyteword.org,
- frederic@kernel.org, arighi@nvidia.com, pauld@redhat.com,
- christian.loehle@arm.com, tj@kernel.org, tommaso.cucinotta@gmail.com,
- maz@kernel.org, rafael@kernel.org, rdunlap@infradead.org,
- kernellwp@gmail.com, linux-doc@vger.kernel.org, jgross@suse.com,
- virtualization@lists.linux.dev, sunlightlinux@gmail.com
-References: <20260825103855.721013-1-sshegde@linux.ibm.com>
- <20260825103855.721013-6-sshegde@linux.ibm.com>
-Content-Language: en-GB
-From: Dietmar Eggemann <dietmar.eggemann@arm.com>
-In-Reply-To: <20260825103855.721013-6-sshegde@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 25.08.26 12:38, Shrikanth Hegde wrote:
-> When possible, try to choose a preferred CPU.
-> 
-> This is essential to maintain user affinities when preferred
-> CPUs change. A task pinned on a non-preferred CPU should continue
-> to run there, since this is a non-user triggered event.
-> 
-> If a CPU is non-preferred and the task can run on other CPUs which are
-> currently preferred, then choose a preferred CPU instead.
-> This is decided by checking if cpus_ptr and cpu_preferred_mask
-> intersect or not. If yes, then the task has other preferred CPUs.
-> 
-> The push task mechanism uses a stopper thread which calls
-> select_fallback_rq() and uses this mechanism to pick a preferred CPU.
-> 
-> This takes care of the wakeup path for FAIR tasks too.
-> is_cpu_allowed() is called to ensure wakeups happen on preferred CPUs.
-> With that, additional checks in available_idle_cpu() are not necessary.
-> 
-> Ignore the preferred CPU state if a task's affinity is changing and
-> its new mask no longer includes the CPU it is currently running on.
-> This ensures migration_cpu_stop() does not abort, preventing the task
-> from being stranded outside its allowed affinity.
-> 
-> Account for tasks with architecture-specific CPU masks
-> (e.g., 32-bit tasks on arm64). For such tasks, explicitly check against
-> the arch-allowed CPUs to determine if any of the preferred CPUs are
-> actually valid.
-> 
-> For the majority of cases, this would still keep select_fallback_rq()
-> as O(N). cpumask_intersects(), which is O(N), is called only if
-> !cpu_preferred. The task running there is expected to move out.
-> Subsequently, it should run on a preferred CPU. This becomes O(N**2)
-> only for tasks pinned solely to non-preferred CPUs. That is a rare case.
-> 
-> Overhead is minimal when the CPU is preferred.
-> 
-> Signed-off-by: Shrikanth Hegde <sshegde@linux.ibm.com>
-> ---
->  kernel/sched/core.c | 41 +++++++++++++++++++++++++++++++++++++++--
->  1 file changed, 39 insertions(+), 2 deletions(-)
-> 
-> diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-> index a45f7c308329..f71317fe281d 100644
-> --- a/kernel/sched/core.c
-> +++ b/kernel/sched/core.c
-> @@ -2494,6 +2494,35 @@ static inline bool rq_has_pinned_tasks(struct rq *rq)
->  	return rq->nr_pinned;
->  }
->  
-> +static inline bool task_can_sched_on_preferred(int cpu, struct task_struct *p)
-> +{
-> +	const struct cpumask *valid_mask;
-> +	int i;
-> +
-> +	if (cpu_preferred(cpu))
-> +		return false;
-> +
-> +	/* Only FAIR tasks honor preferred CPU state */
-> +	if (unlikely(p->sched_class != &fair_sched_class))
-> +		return false;
-> +
-> +	/* Ignore preferred state if task affinity is changing */
-> +	if (unlikely(!cpumask_test_cpu(task_cpu(p), p->cpus_ptr)))
-> +		return false;
-> +
-> +	valid_mask = task_cpu_possible_mask(p);
-> +	if (likely(valid_mask == cpu_possible_mask))
-> +		return cpumask_intersects(p->cpus_ptr, cpu_preferred_mask);
-> +
-> +	/* Tasks with arch-specific CPU masks. e.g. 32-bit tasks on arm64. */
-> +	for_each_cpu_and(i, p->cpus_ptr, cpu_preferred_mask) {
-> +		if (cpumask_test_cpu(i, valid_mask))
-> +			return true;
-> +	}
+When allocating a `qxl_release` structure with `kmalloc()`, the underlying
+memory contained uninitialized garbage. Specifically, `release->base.flags`
+(part of the embedded `dma_fence`) was not cleared.
 
-Looking more into this, there might be a window in 64-32-bit execve()
-for 32bit EL0 tasks on Arm64 (w/ allow_mismatched_32bit_el0 command line
-option).
+This garbage in `base.flags` caused helper functions such as
+`dma_fence_was_initialized()` to return true even for releases where the
+fence was never actually initialized (e.g. via `dma_fence_init()`).
 
-The time before arch_setup_new_exec() calls
-force_compatible_cpus_allowed_ptr() to restrict CPU affinity for those
-tasks.
+Consequently, during release cleanup in `qxl_release_free()`, the driver
+attempted to put/free an uninitialized `dma_fence`, leading to refcount
+underflows (`refcount_t: underflow; use-after-free`) and subsequent NULL
+pointer dereferences in `dma_fence_signal_timestamp_locked()`.
 
-Let me run more test on this ...
+Fix this by switching from `kmalloc()` to `kzalloc()` in `qxl_release_alloc()`,
+ensuring all fields (including embedded fence flags) are properly zero-initialized
+upon allocation, and remove redundant explicit zero-initializations.
 
-Why not simply:
+The dumps in question:
+ refcount_t: underflow; use-after-free.
+ WARNING: lib/refcount.c:28 at refcount_warn_saturate+0x59/0x90, CPU#0: kworker/0:0/1534
+ Modules linked in: af_packet nft_fib_inet ...
+ CPU: 0 UID: 0 PID: 1534 Comm: kworker/0:0 Not tainted 7.1.3-1-default #1 PREEMPT(full) openSUSE Tumbleweed  b041a6527f6e58424f4cd3de0fade8d408b378fd
+ ...
+ RIP: 0010:refcount_warn_saturate+0x59/0x90
+ ...
+ Call Trace:
+  <TASK>
+  qxl_release_free+0xee/0xf0 [qxl d93e9381353e619799d56790f5f8dda6cce491f6]
+  qxl_garbage_collect+0xd1/0x1b0 [qxl d93e9381353e619799d56790f5f8dda6cce491f6]
+  process_one_work+0x19e/0x3a0
+ ...
 
-- return cpumask_intersects(p->cpus_ptr, cpu_preferred_mask);
-+ return cpumask_first_and_and(p->cpus_ptr, cpu_preferred_mask,
-+                              task_cpu_possible_mask(p)) < nr_cpu_ids;
+And then of course:
+ BUG: kernel NULL pointer dereference, address: 0000000000000028
+ ...
+ RIP: 0010:dma_fence_signal_timestamp_locked+0x32/0x120
 
-IMHO, you want to know whether there is at least one CPU that belongs to
-all three CPU masks?
+Signed-off-by: Jiri Slaby (SUSE) <jirislaby@kernel.org>
+Assisted-by: Gemini <gemini@google.com> # only commit log
+Fixes: 2bcbc706dfa0 ("dma-buf: add dma_fence_was_initialized function v2")
+Closes: https://bugzilla.suse.com/show_bug.cgi?id=1271081
+Cc: Christian König <christian.koenig@amd.com>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@igalia.com>
+Cc: Dave Airlie <airlied@redhat.com>
+Cc: Gerd Hoffmann <kraxel@redhat.com>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Maxime Ripard <mripard@kernel.org>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: David Airlie <airlied@gmail.com>
+Cc: Simona Vetter <simona@ffwll.ch>
+Cc: stable@vger.kernel.org
+---
+Cc: virtualization@lists.linux.dev
+Cc: spice-devel@lists.freedesktop.org
+Cc: dri-devel@lists.freedesktop.org
+---
+ drivers/gpu/drm/qxl/qxl_release.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-[...]
+diff --git a/drivers/gpu/drm/qxl/qxl_release.c b/drivers/gpu/drm/qxl/qxl_release.c
+index 06979d0e8a9f..92c88f9c17a8 100644
+--- a/drivers/gpu/drm/qxl/qxl_release.c
++++ b/drivers/gpu/drm/qxl/qxl_release.c
+@@ -91,15 +91,12 @@ qxl_release_alloc(struct qxl_device *qdev, int type,
+ 	int handle;
+ 	size_t size = sizeof(*release);
+ 
+-	release = kmalloc(size, GFP_KERNEL);
++	release = kzalloc(size, GFP_KERNEL);
+ 	if (!release) {
+ 		DRM_ERROR("Out of memory\n");
+ 		return -ENOMEM;
+ 	}
+-	release->base.ops = NULL;
+ 	release->type = type;
+-	release->release_offset = 0;
+-	release->surface_release_id = 0;
+ 	INIT_LIST_HEAD(&release->bos);
+ 
+ 	idr_preload(GFP_KERNEL);
+-- 
+2.55.0
+
