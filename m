@@ -1,47 +1,46 @@
-Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.3])
+Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 302C0184540
-	for <virtualization@lists.linux.dev>; Fri, 28 Aug 2026 09:02:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.3
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A39DE2DF138
+	for <virtualization@lists.linux.dev>; Fri, 28 Aug 2026 09:06:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787907748; cv=none; b=q1kGrqge4rkkVVfzwhKNG7iH0ke9B+4GyKEefX4hzVSnFjZJJNUzB7SSZJJWYIWOMo4WZEZf79LrKFbI56vY6qkUKrALjfSTbsNJ99sCzXLQthMf5GH9vVVG/nL/uM1XsNOAQyyEES26vTgl8l1HyhVP78XPH+1QNc8+Litj0+g=
+	t=1787908022; cv=none; b=DFFIOYy/bW55yEps+OTCc99hobm9uQxYB9SyT8iiwT6rzSX/J/hm/8Ot9ZbrQSiYkSjtwx9XZULQ1InKYfcYP73VMb3RyJDV7jB/7ZeZdwpbsy7kXxt9g6Qb0EmjYI8dWgH3r+DOAS7oIvmAOQCAznNrbReRBguuo7WbIMnQQbU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787907748; c=relaxed/simple;
-	bh=5L+8iMVNX6IQUUlsU3thAK9rhZX6D34E4mPEYocAmeg=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=VhDQ1EWK3jLmp1+XEwutW1H7ws7UtNgOjo1n7UAACQzIrbVIAIeXcTfyPnOBEjgdVtCc4bEaLw21rY45eP8464ApsIToawdJ1kSy5eMBrchpRW2idGpKNZsntIdBQ6UvuBYlJ8tF3ygnUzWk612IAl+R3bl9IyPLXdHEjakuPaU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=DffHrHIo; arc=none smtp.client-ip=117.135.210.3
+	s=arc-20240116; t=1787908022; c=relaxed/simple;
+	bh=xVxY45sxyo2kZ1v8r74VlABGlXYg2ltKQ96hThjr30U=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=Kc5QGQicQEqhC3fCNf+YHvuSzRrnlSqdikP7B7Vd99u0JYCJL+SWNB/u3nK1bjW+KahnHXsydnykRLylC7xX6diQFwefT9U6BO+rDS9CLVBqOkcv6Y9fBYQQFWbxtZ8N5TeZ4Q+cab3vQZRKdszZeaYVw3tadWbFFTf4+jSA8Lg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=ep2Ot8PB; arc=none smtp.client-ip=117.135.210.4
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="DffHrHIo"
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="ep2Ot8PB"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=ug
-	CMS/t4pT54t04r48wccbBM2NCtY6+PmK6XmdHCxWk=; b=DffHrHIouN45sCIF7v
-	h2MUlrcebTPVJwgwcZSh+29Os7TXCk2qZ4K3Dr2COLLe8eAd8qT0mqCOxYYsm2FE
-	LxK3NDcDiRs1r9Lc7sRrTkoW8XPhIhx8IO6k8f38jJM5ixoDzhsp/7SMLffNhsBB
-	LyZrpLRpzePklLrUjlmcWpD7U=
+	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=1n
+	fvSbyXaygGDA9i7aXU+p5NHnBngMiGbJBtvILo9no=; b=ep2Ot8PBv4cG1dA+XG
+	EW/ww9dNvYTLLGRNbuayPsG/f2D8i964U7XfOQYx7oNErd8Sgu1hxBmSUkPQxqxL
+	WAPpIEJd3aujYYO+8H1Hs2MldsKJjtA+OcYGB9Xc4TfxvVr8E/cmoTv93yUOuElS
+	uSVUzo9IrUhsFIH5jbS6AanHI=
 Received: from localhost.localdomain (unknown [])
-	by gzga-smtp-mtada-g1-4 (Coremail) with SMTP id _____wAnB+NlTpFqmR5iSg--.32532S2;
-	Fri, 28 Aug 2026 17:01:27 +0800 (CST)
+	by gzga-smtp-mtada-g0-4 (Coremail) with SMTP id _____wDnj3CLT5Fq7b3+SQ--.22427S2;
+	Fri, 28 Aug 2026 17:06:19 +0800 (CST)
 From: oushixiong1025@163.com
 To: David Airlie <airlied@redhat.com>
 Cc: Gerd Hoffmann <kraxel@redhat.com>,
-	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-	Gurchetan Singh <gurchetansingh@chromium.org>,
-	Chia-I Wu <olvaffe@gmail.com>,
 	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
 	Maxime Ripard <mripard@kernel.org>,
 	Thomas Zimmermann <tzimmermann@suse.de>,
+	David Airlie <airlied@gmail.com>,
 	Simona Vetter <simona@ffwll.ch>,
+	spice-devel@lists.freedesktop.org,
 	dri-devel@lists.freedesktop.org,
 	virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org,
 	Shixiong Ou <oushixiong@kylinos.cn>,
 	Ye Liu <liuye@kylinos.cn>
-Subject: [PATCH] drm/virtio: Add pixel blend mode property to cursor plane
-Date: Fri, 28 Aug 2026 17:01:23 +0800
-Message-Id: <20260828090123.784944-1-oushixiong1025@163.com>
+Subject: [PATCH] drm/qxl: Add pixel blend mode property
+Date: Fri, 28 Aug 2026 17:06:08 +0800
+Message-Id: <20260828090608.792944-1-oushixiong1025@163.com>
 X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -50,82 +49,82 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:_____wAnB+NlTpFqmR5iSg--.32532S2
-X-Coremail-Antispam: 1Uf129KBjvJXoWxZF1UWry7WFyrurW3KFW5trb_yoW5GFWxpF
-	43CFZIyrWrArsrJayxtayj939Ivan3KF4xKry5Zwsagwn0kry7Ar15A34xurW7JrWUGw4f
-	Jr1kuF1q9FZ8uw7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07jn2-5UUUUU=
-X-CM-SenderInfo: xrxvxxx0lr0wirqskqqrwthudrp/xtbC4QerumqRTmfkigAA3L
+X-CM-TRANSID:_____wDnj3CLT5Fq7b3+SQ--.22427S2
+X-Coremail-Antispam: 1Uf129KBjvJXoW7WFyUXFWDCF4DJF17tF1UKFg_yoW5Jr1rpa
+	y3CFWYyrW5Ja13Jay7Arya9rsxXan3Ka48Cry3t3s7Zw1jyrykAr10kr1I9rW5AaykGa1f
+	Xas7GFWDCF4UCw7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07j8pnQUUUUU=
+X-CM-SenderInfo: xrxvxxx0lr0wirqskqqrwthudrp/xtbC-Qv0BGqRT4vpewAA3r
 
 From: Shixiong Ou <oushixiong@kylinos.cn>
 
-The cursor plane exposes a format with an alpha channel
-(DRM_FORMAT_ARGB8888) without a pixel blend mode property. Since
+The qxl primary and cursor planes expose formats with an alpha
+channel but do not create the pixel blend mode property. Since
 commit 860e748bddcc ("drm: ensure blend mode supported if pixel
 format with alpha exposed") this triggers a warning during
 drm_mode_config_validate():
 
-[    0.649020] ------------[ cut here ]------------
-[    0.649040] [PLANE:36:plane-1] pixel format with alpha exposed but blend mode not setup
-[    0.649081] WARNING: drivers/gpu/drm/drm_mode_config.c:872 at drm_mode_config_validate
+[    4.252654] ------------[ cut here ]------------
+[    4.252676] [PLANE:38:plane-0] pixel format with alpha exposed but blend mode not setup
+[    4.252719] WARNING: drivers/gpu/drm/drm_mode_config.c:872 at drm_mode_config_validate
 ......
-[    0.649761] Call trace:
-[    0.649764]  drm_mode_config_validate+0x398/0x558 [drm] (P)
-[    0.649912]  drm_dev_register+0x1cc/0x2a0 [drm]
-[    0.650058]  virtio_gpu_probe+0xd4/0x1c0 [virtio_gpu]
-[    0.650088]  virtio_dev_probe+0x1c8/0x310
+[    4.253089] Call trace:
+[    4.253091]  drm_mode_config_validate+0x398/0x558 [drm] (P)
+[    4.253177]  drm_dev_register+0x1cc/0x2a0 [drm]
+[    4.253262]  qxl_pci_probe+0x120/0x1e0 [qxl]
+[    4.253277]  local_pci_probe+0x48/0xb8
+[    4.253287]  pci_call_probe+0x70/0x190
 ......
-[    0.650261] ---[ end trace 0000000000000000 ]---
 
-
-Create the property with the only supported blend mode,
-DRM_MODE_BLEND_PREMULTI, which is also the property's default and
-matches what userspace had to assume before the property existed.
+Blending is done by the host with premultiplied alpha, so create
+the property with DRM_MODE_BLEND_PREMULTI as the only supported
+mode.
 
 Reported-by: Ye Liu <liuye@kylinos.cn>
 Signed-off-by: Shixiong Ou <oushixiong@kylinos.cn>
 ---
- drivers/gpu/drm/virtio/virtgpu_plane.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/gpu/drm/qxl/qxl_display.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
-index 1d1b27ece62a..11771c943ea6 100644
---- a/drivers/gpu/drm/virtio/virtgpu_plane.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-@@ -24,6 +24,7 @@
-  */
- 
+diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
+index 7f4178800afd..8193d08485f2 100644
+--- a/drivers/gpu/drm/qxl/qxl_display.c
++++ b/drivers/gpu/drm/qxl/qxl_display.c
+@@ -30,6 +30,7 @@
+ #include <drm/drm_drv.h>
+ #include <drm/drm_atomic.h>
  #include <drm/drm_atomic_helper.h>
 +#include <drm/drm_blend.h>
- #include <drm/drm_damage_helper.h>
- #include <drm/drm_fourcc.h>
- #include <drm/drm_gem_atomic_helper.h>
-@@ -588,6 +589,7 @@ struct drm_plane *virtio_gpu_plane_init(struct virtio_gpu_device *vgdev,
- 	struct drm_plane *plane;
- 	const uint32_t *formats;
- 	int nformats;
-+	int ret;
+ #include <drm/drm_edid.h>
+ #include <drm/drm_encoder.h>
+ #include <drm/drm_framebuffer.h>
+@@ -991,13 +992,25 @@ static struct drm_plane *qxl_create_plane(struct qxl_device *qdev,
+ 	if (err)
+ 		goto free_plane;
  
- 	if (type == DRM_PLANE_TYPE_CURSOR) {
- 		formats = virtio_gpu_cursor_formats;
-@@ -610,5 +612,17 @@ struct drm_plane *virtio_gpu_plane_init(struct virtio_gpu_device *vgdev,
- 	if (type == DRM_PLANE_TYPE_PRIMARY)
- 		drm_plane_enable_fb_damage_clips(plane);
- 
-+	if (type == DRM_PLANE_TYPE_CURSOR) {
-+		/*
-+		 * The cursor plane exposes a format with an alpha channel,
-+		 * which requires a blend mode property. The host blends
-+		 * premultiplied alpha, matching the property's default.
-+		 */
-+		ret = drm_plane_create_blend_mode_property(plane,
-+							   BIT(DRM_MODE_BLEND_PREMULTI));
-+		if (ret)
-+			return ERR_PTR(ret);
++	/*
++	 * Both planes expose formats with an alpha channel. Blending is
++	 * done by the host with premultiplied alpha, which is also the
++	 * property's default value.
++	 */
++	err = drm_plane_create_blend_mode_property(plane,
++						   BIT(DRM_MODE_BLEND_PREMULTI));
++	if (err) {
++		drm_plane_cleanup(plane);
++		goto free_plane;
 +	}
 +
+ 	drm_plane_helper_add(plane, helper_funcs);
+ 
  	return plane;
+ 
+ free_plane:
+ 	kfree(plane);
+-	return ERR_PTR(-EINVAL);
++	return ERR_PTR(err);
  }
+ 
+ static int qdev_crtc_init(struct drm_device *dev, int crtc_id)
 -- 
 2.25.1
 
