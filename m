@@ -1,75 +1,73 @@
-Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
+Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 906DC432BCD
-	for <virtualization@lists.linux.dev>; Sat, 29 Aug 2026 22:55:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92F641A239A
+	for <virtualization@lists.linux.dev>; Sun, 30 Aug 2026 02:34:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788044130; cv=none; b=MnQ1slDA4jia3XHV8CP+UQ3Ozcm3HNfF6K8NUjEqnH0TgXIhaET67vfvhAyrBZQDDRA84GRZBRtlcHsfGJdIJ0AxQqzw3OVw31jDa8Ub9Hmy3b8OseVeUmVEAsmIkzMpzYzHjLQ8PEsR059O1RWWZ1yxCAfMyolXtCfLSVfpXsI=
+	t=1788057282; cv=none; b=Bk+J3+MsTBGfTB5dsJ/VRyh736f4CJPYT+IzHSQd+cK6ZIHNy0SOmxbHo8cPoCGQTL3mhCf8HJ5Tsb/BYCG9g4N0ilLKDf5X7ZEWK8eRx/90U7IMjpV21sU/c4r8A4stOZKpc2Dx/b4lsFFWe5vsuiDBar7RHcHPnN+pBLFhXC0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788044130; c=relaxed/simple;
-	bh=qBN+DWx96hbQZQ9lNws+rysHWnkANX3wt4SsBuvYulk=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=XNf7XlyXJsUbuuerIMSsJoHqy0ZbIla5HWgnHk8t+8sZIU3kZtDGi5O5lbFPYdU3CFrt57K3PbpwHRVCjEaKL6B77zbMmHg9Iu7d96LbBvsRl5qDKWR3LrPKIxEGfCnrYJ00IezHXc+U+mbR0GsHl4bBxJpSdsMbFWjWPLDimGM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=o/9yJ6FZ; arc=none smtp.client-ip=209.85.214.182
+	s=arc-20240116; t=1788057282; c=relaxed/simple;
+	bh=ovJUopzQwrJDmXOuk4g+6rnmknd9cwWU2S2O6WmOduU=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=inYq9msTnPq+waqrkCogSB7uJayjF6yjxy6pEWRNulQH5+TwgP4eJVWxj5Tht4ho4y/ytX4n9mqEM7QT6lbb8nQAlHX6mxHtCJp/ysY8yn4TIV0TYTxsv27nj1+OjX2j8rPzIXzwtaMO7MlnAELOat96FXQppkdEAEcbfTe4z1Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=tG4wxXpS; arc=none smtp.client-ip=209.85.216.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="o/9yJ6FZ"
-Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2d6e954afbdso15239615ad.2
-        for <virtualization@lists.linux.dev>; Sat, 29 Aug 2026 15:55:26 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="tG4wxXpS"
+Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-3964e480f76so2895560a91.1
+        for <virtualization@lists.linux.dev>; Sat, 29 Aug 2026 19:34:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788044125; x=1788648925; darn=lists.linux.dev;
+        d=gmail.com; s=20251104; t=1788057281; x=1788662081; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Ma80YmNRqQi3IMfqK57hZ7nOz1u3fXlwt1Ge7kNJdZE=;
-        b=o/9yJ6FZJCq324xDzBwlHZlcc2FbqYnJpWMalTEaC1TuqhNjc/X5/yDZ9uQ0l7wzBt
-         zGzt2M0AmCbFZWcky/a+q7fiMA/K8xoyit7Ja1mcOsCEYSMuJ+GW2J+DYaHgQPMTZZJW
-         UKQInrQ940DSCoU3YrGb/7jCkCrfn2F4p0XkvkKw5T5nUrwqeDDBRYSkvj0bXYuhX3+P
-         GdtJZ0aIyaJLCn7kjw2EcexDlz3atvtxmPkjf10BzmxkR+4RG8ZG4EYhetcWJcvJi9pw
-         jkGJlfBPjXlt3bJjll0iauSpd7L8BYtYX+l4VqIqyYMiJy3t7384eDRaBjCEhcCw4Sls
-         FaGA==
+        bh=FKjTjg7r4R5L8bCPlD9wnjai8zkrlb8yfJnv3kI4DEQ=;
+        b=tG4wxXpSZfcn50xj+yMPaT8c20rX1IwMglRRQo286P+hZNnuho2AEi2jrcaXJDjfx4
+         xLYLCnUlK/gPnfX4hsO/clROa1Lfy9DePdhatNmiS8ThspcdHWnf7wHG6d9Zr+/9S07n
+         gr9UhquK7IbVh9kTZMTOVrvLECbzfK6GetMwbhXkPJtHTBvYkDNryIboGi5q4RqMTK6f
+         sEIgX3wSWYInPzSIwoGeAaN3SkzSyOHTHSWSeA4DoBAr+9bnOvmg5sOeMBW1cz4xhDq1
+         +i5JCaZpXUNJ7OqRrgxQz60cX+Ap2luDc5ffXyBKFQ/B2E8i3ghY7RJnCaInUZL6tl63
+         Bcsg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788044125; x=1788648925;
+        d=1e100.net; s=20251104; t=1788057281; x=1788662081;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=Ma80YmNRqQi3IMfqK57hZ7nOz1u3fXlwt1Ge7kNJdZE=;
-        b=HzV01wwmez5kRfWINVTP10dHhjn4ZSsLxyl/2HrXCrfWfdFlStQEXyckxrEGtWYajh
-         Lc94nGJG/hLk3sSgztk+zGMshdEVWCigdWx+DJ7ylOuBLhRzwUhL70HL3c40NidNX4El
-         NOrg+T92mUs+cbUYZT5QnU2Kj7BITqC9rchB5YevfSXA4Nb9y/KLnQPxmzL+ey/HfS17
-         T+gAowp6LwcgOLb26DauPYe2DSrxD5dxf1+R4teCOQozTfk5U8snUOBXfqv18NGVi+DY
-         sT7CcHwIDlQBWHHRNEXPT+oHi8DB3Kl20TiKt4ZCsG9HY35byvOaXTJpTeSGOCGSls24
-         ef3A==
-X-Forwarded-Encrypted: i=1; AKwUvBz8thJ9x0c8EzbWg7OHLJPG8a4PqqzG2DX93JocPdk36r7I/NMhHv+aD4sXi0fsyS86WfvMefOOOpyOyyxHmg==@lists.linux.dev
-X-Gm-Message-State: AFuF++lZi+rZ++exQgWTPf6cI1MOp2NjepgcO+HpDrrQvYFQtN86MpOM
-	uhqzPaom+d03gSqMtIJcTCec3wizmpssFZ6lxu97WMXOqx/nS5RgBnjf
-X-Gm-Gg: AYBFou2W6W/gPppRzgVDjG6hcWPzeGL8kgxdYdlJUamPunkPiSIFuZgFHRYfQseM29g
-	H/7CQm6WA/Vc+4JF2wH6zwEfu4I2vBzWguKsMMh3Ft2PHJmDa9xHpRByz19P5IMMSbfCNH5QdSB
-	a7uz8/AeOPKwPnWzCf8MuttmpIGm2GhkuSQvunQcrqKkLFyIE6jbAtBgE8w1zEVKRjZD75zVM//
-	Dw5P08bMg+6n7pmjnYH5hQ5BTvCte/kP9Ab1unMLIJOIc7YQ+yMoTaKmbPe9/XVBqCSO7PAY/LV
-	BZzuRlNF/sxW5n/iyEQaISar7jwicI5LE2c2Z5gdIA0Jn1WgPZ0o6noWjgFg2NlGBKpCkl+KnKg
-	ftbG5Vci12N6LOpMboQs1X1t9y2Ahk4UBq1UtxB/kF5EKQaA38E9D50SDpzAmSaycpmyC8lNqjl
-	X5/lRJ0S6/g2Aryfen7kGuj/wZrom8HekAZpH43qcDpY8Vbj7l56gWwf0P0NqgarkaB/nFyMrgk
-	vtRxe+AQFLmMWVy1mTtHgiukpOztw6zqUeDWBgmgVxg9v7k0jifySx6jTyGCMiUB/oinqrLEM2M
-	tMnsRCdYspK5Fk76gDU=
-X-Received: by 2002:a17:903:388e:b0:2d7:44c5:1a13 with SMTP id d9443c01a7336-2d74df17b06mr307385625ad.8.1788044125345;
-        Sat, 29 Aug 2026 15:55:25 -0700 (PDT)
-Received: from bad.. ([43.227.227.194])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2d759869afasm16958265ad.42.2026.08.29.15.55.22
+        bh=FKjTjg7r4R5L8bCPlD9wnjai8zkrlb8yfJnv3kI4DEQ=;
+        b=cA7AE//GVdnEHnh7KcNp/G/uYfzdvERjV8JMR/IgLF4jqNNNVj0JQwxfjxm8i17cbP
+         PYT9nI5INJ5xe1yEi4BTp17CJTFhvJgvxWSNjQXxAtE95KMDDsAu6j2vOzLChuDSN9yD
+         bMidimWfuAOELCBiL1pjbcdonvmwMVb2peJXwM1yzvffj18ydf2OQa8turUQrcHgPmBP
+         DbmXSdOqVX912AQKtQMdelaQ8ggA0zrQKzWyxbbtdg9ts+U9UIo4Hye59rFfJG3o0qff
+         Kp/b77ILCKUHXaz/BDqDZ6LZJbxtf0QU+tGkpCq6/MZDybwpF6md8xW8qEm0gbbtX+/W
+         nJHg==
+X-Gm-Message-State: AFuF++n3CQgJgaeB7y6ZU0sLMg+ovhR8orrB6P186jYwp2+wQ4ZJdhSV
+	n8QDEvRP5c9q9231nCNpo0RADcrTft8OC0Ef1eSsPsPVawM50XWJCNgH
+X-Gm-Gg: AYBFou3A32GzcTfzfjwAVkRfU7HzXM8cdVSyyXlZt5a+YJdXKqpdaxloXdGtYuSsMFq
+	9nJAD6ZIO9j8rZgM6sK5l/npr9PYmOYDG+lV4sf/lQ28gSBbValkbqw6YKN7irKXFv2ChyHKmOL
+	0djNNRkL24CtHZCkpLNPKKWOotWYaN82qvPHjttjwiW9zpNP2YO7y2BroGwGHBefV9WFDkmmfcP
+	Y0aJh30qpJZsll2b1PzDqOVW0BnDkyZTLZ8rtQbPzDDul5KMWHBUTACtIYbKMgMZpuBS8MThM0y
+	pn2BOXCFYOOSjmWvqrDgKddolfa5Lv0OqxtcfzTDyz1sTkRhkbB9jz8J8z8s6W5qmnN6ngpap9J
+	ZXW3vpx9uYIr8NR40RZFb43/I1JgKEOF3GxOzpIy3tblybqNyqzgZYjPLFmhXnPX3vO+1e58Abb
+	HbYr5nqfsZLYf7j7YMU6HGG9JdYYdHOcMw3l3WTt+pGB+NBCgFUw7cCNnvVh2B
+X-Received: by 2002:a17:90b:39ac:b0:38e:6f90:eabd with SMTP id 98e67ed59e1d1-396d0ea5451mr21542619a91.5.1788057280462;
+        Sat, 29 Aug 2026 19:34:40 -0700 (PDT)
+Received: from gmail.com ([188.253.12.32])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-396afff2650sm13879102a91.0.2026.08.29.19.34.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 29 Aug 2026 15:55:25 -0700 (PDT)
-From: Nikhil <nikhilljatt@gmail.com>
+        Sat, 29 Aug 2026 19:34:40 -0700 (PDT)
+From: Jia Jia <physicalmtea@gmail.com>
 To: mst@redhat.com,
-	jasowangio@gmail.com
-Cc: eperezma@redhat.com,
+	jasowangio@gmail.com,
 	xuanzhuo@linux.alibaba.com,
-	xieyongji@bytedance.com,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] vduse: do not take dev->rwsem in the virtqueue kick path
-Date: Sun, 30 Aug 2026 04:24:57 +0530
-Message-ID: <20260829225457.1037867-1-nikhilljatt@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	eperezma@redhat.com,
+	xieyongji@bytedance.com
+Cc: virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	Jia Jia <physicalmtea@gmail.com>
+Subject: [PATCH] vduse: validate virtqueue alignment
+Date: Sun, 30 Aug 2026 10:33:54 +0800
+Message-Id: <20260830023354.115333-1-physicalmtea@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -78,118 +76,54 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-vduse_vq_kick() runs in the context of the vdpa .kick_vq callback. With
-the virtio_vdpa bus driver that callback is invoked by virtqueue_notify()
-from the virtio device driver, which may be an atomic context: virtio-blk
-kicks from ->queue_rq(), which blk-mq dispatches under rcu_read_lock()
-(the tag set does not use BLK_MQ_F_BLOCKING), and virtio-net kicks from
-its xmit path with the tx queue lock held.
+vduse_validate_config() only checks the upper bound of vq_align. Invalid
+values can therefore reach vring_create_virtqueue_map(). The split-ring
+helpers use align - 1 as a bit mask, so the alignment must be a non-zero
+power of two. A zero value makes vring_size() drop the descriptor and
+available-ring part and vring_init() leave the used ring pointer NULL.
 
-Commit b282418bc366 ("vduse: Add suspend") made vduse_vq_kick() take
-dev->rwsem for reading in order to check dev->suspended. down_read() may
-sleep, so with CONFIG_DEBUG_ATOMIC_SLEEP the first I/O on a VDUSE-backed
-virtio-blk device bound to virtio_vdpa now triggers:
+The VIRTIO spec requires the used ring to start at an address
+aligned to at least 4 bytes. Reject values below VRING_USED_ALIGN_SIZE as
+well as non-power-of-two values before they reach the virtio ring helpers.
 
-  BUG: sleeping function called from invalid context at kernel/locking/rwsem.c:1573
-  in_atomic(): 0, irqs_disabled(): 0, non_block: 0, pid: 27, name: kworker/1:0H
-  preempt_count: 0, expected: 0
-  RCU nest depth: 1, expected: 0
-  3 locks held by kworker/1:0H/27:
-   #0: ((wq_completion)kblockd){+.+.}-{0:0}, at: process_one_work+0xac7/0xcf0
-   #1: ((work_completion)(&(&hctx->run_work)->work)){+.+.}-{0:0}, at: process_one_work+0x51f/0xcf0
-   #2: (rcu_read_lock){....}-{1:3}, at: blk_mq_run_work_fn+0x119/0x220
-  Workqueue: kblockd blk_mq_run_work_fn
-  Call Trace:
-   <TASK>
-   dump_stack_lvl+0x80/0xa0
-   __might_resched+0x231/0x370
-   down_read+0x73/0x330
-   vduse_vq_kick+0x30/0x120
-   virtio_vdpa_notify+0x63/0x80
-   virtqueue_notify+0x45/0x70
-   virtio_queue_rq+0x19d/0x300
-   blk_mq_dispatch_rq_list+0x269/0xe20
-   __blk_mq_sched_dispatch_requests+0x761/0xa60
-   blk_mq_sched_dispatch_requests+0x6b/0xc0
-   blk_mq_run_work_fn+0x143/0x220
-   process_one_work+0x581/0xcf0
-   worker_thread+0x2fc/0x5a0
-   kthread+0x1cc/0x210
-   ret_from_fork+0x3c4/0x540
-   ret_from_fork_asm+0x1a/0x30
-   </TASK>
+Opening a virtio-net device created with vq_align=0 triggered:
 
-Without CONFIG_DEBUG_ATOMIC_SLEEP, a kick that finds the rwsem
-write-locked by vduse_dev_reset() or vduse_vdpa_suspend() blocks inside
-an RCU read-side critical section. The vhost_vdpa path kicks from the
-vhost worker, i.e. process context, which is why this went unnoticed.
+BUG: KASAN: null-ptr-deref in virtqueue_kick_prepare_split+0xe3/0x100
+Read of size 2 at addr 0000000000000000 by task systemd-network/1062
 
-Check dev->suspended under vq->kick_lock instead, which the kick path
-already takes, and have vduse_vdpa_suspend() cycle every virtqueue's
-kick_lock after setting the flag. A kick that observed suspended == false
-has thus finished signalling before suspend returns, which is the
-guarantee the rwsem used to provide. The flag is now also read outside
-the rwsem, so access it with READ_ONCE()/WRITE_ONCE().
+Call Trace (relevant frames):
+ dump_stack_lvl
+ print_report
+ kasan_report
+ __asan_load2
+ virtqueue_kick_prepare_split+0xe3/0x100
+ virtqueue_kick_prepare+0x40/0x60
+ try_fill_recv+0x857/0x1250
+ virtnet_open+0x189/0x460
+ __dev_open+0x225/0x390
+ __dev_change_flags+0x368/0x3b0
+ netif_change_flags+0x56/0xc0
+ do_setlink.isra.0+0x68c/0x1e30
 
-Fixes: b282418bc366 ("vduse: Add suspend")
-Signed-off-by: Nikhil <nikhilljatt@gmail.com>
+Validate the value before it reaches the virtio ring helpers.
+
+Fixes: c8a6153b6c59 ("vduse: Introduce VDUSE - vDPA Device in Userspace")
+Signed-off-by: Jia Jia <physicalmtea@gmail.com>
 ---
- drivers/vdpa/vdpa_user/vduse_dev.c | 26 +++++++++++++++++++++-----
- 1 file changed, 21 insertions(+), 5 deletions(-)
+ drivers/vdpa/vdpa_user/vduse_dev.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-index 9891cd2cf712..766789a7bbfa 100644
 --- a/drivers/vdpa/vdpa_user/vduse_dev.c
 +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-@@ -506,7 +506,7 @@ static void vduse_dev_reset(struct vduse_dev *dev)
+@@ -2190,7 +2190,9 @@ static bool vduse_validate_config(struct vduse_dev_config *config,
+ 			return false;
  	}
  
- 	scoped_guard(rwsem_write, &dev->rwsem) {
--		dev->suspended = false;
-+		WRITE_ONCE(dev->suspended, false);
- 		dev->status = 0;
- 		dev->driver_features = 0;
- 		dev->generation++;
-@@ -567,11 +567,17 @@ static int vduse_vdpa_set_vq_address(struct vdpa_device *vdpa, u16 idx,
+-	if (config->vq_align > PAGE_SIZE)
++	if (config->vq_align < VRING_USED_ALIGN_SIZE ||
++	    !is_power_of_2(config->vq_align) ||
++	    config->vq_align > PAGE_SIZE)
+ 		return false;
  
- static void vduse_vq_kick(struct vduse_virtqueue *vq)
- {
--	guard(rwsem_read)(&vq->dev->rwsem);
--	if (vq->dev->suspended)
-+	/*
-+	 * This runs in the context of the vdpa kick_vq op, which may be
-+	 * atomic (e.g. virtio-blk kicks from blk-mq dispatch under
-+	 * rcu_read_lock()), so dev->rwsem must not be taken here.
-+	 * dev->suspended is checked under kick_lock instead and
-+	 * vduse_vdpa_suspend() cycles every kick_lock after setting it.
-+	 */
-+	guard(spinlock)(&vq->kick_lock);
-+	if (READ_ONCE(vq->dev->suspended))
- 		return;
- 
--	guard(spinlock)(&vq->kick_lock);
- 	scoped_guard(spinlock_bh, &vq->ready_lock)
- 		if (!vq->ready)
- 			return;
-@@ -946,7 +952,17 @@ static int vduse_vdpa_suspend(struct vdpa_device *vdpa)
- 	ret = vduse_dev_msg_sync(dev, &msg);
- 	if (ret == 0) {
- 		scoped_guard(rwsem_write, &dev->rwsem)
--			dev->suspended = true;
-+			WRITE_ONCE(dev->suspended, true);
-+
-+		/*
-+		 * Kicks check dev->suspended under kick_lock without taking
-+		 * the rwsem: cycle each kick_lock so that no kick that has
-+		 * already passed the check is still in flight after this.
-+		 */
-+		for (u32 i = 0; i < dev->vq_num; i++) {
-+			spin_lock(&dev->vqs[i]->kick_lock);
-+			spin_unlock(&dev->vqs[i]->kick_lock);
-+		}
- 
- 		cancel_work_sync(&dev->inject);
- 		for (u32 i = 0; i < dev->vq_num; i++)
--- 
-2.43.0
-
+ 	if (config->config_size > PAGE_SIZE)
