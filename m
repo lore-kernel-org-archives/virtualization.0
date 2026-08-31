@@ -1,47 +1,47 @@
 Received: from PH0PR06CU001.outbound.protection.outlook.com (mail-westus3azon11011012.outbound.protection.outlook.com [40.107.208.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41D2B3C76BC
-	for <virtualization@lists.linux.dev>; Mon, 31 Aug 2026 07:58:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7F663C465
+	for <virtualization@lists.linux.dev>; Mon, 31 Aug 2026 07:58:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.208.12
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788163096; cv=fail; b=ISDiV5fvepAwBQlpa3mLH/4eMSHIJUaLf76t6BPSIQGwigl5r3m32xVjRnBr6ARRH5Py5aItg+eR5C9+QkhuiT0wbTzWu07vASgKphaJhj01Wktx+QmdSOZz1V6L/QKDxnvb9pDvPnsIk5+bvp56uCHjgqx3rp79N7nloNlyPuc=
+	t=1788163098; cv=fail; b=fTycC2mI92z9vN+TZPj9PKXQ3yvLh/B4qMCL7aDGATnK9itM02ZrmK7X4GlIof3yIqrm2HCs15+nQ/9wZOYf4nIpyudbh22wRHVQmcB3I7NHWiAjTfu0PSKGKxeHQXqexKZNfglrQHifnoSHmD2diI/UxGN1+EknKa8AACmxRjA=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788163096; c=relaxed/simple;
-	bh=jayR55tE50PzgiZZacQjgEEUuTAyLLaRpclfWJkSFYc=;
+	s=arc-20240116; t=1788163098; c=relaxed/simple;
+	bh=J/LTOriD5lU0kjp96QUB6jSluZi+rJpKc/9DOfm4emw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=eOtjGdUdaUt6/X0JVSBUlVl9EFV8QNvemjIYqk3egKSqXnyk2b0qM0DsBXLIRzE7YgtTFwu0I7fFHNGIc19PIsSGlr9CEi0IJOzkN/ATG2RbD9ZloKLo4NSPWDGLIFAJpalgE3/9eTuTbVNtISOQ4UtaZPDq1nDDAjHqzti1/Cw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=YHynKNEk; arc=fail smtp.client-ip=40.107.208.12
+	 Content-Type:MIME-Version; b=BEacwkrsUEPNu01taNU/d4b+Vlw9hhAVOtwp/HHDHYQX+GiRXb2aJFrTp1hQgwrHYk2HcL74QDPoGqTMAanidjsszkxvLe4+Vu9NCwrdRwPQTHNq5CYQQKAYW0ef72T6IDVz3sw23LGuOSZjamlHEDE52uXfLQ13wN707hZBYbU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=ZVGgpbvS; arc=fail smtp.client-ip=40.107.208.12
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="YHynKNEk"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="ZVGgpbvS"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=TNCDU/PpE6QUNfI59RGxEZAOjNU0r3JXt9Vn8sddTxQ7JeSKLDHypcZwinHRGISjo7Na55aFghfQdzpaXlGcJB+Uv0MLMdc2NINuocv0LvbjyHXZH2aMVZj01RDwQ3lh9/BK0la0teDDec2jHRdNfPo6Hx65WDgqq7wfFjim7TtfpD8Nh1LMpwJYZNRHaGWXntC50hoXjQppG3uHXtRLU+1dzR+iE1eO5SIdsBMVbnF2qU+xTQJoWzyNWymCWBI+CO5uuUXGhuM29C4jhLodrFvB+EdqvWRLru16iZGbg10iJFZQKJgbhhbCwMTelvDqpvFLtUenEHZAhqGR2e0PXw==
+ b=i8/luKPKvGhqs0tLuQRlf1HHYfc0rdty42PgpEo88/PHlXWfNjiCv+o5uo/f3dbq3tbICyhl5g+UMV5fiCm0Yp0ym7xsi3AydHheo6bfP7VlH9F4jggqCE6CVs1DkqeFKs39CnRIQUgc8y/Q86h4+TcsDDpixbaTKL0k6Lts7ijQOQreY7xZTVABiq/7ESZDz45dkVv2RRnoyOgkz/D/cohDt0xmJiS7NR0tohsfVJy8KLrCQgHsY+F7/J2vNIl2v4gMEDplkt1rfeQADznZ/mGjsDw6kdgChO87LDsG6PuW0N6tDd8e9MzjCM4RDiNdMkV8uZJC44s1ZAK0/q7Csw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=HLlYyJ/D+hsAZgXCKxOykXEhynWchWO8ysVpbEBwxPE=;
- b=IWy3YyN2F0N972YPYDSpnXXAk9tiXSAnVTYk9Vns+07DoDFIGC5G2ExujLi4k40XYGepBj1Am/PLxGRrZ8hw83sAQvMrP23yTM2yW3mEoRS65aHwWZhvzWaYSoKKUWTh82o4nJbb1PwB/BMDzhGXfo051hC2BuFvZK9Alh0xgVWAtqrgsh5dQGp3PdoA2n3l+XNlKl1NxJx6/Weo+MfD9yJceGmjCs5zr4YU7I/eqq/JSfGng4Z59jLcUbPMnmN0VG/I9dCoK3eRebHK59MHQV5St8uPP+vKYBpIrVevMxQ4ceh4hAZZrYQFhHCjCfq+3lzVDMT9X5Qg90l2tDAlPQ==
+ bh=fodAzKRZFaM7RfhnhglNPbZTk3Z/HTTHNNQKMIpyClk=;
+ b=xX8dpabLDjHhjtODk1vFemRn+CeIasxEwsKzzPYqxrsAN3loZP+UjZvYQOvDWIY3Ebq9ic0c275ouhcFw2kzkAoQ4meDcYXhIrMo064U5qf6Uk7z6equcUpGu8OAvkoRMl/tedHpK3D/hKIHnfRg/GwzJ0t5U+Lo59z8RBChwHQY5BrDLQWtF1IiJKRnLQLpqU4Vznx4c2rv6eN2+SkL81wX6KlC2OgbF/VsUqUHiL8C/SlyQJEbHxyx0Ep6RcZkW+vjHpSxWDv3UjTtQzUjG01Uj6RUcC4cs8vu8eWqbfKRo548+V1pds8mOeGUj+FDuTPCSgCd/RPOJf45x2bfYQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
  dkim=pass header.d=nvidia.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=HLlYyJ/D+hsAZgXCKxOykXEhynWchWO8ysVpbEBwxPE=;
- b=YHynKNEkxjo78QNyJK1PWIC/r+KvfinLYC+OvFGQv8IPvWd5B/g5ETJ8UMsQIpmDBOLc7WAL9oXyhX6G5lphclrGuoQ3foQyoZDnMeNsZAMSjc2dSs7ecgQArami63q9lzRDwfhZTnL06bpC+zXryqF9cMJgd3Y0FThLezokXPhJFngrxFuXYBCOpBXu0lUasGcCclBjiXd9Yh3lk72cKTbLvasn8M7PtibpMWsCWHi6SownpdFWTuS0T8EaIcdDnN73pSZF3aUft6LCApPS/6mHA5X9StvXD2UODO1rFCbNPnMRcCeqLn44WxOqjiEzMvHe4UTLiCVpW0q/SSChog==
+ bh=fodAzKRZFaM7RfhnhglNPbZTk3Z/HTTHNNQKMIpyClk=;
+ b=ZVGgpbvS+nocWYVs+l9betxJStIaT3G0/Eg5q+BbtwZqEjhgwmc3cyCF0OhgTl12sVmu47A5yhOj1t/MSD6/1hNSMj8c/uSQeZEfTBhMFEB3LzyZgvvikFfC/iskCN5zoiB54/u2LYu//L3FmGFTQsT5s2jktHXSqpXHVYMbIZyk6Qa1HX1GEx0YAp7WetaYxj1KnT5iEIaZHpBQxNa6yW61skiYMACYKknvDjIKpRxFubGsSj3j5D5gtxE2IZbQhM9T7dXHWv0kIopYRRJ4eypdP3lCySJ3l5tlA7Wh4SFlcJnnFN9R21HpcSh119HJGiEvudsUtlT/VrAB2bvZQg==
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=nvidia.com;
 Received: from BL0PR12MB5505.namprd12.prod.outlook.com (2603:10b6:208:1ce::7)
  by SA0PR12MB4430.namprd12.prod.outlook.com (2603:10b6:806:70::20) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.360.13; Mon, 31 Aug
- 2026 07:58:11 +0000
+ 2026 07:58:14 +0000
 Received: from BL0PR12MB5505.namprd12.prod.outlook.com
  ([fe80::9329:96cf:507a:eb21]) by BL0PR12MB5505.namprd12.prod.outlook.com
  ([fe80::9329:96cf:507a:eb21%3]) with mapi id 15.21.0360.008; Mon, 31 Aug 2026
- 07:58:11 +0000
+ 07:58:14 +0000
 From: Shahar Shitrit <shshitrit@nvidia.com>
 To: netdev@vger.kernel.org,
 	mst@redhat.com,
@@ -59,9 +59,9 @@ Cc: virtualization@lists.linux.dev,
 	andrew+netdev@lunn.ch,
 	edumazet@google.com,
 	danielj@nvidia.com
-Subject: [PATCH net-next v22 01/14] virtio_pci: Remove supported_caps cache and build assert
-Date: Mon, 31 Aug 2026 10:57:54 +0300
-Message-ID: <20260831075807.2891426-2-shshitrit@nvidia.com>
+Subject: [PATCH net-next v22 02/14] virtio_pci: Fix sleeping under spinlock in admin command path
+Date: Mon, 31 Aug 2026 10:57:55 +0300
+Message-ID: <20260831075807.2891426-3-shshitrit@nvidia.com>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20260831075807.2891426-1-shshitrit@nvidia.com>
 References: <20260831075807.2891426-1-shshitrit@nvidia.com>
@@ -78,119 +78,232 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
 X-MS-TrafficTypeDiagnostic: BL0PR12MB5505:EE_|SA0PR12MB4430:EE_
-X-MS-Office365-Filtering-Correlation-Id: f0452752-f53b-467c-2ab5-08df07359a1d
+X-MS-Office365-Filtering-Correlation-Id: eb25cefc-c6b2-44e1-c350-08df07359bee
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|366016|7416014|23010399003|376014|22082099003|18002099003|56012099006|10067099003|11063799006;
+	BCL:0;ARA:13230040|1800799024|366016|7416014|23010399003|376014|6133799003|22082099003|18002099003|56012099006|10067099003|11063799006;
 X-Microsoft-Antispam-Message-Info:
-	n/bly2/O2Uk0wG7gjB9oEtfmCPfFL9k3U8BHZVoLJWykxU39/uBR0kyKVXKUsK3GTPaPylcFxOM4O5YGKQIjRVbLjXKDfTVxcjE8FSBu7B/YiT9LIoUVPMRvPG8NhvMs+IaS63k3XYyLmOTWK07HnsnA+JQVzUzKQAXkJ4ZtdfUDGQzCMf0z9/XX4I5nNl+MPaVV0bhFjmbRP1AYEKILS+HW2i9Q82Fpu9D1CHN/tbtBF1vVlAqoGjrufIWwO3HFKiShNPDu+A5KL4K56w1XD3xE1IbejmsnHVaWvm0kuKP12JoDCgaAcihV/dWl8DuAIi58Cz6YZCY8V6k1B8lZ2tO5pfbdhtYZCaWJVoG3zXVXZ5QEVOet3QDbptgfM1E9ElfE6KOi+t7eXh3AKjsyk24Yd31iznTHYDgrYZraC7Gz3woIP8/LM4Dmi64bcMZOZKOPxYp7vVXVnJH5AbNRAi4HxgGg9xiKE6vhRn8Q2npQK/ENeYJiZA+9VsHFI3uSss50qUx56+N/lNdgtyw+X8UWxqQqZs73CImYCrPlm/z2KkcQKu5TUERktq1OnvMH1tTGDx7G1o/J88SuWHhpv35NH1T8OeW213awhHXaHrewTq7lERFjc4kDIwtQ81uO+1eDjxGEzkWNp95PIEjpnN394+Mrn1WPywUt5l0HQZs=
+	+UcQ1LlAkRMckLozvIubSi7KEmKCxnZffWVy9EewVH6myN80vf6kFtJIWw5dT+ooKJmyWXuii9zhbR6AMnA2mMehI6MMa8aPCeh7iZXZ6aJj1ud7mLG4296TGaYSmh+LMsk03pzL7el2dwWIA7l6Z7DPOR9SzweboArz1y/zrEPgVbqN2QP0EPp5+8P5qEn5vZyAtTILaEvLyAJVJcZ9Oy0xMjF4f7yFaPQRk7MkjjF8irVNJzWZWJ2YmDismFJuWFL9YoaK/HbRWS6NUKiZcSR8rnsGXZiO8NMNvS5lwyPe4PSaFOcb5Rh5tcouqpPFUzxSU5gx7TUQ/HE55h/Lhv1hEsx+4JnTHl9rrLKkcEleVWj/0kXqwl0H1tkS6NZQBeNTaa0JUk1hzpCy4b3glPQp7eSHtWuWbK/cGjBzBx8yr2Pz0d9Nvrb7qrA/N1mRcQ2xITF7/tK6bC2GsCR3j0Xi+88SEY3SjC5Y+erbn6OUrid71aZVFud9tQmvHvjlcZFJM9HK+tpLvWKO0SL2an4wp+S+e5q6mNzeJznTufStcUeO1YzqI9Gghh5htD0Xkw7ra/nUe0DKZ9HkflvJcNFWjhdIvY5QF3KFgl78E3TSfkJjW5h05kDt+zofGYi8RZy83PiRjWEu0ZDTWPVSP9cF9ebbwK0sWbXUO7D5Jt8=
 X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5505.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(7416014)(23010399003)(376014)(22082099003)(18002099003)(56012099006)(10067099003)(11063799006);DIR:OUT;SFP:1101;
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5505.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(7416014)(23010399003)(376014)(6133799003)(22082099003)(18002099003)(56012099006)(10067099003)(11063799006);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?llVBs4hEpMf2CsFQ80ABrsDNQ25nMjJPR2ltCXe2aixteD1q5ZgETb3Yw4N5?=
- =?us-ascii?Q?iXHpFCkaG+boEfQTy7Xr5QCGQl3pYbNBIbN3ycMIWdhETu658WP/b4aLIomJ?=
- =?us-ascii?Q?4H2POzi1cB6dnA0mzvinY9k+iVXeJV6Pd7v6E0YSG8WHtYZJ/vC7vYjHLeR/?=
- =?us-ascii?Q?/rbvzUS5UwJnaMVklQA5IcZV8RG///j1ULFtOhMOReNd7X9aBZCUiP3krKLe?=
- =?us-ascii?Q?2vEob6PBT28wvcSpPUDtZX0Ioekg6QHwp9WlmXxy68IYsAGw9PydO71jnoxk?=
- =?us-ascii?Q?qVOQ/2ATORS4RWDG1iQ+GWEdUTpRL3rMHl71yBO1saskE9IokrL+E4UvnTiS?=
- =?us-ascii?Q?gyg4A3B/ax1kQWb1nWdumFD8TwOIakX5NNirO/P8pOgdHwXLDa70w4n/4kW4?=
- =?us-ascii?Q?kysVqo10yeteCgqh/7KEuAHnW75eZlx2tT6lbtR/JrlZg0PndIUZlcpujOVg?=
- =?us-ascii?Q?FSMYuMKrEDOD9Eiyd2IPVdu/U81DzWRaCHNUrUf42Sc3fQYcsgXvez8P9hdo?=
- =?us-ascii?Q?ydziGymdT3Rjt8ivvX+37SEd3fcU7M5P5RtEJiw+1F5Yon/J4aMwgbj6stxz?=
- =?us-ascii?Q?e1enFcaqBx9D3rDHqWn7O6XNzHckAbBp1GtSr/Y6Pq67Txn2lEqlYfXjWem3?=
- =?us-ascii?Q?mMlPSsgtSrVK0duv6gyHprOhuUDuRGpGz4+y+ttE9KcEiB58nBQDN1RsocF6?=
- =?us-ascii?Q?Cp/XiwGWMJZpFGd3obvkyo0KADwXlNo3z6G5m/76cAHqF/Ob5xV9iGBctSL+?=
- =?us-ascii?Q?+rHC7Q4gN/wVo9LI3+hVRTfFJXV2XlKPCP1Z2/iveKdFD7jZprr+wAbnxb3I?=
- =?us-ascii?Q?LeLGOAdFmEkms45m3rRZu5GF/Kc1f4er7JI93gby5HabhEL7pcKiUgSZB/cb?=
- =?us-ascii?Q?2ApxUzAwa03zpvXXaP/PNe68FqaYEVT+JDy2+Xccm40x0wDTR0o793E1ZKAh?=
- =?us-ascii?Q?O+QCMzSAb/va9vpETBA1Ly66OTyQ2WT+y6ZXA5yOpVVFn/hnfXafWoscOLDM?=
- =?us-ascii?Q?SJH7xbliQ5JMX8Mkx9mdbeN0D71aBc44cVezRHqaZ6QRF2TrlcpxJfVHsvd1?=
- =?us-ascii?Q?6+qNHvREa2gpkwkNdE47/hgsExIWRKuAgsDRUlbHG2vxy0ylF3UKTMHIrFsf?=
- =?us-ascii?Q?RoBhg/lhiX4SHjYTAb8OS5yFDdWKDrTr5sGIOXS89iKywYsXRMIZNWZOr3sV?=
- =?us-ascii?Q?LZ9cx0KrIuqmcIuAv1YJn7zCw4KpHiY75rTcggUh5HYiwB7oybYGI8XJvGDX?=
- =?us-ascii?Q?ielMRx/knZYqsuW+OU0eKI+JBzi6gZwOGaLRXRu1Et92OcuhapQx3pDNOXPW?=
- =?us-ascii?Q?EQUSSSOdnMN9MhHbtDgFTDWMt663vpL/ZV2n23MeYGUNcGOY9cQ8hP6BrPWg?=
- =?us-ascii?Q?cIdwLHn/5qse+AW1Oav8Tj+hCV/nBvAiebBMeX9LfAkGC9lbYqMyoLq19nXY?=
- =?us-ascii?Q?8grlR0Udw7oq/o4seQh/qI3d31DqD3V3kS/4XYzu703AWEG9qqfDKYf+/hNS?=
- =?us-ascii?Q?VGQ+f6GF+zyIxYz/YVhGI/e0JEjKHTbXUEgdXj4OqIaETT0PkSEP7CAwKmpH?=
- =?us-ascii?Q?YZehL6mRunOWVtPjWlghqYn2l1aTuBSSkmfxJ6hHPNBFQ7aUoB0EQvn3EwAO?=
- =?us-ascii?Q?B3JaXa920G0lGpVktWwXkd/b+vOwI7BmU91T1dIYR8cYZFJEYlMnqop+YrvP?=
- =?us-ascii?Q?qIetZP/6BPbWbhDOZeV6o7mnS1DLq9hnnZV9edF01W4/V8M2WxVyapYgZhmx?=
- =?us-ascii?Q?jHLwljD4tw=3D=3D?=
+	=?us-ascii?Q?h+o6VrZ3Y/vBezPHMMr/13pg5q98UiDUqNrnZytVCkDkrWXuPnlRrrutoT5O?=
+ =?us-ascii?Q?4cXi6QzX9Kj17/Wqvj3QrNwtaeyMQPIfH6rSfEzXAUQt2WGa/EqG6J8+PnXL?=
+ =?us-ascii?Q?u/qoUoL88daMQPEusYQ5vCbmAuJwKs99w0lSKy9psuj5Io9yxgXPN7nWFO9N?=
+ =?us-ascii?Q?cRnyEzA58VMfCgal2bDFTvZ1FFbhexQ/DRmssnaoQ04++a5HIKBV+6Ygmpwp?=
+ =?us-ascii?Q?xoosWCvPtbdGUxu8FgR04x+16hlg+R8XFzmGhG0yP0SWCdEIjQAENcRyZ0l1?=
+ =?us-ascii?Q?UngS9UEoSoA0hOKQZidFejvdozvMcpC9ruRoXWFNbqs8PZtqxOXwf72ICSg4?=
+ =?us-ascii?Q?ALujfBlut/LElwJZ42sDk3UzWdssuskXM981YfJEWwGmAhe/qs8GOTxddgrH?=
+ =?us-ascii?Q?2mUnRT/EAKnL57w+yQdDXlZSFx7eg/BFeRdGFYxvB4dMnyj3EDoINmZF7UOi?=
+ =?us-ascii?Q?CIYYhuIHolb/Z5Q33s7ywDRq1x+JsIZT0hMVFo4/H3nZUM5qg6efB2c0aNgf?=
+ =?us-ascii?Q?fXWgWjCfIvnIh6t+WNPpGKkkHwHoZ0i4L1u6JSRm08LNfRsXmQluX3nQ4ahw?=
+ =?us-ascii?Q?HTWWkfbNTOCnEoJWE2C9sThlcG+XgM/Mt8lmLq9cc2qMnCAmN23HSiZm/jBV?=
+ =?us-ascii?Q?ImodjuDZZzOVBzwfIDJRL1YASEZugOMUL/DH6WFxHd+hKpsRg9diBuquY4ds?=
+ =?us-ascii?Q?W8UB65VKQesTpt5gYIA8EfC+Ydq6qAbK1VOH7ghfZqQ3SFjAUWxPzIaSCHmk?=
+ =?us-ascii?Q?D1bS8WZwM+FhCNN4gjV/6V+6GMtx/Mu/J8r2dIbsJ4v0NgtXHoUYUSbAOzgy?=
+ =?us-ascii?Q?kfqHJak3glKR2Ec4V9s+k1FT7fIUM5n4Sh0P2KFMNQfiBxdSlgJ1nxJTxY9F?=
+ =?us-ascii?Q?lARX01u9wtJm7MbMM4yokS30V9g860PHsZHlZJ7KjCjUMV3SLonfHN08e1/O?=
+ =?us-ascii?Q?8A58bcya39HqAcEU9gieEoEOciOWgXT+OpeVGBk06/lXqMNJC2e66mFIjG5B?=
+ =?us-ascii?Q?BmVH9ZcWBDKQnRioARI884cKQ1uq3ntbm4v0KuSF9/1fmJGO7WWPlfwho2oG?=
+ =?us-ascii?Q?ZXGVZXqezb+TFUinMlYw0A1mGrFJQcvzuvKjf5ViZPZlekuzXEZMauujYvc8?=
+ =?us-ascii?Q?bhtJxQ2tv02gYh6cdbYVHHEQcro2mfgfc35n0t1o6v7SAzWl9P5KI+8k3Onr?=
+ =?us-ascii?Q?NutzR/fKA47fnFjgYc1oQXjvuVD4bo4ri0kNgxac3l2Gz3/lNW+gKuxItc6T?=
+ =?us-ascii?Q?Jq3HsujG420tAfa3BX3kv8Wq2SNVWdF608d8lFfX5+jW0OxyBVhBSQeCb0Wy?=
+ =?us-ascii?Q?xS0ZEq47OJieZJrLBAJQoJV10/sC6Zcfhx06YFkOOgv7ZkCkY+MR2u0dBWli?=
+ =?us-ascii?Q?WM/W+nlD6rbKtBdqh1rLWOvdwRawqofC3a7k2bTqo9HStyoYCX3zezwIVxU9?=
+ =?us-ascii?Q?MOhw3PnYLafEFAMwqKs48iViGHieSSRztBRK5v2HowywejPZN0ChAbbWLGe9?=
+ =?us-ascii?Q?BYnOMxkudRKdnokoQttK6QGcGTHFuC8EAZWCJ+fW0fS+8Fl5QU3y1Bd9seD5?=
+ =?us-ascii?Q?YBVzEQBpOQJ0a5n1/a1CNOn7okqPXp59WOC56tgpP4GcNt0criji5+zjSdiQ?=
+ =?us-ascii?Q?HFyVkSy6ht5BEDTM1eJq3/h7R0cEAyBKX9YCiROk3Sj1h1yD1PJpGIgKNvK8?=
+ =?us-ascii?Q?xKAsD41BZoUtiSraXliRpaHcbACwMwf2Zbr0M1zTETakShQPDgKH495P5IBg?=
+ =?us-ascii?Q?cBMa2eoIZA=3D=3D?=
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: f0452752-f53b-467c-2ab5-08df07359a1d
+X-MS-Exchange-CrossTenant-Network-Message-Id: eb25cefc-c6b2-44e1-c350-08df07359bee
 X-MS-Exchange-CrossTenant-AuthSource: BL0PR12MB5505.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 31 Aug 2026 07:58:11.2048
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 31 Aug 2026 07:58:14.1972
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: eg3Io88maHYig8tfrmRRyOnYRGxuYqDCTbt1hNFXDWdCUL81TkLVq7KFawi/u674blH/P1spsHJXT14YHawpog==
+X-MS-Exchange-CrossTenant-UserPrincipalName: yz/WDJrnOx6XnvGODcn2tAEun58Q2mMZ0MTnNZq6oQYBHuUuslLbytS4Rw7AlWOoJir3K6mP6aHQFOyiNazjVw==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA0PR12MB4430
 
-From: Daniel Jurgens <danielj@nvidia.com>
+virtqueue_exec_admin_cmd() calls virtqueue_add_sgs() with GFP_KERNEL
+while holding a spinlock. GFP_KERNEL allocations can sleep, which is
+illegal in atomic context.
 
-Following patches introduce capability IDs above 63 (e.g. 0x800),
-making the capability ID list larger than a single u64. Remove the
-cached supported_caps field so the code uses data->supported_caps
-directly, transparently handling a bitmap of any size. Remove the
-build assert that enforced the list fit in 64 bits.
+The issue becomes more significant with the next commit, which exposes
+vp_modern_admin_cmd_exec() through virtio_config_ops. This makes the
+admin command path available to device drivers and potentially reachable
+from userspace, increasing the likelihood of hitting the invalid sleep
+under memory pressure.
 
-Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
-Reviewed-by: Parav Pandit <parav@nvidia.com>
-Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Fix this by replacing the spinlock with a mutex, which allows GFP_KERNEL
+to sleep as needed. Since the virtqueue done callback runs in interrupt
+context and cannot take a mutex, defer its work to a work item that runs
+in process context.
+
 Signed-off-by: Shahar Shitrit <shshitrit@nvidia.com>
 ---
- drivers/virtio/virtio_pci_common.h |  1 -
- drivers/virtio/virtio_pci_modern.c | 10 +++-------
- 2 files changed, 3 insertions(+), 8 deletions(-)
+ drivers/virtio/virtio_pci_common.c |  5 ++++
+ drivers/virtio/virtio_pci_common.h |  5 +++-
+ drivers/virtio/virtio_pci_modern.c | 37 +++++++++++++++++++-----------
+ 3 files changed, 33 insertions(+), 14 deletions(-)
 
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index 164f480b18a6..ec0c92c782d6 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -256,6 +256,11 @@ static void vp_del_vq(struct virtqueue *vq, struct virtio_pci_vq_info *info)
+ 		spin_unlock_irqrestore(&vp_dev->lock, flags);
+ 	}
+ 
++	if (vp_is_avq(vq->vdev, vq->index)) {
++		cancel_work_sync(&vp_dev->admin_vq.work);
++		vp_dev->admin_vq.info = NULL;
++	}
++
+ 	vp_dev->del_vq(info);
+ 	kfree(info);
+ }
 diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
-index 8cd01de27baf..fc26e035e7a6 100644
+index fc26e035e7a6..8b0178295342 100644
 --- a/drivers/virtio/virtio_pci_common.h
 +++ b/drivers/virtio/virtio_pci_common.h
-@@ -48,7 +48,6 @@ struct virtio_pci_admin_vq {
+@@ -30,6 +30,7 @@
+ #include <linux/highmem.h>
+ #include <linux/spinlock.h>
+ #include <linux/mutex.h>
++#include <linux/workqueue.h>
+ 
+ struct virtio_pci_vq_info {
+ 	/* the actual virtqueue */
+@@ -46,7 +47,9 @@ struct virtio_pci_admin_vq {
+ 	/* Virtqueue info associated with this admin queue. */
+ 	struct virtio_pci_vq_info *info;
  	/* Protects virtqueue access. */
- 	spinlock_t lock;
+-	spinlock_t lock;
++	struct mutex lock;
++	/* Admin command completion work. */
++	struct work_struct work;
  	u64 supported_cmds;
--	u64 supported_caps;
  	u8 max_dev_parts_objects;
  	struct ida dev_parts_ida;
- 	/* Name of the admin queue: avq.$vq_index. */
 diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-index 6d8ae2a6a8ca..ef4a64eb9982 100644
+index ef4a64eb9982..dab63b044a31 100644
 --- a/drivers/virtio/virtio_pci_modern.c
 +++ b/drivers/virtio/virtio_pci_modern.c
-@@ -304,10 +304,10 @@ virtio_pci_admin_cmd_dev_parts_objects_enable(struct virtio_device *virtio_dev)
- 
- static void virtio_pci_admin_cmd_cap_init(struct virtio_device *virtio_dev)
+@@ -47,13 +47,20 @@ static int vp_avq_index(struct virtio_device *vdev, u16 *index, u16 *num)
+ void vp_modern_avq_done(struct virtqueue *vq)
  {
--	struct virtio_pci_device *vp_dev = to_vp_device(virtio_dev);
- 	struct virtio_admin_cmd_query_cap_id_result *data;
- 	struct virtio_admin_cmd cmd = {};
- 	struct scatterlist result_sg;
-+	u64 caps;
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vq->vdev);
+-	struct virtio_pci_admin_vq *admin_vq = &vp_dev->admin_vq;
++
++	schedule_work(&vp_dev->admin_vq.work);
++}
++
++static void vp_modern_avq_work(struct work_struct *work)
++{
+ 	unsigned int status_size = sizeof(struct virtio_admin_cmd_status);
++	struct virtio_pci_admin_vq *admin_vq =
++		container_of(work, struct virtio_pci_admin_vq, work);
++	struct virtqueue *vq = admin_vq->info->vq;
+ 	struct virtio_admin_cmd *cmd;
+-	unsigned long flags;
+ 	unsigned int len;
+ 
+-	spin_lock_irqsave(&admin_vq->lock, flags);
++	mutex_lock(&admin_vq->lock);
+ 	do {
+ 		virtqueue_disable_cb(vq);
+ 		while ((cmd = virtqueue_get_buf(vq, &len))) {
+@@ -71,7 +78,7 @@ void vp_modern_avq_done(struct virtqueue *vq)
+ 			complete(&cmd->completion);
+ 		}
+ 	} while (!virtqueue_enable_cb(vq));
+-	spin_unlock_irqrestore(&admin_vq->lock, flags);
++	mutex_unlock(&admin_vq->lock);
+ }
+ 
+ static int virtqueue_exec_admin_cmd(struct virtio_pci_admin_vq *admin_vq,
+@@ -82,7 +89,6 @@ static int virtqueue_exec_admin_cmd(struct virtio_pci_admin_vq *admin_vq,
+ 				    struct virtio_admin_cmd *cmd)
+ {
+ 	struct virtqueue *vq;
+-	unsigned long flags;
  	int ret;
  
- 	data = kzalloc_obj(*data);
-@@ -323,12 +323,8 @@ static void virtio_pci_admin_cmd_cap_init(struct virtio_device *virtio_dev)
- 	if (ret)
- 		goto end;
+ 	vq = admin_vq->info->vq;
+@@ -100,11 +106,11 @@ static int virtqueue_exec_admin_cmd(struct virtio_pci_admin_vq *admin_vq,
+ 	if (virtqueue_is_broken(vq))
+ 		return -EIO;
  
--	/* Max number of caps fits into a single u64 */
--	BUILD_BUG_ON(sizeof(data->supported_caps) > sizeof(u64));
--
--	vp_dev->admin_vq.supported_caps = le64_to_cpu(data->supported_caps[0]);
--
--	if (!(vp_dev->admin_vq.supported_caps & (1 << VIRTIO_DEV_PARTS_CAP)))
-+	caps = le64_to_cpu(data->supported_caps[0]);
-+	if (!(caps & BIT_ULL(VIRTIO_DEV_PARTS_CAP)))
- 		goto end;
+-	spin_lock_irqsave(&admin_vq->lock, flags);
++	mutex_lock(&admin_vq->lock);
+ 	ret = virtqueue_add_sgs(vq, sgs, out_num, in_num, cmd, GFP_KERNEL);
+ 	if (ret < 0) {
+ 		if (ret == -ENOSPC) {
+-			spin_unlock_irqrestore(&admin_vq->lock, flags);
++			mutex_unlock(&admin_vq->lock);
+ 			cpu_relax();
+ 			goto again;
+ 		}
+@@ -112,14 +118,14 @@ static int virtqueue_exec_admin_cmd(struct virtio_pci_admin_vq *admin_vq,
+ 	}
+ 	if (!virtqueue_kick(vq))
+ 		goto unlock_err;
+-	spin_unlock_irqrestore(&admin_vq->lock, flags);
++	mutex_unlock(&admin_vq->lock);
  
- 	virtio_pci_admin_cmd_dev_parts_objects_enable(virtio_dev);
+ 	wait_for_completion(&cmd->completion);
+ 
+ 	return cmd->ret;
+ 
+ unlock_err:
+-	spin_unlock_irqrestore(&admin_vq->lock, flags);
++	mutex_unlock(&admin_vq->lock);
+ 	return -EIO;
+ }
+ 
+@@ -350,6 +356,8 @@ static void vp_modern_avq_cleanup(struct virtio_device *vdev)
+ 	if (!virtio_has_feature(vdev, VIRTIO_F_ADMIN_VQ))
+ 		return;
+ 
++	cancel_work_sync(&vp_dev->admin_vq.work);
++
+ 	vq = vp_dev->admin_vq.info->vq;
+ 	if (!vq)
+ 		return;
+@@ -554,10 +562,12 @@ static void vp_reset(struct virtio_device *vdev)
+ 	while (vp_modern_get_status(mdev))
+ 		msleep(1);
+ 
+-	vp_modern_avq_cleanup(vdev);
+-
+-	/* Flush pending VQ/configuration callbacks. */
++	/* Flush pending VQ/configuration callbacks before cleanup, so that
++	 * vp_modern_avq_done() can no longer schedule admin_vq.work.
++	 */
+ 	vp_synchronize_vectors(vdev);
++
++	vp_modern_avq_cleanup(vdev);
+ }
+ 
+ static int vp_active_vq(struct virtqueue *vq, u16 msix_vec)
+@@ -1284,8 +1294,9 @@ int virtio_pci_modern_probe(struct virtio_pci_device *vp_dev)
+ 	vp_dev->avq_index = vp_avq_index;
+ 	vp_dev->isr = mdev->isr;
+ 	vp_dev->vdev.id = mdev->id;
++	mutex_init(&vp_dev->admin_vq.lock);
++	INIT_WORK(&vp_dev->admin_vq.work, vp_modern_avq_work);
+ 
+-	spin_lock_init(&vp_dev->admin_vq.lock);
+ 	return 0;
+ }
+ 
 -- 
 2.49.0
 
