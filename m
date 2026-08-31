@@ -1,43 +1,46 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 564D0430CE2;
-	Mon, 31 Aug 2026 13:33:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80DFC477280;
+	Mon, 31 Aug 2026 13:35:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788183228; cv=none; b=U8MkxdHMhW19W4DnDPs7+PN86weW/HYhZHeBYhuKVmFaGLnTHXuZzSh/2tMtIWAR6APGK6riWulfKDgh6HfkhqlgowL6tiSN2xqaW/B+mj49QKpha6+q7mjvqlTghLZftC80Hmv0Bwc6Bgr5HXmte5RgBrFGLN6t291TcDh2Ksg=
+	t=1788183341; cv=none; b=ke/PQuJLWPSJq41JHWH7n6tsCOa0eth4PY4Wc5i5Q55L0G3xtufSJCrpYh2DUXNBdrI1Yu0hokQ+0Y/zf0ojTMQTTc55PVJisZRxMc3+VWaMW/qJUIwlqFBcA44Jn/S6wPP49411wVqNM6+71YNVQMrt+mjTj8/VvpLWPvXpoZE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788183228; c=relaxed/simple;
-	bh=quJOMTBW9ktBoQlH5FST6viD+tspK9PxgqKvdSjcdTg=;
+	s=arc-20240116; t=1788183341; c=relaxed/simple;
+	bh=zCwVNMWm9AJarhUGZuV8079zSkn5F2Ic6om4TiPHmW8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=PKpsgH2NkgH3xhYJfX+HN2JeTEZxsiVvdKIPeQAu6avNSzPzECLFAxWMlYNBlFPLmyBSFbJmXbOMFd+jQQ/fn9We0tm3+WaOrMp45P57uvgAPdGxNG+jjANCIcruGEltPM5MXPvGgr90u0RnTuGHPxaFEIpOw2SgKvs0Rdx2oWU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cTCgVfMM; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=fUjv8kgBj8xivrv5bC2akJp5RZ6/qBeEE6RgcW4SD/fnPc6QZmnYs5K288M26u8zyurWH5K1JhSXGPy3Wck83wGZcDHjjJlSUAlplHWKkUD9Her+G20dnNuYr9gclv9VMBypoPjc1vqZUM05MbuuJcEOFES6m2yaX61vY+rVxnE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JpWI9G5q; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cTCgVfMM"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DCBD1F00A3F;
-	Mon, 31 Aug 2026 13:33:44 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JpWI9G5q"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1499D1F00A3F;
+	Mon, 31 Aug 2026 13:35:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788183225;
-	bh=7XE0qIhiBUqZOs40ocefX7K8S4wpxgfYOn/qG3B+V3M=;
+	s=k20260515; t=1788183339;
+	bh=kKb26iVImiPGyTnZ71DQ0DY1f9MALfzVnRrVOZzO4mM=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=cTCgVfMMWMQVEzk2RJsBs9JGWVMXooB0G3KSqgSKHHx5QoY/9Dp8TANv+xUyZrvFD
-	 fq63sUQY+j/bV/+Cq96CqtXNsNV14ydcOnBenj+T7XxjGV0vq2R6wqpTWNItubeuH6
-	 +PlUIspAqojv0jWsl5R4Ba8BHP58/B518E80nlKbVCBLhZXbE/Vmc0QBotak7VvtiL
-	 asZHWSsjMA/RaJk5kJZzxwldQ9vTfW8XzK/DFwD8jRyk5vXOBr++BtLYAGiMGKN2Fw
-	 p6mOGGicLvPDFuWL6N6j4bobSP4UwyDBzO+icqVuoptawTqwaGHWgqYiwpS7tkOQIK
-	 AQQDRAkszLOKQ==
+	b=JpWI9G5quEyUvQ6URcmYRXV3Hkax89IhAXL2g70duB7A5J6c7Njkrnjm/dfzl4nDb
+	 jDoWcj8tOoVOPjweHX1I0exa2yxfEI9GdMh3I+y2WNVc4//EZr4G6KHQ1wjFXwSF3e
+	 BYwAR/Xsnhbv7ppj+kPKpxBCqOP50SDqCO+2JWlqSkl0nmtuPfLEapnTbnEnIRXalP
+	 u+xWGaRvNc6YqCnnR+3VvIsvdeuLvX8wyRNwsrJ6T2gU+h+AJnNsjeMeJG2sDKrv8t
+	 u6hPE5c10sg9inlGkRFdszMoPI33IUHL0M5+ULDaN/GF1XUO5a32fkTrwMnq1k3aiX
+	 XAy1E8UVtdrFw==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Cc: Vamsi Attunuru <vattunuru@marvell.com>,
+Cc: Jia Jia <physicalmtea@gmail.com>,
 	"Michael S. Tsirkin" <mst@redhat.com>,
 	Sasha Levin <sashal@kernel.org>,
 	jasowangio@gmail.com,
+	michael.christie@oracle.com,
 	virtualization@lists.linux.dev,
+	kvm@vger.kernel.org,
+	netdev@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.18-6.12] vdpa/octeon_ep: Use 4 bytes for mailbox signature
-Date: Mon, 31 Aug 2026 09:20:48 -0400
-Message-ID: <20260831133314.4125787-20-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.18-5.10] vhost-scsi: flush backend after device ioctls
+Date: Mon, 31 Aug 2026 09:21:57 -0400
+Message-ID: <20260831133314.4125787-89-sashal@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260831133314.4125787-1-sashal@kernel.org>
 References: <20260831133314.4125787-1-sashal@kernel.org>
@@ -53,407 +56,470 @@ X-stable-base: Linux 6.18.48
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Vamsi Attunuru <vattunuru@marvell.com>
+From: Jia Jia <physicalmtea@gmail.com>
 
-[ Upstream commit d42eadf7969e2217fceb84317d3fd28a7bdbd96e ]
+[ Upstream commit 22598f55a4c2b510b3df5e69e563387a963222ae ]
 
-The upper 4 bytes are reserved by the firmware for
-storing meta data. Use only lower 4 bytes to update
-the signature details.
+vhost-scsi translates guest response descriptors into userspace iovecs
+when commands are submitted.  Target-core completes those commands
+asynchronously, so VHOST_SET_MEM_TABLE can replace the memory table while
+an in-flight command still retains response iovecs translated through the
+old table.
 
-Signed-off-by: Vamsi Attunuru <vattunuru@marvell.com>
+If the old mapping is reused after VHOST_SET_MEM_TABLE returns, command
+completion can write the response to an unrelated userspace object.
+
+Flush the vhost-scsi backend after vhost_dev_ioctl() handles a device
+ioctl.  This waits for in-flight commands that can still use the old
+response iovecs before the ioctl returns.
+
+Signed-off-by: Jia Jia <physicalmtea@gmail.com>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Message-ID: <20260224095226.1001151-3-schalla@marvell.com>
+Message-ID: <20260724060919.1569170-1-physicalmtea@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
 
 LLM Generated explanations, may be completely bogus:
 
-# Stable Backport Analysis: `vdpa/octeon_ep: Use 4 bytes for mailbox
-signature`
+## Phase 1: Commit Message Forensics
 
-**Local tree:** Linux **6.18.44** (`stable/linux-6.18.y`, `git describe
-HEAD` → `v6.18.44`)
-**Upstream commit:** `d42eadf7969e2217fceb84317d3fd28a7bdbd96e` (not yet
-in this tree)
+**Step 1.1 – Subject line**
 
----
+Record: `[vhost-scsi] [flush] Flush backend after device ioctls to
+prevent stale response-iovec writes after memory table changes.`
 
-## PHASE 1: COMMIT MESSAGE FORENSICS
+**Step 1.2 – Tags**
 
-### Step 1.1: Subject Line
-**Record:** `[vdpa/octeon_ep]` `[Use]` — driver correctness fix for
-mailbox signature access width.
+Record:
+- **Fixes:** none
+- **Reported-by:** none
+- **Tested-by:** none
+- **Reviewed-by:** none in commit message
+- **Acked-by:** none in commit message
+- **Link:** none
+- **Cc: stable:** none (expected for pipeline candidates)
+- **Signed-off-by:** Jia Jia `<physicalmtea@gmail.com>`, Michael S.
+  Tsirkin `<mst@redhat.com>` (ignore pipeline-added SOBs)
+- **Message-ID:** `<20260724060919.1569170-1-physicalmtea@gmail.com>`
+  (v2 submission)
 
-### Step 1.2: Tags
-**Record:**
-- `Signed-off-by: Vamsi Attunuru <vattunuru@marvell.com>`
-- `Signed-off-by: Michael S. Tsirkin <mst@redhat.com>` (vhost/vDPA
-  maintainer)
-- `Message-ID: <20260224095226.1001151-3-schalla@marvell.com>`
-- No `Fixes:`, `Reported-by:`, `Tested-by:`, `Reviewed-by:`, `Acked-
-  by:`, `Cc: stable@vger.kernel.org`, or `Link:` tags.
+Notable: Signed-off-by from vhost maintainer (mst) is a strong quality
+signal. No syzbot/fuzzer report; this is a logic/lifetime bug.
 
-Notable: maintainer sign-off from Michael S. Tsirkin; part of a 4-patch
-series (`[PATCH 2/4]`).
+**Step 1.3 – Body analysis**
 
-### Step 1.3: Body Analysis
-**Record:**
-- **Bug:** Driver uses 64-bit `readq`/`writeq` on a mailbox signature
-  register; firmware reserves the upper 4 bytes for metadata.
-- **Symptom:** Incorrect signature read/write corrupts firmware metadata
-  or prevents signature match.
-- **Root cause:** Access width mismatch with hardware/firmware register
-  layout.
-- **Version info:** None in commit message.
+Record:
+- **Bug:** `vhost_scsi_setup_resp_iovs()` copies guest response
+  descriptor addresses (translated userspace HVAs) into per-command
+  `tvc_resp_iovs` at submit time. Target-core completes SCSI commands
+  asynchronously. `VHOST_SET_MEM_TABLE` can replace the memory table
+  while commands still hold iovecs from the old table.
+- **Symptom:** After the ioctl returns and old mappings are reused,
+  async completion via `copy_to_iter()` can write the virtio-scsi
+  response into unrelated userspace memory → **host memory corruption**.
+- **Versions:** Not specified; mechanism has existed since the 2012 TODO
+  was added.
+- **Root cause:** Missing synchronization barrier between device-wide
+  ioctls (especially `VHOST_SET_MEM_TABLE`) and in-flight async
+  completions using stale response iovecs.
 
-### Step 1.4: Hidden Bug Fix?
-**Record:** Yes — despite no "fix" in the subject, this is a hardware-
-interface bug fix disguised as a register-width correction. Not cosmetic
+**Step 1.4 – Hidden bug fix?**
+
+Record: **Yes.** Although the subject says "flush" rather than "fix",
+this closes a long-standing correctness hole marked by a `/* TODO: flush
+backend after dev ioctl. */` comment since 2012. It is not cosmetic
 cleanup.
 
 ---
 
-## PHASE 2: DIFF ANALYSIS
+## Phase 2: Diff Analysis
 
-### Step 2.1: Inventory
-**Record:**
-- **File:** `drivers/vdpa/octeon_ep/octep_vdpa_main.c` (+3/−3 lines, 6
-  lines touched)
-- **Functions:** `get_device_ready_status()`, `octep_sriov_enable()`
-- **Scope:** Single-file surgical fix
+**Step 2.1 – Inventory**
 
-### Step 2.2: Code Flow Changes
+Record:
+- **File:** `drivers/vhost/scsi.c` (+2 / -1 lines net)
+- **Function:** `vhost_scsi_ioctl()` default branch
+- **Scope:** Single-file, surgical fix
 
-**Hunk 1 — `get_device_ready_status()` (VF path):**
-- **Before:** `readq()` reads 64 bits; compares to
-  `OCTEP_DEV_READY_SIGNATURE` (0xBABABABA); clears with `writeq(0)`.
-- **After:** `readl()` reads lower 32 bits only; clears with
-  `writel(0)`.
-- **Path:** VF BAR-init polling loop in `octep_vdpa_setup_task()`.
+**Step 2.2 – Code flow change**
 
-**Hunk 2 — `octep_sriov_enable()` (PF path):**
-- **Before:** `writeq(OCTEP_DEV_READY_SIGNATURE, ...)` writes 64 bits
-  per VF.
-- **After:** `writel(OCTEP_DEV_READY_SIGNATURE, ...)` writes lower 32
-  bits only.
-- **Path:** SR-IOV enable when all VFs are assigned bar space.
+Record:
+- **Before:** After `vhost_dev_ioctl()`, unknown ioctls fall through to
+  `vhost_vring_ioctl()` on `-ENOIOCTLCMD`; no flush for handled device
+  ioctls (`VHOST_SET_MEM_TABLE`, etc.).
+- **After:** On any non-`-ENOIOCTLCMD` result from `vhost_dev_ioctl()`,
+  call `vhost_scsi_flush(vs)` before returning. Vring ioctls still
+  bypass this flush (they return `-ENOIOCTLCMD` and go to
+  `vhost_vring_ioctl()`).
+- **Path affected:** Control-plane ioctl path only; data path unchanged.
 
-### Step 2.3: Bug Mechanism
-**Record:** **Hardware interface / logic correctness bug**
-- `OCTEP_DEV_READY_SIGNATURE` is `0xBABABABA` (32-bit, in
-  `octep_vdpa.h`).
-- If firmware places metadata in upper 32 bits:
-  - `readq()` returns a value ≠ `0xBABABABA` → ready check never
-    succeeds.
-  - `writeq()` overwrites/clears upper 32 bits → firmware metadata
-    corruption.
-- Rest of mailbox code in `octep_vdpa_hw.c` already uses 32-bit
-  `ioread32`/`iowrite32`.
+**Step 2.3 – Bug mechanism**
 
-### Step 2.4: Fix Quality
-**Record:**
-- Fix is obviously correct and minimal.
-- Matches existing 32-bit mailbox access patterns in the same driver.
-- **Regression risk:** Very low — only narrows access to the documented
-  32-bit signature field.
+Record: **Memory safety / lifetime bug (stale pointer use).**
+- `vhost_get_vq_desc()` → `translate_desc()` builds `vq->iov[]` using
+  current `dev->umem` mappings.
+- `vhost_scsi_setup_resp_iovs()` copies those pointers into
+  `cmd->tvc_resp_iovs`.
+- Completion in `vhost_scsi_complete_cmd_work()` writes via those stored
+  iovecs:
 
----
+```721:723:drivers/vhost/scsi.c
+                iov_iter_init(&iov_iter, ITER_DEST, cmd->tvc_resp_iovs,
+                              cmd->tvc_resp_iovs_cnt, sizeof(v_rsp));
+                ret = copy_to_iter(&v_rsp, sizeof(v_rsp), &iov_iter);
+```
 
-## PHASE 3: GIT HISTORY INVESTIGATION
+- `vhost_set_memory()` replaces `d->umem` and frees the old IOTLB
+  without waiting for in-flight completions using old HVAs.
 
-### Step 3.1: Blame
-**Record:**
-- Buggy `readq`/`writeq` in `get_device_ready_status()` introduced in
-  `8b6c724cdab85` (Jun 14, 2024) — initial driver commit.
-- Buggy `writeq` in `octep_sriov_enable()` same commit; address
-  calculation around it fixed later in `54556d5394382`.
+**Step 2.4 – Fix quality**
 
-### Step 3.2: Fixes: Tag
-**Record:** N/A — no `Fixes:` tag. Bug introduced by `8b6c724cdab85`
-("virtio: vdpa: vDPA driver for Marvell OCTEON DPU devices"), which is
-present in this tree.
+Record:
+- **Obviously correct:** Matches the established pattern in `vhost-net`
+  and `vhost-vsock`:
 
-### Step 3.3: Related File History
-**Record:** Recent `drivers/vdpa/octeon_ep/` history in 6.18.y:
-1. `54556d5394382` — Fix PF->VF mailbox data address calculation (series
-   patch 1/4, already backported)
-2. `3ef0cfa77a3d5` — fix IRQ-to-ring mapping (series patch 4/4, already
-   backported)
-3. `8716a841d1da4` — refcount leak fix
+```1827:1835:drivers/vhost/net.c
+        default:
+                mutex_lock(&n->dev.mutex);
+                r = vhost_dev_ioctl(&n->dev, ioctl, argp);
+                if (r == -ENOIOCTLCMD)
+                        r = vhost_vring_ioctl(&n->dev, ioctl, argp);
+                else
+                        vhost_net_flush(n);
+                mutex_unlock(&n->dev.mutex);
+                return r;
+```
 
-Patches 2/4 (this commit) and 3/4 (event handling) are **not** in 6.18.y
-yet.
-
-### Step 3.4: Author Context
-**Record:** Vamsi Attunuru (Marvell). Michael S. Tsirkin committed.
-Srujana Challa submitted the series. Active contributors to this driver.
-
-### Step 3.5: Dependencies
-**Record:**
-- Part of 4-patch series, but **this patch is standalone** — only
-  changes access width.
-- Prerequisite patch 1 (`54556d5394382`, mailbox address calc) is
-  already in 6.18.y.
-- Does **not** require patch 3/4 (event handling — separate feature).
-- `git apply --check` against current tree: **applies cleanly**.
+- **Minimal:** 3-line change; removes TODO, adds `else
+  vhost_scsi_flush(vs)`.
+- **Regression risk:** Low. Flush only on rare device-wide control
+  ioctls; vring hot-path ioctls explicitly excluded.
+  `vhost_scsi_flush()` already used in set/clear endpoint paths and
+  requires `dev.mutex` (held here).
 
 ---
 
-## PHASE 4: MAILING LIST AND EXTERNAL RESEARCH
+## Phase 3: Git History Investigation
 
-### Step 4.1: Original Discussion
-**Record:**
-- `b4 dig -c d42eadf7969e2`:
-  https://patch.msgid.link/20260224095226.1001151-3-schalla@marvell.com
-- Series: v1, 4 patches from Srujana Challa, Feb 24, 2026.
-- No reviewer replies or stable nominations found in saved mbox for this
-  specific patch.
+**Step 3.1 – Blame**
 
-### Step 4.2: Reviewers
-**Record:** `b4 dig -w` CC'd: `virtualization@lists.linux.dev`,
-`mst@redhat.com`, `jasowang@redhat.com`, Marvell developers. No explicit
-`Reviewed-by` in thread.
+Record: TODO introduced in `935cdee7ee1595` (Dec 2012, Michael S.
+Tsirkin, "vhost: avoid backend flush on vring ops"). Default ioctl
+branch dates to `057cbf49a1f082` (Jul 2012). Buggy gap present ~14
+years.
 
-### Step 4.3: Bug Reports
-**Record:** N/A — no external bug report links. Bug inferred from
-firmware register layout and code analysis.
+**Step 3.2 – Fixes: tag**
 
-### Step 4.4: Related Patches
-**Record:** 4-patch series:
-1. Fix PF->VF mailbox address — **in 6.18.y**
-2. Use 4 bytes for mailbox signature — **this commit**
-3. Add vDPA device event handling — not in 6.18.y (new functionality)
-4. fix IRQ-to-ring mapping — **in 6.18.y**
+Record: N/A — no Fixes: tag.
 
-### Step 4.5: Stable List History
-**Record:** No stable-list discussion found for this specific patch. Two
-other patches from the same series were already backported to 6.18.y.
+**Step 3.3 – Related file history**
 
----
+Record:
+- `vhost_scsi_flush()` introduced/evolved through inflight refcount
+  mechanism (commits like `25b98b64e2842`, `31fbea3ab94ea`).
+- `vhost_scsi_setup_resp_iovs()` added in `9d8960672d63d` (2024) — makes
+  explicit per-command storage of response iovecs, but the race predates
+  this.
+- Fix is **standalone**; not part of a multi-patch dependency series for
+  this specific change.
 
-## PHASE 5: CODE SEMANTIC ANALYSIS
+**Step 3.4 – Author context**
 
-### Step 5.1: Key Functions
-**Record:** `get_device_ready_status()`, `octep_sriov_enable()`
+Record: Jia Jia submitted v2 (Jul 2026); Michael S. Tsirkin Signed-off-
+by. Author also submitted related vhost-scsi hardening patches in the
+same timeframe.
 
-### Step 5.2: Callers
-**Record:**
-- `get_device_ready_status()` ← `octep_vdpa_setup_task()` (work item,
-  polls up to 5s during VF init)
-- `octep_sriov_enable()` ← `octep_vdpa_sriov_configure()` ← sysfs SR-IOV
-  interface (`echo N > sriov_numvfs`)
+**Step 3.5 – Prerequisites**
 
-### Step 5.3: Callees
-**Record:** `readl`/`writel`/`readq` (unchanged for `OCTEP_EPF_RINFO`),
-PCI SR-IOV helpers.
-
-### Step 5.4: Reachability
-**Record:**
-- VF init path: triggered when Octeon DPU VF probes with
-  `CONFIG_OCTEONEP_VDPA=m`.
-- PF SR-IOV path: triggered by admin enabling VFs.
-- Requires Marvell Octeon DPU hardware/emulation; not universal, but
-  reachable on deployed systems using this driver.
-
-### Step 5.5: Similar Patterns
-**Record:** `octep_vdpa_hw.c` mailbox protocol consistently uses 32-bit
-`ioread32`/`iowrite32`. Only the signature handshake incorrectly used
-64-bit access.
+Record: **None required.** `vhost_scsi_flush()` exists in this tree.
+Patch applies to current `vhost_scsi_ioctl()` structure. No new APIs or
+structures.
 
 ---
 
-## PHASE 6: CROSS-REFERENCING AGAINST LOCAL TREE
+## Phase 4: Mailing List and External Research
 
-### Step 6.1: Buggy Code Present?
-**Record:** **Yes.** Current tree at
-`drivers/vdpa/octeon_ep/octep_vdpa_main.c`:
-- Line 585: `u64 signature = readq(...)`
-- Line 588: `writeq(0, ...)`
-- Line 760: `writeq(OCTEP_DEV_READY_SIGNATURE, ...)`
+**Step 4.1 – Original discussion**
 
-Driver present since `8b6c724cdab85` (Jul 2024). Bug present since
-driver introduction.
+Record:
+- Thread found via web search (lore.kernel.org blocked by bot
+  protection):
+  - https://www.spinics.net/lists/netdev/msg1207854.html
+  - https://lists.openwall.net/netdev/2026/07/21/81
+  - v2: Message-ID `<20260724060919.1569170-1-physicalmtea@gmail.com>`
+- Author explains flush is control-plane only; vring ioctls
+  intentionally excluded per 2012 design.
+- Mike Christie reviewed (Jul 22); author responded Jul 23 with detailed
+  lifetime analysis.
+- **b4 dig:** Could not run — commit hash not present in this checkout;
+  `b4 dig -c` requires a commitish.
 
-### Step 6.2: Backport Complications
-**Record:** **Clean apply** — verified with `git apply --check`. No
-conflicts expected.
+**Step 4.2 – Reviewers**
 
-### Step 6.3: Related Fixes Already Present?
-**Record:** Series patches 1 and 4 already backported. This specific fix
-is **not** present. No alternate fix for the access-width bug.
+Record: CC'd netdev, kvm, virtualization; Paolo Bonzini, Stefan
+Hajnoczi, Eugenio Pérez, Mike Christie, Jason Wang area. mst Signed-off-
+by on committed version.
 
----
+**Step 4.3 – Bug report**
 
-## PHASE 7: SUBSYSTEM AND MAINTAINER CONTEXT
+Record: No external bugzilla/syzbot report. Bug identified through code
+analysis of the 2012 TODO and async completion path.
 
-### Step 7.1: Subsystem
-**Record:** `drivers/vdpa/octeon_ep/` — vDPA driver for Marvell Octeon
-DPU. **Criticality: PERIPHERAL** (hardware-specific, module-only:
-`CONFIG_OCTEONEP_VDPA`).
+**Step 4.4 – Related patches**
 
-### Step 7.2: Activity
-**Record:** Actively maintained; multiple fixes backported to 6.18.y in
-2026 from the same patch series.
+Record: Author has related vhost-scsi patches (feature-change rejection,
+T10-PI lifecycle) but this flush fix is independent.
 
----
+**Step 4.5 – Stable list history**
 
-## PHASE 8: IMPACT AND RISK ASSESSMENT
-
-### Step 8.1: Who Is Affected
-**Record:** Users of Marvell Octeon DPU devices with the `octep_vdpa`
-module (enterprise DPU / SmartNIC deployments). Config-specific, not
-universal.
-
-### Step 8.2: Trigger Conditions
-**Record:**
-- Every VF probe runs the signature poll loop.
-- Every SR-IOV enable writes the ready signature.
-- Trigger is deterministic when firmware uses upper 32 bits for metadata
-  (as documented in commit message).
-- Requires root/admin for SR-IOV; VF init happens automatically on
-  probe.
-
-### Step 8.3: Failure Mode
-**Record:**
-- **VF init failure:** 5-second timeout, `"BAR initialization is timed
-  out"` — vDPA device never comes up. **Severity: HIGH** for affected
-  hardware.
-- **Firmware metadata corruption:** `writeq` clobbers upper 32 bits.
-  **Severity: HIGH** (undefined firmware behavior).
-- Not a generic kernel crash, but complete functional breakage on
-  affected hardware.
-
-### Step 8.4: Risk-Benefit
-**Record:**
-- **Benefit:** HIGH for Octeon DPU users — restores working VF init and
-  correct firmware handshake.
-- **Risk:** VERY LOW — 6-line change, obviously correct, matches driver
-  conventions.
-- **Ratio:** Strong benefit for affected users, negligible risk.
+Record: No stable-list discussion found (lore blocked). Not used as
+negative signal.
 
 ---
 
-## PHASE 9: FINAL SYNTHESIS
+## Phase 5: Code Semantic Analysis
 
-### Step 9.1: Evidence Summary
+**Step 5.1 – Key functions**
+
+Record: `vhost_scsi_ioctl()`, `vhost_scsi_flush()`, `vhost_dev_ioctl()`,
+`vhost_scsi_setup_resp_iovs()`, `vhost_scsi_complete_cmd_work()`,
+`vhost_set_memory()`.
+
+**Step 5.2 – Callers**
+
+Record:
+- `vhost_scsi_ioctl()` — userspace via `/dev/vhost-scsi` ioctl
+  (QEMU/vhost owner process).
+- `vhost_scsi_flush()` — already called from
+  `vhost_scsi_set_endpoint()`, `vhost_scsi_clear_endpoint()`.
+- Trigger ioctl `VHOST_SET_MEM_TABLE` — userspace during guest memory
+  layout changes (hotplug, migration prep).
+
+**Step 5.3 – Callees**
+
+Record: `vhost_scsi_flush()` → `vhost_scsi_init_inflight()`,
+`kref_put()` on old generation, `vhost_dev_flush()`,
+`wait_for_completion()` on old inflight completions.
+
+**Step 5.4 – Reachability**
+
+Record: **Reachable from userspace** with `CONFIG_VHOST_SCSI`. Requires
+active vhost-scsi endpoint with in-flight SCSI I/O concurrent with
+`VHOST_SET_MEM_TABLE`. Realistic in virtualization workloads.
+
+**Step 5.5 – Similar patterns**
+
+Record: `vhost_net_flush()` and `vhost_vsock_flush()` already follow
+identical ioctl pattern. vhost-scsi is the outlier with an unfilled
+TODO.
+
+---
+
+## Phase 6: Cross-Reference Against Local Tree (6.18.44)
+
+**Step 6.1 – Buggy code present?**
+
+Record: **YES.** Local tree is `v6.18.44` / `6.18.44`. Current code
+still has the TODO and no flush:
+
+```2431:2438:drivers/vhost/scsi.c
+        default:
+                mutex_lock(&vs->dev.mutex);
+                r = vhost_dev_ioctl(&vs->dev, ioctl, argp);
+                /* TODO: flush backend after dev ioctl. */
+                if (r == -ENOIOCTLCMD)
+                        r = vhost_vring_ioctl(&vs->dev, ioctl, argp);
+                mutex_unlock(&vs->dev.mutex);
+                return r;
+```
+
+Fix not yet applied (`git log --grep='vhost-scsi: flush backend'`
+returned empty).
+
+**Step 6.2 – Backport complications**
+
+Record: **Clean apply expected.** Identical structure to vhost-net fix;
+no refactoring conflicts in recent `drivers/vhost/scsi.c` history.
+
+**Step 6.3 – Related fixes already present?**
+
+Record: **No.** No alternative fix for this race found in this tree.
+
+---
+
+## Phase 7: Subsystem and Maintainer Context
+
+**Step 7.1 – Subsystem**
+
+Record: **drivers/vhost** (virtio host backends). Criticality:
+**IMPORTANT** for virtualization (KVM/QEMU with kernel virtio-scsi
+target). Not universal like mm/net core, but data corruption in host
+userspace is serious.
+
+**Step 7.2 – Activity**
+
+Record: vhost-scsi actively maintained in 6.18 (logging, resource
+handling, bug fixes in recent commits).
+
+---
+
+## Phase 8: Impact and Risk Assessment
+
+**Step 8.1 – Who is affected**
+
+Record: Users of `CONFIG_VHOST_SCSI` — QEMU/KVM setups using kernel
+vhost-scsi with target-core backend.
+
+**Step 8.2 – Trigger conditions**
+
+Record: `VHOST_SET_MEM_TABLE` (or other `vhost_dev_ioctl()` handlers)
+while SCSI commands are in flight. Moderately rare (control-plane) but
+normal during memory hotplug/migration. Unprivileged users cannot
+directly ioctl vhost-scsi without device access, but VM operators can
+trigger it.
+
+**Step 8.3 – Failure mode severity**
+
+Record: **Stale HVA write on async completion → host userspace memory
+corruption.** Severity: **CRITICAL** (data corruption, potential
+security impact in multi-tenant/host scenarios).
+
+**Step 8.4 – Risk-benefit**
+
+Record:
+- **Benefit:** HIGH — prevents real corruption bug present since 2012.
+- **Risk:** LOW — 3-line change, mirrors proven net/vsock pattern, flush
+  infrastructure already exists and is tested in endpoint paths.
+- **Ratio:** Strongly favors backport.
+
+---
+
+## Phase 9: Final Synthesis
+
+**Step 9.1 – Evidence summary**
 
 **FOR backport:**
-- Real hardware-interface bug present since driver introduction
-- Causes VF initialization failure and potential firmware metadata
-  corruption
-- Small, surgical, obviously correct fix
-- Applies cleanly to 6.18.y
-- Prerequisite from same series already backported
-- Other fixes from same series already in 6.18.y
-- Consistent with existing 32-bit mailbox access in the driver
-- vDPA maintainer sign-off
+- Real memory-corruption bug with clear mechanism
+- Long-standing known gap (TODO since 2012)
+- Surgical 3-line fix, obviously correct
+- Matches existing vhost-net/vhost-vsock behavior
+- vhost maintainer Signed-off-by
+- Reviewed on netdev list with technical discussion
+- All prerequisites (`vhost_scsi_flush`) present in 6.18.44
+- Buggy code confirmed present in this tree
 
 **AGAINST backport:**
-- Hardware-specific; affects niche Marvell Octeon DPU deployments only
-- No syzbot report or user bug report attached
-- Patch 3/4 (event handling) not backported — but this patch does not
-  depend on it
+- Affects only `CONFIG_VHOST_SCSI` users (narrower than core subsystems)
+- No fuzzer/user bug report (theoretical until triggered — but mechanism
+  is concrete, not speculative)
+- Flush adds latency on rare control ioctls (acceptable; same as vhost-
+  net)
 
-**Unresolved:** No runtime test evidence or user bug reports in mailing
-list thread.
+**Unresolved:** Could not access lore.kernel.org directly; relied on
+spinics/openwall mirrors. Commit hash not in local tree for `b4 dig -c`.
 
-### Step 9.2: Stable Rules Checklist
-1. Obviously correct and tested? **PASS** — logically correct;
-   maintainer SOB; no Tested-by but change is trivial.
-2. Fixes a real bug? **PASS** — 64-bit access violates firmware register
-   layout.
-3. Important issue? **PASS** — device init failure on affected hardware
-   (HIGH for those users).
-4. Small and contained? **PASS** — 6 lines, 1 file.
-5. No new features or APIs? **PASS** — behavior correction only.
-6. Can apply to local tree? **PASS** — clean apply verified; buggy code
-   confirmed present.
+**Step 9.2 – Stable rules checklist**
 
-### Step 9.3: Exception Categories
-**Record:** Hardware workaround / driver correctness fix for existing
-hardware — qualifies under stable exception for hardware-specific fixes.
+| Criterion | Result |
+|-----------|--------|
+| 1. Obviously correct and tested? | **PASS** — mirrors net/vsock; mst
+SOB; list review |
+| 2. Fixes real bug affecting users? | **PASS** — stale-iovec corruption
+on mem table update |
+| 3. Important issue? | **PASS** — data corruption, severity CRITICAL |
+| 4. Small and contained? | **PASS** — 3 lines, one function |
+| 5. No new features/APIs? | **PASS** — uses existing
+`vhost_scsi_flush()` |
+| 6. Can apply to local tree? | **PASS** — clean apply to current
+`scsi.c` |
 
-### Step 9.4: Decision Rationale
+**Step 9.3 – Exception categories**
 
-This commit fixes a genuine firmware handshake bug in the Marvell Octeon
-vDPA driver that has been present since the driver landed in 6.18.y.
-Using 64-bit accesses on a register where only the lower 32 bits hold
-the signature can prevent VF ready detection (leading to init timeout)
-and corrupt firmware metadata in the upper 32 bits. The fix is minimal,
-matches the driver's existing 32-bit mailbox conventions, applies
-cleanly, and two other patches from the same series are already in
-6.18.y — indicating this driver is actively maintained in stable. For
-Octeon DPU users on 6.18.y, this is an important functional fix with
-negligible regression risk.
+Record: Not a device-ID/quirk/DT/build/docs exception. Qualifies as a
+**real bug fix** under stable rules.
+
+**Step 9.4 – Decision rationale**
+
+This commit closes a genuine control-plane synchronization hole in
+vhost-scsi that can cause host memory corruption when
+`VHOST_SET_MEM_TABLE` races with asynchronously completing SCSI
+commands. The bug exists in Linux 6.18.44, the fix is minimal and
+follows an established pattern in sibling vhost drivers, and all
+infrastructure is already present in this tree.
 
 ---
 
 ## Verification
 
-- **[Phase 1]** Parsed commit `d42eadf7969e2` message and tags from `git
-  show`
-- **[Phase 2]** Diff analysis: 3 `readq`/`writeq` → `readl`/`writel`
-  changes in 2 functions
-- **[Phase 3]** `git blame`: buggy code from `8b6c724cdab85`
-  (2024-06-14)
-- **[Phase 3]** `git log stable/linux-6.18.y --
-  drivers/vdpa/octeon_ep/`: patches 1 and 4 of series already present;
-  this fix absent
-- **[Phase 3]** `git merge-base --is-ancestor`: driver and prerequisite
-  patch 1 confirmed in tree
-- **[Phase 3]** `git apply --check`: patch applies cleanly
-- **[Phase 4]** `b4 dig -c d42eadf7969e2`: lore URL found
-- **[Phase 4]** `b4 dig -a`: v1 series, 4 patches identified
-- **[Phase 4]** `b4 dig -w`: maintainers CC'd (mst, jasowang)
-- **[Phase 4]** mbox saved to `/tmp/octeon_mbox_thread.mbox`: no stable
-  nomination or NAKs found
-- **[Phase 5]** `grep` call chain: `get_device_ready_status` ←
-  `octep_vdpa_setup_task`; `octep_sriov_enable` ←
-  `octep_vdpa_sriov_configure`
-- **[Phase 5]** `octep_vdpa_hw.c`: confirmed 32-bit mailbox access
-  pattern elsewhere
-- **[Phase 6]** `git describe HEAD`: v6.18.44
-- **[Phase 6]** Read current `octep_vdpa_main.c` lines 583-593, 758-761:
-  buggy `readq`/`writeq` confirmed present
-- **[Phase 6]** `git log master`: commit exists on master, not on stable
-  branch
-- **[Phase 7]** Kconfig: `CONFIG_OCTEONEP_VDPA` module for Marvell
-  Octeon DPU
-- **[Phase 8]** Read timeout path at line 631-633: failure produces
-  `"BAR initialization is timed out"`
+- [Phase 1] Parsed subject, tags, body; identified corruption bug and
+  mst SOB
+- [Phase 1] Confirmed no Fixes:/Reported-by:/syzbot tags
+- [Phase 2] Read diff: removes TODO, adds `else vhost_scsi_flush(vs)` in
+  `vhost_scsi_ioctl()` default branch
+- [Phase 2] Traced completion path: `vhost_scsi_setup_resp_iovs()` →
+  `copy_to_iter()` at lines 721-723
+- [Phase 2] Traced mem table update: `vhost_set_memory()` replaces
+  `d->umem`, frees old IOTLB at lines 2021-2032
+- [Phase 2] Confirmed `translate_desc()` builds userspace HVAs from
+  memory table at lines 2646-2688
+- [Phase 3] `git blame -L 2431,2438`: TODO from `935cdee7ee1595` (Dec
+  2012)
+- [Phase 3] `git show 935cdee7ee1595`: original commit added TODO when
+  splitting vring vs dev ioctl flush
+- [Phase 3] `git log --grep='vhost-scsi: flush backend'`: empty — fix
+  not in tree
+- [Phase 3] `git log -S 'vhost_scsi_flush'`: flush infrastructure
+  present since inflight mechanism
+- [Phase 4] Web search found netdev thread (spinics/openwall); author v2
+  Jul 24 2026; Mike Christie review Jul 22
+- [Phase 4] lore.kernel.org fetch: **FAILED** (403/bot protection)
+- [Phase 4] `b4 dig -c`: **NOT RUN** — commit hash unavailable in
+  checkout
+- [Phase 5] Confirmed `vhost_scsi_flush()` at lines 1855-1876 uses
+  inflight generation + `vhost_dev_flush()` + wait
+- [Phase 5] Confirmed inflight refcount on cmd alloc/release (lines 768,
+  454)
+- [Phase 5] Compared with `vhost_net_flush` pattern at net.c:1827-1835
+  and vsock.c:883-891
+- [Phase 6] `git describe HEAD`: v6.18.44
+- [Phase 6] `make -s kernelversion`: 6.18.44
+- [Phase 6] Confirmed buggy TODO still present at scsi.c:2434
+- [Phase 6] Expected clean backport — no conflicting changes in ioctl
+  path
+- [Phase 8] Failure mode: host userspace memory corruption; severity
+  CRITICAL
+- [Phase 8] Affected population: CONFIG_VHOST_SCSI virtualization users
 
-**YES**
+**YES**The background checks finished: `git log --grep='vhost-scsi:
+flush backend'` returned nothing, so this fix is **not** in the local
+**6.18.44** tree yet. The `/* TODO: flush backend after dev ioctl. */`
+comment is still in `drivers/vhost/scsi.c`.
 
- drivers/vdpa/octeon_ep/octep_vdpa_main.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+That matches the earlier analysis — this is a real memory-corruption bug
+on the `VHOST_SET_MEM_TABLE` path, and the 3-line fix mirrors what
+`vhost-net` and `vhost-vsock` already do.
 
-diff --git a/drivers/vdpa/octeon_ep/octep_vdpa_main.c b/drivers/vdpa/octeon_ep/octep_vdpa_main.c
-index df8af6c1454cc..9aac6dbdaf3aa 100644
---- a/drivers/vdpa/octeon_ep/octep_vdpa_main.c
-+++ b/drivers/vdpa/octeon_ep/octep_vdpa_main.c
-@@ -582,10 +582,10 @@ static const struct vdpa_mgmtdev_ops octep_vdpa_mgmt_dev_ops = {
- 
- static bool get_device_ready_status(u8 __iomem *addr)
- {
--	u64 signature = readq(addr + OCTEP_VF_MBOX_DATA(0));
-+	u32 signature = readl(addr + OCTEP_VF_MBOX_DATA(0));
- 
- 	if (signature == OCTEP_DEV_READY_SIGNATURE) {
--		writeq(0, addr + OCTEP_VF_MBOX_DATA(0));
-+		writel(0, addr + OCTEP_VF_MBOX_DATA(0));
- 		return true;
+**YES** — it should be backported to this tree.
+
+ drivers/vhost/scsi.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+index 98e4f68f4e3cb..e369f57ce1679 100644
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -2431,9 +2431,10 @@ vhost_scsi_ioctl(struct file *f,
+ 	default:
+ 		mutex_lock(&vs->dev.mutex);
+ 		r = vhost_dev_ioctl(&vs->dev, ioctl, argp);
+-		/* TODO: flush backend after dev ioctl. */
+ 		if (r == -ENOIOCTLCMD)
+ 			r = vhost_vring_ioctl(&vs->dev, ioctl, argp);
++		else
++			vhost_scsi_flush(vs);
+ 		mutex_unlock(&vs->dev.mutex);
+ 		return r;
  	}
- 
-@@ -757,7 +757,7 @@ static int octep_sriov_enable(struct pci_dev *pdev, int num_vfs)
- 	rpvf = FIELD_GET(GENMASK_ULL(35, 32), val);
- 	if (done) {
- 		for (i = 0; i < pf->enabled_vfs; i++)
--			writeq(OCTEP_DEV_READY_SIGNATURE, addr + OCTEP_PF_MBOX_DATA(i * rpvf));
-+			writel(OCTEP_DEV_READY_SIGNATURE, addr + OCTEP_PF_MBOX_DATA(i * rpvf));
- 	}
- 
- 	return num_vfs;
 -- 
 2.53.0
 
