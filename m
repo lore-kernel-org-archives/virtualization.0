@@ -1,601 +1,264 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A104437F730
-	for <virtualization@lists.linux.dev>; Mon, 31 Aug 2026 19:45:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51B2F388392
+	for <virtualization@lists.linux.dev>; Mon, 31 Aug 2026 20:41:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788205533; cv=none; b=RHGyh9y2k28LtysOBvQ7747d3J/NfLqZ/1htmNkjejjfNfncAkLGe0QsAhx5UXxbufEtuATxZfCHg7ejwEY17VOPhDvvWvH0/h7/NwoPWOae6KUSoYjOqCwOfeXZYDF0avataBYAQZLmtou5qeWiTve3qqjAnXkuWsX3KvhMzCQ=
+	t=1788208904; cv=none; b=RHOWB9FkAksv8tf+JNP2PjwcRMZER94TA9j/R/s1ZzQyBf1ou9slKWB4uOtmPYPAVKAhKsZMP7fEa4StV/yQAyKbKdf7MGnFUlXosRCWTRMuxOHojHVNHjCmNhzHakdGHofUhikBsqZl7M2qfghsRkpkR9Q3EkLjVI7AIwVgGYI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788205533; c=relaxed/simple;
-	bh=jVdei0Rg7M8oLZFSRfGW9XnF+mshv8r8ozZzIAmHsls=;
+	s=arc-20240116; t=1788208904; c=relaxed/simple;
+	bh=Dq8pa77QYu4FtzOcsEqpe7mrfDUJV/T42ISJXum+TLQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=bjst1naHo9LCDMZ8rmygEUJVUpnEBjcmqrAC1piIAMJZR/UCvO+Eg01FSTIifGKqJEA/vYkG4vJsa56c3OmLAU5VdCUn25fsTGHT5pdywJbxyaH8j4alkcWN+zDolSUcxtJ4hpR4FSAj4haEmY31P1JaFKV17QToN6mF1gmfoA0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=T8XfXRtC; arc=none smtp.client-ip=170.10.129.124
+	 Content-Type:Content-Disposition:In-Reply-To; b=EQ785+Dtltk8kGVSa3YxCMMh2QwrRAkLhrf9pKKjo6NCDKBm9+PKg1kB0wF79sypN4MxC3Jfc7VIpmtpm+quI9xH2C/Tmbe4qMl9d7l2Fyuj3lJzTPotBICamAe3NmUFEtDNse35VmJyfPl/lZHJUQCdDq5eE78ieFSWXn/fXCo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hdMFB6mg; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="T8XfXRtC"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hdMFB6mg"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1788205529;
+	s=mimecast20190719; t=1788208900;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=NgWO+kCWmKPkpmRGhL7IsCAqEBoZmPxyaHszjHBuAEU=;
-	b=T8XfXRtC+mcBaNt3oj0m2DrSd7HyzsNl1UtAHmG5QexDuDprUNNurgy2WwgHZJ1FBvdYbM
-	sq/cSL7BTOdTVbBNqPqbS9vgWDgYya9YDSCfiBU7vnMO8a55wm3fcnoiw3yZIVDVirqcxX
-	nbUl9AIaPaZq/r3DurZKwiKWKfWHE/Q=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-479-T2OpXpD7M3qgZggsMQo7gw-1; Mon, 31 Aug 2026 15:45:28 -0400
-X-MC-Unique: T2OpXpD7M3qgZggsMQo7gw-1
-X-Mimecast-MFC-AGG-ID: T2OpXpD7M3qgZggsMQo7gw_1788205527
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-495529a93f9so35885255e9.3
-        for <virtualization@lists.linux.dev>; Mon, 31 Aug 2026 12:45:27 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788205527; x=1788810327;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=NgWO+kCWmKPkpmRGhL7IsCAqEBoZmPxyaHszjHBuAEU=;
-        b=VvAMZbGhbToa0cSsF/y++U+RdaUwjjtYe4kqHu59h6EWoTXXGHZEd6+LHMcj1xFHEv
-         MaoxPqDA4sEedhIP58DpQRHl3BN7D77/AK5K0W5bfyhRl1TvQaguNFU9TlhnnaJG8sVl
-         dzxy5vlCwN6Oq4nWj423qMTnk88FXEO6L2rma0W5wk7zIOf2JKs8+EEcf6JtuPDKsbB5
-         a4PDsToCdtWuS1e4MIoZGSk6UH0Qsm/O4n1Irjri4ih1+6hN0A5Jq85bC29HDx3y6Dub
-         XrYjtuwrPdzjX2WMQ5T8pDP21uV7f32b/LKaYZiNJe7oyySwxiTZhnZtGOExu8hyX4SH
-         CX9g==
-X-Forwarded-Encrypted: i=1; AHgh+Rr2X4JPotgYOrSICI17cfDxBpHpPmy2FsceQ+NqA+X0s7ffT4NKHc0bLks8nC8j4meQgR/FCVFA8zur5QZCDA==@lists.linux.dev
-X-Gm-Message-State: AFuF++n0V/rMBLitmtWAVmrf5MnHhGe3VwLvmidUXRWvFfcbtHkyHFmO
-	L7G7lMLFbsbIVeLIFmvXyzltcC13KqRh7sUABkrhp14+pZ6valFzCnPvqrZOA5GmYBbdxr1Qkwg
-	jnhnuqgzH4sJw0sM1NWJZKMw8Nw9q0J3dL1pUXhHkdvZRraLLv/WZcOO2GMqAw5yjK6zG
-X-Gm-Gg: AR+sD11NyQXeuBvpbd9KV9DBPqoUt3ryLipC3iamsGaxqIC1bNH1dCIlTm/bT7orW0W
-	lgeloELacnNNWrOKUdlKUceMFJQEV2RyD3cpli2piqbkMWIsomNZSXXUa9A0q46raUkZtKB3lvP
-	9mO/bS6lNVr1jnI/xoESU7a1mVibouXTJa4p4Hdahljd3MgZoFOxdF9hcpkhJw/9JhZSFf8abE9
-	Ucac+yNApMCBGIp8HpIq7xKBTdcLVHfhYUz6cI2w25F1kScbvBYn5QE8FcwHv5wT7LDJS4enfRy
-	Rr7WbtPkmeCH1SYfoUvc6Vz6btqoMKrUgEny3yobNmL+e+sfLRK34nAGb9otI4elxkxySxo/b+y
-	rk4RiJftZKSYXQ0eZ+6dqQ4Q=
-X-Received: by 2002:a05:600c:3546:b0:499:bdf1:7578 with SMTP id 5b1f17b1804b1-49b91c19d68mr377178075e9.3.1788205526285;
-        Mon, 31 Aug 2026 12:45:26 -0700 (PDT)
-X-Received: by 2002:a05:600c:3546:b0:499:bdf1:7578 with SMTP id 5b1f17b1804b1-49b91c19d68mr377177205e9.3.1788205525566;
-        Mon, 31 Aug 2026 12:45:25 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-79-236.inter.net.il. [80.230.79.236])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49cdce0b456sm17414025e9.2.2026.08.31.12.45.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 31 Aug 2026 12:45:24 -0700 (PDT)
-Date: Mon, 31 Aug 2026 15:45:20 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Shahar Shitrit <shshitrit@nvidia.com>
-Cc: netdev@vger.kernel.org, jasowang@redhat.com, pabeni@redhat.com,
-	virtualization@lists.linux.dev, parav@nvidia.com, yohadt@nvidia.com,
-	xuanzhuo@linux.alibaba.com, eperezma@redhat.com, jgg@ziepe.ca,
-	kevin.tian@intel.com, kuba@kernel.org, andrew+netdev@lunn.ch,
-	edumazet@google.com, danielj@nvidia.com
-Subject: Re: [PATCH net-next v23 00/14] virtio_net: Add ethtool flow rules
- support
-Message-ID: <20260831154514-mutt-send-email-mst@kernel.org>
-References: <20260831161109.2999926-1-shshitrit@nvidia.com>
+	bh=FBf8tymtxI0Ff77El55JqSXxrhFxge67QUGBFyICcSY=;
+	b=hdMFB6mgNkS6d9F9hz90Affbd+/b06Zc3W7z6BIDe27BWEnv10pl+KVNrwb0oTFZzGj/5s
+	hvJiDNcMzXZFcnZhdtOR5sFXReV9IwRvWGfdYqsCQv7NgbOFlNGnWJWggQyU5gglcvgfQ9
+	m/D9J/mEQ+FVMlOHgwViRQCHMHYn2CI=
+Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-169-LJZ1Gc8rNFSY-n7cQqV5mQ-1; Mon,
+ 31 Aug 2026 16:41:33 -0400
+X-MC-Unique: LJZ1Gc8rNFSY-n7cQqV5mQ-1
+X-Mimecast-MFC-AGG-ID: LJZ1Gc8rNFSY-n7cQqV5mQ_1788208889
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 979A018D62D3;
+	Mon, 31 Aug 2026 20:41:28 +0000 (UTC)
+Received: from localhost (headnet05.pony-001.prod.iad2.dc.redhat.com [10.2.32.117])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id D91BF1956049;
+	Mon, 31 Aug 2026 20:41:26 +0000 (UTC)
+Date: Mon, 31 Aug 2026 16:41:23 -0400
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Linlin Zhang <linlin.zhang@oss.qualcomm.com>
+Cc: Eric Biggers <ebiggers@kernel.org>, axboe@kernel.dk, mst@redhat.com,
+	jasowangio@gmail.com, James.Bottomley@hansenpartnership.com,
+	martin.petersen@oracle.com, robh@kernel.org, krzk+dt@kernel.org,
+	conor+dt@kernel.org, linux-block@vger.kernel.org,
+	linux-crypto@vger.kernel.org, linux-scsi@vger.kernel.org,
+	virtualization@lists.linux.dev, devicetree@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org, neeraj.soni@oss.qualcomm.com,
+	gaurav.kashyap@oss.qualcomm.com, mani@kernel.org,
+	andersson@kernel.org, konradybcio@kernel.org, bvanassche@acm.org,
+	alim.akhtar@samsung.com, avri.altman@sandisk.com,
+	pbonzini@redhat.com, eperezma@redhat.com,
+	xuanzhuo@linux.alibaba.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v1 00/11] FBE virtualization: inline encryption for
+ virtio-blk guests
+Message-ID: <20260831204122.GC527638@fedora>
+References: <20260827160806.1295313-1-linlin.zhang@oss.qualcomm.com>
+ <20260827184219.GB2137493@google.com>
+ <d81e347e-8ca7-40a1-a428-5bce6f0d4b02@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260831161109.2999926-1-shshitrit@nvidia.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: zTkmRPSy6qbHoKRvrHsHL4BmGfHds21GMoHcEFLg6jg_1788205527
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="fyVDnDSsSdEAr9UL"
 Content-Disposition: inline
+In-Reply-To: <d81e347e-8ca7-40a1-a428-5bce6f0d4b02@oss.qualcomm.com>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-On Mon, Aug 31, 2026 at 07:10:55PM +0300, Shahar Shitrit wrote:
-> This series implements ethtool flow rules support for virtio_net using the
-> virtio flow filter (FF) specification. The implementation allows users to
-> configure packet filtering rules through ethtool commands, directing
-> packets to specific receive queues, or dropping them based on various
-> header fields.
+--fyVDnDSsSdEAr9UL
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+On Fri, Aug 28, 2026 at 11:37:57PM +0800, Linlin Zhang wrote:
+>=20
+>=20
+> On 8/28/2026 2:42 AM, Eric Biggers wrote:
+> > On Thu, Aug 27, 2026 at 09:07:09AM -0700, Linlin Zhang wrote:
+> >> From: linlzhan <linlin.zhang@oss.qualcomm.com>
+> >>
+> >> Current virtio-blk does not provide a mechanism for a guest to
+> >> program hardware keys or submit encrypted I/O using pre-programmed
+> >> keyslots.  It drops the crypto context when issuing a bio request
+> >> to the virtio-blk queue, preventing inline-encryption-based FBE
+> >> on virtio block devices.
+> >>
+> >> This series enables File-Based Encryption in guest VMs on Qualcomm
+> >> GVM platforms where the ICE inline encryption hardware is shared
+> >> between the host and guests.  In this environment the guest kernel
+> >> has no access to the ICE hardware directly; it supplies a virtual
+> >> keyslot index and data unit number with each encrypted I/O request
+> >> via VIRTIO_BLK_F_INLINE_ENCRYPTION, and the host must translate the
+> >> virtual slot to a physical ICE keyslot and submit the bio =E2=80=94 wi=
+thout
+> >> transferring raw key material across the VM boundary.
+> >=20
+> > This seems to be designed incorrectly by not making virtio-blk itself
+> > support key programming and eviction.  That complicates things
+> > significantly by then having to handle the key programming and eviction
+> > out-of-band using Qualcomm-specific SCM calls.  It also means that
+> > adding other implementations of this would be very difficult.
+> >=20
+> > There are some claims that not transmitting keys across the VM boundary
+> > is desirable.  But that doesn't seem meaningful, given that all the I/O
+> > is transmitted across that boundary in plaintext anyway, and also it
+> > seems that hardware-wrapped keys will be supported too.
+> >=20
+> > Please make virtio-blk support the key programming, eviction, and
+> > HW-wrapped key management operations that are needed for this to work.
+> >=20
+> > - Eric
+>=20
+> Thanks for your comments!
+>=20
+> Not making virtio-blk itself support key programming and eviction is
+> something done deliberately. Based on that HW-wrapped key management
+> operations are also handled in the out-of-band path.
+>=20
+> There are bellow 2 approaches I investigated to let virtio-blk programming
+> the key.
+>=20
+>   1. virtio_blk implements blk_crypto_ll_ops interfaces, including program
+>      key and evict key interfaces.(Same to 'the virtio-blk interface stan=
+dardized
+>      blk_crypto_ll_ops requests' mentioned by Stefan in the virtio SPEC t=
+hread)
+>=20
+>      The guest's block crypto profile manages the keyslot in virtual slot
+>      format in this scenario.
+>=20
+>       - block crypto key and virt_slot index it passed to the hypervisor's
+>        (EL2) device emulation (QEMU, using QEMU in the following) which
+>        runs in userspace of the host. Besides of transferring the virtual
+>        slot to the physical slot, a programming block crypto key UAPI need
+>        be added. Follow current blk-crypto design, it may be like
+>        BLKCRYPTOGENERATEKEY. I thought this results in a security risk th=
+at
+>        allows userspace process a key into a key slot.
+>=20
+>      - For key eviction, it's similar to above key programming handling, =
+also
+>        need a key eviction in blk IOCTLs, but leads to the security risk
+>        that allow userspace client to evict a key in a key slot.
 
-> The series starts with infrastructure changes to expose virtio PCI admin
-> capabilities and object management APIs. It then creates the virtio_net
-> directory structure and implements the flow filter functionality with
-> support for:
-> 
-> - Layer 2 (Ethernet) flow rules
-> - IPv4 and IPv6 flow rules
-> - TCP and UDP flow rules (both IPv4 and IPv6)
-> - Rule querying and management operations
-> 
-> Setting, deleting and viewing flow filters, -1 action is drop, positive
-> integers steer to that RQ:
-> 
-> $ ethtool -u ens9
-> 4 RX rings available
-> Total 0 rules
-> 
-> $ ethtool -U ens9 flow-type ether src 1c:34:da:4a:33:dd action 0
-> Added rule with ID 0
-> $ ethtool -U ens9 flow-type udp4 dst-port 5001 action 3
-> Added rule with ID 1
-> $ ethtool -U ens9 flow-type tcp6 src-ip fc00::2 dst-port 5001 action 2
-> Added rule with ID 2
-> $ ethtool -U ens9 flow-type ip4 src-ip 192.168.51.101 action 1
-> Added rule with ID 3
-> $ ethtool -U ens9 flow-type ip6 dst-ip fc00::1 action -1
-> Added rule with ID 4
-> $ ethtool -U ens9 flow-type ip6 src-ip fc00::2 action -1
-> Added rule with ID 5
-> $ ethtool -U ens9 delete 4
-> $ ethtool -u ens9
-> 4 RX rings available
-> Total 5 rules
-> 
-> Filter: 0
->         Flow Type: Raw Ethernet
->         Src MAC addr: 1C:34:DA:4A:33:DD mask: 00:00:00:00:00:00
->         Dest MAC addr: 00:00:00:00:00:00 mask: FF:FF:FF:FF:FF:FF
->         Ethertype: 0x0 mask: 0xFFFF
->         Action: Direct to queue 0
-> 
-> Filter: 1
->         Rule Type: UDP over IPv4
->         Src IP addr: 0.0.0.0 mask: 255.255.255.255
->         Dest IP addr: 0.0.0.0 mask: 255.255.255.255
->         TOS: 0x0 mask: 0xff
->         Src port: 0 mask: 0xffff
->         Dest port: 5001 mask: 0x0
->         Action: Direct to queue 3
-> 
-> Filter: 2
->         Rule Type: TCP over IPv6
->         Src IP addr: fc00::2 mask: ::
->         Dest IP addr: :: mask: ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff
->         Traffic Class: 0x0 mask: 0xff
->         Src port: 0 mask: 0xffff
->         Dest port: 5001 mask: 0x0
->         Action: Direct to queue 2
-> 
-> Filter: 3
->         Rule Type: Raw IPv4
->         Src IP addr: 192.168.51.101 mask: 0.0.0.0
->         Dest IP addr: 0.0.0.0 mask: 255.255.255.255
->         TOS: 0x0 mask: 0xff
->         Protocol: 0 mask: 0xff
->         L4 bytes: 0x0 mask: 0xffffffff
->         Action: Direct to queue 1
-> 
-> Filter: 5
->         Rule Type: Raw IPv6
->         Src IP addr: fc00::2 mask: ::
->         Dest IP addr: :: mask: ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff
->         Traffic Class: 0x0 mask: 0xff
->         Protocol: 0 mask: 0xff
->         L4 bytes: 0x0 mask: 0xffffffff
->         Action: Drop
-> 
-> ---
-> v2: https://lore.kernel.org/netdev/20250908164046.25051-1-danielj@nvidia.com/
->   - Fix sparse warnings
->   - Fix memory leak on subsequent failure to allocate
->   - Fix some Typos
-> 
-> v3: https://lore.kernel.org/netdev/20250923141920.283862-1-danielj@nvidia.com/
->   - Added admin_ops to virtio_device kdoc.
-> 
-> v4:
->   - Fixed double free bug inserting flows
->   - Fixed incorrect protocol field check parsing ip4 headers.
->   - (u8 *) changed to (void *)
->   - Added kdoc comments to UAPI changes.
->   - No longer split up virtio_net.c
->   - Added config op to execute admin commands.
->       - virtio_pci assigns vp_modern_admin_cmd_exec to this callback.
->   - Moved admin command API to new core file virtio_admin_commands.c
-> 
-> v5:
->   - Fixed compile error
->   - Fixed static analysis warning on () after macro
->   - Added missing fields to kdoc comments
->   - Aligned parameter name between prototype and kdoc
-> 
-> v6:
->   - Fix sparse warning "array of flexible structures" Jakub K/Simon H
->   - Use new variable and validate ff_mask_size before set_cap. MST
-> 
-> v7:
->   - Change virtnet_ff_init to return a value. Allow -EOPNOTSUPP. Xuan
->   - Set ff->ff_{caps, mask, actions} NULL in error path. Paolo Abini
->   - Move for (int i removal hung back a patch. Paolo Abini
-> 
-> v8
->   - Removed unused num_classifiers. Jason Wang
->   - Use real_ff_mask_size when setting the selector caps. Jason Wang
-> 
-> v9:
->   - Set err to -ENOMEM after alloc failures in virtnet_ff_init. Simon H
-> 
-> v10:
->   - Return -EOPNOTSUPP in virnet_ff_init before allocing any memory.
->     Jason Wang/Paolo Abeni
-> 
-> v11:
->   - Return -EINVAL if any resource limit is 0. Simon Horman
->   - Ensure we don't overrun alloced space of ff->ff_mask by moving the
->     real_ff_mask_size > ff_mask_size check into the loop. Simon Horman
-> 
-> v12: Many comments by MST, thanks Michael. Only the most significant
->      listed here:
->   - Fixed leak of key in build_and_insert.
->   - Fixed setting ethhdr proto for IPv6.
->   - Added 2 byte pad to struct virtio_net_ff_cap_data.
->   - Use and set rule_cnt when querying all flows.
->   - Cleanup and reinit in freeze/restore path.
-> 
-> v13:
->   - Add private comment for reserved field in kdoc. Jakub
->   - Serveral comments from MST details in patches. Most significant:
-> 	- Fixed bug in ip4, check l3_mask vs mask when setting addrs.
-> 	- Changed ff_mask cap checking to not break on expanded
-> 	  selector types
-> 	- Changed virtio_admin_obj_destroy to return void.
-> 	- Check tos field for ip4.
-> 	- Don't accept tclass field for ip6.
-> 	- If ip6 only flow check that l4_proto isn't set.
-> 
-> v14:
->   - Handle virtio_ff_init errors in freeze/restore. MST
->   - Don't set proto in parse_ip4/6. The casted struct may not have that
->     field, and the proto field was set explicitly anyway. Simon H/AI.
-> 
-> v15:
->   - In virtnet_restore_up only call virtnet_close in err path if
->     netif_running. AI
-> 
-> v16:
->   - Return 0 from virtnet_restore_up if virtnet_init_ff return not
->     supported. AI
->   - Rebased over removing series to remove delayed refill.
-> 
-> v17:
->   - Properly handle unaligned reads/writes. MST
->   - Fix use after free if init fails during virtnet_restor. AI
->   - Fix memory leak when validating the classifer vs caps fails. AI
->   - Added missing includes. MSTA
-> 
-> v18:
->   - Validate selector cap lengths, instead of just checking they don't
->     exceed a max. AI
->   - Add __count_by attribute to flexible arrays in UAPI definitions.
->     Paolo A.
-> 
-> v19:
->   - Style fixes. AI
-> 
-> v20:
->   - Added missing include
-> 
-> v21:
->   - Use le64_to_cpu() and BIT_ULL() instead of cpu_to_le64() for cap checking.
->   - Don't use __counted_by on flexible array of flexible structs.
->   - Replace UAPI header includes with kernel header includes.
->   - Add missing includes for linux/types.h and linux/byteorder/generic.h.
->   - Clamp the reported action count to the driver-supported maximum.
->   - Clamp the reported selector count to the driver-supported maximum.
->   - Validate sel->type is not 0.
->   - Reduce selectors' count in case selector's type is invalid.
->   - Move virtio_device_ready() before virtnet_ff_init() as the flow filter
->     initialization requires the device to be in ready state to issue admin
->     commands.
->   - Remove forward declarations.
->   - Validate action is supported before inserting rule.
->   - Convert ring_cookie to vq before assigning ff_rule->vq_index.
->   - reword a comment.
->   - Introduce a new patch that moves flow_type_mask() to include/linux/ethtool.h.
->   - Wrap __le32 limit fields in le32_to_cpu() to avoid sparse warnings.
->   - Use put_unaligned() in parse_ip4() to avoid misaligned 32-bit stores on
->     strict-alignment architectures.
-> 
-> v22:
->   - Reword/fix typo in commit messages.
->   - Remove include <uapi/linux/virtio_pci.h> from virtio_net.c.
->   - Verify also selectors_per_classifier_limit in virtnet_ff_init().
->   - Validate ff->ff_actions->count != 0.
->   - Remove WARN_ON_ONCE() and replace -EINVAL with -EPROTO for errors on
->     device side.
->   - Use ff->ff_mask->count after it was initialized.
->   - Add a patch to fix sleeping under spinlock in the admin command path.
->   - Document that callers must zero-initialize the capability structure.
->   - Convert macro VIRTIO_CAP_IN_LIST to be inline function.
->   - Add WARN_ON_ONCE if allocation fails in virtio_admin_obj_destroy().
->   - Change VIRTNET_FF_ETHTOOL_GROUP_PRIORITY to be 0.
->   - Reject flow rules that require more selectors than the device supports
->     (selectors_per_classifier_limit).
->   - Report min(rules_limit, rules_per_group_limit) as the effective rule limit,
->     since all rules reside in a single group.
-> 
-> v23:
->   - Make virtio_admin_obj_destroy() return int instead of void + internal
->     WARN_ON_ONCE, so callers can propagate the failure themselves.
-> 
-> Comments from internal Sashiko review:
-> > +int virtio_admin_obj_create(struct virtio_device *vdev,
-> > +			    u16 obj_type,
-> > +			    u32 obj_id,
-> > +			    u16 group_type,
-> > +			    u64 group_member_id,
-> > +			    const void *obj_specific_data,
-> > +			    size_t obj_specific_data_size)
-> > +{
-> [ ... ]
-> > +	obj_create_data->hdr.type = cpu_to_le16(obj_type);
-> > +	obj_create_data->hdr.id = cpu_to_le32(obj_id);
-> > +	memcpy(obj_create_data->resource_obj_specific_data, obj_specific_data,
-> > +	       obj_specific_data_size);
-> Can this memcpy trigger undefined behavior if callers pass NULL for
-> obj_specific_data and 0 for obj_specific_data_size? In C, passing a NULL
-> pointer to memcpy is undefined behavior even if the size is 0, which could
-> cause UBSAN splats.
-> 
-> [SS] It's the caller responsibly not to pass NULL. Current callers don't pass NULL.
-> 
-> > +	sg_init_one(&data_sg, data, data_size);
-> > +
-> > +	cmd.opcode = cpu_to_le16(VIRTIO_ADMIN_CMD_RESOURCE_OBJ_CREATE);
-> > +	cmd.group_type = cpu_to_le16(group_type);
-> > +	cmd.group_member_id = cpu_to_le64(group_member_id);
-> > +	cmd.data_sg = &data_sg;
-> > +
-> > +	err = vdev->config->admin_cmd_exec(vdev, &cmd);
-> This isn't a bug introduced by this patch, but does this execution path sleep
-> while holding a spinlock with interrupts disabled?
-> If this calls into virtqueue_exec_admin_cmd() (for example via
-> vp_modern_admin_cmd_exec()), the call chain looks like:
-> virtqueue_exec_admin_cmd()
->     spin_lock_irqsave(&admin_vq->lock, flags);
->     virtqueue_add_sgs(vq, sgs, out_num, in_num, cmd, GFP_KERNEL);
-> Since GFP_KERNEL allows direct reclaim and sleeping, can this cause a deadlock
-> or trigger a BUG if the virtqueue falls back to allocating indirect descriptors?
-> 
-> [SS] Right, but not related to this series. Can introduce a fix in a different patch.
-> 
-> > +void virtio_admin_obj_destroy(struct virtio_device *vdev,
-> > +			      u16 obj_type,
-> > +			      u32 obj_id,
-> > +			      u16 group_type,
-> > +			      u64 group_member_id)
-> > +{
-> > +	struct virtio_admin_cmd_resource_obj_cmd_hdr *data;
-> > +	struct virtio_admin_cmd cmd = {};
-> > +	struct scatterlist data_sg;
-> > +	int err;
-> > +
-> > +	if (!vdev->config->admin_cmd_exec)
-> > +		return;
-> > +
-> > +	data = kzalloc(sizeof(*data), GFP_KERNEL);
-> > +	if (!data)
-> > +		return;
-> If this kzalloc() fails, does this function return without sending the
-> destroy command to the hardware?
-> Since the return type is void, the caller has no way to detect this failure
-> and will likely free its local software tracking objects. Will this leave
-> the physical device and software tracking structures permanently
-> desynchronized, leaking the object on the virtio device?
-> 
-> [SS] Not much to do here. There could be a firmware error also,
->      and then what we do? Destroy flow is best effort.
-> 
-> > +			break;
-> > +
-> > +		if (sel->length != get_mask_size(sel->type) ||
-> > +		    test_and_set_bit(sel->type, &sel_types)) {
-> > +			WARN_ON_ONCE(true);
-> Is it safe to use WARN_ON_ONCE() for validating device input? A malicious
-> or buggy virtio device could intentionally trigger this by providing an
-> invalid length or duplicate selector types, potentially leading to a kernel
-> panic if panic_on_warn is enabled. Would it be better to just return the
-> error without the warning?
-> > +			err = -EINVAL;
-> > +			goto err_ff_action;
-> > +		}
-> > +		real_ff_mask_size += sizeof(struct virtio_net_ff_selector) + sel->length;
-> > +		if (real_ff_mask_size > ff_mask_size) {
-> > +			WARN_ON_ONCE(true);
-> Similarly, could this WARN_ON_ONCE() be triggered by a malicious device
-> providing a larger size than expected, leading to a panic if panic_on_warn
-> is enabled?
-> 
-> [SS] These WARN_ON_ONCE() were requested by MST during review.
-> 
-> [ ... ]
-> > +static const struct ethtool_ops virtnet_ethtool_ops = {
-> [ ... ]
-> > +	.get_rxfh_fields = virtnet_get_hashflow,
-> > +	.set_rxfh_fields = virtnet_set_hashflow,
-> > +	.get_rx_ring_count = virtnet_get_rx_ring_count,
-> > +	.set_rxnfc = virtnet_set_rxnfc,
-> > +};
-> Does this also need an implementation of .get_rxnfc to prevent invalid
-> channel configurations?
-> When .get_rxnfc is missing, the ethtool core function
-> ethtool_get_max_rxnfc_channel() returns -EOPNOTSUPP. This causes
-> ethtool_check_max_channel() to silently skip validating the new channel
-> count against active flow rules.
-> If a user adds a flow rule targeting a specific RX queue, and then reduces
-> the active RX queues via ethtool -L, virtnet_set_channels() will update
-> the queue count without checking the active rules stored in
-> vi->ff.ethtool.rules.
-> Could this leave hardware rules pointing to disabled queues and cause
-> silent packet drops?
-> 
-> [SS] .get_rxnfc exists (introduced in a later patch).
-> 
-> > @@ -1258,6 +1259,7 @@ static const struct virtio_config_ops virtio_pci_config_ops = {
-> >  	.get_shm_region  = vp_get_shm_region,
-> >  	.disable_vq_and_reset = vp_modern_disable_vq_and_reset,
-> >  	.enable_vq_after_reset = vp_modern_enable_vq_after_reset,
-> > +	.admin_cmd_exec = vp_modern_admin_cmd_exec,
-> >  };
-> This isn't a bug introduced by this patch, but by exposing this function to
-> general drivers, can a driver trigger a NULL pointer dereference or
-> use-after-free?
-> If a driver calls the newly exposed config->admin_cmd_exec() early in probe
-> before find_vqs(), or late in remove after del_vqs(),
-> virtqueue_exec_admin_cmd() unconditionally dereferences admin_vq->info:
->     vq = admin_vq->info->vq;
-> In vp_del_vqs(), the info structure is freed via kfree(info), but
-> vp_dev->admin_vq.info is never set to NULL, leaving a dangling pointer.
-> 
-> [SS] Current code is written in correct order. Future callers are responsible
->      to call this when VQs are initialized.
-> 
-> This isn't a bug introduced by this patch, but does this error path lead to
-> stack corruption?
-> In virtqueue_exec_admin_cmd(), if virtqueue_kick() fails, it returns -EIO
-> without waiting for completion or detaching the exposed buffer:
->     if (!virtqueue_kick(vq))
->             goto unlock_err;
-> If the hardware later processes the descriptor and triggers
-> vp_modern_avq_done(), it will call complete(&cmd->completion). Since the cmd
-> structure was likely allocated on the caller's stack, this can overwrite
-> out-of-scope stack memory.
-> 
-> [SS] The vq->broken flag set by virtqueue_notify() causes virtqueue_get_buf()
->      to return NULL in vp_modern_avq_done(), so complete() is never called on
->      the freed cmd. No stack corruption.
-> 
-> This isn't a bug introduced by this patch, but can this function return an
-> uninitialized variable?
-> virtqueue_exec_admin_cmd() returns cmd->ret at the end of the function:
->     return cmd->ret;
-> However, on a successful command execution, vp_modern_avq_done() never
-> explicitly sets cmd->ret to 0. If a driver allocates struct virtio_admin_cmd
-> on the stack without zero-initializing it, could this return stack garbage
-> and erroneously indicate failure?
-> 
-> [SS] cmd is initialized in all callers struct with virtio_admin_cmd cmd = {};
-> 
-> If the device responds with fewer bytes than the driver's provided data
-> buffer, does this leave the rest of the output buffer uninitialized?
-> The wrapper discards cmd.result_sg_size without zero-initializing data and
-> returns 0, which could expose uninitialized memory to callers.
-> 
-> [SS] Caller's responsibility to initialize the buffer.
-> 
-> Second, if virtqueue_add_sgs() returns -ENOSPC, the code loops infinitely
-> with cpu_relax() without a timeout or sleep:
-> drivers/virtio/virtio_pci_modern.c:virtqueue_exec_admin_cmd() {
-> ...
-> 		if (ret == -ENOSPC) {
-> 			spin_unlock_irqrestore(&admin_vq->lock, flags);
-> 			cpu_relax();
-> 			goto again;
-> 		}
-> ...
-> }
-> Can this soft-lockup the CPU if the virtqueue remains full and the device is
-> unresponsive?
-> 
-> [SS] Pre-existing, not introduced by this series, and bounded in practice by
->      the virtqueue_is_broken() check. Not something to fix here.
-> 
-> Third, if virtqueue_kick() fails, the code jumps to unlock_err without
-> detaching the buffer from the virtqueue:
-> drivers/virtio/virtio_pci_modern.c:virtqueue_exec_admin_cmd() {
-> ...
-> 	if (!virtqueue_kick(vq))
-> 		goto unlock_err;
-> 	spin_unlock_irqrestore(&admin_vq->lock, flags);
-> 	wait_for_completion(&cmd->completion);
-> 	return cmd->ret;
-> unlock_err:
-> 	spin_unlock_irqrestore(&admin_vq->lock, flags);
-> 	return -EIO;
-> ...
-> }
-> Does this leave a dangling pointer on the virtqueue?
-> If the device later processes the command or the virtqueue is torn down,
-> could it write to the freed heap memory and invoke complete() on a dangling
-> stack pointer?
-> 
-> [SS] Not a bug. vq->broken prevents complete() from firing.
-> 
-> > +	sg_init_one(&data_sg, data, sizeof(*data));
-> > +	sg_init_one(&result_sg, caps, cap_size);
-> > +	cmd.opcode = cpu_to_le16(VIRTIO_ADMIN_CMD_DEVICE_CAP_GET);
-> > +	cmd.group_type = cpu_to_le16(VIRTIO_ADMIN_GROUP_TYPE_SELF);
-> > +	cmd.data_sg = &data_sg;
-> > +	cmd.result_sg = &result_sg;
-> > +
-> > +	err = vdev->config->admin_cmd_exec(vdev, &cmd);
-> Similar to virtio_admin_cap_id_list_query above, does this execution discard
-> cmd.result_sg_size without zeroing the caps buffer, potentially returning
-> uninitialized memory to the caller on a short response?
-> 
-> [SS] Standard kernel API contract, caller owns the buffer, current callers
->      handle it correctly.
-> 
-> > +	data->id = cpu_to_le16(id);
-> > +	memcpy(data->cap_specific_data, caps, cap_size);
-> If a caller invokes virtio_admin_cap_set() to enable a capability with no
-> extra data (cap_size == 0 and caps == NULL), will this unconditionally pass a
-> NULL pointer to memcpy(), invoking undefined behavior?
-> 
-> [SS] Caller's responsibility.
-> 
-> > +/**
-> > + * VIRTIO_CAP_IN_LIST - Check if a capability is supported in the capability list
-> > + * @cap_list: Pointer to capability list structure containing supported_caps array
-> > + * @cap: Capability ID to check
-> > + *
-> > + * The cap_list contains a supported_caps array of little-endian 64-bit integers
-> > + * where each bit represents a capability. Bit 0 of the first element represents
-> > + * capability ID 0, bit 1 represents capability ID 1, and so on.
-> > + *
-> > + * Return: 1 if capability is supported, 0 otherwise
-> > + */
-> > +#define VIRTIO_CAP_IN_LIST(cap_list, cap) \
-> > +	(!!(1 & (le64_to_cpu(cap_list->supported_caps[(cap) / 64]) >> (cap) % 64)))
-> Could this macro trigger an out-of-bounds read on the supported_caps array if
-> a caller passes a cap value greater than VIRTIO_ADMIN_MAX_CAP?
-> Additionally, could evaluating cap multiple times cause unexpected side effects
-> if passed an expression like cap++?
-> 
-> [SS] All callers use named cap constants defined in the uapi headers, which are all
->      within bounds by construction. Passing side-effecting expressions to macros is
->      standard caller responsibility. No fix needed.
-> 
-> >  static void virtnet_ff_cleanup(struct virtnet_ff *ff)
-> >  {
-> > +	struct virtnet_ethtool_rule *eth_rule;
-> > +	unsigned long i;
-> > +
-> >  	if (!ff->ff_supported)
-> >  		return;
-> >
-> > +	xa_for_each(&ff->ethtool.rules, i, eth_rule)
-> > +		destroy_ethtool_rule(ff, eth_rule);
-> > +
-> Will this cause user-configured flow filter rules to be permanently lost
-> across system suspend/resume or device migration?
-> During suspend, device reset, or device freeze, virtnet_freeze_down() calls
-> virtnet_ff_cleanup(). This loop iterates over all configured flow rules,
-> sends the destroy commands to the hardware, and then calls kfree() via
-> destroy_ethtool_rule(), permanently destroying the software representation of
-> the rules.
-> Upon resume, virtnet_restore_up() invokes virtnet_ff_init(), which
-> initializes the flow filters as completely empty. The driver appears to make
-> no attempt to retain the software state of the rules during suspend or
-> replay them to the device during restore, meaning users must manually
-> recreate all flow filter rules every time the system resumes or the device
-> is migrated.
-> 
-> [SS] This is intentional for now. Could be a follow up feature.
-> 
-> Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
-> Signed-off-by: Shahar Shitrit <shshitrit@nvidia.com>
-> -- 
-> 2.49.0
+Yes, userspace shouldn't have access to the entire physical key slot
+range. The host kernel or other VMs may need key slots and an untrusted
+QEMU process must not be able to modify those key slots or use them for
+I/O.
+
+The uapi design should include a solution for this. For example, there
+could be an ioctl like BLKCRYPTOSEALKEYS that permanently restricts the
+key range on this block device file descriptor and cannot be undone.
+Libvirt or other management tooling would call this ioctl with
+CAP_SYS_ADMIN before passing the file descriptor when launching QEMU
+without CAP_SYS_ADMIN. This prevents QEMU from ever having access to the
+full physical key range.
+
+Just an idea. Those familiar with blk-crypto may have a better one. It
+seems likely that we can find a design that matches the level of
+security of the out-of-band approach.
+
+>=20
+>     virt_slot, DUN and DUSize is appended to virtblk request during crypto
+>     I/O.
+>=20
+>   2. virtio_blk implements blk_crypto_ll_ops interfaces, excluding program
+>      key and evict key interfaces.
+>=20
+>      The guest's block crypto profile doesn't manage keyslot for the gues=
+t,
+>      the host's block crypto profile manages keyslot for both the guest a=
+nd
+>      the host. The trigger of key programming operation is moved from the
+>      guest to the host.
+>=20
+>        - The whole block crypto key (key size, key bytes, blk_crypto_conf=
+ig)
+>          and DUN are appended to the virtblk request during IO, a little
+>          high payload.
+>=20
+>          The backend parses the crypto message in the virtio queue and
+>          construct a block crypto key and DUN for the bio_crypto_ctx
+>          set to the BIO. So that the IO flow in the host can program
+>          the key.=20
+>=20
+>          The question is that the blk-crypto-profile distinguishs the
+>          block crypto key via the key's address. But the host has
+>          different key addresses for the programming and eviction key
+>          operations of the same block crypto key from GVM, because the
+>          key is re-constructed in the host for the key program and
+>          eviction operations.=20
+>=20
+>          To fix it, the approach I thought is maintaining a new key
+>          hash table in the backend, and comparing the block crypto key
+>          content and DUN parsed from virtio queue with that in the key
+>          hash table.=20
+>          My major concern is that this need keep the keys synchronization
+>          b/w this new hash table and the blk-crypto-profile's hash table
+>          carefully, avoiding that key is still present in the
+>          blk-crypto-profile's hash table, but removed in backend hash
+>          table. Another point is that the whole block crypto key and
+>          DUN are appended into virtio block request per crypto I/O.
+
+This sounds like an approach that skips key programming and instead
+sends the keys along with each I/O request. The device implementation is
+responsible for managing key slots on the physical ICE. My main concern
+with this would be whether the blk_crypto_ll_ops semantics can be
+faithfully replicated (e.g. error reporting) without explicit key
+programming operations.
+
+Stefan
+
+>=20
+>        - For key eviction, adding a key eviction in blk IOCTLs allows
+>          userspace client to evict a key in a key slot. I thought this
+>          is a security concern.
+>=20
+>=20
+>      This option doesn't need map virt_slot to physical one.
+>=20
+>=20
+> Taking all the above into account, I made a compromise to implement
+> blk_crypto_ll_ops interfaces in a out-of-band path, which lets the virtio
+> blk only need focus on the data path. I agree that it is complex than
+> the second option mentioned in the above, but small payload (only
+> virt_slot, DUN, DUSize) in the virtio block request and no security
+> risk of key eviction from userspace.
+>=20
+>=20
+> I would like to hear your thoughts about the above and am appreciated
+> if you could share your insights about the design of inline
+> encryption in virtio block.
+>=20
+> Regards,
+> Linlin
+>=20
+>=20
+>=20
+
+--fyVDnDSsSdEAr9UL
+Content-Type: application/pgp-signature; name=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCgAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmqV5vIACgkQnKSrs4Gr
+c8gJGwf/X6WcnpoBBjltPgKk5PVTutsk6+tVnODwUPuBfzPYZS23OnnTrZnkESve
+L0LIFS850Ih36UbOeC+S3F3WOTD2SxvRSZYj7NlMgYgnA6oKEvISUlea4xJnUldR
+w3kQQJGLtOAU7oe7scnA3ZZp9Zx0bsbOVx2cUiDK2OUwcg6oX+gZJttPipSWYagw
+UNYCyqu9QwTexHrptgCl0RKJ3f+58eSdND/GvfUROzE8eVFkKIAE/zgWdpyhCcOC
+ic6padtYknFeGCnlvkugw7gz0caxHeZgu+pLDgdL42QpLkEs/zbSxPUaAY/LBfGD
+bMSh/nUH9ycIif2dGGD8ciVGcT9CXw==
+=Sqz3
+-----END PGP SIGNATURE-----
+
+--fyVDnDSsSdEAr9UL--
 
