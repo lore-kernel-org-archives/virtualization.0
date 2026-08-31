@@ -1,47 +1,47 @@
-Received: from CY3PR05CU001.outbound.protection.outlook.com (mail-westcentralusazon11013044.outbound.protection.outlook.com [40.93.201.44])
+Received: from CH1PR05CU001.outbound.protection.outlook.com (mail-northcentralusazon11010033.outbound.protection.outlook.com [52.101.193.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 946B63CB571
-	for <virtualization@lists.linux.dev>; Mon, 31 Aug 2026 07:58:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.201.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 163A03CE497
+	for <virtualization@lists.linux.dev>; Mon, 31 Aug 2026 07:58:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.193.33
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788163107; cv=fail; b=pitMajsd2trzs/jKJaIxX7XM4IFL08XXwLKENh4KkvDnLRA2nYmLf477ACn/XJ5mvcH+m/ew4Nzz98/+YMyzI+dK49FXnjHqP+mnEbcHVcRqq0Scz85cjHS3BVRXbGi+/48daeMDYdm7aevxA6yP2W/QdOHFGS0rSSP/8whV0SA=
+	t=1788163113; cv=fail; b=p7oU+bvlz8d3KdQ/M4is7WnLI0qNdZfT/9NqPukHPXA5XgfIGozM/2XMtKiXhNU2/xTFzMLjpB5BiMK+sabndCbiS+J5bfcQPvJpaGDIQazW7jOTzmaFCE7I1mjCDoUJs0zltC36Glrn25or9zQdltACEe7xTXoFesY8Ri9sHUI=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788163107; c=relaxed/simple;
-	bh=jezFkAvZ0XXShqH36RByNe1WInYD2kXtChIuWDYUx4U=;
+	s=arc-20240116; t=1788163113; c=relaxed/simple;
+	bh=3yp1n6CrxsPllejHJRkW9Az5uW70tO+T2HpWXtpmLrM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=hR/4KwVFNjC/N2S1cBJR+3H5Q1dOQQEOTubAA9Pi/htZemFHPNXQO4VtOhK1rx3QQw/21EBCXF5Vh032JtCsPMG9Dioy4Qm8mtSP0bvSJ1Phfm94e8E5995UAstuFQXaRnPD8ivPcvVBajtIx50LSYDJBIi5esU6t/FOaUSWcnU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=IWXQZNol; arc=fail smtp.client-ip=40.93.201.44
+	 Content-Type:MIME-Version; b=XR4xlqJuFJkVcb8hRJHcJfuIBuLr1TWweHaxQ4JE+qDlvUl6GMLs2GElohwoYX2nkvAO78OinMwPD32w5NWrZlRCMFN3cC59EFzOC6Auh9HDZvJRpILCzGX9tYGeS5kksyLpLHw7AEpWFHEuThxyK6ZL3FI4dqdUU8G6LJx/yeo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=S6gnr2DQ; arc=fail smtp.client-ip=52.101.193.33
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="IWXQZNol"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="S6gnr2DQ"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=O++QBORQJVkuGHsGwGAdRar6M4BenuRVedqsPTm/yrP3n6GBzAK33lQtTS+HeqaTncVl0xXV9Vn9/f8Ogmj2EHxlhZ1ht3KuYMQsEKmDzjAh1E1Mi25iIgW5t/U2MtKqnko9oKWBeaQzkUOeK+nfwXMlBlgJxxWtfeoJV2E1j15d46M4GSpsHgl48G1t7Xeqkm3gSGN+AWOqllX0xG6Mm77SZJJpK+jFCmqEZMfw7b9/UJPNXcpGkO/qOpY2BqlcA8jWs0kRloGebi7TtAsboN5brWpEhIy3loILdjjsecIsxhgZxNqegmctzzLq9KXazrQkiEqZ1eUYEzUG7D5IPQ==
+ b=jMtNhFL7sAWc1JyBir/TtX1QIukm3B/x36jHSN50d7R+P2QDL/FswA+2YoL3soeXqibFXPuGMgh3fAOLffxQnrl5V/wBLrS8mK32bCjbgQK9lWOQbZzHKTyhOf/ezjwFeeVhVLFMprtn6DNsHVXKSM/p8lvpJPCpggvvM8+ZjdxDdtjUrLAgTNzK8EqFCUSEfA4DC8jsRAWecqV8CZLByUUsQa3owOrUwQEFDkZ7J5G3nctkWaoeX+NoHGcF9Hh29bY69SHp1569dKk2C5zjf4AMhG0lCjqUZ2SLMUq7jjtvk+gu83oJFcOinXuUSagWyQ28cWn79JdkNXUju16BKQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=bgDgHOA+YN3jB9a34zyRKI7IzOR6U0tzfyhEyxt5iwI=;
- b=IZg4CvixjFjunYGLKdMSlcLX8waXzQEVZg61r38hnWVP3rbACtQk4nBid8IU7/kNdiACFpcr6g5u7DAe4A1P8VRG1CGLnD7/tsfJMqRM0frI2D9UuRhEvt6HRxLM9kGg5HoBxoL1jdlQ39WkmjgdejQYfdq36aU+v9yOF4w39Y1T9TqwmpmTXw/V4D/1Fmbk7RMcIm90sH3cu6XtAsDXyIaJ0xKOhwWCCZZDUFkF2W96YHryGyMgQMxgfdmPucDEm6c7oWbyw6E1NDtquT6lzVhW50E1wljlFLzMl2yFL5eYtG2nqtWmZ49GtK0sNXxvq440c01l3KGF72f6U1fFrw==
+ bh=kZ1yOq0eFrlJzjvCrKsizU0WrNhGjzA+dvPo4oKmO2g=;
+ b=SLA749rR8cl8Z4DMKQEERNGd5lVJeoOc1YptNQKHyZLA5GS1fRS56cGohwMgB+D6Qts6ethgLtZKQKx2OSciRwbYPqtzgr65feTEIpBXu89mPrwyyBOAXhNTdLKipT4K/j9mREEdxUsiYZU2q+rrIhUr3V0u7ldS+ZhnxYnj3dWEc5GyoA8nG1JlFePPm6RCW+kV+bY2nhCqZWRFt97rojAEQQEQ+dYQKHwLfPlEWPU0A79ToRGr35E+92evlWjuMF5ZDcjilT9fZqKEJqhXO8RWHIaDX24WCHCHdffugu4vbFlasG3o5KXzWExyHC3JPu/JPRQQMqF38GMUTG+7Mw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
  dkim=pass header.d=nvidia.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=bgDgHOA+YN3jB9a34zyRKI7IzOR6U0tzfyhEyxt5iwI=;
- b=IWXQZNolvulqda6xBw/vNVChgcKrvSEuV6a7E91k3r26pSlYGYzETW6CFTOQOec5EuEPxoseJ1NJdBw/2lLmfen2qPUOLjn6T4Q2ORbvTtM6qN8Y3fGqYRZzFpC7SX7sFUsUUyuTkZoBUmCAXnk3L3hyPTTazCZ3b9+4L2l2pIG8iHNzqcJt6Tx+6bnzOpOq49LXpiSKCJ1QaoSEn6nLWrxDjPmE+WYhofZ6+n7kLMvJsNOom0Yh/DDoUsAh1NiNkNTUUjmMr947WIGta5qkVBsMekkX1EPv3NUfC4DoxtdETYNn1pH/4sJVlPHSk76bTbIti1ieka4EarQ674CtaQ==
+ bh=kZ1yOq0eFrlJzjvCrKsizU0WrNhGjzA+dvPo4oKmO2g=;
+ b=S6gnr2DQlM7JtCUl1gDyD8e0NbpESZ2H6G9oWGgMFGr78Ng64CUBgU2zmSeEj4t1LtCy/Jp/BGGZrSwlDXK6QDqsJyY4ANSyW+VPaMZbNVUwKlIpCGPskVpqrvvdn4uefcw6JeHklebspqHr2+tPjGvGMFv7CFCspILwR2ayqUCTiFVDR1fEALgaE98o5qpqbQ/rKUlzu+65G2kCDJmaVtCPsSXh4ERnruBOKgVHJ0gElZt1sUdIP9LaEUWnnZUyK65EMYHiB3/8BbrOygxVMBJBJBvKaAi6ahmDrypkQK6pjDfdHVnIu8Ok8J40UP83kKKuxjbK/+oVAEH94ffXHw==
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=nvidia.com;
 Received: from BL0PR12MB5505.namprd12.prod.outlook.com (2603:10b6:208:1ce::7)
  by SA0PR12MB4430.namprd12.prod.outlook.com (2603:10b6:806:70::20) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.360.13; Mon, 31 Aug
- 2026 07:58:23 +0000
+ 2026 07:58:26 +0000
 Received: from BL0PR12MB5505.namprd12.prod.outlook.com
  ([fe80::9329:96cf:507a:eb21]) by BL0PR12MB5505.namprd12.prod.outlook.com
  ([fe80::9329:96cf:507a:eb21%3]) with mapi id 15.21.0360.008; Mon, 31 Aug 2026
- 07:58:23 +0000
+ 07:58:26 +0000
 From: Shahar Shitrit <shshitrit@nvidia.com>
 To: netdev@vger.kernel.org,
 	mst@redhat.com,
@@ -59,9 +59,9 @@ Cc: virtualization@lists.linux.dev,
 	andrew+netdev@lunn.ch,
 	edumazet@google.com,
 	danielj@nvidia.com
-Subject: [PATCH net-next v22 05/14] virtio: Expose object create and destroy API
-Date: Mon, 31 Aug 2026 10:57:58 +0300
-Message-ID: <20260831075807.2891426-6-shshitrit@nvidia.com>
+Subject: [PATCH net-next v22 06/14] virtio_net: Query and set flow filter caps
+Date: Mon, 31 Aug 2026 10:57:59 +0300
+Message-ID: <20260831075807.2891426-7-shshitrit@nvidia.com>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20260831075807.2891426-1-shshitrit@nvidia.com>
 References: <20260831075807.2891426-1-shshitrit@nvidia.com>
@@ -78,209 +78,485 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
 X-MS-TrafficTypeDiagnostic: BL0PR12MB5505:EE_|SA0PR12MB4430:EE_
-X-MS-Office365-Filtering-Correlation-Id: c0fcb129-0b8c-41ba-d331-08df0735a157
+X-MS-Office365-Filtering-Correlation-Id: 4473ecc9-99ce-478d-4890-08df0735a35e
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|366016|7416014|23010399003|376014|6133799003|22082099003|18002099003|56012099006|3023799007|10067099003|11063799006;
+	BCL:0;ARA:13230040|1800799024|366016|7416014|23010399003|376014|6133799003|22082099003|18002099003|56012099006|10067099003|11063799006;
 X-Microsoft-Antispam-Message-Info:
-	ZT5qQIjef7x48fNMDrnHkhTW3Byk7rRJlPIIK+HfJhFVLfjxvYahWUVxgdQTfCUydCHkH/7BLhS6YVA4fuDTwX5ljFjGlBSN4tdT6uNS/sJs5V/n/SDJRgTBSYFJ6l1AowBcTvmdyvZkZmqE8i60jrA1oPScFIb023l9A4JrvJXlJsc4w8jUdLwLHjM5BpfcfZB8FzjyP2T3pnDSRRdQfgU8Pcjy//tFJspw10odYviHqGEDfXrGsJ+yaLEPjBcmeUEUffz2TmW4GoPGP71RPIdsxlYS7E0t119dgEf3iXs9HlKx/Gga2Stlsy9PUkHil3VObV87u8bhfygX/UbhvHSndx/ou9uyC15p9xfBDosKZhC71PLClRdKl19Ygbk07tNpJUULZVRxE2SqZGu4dWB1QEQg0/opGFY2aY920yVtPvpWrin5y9iw6ZlZbZuDWVA1nUzMc7d/xr0JQUoFm07D56FNCRDX8XT1TBqs+ORoMTez7XJ+it4aWHdqGGyAuGSw2c8VzkgeTqZwQoHL6/pWsO9D1Wq1fbfwPmpZ0cVqMkol1rFIxT3zeX3t6S9G1Px3ltXXpEqKbbhfYd8DKbXWszCaXsyzzTAbMfeXBXO7Le582nIbX4XDdTxdgPemb6w4/SSzHX5NjKw8wcB8bEkG537lwwdL4Kd2BAwa52g=
+	6T1DbMR75SLV0XMb8MvsBARgY2zvns6e2NbtbuFnYTlepLjLzoTNr5CWEiZKjkJg5h5u51UOk76Z6sunB2BAuOYsWLhadZZypK3dDtMwfsBRSYnT7La/wnEEwuWxLkWZvvNl32b2Xr0l2xK/eQaH9Lfgkg04L+mtaIO8NFGtRkG8KqzcUrxHYHauGo5XeYqRVBvh2IflN1Ir15P+uvrYwqUT10dbEC41hhuG78GOabBIyTL4Q4zGdygYYdR2O5DczMCe6BaDKQc668+plmKNBNqf78n0v9KB/xrPX7nteveXPhKmp5Yav+6rpcYBG/hyyzDsIZNiGpCzM03Waud+CIx6/obarJwh6f7VkUNXkdDdTX+9QJvGsR/sJuN/3/JhTJEkd1tSUPs7vS9hlyhxCMSnEl+ID3r71xAVRfFZSskg4Sf8a5XNbDf7SVR4Je15qat/VV/6g+xbuDCRK4XQq+z7iabS4TKbkjPdI00S2URv1v24p5c6oyn8d6h789woeT0lSpgm0HopRjk6dY0oSxckjGWnwxUqm9/Tf9YGwdQwUX7674VtXBNL8etSWhO6jKDhQH3gXH19lnJ5YE5s4huGRYkwk+aIWZDMWqxgh38XzpImbHwZFIz7BxYzEXp8PMzhJMz69jbLlYPKb8x0kmlCAaVm/pT+ZoGymPTdI/0=
 X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5505.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(7416014)(23010399003)(376014)(6133799003)(22082099003)(18002099003)(56012099006)(3023799007)(10067099003)(11063799006);DIR:OUT;SFP:1101;
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5505.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(7416014)(23010399003)(376014)(6133799003)(22082099003)(18002099003)(56012099006)(10067099003)(11063799006);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?3JCDrOqHwopvbe18SzEsMyXlor36VOMf2IO4elmShAu2Fi4ifT3p7c7FL54H?=
- =?us-ascii?Q?5QaXz2bi9LAFxahhScSLKsAG8n8nAVxiLOYp+knOsjEXXsp/fTDfd1PtbD3O?=
- =?us-ascii?Q?u44VDgtvUfkYJmJncaSqPr7MpTuFW80rsEZPuNjD18oxZXGjjwyuxhSHv8n7?=
- =?us-ascii?Q?VY+l3kx1NdKyvvbf5WB8zN3U/RSYG+1Rrv85uZUYceV/e6H2fFRvNfpAd8Rb?=
- =?us-ascii?Q?ycMklyaglxsWpVpwpjUunpPD5SUjurqhOzfsLF/3BsqSgbnNgBci2rU7B3gf?=
- =?us-ascii?Q?wuYiW6ogTalJb0Xda8ltgAIGAOpRVtTA+LVl3QZGUBHfaxu1ljGTjg3AUYqu?=
- =?us-ascii?Q?cQRpSsv7RstiA/LIfkn2PyIFmc6x28+stWLcPChWaZLVhnlq/TKJtl+4uuf5?=
- =?us-ascii?Q?lYo+RpndCP/OyBf4fihxHS+JY7G8AMiwqVCm3qX+0EgPJJrt9GF3yvDn0+gG?=
- =?us-ascii?Q?mabSJLGX1/nKYVy+SuwzhmBcw5DtP80UUNW0ZRQrUQrBYQs/X9py6uFINavC?=
- =?us-ascii?Q?Xh8G1b8Ii1VVGJlO/DIpo4AQe0HY2V60DELx3Gz0f0DRlAzplSX2KOUNNzgR?=
- =?us-ascii?Q?4U8fak02wpg+z8Ywgok2L2JC7EVvssy8IKueEO2cjiznwZjxyQrN+atFsxKr?=
- =?us-ascii?Q?7PipkKDZylSNSOAriJpxX08olWNmO4gGm9SuH1+lZuFX1j2+Yn7zRjUw+ITw?=
- =?us-ascii?Q?Pr6CXaCDEPj/LCXef+WV93sQqVJV/iOdtclxdAjK0EcX3AX+c6TO6IYn44jx?=
- =?us-ascii?Q?bxRI2gjiSTPXNMiWuHGTn9cjeuy2xCNYpnmTV02Holb7AgM6xuRnHxbUEafH?=
- =?us-ascii?Q?l9iVa3WsZlgDXU/oTydiUqvnRtlk7HdeoSCYz0XUW+qLL0qBDK+H4EozysNU?=
- =?us-ascii?Q?babTBt1FcQuilE7kBG55nro6fUEBVBUD6g+IDd4PXoJ9QjeDLeSHkhpD8EtY?=
- =?us-ascii?Q?F1Mf7KSLec2lpbDWZTkmREWSoN3kaqZQvoBrOfhqXvsENX3/kp+8xj2UzbBv?=
- =?us-ascii?Q?0OrwjyGDSLqTGY54AfbJvDA+yTBVGqzc1RZGpGiUoIkfn8OOCTA3MeMtZgDj?=
- =?us-ascii?Q?U6dCIYyhAEpJMhNU4HMfqShbe21bSj9mDV2dlsbPZSFbrL7bIM1ZPIEn/D/O?=
- =?us-ascii?Q?9FbjhVwNQwCNSp3v5Leeum3+D5EwEVGzUyfVRtfPZsxdl/Ia9l/UMT0LwMoF?=
- =?us-ascii?Q?6D8Y7/XxKKK7LplpLTQ4v26aoS4MzCcNdJ0VsIIwR4itNqAKkTiX3aWxvye2?=
- =?us-ascii?Q?/NxytpncznfhbSVT+blqdjMKbI790h0LzalrWr54eUgNkgoHbogtPW/DB9jT?=
- =?us-ascii?Q?ryDkqi1It1CGEApEFoafT1kPynOz0M15uPR937BI2H3ExaTZokeN9Dhw04Ss?=
- =?us-ascii?Q?sjNm19wGLcbL1X3B32zf2grwpjb3Co/FYeOlAjOvmy6lU0LFPSYK9P45dmtR?=
- =?us-ascii?Q?Clrs9lMWAMPFMBONjj6xRuDB7vYuudmI3iTGDpcWPwYekZrOadIXEDwrSvp4?=
- =?us-ascii?Q?94eeTPV7EkN/laImJGxF70vJc/0mrwP3ArtigsnyYD34jjeWZjpCGR8CXpJ1?=
- =?us-ascii?Q?4XLt9NVlqBbdEnnP1oiiYVvrPZJzEjeJtYasa/+cljJnMAQHnC5M7fMwftHZ?=
- =?us-ascii?Q?0tl1Ulx6R3Pjhr4v6o6KeO5Aa2/KNDEx1DkHKm+YWRdi3jjnoF2Qnma6WoVi?=
- =?us-ascii?Q?c7S8CpL+qFB2Me33HakYa2ce+DcI0m95rapARAu8gLa/wud1FHsTjkJJX+B1?=
- =?us-ascii?Q?RhKsuiyYPA=3D=3D?=
+	=?us-ascii?Q?7IaTUFuuX8KqnEMLApvon/8vMkX54wzcwY2mVPtKHE3VrF0CQSlaHPfiAUNi?=
+ =?us-ascii?Q?pBHxMise42oAL7kM2S96s1A1xebIprs5GHk22yBrB/RE+9jpu4mcUZQqfZZv?=
+ =?us-ascii?Q?x5jxnRStEXjyJsOWUYRBdGvGHdjeaZPu0dSMZZQLaKYKD4xWDfmwhYDs2unu?=
+ =?us-ascii?Q?5GkWAbKgo3gmVRkrSVCrIVgF8L4HPIN1pfbicleQrom0S8WtuASQVHUvrJZ+?=
+ =?us-ascii?Q?r+c8ksNLsCRgDCI2kZbSZKmsL82xxPS21qJvSICUAW5gcWcarMxKsXcBeaFw?=
+ =?us-ascii?Q?riiChohQk8d6P9gvVF2Afo+T18rtf5wNesmEOQq+ZcOU6RzfxGuGsRuCpwGN?=
+ =?us-ascii?Q?AZst841YVZMwUoPqAl2ejoPV2ItO/rXZp13zrohApqZuTSg6snOq7KuvbMdZ?=
+ =?us-ascii?Q?3cGl9qbieZEVwiv3e3JKdIHbwgj2yBXqIFyJgmO5JVkXz3frCAvJ5MN13TT6?=
+ =?us-ascii?Q?e1WYieDZ7bLEcAE8j3Vg8CoEP5oryq8+mdqHBELXEkMxfYe9Qsgt7tx54v+C?=
+ =?us-ascii?Q?//GMHmNSv1Nt6cGBpgujSvNWVQf1da7vX0b7J+207HBJ3AlL4ysqKl73J+5X?=
+ =?us-ascii?Q?I0DK4+Zy3iAlHsnyNULT/RRzgV/3TvIEtzUWC8iza4baXCNcTfrUg1momzoF?=
+ =?us-ascii?Q?91VGLQvU/OZihmp4v13r5nJkgY4VzaMSwpa5p7aMxKe0qkVa96mm0zJMg661?=
+ =?us-ascii?Q?J0fUJ8iLFU21ZGhn7qT71sis+z3R6K1oR2oQAodJnd+MOQz0n2bQtWKCn6yd?=
+ =?us-ascii?Q?PoLHKP72V57suj9MSKxnMenv6WqndxAZqQ3f36btW3C6kBCDQTFbk948YoWj?=
+ =?us-ascii?Q?qyjJypp6Xi3nTzPv5DrT+4q3kbT9gYL9MU5eQHXhKhb/ascaZ8GZSQ6i0ReA?=
+ =?us-ascii?Q?FJuUHgLP3BMR/vDFwLd2jIvuh5v+jVl1DMDtWpJ1dL3igeI1eSsKY3vGxhOw?=
+ =?us-ascii?Q?w1rvGn0Y0+5jMg/gZn7leGEUZ/KyZC98nSkt5K/q6Zuvq67F9Jbg1aL7FbhO?=
+ =?us-ascii?Q?x/eGuq6u0JBthfH+CxpKYHzBib99NtHvpdFFt9e+JOPTIiWTPRw5EwME3exi?=
+ =?us-ascii?Q?iYwAI+HrpiWcRntEcdBN8vD4F+Z8KIVwVrMqvLD4h9Vt5HesygMfaBruoIPr?=
+ =?us-ascii?Q?xF63LTi5M5XSKLmpuGhKbKid5sKyLfigYGzL32/0ytmAn4bB0yyO9f4Kg4GA?=
+ =?us-ascii?Q?8itFErh1ZOvZnddjGERCEzWH7fTDxuo02re1ybJ8snGkGdhK22Ro+cxQjieY?=
+ =?us-ascii?Q?8L3fNj0S65kuMNwl585K6sxpArJlwnaiSwpY+AeRHrKZRsYGxWj7VZkFucvo?=
+ =?us-ascii?Q?okffOsf4dJEFg2lwonnFFIw6MmYwTMhH7G7n9EV28RD+n+Jp0CtvN+GgWEqf?=
+ =?us-ascii?Q?t6fBPxrCfAgJS0dWde02dXI4xWnsJTooNvbUv7lQmENNcwZ47pEawnYaR/x7?=
+ =?us-ascii?Q?wmj5qJH2sb4jb30VoDlP3fjO9A+jc7ZGNww7ahX3Z1UhKdMOdMnVN9tyWNG+?=
+ =?us-ascii?Q?17gjWnA9bcF4J/k8Wf8ndyG62kDuSIUqwBXGzBKEeQlmcr1gkOtZ7Euhqw2p?=
+ =?us-ascii?Q?zrUpL/zhtLZM9FbyXZHjRV0OPv0ZG29s0kMdgRgjIb13SyLlCpI5KCh6CPu8?=
+ =?us-ascii?Q?iP1ea0DhagQB9hniujDNbioFsb405dSR5hCXV9dAPrbNB6u6PrJLe2g7Wo0j?=
+ =?us-ascii?Q?9biZwvyWL91XNhB1+ta4DGbWQySvnV2OzbBFCgxn6/G5FUFztrVhMWGPuE2e?=
+ =?us-ascii?Q?9nmrz/QaUQ=3D=3D?=
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: c0fcb129-0b8c-41ba-d331-08df0735a157
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4473ecc9-99ce-478d-4890-08df0735a35e
 X-MS-Exchange-CrossTenant-AuthSource: BL0PR12MB5505.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 31 Aug 2026 07:58:23.3486
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 31 Aug 2026 07:58:26.7283
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: xLTtigUDgv4zU3hxVcnN3yA2yVtccg6hNvqks8PvL9dmJDkTr2Kac2lHLE8cdnexkrrz6hDs2KNO9PKmcGArTQ==
+X-MS-Exchange-CrossTenant-UserPrincipalName: FfSl2gwGbIwAEG1zzQyxWazbk1Qlg4LLmYbvXwKHGf7mGU30BgJTvsCJUbpIL/w/gnaHHFC7GLVaD7pzqoyGCQ==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA0PR12MB4430
 
-From: Daniel Jurgens <danielj@nvidia.com>
+When probing a virtnet device, attempt to read the flow filter
+capabilities. In order to use the feature the caps must also
+be set. For now setting what was read is sufficient.
 
-Object create and destroy were implemented specifically for dev parts
-device objects. Create general purpose APIs for use by upper layer
-drivers.
+This patch adds uapi definitions virtio_net flow filters define in
+version 1.4 of the VirtIO spec.
 
 Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
 Reviewed-by: Parav Pandit <parav@nvidia.com>
-Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Signed-off-by: Shahar Shitrit <shshitrit@nvidia.com>
 ---
- drivers/virtio/virtio_admin_commands.c | 77 ++++++++++++++++++++++++++
- include/linux/virtio_admin.h           | 41 ++++++++++++++
- 2 files changed, 118 insertions(+)
+ drivers/net/virtio_net.c           | 236 +++++++++++++++++++++++++++++
+ include/uapi/linux/virtio_net_ff.h |  91 +++++++++++
+ 2 files changed, 327 insertions(+)
+ create mode 100644 include/uapi/linux/virtio_net_ff.h
 
-diff --git a/drivers/virtio/virtio_admin_commands.c b/drivers/virtio/virtio_admin_commands.c
-index 60d92875da23..08b41f38baea 100644
---- a/drivers/virtio/virtio_admin_commands.c
-+++ b/drivers/virtio/virtio_admin_commands.c
-@@ -94,3 +94,80 @@ int virtio_admin_cap_set(struct virtio_device *vdev,
- 	return err;
- }
- EXPORT_SYMBOL_GPL(virtio_admin_cap_set);
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index e34c52d059d3..4f78b881e493 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -27,6 +27,10 @@
+ #include <net/netdev_queues.h>
+ #include <net/xdp_sock_drv.h>
+ #include <net/page_pool/helpers.h>
++#include <linux/virtio_admin.h>
++#include <net/ipv6.h>
++#include <net/ip.h>
++#include <uapi/linux/virtio_net_ff.h>
+ 
+ static int napi_weight = NAPI_POLL_WEIGHT;
+ module_param(napi_weight, int, 0444);
+@@ -282,6 +286,14 @@ static const struct virtnet_stat_desc virtnet_stats_tx_speed_desc_qstat[] = {
+ 	VIRTNET_STATS_DESC_TX_QSTAT(speed, ratelimit_packets, hw_drop_ratelimits),
+ };
+ 
++struct virtnet_ff {
++	struct virtio_device *vdev;
++	bool ff_supported;
++	struct virtio_net_ff_cap_data *ff_caps;
++	struct virtio_net_ff_cap_mask_data *ff_mask;
++	struct virtio_net_ff_actions *ff_actions;
++};
 +
-+int virtio_admin_obj_create(struct virtio_device *vdev,
-+			    u16 obj_type,
-+			    u32 obj_id,
-+			    u16 group_type,
-+			    u64 group_member_id,
-+			    const void *obj_specific_data,
-+			    size_t obj_specific_data_size)
+ #define VIRTNET_Q_TYPE_RX 0
+ #define VIRTNET_Q_TYPE_TX 1
+ #define VIRTNET_Q_TYPE_CQ 2
+@@ -474,6 +486,8 @@ struct virtnet_info {
+ 
+ 	struct virtio_net_rss_config_hdr *rss_hdr;
+ 
++	struct virtnet_ff ff;
++
+ 	/* Must be last as it ends in a flexible-array member. */
+ 	TRAILING_OVERLAP(struct virtio_net_rss_config_trailer, rss_trailer, hash_key_data,
+ 		u8 rss_hash_key_data[NETDEV_RSS_KEY_LEN];
+@@ -519,6 +533,7 @@ static struct sk_buff *virtnet_skb_append_frag(struct receive_queue *rq,
+ static void virtnet_xsk_completed(struct send_queue *sq, int num);
+ static void free_unused_bufs(struct virtnet_info *vi);
+ static void virtnet_del_vqs(struct virtnet_info *vi);
++static void remove_vq_common(struct virtnet_info *vi);
+ 
+ enum virtnet_xmit_type {
+ 	VIRTNET_XMIT_TYPE_SKB,
+@@ -5724,6 +5739,197 @@ static const struct netdev_stat_ops virtnet_stat_ops = {
+ 	.get_base_stats		= virtnet_get_base_stats,
+ };
+ 
++static size_t get_mask_size(u16 type)
 +{
-+	size_t data_size = sizeof(struct virtio_admin_cmd_resource_obj_create_data);
-+	struct virtio_admin_cmd_resource_obj_create_data *obj_create_data;
-+	struct virtio_admin_cmd cmd = {};
-+	struct scatterlist data_sg;
-+	void *data;
++	switch (type) {
++	case VIRTIO_NET_FF_MASK_TYPE_ETH:
++		return sizeof(struct ethhdr);
++	case VIRTIO_NET_FF_MASK_TYPE_IPV4:
++		return sizeof(struct iphdr);
++	case VIRTIO_NET_FF_MASK_TYPE_IPV6:
++		return sizeof(struct ipv6hdr);
++	case VIRTIO_NET_FF_MASK_TYPE_TCP:
++		return sizeof(struct tcphdr);
++	case VIRTIO_NET_FF_MASK_TYPE_UDP:
++		return sizeof(struct udphdr);
++	}
++
++	return 0;
++}
++
++static int virtnet_ff_init(struct virtnet_ff *ff, struct virtio_device *vdev)
++{
++	size_t ff_mask_size = sizeof(struct virtio_net_ff_cap_mask_data) +
++			      sizeof(struct virtio_net_ff_selector) *
++			      VIRTIO_NET_FF_MASK_TYPE_MAX;
++	struct virtio_admin_cmd_query_cap_id_result *cap_id_list;
++	struct virtio_net_ff_selector *sel;
++	unsigned long sel_types = 0;
++	size_t real_ff_mask_size;
 +	int err;
++	int i;
 +
 +	if (!vdev->config->admin_cmd_exec)
 +		return -EOPNOTSUPP;
 +
-+	if (check_add_overflow(data_size, obj_specific_data_size, &data_size))
-+		return -EOVERFLOW;
-+
-+	data = kzalloc(data_size, GFP_KERNEL);
-+	if (!data)
++	cap_id_list = kzalloc(sizeof(*cap_id_list), GFP_KERNEL);
++	if (!cap_id_list)
 +		return -ENOMEM;
 +
-+	obj_create_data = data;
-+	obj_create_data->hdr.type = cpu_to_le16(obj_type);
-+	obj_create_data->hdr.id = cpu_to_le32(obj_id);
-+	memcpy(obj_create_data->resource_obj_specific_data, obj_specific_data,
-+	       obj_specific_data_size);
-+	sg_init_one(&data_sg, data, data_size);
++	err = virtio_admin_cap_id_list_query(vdev, cap_id_list);
++	if (err)
++		goto err_cap_list;
 +
-+	cmd.opcode = cpu_to_le16(VIRTIO_ADMIN_CMD_RESOURCE_OBJ_CREATE);
-+	cmd.group_type = cpu_to_le16(group_type);
-+	cmd.group_member_id = cpu_to_le64(group_member_id);
-+	cmd.data_sg = &data_sg;
++	if (!(virtio_cap_in_list(cap_id_list, VIRTIO_NET_FF_RESOURCE_CAP) &&
++	      virtio_cap_in_list(cap_id_list, VIRTIO_NET_FF_SELECTOR_CAP) &&
++	      virtio_cap_in_list(cap_id_list, VIRTIO_NET_FF_ACTION_CAP))) {
++		err = -EOPNOTSUPP;
++		goto err_cap_list;
++	}
 +
-+	err = vdev->config->admin_cmd_exec(vdev, &cmd);
-+	kfree(data);
++	ff->ff_caps = kzalloc(sizeof(*ff->ff_caps), GFP_KERNEL);
++	if (!ff->ff_caps) {
++		err = -ENOMEM;
++		goto err_cap_list;
++	}
++
++	err = virtio_admin_cap_get(vdev,
++				   VIRTIO_NET_FF_RESOURCE_CAP,
++				   ff->ff_caps,
++				   sizeof(*ff->ff_caps));
++
++	if (err)
++		goto err_ff;
++
++	if (!le32_to_cpu(ff->ff_caps->groups_limit) ||
++	    !le32_to_cpu(ff->ff_caps->classifiers_limit) ||
++	    !le32_to_cpu(ff->ff_caps->rules_limit) ||
++	    !le32_to_cpu(ff->ff_caps->rules_per_group_limit) ||
++	    !ff->ff_caps->selectors_per_classifier_limit) {
++		err = -EINVAL;
++		goto err_ff;
++	}
++
++	/* VIRTIO_NET_FF_MASK_TYPE start at 1 */
++	for (i = 1; i <= VIRTIO_NET_FF_MASK_TYPE_MAX; i++)
++		ff_mask_size += get_mask_size(i);
++
++	ff->ff_mask = kzalloc(ff_mask_size, GFP_KERNEL);
++	if (!ff->ff_mask) {
++		err = -ENOMEM;
++		goto err_ff;
++	}
++
++	err = virtio_admin_cap_get(vdev,
++				   VIRTIO_NET_FF_SELECTOR_CAP,
++				   ff->ff_mask,
++				   ff_mask_size);
++
++	if (err)
++		goto err_ff_mask;
++
++	ff->ff_mask->count = min_t(u8, ff->ff_mask->count,
++				   VIRTIO_NET_FF_MASK_TYPE_MAX);
++
++	ff->ff_actions = kzalloc(sizeof(*ff->ff_actions) +
++					VIRTIO_NET_FF_ACTION_MAX,
++					GFP_KERNEL);
++	if (!ff->ff_actions) {
++		err = -ENOMEM;
++		goto err_ff_mask;
++	}
++
++	err = virtio_admin_cap_get(vdev,
++				   VIRTIO_NET_FF_ACTION_CAP,
++				   ff->ff_actions,
++				   sizeof(*ff->ff_actions) + VIRTIO_NET_FF_ACTION_MAX);
++
++	if (err)
++		goto err_ff_action;
++
++	ff->ff_actions->count = min_t(u8, ff->ff_actions->count,
++				      VIRTIO_NET_FF_ACTION_MAX);
++	if (!ff->ff_actions->count)
++		goto err_ff_action;
++
++	err = virtio_admin_cap_set(vdev,
++				   VIRTIO_NET_FF_RESOURCE_CAP,
++				   ff->ff_caps,
++				   sizeof(*ff->ff_caps));
++	if (err)
++		goto err_ff_action;
++
++	real_ff_mask_size = sizeof(struct virtio_net_ff_cap_mask_data);
++	sel = (void *)&ff->ff_mask->selectors;
++
++	for (i = 0; i < ff->ff_mask->count; i++) {
++		/* If the selector type is unknown it may indicate the spec
++		 * has been revised to include new types of selectors
++		 */
++		if (!sel->type || sel->type > VIRTIO_NET_FF_MASK_TYPE_MAX)
++			break;
++
++		if (sel->length != get_mask_size(sel->type) ||
++		    test_and_set_bit(sel->type, &sel_types)) {
++			err = -EPROTO;
++			goto err_ff_action;
++		}
++		real_ff_mask_size += sizeof(*sel) + sel->length;
++		if (real_ff_mask_size > ff_mask_size) {
++			err = -EPROTO;
++			goto err_ff_action;
++		}
++		sel = (void *)sel + sizeof(*sel) + sel->length;
++	}
++	ff->ff_mask->count = i;
++
++	err = virtio_admin_cap_set(vdev,
++				   VIRTIO_NET_FF_SELECTOR_CAP,
++				   ff->ff_mask,
++				   real_ff_mask_size);
++	if (err)
++		goto err_ff_action;
++
++	err = virtio_admin_cap_set(vdev,
++				   VIRTIO_NET_FF_ACTION_CAP,
++				   ff->ff_actions,
++				   sizeof(*ff->ff_actions) + ff->ff_actions->count);
++	if (err)
++		goto err_ff_action;
++
++	ff->vdev = vdev;
++	ff->ff_supported = true;
++
++	kfree(cap_id_list);
++
++	return 0;
++
++err_ff_action:
++	kfree(ff->ff_actions);
++	ff->ff_actions = NULL;
++err_ff_mask:
++	kfree(ff->ff_mask);
++	ff->ff_mask = NULL;
++err_ff:
++	kfree(ff->ff_caps);
++	ff->ff_caps = NULL;
++err_cap_list:
++	kfree(cap_id_list);
 +
 +	return err;
 +}
-+EXPORT_SYMBOL_GPL(virtio_admin_obj_create);
 +
-+void virtio_admin_obj_destroy(struct virtio_device *vdev,
-+			      u16 obj_type,
-+			      u32 obj_id,
-+			      u16 group_type,
-+			      u64 group_member_id)
++static void virtnet_ff_cleanup(struct virtnet_ff *ff)
 +{
-+	struct virtio_admin_cmd_resource_obj_cmd_hdr *data;
-+	struct virtio_admin_cmd cmd = {};
-+	struct scatterlist data_sg;
-+	int err;
-+
-+	if (!vdev->config->admin_cmd_exec)
++	if (!ff->ff_supported)
 +		return;
 +
-+	data = kzalloc_obj(*data);
-+	if (WARN_ON(!data))
-+		return;
-+
-+	data->type = cpu_to_le16(obj_type);
-+	data->id = cpu_to_le32(obj_id);
-+	sg_init_one(&data_sg, data, sizeof(*data));
-+	cmd.opcode = cpu_to_le16(VIRTIO_ADMIN_CMD_RESOURCE_OBJ_DESTROY);
-+	cmd.group_type = cpu_to_le16(group_type);
-+	cmd.group_member_id = cpu_to_le64(group_member_id);
-+	cmd.data_sg = &data_sg;
-+
-+	err = vdev->config->admin_cmd_exec(vdev, &cmd);
-+	kfree(data);
-+
-+	WARN_ON_ONCE(err);
++	kfree(ff->ff_actions);
++	kfree(ff->ff_mask);
++	kfree(ff->ff_caps);
++	ff->ff_supported = false;
 +}
-+EXPORT_SYMBOL_GPL(virtio_admin_obj_destroy);
-diff --git a/include/linux/virtio_admin.h b/include/linux/virtio_admin.h
-index 1177c4a20e53..9095a0481495 100644
---- a/include/linux/virtio_admin.h
-+++ b/include/linux/virtio_admin.h
-@@ -86,4 +86,45 @@ int virtio_admin_cap_set(struct virtio_device *vdev,
- 			 const void *caps,
- 			 size_t cap_size);
++
+ static void virtnet_freeze_down(struct virtio_device *vdev)
+ {
+ 	struct virtnet_info *vi = vdev->priv;
+@@ -5742,6 +5948,10 @@ static void virtnet_freeze_down(struct virtio_device *vdev)
+ 	netif_tx_lock_bh(vi->dev);
+ 	netif_device_detach(vi->dev);
+ 	netif_tx_unlock_bh(vi->dev);
++
++	rtnl_lock();
++	virtnet_ff_cleanup(&vi->ff);
++	rtnl_unlock();
+ }
  
-+/**
-+ * virtio_admin_obj_create - Create an object on a virtio device
-+ * @vdev: the virtio device
-+ * @obj_type: type of object to create
-+ * @obj_id: ID for the new object
-+ * @group_type: administrative group type for the operation
-+ * @group_member_id: member identifier within the administrative group
-+ * @obj_specific_data: object-specific data for creation
-+ * @obj_specific_data_size: size of the object-specific data in bytes
+ static int init_vqs(struct virtnet_info *vi);
+@@ -5771,9 +5981,24 @@ static int virtnet_restore_up(struct virtio_device *vdev)
+ 			goto err_destroy_pools;
+ 	}
+ 
++	/*
++	 * Initialize flow filters. Not supported is an acceptable and common
++	 * return code
++	 */
++	rtnl_lock();
++	err = virtnet_ff_init(&vi->ff, vi->vdev);
++	if (err && err != -EOPNOTSUPP) {
++		rtnl_unlock();
++		virtnet_freeze_down(vi->vdev);
++		remove_vq_common(vi);
++		return err;
++	}
++	rtnl_unlock();
++
+ 	netif_tx_lock_bh(vi->dev);
+ 	netif_device_attach(vi->dev);
+ 	netif_tx_unlock_bh(vi->dev);
++
+ 	return 0;
+ 
+ err_destroy_pools:
+@@ -7057,6 +7282,15 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 
+ 	virtio_device_ready(vdev);
+ 
++	/* Initialize flow filters. Not supported is an acceptable and common
++	 * return code
++	 */
++	err = virtnet_ff_init(&vi->ff, vi->vdev);
++	if (err && err != -EOPNOTSUPP) {
++		rtnl_unlock();
++		goto free_unregister_netdev;
++	}
++
+ 	if (vi->has_rss || vi->has_rss_hash_report) {
+ 		if (!virtnet_commit_rss_command(vi)) {
+ 			dev_warn(&vdev->dev, "RSS disabled because committing failed.\n");
+@@ -7139,6 +7373,7 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 
+ free_unregister_netdev:
+ 	unregister_netdev(dev);
++	virtnet_ff_cleanup(&vi->ff);
+ free_failover:
+ 	net_failover_destroy(vi->failover);
+ free_page_pools:
+@@ -7189,6 +7424,7 @@ static void virtnet_remove(struct virtio_device *vdev)
+ 	virtnet_free_irq_moder(vi);
+ 
+ 	unregister_netdev(vi->dev);
++	virtnet_ff_cleanup(&vi->ff);
+ 
+ 	net_failover_destroy(vi->failover);
+ 
+diff --git a/include/uapi/linux/virtio_net_ff.h b/include/uapi/linux/virtio_net_ff.h
+new file mode 100644
+index 000000000000..f9e771a0baff
+--- /dev/null
++++ b/include/uapi/linux/virtio_net_ff.h
+@@ -0,0 +1,91 @@
++/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note
 + *
-+ * Creates a new object on the virtio device with the specified type and ID.
-+ * The object may require object-specific data for proper initialization.
-+ *
-+ * Return: 0 on success, -EOPNOTSUPP if the device doesn't support admin
-+ * operations or object creation, or a negative error code on other failures.
++ * Header file for virtio_net flow filters
 + */
-+int virtio_admin_obj_create(struct virtio_device *vdev,
-+			    u16 obj_type,
-+			    u32 obj_id,
-+			    u16 group_type,
-+			    u64 group_member_id,
-+			    const void *obj_specific_data,
-+			    size_t obj_specific_data_size);
++#ifndef _LINUX_VIRTIO_NET_FF_H
++#define _LINUX_VIRTIO_NET_FF_H
++
++#include <linux/types.h>
++#include <linux/stddef.h>
++
++#define VIRTIO_NET_FF_RESOURCE_CAP 0x800
++#define VIRTIO_NET_FF_SELECTOR_CAP 0x801
++#define VIRTIO_NET_FF_ACTION_CAP 0x802
 +
 +/**
-+ * virtio_admin_obj_destroy - Destroy an object on a virtio device
-+ * @vdev: the virtio device
-+ * @obj_type: type of object to destroy
-+ * @obj_id: ID of the object to destroy
-+ * @group_type: administrative group type for the operation
-+ * @group_member_id: member identifier within the administrative group
-+ *
-+ * Destroys an existing object on the virtio device with the specified type
-+ * and ID.
++ * struct virtio_net_ff_cap_data - Flow filter resource capability limits
++ * @groups_limit: maximum number of flow filter groups supported by the device
++ * @classifiers_limit: maximum number of classifiers supported by the device
++ * @rules_limit: maximum number of rules supported device-wide across all groups
++ * @rules_per_group_limit: maximum number of rules allowed in a single group
++ * @last_rule_priority: priority value associated with the lowest-priority rule
++ * @selectors_per_classifier_limit: maximum selectors allowed in one classifier
 + */
-+void virtio_admin_obj_destroy(struct virtio_device *vdev,
-+			      u16 obj_type,
-+			      u32 obj_id,
-+			      u16 group_type,
-+			      u64 group_member_id);
++struct virtio_net_ff_cap_data {
++	__le32 groups_limit;
++	__le32 classifiers_limit;
++	__le32 rules_limit;
++	__le32 rules_per_group_limit;
++	__u8 last_rule_priority;
++	__u8 selectors_per_classifier_limit;
++	/* private: */
++	__u8 reserved[2];
++};
 +
- #endif /* _LINUX_VIRTIO_ADMIN_H */
++/**
++ * struct virtio_net_ff_selector - Selector mask descriptor
++ * @type: selector type, one of VIRTIO_NET_FF_MASK_TYPE_* constants
++ * @flags: selector flags, see VIRTIO_NET_FF_MASK_F_* constants
++ * @reserved: must be set to 0 by the driver and ignored by the device
++ * @length: size in bytes of @mask
++ * @reserved1: must be set to 0 by the driver and ignored by the device
++ * @mask: variable-length mask payload for @type, length given by @length
++ *
++ * A selector describes a header mask that a classifier can apply. The format
++ * of @mask depends on @type.
++ */
++struct virtio_net_ff_selector {
++	__u8 type;
++	__u8 flags;
++	__u8 reserved[2];
++	__u8 length;
++	__u8 reserved1[3];
++	__u8 mask[] __counted_by(length);
++};
++
++#define VIRTIO_NET_FF_MASK_TYPE_ETH  1
++#define VIRTIO_NET_FF_MASK_TYPE_IPV4 2
++#define VIRTIO_NET_FF_MASK_TYPE_IPV6 3
++#define VIRTIO_NET_FF_MASK_TYPE_TCP  4
++#define VIRTIO_NET_FF_MASK_TYPE_UDP  5
++#define VIRTIO_NET_FF_MASK_TYPE_MAX  VIRTIO_NET_FF_MASK_TYPE_UDP
++
++/**
++ * struct virtio_net_ff_cap_mask_data - Supported selector mask formats
++ * @count: number of entries in @selectors
++ * @reserved: must be set to 0 by the driver and ignored by the device
++ * @selectors: packed array of struct virtio_net_ff_selector.
++ */
++struct virtio_net_ff_cap_mask_data {
++	__u8 count;
++	__u8 reserved[7];
++	__u8 selectors[];
++};
++
++#define VIRTIO_NET_FF_MASK_F_PARTIAL_MASK (1 << 0)
++
++#define VIRTIO_NET_FF_ACTION_DROP 1
++#define VIRTIO_NET_FF_ACTION_RX_VQ 2
++#define VIRTIO_NET_FF_ACTION_MAX  VIRTIO_NET_FF_ACTION_RX_VQ
++/**
++ * struct virtio_net_ff_actions - Supported flow actions
++ * @count: number of supported actions in @actions
++ * @reserved: must be set to 0 by the driver and ignored by the device
++ * @actions: array of action identifiers (VIRTIO_NET_FF_ACTION_*)
++ */
++struct virtio_net_ff_actions {
++	__u8 count;
++	__u8 reserved[7];
++	__u8 actions[] __counted_by(count);
++};
++#endif
 -- 
 2.49.0
 
