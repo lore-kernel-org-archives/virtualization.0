@@ -1,146 +1,191 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E3893BD659;
-	Mon, 31 Aug 2026 06:58:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 528133C1D62
+	for <virtualization@lists.linux.dev>; Mon, 31 Aug 2026 07:00:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788159538; cv=none; b=TKDiEdMYtF1shiovAnZP4xuPDUGqpMtRxHqorXjWpPbkqoHqptVYi91tBsdn58vU8oF0RGX/C5oW9sBppdW0rzKHy+8iAlJBmng7W9MmeAW1kJ1VI7oOwiBRXVtZOaoKrODwEbYts7r8ZQUx5KS3OeJ3JbWC2/qtXNLMlMrlxU4=
+	t=1788159631; cv=none; b=fmIcgu9oMaBBic86l+5wgzJQsmLEJUAt0LnJeApLCaUJhZJ6dRsBNLxf+OVfTjC5Flrr52ximwBSx9q923Kvf4FjhKX/wossvp3XbJvsVjAz88D9jj8/UjLdlxt4epoX18maM8K1xOrlqOM2vYEcIfdjn9dEIjH6oQmsTb4lU0w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788159538; c=relaxed/simple;
-	bh=4p0A96O0hiovpEVMIakXJLugxxbaJAt6SsW0UQ4WssQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=DeuEx5YMJk3ONoj4vvHw00O6vx8G33SSRK2z/dEokWbmMl0pivWKPNlJiAuFPI8qrhbymPe8D8qp5+9xw88mJ3+FtB9Y/owEq9DPZFQ09o2d5VK2QUgwmCEnmbauljA8A5ZrowGi+CAb7HolofGCd/jHBwcofZN811fwa6H2X2M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ck53d1kz; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788159631; c=relaxed/simple;
+	bh=MXXcOH+y4hl0L/RNN8RX65h8+wis8a7t0lw3Dv8huxo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Mkg4Pp36Rqr9Yyr0UyoOHajM7D51NYs2I11aVLS01Us8Aw6TrZPt7Xl6VX2c9c80UnmikJpBzqn+nT76ZxIgFW9WrE6KzfilgwisoHEvp1h+zYg76rfWJb1YMWuCTbmn2ckOqysDDDzkeXedeBT9UW6P6Ebwo9vOC5bC9GjSqdU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TPmlA6Ad; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ck53d1kz"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5ECB01F000E9;
-	Mon, 31 Aug 2026 06:58:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788159534;
-	bh=gjhD6jwTBB81AC3ALAnD4e25Jipk8Dhme7whBLycs+U=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=ck53d1kzwEx4TkhCZMerkM0MM+ayXna8fxiqb9DTFXS3RnlohYdCrmswuedjeNOj/
-	 TNepywF2YfOWiNd67Vqo+cz6CSJKCqwwNVjjbJaKsicQfmcBDGl87vXMO51TZ7YPFt
-	 Drs5ycI2xQwCP1W5A9hWil78wI7uvCopLgjcPHznY9iIE6AIhF+WHiOCxZRGx5U+oF
-	 G7wuCGR40192k6oStZr4NnPdmJQP8lXlKVdn1TecZZCf0sNQ6UmDKceD4h7iJ8S06o
-	 FfiFWDj+0xd6Yjow70XW4dtwbk7aGtpOIOFlUqpDzksYWRYJoOmogQghzI8TqdW72R
-	 UAFVOkzn65vew==
-Message-ID: <4594e3db-a8e3-4f8d-95c2-a4edcbc8ca7c@kernel.org>
-Date: Mon, 31 Aug 2026 08:58:39 +0200
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TPmlA6Ad"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1788159628;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=O2DvKAa4RARvXhQhytE/c96u+c2ks0rTMPN5Qc9vZ8A=;
+	b=TPmlA6AdjRd/2+J0xWM5RXJJCNsyJiBkDJ94Hs/Qny0TSK+q3bZcFR/lOm6uG5h1DF10xi
+	6NCgD+HRg3R7ldc3KzDtCXWuRJwFMtIp311DP2uycmFvOufUDP773U9yft6DcWXf6Wx5d4
+	cp6u4kb28BnRRKU/yZbVLu4nz4xqbA0=
+Received: from mail-yw1-f199.google.com (mail-yw1-f199.google.com
+ [209.85.128.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-531-gKPO7IAuMQaL0qnUGgLrPw-1; Mon, 31 Aug 2026 03:00:27 -0400
+X-MC-Unique: gKPO7IAuMQaL0qnUGgLrPw-1
+X-Mimecast-MFC-AGG-ID: gKPO7IAuMQaL0qnUGgLrPw_1788159626
+Received: by mail-yw1-f199.google.com with SMTP id 00721157ae682-845cc1ab48eso18415607b3.0
+        for <virtualization@lists.linux.dev>; Mon, 31 Aug 2026 00:00:27 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788159626; x=1788764426;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=O2DvKAa4RARvXhQhytE/c96u+c2ks0rTMPN5Qc9vZ8A=;
+        b=INpRvMJQ5CXkR9yXjo9AMfE8FLgMVeyUL/max7rdMidO6pfQVaudjdxfkrX8qGpuN9
+         /pA2f3mofk6wsrAVjXXSBrl6JGskB6EfdFv9/djyd7HeNQky+MAyDVCRGz4Oc+z0mXvO
+         5RDPcrP8AJ4nJlkmpsz29FounaIpyKk1GNlhcYH8H0gO+5SJl4mluk4io8PE4tY1K96z
+         uLOXm3UpCa9hhK3OA1EHy+NJVdF/yb/tTicBNFbuLCdkEkMaDHrzd+yc94JJI71Y3R+V
+         peigGUUujNnQWwJkIQnCLdtL0RtKE2blyFnPc18ET/enUp9VPwcmk4rrxNrEihIdW6Ar
+         ZzLQ==
+X-Forwarded-Encrypted: i=1; AKwUvBy4T+1XLEG6DNYqglykYTDPhpTFnd3wBhXB/S79nUOX1scfTO5VGUP8+DtaAgs7vQr5hajMmYsykFFXbj6ctg==@lists.linux.dev
+X-Gm-Message-State: AFuF++lBa91QlFDc2feR2onEPvM3siEu5a1TfLP5Wjq5M7/hYvHHU5Qv
+	OPnXZji+SPkThCEVsPZ8cogtvXgDx/9KujS6I5V8DQ33GPD4EamfjKwvEMGra74sgH/CpaA4JwE
+	/wU/AlLCcxUwbFMHKwMB1B15urdriNhgW1x7axUysDQwWj+2Lhub91a8F2lN1FSe/gwccRXKUbW
+	zHM9L+vz7M590F94VAC1cyD4x65pssheMs4Kdu4v4nRF/BVywp1YZyOA==
+X-Gm-Gg: AYBFou3J/MjRqGXTltXCLGFJzNqXIJrA8FZo9q+rOsYWaqYsvPgmK58hpEkODpTLCDD
+	fjghbJbT5T40ZZpoUpz4sWI8GoaFeNtQ4Pnp7JeJI7BEyCDJlVOabroWbSZZSohY069RgfX465O
+	uItW0ddq/VpHDkb+hT+6pmWba5mzFC8Bpwxq24XGk3WoqXtTlHFlRFdrw=
+X-Received: by 2002:a05:690c:f08:b0:866:8f18:450 with SMTP id 00721157ae682-8668f274eb9mr11820607b3.26.1788159625664;
+        Mon, 31 Aug 2026 00:00:25 -0700 (PDT)
+X-Received: by 2002:a05:690c:f08:b0:866:8f18:450 with SMTP id
+ 00721157ae682-8668f274eb9mr11820317b3.26.1788159625076; Mon, 31 Aug 2026
+ 00:00:25 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 03/11] soc: qcom: crypto_virt: add support for create,
- prepare and import keys
-To: Linlin Zhang <linlin.zhang@oss.qualcomm.com>, ebiggers@kernel.org,
- axboe@kernel.dk, mst@redhat.com, jasowangio@gmail.com,
- James.Bottomley@HansenPartnership.com, martin.petersen@oracle.com,
- robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org,
- linux-block@vger.kernel.org, linux-crypto@vger.kernel.org,
- linux-scsi@vger.kernel.org, virtualization@lists.linux.dev,
- devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org
-Cc: neeraj.soni@oss.qualcomm.com, gaurav.kashyap@oss.qualcomm.com,
- mani@kernel.org, andersson@kernel.org, konradybcio@kernel.org,
- bvanassche@acm.org, alim.akhtar@samsung.com, avri.altman@sandisk.com,
- stefanha@redhat.com, pbonzini@redhat.com, eperezma@redhat.com,
- xuanzhuo@linux.alibaba.com, linux-kernel@vger.kernel.org
-References: <20260827160806.1295313-1-linlin.zhang@oss.qualcomm.com>
- <20260827160806.1295313-4-linlin.zhang@oss.qualcomm.com>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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
-In-Reply-To: <20260827160806.1295313-4-linlin.zhang@oss.qualcomm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+References: <20260424123123-mutt-send-email-mst@kernel.org> <20260828180933.743887-1-briandaniels@google.com>
+In-Reply-To: <20260828180933.743887-1-briandaniels@google.com>
+From: Albert Esteve <aesteve@redhat.com>
+Date: Mon, 31 Aug 2026 09:00:13 +0200
+X-Gm-Features: AcwNN1XSJkuXBjZEwDIkh3xfc6n2M5txJOihoNH8-v1dWqr5sLesJvNRUV3Jp0o
+Message-ID: <CADSE00KB6g7Qya2H7w4hjczZBWtdrNR=hhL9X1c10uOTZd1ZAQ@mail.gmail.com>
+Subject: Re: [PATCH] virtio: Add ID for virtio media
+To: Brian Daniels <briandaniels@google.com>
+Cc: mst@redhat.com, eperezma@redhat.com, gnurou@gmail.com, jasowang@redhat.com, 
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, 
+	xuanzhuo@linux.alibaba.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: PbvKu205FmWaY9r_h-W-VgEzeYjOK3eiraAVWbHjasw_1788159626
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 27/08/2026 18:07, Linlin Zhang wrote:
-> +static void crypto_virt_remove(struct platform_device *pdev)
-> +{
-> +	virtblk_set_crypto_ops(NULL);
-> +}
-> +
-> +static const struct of_device_id crypto_virt_of_match[] = {
-> +	{ .compatible = "qcom,crypto-virt" },
+On Fri, Aug 28, 2026 at 8:09=E2=80=AFPM Brian Daniels <briandaniels@google.=
+com> wrote:
+>
+> > On Fri, Apr 24, 2026 at 03:37:14PM +0200, Albert Esteve wrote:
+> > > On Fri, Apr 24, 2026 at 3:07=E2=80=AFPM Michael S. Tsirkin <mst@redha=
+t.com> wrote:
+> > > >
+> > > > On Thu, Apr 09, 2026 at 06:53:41PM +0200, Albert Esteve wrote:
+> > > > > Hi,
+> > > > >
+> > > > >
+> > > > > On Tue, Mar 10, 2026 at 9:41=E2=80=AFAM Albert Esteve <aesteve@re=
+dhat.com> wrote:
+> > > > > >
+> > > > > > Add VIRTIO_ID_MEDIA definition for virtio-media.
+> > > > > >
+> > > > > > Signed-off-by: Albert Esteve <aesteve@redhat.com>
+> > > > >
+> > > > > Are there any thoughts on this patch, or any actions I need to ta=
+ke?
+> > > > >
+> > > > > Thanks,
+> > > > > Albert
+> > > >
+> > > > Create a github issue and request a vote as documented in README.md
+> > >
+> > > The inclusion of this ID was already voted and approved. The device
+> > > already appears in the VirtIO v1.4 specification, with the same ID (a=
+s
+> > > linked below). This patch is only meant to translate the decision to
+> > > the kernel header.
+> > >
+> > > >
+> > > > > > ---
+> > > > > > While the Linux driver for virtio media is currently under acti=
+ve
+> > > > > > development and review [1], the VirtIO v1.4 specification has
+> > > > > > already been published and oficially defines the media device t=
+ype [2].
+> > > > > >
+> > > > > > Adding the device ID now allows other components and tools to r=
+eference it
+> > > > > > before the driver lands, and ensures the kernel headers stay al=
+igned
+> > > > > > with the specification.
+> > > > > >
+> > > > > > [1] https://lore.kernel.org/linux-media/20250412-virtio-media-v=
+3-1-97dc94c18398@gmail.com/
+> > > > > > [2] https://docs.oasis-open.org/virtio/virtio/v1.4/virtio-v1.4.=
+html#x1-82200022
+> > > > > > ---
+> > > > > >  include/uapi/linux/virtio_ids.h | 1 +
+> > > > > >  1 file changed, 1 insertion(+)
+> > > > > >
+> > > > > > diff --git a/include/uapi/linux/virtio_ids.h b/include/uapi/lin=
+ux/virtio_ids.h
+> > > > > > index 6c12db16faa3a..f9056af0c6223 100644
+> > > > > > --- a/include/uapi/linux/virtio_ids.h
+> > > > > > +++ b/include/uapi/linux/virtio_ids.h
+> > > > > > @@ -69,6 +69,7 @@
+> > > > > >  #define VIRTIO_ID_BT                   40 /* virtio bluetooth =
+*/
+> > > > > >  #define VIRTIO_ID_GPIO                 41 /* virtio gpio */
+> > > > > >  #define VIRTIO_ID_SPI                  45 /* virtio spi */
+> > > > > > +#define VIRTIO_ID_MEDIA                        48 /* virtio me=
+dia */
+> > > > > >
+> > > > > >  /*
+> > > > > >   * Virtio Transitional IDs
+> > > > > >
+> > > > > > ---
+> > > > > > base-commit: 6de23f81a5e08be8fbf5e8d7e9febc72a5b5f27f
+> > > > > > change-id: 20260310-virtio-media-id-b31179fcdc44
+> > > > > >
+> > > > > > Best regards,
+> > > > > > --
+> > > > > > Albert Esteve <aesteve@redhat.com>
+> > > > > >
+> > > >
+> >
+> >
+> > Oh my bad. I misfiled it into the spec folder. I will take care of this=
+.
+> > Thanks!
+>
+> Any plans to merge this in soon? This is a dependency of the virtio-media=
+ driver.
 
-Undocumented ABI, also not really allowed. We don't take bindings for
-drivers.
+Hi!
 
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(of, crypto_virt_of_match);
-> +
-> +static struct platform_driver crypto_virt_driver = {
-> +	.probe = crypto_virt_probe,
-> +	.remove = crypto_virt_remove,
-> +	.driver = {
-> +		.name = "crypto_virt",
-> +		.of_match_table = crypto_virt_of_match,
-> +	},
-> +};
-> +
-> +static int __init crypto_virt_init(void)
-> +{
-> +	return platform_driver_register(&crypto_virt_driver);
-> +}
->  module_init(crypto_virt_init);
->  
->  #if IS_MODULE(CONFIG_QCOM_CRYPTO_VIRT)
->  static void __exit crypto_virt_exit(void)
->  {
-> -	virtblk_set_crypto_ops(NULL);
-> +	platform_driver_unregister(&crypto_virt_driver);
+It was already merged:
+https://github.com/torvalds/linux/commit/2187be212179243f33da1271248571aca3=
+e99a3f
 
-You just added this line, so previous code was simply wrong?
+You should get it if you rebase.
 
-Please read submitting patches doc - you need to organize your work in
-proper commits.
+Thanks for working on the driver!
 
-Best regards,
-Krzysztof
+BR,
+Albert.
+
+>
+> Thanks!
+> Brian
+>
+
