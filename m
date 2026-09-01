@@ -1,80 +1,32 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83C0A3B14B2
-	for <virtualization@lists.linux.dev>; Tue,  1 Sep 2026 07:04:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1937637BE63
+	for <virtualization@lists.linux.dev>; Tue,  1 Sep 2026 07:59:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788246247; cv=none; b=CKeuItI8ZZlc0Gcm0H3+fC17+VReZdVCekbcdtwDJnJCwhPkzTArTnfAW/aZEMGWRxEMfPs3Of32oMnWkTRY4lzq2M8jgWCafzlrra3fa9ZUSKXKGJbH+uDJhuQ3lyADAblCvFBk4542BdBRk4UCR80ytG19ceeS5CmNs/YxNfg=
+	t=1788249591; cv=none; b=AofypSHpDiwgfp2NlzJ4obiHl34yn3IrkL/KYw07KE40C0BRf18H06k5SJo2Z59PmxZECBD1/2gch9vsT2vLKb3jfouVv7cAXf7Jkt5htKaRIVWdCWvWlZb5Reg3vihew7dvTSA2YZCbJMactVsCYRbwyxcZ9fZ9rEUduT5Hd8I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788246247; c=relaxed/simple;
-	bh=Qis3uw+tU+ypCTDnSmVw6UfTf6HV0tVBrvcArI2CZ14=;
+	s=arc-20240116; t=1788249591; c=relaxed/simple;
+	bh=4L0HiuUlsGrJN/A/CxrOcUFYYsjKsRJV2pTvUhGxf6Q=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Cxzawj2XlnyhMuRrP/7bQEQpokXuvCl+H9n7BjgydiHu7zYqVaELxGxSVXqY3KIhMXN417oJO/ne5sKl4Yn+zbm7BsU1b1UVB77/rMU9uvwKr+FZWW7FJmrD7M0LXv0JXxVVWAeoRJCiElxZCQ7xXvwU2xYIlCUCsINHjqEUoO8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=xqR8JdwG; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=crgFdlX5; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=awCk+lje; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=2muTxAt7; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	 In-Reply-To:Content-Type; b=OYJvl1iS8Ng7surykoX3Ruyv9teOcdwgfVbobJkTkG9jBnYFbyF2LxKIZJBA64uZXIoBiLqtKwUBLXlcwR27rSpJC7jnFj/ahDLM8wOyoMThduXU9wFlO9pcpijq6iTjRaN0H5ssvoKbECtHFChHtizwKEc4pnMCr1omSPUSDCk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=VA5euC3p; arc=none smtp.client-ip=115.124.30.111
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="xqR8JdwG";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="crgFdlX5";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="awCk+lje";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="2muTxAt7"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 68BFF1FDB4;
-	Tue,  1 Sep 2026 07:03:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1788246240; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=i06vhsjdS6vu5HmtxbpDFhDoej8+icpoSmAxer8tKuc=;
-	b=xqR8JdwGKFmeyOmoBjwXFQ2FyoKVz4B7vtaTCQeKysuKFl7OZM2xZBT0ThDh13tKRGl7O1
-	z3O4g0JLmHKKLgS7YbKSCBJ1CuB+d+1JaqmGdl5A9shruOCwZKe6fKopXosszqBhUdbO3H
-	Ytw6NQWtIdkMp2nzFpjJRHrFOgNbptw=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1788246240;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=i06vhsjdS6vu5HmtxbpDFhDoej8+icpoSmAxer8tKuc=;
-	b=crgFdlX5lADtBLV9eIia4vHZP8RWhw8A3sxrS5czY9EtkY070eqb0xzCAbbKsahotFrC2d
-	NVkdnARDPQ3oDPCQ==
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1788246236; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=i06vhsjdS6vu5HmtxbpDFhDoej8+icpoSmAxer8tKuc=;
-	b=awCk+ljeowxedso4DVu5YyJOe7XQRnbmJRTx6Y4IhP3WoRe6dgW7FPF6+oMcBxBixAVMCZ
-	zF4EEM1qFGjKb5Q+vKLCTm9yJVNlJv6eHLOI30M0YFzsNtswR4lZbmXcrh3ek4N420mfQ1
-	jZsSOt2+wOj4n1u0ZzaFaa5EtHlEHKE=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1788246236;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=i06vhsjdS6vu5HmtxbpDFhDoej8+icpoSmAxer8tKuc=;
-	b=2muTxAt76udgQwCFaZOS/FqeC0VYBQ/Ljp49jdEYzJPb7aji03cEbPKOS+VdliMVt2YTFP
-	bO2ID2c7ym5etkAw==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id B4B081369E;
-	Tue,  1 Sep 2026 07:03:55 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id Im8YKtt4lmp1MAAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Tue, 01 Sep 2026 07:03:55 +0000
-Message-ID: <3dcac5c3-cdb1-438b-9ba9-789ad9777ad4@suse.de>
-Date: Tue, 1 Sep 2026 09:03:55 +0200
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="VA5euC3p"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1788249586; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=l5Io5tBdjPe5sz7QW4brV92jKRETGgCK1EVRYlKXs20=;
+	b=VA5euC3pr4Q80q5+cbqhY+4XJQpje+pExcJIwsijsvPx/uzUB8enbkttuhuk5n0gZz6O5F8qJjQCEVAv14fuPQk2de8W7y4tDDweD4TGEQ6us2DKp0KpubCMP25F8Ry597r/2w7csGu8a4jkctt9hqiRO0oDj6LCklWN6FKbeAw=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R311e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045098064;MF=qinyuntan@linux.alibaba.com;NM=1;PH=DS;RN=16;SR=0;TI=SMTPD_---0XA5ntIS_1788249571;
+Received: from 30.178.69.13(mailfrom:qinyuntan@linux.alibaba.com fp:SMTPD_---0XA5ntIS_1788249571 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Tue, 01 Sep 2026 15:59:45 +0800
+Message-ID: <3a29ca77-fe8e-4bbb-b4d7-49011981351a@linux.alibaba.com>
+Date: Tue, 1 Sep 2026 15:59:43 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -83,7 +35,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH 1/4] drm/ast: create blend mode property on cursor plane
-To: Qinyun Tan <qinyuntan@linux.alibaba.com>, dri-devel@lists.freedesktop.org
+To: Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org
 Cc: airlied@redhat.com, jfalempe@redhat.com, kraxel@redhat.com,
  dmitry.osipenko@collabora.com, hansg@kernel.org,
  maarten.lankhorst@linux.intel.com, mripard@kernel.org, simona@ffwll.ch,
@@ -92,122 +44,74 @@ Cc: airlied@redhat.com, jfalempe@redhat.com, kraxel@redhat.com,
  spice-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
 References: <20260901065045.1152136-1-qinyuntan@linux.alibaba.com>
  <20260901065045.1152136-2-qinyuntan@linux.alibaba.com>
-Content-Language: en-US
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <20260901065045.1152136-2-qinyuntan@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+ <3dcac5c3-cdb1-438b-9ba9-789ad9777ad4@suse.de>
+From: =?UTF-8?B?6ZKm5LqR6LCt?= <qinyuntan@linux.alibaba.com>
+In-Reply-To: <3dcac5c3-cdb1-438b-9ba9-789ad9777ad4@suse.de>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Score: -4.30
-X-Spam-Level: 
-X-Spamd-Result: default: False [-4.30 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-0.993];
-	MIME_GOOD(-0.10)[text/plain];
-	MID_RHS_MATCH_FROM(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	ARC_NA(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[16];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	URIBL_BLOCKED(0.00)[alibaba.com:email,suse.com:url,imap1.dmz-prg2.suse.org:helo,suse.de:mid];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.com:url,suse.de:mid,alibaba.com:email]
-X-Spam-Flag: NO
 
-Hi
+Hi Thomas,
 
-Am 01.09.26 um 08:50 schrieb Qinyun Tan:
-> Since commit 860e748bddcc ("drm: ensure blend mode supported if pixel
-> format with alpha exposed"), drm_mode_config_validate() warns when a
-> plane exposes an alpha pixel format but not the "pixel blend mode"
-> property. The ast cursor plane (ARGB4444, ARGB8888) trips this on
-> driver load:
->
->    [PLANE:37:plane-1] pixel format with alpha exposed but blend mode not setup
->    WARNING: drivers/gpu/drm/drm_mode_config.c:872 at drm_mode_config_validate+0x48f/0x510 [drm]
->    ...
->    Call Trace:
->     drm_dev_register+0x1ce/0x290 [drm]
->     ast_pci_probe+0x19d/0x3f0 [ast]
->     local_pci_probe+0x41/0x90
->
-> The hardware cursor has always blended with pre-multiplied alpha and
-> userspace assumes that blend mode when the property is not attached.
-> Expose a "pixel blend mode" property advertising only
-> DRM_MODE_BLEND_PREMULTI to make the existing semantics explicit and
-> silence the warning. No functional change.
->
-> Fixes: 860e748bddcc ("drm: ensure blend mode supported if pixel format with alpha exposed")
-> Signed-off-by: Qinyun Tan <qinyuntan@linux.alibaba.com>
-> ---
->   drivers/gpu/drm/ast/ast_cursor.c | 3 +++
->   1 file changed, 3 insertions(+)
->
-> diff --git a/drivers/gpu/drm/ast/ast_cursor.c b/drivers/gpu/drm/ast/ast_cursor.c
-> index fd19c45f2abe2..08d93ac7f7cb8 100644
-> --- a/drivers/gpu/drm/ast/ast_cursor.c
-> +++ b/drivers/gpu/drm/ast/ast_cursor.c
-> @@ -25,6 +25,7 @@
->   #include <linux/sizes.h>
->   
->   #include <drm/drm_atomic.h>
-> +#include <drm/drm_blend.h>
->   #include <drm/drm_damage_helper.h>
->   #include <drm/drm_format_helper.h>
->   #include <drm/drm_gem_atomic_helper.h>
-> @@ -355,6 +356,8 @@ int ast_cursor_plane_init(struct ast_device *ast)
->   	}
->   	drm_plane_helper_add(cursor_plane, &ast_cursor_plane_helper_funcs);
->   	drm_plane_enable_fb_damage_clips(cursor_plane);
-> +	drm_plane_create_blend_mode_property(cursor_plane,
-> +					     BIT(DRM_MODE_BLEND_PREMULTI));
+在 2026/9/1 15:03, Thomas Zimmermann 写道:
+> Hi
+> 
+> Am 01.09.26 um 08:50 schrieb Qinyun Tan:
+>> Since commit 860e748bddcc ("drm: ensure blend mode supported if pixel
+>> format with alpha exposed"), drm_mode_config_validate() warns when a
+>> plane exposes an alpha pixel format but not the "pixel blend mode"
+>> property. The ast cursor plane (ARGB4444, ARGB8888) trips this on
+>> driver load:
+>>
+>>    [PLANE:37:plane-1] pixel format with alpha exposed but blend mode not setup
+>>    WARNING: drivers/gpu/drm/drm_mode_config.c:872 at drm_mode_config_validate+0x48f/0x510 [drm]
+>>    ...
+>>    Call Trace:
+>>     drm_dev_register+0x1ce/0x290 [drm]
+>>     ast_pci_probe+0x19d/0x3f0 [ast]
+>>     local_pci_probe+0x41/0x90
+>>
+>> The hardware cursor has always blended with pre-multiplied alpha and
+>> userspace assumes that blend mode when the property is not attached.
+>> Expose a "pixel blend mode" property advertising only
+>> DRM_MODE_BLEND_PREMULTI to make the existing semantics explicit and
+>> silence the warning. No functional change.
+>>
+>> Fixes: 860e748bddcc ("drm: ensure blend mode supported if pixel format with alpha exposed")
+>> Signed-off-by: Qinyun Tan <qinyuntan@linux.alibaba.com>
+>> ---
+>>   drivers/gpu/drm/ast/ast_cursor.c | 3 +++
+>>   1 file changed, 3 insertions(+)
+>>
+>> diff --git a/drivers/gpu/drm/ast/ast_cursor.c b/drivers/gpu/drm/ast/ast_cursor.c
+>> index fd19c45f2abe2..08d93ac7f7cb8 100644
+>> --- a/drivers/gpu/drm/ast/ast_cursor.c
+>> +++ b/drivers/gpu/drm/ast/ast_cursor.c
+>> @@ -25,6 +25,7 @@
+>>   #include <linux/sizes.h>
+>>     #include <drm/drm_atomic.h>
+>> +#include <drm/drm_blend.h>
+>>   #include <drm/drm_damage_helper.h>
+>>   #include <drm/drm_format_helper.h>
+>>   #include <drm/drm_gem_atomic_helper.h>
+>> @@ -355,6 +356,8 @@ int ast_cursor_plane_init(struct ast_device *ast)
+>>       }
+>>       drm_plane_helper_add(cursor_plane, &ast_cursor_plane_helper_funcs);
+>>       drm_plane_enable_fb_damage_clips(cursor_plane);
+>> +    drm_plane_create_blend_mode_property(cursor_plane,
+>> +                         BIT(DRM_MODE_BLEND_PREMULTI));
+> 
+> AFAIU the available documentation, AST hardware corresponds to DRM_MODE_BLEND_COVERAGE.
+> 
 
-AFAIU the available documentation, AST hardware corresponds to 
-DRM_MODE_BLEND_COVERAGE.
+Thanks for the correction.
 
-Best regards
-Thomas
+I'll send a v2 that declares DRM_MODE_BLEND_COVERAGE for the ast
+cursor plane instead.
 
->   
->   	return 0;
->   }
-
--- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
-GF: Jochen Jaser, Andrew McDonald, (HRB 36809, AG Nürnberg)
-
+> Best regards
+> Thomas
+> 
+>>         return 0;
+>>   }
+> 
 
