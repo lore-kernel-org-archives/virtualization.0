@@ -1,80 +1,81 @@
 Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 563873AAF65
-	for <virtualization@lists.linux.dev>; Tue,  1 Sep 2026 11:45:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E5C73AAF65
+	for <virtualization@lists.linux.dev>; Tue,  1 Sep 2026 11:46:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788263125; cv=none; b=Ck8ZWXPqKtSI6OBsUsviSKhkih3tRMb29mTwdm3WQ8W2WiaetefmMiEwy66ksDohUa+kI4HgFRiDvKN2bQ9pqbEfPiBpYqp9zAknzt0AgSz6+19mmsicz11fyctA2H45sq9NCmIb39TSFg5XRjC3FsPbmB9jThMYEbUK3Oxe6W4=
+	t=1788263174; cv=none; b=Qwi3ODMnhYU9oEHiqTH8cjPJ0sezAQDbCle5zPz/BRa4WGfrbDKXRoqaarzfsg+bMP/l+yLF+b9dvwMBFLwxiB+wXW+SATXJbfsVUDnmbTva0iNFGzExogOshIVQeVgSswkjYBWt3B6SYBtiaMHlwkL4KHRxk6NcpWXZJB9V45Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788263125; c=relaxed/simple;
-	bh=oirUtk63Fs9XGvasJNfR+NssltFgo53oSE8KeWWwmAs=;
+	s=arc-20240116; t=1788263174; c=relaxed/simple;
+	bh=XmKRw4xFZ+aFsFUFwMtmdt8rig926R0hh8g93EypO0E=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ltzZWmcTjCKRSjAqcezWoXt4OY/wayYhDj+hVWNnLJoMj9vF23mz4N3vUZ87tRLjNaw/1VA0/L8/IZjLBkEYQ4S0DPy6vGGy7g+MiGYKYFP1XbIStb1TCuzsQfIfjneSfBbYfOAQRn4OdIkCaK0/ZK4reJAgf7ub/AGk+kBaiQI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=rtnNG+wC; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=ZKTNlmU/; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=o+Nf2I7Z; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=LCHCYuaV; arc=none smtp.client-ip=195.135.223.131
+	 In-Reply-To:Content-Type; b=hFb9JGqvIKfnY2Dsx8LD1qCjfRNPvembYw/Cou67DyPOcFT68swoBf4cywe+zF5XArYqce3s336i2+soYvPQaOG/1CTAS5YKaekufmZiVU7H4RuGS+4matCLlgtqmxL48ghYckapwlEbA3d4SmagHIpnrSEbF8O/bkBcHAJK4Iw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=oQ4OXuf/; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=jD78iQRc; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=j7lsJgJ/; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=FD4DGu3O; arc=none smtp.client-ip=195.135.223.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="rtnNG+wC";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="ZKTNlmU/";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="o+Nf2I7Z";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="LCHCYuaV"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="oQ4OXuf/";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="jD78iQRc";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="j7lsJgJ/";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="FD4DGu3O"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 53C2D1F82C;
-	Tue,  1 Sep 2026 11:45:14 +0000 (UTC)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 86FBB1FB3B;
+	Tue,  1 Sep 2026 11:46:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1788263118; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1788263165; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=Vf5zXBDiIhSJ+dj0uQLQB4OkGuQfTjrRzTsPedFwQsk=;
-	b=rtnNG+wCMNT2+WAqLncLABml6R4motLkWTbu2fJ5nyLLby2EyXM2bZnTRvgeFDFNy0y2o7
-	1aJW0z/2FhTZPy7G2HjFojUGCp7ucTmvIjFrvFSADuSAfH25iMWv17Tj7ehy19Ro6g1Vtz
-	dY8MH3jkZa2AcAO8Jt08tU4ZhzA1zh4=
+	bh=UNR1ZtUXqeFxjl7a4LYkrTsdWlDZ1XMW3bvG4buQpuw=;
+	b=oQ4OXuf/OAKY75Hfp76dYovN7xlJPfnY4Cv9I71KQooWtYatmiHxfTxlJrQGQOPkbWOePu
+	oik5U5TgtU1hlhQ0c7nwsSsiNu4zt5Iw5GxmKScS7O3n0E5jy1e3BOwERlocb0csyyC+ib
+	DQA+h0RlDM2C+9A77Rz+q9bdA2y2t1w=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1788263118;
+	s=susede2_ed25519; t=1788263165;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=Vf5zXBDiIhSJ+dj0uQLQB4OkGuQfTjrRzTsPedFwQsk=;
-	b=ZKTNlmU/YSnRapFrc43H2hbavt2TdDKxTBSZNTzLAmcPBYLe7LgsiOKTyFjjnirSoKSjm9
-	uHwQsq9uLbA6RoBw==
+	bh=UNR1ZtUXqeFxjl7a4LYkrTsdWlDZ1XMW3bvG4buQpuw=;
+	b=jD78iQRcRdtfLZVz8gJo/sPR/D3JSWecLODqaNdHZOw05vrivzxaj3pe6RkvsHI6OkddB/
+	VD2pg5xuB4t9SsAQ==
 Authentication-Results: smtp-out2.suse.de;
-	none
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b="j7lsJgJ/";
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=FD4DGu3O
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1788263114; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1788263161; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=Vf5zXBDiIhSJ+dj0uQLQB4OkGuQfTjrRzTsPedFwQsk=;
-	b=o+Nf2I7ZvJQscy+yPR+Hz0m3qzrbX8gApL9h4k2tGdCKPjsfs6dAiTpfuydowKkg08eyfh
-	ae2PtDf/EMg+cXoYMDBaec+5stcf6csippPOfSFfQw27oynXuFx2PZ/IGgm4NZTNR2Gmhw
-	9Ln2FVkU2sBT7oeQUpPAzGps6ZItMoU=
+	bh=UNR1ZtUXqeFxjl7a4LYkrTsdWlDZ1XMW3bvG4buQpuw=;
+	b=j7lsJgJ/ibzxcGc0Zk+nc6sIXpGLZ+BnCG71/C4XqNDQ/+YlgapM3VgLPd0wBgjGJVTM9E
+	PPE4X7nGWIhJgm8PMi7DLhk4uUv3gwqJbrfzXDKoyHGNucw9BN4dtIbjH/s9OHVwjY1lhu
+	0U/jIiabYGEFnLAzCBHy8n8csNU70TM=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1788263114;
+	s=susede2_ed25519; t=1788263161;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=Vf5zXBDiIhSJ+dj0uQLQB4OkGuQfTjrRzTsPedFwQsk=;
-	b=LCHCYuaV9kwug+0JzOBYl77esuHP45Rr+nTEMhE88OagnjwmfFo32s96LIEauJHDHKlTbB
-	6LJJq63QQvapk+Bw==
+	bh=UNR1ZtUXqeFxjl7a4LYkrTsdWlDZ1XMW3bvG4buQpuw=;
+	b=FD4DGu3OSkPCc9LXIviTh/R3QhMU/Lh3e7/ygKBScncuBBF5J8caJBAGMHF98iN6CG2RNz
+	q/s94ChwbXh5gGCw==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id C722A1369E;
-	Tue,  1 Sep 2026 11:45:13 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id F03301369E;
+	Tue,  1 Sep 2026 11:46:00 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id Sz/ZLsm6lmpOTAAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Tue, 01 Sep 2026 11:45:13 +0000
-Message-ID: <fe7b4018-25fa-4424-9af6-f5922e6b6d0c@suse.de>
-Date: Tue, 1 Sep 2026 13:45:13 +0200
+	id MMI8Ofi6lmqQTQAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Tue, 01 Sep 2026 11:46:00 +0000
+Message-ID: <00e6bf78-aff7-422e-8ec9-024d9f10e4d0@suse.de>
+Date: Tue, 1 Sep 2026 13:46:00 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -82,8 +83,8 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 2/4] drm/qxl: create blend mode property on primary and
- cursor planes
+Subject: Re: [PATCH v2 3/4] drm/virtio: create blend mode property on cursor
+ plane
 To: Qinyun Tan <qinyuntan@linux.alibaba.com>, dri-devel@lists.freedesktop.org
 Cc: airlied@redhat.com, jfalempe@redhat.com, kraxel@redhat.com,
  dmitry.osipenko@collabora.com, hansg@kernel.org,
@@ -92,7 +93,7 @@ Cc: airlied@redhat.com, jfalempe@redhat.com, kraxel@redhat.com,
  pekka.paalanen@collabora.com, virtualization@lists.linux.dev,
  spice-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
 References: <20260901083234.1828755-1-qinyuntan@linux.alibaba.com>
- <20260901083234.1828755-3-qinyuntan@linux.alibaba.com>
+ <20260901083234.1828755-4-qinyuntan@linux.alibaba.com>
 Content-Language: en-US
 From: Thomas Zimmermann <tzimmermann@suse.de>
 Autocrypt: addr=tzimmermann@suse.de; keydata=
@@ -119,30 +120,40 @@ Autocrypt: addr=tzimmermann@suse.de; keydata=
  SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
  Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
  4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <20260901083234.1828755-3-qinyuntan@linux.alibaba.com>
+In-Reply-To: <20260901083234.1828755-4-qinyuntan@linux.alibaba.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 X-Spam-Level: 
-X-Spam-Score: -4.30
-X-Spam-Flag: NO
-X-Spamd-Result: default: False [-4.30 / 50.00];
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Rspamd-Queue-Id: 86FBB1FB3B
+X-Spamd-Result: default: False [-5.51 / 50.00];
 	BAYES_HAM(-3.00)[100.00%];
 	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-0.995];
+	DWL_DNSWL_LOW(-1.00)[suse.de:dkim];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-0.999];
 	MIME_GOOD(-0.10)[text/plain];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	ARC_NA(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[16];
-	MID_RHS_MATCH_FROM(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
+	MX_GOOD(-0.01)[];
 	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	ARC_NA(0.00)[];
 	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[16];
+	MIME_TRACE(0.00)[0:+];
+	FROM_HAS_DN(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+];
+	TO_DN_SOME(0.00)[];
 	RCVD_COUNT_TWO(0.00)[2];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:email,suse.de:mid,imap1.dmz-prg2.suse.org:helo,alibaba.com:email,suse.com:url]
+	FROM_EQ_ENVFROM(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo,suse.com:url,alibaba.com:email,suse.de:dkim,suse.de:email,suse.de:mid]
+X-Spam-Flag: NO
+X-Spam-Score: -5.51
 
 
 
@@ -150,20 +161,18 @@ Am 01.09.26 um 10:32 schrieb Qinyun Tan:
 > Since commit 860e748bddcc ("drm: ensure blend mode supported if pixel
 > format with alpha exposed"), drm_mode_config_validate() warns when a
 > plane exposes an alpha pixel format but not the "pixel blend mode"
-> property. Both the qxl primary and cursor planes expose ARGB8888 and
-> trip this on driver load.
+> property. The virtio-gpu cursor plane (HOST_ARGB8888) trips this.
 >
-> qxl submits cursors as SPICE_CURSOR_TYPE_ALPHA, which the SPICE
-> protocol explicitly defines as a "pre-multiplied ARGB8888 pixmap"
-> (Spice Protocol, "Cursor channel definition" section [1]). This
-> matches the blend mode userspace has always assumed when the property
-> is not attached. Expose a "pixel blend mode" property advertising only
-> DRM_MODE_BLEND_PREMULTI to make these semantics explicit and silence
-> the warning. The primary plane is the bottom-most plane so its blend
-> mode has no visible effect; advertise the same value there for
-> consistency. No functional change.
->
-> [1] https://www.spice-space.org/spice-protocol.html
+> The virtio-gpu specification does not define the cursor alpha
+> semantics. The host forwards the cursor pixels verbatim to its display
+> frontends, and the remote cursor protocols among them (SPICE alpha
+> cursors, the VNC "Cursor With Alpha" encoding) both define
+> pre-multiplied alpha, matching what userspace has always assumed when
+> the property is not attached. Expose a "pixel blend mode" property
+> advertising only DRM_MODE_BLEND_PREMULTI to make these semantics
+> explicit and silence the warning. The primary plane only exposes
+> HOST_XRGB8888, so the call is gated to the cursor. No functional
+> change.
 >
 > Fixes: 860e748bddcc ("drm: ensure blend mode supported if pixel format with alpha exposed")
 > Signed-off-by: Qinyun Tan <qinyuntan@linux.alibaba.com>
@@ -171,34 +180,34 @@ Am 01.09.26 um 10:32 schrieb Qinyun Tan:
 Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
 
 > ---
-> v2: no code change; cite the SPICE protocol definition of the ALPHA
-> cursor type in the commit message.
+> v2: no code change; explain the protocol-level justification for
+> PREMULTI in the commit message.
 >
->   drivers/gpu/drm/qxl/qxl_display.c | 4 ++++
+>   drivers/gpu/drm/virtio/virtgpu_plane.c | 4 ++++
 >   1 file changed, 4 insertions(+)
 >
-> diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-> index 7f4178800afd7..0cd1456cca347 100644
-> --- a/drivers/gpu/drm/qxl/qxl_display.c
-> +++ b/drivers/gpu/drm/qxl/qxl_display.c
-> @@ -30,6 +30,7 @@
->   #include <drm/drm_drv.h>
->   #include <drm/drm_atomic.h>
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+> index 1d1b27ece62a7..640815af40980 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_plane.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+> @@ -24,6 +24,7 @@
+>    */
+>   
 >   #include <drm/drm_atomic_helper.h>
 > +#include <drm/drm_blend.h>
->   #include <drm/drm_edid.h>
->   #include <drm/drm_encoder.h>
->   #include <drm/drm_framebuffer.h>
-> @@ -993,6 +994,9 @@ static struct drm_plane *qxl_create_plane(struct qxl_device *qdev,
+>   #include <drm/drm_damage_helper.h>
+>   #include <drm/drm_fourcc.h>
+>   #include <drm/drm_gem_atomic_helper.h>
+> @@ -609,6 +610,9 @@ struct drm_plane *virtio_gpu_plane_init(struct virtio_gpu_device *vgdev,
 >   
->   	drm_plane_helper_add(plane, helper_funcs);
+>   	if (type == DRM_PLANE_TYPE_PRIMARY)
+>   		drm_plane_enable_fb_damage_clips(plane);
+> +	else if (type == DRM_PLANE_TYPE_CURSOR)
+> +		drm_plane_create_blend_mode_property(plane,
+> +						     BIT(DRM_MODE_BLEND_PREMULTI));
 >   
-> +	drm_plane_create_blend_mode_property(plane,
-> +					     BIT(DRM_MODE_BLEND_PREMULTI));
-> +
 >   	return plane;
->   
->   free_plane:
+>   }
 
 -- 
 --
