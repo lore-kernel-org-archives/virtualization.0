@@ -1,29 +1,30 @@
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1777136F419
-	for <virtualization@lists.linux.dev>; Tue,  1 Sep 2026 06:50:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30D2336197E
+	for <virtualization@lists.linux.dev>; Tue,  1 Sep 2026 06:50:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788245457; cv=none; b=BfJhHzCD3S4AARITR3pdwZ7qMUx+6EJUmna8H4307bHckWDcwW24avgIj2YkUsYEJbQE//uaQvtQOGt1RJfBjKu3yZ+i+6l+unBqb1NAJKygF7Wx3DYmsaJNiVTblLmgDJy3r24Q6DQQsgJoefcvdUBJAy7dFDCmFTRQVrT87vs=
+	t=1788245457; cv=none; b=gZyhNmG5hEZORZiUyQH3n0JxxkToFYw9LtlutbWn2GmTJ9jRGOo+on4bKt+FLPnirayuwa5mwmKtSEMCMt6nFcQ/36XOgAQjGTJSDgEX0cqSksjgdnJKip+lYugrrVqYX1QvhpDe4BI2WTLYd+y2/yo9GtHzQmSH0q7P2fUKSX8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1788245457; c=relaxed/simple;
-	bh=c0eFVc6LgKOAuJwHrwZXew5GtKhBEi3uq/gwhAQEPwY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=JNiVjIabdv9hIFN/HamsUvkLv1Li0L1SNnV84RRu5ejq6Z8EJusgi5AMMdLXsjmuTEz8hE9R2wDLNaoZr4XP5uYNUEuBF+A/HAivlT68cMdR+xk8MJIIEUXxN/GlzdV+/+tabJoaDiTDDnivwKNwnT2mzipP3qAu3HntY9+mz1o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=WFm9I+UT; arc=none smtp.client-ip=115.124.30.111
+	bh=vccdml3Gx5UYhkiDMlgryGSZgbpoUs2zfDs5PCxuhkQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=NP1kMQNtneTiEllNi0q3IrfV5w5dDokCRglimiQCEcl+tYOomcn8Gr7n8rLq9bTt0ECfiAudmiFmsP9XnRHINWgxTZanDIa7Wg1+FaObgk4CNzpq4IxiX1WPdU4u5Q8s9o424WNTTnBV/Lghj2i9y6WrEYjD98jFKIsYPygDxUw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=BQONdtUX; arc=none smtp.client-ip=115.124.30.110
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="WFm9I+UT"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="BQONdtUX"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1788245449; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=Jb6xdPLG8EuYdMQ/gBekTiRiS+tQQXrON9lxGVmWOmU=;
-	b=WFm9I+UTy2/OhLPGZ3BEjBqDdBjxBTBsgzIgx2/OSygqftWOuO1AmHtnBcEPvlWCXMcgVH8BXMIXX6z0+huwhxV19uNxQffYHwx06iqnu1tW3zRbaawRBZxT42L8V+XC9Vq75TY+wpbeMylliKrSXaz4EcstoM/0xRvJafiviB0=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam011083073210;MF=qinyuntan@linux.alibaba.com;NM=1;PH=DS;RN=17;SR=0;TI=SMTPD_---0XA4XWS6_1788245447;
-Received: from banye.tbsite.net(mailfrom:qinyuntan@linux.alibaba.com fp:SMTPD_---0XA4XWS6_1788245447 cluster:ay36)
+	t=1788245453; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=rf4WK0KdwAQ6jr0zJzFS4FpQKho5BAQcjv37Xsync5k=;
+	b=BQONdtUXvOwZz9kI5RfwFFsTNCqE4b5P+VPTQc7NkFKnH+ZhZZAo/WqF/SyTIRnhfeg7NkyhuuQ1BqimTn5Edb9VZo42t6bupwwxctj4hABxDoowNh5/YwNEGZfy0ElxzXFIfJZLFfIkrt4P4oWnUIfhMDAPNbgTM5wve6MYDOs=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037009110;MF=qinyuntan@linux.alibaba.com;NM=1;PH=DS;RN=17;SR=0;TI=SMTPD_---0XA4XWTg_1788245451;
+Received: from banye.tbsite.net(mailfrom:qinyuntan@linux.alibaba.com fp:SMTPD_---0XA4XWTg_1788245451 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Tue, 01 Sep 2026 14:50:49 +0800
+          Tue, 01 Sep 2026 14:50:52 +0800
 From: Qinyun Tan <qinyuntan@linux.alibaba.com>
 To: dri-devel@lists.freedesktop.org
 Cc: tzimmermann@suse.de,
@@ -42,10 +43,12 @@ Cc: tzimmermann@suse.de,
 	spice-devel@lists.freedesktop.org,
 	linux-kernel@vger.kernel.org,
 	Qinyun Tan <qinyuntan@linux.alibaba.com>
-Subject: [PATCH 0/4] drm: create blend mode property on alpha-capable planes of simple drivers
-Date: Tue,  1 Sep 2026 14:50:41 +0800
-Message-ID: <20260901065045.1152136-1-qinyuntan@linux.alibaba.com>
+Subject: [PATCH 3/4] drm/virtio: create blend mode property on cursor plane
+Date: Tue,  1 Sep 2026 14:50:44 +0800
+Message-ID: <20260901065045.1152136-4-qinyuntan@linux.alibaba.com>
 X-Mailer: git-send-email 2.43.7
+In-Reply-To: <20260901065045.1152136-1-qinyuntan@linux.alibaba.com>
+References: <20260901065045.1152136-1-qinyuntan@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -56,53 +59,44 @@ Content-Transfer-Encoding: 8bit
 
 Since commit 860e748bddcc ("drm: ensure blend mode supported if pixel
 format with alpha exposed"), drm_mode_config_validate() warns when a
-plane exposes an alpha pixel format but does not create the "pixel
-blend mode" property. Several simple/virtual drivers trip this on
-driver load. I hit the ast one on an ASPEED AST2600 BMC:
+plane exposes an alpha pixel format but not the "pixel blend mode"
+property. The virtio-gpu cursor plane (HOST_ARGB8888) trips this.
 
-  [PLANE:37:plane-1] pixel format with alpha exposed but blend mode not setup
-  WARNING: drivers/gpu/drm/drm_mode_config.c:872 at drm_mode_config_validate+0x48f/0x510 [drm]
-  ...
-  Call Trace:
-   drm_dev_register+0x1ce/0x290 [drm]
-   ast_pci_probe+0x19d/0x3f0 [ast]
-   local_pci_probe+0x41/0x90
+The cursor has always blended with pre-multiplied alpha and userspace
+assumes that blend mode when the property is not attached. Expose a
+"pixel blend mode" property advertising only DRM_MODE_BLEND_PREMULTI
+to make the existing semantics explicit and silence the warning. The
+primary plane only exposes HOST_XRGB8888, so the call is gated to the
+cursor. No functional change.
 
-These four drivers share the same gap; this series covers ast, qxl,
-virtio-gpu and vboxvideo.
-
-These planes have always blended with pre-multiplied alpha: the
-hardware (or host-side compositor for the virtual drivers) is fixed
-function with no configurable blend mode, and userspace has
-historically assumed pre-multiplied blending when the property is not
-attached, which is also the documented default of the property. So
-each patch simply exposes the "pixel blend mode" property advertising
-only DRM_MODE_BLEND_PREMULTI, making the existing semantics explicit
-and silencing the warning. No functional change.
-
-This follows the same approach as the already-merged i915 and nouveau
-fixes:
-
-  67e955e073c6 ("drm/i915/display: expose blend mode on alpha-capable planes")
-  df0311845915 ("drm/nouveau/kms/nv50-: Unconditionally create blend_mode prop for wndws")
-
-The ast patch is verified on AST2600 hardware: the warning is gone and
-the cursor plane now exposes the "pixel blend mode" property with
-Pre-multiplied as the only and current value. The qxl, virtio and
-vboxvideo patches follow the identical pattern and are compile-tested.
-
-Qinyun Tan (4):
-  drm/ast: create blend mode property on cursor plane
-  drm/qxl: create blend mode property on primary and cursor planes
-  drm/virtio: create blend mode property on cursor plane
-  drm/vboxvideo: create blend mode property on planes
-
- drivers/gpu/drm/ast/ast_cursor.c       | 3 +++
- drivers/gpu/drm/qxl/qxl_display.c      | 4 ++++
- drivers/gpu/drm/vboxvideo/vbox_mode.c  | 4 ++++
+Fixes: 860e748bddcc ("drm: ensure blend mode supported if pixel format with alpha exposed")
+Signed-off-by: Qinyun Tan <qinyuntan@linux.alibaba.com>
+---
  drivers/gpu/drm/virtio/virtgpu_plane.c | 4 ++++
- 4 files changed, 15 insertions(+)
+ 1 file changed, 4 insertions(+)
 
+diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+index 1d1b27ece62a7..640815af40980 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_plane.c
++++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+@@ -24,6 +24,7 @@
+  */
+ 
+ #include <drm/drm_atomic_helper.h>
++#include <drm/drm_blend.h>
+ #include <drm/drm_damage_helper.h>
+ #include <drm/drm_fourcc.h>
+ #include <drm/drm_gem_atomic_helper.h>
+@@ -609,6 +610,9 @@ struct drm_plane *virtio_gpu_plane_init(struct virtio_gpu_device *vgdev,
+ 
+ 	if (type == DRM_PLANE_TYPE_PRIMARY)
+ 		drm_plane_enable_fb_damage_clips(plane);
++	else if (type == DRM_PLANE_TYPE_CURSOR)
++		drm_plane_create_blend_mode_property(plane,
++						     BIT(DRM_MODE_BLEND_PREMULTI));
+ 
+ 	return plane;
+ }
 -- 
 2.43.7
 
