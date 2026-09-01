@@ -1,32 +1,33 @@
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 702E73AB498
-	for <virtualization@lists.linux.dev>; Tue,  1 Sep 2026 12:51:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA22F2F7EE7;
+	Tue,  1 Sep 2026 13:58:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788267095; cv=none; b=Li6kejgEF9u4Jc+RnLA+Y4njHiYOZEsqdFdEGd4XgYH31i/hMu2Se/SAvF4ULKHJSP4q7rhl9rohXCP2ICYfaMYsBDIyEELfpnHQJ13GXUsUAj3Q3GGw9EwgA3354M1zBreYeQvEFDp0jK4KDqET/kluSXqMq32sWhjC33vopDk=
+	t=1788271104; cv=none; b=gB/4NQLU1B42/tm87Mh8JXaUGZGlQobzO+45cqI2r3jDog3+B/9BPfI/d7O43sUkBhoa5drapEOh7Hke4OwNTYvne6I7JIA4REVE8QgWHEHfZDADajJy0wPFRmqe0A0G12XNlGTPBuOdFhpRtqYLlsFRcC98KJDK2Fg2GGpavIA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788267095; c=relaxed/simple;
-	bh=LPaZmEQ6mWw4jItsJmVWxKZ239DkgKqW0OUsppUlIuo=;
+	s=arc-20240116; t=1788271104; c=relaxed/simple;
+	bh=Uzb9oLzP/M/veRTwQx8O16a2XGVn4c5i03hGnQZaKic=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=HCGY2Glp8T/l2oB7FjdyDx7++Ka8yA4ejNmFXJlqtl1y2qeEzi0wD1fVk5OIXMkME1q/V4DOC7BudvkEB/WjHxK4PIHOqtdYRP6GbgWmaERsmXkRvEWRyiuIi+stBun3UahcXg93fAwdOFugWIr1lnHnPVd5gN6wwTeHnLthJd0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Hy/2SxLs; arc=none smtp.client-ip=115.124.30.99
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	 In-Reply-To:Content-Type; b=pDushV396/6YifvgXeTli+tvHLt7mHIESETzRdDKkmzUJoHzXeYULzTIqHzz1QE/ulPUTZ1uQyIpUtvbV7FnM4lup9E/ywhqhe46uTz5usNC5qHfD4xB5ShGZ+C+KXAU0p/zmnWVdMEybehYBweS3q2TJERd7oX5we2X+I/m/9w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NVxWcULt; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Hy/2SxLs"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1788267088; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=lTOlsDQ4+47U/45ixyptCvDQ1ryhv/HPtsz8TRQdczo=;
-	b=Hy/2SxLsKrBZ8g4+UM5AcO9ba2y2cWU6wj0zJRSTq75Vjrv4L7G7RjWvPRavLJrofVB3BdyC2APA2GjfvC6CQg5pEPjOOvRzQqS2U/Xwx8JYk2QqpQMBpDD/iz4W2pdpuE6uLj5iETA7QbNTjs7yYVG8AIjniP+n/A8kd6a4H7E=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R711e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045133197;MF=qinyuntan@linux.alibaba.com;NM=1;PH=DS;RN=16;SR=0;TI=SMTPD_---0XA8VHYm_1788267080;
-Received: from 30.178.69.13(mailfrom:qinyuntan@linux.alibaba.com fp:SMTPD_---0XA8VHYm_1788267080 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Tue, 01 Sep 2026 20:51:27 +0800
-Message-ID: <8c6ef5d2-1f85-4dad-b426-143d490e1114@linux.alibaba.com>
-Date: Tue, 1 Sep 2026 20:51:18 +0800
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NVxWcULt"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1AE61F000E9;
+	Tue,  1 Sep 2026 13:58:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788271102;
+	bh=v7puyWp/ROQswaeSJtWkmIdn56iY62cBg7FWAYcpIY8=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=NVxWcULtb8vZvibgQJ/A72FOUxIHYDUw2GJXZris9HtuxuyMqpwcbdSNfPO4+THil
+	 zjycOub+YLQEFzY9SEneBsrVF6ZhvhloT6Fi9bt/tJpPTGCyS9eH2AxZemWhJDpvgj
+	 CRikl0X+igBO2+zRbFVaSmAjyIQwfqEhC6jrS3RQrnqVW26Gfz2q6mOE8PGMCz+zGa
+	 oEOlXMcy+fAqIZH8tBgfE42ttP0oVYxCVa2idJK3iXtq+cZz0Dnke++ewDFtBg5jUT
+	 5K5q1RnOa6MPc8l3SCQkLR0AQXEc8EzqDII/3nptXowzoE7r43McL55nkO3SQPEYLz
+	 WQR5IATopGGrQ==
+Message-ID: <38389106-9609-4ec4-bc83-3d1b7fac3698@kernel.org>
+Date: Tue, 1 Sep 2026 15:58:10 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -34,119 +35,270 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 1/4] drm/ast: create blend mode property on cursor
- plane
-To: Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org
-Cc: airlied@redhat.com, jfalempe@redhat.com, kraxel@redhat.com,
- dmitry.osipenko@collabora.com, hansg@kernel.org,
- maarten.lankhorst@linux.intel.com, mripard@kernel.org, simona@ffwll.ch,
- leandro.ribeiro@collabora.com, daniels@collabora.com,
- pekka.paalanen@collabora.com, virtualization@lists.linux.dev,
- spice-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
-References: <20260901083234.1828755-1-qinyuntan@linux.alibaba.com>
- <20260901083234.1828755-2-qinyuntan@linux.alibaba.com>
- <1f7a2056-825b-4b18-ac60-94f13ee40212@suse.de>
- <15f87b4e-3da8-4ce9-9cde-b4c8cefe1d80@suse.de>
-From: Qinyun Tan <qinyuntan@linux.alibaba.com>
-In-Reply-To: <15f87b4e-3da8-4ce9-9cde-b4c8cefe1d80@suse.de>
+Subject: Re: [PATCH v1 02/11] soc: qcom: add crypto_virt backend for
+ virtio-blk inline crypto
+To: Linlin Zhang <linlin.zhang@oss.qualcomm.com>, ebiggers@kernel.org,
+ axboe@kernel.dk, mst@redhat.com, jasowangio@gmail.com,
+ James.Bottomley@HansenPartnership.com, martin.petersen@oracle.com,
+ robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org,
+ linux-block@vger.kernel.org, linux-crypto@vger.kernel.org,
+ linux-scsi@vger.kernel.org, virtualization@lists.linux.dev,
+ devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org
+Cc: neeraj.soni@oss.qualcomm.com, gaurav.kashyap@oss.qualcomm.com,
+ mani@kernel.org, andersson@kernel.org, konradybcio@kernel.org,
+ bvanassche@acm.org, alim.akhtar@samsung.com, avri.altman@sandisk.com,
+ stefanha@redhat.com, pbonzini@redhat.com, eperezma@redhat.com,
+ xuanzhuo@linux.alibaba.com, linux-kernel@vger.kernel.org
+References: <20260827160806.1295313-1-linlin.zhang@oss.qualcomm.com>
+ <20260827160806.1295313-3-linlin.zhang@oss.qualcomm.com>
+ <f5915133-ffac-4777-b7d9-cf38ba163d43@kernel.org>
+ <03097984-fded-477e-82b6-f9b31fd2f1d3@oss.qualcomm.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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
+In-Reply-To: <03097984-fded-477e-82b6-f9b31fd2f1d3@oss.qualcomm.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
-Hi Thomas,
-
-On 9/1/26 8:30 PM, Thomas Zimmermann wrote:
-> Hi
+On 01/09/2026 11:39, Linlin Zhang wrote:
 > 
-> Am 01.09.26 um 13:54 schrieb Thomas Zimmermann:
->> Hi,
+> 
+> On 8/31/2026 2:56 PM, Krzysztof Kozlowski wrote:
+>> On 27/08/2026 18:07, Linlin Zhang wrote:
+>>> From: linlzhan <linlin.zhang@oss.qualcomm.com>
+>>>
+>>> In a Qualcomm GVM environment the ICE hardware is controlled by the
 >>
->> thanks for the updated patch.
->>
->> Did you see the review from the Sashiko bot?  The default value is PRE_MULTI, but the driver only supports COVERAGE.  This needs to be changed as part of this patch. The default assignment is at [1] in __drm_atomic_helper_plane_state_init().
->>
->> The ast driver needs to override drm_plane_funcs.atomic_create_state for the cursor plane to update the value pixel_blend to COVERAGE for new plane states. Same goes for vbox.
-> 
-> Or even better: I just sent out a patch to pick the right default value for the plane state. Let's first see what comes out of this. Patch is at [1].
-> 
-> [1] https://lore.kernel.org/dri-devel/20260901122731.83854-1-tzimmermann@suse.de/
-> 
-> Best regards
-> Thomas
-> 
- 
-Thanks! I did see the Sashiko bot report and had started on a v3 that
-overrides drm_plane_funcs.atomic_create_state in ast and vboxvideo
-(for vboxvideo on both the primary and cursor planes).
+>> What is GVM?
 
-But your approach looks better to me: drm_plane_create_blend_mode_property()
-already picks DRM_MODE_BLEND_COVERAGE as the property default when
-PREMULTI is not supported, so initializing the plane state from the
-property default fixes this for every COVERAGE-only plane without
-per-driver boilerplate.
+There is no such TLA (git grep).
 
-I'll hold off on v3 until your patch has settled.
+Maybe you meant guest in a virtual machine? Don't use some qcom-specific
+TLA.
+
+
+>>
+> 
+> GVM means Guest Virtual Machine. This is designed for the virtualization
+> platform.
+> 
+>>> host, GVM has no direct access to it. So, key operation in GVM is
+>>> done through SCM calls rather than direct register access. In this
+>>> way the access to ICE registers are offloaded to Trust Zone.
+>>>
+>>> Add QCOM_CRYPTO_VIRT, which implements struct virtblk_crypto_variant_ops
+>>> for the virtio_blk_crypto_ext dispatch layer. It maps keyslot
+>>> program/evict to qcom_scm_ice_set_key() and
+>>> qcom_scm_ice_invalidate_key(), and software-secret derivation to
+>>> qcom_scm_derive_sw_secret().
+>>>
+>>> Signed-off-by: linlzhan <linlin.zhang@oss.qualcomm.com>
+>>> ---
+>>>  drivers/soc/qcom/Kconfig       | 12 +++++
+>>>  drivers/soc/qcom/Makefile      |  1 +
+>>>  drivers/soc/qcom/crypto_virt.c | 89 ++++++++++++++++++++++++++++++++++
+>>>  3 files changed, 102 insertions(+)
+>>>  create mode 100644 drivers/soc/qcom/crypto_virt.c
+>>>
+>>> diff --git a/drivers/soc/qcom/Kconfig b/drivers/soc/qcom/Kconfig
+>>> index 2b524154d9fb..6c632d114d45 100644
+>>> --- a/drivers/soc/qcom/Kconfig
+>>> +++ b/drivers/soc/qcom/Kconfig
+>>> @@ -298,6 +298,18 @@ config QCOM_INLINE_CRYPTO_ENGINE
+>>>  	tristate
+>>>  	select QCOM_SCM
+>>>  
+>>> +config QCOM_CRYPTO_VIRT
+>>> +	tristate "Qualcomm Technologies, Inc. Crypto Virt driver"
+>>> +	depends on VIRTBLK_CRYPTO_VIRTUALIZATION
+>>> +	depends on QCOM_SCM
+>>> +	default VIRTBLK_CRYPTO_VIRTUALIZATION if ARCH_QCOM
+>>> +	help
+>>> +	  GVM-side hardware-wrapped-key SCM operations exposed to
+>>> +	  virtio_blk's inline crypto layer: per-slot key programming and
+>>> +	  eviction, and key derive/generate/prepare/import.
+>>> +	  Say Y here to compile the driver as a part of kernel or M to compile
+>>> +	  as a module.
+>>> +
+>>>  config QCOM_KRYO_L2_ACCESSORS
+>>>  	bool
+>>>  	depends on ARM64
+>>> diff --git a/drivers/soc/qcom/Makefile b/drivers/soc/qcom/Makefile
+>>> index 798643be3590..6d4b7546d1fb 100644
+>>> --- a/drivers/soc/qcom/Makefile
+>>> +++ b/drivers/soc/qcom/Makefile
+>>> @@ -39,5 +39,6 @@ obj-$(CONFIG_QCOM_KRYO_L2_ACCESSORS) +=	kryo-l2-accessors.o
+>>>  obj-$(CONFIG_QCOM_ICC_BWMON)	+= icc-bwmon.o
+>>>  qcom_ice-objs			+= ice.o
+>>>  obj-$(CONFIG_QCOM_INLINE_CRYPTO_ENGINE)	+= qcom_ice.o
+>>> +obj-$(CONFIG_QCOM_CRYPTO_VIRT)	+= crypto_virt.o
+>>>  obj-$(CONFIG_QCOM_PBS) +=	qcom-pbs.o
+>>>  obj-$(CONFIG_QCOM_UBWC_CONFIG) += ubwc_config.o
+>>> diff --git a/drivers/soc/qcom/crypto_virt.c b/drivers/soc/qcom/crypto_virt.c
+>>> new file mode 100644
+>>> index 000000000000..4ee2a36af6c1
+>>> --- /dev/null
+>>> +++ b/drivers/soc/qcom/crypto_virt.c
+>>> @@ -0,0 +1,89 @@
+>>> +// SPDX-License-Identifier: GPL-2.0-only
+>>> +
+>>> +#include <linux/module.h>
+>>> +#include <linux/types.h>
+>>> +#include <linux/blk-crypto.h>
+>>> +#include <linux/virtio_blk_crypto_ext.h>
+>>> +#include <linux/firmware/qcom/qcom_scm.h>
+>>> +
+>>> +static int crypto_virt_program_key(const struct blk_crypto_key *key,
+>>> +				   unsigned int slot)
+>>> +{
+>>> +	u32 dus_512_units;
+>>> +	int ret;
+>>> +
+>>> +	if (!key || !key->size) {
+>>> +		pr_err("%s: invalid key\n", __func__);
+>>> +		return -EINVAL;
+>>> +	}
+>>> +
+>>> +	/* Only AES-256-XTS has been tested so far. */
+>>> +	if (key->crypto_cfg.crypto_mode !=
+>>> +	    BLK_ENCRYPTION_MODE_AES_256_XTS) {
+>>> +		pr_err_ratelimited("Unsupported crypto mode: %d\n",
+>>> +				    key->crypto_cfg.crypto_mode);
+>>> +		return -EINVAL;
+>>> +	}
+>>> +
+>>> +	/* qcom_scm_ice_set_key()'s data_unit_size is expressed in 512-byte units */
+>>> +	dus_512_units = key->crypto_cfg.data_unit_size / 512;
+>>> +
+>>> +	ret = qcom_scm_ice_set_key(slot, key->bytes, key->size,
+>>> +		QCOM_SCM_ICE_CIPHER_AES_256_XTS, dus_512_units);
+>>> +	if (ret)
+>>> +		pr_err("%s: slot=%u ret=%d\n", __func__, slot, ret);
+>>> +
+>>> +	return ret;
+>>> +}
+>>> +
+>>> +static int crypto_virt_invalidate_key(unsigned int slot)
+>>> +{
+>>> +	int ret;
+>>> +
+>>> +	ret = qcom_scm_ice_invalidate_key(slot);
+>>> +	if (ret)
+>>> +		pr_err("%s: slot=%u ret=%d\n", __func__, slot, ret);
+>>> +
+>>> +	return ret;
+>>> +}
+>>> +
+>>> +static int crypto_virt_derive_sw_secret_key(const u8 *eph_key, size_t eph_key_size,
+>>> +					    u8 sw_secret[BLK_CRYPTO_SW_SECRET_SIZE])
+>>> +{
+>>> +	int ret;
+>>> +
+>>> +	ret = qcom_scm_derive_sw_secret(eph_key, eph_key_size,
+>>> +					sw_secret, BLK_CRYPTO_SW_SECRET_SIZE);
+>>> +	if (ret == -EIO || ret == -EINVAL)
+>>> +		ret = -EBADMSG; /* probably invalid key */
+>>> +
+>>> +	if (ret)
+>>> +		pr_err("%s: ret=%d\n", __func__, ret);
+>>> +
+>>> +	return ret;
+>>> +}
+>>> +
+>>> +static struct virtblk_crypto_variant_ops virtblk_crypto_qcom_vops = {
+>>
+>> Why is a crypto-handling code in drivers/soc/?
+>>
+> 
+> This driver is a Qualcomm vendor-specific driver, plays the similar role in the
+
+Not really, there is nothing vendor specific here. Look at this code.
+
+> guest, like the ice driver in the host. so I place it in drivers/soc/.
+> 
+>>> +	.owner = THIS_MODULE,
+>>> +	.program_key = crypto_virt_program_key,
+>>> +	.evict_key = crypto_virt_invalidate_key,
+>>> +	.derive_sw_secret_key = crypto_virt_derive_sw_secret_key,
+>>> +};
+>>> +
+>>> +static int __init crypto_virt_init(void)
+>>> +{
+>>> +	virtblk_set_crypto_ops(&virtblk_crypto_qcom_vops);
+>>> +	return 0;
+>>> +}
+>>> +module_init(crypto_virt_init);
+>>> +
+>>> +#if IS_MODULE(CONFIG_QCOM_CRYPTO_VIRT)
+>>> +static void __exit crypto_virt_exit(void)
+>>> +{
+>>> +	virtblk_set_crypto_ops(NULL);
+>>> +}
+>>> +module_exit(crypto_virt_exit);
+>>> +#endif
+>>
+>> How do you instantiate this driver exactly?
+>>
+> 
+> This driver is not instantiated per device. It acts as a provider of
+> Qualcomm vendor-specific inline crypto operations, which is based on
+> qcom_scm driver, and registers a global virtblk_crypto_ops instance
+> during module initialization. So that, each blk_crypto_ll_ops from
+> virtio block driver in common kernel can be sent via qcom_smc driver.
+
+
+If it is not instantiated, then it is dead code. Drop all this. Or read
+my message again very carefully instead of replying with whatever copy
+of commit msg. I did not ask what is this driver about. I did not ask
+what it is providing. I asked how do you instantiate it or clarifying -
+how do you load and run this code in final system.
+
+This is just dead/unused code, straight from downstream.
+
+NAK.
+
 
 Best regards,
-Qinyun
-
-
->>
->> [1] https://gitlab.freedesktop.org/drm/misc/kernel/-/blob/drm-misc-next/drivers/gpu/drm/drm_atomic_state_helper.c?ref_type=heads#L281
->>
->> Best regards
->> Thomas
->>
->>
->> Am 01.09.26 um 10:32 schrieb Qinyun Tan:
->>> Since commit 860e748bddcc ("drm: ensure blend mode supported if pixel
->>> format with alpha exposed"), drm_mode_config_validate() warns when a
->>> plane exposes an alpha pixel format but not the "pixel blend mode"
->>> property. The ast cursor plane (ARGB4444, ARGB8888) trips this on
->>> driver load:
->>>
->>>    [PLANE:37:plane-1] pixel format with alpha exposed but blend mode not setup
->>>    WARNING: drivers/gpu/drm/drm_mode_config.c:872 at drm_mode_config_validate+0x48f/0x510 [drm]
->>>    ...
->>>    Call Trace:
->>>     drm_dev_register+0x1ce/0x290 [drm]
->>>     ast_pci_probe+0x19d/0x3f0 [ast]
->>>     local_pci_probe+0x41/0x90
->>>
->>> Per Thomas Zimmermann's review, the ASPEED documentation describes the
->>> hardware cursor as blending with straight (non-pre-multiplied) alpha,
->>> which corresponds to DRM_MODE_BLEND_COVERAGE. Expose a "pixel blend
->>> mode" property advertising only DRM_MODE_BLEND_COVERAGE to make the
->>> hardware semantics explicit and silence the warning.
->>>
->>> Fixes: 860e748bddcc ("drm: ensure blend mode supported if pixel format with alpha exposed")
->>> Suggested-by: Thomas Zimmermann <tzimmermann@suse.de>
->>> Signed-off-by: Qinyun Tan <qinyuntan@linux.alibaba.com>
->>> ---
->>> v2: advertise DRM_MODE_BLEND_COVERAGE instead of PREMULTI, per Thomas
->>> Zimmermann's review and the ASPEED documentation.
->>>
->>>   drivers/gpu/drm/ast/ast_cursor.c | 3 +++
->>>   1 file changed, 3 insertions(+)
->>>
->>> diff --git a/drivers/gpu/drm/ast/ast_cursor.c b/drivers/gpu/drm/ast/ast_cursor.c
->>> index fd19c45f2abe2..690d4cd1db5ee 100644
->>> --- a/drivers/gpu/drm/ast/ast_cursor.c
->>> +++ b/drivers/gpu/drm/ast/ast_cursor.c
->>> @@ -25,6 +25,7 @@
->>>   #include <linux/sizes.h>
->>>     #include <drm/drm_atomic.h>
->>> +#include <drm/drm_blend.h>
->>>   #include <drm/drm_damage_helper.h>
->>>   #include <drm/drm_format_helper.h>
->>>   #include <drm/drm_gem_atomic_helper.h>
->>> @@ -355,6 +356,8 @@ int ast_cursor_plane_init(struct ast_device *ast)
->>>       }
->>>       drm_plane_helper_add(cursor_plane, &ast_cursor_plane_helper_funcs);
->>>       drm_plane_enable_fb_damage_clips(cursor_plane);
->>> +    drm_plane_create_blend_mode_property(cursor_plane,
->>> +                         BIT(DRM_MODE_BLEND_COVERAGE));
->>>         return 0;
->>>   }
->>
-> 
-
+Krzysztof
