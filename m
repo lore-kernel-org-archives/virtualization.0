@@ -1,241 +1,404 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB0E641CB39
-	for <virtualization@lists.linux.dev>; Tue,  1 Sep 2026 10:54:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1C5F47A0C7
+	for <virtualization@lists.linux.dev>; Tue,  1 Sep 2026 11:04:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788260096; cv=none; b=QFQi28f5fdtcEOYVjAZu1KoPUSilQDq8QNyjk/OzXff3fnInlE670X8nmihawweeD6nry//MJsbLQpv3crMyKufndBVairvREsBQDXccmH/AMUJCiKfdoWRMpW6PgA8JE6m90zFZb5zTY8ynLS+5DvkEDtaykyV5q1Y+VWrARD0=
+	t=1788260694; cv=none; b=CUP0zzuqVJcwjm80QJ89UAYEXH+2h3LjClBS2CfzQHNYCaQSh7ziFyv619NCPfiosvJJKm0/mRjEJSM4HunErJGX+ZfcgCn7ePQn/umowBNrQ2bveGr6ySEHZCdc2RfM+uhmgorDfrseWOMNNtozPiKMJ1ypP1wL7bhmiSSniu8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788260096; c=relaxed/simple;
-	bh=eo41WihyA3ojxp0NLE3JaISxqefjtiIrGimbXZifWtQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=iZXqGzZOomXgETE+XLAu+I9vMLDS6X+SA2uyhZbFgWNxxtrXQuGDzvqrMY02wRYcbgkCB0g6Kct1I9C/wcvqlfEk7R9nfs5bnfQIDDIKAQveWQL95uzCdcv212cpAxwrqoJvjWib62/qoDF4t/buUjXUJ4XMaMh4eon60oI+T2U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=UqJ0Goxn; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=bzQ5fDCk; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1788260694; c=relaxed/simple;
+	bh=I8M6O40zF2FqQBTEIIg1qxA/Ns7PDdWoqhU12y9YI0Q=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=ZH/lwkSG8c1PSoA5dls+wtLvXe2+TA8fvPvLmTQW9bNd8YVSTD7dP5LRTVTouCIbI54aXZHu53QSoZhZe/sHASz9bfFAfKbYjPYlPdfcRSFQB7wLZAomvXGqn5R/OjK3F7R3VIbVQNv6p9ULeTJwaqAkYcmUZorMqNi8Nmw8e1w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KiaHI6Hd; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="UqJ0Goxn";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="bzQ5fDCk"
-Received: from pps.filterd (m0279864.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 681AJJJU1136752
-	for <virtualization@lists.linux.dev>; Tue, 1 Sep 2026 10:54:51 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	OPtv8ii2wGrHphSvsH0bCWdT13ol9RcJ1O+uWSnFADo=; b=UqJ0GoxnCQ4Csd1v
-	wKkffNP5ImAKrzb4gvgZDMzVLBhu8gm+M6RLcMlx/t65dwplHNQAakzHjAyY6Mo6
-	YgVAbK8ywJvsJectDmn3yv2MR1y/xk/b2wXbFI5tnbtCm8fGRO/gdETgRlTeR+th
-	KiBijkBVFxkEKSkVBZbCB2Ybwi5rqXWrEByQTrjjPuLO0byhSPSUU0g9C6MoeYG8
-	4enK9+sCKsNbE4VyggZza0RBduwyopJtPIdAQFRCzEq9nIqI2jUJD5+TyXGbXoU3
-	gAlTXV9uVErdTR+hSToJ6TsFvKEgzmh0uDDJ6ZU9XHOnCXalBzgTq4AOm49WOLgr
-	QVSMxA==
-Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com [209.85.214.200])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4gdrcshfrc-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <virtualization@lists.linux.dev>; Tue, 01 Sep 2026 10:54:51 +0000 (GMT)
-Received: by mail-pl1-f200.google.com with SMTP id d9443c01a7336-2d7443e0f0bso20831325ad.1
-        for <virtualization@lists.linux.dev>; Tue, 01 Sep 2026 03:54:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1788260091; x=1788864891; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=OPtv8ii2wGrHphSvsH0bCWdT13ol9RcJ1O+uWSnFADo=;
-        b=bzQ5fDCkgucijTH9yB0aR26mEtSqSeYJMlWCs7A4qKXHhH7cl8s4Ikf6MKFl5dZ2MA
-         gDoJbIzP0OBc/a91XYcxZYU+XIJ36od5XOOkZA3legiKyewXuKPNjDdglDyuK1AAcByK
-         /F08RDKKlu5guadSeZAqGID0Oln7hQESAqVPM5EMjOUeHFoHcXCElZA4Z6nicSLH6vlB
-         iQeZtnwcCytR7+BfdsQKgmvHrbJ0Zwel5nCQLwlt0D6AxjB/cLtnH4NAvxrPcPJbK/p5
-         Ay3Y13xVQiSQKcw+BAg3ad3KEYU+aQc6EN/Gex0ckoitRHY+7EvHkRLH4CgFqmOHDIpt
-         g8nw==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KiaHI6Hd"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1788260691;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=dpalFsc50tyK4pf8E+Xa5el9aZ7WXkhDyVSpKjl/dAo=;
+	b=KiaHI6Hd46jKPJ/CZhRI4ftsbe839NkshEbLpxFcZ/bAGEQuxf688WbU0nLKVvthPEwb2C
+	FXGDPYEWg393tilDJKO7Zf6qgVrx0fnIf9HlivZnqhAIB6XDK1B1vDuEYrA67K0Odn2sZe
+	YKhhDYYGBzXeONXrdVUmuxL/18ylnUk=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-522-s-MlPppbPTa3sSOJbF0HLg-1; Tue, 01 Sept 2026 07:04:47 -0400
+X-MC-Unique: s-MlPppbPTa3sSOJbF0HLg-1
+X-Mimecast-MFC-AGG-ID: s-MlPppbPTa3sSOJbF0HLg_1788260686
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-49ccf17d3b0so17031495e9.3
+        for <virtualization@lists.linux.dev>; Tue, 01 Sep 2026 04:04:47 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788260091; x=1788864891;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=OPtv8ii2wGrHphSvsH0bCWdT13ol9RcJ1O+uWSnFADo=;
-        b=mi3O6YdWTSF9n80czIIsRztyMVS8yBFIhOChaO/c3AbDu/HIJdw/PO72KCfm21pRSM
-         TIPuejLItzPWCp3y7S36K4tpMK1SLRC5+Z5E7pLtI0aEXr2ocQd2BUix3y13ngRu6Ms3
-         COE8bhctGtL0063FMu5f/ewJi/XyKQeJcL4YEbAKP3UOSZfpCWiAHYYSIkI4CVyeCo1w
-         d02olhpq1jcmOtCBayoI+a+kFHe/6e/XpkDHyacLviUbBssSiWbUZ/ebb92LzHeubQoh
-         Hu9dzFaXsUdX91bZRC9vFCSUDITPmtLUpeWEN2xqtjet5vkAKG1YX0sA72gwZ9SbomAH
-         5axQ==
-X-Forwarded-Encrypted: i=1; AKwUvByL6Kxre8eGLURkXZNoUadKGlQjFvHpQVjdfZ8rpXInjqUNPoyVcNbB6fQjrlqoI7f56zlz4RlZqZBTM7kTFw==@lists.linux.dev
-X-Gm-Message-State: AFuF++mztPyKCeGbef465hcH1obPFrrqdyubXY/uhYe/xjleykRIu5rH
-	uxmVVHoBQBsplAeF9ia0NisuUppnnxOEa00VvjqYEwGQ+ht2wrx1FagXu084OSn+OV5GCW6otTk
-	CJual16BQxN9CXhoBr5h3x0oxTXRmKQL+03+tkUU+8ESIOPxqaPL2kyD9xhmSSYU0qGRCFA==
-X-Gm-Gg: AYBFou0F9m0sxPVbf916QLgPyq+oOeUCqkioFKGxD3q/REY4tLIoyytwsAxPDq9cWYY
-	feoC325ZLeciVlHoBM+LOZ1sna9NXkDLXmU8NWnJLrutUppx5JoSOj0pvBkBc1t9xGGvoEgbIk0
-	CUd1gVL3cxhkmw/r8OkRA0FiS7xYZq7UGK8rVspMoOxAulw0r2y8BIoBccNzNnp68g2+aXKtoj3
-	5FmwFQ4kV7iVxPWIc9Et5CcFy3I4iH5c8ZlZ+AUfhaSknGM6Wc4JSNQi7yBuVq3uBoxsFhJPqu+
-	YmOCGZ3OKW4KF1JxK1FUJJ1/20Qx49TcOxBb9SC7YnkrL44V5CJiFPuQ6bn5/USDqDhZWx0MiV5
-	bSx6I+fdfSVTRbQAROlY0PdWUC1LJmcnJ6FVIFVfsXKQ0/o2YJX2LJf5s
-X-Received: by 2002:a17:902:ce8e:b0:2d7:107c:917b with SMTP id d9443c01a7336-2d94a32e0c0mr87827185ad.0.1788260090781;
-        Tue, 01 Sep 2026 03:54:50 -0700 (PDT)
-X-Received: by 2002:a17:902:ce8e:b0:2d7:107c:917b with SMTP id d9443c01a7336-2d94a32e0c0mr87826565ad.0.1788260090392;
-        Tue, 01 Sep 2026 03:54:50 -0700 (PDT)
-Received: from [10.110.34.210] (i-global254.qualcomm.com. [199.106.103.254])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-32bdfd03e71sm20231849eec.1.2026.09.01.03.54.43
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 01 Sep 2026 03:54:49 -0700 (PDT)
-Message-ID: <b571ea8a-4434-45e0-958f-20b2f83ced24@oss.qualcomm.com>
-Date: Tue, 1 Sep 2026 18:54:41 +0800
+        d=1e100.net; s=20251104; t=1788260686; x=1788865486;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=dpalFsc50tyK4pf8E+Xa5el9aZ7WXkhDyVSpKjl/dAo=;
+        b=bqBFr9DWnziWUzzVgV5L+1MvbIpfMfIKrL66toDooFX34ZV7e1Gx77prBYI14OHj96
+         oMSvM3zwcxDtjKBXAhQe7cwwl6KUIXZzuZXatX7XQPavkheztEVOQRSOb5nIs5TA2+iI
+         qN7X2LnPYFuXP5izOK4DRM05UFLvHPGCq8EDc/r1JQT39TadIXQusUV+7GZhyc/HQOGS
+         tTiHO/BxMFLnrBePo1fc2LEwFjpRo8aKa4uveY3TJES8jyr7z1H6gZSP+H+UHEfQNFQY
+         ozZYre7kfhzccHIcVsVDxtZoI/VgdmPb2v3Ei8quxyH85pgBjN9ibOX2wof03LrLAXDs
+         2oUw==
+X-Forwarded-Encrypted: i=1; AHgh+RqHGwSl4v+wos3MQJNSNBN57JFWbbBJFUtrQodaCHMcXwfk+doMKd90IDVpqcGkZ6MrZutYqHh4tqcfmAGz8Q==@lists.linux.dev
+X-Gm-Message-State: AFuF++ll3MszpRudtL9WxYjzxd7GxvuYgz1KfteIdntcWFAOttPUet3r
+	tm43aXYbYAoVN6y7U44mr/xeJTUxot16n0UPa8WxBkX7Zl9ypXpQTPLVcXNTYPn75HLxkDMZaGG
+	pkIezDjfC8CNdWAoaTjNXbWKRv3Gzc0sSzKTigy4C7y1EVh/ToUzx1pTnO0lXGN4asp3I
+X-Gm-Gg: AR+sD11n/1nZItWyx7Dmrs+wLM2immhhEddRPUNjwHYD3MuVNe6EWvjflyRlRVjNbqQ
+	AZmv3JDJqmb5xYQtWPVx/ZHnXF04lY3otgJ0VQ3FZ8Yb7FJUoqXKNS6Yb+5hqI5BBZlgHNw1EE7
+	2l05gKVgt4SK0vOAD7r8jXq4cI/PRheC8xO07E49HnjBer2jqOAtI9Q40MX/H/Fi6LAik0fKDgp
+	3xLwMI/eJ1vMPxljutpfvzieDhlhH4PSYxjfuV2BfsocUAfRfko+kCRfpZ+nvUflwzmMG1Yaf3q
+	7V76zb+jPJfP2X+q7axkEppPQqCS2DE02vzIHz3qfJTwNtC66oF5fzVAkhPTaV+4BuuIBaJ8f/p
+	yFUqBoE4w
+X-Received: by 2002:a05:600c:c11c:b0:499:b65d:1250 with SMTP id 5b1f17b1804b1-49cdc422c5bmr130324545e9.2.1788260686167;
+        Tue, 01 Sep 2026 04:04:46 -0700 (PDT)
+X-Received: by 2002:a05:600c:c11c:b0:499:b65d:1250 with SMTP id 5b1f17b1804b1-49cdc422c5bmr130323085e9.2.1788260685595;
+        Tue, 01 Sep 2026 04:04:45 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-79-236.inter.net.il. [80.230.79.236])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49b91c5790csm298330355e9.0.2026.09.01.04.04.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 01 Sep 2026 04:04:45 -0700 (PDT)
+Date: Tue, 1 Sep 2026 07:04:41 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: alistair23@gmail.com
+Cc: eperezma@redhat.com, linux-kernel@vger.kernel.org,
+	xuanzhuo@linux.alibaba.com, jasowangio@gmail.com,
+	linux-scsi@vger.kernel.org, mkp@kernel.org,
+	virtualization@lists.linux.dev,
+	James.Bottomley@hansenpartnership.com, alistair@alistair23.me,
+	Alistair Francis <alistair.francis@wdc.com>, graf@amazon.com
+Subject: Re: [PATCH 2/2] scsi: Initial commit of VirtIO PCIe Endpoint Driver
+Message-ID: <20260901044553-mutt-send-email-mst@kernel.org>
+References: <20260901014650.2728658-1-alistair.francis@wdc.com>
+ <20260901014650.2728658-3-alistair.francis@wdc.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 11/11] scsi: ufs: ufs-qcom: support ICE keyslot
- partitioning for guest VMs
-To: Krzysztof Kozlowski <krzk@kernel.org>, ebiggers@kernel.org,
-        axboe@kernel.dk, mst@redhat.com, jasowangio@gmail.com,
-        James.Bottomley@HansenPartnership.com, martin.petersen@oracle.com,
-        robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org,
-        linux-block@vger.kernel.org, linux-crypto@vger.kernel.org,
-        linux-scsi@vger.kernel.org, virtualization@lists.linux.dev,
-        devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org
-Cc: neeraj.soni@oss.qualcomm.com, gaurav.kashyap@oss.qualcomm.com,
-        mani@kernel.org, andersson@kernel.org, konradybcio@kernel.org,
-        bvanassche@acm.org, alim.akhtar@samsung.com, avri.altman@sandisk.com,
-        stefanha@redhat.com, pbonzini@redhat.com, eperezma@redhat.com,
-        xuanzhuo@linux.alibaba.com, linux-kernel@vger.kernel.org
-References: <20260827160806.1295313-1-linlin.zhang@oss.qualcomm.com>
- <20260827160806.1295313-12-linlin.zhang@oss.qualcomm.com>
- <046e4b62-6d25-40fc-baa3-2978eb96eb70@kernel.org>
-Content-Language: en-US
-From: Linlin Zhang <linlin.zhang@oss.qualcomm.com>
-In-Reply-To: <046e4b62-6d25-40fc-baa3-2978eb96eb70@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTAxMDA5NSBTYWx0ZWRfX7x7+rD4CjsYg
- wxpgWKk02O+ABuGTDZtXWnsv6sEPbWOntkAXLpbFsBIe6n7Sh8vOounQfYDEsrhpFxXjiB3EI3D
- WM/Ww09QSWyh6is+MUzYJSi7Tz6Qhf0=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTAxMDA5NSBTYWx0ZWRfX8/59+07SOfJ7
- q4r7GQCKm6y2sVeCkk0PmO3Be/CQpckxJzCpx3cVKJIT3HHUm5vhYvJDagOpcQtAw1Vi3inAtoc
- aMk28UfsBpwPRtpMeg4hvTdfy+LSrj1gnCV3paifOPlL+vHSD3Pcw+HoV6fo09u01WmvHob0bfa
- xg5mzLoxhoHdPFKEVzavJFn0SU5DHrTEYOcLNb6UqIMlW01qjcqbzqmax2uBUWJR4JAHfQnhq5N
- zIxvp4EV31S8UbXIi9oRez56Le2LgjjuGqWyD9szoLSRCTiO6Gc3FmwmHTJoIWikiQbPfwMDV4+
- k6rxBASsB7sSHosamJndg0y0MVAJtd2/1/Uh6rHMrXEkjg0y6ELlCCDwAa6ak0wyhYE+C1cUiEj
- 3jHUCF3e3JpQnbFbxg8Ps9SJYps1DmuZB++GoKjBb+q+pDZ074+Z1WFFp/AyAb2F6t3J3bH4jC9
- H64Givkyu1FMT+AASpg==
-X-Proofpoint-GUID: t-zPunosSSlPIvB2-P0-y8CJroAGYunD
-X-Proofpoint-ORIG-GUID: t-zPunosSSlPIvB2-P0-y8CJroAGYunD
-X-Authority-Analysis: v=2.4 cv=QsNuG1yd c=1 sm=1 tr=0 ts=6a96aefb cx=c_pps
- a=IZJwPbhc+fLeJZngyXXI0A==:117 a=JYp8KDb2vCoCEuGobkYCKw==:17
- a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=DJpcGTmdVt4CTyJn9g5Z:22
- a=EUspDBNiAAAA:8 a=0jl50ytlWdhOsGfDH1oA:9 a=QEXdDO2ut3YA:10
- a=uG9DUKGECoFWVXl0Dc02:22
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-01_03,2026-08-31_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 impostorscore=0 phishscore=0 suspectscore=0 adultscore=0
- lowpriorityscore=0 malwarescore=0 priorityscore=1501 spamscore=0
- clxscore=1015 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2609010095
+In-Reply-To: <20260901014650.2728658-3-alistair.francis@wdc.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: TQkJWHnqqg-W6oPsT1GbzjNBBu6JU3IcYLvC5YNsHYY_1788260686
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-
-
-On 8/31/2026 3:03 PM, Krzysztof Kozlowski wrote:
-> On 27/08/2026 18:07, Linlin Zhang wrote:
->> From: linlzhan <linlin.zhang@oss.qualcomm.com>
->>
->> On Qualcomm platforms where UFS inline encryption is shared between
->> the host and guest VMs, the ICE hardware keyslots must be partitioned
->> so that each VM operates only within its own physical slot range.
->> Without this, the host's blk_crypto_profile would manage all hardware
->> slots, conflicting with slots already allocated to guests.
->>
->> Add ufs_qcom_ice_parse_slot_table() to read the qcom,ice-keyslot-map
->> device-tree node.  The function parses all child entries and validates
->> that no entry's slot range or the combined total exceeds the hardware
->> slot count from REG_UFS_CCAP.  The first child entry is taken as the
->> host's own reservation; its slot count and offset are returned to the
->> caller.
->>
->> In ufs_qcom_ice_init(), use the parsed host reservation to initialize
->> the blk_crypto_profile with only the host's slot count rather than the
->> full hardware range.  Set profile->slot_offset so that
->> blk_crypto_keyslot_index() returns the correct physical ICE slot
->> number when programming hardware.  If no qcom,ice-keyslot-map node is
->> present, the existing behaviour (profile manages all slots) is
->> preserved.
->>
->> Note: This patch is submitted for visibility. The ufs-qcom driver
->> gets its max_slots and slot_offset based on the the current
->> DT-based keyslot mechanis. we are aware this may need to be replaced
->> by a TZ SCM interface, submit it RFC for design discussion.
->>
->> Signed-off-by: linlzhan <linlin.zhang@oss.qualcomm.com>
->> ---
->>  drivers/ufs/host/ufs-qcom.c | 91 ++++++++++++++++++++++++++++++++++++-
->>  1 file changed, 90 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/ufs/host/ufs-qcom.c b/drivers/ufs/host/ufs-qcom.c
->> index 62396212a0a7..0611ab50f4cc 100644
->> --- a/drivers/ufs/host/ufs-qcom.c
->> +++ b/drivers/ufs/host/ufs-qcom.c
->> @@ -163,6 +163,74 @@ static inline void ufs_qcom_ice_enable(struct ufs_qcom_host *host)
->>  		qcom_ice_enable(host->ice);
->>  }
->>  
->> +/**
->> + * ufs_qcom_ice_parse_slot_table() - parse qcom,ice-keyslot-map DT node
->> + * @dev:          UFS controller device
->> + * @hw_max_slots: total physical ICE keyslots reported by REG_UFS_CCAP
->> + * @num_slots:    receives host max_ice_slots (0 = no partitioning)
->> + * @slot_offset:  receives host ice-slot-offset
->> + *
->> + * Parses the qcom,ice-keyslot-map device-tree node.  The first child entry
->> + * is the host's own reservation; subsequent children are guest reservations.
->> + * Validates that no entry's range exceeds @hw_max_slots and that the sum of
->> + * all entries does not exceed @hw_max_slots.
->> + *
->> + * If no qcom,ice-keyslot-map phandle is present, sets @num_slots to 0 and
->> + * returns 0.  Returns -EINVAL if any entry or the total exceeds @hw_max_slots.
->> + */
->> +static int ufs_qcom_ice_parse_slot_table(struct device *dev,
->> +					 unsigned int hw_max_slots,
->> +					 unsigned int *num_slots,
->> +					 unsigned int *slot_offset)
->> +{
->> +	struct device_node *slots_np, *child;
->> +	unsigned int total_slots = 0;
->> +	bool first = true;
->> +	int ret = 0;
->> +
->> +	*num_slots   = 0;
->> +	*slot_offset = 0;
->> +
->> +	slots_np = of_parse_phandle(dev->of_node, "qcom,ice-keyslot-map", 0);
+On Tue, Sep 01, 2026 at 11:46:50AM +1000, alistair23@gmail.com wrote:
+> From: Alistair Francis <alistair.francis@wdc.com>
 > 
-> No
+> This patch adds a VirtIO SCSI endpoint build on top of the VirtIO PCIe
+> endpoint. This is a similar approach to the NVMe PCIe Endpoint
+> (drivers/nvme/target/pci-epf.c) but for SCSI.
 > 
->> +	if (!slots_np)
->> +		return 0;
->> +
->> +	for_each_child_of_node(slots_np, child) {
->> +		u32 off, max;
->> +
->> +		if (of_property_read_u32(child, "qcom,ice-slot-offset", &off) ||
->> +		    of_property_read_u32(child, "qcom,max-ice-slots", &max))
+> This does end up being somewhat similar to the pci-epf.c code, but
+> re-written for SCSI.
 > 
-> No, there is no such ABI.
+> This approach allows a PCIe Endpoint device (tested on a
+> radxa-rock5b) to setup what appears to be a SCSI device, using an
+> existing SCSI backend (tested using scsi_debug).
 > 
+> At this point a host can connect over PCIe, ensure virtio_pci and
+> virtio_scsi is loaded and on PCIe rescan will see a scsi device.
+> 
+> There are two main pain points with this approach though:
+>  1. We have to use the Legacy SCSI VirtIO driver. This is because the
+>     Raxda Rock5b (and AFAIK all PCIe Endpoint hardware) can't add
+>     capabilities. So we can't advertise the VirtIO Common configuration
+>     capability, which means we can't be a modern VirtIO SCSI device.
+> 
+>     This is unfortunate, but there doesn't seem to be any way around
+>     this, at least with the current hardware.
 
-ACK
+This was discussed on the virtio list. The way around this is
+to change virtio spec to allow common configuration
+in memory. I don't think a patch like this was ever posted -
+want to try?
 
-This is submitted for visibility. It may be revised in a future version to use
-a TZ SCM query interface if current out-of-band key operation in the guest is
-approved.
 
-> 
-> Best regards,
-> Krzysztof
+....
+
+
+
+> +
+> +static int scsit_pci_epf_read_desc(struct scsit_pci_epf_vq *vq,
+> +				   u16 idx, struct vring_desc *desc)
+> +{
+> +	void __iomem *p;
+> +
+> +	if (idx >= vq->depth)
+> +		return -EINVAL;
+> +
+> +	p = vq->desc_map.virt_addr + (size_t)idx * sizeof(struct vring_desc);
+> +	desc->addr = cpu_to_le64(readq(p + offsetof(struct vring_desc, addr)));
+> +	desc->len = cpu_to_le32(readl(p + offsetof(struct vring_desc, len)));
+> +	desc->flags = cpu_to_le16(readw(p + offsetof(struct vring_desc, flags)));
+> +	desc->next = cpu_to_le16(readw(p + offsetof(struct vring_desc, next)));
+> +
+> +	return 0;
+> +}
+> +
+> +static int scsit_pci_epf_read_indirect(struct scsit_pci_epf_ctrl *ctrl,
+> +				       const struct vring_desc *parent,
+> +				       struct vring_desc **out_descs,
+> +				       unsigned int *out_n)
+> +{
+> +	struct vring_desc *descs;
+> +	u32 len = le32_to_cpu(parent->len);
+> +	unsigned int n;
+> +	int ret;
+> +
+> +	if (len % sizeof(struct vring_desc) || !len)
+> +		return -EINVAL;
+> +
+> +	n = len / sizeof(struct vring_desc);
+> +	descs = kmalloc_array(n, sizeof(*descs), GFP_KERNEL);
+> +	if (!descs)
+> +		return -ENOMEM;
+> +
+> +	ret = scsit_pci_epf_transfer(ctrl, descs, le64_to_cpu(parent->addr),
+> +				     len, DMA_FROM_DEVICE);
+> +	if (ret) {
+> +		kfree(descs);
+> +		return ret;
+> +	}
+> +
+> +	*out_descs = descs;
+> +	*out_n = n;
+> +	return 0;
+> +}
+> +
+> +struct scsit_pci_epf_chain {
+> +	struct vring_desc	*ro;
+> +	unsigned int		nr_ro;
+> +	u32			ro_len;
+> +	struct vring_desc	*wo;
+> +	unsigned int		nr_wo;
+> +	u32			wo_len;
+> +
+> +	struct vring_desc	*indirect;
+> +};
+> +
+> +static void scsit_pci_epf_chain_free(struct scsit_pci_epf_chain *c)
+> +{
+> +	kfree(c->ro);
+> +	c->ro = NULL;
+> +	kfree(c->wo);
+> +	c->wo = NULL;
+> +	kfree(c->indirect);
+> +	c->indirect = NULL;
+> +}
+> +
+> +static int scsit_pci_epf_walk_chain(struct scsit_pci_epf_ctrl *ctrl,
+> +				    struct scsit_pci_epf_vq *vq,
+> +				    u16 head_idx,
+> +				    struct scsit_pci_epf_chain *out)
+> +{
+> +	struct vring_desc desc, *descs = NULL;
+> +	unsigned int n = 0, i = 0, cap_ro = 8, cap_wo = 8;
+> +	bool in_indirect = false;
+> +	int ret;
+> +
+> +	memset(out, 0, sizeof(*out));
+> +
+> +	out->ro = kmalloc_array(cap_ro, sizeof(*out->ro), GFP_KERNEL);
+> +	out->wo = kmalloc_array(cap_wo, sizeof(*out->wo), GFP_KERNEL);
+> +	if (!out->ro || !out->wo) {
+> +		ret = -ENOMEM;
+> +		goto err;
+> +	}
+> +
+> +	ret = scsit_pci_epf_read_desc(vq, head_idx, &desc);
+> +	if (ret)
+> +		goto err;
+> +
+> +	/* Reject obviously-invalid head descriptors */
+> +	if (!le64_to_cpu(desc.addr) && !le32_to_cpu(desc.len) &&
+> +	    !le16_to_cpu(desc.flags)) {
+> +		ret = -EINVAL;
+> +		goto err;
+> +	}
+> +
+> +	for (;;) {
+> +		u16 flags = le16_to_cpu(desc.flags);
+> +
+> +		if (!in_indirect && (flags & VRING_DESC_F_INDIRECT)) {
+> +			ret = scsit_pci_epf_read_indirect(ctrl, &desc,
+> +							  &descs, &n);
+> +			if (ret)
+> +				goto err;
+> +			out->indirect = descs;
+> +			in_indirect = true;
+> +			i = 0;
+> +			desc = descs[0];
+> +			continue;
+> +		}
+> +
+> +		if (flags & VRING_DESC_F_WRITE) {
+> +			if (out->nr_wo == cap_wo) {
+> +				cap_wo *= 2;
+> +				out->wo = krealloc_array(out->wo, cap_wo,
+> +						sizeof(*out->wo), GFP_KERNEL);
+> +				if (!out->wo) {
+> +					ret = -ENOMEM;
+> +					goto err;
+> +				}
+> +			}
+> +			out->wo[out->nr_wo++] = desc;
+> +			out->wo_len += le32_to_cpu(desc.len);
+> +		} else {
+> +			/* Read-only descriptors must precede write-only. */
+> +			if (out->nr_wo) {
+> +				ret = -EINVAL;
+> +				goto err;
+> +			}
+> +			if (out->nr_ro == cap_ro) {
+> +				cap_ro *= 2;
+> +				out->ro = krealloc_array(out->ro, cap_ro,
+> +						sizeof(*out->ro), GFP_KERNEL);
+> +				if (!out->ro) {
+> +					ret = -ENOMEM;
+> +					goto err;
+> +				}
+> +			}
+> +			out->ro[out->nr_ro++] = desc;
+> +			out->ro_len += le32_to_cpu(desc.len);
+> +		}
+> +
+> +		if (!(flags & VRING_DESC_F_NEXT))
+> +			break;
+> +
+> +		if (in_indirect) {
+> +			i = le16_to_cpu(desc.next);
+> +			if (i >= n) {
+> +				ret = -EINVAL;
+> +				goto err;
+> +			}
+> +			desc = descs[i];
+> +		} else {
+> +			u16 next = le16_to_cpu(desc.next);
+> +
+> +			ret = scsit_pci_epf_read_desc(vq, next, &desc);
+> +			if (ret)
+> +				goto err;
+> +		}
+> +	}
+> +
+> +	return 0;
+> +
+> +err:
+> +	scsit_pci_epf_chain_free(out);
+> +	return ret;
+> +}
+> +
+
+
+
+
+
+> +static int scsit_pci_epf_chain_to_segs(struct scsit_pci_epf_cmd *cmd,
+> +				       const struct vring_desc *descs,
+> +				       unsigned int n)
+> +{
+> +	struct scsit_pci_epf_segment *seg;
+> +	unsigned int i;
+> +	int ret;
+> +
+> +	if (n == 0)
+> +		return 0;
+> +
+> +	if (n == 1) {
+> +		cmd->nr_data_segs = 1;
+> +		cmd->data_segs = &cmd->data_seg;
+> +		seg = &cmd->data_segs[0];
+> +		seg->pci_addr = le64_to_cpu(descs[0].addr);
+> +		seg->length = le32_to_cpu(descs[0].len);
+> +		return 0;
+> +	}
+> +
+> +	ret = scsit_pci_epf_alloc_cmd_data_segs(cmd, n);
+> +	if (ret)
+> +		return ret;
+> +
+> +	for (i = 0; i < n; i++) {
+> +		seg = &cmd->data_segs[i];
+> +		seg->pci_addr = le64_to_cpu(descs[i].addr);
+> +		seg->length = le32_to_cpu(descs[i].len);
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int scsit_pci_epf_alloc_cmd_data_buf(struct scsit_pci_epf_cmd *cmd)
+> +{
+> +	struct scsit_pci_epf_ctrl *ctrl = cmd->ctrl;
+> +	struct scsit_pci_epf_segment *seg;
+> +	struct scatterlist *sg;
+> +	int ret, i;
+> +
+> +	if (cmd->se_cmd.data_length > ctrl->mdts)
+> +		return -EINVAL;
+> +
+> +	if (cmd->nr_data_segs == 1) {
+> +		sg_init_table(&cmd->data_sgl, 1);
+> +		cmd->data_sgt.sgl = &cmd->data_sgl;
+> +		cmd->data_sgt.nents = 1;
+> +		cmd->data_sgt.orig_nents = 1;
+> +	} else {
+> +		ret = sg_alloc_table(&cmd->data_sgt, cmd->nr_data_segs,
+> +				     GFP_KERNEL);
+> +		if (ret)
+> +			return ret;
+> +	}
+> +
+> +	for_each_sgtable_sg(&cmd->data_sgt, sg, i) {
+> +		seg = &cmd->data_segs[i];
+> +		seg->buf = kmalloc(seg->length, GFP_KERNEL);
+> +		if (!seg->buf)
+> +			return -ENOMEM;
+> +		sg_set_buf(sg, seg->buf, seg->length);
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static void scsit_pci_epf_post_used(struct scsit_pci_epf_vq *vq,
+> +				    u16 head_idx, u32 len)
+> +{
+> +	void __iomem *ring = vq->used_map.virt_addr +
+> +			     offsetof(struct vring_used, ring) +
+> +			     (size_t)(vq->next_used_idx & (vq->depth - 1)) *
+> +			     sizeof(struct vring_used_elem);
+> +
+> +	writel(head_idx, ring + offsetof(struct vring_used_elem, id));
+> +	writel(len, ring + offsetof(struct vring_used_elem, len));
+> +
+> +	vq->next_used_idx++;
+> +	writew(vq->next_used_idx,
+> +	       vq->used_map.virt_addr + offsetof(struct vring_used, idx));
+> +}
+
+
+
+So this is a reimplementation of virtio, and a weird one, for example
+features are legacy but format is LE like modern. Packed ring is
+not implemented.  Uses strongly ordered ops for everything.
+
+I don't have specific advice but there is some similarity here
+to what Alex Graf is doing.
+
+
+And I want to see a spec decumenting how all this is supposed
+to work, please, and not just an ad hoc implementation.
+
+
+
+-- 
+MST
 
