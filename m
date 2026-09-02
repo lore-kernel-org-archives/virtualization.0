@@ -1,253 +1,155 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oa1-f53.google.com (mail-oa1-f53.google.com [209.85.160.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1855377EDC
-	for <virtualization@lists.linux.dev>; Wed,  2 Sep 2026 15:33:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AF87369D75
+	for <virtualization@lists.linux.dev>; Wed,  2 Sep 2026 23:01:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788363225; cv=none; b=lBpqheZt07VsHQlWZGUJ+D8Mcvjtu+9tvoP1jjKjfon2ck6UUu6oSv3kPEMZCr6mxVMUeHSqZ25c0sl4eqZQhXr46chd5/CIW7wthp5SAQ9bLPfJOIx0nLOwe62O0xjg1yTiV9vk0hezJfkSBl0zn2kefEOPHlODOLliZYDf+1Q=
+	t=1788390075; cv=none; b=mvHwm8ZYsnp/QDwj42M8T5Cvm9myRJ6NsCOZ47LT4W3j1zCulEmmZZEbviBm9Owa06geViU62sw62irE3plcQUgDL7kI7dk+SMLfC1JWCzUFoU1fT0h9Y3SdF7IHM6+bGw22x6yVA6yqsCSrO8CKG9A6BCKSl0UlZh1RTVASP3E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788363225; c=relaxed/simple;
-	bh=6lYF9KV2HEwLFq6+al6aDkTRtGMquGYtFJdFYnQXEN8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=HijaY3vX0uG3Iz75pDw+Tkqxrwp3gXAHD91ZqdJukFOZtr6Eji0PMPoOirQ2vM5MPCfuNYaVyqXL+YAdUwXzVy4z+Hy3BpQQnGyDf60S3RgcIB+vCVV8kcXjtHNFuOAC5cp88RGZ8OvcmKbvQYpRqERQmjqtkRWt+2QVtjdA2To=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=GE5dYC28; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=USGgLulW; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1788390075; c=relaxed/simple;
+	bh=S/34GgnpIisKNAJazB6aS6c0H4pLuTB5PSuj71c9luE=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=pMtcMJ6I+zPbp/zovdkU2OSkRlo3jkc+ix9LMRLjQKEGO78wBdzH1xz3Hhan3aSpKRorMlqkge78lFqjNQMArxNOQcW4sn6dbv1xD70PJAqaxtsvLs3oqKuGR5KrXws58qYg+3mpfhc9fQyUXCQg56m9jdqj4owJjAfnO4tZ7Yw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=pXrHgJMV; arc=none smtp.client-ip=209.85.160.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="GE5dYC28";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="USGgLulW"
-Received: from pps.filterd (m0279866.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 682D1ttq947699
-	for <virtualization@lists.linux.dev>; Wed, 2 Sep 2026 15:33:43 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	rEUZ3PVE55ql740l9KlzWi1uLalDgnols2pTFF/fh60=; b=GE5dYC28o04T50C0
-	MXh94TFSKPDeiSYrFJ1HggyWYY2E7z2bj12OGdQ9WZVTbNggrcxgO57Nb2usJh1o
-	N/1ujNarxL4hmJeNoiMB1634vamDrENqIR30vnWvna+bPUUs4gKUVQr3Wjphgjpv
-	+9ICOfwtZ4C7UREApQ0jio9n0N9EXHu/Q9Em9LqQKjIBun/kwmJv1vV1LjokUGjt
-	uPtIX0yx9J35OEPpdfGMHgPybL7JNDjhVQlpX5wzKxOVMY7bV2bfY67irjMEt2xS
-	2le7WpLIxdWm589t5rXlUrwQTiJF2g/qzPJUdrCIHZUnkR7kSg8fMNtg+wqdpws/
-	0mNTUQ==
-Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com [209.85.215.200])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4gemb00k7d-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <virtualization@lists.linux.dev>; Wed, 02 Sep 2026 15:33:42 +0000 (GMT)
-Received: by mail-pg1-f200.google.com with SMTP id 41be03b00d2f7-cc39363cc88so1039155a12.0
-        for <virtualization@lists.linux.dev>; Wed, 02 Sep 2026 08:33:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pXrHgJMV"
+Received: by mail-oa1-f53.google.com with SMTP id 586e51a60fabf-4679f619d3bso1194102fac.1
+        for <virtualization@lists.linux.dev>; Wed, 02 Sep 2026 16:01:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1788363222; x=1788968022; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=rEUZ3PVE55ql740l9KlzWi1uLalDgnols2pTFF/fh60=;
-        b=USGgLulWIRWR+V6RwiwQsRcQA3Wco0A6eGVBcR82RS45s7c4cA15Ph/+StUXXYPkJI
-         OoPw3auFSiJwcg/EZo3rNFabPdlQfDkMK1rId+JCW2xBYqST/erCoKNs/OldnlsTMoA9
-         yphMsUUrJBk8AX3j4OeT0OAQkX4YTU1O25WbM8HGIqa8EVddNTLBw09/3/XoovGn/xxX
-         wLzJuXQ1w14X8DgOblJKnztJCtsHJi7xskmj1ZkExYA/9FXd+2DKZR5UQsTdtVZVvY0Z
-         EmaszGZ3jwgPyEBamaEtVBeZq80HiA74vtTwVsSLkdxEqayR3H6RrIpBh65vJvCipXUe
-         y/dQ==
+        d=gmail.com; s=20251104; t=1788390067; x=1788994867; darn=lists.linux.dev;
+        h=cc:to:content-transfer-encoding:content-type:mime-version
+         :message-id:date:subject:from:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=2/4BUiYwhmx8BTSrnAZKpKB6tkHSRMMIf9FbGNEl8BU=;
+        b=pXrHgJMVBAVAf1Zi5fapN8BBYBJkSfz2tq/eq1VV02QDQGOo2pA8qldAaUZNmPS1lL
+         baOAFgfOZ69A0HrdPOmw5d1JllkDIB1BdGGc8heEKF7WZzStab8CPBsRcn8TThzbyrO1
+         PDz2jn4Mm+iQROhlKEdm2uNb09i1Uz/mylZO2cn0u0+tyzdJlLpGPPW9zQLHPPnj95hJ
+         iZBuxwu1lwSAek1G2orAdu1MJeA+GeF0JlzGP6Mx0oAHizVpxm0J8nFNTAbTwuaVaaTw
+         1tcO0ciAwYcDTId7menMsN30ztyVcd44Vp2sK/Id3xtXMrZrc7lUjtxIsWHa9RCfHLGq
+         NRxg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788363222; x=1788968022;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=rEUZ3PVE55ql740l9KlzWi1uLalDgnols2pTFF/fh60=;
-        b=cYmfEgH/78oqG12+g9u9wFwK0TR6KaHdDnAIe+8xFj362Y6yJrnTaAPIflniklKvUy
-         J5OQk0bXcy4zUmNkXflCycltGTLULH9z5mRon1390oPP2kLc3AlJTx9wHA0FGSITr+6F
-         R2YE4aJMATDhNZT3p4ct3QIht4VqbocNw0ELs3fZN5vJXrticjQkkPd8jUDATGvo9hDs
-         /sAUdbiwUTHTujcXli1UvGM4zevNeCjzCAXObKL0zGEmHNgj5WXutcD3mco5Q3SDM+lz
-         dpTNVkA/LSsDuS2seAdUrKmjeQt/lvlr87KsmXEWpNX6HKFO1PXY54bD5ZA6x7aOm84Y
-         pvOA==
-X-Forwarded-Encrypted: i=1; AKwUvBwDP5jIWMsm2lKrm0AjvkHm0QW3Zfbw9ugxA8rd9JiC0LT8EP+/MTeQSo5tXU0cAEZpdocqe8YGW4glr6bjUw==@lists.linux.dev
-X-Gm-Message-State: AFuF++kNIhyO5D9FKyblpzEmiEWtQw7ruwIrSs/g4ihuhUGccRUIs1yg
-	DhUtB1SYfTaH7oun5OUzLZIFaGu0HXDH6/ZV8+hXsfeYWFpWhDFh0W5vB21l7f58UI/dwbDDK7p
-	OCt9mJaJf06iq42thTQZZAYizdsDeK38Bil6iQYHiIsj8CbaU28pwGTqV4sq7OGjm8qsP5g==
-X-Gm-Gg: AR+sD11k3ZwWFXemG0ov2iD+aTr6We5NAm+mm8HZ+62sFTtyCiPH93lN790N3EgNw0K
-	cfwgGre4MdA2wjYev7NcUSBqBVTt4Gt9+SxlRKrKwWxtdK+sDqLOgogX1B8JhPHk4q5+9ZdyeoS
-	TNb42hPeymGAC6DyVVM2X+OK7augKTScCJ8HP6+Z2fbicXg6Z8qLL8QSVT5icVtBHs1EqvnI3Er
-	BrAnTdvi4V3shEVL7KLudhWUT8X7PROklhKJ6bBiBvRKJEWULZPqUZL1qlUEq6SIT+7KX+ObnCt
-	+Dh3zireP282ZqKmKnbP5v7R5u2L6qgfDIO+0thnNwp3VNIS8f3VWi33wsU1nCevBTJMey2MJup
-	+Q4mjZ0mg4keqUnz95FL+CFSxUMVtUjSBUSzn4FkXSqyI2KmZZSywR6pEjQ==
-X-Received: by 2002:a05:6a20:9f43:b0:3d3:adbf:777c with SMTP id adf61e73a8af0-3d9aecf72e3mr9896584637.24.1788363222095;
-        Wed, 02 Sep 2026 08:33:42 -0700 (PDT)
-X-Received: by 2002:a05:6a20:9f43:b0:3d3:adbf:777c with SMTP id adf61e73a8af0-3d9aecf72e3mr9896470637.24.1788363221571;
-        Wed, 02 Sep 2026 08:33:41 -0700 (PDT)
-Received: from [10.110.114.54] (i-global254.qualcomm.com. [199.106.103.254])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-32f079ee369sm7964033eec.7.2026.09.02.08.33.35
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 02 Sep 2026 08:33:41 -0700 (PDT)
-Message-ID: <418e2285-bb95-42cc-8543-bd540df9d0b5@oss.qualcomm.com>
-Date: Wed, 2 Sep 2026 23:33:33 +0800
+        d=1e100.net; s=20251104; t=1788390067; x=1788994867;
+        h=cc:to:content-transfer-encoding:content-type:mime-version
+         :message-id:date:subject:from:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=2/4BUiYwhmx8BTSrnAZKpKB6tkHSRMMIf9FbGNEl8BU=;
+        b=bTrj1BnbHqzK4knfY7HKjpieLKFJkL2DWkfr8d1jWGmO8PDzBO/nGsEYOaSstLMydC
+         AJGW33aLoBf6bdWsbyy/NopyxKdYaFScH8wT03g69CIrEVJ0HDjW83n5Q9zvqQfo8IAZ
+         e4eFB/VUzoCBLSne8yAEOci1dRzmvt0HH0XqLXIpFyVzk6X6MyXFh7JlJDU+4r1bN8bi
+         ZeNmPLwwEFT714u3WBtmzvm8e8L4RvjQwmH9jeEo0EiGYr5FipfzAWl0nfol2G5NMZKC
+         cdfKwe7asRQ2I/HX7tAfTR+HcPJ2rPXe1Eoga8rxj2rlbO43uQ1Ea9+wqueCC3CULwr4
+         drJg==
+X-Gm-Message-State: AFuF++kRYpBZO/B6yARDoMbbmkpBKs92xQjkiiSACwzfLxa95LrsG9Io
+	jBhEXc3QqypzTpIpHYxXbPq/2L00KbGJSmG6OFmQTaYBJ/WKakg8dtUg
+X-Gm-Gg: AYBFou0ilmXvP05SRsZlU6uErPpV8Lt4xE1MrJRKLy7sfb3mq44rpZ3Af2L82uDreXW
+	elPyXqdKQnTp8SEYiOAT3MxYY6A/QXp42L4ik74dc90giXYJUVCz2fZoBrkFw8BFGH3ya9xG529
+	w3qR0k/2Olehgqfr6W35Cu0tb62PHqSkWdFtlogZA7YmjiKpqPcX9JMEPbOvcI61nIXzbX+yGj6
+	KgifspkFoHlkLUprtq/mW4NXVPD8Iayj4u4nF0FJNSPv4ytzLDikgq+29qtY4/oFy9MYH6DKz0L
+	VSW++tO1qgRDddTI/4Te5FZuvZqZonhKps+370lj/9DB33Uyh/kqs0aJQp5oENIfKo7fbUp2oI8
+	9YJMHjOvBCGLDQy88TgtE88/TDZXcWjh2J7Lq4xAscoEjvOlsvBOz+0eiXOtjX5C1EwrEZdgIsX
+	xoXq0fkT7qSRBxjgE+a9xgP5+mWsFzMYEZihjSGEk2xtyPL/BkXBbXZKeh
+X-Received: by 2002:a05:6871:368b:b0:456:4c3f:7e03 with SMTP id 586e51a60fabf-46f87b8e5c6mr7802048fac.18.1788390067079;
+        Wed, 02 Sep 2026 16:01:07 -0700 (PDT)
+Received: from localhost ([2a03:2880:ff:71::])
+        by smtp.gmail.com with ESMTPSA id 586e51a60fabf-46f32f87146sm5619656fac.13.2026.09.02.16.01.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 02 Sep 2026 16:01:06 -0700 (PDT)
+From: Bobby Eshleman <bobbyeshleman@gmail.com>
+Subject: [PATCH net-next 0/6] vsock: assign the guest vsock device to a
+ network namespace
+Date: Wed, 02 Sep 2026 16:00:46 -0700
+Message-Id: <20260902-vsock-guest-ns-v1-0-9995383e9a8b@meta.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 03/11] soc: qcom: crypto_virt: add support for create,
- prepare and import keys
-To: Krzysztof Kozlowski <krzk@kernel.org>, ebiggers@kernel.org,
-        axboe@kernel.dk, mst@redhat.com, jasowangio@gmail.com,
-        James.Bottomley@HansenPartnership.com, martin.petersen@oracle.com,
-        robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org,
-        linux-block@vger.kernel.org, linux-crypto@vger.kernel.org,
-        linux-scsi@vger.kernel.org, virtualization@lists.linux.dev,
-        devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org
-Cc: neeraj.soni@oss.qualcomm.com, gaurav.kashyap@oss.qualcomm.com,
-        mani@kernel.org, andersson@kernel.org, konradybcio@kernel.org,
-        bvanassche@acm.org, alim.akhtar@samsung.com, avri.altman@sandisk.com,
-        stefanha@redhat.com, pbonzini@redhat.com, eperezma@redhat.com,
-        xuanzhuo@linux.alibaba.com, linux-kernel@vger.kernel.org
-References: <20260827160806.1295313-1-linlin.zhang@oss.qualcomm.com>
- <20260827160806.1295313-4-linlin.zhang@oss.qualcomm.com>
- <4594e3db-a8e3-4f8d-95c2-a4edcbc8ca7c@kernel.org>
- <40156974-6637-49b7-8629-11e7d0d4e55d@oss.qualcomm.com>
- <650ac172-312f-43a3-ab5f-82318796472d@kernel.org>
-Content-Language: en-US
-From: Linlin Zhang <linlin.zhang@oss.qualcomm.com>
-In-Reply-To: <650ac172-312f-43a3-ab5f-82318796472d@kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Proofpoint-ORIG-GUID: B79K1DZ01QX90cZ6Pdwc6mWu0Gx0chnD
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTAyMDEzNiBTYWx0ZWRfXyw0ZdvdaPW2k
- 4Cj+XxFapEEJ7DsBkE1yLv92u4HGKlsxLwKrnU9zgKcvbRM+atquBkyFNxH9lSUP2IhkRnvut1c
- RW3YNNs+JwCB5Jfw44j0L0XvR09NbkHT8jhfo9xLwmtI4+Uo8YyXZa2KYW+ZJzLSoPq+sU1H0tk
- lP+TVynx2BjWI3tvoTP9pPsuYCg+s+YrvdrCMdH5VTYuxClpb+ysTPikJMWtYrmJPdSsFXEJhPu
- AQyze45hcoYOdwFDOe1Gqslg8/knhqn6nRTvlh86FKL/gT4cz49y1r8pOFV2z3mUmwunX9foVr7
- CCxTVBbzEwLHZ97pWbnI3EigrzvMbo5brspP5hCXe1SmjaBfqRHNX/UorMvr47CbzWuVA+6i3+u
- lzhE52o/7OpsUskwrF8fmfnV8gzZ6l/WzsYhBi7fISdMdtdQCYgurcUfko57iFDYJ8yEkY/ggTI
- N3rY9l+gVhZH1AXDI/Q==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTAyMDEzNiBTYWx0ZWRfX9XZtgfjrDsqU
- aT6qD0L1+CfkddUv9Vw9CsKAyL/DNOpj+/btr2oIiEK9DPXHvtFixBSFeBg316hP/JkMet6QUiT
- F1dH8DFweb6PUW8tVe4OyT/ehrpjjb8=
-X-Authority-Analysis: v=2.4 cv=EuPiaycA c=1 sm=1 tr=0 ts=6a9841d6 cx=c_pps
- a=oF/VQ+ItUULfLr/lQ2/icg==:117 a=JYp8KDb2vCoCEuGobkYCKw==:17
- a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=YMgV9FUhrdKAYTUUvYB2:22
- a=7gRScLy_F1O9BZcavHAA:9 a=QEXdDO2ut3YA:10 a=3WC7DwWrALyhR5TkjVHa:22
-X-Proofpoint-GUID: B79K1DZ01QX90cZ6Pdwc6mWu0Gx0chnD
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-02_03,2026-09-01_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 bulkscore=0 adultscore=0 clxscore=1015 spamscore=0
- malwarescore=0 suspectscore=0 priorityscore=1501 lowpriorityscore=0
- impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2609020136
+X-B4-Tracking: v=1; b=H4sIAKGqmGoC/x3MQQqDMBAF0KsMf+1AYtu05Cqli2BGGwpjyUQRx
+ LsLvgO8HSa1iCHSjiprsTIrIvmOMHyTTsIlIxJ61wf3unlebR5+PC1ijdU4u5DG+8PnFJ7oCP8
+ qY9mu8A2Vxipbw+c4TlagUtRqAAAA
+X-Change-ID: 20260831-vsock-guest-ns-d06af451da67
+To: Stefano Garzarella <sgarzare@redhat.com>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+ Simon Horman <horms@kernel.org>, Jonathan Corbet <corbet@lwn.net>, 
+ Shuah Khan <skhan@linuxfoundation.org>, 
+ Stefan Hajnoczi <stefanha@redhat.com>, 
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+ Shuah Khan <shuah@kernel.org>, Randy Dunlap <rdunlap@infradead.org>
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, 
+ kvm@vger.kernel.org, linux-kselftest@vger.kernel.org, sargun@sargun.me, 
+ jlinbox@meta.com, Bobby Eshleman <bobbyeshleman@meta.com>
+X-Mailer: b4 0.14.3
 
+vsock network namespaces let a host put each VM in a namespace of its
+own. A guest has no equivalent yet. It has a single G2H device that
+cannot be assigned to a network namespace.
 
+This series lets a guest move that device into a network namespace. A
+new ioctl on /dev/vsock, IOCTL_VM_SOCKETS_ASSIGN_G2H_NETNS, assigns the
+device to the namespace of the calling process. The namespace's existing
+ns_mode then decides who may use it: a "global" namespace shares the
+device with every other global namespace, and a "local" namespace keeps
+the host connection to itself. The device starts out in the initial
+namespace, so until the ioctl is issued nothing has moved and no mode
+has changed. There is no explicit unassign as assigning the device back
+to the initial namespace is equivalent.
 
-On 9/1/2026 10:01 PM, Krzysztof Kozlowski wrote:
-> On 01/09/2026 12:31, Linlin Zhang wrote:
->>
->>
->> On 8/31/2026 2:58 PM, Krzysztof Kozlowski wrote:
->>> On 27/08/2026 18:07, Linlin Zhang wrote:
->>>> +static void crypto_virt_remove(struct platform_device *pdev)
->>>> +{
->>>> +	virtblk_set_crypto_ops(NULL);
->>>> +}
->>>> +
->>>> +static const struct of_device_id crypto_virt_of_match[] = {
->>>> +	{ .compatible = "qcom,crypto-virt" },
->>>
->>> Undocumented ABI, also not really allowed. We don't take bindings for
->>> drivers.
->>>
->>
->> The dt-binding document is included in another patch in this series.
-> 
-> And what does the submitting patches document ask you?
-> 
-> 
->> The concern about introducing a DT binding for a software-only driver.
->> The underlying problem I am trying to solve is how to communicate the
->> wrapped-key size to the guest.
-> 
-> I am not asking about your problem. Can you please stop answering to
-> actual problems with irrelevant other aspects?
-> 
-> You cannot have DT for a driver.
+The ioctl requires CAP_NET_ADMIN in the initial user namespace.
 
-ACK
+Connections that can no longer reach the device after a move are reset,
+so that a namespace which has lost access cannot keep using a socket it
+opened while it still had access. Following netdevs, the device returns
+to the initial namespace when the namespace it was moved to is deleted.
 
-I'll drop the DT binding and this patch, and look for an alternative
-mechanism to convey the wrapped-key size and key relevant requests.
+Transports opt in through a new netns_assign_allow callback. Only
+virtio-vsock implements it here.
 
-> 
-> That's it, please read DTS101 slides.
-> 
-> 
->>
->> Because the guest has no access to the ICE hardware, it cannot get
->> the key size by reading the ICE hardware directly. In the other hand,
->> the wrapped key size may vary across ICE versions, it's infeasible
->> to have a fixed wrapped key size in the code. Additionally, wrapped
->> key size is vendor-specific, it's nor proper to pass it via virtio.
->>
->> As an experiment, I used a DT property to set this wrapped key and
->> wanted to get feedback on whether this is a reasonable approach.
->>
->> Is there a preferred mechanism for handling this kind of vendor-specific
->> configuration, or are there similar examples elsewhere in the kernel
->> that I should follow?
-> 
-> Not DT. Use whatever other mechanism kernel provides.
-> 
-> 
->>
->>>> +	{ }
->>>> +};
->>>> +MODULE_DEVICE_TABLE(of, crypto_virt_of_match);
->>>> +
->>>> +static struct platform_driver crypto_virt_driver = {
->>>> +	.probe = crypto_virt_probe,
->>>> +	.remove = crypto_virt_remove,
->>>> +	.driver = {
->>>> +		.name = "crypto_virt",
->>>> +		.of_match_table = crypto_virt_of_match,
->>>> +	},
->>>> +};
->>>> +
->>>> +static int __init crypto_virt_init(void)
->>>> +{
->>>> +	return platform_driver_register(&crypto_virt_driver);
->>>> +}
->>>>  module_init(crypto_virt_init);
->>>>  
->>>>  #if IS_MODULE(CONFIG_QCOM_CRYPTO_VIRT)
->>>>  static void __exit crypto_virt_exit(void)
->>>>  {
->>>> -	virtblk_set_crypto_ops(NULL);
->>>> +	platform_driver_unregister(&crypto_virt_driver);
->>>
->>> You just added this line, so previous code was simply wrong?
->> No. In previous patch, virtblk_set_crypto_ops is called in
->> crypto_virt_init and crypto_virt_exit. This patch moves the caller
->> to the driver probe and remove APIs.
-> 
-> Heh?
-> 
-> Let's look at your previous patch:
-> 
-> +#if IS_MODULE(CONFIG_QCOM_CRYPTO_VIRT)
-> +static void __exit crypto_virt_exit(void)
-> +{
-> +	virtblk_set_crypto_ops(NULL);
-> +}
-> +module_exit(crypto_virt_exit);
-> +#endif
-> 
-> And you claim that you did not add this line?
-> 
-> Do you understand how diff format works?
-> 
-> Best regards,
-> Krzysztof
+Patch 1 is just a const cleanup that patch 2 needs. The remaining
+patches are actual implementation and tests.
+
+Based off of Stefano's original series:
+https://lore.kernel.org/all/20200116172428.311437-1-sgarzare@redhat.com/
+
+Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
+Link: https://lore.kernel.org/all/20200427142518.uwssa6dtasrp3bfc@steredhat/
+
+Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
+---
+Bobby Eshleman (6):
+      vsock: constify the transport in vsock_for_each_connected_socket()
+      vsock: add IOCTL_VM_SOCKETS_ASSIGN_G2H_NETNS
+      vsock/virtio: support guest device network namespace
+      selftests/vsock: add a helper to assign the g2h device to a netns
+      selftests/vsock: test the guest vsock device network namespace
+      selftests/vsock: test the assign ioctl privilege checks
+
+ Documentation/admin-guide/sysctl/net.rst           |  18 +
+ include/linux/virtio_vsock.h                       |   2 +
+ include/net/af_vsock.h                             |   9 +-
+ include/uapi/linux/vm_sockets.h                    |   6 +
+ net/vmw_vsock/af_vsock.c                           | 200 ++++++++-
+ net/vmw_vsock/virtio_transport.c                   |  28 +-
+ net/vmw_vsock/virtio_transport_common.c            |  28 +-
+ tools/testing/selftests/vsock/.gitignore           |   1 +
+ tools/testing/selftests/vsock/Makefile             |   3 +-
+ tools/testing/selftests/vsock/config               |   1 +
+ tools/testing/selftests/vsock/vmtest.sh            | 461 ++++++++++++++++++++-
+ .../selftests/vsock/vsock_assign_g2h_netns.c       |  45 ++
+ 12 files changed, 774 insertions(+), 28 deletions(-)
+---
+base-commit: d0ec95a8a4e79f2fd6063fc8932415db8c227689
+change-id: 20260831-vsock-guest-ns-d06af451da67
+
+Best regards,
+-- 
+Bobby Eshleman <bobbyeshleman@meta.com>
 
