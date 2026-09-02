@@ -1,87 +1,60 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9BDA3749EF
-	for <virtualization@lists.linux.dev>; Wed,  2 Sep 2026 08:16:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 902543769EC
+	for <virtualization@lists.linux.dev>; Wed,  2 Sep 2026 08:33:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788336966; cv=none; b=T7SXwqLQdD6359iAygeINx7BYl5KgkZ5LVlnjSDN9SCwpNU2/daysHDBNgyHYSiKa/0sWNq/n8tQd6yXG7dSUX2MMSnsKZx248MOafWkahBnsreElXK1DGlKGYzmcAL6b9SsPsQOw0s8/mE8Jvj4vhC5dnXvQ6R5HVvfYbcFmqc=
+	t=1788338029; cv=none; b=Xu1yyzzpXHd/he4tCtJaoq4o786BTOl/DX6cAHii1UwfvPXNih5bRlmvPfxpvUC/62tX+KPZZp6OdejA9AzrS/HS1bx2a3jTjJ8CU+ovfofKDKbMwuCPyPkzp+QNn33mTBdDsO5yS1El/fuJvljutU64bArHJrD3VXzEiJlUFB8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788336966; c=relaxed/simple;
-	bh=4EBZop6hmCh7YwO3br9UVC99j3KelVK6bWu2MtH0dl4=;
+	s=arc-20240116; t=1788338029; c=relaxed/simple;
+	bh=21KHO1/C/fEHAwrmDDbB9VknpaoFgoPoaI9JO1mVzgU=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=qrioNgdfkXAFV0Iz0Dw7bYQL2UOkfQKF3shFR7IKianMxJk9ByLe8hIfQGzJrGvxwi3vHSSdfUUsuLHbZ4CqurJJdUuFHx1od9afvb0btMmmRlfI2/ueNw1IwrdYtc6FormgpXQEJeI1Mizh7Zei2zIJnmowD7CTU1KQF3EZI0E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=bBwQJ6MS; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=enGHNgau; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	 In-Reply-To:Content-Type; b=o3tvrDByhvTQ/r2GsAtV6WUpPfQIbRFve/Z152Btd5Gf5w8zO4eF3PIcvMb7vEItDLzcqnusMRabxCTZNblmOpOqJjaxSGsFahZUjcZ2pB8svCQD7crPnTyS4QCZXFjaJjXXGJha11THEjWkdwArBjWAYiZlWufS4nXc6LzwQVc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=MRj4f9AN; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="bBwQJ6MS";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="enGHNgau"
-Received: from pps.filterd (m0279873.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6826WRRN695470
-	for <virtualization@lists.linux.dev>; Wed, 2 Sep 2026 08:15:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	j3KCcdaipiJJVwZrTfhujb25/F7NiV3SwgGKSDqyCCA=; b=bBwQJ6MSL5Mb6gxU
-	ryR5PqtebGke7nEoapdkEpgcowNEnF63a4JJGlN5AYC+W4NV0Im8Q2EwrTABm2jf
-	rnyOCNhTYgfTkRzOwHpW+duLEa8NPniwmzsU68RJbnauqgD1rTQKYYt0kxHPR5yH
-	WtAYJ4RJFKtjUuWKcpPgVcYT28uXDBzr78n3mpNErJOE2pGtHOwreHGP8UDprrOC
-	gwMXRAkmWnCNNJs9HIAMh90IBtYYyL8JIEiPZb7tqT5rmmGzqwoTZBxl5V342EKq
-	aBgSugNSdxA+cDnK5u+h/QYO1B23aJz67GnexysPc/yRHghsQI6At1pCr9tH+VMN
-	//+gmg==
-Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com [209.85.216.71])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4geb56157k-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <virtualization@lists.linux.dev>; Wed, 02 Sep 2026 08:15:57 +0000 (GMT)
-Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-381250979d5so1044662a91.0
-        for <virtualization@lists.linux.dev>; Wed, 02 Sep 2026 01:15:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1788336957; x=1788941757; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=j3KCcdaipiJJVwZrTfhujb25/F7NiV3SwgGKSDqyCCA=;
-        b=enGHNgau7w5zs2BGywdRH+0UwgKXFPSTdqDGh+pfmwSBe4a7omDP3YjTvFPH6PQ9mp
-         wW/q3/G3YekOjMQs24DFVMsRk6v4PRIutKcrPJVhTHL3pLSDM/02s01ZnWk2I45tTABH
-         qxEy6HzUCYFuJA1m6iBL9XpkUQHocRwCbcoKWtnHtNgCEZ86rgq6FDaWnhCpcAv5IdJo
-         UAjwNpcDlgqR/EZz3z2rOdKI6rihfqP9+Layduy5Hio+6dS9KKrWIf+MbKveWvd8gzQg
-         LTjqpdeciHZZxRaVM9vzkkjqu9z3IfxzGrf1khgS8qN4wOSRU7U4pPfvOHXbAClrCKuB
-         Go0g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788336957; x=1788941757;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=j3KCcdaipiJJVwZrTfhujb25/F7NiV3SwgGKSDqyCCA=;
-        b=SROUxdPnhplLPSG7f3Cqc70t7OeJMR0G889TOhgrJfwaZ5BLDpcn5QwLBmvEAz9p0h
-         zZEvTPFRgx7VSjT92dNEf8W1VfZhLFivPGsro+ik8vJkIhLKGWmlYFx7wNloVpfWJ6C3
-         oqQFY3D3I5k4lZoY4INGvEd8C4iMSTuyj3X56Bqg6Wzy0Mp280iAYvMZcKiPFHVHFjLh
-         T+dF+CFN68Ha9uIJX1gPD0LcvUTBmE6p5fsEO7DAarOnGFAcv4oSSs5kWCUV8PVCSzx0
-         3Os3yruOMTpO3thnK3qvzpCZPCPvD3Ppzc1tPl9hc0jWIo2xiGjzmLvOx1hgwqTEx/Yf
-         C7Tg==
-X-Forwarded-Encrypted: i=1; AKwUvByAc8Tur1QjG414Tl/IegNgcTVKpHXsTigrQIpqFQPa15sD3STJ5YFxZnV9qxtB1j6ybkU1zX3oPU0uuwhkOg==@lists.linux.dev
-X-Gm-Message-State: AFuF++mPj+lW9lcx0IdTNtTOQj5baQS/m9hY+3T5xftWChIPoozazBMD
-	6+cBUma3TUARL/MRduu4wgwF6Q9XAgsyK3TzQ6LRVJEPsh/vEQLsA2g/+oJDL/Dr8sktf44I0Yl
-	NqCQmXYMB1I/75BRmMCipvKMbJjsC/5aKfVq64O+QyLmzl7FmlWkZmG0lNS8zSeUhbuL7OA==
-X-Gm-Gg: AYBFou2PBcL/SaBM9R2HRtyfeJvGLEsZDyNJ3mNz1oZCwOv7XH8AKj1zVhQleUMynfo
-	KpvTWbFvAjtau4tQCglJfJk89mJzQ3rBz0U32N4wjSoT26iwljnXFN9SCdKo6UHfVrG+efLzhLg
-	lDaWfYT+Bp+vUosjqY6jRYjEekjoKEfIeSr9O6m0NBJz/P2qPIqvnWtgbUYJduM0d7YVR2SItq6
-	cMylFNR82/Z7OXUQXbJErWWawzKzdVEHdvodOmyICqkFQRP91bMJDLKgxEdp4QN89gK88XVVpX+
-	iIVK+nr+RWtbQziOQs8KYiPWp2usaT/hX6+PqCG8fgdNOVFwPqvgxjNkLWuPOZm0LVjBHZacuVY
-	lY8cNfSmeU8aI3j7VRg6yFz1YZtCGOvyyDtJr24Dk+RNnPZkIIEeBBU8E
-X-Received: by 2002:a17:90b:4e8c:b0:392:6638:2e6a with SMTP id 98e67ed59e1d1-39aee0840d5mr4788040a91.13.1788336956889;
-        Wed, 02 Sep 2026 01:15:56 -0700 (PDT)
-X-Received: by 2002:a17:90b:4e8c:b0:392:6638:2e6a with SMTP id 98e67ed59e1d1-39aee0840d5mr4787972a91.13.1788336956374;
-        Wed, 02 Sep 2026 01:15:56 -0700 (PDT)
-Received: from [10.110.50.50] (i-global254.qualcomm.com. [199.106.103.254])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-32f07b78e5dsm3906650eec.19.2026.09.02.01.15.49
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 02 Sep 2026 01:15:55 -0700 (PDT)
-Message-ID: <f1b6293a-f2ce-46c6-94c4-dea30d65cb6a@oss.qualcomm.com>
-Date: Wed, 2 Sep 2026 16:15:47 +0800
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="MRj4f9AN"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6826VbMP3443086;
+	Wed, 2 Sep 2026 08:33:17 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=0CeJ/6
+	g4RHOdVzSO/BtYe4b5aePEs7Ds3IK/lyJIk4g=; b=MRj4f9AN/xQL4BfvGw8O++
+	FH+6pQlWRxrX5wTV/Kdu/BamHYZCXAks3ubIOVqTOl8uBxpqFmu6KwaN/DugYq+M
+	7VXz5JZg3notU5rz2qvR1Qf09CxQq1eokGDG5L76iq5kDyPlGyhDF9i+vOdxE18W
+	2PBgmnD/7pLNC2MYZ77Y2WjaooRsWUTADRgjq36GpPVPUPwN76DEyzsAEJXlAh3W
+	U57LAPp1NOJkA0prctNd/Qmvop2Gts5FnZOzlUIT3lmcRl/tsIGpHf8iHgd6oQ/P
+	2Ki9ValXhn8nfrNcn07PpDBS2cmqkmUlSlgw78hkNjmUZlwbKt67XcQv8ezfgGZA
+	==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gbpx5n96w-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 02 Sep 2026 08:33:16 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 6828QTPO010976;
+	Wed, 2 Sep 2026 08:33:15 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gcb8hgjae-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 02 Sep 2026 08:33:14 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6828XAHt44433838
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 2 Sep 2026 08:33:10 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C6A9D20040;
+	Wed,  2 Sep 2026 08:33:10 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 90C5D20043;
+	Wed,  2 Sep 2026 08:33:02 +0000 (GMT)
+Received: from [9.39.25.199] (unknown [9.39.25.199])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  2 Sep 2026 08:33:02 +0000 (GMT)
+Message-ID: <8de8d33f-b3e5-407c-98bb-65e8ebe3e100@linux.ibm.com>
+Date: Wed, 2 Sep 2026 14:03:01 +0530
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -89,237 +62,260 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 00/11] FBE virtualization: inline encryption for
- virtio-blk guests
-To: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: Eric Biggers <ebiggers@kernel.org>, axboe@kernel.dk, mst@redhat.com,
-        jasowangio@gmail.com, James.Bottomley@hansenpartnership.com,
-        martin.petersen@oracle.com, robh@kernel.org, krzk+dt@kernel.org,
-        conor+dt@kernel.org, linux-block@vger.kernel.org,
-        linux-crypto@vger.kernel.org, linux-scsi@vger.kernel.org,
-        virtualization@lists.linux.dev, devicetree@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org, neeraj.soni@oss.qualcomm.com,
-        gaurav.kashyap@oss.qualcomm.com, mani@kernel.org, andersson@kernel.org,
-        konradybcio@kernel.org, bvanassche@acm.org, alim.akhtar@samsung.com,
-        avri.altman@sandisk.com, pbonzini@redhat.com, eperezma@redhat.com,
-        xuanzhuo@linux.alibaba.com, linux-kernel@vger.kernel.org
-References: <20260827160806.1295313-1-linlin.zhang@oss.qualcomm.com>
- <20260827184219.GB2137493@google.com>
- <d81e347e-8ca7-40a1-a428-5bce6f0d4b02@oss.qualcomm.com>
- <20260831210759.GE86114@quark>
- <ca838905-f0f8-4f0a-96aa-2bc05ab6c0a7@oss.qualcomm.com>
- <d7ce6c39-d9c0-4746-ba18-1c37a929819b@oss.qualcomm.com>
- <20260901194447.GE527638@fedora>
+Subject: Re: [PATCH v11 05/12] sched/core: Try to use a preferred CPU in
+ is_cpu_allowed
+To: Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Yury Norov
+ <ynorov@nvidia.com>, yury.norov@gmail.com
+Cc: linux-kernel@vger.kernel.org, mingo@kernel.org, peterz@infradead.org,
+        juri.lelli@redhat.com, kprateek.nayak@amd.com, iii@linux.ibm.com,
+        corbet@lwn.net, meted@linux.ibm.com, tglx@kernel.org,
+        gregkh@linuxfoundation.org, pbonzini@redhat.com, seanjc@google.com,
+        vschneid@redhat.com, huschle@linux.ibm.com, rostedt@goodmis.org,
+        maddy@linux.ibm.com, srikar@linux.ibm.com, hdanton@sina.com,
+        chleroy@kernel.org, vineeth@bitbyteword.org, frederic@kernel.org,
+        arighi@nvidia.com, pauld@redhat.com, christian.loehle@arm.com,
+        tj@kernel.org, tommaso.cucinotta@gmail.com, maz@kernel.org,
+        rafael@kernel.org, rdunlap@infradead.org, kernellwp@gmail.com,
+        linux-doc@vger.kernel.org, jgross@suse.com,
+        virtualization@lists.linux.dev, sunlightlinux@gmail.com
+References: <20260825103855.721013-1-sshegde@linux.ibm.com>
+ <20260825103855.721013-6-sshegde@linux.ibm.com>
+ <8262d2f9-9f2f-4821-8497-991d7c8448a3@arm.com> <apMziCV_8y0xeIBT@yury>
+ <53035ba4-53ec-4907-93b8-c8b957d1fa61@linux.ibm.com>
+ <CAKfTPtA5Bdw89hezn1wi_p0m0dJgJJ1GYg8H93PsvsMC4bVJxA@mail.gmail.com>
+ <apWxmL_brfi4fa4z@yury>
+ <CAKfTPtA4zmD=0Es2cXSHAodTZGLJPvv88s0_4QScp745PxFVMw@mail.gmail.com>
+ <3368b089-32ce-4521-ab19-e37c9f029b8b@arm.com>
 Content-Language: en-US
-From: Linlin Zhang <linlin.zhang@oss.qualcomm.com>
-In-Reply-To: <20260901194447.GE527638@fedora>
-Content-Type: text/plain; charset=UTF-8
+From: Shrikanth Hegde <sshegde@linux.ibm.com>
+In-Reply-To: <3368b089-32ce-4521-ab19-e37c9f029b8b@arm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTAyMDA3MiBTYWx0ZWRfX7KXJSJ8yJOof
- 1Simec2RUkhIO2rHvoV5e/+zaBH90q2LiokGoZh6DxoKnvhRUQ7DHE280X9F59QEUWHLeE40zJ3
- /wXd0h9Rj+sv2bDQp0/OV/3wvwm8CLOgrwgrG+MrIWqE+by9iviIx5AVA5vaUlAYHbGHPjeFdvt
- +9cDXqd9nQPpLwkDeII3HI1dnyCx2tLKEPUPcE6q5U9clEBScTDcokVM5T85QucJA9ol2l05sar
- qfQ7/YWqsyy7Utp0bnTsN0/0KUISS3m+o3RVl5E9u/qiTJ0mqjFS8QhrcebOKxsP+JV9dNsm9wq
- RH0rDRB4H9ibacgOtQPMhuhNqS3rAwzuYho9fY8DCAmXs/pxoX0mk1+7Qxce3J2vkWsDov1SYGL
- 1WHCx8J1LzvZOa7SZv3zwE7IpamOmf1fDMgnGMdl4Sr1puiet52Zbxr7j1ckVUy6NEEqV37mlC8
- h6Y+XlIQg6e0iYAOS+Q==
-X-Proofpoint-GUID: _BmC7yEBMzAX0YtVLeJ1il0wPNRZ7Mpq
-X-Authority-Analysis: v=2.4 cv=D8N37PRj c=1 sm=1 tr=0 ts=6a97db3e cx=c_pps
- a=UNFcQwm+pnOIJct1K4W+Mw==:117 a=JYp8KDb2vCoCEuGobkYCKw==:17
- a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=rJkE3RaqiGZ5pbrm-msn:22
- a=7YQJ322hvLlbXND3IkkA:9 a=QEXdDO2ut3YA:10 a=uKXjsCUrEbL0IQVhDsJ9:22
-X-Proofpoint-ORIG-GUID: _BmC7yEBMzAX0YtVLeJ1il0wPNRZ7Mpq
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTAyMDA3MiBTYWx0ZWRfXyb3iaySLUhZS
- iSsvtblS+VFHbiLo9Rs1TA9RM3NgE4EExK9WgQkQhTFZrL/YAT+fAzHrKEZ5FzwTdUj6cueyajN
- HD7/c/rkjnPQ4PeAMmL06MrdPmRYj0k=
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Authority-Analysis: v=2.4 cv=PPc/P/qC c=1 sm=1 tr=0 ts=6a97df4d cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=Ikd4Dj_1AAAA:8
+ a=GkFGCOBzxNR5m4WF0iYA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: 8tssfpr0h9dxSqX7WbaSdghJxQZ0Rz_x
+X-Proofpoint-ORIG-GUID: u8T0_SYKktJAeabuBoMXzQL2VsvwySgp
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTAyMDA3NSBTYWx0ZWRfX32WIu2uV1qqk
+ 17P634LgQThDeONw1BqMvigu6izyXOvpbBpuRk5LubjiLrJpK5jLB/e1MvgOncYmckmbvGVrWO3
+ 3XDVC6+GfF41a13h0PyOhmnuNPrFE6Y=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTAyMDA3NSBTYWx0ZWRfX8py/LV3n5knt
+ 1SYpKMNd2lqq4vwzzuSz+E+EEWzAMxLclJm2auS9xebj0Ub39zxwYjWiDQOLQMP86mbO+5yUej4
+ mXB+8RgEubTfoFqiJrkrWJXrixLYypEEAl6q0T8E9vZz3obpabKQCMIt+skapwiVY/+iA/20URa
+ E48BuuZ/b9j6BU33azfRfPxHZpjpDePCeqN901qIGqW9THpYmFo5Bemvcu2AUDJl+vunIV65dHm
+ 12gZs1qQu8PHqwg+DkaSe50NThlvXUIFNijRpBuaMAZUCNPRRx9ONwRmaqg50XPSCMAn7grsLjO
+ qQGROpdJ30PsCjMmSOKt8OZ3SlEd8TEftzfVDFRHKA0tIOMbblGN7Lq8p9UMN4/1z4eY4xBBE3V
+ Wf2gLCHn4oROU+Ic2Csb+/qBI0IpBq50+0fT36Ltg8BGKut4dwpp+hAITU4+lP9SVyJRQxfJwYj
+ IUCh+KwxM7zT4LKofmA==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-09-02_01,2026-09-01_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 lowpriorityscore=0 spamscore=0 phishscore=0 adultscore=0
- malwarescore=0 clxscore=1015 impostorscore=0 priorityscore=1501
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ clxscore=1015 phishscore=0 adultscore=0 suspectscore=0 bulkscore=0
+ spamscore=0 priorityscore=1501 impostorscore=0 malwarescore=0
+ lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2609020072
+ definitions=main-2609020075
 
 
-
-On 9/2/2026 3:44 AM, Stefan Hajnoczi wrote:
-> On Tue, Sep 01, 2026 at 04:45:19PM +0800, Linlin Zhang wrote:
+On 9/1/26 5:51 PM, Dietmar Eggemann wrote:
+> On 01.09.26 08:21, Vincent Guittot wrote:
+>> On Mon, 31 Aug 2026 at 18:54, Yury Norov <ynorov@nvidia.com> wrote:
+>>>
+>>> On Mon, Aug 31, 2026 at 05:09:41PM +0200, Vincent Guittot wrote:
+>>>
+>>>>> Dietmar/Vincent,
+>>>>> Do you think it makes sense to enable the driver on ARM64 now?
+>>>>> Or you think it is better to delay it and once the feature is stable
+>>>>> ARM ecosystem can enable it?
+>>>>
+>>>> It's always better to support all arch by default, unless something is
+>>>> missing which is not the case here.
+>>>
+>>> ARM64 testing is obviously missed.
 >>
->>
->> On 9/1/2026 4:22 PM, Linlin Zhang wrote:
->>>
->>>
->>> On 9/1/2026 5:07 AM, Eric Biggers wrote:
->>>> On Fri, Aug 28, 2026 at 11:37:57PM +0800, Linlin Zhang wrote:
->>>>> Thanks for your comments!
->>>>>
->>>>> Not making virtio-blk itself support key programming and eviction is
->>>>> something done deliberately. Based on that HW-wrapped key management
->>>>> operations are also handled in the out-of-band path.
->>>>>
->>>>> There are bellow 2 approaches I investigated to let virtio-blk programming
->>>>> the key.
->>>>>
->>>>>   1. virtio_blk implements blk_crypto_ll_ops interfaces, including program
->>>>>      key and evict key interfaces.(Same to 'the virtio-blk interface standardized
->>>>>      blk_crypto_ll_ops requests' mentioned by Stefan in the virtio SPEC thread)
->>>>>
->>>>>      The guest's block crypto profile manages the keyslot in virtual slot
->>>>>      format in this scenario.
->>>>>
->>>>>       - block crypto key and virt_slot index it passed to the hypervisor's
->>>>>        (EL2) device emulation (QEMU, using QEMU in the following) which
->>>>>        runs in userspace of the host. Besides of transferring the virtual
->>>>>        slot to the physical slot, a programming block crypto key UAPI need
->>>>>        be added. Follow current blk-crypto design, it may be like
->>>>>        BLKCRYPTOGENERATEKEY. I thought this results in a security risk that
->>>>>        allows userspace process a key into a key slot.
->>>>>
->>>>>      - For key eviction, it's similar to above key programming handling, also
->>>>>        need a key eviction in blk IOCTLs, but leads to the security risk
->>>>>        that allow userspace client to evict a key in a key slot.
->>>>>
->>>>>     virt_slot, DUN and DUSize is appended to virtblk request during crypto
->>>>>     I/O.
->>>>>
->>>>>   2. virtio_blk implements blk_crypto_ll_ops interfaces, excluding program
->>>>>      key and evict key interfaces.
->>>>>
->>>>>      The guest's block crypto profile doesn't manage keyslot for the guest,
->>>>>      the host's block crypto profile manages keyslot for both the guest and
->>>>>      the host. The trigger of key programming operation is moved from the
->>>>>      guest to the host.
->>>>>
->>>>>        - The whole block crypto key (key size, key bytes, blk_crypto_config)
->>>>>          and DUN are appended to the virtblk request during IO, a little
->>>>>          high payload.
->>>>>
->>>>>          The backend parses the crypto message in the virtio queue and
->>>>>          construct a block crypto key and DUN for the bio_crypto_ctx
->>>>>          set to the BIO. So that the IO flow in the host can program
->>>>>          the key. 
->>>>>
->>>>>          The question is that the blk-crypto-profile distinguishs the
->>>>>          block crypto key via the key's address. But the host has
->>>>>          different key addresses for the programming and eviction key
->>>>>          operations of the same block crypto key from GVM, because the
->>>>>          key is re-constructed in the host for the key program and
->>>>>          eviction operations. 
->>>>>
->>>>>          To fix it, the approach I thought is maintaining a new key
->>>>>          hash table in the backend, and comparing the block crypto key
->>>>>          content and DUN parsed from virtio queue with that in the key
->>>>>          hash table. 
->>>>>          My major concern is that this need keep the keys synchronization
->>>>>          b/w this new hash table and the blk-crypto-profile's hash table
->>>>>          carefully, avoiding that key is still present in the
->>>>>          blk-crypto-profile's hash table, but removed in backend hash
->>>>>          table. Another point is that the whole block crypto key and
->>>>>          DUN are appended into virtio block request per crypto I/O.
->>>>>
->>>>>        - For key eviction, adding a key eviction in blk IOCTLs allows
->>>>>          userspace client to evict a key in a key slot. I thought this
->>>>>          is a security concern.
->>>>>
->>>>>
->>>>>      This option doesn't need map virt_slot to physical one.
->>>>>
->>>>>
->>>>> Taking all the above into account, I made a compromise to implement
->>>>> blk_crypto_ll_ops interfaces in a out-of-band path, which lets the virtio
->>>>> blk only need focus on the data path. I agree that it is complex than
->>>>> the second option mentioned in the above, but small payload (only
->>>>> virt_slot, DUN, DUSize) in the virtio block request and no security
->>>>> risk of key eviction from userspace.
->>>>>
->>>>>
->>>>> I would like to hear your thoughts about the above and am appreciated
->>>>> if you could share your insights about the design of inline
->>>>> encryption in virtio block.
->>>>
->>>> Well, the way it should work is that each virtio-blk device should have
->>>> its own set of *virtual* keyslots on the host side.  From the guest's
->>>> perspective it would act very similarly to UFS / eMMC inline encryption,
->>>> and it would be easy to integrate into the existing stack.
->>>>
->>>> Then to process encrypted I/O, the host would use the keyslot number in
->>>> the I/O to look up the blk_crypto_key it previously saved, and issue I/O
->>>> using that key (using bio_crypt_set_ctx()).  The existing keyslot
->>>> management logic in the block layer would allocate or wait for a
->>>> physical keyslot as needed, so it should just work.
->>>>
->>>> Eviction would similarly be passed through to blk_crypto_evict_key().
->>>>
->>>> Note that with this design, there would be no static partitioning of the
->>>> physical keyslots.  The host would just allocate and release them as
->>>> needed, similar to memory allocation.  The total number of virtual
->>>> keyslots could be greater than the number of physical keyslots.
->>>>
->>>> This design would also work with hardware-wrapped keys.
->>>>
->>>> The hardest part is still the UAPIs for the VMM to do what it needs to
->>>> do (assuming that it even needs to support physical inline encryption
->>>> hardware at all, and not simply use the AES acceleration on the CPU),
->>>> but that is the case with any of the proposals.
->>>>
->>>> - Eric
->>>
->>> Thanks for your insights and clarification.
->>>
->>> This is a very clear architecture for virtio-blk inline encryption support
->>> and is quite similar to what I referred to as approach 1, with a few notable
->>> differences:
->>>
->>>   - The host maintains a set of virtual keyslots per virtio-blk device.
->>>   - Physical keyslots are not statically partitioned.
->>>   - The virtual-to-physical slot mapping is managed as part of the virtio-blk
->>>     device implementation rather than being tied to a VM-wide slot table.
->>>
->>> With this design, I believe there would be two VM exits associated with
->>> encrypted I/O:
->>>   1. Key programming
->>>      Before encrypted I/O can be submitted, the guest needs to program a key
->>>      into a virtual keyslot:
->>>      
->>>      Guest virtio-blk driver
->>>          -> VM exit
->>>          -> virtio-blk backend (e.g. QEMU)
->>>          -> ioctl
->>>          -> host virtio-blk proxy driver
->>>             (stores the blk_crypto_key in a virtual keyslot)
->>>
->>>   2. Encrypted I/O submission
->>>      The I/O request carries the virtual keyslot number and DUN:
->>>
->>>      Guest virtio-blk driver
->>>         -> VM exit
->>>         -> virtio-blk backend (e.g. QEMU)
->>>         -> ioctl
->>>         -> host virtio-blk proxy driver
->>>            (looks up the blk_crypto_key associated with the virtual keyslot
->>>             and submits I/O using bio_crypt_set_ctx())
->>
->> Supplementation.
->> This may be a potential security concern. The host virtio-blk proxy driver exposes
->> API for key programming, the input parameters are blk_crypto key and virtual
->> slot. If a malicious program replace the key in a specific virtual slot between
->> key program call and I/O submission via this API, the data would be encrypted
->> by the unintentional key.
+>> But the cpumask is already available not like if you need to create a new one
 > 
-> If the virtual key slots in the uapi are per file descriptor rather than
-> per inode, then other programs cannot interfere with each other's
-> virtual key slots. Each program gets its own virtual key space when it
-> opens a file descriptor. Sharing is only possible by inheriting or
-> passing a file descriptor to another process and that's good for
-> security.
+> IMHO, when testing the steal_governor on arm64 w/o
+> `allow_mismatched_32bit_el0`, I wouldn't expect much difference in this
+> respect compared to the architectures already tested.
+> 
+> Also, AFAIK, `allow_mismatched_32bit_el0` was mainly relevant for
+> Android devices up to Android 13 that supported 32-bit userspace, so I
+> wouldn't expect it to be commonly enabled on recent devices.
+
+Ok. So it is a narrow window in a relatively older versions.
+
+> 
+> As Vincent pointed out, `task_cpu_possible_mask(p)` (which defaults to
+> `cpu_possible_mask`) is already used in `kernel/sched/core.c` and
+> `kernel/cgroup/cpuset.c` to support `allow_mismatched_32bit_el0`.
 > 
 
-Thanks for your advice!
-That sounds a good way. I'll check if this mechanism can be used in the above
-design properly.
+Based on the discussion so far, I think we can keep the feature generic
+for now. If a concrete architecture- or hypervisor-specific limitation is
+identified and cannot be addressed in the generic code, then we can add
+Kconfig gating. So far, there is no such case being identified and current
+generic version is in good shape IMHO.
 
-> Stefan
+I have added cpumask_intersects_and and used that for valid cpu check.
+Please see the v11->v12 diff attached at the end.
+
+cpumask_intersects_and could also be used in other places such as
+drivers/cpuidle/coupled.c:cpuidle_coupled_any_pokes_pending.
+Patch for that will be sent separately.
+
+If any of the above doesn't make sense, Please let me know.
+I am planning to send v12 post running the workloads and sanity checks.
+
+I have run cpumask_intersects vs cpumask_intersects_and with the workloads
+I am currently running and did not observe a measurable difference.
+
+---
+  include/linux/bitmap.h  | 14 ++++++++++++++
+  include/linux/cpumask.h | 18 ++++++++++++++++++
+  kernel/sched/core.c     | 16 ++--------------
+  lib/bitmap.c            | 17 +++++++++++++++++
+  4 files changed, 51 insertions(+), 14 deletions(-)
+
+diff --git a/include/linux/bitmap.h b/include/linux/bitmap.h
+index b007d54a9036..e595d189047b 100644
+--- a/include/linux/bitmap.h
++++ b/include/linux/bitmap.h
+@@ -52,6 +52,7 @@ struct device;
+   *  bitmap_complement(dst, src, nbits)          *dst = ~(*src)
+   *  bitmap_equal(src1, src2, nbits)             Are *src1 and *src2 equal?
+   *  bitmap_intersects(src1, src2, nbits)        Do *src1 and *src2 overlap?
++ *  bitmap_intersects_and(src1, src2, src3, nbits) Do *src1, *src2 and *src3 overlap?
+   *  bitmap_subset(src1, src2, nbits)            Is *src1 a subset of *src2?
+   *  bitmap_empty(src, nbits)                    Are all bits zero in *src?
+   *  bitmap_full(src, nbits)                     Are all bits set in *src?
+@@ -181,6 +182,9 @@ void __bitmap_replace(unsigned long *dst,
+  		      const unsigned long *mask, unsigned int nbits);
+  bool __bitmap_intersects(const unsigned long *bitmap1,
+  			 const unsigned long *bitmap2, unsigned int nbits);
++bool __bitmap_intersects_and(const unsigned long *bitmap1,
++			     const unsigned long *bitmap2,
++			     const unsigned long *bitmap3, unsigned int nbits);
+  bool __bitmap_subset(const unsigned long *bitmap1,
+  		     const unsigned long *bitmap2, unsigned int nbits);
+  unsigned int __bitmap_weight(const unsigned long *bitmap, unsigned int nbits);
+@@ -442,6 +446,16 @@ bool bitmap_intersects(const unsigned long *src1, const unsigned long *src2, uns
+  		return __bitmap_intersects(src1, src2, nbits);
+  }
+  
++static __always_inline
++bool bitmap_intersects_and(const unsigned long *src1, const unsigned long *src2,
++			   const unsigned long *src3, unsigned int nbits)
++{
++	if (small_const_nbits(nbits))
++		return ((*src1 & *src2 & *src3) & BITMAP_LAST_WORD_MASK(nbits)) != 0;
++	else
++		return __bitmap_intersects_and(src1, src2, src3, nbits);
++}
++
+  static __always_inline
+  bool bitmap_subset(const unsigned long *src1, const unsigned long *src2, unsigned int nbits)
+  {
+diff --git a/include/linux/cpumask.h b/include/linux/cpumask.h
+index 34d08a3d80e1..d7f59bf32d32 100644
+--- a/include/linux/cpumask.h
++++ b/include/linux/cpumask.h
+@@ -833,6 +833,24 @@ bool cpumask_intersects(const struct cpumask *src1p, const struct cpumask *src2p
+  						      small_cpumask_bits);
+  }
+  
++/**
++ * cpumask_intersects_and - (*src1p & *src2p & *src3p) != 0
++ * @src1p: the first input
++ * @src2p: the second input
++ * @src3p: the third input
++ *
++ * Return: true if AND of the three cpumasks is non-empty,
++ *	   otherwise false
++ */
++static __always_inline
++bool cpumask_intersects_and(const struct cpumask *src1p,
++			    const struct cpumask *src2p,
++			    const struct cpumask *src3p)
++{
++	return bitmap_intersects_and(cpumask_bits(src1p), cpumask_bits(src2p),
++				 cpumask_bits(src3p), small_cpumask_bits);
++}
++
+  /**
+   * cpumask_subset - (*src1p & ~*src2p) == 0
+   * @src1p: the first input
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index e73d2dd997b3..0dd1d92a23db 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -2496,9 +2496,6 @@ static inline bool rq_has_pinned_tasks(struct rq *rq)
+  
+  static inline bool task_can_sched_on_preferred(int cpu, struct task_struct *p)
+  {
+-	const struct cpumask *valid_mask;
+-	int i;
+-
+  	if (cpu_preferred(cpu))
+  		return false;
+  
+@@ -2510,17 +2507,8 @@ static inline bool task_can_sched_on_preferred(int cpu, struct task_struct *p)
+  	if (unlikely(!cpumask_test_cpu(task_cpu(p), p->cpus_ptr)))
+  		return false;
+  
+-	valid_mask = task_cpu_possible_mask(p);
+-	if (likely(valid_mask == cpu_possible_mask))
+-		return cpumask_intersects(p->cpus_ptr, cpu_preferred_mask);
+-
+-	/* Tasks with arch-specific CPU masks. e.g. 32-bit tasks on arm64. */
+-	for_each_cpu_and(i, p->cpus_ptr, cpu_preferred_mask) {
+-		if (cpumask_test_cpu(i, valid_mask))
+-			return true;
+-	}
+-
+-	return false;
++	return cpumask_intersects_and(p->cpus_ptr, cpu_preferred_mask,
++				      task_cpu_possible_mask(p));
+  }
+  
+  /*
+diff --git a/lib/bitmap.c b/lib/bitmap.c
+index b9bfa157e095..34e202800c5d 100644
+--- a/lib/bitmap.c
++++ b/lib/bitmap.c
+@@ -308,6 +308,23 @@ bool __bitmap_intersects(const unsigned long *bitmap1,
+  }
+  EXPORT_SYMBOL(__bitmap_intersects);
+  
++bool __bitmap_intersects_and(const unsigned long *bitmap1,
++			     const unsigned long *bitmap2,
++			     const unsigned long *bitmap3, unsigned int bits)
++{
++	unsigned int k, lim = bits / BITS_PER_LONG;
++
++	for (k = 0; k < lim; ++k)
++		if (bitmap1[k] & bitmap2[k] & bitmap3[k])
++			return true;
++
++	if (bits % BITS_PER_LONG)
++		if ((bitmap1[k] & bitmap2[k] & bitmap3[k]) & BITMAP_LAST_WORD_MASK(bits))
++			return true;
++	return false;
++}
++EXPORT_SYMBOL(__bitmap_intersects_and);
++
+  bool __bitmap_subset(const unsigned long *bitmap1,
+  		     const unsigned long *bitmap2, unsigned int bits)
+  {
+-- 
+2.52.0
+
+
 
