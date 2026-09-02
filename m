@@ -1,87 +1,87 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4849633263B
-	for <virtualization@lists.linux.dev>; Wed,  2 Sep 2026 05:58:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FD8B387345
+	for <virtualization@lists.linux.dev>; Wed,  2 Sep 2026 06:03:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788328709; cv=none; b=Z/8FWcIZDfsRHk34n+JaD8X4g0qykuxwUKoHIOxSFwUajBwx79DMpeDmuwRcTsb/kD+C+W2WBwGkxBjdg7bsFfZdDghkHuAselQ7yvcUeLaUYbWJxtExUwWATBmYhP8W2pN2cbVHcwUvs6U4VGc1iyIq2WAK7Sw7Botm4L6HXcg=
+	t=1788328993; cv=none; b=Qu5BO2koR5L/xhckstIbgCEBzJLy5vQBoDnfE238o18gue2BKdbRx+LZWzfGbHAEehghkQEBAerQ8lOdzg2J/tJ/n7A29cTR7PzYR73sWwHA22hf83S53kH+lltGhkS0vhE1bRsKWU3QhgF0GwY+DQVgm+RYEU28aG0ySUE62es=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788328709; c=relaxed/simple;
-	bh=YU8UPMKZ/ySiuNk1+MpS6FNLDJVxn5Pnh3Srux/+E3g=;
+	s=arc-20240116; t=1788328993; c=relaxed/simple;
+	bh=lbpHvV9nwxHUmABpWmOFrhwkTXsjfOSaP08IrwX0zyA=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=P4qQjX+yAkAZnGDgFhpPyMvtA0xDG3wfnOohiCc+c7Asygzde2lcqZLa+R5WWMiAX22UHnWMXUHi41rk3Axhv99VRTJSAQFhuCgGW7CF3Yt+M84l5UxVym8r7fkCewyir+z/rz6Iac9Xis1i3IayBZF75utfvFTj21l3pzbapzU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=Z3Cupj4x; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=OC66AdYs; arc=none smtp.client-ip=205.220.168.131
+	 In-Reply-To:Content-Type; b=feY5wdrefpRotrsmqboy6MTvmWiL3WW68i/nnyqBTiPke/oiYcXBF/EdlrXG9Bj5s9loRs1lNiIXEvuJbeu3wb4JBx6vQkCGOY+bEOcAw+vw6B0GUQACh3Jzip9NAz2GnFKuKYNs5jQ7cKB8TNDfjilaFSb7zLxhiqITTj1fx5Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=fZXk6xUH; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=Aq3JEQAH; arc=none smtp.client-ip=205.220.180.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="Z3Cupj4x";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="OC66AdYs"
-Received: from pps.filterd (m0279867.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6825YHuU1730940
-	for <virtualization@lists.linux.dev>; Wed, 2 Sep 2026 05:58:26 GMT
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="fZXk6xUH";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="Aq3JEQAH"
+Received: from pps.filterd (m0279872.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6825YKSJ014784
+	for <virtualization@lists.linux.dev>; Wed, 2 Sep 2026 06:03:05 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
 	cc:content-transfer-encoding:content-type:date:from:in-reply-to
 	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	1OvAK2FF1tp6tcmLzdukvxlL1CZuIQ6FiGRnYYPcWf4=; b=Z3Cupj4xK0M8m9+n
-	HjPNoKTjeyNo+c+jG+BW7b81ZBszWFE9bGKqqv8VtmKwpjwQmAyzR9DQy6XOEOTn
-	JIik4SxlBmNoATDKXWCRQOhT1fTMHvT+qwulbIt7juSNHHiX/sfhKDwfUPiA/vMp
-	Rb1Lz+1LQuMZlkDq/BmEUf/fRmTSsKks3w9dcB9pHDaM5AZYj6bxXdUhl5/JO6r1
-	qTgIw7Qh7P9izcq01KhGO8WPbBSMNT4QlAB8p2HTuw8skaSvhoN7q0g9q+j71Yfi
-	8nMskBlrvZH0VVkD4Fejfvz5RHKCV/nQCnOGHuDmB3DZXWw5NCwZAfxoUbguo3IS
-	cLMX2g==
+	EcSnLB6WKmAsBeRVJJ+St11n89Sukxc1aDDh+R8r5IQ=; b=fZXk6xUHRubKSz4v
+	PWhkAY7U0kvr7kfm3f9+8ynciDF6bPIo655pYwp75e6CrJQJJSXuVoELWNyLQXKu
+	8NbxmXHh9TWZ/6CUdoNfLK/3TcPzELEx2C1lr3zhU5LJLHKGVwEGqIeHC298ROwG
+	Jq1+zES01/2Rj9c2aqlqx5LWp4sZf0WBJ3SLV1L4L3/pwYHF+uERoFGNRCn/y2dj
+	RpMft9/++EtmMnUpM8LYJAl28inGtjTm0+E7iLKEq55Gk05aiQgUfIBuLwVOxOJq
+	QQy8JuifLdoY8CpUpm922uwCMnFLLYCk5UhhatZbvpQ5NMmS1sjdohV7rxsQClfq
+	omwfCw==
 Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com [209.85.216.69])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4ge8whh11t-1
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4ge397acyv-1
 	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <virtualization@lists.linux.dev>; Wed, 02 Sep 2026 05:58:26 +0000 (GMT)
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-38ea32e57e2so1340427a91.1
-        for <virtualization@lists.linux.dev>; Tue, 01 Sep 2026 22:58:26 -0700 (PDT)
+	for <virtualization@lists.linux.dev>; Wed, 02 Sep 2026 06:03:05 +0000 (GMT)
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-395543dc382so970248a91.0
+        for <virtualization@lists.linux.dev>; Tue, 01 Sep 2026 23:03:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1788328706; x=1788933506; darn=lists.linux.dev;
+        d=oss.qualcomm.com; s=google; t=1788328984; x=1788933784; darn=lists.linux.dev;
         h=content-transfer-encoding:content-type:in-reply-to:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=1OvAK2FF1tp6tcmLzdukvxlL1CZuIQ6FiGRnYYPcWf4=;
-        b=OC66AdYsSaP2nZovnACpqUlOu0lMWRm8scAStLGkrTPspN/JdjT515Z8PSU0CawDkv
-         f4k6MnEJ9pFA4KMKVwKRqGX/6Nla63obUg6+y6UW6t3db8L6CXVnCYdFMdVOcrENSiKw
-         Xtf/TWpD+s4UBDWWDejqt/vt5pL0fvsyCS/A58VdslodI5BHxuQK4yqSnsIQe+hff6AN
-         09Div/EkeHGuKksRHaA1o08AUvtM0VLXWsfuHSge/bLJEjnFBQZ/hc8Q6Di9Xi32qUBh
-         IqjjuGSplVqyHGz3UfAS1zeb1oJJ3YLVay7EZ2nDvji/Hd1C05uK+pcu9wFP+oXPqMTK
-         hQNg==
+        bh=EcSnLB6WKmAsBeRVJJ+St11n89Sukxc1aDDh+R8r5IQ=;
+        b=Aq3JEQAH4wvKzbzjbq08MO4A7Luo3uah1exRQj3Uvzli4GWr1ltB2pOovPgUz3T7j4
+         ERtoGsqCeXI88LByhmHf9cu0ZKKyuTkQ2be2+SdkanJ5cVvp9Hyh92Wfa/z4C9D3dZHQ
+         znXJBBYQbDgIfCWmBOR/DBXMWAHc+kQhVH4esfVd0maeWlwQOps0+/OMT/MUzM3ROSF/
+         4FJlig+fY5RVWX71Lk2bTxOEenD4GYHOpSXtqkjkvEshx3qpm1XDWru43hDMmS4PaFKM
+         KjWGpdUuekRU5tWq69pU27nR9/kNLOJDpcRyo7a2MdUFRcQ0WN5t67FDjbJIvznoHMBw
+         cbpg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788328706; x=1788933506;
+        d=1e100.net; s=20251104; t=1788328984; x=1788933784;
         h=content-transfer-encoding:content-type:in-reply-to:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=1OvAK2FF1tp6tcmLzdukvxlL1CZuIQ6FiGRnYYPcWf4=;
-        b=TDruMQkxUEdvvt3SYbsPYUaNtxuI0UaiUIGudots2C9jrXk41AU5cM1R7HdZQNwwbk
-         hLDv72wXnnGMGyV4RMolqf9Hhw065qCFqbKgIFEsa6Vg34q1XC7g84Q625DdK1OYl5dn
-         XfceSBt4Dg8CqWYOvD3HJCpR+g5hYILELHuFBO8TXBAKcpIGEZP8Ji7GsirxpuhYzolg
-         zCMYDkHiaTaKSaGLSBwgoI+y8CG92Af09f7W30KIz6jchFYa7cMP7ahNom5MEKLPT2YA
-         WDMChQBdrOOqrGbE0RL0vp1/0EHCOfXIXLs2uBS5ofMCjl5os+yPbtxGNG1A7cfbYcrD
-         bjEw==
-X-Forwarded-Encrypted: i=1; AKwUvBz1F5r/HUuaJk/VEBJ5EeidliYzHNeef1TtodnZA59lZkQ6fYDMaWZmkzYdAJjchFH0yZNTpjxY0TK7Y9tJBA==@lists.linux.dev
-X-Gm-Message-State: AFuF++nFvPvggaqaCWdjLcU/URBzwrAImIKooVFsuOsWdwe0N+LnNwlu
-	qXYY839G6pZQ9Irqpzl9SFVO26E8SbecsBKss3iwI1gbC1W4Nzw+GvbsYRqkXw75J2+Fj3zRmur
-	GgX3dEfYKtxk3Zb9hzML2nQTV5nIS8q7cr+1tgRivs57jFtufXQpAJrpv4xinkIfo8D/PCg==
-X-Gm-Gg: AYBFou1M0VfDepPN+QM7VDXeJPyhYwBP0dDAj6ZxP3XLUPcF3BOQ2ZBzobJ2Db1NMNL
-	T9xrzJNB69UiP6jue8suNR0nE/WD5EwWXBuHl0Bl/Vah98AUqywYe0OyDsk3jOvgYQomZtmhZyV
-	VvyOdQ64KY8GwgZ+BpdzJxX8mg+DI7iA6BBhOHVYHJKJjBORXEjQf6wNQwCHBK3o3RVk2Rw2sVO
-	3Pq+zfvaTHXSNUcxDPnkh6OYLDmjWhu2o6wvn5f//vLpMHKNYVNe2NV5FQtO7OsNo/pSmZz+5+9
-	iXn4i3AnhTYKE1vS0dnf3nGQMrN9C5KLDxGX1dSMl4dKXEBC7HLfLNyAjTJOUUzF7AvRRSU7yh2
-	XuHMWIB0gh6qX78/yWxlL4pReXPVTqZ6abwv+q4cZ7F7BcRAk6HsHMD2z
-X-Received: by 2002:a17:90b:4ac9:b0:398:9bd5:490c with SMTP id 98e67ed59e1d1-39aee0b498dmr2783813a91.19.1788328705731;
-        Tue, 01 Sep 2026 22:58:25 -0700 (PDT)
-X-Received: by 2002:a17:90b:4ac9:b0:398:9bd5:490c with SMTP id 98e67ed59e1d1-39aee0b498dmr2783746a91.19.1788328705240;
-        Tue, 01 Sep 2026 22:58:25 -0700 (PDT)
+        bh=EcSnLB6WKmAsBeRVJJ+St11n89Sukxc1aDDh+R8r5IQ=;
+        b=nuekURTU+623haDeprfMR087iPHGcsGuyV/cNGxUjZ1gnw60zzrA3fhJmq1uoM6E9W
+         XaMODe4eLZs17f3SzeKssKApsdndXjfAgGsNWzlDmlBZI6KOB7FAmo2eCayZKP35x6Jq
+         jXLEgjrJ4lVKslOdEVy/MZ9TU/+2EE/IKqiNdG0kp5l47lafvWRuTnVH0NvPoeH0dsnY
+         vIFe/k7XImBkLZshYR3AVuyf87RYxTo7KNrYuHBOu2ZL5eNeQAUp6YxWkUBXQXYelCHq
+         6jlE4VNP/W0RVLeg+MM3u/G971g1bJGKgnGq5oLBA+52RdYfWJINj35eag4LKjUZfYJy
+         8tcA==
+X-Forwarded-Encrypted: i=1; AKwUvBz69vvJqwiZoSB3YXCwVT1LXwmvW8X8aOeGcuMcSpR0mEFHof8jvbj3pLIBRrfSiZ07OY8220F/0QIjAztM8g==@lists.linux.dev
+X-Gm-Message-State: AFuF++nqPEKZt5YhMMjFrGG6C3bs6asaihqatBLTDkP6zGknp3oNNGMq
+	L7CCZaICMWRNaDtzg2+/6JpQnDN1ZUcir9VCt7LS09wLxtOQ4HVPBPzOOq/bZ6VYFQWnLvjutas
+	/ZM4q6K/mKRfyKwVzoEOZDDWhLuStVsir3hplNTLsu4ms7ogQWbW00eVzebhfE95R4UXUmQ==
+X-Gm-Gg: AYBFou2bJk7jy8g69jWQpivkLLhaUtN6bOaiJ4n+t9DXbrPPVKC14A2fP2l6spnun4/
+	z96HUFbl2dPJZFcv2om4CXw/ZNT23N8PgwJIf84LcM5/gp/+uGl8K3lnijAb/uw/oX8KFZH7/9s
+	+Zpj6BTqJ9VkBZlldQBb3PDMcoGEcPBMRmSKeP4OkuT+PqFlwVzkGkP/tZToB0+MoA6tEDx2rrI
+	w1hP8C5LhAtp2/klA51JDIOspGX81fZcOPtPCSba6PYNkCluroH7ji3+wM1WZUs7qhwwG0gU19u
+	X2rYeH9neYnEFOqY5mJcimjDXrle0YAD2A3l9xRJKwPjPh+CmpvAUsRLQX2z4uzdr1nPaNo1+o8
+	T2If3Y5+VXSzk71yedfQpHmy9ll/yGknqnEa/U6mGMuEvzLD8HVJxqkZk
+X-Received: by 2002:a17:90b:55ce:b0:395:4de5:1054 with SMTP id 98e67ed59e1d1-39aee066e9fmr3902076a91.16.1788328984245;
+        Tue, 01 Sep 2026 23:03:04 -0700 (PDT)
+X-Received: by 2002:a17:90b:55ce:b0:395:4de5:1054 with SMTP id 98e67ed59e1d1-39aee066e9fmr3901979a91.16.1788328983698;
+        Tue, 01 Sep 2026 23:03:03 -0700 (PDT)
 Received: from [10.110.50.50] (i-global254.qualcomm.com. [199.106.103.254])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-32f07b79898sm3792600eec.15.2026.09.01.22.58.19
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1430e9eb4dasm5534267c88.2.2026.09.01.23.02.57
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 01 Sep 2026 22:58:24 -0700 (PDT)
-Message-ID: <d7229be4-36f9-4050-8a45-1f89b1283b9a@oss.qualcomm.com>
-Date: Wed, 2 Sep 2026 13:58:17 +0800
+        Tue, 01 Sep 2026 23:03:03 -0700 (PDT)
+Message-ID: <9352d44e-ef61-43f5-85c9-eae267762e84@oss.qualcomm.com>
+Date: Wed, 2 Sep 2026 14:02:56 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -89,7 +89,8 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 01/11] virtio_blk: add inline encryption support
+Subject: Re: [PATCH v1 07/11] blk-crypto: move bio_crypt_dun_increment() to
+ the public header
 To: Stefan Hajnoczi <stefanha@redhat.com>
 Cc: ebiggers@kernel.org, axboe@kernel.dk, mst@redhat.com, jasowangio@gmail.com,
         James.Bottomley@hansenpartnership.com, martin.petersen@oracle.com,
@@ -103,95 +104,107 @@ Cc: ebiggers@kernel.org, axboe@kernel.dk, mst@redhat.com, jasowangio@gmail.com,
         pbonzini@redhat.com, eperezma@redhat.com, xuanzhuo@linux.alibaba.com,
         linux-kernel@vger.kernel.org
 References: <20260827160806.1295313-1-linlin.zhang@oss.qualcomm.com>
- <20260827160806.1295313-2-linlin.zhang@oss.qualcomm.com>
- <20260901194817.GE729142@fedora>
+ <20260827160806.1295313-8-linlin.zhang@oss.qualcomm.com>
+ <20260901191342.GC729142@fedora>
 Content-Language: en-US
 From: Linlin Zhang <linlin.zhang@oss.qualcomm.com>
-In-Reply-To: <20260901194817.GE729142@fedora>
+In-Reply-To: <20260901191342.GC729142@fedora>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-Authority-Analysis: v=2.4 cv=fLkJG5ae c=1 sm=1 tr=0 ts=6a97bb02 cx=c_pps
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTAyMDA1MSBTYWx0ZWRfX9DMkhmD36DAu
+ DSxtSbbb4ek0Y0yfsw3b4+IbKG7pDiHaPX1MuX9L71WJuAMgCRBA4oFbjsvHm1SvBChnkEarGb9
+ RNPD70ZBkMmKn0EBjIPAGs0sFvzzfFuiKkMgNNkudGBf97sd+C4OGqxsypnMeJTrXEXWRoRyOPX
+ BLbUDiTJ+SvniYb5ErQdUVnLNKnd8b3YRkKuh5NekaAhEoVLssYqdWkjEnKfqKI2cs42uA9IG9T
+ 4n56fY2MOwoCrU3V3+Ih8veSS3KQNX3Qloce3KGydpTeOEVDQL+jU9WzLf47eJbY86Q8PYGP0AE
+ F4iL9aUwat9L1Z7neyxAN9hdkON9rFrWrBa4tjVBAijfzpld23wkUu6/9Ju+3EZ6Km2T1ZdVUk/
+ X7auQv97TVsGqepSo3O4MGeMM4tVB4/6JfhvYVhd+jNVVnoNPJAjZvmiVvOpVPaiXRPfvqRxzL7
+ aqxIpbSKzZlzuIabcsA==
+X-Proofpoint-GUID: ctEBX_ivy0hzgqopRJJR9JtdkgqFEUGE
+X-Proofpoint-ORIG-GUID: ctEBX_ivy0hzgqopRJJR9JtdkgqFEUGE
+X-Authority-Analysis: v=2.4 cv=Re6gzVtv c=1 sm=1 tr=0 ts=6a97bc19 cx=c_pps
  a=vVfyC5vLCtgYJKYeQD43oA==:117 a=JYp8KDb2vCoCEuGobkYCKw==:17
  a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=eoimf2acIAo5FJnRuUoq:22
- a=EUspDBNiAAAA:8 a=dlkBk7sggpSz48gVZtEA:9 a=QEXdDO2ut3YA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=yx91gb_oNiZeI1HMLzn7:22
+ a=EUspDBNiAAAA:8 a=-2wExInEUDM6fBQoz8IA:9 a=QEXdDO2ut3YA:10
  a=rl5im9kqc5Lf4LNbBjHf:22
-X-Proofpoint-ORIG-GUID: oR0OJwUWBK9MsoGajITcojMfaXLTQmi1
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTAyMDA1MSBTYWx0ZWRfX8rLGNp/WMw57
- Hb9JeFrRiARNsnTV+4LmxQiJ9Kxztko9Dy2nNhigLVwMhyK3asElazUGeNMhsEvR2aaUb5DGSJU
- Wq1OmU5TZOVK2Dg0phV5Ql690jFI4cNkxe7bHLtJPYJa15vqNJpt2krp1bLuJ9qijUwAtUnk3B7
- GMqkU26HixUZ2yMe+SicvzCom6k3xP0cxoFxsgFPUGpYOlbRy1BEoNnpOZFce9nje+1ms+IVQvI
- 1xVTX9qy1WQbCCZZvYytd5XunXFj0oRbrCq+yop39wPQb4D2Dia/HrkdBtXZOOIlcLiBAxB3Hc8
- JALCy0wQDCdQZ++WfeZ9i5HHElCxztKF1aDm12FFAKii8aTdPGfFUJwxhbSKvUZ2lScps3ZZbo/
- jr8jO5qm5FYFZhubiBaQ6+Ig4eTs39JJ35iy3jjRbnoSas1lmXPacynDiX2dINskqOWeDLKH15v
- YlUROduKGMMxroehBnA==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTAyMDA1MSBTYWx0ZWRfX4/vgqRGUK9w3
- xk9YUKn51euL2Ugk69B0bY0UzW+S1zzYxCaY7p9fSjlJmGK2B8A2CejOlWJLuo4JYQpU1a18VJN
- ofJ4vLrOFr+MYXMYYC/xBR8kTDA/2Ho=
-X-Proofpoint-GUID: oR0OJwUWBK9MsoGajITcojMfaXLTQmi1
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTAyMDA1MSBTYWx0ZWRfX9QgKZyIVeZLq
+ ppYaI6PkXBvVBVPXWVh7JJoxVLohY2AlrXAEvg1sgLhmaiPxKxPCUk4lJIcczAC0Dn5x1X1X5ra
+ C1nCt2u+AKeLMeiJiZmkWv9BnsNlcA0=
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-09-01_06,2026-09-01_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 malwarescore=0 impostorscore=0 clxscore=1015 priorityscore=1501
- spamscore=0 phishscore=0 lowpriorityscore=0 adultscore=0 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2609020051
+ spamscore=0 bulkscore=0 adultscore=0 impostorscore=0 malwarescore=0
+ suspectscore=0 lowpriorityscore=0 phishscore=0 clxscore=1015
+ priorityscore=1501 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2609020051
 
 
 
-On 9/2/2026 3:48 AM, Stefan Hajnoczi wrote:
-> On Thu, Aug 27, 2026 at 09:07:10AM -0700, Linlin Zhang wrote:
->> From: linlzhan <linlzhan@qti.qualcomm.com>
+On 9/2/2026 3:13 AM, Stefan Hajnoczi wrote:
+> On Thu, Aug 27, 2026 at 09:07:16AM -0700, Linlin Zhang wrote:
+>> From: linlzhan <linlin.zhang@oss.qualcomm.com>
 >>
->> Negotiate VIRTIO_BLK_F_INLINE_ENCRYPTION with the host and wire it into
->> the block layer's inline-crypto framework to enable inline encryption
->> on virtio block device.
+>> bio_crypt_dun_increment() is currently declared only in
+>> block/blk-crypto-internal.h, which is not accessible to code
+>> outside of block/.  Drivers that manage inline-encrypted I/O
+>> directly need to advance the DUN across bio_vecs within a bio,
+>> or across multiple bios in a request, and have no other way
+>> to call this function.
 >>
->> When the feature is present, the driver reads crypto characteristics from
->> virtio config space (key-slot count, DUN size, supported key types) and
->> issues VIRTIO_BLK_T_GET_CRYPTO_MODES to discover supported cipher and
->> data-unit-size combinations.  Encrypted requests use new request types
->> VIRTIO_BLK_T_CRYPTO_IN/OUT, which append a virtio_blk_crypto_msg
->> (keyslot index, DUN, data-unit-size-bits) to the standard outhdr.
->>
->> A new virtio block crypto extension driver (virtio_blk_crypto_ext),
->> owns the blk_crypto_profile singleton and the blk_crypto_ll_ops dispatch
->> table. Actual key operations are forwarded to a platform-specific
->> backend registered via virtblk_set_crypto_ops(); without one,
->> VIRTIO_BLK_F_INLINE_ENCRYPTION is still negotiated and the
->> profile is registered, but every keyslot operation returns -EOPNOTSUPP.
->>
->> The shared profile is a singleton as per blk_crypto_profile is
->> corresponding to one ICE hardware: the first device to negotiate the
->> feature initializes it; subsequent devices reuse it only when their
->> negotiated capabilities (slot count, DUN size, key types) match exactly.
+>> Move the declaration from block/blk-crypto-internal.h to
+>> include/linux/blk-crypto.h alongside the existing
+>> bio_crypt_dun_is_contiguous() and blk_crypto_init_key()
+>> declarations. The implementation in block/blk-crypto.c is
+>> unchanged.
 >>
 >> Signed-off-by: linlzhan <linlin.zhang@oss.qualcomm.com>
 >> ---
->>  drivers/block/Kconfig                 |  13 ++
->>  drivers/block/Makefile                |   2 +
->>  drivers/block/virtio_blk.c            | 199 ++++++++++++++++--
->>  drivers/block/virtio_blk_crypto_ext.c | 283 ++++++++++++++++++++++++++
->>  include/linux/virtio_blk_crypto_ext.h |  78 +++++++
->>  include/uapi/linux/virtio_blk.h       |  62 ++++++
->>  6 files changed, 623 insertions(+), 14 deletions(-)
->>  create mode 100644 drivers/block/virtio_blk_crypto_ext.c
->>  create mode 100644 include/linux/virtio_blk_crypto_ext.h
+>>  block/blk-crypto-internal.h | 3 ---
+>>  include/linux/blk-crypto.h  | 3 +++
+>>  2 files changed, 3 insertions(+), 3 deletions(-)
 > 
-> Thanks for sending this as we discuss the VIRTIO spec changes.
+> Other include/linux/blk-crypto.h functions export their symbols. Does
+> bio_crypt_dun_increment() need EXPORT_SYMBOL_GPL() like
+> bio_crypt_set_ctx() and friends?
 > 
-> Although it's nice to have all the Linux patches together, there are two
-> separate parts: 1. the virtio_blk.ko guest driver changes and 2. the
-> hypervisor blk-crypto uapi. I suggest splitting this into two patch
-> series to avoid confusion between these parts. It may also make review
-> and merging easier if we stay focussed on just the guest or just the
-> host parts.
 
-Thanks for the comments!
+ACK
 
-I can separate them as 2 patch series in next patch.
+your're right. EXPORT_SYMBOL_GPL is needed. 
+It will be added in next patch.
 
-> 
-> Stefan
+>>
+>> diff --git a/block/blk-crypto-internal.h b/block/blk-crypto-internal.h
+>> index 04035d237f03..32c720aabba7 100644
+>> --- a/block/blk-crypto-internal.h
+>> +++ b/block/blk-crypto-internal.h
+>> @@ -26,9 +26,6 @@ int blk_crypto_sysfs_register(struct gendisk *disk);
+>>  
+>>  void blk_crypto_sysfs_unregister(struct gendisk *disk);
+>>  
+>> -void bio_crypt_dun_increment(u64 dun[BLK_CRYPTO_DUN_ARRAY_SIZE],
+>> -			     unsigned int inc);
+>> -
+>>  bool bio_crypt_rq_ctx_compatible(struct request *rq, struct bio *bio);
+>>  
+>>  bool bio_crypt_ctx_mergeable(struct bio_crypt_ctx *bc1, unsigned int bc1_bytes,
+>> diff --git a/include/linux/blk-crypto.h b/include/linux/blk-crypto.h
+>> index 33ae52b77522..c9f436b6b2ef 100644
+>> --- a/include/linux/blk-crypto.h
+>> +++ b/include/linux/blk-crypto.h
+>> @@ -181,6 +181,9 @@ bool bio_crypt_dun_is_contiguous(const struct bio_crypt_ctx *bc,
+>>  				 unsigned int bytes,
+>>  				 const u64 next_dun[BLK_CRYPTO_DUN_ARRAY_SIZE]);
+>>  
+>> +void bio_crypt_dun_increment(u64 dun[BLK_CRYPTO_DUN_ARRAY_SIZE],
+>> +			     unsigned int inc);
+>> +
+>>  int blk_crypto_init_key(struct blk_crypto_key *blk_key,
+>>  			const u8 *key_bytes, size_t key_size,
+>>  			enum blk_crypto_key_type key_type,
+>> -- 
+>> 2.34.1
+>>
 
