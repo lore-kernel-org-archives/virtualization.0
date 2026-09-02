@@ -1,32 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 508FB4756D8;
-	Wed,  2 Sep 2026 13:12:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D29E549E5E1;
+	Wed,  2 Sep 2026 13:12:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788354745; cv=none; b=sxlbhf7vE4qI0vu4SCcBBcEG87NcLJDAkcNroRwk4Zd4q/aoXIUnHTFtHIq8YnKBnKkHWImpM1Uo7F20Z3y+KLRkYJXnBtrtGRAgi/8xKSYi17ymvBdPxbvNKD+MC3RrSj1Uxp6tVp7ZekAshKUEte1yg0U4vx0JwHYb+C6Yhn4=
+	t=1788354747; cv=none; b=FmCln/KbCX/ynu77parYUvhSOxbUgYj4RG4Xq3GJgp/0pg0juHSlN9/BAo7z/Yrxo0T32lueP6W5S5QsI+6HfUpzEtK9a37AVdcVEfxQ+3J9h7xfTW10f0OpE5g7Md4cixRlfIqJFWqvDpJn2o9z4aCx15KpSGTFOUb9uEaTvV8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788354745; c=relaxed/simple;
-	bh=GHDW5V87RElhfireO1RQ5Kl3P41kiSErCsjyy6sXuEc=;
+	s=arc-20240116; t=1788354747; c=relaxed/simple;
+	bh=falnlbcb2UHBwUKJH8Cu9GLrjlrpmgIUxV5YqF/0WWw=;
 	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=rEO2YZdWr0vE7kqkpcQXyTwJe72fn94NktqKlEap+2+H2mLrk9veXLnrX4pWeHVM7gDUwlnIjn1P1SCs0O0YHYJu65u5fALsf9TuhjhN+9Rt0f+yvOd5A7F+C5ohB0DLO32A2uBZcgvoePveMw4qCE3fseNVS6cp7ljYn3wCcBo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jEJ3UUIl; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:MIME-Version; b=agJbGurUaVuqQhzujgtdAS6CsYCifuMwBvJGJMa0uuHCXDfWGRYqA1OxklafFUciRMn0Yo9xrnf1dYmp6iKMFi15yFLIjZTmiQEEo35j4gApGEcHLYqMwct3gZY4maUvlU75ooda3MTu45OBsOWk1i541SpyxtQuRKVkr4NCrrw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dtY+zxWs; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jEJ3UUIl"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A0E11F00A3A;
-	Wed,  2 Sep 2026 13:12:22 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dtY+zxWs"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E02071F000E9;
+	Wed,  2 Sep 2026 13:12:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788354742;
-	bh=jPrCT2pwRVJTNk8OU7KlxFUUZ3jAytKyZLGY54SfXAY=;
+	s=k20260515; t=1788354745;
+	bh=K0Q1Gpew/bkMQQl/km6bepDqTCCbSQChZLPLW+0/d80=;
 	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=jEJ3UUIlZblyV6Oo8sq7d/9PllFAHPVgsPQpbxgxXMFAsAezTHJGV7zpgahi0js12
-	 mDBNZxjn+1+G7dh4qlmIkkh6qaQA70OoB/wIX4cpytv0wotnh/8WgL33BeXWZMtRsE
-	 KigUhNpEt1lBzf+hqySr/7cGhnVHjiZEVHWJcUMY6rN5HRpB5j9rXnVxebxMEw1EDf
-	 1PQtxv60pUvmeuJKT9dZ+Sdssx3CfbyGBGuLqFosh+Iw91/owzaa0grfDhM3yf7RSC
-	 meB9tH5/xthoLuV/7fDAw/bgwgFDJFmAFCQDwPJJDQlCsVO1Ro8Y9hyp63MCNKIBMJ
-	 qP/9+8VCgAYog==
-Subject: Re: [net-next,v23,05/14] virtio: Expose object create and destroy API
+	b=dtY+zxWs79qzyHLA6LlQrLhSWIXuQPlfiHG4HdYChzeyG18V4gisS+qMqnsXb0cBN
+	 KENE/wFp88z+puYwKzc8ABqLzPNZgwIujte3jpGWt+eO+wW9VtOOO25XfQ8dqAZiHo
+	 1nf7GLMY2jghGOg4nE2tqJDO6dRun+wv3p/Q1TiPOnmWeqpp6Ibahv/1xQ803hGYPX
+	 4nNEdyVfVoqqP3ZkZguS/jXSNdIlEsLm4s12oj063Hk1z94wu+/NMWRRgD0v9bEx/G
+	 6cGvHHfRZw41YVz3I0+NOVPIuZwdvZp12O1VAQNxk0sXtRakD4AWI+x1PQZdJxzAtp
+	 IXjWmZt7FyxDQ==
+Subject:
+ Re: [net-next,v23,07/14] virtio_net: Create a FF group for ethtool steering
 From: netdev-bot+sashiko@kernel.org
 To: shshitrit@nvidia.com
 Cc: netdev@vger.kernel.org, mst@redhat.com, jasowang@redhat.com,
@@ -34,11 +35,11 @@ Cc: netdev@vger.kernel.org, mst@redhat.com, jasowang@redhat.com,
  yohadt@nvidia.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
  jgg@ziepe.ca, kevin.tian@intel.com, kuba@kernel.org, andrew+netdev@lunn.ch,
  edumazet@google.com, danielj@nvidia.com
-Date: Wed, 02 Sep 2026 13:12:21 +0000
-Message-ID: <178835474175.3394541.11178044243412643996@kernel.org>
-In-Reply-To: <20260831161109.2999926-6-shshitrit@nvidia.com>
-References: <20260831161109.2999926-6-shshitrit@nvidia.com>
-X-sashiko-severity: Low
+Date: Wed, 02 Sep 2026 13:12:24 +0000
+Message-ID: <178835474446.3394541.12292421422984466705@kernel.org>
+In-Reply-To: <20260831161109.2999926-8-shshitrit@nvidia.com>
+References: <20260831161109.2999926-8-shshitrit@nvidia.com>
+X-sashiko-severity: Medium
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -51,193 +52,120 @@ MIME-Version: 1.0
 Thank you for your contribution! Sashiko AI review found 1 potential
 issue(s) to consider:
 
-Critical: 0 · High: 0 · Medium: 0 (1) · Low: 1
+Critical: 0 · High: 0 · Medium: 1 · Low: 0
 
-- [Low] virtio_admin_obj_create()/virtio_admin_obj_destroy()
-  (drivers/virtio/virtio_admin_commands.c:98 and :142) forward a caller-…
-
-Pre-existing issues:
-- [Medium] Both new helpers kfree() the command payload (and let the
-  stack-resident 'struct virtio_admin_cmd cmd' go out of scope)…
+- [Medium] virtnet_ff_cleanup() (drivers/net/virtio_net.c:5945-5962)
+  issues the new…
 
 --
 
-virtio: Expose object create and destroy API
+virtio_net: Create a FF group for ethtool steering
 
-This adds two exported helpers, virtio_admin_obj_create() and
-virtio_admin_obj_destroy(), which build the resource object create/destroy
-admin commands generically instead of only for dev parts objects.  The new
-prototypes and kernel-doc go into include/linux/virtio_admin.h.
+This adds a single flow filter group object, created during
+virtnet_ff_init() with a hard-coded object ID, and destroyed in
+virtnet_ff_cleanup().  A new uapi struct and object type define the
+group payload.
 
-> diff --git a/drivers/virtio/virtio_admin_commands.c b/drivers/virtio/virtio_admin_commands.c
-> index 60d92875da233..24b06075d944f 100644
-> --- a/drivers/virtio/virtio_admin_commands.c
-> +++ b/drivers/virtio/virtio_admin_commands.c
-> @@ -94,3 +94,80 @@ int virtio_admin_cap_set(struct virtio_device *vdev,
->  	return err;
->  }
->  EXPORT_SYMBOL_GPL(virtio_admin_cap_set);
-> +
-> +int virtio_admin_obj_create(struct virtio_device *vdev,
-> +			    u16 obj_type,
-> +			    u32 obj_id,
-> +			    u16 group_type,
-> +			    u64 group_member_id,
-> +			    const void *obj_specific_data,
-> +			    size_t obj_specific_data_size)
-> +{
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 4f78b881e493b..294cfd70662d3 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
 
 [ ... ]
 
-> +	obj_create_data = data;
-> +	obj_create_data->hdr.type = cpu_to_le16(obj_type);
-> +	obj_create_data->hdr.id = cpu_to_le32(obj_id);
-> +	memcpy(obj_create_data->resource_obj_specific_data, obj_specific_data,
-> +	       obj_specific_data_size);
-> +	sg_init_one(&data_sg, data, data_size);
+> @@ -5897,6 +5907,19 @@ static int virtnet_ff_init(struct virtnet_ff *ff, struct virtio_device *vdev)
+>  	if (err)
+>  		goto err_ff_action;
+>  
+> +	ethtool_group.group_priority = cpu_to_le16(VIRTNET_FF_ETHTOOL_GROUP_PRIORITY);
 > +
-> +	cmd.opcode = cpu_to_le16(VIRTIO_ADMIN_CMD_RESOURCE_OBJ_CREATE);
-> +	cmd.group_type = cpu_to_le16(group_type);
-> +	cmd.group_member_id = cpu_to_le64(group_member_id);
-> +	cmd.data_sg = &data_sg;
+> +	/* Use priority for the object ID. */
+> +	err = virtio_admin_obj_create(vdev,
+> +				      VIRTIO_NET_RESOURCE_OBJ_FF_GROUP,
+> +				      VIRTNET_FF_ETHTOOL_GROUP_PRIORITY,
+> +				      VIRTIO_ADMIN_GROUP_TYPE_SELF,
+> +				      0,
+> +				      &ethtool_group,
+> +				      sizeof(ethtool_group));
+> +	if (err)
+> +		goto err_ff_action;
 > +
-> +	err = vdev->config->admin_cmd_exec(vdev, &cmd);
-> +	kfree(data);
+>  	ff->vdev = vdev;
+>  	ff->ff_supported = true;
+>  
+> @@ -5921,9 +5944,18 @@ static int virtnet_ff_init(struct virtnet_ff *ff, struct virtio_device *vdev)
+>  
+>  static void virtnet_ff_cleanup(struct virtnet_ff *ff)
+>  {
+> +	int err;
+> +
+>  	if (!ff->ff_supported)
+>  		return;
+>  
+> +	err = virtio_admin_obj_destroy(ff->vdev,
+> +				       VIRTIO_NET_RESOURCE_OBJ_FF_GROUP,
+> +				       VIRTNET_FF_ETHTOOL_GROUP_PRIORITY,
+> +				       VIRTIO_ADMIN_GROUP_TYPE_SELF,
+> +				       0);
+> +	WARN_ON_ONCE(err);
+> +
+>  	kfree(ff->ff_actions);
+>  	kfree(ff->ff_mask);
+>  	kfree(ff->ff_caps);
 
 [Severity: Medium]
 
-This isn't a bug introduced by this patch, but is the unconditional
-kfree(data) here safe for every return value of admin_cmd_exec()?
+Is WARN_ON_ONCE() the right reporting mechanism for this error, given that
+err here is not a kernel invariant?  Looking at virtio_admin_obj_destroy()
+in drivers/virtio/virtio_admin_commands.c, err comes from either an
+allocation failure or the device-supplied admin command status:
 
-There is one path in virtqueue_exec_admin_cmd() where the descriptors have
-already been published and the function returns without waiting and without
-reclaiming them:
-
-drivers/virtio/virtio_pci_modern.c:virtqueue_exec_admin_cmd() {
+	data = kzalloc_obj(*data);
+	if (!data)
+		return -ENOMEM;
 	...
-	ret = virtqueue_add_sgs(vq, sgs, out_num, in_num, cmd, GFP_KERNEL);
-	if (ret < 0) {
-		...
-		goto unlock_err;
-	}
-	if (!virtqueue_kick(vq))
-		goto unlock_err;
-	mutex_unlock(&admin_vq->lock);
+	err = vdev->config->admin_cmd_exec(vdev, &cmd);
+	kfree(data);
 
-	wait_for_completion(&cmd->completion);
+	return err;
 
-	return cmd->ret;
+virtnet_ff_cleanup() runs from virtnet_remove(), from the virtnet_probe()
+error path, and from virtnet_freeze_down() on suspend.  An already reset or
+NEEDS_RESET device, a surprise removal, or a misbehaving backend would then
+produce a warning splat on an ordinary teardown path, and a guest panic when
+panic_on_warn is set.  Would a rate-limited netdev_warn() or dev_warn()
+convey the same information here?
 
-unlock_err:
-	mutex_unlock(&admin_vq->lock);
-	return -EIO;
-}
+The second part of the question is what happens to the device-side object
+when the destroy does fail.  The error is discarded and the driver then
+unconditionally does:
 
-On that -EIO return the buffer is still referenced by the virtqueue, and
-virtio_admin_obj_create() then frees data and lets the stack-resident
-struct virtio_admin_cmd cmd go out of scope.  The device-writable
-va_status allocation in vp_modern_admin_cmd_exec() is freed on the same
-error path:
+	kfree(ff->ff_actions);
+	kfree(ff->ff_mask);
+	kfree(ff->ff_caps);
+	ff->ff_supported = false;
 
-drivers/virtio/virtio_pci_modern.c:vp_modern_admin_cmd_exec() {
-	...
-err_cmd_exec:
-	kfree(va_hdr);
-err_alloc:
-	kfree(va_status);
-	return ret;
-}
+so no record of the group object is kept, while the device may still hold
+it.  Since virtnet_ff_init() always re-creates the same hard-coded ID:
 
-In practice vp_notify() always returns true, so virtqueue_kick() can only
-fail through the vq->broken check inside virtqueue_notify(), which returns
-before notifying the device, and virtqueue_get_buf() returns NULL on a
-broken vq, so vp_modern_avq_work() will not complete into the recycled
-stack frame.  The same pattern exists at the baseline for
-virtio_admin_cap_set(), virtio_pci_admin_mode_set() and
-virtio_pci_admin_obj_create(); this patch adds two more callers of it.
+	err = virtio_admin_obj_create(vdev,
+				      VIRTIO_NET_RESOURCE_OBJ_FF_GROUP,
+				      VIRTNET_FF_ETHTOOL_GROUP_PRIORITY,
+				      ...);
+	if (err)
+		goto err_ff_action;
 
-Would the reclaim (a wait, or virtqueue_detach_unused_buf()) belong in
-virtqueue_exec_admin_cmd() rather than in each caller?
+can a group object left behind by a failed destroy make the next create of
+that same ID fail, and thereby turn an ignorable teardown error into a
+probe or resume failure on re-bind?  There is no retry, no alternate ID, and
+no state retained that would allow either.
 
-> +
-> +	return err;
-> +}
-> +EXPORT_SYMBOL_GPL(virtio_admin_obj_create);
-> +
-> +int virtio_admin_obj_destroy(struct virtio_device *vdev,
-> +			     u16 obj_type,
-> +			     u32 obj_id,
-> +			     u16 group_type,
-> +			     u64 group_member_id)
-> +{
+Note that this depends on whether a device reset already releases admin
+resource objects, which is not something that can be determined from the
+tree.  Would it be worth documenting that expectation alongside the destroy
+call?
 
-[ ... ]
-
-> +	data->type = cpu_to_le16(obj_type);
-> +	data->id = cpu_to_le32(obj_id);
-> +	sg_init_one(&data_sg, data, sizeof(*data));
-> +	cmd.opcode = cpu_to_le16(VIRTIO_ADMIN_CMD_RESOURCE_OBJ_DESTROY);
-> +	cmd.group_type = cpu_to_le16(group_type);
-> +	cmd.group_member_id = cpu_to_le64(group_member_id);
-> +	cmd.data_sg = &data_sg;
-> +
-> +	err = vdev->config->admin_cmd_exec(vdev, &cmd);
-> +	kfree(data);
-
-The kfree(data) note above applies here in virtio_admin_obj_destroy() as
-well.
-
-> +
-> +	return err;
-> +}
-> +EXPORT_SYMBOL_GPL(virtio_admin_obj_destroy);
-> diff --git a/include/linux/virtio_admin.h b/include/linux/virtio_admin.h
-> index 1177c4a20e53c..ebd4106835d68 100644
-> --- a/include/linux/virtio_admin.h
-> +++ b/include/linux/virtio_admin.h
-> @@ -86,4 +86,48 @@ int virtio_admin_cap_set(struct virtio_device *vdev,
->  			 const void *caps,
->  			 size_t cap_size);
->  
-> +/**
-> + * virtio_admin_obj_create - Create an object on a virtio device
-> + * @vdev: the virtio device
-> + * @obj_type: type of object to create
-> + * @obj_id: ID for the new object
-> + * @group_type: administrative group type for the operation
-> + * @group_member_id: member identifier within the administrative group
-> + * @obj_specific_data: object-specific data for creation
-> + * @obj_specific_data_size: size of the object-specific data in bytes
-> + *
-> + * Creates a new object on the virtio device with the specified type and ID.
-> + * The object may require object-specific data for proper initialization.
-
-[Severity: Low]
-
-This isn't a bug, but could the kernel-doc for virtio_admin_obj_create()
-and virtio_admin_obj_destroy() say who owns the obj_id space?
-
-The pre-existing dev parts helper keeps the id space in the core:
-
-drivers/virtio/virtio_pci_modern.c:virtio_pci_admin_obj_create() {
-	...
-	id = ida_alloc_range(&avq->dev_parts_ida, 0,
-			     avq->max_dev_parts_objects - 1, GFP_KERNEL);
-	...
-}
-
-and it still rejects any obj_type other than VIRTIO_RESOURCE_OBJ_DEV_PARTS,
-so nothing in tree can currently desync that IDA through the new generic
-API.  The generic helpers, though, forward obj_type/obj_id/group_type/
-group_member_id straight to the device with no statement that the caller
-owns the id space for a given (group_type, group_member_id, obj_type)
-tuple, and no equivalent of the "caller must serialize" note carried by the
-dev parts helpers.
-
-Would adding that contract to the kernel-doc make the expectations for new
-callers clearer?
-
-[ ... ]
+This code is unchanged at the end of the series.
 
 -- 
 Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260831161109.2999926-1-shshitrit%40nvidia.com
