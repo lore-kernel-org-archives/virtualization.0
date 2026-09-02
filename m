@@ -1,33 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A214472F67;
-	Wed,  2 Sep 2026 13:12:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F60749C4B5;
+	Wed,  2 Sep 2026 13:12:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788354740; cv=none; b=tuoYLrwfTp7UkUPPC3izx3TJpq8eZRKeFyK/gh2QWGIfF72xt0BLGkUAmS7+mXDbsKyzedCIb2Ermd36Cl/vmbr26EFM62APzTgl0q9ZT1uafo2PAt512W34l56dacwNoaraOYIjRmXOIL9QHSlsww8bZKYJbOz7ZEEOWRbnqhg=
+	t=1788354741; cv=none; b=Jde+x2EPHlU1+Wgpa73eNG9mfgMf9OiVGUZg344nkRNq1Pq0a1PHK93OACxM8E4WazE0ax4PT6NoKhrXrsa8VHaKpMvoG0sh+6USEI+SFCtBa24f27CXi6sugybkuZpUYWpsA3XnjkL2gka28lM7KL4nVL0Ehu91bUuGHAGWBnY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788354740; c=relaxed/simple;
-	bh=w9Qa72Zf6cock+kZxk0fH2VMkWX/OPBsjyLXiXWFVj8=;
+	s=arc-20240116; t=1788354741; c=relaxed/simple;
+	bh=Xs28MClqFi99I3A+CFt6Z82k8ONFQwIihT+vRxCKmC4=;
 	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=D5RC98xgCPdKx9Y4xB4mAs5fIH8YET5aL4G02uwRoG7vL2YTO/fqCT8E3zeiCZsUSXMhxQ8JH1YSp62VRro+bQIO/E8WJEG1n15S50gv4Bthq7re3t2WrvD++lBscEVvz0Az/A6aSr9rA+ufbdg6AuxLbP0WwWNLOUj+SMZVrqg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ENSTXFsx; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:MIME-Version; b=MPVEg5WnXe2uVuVc7lYhIV084l1ZRAAANMSLj/TYBnvFOsboHTy+WZPBTuNhZ7zjifY4moKWmg95725prNXjyX19gQMxpOOueq1KMx3RrR6v0Ji7yYMoHq8aMEPby99qEkaFTcgPZ0dE3FY+sw7qr3U3YKMxWON2YYwTbyxBzWQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cmGPLk50; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ENSTXFsx"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B06411F000E9;
-	Wed,  2 Sep 2026 13:12:17 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cmGPLk50"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 277E11F00A3A;
+	Wed,  2 Sep 2026 13:12:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788354738;
-	bh=t7/W2bwLmK8ClxR5HmjVYJpSBSO9HOcgP72/3kWaTnE=;
+	s=k20260515; t=1788354740;
+	bh=Hq06Fk3wWuBUKOABUalTO+BrIg/zsFEo4RDO2ijSNv0=;
 	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=ENSTXFsxtMryPYdCdbLTtWoPlI3bpsofrxaQQGSCA3nprC9Ugi+mOFcs/tgoWgE3Y
-	 5mf4DpkKtht2+gUQaj/I+UCsP7Z8cmpQJ6vnEVw52fdeNQtU0NyQcAQz7Q8zq14GQ+
-	 XuiLLPJjP+8ERlPKYzlah7Rb9RDa8ycPrmVIMd1pVO0LQ+8T68FI9HNJRAzxs68u11
-	 ueuJgQsvsK+IikO2GpBJa1y6Qe65iwolxGSF35Or5CojjdBjOnOJpbneXwK23lYay5
-	 OOAjSmSKPKQ29+FbIjyWznYJWM2rYQERkuGuznjMCj6hYkVm14cb4VutE2vRCl94s2
-	 BDPxBnhA1n6kQ==
-Subject: Re: [net-next,v23,02/14] virtio_pci: Fix sleeping under spinlock in
- admin command path
+	b=cmGPLk50vpeDnGAydAFkcfnITWty+AbZZdodVF+VuEUIoST/GZDUc0piUI+GH6sUA
+	 Mv+KE4z6QQ1immv+x2GnL+2ajYtdV6s5bjC8Enryti3oGirNrEYExqRpAmx4HFPD8S
+	 mXMmySH7M/IAIB6QTtzrUY9owiSl59+nFOLrYdd0DAWwY2xYVDxCadRUJOACoQE6MV
+	 mmmni96ekJtLZq7VAEnamOwmicUHmxSI1WOeFgqn0X61L53vxCyTBT7adtz4TquhVO
+	 jTu4yRJ9FmdzxrDzHCz8yg/2ez8xWM49xIF1q/DSUC/aQIXmqiVcytgzdiMyfYjLj1
+	 q0gzHukzu5zcQ==
+Subject: Re: [net-next,v23,03/14] virtio: Add config_op for admin commands
 From: netdev-bot+sashiko@kernel.org
 To: shshitrit@nvidia.com
 Cc: netdev@vger.kernel.org, mst@redhat.com, jasowang@redhat.com,
@@ -35,11 +34,11 @@ Cc: netdev@vger.kernel.org, mst@redhat.com, jasowang@redhat.com,
  yohadt@nvidia.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
  jgg@ziepe.ca, kevin.tian@intel.com, kuba@kernel.org, andrew+netdev@lunn.ch,
  edumazet@google.com, danielj@nvidia.com
-Date: Wed, 02 Sep 2026 13:12:17 +0000
-Message-ID: <178835473723.3394541.8002424749068111766@kernel.org>
-In-Reply-To: <20260831161109.2999926-3-shshitrit@nvidia.com>
-References: <20260831161109.2999926-3-shshitrit@nvidia.com>
-X-sashiko-severity: High
+Date: Wed, 02 Sep 2026 13:12:18 +0000
+Message-ID: <178835473869.3394541.13020013369139989380@kernel.org>
+In-Reply-To: <20260831161109.2999926-4-shshitrit@nvidia.com>
+References: <20260831161109.2999926-4-shshitrit@nvidia.com>
+X-sashiko-severity: Medium
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -49,394 +48,257 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 
-Thank you for your contribution! Sashiko AI review found 5 potential
+Thank you for your contribution! Sashiko AI review found 2 potential
 issue(s) to consider:
 
-Critical: 0 · High: 2 (2) · Medium: 2 · Low: 1
+Critical: 0 · High: 0 (3) · Medium: 1 · Low: 1
 
-- [High] The patch adds a new `vp_dev->admin_vq.info = NULL` store in
-  vp_del_vq() (drivers/virtio/virtio_pci_common.c:261) but does not…
-- [High] Forward-progress regression / livelock in the -ENOSPC retry loop
-  of virtqueue_exec_admin_cmd().
-- [Medium] Missing `Fixes:` tag and `Cc: stable` for a live sleep-in-
-  atomic defect.
-- [Medium] vp_modern_avq_work() dereferences admin_vq->info at function
-  entry (drivers/virtio/virtio_pci_modern.c:59) with no NULL check, but…
-- [Low] vp_modern_avq_done() no longer touches the virtqueue at all - it
-  only calls schedule_work() (drivers/virtio/virtio_pci_modern.c:47-52).
+- [Medium] The newly published `->admin_cmd_exec` transport op has no
+  lifecycle precondition check or documentation:…
+- [Low] The kernel-doc added for `@admin_cmd_exec` in
+  include/linux/virtio_config.h states no calling-context constraint,…
 
 Pre-existing issues:
-- [High] Admin-command submission, reset cleanup and queue deletion do
-  not share the admin_vq lock, so teardown can run concurrently with…
-- [High] The admin-queue completion path converts the device-supplied
-  used length into a result size without bounding it against the…
+- [High] Free-while-in-flight / use-after-free on the admin-command kick-
+  failure path.
+- [High] The admin-command path accesses `admin_vq->info` with no
+  synchronization against admin-queue teardown, and the newly published…
+- [High] `struct virtio_admin_cmd::result_sg_size`, now part of the
+  generic `->admin_cmd_exec` contract, is filled in…
 
 --
 
-virtio_pci: Fix sleeping under spinlock in admin command path
+virtio: Add config_op for admin commands
 
-Replaces the admin virtqueue spinlock with a mutex so that
-virtqueue_add_sgs() may use GFP_KERNEL, and moves the admin virtqueue
-completion handling out of the interrupt callback into a work item, since a
-mutex cannot be taken from interrupt context.
+This adds a new optional admin_cmd_exec callback to struct
+virtio_config_ops and points it at vp_modern_admin_cmd_exec() in both
+modern virtio-pci config op tables, so that virtio device drivers can
+issue admin commands through the transport.
 
-No Link: tags present in the commit header.
+No Link: tags in the commit header.
 
-A few questions below about the new teardown/NULL handling, the -ENOSPC
-retry loop, and the missing Fixes: tag.
+A few questions about the newly published op below.
 
-> virtqueue_exec_admin_cmd() calls virtqueue_add_sgs() with GFP_KERNEL
-> while holding a spinlock. GFP_KERNEL allocations can sleep, which is
-> illegal in atomic context.
->
-> The issue becomes more significant with the next commit, which exposes
-> vp_modern_admin_cmd_exec() through virtio_config_ops. This makes the
-> admin command path available to device drivers and potentially reachable
-> from userspace, increasing the likelihood of hitting the invalid sleep
-> under memory pressure.
+> diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
+> index dab63b044a312..3b2515e29728a 100644
+> --- a/drivers/virtio/virtio_pci_modern.c
+> +++ b/drivers/virtio/virtio_pci_modern.c
+> @@ -1248,6 +1248,7 @@ static const struct virtio_config_ops virtio_pci_config_nodev_ops = {
+>  	.get_shm_region  = vp_get_shm_region,
+>  	.disable_vq_and_reset = vp_modern_disable_vq_and_reset,
+>  	.enable_vq_after_reset = vp_modern_enable_vq_after_reset,
+> +	.admin_cmd_exec = vp_modern_admin_cmd_exec,
+>  };
 
 [Severity: Medium]
-Should this patch carry a Fixes: tag and a stable Cc?
+Now that any bound driver can reach this path, is there anything that keeps
+admin_vq.info valid at the entry point?  virtqueue_exec_admin_cmd() starts
+with:
 
-Both the spin_lock_irqsave(&admin_vq->lock, flags) and the
-virtqueue_add_sgs(..., GFP_KERNEL) it wraps in virtqueue_exec_admin_cmd()
-were added by:
-
-  4c3b54af907e ("virtio_pci_modern: use completion instead of busy loop to
-  wait on admin cmd result")
-
-The sleep looks reachable on released kernels rather than only after the
-follow-up commit: virtqueue_add_split() allocates before the -ENOSPC check,
-
-drivers/virtio/virtio_ring.c:virtqueue_add_split() {
-	...
-	if (virtqueue_use_indirect(vq, total_sg))
-		desc = alloc_indirect_split(vq, total_sg, gfp);
-	...
-}
-
-and alloc_indirect_split() does a kmalloc(size, gfp), so any admin command
-with total_sg > 1 on a device that negotiated VIRTIO_RING_F_INDIRECT_DESC
-does a GFP_KERNEL kmalloc with interrupts disabled and the spinlock held.
-The vfio-virtio migration ioctls already drive that path today. Would the
-wording "becomes more significant with the next commit" be better phrased
-as the bug being reachable now, with a Fixes: tag so backporting tooling
-can pick it up?
-
-> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-> index 10371ecbc054c..6bc0c0f6ac503 100644
-> --- a/drivers/virtio/virtio_pci_common.c
-> +++ b/drivers/virtio/virtio_pci_common.c
-> @@ -256,6 +256,11 @@ static void vp_del_vq(struct virtqueue *vq, struct virtio_pci_vq_info *info)
->  		spin_unlock_irqrestore(&vp_dev->lock, flags);
->  	}
->  
-> +	if (vp_is_avq(vq->vdev, vq->index)) {
-> +		cancel_work_sync(&vp_dev->admin_vq.work);
-> +		vp_dev->admin_vq.info = NULL;
-> +	}
-> +
-
-[Severity: High]
-Can this NULL store oops the next reset?
-
-All three consumers of admin_vq.info dereference it and only test the
-member, not the container pointer:
-
-drivers/virtio/virtio_pci_modern.c:vp_modern_avq_cleanup() {
-	...
-	vq = vp_dev->admin_vq.info->vq;
-	if (!vq)
-		return;
-	...
-}
-
-drivers/virtio/virtio_pci_modern.c:virtqueue_exec_admin_cmd() {
-	...
 	vq = admin_vq->info->vq;
 	if (!vq)
 		return -EIO;
-	...
-}
 
-drivers/virtio/virtio_pci_modern.c:vp_modern_avq_work() {
-	...
-	struct virtqueue *vq = admin_vq->info->vq;
-	...
-}
+The guard tests the inner vq pointer, so it does not catch info == NULL.
+The only precondition tested by vp_modern_admin_cmd_exec() is:
 
-The suspend/reset flows appear to reach the first one with info == NULL:
+	if (!virtio_has_feature(vdev, VIRTIO_F_ADMIN_VQ))
+		return -EOPNOTSUPP;
 
-virtblk_freeze_priv()			(also used for .reset_prepare)
-    virtio_reset_device()
-    vdev->config->del_vqs()
-        vp_del_vqs() -> vp_del_vq() -> admin_vq.info = NULL
+That feature bit is set by vp_finalize_features() before the driver's probe
+runs and it stays set across del_vqs(), while vp_del_vq() in
+virtio_pci_common.c does:
 
-then on restore/reset_done:
-
-virtio_device_restore_priv()
-    virtio_reset_device()
-        vp_reset() -> vp_modern_avq_cleanup() -> admin_vq.info->vq
-
-virtio_reset_device() only writes status 0, so vdev->features still has
-VIRTIO_F_ADMIN_VQ set and the feature-bit guard at the top of
-vp_modern_avq_cleanup() does not stop it. virtnet_freeze() ->
-remove_vq_common() has the same shape.
-
-Would it make sense to check info itself at every consumer, and to
-publish/clear it under the same lock the readers use? Right now the store
-is done with no lock at all while the completion worker and command
-submitters can be reading it.
-
-Also, the reordering of vp_synchronize_vectors() and
-vp_modern_avq_cleanup() in vp_reset() is explained only in the added code
-comment. Could the commit message mention that behavioural change too?
-
->  	vp_dev->del_vq(info);
->  	kfree(info);
->  }
-
-[ ... ]
-
-> diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-> index ef4a64eb99824..dab63b044a312 100644
-> --- a/drivers/virtio/virtio_pci_modern.c
-> +++ b/drivers/virtio/virtio_pci_modern.c
-> @@ -47,13 +47,20 @@ static int vp_avq_index(struct virtio_device *vdev, u16 *index, u16 *num)
->  void vp_modern_avq_done(struct virtqueue *vq)
->  {
->  	struct virtio_pci_device *vp_dev = to_vp_device(vq->vdev);
-> -	struct virtio_pci_admin_vq *admin_vq = &vp_dev->admin_vq;
-> +
-> +	schedule_work(&vp_dev->admin_vq.work);
-> +}
-
-[Severity: Low]
-This isn't a bug, but should the callback suppress further notifications
-before deferring?
-
-virtqueue_disable_cb() now runs only inside vp_modern_avq_work(), so
-VRING_AVAIL_F_NO_INTERRUPT (or used_event with VIRTIO_RING_F_EVENT_IDX) is
-not armed for the whole window between the device notification and the
-worker being picked up. During that window every completed admin command
-raises an interrupt whose only effect is a schedule_work() that returns
-false because the work is already pending.
-
-Since the admin queue normally shares the config/slow-path MSI-X vector
-(vp_find_one_vq_msix() with slow_path=true uses VP_MSIX_CONFIG_VECTOR),
-those extra interrupts also re-walk slow_virtqueues under vp_dev->lock with
-interrupts disabled.
-
-The usual virtio pattern is to disable the callback first, as
-virtqueue_napi_schedule() does in virtio_net:
-
-	if (napi_schedule_prep(napi)) {
-		virtqueue_disable_cb(vq);
-		...
+	if (vp_is_avq(vq->vdev, vq->index)) {
+		cancel_work_sync(&vp_dev->admin_vq.work);
+		vp_dev->admin_vq.info = NULL;
 	}
 
-> +
-> +static void vp_modern_avq_work(struct work_struct *work)
-> +{
->  	unsigned int status_size = sizeof(struct virtio_admin_cmd_status);
-> +	struct virtio_pci_admin_vq *admin_vq =
-> +		container_of(work, struct virtio_pci_admin_vq, work);
-> +	struct virtqueue *vq = admin_vq->info->vq;
+	vp_dev->del_vq(info);
+	kfree(info);
 
-[Severity: Medium]
-Can this dereference run before admin_vq.info has been published?
+So admin_vq.info is NULL before find_vqs() creates the admin queue, on the
+find_vqs() error path, and after del_vqs().  Can a call made outside the
+find_vqs()..del_vqs() window dereference NULL here?
 
-vp_setup_vq() enables the queue and links it into the dispatch list before
-assigning the admin info pointer:
-
-drivers/virtio/virtio_pci_common.c:vp_setup_vq() {
-	...
-		if (!vp_is_slow_path_vector(msix_vec))
-			list_add(&info->node, &vp_dev->virtqueues);
-		else
-			list_add(&info->node, &vp_dev->slow_virtqueues);
-	...
-	*p_info = info;
-	...
-}
-
-In the shared-vector and INTx configurations the handler is registered
-before any virtqueue exists, so vp_vring_interrupt() /
-vp_vring_slow_path_interrupt() can call vring_interrupt() on the admin vq
-inside that window if the device has advanced the used index. That runs
-vp_modern_avq_done() -> schedule_work(), and the worker then reads
-admin_vq->info->vq while info is still NULL (vp_dev is zero-allocated).
-
-The old callback was immune because it received the vq as its argument and
-never touched admin_vq->info. Would a NULL check on info here, or
-publishing info before the queue is exposed to interrupt dispatch, be
-preferable?
-
->  	struct virtio_admin_cmd *cmd;
-> -	unsigned long flags;
->  	unsigned int len;
->  
-> -	spin_lock_irqsave(&admin_vq->lock, flags);
-> +	mutex_lock(&admin_vq->lock);
->  	do {
->  		virtqueue_disable_cb(vq);
->  		while ((cmd = virtqueue_get_buf(vq, &len))) {
+The virtio_net consumers added later in this series do appear to stay inside
+that window, so this may not be reachable in-tree today.  Would it still be
+worth checking admin_vq->info and spelling out the required device/VQ state
+in the new kernel-doc?
 
 [Severity: High]
-This isn't a bug introduced by this patch, since the length handling was
-moved verbatim from vp_modern_avq_done() into the new work item, but can
-this leak uninitialized page contents to userspace?
+This isn't a bug introduced by this patch, but the kick-failure path in
+virtqueue_exec_admin_cmd() looks like it leaves a descriptor in flight:
 
-The length written by the device is only checked against a lower bound, and
-never against the size of the result scatterlist that was submitted:
-
-drivers/virtio/virtio_pci_modern.c:vp_modern_avq_work() {
+	mutex_lock(&admin_vq->lock);
+	ret = virtqueue_add_sgs(vq, sgs, out_num, in_num, cmd, GFP_KERNEL);
 	...
-			if (len < status_size)
-				cmd->result_sg_size = 0;
-			else
-				cmd->result_sg_size = len - status_size;
+	if (!virtqueue_kick(vq))
+		goto unlock_err;
 	...
-}
+unlock_err:
+	mutex_unlock(&admin_vq->lock);
+	return -EIO;
 
-virtqueue_get_buf() validates the descriptor id, not the length, and
-virtio_pci_admin_dev_parts_get() passes the value straight out:
+virtqueue_kick() returns false when the vring is broken, and
+virtio_break_device() can be called asynchronously, for example from
+virtio_pci_remove():
 
-	ret = vp_modern_admin_cmd_exec(virtio_dev, &cmd);
-	if (!ret)
-		*res_size = cmd.result_sg_size;
+	if (!pci_device_is_present(pci_dev))
+		virtio_break_device(&vp_dev->vdev);
 
-drivers/vfio/pci/virtio/migrate.c then trusts it:
+so the state can change between the virtqueue_is_broken() pre-check and the
+kick.  The descriptor added by virtqueue_add_sgs() is not reclaimed on that
+path, and vp_modern_admin_cmd_exec() then frees the buffers it published:
 
-virtiovf_read_device_context_chunk() {
-	...
-	buf->length = res_size;
-	...
-}
+err_cmd_exec:
+	kfree(va_hdr);
+err_alloc:
+	kfree(va_status);
+	return ret;
 
-virtiovf_buf_read() {
-	...
-	copy_len = min_t(size_t,
-			 vhca_buf->start_pos + vhca_buf->length - *pos, *len);
-	...
-}
+The token handed to virtqueue_add_sgs() is the caller's struct
+virtio_admin_cmd, which goes out of scope when the caller returns.  When the
+following reset runs vp_modern_avq_cleanup():
 
-and the backing pages are not zeroed:
-
-virtiovf_add_migration_pages() {
-	...
-		filled = alloc_pages_bulk(GFP_KERNEL_ACCOUNT, to_fill,
-					  page_list);
-	...
-}
-
-So a device reporting a used length larger than what it actually wrote gets
-stale kernel page contents copied to the migration fd reader; the page
-lookup only fails past allocated_length, after earlier copy_to_user() calls
-have already run. Should result_sg_size be clamped to the length of the
-result scatterlist that was submitted?
-
-[ ... ]
-
-> @@ -100,11 +106,11 @@ static int virtqueue_exec_admin_cmd(struct virtio_pci_admin_vq *admin_vq,
->  	if (virtqueue_is_broken(vq))
->  		return -EIO;
->  
-> -	spin_lock_irqsave(&admin_vq->lock, flags);
-> +	mutex_lock(&admin_vq->lock);
->  	ret = virtqueue_add_sgs(vq, sgs, out_num, in_num, cmd, GFP_KERNEL);
->  	if (ret < 0) {
->  		if (ret == -ENOSPC) {
-> -			spin_unlock_irqrestore(&admin_vq->lock, flags);
-> +			mutex_unlock(&admin_vq->lock);
->  			cpu_relax();
->  			goto again;
->  		}
-
-[Severity: High]
-Can this retry loop stop making progress now?
-
-Before the patch, descriptors were reclaimed inline in the interrupt
-callback, so the hard interrupt preempted the spinning task and freed ring
-slots. After the patch the only remaining caller of virtqueue_get_buf() on
-the admin vq is vp_modern_avq_work(), which has to be picked up by a
-per-CPU bound worker on system_percpu_wq:
-
-vp_modern_avq_done()
-    schedule_work(&vp_dev->admin_vq.work)	/* system_percpu_wq */
-        vp_modern_avq_work()
-            virtqueue_get_buf()			/* only reclaim site */
-
-The retry path has no guaranteed scheduling point: virtqueue_is_broken() is
-a READ_ONCE, the uncontended mutex_lock()/mutex_unlock() fast paths only
-reach might_sleep(), and cpu_relax() does not yield. With
-CONFIG_PREEMPT_NONE=y (or PREEMPT_DYNAMIC booted with preempt=none), if the
-work item is queued to the CPU running the busy loop, the bound worker
-never gets to run, no descriptors are freed, and virtqueue_add_sgs() keeps
-returning -ENOSPC. On a single-vCPU guest that CPU match is automatic.
-
-The loop's only exits are success, virtqueue_is_broken() and a non-ENOSPC
-error, none of which can become true without the worker running. Would a
-cond_resched() here, or waiting on an event signalled by the completion
-worker, or an unbound/WQ_MEM_RECLAIM workqueue, address this? Related: the
-untimed wait_for_completion() below now also depends on worker
-availability, and system_percpu_wq is not WQ_MEM_RECLAIM.
-
-[ ... ]
-
-> @@ -350,6 +356,8 @@ static void vp_modern_avq_cleanup(struct virtio_device *vdev)
->  	if (!virtio_has_feature(vdev, VIRTIO_F_ADMIN_VQ))
->  		return;
->  
-> +	cancel_work_sync(&vp_dev->admin_vq.work);
-> +
->  	vq = vp_dev->admin_vq.info->vq;
->  	if (!vq)
->  		return;
-
-[Severity: High]
-This is a pre-existing issue, as the cleanup path and vp_del_vq() ignored
-the former spinlock too, but does the new cancel_work_sync() cover enough?
-It serializes the completion worker only, not command submitters.
-
-Nothing holds admin_vq->lock on the teardown side:
-
-drivers/virtio/virtio_pci_modern.c:vp_modern_avq_cleanup() {
-	...
 	while ((cmd = virtqueue_detach_unused_buf(vq))) {
 		cmd->ret = -EIO;
 		complete(&cmd->completion);
 	}
+
+does this write through a stale token belonging to another task's stack
+frame, and can the device still DMA into the freed, device-writable
+va_status?  Should the error path detach the descriptor (or defer the frees)
+before this op is exposed to more drivers?
+
+[Severity: High]
+This is a pre-existing issue, but the admin queue accesses do not share a
+lock with admin queue teardown, and this patch widens the set of contexts
+that can submit commands without adding a serialization rule.
+
+Reader side, with no lock held:
+
+virtio_pci_modern.c:virtqueue_exec_admin_cmd() {
+	vq = admin_vq->info->vq;
+	if (!vq)
+		return -EIO;
 }
 
-drivers/virtio/virtio_pci_common.c:vp_del_vq() {
-	...
+virtio_pci_modern.c:vp_modern_avq_cleanup() {
+	vq = vp_dev->admin_vq.info->vq;
+	if (!vq)
+		return;
+
+	while ((cmd = virtqueue_detach_unused_buf(vq))) {
+}
+
+vp_modern_avq_work() also reads admin_vq->info->vq before taking the mutex.
+
+Writer side, holding only vp_dev->lock for the list removal:
+
+virtio_pci_common.c:vp_del_vq() {
+	if (vp_is_avq(vq->vdev, vq->index)) {
+		cancel_work_sync(&vp_dev->admin_vq.work);
+		vp_dev->admin_vq.info = NULL;
+	}
+
 	vp_dev->del_vq(info);
 	kfree(info);
 }
 
-while a submitter caches the queue pointer outside the lock:
+Since admin_vq->lock is not held by the cleanup or the teardown, can a
+command submitted from an unrelated driver context concurrently with
+del_vqs() or reset dereference NULL or the freed struct
+virtio_pci_vq_info, and then operate on a destroyed vring?
 
-drivers/virtio/virtio_pci_modern.c:virtqueue_exec_admin_cmd() {
-	...
-	vq = admin_vq->info->vq;
-	if (!vq)
-		return -EIO;
-	...
+The concrete unsynchronized submitter today is the existing
+virtio_pci_admin_* path used by virtio-vfio-pci, which reaches a PF admin
+queue while the PF's virtio driver can be unbound independently.  Should the
+new kernel-doc carry an analogue of the @reset rule about not running in
+parallel with virtqueues being added or removed?
+
+> 
+>  static const struct virtio_config_ops virtio_pci_config_ops = {
+> @@ -1268,6 +1269,7 @@ static const struct virtio_config_ops virtio_pci_config_ops = {
+>  	.get_shm_region  = vp_get_shm_region,
+>  	.disable_vq_and_reset = vp_modern_disable_vq_and_reset,
+>  	.enable_vq_after_reset = vp_modern_enable_vq_after_reset,
+> +	.admin_cmd_exec = vp_modern_admin_cmd_exec,
+>  };
+>  
+>  /* the PCI probing function */
+> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+> index 69f84ea85d71a..e36a32e0a20c8 100644
+> --- a/include/linux/virtio_config.h
+> +++ b/include/linux/virtio_config.h
+> @@ -108,6 +108,10 @@ struct virtqueue_info {
+>   *	Returns 0 on success or error status
+>   *	If disable_vq_and_reset is set, then enable_vq_after_reset must also be
+>   *	set.
+> + * @admin_cmd_exec: Execute an admin VQ command (optional).
+> + *	vdev: the virtio_device
+> + *	cmd: the command to execute
+> + *	Returns 0 on success or error status
+
+[Severity: Low]
+Could this kernel-doc also state the calling context?  The implementation
+sleeps in several places: two kzalloc_obj() GFP_KERNEL allocations in
+vp_modern_admin_cmd_exec(), and in virtqueue_exec_admin_cmd():
+
 	mutex_lock(&admin_vq->lock);
 	ret = virtqueue_add_sgs(vq, sgs, out_num, in_num, cmd, GFP_KERNEL);
 	...
-}
+	wait_for_completion(&cmd->completion);
 
-So a vp_reset() (suspend, FLR, unbind) on one CPU can detach descriptors
-while another CPU is inside virtqueue_add_sgs() on the same vring, or free
-the virtqueue and info after a submitter cached vq, or leave a command
-waiting forever on a queue that was reset. The "caller must serialize
-access for the given device" note on virtio_pci_admin_dev_parts_*() only
-covers admin-command callers among themselves, not the PM/reset path.
-Should the teardown side take admin_vq->lock as well?
+The wait has no timeout and is only woken by vp_modern_avq_work() or by
+vp_modern_avq_cleanup() on reset.
 
-[ ... ]
+The header of this struct is otherwise explicit about context, for example
+that @get/@set, @get_status/@set_status and @get_features/@finalize_features
+are not safe from atomic context, and that a device must not be reset from
+its vq or config callbacks.
+
+No in-tree caller violates this today.  Would it help to note that
+admin_cmd_exec may sleep, must be called from process context, and can block
+until the device completes the command or the device is reset?
+
+[Severity: High]
+This is a pre-existing issue, but the cmd->result_sg_size field that this
+contract now exposes to arbitrary drivers is filled straight from the
+device-written used ring length.  In vp_modern_avq_work():
+
+		while ((cmd = virtqueue_get_buf(vq, &len))) {
+			if (len < status_size)
+				cmd->result_sg_size = 0;
+			else
+				cmd->result_sg_size = len - status_size;
+
+virtio_ring does not clamp that length against the posted buffer; in
+virtqueue_get_buf_ctx_split() and virtqueue_get_buf_ctx_packed() only the
+descriptor id is range-checked while the length is taken verbatim:
+
+	*len = vring_read_split_used_len(vq, last_used);
+
+Is result_sg_size therefore fully device-controlled and able to exceed the
+caller's result scatterlist?  The existing consumer already trusts it:
+virtio_pci_admin_dev_parts_get() does *res_size = cmd.result_sg_size; and
+drivers/vfio/pci/virtio/migrate.c does buf->length = res_size; for a buffer
+whose real size is ctx_size, which the migration file then reads from.
+
+Should the transport clamp result_sg_size to the total length of the
+caller's result_sg before completing the command, and should the new
+kernel-doc say that this field is untrusted device input?
+
+>   */
+>  struct virtio_config_ops {
+>  	void (*get)(struct virtio_device *vdev, unsigned offset,
+> @@ -137,6 +141,8 @@ struct virtio_config_ops {
+>  			       struct virtio_shm_region *region, u8 id);
+>  	int (*disable_vq_and_reset)(struct virtqueue *vq);
+>  	int (*enable_vq_after_reset)(struct virtqueue *vq);
+> +	int (*admin_cmd_exec)(struct virtio_device *vdev,
+> +			      struct virtio_admin_cmd *cmd);
+>  };
 
 -- 
 Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260831161109.2999926-1-shshitrit%40nvidia.com
