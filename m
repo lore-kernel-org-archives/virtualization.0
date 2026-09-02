@@ -1,227 +1,158 @@
-Received: from mail-oi1-f182.google.com (mail-oi1-f182.google.com [209.85.167.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D24B825782D
-	for <virtualization@lists.linux.dev>; Wed,  2 Sep 2026 23:01:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD17C4477F5;
+	Wed,  2 Sep 2026 23:36:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788390103; cv=none; b=oZUgLydONfWoZXuKdkoms8GCb31Dz3KREsllHUAYVaHLP4sPc6YThCbSNF5KDLAuEMbLSnVmLrdqHebyF9FQMfSQIQpvjps0lpaa94CDLwzT9tTVUeOMiBNUpN3D8sECBmA7cvRNErMzyxx0kDuoYJkZGCyarSocnqJN/rZjXa8=
+	t=1788392177; cv=none; b=UV/lUaBTXkac9R1GdmEFjZHDqkxko/EfxMeDBehVjk7UA4xAI3nHAKuT32gYZN8/BT5v6XItowUCX3TcSlQdwSF4YoYaEFwvHiDABFeOTOKkEAsLHm0n3IawT6+9o4Q6MsMivd8VlqlMiNDMMcx/tljUtBqlv1fWj6PcbX29dvc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788390103; c=relaxed/simple;
-	bh=kcIMEAxlbhdfWGQi3kEqTjk3KEi3PkKRsRCd1DxpZ8k=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=S729ro4A/wiJk10bkpFYIeX7lOn2fGJMkX7PSC9PaSlDqLgiPZjkUF14H+bkua5PcFgPSk+qOkTrdjMdEMyGBEaYaXVt6QK8Aq2MJQhOl2THKp5tW6sqVLpXHNLyy0RLNqWTT8G542vOJo4Ei9ccWsT2p2JDoQzWQi1/cuIXPtA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GOtUDWeT; arc=none smtp.client-ip=209.85.167.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1788392177; c=relaxed/simple;
+	bh=BaZz5hdXuAoThKYTRSZgti1KLF+u5As8vU0EB18bPqc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=gGWoEgZJhc4OFwIdypVdevTysgoFhCc4ICKThX9BKhL4O4sGiRlYIVcdhlX7Hc/tB5gE/l/oumscTms/qLbbGqURZbXov5b2gSBeQrTTRiclWu3lNmLtVeH+6IA0l7KXg9cKweFOf1bK7mJnfb0c8JyDoIOi/i1Pa6NRFep3dlw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=pass smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=qCmtn0LC; arc=none smtp.client-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GOtUDWeT"
-Received: by mail-oi1-f182.google.com with SMTP id 5614622812f47-4b3b1b3b992so1037094b6e.1
-        for <virtualization@lists.linux.dev>; Wed, 02 Sep 2026 16:01:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788390091; x=1788994891; darn=lists.linux.dev;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :content-type:mime-version:subject:date:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=7bD7DqrZxcDKFi14tO3Iywp9XBJtjTzYJFW9TgEI/w0=;
-        b=GOtUDWeTeYWMAR8iN9ksskuldTeE93Nsm3/bYtte2eVueQNQ3NJ5PCpdmwLg4CsyrG
-         R02gqT5YsFHnbZAenVW01fWKhKsD4zFVrvYsZsqaB4y2KDZLpdP+dhaSaXPGWKM1+EFY
-         38M0YXygacT5kfMzhl6wtlVPTX+bdX4XPoJzpYmfNpj37mZqd6zuw2rWG+EXnoa/snGq
-         5+e4j+t1BqUQJwBDSZc/nMkx2SohBes/v949J1cz3ad74bqMFr5tWJQwDY8xOD5KyYg8
-         7evkGsOvAcntOhoy440TMO688rRErYzAfMWAAyuPzuP/FgR0LZ58uTZLQvBCxOeIy6Cq
-         FhFw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788390091; x=1788994891;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :content-type:mime-version:subject:date:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=7bD7DqrZxcDKFi14tO3Iywp9XBJtjTzYJFW9TgEI/w0=;
-        b=KOJlvkzh2A88pkGrcUkquY8fVOcJDisQMFvNz0eYH5hcSSZdufnAIXiEtbaa+FA4Wq
-         umvh4i2jmfyYOSIzQUl/aD0Qnv4fSIuvzf/moqFnAAuNUlVAzGA5/GNj6gFGtva/CXBw
-         Q+Z8UFtM4C1KIpagsh0Mril7dE/8oW8G6TdkWttJ/Z5Iz+OIMt5jDIHI1aMbLEN45eE6
-         YXGk1PGWt51VsTdW7VF9kwiBwp9HuQv4quRC6HuCjc8evVXDWGa10I8rJeak0Z0FZU2F
-         VClqNOnv46/Nxyl7yocKvDi7QUL6iHKUSLNr64xEa8hciP6Z+d/El0OMljPeeGKgTK/J
-         Uo/g==
-X-Gm-Message-State: AFuF++nx//3f0RGTURi91ceKnZ7Z1r4IOC8SHynT5BuJlkaT6i4rhbHs
-	NSTiuzL15uXPglIC5kFq3V+cPSIIEI8HrKQldFejeuWNsCbNDAJh1fpo
-X-Gm-Gg: AYBFou0wNaHpheTdQxwPHDRRdR2ObWDJO6FX9TFdI6YQFLISt8IfL3Mrv/gImwcGLAm
-	td7hnq6+Z2K+IZRGqEe0P/DtD1nXb+BuUR/MczqvvfrcLCyINMvGByEH/+h2lSLd+OANYmHPARf
-	QaM/AA+U2pqRzal7/mvU2+8GNTB9v6jCrF1sxDeZwTPludjn0H3b+f8q2Mn0xtYGE3c9Ded8FgH
-	xwOuRbuYvEfrD5O1fZ2Eb8Kr/18klW2q1e05y+vBavykKkVFGtee1CnHd9z/QK35H0lMmP2Msaz
-	Wy9tTeJXMkjMmjFI2Ir+CV+WetFbIwccXdxh907x1q1C/jZlN65Gkoj6iI1nycqIHe3vsNUOlKF
-	RDe4bKt7Tnj58WBOWbTea+V64N9DKr5+shrneqlbXXH64b+X77/Pzsnum0s7bQ5LJjVjuFqd5O7
-	a4w5prnd2VHV7WZcrply3MiaB7r4+cBu5VDcok+ui3cunqh6CuguPIb8KP
-X-Received: by 2002:a05:6808:c1e8:b0:493:a860:5809 with SMTP id 5614622812f47-4b6bc459a08mr7099648b6e.4.1788390090927;
-        Wed, 02 Sep 2026 16:01:30 -0700 (PDT)
-Received: from localhost ([2a03:2880:ff:12::])
-        by smtp.gmail.com with ESMTPSA id 5614622812f47-4b69b820671sm3086593b6e.15.2026.09.02.16.01.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 02 Sep 2026 16:01:29 -0700 (PDT)
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-Date: Wed, 02 Sep 2026 16:00:52 -0700
-Subject: [PATCH net-next 6/6] selftests/vsock: test the assign ioctl
- privilege checks
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="qCmtn0LC"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+	Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
+	Message-ID:Sender:Reply-To:Content-ID:Content-Description;
+	bh=HJL/Se97F9udEecTr0MjR195TiakGwMCC7WkQttGCQs=; b=qCmtn0LCRCh9vuOFvGncoedwl7
+	tQtfYZ1gxRYFLtiq68PA4aI4dtPmaYDqfnZhfyCD15jLydsppcUG2Nt6wrwygTOGsg6wR3Ntzw0fv
+	UyXbxk+nP+R0dmR7Y/dMS1TV0oEwXrePRTistJZ/rBXc0SMmOc+fiKDqeMfCJRcYMzshJw0h8i5RU
+	/ngJI06dO/qMyRLW66/9tr2xpgdvq5NTWIEwCm/YpriV4+wpA23h4sw4Vq9Zw6233SxKmc+o7m2U/
+	TzEbRlnL/QGJEK/G29nspabNIqrmaY2zmArjSpDSBP2IzKsKze30xwjPyNQk9ciMwnEA5KMvqYVkR
+	o4QD0Vrw==;
+Received: from [50.53.43.113] (helo=[192.168.254.34])
+	by bombadil.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
+	id 1x1uUq-0000000G61X-2KVM;
+	Wed, 02 Sep 2026 23:36:00 +0000
+Message-ID: <3a581439-6664-4339-8627-f1704db35bb0@infradead.org>
+Date: Wed, 2 Sep 2026 16:35:59 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260902-vsock-guest-ns-v1-6-9995383e9a8b@meta.com>
-References: <20260902-vsock-guest-ns-v1-0-9995383e9a8b@meta.com>
-In-Reply-To: <20260902-vsock-guest-ns-v1-0-9995383e9a8b@meta.com>
-To: Stefano Garzarella <sgarzare@redhat.com>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
- Simon Horman <horms@kernel.org>, Jonathan Corbet <corbet@lwn.net>, 
- Shuah Khan <skhan@linuxfoundation.org>, 
- Stefan Hajnoczi <stefanha@redhat.com>, 
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
- Shuah Khan <shuah@kernel.org>, Randy Dunlap <rdunlap@infradead.org>
-Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, 
- kvm@vger.kernel.org, linux-kselftest@vger.kernel.org, sargun@sargun.me, 
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next 2/6] vsock: add IOCTL_VM_SOCKETS_ASSIGN_G2H_NETNS
+To: Bobby Eshleman <bobbyeshleman@gmail.com>,
+ Stefano Garzarella <sgarzare@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Simon Horman <horms@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
+ Shuah Khan <skhan@linuxfoundation.org>, Stefan Hajnoczi
+ <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowangio@gmail.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Shuah Khan <shuah@kernel.org>
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
+ kvm@vger.kernel.org, linux-kselftest@vger.kernel.org, sargun@sargun.me,
  jlinbox@meta.com, Bobby Eshleman <bobbyeshleman@meta.com>
-X-Mailer: b4 0.14.3
+References: <20260902-vsock-guest-ns-v1-0-9995383e9a8b@meta.com>
+ <20260902-vsock-guest-ns-v1-2-9995383e9a8b@meta.com>
+Content-Language: en-US
+From: Randy Dunlap <rdunlap@infradead.org>
+In-Reply-To: <20260902-vsock-guest-ns-v1-2-9995383e9a8b@meta.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-From: Bobby Eshleman <bobbyeshleman@meta.com>
+Hi,
 
-/dev/vsock IOCTL_VM_SOCKETS_ASSIGN_G2H_NETNS has refuses callers without
-CAP_NET_ADMIN in the init user namespace.
+On 9/2/26 4:00 PM, Bobby Eshleman wrote:
+> From: Bobby Eshleman <bobbyeshleman@meta.com>
+> 
+> Namespaces let a host isolate a VM's vsock traffic to a specific
+> namespace, but in a guest vsock traffic cannot be isolated to a
+> namespace. The vsock device is hardcoded to global mode and can't be
+> moved into a local-mode namespace.
+> 
+> Introduce ioctl IOCTL_VM_SOCKETS_ASSIGN_G2H_NETNS on /dev/vsock that
+> gives userspace a way to move the device to the calling pid's namespace.
+> The call requires CAP_NET_ADMIN in the root user namespace. A privileged
+> user wishing to "unassign" the device can move it to the init_netns,
+> which is hardcoded to global mode (so no unassign call is necessary).
+> 
+> A getter to read the current assignment back was considered, returning
+> either the namespace's net_cookie or its nsfs inode number, but neither
+> seemed useful enough to bake into the uAPI now. It can be added later if
+> a user turns up that needs it.
+> 
+> Add a transport hook to indicate support for guest namespacing, so that
+> transports may opt in/out. A transport that opts out keeps the
+> reachability rules it had before this ioctl existed.
+> 
+> Sockets are reset when the underlying device moves to a different
+> namespace, so as to prevent reachability from the previous and now
+> disallowed namespace.
+> 
+> Following the approach of netdevs, the device returns to init_net when
 
-Add two tests: one confirms that CAP_NET_ADMIN is required even by a
-privileged user and the other confirms that CAP_NET_ADMIN in an
-unprivileged user ns alone is insufficient.
+I'm confused by the use of "init_net" several times and "init_netns" at
+least 2 times. "init_net" is the initial, boot-time net namespace.
 
-CONFIG_USER_NS is needed to test the CAP_NET_ADMIN + unprivileged user
-ns case.
+And is one of these what is referred to in the Documentation/ file below
+as "initial namespace"?
 
-Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
----
- tools/testing/selftests/vsock/config    |  1 +
- tools/testing/selftests/vsock/vmtest.sh | 59 ++++++++++++++++++++++++++++++++-
- 2 files changed, 59 insertions(+), 1 deletion(-)
+> its namespace is removed. Care is taken to not break flows when the
+> device is inside a global namespace that is being torn down and alive
+> sockets are in a different global namespace. In this scenario, the
+> device's netns getter pre-emptively falls back to the init_net (always
+> global) so that these flows are not disrupted. If init_netns ever
 
-diff --git a/tools/testing/selftests/vsock/config b/tools/testing/selftests/vsock/config
-index 5f0a4f17dfc9..4b31085558fa 100644
---- a/tools/testing/selftests/vsock/config
-+++ b/tools/testing/selftests/vsock/config
-@@ -109,3 +109,4 @@ CONFIG_FS_DAX=y
- CONFIG_MEMORY_HOTPLUG=y
- CONFIG_MEMORY_HOTREMOVE=y
- CONFIG_ZONE_DEVICE=y
-+CONFIG_USER_NS=y
-diff --git a/tools/testing/selftests/vsock/vmtest.sh b/tools/testing/selftests/vsock/vmtest.sh
-index 53591fa07f1a..efb94d17d997 100755
---- a/tools/testing/selftests/vsock/vmtest.sh
-+++ b/tools/testing/selftests/vsock/vmtest.sh
-@@ -28,6 +28,7 @@ readonly WAIT_PERIOD=3
- readonly WAIT_PERIOD_MAX=60
- readonly WAIT_QEMU=5
- readonly PIDFILE_TEMPLATE=/tmp/vsock_vmtest_XXXX.pid
-+readonly EPERM=1
- declare -A PIDFILES
- 
- # virtme-ng offers a netdev for ssh when using "--ssh", but we also need a
-@@ -80,6 +81,8 @@ readonly TEST_NAMES=(
- 	ns_guest_assign_g2h_netns_host_connect_ok
- 	ns_guest_assign_g2h_netns_reset_on_ns_delete_ok
- 	ns_guest_assign_g2h_netns_old_conn_send_fails
-+	ns_guest_assign_g2h_netns_no_cap_net_admin_fails
-+	ns_guest_assign_g2h_netns_unpriv_user_ns_fails
- )
- readonly TEST_DESCS=(
- 	# vm_server_host_client
-@@ -174,6 +177,12 @@ readonly TEST_DESCS=(
- 
- 	# ns_guest_assign_g2h_netns_old_conn_send_fails
- 	"Check connections made before the assign stop sending once they lose the device."
-+
-+	# ns_guest_assign_g2h_netns_no_cap_net_admin_fails
-+	"Check assigning the guest's vsock device to a namespace needs CAP_NET_ADMIN."
-+
-+	# ns_guest_assign_g2h_netns_unpriv_user_ns_fails
-+	"Check an unprivileged user cannot claim the guest's vsock device via a user ns."
- )
- 
- readonly USE_SHARED_VM=(
-@@ -186,6 +195,8 @@ readonly USE_SHARED_VM=(
- 	ns_guest_assign_g2h_netns_host_connect_ok
- 	ns_guest_assign_g2h_netns_reset_on_ns_delete_ok
- 	ns_guest_assign_g2h_netns_old_conn_send_fails
-+	ns_guest_assign_g2h_netns_no_cap_net_admin_fails
-+	ns_guest_assign_g2h_netns_unpriv_user_ns_fails
- )
- readonly NS_MODES=("local" "global")
- 
-@@ -333,7 +344,8 @@ check_args() {
- }
- 
- check_deps() {
--	for dep in vng ${QEMU} busybox pkill ssh ss socat nsenter unshare; do
-+	for dep in vng ${QEMU} busybox pkill ssh ss socat nsenter unshare \
-+		setpriv; do
- 		if [[ ! -x $(command -v "${dep}") ]]; then
- 			echo -e "skip:    dependency ${dep} not found!\n"
- 			exit "${KSFT_SKIP}"
-@@ -1805,6 +1817,51 @@ test_ns_guest_assign_g2h_netns_reset_on_ns_delete_ok() {
- 	return "${KSFT_PASS}"
- }
- 
-+test_ns_guest_assign_g2h_netns_no_cap_net_admin_fails() {
-+	local cmd="unshare -n setpriv --bounding-set=-net_admin"
-+	local rc
-+
-+	vm_ssh "init_ns" -- "${cmd}" ./vsock_assign_g2h_netns &>/dev/null
-+	rc=$?
-+
-+	if [[ "${rc}" -ne "${EPERM}" ]]; then
-+		log_host "expected EPERM (${EPERM}) without CAP_NET_ADMIN, got ${rc}"
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	return "${KSFT_PASS}"
-+}
-+
-+test_ns_guest_assign_g2h_netns_unpriv_user_ns_fails() {
-+	local helper=/tmp/vsock_assign_g2h_netns
-+	local unpriv_uid=65534
-+	local unpriv
-+	local rc
-+
-+	unpriv="setpriv --reuid=${unpriv_uid} --regid=${unpriv_uid}"
-+	unpriv="${unpriv} --clear-groups"
-+
-+	if ! vm_ssh "init_ns" -- "${unpriv} unshare -U true"; then
-+		log_host "unprivileged user namespaces unavailable, skipping"
-+		return "${KSFT_SKIP}"
-+	fi
-+
-+	# The home shared with the guest is root-only, so place the helper where
-+	# an unprivileged user can execute it.
-+	vm_ssh "init_ns" -- \
-+		"cp ./vsock_assign_g2h_netns ${helper} && chmod 755 ${helper}"
-+
-+	vm_ssh "init_ns" -- "${unpriv} unshare -Urn ${helper}" &>/dev/null
-+	rc=$?
-+
-+	if [[ "${rc}" -ne "${EPERM}" ]]; then
-+		log_host "expected EPERM (${EPERM}) for an unprivileged user, got ${rc}"
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	return "${KSFT_PASS}"
-+}
-+
- shared_vm_test() {
- 	local tname
- 
+                                           maybe    init_netns()
+if you are referring to a function...
 
+> supports local-mode in the future, this logic will have to be changed.
+> 
+> Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
+> Link: https://lore.kernel.org/all/20200427142518.uwssa6dtasrp3bfc@steredhat/
+> Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
+> ---
+>  Documentation/admin-guide/sysctl/net.rst |  18 +++
+>  include/net/af_vsock.h                   |   7 ++
+>  include/uapi/linux/vm_sockets.h          |   6 +
+>  net/vmw_vsock/af_vsock.c                 | 198 ++++++++++++++++++++++++++++++-
+>  4 files changed, 228 insertions(+), 1 deletion(-)
+> 
+> diff --git a/Documentation/admin-guide/sysctl/net.rst b/Documentation/admin-guide/sysctl/net.rst
+> index e586e17fc7a5..1e9c0d2be7b8 100644
+> --- a/Documentation/admin-guide/sysctl/net.rst
+> +++ b/Documentation/admin-guide/sysctl/net.rst
+> @@ -515,6 +515,24 @@ their hosts. The behavior of VSOCK sockets in a network namespace is determined
+>  by the namespace's mode (``global`` or ``local``), which controls how CIDs
+>  (Context IDs) are allocated and how sockets interact across namespaces.
+>  
+> +In a guest, the vsock device owned by the guest-to-host (G2H) transport belongs
+> +to one network namespace at a time. The ``IOCTL_VM_SOCKETS_ASSIGN_G2H_NETNS``
+> +ioctl on ``/dev/vsock`` moves it to the namespace of the calling process, which
+> +requires ``CAP_NET_ADMIN`` in the initial user namespace. The namespace's mode
+
+                              Is this the caller's namespace?
+
+> +decides who may then use the device:
+> +
+> +- ``global`` - every ``global`` mode namespace may use it.
+> +- ``local`` - only that namespace may use it, which reserves the connection to
+> +  the host for it alone.
+> +
+> +The device starts out in the initial namespace, so until the ioctl is issued
+> +nothing has moved and no mode has changed.
+> +
+> +Connections made before the move, from a namespace that can no longer reach the
+> +device, are reset. The device returns to the initial namespace when the
+> +namespace it was moved to is deleted, so assigning it to the initial namespace
+> +is how an assignment is undone.
+> +
+>  ns_mode
+>  -------
+>  
+thanks.
 -- 
-2.53.0-Meta
+~Randy
 
