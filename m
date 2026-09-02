@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 128AF49F106;
-	Wed,  2 Sep 2026 13:12:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 467041A9F85;
+	Wed,  2 Sep 2026 13:12:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788354750; cv=none; b=Ky7+6HI5EqlvlG1LmR8pF+8qNDAS8i7of5F0EaWlu19yYrku9Fb+HUE2GqBRTMWtEyTlT/abQspoeNbeaSsnlOZTwIliHspC9P3iwhnGxZy5UR8+POgM54TrdHBcxIwTjxAVOEaYHX0jQg6MnmpTkpGjA5/8A/DHl+hRW7UCUAo=
+	t=1788354751; cv=none; b=fIGFcAUsYI0G2fZKhYaWoV+B568FJZAbtW7N/fIo0+UvpROBZeItri1NZhtQteff+iWru1nn90yOgVOoagHPRdBl17u7RdBZZ1wvfQJg1vIqUPChj38LoLPY2Rz0Be7tD1leNto2Yiod2/h+VkFZ7Xz/46HRz3MN+kYBIzLvW/g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788354750; c=relaxed/simple;
-	bh=bLssvxp68Wvs8/Ccn//S6y2mTbP5TE25anWlC9tfOVg=;
+	s=arc-20240116; t=1788354751; c=relaxed/simple;
+	bh=YWGe/A6UfxXhxw+1QTxNWnRgOVPiaxQ748NdXH/5B28=;
 	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=teEKoWTb9U8+7mxEWvUZhHOE9p77/yJR0htrtg6HoKVBWNHlZ6rqOqGeTfYx14sGdJwG4Vm1sVBxjbnoM5Ue6FbkvNWNU/Ht6RqY7Ie205hU3pVlK1iDERtRxpIQS8fx1HJMnPnFA/uBf5StOlmIuzxgeQKjZcfEdQEfEvPnaKs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ab6eQdS6; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:MIME-Version; b=uiqy0DxYch5UudUjpk1w6DMgBRMRkrrUmf+A/ZzyaxjF4vQU6sEwz1hu5f2qY+NmQjFLzySoQYULmmwnM6JguQmjlTnWVeIXbfH4QN6kHquV0JzPETEjld2LyRak+OsWs6qgAulhzpRsVirm8zDBPsuVxOZWcZ4jyAeq0hI9tQ8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GPyp64+1; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ab6eQdS6"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB6BD1F000E9;
-	Wed,  2 Sep 2026 13:12:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GPyp64+1"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E8131F00A3D;
+	Wed,  2 Sep 2026 13:12:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788354748;
-	bh=Mai1R/lwKOCi/BoTld/AA2MZHvEeapcM3VWYSb4b5IE=;
+	s=k20260515; t=1788354750;
+	bh=JTOML5jIOL1orF9DnrYwAuCBj853upYavK7uXMfYR5c=;
 	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=ab6eQdS6OqqdNiR4WQccU5i83cZeCKKDf9m4nFALuIDDbbkVCHEkfJEPfJp3+bf1w
-	 h3NrApPaPLFqsP0QXS8Hb1W0BuwQ6RrGU38fJO1HBC9OQw3PotvyYURYEzIXCSheT4
-	 sh80z2wh2Xw6SZuCJMuL7OCB4k3DT13geqqI6sHyYJKn2Gw+t8goHep5+oFRfpC//m
-	 wd6CGhvTvBf7URy10DvqKw9AgbshJirW4fGGrtCMRMQd0SfajFYWJ7Ccyz9NPW1n7K
-	 0EOFxF0zuMqEriRla35ZHmXKDdEgXi8drLFXyZFmfDQXhkbWxJvDrDVz1lnunYB+Do
-	 HnoQd8OtnrVcg==
+	b=GPyp64+1XF3RvCXsBVep7e+xI0Uy/MWaM9pwfE2yFOt3YNEqt1ZjNfChYRI6IFzTw
+	 ezo8vfmfo4nl2Ob69WRbJTEh824nygw8ms19ASgWBpQ1u5CXzMETYHEH6xsO2IffN0
+	 hS7AHe1WfhS/5JdKv+V9aerao3eYe1QpKIoseZyurgy5ySvJB2QJ+20E973luUxxcf
+	 fF4DwWZqRPU2Kl6hOeeBnH7Hi8XyKsX1mgpneS03edd752GxtdDSH1eZAcpxWukTdq
+	 Ws6qGJzAoh2Jb15KpFI1WOb0gLwYQBTSXEORPMaC3nRAZoSetTJXpNdcBCkyugFpV2
+	 Z1YxrzRSiqjnQ==
 Subject:
- Re: [net-next,v23,10/14] virtio_net: Use existing classifier if possible
+ Re: [net-next,v23,11/14] virtio_net: Implement IPv4 ethtool flow rules
 From: netdev-bot+sashiko@kernel.org
 To: shshitrit@nvidia.com
 Cc: netdev@vger.kernel.org, mst@redhat.com, jasowang@redhat.com,
@@ -35,10 +35,10 @@ Cc: netdev@vger.kernel.org, mst@redhat.com, jasowang@redhat.com,
  yohadt@nvidia.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
  jgg@ziepe.ca, kevin.tian@intel.com, kuba@kernel.org, andrew+netdev@lunn.ch,
  edumazet@google.com, danielj@nvidia.com
-Date: Wed, 02 Sep 2026 13:12:27 +0000
-Message-ID: <178835474741.3394541.2162581150485655984@kernel.org>
-In-Reply-To: <20260831161109.2999926-11-shshitrit@nvidia.com>
-References: <20260831161109.2999926-11-shshitrit@nvidia.com>
+Date: Wed, 02 Sep 2026 13:12:28 +0000
+Message-ID: <178835474877.3394541.3251614086995049997@kernel.org>
+In-Reply-To: <20260831161109.2999926-12-shshitrit@nvidia.com>
+References: <20260831161109.2999926-12-shshitrit@nvidia.com>
 X-sashiko-severity: Medium
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
@@ -49,160 +49,172 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 
-Thank you for your contribution! Sashiko AI review found 1 potential
+Thank you for your contribution! Sashiko AI review found 2 potential
 issue(s) to consider:
 
-Critical: 0 · High: 0 · Medium: 1 · Low: 0
+Critical: 0 · High: 0 · Medium: 1 · Low: 1
 
-- [Medium] `try_destroy_classifier()`
-  (drivers/net/virtio_net.c:5871-5888) treats a failed…
+- [Medium] IP_USER_FLOW support silently ignores the ethtool `proto`
+  match field.
+- [Low] While adding the `int num_hdrs` parameter, the patch also de-
+  indents the two pre-existing continuation lines of…
 
 --
 
-virtio_net: Use existing classifier if possible
+virtio_net: Implement IPv4 ethtool flow rules
 
-This adds a refcount to struct virtnet_classifier and makes
-setup_classifier() scan ff->classifiers for an identical classifier
-object, reusing it instead of creating a duplicate device object.  The
-release side becomes try_destroy_classifier(), which only destroys the
-device object when the last reference goes away.
+This adds support for ethtool IP_USER_FLOW rules to the virtio_net flow
+filter code, building an extra IPv4 selector after the ethernet selector
+and matching on source/destination address and tos. The ethernet selector
+is forced to match ethertype IPv4 whenever an IPv4 header follows.
+
+(No Link: tags in the commit header.)
 
 > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 6217c5bcfee9f..6c07eab047afe 100644
+> index 6c07eab047afe..c33bbdda75590 100644
 > --- a/drivers/net/virtio_net.c
 > +++ b/drivers/net/virtio_net.c
 
 [ ... ]
 
-> @@ -5823,11 +5825,24 @@ static bool validate_mask(const struct virtnet_ff *ff,
->  	return false;
+> @@ -5809,6 +5810,39 @@ static bool validate_eth_mask(const struct virtnet_ff *ff,
+>  	return true;
 >  }
 >  
-> -static int setup_classifier(struct virtnet_ff *ff, struct virtnet_classifier *c)
-> +static int setup_classifier(struct virtnet_ff *ff,
-> +			    struct virtnet_classifier **c)
->  {
-> +	struct virtnet_classifier *tmp;
-> +	unsigned long i;
->  	int err;
->  
-> -	err = xa_alloc(&ff->classifiers, &c->id, c,
-> +	xa_for_each(&ff->classifiers, i, tmp) {
-> +		if ((*c)->size == tmp->size &&
-> +		    !memcmp(&tmp->obj, &(*c)->obj, tmp->size)) {
-> +			refcount_inc(&tmp->refcount);
-> +			kfree(*c);
-> +			*c = tmp;
-> +			goto out;
-> +		}
-> +	}
-> +
-> +	err = xa_alloc(&ff->classifiers, &(*c)->id, *c,
->  		       XA_LIMIT(0, le32_to_cpu(ff->ff_caps->classifiers_limit) - 1),
->  		       GFP_KERNEL);
->  	if (err)
+> +static bool validate_ip4_mask(const struct virtnet_ff *ff,
+> +			      const struct virtio_net_ff_selector *sel,
+> +			      const struct virtio_net_ff_selector *sel_cap)
+> +{
 
 [ ... ]
 
-> @@ -5835,30 +5850,31 @@ static int setup_classifier(struct virtnet_ff *ff, struct virtnet_classifier *c)
+> +	if (mask->protocol &&
+> +	    !check_mask_vs_cap(&mask->protocol, &cap->protocol,
+> +			       sizeof(u8), partial_mask))
+> +		return false;
+> +
+
+[ ... ]
+
+> @@ -5820,11 +5854,41 @@ static bool validate_mask(const struct virtnet_ff *ff,
+
+[ ... ]
+
+> +static void parse_ip4(struct iphdr *mask, struct iphdr *key,
+> +		      const struct ethtool_rx_flow_spec *fs)
+> +{
+> +	const struct ethtool_usrip4_spec *l3_mask = &fs->m_u.usr_ip4_spec;
+> +	const struct ethtool_usrip4_spec *l3_val  = &fs->h_u.usr_ip4_spec;
+> +
+> +	if (l3_mask->ip4src) {
+> +		put_unaligned(l3_mask->ip4src, &mask->saddr);
+> +		put_unaligned(l3_val->ip4src, &key->saddr);
+> +	}
+> +
+> +	if (l3_mask->ip4dst) {
+> +		put_unaligned(l3_mask->ip4dst, &mask->daddr);
+> +		put_unaligned(l3_val->ip4dst, &key->daddr);
+> +	}
+> +
+> +	if (l3_mask->tos) {
+> +		mask->tos = l3_mask->tos;
+> +		key->tos = l3_val->tos;
+> +	}
+> +}
+
+[ ... ]
+
+> @@ -6016,8 +6091,9 @@ static void calculate_flow_sizes(struct ethtool_rx_flow_spec *fs,
+>  }
 >  
-> -static void destroy_classifier(struct virtnet_ff *ff,
-> -			       u32 classifier_id)
-> +static void try_destroy_classifier(struct virtnet_ff *ff, u32 classifier_id)
+>  static void setup_eth_hdr_key_mask(struct virtio_net_ff_selector *selector,
+> -				   u8 *key,
+> -				   const struct ethtool_rx_flow_spec *fs)
+> +				  u8 *key,
+> +				  const struct ethtool_rx_flow_spec *fs,
+> +				  int num_hdrs)
+
+[Severity: Low]
+This isn't a bug, but the two pre-existing continuation lines lost one
+space of indentation here while the new num_hdrs parameter was added.
+"static void setup_eth_hdr_key_mask(" puts the open parenthesis one column
+further right, so the continuation lines no longer line up with it and
+checkpatch reports "Alignment should match open parenthesis". Was the
+re-indent intentional? Only the "int num_hdrs" line seems to need
+touching. The same alignment persists through the end of the series.
+
 >  {
->  	struct virtnet_classifier *c;
->  	int err;
->  
->  	c = xa_load(&ff->classifiers, classifier_id);
-> -	if (c) {
-> +	if (c && refcount_dec_and_test(&c->refcount)) {
->  		err = virtio_admin_obj_destroy(ff->vdev,
->  					       VIRTIO_NET_RESOURCE_OBJ_FF_CLASSIFIER,
->  					       c->id,
+>  	struct ethhdr *eth_m = (struct ethhdr *)&selector->mask;
+>  	struct ethhdr *eth_k = (struct ethhdr *)key;
+> @@ -6025,8 +6101,35 @@ static void setup_eth_hdr_key_mask(struct virtio_net_ff_selector *selector,
+
+[ ... ]
+
+> +static int setup_ip_key_mask(struct virtio_net_ff_selector *selector,
+> +			     u8 *key,
+> +			     const struct ethtool_rx_flow_spec *fs)
+> +{
+> +	struct iphdr *v4_m = (struct iphdr *)&selector->mask;
+> +	struct iphdr *v4_k = (struct iphdr *)key;
+> +
+> +	selector->type = VIRTIO_NET_FF_MASK_TYPE_IPV4;
+> +	selector->length = sizeof(struct iphdr);
+> +
+> +	if (fs->h_u.usr_ip4_spec.l4_4_bytes ||
+> +	    fs->h_u.usr_ip4_spec.ip_ver != ETH_RX_NFC_IP4 ||
+> +	    fs->m_u.usr_ip4_spec.l4_4_bytes ||
+> +	    fs->m_u.usr_ip4_spec.ip_ver ||
+> +	    fs->m_u.usr_ip4_spec.proto)
+> +		return -EINVAL;
+> +
+> +	parse_ip4(v4_m, v4_k, fs);
+> +
+> +	return 0;
+>  }
 
 [Severity: Medium]
-With this patch ff->classifiers becomes the authoritative mirror of the
-classifier objects that exist in the device, since setup_classifier() now
-scans it with memcmp() to decide whether an equivalent device object is
-already present.
+What happens to h_u.usr_ip4_spec.proto here? Every other unsupported
+IPv4 field is rejected, but a non-zero h_u.usr_ip4_spec.proto is neither
+rejected nor programmed.
 
-Given that, is the unconditional cleanup in the tail of
-try_destroy_classifier() still correct?
+include/uapi/linux/ethtool.h documents the field for struct
+ethtool_usrip4_spec as:
 
-drivers/net/virtio_net.c:try_destroy_classifier() {
-	c = xa_load(&ff->classifiers, classifier_id);
-	if (c && refcount_dec_and_test(&c->refcount)) {
-		err = virtio_admin_obj_destroy(ff->vdev,
-					       VIRTIO_NET_RESOURCE_OBJ_FF_CLASSIFIER,
-					       c->id,
-					       VIRTIO_ADMIN_GROUP_TYPE_SELF,
-					       0);
-		WARN_ON_ONCE(err);
+ * @proto: Transport protocol number; mask must be 0
 
-		xa_erase(&ff->classifiers, c->id);
-		kfree(c);
-	}
-}
+So a conforming userspace passes the protocol in h_u with a zero mask in
+m_u, which is exactly the combination that passes all five checks above.
+parse_ip4() then only copies ip4src, ip4dst and tos, leaving
+key->protocol and mask->protocol zero in the zeroed key/classifier
+buffers.
 
-virtio_admin_obj_destroy() is synchronous and returns non-zero when the
-object was not removed, and it can fail without any device malfunction:
+Does this mean
 
-drivers/virtio/virtio_admin_commands.c:virtio_admin_obj_destroy() {
-	if (!vdev->config->admin_cmd_exec)
-		return -EOPNOTSUPP;
+  ethtool -U ethX flow-type ip4 src-ip 192.168.51.101 l4proto 6 action -1
 
-	data = kzalloc_obj(*data);
-	if (!data)
-		return -ENOMEM;
-	...
-	err = vdev->config->admin_cmd_exec(vdev, &cmd);
+installs a rule that matches ethertype IPv4 plus src-ip only, and
+therefore drops every protocol from that address rather than just TCP,
+without returning an error? Would it be better to either program
+iphdr->protocol from h_u.usr_ip4_spec.proto, or return -EINVAL when it is
+non-zero?
 
-After such a failure the device still holds the classifier object while the
-driver has erased and freed its tracking entry.  Does this leak one of the
-device's ff_caps->classifiers_limit slots permanently?
+There also seems to be a disagreement between the two new functions: the
+protocol check in validate_ip4_mask()
 
-Two follow-on effects also look reachable from that state:
+	if (mask->protocol &&
+	    !check_mask_vs_cap(&mask->protocol, &cap->protocol,
+			       sizeof(u8), partial_mask))
+		return false;
 
-- the id is immediately available to xa_alloc() again, so a later
-  virtio_admin_obj_create() for that id can be rejected by the device and
-  userspace sees an ETHTOOL_SRXCLSRLINS failure the driver cannot explain.
+looks unreachable for IP_USER_FLOW, since a non-zero
+m_u.usr_ip4_spec.proto always returns -EINVAL in setup_ip_key_mask()
+first and parse_ip4() never sets mask->protocol. Is that intended?
 
-- an identical classifier requested afterwards no longer matches anything in
-  the xarray, so a second device object is created for it, which is the
-  duplicate-classifier case the commit message says this change avoids.
-
-Would it be better to leave the entry in ff->classifiers (and restore the
-refcount) when virtio_admin_obj_destroy() reports an error?
-
-Separately, in destroy_ethtool_rule() the FF_RULE destroy result is saved but
-not acted on before the classifier reference is dropped:
-
-drivers/net/virtio_net.c:destroy_ethtool_rule() {
-	err = virtio_admin_obj_destroy(ff->vdev,
-				       VIRTIO_NET_RESOURCE_OBJ_FF_RULE,
-				       eth_rule->flow_spec.location,
-				       VIRTIO_ADMIN_GROUP_TYPE_SELF,
-				       0);
-
-	xa_erase(&ff->ethtool.rules, eth_rule->flow_spec.location);
-	try_destroy_classifier(ff, eth_rule->classifier_id);
-	kfree(eth_rule);
-
-	return err;
-}
-
-If the rule destroy fails, can the now shared classifier be destroyed on the
-device while a device-side rule still references its id?
-
->  @@ -5885,7 +5901,7 @@ static int destroy_ethtool_rule(struct virtnet_ff *ff,
->  				       0);
->  
->  	xa_erase(&ff->ethtool.rules, eth_rule->flow_spec.location);
-> -	destroy_classifier(ff, eth_rule->classifier_id);
-> +	try_destroy_classifier(ff, eth_rule->classifier_id);
->  	kfree(eth_rule);
->  
->  	return err;
+Checking the rest of the series, at 04f0a1ab the behaviour looks
+unchanged: setup_ip_key_mask() still returns -EINVAL for
+m_u.usr_ip4_spec.proto with num_hdrs == 2, parse_ip4() still never writes
+iphdr->protocol, and the protocol key is only filled in for
+TCP_V4_FLOW/UDP_V4_FLOW.
 
 [ ... ]
 
