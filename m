@@ -1,136 +1,145 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCF6A42E420;
-	Thu,  3 Sep 2026 08:16:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F5E645629C
+	for <virtualization@lists.linux.dev>; Thu,  3 Sep 2026 08:17:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788423390; cv=none; b=XzkNOGqOFZDZd79Zi9j0S6Mm8ZBfl3o3MPdvSbkkmn7eSg1ENp0Kjf0WXYJL6FdQeE8vvilvYoZAd6AttwoWsK0KVqm2tcyxWT1O015wKfGk3YuSCA1aRMxfVYMEFyrDHJpSrkqgxr4/ECK1vvALmQT5whEJQiWxukCCxG0HTIo=
+	t=1788423422; cv=none; b=Kyxii09Ib3cXwNc30ixEKTf98BYmmKoS45uxqtrMBoP/sQnM6uC4yED+mJ8n1f3wr2a4fdziZLXRFAwhJ3Kw6yyQ7T1G56WcyzzvVkwwrw4BoshS93ML04WlwuLly3DLKZsw8/KlTbrcLaGEGraeFa+m/NVgclb2yBJCGD7b7co=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788423390; c=relaxed/simple;
-	bh=+o+nyoSdpxikK8CJnBLVivh+R0jr8SwEQzzgfF6g3nU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=YIi72Txbxf37hxISUjk3Luh1P5BTyPaLc1X+l0b3j3Fh/Ds9X0UctFJV2skSZrTfRpMsjA+bBZ9vEGbvkhYQuUf1apvJrUbGJ7gC4fSo7VvfLXjWVy1TwH+1KYgwhJheFLob4LbIh+CmNcVB/tWfnI3Q+9kxoZCHc/Xuq0FWSm8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XoIfMXX5; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788423422; c=relaxed/simple;
+	bh=F/nYNZsGTMxhWzzvUohFY6Whct0y3BXt+FoFwDELyu8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=heWDo7fVz2vKkX8EOxMfYtNWIUNO2TumsWKln3L8Kanocby4e85OB6GPGZH4dBmu/98ybksKF8p6pibOelvl/MAU16TZ7di3fU+4CpPUNF3/lTrWvySNoaIrZQZrZFeds/FJqAnzAieoTHS4n7upg8nuL40ZgTr9qUhdxnZYJmQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Gfe6uM40; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XoIfMXX5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 857471F000E9;
-	Thu,  3 Sep 2026 08:16:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788423388;
-	bh=l9GVgLZffkTPbMsDs2bbDfVam0Psx72PkFvt8O0E+VQ=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=XoIfMXX5ocuhbQCMKDwoP3JIopHIJQoNOvejs6fXrWRLslo/NDmEAaC1H2oNWyRw1
-	 hzHCFm6LOuwVKu6t83oW1ehUsyyZ9lNfl1v8fAjODOS9xauDahuuvRM7/lsxI50yTu
-	 T1UmBnLs6NjzO7trJyB/folysjUawhfIFeTowrL5kpmirDCIzZ74TPCShHkraTNKcb
-	 KXIR3uz7iQsksmH4QVKfKbG3jPhPaVeH2pUlEOcl0H60yn25YvhzUOAlHFEBHG5gT4
-	 DBtKo9g56niDE9ksL/zJ+ATLD3GvpM+9UHfgt4eIXcsVbSBSv6LpJXu0ANOwpR3CWW
-	 Vj7PP/c5vYK3A==
-Message-ID: <206b8a0a-0953-402f-b8c5-862da0ff1c5e@kernel.org>
-Date: Thu, 3 Sep 2026 10:16:14 +0200
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Gfe6uM40"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1788423419;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=qBi2OGA1RnDTo2IDvDX78amvRnsBN8dzg7HrP+xghMc=;
+	b=Gfe6uM40N3YJqAVsgZLHyyE1yP8ecjD25+s14EQP7H5TWLrfmeYis6IDizVdLfSPQ5ZIQr
+	Nl68bPnShY/UGPt66mEQGPT226O1INoBFv25obA+o/B/PIbu3jghAYkKDfzndAdVbCYqJG
+	+SXfXn/Oi64hvc7D/K8axC8Qn+sJF/o=
+Received: from mail-yw1-f200.google.com (mail-yw1-f200.google.com
+ [209.85.128.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-628-t5OOY7K9N160DBkkE1lf4A-1; Thu, 03 Sep 2026 04:16:57 -0400
+X-MC-Unique: t5OOY7K9N160DBkkE1lf4A-1
+X-Mimecast-MFC-AGG-ID: t5OOY7K9N160DBkkE1lf4A_1788423417
+Received: by mail-yw1-f200.google.com with SMTP id 00721157ae682-86617faa2b2so25513467b3.2
+        for <virtualization@lists.linux.dev>; Thu, 03 Sep 2026 01:16:57 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788423417; x=1789028217;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=qBi2OGA1RnDTo2IDvDX78amvRnsBN8dzg7HrP+xghMc=;
+        b=fucQUNXbDdmMPD4CHSbqOcT+cYCayHU3ndlAFeK4vybIW9C7gKcrFmcKfK4VZurRsM
+         HLmMQMzqvx/u7S1TLRvtdLm1pRv7Sgh02stVc+5cBJtZQ/0QZFs7yLFa984NakAtRCm0
+         AfAOhmr1DWR9FylgiJVfBAqNHpdIzIdOYHxPWVqtYnPhojBTjppnWt5HyCVM8pPhLD3C
+         2AIdfepGpnRqBNKIGalrbWT5R/bJqnwI0oAvVXy4/hWlrW8vJI+xg4FjsBAPSn6WpG36
+         ADBW9DaY3qi8p7C+K1HSUlyw51UMdH3rpot/kBjGydbQNGFmS50HoyatJEjTXN+GlwBx
+         Io6A==
+X-Forwarded-Encrypted: i=1; AKwUvBwiYKRPUU2iM28qQ1SeMteGsnM3eu29ONVi/VZd9yHBr5bbvt78S0BTgyQ70KjdOh/E49rwcWfLkv806URYmA==@lists.linux.dev
+X-Gm-Message-State: AFuF++lXfiYzqoHVW6WW01u/zxpRsAMHnQ4qyru2hDANYXIUHN7fk4lr
+	2dbdt3empq33lRuK1vS7xs1a7A2ApB/wIMNVBkb7ioaPrjdjFK/j5vFN13RMHRLjbBHZIrBM0sY
+	nDYjSfyNb0DWXNaIWF+Z7KeeyF0jNBag67p+mcirQB9X3xlSyi3FiwZFt3IDIbOZWHq3/+JenOO
+	4KdQR1hEDqb0VhBQFhTVSwjOcqwrLNafZ9XFxPcGiBUfU=
+X-Gm-Gg: AYBFou2V59YlMd4+coREvOkrHPEcziBsv0vPvuUJv4BAhKxbCWadnv/SJ6eZ2q+GThK
+	FJfVGTvG54pEOXonN1VE20wmNzx5CxIO+Ew8eB0TOsTlAui3yUPDwUKAHGi3ghzD2Dd+AFqEDZR
+	Fybx91pm1XHJqvY/LC1SKUTcp5As1HLhaq15xvi572KeeJ7moGkbcwaOhhSOsKnTcwvVpaiFXkz
+	W6fIABrSF4j+vQb0dF0P6ktPJIFyK829S4/PaKWjPzHueNcvlZtTAXCL4s=
+X-Received: by 2002:a05:690c:e18e:20b0:834:fadf:6085 with SMTP id 00721157ae682-86c4e201d3dmr40719317b3.4.1788423417267;
+        Thu, 03 Sep 2026 01:16:57 -0700 (PDT)
+X-Received: by 2002:a05:690c:e18e:20b0:834:fadf:6085 with SMTP id
+ 00721157ae682-86c4e201d3dmr40719117b3.4.1788423416899; Thu, 03 Sep 2026
+ 01:16:56 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 02/11] soc: qcom: add crypto_virt backend for
- virtio-blk inline crypto
-To: Linlin Zhang <linlin.zhang@oss.qualcomm.com>, ebiggers@kernel.org,
- axboe@kernel.dk, mst@redhat.com, jasowangio@gmail.com,
- James.Bottomley@HansenPartnership.com, martin.petersen@oracle.com,
- robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org,
- linux-block@vger.kernel.org, linux-crypto@vger.kernel.org,
- linux-scsi@vger.kernel.org, virtualization@lists.linux.dev,
- devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org
-Cc: neeraj.soni@oss.qualcomm.com, gaurav.kashyap@oss.qualcomm.com,
- mani@kernel.org, andersson@kernel.org, konradybcio@kernel.org,
- bvanassche@acm.org, alim.akhtar@samsung.com, avri.altman@sandisk.com,
- stefanha@redhat.com, pbonzini@redhat.com, eperezma@redhat.com,
- xuanzhuo@linux.alibaba.com, linux-kernel@vger.kernel.org
-References: <20260827160806.1295313-1-linlin.zhang@oss.qualcomm.com>
- <20260827160806.1295313-3-linlin.zhang@oss.qualcomm.com>
- <f5915133-ffac-4777-b7d9-cf38ba163d43@kernel.org>
- <03097984-fded-477e-82b6-f9b31fd2f1d3@oss.qualcomm.com>
- <38389106-9609-4ec4-bc83-3d1b7fac3698@kernel.org>
- <c5aaea57-c9c4-44ca-9bd5-7f09175637b3@oss.qualcomm.com>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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
-In-Reply-To: <c5aaea57-c9c4-44ca-9bd5-7f09175637b3@oss.qualcomm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+References: <20260902092459.1983909-1-eperezma@redhat.com> <apgahfkAdwYcu_5a@sgarzare-redhat>
+In-Reply-To: <apgahfkAdwYcu_5a@sgarzare-redhat>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Thu, 3 Sep 2026 10:16:20 +0200
+X-Gm-Features: AcwNN1U8Cyero_j5_fzuPGrKVCe3JL9kEPdI4kDTanDts-9genlh11Ba6z-3HwU
+Message-ID: <CAJaqyWcQic2mRTPaXY+jt5Dscvsf4XQ659NNnn+pbaKGmKu0Tg@mail.gmail.com>
+Subject: =?UTF-8?Q?Re=3A_=5BPATCH=5D_virtio=3A_add_Eugenio_P=C3=A9rez_as_Maintainer?=
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: mst@redhat.com, Jason Wang <jasowangio@gmail.com>, 
+	Laurent Vivier <lvivier@redhat.com>, jen@redhat.com, virtualization@lists.linux.dev, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, linux-kernel@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: M-FN0uFNgpusN_R6XYyWNTdYXKYoveR_TUaVnC7z_FI_1788423417
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 02/09/2026 17:01, Linlin Zhang wrote:
->>>>> +	ret = qcom_scm_derive_sw_secret(eph_key, eph_key_size,
->>>>> +					sw_secret, BLK_CRYPTO_SW_SECRET_SIZE);
->>>>> +	if (ret == -EIO || ret == -EINVAL)
->>>>> +		ret = -EBADMSG; /* probably invalid key */
->>>>> +
->>>>> +	if (ret)
->>>>> +		pr_err("%s: ret=%d\n", __func__, ret);
->>>>> +
->>>>> +	return ret;
->>>>> +}
->>>>> +
->>>>> +static struct virtblk_crypto_variant_ops virtblk_crypto_qcom_vops = {
->>>>
->>>> Why is a crypto-handling code in drivers/soc/?
->>>>
->>>
->>> This driver is a Qualcomm vendor-specific driver, plays the similar role in the
->>
->> Not really, there is nothing vendor specific here. Look at this code.
->>
-> 
-> crypto_virt_program_key calls the interface from qcom_scm driver. Similar to
-> crypto_virt_invalidate_key and crypto_virt_derive_sw_secret_key.
+On Wed, Sep 2, 2026 at 2:49=E2=80=AFPM Stefano Garzarella <sgarzare@redhat.=
+com> wrote:
+>
+> On Wed, Sep 02, 2026 at 11:24:59AM +0200, Eugenio P=C3=A9rez wrote:
+> >Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> >---
+> > MAINTAINERS | 6 +++---
+> > 1 file changed, 3 insertions(+), 3 deletions(-)
+> >
+> >diff --git a/MAINTAINERS b/MAINTAINERS
+> >index 3a19da74d00c..a92c5712d8cc 100644
+> >--- a/MAINTAINERS
+> >+++ b/MAINTAINERS
+> >@@ -28877,7 +28877,7 @@ VIRTIO CORE
+> > M:    "Michael S. Tsirkin" <mst@redhat.com>
+> > M:    Jason Wang <jasowangio@gmail.com>
+> > R:    Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> >-R:    Eugenio P=C3=A9rez <eperezma@redhat.com>
+> >+M:    Eugenio P=C3=A9rez <eperezma@redhat.com>
+>
+> Should this be moved up before R: entries?
+>
 
-Indeed I missed that. And it does include scm header and depends on it,
-fine then.
+Ouch I forgot to reorder this one,
 
-Best regards,
-Krzysztof
+> BTW thanks for the effort!
+>
+
+Welcome! :).
+
+> Stefano
+>
+> > L:    virtualization@lists.linux.dev
+> > S:    Maintained
+> > F:    Documentation/ABI/testing/sysfs-bus-vdpa
+> >@@ -28954,7 +28954,7 @@ F:     include/uapi/linux/virtio_gpu.h
+> > VIRTIO HOST (VHOST)
+> > M:    "Michael S. Tsirkin" <mst@redhat.com>
+> > M:    Jason Wang <jasowangio@gmail.com>
+> >-R:    Eugenio P=C3=A9rez <eperezma@redhat.com>
+> >+M:    Eugenio P=C3=A9rez <eperezma@redhat.com>
+> > L:    kvm@vger.kernel.org
+> > L:    virtualization@lists.linux.dev
+> > L:    netdev@vger.kernel.org
+> >@@ -29009,8 +29009,8 @@ F:     include/uapi/linux/virtio_mem.h
+> > VIRTIO NET DRIVER
+> > M:    "Michael S. Tsirkin" <mst@redhat.com>
+> > M:    Jason Wang <jasowangio@gmail.com>
+> >+M:    Eugenio P=C3=A9rez <eperezma@redhat.com>
+> > R:    Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> >-R:    Eugenio P=C3=A9rez <eperezma@redhat.com>
+> > L:    netdev@vger.kernel.org
+> > L:    virtualization@lists.linux.dev
+> > S:    Maintained
+> >--
+> >2.55.0
+> >
+>
+
