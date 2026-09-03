@@ -1,110 +1,101 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A00E5433BBD
-	for <virtualization@lists.linux.dev>; Thu,  3 Sep 2026 08:18:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B4A437E5CC
+	for <virtualization@lists.linux.dev>; Thu,  3 Sep 2026 09:17:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788423523; cv=none; b=CEC6IOeXoIE1GgrwR2pzxvVmcIsho2mlOil6WXiCWIyc+VBtpJ3+FYNDg1M8dG/DycWYbDMqmwg+IGKN2/rC+a4FDxjIWDMNFuAiUpoStUpb/iLfHrz9+xD+fAZuUOuXuv2RZYcXQgQ7z3E6Nn5DJmCw02t5gNji3XEO/VfcZ2g=
+	t=1788427031; cv=none; b=RMbck3FqAJVKBsdByf3ba+zHVTWyx5UaZyk5Ki4s8WIVHBFa6Qc9jcw3oHUZOh64mLRljbksH9zNMKIRqeL2HUdV8OL4Yk5fSv704pkCrS26fy+JdYHCaIXiuKmSyItjwOpFRLKB6LWvMJnGf6zUCaONodoBjMMkFiigG43RGVw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788423523; c=relaxed/simple;
-	bh=WR3dfnOeT4WurqYtlL7iyaDmTW3gL+bV/FceCVUT7QY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=m4bdwlhvfpQFr3iBI/SdC62aOM658OPWn5jhfqxQoQWKuK4YOWXHOqybGCNYTnt1dZrJoNJnFUdgIa+xwHnRbp+TLMQw8aplZ+gSbjFgPL6DAHg6EutRfoTmcbKkWw5/yZS6UpPjDE+MY9nhXkNOiSeUzUBf93ZhooCGsqZN8Zc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ee/PVo/7; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1788427031; c=relaxed/simple;
+	bh=OL+o6VJxKZU1tR+6CQ7kZmrOTd2Cibz+iH5UNVYewkY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=V2Z8OvPTtFA3XiJbU4xwOcGR9znn0uHXi/T7TEX07CjDzWsA2bdNDm/igqdT1pojPXIYZZ2V/fULiVTpEH9J0GLMy1sTtrv8a3kui+nwT7/d3RhZQYTAphP4PK0aKt6HVtm5oKADCXnRJQu8k5fP88oVpzcOsJvj3PuKf2m+HW4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=H5Fxb/0M; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ee/PVo/7"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="H5Fxb/0M"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1788423520;
+	s=mimecast20190719; t=1788427028;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=YoiG0j4TGuT1x5zHOr5l+yaeNhzEJ2vYtpYbINKT21Y=;
-	b=ee/PVo/7W56MAVS5B8k/WBoLcpkmDrh0e5tI/nT8eGWqyzOyDe5quWWtv4NelTg/frF715
-	ujX5YAsHa2OAfzFbOUqhYdwjdIBiMO7VKfgI3vrmaOzn1N5C9ZwJg0YyZj5XLVS0jPx1pX
-	VfA99Pf5lLu/Pxt8W9l6e8uio3CBfn8=
-Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-504-zhKJWLWzMhaSPsnHq0fQRQ-1; Thu,
- 03 Sep 2026 04:18:37 -0400
-X-MC-Unique: zhKJWLWzMhaSPsnHq0fQRQ-1
-X-Mimecast-MFC-AGG-ID: zhKJWLWzMhaSPsnHq0fQRQ_1788423516
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 1B7881944CD1;
-	Thu,  3 Sep 2026 08:18:36 +0000 (UTC)
-Received: from fedora.redhat.com (unknown [10.44.32.131])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id BE6A71955F0D;
-	Thu,  3 Sep 2026 08:18:32 +0000 (UTC)
-From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
-To: mst@redhat.com
-Cc: linux-kernel@vger.kernel.org,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	Laurent Vivier <lvivier@redhat.com>,
-	virtualization@lists.linux.dev,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	jen@redhat.com,
-	Jason Wang <jasowangio@gmail.com>
-Subject: [PATCH v2] =?UTF-8?q?virtio:=20add=20Eugenio=20P=C3=A9rez=20as=20?= =?UTF-8?q?Maintainer?=
-Date: Thu,  3 Sep 2026 10:18:31 +0200
-Message-ID: <20260903081831.2129729-1-eperezma@redhat.com>
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=OL+o6VJxKZU1tR+6CQ7kZmrOTd2Cibz+iH5UNVYewkY=;
+	b=H5Fxb/0MXKwdkS5njBcv4xkqYHXOwZY1uAgmodtUMO2xRu9w5q8cryjnQh8iS0WFU8nsRW
+	qIpKA+pt/ckoGUWUCgGTjHioaPwqm95/ZQEOigyy7vIUF76t8cAMPNdL9TMYtq5gKU0P1d
+	s7CXHsIbsb7u+r+jg2066ybj61gfR1w=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-3-kM7OqMHpNOCccJLtXm3cSA-1; Thu, 03 Sep 2026 05:17:07 -0400
+X-MC-Unique: kM7OqMHpNOCccJLtXm3cSA-1
+X-Mimecast-MFC-AGG-ID: kM7OqMHpNOCccJLtXm3cSA_1788427026
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-47f4bff865cso1246982f8f.0
+        for <virtualization@lists.linux.dev>; Thu, 03 Sep 2026 02:17:06 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788427026; x=1789031826;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=OL+o6VJxKZU1tR+6CQ7kZmrOTd2Cibz+iH5UNVYewkY=;
+        b=ZUdfrcCpDMJlQjpNk7HQWOJnM7RbP/h70VRV4gGcvPS71Zm4KftX55NHJpqOhFsZDC
+         oG13hR4ZOfu7hgYLdfCJwolBqb1gLAnKNJ2hPurrqDD31cAITWIAQM58FkuX/ti6+kC6
+         +uVvdapDH6uxwOJOxlHvvXlMemKP2Z1DidagIW6E1PUFeUVHo7tGWYkbiUenHXXt6jOD
+         vWhMXB7o7xNPsCL/9B9sAyYvzB838C222PxNxBkNKtaYYn3VdAFKYT8eqbz9vNzMIbxf
+         n8iR0mvnXU0j0iybCHl6Wjq8gjcLpNwcpsHIHuyUCAxr+3G3Y++pQeBmARh2PIu1TfWk
+         iTaw==
+X-Forwarded-Encrypted: i=1; AKwUvBwV2zMrHBDKmx4Mb3azVa3Dd2kxO81c7zu7AWd8BSee9He+qChOZZQv2w8qtd1sDdUYhygVyq3Wj2L+iQ/O2g==@lists.linux.dev
+X-Gm-Message-State: AFuF++kdshVPypGsvFL2cvrZOnBSXzmHLpIeg4+0ypEcE4W2ydKb+h+c
+	ceEpbPC3hQjbJUPYoW0gR/Zlht+uDDVOYOpdCy7Oqus8zbl1fOy4u8jd2FUe/iDt6FKJj9S1hAv
+	iW0YSbTpOBtTdT5d4uZdeitrhp/THoE/Kh8xS59RspaLVmPPCOFbf5TwFpfbob79/O25b
+X-Gm-Gg: AYBFou30/Cxd8eFmC274fhWbwAnYlDNsSl4QrMf+1I9zcxSlCx2QiFWW7qAz8Vr+k3U
+	SS16WceRbbdL1EbLmxnSHby05D1DjL1W+OgAdXrpLgBSSJ2fPArmpcFh6VHQaSC9qTPsEkJ1M+n
+	rRrm9LHsu8+FYiIuaau2GQBpHob0g9nnGD4jhva1BlKFIhRFzvDEiEV80PhIlpf+s8QM/OCYRqr
+	5dY5kxRn9pii1shYEyVAQJF8cwVmBps1u+YZnjV9CjbNQBsNQR48JhjhePxifci+SS8Hq1dX/gz
+	wg+KT0+su/59+Vi3hSBGQ9lCU128IWaGpSHqhQ7DZbbghzq6ujeSefqMv2JRoo0NN4gcaWajB2C
+	e5vkjJA==
+X-Received: by 2002:a5d:5e87:0:b0:485:8101:dc40 with SMTP id ffacd0b85a97d-4858101dd2amr1666500f8f.9.1788427025861;
+        Thu, 03 Sep 2026 02:17:05 -0700 (PDT)
+X-Received: by 2002:a5d:5e87:0:b0:485:8101:dc40 with SMTP id ffacd0b85a97d-4858101dd2amr1666366f8f.9.1788427025353;
+        Thu, 03 Sep 2026 02:17:05 -0700 (PDT)
+Received: from sgarzare-redhat ([193.207.169.158])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48448e80798sm11736036f8f.13.2026.09.03.02.17.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 03 Sep 2026 02:17:04 -0700 (PDT)
+Date: Thu, 3 Sep 2026 11:17:01 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>
+Cc: mst@redhat.com, linux-kernel@vger.kernel.org, 
+	Laurent Vivier <lvivier@redhat.com>, virtualization@lists.linux.dev, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, jen@redhat.com, Jason Wang <jasowangio@gmail.com>
+Subject: Re: [PATCH v2] virtio: add Eugenio =?utf-8?B?UMOpcmU=?=
+ =?utf-8?Q?z?= as Maintainer
+Message-ID: <apk69gcFCbt8hDcp@sgarzare-redhat>
+References: <20260903081831.2129729-1-eperezma@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
-X-Mimecast-MFC-PROC-ID: wRUYa-NfvEmNC8Q1hnIOuC98JMnYpVFCq4jlfi3i5Ec_1788423516
+In-Reply-To: <20260903081831.2129729-1-eperezma@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 5rf9wtY_ar-2A5bpxAhEBRk0C6Uo_GxEZRb4iQ3h2As_1788427026
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 
-Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
----
-v2: Reorder entries so M entries are ordered before than R.
----
- MAINTAINERS | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+On Thu, Sep 03, 2026 at 10:18:31AM +0200, Eugenio P�rez wrote:
+>Signed-off-by: Eugenio P�rez <eperezma@redhat.com>
+>---
+>v2: Reorder entries so M entries are ordered before than R.
+>---
+> MAINTAINERS | 6 +++---
+> 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 3a19da74d00c..a7edb2709960 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -28876,8 +28876,8 @@ F:	include/uapi/linux/virtio_console.h
- VIRTIO CORE
- M:	"Michael S. Tsirkin" <mst@redhat.com>
- M:	Jason Wang <jasowangio@gmail.com>
-+M:	Eugenio Pérez <eperezma@redhat.com>
- R:	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
--R:	Eugenio Pérez <eperezma@redhat.com>
- L:	virtualization@lists.linux.dev
- S:	Maintained
- F:	Documentation/ABI/testing/sysfs-bus-vdpa
-@@ -28954,7 +28954,7 @@ F:	include/uapi/linux/virtio_gpu.h
- VIRTIO HOST (VHOST)
- M:	"Michael S. Tsirkin" <mst@redhat.com>
- M:	Jason Wang <jasowangio@gmail.com>
--R:	Eugenio Pérez <eperezma@redhat.com>
-+M:	Eugenio Pérez <eperezma@redhat.com>
- L:	kvm@vger.kernel.org
- L:	virtualization@lists.linux.dev
- L:	netdev@vger.kernel.org
-@@ -29009,8 +29009,8 @@ F:	include/uapi/linux/virtio_mem.h
- VIRTIO NET DRIVER
- M:	"Michael S. Tsirkin" <mst@redhat.com>
- M:	Jason Wang <jasowangio@gmail.com>
-+M:	Eugenio Pérez <eperezma@redhat.com>
- R:	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
--R:	Eugenio Pérez <eperezma@redhat.com>
- L:	netdev@vger.kernel.org
- L:	virtualization@lists.linux.dev
- S:	Maintained
--- 
-2.55.0
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 
