@@ -1,70 +1,70 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13AB649365E
-	for <virtualization@lists.linux.dev>; Thu,  3 Sep 2026 11:53:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F026949EC43
+	for <virtualization@lists.linux.dev>; Thu,  3 Sep 2026 11:55:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788436395; cv=none; b=djiIt06dcLrf0Ka/po/qu/VAL0u04mHIeCAwTjcXQIHljqwlbNJtk+RmpjSTNMyMayhja33fX8gUEUJGr34NDs51fPT43dUfUF3zQsK6gHKWT02HVJgtWfPPvwAK1k3WxtApNW4PTCEstMPNvrTZ2fI28u3TOoTrDzK7Wx716o4=
+	t=1788436563; cv=none; b=bJjzXwn26u3/tspd2m+HDMPjcObicRjRlA0+SkL4lGJqU8YhtxF4eamBSxjSmnZ9w3FHn6nCqvUXLBQmezCNh/Ge3M74TaEFj23m2p4pEhj0pgM7lbJqYu59f4KFf1FxWunxvElJSOEMcp3gVb993k4FTRNmI3xyUDq/L0Iud4E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788436395; c=relaxed/simple;
-	bh=NXdwaN0ZLM9X4EiI3vGfuaCSH/ohhs7TAIZQWzgxxSs=;
+	s=arc-20240116; t=1788436563; c=relaxed/simple;
+	bh=CdAz7fh+1ltkQ4tM2hXdLcQnn+Tcf3gIIBOSSClnYDY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=Vtb2suLuyYcJ1yJA5laqETnanRCdRLpc36kQiVGJIvjK4KnkoEHjWgdImceTUd1vBK/zBVvkIV8FflsAxWQqTVCv4UN/70E6Hjcguh0IlUMcZMAOa+sP4+gqKACj0PKXklCxdfYiZx6OxObev3HsEywvuhpP7SI2A+qxH823CmI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JTqGY2fR; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=gTdh0Z2ITc9X2hkbMhxJaRnSo+EJXhm81DmYI54XQOmdwXKlsB7Zkou86b3uK1Z9SjkbnKcSoNjLgVSPPbxQh1ZKOR3wWuCGteSul/1frb14vsonaW5J9BAvrUoZ/tN+xoxPiMfhFVw/fMTMRlvBJyu0RpLaJUgm4sti60yPqYo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ijVnPGEw; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JTqGY2fR"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ijVnPGEw"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1788436388;
+	s=mimecast20190719; t=1788436556;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Zt5TFwXrVFNhjDyjDPH7hfKRxLknQjHaFWOGKgUQ+7s=;
-	b=JTqGY2fRMNPXsUrhYqtgi5lmOx4faRPVd0RhOkWIXCVLOmaUi3mzrJUpSWXvBdARSPukf2
-	S0H9Ckk0BJfvTbPk61NLUHXfFMlEXVVkrC/B/7qfx17QwWdOreIf/gd+nq5YriAM3C9iW5
-	Hk8kLq32ujBCvn5737Mxc8TahrbP2wo=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=Bcb5WjUE5AVdlBj8rvAyCS6YYznNN90xNsiTu4NwOR4=;
+	b=ijVnPGEwlSmRtVsbvOB384r7m7pT5g78WGkFX8KeOv//UsyWhzPtqYWjR87MhKsNPCfi+Y
+	cs1Z55jploTlOJdy7idsrXqIC3pW9KRCmpkwy0g8L8LcjkR7uKgQ6uNPUJgaDmFpvTPlba
+	V4ivs5kuEZ6s8YokG2WVFcatwKwkk6s=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-552-SZN1q9ooPrqoOfM9Gr6Lsw-1; Thu, 03 Sep 2026 07:53:07 -0400
-X-MC-Unique: SZN1q9ooPrqoOfM9Gr6Lsw-1
-X-Mimecast-MFC-AGG-ID: SZN1q9ooPrqoOfM9Gr6Lsw_1788436386
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-495474a5fbcso19249615e9.1
-        for <virtualization@lists.linux.dev>; Thu, 03 Sep 2026 04:53:06 -0700 (PDT)
+ us-mta-218-fdTp2IXnO3uAJCZseXWGiQ-1; Thu, 03 Sep 2026 07:55:55 -0400
+X-MC-Unique: fdTp2IXnO3uAJCZseXWGiQ-1
+X-Mimecast-MFC-AGG-ID: fdTp2IXnO3uAJCZseXWGiQ_1788436554
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-4843d9ab895so1988121f8f.0
+        for <virtualization@lists.linux.dev>; Thu, 03 Sep 2026 04:55:54 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788436386; x=1789041186;
+        d=1e100.net; s=20251104; t=1788436554; x=1789041354;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=Zt5TFwXrVFNhjDyjDPH7hfKRxLknQjHaFWOGKgUQ+7s=;
-        b=MrUS2P5WqVMV0hlvWqFDBGl3mYIN7DO9DMls50zpnQbUO7TwXd5IK96+1KmUwQ+MZD
-         hG+bMIehO/tFH6OAwE7CIDtVnimGOni2Kp+e/n8ivI4JhRCu6Sabzy2UPNgW6RvcnKSV
-         O4GSNqL+f3+NCmjw8CYJrqtWY0JTMcyFhFN/m0onny6B+v3k95er3Elkv24i/qcfmL7K
-         ooxmHXpfp9dge89LV/XLh3n4GSePcX9T/gbiA4xB23BzBfvm/KrNsQBuFeXRHvqWiyct
-         +X1MW4YqhbltIqWWbTe5IOUBz5j0fyfYf6KKPzTLBcZzc30iEDzvBvh2Tn1YtPeqCqTg
-         jU7A==
-X-Forwarded-Encrypted: i=1; AKwUvBwcB6hdYNaG7scnyFkNgTxVetTESbBDhedl0DEF/SSYoPWsyGSUZemvvbowjgPoPX+US5it4n30O/4Fl3tqcA==@lists.linux.dev
-X-Gm-Message-State: AFuF++lKZU2xNqex/vj9p2qkCUOyk8Af82czv1tbrG8GSTx+5BH3Fq3f
-	qluI49DTOQytsByMXM/krjxjX4ksf2eeOO0WoF54VoyIHkZ8foWuEdM5j5cKTdr5zrvlSfT5ntl
-	4z4c78D+2jCtztugPi04QEqYiE3EG5So4NWGENGrQFwc3aB5QGu5xPd4sTkSVV8nQVA2o
-X-Gm-Gg: AYBFou0P3hshl9X0BB/FF4kl3Szc96BSUQurHdN8dqhwCbZueSK8SIb9n/d6/soU4qo
-	hzM/IIMBO/sAbK1XmYerTqHJ8bMtbRhEP3ocG+9LkP0F2UcpVQcDyrX2qRn/Oz8nGmPuGHEiwcD
-	xkUnRBpWHgt7p/MW829xO2wQj3nvykB4QGEGRcsjt5q5x+MKHSsKK1gSatNf+vHfUuPnTZ1W6Lj
-	cJs8HyHRMj4ca7ONTIdRtwhuOWg/KnS2kF2EVtZVn69DqV0IhHj4tlIuc08vEMFYcYUmgzGQw3d
-	xJKLc8Wy8lzgTMfNVrWuUZ4Lxsi4M8Tag6a3qmyZe4mrMEOTpjEM4KCOTVQ+iT9BKO5OVZ2ydyn
-	JOz+O9p9oCWw23K+RXrbIVZQ=
-X-Received: by 2002:a7b:ca42:0:b0:49b:92df:87be with SMTP id 5b1f17b1804b1-49ce55fbdbemr146698965e9.4.1788436385734;
-        Thu, 03 Sep 2026 04:53:05 -0700 (PDT)
-X-Received: by 2002:a7b:ca42:0:b0:49b:92df:87be with SMTP id 5b1f17b1804b1-49ce55fbdbemr146698175e9.4.1788436385256;
-        Thu, 03 Sep 2026 04:53:05 -0700 (PDT)
+        bh=Bcb5WjUE5AVdlBj8rvAyCS6YYznNN90xNsiTu4NwOR4=;
+        b=AYGEjkWny4vHCynzwLaYi88+YT3xAB71I7cEZbr7bm6Heiiw1p/2lMOnyMKEYtVT+C
+         9fX2JWI6MU4KmJnsVjyZCUCEGObkpOmyZX1nz73RZCV6GFEeDsh3ydJNaXJUYuh6Min5
+         ONQrJhjt7ilr9XJlkJcJl8Cj7j1Vop6bf4ngoSIGGVue6+NVx4oKEupzVQJCnr7wcTWQ
+         9jRWJQrQpAa9MX3WiipayEbSl+4jnRGMVOWoWRy28C6rteisjSJ5tw9kio4HfbaODT5E
+         Z66cVuKYOL/949+aG35yDfIOtzGa8pvKjlhGAhYo97yN6/mmFPe9TXko7q6jSJbc4X6B
+         EZJA==
+X-Forwarded-Encrypted: i=1; AKwUvBznUOXDlJkglga4jqLofqG4s6QdpX4NLsXRIexQozQWTpH3PJH70ytPEoDcwaGaAH9Wx39AGbfIbLZUlEagQg==@lists.linux.dev
+X-Gm-Message-State: AFuF++nAKDpNtm08+oFasxMSTF8MQhcuUu+RGbRjE5HbX/SEjE2YGsOF
+	BdPpkbjwfJfHVVDSHFIzyHPaKhfkMA4QnQ5sGpYrgkZqKfJHtBLvxN7N7MZAVjy0Z8I814r4j6k
+	WO5VX3uoAqBbD9Hq7iWndlTBSLmFsbxGMPsFQ/Bfvlm9g5Uym2C16yw9bfDGS5efJATRQ
+X-Gm-Gg: AYBFou0R+KKt00KOKsk69at/WEdgqT9GX4CVghwpfEKGTJr42IexP+XG24elGUqZ+A9
+	h+jUpBtIsEUYRUgys50eRz/WOfKX3hpwbuUolbAcZsu1ZXv+B0IK7vcjMt4rFuslf+4SkTPpU/c
+	qK9g1zy9hDxVU6hsPbzvDIHrdKwx1l5l+neUZPmsFWYRPAjDi3em2DgQURHyteInQETWkENHnxm
+	16wT01CZ979OzIMKgHSeZymqg56Fjl/0QivUlCrGoJHs8zR4N4zhIGUliW5epZijjUDJoCT/bWG
+	6apwhwAD3q6XB+7KNCnxeh7lES8ZNFgronKmI6Sda3OCqZ3YPdoU97t+g5tf/AMUy5cwoLpRftx
+	wwxRypbpIAwHW3vt+O/T/Y8U=
+X-Received: by 2002:a05:6000:2086:b0:47f:96e3:530e with SMTP id ffacd0b85a97d-48488efd18fmr19364417f8f.8.1788436553768;
+        Thu, 03 Sep 2026 04:55:53 -0700 (PDT)
+X-Received: by 2002:a05:6000:2086:b0:47f:96e3:530e with SMTP id ffacd0b85a97d-48488efd18fmr19364312f8f.8.1788436553272;
+        Thu, 03 Sep 2026 04:55:53 -0700 (PDT)
 Received: from redhat.com (IGLD-80-230-79-236.inter.net.il. [80.230.79.236])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49ce46696e8sm85689205e9.0.2026.09.03.04.53.03
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48448ed38cfsm12369287f8f.19.2026.09.03.04.55.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Sep 2026 04:53:04 -0700 (PDT)
-Date: Thu, 3 Sep 2026 07:53:01 -0400
+        Thu, 03 Sep 2026 04:55:52 -0700 (PDT)
+Date: Thu, 3 Sep 2026 07:55:49 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Karl Mehltretter <kmehltretter@gmail.com>
 Cc: Jason Wang <jasowangio@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
@@ -74,64 +74,83 @@ Cc: Jason Wang <jasowangio@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
 	Rusty Russell <rusty@rustcorp.com.au>,
 	Pawel Moll <pawel.moll@arm.com>, virtualization@lists.linux.dev,
 	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/2] virtio: synchronize callbacks during device reset
-Message-ID: <20260903075247-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH 1/2] virtio-mmio: synchronize callbacks during device
+ reset
+Message-ID: <20260903075143-mutt-send-email-mst@kernel.org>
 References: <20260818040433.66986-1-kmehltretter@gmail.com>
+ <20260818040433.66986-2-kmehltretter@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260818040433.66986-1-kmehltretter@gmail.com>
+In-Reply-To: <20260818040433.66986-2-kmehltretter@gmail.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: pIQ5amykiYD5kqdYzSaFc2PBVxK9Ff8vtl99UiKVT0Y_1788436386
+X-Mimecast-MFC-PROC-ID: vJMYDpeGxCP8HOyh_f36ZicO3NXciu5fDNwxt-4XAs8_1788436554
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Tue, Aug 18, 2026 at 06:04:31AM +0200, Karl Mehltretter wrote:
-> virtio_reset_device() documents that vq callbacks are not in progress
-> once it returns. virtio-pci delivers that by ending vp_reset() with
-> vp_synchronize_vectors(), virtio-mmio does not, and a driver that frees
-> state its callback uses then hits a use after free.
+On Tue, Aug 18, 2026 at 06:04:32AM +0200, Karl Mehltretter wrote:
+> virtio_reset_device() promises that vq callbacks are not in progress
+> once it returns, but vm_reset() only writes 0 to the status register.
+> A callback that has already entered vring_interrupt() keeps running
+> while the driver tears down the state it uses.
 > 
-> Patch 1 brings virtio-mmio in line with virtio-pci.
+> Wait for a status read to return 0, so the device has stopped raising
+> interrupts, then synchronize_irq() as vp_reset() does with
+> vp_synchronize_vectors().
 > 
-> Patch 2 makes virtio_input reset before unregistering its input device
-> and stop its callback once teardown has begun.
-> 
-> Together these patches fix the use after free on virtio-pci
+> Fixes: edfd52e63672 ("virtio: Add platform bus driver for memory mapped virtio device")
+> Assisted-by: Claude:claude-fable-5
+> Signed-off-by: Karl Mehltretter <kmehltretter@gmail.com>
 
-pci has synchronize on reset already
 
-> and
-> virtio-mmio. Classic virtio-ccw and other transports still
-> do not provide the documented guarantee.
+I htink we should  instead drop 
+
+vp_synchronize_vectors
+
+from vp_reset
+
+and instead call virtio_synchronize_cbs from virtio_reset_device.
+
+
+
+> ---
+>  drivers/virtio/virtio_mmio.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
 > 
-> The use-after-free was reproduced under KASAN with the race window
-> artificially widened.
-> 
-> Callback synchronization was tested in an arm64 QEMU guest with a
-> virtio-input device over virtio-mmio and four vCPUs. The event callback
-> used a busy delay, not a sleep, and an in-progress counter tracked
-> overlap with unbind.
-> 
-> The driver was unbound and rebound 120 times under continuous input.
-> With patch 2 alone, virtio_reset_device() returned before the callback
-> finished in all 109 races, each in under 1 ms. With both patches,
-> vm_reset() waited for the callback in all 111 races, taking 24 to 86 ms.
-> 
-> Karl Mehltretter (2):
->   virtio-mmio: synchronize callbacks during device reset
->   virtio_input: stop callbacks before unregistering input device
-> 
->  drivers/virtio/virtio_input.c | 8 ++++++--
->  drivers/virtio/virtio_mmio.c  | 6 ++++++
->  2 files changed, 12 insertions(+), 2 deletions(-)
-> 
-> 
-> base-commit: 3eb40771c00a8488fa6ed2cc1fe203477908bf38
+> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+> index 510b7c4efdff8..a2ca03dbe803d 100644
+> --- a/drivers/virtio/virtio_mmio.c
+> +++ b/drivers/virtio/virtio_mmio.c
+> @@ -55,6 +55,7 @@
+>  #define pr_fmt(fmt) "virtio-mmio: " fmt
+>  
+>  #include <linux/acpi.h>
+> +#include <linux/delay.h>
+>  #include <linux/dma-mapping.h>
+>  #include <linux/highmem.h>
+>  #include <linux/interrupt.h>
+> @@ -254,6 +255,11 @@ static void vm_reset(struct virtio_device *vdev)
+>  
+>  	/* 0 status means a reset. */
+>  	writel(0, vm_dev->base + VIRTIO_MMIO_STATUS);
+> +
+> +	/* Wait for reset completion before flushing callbacks. */
+> +	while (vm_get_status(vdev))
+> +		fsleep(1000);
+
+
+only needed for v3 and up
+
+> +	synchronize_irq(platform_get_irq(vm_dev->pdev, 0));
+
+
+>  }
+>  
+>  
 > -- 
 > 2.53.0
 
