@@ -1,142 +1,117 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA6333F54B6
-	for <virtualization@lists.linux.dev>; Thu,  3 Sep 2026 11:28:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBE68407567;
+	Thu,  3 Sep 2026 11:51:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788434941; cv=none; b=uvPzP2NktxzDVnmox1M+ikwvxLF3BfpnvwxGaAzOVAGyXqgXij/Zq7NzlB5Dv+Zgf5J2AWKIVvamjb9EB/kT5zl97tp+btgHIhrkgTkplyIxwDCiHQhs1fBT7+J7P3K0GerJTENOZ3xwnVW31jgH9sdQUWPSq9Bv5x2uguEUdAQ=
+	t=1788436315; cv=none; b=LDxR0CKFL4L5xl70mfZkdQHP+ysb+5/5QXB9gi0121ppFs8EzhgooxZUHFZ5vBIoVbvlVBY3OAHkS4O3ShwfmbXAA5Y/K2tZnAjH8Pl/2CgAAGfyapiSql8ohl/eGpcbdP/M41HZhV8P2+Cq+0wQw4bTdoYTSungqj0uUTKSbEE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788434941; c=relaxed/simple;
-	bh=izIoxQQPPhWNBGA2zN0F8lnUVzBbBYH0WQkACSGnoZ0=;
+	s=arc-20240116; t=1788436315; c=relaxed/simple;
+	bh=+/jK6oDr1A0YdtR0Qrqozxz9Lrcm1FWSzYGzuQvNGlU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=mIIPs0yGxnp8wXmBNY6Fo2JCZeUILjBrUarC2FgvmM0qGhclv6QenLq/SNfYRfCeKBpqvOdt+2zOGrAi+6d6Xkk8kFe8K2UcM/mW8kGk16NtLU9AjlRxNRUxn6WKSIUrRmrNppx1roX8T+keE1DTa7eeVLPIiXbkBedcffVTHBI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VZN4BKBs; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=seah9Xr3p9NROoQtPdXhyf8cxFrL7CS7qtE+8Ov5wtraZgsyWhMoLejobkp6m3Xvm340ivpYx8gmicn/MdlIPg9WtGSSi2GzNRWfvNE1O/+bV8fd9r/e0Q/irL795BP3m1mxxOvIMkHpWlZWj04nYmvWBsfv3OrQYeoZDmnViTA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NuJ8oNK2; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VZN4BKBs"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1788434937;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=S7VfWNLPahHWyir7K1ES/2Ml0Y11JC1XZzjOhYDml2w=;
-	b=VZN4BKBsbt5E4NBfWnxlewGXYYHNOQoSQiSIXeS5adpiS22TmDn23Ak+9/hBFt6J7z5AAi
-	h4fi9UpBBhGISp/fgUHwXJLnS7g6y1leOKFIpRPX4fTT81AGddLsCzpeMkFddNo6+FUtmn
-	1mM1xc6mtbBLH7KXDMTE6NqPiN+7a0s=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-433-x7b9ig8rOOqnjqu-kJThiQ-1; Thu, 03 Sep 2026 07:28:55 -0400
-X-MC-Unique: x7b9ig8rOOqnjqu-kJThiQ-1
-X-Mimecast-MFC-AGG-ID: x7b9ig8rOOqnjqu-kJThiQ_1788434934
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-49cd83ca361so24244185e9.1
-        for <virtualization@lists.linux.dev>; Thu, 03 Sep 2026 04:28:54 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788434934; x=1789039734;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=S7VfWNLPahHWyir7K1ES/2Ml0Y11JC1XZzjOhYDml2w=;
-        b=gfzFsmKj31MD7LmA2WPam6L5AIJ0PvOT8HkLoTlWQExZVuNF1PjoeRppH3/dDrLjso
-         7rxPYqHxE/IWlH0aHP1vpLRPpLWd6dtFW/dPlI3t72DIIISS0zJIcRbDyy/N3lRWvZ4v
-         3BBbGCbZpdI5tkO4c16i1LLkol5Y79Dcb2HGeqH2acZVWTQMIQ4tJkA+MjTjw4YIx8sG
-         R1q8AzmTYr7ElV0sbI6SftUoLTE9qliAt+2D7cMaoVRzJ0JZfAVENeHFQ8cY/hXO0/LX
-         mESp6UynJybJpanRaCqWOy2PAV8RHlETceRswhbYmnjFr/BhCp2jVc3gkSAJFZO+dLQ1
-         qA7w==
-X-Forwarded-Encrypted: i=1; AKwUvBxCK7CEVR4z3f0BpXlV6S0dXw95qGHKfVlIuZ/UEc9cgD5/qx6O9B+J0pXMPKerg4NwAZYR4regL39/BqPQwQ==@lists.linux.dev
-X-Gm-Message-State: AFuF++k4br1kaf5cuo2hKXEzSx6mgF0/VFC/oeKLf4pGUcx1rIaWsMdS
-	mjPhY38GSEneo8CQQEnIvaSCXye0oouPh4cufkXiRXz/CrKwNbvGmxLLOTNzFmxzcjxhrIV/dYL
-	tnDV77EBQvPVtSrjyeUQYycAR478YqpZ8GD2FPdgMBAWqTtCCZErmaZHK9eg7vCyqPecX
-X-Gm-Gg: AYBFou1jl90l/5FiJQHV3skaOBh2BQ1ZVi5CYN5AHNInhd+BjxXSscnUhAXwf4ufnzP
-	6U2wOosk4UYdbFcn4otSABGNIBIivRRECUqBK8uTbsB04c5atzs3l/op4+jw/sA/WEh4QabqWB2
-	jmPIRggajgnp9Lqe/y1CIoPhH14f4OKKHuFk/FwQi3NvDMphhmtE4MAoPWM/9GeVi7dFej9XgnY
-	mr9imJXG/hSR+eSk3s79EJENt9MdRjMVu/izxWj96WQ1A4xo1JJwFgdN1LOrwJHnJdGqSR774tE
-	s4GbP1wejq2bCilXcsLTwiZ0VIG5k8PRQQxHFSGwDfCs8QeQqSCuDIbZfDVuaHoyvBnIxpEJ0zx
-	POZsgtRDipuYF7IJB18KJ5o4=
-X-Received: by 2002:a05:600c:608c:b0:49c:cedc:3c36 with SMTP id 5b1f17b1804b1-49ce5826c6amr235855405e9.16.1788434933532;
-        Thu, 03 Sep 2026 04:28:53 -0700 (PDT)
-X-Received: by 2002:a05:600c:608c:b0:49c:cedc:3c36 with SMTP id 5b1f17b1804b1-49ce5826c6amr235853945e9.16.1788434932899;
-        Thu, 03 Sep 2026 04:28:52 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-79-236.inter.net.il. [80.230.79.236])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49cee6023edsm62587755e9.7.2026.09.03.04.28.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Sep 2026 04:28:51 -0700 (PDT)
-Date: Thu, 3 Sep 2026 07:28:48 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Karl Mehltretter <kmehltretter@gmail.com>
-Cc: Jason Wang <jasowangio@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Rusty Russell <rusty@rustcorp.com.au>,
-	Pawel Moll <pawel.moll@arm.com>, virtualization@lists.linux.dev,
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] virtio-mmio: synchronize callbacks during device
- reset
-Message-ID: <20260903072404-mutt-send-email-mst@kernel.org>
-References: <20260818040433.66986-1-kmehltretter@gmail.com>
- <20260818040433.66986-2-kmehltretter@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NuJ8oNK2"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07B501F000E9;
+	Thu,  3 Sep 2026 11:51:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788436309;
+	bh=dxyY9Tzkz8LZbbS4IdiWykaLcoxazFbZtCM7LZDUqSg=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=NuJ8oNK2NqKz656HJoV8/Ca7eW08ej/LNpGO3nMZsr85ZCF3x8TabWpESy22HicL5
+	 1GmkBVPXaNMkGlecBlWwxgVKnX1bRAm/brINsNYTYqZxyI58jQVq6m6Ftbyy68huA5
+	 771E6L5zaCxC7pmxP529toEp92hNd7eVmMG+mBGmoxPTSKKt+NG3JR6WelvTIRl79e
+	 Ni2GC2vIn+0tETkV5S4d/700LCZq9735EoS8q/qH+Yv7qaKjmRFJFH4aDmqeNqG8YO
+	 pZvUGjcNdN80nIt4IyMr83Dk5/IQK3bBlwEJMOgN2Uyuy9aHJ7bv1nhCveJk5RBfpc
+	 b+L3QjobJDw3g==
+Date: Thu, 3 Sep 2026 13:51:29 +0200
+From: Manivannan Sadhasivam <mani@kernel.org>
+To: Niklas Cassel <cassel@kernel.org>
+Cc: alistair23@gmail.com, mst@redhat.com, eperezma@redhat.com, 
+	linux-kernel@vger.kernel.org, xuanzhuo@linux.alibaba.com, jasowangio@gmail.com, 
+	linux-scsi@vger.kernel.org, mkp@kernel.org, virtualization@lists.linux.dev, 
+	James.Bottomley@hansenpartnership.com, alistair@alistair23.me, 
+	Alistair Francis <alistair.francis@wdc.com>, linux-pci@vger.kernel.org, Shunsuke Mie <mie@igel.co.jp>, 
+	Frank Li <Frank.Li@kernel.org>, Koichiro Den <den@valinux.co.jp>, 
+	Kishon Vijay Abraham I <kishon@kernel.org>, Damien Le Moal <dlemoal@kernel.org>
+Subject: Re: [PATCH 0/2] scsi: Initial commit of VirtIO PCIe Endpoint Driver
+Message-ID: <akvzpivrbg3b3jra6ibga6j637pwqkwnnzs6q2ymcn5ixrdym6@wniqpspkcknt>
+References: <20260901014650.2728658-1-alistair.francis@wdc.com>
+ <apaOZeeDBIRlpB7b@ryzen>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260818040433.66986-2-kmehltretter@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: OPD8ti0pKwncd8shI2C9WRXiNbke-oTUtnVdl75uMAI_1788434934
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <apaOZeeDBIRlpB7b@ryzen>
 
-On Tue, Aug 18, 2026 at 06:04:32AM +0200, Karl Mehltretter wrote:
-> virtio_reset_device() promises that vq callbacks are not in progress
-> once it returns, but vm_reset() only writes 0 to the status register.
-> A callback that has already entered vring_interrupt() keeps running
-> while the driver tears down the state it uses.
-> 
-> Wait for a status read to return 0, so the device has stopped raising
-> interrupts, then synchronize_irq() as vp_reset() does with
-> vp_synchronize_vectors().
-> 
-> Fixes: edfd52e63672 ("virtio: Add platform bus driver for memory mapped virtio device")
-> Assisted-by: Claude:claude-fable-5
-> Signed-off-by: Karl Mehltretter <kmehltretter@gmail.com>
-> ---
->  drivers/virtio/virtio_mmio.c | 6 ++++++
->  1 file changed, 6 insertions(+)
-> 
-> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-> index 510b7c4efdff8..a2ca03dbe803d 100644
-> --- a/drivers/virtio/virtio_mmio.c
-> +++ b/drivers/virtio/virtio_mmio.c
-> @@ -55,6 +55,7 @@
->  #define pr_fmt(fmt) "virtio-mmio: " fmt
->  
->  #include <linux/acpi.h>
-> +#include <linux/delay.h>
->  #include <linux/dma-mapping.h>
->  #include <linux/highmem.h>
->  #include <linux/interrupt.h>
-> @@ -254,6 +255,11 @@ static void vm_reset(struct virtio_device *vdev)
->  
->  	/* 0 status means a reset. */
->  	writel(0, vm_dev->base + VIRTIO_MMIO_STATUS);
-> +
-> +	/* Wait for reset completion before flushing callbacks. */
-> +	while (vm_get_status(vdev))
-> +		fsleep(1000);
+On Tue, Sep 01, 2026 at 10:35:49AM +0200, Niklas Cassel wrote:
+> On Tue, Sep 01, 2026 at 11:46:48AM +1000, alistair23@gmail.com wrote:
+> > From: Alistair Francis <alistair.francis@wdc.com>
+> > 
+> > This series adds a VirtIO SCSI endpoint built on top of the VirtIO PCIe
+> > endpoint. This is a similar approach to the NVMe PCIe Endpoint
+> > (drivers/nvme/target/pci-epf.c) but for SCSI.
+> > 
+> > This does end up being somewhat similar to the pci-epf.c code, but
+> > re-written for SCSI.
+> > 
+> > This approach allows a PCIe Endpoint device (tested on a
+> > radxa-rock5b) to setup what appears to be a SCSI device, using an
+> > existing SCSI backend (tested using scsi_debug).
+> > 
+> > At this point a host can connect over PCIe, ensure virtio_pci and
+> > virtio_scsi is loaded and on PCIe rescan will see a scsi device.
+> > 
+> > There are a few pain points with this approach though:
+> >  1. We have to use the Legacy SCSI VirtIO driver. This is because the
+> >     Raxda Rock5b (and AFAIK all PCIe Endpoint hardware) can't add
+> >     capabilities. So we can't advertise the VirtIO Common configuration
+> >     capability, which means we can't be a modern VirtIO SCSI device.
+> > 
+> >     This is unfortunate, but there doesn't seem to be any way around
+> >     this, at least with the current hardware.
+> > 
+> >  1.2. Legacy virtio devices only have 32 feature bits and therefore can't
+> >     set the VIRTIO_F_ACCESS_PLATFORM (bit 33) feature. This means the
+> >     vring_use_map_api() function will return false.
+> > 
+> >     Currently Linux endpoint devices use the legacy virtio interface as
+> >     they aren't able to advertise the Common configuration capability.
+> >     As most PCI endpoint capable PCIe controllers do not allow modifying the
+> >     capability list, and thus are unable to advertise the Common configuration
+> >     capability. This means the device's inbound TLPs fault on the host
+> >     SMMU because the vring descriptors carry raw physical addresses.
+> > 
+> >     This series adds a quirk that forces a subset of legacy virtio devices
+> >     to use the DMA Map API (vring_use_map_api() will return true),
+> >     which fixes this issue.
+> > 
+> >     It's unideal that we have to hard code a quirk to basically just
+> >     advertise the VIRTIO_F_ACCESS_PLATFORM feature, but (see 1) as we
+> >     are stuck with legacy virtio devices there isn't much else we can do.
+> > 
+> >  2. We have to pin scsit_pci_epf_poll_cfg_thread() on a CPU in order to
+> >     respond fast enough to the host. This means we effectivly burn a CPU
+> >     to read and write some values. But as there are no intterupts
+> >     generated on these events and we need to be very quick there isn't
+> >     another option.
+> > 
 
-this is only required for transport version 3.
+Most of these pain points will go away if you use virtio-msg [1] transport
+instead of the virtio-pci transport. Using the virtio-pci transport on a real
+PCIe device without a way to trap and emulate the config space requests will
+always be racy.
 
+- Mani
 
-> +	synchronize_irq(platform_get_irq(vm_dev->pdev, 0));
->  }
->  
->  
-> -- 
-> 2.53.0
+[1] https://lore.kernel.org/virtio-comment/cover.1781514628.git.bertrand.marquis@arm.com
 
+-- 
+மணிவண்ணன் சதாசிவம்
