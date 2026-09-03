@@ -1,151 +1,196 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f98.google.com (mail-pj1-f98.google.com [209.85.216.98])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 018434CA29D
-	for <virtualization@lists.linux.dev>; Thu,  3 Sep 2026 15:14:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1244D4A64CA
+	for <virtualization@lists.linux.dev>; Thu,  3 Sep 2026 16:07:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.98
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788448499; cv=none; b=MxyPp3cydxxxvqfnyJljcC08TmJgkuoEoPLSoU1gPrcG3lhD1kOvwqSpgmRr4AysoECp8j/Pxaey6ludBFj7nXMyCBZPF2t8FbFtL/raEvacQKACMVwV5zhoRVlMnfdxND9krXxRv8n6wnFpFNWJNs1++iHyECm7dqbgkkDsl3s=
+	t=1788451657; cv=none; b=cuGiiL0wt1CEYVR3k3T5ZWZrPf/EFPL4KadM/Kh6TBlUjd/JdaYbJR/5vOoRhBHbufuN7XEn0uu24+SQSkEs4Oi3WxU7w5xB3QrnEvzHVeOc5MBHn6992u9jle2+TmVpM3/EiT/KD6Tj7zzIxRslGl05ZIKvDO00poyxF3NT3O4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788448499; c=relaxed/simple;
-	bh=uo3WLZyoZDxrpRlviYeHcUcxieiomugsyPOWE5vlvvk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=anzA/upRhiJom+42ovSDpVFcF+0hTEXKy+5LO+xm2YYeSHwAdv535YX3Pt/tFibnNPxgKx3lA4R64Sp9PJI46Oi+fU812VPsLzjUC/Lm3mosRHr2sLmZ6U8Arx5ZN42JTa5fkNdTYgbPfhzHfQCXvxKZmyEOsc+AxBp3GOgcNWk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HFuPnVW/; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1788451657; c=relaxed/simple;
+	bh=1KHlc1wHj45U9E/CloOnejb8Z/oRbJCgq5P42bIgUC8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ry0Nvy/Z1D0M0JDtKNlJ0qVk9Jbs/yJoBbKjjnTIvqci/c2+2zYf5G9MfXIasrM44QMVSgLuZzEz0zPe3YQVOm99lLHqd2pBEb9FjgjRZAqMfeRDeUCkvWSgorbed9yB61MZEbalUvZzkhxE6Ach68QnD/GFn5X65kHKf5JbgoQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=AdsRe8xt; arc=none smtp.client-ip=209.85.216.98
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HFuPnVW/"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1788448496;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=de+PY6dNG6KtU1zsfD22kVwaSYth3rO7t0LRHsbtIxU=;
-	b=HFuPnVW/Pnj+fDMgnaOcBYwZL398mrLT9PxRzWqWBFwnRa+YYs1vbzCCU/HhgdPulf36hX
-	j5X6/eZRCkbr4/3686oO1bdVW+YZLuWb3kpxkpVszHqar6tZavQWYV9HavV+aK7RyU+efA
-	2eJ5yOJNCa7sZO1Xdb3pjM8R6Px/U24=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-575-ddDvF5L6PJes1Cx5eoMHVA-1; Thu, 03 Sep 2026 11:14:55 -0400
-X-MC-Unique: ddDvF5L6PJes1Cx5eoMHVA-1
-X-Mimecast-MFC-AGG-ID: ddDvF5L6PJes1Cx5eoMHVA_1788448494
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-482f763db88so1488984f8f.2
-        for <virtualization@lists.linux.dev>; Thu, 03 Sep 2026 08:14:55 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="AdsRe8xt"
+Received: by mail-pj1-f98.google.com with SMTP id 98e67ed59e1d1-39266382df6so2357242a91.3
+        for <virtualization@lists.linux.dev>; Thu, 03 Sep 2026 09:07:35 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788448494; x=1789053294;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=de+PY6dNG6KtU1zsfD22kVwaSYth3rO7t0LRHsbtIxU=;
-        b=btkAWUcCNJnN8nHiFbL4AFxjU5F19GIL9INMVVgZ0bGEMuMFoLCpbm8+dP4Lxaz8Qi
-         bGSaW1N3UE3aOA2/8UOGDMQixfV8ZcrHzh27khiLhM0Doy4z/ewAYI1EkfZ2Fg6HvRwT
-         MjGEr1cU+I2yoEo7RJHGzso2dUMlKXPxK34bJixgRx6qOjmN0hKJlPk+O12VV7xI29+c
-         Dq8FmNoRWEzkHmDG0BHBr5wtt8/XMvZJjSwMszUCPrnzk2r19QWE2zj318n9fNRQAMst
-         Xbdbn0w8JGo0wB8rW3G2m8b6m+ScGkh1TKmPNgHjsuMPNs+1v4TY4MGlrL5SOCZKbqi9
-         Lngw==
-X-Forwarded-Encrypted: i=1; AKwUvBx5Nwup6Yl65EeAPlG47QTgB9fUrEPdaPxybdaRIirtmkrKd77I2JuRMnBXO+NPN/Max/9OQcWiCLgjGbI+Eg==@lists.linux.dev
-X-Gm-Message-State: AFuF++lzIB1aaBM547Oo1FD01qNSDlxKrU+oa+9wNnrmcZCVH3t1CnSg
-	b4vln1mTZtGr4+O03QUJeVG1V6RVeneO/+RwSDZtzmoVoort/R5XY2mL2xhG7VF31g4xrBvY3K8
-	h8OdSkuapFFA3JfLoRMgMrq0zLa+eH19HdYhtTdnvuyJwiAgTe1Yc8nkhJviztbIjhc1R
-X-Gm-Gg: AYBFou1qPG63Qrmm19sXwPLZegMRZLZUHCb1vV0RdVLgdF0nf0CK9xVIAkQm6OUBSyE
-	bKUZjkMWyjYJR7ytW+pX5Oz0KkKJzRX95lqiP1xbwhsKsXmB4ucd2/sxMJwcrOIKyg+GNBpKHG9
-	2zVYpnx60/YLmk6Tm7B+S/Pbh1xfIj4XC4rXCHyFMdu4WphFyLfVwsuqNUSymitTCp5ZdugJw3o
-	73buCI0bLVK5B3RoOjzbAmJTZKRiEdNYq3JciGhfSKGSc6ebsUf/KNgVThH+WrD8JZ0DYh8t49f
-	K/McVudvzFMHTrYSsIghpuJo5pYywEKb0m4rs946WXBovZ8UUacGFMnFO6LG0QWk+PH9O1Lxmo3
-	K2VWiczyggFgo6s4+9MtTI/4=
-X-Received: by 2002:a05:6000:2dc8:b0:482:f270:65c5 with SMTP id ffacd0b85a97d-48488f07d61mr22594742f8f.9.1788448494059;
-        Thu, 03 Sep 2026 08:14:54 -0700 (PDT)
-X-Received: by 2002:a05:6000:2dc8:b0:482:f270:65c5 with SMTP id ffacd0b85a97d-48488f07d61mr22594574f8f.9.1788448493419;
-        Thu, 03 Sep 2026 08:14:53 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-79-236.inter.net.il. [80.230.79.236])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48448eeae34sm15529433f8f.32.2026.09.03.08.14.52
+        d=1e100.net; s=20251104; t=1788451655; x=1789056455;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:dkim-signature:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=DQ17Gra4qRIZ9+bjeO8XFOZVaIoBgdk+Vd/GhAwUauw=;
+        b=GQZ8VScOHYqTkxRGYmEnc2/eFc1cb3gaU9IBh3at8Cn4+B4XqSX76PVTbjn3iHhPs0
+         /3p/L9G/Q44qpVe3M5H6Rg5MKFL6ExxJ29SqK210UBSpLp6XQkuG0PlKot/xVZ6ObxB1
+         KIIRj1w8WODYOreoQ0AkqBV7pXb2Ki+xN1JDF9xPcI36+cEDwFWTvqVe9bpUltUoG1+r
+         b6gPZvpiVeEeBeprtgTHOq4J9pPzAc1VK0+0OqQNcoDiYnpthm9LLzQRDxDOD035BBR8
+         A32w9d0vK9XAlXZvv4ZNrgCb2vNyTap+2u6pKc2NBbJZNIL+a155jSuxrV6W8YPUuuhd
+         SmBw==
+X-Forwarded-Encrypted: i=1; AKwUvBySXTItBIy2QK9OhOT1rlC2lQBmDUEGnloeu6PxDXsjv4SpPR019icfajEGHN3+mGPnTKiR9FcIDUAb/ZS8lA==@lists.linux.dev
+X-Gm-Message-State: AFuF++nmC1+7Ka2yX1OFhsxFesk3xTMgOBkb7lGnzd65UaRwYsxuU/Md
+	G2e6nfGsHEnoL1tTSxT57AQynRjcSZHOjaMS6yXTirbq8NRnYDqFWXgz+pbKGOlT3RSFI/3LVIc
+	K8aO5Q3iM4tLZR4vXlm/onGB72I15sFZgJE8fHyexdsIQGCJPsqiQKJVKZNl3ute/8ZbXjMgtRt
+	KXpkGTKRCFMC0+QfB5wHcCmIy6oDCkIp+9EaKNV2prQ1TBnY5nAn9mcFlLiMd92oO1rKGUrAjIT
+	akR94494fsf+JeQtIo=
+X-Gm-Gg: AYBFou0qe9YB/8BXt8evwYV6hTxgNwuhUhKDvIcQN1pwQ/0DykS+PnZSXrU2sbBEfWK
+	OQFesWQb8yEu/C4tgeNi1fkepMFWFj7O9+b9z+76uAovoC6CBTJPwyAy13xPqBH2+NUa1vKeI3s
+	bRFEMcM87ZmA8zQ4uAlPftbG/9Ev9gk1QnGFToPelM6bswkzpEeBpD2+nn5sY8/M9/5uPdX3fff
+	VyYPB8wG6Uojgqggfa23YejBOVe8ZuQb7VbmJs0X9yCQKoGUz7sN+xQc7CunKomIqV95GjieD/A
+	/LUfianTfevQVO3e2Bq3fsDq6N5nMx6IM2UGSh3sWrE/huhVHtfCE/TVqlhf3WPK0RZwlsfAijx
+	Dms7iuu4mvvwN2R/bZeBXgPCsELUBk2v5QNX2HlUQsf+Vn8elw0c1D60Y3gaYJlUsxKheca7y1K
+	URHHvuLMsL66TZrjHUDg9LzP5+Cy/NaAC6
+X-Received: by 2002:a17:90b:3846:b0:398:9be6:f997 with SMTP id 98e67ed59e1d1-39aee16a175mr19226338a91.22.1788451654981;
+        Thu, 03 Sep 2026 09:07:34 -0700 (PDT)
+Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-27.dlp.protect.broadcom.com. [144.49.247.27])
+        by smtp-relay.gmail.com with ESMTPS id 98e67ed59e1d1-39b16974a31sm1131520a91.7.2026.09.03.09.07.34
+        for <virtualization@lists.linux.dev>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 03 Sep 2026 09:07:34 -0700 (PDT)
+X-Relaying-Domain: broadcom.com
+X-CFilter-Loop: Reflected
+Received: by mail-pg1-f200.google.com with SMTP id 41be03b00d2f7-cc1b8088202so64445a12.3
+        for <virtualization@lists.linux.dev>; Thu, 03 Sep 2026 09:07:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google; t=1788451653; x=1789056453; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=DQ17Gra4qRIZ9+bjeO8XFOZVaIoBgdk+Vd/GhAwUauw=;
+        b=AdsRe8xtuQeA4Ot5Xxzyp2x066Ch/2l6Dd3WXpEj4ktJqhF/hoSjmAAuaU7Hn2lBJo
+         ktCvwua6zCbkrQng1PkvgpiaTKCRUwonWFZSILIIhiqDeAPmyfmTCbVDiRFIb14/OSjk
+         gonNlkOExtfbVKDof2x0TEkHfYS5e2M7mFQsg=
+X-Forwarded-Encrypted: i=1; AKwUvBzdTq7+sTHdnymSPUEHwlGxqTgQQnzh6CqZO6gOMDRlnl5hxJ8UVaudmJ5SgoBmqnH5/Xb0QHyvLKIL7YaISg==@lists.linux.dev
+X-Received: by 2002:a17:90b:35d0:b0:398:b46d:48c0 with SMTP id 98e67ed59e1d1-39aee10890cmr21433005a91.18.1788451653197;
+        Thu, 03 Sep 2026 09:07:33 -0700 (PDT)
+X-Received: by 2002:a17:90b:35d0:b0:398:b46d:48c0 with SMTP id 98e67ed59e1d1-39aee10890cmr21432860a91.18.1788451652514;
+        Thu, 03 Sep 2026 09:07:32 -0700 (PDT)
+Received: from vertex.localdomain (pool-173-49-113-140.phlapa.fios.verizon.net. [173.49.113.140])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39b083e7167sm6172054a91.5.2026.09.03.09.07.29
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Sep 2026 08:14:52 -0700 (PDT)
-Date: Thu, 3 Sep 2026 11:14:50 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Andrew Stellman <astellman@stellman-greene.com>
-Cc: Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH 3/4] virtio-pci: return IRQ_HANDLED for config-change
- interrupts
-Message-ID: <20260903111342-mutt-send-email-mst@kernel.org>
-References: <20260407123904.6390-1-astellman@stellman-greene.com>
- <20260407123904.6390-4-astellman@stellman-greene.com>
+        Thu, 03 Sep 2026 09:07:31 -0700 (PDT)
+From: Zack Rusin <zack.rusin@broadcom.com>
+To: Borislav Petkov <bp@alien8.de>,
+	Ajay Kaher <ajay.kaher@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>,
+	x86@kernel.org
+Cc: Thomas Gleixner <tglx@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"H . Peter Anvin" <hpa@zytor.com>,
+	virtualization@lists.linux.dev,
+	bcm-kernel-feedback-list@broadcom.com,
+	linux-kernel@vger.kernel.org,
+	Peter Zijlstra <peterz@infradead.org>,
+	Josh Poimboeuf <jpoimboe@kernel.org>,
+	Nathan Chancellor <nathan@kernel.org>,
+	llvm@lists.linux.dev,
+	Zack Rusin <zack.rusin@broadcom.com>
+Subject: [PATCH v1] x86/vmware: Fix i386 high-bandwidth hypercall arguments
+Date: Thu,  3 Sep 2026 12:07:20 -0400
+Message-ID: <4ab10678a8f50053934b62b56af81f881c1d3798.1788414669.git.zack.rusin@broadcom.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260407123904.6390-4-astellman@stellman-greene.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: hXmJLytBGxveciZueB2JZ-YDN8Af6jC5vDnOTQ7klgE_1788448494
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+X-DetectorID-Processed: b00c1d49-9d2e-4205-b15f-d015386d3d5e
 
-On Tue, Apr 07, 2026 at 08:39:03AM -0400, Andrew Stellman wrote:
-> vp_interrupt() unconditionally returns the result of
-> vp_vring_interrupt(). When a config-change interrupt fires but no vring
-> activity is pending, vp_vring_interrupt() returns IRQ_NONE — even
-> though the interrupt was legitimately handled by vp_config_changed().
-> Over time this causes the IRQ subsystem to flag the line as spurious.
-> 
-> Track the return value explicitly: set ret to IRQ_HANDLED when the
-> config-change bit is set, OR it with the vring result, and return the
-> combined value.
-> 
-> Signed-off-by: Andrew Stellman <astellman@stellman-greene.com>
-> ---
->  drivers/virtio/virtio_pci_common.c | 10 ++++++++--
->  1 file changed, 8 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-> index 0b9d66b..1d1ab02 100644
-> --- a/drivers/virtio/virtio_pci_common.c
-> +++ b/drivers/virtio/virtio_pci_common.c
-> @@ -106,6 +106,7 @@ static irqreturn_t vp_vring_interrupt(int irq, void *opaque)
->  static irqreturn_t vp_interrupt(int irq, void *opaque)
->  {
->  	struct virtio_pci_device *vp_dev = opaque;
-> +	irqreturn_t ret = IRQ_NONE;
->  	u8 isr;
->  
->  	/* reading the ISR has the effect of also clearing it so it's very
-> @@ -117,10 +118,15 @@ static irqreturn_t vp_interrupt(int irq, void *opaque)
->  		return IRQ_NONE;
->  
->  	/* Configuration change?  Tell driver if it wants to know. */
-> -	if (isr & VIRTIO_PCI_ISR_CONFIG)
-> +	if (isr & VIRTIO_PCI_ISR_CONFIG) {
->  		vp_config_changed(irq, opaque);
-> +		ret = IRQ_HANDLED;
-> +	}
->  
-> -	return vp_vring_interrupt(irq, opaque);
-> +	if (vp_vring_interrupt(irq, opaque) == IRQ_HANDLED)
-> +		ret = IRQ_HANDLED;
-> +
-> +	return ret;
->  }
+The high-bandwidth hypercall helpers push %ebp before loading the in6
+operand into it. On i386 without frame pointers, both GCC and Clang can
+address the memory-constrained operand relative to %esp. The push then
+moves the stack and the helpers load the wrong value.
 
+Typical i386 configurations use the frame-pointer unwinder and happen to
+address the operand through %ebp. However, UNWINDER_GUESS is available
+with EXPERT and permits the affected frame-pointer-disabled configuration.
+vmwgfx is also available on i386 and calls both helpers.
 
+Stage in6 through %eax before changing either stack register, then save
+%ebp and copy the staged value into it. Load the VMware magic immediately
+before the string I/O instruction. Mark %eax early-clobber so it cannot
+also provide in6 or an address register for it. Use the same sequence on
+x86-64, where the full-width register preserves in6.
 
-So I think as long as we are looking at isr, let's look
-at isr exclusively?
+Fixes: 34bf25e820ae ("x86/vmware: Introduce VMware hypercall API")
+Cc: stable@vger.kernel.org # 6.11+
+Signed-off-by: Zack Rusin <zack.rusin@broadcom.com>
+---
 
-we cleared it so ... all well?
+Notes:
+    Built on v7.3-rc1 with W=1 on i386 using GCC and Clang, with frame
+    pointers enabled and disabled. Disassembly in all four cases loads in6
+    before changing %ebp or %esp.
 
-return IRQ_HANDLED and be done with it?
+ arch/x86/include/asm/vmware.h | 24 ++++++++++++++----------
+ 1 file changed, 14 insertions(+), 10 deletions(-)
 
->  static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
-> -- 
-> 2.34.1
+diff --git a/arch/x86/include/asm/vmware.h b/arch/x86/include/asm/vmware.h
+index 4220dae14a2d..fb011cef01e7 100644
+--- a/arch/x86/include/asm/vmware.h
++++ b/arch/x86/include/asm/vmware.h
+@@ -276,20 +276,22 @@ unsigned long vmware_hypercall_hb_out(unsigned long cmd, unsigned long in2,
+ 
+ 	asm_inline volatile (
+ 		UNWIND_HINT_SAVE
++		"mov %[in6], %%" _ASM_AX "\n\t"
+ 		"push %%" _ASM_BP "\n\t"
+ 		UNWIND_HINT_UNDEFINED
+-		"mov %[in6], %%" _ASM_BP "\n\t"
++		"mov %%" _ASM_AX ", %%" _ASM_BP "\n\t"
++		"mov %[magic], %%eax\n\t"
+ 		"rep outsb\n\t"
+ 		"pop %%" _ASM_BP "\n\t"
+ 		UNWIND_HINT_RESTORE
+-		: "=a" (out0), "=b" (*out1)
+-		: "a" (VMWARE_HYPERVISOR_MAGIC),
+-		  "b" (cmd),
++		: "=&a" (out0), "=b" (*out1)
++		: "b" (cmd),
+ 		  "c" (in2),
+ 		  "d" (in3 | VMWARE_HYPERVISOR_PORT_HB),
+ 		  "S" (in4),
+ 		  "D" (in5),
+-		  [in6] VMW_BP_CONSTRAINT (in6)
++		  [in6] VMW_BP_CONSTRAINT(in6),
++		  [magic] "i" (VMWARE_HYPERVISOR_MAGIC)
+ 		: "cc", "memory");
+ 	return out0;
+ }
+@@ -304,20 +306,22 @@ unsigned long vmware_hypercall_hb_in(unsigned long cmd, unsigned long in2,
+ 
+ 	asm_inline volatile (
+ 		UNWIND_HINT_SAVE
++		"mov %[in6], %%" _ASM_AX "\n\t"
+ 		"push %%" _ASM_BP "\n\t"
+ 		UNWIND_HINT_UNDEFINED
+-		"mov %[in6], %%" _ASM_BP "\n\t"
++		"mov %%" _ASM_AX ", %%" _ASM_BP "\n\t"
++		"mov %[magic], %%eax\n\t"
+ 		"rep insb\n\t"
+ 		"pop %%" _ASM_BP "\n\t"
+ 		UNWIND_HINT_RESTORE
+-		: "=a" (out0), "=b" (*out1)
+-		: "a" (VMWARE_HYPERVISOR_MAGIC),
+-		  "b" (cmd),
++		: "=&a" (out0), "=b" (*out1)
++		: "b" (cmd),
+ 		  "c" (in2),
+ 		  "d" (in3 | VMWARE_HYPERVISOR_PORT_HB),
+ 		  "S" (in4),
+ 		  "D" (in5),
+-		  [in6] VMW_BP_CONSTRAINT (in6)
++		  [in6] VMW_BP_CONSTRAINT(in6),
++		  [magic] "i" (VMWARE_HYPERVISOR_MAGIC)
+ 		: "cc", "memory");
+ 	return out0;
+ }
+
+base-commit: cee9395acd8043be0644b25c34bfa86623f2b935
+-- 
+2.53.0
 
