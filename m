@@ -1,57 +1,57 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32ED638655D
-	for <virtualization@lists.linux.dev>; Thu,  3 Sep 2026 06:33:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B13863F1ACF
+	for <virtualization@lists.linux.dev>; Thu,  3 Sep 2026 06:33:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788417216; cv=none; b=AJ2fG9l8F3//wDsekXJf+kTYuIYQCB90IFHcEN7Bk4PqncGgBzCTi+k8o2azFfhBF6FnLl8QCYDAP3uKNNV0E5+P9KYfnpOcILqNv1u5T/wJHWd0V3zIVqxJ/6NwHffopK+NRwHrx+fylS1MmxroIjqmSv1scC3Su1Glx7QqcfY=
+	t=1788417225; cv=none; b=A3p//ZLqxROODWDDtMrDJz2XKZHAM8FM2TfID7JhgRjkQc25UV+tlGrL3EPAIj1RGX+Y0Asbnf5shbq7UAL5WZVmH+PgmRrpWNivQuQS3BmvliinuHFr166FSnY3A4ckCzIYsbmJVpnFbFTT+Ifdr9DtGCMeanvLBKyPsUufafs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788417216; c=relaxed/simple;
-	bh=1dMM77xohsh0uUWWK5pc/n57DMoFbPH5U47NaaYCfYw=;
+	s=arc-20240116; t=1788417225; c=relaxed/simple;
+	bh=scynNHLZntdnjgSa6fiT0L6du/g5ELrDcNjAOoQ0xrY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=HU7rLO/h7cwk8ZSwu/cBi2JrquTlOxvgHXrNB1Ezr3LQuEqzGqmSou3Fu688K6+MfxVTBAY2XsBa2+mPv3ufgZP33aCHSHGUcViJWqfRZqiP9sLBFSFh40SM+B1ApdUXm6GGyHiuGnDWwxjkw5W5HAMdV6rATeAbUjcwqQn4q8U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ebSD4Omq; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=p8OVrSkXDwI8rQaWgY9kd27WwKivGElQ2geEIIanK1f21EK9pi3ZdJtq78+WtQjbO7y7pDUzVX4/SQdXG5hhqV73YR8frmLgAZlsb6JeiZxdGhHGRhDDT03D4hZLjEzgqlnYsKBd3wPJsC8DOx76k9Fzss2ceGICm11KsYbJ9PQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=DcnX7sr0; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ebSD4Omq"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68361wNQ2067854;
-	Thu, 3 Sep 2026 06:33:18 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="DcnX7sr0"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68361uSI312168;
+	Thu, 3 Sep 2026 06:33:27 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=jQ6Txq0OWN8sohjwx
-	cHNee3Hnk5lvEZRjiLQ/oqdqXs=; b=ebSD4Omqh7OsKljzzOE1p8GOxvESwnhZM
-	wABM7vyc4BfcF0mhfaZLNeZhjV54CNqksY1U7B5Oa3Wnp9EIlD4uVjln3WC9dVNA
-	dNy4+LOpDW0Z1lxOBOFPG7FGxrB2OX1yc/p1A3iipWrH+XLYovaf+KAYk7PfYpUt
-	gHwOKhwwCSP6D+RA1iMj5avU+pP+e+Vyq1WCQO+ONF1fHxFvVni59M26iUkY5nDl
-	rGdRHY384JRM3iPkEQXVT04oE1xR8/tI1Jna5LEbkNH5RGTYfMQx/oEcAtnP6d9X
-	AFdVbEotcS/aKvnoF3yOiwefdRhkprw8Q8a3vVxEUMsfYrqQ8QCmQ==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gbmuj36r5-1
+	:mime-version:references:subject:to; s=pp1; bh=OpXDqA4IrF6tYgvzL
+	FsuOPdgMFXuHYqIjNNRmFkAhO4=; b=DcnX7sr0bdeawRpLJZ8ktrrukKt60sXcP
+	/8EaWMNZkZpheMQ8UOi4HXnU0yesqHHExUVgkRL6IDCtoXlYI87fMemCIOQ3GU3M
+	CRaPNv8f8P0su5NMhxdDKHqC0jW6r7GrxZUV3pNH9Zto4pSSmmbGNftKfrGFb95q
+	Os+E59ekU8n+GgVgzZto8ZIttV7bPsViRRINciE/8bEMtA5h8u881VTRMQlFGoWP
+	lTgj8hNXbGk/p1NWtkcwea674kh2/8j0muQci5xytChAObO5rCq3x8fs+7DMRocD
+	4FymrQOQLdImS7QCgF6ba6Dp8P4zBIbVX21Igotm5c1ySNKa0gQJQ==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gbq3rkdhc-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 03 Sep 2026 06:33:17 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 6836QEBf020524;
-	Thu, 3 Sep 2026 06:33:16 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gcbygp73q-1
+	Thu, 03 Sep 2026 06:33:26 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 6836QGck002978;
+	Thu, 3 Sep 2026 06:33:25 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gecjaprb1-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 03 Sep 2026 06:33:16 +0000 (GMT)
+	Thu, 03 Sep 2026 06:33:25 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6836XCh346727440
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6836XLDS30671494
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 3 Sep 2026 06:33:12 GMT
+	Thu, 3 Sep 2026 06:33:21 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9C9302004D;
-	Thu,  3 Sep 2026 06:33:12 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 576362004B;
+	Thu,  3 Sep 2026 06:33:21 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4A52620040;
-	Thu,  3 Sep 2026 06:33:04 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 0C42820040;
+	Thu,  3 Sep 2026 06:33:13 +0000 (GMT)
 Received: from li-7bb28a4c-2dab-11b2-a85c-887b5c60d769.ibm.com.com (unknown [9.39.27.193])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  3 Sep 2026 06:33:04 +0000 (GMT)
+	Thu,  3 Sep 2026 06:33:12 +0000 (GMT)
 From: Shrikanth Hegde <sshegde@linux.ibm.com>
 To: linux-kernel@vger.kernel.org, mingo@kernel.org, peterz@infradead.org,
         juri.lelli@redhat.com, vincent.guittot@linaro.org,
@@ -67,9 +67,9 @@ Cc: sshegde@linux.ibm.com, tglx@kernel.org, gregkh@linuxfoundation.org,
         rafael@kernel.org, rdunlap@infradead.org, kernellwp@gmail.com,
         linux-doc@vger.kernel.org, jgross@suse.com,
         virtualization@lists.linux.dev, sunlightlinux@gmail.com
-Subject: [PATCH v12 02/13] cpumask: Introduce cpumask_intersects_and
-Date: Thu,  3 Sep 2026 12:02:29 +0530
-Message-ID: <20260903063240.268775-3-sshegde@linux.ibm.com>
+Subject: [PATCH v12 03/13] sched/docs: Document cpu_preferred_mask and Preferred CPU concept
+Date: Thu,  3 Sep 2026 12:02:30 +0530
+Message-ID: <20260903063240.268775-4-sshegde@linux.ibm.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260903063240.268775-1-sshegde@linux.ibm.com>
 References: <20260903063240.268775-1-sshegde@linux.ibm.com>
@@ -82,148 +82,133 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-GUID: lsbSYVmPbPrb5YhIw6PAmQVvcjCpVgE-
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTAzMDA1NyBTYWx0ZWRfX4kGQIsXsSJG2
- TZ97qGSpKgz2tIbyE6RlWl8elLmLtXxpeor3r9PmY8CnNXv4yZa0yY6qFChZbVQBklxoFm98/LU
- /jClNi3fxNEaGm3P2vtioUJ9JoIr77S9zGSdV0H5YSmaLLL2vmUHfUCIlmTMTNzkYFOnbYApipD
- 2L1eKBr+DAi3FcLTE96CGeNLSeoQkoQXIriUWdSsrHBigKUcFLvF4LwTsO89IFIwo8xQFB3QSZp
- v3loT3nEm73DEsDHnvP1KpMRU304KbS1iD6b7ZhTeqrvQUVoih2kmaqrxOsjnAilE4jMaAELd98
- lSr5PgAkQmVq9/1s6YgUlemafkkpo8644EJuN/LrGU+r5XfMngAkMgR5xlW1oM2Hrhnzqy55gOK
- l5JdIOsR3mztxLi+xTfnm9+K2bbAq13o8jOfVvQr5vFT/ZC78Bj6WuVvJ/f6U+F7Kawk/jSMvf6
- 0I5OqYwIfIFa1gxpMzw==
-X-Authority-Analysis: v=2.4 cv=Osl/DS/t c=1 sm=1 tr=0 ts=6a9914ae cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+X-Authority-Analysis: v=2.4 cv=EIc2FVZC c=1 sm=1 tr=0 ts=6a9914b7 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=Y2IxJ9c9Rs8Kov3niI8_:22 a=pGLkceISAAAA:8 a=VnNF1IyMAAAA:8
- a=Op-pV2-EWUbyySEFqtoA:9
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTAzMDA1NyBTYWx0ZWRfX750laDqAv6I/
- rvUMstuRncKn+ayjeoVTFwAxIzSIQDU/LaSZmN/Hppi7J3jtO0iKmZ5lfXo6p2Co5qgJVfUq9bY
- QeNx7rhCtkINQunnzlLf5SAaCEIg2bE=
-X-Proofpoint-ORIG-GUID: uIQJZuOyssVanKqnj-85G0FfCPf4unAs
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=2BnLtqgf9UOq1ijo76cA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTAzMDA1NyBTYWx0ZWRfX5khyQ5ytna0l
+ kIubaaA66w9Y4V5iPckpEi8vZdq+pArcdkt9nQLAguotIM6JBQwU92divjWxlyIOnQBpSIwSpCx
+ 5E4nnf4n5Xl3j5gdnEJUCDKmxhkopW8q9DdU6nYJBQtaXtRnqfcurRh0QUU5p3T0ci+zSbtZJ7c
+ JSiHqAV0wTFZH8nD9SLegkznGc4J0ngL2DS2L6wIZbVeNxR4kkXnaRAo6rHQ/80dIZ9FPPnixOm
+ 2Xq+ocgA9Sbp6c1OBsL74VpcEoptztr3K9WbRJSeTaP2s7TBV7UKovR69ER2Edu4+dRLfwjVlD7
+ Gw7NaCbBuZgh8urbUq1ekymr+mRFJrh9JLMIv1XuZFBwjl0x2KrdOg8W31OcpDwXoEeSaxMR/Zp
+ 29dOZLFHzTYSZLrXp1SvemhxOFr9OuUEpcJCuJ70zHZ3rjA6aZig+uEKlQMPHB4YmNkmF6cwwZ7
+ Cqb76oGZpRmpqezUYWg==
+X-Proofpoint-GUID: srczto0zDuxKQ58XLIX9KTVJkcUU9Ytb
+X-Proofpoint-ORIG-GUID: bzzX3l-vM0wJQsJDWBFMf0DeDRlAAf2s
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTAzMDA1NyBTYWx0ZWRfX7EFCvkNzG6q/
+ 0IgRRFB/0BrVg1SYdo2Yt5zJA8JzDmFwFoXLGQTOSNM2fWCCscQOllYSWSy5sXOdOZ5YRwXT+wt
+ mpifvNa2GURPcFmmHHxwgBofWTKedxw=
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-09-03_02,2026-09-02_04,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 malwarescore=0 suspectscore=0 bulkscore=0 lowpriorityscore=0
- adultscore=0 impostorscore=0 phishscore=0 clxscore=1015 priorityscore=1501
+ bulkscore=0 impostorscore=0 suspectscore=0 priorityscore=1501 clxscore=1015
+ phishscore=0 spamscore=0 adultscore=0 lowpriorityscore=0 malwarescore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2609030057
 
-Introduce bitmap_intersects_and() to determine whether the intersection
-of three bitmaps is non-empty. Unlike cpumask_first_and_and(), this
-returns immediately when an intersecting word is found and does not
-calculate the first matching bit.
+Add documentation for new CPU state called preferred CPU state and
+corresponding cpumask called cpu_preferred_mask.
+This could help users in understanding what it is and how to use it.
 
-Add cpumask_intersects_and() as the corresponding cpumask wrapper.
+Document the role of scheduler and driver for this feature to work.
+Details regarding the driver documentation will be added in
+later patches under Documentation/driver-api/steal-governor.rst.
 
-A subsequent patch uses the helper to determine whether a task
-has a CPU that is present in its affinity mask, the preferred CPU mask,
-and task possible CPU mask.
+Newly added file could be used for other paravirt usecase documentation.
 
-Suggested-by: Yury Norov <yury.norov@gmail.com>
 Signed-off-by: Shrikanth Hegde <sshegde@linux.ibm.com>
 ---
- include/linux/bitmap.h  | 14 ++++++++++++++
- include/linux/cpumask.h | 18 ++++++++++++++++++
- lib/bitmap.c            | 17 +++++++++++++++++
- 3 files changed, 49 insertions(+)
+ Documentation/scheduler/index.rst          |  1 +
+ Documentation/scheduler/sched-paravirt.rst | 67 ++++++++++++++++++++++
+ 2 files changed, 68 insertions(+)
+ create mode 100644 Documentation/scheduler/sched-paravirt.rst
 
-diff --git a/include/linux/bitmap.h b/include/linux/bitmap.h
-index 7df1573a409c..adafbcf2016b 100644
---- a/include/linux/bitmap.h
-+++ b/include/linux/bitmap.h
-@@ -52,6 +52,7 @@ struct device;
-  *  bitmap_complement(dst, src, nbits)          *dst = ~(*src)
-  *  bitmap_equal(src1, src2, nbits)             Are *src1 and *src2 equal?
-  *  bitmap_intersects(src1, src2, nbits)        Do *src1 and *src2 overlap?
-+ *  bitmap_intersects_and(src1, src2, src3, nbits) Do *src1, *src2 and *src3 overlap?
-  *  bitmap_subset(src1, src2, nbits)            Is *src1 a subset of *src2?
-  *  bitmap_empty(src, nbits)                    Are all bits zero in *src?
-  *  bitmap_full(src, nbits)                     Are all bits set in *src?
-@@ -181,6 +182,9 @@ void __bitmap_replace(unsigned long *dst,
- 		      const unsigned long *mask, unsigned int nbits);
- bool __bitmap_intersects(const unsigned long *bitmap1,
- 			 const unsigned long *bitmap2, unsigned int nbits);
-+bool __bitmap_intersects_and(const unsigned long *bitmap1,
-+			     const unsigned long *bitmap2,
-+			     const unsigned long *bitmap3, unsigned int nbits);
- bool __bitmap_subset(const unsigned long *bitmap1,
- 		     const unsigned long *bitmap2, unsigned int nbits);
- unsigned int __bitmap_weight(const unsigned long *bitmap, unsigned int nbits);
-@@ -445,6 +449,16 @@ bool bitmap_intersects(const unsigned long *src1, const unsigned long *src2, uns
- 		return __bitmap_intersects(src1, src2, nbits);
- }
+diff --git a/Documentation/scheduler/index.rst b/Documentation/scheduler/index.rst
+index 17ce8d76befc..a43647b9706d 100644
+--- a/Documentation/scheduler/index.rst
++++ b/Documentation/scheduler/index.rst
+@@ -23,5 +23,6 @@ Scheduler
+     sched-stats
+     sched-ext
+     sched-debug
++    sched-paravirt
  
-+static __always_inline
-+bool bitmap_intersects_and(const unsigned long *src1, const unsigned long *src2,
-+			   const unsigned long *src3, unsigned int nbits)
-+{
-+	if (small_const_nbits(nbits))
-+		return ((*src1 & *src2 & *src3) & BITMAP_LAST_WORD_MASK(nbits)) != 0;
-+	else
-+		return __bitmap_intersects_and(src1, src2, src3, nbits);
-+}
+     text_files
+diff --git a/Documentation/scheduler/sched-paravirt.rst b/Documentation/scheduler/sched-paravirt.rst
+new file mode 100644
+index 000000000000..311cdbf2722b
+--- /dev/null
++++ b/Documentation/scheduler/sched-paravirt.rst
+@@ -0,0 +1,67 @@
++.. SPDX-License-Identifier: GPL-2.0
++.. _sched-paravirt:
 +
- static __always_inline
- bool bitmap_subset(const unsigned long *src1, const unsigned long *src2, unsigned int nbits)
- {
-diff --git a/include/linux/cpumask.h b/include/linux/cpumask.h
-index 4c8bb6953107..7c8f16797f94 100644
---- a/include/linux/cpumask.h
-+++ b/include/linux/cpumask.h
-@@ -824,6 +824,24 @@ bool cpumask_intersects(const struct cpumask *src1p, const struct cpumask *src2p
- 						      small_cpumask_bits);
- }
- 
-+/**
-+ * cpumask_intersects_and - (*src1p & *src2p & *src3p) != 0
-+ * @src1p: the first input
-+ * @src2p: the second input
-+ * @src3p: the third input
-+ *
-+ * Return: true if AND of the three cpumasks is non-empty,
-+ *	   otherwise false
-+ */
-+static __always_inline
-+bool cpumask_intersects_and(const struct cpumask *src1p,
-+			    const struct cpumask *src2p,
-+			    const struct cpumask *src3p)
-+{
-+	return bitmap_intersects_and(cpumask_bits(src1p), cpumask_bits(src2p),
-+				 cpumask_bits(src3p), small_cpumask_bits);
-+}
++Preferred CPUs
++==============
 +
- /**
-  * cpumask_subset - (*src1p & ~*src2p) == 0
-  * @src1p: the first input
-diff --git a/lib/bitmap.c b/lib/bitmap.c
-index ed685127a107..d1cb8a507c60 100644
---- a/lib/bitmap.c
-+++ b/lib/bitmap.c
-@@ -308,6 +308,23 @@ bool __bitmap_intersects(const unsigned long *bitmap1,
- }
- EXPORT_SYMBOL(__bitmap_intersects);
- 
-+bool __bitmap_intersects_and(const unsigned long *bitmap1,
-+			     const unsigned long *bitmap2,
-+			     const unsigned long *bitmap3, unsigned int bits)
-+{
-+	unsigned int k, lim = bits / BITS_PER_LONG;
++In paravirtualized environments CPU overcommit is a common scenario.
++i.e. the sum of virtual CPUs (vCPUs) of all VMs is greater than number of
++physical CPUs (pCPUs). Under such conditions when all or many VMs have
++high utilization, hypervisor won't be able to satisfy the CPU requirement
++and has to context switch within or across VMs. The hypervisor needs to
++preempt one vCPU to run another. This is called vCPU preemption.
++This is more expensive compared to task context switch within a vCPU, since
++hypervisor lacks vCPU context and could preempt a critical section which
++slows forward progress.
 +
-+	for (k = 0; k < lim; ++k)
-+		if (bitmap1[k] & bitmap2[k] & bitmap3[k])
-+			return true;
++In such cases it is better that combined vCPU demand from all VMs is reduced
++by not using some of the vCPUs in each VM. vCPUs where workload can be safely
++scheduled which won't increase any contention for pCPU are called
++"Preferred CPUs".
 +
-+	if (bits % BITS_PER_LONG)
-+		if ((bitmap1[k] & bitmap2[k] & bitmap3[k]) & BITMAP_LAST_WORD_MASK(bits))
-+			return true;
-+	return false;
-+}
-+EXPORT_SYMBOL(__bitmap_intersects_and);
++One of the main design constructs is that preferred CPUs are always
++a subset of active CPUs. In most cases preferred CPUs will be same as
++active CPUs. When there is pCPU contention, Preferred CPUs will reduce
++based on the steal time. When the pCPU contention goes away as indicated
++by steal time, Preferred CPUs could become same as active CPUs again.
++The policy decisions are to be taken by driver.
++For example, steal_governor. Look at its documentation for more
++details. (``drivers/virt/steal_governor.c``)
 +
- bool __bitmap_subset(const unsigned long *bitmap1,
- 		     const unsigned long *bitmap2, unsigned int bits)
- {
++Scheduling decisions such as wakeup, pushing the task etc, need this
++CPU state info. This is maintained in ``cpu_preferred_mask``.
++vCPUs which are not in ``cpu_preferred_mask`` should be treated as vCPUs which
++should not be used at this moment provided it doesn't break user affinity.
++
++This is achieved by:
++
++1. Selecting a preferred CPU at wakeup using fallback mechanism.
++2. Pushing the task away from non-preferred CPU at tick.
++3. Selecting only preferred CPUs for load balance.
++
++``/sys/devices/system/cpu/preferred`` prints the current ``cpu_preferred_mask``
++in cpulist format.
++
++Notes:
++
++1. This feature is available under ``CONFIG_PREFERRED_CPU``. Driver which
++   makes decisions should enable it. For example, steal_governor driver
++   (``CONFIG_STEAL_GOVERNOR``). On enabling the driver, CPU preferred state
++   can change based on steal time. Without the driver, preferred CPUs is
++   same as active CPUs.
++
++2. This feature works for the FAIR class only.
++
++3. A pinned task, which can't be moved to preferred CPUs will continue
++   to run based on its affinity. But no load balancing happens if it is affined
++   only on non-preferred CPUs.
++
++4. Decision to change the preferred CPU state is driven by the kernel.
++   Hence it shouldn't break user affinities. One of the main reasons why
++   CPU hotplug or Isolated cpuset partitions was not a solution.
++
++5. This feature works best only when all the Guest VMs enable the feature as
++   it is a co-operative scheme. If a specific VM doesn't enable this feature
++   it may end up with more CPUs than others, still should lead to better
++   performance when seen from system view.
++   Users who enable this driver must ensure it is enabled in all Guest VMs.
 -- 
 2.52.0
 
