@@ -1,206 +1,352 @@
-Received: from mail-oa1-f45.google.com (mail-oa1-f45.google.com [209.85.160.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.mindbit.ro (xs1.mindbit.ro [80.86.107.70])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31B0445C700
-	for <virtualization@lists.linux.dev>; Wed,  2 Sep 2026 23:58:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E40917A2E8
+	for <virtualization@lists.linux.dev>; Thu,  3 Sep 2026 00:29:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.86.107.70
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788393504; cv=none; b=JhH/Od+6BWMbq4LxsWLePADg8V58AS4/L++5eU7H0OqJRvWKYYn7sQoy+dRy6SnGiCUCLAk9I1gARgoRsz6LAsGwrzkFrlxwZ1XVf7SBtjvua6b+zN9usaPlJLcaJIlOlx6dhVvtwpuRVkc7urEkpeqQfhVVrB4WmUKfTDW6yzk=
+	t=1788395387; cv=none; b=salccdieQ2PSWGdcDq+UBAi6qxCtSmRxx2abxq/JrVhOSYmUFffqBpARj4Xpl/yQWnWd5u2OoOrFA4rlEmCV7btlLiZir8YjwzMn3Qh5b47TpgDLMPx/SWcx6CPdrse5++t/4wSd3Quck2R2Q5c53VD8wJiY0wyifM9Hj79B2Vk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788393504; c=relaxed/simple;
-	bh=y0BmfY76mN/0WPfH4Hr0Ikh4CCr4ip0xHhPT2cF1Sd0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=QVJ9faOlafr3XGaKI3fJu/Y+Nr/mhglTRh50aJSEO/8GzsdfZSRcEFtXS6515wcpjooMGxA8ZTPL8Hmxow1X40quRz7KC2OK4y8I7WsEzrAwoqN3Ln2O7XBhdzor3KuD74MOooMlKKGjnQlhZF2Ta1bbBs+PL1uIDpISzL7m1Nk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Z3iKFFYK; arc=none smtp.client-ip=209.85.160.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1788395387; c=relaxed/simple;
+	bh=Uy4oG8bPKjoV3bpajNN372klUhvEFC76VKH7wSHsCvA=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=irgdnEfn7tULbzmiN0QEcfcSZXvOkehSmfhghhiW99fyRMFjHbqoDDVWAkepl0VBOOgHXmuTgGEKY5baFOumJSyIdaZoGkpaLpeHD23cZXEudsw7VVtzUyYdesxnCrjZCOB6sxaQPFcK7N+y+/oWm6QNggouKDrg5tutWyyWZKs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=rendec.net; spf=pass smtp.mailfrom=rendec.net; dkim=pass (2048-bit key) header.d=rendec.net header.i=@rendec.net header.b=ZKfEHMgK; arc=none smtp.client-ip=80.86.107.70
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=rendec.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rendec.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Z3iKFFYK"
-Received: by mail-oa1-f45.google.com with SMTP id 586e51a60fabf-46ac75b44b2so729655fac.0
-        for <virtualization@lists.linux.dev>; Wed, 02 Sep 2026 16:58:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788393499; x=1788998299; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=o6TxE/PuYRNxck14tJMx6uhlVO4Uxr/vKzSJJkM4qzE=;
-        b=Z3iKFFYKbRv5iETgsIlhlNTBko3BXEpRy9kKwkoHRArSm4LYb4BxFc5ZLGuXZ44/OH
-         7js1t2Fu3IMYAO1gRH9885xBGT21z2K3L91d4Wy5xh5m3NeQdkFlxuD0obA4oZn02onL
-         d9Dm6Z3Zs4xWDnWGPR3NTeQJpesyfjw3yUyAcRpqZxWwUPCKGxSYXr/t8GiBdp5mux8q
-         JB3zzBM1NfyPYVqzWCu2IKkWbnBfX3GecPrM6HvkVoEgjveJF0o2exHzNVZ8qbhw2y6m
-         qDhxChgvU8P3MBehooMwAVCpdchHPo9olACRl8yHnLNpJwu8OOvjnES3Icv5LtjvL9ps
-         fOew==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788393499; x=1788998299;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=o6TxE/PuYRNxck14tJMx6uhlVO4Uxr/vKzSJJkM4qzE=;
-        b=YSbk4pVkss4ZD0+RooOGIdSinAMZHRdgRu1XEKJ5H6X4RM1tD5eZCcF9E6WjJbiRdx
-         GUdzsbsUE4aPLsFuyPi0OGzk52a74nymCweAmB9NGE0kDqt+Hat29inchIAqxS1vtN2t
-         zTfkNzqQnXFf3xO4HswJQGoK54EB722dU64OKhWBYnPrphthbH8Nk1BWVVFHwk3MbUYG
-         NQ0qLuYiI9hsbrIoFaqiiQrZ8BK8UD/I8hkFnaxOvRHsPvM/xo7jDjpxmga8KMYdlFcS
-         b1GnI2d92u3AdQs9RcpzAkTepUknALwVSZ4adR90lF7PX10Ex36i+Ey4+0J75D8x/XpJ
-         9C+A==
-X-Forwarded-Encrypted: i=1; AKwUvBwFuk67QCJNYM1OQCvq843suZzr4jlHPsDjTolK3tNDlG14v9bXDGhPGsHdlkEEjMlDunghXa0jcFixhqijYQ==@lists.linux.dev
-X-Gm-Message-State: AFuF++nK5x/GSjTh9X38yjRLK8NYYGYkwld72s7EFgFG2BWWL5JsoBUU
-	IpW4YCGq1N4nI+BiEydUYFuAyO0XVndItnrgjzqBcsHo4Ei+PyWaVy7E
-X-Gm-Gg: AYBFou0u3T7xGJgFK42pNRHlN31F9Ch8d9UYfz0lE9kO7Z19TTRPelyBL/o9nUZF1rq
-	dS5+n7xH3BZqnUzkxEGwTtFteTSRmnphRrku6lqGfx8tL15hTcrXUErTUKWVLg/6MJDxyDuxyxL
-	/E2Pv8trBRMqOHcfC4ZD64WtBDO5IFdTIK9SLpk1EYYd0cbMmLTP4g6iFUWeOZTlClgUWL7I8RN
-	R/SD4jysOu/cZq5HLk0cne6K3b18v7cyfq4jGAAbEJzCBKDc8joXojRhjQGoFsxcrg0Wc6bPhCA
-	AymbPRI8ckeQVPbNYkrUoY4rpLUf7bIHg3QrqQbyNmrLLHfo82ZxGcGQFFg7r4JfdkwgqHF8saP
-	xyOnvScM022fvios55lcNapOfZe79nuFK0w0iszVJ+nwDnH9txXDWHcumMlomXxlbtmbcb95Z0Z
-	a0chQvn4N9o8h9I+kw669Nt9CFp4/anp3H2V0e3a+iAvtphAKPhzCEbC5R7NiduKJz9fNGn4rhb
-	4WibNkIpKuxNe9VIRwK
-X-Received: by 2002:a05:6871:c8dc:b0:465:8554:94b7 with SMTP id 586e51a60fabf-46f87ca935fmr7744412fac.12.1788393499274;
-        Wed, 02 Sep 2026 16:58:19 -0700 (PDT)
-Received: from devvm29614.prn0.facebook.com ([2a03:2880:ff:58::])
-        by smtp.gmail.com with ESMTPSA id 586e51a60fabf-46f330822basm5626041fac.15.2026.09.02.16.58.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 02 Sep 2026 16:58:18 -0700 (PDT)
-Date: Wed, 2 Sep 2026 16:58:06 -0700
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-To: Randy Dunlap <rdunlap@infradead.org>
-Cc: Stefano Garzarella <sgarzare@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowangio@gmail.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Shuah Khan <shuah@kernel.org>, virtualization@lists.linux.dev,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-doc@vger.kernel.org, kvm@vger.kernel.org,
-	linux-kselftest@vger.kernel.org, sargun@sargun.me, jlinbox@meta.com,
-	Bobby Eshleman <bobbyeshleman@meta.com>
-Subject: Re: [PATCH net-next 2/6] vsock: add IOCTL_VM_SOCKETS_ASSIGN_G2H_NETNS
-Message-ID: <api4Du1bQzieFvA9@devvm29614.prn0.facebook.com>
-References: <20260902-vsock-guest-ns-v1-0-9995383e9a8b@meta.com>
- <20260902-vsock-guest-ns-v1-2-9995383e9a8b@meta.com>
- <3a581439-6664-4339-8627-f1704db35bb0@infradead.org>
+	dkim=pass (2048-bit key) header.d=rendec.net header.i=@rendec.net header.b="ZKfEHMgK"
+Received: from dog.kanata.rendec.net (pool-174-112-193-187.cpe.net.cable.rogers.com [174.112.193.187])
+	by mail.mindbit.ro (Postfix) with ESMTPSA id E084ECCE4F;
+	Thu,  3 Sep 2026 03:29:39 +0300 (EEST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.mindbit.ro E084ECCE4F
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=rendec.net;
+	s=default; t=1788395381;
+	bh=Z2bFdkACgkeAhV/tSLVI0sVlqDoPanJ5OaFsK8NuFwg=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+	b=ZKfEHMgKv1mW9qsbxES7Cgo0a4SO8FF8RMkw9YVb5yAMIQjsOpeXGdffWa8dparvA
+	 H+B1oXgkOKlIckeuZ3iFzP6+YMCWhL1r0CRt9b/get/2Tlr2pi6je8tO2Y0WR7SZpF
+	 /uLBG0lZftWE7wSGZKv0h0XKk1NbDhVJr5mIwkAFCMOwpJdA9uhMHlZ9qw/kFum2+f
+	 RgfR+rUrOwrKPNxmHbYHKid8jKczKwtMKSDKryiCoO7xHef5i1FKI5w9q5QdWUmvb7
+	 uFEXYH16Sx/XWgkNqHnzK8qUM1XT/Dp6VSZZxS+2iIKb8OuQoic6JQlN3GWIAVsW/S
+	 pPmLs1IY0Q8hg==
+Message-ID: <fc18ef99fdd4444b0c997f6473bb88530247115a.camel@rendec.net>
+Subject: Re: [RFC PATCH] virtio: avoid hanging forever in reset
+From: Radu Rendec <radu@rendec.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowangio@gmail.com>, Xuan Zhuo
+ <xuanzhuo@linux.alibaba.com>,  Eugenio =?ISO-8859-1?Q?P=E9rez?=	
+ <eperezma@redhat.com>, Bjorn Andersson <andersson@kernel.org>, Mathieu
+ Poirier	 <mathieu.poirier@linaro.org>, virtualization@lists.linux.dev, 
+	linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org
+Date: Wed, 02 Sep 2026 20:29:38 -0400
+In-Reply-To: <20260902021849-mutt-send-email-mst@kernel.org>
+References: <20260902020741.3686084-1-radu@rendec.net>
+	 <20260902021849-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.58.3 (3.58.3-1.fc43) 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3a581439-6664-4339-8627-f1704db35bb0@infradead.org>
 
-On Wed, Sep 02, 2026 at 04:35:59PM -0700, Randy Dunlap wrote:
-> Hi,
-> 
-> On 9/2/26 4:00 PM, Bobby Eshleman wrote:
-> > From: Bobby Eshleman <bobbyeshleman@meta.com>
-> > 
-> > Namespaces let a host isolate a VM's vsock traffic to a specific
-> > namespace, but in a guest vsock traffic cannot be isolated to a
-> > namespace. The vsock device is hardcoded to global mode and can't be
-> > moved into a local-mode namespace.
-> > 
-> > Introduce ioctl IOCTL_VM_SOCKETS_ASSIGN_G2H_NETNS on /dev/vsock that
-> > gives userspace a way to move the device to the calling pid's namespace.
-> > The call requires CAP_NET_ADMIN in the root user namespace. A privileged
-> > user wishing to "unassign" the device can move it to the init_netns,
-> > which is hardcoded to global mode (so no unassign call is necessary).
-> > 
-> > A getter to read the current assignment back was considered, returning
-> > either the namespace's net_cookie or its nsfs inode number, but neither
-> > seemed useful enough to bake into the uAPI now. It can be added later if
-> > a user turns up that needs it.
-> > 
-> > Add a transport hook to indicate support for guest namespacing, so that
-> > transports may opt in/out. A transport that opts out keeps the
-> > reachability rules it had before this ioctl existed.
-> > 
-> > Sockets are reset when the underlying device moves to a different
-> > namespace, so as to prevent reachability from the previous and now
-> > disallowed namespace.
-> > 
-> > Following the approach of netdevs, the device returns to init_net when
-> 
-> I'm confused by the use of "init_net" several times and "init_netns" at
-> least 2 times. "init_net" is the initial, boot-time net namespace.
-> 
-> And is one of these what is referred to in the Documentation/ file below
-> as "initial namespace"?
+On Wed, 2026-09-02 at 05:30 -0400, Michael S. Tsirkin wrote:
+> On Tue, Sep 01, 2026 at 10:07:41PM -0400, Radu Rendec wrote:
+> > Under certain conditions(*) vp_modern_get_status() can always return
+> > 0xff. This has a ripple effect that ultimately makes the system fail to
+> > boot if the drivers are built-in and the virtio devices are probed
+> > during boot:
+> > =C2=A0* vp_reset() for the virtio-net-pci device spins forever in the l=
+oop
+> > =C2=A0=C2=A0 around vp_modern_get_status(mdev), which always returns 0x=
+ff.
+> > =C2=A0* vp_reset() is called in the context of the probe() function for=
+ the
+> > =C2=A0=C2=A0 virtio-net-pci device, so probe() never returns.
+> > =C2=A0* the init task gets stuck in wait_for_device_probe() before it
+> > =C2=A0=C2=A0 executes the real init binary.
+> >=20
+> > Add a timeout to the reset function and make the device probing fail if
+> > the reset function times out.
+>=20
+> Generally, I like using gdb stub in qemu to debug kernel
 
-Good point, init_netns should be init_net everywhere here (and in the
-Documentation/).
+That's what I did too. It took a while, because init and the kthread
+that runs probe() are different tasks, and it's not obvious why init
+doesn't run while the kernel is still alive. It would've been *much*
+faster/easier if the probe() function complained instead of silently
+waiting indefinitely.
 
-> 
-> > its namespace is removed. Care is taken to not break flows when the
-> > device is inside a global namespace that is being torn down and alive
-> > sockets are in a different global namespace. In this scenario, the
-> > device's netns getter pre-emptively falls back to the init_net (always
-> > global) so that these flows are not disrupted. If init_netns ever
-> 
->                                            maybe    init_netns()
-> if you are referring to a function...
+> and anything that will make things time out and fail
+> is unwelcome.
 
-Same here, should be init_net.
+So a probe() that never returns and makes the system fail to fully boot
+is preferable? That's... surprising. IMHO it's also not what most
+probe() functions do when there is something wrong with the device.
 
-> 
-> > supports local-mode in the future, this logic will have to be changed.
-> > 
-> > Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
-> > Link: https://lore.kernel.org/all/20200427142518.uwssa6dtasrp3bfc@steredhat/
-> > Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
+> > (*) This is not a theoretical problem. It happens on imx8mp-evk under
+> > Qemu due to a relatively recent change to the dw_pcie driver that's
+> > incompatible with the dw_pcie emulation in Qemu. I reported that bug
+> > separately as a follow up to the patch that introduced it:
+> > https://lore.kernel.org/all/ed86629d74368c6811e9f3b8f169584c0faf71ce.ca=
+mel@rendec.net/
+>=20
+> So presumably it will be fixed in qemu? Or find a different way,
+> e.g. poke at device/vendor id of virtio. or add a workaround
+> in the driver if you prefer.
+
+Yes, one of those (probably qemu). But this patch is not about fixing
+it. In fact, it doesn't even fix it. It just aims to make life a bit
+easier for the next poor soul who runs into a similar problem.
+
+> > Signed-off-by: Radu Rendec <radu@rendec.net>
 > > ---
-> >  Documentation/admin-guide/sysctl/net.rst |  18 +++
-> >  include/net/af_vsock.h                   |   7 ++
-> >  include/uapi/linux/vm_sockets.h          |   6 +
-> >  net/vmw_vsock/af_vsock.c                 | 198 ++++++++++++++++++++++++++++++-
-> >  4 files changed, 228 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/Documentation/admin-guide/sysctl/net.rst b/Documentation/admin-guide/sysctl/net.rst
-> > index e586e17fc7a5..1e9c0d2be7b8 100644
-> > --- a/Documentation/admin-guide/sysctl/net.rst
-> > +++ b/Documentation/admin-guide/sysctl/net.rst
-> > @@ -515,6 +515,24 @@ their hosts. The behavior of VSOCK sockets in a network namespace is determined
-> >  by the namespace's mode (``global`` or ``local``), which controls how CIDs
-> >  (Context IDs) are allocated and how sockets interact across namespaces.
-> >  
-> > +In a guest, the vsock device owned by the guest-to-host (G2H) transport belongs
-> > +to one network namespace at a time. The ``IOCTL_VM_SOCKETS_ASSIGN_G2H_NETNS``
-> > +ioctl on ``/dev/vsock`` moves it to the namespace of the calling process, which
-> > +requires ``CAP_NET_ADMIN`` in the initial user namespace. The namespace's mode
-> 
->                               Is this the caller's namespace?
-
-Yes. I'll clarify that in the next revision.
-
-> 
-> > +decides who may then use the device:
+> > =C2=A0drivers/remoteproc/remoteproc_virtio.c |=C2=A0 4 +++-
+> > =C2=A0drivers/virtio/virtio.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 8 +++++---
+> > =C2=A0drivers/virtio/virtio_mmio.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 5 ++++-
+> > =C2=A0drivers/virtio/virtio_pci_legacy.c=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=
+=A0 4 +++-
+> > =C2=A0drivers/virtio/virtio_pci_modern.c=C2=A0=C2=A0=C2=A0=C2=A0 | 15 +=
++++++++++++---
+> > =C2=A0include/linux/virtio.h=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 2 +-
+> > =C2=A0include/linux/virtio_config.h=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0 |=C2=A0 2 +-
+> > =C2=A07 files changed, 29 insertions(+), 11 deletions(-)
+> >=20
+> > diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remotepro=
+c/remoteproc_virtio.c
+> > index d5e9ff045a28..d103b80b1faf 100644
+> > --- a/drivers/remoteproc/remoteproc_virtio.c
+> > +++ b/drivers/remoteproc/remoteproc_virtio.c
+> > @@ -231,7 +231,7 @@ static void rproc_virtio_set_status(struct virtio_d=
+evice *vdev, u8 status)
+> > =C2=A0	dev_dbg(&vdev->dev, "status: %d\n", status);
+> > =C2=A0}
+> > =C2=A0
+> > -static void rproc_virtio_reset(struct virtio_device *vdev)
+> > +static int rproc_virtio_reset(struct virtio_device *vdev)
+> > =C2=A0{
+> > =C2=A0	struct rproc_vdev *rvdev =3D vdev_to_rvdev(vdev);
+> > =C2=A0	struct fw_rsc_vdev *rsc;
+> > @@ -240,6 +240,8 @@ static void rproc_virtio_reset(struct virtio_device=
+ *vdev)
+> > =C2=A0
+> > =C2=A0	rsc->status =3D 0;
+> > =C2=A0	dev_dbg(&vdev->dev, "reset !\n");
 > > +
-> > +- ``global`` - every ``global`` mode namespace may use it.
-> > +- ``local`` - only that namespace may use it, which reserves the connection to
-> > +  the host for it alone.
+> > +	return 0;
+> > =C2=A0}
+> > =C2=A0
+> > =C2=A0/* provide the vdev features as retrieved from the firmware */
+> > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> > index 75bb4ffe3b87..9542e4f7cb31 100644
+> > --- a/drivers/virtio/virtio.c
+> > +++ b/drivers/virtio/virtio.c
+> > @@ -250,7 +250,7 @@ static int virtio_features_ok(struct virtio_device =
+*dev)
+> > =C2=A0 * call/workqueue/bh.=C2=A0 Invoking virtio_break_device then flu=
+shing any such
+> > =C2=A0 * contexts is one way to handle that.
+> > =C2=A0 * */
+> > -void virtio_reset_device(struct virtio_device *dev)
+> > +int virtio_reset_device(struct virtio_device *dev)
+> > =C2=A0{
+> > =C2=A0#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
+> > =C2=A0	/*
+> > @@ -263,7 +263,7 @@ void virtio_reset_device(struct virtio_device *dev)
+> > =C2=A0	virtio_synchronize_cbs(dev);
+> > =C2=A0#endif
+> > =C2=A0
+> > -	dev->config->reset(dev);
+> > +	return dev->config->reset(dev);
+> > =C2=A0}
+> > =C2=A0EXPORT_SYMBOL_GPL(virtio_reset_device);
+> > =C2=A0
+> > @@ -567,7 +567,9 @@ int register_virtio_device(struct virtio_device *de=
+v)
+> > =C2=A0
+> > =C2=A0	/* We always start by resetting the device, in case a previous
+> > =C2=A0	 * driver messed it up.=C2=A0 This also tests that code path a l=
+ittle. */
+> > -	virtio_reset_device(dev);
+> > +	err =3D virtio_reset_device(dev);
+> > +	if (err)
+> > +		goto out_of_node_put;
+> > =C2=A0
+> > =C2=A0	/* Acknowledge that we've seen the device. */
+> > =C2=A0	virtio_add_status(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
+> > diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.=
+c
+> > index 316f03b97356..537d38841331 100644
+> > --- a/drivers/virtio/virtio_mmio.c
+> > +++ b/drivers/virtio/virtio_mmio.c
+> > @@ -249,7 +249,7 @@ static void vm_set_status(struct virtio_device *vde=
+v, u8 status)
+> > =C2=A0	writel(status, vm_dev->base + VIRTIO_MMIO_STATUS);
+> > =C2=A0}
+> > =C2=A0
+> > -static void vm_reset(struct virtio_device *vdev)
+> > +static int vm_reset(struct virtio_device *vdev)
+> > =C2=A0{
+> > =C2=A0	struct virtio_mmio_device *vm_dev =3D to_virtio_mmio_device(vdev=
+);
+> > =C2=A0
+> > @@ -260,7 +260,10 @@ static void vm_reset(struct virtio_device *vdev)
+> > =C2=A0		/* Wait for reset to complete. */
+> > =C2=A0		while (vm_get_status(vdev))
+> > =C2=A0			fsleep(1000);
+> > +		/* TODO: add timeout */
+> > =C2=A0	}
 > > +
-> > +The device starts out in the initial namespace, so until the ioctl is issued
-> > +nothing has moved and no mode has changed.
+> > +	return 0;
+> > =C2=A0}
+> > =C2=A0
+> > =C2=A0
+> > diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio=
+_pci_legacy.c
+> > index d9cbb02b35a1..2882756c7084 100644
+> > --- a/drivers/virtio/virtio_pci_legacy.c
+> > +++ b/drivers/virtio/virtio_pci_legacy.c
+> > @@ -90,7 +90,7 @@ static void vp_set_status(struct virtio_device *vdev,=
+ u8 status)
+> > =C2=A0	vp_legacy_set_status(&vp_dev->ldev, status);
+> > =C2=A0}
+> > =C2=A0
+> > -static void vp_reset(struct virtio_device *vdev)
+> > +static int vp_reset(struct virtio_device *vdev)
+> > =C2=A0{
+> > =C2=A0	struct virtio_pci_device *vp_dev =3D to_vp_device(vdev);
+> > =C2=A0	/* 0 status means a reset. */
+> > @@ -100,6 +100,8 @@ static void vp_reset(struct virtio_device *vdev)
+> > =C2=A0	vp_legacy_get_status(&vp_dev->ldev);
+> > =C2=A0	/* Flush pending VQ/configuration callbacks. */
+> > =C2=A0	vp_synchronize_vectors(vdev);
 > > +
-> > +Connections made before the move, from a namespace that can no longer reach the
-> > +device, are reset. The device returns to the initial namespace when the
-> > +namespace it was moved to is deleted, so assigning it to the initial namespace
-> > +is how an assignment is undone.
-> > +
-> >  ns_mode
-> >  -------
-> >  
-> thanks.
-> -- 
-> ~Randy
-> 
+> > +	return 0;
+> > =C2=A0}
+> > =C2=A0
+> > =C2=A0static u16 vp_config_vector(struct virtio_pci_device *vp_dev, u16=
+ vector)
+> > diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio=
+_pci_modern.c
+> > index 6d8ae2a6a8ca..4a6906a18cfa 100644
+> > --- a/drivers/virtio/virtio_pci_modern.c
+> > +++ b/drivers/virtio/virtio_pci_modern.c
+> > @@ -21,6 +21,7 @@
+> > =C2=A0#include "virtio_pci_common.h"
+> > =C2=A0
+> > =C2=A0#define VIRTIO_AVQ_SGS_MAX	4
+> > +#define VIRTIO_PCI_RESET_TIMEOUT_MS 1000
+> > =C2=A0
+> > =C2=A0static void vp_get_features(struct virtio_device *vdev, u64 *feat=
+ures)
+> > =C2=A0{
+> > @@ -543,10 +544,11 @@ static void vp_set_status(struct virtio_device *v=
+dev, u8 status)
+> > =C2=A0		vp_modern_avq_activate(vdev);
+> > =C2=A0}
+> > =C2=A0
+> > -static void vp_reset(struct virtio_device *vdev)
+> > +static int vp_reset(struct virtio_device *vdev)
+> > =C2=A0{
+> > =C2=A0	struct virtio_pci_device *vp_dev =3D to_vp_device(vdev);
+> > =C2=A0	struct virtio_pci_modern_device *mdev =3D &vp_dev->mdev;
+> > +	int timeout =3D VIRTIO_PCI_RESET_TIMEOUT_MS;
+> > =C2=A0
+> > =C2=A0	/* 0 status means a reset. */
+> > =C2=A0	vp_modern_set_status(mdev, 0);
+> > @@ -555,13 +557,20 @@ static void vp_reset(struct virtio_device *vdev)
+> > =C2=A0	 * This will flush out the status write, and flush in device wri=
+tes,
+> > =C2=A0	 * including MSI-X interrupts, if any.
+> > =C2=A0	 */
+> > -	while (vp_modern_get_status(mdev))
+> > -		msleep(1);
+> > +	while (vp_modern_get_status(mdev)) {
+> > +		if (!timeout--) {
+> > +			dev_warn(&vdev->dev, "reset timeout");
+> > +			return -ETIMEDOUT;
+> > +		}
+> > +		msleep(1000);
+>=20
+>=20
+> 1 second is a long time. normally devices reset immediately.
 
-Thanks for the review.
+Sorry, the msleep() should have been unchanged. It was something I did
+for debugging and forgot to change back. The intention was to use the
+existing 1ms sleep and spin at most VIRTIO_PCI_RESET_TIMEOUT_MS times.
+This is what happens when you send patches at 10pm :)
 
-Best,
-Bobby
+> > +	}
+> > =C2=A0
+> > =C2=A0	vp_modern_avq_cleanup(vdev);
+> > =C2=A0
+> > =C2=A0	/* Flush pending VQ/configuration callbacks. */
+> > =C2=A0	vp_synchronize_vectors(vdev);
+> > +
+> > +	return 0;
+> > =C2=A0}
+> > =C2=A0
+> > =C2=A0static int vp_active_vq(struct virtqueue *vq, u16 msix_vec)
+>=20
+>=20
+> So now if the device does not reset, during cleanup we
+> previously blocked and now it will corrupt memory.
+
+That was not the intention, obviously. The patch as it is also adds a
+TODO comment to vm_reset() (instead of adding a max count), which is
+clearly unacceptable for a real patch.
+
+This is a RFC patch, and my intention was essentially to ask if
+something like this is desirable/acceptable. In all honesty, I didn't
+even test it (other than make sure it compiles). I intentionally didn't
+spend too much time on it because one of the two possible answers to my
+question could be "no", and then that time would be wasted time.
+
+If that changes anything and a polished and properly tested version of
+the patch makes sense, I can work on that. If not, that's fine too - at
+least now I know what to look for if I see a system hang during boot
+and virtio is used.
+
+In any case, thanks for looking into this and for the feedback!
+
+> > diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> > index f923e42cfd01..568e1bd95e4c 100644
+> > --- a/include/linux/virtio.h
+> > +++ b/include/linux/virtio.h
+> > @@ -212,7 +212,7 @@ void virtio_config_driver_enable(struct virtio_devi=
+ce *dev);
+> > =C2=A0int virtio_device_freeze(struct virtio_device *dev);
+> > =C2=A0int virtio_device_restore(struct virtio_device *dev);
+> > =C2=A0#endif
+> > -void virtio_reset_device(struct virtio_device *dev);
+> > +int virtio_reset_device(struct virtio_device *dev);
+> > =C2=A0void virtio_device_shutdown(struct virtio_device *dev);
+> > =C2=A0int virtio_device_reset_prepare(struct virtio_device *dev);
+> > =C2=A0int virtio_device_reset_done(struct virtio_device *dev);
+> > diff --git a/include/linux/virtio_config.h b/include/linux/virtio_confi=
+g.h
+> > index 69f84ea85d71..153426b0ae79 100644
+> > --- a/include/linux/virtio_config.h
+> > +++ b/include/linux/virtio_config.h
+> > @@ -117,7 +117,7 @@ struct virtio_config_ops {
+> > =C2=A0	u32 (*generation)(struct virtio_device *vdev);
+> > =C2=A0	u8 (*get_status)(struct virtio_device *vdev);
+> > =C2=A0	void (*set_status)(struct virtio_device *vdev, u8 status);
+> > -	void (*reset)(struct virtio_device *vdev);
+> > +	int (*reset)(struct virtio_device *vdev);
+> > =C2=A0	int (*find_vqs)(struct virtio_device *vdev, unsigned int nvqs,
+> > =C2=A0			struct virtqueue *vqs[],
+> > =C2=A0			struct virtqueue_info vqs_info[],
+> > --=20
+> > 2.55.0
+
+--=20
+Best regards,
+Radu
