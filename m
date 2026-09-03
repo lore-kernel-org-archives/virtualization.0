@@ -1,78 +1,139 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f179.google.com (mail-qt1-f179.google.com [209.85.160.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 787B84E8E1A;
-	Thu,  3 Sep 2026 16:26:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EF283E1D17
+	for <virtualization@lists.linux.dev>; Thu,  3 Sep 2026 19:08:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788452769; cv=none; b=cefeTnMXQz5//OaagppePJ6wi6YOFgWARliAGY57/OgEWp9fGFAUPskySQnVcnHdksxPLpohbOa02oPfEcceFoXdpSYNioJgndalMUOnXVC7wRngLOAFd8TtME2sqzlsT7Hmv4paXkUhn6x6xcWaI2ZbreavNuDMGkKxoT6vf2g=
+	t=1788462492; cv=none; b=lMq5HwZGLrXQfyn7H4WnNdzjhpo9CH37utnfIfgiStbbdxgyaCs6c6qiHGi3x8EABnFrq+nk3TJnXKLn3HU/xxWGvdQpvSU06ZdmjPV9WyalH1T7EnkTSaKeWlZiy3AXxT7yEnS6XE3vriPQgL6biSSQ9bR079cvSmZF9u53oWM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788452769; c=relaxed/simple;
-	bh=Og59F8yzv67J158UPsSsM5lFNF4EuqRf14ZZN0FKw9I=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EFxIElLHcJpnB1ESX+tr8YEBpsIx0DfvWFKHz9z/3Wc9Quentwx2MOZeJiTaTnNIgFDQ3aQs9W0HjDMVZYBm7/5s2kPSaJx7oJe/TqQMSMv8SV9KmUYh1GBUFXpxPDZZTVHWGOgZakmq8k5dBOrKGvP1EcnEvc7kW8YRZyR5Ltw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fXRSn420; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788462492; c=relaxed/simple;
+	bh=eJ8luZ+SOFYZ9CBtpa/OCOcnNLbnaIoYUY4vzqqI4mM=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=eDqmoPR7VwR6jv/PRM7h2LGCyESoE69OS+z+J/VsaSvm6VxG3pgjgfY7pwkH12F4nbLUn3VpZSV4fJ6LIoIJaL/mRUmO0D3ZO9wU1SgZQFbZTqOdqwy4ls5C3dMGM4wPUGbXCI0BeB6NJasocWgnraLf2JAe+iHreYZRXTce1Ns=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=stellman-greene.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=h3PzXqe8; arc=none smtp.client-ip=209.85.160.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=stellman-greene.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fXRSn420"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5511C1F000E9;
-	Thu,  3 Sep 2026 16:26:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788452768;
-	bh=tBFnYjRmfcdV1M1q0twcPje4ka6He7iANUg+2x5MoEE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=fXRSn4208M62IytZTrpuK9A0SuPM20XutgfSGr4gBxwXFKR9jdHSUUj6OzoghOUhc
-	 Ld1nDTS+mEYggrs56BjrYnCngcwBkU6310KUrUOOgxG91fwkbZ5PSfNJFq0gEnqI0v
-	 7FdSHFLCWka/c18sP5VAIsDFUzbeMnctuQa3fit+ta4iT/LJnCAxCEgFeG3F2bgxFh
-	 erhroMglOSPXgz4ZAr1uy8vinRA9IGVtQBRXaZaoE7NajSNlCHHHgCKX5oe/2fsK3X
-	 J++3PZmOzed8euo/KxiIdrDzxorS/IJ8IpslCw0Q8Wg5AHBDRYrHDoSNAe9fQmjw1R
-	 OoPs1C+GybLdQ==
-Date: Thu, 3 Sep 2026 18:26:05 +0200
-From: Frederic Weisbecker <frederic@kernel.org>
-To: Shrikanth Hegde <sshegde@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, mingo@kernel.org, peterz@infradead.org,
-	juri.lelli@redhat.com, vincent.guittot@linaro.org,
-	yury.norov@gmail.com, kprateek.nayak@amd.com, iii@linux.ibm.com,
-	corbet@lwn.net, meted@linux.ibm.com, ynorov@nvidia.com,
-	tglx@kernel.org, gregkh@linuxfoundation.org, pbonzini@redhat.com,
-	seanjc@google.com, vschneid@redhat.com, huschle@linux.ibm.com,
-	rostedt@goodmis.org, dietmar.eggemann@arm.com, maddy@linux.ibm.com,
-	srikar@linux.ibm.com, hdanton@sina.com, chleroy@kernel.org,
-	vineeth@bitbyteword.org, arighi@nvidia.com, pauld@redhat.com,
-	christian.loehle@arm.com, tj@kernel.org,
-	tommaso.cucinotta@gmail.com, maz@kernel.org, rafael@kernel.org,
-	rdunlap@infradead.org, kernellwp@gmail.com,
-	linux-doc@vger.kernel.org, jgross@suse.com,
-	virtualization@lists.linux.dev, sunlightlinux@gmail.com
-Subject: Re: [PATCH v12 01/13] sched/cputime: Add kcpustat_field_total helper
-Message-ID: <apmfne3iBct7oNTp@localhost.localdomain>
-References: <20260903063240.268775-1-sshegde@linux.ibm.com>
- <20260903063240.268775-2-sshegde@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="h3PzXqe8"
+Received: by mail-qt1-f179.google.com with SMTP id d75a77b69052e-51c0006ea8eso3742101cf.1
+        for <virtualization@lists.linux.dev>; Thu, 03 Sep 2026 12:08:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788462484; x=1789067284; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:sender:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=o0ORsVXBJpmzlPcHJRa4DochV+ZXbyOiZ7M55TiOe3k=;
+        b=h3PzXqe8uzdmg71d0iP6AWkkp++RL/SV3fe4HI4dwEmI8heU4DtXNuDhut3EpmRs1E
+         cnO8X4HFxHu6hAb89looQNMEHOA7pLK3lYjknyu9jDBJaPfVp8UqnIk9+KqRfY22gzl8
+         V8wuusp6djZH3QoVEQwkskOJAVYR3t3tgmvMCR+zdrM/UAaXTvdxExfxcBjsZC9ggRcf
+         rxw3iH/qBjWAvnY9ciJlpS8vWF45eFboOtVRXGNwar960GxxTZ1RQFQP5Q6h9hDFVW/B
+         BOTbqbOmZ6EcdCMr5U9hnizrPrCQWGrkXkQ33QhXEPpGjkJ5gqtQbprFIOjwE80o+gFH
+         2HSA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788462484; x=1789067284;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:sender:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=o0ORsVXBJpmzlPcHJRa4DochV+ZXbyOiZ7M55TiOe3k=;
+        b=beFoBlWBs1FrhtU+q/hVtJPW5I45zMRzOKi/Uo7y4j60gNTLGufHWJSTZi9o/0oX8n
+         UhLu/hHbxfsrJ2CFI3zotZ+5Yq0VxaXX+lcm53DU3zPq0JXe/CPnVvyW880AaMeRMYbm
+         37myNopp5YIq7b5Jo/49EKtD0R5sTggZSnuwOCGWE7MTM9RtNqFL2tQxWVGhP9LaaC8z
+         iOHM9XRxsPHDJ73+DIthGW3ZTHdA6DnkCexk5XP5osLmUhwtadzY68vxXqjiqtL3Ws10
+         cA7yeHPdcRRZJDMUTJurfKfDJbW6tOFFdTx9kZOWx1NJPyHTT5p1V1dLO6UIZnr4I1yI
+         d6hw==
+X-Forwarded-Encrypted: i=1; AKwUvBzrr/b4S1f628dmIQ43F6zUWCWGnb0lfgAscGgTQ/5rH8Sk5bQnp4eO63Lh/pZM/uzjuTfnNJ/uQUya5fCLWQ==@lists.linux.dev
+X-Gm-Message-State: AFuF++l46vXFU/7qFQ+lWgTJhjGKChyfx0oLUQmSitTP3E6VgdqjV4co
+	ToYgx/vVItLbPoCO/4y6pVnaoDJLSZ8u9Dp2ZNpSlpo2O0eOxjs11E92
+X-Gm-Gg: AYBFou2dWdYgppgw1+d9xQdO0vcZVqoGuNe1rGWlQa7Hi6mZaa0E/hxSHgWCWDgkx28
+	XqZQjuAP65+ykIdE4SQNsQzh2kvbqEvMZR2ZEIit6gdUKDz8kvxc7XCcz3Yx5Vb5Ck17Tanobam
+	2ts6BudMM4Csyf8UPk9MUsac85L/lzSlyXXMFSfk7PTeRU8LiFwoIohJkIumBeejCaX22FEge7B
+	FZtCsC3ebrpqliNNWMxidkeWB+BBHxauStSIuXYsMWt3M3x+2v2aPqPbRMsxI6feE27j3Vx71/a
+	BgGgwRkU/HJhMgQQHUgGZFCVTm8oqqU5Ht1EHiUbvmbEg8a3sU/KV8wk/NfFzXYAKTvErbF7tRp
+	a9q7BX1E2TJrInD0QcLdC+GoLM2XNuSJFA1lODw+K+77wZMig1YashDA2C5FHq/elRXaG87HbsH
+	CZbQcp3XeBQb3p+pFntWp2iWKf/JPHEB5+YW2WkKOwZ6/aWz98eo7DI2xgye/5gy2PkT+3FOvOI
+	+fAWwIV24y3fnXJBXJ//3Z8dqZG0EsPmmiwoXwOCzjkjktzUzY7E6nYv0gJyH72lM5yuJqpOhTs
+	5UPW8VAVDcty0klt8xiHLGNjAr/EdH4jDlQIn7637rE86/IOSBXz1z4IfAy7YHw=
+X-Received: by 2002:a05:622a:1f98:b0:530:31c8:a302 with SMTP id d75a77b69052e-5305495da66mr12171581cf.23.1788462484170;
+        Thu, 03 Sep 2026 12:08:04 -0700 (PDT)
+Received: from Mac.mynetworksettings.com ([2600:4041:5c28:200:bc26:3e94:1d7f:e1ff])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-910406940f3sm1342666d6.38.2026.09.03.12.08.03
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Thu, 03 Sep 2026 12:08:03 -0700 (PDT)
+Sender: Andrew Stellman <stellman@gmail.com>
+From: Andrew Stellman <astellman@stellman-greene.com>
+To: mst@redhat.com
+Cc: jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com,
+	virtualization@lists.linux.dev
+Subject: [PATCH v2 3/4] virtio-pci: return IRQ_HANDLED after non-zero ISR
+Date: Thu,  3 Sep 2026 15:07:31 -0400
+Message-ID: <20260903190731.13783-1-astellman@stellman-greene.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260903111342-mutt-send-email-mst@kernel.org>
+References: <20260903111342-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260903063240.268775-2-sshegde@linux.ibm.com>
 
-Le Thu, Sep 03, 2026 at 12:02:28PM +0530, Shrikanth Hegde a écrit :
-> Provide a new helper function which sums up a given type of cpustat
-> over a specified cpumask.
-> 
-> This allows the caller's code to be simpler and avoids duplication.
-> For example, subsequent patch in the steal governor use this exact
-> same pattern when calculating steal time.
-> 
-> Suggested-by: Yury Norov <yury.norov@gmail.com>
-> Reviewed-by: Yury Norov <ynorov@nvidia.com>
-> Reviewed-by: Mete Durlu <meted@linux.ibm.com>
-> Signed-off-by: Shrikanth Hegde <sshegde@linux.ibm.com>
+vp_interrupt() reads the ISR before dispatching config-change and
+vring handling. Reading the ISR also clears it, so once the read
+returns non-zero the interrupt was from this device and has already
+been consumed.
 
-Acked-by: Frederic Weisbecker <frederic@kernel.org>
+Currently vp_interrupt() returns the result of vp_vring_interrupt().
+For a config-change interrupt with no vring work, that can return
+IRQ_NONE even though the ISR was non-zero and the interrupt was
+handled.
 
+Call vp_vring_interrupt() for any queue work, but once the ISR is
+non-zero return IRQ_HANDLED.
+
+Tested with QEMU virtio-blk-pci forced to INTx using vectors=0 and
+pci=nomsi. On an idle device, 200 config-change interrupts were
+generated using QMP block_resize.
+
+Before this change, irq_handler_exit reported ret=unhandled and
+/proc/irq/11/spurious increased from 0 to 200 unhandled interrupts.
+After this change, irq_handler_exit reported ret=handled and the
+unhandled count remained at 0.
+
+Fixes: 77cf524654a8 ("virtio_pci: split up vp_interrupt")
+Suggested-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Andrew Stellman <astellman@stellman-greene.com>
+---
+Changes from v1:
+- Return IRQ_HANDLED for any non-zero ISR, as suggested by Michael.
+- Add Fixes and Suggested-by tags.
+- Test the change with virtio-blk forced to legacy INTx under QEMU.
+
+Full red/green test logs and the exact tested patch:
+https://github.com/andrewstellman/quality-playbook/tree/11ba61d/evidence/virtio-pci-intx
+
+ drivers/virtio/virtio_pci_common.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index 10371ecbc054..b90c174450b2 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -120,7 +120,9 @@ static irqreturn_t vp_interrupt(int irq, void *opaque)
+ 	if (isr & VIRTIO_PCI_ISR_CONFIG)
+ 		vp_config_changed(irq, opaque);
+ 
+-	return vp_vring_interrupt(irq, opaque);
++	vp_vring_interrupt(irq, opaque);
++
++	return IRQ_HANDLED;
+ }
+ 
+ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
 -- 
-Frederic Weisbecker
-SUSE Labs
+2.43.0
+
