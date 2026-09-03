@@ -1,81 +1,33 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4AF93FA5E6
-	for <virtualization@lists.linux.dev>; Thu,  3 Sep 2026 07:05:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCF6A42E420;
+	Thu,  3 Sep 2026 08:16:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788419154; cv=none; b=gSXPrq89ANEqUaCpjV9bLBIj/Sh8UPOFki9HyABS7CE1qcuzjGluu+g+oF9LJ6Ps7FtZNT1YF0RAIb/+3j0vqoSivzHbNsKRtf/xoT2FSxzTbgvCdf88Cq/XMtJ7w1GSgj0Wq7l9g3X2QFs/HzEDGypTO9LfwYuEDg/83qQ2x/g=
+	t=1788423390; cv=none; b=XzkNOGqOFZDZd79Zi9j0S6Mm8ZBfl3o3MPdvSbkkmn7eSg1ENp0Kjf0WXYJL6FdQeE8vvilvYoZAd6AttwoWsK0KVqm2tcyxWT1O015wKfGk3YuSCA1aRMxfVYMEFyrDHJpSrkqgxr4/ECK1vvALmQT5whEJQiWxukCCxG0HTIo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788419154; c=relaxed/simple;
-	bh=LlAMlP+97p642+vTkYe1nur34+sfv5WuTm91cghfWbE=;
+	s=arc-20240116; t=1788423390; c=relaxed/simple;
+	bh=+o+nyoSdpxikK8CJnBLVivh+R0jr8SwEQzzgfF6g3nU=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ERrbJy8qgpGcu/kwcC+LMaX2C17NZll3S3AdTJ+mKhXbjjGGcY3lsGc1tIH3me45VshyE92YzfQ+bICCha7xH2T3lLnObJkFR+rR1zzaSoaNsargR/CSkMsnO1mddpmCbKAN2qgmXIbbRkz2UKSPgEMn0uHxy++5fIIcNbIn9wI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=CdNJUDNb; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=IViBhly6; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=nfAbY0OF; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=1Llu4vaO; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	 In-Reply-To:Content-Type; b=YIi72Txbxf37hxISUjk3Luh1P5BTyPaLc1X+l0b3j3Fh/Ds9X0UctFJV2skSZrTfRpMsjA+bBZ9vEGbvkhYQuUf1apvJrUbGJ7gC4fSo7VvfLXjWVy1TwH+1KYgwhJheFLob4LbIh+CmNcVB/tWfnI3Q+9kxoZCHc/Xuq0FWSm8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XoIfMXX5; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="CdNJUDNb";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="IViBhly6";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="nfAbY0OF";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="1Llu4vaO"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 8D7461FDB1;
-	Thu,  3 Sep 2026 07:05:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1788419142; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=gSEKYt2/zjQTKtJUGFCNZFh08qwXo2HshuPbHCVvJ2o=;
-	b=CdNJUDNboHBXEvq3NQJwGI5Efovl4zG4tZI0Woyu05bT+466YY/E5Uf2jcNdggCrP0bc3i
-	C8qlPx7h67iQHbddH7l5Bzihh1lxiDbVKCHRdS/qt2YeLIy1EagSrYhXPrOBhz4nL72dw0
-	/vNiWkvbocvptr7Ctg8gJrj3osJ+Waw=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1788419142;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=gSEKYt2/zjQTKtJUGFCNZFh08qwXo2HshuPbHCVvJ2o=;
-	b=IViBhly6RiAY015Wd01W+rE8JUPsscTy6pVLuVLIT5LySCLgOTfx3ZD62/cXpJxru6upDf
-	nXcieLsQcKraZHDg==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=nfAbY0OF;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=1Llu4vaO
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1788419138; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=gSEKYt2/zjQTKtJUGFCNZFh08qwXo2HshuPbHCVvJ2o=;
-	b=nfAbY0OFTAmO1zKGnJ0I76xDrth2wZEQlQ2Hms/EmxiZ/SjcV9DAtvXW3b+JyZcegEE94u
-	F6EuQ93zRXZ6r19CwsqI0Tg4QmIn9Joh/S0NGf1XEoF+gdaxbQH405pvSamxawAvDmsMmq
-	Dio8VP84nqwDZ427hKFoIhtuCHE1160=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1788419138;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=gSEKYt2/zjQTKtJUGFCNZFh08qwXo2HshuPbHCVvJ2o=;
-	b=1Llu4vaOxIlG8RAbNGbxGky8+z+s0E0YTyggnnHlFdpChebVFflFs+NY4jLR2p1wTkEEcs
-	+JNiQ7/EtWXiEOAw==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id E1536136E6;
-	Thu,  3 Sep 2026 07:05:37 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id +gYVNUEcmWp8UwAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Thu, 03 Sep 2026 07:05:37 +0000
-Message-ID: <153a2ba3-0dfc-45a0-ac48-04842da970f3@suse.de>
-Date: Thu, 3 Sep 2026 09:05:37 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XoIfMXX5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 857471F000E9;
+	Thu,  3 Sep 2026 08:16:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788423388;
+	bh=l9GVgLZffkTPbMsDs2bbDfVam0Psx72PkFvt8O0E+VQ=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=XoIfMXX5ocuhbQCMKDwoP3JIopHIJQoNOvejs6fXrWRLslo/NDmEAaC1H2oNWyRw1
+	 hzHCFm6LOuwVKu6t83oW1ehUsyyZ9lNfl1v8fAjODOS9xauDahuuvRM7/lsxI50yTu
+	 T1UmBnLs6NjzO7trJyB/folysjUawhfIFeTowrL5kpmirDCIzZ74TPCShHkraTNKcb
+	 KXIR3uz7iQsksmH4QVKfKbG3jPhPaVeH2pUlEOcl0H60yn25YvhzUOAlHFEBHG5gT4
+	 DBtKo9g56niDE9ksL/zJ+ATLD3GvpM+9UHfgt4eIXcsVbSBSv6LpJXu0ANOwpR3CWW
+	 Vj7PP/c5vYK3A==
+Message-ID: <206b8a0a-0953-402f-b8c5-862da0ff1c5e@kernel.org>
+Date: Thu, 3 Sep 2026 10:16:14 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -83,196 +35,102 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 1/4] drm/ast: create blend mode property on cursor
- plane
-To: Qinyun Tan <qinyuntan@linux.alibaba.com>, dri-devel@lists.freedesktop.org
-Cc: airlied@redhat.com, jfalempe@redhat.com, kraxel@redhat.com,
- dmitry.osipenko@collabora.com, hansg@kernel.org,
- maarten.lankhorst@linux.intel.com, mripard@kernel.org, simona@ffwll.ch,
- leandro.ribeiro@collabora.com, daniels@collabora.com,
- pekka.paalanen@collabora.com, virtualization@lists.linux.dev,
- spice-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
-References: <20260901083234.1828755-1-qinyuntan@linux.alibaba.com>
- <20260901083234.1828755-2-qinyuntan@linux.alibaba.com>
- <1f7a2056-825b-4b18-ac60-94f13ee40212@suse.de>
- <15f87b4e-3da8-4ce9-9cde-b4c8cefe1d80@suse.de>
- <8c6ef5d2-1f85-4dad-b426-143d490e1114@linux.alibaba.com>
+Subject: Re: [PATCH v1 02/11] soc: qcom: add crypto_virt backend for
+ virtio-blk inline crypto
+To: Linlin Zhang <linlin.zhang@oss.qualcomm.com>, ebiggers@kernel.org,
+ axboe@kernel.dk, mst@redhat.com, jasowangio@gmail.com,
+ James.Bottomley@HansenPartnership.com, martin.petersen@oracle.com,
+ robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org,
+ linux-block@vger.kernel.org, linux-crypto@vger.kernel.org,
+ linux-scsi@vger.kernel.org, virtualization@lists.linux.dev,
+ devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org
+Cc: neeraj.soni@oss.qualcomm.com, gaurav.kashyap@oss.qualcomm.com,
+ mani@kernel.org, andersson@kernel.org, konradybcio@kernel.org,
+ bvanassche@acm.org, alim.akhtar@samsung.com, avri.altman@sandisk.com,
+ stefanha@redhat.com, pbonzini@redhat.com, eperezma@redhat.com,
+ xuanzhuo@linux.alibaba.com, linux-kernel@vger.kernel.org
+References: <20260827160806.1295313-1-linlin.zhang@oss.qualcomm.com>
+ <20260827160806.1295313-3-linlin.zhang@oss.qualcomm.com>
+ <f5915133-ffac-4777-b7d9-cf38ba163d43@kernel.org>
+ <03097984-fded-477e-82b6-f9b31fd2f1d3@oss.qualcomm.com>
+ <38389106-9609-4ec4-bc83-3d1b7fac3698@kernel.org>
+ <c5aaea57-c9c4-44ca-9bd5-7f09175637b3@oss.qualcomm.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 Content-Language: en-US
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <8c6ef5d2-1f85-4dad-b426-143d490e1114@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Level: 
-X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Rspamd-Queue-Id: 8D7461FDB1
-X-Spamd-Result: default: False [-4.51 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	ARC_NA(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[16];
-	MIME_TRACE(0.00)[0:+];
-	MID_RHS_MATCH_FROM(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[gitlab.freedesktop.org:url,alibaba.com:email,suse.com:url,suse.de:dkim,suse.de:email,suse.de:mid,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo];
-	DNSWL_BLOCKED(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	DKIM_TRACE(0.00)[suse.de:+]
-X-Spam-Flag: NO
-X-Spam-Score: -4.51
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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
+In-Reply-To: <c5aaea57-c9c4-44ca-9bd5-7f09175637b3@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Hi
-
-Am 01.09.26 um 14:51 schrieb Qinyun Tan:
-> Hi Thomas,
->
-> On 9/1/26 8:30 PM, Thomas Zimmermann wrote:
->> Hi
+On 02/09/2026 17:01, Linlin Zhang wrote:
+>>>>> +	ret = qcom_scm_derive_sw_secret(eph_key, eph_key_size,
+>>>>> +					sw_secret, BLK_CRYPTO_SW_SECRET_SIZE);
+>>>>> +	if (ret == -EIO || ret == -EINVAL)
+>>>>> +		ret = -EBADMSG; /* probably invalid key */
+>>>>> +
+>>>>> +	if (ret)
+>>>>> +		pr_err("%s: ret=%d\n", __func__, ret);
+>>>>> +
+>>>>> +	return ret;
+>>>>> +}
+>>>>> +
+>>>>> +static struct virtblk_crypto_variant_ops virtblk_crypto_qcom_vops = {
+>>>>
+>>>> Why is a crypto-handling code in drivers/soc/?
+>>>>
+>>>
+>>> This driver is a Qualcomm vendor-specific driver, plays the similar role in the
 >>
->> Am 01.09.26 um 13:54 schrieb Thomas Zimmermann:
->>> Hi,
->>>
->>> thanks for the updated patch.
->>>
->>> Did you see the review from the Sashiko bot?  The default value is PRE_MULTI, but the driver only supports COVERAGE.  This needs to be changed as part of this patch. The default assignment is at [1] in __drm_atomic_helper_plane_state_init().
->>>
->>> The ast driver needs to override drm_plane_funcs.atomic_create_state for the cursor plane to update the value pixel_blend to COVERAGE for new plane states. Same goes for vbox.
->> Or even better: I just sent out a patch to pick the right default value for the plane state. Let's first see what comes out of this. Patch is at [1].
+>> Not really, there is nothing vendor specific here. Look at this code.
 >>
->> [1] https://lore.kernel.org/dri-devel/20260901122731.83854-1-tzimmermann@suse.de/
->>
->> Best regards
->> Thomas
->>
->   
-> Thanks! I did see the Sashiko bot report and had started on a v3 that
-> overrides drm_plane_funcs.atomic_create_state in ast and vboxvideo
-> (for vboxvideo on both the primary and cursor planes).
->
-> But your approach looks better to me: drm_plane_create_blend_mode_property()
-> already picks DRM_MODE_BLEND_COVERAGE as the property default when
-> PREMULTI is not supported, so initializing the plane state from the
-> property default fixes this for every COVERAGE-only plane without
-> per-driver boilerplate.
->
-> I'll hold off on v3 until your patch has settled.
+> 
+> crypto_virt_program_key calls the interface from qcom_scm driver. Similar to
+> crypto_virt_invalidate_key and crypto_virt_derive_sw_secret_key.
 
-Another patch just landed that fixes the problem:
+Indeed I missed that. And it does include scm header and depends on it,
+fine then.
 
-https://gitlab.freedesktop.org/drm/misc/kernel/-/commit/c3080b58d81d3699cbf4dfd5ba860630fca96f4a
-
-So I acked the rest of your series and I'll merge it in a few days. 
-Thanks again for taking care of these drivers.
-
-Best regards
-Thomas
-
-
->
-> Best regards,
-> Qinyun
->
->
->>> [1] https://gitlab.freedesktop.org/drm/misc/kernel/-/blob/drm-misc-next/drivers/gpu/drm/drm_atomic_state_helper.c?ref_type=heads#L281
->>>
->>> Best regards
->>> Thomas
->>>
->>>
->>> Am 01.09.26 um 10:32 schrieb Qinyun Tan:
->>>> Since commit 860e748bddcc ("drm: ensure blend mode supported if pixel
->>>> format with alpha exposed"), drm_mode_config_validate() warns when a
->>>> plane exposes an alpha pixel format but not the "pixel blend mode"
->>>> property. The ast cursor plane (ARGB4444, ARGB8888) trips this on
->>>> driver load:
->>>>
->>>>     [PLANE:37:plane-1] pixel format with alpha exposed but blend mode not setup
->>>>     WARNING: drivers/gpu/drm/drm_mode_config.c:872 at drm_mode_config_validate+0x48f/0x510 [drm]
->>>>     ...
->>>>     Call Trace:
->>>>      drm_dev_register+0x1ce/0x290 [drm]
->>>>      ast_pci_probe+0x19d/0x3f0 [ast]
->>>>      local_pci_probe+0x41/0x90
->>>>
->>>> Per Thomas Zimmermann's review, the ASPEED documentation describes the
->>>> hardware cursor as blending with straight (non-pre-multiplied) alpha,
->>>> which corresponds to DRM_MODE_BLEND_COVERAGE. Expose a "pixel blend
->>>> mode" property advertising only DRM_MODE_BLEND_COVERAGE to make the
->>>> hardware semantics explicit and silence the warning.
->>>>
->>>> Fixes: 860e748bddcc ("drm: ensure blend mode supported if pixel format with alpha exposed")
->>>> Suggested-by: Thomas Zimmermann <tzimmermann@suse.de>
->>>> Signed-off-by: Qinyun Tan <qinyuntan@linux.alibaba.com>
->>>> ---
->>>> v2: advertise DRM_MODE_BLEND_COVERAGE instead of PREMULTI, per Thomas
->>>> Zimmermann's review and the ASPEED documentation.
->>>>
->>>>    drivers/gpu/drm/ast/ast_cursor.c | 3 +++
->>>>    1 file changed, 3 insertions(+)
->>>>
->>>> diff --git a/drivers/gpu/drm/ast/ast_cursor.c b/drivers/gpu/drm/ast/ast_cursor.c
->>>> index fd19c45f2abe2..690d4cd1db5ee 100644
->>>> --- a/drivers/gpu/drm/ast/ast_cursor.c
->>>> +++ b/drivers/gpu/drm/ast/ast_cursor.c
->>>> @@ -25,6 +25,7 @@
->>>>    #include <linux/sizes.h>
->>>>      #include <drm/drm_atomic.h>
->>>> +#include <drm/drm_blend.h>
->>>>    #include <drm/drm_damage_helper.h>
->>>>    #include <drm/drm_format_helper.h>
->>>>    #include <drm/drm_gem_atomic_helper.h>
->>>> @@ -355,6 +356,8 @@ int ast_cursor_plane_init(struct ast_device *ast)
->>>>        }
->>>>        drm_plane_helper_add(cursor_plane, &ast_cursor_plane_helper_funcs);
->>>>        drm_plane_enable_fb_damage_clips(cursor_plane);
->>>> +    drm_plane_create_blend_mode_property(cursor_plane,
->>>> +                         BIT(DRM_MODE_BLEND_COVERAGE));
->>>>          return 0;
->>>>    }
-
--- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
-GF: Jochen Jaser, Andrew McDonald, (HRB 36809, AG Nürnberg)
-
-
+Best regards,
+Krzysztof
