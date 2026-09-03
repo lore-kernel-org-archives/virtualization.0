@@ -1,139 +1,128 @@
-Received: from mail-qt1-f179.google.com (mail-qt1-f179.google.com [209.85.160.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EF283E1D17
-	for <virtualization@lists.linux.dev>; Thu,  3 Sep 2026 19:08:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73E3E3CF1E7
+	for <virtualization@lists.linux.dev>; Thu,  3 Sep 2026 21:19:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788462492; cv=none; b=lMq5HwZGLrXQfyn7H4WnNdzjhpo9CH37utnfIfgiStbbdxgyaCs6c6qiHGi3x8EABnFrq+nk3TJnXKLn3HU/xxWGvdQpvSU06ZdmjPV9WyalH1T7EnkTSaKeWlZiy3AXxT7yEnS6XE3vriPQgL6biSSQ9bR079cvSmZF9u53oWM=
+	t=1788470373; cv=none; b=j8vYaX4LzWk60TbMQXxWL3XjaWZJEc0bX4T8VMT7PCA4NkdmdzTc2OJ6duMxv0LNkBf6QuK1d7yi6aKVyv1Xo/SGxe4whuVxDUV3i8uwZ1xoaVAR7NEeJ/rJWe7CDk+lJPal48SNE5ERQkmj8QMF8V3qqVQnH894j9bHbjLtWbM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788462492; c=relaxed/simple;
-	bh=eJ8luZ+SOFYZ9CBtpa/OCOcnNLbnaIoYUY4vzqqI4mM=;
+	s=arc-20240116; t=1788470373; c=relaxed/simple;
+	bh=REy89PXGUMAwBFAst7loyqllkqdZtkEQu0QGt9d0S1A=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=eDqmoPR7VwR6jv/PRM7h2LGCyESoE69OS+z+J/VsaSvm6VxG3pgjgfY7pwkH12F4nbLUn3VpZSV4fJ6LIoIJaL/mRUmO0D3ZO9wU1SgZQFbZTqOdqwy4ls5C3dMGM4wPUGbXCI0BeB6NJasocWgnraLf2JAe+iHreYZRXTce1Ns=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=stellman-greene.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=h3PzXqe8; arc=none smtp.client-ip=209.85.160.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=stellman-greene.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 MIME-Version:content-type; b=dKxk8kkfAA9LDHBgyTDyQ8XFYjmdnJflnBcyV0zaXgONBz7s1TJRvlLTZnr79tGdRWY3nGHMwEYTvAIS1Xf0+KK8wg/tdZnz7nP0a1BT7JoModinO5R5IldF7Y6Y7ByDD9d6dslizvOUsHmTLrCQ3mMn6b2fIC2M/XuicoplDQg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VXPKLtDF; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="h3PzXqe8"
-Received: by mail-qt1-f179.google.com with SMTP id d75a77b69052e-51c0006ea8eso3742101cf.1
-        for <virtualization@lists.linux.dev>; Thu, 03 Sep 2026 12:08:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788462484; x=1789067284; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:sender:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=o0ORsVXBJpmzlPcHJRa4DochV+ZXbyOiZ7M55TiOe3k=;
-        b=h3PzXqe8uzdmg71d0iP6AWkkp++RL/SV3fe4HI4dwEmI8heU4DtXNuDhut3EpmRs1E
-         cnO8X4HFxHu6hAb89looQNMEHOA7pLK3lYjknyu9jDBJaPfVp8UqnIk9+KqRfY22gzl8
-         V8wuusp6djZH3QoVEQwkskOJAVYR3t3tgmvMCR+zdrM/UAaXTvdxExfxcBjsZC9ggRcf
-         rxw3iH/qBjWAvnY9ciJlpS8vWF45eFboOtVRXGNwar960GxxTZ1RQFQP5Q6h9hDFVW/B
-         BOTbqbOmZ6EcdCMr5U9hnizrPrCQWGrkXkQ33QhXEPpGjkJ5gqtQbprFIOjwE80o+gFH
-         2HSA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788462484; x=1789067284;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:sender:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=o0ORsVXBJpmzlPcHJRa4DochV+ZXbyOiZ7M55TiOe3k=;
-        b=beFoBlWBs1FrhtU+q/hVtJPW5I45zMRzOKi/Uo7y4j60gNTLGufHWJSTZi9o/0oX8n
-         UhLu/hHbxfsrJ2CFI3zotZ+5Yq0VxaXX+lcm53DU3zPq0JXe/CPnVvyW880AaMeRMYbm
-         37myNopp5YIq7b5Jo/49EKtD0R5sTggZSnuwOCGWE7MTM9RtNqFL2tQxWVGhP9LaaC8z
-         iOHM9XRxsPHDJ73+DIthGW3ZTHdA6DnkCexk5XP5osLmUhwtadzY68vxXqjiqtL3Ws10
-         cA7yeHPdcRRZJDMUTJurfKfDJbW6tOFFdTx9kZOWx1NJPyHTT5p1V1dLO6UIZnr4I1yI
-         d6hw==
-X-Forwarded-Encrypted: i=1; AKwUvBzrr/b4S1f628dmIQ43F6zUWCWGnb0lfgAscGgTQ/5rH8Sk5bQnp4eO63Lh/pZM/uzjuTfnNJ/uQUya5fCLWQ==@lists.linux.dev
-X-Gm-Message-State: AFuF++l46vXFU/7qFQ+lWgTJhjGKChyfx0oLUQmSitTP3E6VgdqjV4co
-	ToYgx/vVItLbPoCO/4y6pVnaoDJLSZ8u9Dp2ZNpSlpo2O0eOxjs11E92
-X-Gm-Gg: AYBFou2dWdYgppgw1+d9xQdO0vcZVqoGuNe1rGWlQa7Hi6mZaa0E/hxSHgWCWDgkx28
-	XqZQjuAP65+ykIdE4SQNsQzh2kvbqEvMZR2ZEIit6gdUKDz8kvxc7XCcz3Yx5Vb5Ck17Tanobam
-	2ts6BudMM4Csyf8UPk9MUsac85L/lzSlyXXMFSfk7PTeRU8LiFwoIohJkIumBeejCaX22FEge7B
-	FZtCsC3ebrpqliNNWMxidkeWB+BBHxauStSIuXYsMWt3M3x+2v2aPqPbRMsxI6feE27j3Vx71/a
-	BgGgwRkU/HJhMgQQHUgGZFCVTm8oqqU5Ht1EHiUbvmbEg8a3sU/KV8wk/NfFzXYAKTvErbF7tRp
-	a9q7BX1E2TJrInD0QcLdC+GoLM2XNuSJFA1lODw+K+77wZMig1YashDA2C5FHq/elRXaG87HbsH
-	CZbQcp3XeBQb3p+pFntWp2iWKf/JPHEB5+YW2WkKOwZ6/aWz98eo7DI2xgye/5gy2PkT+3FOvOI
-	+fAWwIV24y3fnXJBXJ//3Z8dqZG0EsPmmiwoXwOCzjkjktzUzY7E6nYv0gJyH72lM5yuJqpOhTs
-	5UPW8VAVDcty0klt8xiHLGNjAr/EdH4jDlQIn7637rE86/IOSBXz1z4IfAy7YHw=
-X-Received: by 2002:a05:622a:1f98:b0:530:31c8:a302 with SMTP id d75a77b69052e-5305495da66mr12171581cf.23.1788462484170;
-        Thu, 03 Sep 2026 12:08:04 -0700 (PDT)
-Received: from Mac.mynetworksettings.com ([2600:4041:5c28:200:bc26:3e94:1d7f:e1ff])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-910406940f3sm1342666d6.38.2026.09.03.12.08.03
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Thu, 03 Sep 2026 12:08:03 -0700 (PDT)
-Sender: Andrew Stellman <stellman@gmail.com>
-From: Andrew Stellman <astellman@stellman-greene.com>
-To: mst@redhat.com
-Cc: jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
-	virtualization@lists.linux.dev
-Subject: [PATCH v2 3/4] virtio-pci: return IRQ_HANDLED after non-zero ISR
-Date: Thu,  3 Sep 2026 15:07:31 -0400
-Message-ID: <20260903190731.13783-1-astellman@stellman-greene.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260903111342-mutt-send-email-mst@kernel.org>
-References: <20260903111342-mutt-send-email-mst@kernel.org>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VXPKLtDF"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1788470366;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=P6wdYDVz/iY+alwXjGKwrS1eyvjuEX5rquxAFWMQOOc=;
+	b=VXPKLtDFewWG3Mi+fv80nENQ1ne8Ztu2HIy9hQGHjXjbDKHH4VqkZvQlW4IY7QDAlBGtvx
+	o7em9ydop4Ok5m8KxfXdYGbOixJjSmgb66GIBXLMvdsmvAoeraoqpiJttjUOIGdrQgNEMH
+	f2PUwOeFWAfuZEDQPF+N1IJ+0D5k4RI=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-647-tButmvDpNsmYRZS04qoxDQ-1; Thu,
+ 03 Sep 2026 17:19:22 -0400
+X-MC-Unique: tButmvDpNsmYRZS04qoxDQ-1
+X-Mimecast-MFC-AGG-ID: tButmvDpNsmYRZS04qoxDQ_1788470361
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 1DD4E185FDA2;
+	Thu,  3 Sep 2026 21:19:21 +0000 (UTC)
+Received: from GoldenWind.redhat.com (unknown [10.22.64.12])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 0C8DD1955F70;
+	Thu,  3 Sep 2026 21:19:18 +0000 (UTC)
+From: Lyude Paul <lyude@redhat.com>
+To: dri-devel@lists.freedesktop.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@lists.freedesktop.org
+Cc: Christian Hergert <christian@sourceandstack.com>,
+	"Dmitry Osipenko" <dmitry.osipenko@collabora.com>,
+	"David Airlie" <airlied@redhat.com>,
+	"Maarten Lankhorst" <maarten.lankhorst@linux.intel.com>,
+	linux-kernel@vger.kernel.org,
+	"Simona Vetter" <simona@ffwll.ch>,
+	"Gerd Hoffmann" <kraxel@redhat.com>,
+	"Thomas Zimmermann" <tzimmermann@suse.de>,
+	"Maxime Ripard" <mripard@kernel.org>,
+	"Lyude Paul" <lyude@redhat.com>
+Subject: [PATCH 1/2] drm/virtio: preserve damage clips for rendered resources
+Date: Thu,  3 Sep 2026 17:15:51 -0400
+Message-ID: <20260903211914.1109100-2-lyude@redhat.com>
+In-Reply-To: <20260903211914.1109100-1-lyude@redhat.com>
+References: <20260903211914.1109100-1-lyude@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
+X-Mimecast-MFC-PROC-ID: mQytIMhecf9PJpTAYeZA_jwQqPFpQBXh2QKqj6MDPQw_1788470361
+X-Mimecast-Originator: redhat.com
 Content-Transfer-Encoding: 8bit
+content-type: text/plain; charset="US-ASCII"; x-default=true
 
-vp_interrupt() reads the ISR before dispatching config-change and
-vring handling. Reading the ISR also clears it, so once the read
-returns non-zero the interrupt was from this device and has already
-been consumed.
+From: Christian Hergert <christian@sourceandstack.com>
 
-Currently vp_interrupt() returns the result of vp_vring_interrupt().
-For a config-change interrupt with no vring work, that can return
-IRQ_NONE even though the ISR was non-zero and the interrupt was
-handled.
+virtio_gpu_plane_atomic_check() unconditionally ignores FB_DAMAGE_CLIPS
+when the framebuffer changes. This forces a full resource flush on every
+page flip when a compositor rotates through multiple framebuffers, even
+when userspace supplies accumulated per-buffer damage.
 
-Call vp_vring_interrupt() for any queue work, but once the ISR is
-non-zero return IRQ_HANDLED.
+The full update is required for dumb buffers because their contents are
+uploaded per buffer. Rendered resources are already coherent on the host,
+so replacing their damage with the full plane only discards useful
+information.
 
-Tested with QEMU virtio-blk-pci forced to INTx using vectors=0 and
-pci=nomsi. On an idle device, 200 config-change interrupts were
-generated using QMP block_resize.
+Restrict ignore_damage_clips to dumb buffers. This allows damage-aware
+compositors to propagate partial updates through RESOURCE_FLUSH while
+preserving the existing full-upload behavior for dumb buffers.
 
-Before this change, irq_handler_exit reported ret=unhandled and
-/proc/irq/11/spurious increased from 0 to 200 unhandled interrupts.
-After this change, irq_handler_exit reported ret=handled and the
-unhandled count remained at 0.
-
-Fixes: 77cf524654a8 ("virtio_pci: split up vp_interrupt")
-Suggested-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Andrew Stellman <astellman@stellman-greene.com>
+Signed-off-by: Christian Hergert <christian@sourceandstack.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Signed-off-by: Lyude Paul <lyude@redhat.com>
 ---
-Changes from v1:
-- Return IRQ_HANDLED for any non-zero ISR, as suggested by Michael.
-- Add Fixes and Suggested-by tags.
-- Test the change with virtio-blk forced to legacy INTx under QEMU.
+ drivers/gpu/drm/virtio/virtgpu_plane.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-Full red/green test logs and the exact tested patch:
-https://github.com/andrewstellman/quality-playbook/tree/11ba61d/evidence/virtio-pci-intx
-
- drivers/virtio/virtio_pci_common.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index 10371ecbc054..b90c174450b2 100644
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -120,7 +120,9 @@ static irqreturn_t vp_interrupt(int irq, void *opaque)
- 	if (isr & VIRTIO_PCI_ISR_CONFIG)
- 		vp_config_changed(irq, opaque);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+index 1d1b27ece62a7..d9579a4b4714c 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_plane.c
++++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+@@ -103,6 +103,7 @@ static int virtio_gpu_plane_atomic_check(struct drm_plane *plane,
+ 										 plane);
+ 	struct drm_plane_state *old_plane_state = drm_atomic_get_old_plane_state(state,
+ 										 plane);
++	struct virtio_gpu_object *bo;
+ 	bool is_cursor = plane->type == DRM_PLANE_TYPE_CURSOR;
+ 	struct drm_crtc_state *crtc_state;
+ 	int ret;
+@@ -113,9 +114,12 @@ static int virtio_gpu_plane_atomic_check(struct drm_plane *plane,
+ 	/*
+ 	 * Ignore damage clips if the framebuffer attached to the plane's state
+ 	 * has changed since the last plane update (page-flip). In this case, a
+-	 * full plane update should happen because uploads are done per-buffer.
++	 * full plane update should happen for dumb buffers because uploads are
++	 * done per-buffer. Rendered resources are already coherent on the host,
++	 * so preserve userspace's accumulated per-buffer damage for those.
+ 	 */
+-	if (old_plane_state->fb != new_plane_state->fb)
++	bo = gem_to_virtio_gpu_obj(new_plane_state->fb->obj[0]);
++	if (old_plane_state->fb != new_plane_state->fb && bo->dumb)
+ 		new_plane_state->ignore_damage_clips = true;
  
--	return vp_vring_interrupt(irq, opaque);
-+	vp_vring_interrupt(irq, opaque);
-+
-+	return IRQ_HANDLED;
- }
- 
- static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
+ 	crtc_state = drm_atomic_get_crtc_state(state,
 -- 
-2.43.0
+2.55.0
 
