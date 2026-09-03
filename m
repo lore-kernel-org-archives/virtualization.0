@@ -1,180 +1,210 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39E873F54D2
-	for <virtualization@lists.linux.dev>; Thu,  3 Sep 2026 06:35:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E45F33D6E6
+	for <virtualization@lists.linux.dev>; Thu,  3 Sep 2026 07:00:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788417315; cv=none; b=Hw4HNw14Wn7G58Ku/f2h3SELCkF2U6lH56IXvk4Sb6v6RLDojv5TI/OVUlWYF4addpBYj9LJFUBaAGMWvxrKrZSWAxH3CPhuumynfmxBc9kH+UIxmIzLbEAqnMX5s12Qs9HlPs87g17JN/q6Iv7vekjxeidTqkLSZcjmqBU6Kyg=
+	t=1788418846; cv=none; b=jvRNcLWw1rK8IgaLE8rtg4EZOHFad9GOTIifNufWejvuq+BfjbaoV67i3+P9gQZglTzmnx4njVwH2R9TYtG7v2bTzgsx+qXYr1hCGB0/UA/y9huyvd8iH0knYZ4ygX9QVAcFkZ83ulu+sCSmzlwGLql1y0DgK6dvpHLiepG2AAc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788417315; c=relaxed/simple;
-	bh=5cENXDoJGErmJsLQ6ZJsBujmig6bC7WS/6A9jKS95EU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=KV+6wazsnpx2UCuLpyLB6BCkz2qXPAw4GfhqroOJvxJhOqRLZ7QtzWpr2x9jGFsQAL47m4yTH+CCWroAw72vbAhUtqeSN0gx7jRNW6isl2ODbzXDHZ6CVGsL8DRDGzGcIXpzSl7+fR08dTmU8rf8j3TMiqoY2PH9g2ww7G/zmWY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=BbCmSWMN; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1788418846; c=relaxed/simple;
+	bh=HfSAyLNGvAfTt040f/crFsUGn1kbwdcfpl1RSRwclb8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=hHeaVZQWJWhMn51RUWU7avxTkUhluNohGuu+FAS91N+RCSuQZY/h77bvi3Oii9umJH0yTHEA2jrzvpFzWdDQZ8w8nIwBRT1lmODnvryfoUAfjrrfaee65VaG9Ba4XaUjIlJvb3dMG6oPjzJ95s5urPxHLFZnmrS+Jetihah/XtI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=ca0ZmIHp; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=Hv15/f+/; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=yIrtd9u2; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=gFDhiFRU; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="BbCmSWMN"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68361eko2188170;
-	Thu, 3 Sep 2026 06:34:55 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=NoKs6PHgICOPvbPtx
-	LXEGO2l3bWSaBBDHM91RDM0iP0=; b=BbCmSWMNA8a1nqrHaX1sS02b5jQSMSIUk
-	zObJr6qCzNsXEhUkADk9+LbaaLgA3MK5EPBQZh69dRbTn1fl31M3R+zeKpsGFfLa
-	CFPdBwj7neJbokbUZNYBMuTSXCa20IcHRNTcM1Uzqdgv7h8E6V1D2p6RvglDUUIG
-	p2s5cYDExOW53/QFHY537gJ0nx+kBGQKsFRA3jmjTiKht0HRKPYk/v48I+0nVdQ7
-	6xDRYI4fvU/Mdoa/rqigrFEKROye5ekhWKVzQZInELRkqHzjT2DPmjt0ZRRv6gy3
-	bSaKX69HliB9Kr46h0y6tarUmCyOkMO1bhTVsQgo/yie/gIRV2dUA==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gbpx5udfn-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 03 Sep 2026 06:34:54 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 6836QHT5006191;
-	Thu, 3 Sep 2026 06:34:53 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gcb8hpa3u-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 03 Sep 2026 06:34:53 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6836YnJ246924238
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 3 Sep 2026 06:34:49 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1A59820043;
-	Thu,  3 Sep 2026 06:34:49 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 78EA720040;
-	Thu,  3 Sep 2026 06:34:40 +0000 (GMT)
-Received: from li-7bb28a4c-2dab-11b2-a85c-887b5c60d769.ibm.com.com (unknown [9.39.27.193])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  3 Sep 2026 06:34:40 +0000 (GMT)
-From: Shrikanth Hegde <sshegde@linux.ibm.com>
-To: linux-kernel@vger.kernel.org, mingo@kernel.org, peterz@infradead.org,
-        juri.lelli@redhat.com, vincent.guittot@linaro.org,
-        yury.norov@gmail.com, kprateek.nayak@amd.com, iii@linux.ibm.com,
-        corbet@lwn.net, meted@linux.ibm.com, ynorov@nvidia.com
-Cc: sshegde@linux.ibm.com, tglx@kernel.org, gregkh@linuxfoundation.org,
-        pbonzini@redhat.com, seanjc@google.com, vschneid@redhat.com,
-        huschle@linux.ibm.com, rostedt@goodmis.org, dietmar.eggemann@arm.com,
-        maddy@linux.ibm.com, srikar@linux.ibm.com, hdanton@sina.com,
-        chleroy@kernel.org, vineeth@bitbyteword.org, frederic@kernel.org,
-        arighi@nvidia.com, pauld@redhat.com, christian.loehle@arm.com,
-        tj@kernel.org, tommaso.cucinotta@gmail.com, maz@kernel.org,
-        rafael@kernel.org, rdunlap@infradead.org, kernellwp@gmail.com,
-        linux-doc@vger.kernel.org, jgross@suse.com,
-        virtualization@lists.linux.dev, sunlightlinux@gmail.com
-Subject: [PATCH v12 13/13] virt/steal_governor: Enable the driver
-Date: Thu,  3 Sep 2026 12:02:40 +0530
-Message-ID: <20260903063240.268775-14-sshegde@linux.ibm.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260903063240.268775-1-sshegde@linux.ibm.com>
-References: <20260903063240.268775-1-sshegde@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="ca0ZmIHp";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="Hv15/f+/";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="yIrtd9u2";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="gFDhiFRU"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 0F6D41FDB8;
+	Thu,  3 Sep 2026 07:00:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1788418837; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=sAG9cDrf6xBo+FEbVMo3Fg8Oo+JsskIBDIN13dkCH/M=;
+	b=ca0ZmIHp/jfxgiC/j0cQM3dO+U/j2f6SzVC8r42KASK1ryPTVaNerbEUx5q04GpeSDDGBS
+	FtaI2grx0B9hFYF2FAH9b/+2kDW5rk3LjvB5PR0vvHFAGSiZveS+QDC2lKAjwdUZdQxi/a
+	F3fmZtn+yKBcgxHzpbnZ6Gwg1vpBumo=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1788418837;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=sAG9cDrf6xBo+FEbVMo3Fg8Oo+JsskIBDIN13dkCH/M=;
+	b=Hv15/f+/CcrJiMZr7ujsNyEs7l2J10Gnzo7WAjBLQc9T2GDM0Cj9rRGRfZlG6lMZ7ZPM+N
+	4MErsL9DuYzlsGBA==
+Authentication-Results: smtp-out2.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1788418833; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=sAG9cDrf6xBo+FEbVMo3Fg8Oo+JsskIBDIN13dkCH/M=;
+	b=yIrtd9u2rTlpIKJK6bqWO6CF1l2zjjdnIA/PbX98J9QrASGIC9ibEvd/QBFLpw1eyqMBo0
+	TS3ZKhNtxPMOn7njzyPmMO94bBqKFcxaWab0W4A2ZC2Aipfs+o+JANQsrXUs1bOQI63611
+	BqfKqLFI7bamXqycRU+tuvp4iMfhSJs=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1788418833;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=sAG9cDrf6xBo+FEbVMo3Fg8Oo+JsskIBDIN13dkCH/M=;
+	b=gFDhiFRUVPzGy2O/Po1f68k+be6dAC/J6rLnJE7bf4flFFqj0J6gPd1WoCGp6F5P3vipDx
+	TP3I9V+GiyRwcYCg==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 7C6E313736;
+	Thu,  3 Sep 2026 07:00:32 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id 9wTrHBAbmWqTTgAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Thu, 03 Sep 2026 07:00:32 +0000
+Message-ID: <12087ae2-972a-48fd-932a-89772597f59c@suse.de>
+Date: Thu, 3 Sep 2026 09:00:31 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 4/4] drm/vboxvideo: create blend mode property on
+ planes
+To: Qinyun Tan <qinyuntan@linux.alibaba.com>, dri-devel@lists.freedesktop.org
+Cc: airlied@redhat.com, jfalempe@redhat.com, kraxel@redhat.com,
+ dmitry.osipenko@collabora.com, hansg@kernel.org,
+ maarten.lankhorst@linux.intel.com, mripard@kernel.org, simona@ffwll.ch,
+ leandro.ribeiro@collabora.com, daniels@collabora.com,
+ pekka.paalanen@collabora.com, virtualization@lists.linux.dev,
+ spice-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
+References: <20260901083234.1828755-1-qinyuntan@linux.alibaba.com>
+ <20260901083234.1828755-5-qinyuntan@linux.alibaba.com>
+Content-Language: en-US
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <20260901083234.1828755-5-qinyuntan@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=PPc/P/qC c=1 sm=1 tr=0 ts=6a99150f cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=iQ6ETzBq9ecOQQE5vZCe:22 a=pGLkceISAAAA:8 a=VnNF1IyMAAAA:8
- a=jPZz8W9ceouySDeeKuAA:9
-X-Proofpoint-GUID: 8jmbw4Nw_27ku6VuTzGCQWkEy4_5J3-J
-X-Proofpoint-ORIG-GUID: bFa-iy32QYLkbHUQxW9ewRqS5ISAQxaM
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTAzMDA1NyBTYWx0ZWRfX1Xt3wXeKIa7E
- SSGcDNnIMeseKPwrUFGe7Dwt9U0CCwBXyyK5EyUi80xvw2gLNzQpdwtoQg7/FBhu/q8hBfKZUCS
- WA+S1mruMLLdfkJwGsfDZvsVa4PEGfw=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTAzMDA1NyBTYWx0ZWRfXyY6oQJi+BVM/
- Jifg2iCRzeZWCyuMcfUkUWdxNP9RAcJoVNEDQCbJL0KUCXHUVpQcvf1UqVYH/Iju+s8VUcw4AM6
- +zs2itv/owysnF0lrYycx62lR0h0A3/laKgA4ILcBVRx+IzFv7DLmLmpP9x+3dz3lxM90h1j9XH
- NqDef45LFBKBYShxhA9CGS4VvQ0mzfc2tIi4VwV7HaLHnZJI+v5JEgcLgt9WcAN92fqtvztLQgp
- BQRku1NXFEEPSAkE1/l/++6ufMAeElnbN0QGJ0jVP1kVV4wGhFj7x9kVaDWOcVm6MlRVZUh8jT5
- /T3EPMhHdalF7flC1SRqYm9/LACSd8kv9YcWCvmL3XM8AAqFhdVuBVRlpANAgaaoIpNn7aUDCVm
- qVPuje6xEmeQU22XuZ+2h7beOHi6m1vVdTQ/uaQqIMZwTcy0XcJMhbVX7WRuNjv02BYXcPpqGB6
- NXkilu0W8u7EeuZKRxw==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-03_02,2026-09-02_04,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 phishscore=0 adultscore=0 suspectscore=0 bulkscore=0
- spamscore=0 priorityscore=1501 impostorscore=0 malwarescore=0
- lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2609030057
+X-Spam-Level: 
+X-Spam-Score: -4.30
+X-Spam-Flag: NO
+X-Spamd-Result: default: False [-4.30 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-0.993];
+	MIME_GOOD(-0.10)[text/plain];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[16];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[alibaba.com:email,imap1.dmz-prg2.suse.org:helo,suse.de:email,suse.de:mid,suse.com:url]
 
-Provide a config option to enable the steal_governor driver.
-Since the feature targets paravirtualized environments and requires SMP,
-enforce those dependencies. The driver selects CONFIG_PREFERRED_CPU
-for the core scheduler mechanisms to work.
 
-It is recommended to build the driver as a module (m) instead of
-built-in (y) due to the following reasons:
 
-- Module parameters are read-only after initialization. Building as a
-  module allows updating these parameters by simply reloading the module.
-  Default module parameters cannot work in all configurations.
+Am 01.09.26 um 10:32 schrieb Qinyun Tan:
+> Since commit 860e748bddcc ("drm: ensure blend mode supported if pixel
+> format with alpha exposed"), drm_mode_config_validate() warns when a
+> plane exposes an alpha pixel format but not the "pixel blend mode"
+> property. Both the vboxvideo primary and cursor planes expose ARGB8888
+> and trip this on driver load.
+>
+> VirtualBox draws the cursor through the host windowing system, which
+> treats the guest-supplied pointer shape as straight
+> (non-pre-multiplied) alpha: the host frontend loads the pixels
+> verbatim into an unpremultiplied ARGB image before handing them to the
+> host cursor APIs. This corresponds to DRM_MODE_BLEND_COVERAGE. Expose
+> a "pixel blend mode" property advertising only DRM_MODE_BLEND_COVERAGE
+> to make these semantics explicit and silence the warning. The primary
+> plane's alpha channel is ignored by the host (opaque blit) and it is
+> the bottom-most plane anyway; advertise the same value there for
+> consistency.
+>
+> Fixes: 860e748bddcc ("drm: ensure blend mode supported if pixel format with alpha exposed")
+> Signed-off-by: Qinyun Tan <qinyuntan@linux.alibaba.com>
 
-- The driver can be completely disabled by unloading the module.
+Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
 
-- This feature works best when all VMs operate in a cooperative manner.
-  Requiring an explicit module load ensures intentional deployment
-  across all VMs by the system administrator.
+> ---
+> v2: advertise DRM_MODE_BLEND_COVERAGE instead of PREMULTI after
+> checking how the VirtualBox host composites the pointer shape.
+>
+>   drivers/gpu/drm/vboxvideo/vbox_mode.c | 4 ++++
+>   1 file changed, 4 insertions(+)
+>
+> diff --git a/drivers/gpu/drm/vboxvideo/vbox_mode.c b/drivers/gpu/drm/vboxvideo/vbox_mode.c
+> index 8e4e5fc9d3c5a..3c41238a82685 100644
+> --- a/drivers/gpu/drm/vboxvideo/vbox_mode.c
+> +++ b/drivers/gpu/drm/vboxvideo/vbox_mode.c
+> @@ -15,6 +15,7 @@
+>   
+>   #include <drm/drm_atomic.h>
+>   #include <drm/drm_atomic_helper.h>
+> +#include <drm/drm_blend.h>
+>   #include <drm/drm_edid.h>
+>   #include <drm/drm_fb_helper.h>
+>   #include <drm/drm_fourcc.h>
+> @@ -540,6 +541,9 @@ static struct drm_plane *vbox_create_plane(struct vbox_private *vbox,
+>   
+>   	drm_plane_helper_add(plane, helper_funcs);
+>   
+> +	drm_plane_create_blend_mode_property(plane,
+> +					     BIT(DRM_MODE_BLEND_COVERAGE));
+> +
+>   	return plane;
+>   
+>   free_plane:
 
-Suggested-by: Yury Norov <yury.norov@gmail.com>
-Signed-off-by: Shrikanth Hegde <sshegde@linux.ibm.com>
----
- drivers/virt/Kconfig  | 17 +++++++++++++++++
- drivers/virt/Makefile |  1 +
- 2 files changed, 18 insertions(+)
-
-diff --git a/drivers/virt/Kconfig b/drivers/virt/Kconfig
-index 52eb7e4ba71f..eeb84e578ddf 100644
---- a/drivers/virt/Kconfig
-+++ b/drivers/virt/Kconfig
-@@ -41,6 +41,23 @@ config FSL_HV_MANAGER
-           4) A kernel interface for receiving callbacks when a managed
- 	     partition shuts down.
- 
-+config STEAL_GOVERNOR
-+	tristate "Dynamic vCPU management based on steal time"
-+	depends on PARAVIRT && SMP
-+	select PREFERRED_CPU
-+	default m
-+	help
-+	  This driver helps to reduce the steal time in paravirtualized
-+	  environments, thereby reducing vCPU preemption costs.
-+
-+	  By default preferred CPUs will be same as active CPUs. Depending
-+	  on the steal time when steal_governor driver is enabled,
-+	  preferred CPUs could become subset of active CPUs.
-+	  More details are at: Documentation/driver-api/steal-governor.rst
-+
-+	  It is recommended to build it as module and load the module
-+	  to enable it.
-+
- source "drivers/virt/vboxguest/Kconfig"
- 
- source "drivers/virt/nitro_enclaves/Kconfig"
-diff --git a/drivers/virt/Makefile b/drivers/virt/Makefile
-index f29901bd7820..05fb075ef5b8 100644
---- a/drivers/virt/Makefile
-+++ b/drivers/virt/Makefile
-@@ -5,6 +5,7 @@
- 
- obj-$(CONFIG_FSL_HV_MANAGER)	+= fsl_hypervisor.o
- obj-$(CONFIG_VMGENID)		+= vmgenid.o
-+obj-$(CONFIG_STEAL_GOVERNOR)	+= steal_governor.o
- obj-y				+= vboxguest/
- 
- obj-$(CONFIG_NITRO_ENCLAVES)	+= nitro_enclaves/
 -- 
-2.52.0
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
+GF: Jochen Jaser, Andrew McDonald, (HRB 36809, AG Nürnberg)
+
 
