@@ -1,145 +1,138 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com [209.85.216.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BC1178F2F;
-	Fri,  4 Sep 2026 00:12:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D551F19E97B
+	for <virtualization@lists.linux.dev>; Fri,  4 Sep 2026 00:53:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788480737; cv=none; b=dUynHvc1wK0GRPFuMe4B2JuSYLMsUnWe2BQ+ZmaWVffNBppFfGxLn5omDXPuBqicu9ugq7xoTj78UKiongKGBM5XnMHEBwULtilDOAOfB3fZiBK6bviJjOjiqbMNBADoN5iZFgGidNwYkQ2IQQp6rjlhkB1amCyj3IVRiALn41w=
+	t=1788483228; cv=none; b=E5yaq6WXdwQB8AhPdZssHYTZ5uiru9zFexW99sXWNJqXsc2tX6lPANGx9mgMHoFyubwhUYZgyv9LKe51M4OgK2VWj0UBttcfaAcSR3+2rrprPPxutNMh5pr/yUi5nS6cSs6MJF2AQHwGBwm5n7+zLwJj2lQfw5bbtA1VGrh15ac=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788480737; c=relaxed/simple;
-	bh=1oje6I6cprMjdcZ3w+KgH6EanbVWQeayLSc3PmDGyL4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=tOd39DrQuyQl91FsTprbMOGzFSNl6nT8Zbh8CfsfbuAIjrWJJnqcpp2V2XMS9ulm2vXpObb4o/7eoIA7iV6S/P/lrbxQJnCq6rno4iouKbLnuvQnBLu/nhfmHnMJbXKBmW2baMDlDHKDqC0cMfW/dm3iSeXQX5Oczt+XgALldgg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XW9ZtjJd; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788483228; c=relaxed/simple;
+	bh=0ZpfWwRDAHgu1mRcWZVQMtXirmVz5qsYIzeHiB+CHr0=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=RikJkuJGTtbWpEfADw50mBF9Ow2Zr4oCKF+4viuErMHfwXbPw3820V3AJR8rf61+bePd24cwZx2LUQZnWKfSHzTYL51ugk9QZwE0sl+gnceRmjbUES3F58Xr1+lYuE4OLHTOiAOo+/bUIV0Zv+FRhoXYzdZyhD6kVD/rJmq2sLI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Pc7HM5eE; arc=none smtp.client-ip=209.85.216.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XW9ZtjJd"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D0081F000E9;
-	Fri,  4 Sep 2026 00:12:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788480736;
-	bh=uwU9myAIHfxtIC/MA9ZCvJe1sgh7d4K5eTnJj1GTYxg=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=XW9ZtjJdCEfhzI3DxWMXkt9DtZEB/PYWe755TnnZH/tac17RQJCHcrDOy1PTtv0Wo
-	 BbVOQriqqG6KoM1atfZmXUpQV9Oh9vyOoi8QisKTUV2eCe+A+qDkQcB3nYS6J+c5kj
-	 GygJk2zJqUKYukpQqfDZqWvtEYGznn53rUeWTfkNNFy14OnDZC6FUMTKufgeP8W+Nn
-	 ahCExJ+/ST1mem1vNNM+HLCEQ5wLZzHSdwmT2+D0vkEqu8UWhzpSu7hnbEHwXW24JY
-	 6ujse3Q2i8z3fZ3GfubUaORUT1JqibaBOq8g/8xfYlirIP6vkWt2LwfgdqhKABykOs
-	 BS3hYKU5XOFhg==
-Message-ID: <795ac93a-9377-4503-9dc4-58f21c815f71@kernel.org>
-Date: Fri, 4 Sep 2026 09:12:11 +0900
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Pc7HM5eE"
+Received: by mail-pj1-f42.google.com with SMTP id 98e67ed59e1d1-398b1e63c49so1538948a91.0
+        for <virtualization@lists.linux.dev>; Thu, 03 Sep 2026 17:53:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788483226; x=1789088026; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=2el8XyfB2FMbOrmCud+3jZOtrXhR6MDItbmJqyOOTqQ=;
+        b=Pc7HM5eEzTZ03YvAvnaSqvf/9UrNInAJzaQC/O/8+bOk5g86qhUGMHOZeuD8ODmNDY
+         qRte7N1YFrsqxXU35c6NEBRTdyG5qhmStSF3uq61HKlWsFK2NRU9W1/Aq8+PZ/H1wUJv
+         KOFCmuuxB9s7Isq2WYhopAX9BpKU+D388CjjIyTsazcdsPOItg4t9mlGIHcF2zxjAlEj
+         XzTty8HfDqsnn95LSGdieAnlLkWBBYnjLOZ3V5PlzaPzHVKFvzOiCE0No8YBwmK79czl
+         698jp8VojhK7WzAwpwH7106t0Ht9CtBaF9sz0Ixwk0+TNuoCLo5oa0YR8ySjvnK9bHiW
+         3w8g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788483226; x=1789088026;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=2el8XyfB2FMbOrmCud+3jZOtrXhR6MDItbmJqyOOTqQ=;
+        b=qTMZCV41Wh2rSgulMwrVB0IN0bh6EuEVPncXL/EWUsu94ErAYh/846HBlHkUkel67x
+         WDaQVTBA0sNVxCGs/FEV3EwUkIhGnW0h2oBpMWXoxTYF5Zpmp37oKlSTsZjWebEcHwNT
+         MmMo7U85y+huCOVA+qwZwGJhWZetxZn3Zx9E/eYrEiJmhuLKl9CbkrVsR8WPZI4NqYN7
+         lnR1DhzSrr3QCVDMEVnG/LpAdvyBJylvW/4HfByIzON/EfUDGIXtDjV4ceNjhcD7KsEQ
+         XcB6xzUelzJg8ZsLcs7DQp4rIaylwdXzquY9v2p/UhG6gJAYwOLkZ91wmetRtydOXkKg
+         oyNA==
+X-Forwarded-Encrypted: i=1; AKwUvBw9x+kHA3NdPamU2zmh5kJFNBBXJn6kgpKuBLurUfMN5rqpWHvwLO2OY0+WQaNE1kpjD/XXDyfXqnptfIkZUg==@lists.linux.dev
+X-Gm-Message-State: AFuF++l2Pkv9bqBrRvAeAO2ugyuAgbsFeIkG/v0gm8fygaHNNXEXEQsd
+	lOhWWhRJZA6YMLih+YvF7E0i4z3acyAQFcSdHh7EqbD7KdJAflbRESjl
+X-Gm-Gg: AYBFou2SmS/00r249t7S/U8Y+nWWhp9+U5zzFd1YyThM8hL/Jrx1HUTjprYF8Cy0Lt5
+	mQ+Rm80yuJUf4oEo2rlbLs7LrNOK4aKxSVgq4nEy+Ht67zJ2QN4D+o/CavG4TH7NqwPCPY6kUV/
+	CLSQ7T7EGSdTxoR3rgDEg86PStAN0FIx9XsYqRMi/tcR6QqKGHF9/CJYfs/LPjicEh5KGskfVkE
+	G6Edm1tPm/CSobuwNy7NMfK5OuBp0goq1wFGmSIaVuKhSyBN21ybxAH2UfTH1gAc2tpSK3Hu7JJ
+	M8OlrYD0A6d5QQqNw/3XhzWye44mDlbw0igfF6YK2BCYRU8I5T+MmUbrDQjqHN0yCnZTzhwn+TD
+	0KtcTwBWQVLU/Yox9esHPQYyJPrmkQiUdae6qpAMUUjA2q7k8nwqg+jsjHkkw5Q2P/N4603fc0y
+	RxEx83YUfNdG/kNszU1YCXObldReOoSl+p/arX4EZk4zYOy5DALO3W70PUhTI2
+X-Received: by 2002:a17:90b:4490:b0:38e:42f5:d096 with SMTP id 98e67ed59e1d1-39b279ad968mr1194020a91.0.1788483225951;
+        Thu, 03 Sep 2026 17:53:45 -0700 (PDT)
+Received: from gmail.com ([188.253.12.32])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39b08bcc081sm7701712a91.6.2026.09.03.17.53.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 03 Sep 2026 17:53:45 -0700 (PDT)
+From: Jia Jia <physicalmtea@gmail.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jaswangio@gmail.com>,
+	Mike Christie <michael.christie@oracle.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Nicholas Bellinger <nab@linux-iscsi.org>,
+	Asias He <asias@redhat.com>,
+	virtualization@lists.linux.dev,
+	kvm@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] vhost-scsi: fix event queue iov out-of-bounds
+Date: Fri,  4 Sep 2026 08:52:40 +0800
+Message-Id: <20260904005240.502787-1-physicalmtea@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/2] scsi: Initial commit of VirtIO PCIe Endpoint Driver
-To: Manivannan Sadhasivam <mani@kernel.org>, Niklas Cassel <cassel@kernel.org>
-Cc: alistair23@gmail.com, mst@redhat.com, eperezma@redhat.com,
- linux-kernel@vger.kernel.org, xuanzhuo@linux.alibaba.com,
- jasowangio@gmail.com, linux-scsi@vger.kernel.org, mkp@kernel.org,
- virtualization@lists.linux.dev, James.Bottomley@hansenpartnership.com,
- alistair@alistair23.me, Alistair Francis <alistair.francis@wdc.com>,
- linux-pci@vger.kernel.org, Shunsuke Mie <mie@igel.co.jp>,
- Frank Li <Frank.Li@kernel.org>, Koichiro Den <den@valinux.co.jp>,
- Kishon Vijay Abraham I <kishon@kernel.org>
-References: <20260901014650.2728658-1-alistair.francis@wdc.com>
- <apaOZeeDBIRlpB7b@ryzen>
- <akvzpivrbg3b3jra6ibga6j637pwqkwnnzs6q2ymcn5ixrdym6@wniqpspkcknt>
-Content-Language: en-US
-From: Damien Le Moal <dlemoal@kernel.org>
-Organization: Western Digital Research
-In-Reply-To: <akvzpivrbg3b3jra6ibga6j637pwqkwnnzs6q2ymcn5ixrdym6@wniqpspkcknt>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 9/3/26 20:51, Manivannan Sadhasivam wrote:
-> On Tue, Sep 01, 2026 at 10:35:49AM +0200, Niklas Cassel wrote:
->> On Tue, Sep 01, 2026 at 11:46:48AM +1000, alistair23@gmail.com wrote:
->>> From: Alistair Francis <alistair.francis@wdc.com>
->>>
->>> This series adds a VirtIO SCSI endpoint built on top of the VirtIO PCIe
->>> endpoint. This is a similar approach to the NVMe PCIe Endpoint
->>> (drivers/nvme/target/pci-epf.c) but for SCSI.
->>>
->>> This does end up being somewhat similar to the pci-epf.c code, but
->>> re-written for SCSI.
->>>
->>> This approach allows a PCIe Endpoint device (tested on a
->>> radxa-rock5b) to setup what appears to be a SCSI device, using an
->>> existing SCSI backend (tested using scsi_debug).
->>>
->>> At this point a host can connect over PCIe, ensure virtio_pci and
->>> virtio_scsi is loaded and on PCIe rescan will see a scsi device.
->>>
->>> There are a few pain points with this approach though:
->>>  1. We have to use the Legacy SCSI VirtIO driver. This is because the
->>>     Raxda Rock5b (and AFAIK all PCIe Endpoint hardware) can't add
->>>     capabilities. So we can't advertise the VirtIO Common configuration
->>>     capability, which means we can't be a modern VirtIO SCSI device.
->>>
->>>     This is unfortunate, but there doesn't seem to be any way around
->>>     this, at least with the current hardware.
->>>
->>>  1.2. Legacy virtio devices only have 32 feature bits and therefore can't
->>>     set the VIRTIO_F_ACCESS_PLATFORM (bit 33) feature. This means the
->>>     vring_use_map_api() function will return false.
->>>
->>>     Currently Linux endpoint devices use the legacy virtio interface as
->>>     they aren't able to advertise the Common configuration capability.
->>>     As most PCI endpoint capable PCIe controllers do not allow modifying the
->>>     capability list, and thus are unable to advertise the Common configuration
->>>     capability. This means the device's inbound TLPs fault on the host
->>>     SMMU because the vring descriptors carry raw physical addresses.
->>>
->>>     This series adds a quirk that forces a subset of legacy virtio devices
->>>     to use the DMA Map API (vring_use_map_api() will return true),
->>>     which fixes this issue.
->>>
->>>     It's unideal that we have to hard code a quirk to basically just
->>>     advertise the VIRTIO_F_ACCESS_PLATFORM feature, but (see 1) as we
->>>     are stuck with legacy virtio devices there isn't much else we can do.
->>>
->>>  2. We have to pin scsit_pci_epf_poll_cfg_thread() on a CPU in order to
->>>     respond fast enough to the host. This means we effectivly burn a CPU
->>>     to read and write some values. But as there are no intterupts
->>>     generated on these events and we need to be very quick there isn't
->>>     another option.
->>>
-> 
-> Most of these pain points will go away if you use virtio-msg [1] transport
-> instead of the virtio-pci transport. Using the virtio-pci transport on a real
-> PCIe device without a way to trap and emulate the config space requests will
-> always be racy.
+vhost_scsi_do_evt_work() uses vq->iov[out] after vhost_get_vq_desc()
+without checking that the descriptor chain contains an input segment.
+vq->iov has UIO_MAXIOV entries (1024).  A chain of 1024 output-only
+descriptors yields out == 1024 and in == 0, so the length check reads
+one past the end of the array.
 
-There is nothing inherently racy about the config space. It is about the fact
-that most PCI endpoint controllers:
-1) Do not raise an interrupt when PCI BARs or config space is written by the
-host RC, and
-2) All PCI endpoint controllers that Linux supports do not allow drivers to
-create extended capabilities in the config space that can then be emulated in
-the endpoint driver (enabling that would require 1 to be supported, obviously).
+With a host-side harness that sets VHOST_SCSI_SET_EVENTS_MISSED and
+kicks an event queue filled with 1024 OUT descriptors, UBSAN reports:
 
-(2) can be delt with quirks. Not great, but simple enough. And in this case, we
-need it more because of the virtio-pci specs, which are not great to start with.
+  UBSAN: array-index-out-of-bounds in drivers/vhost/scsi.c:611:14
+  index 1024 is out of range for type 'iovec [1024]'
 
-And for (1), the only real problem that causes is that an endpoint driver needs
-to poll PCI BARs/submission queues to see if the host issued commands. Again not
-great, but that works just fine. Alistair's point about burning a CPU doing that
-is simply so that we can reduce command latency and get good enough performance.
+  Call Trace:
+   <TASK>
+   dump_stack_lvl+0x5f/0x90
+   dump_stack+0x10/0x18
+   ubsan_epilogue+0x9/0x39
+   __ubsan_handle_out_of_bounds.cold+0x50/0x55
+   vhost_scsi_complete_events+0x55f/0x5a0 [vhost_scsi]
+   vhost_scsi_evt_work+0x17/0x30 [vhost_scsi]
+   vhost_run_work_list+0x8e/0xd0 [vhost]
+   vhost_task_fn+0xe1/0x210
+   ret_from_fork+0x348/0x540
+   ret_from_fork_asm+0x1a/0x30
+   </TASK>
 
-We went through all of that already with the NVMe PCI endpoint. Works well
-enough and does what is intended, which is the same here for the virtio-scsi
-endpoint driver: create a platform where one can emulate a SCSI device to
-experiment with new features etc. This is all intended as a development/test
-tool, not for production use.
+Require at least one input descriptor before indexing iov[out], and
+treat a pure-output chain as a missed event like other invalid event
+buffers.
 
-I do not know virtio-msg. First time I hear about it. And I am not sure if there
-is a standard way of exposing a SCSI host through that.
+Fixes: a6c9af87363c ("tcm_vhost: Add hotplug/hotunplug support")
+Signed-off-by: Jia Jia <physicalmtea@gmail.com>
+---
+ drivers/vhost/scsi.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-
+diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+index 9a1253b9d8c5..9b5f07f52b0c 100644
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -608,9 +608,10 @@
+ 		return;
+ 	}
+ 
+-	if ((vq->iov[out].iov_len != sizeof(struct virtio_scsi_event))) {
++	if (!in ||
++	    vq->iov[out].iov_len != sizeof(struct virtio_scsi_event)) {
+ 		vq_err(vq, "Expecting virtio_scsi_event, got %zu bytes\n",
+-				vq->iov[out].iov_len);
++		       in ? vq->iov[out].iov_len : 0);
+ 		vs->vs_events_missed = true;
+ 		return;
+ 	}
 -- 
-Damien Le Moal
-Western Digital Research
+2.43.0
