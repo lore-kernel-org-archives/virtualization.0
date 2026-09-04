@@ -1,76 +1,76 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08F013CF1F8
-	for <virtualization@lists.linux.dev>; Fri,  4 Sep 2026 07:27:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DEFFE3806CA
+	for <virtualization@lists.linux.dev>; Fri,  4 Sep 2026 07:30:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788506846; cv=none; b=Inqh8S4BlQ7O9Bar1Ecvrdq8YwJhTiAETSLt3d1KoxZwj5F5iq2umrrsdURV0HAH8ZAHsw0TWG+97DUMD+nW8r3uengDv8hwUmosgJ0LT16EGc8UbECgqw0bpIk5srwB8xa/v4rBEmLL1WbhZdpQ71E1N5APwXOSFmykZJ0OHu8=
+	t=1788507017; cv=none; b=Euxz2bjG1r9LTCzmkAdNRzu5TN+5/1ZEixkhpwFRi/ubVix5KQsJqmLoLU8aNhZWk0VFZ9kRMoi7ueLUFkLsXCVeJOKLwbEtXumKzQpafGHcu2KHY+Vkq+fTuedphRC5YWTR32RbSAwNqEeiQK96tB+wz9Cjv3pF/WChpmgUbrM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788506846; c=relaxed/simple;
-	bh=FImc8olB6iiEAcxJXpIl6Unr5BNGTio46vtQo4W9d2I=;
+	s=arc-20240116; t=1788507017; c=relaxed/simple;
+	bh=vyG6TckgHS+fOfKWh28/5LlQ+0vCj2uSJ0lEFsabQPE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=rQvAOgLbArvYJjvqru6auU9ZU3zKuuYRBbibVJRR3VBMqUi/DRAjantSboyrM/ItK4Eo2+PVDQoKcZ3TP+yXL0N/1XXbYiHe5MHo1COBCaQduvzlu6J6sp4AE85a3EbuSJKKm9bMq+2ncuyAiQMzdqyHAMVXFfJk+b0tJKJDUro=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ANzTIH7H; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=RezX+7zl7ajyAXDaa0xhKNupNLa8dsnzVuEKYjQnRELFNm5r9RBGQyxVjDmLOz7pq1vsfmdjDW0q5W5d1hOg8o5TUCemPD3E+cWfv6SzLN8w57Ak/zUWXIiKVojpJbzK7RhvCQjPm8/B0WLdOZY/Aoi4LEGr0iLaGpH7Sek6cp4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RvQNKmEG; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ANzTIH7H"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RvQNKmEG"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1788506842;
+	s=mimecast20190719; t=1788507014;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Yf2VdnkVnF0AFVaR0wUAe8ZFVdfSfYoCIbCkbT52zjg=;
-	b=ANzTIH7HP1VFD2GD6elkaowOiurudhy+Kuum3UC4rnsjktLUu1rKXLQVJW8lpCvm/idc0Q
-	dvYkr5+OMNPjAIA6RLt/LQ6LcwZNFXxZQh/id9z8AtKSvmgy2gBAt5xIGQ68flz+1Xsy9v
-	X0d978Kb6rs5bORiwNEcD5ynqswTvq8=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=5Zk7aBCncIsthOXbh8gF12TMrw/cGPGJ22zkw/FqYgg=;
+	b=RvQNKmEGLjw1oA1RKdUVA8J0+1iK3JZNfzyedPMZtrmLSVtmfD49r2nLHsubVyIsn8+uok
+	hZfnnOsJG7s5p+U6OTX8FHVeuzO6IlyCSbm3TjFpuD9KylJhwKCoZLi1fQc5C2eukrk741
+	+ghzx04BxPvcyEFhhDHajJ5nowTSw6U=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-688-Q6BSRAv6NXuWwWR5t26a6g-1; Fri, 04 Sep 2026 03:27:19 -0400
-X-MC-Unique: Q6BSRAv6NXuWwWR5t26a6g-1
-X-Mimecast-MFC-AGG-ID: Q6BSRAv6NXuWwWR5t26a6g_1788506838
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-4843dc86dddso555713f8f.0
-        for <virtualization@lists.linux.dev>; Fri, 04 Sep 2026 00:27:19 -0700 (PDT)
+ us-mta-331-eoX2mXInPaCWZFEKJdy9zQ-1; Fri, 04 Sep 2026 03:30:11 -0400
+X-MC-Unique: eoX2mXInPaCWZFEKJdy9zQ-1
+X-Mimecast-MFC-AGG-ID: eoX2mXInPaCWZFEKJdy9zQ_1788507010
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-4843dc86dddso557925f8f.0
+        for <virtualization@lists.linux.dev>; Fri, 04 Sep 2026 00:30:11 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788506838; x=1789111638;
+        d=1e100.net; s=20251104; t=1788507010; x=1789111810;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=Yf2VdnkVnF0AFVaR0wUAe8ZFVdfSfYoCIbCkbT52zjg=;
-        b=mUPuFY10XOv1rbakZlKWHxpG6XQGLFIOU5z5om+eZQ8togs7bkEjg6+1A1RcXR7o0i
-         qhws8wsDj/ooJ1jb5haoMDoTL+fVfqpEglKQ0lF5/+z1jPKV1noEHHJ3PRxRyqihUfv3
-         QpQ46z9UASFRVpQbeLc9HYMNIx4jmDQqBGwLC+Dmc1LZjeXNdr0CByXmxnh8Pj0QZobC
-         +vcDh2uYENTbLT4e4hmiIkXt0hpVDH2KxkNKBy6zNwEalx+5UQTfQWNfeG8z+96Tyn+1
-         aQK0l/aUQOBjuZ0h1BUzT300Jx1a9WsG3nowPUrD3AKws/sE19VNGl/3Z+kl/Xu1JPi7
-         0ruQ==
-X-Forwarded-Encrypted: i=1; AKwUvBw3jMcX+maPswNo5XvqgIczPSKtqh7VEPuqwsOi5C/eTqy47stYngPIc3QHlFcFe15Ow9dIBNlc2OFLD7ZR2Q==@lists.linux.dev
-X-Gm-Message-State: AFuF++lQO+6y8+ZQPyZYdEXDiqYOZiK8kF+KvtBF7VVnmicu4Euzs73z
-	MndWhiCWZRl+ALRpZNzhFm3EF7uGmPafFVcFyxPy6uhFqIxqB7uB9CMpBVOxeVL/QDW3XXUqPkS
-	3m4gMGucUY+WTuE+IWcIjBTrR62wKIsd7RWIsvq2+uezbbA1O1f7byKMojpWb8jbSfvbl
-X-Gm-Gg: AYBFou2FDQsQX4mei8CoKQsFyWaYbdgw8X2Yl62ySuRnHVjbr8enaYFgpsrNNKLoePq
-	q6XqPDqFe+EQ1VuI9esjT6+ymhz3SESMiaMlhULXCgQLlWiftlZ8gCV/P1PydCf+S0E+ye7ZgAo
-	SBBQD8VzQ+iCE+gemU9jXrQflNJqJtN5m8OZ85/yCTsoRwckDu/qMs1ZBuHwy3zWsu70gEzMCb6
-	ENop5d1e0WMaEGjaCHOXYSrBPDtifmUtPYcPRFqgK4wUlJM5fr1vsEDi6pVi5TOwg+3wcfYb5En
-	DqyFzAJU/0zEjfTLjiJT4t8n+mhKYa4UckM9qoLxLLNknyInh6oEoJca3fT/3dVIVjJ0bJA29wE
-	cYZ/OrVoGnoiyNOGfn4U+VFQ=
-X-Received: by 2002:a05:6000:2003:b0:485:8a46:7050 with SMTP id ffacd0b85a97d-4858a467187mr2324779f8f.34.1788506838213;
-        Fri, 04 Sep 2026 00:27:18 -0700 (PDT)
-X-Received: by 2002:a05:6000:2003:b0:485:8a46:7050 with SMTP id ffacd0b85a97d-4858a467187mr2324732f8f.34.1788506837610;
-        Fri, 04 Sep 2026 00:27:17 -0700 (PDT)
+        bh=5Zk7aBCncIsthOXbh8gF12TMrw/cGPGJ22zkw/FqYgg=;
+        b=MfeH7hI+wdDitA1QGSuq0M9kpjy3nOKWOHHsjvFVaiEEiaFxk2FoW2rcWYQHEexr/B
+         nGVyC1TTflfLjDdhuULaR15aLVsyMvwaOp4vDiyfcs7/TDtj3USMCG+BbYvMimUH+q0o
+         8vSjPpm49bQ8v471VHwSTvrSzyGDG4eOMRJJQ0oit9GO6/or1wj1NvyQEeDnnJBgtGLq
+         Q8KfAOm6NshPEF7vBj0xUmtBSFezBT+ZLTPm/Sq+w261LambQUv6bSA+lStxebmqn5BU
+         HpggRDItau4++sZBaDLIbKlt+GxWfioRp7E8x5jk30cP65tCYneG4ScDKrMQbpw+vXFC
+         NjgA==
+X-Forwarded-Encrypted: i=1; AKwUvBxQ8hcIj7fyOq4id00tYMHN8gcc6RrQguxihZarerU1BwpjTYX/qwUBqrMAGWHpN4EXWyZPa66hcBIeHaJahA==@lists.linux.dev
+X-Gm-Message-State: AFuF++mJjCTss5b6kagfC/BxZk2sq+tHikfHrvplN5FNKtX+oNd5knHN
+	Zr64FwNDLZz6WGWg3c90sB99eDzBjXCR55A6vQIfLd0YHFLln5ZbU9on4fsMAO6oAI8xc+X/gz9
+	m6QplpuOVDmXcb5cUDS35vv6TJGNb2Uf70x7wJ+O1/Lbb7N5q5j5/16M3fMaqoW0pz7p3
+X-Gm-Gg: AYBFou2jcrFPGBVuks8aSXNrDiU+/uK3md+X2qkUYpmRcF4NuZU3g6Q44NXDngU23I5
+	hhAtvKMxZefRuszkFCnyd+9dM8D17aSiIigyUUbOYLNoPcyVNtE4sCmyCN923yBBrq3CZ7ykEAx
+	BriKGHiueG7NvuDjSxvrWsBet7LzyVlPenn4dCD27v2GthBVBrxzxvE1t89sMhlp8r+PkbxGrre
+	jQiu57OlfIf4RdPuIQUiDGM+rZs9aN7UJMlb94ygNr9LXE8ji8ktLaugYgkojuCPiqTmc9NhWE/
+	VuXSo7hkekgusvPJT9UKStr5SEeWyYqwclmcEFcgZ/MHG17+tblhp0rIVrF3Dy6+FwOcdAlA47C
+	+E77GGADXjdukGO7UU8N8P5Q=
+X-Received: by 2002:a05:600d:113:b0:49c:d618:e341 with SMTP id 5b1f17b1804b1-49cf827b19cmr21958145e9.14.1788507010279;
+        Fri, 04 Sep 2026 00:30:10 -0700 (PDT)
+X-Received: by 2002:a05:600d:113:b0:49c:d618:e341 with SMTP id 5b1f17b1804b1-49cf827b19cmr21955605e9.14.1788507006980;
+        Fri, 04 Sep 2026 00:30:06 -0700 (PDT)
 Received: from redhat.com (IGLD-80-230-79-236.inter.net.il. [80.230.79.236])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-485883a9b49sm3729295f8f.17.2026.09.04.00.27.16
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-485883a9234sm4354107f8f.14.2026.09.04.00.30.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 04 Sep 2026 00:27:17 -0700 (PDT)
-Date: Fri, 4 Sep 2026 03:27:14 -0400
+        Fri, 04 Sep 2026 00:30:06 -0700 (PDT)
+Date: Fri, 4 Sep 2026 03:30:04 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Andrew Stellman <astellman@stellman-greene.com>
 Cc: jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
 	virtualization@lists.linux.dev
 Subject: Re: [PATCH v2 3/4] virtio-pci: return IRQ_HANDLED after non-zero ISR
-Message-ID: <20260904032258-mutt-send-email-mst@kernel.org>
+Message-ID: <20260904032734-mutt-send-email-mst@kernel.org>
 References: <20260903111342-mutt-send-email-mst@kernel.org>
  <20260903190731.13783-1-astellman@stellman-greene.com>
 Precedence: bulk
@@ -81,7 +81,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 In-Reply-To: <20260903190731.13783-1-astellman@stellman-greene.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Q2ipFycCt-2an6FEBPSHnhT_zFxBTIWjyoCn_YgZLGQ_1788506838
+X-Mimecast-MFC-PROC-ID: fMdWekdu_jhRcFiNviC7WdT63dJNdWMieMooBZ_zO9s_1788507010
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -110,56 +110,18 @@ On Thu, Sep 03, 2026 at 03:07:31PM -0400, Andrew Stellman wrote:
 > unhandled count remained at 0.
 > 
 > Fixes: 77cf524654a8 ("virtio_pci: split up vp_interrupt")
-
-Where did you get this fixes tag?
-It's been like this from the beginning:
-
-
-+static irqreturn_t vp_interrupt(int irq, void *opaque)
-+{
-+       struct virtio_pci_device *vp_dev = opaque;
-+       struct virtio_pci_vq_info *info;
-+       irqreturn_t ret = IRQ_NONE;
-+       u8 isr;
-+
-+       /* reading the ISR has the effect of also clearing it so it's very
-+        * important to save off the value. */
-+       isr = ioread8(vp_dev->ioaddr + VIRTIO_PCI_ISR);
-+
-+       /* It's definitely not us if the ISR was not high */
-+       if (!isr)
-+               return IRQ_NONE;
-+
-+       /* Configuration change?  Tell driver if it wants to know. */
-+       if (isr & VIRTIO_PCI_ISR_CONFIG) {
-+               struct virtio_driver *drv;
-+               drv = container_of(vp_dev->vdev.dev.driver,
-+                                  struct virtio_driver, driver);
-+
-+               if (drv->config_changed)
-+                       drv->config_changed(&vp_dev->vdev);
-+       }
-+
-+       spin_lock(&vp_dev->lock);
-+       list_for_each_entry(info, &vp_dev->virtqueues, node) {
-+               if (vring_interrupt(irq, info->vq) == IRQ_HANDLED)
-+                       ret = IRQ_HANDLED;
-+       }
-+       spin_unlock(&vp_dev->lock);
-+
-+       return ret;
-+}
-
-
-So really:
-
-Fixes: 3343660d8c62 ("virtio: PCI device")
-
-
-
-
 > Suggested-by: Michael S. Tsirkin <mst@redhat.com>
 > Signed-off-by: Andrew Stellman <astellman@stellman-greene.com>
+
+
+besides pls do not post new versions as
+replies to old one.
+and I think this patch is unrelated to
+others in this thread, right?
+so just post it separately.
+
+thanks!
+
 > ---
 > Changes from v1:
 > - Return IRQ_HANDLED for any non-zero ISR, as suggested by Michael.
