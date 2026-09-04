@@ -1,263 +1,165 @@
-Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F37419CC0F;
-	Fri,  4 Sep 2026 17:45:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.97.179.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D5C53CA4AF
+	for <virtualization@lists.linux.dev>; Fri,  4 Sep 2026 21:15:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788543963; cv=none; b=FtfIgNPdCpF9g2wG3w6wnMRD8M3Vrc2CiDpo6W6jK3AsOaGga3CviFJQX7xclctyggjJtFtpfc+A0zgkDStdBFtk+pS0cQGlGeQfpJp+GWX3ikHer+iI/rZ6DUD5C0zSnjd6rTC3yBWhp8J074JRmIRkBoT45eRaFurBRvvavvY=
+	t=1788556518; cv=none; b=LCqt5xdBNSPF/hsE4wTmfQcItvBOoiGXsMbbF7pciGum3zvU9l8yZmVE8LhXS4UouSyAXskKt5ZLjfUgnE/Qb/tIcmiVSA1+n7OY+EOCYRjVZvdNk7Xz9FL2nfZzJUYHmqe0LiYs3174eJxfxUJrLJZZgGLRxW/B3seeSvX5SRE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788543963; c=relaxed/simple;
-	bh=IpIcXmZ5y3zAPIXH0ITLn7oZOKruZHk0aeMQju5DuzE=;
-	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=liIdabv0fHEGSagt+zcALKdoTP26oHgIOD+yqxoMV7dNVVb3KwbEV6Ywr8evNoX6eIuomRnWopowKTrGrmXBu8RkX1G+M2rWr2yLizCR4SIdjktIBMudrSrLPBRVezbkyLnDV1fkMrUqbPHza16Zf5U9GoxxvFZaCM0BM7RSq/M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com; spf=pass smtp.mailfrom=igalia.com; dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b=pMU/YCpY; arc=none smtp.client-ip=213.97.179.56
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igalia.com
+	s=arc-20240116; t=1788556518; c=relaxed/simple;
+	bh=pyvo4LUWHIIfbPUmZcKO1ka6B8u8qSTB1nr4VyPHxMU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=ZNBJ99DrJLgdj2s6QAy816d/WbJdRcYQYTU4nxHRLzcETYbQfXpBeEG99FaSpyG03ASuB/W/Bqam69wTCc5afdFH2hJvSgld+wlDNk4Upkb7fPTMti9xKVAxKSk7a6RWuASkzIeOwK+PH0pboYVtmzrlHM7Uj3Sl/D3PbaoMzVE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Dbeq7sfy; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b="pMU/YCpY"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
-	s=20170329; h=Content-Transfer-Encoding:Content-Type:Message-ID:Subject:Cc:To
-	:From:Date:MIME-Version:From:Reply-To;
-	bh=3kJ7V4qqJDGktsGa6HvFkInxay1XxXTxaazUjY3g2Hg=; b=pMU/YCpYNVsT4y/cw1wUdM7zig
-	6FGELePr69ke+QNUk1G581g+plUqC63/ulntoNIxp4pmbIVxfOia9PckTHSRm7xpUciNq57SZzqVN
-	cbsILUiD8lzSdwcwFXmRLM5CfmP+hPRfm6lYmxFlKNBEyu4prtcCynH9vE1ksDe8NHMM4ChUZakqb
-	g9JR+994Oc+oJQ4Q0AJSntCNDkHoysIvAdma6HpwZmNS1nvN6HQ7sdhdssRvg1w9t7SZEOTJlyvat
-	sUbSdbal24ShKj5UheutEWEXP6HsQ9h5DXMVF9LQie/eE7V27D08mGmnS+RWfYNHD9zmSk/JT0i/e
-	OBepHvZQ==;
-Received: from maestria.local.igalia.com ([192.168.10.14] helo=mail.igalia.com)
-	by fanzine2.igalia.com with esmtps 
-	(Cipher TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim)
-	id 1x2Xyg-00Ezrc-2e; Fri, 04 Sep 2026 19:45:26 +0200
-Received: from webmail.service.igalia.com ([192.168.21.45])
-	by mail.igalia.com with esmtp (Exim)
-	id 1x2Xye-001h2m-Ee; Fri, 04 Sep 2026 19:45:25 +0200
-Received: from localhost ([127.0.0.1] helo=webmail.igalia.com)
-	by webmail.service.igalia.com with esmtp (Exim 4.98.2)
-	(envelope-from <mfo@igalia.com>)
-	id 1x2Xye-00000006G3f-1esz;
-	Fri, 04 Sep 2026 19:45:24 +0200
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Dbeq7sfy"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1788556513;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=1LRYgJkhKXsg+F6WlQSfLdN/TvDFXG7GLQTKhRs3og8=;
+	b=Dbeq7sfyhuekV3QOzeda/NWu6DCcP4QQeXsiEv/2jA3dV3Eefs2DnFyjuIT6VCFuCjSzPw
+	nAVnv8ddZMSXlnQ7IPk3IyvEY/yxY9w6pnAhCTs17m9J4SFfajRcVUdrwuaHcWpbosdGEV
+	7zlkoOxor+OpHnziGgzPP54K7GsEtOQ=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-564-W60fvtajP6GSWUXif4GcBw-1; Fri, 04 Sep 2026 17:15:12 -0400
+X-MC-Unique: W60fvtajP6GSWUXif4GcBw-1
+X-Mimecast-MFC-AGG-ID: W60fvtajP6GSWUXif4GcBw_1788556511
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-4843e59c32dso927387f8f.3
+        for <virtualization@lists.linux.dev>; Fri, 04 Sep 2026 14:15:12 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788556511; x=1789161311;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=1LRYgJkhKXsg+F6WlQSfLdN/TvDFXG7GLQTKhRs3og8=;
+        b=dP7IEqe74tNCdXWSVBBNmon8961E6CLzzvyQjXHaUuMEBhYSc7lw0VjgBGIoON3DEO
+         x4jNsMzu/JTH7W9Tu6j4t46RFCw1dRLyITGG0aSM/xlS4fuPtkiJNEUQaReQljvB9pvX
+         o7VNx9OJJijlg/OZ3dAgin/T0IpeeLB9QfCYcjZ6Z9h62Fh7frqebwesdGX27o2Jz/qB
+         ZuOeHCLFCfeAoF8MLKRNFHknKcvwX0bzw/xuJbPgkh5aqi844k4zOajpeWK4CtUSchvR
+         gHuhVgrukQGML7XyLwi5Y+kb+cTrkFsmOlIf9C82tFqPSDh1/xkGfDQkIZksmpmhEacX
+         pOYg==
+X-Forwarded-Encrypted: i=1; AKwUvBxMi7XYylrjZtQF+6A5FVzD1RNgsctEpv4xFsNZ1oEzXwoAn3rr/REJWF9oRJSRV0cbLoaxAg/JiaUEjMettg==@lists.linux.dev
+X-Gm-Message-State: AFuF++m8cpAIkWwYyxlcw1fWHRmho4yliYsQhqOv6HZkTJwB5EVnYQOl
+	Hbo05ZcPjsG3dH/pErnXJ/DdfTmY8HMSgmP1YJz2K/YbecwnHKUSXAF2s45KVstt9oUzEYCSQ6D
+	4hZnBIKx4vr030+QEvfPmYim5cjzeNBm3bYcTbdlNVXjfPHxRfMyutD9udJJ6auXM+HtR
+X-Gm-Gg: AYBFou1LLxvlkRtefgecag43z1p8Nfn58t3XERxbU3o9rkvorrBN9lxKi9bnRV56Rc3
+	QEd9m3JoxSG/F5AVkj3lBlUdCEYBWicYDmPNipfRaXKd+fzgV0MVh574rWgJPji/xg81No4ssVp
+	iOP2rtpPtwaq0blhQ+AGJ6P+k/HLkREa/EZDtiBNtyM6nHzoHE4MGepdU7mHS1YxWGtXWi4EiIX
+	qnjwosJBP/G9j6LnMxciEIm+wEwTThOb/56s6oHPcYS3cr5jlF39IabwgAZRtMfKVcX4YnVM2/C
+	4Pzc2O2I1CDPuQWg6ONmXmYPriKG+B6p4TCSAy4+weZs06c7bVR9hx3J1tpZ8bza8QiVDqoNsnp
+	nHEvitrcqadGAcTDiLzVJofM=
+X-Received: by 2002:a05:600c:8b04:b0:49c:fc6c:be11 with SMTP id 5b1f17b1804b1-49cfc6cc0c3mr56808255e9.23.1788556511146;
+        Fri, 04 Sep 2026 14:15:11 -0700 (PDT)
+X-Received: by 2002:a05:600c:8b04:b0:49c:fc6c:be11 with SMTP id 5b1f17b1804b1-49cfc6cc0c3mr56807965e9.23.1788556510730;
+        Fri, 04 Sep 2026 14:15:10 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-79-236.inter.net.il. [80.230.79.236])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49cee60bae6sm217094745e9.9.2026.09.04.14.15.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 04 Sep 2026 14:15:10 -0700 (PDT)
+Date: Fri, 4 Sep 2026 17:15:07 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Andrew Stellman <astellman@stellman-greene.com>
+Cc: jasowangio@gmail.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3] virtio-pci: return IRQ_HANDLED after non-zero ISR
+Message-ID: <20260904171336-mutt-send-email-mst@kernel.org>
+References: <20260904141318.30278-1-astellman@stellman-greene.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Date: Fri, 04 Sep 2026 14:45:23 -0300
-From: Mauricio Faria de Oliveira <mfo@igalia.com>
-To: Joel Granados <joel.granados@kernel.org>
-Cc: Kees Cook <kees@kernel.org>, Nathan Chancellor <nathan@kernel.org>,
- Nicolas Schier <nsc@kernel.org>, "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo
- Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
- kernel-dev@igalia.com, linux-riscv@lists.infradead.org,
- linux-kernel@vger.kernel.org, fsverity@lists.linux.dev,
- keyrings@vger.kernel.org, bpf@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, linux-kbuild@vger.kernel.org,
- netdev@vger.kernel.org, linux-wpan@vger.kernel.org,
- lvs-devel@vger.kernel.org, netfilter-devel@vger.kernel.org,
- coreteam@netfilter.org, linux-sctp@vger.kernel.org,
- linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
- bridge@lists.linux.dev, mptcp@lists.linux.dev, rds-devel@oss.oracle.com,
- virtualization@lists.linux.dev
-Subject: Re: [PATCH RFC v3 00/13] sysctl: add module aliases
-In-Reply-To: <mokz5pdtwswkyab4byfq7q7m6ac2g6ceoi6jflyxmaszaibzqa@su6m4kamtdpy>
-References: <20260819-sysctl-module-aliases-v3-0-aab90569365d@igalia.com>
- <bpnqwggtidgiec5akns3fa5edbsvl7xf55dxabtwng2xspy4pn@ue554aii2ngk>
- <53155340c897560bfc67e61ba9568fd6@igalia.com>
- <mokz5pdtwswkyab4byfq7q7m6ac2g6ceoi6jflyxmaszaibzqa@su6m4kamtdpy>
-Message-ID: <b1a6cec17e7c828fcebe310ca2a0d25b@igalia.com>
-X-Sender: mfo@igalia.com
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spam-Report: NO, Score=-2.1, Tests=ALL_TRUSTED=-3,BAYES_50=0.8,KAM_DMARC_NONE=0.125,KAM_DMARC_STATUS=0.005
-X-Spam-Score: -20
-X-Spam-Bar: --
+In-Reply-To: <20260904141318.30278-1-astellman@stellman-greene.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: ATrLNDE8q0ccMLfG8qRi5IWBSg6seg-gPA6mkqLw8TY_1788556511
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 2026-09-04 10:41, Joel Granados wrote:
-> On Thu, Aug 20, 2026 at 06:22:13PM -0300, Mauricio Faria de Oliveira wrote:
->> On 2026-08-20 09:51, Joel Granados wrote:
->> > On Wed, Aug 19, 2026 at 03:16:13PM -0300, Mauricio Faria de Oliveira wrote:
->> >> This series adds 'sysctl:' aliases to modules that register sysctl tables; e.g.:
->> >> 
->> >>         $ modinfo ./mpls_router.ko  | grep sysctl:
->> >>         alias:          sysctl:*/net/mpls/conf/*/input
->> >>         alias:          sysctl:*/net/mpls/default_ttl
->> >>         alias:          sysctl:*/net/mpls/ip_ttl_propagate
->> >>         alias:          sysctl:*/net/mpls/platform_labels
->> >> 
->> >> It provides a trivial way to map /proc/sys files to modules (not trivial today),
->> >> and for userspace to handle nonexistent /proc/sys files (e.g., procps's sysctl
->> >> and systemd-sysctl applying tunables) with "modprobe sysctl:<...>" and a retry.
->> >> 
->> >> This is done almost automatically with register_sysctl(), register_net_sysctl()
->> >> and friends as wrappers of MODULE_SYSCTL_TABLE (similar to MODULE_DEVICE_TABLE),
->> >> which emits symbols for file2alias/modpost to find and parse the sysctl tables.
->> >> 
->> >> The big exception to 'almost' are sysctl tables and paths allocated or defined
->> >> at runtime (e.g., per-namespace or per-device), as all information is required
->> >> at build-time. Fortunately, such tables and paths are often based on 'templates'
->> >> which are static and can be used.
->> >> 
->> >> This is done by plumbing the template table/path as optional arguments (macros
->> >> with default values as default_gfp()), so not to create functions for all cases:
->> >> 
->> >>         register_sysctl(path, table [, table_tmpl [, path_tmpl]]);
->> >>         register_net_sysctl(net, path, table [, table_tmpl[, path_tmpl]]);
->> >>         register_net_sysctl_sz(net, path, table, size [, table_tmpl[, path_tmpl]]);
->> > 
->> > The "what" is described but I'm missing more clarity on the "why". Why
->> > does this need to be trivial? Where is it that you will know the sysctl
->> > file path of a module and not the module name or alias?
->> 
->> Thanks for looking at this.
->> 
->> The problem this feature addresses is sysctl settings not applied
->> because modules aren't yet loaded when systemd-sysctl/procps's sysctl
->> runs on boot, and the usage of /etc/modules as a workaround.
+On Fri, Sep 04, 2026 at 10:13:18AM -0400, Andrew Stellman wrote:
+> vp_interrupt() reads the ISR before dispatching config-change and
+> vring handling. Reading the ISR also clears it, so once the read
+> returns non-zero the interrupt was from this device and has already
+> been consumed.
 > 
-> Sorry for insisting, but is it not possible to set the sysctls after the
-> modules have been loaded? Why is the order to first set the sysctl and
-> then load the module?
-
-No worries, and thanks for getting back to this.
-
-Yes, the former is possible and usually how that happens, but it is not
-guaranteed, thus the latter might happen -- unintentionally.
-
-For example, a sysctl setting can be configured in /etc/sysctl.d/*.conf,
-which is manually tested and confirmed to apply it correctly. However,
-that might have worked only because its module was inadvertently loaded
-earlier (e.g., for something else by the sysadmin, or by something else
-in the system). The next time the system boots, the module is not
-automatically loaded, thus the sysctl setting fails to be applied when
-the (previously working) /etc/sysctl.d/*.conf is parsed.
-
-Also, a sysctl setting may, or may not, be tied to a module; it can be
-built-in. This can change with kernel configuration, e.g., distro.
-
-So, another example: a sysadmin learns of a sysctl setting in
-documentation tested with another distro, which has it built-in. It
-fails to apply on this distro, which has it in a module, because the
-module isn't loaded. (Now the sysadmin is left to figure that out, and
-then which kernel module provides the sysctl setting.) 
-
-Note that both examples can be combined. (And the poor sysadmin is, in a
-reboot happening days/weeks/months later, left to also figure out that
-the sysctl setting is not applied, and whatever effect that caused,
-because that particular module was not loaded on boot, and should be
-added to /etc/modules).
-
->> This can be addressed with a way for sysctl tools to load the module for
->> a non-existent sysctl file path.
->> For that, the mapping between a sysctl file path (known) and its module
->> (unknown) needs to be trivial.
-> This touches on my question. How is the file path known and the module
-> not known? The module is the one providing the paths, not the other way
-> around. Why choose to just work with sysctl path lists and not include
-> the modules that go with them?
-
-The sysctl tools and configuration files only know about the file path,
-not the module. The sysctl tools know the file path when parsing the
-configuration files, converting a 'dir.file = value' line into opening
-/proc/sys/dir/value and writing value into it.
-
-The format of configuration files only include file paths and values,
-but not modules, per sysctl.conf(5) and sysctl.d(5). This is reasonable,
-as there may, or may not, be a module for the sysctl setting (i.e.,
-module vs. built-in).
-
-Maybe I misunderstand the context for your questions; please let me
-know.
-Also, could you please clarify what you mean by 'include the modules
-that go with them' [sysctl path files] ?
-
->> It may not seem serious at first, but I've seen this consume significant
->> engineering time and impact production systems, in a previous technical
->> support job.
->> An example: cloud deployments with non-scalable network routing
->> performance due to nf_conntrack_max not applied after reboot or an
->> upgrade because the component which turned out to help with the
->> /etc/modules workaround had its placement changed from network router
->> nodes.
-> This is more understandable to me. The issue is that you loose the
-> relationship between sysctl paths and modules on updates. Are there
-> other cases where the module would not be loaded?
-
-In general, there is no guarantee that a module is loaded by the time a
-sysctl setting is about to be applied -- during system boot or even
-later.
-
-The example for system boot is covered previously. An example for
-'later' / after system boot: on network device testing which includes
-module unload/reload and sysctl settings for network performance, one
-might unload the module, and mistakenly first apply sysctl settings then
-reload the module, thus loosing the performance tuning on that one
-testing round.
-
-> And doesn't it create another problem where you will load modules that
-> you don't expect (on the update)?
-
-Sorry, not sure I understand the meaning of 'update' correctly, but yes,
-if there is a hard-coded module load (e.g., /etc/modules or in scripts),
-that happens. However, AFAICT, loading unexpected modules is less of a
-problem than not loading required modules, or may not be a problem.
-
-With an auto-load mechanism in place, hard-coding/force-load is not
-required, and neither problem (loading unexpected modules due to
-hard-coding, and not loading required modules due to lack of
-hard-coding) would happen, IIUIC.
-
->> > Additionally, sysctls are not module specific; they are a way to
->> > read/write kernel variables. Putting a module specific aspect in the
->> > function arguments (that needs to be ignored in non-module cases) seems
->> > wrong. Why not use the module subsys to add sysctl alias instead of the
->> > sysctl subsys?
->> 
->> Fair point. The current design has 2 reasons:
->> 
->> 1) Use the 'path' argument (raised in [1]), only available in the
->> register sysctl functions.
->> 2) Use a more implicit/transparent approach, instead of more
->> explicit/declarative approach. 
+> Currently vp_interrupt() returns the result of vp_vring_interrupt().
+> For a config-change interrupt with no vring work, that can return
+> IRQ_NONE even though the ISR was non-zero and the interrupt was
+> handled.
 > 
-> I get that the data is there and you would be able to do it, but it
-> still seems misplaced. Additionally, are you planning to move all the
-> modules to this scheme? If not, does that mean that some modules would
-> work and some wouldn't? And how would you make sure that modules would
-> use the correct call moving forward?
-
-This scheme currently covers all modules, AFAIK, as it is wrapped in the
-functions that register sysctl tables.
-
-On moving forward: usage of such functions in a way that breaks a
-requirement of this series (e.g., failing to specify the template
-table/path parameter(s), or not having constant initializers) hits a
-build error, as the requirements are actually from the compiler.
-
->> I guess that a different design could use MODULE_SYSCTL_TABLE() as
->> MODULE_DEVICE_TABLE(), declared per table instead of wrapped into
->> register sysctl functions.
->> However, it seems to require moving the value of the path argument (or
->> its template) into the macro and still referencing it in the function
->> (or its instantiation of the template), which adds obfuscation, to all
->> callers. 
->> 
->> What do you think?
-> It might be that having it inside the module subsys is more work, but I
-> believe that there is the right place to have it. I still don't see that
-> adding a module specific arg to the sysctl register is a good thing.
-
-Ok, cool. I can work on a different design.
-
-Please just let me know whether you are OK with the remaining (above),
-and I'll be happy to tackle this.
-
-Thanks again,
-
+> Call vp_vring_interrupt() for any queue work, but once the ISR is
+> non-zero return IRQ_HANDLED.
 > 
+> Tested with QEMU virtio-blk-pci forced to INTx using vectors=0 and
+> pci=nomsi. On an idle device, 200 config-change interrupts were
+> generated using QMP block_resize.
 > 
-> Best
+> Before this change, irq_handler_exit reported ret=unhandled and
+> /proc/irq/11/spurious increased from 0 to 200 unhandled interrupts.
+> After this change, irq_handler_exit reported ret=handled and the
+> unhandled count remained at 0.
+> 
+> The issue was found during an LLM-assisted Quality Playbook review.
+> 
+> Fixes: 77cf524654a8 ("virtio_pci: split up vp_interrupt")
 
--- 
-Mauricio
+this is still the wrong commit to blame.
+
+> Suggested-by: Michael S. Tsirkin <mst@redhat.com>
+> Assisted-by: LLM
+
+This is not the correct format. See Documentation.
+
+> Signed-off-by: Andrew Stellman <astellman@stellman-greene.com>
+> ---
+> Changes from v2:
+> - Repost as a standalone patch in a new thread, per maintainer request.
+> - Add LLM-assistance disclosure.
+> - No code changes.
+> 
+> Changes from v1:
+> - Return IRQ_HANDLED for any non-zero ISR, as suggested by Michael.
+> - Add Fixes and Suggested-by tags.
+> - Test the change with virtio-blk forced to legacy INTx under QEMU.
+> 
+> Full red/green test logs and the tested v2 patch:
+> https://github.com/andrewstellman/quality-playbook/tree/11ba61d/evidence/virtio-pci-intx
+> 
+>  drivers/virtio/virtio_pci_common.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+> index 10371ecbc054..b90c174450b2 100644
+> --- a/drivers/virtio/virtio_pci_common.c
+> +++ b/drivers/virtio/virtio_pci_common.c
+> @@ -120,7 +120,9 @@ static irqreturn_t vp_interrupt(int irq, void *opaque)
+>  	if (isr & VIRTIO_PCI_ISR_CONFIG)
+>  		vp_config_changed(irq, opaque);
+>  
+> -	return vp_vring_interrupt(irq, opaque);
+> +	vp_vring_interrupt(irq, opaque);
+> +
+> +	return IRQ_HANDLED;
+>  }
+>  
+>  static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
+> base-commit: bc35965f6940a9bf834d54187b6088b8eb09206d
+
+
+I already did exactly this in my tree, no further action is necessary,
+but I will add your tested by tag.
+
+Thanks!
+
+> -- 
+> 2.43.0
+
