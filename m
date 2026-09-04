@@ -1,80 +1,33 @@
-Received: from mail-vk1-f226.google.com (mail-vk1-f226.google.com [209.85.221.226])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FA3F349CE8
-	for <virtualization@lists.linux.dev>; Thu,  3 Sep 2026 23:33:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.226
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BC1178F2F;
+	Fri,  4 Sep 2026 00:12:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788478421; cv=none; b=TG/y7C7ePmpNF0ivW5ID7eACDzoO8RSEUQ4VM44py6L9v5dcXvLqsQB6MCDuW8dNMkuojOS7xe1NdQF7McFUJQUotherOyJVwrMsHAoqADX5RTMIa0TEUw+ZDvY3DxuYBH0n1XdRCPg5waAgb1ohI0uNmzIN8aAyRgU8DPZ4fUQ=
+	t=1788480737; cv=none; b=dUynHvc1wK0GRPFuMe4B2JuSYLMsUnWe2BQ+ZmaWVffNBppFfGxLn5omDXPuBqicu9ugq7xoTj78UKiongKGBM5XnMHEBwULtilDOAOfB3fZiBK6bviJjOjiqbMNBADoN5iZFgGidNwYkQ2IQQp6rjlhkB1amCyj3IVRiALn41w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788478421; c=relaxed/simple;
-	bh=/qWtFqHBkrtLXXAD1XpvUaW1zHKMs9ArEGyHDtyLBkA=;
+	s=arc-20240116; t=1788480737; c=relaxed/simple;
+	bh=1oje6I6cprMjdcZ3w+KgH6EanbVWQeayLSc3PmDGyL4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Cs0gZApbQwipTZWdPIViOVlYUCUbmNXriPX5dgSK/pvB3mhW4a8xG1Dnwz+XZpEgswmRtAwO8ThFw8Hn9tA40QCxLvmUVQVt4I159IjWWlvNuJgNUX7KzI94etSZ7a4c31Ier7GHzvNbpAzQBsUHdk+M6ZB5alPQp8xfIWMGtwM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=FnO8MgWY; arc=none smtp.client-ip=209.85.221.226
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
+	 In-Reply-To:Content-Type; b=tOd39DrQuyQl91FsTprbMOGzFSNl6nT8Zbh8CfsfbuAIjrWJJnqcpp2V2XMS9ulm2vXpObb4o/7eoIA7iV6S/P/lrbxQJnCq6rno4iouKbLnuvQnBLu/nhfmHnMJbXKBmW2baMDlDHKDqC0cMfW/dm3iSeXQX5Oczt+XgALldgg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XW9ZtjJd; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="FnO8MgWY"
-Received: by mail-vk1-f226.google.com with SMTP id 71dfb90a1353d-5bfaa014978so240458e0c.3
-        for <virtualization@lists.linux.dev>; Thu, 03 Sep 2026 16:33:40 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788478419; x=1789083219;
-        h=content-transfer-encoding:content-type:in-reply-to:content-language
-         :from:references:cc:to:subject:user-agent:mime-version:date
-         :message-id:dkim-signature:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=Qy1+fiy5vVG6Fgi2325/mnWQkrttmVDQVIUSqg+HoGM=;
-        b=NxsoT/P5afiXcAZU4vVllGMHUwxlBLjPNcK2StzZoMda4Fe6cVucUEN12XOdEeCfBs
-         7Gszz33TO1JAGfVI5MABDcsNfCaQm3lrwkoJ1rl7rGl3EVQX2WkhlGjY1pwI6OhyU0Fv
-         6U28vVMa7choC5CSeO01fgOYQtiy1jVkrsgWY/9Kro24lEobTqf5BznGH5NukSB+zIEx
-         amd/LkP0o6aWJZG0bU7sErOkK22dZSYLthHKBFUAFfFZ4qfeIDHTEH5VAQ1LhxzHMZ4H
-         VfJO9vOOpQ3sMRjsQRvYOPkxPJDD8gLnQbrve5HXlCsJiexeyPiprSsnkA8KKbk+14Hv
-         PSDA==
-X-Forwarded-Encrypted: i=1; AKwUvByUXne3DibPCEydwJqnsmKX3pHi86shHfOT7E0Hpao+NWdAOR0R18B7ZZh3rC730+Tf4NgpoBkznhPgIWGjHQ==@lists.linux.dev
-X-Gm-Message-State: AFuF++mUyPquACeVfbbXpB9SzhoUcJD9TEWHDQJJgDDlYPtj5Lfh0Zg4
-	YiANLIJmiSPIAjMH3oCFuAghXrQt4LRw1gD9DF8ZzyC/+EPG6ql1yrGGbtaNYX69MRh+JssSzmI
-	Tx9L8GSJzsLmRHMuDGwyEQiw6Oo+RnSV5gmTra+6TI/rnkM03aq5z0mpaNAs/SuFfOZXjy1wka9
-	xrVJzu/+uQYBgM/PNEYiWhlYoGMC/fYlJsClisKC9GgO0OTuc1TLFbw6+vxtwXd+LGsqHwi4ldn
-	qr4POU/4WNeD8bpgIukqtW1Y44=
-X-Gm-Gg: AYBFou272ONuGeI4n5Y61JoTu2HB6i+E1HWg3ZAGaf7z0ZMr3++XkCVQ9CCaOP5HJ0d
-	Q6gj3JKgO3PqXoj3b/vzxvx07c+w4WLOdEFJfQABF6CBc6a7fEoeMHguZLikSsvZfBWIwY9sTPL
-	HKB2ilYL70e6EFj9UbWXgGvVNSjFMl3R9nJf6I9JinCmC8NMoq3gpDqBMhA2+LG2MfQOPzLV/Dj
-	28vcFnj89rCtyww3esdLa0tdD9tkTPBc0epasidnMWk2WJPjhg+jtdRBo1JT7o6swRtELl/YHQt
-	KB2zI1i1wPo2F20L2UAtsfIYvU68+g0HgeTlijPF+myj6FnJyxkUWGaAJ88sC+HJXzmJyzUq93t
-	5+7eTaB/uaMbvhDL6YxN4Gt46psFcUbe5cEO++40wBG34Rt1ICHPYFIsiArIOCsQO4Aoqe3z3Gj
-	Z3lNhriY0dxlerIWWbxGy5pMW58xHhssbGB1zXelPj
-X-Received: by 2002:a05:6122:4f9d:b0:5bd:b2e1:e1f5 with SMTP id 71dfb90a1353d-5c7ed525e15mr934434e0c.2.1788478419007;
-        Thu, 03 Sep 2026 16:33:39 -0700 (PDT)
-Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-25.dlp.protect.broadcom.com. [144.49.247.25])
-        by smtp-relay.gmail.com with ESMTPS id 71dfb90a1353d-5c7ec138a06sm435557e0c.2.2026.09.03.16.33.38
-        for <virtualization@lists.linux.dev>
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 03 Sep 2026 16:33:39 -0700 (PDT)
-X-Relaying-Domain: broadcom.com
-X-CFilter-Loop: Reflected
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-398d0010cfaso638184a91.3
-        for <virtualization@lists.linux.dev>; Thu, 03 Sep 2026 16:33:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1788478418; x=1789083218; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:in-reply-to:content-language
-         :from:references:cc:to:subject:user-agent:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Qy1+fiy5vVG6Fgi2325/mnWQkrttmVDQVIUSqg+HoGM=;
-        b=FnO8MgWYFFtRfa3LNy0dXu4c0afPuknQZYfQhTk6DJZIm/CcUMI/CRR0wVDaRi+Asr
-         iYsvHkNlf6c42lXarXRxgOr+Ca8kWgkg3kWzgtXYA+WZFxkgVPIT4kypi2HsG7YuLd5W
-         /sPa9332Ky6pbIrmgre8ITWk6pNU6lJTKN/bs=
-X-Forwarded-Encrypted: i=1; AKwUvBzvmjIKz/dW7Nl58C4OixHMmM84ypHL4sUAvVRhQdmn0dRmg8AgQqxoms9Txtb2bpIumem2+rEevAAUJV/ttQ==@lists.linux.dev
-X-Received: by 2002:a17:90b:1343:b0:38e:9eb2:9d43 with SMTP id 98e67ed59e1d1-39b261b1bcfmr3210978a91.16.1788478417640;
-        Thu, 03 Sep 2026 16:33:37 -0700 (PDT)
-X-Received: by 2002:a17:90b:1343:b0:38e:9eb2:9d43 with SMTP id 98e67ed59e1d1-39b261b1bcfmr3210904a91.16.1788478417146;
-        Thu, 03 Sep 2026 16:33:37 -0700 (PDT)
-Received: from [10.211.247.235] ([192.19.50.250])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3339885d29esm2238141eec.2.2026.09.03.16.33.36
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 03 Sep 2026 16:33:36 -0700 (PDT)
-Message-ID: <b858b84b-a1ef-45b4-a7c1-35ba28490e35@broadcom.com>
-Date: Thu, 3 Sep 2026 16:33:42 -0700
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XW9ZtjJd"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D0081F000E9;
+	Fri,  4 Sep 2026 00:12:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788480736;
+	bh=uwU9myAIHfxtIC/MA9ZCvJe1sgh7d4K5eTnJj1GTYxg=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=XW9ZtjJdCEfhzI3DxWMXkt9DtZEB/PYWe755TnnZH/tac17RQJCHcrDOy1PTtv0Wo
+	 BbVOQriqqG6KoM1atfZmXUpQV9Oh9vyOoi8QisKTUV2eCe+A+qDkQcB3nYS6J+c5kj
+	 GygJk2zJqUKYukpQqfDZqWvtEYGznn53rUeWTfkNNFy14OnDZC6FUMTKufgeP8W+Nn
+	 ahCExJ+/ST1mem1vNNM+HLCEQ5wLZzHSdwmT2+D0vkEqu8UWhzpSu7hnbEHwXW24JY
+	 6ujse3Q2i8z3fZ3GfubUaORUT1JqibaBOq8g/8xfYlirIP6vkWt2LwfgdqhKABykOs
+	 BS3hYKU5XOFhg==
+Message-ID: <795ac93a-9377-4503-9dc4-58f21c815f71@kernel.org>
+Date: Fri, 4 Sep 2026 09:12:11 +0900
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -82,28 +35,111 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1] x86/vmware: Fix i386 high-bandwidth hypercall
- arguments
-To: Zack Rusin <zack.rusin@broadcom.com>, Borislav Petkov <bp@alien8.de>,
- Ajay Kaher <ajay.kaher@broadcom.com>,
- Alexey Makhalov <alexey.makhalov@broadcom.com>, x86@kernel.org
-Cc: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Dave Hansen <dave.hansen@linux.intel.com>, "H . Peter Anvin"
- <hpa@zytor.com>, virtualization@lists.linux.dev,
- bcm-kernel-feedback-list@broadcom.com, linux-kernel@vger.kernel.org,
- Peter Zijlstra <peterz@infradead.org>, Josh Poimboeuf <jpoimboe@kernel.org>,
- Nathan Chancellor <nathan@kernel.org>, llvm@lists.linux.dev
-References: <4ab10678a8f50053934b62b56af81f881c1d3798.1788414669.git.zack.rusin@broadcom.com>
-From: Maaz Mombasawala <maaz.mombasawala@broadcom.com>
+Subject: Re: [PATCH 0/2] scsi: Initial commit of VirtIO PCIe Endpoint Driver
+To: Manivannan Sadhasivam <mani@kernel.org>, Niklas Cassel <cassel@kernel.org>
+Cc: alistair23@gmail.com, mst@redhat.com, eperezma@redhat.com,
+ linux-kernel@vger.kernel.org, xuanzhuo@linux.alibaba.com,
+ jasowangio@gmail.com, linux-scsi@vger.kernel.org, mkp@kernel.org,
+ virtualization@lists.linux.dev, James.Bottomley@hansenpartnership.com,
+ alistair@alistair23.me, Alistair Francis <alistair.francis@wdc.com>,
+ linux-pci@vger.kernel.org, Shunsuke Mie <mie@igel.co.jp>,
+ Frank Li <Frank.Li@kernel.org>, Koichiro Den <den@valinux.co.jp>,
+ Kishon Vijay Abraham I <kishon@kernel.org>
+References: <20260901014650.2728658-1-alistair.francis@wdc.com>
+ <apaOZeeDBIRlpB7b@ryzen>
+ <akvzpivrbg3b3jra6ibga6j637pwqkwnnzs6q2ymcn5ixrdym6@wniqpspkcknt>
 Content-Language: en-US
-In-Reply-To: <4ab10678a8f50053934b62b56af81f881c1d3798.1788414669.git.zack.rusin@broadcom.com>
+From: Damien Le Moal <dlemoal@kernel.org>
+Organization: Western Digital Research
+In-Reply-To: <akvzpivrbg3b3jra6ibga6j637pwqkwnnzs6q2ymcn5ixrdym6@wniqpspkcknt>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-DetectorID-Processed: b00c1d49-9d2e-4205-b15f-d015386d3d5e
 
-LGTM!
+On 9/3/26 20:51, Manivannan Sadhasivam wrote:
+> On Tue, Sep 01, 2026 at 10:35:49AM +0200, Niklas Cassel wrote:
+>> On Tue, Sep 01, 2026 at 11:46:48AM +1000, alistair23@gmail.com wrote:
+>>> From: Alistair Francis <alistair.francis@wdc.com>
+>>>
+>>> This series adds a VirtIO SCSI endpoint built on top of the VirtIO PCIe
+>>> endpoint. This is a similar approach to the NVMe PCIe Endpoint
+>>> (drivers/nvme/target/pci-epf.c) but for SCSI.
+>>>
+>>> This does end up being somewhat similar to the pci-epf.c code, but
+>>> re-written for SCSI.
+>>>
+>>> This approach allows a PCIe Endpoint device (tested on a
+>>> radxa-rock5b) to setup what appears to be a SCSI device, using an
+>>> existing SCSI backend (tested using scsi_debug).
+>>>
+>>> At this point a host can connect over PCIe, ensure virtio_pci and
+>>> virtio_scsi is loaded and on PCIe rescan will see a scsi device.
+>>>
+>>> There are a few pain points with this approach though:
+>>>  1. We have to use the Legacy SCSI VirtIO driver. This is because the
+>>>     Raxda Rock5b (and AFAIK all PCIe Endpoint hardware) can't add
+>>>     capabilities. So we can't advertise the VirtIO Common configuration
+>>>     capability, which means we can't be a modern VirtIO SCSI device.
+>>>
+>>>     This is unfortunate, but there doesn't seem to be any way around
+>>>     this, at least with the current hardware.
+>>>
+>>>  1.2. Legacy virtio devices only have 32 feature bits and therefore can't
+>>>     set the VIRTIO_F_ACCESS_PLATFORM (bit 33) feature. This means the
+>>>     vring_use_map_api() function will return false.
+>>>
+>>>     Currently Linux endpoint devices use the legacy virtio interface as
+>>>     they aren't able to advertise the Common configuration capability.
+>>>     As most PCI endpoint capable PCIe controllers do not allow modifying the
+>>>     capability list, and thus are unable to advertise the Common configuration
+>>>     capability. This means the device's inbound TLPs fault on the host
+>>>     SMMU because the vring descriptors carry raw physical addresses.
+>>>
+>>>     This series adds a quirk that forces a subset of legacy virtio devices
+>>>     to use the DMA Map API (vring_use_map_api() will return true),
+>>>     which fixes this issue.
+>>>
+>>>     It's unideal that we have to hard code a quirk to basically just
+>>>     advertise the VIRTIO_F_ACCESS_PLATFORM feature, but (see 1) as we
+>>>     are stuck with legacy virtio devices there isn't much else we can do.
+>>>
+>>>  2. We have to pin scsit_pci_epf_poll_cfg_thread() on a CPU in order to
+>>>     respond fast enough to the host. This means we effectivly burn a CPU
+>>>     to read and write some values. But as there are no intterupts
+>>>     generated on these events and we need to be very quick there isn't
+>>>     another option.
+>>>
+> 
+> Most of these pain points will go away if you use virtio-msg [1] transport
+> instead of the virtio-pci transport. Using the virtio-pci transport on a real
+> PCIe device without a way to trap and emulate the config space requests will
+> always be racy.
 
-Reviewed-by: Maaz Mombasawala <maaz.mombasawala@broadcom.com>
+There is nothing inherently racy about the config space. It is about the fact
+that most PCI endpoint controllers:
+1) Do not raise an interrupt when PCI BARs or config space is written by the
+host RC, and
+2) All PCI endpoint controllers that Linux supports do not allow drivers to
+create extended capabilities in the config space that can then be emulated in
+the endpoint driver (enabling that would require 1 to be supported, obviously).
+
+(2) can be delt with quirks. Not great, but simple enough. And in this case, we
+need it more because of the virtio-pci specs, which are not great to start with.
+
+And for (1), the only real problem that causes is that an endpoint driver needs
+to poll PCI BARs/submission queues to see if the host issued commands. Again not
+great, but that works just fine. Alistair's point about burning a CPU doing that
+is simply so that we can reduce command latency and get good enough performance.
+
+We went through all of that already with the NVMe PCI endpoint. Works well
+enough and does what is intended, which is the same here for the virtio-scsi
+endpoint driver: create a platform where one can emulate a SCSI device to
+experiment with new features etc. This is all intended as a development/test
+tool, not for production use.
+
+I do not know virtio-msg. First time I hear about it. And I am not sure if there
+is a standard way of exposing a SCSI host through that.
+
 
 -- 
-Maaz Mombasawala <maaz.mombasawala@broadcom.com>
+Damien Le Moal
+Western Digital Research
