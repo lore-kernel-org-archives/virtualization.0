@@ -1,125 +1,104 @@
-Received: from va-2-20.ptr.blmpb.com (va-2-20.ptr.blmpb.com [209.127.231.20])
+Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30F213CAA4F
-	for <virtualization@lists.linux.dev>; Sun,  6 Sep 2026 11:41:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.127.231.20
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06162364EAA
+	for <virtualization@lists.linux.dev>; Sun,  6 Sep 2026 16:32:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788694901; cv=none; b=g6JGpcy8d1Ufgu+R7ixrUXl/Og+Ro/AvZTiPQTG0qOte36YqISqIk11+p7Brm5xvF3MKAHobs89LyIx5ijVobZ+NtVYqeS6PskohSL9dsp0aBNuBd9rlFhw1whyLu+XsRy3Uw3+Jrx7vOQXXDQp7FoVfKN55YQPqCCvBS4xMgjU=
+	t=1788712367; cv=none; b=U3uStuX3WYDkWONVMzdVnGKi0+y9J/4rV9+iaVL3ApveYqgGBqwURTjxnlYu40r/9i4B0iSBE0Qm3C3eo3O0zfRmYtmFu3bGHHT9SESJ+h2LojNYTjmbF+OI1jFceThZxsc1fr568T2VZuRB7rMpnAA/twsuR+Js5yzhxMgV/RI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788694901; c=relaxed/simple;
-	bh=Txjb4A2ru0WHH8ExTeA1+aRZilQ6U0tRJ24xs4Setuk=;
-	h=Subject:Mime-Version:References:From:Date:Message-Id:Content-Type:
-	 To:Cc:In-Reply-To; b=dTE++zJUSblYbvxtZOMCWNwCvcLsPINJ6GRKdqWvUx6jkXHSaEgCrmQWi8mcMukK5cg98NFSy9U/m46u7H+1Q8q+Pdu+TKwjNHHq1zv/NOrjnTvzZCiEG/SM8ivZ4b+O0IinB00IKZFJXnFZI5MS9jyLPXgF42EBJOnnH5Za9Qk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fygo.io; spf=pass smtp.mailfrom=fygo.io; dkim=pass (2048-bit key) header.d=fygo-io.20200929.dkim.larksuite.com header.i=@fygo-io.20200929.dkim.larksuite.com header.b=gsMGNOoB; arc=none smtp.client-ip=209.127.231.20
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fygo.io
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fygo.io
+	s=arc-20240116; t=1788712367; c=relaxed/simple;
+	bh=VC9CS50hEkPgNN2KRwyNAMzImJHMiYhWfiuDpnpliw4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=TsA3TaEED/8/dzpa5PVbBnozYN33w30KNzfDiwAOuCY99O51lRjpG0e/CPjzfRcb3bUPslIRKXMgOTv9VomwnGfTspiy525HqnHd+Hw6lnuJefr4bii5QSXySbRPnTA6KdbhL4NFq5sPz3ss+BoaxIVkeI0fW6XqDhivNs2X80k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=a2TAfvEE; arc=none smtp.client-ip=209.85.128.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=fygo-io.20200929.dkim.larksuite.com header.i=@fygo-io.20200929.dkim.larksuite.com header.b="gsMGNOoB"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- s=s1; d=fygo-io.20200929.dkim.larksuite.com; t=1788694893;
-  h=from:subject:mime-version:from:date:message-id:subject:to:cc:
- reply-to:content-type:mime-version:in-reply-to:message-id;
- bh=Txjb4A2ru0WHH8ExTeA1+aRZilQ6U0tRJ24xs4Setuk=;
- b=gsMGNOoBKWnuzNae+zqKdZqMscRCD1AiEZYEY6htIlRk6+gNoKGaQmKYsKYNBjNXUm1bg6
- xGaAOEqOARkImszoU6UA/pFzyCd7LSfk32qvYJElb/bqw7GJgVgWGZ/PG3teeTMVKxDjz2
- 0+sL2e/vQDFiT2KHBN7ctjFgp5CUS+dexxkSZWJwgupilHVZmfc9Qu+tcyc4J2ZBybJEYE
- 3O7lCgnI+/VOUxbbNaHQn/Cwet4hIu6rLmTVNizTAhAmTzubMJhfIq3DvQpPSPhj27EBwQ
- 19siYfKDSN/tMAK0s7/7xhbUyXGLHqWKoqogA1tdzyeiqm81vko7cmrmvzJ4AQ==
-Subject: Re: [PATCH 3/3] blk-cgroup: move async bio punt state to blkcg
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="a2TAfvEE"
+Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-49b0d8bc2aaso34222575e9.0
+        for <virtualization@lists.linux.dev>; Sun, 06 Sep 2026 09:32:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788712364; x=1789317164; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=oSMRVQ2ffl+GqdtcpJsergu6EJ70aiuLEE/q2zryERM=;
+        b=a2TAfvEExh1MUqzjOVVZ9x8jj4aYwZD4hg3Kk8qAcMQ+G002rIvu9tiyDOG95eJGLM
+         jAMN+9JVSm3UTRMLolJ+xxTcxxj8QuV5ZJtSKcxJ8IPXguVPBC1RUBapqzLmCLjabEhk
+         6KaN4IGKwoooLOFN+y2tF1UB6cxlLZ0Drewi2xHCPdxi7C9mWj11ZOtX6wraz4ISO0Ro
+         LMKLZghXoamoFkPr0Dq/tH9ci2PTD5KCaEiovUdjFonVq5uErjWVLamuh4anbjE1ghfm
+         2MGWVj7IGMXlqrnEZio7PELhWqvJq5FAYlSxKIBU91Q3fXdDHD0LXxl31DURRILZTNx7
+         qtUg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788712364; x=1789317164;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=oSMRVQ2ffl+GqdtcpJsergu6EJ70aiuLEE/q2zryERM=;
+        b=efYzRqtoDFtJCJ5KIlkA/WOkTdJZ12Py0fKsZyLhyJSF3l4NeCFQ08LAlb7hcj9kGm
+         RIEreHCaTN/d66vCcmBnOmsIFawMnJICXuOExUusWkHqDtzv4emtQkuV2yswzlRgi0rF
+         fo6tcsh1wmdMbegmbBxSYmmBTbdoTSG3DnvlmnNDSaC+bnPAXepCSdoo6K54skhtkEaT
+         Cqb7NoMN/zISxOvdZqwpLSfCBOvJ1MgHGiXANJIBb7Kr4dU/GC+VMl6e7/t7cYxf4YiO
+         pF0OkRUYaPVmvyexziQTEhFn4hv+4f26JEzk7ys9HSCDQkeSPXja0MssVeiHbcKON9K+
+         JmzQ==
+X-Forwarded-Encrypted: i=1; AKwUvBye+0ST3pBdbYXdaVx+NgZGtA/jVCmhZpIusZzhaInryrrAtNsE1RHlSfLrW0YTNnQgcXWiqvyzTVoNVboPpw==@lists.linux.dev
+X-Gm-Message-State: AFuF++lSeB05CEYKaowx+fi2Q2c6KpO2ggpfO06EQZnARgKRRfnA7kMg
+	IzQXAGwKFYJfNB0DjTU812dC8DIsKiHuwH8x7CeD2xc/5vM8egGQo4er
+X-Gm-Gg: AYBFou3DK3awjFUsLeq4cGJDc1owycjd6QNXp6Frl+0W+5TJXh1HnAua2Q9fmf5zi5f
+	4G9tRIrBRrmh6LN0aBoH9o2ESpCiaM8fqaZlrglV+v1AsX7y6SdDJUhzdi9+gDmXlIbdRq4xPsB
+	aU4Q26X+mwWMHYqchIvb6BviF/vISGimjcMvb4d3S9gcEjR4aELCra47ViL341V1X1ScUMixvQQ
+	Eqii9Bfx0e016+ypQfH+K2wFJFQZPRk7MqqxcRd9BdbkLsGEB6772UK1wznZEXojZsCzqkBi+72
+	C/F3kR2PxcA+U47EQTXROgx1vM/ScWSI+ZHGDmF2XU5U04livJGjPhSFJzWEKM3aOArnI1NrR4R
+	0FgzvYwalhohbGkx45+6hodk4ff2kvlI87xK9KXuP1fG2ooAdMAj43P92Mfb+8RPtJz/pl/YxPb
+	43DFuJA4iV5ADAX8FA4pyxVUAZ4FshDNpXISHGOhLpPfJ4U9oprqCTsf6PpmLPjCGfciBi9TcNe
+	Obw+4bgSszV7DCHf/M6HJ/5TjW8MrneB+JiTJGeQqPVDG4oTl+Pv8aXb7oVuBAWQwKSQEPuntwP
+	bC5aNOb95uBgFt4fLkjF7QNhvNeomeOpQqPClCPMU6VVhZw+gvUAjd7NM7HdeVLF1XTOAwuIkKr
+	E7pVe
+X-Received: by 2002:a05:600c:8b04:b0:49c:fc6c:be11 with SMTP id 5b1f17b1804b1-49cfc6cc0c3mr138648845e9.23.1788712363826;
+        Sun, 06 Sep 2026 09:32:43 -0700 (PDT)
+Received: from unknown748F3CBA5068 (dynamic-2a02-3100-9d84-5101-9c80-d25b-14b6-410c.310.pool.telefonica.de. [2a02:3100:9d84:5101:9c80:d25b:14b6:410c])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48588394fa1sm21761428f8f.8.2026.09.06.09.32.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 06 Sep 2026 09:32:43 -0700 (PDT)
+Date: Sun, 6 Sep 2026 18:32:40 +0200
+From: Karl Mehltretter <kmehltretter@gmail.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowangio@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rusty Russell <rusty@rustcorp.com.au>, 
+	Pawel Moll <pawel.moll@arm.com>, Cornelia Huck <cohuck@redhat.com>, 
+	Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, 
+	Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
+	Johannes Berg <johannes@sipsolutions.net>, Hans de Goede <hansg@kernel.org>, 
+	Ilpo =?utf-8?B?SsOkcnZpbmVu?= <ilpo.jarvinen@linux.intel.com>, Vadim Pasternak <vadimp@nvidia.com>, 
+	Bjorn Andersson <andersson@kernel.org>, Mathieu Poirier <mathieu.poirier@linaro.org>, 
+	virtualization@lists.linux.dev, linux-input@vger.kernel.org, linux-s390@vger.kernel.org, 
+	kvm@vger.kernel.org, linux-um@lists.infradead.org, 
+	platform-driver-x86@vger.kernel.org, linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 0/3] virtio: synchronize callbacks during device reset
+Message-ID: <ap2VJkoIsBbsqcNm@gmail.com>
+References: <20260905152059.89560-1-kmehltretter@gmail.com>
+ <20260906025249-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-X-Lms-Return-Path: <lba+26a9d516d+45cdc9+lists.linux.dev+yukuai@fygo.io>
-References: <20260823133045.970199-1-yukuai@kernel.org> <20260823133045.970199-4-yukuai@kernel.org> <d88a132d-177b-4d54-9927-3d16065c7b60@linux.ibm.com>
-Reply-To: yukuai@fygo.io
-From: "yu kuai" <yukuai@fygo.io>
-Content-Transfer-Encoding: quoted-printable
-Received: from [192.168.1.104] ([39.182.0.178]) by smtp.larksuite.com with ESMTPS; Sun, 06 Sep 2026 11:41:32 +0000
-Date: Sun, 6 Sep 2026 19:41:24 +0800
-Message-Id: <4706f5fa-3a09-4c48-aa4b-c56521166618@fygo.io>
-X-Original-From: yu kuai <yukuai@fygo.io>
-Content-Type: text/plain; charset=UTF-8
-User-Agent: Mozilla Thunderbird
-To: "Nilay Shroff" <nilay@linux.ibm.com>, "Yu Kuai" <yukuai@kernel.org>, 
-	"Jens Axboe" <axboe@kernel.dk>, "Tejun Heo" <tj@kernel.org>, 
-	"Josef Bacik" <josef@toxicpanda.com>, 
-	"Johannes Weiner" <hannes@cmpxchg.org>, 
-	=?utf-8?q?Michal_Koutn=C3=BD?= <mkoutny@suse.com>, 
-	"yu kuai" <yukuai@fygo.io>
-Cc: "Christoph Hellwig" <hch@lst.de>, "Tao Cui" <cui.tao@linux.dev>, 
-	"Jan Kara" <jack@suse.cz>, "Jonathan Corbet" <corbet@lwn.net>, 
-	"Shuah Khan" <skhan@linuxfoundation.org>, "Coly Li" <colyli@fygo.io>, 
-	"Kent Overstreet" <kent.overstreet@linux.dev>, 
-	"Alasdair Kergon" <agk@redhat.com>, "Mike Snitzer" <snitzer@kernel.org>, 
-	"Mikulas Patocka" <mpatocka@redhat.com>, 
-	"Benjamin Marzinski" <bmarzins@redhat.com>, "Song Liu" <song@kernel.org>, 
-	"Li Nan" <magiclinan@didiglobal.com>, "Xiao Ni" <xiao@kernel.org>, 
-	"Pankaj Gupta" <pankaj.gupta.linux@gmail.com>, 
-	"Dan Williams" <djbw@kernel.org>, 
-	"Vishal Verma" <vishal.l.verma@intel.com>, 
-	"Dave Jiang" <dave.jiang@intel.com>, 
-	"Alison Schofield" <alison.schofield@intel.com>, 
-	"Ira Weiny" <iweiny@kernel.org>, 
-	"Andreas Gruenbacher" <agruenba@redhat.com>, 
-	"Matthew Wilcox" <willy@infradead.org>, 
-	"Andrew Morton" <akpm@linux-foundation.org>, 
-	"Chris Li" <chrisl@kernel.org>, "Kairui Song" <kasong@tencent.com>, 
-	"Kemeng Shi" <shikemeng@huaweicloud.com>, 
-	"Nhat Pham" <nphamcs@gmail.com>, "Baoquan He" <baoquan.he@linux.dev>, 
-	"Barry Song" <baohua@kernel.org>, 
-	"Youngjun Park" <youngjun.park@lge.com>, <cgroups@vger.kernel.org>, 
-	<linux-doc@vger.kernel.org>, <linux-kernel@vger.kernel.org>, 
-	<linux-block@vger.kernel.org>, <linux-bcache@vger.kernel.org>, 
-	<dm-devel@lists.linux.dev>, <linux-raid@vger.kernel.org>, 
-	<nvdimm@lists.linux.dev>, <virtualization@lists.linux.dev>, 
-	<gfs2@lists.linux.dev>, <linux-fsdevel@vger.kernel.org>, 
-	<linux-mm@kvack.org>
-In-Reply-To: <d88a132d-177b-4d54-9927-3d16065c7b60@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260906025249-mutt-send-email-mst@kernel.org>
 
-Hi,
+On Sun, Sep 06, 2026 at 02:53:05AM +0100, Michael S. Tsirkin wrote:
+> You didn't send patch 3.
+> 
 
-=E5=9C=A8 2026/9/6 19:01, Nilay Shroff =E5=86=99=E9=81=93:
-> On 8/23/26 7:00 PM, Yu Kuai wrote:
->> @@ -111,10 +104,15 @@ struct blkcg {
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 /*
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 * List of updated percpu blkg_iosta=
-t_set's since the last flush.
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 */
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 struct llist_head __percpu=C2=A0=C2=A0=C2=
-=A0 *lhead;
->> =C2=A0 +#ifdef CONFIG_BLK_CGROUP_PUNT_BIO
->> +=C2=A0=C2=A0=C2=A0 spinlock_t=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0 async_bio_lock; /* protects async_bios */
->> +=C2=A0=C2=A0=C2=A0 struct bio_list=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 async_bios;
->> +=C2=A0=C2=A0=C2=A0 struct work_struct=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0 async_bio_work;
->> +#endif
->> =C2=A0 #ifdef CONFIG_BLK_CGROUP_FC_APPID
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 char=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 fc_app_id[FC_APPID_LEN]=
-;
->> =C2=A0 #endif
->> =C2=A0 #ifdef CONFIG_CGROUP_WRITEBACK
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 struct list_head=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0 cgwb_list;
->
-> As I mentioned, Clang context annotations are now officially supported
-> in the block layer. Since you're touching this code, I suggest annotating
-> async_bios with __guarded_by(&async_bio_lock) as well.
->
-> This would allow the Clang thread-safety analyzer to verify that every
-> access to async_bios is properly protected by async_bio_lock.
-Sounds reasonable, will do this in the next version.
->
-> Thanks,
-> --Nilay
+I resent it to just you now. Mail must have gotton lost somewhere.
 
---=20
+If all else fails, it's on lore:
+https://lore.kernel.org/r/20260905152059.89560-4-kmehltretter@gmail.com/
+
 Thanks,
-Kuai
+Karl
