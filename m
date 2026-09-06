@@ -1,104 +1,190 @@
-Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06162364EAA
-	for <virtualization@lists.linux.dev>; Sun,  6 Sep 2026 16:32:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6408D35E953;
+	Sun,  6 Sep 2026 17:04:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788712367; cv=none; b=U3uStuX3WYDkWONVMzdVnGKi0+y9J/4rV9+iaVL3ApveYqgGBqwURTjxnlYu40r/9i4B0iSBE0Qm3C3eo3O0zfRmYtmFu3bGHHT9SESJ+h2LojNYTjmbF+OI1jFceThZxsc1fr568T2VZuRB7rMpnAA/twsuR+Js5yzhxMgV/RI=
+	t=1788714241; cv=none; b=dvANuwySAj3gw8ylNvQbvgDKgAUMqj8FAoyPte4/wH6Ex/jTrnDk6ir4D3DhcU+DZ4QvDAjrK/cthzqUBfDkdS67e9lXMMa7UKOHPOG0qEBT/X0rW7teFRb5loiwucM+HJA1VfLXOm9YIrBPFJX3ein+yu37CT/kBG+cdtkWktQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788712367; c=relaxed/simple;
-	bh=VC9CS50hEkPgNN2KRwyNAMzImJHMiYhWfiuDpnpliw4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=TsA3TaEED/8/dzpa5PVbBnozYN33w30KNzfDiwAOuCY99O51lRjpG0e/CPjzfRcb3bUPslIRKXMgOTv9VomwnGfTspiy525HqnHd+Hw6lnuJefr4bii5QSXySbRPnTA6KdbhL4NFq5sPz3ss+BoaxIVkeI0fW6XqDhivNs2X80k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=a2TAfvEE; arc=none smtp.client-ip=209.85.128.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1788714241; c=relaxed/simple;
+	bh=MYGt/goz2YxcKBNLiTCOtDgRm7Te939HIktN81kX9u0=;
+	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=IW/yXtMex1rjFnKYIgZUKvovNgdltHaVRDyInNtx1M+Dh/tB+TU5Xgrt2u/EAFgCXF5CrRddsXeqC9HNf3gB89iUyGhE7hMCPYElIcfuaMBCoMPT+lJ6lxcwQdH1f3v/80T6w/O5RBmqYF0wrRnrl8VS2QP49WQcciN+e5bnPds=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DG0ZWREz; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="a2TAfvEE"
-Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-49b0d8bc2aaso34222575e9.0
-        for <virtualization@lists.linux.dev>; Sun, 06 Sep 2026 09:32:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788712364; x=1789317164; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=oSMRVQ2ffl+GqdtcpJsergu6EJ70aiuLEE/q2zryERM=;
-        b=a2TAfvEExh1MUqzjOVVZ9x8jj4aYwZD4hg3Kk8qAcMQ+G002rIvu9tiyDOG95eJGLM
-         jAMN+9JVSm3UTRMLolJ+xxTcxxj8QuV5ZJtSKcxJ8IPXguVPBC1RUBapqzLmCLjabEhk
-         6KaN4IGKwoooLOFN+y2tF1UB6cxlLZ0Drewi2xHCPdxi7C9mWj11ZOtX6wraz4ISO0Ro
-         LMKLZghXoamoFkPr0Dq/tH9ci2PTD5KCaEiovUdjFonVq5uErjWVLamuh4anbjE1ghfm
-         2MGWVj7IGMXlqrnEZio7PELhWqvJq5FAYlSxKIBU91Q3fXdDHD0LXxl31DURRILZTNx7
-         qtUg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788712364; x=1789317164;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=oSMRVQ2ffl+GqdtcpJsergu6EJ70aiuLEE/q2zryERM=;
-        b=efYzRqtoDFtJCJ5KIlkA/WOkTdJZ12Py0fKsZyLhyJSF3l4NeCFQ08LAlb7hcj9kGm
-         RIEreHCaTN/d66vCcmBnOmsIFawMnJICXuOExUusWkHqDtzv4emtQkuV2yswzlRgi0rF
-         fo6tcsh1wmdMbegmbBxSYmmBTbdoTSG3DnvlmnNDSaC+bnPAXepCSdoo6K54skhtkEaT
-         Cqb7NoMN/zISxOvdZqwpLSfCBOvJ1MgHGiXANJIBb7Kr4dU/GC+VMl6e7/t7cYxf4YiO
-         pF0OkRUYaPVmvyexziQTEhFn4hv+4f26JEzk7ys9HSCDQkeSPXja0MssVeiHbcKON9K+
-         JmzQ==
-X-Forwarded-Encrypted: i=1; AKwUvBye+0ST3pBdbYXdaVx+NgZGtA/jVCmhZpIusZzhaInryrrAtNsE1RHlSfLrW0YTNnQgcXWiqvyzTVoNVboPpw==@lists.linux.dev
-X-Gm-Message-State: AFuF++lSeB05CEYKaowx+fi2Q2c6KpO2ggpfO06EQZnARgKRRfnA7kMg
-	IzQXAGwKFYJfNB0DjTU812dC8DIsKiHuwH8x7CeD2xc/5vM8egGQo4er
-X-Gm-Gg: AYBFou3DK3awjFUsLeq4cGJDc1owycjd6QNXp6Frl+0W+5TJXh1HnAua2Q9fmf5zi5f
-	4G9tRIrBRrmh6LN0aBoH9o2ESpCiaM8fqaZlrglV+v1AsX7y6SdDJUhzdi9+gDmXlIbdRq4xPsB
-	aU4Q26X+mwWMHYqchIvb6BviF/vISGimjcMvb4d3S9gcEjR4aELCra47ViL341V1X1ScUMixvQQ
-	Eqii9Bfx0e016+ypQfH+K2wFJFQZPRk7MqqxcRd9BdbkLsGEB6772UK1wznZEXojZsCzqkBi+72
-	C/F3kR2PxcA+U47EQTXROgx1vM/ScWSI+ZHGDmF2XU5U04livJGjPhSFJzWEKM3aOArnI1NrR4R
-	0FgzvYwalhohbGkx45+6hodk4ff2kvlI87xK9KXuP1fG2ooAdMAj43P92Mfb+8RPtJz/pl/YxPb
-	43DFuJA4iV5ADAX8FA4pyxVUAZ4FshDNpXISHGOhLpPfJ4U9oprqCTsf6PpmLPjCGfciBi9TcNe
-	Obw+4bgSszV7DCHf/M6HJ/5TjW8MrneB+JiTJGeQqPVDG4oTl+Pv8aXb7oVuBAWQwKSQEPuntwP
-	bC5aNOb95uBgFt4fLkjF7QNhvNeomeOpQqPClCPMU6VVhZw+gvUAjd7NM7HdeVLF1XTOAwuIkKr
-	E7pVe
-X-Received: by 2002:a05:600c:8b04:b0:49c:fc6c:be11 with SMTP id 5b1f17b1804b1-49cfc6cc0c3mr138648845e9.23.1788712363826;
-        Sun, 06 Sep 2026 09:32:43 -0700 (PDT)
-Received: from unknown748F3CBA5068 (dynamic-2a02-3100-9d84-5101-9c80-d25b-14b6-410c.310.pool.telefonica.de. [2a02:3100:9d84:5101:9c80:d25b:14b6:410c])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48588394fa1sm21761428f8f.8.2026.09.06.09.32.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 06 Sep 2026 09:32:43 -0700 (PDT)
-Date: Sun, 6 Sep 2026 18:32:40 +0200
-From: Karl Mehltretter <kmehltretter@gmail.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowangio@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rusty Russell <rusty@rustcorp.com.au>, 
-	Pawel Moll <pawel.moll@arm.com>, Cornelia Huck <cohuck@redhat.com>, 
-	Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, 
-	Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
-	Johannes Berg <johannes@sipsolutions.net>, Hans de Goede <hansg@kernel.org>, 
-	Ilpo =?utf-8?B?SsOkcnZpbmVu?= <ilpo.jarvinen@linux.intel.com>, Vadim Pasternak <vadimp@nvidia.com>, 
-	Bjorn Andersson <andersson@kernel.org>, Mathieu Poirier <mathieu.poirier@linaro.org>, 
-	virtualization@lists.linux.dev, linux-input@vger.kernel.org, linux-s390@vger.kernel.org, 
-	kvm@vger.kernel.org, linux-um@lists.infradead.org, 
-	platform-driver-x86@vger.kernel.org, linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 0/3] virtio: synchronize callbacks during device reset
-Message-ID: <ap2VJkoIsBbsqcNm@gmail.com>
-References: <20260905152059.89560-1-kmehltretter@gmail.com>
- <20260906025249-mutt-send-email-mst@kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DG0ZWREz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93DEA1F00A3A;
+	Sun,  6 Sep 2026 17:03:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788714239;
+	bh=yiFg3WA8eYzFRz4XD8gs7F68jVnn0z1bYOUFWOdeVtU=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References;
+	b=DG0ZWREzM2cZUReiwc8Hyz2YG6ief2XqF2XZtSiYfpI+xok6L1sBeUJ4tk9U0CFWP
+	 E7pQ8V1RfC6TnvQ1c2LOQ8kbeR/Aeo8t9YM8gHq3QIGbjtI+OQD3XhOe8tHfi68h04
+	 OZkzY9lpWr/36ZOKxu2Xhjg9JO7ahEVzGNlhfjpAuR2SGBEmd1oC2g960DsZfFPWTj
+	 HcrkYJNJk9ar7fsd34Fq21bSmstQsbwpVA8ejWmbkJoR34E3596uwvEU7Jf8Sh8hRE
+	 A0hEeoLsrDS2GvZrWF0wSXvcD+uXeD4zAdoNYnVjBIZoVqcUJJ1DIjKhu4hGxQu9jX
+	 jXbr635NFFTvA==
+Subject: Re: [PATCH net-next 2/6] vsock: add IOCTL_VM_SOCKETS_ASSIGN_G2H_NETNS
+From: netdev-bot+sashiko@kernel.org
+To: bobbyeshleman@gmail.com
+Cc: sgarzare@redhat.com, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, corbet@lwn.net,
+ skhan@linuxfoundation.org, stefanha@redhat.com, mst@redhat.com,
+ jasowangio@gmail.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+ shuah@kernel.org, rdunlap@infradead.org, virtualization@lists.linux.dev,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-doc@vger.kernel.org, kvm@vger.kernel.org,
+ linux-kselftest@vger.kernel.org, sargun@sargun.me, jlinbox@meta.com,
+ bobbyeshleman@meta.com
+Date: Sun, 06 Sep 2026 17:03:58 +0000
+Message-ID: <178871423810.219967.10502012402988056292@kernel.org>
+In-Reply-To: <20260902-vsock-guest-ns-v1-2-9995383e9a8b@meta.com>
+References: <20260902-vsock-guest-ns-v1-2-9995383e9a8b@meta.com>
+X-sashiko-severity: Low
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260906025249-mutt-send-email-mst@kernel.org>
 
-On Sun, Sep 06, 2026 at 02:53:05AM +0100, Michael S. Tsirkin wrote:
-> You didn't send patch 3.
-> 
+Thank you for your contribution! Sashiko AI review found 3 potential
+issue(s) to consider:
 
-I resent it to just you now. Mail must have gotton lost somewhere.
+Critical: 0 · High: 0 · Medium: 0 · Low: 3
 
-If all else fails, it's on lore:
-https://lore.kernel.org/r/20260905152059.89560-4-kmehltretter@gmail.com/
+- [Low] Claim: the new ioctl is inert because no in-tree transport
+  implements `netns_assign_allow`, and `vsock_g2h_net_get()` /…
+- [Low] Claim: TOCTOU between `vsock_g2h_net_assign()` (which only sweeps
+  the connected hash table) and in-flight connections — a socket in…
+- [Low] Claim: the reachability gate in `vsock_assign_transport()` is
+  skipped by the `vsk->transport == new_transport` early return (so a…
 
-Thanks,
-Karl
+--
+
+vsock: add IOCTL_VM_SOCKETS_ASSIGN_G2H_NETNS
+
+This adds an ioctl on /dev/vsock that moves the guest's vsock device into
+the network namespace of the calling process, gated on CAP_NET_ADMIN in the
+initial user namespace, plus a transport hook so transports can opt in.
+Sockets that can no longer reach the device after a move are reset, and the
+device falls back to init_net when the assigned namespace is destroyed.
+
+Link: https://lore.kernel.org/all/20200427142518.uwssa6dtasrp3bfc@steredhat/
+
+No regressions to report on this one. A few areas were looked at closely
+and appear fine; they are noted below only so the review record is
+complete.
+
+> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+> index 29cde17e08f3..ad11f0f56eb8 100644
+> --- a/net/vmw_vsock/af_vsock.c
+> +++ b/net/vmw_vsock/af_vsock.c
+
+[ ... ]
+
+> @@ -548,6 +571,17 @@ static void vsock_deassign_transport(struct vsock_sock *vsk)
+>  	vsk->transport = NULL;
+>  }
+>  
+> +/* Return true if the loaded g2h transport honours namespace assignment. One
+> + * that does not keeps the reachability rules it had before the ioctl existed.
+> + *
+> + * Must be called with vsock_register_mutex held.
+> + */
+> +static bool vsock_g2h_netns_assignable(void)
+> +{
+> +	return transport_g2h && transport_g2h->netns_assign_allow &&
+> +	       transport_g2h->netns_assign_allow();
+> +}
+
+At this commit no in-tree transport sets .netns_assign_allow, so
+vsock_g2h_netns_assignable() is always false and vsock_g2h_net_assign()
+returns -EOPNOTSUPP, while vsock_g2h_net_get(), vsock_g2h_reachable_sk()
+and vsock_maybe_set_connected() have no callers yet.
+
+The following patch in the series adds virtio_transport_netns_assign_allow()
+and the calls into these helpers, so this is the usual core-first split
+rather than dead code.
+
+> @@ -622,6 +656,13 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
+>  		goto err;
+>  	}
+>  
+> +	if (new_transport && new_transport == transport_g2h &&
+> +	    vsock_g2h_netns_assignable() &&
+> +	    !vsock_g2h_net_reachable(sock_net(sk))) {
+> +		ret = -ENETUNREACH;
+> +		goto err;
+> +	}
+> +
+
+This gate is skipped by the preceding
+
+	if (vsk->transport && vsk->transport == new_transport) {
+		ret = 0;
+		goto err;
+	}
+
+early return, but vsock_connect() still consults
+transport->stream_allow() after vsock_assign_transport() returns, and the
+follow-up patch makes virtio_transport_stream_allow() and
+virtio_transport_seqpacket_allow() namespace aware, so a re-connect from an
+unreachable namespace is still refused with -ENETUNREACH.
+
+For SOCK_DGRAM, virtio registers only as VSOCK_TRANSPORT_F_G2H and
+virtio_transport_dgram_allow() returns false unconditionally, so a datagram
+socket never holds the assignable transport.
+
+[ ... ]
+
+> +bool vsock_maybe_set_connected(struct vsock_sock *vsk)
+> +{
+> +	struct list_head *list = vsock_connected_sockets(&vsk->remote_addr,
+> +							 &vsk->local_addr);
+> +	bool reachable;
+> +
+> +	spin_lock_bh(&vsock_table_lock);
+> +	reachable = vsock_g2h_reachable_sk(vsk);
+> +	if (reachable) {
+> +		sk_vsock(vsk)->sk_state = TCP_ESTABLISHED;
+> +		__vsock_insert_connected(list, vsk);
+> +	}
+> +	spin_unlock_bh(&vsock_table_lock);
+> +
+> +	return reachable;
+> +}
+
+[ ... ]
+
+> +static int vsock_g2h_net_assign(struct net *net)
+> +{
+[ ... ]
+> +		rcu_assign_pointer(vsock_g2h_net, net);
+> +		vsock_for_each_connected_socket(transport_g2h,
+> +						vsock_reset_unreachable_sock);
+> +	}
+
+Sockets still in TCP_SYN_SENT, and pending children, are not in the
+connected table and so are not visible to this sweep. The ordering here
+covers that case:
+
+vsock_g2h_net_assign()
+    rcu_assign_pointer(vsock_g2h_net, net);   /* store first */
+    vsock_for_each_connected_socket()         /* under vsock_table_lock */
+
+vsock_maybe_set_connected()
+    spin_lock_bh(&vsock_table_lock);
+    reachable = vsock_g2h_reachable_sk(vsk);  /* re-check under same lock */
+
+Either the insert wins the lock and the later walk sees and resets the
+socket, or the walk wins and the insert observes the new namespace and
+refuses, so a socket cannot slip into TCP_ESTABLISHED in a namespace that
+can no longer reach the device once the transport side lands.
+
+-- 
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260902-vsock-guest-ns-v1-0-9995383e9a8b%40meta.com
