@@ -1,344 +1,331 @@
-Received: from mail-qv1-f52.google.com (mail-qv1-f52.google.com [209.85.219.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C3F33E51E8
-	for <virtualization@lists.linux.dev>; Mon,  7 Sep 2026 03:05:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.219.52
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788750359; cv=pass; b=qtCwk1rx1af4RgQ9/6Mtkom1mm6HLyxAUXgAWTHDBoSJLnN1i69BNtSVS7r1jwOT9JLaBSI7SxlCDjYQzsrl2yISHvM/QQh9MuMLHmrwfgoJzSFRR+08t7AUnBwU3FgV7voXpv/Gp9xdJLHy5HzyD3QF6e8FA2YA18s9lviJZ3g=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788750359; c=relaxed/simple;
-	bh=JjTBnWXYcPYPei20BQ2ElWZXSEdrjRdouifOfM3rT+Q=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=M0c9RDYkiaDBwZ2vHi+Xw5rJYk/MGfI7kri66c4+2kI+6tvZ20DtamcxZ8zTU6c0PJYY7xSDM4xJGKkNF6jjSczGvtzBuGsCW/yNYz2TSdS4KWR69auf29YkK7wqybxAP2xvyE7P33UDvCtmxYgaW8U3o6SqhxGLVrJf7AOMu3U=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TP4Dv9lV; arc=pass smtp.client-ip=209.85.219.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAF5B3EB104
+	for <virtualization@lists.linux.dev>; Mon,  7 Sep 2026 03:24:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788751443; cv=none; b=ZQo/jZ+/aK+RvYPEm0y0i6wx9y8tVKVWBdmEGyk7AdwhXnjaly/kYjryYOYMkcEMoDVJ9FJolcENH2m2j0wzviFGoNQMQSn1Y3dt7dvWEBV67uOaWv14jT1Rv83Em/QYprZe1+pgCQpHQaatQkRH2yeod9vhNGmQ98H1imTxP3E=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788751443; c=relaxed/simple;
+	bh=+3qeet1gjH+Lyp5L/bYg2ta9Sk6uQvhZlImteiB/d5w=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=RtuMa2IClRZIanPBOvKDk5qEkrwzd1LZI7iSUfNSV5G+si6Me6et2I1EcW2Kg/+pEXtST9XIc533pDV909sRhdrPx4NcS1yjrrGxcZZ9W8EZRPWtd6NoCxuLuB+/sbzGkZSu8ISMvxS4f3wyNqOelxdK5q0vsJqM/ekR1crv4/U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qFklfuIz; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TP4Dv9lV"
-Received: by mail-qv1-f52.google.com with SMTP id 6a1803df08f44-90e7bde5596so39815006d6.1
-        for <virtualization@lists.linux.dev>; Sun, 06 Sep 2026 20:05:56 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1788750355; cv=none;
-        d=google.com; s=arc-20260327;
-        b=As0e78Sgp1+v83997arLu27TzrpfcPgrRagE8EAs/gSCvapSCtx24ZcEToUyAl6GBd
-         YCTf36nPzatWJtRUirERCKQ53LXFv4GM9z4Rp67Tc6Tpaz9ubsAGjm1n5ZGD7uYulfcW
-         YT8eYu1MN5pnb2SGbTjQuFksXrzB/CDN/dQt/m+j++fSFe8iZNBJcaID8jJwqwc8kv7N
-         wVGotvZ94jqLY2nUMzBFRivHeqg0eEuhuuA1C29LSQ9h7g7KrZEbPpiR1WxGizw7yba9
-         wm2E2vszEEm8C/o8jJ4DiIR69APGI4HibEBadBf4JX7HNOCOI80KRm9Lsy/KVZO9Uu5g
-         RX+w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=vp6kqRH18z2BkXSeT4B0EuoiGVpEoZr0cYZ/GmzT9oY=;
-        fh=Zt4quNeMsFUjVlDyT9waZJ8emEEuGjeNEllxN4uZJXM=;
-        b=FAlZG/gp1xV69fj/JuzlvwJu9YxXogsH74btpF4ddCLtDwLF1rTN1xh2bwpIiuvcFD
-         avbDVwLWWkSOiayQBI68yZHFCJSHm3Ah8JDWnrggmmLVOZAsBbTYYPQhyfM7s9CYon/S
-         kdKh4Ma5+QJdJLH9R+Cns2IFMWO56fc+NpFxAx98U8eXluapK93ETnOZZbr9VYHzHfmR
-         Y34GSvuyxyFfru6SRTOU2LIoQg1ZSGOznXLsa1RU3RRyaGzrBLDOWRutr5lMWy1RTdNp
-         DOByw6SALNjhwy+jgjnV3br3L9F5P7ZAlP0o8dGWohp/1+LufZcXNsj9kZLJ9t6vaec9
-         TeBA==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788750355; x=1789355155; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=vp6kqRH18z2BkXSeT4B0EuoiGVpEoZr0cYZ/GmzT9oY=;
-        b=TP4Dv9lViRAD6JBWwOInMGTcJa8/2JOfXereLUeyM0HEYxhGIzvmg5neQBGM+MltVl
-         l87vUAs6129TwGjPf1O3XqpBeKc511GX3NqaG1w75Kdf451D+5YW8tFIM3/1PYspyzc6
-         z69Q4GECbmVDmbgySCzWKFqyuQhV7KAh10ceyPhVYT3uKBjYHFwJ1Nx7MGU6/zja7+Jy
-         SLyNVRjl34JE7yYg9lQt3XWIbCx7wOsacuo9xwqd3qvah1Rl2+FEHyjOaTtPrZmLui+F
-         1bpvb7CMomnaF1DDNq768TIwvEthe1zWFOf3aWscImeFi6HcTWRCDcWC2BankKIA3f7J
-         mUeA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788750355; x=1789355155;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=vp6kqRH18z2BkXSeT4B0EuoiGVpEoZr0cYZ/GmzT9oY=;
-        b=PjJ18Hpa2juz+zaaT2GRpW2jah879nWijL0eAgwQwFM2IjPdO+0TXe6+d9yBsN9viU
-         Sq9C7uxpjWJrEylL6hhpcqKe+EKS/b5zBHji/AH0RkHrHQ80/H+K/6M9sodKOKGzN893
-         K+8ymZQTgYUrLjB1CuOigntehcghb/1mkbgU8cHiF0vhWFx1wgDHe2PJTJMzt+u3UU6n
-         I+9zVvbrh2mmWwrLlCbcrOHYfz+PAytTD85qLIi/eMJAlRhb/fQCkDvpBeOqA89UgGfx
-         MjXyRzmFssmqWXdIvt1yi4lUS46y6IIfVQIh2Rzh6elewXQiL+Em1qHRnZQxf159Vtja
-         djLw==
-X-Forwarded-Encrypted: i=1; AKwUvBzKeJZHnQe9t1Qk/1+a1vY1g81X+QD73Fg95O577ZbZcB0CkjRknkgHdkqp+UhXvSbwfv+9aWWxuXCWxo3Ozg==@lists.linux.dev
-X-Gm-Message-State: AFuF++msVCWZ3eX3UcsxznnlaVflLfhelj0RWwvqML1u2yZXYv9+kpiY
-	C/pAaxG4XQIHrBY9KRIEyjnwbm6LDAZBH8Dcu1HxAWy0AC8+qt8cy6NcIscF/7iqC8BV64bkjIR
-	nZJAPMP29vhVtkWilpboaNRFa9gEJYdQ=
-X-Gm-Gg: AYBFou1m52brbb2HQTYA1wD6v1MyfWvALLcgFhY1XkCVW7xixiInpzt/sq1rTGlmCGL
-	zQ/YpEk+tUYTmQfCmk4mFA2+A810p+iYWqmiIQPTnyaIXQ5cmlMQjl11uOOZ9i2Gp0DCkF5tK+s
-	MkcjbeTJJI05Psu3r0TwAl+LsnFdc+CXxOnHh6HBZ2SeJ8cmig8RtDwyPxJ7WDv3qmXKhIcmPgR
-	HgOcOb9vkB8MMZ/UOHrBDQgzPaYqDXy/DMp9hf4OQ8VZwdjP5a+gPFqZcyFKpc758r9l5HCyYpu
-	CEHeXwrNjRA4lx8tsB4LLNVHyNwssF6CL2sWevDUp1d/
-X-Received: by 2002:a05:620a:2a14:b0:939:16f6:4d01 with SMTP id
- af79cd13be357-93980371409mr1860789685a.21.1788750355107; Sun, 06 Sep 2026
- 20:05:55 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qFklfuIz"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6870VVR9319839;
+	Mon, 7 Sep 2026 03:23:36 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=xgBjMM
+	jxtCv55t7GMT2w+mlDGqrwgg7Z4rq7MwlBzjI=; b=qFklfuIz0Lq2xUNoZyDnH/
+	EwGHd3Mne3jJE7shMq7WsMIwSryd65iz6aF6KXILoZzqYG1TWi1/Qr5iHqkG/CiF
+	fiuo4TnG/MfljRQIhVQzAsoFuuRlxcfIGeMzN/+1ikLOI7pWVrlXPgHKEow/0bcc
+	3eHjO9nRL+EOqy+ZU5P6bfowzDLzJJeRDtkUpccecvTrhZBppPjIaXwZGqM/T92B
+	P+5/NwyPo7O5aXsCCwW65IOIRMCNDvupqlGvJqA3bP/3rMbm+lU0xV3KCq8yNXmc
+	bWJbqTtoCceGQzHAfE9z10rF+U8CslLfbDZjv24UQVfzlGsOOsZ/ESWGWJ+2bppg
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ggbf3p9wd-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 07 Sep 2026 03:23:35 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 6873BSWo020221;
+	Mon, 7 Sep 2026 03:23:34 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4ggwdq3swf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 07 Sep 2026 03:23:34 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6873NUw847251788
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 7 Sep 2026 03:23:30 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B3B3F2004E;
+	Mon,  7 Sep 2026 03:23:30 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5FB0B20043;
+	Mon,  7 Sep 2026 03:23:20 +0000 (GMT)
+Received: from [9.124.222.214] (unknown [9.124.222.214])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  7 Sep 2026 03:23:20 +0000 (GMT)
+Message-ID: <7d88a3c4-a7e4-4814-9e29-84955b69a5b3@linux.ibm.com>
+Date: Mon, 7 Sep 2026 08:53:19 +0530
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260906013659.517889-1-physicalmtea@gmail.com> <20260905234007-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20260905234007-mutt-send-email-mst@kernel.org>
-From: Jia Jia <physicalmtea@gmail.com>
-Date: Mon, 7 Sep 2026 11:05:18 +0800
-X-Gm-Features: AcwNN1VD3mXF6xsr3Q77Ee5e_NmlFL287LdrgSbhF2Hf-aI0ro1H1y2newXV4-0
-Message-ID: <CAJwVaMJcqOPPt6eQuVdySmwvjMz2Bh5dRPYidF+s8_1fNf2uiw@mail.gmail.com>
-Subject: Re: [PATCH v4] vhost/vsock: batch RX used-ring updates
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: sgarzare@redhat.com, stefanha@redhat.com, jasowang@redhat.com, 
-	eperezma@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v12 08/13] sched/core: Push current task from non
+ preferred CPU
+To: Yury Norov <ynorov@nvidia.com>, yury.norov@gmail.com
+Cc: linux-kernel@vger.kernel.org, mingo@kernel.org, peterz@infradead.org,
+        juri.lelli@redhat.com, vincent.guittot@linaro.org,
+        kprateek.nayak@amd.com, iii@linux.ibm.com, corbet@lwn.net,
+        meted@linux.ibm.com, tglx@kernel.org, gregkh@linuxfoundation.org,
+        pbonzini@redhat.com, seanjc@google.com, vschneid@redhat.com,
+        huschle@linux.ibm.com, rostedt@goodmis.org, dietmar.eggemann@arm.com,
+        maddy@linux.ibm.com, srikar@linux.ibm.com, hdanton@sina.com,
+        chleroy@kernel.org, vineeth@bitbyteword.org, frederic@kernel.org,
+        arighi@nvidia.com, pauld@redhat.com, christian.loehle@arm.com,
+        tj@kernel.org, tommaso.cucinotta@gmail.com, maz@kernel.org,
+        rafael@kernel.org, rdunlap@infradead.org, kernellwp@gmail.com,
+        linux-doc@vger.kernel.org, jgross@suse.com,
+        virtualization@lists.linux.dev, sunlightlinux@gmail.com
+References: <20260903063240.268775-1-sshegde@linux.ibm.com>
+ <20260903063240.268775-9-sshegde@linux.ibm.com> <aptiJP_8SWwZWju6@yury>
+Content-Language: en-US
+From: Shrikanth Hegde <sshegde@linux.ibm.com>
+In-Reply-To: <aptiJP_8SWwZWju6@yury>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-ORIG-GUID: zrImal1Nzg-DsaD9VLSbOR3qG45-w3L7
+X-Proofpoint-GUID: eKDAiZnKn75BVPjYCjFa1DFEf3DEf1YJ
+X-Authority-Analysis: v=2.4 cv=DbEnbPtW c=1 sm=1 tr=0 ts=6a9e2e38 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
+ a=ZHGiqxHou45PFmVM3NkA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTA3MDAyOSBTYWx0ZWRfX918BeP/941HV
+ GN93u7H7YYJglb2YIF3loIaieSVK9HPqEkZmNJT/iy+C4ehOpzeg01BvS6QBXYdqfCLL54zXZdU
+ EKj/W86I6pcf81K2Wpvsk3ULoWSnUIQulll2w5l3sdQyePOHRCDyXuYy9rByxx1SUUf2klzsSRB
+ Ohpm9mKcePmQEZw/P9mBOpPzKkxxn0vSsvDxUEmf9O7pOcfoME6JyUGtPTItJIdBc+UbtTDVA6y
+ uu0tyN/yVy8IQ7wHRI+Nk+ygLGrjS4kXJsdkvj0yeD7fngWj3FdJROUJhGOiSxwxppw5gmWm5R5
+ lInGVIvLm1e/+9XMLrvuIC5a1vM+Eta5uB6ZUEh0AfD14RoRBqD7DJWySo3f1beX9FYtg48iaUc
+ BBxPeyAdvFXDZIpzV8lW5uB0/QpFO+rsphzYzqWr99F4qHdX6FxbwkdcipKG+dg3tQOmY76G2Y9
+ VkSLIk7JCiXDs/EgRXg==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTA3MDAyOSBTYWx0ZWRfX36zLO75rAIrY
+ xxMJa/fxWIHv9FF/xx0G8ktbj9lNqjA9ILAoJbnm9qJ32lrFSxhNxPGzg/28J43G9gT+teV2fnU
+ m6JAYCSpyJPlCsz6tSCIEEPUal0yIzo=
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-09-06_04,2026-09-03_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 priorityscore=1501 impostorscore=0 adultscore=0 spamscore=0
+ clxscore=1015 suspectscore=0 bulkscore=0 malwarescore=0 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2609070029
 
->
-> On Sun, Sep 06, 2026 at 09:36:59AM +0800, Jia Jia wrote:
-> > vhost_transport_do_send_pkt() calls vhost_add_used() for every Guest RX
-> > buffer even though it delays the Guest signal until the worker finishes=
-.
-> > Each call publishes one used entry and updates the used index separatel=
-y.
-> >
-> > Collect the completed buffer heads in the arrays already allocated for =
-the
-> > virtqueue and publish them with vhost_add_used_n().  Bound the batch by=
- the
-> > ring size and array capacity.  Flush when the batch reaches its limit o=
-r
-> > before leaving the worker.
-> >
-> > Each used entry describes one completed RX buffer and keeps its actual =
-used
-> > length, so set nheads to 1 for every entry.  This patch does not change
-> > negotiated features or compress multiple buffers into one used entry.
-> >
-> > This patch is limited to the current skb-based vhost-vsock RX path.
-> >
-> > Performance:
-> >
-> > The test used vsock_perf with a fresh Guest for each state and 20 paire=
-d
-> > runs. The Guest receiver used:
-> >
-> >   vsock_perf --port PORT --buf-size 64M --vsk-size 64M --rcvlowat 1
-> >
-> > The Host sender used:
-> >
-> >   vsock_perf --sender 3 --port PORT --bytes 1G \
-> >       --buf-size SEND_BUF --vsk-size 64M
-> >
-> > The table reports geometric mean Guest RX throughput.
-> >
-> >   SEND_BUF   baseline RX   batching RX   change
-> >              (Gbit/s)       (Gbit/s)
-> >   256 B      0.0795724      0.0831509      +4.497%
-> >   512 B      0.1194885      0.1210297      +1.290%
-> >   4 KiB      0.7208273      0.7242053      +0.469%
-> >   64 KiB     2.1712797      2.1951941      +1.101%
->
->
-> I will be frank I don't find the numbers compelling enough
-> to bother with this trickery.
->
-> vsock wasn't optimized all that much for small packets -
-> first of all, it is doing most of its work in a work item
-> so we are already at the mercy of the scheduler.
->
-> That's more work but you will see a much bigger win for bw and
-> latency by just handling small packets directly in the cb
-> if you can.
->
-> Looking at batching: wakeup per packet in rx_work, lock_sock per packet,
-> sk->sk_write_space per rx packet are all high overhead things we are
-> doing in the data path that are likely easier to handle
-> and will give you more bang for the buck.
->
->
->
->
->
+Hi Yury, thanks for taking a look.
 
-Thank you very much for giving such a clear direction!
+On 9/5/26 5:58 AM, Yury Norov wrote:
+> On Thu, Sep 03, 2026 at 12:02:35PM +0530, Shrikanth Hegde wrote:
+>> Actively push out the current running task on a non-preferred CPU. Since
+>> the task is currently running, a stopper thread must be queued to push the
+>> task out. However, if the task is pinned only to non-preferred CPUs,
+>> it will continue running there. This helps to maintain userspace
+>> affinities, unlike CPU hotplug or isolated cpusets.
+>>
+>> Though the code is similar to __balance_push_cpu_stop and quite close to
+>> push_cpu_stop, it is kept separate as it provides a cleaner
+>> implementation specifically for CONFIG_PREFERRED_CPU.
+>>
+>> Add the push_task_work_done flag to protect the work buffer.
+>>
+>> For now, only the currently running task is pushed out. This keeps the code
+>> simpler. In the future, an optimization may be added to move all queued
+>> tasks on the runqueue.
+>>
+>> This works only for the FAIR scheduling class.
+>>
+>> Signed-off-by: Shrikanth Hegde <sshegde@linux.ibm.com>
+>> ---
+>>   kernel/sched/core.c  | 81 ++++++++++++++++++++++++++++++++++++++++++++
+>>   kernel/sched/sched.h |  8 +++++
+>>   2 files changed, 89 insertions(+)
+>>
+>> diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+>> index b4ef2e92d786..35e7eedad104 100644
+>> --- a/kernel/sched/core.c
+>> +++ b/kernel/sched/core.c
+>> @@ -5808,6 +5808,9 @@ void sched_tick(void)
+>>   	unsigned long hw_pressure;
+>>   	u64 resched_latency;
+>>   
+>> +	if (!cpu_preferred(cpu))
+>> +		sched_push_current_non_preferred_cpu(rq);
+>> +
+>>   	if (housekeeping_cpu(cpu, HK_TYPE_KERNEL_NOISE))
+>>   		arch_scale_freq_tick();
+>>   
+>> @@ -11202,3 +11205,81 @@ void sched_change_end(struct sched_change_ctx *ctx)
+>>   		p->sched_class->prio_changed(rq, p, ctx->prio);
+>>   	}
+>>   }
+>> +
+>> +#ifdef CONFIG_PREFERRED_CPU
+>> +static DEFINE_PER_CPU(struct cpu_stop_work, npc_push_task_work);
+>> +
+>> +static int sched_non_preferred_cpu_push_stop(void *arg)
+>> +{
+>> +	struct task_struct *p = arg;
+>> +	struct rq *rq = this_rq();
+>> +	struct rq_flags rf;
+>> +	int cpu;
+>> +
+>> +	if (cpu_preferred(rq->cpu)) {
+>> +		scoped_guard(rq_lock_irqsave, rq)
+>> +			rq->push_task_work_done = false;
+>> +		put_task_struct(p);
+>> +		return 0;
+>> +	}
+>> +
+>> +	raw_spin_lock_irq(&p->pi_lock);
+>> +
+>> +	/* This could take rq lock. So call it before rq lock is taken */
+>> +	cpu = select_fallback_rq(rq->cpu, p);
+>> +	rq_lock(rq, &rf);
+> 
+> If select_fallback_rq() grabs the lock, then when it releases the
+> lock, there's a window for race between the other process and the
+> subsequent rq_lock(). Or I misunderstand it?
+> 
 
-> >
-> > As supplementary data, perf stat measured the vhost worker cycles and
-> > instructions per GiB in 10 paired runs. The patched implementation
-> > reduced cycles by 3.846%, 2.162%, and 4.109%, and instructions by
-> > 2.548%, 2.084%, and 4.637% for 256 B, 4 KiB, and 64 KiB, respectively.
-> >
-> > An AF_VSOCK request-response latency test with 10 AB/BA pairs showed no
-> > consistent RTT change: -0.102% for 256-byte messages (4/10 pairs lower)=
- and
-> > +3.281% for 4-KiB messages (5/10 pairs lower), using arithmetic mean RT=
-Ts.
-> >
-> > Signed-off-by: Jia Jia <physicalmtea@gmail.com>
-> > Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
-> > ---
-> > Changes in v4:
-> > - Simplify the performance description.
-> > - Add a brief AF_VSOCK RTT measurement.
-> > - Keep the batch limit within the used ring and scratch arrays, without
-> >   duplicating the worker weight limit.
-> > - Flush after adding a used entry when the batch reaches the limit, and
-> >   remove the redundant flush in the empty-queue path.
-> > ---
-> >  drivers/vhost/vsock.c | 47 +++++++++++++++++++++++++++++++++++++++++++=
-++--
-> >  1 file changed, 45 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-> > index 9aaab6bb8061..7a13abe73345 100644
-> > --- a/drivers/vhost/vsock.c
-> > +++ b/drivers/vhost/vsock.c
-> > @@ -103,12 +103,35 @@ static bool vhost_transport_has_remote_cid(struct=
- vsock_sock *vsk, u32 cid)
-> >       return found;
-> >  }
-> >
-> > +static bool vhost_vsock_flush_used(struct vhost_virtqueue *vq,
-> > +                                unsigned int used_count)
-> > +{
-> > +     if (!used_count)
-> > +             return false;
-> > +
-> > +     vhost_add_used_n(vq, vq->heads, vq->nheads, used_count);
-> > +     return true;
-> > +}
-> > +
-> > +static void vhost_vsock_add_used(struct vhost_virtqueue *vq,
-> > +                              unsigned int used_count,
-> > +                              unsigned int head, unsigned int len)
-> > +{
-> > +     struct vring_used_elem *used =3D &vq->heads[used_count];
-> > +
-> > +     used->id =3D cpu_to_vhost32(vq, head);
-> > +     used->len =3D cpu_to_vhost32(vq, len);
-> > +     vq->nheads[used_count] =3D 1;
-> > +}
-> > +
->
->
-> flush where? add where? return what? these apis don't make it
-> easier to read code.
->
+select_fallback_rq taking lock is for any state change that needs to happen
+such as fallback to possible CPUs etc.
 
-Thanks for pointing this out. If I understand correctly, the
-responsibilities, call sites, and return values of these helpers make
-the control flow harder to follow. I will be careful not to make the
-path more complicated for the sake of abstraction in the future.
+Most of the time it won't grab the rq lock. Even if the task got pulled by load balancer
+before grabbing the lock, Below (task_rq(p) == rq) will catch that, and it bails out.
 
-> >  static void
-> >  vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
-> >                           struct vhost_virtqueue *vq)
-> >  {
-> >       struct vhost_virtqueue *tx_vq =3D &vsock->vqs[VSOCK_VQ_TX];
-> >       int pkts =3D 0, total_len =3D 0;
-> > +     unsigned int used_count =3D 0;
-> > +     unsigned int used_limit;
-> >       bool added =3D false;
-> >       bool restart_tx =3D false;
-> >
-> > @@ -120,6 +143,11 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vs=
-ock,
-> >       if (!vq_meta_prefetch(vq))
-> >               goto out;
-> >
-> > +     /* Keep the batch within the used ring and the scratch arrays. */
->
-> what "the batch"? this is the 1st time code mentions any batch.
->
+So it is safe.
 
-In the future, I will try not to introduce concepts used in a patch
-midway through the code. They should be explained when used.
-
-> > +     used_limit =3D min_t(unsigned int, vq->num, vq->dev->iov_limit);
-> > +     if (unlikely(!used_limit))
-> > +             goto out;
-> > +
-> >       /* Avoid further vmexits, we're already processing the virtqueue =
-*/
-> >       vhost_disable_notify(&vsock->dev, vq);
-> >
-> > @@ -150,9 +178,16 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vs=
-ock,
-> >
-> >               if (head =3D=3D vq->num) {
-> >                       virtio_vsock_skb_queue_head(&vsock->send_pkt_queu=
-e, skb);
-> > +
-> > +                     /* Flush completed buffers before re-enabling not=
-ifications. */
->
->
-> redundant - i can see this is what it does but why? and what does flush m=
-ean here?
->
-
-I will pay attention to making the purpose of comments clear.
-
-> > +                     if (vhost_vsock_flush_used(vq, used_count)) {
-> > +                             added =3D true;
-> > +                             used_count =3D 0;
-> > +                     }
-> > +
-> >                       /* We cannot finish yet if more buffers snuck in =
-while
-> >                        * re-enabling notify.
-> >                        */
-> >                       if (unlikely(vhost_enable_notify(&vsock->dev, vq)=
-)) {
-> >                               vhost_disable_notify(&vsock->dev, vq);
-> >                               continue;
-> > @@ -230,8 +265,13 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vs=
-ock,
-> >                */
-> >               virtio_transport_deliver_tap_pkt(skb);
-> >
-> > -             vhost_add_used(vq, head, sizeof(*hdr) + payload_len);
-> > -             added =3D true;
-> > +             vhost_vsock_add_used(vq, used_count, head,
-> > +                                  sizeof(*hdr) + payload_len);
-> > +             used_count++;
-> > +             if (used_count =3D=3D used_limit) {
-> > +                     added |=3D vhost_vsock_flush_used(vq, used_count)=
-;
->
->
-> bitwise or on a boolean likely not what was intended.
+>> +	rq->push_task_work_done = false;
+>> +	update_rq_clock(rq);
+>> +
+>> +	context_unsafe_alias(rq);
+>> +
+>> +	if (task_rq(p) == rq && task_on_rq_queued(p) &&
+>> +	    !is_migration_disabled(p))
+>> +		rq = __migrate_task(rq, &rf, p, cpu);
+>> +
+>> +	rq_unlock(rq, &rf);
+>> +	raw_spin_unlock_irq(&p->pi_lock);
+>> +	put_task_struct(p);
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +/*
+>> + * Push the current task running on non-preferred CPU(npc).
+>> + * Using this non preferred CPU will lead to more contention
+>> + * in the host. So it is better not to use this CPU.
+>> + *
+>> + * Since task is running, call a stopper to push the task out. This is
+>> + * similar to how task moves during hotplug. In select_fallback_rq a
+>> + * preferred CPU will be chosen and henceforth task shouldn't come back to
+>> + * this CPU again.
+>> + *
+>> + * Works for FAIR class only.
+>> + *
+>> + * If task is affined only on non-preferred CPUs, no point in moving it out.
+>> + */
+>> +void sched_push_current_non_preferred_cpu(struct rq *rq)
+>> +{
+>> +	struct task_struct *push_task = rq->curr;
+>> +
+>> +	scoped_guard(rq_lock, rq) {
+>> +		/* Push the task if its explicit affinity allows */
+>> +		if (!task_can_sched_on_preferred(rq->cpu, push_task))
+>> +			return;
+>> +
+>> +		/* There is already a stopper thread. Don't race with it. */
+>> +		if (rq->push_task_work_done)
+>> +			return;
+>> +
+>> +		if (is_migration_disabled(push_task))
+>> +			return;
+>> +
+>> +		rq->push_task_work_done = true;
+>> +	}
+>> +
+>> +	/* sched_tick runs with interrupts disabled. */
+>> +	get_task_struct(push_task);
+>> +	stop_one_cpu_nowait(rq->cpu, sched_non_preferred_cpu_push_stop,
+>> +			    push_task, this_cpu_ptr(&npc_push_task_work));
+>> +}
+>> +#endif
+>> diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
+>> index 6c3ad70e58b8..678e44134acf 100644
+>> --- a/kernel/sched/sched.h
+>> +++ b/kernel/sched/sched.h
+>> @@ -1298,6 +1298,8 @@ struct rq {
+>>   
+>>   	struct list_head cfs_tasks;
+>>   
+>> +	bool			push_task_work_done;
+>> +
+> 
+> It should be protected with CONFIG_PREFERRED_CPU. Also, the name
+> doesn't look correct. You set the variable to 'true' even before
+> calling the stopper. Maybe need_push_to_npc, or similar?
 >
 
-Understood.
+ok. npc_push_work_pending is probably a better one? 
+> Why did you place it between cfs_tasks and avg_rt? If no specific
+> reason, maybe place it next to CONFIG_PARAVIRT-guarded fields.
+> 
 
-> > +                     used_count =3D 0;
-> > +             }
-> >
-> >               VIRTIO_VSOCK_SKB_CB(skb)->offset +=3D payload_len;
-> >               total_len +=3D payload_len;
-> > @@ -264,6 +304,9 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vso=
-ck,
-> >                       virtio_transport_consume_skb_sent(skb, true);
-> >               }
-> >       } while(likely(!vhost_exceeds_weight(vq, ++pkts, total_len)));
-> > +
-> > +     added |=3D vhost_vsock_flush_used(vq, used_count);
-> > +
->
->
-> and here.
->
+I don't see a common empty space there. I could increase the size.
 
-I will drop the current patch and try a new optimization direction.
-Thank you.
+> What about pahole?
 
-> >       if (added)
-> >               vhost_signal(&vsock->dev, vq);
-> >
-> > --
-> > 2.34.1
->
+I did check pahole on powerpc which has 128 byte cachelines.
+
+	int                        online;               /*  4524     4 */
+	struct list_head           cfs_tasks;            /*  4528    16 */
+
+	/* XXX 64 bytes hole, try to pack */
+
+It was empty space. Now, that i check 64 byte cachelines it may not be the
+optimal one.
+
+I do see, a couple common places for both 64 abd 126 byte cacheline. I believe those
+are better places. It won't increase the size or cause any existing fields to
+misalign. It also makes sense to guard it again CONFIG_PREFERRED_CPU. I had not
+done to avoid ifdefs. But it is used only under it. So i think that makes sense too.
+
+1.
+
+	struct balance_callback *  balance_callback;     /*  3608     8 */
+	unsigned char              nohz_idle_balance;    /*  3616     1 */
+	unsigned char              idle_balance;         /*  3617     1 */
+
+	/* XXX 6 bytes hole, try to pack */
+	long unsigned int          misfit_task_load;     /*  3624     8 */
+
+
+2.
+	unsigned int               ttwu_count;           /*  5276     4 */
+	unsigned int               ttwu_local;           /*  5280     4 */
+
+	/* XXX 4 bytes hole, try to pack */
+
+	struct cpuidle_state *     idle_state;           /*  5288     8 */
+
+
+I will pick one after little bit of probing. My preference so far is first one.> 
+>>   	struct sched_avg	avg_rt;
+>>   	struct sched_avg	avg_dl;
+>>   #ifdef CONFIG_HAVE_SCHED_AVG_IRQ
+>> @@ -4280,4 +4282,10 @@ DEFINE_CLASS_IS_UNCONDITIONAL(sched_change)
+>>   
+>>   #include "ext/ext.h"
+>>   
+>> +#ifdef CONFIG_PREFERRED_CPU
+>> +void sched_push_current_non_preferred_cpu(struct rq *rq);
+>> +#else	/* !CONFIG_PREFERRED_CPU */
+>> +static inline void sched_push_current_non_preferred_cpu(struct rq *rq) { }
+>> +#endif
+>> +
+>>   #endif /* _KERNEL_SCHED_SCHED_H */
+>> -- 
+>> 2.52.0
+
