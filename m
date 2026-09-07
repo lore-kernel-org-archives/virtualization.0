@@ -1,148 +1,149 @@
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A59A545FFD3
-	for <virtualization@lists.linux-foundation.org>; Mon,  7 Sep 2026 10:25:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16C16476CC5
+	for <virtualization@lists.linux-foundation.org>; Mon,  7 Sep 2026 11:26:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.133
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788776757; cv=fail; b=ebiS+9Zl0zuLCvUN/PyrNvZdtWvWeOIHMIlCYtXEi/2KVJ2uaqWp8LZs1Jn+NSxakdxZthS3j9YCGCkcbiciVuDYRlucsIB0Hhufd7ZawDDZ8EM2J2NzvQusEwPdo5vazgav4MykUnazY3QCQErTXl1yXZLWRM8yho5jPRC861M=
+	t=1788780365; cv=fail; b=VpOpxxDe55OyclRjIamqYFmyoO6Cr9xn6NOYzf429UdhF5X/AVbXoYo0PQNODSGCZ4mUjk9w2TObUbOBUnUFhrtdiEkdzsSzusgglygm5BRslwwYH8c6LdPl0eRavS4c+sOUyKhVyB0qwHMo21M5pzHls5XtDhrf8WHJaaG0Ick=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788776757; c=relaxed/simple;
-	bh=odSsB/u5yBK0p7NUXbxRT6g1aXnxRYVHZujTKirCCxo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=JPCNaxSCCcheU57gMHnAKqz+lq2XOgfQA2+2q9thy/xpWBpyI6AegyQactjh3d/dMg9b/EOvPBonKw0o/8dI6rF3g+ShZzAcaES3qUVTH/uLdhubeXuCEWKmtKPvnET2HLgOdFiEpNcTZoIDzsWEYhdRRt2JCzq1A1a+Yk0LAj8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=K7XKJepA; arc=fail smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1788780365; c=relaxed/simple;
+	bh=ZEMTfsctivsx9BHRCYbwUHlg/kjfE3N0XMnAg1ydWd8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=RsHCeyDS9aDEVQUCPbCheWH6ve3i5Mzreg+70RvU5EzSFzY5aQvaYekKdpeYkdlvDse06nwOyZ2u0dhm0F/9gvH1UscuYuRkaLegpXzyzFCXRaZtEkxslNxT0yAYdr7AqFPn1K44+B4dOJOy9hufqkvpvTWrhdRbyvtERDGdWFA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JONHbwGz; arc=fail smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="K7XKJepA"
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JONHbwGz"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 5ADAA400F5
-	for <virtualization@lists.linux-foundation.org>; Mon,  7 Sep 2026 10:25:56 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 7DEE540105
+	for <virtualization@lists.linux-foundation.org>; Mon,  7 Sep 2026 11:26:03 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -1.763
+X-Spam-Score: -1.751
 X-Spam-Level:
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id oOyS-Z2x8bTI for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2026 10:25:55 +0000 (UTC)
-ARC-Filter: OpenARC Filter v1.3.0 smtp2.osuosl.org 43AC6400D5
-Authentication-Results: smtp2.osuosl.org; arc=none smtp.remote-ip=170.10.129.124
-ARC-Seal: i=1; d=osuosl.org; s=arc; a=rsa-sha256; cv=none; t=1788776755;
-	b=ZBWmqO9dw0WhLsWwkjQ1wx8CM9LtcXK2nyViGs36+vcnW9AopfH1x0PlYT2zGQz4Vkjv
-	 DDdcZ7+R1njvc0QOXp/3O7xMSBMebgctBlEX7/JToQ5uG4aTH7FooqpOjhTDLV7i1GSQ0
-	 HK1JuW581f8YaBgI6ryUchEmqTcx43ryD6lzf/D7T1no7gjxh2gFoFrggkct1e8eniETk
-	 jxq0BHPcK1JJhhuBuCfMcgLdTa6C5UJxybW+F2RJn3QOhBXSV5KZ3zuf4y6k5QHfqcHQD
-	 oufYdtCI9rW5I+UPWth7MtyG3+vFeR1PqeAhmdDKRJZKIulpsQBnr11s3iKIANmDDgg==
+ id 9_uzgJPpFaSI for <virtualization@lists.linux-foundation.org>;
+ Mon,  7 Sep 2026 11:26:02 +0000 (UTC)
+ARC-Filter: OpenARC Filter v1.3.0 smtp2.osuosl.org E904540103
+Authentication-Results: smtp2.osuosl.org; arc=none smtp.remote-ip=172.105.4.254
+ARC-Seal: i=1; d=osuosl.org; s=arc; a=rsa-sha256; cv=none; t=1788780362;
+	b=Ap9XJZY36IwHGbWaSi5aUKdNWKX3N+gT4OMKm536+QgLDnTnRrciKdmV309aHjTGZm8z
+	 l4igxdc1Db3sv7LFHRu5tMtI7S9FmQLUv2DMFxvGuE8lvCO+Aw+Rz2vv3P5A/ySC9MUHs
+	 J9bZQNNUTcCNqd3egEU0y0WFBNFif1mgcebKckKMzfn6s/z5NqChhAM5Q1zVK3AubFqac
+	 530vDqVhYENhkW5HJZzY+HxrpAdqCvWxnAJWUXEOX57IZKChgwta5ppuejUmzVJHoBr3J
+	 jFwODJBXv5o9akBkwLkch3YzIUj0S7wRCtviUteNdR0P5DyjiHX/PF8jwVTVYEMqkbw==
 ARC-Message-Signature: i=1; d=osuosl.org; s=arc; a=rsa-sha256;
-	c=relaxed/relaxed; t=1788776755;
-	h=Received-SPF:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
-	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
-	 X-Mimecast-Originator:Content-Type:Content-Disposition;
-	bh=RojMlcyBo8KXKoX/Gtly8ZtzkjtceoUdIGXGbeR2hGw=;
-	b=Gu5vwiXGk3gb26gFmAKAdDWWU4cEzjRsFb9nPE3sEnIbVjts+4bE/qPgkKqvKj2mvjL4
-	 pFDuEW/RqJ6Zyj11uibiG+lPva0cNRaL9gmFh7YMOZC9XoX5xi2jRFhO9QAfU2QUs9xO8
-	 mTnigQKdIGlvs3kE7KXSZsh6m5Odf+Wfw5ijntItTTR4VkyJBQUEfs/x1Ya+eIGqjOsOA
-	 /fOmul9JAej6XDntt7F4lrVFr7uHvybZpDVfCrLNjy1xX8KIyRbdqyFJH5eSpEQJLR2Vo
-	 +13TgFmYI8Jn34mFYY/Nx0jpi224uV3qgFoUzJua2wMxbJ2lNTnZuKFmeVfKY1Qv9xg==
-ARC-Authentication-Results: i=1; smtp2.osuosl.org; dmarc=pass header.from=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=K7XKJepA;
-	arc=none smtp.remote-ip=170.10.129.124
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+	c=relaxed/relaxed; t=1788780362;
+	h=Received-SPF:Received:Received:DKIM-Signature:Message-ID:Date:
+	 MIME-Version:User-Agent:Subject:Content-Language:To:Cc:References:
+	 From:Autocrypt:Organization:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=ZEMTfsctivsx9BHRCYbwUHlg/kjfE3N0XMnAg1ydWd8=;
+	b=U0qdsATprLt0BDUEZ4jxZ1K5k2IiXDJ3y+xurX1BjVgWH64MofxK9NPVEMhz0s8QWJUJ
+	 6IJz5CY5/1729V7WKPgOgtMw+39Zi2s6z/Gz+26S8Oi5RxUd2/4XKSRj1anncvAOkRVDB
+	 95Mmf6DfcWtN7TIJUu87xKWkzQ2FmQzAEUQPt3dWQEupj85EuhzqxcylTPTMEW39gVbG2
+	 lUCELRmwAmHRlqG+WzCdx+nCu71kSUj7G1gKiZIHwlrMzSVfhyQYowkiUJ6c1APiMlm7I
+	 GYiC3PTOkLHWb84kGmNSz+tud6QGKCVstDC6ZqFZRAfD7MuCy35r3lyAugzSSFSIMaQ==
+ARC-Authentication-Results: i=1; smtp2.osuosl.org; dmarc=pass header.from=kernel.org;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JONHbwGz;
+	arc=none smtp.remote-ip=172.105.4.254
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=matttbe@kernel.org; receiver=<UNKNOWN> 
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=K7XKJepA
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 43AC6400D5
-	for <virtualization@lists.linux-foundation.org>; Mon,  7 Sep 2026 10:25:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1788776751;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=RojMlcyBo8KXKoX/Gtly8ZtzkjtceoUdIGXGbeR2hGw=;
-	b=K7XKJepACoVAIu1jiUMiWOd4cdtC1eGk1hcQnrLwiFU/ThC3sq5jGIhai1t61WjqdOYEm1
-	13yCUtVD0Gs1676LeDJ3Vi04j/uzodt/cnlL4OaCTL7tOlSYcusvHGpJLP5Xr4VtA48/35
-	3Tksllc/3uJxSeQ0d0cgFBGMRDccGFU=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-665-Ew4ajm4dN06QB5ewenKusQ-1; Mon, 07 Sep 2026 06:25:50 -0400
-X-MC-Unique: Ew4ajm4dN06QB5ewenKusQ-1
-X-Mimecast-MFC-AGG-ID: Ew4ajm4dN06QB5ewenKusQ_1788776749
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-49cc954a3edso26744885e9.2
-        for <virtualization@lists.linux-foundation.org>; Mon, 07 Sep 2026 03:25:49 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788776749; x=1789381549;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=RojMlcyBo8KXKoX/Gtly8ZtzkjtceoUdIGXGbeR2hGw=;
-        b=gRklNXScqCoPI9lhT8mAau3X0xUMh2rBBjzoZpYKu0mwbLXkyDKBbbmpXp3AApbe06
-         dmGroiUTKDqKShWVlWHZiuqp4voDCcMYMBhyOQwopkn6drh2+TFYoDFAG/T5zv30Y572
-         nBHKywK5Dnd1ldSiM5cDUf59qZjSKkxfBJYuvhZwrevSS05TEBpYepzUQXWQCSFig2aO
-         t3TKcxFQssoDiJyB5o3dG2/qfvmu/biz3HMZeOwvZEZvsNAKyLkSn0RKbiBhX7JW6KRk
-         Z23H4+do21BAJKq2q0vLCDnembMKeUs8VvhbdWGmvXAK2XBvDMsfoNgt1M4LHPMwFG2y
-         e6nA==
-X-Forwarded-Encrypted: i=1; AKwUvBy1DtlZEBo7UqafO1q7sEonAdXD0b41mfhC5tyVmlTkiesbMzBSbXVLVQZS0rZqxB6xyEtLJ0JxtqlkxdV0QA==@lists.linux-foundation.org
-X-Gm-Message-State: AFuF++nxUJZDCml0bte4o98/1I4gAoA2oB8hfhtIcZkNi7V4pAWzs+Jq
-	sl2do41M8lKRsnRg8grdat/uVyUTQbksQlmGqBK4T39uGfBSdgMDDOB6YNJ2sfy5yCfFP/t4gdr
-	8Z5DoT0ZPl5Y5Y0ZOc4PXMJdyGOhUhP6Jf1JNdhDBGINm6wlCiqzLuVsUVfBOndRHUkXm8BLpiw
-	sVJk1EmPc=
-X-Gm-Gg: AYBFou26Sk+gHG9gW/Sc3NCe5FdELu6UXS8YAfYJjzjPW8ZEqbsKNC2UHL0zFLjMS4L
-	Xp8gY4vjtkvq/4+r4HXaKTLkvrSm6HE/e5VtA32WV74OSrKdubpwHJCyya3pEpSmUotKbucwII5
-	XoB9FJMuzFYtgiAJhZEOcZOv/dcfA1TzEfQqD2/GIUKVQocJsyJ2fzYsTGc+oKt2QTm/fMabo1f
-	Eh2T3L256nP1Z1ASMpBUXoe5DCahQ3QKoxObFFSLDfQNapG4w0C3slsjdQRlDrqNKOgM8udxDNU
-	bTg0dejigJDm4CxLM4833ZuECpQMNNq2fwPXYhNXjF1NJFeuk2e/LFxG13yyRKRKGFDfIBMuH+3
-	A3empJW9iC0GXaP48nlVSbkY=
-X-Received: by 2002:a05:600c:4e49:b0:49c:fa20:cc05 with SMTP id 5b1f17b1804b1-49cfa20ccd2mr198545435e9.28.1788776748835;
-        Mon, 07 Sep 2026 03:25:48 -0700 (PDT)
-X-Received: by 2002:a05:600c:4e49:b0:49c:fa20:cc05 with SMTP id 5b1f17b1804b1-49cfa20ccd2mr198544945e9.28.1788776748301;
-        Mon, 07 Sep 2026 03:25:48 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-79-236.inter.net.il. [80.230.79.236])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49cf7703cefsm407611205e9.5.2026.09.07.03.25.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Sep 2026 03:25:47 -0700 (PDT)
-Date: Mon, 7 Sep 2026 06:25:44 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: sashiko-reviews@lists.linux.dev, Chris Mason <clm@fb.com>,
-	Roman Gushchin <roman.gushchin@linux.dev>,
-	virtualization@lists.linux-foundation.org, ksummit@lists.linux.dev
-Subject: Re: How is sashiko bot deciding whom to Cc?
-Message-ID: <20260907062516-mutt-send-email-mst@kernel.org>
-References: <20260907055646-mutt-send-email-mst@kernel.org>
- <ap6Nwf94aq2dk3WD@ninjato>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JONHbwGz
+Received: from tor.source.kernel.org (tor.source.kernel.org [172.105.4.254])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id E904540103
+	for <virtualization@lists.linux-foundation.org>; Mon,  7 Sep 2026 11:26:01 +0000 (UTC)
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	by tor.source.kernel.org (Postfix) with ESMTP id E3633601F9;
+	Mon,  7 Sep 2026 11:25:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52E701F00A3A;
+	Mon,  7 Sep 2026 11:25:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788780359;
+	bh=ZEMTfsctivsx9BHRCYbwUHlg/kjfE3N0XMnAg1ydWd8=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=JONHbwGzEgBO2d9t1tO0hOs5IgjRNPjfL33DruxCD9W8uZikJtZnR7p4kQP/5WccE
+	 lKFfU419a9phXjfEW/63+8ae8SkjXdSZau0NOnUnIW4HcnaYYCuPvMlu85BwP85baU
+	 xMJO5oP0dZomWEh4HpwLkj9b07haWDYl1I0i6XYqjBIOHhe1Fdfqlf4wqebyHdaQWv
+	 PjXWOPXDoBbdDMKd6/x8DyDQSv7Qtut8X2H18n8wiuxJGWLSX93j1+KNh5YD69ByEq
+	 8DyHULbM1585VQL4QDN9pTcAqsCqxBU0X3WiIUHWeMSuLRQaSa4PMTrA6jeGrRVj2B
+	 PdzQWMz1T3Wlw==
+Message-ID: <22ef726e-d89b-4f02-91d9-6d42f9cf2bbc@kernel.org>
+Date: Mon, 7 Sep 2026 13:25:55 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <ap6Nwf94aq2dk3WD@ninjato>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 9mtQNo5fVLP1jeeYTlYaMIowtdimJfbDCmrzhzt_jos_1788776749
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird Beta
+Subject: Re: How is sashiko bot deciding whom to Cc?
+Content-Language: fr
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: sashiko-reviews@lists.linux.dev, Chris Mason <clm@fb.com>,
+ Roman Gushchin <roman.gushchin@linux.dev>,
+ virtualization@lists.linux-foundation.org, ksummit@lists.linux.dev
+References: <20260907055646-mutt-send-email-mst@kernel.org>
+From: Matthieu Baerts <matttbe@kernel.org>
+Autocrypt: addr=matttbe@kernel.org; keydata=
+ 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
+ lzVbFe7fduHbABmYz9cefQpO7wDE/Q==
+Organization: NGI0 Core
+In-Reply-To: <20260907055646-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Mon, Sep 07, 2026 at 12:11:17PM +0200, Wolfram Sang wrote:
-> 
-> > So it picked some mailing lists but not others, and some specific people.
-> > 
-> > Is that opt-in somehow? I'll be happy to get Cc'd on the auto-review email.
-> 
-> To get me CCed with Renesas specific topics I sent a PR to modify this
-> file:
-> 
-> https://github.com/sashiko-dev/sashiko/blob/main/sashiko.dev/email_policy.toml
-> 
+Hello,
 
-Got it, thanks! Sent a PR.
+On 07/09/2026 12:03, Michael S. Tsirkin wrote:
+> There doesn't seem to be a Sashiko list, so I added ksummit as the most
+> likely one to catch attention.
 
--- 
-MST
+Just in case, there is a Sashiko ML: sashiko@lists.linux.dev
 
+https://subspace.kernel.org/lists.linux.dev.html
+
+Cheers,
+Matt
