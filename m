@@ -1,161 +1,152 @@
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 481CC4192EF
-	for <virtualization@lists.linux.dev>; Mon,  7 Sep 2026 07:46:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13464429CFB
+	for <virtualization@lists.linux.dev>; Mon,  7 Sep 2026 08:03:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788767167; cv=none; b=UjMCq/cXO7Ym6vX1sw61Aq28Vq1jKH4yQFv16/37gRONCWl4nnIlNKfbvoKOgcShv3e0emlnRKhmQtzzsBwEJohaJ2odxLSJzujy7B01OG3z+7RcvaerTEzlaxpoS9l9LGIxgQ0LF2QxfYV56kzWcdSIvvD9v2L8c09u6vtY0oI=
+	t=1788768232; cv=none; b=PJAke8x5XWHiULMCynEFcYouYw8rOW4VsIIgMFNZXlg5O3ysrEiQ6qlvOTRY2+0jpxOZEvlHdYtiztJagGqUkm/RdHMhhpifC6oqziJEoCWhCZr6yRUacABhQCahO/zuzrVjHgh0l/Z0Zziyz2moQWR90fL0RRSj/Hh9TDsmwcU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788767167; c=relaxed/simple;
-	bh=3OA1/xixfyppJthmSg4mc3vejG0dxTu9z8eAvuYaOA8=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
-	 In-Reply-To:Content-Type; b=OzjKH7Td+FlicCvtvxmuvTN+8/UnQ0aWPFsaNQ184WX3hwJMttS4HBMVEMVP+/7wz57e+M+McZ1Q94sWQg1VHKdfpr7OHj60q1pmMcyo/0Va3Vy0CE7guG2br1v5AgK2pR64VSyH8APiTR+abiBVpsioV5E4l+B8CA442YlsnDs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: 294c2aaaaa9011f19a56ed5b684f684d-20260907
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.3.19,REQID:cfe5bff2-321e-4463-a9c9-0adf656d6a01,IP:0,U
-	RL:0,TC:0,Content:0,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION:
-	release,TS:0
-X-CID-META: VersionHash:7db8b62,CLOUDID:0f6bccee99a48475681ad77a18a78966,BulkI
-	D:nil,BulkQuantity:0,SF:80|81|82|83|102|865|898,TC:nil,Content:0|15|50|99,
-	EDM:-3,IP:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OS
-	A:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
-X-CID-BVR: 2,SSN|SDN
-X-CID-BAS: 2,SSN|SDN,0,_
-X-CID-FACTOR: TF_CID_SPAM_SNR
-X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
-X-UUID: 294c2aaaaa9011f19a56ed5b684f684d-20260907
-X-User: weirongguang@kylinos.cn
-Received: from [10.42.124.137] [(10.44.16.150)] by mailgw.kylinos.cn
-	(envelope-from <weirongguang@kylinos.cn>)
-	(Generic MTA with TLSv1.3 TLS_AES_128_GCM_SHA256 128/128)
-	with ESMTP id 971881444; Mon, 07 Sep 2026 15:45:57 +0800
-Message-ID: <e16178ad-85c6-42da-931f-f0b2f8240828@kylinos.cn>
-Date: Mon, 7 Sep 2026 15:45:54 +0800
+	s=arc-20240116; t=1788768232; c=relaxed/simple;
+	bh=wmhdTlozBmFoYEFKSTbuXzEqCAXVERRyi58TT6Rb4UI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=ZZLaoLqrjrlOM/4CVF9b6Z1DHT7JQ2lZaeub8u1dK9xCSvt6y8A421U5loghbXfD/0ovVI5Z3DvKEaaL8tDJME8T3qIpvuUvVd0ZJnRhpcoiGQFPvsox4lpCwHfk/lQY+3bQz7cVlDeMewowgorCCgBCRbQ2ogA2SpdzEK535Xk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XaGKGMm3; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XaGKGMm3"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1788768230;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=S01/akrLSba7r0QPArIs2eHPrcFzuABNmLC8uce5/dQ=;
+	b=XaGKGMm3miQWzCW1Q+LdWdWkeb6a9dfVbAmX/cUDu/sqp7WY8X2cjjRiPSU3wj0mmMgRsy
+	fx+YParlHqDaGWm2my0NPplK/PVOVXDLoH1QWTKkGdLxVHU/Y2zc6QZVciB15pmHrpKQCE
+	jVuC3/FOiyTmvokSVRI0m1OgVvl5qwc=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-299-chVLp19IPtqXGMYEErnofw-1; Mon, 07 Sep 2026 04:03:46 -0400
+X-MC-Unique: chVLp19IPtqXGMYEErnofw-1
+X-Mimecast-MFC-AGG-ID: chVLp19IPtqXGMYEErnofw_1788768226
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-49cd83ca361so36795665e9.1
+        for <virtualization@lists.linux.dev>; Mon, 07 Sep 2026 01:03:46 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788768225; x=1789373025;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=S01/akrLSba7r0QPArIs2eHPrcFzuABNmLC8uce5/dQ=;
+        b=OLF074ss7yCcZRGMTon3ra+lR+j3v1FFt7w6Rp/o/B+e9b1oMtdyEU5+Fh/23W7mE0
+         JkE6HQc59k3W5ovMajcsE8RSVi+290xxqmOO7lm+IO3VrD93sultOhnBJvET0NpiAMgq
+         86nSiGmsrrZZ/GySdCgP6vpHQCY99rfqkxUJme3GsSJMGu2YOxM+f0Zn6knxZQjYDbPQ
+         +tiMRtBMXODekHExonyN/8aFzPId0vvCQMDpqggEux3XaluKkLNahi/4gOt/AoV3iLZm
+         Fgpyy3KPMr+Ay8JNUMxDD3tl5O0m6ewJHhfA71tRg5/4TwzWLGBw1dOb1PfnDYczPHER
+         exTg==
+X-Forwarded-Encrypted: i=1; AKwUvByndujF3LBZfdiWRzv0IIeCqCEcznyppeMRswSYUFI1rA70g77BcJjuLr6BUvGz2Z2BLaPyxbXU1Ma51nWZPQ==@lists.linux.dev
+X-Gm-Message-State: AFuF++lf8o2Oi4VuX8stbXPqYBWxfJZFALNEPOPG1lc3w3GcIjU471HE
+	kWWYKH/y5PWCf+iN9W0ru9eUbtlwKlubzTjpKklnALvQdALeAc3IqFaTHVH+ROfwTDBrJOYZk/a
+	Co13ieTnZY6wVW9zB1cklDPhgbo+dTmqgYIBWF7hcx3Nn1HSTuToFH2aX7fA5aMRfa/QYzaNwR1
+	3z
+X-Gm-Gg: AYBFou1BwimTgZ/aIJf35xFJLQK8ZJ34sdGfrb+ef4g1W7wZS1i8HTsM+cW105n+Sbi
+	nO2VUK7Z6U4FZ9/8fUD7jdk3Q5kmwOdZOZwWfOdb7z+VZ9iWyZ7CXJMJOSHX+3g00ogix5TvS7f
+	vXqLQvqh5WKcSk9OhY/FmOIiXI/rPyvCQYtq7MpyEdRmYUDZ11U5lSpeXtotNeWtg9dmiJuWFzB
+	GictljTup/CZQlAbmPf3URghqmdvsaQIt3aiGGnqtS8+2Jw93IhUrecRpCytBIK7RUPrDFrWmrm
+	QhDj/+XriIn/geRddKo2eXSjMgDN2/wIWKseCWEHAibpnT29IDXtP8M1jiFAcevtS6PyLeog+iV
+	B4pEALmsothgJw2iJAR0mfDiQElyqTlUYDEpHhQFMEyVrUw==
+X-Received: by 2002:a05:600c:5254:b0:49d:5ff:f404 with SMTP id 5b1f17b1804b1-49d05fff5abmr106383905e9.1.1788768225150;
+        Mon, 07 Sep 2026 01:03:45 -0700 (PDT)
+X-Received: by 2002:a05:600c:5254:b0:49d:5ff:f404 with SMTP id 5b1f17b1804b1-49d05fff5abmr106383095e9.1.1788768224533;
+        Mon, 07 Sep 2026 01:03:44 -0700 (PDT)
+Received: from sgarzare-redhat (host-79-53-30-11.retail.telecomitalia.it. [79.53.30.11])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49d03543064sm200078385e9.13.2026.09.07.01.03.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 07 Sep 2026 01:03:43 -0700 (PDT)
+Date: Mon, 7 Sep 2026 10:03:38 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: weirongguang <weirongguang@kylinos.cn>
+Cc: David Laight <david.laight.linux@gmail.com>, 
+	Rongguang Wei <clementwei90@163.com>, davem@davemloft.net, edumazet@google.com, kuba@kernel.org, 
+	pabeni@redhat.com, horms@kernel.org, virtualization@lists.linux.dev, 
+	netdev@vger.kernel.org
+Subject: Re: [PATCH net v1] vsock: validate buffer min/max size in setsockopt
+Message-ID: <ap5uSKRcfnjhXyC3@sgarzare-redhat>
+References: <20260824091257.136269-1-clementwei90@163.com>
+ <20260824131632.2d325c42@pumpkin>
+ <e16178ad-85c6-42da-931f-f0b2f8240828@kylinos.cn>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-From: weirongguang <weirongguang@kylinos.cn>
-Subject: Re: [PATCH net v1] vsock: validate buffer min/max size in setsockopt
-To: David Laight <david.laight.linux@gmail.com>,
- Rongguang Wei <clementwei90@163.com>
-Cc: sgarzare@redhat.com, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
- virtualization@lists.linux.dev, netdev@vger.kernel.org
-References: <20260824091257.136269-1-clementwei90@163.com>
- <20260824131632.2d325c42@pumpkin>
-Content-Language: en-US
-In-Reply-To: <20260824131632.2d325c42@pumpkin>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <e16178ad-85c6-42da-931f-f0b2f8240828@kylinos.cn>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 46rFCX21p5fVH0dFWBRl_I-vu3tcinu6ZQQ6d1WDdgQ_1788768226
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
+On Mon, Sep 07, 2026 at 03:45:54PM +0800, weirongguang wrote:
+>
+>
+>On 2026/8/24 20:16, David Laight wrote:
+>> On Mon, 24 Aug 2026 17:12:57 +0800
+>> Rongguang Wei <clementwei90@163.com> wrote:
+>>
+>>> From: Rongguang Wei <weirongguang@kylinos.cn>
+>>>
+>>> SO_VM_SOCKETS_BUFFER_MIN_SIZE and SO_VM_SOCKETS_BUFFER_MAX_SIZE
+>>> do not cross-validate against each other, allowing userspace to
+>>> set buffer_min_size > buffer_max_size.
+>>> When min > max, buffer_size is silently clamped to an incorrect
+>>> value. For example, setting min=512KB then max=128 results in
+>>> buffer_size=128 despite the user requesting much larger buffers
+>>> via SO_VM_SOCKETS_BUFFER_SIZE.
+>>>
+>>> Reproduced with a test program:
+>>> setsockopt(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_MIN_SIZE,
+>>> 	   512 * 1024, sizeof(int));
+>>> setsockopt(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_MAX_SIZE,
+>>> 	   128, sizeof(int));
+>>> // User asked for 1MB but got 128 bytes silently
+>>> setsockopt(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_SIZE,
+>>> 	   1024 * 1024, sizeof(int));
 
+The user set MAX_SIZE to 128, from commit d114bfdc9b76 ("vsock: fix 
+buffer size clamping order") this is the behavior we wanted, to ensure a 
+rational limit on memory usage.
 
-On 2026/8/24 20:16, David Laight wrote:
-> On Mon, 24 Aug 2026 17:12:57 +0800
-> Rongguang Wei <clementwei90@163.com> wrote:
-> 
->> From: Rongguang Wei <weirongguang@kylinos.cn>
+>>>
+>>> After that use getsockopt to get the buffer_size = 128 and
+>>> buffer_min_size = 524288, buffer_max_size = 128.
+>>> The buffer_min_size > buffer_max_size and the kernel accepted
+>>> contradictory values without error.
+>>>
+>>> Add value check to fix this issue. Return -EINVAL to userspace
+>>> when setting MAX_SIZE to a value smaller than the current MIN_SIZE
+>>> or setting MIN_SIZE to a value larger than the current MAX_SIZE.
 >>
->> SO_VM_SOCKETS_BUFFER_MIN_SIZE and SO_VM_SOCKETS_BUFFER_MAX_SIZE
->> do not cross-validate against each other, allowing userspace to
->> set buffer_min_size > buffer_max_size.
->> When min > max, buffer_size is silently clamped to an incorrect
->> value. For example, setting min=512KB then max=128 results in
->> buffer_size=128 despite the user requesting much larger buffers
->> via SO_VM_SOCKETS_BUFFER_SIZE.
+>> That is going to break userspace that sets the minimum before the maximum
+>> when the new minimum is larger than the old maximum.
 >>
->> Reproduced with a test program:
->> setsockopt(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_MIN_SIZE,
->> 	   512 * 1024, sizeof(int));
->> setsockopt(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_MAX_SIZE,
->> 	   128, sizeof(int));
->> // User asked for 1MB but got 128 bytes silently
->> setsockopt(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_SIZE,
->> 	   1024 * 1024, sizeof(int));
+>> David
 >>
->> After that use getsockopt to get the buffer_size = 128 and
->> buffer_min_size = 524288, buffer_max_size = 128.
->> The buffer_min_size > buffer_max_size and the kernel accepted
->> contradictory values without error.
->>
->> Add value check to fix this issue. Return -EINVAL to userspace
->> when setting MAX_SIZE to a value smaller than the current MIN_SIZE
->> or setting MIN_SIZE to a value larger than the current MAX_SIZE.
-> 
-> That is going to break userspace that sets the minimum before the maximum
-> when the new minimum is larger than the old maximum.
-> 
-> David
-> 
-Hi, David.
-Thanks for pointing out the issue.
+>Hi, David.
+>Thanks for pointing out the issue.
+>
+>Here is an alternative approach:
+>instead of returning -EINVAL, automatically adjust the other value to preserve buffer_min_size <= buffer_max_size.
+>The trade-off is that setting one parameter may implicitly adjust the other, but this is preferable to breaking existing applications.
+>Does this approach look reasonable?
 
-Here is an alternative approach:
-instead of returning -EINVAL, automatically adjust the other value to preserve buffer_min_size <= buffer_max_size.
-The trade-off is that setting one parameter may implicitly adjust the other, but this is preferable to breaking existing applications.
-Does this approach look reasonable?
----
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index a33b2a2d381d..bd4646115af5 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -2050,12 +2050,18 @@ static int vsock_connectible_setsockopt(struct socket *sock,
- 
-        case SO_VM_SOCKETS_BUFFER_MAX_SIZE:
-                COPY_IN(val);
-+               /* If the new max is less than current min, shrink min to match. */
-+               if (val < vsk->buffer_min_size)
-+                       vsk->buffer_min_size = val;
-                vsk->buffer_max_size = val;
-                vsock_update_buffer_size(vsk, transport, vsk->buffer_size);
-                break;
- 
-        case SO_VM_SOCKETS_BUFFER_MIN_SIZE:
-                COPY_IN(val);
-+               /* If the new min is greater than current max, expand max to match. */
-+               if (val > vsk->buffer_max_size)
-+                       vsk->buffer_max_size = val;
-                vsk->buffer_min_size = val;
-                vsock_update_buffer_size(vsk, transport, vsk->buffer_size);
-                break;                                                           
+With this fix, how would that change the results of the test program you 
+included in the commit description?
 
->>
->> Fixes: b9f2b0ffde0c ("vsock: handle buffer_size sockopts in the core")
->> Signed-off-by: Rongguang Wei <weirongguang@kylinos.cn>
->> ---
->>  net/vmw_vsock/af_vsock.c | 8 ++++++++
->>  1 file changed, 8 insertions(+)
->>
->> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
->> index a33b2a2d381d..5faa30ee8745 100644
->> --- a/net/vmw_vsock/af_vsock.c
->> +++ b/net/vmw_vsock/af_vsock.c
->> @@ -2050,12 +2050,20 @@ static int vsock_connectible_setsockopt(struct socket *sock,
->>  
->>  	case SO_VM_SOCKETS_BUFFER_MAX_SIZE:
->>  		COPY_IN(val);
->> +		if (val < vsk->buffer_min_size) {
->> +			err = -EINVAL;
->> +			goto exit;
->> +		}
->>  		vsk->buffer_max_size = val;
->>  		vsock_update_buffer_size(vsk, transport, vsk->buffer_size);
->>  		break;
->>  
->>  	case SO_VM_SOCKETS_BUFFER_MIN_SIZE:
->>  		COPY_IN(val);
->> +		if (val > vsk->buffer_max_size) {
->> +			err = -EINVAL;
->> +			goto exit;
->> +		}
->>  		vsk->buffer_min_size = val;
->>  		vsock_update_buffer_size(vsk, transport, vsk->buffer_size);
->>  		break;
+Honestly, I don't understand what we're trying to fix.
+
+Stefano
+
