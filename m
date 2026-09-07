@@ -1,254 +1,137 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47B753939DB;
-	Mon,  7 Sep 2026 20:31:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5DCFF41D111
+	for <virtualization@lists.linux.dev>; Mon,  7 Sep 2026 21:01:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788813069; cv=none; b=aAKWydf3fSXBr+Z0dDCa53yWGNc4ZOeP8LtFrWGRq1xu4jJgU7mbRxS7jOVzAWikdH751YDh1/T1i9gKK6pMVIShYkP5BSAykj4+lj6B3Wz6M79hEK9vAQvmTsboE1wunduuZjVz4rRlYhH8PLfuqz5EOB/XdazOJZMjrheWRpE=
+	t=1788814868; cv=none; b=X13dEV2xeB2x5x1N9iDq8kir4kjyErF16N/N8rSf+sayhio45ulRRlBPFZJVSZLQtaApN87Gx48+fx9N8KtwyFIfZO3EYexg1CubBnnu+/lli44Pl8TH0t27hCe774o/VJo0uzbxuSDrJwWT090njmvNnjInoYanPuTDMXXj/2s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788813069; c=relaxed/simple;
-	bh=n7i+VL7GgBNh4qhKakjQh12aQxUeEhkMiFlbOYgl9/c=;
-	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=mSUMnF7nu5b35znvhrXFRN4VEpwhNeILE/4OT3eZIWH6tSnimMJ1nWvwgsT9mSE25YN3MWHBrRyEHIAHSJfnNbmPoIxE0Uf0DEnR/ANF1LTTycN+S5rhhzYreebXKU5gmc9nLDs5HDJww6BXx89Ndz7ET0jDXxb5btoSI7LJksk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KUigDi5w; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788814868; c=relaxed/simple;
+	bh=Pfp4fHaGp3DYNoQNsq++Hih2POFfdEHNA9k/g4/DYlk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Bi8j5lflmeWKA8L7odyxo3zkWZO7PJMpkeYtVaBZDOws6/Em4nQHLaqDeRwVl2J/uiPnmEsnokTgRMjcSR5tljWCNcTR38cJEzTbBAVbOhvltxT81YxBFej7I1aYQs4YMMC7u4Y7riB2TtK5K4hYhuWDnRSD3xQ5h5XtltuB2Mc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LgI1rcg1; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KUigDi5w"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 760BF1F00A3A;
-	Mon,  7 Sep 2026 20:31:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788813067;
-	bh=XgcYpYYEYojaeshBSjApD5s66yJaOO15EjtpJM1avds=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=KUigDi5wBlWrgc5OY8drk5/N6Q2/8YkNJRXFkT2MSWzBSaFwmaxWYtbAPcdCgj3t5
-	 JuZKnq08I7aVd5LxsVcaDnM/CcToMXC7uf+sYbfQj+ir9QVHj0qVa0gVIBiNZ5vHOx
-	 zrXp0X6JhafByjHoexFssXSp34HaxQLREE7tRpTSLO8vuD6Gs9mGu8DMSDYDs958f1
-	 aDQFwyhuPNbiWKE5dl2lPbsZFnnuzMssgSikEdl9f8/95wBSt12Uj3bTeokqVKNsnW
-	 UCGr4PLbdxa735OMXGKCI6EWf7S5sjHPB/D4Jw5jM+HgMzrxa7OdL9dqzocep2KJVG
-	 fEFz5dv1KIU0g==
-Subject: Re: [PATCH v3] virtio_net: add rx-alloc-fail counter
-From: netdev-bot+sashiko@kernel.org
-To: lange_tang@163.com
-Cc: kuba@kernel.org, mst@redhat.com, jasowangio@gmail.com,
- xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev,
- netdev@vger.kernel.org, tanglongjun@kylinos.cn
-Date: Mon, 07 Sep 2026 20:31:07 +0000
-Message-ID: <178881306701.219967.4783663587645828820@kernel.org>
-In-Reply-To: <20260903022848.33595-1-lange_tang@163.com>
-References: <20260903022848.33595-1-lange_tang@163.com>
-X-sashiko-severity: Medium
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LgI1rcg1"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1788814866;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=km54XNA3pesnlH9MUSOEbKUzj91GMmwN/4bvXZLN1Qw=;
+	b=LgI1rcg1cbsuNW1oWevjWdKuRypXCfEXJFDufDhqSoD/ozQUByaVtEOx26PO0heKbPIxwF
+	HFJ3/8hrTelO+HrnpL2F+oQaHcbQx9MopFoM/lAdBrnukfvSL7/zKM6ri0diot2OXkaRqP
+	JtvMBjIKQZiVIwvztxq2gu4R/AII3Fw=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-440-_i__Ww0iMq2_hl93TH8SQg-1; Mon, 07 Sep 2026 17:01:02 -0400
+X-MC-Unique: _i__Ww0iMq2_hl93TH8SQg-1
+X-Mimecast-MFC-AGG-ID: _i__Ww0iMq2_hl93TH8SQg_1788814862
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-49cd74fc1aaso22325075e9.1
+        for <virtualization@lists.linux.dev>; Mon, 07 Sep 2026 14:01:02 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788814862; x=1789419662;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=km54XNA3pesnlH9MUSOEbKUzj91GMmwN/4bvXZLN1Qw=;
+        b=GLCFmJupMNACktYXi7zLF3I9A4moXdjpVMynaX/HGVhpqLApY/ugjsLjZi2tP1Vjlh
+         /0rluKUwEIWVaazNsIL5iv1dIF4ljEPRI69NUg5y0xJJUMgYYdh+goSIqsD7oilouxiN
+         Oybu0TQd6gmDzJER1dmPsMOYP9NFDtvAcKcnAUbyUB1mjC62ayFoyiKlmUPAKhDKXEjo
+         XNczz1bJoQazQYvRQ/3JuDom8fDc+41qfxKEA3NJkRduEigELFf16m1PdI2nbnnB2IVS
+         /AurPWOsrXynMx1mTg2cQL29c9/C8o2cRcfqk8ZR4HYpHxmxJy5VYtZbLnYUJo+L/1A9
+         Fv9A==
+X-Forwarded-Encrypted: i=1; AKwUvBzWifWpAqz32yLbtV11xKopHbRbR5VaJeTD7XXgmMGHSm0tsxcgjOmYWrtqexM4yqjgVVG6h6LmC9Nd6yW8LA==@lists.linux.dev
+X-Gm-Message-State: AFuF++ly1fvJNWe4j+X/kyr+3o8YgWimuEjUryOP3lCG2KOUU91M5eNE
+	4PuR4gtxpvsaIrtZjnGjuGdfnhqa554/hgEQjC3cs9JZ11FENeSx6+K0/tBLZTP8ORWeXHQN6ua
+	EOMALPr3KTknFOlg7ugsYdfDwRhaxSAc/NVLtUCsM6VDtKKFGga2kWgWhybGWrhx2ZzZF
+X-Gm-Gg: AYBFou148TTyjR5U5oqKIsV5XvR5vbNx2HhKPC0Kfz24XRatuMNQjeNw4VX0j4TdzAu
+	USiax3HI+57vf6uuJJDdX01TSwPgCGO4yv0LeDZthCVHBIsuakKrrfiUgytfBkFPSFVMzcqRMjw
+	fs0gmZvE9wEhd5OUWUDDzj2inFZjZs6hxXN+6BseR27wiEG3KHkVrRZsnCwWBptqQStg060kBbY
+	xmn31qIuvWFJQK4KNCfQr1gEXy3A1y112k0MOHpWggygU8rqeBmGNwZQAKhczuAAdCfIPOHpbZ9
+	dyTnTt2jDwVXarodnq8IjvtdvsV/Yz7OCVfN4KJy78IKe4a608xtEnIMVYa3gYw2ZlDU3QRfH5w
+	RG6fsXEMcXoThlPvjgz1QvgWnpkKPnbJr07TQEBXUd9Jv+32O
+X-Received: by 2002:a05:600d:8649:10b0:49c:fa20:cc0a with SMTP id 5b1f17b1804b1-49cfa20cd58mr167275135e9.33.1788814861724;
+        Mon, 07 Sep 2026 14:01:01 -0700 (PDT)
+X-Received: by 2002:a05:600d:8649:10b0:49c:fa20:cc0a with SMTP id 5b1f17b1804b1-49cfa20cd58mr167274945e9.33.1788814861409;
+        Mon, 07 Sep 2026 14:01:01 -0700 (PDT)
+Received: from ?IPV6:2a01:e0a:11aa:87f0:ea69:b2b0:2dae:5ef9? ([2a01:e0a:11aa:87f0:ea69:b2b0:2dae:5ef9])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49cf7703cefsm458086515e9.5.2026.09.07.14.00.58
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 07 Sep 2026 14:01:00 -0700 (PDT)
+Message-ID: <b34807ad-6390-4804-ba29-43a407b3d9fb@redhat.com>
+Date: Mon, 7 Sep 2026 23:00:54 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 01/14] drm/panic: Do not use un-escaped URL as format
+ string
+To: Thomas Zimmermann <tzimmermann@suse.de>, javierm@redhat.com,
+ airlied@gmail.com, simona@ffwll.ch, maarten.lankhorst@linux.intel.com,
+ mripard@kernel.org, geert@linux-m68k.org, rdunlap@infradead.org
+Cc: dri-devel@lists.freedesktop.org, linux-doc@vger.kernel.org,
+ amd-gfx@lists.freedesktop.org, rust-for-linux@vger.kernel.org,
+ linux-hyperv@vger.kernel.org, intel-gfx@lists.freedesktop.org,
+ intel-xe@lists.freedesktop.org, imx@lists.linux.dev,
+ linux-arm-kernel@lists.infradead.org, nouveau@lists.freedesktop.org,
+ linux-renesas-soc@vger.kernel.org, virtualization@lists.linux.dev,
+ sashiko-reviews@lists.linux.dev, stable@vger.kernel.org
+References: <20260902121930.597222-1-tzimmermann@suse.de>
+ <20260902121930.597222-2-tzimmermann@suse.de>
+From: Jocelyn Falempe <jfalempe@redhat.com>
+In-Reply-To: <20260902121930.597222-2-tzimmermann@suse.de>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 56irsnIYnuy2QiXNEEchT2oo-bhU4rbD9Kdf2uSZjwg_1788814862
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US, fr
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue(s) to consider:
+On 9/2/26 14:13, Thomas Zimmermann wrote:
+> Replace the direct use of DRM_PANIC_SCREEN_QR_CODE_URL in snprintf()
+> with a %s conversion specifier. Avoids a possible vulnerabilty from
+> a crafted URL string.
+> 
+> As the attacker needs to control the kernel at the Kconfig level, the
+> potential for an exploit is likely low.
 
-Critical: 0 · High: 0 · Medium: 1 (1) · Low: 0
+Thanks, it looks good to me.
 
-- [Medium] The patch advertises the standardized `rx-alloc-fail` qstat
-  for every RX queue (`virtnet_rq_stats_desc_qstat[]` at…
+Reviewed-by: Jocelyn Falempe <jfalempe@redhat.com>
 
-Pre-existing issues:
-- [Medium] The netdev qstats callbacks `virtnet_get_queue_stats_rx()` /
-  `virtnet_get_queue_stats_tx()` (drivers/net/virtio_net.c:5648-5672)…
+> 
+> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+> Fixes: cb5164ac43d0 ("drm/panic: Add a QR code panic screen")
+> Cc: Javier Martinez Canillas <javierm@redhat.com>
+> Cc: Jocelyn Falempe <jfalempe@redhat.com>
+> Cc: dri-devel@lists.freedesktop.org
+> Cc: <stable@vger.kernel.org> # v6.12+
+> ---
+>   drivers/gpu/drm/drm_panic.c | 3 ++-
+>   1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/gpu/drm/drm_panic.c b/drivers/gpu/drm/drm_panic.c
+> index e576c4791861..ba21df4be338 100644
+> --- a/drivers/gpu/drm/drm_panic.c
+> +++ b/drivers/gpu/drm/drm_panic.c
+> @@ -658,7 +658,8 @@ static int drm_panic_get_qr_code_url(u8 **qr_image)
+>   	char *kmsg;
+>   	int max_qr_data_size, url_len;
+>   
+> -	url_len = snprintf(url, sizeof(url), CONFIG_DRM_PANIC_SCREEN_QR_CODE_URL "?a=%s&v=%s&z=",
+> +	url_len = snprintf(url, sizeof(url), "%s?a=%s&v=%s&z=",
+> +			   CONFIG_DRM_PANIC_SCREEN_QR_CODE_URL,
+>   			   utsname()->machine, utsname()->release);
+>   
+>   	max_qr_data_size = drm_panic_qr_max_data_size(panic_qr_version, url_len);
 
---
-
-virtio_net: add rx-alloc-fail counter
-
-This adds a per-receive-queue alloc_fail counter to struct
-virtnet_rq_stats, increments it on skb allocation failures in the
-receive_small/receive_big/receive_mergeable paths and on try_fill_recv()
-returning failure from virtnet_receive(), and exports it through the
-rx-alloc-fail qstat including virtnet_get_base_stats().
-
-A couple of questions below about the coverage of the new counter and
-about how it is read back.
-
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index e34c52d059d3..360cc3435e90 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-
-[ ... ]
-
-> @@ -173,8 +174,9 @@ static const struct virtnet_stat_desc virtnet_sq_stats_desc_qstat[] = {
->  };
->  
->  static const struct virtnet_stat_desc virtnet_rq_stats_desc_qstat[] = {
-> -	VIRTNET_RQ_STAT_QSTAT("packets", packets),
-> -	VIRTNET_RQ_STAT_QSTAT("bytes",   bytes),
-> +	VIRTNET_RQ_STAT_QSTAT("packets",    packets),
-> +	VIRTNET_RQ_STAT_QSTAT("bytes",      bytes),
-> +	VIRTNET_RQ_STAT_QSTAT("alloc_fail", alloc_fail),
->  };
-
-[Severity: Medium]
-This descriptor is used by virtnet_fill_stats_qstat() for every RX queue,
-so rx-alloc-fail becomes an always-present value for all queue types,
-including XSK-bound ones. Documentation/netlink/specs/netdev.yaml defines
-it as "Number of times skb or buffer allocation failed on the Rx
-datapath". Can the counter read 0 while the driver is in fact dropping
-frames because allocations failed?
-
-The AF_XDP receive path performs the same kind of skb and fragment
-allocations that this patch now counts, but is not instrumented:
-
-drivers/net/virtio_net.c:xsk_construct_skb() {
-	skb = napi_alloc_skb(&rq->napi, size);
-	if (unlikely(!skb)) {
-		xsk_buff_free(xdp);
-		return NULL;
-	}
-	...
-}
-
-drivers/net/virtio_net.c:xsk_append_merge_buffer() {
-	...
-		buf = napi_alloc_frag(len);
-		if (!buf) {
-			xsk_buff_free(xdp);
-			goto err;
-		}
-	...
-		if (!curr_skb) {
-			put_page(page);
-			goto err;
-		}
-	...
-}
-
-The XDP copy paths also turn RX buffer allocation failures into
-xdp_drops/drops only:
-
-drivers/net/virtio_net.c:xdp_linearize_page() {
-	page = page_pool_alloc_pages(rq->page_pool, GFP_ATOMIC);
-	if (!page)
-		return NULL;
-	...
-}
-
-drivers/net/virtio_net.c:mergeable_xdp_get_buf() {
-	...
-		xdp_page = page_pool_alloc_pages(rq->page_pool, GFP_ATOMIC);
-		if (!xdp_page)
-			return NULL;
-	...
-}
-
-Both NULL returns are routed to err_xdp by receive_small_xdp() and
-receive_mergeable_xdp() without touching alloc_fail.
-
-Finally, the refill sites outside NAPI drop the try_fill_recv() return
-value entirely, so an -ENOMEM there is not visible at queue or device
-scope:
-
-drivers/net/virtio_net.c:virtnet_open() {
-	...
-			try_fill_recv(vi, &vi->rq[i], GFP_KERNEL);
-	...
-}
-
-drivers/net/virtio_net.c:virtnet_rx_resume() {
-	...
-		if (refill)
-			try_fill_recv(vi, rq, GFP_KERNEL);
-	...
-}
-
-The changelog says:
-
-    This counter does not cover every allocation failure in all RX paths.
-    It is intentionally limited to the common skb and RX buffer allocation
-    paths to keep its meaning clear.
-
-Since the napi_alloc_skb() and virtnet_skb_append_frag() failures in the
-XSK path look like exactly those common skb paths, could they be counted
-too, so that the same failure is not counted in one variant and dropped
-in the other? The caveat only exists in the changelog, so a userspace
-consumer cannot tell "no allocation failures" apart from "this path is
-not instrumented".
-
-[ ... ]
-
-> @@ -2928,12 +2941,14 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
->  
->  	u64_stats_set(&stats.packets, packets);
->  	if (rq->vq->num_free > min((unsigned int)budget, virtqueue_get_vring_size(rq->vq)) / 2) {
-> -		if (!try_fill_recv(vi, rq, GFP_ATOMIC))
-> +		if (!try_fill_recv(vi, rq, GFP_ATOMIC)) {
->  			/* We need to retry refilling in the next NAPI poll so
->  			 * we must return budget to make sure the NAPI is
->  			 * repolled.
->  			 */
->  			packets = budget;
-> +			u64_stats_inc(&stats.alloc_fail);
-> +		}
->  	}
->  
->  	u64_stats_update_begin(&rq->stats.syncp);
-> @@ -2948,6 +2963,7 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
->  
->  	u64_stats_add(&rq->stats.packets, u64_stats_read(&stats.packets));
->  	u64_stats_add(&rq->stats.bytes, u64_stats_read(&stats.bytes));
-> +	u64_stats_add(&rq->stats.alloc_fail, u64_stats_read(&stats.alloc_fail));
->  
->  	u64_stats_update_end(&rq->stats.syncp);
-
-[Severity: Medium]
-This isn't a bug introduced by this patch, but the qstat read side has no
-seqcount protection, and the new alloc_fail field is now routed through
-it as well.
-
-The writer here runs in softirq inside
-u64_stats_update_begin(&rq->stats.syncp) ...
-u64_stats_update_end(&rq->stats.syncp), while the reader does a bare
-read:
-
-drivers/net/virtio_net.c:virtnet_get_queue_stats_rx() {
-	virtnet_stats_ctx_init(vi, &ctx, (void *)stats, true);
-
-	virtnet_get_hw_stats(vi, &ctx, i * 2);
-	virtnet_fill_stats(vi, i * 2, &ctx, (void *)&rq->stats, true, 0);
-}
-
-drivers/net/virtio_net.c:virtnet_fill_stats_qstat() {
-	...
-			v_stat = (const u64_stats_t *)(base + desc[i].offset);
-			ctx->data[offset] = u64_stats_read(v_stat);
-	...
-}
-
-The ethtool reader in the same file does use the retry protocol:
-
-drivers/net/virtio_net.c:virtnet_get_ethtool_stats() {
-	...
-		do {
-			start = u64_stats_fetch_begin(&rq->stats.syncp);
-			virtnet_fill_stats(vi, i * 2, &ctx, stats_base, true, 0);
-		} while (u64_stats_fetch_retry(&rq->stats.syncp, start));
-	...
-}
-
-On CONFIG_64BIT=n, can a concurrent qstats dump observe a torn 64-bit
-value for packets, bytes or the new alloc_fail? Would it make sense to
-wrap the qstat callbacks in u64_stats_fetch_begin() /
-u64_stats_fetch_retry() the same way?
-
-> @@ -5666,6 +5682,7 @@ static void virtnet_get_base_stats(struct net_device *dev,
->  	 */
->  	rx->bytes = 0;
->  	rx->packets = 0;
-> +	rx->alloc_fail = 0;
->  
->  	if (vi->device_stats_cap & VIRTIO_NET_STATS_TYPE_RX_BASIC) {
->  		rx->hw_drops = 0;
-
--- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260903022848.33595-1-lange_tang%40163.com
