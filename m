@@ -1,214 +1,161 @@
-Received: from mta1.migadu.com (out-119.mta1.migadu.com [95.215.58.119])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 102B7409624
-	for <virtualization@lists.linux.dev>; Mon,  7 Sep 2026 07:28:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.119
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 481CC4192EF
+	for <virtualization@lists.linux.dev>; Mon,  7 Sep 2026 07:46:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788766129; cv=none; b=oEAkolW04wmia+x62gzWoDNzgWd711pLlrTvKUuZdXo3sd4P6KydL0yMCN8fRcQNX28meMnHJ+fYSnLW4TS8JuEMLqHlLGG7WGxG3XlS7asB2ivy6r6pnQkFGkiLT2kZpGIsoSnIptuyHz/gV99jbWvuN5+Mk0BIlB7gfR+qVKU=
+	t=1788767167; cv=none; b=UjMCq/cXO7Ym6vX1sw61Aq28Vq1jKH4yQFv16/37gRONCWl4nnIlNKfbvoKOgcShv3e0emlnRKhmQtzzsBwEJohaJ2odxLSJzujy7B01OG3z+7RcvaerTEzlaxpoS9l9LGIxgQ0LF2QxfYV56kzWcdSIvvD9v2L8c09u6vtY0oI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788766129; c=relaxed/simple;
-	bh=U36+s7lt3j4odLOnhivVcwQ+iQNG4iZNIJVXSr//Roc=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=RnXxI+Cu8iYt5Shabe90R0eZNIP17IhjoG1B3/pwr0BZ/OyGMyfafCp+S1/BVfRYhw4DLLPAiIjkHwPD95apRq0znw4hlfli9FLBsJh9I6J3dx+kKEsbLCMBWVdjfs9gSLe6SCC3czg+9jNDtmztLpeOohryC9zkBOEwl+s+csQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=QXHSYsI0; arc=none smtp.client-ip=95.215.58.119
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="QXHSYsI0"
-X-Envelope-To: virtualization@lists.linux.dev
-DKIM-Signature: a=rsa-sha256; bh=U36+s7lt3j4odLOnhivVcwQ+iQNG4iZNIJVXSr//Roc=;
- c=simple/simple; d=linux.dev;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1788766125; v=1; x=1789370925;
- b=QXHSYsI05oa2EJ7KUSdTjYU1/aBB/bkcwLM6nxuNLxz2kPDeJCxiTL+FXNGDx0U+gTyplZay
- Ma6AmWEujKq0th3pBGjVdh/0rmrfwq/RGK1jmvuPvbxvgLhwynQbXV5P2yBXKYHSr7C555rpClx
- Ij3Ro6Os4qyy1MxmlAO6YUE0=
-X-Envelope-To: virtualization@lists.linux.dev
-Received: by smtp.migadu.com with ESMTPS id 06bd02fb2dca1679;
-	Mon, 07 Sep 2026 07:28:34 +0000
-X-Mizu-Trace-ID: 06bd02fb2dca1679
-X-Migadu-Flow: FLOW_OUT
-From: Hangbin Liu <hangbin.liu@linux.dev>
-Date: Mon, 07 Sep 2026 15:28:09 +0800
-Subject: [PATCH net] selftests/drivers/net: include lib/sh/*.sh
+	s=arc-20240116; t=1788767167; c=relaxed/simple;
+	bh=3OA1/xixfyppJthmSg4mc3vejG0dxTu9z8eAvuYaOA8=;
+	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
+	 In-Reply-To:Content-Type; b=OzjKH7Td+FlicCvtvxmuvTN+8/UnQ0aWPFsaNQ184WX3hwJMttS4HBMVEMVP+/7wz57e+M+McZ1Q94sWQg1VHKdfpr7OHj60q1pmMcyo/0Va3Vy0CE7guG2br1v5AgK2pR64VSyH8APiTR+abiBVpsioV5E4l+B8CA442YlsnDs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
+X-UUID: 294c2aaaaa9011f19a56ed5b684f684d-20260907
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.3.19,REQID:cfe5bff2-321e-4463-a9c9-0adf656d6a01,IP:0,U
+	RL:0,TC:0,Content:0,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION:
+	release,TS:0
+X-CID-META: VersionHash:7db8b62,CLOUDID:0f6bccee99a48475681ad77a18a78966,BulkI
+	D:nil,BulkQuantity:0,SF:80|81|82|83|102|865|898,TC:nil,Content:0|15|50|99,
+	EDM:-3,IP:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OS
+	A:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
+X-CID-BVR: 2,SSN|SDN
+X-CID-BAS: 2,SSN|SDN,0,_
+X-CID-FACTOR: TF_CID_SPAM_SNR
+X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
+X-UUID: 294c2aaaaa9011f19a56ed5b684f684d-20260907
+X-User: weirongguang@kylinos.cn
+Received: from [10.42.124.137] [(10.44.16.150)] by mailgw.kylinos.cn
+	(envelope-from <weirongguang@kylinos.cn>)
+	(Generic MTA with TLSv1.3 TLS_AES_128_GCM_SHA256 128/128)
+	with ESMTP id 971881444; Mon, 07 Sep 2026 15:45:57 +0800
+Message-ID: <e16178ad-85c6-42da-931f-f0b2f8240828@kylinos.cn>
+Date: Mon, 7 Sep 2026 15:45:54 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20260907-selftest_lib_defer-v1-1-8af94645aaa3@kylinos.cn>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/x3MQQqDMBBG4avIrA1EG9LqVUREzZ92QKJkggjBu
- ze4/BbvZRJEhlBfZYo4WXgPBU1d0fqbwxeKXTG1urW600YJNp8gadp4mRw8otLN26wwL+s+M5X
- wiPB8PdOBAhKN9/0HLM7MAWkAAAA=
-X-Change-ID: 20260904-selftest_lib_defer-0174ce436d8a
-To: Andrew Lunn <andrew+netdev@lunn.ch>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
- Shuah Khan <shuah@kernel.org>, Jay Vosburgh <jv@jvosburgh.net>, 
- Vladimir Oltean <olteanv@gmail.com>, Breno Leitao <leitao@debian.org>, 
- Jiri Pirko <jiri@resnulli.us>, "Michael S. Tsirkin" <mst@redhat.com>, 
- Jason Wang <jasowangio@gmail.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
- Petr Machata <petrm@nvidia.com>
-Cc: Matthieu Baerts <matttbe@kernel.org>, 
- Hangbin Liu <hangbin.liu@linux.dev>, netdev@vger.kernel.org, 
- linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org, 
- virtualization@lists.linux.dev, Hangbin Liu <liuhangbin@kylinos.cn>
-X-Mailer: b4 0.14.3
+User-Agent: Mozilla Thunderbird
+From: weirongguang <weirongguang@kylinos.cn>
+Subject: Re: [PATCH net v1] vsock: validate buffer min/max size in setsockopt
+To: David Laight <david.laight.linux@gmail.com>,
+ Rongguang Wei <clementwei90@163.com>
+Cc: sgarzare@redhat.com, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
+ virtualization@lists.linux.dev, netdev@vger.kernel.org
+References: <20260824091257.136269-1-clementwei90@163.com>
+ <20260824131632.2d325c42@pumpkin>
+Content-Language: en-US
+In-Reply-To: <20260824131632.2d325c42@pumpkin>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-From: Hangbin Liu <liuhangbin@kylinos.cn>
 
-When I tried to install and run bonding selftests via:
 
-  make INSTALL_PATH=/tmp/kself TARGETS=drivers/net/bonding \
-     -C tools/testing/selftests install
+On 2026/8/24 20:16, David Laight wrote:
+> On Mon, 24 Aug 2026 17:12:57 +0800
+> Rongguang Wei <clementwei90@163.com> wrote:
+> 
+>> From: Rongguang Wei <weirongguang@kylinos.cn>
+>>
+>> SO_VM_SOCKETS_BUFFER_MIN_SIZE and SO_VM_SOCKETS_BUFFER_MAX_SIZE
+>> do not cross-validate against each other, allowing userspace to
+>> set buffer_min_size > buffer_max_size.
+>> When min > max, buffer_size is silently clamped to an incorrect
+>> value. For example, setting min=512KB then max=128 results in
+>> buffer_size=128 despite the user requesting much larger buffers
+>> via SO_VM_SOCKETS_BUFFER_SIZE.
+>>
+>> Reproduced with a test program:
+>> setsockopt(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_MIN_SIZE,
+>> 	   512 * 1024, sizeof(int));
+>> setsockopt(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_MAX_SIZE,
+>> 	   128, sizeof(int));
+>> // User asked for 1MB but got 128 bytes silently
+>> setsockopt(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_SIZE,
+>> 	   1024 * 1024, sizeof(int));
+>>
+>> After that use getsockopt to get the buffer_size = 128 and
+>> buffer_min_size = 524288, buffer_max_size = 128.
+>> The buffer_min_size > buffer_max_size and the kernel accepted
+>> contradictory values without error.
+>>
+>> Add value check to fix this issue. Return -EINVAL to userspace
+>> when setting MAX_SIZE to a value smaller than the current MIN_SIZE
+>> or setting MIN_SIZE to a value larger than the current MAX_SIZE.
+> 
+> That is going to break userspace that sets the minimum before the maximum
+> when the new minimum is larger than the old maximum.
+> 
+> David
+> 
+Hi, David.
+Thanks for pointing out the issue.
 
-Some tests fail because net/lib/sh/defer.sh is missing:
-
-  /tmp/kself/net/forwarding/../lib.sh: line 5: /tmp/kself/net/lib/sh/defer.sh: No such file or directory
-
-One option is to add defer.sh directly to TEST_INCLUDES. Alternatively,
-follow the approach from commit f72aa1b27628 ("selftests: net: include
-lib/sh/*.sh with lib.sh"), which pulls in all .sh files to accommodate
-future changes to the library directory.
-
-This patch adds a wildcard to include all shell files for drivers/net
-tests that consume net lib.sh. TEST_INCLUDES is also sorted to avoid
-ordering‑related problems for future modifications. The team driver is
-not affected by this bug, but we use the wildcard for it as well, rather
-than listing only defer.sh.
-
-Fixes: a6e263f125cd ("selftests: net: lib: Introduce deferred commands")
-Signed-off-by: Hangbin Liu <liuhangbin@kylinos.cn>
+Here is an alternative approach:
+instead of returning -EINVAL, automatically adjust the other value to preserve buffer_min_size <= buffer_max_size.
+The trade-off is that setting one parameter may implicitly adjust the other, but this is preferable to breaking existing applications.
+Does this approach look reasonable?
 ---
-Since this is a trivial fix, I have also updated the virtio_net part
-within this patch. Please let me know if I should split the virtio_net
-changes into a separate patch.
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index a33b2a2d381d..bd4646115af5 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -2050,12 +2050,18 @@ static int vsock_connectible_setsockopt(struct socket *sock,
+ 
+        case SO_VM_SOCKETS_BUFFER_MAX_SIZE:
+                COPY_IN(val);
++               /* If the new max is less than current min, shrink min to match. */
++               if (val < vsk->buffer_min_size)
++                       vsk->buffer_min_size = val;
+                vsk->buffer_max_size = val;
+                vsock_update_buffer_size(vsk, transport, vsk->buffer_size);
+                break;
+ 
+        case SO_VM_SOCKETS_BUFFER_MIN_SIZE:
+                COPY_IN(val);
++               /* If the new min is greater than current max, expand max to match. */
++               if (val > vsk->buffer_max_size)
++                       vsk->buffer_max_size = val;
+                vsk->buffer_min_size = val;
+                vsock_update_buffer_size(vsk, transport, vsk->buffer_size);
+                break;                                                           
 
-Before posting the patch, I ran `make install` for each subtest and
-verified that `defer.sh` gets installed.
----
- tools/testing/selftests/drivers/net/Makefile            | 1 +
- tools/testing/selftests/drivers/net/bonding/Makefile    | 3 ++-
- tools/testing/selftests/drivers/net/dsa/Makefile        | 1 +
- tools/testing/selftests/drivers/net/hw/Makefile         | 3 ++-
- tools/testing/selftests/drivers/net/netconsole/Makefile | 3 ++-
- tools/testing/selftests/drivers/net/team/Makefile       | 4 ++--
- tools/testing/selftests/drivers/net/virtio_net/Makefile | 1 +
- 7 files changed, 11 insertions(+), 5 deletions(-)
-
-diff --git a/tools/testing/selftests/drivers/net/Makefile b/tools/testing/selftests/drivers/net/Makefile
-index d5bf4cb638a8..ab39c2e508f0 100644
---- a/tools/testing/selftests/drivers/net/Makefile
-+++ b/tools/testing/selftests/drivers/net/Makefile
-@@ -3,6 +3,7 @@ CFLAGS += $(KHDR_INCLUDES)
- 
- TEST_INCLUDES := $(wildcard lib/py/*.py) \
- 		 $(wildcard lib/sh/*.sh) \
-+		 $(wildcard ../../net/lib/sh/*.sh) \
- 		 ../../net/lib.sh \
- 
- TEST_GEN_FILES := \
-diff --git a/tools/testing/selftests/drivers/net/bonding/Makefile b/tools/testing/selftests/drivers/net/bonding/Makefile
-index 6364ca02642d..e337c099fb40 100644
---- a/tools/testing/selftests/drivers/net/bonding/Makefile
-+++ b/tools/testing/selftests/drivers/net/bonding/Makefile
-@@ -27,9 +27,10 @@ TEST_FILES := \
- # end of TEST_FILES
- 
- TEST_INCLUDES := \
--	../../../net/lib.sh \
-+	$(wildcard ../../../net/lib/sh/*.sh) \
- 	../lib/sh/lib_netcons.sh \
- 	../../../net/forwarding/lib.sh \
-+	../../../net/lib.sh \
- # end of TEST_INCLUDES
- 
- include ../../../lib.mk
-diff --git a/tools/testing/selftests/drivers/net/dsa/Makefile b/tools/testing/selftests/drivers/net/dsa/Makefile
-index 7994bd0e5c44..7893011b3842 100644
---- a/tools/testing/selftests/drivers/net/dsa/Makefile
-+++ b/tools/testing/selftests/drivers/net/dsa/Makefile
-@@ -19,6 +19,7 @@ TEST_FILES := \
- # end of TEST_FILES
- 
- TEST_INCLUDES := \
-+	$(wildcard ../../../net/lib/sh/*.sh) \
- 	../../../net/forwarding/bridge_locked_port.sh \
- 	../../../net/forwarding/bridge_mdb.sh \
- 	../../../net/forwarding/bridge_mld.sh \
-diff --git a/tools/testing/selftests/drivers/net/hw/Makefile b/tools/testing/selftests/drivers/net/hw/Makefile
-index 78bb0169350b..17c7e878ca42 100644
---- a/tools/testing/selftests/drivers/net/hw/Makefile
-+++ b/tools/testing/selftests/drivers/net/hw/Makefile
-@@ -64,10 +64,11 @@ TEST_FILES := \
- 
- TEST_INCLUDES := \
- 	$(wildcard lib/py/*.py ../lib/py/*.py) \
--	../../../net/lib.sh \
-+	$(wildcard ../../../net/lib/sh/*.sh) \
- 	../../../net/forwarding/ipip_lib.sh \
- 	../../../net/forwarding/lib.sh \
- 	../../../net/forwarding/tc_common.sh \
-+	../../../net/lib.sh \
- 	#
- 
- # YNL files, must be before "include ..lib.mk"
-diff --git a/tools/testing/selftests/drivers/net/netconsole/Makefile b/tools/testing/selftests/drivers/net/netconsole/Makefile
-index f0674c0017fc..c7972a40babf 100644
---- a/tools/testing/selftests/drivers/net/netconsole/Makefile
-+++ b/tools/testing/selftests/drivers/net/netconsole/Makefile
-@@ -1,8 +1,9 @@
- # SPDX-License-Identifier: GPL-2.0
- 
- TEST_INCLUDES := \
--	../../../net/lib.sh \
-+	$(wildcard ../../../net/lib/sh/*.sh) \
- 	../lib/sh/lib_netcons.sh \
-+	../../../net/lib.sh \
- # end of TEST_INCLUDES
- 
- TEST_PROGS := \
-diff --git a/tools/testing/selftests/drivers/net/team/Makefile b/tools/testing/selftests/drivers/net/team/Makefile
-index 7c58cf82121e..e40c83a92724 100644
---- a/tools/testing/selftests/drivers/net/team/Makefile
-+++ b/tools/testing/selftests/drivers/net/team/Makefile
-@@ -13,12 +13,12 @@ TEST_PROGS := \
- # end of TEST_PROGS
- 
- TEST_INCLUDES := \
--	team_lib.sh \
-+	$(wildcard ../../../net/lib/sh/*.sh) \
- 	../bonding/lag_lib.sh \
- 	../../../net/forwarding/lib.sh \
- 	../../../net/in_netns.sh \
- 	../../../net/lib.sh \
--	../../../net/lib/sh/defer.sh \
-+	team_lib.sh \
- # end of TEST_INCLUDES
- 
- include ../../../lib.mk
-diff --git a/tools/testing/selftests/drivers/net/virtio_net/Makefile b/tools/testing/selftests/drivers/net/virtio_net/Makefile
-index 868ece3fea1f..df34e29b5680 100644
---- a/tools/testing/selftests/drivers/net/virtio_net/Makefile
-+++ b/tools/testing/selftests/drivers/net/virtio_net/Makefile
-@@ -5,6 +5,7 @@ TEST_PROGS = basic_features.sh
- TEST_FILES = virtio_net_common.sh
- 
- TEST_INCLUDES = \
-+	$(wildcard ../../../net/lib/sh/*.sh) \
- 	../../../net/forwarding/lib.sh \
- 	../../../net/lib.sh \
- # end of TEST_INCLUDES
-
----
-base-commit: 38b6be101006d3e7af972999f45d4f1e8250587a
-change-id: 20260904-selftest_lib_defer-0174ce436d8a
-
-Best regards,
--- 
-Hangbin Liu <liuhangbin@kylinos.cn>
-
+>>
+>> Fixes: b9f2b0ffde0c ("vsock: handle buffer_size sockopts in the core")
+>> Signed-off-by: Rongguang Wei <weirongguang@kylinos.cn>
+>> ---
+>>  net/vmw_vsock/af_vsock.c | 8 ++++++++
+>>  1 file changed, 8 insertions(+)
+>>
+>> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+>> index a33b2a2d381d..5faa30ee8745 100644
+>> --- a/net/vmw_vsock/af_vsock.c
+>> +++ b/net/vmw_vsock/af_vsock.c
+>> @@ -2050,12 +2050,20 @@ static int vsock_connectible_setsockopt(struct socket *sock,
+>>  
+>>  	case SO_VM_SOCKETS_BUFFER_MAX_SIZE:
+>>  		COPY_IN(val);
+>> +		if (val < vsk->buffer_min_size) {
+>> +			err = -EINVAL;
+>> +			goto exit;
+>> +		}
+>>  		vsk->buffer_max_size = val;
+>>  		vsock_update_buffer_size(vsk, transport, vsk->buffer_size);
+>>  		break;
+>>  
+>>  	case SO_VM_SOCKETS_BUFFER_MIN_SIZE:
+>>  		COPY_IN(val);
+>> +		if (val > vsk->buffer_max_size) {
+>> +			err = -EINVAL;
+>> +			goto exit;
+>> +		}
+>>  		vsk->buffer_min_size = val;
+>>  		vsock_update_buffer_size(vsk, transport, vsk->buffer_size);
+>>  		break;
