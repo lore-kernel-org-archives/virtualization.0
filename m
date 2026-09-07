@@ -1,134 +1,188 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83F894F55BD;
-	Mon,  7 Sep 2026 15:14:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4D5235DA47
+	for <virtualization@lists.linux.dev>; Mon,  7 Sep 2026 18:35:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788794062; cv=none; b=TW+yBxi9NTsiMBcrHT6GVAO7ak5rkojnd4zUKyEKiTLfact9WAS8Oyl5972KjrbMxoN1ZTYofA9zff40sW5x6pwybptxxOdrz5TbLcRXydgh/uYhp84RGlV8DZaoa7bRERoGl5gGlEKX44/X+exvVQMTHfzQEcrTy2OCK5Iz85A=
+	t=1788806158; cv=none; b=iam54QSK7UDaI88h/xEdKxbScAcC/Q/d7ukLPwZQ9HiRzWkJ7XpMOz94kDJnLht/ggdA+Mq2gkFGBMgEbTrGtwaxv63lrQCntYHuYmR1uojp5Mb1ywwGy6wMpAdmWJFAYS7vQMjWAwhPrPcSWY6uvPdTlaXTplrjzE+UyaEVkGE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788794062; c=relaxed/simple;
-	bh=HvoRSCGw4K3J6+9kMEnfFBQ3PR0xTY8raMYZ20HeE9Q=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=azNsoo/z2Albpx1fGskmaiGyHrcMDveVe/+L4Gtfp/Nr5o2MZq0eBJJxcSsvRdmAQA1SUgAenA27miulmHTxK9yHsuSCKaPSB1S2gaVZgdTeoaKCY6eVSX+YIvno3T0mT/Ung235JZp4wld0DeIrxXv7qqfFMymTw+cLdqytj9Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=li2oxAWN; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788806158; c=relaxed/simple;
+	bh=cv04HKy4otmKMhqnEPI0LZjhku21UWf61AeAHYiBERc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=jsby7RqzQyCWAde0UraIgAma+EodvTL/5sDQPRd5S6xHfkKrEcTJTpfZKZQQVUTVRiURaE0Z9z3ByQVK4cqDYLq2x1i55Z3SaV3k+XDM5FS9yxrvXWkcGkAmYLyD3x4uDn2Ee/YqOJPY+/UliqHDH4qb9PsvbWDuor6b48d4mxw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ed8ap+4t; arc=none smtp.client-ip=209.85.216.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="li2oxAWN"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25EFB1F00A3A;
-	Mon,  7 Sep 2026 15:14:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788794061;
-	bh=dbOA0LduOb0l+EeWq7lxr4mHCdhv6fqwlu6KdWF4Los=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=li2oxAWNgsBQdF6krCVYH5rrTBTGPfLw5S8BGd72DGJxJR+RJ7AvXba/PrOmkZ+JO
-	 P6iC/Zm8V+j5RCLzvX6Dll85xfJ8ZbEKML6bx5FA1LvR3vecbGPNkkKnB4Gga4cxjT
-	 aZVhYWWSCld8LhyRA92IeubXD6EZRUx13eBWAjawSeHnXXiYjT2v2QgaRTK2gi+Kd+
-	 vVSk1o6HYKIJxpFdrkOC+435Ewf5WNb1N6zVqHsI5mhhfPKHSUgV85FVroEg+LkpEb
-	 nrPqDrXS9KaeXntcDHKjFpHP4IsrupzKGVHHzUbZg+yuqjPWHugOSQvEKksPVLewin
-	 ZTwlxl+7sUSwg==
-Message-ID: <e944079a-5c4d-416a-9c5a-5831aaf88517@kernel.org>
-Date: Mon, 7 Sep 2026 17:14:13 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ed8ap+4t"
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-398b3c37877so3464526a91.0
+        for <virtualization@lists.linux.dev>; Mon, 07 Sep 2026 11:35:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788806156; x=1789410956; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=y/QhyKnaiEuCX/YyxX6dbFuiwyxx+yL27o8G1/oLGwk=;
+        b=ed8ap+4tesegQJ8LTMu/u23LTTgK6VRaI7sTZ/xR9rhEUPjimzxFkV/yorKnnfW2p9
+         VgGveyz3ei3WCRkZiERF0DgzaKiEa58InAt6Nty2NmU7m7GqB/TEvjQvqMVLIQ2T3KYz
+         IFk/7azw7vKhWGGtEGFqhUszcAiJfQEnJXzKn03RMZxXzp3YPXSpb+g+l2wvuXW7f33+
+         LTDl2lz0eo+eNaLxX2IYGF8jPzZ2j5pf2n4/EeYaSdyIPXEn9BKKa4JcHiXrcL88YL9r
+         h8EohJh0EY6gBv67g/08Hx9kl6Hi6JexlAsBCwmxTGNF/g+FFs7IOMnXZU562xwF2sgZ
+         xSAw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788806156; x=1789410956;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=y/QhyKnaiEuCX/YyxX6dbFuiwyxx+yL27o8G1/oLGwk=;
+        b=CSfKqRuuTj9tohBHzMWkJB+gOeEOC8yLNJVk0mepKLHlzRNqQ33N8QgrIAjkwfcWrp
+         AUsOFbiT6FH6Pv1ykBpaIo7ulfMp9jrK0GGHnAX1ZFu0njresLcoUbCmyJsRMBpfJzvI
+         QaXPcaMftoDmipQhXdWjHyv6yOCh+ZtuWmMUZYeDRctFgZGLy/Liq3cauROuUqp4XCVL
+         YcacvtzyYamPlCdb5kIgl4zcpo9xCb+vpm7KzCoGd7KY/pX1bSDl+T5WBKrX2s/N45Hy
+         YNLs3lF99nze59XvbOBWUyDg58KB3+iQ2eEgbQUkovjDDwfjl7hxEmmhET+GtK7+fwQf
+         RsTg==
+X-Forwarded-Encrypted: i=1; AKwUvBzbAl5Uf/j9HSH6gNIEGlMta4nVIJMQUOSrGxwLRqEKZi5hb7f8AsmeBRvL0lY24VfP5Xz36pooQWxU7yRycw==@lists.linux.dev
+X-Gm-Message-State: AFuF++kPL0aLZOMfYr64i0hWc0gMQn0WK3c5/IJ1js3tKjopaIGjQw9j
+	CXGkS/vf2CfIjqQLnBwsHVdF+2I1/fz9VczcQXP2+bWUIdZQVvEXMSfQ
+X-Gm-Gg: AYBFou13pZLyJGrnRQjTlDmbYQCPQu6QT3cZlCPWbZA74bnKTkl5uyD0z24kWTYdVvW
+	dvl02CUbUzH/aZdfgsOg2xNDw6x/XLUQ2k1NYHY1KCNuW4QnEYbAsO0LV+bFq4iC4nfTTdDCq22
+	h4X+32+6k7ah4z34iEi61yOW+68Eslu4nBeaAx8lQPwN+yuwYMsYhWbtzvNeqi7yUqO4OV4J8GI
+	OkyGsd6dZnUeKj9Pv5Q55OUTfzqnRgnmoI9pV7ZfDGyTW2KiNB5pQpAuWZYlz3p/dbCjUIl25DT
+	fYjEL5r2c/voHqhkBZpcWEZQk3i6wC19VO84raDsiSlhUsC+XBuN4GXgVSr7XSEE4Nk2qc8h9gN
+	DxVeLuaIGO+r0afqqflKn/3rAmfVjmqZJVp+EM4AT6/cdWZX+rm3tKMwF729ruzhd1exAxssq0T
+	4OV47d7MM8JmVDc2cgzt86Ueoc0fRMxD1kHawoptba6qyOH0PAN9TC1ggocT1lcGMJ3rohvNOuq
+	qJjgAnK
+X-Received: by 2002:a17:90b:5289:b0:398:e96a:8999 with SMTP id 98e67ed59e1d1-39b261d0d83mr39934040a91.16.1788806155950;
+        Mon, 07 Sep 2026 11:35:55 -0700 (PDT)
+Received: from v4bel ([58.123.110.97])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39b51eb40e6sm12393181a91.16.2026.09.07.11.35.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 07 Sep 2026 11:35:55 -0700 (PDT)
+Date: Tue, 8 Sep 2026 03:35:51 +0900
+From: Hyunwoo Kim <imv4bel@gmail.com>
+To: Michal Luczaj <mhal@rbox.co>, Stefano Garzarella <sgarzare@redhat.com>
+Cc: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+	pabeni@redhat.com, horms@kernel.org, leonardi@redhat.com,
+	bobbyeshleman@meta.com, stefanha@redhat.com, mst@redhat.com,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	imv4bel@gmail.com
+Subject: Re: [PATCH net] vsock: do not reset a socket in connect() once it
+ has connected
+Message-ID: <ap8EBx3pkSr5Csy1@v4bel>
+References: <anzT1fREOSyHT99k@v4bel>
+ <218226a4-38e6-4a16-a660-6c1bb92f9f96@rbox.co>
+ <an5zJ9Uf94_L9TyB@v4bel>
+ <c11d6fe8-fdf9-4b45-b291-e5d5b0ef5cb4@rbox.co>
+ <aoVnp0w9jlyFDPj7@sgarzare-redhat>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird Beta
-Subject: Re: [PATCH net] selftests/drivers/net: include lib/sh/*.sh
-Content-Language: fr
-To: Hangbin Liu <hangbin.liu@linux.dev>
-Cc: netdev@vger.kernel.org, linux-kselftest@vger.kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
- Hangbin Liu <liuhangbin@kylinos.cn>, Andrew Lunn <andrew+netdev@lunn.ch>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Shuah Khan <shuah@kernel.org>, Jay Vosburgh <jv@jvosburgh.net>,
- Vladimir Oltean <olteanv@gmail.com>, Breno Leitao <leitao@debian.org>,
- Jiri Pirko <jiri@resnulli.us>, "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowangio@gmail.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- Petr Machata <petrm@nvidia.com>
-References: <20260907-selftest_lib_defer-v1-1-8af94645aaa3@kylinos.cn>
-From: Matthieu Baerts <matttbe@kernel.org>
-Autocrypt: addr=matttbe@kernel.org; keydata=
- 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
- lzVbFe7fduHbABmYz9cefQpO7wDE/Q==
-Organization: NGI0 Core
-In-Reply-To: <20260907-selftest_lib_defer-v1-1-8af94645aaa3@kylinos.cn>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aoVnp0w9jlyFDPj7@sgarzare-redhat>
 
-Hi Hangbin,
+On Wed, Aug 19, 2026 at 10:54:38AM +0200, Stefano Garzarella wrote:
+> On Mon, Aug 17, 2026 at 12:29:11AM +0200, Michal Luczaj wrote:
+> > On 8/14/26 03:45, Hyunwoo Kim wrote:
+> > > On Thu, Aug 13, 2026 at 11:42:17AM +0200, Michal Luczaj wrote:
+> > > > On 8/12/26 22:13, Hyunwoo Kim wrote:
+> > > > > commit 002541ef650b ("vsock: Ignore signal/timeout on connect() if
+> > > > > already established") stopped connect() from resetting an established
+> > > > > socket. The check only looks at whether sk_state is TCP_ESTABLISHED at
+> > > > > that moment, and the state can change while connect() sleeps.
+> > > > 
+> > > > I guess this makes my fix incomplete. "Fixes: 002541ef650b"?
+> > > 
+> > > It is incomplete, yes. But this has been triggerable since d021c344051a, so
+> > > I'd keep Fixes: d021c344051a.
+> > 
+> > OK, I get it.
+> > 
+> > > > > A peer RST moves the socket to TCP_CLOSING, and it is not removed from
+> > > > > vsock_connected_table on that path. connect() then wakes up, fails the
+> > > > > check, and resets a socket that had actually connected to TCP_CLOSE and
+> > > > > SS_UNCONNECTED.
+> > > > 
+> > > > Thanks for the details. Do I get it right: connect() misses the fact that
+> > > > socket might have already transitioned TCP_ESTABLISHED -> TCP_CLOSING
+> > > > during schedule_timeout()?
+> > > 
+> > > Yes, that's it.
+> > > 
+> > > > 
+> > > > How about:
+> > > > 
+> > > > diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+> > > > index 622dbd046799..39c42ef016c3 100644
+> > > > --- a/net/vmw_vsock/af_vsock.c
+> > > > +++ b/net/vmw_vsock/af_vsock.c
+> > > > @@ -1807,15 +1807,18 @@ static int vsock_connect(struct socket *sock, struct sockaddr_unsized *addr,
+> > > >  		timeout = schedule_timeout(timeout);
+> > > >  		lock_sock(sk);
+> > > > 
+> > > > -		/* Connection established. Whatever happens to socket once we
+> > > > +		/* Connection (has been) established. Whatever happens to socket once we
+> > > >  		 * release it, that's not connect()'s concern. No need to go
+> > > >  		 * into signal and timeout handling. Call it a day.
+> > > >  		 *
+> > > >  		 * Note that allowing to "reset" an already established socket
+> > > >  		 * here is racy and insecure.
+> > > >  		 */
+> > > > -		if (sk->sk_state == TCP_ESTABLISHED)
+> > > > -			break;
+> > > > +		if (sk->sk_state == TCP_ESTABLISHED ||
+> > > > +		    sk->sk_state == TCP_CLOSING) {
+> > > > +			err = -sk->sk_err;
+> > > > +			goto out_wait;
+> > > > +		}
+> > > > 
+> > > >  		/* If connection was _not_ established and a signal/timeout came
+> > > >  		 * to be, we want the socket's state reset. User space may want
+> > > > 
+> > > > ?
+> > > 
+> > > Yes, I like it better than mine. I confirmed it fixes the issue.
+> > 
+> > Great, thanks.
+> > 
+> > > If you don't mind, would you take the patch from here?
+> > 
+> > Sure, no problem.
+> > 
+> > Stefano, does this look good to you?
+> 
+> Yep, thanks for helping here!
+> 
+> My only doubt is if it makes sense to leave the `break` there, and add a
+> similar check before resetting the socket, I mean something like this:
+> 
+> 	err = sock_error(sk);
+> 	if (err && sk->sk_state != TCP_ESTABLISHED &&
+> 		   sk->sk_state != TCP_CLOSING)) {
+> 		sk->sk_state = TCP_CLOSE;
+> 		sock->state = SS_UNCONNECTED;
+> 	}
+> 
+> Just to be a bit more defensive, but I don't have a strong opinion, your
+> version is also fine.
+> 
+> > And should any sk_err be consumed
+> > here, too? (`err = sock_error(sk)` instead of `err = -sk->sk_err`)
+> 
+> I'd stay with sock_error() to consume the error if it makes sense also for
+> you.
+> 
+> Thanks,
+> Stefano
+> 
 
-On 07/09/2026 09:28, Hangbin Liu wrote:
-> From: Hangbin Liu <liuhangbin@kylinos.cn>
-> 
-> When I tried to install and run bonding selftests via:
-> 
->   make INSTALL_PATH=/tmp/kself TARGETS=drivers/net/bonding \
->      -C tools/testing/selftests install
-> 
-> Some tests fail because net/lib/sh/defer.sh is missing:
-> 
->   /tmp/kself/net/forwarding/../lib.sh: line 5: /tmp/kself/net/lib/sh/defer.sh: No such file or directory
-> 
-> One option is to add defer.sh directly to TEST_INCLUDES. Alternatively,
-> follow the approach from commit f72aa1b27628 ("selftests: net: include
-> lib/sh/*.sh with lib.sh"), which pulls in all .sh files to accommodate
-> future changes to the library directory.
-> 
-> This patch adds a wildcard to include all shell files for drivers/net
-> tests that consume net lib.sh. TEST_INCLUDES is also sorted to avoid
-> ordering‑related problems for future modifications. The team driver is
-> not affected by this bug, but we use the wildcard for it as well, rather
-> than listing only defer.sh.
-Thank you for fixing that!
+Gentle ping. I'd appreciate an update on where this stands.
 
-Reviewed-by: Matthieu Baerts (NGI0) <matttbe@kernel.org>
 
-Cheers,
-Matt
--- 
-Sponsored by the NGI0 Core fund.
-
+Best regards,
+Hyunwoo Kim
