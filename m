@@ -1,188 +1,254 @@
-Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4D5235DA47
-	for <virtualization@lists.linux.dev>; Mon,  7 Sep 2026 18:35:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47B753939DB;
+	Mon,  7 Sep 2026 20:31:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788806158; cv=none; b=iam54QSK7UDaI88h/xEdKxbScAcC/Q/d7ukLPwZQ9HiRzWkJ7XpMOz94kDJnLht/ggdA+Mq2gkFGBMgEbTrGtwaxv63lrQCntYHuYmR1uojp5Mb1ywwGy6wMpAdmWJFAYS7vQMjWAwhPrPcSWY6uvPdTlaXTplrjzE+UyaEVkGE=
+	t=1788813069; cv=none; b=aAKWydf3fSXBr+Z0dDCa53yWGNc4ZOeP8LtFrWGRq1xu4jJgU7mbRxS7jOVzAWikdH751YDh1/T1i9gKK6pMVIShYkP5BSAykj4+lj6B3Wz6M79hEK9vAQvmTsboE1wunduuZjVz4rRlYhH8PLfuqz5EOB/XdazOJZMjrheWRpE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788806158; c=relaxed/simple;
-	bh=cv04HKy4otmKMhqnEPI0LZjhku21UWf61AeAHYiBERc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=jsby7RqzQyCWAde0UraIgAma+EodvTL/5sDQPRd5S6xHfkKrEcTJTpfZKZQQVUTVRiURaE0Z9z3ByQVK4cqDYLq2x1i55Z3SaV3k+XDM5FS9yxrvXWkcGkAmYLyD3x4uDn2Ee/YqOJPY+/UliqHDH4qb9PsvbWDuor6b48d4mxw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ed8ap+4t; arc=none smtp.client-ip=209.85.216.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1788813069; c=relaxed/simple;
+	bh=n7i+VL7GgBNh4qhKakjQh12aQxUeEhkMiFlbOYgl9/c=;
+	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=mSUMnF7nu5b35znvhrXFRN4VEpwhNeILE/4OT3eZIWH6tSnimMJ1nWvwgsT9mSE25YN3MWHBrRyEHIAHSJfnNbmPoIxE0Uf0DEnR/ANF1LTTycN+S5rhhzYreebXKU5gmc9nLDs5HDJww6BXx89Ndz7ET0jDXxb5btoSI7LJksk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KUigDi5w; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ed8ap+4t"
-Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-398b3c37877so3464526a91.0
-        for <virtualization@lists.linux.dev>; Mon, 07 Sep 2026 11:35:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788806156; x=1789410956; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=y/QhyKnaiEuCX/YyxX6dbFuiwyxx+yL27o8G1/oLGwk=;
-        b=ed8ap+4tesegQJ8LTMu/u23LTTgK6VRaI7sTZ/xR9rhEUPjimzxFkV/yorKnnfW2p9
-         VgGveyz3ei3WCRkZiERF0DgzaKiEa58InAt6Nty2NmU7m7GqB/TEvjQvqMVLIQ2T3KYz
-         IFk/7azw7vKhWGGtEGFqhUszcAiJfQEnJXzKn03RMZxXzp3YPXSpb+g+l2wvuXW7f33+
-         LTDl2lz0eo+eNaLxX2IYGF8jPzZ2j5pf2n4/EeYaSdyIPXEn9BKKa4JcHiXrcL88YL9r
-         h8EohJh0EY6gBv67g/08Hx9kl6Hi6JexlAsBCwmxTGNF/g+FFs7IOMnXZU562xwF2sgZ
-         xSAw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788806156; x=1789410956;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=y/QhyKnaiEuCX/YyxX6dbFuiwyxx+yL27o8G1/oLGwk=;
-        b=CSfKqRuuTj9tohBHzMWkJB+gOeEOC8yLNJVk0mepKLHlzRNqQ33N8QgrIAjkwfcWrp
-         AUsOFbiT6FH6Pv1ykBpaIo7ulfMp9jrK0GGHnAX1ZFu0njresLcoUbCmyJsRMBpfJzvI
-         QaXPcaMftoDmipQhXdWjHyv6yOCh+ZtuWmMUZYeDRctFgZGLy/Liq3cauROuUqp4XCVL
-         YcacvtzyYamPlCdb5kIgl4zcpo9xCb+vpm7KzCoGd7KY/pX1bSDl+T5WBKrX2s/N45Hy
-         YNLs3lF99nze59XvbOBWUyDg58KB3+iQ2eEgbQUkovjDDwfjl7hxEmmhET+GtK7+fwQf
-         RsTg==
-X-Forwarded-Encrypted: i=1; AKwUvBzbAl5Uf/j9HSH6gNIEGlMta4nVIJMQUOSrGxwLRqEKZi5hb7f8AsmeBRvL0lY24VfP5Xz36pooQWxU7yRycw==@lists.linux.dev
-X-Gm-Message-State: AFuF++kPL0aLZOMfYr64i0hWc0gMQn0WK3c5/IJ1js3tKjopaIGjQw9j
-	CXGkS/vf2CfIjqQLnBwsHVdF+2I1/fz9VczcQXP2+bWUIdZQVvEXMSfQ
-X-Gm-Gg: AYBFou13pZLyJGrnRQjTlDmbYQCPQu6QT3cZlCPWbZA74bnKTkl5uyD0z24kWTYdVvW
-	dvl02CUbUzH/aZdfgsOg2xNDw6x/XLUQ2k1NYHY1KCNuW4QnEYbAsO0LV+bFq4iC4nfTTdDCq22
-	h4X+32+6k7ah4z34iEi61yOW+68Eslu4nBeaAx8lQPwN+yuwYMsYhWbtzvNeqi7yUqO4OV4J8GI
-	OkyGsd6dZnUeKj9Pv5Q55OUTfzqnRgnmoI9pV7ZfDGyTW2KiNB5pQpAuWZYlz3p/dbCjUIl25DT
-	fYjEL5r2c/voHqhkBZpcWEZQk3i6wC19VO84raDsiSlhUsC+XBuN4GXgVSr7XSEE4Nk2qc8h9gN
-	DxVeLuaIGO+r0afqqflKn/3rAmfVjmqZJVp+EM4AT6/cdWZX+rm3tKMwF729ruzhd1exAxssq0T
-	4OV47d7MM8JmVDc2cgzt86Ueoc0fRMxD1kHawoptba6qyOH0PAN9TC1ggocT1lcGMJ3rohvNOuq
-	qJjgAnK
-X-Received: by 2002:a17:90b:5289:b0:398:e96a:8999 with SMTP id 98e67ed59e1d1-39b261d0d83mr39934040a91.16.1788806155950;
-        Mon, 07 Sep 2026 11:35:55 -0700 (PDT)
-Received: from v4bel ([58.123.110.97])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39b51eb40e6sm12393181a91.16.2026.09.07.11.35.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Sep 2026 11:35:55 -0700 (PDT)
-Date: Tue, 8 Sep 2026 03:35:51 +0900
-From: Hyunwoo Kim <imv4bel@gmail.com>
-To: Michal Luczaj <mhal@rbox.co>, Stefano Garzarella <sgarzare@redhat.com>
-Cc: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-	pabeni@redhat.com, horms@kernel.org, leonardi@redhat.com,
-	bobbyeshleman@meta.com, stefanha@redhat.com, mst@redhat.com,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	imv4bel@gmail.com
-Subject: Re: [PATCH net] vsock: do not reset a socket in connect() once it
- has connected
-Message-ID: <ap8EBx3pkSr5Csy1@v4bel>
-References: <anzT1fREOSyHT99k@v4bel>
- <218226a4-38e6-4a16-a660-6c1bb92f9f96@rbox.co>
- <an5zJ9Uf94_L9TyB@v4bel>
- <c11d6fe8-fdf9-4b45-b291-e5d5b0ef5cb4@rbox.co>
- <aoVnp0w9jlyFDPj7@sgarzare-redhat>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KUigDi5w"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 760BF1F00A3A;
+	Mon,  7 Sep 2026 20:31:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788813067;
+	bh=XgcYpYYEYojaeshBSjApD5s66yJaOO15EjtpJM1avds=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References;
+	b=KUigDi5wBlWrgc5OY8drk5/N6Q2/8YkNJRXFkT2MSWzBSaFwmaxWYtbAPcdCgj3t5
+	 JuZKnq08I7aVd5LxsVcaDnM/CcToMXC7uf+sYbfQj+ir9QVHj0qVa0gVIBiNZ5vHOx
+	 zrXp0X6JhafByjHoexFssXSp34HaxQLREE7tRpTSLO8vuD6Gs9mGu8DMSDYDs958f1
+	 aDQFwyhuPNbiWKE5dl2lPbsZFnnuzMssgSikEdl9f8/95wBSt12Uj3bTeokqVKNsnW
+	 UCGr4PLbdxa735OMXGKCI6EWf7S5sjHPB/D4Jw5jM+HgMzrxa7OdL9dqzocep2KJVG
+	 fEFz5dv1KIU0g==
+Subject: Re: [PATCH v3] virtio_net: add rx-alloc-fail counter
+From: netdev-bot+sashiko@kernel.org
+To: lange_tang@163.com
+Cc: kuba@kernel.org, mst@redhat.com, jasowangio@gmail.com,
+ xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev,
+ netdev@vger.kernel.org, tanglongjun@kylinos.cn
+Date: Mon, 07 Sep 2026 20:31:07 +0000
+Message-ID: <178881306701.219967.4783663587645828820@kernel.org>
+In-Reply-To: <20260903022848.33595-1-lange_tang@163.com>
+References: <20260903022848.33595-1-lange_tang@163.com>
+X-sashiko-severity: Medium
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <aoVnp0w9jlyFDPj7@sgarzare-redhat>
 
-On Wed, Aug 19, 2026 at 10:54:38AM +0200, Stefano Garzarella wrote:
-> On Mon, Aug 17, 2026 at 12:29:11AM +0200, Michal Luczaj wrote:
-> > On 8/14/26 03:45, Hyunwoo Kim wrote:
-> > > On Thu, Aug 13, 2026 at 11:42:17AM +0200, Michal Luczaj wrote:
-> > > > On 8/12/26 22:13, Hyunwoo Kim wrote:
-> > > > > commit 002541ef650b ("vsock: Ignore signal/timeout on connect() if
-> > > > > already established") stopped connect() from resetting an established
-> > > > > socket. The check only looks at whether sk_state is TCP_ESTABLISHED at
-> > > > > that moment, and the state can change while connect() sleeps.
-> > > > 
-> > > > I guess this makes my fix incomplete. "Fixes: 002541ef650b"?
-> > > 
-> > > It is incomplete, yes. But this has been triggerable since d021c344051a, so
-> > > I'd keep Fixes: d021c344051a.
-> > 
-> > OK, I get it.
-> > 
-> > > > > A peer RST moves the socket to TCP_CLOSING, and it is not removed from
-> > > > > vsock_connected_table on that path. connect() then wakes up, fails the
-> > > > > check, and resets a socket that had actually connected to TCP_CLOSE and
-> > > > > SS_UNCONNECTED.
-> > > > 
-> > > > Thanks for the details. Do I get it right: connect() misses the fact that
-> > > > socket might have already transitioned TCP_ESTABLISHED -> TCP_CLOSING
-> > > > during schedule_timeout()?
-> > > 
-> > > Yes, that's it.
-> > > 
-> > > > 
-> > > > How about:
-> > > > 
-> > > > diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> > > > index 622dbd046799..39c42ef016c3 100644
-> > > > --- a/net/vmw_vsock/af_vsock.c
-> > > > +++ b/net/vmw_vsock/af_vsock.c
-> > > > @@ -1807,15 +1807,18 @@ static int vsock_connect(struct socket *sock, struct sockaddr_unsized *addr,
-> > > >  		timeout = schedule_timeout(timeout);
-> > > >  		lock_sock(sk);
-> > > > 
-> > > > -		/* Connection established. Whatever happens to socket once we
-> > > > +		/* Connection (has been) established. Whatever happens to socket once we
-> > > >  		 * release it, that's not connect()'s concern. No need to go
-> > > >  		 * into signal and timeout handling. Call it a day.
-> > > >  		 *
-> > > >  		 * Note that allowing to "reset" an already established socket
-> > > >  		 * here is racy and insecure.
-> > > >  		 */
-> > > > -		if (sk->sk_state == TCP_ESTABLISHED)
-> > > > -			break;
-> > > > +		if (sk->sk_state == TCP_ESTABLISHED ||
-> > > > +		    sk->sk_state == TCP_CLOSING) {
-> > > > +			err = -sk->sk_err;
-> > > > +			goto out_wait;
-> > > > +		}
-> > > > 
-> > > >  		/* If connection was _not_ established and a signal/timeout came
-> > > >  		 * to be, we want the socket's state reset. User space may want
-> > > > 
-> > > > ?
-> > > 
-> > > Yes, I like it better than mine. I confirmed it fixes the issue.
-> > 
-> > Great, thanks.
-> > 
-> > > If you don't mind, would you take the patch from here?
-> > 
-> > Sure, no problem.
-> > 
-> > Stefano, does this look good to you?
-> 
-> Yep, thanks for helping here!
-> 
-> My only doubt is if it makes sense to leave the `break` there, and add a
-> similar check before resetting the socket, I mean something like this:
-> 
-> 	err = sock_error(sk);
-> 	if (err && sk->sk_state != TCP_ESTABLISHED &&
-> 		   sk->sk_state != TCP_CLOSING)) {
-> 		sk->sk_state = TCP_CLOSE;
-> 		sock->state = SS_UNCONNECTED;
-> 	}
-> 
-> Just to be a bit more defensive, but I don't have a strong opinion, your
-> version is also fine.
-> 
-> > And should any sk_err be consumed
-> > here, too? (`err = sock_error(sk)` instead of `err = -sk->sk_err`)
-> 
-> I'd stay with sock_error() to consume the error if it makes sense also for
-> you.
-> 
-> Thanks,
-> Stefano
-> 
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue(s) to consider:
 
-Gentle ping. I'd appreciate an update on where this stands.
+Critical: 0 · High: 0 · Medium: 1 (1) · Low: 0
 
+- [Medium] The patch advertises the standardized `rx-alloc-fail` qstat
+  for every RX queue (`virtnet_rq_stats_desc_qstat[]` at…
 
-Best regards,
-Hyunwoo Kim
+Pre-existing issues:
+- [Medium] The netdev qstats callbacks `virtnet_get_queue_stats_rx()` /
+  `virtnet_get_queue_stats_tx()` (drivers/net/virtio_net.c:5648-5672)…
+
+--
+
+virtio_net: add rx-alloc-fail counter
+
+This adds a per-receive-queue alloc_fail counter to struct
+virtnet_rq_stats, increments it on skb allocation failures in the
+receive_small/receive_big/receive_mergeable paths and on try_fill_recv()
+returning failure from virtnet_receive(), and exports it through the
+rx-alloc-fail qstat including virtnet_get_base_stats().
+
+A couple of questions below about the coverage of the new counter and
+about how it is read back.
+
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index e34c52d059d3..360cc3435e90 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+
+[ ... ]
+
+> @@ -173,8 +174,9 @@ static const struct virtnet_stat_desc virtnet_sq_stats_desc_qstat[] = {
+>  };
+>  
+>  static const struct virtnet_stat_desc virtnet_rq_stats_desc_qstat[] = {
+> -	VIRTNET_RQ_STAT_QSTAT("packets", packets),
+> -	VIRTNET_RQ_STAT_QSTAT("bytes",   bytes),
+> +	VIRTNET_RQ_STAT_QSTAT("packets",    packets),
+> +	VIRTNET_RQ_STAT_QSTAT("bytes",      bytes),
+> +	VIRTNET_RQ_STAT_QSTAT("alloc_fail", alloc_fail),
+>  };
+
+[Severity: Medium]
+This descriptor is used by virtnet_fill_stats_qstat() for every RX queue,
+so rx-alloc-fail becomes an always-present value for all queue types,
+including XSK-bound ones. Documentation/netlink/specs/netdev.yaml defines
+it as "Number of times skb or buffer allocation failed on the Rx
+datapath". Can the counter read 0 while the driver is in fact dropping
+frames because allocations failed?
+
+The AF_XDP receive path performs the same kind of skb and fragment
+allocations that this patch now counts, but is not instrumented:
+
+drivers/net/virtio_net.c:xsk_construct_skb() {
+	skb = napi_alloc_skb(&rq->napi, size);
+	if (unlikely(!skb)) {
+		xsk_buff_free(xdp);
+		return NULL;
+	}
+	...
+}
+
+drivers/net/virtio_net.c:xsk_append_merge_buffer() {
+	...
+		buf = napi_alloc_frag(len);
+		if (!buf) {
+			xsk_buff_free(xdp);
+			goto err;
+		}
+	...
+		if (!curr_skb) {
+			put_page(page);
+			goto err;
+		}
+	...
+}
+
+The XDP copy paths also turn RX buffer allocation failures into
+xdp_drops/drops only:
+
+drivers/net/virtio_net.c:xdp_linearize_page() {
+	page = page_pool_alloc_pages(rq->page_pool, GFP_ATOMIC);
+	if (!page)
+		return NULL;
+	...
+}
+
+drivers/net/virtio_net.c:mergeable_xdp_get_buf() {
+	...
+		xdp_page = page_pool_alloc_pages(rq->page_pool, GFP_ATOMIC);
+		if (!xdp_page)
+			return NULL;
+	...
+}
+
+Both NULL returns are routed to err_xdp by receive_small_xdp() and
+receive_mergeable_xdp() without touching alloc_fail.
+
+Finally, the refill sites outside NAPI drop the try_fill_recv() return
+value entirely, so an -ENOMEM there is not visible at queue or device
+scope:
+
+drivers/net/virtio_net.c:virtnet_open() {
+	...
+			try_fill_recv(vi, &vi->rq[i], GFP_KERNEL);
+	...
+}
+
+drivers/net/virtio_net.c:virtnet_rx_resume() {
+	...
+		if (refill)
+			try_fill_recv(vi, rq, GFP_KERNEL);
+	...
+}
+
+The changelog says:
+
+    This counter does not cover every allocation failure in all RX paths.
+    It is intentionally limited to the common skb and RX buffer allocation
+    paths to keep its meaning clear.
+
+Since the napi_alloc_skb() and virtnet_skb_append_frag() failures in the
+XSK path look like exactly those common skb paths, could they be counted
+too, so that the same failure is not counted in one variant and dropped
+in the other? The caveat only exists in the changelog, so a userspace
+consumer cannot tell "no allocation failures" apart from "this path is
+not instrumented".
+
+[ ... ]
+
+> @@ -2928,12 +2941,14 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
+>  
+>  	u64_stats_set(&stats.packets, packets);
+>  	if (rq->vq->num_free > min((unsigned int)budget, virtqueue_get_vring_size(rq->vq)) / 2) {
+> -		if (!try_fill_recv(vi, rq, GFP_ATOMIC))
+> +		if (!try_fill_recv(vi, rq, GFP_ATOMIC)) {
+>  			/* We need to retry refilling in the next NAPI poll so
+>  			 * we must return budget to make sure the NAPI is
+>  			 * repolled.
+>  			 */
+>  			packets = budget;
+> +			u64_stats_inc(&stats.alloc_fail);
+> +		}
+>  	}
+>  
+>  	u64_stats_update_begin(&rq->stats.syncp);
+> @@ -2948,6 +2963,7 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
+>  
+>  	u64_stats_add(&rq->stats.packets, u64_stats_read(&stats.packets));
+>  	u64_stats_add(&rq->stats.bytes, u64_stats_read(&stats.bytes));
+> +	u64_stats_add(&rq->stats.alloc_fail, u64_stats_read(&stats.alloc_fail));
+>  
+>  	u64_stats_update_end(&rq->stats.syncp);
+
+[Severity: Medium]
+This isn't a bug introduced by this patch, but the qstat read side has no
+seqcount protection, and the new alloc_fail field is now routed through
+it as well.
+
+The writer here runs in softirq inside
+u64_stats_update_begin(&rq->stats.syncp) ...
+u64_stats_update_end(&rq->stats.syncp), while the reader does a bare
+read:
+
+drivers/net/virtio_net.c:virtnet_get_queue_stats_rx() {
+	virtnet_stats_ctx_init(vi, &ctx, (void *)stats, true);
+
+	virtnet_get_hw_stats(vi, &ctx, i * 2);
+	virtnet_fill_stats(vi, i * 2, &ctx, (void *)&rq->stats, true, 0);
+}
+
+drivers/net/virtio_net.c:virtnet_fill_stats_qstat() {
+	...
+			v_stat = (const u64_stats_t *)(base + desc[i].offset);
+			ctx->data[offset] = u64_stats_read(v_stat);
+	...
+}
+
+The ethtool reader in the same file does use the retry protocol:
+
+drivers/net/virtio_net.c:virtnet_get_ethtool_stats() {
+	...
+		do {
+			start = u64_stats_fetch_begin(&rq->stats.syncp);
+			virtnet_fill_stats(vi, i * 2, &ctx, stats_base, true, 0);
+		} while (u64_stats_fetch_retry(&rq->stats.syncp, start));
+	...
+}
+
+On CONFIG_64BIT=n, can a concurrent qstats dump observe a torn 64-bit
+value for packets, bytes or the new alloc_fail? Would it make sense to
+wrap the qstat callbacks in u64_stats_fetch_begin() /
+u64_stats_fetch_retry() the same way?
+
+> @@ -5666,6 +5682,7 @@ static void virtnet_get_base_stats(struct net_device *dev,
+>  	 */
+>  	rx->bytes = 0;
+>  	rx->packets = 0;
+> +	rx->alloc_fail = 0;
+>  
+>  	if (vi->device_stats_cap & VIRTIO_NET_STATS_TYPE_RX_BASIC) {
+>  		rx->hw_drops = 0;
+
+-- 
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260903022848.33595-1-lange_tang%40163.com
