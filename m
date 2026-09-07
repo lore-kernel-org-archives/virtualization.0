@@ -1,112 +1,134 @@
-Received: from sender4-op-o11.zoho.com (sender4-op-o11.zoho.com [136.143.188.11])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C0DE44D01F
-	for <virtualization@lists.linux.dev>; Mon,  7 Sep 2026 14:07:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.11
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788790070; cv=pass; b=eu9YW4/89hgkmMvmgeh+PtBonVuo1aSDbNfkoXbdUO9Ry9yVyseQKUb774FiyGVzb/dZXaWDzKDybe0OOtqLjQ0hvSy0pGqime5WlpLaT3cFn1ORoQgcknx/r5aUIpXQPvEhuB0eiNXNqivEU96IJQSGefC6GDh7dfdZaf53mFw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788790070; c=relaxed/simple;
-	bh=ubuG3vWt66GZSV+kOwsDiCQ+xW4RvslssDZ/+nQg+ao=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83F894F55BD;
+	Mon,  7 Sep 2026 15:14:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788794062; cv=none; b=TW+yBxi9NTsiMBcrHT6GVAO7ak5rkojnd4zUKyEKiTLfact9WAS8Oyl5972KjrbMxoN1ZTYofA9zff40sW5x6pwybptxxOdrz5TbLcRXydgh/uYhp84RGlV8DZaoa7bRERoGl5gGlEKX44/X+exvVQMTHfzQEcrTy2OCK5Iz85A=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788794062; c=relaxed/simple;
+	bh=HvoRSCGw4K3J6+9kMEnfFBQ3PR0xTY8raMYZ20HeE9Q=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=lLQPnD+KBwcwDta/QyfYfqw4n6/4HhE4mBf90FqfdW9E6TybBxLfurs1+u6EJGzdH+XuSZBx0/ZnG7u0iUGc7g837M8MsAyQEiWmbb1ZDolCzidh8548nXb6mPowxtPHRS1U2gYYFfrwsL41ZKYylcMfQwzAJpwKtVfidI21bIw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=PjuUDZvI; arc=pass smtp.client-ip=136.143.188.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	 In-Reply-To:Content-Type; b=azNsoo/z2Albpx1fGskmaiGyHrcMDveVe/+L4Gtfp/Nr5o2MZq0eBJJxcSsvRdmAQA1SUgAenA27miulmHTxK9yHsuSCKaPSB1S2gaVZgdTeoaKCY6eVSX+YIvno3T0mT/Ung235JZp4wld0DeIrxXv7qqfFMymTw+cLdqytj9Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=li2oxAWN; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="PjuUDZvI"
-ARC-Seal: i=1; a=rsa-sha256; t=1788790048; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=Kpz2kvN63OIHbP4Y/doeEX+OXusagVwQBCM7Y1oI7lJCAn0Gt1aBRu6NtyPi3ixIALnk2JL4b34PLODI+pnGns2PAZF+YEjt1+SR5AQdsXJaTiwJG2lP8j6ZNCCO7gFAIo5xmDZK2saTWcpgc8H5dpXNvSv/O36D7r+DK+GfdY4=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1788790048; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=DCz9i2reWsrpFYk13e0Qo4NLX16nsUoQAAk500fgnYA=; 
-	b=RDVu7FebuL7wRhe94McVXXZCT3JbVxpEp56t7taUClHyFIFBi6VdyN1Pv1RVXCKwNKG1fGPOR1RL1KHAWR8dr+ljMFeCDjJD/bAxMANazFl25woJM2GpZhvqyx3CwTW969lavf3xTuTmXu2FQFs3XgDwyvtr7eKiF1pmxWJi/x4=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
-	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1788790048;
-	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
-	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=DCz9i2reWsrpFYk13e0Qo4NLX16nsUoQAAk500fgnYA=;
-	b=PjuUDZvIpUc7A6wDhfGdbbMeVQ2gG78lA2xzPukD+VsLrJI+jdCERPNqQv5Mt0W9
-	uoG5WfLzJzuGr+yMQU/5T3iNrOxkNpagZ7qG8Lj55hr/oa5IP5rrBMaLkUz9jYGv0nn
-	c54FbGO0xK9Tb4gBpbHZyuDIjM7c9BGUQkquIRrc=
-Received: by mx.zohomail.com with SMTPS id 1788790047477485.6602521989356;
-	Mon, 7 Sep 2026 07:07:27 -0700 (PDT)
-Message-ID: <55240372-c265-4b38-be94-f29a58ddbb22@collabora.com>
-Date: Mon, 7 Sep 2026 17:07:22 +0300
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="li2oxAWN"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25EFB1F00A3A;
+	Mon,  7 Sep 2026 15:14:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788794061;
+	bh=dbOA0LduOb0l+EeWq7lxr4mHCdhv6fqwlu6KdWF4Los=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=li2oxAWNgsBQdF6krCVYH5rrTBTGPfLw5S8BGd72DGJxJR+RJ7AvXba/PrOmkZ+JO
+	 P6iC/Zm8V+j5RCLzvX6Dll85xfJ8ZbEKML6bx5FA1LvR3vecbGPNkkKnB4Gga4cxjT
+	 aZVhYWWSCld8LhyRA92IeubXD6EZRUx13eBWAjawSeHnXXiYjT2v2QgaRTK2gi+Kd+
+	 vVSk1o6HYKIJxpFdrkOC+435Ewf5WNb1N6zVqHsI5mhhfPKHSUgV85FVroEg+LkpEb
+	 nrPqDrXS9KaeXntcDHKjFpHP4IsrupzKGVHHzUbZg+yuqjPWHugOSQvEKksPVLewin
+	 ZTwlxl+7sUSwg==
+Message-ID: <e944079a-5c4d-416a-9c5a-5831aaf88517@kernel.org>
+Date: Mon, 7 Sep 2026 17:14:13 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] drm/virtio: fix object leak when drm_gem_handle_create()
- fails
-To: moonafterrain@outlook.com, David Airlie <airlied@redhat.com>,
- Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- Simona Vetter <simona@ffwll.ch>, Dave Airlie <airlied@gmail.com>,
- "Michael S. Tsirkin" <mst@redhat.com>
-Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, Yuhao Jiang <danisjiang@gmail.com>
-References: <20260815-virtgpu-gem-create-leak-v1-1-a4e9fb18caa3@outlook.com>
-Content-Language: en-US
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-In-Reply-To: <20260815-virtgpu-gem-create-leak-v1-1-a4e9fb18caa3@outlook.com>
+User-Agent: Mozilla Thunderbird Beta
+Subject: Re: [PATCH net] selftests/drivers/net: include lib/sh/*.sh
+Content-Language: fr
+To: Hangbin Liu <hangbin.liu@linux.dev>
+Cc: netdev@vger.kernel.org, linux-kselftest@vger.kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+ Hangbin Liu <liuhangbin@kylinos.cn>, Andrew Lunn <andrew+netdev@lunn.ch>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Shuah Khan <shuah@kernel.org>, Jay Vosburgh <jv@jvosburgh.net>,
+ Vladimir Oltean <olteanv@gmail.com>, Breno Leitao <leitao@debian.org>,
+ Jiri Pirko <jiri@resnulli.us>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowangio@gmail.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Petr Machata <petrm@nvidia.com>
+References: <20260907-selftest_lib_defer-v1-1-8af94645aaa3@kylinos.cn>
+From: Matthieu Baerts <matttbe@kernel.org>
+Autocrypt: addr=matttbe@kernel.org; keydata=
+ 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
+ lzVbFe7fduHbABmYz9cefQpO7wDE/Q==
+Organization: NGI0 Core
+In-Reply-To: <20260907-selftest_lib_defer-v1-1-8af94645aaa3@kylinos.cn>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ZohoMailClient: External
+Content-Transfer-Encoding: 8bit
 
-On 8/15/26 09:16, Junrui Luo via B4 Relay wrote:
-> From: Junrui Luo <moonafterrain@outlook.com>
-> 
-> virtio_gpu_gem_create() owns the reference taken by
-> virtio_gpu_object_create(). On the drm_gem_handle_create() error path it
-> calls drm_gem_object_release() instead of dropping that reference.
-> 
-> drm_gem_object_release() is the inverse of drm_gem_object_init() and does
-> not touch the reference count or call obj->funcs->free(), so it is only
-> correct as the last step of a destructor, as in
-> virtio_gpu_cleanup_object(). Using it here leaves the bo at refcount 1
-> with no remaining reference, so virtio_gpu_free_object() never runs and
-> the shmem pages, sg table and virtio_gpu_object are leaked. Since
-> virtio_gpu_object_create() has already set bo->created,
-> VIRTIO_GPU_CMD_RESOURCE_UNREF is not queued either, leaking the host-side
-> resource and the resource id.
-> 
-> drm_gem_handle_create_tail() drops the handle reference on all of its
-> internal error paths, so the caller only has to drop its own. Use
-> drm_gem_object_put(), matching the success path below.
-> 
-> Fixes: dc5698e80cf7 ("Add virtio gpu driver.")
-> Reported-by: Yuhao Jiang <danisjiang@gmail.com>
-> Assisted-by: Claude:claude-opus-5
-> Signed-off-by: Junrui Luo <moonafterrain@outlook.com>
-> ---
->  drivers/gpu/drm/virtio/virtgpu_gem.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
-> index 66c3f6f74e9c..d2f0b8a3f172 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_gem.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
-> @@ -45,7 +45,7 @@ static int virtio_gpu_gem_create(struct drm_file *file,
->  
->  	ret = drm_gem_handle_create(file, &obj->base.base, &handle);
->  	if (ret) {
-> -		drm_gem_object_release(&obj->base.base);
-> +		drm_gem_object_put(&obj->base.base);
->  		return ret;
->  	}
-Could you please fix all other occurrences reported by bot in a v2?
+Hi Hangbin,
 
+On 07/09/2026 09:28, Hangbin Liu wrote:
+> From: Hangbin Liu <liuhangbin@kylinos.cn>
+> 
+> When I tried to install and run bonding selftests via:
+> 
+>   make INSTALL_PATH=/tmp/kself TARGETS=drivers/net/bonding \
+>      -C tools/testing/selftests install
+> 
+> Some tests fail because net/lib/sh/defer.sh is missing:
+> 
+>   /tmp/kself/net/forwarding/../lib.sh: line 5: /tmp/kself/net/lib/sh/defer.sh: No such file or directory
+> 
+> One option is to add defer.sh directly to TEST_INCLUDES. Alternatively,
+> follow the approach from commit f72aa1b27628 ("selftests: net: include
+> lib/sh/*.sh with lib.sh"), which pulls in all .sh files to accommodate
+> future changes to the library directory.
+> 
+> This patch adds a wildcard to include all shell files for drivers/net
+> tests that consume net lib.sh. TEST_INCLUDES is also sorted to avoid
+> ordering‑related problems for future modifications. The team driver is
+> not affected by this bug, but we use the wildcard for it as well, rather
+> than listing only defer.sh.
+Thank you for fixing that!
+
+Reviewed-by: Matthieu Baerts (NGI0) <matttbe@kernel.org>
+
+Cheers,
+Matt
 -- 
-Best regards,
-Dmitry
+Sponsored by the NGI0 Core fund.
+
