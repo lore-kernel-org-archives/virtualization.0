@@ -1,181 +1,129 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B3F423A564
-	for <virtualization@lists.linux-foundation.org>; Mon,  7 Sep 2026 10:03:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 409CD44AB88
+	for <virtualization@lists.linux-foundation.org>; Mon,  7 Sep 2026 10:18:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.133
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788775433; cv=fail; b=SpfgANbMQnh9Q9pyJZwO3YR85RK4hOVHjrvm3KQEUY/7ZAG3fqvoouF/jT82wkkY8af9SDcawYHeNMJwlx38ATndT2JQtSIXMszyu96v1GtSzBe5ORBk6IZcQtE7d2Fx2bFiohNM4+bz4eVhmT1A443HnfnGcy1NPf5BPmjSZg4=
+	t=1788776289; cv=fail; b=nFz1C6Qnbzlqql0f/eW7dbZ+m+ttgvNGQ850uxpAfzLd1HmTAAFRdBLQYQE8fym3lCXmxbS097lXy6T744GKX6tOf+9Q8NK3sKUlnlVdJBZ1hlcadMawsooxN2QTqcU/mMJSEGLi5Vmw82AQMEJ9LERDcfqsNc+bB+v7JpuRKCE=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788775433; c=relaxed/simple;
-	bh=taXTc8t7jL99ksLm+NqxwaqOr7jS9mZBmvjMDJCVE4g=;
-	h=Date:From:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=c7TIF3mMour549e0ocjOV0LHHkTigoxUqPz1/NAXs5zPa5gZe8myPAWbgkKSfd87+wWZWVOw/dYIhlebuI7klV7zdBcBFg93Abw16j5IBCb2pxHODBwuTREI9uUxMEkxpj/tpAs+LmKguLZylZuUkB+eUfn8+N5O7s8odPvYA3Q=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fxR7JBaz; arc=fail smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1788776289; c=relaxed/simple;
+	bh=Oqx/l3rviU3aX6pHP28Vdd7aIxHWEvQAMMcf7e8LKzg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=RIPgoM27GxLb06uF7NRQ7zcQVQyx2eTJUsXrbJBXiyBAJNvvBmVDcSLc0P6XdoSw8yoWf9y8ERIoABRXz9y7Y4YP1x/4BBp+1zfgkmT43lj/VktHAgdZDw4XCp4aH85jcV4xrirqQSsvz296MO4IJaY9IUe1aORZSra98I5EDec=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=kGgKe5xz; arc=fail smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fxR7JBaz"
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="kGgKe5xz"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id E9B20605E6
-	for <virtualization@lists.linux-foundation.org>; Mon,  7 Sep 2026 10:03:51 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id B5F31400F5
+	for <virtualization@lists.linux-foundation.org>; Mon,  7 Sep 2026 10:18:07 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -0.742
+X-Spam-Score: -1.772
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id xBtNrDo2bgmd for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2026 10:03:50 +0000 (UTC)
-ARC-Filter: OpenARC Filter v1.3.0 smtp3.osuosl.org EF38E605D5
-Authentication-Results: smtp3.osuosl.org; arc=none smtp.remote-ip=170.10.129.124
-ARC-Seal: i=1; d=osuosl.org; s=arc; a=rsa-sha256; cv=none; t=1788775430;
-	b=AM83kOB4lFWLsRSB4vnS5xLUzmzzAWIvcg4nNxjVRG/o695k88vJ+CSfCo8ZeX0irJvN
-	 1IF92TvINCORNS0TpDCBVDKnoXBK/lMjtyWzJfLC4k9cLG2XpWJxkrb9LpSHvZC8wiHGy
-	 n5lL6OmhyvPF5/Xv2aUl2wQYwjpnm3WLlFcN+YntIcmR6sPjlDVSL0SzCcePZQdj3CzWr
-	 lGIYLU1GF+wls08ZCATJ/XUmP6lbUxF0GdZ01kLb2aZtATSswN0t8CD6rkbEKxuhLtBoo
-	 WoHDReNaIn8jV+qcNB9TpQRLlAWOLfe7ZeRJJzllKM19IQu6b7Gs0Cd3fVrj7Cbgqbg==
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id h2lTy0idEkcn for <virtualization@lists.linux-foundation.org>;
+ Mon,  7 Sep 2026 10:18:05 +0000 (UTC)
+ARC-Filter: OpenARC Filter v1.3.0 smtp2.osuosl.org 0B3B3400D5
+Authentication-Results: smtp2.osuosl.org; arc=none smtp.remote-ip=194.117.254.33
+ARC-Seal: i=1; d=osuosl.org; s=arc; a=rsa-sha256; cv=none; t=1788776285;
+	b=bqgxUehrziji6Ywwywkjft9e8C9DCSwGcPgg3UoM9mYZZrI/SVJEzVg42Pv4zeG4mNu5
+	 wTodXM377juyJFG/buyvoVDjApUNJi1pc55wBjtPiEca7W5vfAJy/yKvzsRxL9U3+mirt
+	 EutEiflwEMw/4hVbOhFsr6WDOruc+NKl6BnEfgIwxgYeiOFxDmfxlZb22nGlS24lrWer0
+	 isk7BHat++gk5EQfp7QvXfdIoE5XF+sko/jGJ7WMCmdCed0eWIg6c/6i4WqJrFcyi73UO
+	 bDDIyoLEFcdcJb1kQ+UZtLJfJEtJ6rLHK7aUj4hiDV5kgdRmVbSNRLe7X3SBXqKDEGw==
 ARC-Message-Signature: i=1; d=osuosl.org; s=arc; a=rsa-sha256;
-	c=relaxed/relaxed; t=1788775430;
-	h=Received-SPF:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:Received:Date:From:Cc:Subject:Message-ID:MIME-Version:
-	 X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:X-Mimecast-Originator:
-	 Content-Type:Content-Disposition:Content-Transfer-Encoding;
-	bh=kFIjBLwrnQNzpzBiLrwLCrhQmY54y00GCWAvNQxRSQs=;
-	b=s9gTJ6ifNDIQFwkDj52TcS5PYznG7BYxl6IJa9O8cXd1ReIoP0WhoJBhRJwJ5MOuCfqq
-	 nSZsPORE4Ua05+N7gvejSp6ahEKK95Pltt+qNxTbDvDP/WtBh7L6FLCHKJNWsXDYrvZ1V
-	 /1g+fmsHNTTLf7P1fjUFNsPiRxftZhFpe92OhWm6n+f4nL5BwfBUvgKsNKQbgLiuw6GdL
-	 Zwwf7lmY5b1dVjCVrLG7agcGd9oAwRGQqyJHHLq3buTQUWNSjD7Aa3yriNiZ8YjBiOxM+
-	 KHSI+SylHekEJpC1wM6QqgpveZUwnamviwUc7VlksRxCJbumq+rxtUGcrJsg/LTDMeQ==
-ARC-Authentication-Results: i=1; smtp3.osuosl.org; dmarc=pass header.from=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=fxR7JBaz;
-	arc=none smtp.remote-ip=170.10.129.124
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=fxR7JBaz
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp3.osuosl.org (Postfix) with ESMTP id EF38E605D5
-	for <virtualization@lists.linux-foundation.org>; Mon,  7 Sep 2026 10:03:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1788775426;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:to:
-	 cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=kFIjBLwrnQNzpzBiLrwLCrhQmY54y00GCWAvNQxRSQs=;
-	b=fxR7JBazs95yUALhjX6jg+Y53eYy/bEIByNgVjqSmvBfhIhGIRCc1Ci9nUuKWYFKFMMkqD
-	tSPpppNNF23NY5W36bQ68KiIxHP5HbDpuT8Zf46YPPpzoH12H1BwUeZe5olNVtHtK+ZM8a
-	lpS0mtWe9BlP/maLA6OB/SAgVxLihnc=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-691-d9Lj99NaPXOLVqWJNFrd-Q-1; Mon, 07 Sep 2026 06:03:44 -0400
-X-MC-Unique: d9Lj99NaPXOLVqWJNFrd-Q-1
-X-Mimecast-MFC-AGG-ID: d9Lj99NaPXOLVqWJNFrd-Q_1788775424
-Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-c2542cd4faaso394276566b.1
-        for <virtualization@lists.linux-foundation.org>; Mon, 07 Sep 2026 03:03:44 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788775423; x=1789380223;
-        h=content-transfer-encoding:content-disposition:content-type
-         :mime-version:message-id:subject:cc:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=kFIjBLwrnQNzpzBiLrwLCrhQmY54y00GCWAvNQxRSQs=;
-        b=rJMcD6oVKgiOIxy8cIpsZir5cqtDJ3WBDyuekX+8MRpkBgTKrGFfJwtb0S1nNgmG0B
-         WK+vO4NSSFi/5ByUDhzOt+cZoRX+c1ujI1l7B3fj98SzW2gGboZlkO1cYmz5HYjb1znJ
-         ZQ9BhsxOkyqu0qQk4MhU9FjUS4PG+mBVOLmG3ek7ewgtdjXZBuANBwfuF1ISjl+uTc9w
-         d0V41zMeqyiHe/JPHkbW8nCPOwQoW2FmUgsNx0F3dZzf5dyvRO5xadzvKIN56RxFy1EG
-         xoPvwKG/ndvSI4TNGVlAaQO1oR+CWkm1SZBD8Dw3q493RSRdafX1hI6gY8hcgBxvbky5
-         Zcmg==
-X-Forwarded-Encrypted: i=1; AKwUvBxY6++6ZPF3Vfm9reYEhofdt44NVYPMfQFJb8VM0nM3Smc1qUSQduXrcpNXNR4lIP+/XFhX6RPgnzqbACI7Kg==@lists.linux-foundation.org
-X-Gm-Message-State: AFuF++mqUlcyCPoCKTO8rYpUoYQ5QehetXPhLgJSupm0rKzRAhUMnhEh
-	pM+9Mnd9rewX6NGOr8Se92OFGoQi1W/Oo2C2j7O0qhvKTEPHMCY2btUyl3ekevyr8ZHxmJE2I2v
-	3szgAzrkn51kTfnOMV80o3Hkof2cus7gaWT0zSp7Zzl2oiMt3Z/u4Rutg4kUNA8RZtregB+ksbG
-	cyYfkQHPU=
-X-Gm-Gg: AYBFou3hj1NWZatzb5JzOHqsma6XbrfbVRlesPycxPhQzKC3oLArnV/UDVqGw0k8zBZ
-	UC7HevD2x67k7yv/WJ0z1n/S5oE7bdI4Fodvt8YXELUvz+7/7xYH8E1nyeVzDtw/n6r/PGo11uv
-	/lqtPtaNWnAg8MwLzU9DfA2pUJ+2ve6bkPiL+qdtqu9KF6xe81ezZMtsuoUzgBP0TeamjpfNfqZ
-	1ZoAzEgycNzdmAVhGXTpeEey/mOY5omn5dV+W376ywLNQ3dSHUNi9Te11HPZx8n+8VuG/0nSfOx
-	jtQhp90L+abRus+332kIgd+NZGNogYw8BsmG5oP32XXaUMv1IzKgnS+DlYsTzg4/1DACzdTnHCB
-	xNTr4MlstaADdQ5FXfzH4LOo=
-X-Received: by 2002:a17:907:3c92:b0:c15:f598:60c0 with SMTP id a640c23a62f3a-c260c65c118mr914662366b.4.1788775423510;
-        Mon, 07 Sep 2026 03:03:43 -0700 (PDT)
-X-Received: by 2002:a17:907:3c92:b0:c15:f598:60c0 with SMTP id a640c23a62f3a-c260c65c118mr914659566b.4.1788775422856;
-        Mon, 07 Sep 2026 03:03:42 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-79-236.inter.net.il. [80.230.79.236])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c260d5921e2sm450449166b.46.2026.09.07.03.03.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Sep 2026 03:03:42 -0700 (PDT)
-Date: Mon, 7 Sep 2026 06:03:39 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
+	c=relaxed/relaxed; t=1788776285;
+	h=X-Greylist:Received-SPF:DKIM-Signature:Received:Received:
+	 X-UD-Smtp-Session:Date:From:To:Cc:Subject:Message-ID:References:
+	 MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=Oqx/l3rviU3aX6pHP28Vdd7aIxHWEvQAMMcf7e8LKzg=;
+	b=j9iXE/1ObmYq1wvLEfIzCMckZlfrCWRgMfLaj95G0tNCUcaHMVFkDQDSHFm+7Be0XTqO
+	 mIOnIeoNUkaC5NY8ALQdpTX/Z/TVvOSzmQjp3eNK5g5ZmuKdtfCGjWtOFg00mbtTyxL7V
+	 UwPK+VWRUh3yKpaQgX2CdeDzQlQuXQM1GtC5lmvhfxBhbm8suzb+RPIf2H0oLcFi8oeNl
+	 o/SyJeVR/lh0G3RRGvVwLnsm3vy0zX3LWf0jJjJmEEFlTFjed4LzKH61dRYbORBXI7Qgv
+	 xg188yO8NK927rzd5SPkeI4WpKOcx9FK/nWtgpXaNCch4wFfwAbSoXSr4OYbtKqQU1A==
+ARC-Authentication-Results: i=1; smtp2.osuosl.org; dmarc=none header.from=sang-engineering.com;
+	dkim=pass header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=kGgKe5xz;
+	arc=none smtp.remote-ip=194.117.254.33
+X-Greylist: delayed 400 seconds by postgrey-1.37 at util1.osuosl.org; Mon, 07 Sep 2026 10:18:02 UTC
+Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=kGgKe5xz
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=194.117.254.33; helo=mail.zeus03.de; envelope-from=wsa+renesas@sang-engineering.com; receiver=<UNKNOWN> 
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 0B3B3400D5
+	for <virtualization@lists.linux-foundation.org>; Mon,  7 Sep 2026 10:18:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=Oqx/
+	l3rviU3aX6pHP28Vdd7aIxHWEvQAMMcf7e8LKzg=; b=kGgKe5xzk5G9f+YBdfS+
+	6JCCGrAmHq0orRiWmQTKNqKK75JyxFJSUGWU6Hgh/32ZJaIK5nwwKw2o1x5tfDYk
+	iSOHzjRXOzPybG0AG0QYGO8OUlGgoDb364pO2pHYJQ8rLorrs6OcnnZ/262QHODA
+	MkboVHl8gHmpKRh+0BoI3eDYaSQNUi/DNsX2n7U4aMA+KvXF9FCw6H6WhJV7RX6R
+	3jA+TIuM3diI0k7LSVK22kpUkDyAiMH4mwjwy463TJOozMWa1qUBL3xVSU2iXP9L
+	KmF4IwIBfXP0urVCarlBdbmtYZvI1eK1pLz9xK1POeFkJtGYepTceUYGKxGl05+c
+	Ng==
+Received: (qmail 2343451 invoked from network); 7 Sep 2026 12:11:17 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 7 Sep 2026 12:11:17 +0200
+X-UD-Smtp-Session: l3s3148p1@tnjA1uFaQp8ujnsC
+Date: Mon, 7 Sep 2026 12:11:17 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: sashiko-reviews@lists.linux.dev, Chris Mason <clm@fb.com>,
 	Roman Gushchin <roman.gushchin@linux.dev>,
 	virtualization@lists.linux-foundation.org, ksummit@lists.linux.dev
-Subject: How is sashiko bot deciding whom to Cc?
-Message-ID: <20260907055646-mutt-send-email-mst@kernel.org>
+Subject: Re: How is sashiko bot deciding whom to Cc?
+Message-ID: <ap6Nwf94aq2dk3WD@ninjato>
+References: <20260907055646-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 2
-X-Mimecast-MFC-PROC-ID: xmkGyiYi-bawlw9Gy-p_i1cZpSXVU9Mo-nd_Im6nqK8_1788775424
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="Ukpn3ScpmSWIkEka"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260907055646-mutt-send-email-mst@kernel.org>
 
-There doesn't seem to be a Sashiko list, so I added ksummit as the most
-likely one to catch attention. 
-
-If you run b4 mbox  20260905153514.B55561F00A3A@smtp.kernel.org 
-you will observe:
-
-From: Karl Mehltretter <kmehltretter@gmail.com>
-Date: Sat,  5 Sep 2026 17:20:59 +0200
-To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>
-Cc: Karl Mehltretter <kmehltretter@gmail.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio Pérez <eperezma@redhat.com>, Dmitry
-        Torokhov <dmitry.torokhov@gmail.com>, Rusty Russell <rusty@rustcorp.com.au>, Pawel Moll <pawel.moll@arm.com>, Cornelia Huck
-        <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>, Johannes Berg <johannes@sipsolutions.net>, Hans de Goede <hansg@kernel.org>,
-        Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>, Vadim Pasternak <vadimp@nvidia.com>, Bjorn Andersson <andersson@kernel.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>, virtualization@lists.linux.dev, linux-input@vger.kernel.org,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-um@lists.infradead.org, platform-driver-x86@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v2 3/3] virtio: implement synchronize_cbs for remaining transports
-Message-Id: <20260905152059.89560-4-kmehltretter@gmail.com>
-In-Reply-To: <20260905152059.89560-1-kmehltretter@gmail.com>
-
-with this diffstat:
----
- arch/um/drivers/virtio_uml.c             | 10 ++++++++++
- drivers/platform/mellanox/mlxbf-tmfifo.c | 14 ++++++++++++++
- drivers/remoteproc/remoteproc_core.c     | 10 ++++++++++
- drivers/remoteproc/remoteproc_virtio.c   | 20 +++++++++++++++++---
- drivers/virtio/virtio_vdpa.c             | 21 ++++++++++++++++++++-
- include/linux/remoteproc.h               |  3 +++
+--Ukpn3ScpmSWIkEka
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
+> So it picked some mailing lists but not others, and some specific people.
+>=20
+> Is that opt-in somehow? I'll be happy to get Cc'd on the auto-review emai=
+l.
 
-the sashiko bot replied to it:
+To get me CCed with Renesas specific topics I sent a PR to modify this
+file:
 
-From: sashiko-bot@kernel.org
-Date: Sat, 05 Sep 2026 15:35:14 +0000
-To: Karl Mehltretter <kmehltretter@gmail.com>
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, Vasily Gorbik
-        <gor@linux.ibm.com>
-Reply-To: sashiko-reviews@lists.linux.dev
-Subject: Re: [PATCH v2 3/3] virtio: implement synchronize_cbs for remaining transports
-In-Reply-To: <20260905152059.89560-4-kmehltretter@gmail.com>
-Message-Id: <20260905153514.B55561F00A3A@smtp.kernel.org>
+https://github.com/sashiko-dev/sashiko/blob/main/sashiko.dev/email_policy.t=
+oml
 
 
-So it picked some mailing lists but not others, and some specific people.
+--Ukpn3ScpmSWIkEka
+Content-Type: application/pgp-signature; name=signature.asc
 
-Is that opt-in somehow? I'll be happy to get Cc'd on the auto-review email.
+-----BEGIN PGP SIGNATURE-----
 
--- 
-James
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmqejcEACgkQFA3kzBSg
+KbaU2Q/+LbU/+mSXPvVLMjs6D+LVE70LG0Whq76bO4zbytOfYavmIG3oJ/PfHYPy
+0kA7r8MoKcJG9aPri2eQnCKshhkd9DhUZA4dsLi/ojuF2WPu4LyW6ebf9udjcE23
+Qwc8kVe8qIShZzWHz8QXlrTQIpAfJf0Sjm1bL7XCte8f2BFys+LuXV4LLHSSLQpj
+JTlGvNz1YPd162sUDNUR4TDBfXZpBLJqbIcp6mAESDAf5Wc5VtJ7o6ypjjQSUeI3
+Xe50WgwWj/j/jr4LCOnlnlXO60U6gt2kcNf8IzCubAOCGkKVWjuGKqmAFrA9Z0il
+44nnphDpQ9MbGU5uj9PjWdDXruirnGcwQ9hoClVMx8jfrutH8pO6m7XG4pN8br5W
++P1jtKimQhPw7/wVbTPktX5UADMMT1F/CdjsB7sZHD8MFuQAeaHkBuVUb+ufyAjL
+5FlhyxwvPxeMP740ZbZjLO9Uo4Q2feySR9RI6BH7LAQ0ul0DsyZw7FM+v7iGMomY
+/TRiBrpA1R7E4eK0qHOcJAnVQZWkO8xLNGrQok1D26QnR6Nwov2Wq2430hQNGNP2
+YkoJIFRgEGEvFHRnGwNHDTVeR2gP1udQEfdv3i8yko6EFPaMv6GxtfWilGRpzU1c
+cp4/xbjEg5qQTU93jIhEHgPi6keQqIyoU5tR5Qd4G6kq3/gKGjI=
+=lhkt
+-----END PGP SIGNATURE-----
 
+--Ukpn3ScpmSWIkEka--
