@@ -1,103 +1,219 @@
-Received: from abb.hmeau.com (abb.hmeau.com [180.181.231.80])
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.3])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBC5E4AD7E6;
-	Tue,  8 Sep 2026 09:20:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=180.181.231.80
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 655154A1E0E
+	for <virtualization@lists.linux.dev>; Tue,  8 Sep 2026 09:27:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.3
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788859259; cv=none; b=byvMXBOnHn/XtPk42YwenvxUOsUMzCwewe//6L29RxI/BSOIRSvgNcfcAKuSfvCo6ySYYa111/f1jSaM+lQrCc63Z1Aq8eziZfdQSidsFPt4xXOtFQkfjaAjAb2kBRfXJWVaoRl9xLsrKLFL9QlHZtASQBeMYvIOIZKS8VYaA/Q=
+	t=1788859627; cv=none; b=VRLiD27WiCcNWBJYlhY3kYokpB8Ae5PTi5AccDzJHZrsEVPoDStvGqRrmF3+MoCu80ad/8A/pjt5/jsyFkAx0HSPm2lTeLfvnKTplHnd5Q7mFzaDPaILbbEC/HMwm0bHfv4GF9yLxbmyKS27TcPo40dh2eUooxv9aMLFZVi+WaE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788859259; c=relaxed/simple;
-	bh=VGdgfu8FflBUe1F0QvCfe+YXb0jjB4KTsG1VdxloQ1M=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=jsNy1QahzZHh6yVTwzMD050u5QqizEVDcely56uJdJ9ex/WJ+OBTl32xwPCf1yhjqj08cjm8xhrcmGe4mRbv6hMtAUmb5m7yu09Oa5AGM4C+HU3tKtn5aKEkoBMffMKJW+ePErXSn88HvNjq3652ywM9i5bT0vQM1vzfUnQ6NTw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=gondor.apana.org.au header.i=@gondor.apana.org.au header.b=iqCEkxAq; arc=none smtp.client-ip=180.181.231.80
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
+	s=arc-20240116; t=1788859627; c=relaxed/simple;
+	bh=3bA5gtZiPneMgqqKxUSE1OjB1OylMbEwWtvu55uEZEs=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=hu5hoAeSHax7PvxuZ4jKKAemfXpOIKGZMHhkmgLxwNRSRuquYOgqyWtTcJE0nf74Fc7KMb2CRl28Pli543S9s/qcP/v7/onf8gGWprTu3iNtUiTzs+JKnKZNkbnqxZaO5h3zf/3jvWNJibOKD0ZgzxjvwjxLhTPbdrPv+UEbrfk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=kq0JIlHL; arc=none smtp.client-ip=220.197.31.3
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gondor.apana.org.au header.i=@gondor.apana.org.au header.b="iqCEkxAq"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=gondor.apana.org.au; s=h01; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:cc:to:subject:message-id:date:
-	from:content-type:reply-to; bh=C407YdSwLyJjiUUnrA36d5Mbdvt5XnU6O23tFgKHeQw=; 
-	b=iqCEkxAqCo7XVL7E97GFXAOhpV6JPho2st8lQtUfP4A41jAbO2CbgHhoNg0315hmmQpAyqqBI/w
-	Wl7SK+hGFcjEsk8P6sVSBAByY+u2ZDGpc+H8jgXHwT9aZsKmUZFm3ld4UCVXOpdpXHHfeWM1LQchL
-	HX9TYGZ9xDp2D/dAQnJvJVpq/8ZItBgNel6RYGv/9zqFeG+DSf6ECIQWpWwA+Wp/vinHqyU3QCGV3
-	5acQzPEoj+bNw+AiqnMFe/T9yKzicMqhptHC2hb7MiemYFnOK6v+JsdKABkA1s8lKLoJ9vRmMIBKr
-	GDjD5WouYQ8KFFWfC4enyI2srdjLjCqKObYA==;
-Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
-	by formenos.hmeau.com with smtp (Exim 4.98.2 #2 (Debian))
-	id 1x3s0Q-0000000Bncv-0UA9;
-	Tue, 08 Sep 2026 17:20:43 +0800
-Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Tue, 08 Sep 2026 19:20:42 +1000
-Date: Tue, 8 Sep 2026 19:20:42 +1000
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: =?iso-8859-1?B?Suly6W15?= Jean <Jeremy.Jean@oss.cyber.gouv.fr>
-Cc: arei.gonglei@huawei.com, mst@redhat.com, davem@davemloft.net,
-	jasowangio@gmail.com, xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com, linux-crypto@vger.kernel.org,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	Bryam Vargas <hexlabsecurity@proton.me>
-Subject: Re: [PATCH] crypto: virtio: validate akcipher completion length
-Message-ID: <ap_TatiabFuXiiad@gondor.apana.org.au>
-References: <20260821095511.3600564-2-Jeremy.Jean@oss.cyber.gouv.fr>
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="kq0JIlHL"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=Wx
+	id2EgyFOqLVjrirkNTMHd56v9PxmNtv6rmVyDNoh0=; b=kq0JIlHLRbBDW5BoLl
+	c+ny35lZKDwsfKVPGT+L1N2W7EC/a6fFHY9tg5umz6DhenjMBVcw3wMU3ugZCWQL
+	9yEOaRay5ft1v6/l9VjqGEZLPR74fwO1UDb1UaI+ltjfxsmDUIKp8+rkMVVUWUWx
+	J2NMsGgr4r/7SrMefHm6Gowg0=
+Received: from localhost.localdomain (unknown [])
+	by gzsmtp3 (Coremail) with SMTP id PigvCgD3Bf3X1J9qaBRdRg--.18019S4;
+	Tue, 08 Sep 2026 17:26:50 +0800 (CST)
+From: Longjun Tang <lange_tang@163.com>
+To: mst@redhat.com,
+	kuba@kernel.org
+Cc: jasowangio@gmail.com,
+	xuanzhuo@linux.alibaba.com,
+	virtualization@lists.linux.dev,
+	netdev@vger.kernel.org,
+	tanglongjun@kylinos.cn
+Subject: [RFC RESEND 2/3] virtio_net: introduce an RX queue watchdog for stuck detection
+Date: Tue,  8 Sep 2026 17:26:45 +0800
+Message-Id: <20260908092646.108865-3-lange_tang@163.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20260908092646.108865-1-lange_tang@163.com>
+References: <20260908092646.108865-1-lange_tang@163.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260821095511.3600564-2-Jeremy.Jean@oss.cyber.gouv.fr>
+X-CM-TRANSID:PigvCgD3Bf3X1J9qaBRdRg--.18019S4
+X-Coremail-Antispam: 1Uf129KBjvJXoW3Xr17Jw15tF4UWF43AFW7twb_yoW7GF48pF
+	43Cwn8tr48tr4xuryft397JFy5KrykXry7Gry3K345ZFn8Kr1rZFn2kFy5Ga909FZ3Jr17
+	ZF4vy3ySkaykurJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07jDtxfUUUUU=
+X-CM-SenderInfo: 5odqwvxbwd0wi6rwjhhfrp/xtbC4hrtHGqf1NqxGgAA3Z
 
-On Fri, Aug 21, 2026 at 09:55:12AM +0000, Jérémy Jean wrote:
-> The device controls the used length returned for an akcipher request.
-> Subtracting the status byte without validating that length can underflow
-> dst_len, while accepting a payload larger than the submitted destination
-> can make sg_copy_from_buffer() read past the response buffer.
-> 
-> Reject malformed completion lengths before updating dst_len or copying the
-> response.
-> 
-> Fixes: a36bd0ad9fbf ("virtio-crypto: adjust dst_len at ops callback")
-> Assisted-by: Codex:gpt-5
-> Signed-off-by: Jérémy Jean <Jeremy.Jean@oss.cyber.gouv.fr>
-> ---
->  drivers/crypto/virtio/virtio_crypto_akcipher_algs.c | 13 ++++++++++++-
->  1 file changed, 12 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c b/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
-> index d8d452cac391..886032abae80 100644
-> --- a/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
-> +++ b/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
-> @@ -69,6 +69,7 @@ static void virtio_crypto_dataq_akcipher_callback(struct virtio_crypto_request *
->  	struct akcipher_request *akcipher_req =
->  		container_of((void *)vc_akcipher_req, struct akcipher_request,
->  			     __ctx);
-> +	unsigned int dst_len;
->  	int error;
->  
->  	switch (vc_req->status) {
-> @@ -88,9 +89,19 @@ static void virtio_crypto_dataq_akcipher_callback(struct virtio_crypto_request *
->  	}
->  
->  	/* actual length may be less than dst buffer */
-> -	akcipher_req->dst_len = len - sizeof(vc_req->status);
+From: Longjun Tang <tanglongjun@kylinos.cn>
 
-This appears to have already been fixed by
+The backend raises an interrupt after adding buffers to the used ring,
+and the hypervisor injects it. If one is lost (e.g., a transient KVM
+failure), NAPI will not be scheduled and the driver stops consuming
+buffers. The ring eventually fills up, the backend stops notifying, and
+the queue is left permanently stuck.
 
-commit f77a956f6a19f9463ef1527c9d0cda50dded6b92
-Author: Bryam Vargas <hexlabsecurity@proton.me>
-Date:   Mon Jun 22 01:52:15 2026 -0500
+Add a per-device watchdog that scans the RX queues once per second and
+detects a queue that has a non-zero backlog while making no consumption
+progress and receiving no new interrupt for rx_watchdog_timeo seconds
+(default 5, 0 disables it). On detection it logs a warning, rate-limited
+to once per timeout.
 
-    crypto: virtio - bound the akcipher result length
+Assisted-by: Kilo:deepseek-v4-pro
+Signed-off-by: Longjun Tang <tanglongjun@kylinos.cn>
+---
+ drivers/net/virtio_net.c | 88 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 88 insertions(+)
 
-Please check that commit and see if it's sufficient or not.
-
-Thanks,
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index e34c52d059d3..c28de03c177b 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -36,6 +36,10 @@ module_param(csum, bool, 0444);
+ module_param(gso, bool, 0444);
+ module_param(napi_tx, bool, 0644);
+ 
++/* RX queue stall timeout in seconds; 0 disables the watchdog. */
++static unsigned int rx_watchdog_timeo = 5;
++module_param(rx_watchdog_timeo, uint, 0644);
++
+ #define VIRTIO_OFFLOAD_MAP_MIN	46
+ #define VIRTIO_OFFLOAD_MAP_MAX	47
+ #define VIRTIO_FEATURES_MAP_MIN	65
+@@ -330,6 +334,11 @@ struct receive_queue {
+ 	/* The number of rx notifications */
+ 	u16 calls;
+ 
++	/* RX watchdog state for stuck detection. */
++	u16 watchdog_last_used_idx;
++	u16 watchdog_calls;
++	unsigned long watchdog_jiffies;
++
+ 	/* Is dynamic interrupt moderation enabled? */
+ 	bool dim_enabled;
+ 
+@@ -441,6 +450,9 @@ struct virtnet_info {
+ 	/* Work struct for setting rx mode */
+ 	struct work_struct rx_mode_work;
+ 
++	/* RX watchdog timer for stuck detection */
++	struct timer_list rx_watchdog;
++
+ 	/* OK to queue work setting RX mode? */
+ 	bool rx_mode_work_enabled;
+ 
+@@ -3046,6 +3058,77 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
+ 	return received;
+ }
+ 
++/*
++ * This watchdog detects that state: a queue is considered stalled when
++ * it has a non-zero backlog, makes no consumption progress and receives
++ * no new interrupt for rx_watchdog_timeo seconds. On detection it logs
++ * a warning.
++ */
++static void virtnet_rx_watchdog(struct timer_list *t)
++{
++	struct virtnet_info *vi = timer_container_of(vi, t, rx_watchdog);
++	unsigned long timeout = rx_watchdog_timeo * HZ;
++	int i;
++
++	if (!rx_watchdog_timeo)
++		return;
++
++	for (i = 0; i < vi->curr_queue_pairs; i++) {
++		struct receive_queue *rq = &vi->rq[i];
++		u16 last_used = virtqueue_get_last_used_idx(rq->vq);
++		u16 calls = rq->calls;
++		bool backlog = virtqueue_poll(rq->vq, last_used);
++
++		if (!backlog || last_used != rq->watchdog_last_used_idx ||
++		    calls != rq->watchdog_calls) {
++			/* No pending data, or the queue made progress, or a
++			 * new interrupt arrived: restart the window.
++			 */
++			rq->watchdog_last_used_idx = last_used;
++			rq->watchdog_calls = calls;
++			rq->watchdog_jiffies = jiffies;
++			continue;
++		}
++
++		if (time_after(jiffies, rq->watchdog_jiffies + timeout)) {
++			unsigned int stall_ms =
++				jiffies_to_msecs(jiffies - rq->watchdog_jiffies);
++
++			netdev_warn(vi->dev, "RX queue %u stalled for %u ms\n",
++				    i, stall_ms);
++
++			/* Rate-limit to one event per timeout. */
++			rq->watchdog_jiffies = jiffies;
++		}
++	}
++
++	mod_timer(&vi->rx_watchdog, jiffies + HZ);
++}
++
++static void virtnet_rx_watchdog_start(struct virtnet_info *vi)
++{
++	int i;
++
++	if (!rx_watchdog_timeo)
++		return;
++
++	for (i = 0; i < vi->curr_queue_pairs; i++) {
++		struct receive_queue *rq = &vi->rq[i];
++
++		rq->watchdog_last_used_idx =
++			virtqueue_get_last_used_idx(rq->vq);
++		rq->watchdog_calls = rq->calls;
++		rq->watchdog_jiffies = jiffies;
++	}
++
++	mod_timer(&vi->rx_watchdog, jiffies + HZ);
++}
++
++static void virtnet_rx_watchdog_stop(struct virtnet_info *vi)
++{
++	timer_delete_sync(&vi->rx_watchdog);
++}
++
+ static void virtnet_disable_queue_pair(struct virtnet_info *vi, int qp_index)
+ {
+ 	virtnet_napi_tx_disable(&vi->sq[qp_index]);
+@@ -3209,6 +3292,8 @@ static int virtnet_open(struct net_device *dev)
+ 		netif_carrier_on(dev);
+ 	}
+ 
++	virtnet_rx_watchdog_start(vi);
++
+ 	return 0;
+ 
+ err_enable_qp:
+@@ -3802,6 +3887,8 @@ static int virtnet_close(struct net_device *dev)
+ 	struct virtnet_info *vi = netdev_priv(dev);
+ 	int i;
+ 
++	virtnet_rx_watchdog_stop(vi);
++
+ 	/* Prevent the config change callback from changing carrier
+ 	 * after close
+ 	 */
+@@ -6869,6 +6956,7 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 
+ 	INIT_WORK(&vi->config_work, virtnet_config_changed_work);
+ 	INIT_WORK(&vi->rx_mode_work, virtnet_rx_mode_work);
++	timer_setup(&vi->rx_watchdog, virtnet_rx_watchdog, 0);
+ 
+ 	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF)) {
+ 		vi->mergeable_rx_bufs = true;
 -- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+2.25.1
+
