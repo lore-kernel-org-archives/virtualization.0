@@ -1,358 +1,249 @@
-Received: from mail-pg1-f226.google.com (mail-pg1-f226.google.com [209.85.215.226])
+Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15D4D313E31
-	for <virtualization@lists.linux.dev>; Tue,  8 Sep 2026 18:15:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.226
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40AA1492E25
+	for <virtualization@lists.linux.dev>; Tue,  8 Sep 2026 22:59:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788891343; cv=none; b=Vr7aLNMmww8DFSK3Ib1IrHGXjVu20+pHro0seQrS8fdW1HePZpXPdFNf685+UOobbVNElz/BAMq35U+BfSyhFAy/kmMS8PFBeymjsI6FCTJ1bc7rDMIRERzcT28Dwp5NAG+wAUqSXnQ38h3DXlJ4j+dqAWp74KTrpnYmYLHY8Hk=
+	t=1788908347; cv=none; b=mY1zHPGfpGdo7X3Nln3HLm7UfS7sdTXTZoCopGoj/7k+dECMBkA4VYRYXzaUS16IIOcTUEkhLmJMhCfnYALUDSKPcbcO4EN6uIdwTR3ZCODKyUzZFAyh0nfzMC/WpkBpG5iTXT5W83LGMXgS9RIQ07macZG/J4ACKR/Aqn9iVqM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788891343; c=relaxed/simple;
-	bh=Mvcs9Lt0sPQOGP5yNJDCK3xofsCRtXPW55QU80iioj4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ApGx67z74wx3/kelfUXQcPEVk6La1SMGZcxQQ68ID1YDG1+ruc1A7TWLF1tjzrBOEFc5Piud8/06vgM/kNmqWXLMn3kM4Bb4C2fmDQxyygx9dTiY6SNj6Pfp8D0WR4zki0hpuMKZ9Enh7R9GJK6nmDCobAwFONi6AnlylL149Yc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=XKhYgpxR; arc=none smtp.client-ip=209.85.215.226
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
+	s=arc-20240116; t=1788908347; c=relaxed/simple;
+	bh=RUdKSO/DKe7Tfh1nS3jSt+4GDpq/U0Yu7CmdcHTOt+g=;
+	h=From:Date:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=WeNuLOZVU7d6vUiv5SW3E/2KUvLSOGib7aSycCBO7crTztYby9kWDSv9s5zvPkmGieeV35Ec1tnd04XnjDud4lupdLv5XFle9+C7DiXPJPT/0L5L88Jmd4OdSSKXwzZq3zw+nqWDOHDXWo9JwoJd2Pb4Gfyj8uNghW75aqdbseY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PN0wV2/v; arc=none smtp.client-ip=209.85.214.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="XKhYgpxR"
-Received: by mail-pg1-f226.google.com with SMTP id 41be03b00d2f7-cc147d86bebso4016730a12.0
-        for <virtualization@lists.linux.dev>; Tue, 08 Sep 2026 11:15:40 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PN0wV2/v"
+Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-2d6e954afbdso34113145ad.2
+        for <virtualization@lists.linux.dev>; Tue, 08 Sep 2026 15:59:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788908345; x=1789513145; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:date:from:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=LxX1rEZrKYtuWO+o8T+2BCvyEblD/tbwlp93Hac6Zsg=;
+        b=PN0wV2/vlUZrbZ1/KBpVMHGy69pkoIu/IPXBikQ2hhWdOWqIQTjCSk2kN13Ax0DXlx
+         moUjf2x5Ekw5MQv4cDqEj6BDFWijZ+wysZIPvGrevKZ5lnz/yCw1WI/BvAFb47ip+hp3
+         /1SvIvAXrXAtuHykwDNk+Ts6ZjO3eImEfTSLGvfLzQasw+MOHUB5nahmNP2JFYdumQFS
+         2Qnmmi0D2B8ZSM45CoPhKXa9DpWVBIuz1jDG2K5javcVO689MaSUMx6Ds56f9U/0vVRN
+         lz5Lp7QFEQRLM5ek2SiEaPhY72kd3VHlZTZEDkrs1ZCl8HXgfuDl0/HyoCpcL1hCK2KV
+         qmjg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788891340; x=1789496140;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:dkim-signature:x-gm-gg
+        d=1e100.net; s=20251104; t=1788908345; x=1789513145;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:date:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=aIZhE29+oVPTSBZvjxk3RWug8DvHvEXFsH8XGpUQx0Y=;
-        b=BcH46wU3o8rm/lK1YuN/MJfxh1NvAsAEfNvXDC6msqmUciHykcyGFNe0GGAlB7vgtH
-         XS6wCen941L0v7HwlJ16R+KALRAN4JDnrcTekfw7y02KL2NhG96uAW0+A8GYM6I9qUOy
-         J1JdZp8BERtFTVGoCEWrMP5CtZbRfv8DTqC+B7vkqpwiRdFiXY5IRD5CKYM1m0I1oWT6
-         oIMC8M7jBfTlQ/CpUTe1N6x74XNOEzuajMAtDmCYtY513Yfy7qN+QYBEGVqahAgMyQcf
-         3OfXJo6dQ63vWvaBtPfSFXLEiTnWftnaSuhgF0uEoPoT8e97TmtyjjuGOjmywy19ynrT
-         fDsw==
-X-Forwarded-Encrypted: i=1; AKwUvBzTRGX/rtciPL+0rKXrB5towjkwghL6oYOKHrMDSbkq9dz44G+tzdwHyHfPSawICRKAFU/Kbo+1BDIT2xNAnQ==@lists.linux.dev
-X-Gm-Message-State: AFuF++nuQpYF1/aDHrqFfH1Z7S1JNzeh+nwtOj5hW7jVekl/ov7d7EE6
-	jhha4fZ9hlow9HUsbWkCqbrNgoA83oHSENoeu6z3Grl0WDVVjeoaRBa/oe3KqQl6pl+ISO76IT2
-	xxilHsiKtxxKOLzgOSVxR0ZAvaq8b/cngvyS1w4TSm86dIlo0sVhfiYfMlxQ0yoNwiHJYb4ber7
-	OmTtna2a0jRJIrKeA2EzASXCgGcsGq/Bj4iMVHVfjIQA78lnZYFK6fzesTN4FBINzQvWtxh8BIa
-	zd9sD0NBqXTDwq2WjQ=
-X-Gm-Gg: AYBFou0h+i8/e4pUUEm56IuOq5ilBSLoMkC8/xSxK17VkqD+zBAV39YtuJ58CxKK6xl
-	cUOMyzxrGzJ5uLf9HaKU7xLtXDmYpP/NNBhaJLXyEm/tuXzIB7/STudB3bzg3yzLi6cE2JFH178
-	vMMKCeP95DhMIwKJFWwpr9Ee9XN9UQID88Pe3EpvMyBIl86VPaacVKg7q5jW5EdW3M9rONZLMdi
-	pRSX9McWuiwCtvST9VI/9j1b1AsBbG9XkvHvABkea2yj1m3iw6tz/QnpPxz2zKFxiKfBUJbubyq
-	Al+ax2PUkRI5XrYPFjdAjhVkYAAHR85wuAbwbD9LogiDbwhh9meEjW1ykUehlAy9dQmTORHQldb
-	F4+QALKYYInKw28alBDhZFgqfl+nL3Pvh1NC9z5lXTFJZwBbPiVAVefmtTuMY+LmzBUQYgDB1Mc
-	McfzaKeJLEgWMHLjpKNrU8mQA/9VXyPcLv
-X-Received: by 2002:a17:90b:4ad1:b0:38f:657:6823 with SMTP id 98e67ed59e1d1-39b8bd997f7mr6261025a91.8.1788891339944;
-        Tue, 08 Sep 2026 11:15:39 -0700 (PDT)
-Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-25.dlp.protect.broadcom.com. [144.49.247.25])
-        by smtp-relay.gmail.com with ESMTPS id 98e67ed59e1d1-39ae9071bd5sm2138629a91.4.2026.09.08.11.15.39
-        for <virtualization@lists.linux.dev>
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 08 Sep 2026 11:15:39 -0700 (PDT)
-X-Relaying-Domain: broadcom.com
-X-CFilter-Loop: Reflected
-Received: by mail-qv1-f70.google.com with SMTP id 6a1803df08f44-91054f537f9so46222916d6.0
-        for <virtualization@lists.linux.dev>; Tue, 08 Sep 2026 11:15:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1788891336; x=1789496136; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=aIZhE29+oVPTSBZvjxk3RWug8DvHvEXFsH8XGpUQx0Y=;
-        b=XKhYgpxRPH1uYXoh93vZE+ELxV5J0kTbpvDC/3RcSyh7GSQeKIzInPO4sssuQdrTo2
-         4Bkjz3e/v7Tjm71YB48eIUkqTYFp1utChfJetRYVQKlhoCwz0Ugbae4w8gd1YJgXoHs+
-         dawT11en1FLtTx3SoylKHE0IGObXUEBEAErg8=
-X-Forwarded-Encrypted: i=1; AKwUvBxoBPz+1xnMVLZ5ktEd35J8rKIt0YX0wRbt8AVNX7Uzr6KCiCNGMmo948naV3q6nMY2CBFXLCkavChU1ohGAA==@lists.linux.dev
-X-Received: by 2002:a0c:e003:0:b0:910:69e3:2983 with SMTP id 6a1803df08f44-91069e33187mr23819446d6.5.1788890849425;
-        Tue, 08 Sep 2026 11:07:29 -0700 (PDT)
-X-Received: by 2002:a0c:e003:0:b0:910:69e3:2983 with SMTP id 6a1803df08f44-91069e33187mr23818676d6.5.1788890848717;
-        Tue, 08 Sep 2026 11:07:28 -0700 (PDT)
-Received: from vertex.localdomain (pool-173-49-113-140.phlapa.fios.verizon.net. [173.49.113.140])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-9106412e038sm27114866d6.20.2026.09.08.11.07.27
+        bh=LxX1rEZrKYtuWO+o8T+2BCvyEblD/tbwlp93Hac6Zsg=;
+        b=Ne5jIEN7hITu36hdteGB1G+d3E7oPMxJAHrRU/2S0aVXfoxGsbeYQRYoBydx75GpEv
+         gvnYG1N0zTP6tfW/mLdfcqps+RnJRTksviQiAboTlVRePgCcj/P5lg/6LhZR8Ga3aUju
+         SQLFpW6o7gkpv6p5G0Vv+BbamcTQkxSpcMmCdyHSuPg5dUI4bjmh67JhA4uuaq2wwvV8
+         R299d2m1sPYw7XmblDMmRhdaLkYErN7u7K0+lXcEOymAggl2Ioy6vnC6n+UCeZ1Tu0T3
+         CP12mFjiS8iMiu3zfg7nZSA3fxeip3h4YDj1I111mB5xVNfpee+BPlPCubzjt2YERKgD
+         d7rQ==
+X-Forwarded-Encrypted: i=1; AKwUvBxJ7ZgnbRJUkfQ/zjgWRekJl+cY5MNpllFQR3KS053SF99wdpz5mM3ggzHzzcd26jws0ssJ8O3b4Iv9tJyE5A==@lists.linux.dev
+X-Gm-Message-State: AFuF++nZPXwsaj7gRWHBy09AmDIFQxRV3Qyuz13D5x7bI+wI2dAy3uii
+	npAwkxHKfKZX56vRLPnJNXohl7Os4u1tOShDf73sPXrfrSXXt61qNbRd
+X-Gm-Gg: AYBFou3sJR2SwXX7/DvAEYEoWI1AxpilK5ShCzm43OlP9YVRlNgOUMTWHZnS/wqMFC5
+	gIeEvUER4ZPEJNOtSTHarZwmqhHVYdynGw2JqdMb5zoBND2pmaGy6K5yB6RZPS88qzEj091ckva
+	sZc6MJOsOxCYc+pufiIuoWXNk7xDJ+h0/pw9svMbklgzEbqWSK5bSuey+Y6/RjlBvL4dXh3zPga
+	UaisTHtsRieZZ1MHsSNcg5fgRr8WXuwFBAKhvVs5zTwquWeUv3EjZPtcbNBGglYJz7MG2keWfzE
+	RDtWtyez1Lu59ZAcKhGdpq+Fkg3rat++DRks4xkwgzt+ra4MoPJdoD/9heqIRpnqmmFnj3ad0UE
+	8Cpi0FFOz5U5KZWKIIXE3XAiPimTVM2tWU3VFsp2xn2S7ZC6oYLi636w/eeUL5cZ4LP3ybdCITZ
+	wN+GYcvBMjbZx9yc8woAWUgL75RMkO4mhd1C2AfIvGRHfB2IYaxnOEDtUWz34p6sb3NQwbsA==
+X-Received: by 2002:a17:90b:2ccf:b0:398:a2a3:b631 with SMTP id 98e67ed59e1d1-39b262aaf3dmr49898755a91.19.1788908344988;
+        Tue, 08 Sep 2026 15:59:04 -0700 (PDT)
+Received: from localhost ([216.228.127.131])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1432435648esm46668031c88.5.2026.09.08.15.59.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Sep 2026 11:07:27 -0700 (PDT)
-From: Zack Rusin <zack.rusin@broadcom.com>
-To: Borislav Petkov <bp@alien8.de>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	x86@kernel.org,
-	Petr Mladek <pmladek@suse.com>,
-	Joel Granados <joel.granados@kernel.org>,
-	Baoquan He <baoquan.he@linux.dev>
-Cc: Thomas Gleixner <tglx@kernel.org>,
-	Ingo Molnar <mingo@redhat.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"H . Peter Anvin" <hpa@zytor.com>,
-	virtualization@lists.linux.dev,
-	bcm-kernel-feedback-list@broadcom.com,
-	linux-kernel@vger.kernel.org,
-	John Ogness <john.ogness@linutronix.de>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Sergey Senozhatsky <senozhatsky@chromium.org>,
-	Kees Cook <kees@kernel.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Pasha Tatashin <pasha.tatashin@soleen.com>,
-	Pratyush Yadav <pratyush@kernel.org>,
-	Dave Young <ruirui.yang@linux.dev>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Bo Gan <bo.gan@broadcom.com>,
-	Brennan Lamoreaux <brennan.lamoreaux@broadcom.com>,
-	kexec@lists.infradead.org,
-	linux-doc@vger.kernel.org,
-	Zack Rusin <zack.rusin@broadcom.com>
-Subject: [PATCH v1 1/4] x86/vmware: Add a bounded panic log sender
-Date: Tue,  8 Sep 2026 14:07:13 -0400
-Message-ID: <18115e519d85b753c147b45470120721eaf14505.1788414671.git.zack.rusin@broadcom.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <cover.1788414671.git.zack.rusin@broadcom.com>
-References: <cover.1788414671.git.zack.rusin@broadcom.com>
+        Tue, 08 Sep 2026 15:59:04 -0700 (PDT)
+From: Yury Norov <yury.norov@gmail.com>
+X-Google-Original-From: Yury Norov <ynorov@nvidia.com>
+Date: Tue, 8 Sep 2026 18:58:57 -0400
+To: Shrikanth Hegde <sshegde@linux.ibm.com>
+Cc: yury.norov@gmail.com, linux-kernel@vger.kernel.org, mingo@kernel.org,
+	peterz@infradead.org, juri.lelli@redhat.com,
+	vincent.guittot@linaro.org, kprateek.nayak@amd.com,
+	iii@linux.ibm.com, corbet@lwn.net, meted@linux.ibm.com,
+	tglx@kernel.org, gregkh@linuxfoundation.org, pbonzini@redhat.com,
+	seanjc@google.com, vschneid@redhat.com, huschle@linux.ibm.com,
+	rostedt@goodmis.org, dietmar.eggemann@arm.com, maddy@linux.ibm.com,
+	srikar@linux.ibm.com, hdanton@sina.com, chleroy@kernel.org,
+	vineeth@bitbyteword.org, frederic@kernel.org, arighi@nvidia.com,
+	pauld@redhat.com, christian.loehle@arm.com, tj@kernel.org,
+	tommaso.cucinotta@gmail.com, maz@kernel.org, rafael@kernel.org,
+	rdunlap@infradead.org, kernellwp@gmail.com,
+	linux-doc@vger.kernel.org, jgross@suse.com,
+	virtualization@lists.linux.dev, sunlightlinux@gmail.com
+Subject: Re: [PATCH v12 08/13] sched/core: Push current task from non
+ preferred CPU
+Message-ID: <aqCTMREUoCmbtygK@yury>
+References: <20260903063240.268775-1-sshegde@linux.ibm.com>
+ <20260903063240.268775-9-sshegde@linux.ibm.com>
+ <aptiJP_8SWwZWju6@yury>
+ <7d88a3c4-a7e4-4814-9e29-84955b69a5b3@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-DetectorID-Processed: b00c1d49-9d2e-4205-b15f-d015386d3d5e
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7d88a3c4-a7e4-4814-9e29-84955b69a5b3@linux.ibm.com>
 
-A virtual machine may have no guest-local persistent storage or working
-userspace after a panic. Preserve the newest kernel log tail in the host
-vmware.log, which remains available after the VM terminates.
+On Mon, Sep 07, 2026 at 08:53:19AM +0530, Shrikanth Hegde wrote:
+> Hi Yury, thanks for taking a look.
+> 
+> On 9/5/26 5:58 AM, Yury Norov wrote:
+> > On Thu, Sep 03, 2026 at 12:02:35PM +0530, Shrikanth Hegde wrote:
+> > > Actively push out the current running task on a non-preferred CPU. Since
+> > > the task is currently running, a stopper thread must be queued to push the
+> > > task out. However, if the task is pinned only to non-preferred CPUs,
+> > > it will continue running there. This helps to maintain userspace
+> > > affinities, unlike CPU hotplug or isolated cpusets.
+> > > 
+> > > Though the code is similar to __balance_push_cpu_stop and quite close to
+> > > push_cpu_stop, it is kept separate as it provides a cleaner
+> > > implementation specifically for CONFIG_PREFERRED_CPU.
+> > > 
+> > > Add the push_task_work_done flag to protect the work buffer.
+> > > 
+> > > For now, only the currently running task is pushed out. This keeps the code
+> > > simpler. In the future, an optimization may be added to move all queued
+> > > tasks on the runqueue.
+> > > 
+> > > This works only for the FAIR scheduling class.
+> > > 
+> > > Signed-off-by: Shrikanth Hegde <sshegde@linux.ibm.com>
+> > > ---
+> > >   kernel/sched/core.c  | 81 ++++++++++++++++++++++++++++++++++++++++++++
+> > >   kernel/sched/sched.h |  8 +++++
+> > >   2 files changed, 89 insertions(+)
+> > > 
+> > > diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+> > > index b4ef2e92d786..35e7eedad104 100644
+> > > --- a/kernel/sched/core.c
+> > > +++ b/kernel/sched/core.c
+> > > @@ -5808,6 +5808,9 @@ void sched_tick(void)
+> > >   	unsigned long hw_pressure;
+> > >   	u64 resched_latency;
+> > > +	if (!cpu_preferred(cpu))
+> > > +		sched_push_current_non_preferred_cpu(rq);
+> > > +
+> > >   	if (housekeeping_cpu(cpu, HK_TYPE_KERNEL_NOISE))
+> > >   		arch_scale_freq_tick();
+> > > @@ -11202,3 +11205,81 @@ void sched_change_end(struct sched_change_ctx *ctx)
+> > >   		p->sched_class->prio_changed(rq, p, ctx->prio);
+> > >   	}
+> > >   }
+> > > +
+> > > +#ifdef CONFIG_PREFERRED_CPU
+> > > +static DEFINE_PER_CPU(struct cpu_stop_work, npc_push_task_work);
+> > > +
+> > > +static int sched_non_preferred_cpu_push_stop(void *arg)
+> > > +{
+> > > +	struct task_struct *p = arg;
+> > > +	struct rq *rq = this_rq();
+> > > +	struct rq_flags rf;
+> > > +	int cpu;
+> > > +
+> > > +	if (cpu_preferred(rq->cpu)) {
+> > > +		scoped_guard(rq_lock_irqsave, rq)
+> > > +			rq->push_task_work_done = false;
+> > > +		put_task_struct(p);
+> > > +		return 0;
+> > > +	}
+> > > +
+> > > +	raw_spin_lock_irq(&p->pi_lock);
+> > > +
+> > > +	/* This could take rq lock. So call it before rq lock is taken */
+> > > +	cpu = select_fallback_rq(rq->cpu, p);
+> > > +	rq_lock(rq, &rf);
+> > 
+> > If select_fallback_rq() grabs the lock, then when it releases the
+> > lock, there's a window for race between the other process and the
+> > subsequent rq_lock(). Or I misunderstand it?
+> > 
+> 
+> select_fallback_rq taking lock is for any state change that needs to happen
+> such as fallback to possible CPUs etc.
+> 
+> Most of the time it won't grab the rq lock. Even if the task got pulled by load balancer
+> before grabbing the lock, Below (task_rq(p) == rq) will catch that, and it bails out.
+> 
+> So it is safe.
 
-Allocate one page during early init and register a panic-only kmsg dumper.
-Copy the newest records once, prefix them with "log ", and send one
-explicit-length RPC message over the low-bandwidth register path. The page
-limit bounds panic-time work and avoids sharing guest memory with the host.
+OK... Can you please explain it in the comment above?
 
-Keep the source immutable for up to three attempts. Retry only checkpoint
-responses, zero-fill a short final word, and close the single RPC channel
-on every exit after open. The panic callback allocates nothing, does not
-sleep, and emits no printk messages.
+...
 
-Free the page and leave panic logging disabled if dumper registration
-fails, including when CONFIG_PRINTK=n.
+> > > diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
+> > > index 6c3ad70e58b8..678e44134acf 100644
+> > > --- a/kernel/sched/sched.h
+> > > +++ b/kernel/sched/sched.h
+> > > @@ -1298,6 +1298,8 @@ struct rq {
+> > >   	struct list_head cfs_tasks;
+> > > +	bool			push_task_work_done;
+> > > +
+> > 
+> > It should be protected with CONFIG_PREFERRED_CPU. Also, the name
+> > doesn't look correct. You set the variable to 'true' even before
+> > calling the stopper. Maybe need_push_to_npc, or similar?
+> > 
+> 
+> ok. npc_push_work_pending is probably a better one?
+> > Why did you place it between cfs_tasks and avg_rt? If no specific
+> > reason, maybe place it next to CONFIG_PARAVIRT-guarded fields.
+> > 
+> 
+> I don't see a common empty space there. I could increase the size.
+> 
+> > What about pahole?
+> 
+> I did check pahole on powerpc which has 128 byte cachelines.
+> 
+> 	int                        online;               /*  4524     4 */
+> 	struct list_head           cfs_tasks;            /*  4528    16 */
+> 
+> 	/* XXX 64 bytes hole, try to pack */
+> 
+> It was empty space. Now, that i check 64 byte cachelines it may not be the
+> optimal one.
+> 
+> I do see, a couple common places for both 64 abd 126 byte cacheline. I believe those
+> are better places. It won't increase the size or cause any existing fields to
+> misalign. It also makes sense to guard it again CONFIG_PREFERRED_CPU. I had not
+> done to avoid ifdefs. But it is used only under it. So i think that makes sense too.
+> 
+> 1.
+> 
+> 	struct balance_callback *  balance_callback;     /*  3608     8 */
+> 	unsigned char              nohz_idle_balance;    /*  3616     1 */
+> 	unsigned char              idle_balance;         /*  3617     1 */
+> 
+> 	/* XXX 6 bytes hole, try to pack */
+> 	long unsigned int          misfit_task_load;     /*  3624     8 */
+> 
+> 
+> 2.
+> 	unsigned int               ttwu_count;           /*  5276     4 */
+> 	unsigned int               ttwu_local;           /*  5280     4 */
+> 
+> 	/* XXX 4 bytes hole, try to pack */
+> 
+> 	struct cpuidle_state *     idle_state;           /*  5288     8 */
 
-Link: https://lore.kernel.org/r/20260309235250.2611115-3-alexey.makhalov@broadcom.com
-Co-developed-by: Bo Gan <bo.gan@broadcom.com>
-Signed-off-by: Bo Gan <bo.gan@broadcom.com>
-Co-developed-by: Alexey Makhalov <alexey.makhalov@broadcom.com>
-Signed-off-by: Alexey Makhalov <alexey.makhalov@broadcom.com>
-Signed-off-by: Zack Rusin <zack.rusin@broadcom.com>
----
- arch/x86/include/asm/vmware.h |   1 +
- arch/x86/kernel/cpu/vmware.c  | 158 ++++++++++++++++++++++++++++++++++
- 2 files changed, 159 insertions(+)
+The struct rq is highly configurable. Depending on your config,
+the holes will migrate to different places. I'd not rely on just
+'optimizing holes' problem. Just put the new field next to logically
+related existing fields.
 
-diff --git a/arch/x86/include/asm/vmware.h b/arch/x86/include/asm/vmware.h
-index 4220dae14a2d..598d4cd448ec 100644
---- a/arch/x86/include/asm/vmware.h
-+++ b/arch/x86/include/asm/vmware.h
-@@ -57,6 +57,7 @@
- #define VMWARE_HYPERVISOR_MAGIC		0x564d5868U
- 
- #define VMWARE_CMD_GETVERSION		10
-+#define VMWARE_CMD_MESSAGE		30
- #define VMWARE_CMD_GETHZ		45
- #define VMWARE_CMD_GETVCPU_INFO		68
- #define VMWARE_CMD_STEALCLOCK		91
-diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-index 34b73573b108..bf59653d6e07 100644
---- a/arch/x86/kernel/cpu/vmware.c
-+++ b/arch/x86/kernel/cpu/vmware.c
-@@ -24,11 +24,14 @@
- #include <linux/dmi.h>
- #include <linux/init.h>
- #include <linux/export.h>
-+#include <linux/kmsg_dump.h>
-+#include <linux/mm.h>
- #include <linux/clocksource.h>
- #include <linux/cpu.h>
- #include <linux/efi.h>
- #include <linux/reboot.h>
- #include <linux/static_call.h>
-+#include <linux/wordpart.h>
- #include <linux/sched/cputime.h>
- #include <asm/div64.h>
- #include <asm/x86_init.h>
-@@ -52,6 +55,22 @@
- #define STEALCLOCK_DISABLED        0
- #define STEALCLOCK_ENABLED         1
- 
-+#define VMWARE_MSG_STATUS_SUCCESS	BIT(16)
-+#define VMWARE_MSG_STATUS_CPT		BIT(20)
-+
-+#define VMWARE_RPCI_PROTOCOL		0x49435052
-+#define VMWARE_GUESTMSG_COOKIE		BIT(31)
-+
-+#define VMWARE_MSG_TYPE(n)		((n) << 16)
-+#define VMWARE_MSG_OPEN			VMWARE_MSG_TYPE(0U)
-+#define VMWARE_MSG_SENDSIZE		VMWARE_MSG_TYPE(1U)
-+#define VMWARE_MSG_SENDPAYLOAD		VMWARE_MSG_TYPE(2U)
-+#define VMWARE_MSG_CLOSE		VMWARE_MSG_TYPE(6U)
-+
-+#define VMWARE_LOG_ATTEMPTS		3
-+#define VMWARE_LOG_PREFIX		"log "
-+#define VMWARE_LOG_PREFIX_LEN		(sizeof(VMWARE_LOG_PREFIX) - 1)
-+
- struct vmware_steal_time {
- 	union {
- 		u64 clock;	/* stolen time counter in units of vtsc */
-@@ -64,6 +83,12 @@ struct vmware_steal_time {
- 	u64 reserved[7];
- };
- 
-+struct vmware_rpc_channel {
-+	u16 id;
-+	u32 cookie_high;
-+	u32 cookie_low;
-+};
-+
- static unsigned long vmware_tsc_khz __ro_after_init;
- static u8 vmware_hypercall_mode     __ro_after_init;
- 
-@@ -142,6 +167,139 @@ static unsigned long vmware_get_tsc_khz(void)
- 	return vmware_tsc_khz;
- }
- 
-+static int vmware_log_open(struct vmware_rpc_channel *channel)
-+{
-+	u32 info, id;
-+
-+	vmware_hypercall6(VMWARE_CMD_MESSAGE | VMWARE_MSG_OPEN,
-+			  VMWARE_RPCI_PROTOCOL | VMWARE_GUESTMSG_COOKIE, 0,
-+			  &info, &id, &channel->cookie_high,
-+			  &channel->cookie_low);
-+	if (!(info & VMWARE_MSG_STATUS_SUCCESS))
-+		return -EIO;
-+
-+	channel->id = upper_16_bits(id);
-+	return 0;
-+}
-+
-+static int vmware_log_close(const struct vmware_rpc_channel *channel)
-+{
-+	u32 info;
-+
-+	vmware_hypercall5(VMWARE_CMD_MESSAGE | VMWARE_MSG_CLOSE, 0,
-+			  (u32)channel->id << 16, channel->cookie_high,
-+			  channel->cookie_low, &info);
-+
-+	return info & VMWARE_MSG_STATUS_SUCCESS ? 0 : -EIO;
-+}
-+
-+static int vmware_log_send_once(const struct vmware_rpc_channel *channel,
-+				const char *buffer, size_t length)
-+{
-+	u32 info;
-+
-+	vmware_hypercall5(VMWARE_CMD_MESSAGE | VMWARE_MSG_SENDSIZE, length,
-+			  (u32)channel->id << 16, channel->cookie_high,
-+			  channel->cookie_low, &info);
-+	if (!(info & VMWARE_MSG_STATUS_SUCCESS))
-+		return info & VMWARE_MSG_STATUS_CPT ? -EAGAIN : -EIO;
-+
-+	while (length) {
-+		size_t bytes = min_t(size_t, length, sizeof(u32));
-+		u32 word = 0;
-+
-+		memcpy(&word, buffer, bytes);
-+		vmware_hypercall5(VMWARE_CMD_MESSAGE | VMWARE_MSG_SENDPAYLOAD,
-+				  word, (u32)channel->id << 16,
-+				  channel->cookie_high, channel->cookie_low,
-+				  &info);
-+		if (!(info & VMWARE_MSG_STATUS_SUCCESS))
-+			return info & VMWARE_MSG_STATUS_CPT ? -EAGAIN : -EIO;
-+
-+		buffer += bytes;
-+		length -= bytes;
-+	}
-+
-+	return 0;
-+}
-+
-+static int vmware_log_send(const struct vmware_rpc_channel *channel,
-+			   const char *buffer, size_t length)
-+{
-+	int attempt, ret;
-+
-+	for (attempt = 0; attempt < VMWARE_LOG_ATTEMPTS; attempt++) {
-+		ret = vmware_log_send_once(channel, buffer, length);
-+		if (ret != -EAGAIN)
-+			return ret;
-+	}
-+
-+	return -EAGAIN;
-+}
-+
-+static int vmware_log_rpc(const char *buffer, size_t length)
-+{
-+	struct vmware_rpc_channel channel;
-+	int close_ret, ret;
-+
-+	ret = vmware_log_open(&channel);
-+	if (ret)
-+		return ret;
-+
-+	ret = vmware_log_send(&channel, buffer, length);
-+	close_ret = vmware_log_close(&channel);
-+	if (!ret && close_ret)
-+		ret = close_ret;
-+
-+	return ret;
-+}
-+
-+static struct page *vmware_panic_page;
-+
-+static void vmware_panic_log_dump(struct kmsg_dumper *dumper,
-+				  struct kmsg_dump_detail *detail)
-+{
-+	struct kmsg_dump_iter iter;
-+	char *buffer = page_address(vmware_panic_page);
-+	size_t length = 0;
-+
-+	memcpy(buffer, VMWARE_LOG_PREFIX, VMWARE_LOG_PREFIX_LEN);
-+	kmsg_dump_rewind(&iter);
-+	(void)kmsg_dump_get_buffer(&iter, true,
-+				   buffer + VMWARE_LOG_PREFIX_LEN,
-+				   PAGE_SIZE - VMWARE_LOG_PREFIX_LEN, &length);
-+	(void)vmware_log_rpc(buffer, length + VMWARE_LOG_PREFIX_LEN);
-+}
-+
-+static struct kmsg_dumper vmware_panic_log_dumper = {
-+	.dump = vmware_panic_log_dump,
-+	.max_reason = KMSG_DUMP_PANIC,
-+};
-+
-+static int __init vmware_panic_log_init(void)
-+{
-+	int ret;
-+
-+	if (!hypervisor_is_type(X86_HYPER_VMWARE))
-+		return 0;
-+
-+	vmware_panic_page = alloc_page(GFP_KERNEL);
-+	if (!vmware_panic_page) {
-+		pr_err("failed to allocate panic log buffer\n");
-+		return 0;
-+	}
-+
-+	ret = kmsg_dump_register(&vmware_panic_log_dumper);
-+	if (ret) {
-+		pr_err("failed to register panic log dumper: %d\n", ret);
-+		__free_page(vmware_panic_page);
-+		vmware_panic_page = NULL;
-+	}
-+
-+	return 0;
-+}
-+early_initcall(vmware_panic_log_init);
-+
- #ifdef CONFIG_PARAVIRT
- static struct cyc2ns_data vmware_cyc2ns __ro_after_init;
- static bool vmw_sched_clock __initdata = true;
--- 
-2.53.0
+You've got paravirt-related prev_steal_time and prev_steal_time_rq,
+and you've got the /* For active balancing */ section. Maybe one of
+them?
 
+Thanks,
+Yury
