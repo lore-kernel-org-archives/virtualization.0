@@ -1,148 +1,223 @@
-Received: from smtpbg150.qq.com (smtpbg150.qq.com [18.132.163.193])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE34852FE20
-	for <virtualization@lists.linux.dev>; Tue,  8 Sep 2026 12:14:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=18.132.163.193
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF5C754CF55
+	for <virtualization@lists.linux.dev>; Tue,  8 Sep 2026 14:31:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788869691; cv=none; b=ATlcNJM4oqk5c7s1MDADwOWbAPUh0HiEoLbCwzwou76sSJJFnUwPdYnf0Y4cJinxqZM1CdLmX3jlfcddVlUjjOVr/TGvTgeGXbcqo9my1AvJYvzOnUYl5LXw7kpoSSlmX8KDOfbFGpzGX8DIoTj4fMftstoUv8N5QLLebdiDH1A=
+	t=1788877872; cv=none; b=pp3+HGAOIaiXVSRBJyPkV+eotE1eGPYVxMRzFXaBDJ5PJQqZYUTp5QU+1ZdNkHMmCsFUw4AbG/3101/DlzdSg5gW5BPmveAYCOla1NAPUXa7aVMauRuxCEjj6m1ZQptEv6zPbjt0YR+zSPNDwCMrEtP5to8hGv76gyPWR/1PvXQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788869691; c=relaxed/simple;
-	bh=kE6e9md14D+FOdB2WmJgAW7jR/hNortrL82vwlwO6uY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Ke9HgQbMc9/mBrhJHWqM4cWrglb+Y8a3esFcik5JomxKtsULdaFjsEd7digSCLDPmlMMxUxOHkFA148hYdRFcmszJUSiVJtENvaozGU7W+jkJW1RaMWkJe45EbMLRrHmBfZKW8+j+GGQEF3sNmN5j+ulclRj7dSmeJH2ZmxdNPc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=smail.nju.edu.cn; spf=pass smtp.mailfrom=smail.nju.edu.cn; dkim=pass (1024-bit key) header.d=smail.nju.edu.cn header.i=@smail.nju.edu.cn header.b=AbMwDCKf; arc=none smtp.client-ip=18.132.163.193
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=smail.nju.edu.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=smail.nju.edu.cn
+	s=arc-20240116; t=1788877872; c=relaxed/simple;
+	bh=ePjpuxt69kS50oyNDgw+f5tSDLqVBi+3bO63cn7u3Ho=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=Ayrj6lzqD2Gxm8DsxrYP4c/grcwhRp7IL6VgmCDRIi+D7hWzphSYFompavNrVqJbEsxPIPbrJUqXnGVj86DSOjwDsPPdiznwpdFADcjx6B2ap8lf1ecSy6Jz0oAH2mTTREJtZVrU4daP4+XHwxboiFL4zy2358jK3JrUNP6CwTg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=sGi2BBC7; arc=none smtp.client-ip=209.85.216.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=smail.nju.edu.cn header.i=@smail.nju.edu.cn header.b="AbMwDCKf"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=smail.nju.edu.cn;
-	s=iohv2404; t=1788869637;
-	bh=OU42xnYgBuQIIGsbiQd3edAdK/2WUQRNb9zNrW3eZIk=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version;
-	b=AbMwDCKfU7zk36Plc4V9yxvCA5fXKOr7w0hLfKKDF5+Y/PNPsRGRtuYlDhRLuTe+J
-	 Jpb/JGZbU3tvpUzaybyMuUjGfWfxrXDYdFLjeJIErSaEFojVkcwNpgVeKQyZasVvyP
-	 Q3OEmY1RWQHzH73bC5FpM/wekdeAL3JGzTSZm9aQ=
-X-QQ-mid: zesmtpgz8t1788869631t68f93279
-X-QQ-Originating-IP: NNglehT6aMwsIV0lPfkuSjfZJOylKUr5I3iD3JMVzh0=
-Received: from hepeiyang-vm.wu.lxd ( [36.152.24.145])
-	by bizesmtp.qq.com (ESMTP) with 
-	id ; Tue, 08 Sep 2026 20:13:27 +0800 (CST)
-X-QQ-SSF: 0000000000000000000000000000000
-X-QQ-GoodBg: 0
-X-BIZMAIL-ID: 13790185854937703597
-EX-QQ-RecipientCnt: 9
-From: Peiyang He <peiyang_he@smail.nju.edu.cn>
-To: airlied@redhat.com,
-	kraxel@redhat.com,
-	dmitry.osipenko@collabora.com,
-	dri-devel@lists.freedesktop.org
-Cc: linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	gurchetansingh@chromium.org,
-	Peiyang He <peiyang_he@smail.nju.edu.cn>
-Subject: [PATCH] drm/virtio: fix memory leak of fence event on execbuffer failure
-Date: Tue,  8 Sep 2026 20:13:23 +0800
-Message-ID: <D320EAB5680C1411+20260908121323.2405044-1-peiyang_he@smail.nju.edu.cn>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sGi2BBC7"
+Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-39675172593so3719636a91.2
+        for <virtualization@lists.linux.dev>; Tue, 08 Sep 2026 07:31:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788877861; x=1789482661; darn=lists.linux.dev;
+        h=cc:to:message-id:content-transfer-encoding:content-type
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=ziivm8PXwNCzw9owyNySO7ntkI+vjyDayy5Z1yIWdeE=;
+        b=sGi2BBC7nmVnPDxzbtfteOW3Zm/302TMsLGOIBePhM5X8Jbw+OO3lUNblg2DOvpUGP
+         G2AJZytyRaeV9PAJ4i2bnnGqGLWoGZvEtjg9v7KOyZwReFDHI+fJK0IyWrbGS6t0eTEn
+         XaGbl0KnF1ae0frD6S7UJ264EmQMP9msaczUeqQKFZSvnkKqT3vgviKCw2yquiIuutTf
+         kBPwJUznXkmzxnrbBA2I82BT9z/EDglrb5dSuI0V7XCdmtb6udLH1VDvJUz+DwDRNxwK
+         M+gW1JNextKCaEd/x3wgGNn5wE9ELIu5wZzJ2PSmVcVzihrUNo0JRrWuadiF9MXbRyY3
+         f7pw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788877861; x=1789482661;
+        h=cc:to:message-id:content-transfer-encoding:content-type
+         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to:content-type;
+        bh=ziivm8PXwNCzw9owyNySO7ntkI+vjyDayy5Z1yIWdeE=;
+        b=tAeH8Z7rJN5XNmiJAb+C94sRkdOzAUq2ZHRNqR5KNhTaXDbrMiGdV6ue/lATCrcmpw
+         X3nXh+ODqsXRtJpM3Y7OtwsKGFSkwOGLEqvhqlL8eFQzoqRIgnp44ipDHYDdE7J7NVNe
+         5DEOI3o2WtErE/sSqZw+E+2kSw1R/q/SqocupmXVjVrmgMYUxJndUEs1sA/+571AHFil
+         wBWQ73BVfKXLuOQP5ypdDOIyhVCZFf04WMvVFQTv8OFx4r5H+aNFRWLpIAyRmvIxhfqU
+         DgN/bZoA8s0IWdQ9Pm/ynav51WVrojHjzLtCCtIX+ERSbjuIn37phiV+rNvzqI2cInLm
+         8IyA==
+X-Gm-Message-State: AFuF++kxm6l3yrYqLShoUAy64M+iSsbexbgEKn/XVHAqKTBfXmJgAczd
+	LlC+G88m+26GulCP1ItTMLPtFGE6fA11k5X9wE8iQbixW4AWFWDmKe9g
+X-Gm-Gg: AYBFou0gNrdPfltt1YTCMNc6Qt4+y3paXLnEJn35gm6afmKivbjWgaXS6HjLPl8Eqt7
+	nZ6FCStIgEXdeYkhtEXXbJT5bcWq1f2g+zPUGPZfWSzUFvhl5TvMitEHf4nzCGarWc+L6uo9HcT
+	y6hq1Ml3MrDdubWal5a/5O0EP19qZgZRBvRpkIVVnz+Jdj58MvfIZ7OMgpDQ2rAymK1Vhm658yE
+	lFMq6TZ9fsk5hbNr3jedFOabFeCTR2W2Ild2xps5fm+KgAGS3fl8tZBe7W6qJi+TS5IewKmyk91
+	jPz/ANikbVpd9vueq39JoRK3C2iGSyiX7oTiGD1EUgBUKxz4/qVz+LoOc+gVJ6CegkScrQwvxJM
+	+2C2iLZMdbtL60Xb3tSxjIDndPBqPiAyB0BVjRCHTQ7kXYQoO+J1Mwzuvh56LDwf7wfSkpGv4uS
+	lCiZ28x+lw62/XIao2l5lgqXz0YNNlP6yDAmkdA4WgFKfH0f/CHE9oxoLQGM5IRvX4xEvH1SR+
+X-Received: by 2002:a17:90b:57cd:b0:38e:bfe:81e9 with SMTP id 98e67ed59e1d1-39b260fead0mr43803215a91.1.1788877860484;
+        Tue, 08 Sep 2026 07:31:00 -0700 (PDT)
+Received: from [192.168.66.6] ([218.108.80.123])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39b26127fddsm26263843a91.12.2026.09.08.07.30.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 08 Sep 2026 07:30:59 -0700 (PDT)
+From: Linfeng Sun <linfeng.sun.dev@gmail.com>
+Date: Tue, 08 Sep 2026 22:30:38 +0800
+Subject: [PATCH] vhost-scsi: initialize command pools for late I/O
+ virtqueues
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-QQ-SENDSIZE: 520
-Feedback-ID: zesmtpgz:smail.nju.edu.cn:qybglogicsvrsz:qybglogicsvrsz4b-0
-X-QQ-XMAILINFO: Nl7eTg5yGHnwHFfuMYie3uzOH+MV3o3VNn8RrdTFB4ddVof9TNOenLKy
-	5geAAIaZpZaD3SEX4AXEKg05EuqffXN5kgL34njDKfni45tyESJ6aoQC1tq1Fu54s+T1IH1
-	HBUAZ5TIkJyIis/G6wiVzjbc1/2WKDnJZtwRV3bM+vik95YFvQcw2sey+OccaFT0jZ2NVmv
-	C/XoMsche5idT4i0G+6lJ88RU1xJLuuc/YrutbUj/rwZaZy8OQaxc3CF3PusEWwZS3srwPK
-	FclHF/RMrdZaOxWXP6kwglkUg6myeIEjaztV1cvb8DVDqcL94Oyr+Jfeh7UQoBlxDidw8JF
-	ytd0yJ8lVGvT2Oin9qQ//u1Q6m74C1sbxkEa5SZMj0ozXNAvM+CcTsWNHO966spDN6ttGYB
-	KTdL6+djaQHvdhS8ASXXq6Cb5fKG+v4mQetenb6zZ7lFPNa/xNEVHvn5R0Q2kyprsOxZFu6
-	AcfDqMfWFmTF+AyUYAkB532MEXafLSkVU972qJF9IjJmv6FUdrmpSECgpXlNfDP003TxiJk
-	h28lIdaZhAELPUcpDf3T6102/eYKiKWgOPGBrGE1+a5Xk2ELPBDVyzwpzAuQDFWE8EEkGc9
-	Ud3a29fUI4YFBFeyEkl5ixQCa10iveeMDix9n2eFwp4lRPk+n/dNOwiUVqLkuLJPWTAkOuW
-	z8dsR1/JJSWrHijlIW98XXWwPcKrfQHFim+r/XNJnM+V1zOaCVQeFfBhCtqkJvQHvPthdhw
-	3/qzdQpcLShtcL2VS0W3MjUP7BKeteV9+/IIOMvzome4CPvYQ2Ljz1VicPgypbp/knyl5L2
-	tTsYejBehq3Jxk7RZJqJpY/nIaoSQcGcSRy15q1bVdydxSPN3Jfx74KxD/r16BrN6cU6V+g
-	NOOK2PYXk18vTP/nn6nV3aiyOENmTKt1T0WDeuke9TdH6So0p/xCGTSezMizjXHY7XEQe5P
-	PY+jPaeOKUhteVvEmNW9YBFYV1Xr7eEe34YkZiCOba0e90Cwln+QHppRfP4zdFa/svkd870
-	RarM7pukCiReRagDHEJsYf3eOb3E7UgRwTOiszFWmh0shZB/DNeS3GHERGX4I=
-X-QQ-XMRINFO: M/715EihBoGS47X28/vv4NpnfpeBLnr4Qg==
-X-QQ-RECHKSPAM: 0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260908-fix-warning-in-sbitmap_get-v1-1-767c2c211a2b@gmail.com>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXM3QrCMAxA4VcZuTaQ9aK4vYoMaWtWMzCOpv7A2
+ Ltb9fKDw9nAuAgbjN0GhZ9icteG/tBBugbNjHJpBkfO00BHnOWNr1BUNKMoWpR6C+s5c8XonRs
+ Cz4k8QRushVv9m5+mv+0RF071e4R9/wDCN43HfgAAAA==
+X-Change-ID: 20260908-fix-warning-in-sbitmap_get-b6229aefc060
+To: "Michael S. Tsirkin" <mst@redhat.com>, 
+ Jason Wang <jasowangio@gmail.com>, 
+ Mike Christie <michael.christie@oracle.com>, 
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>
+Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+ Linfeng Sun <linfeng.sun.dev@gmail.com>
+X-Mailer: b4 0.16.0
 
-virtio_gpu_execbuffer_ioctl() reserves a DRM event with
-drm_event_reserve_init() when VIRTGPU_EXECBUF_RING_IDX selects a ring that
-userspace has enabled polling for. virtio_gpu_init_submit() does this
-before the BO handles, the command buffer, the syncobj arrays and the
-in-fence are processed, so every later error path runs with the event
-already pending, including plain argument validation failures such as an
-invalid bo_handle or an in-syncobj that carries no fence.
+vhost_scsi_set_endpoint() allocates command pools only for I/O virtqueues
+that are already set up, but publishes the backend for every virtqueue. If
+userspace finishes configuring a skipped queue later, a kick reaches
+vhost_scsi_get_cmd() with scsi_tags uninitialized and triggers the
+!sb->alloc_hint warning in sbitmap_get().
 
-On those paths, virtio_gpu_cleanup_submit() drops the out-fence without
-cancelling the event. The fence is freed without ever having been emitted,
-taking the only driver-side pointer to the event with it. Closing the DRM
-file does not help. drm_events_release() unlinks pending events but
-deliberately leaves the freeing to the driver's later drm_send_event(),
-which never runs for an orphaned event, so the allocation is leaked
-permanently.
+Leave skipped I/O virtqueues inactive at SET_ENDPOINT. When SET_VRING_ADDR
+later completes their setup, allocate the command pools and activate the
+queues. Roll back both if access initialization fails.
 
-Found when fuzzing the virtio driver with Syzkaller:
-
-	BUG: memory leak
-	unreferenced object 0xffff88802c176e80 (size 96):
-	comm "syz.1.367", pid 10561, jiffies 4294960122
-	hex dump (first 32 bytes):
-		00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-		c8 6e 17 2c 80 88 ff ff 00 00 00 00 00 00 00 00  .n.,............
-	backtrace (crc e1973c6b):
-		kmemleak_alloc_recursive include/linux/kmemleak.h:44 [inline]
-		slab_post_alloc_hook mm/slub.c:4597 [inline]
-		slab_alloc_node mm/slub.c:4917 [inline]
-		__kmalloc_cache_noprof+0x49d/0x6f0 mm/slub.c:5485
-		_kmalloc_noprof include/linux/slab.h:988 [inline]
-		_kzalloc_noprof include/linux/slab.h:1309 [inline]
-		virtio_gpu_fence_event_create drivers/gpu/drm/virtio/virtgpu_submit.c:282 [inline]
-		virtio_gpu_init_submit drivers/gpu/drm/virtio/virtgpu_submit.c:398 [inline]
-		virtio_gpu_execbuffer_ioctl+0xbbf/0x1aa0 drivers/gpu/drm/virtio/virtgpu_submit.c:505
-		drm_ioctl_kernel+0x1f4/0x3e0 drivers/gpu/drm/drm_ioctl.c:817
-		drm_ioctl+0x5f4/0xc70 drivers/gpu/drm/drm_ioctl.c:914
-		vfs_ioctl fs/ioctl.c:51 [inline]
-		__do_sys_ioctl fs/ioctl.c:597 [inline]
-		__se_sys_ioctl fs/ioctl.c:583 [inline]
-		__x64_sys_ioctl+0x18e/0x210 fs/ioctl.c:583
-		do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
-		do_syscall_64+0x116/0x800 arch/x86/entry/syscall_64.c:94
-		entry_SYSCALL_64_after_hwframe+0x77/0x7f
-
-Fix by cancelling and freeing the DRM event on the execbuffer error path
-before dropping the fence. Clear the fence's event pointer after
-cancellation so it does not retain a dangling pointer.
-
-Fixes: cd7f5ca33585 ("drm/virtio: implement context init: add virtio_gpu_fence_event")
-Cc: stable@vger.kernel.org
-Signed-off-by: Peiyang He <peiyang_he@smail.nju.edu.cn>
-Assisted-by: Codex:gpt-5.6-luna
+Fixes: 25b98b64e284 ("vhost scsi: alloc cmds per vq instead of session")
+Signed-off-by: Linfeng Sun <linfeng.sun.dev@gmail.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_submit.c | 4 ++++
- 1 file changed, 4 insertions(+)
+I checked QEMU and found no evidence it's affected. I haven't checked 
+VirtualBox because I am not familiar with it. However, the virtio spec 
+doesn't require a specific operation order, so a new VMM could still 
+trigger this issue. 
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_submit.c b/drivers/gpu/drm/virtio/virtgpu_submit.c
-index 32cb1e4aa425..734b1e976a75 100644
---- a/drivers/gpu/drm/virtio/virtgpu_submit.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_submit.c
-@@ -538,6 +538,10 @@ int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
- 	virtio_gpu_process_post_deps(&submit);
- 	virtio_gpu_complete_submit(&submit);
- cleanup:
-+	if (ret && submit.out_fence && submit.out_fence->e) {
-+		drm_event_cancel_free(dev, &submit.out_fence->e->base);
-+		submit.out_fence->e = NULL;
-+	}
- 	virtio_gpu_cleanup_submit(&submit);
+Crash log:
+[   34.698961] ------------[ cut here ]------------
+[   34.699385] WARNING: lib/sbitmap.c:286 at sbitmap_get+0x227/0x270, CPU#0: vhost-82/88
+[   34.700542] Modules linked in:
+[   34.701309] CPU: 0 UID: 0 PID: 88 Comm: vhost-82 Not tainted 7.3.0-rc2+ #14 PREEMPT(full)
+[   34.701958] Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+[   34.702717] RIP: 0010:sbitmap_get+0x227/0x270
+[   34.703247] Code: 41 8d 5d 01 89 df 44 89 fe e8 f5 3a 46 ff 31 c0 44 39 fb 0f 43 d8 e8 38 46 46 ff 65 41 89 1c 24 e9 25 ff ff ff e8 29 46 46 ff <0f> 0b eb ba e8 20 46 46 ff 44 89 fe 31 ff 45 31 e4 e8 c3 3b 46 ff
+[   34.704234] RSP: 0018:ffffc90000ec3bb0 EFLAGS: 00000246
+[   34.704677] RAX: 0000000000000000 RBX: ffff88800500dee8 RCX: 0000000000000000
+[   34.705166] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff88800500dee8
+[   34.705584] RBP: ffffc90000ec3be0 R08: 0000000000000000 R09: 0000000000000000
+[   34.705988] R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000006
+[   34.706477] R13: 0000000000000000 R14: 0000000000000000 R15: ffff8880050094d0
+[   34.706955] FS:  0000000014d05380(0000) GS:ffff888099c36000(0000) knlGS:0000000000000000
+[   34.707463] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   34.707854] CR2: 00007c0c3c20e000 CR3: 0000000008e47000 CR4: 00000000000006f0
+[   34.708592] Call Trace:
+[   34.709259]  <TASK>
+[   34.709822]  vhost_scsi_handle_vq+0x4a9/0x1b20
+[   34.710437]  ? update_cfs_rq_load_avg+0x2e/0x230
+[   34.710874]  vhost_scsi_handle_kick+0x2c/0x40
+[   34.711292]  vhost_run_work_list+0xa6/0xf0
+[   34.711673]  vhost_task_fn+0x76/0x1b0
+[   34.712003]  ? __sanitizer_cov_trace_const_cmp1+0x1a/0x30
+[   34.712506]  ? recalc_sigpending+0xe1/0x130
+[   34.712890]  ? __pfx_vhost_task_fn+0x10/0x10
+[   34.713325]  ret_from_fork+0x37a/0x630
+[   34.713673]  ? __pfx_vhost_task_fn+0x10/0x10
+[   34.714031]  ret_from_fork_asm+0x1a/0x30
+[   34.714535] RIP: 0033:0x0
+[   34.715201] Code: Unable to access opcode bytes at 0xffffffffffffffd6.
+[   34.715587] RSP: 002b:0000000000000000 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+[   34.716158] RAX: 0000000000000000 RBX: 000000000048bb20 RCX: 000000000041ca3d
+[   34.716571] RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000003
+[   34.716957] RBP: 00007ffcac47c4e0 R08: 00000000ffffffff R09: 0000000000000000
+[   34.717418] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000004
+[   34.717826] R13: 00007ffcac47c778 R14: 00000000004af868 R15: 0000000000000001
+[   34.718363]  </TASK>
+---
+ drivers/vhost/scsi.c | 44 ++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 42 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+index 4f8c0260bc9e..069a6ff4dd40 100644
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -2008,6 +2008,40 @@ static int vhost_scsi_setup_vq_cmds(struct vhost_virtqueue *vq, int max_cmds)
+ 	return -ENOMEM;
+ }
  
- 	return ret;
++/* Callers must hold dev mutex. */
++static int vhost_scsi_activate_vqs(struct vhost_scsi *vs)
++{
++	struct vhost_virtqueue *vq;
++	int i, ret = 0;
++
++	if (!vs->vs_tpg)
++		return 0;
++
++	for (i = VHOST_SCSI_VQ_IO; i < vs->dev.nvqs; i++) {
++		vq = &vs->vqs[i].vq;
++		mutex_lock(&vq->mutex);
++		if (vhost_vq_get_backend(vq) || !vhost_vq_is_setup(vq))
++			goto unlock;
++
++		ret = vhost_scsi_setup_vq_cmds(vq, vq->num);
++		if (ret)
++			goto unlock;
++
++		vhost_vq_set_backend(vq, vs->vs_tpg);
++		ret = vhost_vq_init_access(vq);
++		if (ret) {
++			vhost_vq_set_backend(vq, NULL);
++			vhost_scsi_destroy_vq_cmds(vq);
++		}
++unlock:
++		mutex_unlock(&vq->mutex);
++		if (ret)
++			break;
++	}
++
++	return ret;
++}
++
+ /*
+  * Called from vhost_scsi_ioctl() context to walk the list of available
+  * vhost_scsi_tpg with an active struct vhost_scsi_nexus
+@@ -2105,6 +2139,9 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
+ 
+ 		for (i = 0; i < vs->dev.nvqs; i++) {
+ 			vq = &vs->vqs[i].vq;
++			if (i >= VHOST_SCSI_VQ_IO && !vs->vqs[i].scsi_cmds)
++				continue;
++
+ 			mutex_lock(&vq->mutex);
+ 			vhost_vq_set_backend(vq, vs_tpg);
+ 			vhost_vq_init_access(vq);
+@@ -2466,10 +2503,13 @@ vhost_scsi_ioctl(struct file *f,
+ 	default:
+ 		mutex_lock(&vs->dev.mutex);
+ 		r = vhost_dev_ioctl(&vs->dev, ioctl, argp);
+-		if (r == -ENOIOCTLCMD)
++		if (r == -ENOIOCTLCMD) {
+ 			r = vhost_vring_ioctl(&vs->dev, ioctl, argp);
+-		else
++			if (!r && ioctl == VHOST_SET_VRING_ADDR)
++				r = vhost_scsi_activate_vqs(vs);
++		} else {
+ 			vhost_scsi_flush(vs);
++		}
+ 		mutex_unlock(&vs->dev.mutex);
+ 		return r;
+ 	}
+
+---
+base-commit: dd886653d2038a510a21bff476fa1be0422a4fb9
+
+Best regards,
 -- 
-2.43.0
+Linfeng Sun <linfeng.sun.dev@gmail.com>
+
