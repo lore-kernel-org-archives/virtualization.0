@@ -1,131 +1,103 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from abb.hmeau.com (abb.hmeau.com [180.181.231.80])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57D8747279F
-	for <virtualization@lists.linux.dev>; Tue,  8 Sep 2026 08:32:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBC5E4AD7E6;
+	Tue,  8 Sep 2026 09:20:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=180.181.231.80
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788856361; cv=none; b=OSXJHK7F+4MQEHDSaVIsKnluuEcXYS37NM3JzWH452ODALNBvzrVgCNrpLPVXE6sSML2/jqrjtDor3cQkRfpuofgdWSTBsb/5+I8qMxwdT6inBn96j/cfOZVDPBnkTDt8YWdisUKbkmKv5o7YXSFEolqYP/ffqBDOkvRdsrKVd0=
+	t=1788859259; cv=none; b=byvMXBOnHn/XtPk42YwenvxUOsUMzCwewe//6L29RxI/BSOIRSvgNcfcAKuSfvCo6ySYYa111/f1jSaM+lQrCc63Z1Aq8eziZfdQSidsFPt4xXOtFQkfjaAjAb2kBRfXJWVaoRl9xLsrKLFL9QlHZtASQBeMYvIOIZKS8VYaA/Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788856361; c=relaxed/simple;
-	bh=X0LXiwd5Oi4KUYVcotrSCSQyQDEPeZH2ej0WcHSUWuw=;
+	s=arc-20240116; t=1788859259; c=relaxed/simple;
+	bh=VGdgfu8FflBUe1F0QvCfe+YXb0jjB4KTsG1VdxloQ1M=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=s6AcNUrhkvRYiQavvbTIdbDc8ZWCg2qd3IcnwsOhDGNpOmdRbqGQp4780R5VMswX23MlgiT9apNVSuWupNklIg8gDdTsrdeQaVIqALYkbXIBVsdQ7Ejh0liH3T73UsI+jNzLvb2n4E3vDHOAvuKNsoFb2rOnrjeqqHYZ6oMRa/4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IN8wbQe2; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=jsNy1QahzZHh6yVTwzMD050u5QqizEVDcely56uJdJ9ex/WJ+OBTl32xwPCf1yhjqj08cjm8xhrcmGe4mRbv6hMtAUmb5m7yu09Oa5AGM4C+HU3tKtn5aKEkoBMffMKJW+ePErXSn88HvNjq3652ywM9i5bT0vQM1vzfUnQ6NTw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=gondor.apana.org.au header.i=@gondor.apana.org.au header.b=iqCEkxAq; arc=none smtp.client-ip=180.181.231.80
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IN8wbQe2"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1788856359;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=bTs3CS9GCivYiUD3IVJLDYldRClQ2qkZlouxGAVv56E=;
-	b=IN8wbQe2Hmh3C5ITCgGOXYjTf5gb5PFJySXkxPbyxTCX+5J6VfLCabaP0PmG7dywPfoQqi
-	V1mv8XaIFOntMgQPhsaZLro3ZexAF5KK8LmEDKGucHa83JLwWaGrmZX6TpknnSy9wqnNg/
-	ZLMqOWJShdcHk3nx2yKSbgYHo/WuS4o=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-128-VdAVnovbPyWuml7iElQD5w-1; Tue, 08 Sep 2026 04:32:38 -0400
-X-MC-Unique: VdAVnovbPyWuml7iElQD5w-1
-X-Mimecast-MFC-AGG-ID: VdAVnovbPyWuml7iElQD5w_1788856357
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-482ea386bf6so1884228f8f.1
-        for <virtualization@lists.linux.dev>; Tue, 08 Sep 2026 01:32:37 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788856357; x=1789461157;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=bTs3CS9GCivYiUD3IVJLDYldRClQ2qkZlouxGAVv56E=;
-        b=dorlaRr1RVgFlszxGWldpI3EqyYaEXl2n5CRu44+MiP77T/Mx7wW0gMa+KsnyBdfcv
-         exO+uAaO8EneHmq+gvLgGxg9NfnyqV/0ezTQd+fPUIk29eKxs8GC5cAoMbYUmPq+dTQJ
-         2IclwLHW5rd5CEBgS2030B3jn/IzqnqBtQjXYhX2zSiUmLi0oqVpQgwyZDsZRWdJdTK2
-         6qRlxjyUz+zs90DRFjGhsy+nl3Zs7Ab+lQUMDW6NfzF+JFe7P0uutc8MhoVvUbt5T6F3
-         g1YeN6oxcBdy6Ngrirxx+jnS6OcplWZfaA3j0Bd+CIOyZy2M7Kwsz+0mC5HNmGmNTvZ8
-         tpgA==
-X-Forwarded-Encrypted: i=1; AKwUvBzoJgnDhucOn/qyCw/fLMWUamxz+/z7u9sZDekNi3RxyLW1sJOMyTKdiCgbbB1m1JcwY5jaGL9rd/Pv77SRiQ==@lists.linux.dev
-X-Gm-Message-State: AFuF++mohNKDemRrvDfAcpSCTRk7Gu2s9HoKxqyCA+n55m3Z3eMS8Uo5
-	juVdhGj+ot4kuUR5aAz4H0k6hP5Vzm54dz088B3D0dgUW1rEpF9tD3qtoGMOVmmgO+Wp+Y9AI0s
-	PAi95rxWUHYXl02sEOzNQIq3kgcjK7tg5lLFdoPrjLso55GfZC6k3j55NMY33A9l/VLBQ
-X-Gm-Gg: AYBFou2rz8fENfL7BmtudZ4Q5xtxg1GKLZSjKKMh0sVfPQumCgpO3sb3ru+tY9iGJrF
-	cAaRRa8TaYYH0xSkkeFUUzkWQFAx4rCYNj2Sqw9NVzhtahVfTEAXJgeOb8V5OypGrLPdplMlyrA
-	M/e6fd6sv3fdJRaCH06s6xtmMl+wkkLzF0tTaIBHpKQpF3l9OpO/ONNy5y8ofmYpd3E9qmthwTM
-	siw8eIJj1lAY2CIlh/Bt+G18XdMRToPUr9hkN1E9boCrAZMM67BLCshMxjq7eBDwM5ovZSXLoox
-	8OOuKXThKZoF8sjRzffGPDYApHB5kCwRV50yN6tSWsimr/ozq7VNQLCjgfD/b6QIOAO9kH3UNcD
-	58SJdy7eNoj8Ud4eJxWbifGY=
-X-Received: by 2002:a05:6000:4302:b0:485:96ac:5a96 with SMTP id ffacd0b85a97d-48596ac5acbmr31640619f8f.16.1788856356716;
-        Tue, 08 Sep 2026 01:32:36 -0700 (PDT)
-X-Received: by 2002:a05:6000:4302:b0:485:96ac:5a96 with SMTP id ffacd0b85a97d-48596ac5acbmr31640474f8f.16.1788856356160;
-        Tue, 08 Sep 2026 01:32:36 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-79-236.inter.net.il. [80.230.79.236])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-485883c5bc5sm37007020f8f.24.2026.09.08.01.32.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Sep 2026 01:32:35 -0700 (PDT)
-Date: Tue, 8 Sep 2026 04:32:32 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Linfeng Sun <linfeng.sun.dev@gmail.com>,
-	Jason Wang <jasowangio@gmail.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] vduse: return compat ioctl results directly
-Message-ID: <20260908043143-mutt-send-email-mst@kernel.org>
-References: <20260908-fix-vduse_dev_compat_ioctl-v1-1-62264d9bfb8d@gmail.com>
- <20260908035646-mutt-send-email-mst@kernel.org>
- <ea3ba5cc-ae68-4c1d-a3a9-c2840a1cb9e7@app.fastmail.com>
+	dkim=pass (2048-bit key) header.d=gondor.apana.org.au header.i=@gondor.apana.org.au header.b="iqCEkxAq"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=gondor.apana.org.au; s=h01; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:cc:to:subject:message-id:date:
+	from:content-type:reply-to; bh=C407YdSwLyJjiUUnrA36d5Mbdvt5XnU6O23tFgKHeQw=; 
+	b=iqCEkxAqCo7XVL7E97GFXAOhpV6JPho2st8lQtUfP4A41jAbO2CbgHhoNg0315hmmQpAyqqBI/w
+	Wl7SK+hGFcjEsk8P6sVSBAByY+u2ZDGpc+H8jgXHwT9aZsKmUZFm3ld4UCVXOpdpXHHfeWM1LQchL
+	HX9TYGZ9xDp2D/dAQnJvJVpq/8ZItBgNel6RYGv/9zqFeG+DSf6ECIQWpWwA+Wp/vinHqyU3QCGV3
+	5acQzPEoj+bNw+AiqnMFe/T9yKzicMqhptHC2hb7MiemYFnOK6v+JsdKABkA1s8lKLoJ9vRmMIBKr
+	GDjD5WouYQ8KFFWfC4enyI2srdjLjCqKObYA==;
+Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
+	by formenos.hmeau.com with smtp (Exim 4.98.2 #2 (Debian))
+	id 1x3s0Q-0000000Bncv-0UA9;
+	Tue, 08 Sep 2026 17:20:43 +0800
+Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Tue, 08 Sep 2026 19:20:42 +1000
+Date: Tue, 8 Sep 2026 19:20:42 +1000
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: =?iso-8859-1?B?Suly6W15?= Jean <Jeremy.Jean@oss.cyber.gouv.fr>
+Cc: arei.gonglei@huawei.com, mst@redhat.com, davem@davemloft.net,
+	jasowangio@gmail.com, xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com, linux-crypto@vger.kernel.org,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+	Bryam Vargas <hexlabsecurity@proton.me>
+Subject: Re: [PATCH] crypto: virtio: validate akcipher completion length
+Message-ID: <ap_TatiabFuXiiad@gondor.apana.org.au>
+References: <20260821095511.3600564-2-Jeremy.Jean@oss.cyber.gouv.fr>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <ea3ba5cc-ae68-4c1d-a3a9-c2840a1cb9e7@app.fastmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: VGbsYSYhKXTz8k1xPPhw9HJ7EWjZXiYQH0Av0ONVg7U_1788856357
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260821095511.3600564-2-Jeremy.Jean@oss.cyber.gouv.fr>
 
-On Tue, Sep 08, 2026 at 10:08:46AM +0200, Arnd Bergmann wrote:
-> On Tue, Sep 8, 2026, at 09:57, Michael S. Tsirkin wrote:
-> > On Tue, Sep 08, 2026 at 03:31:51PM +0800, Linfeng Sun wrote:
-> >> The compat handler handles VDUSE_IOTLB_GET_FD and VDUSE_VQ_GET_INFO, but
-> >> then calls the native handler. Their different command sizes make native
-> >> dispatch return -ENOIOCTLCMD.
-> >> 
-> >> For GET_FD, this overwrites receive_fd()'s return value after the
-> >> descriptor is installed, leaking one fd per call. Return handled compat
-> >> results directly and use native dispatch only for other commands.
-> >> 
-> >> Fixes: 455a2a1af926 ("vduse: fix compat handling for VDUSE_IOTLB_GET_FD/VDUSE_VQ_GET_INFO")
-> >> Signed-off-by: Linfeng Sun <linfeng.sun.dev@gmail.com>
-> >
-> > indeed, I will apply.
+On Fri, Aug 21, 2026 at 09:55:12AM +0000, Jérémy Jean wrote:
+> The device controls the used length returned for an akcipher request.
+> Subtracting the status byte without validating that length can underflow
+> dst_len, while accepting a payload larger than the submitted destination
+> can make sg_copy_from_buffer() read past the response buffer.
 > 
-> The fix looks correct to me, thanks!
+> Reject malformed completion lengths before updating dst_len or copying the
+> response.
 > 
-> > But ... how was the original patch working then? Arnd, what gives?
+> Fixes: a36bd0ad9fbf ("virtio-crypto: adjust dst_len at ops callback")
+> Assisted-by: Codex:gpt-5
+> Signed-off-by: Jérémy Jean <Jeremy.Jean@oss.cyber.gouv.fr>
+> ---
+>  drivers/crypto/virtio/virtio_crypto_akcipher_algs.c | 13 ++++++++++++-
+>  1 file changed, 12 insertions(+), 1 deletion(-)
 > 
-> It looks I either broke it during refactoring from two functions
-> into one, or I just didn't do it right in the first place.
-> 
-> I did write in the extra patch text
-> 
-> | The code is directly copied from the native ioctl handler, but I
-> | did not test this with actual x86-32 userspace, so please review
-> | carefully.
-> 
-> but obviously should have caught this one myself since it is a much
-> less subtle bug than the one I was trying to fix in the first place.
-> 
->       Arnd
+> diff --git a/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c b/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
+> index d8d452cac391..886032abae80 100644
+> --- a/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
+> +++ b/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
+> @@ -69,6 +69,7 @@ static void virtio_crypto_dataq_akcipher_callback(struct virtio_crypto_request *
+>  	struct akcipher_request *akcipher_req =
+>  		container_of((void *)vc_akcipher_req, struct akcipher_request,
+>  			     __ctx);
+> +	unsigned int dst_len;
+>  	int error;
+>  
+>  	switch (vc_req->status) {
+> @@ -88,9 +89,19 @@ static void virtio_crypto_dataq_akcipher_callback(struct virtio_crypto_request *
+>  	}
+>  
+>  	/* actual length may be less than dst buffer */
+> -	akcipher_req->dst_len = len - sizeof(vc_req->status);
 
-Should teach me not to apply untested code. No amount of
-careful review replaces testing)
+This appears to have already been fixed by
 
+commit f77a956f6a19f9463ef1527c9d0cda50dded6b92
+Author: Bryam Vargas <hexlabsecurity@proton.me>
+Date:   Mon Jun 22 01:52:15 2026 -0500
+
+    crypto: virtio - bound the akcipher result length
+
+Please check that commit and see if it's sufficient or not.
+
+Thanks,
 -- 
-MST
-
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
