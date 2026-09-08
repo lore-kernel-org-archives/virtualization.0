@@ -1,78 +1,78 @@
-Received: from mail-vk1-f226.google.com (mail-vk1-f226.google.com [209.85.221.226])
+Received: from mail-ua1-f100.google.com (mail-ua1-f100.google.com [209.85.222.100])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5500A59C99F
-	for <virtualization@lists.linux.dev>; Tue,  8 Sep 2026 18:07:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.226
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00CD857982A
+	for <virtualization@lists.linux.dev>; Tue,  8 Sep 2026 18:14:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.100
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788890881; cv=none; b=YOUmhpB+hLc3pABY2qZMRyty4NiVWC7bQx4lidWqGgiTWvHd34uDYLccj7402wclVX8G6CTQC2GZ6S2HN9TRU8Oa4O1eWnILB8KHTOyp6vhGddVabvICbNvdNJvtsZutpGU6WPGZQyuR2OTH2Zth/fFcMOc18hgQqtKIP6vfdtE=
+	t=1788891297; cv=none; b=saxO9Y1f2mmRXiy/+vtU9eKa0uQcllBVS6Bb+aD65slucXVoSCSZd4gDbqlIMEwzo7EdGAF/DzEZteYOqID9+LQjsO8og5xBaGfHhLNPxJijVFyus6brz8fL9N1Wa/rk3USP6th+7aOxSEio/GkAiH0sPMK7B15YGK7p1IPO35g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788890881; c=relaxed/simple;
-	bh=3/G5xnGKNtyLpIWmfEvLNiG/KTtcFKselUmUIESFwoA=;
+	s=arc-20240116; t=1788891297; c=relaxed/simple;
+	bh=j2DJfVUt0mtvNFgR9qjhwA26YfFt3lRsoWgx9vJ3wP8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=kGjVXtL7Q2jLLPjhngeoKXpqJoKNqBlXmHzqypQrV65Y8eVhac6chKSK4kxIvyotp6oBN4l6BTTmufkP89rJsWs1KP/YfQkJe8rWgD7HYOs+Gx7HNkKlDs9wrKVAoX3IxGQPbtMaidMIfaROdUvESmDNB02jvYy6Cvhnc/CIU0s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=E99F5o7J; arc=none smtp.client-ip=209.85.221.226
+	 MIME-Version; b=Y4G4QxfkiwT26Ce3qpfNNpi/b4Q+aYI+YoFDhllTn2gk3a03HEpUC/pHtbFENc3boNFMzZstr1h+/0wJTT9iYROkkn0P1Q7esVNb5DJakG+P9Xyh7d/Y2TsEZalkdAFmkWXt5QdDhnoyW5+1ENdJptuHvtxxAkpr5PVvz5o6f8c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=QyDcuhua; arc=none smtp.client-ip=209.85.222.100
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="E99F5o7J"
-Received: by mail-vk1-f226.google.com with SMTP id 71dfb90a1353d-5bf9466867cso2139610e0c.2
-        for <virtualization@lists.linux.dev>; Tue, 08 Sep 2026 11:07:51 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="QyDcuhua"
+Received: by mail-ua1-f100.google.com with SMTP id a1e0cc1a2514c-980c4f5c921so592520241.2
+        for <virtualization@lists.linux.dev>; Tue, 08 Sep 2026 11:14:55 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788890868; x=1789495668;
+        d=1e100.net; s=20251104; t=1788891294; x=1789496094;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:dkim-signature:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=Rb9I7ysehn3T8EdRE3wvUpvmDJ0lCancFwS1A6o0B9Y=;
-        b=azZIj86OSIJYqSexd250IZUHuNzJ2KF+tVTAEa1DFnNX7khlLwuVmNj9PoU84jf2+W
-         eQBInTcvwWpB89pbIzOea3uilxC3PWzfG2e8T9g0Ljf1d61TMwegYjG/GtMj5faWeSuM
-         vPq0VRQkuH+renUn3OPUGSlmXKqQPqkbouDvB+U7IvawpFTaoLfbu0Q88P2/46MmmTjd
-         AhlRV3HiQFKa/4iiMkOj9xqHkSovCIGWXmNwebWezq7AHvlaEWYwjYegtzMat/N/CEmA
-         br+i5zj9fGPSXL9YsefHauYES7Fbrj2w4KHPKi/B4wwcyWY86lxOxYu5yAccfinmEJW4
-         ydRA==
-X-Forwarded-Encrypted: i=1; AKwUvBw5hVGhyCRTjwgQjV9Fo1MpIC8As+8HHsUrfnMZ3d7Oyi3dI4mWNmizD2lpXA9IBGdCgNjSoyZi2h6BYgzgwg==@lists.linux.dev
-X-Gm-Message-State: AFuF++n0jnXhPk1rV/jU3kkcnaNZ9EgGMHfm84CZVtD1EMsoG6NP8loG
-	1+xiuAHn4eqzC2Ih72Tu390cKIB6yXw7C69rdwXkVb56fso9anb9fprPpecD/YWBx3zsV00fhzz
-	kASKyNotV675IjPZnH5K035s8CoZJvyh2w9xT8WPS/+XHkjMbe8iI3N/jeDtOBIVFsAC2AuroeV
-	A3i8kNL9RPk99dLFGYEju+tawkpnwnck1nOZDK4JUkDsqw51uNpvhVdshw2U6w6nguvT8oLWj4S
-	NmT47pyT6knrmtguT8=
-X-Gm-Gg: AYBFou1YPLfJ8qavIVORA9fSIGJREmnDk2iJFkxDIBi4DgG7+YQG71oa0+MpH/rT1jf
-	CADIvzT0ARucrFDUqFS1TEvfSmunFPsdp6qRXsbB7wbIxI5e8VqESa6ls3BpaMfwuQw6eGYmB8b
-	Xbn+sqwC5ZWIJlZsTKl1yzVHeh6+dTTghjSCZ5QIu+YEhtua7wm0VfzMweDewQ/IKdtrRhuOQgi
-	OQR3fTviVtJyDiZRz2n4gDvOSDSJSDHSaC8Q9ZC5Bn9LNupSy1VGQrJRzIhiofvJE0y1AdefzUX
-	/7IPazLWELT5TGLmtxeII/wrGSsJ1Bu0uv00zSj3xa+TJav2dnj6FxM8TXVS5jRma0yoVXRr+DI
-	/NLbgYejx9zX0oihzk42XkXYrWe+CqGD2N/k9+mrRulWtBnp+TsdOyDCbwqerR4JZLXP47PiBxj
-	zp4YJI4g8LFMcdxPjdRWq0R+aqaek1bw==
-X-Received: by 2002:a05:6122:2909:b0:5bf:a181:d46d with SMTP id 71dfb90a1353d-5c7ed4201ddmr14653037e0c.3.1788890867929;
-        Tue, 08 Sep 2026 11:07:47 -0700 (PDT)
+        bh=i+U6lKJy3E9UudZt3FknVdHylx4G9kfIGWhaOGKfOa4=;
+        b=BoDPq0m8R4ZvEd7YSoqmA9dLH4jbvrZpsq39bVZMtJbm3C2cZEFuY720U9IBev+N6C
+         YCfO7N0qHOv7hDk24ORpqXDSeczMOAUbUGqBS2z5YzKZ5ovS95rE6JCw9JNa8UL7eUuy
+         kEXsmcHFTN2yUGYOdoRn/1ip4mQd9tlfdMo1KswvYTCj6jQjexCcvoS7rux+sNAgorwo
+         w4FxDwPUguu2DMYPqdsbkwCpf2OYe8QI/hMzT3dSlMgPY8+axZ4Qm2cGkqao5BWZ74Mt
+         o1Ntlo249gLuA0zb5pCh7HARLs9gN1pZ2qG02qldfzh9nrpXjBgP7+UiwsCgLsOXrWR6
+         W0Yg==
+X-Forwarded-Encrypted: i=1; AKwUvByrjQbNft7Ws/+qogP1011tYXF9cA9sfbH9ei2YdsRQ7WdhvDYeZ3C3jNI1G1HixCrhXfiJo8shvY/U31etVQ==@lists.linux.dev
+X-Gm-Message-State: AFuF++msN6LqKS1XYBaDcUemj/+SFgGh7HMbMd9hg6CUe+oizDr/iH0U
+	xMloQPxiUDuq8tjpa8u+00OPVjbkRbZnxlhAiw1ka+6uMzD9aAKaMVOtbBDVUbYe+MQxXpOaRVn
+	4SVzcyStJ56JTWHu8vrT3w7UNDWxFZwLYWaX3+CviPJFQHbGpZhB4xwVmoLLBoqVTy36AilN0pA
+	uoQ6MwKeXO9GNI5UhRxmvaowrYszhvabPBwAlMcnKB3hSpmKahKUre2TQo4rL3azg8FRRJXK46t
+	/4oYtTP3fiwR4Nt7/0=
+X-Gm-Gg: AYBFou2UeVhy+3BX8mNeE5e5ewYg/0f5kMuYmEj/V+lARrd/uEdGYw8jPMFvQNKyhuO
+	sIZ2Fi+ePRewy94gYzJJTFQQJ/biNUAo8TauvfzwcBaJ8psiMlYys3fBRGU09xYr6N/sd4QscXv
+	f3Mufo0kGJb6AUKZbF6VnQXehu1oFUpVynGkGutQ7qRDzUYlk7fozppCJQMvqPENfHX4rafVDHz
+	AErCzw4nP29UcVx//8CRa7BplOxZyR+s4f2zGGYzuuRSUGmxHXvAdgMDfQh54BQhwcEnU8ut6qj
+	9NuBEg5PWx/E+M9BQu99KwUA+zaF4P6rI0hCqWaG9ZZWTDFUwriDDgUpHHXliqNh+yNjFoeF3NJ
+	RZY2+hNhdaGr+cuTIRr84urstBd75f0wihgTIAQ0WgSMSIlbKTEra23YCGPq95I+8UU4raNN3pq
+	Dyvgt7EA7dUowkYu4G0g9CFeaUTRhpoA==
+X-Received: by 2002:a05:6102:554a:b0:780:5605:743f with SMTP id ada2fe7eead31-78a4a8bb311mr11768312137.3.1788891294484;
+        Tue, 08 Sep 2026 11:14:54 -0700 (PDT)
 Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-2.dlp.protect.broadcom.com. [144.49.247.2])
-        by smtp-relay.gmail.com with ESMTPS id 71dfb90a1353d-5c7ec232ce8sm6713787e0c.5.2026.09.08.11.07.47
+        by smtp-relay.gmail.com with ESMTPS id a1e0cc1a2514c-9808e9758adsm4337999241.0.2026.09.08.11.14.54
         for <virtualization@lists.linux.dev>
         (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 08 Sep 2026 11:07:47 -0700 (PDT)
+        Tue, 08 Sep 2026 11:14:54 -0700 (PDT)
 X-Relaying-Domain: broadcom.com
 X-CFilter-Loop: Reflected
-Received: by mail-yx1-f71.google.com with SMTP id 956f58d0204a3-66e5862a158so5169453d50.2
-        for <virtualization@lists.linux.dev>; Tue, 08 Sep 2026 11:07:47 -0700 (PDT)
+Received: by mail-oi1-f197.google.com with SMTP id 5614622812f47-4b325074c26so4956766b6e.2
+        for <virtualization@lists.linux.dev>; Tue, 08 Sep 2026 11:14:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1788890867; x=1789495667; darn=lists.linux.dev;
+        d=broadcom.com; s=google; t=1788891293; x=1789496093; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=Rb9I7ysehn3T8EdRE3wvUpvmDJ0lCancFwS1A6o0B9Y=;
-        b=E99F5o7JXZbODKNzumFdG8nrVQKnCsQdlfRq1Bgtxs+RcOplczxwOscbmco8qXjvES
-         Ofy/h1aDazdgxozAag+On9x1qATdHfotRCCwM1EzwviZBSiJFRY7Lsco8NT6vm5npFKi
-         3IbxG/udvacoWw4OAuS328Yle53AIZ+rPg9Y4=
-X-Forwarded-Encrypted: i=1; AKwUvBw2phtkED5ohEVLA33GwUhFB8ZirQhIjC0at4hI5kWJlSqLjAeEIzzU+KAIbbzTnmd27t3HKJyW4CXvVJ4iyg==@lists.linux.dev
-X-Received: by 2002:a05:690e:1b44:b0:66f:9e32:fe1 with SMTP id 956f58d0204a3-66fb5921a72mr6969457d50.10.1788890861945;
-        Tue, 08 Sep 2026 11:07:41 -0700 (PDT)
-X-Received: by 2002:a05:690e:1b44:b0:66f:9e32:fe1 with SMTP id 956f58d0204a3-66fb5921a72mr6969419d50.10.1788890861415;
-        Tue, 08 Sep 2026 11:07:41 -0700 (PDT)
+        bh=i+U6lKJy3E9UudZt3FknVdHylx4G9kfIGWhaOGKfOa4=;
+        b=QyDcuhuahW7j/BsI84nx8rBGS8o8U0CQA1x3KX9kKCEFCaP8P9UNox7n31tlqBVdBg
+         PHGMan1k5iVZMWh+Co93U+DkHk7Izil6ZOBU1HPxcGcFeOE6ZxtO888YEZ/48gzcb5M8
+         tangrICD1Uw47aVSv0vLo25L0rtoMmSWJKZng=
+X-Forwarded-Encrypted: i=1; AKwUvBx136uKCgcCGx0ponjknqTz6mo0WO2aLRq7Jr762BoHaBuhJ+bO01I3QB/evTBjmXU8fo9P1tdW7UHgBxwMWQ==@lists.linux.dev
+X-Received: by 2002:a05:6214:4905:b0:90e:7e02:cc3f with SMTP id 6a1803df08f44-9103ef88ddemr25982166d6.18.1788890854642;
+        Tue, 08 Sep 2026 11:07:34 -0700 (PDT)
+X-Received: by 2002:a05:6214:4905:b0:90e:7e02:cc3f with SMTP id 6a1803df08f44-9103ef88ddemr25981186d6.18.1788890853962;
+        Tue, 08 Sep 2026 11:07:33 -0700 (PDT)
 Received: from vertex.localdomain (pool-173-49-113-140.phlapa.fios.verizon.net. [173.49.113.140])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-9106412e038sm27114866d6.20.2026.09.08.11.07.37
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-9106412e038sm27114866d6.20.2026.09.08.11.07.29
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Sep 2026 11:07:38 -0700 (PDT)
+        Tue, 08 Sep 2026 11:07:29 -0700 (PDT)
 From: Zack Rusin <zack.rusin@broadcom.com>
 To: Borislav Petkov <bp@alien8.de>,
 	Ajay Kaher <ajay.kaher@broadcom.com>,
@@ -103,9 +103,9 @@ Cc: Thomas Gleixner <tglx@kernel.org>,
 	kexec@lists.infradead.org,
 	linux-doc@vger.kernel.org,
 	Zack Rusin <zack.rusin@broadcom.com>
-Subject: [PATCH v1 4/4] x86/vmware: Run panic diagnostics before kdump by default
-Date: Tue,  8 Sep 2026 14:07:16 -0400
-Message-ID: <7487011dfb95aadda9515b22a5852680df1982c5.1788414671.git.zack.rusin@broadcom.com>
+Subject: [PATCH v1 2/4] x86/vmware: Add the vmware_record_panic_msg sysctl
+Date: Tue,  8 Sep 2026 14:07:14 -0400
+Message-ID: <03e5c9855e9578b00abf8da69764f1b468597218.1788414671.git.zack.rusin@broadcom.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <cover.1788414671.git.zack.rusin@broadcom.com>
 References: <cover.1788414671.git.zack.rusin@broadcom.com>
@@ -118,44 +118,112 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-DetectorID-Processed: b00c1d49-9d2e-4205-b15f-d015386d3d5e
 
-The core panic path enters a loaded crash kernel before running kmsg
-dumpers, so the VMware logger cannot preserve the panic in the host log.
-Set crash_kexec_post_notifiers during VMware platform setup. setup_arch()
-runs before ordinary core parameters are parsed, so an explicit
-crash_kexec_post_notifiers=0 still overrides this default. The 0644
-parameter also remains writable at runtime.
+Full panic text is useful on ordinary guests. Encrypted guests should
+export it only when an administrator opts in. Reporting a crash does not
+require transferring the log.
 
-VMware exposes no capability bit for this behavior, so the default changes
-for every VMware guest. Running the logger first adds work to the panic
-path and can reduce kdump reliability.
+Enable panic recording by default for ordinary VMware guests and disable
+it when guest memory encryption is active. Expose the policy as the
+boolean kernel.vmware_record_panic_msg sysctl and document that it
+controls only the vmware.log transfer.
 
-A full log transfer uses 1027 low-bandwidth hypercalls; three checkpoint
-attempts are bounded at 3077. In vmcall tests, a maximum-size transfer
-took at most 7.47 ms; three complete transfers comprising 3081 calls took
-at most 21.58 ms.
-
-The crash report remains suppressed while a crash kernel is loaded because
-the host may terminate the VM inside that call. A future report from the
-crash kernel or kdump userspace can restore the event after saving the
-vmcore.
+Register the sysctl only after the panic buffer and dumper are ready, and
+only when sysctl support is built. A registration failure leaves the
+internal default in force.
 
 Signed-off-by: Zack Rusin <zack.rusin@broadcom.com>
 ---
- arch/x86/kernel/cpu/vmware.c | 1 +
- 1 file changed, 1 insertion(+)
+ Documentation/admin-guide/sysctl/kernel.rst | 14 +++++++++++++
+ arch/x86/kernel/cpu/vmware.c                | 23 +++++++++++++++++++++
+ 2 files changed, 37 insertions(+)
 
+diff --git a/Documentation/admin-guide/sysctl/kernel.rst b/Documentation/admin-guide/sysctl/kernel.rst
+index b6328cd0f43e..4577e935ddcf 100644
+--- a/Documentation/admin-guide/sysctl/kernel.rst
++++ b/Documentation/admin-guide/sysctl/kernel.rst
+@@ -1690,6 +1690,20 @@ entry will default to 2 instead of 0.
+ = =============================================================
+ 
+ 
++vmware_record_panic_msg
++=======================
++
++Controls whether panic kmsg data is written to the host's ``vmware.log``.
++This setting does not control the separate VMware guest-crash event.
++
++= ==============================================================
++0 Do not write panic kmsg data to ``vmware.log``. This is the
++  default for encrypted guests.
++1 Write panic kmsg data to ``vmware.log``. This is the default for
++  ordinary guests.
++= ==============================================================
++
++
+ warn_limit
+ ==========
+ 
 diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-index c21fc835537f..d88c625d8389 100644
+index bf59653d6e07..3848811550e9 100644
 --- a/arch/x86/kernel/cpu/vmware.c
 +++ b/arch/x86/kernel/cpu/vmware.c
-@@ -646,6 +646,7 @@ static void __init vmware_platform_setup(void)
- {
- 	u32 eax, ebx, ecx;
- 	u64 lpj, tsc_khz;
-+	crash_kexec_post_notifiers = true;
+@@ -31,6 +31,7 @@
+ #include <linux/efi.h>
+ #include <linux/reboot.h>
+ #include <linux/static_call.h>
++#include <linux/sysctl.h>
+ #include <linux/wordpart.h>
+ #include <linux/sched/cputime.h>
+ #include <asm/div64.h>
+@@ -255,6 +256,19 @@ static int vmware_log_rpc(const char *buffer, size_t length)
+ }
  
- 	eax = vmware_hypercall3(VMWARE_CMD_GETHZ, UINT_MAX, &ebx, &ecx);
+ static struct page *vmware_panic_page;
++static int vmware_record_panic_msg;
++
++static const struct ctl_table vmware_panic_sysctls[] = {
++	{
++		.procname	= "vmware_record_panic_msg",
++		.data		= &vmware_record_panic_msg,
++		.maxlen		= sizeof(vmware_record_panic_msg),
++		.mode		= 0644,
++		.proc_handler	= proc_dointvec_minmax,
++		.extra1		= SYSCTL_ZERO,
++		.extra2		= SYSCTL_ONE,
++	},
++};
  
+ static void vmware_panic_log_dump(struct kmsg_dumper *dumper,
+ 				  struct kmsg_dump_detail *detail)
+@@ -263,6 +277,9 @@ static void vmware_panic_log_dump(struct kmsg_dumper *dumper,
+ 	char *buffer = page_address(vmware_panic_page);
+ 	size_t length = 0;
+ 
++	if (!READ_ONCE(vmware_record_panic_msg))
++		return;
++
+ 	memcpy(buffer, VMWARE_LOG_PREFIX, VMWARE_LOG_PREFIX_LEN);
+ 	kmsg_dump_rewind(&iter);
+ 	(void)kmsg_dump_get_buffer(&iter, true,
+@@ -283,6 +300,9 @@ static int __init vmware_panic_log_init(void)
+ 	if (!hypervisor_is_type(X86_HYPER_VMWARE))
+ 		return 0;
+ 
++	vmware_record_panic_msg =
++		!cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT);
++
+ 	vmware_panic_page = alloc_page(GFP_KERNEL);
+ 	if (!vmware_panic_page) {
+ 		pr_err("failed to allocate panic log buffer\n");
+@@ -295,6 +315,9 @@ static int __init vmware_panic_log_init(void)
+ 		__free_page(vmware_panic_page);
+ 		vmware_panic_page = NULL;
+ 	}
++	if (vmware_panic_page && IS_ENABLED(CONFIG_SYSCTL) &&
++	    !register_sysctl("kernel", vmware_panic_sysctls))
++		pr_err("failed to register panic log sysctl\n");
+ 
+ 	return 0;
+ }
 -- 
 2.53.0
 
