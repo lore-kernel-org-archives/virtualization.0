@@ -1,22 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 092A6530DEA
-	for <virtualization@lists.linux.dev>; Tue,  8 Sep 2026 14:48:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CFC030DD30
+	for <virtualization@lists.linux.dev>; Tue,  8 Sep 2026 14:48:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788878889; cv=none; b=bDuFdYPJpyTvME5N5+Kq2bkVk9NDfRHiAn71kKYDCED2mEdICcn9vp5RwK39qydEvNz33fxhlS24QDSoyYHSu0qSdoS+0m435nGMa3yBXBW2UcLNBM74V2sl1xUrm+K2S1Knjxp68MgLHfS63DCaINnHQSvSnZodBCiBRHf1zNk=
+	t=1788878934; cv=none; b=BaUWns8H6fmB4tbsNBwiF/Dsx+3aeaaqxbOKPh0HbznMpUbLEqjjycTcydPXK63QQUP1EoonwhzV/A9031BalVM41MyAzWCKq/Sm5Db6tOo2WsaMkPDCRokaODQMCQpfnbKXtLAvoe0gxjngxubiv4iDUZvPERRzMQIIXh//wME=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788878889; c=relaxed/simple;
-	bh=Rnz+l7dCa+RJ0rgHLk59kec3s+fW1wEhxovhfo0D2mI=;
+	s=arc-20240116; t=1788878934; c=relaxed/simple;
+	bh=BAGwWokpj3jQqtFx24Rbif/jSCnwnfhdg3DcxeI76m4=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=pLYOj8tDS5E5NIEzUQ/CbBf4iWVtXN87D21r6BRVOU34mp35fNwH8CtxoaXMrHjE1aym1YpcoX+lUnJoUCYm/HO6iuMKCy5lRXgy8IBMYTsRzbbTYGt84um50dX8d5KLkUm4PuzN9FD4SqAweypzW0+QA/tGZmRIjEf3cP5fDa0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB9181F00A3E;
-	Tue,  8 Sep 2026 14:47:56 +0000 (UTC)
+	 In-Reply-To:To:Cc; b=C53cM2CILi7b/+GI+TXbAv+d/VWvroKPaxNLnAOfYpCEvs4sb6K3a4C8M/wZQGksM+o7pKt0X2orEFRagSf3qTFEPLfCk0gm5Idw58kcfz/X48VpzLf+uXkKV+Tuj69/LTSVAFdgnoJUQmhJ9ZSW+r7I62w9Czzx9/71GKIDbxE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Cna5GU0p; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Cna5GU0p"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BCC81F00A3D;
+	Tue,  8 Sep 2026 14:48:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788878925;
+	bh=TMvOnYo1Atub+YhmvSaZeGPAhp1Pt3Xk5UUTa7YsERI=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc;
+	b=Cna5GU0pkOGTmnt7HuMnUuYcqtTiHYywQ7ekEZJR7fVB6d7aibkxDF/IgV3ls5MLm
+	 k/1BD/k5HWDFDbhBVD0hfTyuUB/9gwNHYBIkuySg8GGiKtoEvRPqAyvhL3pWWIX1tC
+	 R+cj3N9h83kFIEXJrZtpREKOVg+nSF3wHxpuDrMkktp2sQsVnZttpFpzorPwRg0//W
+	 xHLco0TPmnpDto1M2M++joT+kM4ipsNYaJrt+uUI4c756TrT2cQrCHxGInI0ltnzHQ
+	 8ck23F7hNbA6TDFHriA3OwPK3sEDrWDlzTgfqQQ9roZcg/u8w4fBtQukwNisbPDc3a
+	 3KviQhpBJEl3g==
 From: Maxime Ripard <mripard@kernel.org>
-Date: Tue, 08 Sep 2026 16:46:45 +0200
-Subject: [PATCH v4 14/41] drm/qxl: Convert to atomic_create_state
+Date: Tue, 08 Sep 2026 16:46:54 +0200
+Subject: [PATCH v4 23/41] drm/virtio: Convert to atomic_create_state
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -25,22 +37,23 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260908-drm-no-more-plane-reset-v4-14-a31b3fcfc989@kernel.org>
+Message-Id: <20260908-drm-no-more-plane-reset-v4-23-a31b3fcfc989@kernel.org>
 References: <20260908-drm-no-more-plane-reset-v4-0-a31b3fcfc989@kernel.org>
 In-Reply-To: <20260908-drm-no-more-plane-reset-v4-0-a31b3fcfc989@kernel.org>
 To: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
  Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@gmail.com>, 
  Simona Vetter <simona@ffwll.ch>
 Cc: dri-devel@lists.freedesktop.org, Maxime Ripard <mripard@kernel.org>, 
- airlied@redhat.com, kraxel@redhat.com, spice-devel@lists.freedesktop.org, 
+ airlied@redhat.com, dmitry.osipenko@collabora.com, 
+ gurchetansingh@chromium.org, kraxel@redhat.com, olvaffe@gmail.com, 
  virtualization@lists.linux.dev
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=6661; i=mripard@kernel.org;
- h=from:subject:message-id; bh=Rnz+l7dCa+RJ0rgHLk59kec3s+fW1wEhxovhfo0D2mI=;
- b=owGbwMvMwCmsHn9OcpHtvjLG02pJDFkL5C/rTVYoY5yc8rLnkN1Wri8vGqR3mG1SisxxbRZ1n
- Ll7nWZjx1QWBmFOBlkxRZYnMmGnl7cvrnKwX/kDZg4rE8gQBi5OAZhIhRhjw9pjSX8ebQwN54j3
- s/9Y42N3dE7l+y9WExYWSp0oTgjvfLvGflug1v8p2f+FW338UztOMzZ822Vqr/r/d9OHZ5ZT5GU
- qU6KfTJ+d/ThDa8WZ++YvVzcd83s6m0Xx0eFPERql1g+mC70AAA==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=6083; i=mripard@kernel.org;
+ h=from:subject:message-id; bh=BAGwWokpj3jQqtFx24Rbif/jSCnwnfhdg3DcxeI76m4=;
+ b=owGbwMvMwCmsHn9OcpHtvjLG02pJDFkL5K+7OhnEn3wbdOmikSdr7tWG4ri31mF+t9zkflTwf
+ q2quK/bMZWFQZiTQVZMkeWJTNjp5e2LqxzsV/6AmcPKBDKEgYtTACZylImx4XLmgv/iLXu+LJ/8
+ 5vxV7gsd9+bOrNq+L/TKoYO5pn6BuY5hDXNZNk/g71MWEuTy/1mawljvPYNlzZJFjxtcroerqHJ
+ MjuJIUfXy2PjN69T2HkEvjcezFv9eH/vS9CVn8T/521cbuX4AAA==
 X-Developer-Key: i=mripard@kernel.org; a=openpgp;
  fpr=BE5675C37E818C8B5764241C254BCFC56BF6CE8D
 
@@ -311,43 +324,32 @@ expression PS;
 Signed-off-by: Maxime Ripard <mripard@kernel.org>
 ---
 Cc: airlied@redhat.com
+Cc: dmitry.osipenko@collabora.com
+Cc: gurchetansingh@chromium.org
 Cc: kraxel@redhat.com
-Cc: spice-devel@lists.freedesktop.org
+Cc: olvaffe@gmail.com
 Cc: virtualization@lists.linux.dev
 ---
- drivers/gpu/drm/qxl/qxl_display.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_plane.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index 7654575bcf00..9a2c2010dc7a 100644
---- a/drivers/gpu/drm/qxl/qxl_display.c
-+++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -927,11 +927,11 @@ static const struct drm_plane_helper_funcs qxl_cursor_helper_funcs = {
+diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+index 1d1b27ece62a..52971864db50 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_plane.c
++++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+@@ -89,11 +89,11 @@ drm_plane_state *virtio_gpu_plane_duplicate_state(struct drm_plane *plane)
+ }
  
- static const struct drm_plane_funcs qxl_cursor_plane_funcs = {
- 	.update_plane	= drm_atomic_helper_update_plane,
- 	.disable_plane	= drm_atomic_helper_disable_plane,
- 	.destroy	= drm_plane_helper_destroy,
--	.reset		= drm_atomic_helper_plane_reset,
+ static const struct drm_plane_funcs virtio_gpu_plane_funcs = {
+ 	.update_plane		= drm_atomic_helper_update_plane,
+ 	.disable_plane		= drm_atomic_helper_disable_plane,
+-	.reset			= drm_atomic_helper_plane_reset,
 +	.atomic_create_state = drm_atomic_helper_plane_create_state,
- 	.atomic_duplicate_state = drm_atomic_helper_plane_duplicate_state,
- 	.atomic_destroy_state = drm_atomic_helper_plane_destroy_state,
+ 	.atomic_duplicate_state = virtio_gpu_plane_duplicate_state,
+ 	.atomic_destroy_state	= drm_atomic_helper_plane_destroy_state,
  };
  
- static const uint32_t qxl_primary_plane_formats[] = {
-@@ -949,11 +949,11 @@ static const struct drm_plane_helper_funcs primary_helper_funcs = {
- 
- static const struct drm_plane_funcs qxl_primary_plane_funcs = {
- 	.update_plane	= drm_atomic_helper_update_plane,
- 	.disable_plane	= drm_atomic_helper_disable_plane,
- 	.destroy	= drm_plane_helper_destroy,
--	.reset		= drm_atomic_helper_plane_reset,
-+	.atomic_create_state = drm_atomic_helper_plane_create_state,
- 	.atomic_duplicate_state = drm_atomic_helper_plane_duplicate_state,
- 	.atomic_destroy_state = drm_atomic_helper_plane_destroy_state,
- };
- 
- static struct drm_plane *qxl_create_plane(struct qxl_device *qdev,
+ static int virtio_gpu_plane_atomic_check(struct drm_plane *plane,
 
 -- 
 2.55.0
