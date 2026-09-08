@@ -1,73 +1,161 @@
-Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f99.google.com (mail-pj1-f99.google.com [209.85.216.99])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 868D349EC5D
-	for <virtualization@lists.linux.dev>; Tue,  8 Sep 2026 15:18:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B512559C96D
+	for <virtualization@lists.linux.dev>; Tue,  8 Sep 2026 18:07:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.99
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788880709; cv=none; b=OsbOOBgKJT3jgW98PUPb41N6qEkbgjdVNnewxuXIsSMtitd+qLzEd0T0PN9bSL6ek/FNKkfVH0CBE4j5u0Jjz+wvVpbfpARNMPTJi8fFszkb7Ewjfb//HS2fuxP4sbcxriF/omw/6pVMxa0/nI17AWZq2M3h4INEvQ30BmtSQMk=
+	t=1788890859; cv=none; b=UFrzEPxF8327aFE9QEqxpM8pOhNc5tteRIKkvHOPl0mDERADX0EZG1fcaBPwAlIZfbxhGoJIAK4uG0EDZNlDhjUvqXMSfp7Hg+hpyVV4g+X+6Efabqv8iVyfHGddz9D0MB8mCr5KUm6pSmqC51oqFinyrd+vDCLq4OlN4ISPcus=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788880709; c=relaxed/simple;
-	bh=AN+a+kYp6jBISAgGfUnagMa8xe4a3N6zMwCVIdeKd/o=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=FuKXn004JN8mkqbARAHz3w+oURxX1bDL5+6RaZiV+j0iBMqXS+SxUMAcoD2dq3gKADfgXn2fg6b0cAM9P5/BxSb85hRnjuuddGC9BxSddspZnHe7PrCLzPZqGrvoT4t3wX7T4MEr7A5n03IHxlNZ2kJ5WM3b9uF1UZsNBhqkE4w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=EzbhBRx9; arc=none smtp.client-ip=185.226.149.38
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
+	s=arc-20240116; t=1788890859; c=relaxed/simple;
+	bh=aVct0QQQt2YqktuHDZgb/IGehlIFoCNOWmk87ahbsdY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=nLZUs76UW9dZkqNJXmBIq7lZvX1Us2zJjShnBvn2rPUi7HPmn0nNpRlCMfknWMm37qLqXF1CPhQge6Ngt1z+Ytt9NpkxVPvhAG1PJLV3Camlbd2JbWYnawjLov/fYD4s5HF9IqSuESFPEzIb+x1s4kKVuAgyVhf61HzKR367NnU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=PDKRb2JZ; arc=none smtp.client-ip=209.85.216.99
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="EzbhBRx9"
-Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
-	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-	(Exim 4.93)
-	(envelope-from <mhal@rbox.co>)
-	id 1x3xa4-00FfNj-6E; Tue, 08 Sep 2026 17:17:52 +0200
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector2; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
-	References:Cc:To:Subject:MIME-Version:Date:Message-ID;
-	bh=AN+a+kYp6jBISAgGfUnagMa8xe4a3N6zMwCVIdeKd/o=; b=EzbhBRx94csRsvKR9DaG+hjI+q
-	sPuoqH9+SbyERvR9QTCS/PLO85ARmc66v804E5FtG8g9Oikj86zB+/KdK5H+DHpc/XxinrCYNXY1+
-	L3ZGuvrDL1fxvcZN+J/H37bPwB/dCuDyAchn+3Kfc4DWA8lCoU1is+4QWBm/ujuLpU25bChPjsv+P
-	2XaEYpfl1I8onemIjXXaO6j8LY9igj7o7y4n5eJ64D1dXcroZH7yb2oo5hZeE6HU2c1s68lJntO8y
-	k9n8ekwBnhcGBQ8Ddqx0hzMKk7Qd1zicJMGgXtgDLU9W0XZQq9kEn68bM9vOHfRwSdeSdG8PKpHw7
-	H64X+W1g==;
-Received: from [10.9.9.74] (helo=submission03.runbox)
-	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
-	(envelope-from <mhal@rbox.co>)
-	id 1x3xZy-0008Gc-3F; Tue, 08 Sep 2026 17:17:46 +0200
-Received: by submission03.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.95)
-	id 1x3xZe-00EdyY-2i;
-	Tue, 08 Sep 2026 17:17:26 +0200
-Message-ID: <4ee9a2ec-c16c-4f1a-ba81-2dcc47c1c3cb@rbox.co>
-Date: Tue, 8 Sep 2026 17:17:19 +0200
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="PDKRb2JZ"
+Received: by mail-pj1-f99.google.com with SMTP id 98e67ed59e1d1-39682983a0fso5337448a91.3
+        for <virtualization@lists.linux.dev>; Tue, 08 Sep 2026 11:07:31 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788890849; x=1789495649;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:dkim-signature:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=r+VLJNR2ClH5aaw8GL8jeSbQjtC7qAwKNhxP9YK5biY=;
+        b=gHT+9ctJZHFmZoY7dfln8E6EzM6WU049nf7BmTgTgZIZxdxwFQTNZ94uq4uqfw1cS4
+         117jbLkeIS4pz1NMkD8hRhvVuVnGgfXk1nWZ3JB6Xq9P/yXFnzuKRsFf2B4nAry26eRf
+         etf4i2GshnAvgEJ6Nkahu528E1zIPLRst+9jf8jtlMGeUs6FHGJkQ4sdjB26naplMFqn
+         WcufVPa1adxHjM1lle/e1KLpwnIFCGycoS3WumZC61pHu3oVJU4NyvuI7bzFUmzFURTn
+         x0ZoTY/cHspxXxfQduFcV4Ly9+5XcnlrxwIWfGHloB2TNUHb5i/d+hoNy23EhCny495d
+         7ecg==
+X-Forwarded-Encrypted: i=1; AKwUvBx8JvYObjpbXHkfF3zugd7Qrk4AT63B7VY4l9SDjW6TlXpsRQvafySKtVjRvZP3/ctXtANaacr73MJ8dwImdg==@lists.linux.dev
+X-Gm-Message-State: AFuF++krMMjFJZXm0EO6B+7SbL1uHxbq/EhCsotLm/SoTJx1rdb8f6Oa
+	T5DyBNbWHM8RpTVjW2mj5eCA8rq4DSMYbqxWvSPIxnflo1+HTFWfGZgvM8pyGw3iMxrF4ZpyhMd
+	FdbiwYcsthUBSMVfcZu0unnxrKVYcu1JkNtV8izX+MSM7gRStpi421uDr1dsWmKuSQCHkSr41we
+	Uw7/81S9ScsUEnG48W5JyIoVk3PLIW68SZcu1BXAvjqVekphy5gxfhBOdVpwfRBP7sqw8lT/jrN
+	6UlW9VeElS1A2NUeto=
+X-Gm-Gg: AYBFou0yTGn4ycv0czKgwrhRpEW4gRn1aEvBjWDPX0/LAn0zzvNGWR2zU9xrwC+pPPr
+	8qyLm7vJLbBUMD0i/otbz3fCGSjrYEhUUBOW1vgmX1ZbF9OPGF8/LBWu9Af+b3X7Ls/2BvFEscT
+	GRMbCI7qTzp1o2hExyow/xG9eJg8tAOJdhqggeJ3sWQPYt+1sST+p91ZWCpjxurgQceitvIwXIe
+	TyY4lV1A32adCLVVTdBdkcl8R+NTWi5GdeLresd+tthNrZKxDekxxmbap/zc+Cj/teGOOQ68vW8
+	To1qEws0QG6xlbISPQIpZEcrflXXmDzJ9yG3TU9AJEDD8+118Aslsj/bCVut9ZcQMnRrnI32+A5
+	qzMZcSK3ZQ0p69lJDXfTQJ4b7Dz9/obP8oB5n/uGJVhsMJ+xXkznEnVH/KBISWckSoAj50EQ6RH
+	ey1Bj65S5q0W2qkP85irS4aSQFPd44UTjVCNQ=
+X-Received: by 2002:a17:90b:528e:b0:38e:ad9d:1161 with SMTP id 98e67ed59e1d1-39b25ee67f0mr46233835a91.0.1788890848989;
+        Tue, 08 Sep 2026 11:07:28 -0700 (PDT)
+Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-125.dlp.protect.broadcom.com. [144.49.247.125])
+        by smtp-relay.gmail.com with ESMTPS id 98e67ed59e1d1-39b1600a403sm10364106a91.4.2026.09.08.11.07.28
+        for <virtualization@lists.linux.dev>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 08 Sep 2026 11:07:28 -0700 (PDT)
+X-Relaying-Domain: broadcom.com
+X-CFilter-Loop: Reflected
+Received: by mail-yx1-f70.google.com with SMTP id 956f58d0204a3-66c73057f18so3394754d50.3
+        for <virtualization@lists.linux.dev>; Tue, 08 Sep 2026 11:07:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google; t=1788890847; x=1789495647; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=r+VLJNR2ClH5aaw8GL8jeSbQjtC7qAwKNhxP9YK5biY=;
+        b=PDKRb2JZp+mBCwJP5hG9VoA51FrI2QKEQlDDaZNC12cIjrOfD0z3R0zXBQHW90PkqK
+         HUBosZ2JL07jsXTkXw4xV5GzVu+aZh7XsOdbU7shZvuHjBQjPWbIxsYmhhcTdL75FY79
+         odSxvLO5yamFJLP/jRU00YxbOuzUEh9uvJd+Y=
+X-Forwarded-Encrypted: i=1; AKwUvBy3Q7DdZYsaPcaYSV2ZbkUMTI2RZfoVunSPdcxtDrxvCu5j3o7FFKMcq/6y2X5PQ5ruf5h44LYKsUlOGxmfFQ==@lists.linux.dev
+X-Received: by 2002:a53:e8c5:0:b0:66f:c1be:84d8 with SMTP id 956f58d0204a3-66fc1be866cmr7220597d50.70.1788890847325;
+        Tue, 08 Sep 2026 11:07:27 -0700 (PDT)
+X-Received: by 2002:a53:e8c5:0:b0:66f:c1be:84d8 with SMTP id 956f58d0204a3-66fc1be866cmr7220569d50.70.1788890846854;
+        Tue, 08 Sep 2026 11:07:26 -0700 (PDT)
+Received: from vertex.localdomain (pool-173-49-113-140.phlapa.fios.verizon.net. [173.49.113.140])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-9106412e038sm27114866d6.20.2026.09.08.11.07.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 08 Sep 2026 11:07:25 -0700 (PDT)
+From: Zack Rusin <zack.rusin@broadcom.com>
+To: Borislav Petkov <bp@alien8.de>,
+	Ajay Kaher <ajay.kaher@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>,
+	x86@kernel.org,
+	Petr Mladek <pmladek@suse.com>,
+	Joel Granados <joel.granados@kernel.org>,
+	Baoquan He <baoquan.he@linux.dev>
+Cc: Thomas Gleixner <tglx@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"H . Peter Anvin" <hpa@zytor.com>,
+	virtualization@lists.linux.dev,
+	bcm-kernel-feedback-list@broadcom.com,
+	linux-kernel@vger.kernel.org,
+	John Ogness <john.ogness@linutronix.de>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Sergey Senozhatsky <senozhatsky@chromium.org>,
+	Kees Cook <kees@kernel.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Mike Rapoport <rppt@kernel.org>,
+	Pasha Tatashin <pasha.tatashin@soleen.com>,
+	Pratyush Yadav <pratyush@kernel.org>,
+	Dave Young <ruirui.yang@linux.dev>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Bo Gan <bo.gan@broadcom.com>,
+	Brennan Lamoreaux <brennan.lamoreaux@broadcom.com>,
+	kexec@lists.infradead.org,
+	linux-doc@vger.kernel.org,
+	Zack Rusin <zack.rusin@broadcom.com>
+Subject: [PATCH v1 0/4] x86/vmware: Preserve panic diagnostics in vmware.log
+Date: Tue,  8 Sep 2026 14:07:12 -0400
+Message-ID: <cover.1788414671.git.zack.rusin@broadcom.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] vsock: do not reset a socket in connect() once it has
- connected
-To: Hyunwoo Kim <imv4bel@gmail.com>, Stefano Garzarella <sgarzare@redhat.com>
-Cc: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
- pabeni@redhat.com, horms@kernel.org, leonardi@redhat.com,
- bobbyeshleman@meta.com, stefanha@redhat.com, mst@redhat.com,
- virtualization@lists.linux.dev, netdev@vger.kernel.org
-References: <anzT1fREOSyHT99k@v4bel>
- <218226a4-38e6-4a16-a660-6c1bb92f9f96@rbox.co> <an5zJ9Uf94_L9TyB@v4bel>
- <c11d6fe8-fdf9-4b45-b291-e5d5b0ef5cb4@rbox.co>
- <aoVnp0w9jlyFDPj7@sgarzare-redhat> <ap8EBx3pkSr5Csy1@v4bel>
-Content-Language: pl-PL, en-GB
-From: Michal Luczaj <mhal@rbox.co>
-In-Reply-To: <ap8EBx3pkSr5Csy1@v4bel>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-DetectorID-Processed: b00c1d49-9d2e-4205-b15f-d015386d3d5e
 
-On 9/7/26 20:35, Hyunwoo Kim wrote:
-> Gentle ping. I'd appreciate an update on where this stands.
-Thanks for poking me. I'll post a patch today or tomorrow.
+A virtual machine may have neither guest-local persistent storage nor
+working userspace after a panic. The host's vmware.log remains available
+after the VM terminates, and a production encrypted guest is the only
+component able to export readable panic text. Hyper-V already provides
+this class of host-persistent panic reporting.
 
-Apologies for the delay,
-Michal
+Add a panic-only VMware logger that copies the newest 4 KiB of the kernel
+log and sends it with bounded low-bandwidth RPC work. Ordinary guests
+enable text transfer by default; encrypted guests require an administrator
+to opt in through kernel.vmware_record_panic_msg. A separate late dumper
+reports the structured crash event after built-in dumpers and suppresses
+the event while a crash kernel is loaded, because a configured VMware host
+may terminate the VM before the reporting hypercall returns.
+
+Patch 4 makes panic diagnostics run before kdump by default on VMware
+guests. This follows existing platform uses of
+crash_kexec_post_notifiers, with Hyper-V as the closest guest-reporting
+precedent. Unlike Hyper-V, VMware exposes no capability bit for this
+behavior. An explicit crash_kexec_post_notifiers=0 still wins, and patch 4
+can be dropped without affecting patches 1 through 3.
+
+This replaces patches 2 and 3 of Alexey's v2 posting:
+https://lore.kernel.org/all/20260309235250.2611115-1-alexey.makhalov@broadcom.com/
+
+The intended merge path is tip's x86/vmware branch. Boris please review the
+VMware transport and policy. Petr and John, please review the panic-only
+dumper use and registration ordering. Joel and Kees, please review the
+sysctl. Baoquan and the KEXEC/KDUMP team, please review the 
+loaded-crash-kernel guard and the default in patch 4.
+
+Zack Rusin (4):
+  x86/vmware: Add a bounded panic log sender
+  x86/vmware: Add the vmware_record_panic_msg sysctl
+  x86/vmware: Report guest crashes after kmsg dumpers
+  x86/vmware: Run panic diagnostics before kdump by default
+
+ Documentation/admin-guide/sysctl/kernel.rst |  14 ++
+ arch/x86/include/asm/vmware.h               |   2 +
+ arch/x86/kernel/cpu/vmware.c                | 245 ++++++++++++++++++++
+ 3 files changed, 261 insertions(+)
+
+
+base-commit: cee9395acd8043be0644b25c34bfa86623f2b935
+-- 
+2.53.0
 
