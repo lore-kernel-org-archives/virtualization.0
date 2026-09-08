@@ -1,134 +1,130 @@
-Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.4])
+Received: from oss.cyber.gouv.fr (oss.cyber.gouv.fr [51.159.188.251])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 684AB4F0526
-	for <virtualization@lists.linux.dev>; Tue,  8 Sep 2026 09:27:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61BE14A2614
+	for <virtualization@lists.linux.dev>; Tue,  8 Sep 2026 09:37:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=51.159.188.251
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788859635; cv=none; b=n0sgu3CGegCtnl8soto97vHYCR54wlYUTYVpzYYhQ/LdRjwk1gf016Huzuy2Hw0C8deAV6REprUTf+YnYAJTgluCZM3rn2M1H+/0l7MnNPIwVLoUMVvQJo3oiAy31oeAqseNDZBYRaHQgvq2pU/NICA8wDnEMxsvrQE6f4dR0o8=
+	t=1788860254; cv=none; b=ky9RaRddmxRik2fB+MNmC9A2sjQz45zj2FLxfnll1A5lUSlnllYsb3lQmhf+6lAYNPEZU7BkWitmdKRAvzdNGHHuQ48MnIaCFcHk8wZky/+qGerTOwJmMS1RpLAF/pt2bff/0/AsOWPOVdNSmMutT0QYe2a5p/VNaRf3vRH09+g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788859635; c=relaxed/simple;
-	bh=TH2KrDMqXFiOdWjjNaWh5C1liTsVTa5L6i54+wRfvGo=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=f0VnT10s2+C9aUqrJLWHVx2NsfAwBzvODxJ17wr36Pby4jwWf9yFhOVY9uifYoP50w6eMR1yWTFD4L2VUbGIHbNnrdpdBXxjI3V3OS7U+AQM/U13o/eN/TnlBKk/YSRAaWW3rcvgXeymZaEVblUQMSt9dRaU7HhNFA7zOSOjEXc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=WWrGQv2Y; arc=none smtp.client-ip=117.135.210.4
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1788860254; c=relaxed/simple;
+	bh=Uzro9sQyNbEXpshQpInNR8RyMssihPgj7sRtvoTsTRQ=;
+	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
+	 Message-ID:Content-Type; b=rn00IGjsoYq1rKnShMsaXDyCiTnMqod06r+HY6G/8Ns6rqZPL9nLh8s0wuEEpTZ3MO36Ia+7Y9MUsjXezNgbwLIaWPfxSplFilMKz9dSZY4RB2t6AjVZ6JsX5rXGu2BlNX+bPM6toVX/sfDx4jNj/ZBaDPxn/heowBPrXpfuUVc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.cyber.gouv.fr; spf=pass smtp.mailfrom=oss.cyber.gouv.fr; dkim=pass (2048-bit key) header.d=oss.cyber.gouv.fr header.i=@oss.cyber.gouv.fr header.b=o2sFK7r+; arc=none smtp.client-ip=51.159.188.251
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.cyber.gouv.fr
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.cyber.gouv.fr
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="WWrGQv2Y"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=uX
-	egf20DF7eQfV2ZaryDDtLLMbtgbBzpvgrwghRxI7E=; b=WWrGQv2Y1VxqZbLaik
-	1GlVBeZ/D+7InWDgtI5IreTZ4493mNHjfN6uglwClVA2cC6UCB9mvGHtzHrHjuuZ
-	xfaVdM3/3rRFK+zCkAALRlujOdgSXI/BtZ6cqwME70TeXdTIgumtC7WMKiG3FxZF
-	ZEAMq3bLXZ3Zy4afD+4O9LDYQ=
-Received: from localhost.localdomain (unknown [])
-	by gzsmtp3 (Coremail) with SMTP id PigvCgD3Bf3X1J9qaBRdRg--.18019S2;
-	Tue, 08 Sep 2026 17:26:48 +0800 (CST)
-From: Longjun Tang <lange_tang@163.com>
-To: mst@redhat.com,
-	kuba@kernel.org
-Cc: jasowangio@gmail.com,
-	xuanzhuo@linux.alibaba.com,
-	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org,
-	tanglongjun@kylinos.cn,
-	Longjun Tang <lange_tang@163.com>
-Subject: [RFC RESEND 0/3] virtio_net: introduce an RX queue watchdog for stuck detection
-Date: Tue,  8 Sep 2026 17:26:43 +0800
-Message-Id: <20260908092646.108865-1-lange_tang@163.com>
-X-Mailer: git-send-email 2.25.1
+	dkim=pass (2048-bit key) header.d=oss.cyber.gouv.fr header.i=@oss.cyber.gouv.fr header.b="o2sFK7r+"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=oss.cyber.gouv.fr; s=default; h=Content-Transfer-Encoding:Content-Type:
+	Message-ID:References:In-Reply-To:Subject:Cc:To:From:Date:MIME-Version:Sender
+	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+	List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=yCthNr5mJM9tAeqQeJQ8svvk+g0Q+GqxOFfeKxDoCjk=; b=o2sFK7r+mVqe1wEsO8jOZ4Zzi6
+	amtR+kji1nwyTlsmWpU3Mbgkz+z5kzixEgJjF7A7doqBj3VswbhSs3vmiae0dS5Z5aWfdmYQeGX/i
+	LznBj2F1AM1zJVfAtmF9b7cI56C9FN041WxfOgJTEuCPaZawtRTGzMMhPDz4CEEuOouTjTQutZODt
+	zrN4OJ+fTo6/EKYaTZOCZyno0Jyi1gZeCeIaL3vHYATK5DrXCyoLI6A7sMExZf59fe55XJF8ji2Fa
+	QfgmLo7rW21LC6hsigjmTxM7jFgjVMRdGXIUkaFDd1g2uKnbi+hQJdgrAvEyvsm3nOBRI8sc3Q9ZC
+	nDAwSJ0w==;
+Received: from [::1] (port=34328 helo=pf-012.whm.fr-par.scw.cloud)
+	by pf-012.whm.fr-par.scw.cloud with esmtpa (Exim 4.99.5)
+	(envelope-from <jeremy.jean@oss.cyber.gouv.fr>)
+	id 1x3sGi-0000000ABeP-3g1Q;
+	Tue, 08 Sep 2026 11:37:31 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Date: Tue, 08 Sep 2026 11:37:30 +0200
+From: =?UTF-8?Q?J=C3=A9r=C3=A9my_Jean?= <jeremy.jean@oss.cyber.gouv.fr>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: arei.gonglei@huawei.com, mst@redhat.com, davem@davemloft.net,
+ jasowangio@gmail.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+ linux-crypto@vger.kernel.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, Bryam Vargas <hexlabsecurity@proton.me>
+Subject: Re: [PATCH] crypto: virtio: validate akcipher completion length
+In-Reply-To: <ap_TatiabFuXiiad@gondor.apana.org.au>
+References: <20260821095511.3600564-2-Jeremy.Jean@oss.cyber.gouv.fr>
+ <ap_TatiabFuXiiad@gondor.apana.org.au>
+User-Agent: Roundcube Webmail/1.6.18
+Message-ID: <7fc9c66a8d89113854ecf8cc54ecb0c5@oss.cyber.gouv.fr>
+X-Sender: jeremy.jean@oss.cyber.gouv.fr
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:PigvCgD3Bf3X1J9qaBRdRg--.18019S2
-X-Coremail-Antispam: 1Uf129KBjvJXoWxCw4fCryrKF48ZFWDuFy3Jwb_yoW5Zw4DpF
-	WYk390vr1kGryI9a4SyF4UJryYka93Ar47Crn2q34ruFs0kr40qr1IkFy5KFyUCrZ3Aw1j
-	vr4FgrZ5C34DZaDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0pEWE_ZUUUUU=
-X-CM-SenderInfo: 5odqwvxbwd0wi6rwjhhfrp/xtbC-hjtHGqf1NiNBgAA3l
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - pf-012.whm.fr-par.scw.cloud
+X-AntiAbuse: Original Domain - lists.linux.dev
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - oss.cyber.gouv.fr
+X-Get-Message-Sender-Via: pf-012.whm.fr-par.scw.cloud: authenticated_id: jeremy.jean@oss.cyber.gouv.fr
+X-Authenticated-Sender: pf-012.whm.fr-par.scw.cloud: jeremy.jean@oss.cyber.gouv.fr
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 
-Hi Michael, Kuba,
+On 2026-09-08 11:20, Herbert Xu wrote:
+> On Fri, Aug 21, 2026 at 09:55:12AM +0000, Jérémy Jean wrote:
+>> The device controls the used length returned for an akcipher request.
+>> Subtracting the status byte without validating that length can 
+>> underflow
+>> dst_len, while accepting a payload larger than the submitted 
+>> destination
+>> can make sg_copy_from_buffer() read past the response buffer.
+>> 
+>> Reject malformed completion lengths before updating dst_len or copying 
+>> the
+>> response.
+>> 
+>> Fixes: a36bd0ad9fbf ("virtio-crypto: adjust dst_len at ops callback")
+>> Assisted-by: Codex:gpt-5
+>> Signed-off-by: Jérémy Jean <Jeremy.Jean@oss.cyber.gouv.fr>
+>> ---
+>>  drivers/crypto/virtio/virtio_crypto_akcipher_algs.c | 13 
+>> ++++++++++++-
+>>  1 file changed, 12 insertions(+), 1 deletion(-)
+>> 
+>> diff --git a/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c 
+>> b/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
+>> index d8d452cac391..886032abae80 100644
+>> --- a/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
+>> +++ b/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
+>> @@ -69,6 +69,7 @@ static void 
+>> virtio_crypto_dataq_akcipher_callback(struct virtio_crypto_request *
+>>  	struct akcipher_request *akcipher_req =
+>>  		container_of((void *)vc_akcipher_req, struct akcipher_request,
+>>  			     __ctx);
+>> +	unsigned int dst_len;
+>>  	int error;
+>> 
+>>  	switch (vc_req->status) {
+>> @@ -88,9 +89,19 @@ static void 
+>> virtio_crypto_dataq_akcipher_callback(struct virtio_crypto_request *
+>>  	}
+>> 
+>>  	/* actual length may be less than dst buffer */
+>> -	akcipher_req->dst_len = len - sizeof(vc_req->status);
+> 
+> This appears to have already been fixed by
+> 
+> commit f77a956f6a19f9463ef1527c9d0cda50dded6b92
+> Author: Bryam Vargas <hexlabsecurity@proton.me>
+> Date:   Mon Jun 22 01:52:15 2026 -0500
+> 
+>     crypto: virtio - bound the akcipher result length
+> 
+> Please check that commit and see if it's sufficient or not.
+> 
+> Thanks,
 
-While troubleshooting virtual network issues in a production environment,
-I once ran into a problem where the virtio_net receive queue became
-permanently stuck.
+Hello,
 
-The virtio_net RX path relies on backend interrupt notifications. 
-The backend(vhost_net/vhost-user) appends buffers to the used ring
-and then notifies the guest, relying on the hypervisor(KVM) to inject
-the interrupt. On receiving it, virtio_net schedules NAPI, drains the
-used ring and refills descriptors.
+Indeed, this fixes the bug.
+Thanks for the pointer, I missed that patch.
 
-If the hypervisor fails to inject the interrupt(e.g. a transient KVM
-failure), the guest never schedules NAPI, so it neither consumes buffers
-nor returns descriptors. The backend keeps appending until the ring is full,
-then stops and, with no free descriptors left, also stops sending
-notifications. Both sides now wait for the other, and the RX queue is
-permanently stuck.
-
-The root cause is the lost interrupt in the hypervisor, and the proper
-fix belongs there. Nevertheless, I believe virtio_net needs a way to 
-observe and diagnose it. Today, once a queue hangs, there is no signal
-to the operator that anything is wrong: the RX path has no equivalent of
-the TX watchdog (ndo_tx_timeout). This series lets virtio_net detect a 
-stuck RX queue. It is detection only: the driver records the event and 
-logs a warning, leaving recovery to a follow-up if desired.
-
-
-Implementation
---------------
-
-Patch 1 exports virtqueue_get_last_used_idx(), a read-only accessor for
-the last_used_idx. Together with the existing virtqueue_poll(), it lets
-a driver ask whether the device has produced buffers that the driver has
-not consumed yet ("backlog").
-
-Patch 2 adds a per-device RX watchdog that scans all RX queues once per
-second. A queue is considered stuck when, for rx_watchdog_timeo seconds
-(default 5, 0 disables it), all of the following hold simultaneously:
-  - the queue has a non-zero backlog (used.idx != last_used_idx);
-  - the driver makes no consumption progress (last_used_idx unchanged);
-  - no new interrupt arrives (rq->calls unchanged).
-On detection it logs a warning, rate-limited to once per timeout.
-
-Patch 3 adds a per-queue rx_timeouts statistic, exposed via ethtool -S,
-so the number of watchdog events can be observed per queue.
-
-
-RFC
----
-
-This is sent as an RFC to gather feedback on a few open points:
-
-  - Scope: this series only detects the stuck queue. Is it better to
-    keep detection and recovery separate, or should recovery (forcing a
-    NAPI poll to drain the queue) be included?
-
-  - Default: rx_watchdog_timeo defaults to 5 seconds (enabled). Should
-    the watchdog be enabled by default, or disabled unless explicitly
-    requested?
-
-Parts of this series, including portions of this cover letter, were drafted
-with AI assistance. I have carefully reviewed everything; 
-questions and comments are welcome. 
-
-Thanks!
-Lange
-
-Longjun Tang (3):
-  virtio: add virtqueue_get_last_used_idx() helper
-  virtio_net: introduce an RX queue watchdog for stuck detection
-  virtio_net: add rx_timeouts per-queue statistic
-
- drivers/net/virtio_net.c     | 95 ++++++++++++++++++++++++++++++++++++
- drivers/virtio/virtio_ring.c | 18 ++++++-
- include/linux/virtio.h       |  2 +
- 3 files changed, 113 insertions(+), 2 deletions(-)
-
--- 
-2.25.1
-
+Regards,
+Jérémy
