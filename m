@@ -1,150 +1,122 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6B1B394492;
-	Tue,  8 Sep 2026 07:29:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC9F6377A93
+	for <virtualization@lists.linux.dev>; Tue,  8 Sep 2026 07:32:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788852559; cv=none; b=S4tNk8v7du2rANof/YGe0u1fcQa2em4a+UcUUS6YZ/1Fb5TZjy4sDFtVpPSXwHWhSjoaG6R+N/6BjfPoIUuOpQ+iAHJDsc3DKFRBvLi6oFYlNbTCzkA2KmPu5do/6S7bPhgFULc5uAa0gAH/Vmf1acOYsLI3Mjbpib4AYsbJNSM=
+	t=1788852722; cv=none; b=bwo4hLfEALy1bLejQctLP0To36t1272uJIqOtqjFHZyjn85R6k6W84NxJyaOkFZJM+TBBDsLwwssh7VR8pjzv/3Frkpi91F6RRULradduCBUIQY7riZYlPMzO6N1UxjA0DTaRsOgWwvHOaWH9Ewx1nppLWwcRi5yjInu2u8TNfQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788852559; c=relaxed/simple;
-	bh=tJkqs30o+i74kwpbgxSRT2kQNjeQe8YkmKgxdoAHZDs=;
-	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=slIQYKBXDbY2sV0t8FzjInyjLFqu+o7GaVHny1HjcBV7x5yYFf1hAs6bGp62epkq0XmZJjeasoLpezI4v2gnDuxa79vVLUwASqu6JMNmDYDxcSBCCo0VhyuqHfpnAv+G6sUU1SeCfnwVe1dXd5MD6rjRepnWm9ojMWEWTJvP9RA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cMKYyM1i; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788852722; c=relaxed/simple;
+	bh=lqdZGDTB4L0Ao1dxI8JkrdZ9qxvRDQT85KWSJ1iE+pg=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=LmBvFb2lNqeVfs0+1t/eM8PBbNvjAGO2s3LuKPsc9gxdCVwA0uPwzcs+KtZBXJ6AuRrIZmDWWKSf3nyIuM5KgzdvzMZRnFb4/eIH+3q3+dDN7Rkw93hG3pmGxOCKnXUZX+1tdfZvlhBW6s/PQnByLXzseTRGWjxNdXF5oSeZTJg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bhmim3Vx; arc=none smtp.client-ip=209.85.216.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cMKYyM1i"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76A141F00A3A;
-	Tue,  8 Sep 2026 07:29:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788852557;
-	bh=ElAtuWbE+yqcbTjG45DzqB3eCUQaFOtLYoirm4N9njk=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=cMKYyM1iPpJIY5N6wDCaWQhjQkC1WRPngk87DJYRxZr/ecjFYMB9fH71AUIc565tz
-	 Qc0n8aKI8aygMWxLeRgSTyUU2Md64eazmD37u+Krw8pKRsM8gfZkmXlFGxJtENH6LH
-	 nsJA4ndWPwoKkxQLOrvEmGKOFbhJtLZBnvUDiadSGORtXI8sWU4GLrO35PfTBjorHK
-	 jhYoMvmbpzgKNofgx7WOgeKfsfBelPMRwifVBUtg4Wum03OAbPB9N48JK+MFx0jVRI
-	 nKrTdQUMo9/Sj+0LpPkP4V/+eCyAbmIPjmiQOf4MZ2iYJMtz5raHLy++60Lhz+1JEO
-	 01YWQ++LbRAbQ==
-Subject: Re: [PATCH net] selftests/drivers/net: include lib/sh/*.sh
-From: netdev-bot+sashiko@kernel.org
-To: hangbin.liu@linux.dev
-Cc: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, shuah@kernel.org, jv@jvosburgh.net,
- olteanv@gmail.com, leitao@debian.org, jiri@resnulli.us, mst@redhat.com,
- jasowangio@gmail.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
- petrm@nvidia.com, matttbe@kernel.org, netdev@vger.kernel.org,
- linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux.dev, liuhangbin@kylinos.cn
-Date: Tue, 08 Sep 2026 07:29:16 +0000
-Message-ID: <178885255602.219967.561231920123759325@kernel.org>
-In-Reply-To: <20260907-selftest_lib_defer-v1-1-8af94645aaa3@kylinos.cn>
-References: <20260907-selftest_lib_defer-v1-1-8af94645aaa3@kylinos.cn>
-X-sashiko-severity: Medium
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bhmim3Vx"
+Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-3856d6fbcb3so3470075a91.2
+        for <virtualization@lists.linux.dev>; Tue, 08 Sep 2026 00:32:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788852720; x=1789457520; darn=lists.linux.dev;
+        h=cc:to:message-id:content-transfer-encoding:content-type
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=/czle5egijXcWYNpVpE/ZR2lQD0b3NyL5+H5JuNtgXU=;
+        b=bhmim3VxQtt8G+Ud91WToF5+GGM7kFSlrulDPChSfXhWuJJiWgOpilq77bpwlLLGlc
+         1ftNoBwHhk/M4xP7meL0ih7vdPf/sdNM/uYBy7brliRXmNQHGFtLn1NBUwSBRe4PXapy
+         8P9rkWolAS8UnpUNfvSRLds9SC6nLra3theTkq6xKi2rkcrDQizcCXWH6g0qlNaE6VCW
+         Y09adpK/bDZRX4XhvADjVcqLV3pa8T5Ps824i+f00V0AqXpSk69e5Iu2PdMKZBSubWfn
+         17XFV0qxi0l2H8woJWrpkPwJ671cZaHYyafkRNN+eE1W7fj8SDJDduwb2j9F7wGawGOo
+         soSA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788852720; x=1789457520;
+        h=cc:to:message-id:content-transfer-encoding:content-type
+         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to:content-type;
+        bh=/czle5egijXcWYNpVpE/ZR2lQD0b3NyL5+H5JuNtgXU=;
+        b=XmgsSQwaGj9vqG+oU42s0LIi62qn5vawvLceyW4POVBxawlb4bL/FtLmgvWSpD0WMh
+         Xvu6p1Ud2SLQ2BTZ1jKRBa+VskAM5gFRBu/rfo39ez847N+uuCkEpTFZj+aQ2fTgBddE
+         BL6yKWFRb6D5hy2lXro3Qw/l3l/xa1DEUAcOkvhK/YqI4falgBg2WOBGwZZvvYoEzCA+
+         00FzFhCIdyw2cM4YZGjxjThnctDr4cbLs3zSavy9g1IT2DcNxFKSYxx7Qa7jsEmVLMHv
+         loSSft/O1CKpemnrbt6He2RUL66FPbJ2x3vlc9u752W+cA5PIQJ9cE/B/dFF3v7Tmf05
+         bSvg==
+X-Gm-Message-State: AFuF++mUjW2G+hJzrrnBeKYF0Qkngv/oProkKdIggjpiMw6T20xL3wGw
+	5V+OSRPxy9kBSmyKUBG8KrGUuvJI9KrfB9RpYCw7kkUiFEXCxaMp4S7vEQgtoENW
+X-Gm-Gg: AYBFou30LTDQzTyFPFtwYz2MF7LJtyrJ6L1VCnudtE9kFRLW2GKCR67hYegCFkhfqVi
+	oabL03dkGTq85pQuFzBrVMdUXw/n82Bjh5g2fkk7w6IrsURzIUSNK6ufGQqx4caXKrdnZRGuUmv
+	HuX30Mi04pSh3Qw1XEoLshojNDmztIOzfECi8JWAITc6fs9MwUbb8upr/AFq+2DI6tOZMt6Df+F
+	EnroUR1hTcxcC0ZM0Hx2uDJPSyq2DtJKn+iuTar5RbEwke7FHnVNQZP9xoO7c7aM7zBT3zOZlCi
+	9qYUi/T396JhgnYiuFajW2PkHxt1rjveR/xcAUJRbeH+LlpSnyspTGw76bAF0nz/wOFNHsgF2x2
+	W27oaFCyUuYF4ouvV4rMCEp5TsZpJ/cdNprMMeXC5oCV/K6rfpMIu784dPkUFkMr/RQktjh51em
+	fqRXeU42X36rbkNZIFCdg00wjqdVhNDArcgKO695sOBP9fBde0qplQfmjRLOZq8kP9GAW2EG76
+X-Received: by 2002:a17:90b:1b05:b0:398:9bd1:3210 with SMTP id 98e67ed59e1d1-39b262a89d4mr37624902a91.17.1788852719900;
+        Tue, 08 Sep 2026 00:31:59 -0700 (PDT)
+Received: from [192.168.66.6] ([218.108.80.123])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39ae62bd7acsm10916555a91.1.2026.09.08.00.31.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 08 Sep 2026 00:31:59 -0700 (PDT)
+From: Linfeng Sun <linfeng.sun.dev@gmail.com>
+Date: Tue, 08 Sep 2026 15:31:51 +0800
+Subject: [PATCH] vduse: return compat ioctl results directly
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260908-fix-vduse_dev_compat_ioctl-v1-1-62264d9bfb8d@gmail.com>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMUQrCMBBF0a2U+TYQg63WrUgJTfLUEW1KJg1C6
+ d6N+nngclcSJIbQuVkpobBwnCr2u4b8fZxuUByqyWjT6V6f1JXfqoRFYAOK9fE1j9ly9PmpOhM
+ Oum2PzqGnOpgTav2bX4a/ZXEP+Pw90rZ9AEwv5tB+AAAA
+X-Change-ID: 20260908-fix-vduse_dev_compat_ioctl-62d40557bbe9
+To: "Michael S. Tsirkin" <mst@redhat.com>, 
+ Jason Wang <jasowangio@gmail.com>, 
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>
+Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+ Linfeng Sun <linfeng.sun.dev@gmail.com>
+X-Mailer: b4 0.16.0
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue(s) to consider:
+The compat handler handles VDUSE_IOTLB_GET_FD and VDUSE_VQ_GET_INFO, but
+then calls the native handler. Their different command sizes make native
+dispatch return -ENOIOCTLCMD.
 
-Critical: 0 · High: 0 · Medium: 1 · Low: 0
+For GET_FD, this overwrites receive_fd()'s return value after the
+descriptor is installed, leaking one fd per call. Return handled compat
+results directly and use native dispatch only for other commands.
 
-- [Medium] Incomplete fix:
-  `tools/testing/selftests/drivers/net/netdevsim/Makefile` is the only…
+Fixes: 455a2a1af926 ("vduse: fix compat handling for VDUSE_IOTLB_GET_FD/VDUSE_VQ_GET_INFO")
+Signed-off-by: Linfeng Sun <linfeng.sun.dev@gmail.com>
+---
+ drivers/vdpa/vdpa_user/vduse_dev.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---
+diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
+index 4dea4d6a3855..49a231bdf948 100644
+--- a/drivers/vdpa/vdpa_user/vduse_dev.c
++++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+@@ -1882,11 +1882,11 @@ static long vduse_dev_compat_ioctl(struct file *file, unsigned int cmd,
+ 		break;
+ 	}
+ 	default:
+-		ret = -ENOIOCTLCMD;
+-		break;
++		return vduse_dev_ioctl(file, cmd,
++				       (unsigned long)compat_ptr(arg));
+ 	}
+ 
+-	return vduse_dev_ioctl(file, cmd, (unsigned long)compat_ptr(arg));
++	return ret;
+ }
+ #else
+ #define vduse_dev_compat_ioctl compat_ptr_ioctl
 
-selftests/drivers/net: include lib/sh/*.sh
+---
+base-commit: d7808b37da0a619cf1fa541c2384e783fecc2480
 
-This adds $(wildcard ../../net/lib/sh/*.sh) to TEST_INCLUDES in the
-drivers/net selftest Makefiles so that net/lib/sh/defer.sh gets installed
-by "make install", and sorts the TEST_INCLUDES lists while at it.
-
-> diff --git a/tools/testing/selftests/drivers/net/Makefile b/tools/testing/selftests/drivers/net/Makefile
-> index d5bf4cb638a8c..ab39c2e508f0a 100644
-> --- a/tools/testing/selftests/drivers/net/Makefile
-> +++ b/tools/testing/selftests/drivers/net/Makefile
-> @@ -3,6 +3,7 @@ CFLAGS += $(KHDR_INCLUDES)
->  
->  TEST_INCLUDES := $(wildcard lib/py/*.py) \
->  		 $(wildcard lib/sh/*.sh) \
-> +		 $(wildcard ../../net/lib/sh/*.sh) \
->  		 ../../net/lib.sh \
->  
->  TEST_GEN_FILES := \
-
-[Severity: Medium]
-Was drivers/net/netdevsim intentionally left out?  It is the only Makefile
-under tools/testing/selftests/drivers/net/ that this patch does not touch,
-and it defines no TEST_INCLUDES at all:
-
-tools/testing/selftests/drivers/net/netdevsim/Makefile:
-	TEST_PROGS := \
-		devlink.sh \
-		...
-		peer.sh \
-		...
-	# end of TEST_PROGS
-
-	TEST_FILES := \
-		ethtool-common.sh
-	# end of TEST_FILES
-
-	include ../../../lib.mk
-
-Its installed scripts do consume the net shell libraries.  peer.sh does:
-
-	lib_dir=$(dirname $0)/../../../net
-	source $lib_dir/lib.sh
-
-and devlink.sh, devlink_in_netns.sh, devlink_trap.sh, fib.sh,
-fib_notifications.sh, hw_stats_l3.sh, nexthop.sh and psample.sh do:
-
-	lib_dir=$(dirname $0)/../../../net/forwarding
-	source $lib_dir/lib.sh
-
-which reaches net/lib.sh, and that unconditionally sources defer.sh:
-
-tools/testing/selftests/net/lib.sh:
-	net_dir=$(dirname "$(readlink -e "${BASH_SOURCE[0]}")")
-	source "$net_dir/lib/sh/defer.sh"
-
-There is also no automatic fallback for this target, since the top-level
-Makefile only matches the exact strings net, drivers/net and
-drivers/net/hw:
-
-tools/testing/selftests/Makefile:
-	# Networking tests want the net/lib target, include it automatically
-	ifneq ($(filter net drivers/net drivers/net/hw,$(TARGETS)),)
-	ifeq ($(filter net/lib,$(TARGETS)),)
-		INSTALL_DEP_TARGETS := net/lib
-	endif
-	endif
-
-So does the failure quoted in the changelog still reproduce with:
-
-	make INSTALL_PATH=/tmp/kself TARGETS=drivers/net/netdevsim \
-		-C tools/testing/selftests install
-
-The commit message says the patch "adds a wildcard to include all shell
-files for drivers/net tests that consume net lib.sh" — should that claim be
-narrowed, or netdevsim covered too?
-
-Note the gap in netdevsim is wider than defer.sh: adding only
-$(wildcard ../../../net/lib/sh/*.sh) would not be enough, since
-../../../net/lib.sh and ../../../net/forwarding/lib.sh are not installed
-either (plus devlink_lib.sh, fib_offload_lib.sh and tc_common.sh, which
-several of those scripts source).
-
-For reference, drivers/net/dsa is also not in the default TARGETS list and
-this patch does cover it, and drivers/net/{mlxsw,ocelot,microchip} have no
-Makefile so they are not installable targets at all.
-
+Best regards,
 -- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260907-selftest_lib_defer-v1-1-8af94645aaa3%40kylinos.cn
+Linfeng Sun <linfeng.sun.dev@gmail.com>
+
