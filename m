@@ -1,81 +1,68 @@
-Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D783D3C10B8
-	for <virtualization@lists.linux.dev>; Wed,  9 Sep 2026 09:20:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF2D03C457F;
+	Wed,  9 Sep 2026 09:20:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788945622; cv=none; b=t9OlNAdDCY57UHxHIjGlAqf8zISR18mlyxgXVIsBAN1tdY1Q8k6ilnPxp55ezW5idVP45nxtseXVb2QnSMuA1jQvD21rHd3UyPDMynatFqVd6KdSID5xA1Ypg1N9rbWiJdyxZgdpFyxGOFlQe3eH566vPajeHQbZUolCQtJuWRw=
+	t=1788945636; cv=none; b=pXLVmTJdAn2FSEBgVKBxMdacu67hVsOS6WjG40+8LLlA8DJ9nr1KgjyJ3vMCBb1nEYo2dTapN14CgdpoqbxRSiu3zB0mV40v/JT9uuK4ud0YGwc2oKbM/Yo2g0kyaXMjl00UVBi4Qmq0kLNHNiMzuDOd5xn4eRrxir2zl+C0gEQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788945622; c=relaxed/simple;
-	bh=17wZhnhLAU7guGm8/q4zOLDl7pbFe4+c3f/2bu3GWN0=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=j6aWputAariWG00v9/Yv5fWLQRa2/4VytTm7i1AZTFzngWQQkeXHo9KzoA/ECsMro2D7jE1FS9LQRha7JVbWvypOlZou6cOJGbWzfl9J+hmrjf5nqeulhvO21cb9rqfY9uHonPlkZZn9YfVvYKJ1cthDCatjwMh+LtXmzslZwMA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=gpSP3KSu; arc=none smtp.client-ip=117.135.210.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1788945636; c=relaxed/simple;
+	bh=/yTpR67LKXqhtOBeQLGNsUk698G52btJcNEw5A2wmjI=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=a6jeFRNovALJwf6C6ARgw7h7z/+Kfy51Pi3V/CSt+GQjo7uYIVMc9ZocOlBVpPZZ4MhRZHR/fVEqwv1BjHzgxUIqoYtPd141D12VpgUKTvtE/0XnewP5cOSXcM/Z7vF466UcyB0izBtlU+zTpVLgWeOmXq8x8ZOLY3px6iaKkCk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=S2+TeWn6; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="gpSP3KSu"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=vW
-	YKKm5eNGnLOyXewuA7MvTMu4RVLzS9R0S5754CSLY=; b=gpSP3KSuyWVd2Xg7Q1
-	QgEEUFT2/+/WWpY29FCmp3vf0gFp8XZ4iEmL+E5mP8rAtpvd8YB0K4fVVWon97nf
-	gbQI+maekO2X2k2eFUizUV+svahgfFLbtbJRZLF/HM4AHs8tZhZRYZWTjwp7t53f
-	z3LqTZVFCjcqgxLqG6acuBf2U=
-Received: from localhost.localdomain (unknown [])
-	by gzga-smtp-mtada-g1-4 (Coremail) with SMTP id _____wD3V83AJKFqD5K4Bg--.63870S2;
-	Wed, 09 Sep 2026 17:20:02 +0800 (CST)
-From: Longjun Tang <lange_tang@163.com>
-To: mst@redhat.com,
-	eperezma@redhat.com,
-	jasowangio@gmail.com
-Cc: xuanzhuo@linux.alibaba.com,
-	virtualization@lists.linux.dev,
-	tanglongjun@kylinos.cn
-Subject: [PATCH] tools/virtio: add missing device-id/virtio.h wrapper header
-Date: Wed,  9 Sep 2026 17:20:00 +0800
-Message-Id: <20260909092000.107827-1-lange_tang@163.com>
-X-Mailer: git-send-email 2.25.1
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="S2+TeWn6"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 921B81F00A3A;
+	Wed,  9 Sep 2026 09:20:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788945631;
+	bh=/yTpR67LKXqhtOBeQLGNsUk698G52btJcNEw5A2wmjI=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=S2+TeWn6s7NBFSMi0P5y2ikuK48WfV4guvChrGbE02XqPWfRerODcA49aTI5wFV8P
+	 IrHSQnL9LlFBW/MtL231u5JNHKdIO+bLldiZ42vSZsacsAiacYWwfylowAg00zIeZN
+	 fESTZJTQVoR4y87T26drb4PXdebF6AGzaH9E9J7GLuAhVdYlEBoMrz8wu3D/j0knJj
+	 bzLw5nkY/UVaumu/cfxw7q1LXNMtV/Ci07eJDXi9/Q3bE6HR85+mXNGFRmpMVrCDB/
+	 5OvQmF9Dsn7FMnypdojlY4GI4BFl2MSN+WcbAkFs2yIUBzdc1rQAVpRycLmoZ1/2HN
+	 SJFgNxVR8PZ3Q==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v4 09/14] drm/panic: Split draw_panic_plane()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Thomas Zimmermann" <tzimmermann@suse.de>
+Cc: ojeda@kernel.org, gary@garyguo.net, dri-devel@lists.freedesktop.org, "Michael
+ S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev, "Eugenio
+ Perez" <eperezma@redhat.com>, intel-gfx@lists.freedesktop.org, intel-xe@lists.freedesktop.org, linux-hyperv@vger.kernel.org, Frank.Li@kernel.org, wsa+renesas@sang-engineering.com, imx@lists.linux.dev
+In-Reply-To: <20260909085826.64529-10-tzimmermann@suse.de>
+References: <20260909085826.64529-1-tzimmermann@suse.de>
+ <20260909085826.64529-10-tzimmermann@suse.de>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 09 Sep 2026 09:20:30 +0000
+Message-Id: <20260909092030.921B81F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:_____wD3V83AJKFqD5K4Bg--.63870S2
-X-Coremail-Antispam: 1Uf129KBjvdXoWrurWxAry8Xw13tFWkAr1UKFg_yoWkAwbEkr
-	1kXwn7Cr1jvFZ2yFWFkr1fXF9xK3WakFZrXrn5Jr18ZayDAw45W3W7A3Wqg3W3Wwnrur43
-	WayrXr4kWr4agjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-	9fnUUvcSsGvfC2KfnxnUUI43ZEXa7IUbqjgDUUUUU==
-X-CM-SenderInfo: 5odqwvxbwd0wi6rwjhhfrp/xtbC-QI8amqhJMLbjQAA3S
 
-From: Longjun Tang <tanglongjun@kylinos.cn>
+> Move locking and parameters from draw_panic_plane() into the new
+> helper drm_panic_display_panic_screen(). Call draw_panic_plane() from
+> there.
+>=20
+> The new helper drm_panic_display_panic_screen() is now the DRM core's
+> interface for displaying a panic screen. The code remaining in
+> draw_panic_plane() still does all the heavy lifting. It will become a
+> plane helper for DRM drivers.
+>=20
+> v2:
+> - use panic_type argument in draw_panic_plane() (Sashiko)
+>=20
+> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 
-Since commit ecca1d63c1ea ("Replace <linux/mod_devicetable.h> by more
-specific <linux/device-id/*.h> (headers)"), includes
-<linux/device-id/virtio.h> instead of the old <linux/mod_devicetable.h>.
-However, tools/virtio/ only had a wrapper for the old mod_devicetable.h,
-causing the build to fail with:
+Sashiko has reviewed this patch and found no issues. It looks great!
 
-    ./../../include/linux/virtio.h:10:10: fatal error: linux/device-id/virtio.h: No such file or directory
-
-Add the missing wrapper header that redirects to
-../../include/linux/device-id/virtio.h
-
-Signed-off-by: Longjun Tang <tanglongjun@kylinos.cn>
----
- tools/virtio/linux/device-id/virtio.h | 2 ++
- 1 file changed, 2 insertions(+)
- create mode 100644 tools/virtio/linux/device-id/virtio.h
-
-diff --git a/tools/virtio/linux/device-id/virtio.h b/tools/virtio/linux/device-id/virtio.h
-new file mode 100644
-index 000000000000..3c3e8c514c8d
---- /dev/null
-+++ b/tools/virtio/linux/device-id/virtio.h
-@@ -0,0 +1,2 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#include <../../include/linux/device-id/virtio.h>
--- 
-2.51.0
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260909085826.6452=
+9-1-tzimmermann@suse.de?part=3D9
 
