@@ -1,75 +1,128 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53CAB56E068
-	for <virtualization@lists.linux.dev>; Wed,  9 Sep 2026 14:18:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A430353FD2B
+	for <virtualization@lists.linux.dev>; Wed,  9 Sep 2026 14:33:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788963502; cv=none; b=pSgGdAz5tk/ViL917yztJGHkUxPoQtEkxZ7oRPtlRmpj6foWDgOTy+gvnAYQynM+dzNdD0qAD7jJO96W9au0O/dw0BIEddt/Fj0xiT0Viw1f3lzZDggpi8nH8Mget+ttM0+RoJ6GJtPKC3xh+KgCoQ9nzcgjvSWuYj344LqrzUI=
+	t=1788964382; cv=none; b=hu78GDZ3Xm376PWeqAZv4AJ1HudJJ2vz1AqbZJZFcTTaws4a06JS8zLlnPv0jCI6nzSbqjeLfJb3gp1bY19FTLAQWcHFNhy4O4nQ45cA7NoF/WhqujUFhran+8P8OHJhFueE6KYIWmxAXTZuytXW3FcNo4JaUvuFb01TQm6I5qo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788963502; c=relaxed/simple;
-	bh=G+VkElkQiOlFnlhMWzdLtYz7aRKWyvW7yAMpQ/SfG8g=;
+	s=arc-20240116; t=1788964382; c=relaxed/simple;
+	bh=S4n5E5QplFyVs3/CYHOlIt0p3jP/HDRDuStan1ZQadc=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Vfcn7We75hcg0vdtPVOzjU4z7Jd1zwfOQXDTVpp9uGdIK2deOpeIVgxv46wPRLcmztBlNCHfYifpulAJArKvSYtpi5/QMFB1DncGx7TV0p6iJ2mqXVF6PswW4Tt42OJ2iW7OO1NCpu/H18H516xHNXgm/m7AGK+1vpdTXTZTnEc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ABmxXmB+; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=S0LFjyehcR3wEwPAvd7CHEG0ZfI9/jYX+ITPr8ZstdRBjD18YGlhKXI/TCV/tJYcqgPpYLimK+Q8ok7eOpfONrq+L17belvd2s2eObQM996t689APFSEdxDYQMBjSVY3aCRVGSvkZsjKGah4W4YNeae3RPlYVbbpp/+UT26IaqE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Fz7K5wSs; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ABmxXmB+"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8608E1F00ADB;
-	Wed,  9 Sep 2026 14:18:20 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Fz7K5wSs"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46F121F00A3D;
+	Wed,  9 Sep 2026 14:33:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788963500;
-	bh=G+VkElkQiOlFnlhMWzdLtYz7aRKWyvW7yAMpQ/SfG8g=;
+	s=k20260515; t=1788964381;
+	bh=49hDKVNmrmF6Z1u3YC4dQ33SC52kII1mYP4H7LtuXhg=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ABmxXmB+2TK6/SaZBQmJt+KOGhysaMTseEU7lD79l/Wo3K9aQMvET7844REVM0jNc
-	 imXbsYVKBfFcr/gqkjnDHfILIyk8Op0J9Zc9EhJJaRFhMH9YuhuQr2REdYwJFBPU1M
-	 k7uex8lo2xdJvfWHGwcZFFJV8BAVOQzAY0zGDnnKQntbq+pA+p5VglQySQPW3j6kcv
-	 uqgfM1KH0d6ZGEaarVpBYDWROXkXIoJe9KXYL0J/K+9D52l3leS94ViSm9yd1VGfgj
-	 HuIhfWfALbYAMfB8owYZ5c7IUaw8eb75AKMKtC/ITIac9JyiFV43s9cH8qxJlrCF+w
-	 vrOy9L07cEaGg==
+	b=Fz7K5wSsh/J21F3M0lx7Dsr8uoREV/nyhuls+txd8BfV+sUso9zF/I4icYR8tmX1/
+	 EF4m+rIPlV7PhGXCBYLADOfyhXLYUrPk1ZMuMoEKVR3Om9I7x/MtTIhG2hLUL9JgpK
+	 x97Xf7uX+b76bPNdg8XLj3rBZSg3rVufra880vJwX3TfCTXyfAhyCM+XdsyOMFJPrg
+	 PjD2acZHhhK2CaX/Xodn58PcVOpqog4dXw7y4PgWX2wXm5fD1WF9AH1/auLJGcHYOi
+	 7zKgQQM3a1Ii2CRfWLCpJal06kJF42vpeMm3HpwLsGOx40qmpRodafN+rRqClT5vhd
+	 0xJP+jNfP+Nrw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v13 08/13] sched/core: Push current task from non
- preferred CPU
+Subject: Re: [PATCH v13 07/13] sched/fair: Load balance only among preferred
+ CPUs
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Shrikanth Hegde" <sshegde@linux.ibm.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20260909135617.871006-9-sshegde@linux.ibm.com>
+In-Reply-To: <20260909135617.871006-8-sshegde@linux.ibm.com>
 References: <20260909135617.871006-1-sshegde@linux.ibm.com>
- <20260909135617.871006-9-sshegde@linux.ibm.com>
+ <20260909135617.871006-8-sshegde@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 09 Sep 2026 14:18:20 +0000
-Message-Id: <20260909141820.8608E1F00ADB@smtp.kernel.org>
+Date: Wed, 09 Sep 2026 14:33:00 +0000
+Message-Id: <20260909143301.46F121F00A3D@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-> Actively push out the current running task on a non-preferred CPU. Since
-> the task is currently running, a stopper thread must be queued to push the
-> task out. However, if the task is pinned only to non-preferred CPUs,
-> it will continue running there. This helps to maintain userspace
-> affinities, unlike CPU hotplug or isolated cpusets.
->=20
-> Though the code is similar to __balance_push_cpu_stop and quite close to
-> push_cpu_stop, it is kept separate as it provides a cleaner
-> implementation specifically for CONFIG_PREFERRED_CPU.
->=20
-> Add the npc_push_work_pending flag to protect the work buffer.
->=20
-> For now, only the currently running task is pushed out. This keeps the co=
-de
-> simpler. In the future, an optimization may be added to move all queued
-> tasks on the runqueue.
->=20
-> This works only for the FAIR scheduling class.
->=20
-> Signed-off-by: Shrikanth Hegde <sshegde@linux.ibm.com>
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [High] Group statistics (`avg_load`, `group_has_spare`) and load balancin=
+g math are corrupted because load and utilization exclude non-preferred CPU=
+s, while group capacity and weight incorrectly include them.
+- [High] Periodic and busy load balancing can be completely disabled for a =
+scheduling domain if the statically designated `group_balance_cpu` becomes =
+non-preferred.
+--
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+commit 2dcc3be382ec42f554b59dc47da29e35996ce2d6
+Author: Shrikanth Hegde <sshegde@linux.ibm.com>
+Subject: sched/fair: Load balance only among preferred CPUs
+
+This patch modifies load balancing to only consider preferred CPUs,
+aiming to prevent balancing against the push task mechanism. It
+updates sched_balance_rq() and sched_balance_newidle() to restrict
+operations using cpu_preferred_mask.
+
+> diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+> index b8bd308c2d5b1..4ef1167b8c73f 100644
+> --- a/kernel/sched/fair.c
+> +++ b/kernel/sched/fair.c
+> @@ -13473,7 +13473,7 @@ static int sched_balance_rq(int this_cpu, struct =
+rq *this_rq,
+>  	};
+>  	bool need_unlock =3D false;
+> =20
+> -	cpumask_and(cpus, sched_domain_span(sd), cpu_active_mask);
+> +	cpumask_and(cpus, sched_domain_span(sd), cpu_preferred_mask);
+
+[Severity: High]
+Does restricting env.cpus to cpu_preferred_mask here corrupt the group
+statistics calculation in update_sg_lb_stats()?
+
+Looking at update_sg_lb_stats(), it accumulates load and utilization by
+iterating only over env->cpus:
+
+kernel/sched/fair.c:update_sg_lb_stats() {
+    ...
+    for_each_cpu_and(i, sched_group_span(group), env->cpus) {
+        ...
+    }
+    ...
+    sgs->group_capacity =3D group->sgc->capacity;
+    sgs->group_weight =3D group->group_weight;
+    ...
+}
+
+Since it assigns the full capacity and weight of the entire group, but only
+accumulates load for the preferred CPUs, won't this artificially deflate
+avg_load? This could cause the load balancer to perceive mixed groups as
+severely under-loaded and aggressively pull tasks to already overloaded
+preferred CPUs.
+
+[Severity: High]
+Can this also completely disable periodic and busy load balancing for a
+scheduling domain if the statically designated balance CPU is non-preferred?
+
+Looking at should_we_balance():
+
+kernel/sched/fair.c:should_we_balance() {
+    ...
+    if (!cpumask_test_cpu(env->dst_cpu, env->cpus))
+        return 0;
+    ...
+    return group_balance_cpu(sg) =3D=3D env->dst_cpu;
+}
+
+If the statically designated group_balance_cpu(sg) is non-preferred, it
+will abort immediately because it is excluded from env.cpus. All other
+preferred CPUs in the group will also abort because they fail the
+group_balance_cpu(sg) =3D=3D env->dst_cpu check.=20
+
+Does this mean no CPU will perform the domain balance, potentially causing
+severe starvation?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260909135617.8710=
-06-1-sshegde@linux.ibm.com?part=3D8
-
+06-1-sshegde@linux.ibm.com?part=3D7
