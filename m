@@ -1,79 +1,79 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2EED3B2D0A
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1377447A881
 	for <virtualization@lists.linux.dev>; Wed,  9 Sep 2026 08:59:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788944368; cv=none; b=HNxgFXyeA9jzHoSw/I3Xv6ee3OuQSkHq1saYBpW8WbWXaxxH0Eo0HiqlBSY8YEcc9rbYtF7YLTgvP5x37sC6KOC10e5ysFkLngLcmcRdHgltghLGHiPzd3heOC3fw/du7+JhsV6BLq7etrbFjlMG6r6nNLBxxBI7lVZ7iASkam4=
+	t=1788944368; cv=none; b=H96zvuXJdvF+zhu2hPMdtNpsaMd+2TE0R0U27aXBOq+eROwr2n4+A2r8JgFsmxQCNIjPxpPrjd7XMkEBsnzn6tNmdGBb534cTKPipp/yOjsKIFvpoFfxjRBTVGO+yevE/CGnX/sjttZYpReTgceooKa+mVR6adb5KSDw2X5F4ho=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1788944368; c=relaxed/simple;
-	bh=odxnxmaAf2RV3ti0/nNL9HKMt/VzDj+O4M2J6w+83Kw=;
+	bh=hQOCZQiQWVV5A4rMwrEaIRzRYQ6fIzgr7nYUd02QFAk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=jv6GndjsP92WGrvMTzHX+ZYH44huayCS6JkFGMeMbIQh43H0AABcF+z9mAWlTPd5Dy41xxu4I1QRGkuCSN3jAvJqztwggHXMryRp59jEFwlz7E5TQN7v8sWkB1ZtOAk/6lOf1PluPlwEfIAs6DuBJFoEvkIA6Lwtkr8nF1TX6Ds=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=R2RhpcHa; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=qZcKf8Jq; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=uElrFHMD; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=2WRZzS+a; arc=none smtp.client-ip=195.135.223.130
+	 MIME-Version; b=LpYNJ6VvsE1Ap8HJzSKvOfBvg+7m6RRzUk8zwa7o+O6uIuiBWgRVLXqUJgJXTWxIceh8W04JkDzRlwFYFfOaJWnlaQw0GI/Gp/XielqrrFkvNSOPVDEuE0YNZQX8v603rCXbcLJmJn5Z62LsLQZufZD8x7/z9OYDgonGtdF/GcE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=R8Kqqmv1; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=6f5rm7+w; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=lsDTzoZ+; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=1QcHaIDL; arc=none smtp.client-ip=195.135.223.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="R2RhpcHa";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="qZcKf8Jq";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="uElrFHMD";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="2WRZzS+a"
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="R8Kqqmv1";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="6f5rm7+w";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="lsDTzoZ+";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="1QcHaIDL"
 Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 2C2BE21A80;
-	Wed,  9 Sep 2026 08:58:34 +0000 (UTC)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 972C71F810;
+	Wed,  9 Sep 2026 08:58:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1788944318; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1788944317; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=SnvK6SDSqRaczPeuHNPtlErQ77C4BU5i8ISwXQWL8II=;
-	b=R2RhpcHa7cKwqCeJ7/9pJ8jN8xRBT74m5btiqPNfNbAKZl1qorAJgRRb1NdTvBHNH0qZs5
-	ZcBSJp1SJqLoZlBFR26fgEecAMtqCJy3MgVC3c94/edtsdSh3JqmQ5gUHUJqTFvOBVOhJl
-	HmdHRXjCPL/glMIQdKc0GKWnUxxeO3w=
+	bh=KTrzt/jaZvN9VkFIcS6JMzdZ6BhpAj1Od+S6kV1K9r0=;
+	b=R8Kqqmv1/c9SIX2tNwFkk5FAKjhgepQkQtkiXQu65SPWh4y/1BIenkTE8UWNK1N9fFEovL
+	vianw1tDF319z2CrhcpauqWZtYnYoqrmZAupgJna7zohaAZPo6kf3HFqDHdODVouKF7eqf
+	/0BnSiwdYOs0IgaEvgyVDh834nu/p9Q=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1788944318;
+	s=susede2_ed25519; t=1788944317;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=SnvK6SDSqRaczPeuHNPtlErQ77C4BU5i8ISwXQWL8II=;
-	b=qZcKf8JqJVsokpuBU9V1rXktlkZDVQMUwvjh+B2isTBZMkkEvDvskkdzvGj5aeIMxeCRCm
-	nFQnm+GZ2Ct27HBg==
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=uElrFHMD;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=2WRZzS+a
+	bh=KTrzt/jaZvN9VkFIcS6JMzdZ6BhpAj1Od+S6kV1K9r0=;
+	b=6f5rm7+wJHSRct/XJoBOKNShF5FVN2tJvZjtCOSaUXisZERvDjsB7S/dXEMsTOmCO40mjs
+	VgWJd/Zsj8mt+/DA==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=lsDTzoZ+;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=1QcHaIDL
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1788944314; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1788944313; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=SnvK6SDSqRaczPeuHNPtlErQ77C4BU5i8ISwXQWL8II=;
-	b=uElrFHMDHNsWvfWYdZKcyHq0nKSpi9oDCzQoKMGWdxYxDnzOlQvuiPzI4SvqIziUftXgqg
-	Npi2YrUGwcQXuQ1li8pBuDZ+XUG9Cs85jgvYyD0PA3bzwYCVmUP0fZxiqynyEQ9/RJ777y
-	5+hCgMq8ggsNeAxfX2Mql8zCSGhjK0c=
+	bh=KTrzt/jaZvN9VkFIcS6JMzdZ6BhpAj1Od+S6kV1K9r0=;
+	b=lsDTzoZ+nR9qzJKHx7n1yxIR/AJ9OwkABpxDsDboY4c8uOhEI+K1I4TQ1hgQj2BO8JPfdR
+	cxQd/aCufB4JDHJ/6wJ1ChY+ZrqNAeHbKWz7tUAQgWrONZ2c0sumq7Bsv+Ooo8VY/QBKV+
+	qljwpXZw8pioeq+/hnMGqxOYyKQinyY=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1788944314;
+	s=susede2_ed25519; t=1788944313;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=SnvK6SDSqRaczPeuHNPtlErQ77C4BU5i8ISwXQWL8II=;
-	b=2WRZzS+aI4UBmJc33euTTP+VVVhI2gdCLufV6De3M5QI1q0SB1363MU2KRUuNUK2xOLINY
-	oVszKjCPVOZ0oaCA==
+	bh=KTrzt/jaZvN9VkFIcS6JMzdZ6BhpAj1Od+S6kV1K9r0=;
+	b=1QcHaIDLc0B0rJynKND3RaakbxWmiz+XDP21X3i0kFcvnoYXZt5wouZMpz7e2FfbjCwckh
+	dLjkJgVovHt6qFCw==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 663291366F;
-	Wed,  9 Sep 2026 08:58:33 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id C9EAA13668;
+	Wed,  9 Sep 2026 08:58:32 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id CNOZF7kfoWoVUQAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Wed, 09 Sep 2026 08:58:33 +0000
+	id mFUUMLgfoWoVUQAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Wed, 09 Sep 2026 08:58:32 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: jfalempe@redhat.com,
 	javierm@redhat.com,
@@ -95,10 +95,11 @@ Cc: dri-devel@lists.freedesktop.org,
 	linux-renesas-soc@vger.kernel.org,
 	virtualization@lists.linux.dev,
 	sashiko-reviews@lists.linux.dev,
-	Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v4 03/14] drm/panic: Return -EINVAL if font is not available
-Date: Wed,  9 Sep 2026 10:55:18 +0200
-Message-ID: <20260909085826.64529-4-tzimmermann@suse.de>
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	stable@vger.kernel.org
+Subject: [PATCH v4 02/14] drm/panic: Test address from kmap op for NULL
+Date: Wed,  9 Sep 2026 10:55:17 +0200
+Message-ID: <20260909085826.64529-3-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260909085826.64529-1-tzimmermann@suse.de>
 References: <20260909085826.64529-1-tzimmermann@suse.de>
@@ -109,10 +110,11 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Spam-Score: -3.01
+X-Rspamd-Queue-Id: 972C71F810
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
 X-Spam-Level: 
 X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Rspamd-Queue-Id: 2C2BE21A80
 X-Spamd-Result: default: False [-3.01 / 50.00];
 	BAYES_HAM(-3.00)[100.00%];
 	MID_CONTAINS_FROM(1.00)[];
@@ -122,51 +124,52 @@ X-Spamd-Result: default: False [-3.01 / 50.00];
 	NEURAL_HAM_SHORT(-0.20)[-1.000];
 	MIME_GOOD(-0.10)[text/plain];
 	MX_GOOD(-0.01)[];
-	URIBL_BLOCKED(0.00)[suse.de:dkim,suse.de:email,suse.de:mid,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo];
+	URIBL_BLOCKED(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,lists.freedesktop.org:email,suse.de:dkim,suse.de:email,suse.de:mid];
 	MIME_TRACE(0.00)[0:+];
 	RCVD_VIA_SMTP_AUTH(0.00)[];
 	ARC_NA(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[21];
+	RCPT_COUNT_TWELVE(0.00)[22];
 	TO_DN_SOME(0.00)[];
 	FREEMAIL_ENVRCPT(0.00)[gmail.com];
 	TO_MATCH_ENVRCPT_ALL(0.00)[];
 	RCVD_TLS_ALL(0.00)[];
 	FROM_HAS_DN(0.00)[];
 	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,suse.de:email,suse.de:mid,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.de:dkim,suse.de:email,suse.de:mid];
 	FREEMAIL_TO(0.00)[redhat.com,gmail.com,linux.intel.com,kernel.org,linux-m68k.org,infradead.org];
 	RCVD_COUNT_TWO(0.00)[2];
 	FROM_EQ_ENVFROM(0.00)[];
 	R_RATELIMIT(0.00)[to_ip_from(RLo585esf9b7txaosbn5shab9z)];
 	DKIM_TRACE(0.00)[suse.de:+]
 X-Spam-Flag: NO
-X-Spam-Score: -3.01
 
-Font lookup does not allocate memory. Hence reporting ENOMEM on
-failed lookups is misleading. Report EINVAL instead.
+Do nothing if kmap_local_page_try_from_panic() returns NULL. This is
+not likely to hapen, as the previous page from the same memory area
+has been mapped successfully.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Reviewed-by: Jocelyn Falempe <jfalempe@redhat.com>
+Fixes: 23437509a694 ("drm/panic: Fix 24bit pixel crossing page boundaries")
+Cc: Javier Martinez Canillas <javierm@redhat.com>
+Cc: Jocelyn Falempe <jfalempe@redhat.com>
+Cc: dri-devel@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v6.18+
 ---
- drivers/gpu/drm/drm_panic.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/drm_panic.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/drivers/gpu/drm/drm_panic.c b/drivers/gpu/drm/drm_panic.c
-index d28ce8878e05..62490d32019c 100644
+index ba21df4be338..d28ce8878e05 100644
 --- a/drivers/gpu/drm/drm_panic.c
 +++ b/drivers/gpu/drm/drm_panic.c
-@@ -751,8 +751,10 @@ static int _draw_panic_screen_qr_code(struct drm_scanout_buffer *sb)
- 	int qr_width, qr_canvas_width, qr_pitch, v_margin;
- 	u8 *qr_image;
+@@ -178,6 +178,8 @@ static void drm_panic_write_pixel24_xpage(void *vaddr, struct page *next_page,
+ 	u8 *p = vaddr + offset;
  
--	if (!font || !qrbuf1 || !qrbuf2 || !stream.workspace)
-+	if (!qrbuf1 || !qrbuf2 || !stream.workspace)
- 		return -ENOMEM;
-+	if (!font)
-+		return -EINVAL;
+ 	vaddr2 = kmap_local_page_try_from_panic(next_page);
++	if (!vaddr2)
++		return;
  
- 	r_screen = DRM_RECT_INIT(0, 0, sb->width, sb->height);
- 
+ 	*p++ = color & 0xff;
+ 	color >>= 8;
 -- 
 2.55.0
 
