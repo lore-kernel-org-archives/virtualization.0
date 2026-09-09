@@ -1,117 +1,75 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69497577E56
-	for <virtualization@lists.linux.dev>; Wed,  9 Sep 2026 14:18:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53CAB56E068
+	for <virtualization@lists.linux.dev>; Wed,  9 Sep 2026 14:18:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788963496; cv=none; b=Tb2pgN+7NUGN1MaP85XwiR5ie6hC5ioN/kdYnWT5LN4CRhXHYuOLaL9/j+eT8aTW7CTJqDHGKYN6ehzttfRXaOBq9dc4KmIz8JW9Je5ioy5AUJGTnFxxvlLgre9FYwzvgXSre4CBznuCEhU+tr0pHgXJw2hW/5pecBLL4gUxpb0=
+	t=1788963502; cv=none; b=pSgGdAz5tk/ViL917yztJGHkUxPoQtEkxZ7oRPtlRmpj6foWDgOTy+gvnAYQynM+dzNdD0qAD7jJO96W9au0O/dw0BIEddt/Fj0xiT0Viw1f3lzZDggpi8nH8Mget+ttM0+RoJ6GJtPKC3xh+KgCoQ9nzcgjvSWuYj344LqrzUI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788963496; c=relaxed/simple;
-	bh=nhyshk6eb0REvp0qqUpSiCy7nbZhIyE8KgMteLoky34=;
+	s=arc-20240116; t=1788963502; c=relaxed/simple;
+	bh=G+VkElkQiOlFnlhMWzdLtYz7aRKWyvW7yAMpQ/SfG8g=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=EUin5L0cpJzZx1dVxe+txV5L+JpzQH8ffPbCtFJ6ZIhQWcZAe10FyzoASIZnpxQ4GG0FdDkJEv5QCPGxLbtxAjzN7RE0fbvHOIm4ozVxL10FliY6dnNsuWFP+BT45oLezTkImUJUdk/5/zfdCkA3cc1xXh3W3khUjWbzAeyzyCE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YtXAU6ze; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=Vfcn7We75hcg0vdtPVOzjU4z7Jd1zwfOQXDTVpp9uGdIK2deOpeIVgxv46wPRLcmztBlNCHfYifpulAJArKvSYtpi5/QMFB1DncGx7TV0p6iJ2mqXVF6PswW4Tt42OJ2iW7OO1NCpu/H18H516xHNXgm/m7AGK+1vpdTXTZTnEc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ABmxXmB+; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YtXAU6ze"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAF841F00A3E;
-	Wed,  9 Sep 2026 14:18:14 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ABmxXmB+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8608E1F00ADB;
+	Wed,  9 Sep 2026 14:18:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788963495;
-	bh=/ac8KOxDROG2fsA94Xd/yevn40OFmlTSIvsk9n6bj1I=;
+	s=k20260515; t=1788963500;
+	bh=G+VkElkQiOlFnlhMWzdLtYz7aRKWyvW7yAMpQ/SfG8g=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=YtXAU6zecS4HA+z8JnKeVevu/f51ERIXiANzm93+4NzZtqUs1rSp4vUmRNvu4Kmv2
-	 vbP/jnsTIpf0rXZvOCDamkx9tIlbdwKMxe2OrnZALudtNsw6DVyH1P3uXHIikO/UYd
-	 2wGoWLl74U1YH0PtgiRzIJCiiOGXisq4KMZ1UEN6gXy8bCGv6mLQWCDjwz6/vvDhOm
-	 kVSCQ8huvcL5i5sbU8sArL3lGtM87bKddFD95l9xIzXQpw6SA1bMlGMQhXGxYiq0a1
-	 /s4LozocUwC+6ok0G02+BWjjS2dTAFO6Tgkk8wKfAgrtJEAWeIgjFQfyCYkbSIX5D7
-	 uRdNI/XLRXBsg==
+	b=ABmxXmB+2TK6/SaZBQmJt+KOGhysaMTseEU7lD79l/Wo3K9aQMvET7844REVM0jNc
+	 imXbsYVKBfFcr/gqkjnDHfILIyk8Op0J9Zc9EhJJaRFhMH9YuhuQr2REdYwJFBPU1M
+	 k7uex8lo2xdJvfWHGwcZFFJV8BAVOQzAY0zGDnnKQntbq+pA+p5VglQySQPW3j6kcv
+	 uqgfM1KH0d6ZGEaarVpBYDWROXkXIoJe9KXYL0J/K+9D52l3leS94ViSm9yd1VGfgj
+	 HuIhfWfALbYAMfB8owYZ5c7IUaw8eb75AKMKtC/ITIac9JyiFV43s9cH8qxJlrCF+w
+	 vrOy9L07cEaGg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v13 06/13] sched/core: Try to use a preferred CPU in
- is_cpu_allowed
+Subject: Re: [PATCH v13 08/13] sched/core: Push current task from non
+ preferred CPU
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Shrikanth Hegde" <sshegde@linux.ibm.com>
-Cc: virtualization@lists.linux.dev, "Eugenio Perez" <eperezma@redhat.com>, "Michael
- S. Tsirkin" <mst@redhat.com>
-In-Reply-To: <20260909135617.871006-7-sshegde@linux.ibm.com>
+Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
+ Perez" <eperezma@redhat.com>
+In-Reply-To: <20260909135617.871006-9-sshegde@linux.ibm.com>
 References: <20260909135617.871006-1-sshegde@linux.ibm.com>
- <20260909135617.871006-7-sshegde@linux.ibm.com>
+ <20260909135617.871006-9-sshegde@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 09 Sep 2026 14:18:14 +0000
-Message-Id: <20260909141814.BAF841F00A3E@smtp.kernel.org>
+Date: Wed, 09 Sep 2026 14:18:20 +0000
+Message-Id: <20260909141820.8608E1F00ADB@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] Wakeup path funneling to lowest-ID preferred CPU bypassing CFS loa=
-d balancing
---
+> Actively push out the current running task on a non-preferred CPU. Since
+> the task is currently running, a stopper thread must be queued to push the
+> task out. However, if the task is pinned only to non-preferred CPUs,
+> it will continue running there. This helps to maintain userspace
+> affinities, unlike CPU hotplug or isolated cpusets.
+>=20
+> Though the code is similar to __balance_push_cpu_stop and quite close to
+> push_cpu_stop, it is kept separate as it provides a cleaner
+> implementation specifically for CONFIG_PREFERRED_CPU.
+>=20
+> Add the npc_push_work_pending flag to protect the work buffer.
+>=20
+> For now, only the currently running task is pushed out. This keeps the co=
+de
+> simpler. In the future, an optimization may be added to move all queued
+> tasks on the runqueue.
+>=20
+> This works only for the FAIR scheduling class.
+>=20
+> Signed-off-by: Shrikanth Hegde <sshegde@linux.ibm.com>
 
-commit 2b5645419bf5356450334e7129102cfed3b5f5bf
-Author: Shrikanth Hegde <sshegde@linux.ibm.com>
-
-sched/core: Try to use a preferred CPU in is_cpu_allowed
-
-When possible, try to choose a preferred CPU to maintain user affinities
-when preferred CPUs change. Update is_cpu_allowed() to ensure wakeups
-happen on preferred CPUs.
-
-> diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-> index a689a0cea4ebe..b4ef2e92d786b 100644
-> --- a/kernel/sched/core.c
-> +++ b/kernel/sched/core.c
-[ ... ]
-> @@ -2519,8 +2536,12 @@ static inline bool is_cpu_allowed(struct task_stru=
-ct *p, int cpu)
->  		return cpu_online(cpu);
-> =20
->  	/* Non kernel threads are not allowed during either online or offline. =
-*/
-> -	if (!(p->flags & PF_KTHREAD))
-> +	if (!(p->flags & PF_KTHREAD)) {
-> +		/* Try to use preferred CPU if task's affinity allows */
-> +		if (task_can_sched_on_preferred(cpu, p))
-> +			return false;
-
-[Severity: High]
-Does returning false here for non-preferred CPUs cause FAIR wakeups to funn=
-el
-into a single CPU and bypass CFS load balancing?
-
-When a FAIR task wakes up, select_task_rq_fair() and select_idle_sibling()=
-=20
-search for an idle CPU. Because select_idle_sibling() remains unaware of=20
-cpu_preferred_mask, it can actively select an idle non-preferred CPU.
-
-When this selected CPU is checked after the scheduler class's placement
-decision, is_cpu_allowed() will now hard-reject it. This forces
-select_task_rq() into the slow path:
-
-    cpu =3D p->sched_class->select_task_rq(p, task_cpu(p), wake_flags);
-    if (unlikely(!is_cpu_allowed(p, cpu)))
-        cpu =3D select_fallback_rq(task_cpu(p), p);
-
-Because select_fallback_rq() sequentially searches the mask:
-
-    for_each_cpu(dest_cpu, nodemask) {
-        if (is_cpu_allowed(p, dest_cpu))
-            return dest_cpu;
-    }
-
-Will this cause waking tasks to be dumped repeatedly onto the lowest-ID
-preferred CPU, creating massive runqueue hotspots?
-
->  		return cpu_active(cpu);
-> +	}
-> =20
->  	/* KTHREAD_IS_PER_CPU is always allowed. */
->  	if (kthread_is_per_cpu(p))
+Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260909135617.8710=
-06-1-sshegde@linux.ibm.com?part=3D6
+06-1-sshegde@linux.ibm.com?part=3D8
+
