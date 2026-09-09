@@ -1,158 +1,126 @@
-Received: from mail-yw1-f170.google.com (mail-yw1-f170.google.com [209.85.128.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F015E314B6E
-	for <virtualization@lists.linux.dev>; Wed,  9 Sep 2026 17:19:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 801C037C0FC;
+	Wed,  9 Sep 2026 17:29:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.97.179.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788974399; cv=none; b=QBqMk3+UEk9MSvDhq/N0ZwsBe3pr6kWPsDlo9DgVakviSxRFt7ZjzXRiGsczKlg5ljtgVyzLae9HcURgD9tNOMJygiBM8yQCUdpo/kgXU5lhuLHauOBZyUKQsp6xdaHLpcSHGyYO6/qQYkpOaal6ZYHpwpg1Wv7tuJcrX6S7ANI=
+	t=1788974998; cv=none; b=R6/YiAQskoq0KQt6FN+n1A+bmyloJq62Nr8D0IZueSLhK4TQ+RLwipgDSe3JIGX7yWmpx8M+q2ObyOu/12SCEyAIlacxV8Ocpm1i7MATTiLL8T/xtiEpXcHJJCN+panfBiKuXPhpWGLCLvxFzwTjJPmP+RAwCzItkLaVEtXotJQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788974399; c=relaxed/simple;
-	bh=Z0gb6PYt93u0VY6izJ56KhmshtzSyI7O+7Ihrl0lCmU=;
-	h=From:Date:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=M5nj5TgIhz6Kd/CllpNHhm++mFDPcyiTVdP0oG/xMAW+GfFqLCP2Wf05n6LsutxJ+lntX6E1K3P3uSC+5tJsPL8mVAMQqUBXRhs3vLGA60viJsc+fNL64SuHZgXNeVSEidn5Qg/r32K+OkAeU4O2cACufhtr6XSAVuWu7pZQPps=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=F0OYH+w8; arc=none smtp.client-ip=209.85.128.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1788974998; c=relaxed/simple;
+	bh=5D7SoVhjzEokScNygSteAqf9Ex3y5nz2gk7swf3GT9c=;
+	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
+	 Message-ID:Content-Type; b=gDmwF+J/rj7iNGvZy3//wBz1/35Picg7f9t1poNBw0/DUxD5eepICxeAVl+LFazpl9xLP0p89B86qUlsMLn/t4T8AyA/J2RZKBC6ioBxB3fQ1NlqIGKe9lu1n92gP6M5r0iwAFB7yqqwxruQpoDsxBasB4WA0viOKdfBu8MVEXk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com; spf=pass smtp.mailfrom=igalia.com; dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b=KMw6Bqep; arc=none smtp.client-ip=213.97.179.56
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igalia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="F0OYH+w8"
-Received: by mail-yw1-f170.google.com with SMTP id 00721157ae682-8565d77c277so84000017b3.0
-        for <virtualization@lists.linux.dev>; Wed, 09 Sep 2026 10:19:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788974397; x=1789579197; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:date:from:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=3PRZsX/KYek6emU5v5tZYtdcbcg2qPIIdPrtfdDH6As=;
-        b=F0OYH+w8EKjCyDPchGGWeeq68mRlLP6+cVQwPYxGmpKjIf3MRH86CjdhtbIkJ689K6
-         oJcbJUPR/jja0oUSvHZO1B60ozwhPeGYkFezXubOtRrYYjhc+8TqPLLxiGQiS4uCKIKm
-         9i3wyn6vH7mqNftvWq65LMjitQ+QCFqkCEcDgNYr/Y41NfBln9QmixzAX/IlnrIN1O8F
-         L5vLGfR8FsUNFtrg2DVV7WpPq5a9kJZ6VYsMe0lhsdB3k3fGBx9GuR9LVsRIqLJGQR/R
-         HH2nPR/SWGxps8AfA3SP1gB+aHJ9eM7UpDbR30RbbcqYpGeHimerFTQQ06VfWcaqDc0C
-         BkfQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788974397; x=1789579197;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:date:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=3PRZsX/KYek6emU5v5tZYtdcbcg2qPIIdPrtfdDH6As=;
-        b=mdO/F4iwnMg3B/e9d5MJN0dANeTW1T8IpHr0ioyE4FyvCnCq/m0uEkzIErZaqhHQFo
-         pwh84Xyw0i2VTCQVqFt34Ro+Sv7uv/2GCzI2xiX1Ggp0S+fFYt+6nOatYI/yb8V5QBFq
-         QlZkduqduW0tetbP0e5LNkst2G0EHs1S1OoRv1VKfaxmOYt95BZJqvGIT0ZINXURrl2K
-         SisRw8nvvvuH9iTRfdrCx9ZKbN9z94qHkdTUoXDKXagxOqCtPt5VYxSbhoXYy5fzH8R8
-         MjklHbycuomxXwjk5sAz7l9o17PJ5xkznNiGLihdm8902NifeUN8Pp+LlzQDtNCCGBqt
-         S5/Q==
-X-Forwarded-Encrypted: i=1; AKwUvBwlGifp4Kp5xAuC6v4eTWMPWQOz/xMa16IQI+fvXva/fJudesqGA2Hz40CNfLDjcbTGLLt69ujDDn5D7I6fBQ==@lists.linux.dev
-X-Gm-Message-State: AFuF++nk91BpYUOtCOFBKGsGd4trJZGCFpncr5YdmlU8WxixlQ7MyyzQ
-	O+BJWaiwpVVUdoX+26O5GDPSdayZG99E4Ysln5oXf+TOoGLf/q2JeHG3
-X-Gm-Gg: AYBFou1Ej/LcJ/rkRubdKRnvTfRvuMyfk7MNu7t0C48sNO8GdEHgS5WhL1Fxf+NlTTA
-	G08l16enIxz/Y0FP78YZoJkq5xir0RYAYWqjLCxSozZURYnm3dSRzIANtyQWXHMh01iRFyshnC0
-	G4CQdLrKC/25rjpfjYvK3sIPKn3f4LMyWjhdLf3LJVrsyK0IpOiGIGH2huJ3TI2Ar3t5BNKalRo
-	S/zxv5maFqIQIG0nGdr1c4UiZuWA38DIIUwW0g2gyShYX1GlVfXNO8uXpXk/IE276olA/H368H0
-	9blae0F59yzvu5NeXKuh8mbriG7bu60u5eitPyE5oSbHwWhlzt/vgv2gHRhyRKMIQ6bOiuuI4PZ
-	Vf6ifjs5sA0gpCKHfAA6/hqGcGTQ8uIw6+/ewto6jId7i+8QyuztwpuUpUUtFW/YQWcg3ZpekXr
-	IT7gxXnyYGdcQ2Ky7lMyjK2o08j4qtsir8WiEwqMYmuWnuMawgMGMT7nT3Jusms0H3x9p6RPMdu
-	jBvfEtUI66ODFYbmweOZ2MGGSCSUxRrESVQGaY=
-X-Received: by 2002:a05:690c:620f:b0:841:773e:8d86 with SMTP id 00721157ae682-871232363dfmr149350847b3.15.1788974396825;
-        Wed, 09 Sep 2026 10:19:56 -0700 (PDT)
-Received: from localhost (c-73-105-0-191.hsd1.fl.comcast.net. [73.105.0.191])
-        by smtp.gmail.com with ESMTPSA id 00721157ae682-8714b62bc77sm114405657b3.39.2026.09.09.10.19.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 09 Sep 2026 10:19:56 -0700 (PDT)
-From: Yury Norov <yury.norov@gmail.com>
-X-Google-Original-From: Yury Norov <ynorov@nvidia.com>
-Date: Wed, 9 Sep 2026 13:19:55 -0400
-To: Shrikanth Hegde <sshegde@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, mingo@kernel.org, peterz@infradead.org,
-	juri.lelli@redhat.com, vincent.guittot@linaro.org,
-	yury.norov@gmail.com, kprateek.nayak@amd.com, iii@linux.ibm.com,
-	corbet@lwn.net, meted@linux.ibm.com, tglx@kernel.org,
-	gregkh@linuxfoundation.org, pbonzini@redhat.com, seanjc@google.com,
-	vschneid@redhat.com, huschle@linux.ibm.com, rostedt@goodmis.org,
-	dietmar.eggemann@arm.com, maddy@linux.ibm.com, srikar@linux.ibm.com,
-	hdanton@sina.com, chleroy@kernel.org, vineeth@bitbyteword.org,
-	frederic@kernel.org, arighi@nvidia.com, pauld@redhat.com,
-	christian.loehle@arm.com, tj@kernel.org,
-	tommaso.cucinotta@gmail.com, maz@kernel.org, rafael@kernel.org,
-	rdunlap@infradead.org, kernellwp@gmail.com,
-	linux-doc@vger.kernel.org, jgross@suse.com,
-	virtualization@lists.linux.dev, sunlightlinux@gmail.com
-Subject: Re: [PATCH v13 07/13] sched/fair: Load balance only among preferred
- CPUs
-Message-ID: <aqGVMR2m_NF76tv3@yury>
-References: <20260909135617.871006-1-sshegde@linux.ibm.com>
- <20260909135617.871006-8-sshegde@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b="KMw6Bqep"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
+	s=20170329; h=Content-Transfer-Encoding:Content-Type:Message-ID:Subject:Cc:To
+	:From:Date:MIME-Version:From:Reply-To;
+	bh=ixMZSD8+UhNtarF+6aKvQsI19PdlMWk8UdPjHUJ+BP8=; b=KMw6Bqep7POVCO8ABQLqn26u4z
+	Vm92Tg+j/0+PmqqK/dvW828O7HrV+w+lZ60KY8e00z2BinoAcJO+teusI18GQwPZa93g46fWpKzrh
+	AgVGA7OW13ikcCWBdkNHyCF5MJrQ4LKcZ+GKP5SaO3VjFYCmljrmH6AfZWccpFDtmCtNfrdPm7mPs
+	y4KaCldihKnLxKrccLdvn9dRcj2yIzJUCoUAgq4c2VAAZwBqHbq49TxRAg0vo9Q8rWDVmDAvS1GYm
+	9TAWMFQFYzZ/e/mtZNAnThAS4lu2g6BMirzitO5ItyIEr8XkzcaGF4jYGgtJDCV/itEvyRHzncwMa
+	n8Da47kw==;
+Received: from maestria.local.igalia.com ([192.168.10.14] helo=mail.igalia.com)
+	by fanzine2.igalia.com with esmtps 
+	(Cipher TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim)
+	id 1x4M72-00HA6O-2e; Wed, 09 Sep 2026 19:29:32 +0200
+Received: from webmail.service.igalia.com ([192.168.21.45])
+	by mail.igalia.com with esmtp (Exim)
+	id 1x4M71-008Hsn-5l; Wed, 09 Sep 2026 19:29:31 +0200
+Received: from localhost ([127.0.0.1] helo=webmail.igalia.com)
+	by webmail.service.igalia.com with esmtp (Exim 4.98.2)
+	(envelope-from <mfo@igalia.com>)
+	id 1x4M71-00000007Q64-0Tnk;
+	Wed, 09 Sep 2026 19:29:30 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260909135617.871006-8-sshegde@linux.ibm.com>
+Date: Wed, 09 Sep 2026 14:29:30 -0300
+From: Mauricio Faria de Oliveira <mfo@igalia.com>
+To: Joel Granados <joel.granados@kernel.org>
+Cc: Kees Cook <kees@kernel.org>, Nathan Chancellor <nathan@kernel.org>,
+ Nicolas Schier <nsc@kernel.org>, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo
+ Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+ kernel-dev@igalia.com, linux-riscv@lists.infradead.org,
+ linux-kernel@vger.kernel.org, fsverity@lists.linux.dev,
+ keyrings@vger.kernel.org, bpf@vger.kernel.org,
+ linux-fsdevel@vger.kernel.org, linux-kbuild@vger.kernel.org,
+ netdev@vger.kernel.org, linux-wpan@vger.kernel.org,
+ lvs-devel@vger.kernel.org, netfilter-devel@vger.kernel.org,
+ coreteam@netfilter.org, linux-sctp@vger.kernel.org,
+ linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+ bridge@lists.linux.dev, mptcp@lists.linux.dev, rds-devel@oss.oracle.com,
+ virtualization@lists.linux.dev
+Subject: Re: [PATCH RFC v3 00/13] sysctl: add module aliases
+In-Reply-To: <rywhz6soawf5dzyui5g7dnbufsgpxr7ma7honuhejwgncemzrm@f32at7hl6ugm>
+References: <20260819-sysctl-module-aliases-v3-0-aab90569365d@igalia.com>
+ <bpnqwggtidgiec5akns3fa5edbsvl7xf55dxabtwng2xspy4pn@ue554aii2ngk>
+ <53155340c897560bfc67e61ba9568fd6@igalia.com>
+ <mokz5pdtwswkyab4byfq7q7m6ac2g6ceoi6jflyxmaszaibzqa@su6m4kamtdpy>
+ <b1a6cec17e7c828fcebe310ca2a0d25b@igalia.com>
+ <rywhz6soawf5dzyui5g7dnbufsgpxr7ma7honuhejwgncemzrm@f32at7hl6ugm>
+Message-ID: <6e93af907298022f077126f1be7bd386@igalia.com>
+X-Sender: mfo@igalia.com
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam-Report: NO, Score=-2.1, Tests=ALL_TRUSTED=-3,BAYES_50=0.8,KAM_DMARC_NONE=0.125,KAM_DMARC_STATUS=0.005
+X-Spam-Score: -20
+X-Spam-Bar: --
 
-On Wed, Sep 09, 2026 at 07:26:11PM +0530, Shrikanth Hegde wrote:
-> When a CPU is marked as non-preferred, any load pulled towards it is
-> pointless since the task will be pushed out again in the next tick.
-> So, consider only preferred CPUs for load balancing.
+On 2026-09-09 11:07, Joel Granados wrote:
+> On Fri, Sep 04, 2026 at 02:45:23PM -0300, Mauricio Faria de Oliveira wrote:
+>> On 2026-09-04 10:41, Joel Granados wrote:
+>> > On Thu, Aug 20, 2026 at 06:22:13PM -0300, Mauricio Faria de Oliveira wrote:
+>> >> On 2026-08-20 09:51, Joel Granados wrote:
+>> >> > On Wed, Aug 19, 2026 at 03:16:13PM -0300, Mauricio Faria de Oliveira wrote:
+>> >> >> This series adds 'sysctl:' aliases to modules that register sysctl tables; e.g.:
+> <... snip ...>
+>> > use the correct call moving forward?
+>> 
+>> This scheme currently covers all modules, AFAIK, as it is wrapped in the
+>> functions that register sysctl tables.
+>> 
+>> On moving forward: usage of such functions in a way that breaks a
+>> requirement of this series (e.g., failing to specify the template
+>> table/path parameter(s), or not having constant initializers) hits a
+>> build error, as the requirements are actually from the compiler.
+>> 
+>> >> I guess that a different design could use MODULE_SYSCTL_TABLE() as
+>> >> MODULE_DEVICE_TABLE(), declared per table instead of wrapped into
+>> >> register sysctl functions.
+>> >> However, it seems to require moving the value of the path argument (or
+>> >> its template) into the macro and still referencing it in the function
+>> >> (or its instantiation of the template), which adds obfuscation, to all
+>> >> callers. 
+>> >> 
+>> >> What do you think?
+>> > It might be that having it inside the module subsys is more work, but I
+>> > believe that there is the right place to have it. I still don't see that
+>> > adding a module specific arg to the sysctl register is a good thing.
+>> 
+>> Ok, cool. I can work on a different design.
+>> 
+>> Please just let me know whether you are OK with the remaining (above),
+>> and I'll be happy to tackle this.
 > 
-> This ensures load balancing does not fight against the push task mechanism
-> which happens at the tick. Also, this stops active balancing from happening
-> on a non-preferred CPU pulling the load.
-> 
-> This also means there is no load balancing if a task is pinned only to
-> non-preferred CPUs. They will continue to run where they were previously
-> running before the CPUs were marked as non-preferred.
-> 
-> Bail out early for NEWIDLE balancing, as load balancing is done only on
-> preferred CPUs. Note that idle balancing is allowed to go through, since
-> that naturally updates nohz.next_balance when all the idle CPUs are
-> non-preferred.
-> 
-> Also, optimization in find_new_ilb() is skipped. The steal governor driver,
-> which is introduced in later patches, updates the preferred CPUs state in
-> descending order. find_new_ilb() checks for idle CPUs in ascending order.
-> Hence, in most common scenarios, the idle CPU found by find_new_ilb() will
-> already be a preferred CPU. When all idle CPUs are non-preferred, the first
-> idle CPU has to be chosen anyway. All of this is naturally handled in
-> find_new_ilb() currently. Adding additional complexity to it for rare
-> edge cases is not necessary.
-> 
-> Signed-off-by: Shrikanth Hegde <sshegde@linux.ibm.com>
+> What is "the remaining"?
 
-Reviewed-by: Yury Norov <ynorov@nvidia.com>
+I meant the rest of the email, addressing the points/questions you
+raised.
 
-> ---
->  kernel/sched/fair.c | 8 +++-----
->  1 file changed, 3 insertions(+), 5 deletions(-)
+cheers,
+
 > 
-> diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-> index b8bd308c2d5b..4ef1167b8c73 100644
-> --- a/kernel/sched/fair.c
-> +++ b/kernel/sched/fair.c
-> @@ -13473,7 +13473,7 @@ static int sched_balance_rq(int this_cpu, struct rq *this_rq,
->  	};
->  	bool need_unlock = false;
->  
-> -	cpumask_and(cpus, sched_domain_span(sd), cpu_active_mask);
-> +	cpumask_and(cpus, sched_domain_span(sd), cpu_preferred_mask);
->  
->  	schedstat_inc(sd->lb_count[idle]);
->  
-> @@ -14588,10 +14588,8 @@ static int sched_balance_newidle(struct rq *this_rq, struct rq_flags *rf)
->  	 */
->  	this_rq->idle_stamp = rq_clock(this_rq);
->  
-> -	/*
-> -	 * Do not pull tasks towards !active CPUs...
-> -	 */
-> -	if (!cpu_active(this_cpu))
-> +	/* Do not pull tasks towards !preferred CPUs */
-> +	if (!cpu_preferred(this_cpu))
->  		return 0;
->  
->  	/*
-> -- 
-> 2.52.0
+> Best
+
+-- 
+Mauricio
