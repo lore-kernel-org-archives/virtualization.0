@@ -1,124 +1,103 @@
-Received: from mail-wr2-f12.google.com (mail-wr2-f12.google.com [74.125.225.76])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A2E634216C
-	for <virtualization@lists.linux.dev>; Wed,  9 Sep 2026 07:35:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.76
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 381C13D5663
+	for <virtualization@lists.linux.dev>; Wed,  9 Sep 2026 07:44:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788939315; cv=none; b=Ljmuobi0E4e5i+Er8i0vYMFtcHEqKee6i8EoNCn1V8wY8AjKFXUj6UG7V2jS3BY/WKKlLiPVUd69RyV39PUm7/AuMvyrXoTyxdgWPs3pxvAYogMl9B+2TRF14qyPPdhKaxIfxGGRbrungHtkdkG1E6KA4n/ANxU5rSfHRrxUu5A=
+	t=1788939880; cv=none; b=fLcxlDpRWZYIsvhWQCsn4JBRG6LC+VfYOjkp5VrJ+KeyJKvia9cPkIhw48tTYM1SMJ+XRwrVsCr6pum5esvwamEZrs4jdgf6qnwH93rA/T1gEzQt9XlfMfAftQI+hgycHUFSBpqUS+LoBilODPN1l5LYoXXhIorYCnKF/KgaW1A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788939315; c=relaxed/simple;
-	bh=9vP7F5wuPWbwJk3ltHNtDQR/ieD1hIKW7Aiaaw7mG/o=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=t3ZaALA/iegsCFsdeVer22LNobH8In8cXqmPEfrM/TUikF3c1wQF4+JiMrX6p0ohCk/DsUxrP6lKnGZZOH192m6RUgIlwVQ4AFkYgB3QGNjXVWoGaY2iVPs58/y7tviAsmWC4f1QjiLvQer6w/i9b8iDubxV7VYcinU+o7dnkCM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CwFgM1uL; arc=none smtp.client-ip=74.125.225.76
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1788939880; c=relaxed/simple;
+	bh=cWlu5BMpYKezZ0AnOVa/jLD+z9IKRrWqrBVyIKPCohM=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=qpShsFqNZ/60uO3YGxFdGz31L9JafoxAB7TQXWrtpAaa7RSXOpQotO3AGywHyGvbN4Mk4/y8s2GihmCwaVOHPEm+05J+acJ8hyWmCXR25O92G0HUpUaXWx518pmlxF8Aou+FzKVk9TboJ37dbs7XRWKHTQjLsOZyGjuTuSF/C7k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ciYnLxaG; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CwFgM1uL"
-Received: by mail-wr2-f12.google.com with SMTP id ffacd0b85a97d-484366874b0so359154f8f.2
-        for <virtualization@lists.linux.dev>; Wed, 09 Sep 2026 00:35:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788939302; x=1789544102; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=rwJskRf230nVoXvEhVqyDUFt4l3Cq8VmWwWkkc6yiy4=;
-        b=CwFgM1uLL2L5JV6JsT0w1KK1DxcrhuTjL23/LBavoWlwL/mlDLZFnnbFxcG34JqGs8
-         8gAoFFfieazOJLlakmgpUD+iYBoHTy75iPETyTT9N3IEincOxFRVL1XMYD1rjTxkp/oX
-         paCZz5j633wcL3pElznGUzTW56FcfXoMTzuKf+JenOrTVyMLkNCGPZzXFq/5NS1XjNmh
-         0n7laXWw4EpYi+3EUmcYYN2CAc5ySgqngsatO7ieqo5IlWhK1UKyCMEj0GqPlV3yGS8u
-         nFNq+Hqz0SHGZ3100ukRT/pdRR5t2wIivuMwsa9rz2jhv1vN8tpJnLwRcu9vp5T+ZkMQ
-         u65g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788939302; x=1789544102;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=rwJskRf230nVoXvEhVqyDUFt4l3Cq8VmWwWkkc6yiy4=;
-        b=RYBfm83thXsgNajaQb8molGSStA+Zq8JZ+8cmeqLquhwh28e+wuaZuTLrgC9mtbbVi
-         EbbjnfaTuZU/VVXpVyp/2OaqXWEL9+ykk7BPFZ1KBwXeNJ4hfvnN0OQ2Wc9tFftXeheH
-         Pmt3Orok9oBEpu6mtUBbVhwyPFGT20Qnx6deK513d+Pw8Oe/DCcCDABdU/czJN33xiaR
-         zXs4K2LS50G9In5nuBZ81nFZDIYvIktyXfRRd6/ZzxcGtblNG/3qf/qjbn4cQF52vE/a
-         Q3Uipf3zH/lk5Xz7WCq9yZU3ddnIqXMyL8Xoo7oYzj4b/1HLlTLbj5YMJzRECFhnHmxT
-         AzsA==
-X-Forwarded-Encrypted: i=1; AKwUvBzoyEs3HUIVl+CgShFlrhTbbuAQ+pziVKgvKPixVnyrhABS7AL9NhgbIN8KKy9UEVk9wj9avbJiu/cLFZ5qMA==@lists.linux.dev
-X-Gm-Message-State: AFuF++kMhvp6pOqpyJF34hjIkxdf4ZYkKqwlt9Y+Ba1U6EYBtHJW3+Nv
-	9dgUw/c8vkybldqTlGQo7Ieb9VveI38tpoojqH/8mzy0MygZW2e6IpiL
-X-Gm-Gg: AYBFou2ryKmt6no8gzN+osV3Wa9bjybUFLGCwip2jDBaDfy0mshpKONiS1THOXTeL/3
-	dm0K+0KdKG+J1JaGA8NjaR6d7rK5WeOZ2eA2qw8/h4PO/5Kh184zm429+RGxzQjIgg6JOfK5Q9u
-	ueEXuZ0ue42TB/Po39Nx93+uA2WhZIjsB733/ZM2r/kpwda0lSDH6d+8qJZ5k7YUONIYV+tQy0v
-	0RcAnttmt7fsbD5xRNNwSDMqru0dnN0WRDOaM0y5DyVesVWdE8GFv355rOhCIGqcFIesU5HUKDu
-	XWPJkd04GiMWdDJzIMzaxvdNgQvNZ9fnLd14H0AMl/zSEUv1bdm1A7PILvfYzwIvM9WNpHaCIts
-	tjtBvOReEDprVpkdo0ZvylpeHNkC9aJFO5JcMdbItuEFCXC1WGDZyRo7vdeGzasZ/PbzQOj8yCe
-	Rnl/wubnBW8YKo0cxyWK6xJg/ylB0PlJCGMeH0hRqjH+smuEY3z4aM7ru2gL1OZZGTG/xaTaiS3
-	QzRl71AjakW+YSW+M80dYJZVN+LwumiA4AviwSJbudkZWGv/hIDr9MNU1Ddxhn3kAb2524RqxgB
-	hcxfd7agUL8Inb1R2qbgs7S+GUobIWlSlRkjO3Q=
-X-Received: by 2002:a05:600c:604a:b0:49d:1012:893a with SMTP id 5b1f17b1804b1-49d1f320b72mr55194575e9.7.1788939302009;
-        Wed, 09 Sep 2026 00:35:02 -0700 (PDT)
-Received: from PC-Davide.homenet.telecomitalia.it (host-79-24-252-102.retail.telecomitalia.it. [79.24.252.102])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49cee5d476esm588770945e9.1.2026.09.09.00.35.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 09 Sep 2026 00:35:01 -0700 (PDT)
-From: Davide Bonatto <bonatto.davide@gmail.com>
-To: David Airlie <airlied@redhat.com>,
-	Gerd Hoffmann <kraxel@redhat.com>,
-	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-	Thomas Zimmermann <tzimmermann@suse.de>
-Cc: Gurchetan Singh <gurchetansingh@chromium.org>,
-	Chia-I Wu <olvaffe@gmail.com>,
-	dri-devel@lists.freedesktop.org,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Davide Bonatto <bonatto.davide@gmail.com>
-Subject: [PATCH] drm/virtio: Replace deprecated drm_simple_encoder_init()
-Date: Wed,  9 Sep 2026 09:34:38 +0200
-Message-ID: <20260909073440.52641-1-bonatto.davide@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ciYnLxaG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 658241F00A3A;
+	Wed,  9 Sep 2026 07:44:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788939878;
+	bh=tixwgiWwREE+e/O+XQzoT2C82NYobPgNbFeLqiM0sjc=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=ciYnLxaGp3aO4UD5fLXeNL0fOiiO/AOgzouPf2HJ/wQUowsaovGKMY6XFFuL43Ob7
+	 o9xC2R+xVa4sXg4ISf/yWQta+Vpqtd2J4l4too9g86odZry/9p3ZhfGg2KMQxpn9Zi
+	 jKcGwgKrbDD9PXO/t5UKJf22EXhBdUoOCZ5abD1e+Z8UOFKYWTwO37hE9vRSLsqaPs
+	 ZbxYvOIgKZH+jexfUuiO4JDJJDX2S/MY9DSYyMFWhfaVNGfAzN1Pc46hbU4Rsa1/uD
+	 Eqfu/O/AwPodNgJSsLbRjDb6ZcO/3ialglSt7C4NP+G1GfVdXyLfB0MN41Pv52c39h
+	 Y2CDLw1SDgVSw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] drm/virtio: Replace deprecated
+ drm_simple_encoder_init()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Davide Bonatto" <bonatto.davide@gmail.com>
+Cc: "Eugenio Perez" <eperezma@redhat.com>, virtualization@lists.linux.dev, dri-devel@lists.freedesktop.org, "Michael
+ S. Tsirkin" <mst@redhat.com>
+In-Reply-To: <20260909073440.52641-1-bonatto.davide@gmail.com>
+References: <20260909073440.52641-1-bonatto.davide@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 09 Sep 2026 07:44:37 +0000
+Message-Id: <20260909074438.658241F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-drm_simple_encoder_init() is deprecated as it introduces an unnecessary
-intermediate layer between atomic modesetting and DRM drivers.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Medium] Missing error check for drm_encoder_init return value.
+--
 
-Inline the helper call in virtgpu_display by defining
-virtio_gpu_encoder_funcs with the default drm_encoder_cleanup callback,
-and migrate directly to drm_encoder_init()
+commit 731688e34b570f6cb070588f1d74f9b42481123c
+Author: Davide Bonatto <bonatto.davide@gmail.com>
 
-Signed-off-by: Davide Bonatto <bonatto.davide@gmail.com>
----
- drivers/gpu/drm/virtio/virtgpu_display.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+drm/virtio: Replace deprecated drm_simple_encoder_init()
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-index a1a875a0c706..85986578001f 100644
---- a/drivers/gpu/drm/virtio/virtgpu_display.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-@@ -67,6 +67,10 @@ static const struct drm_framebuffer_funcs virtio_gpu_fb_funcs = {
- 	.dirty = drm_atomic_helper_dirtyfb,
- };
- 
-+static const struct drm_encoder_funcs virtio_gpu_encoder_funcs = {
-+	.destroy = drm_encoder_cleanup,
-+};
-+
- static int
- virtio_gpu_framebuffer_init(struct drm_device *dev,
- 			    struct virtio_gpu_framebuffer *vgfb,
-@@ -306,7 +310,9 @@ static int vgdev_output_init(struct virtio_gpu_device *vgdev, int index)
- 	if (vgdev->has_edid)
- 		drm_connector_attach_edid_property(connector);
- 
--	drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_VIRTUAL);
-+	drm_encoder_init(dev, encoder, &virtio_gpu_encoder_funcs,
-+		DRM_MODE_ENCODER_VIRTUAL, NULL);
-+
- 	drm_encoder_helper_add(encoder, &virtio_gpu_enc_helper_funcs);
- 	encoder->possible_crtcs = 1 << index;
- 
--- 
-2.43.0
+This patch replaces the deprecated drm_simple_encoder_init() with a direct
+call to drm_encoder_init(), defining a default cleanup callback directly in=
+=20
+virtio_gpu_encoder_funcs.
 
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/v=
+irtio/virtgpu_display.c
+> index a1a875a0c706a..85986578001fe 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_display.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+
+[ ... ]
+
+> @@ -306,7 +310,9 @@ static int vgdev_output_init(struct virtio_gpu_device=
+ *vgdev, int index)
+>  	if (vgdev->has_edid)
+>  		drm_connector_attach_edid_property(connector);
+> =20
+> -	drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_VIRTUAL);
+> +	drm_encoder_init(dev, encoder, &virtio_gpu_encoder_funcs,
+> +		DRM_MODE_ENCODER_VIRTUAL, NULL);
+
+[Severity: Medium]
+Does this code need to check the return value of drm_encoder_init()?
+
+If drm_encoder_init() fails (for example, due to a memory allocation failur=
+e=20
+for the encoder name), it returns a negative error code like -ENOMEM and=20
+cleans up the partially initialized object.
+
+Since this return value is not validated in vgdev_output_init(), the functi=
+on=20
+will proceed to use the uninitialized encoder, attaching it to a connector =
+and=20
+registering the connector with userspace. Could this lead to a NULL pointer=
+=20
+dereference or corrupted state when the DRM subsystem interacts with it?
+
+> +
+>  	drm_encoder_helper_add(encoder, &virtio_gpu_enc_helper_funcs);
+>  	encoder->possible_crtcs =3D 1 << index;
+>
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260909073440.5264=
+1-1-bonatto.davide@gmail.com?part=3D1
