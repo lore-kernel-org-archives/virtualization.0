@@ -1,78 +1,70 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D6BC483837
-	for <virtualization@lists.linux.dev>; Wed,  9 Sep 2026 08:59:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84A6D481AA6
+	for <virtualization@lists.linux.dev>; Wed,  9 Sep 2026 08:59:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788944349; cv=none; b=sa6z5mGa5mBltbghjUj+sYagQBxtgojPx9cDhM324Hi45he8HJhqJZTPzl0sqpgTA+VG3L3AejVJ6qDmIXZRIkOqZ8EMUSbpVsMFvr5F8bT49n+5DTKYX1/ZJed3msf4r80WnHh3vhEUYgQhDna58HnRTS8DBWuRELWToXzWW4I=
+	t=1788944350; cv=none; b=utEeA6aXFuX/3MDuIcHIcwoPxIXFFyuUkWHu1+k5YDnTEhOJh2ki4+GuPRIG6tqFFN7XtQzYIUHDneytHR5YEyCaP/HvT6EWW7+2Y4wFpZ2xxRROt+dULP8svQpZdr93DCvaG1e+AtbrCGpumbC35NKetjFn8lmH3CowJ/8ec+s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788944349; c=relaxed/simple;
-	bh=R9L/eTaXmKcO3hBnU98W/9G77TNfUeBGNOLDd6WiCkE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=sjYMKallC5xAgQ69fWTL5CwmelaJNoSR5zHBRz5oJegOx1HO8F6mF3b2Gdnkx/AJdDMwmfNkdtgSVuR8sAolYG/vVuVezqlRmQnzAncv93X2UcDdiWgH5/UPr+eHbqkBlK/FSDQ4giXZfQOkg/YibQ09l/9Mfu/8SHnNwhQn6W8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=eHI8rs+7; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=kmjkCeN0; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=Lj87H7LD; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=CpSLXLHb; arc=none smtp.client-ip=195.135.223.130
+	s=arc-20240116; t=1788944350; c=relaxed/simple;
+	bh=D7qDh6DGLpZqONTrO3Raj2GSkfqhJ1BQPST3nXu1os8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Oj9kTs+v6XpNvhfwDF6IL3npQr+sCe/eyKFVZ7P9tOTD1guLcM2INvW6W4dVK1gpY5OqWc0GZ5/KRsXreRrxyAKa3xJSJIu1b6c/axvckRbWwVZkwCK39TrwXLapkFXj1UaZjMnpRik8g25C34jd5GKFqjwm48Ejz5Ic8HIAq9U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=F+iUndIS; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=pGY3Jl4q; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=UfKjLaIH; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=y0v7ugMy; arc=none smtp.client-ip=195.135.223.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="eHI8rs+7";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="kmjkCeN0";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="Lj87H7LD";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="CpSLXLHb"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="F+iUndIS";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="pGY3Jl4q";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="UfKjLaIH";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="y0v7ugMy"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 06D0F21A97;
-	Wed,  9 Sep 2026 08:58:33 +0000 (UTC)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 47B901F833;
+	Wed,  9 Sep 2026 08:58:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1788944317; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=tzsC2VzdToDvjyu2bKo4kXLJkrMvANfsE4sUyvOrhy8=;
-	b=eHI8rs+776GMDBzJ34a5bdZlnsjvjcs0lF+5ZVLctnLggWCfDZ+ex0AxwTy138kvqWwLgr
-	CqoxgqtR2L5T5MPUr2VlB0siOZFDJAjOErY3S7X3qi+oDvTbfXXitidyeFXRRtNZMi/IS5
-	ZzoIqlPQidms3WVns+WL/909+IsdDbc=
+	t=1788944316; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=n+NVgiDm8yCWuTVont+j2lDiIVnIv4x8V5t0nRp0Jrc=;
+	b=F+iUndISp7VOlk94I7wbFXrR6kUJAL+i77YM4T3QSxvs2uf47P36uUEzrWvPhcAQBTvTnH
+	3gfQpZTR8XPXsicQ0rfg6xuOI7CikW9tMBoLlEuJo3GkYpbus9fStmxOvTf2VDaqc0iLc+
+	NzueHF8BAMIi33Cj8gZipMgkmCr2rew=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1788944317;
+	s=susede2_ed25519; t=1788944316;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=tzsC2VzdToDvjyu2bKo4kXLJkrMvANfsE4sUyvOrhy8=;
-	b=kmjkCeN0ruu7nPIN6juiaryA4ErrW7Vm+oIFm23UsKil7+/vqH8wSxUaodYNa42l7WVP+5
-	V7bB5GPOFrXQC2Cg==
-Authentication-Results: smtp-out1.suse.de;
-	none
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=n+NVgiDm8yCWuTVont+j2lDiIVnIv4x8V5t0nRp0Jrc=;
+	b=pGY3Jl4qrsZDtCo1n9kE6bFQbK3kV2MJTTSu+IXA8nFbCwZPPPd2VLUxJGoO+eu0ggOCD0
+	XsFvGzpACJP4L/Bg==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=UfKjLaIH;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=y0v7ugMy
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1788944313; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=tzsC2VzdToDvjyu2bKo4kXLJkrMvANfsE4sUyvOrhy8=;
-	b=Lj87H7LDBVZ2NsyWCPLpoy96i+bQJ3cWgQujlaWN+It6Q1lPrxe1e4zKP45rVJqwpc15t0
-	Jg4BB5B3i8U9oAnvQapXao0AH5Gc+PupGE3htySCpHs61h+EDCSgNfXMAkIi9qS7PGfXxa
-	mqxtYW7bjSQ37KOW/sDBpZlT+hXIe5Q=
+	t=1788944312; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=n+NVgiDm8yCWuTVont+j2lDiIVnIv4x8V5t0nRp0Jrc=;
+	b=UfKjLaIHGee0WQbf1amyG0laYlKvQoSx/of69T54B4k08bIgEhIgS6bAZcpzzEl+nc1jqr
+	JcJ19y8qIeHPnDSqBQm9wqQWz81iOtIHu/kPoNb7n1eJwszWtPHdR0+BYzsq7+j/GpZkty
+	3dlrAyW3KvY7L7AfMxKcdcfLlOGFHZI=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1788944313;
+	s=susede2_ed25519; t=1788944312;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=tzsC2VzdToDvjyu2bKo4kXLJkrMvANfsE4sUyvOrhy8=;
-	b=CpSLXLHbGRLPeTML/GpXxwz56/9Wbv/Y6VvySDrUq7EnJTdeIi+8f4XVPJyjdRAfrrD4gv
-	NWW8c+Gj2Z3AFJAw==
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=n+NVgiDm8yCWuTVont+j2lDiIVnIv4x8V5t0nRp0Jrc=;
+	b=y0v7ugMy/cUox0AYwWLE7zcW2m3NpvQYKrzh16w0jsb/6E0YaxD8y9vr18omuaNkJphwN+
+	HEYsaB5f1+6WkzCQ==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 376751365E;
-	Wed,  9 Sep 2026 08:58:32 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 9FEA41347F;
+	Wed,  9 Sep 2026 08:58:31 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id 6DhBDLgfoWoVUQAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Wed, 09 Sep 2026 08:58:32 +0000
+	id QGGlJbcfoWoVUQAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Wed, 09 Sep 2026 08:58:31 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: jfalempe@redhat.com,
 	javierm@redhat.com,
@@ -94,14 +86,11 @@ Cc: dri-devel@lists.freedesktop.org,
 	linux-renesas-soc@vger.kernel.org,
 	virtualization@lists.linux.dev,
 	sashiko-reviews@lists.linux.dev,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	stable@vger.kernel.org
-Subject: [PATCH v4 01/14] drm/panic: Do not use un-escaped URL as format string
-Date: Wed,  9 Sep 2026 10:55:16 +0200
-Message-ID: <20260909085826.64529-2-tzimmermann@suse.de>
+	Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH v4 00/14] drm/panic: Split into core and helpers
+Date: Wed,  9 Sep 2026 10:55:15 +0200
+Message-ID: <20260909085826.64529-1-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260909085826.64529-1-tzimmermann@suse.de>
-References: <20260909085826.64529-1-tzimmermann@suse.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -109,65 +98,176 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Score: -2.80
+X-Spam-Score: -3.01
+X-Rspamd-Queue-Id: 47B901F833
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
 X-Spam-Level: 
-X-Spamd-Result: default: False [-2.80 / 50.00];
+X-Rspamd-Action: no action
+X-Spamd-Result: default: False [-3.01 / 50.00];
 	BAYES_HAM(-3.00)[100.00%];
 	MID_CONTAINS_FROM(1.00)[];
 	NEURAL_HAM_LONG(-1.00)[-1.000];
 	R_MISSING_CHARSET(0.50)[];
-	NEURAL_HAM_SHORT(-0.20)[-0.999];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
 	MIME_GOOD(-0.10)[text/plain];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	TO_DN_SOME(0.00)[];
+	MX_GOOD(-0.01)[];
+	URIBL_BLOCKED(0.00)[drm_panic_qr.rs:url,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.de:dkim,suse.de:mid,drm_panic_helper_qr.rs:url];
 	MIME_TRACE(0.00)[0:+];
-	FREEMAIL_TO(0.00)[redhat.com,gmail.com,linux.intel.com,kernel.org,linux-m68k.org,infradead.org];
-	RCPT_COUNT_TWELVE(0.00)[22];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
 	ARC_NA(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	URIBL_BLOCKED(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:mid,suse.de:email,lists.freedesktop.org:email];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	R_RATELIMIT(0.00)[to_ip_from(RLhthb38qh1ntkuzcrgoc19dwi)];
-	RCVD_TLS_ALL(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:mid,suse.de:email];
-	RCVD_COUNT_TWO(0.00)[2];
+	RCPT_COUNT_TWELVE(0.00)[21];
+	TO_DN_SOME(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
 	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com]
+	RCVD_TLS_ALL(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.de:dkim,suse.de:mid];
+	FREEMAIL_TO(0.00)[redhat.com,gmail.com,linux.intel.com,kernel.org,linux-m68k.org,infradead.org];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	R_RATELIMIT(0.00)[to_ip_from(RLo585esf9b7txaosbn5shab9z)];
+	DKIM_TRACE(0.00)[suse.de:+]
 X-Spam-Flag: NO
 
-Replace the direct use of DRM_PANIC_SCREEN_QR_CODE_URL in snprintf()
-with a %s conversion specifier. Avoids a possible vulnerabilty from
-a crafted URL string.
+Split DRM's current panic handling into a core and a helper module.
+The core is still part of DRM's core library. The panic helpers are
+part of DRM's KMS helper module (for now).
 
-As the attacker needs to control the kernel at the Kconfig level, the
-potential for an exploit is likely low.
+The motivation behind this series is to get panic handling's drawing
+code out of the DRM core. At some point it should share a single
+module with DRM's other drawing and format conversion.
 
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Reviewed-by: Jocelyn Falempe <jfalempe@redhat.com>
-Fixes: cb5164ac43d0 ("drm/panic: Add a QR code panic screen")
-Cc: Javier Martinez Canillas <javierm@redhat.com>
-Cc: Jocelyn Falempe <jfalempe@redhat.com>
-Cc: dri-devel@lists.freedesktop.org
-Cc: <stable@vger.kernel.org> # v6.12+
----
- drivers/gpu/drm/drm_panic.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+With the series applied, panic handling follows DRM's established
+design pattern of having a DRM core interface with a dedicated
+implementation in each driver. Drivers share common code in helper
+modules. For panic handling, the DRM core still contains the panic
+entry points, the parameters and the debugfs interface. All drawing
+is now located in the panic helpers.
 
-diff --git a/drivers/gpu/drm/drm_panic.c b/drivers/gpu/drm/drm_panic.c
-index e576c4791861..ba21df4be338 100644
---- a/drivers/gpu/drm/drm_panic.c
-+++ b/drivers/gpu/drm/drm_panic.c
-@@ -658,7 +658,8 @@ static int drm_panic_get_qr_code_url(u8 **qr_image)
- 	char *kmsg;
- 	int max_qr_data_size, url_len;
- 
--	url_len = snprintf(url, sizeof(url), CONFIG_DRM_PANIC_SCREEN_QR_CODE_URL "?a=%s&v=%s&z=",
-+	url_len = snprintf(url, sizeof(url), "%s?a=%s&v=%s&z=",
-+			   CONFIG_DRM_PANIC_SCREEN_QR_CODE_URL,
- 			   utsname()->machine, utsname()->release);
- 
- 	max_qr_data_size = drm_panic_qr_max_data_size(panic_qr_version, url_len);
+Patches 1 to 4 improve several issues in the current panic code. It
+makes sense to fix them before moving the core around.
+
+Patches 5 to 8 put handling of all panic state and locking into a
+single place, drm_panic_display_panic_screen(). It is maintained by
+panic handling's DRM core code. This also enables the test cases to
+work more independently from the kernel's configuration.
+
+Patches 9 to 13 split the panic-handling code into the core and panic
+helpers. The former maintains all state, locking and public interfaces.
+The latter handles drawing and details of the involved framebuffers.
+
+DRM devices that offer panic handling provide a single callback, struct
+drm_plane_funcs.display_panic_screen. A new initializer macro makes it
+point to the existing panic-drawing implementation. Hence there's no
+change in features or functionality. If panic handling is configured
+off, it all clears out to NULL.
+
+Patch 14 reworks the test cases slighly, so that they can be build as
+a separate module. Do 'modprobe drm_panic_helper_test' to run them.
+
+Tested under bochs, i915, amdgpu with debugfs and test cases.
+
+Future directions:
+
+- Panic handling shares drawing code with format conversion and
+clients. There's even more drawing code in vkms. Later series' can
+attempt to unify and harmonize all these implementations in a single
+draw module.
+
+- The drawing helper drm_plane_helper_display_panic_screen() still
+implements various access schemes (map, set_pixel, memcpy) in a single
+function. It could be split up into specialized helpers.
+
+- If we ever need a driver-specific helper, it is now possible to
+implement a custom version of display_panic_screen.
+
+v4:
+- test font size against scanout buffer (Jocelyn)
+- remove obsolete comment on fbcon (Jocelyn)
+v3:
+- keep qrbuf allocation as-is (Jocelyn)
+- handle kmap failures gracefully
+- handle unescaped URL strings correctly
+- fix per-plane panic testing
+- clean up after test cases
+v2:
+- resolve the various Kconfig issues (Randy)
+- remove changes to qrbuf allocation (Jocelyn, Geert)
+- fix possible URL format-string attack
+- make test cases work again uder certain edge cases
+- add better error reporting from failed draw_screen
+- filter out non-primary planes from panic handling
+
+Thomas Zimmermann (14):
+  drm/panic: Do not use un-escaped URL as format string
+  drm/panic: Test address from kmap op for NULL
+  drm/panic: Return -EINVAL if font is not available
+  drm/panic: Return errno codes if panic output fails
+  drm/panic: Pass colors to draw_panic_dispatch()
+  drm/panic: Pass global module parameters to drm_panic_dispatch()
+  drm/panic: Return from screen_user if display is too small
+  drm/panic: Retry in dispatch function if panic output fails
+  drm/panic: Split draw_panic_plane()
+  drm/panic: Restrict to primary planes
+  drm/panic: Display panic screen via per-plane callback
+  drm/panic: Internalize panic locking in DRM core and helpers
+  drm/panic: Move panic display code into helper library
+  drm/panic: Compile KUnit tests as module
+
+ Documentation/gpu/drm-kms-helpers.rst         |  11 +-
+ Documentation/gpu/drm-kms.rst                 |   3 +
+ MAINTAINERS                                   |  11 +-
+ drivers/gpu/drm/Kconfig                       |   9 +-
+ drivers/gpu/drm/Kconfig.debug                 |   1 +
+ drivers/gpu/drm/Makefile                      |   3 +-
+ .../amd/display/amdgpu_dm/amdgpu_dm_plane.c   |   2 +
+ drivers/gpu/drm/ast/ast_mode.c                |   2 +
+ drivers/gpu/drm/drm_atomic_helper.c           |   2 +-
+ drivers/gpu/drm/drm_crtc_internal.h           |   2 -
+ drivers/gpu/drm/drm_drv.c                     |   3 +-
+ drivers/gpu/drm/drm_kms_helper_common.c       |  14 +
+ drivers/gpu/drm/drm_modeset_helper.c          |   2 +
+ drivers/gpu/drm/drm_panic.c                   | 925 +-----------------
+ drivers/gpu/drm/drm_panic_helper.c            | 918 +++++++++++++++++
+ ...drm_panic_qr.rs => drm_panic_helper_qr.rs} |   4 +-
+ drivers/gpu/drm/drm_panic_internal.h          |  69 ++
+ drivers/gpu/drm/hyperv/hyperv_drm_modeset.c   |   2 +
+ drivers/gpu/drm/i915/display/i9xx_plane.c     |   3 +
+ .../drm/i915/display/skl_universal_plane.c    |   4 +
+ drivers/gpu/drm/imx/ipuv3/ipuv3-plane.c       |   2 +
+ drivers/gpu/drm/mgag200/mgag200_drv.h         |   4 +-
+ drivers/gpu/drm/nouveau/dispnv50/wndw.c       |   2 +
+ .../gpu/drm/renesas/rcar-du/rcar_du_plane.c   |   2 +
+ .../drm/renesas/shmobile/shmob_drm_plane.c    |   2 +
+ drivers/gpu/drm/sysfb/drm_sysfb_helper.h      |   4 +-
+ drivers/gpu/drm/sysfb/vesadrm.c               |   1 +
+ drivers/gpu/drm/tests/Makefile                |   1 +
+ ...m_panic_test.c => drm_panic_helper_test.c} |  73 +-
+ drivers/gpu/drm/tidss/tidss_plane.c           |   2 +
+ drivers/gpu/drm/tiny/bochs.c                  |   4 +-
+ drivers/gpu/drm/virtio/virtgpu_plane.c        |   2 +
+ include/drm/drm_mode_config.h                 |   4 +-
+ include/drm/drm_modeset_helper_vtables.h      |  11 +-
+ include/drm/drm_panic.h                       | 117 +--
+ include/drm/drm_panic_helper.h                |  40 +
+ include/drm/drm_plane.h                       |  57 ++
+ rust/bindings/bindings_helper.h               |   4 +-
+ 38 files changed, 1286 insertions(+), 1036 deletions(-)
+ create mode 100644 drivers/gpu/drm/drm_panic_helper.c
+ rename drivers/gpu/drm/{drm_panic_qr.rs => drm_panic_helper_qr.rs} (99%)
+ create mode 100644 drivers/gpu/drm/drm_panic_internal.h
+ rename drivers/gpu/drm/tests/{drm_panic_test.c => drm_panic_helper_test.c} (77%)
+ create mode 100644 include/drm/drm_panic_helper.h
+
+
+base-commit: 1b610f06b6cdafb64a8f1743390944a30f37b4db
+prerequisite-patch-id: c67e5d886a47b7d0266d81100837557fda34cb24
+prerequisite-patch-id: a5a973e527c88a5b47053d7a72aefe0b550197cb
+prerequisite-patch-id: b9adc9622920a3e70168e672c2c92795b3e3a106
+prerequisite-patch-id: 5030de433a01c2e99056cadb676a8e2ba35f055a
+prerequisite-patch-id: e5324d8ee0764b4f43e2e6606f7c9a1a32bc1819
 -- 
 2.55.0
 
