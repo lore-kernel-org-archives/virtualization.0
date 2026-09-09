@@ -1,104 +1,187 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtpbgbr1.qq.com (smtpbgbr1.qq.com [54.207.19.206])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DD01347BA9;
-	Wed,  9 Sep 2026 09:09:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E30537F006
+	for <virtualization@lists.linux.dev>; Wed,  9 Sep 2026 09:12:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.207.19.206
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788944950; cv=none; b=uvCP7Vj7Mm+L7onI5PCA0NKzA6A6VK9w7QOVYXKzxy7oz2mPWm6KSRUAQs6tpEuTB3G2cVPtU65H9qCYfWgH6cqVsFHUkGF2zqklRJjm4QIE8NTAh1ULuoqufpuWVX9hSfDeRRPXYBemw2b2THR0/jmDQwwrMQXy2jD1eougjh8=
+	t=1788945166; cv=none; b=DlSGTaZYdnQ6axxR+Q3zwbUeiepcEEuQWydwsgjo5oC5at1eE8GznvVkdD2/l7bYAR5ix5ozYcnsT7voYyAe2TMZ2Nzzlj1YiAcWu5uuV+NwWk+/pDl6d0ELtnT3aFyj8CT9DahtZRke4BzJJziGc7rRFHGYtDXj1Vsapk6rvDQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788944950; c=relaxed/simple;
-	bh=P1cGp5OpYvAagFrHX8wVCyn5wwF2Sowb8SZKp8mSslY=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=hqjts+/Ywj61xDr8y0ll7iYJQuU2QHG+farLFly/DsQFY8eXr4Llesoy5TzfWdNQcU3re5ownRCBsh3C1odeB4DW2fO8x4/mOu87aRecBxsCBCI4dA6X/kTWbeFVY5V9Ec7VV0P5x09PDJSMHGg7iSyZPcz7zKB+yZvsL8FVtAg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=G8SwJ3kG; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788945166; c=relaxed/simple;
+	bh=1wLbBjx0R0JxlU+UMv1TAs5nGm6HEqYp53dkIfZRlzU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=HG7iyM/kT+RYOS54bz2zqHVENW5ZFqoB650SMa+ut5S/+Ha4i3F+XPVJpPQuNc765tp9RJLjyg1vFDDiiJ1DLTIEM2Vo4TgEBXF1dfbnlxjAiBAPe8KSxxjtdzqLfMZgFASbbGBIgWmqnJBpSktA5/Zp2NfuwmJ5uPPxo0iK18Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=smail.nju.edu.cn; spf=pass smtp.mailfrom=smail.nju.edu.cn; dkim=pass (1024-bit key) header.d=smail.nju.edu.cn header.i=@smail.nju.edu.cn header.b=CL1IwwRm; arc=none smtp.client-ip=54.207.19.206
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=smail.nju.edu.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=smail.nju.edu.cn
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="G8SwJ3kG"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43D6A1F00A3D;
-	Wed,  9 Sep 2026 09:09:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788944949;
-	bh=lQ7U3JSSSlXb34w9324YOXzUWElJofA5u0fHhesgvSk=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=G8SwJ3kGu9YpEvsr/hzsOnD4uy9Ek3QHx5Y8IkzO3cNQW6SFuaJoLDNrGk8W6EQ4G
-	 OdA+keGYRsJHv8LbYiW8IlexG3uf1z8ZQIHEzHQ5YHQCQMvkI37LR5+E/1aFJkbIsQ
-	 EkYS6NAEoUchA/sl7GJKEjPFn6sX+GrvhFRENdlGkpj1Wm/hDkogJjiAzDEoUNsPuV
-	 FZSFscSOYR0hKcqZDV9Te/fsAZZQfj0c8bp8MBWe9U+cqo1YBrBSYbGMs1BucgKreI
-	 SAuSVeFtp7bwmdm81Vc9kV0zbhSArJ5z4FaUwZOx2XiqLDQprs3H40wwz8D1T229oA
-	 pZE5Th8a8kjsQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 01/14] drm/panic: Do not use un-escaped URL as format
- string
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Thomas Zimmermann" <tzimmermann@suse.de>
-Cc: intel-xe@lists.freedesktop.org, linux-hyperv@vger.kernel.org, gary@garyguo.net, intel-gfx@lists.freedesktop.org, wsa+renesas@sang-engineering.com, "Eugenio
- Perez" <eperezma@redhat.com>, imx@lists.linux.dev, virtualization@lists.linux.dev, "Michael
- S. Tsirkin" <mst@redhat.com>, ojeda@kernel.org, dri-devel@lists.freedesktop.org, Frank.Li@kernel.org
-In-Reply-To: <20260909085826.64529-2-tzimmermann@suse.de>
-References: <20260909085826.64529-1-tzimmermann@suse.de>
- <20260909085826.64529-2-tzimmermann@suse.de>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 09 Sep 2026 09:09:07 +0000
-Message-Id: <20260909090908.43D6A1F00A3D@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=smail.nju.edu.cn header.i=@smail.nju.edu.cn header.b="CL1IwwRm"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=smail.nju.edu.cn;
+	s=iohv2404; t=1788945099;
+	bh=yw5NGiijZ5YALpYySw4SpwKyTfmc247roOEcNi54jXw=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version;
+	b=CL1IwwRmPvSyVbdVYF0HsVdQv/7lNCSjVHB0pcVKYOKbxgPwh/BNo0W4jcRaGG3V8
+	 V+LcV44Ou38b/BZSnLJ4JIcsd4QXI3r+s88XK7QU3t1I3y7Ih6VNXYmOA9kQhVqpKK
+	 24gGtPc7aIsY+3Uifo+aigEhcF10XLCGAj+uYvKU=
+X-QQ-mid: zesmtpsz6t1788945079t3aeb69b1
+X-QQ-Originating-IP: DI5LWWLOhAhhqOxp8nE4wrAGDVtZXMdzF1lEklLG0UY=
+Received: from hepeiyang-vm.wu.lxd ( [114.212.83.113])
+	by bizesmtp.qq.com (ESMTP) with 
+	id ; Wed, 09 Sep 2026 17:11:16 +0800 (CST)
+X-QQ-SSF: 0000000000000000000000000000000
+X-QQ-GoodBg: 1
+X-BIZMAIL-ID: 12982179329491539308
+EX-QQ-RecipientCnt: 13
+From: Peiyang He <peiyang_he@smail.nju.edu.cn>
+To: airlied@redhat.com,
+	kraxel@redhat.com,
+	dmitry.osipenko@collabora.com,
+	dri-devel@lists.freedesktop.org
+Cc: linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	gurchetansingh@chromium.org,
+	olvaffe@gmail.com,
+	maarten.lankhorst@linux.intel.com,
+	mripard@kernel.org,
+	tzimmermann@suse.de,
+	Peiyang He <peiyang_he@smail.nju.edu.cn>
+Subject: [PATCH] drm/virtio: fix NULL pointer dereference on fence allocation failure
+Date: Wed,  9 Sep 2026 17:11:14 +0800
+Message-ID: <00EFE4BA92889B14+20260909091114.2622550-1-peiyang_he@smail.nju.edu.cn>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-QQ-SENDSIZE: 520
+Feedback-ID: zesmtpsz:smail.nju.edu.cn:qybglogicsvrsz:qybglogicsvrsz4b-0
+X-QQ-XMAILINFO: NUQ4CqobYn8xBItiZjQwrfeljWdt+sZoC7XENQC7wnKYnto9YvRxhuoh
+	uhsaKCi53bLoguRSIpRlwXcGylO8lFuZCTK6b548iNjLDL2VUC0RGVeTVXDJEee31m7HBxO
+	B19KOmCN3iuh/rJAgNpX/sB82hAUG2X/tyTlbVfa+x3HlAaT/hcKxLPG9XnGrLsG2VwVOuC
+	dTlN0VkIUDpWzgXEzZWjrGn/6/UZQ4S8JZTVisJiW6HSYlORISJjgLvpBG37fVjm0tBu+gO
+	/iJwkTe6FBmUiZqvortyIe6MTsdp1+ivc4NITuZhREysV1e+SpW789tiwuXTcrDDj9T0bxm
+	MNqAsMypnkStCyUv6plD5sgI20XQBVjr8xIB5M3ALlr4KtFPsIJQDj7P95vyvC69TdFwKbT
+	d4Gk9yfSvzqktxDb2yGCxOIW9TzA+Ad0ltxIql4Xkm20UhSUMeqU3YlTfxUxCuGWT45PiOw
+	i6mDQeqY0ubFUxlCuxhWTnbkBN0geGKOOPR0LOWe60xPHjLppeskAF4/z9rHlGKdNj8HoNr
+	8XbVLCWDI9jrSPcaLASlaMclJ8CCxv+Cqi3IxUlCMnfsoY2IbL2ND+58SkiHqS0APTOU6Z6
+	f1D3SXLxluMoZrRuA2ElY0XbbqpIGNwTSHMRqhow84Etu/U4c51cLnCYbKtvBX59eX9W8BR
+	T6mD5YsHRXWpHOlko7JxPYBs4MClBh4bl/cR7G0cVZcblZiLciJi0p9sBV251MOATa1wb1k
+	W7bQF9SRciVZPaj2vKt82XoTgH5QWNo3f8M58vSMsLDQUrkZLnIGCkub9xWBJ0N6uq7Rr1z
+	9mvtxJ73YXBilDceAuxA2jFoDGYawoNdxGeLQhlQBjobt+nOLQhpFUyiAiIAfOxT/GcrQH4
+	tEnhLkTKH8HrKM0YQnkc39FkBDT7TOcqG/vpgTJ2PRGYJ5uyxC55Ow37nNDjeXaRNgGOU8J
+	ycX3QToMqw13f3roA+7wEeLgxCVrSom5+MforXFgbzY6fiJv5dGVbp8xvKY78dIOxIm4Fpb
+	tT7Qc1NMEpZHLTSYHlYcYUQpbgHgyiNS9sUWxgDQgKzkb9hMPrDbNO4VXhy4k=
+X-QQ-XMRINFO: OWPUhxQsoeAVwkVaQIEGSKwwgKCxK/fD5g==
+X-QQ-RECHKSPAM: 0
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+virtio_gpu_fence_alloc() can fail due to memory pressure and return NULL,
+but its caller like virtio_gpu_init_submit() never checks it. Later,
+virtio_gpu_init_submit() passes the NULL fence to
+virtio_gpu_fence_event_create(), which unconditionally dereferences it.
 
-Pre-existing issues:
-- [High] NULL pointer dereference in the DRM panic handler via `utsname()` =
-if the system panics during task exit.
---
+Found when fuzzing the virtio driver with Syzkaller:
 
-commit 5f4f34c2248e13bf1786a1ff3cbb5f0cbb86fc3d
-Author: Thomas Zimmermann <tzimmermann@suse.de>
+	Oops: general protection fault, probably for non-canonical address 0xdffffc0000000012: 0000 [#1] SMP KASAN NOPTI
+	KASAN: null-ptr-deref in range [0x0000000000000090-0x0000000000000097]
+	CPU: 1 UID: 0 PID: 9991 Comm: syz.0.121 Not tainted 7.2.0 #4 PREEMPT(full) 
+	Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.17.0-0-gb52ca86e094d-prebuilt.qemu.org 04/01/2014
+	RIP: 0010:virtio_gpu_fence_event_create drivers/gpu/drm/virtio/virtgpu_submit.c:295 [inline]
+	RIP: 0010:virtio_gpu_init_submit drivers/gpu/drm/virtio/virtgpu_submit.c:398 [inline]
+	RIP: 0010:virtio_gpu_execbuffer_ioctl+0xc78/0x1aa0 drivers/gpu/drm/virtio/virtgpu_submit.c:505
+	Code: 85 ed 0f 85 21 09 00 00 e8 05 5a c9 fb 48 8b 44 24 10 48 8d b8 90 00 00 00 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <80> 3c 02 00 0f 85 9a 0d 00 00 48 8b 44 24 10 4c 89 b0 90 00 00 00
+	RSP: 0018:ffffc900039dfad0 EFLAGS: 00010216
+	RAX: dffffc0000000000 RBX: ffffc900039dfdd8 RCX: ffffffff85f6fd3d
+	RDX: 0000000000000012 RSI: ffffffff85f6fd4b RDI: 0000000000000090
+	RBP: 0000000000000000 R0virtio_gpu_virgl_process_cmd: ctrl 0x102, error 0x1203
+	R10: 0000000000000000 R11: 0000000000000000 R12: ffff8880132c4000
+	R13: 0000000000000000 R14: ffff888073b6c700 R15: 000000000000003b
+	FS:  00007fab480b96c0(0000) GS:ffff8880eb6e9000(0000) knlGS:0000000000000000
+	CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+	CR2: 00007effbf5e55a8 CR3: 0000000048d19000 CR4: 0000000000350ef0
+	Call Trace:
+	<TASK>
+	drm_ioctl_kernel+0x1f4/0x3e0 drivers/gpu/drm/drm_ioctl.c:817
+	drm_ioctl+0x5f4/0xc70 drivers/gpu/drm/drm_ioctl.c:914
+	vfs_ioctl fs/ioctl.c:51 [inline]
+	__do_sys_ioctl fs/ioctl.c:597 [inline]
+	__se_sys_ioctl fs/ioctl.c:583 [inline]
+	__x64_sys_ioctl+0x18e/0x210 fs/ioctl.c:583
+	do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+	do_syscall_64+0x116/0x800 arch/x86/entry/syscall_64.c:94
+	entry_SYSCALL_64_after_hwframe+0x77/0x7f
+	RIP: 0033:0x7fab471a82bd
+	Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 90 f3 0f 1e fa 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b0 ff ff ff f7 d8 64 89 01 48
+	RSP: 002b:00007fab480b9018 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+	RAX: ffffffffffffffda RBX: 00007fab47435fa0 RCX: 00007fab471a82bd
+	RDX: 00002000000000c0 RSI: 00000000c0406442 RDI: 0000000000000003
+	RBP: 00007fab480b9080 R08: 0000000000000000 R09: 0000000000000000
+	R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000001
+	R13: 00007fab47436038 R14: 00007fab47435fa0 R15: 00007ffe85ab0740
+	</TASK>
+	Modules linked in:
+	---[ end trace 0000000000000000 ]---
+	RIP: 0010:virtio_gpu_fence_event_create drivers/gpu/drm/virtio/virtgpu_submit.c:295 [inline]
+	RIP: 0010:virtio_gpu_init_submit drivers/gpu/drm/virtio/virtgpu_submit.c:398 [inline]
+	RIP: 0010:virtio_gpu_execbuffer_ioctl+0xc78/0x1aa0 drivers/gpu/drm/virtio/virtgpu_submit.c:505
+	Code: 85 ed 0f 85 21 09 00 00 e8 05 5a c9 fb 48 8b 44 24 10 48 8d b8 90 00 00 00 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <80> 3c 02 00 0f 85 9a 0d 00 00 48 8b 44 24 10 4c 89 b0 90 00 00 00
+	RSP: 0018:ffffc900039dfad0 EFLAGS: 00010216
+	RAX: dffffc0000000000 RBX: ffffc900039dfdd8 RCX: ffffffff85f6fd3d
+	RDX: 0000000000000012 RSI: ffffffff85f6fd4b RDI: 0000000000000090
+	RBP: 0000000000000000 R08: 0000000000000005 R09: 0000000000000000
+	R10: 0000000000000000 R11: 0000000000000000 R12: ffff8880132c4000
+	R13: 0000000000000000 R14: ffff888073b6c700 R15: 000000000000003b
+	FS:  00007fab480b96c0(0000) GS:ffff888098ae9000(0000) knlGS:0000000000000000
+	CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+	CR2: 00007f24c3759000 CR3: 0000000048d19000 CR4: 0000000000350ef0
+	----------------
+	Code disassembly (best guess):
+	0:	85 ed                	test   %ebp,%ebp
+	2:	0f 85 21 09 00 00    	jne    0x929
+	8:	e8 05 5a c9 fb       	call   0xfbc95a12
+	d:	48 8b 44 24 10       	mov    0x10(%rsp),%rax
+	12:	48 8d b8 90 00 00 00 	lea    0x90(%rax),%rdi
+	19:	48 b8 00 00 00 00 00 	movabs $0xdffffc0000000000,%rax
+	20:	fc ff df
+	23:	48 89 fa             	mov    %rdi,%rdx
+	26:	48 c1 ea 03          	shr    $0x3,%rdx
+	* 2a:	80 3c 02 00          	cmpb   $0x0,(%rdx,%rax,1) <-- trapping instruction
+	2e:	0f 85 9a 0d 00 00    	jne    0xdce
+	34:	48 8b 44 24 10       	mov    0x10(%rsp),%rax
+	39:	4c 89 b0 90 00 00 00 	mov    %r14,0x90(%rax)
 
-drm/panic: Do not use un-escaped URL as format string
+Fix by checking virtio_gpu_fence_alloc() in virtio_gpu_init_submit() and
+returning -ENOMEM before any later code can dereference the NULL fence.
 
-This commit replaces the direct use of DRM_PANIC_SCREEN_QR_CODE_URL in
-snprintf() with a %s conversion specifier. This change avoids a potential
-vulnerability from a crafted URL string.
+Fixes: 70d1ace56db6 ("drm/virtio: Conditionally allocate virtio_gpu_fence")
+Cc: stable@vger.kernel.org
+Signed-off-by: Peiyang He <peiyang_he@smail.nju.edu.cn>
+Assisted-by: Codex:gpt-5.5
+---
+ drivers/gpu/drm/virtio/virtgpu_submit.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-> diff --git a/drivers/gpu/drm/drm_panic.c b/drivers/gpu/drm/drm_panic.c
-> index e576c4791861d..ba21df4be3380 100644
-> --- a/drivers/gpu/drm/drm_panic.c
-> +++ b/drivers/gpu/drm/drm_panic.c
-> @@ -658,7 +658,8 @@ static int drm_panic_get_qr_code_url(u8 **qr_image)
->  	char *kmsg;
->  	int max_qr_data_size, url_len;
-> =20
-> -	url_len =3D snprintf(url, sizeof(url), CONFIG_DRM_PANIC_SCREEN_QR_CODE_=
-URL "?a=3D%s&v=3D%s&z=3D",
-> +	url_len =3D snprintf(url, sizeof(url), "%s?a=3D%s&v=3D%s&z=3D",
-> +			   CONFIG_DRM_PANIC_SCREEN_QR_CODE_URL,
->  			   utsname()->machine, utsname()->release);
-
-[Severity: High]
-This is a pre-existing issue, but can dereferencing utsname() here cause a
-NULL pointer dereference if the system panics during task exit?
-
-The utsname() macro expands to (&current->nsproxy->uts_ns->name). If a panic
-occurs while the current task is exiting (for example, after
-exit_task_namespaces() has set current->nsproxy to NULL), dereferencing
-current->nsproxy will cause a nested oops.=20
-
-This would abort the panic screen rendering and prevent the QR code or kmsg
-from being displayed, defeating the purpose of the DRM panic handler.
-
-Would it be safer to use init_utsname() instead of utsname() here in
-drm_panic_get_qr_code_url(), similar to how the standard kernel panic and d=
-ump
-code handles this edge case?
-
-> =20
->  	max_qr_data_size =3D drm_panic_qr_max_data_size(panic_qr_version, url_l=
-en);
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260909085826.6452=
-9-1-tzimmermann@suse.de?part=3D1
+diff --git a/drivers/gpu/drm/virtio/virtgpu_submit.c b/drivers/gpu/drm/virtio/virtgpu_submit.c
+index 32cb1e4aa425..857ed5c5f2a8 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_submit.c
++++ b/drivers/gpu/drm/virtio/virtgpu_submit.c
+@@ -389,10 +389,13 @@ static int virtio_gpu_init_submit(struct virtio_gpu_submit *submit,
+ 	if ((exbuf->flags & VIRTGPU_EXECBUF_FENCE_FD_OUT) ||
+ 	    exbuf->num_out_syncobjs ||
+ 	    exbuf->num_bo_handles ||
+-	    drm_fence_event)
++	    drm_fence_event) {
+ 		out_fence = virtio_gpu_fence_alloc(vgdev, fence_ctx, ring_idx);
+-	else
++		if (!out_fence)
++			return -ENOMEM;
++	} else {
+ 		out_fence = NULL;
++	}
+ 
+ 	if (drm_fence_event) {
+ 		err = virtio_gpu_fence_event_create(dev, file, out_fence, ring_idx);
+-- 
+2.43.0
