@@ -1,107 +1,161 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D86323AAF41
-	for <virtualization@lists.linux-foundation.org>; Wed,  9 Sep 2026 18:39:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.138
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788979152; cv=fail; b=gT8TE9Lvr4FY0xs6VsEoU/xC6lupRnV8ps8EwEIZlhKJIOYUxZgg5QFiGE5JybH1SvjeFVJ2Ow/M7BrsWrRYRPiI8hhwiY45EZClvlp0sm7gs2vxEqOO1c0YAb7bmH95cLXO8+IBSPxAL1BGYbUEOnIfkBBckN651RITEYJNTho=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788979152; c=relaxed/simple;
-	bh=Nw9KAnbZf4r9Qnp5kADDzg6JMDKcvWJMmbfOuqXIlmE=;
-	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=hKC2y33kSH1/RJ6K2Nbi1uFITA/WquLSVwwCxeb1QjQ2xr7fhl9iDdlDpaDpOE7nLVHHmK6/3M4DqYZ/a/DVqegBLetpYBNHiECQXk9izEoHtNLneRGtlqhXsEHQI62ibnbarZ2FvJ/XRbdts6281VbEIeHZShOlLDTr+TOPC2g=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RewST8Rc; arc=fail smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 444FD449B21
+	for <virtualization@lists.linux.dev>; Wed,  9 Sep 2026 21:59:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788991161; cv=none; b=Pxiw6AgvA0KYFj6D20wigomfO096OCpWDCo1rFUhhZzpCnmnVw21Rg51nDNw8ebHBZcr9Eyo3O0a6qoWo70A9cLNMnP4Pcy6tLeGUX8oR17mgKGG5tgtYMhV3tE+RNGf61W1spto2iKpfnD+kjGFpZqvx1xPTWriaZQc2icNsbQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788991161; c=relaxed/simple;
+	bh=5AiUP0XpreXNuiA/V0MjXI98g72p+JAbAaycONJLEvU=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=Ggek40kjWsGMtgO3lCPPJrOY6+EWM375bAtTQ/NkZCLgm666GOP+tv2Kz/hpqqaXx9vW2twMOximHxQnDJPQHYaeGXPRs+0qyFZILNo8JZSrRcC6tcRY0CjAwu82FrQCliO+RpVWMwYvOFCWjtF1MW9xxe52ar9d4Cc6bk5JBS4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=nolRloxV; arc=none smtp.client-ip=185.226.149.37
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RewST8Rc"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id DBB8E81007
-	for <virtualization@lists.linux-foundation.org>; Wed,  9 Sep 2026 18:39:09 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -0.352
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id LVz36ae4MUhC for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Sep 2026 18:39:09 +0000 (UTC)
-ARC-Filter: OpenARC Filter v1.3.0 smtp1.osuosl.org EF25D8100A
-Authentication-Results: smtp1.osuosl.org; arc=none smtp.remote-ip="2600:3c04:e001:324:0:1991:8:25"
-ARC-Seal: i=1; d=osuosl.org; s=arc; a=rsa-sha256; cv=none; t=1788979149;
-	b=d+ZHA4tb8Wpe4m4g2H5FzPrzjNb0At5kRlxSWGdsnr98fIJHwTmF3VG4Jur0hWKiq+RI
-	 L1IPtYsk7upquMEgMBKznP2Tvw69dA8x97CBqvcsjhEh3lbDQGp8N4K/mWDY6TtaznZB5
-	 ND0TSaX+6ySxoyCpPFXknhV3iDDMxEhVL2qxuR6uV1e/gZbqMPT4Jr97mQP9Lx8WMfwKq
-	 AYxYgxt6DsWyVu2vMrE3c+7jUu4BBgc3kW0ALFtyQVl/Hy+JwJ2nn9MKFOm8r5Y99tagM
-	 tfBkgoP9unGOiHxDDI3JA4JVMdGq0miIKKyOADXTYs3MWSa5MLfspubvKQWB3OWbUBQ==
-ARC-Message-Signature: i=1; d=osuosl.org; s=arc; a=rsa-sha256;
-	c=relaxed/relaxed; t=1788979149;
-	h=Received-SPF:Received:Received:DKIM-Signature:Received:Subject:From:
-	 In-Reply-To:References:X-PR-Tracked-List-Id:X-PR-Tracked-Message-Id:
-	 X-PR-Tracked-Remote:X-PR-Tracked-Commit-Id:X-PR-Merge-Tree:
-	 X-PR-Merge-Refname:X-PR-Merge-Commit-Id:Message-Id:Date:To:Cc;
-	bh=4U2dqUB9rYju9cGE8O6PTrlGgiUtfu8eS/aeTlHfcVs=;
-	b=bgf2hDpmDmpy+9VkOlglyHDjEL6MVLAF3jxa4cnJ2F+cYil+ApylaQr7e3jdrnWjSPZq
-	 SjHh+Cx7gILX1RBVHRsKHdo+PdJZ2u6TS0hQZVP5VRau5ClKECMPsN4P0DEOofvS8I2Cv
-	 f9RRwMCUmyAA/3Cjzuj5OnQPKNZfqnoHw8pyDZq9H7YDyR54LnVGPGjTnR5/beC7Xio52
-	 bC7lHLu4o16jRMYq5wcksBpkTEA1sP/eaELfJ7VY57l0592pkbEjYujDMEAHHVMUqKA8Z
-	 xJbvrreOpqVgeQscQ4BqXactQMmVKCec1Sqbn+snO0jpQnvZoXJpEVOw+qiC247jeFQ==
-ARC-Authentication-Results: i=1; smtp1.osuosl.org; dmarc=pass header.from=kernel.org;
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RewST8Rc;
-	arc=none smtp.remote-ip="2600:3c04:e001:324:0:1991:8:25"
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=pr-tracker-bot@kernel.org; receiver=<UNKNOWN> 
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RewST8Rc
-Received: from tor.source.kernel.org (tor.source.kernel.org [IPv6:2600:3c04:e001:324:0:1991:8:25])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id EF25D8100A
-	for <virtualization@lists.linux-foundation.org>; Wed,  9 Sep 2026 18:39:07 +0000 (UTC)
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by tor.source.kernel.org (Postfix) with ESMTP id AD0A4601EF;
-	Wed,  9 Sep 2026 18:39:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61A461F00893;
-	Wed,  9 Sep 2026 18:39:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788979146;
-	bh=4U2dqUB9rYju9cGE8O6PTrlGgiUtfu8eS/aeTlHfcVs=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc;
-	b=RewST8RcPI60gGZzPlDKPNeyQNRvWZJtrm17xtCNXOt0pv+9zkAu2+8mzs1qEGhki
-	 S1C+B02O1ee8degPKbCw1unLfz0TohfvPYkihQRXDe2+J+BifukYmLZAcUKWtuSvFz
-	 jNUqEgJHvDz46SGKPZOmM6xl4RDwsPNveykBrfIBUoBphEKV/fbpr7/dmd6nTfoXRg
-	 te62lNFFjs+PQ739b0k/SheX58NZIvCbMaAAYD+TaCz9vk0MzBjdqei7ZpK0rPvZJy
-	 4Fsum+A0DiHLHQ2J60zWiNcQuI031qhVDW/XzW/Kg/bYbqHaU51JROEQ1JYLtEvfVR
-	 JdmJ/OYjVG0mA==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 93AD2380AA52;
-	Wed,  9 Sep 2026 18:38:05 +0000 (UTC)
-Subject: Re: [GIT PULL] vhost,vdpa,virtio: fixes
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <20260909054245-mutt-send-email-mst@kernel.org>
-References: <20260909054245-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <20260909054245-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-X-PR-Tracked-Commit-Id: 48a4ee65e677559776349128e6a81a6041986c99
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 4f3989d75d33414389a57e78f4979931a0164df4
-Message-Id: <178897908417.999556.12078163197648897722.pr-tracker-bot@kernel.org>
-Date: Wed, 09 Sep 2026 18:38:04 +0000
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, astellman@stellman-greene.com, dongli.zhang@oracle.com, eperezma@redhat.com, graf@amazon.com, kmehltretter@gmail.com, linfeng.sun.dev@gmail.com, lvivier@redhat.com, mst@redhat.com, nikhilljatt@gmail.com, physicalmtea@gmail.com, xiongweimin@kylinos.cn, yuz08559@gmail.com
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="nolRloxV"
+Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
+	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	(Exim 4.93)
+	(envelope-from <mhal@rbox.co>)
+	id 1x4QJp-001F22-M0; Wed, 09 Sep 2026 23:59:01 +0200
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
+	s=selector2; h=Cc:To:Message-Id:Content-Transfer-Encoding:Content-Type:
+	MIME-Version:Subject:Date:From;
+	bh=p12OuFyDhrWNEio5UJ9mzJHOxquwOKi2Y8Jo1oKEw74=; b=nolRloxVuxnP6a1/TzWOHCxNcW
+	xtDVCF8XX91nLoKltZyz/zo+dfmviUeX1SJTzvGBzM7rt2fp3n7GlkC96OWy+66TR9IGhLrwusuXC
+	usLIp1TpDLB22Q/UViOXfxr2OYj/9W1zVBkgQAL9Hx8IJb3viEJJ6Va5KuHQz/gx3QGQpXNfNIyJx
+	lUNYefpJYLgyl2l6sl+gmd9hAMCvmKb4WOiMcKFhlt4yd7UL6hiesEZPBSwevixL27MskppUD9lsL
+	cDIGf0hkZuBxbRfWlLg3nmeFpZ51642p955jH0TwnMHFiJttscv9HtS+E89bwLwSiZUaEoRYjne+D
+	Agr6/WSg==;
+Received: from [10.9.9.74] (helo=submission03.runbox)
+	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
+	(envelope-from <mhal@rbox.co>)
+	id 1x4QJe-0001fW-TO; Wed, 09 Sep 2026 23:58:51 +0200
+Received: by submission03.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.95)
+	id 1x4QJe-000gXe-JE;
+	Wed, 09 Sep 2026 23:58:50 +0200
+From: Michal Luczaj <mhal@rbox.co>
+Date: Wed, 09 Sep 2026 23:58:26 +0200
+Subject: [PATCH net] vsock: Do not reset a TCP_CLOSING socket
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260909-vsock-connect-reset-closing-v1-1-50298b9ccfbf@rbox.co>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMQQ6CMBCF4auQWTtJ6QKKVyEudDrAqJmaTiUmh
+ LtbZfm/5H0bGGdhg3OzQeZVTJLWaE8N0HLVmVFibfDOdy54h6sleiAlVaaCmY0L0jOZ6IxDiNG
+ HvhtiP0EVXpkn+fz1EZQLXI7R3rd7ff9c2PcvCy+/PIQAAAA=
+X-Change-ID: 20260820-vsock-connect-reset-closing-98dd28769d7f
+To: Stefano Garzarella <sgarzare@redhat.com>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+ Simon Horman <horms@kernel.org>, Dmitry Torokhov <dtor@vmware.com>, 
+ Andy King <acking@vmware.com>, George Zhang <georgezhang@vmware.com>
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Hyunwoo Kim <imv4bel@gmail.com>, 
+ Michal Luczaj <mhal@rbox.co>
+X-Mailer: b4 0.15.2
 
-The pull request you sent on Wed, 9 Sep 2026 05:42:45 -0400:
+Ensure connect() resets the socket only if it has never been established.
+Handle the previously overlooked TCP_ESTABLISHED -> TCP_CLOSING
+transition (on VIRTIO_VSOCK_OP_RST), which could race with the connect
+loop.
 
-> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+Resetting a socket that is still present in connected_table can lead to
+memory corruption. The reporter noted lost transports for in-flight skbs,
+and I have reproduced crashes caused by re-insertion into connected_table.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/4f3989d75d33414389a57e78f4979931a0164df4
+  list_add double add: new=, prev=, next=.
+  kernel BUG at lib/list_debug.c:35!
+  Oops: invalid opcode: 0000 [#1] SMP KASAN NOPTI
+  Workqueue: vsock-loopback vsock_loopback_work
+  RIP: 0010:__list_add_valid_or_report+0x11f/0x130
+  Call Trace:
+   vsock_insert_connected.cold+0xe/0x13
+   virtio_transport_recv_pkt+0x10e9/0x1460
+   vsock_loopback_work+0x305/0x480
+   process_one_work+0xe4c/0x1560
+   worker_thread+0x4f1/0xd60
+   kthread+0x36e/0x470
+   ret_from_fork+0x47b/0x6b0
+   ret_from_fork_asm+0x1a/0x30
 
-Thank you!
+Drop the inaccurate comment above signal_pending(). This fix is
+supplementary to commit 002541ef650b ("vsock: Ignore signal/timeout on
+connect() if already established"). Details at Link.
 
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+Reported-by: Hyunwoo Kim <imv4bel@gmail.com>
+Link: https://lore.kernel.org/netdev/anzT1fREOSyHT99k@v4bel/
+Signed-off-by: Michal Luczaj <mhal@rbox.co>
+---
+Note that this is not a complete fix. connect()'s schedule_timeout() can
+still race with two other functions that set sk_state = TCP_CLOSE while
+keeping the socket in connected_table:
+1. vmci_transport_handle_detach(): no way for me to test,
+2. virtio_vsock_reset_sock(): tested by unbinding the driver
+   (/sys/bus/virtio/drivers/virtio_transport/unbind).
+The latter appears easy to fix by adding __vsock_remove_connected() and
+switching to a _safe iterator in vsock_for_each_connected_socket().
+---
+ net/vmw_vsock/af_vsock.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
+
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index f840498b58af..eec5dd6daebb 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1834,23 +1834,20 @@ static int vsock_connect(struct socket *sock, struct sockaddr_unsized *addr,
+ 		timeout = schedule_timeout(timeout);
+ 		lock_sock(sk);
+ 
+-		/* Connection established. Whatever happens to socket once we
+-		 * release it, that's not connect()'s concern. No need to go
++		/* Connection was established. Whatever happens to socket once
++		 * we release it, that's not connect()'s concern. No need to go
+ 		 * into signal and timeout handling. Call it a day.
+ 		 *
+ 		 * Note that allowing to "reset" an already established socket
+ 		 * here is racy and insecure.
+ 		 */
+-		if (sk->sk_state == TCP_ESTABLISHED)
++		if (sk->sk_state == TCP_ESTABLISHED ||
++		    sk->sk_state == TCP_CLOSING)
+ 			break;
+ 
+ 		/* If connection was _not_ established and a signal/timeout came
+ 		 * to be, we want the socket's state reset. User space may want
+ 		 * to retry.
+-		 *
+-		 * sk_state != TCP_ESTABLISHED implies that socket is not on
+-		 * vsock_connected_table. We keep the binding and the transport
+-		 * assigned.
+ 		 */
+ 		if (signal_pending(current) || timeout == 0) {
+ 			err = timeout == 0 ? -ETIMEDOUT : sock_intr_errno(timeout);
+@@ -1875,7 +1872,8 @@ static int vsock_connect(struct socket *sock, struct sockaddr_unsized *addr,
+ 	}
+ 
+ 	err = sock_error(sk);
+-	if (err) {
++	if (err &&
++	    sk->sk_state != TCP_ESTABLISHED && sk->sk_state != TCP_CLOSING) {
+ 		sk->sk_state = TCP_CLOSE;
+ 		sock->state = SS_UNCONNECTED;
+ 	}
+
+---
+base-commit: 9a1599eeb8d18a2113e4cabcbd3bec5a8377dbed
+change-id: 20260820-vsock-connect-reset-closing-98dd28769d7f
+
+Best regards,
+--  
+Michal Luczaj <mhal@rbox.co>
+
