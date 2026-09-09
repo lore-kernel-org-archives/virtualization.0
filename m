@@ -1,191 +1,158 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f170.google.com (mail-yw1-f170.google.com [209.85.128.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABDA631E844;
-	Wed,  9 Sep 2026 17:09:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F015E314B6E
+	for <virtualization@lists.linux.dev>; Wed,  9 Sep 2026 17:19:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788973799; cv=none; b=FhQls1dzaWMHnfLx70JvbEgeReu8lcAar22gph5741MYf3q3JMiX+d9ayu8crbMbgNRiQOv5cuubeKyTW5OEdg2S2V3FLYWpYYJHA+mHwnCSwVKpKKoxk/+G9AHrZ9MuCeQlzjaq4lpenUJAi3RXcohIM+B+MSsSjj7H1Ch1RZI=
+	t=1788974399; cv=none; b=QBqMk3+UEk9MSvDhq/N0ZwsBe3pr6kWPsDlo9DgVakviSxRFt7ZjzXRiGsczKlg5ljtgVyzLae9HcURgD9tNOMJygiBM8yQCUdpo/kgXU5lhuLHauOBZyUKQsp6xdaHLpcSHGyYO6/qQYkpOaal6ZYHpwpg1Wv7tuJcrX6S7ANI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788973799; c=relaxed/simple;
-	bh=hNXwZdRgoUtC914kkJeJOH7tSapL/KdvUz7YGKYBGjs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=p+CspuH2MpjGmriaZpKlaJX4jfnIRPJE78am+z3ESD1hTylzOFJYkzJdsgF51nqXix2URDAjn3ewqBm/oTX7K7BF7jiCDOboGZadyhuhpKpU/FtuIaya+Yg5BTsKsObcw9rEbv9/ux3Fz6n32dOiJ78WVqyqGRB+8H4xo6+xXfc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=EnGATu78; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1788974399; c=relaxed/simple;
+	bh=Z0gb6PYt93u0VY6izJ56KhmshtzSyI7O+7Ihrl0lCmU=;
+	h=From:Date:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=M5nj5TgIhz6Kd/CllpNHhm++mFDPcyiTVdP0oG/xMAW+GfFqLCP2Wf05n6LsutxJ+lntX6E1K3P3uSC+5tJsPL8mVAMQqUBXRhs3vLGA60viJsc+fNL64SuHZgXNeVSEidn5Qg/r32K+OkAeU4O2cACufhtr6XSAVuWu7pZQPps=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=F0OYH+w8; arc=none smtp.client-ip=209.85.128.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="EnGATu78"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 689B1aKm3839608;
-	Wed, 9 Sep 2026 17:09:56 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=2tqA/U
-	vKtOzYQXl3d3IZAhpXw9zqSuq/7l0cVp3X4zo=; b=EnGATu78hOGB8+aRCpR+yl
-	Ak7gmZ85PblUUUqC+Xz9V5aqQLYGkjPoQynXf+Tt056AL8HjQ9ssev61CFRQ6CcN
-	78J4XiO+ohqaeFdX0wo1/25R7iP2FhzfwPGk2B4vCAsu1T5hKwLv0cYS/4VurmGr
-	+SzLNgvUdXFNGHH+3lt80TRrcMFq+vw7Ma9SMNR65ONKbnE5ZuX7/hYmEDYv3qze
-	1WLBoVNh822mw2qNEik9aRCf3Fbumk0Fl/3pg8EOOGpzn+A4vRXmPI1u6iMbWJaM
-	DNvG0QauXJNQ4FH4uIpFX0PJ1NeymYi0E/fbpDDK5lWw2aL2xt453Ns4NXgcnI8A
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ggbhf6wj7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 09 Sep 2026 17:09:56 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 689GuEVM018356;
-	Wed, 9 Sep 2026 17:09:55 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4ggxwhbe3s-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 09 Sep 2026 17:09:55 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 689H9qfp33358286
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 9 Sep 2026 17:09:53 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E5D8F20063;
-	Wed,  9 Sep 2026 17:09:51 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CF70B2004F;
-	Wed,  9 Sep 2026 17:09:50 +0000 (GMT)
-Received: from [9.124.210.73] (unknown [9.124.210.73])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  9 Sep 2026 17:09:50 +0000 (GMT)
-Message-ID: <d01dea0e-884d-4c5e-8505-c73570284008@linux.ibm.com>
-Date: Wed, 9 Sep 2026 22:39:49 +0530
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="F0OYH+w8"
+Received: by mail-yw1-f170.google.com with SMTP id 00721157ae682-8565d77c277so84000017b3.0
+        for <virtualization@lists.linux.dev>; Wed, 09 Sep 2026 10:19:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788974397; x=1789579197; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:date:from:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=3PRZsX/KYek6emU5v5tZYtdcbcg2qPIIdPrtfdDH6As=;
+        b=F0OYH+w8EKjCyDPchGGWeeq68mRlLP6+cVQwPYxGmpKjIf3MRH86CjdhtbIkJ689K6
+         oJcbJUPR/jja0oUSvHZO1B60ozwhPeGYkFezXubOtRrYYjhc+8TqPLLxiGQiS4uCKIKm
+         9i3wyn6vH7mqNftvWq65LMjitQ+QCFqkCEcDgNYr/Y41NfBln9QmixzAX/IlnrIN1O8F
+         L5vLGfR8FsUNFtrg2DVV7WpPq5a9kJZ6VYsMe0lhsdB3k3fGBx9GuR9LVsRIqLJGQR/R
+         HH2nPR/SWGxps8AfA3SP1gB+aHJ9eM7UpDbR30RbbcqYpGeHimerFTQQ06VfWcaqDc0C
+         BkfQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788974397; x=1789579197;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:date:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=3PRZsX/KYek6emU5v5tZYtdcbcg2qPIIdPrtfdDH6As=;
+        b=mdO/F4iwnMg3B/e9d5MJN0dANeTW1T8IpHr0ioyE4FyvCnCq/m0uEkzIErZaqhHQFo
+         pwh84Xyw0i2VTCQVqFt34Ro+Sv7uv/2GCzI2xiX1Ggp0S+fFYt+6nOatYI/yb8V5QBFq
+         QlZkduqduW0tetbP0e5LNkst2G0EHs1S1OoRv1VKfaxmOYt95BZJqvGIT0ZINXURrl2K
+         SisRw8nvvvuH9iTRfdrCx9ZKbN9z94qHkdTUoXDKXagxOqCtPt5VYxSbhoXYy5fzH8R8
+         MjklHbycuomxXwjk5sAz7l9o17PJ5xkznNiGLihdm8902NifeUN8Pp+LlzQDtNCCGBqt
+         S5/Q==
+X-Forwarded-Encrypted: i=1; AKwUvBwlGifp4Kp5xAuC6v4eTWMPWQOz/xMa16IQI+fvXva/fJudesqGA2Hz40CNfLDjcbTGLLt69ujDDn5D7I6fBQ==@lists.linux.dev
+X-Gm-Message-State: AFuF++nk91BpYUOtCOFBKGsGd4trJZGCFpncr5YdmlU8WxixlQ7MyyzQ
+	O+BJWaiwpVVUdoX+26O5GDPSdayZG99E4Ysln5oXf+TOoGLf/q2JeHG3
+X-Gm-Gg: AYBFou1Ej/LcJ/rkRubdKRnvTfRvuMyfk7MNu7t0C48sNO8GdEHgS5WhL1Fxf+NlTTA
+	G08l16enIxz/Y0FP78YZoJkq5xir0RYAYWqjLCxSozZURYnm3dSRzIANtyQWXHMh01iRFyshnC0
+	G4CQdLrKC/25rjpfjYvK3sIPKn3f4LMyWjhdLf3LJVrsyK0IpOiGIGH2huJ3TI2Ar3t5BNKalRo
+	S/zxv5maFqIQIG0nGdr1c4UiZuWA38DIIUwW0g2gyShYX1GlVfXNO8uXpXk/IE276olA/H368H0
+	9blae0F59yzvu5NeXKuh8mbriG7bu60u5eitPyE5oSbHwWhlzt/vgv2gHRhyRKMIQ6bOiuuI4PZ
+	Vf6ifjs5sA0gpCKHfAA6/hqGcGTQ8uIw6+/ewto6jId7i+8QyuztwpuUpUUtFW/YQWcg3ZpekXr
+	IT7gxXnyYGdcQ2Ky7lMyjK2o08j4qtsir8WiEwqMYmuWnuMawgMGMT7nT3Jusms0H3x9p6RPMdu
+	jBvfEtUI66ODFYbmweOZ2MGGSCSUxRrESVQGaY=
+X-Received: by 2002:a05:690c:620f:b0:841:773e:8d86 with SMTP id 00721157ae682-871232363dfmr149350847b3.15.1788974396825;
+        Wed, 09 Sep 2026 10:19:56 -0700 (PDT)
+Received: from localhost (c-73-105-0-191.hsd1.fl.comcast.net. [73.105.0.191])
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-8714b62bc77sm114405657b3.39.2026.09.09.10.19.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 09 Sep 2026 10:19:56 -0700 (PDT)
+From: Yury Norov <yury.norov@gmail.com>
+X-Google-Original-From: Yury Norov <ynorov@nvidia.com>
+Date: Wed, 9 Sep 2026 13:19:55 -0400
+To: Shrikanth Hegde <sshegde@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, mingo@kernel.org, peterz@infradead.org,
+	juri.lelli@redhat.com, vincent.guittot@linaro.org,
+	yury.norov@gmail.com, kprateek.nayak@amd.com, iii@linux.ibm.com,
+	corbet@lwn.net, meted@linux.ibm.com, tglx@kernel.org,
+	gregkh@linuxfoundation.org, pbonzini@redhat.com, seanjc@google.com,
+	vschneid@redhat.com, huschle@linux.ibm.com, rostedt@goodmis.org,
+	dietmar.eggemann@arm.com, maddy@linux.ibm.com, srikar@linux.ibm.com,
+	hdanton@sina.com, chleroy@kernel.org, vineeth@bitbyteword.org,
+	frederic@kernel.org, arighi@nvidia.com, pauld@redhat.com,
+	christian.loehle@arm.com, tj@kernel.org,
+	tommaso.cucinotta@gmail.com, maz@kernel.org, rafael@kernel.org,
+	rdunlap@infradead.org, kernellwp@gmail.com,
+	linux-doc@vger.kernel.org, jgross@suse.com,
+	virtualization@lists.linux.dev, sunlightlinux@gmail.com
+Subject: Re: [PATCH v13 07/13] sched/fair: Load balance only among preferred
+ CPUs
+Message-ID: <aqGVMR2m_NF76tv3@yury>
+References: <20260909135617.871006-1-sshegde@linux.ibm.com>
+ <20260909135617.871006-8-sshegde@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v13 07/13] sched/fair: Load balance only among preferred
- CPUs
-To: sashiko-reviews@lists.linux.dev
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>,
-        Eugenio Perez <eperezma@redhat.com>
-References: <20260909135617.871006-1-sshegde@linux.ibm.com>
- <20260909135617.871006-8-sshegde@linux.ibm.com>
- <20260909143301.46F121F00A3D@smtp.kernel.org>
-Content-Language: en-US
-From: Shrikanth Hegde <sshegde@linux.ibm.com>
-In-Reply-To: <20260909143301.46F121F00A3D@smtp.kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: UypNtXxhDhkqhAPImpJm5v1Pvhln7A_S
-X-Authority-Analysis: v=2.4 cv=RIaD2Yi+ c=1 sm=1 tr=0 ts=6aa192e4 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=4RbsDB8hjsO0hcpbCZQA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTA5MDE5MCBTYWx0ZWRfX2nsnb+rUy5br
- 1T9ln4IWdrXCk1wP9aWA3CvS9hOriN7dBS6tWli1uz2ZTxPjb2abK6cv1Qk4zyfexa8zEhb6WlB
- soymUaO4gwarndZikuk4+PI7v0kHwFI=
-X-Proofpoint-ORIG-GUID: UypNtXxhDhkqhAPImpJm5v1Pvhln7A_S
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTA5MDE5MCBTYWx0ZWRfX8oTkpQCsnFwd
- h+R1Ibsc5CmuR5BiVl3NKWmv5rzTq/cmpDbGkSODInEQmTUX3NYuIuHChb6d4OlUJbzU0ckLU3T
- 02FWqEqMvMouz9KwmeIC8MFT0djRb7eL+dhHP2931a7HUQ3+NDjfxcWcHZDoH6ALJJEjfoOo8Ik
- y7qJ2nxb/6F6exGiPQuONuGDHGsyZFHWO0qvYD5nWEVKmPjrB46/FafWALP1346v0aKP4CrDNZT
- C0Yhw76RUPupkBAUJn/0CCjjWnNdUpF+GH3VZin4ZxwRWqh2rKXOuEK0iIoqNfc7pU166ljgrrs
- dcOxVt9RXfJvA5/nOKeNdSrk/hre/zM0+8/0jq9pENt82qI46yuhzIBYAQCmNvbHVMbA4Du0OIo
- indpLFOaNweLdbvt746BIPt4gcqNu1O5gOw48MEEgWT1WQfpyxgi58sY5DpdkPFnpihmhpJ+a5x
- i71PoRbpD88nykg2iGA==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-08_03,2026-09-09_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 suspectscore=0 malwarescore=0 priorityscore=1501 bulkscore=0
- adultscore=0 phishscore=0 clxscore=1015 impostorscore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2609090190
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260909135617.871006-8-sshegde@linux.ibm.com>
 
+On Wed, Sep 09, 2026 at 07:26:11PM +0530, Shrikanth Hegde wrote:
+> When a CPU is marked as non-preferred, any load pulled towards it is
+> pointless since the task will be pushed out again in the next tick.
+> So, consider only preferred CPUs for load balancing.
+> 
+> This ensures load balancing does not fight against the push task mechanism
+> which happens at the tick. Also, this stops active balancing from happening
+> on a non-preferred CPU pulling the load.
+> 
+> This also means there is no load balancing if a task is pinned only to
+> non-preferred CPUs. They will continue to run where they were previously
+> running before the CPUs were marked as non-preferred.
+> 
+> Bail out early for NEWIDLE balancing, as load balancing is done only on
+> preferred CPUs. Note that idle balancing is allowed to go through, since
+> that naturally updates nohz.next_balance when all the idle CPUs are
+> non-preferred.
+> 
+> Also, optimization in find_new_ilb() is skipped. The steal governor driver,
+> which is introduced in later patches, updates the preferred CPUs state in
+> descending order. find_new_ilb() checks for idle CPUs in ascending order.
+> Hence, in most common scenarios, the idle CPU found by find_new_ilb() will
+> already be a preferred CPU. When all idle CPUs are non-preferred, the first
+> idle CPU has to be chosen anyway. All of this is naturally handled in
+> find_new_ilb() currently. Adding additional complexity to it for rare
+> edge cases is not necessary.
+> 
+> Signed-off-by: Shrikanth Hegde <sshegde@linux.ibm.com>
 
+Reviewed-by: Yury Norov <ynorov@nvidia.com>
 
-On 9/9/26 8:03 PM, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 2 potential issue(s) to consider:
-> - [High] Group statistics (`avg_load`, `group_has_spare`) and load balancing math are corrupted because load and utilization exclude non-preferred CPUs, while group capacity and weight incorrectly include them.
-> - [High] Periodic and busy load balancing can be completely disabled for a scheduling domain if the statically designated `group_balance_cpu` becomes non-preferred.
-> --
+> ---
+>  kernel/sched/fair.c | 8 +++-----
+>  1 file changed, 3 insertions(+), 5 deletions(-)
 > 
-> commit 2dcc3be382ec42f554b59dc47da29e35996ce2d6
-> Author: Shrikanth Hegde <sshegde@linux.ibm.com>
-> Subject: sched/fair: Load balance only among preferred CPUs
-> 
-> This patch modifies load balancing to only consider preferred CPUs,
-> aiming to prevent balancing against the push task mechanism. It
-> updates sched_balance_rq() and sched_balance_newidle() to restrict
-> operations using cpu_preferred_mask.
-> 
->> diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
->> index b8bd308c2d5b1..4ef1167b8c73f 100644
->> --- a/kernel/sched/fair.c
->> +++ b/kernel/sched/fair.c
->> @@ -13473,7 +13473,7 @@ static int sched_balance_rq(int this_cpu, struct rq *this_rq,
->>   	};
->>   	bool need_unlock = false;
->>   
->> -	cpumask_and(cpus, sched_domain_span(sd), cpu_active_mask);
->> +	cpumask_and(cpus, sched_domain_span(sd), cpu_preferred_mask);
-> 
-> [Severity: High]
-> Does restricting env.cpus to cpu_preferred_mask here corrupt the group
-> statistics calculation in update_sg_lb_stats()?
-> 
-> Looking at update_sg_lb_stats(), it accumulates load and utilization by
-> iterating only over env->cpus:
-> 
-> kernel/sched/fair.c:update_sg_lb_stats() {
->      ...
->      for_each_cpu_and(i, sched_group_span(group), env->cpus) {
->          ...
->      }
->      ...
->      sgs->group_capacity = group->sgc->capacity;
->      sgs->group_weight = group->group_weight;
->      ...
-> }
-> 
-> Since it assigns the full capacity and weight of the entire group, but only
-> accumulates load for the preferred CPUs, won't this artificially deflate
-> avg_load? This could cause the load balancer to perceive mixed groups as
-> severely under-loaded and aggressively pull tasks to already overloaded
-> preferred CPUs.
-> 
-> [Severity: High]
-> Can this also completely disable periodic and busy load balancing for a
-> scheduling domain if the statically designated balance CPU is non-preferred?
-> 
-> Looking at should_we_balance():
-> 
-> kernel/sched/fair.c:should_we_balance() {
->      ...
->      if (!cpumask_test_cpu(env->dst_cpu, env->cpus))
->          return 0;
->      ...
->      return group_balance_cpu(sg) == env->dst_cpu;
-> }
-> 
-> If the statically designated group_balance_cpu(sg) is non-preferred, it
-> will abort immediately because it is excluded from env.cpus. All other
-> preferred CPUs in the group will also abort because they fail the
-> group_balance_cpu(sg) == env->dst_cpu check.
-> 
-> Does this mean no CPU will perform the domain balance, potentially causing
-> severe starvation?
-> 
-
-CPU are marked as non-preferred in decreasing order and group_balance_cpu will check
-in increasing order. So likely first cpu in the group will be preferred in case of mixed
-set.
-
-Also, at least one core is expected to be preferred always. that will drive the load balancing
-in the worst case.
-
-I have kept this implementation simple. If we see a sever imbalanace/starvation
-additional code changes maybe worth.
-
-At this point I don't see they are necessary.
+> diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+> index b8bd308c2d5b..4ef1167b8c73 100644
+> --- a/kernel/sched/fair.c
+> +++ b/kernel/sched/fair.c
+> @@ -13473,7 +13473,7 @@ static int sched_balance_rq(int this_cpu, struct rq *this_rq,
+>  	};
+>  	bool need_unlock = false;
+>  
+> -	cpumask_and(cpus, sched_domain_span(sd), cpu_active_mask);
+> +	cpumask_and(cpus, sched_domain_span(sd), cpu_preferred_mask);
+>  
+>  	schedstat_inc(sd->lb_count[idle]);
+>  
+> @@ -14588,10 +14588,8 @@ static int sched_balance_newidle(struct rq *this_rq, struct rq_flags *rf)
+>  	 */
+>  	this_rq->idle_stamp = rq_clock(this_rq);
+>  
+> -	/*
+> -	 * Do not pull tasks towards !active CPUs...
+> -	 */
+> -	if (!cpu_active(this_cpu))
+> +	/* Do not pull tasks towards !preferred CPUs */
+> +	if (!cpu_preferred(this_cpu))
+>  		return 0;
+>  
+>  	/*
+> -- 
+> 2.52.0
