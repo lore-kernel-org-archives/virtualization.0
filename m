@@ -1,54 +1,50 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC5373ACEE2;
-	Thu, 10 Sep 2026 07:29:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFB553AEF51;
+	Thu, 10 Sep 2026 08:31:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789025361; cv=none; b=rUO1sQycoKLkbggS8bViJ0LydPdWXaQMvUYKuS7Ugf62YM2hlQaeIS0r6i7Mq4RsT/PTk1YGW704s0It72/+RXWcz55gNZDndKrOYnN7B0ywYampJtTMRMzzVXvFk/gjnJK7o5CC04R3TzGcMxW55L+CuSGt3N/tn3QjFn4u4uU=
+	t=1789029105; cv=none; b=b85azHDKbDkaj+c/eilC06ko8X2ADKN88aarFxN0irmP+vTBZQrlArkOMUeODHIhccCAjIrtU72ldFJMzfQtoLF331eWC+lD84HaZNnpkUbFFUifIsSDg9CLPHTiuznvdjakJSRxEsJRUBi4F8LZGWMeCzZdBsJBu/3zXXhi6m8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789025361; c=relaxed/simple;
-	bh=SDMg6oyZQw6A03eQKQ3Uptuv442Scy0myCx4pmCTZ2Y=;
+	s=arc-20240116; t=1789029105; c=relaxed/simple;
+	bh=oH57KK8uwOpt+q19tA/dGcXMsq1CU/m0u5KjaXNlYl4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=FHQz6scCWV33MkIR946szX9zjH0u7lV9vCWs1XGSf+MwewJQ2+lwTvHvcjy54nNBUGWh+FgOhgvS46fSujU5m7guQMTpMa9KkMvP/tWCxIWQysMQCEL5mfbYFsPKEZ/UQ1W0gzce9ntQMpDOvf9JvApGqT0DyADNmn132ATMePU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MY03GOet; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=rjpuFyc4JegrNkeAusQf7BJeV8cU1uhINpeFjDakPJPbogccHkU5W6kXmnqpYtCrFAYtCVdTv3MLmiz2OIMpN5WBsbUuMt5X2gJmZ//7nGOc8toS3NGSfkIHQktMa9gRgdds52vzYejQJr+H4wnVKCnKdxzaR2N2v0mtyJIsILU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Es9kxPtS; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MY03GOet"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9E611F0089E;
-	Thu, 10 Sep 2026 07:29:18 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Es9kxPtS"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16D671F000FF;
+	Thu, 10 Sep 2026 08:31:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789025359;
-	bh=u3R7KOyofrS0wRSjak8aNV75X2Czsw9QjnW4+38O/ZQ=;
+	s=k20260515; t=1789029103;
+	bh=9cR2txGyC7hZ49ejFrxQhSQyUnrI0Q1sWnkbjpwbCtA=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=MY03GOetu5SKBp9nkWTrxqdG7Jl6/NG2Hl+PUb+xVMhfRY77IW+ocH4B48v9OlZH+
-	 2jNjsuE5l7TpMAH4tErFkuASZJQp1s4gqxabcfqFAipFRFLnJoAF9of4isP7Umzi7X
-	 Br84MtRcqTzhRIQx94sSrFT2GUsb/WfFTvrliT9WRrtFns/42kuCEHMX+eQj6SGnZj
-	 6SKyKJyXMZFLIO/MXaq1HQg5I1fUaIXvYvH2imSIKOP1ZdPpYtxN5Nzhby8vBAnpSq
-	 IKWJdVIggpp6it5npUAN6DPsZWIKMJdRJSMqtDQcP+//G3+4DT/6tHCVZ5uOWCi/vM
-	 lQfu9E+dLqOeg==
-Date: Thu, 10 Sep 2026 09:29:14 +0200
+	b=Es9kxPtS55Hy7OsFUILeQFymIS5K0P9YigfU3e1Yv2z8+OhRki9yMVMVuOuJ9Ks/j
+	 m5kG5FgQzpPNXhlBmdDwPdgleGvgw4qtC3Bhovupoq5NPFPDf+nlNhh2BfhG+D7pda
+	 FC9EuOnbg32glBn8w6TGAQxO5Am8mlUn/w/guQKoShjZ77nkslbO7zMiTgscQBPr4L
+	 OxT8o8nu5b/YJ0Mm6A1YXz6Ra3+Pge4OhJVsSJ5CnxAr3WPNKbzTSy+K/MhdLkbYt3
+	 oih3fntLu+DOoEWgIslKeMfPAS0wRCmFXPaUANmRBp1Ead7Qi/PzXkb/g7jWz2F0Nr
+	 sEcf1990GkizQ==
+Date: Thu, 10 Sep 2026 10:31:38 +0200
 From: Joel Granados <joel.granados@kernel.org>
-To: Mauricio Faria de Oliveira <mfo@igalia.com>
-Cc: Kees Cook <kees@kernel.org>, Nathan Chancellor <nathan@kernel.org>, 
-	Nicolas Schier <nsc@kernel.org>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, kernel-dev@igalia.com, 
-	linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org, fsverity@lists.linux.dev, 
-	keyrings@vger.kernel.org, bpf@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-kbuild@vger.kernel.org, netdev@vger.kernel.org, linux-wpan@vger.kernel.org, 
-	lvs-devel@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, 
-	linux-sctp@vger.kernel.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, 
-	bridge@lists.linux.dev, mptcp@lists.linux.dev, rds-devel@oss.oracle.com, 
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH RFC v3 00/13] sysctl: add module aliases
-Message-ID: <uufwu7rqyxf7h55lgavcwrnylnq5gdbd7o5d7mfugrxpblds2d@adra5c2z22gg>
-References: <20260819-sysctl-module-aliases-v3-0-aab90569365d@igalia.com>
- <bpnqwggtidgiec5akns3fa5edbsvl7xf55dxabtwng2xspy4pn@ue554aii2ngk>
- <53155340c897560bfc67e61ba9568fd6@igalia.com>
- <mokz5pdtwswkyab4byfq7q7m6ac2g6ceoi6jflyxmaszaibzqa@su6m4kamtdpy>
- <b1a6cec17e7c828fcebe310ca2a0d25b@igalia.com>
- <rywhz6soawf5dzyui5g7dnbufsgpxr7ma7honuhejwgncemzrm@f32at7hl6ugm>
- <6e93af907298022f077126f1be7bd386@igalia.com>
+To: Zack Rusin <zack.rusin@broadcom.com>
+Cc: Borislav Petkov <bp@alien8.de>, Ajay Kaher <ajay.kaher@broadcom.com>, 
+	Alexey Makhalov <alexey.makhalov@broadcom.com>, x86@kernel.org, Petr Mladek <pmladek@suse.com>, 
+	Baoquan He <baoquan.he@linux.dev>, Thomas Gleixner <tglx@kernel.org>, 
+	Ingo Molnar <mingo@redhat.com>, Dave Hansen <dave.hansen@linux.intel.com>, 
+	"H . Peter Anvin" <hpa@zytor.com>, virtualization@lists.linux.dev, 
+	bcm-kernel-feedback-list@broadcom.com, linux-kernel@vger.kernel.org, 
+	John Ogness <john.ogness@linutronix.de>, Steven Rostedt <rostedt@goodmis.org>, 
+	Sergey Senozhatsky <senozhatsky@chromium.org>, Kees Cook <kees@kernel.org>, 
+	Andrew Morton <akpm@linux-foundation.org>, Mike Rapoport <rppt@kernel.org>, 
+	Pasha Tatashin <pasha.tatashin@soleen.com>, Pratyush Yadav <pratyush@kernel.org>, 
+	Dave Young <ruirui.yang@linux.dev>, Jonathan Corbet <corbet@lwn.net>, Bo Gan <bo.gan@broadcom.com>, 
+	Brennan Lamoreaux <brennan.lamoreaux@broadcom.com>, kexec@lists.infradead.org, linux-doc@vger.kernel.org
+Subject: Re: [PATCH v1 2/4] x86/vmware: Add the vmware_record_panic_msg sysctl
+Message-ID: <4e73yd2ofpdzl6rptzvd74no3hnyfblknoq7wzxlw7f3zjbz7c@srfabx6lsusj>
+References: <cover.1788414671.git.zack.rusin@broadcom.com>
+ <03e5c9855e9578b00abf8da69764f1b468597218.1788414671.git.zack.rusin@broadcom.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -56,100 +52,159 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="fccfp65dlmdatj3e"
+	protocol="application/pgp-signature"; boundary="xiixfssqgqvtj5o7"
 Content-Disposition: inline
-In-Reply-To: <6e93af907298022f077126f1be7bd386@igalia.com>
+In-Reply-To: <03e5c9855e9578b00abf8da69764f1b468597218.1788414671.git.zack.rusin@broadcom.com>
 
 
---fccfp65dlmdatj3e
+--xiixfssqgqvtj5o7
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Sep 09, 2026 at 02:29:30PM -0300, Mauricio Faria de Oliveira wrote:
-> On 2026-09-09 11:07, Joel Granados wrote:
-> > On Fri, Sep 04, 2026 at 02:45:23PM -0300, Mauricio Faria de Oliveira wr=
-ote:
-> >> On 2026-09-04 10:41, Joel Granados wrote:
-> >> > On Thu, Aug 20, 2026 at 06:22:13PM -0300, Mauricio Faria de Oliveira=
- wrote:
-> >> >> On 2026-08-20 09:51, Joel Granados wrote:
-> >> >> > On Wed, Aug 19, 2026 at 03:16:13PM -0300, Mauricio Faria de Olive=
-ira wrote:
-> >> >> >> This series adds 'sysctl:' aliases to modules that register sysc=
-tl tables; e.g.:
-> > <... snip ...>
-> >> > use the correct call moving forward?
-> >>=20
-> >> This scheme currently covers all modules, AFAIK, as it is wrapped in t=
-he
-> >> functions that register sysctl tables.
-> >>=20
-> >> On moving forward: usage of such functions in a way that breaks a
-> >> requirement of this series (e.g., failing to specify the template
-> >> table/path parameter(s), or not having constant initializers) hits a
-> >> build error, as the requirements are actually from the compiler.
-> >>=20
-> >> >> I guess that a different design could use MODULE_SYSCTL_TABLE() as
-> >> >> MODULE_DEVICE_TABLE(), declared per table instead of wrapped into
-> >> >> register sysctl functions.
-> >> >> However, it seems to require moving the value of the path argument =
-(or
-> >> >> its template) into the macro and still referencing it in the functi=
-on
-> >> >> (or its instantiation of the template), which adds obfuscation, to =
-all
-> >> >> callers.=20
-> >> >>=20
-> >> >> What do you think?
-> >> > It might be that having it inside the module subsys is more work, bu=
-t I
-> >> > believe that there is the right place to have it. I still don't see =
-that
-> >> > adding a module specific arg to the sysctl register is a good thing.
-> >>=20
-> >> Ok, cool. I can work on a different design.
-> >>=20
-> >> Please just let me know whether you are OK with the remaining (above),
-> >> and I'll be happy to tackle this.
-> >=20
-> > What is "the remaining"?
+On Tue, Sep 08, 2026 at 02:07:14PM -0400, Zack Rusin wrote:
+> Full panic text is useful on ordinary guests. Encrypted guests should
+> export it only when an administrator opts in. Reporting a crash does not
+> require transferring the log.
 >=20
-> I meant the rest of the email, addressing the points/questions you
-> raised.
+> Enable panic recording by default for ordinary VMware guests and disable
+> it when guest memory encryption is active. Expose the policy as the
+> boolean kernel.vmware_record_panic_msg sysctl and document that it
+> controls only the vmware.log transfer.
+>=20
+> Register the sysctl only after the panic buffer and dumper are ready, and
+> only when sysctl support is built. A registration failure leaves the
+> internal default in force.
+>=20
+> Signed-off-by: Zack Rusin <zack.rusin@broadcom.com>
+> ---
+>  Documentation/admin-guide/sysctl/kernel.rst | 14 +++++++++++++
+>  arch/x86/kernel/cpu/vmware.c                | 23 +++++++++++++++++++++
+>  2 files changed, 37 insertions(+)
+>=20
+> diff --git a/Documentation/admin-guide/sysctl/kernel.rst b/Documentation/=
+admin-guide/sysctl/kernel.rst
+> index b6328cd0f43e..4577e935ddcf 100644
+> --- a/Documentation/admin-guide/sysctl/kernel.rst
+> +++ b/Documentation/admin-guide/sysctl/kernel.rst
+> @@ -1690,6 +1690,20 @@ entry will default to 2 instead of 0.
+>  =3D =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> =20
+> =20
+> +vmware_record_panic_msg
+> +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> +
+> +Controls whether panic kmsg data is written to the host's ``vmware.log``.
+> +This setting does not control the separate VMware guest-crash event.
+> +
+> +=3D =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> +0 Do not write panic kmsg data to ``vmware.log``. This is the
+> +  default for encrypted guests.
+> +1 Write panic kmsg data to ``vmware.log``. This is the default for
+> +  ordinary guests.
+> +=3D =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 
-* The dependency on a sysctl path to load a module still is
-  backwards to me. It should be: I need feature A, I load modules
-  M{1,2,3} for A and I set sysctl S{1,2,3...}. Not sure why sysctl tools
-  do it the other way around.
-
-* The fact that the invariance is in the sysctl path and not the module
-  identifier maybe points to a deeper issue.=20
-
-* I still believe that this is better placed outside the sysctl
-  subsys as it does not cater solely to module loading.
+This seems like it can be represented in a boolean value. Any reason why
+you did not use proc_dobool for your handler? Would it make sense to
+have vmware_record_panic_msg as a boolean?
 
 Best
 
+> +
+> +
+>  warn_limit
+>  =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> =20
+> diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
+> index bf59653d6e07..3848811550e9 100644
+> --- a/arch/x86/kernel/cpu/vmware.c
+> +++ b/arch/x86/kernel/cpu/vmware.c
+> @@ -31,6 +31,7 @@
+>  #include <linux/efi.h>
+>  #include <linux/reboot.h>
+>  #include <linux/static_call.h>
+> +#include <linux/sysctl.h>
+>  #include <linux/wordpart.h>
+>  #include <linux/sched/cputime.h>
+>  #include <asm/div64.h>
+> @@ -255,6 +256,19 @@ static int vmware_log_rpc(const char *buffer, size_t=
+ length)
+>  }
+> =20
+>  static struct page *vmware_panic_page;
+> +static int vmware_record_panic_msg;
+> +
+> +static const struct ctl_table vmware_panic_sysctls[] =3D {
+> +	{
+> +		.procname	=3D "vmware_record_panic_msg",
+> +		.data		=3D &vmware_record_panic_msg,
+> +		.maxlen		=3D sizeof(vmware_record_panic_msg),
+> +		.mode		=3D 0644,
+> +		.proc_handler	=3D proc_dointvec_minmax,
+> +		.extra1		=3D SYSCTL_ZERO,
+> +		.extra2		=3D SYSCTL_ONE,
+> +	},
+> +};
+> =20
+>  static void vmware_panic_log_dump(struct kmsg_dumper *dumper,
+>  				  struct kmsg_dump_detail *detail)
+> @@ -263,6 +277,9 @@ static void vmware_panic_log_dump(struct kmsg_dumper =
+*dumper,
+>  	char *buffer =3D page_address(vmware_panic_page);
+>  	size_t length =3D 0;
+> =20
+> +	if (!READ_ONCE(vmware_record_panic_msg))
+> +		return;
+> +
+>  	memcpy(buffer, VMWARE_LOG_PREFIX, VMWARE_LOG_PREFIX_LEN);
+>  	kmsg_dump_rewind(&iter);
+>  	(void)kmsg_dump_get_buffer(&iter, true,
+> @@ -283,6 +300,9 @@ static int __init vmware_panic_log_init(void)
+>  	if (!hypervisor_is_type(X86_HYPER_VMWARE))
+>  		return 0;
+> =20
+> +	vmware_record_panic_msg =3D
+> +		!cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT);
+> +
+>  	vmware_panic_page =3D alloc_page(GFP_KERNEL);
+>  	if (!vmware_panic_page) {
+>  		pr_err("failed to allocate panic log buffer\n");
+> @@ -295,6 +315,9 @@ static int __init vmware_panic_log_init(void)
+>  		__free_page(vmware_panic_page);
+>  		vmware_panic_page =3D NULL;
+>  	}
+> +	if (vmware_panic_page && IS_ENABLED(CONFIG_SYSCTL) &&
+> +	    !register_sysctl("kernel", vmware_panic_sysctls))
+> +		pr_err("failed to register panic log sysctl\n");
+> =20
+>  	return 0;
+>  }
+> --=20
+> 2.53.0
+>=20
 
-
-
---fccfp65dlmdatj3e
+--xiixfssqgqvtj5o7
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQGzBAABCgAdFiEErkcJVyXmMSXOyyeQupfNUreWQU8FAmqiXEIACgkQupfNUreW
-QU+Jpgv/QNMzfwgyYS5bGcjcIdeGmbwPVB4niFRMrcLkDpeUPt2bAuU2q0Si+c2j
-8ZRwIaAx22BLUNWWDpobcza7W5C1A17rIR76XCMUnFSb0n/IWP5htK0UHazibk/r
-s8lxhIQXP5lQAHUSyOaKXEqmO60aWL/VkIxb+qJe3ThcHSESPRVQxL56e054d/fG
-0Hh+/ckA3Yy8AAKkaF1Q52F6thgEqtHKMSNZkdp+XN3Q+IQHRUGULXvXeTgvp4QY
-u5WK/w8RJz5+KQwW6//kpXBCY9uVado45tRrFS/H0fClXF6ovdXuTK169krtJi92
-qouie+C4qFsAjPRGPOQjOYXmCIa8/sKwsArW4CmTg0J9WN3BwQxJksy0jWqaxULM
-xRPx9OxYsSrYZGglZitaJMnNQnc+X20/vQ4lBotfmrMPdUgSrMAzOHO0AcFXBUs9
-s1DSQoFZe+/Kg4RCkGzgk55VbnT0V81UPFbcYx6yuyjb+yZWoTMUpHy8Q47//r54
-Y5lWmFsv
-=Y70+
+iQGzBAABCgAdFiEErkcJVyXmMSXOyyeQupfNUreWQU8FAmqiaukACgkQupfNUreW
+QU+hBwv7BUPdw+1A6g/8FaJQhp+DUve6X7M2spaDjh1f9BHHbZb/KPAOVO5m4AtF
+/aowgx9K9H/WzUdWN/dowHicF95lzhLY3uRo1r8KjkOR/ua4ae6IhTXNqYz2s73T
+38wmYvOE1s6s2Ppee9Q9XEUfWLssbSiO9SGUwL6V1pJLFqO2YIC4hqwxiTQa9CrJ
+0n7SuzrUkNdromDUugsmDcCkAI35dHC3YsAJCmG4qiEPP/TJbhoK5DNHxAKend77
+vtDmeOZ2SQx3bp1t6tfjANJUUVzLV7RemZ3mTqE/M6bK22OkNpUmVBR97yJFGx3F
+lVhq18Vfmgo2kIuf1wYVkbooD0WZBYIbGWURjAG5VDb0F+QCcRCcY8altL4JoUfZ
+87+jFw7ZW6pSmkoPwbfHv6KI+hVIEOTJh7UuSIOyGHLThtOTVncw45G79kcC7Rpi
+R2KXavaDOLV/8+uuJyAmJfZlaJ0QIuU+9uxvhvsYVyDF5WszAkji43yJ8Mu86Zt5
+waTRn0nA
+=IjZN
 -----END PGP SIGNATURE-----
 
---fccfp65dlmdatj3e--
+--xiixfssqgqvtj5o7--
