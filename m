@@ -1,64 +1,105 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f197.google.com (mail-pl1-f197.google.com [209.85.214.197])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D4ED403AF8
-	for <virtualization@lists.linux.dev>; Thu, 10 Sep 2026 16:44:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31189524AE9
+	for <virtualization@lists.linux.dev>; Thu, 10 Sep 2026 17:59:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.197
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789058647; cv=none; b=UGlJ9/3wtVGZ7DWIxPvZmbop2Ocblua1W9Nci+DbuO9OluR1GZD+PPO/ZH2myIeuTniwb9oWhlHtWCkYnRTDTCuXiGNTJPps0zlN8SF1Iknd/+qumkChQL/uWIgK7F3fnw7p0f8pEoHimdEtbgwMDv4psfRuFFiJWDQzmdjMgxM=
+	t=1789063159; cv=none; b=HR0tHiX7VjIdJalYYly/2RpXyJ1BtQrSCbeWu4MUHSdtecDSOJLpMU5ix4IW/JveS0+iQdO48JWm+/C99CiRwJan0t4gnwybWsmxMzyBIWqupbTamnBv7/IJvLuqs16kJVxByjR0ePB5woQ1SmYrp6Xd4uHWIN9ULhJW7jvYhso=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789058647; c=relaxed/simple;
-	bh=svlmw8Jl9d1nU/i21jp/XfCQ/Fc9vAzte1k/5d/p03g=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=eCG0oVFawT5HdTgT1LPaIhJmxtK1J4h9BBIfHvMAaw7EEMpHMZq2XJ1nZjRSQZb3SZmoDJ/BgUvH9qqY0xg/W6CLkCrIAyPm1jP5SB1FnrIrUFUqkaxjxvUcPI1bO9rLUSUyzmMIWnzFHhmj/jNy4d+CH3CL+Oy6rFz0fw4YC+o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PROVhW6g; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789063159; c=relaxed/simple;
+	bh=iihdVpeTD7xqvFs81N5pzrr3yHNO8lXqn++m5NS1tpY=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Content-Type; b=GS9aPbE9EbFZy6leO0dyYlqdcwPCiErS9YGm8nBbgz9oAAnXRQzuIoLWW1x3Asi2WIVsgN6MLXP5ElcniXKVdoDEJKIKov9kP74vjAhu+hCsExFTUyi1exhooWeyJwtY+qu3S4X2Cz/Rd2iGGzyP9OO67x1JPgjfKcJCT0WuDLQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=WiVU1+Kh; arc=none smtp.client-ip=209.85.214.197
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PROVhW6g"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DD141F000FF;
-	Thu, 10 Sep 2026 16:44:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789058645;
-	bh=svlmw8Jl9d1nU/i21jp/XfCQ/Fc9vAzte1k/5d/p03g=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=PROVhW6gO6AbryWBZgOkTvB0+uM0kUWzfmEKFrspGMG1gRYXffhl2Ci08oGCgrRGc
-	 pWT0iK8wogUE7ntBp+n/CcSTc3m4MeQy9Wk6/o36MCX6LZjIA7wavD4ZoVilyQpDMT
-	 zdTc+50/HiKX18Xr9EtVEs8dSQK9QrRD4o4fC49in7uL8tPxTWfTtcN10QcDx9osUq
-	 suw+e8icxPsNiSZFEOtAeuM9hb2Fl8BDABqI56Ft8Tb6+O7J3zX5VcTlAhKOkSnqew
-	 THQ47Cgo5kl/bMf8YElNuFtvonBcFyMMI6VfTbwweygQ3sCb53BDymYy5iLy/2VbeQ
-	 0yAP9jhHizdMA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] virtio_blk: use synchronous quiesce in
- virtblk_freeze_priv()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Cong Zhang" <cong.zhang@oss.qualcomm.com>
-Cc: "Eugenio Perez" <eperezma@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev
-In-Reply-To: <20260911-virtblk_sync_quiesce-v1-1-a883f8f31258@oss.qualcomm.com>
-References: <20260911-virtblk_sync_quiesce-v1-1-a883f8f31258@oss.qualcomm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 10 Sep 2026 16:44:05 +0000
-Message-Id: <20260910164405.9DD141F000FF@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="WiVU1+Kh"
+Received: by mail-pl1-f197.google.com with SMTP id d9443c01a7336-2ccb6823efcso76293765ad.0
+        for <virtualization@lists.linux.dev>; Thu, 10 Sep 2026 10:59:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1789063157; x=1789667957; darn=lists.linux.dev;
+        h=content-type:to:from:subject:message-id:references:mime-version
+         :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=VdUk7xT6Q2S0XYOIdYUuypvFM5moeaGi7+AJeTxN8N4=;
+        b=WiVU1+KhiMKvY+vrMibTfWVArgQGJreiueW7+hMxHgiWvCKvxACzbDkAS6txwgC2FS
+         rOp/ElgHC0Icd8QRqjGWH8lcR9Ko22chnjZsGk2rFA8usIYgMJrzcSoyrlv4xakDuV7O
+         ++DlksJmwtDvxmQZf1Ty1i/SjbK05d1nxuL7+1pjzgMSi2MZc5mQqYhzeanIYmCoF93Q
+         cTbBcTs67IGZS4ft1tfM10q/Va47blT+ODYtvZr0IFWrVEfJ6sULsg2fEQ2oDCDIzBF0
+         RGFPab2hgkAxfQJ/EjDZBsexF03n70ta2v9eRdN0xVWs+xnLLpx9uymk+3GWM5HXPAPd
+         +KMA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1789063157; x=1789667957;
+        h=content-type:to:from:subject:message-id:references:mime-version
+         :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=VdUk7xT6Q2S0XYOIdYUuypvFM5moeaGi7+AJeTxN8N4=;
+        b=o/bMHXtjC0dyBouFb1U/1u4drG+/pqEnn8NnTfouizSL8J70XWLW6qcK2E86pQOflZ
+         SHn08a7YmvfW6Pvc6i67qe5z5okC+5Z22sJ+wcYTu/LTWFwVcFmz+gQE9WUKSy/p/jc5
+         7PfpPvpiQ+9BBL3Mn1QiRo6XcJyhLyy6ug1tCoFsC3yAkGH0LjDkmKJu/VJ9/Oe/Lcp5
+         ON3C7vEPfovwTSOWpPbbPDR4U52n+cXjZAATnRP03pve1QkjCUsMcV8PjPx8hAjmWIaF
+         1NdTkQO2wL+95EE/ZmBtx3q6VMs17vUnX7y2C49/sbz7/cLl3IAF+xM/rgwM/nbGYFfe
+         ENpg==
+X-Forwarded-Encrypted: i=1; AKwUvBzJgLpW9iIUJKR02hZy0oBq3omj/ooV5eFOf4UYPzc9aYZwEctA102PuS6E70+fye5UkwnWkUwAJnk3Euxjfw==@lists.linux.dev
+X-Gm-Message-State: AFuF++ldIj6jmeBT7feuAu0FdxkU54qMzYuupPHlfv0b0ElAoKe3dlIp
+	KvDeFpWPCeKBq0slopYyvIufgkkALNFYFqnTie/GVQzbwuLWn5WQA2RQvn/drF7vEVebFhiqmCL
+	PAA7Apg==
+X-Received: from pleg13.prod.google.com ([2002:a17:902:e38d:b0:2c9:b703:3bfb])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:902:ce8b:b0:2d7:2edd:d140
+ with SMTP id d9443c01a7336-2dd2a1c3e42mr9017035ad.3.1789063156725; Thu, 10
+ Sep 2026 10:59:16 -0700 (PDT)
+Date: Thu, 10 Sep 2026 10:59:16 -0700
+In-Reply-To: <20260806233609.212337-1-seanjc@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+Mime-Version: 1.0
+References: <20260806233609.212337-1-seanjc@google.com>
+Message-ID: <aqLv9GwBNymyHs8q@google.com>
+Subject: Re: [PATCH v6 00/51] x86: Try to wrangle PV clocks vs. TSC
+From: Sean Christopherson <seanjc@google.com>
+To: Kiryl Shutsemau <kas@kernel.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, 
+	Paolo Bonzini <pbonzini@redhat.com>, "K. Y. Srinivasan" <kys@microsoft.com>, 
+	Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
+	Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>, 
+	Ajay Kaher <ajay.kaher@broadcom.com>, Alexey Makhalov <alexey.makhalov@broadcom.com>, 
+	Jan Kiszka <jan.kiszka@siemens.com>, Dave Hansen <dave.hansen@linux.intel.com>, 
+	Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Juergen Gross <jgross@suse.com>, 
+	Daniel Lezcano <daniel.lezcano@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
+	John Stultz <jstultz@google.com>, Vitaly Kuznetsov <vkuznets@redhat.com>, 
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
+	Boris Ostrovsky <boris.ostrovsky@oracle.com>, Stephen Boyd <sboyd@kernel.org>, 
+	Miroslav Lichvar <mlichvar@redhat.com>, x86@kernel.org, linux-coco@lists.linux.dev, 
+	kvm@vger.kernel.org, linux-hyperv@vger.kernel.org, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	xen-devel@lists.xenproject.org, Michael Kelley <mhklinux@outlook.com>, 
+	Tom Lendacky <thomas.lendacky@amd.com>, Nikunj A Dadhania <nikunj@amd.com>, 
+	David Woodhouse <dwmw@amazon.co.uk>, David Woodhouse <dwmw2@infradead.org>, 
+	Thomas Gleixner <tglx@linutronix.de>
+Content-Type: text/plain; charset="us-ascii"
 
-> Replace blk_mq_quiesce_queue_nowait() with blk_mq_quiesce_queue() in
-> virtblk_freeze_priv().
->=20
-> Keep the existing freeze and unfreeze order. The synchronous call waits
-> for dispatch code that was already running. The queue remains quiesced
-> until virtblk_restore_priv() calls blk_mq_unquiesce_queue().
->=20
-> Fixes: 7678abee0867 ("virtio-blk: don't keep queue frozen during system s=
-uspend")
->=20
-> Signed-off-by: Cong Zhang <cong.zhang@oss.qualcomm.com>
+On Thu, Aug 06, 2026, Sean Christopherson wrote:
+> The primary goal of this series to fix flaws with SNP and TDX guests where a
+> PV clock provided by the untrusted hypervisor is used instead of the secure
+> TSC that is controlled by trusted firmware.
+> 
+> The secondary goal is modernize running under KVM.  Currently, KVM guests will
+> use TSC for clocksource, but not sched_clock.  And Linux-as-a-KVM-guest doesn't
+> support paravirt enumeration of the TSC/APIC frequencies, even though QEMU
+> provides that information by default.
+> 
+> The tertiary goal is to clean up the PV clock code to deduplicate logic across
+> hypervisors, and to hopefully make it all easier to maintain going forward.
+> 
+> The quaternary goal is to clean up the TSC calibration code, which was made
+> stupidly hard to follow by hypervisor code mixing in with the native
+> calibration routines, instead of being implemented as a pure alternative.
+> 
+> Note, the VMware and Xen changes still probably should get acks from those
+> maintainers, as my understanding of what they're trying to do may be flawed.
 
-Sashiko has reviewed this patch and found no issues. It looks great!
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260911-virtblk_sy=
-nc_quiesce-v1-1-a883f8f31258@oss.qualcomm.com?part=3D1
-
+This (thankfully) still applies cleanly.  What can I do to help move this forward?
