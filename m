@@ -1,358 +1,155 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 315E73CB2F8
-	for <virtualization@lists.linux.dev>; Thu, 10 Sep 2026 07:03:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC5373ACEE2;
+	Thu, 10 Sep 2026 07:29:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789023833; cv=none; b=cLyx9aJEIsJjFnfluQeeiexRbJlxBBDUo2lEM9SenPg71N+U07F8xQan7Pbi9PO2dkNRmZzkWODFRSwn6NI76HAmdv+HM5/7sRLJFRijniFbRIrs93HCw5KAxdoVCFbkUMWQVVV4wejE7Coq2BFQT8QNr6/TBXKmvLBWf+9VvcU=
+	t=1789025361; cv=none; b=rUO1sQycoKLkbggS8bViJ0LydPdWXaQMvUYKuS7Ugf62YM2hlQaeIS0r6i7Mq4RsT/PTk1YGW704s0It72/+RXWcz55gNZDndKrOYnN7B0ywYampJtTMRMzzVXvFk/gjnJK7o5CC04R3TzGcMxW55L+CuSGt3N/tn3QjFn4u4uU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789023833; c=relaxed/simple;
-	bh=RxZySMR2RvrEigGsQNhpoN5yrqofPSoEZKa15sewMJc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=gnmBq92MzV6bXHr455a9VJIyzONG7YZd2/p+NP2/pWA2tKhZRYQiYsCAqKx0AjKpHvT0ZoRH0NhNTCmmFcvuFzSj/Uf2kL4LDCSrOXbpHkjgTz56DtlxCrpmqH+ehCGxKBRGIhSBBBEbeSndmqH04njIPcOMfthCWCtfwmQTAZY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=L8SGqx6K; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=cgde5xHN; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=gULVbAzq; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=af5KKfRi; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1789025361; c=relaxed/simple;
+	bh=SDMg6oyZQw6A03eQKQ3Uptuv442Scy0myCx4pmCTZ2Y=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=FHQz6scCWV33MkIR946szX9zjH0u7lV9vCWs1XGSf+MwewJQ2+lwTvHvcjy54nNBUGWh+FgOhgvS46fSujU5m7guQMTpMa9KkMvP/tWCxIWQysMQCEL5mfbYFsPKEZ/UQ1W0gzce9ntQMpDOvf9JvApGqT0DyADNmn132ATMePU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MY03GOet; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="L8SGqx6K";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="cgde5xHN";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="gULVbAzq";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="af5KKfRi"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 7E47B21BB3;
-	Thu, 10 Sep 2026 07:03:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1789023803; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=V8y88EkP6ps9ehHOSpLcLPBRb/4bJdYWxdlvkIUXm5U=;
-	b=L8SGqx6KEAyU0nVQHDYPbod/uXFGF9NqdSVZ2Dg9F9uYZzN4v+D91WsglDCVbkRV3c3vld
-	gFzkVDpe6yJCr9H7UvRxADZW/CYIltyfWsQNVdkZvyolzvp0fL/0Pai4m7QBMkLoRuztgG
-	eCO+FyyY8706kNdadCTTc8ZbI+4O87o=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1789023803;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=V8y88EkP6ps9ehHOSpLcLPBRb/4bJdYWxdlvkIUXm5U=;
-	b=cgde5xHNi9RXh+i3NQDL985sugdrr1iIDY7RejpEJyX2gDgybVlH6WD9g1LFcWQBxY6kLL
-	nLkuEwO7MxpGiqCg==
-Authentication-Results: smtp-out1.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1789023798; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=V8y88EkP6ps9ehHOSpLcLPBRb/4bJdYWxdlvkIUXm5U=;
-	b=gULVbAzqaSg4g0zfqn6xxiDbV37p41SWB/dofbZ2CfVrnT1vvlZGc7jP9hD0/x/lKvSwgM
-	C1nKPsWVBnDD6WAcgew/7nxWaLXVQIGIUVhhcrfSsEE/w2Qe44OhjeuqZESlUdwsv1I+wd
-	gl+ZnNsWVV4KvOTRdv191UtU4w3AOcQ=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1789023798;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=V8y88EkP6ps9ehHOSpLcLPBRb/4bJdYWxdlvkIUXm5U=;
-	b=af5KKfRim3o9PJ+u8rD5U2uAsT2GI8OEfXqNkKtoW8H1rlqluv95uWWPDTT4HFi4fH+weP
-	WS5z2fQMsoFcA+Cw==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id BBD6713185;
-	Thu, 10 Sep 2026 07:03:15 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id xJaNIzNWomrwSwAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Thu, 10 Sep 2026 07:03:15 +0000
-Message-ID: <a85f3b74-5172-4e2a-ad0e-6bddddbe1e33@suse.de>
-Date: Thu, 10 Sep 2026 09:03:14 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MY03GOet"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9E611F0089E;
+	Thu, 10 Sep 2026 07:29:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789025359;
+	bh=u3R7KOyofrS0wRSjak8aNV75X2Czsw9QjnW4+38O/ZQ=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=MY03GOetu5SKBp9nkWTrxqdG7Jl6/NG2Hl+PUb+xVMhfRY77IW+ocH4B48v9OlZH+
+	 2jNjsuE5l7TpMAH4tErFkuASZJQp1s4gqxabcfqFAipFRFLnJoAF9of4isP7Umzi7X
+	 Br84MtRcqTzhRIQx94sSrFT2GUsb/WfFTvrliT9WRrtFns/42kuCEHMX+eQj6SGnZj
+	 6SKyKJyXMZFLIO/MXaq1HQg5I1fUaIXvYvH2imSIKOP1ZdPpYtxN5Nzhby8vBAnpSq
+	 IKWJdVIggpp6it5npUAN6DPsZWIKMJdRJSMqtDQcP+//G3+4DT/6tHCVZ5uOWCi/vM
+	 lQfu9E+dLqOeg==
+Date: Thu, 10 Sep 2026 09:29:14 +0200
+From: Joel Granados <joel.granados@kernel.org>
+To: Mauricio Faria de Oliveira <mfo@igalia.com>
+Cc: Kees Cook <kees@kernel.org>, Nathan Chancellor <nathan@kernel.org>, 
+	Nicolas Schier <nsc@kernel.org>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, kernel-dev@igalia.com, 
+	linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org, fsverity@lists.linux.dev, 
+	keyrings@vger.kernel.org, bpf@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-kbuild@vger.kernel.org, netdev@vger.kernel.org, linux-wpan@vger.kernel.org, 
+	lvs-devel@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, 
+	linux-sctp@vger.kernel.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, 
+	bridge@lists.linux.dev, mptcp@lists.linux.dev, rds-devel@oss.oracle.com, 
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH RFC v3 00/13] sysctl: add module aliases
+Message-ID: <uufwu7rqyxf7h55lgavcwrnylnq5gdbd7o5d7mfugrxpblds2d@adra5c2z22gg>
+References: <20260819-sysctl-module-aliases-v3-0-aab90569365d@igalia.com>
+ <bpnqwggtidgiec5akns3fa5edbsvl7xf55dxabtwng2xspy4pn@ue554aii2ngk>
+ <53155340c897560bfc67e61ba9568fd6@igalia.com>
+ <mokz5pdtwswkyab4byfq7q7m6ac2g6ceoi6jflyxmaszaibzqa@su6m4kamtdpy>
+ <b1a6cec17e7c828fcebe310ca2a0d25b@igalia.com>
+ <rywhz6soawf5dzyui5g7dnbufsgpxr7ma7honuhejwgncemzrm@f32at7hl6ugm>
+ <6e93af907298022f077126f1be7bd386@igalia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 00/41] drm/plane: Convert all drivers to
- atomic_create_state and remove reset
-To: Maxime Ripard <mripard@kernel.org>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>
-Cc: dri-devel@lists.freedesktop.org, hamohammed.sa@gmail.com,
- louis.chauvet@bootlin.com, melissa.srw@gmail.com, alexander.deucher@amd.com,
- amd-gfx@lists.freedesktop.org, christian.koenig@amd.com,
- alison.wang@nxp.com, stefan@agner.ch, John Stultz <jstultz@google.com>,
- sumit.semwal@linaro.org, xinliang.liu@linaro.org, yongqin.liu@linaro.org,
- Frank.Li@nxp.com, Sascha Hauer <s.hauer@pengutronix.de>, festevam@gmail.com,
- imx@lists.linux.dev, kernel@pengutronix.de, victor.liu@nxp.com,
- anitha.chrisanthus@intel.com, paulk@sys-base.io, chenhuacai@kernel.org,
- jeffbai@aosc.io, lvjianmin@loongson.cn, wuqianhai@loongson.cn,
- xry111@xry111.site, zhengxingda@iscas.ac.cn, marex@denx.de,
- airlied@redhat.com, kraxel@redhat.com, spice-devel@lists.freedesktop.org,
- virtualization@lists.linux.dev, andy.yan@rock-chips.com, heiko@sntech.de,
- hjc@rock-chips.com, linux-rockchip@lists.infradead.org,
- Baolin Wang <baolin.wang@linux.alibaba.com>, orsonzhai@gmail.com,
- zhang.lyra@gmail.com, alain.volmat@foss.st.com, rgallaispou@gmail.com,
- alexandre.torgue@foss.st.com, mcoquelin.stm32@gmail.com,
- philippe.cornu@foss.st.com, raphael.gallais-pou@foss.st.com,
- yannick.fertre@foss.st.com, jyri.sarha@iki.fi,
- tomi.valkeinen@ideasonboard.com, hansg@kernel.org,
- dmitry.osipenko@collabora.com, gurchetansingh@chromium.org,
- olvaffe@gmail.com, michal.simek@amd.com, harry.wentland@amd.com,
- siqueira@igalia.com, sunpeng.li@amd.com, linux@armlinux.org.uk,
- Dharma Balasubiramani <dharma.b@microchip.com>,
- Ludovic Desroches <ludovic.desroches@microchip.com>,
- Manikandan Muralidharan <manikandan.m@microchip.com>,
- alexandre.belloni@bootlin.com, claudiu.beznea@tuxon.dev,
- nicolas.ferre@microchip.com, alim.akhtar@samsung.com, inki.dae@samsung.com,
- krzk@kernel.org, kyungmin.park@samsung.com,
- linux-samsung-soc@vger.kernel.org, sw0312.kim@samsung.com,
- p.zabel@pengutronix.de, angelogioacchino.delregno@collabora.com,
- chunkuang.hu@kernel.org, matthias.bgg@gmail.com,
- Lyude Paul <lyude@redhat.com>, dakr@kernel.org,
- nouveau@lists.freedesktop.org, geert+renesas@glider.be,
- kieran.bingham+renesas@ideasonboard.com,
- laurent.pinchart+renesas@ideasonboard.com,
- linux-renesas-soc@vger.kernel.org, magnus.damm@gmail.com,
- tomi.valkeinen+renesas@ideasonboard.com,
- Biju Das <biju.das.jz@bp.renesas.com>, linux-sunxi@lists.linux.dev,
- samuel@sholland.org, wens@kernel.org, Zack Rusin <zack.rusin@broadcom.com>,
- bcm-kernel-feedback-list@broadcom.com
-References: <20260908-drm-no-more-plane-reset-v4-0-a31b3fcfc989@kernel.org>
-Content-Language: en-US
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <20260908-drm-no-more-plane-reset-v4-0-a31b3fcfc989@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Score: -2.80
-X-Spam-Level: 
-X-Spamd-Result: default: False [-2.80 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	FREEMAIL_TO(0.00)[kernel.org,linux.intel.com,gmail.com,ffwll.ch];
-	TAGGED_RCPT(0.00)[renesas];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	ARC_NA(0.00)[];
-	TO_DN_SOME(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	MID_RHS_MATCH_FROM(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FROM_HAS_DN(0.00)[];
-	FREEMAIL_CC(0.00)[lists.freedesktop.org,gmail.com,bootlin.com,amd.com,nxp.com,agner.ch,google.com,linaro.org,pengutronix.de,lists.linux.dev,intel.com,sys-base.io,kernel.org,aosc.io,loongson.cn,xry111.site,iscas.ac.cn,denx.de,redhat.com,rock-chips.com,sntech.de,lists.infradead.org,linux.alibaba.com,foss.st.com,iki.fi,ideasonboard.com,collabora.com,chromium.org,igalia.com,armlinux.org.uk,microchip.com,tuxon.dev,samsung.com,vger.kernel.org,glider.be,bp.renesas.com,sholland.org,broadcom.com];
-	R_RATELIMIT(0.00)[to_ip_from(RLzrpdgd8h57p4t6jqxd7odphf)];
-	FROM_EQ_ENVFROM(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_SOME(0.00)[];
-	RCPT_COUNT_GT_50(0.00)[92];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid,suse.de:email,suse.com:url,imap1.dmz-prg2.suse.org:helo]
-X-Spam-Flag: NO
-
-Hi Maxime,
-
-nice series. I looked through all the patches.  For those patches where 
-I did not respond specifically, you can add
-
-Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
-
-Best regards
-Thomas
-
-Am 08.09.26 um 16:46 schrieb Maxime Ripard:
-> This is a follow-up to the bridge reset removal series, and part of a
-> larger effort to remove the reset hook from all KMS objects.
->
-> The plane reset hook is overloaded: it is called both at probe time
-> to create the initial software state and during suspend/resume to
-> reset hardware and software state. These two roles have different
-> requirements, and the reset hook is not fallible, making error
-> handling difficult for the initial state allocation path.
->
-> While reset has the semantics to reset both the software and hardware
-> state, the vast majority of implementations and all the helpers only
-> reset the software state, making them equivalent to
-> atomic_create_state in practice. The atomic_create_state hook makes
-> this explicit: it only allocates and initializes a pristine state
-> without any side effect, and returns the state pointer or an ERR_PTR
-> on failure.
->
-> This series first adds the necessary infrastructure in the simple-kms
-> and GEM atomic helpers, then converts all 51 plane drivers tree-wide
-> from the reset hook to atomic_create_state. The conversions were done
-> using a combination of Coccinelle semantic patches and manual
-> adjustments. Once all drivers are converted, the old helpers and the
-> reset hook itself are removed from struct drm_plane_funcs.
->
-> Signed-off-by: Maxime Ripard <mripard@kernel.org>
-> ---
-> Changes in v4:
-> - Fix a NULL pointer dereference with vkms
-> - Rebase on drm-misc-next-2026-09-03
-> - Link to v3: https://lore.kernel.org/r/20260831-drm-no-more-plane-reset-v3-0-1877c7aa57b3@kernel.org
->
-> Changes in v3:
-> - Drop leftover state destruction in sun4i
-> - Rebase on current drm-misc-next
-> - Link to v2: https://lore.kernel.org/r/20260814-drm-no-more-plane-reset-v2-0-82d2963dd134@kernel.org
->
-> Changes in v2:
-> - Rebase on latest drm-misc-next tag
-> - Fix sashiko reviews
-> - Fix atmel-hlcdc breakage
-> - Link to v1: https://lore.kernel.org/r/20260709-drm-no-more-plane-reset-v1-0-302d986fe5f0@kernel.org
->
-> ---
-> Maxime Ripard (41):
->        drm/simple-kms: Remove unused reset_plane hook
->        drm/vkms: Move frame_info into vkms_plane_state
->        drm/vkms: Convert to atomic_create_state
->        drm/gem-atomic-helper: Remove __drm_gem_reset_shadow_plane()
->        drm/amdgpu: Convert to atomic_create_state
->        drm/fsl-dcu: Convert to atomic_create_state
->        drm/hisilicon/kirin: Convert to atomic_create_state
->        drm/imx/dc: Convert to atomic_create_state
->        drm/kmb: Convert to atomic_create_state
->        drm/logicvc: Convert to atomic_create_state
->        drm/loongson: Convert to atomic_create_state
->        drm/lcdif: Convert to atomic_create_state
->        drm/mxsfb: Convert to atomic_create_state
->        drm/qxl: Convert to atomic_create_state
->        drm/rockchip: Convert to atomic_create_state
->        drm/sprd: Convert to atomic_create_state
->        drm/sti: Convert to atomic_create_state
->        drm/stm: Convert to atomic_create_state
->        drm/tests: kunit: Convert to atomic_create_state
->        drm/tilcdc: Convert to atomic_create_state
->        drm/vboxvideo: Convert to atomic_create_state
->        drm/verisilicon: Convert to atomic_create_state
->        drm/virtio: Convert to atomic_create_state
->        drm/xlnx: Convert to atomic_create_state
->        drm/atomic-state-helper: Remove drm_atomic_helper_plane_reset()
->        drm/amdgpu_dm: Convert to atomic_create_state
->        drm/armada: Convert to atomic_create_state
->        drm/atmel-hlcdc: Drop spurious csc_init call from reset
->        drm/atmel-hlcdc: Convert to atomic_create_state
->        drm/exynos: Convert to atomic_create_state
->        drm/imx/ipuv3: Convert to atomic_create_state
->        drm/mediatek: Convert to atomic_create_state
->        drm/nouveau: Convert to atomic_create_state
->        drm/omap: Convert to atomic_create_state
->        drm/rcar-du: Convert to atomic_create_state
->        drm/rz-du: Convert to atomic_create_state
->        drm/shmobile: Convert to atomic_create_state
->        drm/sun4i: layer: Convert to atomic_create_state
->        drm/vmwgfx: Convert to atomic_create_state
->        drm/atomic-state-helper: Remove __drm_atomic_helper_plane_reset()
->        drm/plane: Remove reset
->
->   drivers/gpu/drm/amd/amdgpu/amdgpu_vkms.c           |  2 +-
->   .../drm/amd/display/amdgpu_dm/amdgpu_dm_plane.c    | 28 ++++++++-----
->   .../drm/amd/display/amdgpu_dm/amdgpu_dm_plane.h    |  2 +-
->   .../display/amdgpu_dm/tests/amdgpu_dm_plane_test.c | 30 +++++---------
->   drivers/gpu/drm/armada/armada_overlay.c            | 39 ++++++++----------
->   drivers/gpu/drm/armada/armada_plane.c              | 15 +++----
->   drivers/gpu/drm/armada/armada_plane.h              |  2 +-
->   drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_plane.c    | 33 +++++++--------
->   drivers/gpu/drm/drm_atomic_state_helper.c          | 41 ------------------
->   drivers/gpu/drm/drm_gem_atomic_helper.c            | 20 ---------
->   drivers/gpu/drm/drm_mode_config.c                  |  4 +-
->   drivers/gpu/drm/exynos/exynos_drm_plane.c          | 22 ++++------
->   drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_plane.c        |  2 +-
->   drivers/gpu/drm/hisilicon/kirin/kirin_drm_ade.c    |  2 +-
->   drivers/gpu/drm/imx/dc/dc-plane.c                  |  2 +-
->   drivers/gpu/drm/imx/ipuv3/ipuv3-plane.c            | 19 ++++-----
->   drivers/gpu/drm/kmb/kmb_plane.c                    |  2 +-
->   drivers/gpu/drm/logicvc/logicvc_layer.c            |  2 +-
->   drivers/gpu/drm/loongson/lsdc_plane.c              |  2 +-
->   drivers/gpu/drm/mediatek/mtk_plane.c               | 22 ++++------
->   drivers/gpu/drm/mxsfb/lcdif_kms.c                  |  2 +-
->   drivers/gpu/drm/mxsfb/mxsfb_kms.c                  |  2 +-
->   drivers/gpu/drm/nouveau/dispnv50/wndw.c            | 15 ++++---
->   drivers/gpu/drm/omapdrm/omap_plane.c               | 13 +++---
->   drivers/gpu/drm/qxl/qxl_display.c                  |  4 +-
->   drivers/gpu/drm/renesas/rcar-du/rcar_du_plane.c    | 15 +++----
->   drivers/gpu/drm/renesas/rcar-du/rcar_du_vsp.c      | 15 +++----
->   drivers/gpu/drm/renesas/rz-du/rzg2l_du_vsp.c       | 15 +++----
->   drivers/gpu/drm/renesas/shmobile/shmob_drm_plane.c | 15 +++----
->   drivers/gpu/drm/rockchip/rockchip_drm_vop.c        |  2 +-
->   drivers/gpu/drm/rockchip/rockchip_drm_vop2.c       |  2 +-
->   drivers/gpu/drm/sprd/sprd_dpu.c                    |  2 +-
->   drivers/gpu/drm/sti/sti_cursor.c                   |  2 +-
->   drivers/gpu/drm/sti/sti_gdp.c                      |  2 +-
->   drivers/gpu/drm/sti/sti_hqvdp.c                    |  2 +-
->   drivers/gpu/drm/stm/ltdc.c                         |  2 +-
->   drivers/gpu/drm/sun4i/sun4i_layer.c                | 21 ++++------
->   drivers/gpu/drm/tests/drm_kunit_helpers.c          |  2 +-
->   drivers/gpu/drm/tilcdc/tilcdc_plane.c              |  2 +-
->   drivers/gpu/drm/vboxvideo/vbox_mode.c              |  2 +-
->   drivers/gpu/drm/verisilicon/vs_cursor_plane.c      |  2 +-
->   drivers/gpu/drm/verisilicon/vs_plane.c             | 14 +++----
->   drivers/gpu/drm/verisilicon/vs_plane.h             |  2 +-
->   drivers/gpu/drm/verisilicon/vs_primary_plane.c     |  2 +-
->   drivers/gpu/drm/virtio/virtgpu_plane.c             |  2 +-
->   drivers/gpu/drm/vkms/vkms_composer.c               | 30 +++++++-------
->   drivers/gpu/drm/vkms/vkms_drv.h                    |  2 +-
->   drivers/gpu/drm/vkms/vkms_formats.c                | 48 +++++++++++-----------
->   drivers/gpu/drm/vkms/vkms_plane.c                  | 36 +++++-----------
->   drivers/gpu/drm/vmwgfx/vmwgfx_kms.c                | 17 ++++----
->   drivers/gpu/drm/vmwgfx/vmwgfx_kms.h                |  2 +-
->   drivers/gpu/drm/vmwgfx/vmwgfx_ldu.c                |  4 +-
->   drivers/gpu/drm/vmwgfx/vmwgfx_scrn.c               |  4 +-
->   drivers/gpu/drm/vmwgfx/vmwgfx_stdu.c               |  4 +-
->   drivers/gpu/drm/xlnx/zynqmp_kms.c                  |  2 +-
->   include/drm/drm_atomic_state_helper.h              |  3 --
->   include/drm/drm_gem_atomic_helper.h                |  2 -
->   include/drm/drm_plane.h                            | 12 ------
->   include/drm/drm_simple_kms_helper.h                |  1 -
->   59 files changed, 236 insertions(+), 381 deletions(-)
-> ---
-> base-commit: 17c6b88e85ffe5de5720004ae8c2176d52944aca
-> change-id: 20260629-drm-no-more-plane-reset-04950f42e07f
->
-> Best regards,
-
--- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
-GF: Jochen Jaser, Andrew McDonald, (HRB 36809, AG Nürnberg)
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="fccfp65dlmdatj3e"
+Content-Disposition: inline
+In-Reply-To: <6e93af907298022f077126f1be7bd386@igalia.com>
 
 
+--fccfp65dlmdatj3e
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Sep 09, 2026 at 02:29:30PM -0300, Mauricio Faria de Oliveira wrote:
+> On 2026-09-09 11:07, Joel Granados wrote:
+> > On Fri, Sep 04, 2026 at 02:45:23PM -0300, Mauricio Faria de Oliveira wr=
+ote:
+> >> On 2026-09-04 10:41, Joel Granados wrote:
+> >> > On Thu, Aug 20, 2026 at 06:22:13PM -0300, Mauricio Faria de Oliveira=
+ wrote:
+> >> >> On 2026-08-20 09:51, Joel Granados wrote:
+> >> >> > On Wed, Aug 19, 2026 at 03:16:13PM -0300, Mauricio Faria de Olive=
+ira wrote:
+> >> >> >> This series adds 'sysctl:' aliases to modules that register sysc=
+tl tables; e.g.:
+> > <... snip ...>
+> >> > use the correct call moving forward?
+> >>=20
+> >> This scheme currently covers all modules, AFAIK, as it is wrapped in t=
+he
+> >> functions that register sysctl tables.
+> >>=20
+> >> On moving forward: usage of such functions in a way that breaks a
+> >> requirement of this series (e.g., failing to specify the template
+> >> table/path parameter(s), or not having constant initializers) hits a
+> >> build error, as the requirements are actually from the compiler.
+> >>=20
+> >> >> I guess that a different design could use MODULE_SYSCTL_TABLE() as
+> >> >> MODULE_DEVICE_TABLE(), declared per table instead of wrapped into
+> >> >> register sysctl functions.
+> >> >> However, it seems to require moving the value of the path argument =
+(or
+> >> >> its template) into the macro and still referencing it in the functi=
+on
+> >> >> (or its instantiation of the template), which adds obfuscation, to =
+all
+> >> >> callers.=20
+> >> >>=20
+> >> >> What do you think?
+> >> > It might be that having it inside the module subsys is more work, bu=
+t I
+> >> > believe that there is the right place to have it. I still don't see =
+that
+> >> > adding a module specific arg to the sysctl register is a good thing.
+> >>=20
+> >> Ok, cool. I can work on a different design.
+> >>=20
+> >> Please just let me know whether you are OK with the remaining (above),
+> >> and I'll be happy to tackle this.
+> >=20
+> > What is "the remaining"?
+>=20
+> I meant the rest of the email, addressing the points/questions you
+> raised.
+
+* The dependency on a sysctl path to load a module still is
+  backwards to me. It should be: I need feature A, I load modules
+  M{1,2,3} for A and I set sysctl S{1,2,3...}. Not sure why sysctl tools
+  do it the other way around.
+
+* The fact that the invariance is in the sysctl path and not the module
+  identifier maybe points to a deeper issue.=20
+
+* I still believe that this is better placed outside the sysctl
+  subsys as it does not cater solely to module loading.
+
+Best
+
+
+
+
+--fccfp65dlmdatj3e
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQGzBAABCgAdFiEErkcJVyXmMSXOyyeQupfNUreWQU8FAmqiXEIACgkQupfNUreW
+QU+Jpgv/QNMzfwgyYS5bGcjcIdeGmbwPVB4niFRMrcLkDpeUPt2bAuU2q0Si+c2j
+8ZRwIaAx22BLUNWWDpobcza7W5C1A17rIR76XCMUnFSb0n/IWP5htK0UHazibk/r
+s8lxhIQXP5lQAHUSyOaKXEqmO60aWL/VkIxb+qJe3ThcHSESPRVQxL56e054d/fG
+0Hh+/ckA3Yy8AAKkaF1Q52F6thgEqtHKMSNZkdp+XN3Q+IQHRUGULXvXeTgvp4QY
+u5WK/w8RJz5+KQwW6//kpXBCY9uVado45tRrFS/H0fClXF6ovdXuTK169krtJi92
+qouie+C4qFsAjPRGPOQjOYXmCIa8/sKwsArW4CmTg0J9WN3BwQxJksy0jWqaxULM
+xRPx9OxYsSrYZGglZitaJMnNQnc+X20/vQ4lBotfmrMPdUgSrMAzOHO0AcFXBUs9
+s1DSQoFZe+/Kg4RCkGzgk55VbnT0V81UPFbcYx6yuyjb+yZWoTMUpHy8Q47//r54
+Y5lWmFsv
+=Y70+
+-----END PGP SIGNATURE-----
+
+--fccfp65dlmdatj3e--
