@@ -1,129 +1,98 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B04BBA45
-	for <virtualization@lists.linux.dev>; Fri, 11 Sep 2026 03:24:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+Received: from outbound.baidu.com (mx22.baidu.com [220.181.50.185])
+	by smtp.subspace.kernel.org (Postfix) with SMTP id EC7942D9EDB
+	for <virtualization@lists.linux.dev>; Fri, 11 Sep 2026 06:05:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.181.50.185
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789097066; cv=none; b=PoDQp4Z9qKBLEoz8SpLzrXgFXrJ6lGtCCanVlsnQAQY79/MzC/yOOaSgYWB4hYEb03b9ed678pNH4R9wFzUV7OKBQ47+e2GZJBH+mPbKq8riMeSEQGVsjD17Ox5zm9qOvZkgvoItnl8IbrlXbv3Kgqhp8+wqncqPMZGoN8V7SXg=
+	t=1789106745; cv=none; b=J+619C+Cq/lxohx7MAnB72nW8P7oJCaFG+U1kyJxXQ7WlalhLStAH20u4P7uKi1kR/elZEYZQp4qRsTzF06azxjMjss6L/lmZMbEgLfmlVKdGTjOjQBZ2+ZGXcE2keWRRjmMD2evTek0vZiJlY9kVKIc65fMmZhQm8y04nReJMY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789097066; c=relaxed/simple;
-	bh=EF+sTk8Se8kmAADF0SBgG1PpVZlQ/krB6pwzvAYvRzs=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=a3ZNFitkRuB2Iwt860BU+q2saCPB0Z/fOqhE1gVsggTUSuHISu8aBlFM8X+RbLV9J8Nkhzxihih2BYFvIhyk0TzimjAmrXUmMYGhozBQh8xaNpAphSHDnYOA8digjFgS7h0us2F/Wf+4Q6JaPtfPudfUKBQwniMxwL3efc1pfrc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EKnZDznH; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789106745; c=relaxed/simple;
+	bh=j08jtL2NnAAtGlf0HPmiPrRSTh86i8kkz4d+9opoJUk=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=Ar5YA3HD3QbKRCLD2E9T5S5zQAcPxudctDirctkqwebpLq7sg7eyHSIWkVLFi3t8szdaoBAQrVgDp0r7WEsyXmyn+aToKDp0BrG0NxYZm2WJNQt6MHU4oTEuBvivyqIMWcc5d3YxxbCH/CR7ZJv+8n7OIka0gU3Dj9V/zltbl6E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=baidu.com; spf=pass smtp.mailfrom=baidu.com; dkim=pass (2048-bit key) header.d=baidu.com header.i=@baidu.com header.b=DgA3+5Pc; arc=none smtp.client-ip=220.181.50.185
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=baidu.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baidu.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EKnZDznH"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2B411F000FF;
-	Fri, 11 Sep 2026 03:24:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789097064;
-	bh=qgCT0K+FCIJRoP7Jl2QZ80LztYurtM0+NLEvwQm9sPA=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=EKnZDznHR1ibW0HtEEgzPF9pSzd1MxzLuznAiXVsCLKPOFy92ck970tnaNpvvzZeP
-	 irqku+EkG+Rn7JArEiCJ0Yp3AjfgYZ6mXyMEtjQ79omY7/IXbfFeg/fLfwzxjsHFNK
-	 E2GjFC2yUAcWT7syYIu7sm+LyuMjPsujLJetuwq5Jrc+G6itqkIHZYrBZM+z6xljUp
-	 wToHPz55GnbfNwbjjzzCWebHJ3H2V4vMuPnYQAuGbLP07S0+YT5CJ5OD2bWp23Hthi
-	 JofyFU6Wqf0RcEjmwrdLVtumGQl5Hfs25kV/5DM8deVTgtYIHMzuFfFKf4k8P6x6sF
-	 SfjDEEi8WbzFA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v1] ALSA: virtio: reset device before deleting
- virtqueues
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Yuho Choi" <oss.patchbox@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>, virtualization@lists.linux.dev
-In-Reply-To: <20260911031121.1542502-1-oss.patchbox@gmail.com>
-References: <20260911031121.1542502-1-oss.patchbox@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 11 Sep 2026 03:24:24 +0000
-Message-Id: <20260911032424.A2B411F000FF@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=baidu.com header.i=@baidu.com header.b="DgA3+5Pc"
+X-MD-Sfrom: lirongqing@baidu.com
+X-MD-SrcIP: 172.31.50.46
+From: "Li,Rongqing" <lirongqing@baidu.com>
+To: Jason Wang <jasowangio@gmail.com>
+CC: "Michael S . Tsirkin" <mst@redhat.com>, =?utf-8?B?RXVnZW5pbyBQw6lyZXo=?=
+	<eperezma@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: =?utf-8?B?562U5aSNOiBb5aSW6YOo6YKu5Lu2XSBSZTogW1BBVENIXSB2aXJ0aW9fcmlu?=
+ =?utf-8?B?ZzogcmVzZXQgSU5fT1JERVIgc3RhdGUgaW4gdmlydHF1ZXVlX2luaXQoKQ==?=
+Thread-Topic: =?utf-8?B?W+WklumDqOmCruS7tl0gUmU6IFtQQVRDSF0gdmlydGlvX3Jpbmc6IHJlc2V0?=
+ =?utf-8?B?IElOX09SREVSIHN0YXRlIGluIHZpcnRxdWV1ZV9pbml0KCk=?=
+Thread-Index: AQHdQSFpJC7F+DEBIESNJfSXG16LubbIHx8AgADFC+A=
+Date: Fri, 11 Sep 2026 06:05:25 +0000
+Message-ID: <fe5e4fb1b68d4203812e253d722cbe69@baidu.com>
+References: <20260910123903.1717-1-lirongqing@baidu.com>
+ <CAAf7B_M=tfyL33WGkxSX68FwPaRRRBcASVx92EGwPMXaFtUdzQ@mail.gmail.com>
+In-Reply-To: <CAAf7B_M=tfyL33WGkxSX68FwPaRRRBcASVx92EGwPMXaFtUdzQ@mail.gmail.com>
+Accept-Language: zh-CN, en-US
+Content-Language: zh-CN
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=baidu.com;
+	s=selector1; t=1789106736;
+	bh=j08jtL2NnAAtGlf0HPmiPrRSTh86i8kkz4d+9opoJUk=;
+	h=From:To:CC:Subject:Date:Message-ID:Content-Type;
+	b=DgA3+5Pce/kMuMVCDnOFQqGN7aC90hGteChLpN8pK6YSlmY8Oc/AhvpIPs79WwG0k
+	 Tb/Qv62xN5Tdf2UIielqzWTk8UOJ62TrYf45qJtZaxF+Lv5q267E+pz8atm4gRiy9Z
+	 AwQvRnj81uL5IM+b1B3iZfAHurSnqa8v20pXyZpNATa4334/ugbf1f/Yv7K2JwRokB
+	 +CLda3W2cgPtdsnL7sQrDKb55w0SJvdWveAAhazLVGFrgMacd3etpfU6UBCouHLcKS
+	 jFGoUIis67OjJXzOemIvPN/UFkw/BZNib6y93nYoNfXdZJZvVqAzgvjGa6vkUrEoN9
+	 U1kaCp2rXI35w==
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-
-Pre-existing issues:
-- [High] The driver permanently leaks DMA mappings for unused virtqueue buf=
-fers because they are not detached before virtqueue deletion.
-- [High] Prematurely cancelling and freeing pending control messages before=
- resetting the device leads to hardware Use-After-Free, list corruption, an=
-d double frees.
---
-
-commit a186967d39bb57120371bc04edb4ff625893e99e
-Author: Yuho Choi <oss.patchbox@gmail.com>
-
-ALSA: virtio: reset device before deleting virtqueues
-
-This commit moves virtio_reset_device() before del_vqs() in driver
-remove and freeze paths. This prevents the hardware from accessing
-virtqueue memory after it has been freed.
-
-> diff --git a/sound/virtio/virtio_card.c b/sound/virtio/virtio_card.c
-> index 647190f4d5afc..6f35276416fed 100644
-> --- a/sound/virtio/virtio_card.c
-> +++ b/sound/virtio/virtio_card.c
-> @@ -354,8 +354,8 @@ static void virtsnd_remove(struct virtio_device *vdev)
->  	if (snd->card)
->  		snd_card_free(snd->card);
-> =20
-> -	vdev->config->del_vqs(vdev);
->  	virtio_reset_device(vdev);
-> +	vdev->config->del_vqs(vdev);
-
-[Severity: High]
-This is a pre-existing issue, but does this permanently leak DMA mappings f=
-or
-unused virtqueue buffers because they are not detached before the virtqueues
-are deleted?
-
-System suspend/resume or driver unbinding will call virtsnd_freeze() or
-virtsnd_remove(), which deletes the virtqueues without first detaching unus=
-ed
-buffers via virtqueue_detach_unused_buf().
-
-Repeated suspend/resume cycles could continuously leak DMA mappings (such as
-pending event buffers and PCM buffers) until the DMA space is exhausted.
-
-> =20
->  	for (i =3D 0; snd->substreams && i < snd->nsubstreams; ++i) {
->  		struct virtio_pcm_substream *vss =3D &snd->substreams[i];
-
-[ ... ]
-
-> @@ -383,8 +383,8 @@ static int virtsnd_freeze(struct virtio_device *vdev)
->  	virtsnd_disable_event_vq(snd);
->  	virtsnd_ctl_msg_cancel_all(snd);
-
-[Severity: High]
-This is a pre-existing issue, but does prematurely cancelling and freeing
-pending control messages here (and similarly in virtsnd_remove) before
-resetting the device leave a window where the hardware can DMA to freed
-memory?
-
-For messages sent with nowait =3D true, virtsnd_ctl_msg_cancel_all() drops =
-the
-refcount to 0, immediately freeing the memory while the message is still
-actively queued in the hardware virtqueue.
-
-The device could then DMA write into the freed memory, or trigger an
-interrupt where virtsnd_ctl_notify_cb() retrieves the freed pointer and cal=
-ls
-virtsnd_ctl_msg_complete() on it again, causing a double free.
-
-> =20
-> -	vdev->config->del_vqs(vdev);
->  	virtio_reset_device(vdev);
-> +	vdev->config->del_vqs(vdev);
-> =20
->  	for (i =3D 0; i < snd->nsubstreams; ++i)
->  		cancel_work_sync(&snd->substreams[i].elapsed_period);
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260911031121.1542=
-502-1-oss.patchbox@gmail.com?part=3D1
+PiA+DQo+ID4gVGhlIElOX09SREVSIGZlYXR1cmUgdXNlcyBhZGRpdGlvbmFsIHNvZnR3YXJlIHN0
+YXRlIHRvIHRyYWNrIHRoZSBuZXh0DQo+ID4gYXZhaWxhYmxlIGRlc2NyaXB0b3IgYW5kIGluLWZs
+aWdodCBkZXNjcmlwdG9yIGJhdGNoZXMuDQo+ID4NCj4gPiB2aXJ0cXVldWVfaW5pdCgpIHJlc2V0
+cyB0aGUgY29tbW9uIHZpcnRxdWV1ZSBzdGF0ZSwgYnV0IGZyZWVfaGVhZCBhbmQNCj4gPiBiYXRj
+aF9sYXN0LmlkIGFyZSBpbml0aWFsaXplZCBvbmx5IHdoZW4gdGhlIHZpcnRxdWV1ZSBpcyBjcmVh
+dGVkLiBXaGVuDQo+ID4gYW4gSU5fT1JERVIgdmlydHF1ZXVlIGlzIHJlc2V0LCB0aGVzZSBmaWVs
+ZHMgY2FuIHJldGFpbiBzdGF0ZSBmcm9tIHRoZQ0KPiA+IHByZXZpb3VzIHF1ZXVlIGluc3RhbmNl
+Lg0KPiA+DQo+ID4gUmVzZXQgZnJlZV9oZWFkIGFuZCBpbnZhbGlkYXRlIGJhdGNoX2xhc3Qgd2hl
+biBpbml0aWFsaXppbmcgYW4NCj4gPiBJTl9PUkRFUiB2aXJ0cXVldWUuIEtlZXAgdGhpcyBpbiB2
+aXJ0cXVldWVfaW5pdCgpIHNvIHRoZSBzdGF0ZSBpcw0KPiA+IGluaXRpYWxpemVkIGNvbnNpc3Rl
+bnRseSBmb3IgYm90aCBuZXdseSBjcmVhdGVkIGFuZCByZXNldCB2aXJ0cXVldWVzLg0KPiA+DQo+
+ID4gRml4ZXM6IGY2YTE1ZDg1NDk4NiAoInZpcnRpb19yaW5nOiBhZGQgaW4gb3JkZXIgc3VwcG9y
+dCIpDQo+IA0KPiBJIHRoaW5rIHRoaXMgaXMgbmVlZGVkIGZvciAtc3RhYmxlLg0KPiANCj4gPiBT
+aWduZWQtb2ZmLWJ5OiBMaSBSb25nUWluZyA8bGlyb25ncWluZ0BiYWlkdS5jb20+DQo+ID4gLS0t
+DQo+ID4gIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMgfCA1ICsrKysrDQo+ID4gIDEgZmls
+ZSBjaGFuZ2VkLCA1IGluc2VydGlvbnMoKykNCj4gPg0KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJz
+L3ZpcnRpby92aXJ0aW9fcmluZy5jDQo+ID4gYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5j
+IGluZGV4IGRiNjc4ZjUuLmQwZGM0NjQgMTAwNjQ0DQo+ID4gLS0tIGEvZHJpdmVycy92aXJ0aW8v
+dmlydGlvX3JpbmcuYw0KPiA+ICsrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMNCj4g
+PiBAQCAtNTU5LDYgKzU1OSwxMSBAQCBzdGF0aWMgdm9pZCB2aXJ0cXVldWVfaW5pdChzdHJ1Y3Qg
+dnJpbmdfdmlydHF1ZXVlICp2cSwNCj4gdTMyIG51bSkNCj4gPiAgICAgICAgIHZxLT5pbl91c2Ug
+PSBmYWxzZTsNCj4gPiAgICAgICAgIHZxLT5sYXN0X2FkZF90aW1lX3ZhbGlkID0gZmFsc2U7ICAj
+ZW5kaWYNCj4gPiArDQo+ID4gKyAgICAgICBpZiAodmlydHF1ZXVlX2lzX2luX29yZGVyKHZxKSkg
+ew0KPiA+ICsgICAgICAgICAgICAgICB2cS0+ZnJlZV9oZWFkID0gMDsNCj4gPiArICAgICAgICAg
+ICAgICAgdnEtPmJhdGNoX2xhc3QuaWQgPSBVSU5UX01BWDsNCj4gPiArICAgICAgIH0NCj4gDQo+
+IEkgd291bGQgdHJ5IHRvIHJldXNlIG9yIHJlZmFjdG9yIHZpcnRxdWV1ZV92cmluZ19hdHRhY2hf
+c3BsaXQoKSB0byByZWR1Y2UgY29kZQ0KPiBkdXBsaWNhdGlvbi4NCj4gDQo+IEJ0dyBoYXZlIHlv
+dSBjaGVja2VkIFFlbXUgc2hhZG93IHZpcnRxdWV1ZSBhcyBpdCBtaWdodCBzdWZmZXIgZnJvbSB0
+aGUgc2FtZQ0KPiBpc3N1ZS4NCj4gDQoNCkkgY2hlY2tlZCBRRU1VJ3Mgc2hhZG93IHZpcnRxdWV1
+ZSBpbXBsZW1lbnRhdGlvbi4gYmF0Y2hfbGFzdCBpcyByZWluaXRpYWxpemVkIGluIHZob3N0X3N2
+cV9zdGFydCgpLCANCmJ1dCBmcmVlX2hlYWQgaXMgbm90LiBTaW5jZSB0aGUgU1ZRIG9iamVjdCBj
+YW4gYmUgcmV1c2VkIGFjcm9zcyBzdG9wL3N0YXJ0LCBmcmVlX2hlYWQgbWF5IHJldGFpbiBzdGFs
+ZSANCnN0YXRlLiBTbyBhIGNvcnJlc3BvbmRpbmcgZml4IHNob3VsZCBiZSBuZWVkZWQNCg0Kdm9p
+ZCB2aG9zdF9zdnFfc3RhcnQoVmhvc3RTaGFkb3dWaXJ0cXVldWUgKnN2cSwgVmlydElPRGV2aWNl
+ICp2ZGV2LA0KICAgICAgICAgICAgICAgICAgICAgIFZpcnRRdWV1ZSAqdnEsIFZob3N0SU9WQVRy
+ZWUgKmlvdmFfdHJlZSkNCiB7DQogICAgIC4uLg0KICAgICBzdnEtPnNoYWRvd19hdmFpbF9pZHgg
+PSAwOw0KICAgICBzdnEtPnNoYWRvd191c2VkX2lkeCA9IDA7DQorICAgIHN2cS0+ZnJlZV9oZWFk
+ID0gMDsNCiAgICAgbWVtc2V0KCZzdnEtPmJhdGNoX2xhc3QsIDAsIHNpemVvZihzdnEtPmJhdGNo
+X2xhc3QpKTsNCiAgICAgc3ZxLT5sYXN0X3VzZWQgPSAwOw0KICAgICBzdnEtPmxhc3RfdXNlZF9p
+ZHggPSAwOw0KDQp0aGFua3MNCiANCltMaSxSb25ncWluZ10gDQoNCg0KPiBUaGFua3MNCj4gDQo+
+ID4gIH0NCj4gPg0KPiA+DQo+ID4gLS0NCj4gPiAyLjkuNA0KPiA+DQo=
