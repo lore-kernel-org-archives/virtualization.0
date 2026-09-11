@@ -1,51 +1,70 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78A1144F550
-	for <virtualization@lists.linux.dev>; Fri, 11 Sep 2026 07:55:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EFAF3B6377;
+	Fri, 11 Sep 2026 07:57:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789113342; cv=none; b=R/PHGaAchDE6UpUt5lfR5U/vD1fH7ZsAA0tumCX+Bb+aMM7ebJc0WjKcVfHHe0FVdkb5yF7I92TAUhkUyAM3W0D0maNuO2HNB/tbHsfudhz+zw1KdeNBDx+BcByGNUWBYUeBDZKVBG830HU8AdRiihYQ839c4RA7GiAnNJXnQ8I=
+	t=1789113475; cv=none; b=mJL48ZZcnDxaeMUtxk3yppZ4DxrOnZNSjjI/dU54HGod/P00+D1jg0/LIspyLUMYnEHyA48BIQO4nTpQK2DR9rz0p0r1p5BdxK2a6Z4qnYQyPXFlH65znphbuRaxFaWhKzo0sXURTQG1Q42C1TNT2fZYaJGl1xmlRt6ghuubKE4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789113342; c=relaxed/simple;
-	bh=m4q02HueVVSMhHOjUZVrtgqwsGxocrGDt2T3V9NfJQI=;
+	s=arc-20240116; t=1789113475; c=relaxed/simple;
+	bh=qPmmWY/0euFm27Pfb4vRNo0g+4mEMN3X9gmWw3ZIqG8=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=jRO+BLnxZiZZF1h/INn7x51BWRTFq8VJPvuXWctaMTcRvLyndkXTNgm/uhgotZsiQJQIwQN5BYRbBTwLfecF2p+fIN1xHvxPvAWkqGIKpWPEs2mf4IKxCWSe9DFw/x3co/LZ8woSgE5mF4df1kTefBvSxJuiUlQ3M8EHB93hpEI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DsAg3w6r; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=d0rXFustijECnz8iq5PstOXpjAFUITtvSVp4xPnJDxENjwMimP1qkSDMKPHqBHUQewqBNAmP7B0/ysXong0W5rgyyR46bz7PTtgJ3xGNeT+00sVksDq/K8bclBAo50btbklMgbfnL/4Qpilq5BaHdsy3Bx6759LrYlZ0uFNLNn0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Wkm9moXa; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DsAg3w6r"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8E3A1F00893;
-	Fri, 11 Sep 2026 07:55:40 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Wkm9moXa"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3F651F000FF;
+	Fri, 11 Sep 2026 07:57:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789113341;
-	bh=m4q02HueVVSMhHOjUZVrtgqwsGxocrGDt2T3V9NfJQI=;
+	s=k20260515; t=1789113474;
+	bh=QxvmERiv8BnCYnfAtiHd1dcPkzetSVLeJxzlauqjTNI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=DsAg3w6rzAtye1e8jP5PlJL65qFAoVFmWaJzbx6J7ldsc5K8AJit6qUSb1tmZwvKv
-	 DoZg5dJSXmHWJQsrj2mzN9QKdr/VrXo3ThHeMnWG9gwOXCLv/TghxEGlxnH8GIO/rQ
-	 hgX4oIBEBIJUqdvD8RncMMRudNds9xpTrkixuLDZLxJ3Qup7MUegwrA7w9HTHp5Ko3
-	 Jpap9xLQs5+0dOfiW/0wlTyYj2JLqTdx8ul7PQgMEL5sJKUNNxZG8gv0pHBLns8e7E
-	 t6ckerKqpQwbnJvQr/oxTWDQuWnXP0mHLNsvO26UqmkeGeAs2wT826h4iQOv79OdIT
-	 5+TAEkJN21vig==
+	b=Wkm9moXa2jxQrvn4Mr2qVDQh3XoSd9Rj3/9zB3DCrXkFt57hRrGpHBToJkZ8mGipw
+	 6zaVNiipCEEb5NXz60lbBhKjSy31mi9XJDP+3VxGzqEo9vSH2kPOgjvZIv/bokZFeB
+	 cVleoWBfD43bVQdABSNw6B5j0AlFN02G/iPNquvqvNmmqHBvW4D3yl6HtZYL/8u1pV
+	 RZEdIiFUZfM7/xIAJl1C5OB9GVV2aAxnAuj4KP4Dt6BZ42veKOPhjXHhJ6aHlk5uva
+	 g70RZZbbU7O+rAWspTZMAiNh+jjUV5IFtk6rZs22Y7u1c1nfT56int+EukTVA6clif
+	 FqzVARrnOBNFw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 11/13] x86/msr: Remove rdmsr()
+Subject: Re: [PATCH v3 12/13] treewide: convert rdmsrq() from a macro to an
+ inline function
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Juergen Gross" <jgross@suse.com>
-Cc: "Eugenio Perez" <eperezma@redhat.com>, virtualization@lists.linux.dev, "Michael
- S. Tsirkin" <mst@redhat.com>
-In-Reply-To: <20260911074530.3140830-12-jgross@suse.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-hwmon@vger.kernel.org, kvm@vger.kernel.org, linux-pci@vger.kernel.org, dri-devel@lists.freedesktop.org, dlemoal@kernel.org, linux-ide@vger.kernel.org, linux-hyperv@vger.kernel.org, cassel@kernel.org, virtualization@lists.linux.dev, "Eugenio
+ Perez" <eperezma@redhat.com>, linux-perf-users@vger.kernel.org
+In-Reply-To: <20260911074530.3140830-13-jgross@suse.com>
 References: <20260911074530.3140830-1-jgross@suse.com>
- <20260911074530.3140830-12-jgross@suse.com>
+ <20260911074530.3140830-13-jgross@suse.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 11 Sep 2026 07:55:40 +0000
-Message-Id: <20260911075540.E8E3A1F00893@smtp.kernel.org>
+Date: Fri, 11 Sep 2026 07:57:53 +0000
+Message-Id: <20260911075753.A3F651F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-> rdmsr() has no users left. Delete it.
+> Today rdmsrq() is a macro using its second parameter as the target for
+> storing the read MSR value.
+>=20
+> Convert rdmsrq() to an inline function returning the MSR value.
+>=20
+> The users have been converted using the following semantic patch:
+>=20
+>   // Options: --include-headers
+>=20
+>   virtual patch
+>   virtual report
+>=20
+>   @@
+>   expression msr, val;
+>   @@
+>   (
+>   - rdmsrq(msr,val)
+>   + val =3D rdmsrq(msr)
+>   )
 >=20
 > Signed-off-by: Juergen Gross <jgross@suse.com>
 
@@ -53,5 +72,5 @@ Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260911074530.3140=
-830-1-jgross@suse.com?part=3D11
+830-1-jgross@suse.com?part=3D12
 
