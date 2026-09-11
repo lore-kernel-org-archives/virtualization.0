@@ -1,154 +1,165 @@
-Received: from mail-ed1-f54.google.com (mail-ed1-f54.google.com [209.85.208.54])
+Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com [209.85.208.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 404053DDAF3
-	for <virtualization@lists.linux.dev>; Fri, 11 Sep 2026 02:18:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1E0F3DA7D4
+	for <virtualization@lists.linux.dev>; Fri, 11 Sep 2026 02:22:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.47
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789093092; cv=pass; b=H/kfcpqrLYRO8vN/pVGGNt6DqNvXaBpnqYYRDSe1jIWzxSYjJyDUnPVVKg8ezavPMj4UHLqpbuzFxzhghXe3YOmCfnJ2LPWbwAlG1OHx4nZTN0c/Kh4uM03zr0lICFT4FBIODhwkHWM1TOHVEUTUF/QJA+8fDkd5BN6fm1xOHc0=
+	t=1789093356; cv=pass; b=AkN21chld4AVCTISMuW2sCwYRK5YuOga0dqdib4FN6FfqexH1EIkLrQMawclkEqQYYv1RsGZJQxwMVlq1Jn6xBm8zibmf+Yk09M6Mqji0H7STABruCh7xScCAp0mb/M5SEBXkFdb/AdPsZ//6FS1T73KLDI/oPA+28gN1ZVgrec=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789093092; c=relaxed/simple;
-	bh=fSxVRMq132kOj2ATc0wCqEK6btSyS1N+nOlxjKOO1SI=;
+	s=arc-20240116; t=1789093356; c=relaxed/simple;
+	bh=Bz0sCgcCcFvltEMwQaua+/B5cZV1CmGcPPxBoEWouf0=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=WOCsl9a9ovKe12vU+gMUUz5Qw8VaKbVUPpU33aDXk7SZqxT8hjWx2RxeMHkJN9yG5PA0ZGZ/sbmbSs4ENIk6Dffcp7Gz1IOtZvfEJXuj+j2DyyK0/Xrk/bGUI2E6v4NbhkA5bQM2UgBI+XCF4Tpx19/rr0gE4Riw4fXbeatfSQ8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZuX1Yzo6; arc=pass smtp.client-ip=209.85.208.54
+	 To:Cc:Content-Type; b=YKGm0vyi2V7hwFZNuHfG2529xe1ug3Vra+6o6YCJrHHeIvQ+nU6bG981UQf7CamNFWmBXWKFFo8G8j1yK3ieNHsCpVG9zOTVhbhKkst/QsIN7q7U51wFRV4I4/Ypv0B6Ll6zUHUNbDWe8o+wM4tRGim95ioAw2g3Z2YgmGudeww=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GRVL0nTn; arc=pass smtp.client-ip=209.85.208.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZuX1Yzo6"
-Received: by mail-ed1-f54.google.com with SMTP id 4fb4d7f45d1cf-6a051b737d8so475057a12.1
-        for <virtualization@lists.linux.dev>; Thu, 10 Sep 2026 19:18:06 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1789093085; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GRVL0nTn"
+Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-6a0de062db5so790038a12.1
+        for <virtualization@lists.linux.dev>; Thu, 10 Sep 2026 19:22:34 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1789093353; cv=none;
         d=google.com; s=arc-20260327;
-        b=O8efMcCjgYFCtt5iwVIuEdB+6rcsTJMjQx3p+IbyKLnhvCkhyyhdbXyZNYkkUxQVjV
-         o0yrOL7B3Afb2zEMI9XJyb5xbLOLfa6/wTJo7nj2lP17HT73z1RNiGKhBaiwjgabWv3a
-         dxoSVEztAWf+fNRWNkY63mT82wrtysAFNDs4gXMtiqoxnyiF9zG/iFpZGtD8ViJyVg6A
-         fGLPNHbnemD1XocO1GN2tS90DFrFr/digcxZY2+HJgtD3R132x8ljnl4jbvRnvMJ5/xx
-         ITzuEFdZA20eaE6g2vn9M2/ZNXi6SdSIbIieu7FVaaimqXE8n14jEgMeEIKFyax7IJ6S
-         TyBg==
+        b=locOeeNDi3zpxuz8BWVIo2SVUUT7oy8cd3JeJxNxl7l+IBxbg5JYOQEhRsE8WC3PdA
+         jjXBDbsrs7h04tumEdkQ3W+NrMf9DjWItU+mrjbirpx5O23tb45pespA69tHMluOYFN7
+         njUxgxfslGpIJO23D/tiwuMFADdsqyVaMDx6vkO2OvehXQqSt/HkZBAB4mS2RH1evoxF
+         Zwx+NqWdsg+EJCgvNleT20x+r7tKnkxMGUb95L/hefnPMxnaPVjXX/mJcvKu80NACf3S
+         wsVaVHJNU8J1hAFtEtta/S86DxvBCrFMiWOQUhbli4AXHee7l4qEyVQhhf/ERDm0RI30
+         XZ2Q==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=VOf8wCMzpNS46oThIuz/r1xf8XxutZ0hada+Stru3rY=;
-        fh=DMPYVrxdtj+pFO7iTGkU8tKtf44FCUQqA2CHP9c9kDA=;
-        b=rEmWcXVvMLaiEyraxJ+zlrIbFDUUvIX/hh9LWtqf43j0FKlQx45fNQqW6BjPcgmHni
-         s7XuaXdnpx2yvwlmLYtIzolUByZhehbQq67Z+RP8BA08j+dnPkhJEttbJT1J0UORCLzi
-         WVsB64M4Y0z2lPpJj/6hCWIWVCRMkuKn771BWUX5zgOnTE7VI2pPFkQNpTofkjFK56AB
-         le1MjDEbkwJ/QaDkGmj+wCSwZXhWDUYfmW/3GxPkGFvHuYQhFD8j8QOgVoIxPWGRGr+T
-         lwk+GrO5oYjdaGdpEl2V6/Od/6VD7zHcTBFJwRxm80fN/CM8qcT/dr4GXtdqZrHXTbtv
-         4/2Q==;
+        bh=zzI+H0AYETX+xpgB1CN8oegHDhglD5FDUHZp3f5RBM0=;
+        fh=7ogEeZ0dYaDlrgQHlYnq3K14ukFu21KWaKPQmuyYg1s=;
+        b=mkoCIG770zA/KY8LFnweyzt0NzSYv+TbLZJfzCSVgO8kw37H2URRPjP6TJ48ZwznG5
+         VdzuElsYOtm+AlTgftMEGS3MIKrMyP4YzoanRfz8Y3ZvAgvnUMcLPOoEHzxjKCOJZZ+R
+         WNvhsXxvDHCjR7XtW1a77z5UWR2+IVR2eY5XllGZLnhx+oj/fIwMkuGDyRGJ5gO1d0Uk
+         EO8GJdak2qhjCu1S/BlybOQR8tieMuLxuxxUxphPhec8GP985tAy6yR/2SF5Fq+BnHGI
+         TJxPsHWF9GRuaQqKFV5eoquNziGDHJ35d0jYkzploSUfN96nIdOoygKpZ8apk6kdT3MG
+         8k1w==;
         darn=lists.linux.dev
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789093085; x=1789697885; darn=lists.linux.dev;
+        d=gmail.com; s=20251104; t=1789093353; x=1789698153; darn=lists.linux.dev;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=VOf8wCMzpNS46oThIuz/r1xf8XxutZ0hada+Stru3rY=;
-        b=ZuX1Yzo64a9mUfvhVV/H/ozpnjfdjRy+zssc1Bf6sjuK+GsUzmVFTjGZrQC1MseXrU
-         bTLpG09N5WOhA9omOlhl8A7HBTB0PCqjD7nTpzcbG3BLGBlviq3qfajWNHgESxKQxR6O
-         8iUN68l4xmIGSaC+cH73yEWy5heDJjVxlDMP0gX8pEaj4L+g0SLLOGEcfsjGiD1mBTJa
-         d/9cOz30OXZaw5jWIP7LNsRNOcvAhrrPvLBF96nDmWT7Me/vmTevC+GjnkNG+DYMLUqO
-         /gKEmbc8jBqMQlnxtNajeZKn+iCF9oMGqctUTpci4m8HJgxgr6zSS4a3K/B4mvK3EiMe
-         GFFA==
+        bh=zzI+H0AYETX+xpgB1CN8oegHDhglD5FDUHZp3f5RBM0=;
+        b=GRVL0nTn+UOK2hq/Zz8H7E/h+0Ui0xoUOOc83kJxuLvYg7Z+YeSTG2FS1FKTSmh175
+         RnmRJ0i5v+TlTLzb1kl605yrLjW5mr2dWPa3jJHncloO9YO7tyHw/LvArk2ljOduUSSM
+         U2BSD3vmKmthmMleL3BqLserqAyyO3FGU7sRXFF0VqevkSyGY640W5GaS24H2xh3ON14
+         iprB2MleevpQ7ixqVVTCwUoGk6puBX1ESyTWVvTsuwboA3oN66GfcadV5Cjpe+1Ss8ji
+         jKvoaZE93PRD3IdaqTawMUVPVOwm5SDweHqhagOPaSTl6y79canTUS9iPZ+DHSJtaobT
+         gPeA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789093085; x=1789697885;
+        d=1e100.net; s=20251104; t=1789093353; x=1789698153;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=VOf8wCMzpNS46oThIuz/r1xf8XxutZ0hada+Stru3rY=;
-        b=buiRh6cmX/kYrr5is1No/uuRuvp1lG43bWL7KesbJqijAY3hZsHMyoP4cwG2FhqYPT
-         Jze7UWSc5auwBNrHpHlWehITnZJA9r6tmgFn7GJOEZOYOyWP1ywdpRxpsVNBZ94szBy9
-         um/ouDK16g5n+vrRn5+bM1UNI4jxHmB08DkpgkVJ2V1gRHiNl9LK1tgsofnVbGu5otJA
-         mh6YwvZD95AuKx3kXiju5d6V+nBSjOGzWYPWgfCvfCd6R646arZW350414D+jPuNVWFW
-         n4f5K7yIUOj7qKVUkJEUWxWiou4XDPmToovDZ3gyfH8z+AGvE/BuE0FkQzRE3Vg0YQdr
-         5y6Q==
-X-Forwarded-Encrypted: i=1; AKwUvBwffiJXohbT1BhEA94SlmUoPP7JGlvv0UOjy3WEByzsdW6IFb9zA7uGbNtvHKgVo1ELRNSCYYnBiAMAsQc7EA==@lists.linux.dev
-X-Gm-Message-State: AFuF++lWJLjA1avDcICnSt0WWftCqlpP2/jV+9yluDNtX6lgU6pDjZrk
-	DhYsan08VAD5kSIVNXvaJ6/tLk3gmperATV6T0U7nPHT8WQjvnhoeKM4CHBiJQswlNv7qkahjtM
-	2SDu0xWtW6zPpJHs2Y2YU9VFMm6Z+AMU=
-X-Gm-Gg: AYBFou39gh88G81JAkD9ZKAzlTNWY9rtP0WGYy2pQ+maRop4zT2b4zZXZvku6SCTH2b
-	2TxSLJHZzZqrv2RQPQaRymODF9BDLX4bLOeZ8viiX5w21hOpwvgN1a7fHCEbGDcH+GIoX5Jrjr+
-	f1Xe8LStC41/ql+R64gNjK31A53gf+Ffcqpar45zATay+XsXh3X54f2P65pN33Fb4Uo1bTNEDtO
-	UR9RbNKUo02wonFw9PFlFBVnyVA4fC70TxDJgI0EULBbFSDM5sXCZ2ncQxB2xODwd6Ivgw0y8yt
-	zr+eiMZdVf86U74XZGjZosZIi1sdSkgd2gq9J3ssCImDXN8yHOqmA1RyIy7IS5lnlBgVR0RVTaa
-	d06QWN4UomAlirQAEpiz/4g==
-X-Received: by 2002:a05:6402:434c:b0:6a7:ee54:f89b with SMTP id
- 4fb4d7f45d1cf-6a9b56b92aemr845829a12.31.1789093084498; Thu, 10 Sep 2026
- 19:18:04 -0700 (PDT)
+        bh=zzI+H0AYETX+xpgB1CN8oegHDhglD5FDUHZp3f5RBM0=;
+        b=cNxqvbdAlxLcYutdVLxfS/AOuT5FUkbtmTiJjyhbKOqxe9ZDv2565sueCcg9maUYkk
+         vYtES7Q1if/02F4vV9nOdk0HTZeq7ytrsRFmjMd9fs2x9xOUpSzIGCjrgfWKLuNGzQsf
+         kdNwt0DI0nmQjOn1cSzFNWmTGVszzSxAQsnZ6YT4M+NxnFPne0LMm0nUJ00768EQXkXu
+         UU9YsxelzVqFDA9NGHi+/YV+0TbpnWuX1jdN27VAJ+lGe5e2xHtDlTZ0vQaELs9nyp+T
+         68C34YMfZp3qG+4WBxWo2DHiJGyGZUuzM4kjcf5cBRxhJaqJy4ZY4s+GhzXb3JG3Mwb1
+         9y1Q==
+X-Forwarded-Encrypted: i=1; AKwUvByKBS3IHxHw9ADp4bVFpSP0Cm0j6cewmkveK4x+EvSxqG7LHGqDO1R2kRiJnDgakTm0kqA/6D550ArA+alWNw==@lists.linux.dev
+X-Gm-Message-State: AFuF++nHGRih25QkmYVQVevbO/I0eYGmuILCj2hFa6D2+XJr5lNTsDWK
+	u4ej+ZsyfYqI11kay3l5bY1x86nXDVPkadhYBVAic9c9rePWeoaA0yX3vJZpGHoriJqVi/vjg97
+	rQR+WTBCFZM43UUFFtE3O/OkAlOKvz3s=
+X-Gm-Gg: AYBFou3fA0Ku6FwDDWhVuUHVJIXnqIGAABRfIi2mh7uTp8a/tj7LyyVDsAwztks/BeW
+	j/7I0qstLkr8qnet6eVJ7GLHe1yAVyzGlx2nWhnrIhRZIGJY3xT3DNWUT/bDeqRalMEiGabNp9T
+	/r8FIeDs3/ieFk5hXdsoogBIY3Ut6Z6WnVEgZhiUUowOcdzmRTOvMBzPKPT456KGkgi9ka5dxt6
+	HfY5nzwNt08jlwZ1gzb7+VEroQrJ8Lpt/wCGQ1j6QF+s6vNrTlPZTHduqVgs5GRUGvnQJLju83J
+	8HCVHBCm+Kxs3QAmD2mCe53gZ66MySeO8wERi4pXc6R1GzRCAmgFtTtAtpuQfuuy8BMxJB/d+4m
+	F9TRY+A4qWGU=
+X-Received: by 2002:a05:6402:50cd:b0:6a8:d72a:3b23 with SMTP id
+ 4fb4d7f45d1cf-6a9b56f9fccmr842660a12.43.1789093353125; Thu, 10 Sep 2026
+ 19:22:33 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260910123903.1717-1-lirongqing@baidu.com>
-In-Reply-To: <20260910123903.1717-1-lirongqing@baidu.com>
+References: <20260911-virtblk_sync_quiesce-v1-1-a883f8f31258@oss.qualcomm.com>
+In-Reply-To: <20260911-virtblk_sync_quiesce-v1-1-a883f8f31258@oss.qualcomm.com>
 From: Jason Wang <jasowangio@gmail.com>
-Date: Fri, 11 Sep 2026 10:17:52 +0800
-X-Gm-Features: AcwNN1Vwyl3IOS3-AfXLFBbOtS2xium60bWgjIdD1Wj01boHjLIsh_FiFaULx-Y
-Message-ID: <CAAf7B_M=tfyL33WGkxSX68FwPaRRRBcASVx92EGwPMXaFtUdzQ@mail.gmail.com>
-Subject: Re: [PATCH] virtio_ring: reset IN_ORDER state in virtqueue_init()
-To: lirongqing <lirongqing@baidu.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org
+Date: Fri, 11 Sep 2026 10:22:21 +0800
+X-Gm-Features: AcwNN1Uzpxn8BhhthHEzwNinazI3iL-_kocBQlmIkQ9u52465cUbeWR1Pr_TyGY
+Message-ID: <CAAf7B_Oi_z7M_A_LwoAs_CAvhuk1NGxvADQssE65_OcTroncXw@mail.gmail.com>
+Subject: Re: [PATCH] virtio_blk: use synchronous quiesce in virtblk_freeze_priv()
+To: Cong Zhang <cong.zhang@oss.qualcomm.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Paolo Bonzini <pbonzini@redhat.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, Jens Axboe <axboe@kernel.dk>, Ming Lei <ming.lei@redhat.com>, 
+	linux-arm-msm@vger.kernel.org, virtualization@lists.linux.dev, 
+	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Sep 10, 2026 at 8:39=E2=80=AFPM lirongqing <lirongqing@baidu.com> w=
-rote:
+On Fri, Sep 11, 2026 at 12:31=E2=80=AFAM Cong Zhang <cong.zhang@oss.qualcom=
+m.com> wrote:
 >
-> From: Li RongQing <lirongqing@baidu.com>
+> Replace blk_mq_quiesce_queue_nowait() with blk_mq_quiesce_queue() in
+> virtblk_freeze_priv().
 >
-> The IN_ORDER feature uses additional software state to track the next
-> available descriptor and in-flight descriptor batches.
+> Keep the existing freeze and unfreeze order. The synchronous call waits
+> for dispatch code that was already running. The queue remains quiesced
+> until virtblk_restore_priv() calls blk_mq_unquiesce_queue().
 >
-> virtqueue_init() resets the common virtqueue state, but free_head and
-> batch_last.id are initialized only when the virtqueue is created. When
-> an IN_ORDER virtqueue is reset, these fields can retain state from the
-> previous queue instance.
+> Fixes: 7678abee0867 ("virtio-blk: don't keep queue frozen during system s=
+uspend")
 >
-> Reset free_head and invalidate batch_last when initializing an IN_ORDER
-> virtqueue. Keep this in virtqueue_init() so the state is initialized
-> consistently for both newly created and reset virtqueues.
->
-> Fixes: f6a15d854986 ("virtio_ring: add in order support")
 
-I think this is needed for -stable.
+Do we need this for -stable?
 
-> Signed-off-by: Li RongQing <lirongqing@baidu.com>
+> Signed-off-by: Cong Zhang <cong.zhang@oss.qualcomm.com>
 > ---
->  drivers/virtio/virtio_ring.c | 5 +++++
->  1 file changed, 5 insertions(+)
+> blk_mq_run_work_fn() can call blk_mq_sched_dispatch_requests() through
+> blk_mq_run_dispatch_ops(). The dispatcher checks QUEUE_FLAG_QUIESCED
+> while the flag is clear. It can then be preempted before it gets a
+> request. At that time, it has no queue usage reference, so
+> blk_mq_freeze_queue() does not wait for it.
 >
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index db678f5..d0dc464 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -559,6 +559,11 @@ static void virtqueue_init(struct vring_virtqueue *v=
-q, u32 num)
->         vq->in_use =3D false;
->         vq->last_add_time_valid =3D false;
->  #endif
-> +
-> +       if (virtqueue_is_in_order(vq)) {
-> +               vq->free_head =3D 0;
-> +               vq->batch_last.id =3D UINT_MAX;
-> +       }
+> virtblk_freeze_priv() then calls blk_mq_quiesce_queue_nowait() and
+> blk_mq_unfreeze_queue(). A new request can enter the queue. The old
+> dispatcher can run again, use its old flag check, get the new request,
+> and call virtio_queue_rq(). At the same time, virtblk_freeze_priv() can
+> reset the device, delete the virtqueues, and free vblk->vqs. The old
+> dispatcher can then use a deleted virtqueue or a NULL vblk->vqs, and the
+> kernel can crash.
+> ---
+>  drivers/block/virtio_blk.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index 32bf3ba07a9d..7a570591e040 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -1595,7 +1595,7 @@ static int virtblk_freeze_priv(struct virtio_device=
+ *vdev)
+>
+>         /* Ensure no requests in virtqueues before deleting vqs. */
+>         memflags =3D blk_mq_freeze_queue(q);
+> -       blk_mq_quiesce_queue_nowait(q);
+> +       blk_mq_quiesce_queue(q);
+>         blk_mq_unfreeze_queue(q, memflags);
+>
+>         /* Ensure we don't receive any more interrupts */
+>
+> ---
+> base-commit: 50d05c7c76c96b90462f24debacca971d2e86713
+> change-id: 20260910-virtblk_sync_quiesce-9b2c88d45416
+>
+> Best regards,
+> --
+> Cong Zhang <cong.zhang@oss.qualcomm.com>
+>
 
-I would try to reuse or refactor virtqueue_vring_attach_split() to
-reduce code duplication.
+Other than this,
 
-Btw have you checked Qemu shadow virtqueue as it might suffer from the
-same issue.
+Acked-by: Jason Wang <jasowangio@gmail.com>
 
 Thanks
-
->  }
->
->
-> --
-> 2.9.4
->
