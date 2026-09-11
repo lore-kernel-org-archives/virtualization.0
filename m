@@ -1,126 +1,166 @@
-Received: from mail-qk2-f12.google.com (mail-qk2-f12.google.com [74.125.230.204])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF6ED2E6CB8
-	for <virtualization@lists.linux.dev>; Fri, 11 Sep 2026 01:12:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.204
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B98E32C8B
+	for <virtualization@lists.linux.dev>; Fri, 11 Sep 2026 01:30:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789089178; cv=none; b=G98Y/mqKQq+CHDa+XDzNAispSRMMi2n/HrfBGf4YVMYK8UO0IwND5R0WaChMTokjwlzGE7OBEjJKmMgqbKykyG5cb4P14uEk8O6JAdbyCKetuN2c5zDSHUam2aO1wOYu4ehyFYgYAIAI1ZOdNWvkWlVTLHFaTFSUbMhOrtZPGoU=
+	t=1789090210; cv=none; b=RoWdAZFJHWHtbAnWclLmv7qsdipm9Id6sTrADGMIfLjOuK0Dmfd0NkjCnK9qH8+2U18YZzUmtNi1pzZI6iGZ3RNmhEDuwsfQGyUrzkL701F93/vN80/1D1Zd+wj6qfryvJVnP07pGKMHj0GVzpZ+kdRg0UM8Rj4Qs6jPWPR6azY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789089178; c=relaxed/simple;
-	bh=aSoY/N0oGpMD3DwFVn0NoXhZY918z65CXFED2AS+aH0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=liOfJyUD+JY84/yYsvMZBVPc0kqZBF3yw9tCVlD400ofjVT3aEjWjCnml49+xr1BQM6sH+sCxyMXSSBUAUZtG+haf/gwRMNJwmzKKgCSnglGc0F/Vxkqr2UmuSmXFvHqq2tTSh1MNiTvOvQ+Sxj/m6XVYQtl1xw4QXnBcm2zOss=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=U11vEc+r; arc=none smtp.client-ip=74.125.230.204
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1789090210; c=relaxed/simple;
+	bh=OWIykSZ5EV6TeELAhpSHdxnR+yK7gPHtcNFeDGwVNjI=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=qkDQPzXs+Nr1DDHsoMoolIO+hr4FV8meFcoT5DWv0MSjjIj/kqUBdQfW0qxza8MeD7fZMSeJZ72Bb8y6gE2AVN+CKOx2ZGFcQNK5PnCAbrkFm1h/0JBwdeGW92rW7ybahmuNf4Z3YCVshfWS75w8mX879Htps6LEda0xF44MJxA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EnveoVtL; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="U11vEc+r"
-Received: by mail-qk2-f12.google.com with SMTP id d75a77b69052e-52fb76ef19aso4962761cf.2
-        for <virtualization@lists.linux.dev>; Thu, 10 Sep 2026 18:12:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789089176; x=1789693976; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=uynqckbdmTZIURakBh8b2Eoz8Wxwr8hx5bA5rcYTljQ=;
-        b=U11vEc+r23s18BbWWNj8b0Twwfxop5bsBrJWG1fhP2OuJWfQ/c2gCix2JkE6nCV8Ls
-         /oW2YAkgeUs00jl3JPX81l8xl81rLFefAqYo5H+16Y7x9xoS9XgCkcoLAmVKKbULdKh0
-         r7C3teJYbnqVm0YqVVvF/ujON97xbyJTU28qRDtK7ZXJoyutWg+Tk9dcNzNaJLQU/fZw
-         YzgLDU8V1ZLMyehA8KLSPMauk790htw46jv3mjtwXq5hxGPU77+l+fiQ0gWHUIycY9OZ
-         547vWL3kJGSq89AKQvADoJsIRnhpSnGCMnUlay4eet6trekYuwxUurYNBtjAsrCmC8Ls
-         TJJw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789089176; x=1789693976;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=uynqckbdmTZIURakBh8b2Eoz8Wxwr8hx5bA5rcYTljQ=;
-        b=U2tvK5zjv1K/cAxXegZDkPqCLnTXmF42ZtS0pPlAGNqCvNfS7/PHJg3i9SpWCLsAQA
-         l6SsLkGyrdzodEt9BfOompktNgRKJtTs452OM6u5pnZH/IauixNKEQUDvfR2ZD1vyRPe
-         lenzchQgH7IX5wIIc9N+Njissw/xVQ2j9EFwrpsC8657sFCSEGwthDTjI7Q8nA4WH9vX
-         LlsDAkiZHwbRmKv1RYS/MWl0eT5kzeY3YO29yWhleqqutUm1fvA9+iFapL6izNZHGr3B
-         NHoF+i1b6OuTWKztxKVHO9QLS4/ajnfKvMA1xpQmz/F6UFFDIcYMXw2AexRELSDeu/3i
-         J01A==
-X-Forwarded-Encrypted: i=1; AKwUvBxSnxaHBRhtieQYd+CwTFcIQgOCR91wsav1jWLwHCz8jyWWrbnV7I5ZIjDM4Q7cIa4frGI9PvE9fAjXLh3ZGw==@lists.linux.dev
-X-Gm-Message-State: AFuF++nH15ZSVeTSZoQWY/s/grALhxuCWOixZ1ho6PFkNYK+0Mzcv/ZL
-	Cdehs5H9nZPVRfkU6vNLlPvpPTpWToNLkMC3EvZ3qRdg4SUANNt8/4Bi
-X-Gm-Gg: AYBFou0vfO3Wzz2H4t+k1+B1zclQbpb/roU9s/kQaK1FctyDtPiNnEkmN00YfMnhBQV
-	S0D1Ca9lrpXU9QfyRAXRGOMaeHLqxF1HqRzeFfqRfRD4Q3JjHMdjrIwjU7AnOJXMZFw2nZ9pqHl
-	2okRX08Rqv0iZ0VqOAWoyVzzA25t7LQCTg0hpmV+G55znKf2h9bzro1vZpQgCrrLZoh7WAJGieY
-	ZcXGXaRnaqwQhIL80+CTZdDsTSxcxN6DbT2XhaTnV/MUx/gb+yNijvGRzf/+FmJ9r6205ZuHsB9
-	MZTP1/DS/hFjmn+Kk4lpRxElD6vFmLjJXEA0vwFclNdKZXB2XI8agmcXnTsTPnr5jkqtzgoaedY
-	bkGaWiHJuKrEqaWxkKJ8+t4StjSx7zjo/xM1bBo5Yq1UBo5iwNWRt+3THmJlMQsdsuypyd77yb4
-	OkERzo3auDaYpjiDBW57lezB65Ms/SZBefVEGin4e10pjHO29Ecu3VjfuzpBcLpy9J9c/UM2OOi
-	bse9SA=
-X-Received: by 2002:ac8:7d55:0:b0:530:5434:e4d7 with SMTP id d75a77b69052e-530c86fd1abmr32349001cf.32.1789089175533;
-        Thu, 10 Sep 2026 18:12:55 -0700 (PDT)
-Received: from i4-gl-tmk5904.ad.psu.edu ([130.203.156.186])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-530ce4ec298sm4289851cf.16.2026.09.10.18.12.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 10 Sep 2026 18:12:55 -0700 (PDT)
-From: Yuho Choi <oss.patchbox@gmail.com>
-To: jpb@kernel.org,
-	joro@8bytes.org,
-	will@kernel.org
-Cc: robin.murphy@arm.com,
-	virtualization@lists.linux.dev,
-	iommu@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Yuho Choi <oss.patchbox@gmail.com>
-Subject: [PATCH v1] iommu/virtio: Reset device before deleting virtqueues on probe failure
-Date: Thu, 10 Sep 2026 21:12:49 -0400
-Message-ID: <20260911011249.1498825-1-oss.patchbox@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EnveoVtL"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CAAA1F000FF;
+	Fri, 11 Sep 2026 01:30:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789090207;
+	bh=uww61HurhzQF/wauuyZmNSiYFmlgfz0GFf28HgeeQj4=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=EnveoVtLJEr86mE0thqvvmcbyEH+gKyU1Kw1zpelFP8O2lvGUZAny38SCtp0CYqEV
+	 n/np5FV6dTPq9uvkAFHpUaqW07WRRzaxUcedffaXEr6lAIi9e6q9XOARm7SxWqIDG+
+	 acxZQguONfn6iwFHVhHfUTKoCe0o0ujUUNh8vMGCspX6g/ONOsG6K2C34t+qWlfteR
+	 kus0fb5TBYcuTU/hbgLBl8gdmF6lv5iLdI2ik441VAg/EvfBm1lMFOcK4XHDmePUtW
+	 8OdjmgrCX1JrqYCtaZh5dUXThhb/jx3v3LmyNxoSyjcZz9V2GahQtNiIX+E5WGxNfm
+	 M+p5QXMEtrQNA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v1] iommu/virtio: Reset device before deleting
+ virtqueues on probe failure
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Yuho Choi" <oss.patchbox@gmail.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev, "Eugenio
+ Perez" <eperezma@redhat.com>
+In-Reply-To: <20260911011249.1498825-1-oss.patchbox@gmail.com>
+References: <20260911011249.1498825-1-oss.patchbox@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 11 Sep 2026 01:30:06 +0000
+Message-Id: <20260911013007.6CAAA1F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+s) to consider:
+
+Pre-existing issues:
+- [High] The driver ignores the return value of `iommu_device_register()`, =
+which can lead to a double `list_del()` and kernel panic upon device remova=
+l if registration failed.
+- [High] The driver context `vdev->priv` is assigned too late in the probe =
+sequence, creating a race window where an early interrupt causes a NULL poi=
+nter dereference.
+- [High] DMA mappings for event queue buffers are leaked on the probe error=
+ path and during device removal.
+- [High] `viommu_fill_evtq()` fails to kick the event queue after adding in=
+itial buffers, potentially stalling event reception.
+--
+
+commit f64d3ec8a50d9c00ad5c23ca6661968d147a4ff4
+Author: Yuho Choi <oss.patchbox@gmail.com>
+
+iommu/virtio: Reset device before deleting virtqueues on probe failure
+   =20
 viommu_probe() marks the device DRIVER_OK before populating the event
 virtqueue and registering the IOMMU device in sysfs. If either operation
 fails, the error path deletes the virtqueues while the device is still
 live. The device may therefore continue accessing queue memory after it
 has been freed.
-
+   =20
 Reset the device on error paths after DRIVER_OK before deleting the
 virtqueues, matching viommu_remove().
 
-Fixes: edcd69ab9a32 ("iommu: Add virtio-iommu driver")
-Signed-off-by: Yuho Choi <oss.patchbox@gmail.com>
----
- drivers/iommu/virtio-iommu.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+> index 587fc13197f12..fa72ae23b8afa 100644
+> --- a/drivers/iommu/virtio-iommu.c
+> +++ b/drivers/iommu/virtio-iommu.c
+> @@ -1227,12 +1227,12 @@ static int viommu_probe(struct virtio_device *vde=
+v)
+>  	/* Populate the event queue with buffers */
+>  	ret =3D viommu_fill_evtq(viommu);
 
-diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-index 587fc13197f12..fa72ae23b8afa 100644
---- a/drivers/iommu/virtio-iommu.c
-+++ b/drivers/iommu/virtio-iommu.c
-@@ -1227,12 +1227,12 @@ static int viommu_probe(struct virtio_device *vdev)
- 	/* Populate the event queue with buffers */
- 	ret = viommu_fill_evtq(viommu);
- 	if (ret)
--		goto err_free_vqs;
-+		goto err_reset_vdev;
- 
- 	ret = iommu_device_sysfs_add(&viommu->iommu, dev, NULL, "%s",
- 				     virtio_bus_name(vdev));
- 	if (ret)
--		goto err_free_vqs;
-+		goto err_reset_vdev;
- 
- 	vdev->priv = viommu;
- 
-@@ -1244,6 +1244,8 @@ static int viommu_probe(struct virtio_device *vdev)
- 
- 	return 0;
- 
-+err_reset_vdev:
-+	virtio_reset_device(vdev);
- err_free_vqs:
- 	vdev->config->del_vqs(vdev);
- 
--- 
-2.43.0
+[Severity: High]
+This is a pre-existing issue, but viommu_fill_evtq() populates the event
+virtqueue with initial buffers via virtqueue_add_inbuf() but never issues a
+virtqueue_kick() to notify the host.
 
+According to the Virtio specification, adding buffers to a virtqueue after
+the device is marked ready requires an explicit notification.
+
+Can this result in a queue stall, preventing the host from reporting IOMMU
+faults?
+
+>  	if (ret)
+> -		goto err_free_vqs;
+> +		goto err_reset_vdev;
+> =20
+>  	ret =3D iommu_device_sysfs_add(&viommu->iommu, dev, NULL, "%s",
+>  				     virtio_bus_name(vdev));
+>  	if (ret)
+> -		goto err_free_vqs;
+> +		goto err_reset_vdev;
+> =20
+>  	vdev->priv =3D viommu;
+
+[Severity: High]
+This is a pre-existing issue, but is vdev->priv assigned too late?
+
+Before this assignment, viommu_fill_evtq() populates the event queue with
+buffers, and virtio_device_ready() was already called.
+
+If the device immediately consumes these buffers and asserts an interrupt,
+viommu_event_handler() will read vq->vdev->priv as NULL and dereference it:
+
+drivers/iommu/virtio-iommu.c:viommu_event_handler() {
+	...
+	struct viommu_dev *viommu =3D vq->vdev->priv;
+	...
+}
+
+Can this lead to a NULL pointer dereference if an early interrupt occurs?
+
+[Severity: High]
+This is also a pre-existing issue, but shortly after vdev->priv is assigned,
+the return value of iommu_device_register() is ignored:
+
+	vdev->priv =3D viommu;
+	iommu_device_register(&viommu->iommu, &viommu_ops, parent_dev);
+
+If iommu_device_register() fails, it cleans up the list node by calling
+iommu_device_unregister(), poisoning the node. Since the failure is ignored,
+viommu_probe() falsely succeeds.
+
+Later, upon device unbind, viommu_remove() unconditionally calls
+iommu_device_unregister() again.
+
+Does this cause a double list_del() and a kernel panic?
+=20
+> =20
+> @@ -1244,6 +1244,8 @@ static int viommu_probe(struct virtio_device *vdev)
+> =20
+>  	return 0;
+> =20
+> +err_reset_vdev:
+> +	virtio_reset_device(vdev);
+>  err_free_vqs:
+>  	vdev->config->del_vqs(vdev);
+
+[Severity: High]
+This isn't a bug introduced by this patch, but virtqueues are deleted here
+without first detaching and unmapping the unused buffers.
+
+Since viommu_fill_evtq() allocated and mapped buffers using
+virtqueue_add_inbuf(), and del_vqs() doesn't automatically unmap DMA
+addresses, are these mappings permanently leaked?
+
+Does the same leak also occur during normal device removal in
+viommu_remove()?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260911011249.1498=
+825-1-oss.patchbox@gmail.com?part=3D1
