@@ -1,98 +1,332 @@
-Received: from outbound.baidu.com (mx22.baidu.com [220.181.50.185])
-	by smtp.subspace.kernel.org (Postfix) with SMTP id EC7942D9EDB
-	for <virtualization@lists.linux.dev>; Fri, 11 Sep 2026 06:05:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.181.50.185
+Received: from relay.yourmailgateway.de (relay.yourmailgateway.de [194.59.206.189])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E69C411FA7;
+	Fri, 11 Sep 2026 07:41:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.59.206.189
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789106745; cv=none; b=J+619C+Cq/lxohx7MAnB72nW8P7oJCaFG+U1kyJxXQ7WlalhLStAH20u4P7uKi1kR/elZEYZQp4qRsTzF06azxjMjss6L/lmZMbEgLfmlVKdGTjOjQBZ2+ZGXcE2keWRRjmMD2evTek0vZiJlY9kVKIc65fMmZhQm8y04nReJMY=
+	t=1789112486; cv=none; b=JTM63RGWUXcj9mqJBv0ZOLUV/K00enZ2oJDvFR3UlFz/UrHSLTVqo526emeo6jfXEfMHOaY6OfvBWbWNXdb4kXDMiw9+01weS0JrdQaCm4lQBCj2z9N3UCSCTc+rKCaqIIpcPGO2XcCvvpeZi+mDMxR/LPbFeOz160StkrufO4s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789106745; c=relaxed/simple;
-	bh=j08jtL2NnAAtGlf0HPmiPrRSTh86i8kkz4d+9opoJUk=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=Ar5YA3HD3QbKRCLD2E9T5S5zQAcPxudctDirctkqwebpLq7sg7eyHSIWkVLFi3t8szdaoBAQrVgDp0r7WEsyXmyn+aToKDp0BrG0NxYZm2WJNQt6MHU4oTEuBvivyqIMWcc5d3YxxbCH/CR7ZJv+8n7OIka0gU3Dj9V/zltbl6E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=baidu.com; spf=pass smtp.mailfrom=baidu.com; dkim=pass (2048-bit key) header.d=baidu.com header.i=@baidu.com header.b=DgA3+5Pc; arc=none smtp.client-ip=220.181.50.185
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=baidu.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baidu.com
+	s=arc-20240116; t=1789112486; c=relaxed/simple;
+	bh=xcYnE6/LSXVqirIZAi5Nb66u//g24+ZOxVZnvuRrp4E=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=kNhQSERf/yjjCJtiVSQlvgUP/OXToJNfzuKUV0wsm9+gE0M8qahKjDg7pi8rqRfxWd5gxoc39PJxVR0UKN0Imt+Koz0GFzTITcTCzlxJBAe+jeM7qNxMpSE6itwGtlEA3a+8tkzI9ucwjlclGkk2FlLCobMzQ/vifyF5uFrgnMQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=leemhuis.info; spf=pass smtp.mailfrom=leemhuis.info; dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b=d+cUFSUo; arc=none smtp.client-ip=194.59.206.189
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=leemhuis.info
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=leemhuis.info
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baidu.com header.i=@baidu.com header.b="DgA3+5Pc"
-X-MD-Sfrom: lirongqing@baidu.com
-X-MD-SrcIP: 172.31.50.46
-From: "Li,Rongqing" <lirongqing@baidu.com>
-To: Jason Wang <jasowangio@gmail.com>
-CC: "Michael S . Tsirkin" <mst@redhat.com>, =?utf-8?B?RXVnZW5pbyBQw6lyZXo=?=
-	<eperezma@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: =?utf-8?B?562U5aSNOiBb5aSW6YOo6YKu5Lu2XSBSZTogW1BBVENIXSB2aXJ0aW9fcmlu?=
- =?utf-8?B?ZzogcmVzZXQgSU5fT1JERVIgc3RhdGUgaW4gdmlydHF1ZXVlX2luaXQoKQ==?=
-Thread-Topic: =?utf-8?B?W+WklumDqOmCruS7tl0gUmU6IFtQQVRDSF0gdmlydGlvX3Jpbmc6IHJlc2V0?=
- =?utf-8?B?IElOX09SREVSIHN0YXRlIGluIHZpcnRxdWV1ZV9pbml0KCk=?=
-Thread-Index: AQHdQSFpJC7F+DEBIESNJfSXG16LubbIHx8AgADFC+A=
-Date: Fri, 11 Sep 2026 06:05:25 +0000
-Message-ID: <fe5e4fb1b68d4203812e253d722cbe69@baidu.com>
-References: <20260910123903.1717-1-lirongqing@baidu.com>
- <CAAf7B_M=tfyL33WGkxSX68FwPaRRRBcASVx92EGwPMXaFtUdzQ@mail.gmail.com>
-In-Reply-To: <CAAf7B_M=tfyL33WGkxSX68FwPaRRRBcASVx92EGwPMXaFtUdzQ@mail.gmail.com>
-Accept-Language: zh-CN, en-US
-Content-Language: zh-CN
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+	dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b="d+cUFSUo"
+Received: from relay02-mors.netcup.net (localhost [127.0.0.1])
+	by relay02-mors.netcup.net (Postfix) with ESMTPS id 4hh60H2xDQz4JJl;
+	Fri, 11 Sep 2026 09:40:31 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=leemhuis.info;
+	s=key2; t=1789112431;
+	bh=xcYnE6/LSXVqirIZAi5Nb66u//g24+ZOxVZnvuRrp4E=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=d+cUFSUoEDGscwsJRbDG/SDze3szxjMC2mCF9S+hp8SACn98L2ihT9YLAU0Tm909N
+	 OXMsk/cloZYipNDr3oBTUdbnVeYKU8bV/mWNjnVJDusc1tVxNYw2VTLf2dOvtH6l7l
+	 A/gYeopK/Fe1xA6YhkWnYXqzUy9x3DzTFX+l69M4/Uv1qaYy2AWiNyreetrOZwFe9f
+	 QV8NvR40aR4kWzGkAHdaNnM9ehcuXAbL87CMoOziEI13ZH2OrylYsZsugfUC2WqeK3
+	 80oa28zbO6VWypnfQOF7pc17vIbSi6peLQTdEco54cHE3LWU3NO52k5IMYybN3aQGN
+	 D1k4OsIawKTSA==
+Received: from policy02-mors.netcup.net (unknown [46.38.225.35])
+	by relay02-mors.netcup.net (Postfix) with ESMTPS id 4hh5zR44d9z7ylk;
+	Fri, 11 Sep 2026 09:39:47 +0200 (CEST)
+Received: from mxe9fb.netcup.net (unknown [10.243.12.53])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by policy02-mors.netcup.net (Postfix) with ESMTPS id 4hh5zP3wXWz8sbH;
+	Fri, 11 Sep 2026 09:39:45 +0200 (CEST)
+Received: from [IPV6:2a02:8108:8984:1d00:a0cf:1912:4be:477f] (unknown [IPv6:2a02:8108:8984:1d00:a0cf:1912:4be:477f])
+	by mxe9fb.netcup.net (Postfix) with ESMTPSA id 68F7F5FA94;
+	Fri, 11 Sep 2026 09:39:37 +0200 (CEST)
+Authentication-Results: mxe9fb;
+        spf=pass (sender IP is 2a02:8108:8984:1d00:a0cf:1912:4be:477f) smtp.mailfrom=regressions@leemhuis.info smtp.helo=[IPV6:2a02:8108:8984:1d00:a0cf:1912:4be:477f]
+Received-SPF: pass (mxe9fb: connection is authenticated)
+Message-ID: <ec0c2486-b127-4a47-a81c-499130f268d9@leemhuis.info>
+Date: Fri, 11 Sep 2026 09:39:35 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=baidu.com;
-	s=selector1; t=1789106736;
-	bh=j08jtL2NnAAtGlf0HPmiPrRSTh86i8kkz4d+9opoJUk=;
-	h=From:To:CC:Subject:Date:Message-ID:Content-Type;
-	b=DgA3+5Pce/kMuMVCDnOFQqGN7aC90hGteChLpN8pK6YSlmY8Oc/AhvpIPs79WwG0k
-	 Tb/Qv62xN5Tdf2UIielqzWTk8UOJ62TrYf45qJtZaxF+Lv5q267E+pz8atm4gRiy9Z
-	 AwQvRnj81uL5IM+b1B3iZfAHurSnqa8v20pXyZpNATa4334/ugbf1f/Yv7K2JwRokB
-	 +CLda3W2cgPtdsnL7sQrDKb55w0SJvdWveAAhazLVGFrgMacd3etpfU6UBCouHLcKS
-	 jFGoUIis67OjJXzOemIvPN/UFkw/BZNib6y93nYoNfXdZJZvVqAzgvjGa6vkUrEoN9
-	 U1kaCp2rXI35w==
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3] drm/vblank: Don't arm vblank timer with invalid frame
+ duration
+To: Thomas Zimmermann <tzimmermann@suse.de>, Roman Ilin <me@romanilin.is>
+Cc: David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+ Maxime Ripard <mripard@kernel.org>, Louis Chauvet
+ <louis.chauvet@bootlin.com>, Javier Martinez Canillas <javierm@redhat.com>,
+ Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?=
+ <ville.syrjala@linux.intel.com>, Peter Arnesen <peter.m.arnesen@gmail.com>,
+ Linux kernel regressions list <regressions@lists.linux.dev>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+References: <20260613224434.96501-1-me@romanilin.is>
+ <20260702181027.98526-1-me@romanilin.is>
+ <E697A2AE-5413-48AE-BFD6-3383819B388B@romanilin.is>
+ <3b192119-9709-4f21-841f-a4706cc85e4a@suse.de>
+ <0600a3f0-b2d2-4a07-ab21-f590c2979612@leemhuis.info>
+ <f0e4cc76-5cf3-4fdb-b42c-f405a09c0d2a@suse.de>
+From: Thorsten Leemhuis <regressions@leemhuis.info>
+Content-Language: de-DE, en-US
+In-Reply-To: <f0e4cc76-5cf3-4fdb-b42c-f405a09c0d2a@suse.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-PPP-Message-ID: <178911237806.1098728.4475708475432056913@mxe9fb.netcup.net>
+X-Rspamd-Server: rspamd-worker-8404
+X-Rspamd-Queue-Id: 68F7F5FA94
+X-NC-CID: pAeiIysBZsQaVkzJajRrCRoQrYAtTwGF1+O9m4yh/GbgicGiOZo=
 
-PiA+DQo+ID4gVGhlIElOX09SREVSIGZlYXR1cmUgdXNlcyBhZGRpdGlvbmFsIHNvZnR3YXJlIHN0
-YXRlIHRvIHRyYWNrIHRoZSBuZXh0DQo+ID4gYXZhaWxhYmxlIGRlc2NyaXB0b3IgYW5kIGluLWZs
-aWdodCBkZXNjcmlwdG9yIGJhdGNoZXMuDQo+ID4NCj4gPiB2aXJ0cXVldWVfaW5pdCgpIHJlc2V0
-cyB0aGUgY29tbW9uIHZpcnRxdWV1ZSBzdGF0ZSwgYnV0IGZyZWVfaGVhZCBhbmQNCj4gPiBiYXRj
-aF9sYXN0LmlkIGFyZSBpbml0aWFsaXplZCBvbmx5IHdoZW4gdGhlIHZpcnRxdWV1ZSBpcyBjcmVh
-dGVkLiBXaGVuDQo+ID4gYW4gSU5fT1JERVIgdmlydHF1ZXVlIGlzIHJlc2V0LCB0aGVzZSBmaWVs
-ZHMgY2FuIHJldGFpbiBzdGF0ZSBmcm9tIHRoZQ0KPiA+IHByZXZpb3VzIHF1ZXVlIGluc3RhbmNl
-Lg0KPiA+DQo+ID4gUmVzZXQgZnJlZV9oZWFkIGFuZCBpbnZhbGlkYXRlIGJhdGNoX2xhc3Qgd2hl
-biBpbml0aWFsaXppbmcgYW4NCj4gPiBJTl9PUkRFUiB2aXJ0cXVldWUuIEtlZXAgdGhpcyBpbiB2
-aXJ0cXVldWVfaW5pdCgpIHNvIHRoZSBzdGF0ZSBpcw0KPiA+IGluaXRpYWxpemVkIGNvbnNpc3Rl
-bnRseSBmb3IgYm90aCBuZXdseSBjcmVhdGVkIGFuZCByZXNldCB2aXJ0cXVldWVzLg0KPiA+DQo+
-ID4gRml4ZXM6IGY2YTE1ZDg1NDk4NiAoInZpcnRpb19yaW5nOiBhZGQgaW4gb3JkZXIgc3VwcG9y
-dCIpDQo+IA0KPiBJIHRoaW5rIHRoaXMgaXMgbmVlZGVkIGZvciAtc3RhYmxlLg0KPiANCj4gPiBT
-aWduZWQtb2ZmLWJ5OiBMaSBSb25nUWluZyA8bGlyb25ncWluZ0BiYWlkdS5jb20+DQo+ID4gLS0t
-DQo+ID4gIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMgfCA1ICsrKysrDQo+ID4gIDEgZmls
-ZSBjaGFuZ2VkLCA1IGluc2VydGlvbnMoKykNCj4gPg0KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJz
-L3ZpcnRpby92aXJ0aW9fcmluZy5jDQo+ID4gYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5j
-IGluZGV4IGRiNjc4ZjUuLmQwZGM0NjQgMTAwNjQ0DQo+ID4gLS0tIGEvZHJpdmVycy92aXJ0aW8v
-dmlydGlvX3JpbmcuYw0KPiA+ICsrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMNCj4g
-PiBAQCAtNTU5LDYgKzU1OSwxMSBAQCBzdGF0aWMgdm9pZCB2aXJ0cXVldWVfaW5pdChzdHJ1Y3Qg
-dnJpbmdfdmlydHF1ZXVlICp2cSwNCj4gdTMyIG51bSkNCj4gPiAgICAgICAgIHZxLT5pbl91c2Ug
-PSBmYWxzZTsNCj4gPiAgICAgICAgIHZxLT5sYXN0X2FkZF90aW1lX3ZhbGlkID0gZmFsc2U7ICAj
-ZW5kaWYNCj4gPiArDQo+ID4gKyAgICAgICBpZiAodmlydHF1ZXVlX2lzX2luX29yZGVyKHZxKSkg
-ew0KPiA+ICsgICAgICAgICAgICAgICB2cS0+ZnJlZV9oZWFkID0gMDsNCj4gPiArICAgICAgICAg
-ICAgICAgdnEtPmJhdGNoX2xhc3QuaWQgPSBVSU5UX01BWDsNCj4gPiArICAgICAgIH0NCj4gDQo+
-IEkgd291bGQgdHJ5IHRvIHJldXNlIG9yIHJlZmFjdG9yIHZpcnRxdWV1ZV92cmluZ19hdHRhY2hf
-c3BsaXQoKSB0byByZWR1Y2UgY29kZQ0KPiBkdXBsaWNhdGlvbi4NCj4gDQo+IEJ0dyBoYXZlIHlv
-dSBjaGVja2VkIFFlbXUgc2hhZG93IHZpcnRxdWV1ZSBhcyBpdCBtaWdodCBzdWZmZXIgZnJvbSB0
-aGUgc2FtZQ0KPiBpc3N1ZS4NCj4gDQoNCkkgY2hlY2tlZCBRRU1VJ3Mgc2hhZG93IHZpcnRxdWV1
-ZSBpbXBsZW1lbnRhdGlvbi4gYmF0Y2hfbGFzdCBpcyByZWluaXRpYWxpemVkIGluIHZob3N0X3N2
-cV9zdGFydCgpLCANCmJ1dCBmcmVlX2hlYWQgaXMgbm90LiBTaW5jZSB0aGUgU1ZRIG9iamVjdCBj
-YW4gYmUgcmV1c2VkIGFjcm9zcyBzdG9wL3N0YXJ0LCBmcmVlX2hlYWQgbWF5IHJldGFpbiBzdGFs
-ZSANCnN0YXRlLiBTbyBhIGNvcnJlc3BvbmRpbmcgZml4IHNob3VsZCBiZSBuZWVkZWQNCg0Kdm9p
-ZCB2aG9zdF9zdnFfc3RhcnQoVmhvc3RTaGFkb3dWaXJ0cXVldWUgKnN2cSwgVmlydElPRGV2aWNl
-ICp2ZGV2LA0KICAgICAgICAgICAgICAgICAgICAgIFZpcnRRdWV1ZSAqdnEsIFZob3N0SU9WQVRy
-ZWUgKmlvdmFfdHJlZSkNCiB7DQogICAgIC4uLg0KICAgICBzdnEtPnNoYWRvd19hdmFpbF9pZHgg
-PSAwOw0KICAgICBzdnEtPnNoYWRvd191c2VkX2lkeCA9IDA7DQorICAgIHN2cS0+ZnJlZV9oZWFk
-ID0gMDsNCiAgICAgbWVtc2V0KCZzdnEtPmJhdGNoX2xhc3QsIDAsIHNpemVvZihzdnEtPmJhdGNo
-X2xhc3QpKTsNCiAgICAgc3ZxLT5sYXN0X3VzZWQgPSAwOw0KICAgICBzdnEtPmxhc3RfdXNlZF9p
-ZHggPSAwOw0KDQp0aGFua3MNCiANCltMaSxSb25ncWluZ10gDQoNCg0KPiBUaGFua3MNCj4gDQo+
-ID4gIH0NCj4gPg0KPiA+DQo+ID4gLS0NCj4gPiAyLjkuNA0KPiA+DQo=
+Hi Thomas!
+
+On 9/4/26 08:19, Thomas Zimmermann wrote:
+> Am 03.09.26 um 16:07 schrieb Thorsten Leemhuis:
+>> On 7/3/26 09:26, Thomas Zimmermann wrote:
+>>> Am 02.07.26 um 20:23 schrieb Roman Ilin:
+>>>> Apologies, I accidentally fired off send-email before saving my final
+>>>> changelog notes. Please ignore the changelog and notes in the original
+>>>> v3 email.
+>>> We want to know when this happens. And user space will only be able to
+>>> trigger this once, so there's no risk of spamming the kernel log.
+>>>> Hmmm, just wondering: what's the status here?
+>>
+>> Roman Ilin, did you loose interest? Or was this continued somewhere or
+>> maybe even resolved and I just missed that?
+>>
+>> Thomas: if Roman left this behind, could you maybe handle this, [...]
+>
+> AFAICT it was almost there except for the error messaging. The v4 then
+> never happened. I can finish the patch if Roman is no longer around.
+
+No answer from Roman since then, so yes, that would be great! Tia!
+
+Ciao, Thorsten
+
+>>> So this is not really a problem. drm_WARN_ON_ONCE was ok for that. You
+>>> can also use a regular DRM print macro. But instead of drm_dbg_kms()
+>>> should use drm_err_once(). But please also output linedur_ns and
+>>> framedur_ns in the error. We want to know which of them is incorrect.
+>>> You can also add more information to the error message. See [1] for the
+>>> mode-formating macros.
+>>>
+>>> [1] https://elixir.bootlin.com/linux/v7.1.2/source/include/drm/
+>>> drm_modes.h#L422
+>>>
+>>>
+>>>> - Updated drm_calc_timestamping_constants with the goto error fallback
+>>>>     to clear the stale state.
+>>>>
+>>>> Also, an automated review bot pointed out an AB-BA deadlock in
+>>>> drm_crtc_vblank_start_timer(). But I am leaving this out of the
+>>>> patch to
+>>>> keep the fixes orthogonal.
+>>>>
+>>>> Sorry for the noise.
+>>>>
+>>>>> On Jul 2, 2026, at 21:10, Roman Ilin <me@romanilin.is> wrote:
+>>>>>
+>>>>> When a CRTC's display mode carries a too small pixel clock,
+>>>>> drm_calc_timestamping_constants() computes a frame duration that
+>>>>> exceeds INT_MAX. drm_vblank_crtc.framedur_ns becomes negative.
+>>>>> drm_crtc_vblank_start_timer() then arms the vblank hrtimer with this
+>>>>> interval, after which vblank events are no longer delivered. Pending
+>>>>> page flips never complete and the display appears frozen.
+>>>>>
+>>>>> This could be triggered on virtio-gpu guests that have dynamic
+>>>>> resolution
+>>>>> enabled: when the SPICE agent or the X server resizes the output, it
+>>>>> submits a mode whose pixel clock is off by a factor of 1000, e.g.:
+>>>>>
+>>>>>      clock = 406 kHz, htotal = 3152, vtotal = 2148
+>>>>>
+>>>>>      framedur_ns = 3152 * 2148 * 1000000 / 406 = 16675852216 ns
+>>>>> (~16.7 s)
+>>>>>
+>>>>> 16675852216 does not fit into an int and wraps to roughly -504000000.
+>>>>> ns_to_ktime() then yields a negative interval and the timer stops
+>>>>> working.
+>>>>>
+>>>>> Found by bisection, which pointed at commit a036f5fceedb ("drm/
+>>>>> virtgpu:
+>>>>> Use vblank timer"). That commit merely made virtio-gpu use the vblank
+>>>>> timer and thereby exposed the pre-existing problem in the timer setup
+>>>>> added by commit 74afeb812850 ("drm/vblank: Add vblank timer").
+>>>>>
+>>>>> To fix this, modify drm_calc_timestamping_constants() to use u64 for
+>>>>> calculations, check for INT_MAX overflows, and return an error code.
+>>>>> drm_crtc_vblank_start_timer() will then propagate the error, enabling
+>>>>> the driver to fall back to immediate vblank events. Valid modes are
+>>>>> unaffected, and the timer self-heals on the next mode with a sane
+>>>>> clock.
+>>>>>
+>>>>> Fixes: 74afeb812850 ("drm/vblank: Add vblank timer")
+>>>>> Suggested-by: Thomas Zimmermann <tzimmermann@suse.de>
+>>>>> Signed-off-by: Roman Ilin <me@romanilin.is>
+>>>>> ---
+>>>>> Changes in v3:
+>>>>>
+>>>>> - Changed the WARN_ON_ONCE to drm_err_once
+>>>>>
+>>>>> Notes:
+>>>>>
+>>>>>
+>>>>>
+>>>>> drivers/gpu/drm/drm_vblank.c | 71 +++++++++++++++++++++++-------------
+>>>>> include/drm/drm_vblank.h     |  4 +-
+>>>>> 2 files changed, 48 insertions(+), 27 deletions(-)
+>>>>>
+>>>>> diff --git a/drivers/gpu/drm/drm_vblank.c b/drivers/gpu/drm/
+>>>>> drm_vblank.c
+>>>>> index f90fb2d13..629b9fcc7 100644
+>>>>> --- a/drivers/gpu/drm/drm_vblank.c
+>>>>> +++ b/drivers/gpu/drm/drm_vblank.c
+>>>>> @@ -631,42 +631,51 @@ EXPORT_SYMBOL(drm_crtc_vblank_waitqueue);
+>>>>>    * drm_crtc_vblank_helper_get_vblank_timestamp(). They are
+>>>>> derived from
+>>>>>    * CRTC's true scanout timing, so they take things like panel
+>>>>> scaling or
+>>>>>    * other adjustments into account.
+>>>>> + *
+>>>>> + * Returns:
+>>>>> + * 0 on success, or a negative errno code otherwise.
+>>>>>    */
+>>>>> -void drm_calc_timestamping_constants(struct drm_crtc *crtc,
+>>>>> -     const struct drm_display_mode *mode)
+>>>>> +int drm_calc_timestamping_constants(struct drm_crtc *crtc,
+>>>>> +    const struct drm_display_mode *mode)
+>>>>> {
+>>>>> struct drm_device *dev = crtc->dev;
+>>>>> unsigned int pipe = drm_crtc_index(crtc);
+>>>>> struct drm_vblank_crtc *vblank = drm_crtc_vblank_crtc(crtc);
+>>>>> - int linedur_ns = 0, framedur_ns = 0;
+>>>>> + u64 linedur_ns, framedur_ns;
+>>>>> int dotclock = mode->crtc_clock;
+>>>>> + unsigned int frame_size;
+>>>>>
+>>>>> if (!drm_dev_has_vblank(dev))
+>>>>> - return;
+>>>>> + return 0;
+>>>>>
+>>>>> if (drm_WARN_ON(dev, pipe >= dev->num_crtcs))
+>>>>> - return;
+>>>>> + return -EINVAL;
+>>>>>
+>>>>> - /* Valid dotclock? */
+>>>>> - if (dotclock > 0) {
+>>>>> - int frame_size = mode->crtc_htotal * mode->crtc_vtotal;
+>>>>> + if (dotclock <= 0) {
+>>>>> + drm_err(dev, "crtc %u: Can't calculate constants, dotclock = %d!\n",
+>>> Please turn this into drm_err_once() because this call can actually be
+>>> triggered repeatedly from userspace.
+>>>
+>>> Best regards
+>>> Thomas
+>>>
+>>>
+>>>>> + crtc->base.id, dotclock);
+>>>>> + goto error;
+>>>>> + }
+>>>>>
+>>>>> - /*
+>>>>> - * Convert scanline length in pixels and video
+>>>>> - * dot clock to line duration and frame duration
+>>>>> - * in nanoseconds:
+>>>>> - */
+>>>>> - linedur_ns  = div_u64((u64) mode->crtc_htotal * 1000000, dotclock);
+>>>>> - framedur_ns = div_u64((u64) frame_size * 1000000, dotclock);
+>>>>> + frame_size = (unsigned int)mode->crtc_htotal * (unsigned int)mode-
+>>>>>> crtc_vtotal;
+>>>>> - /*
+>>>>> - * Fields of interlaced scanout modes are only half a frame duration.
+>>>>> - */
+>>>>> - if (mode->flags & DRM_MODE_FLAG_INTERLACE)
+>>>>> - framedur_ns /= 2;
+>>>>> - } else {
+>>>>> - drm_err(dev, "crtc %u: Can't calculate constants, dotclock = 0!\n",
+>>>>> - crtc->base.id);
+>>>>> + /*
+>>>>> + * Convert scanline length in pixels and video dot clock to line
+>>>>> duration
+>>>>> + * and frame duration in nanoseconds.
+>>>>> + */
+>>>>> + linedur_ns  = div_u64((u64)mode->crtc_htotal * 1000000, dotclock);
+>>>>> + framedur_ns = div_u64((u64)frame_size * 1000000, dotclock);
+>>>>> +
+>>>>> + /*
+>>>>> + * Fields of interlaced scanout modes are only half a frame duration.
+>>>>> + */
+>>>>> + if (mode->flags & DRM_MODE_FLAG_INTERLACE)
+>>>>> + framedur_ns /= 2;
+>>>>> +
+>>>>> + if (linedur_ns > INT_MAX || framedur_ns > INT_MAX) {
+>>>>> + drm_dbg_kms(dev, "crtc %u: Can't calculate constants, mode clock
+>>>>> too small!\n",
+>>>>> +    crtc->base.id);
+>>>>> + goto error;
+>>>>> }
+>>>>>
+>>>>> vblank->linedur_ns  = linedur_ns;
+>>>>> @@ -678,7 +687,16 @@ void drm_calc_timestamping_constants(struct
+>>>>> drm_crtc *crtc,
+>>>>>       crtc->base.id, mode->crtc_htotal,
+>>>>>       mode->crtc_vtotal, mode->crtc_vdisplay);
+>>>>> drm_dbg_core(dev, "crtc %u: clock %d kHz framedur %d linedur %d\n",
+>>>>> -     crtc->base.id, dotclock, framedur_ns, linedur_ns);
+>>>>> +     crtc->base.id, dotclock,
+>>>>> +     vblank->framedur_ns, vblank->linedur_ns);
+>>>>> +
+>>>>> + return 0;
+>>>>> +
+>>>>> +error:
+>>>>> + vblank->linedur_ns  = 0;
+>>>>> + vblank->framedur_ns = 0;
+>>>>> + drm_mode_copy(&vblank->hwmode, mode);
+>>>>> + return -EINVAL;
+>>>>> }
+>>>>> EXPORT_SYMBOL(drm_calc_timestamping_constants);
+>>>>>
+>>>>> @@ -2221,6 +2239,7 @@ int drm_crtc_vblank_start_timer(struct drm_crtc
+>>>>> *crtc)
+>>>>> struct drm_vblank_crtc *vblank = drm_crtc_vblank_crtc(crtc);
+>>>>> struct drm_vblank_crtc_timer *vtimer = &vblank->vblank_timer;
+>>>>> unsigned long flags;
+>>>>> + int ret;
+>>>>>
+>>>>> if (!vtimer->crtc) {
+>>>>> /*
+>>>>> @@ -2239,7 +2258,9 @@ int drm_crtc_vblank_start_timer(struct drm_crtc
+>>>>> *crtc)
+>>>>> hrtimer_try_to_cancel(&vtimer->timer);
+>>>>> }
+>>>>>
+>>>>> - drm_calc_timestamping_constants(crtc, &crtc->mode);
+>>>>> + ret = drm_calc_timestamping_constants(crtc, &crtc->mode);
+>>>>> + if (ret)
+>>>>> + return ret;
+>>>>>
+>>>>> spin_lock_irqsave(&vtimer->interval_lock, flags);
+>>>>> vtimer->interval = ns_to_ktime(vblank->framedur_ns);
+>>>>> diff --git a/include/drm/drm_vblank.h b/include/drm/drm_vblank.h
+>>>>> index 2fcef9c0f..d99772dfa 100644
+>>>>> --- a/include/drm/drm_vblank.h
+>>>>> +++ b/include/drm/drm_vblank.h
+>>>>> @@ -311,8 +311,8 @@ void drm_crtc_vblank_on(struct drm_crtc *crtc);
+>>>>> u64 drm_crtc_accurate_vblank_count(struct drm_crtc *crtc);
+>>>>> void drm_crtc_vblank_restore(struct drm_crtc *crtc);
+>>>>>
+>>>>> -void drm_calc_timestamping_constants(struct drm_crtc *crtc,
+>>>>> -     const struct drm_display_mode *mode);
+>>>>> +int drm_calc_timestamping_constants(struct drm_crtc *crtc,
+>>>>> +    const struct drm_display_mode *mode);
+>>>>> wait_queue_head_t *drm_crtc_vblank_waitqueue(struct drm_crtc *crtc);
+>>>>> void drm_crtc_set_max_vblank_count(struct drm_crtc *crtc,
+>>>>>     u32 max_vblank_count);
+>>>>> -- 
+>>>>> 2.54.0
+>>>>>
+> 
+
