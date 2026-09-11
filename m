@@ -1,78 +1,78 @@
 Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A591F477999
-	for <virtualization@lists.linux.dev>; Fri, 11 Sep 2026 12:48:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E42C409613
+	for <virtualization@lists.linux.dev>; Fri, 11 Sep 2026 12:48:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789130891; cv=none; b=d86G9DTYm0oh0vRyCkBI6VUFjvQJiNlk+iQGmZmYZ36TjnaVRvXyl0/v3sfBgrwP7oL/c6Busbb25NDFVIiSHOL+pWj41gohn8sxlnsGQ1Y9LDo1n+llR4fZmOCsqi4JlbGPDesvbDXENS7v8klGGZ1klmRNea6XzknBeGKl30o=
+	t=1789130917; cv=none; b=il30A/Tig1f2nsyWHINnj8oTulc/wQGFRAOUa3kEmg9G4hK5LnecNigBtPicJ+g8wrQ6CjdMbx02XseZyXzrmjGPsZzDhow6yZC3KCl/l2od0rdN6D7wTRb2IXVfTB+dYq8XHDpLT0Ne2ZTHGgOJ4xz4Ym+gv45VnBcncBfHktc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789130891; c=relaxed/simple;
-	bh=FDTiyA0OkO6gPzRwEx1f3yKoyo4NIFSiLW36A8/Cip0=;
+	s=arc-20240116; t=1789130917; c=relaxed/simple;
+	bh=LJHZ6KCxwsKKNuf/zX87PHgsvBnitasvTfoElzqx/lc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=eUqFMlzxd9kFwuI/DO13I5/F3VisP4gl1nlr2Ud93NxWu3Yd8NaLsp+mQqeCF9Au2m4R5gDCW0ARO6yESZsdy2jXCOtRks99IfkbosAWMXxvVcD3eEhUvbx+2g4pxxdPw9+GW8Cj68hp2HpuaDVT0LcMC+QgsrA2Rw76blhcRDw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=rLLT+MHD; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=HCXUvaoi; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=r0Se8txc; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=Tpo9UnOa; arc=none smtp.client-ip=195.135.223.130
+	 MIME-Version; b=UqeWJ9C5dVO4PhwY1kHxIcRdwr3pisVZN3V/10+DqstHJSPlsKcIUUmzW1CHO0MZEbeYP4VgAL5fiaAw6vCImEJbBhF31xLrW2Nt9DVGy7HSJf/WMwvmZ7Jb7/mPKOidcAw8ooQxDx+PX4Inr7xJzOi0Tliqv+mDpBACRkqGQho=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=e29Oa1xF; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=ALyD02LC; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=Uf7/pL2F; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=vCrEhHV5; arc=none smtp.client-ip=195.135.223.130
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="rLLT+MHD";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="HCXUvaoi";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="r0Se8txc";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="Tpo9UnOa"
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="e29Oa1xF";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="ALyD02LC";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="Uf7/pL2F";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="vCrEhHV5"
 Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 4845721D47;
-	Fri, 11 Sep 2026 12:45:51 +0000 (UTC)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 512DF21D67;
+	Fri, 11 Sep 2026 12:45:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1789130755; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1789130756; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=gROToXlK8SjdMBn2SBlcMsgteVlZQArVpFSxxwGrkhg=;
-	b=rLLT+MHDTOOLzGNZKKkC04iB2JjCF+hb85N1F+6vQLTLiS7wytyenutZ1yb/yoq6hx/oFy
-	1wqkjR5RX9CGxw+gc/nawySRoggV3cUtHhqierNvn0KfT6r9ZOVHMGh9j2ZQQJyRWjm/Ff
-	mZ2xggmMbvEbseJmtnh4yXfeJlzOHJw=
+	bh=/yw/+e2gzQxo9H+pdwIa/AXa45ESt2VPejHwf9N8gL4=;
+	b=e29Oa1xFS7EvCT/Twis4W+zabXg4WlAFO5wNmeaEblSD97h5J82BBRaTmWH8htfnkcOx+B
+	8G5Ar1ko3aEQTvb1G/y04Ehm8hD+EizcbzfkmPdCPUthx3YrTz0e74pPjr1qfQgmwqV5Ds
+	vYyN34/VEukJSXaxTzMh6R4Z1h9T9Mw=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1789130755;
+	s=susede2_ed25519; t=1789130756;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=gROToXlK8SjdMBn2SBlcMsgteVlZQArVpFSxxwGrkhg=;
-	b=HCXUvaoitZXsStgV2D0dDtdr96rIzeeeWWH/9oTOiEUIoZXkoaCj8SZGLSbJAweuqYpsx3
-	y7nDML4RlZbWrJDw==
+	bh=/yw/+e2gzQxo9H+pdwIa/AXa45ESt2VPejHwf9N8gL4=;
+	b=ALyD02LCN9j0MyFx1q6nKPo5caPjsAKLraWALUyuwhFfsVkxLiHzn6ZWbZfhU02cfELx0E
+	C5LfCklP1QrizJAA==
 Authentication-Results: smtp-out1.suse.de;
 	none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1789130751; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1789130752; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=gROToXlK8SjdMBn2SBlcMsgteVlZQArVpFSxxwGrkhg=;
-	b=r0Se8txcomoz1NFdbI/gUovNBxMyRh9gc258G+lFQRHT1VV40xbmmu9L6wO/ToRoyIXNgR
-	FNJfYOeEOsKyVpv3F7o0+9u7nGkaHrZUxyWuTzyIJe0SLoCgj+HPjs8s0UEDn0zjzYKafD
-	LbmiQskibbabQFDLthMWOXzoWHLsg6U=
+	bh=/yw/+e2gzQxo9H+pdwIa/AXa45ESt2VPejHwf9N8gL4=;
+	b=Uf7/pL2F3BXitbtkLejjeB65jZGFp/fNd8lJ3ixj4tJs/6FAqegHYinUcJlJ4zfLorPHrl
+	bzyoFAeVHb4DA2cS2LTNJmRPN9Zor9dqlx22A1BCJRFACH2YiTVPyfMrfSR37PhXaiwtt8
+	hD9Mshv9meFxhmjAgUPF7oN+pYZFHEQ=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1789130751;
+	s=susede2_ed25519; t=1789130752;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=gROToXlK8SjdMBn2SBlcMsgteVlZQArVpFSxxwGrkhg=;
-	b=Tpo9UnOabfghU9gXBmXTIuR1NOzDd++YS7BWyAmko+9vgbSMcVDZZv7XZaXoH5+4VvHUrj
-	Q+aDCg5gwy6+bCAA==
+	bh=/yw/+e2gzQxo9H+pdwIa/AXa45ESt2VPejHwf9N8gL4=;
+	b=vCrEhHV5x+2HNHCTInx512gGwfmjw56Tv7GH3g02rDS/V+yl7KIpzz2sYlk13P317reNuB
+	PGPaNXrfDAjz5jBg==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 4BBFE13865;
-	Fri, 11 Sep 2026 12:45:49 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id EFDDF136ED;
+	Fri, 11 Sep 2026 12:45:50 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id 4CIZEf33o2r8EQAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Fri, 11 Sep 2026 12:45:49 +0000
+	id YGEjOf73o2r8EQAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Fri, 11 Sep 2026 12:45:50 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: jfalempe@redhat.com,
 	javierm@redhat.com,
@@ -95,9 +95,9 @@ Cc: dri-devel@lists.freedesktop.org,
 	virtualization@lists.linux.dev,
 	sashiko-reviews@lists.linux.dev,
 	Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v5 07/14] drm/panic: Return from screen_user if display is too small
-Date: Fri, 11 Sep 2026 14:44:00 +0200
-Message-ID: <20260911124540.279841-8-tzimmermann@suse.de>
+Subject: [PATCH v5 10/14] drm/panic: Restrict to primary planes
+Date: Fri, 11 Sep 2026 14:44:03 +0200
+Message-ID: <20260911124540.279841-11-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260911124540.279841-1-tzimmermann@suse.de>
 References: <20260911124540.279841-1-tzimmermann@suse.de>
@@ -108,8 +108,9 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Score: -6.80
 X-Spam-Level: 
+X-Spam-Score: -6.80
+X-Spam-Flag: NO
 X-Spamd-Result: default: False [-6.80 / 50.00];
 	REPLY(-4.00)[];
 	BAYES_HAM(-3.00)[100.00%];
@@ -127,50 +128,66 @@ X-Spamd-Result: default: False [-6.80 / 50.00];
 	TO_MATCH_ENVRCPT_ALL(0.00)[];
 	RCVD_VIA_SMTP_AUTH(0.00)[];
 	FREEMAIL_TO(0.00)[redhat.com,gmail.com,linux.intel.com,kernel.org,linux-m68k.org,infradead.org];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid,suse.de:email,imap1.dmz-prg2.suse.org:helo];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:email,suse.de:mid];
 	FROM_EQ_ENVFROM(0.00)[];
 	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
 	RCVD_TLS_ALL(0.00)[];
 	R_RATELIMIT(0.00)[to_ip_from(RLhthb38qh1ntkuzcrgoc19dwi)];
 	FREEMAIL_ENVRCPT(0.00)[gmail.com]
-X-Spam-Flag: NO
 
-Return an error if the display is too small to display at least a
-single character. If the panic handler cannot display any message
-it does at least not destroy the current output, which might help
-with identifying the problem.
+Restrict panic handling to primary displays. Overlays and cursors
+should not display panic output. If there are exceptions, they can
+be registered by the driver itself.
 
-v4:
-- also check font height against scanout buffer (Jocelyn)
+v3:
+- also update drm_panic_is_enabled() (Sashiko)
+- still do some testing when unregistering (Sashiko)
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 Reviewed-by: Jocelyn Falempe <jfalempe@redhat.com>
 ---
- drivers/gpu/drm/drm_panic.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/drm_panic.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/gpu/drm/drm_panic.c b/drivers/gpu/drm/drm_panic.c
-index f597ef04c5bc..b1cd5e5865a0 100644
+index 809d51ad78a8..522ea990a2e9 100644
 --- a/drivers/gpu/drm/drm_panic.c
 +++ b/drivers/gpu/drm/drm_panic.c
-@@ -486,7 +486,7 @@ static int draw_panic_screen_user(struct drm_scanout_buffer *sb, u32 fg_color, u
- 	struct drm_rect r_screen, r_logo, r_msg;
- 	unsigned int msg_width, msg_height;
+@@ -1059,9 +1059,13 @@ bool drm_panic_is_enabled(struct drm_device *dev)
+ 	if (!dev->mode_config.num_total_plane)
+ 		return false;
  
--	if (!font)
-+	if (!font || font->width > sb->width || font->height > sb->height)
- 		return -EINVAL;
+-	drm_for_each_plane(plane, dev)
+-		if (plane->helper_private && plane->helper_private->get_scanout_buffer)
+-			return true;
++	drm_for_each_plane(plane, dev) {
++		if (plane->type != DRM_PLANE_TYPE_PRIMARY)
++			continue;
++		if (!plane->helper_private || !plane->helper_private->get_scanout_buffer)
++			continue;
++		return true;
++	}
+ 	return false;
+ }
+ EXPORT_SYMBOL(drm_panic_is_enabled);
+@@ -1079,6 +1083,8 @@ void drm_panic_register(struct drm_device *dev)
+ 		return;
  
- 	fg_color = drm_draw_color_from_xrgb8888(fg_color, sb->format->format);
-@@ -560,7 +560,7 @@ static int draw_panic_screen_kmsg(struct drm_scanout_buffer *sb, u32 fg_color, u
- 	struct drm_panic_line line;
- 	int yoffset;
+ 	drm_for_each_plane(plane, dev) {
++		if (plane->type != DRM_PLANE_TYPE_PRIMARY)
++			continue;
+ 		if (!plane->helper_private || !plane->helper_private->get_scanout_buffer)
+ 			continue;
+ 		plane->kmsg_panic.dump = drm_panic;
+@@ -1106,6 +1112,8 @@ void drm_panic_unregister(struct drm_device *dev)
+ 		return;
  
--	if (!font || font->width > sb->width)
-+	if (!font || font->width > sb->width || font->height > sb->height)
- 		return -EINVAL;
- 
- 	fg_color = drm_draw_color_from_xrgb8888(fg_color, sb->format->format);
+ 	drm_for_each_plane(plane, dev) {
++		if (plane->type != DRM_PLANE_TYPE_PRIMARY)
++			continue;
+ 		if (!plane->helper_private || !plane->helper_private->get_scanout_buffer)
+ 			continue;
+ 		kmsg_dump_unregister(&plane->kmsg_panic);
 -- 
 2.55.0
 
