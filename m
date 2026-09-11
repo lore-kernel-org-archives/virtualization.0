@@ -1,56 +1,61 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86D6844F540;
-	Fri, 11 Sep 2026 12:55:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BF7247DD4B;
+	Fri, 11 Sep 2026 12:56:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789131313; cv=none; b=oqi1XzWqf1EOdO6gYoOMDW0QKuKxwdFT+77UCJ5ZYVvqBzlaC2De5Kd78ubDQMjrIE7INPNyATEIRTny5Hf+3zSRt/AlLQADnL0otGBt1ZBRmOho+CX4JzlLWnq5DRcwQwfsvVAvjOogRMJk6ZmLgpInyOc0ggcNFzIou395Mic=
+	t=1789131406; cv=none; b=LI2mt5Y/za7WmdGI0OhrKCk+J3CTg2b1uWIfHLqN4D91lRKUFi2OWgeJFwfsM9BX34Mi4b6uljnTMnp+uQ+/1WSlImfb4chzIRSl5T6YpiwvmgsGAGPPJqNliZTxAHWLMx/IWfKVq2HF/O1/V/wE1bMHYtXdcTvjV00ZGrPF+E0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789131313; c=relaxed/simple;
-	bh=an0BVH+ZbY2/m5yLlE1s2KfrTVlB5o9WmKtC+kS3FTQ=;
+	s=arc-20240116; t=1789131406; c=relaxed/simple;
+	bh=rXhwekFRIFNcSHEsXsELluQd1XAplSrNfZs9RSi5KQg=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=IO0s6K9vgX4iGPCnQLnY/NNmejXQCeBF3r/mYturF+rkELP61SzFPlQ3VqnVtaqGCTDee3nKiqiGt3nU6QsgO589+Chdkh8lcto8RLwA9MT+aLPA5G7ibY/oISoa0oDj1wQ7wKaJo8wS16tN1u9cpHCMfMHqBTCtICM35VT6hIs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eYQIhxm8; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=iv6qtbHoE5LcRra8UwSUlGwcaY4powuQAGQGHm4iXfkpofF3/uEH749oQvhDOG4fUnjTgVbRBnOZm5Md7PXn+lpoaKWnY6onQQWbdEdrqtnP8QNIMcHyP2GC8AWhVLxv4wyMJjMuUo66CeDwR7qxSQo2sp9tnIcZe+E4T+xKero=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DJB3Rulm; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eYQIhxm8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 512D21F000FF;
-	Fri, 11 Sep 2026 12:55:11 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DJB3Rulm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 860C21F000FF;
+	Fri, 11 Sep 2026 12:56:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789131312;
-	bh=an0BVH+ZbY2/m5yLlE1s2KfrTVlB5o9WmKtC+kS3FTQ=;
+	s=k20260515; t=1789131389;
+	bh=rXhwekFRIFNcSHEsXsELluQd1XAplSrNfZs9RSi5KQg=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=eYQIhxm8bz+zg3lMoJknpy4qOCj0QpHQhMVBHgxVD1MAsux/FRPCzEXSZtIbKVzgO
-	 fL16HDUJ6KBvYQvJxw21Y9OjRrhKsug0pl3MRzoDy/KApNrICjxLUFJvd4vE1Rmwgh
-	 U9/DnVU4R1tnIgllFmMgBAhjKXm5NJxbUI8IgsL9q6q/zFMkKNmAWEAgA4JEws7L0g
-	 qeHPs5hnc12mj5HhbG/3Cbj4s/39M4tom1QpfochVtBD8jL0uE1K7GcCli4qRW2l25
-	 Ee9exB/eCUIJYgVDOaSj3/uK8Hz9/afWAceSjOf1zveiiXRLNu78HqvQpCUa6Poljh
-	 FaIXcRBORaaEg==
+	b=DJB3RulmoeFIM3hDilBjEPVJnSV7lfHw7/wf0t2n00Mi7DRMp4XJNUK1rro2v5xdL
+	 G74Vga6gfzGh4HRdPQVCEz993XIJgfy39BcksOUmjLupGIhHWqKuny4C4B+THf72Ap
+	 7vN+t6D+rnbC9SDifEFfKFOQz1Dq3wWLZr5iTCoT6V0w5neiMz14MzYc0FDhS6EKyX
+	 mDvw86keH7ow31N7K5gndEJ62mUdfuP49kroClijWwapcrjfcm4MCEjAXrpyH/NqPK
+	 KOV8dszXxMz+T2n8qFSB85Nrdi387XRJuAWMMrGi2PrQZkN2V3E45BQqXPbrBuLMUF
+	 9cKZaPKDtz4cw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 10/14] drm/panic: Restrict to primary planes
+Subject: Re: [PATCH v5 04/14] drm/panic: Return errno codes if panic output
+ fails
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Thomas Zimmermann" <tzimmermann@suse.de>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, ojeda@kernel.org, "Eugenio Perez" <eperezma@redhat.com>, wsa+renesas@sang-engineering.com, gary@garyguo.net, imx@lists.linux.dev, intel-xe@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, virtualization@lists.linux.dev, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, Frank.Li@kernel.org
-In-Reply-To: <20260911124540.279841-11-tzimmermann@suse.de>
+Cc: "Eugenio Perez" <eperezma@redhat.com>, linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev, Frank.Li@kernel.org, gary@garyguo.net, intel-xe@lists.freedesktop.org, dri-devel@lists.freedesktop.org, wsa+renesas@sang-engineering.com, ojeda@kernel.org, intel-gfx@lists.freedesktop.org, "Michael
+ S. Tsirkin" <mst@redhat.com>, imx@lists.linux.dev
+In-Reply-To: <20260911124540.279841-5-tzimmermann@suse.de>
 References: <20260911124540.279841-1-tzimmermann@suse.de>
- <20260911124540.279841-11-tzimmermann@suse.de>
+ <20260911124540.279841-5-tzimmermann@suse.de>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 11 Sep 2026 12:55:10 +0000
-Message-Id: <20260911125511.512D21F000FF@smtp.kernel.org>
+Date: Fri, 11 Sep 2026 12:56:27 +0000
+Message-Id: <20260911125628.860C21F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-> Restrict panic handling to primary displays. Overlays and cursors
-> should not display panic output. If there are exceptions, they can
-> be registered by the driver itself.
+> Return errno codes from the panic output helpers to detect invalid
+> panic handling. Avoid flushing the display if an error ocured. The
+> unflushed display output might be helpful in debugging.
 >=20
-> v3:
-> - also update drm_panic_is_enabled() (Sashiko)
-> - still do some testing when unregistering (Sashiko)
+> For now, test the result values in the panic test cases. A later patch
+> will add support for retrying failed panic output.
+>=20
+> v2:
+> - forward return value of draw_panic_screen_user() (Sashiko)
+> - forward errno code from drm_panic_get_qr_code
 >=20
 > Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 
@@ -58,5 +63,5 @@ Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260911124540.2798=
-41-1-tzimmermann@suse.de?part=3D10
+41-1-tzimmermann@suse.de?part=3D4
 
