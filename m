@@ -1,153 +1,191 @@
-Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9BDD496D38
-	for <virtualization@lists.linux.dev>; Fri, 11 Sep 2026 16:44:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C14DC364029
+	for <virtualization@lists.linux.dev>; Fri, 11 Sep 2026 19:38:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789145067; cv=none; b=hjA3Fq6nSI2fVxgpz6cU9KIzYRh0Sn7xQxOos4RgNiTdrih3n9TJOrTJPocCqkuO9HcPDEwx47dQ/JD/WK/OIQ+0JJpzwPLnEVAcQN9TxKi0FO6nuEA5wv+JNC6NntwGCaudr2ui8fJnAsrwuxY6cTt0WIR/Lhp4dHgoVoXq7RY=
+	t=1789155546; cv=none; b=Ri6F1+JmLECkVzEvk+fUn1LD03cvw4Pt3w/9nCf6zO4q9gx8Fs5ffZ4YSXP39LoDsnRDbVq0crcDiHBXqR77jXV9UTUH8BO3U1vLvGZT2ZHTekfR9mb20ydGewQYBgRoawuxxAJjyeYNCGMxH5lsERphePOROmHWeaTtA4hCPsY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789145067; c=relaxed/simple;
-	bh=KRsMfl0dl8Qf6tQlsyjrXTK7LiHsTdlrKuIcd3ee2pg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=lH2tECd2QL5f/3zzsp6nMkm0tsqvDKn1vJ3e7CKwOP350bWZjysSvyOltlMgK6qwyhb9y67wwlOnq7f3YM1x4VVdtpVUOqfDpNOECvcDI9jQsP5yfNVIpc70HtYzrgGMiqM5WxcJN1vCK94cadLJ1BNLyAdOgFZQvkBBgTN46SQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XD4AIzbN; arc=none smtp.client-ip=209.85.210.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1789155546; c=relaxed/simple;
+	bh=wV1C5Bm1FWWQaO3HlT+8zYZjeIdvR2E5WEysqi+CSVQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=Ld/wh6dRuIQkzCQ4N2hxJIpPDTEWqpM5RZUwbg5yYgR3SZd18X2AJAvC6okvYGP41ZDp/INHdgXpdhcErK4cvMdn/Z4z8JQTT0bu0r7E329cVTCCkgJJOLQjK7+f7rAE8wVvRPQm5xbaxhCOq+XoH4hzzx/Mo8qXPnfk4yXA0ik=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=O9KfGc/w; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XD4AIzbN"
-Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-86927f9ba4dso1161111b3a.1
-        for <virtualization@lists.linux.dev>; Fri, 11 Sep 2026 09:44:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789145065; x=1789749865; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=KRsMfl0dl8Qf6tQlsyjrXTK7LiHsTdlrKuIcd3ee2pg=;
-        b=XD4AIzbN2MnnbGQNKhTryMfxjgyVDZpiyyyJs7P/RdWc/w1evQpfKJt1yxzhaeuJq9
-         GVRHn5KG6AA/3D2dJnnO+XriY8Dv6EThFL4QgQWm6CRvvSMFN6mv5UQtYu+gE6ESA05b
-         ImNH8cgTK/fnmCoX+qx/KgABZ6LT25ifwWsRbXliyD2L6+x2igpbZ7K6OvRaAHT8edWm
-         A+uWAgN+/PPKDG3S+YUKCwyGp9NQn0OsOBMXJgOsptY/7n8ruKltML32IYIHy6zt7NY1
-         5ohNPBmPsZojF4ubMdMOARTn2QOZCvRbASxvh/usIuCb+/CVoG1FaiPkMhtPGAZHknVe
-         sVDA==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="O9KfGc/w"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1789155527;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=bnhidkRyqiU1KNU2WPOXr40xiYcOCBtt1tPY8m9570M=;
+	b=O9KfGc/wLLs8LyO+w0lTVN1mo4feU/k9R2az/Q9nXUiNyAGTEEuDD0AfcoYOeEhN0famqV
+	F+ilKzaxVYPY8TltYOqRv57rq5LrLQH8yrVQr7kNvhnNL9sEKWuS6QZ+qtzQcgSQ8V8VmJ
+	sD49e+8GDO6i+fyHeKSNx+GN5aRTR0c=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-144-KMV9ji9FPOi5vl1P_EFZng-1; Fri, 11 Sep 2026 15:38:46 -0400
+X-MC-Unique: KMV9ji9FPOi5vl1P_EFZng-1
+X-Mimecast-MFC-AGG-ID: KMV9ji9FPOi5vl1P_EFZng_1789155525
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-490a767b782so10932075e9.2
+        for <virtualization@lists.linux.dev>; Fri, 11 Sep 2026 12:38:46 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789145065; x=1789749865;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=KRsMfl0dl8Qf6tQlsyjrXTK7LiHsTdlrKuIcd3ee2pg=;
-        b=Mgix3v1umDAZNGujJAGCkpuI1ScjvUZ/xVzv8AfHeQtVMxrvFtlNNyknAOCqkW7nuR
-         Ci+BADdo+PigtQognsFFjkh1hH2eadYYcPsSCC6jGk/11dyAs2lA3aQydw3875WQIFqX
-         wOcnZD5QEsUBu7ytDDDVnjDhUVrHW9Wumi3cb6t3dHal/eQVbDTbxwNqxIk96j2Hsi9y
-         /2bh52GIHr24RP7bCezrAiC9l4aAEKk9xN+TvnojcTfrbAaqCHoc/vnVSiE7JRPShW4U
-         Dz1qLUxEDLTsE+vwiX+oHuYdB9jMRtD1KLeC1JLAEN2L+ZD4PtURINZPnFlyXXyQutLL
-         QzLw==
-X-Forwarded-Encrypted: i=1; AKwUvBwmgvsmmk3sI64SKrvNpGGQEkpKHgGafjUAxzsQO4GbjIzoQHJRl0olTMKcYdhzovWM7nXobEwnLOWjC4wwbg==@lists.linux.dev
-X-Gm-Message-State: AFuF++mCro5PysMEq2vHPfxClEBu49LFVwSM3RG4z3Crmlp3Ndhq37X2
-	m9NdZjEsiNc48/16dIealmebAB3cAAfmq0mEZGBdG6rERK7ha/Msg+9/
-X-Gm-Gg: AYBFou2KdxogvwAW4CPQqmegVKbFdrl9mgAyiLDcJ/A8xAbl5P5dRHpsgJWfKXYKBKA
-	233y+flhH5I8Q/6kMcqMAE5QENoJL14ALUe3/xjIW6w8kSaKca263sjc2Y2OVIGrF36TFP0XpWH
-	8bWu9iHJLkVV7pacKMyw90JkxhMl5bPJeVakDuB0pBmHuyFSFqHqotcd9G+NI4i1i+lV+2xQVUc
-	/faQAZZkgrdC6+uV61iP0xohYiMLx7PVCtYbXqrcZBBWKw631UOB8ujTlIc3WvuEtAiLu8BOE2W
-	WbvQwCaWSeWFhtsYW9m4YK3iCj4CX+MIpe5189LuSZwTFO++ksAyvwVNT9qUp9ya4E1x/ubseNZ
-	3u5KRmKOBRGr2ShiOA2JWp7GvEZHiOs6WXZpJUCqBmlS26hDZ2y10TG+gIs67A6GkuzznlQkBK0
-	OlEJaqA//f3LtNGPVCGy/MItTAIIeGnVa8qQPkwxiBBZoNvKpJCt10ULQ+Q2zgJ20F/ub2bo+x6
-	aKnTr/mCuQcl3psSwI=
-X-Received: by 2002:a05:6a00:a244:b0:851:b03a:fcb with SMTP id d2e1a72fcca58-86b3011a828mr7287479b3a.14.1789145065008;
-        Fri, 11 Sep 2026 09:44:25 -0700 (PDT)
-Received: from thangnn-ASUS.. ([2405:4802:1d38:5c70:b928:dcab:35a4:adf0])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-86b2a5c052csm1404407b3a.58.2026.09.11.09.44.21
+        d=1e100.net; s=20251104; t=1789155525; x=1789760325;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=bnhidkRyqiU1KNU2WPOXr40xiYcOCBtt1tPY8m9570M=;
+        b=oDVIF+4mDfkm14x6y8mpNv6w32R9PsMniRJrnVImisJtmT4Ccjmo81sin4Ww77v5hC
+         GURnR9oLFiSWx4bfm+oHI2XK+w7aUYJ2IqUMyp72bnnR5agssDGp7i2onlumZNDCduz4
+         ng5Eb5txQKeG5iKXHEPM9pz1PFDHKL9fRJ6pMmzZNzU647SV1brYiEkNlSqhwdjprDoR
+         MWjT5t0fY7hnGaa6xE49wUmjDqXfSa4J6uC1UHsn+6Fckv1M2GMlQ/f1ZIZ4LWdTCDzG
+         KeL/OzvHLog/OqozdENYY4H4lvFhWtqi2+VWJ+vUZ9ZcWXoYdppylM5Ns7/RmEWTl4Me
+         +0Sw==
+X-Gm-Message-State: AFuF++m7ObwCKn0p1y1SBDCHhnW5cyhaXMFNRU0WDB+t28zFjtvXTbFk
+	rNIXLSZvw53gCLroE26N6vxHpqgwOj3IZ8hrRgmuD5cfj7Ce74sloE/2MImXMUN1OQv14c5cCLC
+	Qi+R4xkXEYj7d8Kh+pBH8SCB+KZduB4x2ysIBFjqDx+DrEfOEvldcNAyirubuZi0Z9NdX
+X-Gm-Gg: AYBFou1PmV3rGHsU2UqvY4JENNRAnP0ws7gFcHYDIeRNVFIAUikZveVY5JuqGOdGv/r
+	rvP3ipyi0u5sEAPinCUQXb+tVkBFo3jhUlx/R01SRadrge3xOBPvTO38yW8snot9llfUl+Fm2/D
+	5R3SOO2aWVjfMnWaMmzzxU79w3eGn03dujfge4SS32yiqBquJkICunOd3o1hfUSjCRYduluIZbm
+	7rcinf9Eu6/dkTwWwPeuIZ25kWhiijDXqGfieGSsdxT8gjgkVx3x3n+DHWPKtQAcTSZO0GvdCNF
+	CLaZHEX0ymlV4B5X13q89678Utg21nLpkzvkzJdL79F0cGeKUrbqO3VY+QdIH8LHMHE=
+X-Received: by 2002:a05:600c:3b27:b0:49c:fc6e:a3d8 with SMTP id 5b1f17b1804b1-49e619cc2aemr71854505e9.23.1789155524911;
+        Fri, 11 Sep 2026 12:38:44 -0700 (PDT)
+X-Received: by 2002:a05:600c:3b27:b0:49c:fc6e:a3d8 with SMTP id 5b1f17b1804b1-49e619cc2aemr71854275e9.23.1789155524389;
+        Fri, 11 Sep 2026 12:38:44 -0700 (PDT)
+Received: from redhat.com ([147.235.223.59])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49d26c300e2sm194467235e9.8.2026.09.11.12.38.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Sep 2026 09:44:24 -0700 (PDT)
-From: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>
-To: mst@redhat.com,
-	jasowangio@gmail.com,
-	mkp@kernel.org,
-	James.Bottomley@HansenPartnership.com
-Cc: pbonzini@redhat.com,
-	stefanha@redhat.com,
-	eperezma@redhat.com,
-	virtualization@lists.linux.dev,
-	linux-scsi@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	sashiko-bot@kernel.org
-Subject: Re: [RFC PATCH] scsi: virtio_scsi: bound EH timer resets to avoid unkillable hang
-Date: Fri, 11 Sep 2026 23:44:17 +0700
-Message-ID: <20260911164417.33860-1-ngocthang2710.1999@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260911163509.684191F000FF@smtp.kernel.org>
-References: <20260911163509.684191F000FF@smtp.kernel.org>
+        Fri, 11 Sep 2026 12:38:43 -0700 (PDT)
+Date: Fri, 11 Sep 2026 15:38:41 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: sashiko-reviews@lists.linux.dev
+Cc: virtualization@lists.linux.dev, Eugenio Perez <eperezma@redhat.com>
+Subject: Re: [PATCH 2/2] virtio_pci: drop extra callback sync
+Message-ID: <20260911101425-mutt-send-email-mst@kernel.org>
+References: <8f71425918a148dcad1be993ccabd39582d246ee.1789130213.git.mst@redhat.com>
+ <082fd9b2bad1db0088caa38a8d738aa848bf36b2.1789130213.git.mst@redhat.com>
+ <20260911125745.E0A2F1F00899@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <20260911125745.E0A2F1F00899@smtp.kernel.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: H8myLZujVrR89BJZEICrXY2c3Ww86kylMl-t9X4RY40_1789155525
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 
-Thank you for the review -- the eh_host_reset_handler finding is correct,
-and the underlying mechanism is worse than a stale read.
+On Fri, Sep 11, 2026 at 12:57:45PM +0000, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 2 potential issue(s) to consider:
+> 
+> New issues:
+> - [High] Removing `vp_synchronize_vectors()` from `vp_reset()` exposes a race condition in `virtio_device_shutdown()`, allowing in-flight configuration change interrupts to execute concurrently with or after system shutdown.
+> 
+> Pre-existing issues:
+> - [High] Pre-existing data race in `vp_modern_avq_cleanup()` due to missing `admin_vq` lock, leading to potential virtqueue corruption.
+> --
+> 
+> commit 0b14e711d0c9fc7c440dbf71513420ceb19b4bd3
+> Author: Michael S. Tsirkin <mst@redhat.com>
+> virtio_pci: drop extra callback sync
+> 
+> This patch drops the synchronization of callbacks on reset within virtio pci,
+> relying instead on the virtio core to synchronize callbacks when needed.
+> 
+> > --- a/drivers/virtio/virtio_pci_legacy.c
+> > +++ b/drivers/virtio/virtio_pci_legacy.c
+> [ ... ]
+> > @@ -98,8 +98,6 @@ static void vp_reset(struct virtio_device *vdev)
+> >  	/* Flush out the status write, and flush in device writes,
+> >  	 * including MSi-X interrupts, if any. */
+> >  	vp_legacy_get_status(&vp_dev->ldev);
+> > -	/* Flush pending VQ/configuration callbacks. */
+> > -	vp_synchronize_vectors(vdev);
+> 
+> [Severity: High]
+> Does removing this synchronization leave a race condition in the shutdown
+> path?
+> 
+> While the core virtio_reset_device() function was updated to synchronize
+> after the reset returns, virtio_device_shutdown() appears to lack this
+> synchronization:
+> 
+> drivers/virtio/virtio.c:virtio_device_shutdown() {
+>     ...
+>     dev->config->reset(dev);
+>     // No trailing virtio_synchronize_cbs() call
+> }
+> 
+> Because vp_reset() writes to the status register and flushes in-flight
+> interrupts, returning without synchronization means virtio_device_shutdown()
+> can finish while a flushed vp_config_changed interrupt is still executing
+> concurrently. 
+> 
+> Could this lead to unintended access to device structures or DMA memory
+> during system teardown or kexec paths?
 
-Once virtscsi_eh_timed_out() lets SCSI EH run to completion on an
-unresponsive host, scsi_eh_bus_device_reset() leaves the command in
-work_q (device reset fails the same way abort does, via the same bounded
-virtscsi_tmf()), and since virtio_scsi implements neither
-eh_target_reset_handler, eh_bus_reset_handler nor eh_host_reset_handler,
-scsi_eh_target_reset()/scsi_eh_bus_reset()/scsi_eh_host_reset() all fail
-immediately (scsi_try_*_reset() return FAILED when the handler pointer is
-NULL) and the command falls through to scsi_eh_offline_sdevs(), which
-calls scsi_eh_finish_cmd() and frees the tag back to the block layer.
+shutdown does not free memory so I do not see what is the issue
+and why we need to prevent cbs from running.
 
-The struct virtio_scsi_cmd for that command lives in scsi_cmd_priv(),
-i.e. inside the now-freed request. If a new command is queued on the
-same tag, it gets the same address. If the host was only very slow --
-not actually dead -- and eventually completes the *original* descriptor,
-virtscsi_complete_cmd() will read cmd->sc from that shared address and
-call scsi_done() on whatever command currently occupies it, which by
-then is the live, unrelated command still in flight on that tag. That's
-a double completion on a request the driver itself has not finished,
-not merely a read of stale memory.
 
-The original virtscsi_eh_timed_out() comment ("The host guarantees to
-respond to each command... Reset the timer unconditionally") reads, in
-this light, less like an optimistic assumption and more like the
-invariant that kept this reachable at all: as long as EH could never
-progress past abort/device-reset into offline+free, the tag-reuse race
-had no opening. My patch removes that invariant to fix the wbt hang, but
-doesn't supply a replacement, which is the hole you're pointing at.
+> >  }
+> >  
+> >  static u16 vp_config_vector(struct virtio_pci_device *vp_dev, u16 vector)
+> > diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
+> > --- a/drivers/virtio/virtio_pci_modern.c
+> > +++ b/drivers/virtio/virtio_pci_modern.c
+> [ ... ]
+> > @@ -559,9 +559,6 @@ static void vp_reset(struct virtio_device *vdev)
+> >  		msleep(1);
+> >  
+> >  	vp_modern_avq_cleanup(vdev);
+> 
+> [Severity: High]
+> This is a pre-existing issue, but is there a potential data race here with
+> concurrent interrupt handlers?
+> 
+> vp_modern_avq_cleanup() calls virtqueue_detach_unused_buf() without
+> acquiring the admin_vq->lock. If CONFIG_VIRTIO_HARDEN_NOTIFICATION is
+> disabled (leaving vq->broken as false), an in-flight admin vq interrupt
+> flushed during reset might execute concurrently on another CPU:
+> 
+> drivers/virtio/virtio_pci_modern.c:vp_modern_avq_done() {
+>     spin_lock_irqsave(&admin_vq->lock, flags);
+>     do {
+>         virtqueue_disable_cb(vq);
+>         while ((cmd = virtqueue_get_buf(vq, &len))) {
+>     ...
+> }
+> 
+> Could concurrent modification of the virtqueue's internal vring state cause
+> memory corruption or a double complete() execution if the interrupt handler
+> and cleanup routine run simultaneously?
 
-What I looked at as a replacement and why I'm not sending it as a v2 yet:
 
-Adding eh_host_reset_handler that mirrors virtscsi_freeze()/
-virtscsi_restore() (virtscsi_remove_vqs() + virtscsi_init()) was my first
-instinct. virtio_reset_device() does call virtio_break_device() +
-virtio_synchronize_cbs() before dev->config->reset(), which is meant to
-guarantee no vq callback is still in flight when del_vqs() runs -- but
-that pairing is compiled in only under CONFIG_VIRTIO_HARDEN_NOTIFICATION
-(drivers/virtio/virtio.c:255-264), so the safety property isn't universal.
-Separately, a host reset triggered by one wedged command on one LUN would
-tear down and reinitialize every virtqueue on the host, silently
-abandoning any genuinely in-flight, unrelated I/O on other LUNs/targets
-that scsi_error_handler() never queued for recovery in the first place --
-freeze/restore can rely on PM having fully quiesced the block queues
-first; EH's SHOST_RECOVERY only blocks new submissions, it doesn't drain
-what's already dispatched. I don't want to trade the tag-reuse race for
-a config-dependent fix plus silent collateral I/O loss without your
-input on whether that tradeoff is acceptable or whether there's a
-narrower primitive intended for this.
+This is indeed an issue I think: an obvious fix is for now is to move a
+sync before vp_modern_avq_cleanup instead of removing it. The
+implication is that core irq sync is not really needed for pci, but hey,
+it's inexpensive.
 
-Is virtio_break_device() (independent of host reset, and independent of
-CONFIG_VIRTIO_HARDEN_NOTIFICATION) the intended way to make a single
-wedged command's descriptor permanently safe to let go of, without
-resetting the whole device? It looks close -- virtqueue_get_buf() checks
-vq->broken before touching the used ring at all -- but it's one-way (no
-unbreak short of recreating the vq), so I'm not certain it's meant to be
-used outside device teardown. Has this class of problem (bound a SCSI EH
-timeout on a transport that can't cheaply prove a command is gone) come
-up for virtio_scsi or virtio_blk before, and is there a pattern I should
-be following instead of inventing one?
 
-Happy to do the legwork on whichever direction you point at -- I have a
-QEMU virtio-scsi repro harness already wired up for the original hang
-(clearing PCI_COMMAND_MASTER mid-write) that I can extend to exercise
-the recovery path too.
+> > -
+> > -	/* Flush pending VQ/configuration callbacks. */
+> > -	vp_synchronize_vectors(vdev);
+> >  }
+> >  
+> >  static int vp_active_vq(struct virtqueue *vq, u16 msix_vec)
+> 
+> -- 
+> Sashiko AI review · https://sashiko.dev/#/patchset/8f71425918a148dcad1be993ccabd39582d246ee.1789130213.git.mst@redhat.com?part=2
+
