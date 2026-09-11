@@ -1,311 +1,223 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0840E45D90B
-	for <virtualization@lists.linux.dev>; Fri, 11 Sep 2026 08:28:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93FCE46A5FB;
+	Fri, 11 Sep 2026 08:42:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789115341; cv=none; b=ROUlpZEOdwIHkXbdNByybtsFYNAOYT0u9c+ckpyuHyRnEVm1pzTZ1HkSttM2Dv5D64g+6r3lxHOxaoeQ7QPvJfbr9I+guhf4El5RM7a6HlTiwinqgaG5HTBsa9oYNZkD7vPhUsz3wNodzqfRYc6nk14mQo17RS9pDyxcx7zrNgs=
+	t=1789116151; cv=none; b=evhxUke81Mk2nltLRWBiDc/t/7i24WA6F/vMg3hfiqO5b34wKxHoBmfP1tExLZpIxHilo7lbUGIN099RtYMXGoGNX5nYvpGSKKhTrJqFc/KYpZ3dfLEgzNu0Ys90/hlvM2J3iCc5SXTYHR9vUWnrgVBMRyDgC/f3CZQyT8BkP8U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789115341; c=relaxed/simple;
-	bh=Pu4S5l41insNr8QgUfy9ULCojMzy0MiSQy41d7XP7eo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=hwJOWECKO6nEtQsOKziOaDdeNbcNVuVw56HeVsI9dnl3xYh6O1eCfJAyKfqN4MB7ZyG7ts9SMMjdubVQHUaHJaW375Ds3j8Ch/Y1IqiV+F8efn1p0slvJ9RChoh9Ljxj7c4LNafT4URRosOrqLbsWi97bcqp9SuvTU65OjxlQ80=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fntbOtCR; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1789116151; c=relaxed/simple;
+	bh=LobGPdevmpn2bu2mA2Gi1ojWcOe+GqoAjV9E9KxFHHY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=PYaaqONZGlktxmWoaYazWGvMRtbhSAnEckRjhv5QWR7pTAy261xOl0FYx0zMjFoAA8/rUDZ9of/PHq5s/YLdRufZMmp9d8553NnXILd6Og30D1yA9cXn1q8rhtuFERYFMaROi5cvacWKWeFB2Rw1Fj8p5oABR+53KGNe9D59EYI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=oSF6WaHP; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=FoysridP; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fntbOtCR"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1789115338;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=SbNS9M9TjAXtdSfLFxEY4oQmReqXLtUfbSYm45GdAjU=;
-	b=fntbOtCRXyPQEo25FBPcvAlR1fImzaXFxC9lD0+/kSlXPuvKmJfaY1yfNG9M3fW/Eysill
-	YTawvTWaJLrb8tyryTeHkI7MaJhzJuF4N6GUFBwVMJOzTSR5I6lnbZsgoqp34AdabzkSyo
-	il8gULvcvHAe0nNJdNL2pVjgJjSXhLs=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-310-l-O9SNnXMLiSelHxkuiHSA-1; Fri, 11 Sep 2026 04:28:57 -0400
-X-MC-Unique: l-O9SNnXMLiSelHxkuiHSA-1
-X-Mimecast-MFC-AGG-ID: l-O9SNnXMLiSelHxkuiHSA_1789115336
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-486f197e5c2so168755f8f.3
-        for <virtualization@lists.linux.dev>; Fri, 11 Sep 2026 01:28:57 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789115336; x=1789720136;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=SbNS9M9TjAXtdSfLFxEY4oQmReqXLtUfbSYm45GdAjU=;
-        b=GShoL1V2R86ncHbp1H0wkfvYGtxqNtjD5fEHs/kvrO/iMmNejm05fDjlYs2GsYjw55
-         9Bsrsq/bUOoX+u9R39RlUEFE5dzsbyw/CxN5GPoEMBnulG88oQBnUoMErti/Q7BWe+a+
-         le+E9TjGhhX3DRLY2qwmOFYhjVfKnofD9JBAE3+xNIpkGCSE2agnu4Yxh0R5EOXuJ1fl
-         cDDTyBEy6i6nWb17INLzgfhwirJfcRapDs/mnex76ms0WsLJXDaCei/RRyAzx1ILiCBM
-         xSHkJ7dHyndZBl++D8WxBiSMkbYpXrx8NRCZGMprCzrEt2MrxRBL0WV/wuI1Y/9c2hAH
-         lErg==
-X-Forwarded-Encrypted: i=1; AKwUvBzlg8Hg1cvG169+65HLMxB7jF5QvO2gvCxRnTJ51rfJVe6lUSORiwh2YyejTOxz41oruLk/41vlXd78/2BrAQ==@lists.linux.dev
-X-Gm-Message-State: AFuF++kshvL2uyejJVeIX4aA/eRJqWIpzO/7LgfT8m00pEtfZ+3QTNCt
-	pqzqi0atFHRxhuvR8SvVZdVGWjF6pVXH8CBt5COt0dmbZO+ZMdUD20NQ3FYXrorRVqI/ettIU/s
-	eGT1kh3tI+7wwKijprwv+Epz2VTLnt+zs/XSOkA4ujx0MqBGqQFZB5p+QnhDKasCk45W6
-X-Gm-Gg: AYBFou0eyc94axlw3gKBC/3FsTGxRsNCsFCt/jV35Jg9rfmljmKP4UMdMhMt2PumJWl
-	RyuKbKNQnrKeuC9dU9yGUQjqYqAJm2qcxJ0VGAiORsbcZoKj4Z5RziEhEprOwXk6OPZU22oq0Qh
-	jv0B8fHI6uj9rUMh2C6b02xlch4dgigDWKoF9GMzjwU01ndhezQXB7gXnc5RiI4K14wqx3g5PN5
-	mCAWH38FgRtfA4LayMo5z4fSgyQDzqeTZlIFz3JBSeYYSoUpbx/mqO33frhPGQ3xF6sZDBXoOvE
-	IdwQnupl1Jm+wIGWpbVPOpbUaUaRI36YmJUJmg/cJbcXdxklKpUAzr/sAEUWa2DR25gXzzzh2pO
-	FpZ6+LMdJMWUSUiMgNmK64YU=
-X-Received: by 2002:a05:6000:4545:b0:485:ac96:7251 with SMTP id ffacd0b85a97d-486eb33d733mr4553272f8f.21.1789115335880;
-        Fri, 11 Sep 2026 01:28:55 -0700 (PDT)
-X-Received: by 2002:a05:6000:4545:b0:485:ac96:7251 with SMTP id ffacd0b85a97d-486eb33d733mr4553191f8f.21.1789115335332;
-        Fri, 11 Sep 2026 01:28:55 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-79-236.inter.net.il. [80.230.79.236])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-486eb33fd3bsm4392983f8f.19.2026.09.11.01.28.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Sep 2026 01:28:54 -0700 (PDT)
-Date: Fri, 11 Sep 2026 04:28:52 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Peng Hao <flyingpenghao@gmail.com>
-Cc: jasowangio@gmail.com, virtualization@lists.linux.dev,
-	Peng Hao <flyingingpeng@tencent.com>
-Subject: Re: [PATCH] virtio_pci_modern: fall back to 64 bits features for
- devices without an extended features space
-Message-ID: <20260911041337-mutt-send-email-mst@kernel.org>
-References: <20260911081133.16434-1-flyingpeng@tencent.com>
+	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="oSF6WaHP";
+	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="FoysridP"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 2861B1FA79;
+	Fri, 11 Sep 2026 08:42:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+	t=1789116138; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=qEgI7SvgyOOzaYj/SjcnmBWvZe0hxGWWlUZ9bTgElSY=;
+	b=oSF6WaHPW7OVdfEOZx32oULT7pMtMDhVyaDmumJKSZKhq7hzXJjO26fRH2tmqdXVqnKfrT
+	bU2qrynamVWqYQ7VCJeDuX65UZNg0AYVfZPVofp1F07AaNE4HeC9hgmZJmDo06NZ/o8DG9
+	b7SWCgIgrpmTfq7xXnjKtYE1STyHSlk=
+Authentication-Results: smtp-out2.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+	t=1789116134; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=qEgI7SvgyOOzaYj/SjcnmBWvZe0hxGWWlUZ9bTgElSY=;
+	b=FoysridPrct4d9peaV2mGDMhi/buusc59Z5h96JWZ/LtXP0raX6tsqe8nnqQuKGTDl2nqo
+	Bob6CgAb9pLxBS7lpuXQkRl5P+LqboMe4Xmcq4HtMkxhKpNY8rzQutn15ewNhQkP+vn5Vi
+	8l/P7TU7+qnMYbsLklUPkwvjAOfMBV8=
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 23D9613715;
+	Fri, 11 Sep 2026 08:42:13 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id 731eB+W+o2qzFAAAD6G6ig
+	(envelope-from <jgross@suse.com>); Fri, 11 Sep 2026 08:42:13 +0000
+From: Juergen Gross <jgross@suse.com>
+To: linux-kernel@vger.kernel.org,
+	x86@kernel.org,
+	linux-coco@lists.linux.dev,
+	kvm@vger.kernel.org,
+	linux-hyperv@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	llvm@lists.linux.dev
+Cc: Juergen Gross <jgross@suse.com>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Kiryl Shutsemau <kas@kernel.org>,
+	Rick Edgecombe <rick.p.edgecombe@intel.com>,
+	"K. Y. Srinivasan" <kys@microsoft.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>,
+	Wei Liu <wei.liu@kernel.org>,
+	Dexuan Cui <decui@microsoft.com>,
+	Long Li <longli@microsoft.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Vitaly Kuznetsov <vkuznets@redhat.com>,
+	Sean Christopherson <seanjc@google.com>,
+	Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+	xen-devel@lists.xenproject.org,
+	Ajay Kaher <ajay.kaher@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Andy Lutomirski <luto@kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Xin Li <xin@zytor.com>,
+	Nathan Chancellor <nathan@kernel.org>,
+	Nick Desaulniers <ndesaulniers@google.com>,
+	Bill Wendling <morbo@google.com>,
+	Justin Stitt <justinstitt@google.com>,
+	Josh Poimboeuf <jpoimboe@kernel.org>
+Subject: [PATCH v5 00/17] x86/msr: Inline rdmsr/wrmsr instructions
+Date: Fri, 11 Sep 2026 10:41:54 +0200
+Message-ID: <20260911084211.3149957-1-jgross@suse.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260911081133.16434-1-flyingpeng@tencent.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: IVY7YvaUoL1wjSTv47U3sXzutdozFTuDSJuGVdeG59k_1789115336
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-Spam-Score: -2.80
+X-Spam-Level: 
+X-Spamd-Result: default: False [-2.80 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	MID_CONTAINS_FROM(1.00)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_MISSING_CHARSET(0.50)[];
+	NEURAL_HAM_SHORT(-0.20)[-0.995];
+	MIME_GOOD(-0.10)[text/plain];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	FROM_HAS_DN(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[36];
+	TO_DN_SOME(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.com:mid];
+	ARC_NA(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DKIM_SIGNED(0.00)[suse.com:s=susede1];
+	R_RATELIMIT(0.00)[to_ip_from(RLfdszjqhz8kzzb9uwpzdm8png)];
+	RCVD_TLS_ALL(0.00)[]
+X-Spam-Flag: NO
 
-On Fri, Sep 11, 2026 at 04:11:33PM +0800, Peng Hao wrote:
-> From: Peng Hao <flyingingpeng@tencent.com>
-> 
-> Since commit 69b9461512246 ("virtio_pci_modern: allow configuring
-> extended features") the modern virtio-pci driver unconditionally
-> accesses the whole 128 bits features space, i.e. it drives
-> device_feature_select / guest_feature_select with the values 0..3.
-> 
-> Devices predating the extended features space only implement the
-> legacy 64 bits one, and what they report for the selectors above it is
-> not a valid features space.
+When building a kernel with CONFIG_PARAVIRT_XXL the paravirt
+infrastructure will always use functions for reading or writing MSRs,
+even when running on bare metal.
 
+Switch to inline RDMSR/WRMSR instructions in this case, reducing the
+paravirt overhead.
 
-That's a device bug then? The spec says:
+The first patch is a prerequisite fix for alternative patching. Its
+is needed due to the initial indirect call needs to be padded with
+NOPs in some cases with the following patches.
 
-\begin{description}
-\item[\field{device_feature_select}]
-        The driver uses this to select which feature bits \field{device_feature} shows.
-        Value 0x0 selects Feature Bits 0 to 31, 0x1 selects Feature Bits 32 to 63, etc.
+In order to make this less intrusive, some further reorganization of
+the MSR access helpers is done in the patches 2-5.
 
-that "etc" means any value is valid)
+The next 5 patches are converting the non-paravirt case to use direct
+inlining of the MSR access instructions, including the WRMSRNS
+instruction and the immediate variants of RDMSR and WRMSR if possible.
 
-There's no "extended features space". It's a quick hack we did
-in the virtio code to avoid changing all drivers, but the spec
-treats all features uniformly.
+Patches 11-13 are some further preparations for making the real switch
+to directly patch in the native MSR instructions easier.
 
+Patch 14 is switching the paravirt MSR function interface from normal
+call ABI to one more similar to the native MSR instructions.
 
-So you have a device that ignores a feature selector? Or some specific
-bits from it?
+Patch 15 is a little cleanup patch.
 
->  Negotiating it makes the driver and the
-> device end up with different features sets: on a smart NIC exposing a
-> virtio_net device the link comes up but carries no traffic, while the
-> same device works with a kernel that only accesses the low 64 bits.
-> 
-> Reading the features space has no side effect, so keep reading all of
-> it and use the extended part to tell whether the device implements it:
-> report the legacy 64 bits only when the extended words read back as
-> all-ones or as an alias of the low words, and latch the device down for
-> good.
+Patch 16 is the final step for patching in the native MSR instructions
+when not running as a Xen PV guest.
 
-So using all bits is illegal, and so is anything that will by luck
-mirror low bits?
+Patch 17 converts the rest of the MSR helpers to __always_inline.
 
-This is really VIRTIO_F_BAD_FEATURE mess replaying itself.
+This series has been tested to work with Xen PV and on bare metal.
 
-Really quite a hack :( 
+Based on [1] and [2].
 
+Changes since V4:
+- Rebase
+- dropped patch 3 of V4, as already covered by [1]
 
+Changes since V3:
+- Rebase
+- wrmsrns() related changes (patches 9+10)
 
->  As the features negotiation ANDs the device and driver features,
-> no feature above bit 63 can be negotiated afterwards.
-> 
-> Writing a selector the device does not implement cannot be relied upon
-> the same way, so never drive one above the highest word that actually
-> carries a bit.
+Changes since V2:
+- switch back to the paravirt approach
 
-This part is ok.
+Changes since V1:
+- Use Xin Li's approach for inlining
+- Several new patches
 
->  The reset preceding the features negotiation zeroes the
-> device side features, hence the words left unwritten stay cleared.
-> 
-> Also dump the raw device_feature dwords,
+[1]: https://lore.kernel.org/lkml/20260911074530.3140830-1-jgross@suse.com/T/#t
+[2]: https://lore.kernel.org/lkml/20260911075216.3142309-1-jgross@suse.com/T/#t
 
-dump?
+Juergen Gross (17):
+  x86/alternative: Support alt_replace_call() with instructions after
+    call
+  coco/tdx: Rename MSR access helpers
+  x86/msr: Minimize usage of native_*() msr access functions
+  x86/msr: Move MSR trace calls one function level up
+  x86/hyperv: Switch from __rdmsr() to native_rdmsrq()
+  x86/opcode: Add immediate form MSR instructions
+  x86/extable: Add support for immediate form MSR instructions
+  x86/msr: Make wrmsrns() a first class citizen
+  x86/msr: Introduce sync_cpu_after_wrmsrns()
+  x86/msr: Use the alternatives mechanism for RDMSR
+  x86/alternatives: Add ALTERNATIVE_4()
+  x86/paravirt: Split off MSR related hooks into new header
+  x86/paravirt: Prepare support of MSR instruction interfaces
+  x86/paravirt: Switch MSR access pv_ops functions to instruction
+    interfaces
+  x86/msr: Reduce number of low level MSR access helpers
+  x86/paravirt: Use alternatives for MSR access with paravirt
+  x86/msr: Make all MSR access functions __always_inline
 
-> and add a max_features_u64s
-> module parameter to force the legacy 64 bits space on devices whose
-> quirk the detection does not catch.
+ arch/x86/coco/tdx/tdx.c                   |   8 +-
+ arch/x86/hyperv/hv_crash.c                |   6 +-
+ arch/x86/hyperv/ivm.c                     |   2 +-
+ arch/x86/include/asm/alternative.h        |   6 +
+ arch/x86/include/asm/fred.h               |   2 +-
+ arch/x86/include/asm/msr.h                | 340 +++++++++++++++++-----
+ arch/x86/include/asm/paravirt-msr.h       | 180 ++++++++++++
+ arch/x86/include/asm/paravirt.h           |  45 ---
+ arch/x86/include/asm/paravirt_types.h     |  57 ++--
+ arch/x86/include/asm/qspinlock_paravirt.h |   4 +-
+ arch/x86/kernel/alternative.c             |   5 +-
+ arch/x86/kernel/cpu/mshyperv.c            |   4 +-
+ arch/x86/kernel/kvmclock.c                |   2 +-
+ arch/x86/kernel/paravirt.c                |  42 ++-
+ arch/x86/kvm/svm/svm.c                    |  16 +-
+ arch/x86/lib/x86-opcode-map.txt           |   5 +-
+ arch/x86/mm/extable.c                     |  41 ++-
+ arch/x86/xen/enlighten_pv.c               |  52 +++-
+ arch/x86/xen/pmu.c                        |   4 +-
+ tools/arch/x86/lib/x86-opcode-map.txt     |   5 +-
+ tools/objtool/check.c                     |   1 +
+ 21 files changed, 632 insertions(+), 195 deletions(-)
+ create mode 100644 arch/x86/include/asm/paravirt-msr.h
 
-This is even worse.
-
-
-> Conforming devices are unaffected: their extended words are neither
-> all-ones nor an alias of the low ones, so the detection does not
-> trigger.
-> 
-> Signed-off-by: Peng Hao <flyingingpeng@tencent.com>
-
-Can you simply fix the device please? Why not?
-
-And please tell us in what way exactly are your devices broken?
-
-I am not merging multiple hacks "just in case" because there's no
-way to test them for me.
-
-> ---
-> diff --git a/drivers/virtio/virtio_pci_modern_dev.c b/drivers/virtio/virtio_pci_modern_dev.c
-> index 413a8c353463..cfb10c9f32dd 100644
-> --- a/drivers/virtio/virtio_pci_modern_dev.c
-> +++ b/drivers/virtio/virtio_pci_modern_dev.c
-> @@ -5,6 +5,21 @@
->  #include <linux/pci.h>
->  #include <linux/delay.h>
->  
-> +static int max_features_u64s = -1;
-> +module_param(max_features_u64s, int, 0444);
-> +MODULE_PARM_DESC(max_features_u64s,
-> +		 "Max number of 64 bit words of the virtio features space to access (1 = legacy 64 bits only, -1 = auto-detect)");
-> +
-> +static u8 vp_modern_features_u64s(const struct virtio_pci_modern_device *mdev)
-> +{
-> +	u8 u64s = mdev->features_u64s ?: VIRTIO_FEATURES_U64S;
-> +
-> +	if (max_features_u64s > 0 && u64s > max_features_u64s)
-> +		u64s = max_features_u64s;
-> +
-> +	return u64s;
-> +}
-> +
->  /*
->   * vp_modern_map_capability - map a part of virtio pci capability
->   * @mdev: the modern virtio-pci device
-> @@ -230,6 +245,8 @@ int vp_modern_probe(struct virtio_pci_modern_device *mdev)
->  
->  	check_offsets();
->  
-> +	mdev->features_u64s = VIRTIO_FEATURES_U64S;
-> +
->  	if (mdev->device_id_check) {
->  		devid = mdev->device_id_check(pci_dev);
->  		if (devid < 0)
-> @@ -398,15 +415,36 @@ void vp_modern_get_extended_features(struct virtio_pci_modern_device *mdev,
->  				     u64 *features)
->  {
->  	struct virtio_pci_common_cfg __iomem *cfg = mdev->common;
-> +	u32 raw[VIRTIO_FEATURES_BITS / 32];
-> +	u8 u64s = vp_modern_features_u64s(mdev);
->  	int i;
->  
-> -	virtio_features_zero(features);
->  	for (i = 0; i < VIRTIO_FEATURES_BITS / 32; i++) {
-> -		u64 cur;
-> -
->  		vp_iowrite32(i, &cfg->device_feature_select);
-> -		cur = vp_ioread32(&cfg->device_feature);
-> -		features[i >> 1] |= cur << (32 * (i & 1));
-> +		raw[i] = vp_ioread32(&cfg->device_feature);
-> +	}
-> +
-> +	dev_info(&mdev->pci_dev->dev,
-> +		 "virtio_pci: device_feature[0..3] = 0x%08x 0x%08x 0x%08x 0x%08x\n",
-> +		 raw[0], raw[1], raw[2], raw[3]);
-> +
-> +	virtio_features_zero(features);
-> +	for (i = 0; i < u64s * 2; i++)
-> +		features[i >> 1] |= (u64)raw[i] << (32 * (i & 1));
-> +
-> +	for (i = 1; i < u64s; i++) {
-> +		int j;
-> +
-> +		if (features[i] != U64_MAX &&
-> +		    !(features[0] && features[i] == features[0]))
-> +			continue;
-> +
-> +		dev_info(&mdev->pci_dev->dev,
-> +			 "virtio_pci: no extended features space, using 64 bits features only\n");
-> +		mdev->features_u64s = 1;
-> +		for (j = 1; j < VIRTIO_FEATURES_U64S; j++)
-> +			features[j] = 0;
-> +		break;
->  	}
->  }
->  EXPORT_SYMBOL_GPL(vp_modern_get_extended_features);
-> @@ -424,10 +462,11 @@ vp_modern_get_driver_extended_features(struct virtio_pci_modern_device *mdev,
->  				       u64 *features)
->  {
->  	struct virtio_pci_common_cfg __iomem *cfg = mdev->common;
-> +	u8 u64s = vp_modern_features_u64s(mdev);
->  	int i;
->  
->  	virtio_features_zero(features);
-> -	for (i = 0; i < VIRTIO_FEATURES_BITS / 32; i++) {
-> +	for (i = 0; i < u64s * 2; i++) {
->  		u64 cur;
->  
->  		vp_iowrite32(i, &cfg->guest_feature_select);
-> @@ -446,9 +485,19 @@ void vp_modern_set_extended_features(struct virtio_pci_modern_device *mdev,
->  				     const u64 *features)
->  {
->  	struct virtio_pci_common_cfg __iomem *cfg = mdev->common;
-> +	u8 u64s = vp_modern_features_u64s(mdev);
->  	int i;
->  
-> -	for (i = 0; i < VIRTIO_FEATURES_BITS / 32; i++) {
-> +	/*
-> +	 * Never drive a selector the device may not implement: stop at the
-> +	 * highest word that carries a bit.  The device side features are
-> +	 * zeroed by the reset that precedes the features negotiation, so the
-> +	 * words left unwritten keep the value the driver wants for them.
-> +	 */
-> +	while (u64s > 1 && !features[u64s - 1])
-> +		u64s--;
-> +
-> +	for (i = 0; i < u64s * 2; i++) {
->  		u32 cur = features[i >> 1] >> (32 * (i & 1));
->  
->  		vp_iowrite32(i, &cfg->guest_feature_select);
-> diff --git a/include/linux/virtio_pci_modern.h b/include/linux/virtio_pci_modern.h
-> index 9a3f2fc53bd6..7dc76afa671e 100644
-> --- a/include/linux/virtio_pci_modern.h
-> +++ b/include/linux/virtio_pci_modern.h
-> @@ -27,6 +27,9 @@
->   *		    Returns the found device id or ERRNO
->   * @dma_mask:	    Optional mask instead of the traditional DMA_BIT_MASK(64),
->   *		    for vendor devices with DMA space address limitations
-> + * @features_u64s:  Number of 64 bit words of the features space that can be
-> + *		    accessed on this device; 1 for devices not implementing
-> + *		    the extended (128 bits) features space
->   */
->  struct virtio_pci_modern_device {
->  	struct pci_dev *pci_dev;
-> @@ -49,6 +52,7 @@ struct virtio_pci_modern_device {
->  
->  	int (*device_id_check)(struct pci_dev *pdev);
->  	u64 dma_mask;
-> +	u8 features_u64s;
->  };
->  
->  /*
-> -- 
-> 2.43.0
+-- 
+2.55.0
 
