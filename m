@@ -1,67 +1,139 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 269DD353A70
-	for <virtualization@lists.linux.dev>; Fri, 11 Sep 2026 12:44:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2008A40FD9B
+	for <virtualization@lists.linux.dev>; Fri, 11 Sep 2026 12:46:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789130666; cv=none; b=l/SanWg8puO3mX74Tynx59zXJcdgSbFkuvmfHYi0Y/qnh3cCja84+iLqBLVn5Htn6fWO+/s33T2oPbsDmu7b3d8E5/SBtNViekg2pngx3ZsxsvsnXngt1i2p45a7AOFw6/Cz/hP3iWP8/abDfot/pVCEYP0u1urVOcDNlNIM0QQ=
+	t=1789130765; cv=none; b=Iktn8bsjQ8TVPDLlbWsusoIYk1lkf1Xp+YEpWGwS+TF/OiNO05ppcMC2vPuKdLHaLHJ4ZihoOb0Wxfej10A07ly0tqWpN9tIkpO2JT2QDrll6d3rWTQtKfMDVWwXiViSDqnNfY3P4548/w1zTrAUMNzOAD9pqmcw7PyD6VQd3G4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789130666; c=relaxed/simple;
-	bh=RYArL/eO33IgiBNWT5JxO6n6yga5wW2S2uLaU9cotM4=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=XgIGKq/5Q3N/8G0PrHZm6EOC2LxbYLD1AcXjVbGV/qXYLCcL3bAwh5eO0+/41ZGxknKFBw9voYh/itnBpA+1K6IzPHJEhKeyEo+1vrftv7YuHvelPdB8KNyT+WbNHlAALYZPyiJNMgl459MFTXUl6JZW43WZFd0s3Q86lTAX3tQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Jqz9vPR0; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789130765; c=relaxed/simple;
+	bh=R9L/eTaXmKcO3hBnU98W/9G77TNfUeBGNOLDd6WiCkE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=gv6FmhWIK+/sl5SpvtgalTDFbDlwWzs2HAGvbR/bxqQ9tJJUSLAHVItkuyWmqvWYXcitnhNeiUOpp96XZYd4lxlxhlQAzfUzFD8TABNJvRMo1mCbL1KQ+/JmzBnkcJDmuGR0843lHvvVKucrdusM9g1gFVbEmrU2M1gJIfAB7MU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=0YT2oS46; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=5noCCjOB; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Jqz9vPR0"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 815E41F000FF;
-	Fri, 11 Sep 2026 12:44:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789130664;
-	bh=w5yw8zCn9nIkmYJKXiNFz0ktZMBpcIgGzmNNhwuAt9A=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Jqz9vPR0WAqbFSZaFUBcuQ0pplkhG+xhgP4Ez3EdycNQdhYrlzOOx5vFObPKTFHen
-	 tnjW31/gttNt46eNtaVcYBIfn40qZRWdEsVM8i8h+CuMjUv3W1LxKkAk9wzqTYFOvB
-	 213PX67K25p5Y4jMVljJvnkx4BuxOQJv8gRFjRufJ3VXXx6ly2w5ID1iyizM3HAKyX
-	 PS0khwSiyKj4FpNF9yMPLpzkD1wLXmARB6okj8mbyfwsvy7Gt9bQkD0QKN9XR+asBW
-	 820N6e1gXvsSLsau5+idciz39N6YgiqeyR2NnGmo5J8XhZ3EKMq9g3b+qBMx0Zd7JM
-	 z5su2NCLKm12g==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/2] virtio: synchronize callbacks after device reset
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <8f71425918a148dcad1be993ccabd39582d246ee.1789130213.git.mst@redhat.com>
-References: <8f71425918a148dcad1be993ccabd39582d246ee.1789130213.git.mst@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 11 Sep 2026 12:44:24 +0000
-Message-Id: <20260911124424.815E41F000FF@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="0YT2oS46";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="5noCCjOB"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 9908D1F79D;
+	Fri, 11 Sep 2026 12:45:46 +0000 (UTC)
+Authentication-Results: smtp-out2.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1789130746; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=tzsC2VzdToDvjyu2bKo4kXLJkrMvANfsE4sUyvOrhy8=;
+	b=0YT2oS467GDz5Jb+FNn42kMHKgOv8Os+MTeed95wwhwmprlCL0grm5Ze4oi4tGk3S5YutP
+	99+RwGo3JJq50EzEBXFD/XWuMrT6bHQU17q3r0LzJS9aHxDqP2mCQ01vts9po0Xb+WSYx7
+	SjLLTtgANg5BUx+Iwb/4nLveg2RZJLw=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1789130746;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=tzsC2VzdToDvjyu2bKo4kXLJkrMvANfsE4sUyvOrhy8=;
+	b=5noCCjOByuvOQLxXAMnWcFFwzL91l8msT3tuk55VUOqYc6+kVx9JFbAeIOK+xjspayPRMR
+	bjuHvzX9/Pq6q0Dg==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id E8A6C136ED;
+	Fri, 11 Sep 2026 12:45:45 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id 0F1yN/n3o2r8EQAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Fri, 11 Sep 2026 12:45:45 +0000
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: jfalempe@redhat.com,
+	javierm@redhat.com,
+	airlied@gmail.com,
+	maarten.lankhorst@linux.intel.com,
+	mripard@kernel.org,
+	geert@linux-m68k.org,
+	rdunlap@infradead.org
+Cc: dri-devel@lists.freedesktop.org,
+	linux-doc@vger.kernel.org,
+	amd-gfx@lists.freedesktop.org,
+	rust-for-linux@vger.kernel.org,
+	linux-hyperv@vger.kernel.org,
+	intel-gfx@lists.freedesktop.org,
+	intel-xe@lists.freedesktop.org,
+	imx@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	nouveau@lists.freedesktop.org,
+	linux-renesas-soc@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	sashiko-reviews@lists.linux.dev,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	stable@vger.kernel.org
+Subject: [PATCH v5 01/14] drm/panic: Do not use un-escaped URL as format string
+Date: Fri, 11 Sep 2026 14:43:54 +0200
+Message-ID: <20260911124540.279841-2-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260911124540.279841-1-tzimmermann@suse.de>
+References: <20260911124540.279841-1-tzimmermann@suse.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Rspamd-Queue-Id: 9908D1F79D
+X-Rspamd-Pre-Result: action=no action;
+	module=replies;
+	Message is reply to one we originated
+X-Rspamd-Action: no action
+X-Spam-Flag: NO
+X-Spam-Score: -4.00
+X-Spam-Level: 
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Spamd-Result: default: False [-4.00 / 50.00];
+	REPLY(-4.00)[];
+	R_RATELIMIT(0.00)[to_ip_from(RLo585esf9b7txaosbn5shab9z)]
 
-> virtio_reset_device says:
-> 	Note: this guarantees that vq callbacks are not in progress
-> but in practice, only virtio pci correctly synchronizes the cbs.
->=20
-> On other transports, a callback that is already executing, keeps running
-> while the driver tears down the state it uses.
->=20
-> Add virtio_synchronize_cbs to virtio_reset_device fixing this for all
-> transports that correctly implement synchronize_cbs().
->=20
-> Reported-by: Karl Mehltretter <kmehltretter@gmail.com>
-> Link: https://lore.kernel.org/all/20260818040433.66986-1-kmehltretter@gma=
-il.com/
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Replace the direct use of DRM_PANIC_SCREEN_QR_CODE_URL in snprintf()
+with a %s conversion specifier. Avoids a possible vulnerabilty from
+a crafted URL string.
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+As the attacker needs to control the kernel at the Kconfig level, the
+potential for an exploit is likely low.
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/8f71425918a148dcad1=
-be993ccabd39582d246ee.1789130213.git.mst@redhat.com?part=3D1
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Reviewed-by: Jocelyn Falempe <jfalempe@redhat.com>
+Fixes: cb5164ac43d0 ("drm/panic: Add a QR code panic screen")
+Cc: Javier Martinez Canillas <javierm@redhat.com>
+Cc: Jocelyn Falempe <jfalempe@redhat.com>
+Cc: dri-devel@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v6.12+
+---
+ drivers/gpu/drm/drm_panic.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/drm_panic.c b/drivers/gpu/drm/drm_panic.c
+index e576c4791861..ba21df4be338 100644
+--- a/drivers/gpu/drm/drm_panic.c
++++ b/drivers/gpu/drm/drm_panic.c
+@@ -658,7 +658,8 @@ static int drm_panic_get_qr_code_url(u8 **qr_image)
+ 	char *kmsg;
+ 	int max_qr_data_size, url_len;
+ 
+-	url_len = snprintf(url, sizeof(url), CONFIG_DRM_PANIC_SCREEN_QR_CODE_URL "?a=%s&v=%s&z=",
++	url_len = snprintf(url, sizeof(url), "%s?a=%s&v=%s&z=",
++			   CONFIG_DRM_PANIC_SCREEN_QR_CODE_URL,
+ 			   utsname()->machine, utsname()->release);
+ 
+ 	max_qr_data_size = drm_panic_qr_max_data_size(panic_qr_version, url_len);
+-- 
+2.55.0
 
