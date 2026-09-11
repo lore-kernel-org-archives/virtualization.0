@@ -1,144 +1,113 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 921B147F2C3
-	for <virtualization@lists.linux.dev>; Fri, 11 Sep 2026 12:57:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9B8547F3A0;
+	Fri, 11 Sep 2026 12:58:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789131477; cv=none; b=byljO7PiOzNRy7xPKgp/35YNm5vxgYHLW4hMDRF+SGz9v0Xhb4aI7IPQJWJqzRMTyK5nJ/nVNllRfniRnzKAykIebEgpIa7heilOfH5SOERgoDzSEA3hlfnXnv8rxpCbFuhgtRIBM2elycwUcsNyUKg89uu74W08FBmgtosOAO0=
+	t=1789131526; cv=none; b=M64JE5XK3TtPs+1TVHkqG+8kxNcZKVryw86e+MDbBk0XRCEMqopK1f8SGN/2DT875jsTklNz+T2TXDx5GCuyO1njHlq/Q9lIh2H0m28b47q2tWysbKH6GF4jtrzOznl9cF1G4YnZ+Qp3GNYz5JqSUHtLfu5tuFzg84cDOIyZfxE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789131477; c=relaxed/simple;
-	bh=TV4o1EpzXfubo6ad2JFJwfqHshT52t1+ll5O7tlESi8=;
+	s=arc-20240116; t=1789131526; c=relaxed/simple;
+	bh=slreU2mZ6bRayMNjiBCmoBgWqSX7AR1bQBQZR080S18=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=txbJ6I4fMRYJzWRGsDM2kcfOeHEQoc5Bpku/Q8jf3fi3u2WDYFV3tsk/DtzLGml3lraFvig0m6c0QfncXrobfa4/hi0TiVBNt1T22pktOHcD3lxbB+3UnrfQkpHfTHbHUI01ZsA15hPtQq+fJL1dE65Qn5ljgCFOXjslSRAwS48=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BPbJrVjn; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=FuxHbQNajpCjid/dfdrJJoPM2VMkopJZ934ONKzJGOuFlK6/Mt2j+fcmtbK7wU0Nb9vte/A4yIzwtVJeD3+8IGEYvtRD6UrPNhK8k3im8a3vHOYHXQpSV3/bkIbmups8jzgnDnCOz4HV9Nh0kZBg+8Dq/jhlQzU8TjYkAZVtAlc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MFC3WueJ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BPbJrVjn"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0A2F1F00899;
-	Fri, 11 Sep 2026 12:57:45 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MFC3WueJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C6061F000FF;
+	Fri, 11 Sep 2026 12:58:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789131466;
-	bh=rMYTjUdBOLOit+RCUuNdkm9bXiztI/bvEqqcDjMWqo8=;
+	s=k20260515; t=1789131497;
+	bh=q4w4nA6VQmPEv6TrJcP8o1hT/BdL9siYpgV8FxVBIHY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=BPbJrVjnmt29q5KsN9g1MuryGf6rVbNPbmqOOV/VRE6Vdz7zVCMyARhXWAsFPvoCB
-	 x1h9SdBmSVEkucKLTGhwYyAuM/te93XjK30FPnqxr44i1rNNZEZiQXpTQQ9NO63yK4
-	 wzTbNQYwPohga54AUWWCVFklFJUHHDMvkjNSDxuKl8vvjeT4XACJByv+ualPLaoYFc
-	 sYU1zgmNV3tK24fv1oflL7Z3bV9805VGCUBNNbDEWfttR0SqBiO0XSU3FwGk4ZpzHK
-	 +p6lZxjFScWvFgiwLeAA0mytXXbd3RP0a8MkTjZp9RANDgzpH1WaXtVYrABt2QILcU
-	 lsHw2mxl8cybw==
+	b=MFC3WueJe/mGj35Ob4ByEZ8WcDs42ra28FNQHwlwFFXYi8wdZ0Hp3WLxKcVwQVwAx
+	 dWGW0rx/TGFGmKpisYjSXeUiopTEKLVTkpBXm+B3g+SV+pljZEU1hTrKqv8sS1M/gf
+	 +Fb48MjKsJ9jjeA793DnLmyUvYUShfa9tc9sZ8nVhR5fqnwjNjFo4OEZv/heVQfMij
+	 vkK1052pnWgT+xfDtsjJpixCDpOXjDVgizPG7gfoxPQDK1zzQvi3ZroJFHK0YGWDRl
+	 g3PTb77wZgpp6yqaGLY/xNdW34C5lyR7Tre5NUw8Aie0brCK15u9n/idg6FO/qI0B1
+	 hmo4YVKWWRl8w==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/2] virtio_pci: drop extra callback sync
+Subject: Re: [PATCH v5 02/14] drm/panic: Test address from kmap op for NULL
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux.dev, "Eugenio Perez" <eperezma@redhat.com>, "Michael
- S. Tsirkin" <mst@redhat.com>
-In-Reply-To: <082fd9b2bad1db0088caa38a8d738aa848bf36b2.1789130213.git.mst@redhat.com>
-References: <8f71425918a148dcad1be993ccabd39582d246ee.1789130213.git.mst@redhat.com>
- <082fd9b2bad1db0088caa38a8d738aa848bf36b2.1789130213.git.mst@redhat.com>
+To: "Thomas Zimmermann" <tzimmermann@suse.de>
+Cc: imx@lists.linux.dev, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-xe@lists.freedesktop.org, ojeda@kernel.org, wsa+renesas@sang-engineering.com, "Eugenio
+ Perez" <eperezma@redhat.com>, intel-gfx@lists.freedesktop.org, gary@garyguo.net, virtualization@lists.linux.dev, "Michael
+ S. Tsirkin" <mst@redhat.com>, Frank.Li@kernel.org
+In-Reply-To: <20260911124540.279841-3-tzimmermann@suse.de>
+References: <20260911124540.279841-1-tzimmermann@suse.de>
+ <20260911124540.279841-3-tzimmermann@suse.de>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 11 Sep 2026 12:57:45 +0000
-Message-Id: <20260911125745.E0A2F1F00899@smtp.kernel.org>
+Date: Fri, 11 Sep 2026 12:58:16 +0000
+Message-Id: <20260911125816.9C6061F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
-New issues:
-- [High] Removing `vp_synchronize_vectors()` from `vp_reset()` exposes a ra=
-ce condition in `virtio_device_shutdown()`, allowing in-flight configuratio=
-n change interrupts to execute concurrently with or after system shutdown.
-
 Pre-existing issues:
-- [High] Pre-existing data race in `vp_modern_avq_cleanup()` due to missing=
- `admin_vq` lock, leading to potential virtqueue corruption.
+- [High] Missing NULL checks for page pointers passed to kmap_local_page_tr=
+y_from_panic() leads to a kernel panic in the panic handler.
 --
 
-commit 0b14e711d0c9fc7c440dbf71513420ceb19b4bd3
-Author: Michael S. Tsirkin <mst@redhat.com>
-virtio_pci: drop extra callback sync
+commit 69a5d51433b94a040beb8954801343ad106c13c9
+Author: Thomas Zimmermann <tzimmermann@suse.de>
 
-This patch drops the synchronization of callbacks on reset within virtio pc=
-i,
-relying instead on the virtio core to synchronize callbacks when needed.
+drm/panic: Test address from kmap op for NULL
 
-> --- a/drivers/virtio/virtio_pci_legacy.c
-> +++ b/drivers/virtio/virtio_pci_legacy.c
-[ ... ]
-> @@ -98,8 +98,6 @@ static void vp_reset(struct virtio_device *vdev)
->  	/* Flush out the status write, and flush in device writes,
->  	 * including MSi-X interrupts, if any. */
->  	vp_legacy_get_status(&vp_dev->ldev);
-> -	/* Flush pending VQ/configuration callbacks. */
-> -	vp_synchronize_vectors(vdev);
+Do nothing if kmap_local_page_try_from_panic() returns NULL. This is
+not likely to hapen, as the previous page from the same memory area
+has been mapped successfully.
+
+Cc: Javier Martinez Canillas <javierm@redhat.com>
+Cc: Jocelyn Falempe <jfalempe@redhat.com>
+Cc: dri-devel@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v6.18+
+
+> diff --git a/drivers/gpu/drm/drm_panic.c b/drivers/gpu/drm/drm_panic.c
+> index ba21df4be3380..d28ce8878e055 100644
+> --- a/drivers/gpu/drm/drm_panic.c
+> +++ b/drivers/gpu/drm/drm_panic.c
+> @@ -178,6 +178,8 @@ static void drm_panic_write_pixel24_xpage(void *vaddr=
+, struct page *next_page,
+>  	u8 *p =3D vaddr + offset;
+> =20
+>  	vaddr2 =3D kmap_local_page_try_from_panic(next_page);
 
 [Severity: High]
-Does removing this synchronization leave a race condition in the shutdown
-path?
+This isn't a bug introduced by this patch, but can next_page be NULL here,
+leading to a kernel panic?
 
-While the core virtio_reset_device() function was updated to synchronize
-after the reset returns, virtio_device_shutdown() appears to lack this
-synchronization:
+If a scanout buffer is sparse or partially unpinned, the pages array might
+contain NULL pointers. While drm_panic_blit_page() checks for NULL before
+most operations, when a 24-bit pixel crosses a page boundary it calls
+drm_panic_write_pixel24_xpage(vaddr, pages[page + 1], ...).
 
-drivers/virtio/virtio.c:virtio_device_shutdown() {
+If pages[page + 1] is NULL, passing it to kmap_local_page_try_from_panic()
+causes a fatal page fault when attempting to dereference the page pointer.
+
+Additionally, drm_panic_fill_page() seems to omit the page validation
+entirely and passes pages[page] directly to kmap_local_page_try_from_panic(=
+):
+
+drivers/gpu/drm/drm_panic.c:drm_panic_fill_page() {
     ...
-    dev->config->reset(dev);
-    // No trailing virtio_synchronize_cbs() call
-}
-
-Because vp_reset() writes to the status register and flushes in-flight
-interrupts, returning without synchronization means virtio_device_shutdown()
-can finish while a flushed vp_config_changed interrupt is still executing
-concurrently.=20
-
-Could this lead to unintended access to device structures or DMA memory
-during system teardown or kexec paths?
-
->  }
-> =20
->  static u16 vp_config_vector(struct virtio_pci_device *vp_dev, u16 vector)
-> diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_p=
-ci_modern.c
-> --- a/drivers/virtio/virtio_pci_modern.c
-> +++ b/drivers/virtio/virtio_pci_modern.c
-[ ... ]
-> @@ -559,9 +559,6 @@ static void vp_reset(struct virtio_device *vdev)
->  		msleep(1);
-> =20
->  	vp_modern_avq_cleanup(vdev);
-
-[Severity: High]
-This is a pre-existing issue, but is there a potential data race here with
-concurrent interrupt handlers?
-
-vp_modern_avq_cleanup() calls virtqueue_detach_unused_buf() without
-acquiring the admin_vq->lock. If CONFIG_VIRTIO_HARDEN_NOTIFICATION is
-disabled (leaving vq->broken as false), an in-flight admin vq interrupt
-flushed during reset might execute concurrently on another CPU:
-
-drivers/virtio/virtio_pci_modern.c:vp_modern_avq_done() {
-    spin_lock_irqsave(&admin_vq->lock, flags);
-    do {
-        virtqueue_disable_cb(vq);
-        while ((cmd =3D virtqueue_get_buf(vq, &len))) {
+    vaddr =3D kmap_local_page_try_from_panic(pages[page]);
     ...
 }
 
-Could concurrent modification of the virtqueue's internal vring state cause
-memory corruption or a double complete() execution if the interrupt handler
-and cleanup routine run simultaneously?
+Should the page pointers be validated before attempting to map them?
 
-> -
-> -	/* Flush pending VQ/configuration callbacks. */
-> -	vp_synchronize_vectors(vdev);
->  }
+> +	if (!vaddr2)
+> +		return;
 > =20
->  static int vp_active_vq(struct virtqueue *vq, u16 msix_vec)
+>  	*p++ =3D color & 0xff;
+>  	color >>=3D 8;
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/8f71425918a148dcad1=
-be993ccabd39582d246ee.1789130213.git.mst@redhat.com?part=3D2
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260911124540.2798=
+41-1-tzimmermann@suse.de?part=3D2
