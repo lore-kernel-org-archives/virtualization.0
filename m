@@ -1,130 +1,96 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr2-f12.google.com (mail-wr2-f12.google.com [74.125.225.76])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8024F3148CF
-	for <virtualization@lists.linux.dev>; Fri, 11 Sep 2026 22:51:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3CDD3148CF
+	for <virtualization@lists.linux.dev>; Fri, 11 Sep 2026 22:52:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.76
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789167115; cv=none; b=VuRNNO/vGP5PRMkbYJHUrBXL4PR1bZerpEybG6x/91jpJQ1ZhdYxJckAiR5wiGK8MF8TxKF/3BhIsrhjRwpDneppxRVBn+bWQEUSOXfGXWOePwZsMdVWfFvg+35brBhqJi0A1vP5YEDSD4qgRayT5t1OU5mvHPr5s7/rNJ8a7L4=
+	t=1789167144; cv=none; b=CcWErZml0ecidfTKXljsEPgM3uebdIaEWq7VSZGYzaze/8OnzLtkG++vjMhbGo+HferBcahBABm/+N5xr20mACed6fJ/W8rhHTXxrRKryKXJLXoLsnoNXIaMhl76tUjmMgyZwKaN05TrJTaB7NORQbk2c6652B6XWFO50IuHwHc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789167115; c=relaxed/simple;
-	bh=GfVdI+6U5Ub5l41aZwdFVfxugZPb6OlXikwNEihQr3M=;
+	s=arc-20240116; t=1789167144; c=relaxed/simple;
+	bh=ftNgNKh9VdMtBQc1BMR6LWCIRqVgg3TsQH42M2mPoM8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=uSYXL61TOyEGcRGQGU+5kQ9bspXD+qMMOOhZcsty0wCdHQUi4eR5k148m4ldtZ61QxwKefl7C6puBT9nMWXd0HsHz/W48G+3dxPfRVljhH/dJE1TWko56I8F5jwbmW8Pk6fqeqkSbts8gUm6b5IdT/Lb6BNzM4SE/Cl43dOmjr4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=R9s3rzwp; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=t6z6eOqf6XcFHMzkxapbuXwFhYomP17PzfnjcGJiELjC0qMTgk0Y3OCNYk9w5jG7ZyKlVUXJI+0pVACvQHmtrpy/fovDSuFxK3rqDO6hm+1kmFCT3z6/Ak10HUzbDBcWWsd8FQ8QB+RIILjAH5nyJgSFPHfG1nXZlW+ixr48vQw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MD9GP/83; arc=none smtp.client-ip=74.125.225.76
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="R9s3rzwp"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1789167113;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=jQ6AshrF5wH31i2uOHPrbuYMla+mjtSA/+BYLCsl1e0=;
-	b=R9s3rzwpjE9wopZ2Jmwjp08MGdLYJ1f9IaQwz/o1VMEVHrbNGD7ovd+ISxF5t4mNHPfGIX
-	HMqdJBu0uII9iC6gDv335Ix9gjLXLeczztbcCil7aI0/nLDK+8KfWOjeYtCC3xC2bP1Iw/
-	xQRcDRuraav23Suq5LiP0lFXOlPDLGY=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-679-ftVEyNb3OSGPWoGLXbbCxA-1; Fri, 11 Sep 2026 18:51:52 -0400
-X-MC-Unique: ftVEyNb3OSGPWoGLXbbCxA-1
-X-Mimecast-MFC-AGG-ID: ftVEyNb3OSGPWoGLXbbCxA_1789167111
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-486f768517dso32108f8f.1
-        for <virtualization@lists.linux.dev>; Fri, 11 Sep 2026 15:51:52 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MD9GP/83"
+Received: by mail-wr2-f12.google.com with SMTP id ffacd0b85a97d-4843378fb37so40789f8f.3
+        for <virtualization@lists.linux.dev>; Fri, 11 Sep 2026 15:52:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789167141; x=1789771941; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=7lRQ7+pGNaq5SaCh0WKrw3A1f+kuNcEq+sHWBo4gNe4=;
+        b=MD9GP/83EO3PXtNgMAatc6+r0epfc6aD6q885/xlf7Rvtz1rTkgF6llRXiNDaKRyDG
+         n3XpV19pvw01VYaXp5PIxdgDMW57MN2fxlwPzhT6TvIT4ZJo+rMhPZSQtU97kucepJQB
+         jANRSKW+gLCn+HYO4Css95sBc/qQNHeGSFor2vfng3pj8kP9xbY4hsT0MDqWKpYgaF3Z
+         bY59aNkjnxZj7SoO0rBzJkL+Qyo5ijINgb457roLVfWPTiIbASqgZ0ZDwbI03P0mmPJq
+         CUJ6xR1aFN3Zu40G/r3LuzsQEPErKR+y5J2Or8PCJqkueob60QXu5W1V3+r6FP5aOAS+
+         4xUg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789167111; x=1789771911;
+        d=1e100.net; s=20251104; t=1789167141; x=1789771941;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=jQ6AshrF5wH31i2uOHPrbuYMla+mjtSA/+BYLCsl1e0=;
-        b=EcnMN2UEpK4dkOC6Q6YmbQr8uHLoutH/pezuAYP7ngqsDNLAuXs7PT/D9bgDX2HGY0
-         wsIEUjmHsOGBgPJCB0AGEj/wR9jqGBrj9BHc2WjU2CGj8M6Ewc/pOmSCuAwQMKgdgPQB
-         T0ComuPEkFA5YEFjrFftayAuvHKTCWVu9oRIsCi+XTfupaEdwNe3lRf8hQnGiH+Fz03C
-         bJIdERZhpR0Mq7fMnhUJt3u9i4g7ROer5OJKLS/UFcc+iruls82Er88YFxvNSYyPQnwQ
-         4Ke4HBorRJLdsuNxZYZ0FEmYm68njl2zqXISvuNz08Tb8CGQ3Xh1CYGxSVgFHarbQNyJ
-         pBqQ==
-X-Gm-Message-State: AFuF++lUtk5LjdorFJRSsBDEo1QAe1GvRv/FB6WGTMZ3w7krBTdAea24
-	idRBlvyefDpTLKmnAE+YszTk2qg8v5/M1P/qHRTBV7p/UY29EnDKN2GpE9BCiDtGStbABA4wnT9
-	pKEh9s0iGSG1rakLFXt97Tqk0kyxvkqUEkNrilDFFO/756DTKj4cq3GH2oSwWynfe1cHl
-X-Gm-Gg: AYBFou0IpgrzB5OOkJdsBtEGTiY+nV3aBQ2eiFTnNTj9mFYBDHWMRsjL33YiGUbnqWl
-	sTFzaitzXToBce+S2nk3yxiEAvuwVSmN+N8QUtMGzDXjqQXKFq3Vr9DG/2Ah+cNppKMV5JGYFZB
-	3at2V2Z9BKK0dcF/U1Jpw9wCpG0kR1p2tEI58Px4EgmkdRSzwCUsvlrtMUlhJLP2zkSb+Q9E36n
-	pyfZIhgBKjhc33baH6e2a/oTCebtZkpGk1E3gZAr28ux/DH5d1DR3S0pnsIzadxL4xRcaMk0odq
-	KFzhlMtecOG+uzK1HX3SAgeYcjtbOAoz2qVbq2jc81JQ+rRHQN2FYQB/vQz0GXwh/cc=
-X-Received: by 2002:a05:6000:5c6:b0:486:f4ba:ce0a with SMTP id ffacd0b85a97d-486f4bace38mr5083501f8f.9.1789167111057;
-        Fri, 11 Sep 2026 15:51:51 -0700 (PDT)
-X-Received: by 2002:a05:6000:5c6:b0:486:f4ba:ce0a with SMTP id ffacd0b85a97d-486f4bace38mr5083460f8f.9.1789167110617;
-        Fri, 11 Sep 2026 15:51:50 -0700 (PDT)
-Received: from redhat.com ([147.235.223.59])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-486f301121asm4513415f8f.0.2026.09.11.15.51.49
+        bh=7lRQ7+pGNaq5SaCh0WKrw3A1f+kuNcEq+sHWBo4gNe4=;
+        b=ZNjoSWzIg0H4xySsO4HFjMcicwEmswn+QrVjluElutg2maAO5vznH4DsLjkeHLbL/v
+         1nJtWTIvUXWSkER7f51GLNuuw6E7AWth095nSKuDgGmc0G3KuJ/uwJKbGMd2TNt9umgi
+         0ZQJEGFczwxTR9vRfJO1tRk6f82zFeH0MNYF2VVW7zJ15NQWlwiqSEnFgJ9alkJqkbE9
+         GKTIOLMp6QnWtJCo0fNWYETpImbcxHe9ac2XJFl22IQHDzUULKlBOCJ9p8l+0c9ajxQ0
+         aK0wfiyVVFMMnuYh+kuZ6WtrLZKXFtpLoU+IEYSpsl8PkjIhjI5zlL1PpZK4ozh4yRuP
+         sPmg==
+X-Gm-Message-State: AFuF++kuX78ItZb/59BSxGeLF3qgp6SXVSO/uGqk5LGhNpS2/1BYALl0
+	Xx4K+OWfGUUk8oqhZLTmuLs+P3O7O1QM+z+JGQWiWSC5taRpvjqZV2HZ
+X-Gm-Gg: AYBFou1Rhhri2zD6eJKKoqZoAH5rIBKqObgEXI4RZfK7IZ5t/PoHTep1Pk4Oh26uWNX
+	2wob7Ak7PmEpODyjkBTxQSedu2T0UptLIW2hjoYS5DDWET8UKwudeBVM/OwgPslQebpQ06JZSfU
+	Xs0hiZk9kDkD7WdxTJpLAUM7i9efiL6SLVGRQVtGFOuiaFureDCoWIbkRHh5csHR8v4DwwLoHWl
+	rKJWyigHNVvOabDg3MMpOCdHw2N0g7zxF4GiHiG0QmJJF4Nk0sWUDJX7TbMzsXqoImrXqlDSyc4
+	8hJ4lmyoaTSusa+73bYY4VdLAdMicrj4V2L7eRRz8FDqG1Oba2p3gNB47VqI5TQ4IhkDB5AQTE/
+	8SOGVhqV9uuajK0QWUrn7KmXKcGgcsxRes8uzPEko7ojRivIMqC+ZRiWTf7xICvLqcyCFD1csel
+	3QFkspBgqaquGk1FJMgZAn/Q/h2bhI/JDVg5slonwt92dmtQWKCs2nL2Zs2GKXcqBYWK8iVfJEm
+	43vnMiYNWb2E+0sR0CgROLYT3fg8Cyfma/TKSZArAZmgAVMTMlckGkuQ52k+qNWY/26/+iEGxOt
+	EafU2VCjlj8o8SacZWl6+dV5yg/A6LKNhA==
+X-Received: by 2002:a05:6000:2082:b0:484:3f15:15f2 with SMTP id ffacd0b85a97d-486f6c17cdbmr430823f8f.24.1789167141058;
+        Fri, 11 Sep 2026 15:52:21 -0700 (PDT)
+Received: from unknown748F3CBA5068 (dynamic-095-114-033-154.95.114.pool.telefonica.de. [95.114.33.154])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-486eb357288sm8936891f8f.29.2026.09.11.15.52.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Sep 2026 15:51:50 -0700 (PDT)
-Date: Fri, 11 Sep 2026 18:51:47 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Karl Mehltretter <kmehltretter@gmail.com>
-Cc: virtualization@lists.linux.dev, jasowangio@gmail.com,
-	eperezma@redhat.com, xuanzhuo@linux.alibaba.com, jiri@resnulli.us,
+        Fri, 11 Sep 2026 15:52:20 -0700 (PDT)
+Date: Sat, 12 Sep 2026 00:51:49 +0200
+From: Karl Mehltretter <kmehltretter@gmail.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux.dev, jasowangio@gmail.com, 
+	eperezma@redhat.com, xuanzhuo@linux.alibaba.com, jiri@resnulli.us, 
 	sashiko-bot@kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 3/3] virtio_pci_modern: move avq cleanup from reset to
- del_vqs
-Message-ID: <20260911185059-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH v3 2/3] virtio_pci_legacy: drop callback sync on reset
+Message-ID: <aqSF5m8rLza4vf05@gmail.com>
 References: <cover.1789160982.git.mst@redhat.com>
- <d0b3de807c800befe9adce1cefb2d064d9fe0bec.1789160982.git.mst@redhat.com>
- <aqSDrWpFy84CxCoP@gmail.com>
+ <572661b65eebb784652e5843944d284bbceb2954.1789160982.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <aqSDrWpFy84CxCoP@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: C93-gR9skyPggC66rW5Erdx5zBi1rLPrSt1HfNuAvjU_1789167111
-X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <572661b65eebb784652e5843944d284bbceb2954.1789160982.git.mst@redhat.com>
 
-On Sat, Sep 12, 2026 at 12:48:54AM +0200, Karl Mehltretter wrote:
-> On Fri, Sep 11, 2026 at 05:20:15PM +0100, Michael S. Tsirkin wrote:
-> > New in v3. v2 dropped sync from modern vp_reset in one combined
-> > patch, leaving avq_cleanup in vp_reset. v3 moves avq_cleanup out
-> > of vp_reset entirely into vp_del_vqs, fixing the race. Adds NULL
-> > check for admin_vq.info for find_vqs error paths.
-> > 
+On Fri, Sep 11, 2026 at 05:20:18PM +0100, Michael S. Tsirkin wrote:
+> The virtio core now synchronizes callbacks after reset,
+> so the legacy PCI transport no longer needs to do it itself.
 > 
-> I think patch 3 introduces a use-after-free in the MSI-X setup error
-> path.
-> 
-> With VP_VQ_VECTOR_POLICY_EACH, vp_setup_vq() stores the admin queue's
-> info pointer before request_irq(). If request_irq() fails, vp_del_vq()
-> frees info but leaves admin_vq.info set.
-> 
-> vp_find_vqs_msix() then calls vp_del_vqs(). vp_del_vqs() now calls
-> vp_modern_avq_cleanup() first and dereferences the freed pointer:
-> 
->     vq = vp_dev->admin_vq.info->vq;
-> 
-> No interrupt needs to fire.
-> 
-> I reproduced this on v3 with KASAN by returning -ENOMEM only for the
-> admin queue's request_irq():
-> 
->     BUG: KASAN: slab-use-after-free in vp_modern_avq_cleanup+0xf4/0x110
-> 
-> KASAN shows the allocation in vp_setup_vq(), the free in
-> vp_find_one_vq_msix(), and the access in vp_modern_avq_cleanup(). Adding
-> *p_info = NULL after vp_del_vq() made the same test fall back and boot
-> without a KASAN report.
-> 
-> Thanks,
-> Karl
 
-Right. Besides, poking at modern from common is ugly. I'll rework this,
-thanks a lot for the testing!
+I ran 200 instrumented virtio-input reset cycles over legacy INTx under
+KASAN and lockdep. All 19 callback/reset overlaps completed before reset
+returned.
 
--- 
-MST
+Tested-by: Karl Mehltretter <kmehltretter@gmail.com>
+Acked-by: Karl Mehltretter <kmehltretter@gmail.com>
 
+Thanks,
+Karl
