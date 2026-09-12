@@ -1,135 +1,150 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj2-f12.google.com (mail-pj2-f12.google.com [74.125.227.140])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38BCD3749F6
-	for <virtualization@lists.linux.dev>; Sat, 12 Sep 2026 09:04:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E02E637FF60
+	for <virtualization@lists.linux.dev>; Sat, 12 Sep 2026 09:04:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789203871; cv=none; b=ea6YtLkRksLObZmHw6SB9ISPa84QIRuZZPQp+WZSboj+AHxZOJ/NDA9isayfW5l34ncHRVw7bN+bswopHZedN/oML45+O8CHXPxL4cEgUPKPKec6FgwY9h4yLVXz4C/p+QjN9Wr2aaS1MO6yUFwQljtjSYMhTwaNo7Wma8/bdzs=
+	t=1789203890; cv=none; b=hI4IZU9s6jR0TvWVQAWRdjm7PSIuZ6Cg80I2YlEhnCN4UnKMNab3Nh0QmWAR1Y+bwLiiXttoYtliiMlLO/HI1k3kaqzGoxQMFkhI0pfwO4TXU/bgQWOsurm6lsqhjXcYVCCbXOAFpV1fjUdGPvxqizuxPJ6+m+eWiWNApdeQhtE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789203871; c=relaxed/simple;
-	bh=WWj8DDAdlLlqBubGeYPVW4b9eIRgba5bjPliyqqDWAs=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=lKFvEMRRUAjHN8bhP/v4uiDQc5W6RClhGykKEcnOhJExoTvmcnJoQK1jxHjofbHpjCYknvFC05UAC0kRQtpzAiL1dyYEBiuguygOlT8NVfvZM2O0adoZGT6Ej6M/fXYLiv/vGr6defevJ8w/+9QF3H7laAG9+s6XdnD4eHmNyOk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=e4NdA1ce; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789203890; c=relaxed/simple;
+	bh=T2GpveXf86xU4PJdOWIIi5lBw5gHgOvqTYsANeAQESM=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=PPOz0CtlseDCamN0l0FR+esBTk3gRqCWQpK/vblQaB791FUKAiHLUi6HS0y2G7GwCBN6PgbSjjkrtR401EUazCBdzLE78THc6HNuGhanqVIeZ2mt/kbUSge+do03rMzydqEvDXNT7fBmnPiVFDtz4g0Rbd8c6JrTLpgzx6f/cXQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nyF+jMS2; arc=none smtp.client-ip=74.125.227.140
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="e4NdA1ce"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB9D81F00893;
-	Sat, 12 Sep 2026 09:04:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789203869;
-	bh=tk63SUPjWPgLEJYnSu9OxPA8yD1eQDihZlvyEO45hbE=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=e4NdA1cezgrc6AmMZYVRLZWSOhH/X0c7M5nx62DENy2vIDwwZ90Dz/ZGgGgtFElPA
-	 UAbk/R5WhQFMbCrTOKw92QKfrz61IpgCm+pKQPjFl67+kJ0Z4mFd3LiCGotxieiOdV
-	 J0rIo0B5gV2q2G4oNu5F1SxX2ckwditcVxjrQEmh6qhC3O7n5LQL70kP3nFTvH0Q13
-	 5htGtXHuqVcQ3eH51N3yNp2RaznBWbN13oQJxWl81PeD6ta2vsPZjYviT7gNgu8juy
-	 ww0JmdkL3od5sItezoTTyUKumo3tS6jjshho3BfVV/tFqAxy2+T8UiURsmR7zlEzJk
-	 AYITacwlMD5rw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] virtio_blk: use synchronous quiesce in
- virtblk_freeze_priv()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Cong Zhang" <cong.zhang@oss.qualcomm.com>
-Cc: "Eugenio Perez" <eperezma@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev
-In-Reply-To: <20260912-virtblk_sync_quiesce-v2-1-09a001549b72@oss.qualcomm.com>
-References: <20260912-virtblk_sync_quiesce-v2-1-09a001549b72@oss.qualcomm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 12 Sep 2026 09:04:29 +0000
-Message-Id: <20260912090429.AB9D81F00893@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nyF+jMS2"
+Received: by mail-pj2-f12.google.com with SMTP id 98e67ed59e1d1-396ccc02279so544236a91.1
+        for <virtualization@lists.linux.dev>; Sat, 12 Sep 2026 02:04:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789203888; x=1789808688; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=i5SaSEoCo9RleDHysc9IxVyTl6w7IzP28iEqT/KO1Rk=;
+        b=nyF+jMS2sKqHlN1zqpgK5A3q/pTon20Sk7FAH8XteRcFWVGC0vHmrpdImhJ4gxH2FH
+         4sbQAb3HFi5fsapJejHdx370PPUcPjqTFYbENU0vfpY7+TNTXS8YWkufjkDzPgfUVbLS
+         1me+LO2calVvqOtlX0epkmZywo+C4XcIU4CZDBfFVjjHOytpvMW5WcqkT7DZneafOtOm
+         hwDmyyjr9p3duG9Qlg5k++dHl47CVKjlPLdR3CUQzKvp9LqpZRkBCdp2lMmZED31jULR
+         SsGZKUXfrW+USY2O8lJp7cCjKw4RY/i/g3sNEC+0CjYZqTpJZcKtj7b+NMs2nctnuFx5
+         VTig==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1789203888; x=1789808688;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=i5SaSEoCo9RleDHysc9IxVyTl6w7IzP28iEqT/KO1Rk=;
+        b=kXCBFFY7i8QRGJisrdAbvwaJRdy7WEBIQvCQMf7Xweo3jWwhw4utfWwEB9u831wcDh
+         aCfmrJxI3u5XRxmh3abCmsNoKVn2vIuA6QeXDfw0zi9JkY4x5N1ZhtFWk0YKpq2cBBF1
+         HnxvgI20AxCNbzSe9MULPvOdBcvzfOh5vXtNgR/LOZPmJK4zXlpflT1kyWp4A9XyZnta
+         bXXsNxUTa/vWPHL2hBHK9i1xtX+RZJZVZ2a5TTGUS8NmReMK+jZVQloDvWOV84OGIIK7
+         R5TNFtMsd1t0kCZT4QlSdSFYQAqg1xfWu96WISMOH1o4CD4Hd1u+j/4KxPacvosoG9zs
+         T5Zg==
+X-Gm-Message-State: AFuF++lOhIwm4rqikwyZCr+4w8yY/wpwl3T1lDT5FzFO8oTNC8abfINa
+	HOXTHlm3mrzYoapRigH3gCj9L5crk++JFvuVElwrW6xPSUUosNa/YIBB
+X-Gm-Gg: AYBFou0WI/3LWgF4c9uWdXNGcfZpWDNPe3iDsQGQa+XhQOC/8+w7syfUGGpDjVi8wpv
+	sdrcNt3s7EDN/u98BKRyxiNGPm55SIIbSegCx3s8vfcQOck0/6QhqxkLIUQA8wrLG6mUQoPZDxL
+	IZyEHcWumRTaB4MZm2ZXrtRnDULJPsuCDn2c0B06gGpYDvh2+7I9fNMuuQ4e9Wzze1gPDySVT4s
+	nC4t0L6w2uKm0S1l8Q6u35cnljk9JOjSP8EIqWxyEhd4SWMdjs5JIpOemOfsrLq4OLGgnyPIb/i
+	9SiJYDDKvuwurus5s758FNeH/V+1IIOl9LqaxKaYurjb0cjGY1g0XlcriiIT+xTRXDBxta6J1w7
+	jqiyAPsPG6cDjlwYLN3RyA0QMeDUcl23nOhAIx82VZkoIKG3Tf8Qw+87bcTzWLk999AT/fsyLp0
+	d9wuTFQSxKrA3FdniXEi6rrBoWNlll8gAd4VyGiyAI68g77/NI8vtOwLcC2qABgaXZMWN+82c=
+X-Received: by 2002:a17:90b:5246:b0:398:d2a0:87ff with SMTP id 98e67ed59e1d1-39d9bc67660mr14176109a91.1.1789203888155;
+        Sat, 12 Sep 2026 02:04:48 -0700 (PDT)
+Received: from gmail.com ([188.253.12.32])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-33ba4f7390csm12345338eec.26.2026.09.12.02.04.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 12 Sep 2026 02:04:47 -0700 (PDT)
+From: Jia Jia <physicalmtea@gmail.com>
+To: mst@redhat.com,
+	jasowangio@gmail.com,
+	michael.christie@oracle.com,
+	pbonzini@redhat.com,
+	stefanha@redhat.com,
+	eperezma@redhat.com
+Cc: virtualization@lists.linux.dev,
+	kvm@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] vhost-scsi: do not relock event vq mutex on send_evt fallback
+Date: Sat, 12 Sep 2026 17:04:20 +0800
+Message-Id: <20260912090420.47439-1-physicalmtea@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+vhost_scsi_send_evt() is called with the event virtqueue mutex held.
+If the worker is gone, the fallback currently calls
+vhost_scsi_complete_events(), which tries to acquire the same mutex again
+and deadlocks the caller.
 
-Pre-existing issues:
-- [High] Polling I/O (via `virtblk_poll`) can dereference a freed or NULL `=
-vblk->vqs` because the queue is unfrozen before `vblk->vqs` is freed, and p=
-olling paths do not check if the queue is quiesced.
---
+Split event completion into a helper for callers that already hold the
+mutex and a locking wrapper for the event worker. Use the helper on the
+fallback path.
 
-commit f53b3954fde7a5b53ac6d49c8006ad87ad21054b
-Author: Cong Zhang <cong.zhang@oss.qualcomm.com>
+Link: https://lore.kernel.org/all/20260905005352.1E5B01F00A3D@smtp.kernel.org/
+Fixes: b1b2ce58ed23 ("vhost-scsi: Handle vhost_vq_work_queue failures for events")
+Signed-off-by: Jia Jia <physicalmtea@gmail.com>
+---
+Sashiko AI flagged this while reviewing
+the vhost-scsi event queue fix.
+This is a pre-existing self-deadlock. It was reproduced in a follow-up test.
 
-virtio_blk: use synchronous quiesce in virtblk_freeze_priv()
+Trigger: vq->worker == NULL. vhost_vq_work_queue() then returns false,
+and a subsequent vhost_scsi_do_plug() call deadlocks. I do not know what
+normal condition gets us here; the normal vhost-scsi worker detach/reset
+paths do not reach this code. The only reproduction I could come up with
+was killing the vhost-scsi worker. This still looks like a low-probability
+condition.
 
-This commit replaces blk_mq_quiesce_queue_nowait() with blk_mq_quiesce_queu=
-e()
-in virtblk_freeze_priv(). The queue is explicitly quiesced synchronously to
-prevent dispatch code from continuing to run and accessing deleted virtqueu=
-es.
+ drivers/vhost/scsi.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-Link: https://lore.kernel.org/20260911-virtblk_sync_quiesce-v1-1-a883f8f312=
-58@oss.qualcomm.com
-
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 32bf3ba07a9dc..7a570591e040a 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -1595,7 +1595,7 @@ static int virtblk_freeze_priv(struct virtio_device=
- *vdev)
-> =20
->  	/* Ensure no requests in virtqueues before deleting vqs. */
->  	memflags =3D blk_mq_freeze_queue(q);
-> -	blk_mq_quiesce_queue_nowait(q);
-> +	blk_mq_quiesce_queue(q);
->  	blk_mq_unfreeze_queue(q, memflags);
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does unfreezing the queue he=
-re
-leave polling I/O exposed to a use-after-free or NULL pointer dereference?
-
-If virtio_blk is configured with poll_queues > 0, polling is enabled. Becau=
-se
-the queue is explicitly unfrozen before vblk->vqs is freed later in
-virtblk_freeze_priv(), a userspace process can submit new polled requests
-(e.g., via preadv2(RWF_HIPRI)).
-
-These requests can successfully enter the queue and increment q_usage_count=
-er.
-The process can then call blk_rq_poll(), which bypasses the standard dispat=
-ch
-path and directly calls the driver's poll callback (virtblk_poll()).
-
-Since polling paths do not check if the queue is quiesced, virtblk_poll() c=
-an
-calculate a pointer using the now-freed vblk->vqs and attempt to acquire a
-spinlock, resulting in an immediate use-after-free or NULL pointer
-dereference:
-
-virtblk_freeze_priv() {
-	...
-	blk_mq_unfreeze_queue(q, memflags); // Queue unfrozen
-
-	virtio_reset_device(vdev);
-	flush_work(&vblk->config_work);
-	vdev->config->del_vqs(vdev);
-	kfree(vblk->vqs);                   // vqs freed
-	vblk->vqs =3D NULL;
-	...
-}
-
-virtblk_poll() {
-	...
-	struct virtio_blk_vq *vq =3D get_virtio_blk_vq(hctx);
-	...
-	spin_lock_irqsave(&vq->lock, flags); // UAF / NULL dereference
-	...
-}
-
-This patch aims to fix a structurally identical race in the dispatch path by
-using a synchronous quiesce, but it appears to leave this polling race
-unresolved.
-
-> =20
->  	/* Ensure we don't receive any more interrupts */
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260912-virtblk_sy=
-nc_quiesce-v2-1-09a001549b72@oss.qualcomm.com?part=3D1
+diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+index 7a1f39a32..7c905e9ad 100644
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -630,19 +630,26 @@ vhost_scsi_do_evt_work(struct vhost_scsi *vs, struct vhost_scsi_evt *evt)
+ 	vhost_scsi_log_write(vq, vq_log, log_num);
+ }
+ 
+-static void vhost_scsi_complete_events(struct vhost_scsi *vs, bool drop)
++/* Caller must hold the event virtqueue mutex. */
++static void __vhost_scsi_complete_events(struct vhost_scsi *vs, bool drop)
+ {
+-	struct vhost_virtqueue *vq = &vs->vqs[VHOST_SCSI_VQ_EVT].vq;
+ 	struct vhost_scsi_evt *evt, *t;
+ 	struct llist_node *llnode;
+ 
+-	mutex_lock(&vq->mutex);
+ 	llnode = llist_del_all(&vs->vs_event_list);
+ 	llist_for_each_entry_safe(evt, t, llnode, list) {
+ 		if (!drop)
+ 			vhost_scsi_do_evt_work(vs, evt);
+ 		vhost_scsi_free_evt(vs, evt);
+ 	}
++}
++
++static void vhost_scsi_complete_events(struct vhost_scsi *vs, bool drop)
++{
++	struct vhost_virtqueue *vq = &vs->vqs[VHOST_SCSI_VQ_EVT].vq;
++
++	mutex_lock(&vq->mutex);
++	__vhost_scsi_complete_events(vs, drop);
+ 	mutex_unlock(&vq->mutex);
+ }
+ 
+@@ -1829,7 +1836,7 @@ vhost_scsi_send_evt(struct vhost_scsi *vs, struct vhost_virtqueue *vq,
+ 
+ 	llist_add(&evt->list, &vs->vs_event_list);
+ 	if (!vhost_vq_work_queue(vq, &vs->vs_event_work))
+-		vhost_scsi_complete_events(vs, true);
++		__vhost_scsi_complete_events(vs, true);
+ }
+ 
+ static void vhost_scsi_evt_handle_kick(struct vhost_work *work)
