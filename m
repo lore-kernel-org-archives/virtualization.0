@@ -1,44 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7981371889
-	for <virtualization@lists.linux.dev>; Sat, 12 Sep 2026 10:43:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46567311597
+	for <virtualization@lists.linux.dev>; Sat, 12 Sep 2026 10:51:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789209833; cv=none; b=TcfuIY2LU9y7jcWf+covw4/ylGLgtJ2/zN8I7thQHGsOoq0+zn8JkOg3en3qxtxEIoTN6oboxcr2fWfEqEvRJ5zPv41rZrHnyxXlWjBBFei6PvEwxH2u17fQjRdV7Ruk0mmuyfmkYPfwaxzxHNTosvfFen805VFp9n3YUopWlIw=
+	t=1789210277; cv=none; b=HLtfbep6BcWLBgkSveHD7zVxDWkTlH21epRygeSW3Re3896I1p5F764juVMjEr/wzscAfzwUSL41mKr0sk2WCPEGasaVDPbnxZ54CRDhd6LIgmyF9w3nrwmMiqDKLyNrIBsH2sdcrZG30EXwZGFHxqPwrwIHeeD5a9QbL1aCV2o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789209833; c=relaxed/simple;
-	bh=hmRlqa3aHfqwt02m95hJDHvlt/liIft06H330vATY9s=;
+	s=arc-20240116; t=1789210277; c=relaxed/simple;
+	bh=ONXXz+nNK1f3+umzkIhAV/qNCySMBpvKgS2AKY1j7QU=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=rPvio08IE74eFI2Qy+57ML6Eng8WeFmUOWEer6UJla7dW5L2HSNhYm6CycV5BLnOc+JSr6MYXzcGK2QzSfstBp8GE+6BUHOzO708LUnDGOB4PIhPBLk1vmDWwVlY957KeAqFrLl6pXQYx0H4IuC9jPaLxorOuik97MQfQdixZvE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mGz5iX4f; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=BIHsP2A2K7/XoxuP3P2aEprUjmKe75PmwhFA7RrOOYBSqNaT05qxaBZYmvePnuUZVAcIokFdybJGJtTF/nHB2oD0cJ8d9c8J1h/ifkg6WpYxWIeDMsokPUED8J3tMpVd38ZDGM2Y8nL13aLB/eTmKeLm48RHM/x4VSXO+LltsgQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=M4CjP4c1; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mGz5iX4f"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73CCD1F000FF;
-	Sat, 12 Sep 2026 10:43:51 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="M4CjP4c1"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C40D21F00893;
+	Sat, 12 Sep 2026 10:51:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789209831;
-	bh=8CY/kS49XPajqkDul6ioodhysmIHQQbEr6ihfJYN+S8=;
+	s=k20260515; t=1789210276;
+	bh=tnejrhgbQLnwcCcwz3EyzXdTpPBRha/FY69rke1hqzc=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=mGz5iX4fVDQdyGyjWidQkK1dYEDYExe20sL8qxnRojNnjL5Z6X7zFcsUoR2UNH9/r
-	 FhtnPRPw1bRfzu5ydZUAUXf1PzZj15A3bvka7HsCmyNV2GulZiBVFmuS5dPlXSvvBe
-	 kVb/88HY5J9NU73Kf44TgPhUDz8a8VdHxcDE1J0nbK4hcSkkYtKWK2n4AAcuvM5+eu
-	 IMUHs2RiF5aYgCTsrUB5V6z5X9LzKXMiwqae0VscAG3tJRVJO5tuuod7UeOmTT5D7t
-	 4Lx3BrOwLRPKneoBzp1/yO+jGkMDyN0XzDhTloiWyIE8ZTeN/bc50sJiBnnSC3EcXg
-	 dInb/PRnDPOkA==
+	b=M4CjP4c1zU/blB/tSMlfblXFs/EIcGd823HoRxznhFNAIwpppc2g+CVWPUhhNDyNL
+	 9CCKSfo4THdsxWLa/1mkWpuHxYbpzh1LKRQTY2tKkSzcapbYFGU4Jkl9rjgmOopvPb
+	 AxQIogpb0YEPsaQ+nuPssVD/5SlBIsldpBUPeOTYCf+H15WS7bXCOEMYUVW5ZwXwSH
+	 VoUZRYiQvRWOyVzNi9gpIWSAlpLJaaOUOAGJEkCxuMza5nxWmYjUTpyBhEYNNPHrFt
+	 FSoA2XdyQWa3uAHT/NhCziK/crMAHBw5p9GYZjBw1Z53MgR+NbFd8S6MCNSAhjluVy
+	 fJDzlAiHkcWTg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 3/3] virtio_pci: drop callback sync on reset
+Subject: Re: [PATCH v4 2/3] virtio_pci_modern: move avq cleanup from reset
+ to del_vqs
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <64421afa76075c2e0b66ef5c2ea18948b861ab73.1789204858.git.mst@redhat.com>
+Cc: virtualization@lists.linux.dev, "Eugenio Perez" <eperezma@redhat.com>, "Michael
+ S. Tsirkin" <mst@redhat.com>
+In-Reply-To: <21fe35ad7b66e2c30dbdba6fe4df4824d1c0db66.1789204858.git.mst@redhat.com>
 References: <cover.1789204858.git.mst@redhat.com>
- <64421afa76075c2e0b66ef5c2ea18948b861ab73.1789204858.git.mst@redhat.com>
+ <21fe35ad7b66e2c30dbdba6fe4df4824d1c0db66.1789204858.git.mst@redhat.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 12 Sep 2026 10:43:51 +0000
-Message-Id: <20260912104351.73CCD1F000FF@smtp.kernel.org>
+Date: Sat, 12 Sep 2026 10:51:15 +0000
+Message-Id: <20260912105115.C40D21F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -47,86 +48,67 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] Removal of callback synchronization from `vp_reset()` introduces a=
- race condition during system shutdown, as `virtio_device_shutdown()` fails=
- to synchronize callbacks after device reset.
+
+Pre-existing issues:
+- [High] Surprise removal of the PF device while a VF is executing an admin=
+ command leads to an unresolvable deadlock.
 --
 
-commit a9d5f056fe92ddf169045b3557dd34b627d1eb0b
+commit 77107fdcf13b9589fc326075af29c2e63cc3478d
 Author: Michael S. Tsirkin <mst@redhat.com>
 
-virtio_pci: drop callback sync on reset
+virtio_pci_modern: move avq cleanup from reset to del_vqs
 
-The virtio core now synchronizes callbacks after reset, so the PCI transpor=
-ts
-no longer need to do it themselves.
+This commit moves the admin virtqueue cleanup from the device reset path
+to the virtqueue deletion path to prevent a race condition with the interru=
+pt
+handler.
 
-> diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_p=
-ci_legacy.c
-> index d9cbb02b35a11..8115aa39e01e9 100644
-> --- a/drivers/virtio/virtio_pci_legacy.c
-> +++ b/drivers/virtio/virtio_pci_legacy.c
-> @@ -98,8 +98,6 @@ static void vp_reset(struct virtio_device *vdev)
->  	/* Flush out the status write, and flush in device writes,
->  	 * including MSi-X interrupts, if any. */
->  	vp_legacy_get_status(&vp_dev->ldev);
-> -	/* Flush pending VQ/configuration callbacks. */
-> -	vp_synchronize_vectors(vdev);
-
-[Severity: High]
-Does removing this synchronization introduce a race condition during system
-shutdown?
-
-During system shutdown, virtio_device_shutdown() in drivers/virtio/virtio.c
-calls dev->config->reset(dev) directly without calling virtio_reset_device(=
-):
-
-drivers/virtio/virtio.c:virtio_device_shutdown() {
-	...
-	dev->config->reset(dev);
-	/* Missing virtio_synchronize_cbs(dev) here */
-}
-
-The vp_reset() implementation flushes pending MSI-X interrupts, which can
-cause a configuration interrupt to fire. Because this patch removes the
-internal synchronization from vp_reset(), virtio_device_shutdown() returns
-immediately.=20
-
-The configuration interrupt (vp_config_changed()) could then run concurrent=
-ly
-on another CPU, invoking driver callbacks while the system is tearing down =
-the
-IOMMU or jumping into a kexec kernel.
-
->  }
-> =20
->  static u16 vp_config_vector(struct virtio_pci_device *vp_dev, u16 vector)
+Link: https://lore.kernel.org/virtualization/20260911125745.E0A2F1F00899@sm=
+tp.kernel.org/
 
 > diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_p=
 ci_modern.c
-> index b4249afd7f580..922e2df027de9 100644
+> index 6d8ae2a6a8caf..b4249afd7f580 100644
 > --- a/drivers/virtio/virtio_pci_modern.c
 > +++ b/drivers/virtio/virtio_pci_modern.c
+
 [ ... ]
-> @@ -563,9 +563,6 @@ static void vp_reset(struct virtio_device *vdev)
->  	 */
->  	while (vp_modern_get_status(mdev))
->  		msleep(1);
-> -
-> -	/* Flush pending VQ/configuration callbacks. */
-> -	vp_synchronize_vectors(vdev);
 
-[Severity: High]
-Does removing the synchronization here present the same issue?
-
-This breaks the guarantee that interrupts flushed during the reset loop have
-finished before returning, which virtio_device_shutdown() relies upon to
-safely stop the device.
-
+> @@ -364,6 +364,12 @@ static void vp_modern_avq_cleanup(struct virtio_devi=
+ce *vdev)
+>  	}
 >  }
 > =20
->  static int vp_active_vq(struct virtqueue *vq, u16 msix_vec)
+> +static void vp_modern_del_vqs(struct virtio_device *vdev)
+> +{
+> +	vp_modern_avq_cleanup(vdev);
+
+[Severity: High]
+This isn't a bug introduced by this patch, but could this architecture still
+lead to an unresolvable deadlock during a surprise removal of the PF device?
+
+If a VF driver executes an admin command, the thread blocks uninterruptibly
+in virtqueue_exec_admin_cmd() waiting for the command to complete.
+
+If a surprise removal of the PF occurs while the VF is blocked, the PF
+driver calls virtio_pci_remove(), which then calls pci_disable_sriov() to
+wait for all VFs to unbind.
+
+However, the VF unbind is blocked because the VF thread is stuck in
+wait_for_completion(). Because pci_disable_sriov() never returns, the PF
+removal never reaches unregister_virtio_device() and thus never calls this
+vp_modern_del_vqs() function to detach the unused buffers and unblock the
+VF thread.
+
+Is there a way to abort the pending admin commands earlier in the PF surpri=
+se
+removal path, before it blocks on disabling SRIOV?
+
+> +	vp_del_vqs(vdev);
+> +}
+> +
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/cover.1789204858.gi=
-t.mst@redhat.com?part=3D3
+t.mst@redhat.com?part=3D2
