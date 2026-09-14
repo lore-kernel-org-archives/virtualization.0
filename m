@@ -1,387 +1,249 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F03B47F2F3
-	for <virtualization@lists.linux.dev>; Mon, 14 Sep 2026 14:19:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789395564; cv=none; b=aP5Xuiw/atP9Jig1mANvpiVb7im6aIKW3O1g7h61+pGkOBbZhjttRo8bIleacUZoZlEs+/GQBXjoBdQhOWraxpPbq4zpTPST6QA9EaRLYgmHY0THCgiH+2ljB3AExaDiIqxR4oDBdJsNkab44Y4qWBGTO/xI4vdgwlzVli/W0qI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789395564; c=relaxed/simple;
-	bh=sRKg0Uq+/cqF4eameyT7s8bXuKpanQAHnlgQscLwO7Y=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=SO0X1ne9fizoV2DDdfB/TKzsXfvY//r3oKdXix6d3kZYtzQNCpjcpDRvcL/AMUEc2Zhei85+njoTkFz9TNTWzBSEBphYeZJ4MbO4x7gYadvFRApQLdr6BMcOhcakalAXdQazEoF0ScfPqGJu2tQCDmQ14oUTqy9fbuounmkAqd8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iOErOI2x; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E477F3DAAD0;
+	Mon, 14 Sep 2026 15:54:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=192.198.163.18
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789401298; cv=fail; b=Zi6F4mw3C1tb57W1pRuyLaDI7hBPSlWhMDmCjNuk89ayIfVsd5cERv2b6KYRpRvrZO+j1/8ZV+sP/pI+ve0+vGTaBeFkjtIx52i8p2VOUEYGy2HBZstcCMSfzJHyF8zxkEqKB2M8ff/ZvryWpmoJYx77o9MiHaCNc4g5d0TK64c=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789401298; c=relaxed/simple;
+	bh=tz0kGCFO8UJKs7OlRSI5fOcp+hF2EbB44q3ez+I5y2s=;
+	h=Message-ID:Date:Subject:To:CC:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=QLevT9kzeQB8eeUZh3py72Wdc1ghXoBg4gcjLU4Ex2dtnBEJ6NLfvkJHpPT4uUSaH1g5oARMjKGuEd0U7Y4Is+UsI6mQLfbyuLU8Gl59mveXpJTInrG7DU+6QJaLuZovy+TqxNNwlSDXoOoZmPR9AkyEnI8fkhIMGU8+RmXSJt8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=EVpk09nF; arc=fail smtp.client-ip=192.198.163.18
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iOErOI2x"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18B9A1F00893;
-	Mon, 14 Sep 2026 14:19:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789395559;
-	bh=qGPicOM+xg1jWVwbxs4v/qeBdfCHAo9k50ozOykepls=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=iOErOI2xG5Rkv0by48VXAqP2sv1kOY8Y5AU0XPOBm8JE2+zpkaIk4S6UUXl1MTozT
-	 z9XV4vl3cgkrb0BHHSgmLW8+X/6oWrcR0RY+/EKjKDDGlDoWllLuoYvNhchZcdLAef
-	 qeeyMpCOPlIqiXnkaH8eEDdeOsNIpI/liijyc9yWt8n9YtR8iN+8v9cLfJ/u4g7RIS
-	 ckU2Co6+DxGUGO00EbA1QDu9qiXtWyCNhyctCzYDj3kfWYQASwYTP+KkqOuw6RCc15
-	 T+9XCu5xVDUavGigFjqshtbal8KxVQyQ2UjzkX2iyk1fWOImHgFEgo9H3E6j3v3kzv
-	 7VqDiyWl6MkMg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 2/2] virtio_blk: add inline encryption support
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Linlin Zhang" <linlin.zhang@oss.qualcomm.com>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <20260914133733.15429-3-linlin.zhang@oss.qualcomm.com>
-References: <20260914133733.15429-1-linlin.zhang@oss.qualcomm.com>
- <20260914133733.15429-3-linlin.zhang@oss.qualcomm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 14 Sep 2026 14:19:18 +0000
-Message-Id: <20260914141919.18B9A1F00893@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="EVpk09nF"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1789401297; x=1820937297;
+  h=message-id:date:subject:to:cc:references:from:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=tz0kGCFO8UJKs7OlRSI5fOcp+hF2EbB44q3ez+I5y2s=;
+  b=EVpk09nF54WuU+dXugyhPqdEBzqquozoRAIfp8N2td1nC4JwXViFHcdR
+   +Tk1c0HrDFCrmFA3guOtWJi5i1UKkWf3irCZnLlS+vAJ9ZyT/PFbP0iaz
+   DnSOiKNkRraYC+Oph8ugyatWzKGQfdt1RjPgNvvbqI0sEasI8Ms7kPg2a
+   FxYFS9/iFxQsnJAJhA/4lfFs0SqOWh9B8RUFJtAf2gosKKm5bLT729AuF
+   7TrXe877WIgUQb5QmBqZAQtwnLNTPL+Cnhd4hdmR8BBnUw6/C+ppwPKKa
+   T8QiRZT3zZcpen5Po74OE0JMjWCndwWma10e/RZHlid+o14on53d+lyzW
+   w==;
+X-CSE-ConnectionGUID: QeByJUcqT3a98S813N9xGA==
+X-CSE-MsgGUID: Ykd/Q6fOQYOXZn8+j4Nnrw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11905"; a="88893853"
+X-IronPort-AV: E=Sophos;i="6.27,103,1787036400"; 
+   d="scan'208";a="88893853"
+Received: from fmviesa003.fm.intel.com ([10.60.135.143])
+  by fmvoesa112.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Sep 2026 08:54:54 -0700
+X-CSE-ConnectionGUID: GAKaSmkeRIeb/AsJULLdIw==
+X-CSE-MsgGUID: xOuHZigwRJOE7FyzMD2fgA==
+X-ExtLoop1: 1
+Received: from orsmsx902.amr.corp.intel.com ([10.22.229.24])
+  by fmviesa003.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Sep 2026 08:54:53 -0700
+Received: from ORSMSX901.amr.corp.intel.com (10.22.229.23) by
+ ORSMSX902.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.46; Mon, 14 Sep 2026 08:54:52 -0700
+Received: from ORSEDG901.ED.cps.intel.com (10.7.248.11) by
+ ORSMSX901.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.46 via Frontend Transport; Mon, 14 Sep 2026 08:54:52 -0700
+Received: from DM5PR21CU001.outbound.protection.outlook.com (52.101.62.69) by
+ edgegateway.intel.com (134.134.137.111) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.46; Mon, 14 Sep 2026 08:54:52 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=X6IjsL3/Dl7c+Bonbh13vnjEG/5KJJhyeUqwy1KVmGBwKkGVyg4sdQcGUOJOrRKTfP137+nJAP8i8WTKT6fV932YRiU2WCc2iQs14oJz7FKVw5zSns2aVfZpKyzLnn9xJLDqdupUekrWFaqRGhRLgBcfy7XWt+y8qbmtgkOR1SkhyPrBkUQubG08CO8fTo2fkpEfR+dWkVTm3uiX+9OMhz/5H99HafC2G4fN/YosTvZJMwZCLTKgC8maYYxCjUdvAwkwChaUAKOdnbIqk7M+4wwaE9u7Ext7SbYw/eicLM7atRC5Lb88ohdsZd03l/gYB8OkR31hqhn93CWMNlyaQw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=YJywIoQ62JkPFaRDKdqkSpKHrELoIjFnIMHh4GDwy5M=;
+ b=TMNampOHWSONDb5XzQ+gnvcDil50bPYlhc6VxF4OTqh2BbnhLyzQXjNHuAD74WzyJPe3UfWZ/WYCF3A0xVDjIW/paprfTNR+tG5QM45qYT00y1zN/zQ+71EiEwZTUc9obti8oGkm+1NyIXQcXFhA6AKyxjmxAnF91iCYXrr3Hg2LKVcwGZwrR1LH8Dhj/wZT1Y9KNvqQXgryLUrIUNo8z4lXv265nZBrfuEM3vsi6t1nLOm7/OA/L3QPqxgPn/hGKSRGXITdshy8GkDh+pKvDkpcTSj3DLk4eX2DlPBxQxbFod8LkQe/Pkd4Yxl2q9a7RTNlKSe93fd5e8wMkQoWww==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+Received: from SJ2PR11MB8370.namprd11.prod.outlook.com (2603:10b6:a03:540::20)
+ by SA3PR11MB566415.namprd11.prod.outlook.com (2603:10b6:806:589::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.406.12; Mon, 14 Sep
+ 2026 15:54:50 +0000
+Received: from SJ2PR11MB8370.namprd11.prod.outlook.com
+ ([fe80::b6cf:ce77:3cdf:7cc]) by SJ2PR11MB8370.namprd11.prod.outlook.com
+ ([fe80::b6cf:ce77:3cdf:7cc%5]) with mapi id 15.21.0406.007; Mon, 14 Sep 2026
+ 15:54:49 +0000
+Message-ID: <13c52f11-61c9-48a4-ab6c-3ebe7676fdda@intel.com>
+Date: Mon, 14 Sep 2026 08:54:42 -0700
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 12/13] treewide: convert rdmsrq() from a macro to an
+ inline function
+To: Juergen Gross <jgross@suse.com>, <linux-kernel@vger.kernel.org>,
+	<x86@kernel.org>, <linux-perf-users@vger.kernel.org>,
+	<linux-hyperv@vger.kernel.org>, <kvm@vger.kernel.org>,
+	<virtualization@lists.linux.dev>, <linux-edac@vger.kernel.org>,
+	<linux-pci@vger.kernel.org>, <linux-pm@vger.kernel.org>,
+	<linux-coco@lists.linux.dev>, <linux-acpi@vger.kernel.org>,
+	<linux-ide@vger.kernel.org>, <dri-devel@lists.freedesktop.org>,
+	<linux-crypto@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
+	<linux-hwmon@vger.kernel.org>, <linux-mtd@lists.infradead.org>,
+	<platform-driver-x86@vger.kernel.org>, <linux-fbdev@vger.kernel.org>
+CC: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+	"H. Peter Anvin" <hpa@zytor.com>, Peter Zijlstra <peterz@infradead.org>,
+	Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim
+	<namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, "Alexander
+ Shishkin" <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@kernel.org>,
+	Ian Rogers <irogers@google.com>, Adrian Hunter <adrian.hunter@intel.com>,
+	James Clark <james.clark@linaro.org>, "K. Y. Srinivasan" <kys@microsoft.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, "Dexuan
+ Cui" <decui@microsoft.com>, Long Li <longli@microsoft.com>, "Sean
+ Christopherson" <seanjc@google.com>, Paolo Bonzini <pbonzini@redhat.com>,
+	"Ajay Kaher" <ajay.kaher@broadcom.com>, Alexey Makhalov
+	<alexey.makhalov@broadcom.com>, Broadcom internal kernel review list
+	<bcm-kernel-feedback-list@broadcom.com>, Josh Poimboeuf
+	<jpoimboe@kernel.org>, Pawan Gupta <pawan.kumar.gupta@linux.intel.com>, "Pu
+ Wen" <puwen@hygon.cn>, Tony Luck <tony.luck@intel.com>, Dave Martin
+	<Dave.Martin@arm.com>, James Morse <james.morse@arm.com>, Babu Moger
+	<babu.moger@amd.com>, Tony W Wang-oc <TonyWWang-oc@zhaoxin.com>, "Vitaly
+ Kuznetsov" <vkuznets@redhat.com>, Andy Lutomirski <luto@kernel.org>, "Bjorn
+ Helgaas" <bhelgaas@google.com>, "Rafael J. Wysocki" <rafael@kernel.org>,
+	"Pavel Machek" <pavel@kernel.org>, Kiryl Shutsemau <kas@kernel.org>, Rick
+ Edgecombe <rick.p.edgecombe@intel.com>, Boris Ostrovsky
+	<boris.ostrovsky@oracle.com>, Len Brown <lenb@kernel.org>, Damien Le Moal
+	<dlemoal@kernel.org>, "Niklas Cassel" <cassel@kernel.org>, David Airlie
+	<airlied@redhat.com>, Olivia Mackall <olivia@selenic.com>, Herbert Xu
+	<herbert@gondor.apana.org.au>, Viresh Kumar <viresh.kumar@linaro.org>, Huang
+ Rui <ray.huang@amd.com>, Mario Limonciello <mario.limonciello@amd.com>, Perry
+ Yuan <perry.yuan@amd.com>, K Prateek Nayak <kprateek.nayak@amd.com>, Srinivas
+ Pandruvada <srinivas.pandruvada@linux.intel.com>, Yazen Ghannam
+	<yazen.ghannam@amd.com>, Linus Walleij <linusw@kernel.org>, Bartosz
+ Golaszewski <brgl@kernel.org>, Guenter Roeck <linux@roeck-us.net>, Artem
+ Bityutskiy <artem.bityutskiy@linux.intel.com>, Artem Bityutskiy
+	<dedekind1@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman
+	<gregkh@linuxfoundation.org>, Miquel Raynal <miquel.raynal@bootlin.com>,
+	Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>,
+	Ashok Raj <ashok.raj.linux@gmail.com>, Hans de Goede <hansg@kernel.org>,
+	=?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, "Rajneesh
+ Bhardwaj" <irenic.rajneesh@gmail.com>, Xi Pardee <xi.pardee@linux.intel.com>,
+	Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>,
+	Lukasz Luba <lukasz.luba@arm.com>, Helge Deller <deller@gmx.de>,
+	<xen-devel@lists.xenproject.org>, <linux-geode@lists.infradead.org>, "Michael
+ Kelley" <mhklinux@outlook.com>
+References: <20260911074530.3140830-1-jgross@suse.com>
+ <20260911074530.3140830-13-jgross@suse.com>
+From: Reinette Chatre <reinette.chatre@intel.com>
+Content-Language: en-US
+In-Reply-To: <20260911074530.3140830-13-jgross@suse.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: MW4PR03CA0053.namprd03.prod.outlook.com
+ (2603:10b6:303:8e::28) To SJ2PR11MB8370.namprd11.prod.outlook.com
+ (2603:10b6:a03:540::20)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SJ2PR11MB8370:EE_|SA3PR11MB566415:EE_
+X-MS-Office365-Filtering-Correlation-Id: 551bf591-1ca3-475a-2be7-08df127881ec
+X-LD-Processed: 46c98d88-e344-4ed4-8496-4ed7712e255d,ExtAddr
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|23010399003|7416014|366016|376014|1800799024|22082099003|18002099003|921020|4143699003|10067099003|56012099006|11063799006;
+X-Microsoft-Antispam-Message-Info: FCdcRAsMIgf1njP/rTi6g0mD5FTBwjqPKJlKMfYLIzHABACl3yu+Bp9ABUa4YIxLOSf0A4/1LlfPNfOdSCAagLX6RNR5w/+ZgtlriDS3e8Ti8P7F5MiclfyTSBUc26pDgq0FXpleG0oOAIb21Lenjsm6+eE8MHtwetKU9nH2yPusdp8tmbXqUEjEUtE/3hWH4X4oRvaLaFcohO36Xw4xt5MfwuZtVLhw3Zh0T8J9Z3zVuD5tuGDpLG3NZ8Xh/uBJq+9WXtZFbJPvUTb82v+WUBmHQ7/+emn6VBPh5kEsl9e0p4EUe+gIN5EBx/SckIUTh2+Pfh4Hp9CibOxmo4FI5ejLXsjJpc2uzA5zWmYkVZUBskPNqr/Ce39z3Pth0MTdfwlwzV6voFNyCZCTVTwVORyollyZlS/MfkDul9lHdqhaytdpeVZe316vpXH2UcUga8Iscx3Hl8pvjXyKhORvWGP3muHgAMsRa/RXgHwEzjOJLsJCvZgYPOszsq8iteGLFEQd8JLAAjzX0xmBnLUtLpGvJKy6f2zFtsms3NjiLqoNXkxqQEfytQhOwgFt6i10KrP4H/5cvwqr03FJz3Vldkddg7sqR/f10LoY6Fw73QQrit7NZYQyej5ZfjArn9hQQD3beKMjL0YWKO1Cs+OAFqQ/DnoxSvrg0+YIOX/N0ynQgrUJZ3zVYBUS6cP1N31ZkmfNaPDsQdZ6IEZoL44uOg==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SJ2PR11MB8370.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(7416014)(366016)(376014)(1800799024)(22082099003)(18002099003)(921020)(4143699003)(10067099003)(56012099006)(11063799006);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?blV5NUQ2NHJ2ZThBNHlRSDlwbE83YzhWd2RKV0pTNkJwTGVITnVqZ3FvWTVm?=
+ =?utf-8?B?TDlzNXZwRFkyWkxKYVk3bklTNktuNFF3MWVRZTJkbUkwR28zRitueXBjUC9z?=
+ =?utf-8?B?cHpRRlFwa21hcGdUakRndjEvNE9vbWNTK3dFNXI1NEt6d0s3ajFuTVY1c2tR?=
+ =?utf-8?B?Rk9HbEpqcEN2UlhoRDhUOC9tM1c3NmFrL3V2UjRQQ1QybEI1VG5WeVZ1eEll?=
+ =?utf-8?B?N0FKWnp3UDUwUmkrcjFhNnVDcEN2REZzbEpnMFdTdG9mcEhTOGRFc0dlTGJR?=
+ =?utf-8?B?eHZJaXpBWENBd28yYnp1cGQ1T1pjNjlJNWJ2bzYrZlhhU3VrMGZFeVZiNTVo?=
+ =?utf-8?B?T0hDUFNqaVdMcXZRc3lTMFBIbE5CQzdsenJzT3QxbFF0UGlhN0kyS2thMDhh?=
+ =?utf-8?B?VkNiME1ZZEhOVUJ1Q2hCMm9DYUNFemlBWDVpdG9NYnJDa3RQUkZ4akNVNXZS?=
+ =?utf-8?B?V0NWRnhBcWtMQzBFTTREbVZ1SmZ6YjdmampncFJxR2xvMWdSYmRUdy9kNlJw?=
+ =?utf-8?B?SWtGOEc5QUt1V1F6Z3A2YmR2bnFRVDZMQ1FZd0VQckxCRkpUVEhQcVFwWCtn?=
+ =?utf-8?B?YUc0T3pRWHNvd1JzYVVkaWxmZHRYQ3ZBalZ1a3FuazNyNjVIajNpNFNkT2Zh?=
+ =?utf-8?B?RTJsUVVSR3ZuME12a1k3Y21XWWJGKzR3TmQ1bkpUZHJ2cFZZbHpFeDJybyt3?=
+ =?utf-8?B?enk3N01DL2syc2tTeUlKdG1aaGN4S25TWG9wS0hwcHFNeGJRV0oyTVl6TThJ?=
+ =?utf-8?B?WnJMaFBDMjFXNndNb1hxQitNLzJqM2E2WFZjTWNwVDlXbVpLTGtzWDJWb0g2?=
+ =?utf-8?B?V0s2Q1E3STZ5UklOSE5HSzR5UUJEaXpkVFNRRVRCVDBTczdiZ0U1NVF6YVE2?=
+ =?utf-8?B?K3cxMjFIZTVLRUorWTdzK3M0QmRVNFFMSDk5T0JNL240SlhhQi9ieFo4SWxn?=
+ =?utf-8?B?eStPOGZMeUVwQnhRTkg3M0ZyM3NaWnQybTZGbnJ1VXg3a2RTdWo5ODBIbDJ6?=
+ =?utf-8?B?YmxUeHBYcFpmdzZvZS9sM25ZWC84SHV3Q2tvZ0s5b0Y1K3NzV3ZMRmhtVExu?=
+ =?utf-8?B?VEU1OFdpdnZqZzFabi90SHVla25CeEVWZDdwOE9DY2EvT2ZZVk1FL0ovSXho?=
+ =?utf-8?B?QXdybWVKM00yNEVPSWsyUzUwcUJGOHp2VUFVM1lQTWZncUZYaWxaaG9LL0Jk?=
+ =?utf-8?B?QStDRUlJaVM3YmhVb3RiRXhkVEZQbmdxczlub1NFbkl1RzByWHJvWW5FUm1Q?=
+ =?utf-8?B?UFlwejJ6UnE1RGV4aGQ1a2NGYlliT3U1VjZRL25LekJhKzZIVWRkQ0M2YVdU?=
+ =?utf-8?B?QXhRc040MWJ3aDRUSmtuZzMwZ1JKaHg0QXBLUXNlWDE5UHdMQVlPSFhyUkRt?=
+ =?utf-8?B?cEIyak13UGtmcnU2UmxVVlVXVnEwVzhzR1c1NWpsYlJqNWsvQUtyMUlJUHN5?=
+ =?utf-8?B?bkxrRlVJWU05akJoRkd3WGE0TVhubU15OHZtTjJCYlRwVERFSHUxZkdYL2JI?=
+ =?utf-8?B?SFNMVkVsT3R6WlFMeFpZSXlFTGl0ZWxjaFl6OUx0SFVVNzYydXJodkRwS2ZH?=
+ =?utf-8?B?YVZHUC9RQ0g4ZGZ4K0VGYUlpOEZFbmJxempscUg4NFpMaEpWSlBzckovQ08y?=
+ =?utf-8?B?UXRibTNOSHNJdnRrV3Vtdkl6YmRLNE9jZnRvS3A3MG04V1pQUWFpN2NtekNT?=
+ =?utf-8?B?ZldPdkU0R2owYldDYzdwQWdIdVdEU2RPdFVaUlRHL1FMTmxsZmNhdDZvMFo4?=
+ =?utf-8?B?bkJ1U1BCY2JVUFJURW50Z1ppS3ZhTVBqcWNVSTNUbW9vdnNQNHNveVB1UThI?=
+ =?utf-8?B?SGp1YkZhYzBsenB0YVpwN2NzQkVhaGJwNDFiU3lMYk9WSWhIZlgzSThWSElW?=
+ =?utf-8?B?UGdEYlQ1NHNoNmRuMG5CZlU5dVFEYVdiaG1oRUp3VUhvUHpMMG1ZUGlWRmli?=
+ =?utf-8?B?RGNEVWVselVGSzJkVUFjWFVkQmpzVU1PVktPcGRJd0NlT0hiUlB2RWU1SUZY?=
+ =?utf-8?B?OCs2ak1RSXlsajlxUXlkdGFBckRZYVQ0RlFHUGcvd0RiNGs1eTBPMTc4ZHJi?=
+ =?utf-8?B?cnNVeU15by9wUXl1QVpxZWlyUCtjOWdyOXpJSU4xb0tiUXZ1M0FLV1Z3VGVy?=
+ =?utf-8?B?ODNTOEM3ckg0cklNelRmOWxTQlAyWUI0c01hSG1oVGFqRnh0aUM4djVQMW9T?=
+ =?utf-8?B?Z2V2NHFERkpYaXpROHZYOXpOQnNyRW5QQ2hwTCtuZW5PT1N0ZWpPU2tFdU95?=
+ =?utf-8?B?YjRUU0phOXhSK29pa2xadXRsYmZmVC93aWh1eUxEQkZWbW51Tm10ZjJPVmpj?=
+ =?utf-8?B?WXFqSVRJTGtiZ3R5R0RNTXNVc1J6VVNyWmowVEJpcnYwemlmR09NajZIV2R1?=
+ =?utf-8?Q?wLXmYqB+hVXFJCZQ=3D?=
+X-Exchange-RoutingPolicyChecked: cyJqkjq6LyZ2s/C+Xz7GWP1SYjQVauCVMSHvaQuLdJ+lkqMVaOgWZxc0DGnNUiNWVwimNV2eSi6F0Gre6pt6CeAetaTxAiW7qjQ82x/dc2LflDMjYvQzKoek1JsM0VXNKs4/nbh/qNYCXy92HxilQngMPjr7og596FIb+ZRQlVkbp/LKWvzvLnenDaaN2uOZ5Re1g7yzInlf2pPBx0AkkUuVxJyRE4/c4e2+bpvoXElbhjoWUiKW7HPqwV1j8mvsvDc5S0kORlABwth4SuwapiMqpm5AedSpNYZiuiIVqQORwovJaRjSsQzA5TkohpYyNIp1YWPObfx+EVzLYznZJA==
+X-MS-Exchange-CrossTenant-Network-Message-Id: 551bf591-1ca3-475a-2be7-08df127881ec
+X-MS-Exchange-CrossTenant-AuthSource: SJ2PR11MB8370.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Sep 2026 15:54:49.7466
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: SaRdg+Ghp5yz6Z/XSmHZMZPrm05TT0dIoDTHljLMsUnfo0Fa/XkbNuA7gxHhR3aB8ylqcr2YZxDn7J7qkI77a4ZJFExbfFgBGARpRscpYkw=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA3PR11MB566415
+X-OriginatorOrg: intel.com
 
-Thank you for your contribution! Sashiko AI review found 10 potential issue=
-(s) to consider:
+Hi Juergen,
 
-New issues:
-- [Critical] REQ_OP_ZONE_APPEND requests with an encryption context are sil=
-ently written in plaintext.
-- [High] Zoned block devices completely skip inline encryption initializati=
-on due to an 'else if' block.
-- [High] Memory allocation on the block I/O submission path uses GFP_KERNEL=
- without a mempool, causing deadlocks.
-- [High] Hardware queues are unquiesced before encryption keys are reprogra=
-mmed during resume.
-- [High] Cacheline sharing in `struct virtblk_ctrl_request` violates the DM=
-A API, risking memory corruption.
-- [High] Uninitialized vblk->crypto_profile_initialized leads to wild frees=
- on probe error paths.
-- [High] blk-crypto operations can race with device removal, leading to NUL=
-L pointer dereference.
-- [Medium] The driver directly assigns Linux-internal crypto mode enums to =
-the Virtio hardware descriptor without translation.
-- [Low] VIRTIO_BLK_INLINE_ENCRYPTION is defined as a tristate but cannot be=
- built as an independent module.
+On 9/11/26 12:45 AM, Juergen Gross wrote:
+> Today rdmsrq() is a macro using its second parameter as the target for
+> storing the read MSR value.
+> 
+> Convert rdmsrq() to an inline function returning the MSR value.
+> 
+> The users have been converted using the following semantic patch:
+> 
+>   // Options: --include-headers
+> 
+>   virtual patch
+>   virtual report
+> 
+>   @@
+>   expression msr, val;
+>   @@
+>   (
+>   - rdmsrq(msr,val)
+>   + val = rdmsrq(msr)
+>   )
+> 
+> Signed-off-by: Juergen Gross <jgross@suse.com>
+> Acked-by: Damien Le Moal <dlemoal@kernel.org>      # ATA
+> Reviewed-by: Michael Kelley <mhklinux@outlook.com> # Hyper-V
+> ---
 
-Pre-existing issues:
-- [High] The error cleanup path in virtblk_probe contains a use-after-free =
-and double free of vblk.
---
+...
+>  arch/x86/kernel/cpu/resctrl/core.c            |  2 +->  arch/x86/kernel/cpu/resctrl/monitor.c         |  4 +--
+>  arch/x86/kernel/cpu/resctrl/pseudo_lock.c     |  4 +--
+>  arch/x86/kernel/cpu/resctrl/rdtgroup.c        |  2 +-
+Thank you.
 
-commit 787711d9770fce24131418d43dc33cb33a894de6
-Author: linlzhan <linlin.zhang@oss.qualcomm.com>
+Acked-by: Reinette Chatre <reinette.chatre@intel.com> # resctrl
 
-virtio_blk: add inline encryption support
-
-This commit adds support for the virtio-blk inline encryption feature,
-allowing guest VMs to offload per-I/O encryption to the host's inline
-crypto engine. It wires up device encryption characteristics to a
-struct blk_crypto_profile and handles key management via control commands.
-
-> diff --git a/drivers/block/Kconfig b/drivers/block/Kconfig
-> index 858320b6ebb7e..58bb050d4617c 100644
-> --- a/drivers/block/Kconfig
-> +++ b/drivers/block/Kconfig
-> @@ -372,4 +372,16 @@ config BLK_DEV_ZONED_LOOP
-> =20
->  	  If unsure, say N.
-> =20
-> +config VIRTIO_BLK_INLINE_ENCRYPTION
-> +	tristate "Virtio block inline encryption support"
-> +	depends on VIRTIO_BLK && BLK_INLINE_ENCRYPTION
-
-[Severity: Low]
-Could this lead to configuration ambiguity? VIRTIO_BLK_INLINE_ENCRYPTION is
-defined as a tristate, but the code is conditionally included directly with=
-in
-the virtio_blk module. Users might select 'M' thinking it builds a separate
-crypto module, but it functions as an intra-file boolean.
-
-[ ... ]
-
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 252ec93661532..3fd318e5e1f17 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -124,8 +136,23 @@ struct virtblk_req {
->  };
-> =20
->  struct virtblk_ctrl_request {
-> +	/* Type byte, always its own out-sg for every command. */
->  	__virtio32 type;
-> +	/* Out request, sent as a second, separate out-sg if any. */
-> +	union {
-> +		struct virtio_blk_crypto_key_desc key_desc;
-> +		struct virtio_blk_crypto_key_blob blob;
-> +	} out_req;
-> +
-> +	/* In response */
-> +	union {
-> +		struct virtio_blk_crypto_key_blob blob;
-> +		struct virtio_blk_crypto_sw_secret secret;
-> +		struct virtio_blk_crypto_modes modes;
-> +	} in_resp;
-> +	/* Status byte, always its own in-sg for every command. */
->  	u8 status;
-> +
->  	struct completion compl;
->  };
-
-[Severity: High]
-Does this struct packing risk memory corruption on non-cache-coherent
-architectures?
-
-The DMA-written buffers (in_resp, status) are packed directly adjacent to t=
-he
-compl field. On non-coherent architectures, cache invalidation for the DMA
-fields can destroy the CPU's ongoing modifications to the waitqueue inside
-compl during wait_for_completion().
-
-[ ... ]
-
-> @@ -262,20 +310,27 @@ static blk_status_t virtblk_setup_cmd(struct virtio=
-_device *vdev,
->  				      struct request *req,
->  				      struct virtblk_req *vbr)
->  {
-[ ... ]
->  	case REQ_OP_ZONE_FINISH:
->  		type =3D VIRTIO_BLK_T_ZONE_FINISH;
->  		sector =3D blk_rq_pos(req);
->  		break;
->  	case REQ_OP_ZONE_APPEND:
->  		type =3D VIRTIO_BLK_T_ZONE_APPEND;
->  		sector =3D blk_rq_pos(req);
->  		in_hdr_len =3D sizeof(vbr->in_hdr.zone_append);
->  		break;
-
-[Severity: Critical]
-Could this lead to plaintext data being written for encrypted zone append
-requests?
-
-When handling REQ_OP_ZONE_APPEND, the type is forced to
-VIRTIO_BLK_T_ZONE_APPEND. Because this path does not check is_crypto_reques=
-t(),
-it bypasses the crypto setup...
-
-[ ... ]
-
-> @@ -337,6 +392,18 @@ static blk_status_t virtblk_setup_cmd(struct virtio_=
-device *vdev,
->  	if (type =3D=3D VIRTIO_BLK_T_DISCARD || type =3D=3D VIRTIO_BLK_T_WRITE_=
-ZEROES ||
->  	    type =3D=3D VIRTIO_BLK_T_SECURE_ERASE) {
->  		if (virtblk_setup_discard_write_zeroes_erase(req, unmap))
->  			return BLK_STS_RESOURCE;
->  	}
-> =20
-> +	if (type =3D=3D VIRTIO_BLK_T_CRYPTO_IN || type =3D=3D VIRTIO_BLK_T_CRYP=
-TO_OUT) {
-> +		memset(&vbr->out_hdr.crypto_append.msg, 0,
-
-[Severity: Critical]
-...and subsequently fails this check since type is VIRTIO_BLK_T_ZONE_APPEND
-instead of VIRTIO_BLK_T_CRYPTO_OUT.
-
-This prevents the crypto message descriptor from being attached, causing the
-host hypervisor to see a standard unencrypted write and store the plaintext
-data to disk.
-
-[ ... ]
-
-> @@ -1001,11 +1068,478 @@ static int virtblk_ctrl_vq_request(struct virtio=
-_blk *vblk,
-[ ... ]
-> +static int set_virtblk_crypto_key_desc(struct virtio_device *vdev,
-> +				       struct virtblk_ctrl_request *creq,
-> +				       const struct blk_crypto_key *key,
-> +				       unsigned int slot)
-> +{
-> +	struct virtio_blk_crypto_key_desc *desc =3D &creq->out_req.key_desc;
-> +	enum blk_crypto_key_type key_type =3D key->crypto_cfg.key_type;
-> +
-> +	if (sizeof(desc->bytes) < key->size)
-> +		return -EOVERFLOW;
-> +
-> +	memset(desc, 0, sizeof(*desc));
-> +	desc->slot =3D cpu_to_virtio32(vdev, slot);
-> +	memcpy(desc->bytes, key->bytes, key->size);
-> +	desc->key_size =3D cpu_to_virtio32(vdev, key->size);
-> +	desc->crypto_mode =3D cpu_to_virtio32(vdev, key->crypto_cfg.crypto_mode=
-);
-
-[Severity: Medium]
-Can this leak a Linux-internal enum value directly into the hardware protoc=
-ol
-descriptor?
-
-The desc->crypto_mode is set directly from key->crypto_cfg.crypto_mode, whi=
-ch
-is an internal enum blk_crypto_mode_num. If Linux adds a new mode or virtio
-assigns different numbers in the future, this will silently send incorrect
-crypto modes to the hypervisor.
-
-[ ... ]
-
-> +static int virtblk_crypto_keyslot_program(struct blk_crypto_profile *pro=
-file,
-> +					   const struct blk_crypto_key *key,
-> +					   unsigned int slot)
-> +{
-> +	struct virtio_blk *vblk =3D virtblk_from_profile(profile);
-> +	struct scatterlist type_sg, out_req_sg, status_sg, *sgs[3];
-> +	struct virtblk_ctrl_request *creq;
-> +	int err;
-> +
-> +	creq =3D kzalloc_obj(*creq, GFP_KERNEL);
-> +	if (!creq)
-> +		return -ENOMEM;
-
-[Severity: High]
-Is it safe to use GFP_KERNEL here?
-
-This allocation occurs on the block I/O submission path. Under memory press=
-ure,
-this could recurse into memory reclaim, which may attempt to flush dirty pa=
-ges
-to this same block device, leading to a deadlock.
-
-[ ... ]
-
-> +static int virtblk_crypto_keyslot_evict(struct blk_crypto_profile *profi=
-le,
-> +					 const struct blk_crypto_key *key,
-> +					 unsigned int slot)
-> +{
-> +	struct virtio_blk *vblk =3D virtblk_from_profile(profile);
-> +	struct scatterlist type_sg, out_req_sg, status_sg, *sgs[3];
-> +	struct virtblk_ctrl_request *creq;
-> +	int err;
-> +
-> +	creq =3D kzalloc_obj(*creq, GFP_KERNEL);
-> +	if (!creq)
-> +		return -ENOMEM;
-
-[Severity: High]
-Similar to the programming path, is GFP_KERNEL appropriate here? The evicti=
-on
-path often occurs during inode or dentry reclaim, and recursing into memory
-reclaim could cause deadlocks.
-
-> +
-> +	creq->type =3D cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_CRYPTO_KEYSLOT_=
-EVICT);
-
-[Severity: High]
-Could this race with device removal?
-
-In virtblk_crypto_keyslot_evict(), vblk->vdev is accessed unconditionally. =
-If
-the virtio device is hot-unplugged, virtblk_remove() sets vblk->vdev to NUL=
-L.
-Since the block device may still be open by userspace, fscrypt might
-subsequently tear down a key and call into this driver, causing a NULL poin=
-ter
-dereference.
-
-[ ... ]
-
-> +static void virtblk_destroy_crypto(struct virtio_blk *vblk)
-> +{
-> +	if (vblk->crypto_profile_initialized)
-> +		blk_crypto_profile_destroy(&vblk->profile);
-> +}
-
-[Severity: High]
-Could this cause a wild free on probe error paths?
-
-vblk is allocated using kmalloc_obj() which does not zero memory. If the pr=
-obe
-fails before the profile is initialized, virtblk_destroy_crypto() might rea=
-d a
-true value for vblk->crypto_profile_initialized and pass garbage to
-blk_crypto_profile_destroy().
-
-[ ... ]
-
-> @@ -1698,6 +2232,19 @@ static int virtblk_probe(struct virtio_device *vde=
-v)
-[ ... ]
->  	if (IS_ENABLED(CONFIG_BLK_DEV_ZONED) &&
->  	    (lim.features & BLK_FEAT_ZONED)) {
->  		err =3D blk_revalidate_disk_zones(vblk->disk);
->  		if (err)
->  			goto out_cleanup_disk;
-> +	} else if (IS_ENABLED(CONFIG_VIRTIO_BLK_INLINE_ENCRYPTION) &&
-> +		   virtio_has_feature(vdev, VIRTIO_BLK_F_INLINE_ENCRYPTION) &&
-> +		   virtio_has_feature(vdev, VIRTIO_BLK_F_CTRL_VQ)) {
-> +		err =3D virtblk_init_crypto(vblk);
-
-[Severity: High]
-Does this else if inadvertently disable inline encryption for zoned block
-devices?
-
-If a device advertises both ZONED and INLINE_ENCRYPTION features, the initi=
-al
-if block executes, causing the entire crypto initialization block to be ski=
-pped
-silently.
-
-[ ... ]
-
->  	err =3D device_add_disk(&vdev->dev, vblk->disk, virtblk_attr_groups);
->  	if (err)
->  		goto out_cleanup_disk;
-> =20
->  	return 0;
-> =20
->  out_cleanup_disk:
->  	put_disk(vblk->disk);
->  out_free_tags:
->  	blk_mq_free_tag_set(&vblk->tag_set);
->  out_free_vq:
->  	vdev->config->del_vqs(vdev);
->  	kfree(vblk->vqs);
->  	vblk->ctrl_vq.vq =3D NULL;
->  out_free_vblk:
->  	kfree(vblk);
-
-[Severity: High]
-This is a pre-existing issue, but does this error cleanup path have a
-use-after-free and double free?
-
-The call to put_disk(vblk->disk) drops the reference count, invoking
-virtblk_free_disk() which frees vblk. The subsequent labels continue to
-dereference vblk->tag_set and vblk->vqs, and eventually kfree(vblk) is call=
-ed
-again.
-
-[ ... ]
-
-> @@ -1798,6 +2345,9 @@ static int virtblk_restore_priv(struct virtio_devic=
-e *vdev)
->  	virtio_device_ready(vdev);
->  	blk_mq_unquiesce_queue(vblk->disk->queue);
-> =20
-> +	if (vblk->profile.slots)
-> +		blk_crypto_reprogram_all_keys(&vblk->profile);
-> +
->  	return 0;
->  }
-
-[Severity: High]
-Could this expose unprovisioned keyslots during resume?
-
-The hardware queues are unquiesced before blk_crypto_reprogram_all_keys() is
-called. This instantly restarts I/O dispatch, meaning any pending encrypted
-requests could be executed by the hypervisor with empty or invalid keyslots
-before they are reprogrammed.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260914133733.1542=
-9-1-linlin.zhang@oss.qualcomm.com?part=3D2
+Reinette
