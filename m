@@ -1,329 +1,423 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD50E3D810F;
-	Mon, 14 Sep 2026 11:00:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57DDB3DA5AF;
+	Mon, 14 Sep 2026 11:01:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789383623; cv=none; b=E4a6k7Pl2Ut0gp+x9tNNw4a6qv5MnGQUiG+dPeHWmnzEMMCI/T1JtlMxMK0aD51p1hvW2fdapeo3NGZeko2v3aJ9yP07OYHTKdsiThWj0apJX7XMTyC3gYv7XaiG0jdVUa1/RfI8yzu9/nZ2COktrl8BnUH8p/QqYwLxRW4vGZU=
+	t=1789383666; cv=none; b=h0S+9/clMRvW/DNYXODaPIu2jzqpBcIlDlYz21repH+T96wuGggyXo7Nj5aK9z3o6V8LcgH8/pj2VOEEtzdieRtDCgl1GsK+i3RLHRhjmPkRsS6zFO0yaMV5bN/4GMY9LMuG7+LV6URmH6Sv3ZoadhwiDcg/OGjjRj1FrivbyF4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789383623; c=relaxed/simple;
-	bh=P3CgvEA6kTIyU+N7SAt+Ts+fXH2on/YGYXnSUjqTbEo=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=u67GRLd7DQ6ykzvOiKohwEUs9vCnWV0Qij6Tqt2d8Mty7mA3AZkguXccvr76EwoyUqxYp5ysR+Gt+Ii+QUVklxkjvHeek2p9JNrJ4cwS9rEPZ75oXBK9/JqmORapd74Hy84mV9GskVCxZZxsbcCXSp7Lx+jUjCAstDsaLWJ5M2A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=085m7F6v; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=h8LkQDnX; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=hUVlpVnE; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=MKQX36/0; arc=none smtp.client-ip=195.135.223.130
+	s=arc-20240116; t=1789383666; c=relaxed/simple;
+	bh=wg6OsUeWmP7YOXoF3bBJIbdxZewKbN47TNJFyvsjxEc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=fiud4lSaDTOQPpPHX+dg1fFa/6OJQtRanGtmNDva5njJucZLHT8ipknL3KrBx+x9Nfdb4fwxB6xW7GEERoj+pirQJUt512698Wz+7fxdkGN/aVCLobZkiuXP3/+XDwMMYEw9jwzo4rrwpouLtx0RrlrfNQzG5EonZSXerc7zKLY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=dz7YqRON; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=s5eapEsb; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=vur6BRTx; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=kPpGuVxn; arc=none smtp.client-ip=195.135.223.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="085m7F6v";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="h8LkQDnX";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="hUVlpVnE";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="MKQX36/0"
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="dz7YqRON";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="s5eapEsb";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="vur6BRTx";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="kPpGuVxn"
 Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 1CD8A211CA;
-	Mon, 14 Sep 2026 11:00:08 +0000 (UTC)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 2C6CB1F391;
+	Mon, 14 Sep 2026 11:00:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1789383612; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=h7WuirKrxCxKEKqt/9W+tCHalBkxSlirtta4lU9w4TY=;
-	b=085m7F6vjN1nwBBnXwJYAfdlNdYy8PaRBO/4jJEI7fPOgFeZk2RCqQXQFGCVh1hkWwUDqB
-	K023FsbgarTa+E2CKknJc5ZPo4tjDPSDvPNc/TXprEq32HS9Y5kiC/w0QBSXNczyRXvl1S
-	kQiiwkmfDapNTpzFfKhgY0RpMvHREf8=
+	t=1789383654; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=/1m16V3C3rCfBnEu0S0eVQZBZIAHWULlSOSF3CbO4zA=;
+	b=dz7YqRONJghsmwEed/JAkbN9jwdrxu7YjT/DWb06txZZ20NROX/1EoLjH0oaUJF4aksF6P
+	c8i3GfoxM7Fpv+6LFltm1FPd1Yj2ymlg9u/wC5Gt45fB6l5iklZiIfUsyHF4A3vYOx/949
+	2EsAHYt5PbAxmIY6S7yd+tpxZ9mnRdI=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1789383612;
+	s=susede2_ed25519; t=1789383654;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=h7WuirKrxCxKEKqt/9W+tCHalBkxSlirtta4lU9w4TY=;
-	b=h8LkQDnXdz2pFnC9paPPVLArTSh8ZdaO6cCyUPutzbCunPoXC3kbL9QxrwNDDLuqmNmSD/
-	ipw74xfP/XsI2ZCg==
-Authentication-Results: smtp-out1.suse.de;
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=/1m16V3C3rCfBnEu0S0eVQZBZIAHWULlSOSF3CbO4zA=;
+	b=s5eapEsbcyRtt4kiqExKyYAYNuGAUayZveL8Bh6sWziL4hXzg++VbfYc3WNNRP4wWfcv9P
+	A38gCVGmxNxc10DQ==
+Authentication-Results: smtp-out2.suse.de;
 	none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1789383608; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=h7WuirKrxCxKEKqt/9W+tCHalBkxSlirtta4lU9w4TY=;
-	b=hUVlpVnEdTxfsmZSH1loTyvfQr/Q2cyM5US8Cb3a8h6nabCrm4okj/UggU888T1HzMyEHk
-	z8bQzzOOu2c5buWa03bkA7jGdHzhroJyCi/JxTQL+TYy8zYklOOPrWYClRnC1VsDBAwfrQ
-	exUE/VFtPGU5owv1Cvkc/2ooYEcSx0I=
+	t=1789383650; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=/1m16V3C3rCfBnEu0S0eVQZBZIAHWULlSOSF3CbO4zA=;
+	b=vur6BRTxWJbuuvI46hCY1rLinRnSbEjZ/IMFEm+nL8Jcjd45XjuU4W9f2Vzs6+1hTbNqQ3
+	C3fOeXjz9qq7sBHhELYoziTQsKSwbFVMyAj8zz6Jf44gTmAWAmhuoC6WNGJ5MJUtc2Bawz
+	ySPJ4s5ebhF8/u+NBhD72RG50MUz8FI=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1789383608;
+	s=susede2_ed25519; t=1789383650;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=h7WuirKrxCxKEKqt/9W+tCHalBkxSlirtta4lU9w4TY=;
-	b=MKQX36/0O0IS5zIpN2esIY4uX5+cL5xtJNBLHNVUciVuPaIqZzbSgNs6wuGYwZnMt5esNh
-	BZxTIgxUr/oZHBCQ==
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=/1m16V3C3rCfBnEu0S0eVQZBZIAHWULlSOSF3CbO4zA=;
+	b=kPpGuVxn09Vfs1TDPe3uqudWiTPH7Nh6KFmhMkvLBPNzTr0BoXKS95pnTodSEzzuJAL9cH
+	NIFGBZ1iWwZnpDBQ==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 8EEB71368C;
-	Mon, 14 Sep 2026 11:00:07 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id A34F113693;
+	Mon, 14 Sep 2026 11:00:49 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id 9xzaFLfTp2oJPAAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Mon, 14 Sep 2026 11:00:07 +0000
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: me@romanilin.is,
-	louis.chauvet@bootlin.com,
-	maarten.lankhorst@linux.intel.com,
-	mripard@kernel.org,
-	airlied@gmail.com,
-	simona@ffwll.ch,
-	javierm@redhat.com,
-	dmitry.osipenko@collabora.com,
-	ville.syrjala@linux.intel.com,
-	regressions@leemhuis.info,
-	peter.m.arnesen@gmail.com
-Cc: dri-devel@lists.freedesktop.org,
-	virtualization@lists.linux.dev,
-	sashiko-reviews@lists.linux.dev,
-	Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v4] drm/vblank: Don't arm vblank timer with invalid frame duration
-Date: Mon, 14 Sep 2026 12:57:26 +0200
-Message-ID: <20260914110004.211027-1-tzimmermann@suse.de>
-X-Mailer: git-send-email 2.55.0
+	id VLj4GuHTp2p5PQAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Mon, 14 Sep 2026 11:00:49 +0000
+Message-ID: <d106ad8a-78d4-45be-95da-0222c44107c5@suse.de>
+Date: Mon, 14 Sep 2026 13:00:48 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3] drm/vblank: Don't arm vblank timer with invalid frame
+ duration
+To: Thorsten Leemhuis <regressions@leemhuis.info>,
+ Roman Ilin <me@romanilin.is>
+Cc: David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+ Maxime Ripard <mripard@kernel.org>, Louis Chauvet
+ <louis.chauvet@bootlin.com>, Javier Martinez Canillas <javierm@redhat.com>,
+ Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?=
+ <ville.syrjala@linux.intel.com>, Peter Arnesen <peter.m.arnesen@gmail.com>,
+ Linux kernel regressions list <regressions@lists.linux.dev>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+References: <20260613224434.96501-1-me@romanilin.is>
+ <20260702181027.98526-1-me@romanilin.is>
+ <E697A2AE-5413-48AE-BFD6-3383819B388B@romanilin.is>
+ <3b192119-9709-4f21-841f-a4706cc85e4a@suse.de>
+ <0600a3f0-b2d2-4a07-ab21-f590c2979612@leemhuis.info>
+ <f0e4cc76-5cf3-4fdb-b42c-f405a09c0d2a@suse.de>
+ <ec0c2486-b127-4a47-a81c-499130f268d9@leemhuis.info>
+Content-Language: en-US
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <ec0c2486-b127-4a47-a81c-499130f268d9@leemhuis.info>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Spam-Score: -1.30
+X-Spam-Score: -2.80
 X-Spam-Level: 
-X-Spamd-Result: default: False [-1.30 / 50.00];
+X-Spamd-Result: default: False [-2.80 / 50.00];
 	BAYES_HAM(-3.00)[100.00%];
 	SUSPICIOUS_RECIPS(1.50)[];
-	MID_CONTAINS_FROM(1.00)[];
 	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_MISSING_CHARSET(0.50)[];
 	NEURAL_HAM_SHORT(-0.20)[-0.999];
 	MIME_GOOD(-0.10)[text/plain];
-	RCVD_COUNT_TWO(0.00)[2];
+	RCVD_TLS_ALL(0.00)[];
+	TAGGED_RCPT(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	RCPT_COUNT_TWELVE(0.00)[15];
 	ARC_NA(0.00)[];
 	RCVD_VIA_SMTP_AUTH(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[15];
-	MIME_TRACE(0.00)[0:+];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	TAGGED_RCPT(0.00)[];
-	FREEMAIL_TO(0.00)[romanilin.is,bootlin.com,linux.intel.com,kernel.org,gmail.com,ffwll.ch,redhat.com,collabora.com,leemhuis.info];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:mid,suse.de:email];
-	FROM_EQ_ENVFROM(0.00)[];
+	MID_RHS_MATCH_FROM(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
 	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	RCVD_TLS_ALL(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	FREEMAIL_CC(0.00)[gmail.com,ffwll.ch,kernel.org,bootlin.com,redhat.com,collabora.com,lists.freedesktop.org,lists.linux.dev,vger.kernel.org,linux.intel.com];
 	TO_DN_SOME(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com]
+	FROM_EQ_ENVFROM(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid,suse.de:email,suse.com:url,romanilin.is:email,bootlin.com:url,imap1.dmz-prg2.suse.org:helo]
 X-Spam-Flag: NO
 
-From: Roman Ilin <me@romanilin.is>
+Hi
 
-When a CRTC's display mode carries a too small pixel clock,
-drm_calc_timestamping_constants() computes a frame duration that
-exceeds INT_MAX. drm_vblank_crtc.framedur_ns becomes negative.
-drm_crtc_vblank_start_timer() then arms the vblank hrtimer with this
-interval, after which vblank events are no longer delivered. Pending
-page flips never complete and the display appears frozen.
+Am 11.09.26 um 09:39 schrieb Thorsten Leemhuis:
+> Hi Thomas!
+>
+> On 9/4/26 08:19, Thomas Zimmermann wrote:
+>> Am 03.09.26 um 16:07 schrieb Thorsten Leemhuis:
+>>> On 7/3/26 09:26, Thomas Zimmermann wrote:
+>>>> Am 02.07.26 um 20:23 schrieb Roman Ilin:
+>>>>> Apologies, I accidentally fired off send-email before saving my final
+>>>>> changelog notes. Please ignore the changelog and notes in the original
+>>>>> v3 email.
+>>>> We want to know when this happens. And user space will only be able to
+>>>> trigger this once, so there's no risk of spamming the kernel log.
+>>>>> Hmmm, just wondering: what's the status here?
+>>> Roman Ilin, did you loose interest? Or was this continued somewhere or
+>>> maybe even resolved and I just missed that?
+>>>
+>>> Thomas: if Roman left this behind, could you maybe handle this, [...]
+>> AFAICT it was almost there except for the error messaging. The v4 then
+>> never happened. I can finish the patch if Roman is no longer around.
+> No answer from Roman since then, so yes, that would be great! Tia!
 
-This could be triggered on virtio-gpu guests that have dynamic resolution
-enabled: when the SPICE agent or the X server resizes the output, it
-submits a mode whose pixel clock is off by a factor of 1000, e.g.:
+I've now sent out an update with minor changes.
 
-    clock = 406 kHz, htotal = 3152, vtotal = 2148
+Best regards
+Thomas
 
-    framedur_ns = 3152 * 2148 * 1000000 / 406 = 16675852216 ns (~16.7 s)
 
-16675852216 does not fit into an int and wraps to roughly -504000000.
-ns_to_ktime() then yields a negative interval and the timer stops working.
+>
+> Ciao, Thorsten
+>
+>>>> So this is not really a problem. drm_WARN_ON_ONCE was ok for that. You
+>>>> can also use a regular DRM print macro. But instead of drm_dbg_kms()
+>>>> should use drm_err_once(). But please also output linedur_ns and
+>>>> framedur_ns in the error. We want to know which of them is incorrect.
+>>>> You can also add more information to the error message. See [1] for the
+>>>> mode-formating macros.
+>>>>
+>>>> [1] https://elixir.bootlin.com/linux/v7.1.2/source/include/drm/
+>>>> drm_modes.h#L422
+>>>>
+>>>>
+>>>>> - Updated drm_calc_timestamping_constants with the goto error fallback
+>>>>>      to clear the stale state.
+>>>>>
+>>>>> Also, an automated review bot pointed out an AB-BA deadlock in
+>>>>> drm_crtc_vblank_start_timer(). But I am leaving this out of the
+>>>>> patch to
+>>>>> keep the fixes orthogonal.
+>>>>>
+>>>>> Sorry for the noise.
+>>>>>
+>>>>>> On Jul 2, 2026, at 21:10, Roman Ilin <me@romanilin.is> wrote:
+>>>>>>
+>>>>>> When a CRTC's display mode carries a too small pixel clock,
+>>>>>> drm_calc_timestamping_constants() computes a frame duration that
+>>>>>> exceeds INT_MAX. drm_vblank_crtc.framedur_ns becomes negative.
+>>>>>> drm_crtc_vblank_start_timer() then arms the vblank hrtimer with this
+>>>>>> interval, after which vblank events are no longer delivered. Pending
+>>>>>> page flips never complete and the display appears frozen.
+>>>>>>
+>>>>>> This could be triggered on virtio-gpu guests that have dynamic
+>>>>>> resolution
+>>>>>> enabled: when the SPICE agent or the X server resizes the output, it
+>>>>>> submits a mode whose pixel clock is off by a factor of 1000, e.g.:
+>>>>>>
+>>>>>>       clock = 406 kHz, htotal = 3152, vtotal = 2148
+>>>>>>
+>>>>>>       framedur_ns = 3152 * 2148 * 1000000 / 406 = 16675852216 ns
+>>>>>> (~16.7 s)
+>>>>>>
+>>>>>> 16675852216 does not fit into an int and wraps to roughly -504000000.
+>>>>>> ns_to_ktime() then yields a negative interval and the timer stops
+>>>>>> working.
+>>>>>>
+>>>>>> Found by bisection, which pointed at commit a036f5fceedb ("drm/
+>>>>>> virtgpu:
+>>>>>> Use vblank timer"). That commit merely made virtio-gpu use the vblank
+>>>>>> timer and thereby exposed the pre-existing problem in the timer setup
+>>>>>> added by commit 74afeb812850 ("drm/vblank: Add vblank timer").
+>>>>>>
+>>>>>> To fix this, modify drm_calc_timestamping_constants() to use u64 for
+>>>>>> calculations, check for INT_MAX overflows, and return an error code.
+>>>>>> drm_crtc_vblank_start_timer() will then propagate the error, enabling
+>>>>>> the driver to fall back to immediate vblank events. Valid modes are
+>>>>>> unaffected, and the timer self-heals on the next mode with a sane
+>>>>>> clock.
+>>>>>>
+>>>>>> Fixes: 74afeb812850 ("drm/vblank: Add vblank timer")
+>>>>>> Suggested-by: Thomas Zimmermann <tzimmermann@suse.de>
+>>>>>> Signed-off-by: Roman Ilin <me@romanilin.is>
+>>>>>> ---
+>>>>>> Changes in v3:
+>>>>>>
+>>>>>> - Changed the WARN_ON_ONCE to drm_err_once
+>>>>>>
+>>>>>> Notes:
+>>>>>>
+>>>>>>
+>>>>>>
+>>>>>> drivers/gpu/drm/drm_vblank.c | 71 +++++++++++++++++++++++-------------
+>>>>>> include/drm/drm_vblank.h     |  4 +-
+>>>>>> 2 files changed, 48 insertions(+), 27 deletions(-)
+>>>>>>
+>>>>>> diff --git a/drivers/gpu/drm/drm_vblank.c b/drivers/gpu/drm/
+>>>>>> drm_vblank.c
+>>>>>> index f90fb2d13..629b9fcc7 100644
+>>>>>> --- a/drivers/gpu/drm/drm_vblank.c
+>>>>>> +++ b/drivers/gpu/drm/drm_vblank.c
+>>>>>> @@ -631,42 +631,51 @@ EXPORT_SYMBOL(drm_crtc_vblank_waitqueue);
+>>>>>>     * drm_crtc_vblank_helper_get_vblank_timestamp(). They are
+>>>>>> derived from
+>>>>>>     * CRTC's true scanout timing, so they take things like panel
+>>>>>> scaling or
+>>>>>>     * other adjustments into account.
+>>>>>> + *
+>>>>>> + * Returns:
+>>>>>> + * 0 on success, or a negative errno code otherwise.
+>>>>>>     */
+>>>>>> -void drm_calc_timestamping_constants(struct drm_crtc *crtc,
+>>>>>> -     const struct drm_display_mode *mode)
+>>>>>> +int drm_calc_timestamping_constants(struct drm_crtc *crtc,
+>>>>>> +    const struct drm_display_mode *mode)
+>>>>>> {
+>>>>>> struct drm_device *dev = crtc->dev;
+>>>>>> unsigned int pipe = drm_crtc_index(crtc);
+>>>>>> struct drm_vblank_crtc *vblank = drm_crtc_vblank_crtc(crtc);
+>>>>>> - int linedur_ns = 0, framedur_ns = 0;
+>>>>>> + u64 linedur_ns, framedur_ns;
+>>>>>> int dotclock = mode->crtc_clock;
+>>>>>> + unsigned int frame_size;
+>>>>>>
+>>>>>> if (!drm_dev_has_vblank(dev))
+>>>>>> - return;
+>>>>>> + return 0;
+>>>>>>
+>>>>>> if (drm_WARN_ON(dev, pipe >= dev->num_crtcs))
+>>>>>> - return;
+>>>>>> + return -EINVAL;
+>>>>>>
+>>>>>> - /* Valid dotclock? */
+>>>>>> - if (dotclock > 0) {
+>>>>>> - int frame_size = mode->crtc_htotal * mode->crtc_vtotal;
+>>>>>> + if (dotclock <= 0) {
+>>>>>> + drm_err(dev, "crtc %u: Can't calculate constants, dotclock = %d!\n",
+>>>> Please turn this into drm_err_once() because this call can actually be
+>>>> triggered repeatedly from userspace.
+>>>>
+>>>> Best regards
+>>>> Thomas
+>>>>
+>>>>
+>>>>>> + crtc->base.id, dotclock);
+>>>>>> + goto error;
+>>>>>> + }
+>>>>>>
+>>>>>> - /*
+>>>>>> - * Convert scanline length in pixels and video
+>>>>>> - * dot clock to line duration and frame duration
+>>>>>> - * in nanoseconds:
+>>>>>> - */
+>>>>>> - linedur_ns  = div_u64((u64) mode->crtc_htotal * 1000000, dotclock);
+>>>>>> - framedur_ns = div_u64((u64) frame_size * 1000000, dotclock);
+>>>>>> + frame_size = (unsigned int)mode->crtc_htotal * (unsigned int)mode-
+>>>>>>> crtc_vtotal;
+>>>>>> - /*
+>>>>>> - * Fields of interlaced scanout modes are only half a frame duration.
+>>>>>> - */
+>>>>>> - if (mode->flags & DRM_MODE_FLAG_INTERLACE)
+>>>>>> - framedur_ns /= 2;
+>>>>>> - } else {
+>>>>>> - drm_err(dev, "crtc %u: Can't calculate constants, dotclock = 0!\n",
+>>>>>> - crtc->base.id);
+>>>>>> + /*
+>>>>>> + * Convert scanline length in pixels and video dot clock to line
+>>>>>> duration
+>>>>>> + * and frame duration in nanoseconds.
+>>>>>> + */
+>>>>>> + linedur_ns  = div_u64((u64)mode->crtc_htotal * 1000000, dotclock);
+>>>>>> + framedur_ns = div_u64((u64)frame_size * 1000000, dotclock);
+>>>>>> +
+>>>>>> + /*
+>>>>>> + * Fields of interlaced scanout modes are only half a frame duration.
+>>>>>> + */
+>>>>>> + if (mode->flags & DRM_MODE_FLAG_INTERLACE)
+>>>>>> + framedur_ns /= 2;
+>>>>>> +
+>>>>>> + if (linedur_ns > INT_MAX || framedur_ns > INT_MAX) {
+>>>>>> + drm_dbg_kms(dev, "crtc %u: Can't calculate constants, mode clock
+>>>>>> too small!\n",
+>>>>>> +    crtc->base.id);
+>>>>>> + goto error;
+>>>>>> }
+>>>>>>
+>>>>>> vblank->linedur_ns  = linedur_ns;
+>>>>>> @@ -678,7 +687,16 @@ void drm_calc_timestamping_constants(struct
+>>>>>> drm_crtc *crtc,
+>>>>>>        crtc->base.id, mode->crtc_htotal,
+>>>>>>        mode->crtc_vtotal, mode->crtc_vdisplay);
+>>>>>> drm_dbg_core(dev, "crtc %u: clock %d kHz framedur %d linedur %d\n",
+>>>>>> -     crtc->base.id, dotclock, framedur_ns, linedur_ns);
+>>>>>> +     crtc->base.id, dotclock,
+>>>>>> +     vblank->framedur_ns, vblank->linedur_ns);
+>>>>>> +
+>>>>>> + return 0;
+>>>>>> +
+>>>>>> +error:
+>>>>>> + vblank->linedur_ns  = 0;
+>>>>>> + vblank->framedur_ns = 0;
+>>>>>> + drm_mode_copy(&vblank->hwmode, mode);
+>>>>>> + return -EINVAL;
+>>>>>> }
+>>>>>> EXPORT_SYMBOL(drm_calc_timestamping_constants);
+>>>>>>
+>>>>>> @@ -2221,6 +2239,7 @@ int drm_crtc_vblank_start_timer(struct drm_crtc
+>>>>>> *crtc)
+>>>>>> struct drm_vblank_crtc *vblank = drm_crtc_vblank_crtc(crtc);
+>>>>>> struct drm_vblank_crtc_timer *vtimer = &vblank->vblank_timer;
+>>>>>> unsigned long flags;
+>>>>>> + int ret;
+>>>>>>
+>>>>>> if (!vtimer->crtc) {
+>>>>>> /*
+>>>>>> @@ -2239,7 +2258,9 @@ int drm_crtc_vblank_start_timer(struct drm_crtc
+>>>>>> *crtc)
+>>>>>> hrtimer_try_to_cancel(&vtimer->timer);
+>>>>>> }
+>>>>>>
+>>>>>> - drm_calc_timestamping_constants(crtc, &crtc->mode);
+>>>>>> + ret = drm_calc_timestamping_constants(crtc, &crtc->mode);
+>>>>>> + if (ret)
+>>>>>> + return ret;
+>>>>>>
+>>>>>> spin_lock_irqsave(&vtimer->interval_lock, flags);
+>>>>>> vtimer->interval = ns_to_ktime(vblank->framedur_ns);
+>>>>>> diff --git a/include/drm/drm_vblank.h b/include/drm/drm_vblank.h
+>>>>>> index 2fcef9c0f..d99772dfa 100644
+>>>>>> --- a/include/drm/drm_vblank.h
+>>>>>> +++ b/include/drm/drm_vblank.h
+>>>>>> @@ -311,8 +311,8 @@ void drm_crtc_vblank_on(struct drm_crtc *crtc);
+>>>>>> u64 drm_crtc_accurate_vblank_count(struct drm_crtc *crtc);
+>>>>>> void drm_crtc_vblank_restore(struct drm_crtc *crtc);
+>>>>>>
+>>>>>> -void drm_calc_timestamping_constants(struct drm_crtc *crtc,
+>>>>>> -     const struct drm_display_mode *mode);
+>>>>>> +int drm_calc_timestamping_constants(struct drm_crtc *crtc,
+>>>>>> +    const struct drm_display_mode *mode);
+>>>>>> wait_queue_head_t *drm_crtc_vblank_waitqueue(struct drm_crtc *crtc);
+>>>>>> void drm_crtc_set_max_vblank_count(struct drm_crtc *crtc,
+>>>>>>      u32 max_vblank_count);
+>>>>>> -- 
+>>>>>> 2.54.0
+>>>>>>
 
-Found by bisection, which pointed at commit a036f5fceedb ("drm/virtgpu:
-Use vblank timer"). That commit merely made virtio-gpu use the vblank
-timer and thereby exposed the pre-existing problem in the timer setup
-added by commit 74afeb812850 ("drm/vblank: Add vblank timer").
-
-To fix this, modify drm_calc_timestamping_constants() to use u64 for
-calculations, check for INT_MAX overflows, and return an error code.
-drm_crtc_vblank_start_timer() will then propagate the error, enabling
-the driver to fall back to immediate vblank events. Valid modes are
-unaffected, and the timer self-heals on the next mode with a sane clock.
-
-v4:
-- avoid log spamming with drm_warn_once()
-
-Fixes: 74afeb812850 ("drm/vblank: Add vblank timer")
-Suggested-by: Thomas Zimmermann <tzimmermann@suse.de>
-Signed-off-by: Roman Ilin <me@romanilin.is>
----
-I took Roman's patch from [1] and replaced the error messages with
-warn_once, as suggestde in my review.
-
-[1] https://lore.kernel.org/dri-devel/20260702181027.98526-1-me@romanilin.is/
----
- drivers/gpu/drm/drm_vblank.c | 73 +++++++++++++++++++++++-------------
- include/drm/drm_vblank.h     |  4 +-
- 2 files changed, 49 insertions(+), 28 deletions(-)
-
-diff --git a/drivers/gpu/drm/drm_vblank.c b/drivers/gpu/drm/drm_vblank.c
-index f90fb2d13e42..72b543bca9e3 100644
---- a/drivers/gpu/drm/drm_vblank.c
-+++ b/drivers/gpu/drm/drm_vblank.c
-@@ -631,45 +631,54 @@ EXPORT_SYMBOL(drm_crtc_vblank_waitqueue);
-  * drm_crtc_vblank_helper_get_vblank_timestamp(). They are derived from
-  * CRTC's true scanout timing, so they take things like panel scaling or
-  * other adjustments into account.
-+ *
-+ * Returns:
-+ * 0 on success, or a negative errno code otherwise.
-  */
--void drm_calc_timestamping_constants(struct drm_crtc *crtc,
--				     const struct drm_display_mode *mode)
-+int drm_calc_timestamping_constants(struct drm_crtc *crtc,
-+				    const struct drm_display_mode *mode)
- {
- 	struct drm_device *dev = crtc->dev;
- 	unsigned int pipe = drm_crtc_index(crtc);
- 	struct drm_vblank_crtc *vblank = drm_crtc_vblank_crtc(crtc);
--	int linedur_ns = 0, framedur_ns = 0;
-+	u64 linedur_ns, framedur_ns;
- 	int dotclock = mode->crtc_clock;
-+	unsigned int frame_size;
- 
- 	if (!drm_dev_has_vblank(dev))
--		return;
-+		return 0;
- 
- 	if (drm_WARN_ON(dev, pipe >= dev->num_crtcs))
--		return;
-+		return -EINVAL;
- 
--	/* Valid dotclock? */
--	if (dotclock > 0) {
--		int frame_size = mode->crtc_htotal * mode->crtc_vtotal;
-+	if (dotclock <= 0) {
-+		drm_err_once(dev, "crtc %u: Can't calculate constants, dotclock = %d!\n",
-+			     crtc->base.id, dotclock);
-+		goto error;
-+	}
- 
--		/*
--		 * Convert scanline length in pixels and video
--		 * dot clock to line duration and frame duration
--		 * in nanoseconds:
--		 */
--		linedur_ns  = div_u64((u64) mode->crtc_htotal * 1000000, dotclock);
--		framedur_ns = div_u64((u64) frame_size * 1000000, dotclock);
-+	frame_size = (unsigned int)mode->crtc_htotal * (unsigned int)mode->crtc_vtotal;
- 
--		/*
--		 * Fields of interlaced scanout modes are only half a frame duration.
--		 */
--		if (mode->flags & DRM_MODE_FLAG_INTERLACE)
--			framedur_ns /= 2;
--	} else {
--		drm_err(dev, "crtc %u: Can't calculate constants, dotclock = 0!\n",
--			crtc->base.id);
-+	/*
-+	 * Convert scanline length in pixels and video dot clock to line duration
-+	 * and frame duration in nanoseconds.
-+	 */
-+	linedur_ns  = div_u64((u64)mode->crtc_htotal * 1000000, dotclock);
-+	framedur_ns = div_u64((u64)frame_size * 1000000, dotclock);
-+
-+	/*
-+	 * Fields of interlaced scanout modes are only half a frame duration.
-+	 */
-+	if (mode->flags & DRM_MODE_FLAG_INTERLACE)
-+		framedur_ns /= 2;
-+
-+	if (linedur_ns > INT_MAX || framedur_ns > INT_MAX) {
-+		drm_err_once(dev, "crtc %u: Can't calculate constants, mode clock too small!\n",
-+			     crtc->base.id);
-+		goto error;
- 	}
- 
--	vblank->linedur_ns  = linedur_ns;
-+	vblank->linedur_ns = linedur_ns;
- 	vblank->framedur_ns = framedur_ns;
- 	drm_mode_copy(&vblank->hwmode, mode);
- 
-@@ -678,7 +687,16 @@ void drm_calc_timestamping_constants(struct drm_crtc *crtc,
- 		     crtc->base.id, mode->crtc_htotal,
- 		     mode->crtc_vtotal, mode->crtc_vdisplay);
- 	drm_dbg_core(dev, "crtc %u: clock %d kHz framedur %d linedur %d\n",
--		     crtc->base.id, dotclock, framedur_ns, linedur_ns);
-+		     crtc->base.id, dotclock,
-+		     vblank->framedur_ns, vblank->linedur_ns);
-+
-+	return 0;
-+
-+error:
-+	vblank->linedur_ns = 0;
-+	vblank->framedur_ns = 0;
-+	drm_mode_copy(&vblank->hwmode, mode);
-+	return -EINVAL;
- }
- EXPORT_SYMBOL(drm_calc_timestamping_constants);
- 
-@@ -2221,6 +2239,7 @@ int drm_crtc_vblank_start_timer(struct drm_crtc *crtc)
- 	struct drm_vblank_crtc *vblank = drm_crtc_vblank_crtc(crtc);
- 	struct drm_vblank_crtc_timer *vtimer = &vblank->vblank_timer;
- 	unsigned long flags;
-+	int ret;
- 
- 	if (!vtimer->crtc) {
- 		/*
-@@ -2239,7 +2258,9 @@ int drm_crtc_vblank_start_timer(struct drm_crtc *crtc)
- 			hrtimer_try_to_cancel(&vtimer->timer);
- 	}
- 
--	drm_calc_timestamping_constants(crtc, &crtc->mode);
-+	ret = drm_calc_timestamping_constants(crtc, &crtc->mode);
-+	if (ret)
-+		return ret;
- 
- 	spin_lock_irqsave(&vtimer->interval_lock, flags);
- 	vtimer->interval = ns_to_ktime(vblank->framedur_ns);
-diff --git a/include/drm/drm_vblank.h b/include/drm/drm_vblank.h
-index 2fcef9c0f5b1..d99772dfa034 100644
---- a/include/drm/drm_vblank.h
-+++ b/include/drm/drm_vblank.h
-@@ -311,8 +311,8 @@ void drm_crtc_vblank_on(struct drm_crtc *crtc);
- u64 drm_crtc_accurate_vblank_count(struct drm_crtc *crtc);
- void drm_crtc_vblank_restore(struct drm_crtc *crtc);
- 
--void drm_calc_timestamping_constants(struct drm_crtc *crtc,
--				     const struct drm_display_mode *mode);
-+int drm_calc_timestamping_constants(struct drm_crtc *crtc,
-+				    const struct drm_display_mode *mode);
- wait_queue_head_t *drm_crtc_vblank_waitqueue(struct drm_crtc *crtc);
- void drm_crtc_set_max_vblank_count(struct drm_crtc *crtc,
- 				   u32 max_vblank_count);
-
-base-commit: 06576c2b43750d990297b8ff1989b94ac72e855f
-prerequisite-patch-id: 6729bb10d5e338678e78ccda2dd24f232a13cd22
-prerequisite-patch-id: 9d94d20bd45967493b4dc339b58082e1c8da0f4f
-prerequisite-patch-id: 6ac8d22df34db9e7d467b1ab95ad30f94841d5db
-prerequisite-patch-id: f548dbde3f944ca3415c808be628719acebe898a
-prerequisite-patch-id: 2ae91ee8e2bbcd33b8325be046e7214185aba6aa
-prerequisite-patch-id: f97bbde08a9996d7c62ca3e3ebfcd387e50bc5c3
-prerequisite-patch-id: ecc3c825277bc9978c6979455517249a074c0cb1
-prerequisite-patch-id: 0449925cca36664b566f614bfb7d573a11f0575f
-prerequisite-patch-id: 9fb2c2787244e9621847af09bea03e575e6276c7
-prerequisite-patch-id: eb4384d581805e1178d22e7df45f134223c38305
-prerequisite-patch-id: 1a7a529e4b2864abe8071aa44598d28ce72483f4
-prerequisite-patch-id: 844a85f4c2fe2f72209b82d46614004c3cfe4123
-prerequisite-patch-id: 13f7cb22114c648d35f8c9fa74e9165656ce31eb
-prerequisite-patch-id: 20ee46bd6fdd91e39f71d22f52ef6682a4e41512
-prerequisite-patch-id: 1d26c0ff91796ff1e62d3831d00bee18723788ef
-prerequisite-patch-id: 007f6ea0d09bef54b689bae0eb5abeb497bdfaad
-prerequisite-patch-id: 2d89c1507c909520adf9bfb1a137d458a819ae8f
-prerequisite-patch-id: d90dc4134468870ab8ccbd71547c9552dff74fbd
-prerequisite-patch-id: c67e5d886a47b7d0266d81100837557fda34cb24
-prerequisite-patch-id: a5a973e527c88a5b47053d7a72aefe0b550197cb
-prerequisite-patch-id: b9adc9622920a3e70168e672c2c92795b3e3a106
-prerequisite-patch-id: 5030de433a01c2e99056cadb676a8e2ba35f055a
 -- 
-2.55.0
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
+GF: Jochen Jaser, Andrew McDonald, (HRB 36809, AG Nürnberg)
+
 
