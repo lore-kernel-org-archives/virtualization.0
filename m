@@ -1,237 +1,217 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f43.google.com (mail-qv1-f43.google.com [209.85.219.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7E443BB57
-	for <virtualization@lists.linux.dev>; Mon, 14 Sep 2026 04:17:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789359424; cv=none; b=NrGi18uNhJh9P8TJbSFD1MEer7sqtOrKqlGbH11X4EKvWMklcpTryS57KPL65LG41bfQnqhaFcEYAQwQbO/WHgNUX8sc/D9BVAXyUcou/jH+KEhTW/6HMyeAUfzHl+tT4y4g81UjT7S618nnHX98v/VJUClyJ7vohDL2OkUUCSY=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789359424; c=relaxed/simple;
-	bh=9+gYk4lvYl5e7LJeprnkyyF220jh01B6TpAIB38YI3k=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=AXoocU/qX8dTQ2D63zH0B5OOFDDlUeWct7s8QmC3MijQcodiMiY5bLDB/qLvyFOy0QCdFUswpeONXhHmGIdcnBuAIufzVlis4zhZ2uq90Hm5ejGUsKL84U5h8DN2kZwhLx+BlJHy+mlC3xeka4deHAZJRzs0FWzVbYBrmCqsLkg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EwSvWCe/; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06D3240EBAE
+	for <virtualization@lists.linux.dev>; Mon, 14 Sep 2026 08:39:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.219.43
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789375182; cv=pass; b=eXm3atBc9jS5+Z8n8JVC2pawtTpK0f0IivtTtIX9w1bn4iYBuELVAiAR5iUCFOwtbkizNInAia8IZVqfbEneL1UG0NipeARFJZ48ma3jx/6tlyhszhlvbQcCLoXhy4i9S7CwNJgXqdaOvtefVyxMvbvHvMLdPlZgVJUqMxFK904=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789375182; c=relaxed/simple;
+	bh=qcoMC/s+Yrc0wEY/iKMF45CQwVjH1i79yiWScSddz9o=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=FfeQ/b3nIl5rub36BbjGbWX9cQ8dPzLZWe0l81HTYKhKmyS9duJebZosLc2XJZVsYs6uHERo42YcuMU5TnJoOEScQCUeAt4/xyUfjk2BA5qUfYgnhIKWQluvjQJDJNOlawUV7rPiz6AKeS/JDMFNbK3wqHBbz3Cs4/oJ94fUAkE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Rdn2Mnka; arc=pass smtp.client-ip=209.85.219.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EwSvWCe/"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 258821F000FF;
-	Mon, 14 Sep 2026 04:17:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789359422;
-	bh=OgWCFn6WuAIusZFsQ21/9QqUfRtl8TKZzctdGmecg8s=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=EwSvWCe/Inl+wu0G4Wl+n1jZN62qeM7i+qEgag4bRYehKpOFOgJQuMTPRuGr7GGW0
-	 S8/1bPOvuOjmBsxHvv/TzrbvPr9k06kqF0gvj5fY0OZ1hqjBD4rjqmlbZgI0n040Wt
-	 HV82alS9QC0YOYeiC+8yn5jKp3te+cOugNROJlPe55xRND6jiadQJwiL2KgE5v9xlx
-	 l/iOS1Hag7ieQetpGXgVLDCLCE4y4FyRNQyC1+o076mGuyAhyJZeQzCTqWtOFWDOya
-	 sEx1st9xHhG6+GljeyvntX46UxjPN1wKgJ8ksAuEOi+HPwGHes26t4bMlYDxpAOYWQ
-	 KWKg0kmRS2z6Q==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v1] vdpa/octeon_ep: Fix race condition in device
- deletion
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Yuho Choi" <oss.patchbox@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>, virtualization@lists.linux.dev
-In-Reply-To: <20260914040332.1892175-1-oss.patchbox@gmail.com>
-References: <20260914040332.1892175-1-oss.patchbox@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 14 Sep 2026 04:17:01 +0000
-Message-Id: <20260914041702.258821F000FF@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Rdn2Mnka"
+Received: by mail-qv1-f43.google.com with SMTP id 6a1803df08f44-90e9ad1a373so36110566d6.0
+        for <virtualization@lists.linux.dev>; Mon, 14 Sep 2026 01:39:37 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1789375173; cv=none;
+        d=google.com; s=arc-20260327;
+        b=arw31okJsTHF1sbs5+dpjgwrN/N7eVoinzkt2OrVWCrDJ23is7tWnX/hg8GihnGaDx
+         nNVPSPTRVW06rNyVAUAKQ2EpzPW2l3GqsLmSw40dFSKTNDJJGl9wCfVauqGU5DjYGaMW
+         gHWJxhRZz1aKAYRmS6aHpXIEIvZLx6xM19j2Vh2ZVrrmTBWXQygmiUvyKRPVfU4Vfdvw
+         22n4IVoJffxS6txdmboejrUwtkbL/8BrWBW0KmaRkFsdITF55eaNDDMUrBr1SeaOJ3BY
+         C0cx8g9eSZu7TKDqu1dgCV5LUfKZx4B6XrsFIwd1R6G84g0SUSMR1JhKRx8zCxM0OZ+5
+         T7uw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=l8ggFII5MyNYC9kvCPHSC1d8pjP/XE+f6UmrXyuFuNw=;
+        fh=Gm9wmu1k8YqrdUHmcyzqJMq+MJRbGwMyGWRI+6dhf48=;
+        b=lvXXAPInT06lSe36jkzymERrTAxB/Fz76KMr2HOeovWIgScdqcKeWgUglt2GnHr1b0
+         00/KLrC6f7JX/2U499qrMtDOyYBmXcGd2/MAAmhuCbAApW7oumZycFkcHg28JwWnFj7R
+         fyOxFGgIMvWBZI/wWAz9lYSNupiZiGH/fabYyYu5u1kRYvSOpYfudtPsm/qGYZa4VJyg
+         EWDQV1FWG4WYliK4kbM9nILZ2l2qn5sQhbAJffmgtD1j7PpBnBvQOzXKX3RoBuBXCTL/
+         3xLNvcVWWYMOaRLwt9CwgXJ8sT3FkCVrtNqDfG77+iqDJG9OPomsv7ESgKZziEMUZGrD
+         4F1g==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789375173; x=1789979973; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=l8ggFII5MyNYC9kvCPHSC1d8pjP/XE+f6UmrXyuFuNw=;
+        b=Rdn2MnkaBjLRc8WWIb2bi5VddCu9jUdvTf6cG5YKLsVngkFclmxxkFP8CMgMvYErgh
+         /GD0Bb5e47N1DQDcNK/Ws91KVEru8+9hK+07W4pDcAkcV5imdw5ldW/r1XHqQMqA3/xm
+         7zqZDS+qTQ2u1lRDY/ec4shifdywpWgf7SncZ/XCMUwpfBfBDqtZ9Nf9qtO0kwyy3uzs
+         gZUDsg5W9u9cdbBm3+RLtZmtNvmkzusrSW2J7I5HdRsmWZ+i6m0Q3tQsfYKhq0a+DbJt
+         HD6R3lY7Tspqqm7mBwDFi5qkjd1HoPDNCwHKTjLshJwIPNOYpy/FK9SrjY+apYt4Psgl
+         S0zQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1789375173; x=1789979973;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=l8ggFII5MyNYC9kvCPHSC1d8pjP/XE+f6UmrXyuFuNw=;
+        b=hW4eT6gpVMGw5Ra4e8V8hJEANNXL/zQnL9IHULBkYJr/7pieVRO4CgYfabB6Iupv9Q
+         89LVu7A3FfwIkXzuD9QjiqFPWnuoDkXFWeGJqjL9SA1RjzmcZq2jVxYwnRsgJsO4jxbR
+         dzN9zdD6jw5WpRpYhLNY8ZBr3pHcA70j4OQxUt2cS5nhoZi9ZZvY52/WMeMa4/4TV3MQ
+         BhjVcX/M9Zttcu4kp1EPwvPzGka26+FeKM7tnNOTeqjTX2DDnRHySAQ1pBCKdTlEarXp
+         QXjPRtGeYTaN0Er6zAaLWGnJqVjheXI/of6o6jGOWulI/UP0UH/IPWQU+GPzup0nsFos
+         w2XQ==
+X-Gm-Message-State: AFuF++mVkrrrc2ELb4XNZAjD23yhU9rMFelngsWRYcUcbrGM1RII3ByG
+	9yXQSw79UEBCvvYz7decoeuBwVEyWbVXFzmR3brBQH6bSJTu+srn/KmnUQcVfdcdQe3QSzbmEV1
+	RF5zMFWhPNj6JufeXkeEa95kyRaL4/SU=
+X-Gm-Gg: AYBFou02c+zXTaYhb0/aSxO2JQqOvZVl4td7msYgLyfS3FWvFGfWp5yCXjevnmsfP0E
+	dNxdPyeiCwKN/htFw8eZZSsRz0RU6mZuee0egdOEs9HpHidLudXz/LvrBiSMjGNCvu9XqFjivam
+	ynkhIzPwGQ4lj7oClW1qZYjQ+hSr2ufvPnMQs8dZf2O+u0Ejhu3WqZJ00YznHiG7gkbPxiKpgrK
+	g+vkdShaks4I6T+dUJm6T1kORwaqfxNIU95Aa3QFGc0WRVJx7MjgHKdPDACVbLf9DE+jSipm2MQ
+	e0MKe7YgQL0kuDT1BxCUegapoEe8wc8QZEFFBZR9X11gYABykw0U0Mo=
+X-Received: by 2002:a05:620a:63ca:b0:939:f1c2:7df7 with SMTP id
+ af79cd13be357-93a187b5cf0mr518226885a.41.1789375173301; Mon, 14 Sep 2026
+ 01:39:33 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+References: <20260912090420.47439-1-physicalmtea@gmail.com> <20260913090452.2B8221F00893@smtp.kernel.org>
+In-Reply-To: <20260913090452.2B8221F00893@smtp.kernel.org>
+From: Jia Jia <physicalmtea@gmail.com>
+Date: Mon, 14 Sep 2026 16:38:57 +0800
+X-Gm-Features: AcwNN1XVuYU0HUchoPplkYqW2a005r4W4YLv5OFcOP7MGcLCwxwN9odGIIkQaFk
+Message-ID: <CAJwVaMKtk=PxFq330K8NBLRF7FzgcSu32vt1irLEJ7dSRQ5A_w@mail.gmail.com>
+Subject: Re: [PATCH] vhost-scsi: do not relock event vq mutex on send_evt fallback
+To: sashiko-reviews@lists.linux.dev
+Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Eugenio Perez <eperezma@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
-s) to consider:
+>
+> Thank you for your contribution! Sashiko AI review found 2 potential issu=
+e(s) to consider:
+>
+> Pre-existing issues:
+> - [Critical] vhost_scsi_do_evt_work() accesses vq->iov[out] without verif=
+ying that the guest actually provided an input buffer, leading to arbitrary=
+ user-space memory corruption.
+> - [High] Events are processed in LIFO order instead of FIFO, which can ca=
+use state corruption for hotplug/hotunplug sequences.
+> --
+>
+> commit 05830c30fc2e4dc682c270a9b487ae5abb66218b
+> Author: Jia Jia <physicalmtea@gmail.com>
+>
+> vhost-scsi: do not relock event vq mutex on send_evt fallback
+>
+> This commit resolves a deadlock during fallback event handling when the v=
+host
+> worker has disconnected. It splits event completion into an internal unlo=
+cked
+> helper and a locked wrapper to safely reuse the completion path.
+>
+> Link: https://lore.kernel.org/all/20260905005352.1E5B01F00A3D@smtp.kernel=
+.org/
+>
+> > diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+> > index 4f8c0260bc9e7..42abf18291b75 100644
+> > --- a/drivers/vhost/scsi.c
+> > +++ b/drivers/vhost/scsi.c
+> > @@ -660,19 +660,26 @@ vhost_scsi_do_evt_work(struct vhost_scsi *vs, str=
+uct vhost_scsi_evt *evt)
+> >       vhost_scsi_log_write(vq, vq_log, log_num);
+> >  }
+> >
+> > -static void vhost_scsi_complete_events(struct vhost_scsi *vs, bool dro=
+p)
+> > +/* Caller must hold the event virtqueue mutex. */
+> > +static void __vhost_scsi_complete_events(struct vhost_scsi *vs, bool d=
+rop)
+> >  {
+> > -     struct vhost_virtqueue *vq =3D &vs->vqs[VHOST_SCSI_VQ_EVT].vq;
+> >       struct vhost_scsi_evt *evt, *t;
+> >       struct llist_node *llnode;
+> >
+> > -     mutex_lock(&vq->mutex);
+> >       llnode =3D llist_del_all(&vs->vs_event_list);
+> >       llist_for_each_entry_safe(evt, t, llnode, list) {
+>
+> [Severity: High]
+> This is a pre-existing issue, but does this loop deliver events to the gu=
+est
+> in reverse order?
+>
+> The events are added to vs_event_list using llist_add(), which constructs=
+ a
+> last-in, first-out list. Because lnode is retrieved locklessly with
+> llist_del_all(), and the iteration happens without first calling
+> llist_reverse_order(), the events appear to be processed from newest to
+> oldest.
+>
+> Could this cause state corruption for hotplug and hotunplug sequences? Fo=
+r
+> example, if a device is plugged and then rapidly unplugged, the guest mig=
+ht
+> receive the unplug event first and the plug event second, leaving it
+> erroneously believing the device is still present.
+>
 
-New issues:
-- [High] Incorrect teardown ordering in `octep_vdpa_remove_vf` allows hardw=
-are interrupts to re-queue the event worker after it has been cancelled, le=
-ading to a Use-After-Free of `mgmt_dev`.
-- [High] The lockless `atomic_cmpxchg` synchronization introduced in `octep=
-_vdpa_dev_del` is vulnerable to an ABA problem, allowing a Use-After-Free o=
-f a stale `vdpa_device` pointer.
-- [High] Early return in `octep_vdpa_dev_del` silently skips unregistering =
-devices if multiple vDPA devices are mistakenly attached, leading to a perm=
-anent device leak.
-- [Medium] Calling `cancel_work_sync()` on a potentially uninitialized work=
- struct triggers a kernel warning (`WARN_ON(!work->func)`).
+Looks like this could get the acquire order wrong? Need to verify.
 
-Pre-existing issues:
-- [High] The worker thread `octep_event_work` directly invokes vDPA subsyst=
-em registration routines without holding the mandatory `vdpa_dev_lock`, cau=
-sing lockdep assertions and data races.
---
-
-commit b72e8cd6cc3fa52be059d7ac0ebe059c31816e52
-Author: Yuho Choi <oss.patchbox@gmail.com>
-vdpa/octeon_ep: Fix race condition in device deletion
-
-This patch addresses a race condition in device deletion where hardware
-deletion events could race with userspace management deletions, triggering
-a double release. It introduces atomic operations to claim ownership and
-safely read the device pointer before unregistering.
-
-> diff --git a/drivers/vdpa/octeon_ep/octep_vdpa_main.c b/drivers/vdpa/octe=
-on_ep/octep_vdpa_main.c
-> index 85a3d35ea1e47..e29647bcf196d 100644
-> --- a/drivers/vdpa/octeon_ep/octep_vdpa_main.c
-> +++ b/drivers/vdpa/octeon_ep/octep_vdpa_main.c
-> @@ -523,14 +523,16 @@ static void octep_vdpa_remove_vf(struct pci_dev *pd=
-ev)
->  	int status;
-> =20
->  	oct_hw =3D &mgmt_dev->oct_hw;
-> -	status =3D atomic_read(&mgmt_dev->status);
-> -	atomic_set(&mgmt_dev->status, OCTEP_VDPA_DEV_STATUS_UNINIT);
-> -
->  	cancel_work_sync(&mgmt_dev->setup_task);
-> +	cancel_work_sync(&mgmt_dev->event_wk.work);
-
-[Severity: High]
-Can hardware interrupts re-queue the event worker after this cancellation?
-
-In octep_vdpa_remove_vf(), event_wk.work is cancelled here, but hardware
-interrupts are not yet masked or freed until octep_free_irqs(oct_hw) is cal=
-led
-later in the function.
-
-If a hardware interrupt fires in this window, the interrupt handler can exe=
-cute
-schedule_work(&mgmt_dev->event_wk.work). After teardown finishes, devres fr=
-ees
-mgmt_dev. The scheduled work then executes, accessing the freed memory and
-causing a use-after-free.
-
-[Severity: Medium]
-Will this unconditional cancellation trigger a kernel warning if the work
-struct is uninitialized?
-
-The mgmt_dev structure is allocated with devm_kzalloc(), which
-zero-initializes event_wk.work. The initialization of this work struct
-happens asynchronously at the end of octep_vdpa_setup_task().
-
-If the driver is unbound before the setup task reaches INIT_WORK(), or if t=
-he
-setup task encounters an error and aborts, event_wk.work remains
-zero-initialized. Calling cancel_work_sync() detects the NULL work->func and
-triggers a WARN_ON(!work->func).
-
-> +
-> +	status =3D atomic_read(&mgmt_dev->status);
->  	if ((status =3D=3D OCTEP_VDPA_DEV_STATUS_READY) || (status =3D=3D OCTEP=
-_VDPA_DEV_STATUS_ADDED) ||
->  	    (status =3D=3D OCTEP_VDPA_DEV_STATUS_REMOVED))
->  		vdpa_mgmtdev_unregister(&mgmt_dev->mdev);
-
-[ ... ]
-
-> @@ -619,8 +622,13 @@ static int octep_vdpa_dev_add(struct vdpa_mgmt_dev *=
-mdev, const char *name,
->  static void octep_vdpa_dev_del(struct vdpa_mgmt_dev *mdev, struct vdpa_d=
-evice *vdpa_dev)
->  {
->  	struct octep_vdpa_mgmt_dev *mgmt_dev =3D container_of(mdev, struct octe=
-p_vdpa_mgmt_dev, mdev);
-> +
-> +	if (atomic_cmpxchg(&mgmt_dev->status, OCTEP_VDPA_DEV_STATUS_ADDED,
-> +			   OCTEP_VDPA_DEV_STATUS_REMOVED) !=3D OCTEP_VDPA_DEV_STATUS_ADDED)
-> +		return;
-
-[Severity: High]
-Does this early return silently skip unregistering devices if multiple vDPA
-devices are mistakenly attached?
-
-octep_vdpa_dev_add() allows userspace to repeatedly create vDPA devices on =
+> >               if (!drop)
+> >                       vhost_scsi_do_evt_work(vs, evt);
+>
+> [Severity: Critical]
+> This is a pre-existing issue, but can this function access out-of-bounds =
+or
+> stale memory if the guest provides an empty input buffer?
+>
+> Looking at vhost_scsi_do_evt_work() in drivers/vhost/scsi.c, the code use=
+s
+> vhost_get_vq_desc() which populates vq->iov:
+>
+>     head =3D vhost_get_vq_desc(vq, vq->iov,
+>             ARRAY_SIZE(vq->iov), &out, &in,
+>             vq_log, &log_num);
+>     ...
+>     if ((vq->iov[out].iov_len !=3D sizeof(struct virtio_scsi_event))) {
+>         vq_err(vq, "Expecting virtio_scsi_event, got %zu bytes\n",
+>                 vq->iov[out].iov_len);
+>
+> If a guest submits a descriptor chain with only read-only descriptors,
+> vhost_get_vq_desc() sets in =3D 0. The out variable holds the count of
+> read-only descriptors, meaning the first writable descriptor expected by =
 the
-same mgmt_dev, blindly overwriting mgmt_dev->oct_vdpa and setting
-status =3D ADDED.
+> host would be at index out.
+>
 
-When userspace deletes the first device, octep_vdpa_dev_del() executes, the
-cmpxchg succeeds, and the device is unregistered. When userspace attempts to
-delete the second device, the cmpxchg from ADDED to REMOVED fails. The
-function returns early without unregistering the second device, permanently
-leaking it.
+This is a dup -- an earlier patch already fixed it:
+https://lore.kernel.org/all/20260904005240.502787-1-physicalmtea@gmail.com/
+It was while fixing that earlier issue that Sashiko spotted this
+adjacent problem.
 
-> +
->  	_vdpa_unregister_device(vdpa_dev);
-
-[Severity: High]
-This is a pre-existing issue, but does calling _vdpa_unregister_device() fr=
-om
-the asynchronous workqueue violate the vDPA bus locking requirements?
-
-octep_event_work() responds to hardware events by invoking
-octep_vdpa_dev_del() directly, which in turn calls _vdpa_unregister_device(=
-).
-The vDPA core strictly requires vdpa_dev_lock to be held when invoking this
-underscored variant.
-
-Since the asynchronous workqueue does not acquire this lock, it uncondition=
-ally
-triggers lockdep splats (lockdep_assert_held(&vdpa_dev_lock)) and corrupts =
-the
-vDPA bus device list when racing with concurrent netlink operations. (The s=
-ame
-applies to _vdpa_register_device() in octep_vdpa_dev_add()).
-
-> -	atomic_set(&mgmt_dev->status, OCTEP_VDPA_DEV_STATUS_REMOVED);
-> +	mgmt_dev->oct_vdpa =3D NULL;
->  }
-> =20
->  static const struct vdpa_mgmtdev_ops octep_vdpa_mgmt_dev_ops =3D {
-
-[ ... ]
-
-> @@ -653,6 +661,7 @@ static void octep_event_work(struct work_struct *work)
->  	u8 event =3D readb(addr + OCTEP_VF_EVENT_REG(0));
->  	struct vdpa_dev_set_config config =3D {0};
->  	char name[OCTEP_VDPA_NAME_BUFSIZE];
-> +	struct octep_vdpa *oct_vdpa;
->  	int ret =3D 0;
-> =20
->  	switch (event) {
-> @@ -663,8 +672,9 @@ static void octep_event_work(struct work_struct *work)
->  		}
->  		break;
->  	case OCTEP_VDPA_DEV_DEL_EVENT:
-> -		if (atomic_read(&mgmt_dev->status) =3D=3D OCTEP_VDPA_DEV_STATUS_ADDED)
-> -			octep_vdpa_dev_del(&mgmt_dev->mdev, &mgmt_dev->oct_vdpa->vdpa);
-> +		oct_vdpa =3D READ_ONCE(mgmt_dev->oct_vdpa);
-> +		if (atomic_read(&mgmt_dev->status) =3D=3D OCTEP_VDPA_DEV_STATUS_ADDED =
-&& oct_vdpa)
-> +			octep_vdpa_dev_del(&mgmt_dev->mdev, &oct_vdpa->vdpa);
-
-[Severity: High]
-Is this lockless synchronization vulnerable to an ABA problem that allows a
-use-after-free?
-
-In octep_event_work(), mgmt_dev->oct_vdpa is cached locally. If the thread =
-is
-preempted:
-
-1. A concurrent netlink command calls octep_vdpa_dev_del(), successfully
-setting status to REMOVED and unregistering the device.
-
-2. A subsequent netlink command adds a new device, allocating a new object =
-and
-setting status to ADDED.
-
-3. When octep_event_work() resumes, it sees status =3D=3D ADDED and calls
-octep_vdpa_dev_del() with the STALE pointer.
-
-The atomic_cmpxchg() in octep_vdpa_dev_del() succeeds because the status is
-ADDED (for the new device), but it blindly unregisters the stale device pas=
-sed
-to it.
-
->  		break;
->  	default:
->  		break;
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260914040332.1892=
-175-1-oss.patchbox@gmail.com?part=3D1
+> Does the length check above access vq->iov[out].iov_len without verifying
+> that in > 0?
+>
+> If in is 0, vq->iov[out] was not populated by vhost_get_vq_desc() and
+> contains stale data from a previous request. Could a malicious guest use
+> this to force the kernel to write the event structure to a previously
+> legitimate but now hot-unplugged host virtual address via the
+> __copy_to_user() call later in the function?
+>
+> >               vhost_scsi_free_evt(vs, evt);
+> >       }
+> > +}
+>
+> [ ... ]
+>
+> --
+> Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260912090420.47=
+439-1-physicalmtea@gmail.com?part=3D1
