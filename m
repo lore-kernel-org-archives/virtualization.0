@@ -1,91 +1,91 @@
 Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5ECA63A1D01
-	for <virtualization@lists.linux.dev>; Mon, 14 Sep 2026 13:37:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C127C477298
+	for <virtualization@lists.linux.dev>; Mon, 14 Sep 2026 13:37:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789393077; cv=none; b=ejGhT6GWZ4r7YXOHORzRYHHsYqUJXpCgoAAXosQYL35yqP9vGRiQO1rHOSH3JzCG8UxDhjFZLTRvQMVXXyT8p9k1zNgA74d1UTwJJgfQrmB5d6lbmXG8pSitfEOA9dLdhnhzsYMS+P9ih93R3BwMI9bD63aPXyBcO98VciE5iVA=
+	t=1789393077; cv=none; b=A8Ec/Zx6A9FKUQW8s3WckwhaMMxyJnffzQS+YdWPYqV7YdksHMazGzWKzI+vb6erlvw2193VjnYFgbcwW9oAHosB7RgVFM9rzFbWu4qQ/2uaVHrC5x46wPD4FoBQCcRBZ+2cbum/HngyvmQTZKNNpb7DsBJDexV/QywM7LS5rfo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1789393077; c=relaxed/simple;
-	bh=jCoZuWEgSbjtm4wLSbpNx2rVBrFvTgX7s+RrR3f+ndo=;
+	bh=YiKh5V+YEc0HG9Sg0HziwaHjw7xOx3e7esxCZsefzTk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=HQyFHPX2678zW2IYPTtETGWooDNILIoTo9j8CaNXtd1HROZ1IaIN3pQ/ZePVTHSBfHgCMYcdMTj3yXoG+eq7L5kuYzzlA9GVCrcnMImPWkjo3jtptYzgmlp7dg+B/V+aLXjPBlfl/R6CI8GvN7U1tPrexJjXbPzS4RXCiTz1+1g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=dBkGbM0V; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=SgQrXS5K; arc=none smtp.client-ip=205.220.168.131
+	 MIME-Version; b=itwOp1O/oKV0bT+zcBWpsULn2tIYtwKLhJMR/HM/sAYac9hAp3zRyF/61/9+0T3HB6KBscssbIWc7iOgBX2YirV0ZcWEgRJutIcZs8NDOA54hMYLwWuKrGZ5yb4+bbBQLuZXx3dtl1Os+T3ENEHdyAlsp0rsWjqSYRW20hSXFR4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=iQLxKayy; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=jz9wac1h; arc=none smtp.client-ip=205.220.168.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="dBkGbM0V";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="SgQrXS5K"
-Received: from pps.filterd (m0279865.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68ED0QjR1514379
-	for <virtualization@lists.linux.dev>; Mon, 14 Sep 2026 13:37:53 GMT
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="iQLxKayy";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="jz9wac1h"
+Received: from pps.filterd (m0279866.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68ED0KEW4090474
+	for <virtualization@lists.linux.dev>; Mon, 14 Sep 2026 13:37:52 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
 	cc:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=qcppdkim1; bh=/m1IO6ReHXB
-	nIHxR1Y+am6Pid+itc/UswH9TAnSjnTQ=; b=dBkGbM0Ve6n706ia3z2t5c/CKA0
-	YA/WNHr0UQqdN0vpuG55FOY+oQd90RfxhuGlBSK9bWfloeXOcBLr4Cc23335Mgze
-	UQ2yKmHjadTyHboxLOvitnBa7QRm6uYoYgWFIpF7tyjZPWFDliZSwocG5d9/ghMh
-	4TNKkr9wqquUxFm4rpowsrnlRT6EzdhLfki6s3IZStB+NWnog7nWoRhigMYpEKB9
-	/9O/rocBAzOvKWKv/BOXT4/OvdmrrBWMpzsIzeVevSdnYvXB145OzxBc+fwwW1Qk
-	Q+VVmwDy1w0+saRYuGx/CViOM4e2Gd6l76jgFhQkwvul2xLHPGQgzFseiUg==
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com [209.85.216.69])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4gp3k0arda-1
+	:mime-version:references:subject:to; s=qcppdkim1; bh=sHzJV7DoUuy
+	lvx+MlonA9cvYxJqTQaH9CVz5nVLjKUA=; b=iQLxKayyrgGr0uSMBCH9YPwJbkH
+	qN+GNB8V3O16BGXxqxoVCMLFpF4xl6b8Pj2Xl1PgmTWcaT7kkHRCUzKmaOpEAmZM
+	csfuQTqLmH4k36T4Yw8knnNdyXLxOzs6ZyCyTmwQUYHn6rHFNy4bnbgTU56La877
+	bRX5Qgy1Bc7HcMLY+TYUpjOKhLqq/aQzeopXb0rkJtyAuCG9AmaXtfRQ8EJfpEPI
+	uNgbwWHgiSotd4a6e50nYMe9OdyZUotpzBOF1cvZWOLMNsxjJXAN3EH8eIuBeqVZ
+	kfNqFnSrj0o4OEJmf/m1S6P63vsgm35f4m+MY/NJLQmF9BG8YIMZa5RxMqg==
+Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com [209.85.214.200])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4gpcjg1bv1-1
 	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <virtualization@lists.linux.dev>; Mon, 14 Sep 2026 13:37:52 +0000 (GMT)
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-38e54b6556aso4306860a91.2
-        for <virtualization@lists.linux.dev>; Mon, 14 Sep 2026 06:37:52 -0700 (PDT)
+	for <virtualization@lists.linux.dev>; Mon, 14 Sep 2026 13:37:51 +0000 (GMT)
+Received: by mail-pl1-f200.google.com with SMTP id d9443c01a7336-2cfa4e4684bso78749945ad.2
+        for <virtualization@lists.linux.dev>; Mon, 14 Sep 2026 06:37:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1789393068; x=1789997868; darn=lists.linux.dev;
+        d=oss.qualcomm.com; s=google; t=1789393071; x=1789997871; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=/m1IO6ReHXBnIHxR1Y+am6Pid+itc/UswH9TAnSjnTQ=;
-        b=SgQrXS5KqlBCsJj/bjUaPu4waE+tGuCDUdcEdSxolR81jU3ETRbuYugEEzT/ny269I
-         wzJo2X4M0abiZpemZmaRnDOF7zlNnjyv6DfjSmmQoYJjYhNWFZMzBt9LeDMZlyVsQOuY
-         v9pr5ekJofrgk0Oz2KNvYGlHzEFkH0ysEKceZp43Me20kEuFEwhDCP4jSOq7uFbLkiF7
-         jw+r8A6+cFsZe7iLMwtI8RPxzjshmGW6Fn/r6eYcy1aWlXmd09OD7NEMOwt2HQ4IU0Sk
-         +yjUKHzvnZBdwWIfUN5F/pE/ix9/Vfyggqof5PznVXujeJqOze1WNnTQsaYqj6RxJ/YU
-         e+8g==
+        bh=sHzJV7DoUuylvx+MlonA9cvYxJqTQaH9CVz5nVLjKUA=;
+        b=jz9wac1hpZ+ahpPqP4FrVu2qmbSSgmYGqCavuQhdAg20WptlehT0SDV6l4jP/s6jGU
+         yYKyYLdUahsV2tVs9gXNXloeICz6JpRTz4CAiFjflI7IG7oQdy0ZUDskpc6NjqEQiNl5
+         cjPuYL2fg+90ZUYCnztm7Q7/hpgI2JGZV/BT/k0p4gcrANNUNI0UA8WUlJWdPQvwhixY
+         QTBdAOqq0X9tUuj1Ga9bAXJ5MQkPV3Xs2estoE+wDJXBNWu4ahrrNH0sa6MFEPCmB1u7
+         4kRUJCj7XnVFgmQwZtYeRp8RqaS3W2KL9phU69SNpeeKGJyzCPHytNlQu7/pB+Vjy042
+         qDmw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789393068; x=1789997868;
+        d=1e100.net; s=20251104; t=1789393071; x=1789997871;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=/m1IO6ReHXBnIHxR1Y+am6Pid+itc/UswH9TAnSjnTQ=;
-        b=RVNun/uwyGdDoPxyeuWxdSe6TFduTN6dLH0uc1oL6R7FvnSHxQetAEt35I8HxUhsmD
-         SuGG9urYZn2hJyj64tuyl6QDT5F2DK724czA68cKoe0szOCihOj9RZf64Cqws6AAMuQb
-         AF2h8Dezkh8WGjAd8IK3dMeZj1DDe23Tz8OhIbVPIUGJJTM1X5eilZgDes4DzUbFrTZN
-         6ensSUYIGwXNhU+pwxBS40dzJ/hbV67ssuUKsydWuAUF4on8FCJ1uIvPCQiJM1O31MqC
-         hBNsH+GkAG1jXk/yHuTM6r3R/6pcPYFqsTQ6qFOYY2ijld1bNjPKI6KMabT7u6nIaZBh
-         qdNQ==
-X-Forwarded-Encrypted: i=1; AKwUvByTE75ZbY18MedubtvUciLz2xnh93CeQpU8/e6N8RhqR56FKia1s47Q0DdLjb3EeG5ME5LD5rpH559Efx3DAQ==@lists.linux.dev
-X-Gm-Message-State: AFuF++mIlpRJJY9rXnLG5NLsmmQsZzyeArokVaepu+ClmYbdk67Zqzsz
-	JrBZam96ntHOqyGvrmKotvu7a0KvS+HEaN0EmT7pMQHUJng0qhnHltum5GsBWXtD9csexaRfmeE
-	RMTAn2n3IzMvUuGYBUQEuQmOC/ME8gIpcqZTLMq1a2XgAd1biOQlqq1eR6vUWbj9U6PNScA==
-X-Gm-Gg: AYBFou2u0Ot2ucFr6UiNzkwyxSdi+BvSG+IDbcMBvKYcBfeNqre5yHQJqzhWY6esu6B
-	uPEQDgDuyt1wvYgHTL3qquZmhPTQOvTxJN2zXxniDAl234OKRtuh3DjEnr07JPiRh0ow3akDXvx
-	KUPb2eR3a9mQQeoyY48K3kZ8VDt6svqu2hLbWbSpkd+Es2LKwtfnhGGczFAX7K747/3jQQD8QNy
-	7prpRSmMy3+I9MNRUIH3IBXEHwmblVbwOUOYT9q9BVHd03KU4jbJuEDGUlmXnv0zm4FozEWu9c8
-	sXPjcUp0mHTe+57lZ6Hj12+adLGGFVY8KvP+usaMGT2dB3iso94YchKd9zg/nLuIhevkrIm4TbD
-	XGVbuwjZG2PtUMkbzGvIcUXD1eXvNV1pf2f1ToWGt3uvnpEE1Ne3t1Ibjxdo=
-X-Received: by 2002:a17:902:db12:b0:2d9:6db:9fcb with SMTP id d9443c01a7336-2dd6c6eb73emr53966025ad.11.1789393068075;
-        Mon, 14 Sep 2026 06:37:48 -0700 (PDT)
-X-Received: by 2002:a17:902:db12:b0:2d9:6db:9fcb with SMTP id d9443c01a7336-2dd6c6eb73emr53965255ad.11.1789393067452;
-        Mon, 14 Sep 2026 06:37:47 -0700 (PDT)
+        bh=sHzJV7DoUuylvx+MlonA9cvYxJqTQaH9CVz5nVLjKUA=;
+        b=qi2zBNVUUdyvD2XvZ3RaEdoY19qDc00UXqTF1Jp3udT8AMVO6KXeHisz5cj2GJaT8b
+         YJLdAEVMGbLkzpinSvXCAHXNWelh8z1mBGEfQchYjOhW+FByJ8RkbZY+O6WOam6bmBcz
+         bW/lU+v+Y2upqpI6kK+PmF4DhKdH9sYrv73Q0EafJXpPU9OFJOiIvo/BS8MyWyfqKMeF
+         uVY4YZE7iEd9VGkZx5BLvdxTlR8GmLUl4VvlXYnzD3KQ/WtSzqT4crIt/j2jBlDp8VtD
+         W8c+Rm5m5N1VziLIkLB4KD6JFgYiPd6BtJMRPvxdcHSf/J92+tdZ3JJdIM3FxXFAE+/m
+         HQiQ==
+X-Forwarded-Encrypted: i=1; AKwUvBz4mW6mIGWslZQbwshhUCeRNDBSmSBmSjfoxiQBB+5dcPRPaei2xtQMg7og/9Xu+EdcApKcsTGK3nqqyIe2iw==@lists.linux.dev
+X-Gm-Message-State: AFuF++lFPEFX9jsY8dWdsAQw7cP4eEeipBKyd/lAyowX5Isk2M3QEvnF
+	6d1tR58u+8DDSbNSBWb5ohaoYwTp6Oq5QyzvaP15558UkkobtoG25lqoowEqPmv73OPsfMDCyIW
+	sS3ByCA+ku6Vs3nO+FJBzc3C+UIxHEPlQL/G6HESyEkUyVlJx2LVOqRtrB3akbWVQ9MobpQ==
+X-Gm-Gg: AYBFou2MusTbdpRycXBelWsM9peg2+q/EzyBo4mlnRHH4S8zi6IXn5ICh8X5xXe+B3Z
+	reFFuZRW52gOAeMuYXgl5M3eU0ZwGVi55LRXFx23ypgZv1winR66yABU/1mu/xITkod97VirTuO
+	/VAOcTalDcGzO9hI3M+URtaHiUC654iLthwD4n+6LWa0Atp91/N7ziv3JzmAN9v9kUqTe549qmI
+	AVvm3RzHCWhE+CxN03f/uLSKlmk2iSL3WA4VqSDFnBSzIkLnJPzIjmNdujzSbLbca5i+ndkXgY6
+	Di642Io61OjoXRLxodtpg24H/iPZFksc/gCyQnKepm4Zt/scvWC6skPLbhjk2pzL7OlI0mAXZM/
+	tMq8FMpAXrDWz2LeEm040e7gELzv91rNmFSRDIC30/r4YIum1A6HgpsHanm4=
+X-Received: by 2002:a17:902:e744:b0:2bf:dd0:c8b1 with SMTP id d9443c01a7336-2dd6c4835d0mr52450715ad.0.1789393070166;
+        Mon, 14 Sep 2026 06:37:50 -0700 (PDT)
+X-Received: by 2002:a17:902:e744:b0:2bf:dd0:c8b1 with SMTP id d9443c01a7336-2dd6c4835d0mr52449805ad.0.1789393069350;
+        Mon, 14 Sep 2026 06:37:49 -0700 (PDT)
 Received: from u24-san1p10108.qualcomm.com (i-global254.qualcomm.com. [199.106.103.254])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2dd2cfd8c84sm49132685ad.62.2026.09.14.06.37.46
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2dd2cfd8c84sm49132685ad.62.2026.09.14.06.37.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Sep 2026 06:37:47 -0700 (PDT)
+        Mon, 14 Sep 2026 06:37:48 -0700 (PDT)
 From: Linlin Zhang <linlin.zhang@oss.qualcomm.com>
 To: mst@redhat.com, jasowangio@gmail.com, axboe@kernel.dk, ebiggers@kernel.org,
         stefanha@redhat.com
 Cc: pbonzini@redhat.com, eperezma@redhat.com, xuanzhuo@linux.alibaba.com,
         virtualization@lists.linux.dev, linux-block@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH v2 1/2] virtio_blk: Add control virtqueue support
-Date: Mon, 14 Sep 2026 06:37:20 -0700
-Message-ID: <20260914133733.15429-2-linlin.zhang@oss.qualcomm.com>
+Subject: [PATCH v2 2/2] virtio_blk: add inline encryption support
+Date: Mon, 14 Sep 2026 06:37:21 -0700
+Message-ID: <20260914133733.15429-3-linlin.zhang@oss.qualcomm.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260914133733.15429-1-linlin.zhang@oss.qualcomm.com>
 References: <20260914133733.15429-1-linlin.zhang@oss.qualcomm.com>
@@ -96,385 +96,943 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTE0MDE5NCBTYWx0ZWRfX5jIjNRehZeo5
- YG69BngWdnMCWSpYoUF0c27XgitLR4/5peG3o5IfRcwY3IDVPw1Ccz1vW/QrKLHVj4DoM0PrU33
- kHhj6NqgsTAgzUNQhaqmQmJ+zjQ6AtY=
-X-Proofpoint-GUID: A-ZCBFRAC3OXPTaOzq3y906AXa6mb-II
-X-Proofpoint-ORIG-GUID: A-ZCBFRAC3OXPTaOzq3y906AXa6mb-II
-X-Authority-Analysis: v=2.4 cv=BtAIUoX5 c=1 sm=1 tr=0 ts=6aa7f8b1 cx=c_pps
- a=vVfyC5vLCtgYJKYeQD43oA==:117 a=JYp8KDb2vCoCEuGobkYCKw==:17
+X-Authority-Analysis: v=2.4 cv=CKa/zhrD c=1 sm=1 tr=0 ts=6aa7f8af cx=c_pps
+ a=IZJwPbhc+fLeJZngyXXI0A==:117 a=JYp8KDb2vCoCEuGobkYCKw==:17
  a=VdqzKS8jKosA:10 a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=u7WPNUs3qKkmUXheDGA7:22 a=Um2Pa8k9VHT-vaBCBUpS:22 a=EUspDBNiAAAA:8
- a=3eFvK4jGiganB99P3z8A:9 a=rl5im9kqc5Lf4LNbBjHf:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTE0MDE5NCBTYWx0ZWRfX1Eul436b9nZq
- Ewtqw5jhfAq0vlOJosQwjPFuN5hpM4KBmOwcZewrQwMdZCz0dISgnB9jfBAZuGf3fCORqX2jCK7
- 09WVLtnOG3fRlxJQ+yaOpABbliqVPdUpgjM1bvBDcXuZ63pNXqnCaG8TZEm5FFBNW8pIu8jWU0k
- VM/XAdSecvDKKbb/4CsP6e7umJemx6807Et1I9Wf2Q8a9iXSTZ+/lM60lcHJ95+H39UKEUSl8VB
- fi4K828YvjiYmsH2EQOUyB+v5FdbE3Q7kngJZTxQquep0C3Wn1hvJaT+5ylhsvzbZiCu+wxzJ8S
- fxt32EkmI8wHltQCqkUyLYuCB4YOigxUTGwn10OPkybbn8S7MtFNZDjXd2rnCWGBZm8GIS3maN2
- +T9uVbG9cPhqD6U+YqU7o/SoZmDHBRelnysWF4USz0BRGYsqC5LB44s+x9y9xy7SfJLwKa/Mcm7
- OlEMVadupeDQjefi6vQ==
+ a=u7WPNUs3qKkmUXheDGA7:22 a=YMgV9FUhrdKAYTUUvYB2:22 a=EUspDBNiAAAA:8
+ a=7cB_SFYodWyvrme8HfkA:9 a=uG9DUKGECoFWVXl0Dc02:22
+X-Proofpoint-ORIG-GUID: -znY4xmgKsTpLAkS0Sv2xd8hKpx4t63I
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTE0MDE5NCBTYWx0ZWRfXxKTWgZWGx0J4
+ ccX/XZ1c+Q4KPbESxFZgVqhHXatAcNsS/LfFFKIiHoHr0Bdah5g4MaNY5BE/49+/MbyE6u+DgaW
+ AyWQJh6FsST36yL5EUDH/frNdT8Mxrs=
+X-Proofpoint-GUID: -znY4xmgKsTpLAkS0Sv2xd8hKpx4t63I
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTE0MDE5NCBTYWx0ZWRfXzcV+ENcgM31Z
+ Aw7ubq1bPhVrm5VjfR6mXr/88uAHQbysQNt8p/7MyIiFAbhhrTBq34y3GhgB9so+nkn6BxPHXI0
+ dEzsIDiJSfijxj3/xwoBJl+lVAPBbmDqATJDI9PcP7nl3j0dVD8BTXc4YQkttoCZ0J5IA6SsG6+
+ iLGR1Z1U4FjJHNLS86vaa+wKTHFgLtYGJj/2axiF8QV+6WsjVkfhTwFY+phw6c7i6ck1E1FDlaY
+ 8AF7ilP2oLcJnNFQ8/dI17UAqALVS7tnLoHqKfFlg+W1vbgPjVj+FScKmu9+m6FJqZK8pMuUCA7
+ axdLV9s0ug/Dq5/lDuUe0i2LIKku9kLWCMNv7J0gCW3AA1CKjxxJlfyQoDLXLiSQnTZtKo2f2s3
+ m/0igbGn6IfvdHLCf1ALFhc4h7KQvj+0F+mz99MvmhAxGHD9GSK5/kh6I+pOzi950lQVY9fbXTo
+ J8qZ2xI+O+HRZn+MhGw==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-09-14_03,2026-09-14_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 spamscore=0 phishscore=0 impostorscore=0 suspectscore=0
- bulkscore=0 malwarescore=0 adultscore=0 lowpriorityscore=0 priorityscore=1501
+ adultscore=0 malwarescore=0 clxscore=1015 priorityscore=1501 impostorscore=0
+ spamscore=0 lowpriorityscore=0 phishscore=0 bulkscore=0 suspectscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609140194
 
 From: linlzhan <linlin.zhang@oss.qualcomm.com>
 
-Add support for the optional virtio-blk control virtqueue.
+Add support for the virtio-blk inline encryption feature
+(VIRTIO_BLK_F_INLINE_ENCRYPTION), which lets the guest offload
+per-I/O encryption to the host's inline crypto engine instead of
+doing it in software in the guest.
 
-If control queue feature bit is negociated, this allows the driver
-to manage control-queue requests independently from the data path
-and to safely handle outstanding requests during device removal
-and suspend.
+Advertise the device's inline encryption characteristics (key
+types, supported crypto modes, max keyslots, DUN size) and wire
+them up to a struct blk_crypto_profile so upper layers can attach
+encryption contexts to bios as usual. Key management (program,
+evict, generate, import, prepare key, derive software secret) is
+carried out as control commands over the control virtqueue, and
+per-request keyslot and data unit number are carried in an
+extended request header for read/write commands.
 
-No control command is submitted by this change. The control virtqueue
-will be used by a subsequent inline encryption implementation.
+Inline encryption is only enabled when both the control virtqueue
+and inline encryption feature bits are negotiated, and is gated
+behind a new VIRTIO_BLK_INLINE_ENCRYPTION Kconfig option that
+depends on BLK_INLINE_ENCRYPTION, so kernels that don't select it
+are unaffected.
 
 Signed-off-by: linlzhan <linlin.zhang@oss.qualcomm.com>
 ---
- drivers/block/virtio_blk.c      | 179 +++++++++++++++++++++++++++++++-
- include/uapi/linux/virtio_blk.h |   1 +
- 2 files changed, 176 insertions(+), 4 deletions(-)
+ drivers/block/Kconfig           |  12 +
+ drivers/block/virtio_blk.c      | 576 +++++++++++++++++++++++++++++++-
+ include/uapi/linux/virtio_blk.h | 115 +++++++
+ 3 files changed, 690 insertions(+), 13 deletions(-)
 
+diff --git a/drivers/block/Kconfig b/drivers/block/Kconfig
+index 858320b6ebb7..58bb050d4617 100644
+--- a/drivers/block/Kconfig
++++ b/drivers/block/Kconfig
+@@ -372,4 +372,16 @@ config BLK_DEV_ZONED_LOOP
+ 
+ 	  If unsure, say N.
+ 
++config VIRTIO_BLK_INLINE_ENCRYPTION
++	tristate "Virtio block inline encryption support"
++	depends on VIRTIO_BLK && BLK_INLINE_ENCRYPTION
++	help
++	  Say 'Y or M' here will allow the virtio block driver to route crypto
++	  requests to a different operating system in a virtualized
++	  environment. This is useful to encrypt the data stored in the storage
++	  by using storage inline crypto engine. The control queue feature bit
++	  must be negotiated to enable this functionality.
++
++	  If unsure, say N.
++
+ endif # BLK_DEV
 diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 32bf3ba07a9d..252ec9366153 100644
+index 252ec9366153..3fd318e5e1f1 100644
 --- a/drivers/block/virtio_blk.c
 +++ b/drivers/block/virtio_blk.c
-@@ -6,6 +6,7 @@
- #include <linux/hdreg.h>
- #include <linux/module.h>
- #include <linux/mutex.h>
-+#include <linux/completion.h>
- #include <linux/interrupt.h>
- #include <linux/virtio.h>
- #include <linux/virtio_blk.h>
-@@ -52,6 +53,15 @@ struct virtio_blk_vq {
- 	char name[VQ_NAME_LEN];
- } ____cacheline_aligned_in_smp;
+@@ -17,6 +17,7 @@
+ #include <linux/numa.h>
+ #include <linux/vmalloc.h>
+ #include <uapi/linux/virtio_ring.h>
++#include <linux/blk-crypto-profile.h>
  
-+struct virtio_blk_ctrl_vq {
-+	struct virtqueue *vq;
-+	struct mutex mutex;
-+	spinlock_t lock;
-+	unsigned int inflight;
-+	bool dead;
-+	struct completion drained;
-+};
-+
- struct virtio_blk {
- 	/*
- 	 * This mutex must be held by anything that may run after
-@@ -83,6 +93,9 @@ struct virtio_blk {
- 
+ #define PART_BITS 4
+ #define VQ_NAME_LEN 16
+@@ -94,13 +95,24 @@ struct virtio_blk {
  	/* For zoned device */
  	unsigned int zone_sectors;
+ 
++	/* For inline encryption support */
++	struct blk_crypto_profile profile;
++	bool crypto_profile_initialized;
 +
-+	/* Control virtqueue state. */
-+	struct virtio_blk_ctrl_vq ctrl_vq;
+ 	/* Control virtqueue state. */
+ 	struct virtio_blk_ctrl_vq ctrl_vq;
  };
  
  struct virtblk_req {
-@@ -110,6 +123,12 @@ struct virtblk_req {
- 	struct scatterlist sg[];
+ 	/* Out header */
+-	struct virtio_blk_outhdr out_hdr;
++	union {
++		struct virtio_blk_outhdr base;
++		struct {
++			struct virtio_blk_outhdr base;
++			/* Crypto message (if VIRTIO_BLK_F_INLINE_ENCRYPTION) */
++			struct virtio_blk_crypto_msg msg;
++		} crypto_append;
++	} out_hdr;
+ 
+ 	/* In header */
+ 	union {
+@@ -124,8 +136,23 @@ struct virtblk_req {
  };
  
-+struct virtblk_ctrl_request {
-+	__virtio32 type;
-+	u8 status;
-+	struct completion compl;
-+};
+ struct virtblk_ctrl_request {
++	/* Type byte, always its own out-sg for every command. */
+ 	__virtio32 type;
++	/* Out request, sent as a second, separate out-sg if any. */
++	union {
++		struct virtio_blk_crypto_key_desc key_desc;
++		struct virtio_blk_crypto_key_blob blob;
++	} out_req;
 +
- static inline blk_status_t virtblk_result(u8 status)
++	/* In response */
++	union {
++		struct virtio_blk_crypto_key_blob blob;
++		struct virtio_blk_crypto_sw_secret secret;
++		struct virtio_blk_crypto_modes modes;
++	} in_resp;
++	/* Status byte, always its own in-sg for every command. */
+ 	u8 status;
++
+ 	struct completion compl;
+ };
+ 
+@@ -159,12 +186,17 @@ static int virtblk_add_req(struct virtqueue *vq, struct virtblk_req *vbr)
  {
- 	switch (status) {
-@@ -863,11 +882,131 @@ static int virtblk_getgeo(struct gendisk *disk, struct hd_geometry *geo)
- 	return ret;
+ 	struct scatterlist out_hdr, in_hdr, *sgs[3];
+ 	unsigned int num_out = 0, num_in = 0;
++	size_t out_hdr_len = sizeof(vbr->out_hdr.base);
+ 
+-	sg_init_one(&out_hdr, &vbr->out_hdr, sizeof(vbr->out_hdr));
++	if (vbr->out_hdr.base.type == cpu_to_virtio32(vq->vdev, VIRTIO_BLK_T_CRYPTO_IN) ||
++	    vbr->out_hdr.base.type == cpu_to_virtio32(vq->vdev, VIRTIO_BLK_T_CRYPTO_OUT))
++		out_hdr_len = sizeof(vbr->out_hdr.crypto_append);
++
++	sg_init_one(&out_hdr, &vbr->out_hdr, out_hdr_len);
+ 	sgs[num_out++] = &out_hdr;
+ 
+ 	if (vbr->sg_table.nents) {
+-		if (vbr->out_hdr.type & cpu_to_virtio32(vq->vdev, VIRTIO_BLK_T_OUT))
++		if (vbr->out_hdr.base.type & cpu_to_virtio32(vq->vdev, VIRTIO_BLK_T_OUT))
+ 			sgs[num_out++] = vbr->sg_table.sgl;
+ 		else
+ 			sgs[num_out + num_in++] = vbr->sg_table.sgl;
+@@ -254,6 +286,22 @@ static void virtblk_cleanup_cmd(struct request *req)
+ 		kfree(bvec_virt(&req->special_vec));
  }
  
-+#define VIRTBLK_CTRL_VQ_DRAIN_TIMEOUT (10 * HZ)
-+
-+/* Prevent new submissions and wait for in-flight requests to complete. */
-+static void virtblk_ctrl_vq_quiesce(struct virtio_blk *vblk)
++#if IS_ENABLED(CONFIG_VIRTIO_BLK_INLINE_ENCRYPTION)
++static bool is_crypto_request(struct request *req)
 +{
-+	unsigned long flags;
-+	bool need_wait;
++	struct request_queue *q = req->q;
 +
-+	if (!vblk->ctrl_vq.vq)
-+		return;
-+
-+	init_completion(&vblk->ctrl_vq.drained);
-+
-+	spin_lock_irqsave(&vblk->ctrl_vq.lock, flags);
-+	vblk->ctrl_vq.dead = true;
-+	need_wait = vblk->ctrl_vq.inflight != 0;
-+	spin_unlock_irqrestore(&vblk->ctrl_vq.lock, flags);
-+
-+	if (need_wait &&
-+	    !wait_for_completion_timeout(&vblk->ctrl_vq.drained,
-+					  VIRTBLK_CTRL_VQ_DRAIN_TIMEOUT))
-+		dev_warn(&vblk->vdev->dev,
-+			 "timed out waiting for control queue requests to complete\n");
++	return q->crypto_profile &&
++	       req->crypt_ctx &&
++	       req->crypt_keyslot;
 +}
-+
-+/* Fail requests left in the control queue after reset. */
-+static void virtblk_ctrl_vq_drain(struct virtio_blk *vblk)
++#else
++static inline bool is_crypto_request(struct request *req)
 +{
-+	struct virtblk_ctrl_request *creq;
-+	unsigned long flags;
++	return false;
++}
++#endif
 +
-+	if (!vblk->ctrl_vq.vq)
-+		return;
-+
-+	spin_lock_irqsave(&vblk->ctrl_vq.lock, flags);
-+	while ((creq = virtqueue_detach_unused_buf(vblk->ctrl_vq.vq)) != NULL) {
-+		if (WARN_ON_ONCE(!vblk->ctrl_vq.inflight))
-+			;
+ static blk_status_t virtblk_setup_cmd(struct virtio_device *vdev,
+ 				      struct request *req,
+ 				      struct virtblk_req *vbr)
+@@ -262,20 +310,27 @@ static blk_status_t virtblk_setup_cmd(struct virtio_device *vdev,
+ 	bool unmap = false;
+ 	u32 type;
+ 	u64 sector = 0;
++	int i;
+ 
+ 	if (!IS_ENABLED(CONFIG_BLK_DEV_ZONED) && op_is_zone_mgmt(req_op(req)))
+ 		return BLK_STS_NOTSUPP;
+ 
+ 	/* Set fields for all request types */
+-	vbr->out_hdr.ioprio = cpu_to_virtio32(vdev, req_get_ioprio(req));
++	vbr->out_hdr.base.ioprio = cpu_to_virtio32(vdev, req_get_ioprio(req));
+ 
+ 	switch (req_op(req)) {
+ 	case REQ_OP_READ:
+-		type = VIRTIO_BLK_T_IN;
++		if (is_crypto_request(req))
++			type = VIRTIO_BLK_T_CRYPTO_IN;
 +		else
-+			vblk->ctrl_vq.inflight--;
-+		creq->status = VIRTIO_BLK_S_IOERR;
-+		spin_unlock_irqrestore(&vblk->ctrl_vq.lock, flags);
-+		complete(&creq->compl);
-+		spin_lock_irqsave(&vblk->ctrl_vq.lock, flags);
-+	}
-+	spin_unlock_irqrestore(&vblk->ctrl_vq.lock, flags);
-+}
-+
-+static void virtblk_ctrlq_callback(struct virtqueue *vq)
-+{
-+	struct virtio_blk *vblk = vq->vdev->priv;
-+	struct virtblk_ctrl_request *creq;
-+	unsigned long flags;
-+	unsigned int len;
-+
-+	spin_lock_irqsave(&vblk->ctrl_vq.lock, flags);
-+	do {
-+		virtqueue_disable_cb(vq);
-+		while ((creq = virtqueue_get_buf(vq, &len)) != NULL) {
-+			bool drained = false;
-+
-+			if (WARN_ON_ONCE(!vblk->ctrl_vq.inflight)) {
-+				/*
-+				 * Still complete the request.  Never leave a
-+				 * synchronous caller blocked because the accounting
-+				 * state was already inconsistent.
-+				 */
-+				spin_unlock_irqrestore(&vblk->ctrl_vq.lock, flags);
-+				complete(&creq->compl);
-+				spin_lock_irqsave(&vblk->ctrl_vq.lock, flags);
-+				continue;
-+			}
-+
-+			if (--vblk->ctrl_vq.inflight == 0 && vblk->ctrl_vq.dead)
-+				drained = true;
-+			spin_unlock_irqrestore(&vblk->ctrl_vq.lock, flags);
-+			if (drained)
-+				complete(&vblk->ctrl_vq.drained);
-+			complete(&creq->compl);
-+			spin_lock_irqsave(&vblk->ctrl_vq.lock, flags);
++			type = VIRTIO_BLK_T_IN;
+ 		sector = blk_rq_pos(req);
+ 		break;
+ 	case REQ_OP_WRITE:
+-		type = VIRTIO_BLK_T_OUT;
++		if (is_crypto_request(req))
++			type = VIRTIO_BLK_T_CRYPTO_OUT;
++		else
++			type = VIRTIO_BLK_T_OUT;
+ 		sector = blk_rq_pos(req);
+ 		break;
+ 	case REQ_OP_FLUSH:
+@@ -328,8 +383,8 @@ static blk_status_t virtblk_setup_cmd(struct virtio_device *vdev,
+ 
+ 	/* Set fields for non-REQ_OP_DRV_IN request types */
+ 	vbr->in_hdr_len = in_hdr_len;
+-	vbr->out_hdr.type = cpu_to_virtio32(vdev, type);
+-	vbr->out_hdr.sector = cpu_to_virtio64(vdev, sector);
++	vbr->out_hdr.base.type = cpu_to_virtio32(vdev, type);
++	vbr->out_hdr.base.sector = cpu_to_virtio64(vdev, sector);
+ 
+ 	if (type == VIRTIO_BLK_T_DISCARD || type == VIRTIO_BLK_T_WRITE_ZEROES ||
+ 	    type == VIRTIO_BLK_T_SECURE_ERASE) {
+@@ -337,6 +392,18 @@ static blk_status_t virtblk_setup_cmd(struct virtio_device *vdev,
+ 			return BLK_STS_RESOURCE;
+ 	}
+ 
++	if (type == VIRTIO_BLK_T_CRYPTO_IN || type == VIRTIO_BLK_T_CRYPTO_OUT) {
++		memset(&vbr->out_hdr.crypto_append.msg, 0,
++			sizeof(vbr->out_hdr.crypto_append.msg));
++		vbr->out_hdr.crypto_append.msg.slot =
++			cpu_to_virtio32(vdev,
++				blk_crypto_keyslot_index(req->crypt_keyslot));
++		for (i = 0; i < ARRAY_SIZE(vbr->out_hdr.crypto_append.msg.dun); i++) {
++			vbr->out_hdr.crypto_append.msg.dun[i] =
++				cpu_to_virtio64(vdev, req->crypt_ctx->bc_dun[i]);
 +		}
-+	} while (!virtqueue_enable_cb(vq));
-+	spin_unlock_irqrestore(&vblk->ctrl_vq.lock, flags);
-+}
++	}
 +
-+/* Submit a control-queue request and wait for completion. */
-+static int virtblk_ctrl_vq_request(struct virtio_blk *vblk,
-+				    struct virtblk_ctrl_request *creq,
-+				    struct scatterlist *sgs[],
-+				    unsigned int out_sgs, unsigned int in_sgs)
+ 	return 0;
+ }
+ 
+@@ -587,8 +654,8 @@ static int virtblk_submit_zone_report(struct virtio_blk *vblk,
+ 
+ 	vbr = blk_mq_rq_to_pdu(req);
+ 	vbr->in_hdr_len = sizeof(vbr->in_hdr.status);
+-	vbr->out_hdr.type = cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_ZONE_REPORT);
+-	vbr->out_hdr.sector = cpu_to_virtio64(vblk->vdev, sector);
++	vbr->out_hdr.base.type = cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_ZONE_REPORT);
++	vbr->out_hdr.base.sector = cpu_to_virtio64(vblk->vdev, sector);
+ 
+ 	err = blk_rq_map_kern(req, report_buf, report_len, GFP_KERNEL);
+ 	if (err)
+@@ -836,8 +903,8 @@ static int virtblk_get_id(struct gendisk *disk, char *id_str)
+ 
+ 	vbr = blk_mq_rq_to_pdu(req);
+ 	vbr->in_hdr_len = sizeof(vbr->in_hdr.status);
+-	vbr->out_hdr.type = cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_GET_ID);
+-	vbr->out_hdr.sector = 0;
++	vbr->out_hdr.base.type = cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_GET_ID);
++	vbr->out_hdr.base.sector = 0;
+ 
+ 	err = blk_rq_map_kern(req, id_str, VIRTIO_BLK_ID_BYTES, GFP_KERNEL);
+ 	if (err)
+@@ -1001,11 +1068,478 @@ static int virtblk_ctrl_vq_request(struct virtio_blk *vblk,
+ 	return 0;
+ }
+ 
++#if IS_ENABLED(CONFIG_VIRTIO_BLK_INLINE_ENCRYPTION)
++// Maps VIRTIO_BLK_CRYPTO_MODE_* values to the kernel's internal enum.
++static const enum blk_crypto_mode_num
++	virtio_blk_crypto_mode_map[VIRTIO_BLK_CRYPTO_MODE_MAX + 1] = {
++	[VIRTIO_BLK_CRYPTO_MODE_INVALID]	= BLK_ENCRYPTION_MODE_INVALID,
++	[VIRTIO_BLK_CRYPTO_MODE_AES_256_XTS]	= BLK_ENCRYPTION_MODE_AES_256_XTS,
++};
++
++static int virtblk_get_crypto_modes(struct virtio_blk *vblk,
++				    unsigned int *crypto_modes_supported)
 +{
-+	unsigned long flags;
++	unsigned int nr_modes = VIRTIO_BLK_CRYPTO_MODE_MAX + 1;
++	struct scatterlist type_sg, resp_sg, status_sg, *sgs[3];
++	struct virtblk_ctrl_request *creq;
++	unsigned int i;
 +	int err;
 +
-+	mutex_lock(&vblk->ctrl_vq.mutex);
-+	init_completion(&creq->compl);
++	creq = kzalloc_obj(*creq, GFP_KERNEL);
++	if (!creq)
++		return -ENOMEM;
 +
-+	spin_lock_irqsave(&vblk->ctrl_vq.lock, flags);
-+	if (vblk->ctrl_vq.dead) {
-+		spin_unlock_irqrestore(&vblk->ctrl_vq.lock, flags);
-+		mutex_unlock(&vblk->ctrl_vq.mutex);
-+		return -ENODEV;
++	creq->type = cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_GET_CRYPTO_MODES);
++
++	sg_init_one(&type_sg, &creq->type, sizeof(creq->type));
++	sg_init_one(&resp_sg, &creq->in_resp.modes, sizeof(creq->in_resp.modes));
++	sg_init_one(&status_sg, &creq->status, sizeof(creq->status));
++	sgs[0] = &type_sg;
++	sgs[1] = &resp_sg;
++	sgs[2] = &status_sg;
++
++	err = virtblk_ctrl_vq_request(vblk, creq, sgs, 1, 2);
++	if (err)
++		goto out_free;
++
++	err = blk_status_to_errno(virtblk_result(creq->status));
++	if (err)
++		goto out_free;
++
++	for (i = 1; i < nr_modes; i++) {
++		u32 mode_mask = virtio32_to_cpu(vblk->vdev,
++						 creq->in_resp.modes.modes[i]);
++		enum blk_crypto_mode_num mode = virtio_blk_crypto_mode_map[i];
++
++		if (!mode_mask)
++			continue;
++		if (!mode) {
++			dev_warn(&vblk->vdev->dev,
++				 "ignoring unknown crypto mode %u\n", i);
++			continue;
++		}
++		crypto_modes_supported[mode] = mode_mask;
 +	}
-+	err = virtqueue_add_sgs(vblk->ctrl_vq.vq, sgs, out_sgs, in_sgs, creq, GFP_ATOMIC);
-+	if (!err) {
-+		vblk->ctrl_vq.inflight++;
-+		virtqueue_kick(vblk->ctrl_vq.vq);
++
++out_free:
++	kfree(creq);
++	return err;
++}
++
++static int set_virtblk_crypto_key_desc(struct virtio_device *vdev,
++				       struct virtblk_ctrl_request *creq,
++				       const struct blk_crypto_key *key,
++				       unsigned int slot)
++{
++	struct virtio_blk_crypto_key_desc *desc = &creq->out_req.key_desc;
++	enum blk_crypto_key_type key_type = key->crypto_cfg.key_type;
++
++	if (sizeof(desc->bytes) < key->size)
++		return -EOVERFLOW;
++
++	memset(desc, 0, sizeof(*desc));
++	desc->slot = cpu_to_virtio32(vdev, slot);
++	memcpy(desc->bytes, key->bytes, key->size);
++	desc->key_size = cpu_to_virtio32(vdev, key->size);
++	desc->crypto_mode = cpu_to_virtio32(vdev, key->crypto_cfg.crypto_mode);
++	switch (key->crypto_cfg.key_type) {
++	case BLK_CRYPTO_KEY_TYPE_RAW:
++		desc->key_type = cpu_to_virtio32(vdev,
++			VIRTIO_BLK_CRYPTO_KEY_TYPE_RAW);
++		break;
++	case BLK_CRYPTO_KEY_TYPE_HW_WRAPPED:
++		desc->key_type = cpu_to_virtio32(vdev,
++			VIRTIO_BLK_CRYPTO_KEY_TYPE_HW_WRAPPED);
++		break;
++	default:
++		return -EOPNOTSUPP;
 +	}
-+	spin_unlock_irqrestore(&vblk->ctrl_vq.lock, flags);
++	desc->data_unit_size_bits = cpu_to_virtio32(vdev, key->data_unit_size_bits);
++	desc->dun_bytes = cpu_to_virtio32(vdev, key->crypto_cfg.dun_bytes);
++
++	return 0;
++}
++
++static inline struct virtio_blk *virtblk_from_profile(struct blk_crypto_profile *profile)
++{
++	return container_of(profile, struct virtio_blk, profile);
++}
++
++static int virtblk_crypto_keyslot_program(struct blk_crypto_profile *profile,
++					   const struct blk_crypto_key *key,
++					   unsigned int slot)
++{
++	struct virtio_blk *vblk = virtblk_from_profile(profile);
++	struct scatterlist type_sg, out_req_sg, status_sg, *sgs[3];
++	struct virtblk_ctrl_request *creq;
++	int err;
++
++	creq = kzalloc_obj(*creq, GFP_KERNEL);
++	if (!creq)
++		return -ENOMEM;
++
++	creq->type = cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_CRYPTO_KEYSLOT_PROGRAM);
++
++	err = set_virtblk_crypto_key_desc(vblk->vdev, creq, key, slot);
++	if (err)
++		goto out_free;
++
++	sg_init_one(&type_sg, &creq->type, sizeof(creq->type));
++	sg_init_one(&out_req_sg, &creq->out_req.key_desc, sizeof(creq->out_req.key_desc));
++	sg_init_one(&status_sg, &creq->status, sizeof(creq->status));
++	sgs[0] = &type_sg;
++	sgs[1] = &out_req_sg;
++	sgs[2] = &status_sg;
++
++	err = virtblk_ctrl_vq_request(vblk, creq, sgs, 2, 1);
++	if (err)
++		goto out_free;
++
++	err = blk_status_to_errno(virtblk_result(creq->status));
++out_free:
++	kfree(creq);
++	return err;
++}
++
++static int virtblk_crypto_keyslot_evict(struct blk_crypto_profile *profile,
++					 const struct blk_crypto_key *key,
++					 unsigned int slot)
++{
++	struct virtio_blk *vblk = virtblk_from_profile(profile);
++	struct scatterlist type_sg, out_req_sg, status_sg, *sgs[3];
++	struct virtblk_ctrl_request *creq;
++	int err;
++
++	creq = kzalloc_obj(*creq, GFP_KERNEL);
++	if (!creq)
++		return -ENOMEM;
++
++	creq->type = cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_CRYPTO_KEYSLOT_EVICT);
++
++	err = set_virtblk_crypto_key_desc(vblk->vdev, creq, key, slot);
++	if (err)
++		goto out_free;
++
++	sg_init_one(&type_sg, &creq->type, sizeof(creq->type));
++	sg_init_one(&out_req_sg, &creq->out_req.key_desc, sizeof(creq->out_req.key_desc));
++	sg_init_one(&status_sg, &creq->status, sizeof(creq->status));
++	sgs[0] = &type_sg;
++	sgs[1] = &out_req_sg;
++	sgs[2] = &status_sg;
++
++	err = virtblk_ctrl_vq_request(vblk, creq, sgs, 2, 1);
++	if (err)
++		goto out_free;
++
++	err = blk_status_to_errno(virtblk_result(creq->status));
++out_free:
++	kfree(creq);
++	return err;
++}
++
++static int virtblk_crypto_derive_sw_secret(struct blk_crypto_profile *profile,
++					    const u8 *eph_key, size_t eph_key_size,
++					    u8 sw_secret[BLK_CRYPTO_SW_SECRET_SIZE])
++{
++	struct virtio_blk *vblk = virtblk_from_profile(profile);
++	struct scatterlist type_sg, out_req_sg, resp_sg, status_sg, *sgs[4];
++	struct virtblk_ctrl_request *creq;
++	int err;
++
++	if (eph_key_size > VIRTIO_BLK_CRYPTO_MAX_KEY_SIZE
++	    || sizeof(creq->in_resp.secret.secret) < BLK_CRYPTO_SW_SECRET_SIZE)
++		return -EOVERFLOW;
++
++	creq = kzalloc_obj(*creq, GFP_KERNEL);
++	if (!creq)
++		return -ENOMEM;
++
++	creq->type = cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_CRYPTO_DERIVE_SW_SECRET);
++	memcpy(creq->out_req.blob.key, eph_key, eph_key_size);
++	creq->out_req.blob.key_size = cpu_to_virtio32(vblk->vdev, eph_key_size);
++
++	sg_init_one(&type_sg, &creq->type, sizeof(creq->type));
++	sg_init_one(&out_req_sg, &creq->out_req.blob, sizeof(creq->out_req.blob));
++	sg_init_one(&resp_sg, &creq->in_resp.secret, sizeof(creq->in_resp.secret));
++	sg_init_one(&status_sg, &creq->status, sizeof(creq->status));
++	sgs[0] = &type_sg;
++	sgs[1] = &out_req_sg;
++	sgs[2] = &resp_sg;
++	sgs[3] = &status_sg;
++
++	err = virtblk_ctrl_vq_request(vblk, creq, sgs, 2, 2);
++	if (err)
++		goto out_free;
++
++	err = blk_status_to_errno(virtblk_result(creq->status));
++	if (err)
++		goto out_free;
++
++	memcpy(sw_secret, creq->in_resp.secret.secret, BLK_CRYPTO_SW_SECRET_SIZE);
++out_free:
++	kfree(creq);
++	return err;
++}
++
++static int virtblk_crypto_generate_key(struct blk_crypto_profile *profile,
++					u8 lt_key[BLK_CRYPTO_MAX_HW_WRAPPED_KEY_SIZE])
++{
++	struct virtio_blk *vblk = virtblk_from_profile(profile);
++	struct scatterlist type_sg, resp_sg, status_sg, *sgs[3];
++	struct virtblk_ctrl_request *creq;
++	unsigned int key_size;
++	int err;
++
++	creq = kzalloc_obj(*creq, GFP_KERNEL);
++	if (!creq)
++		return -ENOMEM;
++
++	creq->type = cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_CRYPTO_GENERATE_KEY);
++
++	sg_init_one(&type_sg, &creq->type, sizeof(creq->type));
++	sg_init_one(&resp_sg, &creq->in_resp.blob, sizeof(creq->in_resp.blob));
++	sg_init_one(&status_sg, &creq->status, sizeof(creq->status));
++	sgs[0] = &type_sg;
++	sgs[1] = &resp_sg;
++	sgs[2] = &status_sg;
++
++	err = virtblk_ctrl_vq_request(vblk, creq, sgs, 1, 2);
++	if (err)
++		goto out_free;
++
++	err = blk_status_to_errno(virtblk_result(creq->status));
++	if (err)
++		goto out_free;
++
++	key_size = virtio32_to_cpu(vblk->vdev, creq->in_resp.blob.key_size);
++	if (!key_size ||
++		key_size > BLK_CRYPTO_MAX_HW_WRAPPED_KEY_SIZE) {
++		dev_err(&vblk->vdev->dev,
++			"backend returned oversized generated key: %u\n", key_size);
++		err = -EOVERFLOW;
++		goto out_free;
++	}
++	memcpy(lt_key, creq->in_resp.blob.key, key_size);
++	err = key_size;
++out_free:
++	kfree(creq);
++	return err;
++}
++
++static int virtblk_crypto_prepare_key(struct blk_crypto_profile *profile,
++				       const u8 *lt_key, size_t lt_key_size,
++				       u8 eph_key[BLK_CRYPTO_MAX_HW_WRAPPED_KEY_SIZE])
++{
++	struct virtio_blk *vblk = virtblk_from_profile(profile);
++	struct scatterlist type_sg, out_req_sg, resp_sg, status_sg, *sgs[4];
++	struct virtblk_ctrl_request *creq;
++	unsigned int key_size;
++	int err;
++
++	if (lt_key_size > VIRTIO_BLK_CRYPTO_MAX_KEY_SIZE)
++		return -EOVERFLOW;
++
++	creq = kzalloc_obj(*creq, GFP_KERNEL);
++	if (!creq)
++		return -ENOMEM;
++
++	creq->type = cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_CRYPTO_PREPARE_KEY);
++	memcpy(creq->out_req.blob.key, lt_key, lt_key_size);
++	creq->out_req.blob.key_size = cpu_to_virtio32(vblk->vdev, lt_key_size);
++
++	sg_init_one(&type_sg, &creq->type, sizeof(creq->type));
++	sg_init_one(&out_req_sg, &creq->out_req.blob, sizeof(creq->out_req.blob));
++	sg_init_one(&resp_sg, &creq->in_resp.blob, sizeof(creq->in_resp.blob));
++	sg_init_one(&status_sg, &creq->status, sizeof(creq->status));
++	sgs[0] = &type_sg;
++	sgs[1] = &out_req_sg;
++	sgs[2] = &resp_sg;
++	sgs[3] = &status_sg;
++
++	err = virtblk_ctrl_vq_request(vblk, creq, sgs, 2, 2);
++	if (err)
++		goto out_free;
++
++	err = blk_status_to_errno(virtblk_result(creq->status));
++	if (err)
++		goto out_free;
++
++	key_size = virtio32_to_cpu(vblk->vdev, creq->in_resp.blob.key_size);
++	if (!key_size ||
++		key_size > BLK_CRYPTO_MAX_HW_WRAPPED_KEY_SIZE) {
++		dev_err(&vblk->vdev->dev,
++			"backend returned oversized prepared key: %u\n", key_size);
++		err = -EOVERFLOW;
++		goto out_free;
++	}
++	memcpy(eph_key, creq->in_resp.blob.key, key_size);
++	err = key_size;
++out_free:
++	kfree(creq);
++	return err;
++}
++
++static int virtblk_crypto_import_key(struct blk_crypto_profile *profile,
++				      const u8 *raw_key, size_t raw_key_size,
++				      u8 lt_key[BLK_CRYPTO_MAX_HW_WRAPPED_KEY_SIZE])
++{
++	struct virtio_blk *vblk = virtblk_from_profile(profile);
++	struct scatterlist type_sg, out_req_sg, resp_sg, status_sg, *sgs[4];
++	struct virtblk_ctrl_request *creq;
++	unsigned int key_size;
++	int err;
++
++	if (raw_key_size > VIRTIO_BLK_CRYPTO_MAX_KEY_SIZE)
++		return -EOVERFLOW;
++
++	creq = kzalloc_obj(*creq, GFP_KERNEL);
++	if (!creq)
++		return -ENOMEM;
++
++	creq->type = cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_CRYPTO_IMPORT_KEY);
++	memcpy(creq->out_req.blob.key, raw_key, raw_key_size);
++	creq->out_req.blob.key_size = cpu_to_virtio32(vblk->vdev, raw_key_size);
++
++	sg_init_one(&type_sg, &creq->type, sizeof(creq->type));
++	sg_init_one(&out_req_sg, &creq->out_req.blob, sizeof(creq->out_req.blob));
++	sg_init_one(&resp_sg, &creq->in_resp.blob, sizeof(creq->in_resp.blob));
++	sg_init_one(&status_sg, &creq->status, sizeof(creq->status));
++	sgs[0] = &type_sg;
++	sgs[1] = &out_req_sg;
++	sgs[2] = &resp_sg;
++	sgs[3] = &status_sg;
++
++	err = virtblk_ctrl_vq_request(vblk, creq, sgs, 2, 2);
++	if (err)
++		goto out_free;
++
++	err = blk_status_to_errno(virtblk_result(creq->status));
++	if (err)
++		goto out_free;
++
++	key_size = virtio32_to_cpu(vblk->vdev, creq->in_resp.blob.key_size);
++	if (!key_size ||
++		key_size > BLK_CRYPTO_MAX_HW_WRAPPED_KEY_SIZE) {
++		dev_err(&vblk->vdev->dev,
++			"backend returned oversized imported key: %u\n", key_size);
++		err = -EOVERFLOW;
++		goto out_free;
++	}
++	memcpy(lt_key, creq->in_resp.blob.key, key_size);
++	err = key_size;
++out_free:
++	kfree(creq);
++	return err;
++}
++
++static const struct blk_crypto_ll_ops virtblk_crypto_ops = {
++	.keyslot_program	= virtblk_crypto_keyslot_program,
++	.keyslot_evict		= virtblk_crypto_keyslot_evict,
++	.derive_sw_secret	= virtblk_crypto_derive_sw_secret,
++	.generate_key		= virtblk_crypto_generate_key,
++	.prepare_key		= virtblk_crypto_prepare_key,
++	.import_key		= virtblk_crypto_import_key,
++};
++
++static int virtblk_init_crypto(struct virtio_blk *vblk)
++{
++	struct virtio_device *vdev = vblk->vdev;
++	unsigned int crypto_modes_supported[BLK_ENCRYPTION_MODE_MAX] = { 0 };
++	unsigned int key_type_supported = 0;
++	u16 max_slots = 0;
++	/* virtio_cread() requires the variable size to match the config field exactly */
++	u8 max_dun_bytes = 0, key_types = 0;
++	int err;
++
++	virtio_cread(vdev, struct virtio_blk_config,
++		     enc_characteristics.max_slots, &max_slots);
++	virtio_cread(vdev, struct virtio_blk_config,
++		     enc_characteristics.max_dun_bytes, &max_dun_bytes);
++	virtio_cread(vdev, struct virtio_blk_config,
++		     enc_characteristics.key_types, &key_types);
++
++	dev_info_once(&vdev->dev,
++		 "max_slots = %u, max_dun_bytes = %u, key_types = 0x%x\n",
++		 max_slots, max_dun_bytes, key_types);
++
++	if (!max_slots)
++		return -EINVAL;
++
++	/*
++	 * struct virtio_blk_crypto_msg.dun is a fixed array of four __virtio64
++	 * values (32 bytes total), matching the size of
++	 * blk_crypto_ctx::bc_dun[4].  Refuse to advertise more than that as
++	 * supported, or blk-crypto could negotiate a larger dun_bytes with the
++	 * filesystem and have the high-order bytes of req->crypt_ctx->bc_dun
++	 * silently dropped in virtblk_setup_cmd().
++	 */
++	if (max_dun_bytes > sizeof_field(struct virtio_blk_crypto_msg, dun))
++		return -EINVAL;
++
++	if (key_types & VIRTIO_BLK_CRYPTO_KEY_TYPE_RAW)
++		key_type_supported |= BLK_CRYPTO_KEY_TYPE_RAW;
++	if (key_types & VIRTIO_BLK_CRYPTO_KEY_TYPE_HW_WRAPPED)
++		key_type_supported |= BLK_CRYPTO_KEY_TYPE_HW_WRAPPED;
++	if (!key_type_supported)
++		return -EINVAL;
++
++	err = virtblk_get_crypto_modes(vblk, crypto_modes_supported);
 +	if (err) {
-+		mutex_unlock(&vblk->ctrl_vq.mutex);
++		dev_err(&vdev->dev, "get crypto modes failed: %d\n", err);
 +		return err;
 +	}
 +
-+	wait_for_completion(&creq->compl);
-+	mutex_unlock(&vblk->ctrl_vq.mutex);
++	/*
++	 * Use the plain (non-devm) initializer: vblk->profile is embedded in
++	 * struct virtio_blk, whose lifetime is tied to the gendisk, not to
++	 * &vdev->dev. Tying destruction to the vdev via devm would run the
++	 * destroy callback after virtblk_remove() has already freed vblk.
++	 * virtblk_free_disk() calls blk_crypto_profile_destroy() explicitly
++	 * instead, guarded by crypto_profile_initialized below.
++	 */
++	err = blk_crypto_profile_init(&vblk->profile, max_slots);
++	if (err) {
++		dev_err(&vdev->dev, "crypto profile initialization failed: %d\n", err);
++		return err;
++	}
++
++	vblk->profile.ll_ops = virtblk_crypto_ops;
++	vblk->profile.max_dun_bytes_supported = max_dun_bytes;
++	vblk->profile.key_types_supported = key_type_supported;
++	vblk->profile.dev = &vdev->dev;
++	memcpy(vblk->profile.modes_supported, crypto_modes_supported,
++	       BLK_ENCRYPTION_MODE_MAX * sizeof(unsigned int));
++
++	vblk->crypto_profile_initialized = true;
++
++	dev_info(&vdev->dev, "inline crypto profile initialized\n");
++
 +	return 0;
 +}
++
++static void virtblk_destroy_crypto(struct virtio_blk *vblk)
++{
++	if (vblk->crypto_profile_initialized)
++		blk_crypto_profile_destroy(&vblk->profile);
++}
++#else
++
++static inline int virtblk_init_crypto(struct virtio_blk *vblk)
++{
++	return -EOPNOTSUPP;
++}
++
++static inline void virtblk_destroy_crypto(struct virtio_blk *vblk)
++{
++}
++#endif /* CONFIG_VIRTIO_BLK_INLINE_ENCRYPTION */
 +
  static void virtblk_free_disk(struct gendisk *disk)
  {
  	struct virtio_blk *vblk = disk->private_data;
  
  	ida_free(&vd_index_ida, vblk->index);
-+	mutex_destroy(&vblk->ctrl_vq.mutex);
++	virtblk_destroy_crypto(vblk);
+ 	mutex_destroy(&vblk->ctrl_vq.mutex);
  	mutex_destroy(&vblk->vdev_mutex);
  	kfree(vblk);
- }
-@@ -965,6 +1104,8 @@ static int init_vq(struct virtio_blk *vblk)
- 	struct virtqueue **vqs;
- 	unsigned short num_vqs;
- 	unsigned short num_poll_vqs;
-+	unsigned short total_vqs;
-+	bool has_ctrl_vq;
- 	struct virtio_device *vdev = vblk->vdev;
- 	struct irq_affinity desc = { 0, };
- 
-@@ -993,12 +1134,19 @@ static int init_vq(struct virtio_blk *vblk)
- 				vblk->io_queues[HCTX_TYPE_READ],
- 				vblk->io_queues[HCTX_TYPE_POLL]);
- 
-+	/*
-+	 * The control vq is appended after the data vqs whenever
-+	 * F_CTRL_VQ is negotiated.
-+	 */
-+	has_ctrl_vq = virtio_has_feature(vdev, VIRTIO_BLK_F_CTRL_VQ);
-+	total_vqs = num_vqs + (has_ctrl_vq ? 1 : 0);
-+
- 	vblk->vqs = kmalloc_objs(*vblk->vqs, num_vqs);
- 	if (!vblk->vqs)
- 		return -ENOMEM;
- 
--	vqs_info = kzalloc_objs(*vqs_info, num_vqs);
--	vqs = kmalloc_objs(*vqs, num_vqs);
-+	vqs_info = kzalloc_objs(*vqs_info, total_vqs);
-+	vqs = kmalloc_objs(*vqs, total_vqs);
- 	if (!vqs_info || !vqs) {
- 		err = -ENOMEM;
- 		goto out;
-@@ -1015,8 +1163,13 @@ static int init_vq(struct virtio_blk *vblk)
- 		vqs_info[i].name = vblk->vqs[i].name;
+@@ -1698,6 +2232,19 @@ static int virtblk_probe(struct virtio_device *vdev)
+ 		err = blk_revalidate_disk_zones(vblk->disk);
+ 		if (err)
+ 			goto out_cleanup_disk;
++	} else if (IS_ENABLED(CONFIG_VIRTIO_BLK_INLINE_ENCRYPTION) &&
++		   virtio_has_feature(vdev, VIRTIO_BLK_F_INLINE_ENCRYPTION) &&
++		   virtio_has_feature(vdev, VIRTIO_BLK_F_CTRL_VQ)) {
++		err = virtblk_init_crypto(vblk);
++		if (!err) {
++			if (!blk_crypto_register(&vblk->profile, vblk->disk->queue))
++				dev_warn(&vdev->dev,
++					 "failed to register inline crypto profile\n");
++		} else {
++			dev_warn(&vdev->dev,
++				 "inline crypto init failed: %d, continuing without inline crypto support\n",
++				 err);
++		}
  	}
  
-+	if (has_ctrl_vq) {
-+		vqs_info[num_vqs].callback = virtblk_ctrlq_callback;
-+		vqs_info[num_vqs].name = "control";
-+	}
+ 	err = device_add_disk(&vdev->dev, vblk->disk, virtblk_attr_groups);
+@@ -1798,6 +2345,9 @@ static int virtblk_restore_priv(struct virtio_device *vdev)
+ 	virtio_device_ready(vdev);
+ 	blk_mq_unquiesce_queue(vblk->disk->queue);
+ 
++	if (vblk->profile.slots)
++		blk_crypto_reprogram_all_keys(&vblk->profile);
 +
- 	/* Discover virtqueues and write information to configuration.  */
--	err = virtio_find_vqs(vdev, num_vqs, vqs, vqs_info, &desc);
-+	err = virtio_find_vqs(vdev, total_vqs, vqs, vqs_info, &desc);
- 	if (err)
- 		goto out;
- 
-@@ -1025,6 +1178,9 @@ static int init_vq(struct virtio_blk *vblk)
- 		vblk->vqs[i].vq = vqs[i];
- 	}
- 	vblk->num_vqs = num_vqs;
-+	vblk->ctrl_vq.vq = has_ctrl_vq ? vqs[num_vqs] : NULL;
-+	vblk->ctrl_vq.dead = false;
-+	vblk->ctrl_vq.inflight = 0;
- 
- out:
- 	kfree(vqs);
-@@ -1464,14 +1620,18 @@ static int virtblk_probe(struct virtio_device *vdev)
- 	}
- 
- 	mutex_init(&vblk->vdev_mutex);
-+	mutex_init(&vblk->ctrl_vq.mutex);
-+	spin_lock_init(&vblk->ctrl_vq.lock);
- 
- 	vblk->vdev = vdev;
- 
- 	INIT_WORK(&vblk->config_work, virtblk_config_changed_work);
- 
- 	err = init_vq(vblk);
--	if (err)
-+	if (err) {
-+		dev_err(&vdev->dev, "init virt queue failed: err = %d\n", err);
- 		goto out_free_vblk;
-+	}
- 
- 	/* Default queue sizing is to fill the ring. */
- 	if (!virtblk_queue_depth) {
-@@ -1553,6 +1713,7 @@ static int virtblk_probe(struct virtio_device *vdev)
- out_free_vq:
- 	vdev->config->del_vqs(vdev);
- 	kfree(vblk->vqs);
-+	vblk->ctrl_vq.vq = NULL;
- out_free_vblk:
- 	kfree(vblk);
- out_free_index:
-@@ -1571,16 +1732,21 @@ static void virtblk_remove(struct virtio_device *vdev)
- 	del_gendisk(vblk->disk);
- 	blk_mq_free_tag_set(&vblk->tag_set);
- 
-+	virtblk_ctrl_vq_quiesce(vblk);
-+
- 	mutex_lock(&vblk->vdev_mutex);
- 
- 	/* Stop all the virtqueues. */
- 	virtio_reset_device(vdev);
-+	virtblk_ctrl_vq_drain(vblk);
- 
- 	/* Virtqueues are stopped, nothing can use vblk->vdev anymore. */
- 	vblk->vdev = NULL;
- 
- 	vdev->config->del_vqs(vdev);
- 	kfree(vblk->vqs);
-+	vblk->vqs = NULL;
-+	vblk->ctrl_vq.vq = NULL;
- 
- 	mutex_unlock(&vblk->vdev_mutex);
- 
-@@ -1593,6 +1759,8 @@ static int virtblk_freeze_priv(struct virtio_device *vdev)
- 	struct request_queue *q = vblk->disk->queue;
- 	unsigned int memflags;
- 
-+	virtblk_ctrl_vq_quiesce(vblk);
-+
- 	/* Ensure no requests in virtqueues before deleting vqs. */
- 	memflags = blk_mq_freeze_queue(q);
- 	blk_mq_quiesce_queue_nowait(q);
-@@ -1600,6 +1768,7 @@ static int virtblk_freeze_priv(struct virtio_device *vdev)
- 
- 	/* Ensure we don't receive any more interrupts */
- 	virtio_reset_device(vdev);
-+	virtblk_ctrl_vq_drain(vblk);
- 
- 	/* Make sure no work handler is accessing the device. */
- 	flush_work(&vblk->config_work);
-@@ -1612,6 +1781,7 @@ static int virtblk_freeze_priv(struct virtio_device *vdev)
- 	 * pointers safely.
- 	 */
- 	vblk->vqs = NULL;
-+	vblk->ctrl_vq.vq = NULL;
- 
  	return 0;
  }
-@@ -1672,6 +1842,7 @@ static unsigned int features[] = {
+ 
+@@ -1842,7 +2392,7 @@ static unsigned int features[] = {
  	VIRTIO_BLK_F_FLUSH, VIRTIO_BLK_F_TOPOLOGY, VIRTIO_BLK_F_CONFIG_WCE,
  	VIRTIO_BLK_F_MQ, VIRTIO_BLK_F_DISCARD, VIRTIO_BLK_F_WRITE_ZEROES,
  	VIRTIO_BLK_F_SECURE_ERASE, VIRTIO_BLK_F_ZONED,
-+	VIRTIO_BLK_F_CTRL_VQ,
+-	VIRTIO_BLK_F_CTRL_VQ,
++	VIRTIO_BLK_F_CTRL_VQ, VIRTIO_BLK_F_INLINE_ENCRYPTION,
  };
  
  static struct virtio_driver virtio_blk = {
 diff --git a/include/uapi/linux/virtio_blk.h b/include/uapi/linux/virtio_blk.h
-index 3744e4da1b2a..0a16972a1535 100644
+index 0a16972a1535..952534e2b489 100644
 --- a/include/uapi/linux/virtio_blk.h
 +++ b/include/uapi/linux/virtio_blk.h
-@@ -42,6 +42,7 @@
- #define VIRTIO_BLK_F_WRITE_ZEROES	14	/* WRITE ZEROES is supported */
+@@ -43,6 +43,7 @@
  #define VIRTIO_BLK_F_SECURE_ERASE	16 /* Secure Erase is supported */
  #define VIRTIO_BLK_F_ZONED		17	/* Zoned block device */
-+#define VIRTIO_BLK_F_CTRL_VQ			22	/* Control queue */
+ #define VIRTIO_BLK_F_CTRL_VQ			22	/* Control queue */
++#define VIRTIO_BLK_F_INLINE_ENCRYPTION		23	/* Inline encryption */
  
  /* Legacy feature bits */
  #ifndef VIRTIO_BLK_NO_LEGACY
+@@ -58,6 +59,10 @@
+ 
+ #define VIRTIO_BLK_ID_BYTES	20	/* ID string length */
+ 
++/* Key type bitmask for VIRTIO_BLK_F_INLINE_ENCRYPTION */
++#define VIRTIO_BLK_CRYPTO_KEY_TYPE_RAW	(1 << 0)
++#define VIRTIO_BLK_CRYPTO_KEY_TYPE_HW_WRAPPED	(1 << 1)
++
+ struct virtio_blk_config {
+ 	/* The capacity (in 512-byte sectors). */
+ 	__virtio64 capacity;
+@@ -149,6 +154,15 @@ struct virtio_blk_config {
+ 		__u8 model;
+ 		__u8 unused2[3];
+ 	} zoned;
++
++	/* Inline Encryption device characteristics (if VIRTIO_BLK_F_INLINE_ENCRYPTION) */
++	struct virtio_blk_enc_characteristics {
++		__virtio16 max_slots;
++		__u8 max_dun_bytes;
++		/* Bitmask of supported key types: VIRTIO_BLK_CRYPTO_KEY_TYPE_* */
++		__u8 key_types;
++		__virtio32 unused3;
++	} enc_characteristics;
+ } __attribute__((packed));
+ 
+ /*
+@@ -207,6 +221,33 @@ struct virtio_blk_config {
+ /* Reset All zones command */
+ #define VIRTIO_BLK_T_ZONE_RESET_ALL 26
+ 
++/* Inline-encrypted write: crypto_msg set in outhdr */
++#define VIRTIO_BLK_T_CRYPTO_OUT		27
++
++/* Inline-encrypted read: crypto_msg set in outhdr */
++#define VIRTIO_BLK_T_CRYPTO_IN		28
++
++/* Get inline crypto modes */
++#define VIRTIO_BLK_T_GET_CRYPTO_MODES	29
++
++/* Program a key into the keyslot */
++#define VIRTIO_BLK_T_CRYPTO_KEYSLOT_PROGRAM	30
++
++/* Evict a key */
++#define VIRTIO_BLK_T_CRYPTO_KEYSLOT_EVICT	31
++
++/* Derive the software secret from a hardware-wrapped key */
++#define VIRTIO_BLK_T_CRYPTO_DERIVE_SW_SECRET	32
++
++/* Generate a new hardware-wrapped key */
++#define VIRTIO_BLK_T_CRYPTO_GENERATE_KEY	33
++
++/* Import a raw key as a hardware-wrapped key */
++#define VIRTIO_BLK_T_CRYPTO_IMPORT_KEY		34
++
++/* Convert a long-term wrapped key to its ephemerally-wrapped form */
++#define VIRTIO_BLK_T_CRYPTO_PREPARE_KEY	35
++
+ #ifndef VIRTIO_BLK_NO_LEGACY
+ /* Barrier before this op. */
+ #define VIRTIO_BLK_T_BARRIER	0x80000000
+@@ -226,6 +267,80 @@ struct virtio_blk_outhdr {
+ 	__virtio64 sector;
+ };
+ 
++/*
++ * Crypto message descriptor, appended to the outhdr of a
++ * VIRTIO_BLK_T_CRYPTO_OUT or VIRTIO_BLK_T_CRYPTO_IN request.
++ */
++struct virtio_blk_crypto_msg {
++	/* virtual key slot index */
++	__virtio32 slot;
++	__u8 unused[4];
++	/* data unit number (DUN / IV) for this request */
++	__virtio64 dun[4];
++};
++
++/*
++ * Inline crypto key descriptor. Request part for
++ * VIRTIO_BLK_T_CRYPTO_KEYSLOT_PROGRAM/KEYSLOT_EVICT.
++ */
++/* Must be >= BLK_CRYPTO_MAX_HW_WRAPPED_KEY_SIZE in include/linux/blk-crypto.h */
++#define VIRTIO_BLK_CRYPTO_MAX_KEY_SIZE		128
++
++struct virtio_blk_crypto_key_desc {
++	__virtio32  slot;
++	__u8        bytes[VIRTIO_BLK_CRYPTO_MAX_KEY_SIZE];
++	__virtio32  key_size;
++	__virtio32  crypto_mode;
++	__virtio32  key_type;
++	__virtio32  data_unit_size_bits;
++	__virtio32  dun_bytes;
++};
++
++/*
++ * A raw or hardware-wrapped key blob, used as the request and/or reply part
++ * of the VIRTIO_BLK_T_CRYPTO_GENERATE_KEY/IMPORT_KEY/PREPARE_KEY/
++ * DERIVE_SW_SECRET commands.
++ */
++struct virtio_blk_crypto_key_blob {
++	__virtio32 key_size;
++	__u8 key[VIRTIO_BLK_CRYPTO_MAX_KEY_SIZE];
++};
++
++/* Must match BLK_CRYPTO_SW_SECRET_SIZE in include/linux/blk-crypto.h */
++#define VIRTIO_BLK_CRYPTO_SW_SECRET_SIZE	32
++
++/* Reply to a VIRTIO_BLK_T_CRYPTO_DERIVE_SW_SECRET request. */
++struct virtio_blk_crypto_sw_secret {
++	__u8 secret[VIRTIO_BLK_CRYPTO_SW_SECRET_SIZE];
++};
++
++/*
++ * Crypto mode numbers used in VIRTIO_BLK_T_GET_CRYPTO_MODES replies and in
++ * indexing struct virtio_blk_crypto_modes.modes[] below. These numbers are
++ * assigned by the virtio spec and are stable: a number is never reused for
++ * a different crypto mode, and additional crypto modes are assigned new,
++ * higher numbers.
++ */
++enum {
++	VIRTIO_BLK_CRYPTO_MODE_INVALID,
++	VIRTIO_BLK_CRYPTO_MODE_AES_256_XTS,
++	__VIRTIO_BLK_CRYPTO_MODE_MAX,	/* sentinel: always one past the last real mode */
++};
++
++/* Highest crypto mode number defined by this version of the header. */
++#define VIRTIO_BLK_CRYPTO_MODE_MAX (__VIRTIO_BLK_CRYPTO_MODE_MAX - 1)
++
++/* Reply to a VIRTIO_BLK_T_GET_CRYPTO_MODES request. */
++struct virtio_blk_crypto_modes {
++	/*
++	 * modes[N], for crypto mode number N <= VIRTIO_BLK_CRYPTO_MODE_MAX, is
++	 * a bitmask of the data unit sizes with which crypto mode N can be
++	 * used: bit i is set if a data unit size of (1 << i) bytes is
++	 * supported. modes[0] is reserved and always 0.
++	 */
++	__virtio32 modes[__VIRTIO_BLK_CRYPTO_MODE_MAX];
++};
++
+ /*
+  * Supported zoned device models.
+  */
 -- 
 2.34.1
 
