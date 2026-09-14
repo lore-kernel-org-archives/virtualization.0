@@ -1,64 +1,64 @@
-Received: from mail-pj2-f12.google.com (mail-pj2-f12.google.com [74.125.227.140])
+Received: from mail-pz2-f20.google.com (mail-pz2-f20.google.com [74.125.228.20])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F9A73D88FA
-	for <virtualization@lists.linux.dev>; Mon, 14 Sep 2026 13:31:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.140
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A53D4052A2
+	for <virtualization@lists.linux.dev>; Mon, 14 Sep 2026 13:36:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.20
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789392714; cv=none; b=LJnPAS6uoBerlvZCD2eb+ZKxTDTJWGhzsdnS+eJeRa0akVwVk/pGUTo2pwFR166b9yyqBytohFsmVZho/VZhid9jdIZue5YAAP1j5PBL6CV1PeUHj0OJ6+vNzLeAp1Fws7nnhhmIq4re269h2+RXEnNUK24vrpm5i/34c0wFS9U=
+	t=1789392989; cv=none; b=CQ8E8XwncSOw8Vn62V6qVhdjz7uQuCngHlJd9enhYeVwSzP93+reZBeYadF8eXqt3/tf/qh57VLxLcfhC8to8qrQyAmrLna09y5b8h+YMlC7irL5O/YzsV2LSpKGmcd3HYpulfmWed2dEfsoAZtZiocA6rFQCw+dyc28IR7t4VM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789392714; c=relaxed/simple;
-	bh=bMsdMvSus7U2Fs9+6bR7h1oluEPI74JhEILnfWIGtj0=;
+	s=arc-20240116; t=1789392989; c=relaxed/simple;
+	bh=/meGI1Tm/tBlcwjTqS5kgSZy411s5gxaStb0PgqmkWw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ZDE2CGQG4yHdsx7pYW8rJio0FbFRXe/QSdr9ZNhxR5Lz88+A4kWoLHwhK1npKvfapXZzKCqESQE+t6wgYVDw02z2KbqtQx/vf2CICWrl5lrn08R34qAmUnnHhafgz8YfcnrEaPUrEiAYa2A02WassX+qzBX9hg/Nswp5XfdIFrI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qacJh03g; arc=none smtp.client-ip=74.125.227.140
+	 MIME-Version; b=j6CpanE1i6eWzQZrFn0LayjY0zPHzWwnfN0EJCVYpQLBOVpbbQHj9vBk+kZ0becbWsayTJT3mCgYsF2PBpvqfFafJ64mfm+EYU//TJIBwG4WrmZiuw9ULqWjrDG912jnRpr5u+wcNtoBQwx6m7H7Evy9WclMycaZCibIvhOUSng=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SIsgfOOg; arc=none smtp.client-ip=74.125.228.20
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qacJh03g"
-Received: by mail-pj2-f12.google.com with SMTP id d9443c01a7336-2d8fe517774so26314495ad.0
-        for <virtualization@lists.linux.dev>; Mon, 14 Sep 2026 06:31:53 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SIsgfOOg"
+Received: by mail-pz2-f20.google.com with SMTP id 41be03b00d2f7-cc4ae61629fso1439370a12.2
+        for <virtualization@lists.linux.dev>; Mon, 14 Sep 2026 06:36:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789392712; x=1789997512; darn=lists.linux.dev;
+        d=gmail.com; s=20251104; t=1789392987; x=1789997787; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=msYkVtDkbmBFevf86iAldrO7owfuyjwEGQdpBpjsguY=;
-        b=qacJh03gO9ObdEylQImFU072F0b+3F3O5IDxgiHt7qPAPG9G/oFPvhWugjTipEndBH
-         V0lMi5ZChINyJiJhSawuDNd+cns47NWml2fq5R63Mk8o9Y567n7AJYMu8xG4ANCv1WN9
-         Fm6cQBMinRRc8ZUZE6tE3Iv4Wj/56FD8tLmFFE2FXl18Pw4ts1NEPY0rJdpuo4YxKdQI
-         X5z9c+I/8uv7eMoGQhGDbgOqVbQxzjZFGa72V04ZFkemKzivsCsit0utERFnePgxVDjY
-         qQ6SXz4jt91wCmMpxsrTQFuM7ORM6ymEVL0nQnzZ3vdJgUh7Lk18LRI8ynoQf2MTEWcW
-         DCPA==
+        bh=kcAESydmQLFB9r6OKjQ0xxj/qfnH2J6wLUt6Y4fcG04=;
+        b=SIsgfOOgMeRIntVS92BSP/pTqCd41iIsHxz6+VshjzZhPUn6fHVPRE9NKeZhBCFcLi
+         UGNWPhd5W7m5Zr0wSEwFGwAjc+hW4je6+YORBJXvhJyvVzSLqQC/1ThfpwooQ8paObEb
+         mAQVevIDZ6DO078nSko41fVklTMYKWYCZ6hsPiMm8vpRIWAQRemrVDlpmIRd54DlUINI
+         Vk5K4gE1WEAjA0Nom0UQtOgQk3wRIWGzS61NyZxASoaowbA+vSU1lyG70O/eA/Cr2Z2/
+         6413Sv0YAxO6r4jPb7I76G6KabcNu59Zefcbw7RCLb1cc7B3KAaJQ7apEYUYeryXj4dC
+         1A5g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789392712; x=1789997512;
+        d=1e100.net; s=20251104; t=1789392987; x=1789997787;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=msYkVtDkbmBFevf86iAldrO7owfuyjwEGQdpBpjsguY=;
-        b=GQg9InrBjlZyWl55ZIR/tJJeKosCKWvbx1ZKZnzQeN3BZYPtdBiRL8S3SoNWtE9iH9
-         6/6I5PdXMCdiaoQvsjExmarGFBiTmJSUzZjH27vcUzpLdWsOi3EVdGsjtRT6Ag7Ow9PO
-         1mta0sdVJkkROpDvMHWg9fYJndhmz4PXk8t/K/Vn5audN1byQlyDfC51TR5hxCcn0nGt
-         xDdODEUj+E2/waKJMZKk3Z7tQfYdp8zMu0UWscQysejP+wAOh4iesqRqRydYFS4Yys6w
-         QFHILD76JT1qyLxCca3CUnySnKRN0ZDkLHOdNBZ19JTl6iNedhQoYDTpJypit9aGKzuK
-         fsZw==
-X-Forwarded-Encrypted: i=1; AKwUvBxBkK4nD/mRzL6B/KcU0YzvQn0sXlQvxvym3xDQ1eXV5XfsBc29R6pl+bqyZ6WSO9yH2ccHgh3QuXEuIEIoCA==@lists.linux.dev
-X-Gm-Message-State: AFuF++mgILtHYNlJ0pT5d5mZx23SVA+LVaD1qLNQP7p4M0nlqXUUU/p5
-	CLHNx+ggZGNRRe96jKrr+sbhs1PBgIsZmhBCiV7D5nDeuW3kXeonelIS
-X-Gm-Gg: AYBFou147zIYFu3De4RhXnVd6/lkv1wJsZG9biZ7n6EoFf0TGVMfUvb4T4256G6FWl6
-	wM1fEsZwkjK2s18MpLXIeL4HiFQ6JT/iaaSha6AoAa+Gklz2o5geZiHjBT73pPl5ni+5MohSfIq
-	2M9gso4xt67Pd+3D/s5+CD+1H/9rdzbeZTtXYUNDjA/DMhKT/M5YaubkkCrNQzb4J87bGifPpZi
-	BoEWMJTBNFH7rsGiUfgDfl5Z4dhSA6TUMSr7Eqafna+DsF9JT7HyUYoVv+ApR3RTMmm98vC76DN
-	HBRVDyOPgSsoxeofHKwtsEFkYLnnemVVZiBmpywWwUwmDY2O2ANKYrJ9/w82V7IFADfzhgwVXDq
-	FYpxVgOH2TllI/1iAvVkJdOvTte4OqYbGJyAPdTE6zFmguTkDU9Jhbp4XCj8ZGFKgnh6Ix7wSod
-	0TRS4/zRs4wrWe127Mct/u0qH1dtjlXJ8vL/RC4o6F5/S2ABssbgaNPC7xvwda6wr31oqQOehOQ
-	iRrt8W4IEV5B1rKIg==
-X-Received: by 2002:a17:903:94e:b0:2db:117e:cf50 with SMTP id d9443c01a7336-2dd6c5bfe2bmr63442775ad.4.1789392712534;
-        Mon, 14 Sep 2026 06:31:52 -0700 (PDT)
+        bh=kcAESydmQLFB9r6OKjQ0xxj/qfnH2J6wLUt6Y4fcG04=;
+        b=hN3yXWp8u/6jXKmby1xlRG20oBnztKGDEBy/k2kH9YUrv0y2R62f+ZT3C/jmpeCTjW
+         5uY4jGwleB3Rg2tIC4kFHICqXivLt6Udx4l63mg6m6Jy6ErsOZkM7zGhka0ASIetW6ay
+         +NFp10/znuHKD26Dq9fcPZQrrJkL/hKMslySMV6dahKI+FElqXPSilIi4UO0dbmyGcmK
+         maJ4CNYlLqEqbVZ+OgOD82WtgQ2F8s3QhklDOCTqAS8cYy57MSQQm6UJZzf/zJVLGrNL
+         kzuNvUyIAz7x98zJTE3WNMVJ/TTTtKIKFgLb6kfyzr722xm8g0qFUT0wru7s2nNe8kkq
+         WmpQ==
+X-Forwarded-Encrypted: i=1; AKwUvBzlGBrw3GUYfb7H8D2w50gR/VXrksV5sKm5ibDY+cqgnqGy4PywQ1bCU0D8T0l92OyZfTpymX9WJ/6sPkvksg==@lists.linux.dev
+X-Gm-Message-State: AFuF++mVBdwk+PChRfVWldecZOq+A1gFMb3B5lhdMb/C+2t+2MvXBMC8
+	kFsyzawjUwSVT4d5PZqPNeIN2BAe/PrWuYiOE6ogM9MZjyZbWdnifRdq
+X-Gm-Gg: AYBFou1fWD2Lo0IngdZhikJ1ykLPD59gF1T+PAU6TfKsmaB36QBpBB7FYlKGL0PYuwA
+	4BSsVd9wnKVqpONAwSYpfU2X03IWGM38r97S14z/G4Iaa+Wr6wThUQH/QLZROLUj9DOWAw6xoZ6
+	67V4MF55kdR8xk0WBgyWVDRopFbqG6BUidRljRIMqY0i9WpA1N95j03UacBhSj5l6M3vtzXvgFm
+	CeGiapa3Q4q/4c3bnO6sx+KL+R1lHtIC1OHQPBCE/3BXYgpJK+DA6G5caz2X4KeBUk4lPMxw/gw
+	eiFipjMTryXrJMNlh/kasu02OIGmzFn+3NxdI1sj4pnGPi3SA7THLC3iqkZSmRb9t4944i4wolC
+	201r5zdfYh+gcSoNuysD7kvgpTVVTgezUyG0b557aePk78DGwwQdalyizpmkhz4plef2cFW1GDq
+	qK32ThWp0SfbfwtUN7OisBftTyJ7ajIsoyWZNMZMSKSMao0Zbk4MdkY8vFQX1h0QzW7tX/fb+Tf
+	Z4NVLftiAreIv8cjw==
+X-Received: by 2002:a05:6a20:430f:b0:3da:6bdd:2c74 with SMTP id adf61e73a8af0-3db404bcbc1mr5150299637.10.1789392987256;
+        Mon, 14 Sep 2026 06:36:27 -0700 (PDT)
 Received: from thangnn-ASUS.. ([2405:4802:1d4a:e90:380f:6f8c:214d:70f7])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2dd2ceb1c94sm48433875ad.31.2026.09.14.06.31.48
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cc4c6549ec0sm5081489a12.15.2026.09.14.06.36.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Sep 2026 06:31:51 -0700 (PDT)
+        Mon, 14 Sep 2026 06:36:26 -0700 (PDT)
 From: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>
 To: Hannes Reinecke <hare@suse.de>
 Cc: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>,
@@ -73,12 +73,12 @@ Cc: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>,
 	linux-scsi@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	sashiko-bot@kernel.org
-Subject: [PATCH v2] scsi: virtio_scsi: implement eh_host_reset_handler
-Date: Mon, 14 Sep 2026 20:31:44 +0700
-Message-ID: <20260914133144.15509-1-ngocthang2710.1999@gmail.com>
+Subject: Re: [RFC PATCH] scsi: virtio_scsi: bound EH timer resets to avoid unkillable hang
+Date: Mon, 14 Sep 2026 20:36:20 +0700
+Message-ID: <20260914133620.15712-1-ngocthang2710.1999@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <28865bba-ac60-4c6e-aec8-64b1fcdb1c8f@suse.de>
-References: <20260911164417.33860-1-ngocthang2710.1999@gmail.com> <28865bba-ac60-4c6e-aec8-64b1fcdb1c8f@suse.de>
+References: <20260911163509.684191F000FF@smtp.kernel.org> <20260911164417.33860-1-ngocthang2710.1999@gmail.com> <28865bba-ac60-4c6e-aec8-64b1fcdb1c8f@suse.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -87,34 +87,33 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Once virtscsi_eh_timed_out() lets SCSI EH run on an unresponsive host,
-abort and device reset both fail the same way (same dead ctrl vq), and
-since virtio_scsi implements neither target nor bus reset, EH falls
-through to scsi_eh_offline_sdevs(), which frees the stuck commands' DMA
-buffers without any guarantee the device has actually stopped touching
-them. If bus mastering (or whatever broke the transport) comes back
-later, the device can still write into memory the kernel has already
-reused.
+On 9/14/26 11:17 AM, Hannes Reinecke wrote:
+> So the better fix would be to implement a host_reset() callback for
+> virtio-scsi which would reset the virtio setup, terminating all
+> outstanding commands and reset the queues.
 
-Add a real eh_host_reset_handler instead. virtio_reset_device() is the
-guarantee scsi_eh_offline_sdevs() was missing: once it returns, the
-device will not touch guest memory again, so it is safe to hand
-outstanding commands' buffers back. Reuse virtscsi_remove_vqs() +
-virtscsi_init() -- the exact sequence already used across
-suspend/resume -- to tear the virtqueues down and rebuild them.
+Thanks for the suggestion, Hannes -- that's exactly what the patch
+below does (also posted separately as [PATCH v2], Message-ID
+<20260914133144.15509-1-ngocthang2710.1999@gmail.com>; linking it back
+into this thread since the subject changed and a couple of mail
+clients won't merge the two threads on their own).
 
-Verified with a QEMU virtio-scsi repro (PCI_COMMAND_MASTER cleared
-mid-write): EH now runs abort -> device reset -> host reset -> abort ->
-device reset -> host reset -> offline, then dd's stuck fsync returns
-EIO and D-state drains to 0, in ~244s total. No task remains
-uninterruptibly blocked.
+It adds eh_host_reset_handler backed by virtio_reset_device(): once
+virtio_reset_device() returns, the device is guaranteed to have
+stopped touching guest memory, so it's safe to let
+scsi_eh_offline_sdevs() free the stuck commands' DMA buffers
+afterwards -- the guarantee that was missing before (falling through
+to offline with neither target, bus, nor host reset implemented).
+Reuses virtscsi_remove_vqs() + virtscsi_init(), the same
+teardown/rebuild sequence already used across suspend/resume.
+
+Verified against the same QEMU virtio-scsi repro (PCI_COMMAND_MASTER
+cleared mid-write): EH now runs abort -> device reset -> host reset ->
+abort -> device reset -> host reset -> offline, dd's stuck fsync
+returns EIO, D-state drains to 0, ~244s total.
 
 Suggested-by: Hannes Reinecke <hare@suse.de>
 Signed-off-by: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>
----
-v1 -> v2: implemented eh_host_reset_handler as suggested by Hannes
-Reinecke in review of the original RFC, instead of relying solely on
-the EH loop falling through to offline.
 ---
  drivers/scsi/virtio_scsi.c | 24 ++++++++++++++++++++++++
  1 file changed, 24 insertions(+)
@@ -171,3 +170,5 @@ index b4f20c487718..9698f4f91cc6 100644
 -- 
 2.43.0
 
+Thanks,
+Thang
