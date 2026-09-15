@@ -1,46 +1,46 @@
-Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
+Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE2A73B47DF;
-	Tue, 15 Sep 2026 13:16:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 469CE3B27E9;
+	Tue, 15 Sep 2026 13:15:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789478195; cv=none; b=ncImXzMqDfhSMYGFjyw38VRCHWITZ4FKDVDAefnMwye1R2hu/wtpUwRvlnZxRcndpz5qbu4zud4zRV+4WxqI2ESojMtx2XpdnIPe11zU05ZNzMlBj3XZVY+1N/VHSjhiDyE2WaP0Oo10K66DpSuQa1hbey0TqdbMij0QJ/M9ZfM=
+	t=1789478156; cv=none; b=e23uNdU0UD7YSx0OBWOhP6nNep04gOqqy+qlBQrWm/i8MySzOo0JW6+/eA/oAcBzTL2d7buG1Wv/jF1Xxe9RGgRzebMpnN41j4/+1CHS/ZCkAGAel6NWo1cnz/kCLNM61yD6Os5XGH+U3ZDrcfL1E9xVUgZTLVlU9p+lvsPTAdU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789478195; c=relaxed/simple;
-	bh=DxEAvBYs0BJ/VwmHJw7e2YAIz8OzlYW20LcmBo40dPQ=;
+	s=arc-20240116; t=1789478156; c=relaxed/simple;
+	bh=xu+mDwt11NCm5xRoNZThMHFCHRLE2/JxywDp9WKY6vw=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=VvjzOm+/5AgiQEzoXri63InCFzx+ftVvCzLppCa0u+sGkqKC+Q+Br3QNYlPWENZVfjLmsrP2rhBNT+A958gTqDnUDH3+HbdGCcWonPI8WXpKsVlbqGSJTvlqJJx/tgDt8aKXwHiQPOZey/RP2yBEJ3yCZsUdKgVT6Bx4mKZoL8c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=ZONxWi8G; arc=none smtp.client-ip=185.226.149.37
+	 In-Reply-To:To:Cc; b=PCMdhdxw6O9Y81n2nT8zWD4VBbp0bw3ZZPrKZlTQ9YCF2uahQAQ+MeYZi8SD3exiqBUS/x56QtU2efFyT8otvI8ecyP7DaXD8tFQ/fwh5yczy0xHdBeA9+Uc0vkJSb6KhsSZNvy+xRvFFwI6QWFZvn5teqWCJO+9CpWTOr481Vg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=aJD5Q34H; arc=none smtp.client-ip=185.226.149.38
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="ZONxWi8G"
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="aJD5Q34H"
 Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
-	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
 	(Exim 4.93)
 	(envelope-from <mhal@rbox.co>)
-	id 1x6T0c-00HRCg-Od; Tue, 15 Sep 2026 15:15:38 +0200
+	id 1x6T0h-000wMC-Ce; Tue, 15 Sep 2026 15:15:43 +0200
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
 	s=selector2; h=Cc:To:In-Reply-To:References:Message-Id:
 	Content-Transfer-Encoding:Content-Type:MIME-Version:Subject:Date:From;
-	bh=96jbmB9W+tKz2zIt1w43a9vt7j7LmrljAaRgMAl32vs=; b=ZONxWi8GXwK6TzSwTtChwprtbY
-	UwlxnfPaFRHHrxSxI7AXXXlVFl51Ba4vwdDS86aL5rgkIFDg4D6Ysycw2XswTpp5BZ6Yb5F3zuKAN
-	3su2DUF4aOvhKNpTqSTsjLzRqdCp3/eh9YHJjw7J+nJAtlsK3j2UyIhvZxpDDx6sHXa20uXf+qSdL
-	xbFJB1BCTvWg42UtwxK5Tq/EaaCzWlsCaX2cnuMYJ32P9Lji2j0WBcRn6KmgxAh/mABUKQ+RfBdEz
-	PwJCPCOjn819Fi/XJ7y5GQgin7bypO4yKxMlsB9N26uLVGJvC3CuEa+r+wsau2aTsbFRN1UTIKO7D
-	A1RJZLiA==;
+	bh=8hwGE6w8mUrcO/P9PNHHaz5xdc2BUDZks6W/X0E3xyc=; b=aJD5Q34HCHzAwM1s86lNQ/xEtJ
+	AWKboTjIr54kd45eGpigum/lpJ1hJlADxzti8SmGZ6jlm24ym+60KvUc98yeFdYErfWD6XySTF1rx
+	0QgW1S3Fzc+xI37c3yzc2Ud6ZfDzvsE4/QMR3K6DgtvmbOBrOMjs4k3fUpiPqb2oiljmhTIYzS6Lx
+	jEcNPHG+aWkCFGWDH2HvL/aFTsx7GicRI7/SYsoBkdHr0WiqUS/FpHOlAevFgefDYJ2AYy8Kczm10
+	4G48ALCDmO0v+a+1uOTzJeTpr6QMtgBv0W+BPC28fsa4G3+xf4Z98iERM5XsGKumJ/sm7UR7Ru/tm
+	dGp3KOEA==;
 Received: from [10.9.9.72] (helo=submission01.runbox)
 	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
 	(envelope-from <mhal@rbox.co>)
-	id 1x6T0X-0003iV-4p; Tue, 15 Sep 2026 15:15:33 +0200
+	id 1x6T0W-0003iR-WC; Tue, 15 Sep 2026 15:15:33 +0200
 Received: by submission01.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim 4.95)
-	id 1x6T0I-00EUxD-5j;
-	Tue, 15 Sep 2026 15:15:18 +0200
+	id 1x6T0L-00EUxD-Mo;
+	Tue, 15 Sep 2026 15:15:21 +0200
 From: Michal Luczaj <mhal@rbox.co>
-Date: Tue, 15 Sep 2026 15:15:12 +0200
-Subject: [PATCH net v2 1/5] vhost/vsock: Fix socket state constant
+Date: Tue, 15 Sep 2026 15:15:16 +0200
+Subject: [PATCH net v2 5/5] vsock: Handle sudden TCP_CLOSE during connect
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -49,7 +49,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260915-vsock-connect-reset-closing-v2-1-a1d9abb472f7@rbox.co>
+Message-Id: <20260915-vsock-connect-reset-closing-v2-5-a1d9abb472f7@rbox.co>
 References: <20260915-vsock-connect-reset-closing-v2-0-a1d9abb472f7@rbox.co>
 In-Reply-To: <20260915-vsock-connect-reset-closing-v2-0-a1d9abb472f7@rbox.co>
 To: Stefan Hajnoczi <stefanha@redhat.com>, 
@@ -65,28 +65,57 @@ Cc: kvm@vger.kernel.org, virtualization@lists.linux.dev,
  Michal Luczaj <mhal@rbox.co>
 X-Mailer: b4 0.15.2
 
-Refactor under Fixes missed one: SS_UNCONNECTED (1) -> TCP_CLOSE (7).
-Until now, sk->sk_state = 1 stood for TCP_ESTABLISHED.
+Virtio/PM events are serviced by virtio_vsock_reset_sock(), which resets
+each connected socket. The reset is done under vsock_table_lock but without
+taking lock_sock(), so from the point of view of vsock_connect() -
+locklessly. The same pattern exists in VMCI's
+vmci_transport_handle_detach() and vhost's vhost_vsock_reset_orphans().
 
-Fixes: 3b4477d2dcf2 ("VSOCK: use TCP state constants for sk_state")
+The complexity of connect() comes from the fact that:
+1. the virtio transport can be reassigned, so the old transport must be
+   safely released;
+2. a failed connect can be followed by a retry, so the socket must be
+   reverted to a sensible state.
+Both cases apply only as long as the socket has not yet established a
+connection.
+
+While connect() waits for TCP_SYN_SENT -> TCP_ESTABLISHED, other
+transitions can also occur:
+
+  TCP_SYN_SENT -> TCP_CLOSE on connection failure, timeout or signal
+  TCP_SYN_SENT -> TCP_ESTABLISHED -> TCP_CLOSING on VIRTIO_VSOCK_OP_RST
+  TCP_SYN_SENT -> TCP_ESTABLISHED -> [TCP_CLOSING ->] TCP_CLOSE on event
+
+This further complicates connect(). Rather than making every event handler
+drop the socket from connected_table or adapting connect() to handle more
+transitions (while missing proper locking), use vsk->peer_shutdown as a
+poison flag. Whatever state an event leaves the socket in, the flag bricks
+it and prevents suspicious transport reassignments or TCP_SYN_SENT
+retransmissions.
+
+Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
 Signed-off-by: Michal Luczaj <mhal@rbox.co>
 ---
- drivers/vhost/vsock.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/vmw_vsock/af_vsock.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index abed1fbcf66c..6051533456f6 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -774,7 +774,7 @@ static void vhost_vsock_reset_orphans(struct sock *sk)
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index adf3f018347e..972952d04a81 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1743,6 +1743,12 @@ static int vsock_connect(struct socket *sock, struct sockaddr_unsized *addr,
+ 			goto out;
+ 		}
  
- 	sock_set_flag(sk, SOCK_DONE);
- 	vsk->peer_shutdown = SHUTDOWN_MASK;
--	sk->sk_state = SS_UNCONNECTED;
-+	sk->sk_state = TCP_CLOSE;
- 	sk->sk_err = ECONNRESET;
- 	sk_error_report(sk);
- }
++		/* Virtio/PM events are serviced locklessly. */
++		if (READ_ONCE(vsk->peer_shutdown)) {
++			err = -ECONNRESET;
++			goto out;
++		}
++
+ 		/* Set the remote address that we are connecting to. */
+ 		memcpy(&vsk->remote_addr, remote_addr,
+ 		       sizeof(vsk->remote_addr));
 
 -- 
 2.55.0
