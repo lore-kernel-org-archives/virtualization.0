@@ -1,37 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9ADDD43F4AB;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AF25456DE9;
 	Tue, 15 Sep 2026 07:39:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789457988; cv=none; b=PEQZ5vDa1Q4//0bKC7d9t9pWe+kyRNPy32ECghU80+4Fb8ps6XonGOwTnlGm91WIlMi1WT6CGRQR5pVIK7WtUytUtPdT9NVHoYNZGfJ7UxaTTAkrNxcgBVXaFqFDBUqZbZyH/sUxwJZZng943L7vh3ney3y62c1pL/JKGGbszs8=
+	t=1789457988; cv=none; b=bcBabjsD1dCA8prtpz+lnD7kV99wLmgSW8NR2dXQTuuSYOno27KBj6tj6plWTSpvXZhAgmiCc6j0FZbM9eWWzBvZVwK6QqTtPwHwLPj+wCXYBoLVejCqqcNDUMA41DtRtWGsGzFUjQW547iPqAmDlXN+nFykmfAXjq5ZU7WeYPc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1789457988; c=relaxed/simple;
-	bh=X2czHbrSs18WUTeT1j+/DpL6IMrShozvKKb9NfGC9O0=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=LBvo1gmgnwwQGNSdwS2NeazpI0Y3fh8rzaqss2KYIHSAyDyVbf55K81ALGuob33W6bko9i5YX5UrKIzPa1jicegDnRpxndU0bK5+ca9PFK71HmFsgr6g8Vm0A8gNx9H1U478adb2acU2GuS9/fJNMXY3K0hbwiT/8k7d4VTzBbw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fPVPEsUY; arc=none smtp.client-ip=10.30.226.201
+	bh=+ZvUBVLlnhme8yqiJiZGAghhi2ab0L3qh0DBTz3gBa8=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=jmnlHZEWI5LD5JXVxRGtCcOrZjYb8zavNpsqfWhFxSex6W2QA7lz+xEZ0Bieh0fW7OqHxN2DkUPiEOMLA3mpdduP6o4hGx9Qyi9/P/jAc6aBzVfi8Z1qP/k39iC9chXpGbo/W1kubaMrA4LcNUpONmg+NY7FwQYcu+fzubfTJq4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=B0+E1yHH; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fPVPEsUY"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 2FE72C2BCFB;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="B0+E1yHH"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 3D6B4C2BCF6;
 	Tue, 15 Sep 2026 07:39:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1789457988;
-	bh=X2czHbrSs18WUTeT1j+/DpL6IMrShozvKKb9NfGC9O0=;
-	h=From:Subject:Date:To:Cc:Reply-To:From;
-	b=fPVPEsUYtgGhSjoyqoCH5SypUQD2O+jtI/Dr/75hOOIvBvixu8X1intHt3G/Ri3Kc
-	 XNHoG1iSACVrswnzhZNRctrX/VsuYINncWAwkoSqO9K0dygA/AynktHxYY7t+D7PTK
-	 cuPh5piS6icVaiaaDPTx5STZRYIRfzbjZO58Ly0Z8zjlg3oIdJgYKSEp7jWCTaH+cX
-	 uInYBL1qJdpkGBazkjCaZ1g+19/MhOcpk1CjKGL7JGQBssWyb1j9ouxJnOk6r0ICTZ
-	 G6JvizFRWYYdd6jdjxnfptTTAifC7HxP9ZxR7PVB5jgeH69gj7evp5/Q27eZVUhhsq
-	 cXo3AGr4+2o7Q==
+	bh=+ZvUBVLlnhme8yqiJiZGAghhi2ab0L3qh0DBTz3gBa8=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=B0+E1yHH48qchnNwHAAiruot/yaYCnDDcg4y30hw7e9uIYrXz3wkWnNssapl8E+/W
+	 StenjhKwFr2urjYijKuft8ZuEmg2tLQyouhD9hOroVdIU/DvfPG27L+g3UxTcAal4R
+	 80SkZuRnvV8DfNS7VghLTsGmV94EqnQ2wFnkoMjJJeayFWTnCiOG4od0NdMurjWmT7
+	 0OofXkRlemfzzPUhU9y9JKu13rCd/kUnxiEzdcE5RvGwt2dJu5q1SGuWyawbaT+4tJ
+	 rbOSkf1EbAxE3rB7qA94ootxLiwYqUtjvhXGfneQ+Rcbe6Tn5oWEA2lLhhZ+D/X1R0
+	 E2IFjlm/ryN4A==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 068BEC88E73;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A72BC88E7D;
 	Tue, 15 Sep 2026 07:39:48 +0000 (UTC)
 From: Junrui Luo via B4 Relay <devnull+moonafterrain.outlook.com@kernel.org>
-Subject: [PATCH v2 0/4] drm/virtio: fix GEM object leaks on error paths
-Date: Tue, 15 Sep 2026 15:39:09 +0800
-Message-Id: <20260915-fixes-v2-0-a0d799e4db66@outlook.com>
+Date: Tue, 15 Sep 2026 15:39:10 +0800
+Subject: [PATCH v2 1/4] drm/virtio: fix object leak when
+ drm_gem_handle_create() fails
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -40,10 +41,9 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAB32qGoC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyjHQUlJIzE
- vPSU3UzU4B8JSMDIzMDS0NT3bTMitRiXYtkM0tD81RLAzMzUyWg2oKiVLAEUGl0bG0tAJP91iF
- XAAAA
-X-Change-ID: 20260915-fixes-8c6917e90665
+Message-Id: <20260915-fixes-v2-1-a0d799e4db66@outlook.com>
+References: <20260915-fixes-v2-0-a0d799e4db66@outlook.com>
+In-Reply-To: <20260915-fixes-v2-0-a0d799e4db66@outlook.com>
 To: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
  Dmitry Osipenko <dmitry.osipenko@collabora.com>, 
  Gurchetan Singh <gurchetansingh@chromium.org>, 
@@ -56,13 +56,13 @@ Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
  linux-kernel@vger.kernel.org, Junrui Luo <moonafterrain@outlook.com>, 
  Yuhao Jiang <danisjiang@gmail.com>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1536;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1755;
  i=moonafterrain@outlook.com; h=from:subject:message-id;
- bh=X2czHbrSs18WUTeT1j+/DpL6IMrShozvKKb9NfGC9O0=;
- b=owJ4nJvAy8zAJVb4wiKgu++DA+NptSSGrBXfHN90179brFw37+qpt7Fmt+eoMjV+P7nk3s4JO
- nJyRscL4uo7SlkYxLgYZMUUWY4XXPpm4btFd4vPlmSYOaxMIEMYuDgFYCIJAQx/hdckFe99sNTx
- R8R8lSk5FV8WXbeZXcHwuKmgaN2O9coHnzIy3M0z/2R5xODBp9l/+FmXXbHK4nXaU5tveGFSX76
- ir+xpTgBXL07U
+ bh=IqwDkc74tOO8lL0END3OA/+gXOd16vqiITrIyypWgKA=;
+ b=owJ4nJvAy8zAJVb4wiKgu++DA+NptSSGrBXfHLs+KjxL9dt8d+0PB7/+Evm4I+b64b5Kl+9wp
+ hxdaLFCIKOjlIVBjItBVkyR5XjBpW8Wvlt0t/hsSYaZw8oEMoSBi1MAJjLrAsNf6TO1WakrPQrn
+ L5mwUmC7vvTxoltXQrRSNm7+1/7/p7SCESPDnNQNBzzsWTZG1sdf9RE7w/n7vq2zRUjo/eAjE5u
+ WlRUzAgAcwkvq
 X-Developer-Key: i=moonafterrain@outlook.com; a=openpgp;
  fpr=C770D2F6384DB42DB44CB46371E838508B8EF040
 X-Endpoint-Received: by B4 Relay for moonafterrain@outlook.com/default with
@@ -70,43 +70,49 @@ X-Endpoint-Received: by B4 Relay for moonafterrain@outlook.com/default with
 X-Original-From: Junrui Luo <moonafterrain@outlook.com>
 Reply-To: moonafterrain@outlook.com
 
-v1 fixed one drm_gem_object_release() misuse in virtio_gpu_gem_create().
-Dmitry asked for the other occurrences the Sashiko bot pointed at [1], so
-v2 turns it into a series.
+From: Junrui Luo <moonafterrain@outlook.com>
 
-Patches 1-3 replace drm_gem_object_release() with drm_gem_object_put() on
-the GEM creation error paths. Patch 1 is unchanged from v1.
+virtio_gpu_gem_create() owns the reference taken by
+virtio_gpu_object_create(). On the drm_gem_handle_create() error path it
+calls drm_gem_object_release() instead of dropping that reference.
 
-Patch 4 adds the missing drm_gem_object_release() before kfree(vram) in
-virtio_gpu_vram_create().
+drm_gem_object_release() is the inverse of drm_gem_object_init() and does
+not touch the reference count or call obj->funcs->free(), so it is only
+correct as the last step of a destructor, as in
+virtio_gpu_cleanup_object(). Using it here leaves the bo at refcount 1
+with no remaining reference, so virtio_gpu_free_object() never runs and
+the shmem pages, sg table and virtio_gpu_object are leaked. Since
+virtio_gpu_object_create() has already set bo->created,
+VIRTIO_GPU_CMD_RESOURCE_UNREF is not queued either, leaking the host-side
+resource and the resource id.
 
-Only compile-tested (x86_64, CONFIG_DRM_VIRTIO_GPU=m).
+drm_gem_handle_create_tail() drops the handle reference on all of its
+internal error paths, so the caller only has to drop its own. Use
+drm_gem_object_put(), matching the success path below.
 
-[1] https://lore.kernel.org/all/55240372-c265-4b38-be94-f29a58ddbb22@collabora.com/
-
-Changes in v2:
-- Add patches 2-4 covering the other occurrences reported by the bot
-  (Dmitry Osipenko)
-- Link to v1: https://lore.kernel.org/r/20260815-virtgpu-gem-create-leak-v1-1-a4e9fb18caa3@outlook.com
-
+Fixes: dc5698e80cf7 ("Add virtio gpu driver.")
+Reported-by: Yuhao Jiang <danisjiang@gmail.com>
+Assisted-by: Claude:claude-opus-5
 Signed-off-by: Junrui Luo <moonafterrain@outlook.com>
 ---
-Junrui Luo (4):
-      drm/virtio: fix object leak when drm_gem_handle_create() fails
-      drm/virtio: fix object leak in virtio_gpu_resource_create_ioctl()
-      drm/virtio: fix object leaks in virtio_gpu_resource_create_blob_ioctl()
-      drm/virtio: release the GEM object on virtio_gpu_vram_create() errors
+ drivers/gpu/drm/virtio/virtgpu_gem.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
- drivers/gpu/drm/virtio/virtgpu_gem.c   |  2 +-
- drivers/gpu/drm/virtio/virtgpu_ioctl.c |  6 +++---
- drivers/gpu/drm/virtio/virtgpu_vram.c  | 17 +++++++++--------
- 3 files changed, 13 insertions(+), 12 deletions(-)
----
-base-commit: 587858367581b9c55c3690f4e63382ad622719d4
-change-id: 20260915-fixes-8c6917e90665
+diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
+index 66c3f6f74e9c..d2f0b8a3f172 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_gem.c
++++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
+@@ -45,7 +45,7 @@ static int virtio_gpu_gem_create(struct drm_file *file,
+ 
+ 	ret = drm_gem_handle_create(file, &obj->base.base, &handle);
+ 	if (ret) {
+-		drm_gem_object_release(&obj->base.base);
++		drm_gem_object_put(&obj->base.base);
+ 		return ret;
+ 	}
+ 
 
-Best regards,
 -- 
-Junrui Luo <moonafterrain@outlook.com>
+2.51.2
 
 
