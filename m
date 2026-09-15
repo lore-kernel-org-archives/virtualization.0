@@ -1,88 +1,122 @@
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+Received: from CH1PR05CU001.outbound.protection.outlook.com (mail-northcentralusazon11010007.outbound.protection.outlook.com [52.101.193.7])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24ED13A1CEA
-	for <virtualization@lists.linux.dev>; Mon, 14 Sep 2026 20:58:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.177.32
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F159C3D1A8F;
+	Tue, 15 Sep 2026 03:03:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.193.7
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789419541; cv=fail; b=rPZa8WqtZyQ25XaklZC+7QssFpmVGBWgJlEZXrL8o+vvvB0YqkDR7z0QIspzHiYqrJYCF6ErxgxTuhAl68Hl4dgqZrGzZcxbgef1JmpbjhyUHmcqIhFRsX2toHiNtLIGBJAFbtHm0MsrL4hrR1lIpfKJTW+k780GDKhO/CBbWzI=
+	t=1789441436; cv=fail; b=XZsZxCnPz3EATBY606U45BFzmMOrvSqDO9pWEzFIga5p5vgbSjM07c2FLr/fcLHs0p1wifaf1cIxY7hQYrS673PZzaX3+OCvlyiDY4vllHgAVs0HWAK+uXX5NjJOxVwrHrt3/ZlOh2sfqUnc671J32uctx1BzFo4LtcUg+4pPGk=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789419541; c=relaxed/simple;
-	bh=SkvvAyx8ajoSeId7SuneO5u1LiZ7vP5hssOM3UA28a0=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=nsMDHNPoIaEaqRKzfOKw3nOPVvXnP1o4A0PD86p4iKZVnuuZWTxoBOQ2L6Cj9gzy/LBCrhpfMURzTU/WSobMDtdVOk3iRRCwkZk6Uo+G5ECxx0wijWp2F9YFWgR+qoSSVh5CLbUgKX5vjUjc/KYvG/jhegFVmYa1I+48eCE8EUw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=NlSEf7oj; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=v3dkt5yd; arc=fail smtp.client-ip=205.220.177.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
+	s=arc-20240116; t=1789441436; c=relaxed/simple;
+	bh=zn/AHmsg9PAW3jlQHjpqYSUXdCB7Dy6q/9+rwNESDr8=;
+	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=uMkASkHt+aBOjDpOWz8U+IoiHwjuYS+kC1sscBINyeQJLLCW2twS5OOMVlxIO4IQdQQVSyJNB40HzPuvhEnzxiBXVTYn+gOKJ2f8ZrR41IgB3VU3ijMjIL8F1Tt8ab2Q26a8DC/SViPfw1KPF9DD8pjmnzPZNAC6yfieD0ZB2/A=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=evemmQSk; arc=fail smtp.client-ip=52.101.193.7
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="NlSEf7oj";
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="v3dkt5yd"
-Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68EKMksO2205501;
-	Mon, 14 Sep 2026 20:58:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=
-	corp-2025-04-25; bh=oul+365kcJYZxU1FslGufaeaxRQl2Da66TBhNOT5Yb8=; b=
-	NlSEf7ojIE7C8g96WvxqaICOtNbMipF3PmInz4YHR1QAIOKQYEXhcWiU4UjiDlGg
-	6wkzQATflMnHhoFSByyjKxhSTh7itdram0yG4jn82RP3A5cuFv6K1flSakliYm3E
-	FMo8p2szRwVJus5ITx2mjCK5xZrar0zUGFNEaBJuKvBqcZWpZKv6uQX5nkOBpmZT
-	vXR09wdpVvWiMwDZPu3BBqOSVDaoHmtZBKXwoKJvWof5WtcwnLhy2uWMBpOwPHay
-	6nYfRS48qUB7ywKxq/57PlBUX5PoG6fCMRkcTCwkPxeXeiNfDbKEDj2I3/6bFmA7
-	JzuhyqFi+lqDcwdctb5W6w==
-Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 4gmw5b2n5n-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 14 Sep 2026 20:58:57 +0000 (GMT)
-Received: from pps.filterd (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.18.1.7/8.18.1.7) with ESMTP id 68EKt3XP032475;
-	Mon, 14 Sep 2026 20:58:56 GMT
-Received: from sj2pr03cu001.outbound.protection.outlook.com (mail-westusazon11012011.outbound.protection.outlook.com [52.101.43.11])
-	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 4gmw6b8bcd-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-	Mon, 14 Sep 2026 20:58:56 +0000 (GMT)
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="evemmQSk"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=ys4zJ9wrrGU95tyhY8SSrgwJdCjv252yBx53t+ew0LOOI0KQ9wTFgctdIezxgqm+/8Pp/vLeg9yXik+wInUTdWR5zsQMiORDSH1Iw/WiPUt62VwWlUh4FcctjDXU3v/iMs0AAMXpEs7LXgz6cw/OSybbOgzowXZ/7LmzA7X0ShsykvmAD9cEW5eY9cJV8EAVLZ/OwfbluTVZwi8luX1uSSimvc86UvSem56rMquTTqk1KJQ8N4dXJD8iXNlK7aUn2V2cPT2Y9TbvR1n3Db+akHPuRU0gcDGdiPiRTD1wHZB974k0iFaT2TEKBGTLtGKHuTmmDs0Sx0CuCOfGCqBV2g==
+ b=HOyAOZ4LRZHRc1nJLULMavvcBjHqmr1vf/F5tHptty5bnCydBvtA3MYO4tDzps6qr7sdq1Q/2p+PGW6I99Lm9P+Mj2mWDLSBpA95Iu4fVrRFFM0KycAUu+Cb6lWDZ/xbD8AGhFoUB1JxGBFZgiPk8mT1kygU9M5t2QFh0lsL9ZyP7tcJq06keOc7ZmrBvfBiP3NqCl4a6ifmkNH9gB7Z0Qwsl3ntf2krb865TbzRWxQdko7fYPgWK3kgIbIWI2RYhKQ1XAvq9N8AcPmOt5VgXKsli7ADQmda8X+K8jkjVqZNVUgNEqgDK9WSQkNMwAacLzdM8fikMaacORswVsUtJA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=oul+365kcJYZxU1FslGufaeaxRQl2Da66TBhNOT5Yb8=;
- b=olRstS8V1RswkknfMqGLM6aBVk2NbW5FFD5s7JxPS+m2yFJ+Z2RREKI9VacDGNg4uqF3yb3nBen4Gz8oKbJyawyhW0KXK0MBM8XmZc7Q948uL6+gp3IzN+xq2Y5PSNTXdHgrP//DIkSAuldbmT9Ys0hAlbO2zZpVkvihcMa678BR1e+/WOIMLoOCNyf9qs4Bhj1zpL4dyn4DtBDwUwPNVdIn+C5W1ywRWSSZEmhehwylge3JTjH1zAAjUjALCoA4h8Y6vvmDk036w4lvVIs8gIxXcrbFF3CoZg+e0FQm59WSE3vTWlzMTjxX3JUm00xvHLHUmx4XNVHFL9dpD8p6ig==
+ bh=I4ZEvj7XdFyu4ITXdKD6CVNsJQhdWY6NLtYLfY04LSY=;
+ b=mQu92cHKR2zpqcGFrtg02PnJZZskNAs+T2QlUApTA29vJ5f6qZDv3E8CfGIGwSshPlh4O7dEw5i9nJk2NqMU//j7/bkqspWUVEPRLMc0y5OkeBB5dydbk3l4wkQj2j8zagZYPeFxgZeUO0RA/WUA71nbfLNtwXhNbBzZsR4nJmK4HDsbrtIxWtpqSz2U9Glk23ETnx9BVmvIkTn+uEgDlgfR3bvQcDE1BihUsgjH0duc5b/Agdw0yfyLI1aisPGrzMrKtN9ztbqj/j1WM5IPY9zZwlFmADhnvyyvv8NcsLiBBbitBMI9kdKCtPpN223HKe7/mJOxd+ZB1HAdKGdW0A==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=oul+365kcJYZxU1FslGufaeaxRQl2Da66TBhNOT5Yb8=;
- b=v3dkt5yd+w1KgOJM25/lFoVHX0g4nzKgi9bJ1MpdnpMH4sduzwpKYh4aR+Cmn3+QrP2RZJ1GtfuT/dgpabiYZD9zJBrrvZoxR5rrBwe9X5jQE9VDsfoNFRIQP8j0EL7SAssMOalvuOlFbnEKfSjEL3/EvmxIcVQes3SBRrJmN2c=
-Received: from DM3PPF905D77450.namprd10.prod.outlook.com
- (2603:10b6:f:fc00::c37) by DS0PR10MB7320.namprd10.prod.outlook.com
- (2603:10b6:8:fe::5) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.428.8; Mon, 14 Sep
- 2026 20:58:48 +0000
-Received: from DM3PPF905D77450.namprd10.prod.outlook.com
- ([fe80::c70e:bb7e:7d68:be8f]) by DM3PPF905D77450.namprd10.prod.outlook.com
- ([fe80::c70e:bb7e:7d68:be8f%6]) with mapi id 15.21.0428.004; Mon, 14 Sep 2026
- 20:58:47 +0000
-Message-ID: <d8371b56-3d75-401b-99ed-746930315af1@oracle.com>
-Date: Mon, 14 Sep 2026 15:58:46 -0500
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] vhost-scsi: do not relock event vq mutex on send_evt
- fallback
-To: Jia Jia <physicalmtea@gmail.com>, mst@redhat.com, jasowangio@gmail.com,
-        pbonzini@redhat.com, stefanha@redhat.com, eperezma@redhat.com
-Cc: virtualization@lists.linux.dev, kvm@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20260912090420.47439-1-physicalmtea@gmail.com>
-Content-Language: en-US
-From: Mike Christie <michael.christie@oracle.com>
-In-Reply-To: <20260912090420.47439-1-physicalmtea@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: DS7PR03CA0051.namprd03.prod.outlook.com
- (2603:10b6:5:3b5::26) To DM3PPF905D77450.namprd10.prod.outlook.com
- (2603:10b6:f:fc00::c37)
+ bh=I4ZEvj7XdFyu4ITXdKD6CVNsJQhdWY6NLtYLfY04LSY=;
+ b=evemmQSk4KBUwFfLPEJ5Je9sGvmgQLEY8xBg0Zd79NAC0z4ocBnRgVUYPB/NAwUWCklO9hEGiAytSHzOSRXDLXU1G3qqlm/DMlD3ow90J7AmdbN5bVzEKzv+VRL6Lw8Cb63FzbYldRdpQqKu7/VT1jWS9U//6B0G6aKGUgtQXhPa/0lIsQaHQEzArOAUR1oS2TuHneINqH+Xslf+ggn1NvyPOI243s1JbbDiYaSUXq96NryzNao2R1YJZC8PDek/dKO3vbUqVPUnBC2Sirmpsash317bQO0lkD1GFFHSpnEHEw8zsmDocWaSxNlvkX2EyKOmMYVoZ1SCW/T0jIDnAw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV3PR12MB9356.namprd12.prod.outlook.com (2603:10b6:408:20c::21)
+ by SJ2PR12MB9008.namprd12.prod.outlook.com (2603:10b6:a03:543::19) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.406.12; Tue, 15 Sep
+ 2026 03:03:48 +0000
+Received: from LV3PR12MB9356.namprd12.prod.outlook.com
+ ([fe80::1c36:31b4:c420:6286]) by LV3PR12MB9356.namprd12.prod.outlook.com
+ ([fe80::1c36:31b4:c420:6286%5]) with mapi id 15.21.0406.007; Tue, 15 Sep 2026
+ 03:03:48 +0000
+From: Yury Norov <ynorov@nvidia.com>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Yury Norov <ynorov@nvidia.com>,
+	"Jason A. Donenfeld" <Jason@zx2c4.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Matthew Wilcox <willy@infradead.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Will Deacon <will@kernel.org>,
+	Boqun Feng <boqun@kernel.org>,
+	Waiman Long <longman@redhat.com>,
+	Dennis Zhou <dennis@kernel.org>,
+	Tejun Heo <tj@kernel.org>,
+	Christoph Lameter <cl@gentwo.org>,
+	"Paul E. McKenney" <paulmck@kernel.org>,
+	Frederic Weisbecker <frederic@kernel.org>,
+	Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
+	Joel Fernandes <joelagnelf@nvidia.com>,
+	Josh Triplett <josh@joshtriplett.org>,
+	Uladzislau Rezki <urezki@gmail.com>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	Lai Jiangshan <jiangshanlai@gmail.com>,
+	Zqiang <qiang.zhang@linux.dev>,
+	=?UTF-8?q?Onur=20=C3=96zkan?= <work@onurozkan.dev>,
+	Kees Cook <kees@kernel.org>,
+	Joel Granados <joel.granados@kernel.org>,
+	Anna-Maria Behnsen <anna-maria@linutronix.de>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Juri Lelli <juri.lelli@redhat.com>,
+	Vincent Guittot <vincent.guittot@linaro.org>,
+	Dietmar Eggemann <dietmar.eggemann@arm.com>,
+	Ben Segall <bsegall@google.com>,
+	Mel Gorman <mgorman@suse.de>,
+	Valentin Schneider <vschneid@redhat.com>,
+	K Prateek Nayak <kprateek.nayak@amd.com>,
+	Mike Rapoport <rppt@kernel.org>,
+	"Liam R. Howlett" <liam@infradead.org>,
+	Lorenzo Stoakes <ljs@kernel.org>,
+	Vlastimil Babka <vbabka@kernel.org>,
+	Jann Horn <jannh@google.com>,
+	Pedro Falcato <pfalcato@suse.de>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+	Clark Williams <clrkwllms@kernel.org>,
+	Nathan Chancellor <nathan@kernel.org>,
+	Nick Desaulniers <ndesaulniers@google.com>,
+	Bill Wendling <morbo@google.com>,
+	Justin Stitt <justinstitt@google.com>,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-kernel@vger.kernel.org,
+	wireguard@lists.zx2c4.com,
+	netdev@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org,
+	linux-mm@kvack.org,
+	rcu@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	linux-rt-devel@lists.linux.dev,
+	llvm@lists.linux.dev,
+	Yury Norov <yury.norov@gmail.com>
+Subject: [PATCH 00/17] Treewide: enforce static storage for object initializers
+Date: Mon, 14 Sep 2026 23:03:18 -0400
+Message-ID: <20260915030336.1192299-1-ynorov@nvidia.com>
+X-Mailer: git-send-email 2.53.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: BN1PR14CA0010.namprd14.prod.outlook.com
+ (2603:10b6:408:e3::15) To LV3PR12MB9356.namprd12.prod.outlook.com
+ (2603:10b6:408:20c::21)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -90,125 +124,141 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DM3PPF905D77450:EE_|DS0PR10MB7320:EE_
-X-MS-Office365-Filtering-Correlation-Id: 0a9a9a59-d969-4ec7-4fcb-08df12a2f8bd
+X-MS-TrafficTypeDiagnostic: LV3PR12MB9356:EE_|SJ2PR12MB9008:EE_
+X-MS-Office365-Filtering-Correlation-Id: c8f0ff5e-4258-48cc-51b0-08df12d5f279
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|366016|376014|7416014|23010399003|1800799024|56012099006|6133799003|22082099003|18002099003|10067099003;
+	BCL:0;ARA:13230040|366016|23010399003|376014|7416014|1800799024|10067099003|56012099006|11063799006|6133799003|18002099003;
 X-Microsoft-Antispam-Message-Info:
-	H2/PCb2dbs6QAWeSMrByIgtoV4Fi2NjKnFLl7y+6OVssG0u5260deIwcRK1u2n7GJwdqFdDeyAim99DiRZkChYUWOJGANaW5t6oHZzCCQ4bHtNl4Jvr8zAKHNM6eU4lKIsWzytdwpxbGH320WiSfSDCJn+l7hA8WeKZ6z4yfqX8weCDCUAH9kLvbp9OQ1sWhgxsF6ydr0p2CW/fzSMpC7bN5Vc6HHJcSTZxTJU81PZ/R+OZpXLbT1Sld6HwwKrtFC0WKPmpSOgaF81i8DlNEGjb7bg2aJGNR66h97QI+mCZ7eBo2tK3ePCPjn4AmCZD/IJVov6YW9q1s4agnAuaCVmtPTH+CSwSsfU9ODQnUkcNiPSV4lvj47Y5CQIPrYV18H0QEtCk0ELRZtAwZSl3ALkzyj+x8qSoTTXo9xXS+GYsMth0Sru/trQDKi1G1iiIBOGTHJ3qY4yXW7f00TLypSPvfsEW5L8IFAPlXoU86Lk6O/iIwzZDm8mqYjpMej3pIDJ+I1YowQGfWkQ/MWFuXLhrwC4Sj3D3YntT9/R+eqBqyvdS8J2yz4q1RXP9eZYixiZ0Vk7w1bof2zD0JVkxPDfPE/zV65X7nEoKhQvSMLoMji791qG/qYvSBsWOj3NaP/U1EZGOR5yK8Nv+AWM3tKQAhlT880YKmfDiw1uO0+rE=
+	mPNn7lejcn6Sbs4IW78jh6C06SxmN64y2bcWlPUAwf1QurHDEcQDHlpJrJB15ajZ2+BU3qB2P4X2hIa8NnnQBCkdmclNMAIsyy9dc1giuGXD+j1/FnoLgrYWOXZeKpU+1Ibr2bIMkfXkCvk7yhE55QxWrVuIFZKXgkRXDncMF/WtyrvB1Ig4a216xO9detUd/qB3aa+3mhnPiF1NKRfQ+JAVW6Un4CcnIgHrcki38uIxhUyJUxhVTZJwlsrZiCR+Rl5VrfPsYQfQUTphBIzeOIyezwvtZL6Sb77OzfCr/e05fo6ixdU5mAcWWsV2aTlyqlEfWQRSvIUpvLa2MXOiczuR4LJWrwcoTBXt7wMv4rdh0oDsWwDMEI5FRQVncrkM9s/pHuKv6IVp/uoPSz1d01MBtKNTBEIfaCM4ul/HRLKxFDzCh0uaORcHJ2c/uAcrTw4udeTOgPDErfhkHlCnBm+jlaYHGlbhv/Uiomhwgwq7IY+CDOQW30u9xM3aBdJ32RmlbpNLK0IYBCy1xpVH0Npr08rGis9VnD8+OWj0g/m1qRnW1dAZ86oVkVYJrk+Yb+K/LImqQ+BIkuVoZzv9IHzr5GfVyQpWzR+OlQjuMsDa7gMQ8Xi1a8l2izmXVyZ1s5tdw+4XsgyszTvRB6xciIs1St7M/AjPJuV/XNdX1Lc=
 X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM3PPF905D77450.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(376014)(7416014)(23010399003)(1800799024)(56012099006)(6133799003)(22082099003)(18002099003)(10067099003);DIR:OUT;SFP:1101;
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV3PR12MB9356.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(23010399003)(376014)(7416014)(1800799024)(10067099003)(56012099006)(11063799006)(6133799003)(18002099003);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?Y1d3SHFTVlY5R2d6SVV2UXMvOEZDSXk5UmJ6dUdERGhZUDJuNmo3RmZHOW0x?=
- =?utf-8?B?ZXRJbmhpWHNHQnhTbDVhMitXMERCQThNeHJBdkJQTFVxS0ljUm01WXI1eXVp?=
- =?utf-8?B?a0FLY3lOaFlVU2xoTnlMZmpkZ0Iyam9mUlpzYVRmS1JJWWZtbVVyTkFybC8x?=
- =?utf-8?B?SEdBOVhTUEs2a05rU3BHVHFBY09UQkZoVC9OZ0M1enhxekdtenNxcEt0LzNK?=
- =?utf-8?B?Zjd5ZFVWMFpLdThQemgvaVowWGlhelUvbnlqV1ZIRWRsd3NxNHlRUmdqOGVi?=
- =?utf-8?B?eEVERUdtaXV1MlZwQ0N3T3hnaW5qV1ZnTTVnNDFrZjRuS0JseGk5WG4ranoz?=
- =?utf-8?B?UUM0QlZvSFBJRHFQanJXQXQ0QW9YcGRTNDg5OGxZOTJHUmJDYzdVVFR3OUI2?=
- =?utf-8?B?bk8zVFQvYzF2TFF0VmI4aCtEWHNBcXlyUzk3SWtUejBKOGVHR2NSYkZETkNn?=
- =?utf-8?B?UHNDRGtkRjVJVzlMbVNtVk1tM3duWjAzOUJiV1BCb3lnc09iTmprcmdOWEJr?=
- =?utf-8?B?ZzhxRXIvNVpQQWV5ZytNbjVZWEt4MFlQZS85ekRuRXFJTjVVWXJXbW1EOHBR?=
- =?utf-8?B?bjVMYWJTWXdrNkN3TytmVkMxUnN6QVFuY1lUeGZZc1R3cWNockhXSTM4VmFE?=
- =?utf-8?B?N2lpQ29KUG1ra0orRzY3NWNxM1Jtb1ZBVjZlTlVQZkZzeitLRU5qM1JDVlli?=
- =?utf-8?B?WXljNkNaMmNTZ3dvUDhTSXUyVlRCMGF6bWZoa3hUVDFNSnd3RzE0bVozMjJr?=
- =?utf-8?B?enFoVjdIQTVyK3Qyd3ZWN09WSFhRcTJrRGkrbFc0VGM4MnVCZzJwWTI3TU5m?=
- =?utf-8?B?bzZnZUI1NVBKRll4b0RRTmF4VVdPU0hXVS9pK3UwQmVrMDZST2V6SnRPT3lr?=
- =?utf-8?B?cUFYcHJ2aFBqa2xXaGdheGVMTVFLanV3SVcyekt1eTVmb3RhV3BSUVRGcUlV?=
- =?utf-8?B?NllhR0hTM0dnWHZ6bVc4eWZyQytQZ09ldWhQNkJnME9KWWVXVnZzSWtyc203?=
- =?utf-8?B?NE9aZDlPc09FTXpYSUxORkxTSi95U2RoL3pXazlzdWU3K3lvOGNySGlLb1h3?=
- =?utf-8?B?WjMydHBhQ1NhSEphRVZ5bkZPRTIxRkgydGs5Z2RIL0wvUDZmcS9MbC9Kblkw?=
- =?utf-8?B?UkhDMzd6amhVNERoTVNOc3V1OHV2RFpXV0FDTzlLU1czYXRQaHh4Z3BnM1lt?=
- =?utf-8?B?SmJrN09vUVdwaUtNMi83STJMeFpobUtjMFlrck9kdGhPeks2WnE1bkpmU3RL?=
- =?utf-8?B?ZVlTUkk2RjVmRmZ5dkhxdG9wOTRxRWh6aDFqazZmVC9BelVtMnlPUHpiaDJn?=
- =?utf-8?B?SHVQM1ZNdy8raFhvSGJWQ1YxQk5VK240Y0lMNVBCNWJvd2YvQTNHMWdpaGVh?=
- =?utf-8?B?c25id0E5QzR6dzN5cVdzSk9obEFLWkpHR2RGUCtvMlEwbWNjMHdlekI1aWNV?=
- =?utf-8?B?YUxkeUt2RHUvVzhMQVlZblA3Ukhrak8xeXpVTjVPZHljSUhDWEdMMEQrb0lh?=
- =?utf-8?B?V0NyMXlHcWN0c0ErdnlxZnlhNHBPR1l2dDRITzRHVERUVGhVRGg4TFFWd3RW?=
- =?utf-8?B?MWViL2VrQnoxcHNLTFdFbDk3SG5ZV0hmYXRVb1E2N2RXTFArMW5HaWx1aERX?=
- =?utf-8?B?ZEJaaVIveVdCeU5QWmR6NU1JNEFpc3hSYW9hb0pRUU8rbG0zNi9RUFkyeFBK?=
- =?utf-8?B?eDZRMm5oc0c0eUhTS0R4K01HQ0Z3aURUTThpUlVwejN2UlFPSkY1aFplcnYy?=
- =?utf-8?B?N042aFdMWjdzNlRZQ2ZiRlBiY29mV2F2cEplZmJrL2w5bWhyTm9pTGZYTGtC?=
- =?utf-8?B?clFKVGF1eXAyTVpRRGxtZVFrRm82d1hLRnRseE5mRzMraWFQZzdZUjduNjdL?=
- =?utf-8?B?U3NLR2JPd01PY3RkbFFaM2xRZiswNzdxaXgwZlFyeGpXcldwTU8rVGg4SHFD?=
- =?utf-8?B?VE45SWFITEh4YnAzNDQ0aEJ0OTBTM3FWblc1bjdtRkhRTWNtdE84MVFRNXV6?=
- =?utf-8?B?K2YvdkthNHBqNnU5enMwbW92UE1OYnRTMzIycHp6OURoOVVPazJNd1VybUhu?=
- =?utf-8?B?K1dvMG1wMjdTUVBNSHRMQ0pWemFhYzNDM2Q3S1d3M0ozbzRQb1Bnb1BacjBV?=
- =?utf-8?B?ZFByMk9US0kyYmhPeGk3REJacU9ZZG16TG1lQUlITUhQNjZYbUJuS3RocXpL?=
- =?utf-8?B?NDBqY1RTWnJxZjVodThNVTU3SmtLNm1GWkM3eFpMVlE1alM4K3JmcFFOdTh2?=
- =?utf-8?B?ako3UXNoSFFlMm9IUzdFMWdmamZtWUhIQUVPbVJBc0FFaEJkRE9wdmwrck8z?=
- =?utf-8?B?L2g5amx0ZjBQNDQvMHRKT3hnUXlXMXhQSnhpcGYwL3c3MllyVlhDY2hHOVFW?=
- =?utf-8?Q?wrNyXP78CgHxW6to=3D?=
-X-Exchange-RoutingPolicyChecked:
-	UBttZ9joqJg1nJPES08KhwXcGmgWB107mbLHnRTHUOtKfrfQvWtRwKAXIc0lwo0BT8LVsn9w8FbzishfcPbQFueFnFRG2lM/ngChWvgk0pKTjfZabBnh5bX8NjpgVRTZF7LMs39qO2yFbR/TItzwfC0QlSVazhhBkznesNzRIQmUhCX4UJt/rqo0BiTgUeFzr18R7k4y0hUclf7/pspMH/gwt+xW5+FZx/eh1brr0WdpyFoIiyIXvcy1WVWeaLvSusNm6Sg/07jUlJLxi8isgO1wsYQjIOrshGpVyP66mglRKSGEAnmBOK/EsS9oYxuZI5WqJ8lyF0sOS35WpLHb2g==
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
-	LfKwn+923uaw2DF4DpflgchPC58Af5qJTKG8QXYmpaYQ21Nr1wLqRp61hC46tDIc9WzGm0qAAhlErdl+7CPu9RtlkunFXbjDdto1dZDR0bq5ssnnBARpc3zZzwafPHmlc6DsPPzGWggYpfJc6Z6YUHLCqmgGPvFKV/TkkVY+MEK15kVMTUu33Hdk6nY+mbOHYYU9JNT2kRGVsSAtbAz+YH/5zOLUaEeFFMRwnuMQrugTeDeXvA7SG4mYNaf4dxeyu6W8xiztr5Co8F5Imw6JfGURit4iFQEuJXMRClFXFYeCxUtTT3Zleq9IOu8mqVmplGqAvfrQL3uZOOpx4JFUiRBYhgkwFpPG6bia7GyNfFIvyZBK1s1G/PZ72aFy1eRyfEEKxkdaQB0cXN0pPqij4wmB8AdO76sXBSY0Fja/ycuNZdn6LI7gs8mBvczrFbl4RrDGfgqvnyfpViMTpI1KN809C2Te4YE0iY2aa1eqmqIANXEg8p1EvUISJCG2YdQSSHs9TdvSzlq026lVQhjsH0pjKwSzfaFisGLgyqRuNyB5mXj2uXEzedsTzNve5b4Vbo4SMoVioPsf2bUzvtIOmJcWnumaEM8yMYDpsIJq9qk=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0a9a9a59-d969-4ec7-4fcb-08df12a2f8bd
-X-MS-Exchange-CrossTenant-AuthSource: DM3PPF905D77450.namprd10.prod.outlook.com
+	=?us-ascii?Q?HwJ1fYGe7uXDwZ+JuHXwFv9yY1dx1/XIRgzCp/aqjzCI2Aefg+8knUYUFpZW?=
+ =?us-ascii?Q?h2VyAVoPCArznKy/6cXTvtJnmGxjs3duyJTgrZa2A9dYVwj93cA66jVFK/rm?=
+ =?us-ascii?Q?GOYmmrsMLd8B/UIShg88Pv5hPH43tkOaCUQoJyUyIbUjiRDgf/Vf3q8r0lbQ?=
+ =?us-ascii?Q?wZH38VBN+sxpW8wsKLUnx6hWLBG/ovfJKIgq21oIM7KdybFvXxUDslRMVkaN?=
+ =?us-ascii?Q?aqel38PT62Fl9SjfqsQLApNcrPRpoh3mYIIwz8eQYmTNZA41CnwRwl+n5vSi?=
+ =?us-ascii?Q?A/qZuRtaTn/tIH0iqtDi0Q49Eip/+RmGjC+1EPm2YXcxas3byk07i1R0ECCT?=
+ =?us-ascii?Q?9Dkf7/+1t7WTHnGeDcmyLAov+dAEKFY6lnUXGTCUUfI+qssb8gtHGIyZUywo?=
+ =?us-ascii?Q?bsdrf+Nfr+fHSzQ4UBRtoTuRn+aOB/c6sWIvJpvt1MEYDpQ9RAiOJ2zMSqh+?=
+ =?us-ascii?Q?fVjg6iln9SEpAuutE+ik+6kvTB4nQpusJpqRKImtq7n0qZ8gBFvi6drkraJQ?=
+ =?us-ascii?Q?7oGpOyKbFB45G3jYV2HbJGpSWWdI4T3Ce76ircDYrIivf7VN1ETw2/HVrXai?=
+ =?us-ascii?Q?V88a9wFCN30+gWTjZZuD8bOPzo1lE93XULgyOx5Qj/LpVk4tyg8VWt+ei9Bk?=
+ =?us-ascii?Q?0H5PN675rqdILgCWFuF0u8zyfrhP87h3mOTFGRSSrDf6bAHxfss5/YPbeLBX?=
+ =?us-ascii?Q?GmKBA7+dz9x7d0dFir+ZsVjsiRYdK6oMJtQUQBsQglZiH6LLmMr0ZClV6qFZ?=
+ =?us-ascii?Q?A5szXvlHeU3j5b98dpx1pY0t4hYq4oVv168n9IeWAYl6cwyj2Mw/sI6BDohF?=
+ =?us-ascii?Q?M7mpgqkE2hooIQM6wVGmctqKF+pks929QAwIMILQn7GQjs1H05/nJzHcIoa1?=
+ =?us-ascii?Q?9lcFp/5RKZm8JYpgXH9yq73PLKWxNH41UmQH9hZlR0bVuuaGoOkUkrFCwZlh?=
+ =?us-ascii?Q?YHRmaB9Sc4VcKsqc9iIohsUlnWS5xXikASRE9k+p834X0283nUz2etCem/Cu?=
+ =?us-ascii?Q?cLu2el5aht4nTs/VgMV7jIuNG+hCPinzaU82rUfCUfN2umVOs2ET7HyMiNoB?=
+ =?us-ascii?Q?nJzinW/3elNQ3/OZ0hsqywtGAbZeW9Mnj/chTFZXUPe2v9mvCQcAHMq52y28?=
+ =?us-ascii?Q?i7Ut/lBiy+OEFblWpvG7h5TQDZShuuOSMPMcsmjxNmEJ/fC2d2HNsYgIcurO?=
+ =?us-ascii?Q?mya7Zas3b71kIUWxqjZ2q8WCerz+2Lo7/i+sQiKSA8CKB4pgZhPerVjy2mn3?=
+ =?us-ascii?Q?o4s6fzYzA2oXPy1VA4PpwCnYN6RuOrj+0izW1lggLxCsXt+clx25BH1ya0st?=
+ =?us-ascii?Q?Ls2M2X+CwYPGeHF8fzfyryvMwqmdQrb4U6H/zBX3jaAKxM0TBCi3jpsruJqQ?=
+ =?us-ascii?Q?xXhqaLhcmEWv/ldQ1gxU+g6l8KBEXWI2iUx7WFJUn2W7O7FryFP0hCvEl/xf?=
+ =?us-ascii?Q?viyKpFkAhujsqDDtnk7fsTJcKaKbh8tsngLDuoXCX4RvPtYvQV14DvwnTjMj?=
+ =?us-ascii?Q?TjF2/dq0gOHInU/c1Sgb0YfePcrevI2XzIfnZNVA6OOFlv4Ys+R/f1KBw+aN?=
+ =?us-ascii?Q?HKnWHEkAN3swhbVgkUjG1wLtDb8Hp5sF4bEmSX0XFSA8N73ObaqdQyDAg6qy?=
+ =?us-ascii?Q?PVxAjUST7elBHJTWDF/wz7kF5NKoDQR2tRVNOPt/UD22eRKwD/UW3CUx0qTV?=
+ =?us-ascii?Q?cwOOUVrh++sNMfddTU98pNNNIOYHbVCGoEIio1sQv9ALg0gKSQ12mYlQ4XpY?=
+ =?us-ascii?Q?Z9pjVMa1Qg=3D=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: c8f0ff5e-4258-48cc-51b0-08df12d5f279
+X-MS-Exchange-CrossTenant-AuthSource: LV3PR12MB9356.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Sep 2026 20:58:47.8840
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Sep 2026 03:03:48.2413
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: slIzn1kwrNTlKNB9HcaNeRwtP4hqd+O56weE03sdq54fhKQj8IOvW7JUxmX9paCb4JvZlDz3zF5w11NSWXUjSNeMjKEhit6UFWeU68/rhko=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR10MB7320
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-14_04,2026-09-14_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0
- mlxlogscore=999 spamscore=0 bulkscore=0 phishscore=0 malwarescore=0
- mlxscore=0 lowpriorityscore=0 adultscore=0 classifier=spam adjust=0
- reason=mlx scancount=1 engine=8.19.0-2609040000 definitions=main-2609140299
-X-Proofpoint-ORIG-GUID: -aG0NydtTTRStb3wolX6n5UglO2M0OCm
-X-Authority-Analysis: v=2.4 cv=Ev9HPicA c=1 sm=1 tr=0 ts=6aa86012 cx=c_pps
- a=XiAAW1AwiKB2Y8Wsi+sD2Q==:117 a=XiAAW1AwiKB2Y8Wsi+sD2Q==:17
- a=6eWqkTHjU83fiwn7nKZWdM+Sl24=:19 a=z/mQ4Ysz8XfWz/Q5cLBRGdckG28=:19
- a=lCpzRmAYbLLaTzLvsPZ7Mbvzbb8=:19 a=xqWC_Br6kY4A:10 a=IkcTkHD0fZMA:10
- a=VdqzKS8jKosA:10 a=GoEa3M9JfhUA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=jiCTI4zE5U7BLdzWsZGv:22 a=x4eqshVgHu-cdnggieHk:22 a=VwQbUJbxAAAA:8
- a=pGLkceISAAAA:8 a=yPCof4ZbAAAA:8 a=7qycZ-XRql20Q87yfDkA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTE0MDMwMCBTYWx0ZWRfX9DAdOwRQw3ha
- 2kzmf4LDkNEf4kHVSfFv4E+LcrZvD7AiOCvmwZetowiJMeKD7zoKgx/nj5GTtlwLIvXPPyiTzdp
- tl6uDVyS3iADnCOPuuxcqds6IP4LaljOgAnlUQsHtirtj5/Bv2dg
-X-Proofpoint-GUID: -aG0NydtTTRStb3wolX6n5UglO2M0OCm
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTE0MDMwMCBTYWx0ZWRfXyM2ri3JgqLU0
- jwekxkRR9arM9lNuclP/CzRV1NsasNfrKb0LrqMxf4VOxjZ0upQOJ2eEfWH65BQJiYDNb/At+SO
- hTgcFuGSBpwtSsEp3KHFFpSzZ4hJLgkFDQuRPyGjHXUAaQkat9VR3B20ESD14oAoIeJSuhBCZIZ
- Xw0VUo3holU6jOtAeGMx5xr5Xj6nmVFM+c293gJlIHekhoQQ62yLHY8Femf0L86VZLkvm0UQMs4
- et/1ke62e0BvnId9OkYMMxDWvh5cD0soq/YjhqwoDkltJGSRNFMasdB2Mafnlv6ZcRYMNIvcDbq
- iK42Om1JHg/ZIVWnwbyjHi9m0abfW2/wz751KWMZPREE+Tc5AOyyX+6gsv3OQ046CJOHMw4+j2Q
- 55H77cgysysF0O/avTGsc1jzyt+UQts04CC6n8LBXEWm0RhP0DXB214LOpQdnQ0tfXGTcY0PbHs
- IiPUdfHv51tograObGw==
+X-MS-Exchange-CrossTenant-UserPrincipalName: 1Xt1b8oWq4hwqnRi+rV+SwJUEErefSNaOy0RVFSoNEKMX1X2tfCb2pn+OQXoRo7OLmAREb6l/8RFzSSBpjy6qQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ2PR12MB9008
 
-On 9/12/26 4:04 AM, Jia Jia wrote:
-> vhost_scsi_send_evt() is called with the event virtqueue mutex held.
-> If the worker is gone, the fallback currently calls
-> vhost_scsi_complete_events(), which tries to acquire the same mutex again
-> and deadlocks the caller.
-> 
-> Split event completion into a helper for callers that already hold the
-> mutex and a locking wrapper for the event worker. Use the helper on the
-> fallback path.
-> 
-> Link: https://lore.kernel.org/all/20260905005352.1E5B01F00A3D@smtp.kernel.org/
-> Fixes: b1b2ce58ed23 ("vhost-scsi: Handle vhost_vq_work_queue failures for events")
-> Signed-off-by: Jia Jia <physicalmtea@gmail.com>
-> ---
-> Sashiko AI flagged this while reviewing
-> the vhost-scsi event queue fix.
-> This is a pre-existing self-deadlock. It was reproduced in a follow-up test.
-> 
-> Trigger: vq->worker == NULL. vhost_vq_work_queue() then returns false,
-> and a subsequent vhost_scsi_do_plug() call deadlocks. I do not know what
-> normal condition gets us here; the normal vhost-scsi worker detach/reset
-> paths do not reach this code. The only reproduction I could come up with
-> was killing the vhost-scsi worker. This still looks like a low-probability
-> condition.
+On top of [1].
 
-Reviewed-by: Mike Christie <michael.christie@oracle.com>
+Declaration macros that statically initialize embedded locks require static
+storage when lockdep is enabled. Automatic objects must use runtime
+initialization so lockdep receives a persistent class key.
+
+For automatic local objects, lockdep cannot use the lock address as a persistent
+class key and reports "INFO: trying to register non-static key" before disabling
+itself.
+
+Series [1] introduces an ASSERT_STATIC_STORAGE() macro to enforce static
+duration of an object, and applies it for DEFINE_IDA() and DEFINE_MTREE().
+
+This series applies the same mechanism for the other structures of that
+sort found by Codex.
+
+Link: https://lore.kernel.org/all/20260911221444.1523311-1-ynorov@nvidia.com/ [1]
+
+--
+
+[1] also describes the preferred route(s) for the material. According to
+Andrew's (and mine) preferences, sending everything together in the hope
+that the relevant maintainers would ack the corresponding patches or
+simply take them in their trees.
+
+Yury Norov (17):
+  locking/mutex: assert static storage for DEFINE_MUTEX()
+  locking/rtmutex: assert static storage for DEFINE_RT_MUTEX()
+  locking/rwsem: assert static storage for semaphore definitions
+  locking/semaphore: assert static storage for DEFINE_SEMAPHORE()
+  locking/seqlock: assert static storage for DEFINE_SEQLOCK()
+  sched: assert static storage for wait queue and completion
+    declarations
+  xarray: assert static storage for DEFINE_XARRAY_FLAGS()
+  idr: enforce the static-storage contract of DEFINE_IDR()
+  radix-tree: require static storage for RADIX_TREE()
+  klist: assert static storage for DEFINE_KLIST()
+  workqueue: assert static storage for work declarations
+  timers: assert static storage for DEFINE_TIMER()
+  kthread: assert static storage for delayed work declarations
+  ratelimit: assert static storage for DEFINE_RATELIMIT_STATE()
+  notifier: assert static storage for locking notifier heads
+  rcu: assert static storage for RCU sync and SRCU definitions
+  sysctl: assert static storage for DEFINE_CTL_TABLE_POLL()
+
+ drivers/macintosh/ams/ams-pmu.c              |  4 +--
+ drivers/net/wireguard/selftest/allowedips.c  |  4 +--
+ include/linux/completion.h                   | 10 +++++--
+ include/linux/idr.h                          |  4 ++-
+ include/linux/klist.h                        |  4 ++-
+ include/linux/kthread.h                      |  4 ++-
+ include/linux/mutex.h                        |  7 +++--
+ include/linux/notifier.h                     | 13 ++++++---
+ include/linux/percpu-rwsem.h                 |  4 ++-
+ include/linux/radix-tree.h                   |  4 ++-
+ include/linux/ratelimit_types.h              |  4 ++-
+ include/linux/rcu_sync.h                     |  4 ++-
+ include/linux/rtmutex.h                      |  3 +-
+ include/linux/rwsem.h                        |  7 +++--
+ include/linux/semaphore.h                    |  4 ++-
+ include/linux/seqlock.h                      |  3 +-
+ include/linux/srcutiny.h                     |  4 ++-
+ include/linux/srcutree.h                     |  7 +++--
+ include/linux/swait.h                        |  6 ++--
+ include/linux/sysctl.h                       |  4 ++-
+ include/linux/timer.h                        |  4 ++-
+ include/linux/wait.h                         |  7 +++--
+ include/linux/workqueue.h                    | 10 +++++--
+ include/linux/xarray.h                       |  3 +-
+ tools/testing/memblock/linux/mutex.h         |  8 ++++--
+ tools/testing/radix-tree/benchmark.c         |  4 ++-
+ tools/testing/radix-tree/idr-test.c          | 29 ++++++++++++++------
+ tools/testing/radix-tree/iteration_check_2.c |  4 ++-
+ tools/testing/radix-tree/main.c              | 16 ++++++++---
+ tools/testing/radix-tree/regression3.c       |  4 ++-
+ tools/testing/radix-tree/tag_check.c         | 28 ++++++++++++++-----
+ tools/testing/vma/include/dup.h              |  5 +++-
+ tools/virtio/linux/compiler.h                |  9 ++++++
+ tools/virtio/linux/ratelimit.h               |  6 +++-
+ 34 files changed, 176 insertions(+), 65 deletions(-)
+
+-- 
+2.53.0
+
