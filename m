@@ -1,132 +1,148 @@
-Received: from mail-ed2-f12.google.com (mail-ed2-f12.google.com [74.125.228.76])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from delivery.antispam.mailspamprotection.com (delivery.antispam.mailspamprotection.com [185.56.87.7])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F09F64CE681
-	for <virtualization@lists.linux.dev>; Tue, 15 Sep 2026 19:09:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.76
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789499362; cv=none; b=HFjF0YwNeaQBszoZSV5ECtQWFADrgwDR6ArTt7dLwVmO4EJeqfBynid7QJeliAE/Go5FWveZ7sT9Lo2TyM6V+3/JdkLUMtgG+FuhDtggiZER7rVZpkBKC9KzSLp+sMSnys3GzdhfHQfcNsYUaiGTknsswvo9zi4THkBf8tlxdjs=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789499362; c=relaxed/simple;
-	bh=AGk4y8oFpNibhByHKIxcRS7KnQx6z20Q8VC6dFl1tNo=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ueEXYuHZE8K9zaXgJuqxna6HtsXXaNQaJ2vMrGXlxtD3DTTYOrQP/Y2aXuuXTHli6vOGbKWxIxf0FZU6j67WVx46D5/ywYiv7/lAWUaQTxvH4NTXHH6VGNTFHOpWMX1EAWY/ogwn4Jkm/iOVD1cOGyNBn7xNptbJUQnXQUA41o8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=V3s9Yuam; arc=none smtp.client-ip=74.125.228.76
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3307635295C
+	for <virtualization@lists.linux.dev>; Tue, 15 Sep 2026 20:24:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=185.56.87.7
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789503902; cv=pass; b=VmIEruXvbdyOE3kmOYbbC5Vep2NwbG1mXB2nYdz0YMIiACNuVExkGDWXeb+roxxMoDd9hsO4vy/FSeedOaD4j+gyC32WiMeItR4fLomgwf7U7aAu2O3HbYHegCVC7AY3bUg/XF5Ta6+OVkUD/mmytFR+x72yn6AuHaZvxQX83Eg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789503902; c=relaxed/simple;
+	bh=/gTHqcQaCpZHlArmpH9FpeT++7PaaL375Ym+hLAGZOs=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=ZpV1DaMeBuIeN5Pp5lQah5o1cdg+/NXbdC1tn30LnO4p5MIvlEFylXvQdDtxoYo8/IGRUkr/QAP61Kz/4hGiGuzY+pnIk4NF9zGKOeyrNmCkQkAMZmVcKyRhikJNHG4Q3BxBxDFjoOlYq04CWIPcbNKHKJf/XkUt5Sxm6BuKoPY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=valla.it; spf=pass smtp.mailfrom=valla.it; dkim=pass (1024-bit key) header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.b=dbB6bmhw; dkim=pass (1024-bit key) header.d=valla.it header.i=@valla.it header.b=Mctx5oz7; arc=pass smtp.client-ip=185.56.87.7
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=valla.it
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=valla.it
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="V3s9Yuam"
-Received: by mail-ed2-f12.google.com with SMTP id 4fb4d7f45d1cf-6a6063d7dc4so254736a12.3
-        for <virtualization@lists.linux.dev>; Tue, 15 Sep 2026 12:09:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google; t=1789499358; x=1790104158; darn=lists.linux.dev;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=XFFk9jJtDswBQpA8QWIooO6lLG4HdlvPT/LqykRjG+U=;
-        b=V3s9YuamrCt01NNfCrDScq1pVZIeBzVXEDFo2Zz1shTDSzHTGE7wDhsBJDhCoQUBgj
-         +VQxxh3VIhaFm26MB0r6hA9UNkCcyZJuxtluZTf0iqi/aws3ts01LkTXZKd6JdUkJCL8
-         AuKrpKJnqwzWwHcy+Ry3oKer6qp+64mKtpo/8=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789499358; x=1790104158;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=XFFk9jJtDswBQpA8QWIooO6lLG4HdlvPT/LqykRjG+U=;
-        b=Aj1/943nPjuRCYpeE3jIQAxd3JgmfjDJvZNBvwvvEqQtbrTK8uC2SdHNVXbuiq23sk
-         IrMJgG6a0eBcp2/nAmYhJhDcNMkkGsoRbBIufP4h3kfqhEkIHVAwR1Mz/kY+IKONKwBl
-         OPqxSwOuWOKDZNIpTD0fg1Qz+eg3Az2Q3z6fMsrTheQBydYS2Jxzi2ZmXVRx94JgA8Fr
-         bmgI3hft9yhq/WvlG8YR63jgyrcRf4YCttbvhKhxodGlMLY1NdVvGY1X0aTAh6QJM6Ua
-         lIy+9XiAre1Z82zbTPTVM8ovENPzjMAy07ctx4gb6xHnIAvz+AedrBjxOTtoRflFgKA1
-         299w==
-X-Forwarded-Encrypted: i=1; AKwUvBzXI7Sqeh5fdawtsmU66/z3hMhL6fpYwO+EhgEFDCu+DPWCkBvv25TQ3Vit3Vorc0sm5NG7lmKyVW0KTzdUNA==@lists.linux.dev
-X-Gm-Message-State: AFuF++meLUNbZ9EaG82v1GC58jhbG2nRrfDuFpMi/CtXEtEE1WCY0zl5
-	/yKOxmYB5z0KoWwpaG37FjtM4HF35qum3gxjddXt8CP615TV0gIn1VOED6mAYQkYgJk/8xEcEOm
-	Q1evlfNk=
-X-Gm-Gg: AYBFou2JCiVdC7L0Rwh/3RqbDPMErHl1YiiVGPNzHeJ3roEQOzcHvs3/CefIa7NOr2z
-	d5X2LWUEuZjc2BVfJhLrU2fjrJ0UAyXHUImsHMBvs7iIWlSrlX3LXKHcfKVIpn0l6OFXmPmrGFl
-	XCG81oICULDb/6RCh04ADax0RYe9PuZxWqOxOkBT5cjct7aupr6WXpI06DjbyNAQtsclJa9j2sf
-	mYpCE3pxnjsOlNSIvKYM45vp9O5zzm15hJYk8BuuLU5dOwVhvet/+TmrtxxvLS6aU87SgVuXEPN
-	oftLVjA+ARG7YyCIKgJaLXmO25rCJD06dcJwaCPUm5xLHSa3IfVJJXNbhvld2Ur8j6d6ap6G0yO
-	TFEjiodLOmjFG9Tmer33GbzFSXKGghP0roVWXpPQ3Cr/rTAjn4mBNHRbLTsDZHhiA8IO00LKcQs
-	J78igfZXGqQ2eHk5mXfqG3t0H2EeryqNd1ztjTMIpaIN56vonMiZi1bLa4rzbUBHnJW5QM2Uo7n
-	gKJN3WllOOfXiKFNlSEKi7XbVtrE/9+uZCRhvY7o3UdkIUfqC4=
-X-Received: by 2002:a05:6402:1ed0:b0:6a6:4783:b6ff with SMTP id 4fb4d7f45d1cf-6a9f61e3cefmr11240945a12.4.1789499357588;
-        Tue, 15 Sep 2026 12:09:17 -0700 (PDT)
-Received: from mail-ej2-f12.google.com (mail-ej2-f12.google.com. [74.125.228.140])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c29de454b4csm16635066b.17.2026.09.15.12.09.15
-        for <virtualization@lists.linux.dev>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 15 Sep 2026 12:09:16 -0700 (PDT)
-Received: by mail-ej2-f12.google.com with SMTP id a640c23a62f3a-c2940ef15d3so28233866b.2
-        for <virtualization@lists.linux.dev>; Tue, 15 Sep 2026 12:09:15 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AKwUvBxyjDT0zGdfeUd5jyh2NDgPl0HuYk4llWHh3PD3SlePjynuL4IMPQRlqBM9nqzmz+FvcfeuJm2bcw/h/3dGtg==@lists.linux.dev
-X-Received: by 2002:a17:906:7309:b0:c25:47a4:fedc with SMTP id
- a640c23a62f3a-c29b839a057mr1176039766b.2.1789499355710; Tue, 15 Sep 2026
- 12:09:15 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.b="dbB6bmhw";
+	dkim=pass (1024-bit key) header.d=valla.it header.i=@valla.it header.b="Mctx5oz7"
+ARC-Seal: i=1; cv=none; a=rsa-sha256; d=outgoing.instance-europe-west4-xhtg.prod.antispam.mailspamprotection.com; s=arckey; t=1789503899;
+	 b=IsiAa8UDzp6yIKtu5GV1JbrNpbu8xH723osGTKGDqkQVLOQksNwK4QvCOM7zq/n98qrPp4SWPQ
+	  rGjQWT+S5+5J9a3490qqUM8qCi01RZf/YciTAaBJByfX3yoP8YbSJf3GsmtdcPyqH8EEN86ebK
+	  rnKEDkJabsVvYtsTcV+1tI3vVYmqFrWtAVCKiEuLaQUBYUEekpMSJP4pGSWGiC6m385WvZIo6m
+	  zKoF4Oq0CMojKazZUgWFf/FigxpKrbQS2SvD6oy/tW0ACLs6UxHrKN5ZDqqz3/cCCCFuAooRVY
+	  3/C8uQopZky2qwj5JiQuZEJapHXQwkf9yhU4I/s+o9c7fw==;
+ARC-Authentication-Results: i=1; outgoing.instance-europe-west4-xhtg.prod.antispam.mailspamprotection.com; smtp.remote-ip=35.214.173.214;
+	iprev=pass (214.173.214.35.bc.googleusercontent.com) smtp.remote-ip=35.214.173.214;
+	auth=pass (LOGIN) smtp.auth=esm19.siteground.biz;
+	dkim=pass header.d=valla.it header.s=default header.a=rsa-sha256;
+	arc=none
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed; d=outgoing.instance-europe-west4-xhtg.prod.antispam.mailspamprotection.com; s=arckey; t=1789503899;
+	bh=/gTHqcQaCpZHlArmpH9FpeT++7PaaL375Ym+hLAGZOs=;
+	h=Cc:To:Content-Transfer-Encoding:Content-Type:MIME-Version:Message-ID:Date:
+	  Subject:From:DKIM-Signature:DKIM-Signature;
+	b=r94o/8uqfDKie2zv8qBO4785FQFCdeygyTdFteTfuTlxL8nG2j4LpLfidyJkPfqrTwetUqNR28
+	  apilHqgzhOPkjkPTcG1v46E1pS3zjkwtYQG9arUe70VP9wVvO1Mng6WdnZmB0D1MjG0LOXnOjZ
+	  tFJa7NP8JGttD8OEAw9VVu17p3Q7M+Zb9Fxi0yXKSj2yC7OYbk50t1iR9XtR2wc24czBVVbGBx
+	  vawZR3EnWrlItFmQsnRNgITQa6g7hGpzcZeR+eb7thjsV5wQ9bLB1DCpv+m0ctkOkLPwesufSe
+	  LpqmDDURBnbTLK00OcJKjLaws3AZOELkQNOIknvTHxTbLQ==;
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=antispam.mailspamprotection.com; s=default; h=CFBL-Feedback-ID:CFBL-Address
+	:Cc:To:Content-Transfer-Encoding:Content-Type:MIME-Version:Message-Id:Date:
+	Subject:From:Reply-To:List-Unsubscribe;
+	bh=0H1Zt4rRwH8/Itmi8SgfMZVzgpmWywqJ6/D/I7hQCQk=; b=dbB6bmhwpsrXtZ3SWNYrFWpdaq
+	apdfi5UmWS1rpl8/9EiWGbf+zHjpWRc8y6s+1zFxGOzjS9y6eyjA7SsVHyCQ/GdfiRGMjz8GXvxx6
+	FFc8bKYJTo6sYG9wHKWrGX4eak3vCu5IAjMGG3fiYkm3fQl77QRPlw+pMQYJN3kRPrTI=;
+Received: from 214.173.214.35.bc.googleusercontent.com ([35.214.173.214] helo=esm19.siteground.biz)
+	by instance-europe-west4-xhtg.prod.antispam.mailspamprotection.com with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+	(Exim 4.99.5)
+	(envelope-from <francesco@valla.it>)
+	id 1x6Zhw-00000000zy5-3G2m
+	for virtualization@lists.linux.dev;
+	Tue, 15 Sep 2026 20:24:50 +0000
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=valla.it;
+	s=default; h=Cc:To:Date:Subject:From:list-help:list-unsubscribe:
+	list-subscribe:list-post:list-owner:list-archive;
+	bh=0H1Zt4rRwH8/Itmi8SgfMZVzgpmWywqJ6/D/I7hQCQk=; b=Mctx5oz7Qm8K0GkjHKyeMWCLI/
+	sn0lmS3ppopbY+Sed5j/+OSkEQMD/UsuTnc1aaetD+EtUkso90+IQ38XlA8DfaGpb/5ymesijh9gW
+	zkyvS0cT1GDU3FEEjpIwqsvZRR78C9mGNdqHmInshTkdOOkdDIXSP0v1PgCj7pbyW3S4=;
+Received: from [95.233.221.121] (port=64541 helo=[192.168.178.175])
+	by esm19.siteground.biz with essmtpa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+	(Exim 4.99.5)
+	(envelope-from <francesco@valla.it>)
+	id 1x6Zhs-00000000HDi-0bgk;
+	Tue, 15 Sep 2026 20:24:44 +0000
+From: Francesco Valla <francesco@valla.it>
+Subject: [PATCH 0/2] spi: virtio: fix max frequency setting plus minor
+ cleanup
+Date: Tue, 15 Sep 2026 22:24:35 +0200
+Message-Id: <20260915-virtio-spi-fix2-v1-0-7a474cb1b13b@valla.it>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260915-work-fd-reserve-unify-folded-v1-0-4d5217d6b246@kernel.org>
- <CAG48ez1RsdT=O=-0city3vjgWhDvY424KtTmrCJntWy5ds3HBQ@mail.gmail.com>
-In-Reply-To: <CAG48ez1RsdT=O=-0city3vjgWhDvY424KtTmrCJntWy5ds3HBQ@mail.gmail.com>
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Tue, 15 Sep 2026 12:08:57 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wi3Kkqgfg6zUTHpQoZNL2VOB4vYqpi6RX0WNO++29UtyQ@mail.gmail.com>
-X-Gm-Features: AcwNN1VCm0LMG7z3Jned014oJh6WBcf4uOx0OBk98_hrtHKbrhcQiMMJ_A-fmB0
-Message-ID: <CAHk-=wi3Kkqgfg6zUTHpQoZNL2VOB4vYqpi6RX0WNO++29UtyQ@mail.gmail.com>
-Subject: Re: [PATCH RFC POC 00/50] file: handle files on syscall exit
-To: Jann Horn <jannh@google.com>
-Cc: Christian Brauner <brauner@kernel.org>, Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>, 
-	Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, linux-fsdevel@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org, 
-	Oleg Nesterov <oleg@redhat.com>, linux-alpha@vger.kernel.org, 
-	linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
-	linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, 
-	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
-	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org, 
-	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, 
-	linux-um@lists.infradead.org, Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org, 
-	netdev@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
-	linux-gpio@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
-	dri-devel@lists.freedesktop.org, bpf@vger.kernel.org, 
-	David Airlie <airlied@redhat.com>, virtualization@lists.linux.dev, kvm@vger.kernel.org, 
-	kexec@lists.infradead.org, linux-hyperv@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMQQ5AMBCF4avIrE1SFQ2uIha0g7FAOjQScXfF8
+ nvJ+y8Q8kwCdXKBp8DC6xKRpQnYqVtGQnbRoJU2qsoKDOx3XlE2xoFPjeTKXHfKKlMRxNfmKe5
+ fsWl/y9HPZPc3A/f9AIykIk1zAAAA
+X-Change-ID: 20260915-virtio-spi-fix2-ed832a0c069e
+To: Haixu Cui <quic_haixcui@quicinc.com>, Mark Brown <broonie@kernel.org>
+Cc: virtualization@lists.linux.dev, linux-spi@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Francesco Valla <francesco@valla.it>
+X-Mailer: b4 0.16.0
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1075; i=francesco@valla.it;
+ h=from:subject:message-id; bh=/gTHqcQaCpZHlArmpH9FpeT++7PaaL375Ym+hLAGZOs=;
+ b=owGbwMvMwCX2aH1OUIzHTgbG02pJDFkrV7bGThG9rmnzfu3/QzYn5705Fu/yJCHB+I9cynvPT
+ wcv5Qe/6yhlYRDjYpAVU2QJWXfj3p655t/SNjA+gpnDygQyhIGLUwAmYiXH8D/xR90dNqbsgAWv
+ X7cy7To4SW9a1r09yYv9GzMu/eA2uXiS4Q93eXGWvL5xOef944dbf023L6kQ+FrHEb5I8NCH788
+ k3bkA
+X-Developer-Key: i=francesco@valla.it; a=openpgp;
+ fpr=CC70CBC9AA13257C6CCED8669601767CA07CA0EA
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - esm19.siteground.biz
+X-AntiAbuse: Original Domain - lists.linux.dev
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - valla.it
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-SGantispam-id: 57717de1a6d6b2aacf82a6b14b959e1b
+X-AntiAbuse: ID - 57717de1a6d6b2aacf82a6b14b959e1b
+AntiSpam-DLS: false
+AntiSpam-DLSP: 
+AntiSpam-DLSRS: 
+AntiSpam-TS: 1.0
+CFBL-Address: feedback@antispam.mailspamprotection.com; report=arf
+CFBL-Feedback-ID: 1x6Zhw-00000000zy5-3G2m-feedback@antispam.mailspamprotection.com
+Authentication-Results: outgoing.instance-europe-west4-xhtg.prod.antispam.mailspamprotection.com;
+	iprev=pass (214.173.214.35.bc.googleusercontent.com) smtp.remote-ip=35.214.173.214;
+	auth=pass (LOGIN) smtp.auth=esm19.siteground.biz;
+	dkim=pass header.d=valla.it header.s=default header.a=rsa-sha256;
+	arc=none
 
-On Tue, 15 Sept 2026 at 10:52, Jann Horn <jannh@google.com> wrote:
->
-> Is this mainly about stuff like "we installed a file descriptor and
-> then the following put_user() failed"? Because if so, I think a nicer
-> fix would be to have a policy of "if userspace provides unwritable
-> memory to a syscall, just keep going and pretend the access worked",
-> and maybe have a sysctl that kills the process when this happens to
-> emphasize that userspace should not be doing this.
+Hello,
 
-We've done that before, where we just ignore put_user() errors and the
-user gets whatever the user gets.
+while developing a virtio-spi device, I noticed that the spi-virtio
+driver in not honoring the indication on the maximum transfer frequency
+supported by the device that this one indicates using the config space.
+Patch 1 contains a fix for that.
 
-It is maybe not optimal, but it's fine. You can find quite a lot of
-unchecked put_user() calls with a pattern like
+While at it, I did a minor cleanup inside the function parsing the
+config space, where a value was stored into the driver's private data
+without a further usage, wasting (a very tiny amount of) memory.
 
-        git grep '^[[:space:]]*put_user(.*);'
+This was tested against a (still unreleased) virtio device running on
+a Cortex-M33, with remoteproc as virtio transport.
 
-and some of them are in core code - see the two in kernel/fork.c, for example.
+Regards,
+Francesco
 
-One of them says "if userspace has not set up a proper pointer then
-tough luck". The other one doesn't even bother with a comment.
+Signed-off-by: Francesco Valla <francesco@valla.it>
+---
+Francesco Valla (2):
+      spi: virtio: fix max frequency setting
+      spi: virtio: drop unused field from private data
 
-The scheduler has two cases too, although one of them is admittedly
-for another error case.
+ drivers/spi/spi-virtio.c | 20 ++++++++------------
+ 1 file changed, 8 insertions(+), 12 deletions(-)
+---
+base-commit: 9b87fdc9af2fbfcdb5c24a64139685ef80f6573f
+change-id: 20260915-virtio-spi-fix2-ed832a0c069e
 
-So yes, saying "if you pass bogus arguments, you get what you get" is
-a valid model. It's perhaps not the *preferred* model, but it's not
-wrong.
+Best regards,
+--  
+Francesco Valla <francesco@valla.it>
 
-It *would* be wrong to take code that already has error handling and
-remove the error handling, though.
-
-                  Linus
