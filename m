@@ -1,47 +1,47 @@
-Received: from DM5PR21CU001.outbound.protection.outlook.com (mail-centralusazon11011039.outbound.protection.outlook.com [52.101.62.39])
+Received: from CH4PR04CU002.outbound.protection.outlook.com (mail-northcentralusazon11013015.outbound.protection.outlook.com [40.107.201.15])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C55503FD960;
-	Tue, 15 Sep 2026 03:04:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.62.39
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9506B401A3B;
+	Tue, 15 Sep 2026 03:13:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.201.15
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789441459; cv=fail; b=XWgxsfFfWPGUQLVtniG7t1VCI5MEbZnHtqi284W6Z6MEdCS+spysK48cViyL97vjKPdNQRa54rfkGjE7BqvX8/zNJNv5MLCbm3dTIcWY89uz9wv3ZWTuEu7uympFN0+yh4SKtldvn1RxqGNmymRxwmkXtZ3e26XR8DDrp/WzcjA=
+	t=1789442030; cv=fail; b=Mfyjdk+3L5iWWVORDE/NpK1DAGDjMJ9uQAw/v++33JyEzORTXBmUELmgKlX5WQk/Nv4goLkOhevppYr2BPKMaH44s1eh31q670cvBRY9IpAWA3N7/mPTjpXegyGliL5SVKNdBXFx7zYurm2fuhru/Cf6eytJevMK2DJEXWOUm0k=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789441459; c=relaxed/simple;
-	bh=eZrVwc8XiJsQ5jx9/NXq/QOz9Z2cMQETgEX5xo51BuQ=;
+	s=arc-20240116; t=1789442030; c=relaxed/simple;
+	bh=f+LcSZWNsXOJwpFT9q3OpSkBCrgqjF8oGS6KnPja2Tw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=nUdlrMJaZySbE0k2LO7zbXUR/82SDmZZMfUsAEtSMSx77sUGkv5MTQSYriDDGQMhzQDmy2Y1bENPdPjmeafUwN14EoEjUUmJsqHUr6c64uYXOQShHZkrjplj8Z2NxgQhvr6pyqEMWK433h55qeGDBdhO5KVjnR9yy/v0zHr9058=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=GwIForsv; arc=fail smtp.client-ip=52.101.62.39
+	 Content-Type:MIME-Version; b=SHKNSCIGqQb97SQO+GtDE+IYVNxI4rLgNJlnLjyRfzVLeQiA1qcocbcwHaiqLSQidCUxIqePi2Icva2CEgyHAwMqzr88LSPL1kdSI15nBuPqSsOpGW98w/HeyUEmLrjhyIc9TScICS37k02HDZOBJEtsn7EE/0B1z4H5Wr3CDgg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=NYjcGaMj; arc=fail smtp.client-ip=40.107.201.15
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="GwIForsv"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="NYjcGaMj"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=i+iycThGFGQ31PlAhgLrWphkamlutbXRChZ0QnIGr6AB82JtcNzrjQX0lhNn0xBxmrTe1sUzU2fRfCBnJ6UtjEsgN/OHJ3H7t7ErhbhZ8PmTGtq14z12yCL9iL0DThL5j3AU4YCJEVc8i07m97ut8PH+UBqUqtQRvpu2dKYOuYXeXxDjgeYBiLaluSILCiFwz92Bsl8bq6kbYmkm/ExYTO2pvqgzZ19Bhg0AiPoQqWlf+h+y5Gq3RgBF21n6+zX9gwn+KUNHM1/5kXx8NDycN1KWYI7JX5GLW+yUCNRFbwNBzoDdt4K6VBzA//A6gMrbkbfXWvsyKN6Er3Ub3uYGgw==
+ b=xBqX0MhONTAsWGCZi43m1LDhqSV3TFqEUErruxKKioVOW6/IPiR29/3quIW810J6xsEYyJcknpPE4EbeqQfegPl5l1OwQ58fdP6j1NLOXSndi/Bj7DJxa+CoaDNhW2YqFWGyPmj3vQ9OBqMveTY2dGBumHIgRWokIxKplLT2FC7EPZPdReVDXHo+rK7JesNRlTxepdsTeFYIzkB3HTfLBfu5IMDCu2gjpJrVQzny12YB4rVjGzLeSK44MxDbKrltCaiJd7x6GPfaEpA153D70J9nkkoCok7wtG1Ry/M7gPHl/8w/U1mvQj7zQRYxaiS1qFihxHOO/K2OMY68XYZ3lw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=KCA4zzDzjR539e8qB1+O4l2WvBXUBcQjWYhI0kLBBXM=;
- b=EH+TIjvDacpNVhgE+0lWmz6shk1B08nvOJYT4FNTJ6zR5jts9o85obYGT6l8EJrt4wuJbRF8xrzQeOwmbgcbsHSINDD89hY6t6mpYmlHucE+qD0FKMyObNPYTD5qgEbvpWqIUB21CVnXeO9qOlQv5BtISXIJR7g75Xf+4i747Bc5JELfGTKI7AI8tw9ZuI21U4F8WR3I9yX01vVCyGGSeGCXjXg1iMWG7HD+3HYm47DOZkSN8kJ3zOQqYzLavA2VzvRTRyJTr38bApK1j5lNz9XlUhJoo63XCHlbP/fPRjaH5VQ5qYq65V/qcVuepSl7sTTn5i8rTMpkOHVcEMglGg==
+ bh=dqRyWUarxerox1+/UpOmKP1szaDVGaDMR23jroEMFj8=;
+ b=VSBnw5qmfQnTnIHrZFYl5Nbb/n2d/DpMZi+rshg6zy1jSoJnwQpweUzcD14O8oAN1PY3+U4VY+pHiN3RYI7qHKy2/EmxaSn0uRbpipxnRKKbYC0KqLHGOtx9Ay/wpmRxsKfCAdb4SHAwuCH9aem51R9fKuYRGo9wOgy+G99rDVc1/51gfItPRiJUsH02aH1rHloPwvCwJQRuraoPTCiHLGfVbsCTgL90v6dWZv8BmOm+wYEJdBQAcH+lrPrEqc6aI/M59/xF6mTNkp5W/ewKkk4qazkw9usf1HN8mrTa4dokwAFZ0w0MatS0ql40dQXB28qkvfvhcFn9O+YJ1sADTg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
  dkim=pass header.d=nvidia.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=KCA4zzDzjR539e8qB1+O4l2WvBXUBcQjWYhI0kLBBXM=;
- b=GwIForsvvAmzthDF2ztbtVWSMOyzF6/ROfaDEkaRJgsnlUACXWIwqXAQW3hXehhf5L82ooMtfFveY7PeUnkuWlKpNyGQDO49q1K7UO2CSKRgogAtNFzvyi5CYMNUY+ke3oxXuaFuNLy3h1SRI+otPpYxNAMeQJUr+dIysKQRmY7pLFEhHfU8IEDcUSuy2F/ladoRbUnZV6+SagVaTGF3Tme54ScYbP7kvfYb2BJYoe+Rl/oamrYU7medz+bdjyYZt+2aNbXNyOp9fIsZRfaaY1ekZQmCADbFgGS+iUzlVv/AOjK2p4IHTLtDOep36YGQhMoetDKMpxjJDp+qMW0+fg==
+ bh=dqRyWUarxerox1+/UpOmKP1szaDVGaDMR23jroEMFj8=;
+ b=NYjcGaMj3if2jftwR5RBvlcyeThgu20WdTtiiP+qrc0QnzzrukqD5VELP0yOBOKSnBGuXRCff01nzwV3/ZUW0+oVZG7zk9pQ2eGkbBC+im+B+o2uUwrKTHkPbqHNP8hT7OPMA1PPR+uPvms9ep67AhkStFaKgfoRqRBssaAICD/W7AF/TC6hs8nu7vUshaXvrdU/TogUnuQINKCgIBj06orxrzj3axsNu4rBNO2XkZxZenmlUz0ms4ogDwaiOzN3e8ze0Mou7TAauc35frcwlrSMNunXBJjxfjAoT43LbvRhjvjF6wCJ363Lr1koQic2bFvWmYZJ2YxP59co9TaEIA==
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=nvidia.com;
 Received: from LV3PR12MB9356.namprd12.prod.outlook.com (2603:10b6:408:20c::21)
- by SJ2PR12MB9008.namprd12.prod.outlook.com (2603:10b6:a03:543::19) with
+ by SN7PR12MB7834.namprd12.prod.outlook.com (2603:10b6:806:34d::13) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.406.12; Tue, 15 Sep
- 2026 03:04:09 +0000
+ 2026 03:13:39 +0000
 Received: from LV3PR12MB9356.namprd12.prod.outlook.com
  ([fe80::1c36:31b4:c420:6286]) by LV3PR12MB9356.namprd12.prod.outlook.com
  ([fe80::1c36:31b4:c420:6286%5]) with mapi id 15.21.0406.007; Tue, 15 Sep 2026
- 03:04:09 +0000
+ 03:13:39 +0000
 From: Yury Norov <ynorov@nvidia.com>
 To: Andrew Morton <akpm@linux-foundation.org>
 Cc: Yury Norov <ynorov@nvidia.com>,
@@ -109,16 +109,16 @@ Cc: Yury Norov <ynorov@nvidia.com>,
 	linux-rt-devel@lists.linux.dev,
 	llvm@lists.linux.dev,
 	Yury Norov <yury.norov@gmail.com>
-Subject: [PATCH 05/17] locking/seqlock: assert static storage for DEFINE_SEQLOCK()
-Date: Mon, 14 Sep 2026 23:03:23 -0400
-Message-ID: <20260915030336.1192299-6-ynorov@nvidia.com>
+Subject: [PATCH 06/17] sched: assert static storage for wait queue and completion declarations
+Date: Mon, 14 Sep 2026 23:13:21 -0400
+Message-ID: <20260915031334.1194975-1-ynorov@nvidia.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260915030336.1192299-1-ynorov@nvidia.com>
 References: <20260915030336.1192299-1-ynorov@nvidia.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-ClientProxiedBy: BL1PR13CA0065.namprd13.prod.outlook.com
- (2603:10b6:208:2b8::10) To LV3PR12MB9356.namprd12.prod.outlook.com
+X-ClientProxiedBy: BN9PR03CA0245.namprd03.prod.outlook.com
+ (2603:10b6:408:ff::10) To LV3PR12MB9356.namprd12.prod.outlook.com
  (2603:10b6:408:20c::21)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -127,88 +127,201 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV3PR12MB9356:EE_|SJ2PR12MB9008:EE_
-X-MS-Office365-Filtering-Correlation-Id: 59987c62-6fe2-46bf-f359-08df12d602bc
+X-MS-TrafficTypeDiagnostic: LV3PR12MB9356:EE_|SN7PR12MB7834:EE_
+X-MS-Office365-Filtering-Correlation-Id: 6ebf14a0-690a-470b-2fe4-08df12d756d2
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|366016|23010399003|376014|7416014|1800799024|10067099003|56012099006|11063799006|18002099003|22082099003;
+	BCL:0;ARA:13230040|366016|1800799024|23010399003|7416014|376014|10067099003|6133799003|22082099003|18002099003|56012099006|11063799006;
 X-Microsoft-Antispam-Message-Info:
-	YF9Y6lUKovTQIoQjRjvN1Ul7bNH3Z7xWjOeTZ0X7BTfHyeqMWFgNxGQ7NKNqL52a7b0HYVcjsHeVTn5GGxf2Tsb/QAIboKhRz9zCvhFVNmSKLj87Ek/kPB+IeJAGbRKz7QHwQHTDMHf9yMDnuxtDTk6NSS1t8qkmMHSe3CO83BqFdnwMk3wjv6+/YUUf0NQg6iy0AbnTCIVz8GC70gbDpv5ShM6S7MaM7/orKbKyM+x7Tr2zzlLPlxmy8bvFK0lcIXjXRelwSoh34hK3+yB+zcq98GTOvskba33HeDgcbb/BnLxg0+cT89aoohLwT+hf9dEKUgevo/mCTsH5e64zo9b2AqC9NWlJvd3PF/ch4tFLhuaWN2s1IPGPx81kdUUggvCbq+I17yNyWtOsAgd6RI74SoqnR95PWIWw0WNCWKwWK6IyrFf9+7ZdMt9UFqsaSVuQeC+dQSGHRhuj/e+u/N9AuQmSPqBK3QS2u/1YtZJfipyLhWIU2P/TFT0HO8oCn6YYZvRy9srKJenZFitmmg4fMkh0G4IMN2WxVxW+FSYT4KkyJEOtopeyMQfAeAurHid1XzKS+puQQtVUQGSlZqvp+Pv3uRulaHqC7np7FnpsLZeAalGNWETeJ3+0ed2ameNZ11vIUsRJjW7NVFyZAbKHwvsAP2/sPLCxzGYX2nM=
+	ujyqsv8Mqu+RzMSRTubhAvIjC+pSD+Y3sdRtDBO/n39giiuPlJMBXGmZdOEeT0I+leInLRB8J/fTyydAG54ZlO9PQ01owGs2Gt+xn9pI53OHJ1O9VC4BnrcMkQnV70aFYp84qp9gKRdVyIYP4h1bj9yv1iCY5nxvUsFy5e1prdlf00IEuzCTNqm9g5SZlynBM9YZ+9520ElXmjNVMC4KeJsPuxvbboDQ1Z59WPDp/wVStKzudDrXrmz92RrpxrhiBliGkUNnuWxXppHPMucEQdmOkJIA37JhkR9gEtVilGX9kXsCb47X4bneFV4ZVkQkR3QDHXMkeQc6pGNJm4m70VmaWtrQGa1V8qBNrpSMYtvVE4bd9gcgFt4RTiY3FxOT+rZ10l4Vrouo0NOh+mLBSmXN2MIQPhbyAWt4ScrB+V6rzlM8qRvU0UZJKE4Gsoed3bDrJDcuaUBOA6/nls0p+ajLNQMbsP34on3ewS+w93gCYarBNwd4y0p0bLE68RPpRZa4lzgfQ3vX3kgVzNOdmZV7U4wDCIsd0d1+zVDpASGjyWAzVj7TdEP0Lh0NS1j04L1y/pA6IalAB3kH/fMtOo9+01djFPtNp0jF2r+Vq2t9kQiVeKx9BmfBPgZGTmWpxm3OyZdYrgehz+kgCmBrhL3KJwYghxgNOcOB7U2pxTM=
 X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV3PR12MB9356.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(23010399003)(376014)(7416014)(1800799024)(10067099003)(56012099006)(11063799006)(18002099003)(22082099003);DIR:OUT;SFP:1101;
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV3PR12MB9356.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(23010399003)(7416014)(376014)(10067099003)(6133799003)(22082099003)(18002099003)(56012099006)(11063799006);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?vgZApla8m4K0VyKOltDCiW4rqnb+RCTtbvgKtZHDiI/kS7jHAA0jOI+l9z/2?=
- =?us-ascii?Q?52CIrx1y3y7aCmgqvZ6MOUAf8CBPjQDxJTyeTbc+ook3fHcjjzWUjZxsrETP?=
- =?us-ascii?Q?zRhWIokNwU2W23LgxTLULjjOR7Hz0NwWIJ9KK6vYnkMPAqvCjKmFrC8sEh6E?=
- =?us-ascii?Q?lfDAjOAWzqLFLFNfVXuyBp3Yq2NDr8eckJN1jblRgT+GGmkj1eYmRMeqYRnT?=
- =?us-ascii?Q?pzDl2rko1xDyXpcDSlsrEfsQHjg7hcbOBTLbdfmmGm9NTUou19b9ckGGpIAH?=
- =?us-ascii?Q?B5eN/VfuOI1VnOWnGu8YFb9TMenuyXzA8F1BaDJOGVtanryhwgfQPhvueFdq?=
- =?us-ascii?Q?ohcL3lOgGw8zgkD5z22up/XQircUXCvj8c3Dvu8lHcyo5Pcbsu6t35bQ5nyO?=
- =?us-ascii?Q?7J2SNPGe6degkQNVrm+6GOFC9PQC+q2Z21fd17l+SXprYgjcc/iAYCOnQU8L?=
- =?us-ascii?Q?eIkXq+0uk5BbOldOR+avApPMEt6sVBah9QRsJxhbEoFU1m5P6e//2le6d+Go?=
- =?us-ascii?Q?Rhlxu0aSvbbJVXuu7Rll82FJhcM0AeOdejvBvE3X8pOuvGpCXwPFez2ehwxa?=
- =?us-ascii?Q?OjnjuOiwrsBzI79lqzJ0Lm7dDBFW2mPc5US2M5MqqMEioHWd/seSPZuFLi7e?=
- =?us-ascii?Q?aEVLsmya5JNfs3eofXkcLt8e3FpeIxXc6voMOvyoZIol8ukxsWTc3EYbMIAr?=
- =?us-ascii?Q?tRK9HkCDiAFYfAw9tjHCfP/WrVHELt1DBUh98gdrjIT6FiS4DUncoFDqJ+zi?=
- =?us-ascii?Q?iIds3RCs+1sH6T2DNaARYDYlNfe651cxwPma86C5F8NiBApZXMjZ57bKYlZ9?=
- =?us-ascii?Q?77bkl4Z14R3bkxYrwmqHLsbWClJuaP6GjyZ8Wi0mrL9a0sjRu2eO+CyyRgSO?=
- =?us-ascii?Q?gE7MvaVGoL8Io4Ku7U0lBGYUCi6eHTEb5vZL+ARe3CqQCXzXWI+5c3OmDO1Y?=
- =?us-ascii?Q?g+s8nrXfEHTIMOv0Qq2BxM/SeVtYztgq5CrBLvW3eZrE3Eox0jZZZ0xj075O?=
- =?us-ascii?Q?mvJ/ao7KV3zEO7jZQmJ+PVxenGok1G5txQZ2d3D4EkGVzK67ohnetfBURMOI?=
- =?us-ascii?Q?cdUIGLNUWzVkD3Tf9T7cvnKqRWg8z4ay0y3jiFK4R8xsIl3Kd+gTwknJHhv7?=
- =?us-ascii?Q?iuM/3MMY04lnrrfNeN0Dm2nMUfhDqZdyR5hNqONly3NWEYP+bf/MQU8WXSu9?=
- =?us-ascii?Q?ritMF3BB4gE/yHe0p4mY/VnIthv0T5Do3zlDPdAz3Nuuy/1+IGz3Ztq14Vn+?=
- =?us-ascii?Q?bJOZO0LdCGroKcVlKnKy1SG5nNgEyj9yznNi9tav0Tui8ia2m92YSR1CYaDb?=
- =?us-ascii?Q?kQwmVq+e57/4TUsHJodkiKo74DJEoNmIzhaZuFj7LnZiSQThtCi4uXQzD/DZ?=
- =?us-ascii?Q?zkO9y7EzUITTkYgFCVpdSYmR/lRzPDUTavkabhEoY128qwtv+D4mpBdkBwwj?=
- =?us-ascii?Q?oyMH7xIX7SMX1d10y9F+mlkCUuhY1F5neUkJTtEisCBCeIaTgFObqcUEo5Kn?=
- =?us-ascii?Q?MZgnn7gkHudEfC5qXFbD0XwrDrc2HVZ3WfDiCnvc47LnfQJUW9652TAl64c+?=
- =?us-ascii?Q?RY8wz/UdFz0Rjfn9nFMWi8plyRRWt3zLU+NU0FzYvTGvNyg6z7YHn4YPxlyl?=
- =?us-ascii?Q?6EchAXx89tiMxG470HKpctscAbPhCsuCzV2gInga8ijYjbxoNfY1d0hwEZkT?=
- =?us-ascii?Q?XwJY9ij9DuPblkV/5E9Nqn6leGEV1s1gQ5JlDQVoMtcYemw9JThoWEqHF2gj?=
- =?us-ascii?Q?4OelspuI+Q=3D=3D?=
+	=?us-ascii?Q?GwQ0nzLyGOSpnO4x6m1AwRPoycDPenQAJwOp3HCgmO5Rx4gV4cUTIyLuTjcd?=
+ =?us-ascii?Q?e9WR7oDZjUm+rFdlII830gr8AF4UkT0qsgDgLBOfNu14emhfqlxd0GAEwwuT?=
+ =?us-ascii?Q?ScDvP+lrwLY4/p+kkGmVlWqV/nzIdBHkR1z6IP5UqF8bIl7GJQQVeHSj/oAS?=
+ =?us-ascii?Q?J7I8o0vI+BLZSuu50JuEbD53ThufULWIZOMi1rcQLlfg8BcZJJs7N6+kyQmQ?=
+ =?us-ascii?Q?F6uyrxJqA1kW4xDrPIr38rL4cHrtJE7nv46rZuszNdk5bdQL4JFKrO4bx+oD?=
+ =?us-ascii?Q?AahxHPpwRvTDb5DSAWBOXIrvZmJwyTx6yv2nm+fyCOJN8kOpRWFoJg0xGWqO?=
+ =?us-ascii?Q?Ptvx2NhtfdTbIuRnwNNrzi+BwG3Rv3Lfyy8+e+FDRFgW7jmaNENrR1D6Tt7z?=
+ =?us-ascii?Q?Vq0VQ1TbjnN/Jp9jnsHWcZh4j8YYAubQppTfJV9zQKiGbg8/vUoaTqMP68h1?=
+ =?us-ascii?Q?LkDnWEqu0vwpb3hH3Dh6NfCR1nVQqW00tkS7aCmHc5Q322SYRoCTtHd0b/nd?=
+ =?us-ascii?Q?wunSVLuaycrodKAfirqbdjgYihzUxAtIpPR4kdi+5LCEtI9fUId6iTaYwDS1?=
+ =?us-ascii?Q?1wGHm/na81xBfd++O1DCOOGfwjtk6+1cIT11pkYVH/e/q6X8pRran74Mqnr5?=
+ =?us-ascii?Q?ZdO0xAv0jU+kxG+cdcqJZE2kwnbcbHKoJx2mheXFKemjfi59Be3CkeySOf5l?=
+ =?us-ascii?Q?DS/mir8udq3wnPvC6HS3UoOgnW5U0CIld3wCIng6rMyDdjC81GUqKuFpWPVV?=
+ =?us-ascii?Q?gucji7rT7s+1MaxdRVPfPKX2MXeDHABrQ0QrkC64HKlyiLgeF0cbDHUO51Ho?=
+ =?us-ascii?Q?l08oQKEUrpzNdZGVR5vaA5G9iziDxRtDYQ6qWpBSVoANR9BPTUr1LGrBq/p3?=
+ =?us-ascii?Q?U3Pi+BOiy8OjuYInqvEQuawTjl5dFKEQNeSKNLF/ZNtVoAM7SxKOVjbO0CIo?=
+ =?us-ascii?Q?k7y1T2IKO3tAYcedz536hm3j6JdmbQCkn0txfmzhmehYURRuFC71BC4dQrK0?=
+ =?us-ascii?Q?bgiO+sQhzoztGVHHSWr8/46zAVf2oxXjPncGGnK/eGCi2TCRMIKYDcRj+8aA?=
+ =?us-ascii?Q?8D0xGAGI3NGb/KqNcBlqrE7aQMnt7J31ChB31+stDYacjDGaqVU9UK7PbOp3?=
+ =?us-ascii?Q?laniq/gvDP5by/IOG27WvDojkAfJGCKOrkZkJBaevZb3KpZoWYqk8WJvZBRZ?=
+ =?us-ascii?Q?WYCCA41A2yTX4IWouzsC8d73PwmyT6VLxNcAEvHtB6/Td6h0PS7xy9idrqs4?=
+ =?us-ascii?Q?HpFVrNc/5hSFQuZ7hMCjgYWkv47YmABqg9f42nKuKmSwnSGmnxu3CqiqXgRp?=
+ =?us-ascii?Q?FJfYpiwC3wGAEyw9ORk1zyYwTsxQEgiUNPwpt7uww8j5XSBVBTV+stlM/8eK?=
+ =?us-ascii?Q?kxQLN1V9F0M/VcxOLr+ZxZbPAolOJ/m8cKN0JRTgbe38UxtlnPl/yd74pOr0?=
+ =?us-ascii?Q?LdsmVAEMJsiaQKInhwc0MZuoU3TYzRTAhA04/053GvtsEWmHMd5yxeLZ2y7u?=
+ =?us-ascii?Q?HHOz8/K/vXVTugKwbvtXr5IZZjRo9U7css+TL48ZXQM51JWr+9W11t8geOYS?=
+ =?us-ascii?Q?hVf6MPEPqFPudEnPO3ZJ2blf8qRS7/ImQ095AbnaiCDC7U4YhuSV2iCNV+0Y?=
+ =?us-ascii?Q?B1l3NKRnjFNIhNbSax6EznsrNVpx2PjG/sDm2TI6u0HN4Vs4yEwca6KQtej/?=
+ =?us-ascii?Q?VeuZ/FgvO8WIXjbzKuVUmVYWaesHFsf2RL7CuHKj5Bw4q7bOxbjsS3XUDxGt?=
+ =?us-ascii?Q?DKj8XDP93w=3D=3D?=
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 59987c62-6fe2-46bf-f359-08df12d602bc
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6ebf14a0-690a-470b-2fe4-08df12d756d2
 X-MS-Exchange-CrossTenant-AuthSource: LV3PR12MB9356.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Sep 2026 03:04:08.9871
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Sep 2026 03:13:39.5945
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: DMiNxxLAZvWgMVWVKoDdblLRW8aEV0p/dkTaj2U2VB+LCpFq+rt2f7iGbxMGf+Ky9mALijsaCsH7YQZcHpt52g==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ2PR12MB9008
+X-MS-Exchange-CrossTenant-UserPrincipalName: F227rWTftCNds1bLAmXuJ9ypEQHbFJoVXfzgyM1if7ZeV0RA0vWTuPu4huoGwpJJ7VX1izhWmxwACme9kZ54Ig==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR12MB7834
 
-DEFINE_SEQLOCK() statically initializes its sequence counter and spinlock.
-Their lockdep maps require persistent class keys, which an automatic
-local object cannot provide through this initializer.
+The ordinary wait queue and completion declarations statically initialize
+their embedded locks. Automatic objects need runtime initialization so
+lockdep receives persistent class keys.
 
-Add ASSERT_STATIC_STORAGE() to the declaration macro. Automatic seqlocks
-must use seqlock_init(); the underlying initializer remains available for
-embedded objects.
+Add ASSERT_STATIC_STORAGE() to DECLARE_WAIT_QUEUE_HEAD(),
+DECLARE_SWAIT_QUEUE_HEAD() and DECLARE_COMPLETION(). Keep the _ONSTACK
+variants usable without CONFIG_LOCKDEP by expanding to the underlying
+initializer instead of an asserted declaration.
+
+Convert the two automatic completions in the AMS PMU driver to
+DECLARE_COMPLETION_ONSTACK().
 
 Assisted-by: OpenAI Codex
 Signed-off-by: Yury Norov <ynorov@nvidia.com>
 ---
- include/linux/seqlock.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/macintosh/ams/ams-pmu.c |  4 ++--
+ include/linux/completion.h      | 10 +++++++---
+ include/linux/swait.h           |  6 ++++--
+ include/linux/wait.h            |  7 +++++--
+ 4 files changed, 18 insertions(+), 9 deletions(-)
 
-diff --git a/include/linux/seqlock.h b/include/linux/seqlock.h
-index f865491c4f2c..2aa793a45213 100644
---- a/include/linux/seqlock.h
-+++ b/include/linux/seqlock.h
-@@ -824,7 +824,8 @@ static __always_inline void write_seqcount_latch_end(seqcount_latch_t *s)
-  * @sl: Name of the seqlock_t instance
+diff --git a/drivers/macintosh/ams/ams-pmu.c b/drivers/macintosh/ams/ams-pmu.c
+index 1c3ce39e9a59..046a7d5dc5b2 100644
+--- a/drivers/macintosh/ams/ams-pmu.c
++++ b/drivers/macintosh/ams/ams-pmu.c
+@@ -48,7 +48,7 @@ static void ams_pmu_req_complete(struct adb_request *req)
+ static void ams_pmu_set_register(u8 reg, u8 value)
+ {
+ 	static struct adb_request req;
+-	DECLARE_COMPLETION(req_complete);
++	DECLARE_COMPLETION_ONSTACK(req_complete);
+ 
+ 	req.arg = &req_complete;
+ 	if (pmu_request(&req, ams_pmu_req_complete, 4, ams_pmu_cmd, 0x00, reg, value))
+@@ -61,7 +61,7 @@ static void ams_pmu_set_register(u8 reg, u8 value)
+ static u8 ams_pmu_get_register(u8 reg)
+ {
+ 	static struct adb_request req;
+-	DECLARE_COMPLETION(req_complete);
++	DECLARE_COMPLETION_ONSTACK(req_complete);
+ 
+ 	req.arg = &req_complete;
+ 	if (pmu_request(&req, ams_pmu_req_complete, 3, ams_pmu_cmd, 0x01, reg))
+diff --git a/include/linux/completion.h b/include/linux/completion.h
+index fb2915676574..b514b5555722 100644
+--- a/include/linux/completion.h
++++ b/include/linux/completion.h
+@@ -9,6 +9,7 @@
+  * See kernel/sched/completion.c for details.
   */
- #define DEFINE_SEQLOCK(sl) \
--		seqlock_t sl = __SEQLOCK_UNLOCKED(sl)
-+		seqlock_t sl = __SEQLOCK_UNLOCKED(sl);	\
-+	ASSERT_STATIC_STORAGE(sl)
+ 
++#include <linux/compiler.h>
+ #include <linux/swait.h>
+ 
+ /*
+@@ -50,7 +51,8 @@ static inline void complete_release(struct completion *x) {}
+  * variables.
+  */
+ #define DECLARE_COMPLETION(work) \
+-	struct completion work = COMPLETION_INITIALIZER(work)
++	struct completion work = COMPLETION_INITIALIZER(work);	\
++	ASSERT_STATIC_STORAGE(work)
+ 
+ /*
+  * Lockdep needs to run a non-constant initializer for on-stack
+@@ -70,8 +72,10 @@ static inline void complete_release(struct completion *x) {}
+ # define DECLARE_COMPLETION_ONSTACK_MAP(work, map) \
+ 	struct completion work = COMPLETION_INITIALIZER_ONSTACK_MAP(work, map)
+ #else
+-# define DECLARE_COMPLETION_ONSTACK(work) DECLARE_COMPLETION(work)
+-# define DECLARE_COMPLETION_ONSTACK_MAP(work, map) DECLARE_COMPLETION(work)
++# define DECLARE_COMPLETION_ONSTACK(work) \
++	struct completion work = COMPLETION_INITIALIZER(work)
++# define DECLARE_COMPLETION_ONSTACK_MAP(work, map) \
++	DECLARE_COMPLETION_ONSTACK(work)
+ #endif
  
  /**
-  * read_seqbegin() - start a seqlock_t read side critical section
+diff --git a/include/linux/swait.h b/include/linux/swait.h
+index d324419482a0..caa3028d1dd0 100644
+--- a/include/linux/swait.h
++++ b/include/linux/swait.h
+@@ -2,6 +2,7 @@
+ #ifndef _LINUX_SWAIT_H
+ #define _LINUX_SWAIT_H
+ 
++#include <linux/compiler.h>
+ #include <linux/list.h>
+ #include <linux/stddef.h>
+ #include <linux/spinlock.h>
+@@ -64,7 +65,8 @@ struct swait_queue {
+ }
+ 
+ #define DECLARE_SWAIT_QUEUE_HEAD(name)					\
+-	struct swait_queue_head name = __SWAIT_QUEUE_HEAD_INITIALIZER(name)
++	struct swait_queue_head name = __SWAIT_QUEUE_HEAD_INITIALIZER(name);	\
++	ASSERT_STATIC_STORAGE(name)
+ 
+ extern void __init_swait_queue_head(struct swait_queue_head *q, const char *name,
+ 				    struct lock_class_key *key);
+@@ -82,7 +84,7 @@ extern void __init_swait_queue_head(struct swait_queue_head *q, const char *name
+ 	struct swait_queue_head name = __SWAIT_QUEUE_HEAD_INIT_ONSTACK(name)
+ #else
+ # define DECLARE_SWAIT_QUEUE_HEAD_ONSTACK(name)			\
+-	DECLARE_SWAIT_QUEUE_HEAD(name)
++	struct swait_queue_head name = __SWAIT_QUEUE_HEAD_INITIALIZER(name)
+ #endif
+ 
+ /**
+diff --git a/include/linux/wait.h b/include/linux/wait.h
+index 7e215330199c..5c7d49187396 100644
+--- a/include/linux/wait.h
++++ b/include/linux/wait.h
+@@ -4,6 +4,7 @@
+ /*
+  * Linux wait queue related types and methods
+  */
++#include <linux/compiler.h>
+ #include <linux/list.h>
+ #include <linux/stddef.h>
+ #include <linux/spinlock.h>
+@@ -57,7 +58,8 @@ struct task_struct;
+ 	.head		= LIST_HEAD_INIT(name.head) }
+ 
+ #define DECLARE_WAIT_QUEUE_HEAD(name) \
+-	struct wait_queue_head name = __WAIT_QUEUE_HEAD_INITIALIZER(name)
++	struct wait_queue_head name = __WAIT_QUEUE_HEAD_INITIALIZER(name);	\
++	ASSERT_STATIC_STORAGE(name)
+ 
+ extern void __init_waitqueue_head(struct wait_queue_head *wq_head, const char *name, struct lock_class_key *);
+ 
+@@ -74,7 +76,8 @@ extern void __init_waitqueue_head(struct wait_queue_head *wq_head, const char *n
+ # define DECLARE_WAIT_QUEUE_HEAD_ONSTACK(name) \
+ 	struct wait_queue_head name = __WAIT_QUEUE_HEAD_INIT_ONSTACK(name)
+ #else
+-# define DECLARE_WAIT_QUEUE_HEAD_ONSTACK(name) DECLARE_WAIT_QUEUE_HEAD(name)
++# define DECLARE_WAIT_QUEUE_HEAD_ONSTACK(name) \
++	struct wait_queue_head name = __WAIT_QUEUE_HEAD_INITIALIZER(name)
+ #endif
+ 
+ static inline void init_waitqueue_entry(struct wait_queue_entry *wq_entry, struct task_struct *p)
 -- 
 2.53.0
 
