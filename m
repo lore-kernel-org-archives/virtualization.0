@@ -1,59 +1,62 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B066408602;
-	Tue, 15 Sep 2026 03:25:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E79A4078CA;
+	Tue, 15 Sep 2026 03:25:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789442764; cv=none; b=lPUgBJ4jxEUjgG19xaa0yTK+FJBFjNryMxd2k1Qf0miHu+hCXxGm1RZ3gVtOUfIuLTWIaoyMKLmRMRIddFqLW56147w60zv4v72EJlfDYuDI2K/QIirkT8pV633GXCZeLcQD3/aNXlTdzSjKPQ2lZxJsdsM3tQ1fzEGIELlYw5o=
+	t=1789442767; cv=none; b=hx87t9mpSduzDYSOlXot1Mi47SUXvB7Yl8sXUozBu0u2+EYEtFjoOpZC7uSRKEr53shtJyE7McipLLJ1f7AzjNc2CVGjsUfrEziDIFG/E2My3hrEVzWhjHt6dG27J800aWVwMQfIy9/5HTyij+16I/koFX7VBASJwg+Sv3FP0GU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789442764; c=relaxed/simple;
-	bh=w/IdaHdRHERlSC2cZfLAQ3jkrXo9BLJKbMABy9pq3j4=;
+	s=arc-20240116; t=1789442767; c=relaxed/simple;
+	bh=T+zOAevd/qcEDOuEYodNuUoDj2eXkCF/9wmXCfOEveI=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=b9mBEo7+FejFwH0RL6Ia4ixhTV5I6Zp5IsJhlTrXkQ/RmmRXaA93XOz0/PxrTovRyRCX8JNbfsP24Qm6Hx0EVX2VUp7Lqs7K4Ya36tV/LXrk13X1RLhMn8DETmdNn8CflHksV5QtLRe4puHHfi/56SRECvtBGW4OCQtvxTPYiV8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lfbsVPSt; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=IX2I2jmC8grW0xzxI6xMA4CfHl7d05z8Iw7VHeEpypRgQy7DZIa2L3BK8RMTj9AO8WgRoSfdmqE6SGYlmD1rUAinidefQy9VDaeClC2f8iIQtkWz+mT3HBSVyBFc1w1m6Mt+HBy6/mmzJhxpuskvaZbpHQR+V2t+pQ/UDz27EMU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bbE7nAkj; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lfbsVPSt"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07F731F00893;
-	Tue, 15 Sep 2026 03:25:56 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bbE7nAkj"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D00B51F0089B;
+	Tue, 15 Sep 2026 03:25:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789442757;
-	bh=w/IdaHdRHERlSC2cZfLAQ3jkrXo9BLJKbMABy9pq3j4=;
+	s=k20260515; t=1789442758;
+	bh=T+zOAevd/qcEDOuEYodNuUoDj2eXkCF/9wmXCfOEveI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=lfbsVPStqhjCDBealfgJ2HCLWo7feU9Cn+LcfjZfSL1Gmf+LBkQPsvW9egLCWSOsO
-	 u73KKx7NGXgf5k/Mt3I2KRSo103YwEmu2Fl74G9RwWl4P3stemMuFwW0WMOtQOm1ve
-	 urpBROwuaPx63PziKeDuM3lJQ9z5NkAkkUaHaYkCJiQkP7J8BsWktwm4pBTmai04DI
-	 VRsZBwkFsUGFA9gpMbUIGbVchF+frX8JAhzLIOpEJsFWBdPvr7Rje2XDRrSXyvK7D9
-	 uMXN7+yjCqp8IquicikWcihzifUyTDgtSEXxTs87kvwk59/unaumdFBpdqNmO4W92H
-	 2Ih8dbGb7ZHPQ==
+	b=bbE7nAkjrsN24wXaWHr9YH41rLNHN2IEXRXKzsvpJvm2vTQuJJSV5Ssgkc4TEwABO
+	 7lIHKPo/DM21Li0VTcMvIqboZ5OLPoufP1wL68vjMQ/012WxruiGnnOtSgKZ63T6s0
+	 u1sEJSDxOoxp0/t7MEd6emN+Hfrg7ZD4kq/3w84SrOBu13k9a67lV/Cm56k4SqvuU6
+	 jO14tdNyDHXsf9vVNL/HoGmMdYoozSBqZgd0UK0xQ96A1gQUjy7D6PdTpwwWre+4ti
+	 PpPiZAHqygr8b4TNUJJSGdFDcUhr/rHxvIzAmqVnVRQ1yTfC4JTn3oQD1EbuC9ZCnU
+	 oxwrICTyt5a3w==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 11/17] workqueue: assert static storage for work
- declarations
+Subject: Re: [PATCH 06/17] sched: assert static storage for wait queue and
+ completion declarations
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Yury Norov" <ynorov@nvidia.com>
-Cc: linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-rt-devel@lists.linux.dev, virtualization@lists.linux.dev, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <20260915031334.1194975-6-ynorov@nvidia.com>
+Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, "Michael
+ S. Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>, linux-rt-devel@lists.linux.dev
+In-Reply-To: <20260915031334.1194975-1-ynorov@nvidia.com>
 References: <20260915030336.1192299-1-ynorov@nvidia.com>
- <20260915031334.1194975-6-ynorov@nvidia.com>
+ <20260915031334.1194975-1-ynorov@nvidia.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 15 Sep 2026 03:25:56 +0000
-Message-Id: <20260915032557.07F731F00893@smtp.kernel.org>
+Date: Tue, 15 Sep 2026 03:25:57 +0000
+Message-Id: <20260915032557.D00B51F0089B@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-> Static work initializers use the work address as a lockdep class key and
-> mark the work item static for debugobjects. Automatic objects require
-> on-stack initialization instead.
+> The ordinary wait queue and completion declarations statically initialize
+> their embedded locks. Automatic objects need runtime initialization so
+> lockdep receives persistent class keys.
 >=20
-> Apply ASSERT_STATIC_STORAGE() to DECLARE_WORK(), DECLARE_DELAYED_WORK()
-> and DECLARE_DEFERRABLE_WORK(). Automatic objects must use the matching
-> INIT_*_ONSTACK() API and destroy the on-stack debugobjects before leaving
-> scope. Keep the underlying initializers available for embedded objects.
+> Add ASSERT_STATIC_STORAGE() to DECLARE_WAIT_QUEUE_HEAD(),
+> DECLARE_SWAIT_QUEUE_HEAD() and DECLARE_COMPLETION(). Keep the _ONSTACK
+> variants usable without CONFIG_LOCKDEP by expanding to the underlying
+> initializer instead of an asserted declaration.
+>=20
+> Convert the two automatic completions in the AMS PMU driver to
+> DECLARE_COMPLETION_ONSTACK().
 >=20
 > Assisted-by: OpenAI Codex
 > Signed-off-by: Yury Norov <ynorov@nvidia.com>
@@ -62,5 +65,5 @@ Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260915030336.1192=
-299-1-ynorov@nvidia.com?part=3D11
+299-1-ynorov@nvidia.com?part=3D6
 
