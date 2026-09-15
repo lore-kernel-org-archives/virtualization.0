@@ -1,47 +1,45 @@
 Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C38013B71AE
-	for <virtualization@lists.linux.dev>; Tue, 15 Sep 2026 13:15:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2BF43AE1BC;
+	Tue, 15 Sep 2026 13:15:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789478156; cv=none; b=nxu1UxPRqKS8L2udB2yWuEOWtE/do9UczG37czGbbRTTCcCK0NJZL7dPMPhLipcEK2aBvqTpGOE09FiVmF65633uNZJWt4/3/vSWtJepq28ltNl0JSLRq41dOilbeaL1i/Z8NohJvEOig3JIrLgllG3WnrZDqG1zFLksE2swjZY=
+	t=1789478155; cv=none; b=cnjl/x4P0JZ3tSmhPpWSoO431QDD5+ZxZRZ3s1TxYRV2CVTKUHBASdLLPSwDxE3VE/W/++hmlzmFZnnAvM1LOf7VhS/xB4LgD7JdT1omBt6Q2mZUoL0MRF4UKOQBnpwQArSilnJd1J3mNovcRVpezMU0+A35OqpZhU9KazZeB/8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789478156; c=relaxed/simple;
-	bh=y7KsFyyKmTeubh6XFgZvaa8BZGB1esOoaDfWjXi4gwM=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=CJcBFNH859o79kenwTas8RnF/YGwOE3aTUWxNq7+XsAp7mZA0oqmCGwEzovfO3ifP+30v01qXro7WiAilteNuwZT1oz6lfc4n9x3oXbsPqQzzbmRyHqcrttHPajhD7qAJS9hz2Br6ScFm53t0759++0ZpHEDyIG/jpls/Mf7EBk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=fE18l4fj; arc=none smtp.client-ip=185.226.149.38
+	s=arc-20240116; t=1789478155; c=relaxed/simple;
+	bh=C0kAj0twCgVsqYz7xAzWT3venRQa0NE/YrdpflK9jAg=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=RgONxHeyGHXxLTJtta31swZJ7M1dS/mDDsRLibZeH/uEIivw7lXsgf0UcNk8mMyI/hTtcTSdqBNjMO+/NYYCgnNzI4dXR2/rs3PNG9stcPnhRflAMyo+c8g5Z3w1KsTP/95t2Cb5bnI3FWM/YQBQE0HJe0npteLdg3524yXt/Qg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=XS5cEMDe; arc=none smtp.client-ip=185.226.149.38
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="fE18l4fj"
-Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="XS5cEMDe"
+Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
 	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
 	(Exim 4.93)
 	(envelope-from <mhal@rbox.co>)
-	id 1x6T0h-000wME-G2; Tue, 15 Sep 2026 15:15:43 +0200
+	id 1x6T0g-000wM2-AS; Tue, 15 Sep 2026 15:15:42 +0200
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector2; h=Cc:To:In-Reply-To:References:Message-Id:
-	Content-Transfer-Encoding:Content-Type:MIME-Version:Subject:Date:From;
-	bh=DeuOQ/YCzV1GKBzzkSDT/ZbSmyFHC1MB2bRkPBvNDS4=; b=fE18l4fj8+zzEPCsgPaxonUVGD
-	rQttQ0mMtGEJiagUL+QUhvKEAp4VpV1rFPjSsIwkjLhFWMdocUxkad0fnPiXswSGeqOsOElIQLkub
-	64MWl8650xrpPoK3iF+1psjN7jQVLxxU6IR6cs0CJ/Pkvbl3hC8f3BSIdtMiTO2CGUYxj5V4KgIC9
-	OUEvq3UpmLAztIZPGnemAIXOn/2AWlqMiO19tObMNFpHtebw9ZVoaBaAGnVlCzyTTYKCUIG/yFE9Y
-	owh8GisBp+AOriJXTWeZjNtkaQrdoTJZNyJmQ7slHwj0A6YDPDjqUodZCeyNZu/gZbOIa6yYWdyI6
-	+to190gA==;
+	s=selector2; h=Cc:To:Content-Transfer-Encoding:Content-Type:MIME-Version:
+	Message-Id:Date:Subject:From; bh=VaF+evrE8Rn7mltrExzSlFQ+pytZXfKnJyj0FVRJXyk=
+	; b=XS5cEMDe6r7OoPmRvMaMypBHm69yF2hNOmEPOuYfn7zzgYcr/BcSlnzc7eSvY/4S2ecjmnxUK
+	wisPy7F8cMOngXeposdztXDA0011Dt3FiIWolPe3mcYJ2we2+WTmng/Zx5yQx55244zpvPhMyn6KN
+	ev0Nk/MYqL/eHEYtI/ozTx6vPhY/YqdRt7DCLUxcAlY+ZPOA0P8eJW4dONt5xUZ5U0jExdEAhhkDU
+	/8ePIKoa7lwpUZ/8j53pGGwAg0pYpCyj4HPBBBWLC91bL4ll4Mo0YbAOXk23z/6A3FsuMCU+4nTHQ
+	tb+AVaJpCrxuIk0wwWngBi49SRjOMVwK0o2Rxg==;
 Received: from [10.9.9.72] (helo=submission01.runbox)
-	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
+	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
 	(envelope-from <mhal@rbox.co>)
-	id 1x6T0W-0002tu-G0; Tue, 15 Sep 2026 15:15:32 +0200
+	id 1x6T0V-0003iE-UH; Tue, 15 Sep 2026 15:15:32 +0200
 Received: by submission01.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim 4.95)
-	id 1x6T0J-00EUxD-TR;
-	Tue, 15 Sep 2026 15:15:20 +0200
+	id 1x6T0H-00EUxD-9H;
+	Tue, 15 Sep 2026 15:15:17 +0200
 From: Michal Luczaj <mhal@rbox.co>
-Date: Tue, 15 Sep 2026 15:15:14 +0200
-Subject: [PATCH net v2 3/5] vsock: Enforce no-transport invariant for
- TCP_LISTEN sockets
+Subject: [PATCH net v2 0/5] vsock: Fix connect() races
+Date: Tue, 15 Sep 2026 15:15:11 +0200
+Message-Id: <20260915-vsock-connect-reset-closing-v2-0-a1d9abb472f7@rbox.co>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -50,9 +48,11 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260915-vsock-connect-reset-closing-v2-3-a1d9abb472f7@rbox.co>
-References: <20260915-vsock-connect-reset-closing-v2-0-a1d9abb472f7@rbox.co>
-In-Reply-To: <20260915-vsock-connect-reset-closing-v2-0-a1d9abb472f7@rbox.co>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/32OQQ7CIBREr9L8td9QEltw5T1MFwKfFjVgAElN0
+ 7tL697lTGbezAKJoqME52aBSMUlF3wV/NCAnm5+JHSmauCMd0xwhiUF/UAdvCedMVKijPoZkvM
+ jSmEMF30nTW+hEl6RrJt3+hU8ZRh+Znqre21v3C02uZRD/OwfSruH9znJ5N+50mKLJ8alUFJrq
+ +wlqjAfdYBhXdcvW7hdANsAAAA=
+X-Change-ID: 20260820-vsock-connect-reset-closing-98dd28769d7f
 To: Stefan Hajnoczi <stefanha@redhat.com>, 
  Stefano Garzarella <sgarzare@redhat.com>, 
  "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>, 
@@ -63,45 +63,36 @@ To: Stefan Hajnoczi <stefanha@redhat.com>,
  Simon Horman <horms@kernel.org>, Asias He <asias@redhat.com>
 Cc: kvm@vger.kernel.org, virtualization@lists.linux.dev, 
  netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Michal Luczaj <mhal@rbox.co>
+ Michal Luczaj <mhal@rbox.co>, Hyunwoo Kim <imv4bel@gmail.com>
 X-Mailer: b4 0.15.2
 
-A non-blocking connect() running in parallel with a blocking connect(),
-combined with a racy listen() that hits right after a connect timeout:
-TCP_SYN_SENT -> TCP_CLOSE -> TCP_LISTEN, while the connect() loop is still
-in progress.
+Handle racy socket changes in connect(). Plus related tweaks.
 
-Enforce the invariant. Prevent a socket from becoming a listener after
-acquiring a transport.
-
-Fixes: c0cfa2d8a788 ("vsock: add multi-transports support")
-Signed-off-by: Michal Luczaj <mhal@rbox.co>
 ---
- net/vmw_vsock/af_vsock.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+Changes in v2:
+- CC: drop bouncing addresses
+- Add more related fixes
+- Handle ENOBUFS (Bobby)
+- Consume sk_err (Stefano)
+- Link to v1: https://patch.msgid.link/20260909-vsock-connect-reset-closing-v1-1-50298b9ccfbf@rbox.co
 
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index f840498b58af..499e902becfa 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -1973,13 +1973,13 @@ static int vsock_listen(struct socket *sock, int backlog)
- 		goto out;
- 	}
- 
--	if (sock->state != SS_UNCONNECTED) {
-+	vsk = vsock_sk(sk);
-+
-+	if (sock->state != SS_UNCONNECTED || vsk->transport) {
- 		err = -EINVAL;
- 		goto out;
- 	}
- 
--	vsk = vsock_sk(sk);
--
- 	if (!vsock_addr_bound(&vsk->local_addr)) {
- 		err = -EINVAL;
- 		goto out;
+---
+Michal Luczaj (5):
+      vhost/vsock: Fix socket state constant
+      vsock/virtio: Streamline socket reset on transport/PM event
+      vsock: Enforce no-transport invariant for TCP_LISTEN sockets
+      vsock: Do not reset a TCP_CLOSING socket
+      vsock: Handle sudden TCP_CLOSE during connect
 
--- 
-2.55.0
+ drivers/vhost/vsock.c            |  2 +-
+ net/vmw_vsock/af_vsock.c         | 32 ++++++++++++++++++--------------
+ net/vmw_vsock/virtio_transport.c |  3 +++
+ 3 files changed, 22 insertions(+), 15 deletions(-)
+---
+base-commit: 0654f4dba1fbc697f2653aba30cd68587fcbf10e
+change-id: 20260820-vsock-connect-reset-closing-98dd28769d7f
+
+Best regards,
+--  
+Michal Luczaj <mhal@rbox.co>
 
