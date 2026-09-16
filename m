@@ -1,275 +1,166 @@
-Received: from mail-qk2-f43.google.com (mail-qk2-f43.google.com [74.125.230.235])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0F2722CBE6
-	for <virtualization@lists.linux.dev>; Wed, 16 Sep 2026 00:25:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.230.235
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789518336; cv=pass; b=d/E0c9SFjwStBxUvgzFM7g9glC1LU+Wa4LlWKZs23NOq0GyY7aockyQRiaym36AYSV+LNGfC1ndTmTm0+cE/jZ6AYjcwU81yy8GJmBsp5Zn7oc8P3pWbXCp9YDT/uIgPjZURriH2geOS7NgqFJUM/Wfz6l3QhbAN0F5V8Cc56FI=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789518336; c=relaxed/simple;
-	bh=I1znuk91gTt78a/SYP5tvHEKRhocY11O1JMDs5bzSXI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=DbQyd+P/fZ+FweHIn39SamC02ilF34EA0bQXjuRnN8iHQwJVwGXVNgX9wmtdNmtZ/k/lCeIuJbmaP+w0Hg2RCE2JR/MzfmYBocnKrdgWlpPqip896mBSzpS6XbDip8UtFpJRkd72Fvm5XzvlU4GRQDu2y0ZZc49wfovVg7Kw8MY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Zc7c3M6X; arc=pass smtp.client-ip=74.125.230.235
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B116B342538;
+	Wed, 16 Sep 2026 00:41:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.97.179.56
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789519270; cv=none; b=dUY0FdVr0exrJEzroe7SUjafV7yxgyq4cojbwdJhxhwpDYNhT6/tZDIfCeW1EZ9KpHzn+UWcAoF1aT4LIikTLyOcZOlZ2RSM9V2ITBrf5SU4MwtaDUPgR+17DZMeAB26R9hFvkPA0PJeSCTTXM2u6OF6fdCc1wq8fgtjMWuXsxA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789519270; c=relaxed/simple;
+	bh=PiYQJkAGkuJBIyzKHKtgcR6WQgdtYuoTQCzilchGnWs=;
+	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
+	 Message-ID:Content-Type; b=t7H5uJX4wCQHoxL/0fZS3oKhXLd5fBMXQJ2HGsYsaMFBOmrif/3xEGFfxUzZ7o7ign6+boHVuURfhPUAB7pcmo1P0t1mIRnDMmMZHF5g8cyV2HKanlppZV8BhBeZ3yoGp5Of4KfGFnBYTD+yCRPh6ZgV6kulCosOcuUv5KRU0uY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com; spf=pass smtp.mailfrom=igalia.com; dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b=sOZbLu5e; arc=none smtp.client-ip=213.97.179.56
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igalia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Zc7c3M6X"
-Received: by mail-qk2-f43.google.com with SMTP id af79cd13be357-93910c9ff1cso31757085a.3
-        for <virtualization@lists.linux.dev>; Tue, 15 Sep 2026 17:25:33 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1789518332; cv=none;
-        d=google.com; s=arc-20260327;
-        b=pmCGNC4a5EyE4wkH4uUdSj3ryLmiOQgwZw0PTJc1JbJ5i1FFq4bsFRixXzDjmN87qs
-         rXtKwiIQDgZJYOGed2A8+c19UmWiFJ/s9J+NoaQpNqzfDbpw6hr6zqAB5gKsK8QmNmsP
-         fU6/he0i1ILBmyrDc/J4TMpucpIgVbUaFrIyWfuM7wxpjRI9XtERwkrOGHEJkzpsRBFx
-         n6b5bsVsFQeDsPZB3ABrEDgTK5TSG0eZgo8DlO69+sbq4cEsfULHkHIpimB0easikEuW
-         +w3ks+KiwqpCO+ajFUfQ09uSMrFYPo3fC02/sX9EETrGbxymzp0hsLYOhZhuEcsekOD7
-         wzkg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=egILxrt7497R49XkLTZpGyuz1OxWUBmXgNnG8hVd/k8=;
-        fh=EdJAVxicNpfdv0kvsQoUlipweolP2rkQ7zyoHrCCmS0=;
-        b=Sp06OkFv4xH9AWwkcPyf+ZNHDEgrZcyDY9MKE2JsKJ/IjTt1M8Zmn/UvLFOmrXRgcq
-         RYnRawO5SiiBcWIgaZnKfEd1Alu0DATa5mPkBI7nW/+mgPfXsGhsWPBgrOceY4WRoojY
-         HkDP/rxfd1wC7AxT9flvjwVYNX8y0sh6IcJQ4Z0B7JYWZM4Ct2+n1e4LBU7tn9DVjw48
-         iUh2ZOe7vfgQXcEGCrlf40oCBHnHeS5nrV1Q6zG6ujz75SkKf4S5iiQowPUpw6BZn/CX
-         I5hCG2LMWdbu6J1AYC4POEocIgjt+1oIDC/rPfk4bThRsv77Sq6MZbkukeKrK27v+Q1P
-         YxGw==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789518332; x=1790123132; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=egILxrt7497R49XkLTZpGyuz1OxWUBmXgNnG8hVd/k8=;
-        b=Zc7c3M6X9zWy/TNTcuaCvBLBNJ5lmoJy57tLh8zjy4BGk2fbJ7D6+c7L6vQgbwerxH
-         ZU4tgfk41Gmhy8vEOZ/W7EWW7hZftQSUa7gw1J8n/Bco0IN2cOBtyF4BfR9VP/zBT0NY
-         UZs6eJWy4WMaAZKj70LT3rvd1lVH4Bm8UTHB6a1AvHfj5ezEYnoZ9YTzbpDQwdSSVzsT
-         n/Uy01eFqEEBP/eCaL17AsAoGAHIvo3UsrO2/pH6kdayU36LmAM/RoJe3QTCeMBMM5Il
-         kQ+ERp969gGxYMIqHRtnIOFSAPq7UmRC+bPUOcjF7YHlUa/F/s/ZhHnmZ+eyHnFVF5yV
-         1uhA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789518332; x=1790123132;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=egILxrt7497R49XkLTZpGyuz1OxWUBmXgNnG8hVd/k8=;
-        b=TIa+LvrNbi/ApuVXcLMFg4BZeJ0B/C/DwhI42GipPVtESjU4yBfkOAe0kresRdXK3P
-         mgLMf5x8neBX5R1DN4hxs9IPkR0PjMJn2YXxcEjWsD9m6guODlwU8oydKN/YqfII/k4K
-         zdsjJjwtTbOAe/dlTz8n0xvjYpBpdHwbZGtBFmVAdEEGdGVSAys3/O53zd6UH3r7+PIV
-         rpVc/QcarsMdVPZkN+3pl3xTHcNHk5QEO9oZi9s3JSizvts7HnsfzWHuJUW0qiDAdfDH
-         veO5QHUDFe7+jsF3k4sBpzUceRaYu20blaj5Upb7iOn1hkSSIYZ3d5e9cOyuH30OvN+H
-         CT3Q==
-X-Forwarded-Encrypted: i=1; AKwUvBwDrNzGqUnyRqCGoPv+ZaQwoxybaS6GYrciU80QyS5IDAeglNF8nlh/pD9anwJX9eKyWbxno3EaOtgLNPkulw==@lists.linux.dev
-X-Gm-Message-State: AFuF++m1WkbJR4Btr6BwKfUcY0JjLNj60h1l8AEgoXzioSgx/c0MHCas
-	diw3MKBBjaTsv9UY2RDIZzXm1vxtJz3bsBzhpBw2pBj+tefy/4f0llykmfc9vIA/OHsME1M1JA2
-	4dFFUTdQcF/iQR9xtEt3Ddl1lBV3EIGwPlN55
-X-Gm-Gg: AYBFou2u5SDeHOMg5A5LnnrOUj6QXDKWWszh2Rb4WwicXeRtCqz9Aqlg0Ggedhz15Ls
-	NeITzTILTfAQNO6PbIQ9wIUGcqXwh/qGm/5mlORij54NUxxJvV+6XT+VoQF0THf9I7W7Bh2Ex+O
-	qgOV0VGrQ4YDmI3L18pGww5CGSKyLmeN07z8MNisHwMm8jVwK1iP8Eg93j3MqKYn7bCLunIEaAg
-	cFddpy8Npkb0/op6+DxtgzYEhBC0kuLW2aXejV/g/qnOFhGarmad77DR+DLoDyXJwF+DsLgv4sN
-	kf+2d4182ZX6sHJLfEwRI85ztdr+OqqdH5bbUetDGxSPIrApb64fH18=
-X-Received: by 2002:a05:620a:8007:b0:939:733d:cbe0 with SMTP id
- af79cd13be357-93bb7667ff4mr91255085a.3.1789518332464; Tue, 15 Sep 2026
- 17:25:32 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b="sOZbLu5e"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
+	s=20170329; h=Content-Transfer-Encoding:Content-Type:Message-ID:Subject:Cc:To
+	:From:Date:MIME-Version:From:Reply-To;
+	bh=NheJufshGj64fhQKNC2c1j1k0ck6W8lDGbWhTay9uUc=; b=sOZbLu5ewE2w8rWxU4D/CswcOx
+	vscT/TR8V1ChxhajcNhxsAxXX1GdIm1/RSRx7ubFcr0dhqE/e/Aer1+4AVYBL2AlOv1C4Q4APfSgV
+	bRUb14/0B5DwqRLMIYou200gkuWYkYtB9Mb8rQ6eSfBtDTDYS7QqI4UH9SzM8KxR8GhZrq7sMc/Bd
+	DSCwoISx0sN0zEwd5oiMfAhueKhCXJO8CRKnmS91PYW62IzBRAnIGt97wWKyLxiNvisbUFbYC3vBs
+	gLqbtDk2oQLAcdruS5xD7b4sKxqWd7Y/XGluJ1o57LoXxm07Kd4Y5Oari8tZ2vtnzM3eg77XVBp+Z
+	mnfwUndg==;
+Received: from maestria.local.igalia.com ([192.168.10.14] helo=mail.igalia.com)
+	by fanzine2.igalia.com with esmtps 
+	(Cipher TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim)
+	id 1x6dhc-002hgB-1A; Wed, 16 Sep 2026 02:40:43 +0200
+Received: from webmail.service.igalia.com ([192.168.21.45])
+	by mail.igalia.com with esmtp (Exim)
+	id 1x6dha-0087zL-Kq; Wed, 16 Sep 2026 02:40:43 +0200
+Received: from localhost ([127.0.0.1] helo=webmail.igalia.com)
+	by webmail.service.igalia.com with esmtp (Exim 4.98.2)
+	(envelope-from <mfo@igalia.com>)
+	id 1x6dha-00000002ADJ-2w79;
+	Wed, 16 Sep 2026 02:40:42 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260912090420.47439-1-physicalmtea@gmail.com>
- <20260913090452.2B8221F00893@smtp.kernel.org> <CAJwVaMKtk=PxFq330K8NBLRF7FzgcSu32vt1irLEJ7dSRQ5A_w@mail.gmail.com>
- <20260915070050-mutt-send-email-mst@kernel.org> <CAJwVaMLsAcRt609Wmz=G-G3j7xDj5+0QK-Ck2ko1pcwerMeb5w@mail.gmail.com>
- <20260915104624-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20260915104624-mutt-send-email-mst@kernel.org>
-From: Jia Jia <physicalmtea@gmail.com>
-Date: Wed, 16 Sep 2026 08:24:55 +0800
-X-Gm-Features: AcwNN1V-WeD8Sd0h2yfWlqcWI-ihJSC7pPFUtM4CZJ7fBjotTYMGQmapjvZvFjE
-Message-ID: <CAJwVaM+zrvo-AqwMuKB2a4CXtjT9xw_o0AURGwKtepUdRvnuzA@mail.gmail.com>
-Subject: Re: [PATCH] vhost-scsi: do not relock event vq mutex on send_evt fallback
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: sashiko-reviews@lists.linux.dev, virtualization@lists.linux.dev, 
-	Eugenio Perez <eperezma@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Date: Tue, 15 Sep 2026 21:40:42 -0300
+From: Mauricio Faria de Oliveira <mfo@igalia.com>
+To: Joel Granados <joel.granados@kernel.org>
+Cc: Kees Cook <kees@kernel.org>, Nathan Chancellor <nathan@kernel.org>,
+ Nicolas Schier <nsc@kernel.org>, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo
+ Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+ kernel-dev@igalia.com, linux-riscv@lists.infradead.org,
+ linux-kernel@vger.kernel.org, fsverity@lists.linux.dev,
+ keyrings@vger.kernel.org, bpf@vger.kernel.org,
+ linux-fsdevel@vger.kernel.org, linux-kbuild@vger.kernel.org,
+ netdev@vger.kernel.org, linux-wpan@vger.kernel.org,
+ lvs-devel@vger.kernel.org, netfilter-devel@vger.kernel.org,
+ coreteam@netfilter.org, linux-sctp@vger.kernel.org,
+ linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+ bridge@lists.linux.dev, mptcp@lists.linux.dev, rds-devel@oss.oracle.com,
+ virtualization@lists.linux.dev
+Subject: Re: [PATCH RFC v3 00/13] sysctl: add module aliases
+In-Reply-To: <uufwu7rqyxf7h55lgavcwrnylnq5gdbd7o5d7mfugrxpblds2d@adra5c2z22gg>
+References: <20260819-sysctl-module-aliases-v3-0-aab90569365d@igalia.com>
+ <bpnqwggtidgiec5akns3fa5edbsvl7xf55dxabtwng2xspy4pn@ue554aii2ngk>
+ <53155340c897560bfc67e61ba9568fd6@igalia.com>
+ <mokz5pdtwswkyab4byfq7q7m6ac2g6ceoi6jflyxmaszaibzqa@su6m4kamtdpy>
+ <b1a6cec17e7c828fcebe310ca2a0d25b@igalia.com>
+ <rywhz6soawf5dzyui5g7dnbufsgpxr7ma7honuhejwgncemzrm@f32at7hl6ugm>
+ <6e93af907298022f077126f1be7bd386@igalia.com>
+ <uufwu7rqyxf7h55lgavcwrnylnq5gdbd7o5d7mfugrxpblds2d@adra5c2z22gg>
+Message-ID: <cdc75421500371a8839fe5347af5c103@igalia.com>
+X-Sender: mfo@igalia.com
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam-Report: NO, Score=-2.1, Tests=ALL_TRUSTED=-3,BAYES_50=0.8,KAM_DMARC_NONE=0.125,KAM_DMARC_STATUS=0.005
+X-Spam-Score: -20
+X-Spam-Bar: --
 
->
-> On Tue, Sep 15, 2026 at 09:30:27PM +0800, Jia Jia wrote:
-> > >
-> > > On Mon, Sep 14, 2026 at 04:38:57PM +0800, Jia Jia wrote:
-> > > > >
-> > > > > Thank you for your contribution! Sashiko AI review found 2 potent=
-ial issue(s) to consider:
-> > > > >
-> > > > > Pre-existing issues:
-> > > > > - [Critical] vhost_scsi_do_evt_work() accesses vq->iov[out] witho=
-ut verifying that the guest actually provided an input buffer, leading to a=
-rbitrary user-space memory corruption.
-> > > > > - [High] Events are processed in LIFO order instead of FIFO, whic=
-h can cause state corruption for hotplug/hotunplug sequences.
-> > > > > --
-> > > > >
-> > > > > commit 05830c30fc2e4dc682c270a9b487ae5abb66218b
-> > > > > Author: Jia Jia <physicalmtea@gmail.com>
-> > > > >
-> > > > > vhost-scsi: do not relock event vq mutex on send_evt fallback
-> > > > >
-> > > > > This commit resolves a deadlock during fallback event handling wh=
-en the vhost
-> > > > > worker has disconnected. It splits event completion into an inter=
-nal unlocked
-> > > > > helper and a locked wrapper to safely reuse the completion path.
-> > > > >
-> > > > > Link: https://lore.kernel.org/all/20260905005352.1E5B01F00A3D@smt=
-p.kernel.org/
-> > > > >
-> > > > > > diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-> > > > > > index 4f8c0260bc9e7..42abf18291b75 100644
-> > > > > > --- a/drivers/vhost/scsi.c
-> > > > > > +++ b/drivers/vhost/scsi.c
-> > > > > > @@ -660,19 +660,26 @@ vhost_scsi_do_evt_work(struct vhost_scsi =
-*vs, struct vhost_scsi_evt *evt)
-> > > > > >       vhost_scsi_log_write(vq, vq_log, log_num);
-> > > > > >  }
-> > > > > >
-> > > > > > -static void vhost_scsi_complete_events(struct vhost_scsi *vs, =
-bool drop)
-> > > > > > +/* Caller must hold the event virtqueue mutex. */
-> > > > > > +static void __vhost_scsi_complete_events(struct vhost_scsi *vs=
-, bool drop)
-> > > > > >  {
-> > > > > > -     struct vhost_virtqueue *vq =3D &vs->vqs[VHOST_SCSI_VQ_EVT=
-].vq;
-> > > > > >       struct vhost_scsi_evt *evt, *t;
-> > > > > >       struct llist_node *llnode;
-> > > > > >
-> > > > > > -     mutex_lock(&vq->mutex);
-> > > > > >       llnode =3D llist_del_all(&vs->vs_event_list);
-> > > > > >       llist_for_each_entry_safe(evt, t, llnode, list) {
-> > > > >
-> > > > > [Severity: High]
-> > > > > This is a pre-existing issue, but does this loop deliver events t=
-o the guest
-> > > > > in reverse order?
-> > > > >
-> > > > > The events are added to vs_event_list using llist_add(), which co=
-nstructs a
-> > > > > last-in, first-out list. Because lnode is retrieved locklessly wi=
-th
-> > > > > llist_del_all(), and the iteration happens without first calling
-> > > > > llist_reverse_order(), the events appear to be processed from new=
-est to
-> > > > > oldest.
-> > > > >
-> > > > > Could this cause state corruption for hotplug and hotunplug seque=
-nces? For
-> > > > > example, if a device is plugged and then rapidly unplugged, the g=
-uest might
-> > > > > receive the unplug event first and the plug event second, leaving=
- it
-> > > > > erroneously believing the device is still present.
-> > > > >
-> > > >
-> > > > Looks like this could get the acquire order wrong? Need to verify.
-> > >
-> > >
-> > > didn't look into this yet - did u reach any conclusion?
-> > >
-> >
-> > Already reproduced this using a test program. To hit what Sashiko AI de=
-scribed,
-> > need multiple vhost_scsi_send_evt->llist_add (at least 2) before the
-> > worker schedules
-> > vhost_scsi_complete_events(false).
-> >
-> > I personally think this is not very easy to hit, first this kind of
-> > hotplug/unplug event is not very frequent,
-> > even if there are multiple calls, as long as the worker is idle it
-> > will run vhost_scsi_complete_events(false)
-> > quickly, so pending is often only 1.
-> >
-> > So to reproduce, I created multiple LUNs, and concurrently called 8 ln
-> > -s (only triggers RESCAN,
-> > no unplug, extra LUNs are just so we can see the lun numbers better).
-> > This increases the chance that
-> > vhost_scsi_send_evt races in before vhost_scsi_complete_events(false)
-> > runs, so there are at least 2+ pending llist.
-> > Finally when vhost_scsi_complete_events(false) runs, the guest sees
-> > the later-linked LUN first.
-> > (before testing I thought this needed a lot of SCSI I/O to reproduce,
-> > actually it doesn't)
-> > I only tested plug, the guest did see add LUN order reversed.
->
-> okay... so llist_reverse_order ? Will that fix it?
->
+On 2026-09-10 04:29, Joel Granados wrote:
+> On Wed, Sep 09, 2026 at 02:29:30PM -0300, Mauricio Faria de Oliveira wrote:
+>> On 2026-09-09 11:07, Joel Granados wrote:
+>> > On Fri, Sep 04, 2026 at 02:45:23PM -0300, Mauricio Faria de Oliveira wrote:
+>> >> On 2026-09-04 10:41, Joel Granados wrote:
+>> >> > On Thu, Aug 20, 2026 at 06:22:13PM -0300, Mauricio Faria de Oliveira wrote:
+>> >> >> On 2026-08-20 09:51, Joel Granados wrote:
+>> >> >> > On Wed, Aug 19, 2026 at 03:16:13PM -0300, Mauricio Faria de Oliveira wrote:
+>> >> >> >> This series adds 'sysctl:' aliases to modules that register sysctl tables; e.g.:
+>> > <... snip ...>
+>> >> > use the correct call moving forward?
+>> >>
+>> >> This scheme currently covers all modules, AFAIK, as it is wrapped in the
+>> >> functions that register sysctl tables.
+>> >>
+>> >> On moving forward: usage of such functions in a way that breaks a
+>> >> requirement of this series (e.g., failing to specify the template
+>> >> table/path parameter(s), or not having constant initializers) hits a
+>> >> build error, as the requirements are actually from the compiler.
+>> >>
+>> >> >> I guess that a different design could use MODULE_SYSCTL_TABLE() as
+>> >> >> MODULE_DEVICE_TABLE(), declared per table instead of wrapped into
+>> >> >> register sysctl functions.
+>> >> >> However, it seems to require moving the value of the path argument (or
+>> >> >> its template) into the macro and still referencing it in the function
+>> >> >> (or its instantiation of the template), which adds obfuscation, to all
+>> >> >> callers.
+>> >> >>
+>> >> >> What do you think?
+>> >> > It might be that having it inside the module subsys is more work, but I
+>> >> > believe that there is the right place to have it. I still don't see that
+>> >> > adding a module specific arg to the sysctl register is a good thing.
+>> >>
+>> >> Ok, cool. I can work on a different design.
+>> >>
+>> >> Please just let me know whether you are OK with the remaining (above),
+>> >> and I'll be happy to tackle this.
+>> >
+>> > What is "the remaining"?
+>> 
+>> I meant the rest of the email, addressing the points/questions you
+>> raised.
+> 
+> * The dependency on a sysctl path to load a module still is
+>   backwards to me. It should be: I need feature A, I load modules
+>   M{1,2,3} for A and I set sysctl S{1,2,3...}. Not sure why sysctl tools
+>   do it the other way around.
 
-Yes. After reproducing I already sent another patch:
-<20260915094244.7900-1-physicalmtea@gmail.com>
+Right, but note:
+- the feature may, or may not, be built as a module (unknown to sysctl
+tool).
+- there is no simple way to identify which module provides a sysctl,
+today.
 
-> >
-> > > > > >               if (!drop)
-> > > > > >                       vhost_scsi_do_evt_work(vs, evt);
-> > > > >
-> > > > > [Severity: Critical]
-> > > > > This is a pre-existing issue, but can this function access out-of=
--bounds or
-> > > > > stale memory if the guest provides an empty input buffer?
-> > > > >
-> > > > > Looking at vhost_scsi_do_evt_work() in drivers/vhost/scsi.c, the =
-code uses
-> > > > > vhost_get_vq_desc() which populates vq->iov:
-> > > > >
-> > > > >     head =3D vhost_get_vq_desc(vq, vq->iov,
-> > > > >             ARRAY_SIZE(vq->iov), &out, &in,
-> > > > >             vq_log, &log_num);
-> > > > >     ...
-> > > > >     if ((vq->iov[out].iov_len !=3D sizeof(struct virtio_scsi_even=
-t))) {
-> > > > >         vq_err(vq, "Expecting virtio_scsi_event, got %zu bytes\n"=
-,
-> > > > >                 vq->iov[out].iov_len);
-> > > > >
-> > > > > If a guest submits a descriptor chain with only read-only descrip=
-tors,
-> > > > > vhost_get_vq_desc() sets in =3D 0. The out variable holds the cou=
-nt of
-> > > > > read-only descriptors, meaning the first writable descriptor expe=
-cted by the
-> > > > > host would be at index out.
-> > > > >
-> > > >
-> > > > This is a dup -- an earlier patch already fixed it:
-> > > > https://lore.kernel.org/all/20260904005240.502787-1-physicalmtea@gm=
-ail.com/
-> > > > It was while fixing that earlier issue that Sashiko spotted this
-> > > > adjacent problem.
-> > > >
-> > > > > Does the length check above access vq->iov[out].iov_len without v=
-erifying
-> > > > > that in > 0?
-> > > > >
-> > > > > If in is 0, vq->iov[out] was not populated by vhost_get_vq_desc()=
- and
-> > > > > contains stale data from a previous request. Could a malicious gu=
-est use
-> > > > > this to force the kernel to write the event structure to a previo=
-usly
-> > > > > legitimate but now hot-unplugged host virtual address via the
-> > > > > __copy_to_user() call later in the function?
-> > > > >
-> > > > > >               vhost_scsi_free_evt(vs, evt);
-> > > > > >       }
-> > > > > > +}
-> > > > >
-> > > > > [ ... ]
-> > > > >
-> > > > > --
-> > > > > Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/202609120=
-90420.47439-1-physicalmtea@gmail.com?part=3D1
-> > >
->
+Let's compare this with device-id module aliases: userspace doesn't know
+whether a driver is built-in or a module, but it can load the module, if
+any, based on the device-id, not the module name.
+
+> * The fact that the invariance is in the sysctl path and not the module
+>   identifier maybe points to a deeper issue.
+
+It does seem that the invariance in the sysctl path is correct, as that
+doesn't change with the variable of whether the code is built-in or a
+module.
+
+A similar comparison with device-id module aliases applies, IIUIC.
+
+> * I still believe that this is better placed outside the sysctl
+>   subsys as it does not cater solely to module loading.
+
+Understood; your point about a module-specific argument in sysctl
+register functions precisely confirmed that this approach is misplaced.
+
+I'll try a different design, more similar to MODULE_DEVICE_TABLE().
+Maybe the only requirement from sysctl is for struct
+ctl_table.procname's offset to be zero (for file2alias). And apparently
+something with the path string in a table declaration macro. We'll see.
+
+Thanks again for reviewing and providing constructive feedback. That's
+very appreciated.
+
+> 
+> Best
+
+-- 
+Mauricio
