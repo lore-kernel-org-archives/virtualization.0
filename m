@@ -1,70 +1,70 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BFEA4F4730
-	for <virtualization@lists.linux.dev>; Wed, 16 Sep 2026 12:44:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8EDE041CB4C
+	for <virtualization@lists.linux.dev>; Wed, 16 Sep 2026 12:58:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789562689; cv=none; b=T/XcSQqQI/pBF+Kf/WmQ14JhZ7dcQdQw4wc5xwDZcGI/8farOuj4FYCHTVWdLOYwr5BdjMknIWvgfjIGY3w1bLVjTC3B6LRv7hOnPVNn8D+qqeDBkAwYD5uWEZLrZlX1CZRaM23CBcfpKDsfdcBLfubRkDTyWZ54riu5QqJDpR8=
+	t=1789563488; cv=none; b=T+xFi4yG0VHieLVxHLiI64jjkhbIAI5VyjuKT01avpSuDJYNR6fnvhbUVwXSdCkLLDP4DBDfSm+bTk5LuplwA0J8cvSeP6l3x1Gt8Ih5Tgu+F7kcBxgLQx56Rsyk4LUM3BDu39P6/nhlnh4NSUSoaUxyzaXTqteLKv/wJMoB7Ls=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789562689; c=relaxed/simple;
-	bh=R6gErF33Osgu7Z3SwcLr9EAh1+JuJ9MhvIEQ63MOWQs=;
+	s=arc-20240116; t=1789563488; c=relaxed/simple;
+	bh=XtPpBw1QH8nWC5HzGrgI1eK910398/q/Oe8gdd92LpQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=H/c9yDVUcyFwIt+HvEbWYlPmO0rak0YlbwJzYZ3FPzCT8DQhjSIRMB2zgpcB15Czz9OsImNJvUeyveJUv2+U/PXtqj1gXnC/e47YItv1UeDh46bW9+16mIE7p20UTZV9+FeAY4GjcBqZ+3YPj+x17TUScnymTLZpJ3mnYAtcpmQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RcIlpOwa; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=HK6JCzv87/JJ8dcC3JviJKU38BL4XaJl25I6qEp1Gp2PA00T5XCFhnW2xtwgT/JK1IMt/wO5q8nwDbZNDQSCY70sUzU/ry6wos2D1tnzvuXB4PgaN2IdR33V2d9vhabaJ63dQWojvYeSiWSbF88wPb5qS2OTsJpVNfJKsB0ZOkg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dm1dZMun; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RcIlpOwa"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dm1dZMun"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1789562684;
+	s=mimecast20190719; t=1789563484;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=xtQRXCuPYRxWKGeHGm4yA8jBCwKuCZ6dScY6lTLEkSY=;
-	b=RcIlpOwaTlobIzWa/YE8ruiQm7M4CeDTDZIptGzeAA67KfWKI9/XOpsAZv9HMGaXmdVsW5
-	/MwEegDWyPy2pRv8HLEkEPkdNuzyUO2Ykln77Pt104i2IqeqZJwdpib/9CABgViSyPQcrM
-	IXei7w5InMc2c0GC+Jwz8V1nzBfYKG8=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=hoPAB7dHaYgVjnpxXhRX3HsUt/cMJmwFIRFkXtozlmw=;
+	b=dm1dZMunq4qyKLLE9ryM5iq3AhGGS0dhRX7GKt8uANkb5SOCUYDYd7Gbd26y8r+ewg9YT/
+	E0vvBrz4N9UjVGmJ6IwXMA4uYXY/wY7IiTEw7QAx7u2iTcFhkKzHiqT3VybtXYp27TGYY0
+	zRlevMSpWnwMAZBowCm6Mg1Hlh+FEts=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-384-ci38qrIzPqi6PcAETH_1IQ-1; Wed, 16 Sep 2026 08:44:41 -0400
-X-MC-Unique: ci38qrIzPqi6PcAETH_1IQ-1
-X-Mimecast-MFC-AGG-ID: ci38qrIzPqi6PcAETH_1IQ_1789562680
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-47f6e8b5996so5138465f8f.2
-        for <virtualization@lists.linux.dev>; Wed, 16 Sep 2026 05:44:41 -0700 (PDT)
+ us-mta-542-eI7PDTuUMB-TuLYzB605jg-1; Wed, 16 Sep 2026 08:58:02 -0400
+X-MC-Unique: eI7PDTuUMB-TuLYzB605jg-1
+X-Mimecast-MFC-AGG-ID: eI7PDTuUMB-TuLYzB605jg_1789563481
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-47d81cf0c4cso3131475f8f.2
+        for <virtualization@lists.linux.dev>; Wed, 16 Sep 2026 05:58:02 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789562680; x=1790167480;
+        d=1e100.net; s=20260707; t=1789563481; x=1790168281;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=xtQRXCuPYRxWKGeHGm4yA8jBCwKuCZ6dScY6lTLEkSY=;
-        b=gBlqkxBV+SyZFYh3cFb7nnxf5ANlWWNKRI8Ljjbc9U1KzxnkYH2xjesICY1mCH8y8q
-         VETIOoUDs91WYMHUle2aPl9tY3C0KQnPb1mXwDb8wTXYRpgoSSsjuS+lu1sUMtRLh7mO
-         qPD2x2E4kLA5oDeDFwUJeUYqQ5ngrG2n4iXvdWbMqrr8yrd5c3YVefciPJdnNki8GNZE
-         Wxxd09ikU4MOvDGMYpEFaoE7oNR6m17Tu+YM4Lp160+KlrEMrrZOBJ6G08pWACoErsff
-         /Oe0NcmEhdzQYcCF1/mOy7ZfxuCqxynxzLD+rwO5gECIOhpjCRPBl/rFtJhxbOvuw9eU
-         roUw==
-X-Forwarded-Encrypted: i=1; AKwUvByERwwq8CAd8WySrKjjUemcHbxWGHpZKTNqMZuUuJxlFw6MG6iBvVXb7QkdSkIKtV1RNaOTb+Hj7JdOloI7/w==@lists.linux.dev
-X-Gm-Message-State: AFuF++myY2XoDxUR+TSivOI/eDb/dEDZGiHFfTsgebucWrE7k2m/VyAk
-	9u0MN4keAAVlWgR8UHbVReWd2fwPUk1F5ni4qBXpGjN5Td5wuNK2HU/Ku0oguL3urC0RhJTLLWn
-	eq7sl1OljAuprk737uRjyPcyz13szBo6yW+ZsAAyl/3GvwjRWwCCWearMJI/qsxmYlW+7
-X-Gm-Gg: AYBFou1V6GTPP4mSjHO0I5iwpdoY0otnV1IANR0mNrch0ab0SqFj+kK3WDlrYqJrKB3
-	zeI0QI4EyYSuKG9IoQqLhImuEZbXYjAX49c5CFPxwVCMnpLgHl/wJ9M5iVScMjxdTHrhgNbGPvN
-	B210vGnHIyXoUOD4o0JhM9BwIaU40cvSCmTS6DzzaXgdAlA21hx6t1QauAlGXHsJEoVDpCN+JZK
-	m9S1qlAnqpLkZnroH0Abb6PYyKyhtBo89BYmpddFKkrkl+mQ+lEGxvXGfstAcVIyQ8ie/P9bA+X
-	R5VPFNuwncdCw2FVkL2OV2VtiBcYuhJqmtC9Je72z4QC09xE6775e3FjHu1+bEcZSs7uGrPrgGa
-	RiwfNu7YWFXVeoJ5eI9toiwsfGEDcxRmjEdJ+XOUHMbYk0w==
-X-Received: by 2002:a05:6000:2210:b0:486:e949:532c with SMTP id ffacd0b85a97d-4870d16d687mr2826020f8f.43.1789562680128;
-        Wed, 16 Sep 2026 05:44:40 -0700 (PDT)
-X-Received: by 2002:a05:6000:2210:b0:486:e949:532c with SMTP id ffacd0b85a97d-4870d16d687mr2825969f8f.43.1789562679479;
-        Wed, 16 Sep 2026 05:44:39 -0700 (PDT)
+        bh=hoPAB7dHaYgVjnpxXhRX3HsUt/cMJmwFIRFkXtozlmw=;
+        b=Oe9BdgfZUG0N0veKSl5Kb0uaRU8HFVAFjWTz1o6bGvZinX3D3QR1v5UdrR3vSRx6/d
+         th0SvtQ02gm2GisccG8TLoDrORiu3iJr4baETtEWtII/tUflMH/jBjuKadVg5xbB90TB
+         7gxn/QwpsOQvzu/XeDoksnFmOqc/n0um7pMv1+/Zh1mZhHplvx6qAf8BrQ1rb6cxq3SG
+         cMFaNsLFsiv+UhEg0NFUB1rp1RsSxV3FaDFnSlpQwdjbM2h5E9NQ8wDJ31+x/LVeD/5Y
+         CZRWH88TKlM1DZS3pyQda52wZxwsCJdZnKlbdx2dDaZaAKCdNtwYdt/MmAmmzyVMvr6h
+         feSg==
+X-Forwarded-Encrypted: i=1; AKwUvBwuQmq0an5rYPPPiuRff7z6+Jj6Lg6G5eQ2nvBGi6gdTErPYeIKuPqTFxJFyvzhaMymqx5Hq/Q5p+ENQ3a2vQ==@lists.linux.dev
+X-Gm-Message-State: AFuF++m6kPBVdXTERJaGO9c3pw7jKff6Gnd5O03w8KBdMjuP8dKylDYr
+	IdVzqCgeP62r1HloBHlt6yrehR2ZG94FPvXeBPJ6mkM77kTYf+hJL0p8XCU2E8O+3oNReZHg0Wc
+	70uMCbHz4VhG9U5ELpfSqSAZJQoUjGF3TlycxjT96VxVsecduSzqpgQ357kXc6qg25TKE
+X-Gm-Gg: AYBFou38ZthNLiLhdAZRBfkI7KQ2IW4WuZN7SO/vOjaCjhIV2+Ol/EI9WAaSN/5ZDsj
+	mA+JKRgvtGwLFz8POPIDAMl4azK7Bih51f/yG/swrPRUcfqf3RHzNVrjlC6Up1EGIAXUaENvM9a
+	eJ2d4XbMjM1xw3TJpfLX/CgKoh3GBmovpnKH2Xc+znUL8ZxupqMRkAO3cbxrkLPZuidIBsDjzd5
+	zIHt6vD7frfHKekzPvme8R1/UHzkgAxz0o0LyAKCF/bzzmgsLXttMGU+JJ66f7/ED6Xc4ipGoTi
+	4LqulPV/olhGhbyCCYthOTk4MflmuoIAgraRQ1lFEtK/Opx25iAEzvAo9FKJdNomYjXU6KtLo2Q
+	JyfWrmErW3QWAWbZTsB8TLvnKUEjUwVW4U35GVUax3UG+VA==
+X-Received: by 2002:a05:6000:460c:b0:485:8b5d:96d with SMTP id ffacd0b85a97d-4870cf42bedmr7008671f8f.19.1789563481216;
+        Wed, 16 Sep 2026 05:58:01 -0700 (PDT)
+X-Received: by 2002:a05:6000:460c:b0:485:8b5d:96d with SMTP id ffacd0b85a97d-4870cf42bedmr7008586f8f.19.1789563480644;
+        Wed, 16 Sep 2026 05:58:00 -0700 (PDT)
 Received: from sgarzare-redhat (host-79-53-30-11.retail.telecomitalia.it. [79.53.30.11])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4870bf3494dsm6691205f8f.28.2026.09.16.05.44.37
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4870bf1fad3sm6355913f8f.12.2026.09.16.05.57.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Sep 2026 05:44:38 -0700 (PDT)
-Date: Wed, 16 Sep 2026 14:44:28 +0200
+        Wed, 16 Sep 2026 05:58:00 -0700 (PDT)
+Date: Wed, 16 Sep 2026 14:57:43 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Bobby Eshleman <bobbyeshleman@gmail.com>
 Cc: "David S. Miller" <davem@davemloft.net>, 
@@ -78,148 +78,253 @@ Cc: "David S. Miller" <davem@davemloft.net>,
 	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, kvm@vger.kernel.org, 
 	linux-kselftest@vger.kernel.org, sargun@sargun.me, jlinbox@meta.com, 
 	Bobby Eshleman <bobbyeshleman@meta.com>
-Subject: Re: [PATCH net-next 3/6] vsock/virtio: support guest device network
- namespace
-Message-ID: <aqqNZX0gk0I6AbVG@sgarzare-redhat>
+Subject: Re: [PATCH net-next 2/6] vsock: add IOCTL_VM_SOCKETS_ASSIGN_G2H_NETNS
+Message-ID: <aqqPXr2LNJUM4yMW@sgarzare-redhat>
 References: <20260902-vsock-guest-ns-v1-0-9995383e9a8b@meta.com>
- <20260902-vsock-guest-ns-v1-3-9995383e9a8b@meta.com>
- <aqlkWGyoUYrgQUzz@sgarzare-redhat>
- <aqmLFzcF3MmwRITz@devvm29614.prn0.facebook.com>
+ <20260902-vsock-guest-ns-v1-2-9995383e9a8b@meta.com>
+ <aqlTlFvQL34-WViB@sgarzare-redhat>
+ <aqmTYoCMmzx1BM1v@devvm29614.prn0.facebook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <aqmLFzcF3MmwRITz@devvm29614.prn0.facebook.com>
+In-Reply-To: <aqmTYoCMmzx1BM1v@devvm29614.prn0.facebook.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: HE76IjVWFA-CSO4YxHMXBwOa0nzEjBJbTwwwe0ca_DM_1789562680
+X-Mimecast-MFC-PROC-ID: xUthuvufmWvso-ybjFSHEqfHBWMiaDwBWEl5uYhCCig_1789563481
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
 
-On Tue, Sep 15, 2026 at 11:14:47AM -0700, Bobby Eshleman wrote:
->On Tue, Sep 15, 2026 at 05:47:02PM +0200, Stefano Garzarella wrote:
->> On Wed, Sep 02, 2026 at 04:00:49PM -0700, Bobby Eshleman wrote:
+On Tue, Sep 15, 2026 at 11:50:10AM -0700, Bobby Eshleman wrote:
+>On Tue, Sep 15, 2026 at 05:28:25PM +0200, Stefano Garzarella wrote:
+>> On Wed, Sep 02, 2026 at 04:00:48PM -0700, Bobby Eshleman wrote:
 >> > From: Bobby Eshleman <bobbyeshleman@meta.com>
 >> >
->> > virtio-vsock did not have namespace support (the device was always
->> > accessible to any global namespace).
+>> > Namespaces let a host isolate a VM's vsock traffic to a specific
+>> > namespace, but in a guest vsock traffic cannot be isolated to a
+>> > namespace. The vsock device is hardcoded to global mode and can't be
+>> > moved into a local-mode namespace.
 >> >
->> > Make the virtio-vsock device assignable to a namespace and initialize it
->> > to init_net. Because virtio-vsock and init_net are both hardcoded to
->> > global mode, nothing changes until the assign ioctl is issued.
+>> > Introduce ioctl IOCTL_VM_SOCKETS_ASSIGN_G2H_NETNS on /dev/vsock that
+>>
+>> We already discussed about netlink, but I'm not sure how much work can
+>> take, here just another alternative, what about adding
+>> /proc/sys/net/vsock/g2h_owner sysctl that can be read/write where:
+>> 0 - no owner
+>> 1 - owner
+>>
+>> 0 -> 1 transition, move the device in the new nets
+>> 1 -> 0 transition, reset back to init_ns
+>
+>That seems reasonable, but if multi-device support ever lands, this
+>might be harder to adapt cleanly?
+
+I see, but maybe we can have a dev0/ dev1/ subfolders in that case.
+
+>
+>>
+>> > gives userspace a way to move the device to the calling pid's namespace.
+>> > The call requires CAP_NET_ADMIN in the root user namespace. A privileged
+>> > user wishing to "unassign" the device can move it to the init_netns,
+>> > which is hardcoded to global mode (so no unassign call is necessary).
 >> >
->> > When the device's local-mode namespace is being destroyed, received
->> > packets are reset until new valid a namespace has been assigned and/or
->> > automatically returned to, and the next RX batch begins (in
->> > virtio_transport_rx_work). They are reset rather than dropped because
->> > vsock does not retransmit, so a silent drop would leave the host waiting
->> > for a timeout, and a connection request arriving in that window has no
->> > socket whose teardown would tell it otherwise. This requires making
->> > virtio_transport_reset_no_sock() available outside of the common code.
+>> > A getter to read the current assignment back was considered, returning
+>> > either the namespace's net_cookie or its nsfs inode number, but neither
+>> > seemed useful enough to bake into the uAPI now. It can be added later if
+>> > a user turns up that needs it.
 >> >
->> > When a device is assigned to a namespace, every already established
->> > vsock socket that is no longer able to reach the device is forcibly
->> > reset. For that reason, adding new sockets to the connected table must
->> > be performed atomically with regards to namespace assignment. This
->> > ensures that when the socket is added to the connected table that it
->> > actually passes the new reachability conditions set by ns assignment. If
->> > it wins the race to the table and does NOT pass the reachability tests,
->> > then the reset sweep will correctly catch it. This is the purpose
->> > of the new helper 'vsock_maybe_set_connected()'.
+>> > Add a transport hook to indicate support for guest namespacing, so that
+>> > transports may opt in/out. A transport that opts out keeps the
+>> > reachability rules it had before this ioctl existed.
 >> >
+>> > Sockets are reset when the underlying device moves to a different
+>> > namespace, so as to prevent reachability from the previous and now
+>> > disallowed namespace.
+>> >
+>> > Following the approach of netdevs, the device returns to init_net when
+>> > its namespace is removed. Care is taken to not break flows when the
+>> > device is inside a global namespace that is being torn down and alive
+>> > sockets are in a different global namespace. In this scenario, the
+>> > device's netns getter pre-emptively falls back to the init_net (always
+>> > global) so that these flows are not disrupted. If init_netns ever
+>> > supports local-mode in the future, this logic will have to be changed.
+>> >
+>> > Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
+>> > Link: https://lore.kernel.org/all/20200427142518.uwssa6dtasrp3bfc@steredhat/
 >> > Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
 >> > ---
->> > include/linux/virtio_vsock.h            |  2 ++
->> > net/vmw_vsock/virtio_transport.c        | 28 ++++++++++++++++++++++------
->> > net/vmw_vsock/virtio_transport_common.c | 28 +++++++++++++++++++++-------
->> > 3 files changed, 45 insertions(+), 13 deletions(-)
+>> > Documentation/admin-guide/sysctl/net.rst |  18 +++
+>> > include/net/af_vsock.h                   |   7 ++
+>> > include/uapi/linux/vm_sockets.h          |   6 +
+>> > net/vmw_vsock/af_vsock.c                 | 198 ++++++++++++++++++++++++++++++-
+>> > 4 files changed, 228 insertions(+), 1 deletion(-)
 >> >
->> > diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
->> > index f91704731057..9c68ce1d7fb4 100644
->> > --- a/include/linux/virtio_vsock.h
->> > +++ b/include/linux/virtio_vsock.h
->> > @@ -286,6 +286,8 @@ void virtio_transport_inc_tx_pkt(struct virtio_vsock_sock *vvs, struct sk_buff *
->> > u32 virtio_transport_get_credit(struct virtio_vsock_sock *vvs, u32 wanted);
->> > void virtio_transport_put_credit(struct virtio_vsock_sock *vvs, u32 credit);
->> > void virtio_transport_deliver_tap_pkt(struct sk_buff *skb);
->> > +int virtio_transport_reset_no_sock(const struct virtio_transport *t,
->> > +				   struct sk_buff *skb, struct net *net);
->> > int virtio_transport_purge_skbs(void *vsk, struct sk_buff_head *list);
->> > int virtio_transport_read_skb(struct vsock_sock *vsk, skb_read_actor_t read_actor);
->> > int virtio_transport_notify_set_rcvlowat(struct vsock_sock *vsk, int val);
->> > diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
->> > index 4f9aa9c4c3aa..a453a4f828dc 100644
->> > --- a/net/vmw_vsock/virtio_transport.c
->> > +++ b/net/vmw_vsock/virtio_transport.c
->> > @@ -540,9 +540,14 @@ static bool virtio_transport_msgzerocopy_allow(void)
->> > 	return true;
->> > }
->> >
->> > +static bool virtio_transport_netns_assign_allow(void)
+
+[...]
+
+>> > +
+>> > +static void vsock_reset_unreachable_sock(struct sock *sk)
 >> > +{
->> > +	return true;
+>> > +	if (vsock_g2h_net_reachable(sock_net(sk)))
+>> > +		return;
+>> > +
+>> > +	sk->sk_state = TCP_CLOSE;
+>> > +	sk->sk_err = ECONNRESET;
+>> > +	sk_error_report(sk);
+>>
+>> Should we send the reset to the other peer too?
+>>
+>> Or avoid to set TCP_CLOSE, so the user will see the error and close it?
+>
+>Sending the reset sounds good. At least the peer won't be waiting around
+>forever. Will work that into v2.
+
+If it's too much of work, we can skip it, it's not a strong opinion on 
+my side. It was more a question of what we should do ;-)
+
+>
+>>
 >> > +}
 >> > +
->> > bool virtio_transport_stream_allow(struct vsock_sock *vsk, u32 cid, u32 port)
+>> > +/* Move the g2h device to @net. Returns -ENODEV if no g2h transport is loaded
+>> > + * and -EOPNOTSUPP if the loaded one cannot be moved.
+>> > + */
+>> > +static int vsock_g2h_net_assign(struct net *net)
+>> > +{
+>> > +	int ret = 0;
+>> > +
+>> > +	mutex_lock(&vsock_register_mutex);
+>> > +	if (!transport_g2h) {
+>> > +		ret = -ENODEV;
+>> > +	} else if (!vsock_g2h_netns_assignable()) {
+>> > +		ret = -EOPNOTSUPP;
+>> > +	} else {
+>> > +		/* See vsock_maybe_set_connected() comment about synchronizing
+>> > +		 * with connecting sockets.
+>> > +		 */
+>> > +		rcu_assign_pointer(vsock_g2h_net, net);
+>> > +		vsock_for_each_connected_socket(transport_g2h,
+>> > +						vsock_reset_unreachable_sock);
+>> > +	}
+>> > +	mutex_unlock(&vsock_register_mutex);
+>> > +
+>> > +	return ret;
+>> > +}
+>> > +
+>> > +/* Move the g2h device back to init_net if it lives in @net, which is about to
+>> > + * be destroyed.
+>> > + */
+>> > +static void vsock_g2h_net_reset(struct net *net)
+>> > +{
+>> > +	bool reset = false;
+>> > +
+>> > +	/* Avoid taking the mutex if the namespaces don't match. */
+>> > +	if (likely(rcu_access_pointer(vsock_g2h_net) != net))
+>> > +		return;
+>> > +
+>> > +	mutex_lock(&vsock_register_mutex);
+>> > +	if (rcu_access_pointer(vsock_g2h_net) == net) {
+>> > +		rcu_assign_pointer(vsock_g2h_net, &init_net);
+>> > +		reset = true;
+>> > +	}
+>> > +	mutex_unlock(&vsock_register_mutex);
+>> > +
+>> > +	if (reset)
+>> > +		synchronize_rcu();
+>> > +}
+>> > +
+>> > static struct sock *vsock_dequeue_accept(struct sock *listener)
 >> > {
->> > -	return vsock_net_mode_global(vsk);
->> > +	return vsock_g2h_net_reachable(sock_net(sk_vsock(vsk)));
+>> > 	struct vsock_sock *vlistener;
+>> > @@ -2745,6 +2920,15 @@ static long vsock_dev_do_ioctl(struct file *filp,
+>> > 			retval = -EFAULT;
+>> > 		break;
+>> >
+>> > +	case IOCTL_VM_SOCKETS_ASSIGN_G2H_NETNS:
+>> > +		if (!capable(CAP_NET_ADMIN)) {
+>> > +			retval = -EPERM;
+>> > +			break;
+>> > +		}
+>> > +
+>> > +		retval = vsock_g2h_net_assign(current->nsproxy->net_ns);
+>> > +		break;
+>> > +
+>> > 	default:
+>> > 		retval = -ENOIOCTLCMD;
+>> > 	}
+>> > @@ -2978,6 +3162,7 @@ static __net_init int vsock_sysctl_init_net(struct net *net)
+>> >
+>> > static __net_exit void vsock_sysctl_exit_net(struct net *net)
+>> > {
+>> > +	vsock_g2h_net_reset(net);
+>>
+>> Why calling this in the sysctl_exit ?
+>
+>Should we add another pernet_operations? I agree the name of
+>vsock_sysctl_ops does not really fit as a general "do all per-net
+>operations here" location.
+
+Aaaaa, it's not really related to sysctl.
+
+Maybe we can rename it or add another pernet_operations.
+
+>
+>>
+>> > 	vsock_sysctl_unregister(net);
 >> > }
 >> >
->> > static bool virtio_transport_seqpacket_allow(struct vsock_sock *vsk,
->> > @@ -587,6 +592,7 @@ static struct virtio_transport virtio_transport = {
->> > 		.seqpacket_has_data       = virtio_transport_seqpacket_has_data,
+>> > @@ -3104,13 +3289,21 @@ EXPORT_SYMBOL_GPL(vsock_core_register);
 >> >
->> > 		.msgzerocopy_allow        = virtio_transport_msgzerocopy_allow,
->> > +		.netns_assign_allow       = virtio_transport_netns_assign_allow,
->> >
->> > 		.notify_poll_in           = virtio_transport_notify_poll_in,
->> > 		.notify_poll_out          = virtio_transport_notify_poll_out,
->> > @@ -616,7 +622,7 @@ virtio_transport_seqpacket_allow(struct vsock_sock *vsk, u32 remote_cid)
->> > 	struct virtio_vsock *vsock;
->> > 	bool seqpacket_allow;
->> >
->> > -	if (!vsock_net_mode_global(vsk))
->> > +	if (!vsock_g2h_net_reachable(sock_net(sk_vsock(vsk))))
->> > 		return false;
->> >
->> > 	seqpacket_allow = false;
->> > @@ -634,6 +640,9 @@ static void virtio_transport_rx_work(struct work_struct *work)
->> > 	struct virtio_vsock *vsock =
->> > 		container_of(work, struct virtio_vsock, rx_work);
->> > 	struct virtqueue *vq;
->> > +	struct net *net;
+>> > void vsock_core_unregister(const struct vsock_transport *t)
+>> > {
+>> > +	bool g2h_net_reset = false;
 >> > +
->> > +	net = vsock_g2h_net_get();
+>> > 	mutex_lock(&vsock_register_mutex);
 >> >
->> > 	mutex_lock(&vsock->rx_lock);
+>> > 	if (transport_h2g == t)
+>> > 		transport_h2g = NULL;
 >> >
->> > @@ -682,10 +691,14 @@ static void virtio_transport_rx_work(struct work_struct *work)
+>> > -	if (transport_g2h == t)
+>> > +	if (transport_g2h == t) {
+>> > 		transport_g2h = NULL;
+>> > +		/* The device is gone, so is its namespace assignment. */
+>> > +		if (rcu_access_pointer(vsock_g2h_net) != &init_net) {
+>> > +			rcu_assign_pointer(vsock_g2h_net, &init_net);
+>> > +			g2h_net_reset = true;
+>> > +		}
+>> > +	}
 >> >
->> > 			virtio_transport_deliver_tap_pkt(skb);
+>> > 	if (transport_dgram == t)
+>> > 		transport_dgram = NULL;
+>> > @@ -3119,6 +3312,9 @@ void vsock_core_unregister(const struct vsock_transport *t)
+>> > 		transport_local = NULL;
 >> >
->> > -			/* Force virtio-transport into global mode since it
->> > -			 * does not yet support local-mode namespacing.
->> > -			 */
->> > -			virtio_transport_recv_pkt(&virtio_transport, skb, NULL);
->> > +			if (unlikely(!net)) {
->> > +				virtio_transport_reset_no_sock(
->> > +					&virtio_transport, skb, &init_net);
+>> > 	mutex_unlock(&vsock_register_mutex);
+>> > +
+>> > +	if (g2h_net_reset)
+>> > +		synchronize_rcu();
 >>
->> Why init_net?
+>> Why we need this? (I'd add also a comment with the reason)
 >
->This parameter is actually unused by virtio_transport_reset_no_sock(),
->its call to virtio_transport_send_pkt(), and even the eventual call to
->virtio_transport_deliver_tap_pkt()... so maybe NULL w/ a comment would
->be better?
+>We might actually be able to drop it... I do think we need to keep it in
+>vsock_g2h_net_reset() because it makes sure that vsock_g2h_net_get()
+>doesn't dereference a destroyed net.
+>
+>vsock_core_unregister() isn't on the teardown path, so even if we
+>re-assign to init_net the previous net is still alive.
 
-mmm, should we remove that parameter if unused?
+Agree.
 
-Anyway, not in this series/patch.
+>
+>
+>One thing I realized when answering your uAPI questions and looking at
+>the code is that IOCTL_VM_SOCKETS_GET_LOCAL_CID is not namespace aware,
+>but I think it probably should be? I remember for host ns we strived for
+>truly strong isolation.
 
-Here, anything is fine, just put a comment with the reason.
+Can you elabore a bit more?
 
 Thanks,
 Stefano
