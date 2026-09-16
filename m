@@ -1,342 +1,271 @@
-Received: from mail-oi2-f16.google.com (mail-oi2-f16.google.com [74.125.231.208])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from delivery.antispam.mailspamprotection.com (delivery.antispam.mailspamprotection.com [185.56.87.0])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2696C46EC9E
-	for <virtualization@lists.linux.dev>; Wed, 16 Sep 2026 21:23:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.231.208
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789593850; cv=none; b=pLkUadUDwhRJt7pEljbyluf6r/f+kGB+Bb6yZAQr3GKFVKbs5MRsgGHyniFBn3Y/KS4QgghdD9IwUjlBHhv1wG9tmNFHtmPel6s9DfbYWZ4Ip2gaqYBJeR2IoK4iVIGJFC8K5L0ZMRpaOj/6zBypnf9erTi1kTqCaxjae/iHP8s=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789593850; c=relaxed/simple;
-	bh=2UIZhQGNlp0yvgPj2bp76HRBxinSpLpWqq5nZWfgdJU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=NmhSYVT/KVckrJL5HTxa1/F0RNSKJ05INcysSTGyIT2SVJ1m3xjp8q6c97erpc23LoFUOvbhQv8LbDQECKbomaWC9uFkq3KuyxkL2EvKJm9bkm2ySDa66B8dzsH61UJtbpNV97LBHYhP4w5zhnsRknICsGrwtuzqyWwKmhKvnag=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kA9PKu0Q; arc=none smtp.client-ip=74.125.231.208
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 640C74AA1DC;
+	Wed, 16 Sep 2026 21:48:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=185.56.87.0
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789595321; cv=pass; b=NThR45NLa2pALmoL+cQlU57y4lg+dqPMXz3oMuFAPCOWTwbrUC6/dRkwYkqqu+GpP3ghn7pQhucDaAaq9FjutO1OHyC46hGIlOelPhCRw9KDq7oay6Dowtx5hchPR2J9gGp4tsg1WZVNVa6UDNRnisjtwMjLkVypv7lSRiWivDk=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789595321; c=relaxed/simple;
+	bh=5RpInneuPFremFn6IGVocs0wamQaJJ0xuph/2qEoWFA=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=AMQsULtVGy4R0HVko0UtbgjTcxxQdwYtdFsoXPdVY27u08nyZw8OTaJiG28NvetlUIz6KrXcQTRloOsygb9OOgFRGYZVRN2Wdzm3cL8GlTHQwRLdqHFul4Gl2YO8nz09ihkvxKCExCrqkhkUiHXlDGP3iw9QP/P+gewxw5LpZXE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=valla.it; spf=pass smtp.mailfrom=valla.it; dkim=pass (1024-bit key) header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.b=JVueUgg4; dkim=pass (1024-bit key) header.d=valla.it header.i=@valla.it header.b=MHHs7zTH; arc=pass smtp.client-ip=185.56.87.0
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=valla.it
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=valla.it
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kA9PKu0Q"
-Received: by mail-oi2-f16.google.com with SMTP id 46e09a7af769-7f4f0c89e35so112982a34.2
-        for <virtualization@lists.linux.dev>; Wed, 16 Sep 2026 14:23:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789593833; x=1790198633; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=XSIk8tJbuXToHcbml5dyAhA+YFmm4IR2Ghd4XhDQSyI=;
-        b=kA9PKu0QofeA4aVdQY0a4E9wSmnY/VUv6q7+M9exK9XZIk0g56dRGlYJ78M/F3dIn+
-         uE6qbcVP7ht9bnBfxueuxY+mYqkTEw4/2w4dB0iUDUaLwZ+eXFiqoQS0gMRiKDzivpoz
-         N1cvQy17/8IbtY7SW13M38MIAhX0Xk2HdQ9GWGQhgjwU8QEK1A0oLvKLB5oN+q+ezapj
-         PQcOMkmctKt/x5QlcchH0Pbg3RJFO0LGrNidw9SR29F2FW12QkoN+Nco0/qP6JirffUz
-         uCskMTiNRl/OPi0hXCKQwswNaMFgaOFfohnU5wOZ38W9aV/NXuKpILFHKBvStiTNJVxl
-         CbyQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789593833; x=1790198633;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=XSIk8tJbuXToHcbml5dyAhA+YFmm4IR2Ghd4XhDQSyI=;
-        b=SDGUBq0x1TeE2soq/ce7Qa/iAKBWadtsDG5WtVZbk3n6lIz4M8olow3fxYt+1tdenv
-         kh+xx/6pC/Hdz0viyy+DkCKjos73TEjgIl3MmtX3Z08s5Npu2kAW0sq49lu/CR57Vb2K
-         odqLQeDVaxbJfniX451WTUQwd5VmkWpx3fTVFde8glgLuunRD7hEY4vpdlT/2QhyG8ug
-         /yDDfaz3fd78tcdD1gaWDkb3c4p5qlbXykNnQBNLG8HJEZsnh3xSsvRssr5pw7deLYhs
-         QhZzvG+Mcm2WdOGl6Kk8Co6gL152B4RLdQm6UOQ5UFOJNMDj7fFayiYgE71vMzWPLXlw
-         erjg==
-X-Forwarded-Encrypted: i=1; AKwUvBw7zfuAWcqaJuZd3HuXRyyTmIWoVAjieJL9Nl1kt91C/wFu2HcW+KuSzGdEnmuFzDlArNR6ZQAcDMZtRZXtsw==@lists.linux.dev
-X-Gm-Message-State: AFuF++mx+IlxIinRsbVSowjCwYQ7fHl9SXbBQGLzP+lj7Mniod6Hs6gs
-	kCNKpsaAoj+Qo434t6Sv3T8ismHol7TEakwIKRs3EbEJIUMj6p245pQr
-X-Gm-Gg: AYBFou0m9QuNr/oqNgGq4dKVbT84VVvpGRMHGUkIv1r8c7KfhbRN/63E7rg3NuUa2Jf
-	YKjxV7rRezQ1gIzdUo3hcEPRoFO6uOPChlwDQ5yuBLPN7QSm6ENdERxfDFnCYq5JR4P8au5B+fH
-	yR/mV7IMHVgP2nKxZNkER+bhGF3HBL+pVPxth89rryXva8c5MUPQ2mSxK/CjzPScLdnUezZirv7
-	4l3FszrNttIbaiAOlTAGrhNBTtJblrsJ9yq5KU9lkwwiNKopDTKDntjmCOY+ask9oDJMDVyFCKL
-	2kDSFmCXLsX4MDldTNHxgVblFJ10nybL2IdIvyw2bUSfS4GRmF5KrKlSFHYrpWyebyigbj2ITeP
-	Jkg52LEDzIEarX7bG7Fv23TCAR6Cl8sPk+YYMsN105j/Ygi1+8lPDB7qThVuPCJKefcAOwj08ki
-	3gNv4/IftL9XhWvVFEe4kxebmC2B+NP4gMfZ11V6bN2GLGRLBTDVWgpNhlYU6eiW6cZgfDJQvD7
-	RF+kWVe6KLuwRtYlbGP
-X-Received: by 2002:a05:6830:6017:b0:7e6:ef1d:4aeb with SMTP id 46e09a7af769-80b2e0576bemr4670574a34.15.1789593833101;
-        Wed, 16 Sep 2026 14:23:53 -0700 (PDT)
-Received: from devvm29614.prn0.facebook.com ([2a03:2880:ff:43::])
-        by smtp.gmail.com with ESMTPSA id 46e09a7af769-80c466a2dcesm1059784a34.11.2026.09.16.14.23.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Sep 2026 14:23:52 -0700 (PDT)
-Date: Wed, 16 Sep 2026 14:23:48 -0700
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: "David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowangio@gmail.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Shuah Khan <shuah@kernel.org>, Randy Dunlap <rdunlap@infradead.org>,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
-	kvm@vger.kernel.org, linux-kselftest@vger.kernel.org,
-	sargun@sargun.me, jlinbox@meta.com,
-	Bobby Eshleman <bobbyeshleman@meta.com>
-Subject: Re: [PATCH net-next 2/6] vsock: add IOCTL_VM_SOCKETS_ASSIGN_G2H_NETNS
-Message-ID: <aqsI5BXRB96dkIHm@devvm29614.prn0.facebook.com>
-References: <20260902-vsock-guest-ns-v1-0-9995383e9a8b@meta.com>
- <20260902-vsock-guest-ns-v1-2-9995383e9a8b@meta.com>
- <aqlTlFvQL34-WViB@sgarzare-redhat>
- <aqmTYoCMmzx1BM1v@devvm29614.prn0.facebook.com>
- <aqqPXr2LNJUM4yMW@sgarzare-redhat>
+	dkim=pass (1024-bit key) header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.b="JVueUgg4";
+	dkim=pass (1024-bit key) header.d=valla.it header.i=@valla.it header.b="MHHs7zTH"
+ARC-Seal: i=1; cv=none; a=rsa-sha256; d=outgoing.instance-europe-west4-h0bm.prod.antispam.mailspamprotection.com; s=arckey; t=1789595308;
+	 b=STceLwUuVC8+OIhpNyxC/qlnIu8eAbvJmuFE7ouSLFNyFuHo6XpvVIJDPreXGmgv8eUza89jl3
+	  9cgVvwi2Y9Fdmlz19coFeOugtRkjlYk/TO9fJhNXzuwGX8V2xcs08QrN+AnzW6g0lJ8hrYP9p+
+	  qZB9zAZ/OBAb3krrR8B61oA0H9ZvdCV0tIjs2NiMH8JuiSVrWaWrQtXuDRdynFdjkRBzFdj7Eh
+	  yk9jpJaXn/zAQPoRGSiFYZtGuomS1bVHj77HwtN/bdwl8OmZzA6AhVfqOU9u+z4lwL5mcZ4erh
+	  lj1CC35ICgVBCDzWM36n+jogRipF0iHLK3wKN7muPICY5g==;
+ARC-Authentication-Results: i=1; outgoing.instance-europe-west4-h0bm.prod.antispam.mailspamprotection.com; smtp.remote-ip=35.214.173.214;
+	iprev=pass (214.173.214.35.bc.googleusercontent.com) smtp.remote-ip=35.214.173.214;
+	auth=pass (LOGIN) smtp.auth=esm19.siteground.biz;
+	dkim=pass header.d=valla.it header.s=default header.a=rsa-sha256;
+	arc=none
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed; d=outgoing.instance-europe-west4-h0bm.prod.antispam.mailspamprotection.com; s=arckey; t=1789595308;
+	bh=5RpInneuPFremFn6IGVocs0wamQaJJ0xuph/2qEoWFA=;
+	h=Cc:To:In-Reply-To:References:Message-ID:Content-Transfer-Encoding:
+	  Content-Type:MIME-Version:Subject:Date:From:DKIM-Signature:DKIM-Signature;
+	b=hgl2GlHkt5EvWfaI+EP3lwAKMzL2vF9Ao1IX9kD6T5SBqxmaIImuGj9f/1IELT+or/PmtPFEtI
+	  HVbXLwn83aIwUmsEFMmPEs61Y/VYx9y2vSInYMpkkS8S4j5USGZNOG8+PwbWa3b0vsmV0P/gDf
+	  qCE1PEb8b8hD+Mu/k3BfkkQq5JnifVanerXdlGh7Bp29ygsz7TdmQJgtXYswxaFazvKDRSy0A1
+	  rRq65lGQ0VSPFt1/4GYys9IkTZkijb1CurEQu3XP1PTxMyey6PI+g+GGfHdNFCWyNZ8ZX1RTyO
+	  ii0Ct9GXIgAiIsvOIrQjyDegu+Flj2r0F6JZAko1wJ0e7Q==;
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=antispam.mailspamprotection.com; s=default; h=CFBL-Feedback-ID:CFBL-Address
+	:Cc:To:Message-Id:Content-Transfer-Encoding:Content-Type:MIME-Version:Subject
+	:Date:From:Reply-To:List-Unsubscribe;
+	bh=VQVoOO/zbpaeb/l4qLVnNDj9e2y11NOFxhc+SjTbWPc=; b=JVueUgg4PZv4Q60El4QP2lYvRC
+	xe6TbchIE/bjSavPCNpoRgQIbdvRtYijPMIWXGdpQ1RLgvPpFQOrnaKhZjLCnrp7ZxvYkDAFc6efj
+	j1XQ8pO0kAppo4zs4zg0BF0UcBWHpSSKLVwjR12fm9B/+DfjOwhj4l1Gj704v8FDVhow=;
+Received: from 214.173.214.35.bc.googleusercontent.com ([35.214.173.214] helo=esm19.siteground.biz)
+	by instance-europe-west4-h0bm.prod.antispam.mailspamprotection.com with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+	(Exim 4.99.5)
+	(envelope-from <francesco@valla.it>)
+	id 1x6xUI-0000000C8Aa-2QJa;
+	Wed, 16 Sep 2026 21:48:19 +0000
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=valla.it;
+	s=default; h=Cc:To:Subject:Date:From:list-help:list-unsubscribe:
+	list-subscribe:list-post:list-owner:list-archive;
+	bh=VQVoOO/zbpaeb/l4qLVnNDj9e2y11NOFxhc+SjTbWPc=; b=MHHs7zTH3GK9FTI1K2dcbUyBIT
+	q8tRhi/NJvR6+MO+3GGTVwn4LCZW5XbeJmxYe9D9Lq8vxF5M/fOBQwiVxhs8TsYaaesL89Nn5n5cq
+	JUnxSR/3+Oi+RGCv9er5Z/iFdQTYODXlOtZj2ds900oDRlRCqFN78TDGDtb/7iyCPubM=;
+Received: from [95.233.221.121] (port=62880 helo=[192.168.178.175])
+	by esm19.siteground.biz with essmtpa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+	(Exim 4.99.5)
+	(envelope-from <francesco@valla.it>)
+	id 1x6wuR-0000000058P-2urL;
+	Wed, 16 Sep 2026 21:11:15 +0000
+From: Francesco Valla <francesco@valla.it>
+Date: Wed, 16 Sep 2026 23:10:55 +0200
+Subject: [PATCH RFC 10/12] remoteproc: imx_rproc: always use non-blocking
+ mailboxes
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <aqqPXr2LNJUM4yMW@sgarzare-redhat>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260916-remoteproc_virtio_map-v1-10-dac8c5eb4aa9@valla.it>
+References: <20260916-remoteproc_virtio_map-v1-0-dac8c5eb4aa9@valla.it>
+In-Reply-To: <20260916-remoteproc_virtio_map-v1-0-dac8c5eb4aa9@valla.it>
+To: Bjorn Andersson <andersson@kernel.org>, 
+ Mathieu Poirier <mathieu.poirier@linaro.org>, Kees Cook <kees@kernel.org>, 
+ "Gustavo A. R. Silva" <gustavoars@kernel.org>, 
+ Marek Szyprowski <m.szyprowski@samsung.com>, 
+ Robin Murphy <robin.murphy@arm.com>, Mark Brown <broonie@kernel.org>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Frank Li <Frank.Li@nxp.com>, 
+ Peng Fan <peng.fan@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>
+Cc: linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ devicetree@vger.kernel.org, virtualization@lists.linux.dev, 
+ imx@lists.linux.dev, iommu@lists.linux.dev, 
+ linux-arm-kernel@lists.infradead.org, Francesco Valla <francesco@valla.it>
+X-Mailer: b4 0.16-dev
+X-Developer-Signature: v=1; a=openpgp-sha256; l=5141; i=francesco@valla.it;
+ h=from:subject:message-id; bh=5RpInneuPFremFn6IGVocs0wamQaJJ0xuph/2qEoWFA=;
+ b=owGbwMvMwCX2aH1OUIzHTgbG02pJDFmrWZ8wVjamH5pQ1v6rb3vpIv/4BI25fgUp/3Tvq67S2
+ lLyqsWlo5SFQYyLQVZMkSVk3Y17e+aaf0vbwPgIZg4rE8gQBi5OAZjIDn5GhhsL14SeifMKn6y0
+ OHlJ0cy5U06pTpv6Q+yg5L5tIpvvSbsz/HfesCfDI8aMLb7s/dFPPNty3pi8nsi6e+nqVWtrf6V
+ zPWEGAA==
+X-Developer-Key: i=francesco@valla.it; a=openpgp;
+ fpr=CC70CBC9AA13257C6CCED8669601767CA07CA0EA
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - esm19.siteground.biz
+X-AntiAbuse: Original Domain - lists.linux.dev
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - valla.it
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-SGantispam-id: 47fe4b273848a8a63135a30243053e91
+X-AntiAbuse: ID - 47fe4b273848a8a63135a30243053e91
+AntiSpam-DLS: false
+AntiSpam-DLSP: 
+AntiSpam-DLSRS: 
+AntiSpam-TS: 1.0
+CFBL-Address: feedback@antispam.mailspamprotection.com; report=arf
+CFBL-Feedback-ID: 1x6xUI-0000000C8Aa-2QJa-feedback@antispam.mailspamprotection.com
+Authentication-Results: outgoing.instance-europe-west4-h0bm.prod.antispam.mailspamprotection.com;
+	iprev=pass (214.173.214.35.bc.googleusercontent.com) smtp.remote-ip=35.214.173.214;
+	auth=pass (LOGIN) smtp.auth=esm19.siteground.biz;
+	dkim=pass header.d=valla.it header.s=default header.a=rsa-sha256;
+	arc=none
 
-On Wed, Sep 16, 2026 at 02:57:43PM +0200, Stefano Garzarella wrote:
-> On Tue, Sep 15, 2026 at 11:50:10AM -0700, Bobby Eshleman wrote:
-> > On Tue, Sep 15, 2026 at 05:28:25PM +0200, Stefano Garzarella wrote:
-> > > On Wed, Sep 02, 2026 at 04:00:48PM -0700, Bobby Eshleman wrote:
-> > > > From: Bobby Eshleman <bobbyeshleman@meta.com>
-> > > >
-> > > > Namespaces let a host isolate a VM's vsock traffic to a specific
-> > > > namespace, but in a guest vsock traffic cannot be isolated to a
-> > > > namespace. The vsock device is hardcoded to global mode and can't be
-> > > > moved into a local-mode namespace.
-> > > >
-> > > > Introduce ioctl IOCTL_VM_SOCKETS_ASSIGN_G2H_NETNS on /dev/vsock that
-> > > 
-> > > We already discussed about netlink, but I'm not sure how much work can
-> > > take, here just another alternative, what about adding
-> > > /proc/sys/net/vsock/g2h_owner sysctl that can be read/write where:
-> > > 0 - no owner
-> > > 1 - owner
-> > > 
-> > > 0 -> 1 transition, move the device in the new nets
-> > > 1 -> 0 transition, reset back to init_ns
-> > 
-> > That seems reasonable, but if multi-device support ever lands, this
-> > might be harder to adapt cleanly?
-> 
-> I see, but maybe we can have a dev0/ dev1/ subfolders in that case.
-> 
-> > 
-> > > 
-> > > > gives userspace a way to move the device to the calling pid's namespace.
-> > > > The call requires CAP_NET_ADMIN in the root user namespace. A privileged
-> > > > user wishing to "unassign" the device can move it to the init_netns,
-> > > > which is hardcoded to global mode (so no unassign call is necessary).
-> > > >
-> > > > A getter to read the current assignment back was considered, returning
-> > > > either the namespace's net_cookie or its nsfs inode number, but neither
-> > > > seemed useful enough to bake into the uAPI now. It can be added later if
-> > > > a user turns up that needs it.
-> > > >
-> > > > Add a transport hook to indicate support for guest namespacing, so that
-> > > > transports may opt in/out. A transport that opts out keeps the
-> > > > reachability rules it had before this ioctl existed.
-> > > >
-> > > > Sockets are reset when the underlying device moves to a different
-> > > > namespace, so as to prevent reachability from the previous and now
-> > > > disallowed namespace.
-> > > >
-> > > > Following the approach of netdevs, the device returns to init_net when
-> > > > its namespace is removed. Care is taken to not break flows when the
-> > > > device is inside a global namespace that is being torn down and alive
-> > > > sockets are in a different global namespace. In this scenario, the
-> > > > device's netns getter pre-emptively falls back to the init_net (always
-> > > > global) so that these flows are not disrupted. If init_netns ever
-> > > > supports local-mode in the future, this logic will have to be changed.
-> > > >
-> > > > Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
-> > > > Link: https://lore.kernel.org/all/20200427142518.uwssa6dtasrp3bfc@steredhat/
-> > > > Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
-> > > > ---
-> > > > Documentation/admin-guide/sysctl/net.rst |  18 +++
-> > > > include/net/af_vsock.h                   |   7 ++
-> > > > include/uapi/linux/vm_sockets.h          |   6 +
-> > > > net/vmw_vsock/af_vsock.c                 | 198 ++++++++++++++++++++++++++++++-
-> > > > 4 files changed, 228 insertions(+), 1 deletion(-)
-> > > >
-> 
-> [...]
-> 
-> > > > +
-> > > > +static void vsock_reset_unreachable_sock(struct sock *sk)
-> > > > +{
-> > > > +	if (vsock_g2h_net_reachable(sock_net(sk)))
-> > > > +		return;
-> > > > +
-> > > > +	sk->sk_state = TCP_CLOSE;
-> > > > +	sk->sk_err = ECONNRESET;
-> > > > +	sk_error_report(sk);
-> > > 
-> > > Should we send the reset to the other peer too?
-> > > 
-> > > Or avoid to set TCP_CLOSE, so the user will see the error and close it?
-> > 
-> > Sending the reset sounds good. At least the peer won't be waiting around
-> > forever. Will work that into v2.
-> 
-> If it's too much of work, we can skip it, it's not a strong opinion on my
-> side. It was more a question of what we should do ;-)
-> 
-> > 
-> > > 
-> > > > +}
-> > > > +
-> > > > +/* Move the g2h device to @net. Returns -ENODEV if no g2h transport is loaded
-> > > > + * and -EOPNOTSUPP if the loaded one cannot be moved.
-> > > > + */
-> > > > +static int vsock_g2h_net_assign(struct net *net)
-> > > > +{
-> > > > +	int ret = 0;
-> > > > +
-> > > > +	mutex_lock(&vsock_register_mutex);
-> > > > +	if (!transport_g2h) {
-> > > > +		ret = -ENODEV;
-> > > > +	} else if (!vsock_g2h_netns_assignable()) {
-> > > > +		ret = -EOPNOTSUPP;
-> > > > +	} else {
-> > > > +		/* See vsock_maybe_set_connected() comment about synchronizing
-> > > > +		 * with connecting sockets.
-> > > > +		 */
-> > > > +		rcu_assign_pointer(vsock_g2h_net, net);
-> > > > +		vsock_for_each_connected_socket(transport_g2h,
-> > > > +						vsock_reset_unreachable_sock);
-> > > > +	}
-> > > > +	mutex_unlock(&vsock_register_mutex);
-> > > > +
-> > > > +	return ret;
-> > > > +}
-> > > > +
-> > > > +/* Move the g2h device back to init_net if it lives in @net, which is about to
-> > > > + * be destroyed.
-> > > > + */
-> > > > +static void vsock_g2h_net_reset(struct net *net)
-> > > > +{
-> > > > +	bool reset = false;
-> > > > +
-> > > > +	/* Avoid taking the mutex if the namespaces don't match. */
-> > > > +	if (likely(rcu_access_pointer(vsock_g2h_net) != net))
-> > > > +		return;
-> > > > +
-> > > > +	mutex_lock(&vsock_register_mutex);
-> > > > +	if (rcu_access_pointer(vsock_g2h_net) == net) {
-> > > > +		rcu_assign_pointer(vsock_g2h_net, &init_net);
-> > > > +		reset = true;
-> > > > +	}
-> > > > +	mutex_unlock(&vsock_register_mutex);
-> > > > +
-> > > > +	if (reset)
-> > > > +		synchronize_rcu();
-> > > > +}
-> > > > +
-> > > > static struct sock *vsock_dequeue_accept(struct sock *listener)
-> > > > {
-> > > > 	struct vsock_sock *vlistener;
-> > > > @@ -2745,6 +2920,15 @@ static long vsock_dev_do_ioctl(struct file *filp,
-> > > > 			retval = -EFAULT;
-> > > > 		break;
-> > > >
-> > > > +	case IOCTL_VM_SOCKETS_ASSIGN_G2H_NETNS:
-> > > > +		if (!capable(CAP_NET_ADMIN)) {
-> > > > +			retval = -EPERM;
-> > > > +			break;
-> > > > +		}
-> > > > +
-> > > > +		retval = vsock_g2h_net_assign(current->nsproxy->net_ns);
-> > > > +		break;
-> > > > +
-> > > > 	default:
-> > > > 		retval = -ENOIOCTLCMD;
-> > > > 	}
-> > > > @@ -2978,6 +3162,7 @@ static __net_init int vsock_sysctl_init_net(struct net *net)
-> > > >
-> > > > static __net_exit void vsock_sysctl_exit_net(struct net *net)
-> > > > {
-> > > > +	vsock_g2h_net_reset(net);
-> > > 
-> > > Why calling this in the sysctl_exit ?
-> > 
-> > Should we add another pernet_operations? I agree the name of
-> > vsock_sysctl_ops does not really fit as a general "do all per-net
-> > operations here" location.
-> 
-> Aaaaa, it's not really related to sysctl.
-> 
-> Maybe we can rename it or add another pernet_operations.
-> 
-> > 
-> > > 
-> > > > 	vsock_sysctl_unregister(net);
-> > > > }
-> > > >
-> > > > @@ -3104,13 +3289,21 @@ EXPORT_SYMBOL_GPL(vsock_core_register);
-> > > >
-> > > > void vsock_core_unregister(const struct vsock_transport *t)
-> > > > {
-> > > > +	bool g2h_net_reset = false;
-> > > > +
-> > > > 	mutex_lock(&vsock_register_mutex);
-> > > >
-> > > > 	if (transport_h2g == t)
-> > > > 		transport_h2g = NULL;
-> > > >
-> > > > -	if (transport_g2h == t)
-> > > > +	if (transport_g2h == t) {
-> > > > 		transport_g2h = NULL;
-> > > > +		/* The device is gone, so is its namespace assignment. */
-> > > > +		if (rcu_access_pointer(vsock_g2h_net) != &init_net) {
-> > > > +			rcu_assign_pointer(vsock_g2h_net, &init_net);
-> > > > +			g2h_net_reset = true;
-> > > > +		}
-> > > > +	}
-> > > >
-> > > > 	if (transport_dgram == t)
-> > > > 		transport_dgram = NULL;
-> > > > @@ -3119,6 +3312,9 @@ void vsock_core_unregister(const struct vsock_transport *t)
-> > > > 		transport_local = NULL;
-> > > >
-> > > > 	mutex_unlock(&vsock_register_mutex);
-> > > > +
-> > > > +	if (g2h_net_reset)
-> > > > +		synchronize_rcu();
-> > > 
-> > > Why we need this? (I'd add also a comment with the reason)
-> > 
-> > We might actually be able to drop it... I do think we need to keep it in
-> > vsock_g2h_net_reset() because it makes sure that vsock_g2h_net_get()
-> > doesn't dereference a destroyed net.
-> > 
-> > vsock_core_unregister() isn't on the teardown path, so even if we
-> > re-assign to init_net the previous net is still alive.
-> 
-> Agree.
-> 
-> > 
-> > 
-> > One thing I realized when answering your uAPI questions and looking at
-> > the code is that IOCTL_VM_SOCKETS_GET_LOCAL_CID is not namespace aware,
-> > but I think it probably should be? I remember for host ns we strived for
-> > truly strong isolation.
-> 
-> Can you elabore a bit more?
-> 
+Blocking mailboxes may lead to sleep during the kick operation, which
+conflicts with some virtio devices (e.g.: virtio-can) that kicks their
+virtqueues with spinlock(s) held.
 
-I'm wondering if IOCTL_VM_SOCKETS_GET_LOCAL_CID should not reveal the
-CID of the g2h device if the device has been moved to an inaccessible
-namespace? In this case, fallback to the results of h2g/local and
-through to returning VMADDR_CID_ANY if neither of those transports are
-loaded.
+Align to the behavior of all the other remoteproc drivers that use a
+mailbox to perform the kick (i.e.: omap, st, stm32, ti_k3_*, xlnx_r5)
+and move to a non-blocking mailbox here as well.
 
-I also considered whether or not /dev/vsock should even be visible from
-within an inaccessible namespace in order to not leak even the mere
-presence of the vsock device, but it seems to me that /dev/vsock's
-presence doesn't leak anything besides the presence of the vsock module.
+As a side effect of this modification, remove the close-reopen action on
+the mailboxes during restart and shutdown.
 
-Best,
-Bobby
+Signed-off-by: Francesco Valla <francesco@valla.it>
+---
+ drivers/remoteproc/imx_rproc.c | 49 ++++++------------------------------------
+ drivers/remoteproc/imx_rproc.h |  1 -
+ 2 files changed, 6 insertions(+), 44 deletions(-)
+
+diff --git a/drivers/remoteproc/imx_rproc.c b/drivers/remoteproc/imx_rproc.c
+index 745ce52cd822..100440328f92 100644
+--- a/drivers/remoteproc/imx_rproc.c
++++ b/drivers/remoteproc/imx_rproc.c
+@@ -97,7 +97,7 @@ struct imx_rproc_mem {
+ /* Linux has permission to handle the Logical Machine of remote cores */
+ #define IMX_RPROC_FLAGS_SM_LMM_CTRL	BIT(0)
+ 
+-static int imx_rproc_xtr_mbox_init(struct rproc *rproc, bool tx_block);
++static int imx_rproc_xtr_mbox_init(struct rproc *rproc);
+ static void imx_rproc_free_mbox(void *data);
+ 
+ /* Forward declarations for platform operations */
+@@ -444,7 +444,7 @@ static int imx_rproc_start(struct rproc *rproc)
+ 	struct device *dev = priv->dev;
+ 	int ret;
+ 
+-	ret = imx_rproc_xtr_mbox_init(rproc, true);
++	ret = imx_rproc_xtr_mbox_init(rproc);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -712,7 +712,7 @@ static void imx_rproc_kick(struct rproc *rproc, int vqid)
+ 
+ static int imx_rproc_attach(struct rproc *rproc)
+ {
+-	return imx_rproc_xtr_mbox_init(rproc, true);
++	return imx_rproc_xtr_mbox_init(rproc);
+ }
+ 
+ static int imx_rproc_scu_api_detach(struct rproc *rproc)
+@@ -877,7 +877,7 @@ static void imx_rproc_rx_callback(struct mbox_client *cl, void *msg)
+ 	queue_work(priv->workqueue, &priv->rproc_work);
+ }
+ 
+-static int imx_rproc_xtr_mbox_init(struct rproc *rproc, bool tx_block)
++static int imx_rproc_xtr_mbox_init(struct rproc *rproc)
+ {
+ 	struct imx_rproc *priv = rproc->priv;
+ 	struct device *dev = priv->dev;
+@@ -900,7 +900,7 @@ static int imx_rproc_xtr_mbox_init(struct rproc *rproc, bool tx_block)
+ 
+ 	cl = &priv->cl;
+ 	cl->dev = dev;
+-	cl->tx_block = tx_block;
++	cl->tx_block = false;
+ 	cl->tx_tout = 100;
+ 	cl->knows_txdone = false;
+ 	cl->rx_callback = imx_rproc_rx_callback;
+@@ -1223,22 +1223,6 @@ static int imx_rproc_detect_mode(struct imx_rproc *priv)
+ 	return priv->ops->detect_mode(priv->rproc);
+ }
+ 
+-static int imx_rproc_sys_off_handler(struct sys_off_data *data)
+-{
+-	struct rproc *rproc = data->cb_data;
+-	int ret;
+-
+-	imx_rproc_free_mbox(rproc);
+-
+-	ret = imx_rproc_xtr_mbox_init(rproc, false);
+-	if (ret) {
+-		dev_err(&rproc->dev, "Failed to request non-blocking mbox\n");
+-		return NOTIFY_BAD;
+-	}
+-
+-	return NOTIFY_DONE;
+-}
+-
+ static void imx_rproc_destroy_workqueue(void *data)
+ {
+ 	struct workqueue_struct *workqueue = data;
+@@ -1285,7 +1269,7 @@ static int imx_rproc_probe(struct platform_device *pdev)
+ 
+ 	INIT_WORK(&priv->rproc_work, imx_rproc_vq_work);
+ 
+-	ret = imx_rproc_xtr_mbox_init(rproc, true);
++	ret = imx_rproc_xtr_mbox_init(rproc);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -1315,26 +1299,6 @@ static int imx_rproc_probe(struct platform_device *pdev)
+ 	if (rproc->state != RPROC_DETACHED)
+ 		rproc->auto_boot = of_property_read_bool(np, "fsl,auto-boot");
+ 
+-	if (dcfg->flags & IMX_RPROC_NEED_SYSTEM_OFF) {
+-		/*
+-		 * setup mailbox to non-blocking mode in
+-		 * [SYS_OFF_MODE_POWER_OFF_PREPARE, SYS_OFF_MODE_RESTART_PREPARE]
+-		 * phase before invoking [SYS_OFF_MODE_POWER_OFF, SYS_OFF_MODE_RESTART]
+-		 * atomic chain, see kernel/reboot.c.
+-		 */
+-		ret = devm_register_sys_off_handler(dev, SYS_OFF_MODE_POWER_OFF_PREPARE,
+-						    SYS_OFF_PRIO_DEFAULT,
+-						    imx_rproc_sys_off_handler, rproc);
+-		if (ret)
+-			return dev_err_probe(dev, ret, "register power off handler failure\n");
+-
+-		ret = devm_register_sys_off_handler(dev, SYS_OFF_MODE_RESTART_PREPARE,
+-						    SYS_OFF_PRIO_DEFAULT,
+-						    imx_rproc_sys_off_handler, rproc);
+-		if (ret)
+-			return dev_err_probe(dev, ret, "register restart handler failure\n");
+-	}
+-
+ 	pm_runtime_enable(dev);
+ 	ret = pm_runtime_resume_and_get(dev);
+ 	if (ret)
+@@ -1447,7 +1411,6 @@ static const struct imx_rproc_dcfg imx_rproc_cfg_imx8ulp = {
+ static const struct imx_rproc_dcfg imx_rproc_cfg_imx7ulp = {
+ 	.att		= imx_rproc_att_imx7ulp,
+ 	.att_size	= ARRAY_SIZE(imx_rproc_att_imx7ulp),
+-	.flags		= IMX_RPROC_NEED_SYSTEM_OFF,
+ };
+ 
+ static const struct imx_rproc_dcfg imx_rproc_cfg_imx7d = {
+diff --git a/drivers/remoteproc/imx_rproc.h b/drivers/remoteproc/imx_rproc.h
+index 0d7d48352a10..9a1400d0d081 100644
+--- a/drivers/remoteproc/imx_rproc.h
++++ b/drivers/remoteproc/imx_rproc.h
+@@ -16,7 +16,6 @@ struct imx_rproc_att {
+ };
+ 
+ /* dcfg flags */
+-#define IMX_RPROC_NEED_SYSTEM_OFF	BIT(0)
+ #define IMX_RPROC_NEED_CLKS		BIT(1)
+ 
+ struct imx_rproc_plat_ops {
+
+-- 
+2.55.0
+
