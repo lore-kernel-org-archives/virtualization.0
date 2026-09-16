@@ -1,70 +1,71 @@
-Received: from delivery.antispam.mailspamprotection.com (delivery.antispam.mailspamprotection.com [185.56.87.11])
+Received: from delivery.antispam.mailspamprotection.com (delivery.antispam.mailspamprotection.com [185.56.87.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEC2043E4B0;
-	Wed, 16 Sep 2026 21:21:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=185.56.87.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8467048BD3B;
+	Wed, 16 Sep 2026 21:21:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=185.56.87.4
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789593686; cv=pass; b=qP4ABvliN6pirplktBWHI4MGGI1o6BGtWyXF1aftSA3gWbBD61S1bLNadgDH8skraEmFxM+FFCO1zIpK094qNeFHpG/8xF4lhbUS0qSOPVHblR6mXFxUQxG1zrQtrmE+4r45WevAg9hNV8xd2h2MHZtAIyvYAgoBa/NbcRZCzYg=
+	t=1789593695; cv=pass; b=WkmSzGHbKQa6neIhtbqpwRizPsO1iXVfNKOgXLH5T1lQspSd0/p+YHhbScbeMYrJztBFpHIS305rAtBY3uVAQUacocv14gArgFnPSBrkF+sYaMK1o57JUETTJ69mM7Qk5tfgtf8r430KAxrpbs1pb0r43FCGc5i+JFFAfwWgRyU=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789593686; c=relaxed/simple;
-	bh=K0aajd5pS48LBp4SgsLFJE8s+5HK9UUUoA1f8WnnLLQ=;
+	s=arc-20240116; t=1789593695; c=relaxed/simple;
+	bh=fnFloY2yfdzMxpk0tNVPh+UipC6nyWvGoOUQ3l9T4yA=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=iP/rA9k/ax6TCKABHzEoM/L/mWRYc0PbBHaqBzJS4jrKC4U+iAIn9RiJh8i9iOc0DCliM2vYLi9ISUADLlFA/87SBoqaT9b3xvxc9to/ZPPB2kCkcZ9jToWjXrroM9T3+DmsdvkqBR3usTy9HDAa8Uu5YyD2nPCIM837ph3EJ3U=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=valla.it; spf=pass smtp.mailfrom=valla.it; dkim=pass (1024-bit key) header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.b=Qtf21keA; dkim=pass (1024-bit key) header.d=valla.it header.i=@valla.it header.b=lImYJULP; arc=pass smtp.client-ip=185.56.87.11
+	 In-Reply-To:To:Cc; b=I0TLDA4AZt2Ygnjti6ugfQ6wfMrMdImzW9Qq5fv/QtAwpHoRcAG2IjhIGamJB6ZRjvw3316LiIRj6QtARl5mNrezUs4pIn0b4SW6tydKr9Qw32OdPdrmm447NStsRPf/UUVzqZte/2LQAviCeHFt09dsemvoEDu2f5ZJV9+yl2Q=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=valla.it; spf=pass smtp.mailfrom=valla.it; dkim=pass (1024-bit key) header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.b=Ef8QrS+i; dkim=pass (1024-bit key) header.d=valla.it header.i=@valla.it header.b=KY/vlcqN; arc=pass smtp.client-ip=185.56.87.4
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=valla.it
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=valla.it
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.b="Qtf21keA";
-	dkim=pass (1024-bit key) header.d=valla.it header.i=@valla.it header.b="lImYJULP"
-ARC-Seal: i=1; cv=none; a=rsa-sha256; d=outgoing.instance-europe-west4-h0bm.prod.antispam.mailspamprotection.com; s=arckey; t=1789593683;
-	 b=MiKxLnCYJQE3k6DCrlRh89+tyJ2B+6pdNwDWE3nn/gqb69FT2JIILqObYSh+STD9bva4q4MJua
-	  CbKZXNo1qdVk+O9YSTsdx1too84eeSVp0lqiWpkIrlrW3knO5/ZcY+jt3w0P5+W9zmv/BD5ajv
-	  Aqie6tlEi8FdW4EqPQBCeHNm6jA1zhmdo3QlbPzio1D/SJ8HDtfVMsV++C3OGv4UNj/3zSZYoP
-	  VoDSiD4U18gd2SXwJBIma5gHKozeQibS01ZFwft0ngsNdQFoOQlCIuGUNffy6mBEGKm3/dXt/6
-	  JoxotswLAMBBEiP//ogyD+so7RleIYyx+8Se1JbDGk1plA==;
-ARC-Authentication-Results: i=1; outgoing.instance-europe-west4-h0bm.prod.antispam.mailspamprotection.com; smtp.remote-ip=35.214.173.214;
+	dkim=pass (1024-bit key) header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.b="Ef8QrS+i";
+	dkim=pass (1024-bit key) header.d=valla.it header.i=@valla.it header.b="KY/vlcqN"
+ARC-Seal: i=1; cv=none; a=rsa-sha256; d=outgoing.instance-europe-west4-f940.prod.antispam.mailspamprotection.com; s=arckey; t=1789593675;
+	 b=zGBkLYsWIS+XcNb65HFMWcl2fXJHL7T5Ni4LO8I07uzl+6hgwpp9fL2UadNFeF1UEG4aXmjNCp
+	  AhO/m5KFU4yulCZzR+F2j1MZR3NtnTSzrUy/EGYmDluGWXVNJFI39u/EB88Cy8HP1XRjfoABCZ
+	  evsV6+EXUwgNvHnz4Uv9PkYFm7+j43HrX0mC1YMmx2/PC+2GLRlBVcRlVMxpWwz24ds7KnrVuA
+	  e+0pB4R7Rd5KdXmS0qZIvmyudJrl2WDBoBRUxKtf4an5ihY1mUSpD6I3npnrC332sEHllDAwzS
+	  zpV/skW0oLhwvVy9yJvBt+0nGuidydMWFg8xHkt9YciRcA==;
+ARC-Authentication-Results: i=1; outgoing.instance-europe-west4-f940.prod.antispam.mailspamprotection.com; smtp.remote-ip=35.214.173.214;
 	iprev=pass (214.173.214.35.bc.googleusercontent.com) smtp.remote-ip=35.214.173.214;
 	auth=pass (LOGIN) smtp.auth=esm19.siteground.biz;
 	dkim=pass header.d=valla.it header.s=default header.a=rsa-sha256;
 	arc=none
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed; d=outgoing.instance-europe-west4-h0bm.prod.antispam.mailspamprotection.com; s=arckey; t=1789593683;
-	bh=K0aajd5pS48LBp4SgsLFJE8s+5HK9UUUoA1f8WnnLLQ=;
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed; d=outgoing.instance-europe-west4-f940.prod.antispam.mailspamprotection.com; s=arckey; t=1789593675;
+	bh=fnFloY2yfdzMxpk0tNVPh+UipC6nyWvGoOUQ3l9T4yA=;
 	h=Cc:To:In-Reply-To:References:Message-ID:Content-Transfer-Encoding:
 	  Content-Type:MIME-Version:Subject:Date:From:DKIM-Signature:DKIM-Signature;
-	b=lQCivJwh5ac2QqC9XT+Q1WHdgKqyc1qaIJOy/MM9ZTdLcnTmpn9GGxQhjTbnt2X9GOFiDzZDOt
-	  nPhNez4v65FhnRAkKJ+UttOXw3qqtZK5Matgyo/A8M7dcPBf85tjyfYsL7w61kAYPpJ1b9NLIb
-	  5TerktOVrqngedUw7Wr92n/xWqJCtX81UexHLhldFM+/gQLdPe5x4g16Y6UTxu19jbF3XXMcZ9
-	  /tlATN5cMajpGfgD58dThem3iIC9SKZCJIztbQla6m+1FGQd1EU5WilPn6W3tebiscZTuf1QT7
-	  nvxpOKvurTb8/EgmA2STZtDlUdNgqnX0Rqmjma4Z8ZL0gw==;
+	b=x6jKMBr53hxT1TEPqrI5yE5tW5fNZrIqw6ebEv+MmUlZCMNJKDCrYLKUS18DUNkud/Hujnb+Uh
+	  nKP0ZP5CIGjsom2nT/4epHRyYa6Ru/0OGXHZnxUdfQxO4dsOBFyiLSQLZ8PgNZJx7Pm0kIww5D
+	  QT3nkDvQMnbyB+pWZoIiWxvoajRBtHtFPvZsdhkPnPawY7uy2XKequ/nw+h8k32XzyxGSr7k8k
+	  4SIiF4bgVLRH7VpaS2vM4Uxbbz9YggxT6tK2g9CGc9IcEtI4EoPbce+RkKDJuant8N/aClbVAs
+	  n9yfvAlJ5uzqR0WprKpN7Tp2ZzPpeNrvwuy4yBP5gtZOgg==;
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=antispam.mailspamprotection.com; s=default; h=CFBL-Feedback-ID:CFBL-Address
 	:Cc:To:Message-Id:Content-Transfer-Encoding:Content-Type:MIME-Version:Subject
 	:Date:From:Reply-To:List-Unsubscribe;
-	bh=O4gn2eTg00df8U5IdZkWMPepVAvVYYSdUxbjRaptMcA=; b=Qtf21keAaHfJR0NHqzwKqij4ol
-	fRmwHGWDhmAezGJer6+7I7/VLz9MEfcDAoSvdIbJKft2JXoDd+29S0OQ47Oo3ynMQPn0F17nJQkeK
-	VJ/N3joDlKEAlEZm0j9nS4M9EOCjZvTAQmhqKLN0jrX7jpoRagRvE+D/gm3wAK8NJ5pA=;
+	bh=GCEMx2gqALfiJ0dobbqXt450/zYKugDTTzi6P0ffmes=; b=Ef8QrS+i5le8HFADuS7/RGq0pE
+	cqObHIxg9m8WFjm/XDurH99c602fdG8wT6LLRYdCoC4M2qEHJtYa8KXW4wIVV0KnNtrExpTGKaaNb
+	fVp+Ylvszh2X8YTSk2MNvTgeii/MRychVsYfC1qaO5F2ZdVBiimF/jRVZXmtjIam1PCE=;
 Received: from 214.173.214.35.bc.googleusercontent.com ([35.214.173.214] helo=esm19.siteground.biz)
-	by instance-europe-west4-h0bm.prod.antispam.mailspamprotection.com with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+	by instance-europe-west4-f940.prod.antispam.mailspamprotection.com with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
 	(Exim 4.99.5)
 	(envelope-from <francesco@valla.it>)
-	id 1x6wuO-0000000BhjC-1Pv3;
-	Wed, 16 Sep 2026 21:11:13 +0000
+	id 1x6wuM-00000002DO8-1mGr;
+	Wed, 16 Sep 2026 21:11:11 +0000
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=valla.it;
 	s=default; h=Cc:To:Subject:Date:From:list-help:list-unsubscribe:
 	list-subscribe:list-post:list-owner:list-archive;
-	bh=O4gn2eTg00df8U5IdZkWMPepVAvVYYSdUxbjRaptMcA=; b=lImYJULP606lAusNp0RIZVHM1H
-	X+2IhcV4MWT1bJsGzKtI6WJJNy9MnK5IlHFu4gvLWCNpMW7byY+jYFgfU/ypI9MVic7iE/igZni1E
-	Jy/VMKdw1Y4sewlhk9/OeFOlhmtjCVAYNM4k9l/e4pj2JKzUS//mokZnbxTh81JlMFoU=;
+	bh=GCEMx2gqALfiJ0dobbqXt450/zYKugDTTzi6P0ffmes=; b=KY/vlcqNr5opulrkCK+q2x0Hl8
+	YCHCWK8ha7HDUHo/1vbTpZUhoG/7lJqyafCnnhol0f4i+IyQmJrsaKFo39vdxSL9zBE5DrOru8daR
+	xy2kKyzhyciyp9se4X+yTnnkVti/XP5BMb2nVe1+cKrHExO2lJm/eVvGe+hLUEjyHV5M=;
 Received: from [95.233.221.121] (port=62880 helo=[192.168.178.175])
 	by esm19.siteground.biz with essmtpa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
 	(Exim 4.99.5)
 	(envelope-from <francesco@valla.it>)
-	id 1x6wuJ-0000000058P-1cbZ;
-	Wed, 16 Sep 2026 21:11:07 +0000
+	id 1x6wuH-0000000058P-2R0w;
+	Wed, 16 Sep 2026 21:11:05 +0000
 From: Francesco Valla <francesco@valla.it>
-Date: Wed, 16 Sep 2026 23:10:49 +0200
-Subject: [PATCH RFC 04/12] dma-coherent: add base and size APIs
+Date: Wed, 16 Sep 2026 23:10:48 +0200
+Subject: [PATCH RFC 03/12] remoteproc: virtio: support dynamic number of
+ vrings
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -73,7 +74,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260916-remoteproc_virtio_map-v1-4-dac8c5eb4aa9@valla.it>
+Message-Id: <20260916-remoteproc_virtio_map-v1-3-dac8c5eb4aa9@valla.it>
 References: <20260916-remoteproc_virtio_map-v1-0-dac8c5eb4aa9@valla.it>
 In-Reply-To: <20260916-remoteproc_virtio_map-v1-0-dac8c5eb4aa9@valla.it>
 To: Bjorn Andersson <andersson@kernel.org>, 
@@ -89,12 +90,12 @@ Cc: linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org,
  imx@lists.linux.dev, iommu@lists.linux.dev, 
  linux-arm-kernel@lists.infradead.org, Francesco Valla <francesco@valla.it>
 X-Mailer: b4 0.16-dev
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3008; i=francesco@valla.it;
- h=from:subject:message-id; bh=K0aajd5pS48LBp4SgsLFJE8s+5HK9UUUoA1f8WnnLLQ=;
- b=owGbwMvMwCX2aH1OUIzHTgbG02pJDFmrWR+3z9Go39bW/vGDvNcGNdnFXRt/XjNkVr17dU37w
- 8NRCW+NOkpZGMS4GGTFFFlC1t24t2eu+be0DYyPYOawMoEMYeDiFICJvOFk+CvPM9lq7Raf75ci
- 0k5+zblju7Lzf0v+/oi3C5ts/SekLqxl+CuzM//dPn65SDWJBx+kt8RvlDYztNkjHfP0fE9q2jf
- 53zwA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=6080; i=francesco@valla.it;
+ h=from:subject:message-id; bh=fnFloY2yfdzMxpk0tNVPh+UipC6nyWvGoOUQ3l9T4yA=;
+ b=owGbwMvMwCX2aH1OUIzHTgbG02pJDFmrWR9ziFdNYVv6fsv5j1tuHp1Rc/CT4qvVArMX/Ljy8
+ b3ex1MRsh2lLAxiXAyyYoosIetu3Nsz1/xb2gbGRzBzWJlAhjBwcQrARE5xMfyVkdqmpjx1f0yj
+ XHDlt6W3/+ZEetkJds7byHSq4ENt5Uwrhr/ietOsC32PPVe8flZ+IQ/v7Udlub+03yrvzvvEfND
+ s6yYmAA==
 X-Developer-Key: i=francesco@valla.it; a=openpgp;
  fpr=CC70CBC9AA13257C6CCED8669601767CA07CA0EA
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
@@ -105,102 +106,194 @@ X-AntiAbuse: Sender Address Domain - valla.it
 X-Source: 
 X-Source-Args: 
 X-Source-Dir: 
-X-SGantispam-id: 75333834ec8a57e5f8c67ad90c5b645a
-X-AntiAbuse: ID - 75333834ec8a57e5f8c67ad90c5b645a
+X-SGantispam-id: 51160d3e55c226f39820b12d83c3e7b2
+X-AntiAbuse: ID - 51160d3e55c226f39820b12d83c3e7b2
 AntiSpam-DLS: false
 AntiSpam-DLSP: 
 AntiSpam-DLSRS: 
 AntiSpam-TS: 1.0
 CFBL-Address: feedback@antispam.mailspamprotection.com; report=arf
-CFBL-Feedback-ID: 1x6wuO-0000000BhjC-1Pv3-feedback@antispam.mailspamprotection.com
-Authentication-Results: outgoing.instance-europe-west4-h0bm.prod.antispam.mailspamprotection.com;
+CFBL-Feedback-ID: 1x6wuM-00000002DO8-1mGr-feedback@antispam.mailspamprotection.com
+Authentication-Results: outgoing.instance-europe-west4-f940.prod.antispam.mailspamprotection.com;
 	iprev=pass (214.173.214.35.bc.googleusercontent.com) smtp.remote-ip=35.214.173.214;
 	auth=pass (LOGIN) smtp.auth=esm19.siteground.biz;
 	dkim=pass header.d=valla.it header.s=default header.a=rsa-sha256;
 	arc=none
 
-Add two new APIs for the dma coherent memory to get the base and size of
-the pool associated to a device.
+The number of vrings for each vdev has been fixed to 2 since the
+introduction of multi-vdev support [1]; this is completely fine for the
+rpmsg usecase, but can conflict with other virtio devices (CAN for
+example requires 3 virtqueues, entropy only 1, network a variable number
+and so on).
+
+Remove the static vring allocation, transforming it to a flex array that
+is allocated at vdev probe time; for the existent usecases (i.e.: mainly
+rpmsg) this leads to no functional change, except the additional memory
+used for the counter associated to the new array.
+
+The maximum number of virtqueues is limited to 256 due to the uint8_t
+value used inside the resource table to indicate the number of vring to
+allocate; for this reason, no additional plausibility check is performed
+on the number of vrings indicated by the resource table.
+
+As a side effect, this also fixes the single virtqueue usecase, which
+was apparently supported also before but for which the remove action
+caused an error (because the remove action was trying to unmap also the
+second vring, which was in fact not mapped).
+
+[1] https://lore.kernel.org/all/1330589497-4139-5-git-send-email-ohad@wizery.com/
 
 Signed-off-by: Francesco Valla <francesco@valla.it>
 ---
- include/linux/dma-map-ops.h | 10 ++++++++++
- kernel/dma/coherent.c       | 34 ++++++++++++++++++++++++++++++++++
- 2 files changed, 44 insertions(+)
+ drivers/remoteproc/remoteproc_core.c   |  7 -------
+ drivers/remoteproc/remoteproc_virtio.c | 21 +++++++++++++--------
+ include/linux/remoteproc.h             | 10 ++++------
+ 3 files changed, 17 insertions(+), 21 deletions(-)
 
-diff --git a/include/linux/dma-map-ops.h b/include/linux/dma-map-ops.h
-index 8fae2b7deb20..580b69321d56 100644
---- a/include/linux/dma-map-ops.h
-+++ b/include/linux/dma-map-ops.h
-@@ -156,6 +156,8 @@ int dma_alloc_from_dev_coherent(struct device *dev, ssize_t size,
- int dma_release_from_dev_coherent(struct device *dev, int order, void *vaddr);
- int dma_mmap_from_dev_coherent(struct device *dev, struct vm_area_struct *vma,
- 		void *cpu_addr, size_t size, int *ret);
-+size_t dma_dev_coherent_size(struct device *dev);
-+dma_addr_t dma_dev_coherent_base(struct device *dev);
- #else
- static inline int dma_declare_coherent_memory(struct device *dev,
- 		phys_addr_t phys_addr, dma_addr_t device_addr, size_t size)
-@@ -167,6 +169,14 @@ static inline int dma_declare_coherent_memory(struct device *dev,
- #define dma_release_from_dev_coherent(dev, order, vaddr) (0)
- #define dma_mmap_from_dev_coherent(dev, vma, vaddr, order, ret) (0)
- static inline void dma_release_coherent_memory(struct device *dev) { }
-+static inline size_t dma_dev_coherent_size(struct device *dev)
-+{
-+	return 0;
-+}
-+static inline dma_addr_t dma_dev_coherent_base(struct device *dev)
-+{
-+	return DMA_MAPPING_ERROR;
-+}
- #endif /* CONFIG_DMA_DECLARE_COHERENT */
+diff --git a/drivers/remoteproc/remoteproc_core.c b/drivers/remoteproc/remoteproc_core.c
+index 1ed406714849..b7d9957534bf 100644
+--- a/drivers/remoteproc/remoteproc_core.c
++++ b/drivers/remoteproc/remoteproc_core.c
+@@ -473,7 +473,6 @@ static int rproc_handle_vdev(struct rproc *rproc, void *ptr,
+ {
+ 	struct fw_rsc_vdev *rsc = ptr;
+ 	struct device *dev = &rproc->dev;
+-	struct rproc_vdev *rvdev;
+ 	size_t rsc_size;
+ 	struct rproc_vdev_data rvdev_data;
+ 	struct platform_device *pdev;
+@@ -494,12 +493,6 @@ static int rproc_handle_vdev(struct rproc *rproc, void *ptr,
+ 	dev_dbg(dev, "vdev rsc: id %d, dfeatures 0x%x, cfg len %d, %d vrings\n",
+ 		rsc->id, rsc->dfeatures, rsc->config_len, rsc->num_of_vrings);
  
- #ifdef CONFIG_DMA_GLOBAL_POOL
-diff --git a/kernel/dma/coherent.c b/kernel/dma/coherent.c
-index 45bbae947f4b..f4aa5813604b 100644
---- a/kernel/dma/coherent.c
-+++ b/kernel/dma/coherent.c
-@@ -277,6 +277,40 @@ int dma_mmap_from_dev_coherent(struct device *dev, struct vm_area_struct *vma,
- 	return __dma_mmap_from_coherent(mem, vma, vaddr, size, ret);
+-	/* we currently support only two vrings per rvdev */
+-	if (rsc->num_of_vrings > ARRAY_SIZE(rvdev->vring)) {
+-		dev_err(dev, "too many vrings: %d\n", rsc->num_of_vrings);
+-		return -EINVAL;
+-	}
+-
+ 	rvdev_data.id = rsc->id;
+ 	rvdev_data.index = rproc->nb_vdev++;
+ 	rvdev_data.rsc_offset = offset;
+diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
+index 4dacd93bf238..74e0da970f1d 100644
+--- a/drivers/remoteproc/remoteproc_virtio.c
++++ b/drivers/remoteproc/remoteproc_virtio.c
+@@ -115,8 +115,7 @@ static struct virtqueue *rp_find_vq(struct virtio_device *vdev,
+ 	void *addr;
+ 	int num, size;
+ 
+-	/* we're temporarily limited to two virtqueues per rvdev */
+-	if (id >= ARRAY_SIZE(rvdev->vring))
++	if (id >= rvdev->num_vrings)
+ 		return ERR_PTR(-EINVAL);
+ 
+ 	if (!name)
+@@ -500,17 +499,20 @@ static int rproc_virtio_probe(struct platform_device *pdev)
+ 	if (!rvdev_data)
+ 		return -EINVAL;
+ 
+-	rvdev = devm_kzalloc(dev, sizeof(*rvdev), GFP_KERNEL);
++	rsc = rvdev_data->rsc;
++
++	rvdev = kzalloc_flex(*rvdev, vring, rsc->num_of_vrings);
+ 	if (!rvdev)
+ 		return -ENOMEM;
+ 
+ 	rvdev->id = rvdev_data->id;
+ 	rvdev->rproc = rproc;
+ 	rvdev->index = rvdev_data->index;
++	rvdev->num_vrings = rsc->num_of_vrings;
+ 
+ 	ret = copy_dma_range_map(dev, rproc->dev.parent);
+ 	if (ret)
+-		return ret;
++		goto free_rvdev;
+ 
+ 	/* Make device dma capable by inheriting from parent's capabilities */
+ 	set_dma_ops(dev, get_dma_ops(rproc->dev.parent));
+@@ -524,13 +526,11 @@ static int rproc_virtio_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, rvdev);
+ 	rvdev->pdev = pdev;
+ 
+-	rsc = rvdev_data->rsc;
+-
+ 	/* parse the vrings */
+ 	for (i = 0; i < rsc->num_of_vrings; i++) {
+ 		ret = rproc_parse_vring(rvdev, rsc, i);
+ 		if (ret)
+-			return ret;
++			goto free_rvdev;
+ 	}
+ 
+ 	/* remember the resource offset*/
+@@ -566,6 +566,9 @@ static int rproc_virtio_probe(struct platform_device *pdev)
+ 	for (i--; i >= 0; i--)
+ 		rproc_free_vring(&rvdev->vring[i]);
+ 
++free_rvdev:
++	kfree(rvdev);
++
+ 	return ret;
  }
  
-+/**
-+ * dma_dev_coherent_size() - total size of the device coherent pool
-+ * @dev:	device from which we allocate memory
-+ *
-+ * Returns the total size of the coherent memory pool associated to the given
-+ * device, or 0 in case of no pool.
-+ */
-+size_t dma_dev_coherent_size(struct device *dev)
-+{
-+	struct dma_coherent_mem *mem = dev_get_coherent_memory(dev);
-+
-+	if (!mem)
-+		return 0;
-+
-+	return (mem->size << PAGE_SHIFT);
-+}
-+
-+/**
-+ * dma_dev_coherent_base() - base address of the device coherent pool
-+ * @dev:	device from which we allocate memory
-+ *
-+ * Returns the base address of the coherent memory pool associated with the
-+ * device, or DMA_MAPPING_ERROR in case of no pool.
-+ */
-+dma_addr_t dma_dev_coherent_base(struct device *dev)
-+{
-+	struct dma_coherent_mem *mem = dev_get_coherent_memory(dev);
-+
-+	if (!mem)
-+		return DMA_MAPPING_ERROR;
-+
-+	return dma_get_device_base(dev, mem);
-+}
-+
- #ifdef CONFIG_DMA_GLOBAL_POOL
- static struct dma_coherent_mem *dma_coherent_default_memory __ro_after_init;
+@@ -576,7 +579,7 @@ static void rproc_virtio_remove(struct platform_device *pdev)
+ 	struct rproc_vring *rvring;
+ 	int id;
  
+-	for (id = 0; id < ARRAY_SIZE(rvdev->vring); id++) {
++	for (id = 0; id < rvdev->num_vrings; id++) {
+ 		rvring = &rvdev->vring[id];
+ 		rproc_free_vring(rvring);
+ 	}
+@@ -585,6 +588,8 @@ static void rproc_virtio_remove(struct platform_device *pdev)
+ 	rproc_remove_rvdev(rvdev);
+ 
+ 	put_device(&rproc->dev);
++
++	kfree(rvdev);
+ }
+ 
+ /* Platform driver */
+diff --git a/include/linux/remoteproc.h b/include/linux/remoteproc.h
+index a44368737b39..c3ba51fe9e54 100644
+--- a/include/linux/remoteproc.h
++++ b/include/linux/remoteproc.h
+@@ -319,10 +319,6 @@ struct rproc_subdev {
+ 	void (*unprepare)(struct rproc_subdev *subdev);
+ };
+ 
+-/* we currently support only two vrings per rvdev */
+-
+-#define RVDEV_NUM_VRINGS 2
+-
+ /**
+  * struct rproc_vring - remoteproc vring state
+  * @va:	virtual address
+@@ -350,9 +346,10 @@ struct rproc_vring {
+  * @id: virtio device id (as in virtio_ids.h)
+  * @node: list node
+  * @rproc: the rproc handle
+- * @vring: the vrings for this vdev
+  * @rsc_offset: offset of the vdev's resource entry
+  * @index: vdev position versus other vdev declared in resource table
++ * @num_vrings: the number of vrings for this vdev
++ * @vring: the vrings for this vdev
+  */
+ struct rproc_vdev {
+ 	struct rproc_subdev subdev;
+@@ -361,9 +358,10 @@ struct rproc_vdev {
+ 	unsigned int id;
+ 	struct list_head node;
+ 	struct rproc *rproc;
+-	struct rproc_vring vring[RVDEV_NUM_VRINGS];
+ 	u32 rsc_offset;
+ 	u32 index;
++	unsigned int num_vrings;
++	struct rproc_vring vring[] __counted_by(num_vrings);
+ };
+ 
+ struct rproc *rproc_get_by_phandle(phandle phandle);
 
 -- 
 2.55.0
