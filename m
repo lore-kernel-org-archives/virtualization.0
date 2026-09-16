@@ -1,140 +1,105 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 791624AF674
-	for <virtualization@lists.linux.dev>; Wed, 16 Sep 2026 12:18:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 863643CC7F8
+	for <virtualization@lists.linux.dev>; Wed, 16 Sep 2026 12:28:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789561137; cv=none; b=QnNTQyy7SBDNtxnHjRyNpSCP1LEX9BolfnDhGvDlUJxizHCzWzmiEs4Mm34fBmABfk2sSMMCqHrmW234DTuvkOueCAZ4KdtKXXmBzybngbm0ovi+dCKf4IhKnt8fClCVCDUbmUXDvs0wvzQ1NEEYtiv67oI08PDHlMoxWqSvyY0=
+	t=1789561726; cv=none; b=S996YNuDhZCucPGKJW9GO5XNB8PGgUgAY05ThA0LgsjcW2r7YOyPT9DkPn+p35ryM90S4vYJ46UgAyByaIvZt2i2pS9hcJY27SeXaNQrsbY9zVith35AcYOgoLZI5McSRfL4P0Pcthbj+tEpVex64i9eeiDj8rB3ZltYSXYG3+o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789561137; c=relaxed/simple;
-	bh=6WWXK1YEgeNBV054WxjBb7B9Vj75OABXRc5yXZlGHSU=;
+	s=arc-20240116; t=1789561726; c=relaxed/simple;
+	bh=xl+U70fbkUqzVeG1dKiFnh1LU4j3E1hpm3qW61N6DYE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=C4A6qH/3kA52WoPHnm4XkApw7XPJpaVehNlj7HldqcfTVctJmJSVMmA18ucLEB7VdNXFHvjuf1egVYmUit/c6W3sWZzAChqLyiOl0pVNkUK7x+VSosz4qHt3zgU9G+4MPYMLc0F9f9bRaoRpbYQ3AfbvOrzPFZSKb1Kb/vutHRM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=D4f3aphR; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type:Content-Disposition; b=nj0iEQhlBiwysGAjkbyIMWEnG8jaoPLIKUF71rsWBYAZttXdhTdrC8Hq5W81p8QYYz88eTBZvdTG0TF0bdylz3SJIjyMyMV26MQh8SOkmU2WiGhKbPci1ECoch/Tkufu+SYJzxRwQWuuh/8D9KcY63Uxjbhr38nZdEGp1Dn48sQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IsrbUSQD; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="D4f3aphR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2ED21F000FF;
-	Wed, 16 Sep 2026 12:18:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789561136;
-	bh=g3nJkuOIIREUaA/BODadsUt0oMvW89mcTSVk+TBxQTM=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=D4f3aphRbKTCYsr2/YdXXnNmP/c0zn+7f5CJPLOJU5Ag2ihsF9YAuf/mxPe5qbWft
-	 RuJi+8IW2fqsg2OF0+gmzWHc2BZ4j4PTjyLzOz6AXC/PLF6S9HdJruYCs9q1aBBa08
-	 8ZHvdqKz4yosb2VOnkK+Ge5a3oc1M8xppXnjlaquXG9GOt81jNxcjCCBLr3Ao5sI/6
-	 BahavSPx3iHj0YFmmT9k2mAHR+8Qz/8CGxdMyrpN7ANNhao26Bl05UJf0Ue5Rfo74u
-	 /bJEB1hlV/SynllZ7gk30FFmaNk7xpCzcneGOvAY4XI56CwUaA/YCw+pHaapShTTsS
-	 Z2H/oC/TGFtGw==
-Received: from phl-compute-03.internal (phl-compute-03.internal [10.202.2.43])
-	by mailfauth.ams.internal (Postfix) with ESMTP id 9C3EF1980047;
-	Wed, 16 Sep 2026 08:18:49 -0400 (EDT)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-03.internal (MEProxy); Wed, 16 Sep 2026 08:18:53 -0400
-X-ME-Sender: <xms:KYmqalRLUKQ46xVHQNAqn_SpMCWEJPEnVGHPtE9pzFa946VuffulsQ>
-    <xme:KYmqasdqqQzLLGbURN2ksP1011QzixMMfmpF8lNUTzKITQDDUxPPxIKCHfuAtHzHK
-    HePpXZVWutif9vuPFKO5v9KU79xJFks9D-SgyH4nfh2k-fblP6MxBcb-Q>
-X-ME-Received: <xmr:KYmqai4oFAoRIup95gPn3oxV9GZR0bmPcVh4y3t-o5HV8Kj-6Zg9KNTuehc>
-X-ME-Proxy-Cause: dmFkZTF/htPXCt3Vp5AMDzX4aViluNR37AwoAasTR8iHLjBZ9vB+37s09E5FAj3fIBktXf
-    wD7jyU9p9m8acEr6Ra3scjJrTilVkEufiTVp8kg6W1u05cirw+hDmrgiY3yqIDsNCGGy4Z
-    NhlL2XmoVVdXSi7pWEyIFPv29lkrmEA3vKS966LaOo5Roq203cNGaURFEmJuo4rr3dx3pl
-    zRvPBAEFOPc4BaV8VgR4olkNsATDKNUJ2aL3kSE+ZeDgohHMV8NuWlBUr1Y7gSpUtMk43S
-    pHxrvHb6UYaqOu5IrjHeg8msBZNq9Ws0Y9sYF6moF2neMeMXhIcDUsNMr5TA/1SnWdrbnv
-    krg8yzA58Iyw1wZU0OAObVQ8m4UiYc1907t7mzYhwQjpudg0+8QPH1YgpeY0d8JMVdr0rE
-    I5cdBJmZizSGHOliBIKAT49rDuCWkjlzVhcGpA/FSylhtI2vOZ35amP2Bpu/ffULhom6KK
-    mAFZrnyuq/2DovcPoXQKkstvBgE4kd6res0YrZ3TPJzPbjo01wcRbJyjyMarV3bBWIRJ2U
-    /nfjKeUYZx8uSLHmxv0YkpN2OTgeBBvRg8w5ox13JY97RAKWHu1XAFS+AJFTFFrgA3BMc9
-    4qUEfpEZPGPotDW9vPvWAQY4X3sf4al6PYefswJLQwFlMv/gcWohOVdYNR3w
-X-ME-Proxy: <xmx:KYmqalZSh5ALRNUk-yGxJZtajzA-EP-yYLtuDHVayGKZTkMcKh7jSg>
-    <xmx:KYmqalt_kssyM3YMu8dwBID1pt4VvyP-Mkj4cux8cj19ZAJNXpj0Vg>
-    <xmx:KYmqamtGLQwsCpo5AynCQsRx8Mzfx9LtL8HamC26SVKkpQEEcWC-6A>
-    <xmx:KYmqauptDI-qdtg3rUZiebczKcGTquH5dulg1Jd6BPm1F5o5OVxSfQ>
-    <xmx:KYmqat4kHc5k7IM1jrC0PaSyoI4CLHsuMRGImK3xFqk2X2jADcQ2D4xX>
-Feedback-ID: i10464835:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 16 Sep 2026 08:18:48 -0400 (EDT)
-Date: Wed, 16 Sep 2026 13:18:46 +0100
-From: Kiryl Shutsemau <kas@kernel.org>
-To: Zack Rusin <zack.rusin@broadcom.com>
-Cc: Borislav Petkov <bp@alien8.de>, Ajay Kaher <ajay.kaher@broadcom.com>, 
-	Alexey Makhalov <alexey.makhalov@broadcom.com>, x86@kernel.org, Dennis Zhou <dennis@kernel.org>, 
-	Tejun Heo <tj@kernel.org>, Arnd Bergmann <arnd@arndb.de>, 
-	Rick Edgecombe <rick.p.edgecombe@intel.com>, Thomas Gleixner <tglx@kernel.org>, 
-	Ingo Molnar <mingo@redhat.com>, Dave Hansen <dave.hansen@linux.intel.com>, 
-	"H . Peter Anvin" <hpa@zytor.com>, virtualization@lists.linux.dev, 
-	bcm-kernel-feedback-list@broadcom.com, linux-kernel@vger.kernel.org, Christoph Lameter <cl@gentwo.org>, 
-	Andrew Morton <akpm@linux-foundation.org>, Tom Lendacky <thomas.lendacky@amd.com>, 
-	Bo Gan <bo.gan@broadcom.com>, linux-mm@kvack.org, linux-arch@vger.kernel.org, 
-	linux-coco@lists.linux.dev, kvm@vger.kernel.org
-Subject: Re: [PATCH v1 0/2] x86/vmware: Share steal-time storage in encrypted
- guests
-Message-ID: <aqqGUAX65s4LdJkr@thinkstation>
-References: <cover.1789488039.git.zack.rusin@broadcom.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IsrbUSQD"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1789561724;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=xl+U70fbkUqzVeG1dKiFnh1LU4j3E1hpm3qW61N6DYE=;
+	b=IsrbUSQD3cRT+iOwAIAGpPNTxkoOkUaNm6we2ZX8eIquEzWqtlqjvERGl3F30KJFYicLZx
+	v7OUQX1NKVDlbcvLCSk1w+05om7iGDbo7jjTSgLvk8kijrIl2MunSU7oMK59gfX1ucrdYg
+	4VjMa/Y7u67W2NpcHbAnHnTvgjJGWo0=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-571-hZCv2Dw6NCO5FMgFggiIXg-1; Wed, 16 Sep 2026 08:28:41 -0400
+X-MC-Unique: hZCv2Dw6NCO5FMgFggiIXg-1
+X-Mimecast-MFC-AGG-ID: hZCv2Dw6NCO5FMgFggiIXg_1789561720
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-49e6ba4abdfso51409475e9.1
+        for <virtualization@lists.linux.dev>; Wed, 16 Sep 2026 05:28:40 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1789561720; x=1790166520;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=xl+U70fbkUqzVeG1dKiFnh1LU4j3E1hpm3qW61N6DYE=;
+        b=QZQuFVvkl7GkGqw3AyaAm9Y7COeTS0uTeM2pNklFaA4yd56lNanqg0AyY0sIJnlr68
+         r/70F79+x3tzBC9EYQavfwbPgQHkdytOBwcbMzToo67DaZWp0xSV4DG/ecLwjJ+1cZfD
+         tHeyKLbiib4D+YBYqygTvEgD7xMfRz2ZjkZtq5hfFyirnL37ZfsR59g0wEbZnm/sOnnc
+         Bok3GbRmIi0FTK8+Z+/3Swi9JBGGqFhH5HgDLUPAs12L3J/33ObIjDMCzCXb2EL3RpbY
+         RwKxRcBeDiziyvaajngMIxpm1Q7JhyJGwUiXTIJLQopeZhCFVARrHglW8cbBwEwTb6u+
+         LS1g==
+X-Forwarded-Encrypted: i=1; AKwUvBzT9SsPy57w/4zjkxuBgouuitnSh8ULSs/qh5w7UfC1n61uvQ2zgWcAar1RlleFpUDJjFen+3tmKYXN7zqSeg==@lists.linux.dev
+X-Gm-Message-State: AFuF++n0Iq10dZH9w14zkYaxvABGPfypFYRQJwddzCc1XrJHKI9j5tAx
+	AcuicgJoGttT36NkdQm3fe5WgwK26uHp07Z0dusD1VmObDTGPMGzErmhnQ+bmIMcSs7ACoDQnRs
+	/gkxbxYOLThQlluSuXJ6mDAinCrYtPm6miwsU2v2Gb9yM+xXsMFpW/KadzucW4PT19rik
+X-Gm-Gg: AYBFou35sobxPT8OmSIaQy7tasN33WsRQ5vhYboxOWlC6fVe70fBar1R9QMEo4I8JPC
+	3exZ9+Ugs2YfH+1UnBk0Nu4AFlYeuRMlF1/lT9QosBJNG7f8XVFQ9WFnCTwZqgvHF4TmUj84Wja
+	qnaMYkApdnGINt2hHJn9g6BFkR9icTmlYDcTlohLR0BrCaWZdZEcA6OyCkX45TDpPC7QosoEiDq
+	6ZKaHKH67TW7NVJ8fICbh4QgIYdyKesLsXjZnArtklpxyHNASSwf1/0PToi0NR/T+E28xoCsz6L
+	VXOg6k6RI+TD0jnO29e39eMJZamSgfREaJHIpTmITnM2/+5v1Kt4uUOUd+T5wuKkh4AA69yRktv
+	f1JoC0hmSR4ENBIrf5ZV4UsyVApDYyBki/kCyRiBV+IpfxA==
+X-Received: by 2002:a05:600c:6592:b0:49d:1cc7:5ec3 with SMTP id 5b1f17b1804b1-49eb7326586mr62423005e9.9.1789561719787;
+        Wed, 16 Sep 2026 05:28:39 -0700 (PDT)
+X-Received: by 2002:a05:600c:6592:b0:49d:1cc7:5ec3 with SMTP id 5b1f17b1804b1-49eb7326586mr62421665e9.9.1789561719193;
+        Wed, 16 Sep 2026 05:28:39 -0700 (PDT)
+Received: from sgarzare-redhat (host-79-53-30-11.retail.telecomitalia.it. [79.53.30.11])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4870bef7642sm6490127f8f.5.2026.09.16.05.28.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 16 Sep 2026 05:28:38 -0700 (PDT)
+Date: Wed, 16 Sep 2026 14:28:29 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Michal Luczaj <mhal@rbox.co>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>, 
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, "David S. Miller" <davem@davemloft.net>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	Asias He <asias@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net v2 1/5] vhost/vsock: Fix socket state constant
+Message-ID: <aqp2w_FZlZoR2lFY@sgarzare-redhat>
+References: <20260915-vsock-connect-reset-closing-v2-0-a1d9abb472f7@rbox.co>
+ <20260915-vsock-connect-reset-closing-v2-1-a1d9abb472f7@rbox.co>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20260915-vsock-connect-reset-closing-v2-1-a1d9abb472f7@rbox.co>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: _XlJLiiLN9fUu1GI1SLeqdqwbNAvVr2Ny5uHvmbsIvg_1789561720
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <cover.1789488039.git.zack.rusin@broadcom.com>
 
-On Wed, Sep 16, 2026 at 01:05:38AM -0400, Zack Rusin wrote:
-> VMware registers each per-CPU steal-time GPA with the host. An encrypted
-> guest must first convert that storage to shared memory, but the existing
-> setup publishes the address without conversion.
-> 
-> Patch 1 makes the decrypted per-CPU section available with
-> CONFIG_X86_MEM_ENCRYPT, including TDX-only configurations. Patch 2 defers
-> encrypted-guest setup until allocator-backed page-table splitting is
-> available, converts every possible CPU's storage before publishing any
-> GPA, and attempts to roll back all conversions on failure.
+On Tue, Sep 15, 2026 at 03:15:12PM +0200, Michal Luczaj wrote:
+>Refactor under Fixes missed one: SS_UNCONNECTED (1) -> TCP_CLOSE (7).
+>Until now, sk->sk_state = 1 stood for TCP_ESTABLISHED.
+>
+>Fixes: 3b4477d2dcf2 ("VSOCK: use TCP state constants for sk_state")
+>Signed-off-by: Michal Luczaj <mhal@rbox.co>
+>---
+> drivers/vhost/vsock.c | 2 +-
+> 1 file changed, 1 insertion(+), 1 deletion(-)
 
-I acked 1/2, but I don't like where 2/2 does the conversion.
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 
-A variable declared with DEFINE_PER_CPU_DECRYPTED() ends up in a
-dedicated, page-aligned linker section. The point of the section is that
-one place converts it. Instead every user does it itself: KVM in
-sev_map_percpu_data(), and now VMware in vmware_decrypt_steal_time(),
-each with its own vendor checks and failure handling. The macro today
-only buys page isolation, not the shared mapping its name promises.
-
-The underlying problem is that the whole "decrypted section"
-infrastructure is built around SME/SEV and was never generalized.
-__bss_decrypted, early_set_memory_decrypted() and
-mem_encrypt_free_decrypted_mem() are all under CONFIG_AMD_MEM_ENCRYPT
-and implemented in mem_encrypt_amd.c. sme_postprocess_startup() converts
-.bss..decrypted only if sme_get_me_mask() is set, so a TDX guest never
-shares it. 1/2 moves the per-CPU linker section to X86_MEM_ENCRYPT, but
-nothing that would act on that section follows.
-
-Rather than have every TDX user reinvent the conversion, I would rather
-see the infrastructure made vendor-neutral: boundary symbols for the
-per-CPU decrypted section like the ones .bss..decrypted has, an early
-conversion primitive that works on TDX as well as SEV, and a single
-conversion of both sections at boot. Then sev_map_percpu_data() and
-this driver's loop go away.
-
-> TDX's conversion callback uses __pa(), so patch 2 preflights every possible
-> CPU and leaves steal time disabled if a TDX guest uses vmalloc-backed
-> per-CPU storage. This covers percpu_alloc=page and automatic allocator
-> fallback. AMD encrypted guests support those mappings and are not rejected.
-> Supporting them in TDX would require a separate conversion-API change.
-
-Refusing vmalloc-backed storage on TDX is the right call, and not because
-of the __pa() in the callback. Converting a vmalloc alias means either
-fracturing the direct map or leaving a private direct-map alias to a
-shared page, and the latter is a guest shutdown the moment
-load_unaligned_zeropad() steps into it. See the comment in
-tdx_early_init() and the earlier discussion of the same idea:
-
-https://lore.kernel.org/all/xqi2bkulnhen2vax5msbzczlaywx3dsc7ezpn7oo5qn7u7xzap@xmaseinov7tf/
-
-But that decision belongs in the same central place as the conversion.
-If the first per-CPU chunk is vmalloc-backed on TDX, the decrypted
-section is simply not shared, and users see that, instead of every
-driver re-deriving it.
-
--- 
-  Kiryl Shutsemau / Kirill A. Shutemov
