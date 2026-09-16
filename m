@@ -1,137 +1,312 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yx1-f100.google.com (mail-yx1-f100.google.com [74.125.224.100])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 559BC598BEC
-	for <virtualization@lists.linux.dev>; Wed, 16 Sep 2026 15:38:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25AEB4AB3DC
+	for <virtualization@lists.linux.dev>; Wed, 16 Sep 2026 15:41:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.100
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789573132; cv=none; b=U1NWbhb+W5FhLFsQHD9hl7tfw4e5A06RquWqAAU1Jr+jqiRG9rnJPPRh9/1+y5AV+hXorrQ89n+vz6dhiOTYUXkiVJ7OII8uWUqd97YFHt+VZUNgIr21RIBsZbLg0UfwnegmJ5NNqH4jXICiaN12BKZOdpSEkC3xo1/S+jgNEe0=
+	t=1789573301; cv=none; b=AkACTT7f9FsRpUkVhs6mjRBQhZHv52xMSHqY+exd1EYgwQgTwpxTFTNhvOl7TC5jLJA/onFW6vuXJNwjijIebxZAwY4R+KDUCMm/52evyzCNOsqIZsy6d4OBZ33fE7bPstx5d3IKY3evaOXAkyvuiBgB74/n3f66vqSA7/4RMps=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789573132; c=relaxed/simple;
-	bh=huEs+LEHo8cFHfOkkR7JHzzpk8mAxFJ2h/PPE9NkvtA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=B37RAK4e6cqP7dstVkUy8YrRu0VA7K1z8e7fstx5Pr5dr5f9jC+HkZbLyzpdjCOuLmL+TY2U+elVG+usxo/XS3n+mtPy8jVcGLq3F9IRjgJoB2U/2fF3qMxMb9yXzPhxLFuNG5yRMDAlbmz59OWpABjsaXOaGdRLuHVEBAJZnqY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BqWM01rr; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1789573301; c=relaxed/simple;
+	bh=a6nSOLUnj3K+iTrG5JNcWshSMwRWh8Wgf0ZPhq65GXU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=DMr5g9UbKeyxBaiUbl28MX/3YTQCB2eE4u/pZuQGdWEAbQ91f+JxRH7fZZ6NP+15STWpUNkRe81Ilp/xtPcVG/XU077Tvxlf6BBEH9rnZbnK9XTrz+RlVXdMohT8Z/e8aIEOUOXAkV8v4NLbNgj/GG11fU5tmfw7uJR/RVBm9ZE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=DEhFJdWd; arc=none smtp.client-ip=74.125.224.100
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BqWM01rr"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1789573123;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=QJCqqA6Q4AOgIHS7UBKFb/3fKqTDi7g5pa0Z96svO8U=;
-	b=BqWM01rrJQwkns/Ue7qeVG1W4Mv2Bh1DEPQKs5cCvIjaTR1waUyVQXr/Ps2zE3cqyHJqf6
-	iJ/f8ROTnODICBz8RshJcc+5BqMK+yJ4RzIw7MX7eaXkrAi5Nz/s+h6fPHbryJ7sBmAPog
-	3aMB9x93xGDRZkr9mDN/3tn0Tm4zh3Y=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-625-SmFD0Ol5OYqZN6dxT4kLEw-1; Wed, 16 Sep 2026 11:38:42 -0400
-X-MC-Unique: SmFD0Ol5OYqZN6dxT4kLEw-1
-X-Mimecast-MFC-AGG-ID: SmFD0Ol5OYqZN6dxT4kLEw_1789573121
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-486f3c0d896so2941337f8f.3
-        for <virtualization@lists.linux.dev>; Wed, 16 Sep 2026 08:38:42 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="DEhFJdWd"
+Received: by mail-yx1-f100.google.com with SMTP id 956f58d0204a3-66de7e0bc85so3605894d50.2
+        for <virtualization@lists.linux.dev>; Wed, 16 Sep 2026 08:41:37 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789573121; x=1790177921;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+        d=1e100.net; s=20260707; t=1789573297; x=1790178097;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:dkim-signature:x-gm-gg:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=a6nSOLUnj3K+iTrG5JNcWshSMwRWh8Wgf0ZPhq65GXU=;
+        b=KpPWFfnhLIw7Ea6PT+VP+vkPSKhgJTLgQixFTSJyu5u7P1b0z/9QKMGUI2bgYQ4pdC
+         +R8lsu2MfrPfEqCjy+nP8lBMWMoBqNNB65PmmgVAkKZcKp3uNWmg559yVD6ScGMry0dY
+         BRbW3Tx/Vr2wzvlcgAV6DMnmM/kSimucBPWC14A0+ixrU4BtXayFKXtIYoA9b4W3cS2w
+         rmKekWWX5Z+KB/0mnuNc9/6A9efN5Xd9Zg/4ql61DgNqAJn+I7JLnugRSCGenAqce4IA
+         6X5sH7S8qcp8QfXoe4RYlYBB0wKF4T5zYr+UfUCUJVIZH7b7E9hM9dVXlo4XOlSaQASB
+         3M8A==
+X-Forwarded-Encrypted: i=1; AKwUvByOokqGNJSbpFCkNTd+j6FyGX8SkIPOSjzdBs3xzqjM06wx2w5r4pZ6udELq03gu6udCLgBS+fWdmYot8nrUw==@lists.linux.dev
+X-Gm-Message-State: AFuF++k9zlabBTfz1BQQnB+/u7MXq+znC3Y06Hklzfpw5gNSIF5SZ8cg
+	EHaIvWoeDCCagYWa3YyGROkJ7W+LU9ECMrUMWeOLW+Yi4VRV/vsshTWwyfBOCVeR5ozSUQGz/Oc
+	WWdJa9EgaRhZEUywtD/D0MyTUboIbf+LBHyeusZMUw6fAG0TTLSKfmvUEfEjI2CPFXa0Q5qwNKi
+	xkMXG/BI6PDeDa0+2J3HI1gkhrwJlIJZyZP0Y5f4zcHghTOgrYud76ZwVl3rbyli5/8TxEoh3aJ
+	aX6B+vjdfrgN52Bg/Y=
+X-Gm-Gg: AYBFou24Jkv40+3PApH7rmeycKHCehteOIExsx+ppbct9VThehGjPnSxnDgoHl7RDQS
+	YvgupwZmPnPMV7wmlbBmuwy8knDZX127lIwgzcMUq/rz2/b5+A4dN08Qh1VTkrSiTzIFati3oGH
+	tvWzu9jRNXjc8V5B2bSkei0ATFlxCqtBsKLoT7KXD1K0Ya+YGyRQMqrlWpPaR0XMfatVatwrxS7
+	AQn6XBOWowMQ+eZVqASfotC4moQGXeuWIDHrdAF3PXTd6DQDgJiw2vQ0NzB/jvZaiM+8udywDiU
+	YnoJuKyT3/DSQcMs4G4LYKaw/FuUPOikPDCgojfDLG9EgEh0U2DoZoO5NKmKHC1cW83jeV1fGVD
+	ZQMjMTJ/tJ4FNFj69ecjX3+o0cc04+G96DOwwfKD+Q3MJQqY2yCfCP0Mjctb8TcNJur2u7n38Zz
+	mUt76FdJkqY/Wjeam5t1x7gUG0GTWaCztI
+X-Received: by 2002:a53:ac98:0:b0:671:43b8:41bd with SMTP id 956f58d0204a3-6716320cbf6mr1222612d50.41.1789573296648;
+        Wed, 16 Sep 2026 08:41:36 -0700 (PDT)
+Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-25.dlp.protect.broadcom.com. [144.49.247.25])
+        by smtp-relay.gmail.com with ESMTPS id 956f58d0204a3-6715f452bb5sm164224d50.0.2026.09.16.08.41.36
+        for <virtualization@lists.linux.dev>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 16 Sep 2026 08:41:36 -0700 (PDT)
+X-Relaying-Domain: broadcom.com
+X-CFilter-Loop: Reflected
+Received: by mail-lj1-f197.google.com with SMTP id 38308e7fff4ca-3a208b764f1so24869941fa.1
+        for <virtualization@lists.linux.dev>; Wed, 16 Sep 2026 08:41:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google; t=1789573295; x=1790178095; darn=lists.linux.dev;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=QJCqqA6Q4AOgIHS7UBKFb/3fKqTDi7g5pa0Z96svO8U=;
-        b=S3+lGblUCO50G4l9y3/fZ0DkMhoVtL6xMPFy29dwFm6SoknAcF56aU5SIewkMQGCED
-         E8ogjBIKDfCLLliMhEjOIU6Z3xQ+v8ZpY7SqQsIYxRJKwImzDfFdjMuqwe7MPQtdGffO
-         2mLviK4hkqJolp7X58eN47zQch4WK0O/b1w/fgor4D8nLkGUoI8vQHqDXErRjO/ej/9u
-         iMyTmiTr/87uzbI6QE5vd0m/RcvevQr5SKj0qpPc7CaFTDAgvJ5FX2+nHNTR1o1aD7f9
-         dQMMEBEQokvfgiLH1EBf3RbXaXMn8huQ6sxJXVKI/sChkNPulc/nzYlBGT/YwD7W5M3T
-         4dLA==
-X-Forwarded-Encrypted: i=1; AKwUvBx483bui0MaVt0ffrYlDRr1xbsRPPdEoRQRjiL36wDRbFiRvhAzcHvgub6uWchK0Fw6iwzje35SAimWs9NFBQ==@lists.linux.dev
-X-Gm-Message-State: AFuF++miod4Ji8NLW18MQroy2Jx5dLLJIIGqnKafAOajb4CQ/Se0VMag
-	k03yuZV1z0rp0lIS4uzVG3zgKUYJZ4+wZxX8t5IGEIXZl1Q5oyXFjP9y4lkzXAW3JqzxSD0ww2V
-	hPI1rSrwYRSORXMkCOIt1nIpZvlQL6vq4Lu34gDguU8RgVOpWbVOJ974sJ5WV4mL97fZZ
-X-Gm-Gg: AYBFou1mzoQKxGuMKejKW9Zis+BEZD6bO5W+f/Kk5x+R8XEoush+85kpbTCKKhJEdfc
-	C62ss/jchw1SV5GCIgI99uE4sfhpW36Yt/JM1upsvTzhBjBJlflolwX18ZnI4FE+f66CvIKKYwd
-	yrOqc1uCLpr/sSeyVObM+JSSD6eJ8/acGQAa8QmuAh7XUB0W8vvliLuCKLYI6eCHcL4+f8KTUbC
-	SFEfE4DbkaOz9p5DV2Z8cVwg6jPABXdSkLIzWRD6IpXr5XraGB12/bhzKaeDO1atNHIi6G/mxtG
-	wJD0pdBrpRL1x6Se8Eci1mIyNBoSoYL+SVAr1nTAc7AaJxr0FKEc68Y7eiZrdH86bql2pjQB12N
-	74+b0Dr8Cx/KQKTPHKENZARIDy5WKqiJHjjluF1jgIa+PAA==
-X-Received: by 2002:a05:6000:4711:b0:487:fb0:9ff with SMTP id ffacd0b85a97d-4870fb00af5mr2913409f8f.22.1789573121102;
-        Wed, 16 Sep 2026 08:38:41 -0700 (PDT)
-X-Received: by 2002:a05:6000:4711:b0:487:fb0:9ff with SMTP id ffacd0b85a97d-4870fb00af5mr2913360f8f.22.1789573120615;
-        Wed, 16 Sep 2026 08:38:40 -0700 (PDT)
-Received: from sgarzare-redhat (host-79-53-30-11.retail.telecomitalia.it. [79.53.30.11])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4870bf1fad3sm7165977f8f.12.2026.09.16.08.38.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Sep 2026 08:38:40 -0700 (PDT)
-Date: Wed, 16 Sep 2026 17:38:28 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
-Cc: Bobby Eshleman <bobbyeshleman@meta.com>, 
-	Luigi Leonardi <leonardi@redhat.com>, davem@davemloft.net, edumazet@google.com, kuba@kernel.org, 
-	pabeni@redhat.com, horms@kernel.org, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v3] vsock: ignore empty child namespace mode writes
-Message-ID: <aqq3t5p0hN2jsSpT@sgarzare-redhat>
-References: <20260915141547.3010692-1-qwe.aldo@gmail.com>
- <20260915173050.3176344-1-qwe.aldo@gmail.com>
+        bh=a6nSOLUnj3K+iTrG5JNcWshSMwRWh8Wgf0ZPhq65GXU=;
+        b=DEhFJdWdf/UMfdQR6ENjEKREwKDEIeShfX6CcvxjFcFlvNdH236ZFcNia5P2qlm3/p
+         3qcnzYXoXf2e80hIzNsnz0QIpujyPgehj4uilp47KQJ4coIPK/0DRS2sUUVbFNp6YjLn
+         dlWcvmBGt/SVaC8BupHDa0GQsvb/P3bgWwWkw=
+X-Forwarded-Encrypted: i=1; AKwUvByNSSxynP27AhrNqPoEHJb6yUJpzd9n8oaiM23NZQg2BH5eJNcCcJbyMgjllbazBHamnYl1/1Xg7zGgUXVCRA==@lists.linux.dev
+X-Received: by 2002:a05:651c:222c:b0:3a3:42cf:c014 with SMTP id 38308e7fff4ca-3a5dc988ee4mr6734881fa.7.1789573294660;
+        Wed, 16 Sep 2026 08:41:34 -0700 (PDT)
+X-Received: by 2002:a05:651c:222c:b0:3a3:42cf:c014 with SMTP id
+ 38308e7fff4ca-3a5dc988ee4mr6734611fa.7.1789573294062; Wed, 16 Sep 2026
+ 08:41:34 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260915173050.3176344-1-qwe.aldo@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: gsQW6XyGlJHiaC5Gemy-gz3xJE-25EpOx-gnOnEUtPs_1789573121
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+References: <cover.1789488039.git.zack.rusin@broadcom.com> <aqqGUAX65s4LdJkr@thinkstation>
+In-Reply-To: <aqqGUAX65s4LdJkr@thinkstation>
+From: Zack Rusin <zack.rusin@broadcom.com>
+Date: Wed, 16 Sep 2026 11:41:19 -0400
+X-Gm-Features: AcwNN1X8EphbssgNJGAU5J8Ew6yzojuFKn8poYC7Vw-gA-ySadQxgIJcWpvSrQw
+Message-ID: <CABQX2QMAfszf3z+Auo0AdwGsf94kTX0DrTrd8k6G1PTNMYsdXQ@mail.gmail.com>
+Subject: Re: [PATCH v1 0/2] x86/vmware: Share steal-time storage in encrypted guests
+To: Kiryl Shutsemau <kas@kernel.org>
+Cc: Borislav Petkov <bp@alien8.de>, Ajay Kaher <ajay.kaher@broadcom.com>, 
+	Alexey Makhalov <alexey.makhalov@broadcom.com>, x86@kernel.org, 
+	Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>, Arnd Bergmann <arnd@arndb.de>, 
+	Rick Edgecombe <rick.p.edgecombe@intel.com>, Thomas Gleixner <tglx@kernel.org>, 
+	Ingo Molnar <mingo@redhat.com>, Dave Hansen <dave.hansen@linux.intel.com>, 
+	"H . Peter Anvin" <hpa@zytor.com>, virtualization@lists.linux.dev, 
+	bcm-kernel-feedback-list@broadcom.com, linux-kernel@vger.kernel.org, 
+	Christoph Lameter <cl@gentwo.org>, Andrew Morton <akpm@linux-foundation.org>, 
+	Tom Lendacky <thomas.lendacky@amd.com>, Bo Gan <bo.gan@broadcom.com>, linux-mm@kvack.org, 
+	linux-arch@vger.kernel.org, linux-coco@lists.linux.dev, kvm@vger.kernel.org
+X-DetectorID-Processed: b00c1d49-9d2e-4205-b15f-d015386d3d5e
+Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha-256;
+	boundary="0000000000008cf533065b9b80cc"
 
-On Tue, Sep 15, 2026 at 02:30:50PM -0300, Aldo Ariel Panzardo wrote:
->__vsock_net_mode_string() returns success without updating new_mode when
->the transfer length is zero. Its caller then reads the uninitialized enum
->and may permanently store a stack-derived value in the write-once child
->mode.
->
->Return before calling __vsock_net_mode_string() when *lenp is zero so
->that the helper is never invoked with nothing to parse and new_mode is
->never read uninitialized. This also prevents an empty write from
->locking the current mode.
->
->Fixes: eafb64f40ca4 ("vsock: add netns to vsock core")
->Cc: stable@vger.kernel.org
->Reviewed-by: Luigi Leonardi <leonardi@redhat.com>
->Signed-off-by: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
->---
->
->Changes in v3:
->  - Move the !*lenp early return before __vsock_net_mode_string()
->    instead of after it, as suggested by Stefano Garzarella.
->  - Add missing maintainer CCs per get_maintainer.pl.
->  - Add Luigi's Reviewed-by.
->
->Changes in v2:
->  - Return early instead of initializing new_mode to the current
->    value, which would silently consume the write-once transition.
->
-> net/vmw_vsock/af_vsock.c | 3 +++
-> 1 file changed, 3 insertions(+)
->
->diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
->index 622dbd0467..XXXXXXX 100644
->--- a/net/vmw_vsock/af_vsock.c
->+++ b/net/vmw_vsock/af_vsock.c
->@@ -2879,6 +2879,9 @@ static int vsock_net_child_mode_string(const struct ctl_table *table, int write,
->
-> 	net = container_of(table->data, struct net, vsock.child_ns_mode);
->
->+	if (!*lenp)
->+		return 0;
->+
+--0000000000008cf533065b9b80cc
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-I would have moved it even before the net assignmet, but in any case, it 
-doesn't make much difference:
+On Wed, Sep 16, 2026 at 8:18=E2=80=AFAM Kiryl Shutsemau <kas@kernel.org> wr=
+ote:
+>
+> On Wed, Sep 16, 2026 at 01:05:38AM -0400, Zack Rusin wrote:
+> > VMware registers each per-CPU steal-time GPA with the host. An encrypte=
+d
+> > guest must first convert that storage to shared memory, but the existin=
+g
+> > setup publishes the address without conversion.
+> >
+> > Patch 1 makes the decrypted per-CPU section available with
+> > CONFIG_X86_MEM_ENCRYPT, including TDX-only configurations. Patch 2 defe=
+rs
+> > encrypted-guest setup until allocator-backed page-table splitting is
+> > available, converts every possible CPU's storage before publishing any
+> > GPA, and attempts to roll back all conversions on failure.
+>
+> I acked 1/2, but I don't like where 2/2 does the conversion.
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+I saw that, thank you. Since I'll be respinning v2 of this I can go
+ahead and drop the unused DECLARE_PER_CPU_DECRYPTED in that one if you
+want as well.
 
+> A variable declared with DEFINE_PER_CPU_DECRYPTED() ends up in a
+> dedicated, page-aligned linker section. The point of the section is that
+> one place converts it. Instead every user does it itself: KVM in
+> sev_map_percpu_data(), and now VMware in vmware_decrypt_steal_time(),
+> each with its own vendor checks and failure handling. The macro today
+> only buys page isolation, not the shared mapping its name promises.
+>
+> The underlying problem is that the whole "decrypted section"
+> infrastructure is built around SME/SEV and was never generalized.
+> __bss_decrypted, early_set_memory_decrypted() and
+> mem_encrypt_free_decrypted_mem() are all under CONFIG_AMD_MEM_ENCRYPT
+> and implemented in mem_encrypt_amd.c. sme_postprocess_startup() converts
+> .bss..decrypted only if sme_get_me_mask() is set, so a TDX guest never
+> shares it. 1/2 moves the per-CPU linker section to X86_MEM_ENCRYPT, but
+> nothing that would act on that section follows.
+>
+> Rather than have every TDX user reinvent the conversion, I would rather
+> see the infrastructure made vendor-neutral: boundary symbols for the
+> per-CPU decrypted section like the ones .bss..decrypted has, an early
+> conversion primitive that works on TDX as well as SEV, and a single
+> conversion of both sections at boot. Then sev_map_percpu_data() and
+> this driver's loop go away.
+>
+> > TDX's conversion callback uses __pa(), so patch 2 preflights every poss=
+ible
+> > CPU and leaves steal time disabled if a TDX guest uses vmalloc-backed
+> > per-CPU storage. This covers percpu_alloc=3Dpage and automatic allocato=
+r
+> > fallback. AMD encrypted guests support those mappings and are not rejec=
+ted.
+> > Supporting them in TDX would require a separate conversion-API change.
+>
+> Refusing vmalloc-backed storage on TDX is the right call, and not because
+> of the __pa() in the callback. Converting a vmalloc alias means either
+> fracturing the direct map or leaving a private direct-map alias to a
+> shared page, and the latter is a guest shutdown the moment
+> load_unaligned_zeropad() steps into it. See the comment in
+> tdx_early_init() and the earlier discussion of the same idea:
+>
+> https://lore.kernel.org/all/xqi2bkulnhen2vax5msbzczlaywx3dsc7ezpn7oo5qn7u=
+7xzap@xmaseinov7tf/
+>
+> But that decision belongs in the same central place as the conversion.
+> If the first per-CPU chunk is vmalloc-backed on TDX, the decrypted
+> section is simply not shared, and users see that, instead of every
+> driver re-deriving it.
+
+I went through the linked thread, including the dropped 2022
+Quote-buffer alias approach and the 2024 netvsc work's kexec
+regression, fix and re-review discussion. I will keep TDX vmalloc
+support out of this series and correct the explanation to cover alias
+consistency, direct-map splitting and load_unaligned_zeropad(),
+including removing the suggestion that per-page GPA lookup alone
+resolves it.
+
+After tracing the boot paths, I think there are two distinct pieces
+here. The SEV boot GHCB needs .bss..decrypted before BSS is cleared,
+whereas the SMP per-CPU instances do not exist until
+setup_per_cpu_areas(). KVM then registers its boot-CPU per-CPU buffers
+in smp_prepare_boot_cpu(), so the common conversion needs the early
+primitive you proposed. A shared early_initcall would be too late for
+KVM. The UP registration path probably also needs handling separately
+
+My suggestion would be to do one of two things (or at least I think
+those two options are realistic to me, given that I'm no expert here):
+- add the central per-CPU infrastructure and migrate KVM/VMware
+together, removing both loops and putting the TDX vmalloc rejection
+and readiness state in common code. Would you and the KVM maintainers
+be happy with that first, and generalizing .bss..decrypted separately
+while preserving its earliest SEV setup? afaict the latter also needs
+to broaden the annotation and linker guards, and changes kvmclock
+storage and sharing on TDX-only builds.
+- a smaller VMware fix using a separately allocated, direct-mapped
+page per CPU while the common infrastructure is developed. Using the
+normal allocator would also defer ordinary-guest registration, unless
+I kept their current static storage as a second path. This option
+would retain caller-managed sharing and buffer lifetime handling.
+
+The second option is, of course, easier for me, but I'm happy to do
+the first to get steal-time storage working for us. Do you have any
+thoughts on this?
+
+z
+
+--0000000000008cf533065b9b80cc
+Content-Type: application/pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
+
+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
+6U6qgI8F5eiKsQyE0HgYrQJx/sDs9LLVZlaNiA3U8M8CgEnb8VhuH3BN/yXphhEQdJXb1TyaJA60
+SmHcZdEQZbl4EjwUcs3UIowmI/Mhi7ADQB7VNsO/BaOVBEQk53xH+4djY/cg7jvqTTeliY05j2Yx
+uwwXcDC4mWjGzxAT5DVqC8fKQvon1uc2heorHb555+sLdwYxAgMBAAGjggHYMIIB1DAOBgNVHQ8B
+Af8EBAMCBaAwgZMGCCsGAQUFBwEBBIGGMIGDMEYGCCsGAQUFBzAChjpodHRwOi8vc2VjdXJlLmds
+b2JhbHNpZ24uY29tL2NhY2VydC9nc2djY3I2c21pbWVjYTIwMjMuY3J0MDkGCCsGAQUFBzABhi1o
+dHRwOi8vb2NzcC5nbG9iYWxzaWduLmNvbS9nc2djY3I2c21pbWVjYTIwMjMwZQYDVR0gBF4wXDAJ
+BgdngQwBBQMBMAsGCSsGAQQBoDIBKDBCBgorBgEEAaAyCgMCMDQwMgYIKwYBBQUHAgEWJmh0dHBz
+Oi8vd3d3Lmdsb2JhbHNpZ24uY29tL3JlcG9zaXRvcnkvMAkGA1UdEwQCMAAwQQYDVR0fBDowODA2
+oDSgMoYwaHR0cDovL2NybC5nbG9iYWxzaWduLmNvbS9nc2djY3I2c21pbWVjYTIwMjMuY3JsMCIG
+A1UdEQQbMBmBF3phY2sucnVzaW5AYnJvYWRjb20uY29tMBMGA1UdJQQMMAoGCCsGAQUFBwMEMB8G
+A1UdIwQYMBaAFAApNp5ceroPry1QLdugI4UYsKCSMB0GA1UdDgQWBBQNDn2m/OLuDx9YjEqPLCDB
+s/VKNTANBgkqhkiG9w0BAQsFAAOCAgEAF463syOLTQkWZmEyyR60W1sM3J1cbnMRrBFUBt3S2NTY
+SJ2NAvkTAxbPoOhK6IQdaTyrWi8xdg2tftr5FC1bOSUdxudY6dipq2txe7mEoUE6VlpJid/56Mo4
+QJRb6YiykQeIfoJiYMKsyuXWsTB1rhQxlxfnaFxi8Xy3+xKAeX68DcsHG3ZU0h1beBURA44tXcz6
+fFDNPQ2k6rWDFz+XNN2YOPqfse2wEm3DXpqNT79ycU7Uva7e51b8XdbmJ6XVzUFmWzhjXy5hvV8z
+iF+DvP+KT1/bjO6aNL2/3PWiy1u6xjnWvobHuAYVrXxQ5wzk8aPOnED9Q8pt2nqk/UIzw2f67Cn9
+3CxrVqXUKm93J+rupyKVTGgKO9T1ODVPo665aIbM72RxSI9Wsofatm2fo8DWOkrfs29pYfy6eECl
+91qfFMl+IzIVfDgIrEX6gSngJ2ZLaG6L+/iNrUxHxxsaUmyDwBbTfjYwr10H6NKES3JaxVRslnpF
+06HTTciJNx2wowbYF1c+BFY4r/19LHygijIVa+hZEgNuMrVLyAamaAKZ1AWxTdv8Q/eeNN3Myq61
+b1ykTSPCXjBq/03CMF/wT1wly16jYjLDXZ6II/HYyJt34QeqnBENU9zXTc9RopqcuHD2g+ROT7lI
+VLi5ffzC8rVliltTltbYPc7F0lAvGKAxggJXMIICUwIBATBiMFIxCzAJBgNVBAYTAkJFMRkwFwYD
+VQQKExBHbG9iYWxTaWduIG52LXNhMSgwJgYDVQQDEx9HbG9iYWxTaWduIEdDQyBSNiBTTUlNRSBD
+QSAyMDIzAgxhPxw+eieHWB40hPkwDQYJYIZIAWUDBAIBBQCggccwLwYJKoZIhvcNAQkEMSIEING+
+tS9jluKZG2ayZ4pYr4+TXQr15tnm2U0384jZyaB7MBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEw
+HAYJKoZIhvcNAQkFMQ8XDTI2MDkxNjE1NDEzNVowXAYJKoZIhvcNAQkPMU8wTTALBglghkgBZQME
+ASowCwYJYIZIAWUDBAEWMAsGCWCGSAFlAwQBAjAKBggqhkiG9w0DBzALBgkqhkiG9w0BAQcwCwYJ
+YIZIAWUDBAIBMA0GCSqGSIb3DQEBAQUABIIBAAiJiiMRjpbhErRjga91uv6fyg7gDKiW/hzIZv4u
+twci6FZEZWPYJYzwugbWz8tTef7pmY99e2ozuPN8cvLqjnDD9CdmDOA1oKFiKeuhTxMKrmsdFxUF
+A/zaoj8Hh15JhRNwQB/Hn6JooqcOmUZINDYEDse+KmMcxuCsMi2D7N2/2bOB9PHl/2uBiCZ9NiEZ
+8LmqSKB/hjxWSvkm/Mo6WmsPYtekjp5MRu5wYBMZQMyPCnQKGpZMzVOUOG+THnEj5pJvLhzj6pvT
+nOEp+MloSY9rk0lmdMFQxK3qy6ZXjKFT1dUSwPdfPpSmc6WHa5huCNvC0hBo8Pn3HvKrY0Xmtgc=
+--0000000000008cf533065b9b80cc--
