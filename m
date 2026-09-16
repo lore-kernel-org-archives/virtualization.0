@@ -1,78 +1,78 @@
-Received: from mail-vk1-f225.google.com (mail-vk1-f225.google.com [209.85.221.225])
+Received: from mail-pl1-f225.google.com (mail-pl1-f225.google.com [209.85.214.225])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B17F3BB9F3
-	for <virtualization@lists.linux.dev>; Wed, 16 Sep 2026 05:05:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.225
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FADA361965
+	for <virtualization@lists.linux.dev>; Wed, 16 Sep 2026 05:06:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.225
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789535159; cv=none; b=gx7q/x6K22SaHD+TD3GDhFH8MBCUqRWFFHKE7nuy2tdSabwlKiLzaBnvey7S4b9hvA46CnKPB7UA8IDoBFNrmZPLlZ4B9s2RVFvZcqhY+kA2+tUzidYiaIsXu6bCjxBec8VVYVDTy+lSQwt7wM8FsJ2qX5W+7CZRLLAOPCsTLyo=
+	t=1789535162; cv=none; b=CM68ArSQJKA2q68M1k+W9LaTN9O7fS0rru8fSzfR/MXu5VVggwqJpBe9aZyTk6PlJUKJqccnpjXEBogOW6ajVdP1SXTi8WNXYqwxHkZ3jIk/ml2BE1iN+Q6/zj91Hg/BksPXtM8vqKKxIWBJN2nayPM1zuzxmV7u8yRc3gL0syc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789535159; c=relaxed/simple;
-	bh=LWc2s4qZvBb3TJVfltvRwFaklDcNXyLXGRlUr4C/OwI=;
+	s=arc-20240116; t=1789535162; c=relaxed/simple;
+	bh=ZCYsk3b8be7YzwPtZc9AlEHE3JpuvSauytIqzViEWP8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Olr1/U4wBtucTC0oXFO94d24slBjN9ysehKICq6ly1zNQ+RA35tkxjHKDHrQioU/9dAugpG3SJ0Bx0QHFSFNrMr4iYn5hEpoTMmzYh674yOS39E0b/IJOM654cxo901SInkt3yhLwtSOI2wda59FhBYNkIwqJl5RK3YOyZbsjCw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=dPD93Rny; arc=none smtp.client-ip=209.85.221.225
+	 MIME-Version; b=SRHe0nFT9gQU997lOdQ10uNGKooixiZtmvmsJ1VfBYlPRmB0/1HHoc+YXTES2XyAnz847p3p7ukXE8qVmOvGyR5asTFY3e5bg3bjkjSF8W8URnhSPdF/DbEdfKct+RCIKOldLpgmySvV5eLiwVd2YA4ISgP5CGXXGL5IR46PeSY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=J1pHa7xn; arc=none smtp.client-ip=209.85.214.225
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="dPD93Rny"
-Received: by mail-vk1-f225.google.com with SMTP id 71dfb90a1353d-5c847eaa0aaso684718e0c.0
-        for <virtualization@lists.linux.dev>; Tue, 15 Sep 2026 22:05:57 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="J1pHa7xn"
+Received: by mail-pl1-f225.google.com with SMTP id d9443c01a7336-2d942c7cc2fso44665205ad.3
+        for <virtualization@lists.linux.dev>; Tue, 15 Sep 2026 22:06:00 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789535156; x=1790139956;
+        d=1e100.net; s=20260707; t=1789535160; x=1790139960;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:dkim-signature:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=6awU6L1NSAdZve1Go4DAFmiBVEoVbQdcfNtuUS9ma4s=;
-        b=ksBP0IBposg5BgDPPF/rFw9LKbqZNGR4mW4xC65/yWIoZRv60t4x2L4sS5hoenbf4X
-         JH44Iw7h1ptjYtwb3HglOun1KRlicDElSu+WatSqayAjjhKlNG6bkjYW6UXEiAXYIDen
-         e6C/RWYH2A11ZMmJMwS7m8eGN3qmJqiF/0DKNejDbq0CF5DWg+x3cYTfqmyqVMQ+IlJn
-         iHlQdcEqnV1wn1QlyCP9FZ0rsqHEc6Puuk1XFAnHQbpnXyE1jo8B21dnoUjdB4SZB4Gc
-         SrxthJXU7h5vvhkWP62e8oCsompTBfmfsTpGr1mMUrVDj4tXdcqv6mc/kUL/4M1YnNv+
-         0ToQ==
-X-Forwarded-Encrypted: i=1; AKwUvBwmIKglCDKuphxuJXATeBEZtqVN+qTdWehn+IAvVj1JmJnIJPHbF6fq2lDxoqEtsQ4SKt7rCUHj8823SxTi9Q==@lists.linux.dev
-X-Gm-Message-State: AFuF++l8W0snyBc0hDR7dsvH0kTMVQ6edNR8MOWXFxVaXq+wWX+FqOX5
-	3lpmZiRoeMVcJtdvw+vt4oDbDhiy1MlOZ4OOtC0AHBX3Ae7WqEm0C7+/QCmiVc8+VxNLnsXrKQZ
-	1472R0vCMjwfdhetDPkUvkKz6RvPmPvHe6kAi5hW2H66+LFMVLBXQfBXhYEFQZ5fD5Jaknuau+h
-	ejvRyj47qTbgxl9Q4DchGF0kGpZEoqrTZWUBKrFjYMpnx6tk5qfzrIwqiYHSLDzJxUHeZ4Z9T3d
-	aaEW+mfiGKCRUY1raw=
-X-Gm-Gg: AYBFou3P4nFOMsziFkt9jrkGCtLhWWBozXpcik6W6hpT4L+hGNAXMMKsaGH+WgAokrJ
-	sg+pAL49nRUrRJ11ndMVMlB4oOT8atLwhg+ebitRo4Pc+jEihGrepXfakZbGKKBRkUhV3rmPLnY
-	bx3TBMrHHTrn/AD4wHmaCXHE7/CjVbVRMtTcMjF+SzARoqSPlkXeLtOBAnLLq9Eqi2JwtxJilIh
-	K3+w7OTg4ZEm58SLjRgaQsmRH+09QR/S/uzKaf4nQgoHwLSXoBav4HNlTx+vV/+t7W58/9tHvDR
-	vKgcv3/FR4B8CS0gdPG+PTVyteziu9d4zLzGRv+1F56Bv5IeIIZw6mN+6oDElGfzr9uljWLgjIH
-	vt5ClZ4IM2GYWClZE9yMQwnYfyRQRj0wIt4hZzpNI4wd/83xY0/C9yqicOgiNXgc3e3j/ddEI0/
-	VygRba2ujBQ8vKZ3Xyyso0++dSqawAT7qB
-X-Received: by 2002:a05:6122:512:b0:5bd:71b1:d5c6 with SMTP id 71dfb90a1353d-5c99ac67d45mr904193e0c.4.1789535156192;
-        Tue, 15 Sep 2026 22:05:56 -0700 (PDT)
-Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-25.dlp.protect.broadcom.com. [144.49.247.25])
-        by smtp-relay.gmail.com with ESMTPS id 71dfb90a1353d-5c9988d09c1sm694783e0c.1.2026.09.15.22.05.54
+        bh=qEqGUwhuGtd/IQ00br0ru4/E+DR8RR02AnrUv6Zwxpk=;
+        b=SsOvFF5a7yW0REaO+fa0K32L0ikUJ38h3zLYtXxRpWpgEZjx+uB6vLxOib+1DtDyfZ
+         7p8PNGpUiuz5sMVqJax3LlCMmKd3/U2Ht5SasjeE7H22vrJFWHjMgN/Ov5GW1WhOyJ/M
+         PeMtmYdRLLGYR8I7MF2vVLHzQH/G9o6Evy3L67Eohoptg2luiIBi1NS4WUt/OJ+N6WSL
+         S5FtsbKyfvmV0swAkt/CwhkR8pIY2lb8pIgR+ANyaEAv8jPIjwZklNlpFjnGa7m9EPPz
+         gNkpNl01yGanA85cUX7Q312XA18hvq4I419TgUCI3DC/Zd7CxYLrqAMZVfJR7cY8ZlnR
+         8EsA==
+X-Forwarded-Encrypted: i=1; AKwUvBwaVJ599bjDuaRnYmY9BVs1oqbo0WG8jOk5uE7cBDVl9qM7pgS00MA7mMzacLNCr2FHI0Y9FyPLetybT5IYVg==@lists.linux.dev
+X-Gm-Message-State: AFuF++lxVDOTICYOs1t3vy/7HIWU7DID3N1WCprJXBcI7ywpMjYPO01y
+	7+p+8RpEYvGRYkI3/t2RCqyUbezOiyI+DMm1EcGq9JfCxWQsaJxYC+Gj3KIffGdhxMeoZ7yaXs3
+	cCdJ+h6F+z0DtDzs9YQg4Mi0CKP68LHZSfp7HQf6vvkfOScHkcb457xbN8NKv5PgikVc/ahBVTs
+	Ir9jTgRJE77jysTvjqHERjCwBJ5TvEYNscUhBU2Z1Te/h9JT+3j3aOgsnk6zzv/rZyzxhmgNozC
+	2Uoo7eQnHvjIE0iXUE=
+X-Gm-Gg: AYBFou3RR4JBj/8dg6Inzi8EtUyJkTNSIfbfjo91nZhdba8sfgsqldM8Zr4QqhtXxna
+	n6NiOlt9VPf0D0HN0JcRr8mCgvVgzKV9RM0d8G8K9642gH5I25gwOhIVhTmnoSpgHImkXmdCyUY
+	vDHxp/oUKIh7hPdUpYcihlTY/+ffl5ikKmfdpbtme+ZAYamLlSmgnagUUiAfUNGIoOaexIeLQ7F
+	cmmQwI/I01ZObCAMEePfoqA646uz5aRTrJ9lS9bN3pZ7fygnzjc2WBhOUsMFyJOMEa6H46ELtqb
+	pLNo3NwS6KFBMrYqb/tFvL9pMg5010JUVQ9iZ/rUkFb88iavYpDsrc70pM11QPklmxSWF0uMcO3
+	9MyKn3XkzRMHsbyZ802r9VnAicjZWSIkJ2I2RjejHgu3UbU9aVYmAF/sPJsYaHSl4tUfz9tVBEs
+	tG9ssgj2arN8K3I7Y1A8MBo90UEBhBue+5
+X-Received: by 2002:a05:6a20:958f:b0:3da:bea4:621e with SMTP id adf61e73a8af0-3dd5f7cc108mr2863676637.26.1789535160336;
+        Tue, 15 Sep 2026 22:06:00 -0700 (PDT)
+Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-29.dlp.protect.broadcom.com. [144.49.247.29])
+        by smtp-relay.gmail.com with ESMTPS id 41be03b00d2f7-cc50acfe718sm763826a12.7.2026.09.15.22.05.59
         for <virtualization@lists.linux.dev>
         (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 15 Sep 2026 22:05:56 -0700 (PDT)
+        Tue, 15 Sep 2026 22:06:00 -0700 (PDT)
 X-Relaying-Domain: broadcom.com
 X-CFilter-Loop: Reflected
-Received: by mail-pg1-f197.google.com with SMTP id 41be03b00d2f7-cc132709c76so6624476a12.3
-        for <virtualization@lists.linux.dev>; Tue, 15 Sep 2026 22:05:54 -0700 (PDT)
+Received: by mail-pg1-f197.google.com with SMTP id 41be03b00d2f7-cc4fc935a11so1682439a12.0
+        for <virtualization@lists.linux.dev>; Tue, 15 Sep 2026 22:05:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1789535154; x=1790139954; darn=lists.linux.dev;
+        d=broadcom.com; s=google; t=1789535158; x=1790139958; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=6awU6L1NSAdZve1Go4DAFmiBVEoVbQdcfNtuUS9ma4s=;
-        b=dPD93RnyE2TqJFhUlaPOvucotk8/sQ5vvRFmWqez7oSHkJ2/x9Tkoyh78HpSYZTpwu
-         zFngGIByfNPrGIaj2/ATrQH+WterfV/6EaPmEX26zN+UglYa9kWqXA5NYf59KWcZmkqA
-         cijvmbAgvNBjlAm5YH03c4o2Cif4lDsa1uiY4=
-X-Forwarded-Encrypted: i=1; AKwUvBwxOQCjdPlnJE7HftVtTThqfNwrC7XeZFMUeg/DtjajlDY3xT14Vu6YVSi5A87DkN+8LCU1qq9MYwD9euNbSA==@lists.linux.dev
-X-Received: by 2002:a05:6a20:4388:b0:3cc:8f53:26c0 with SMTP id adf61e73a8af0-3dd5f57bbfamr2773502637.17.1789535154002;
-        Tue, 15 Sep 2026 22:05:54 -0700 (PDT)
-X-Received: by 2002:a05:6a20:4388:b0:3cc:8f53:26c0 with SMTP id adf61e73a8af0-3dd5f57bbfamr2773437637.17.1789535153567;
-        Tue, 15 Sep 2026 22:05:53 -0700 (PDT)
+        bh=qEqGUwhuGtd/IQ00br0ru4/E+DR8RR02AnrUv6Zwxpk=;
+        b=J1pHa7xnFtPUTNL5Oo6JQsMSofBg4QerzraB1Rg5408vil3iDkKKBFglAqTCtYB04r
+         /t08w5sSEM89bco4AwaSuWELFzbsSbkvszHFoguez/ZbdrErzZgT3JGvb6uhaG/51UU6
+         iDTQoDAcDaViRVhUx1PEl19WpJlTJhiRWtcLY=
+X-Forwarded-Encrypted: i=1; AKwUvBxWs0QBMqvuDUNmvq6BACs3FEyMRB7qOuzv7JoXeXmNB5tvS0R5lv+bisFp3K2EKMKF6XQP/544UZN+EkJjZA==@lists.linux.dev
+X-Received: by 2002:a05:6a21:1343:b0:3da:80a1:f2f with SMTP id adf61e73a8af0-3dd5f5dfd69mr2927549637.14.1789535158377;
+        Tue, 15 Sep 2026 22:05:58 -0700 (PDT)
+X-Received: by 2002:a05:6a21:1343:b0:3da:80a1:f2f with SMTP id adf61e73a8af0-3dd5f5dfd69mr2927490637.14.1789535157892;
+        Tue, 15 Sep 2026 22:05:57 -0700 (PDT)
 Received: from vertex.localdomain ([192.19.144.250])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-33bf5e40494sm3951386eec.15.2026.09.15.22.05.50
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-33bf5e40494sm3951386eec.15.2026.09.15.22.05.53
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 15 Sep 2026 22:05:52 -0700 (PDT)
+        Tue, 15 Sep 2026 22:05:56 -0700 (PDT)
 From: Zack Rusin <zack.rusin@broadcom.com>
 To: Borislav Petkov <bp@alien8.de>,
 	Ajay Kaher <ajay.kaher@broadcom.com>,
@@ -99,9 +99,9 @@ Cc: Thomas Gleixner <tglx@kernel.org>,
 	linux-coco@lists.linux.dev,
 	kvm@vger.kernel.org,
 	Zack Rusin <zack.rusin@broadcom.com>
-Subject: [PATCH v1 1/2] percpu: Use X86_MEM_ENCRYPT for decrypted per-CPU data
-Date: Wed, 16 Sep 2026 01:05:39 -0400
-Message-ID: <07cdda86e2c60b27a18023e2e5fae339b78db0ab.1789488039.git.zack.rusin@broadcom.com>
+Subject: [PATCH v1 2/2] x86/vmware: Decrypt steal-time storage before sharing it
+Date: Wed, 16 Sep 2026 01:05:40 -0400
+Message-ID: <bbdb89067cd07d07fe4963ad229932faf87b0ef9.1789488039.git.zack.rusin@broadcom.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <cover.1789488039.git.zack.rusin@broadcom.com>
 References: <cover.1789488039.git.zack.rusin@broadcom.com>
@@ -114,52 +114,172 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-DetectorID-Processed: b00c1d49-9d2e-4205-b15f-d015386d3d5e
 
-Decrypted per-CPU data is gated by AMD_MEM_ENCRYPT. With
-INTEL_TDX_GUEST=y and AMD_MEM_ENCRYPT=n it falls back to ordinary
-per-CPU storage, so converting a variable to shared memory can expose
-unrelated data on the same page.
+VMware's steal-time counter must be in shared memory so the host can
+update it. Encrypted guests currently register its address without
+decrypting the storage. Move their setup to an early initcall, when the
+memory allocator is available for page-table splitting, but before
+secondary CPUs start. Leave ordinary guests' setup unchanged.
 
-Gate the declarations and linker section on X86_MEM_ENCRYPT, which both
-AMD_MEM_ENCRYPT and INTEL_TDX_GUEST select. Existing AMD configurations
-are unchanged.
+Convert every possible CPU's storage before registering any address.
+Zero each object after conversion, since its contents may not survive
+conversion and the host initializes only the counter. Register the boot
+CPU with preemption disabled; the existing hotplug callbacks handle the
+others. If conversion or boot-CPU registration fails, attempt to re-encrypt
+all affected ranges, including a partially converted failing range, and
+disable steal time.
 
-Keep the decrypted subsection page-aligned at both ends. The per-CPU
-template and each allocated per-CPU unit are also page-aligned, so page
-conversion cannot expose ordinary per-CPU data. TDX-only configurations
-may need additional space for this alignment and isolation.
+TDX's conversion path requires directly mapped memory. Check all per-CPU
+objects before converting anything, and disable steal time if a TDX guest
+uses the page per-CPU allocator, which supplies vmalloc mappings. This
+also covers automatic fallback from the embedded allocator. AMD guests
+are unaffected by this restriction because their conversion path supports
+those mappings.
 
+Link: https://lore.kernel.org/r/20260309235250.2611115-5-alexey.makhalov@broadcom.com
+Co-developed-by: Bo Gan <bo.gan@broadcom.com>
+Signed-off-by: Bo Gan <bo.gan@broadcom.com>
+Co-developed-by: Alexey Makhalov <alexey.makhalov@broadcom.com>
+Signed-off-by: Alexey Makhalov <alexey.makhalov@broadcom.com>
 Signed-off-by: Zack Rusin <zack.rusin@broadcom.com>
 ---
- include/asm-generic/vmlinux.lds.h | 2 +-
- include/linux/percpu-defs.h       | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kernel/cpu/vmware.c | 96 +++++++++++++++++++++++++++++++++++-
+ 1 file changed, 95 insertions(+), 1 deletion(-)
 
-diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
-index b2988aa12f66..1448e791773e 100644
---- a/include/asm-generic/vmlinux.lds.h
-+++ b/include/asm-generic/vmlinux.lds.h
-@@ -1013,7 +1013,7 @@
-  * Note: We use a separate section so that only this section gets
-  * decrypted to avoid exposing more than we wish.
-  */
--#ifdef CONFIG_AMD_MEM_ENCRYPT
-+#ifdef CONFIG_X86_MEM_ENCRYPT
- #define PERCPU_DECRYPTED_SECTION					\
- 	. = ALIGN(PAGE_SIZE);						\
- 	*(.data..percpu..decrypted)					\
-diff --git a/include/linux/percpu-defs.h b/include/linux/percpu-defs.h
-index dbe3267a0a13..54ce1442d918 100644
---- a/include/linux/percpu-defs.h
-+++ b/include/linux/percpu-defs.h
-@@ -172,7 +172,7 @@
-  * Declaration/definition used for per-CPU variables that should be accessed
-  * as decrypted when memory encryption is enabled in the guest.
-  */
--#ifdef CONFIG_AMD_MEM_ENCRYPT
-+#ifdef CONFIG_X86_MEM_ENCRYPT
- #define DECLARE_PER_CPU_DECRYPTED(type, name)				\
- 	DECLARE_PER_CPU_SECTION(type, name, "..decrypted")
+diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
+index 34b73573b108..f49898275d87 100644
+--- a/arch/x86/kernel/cpu/vmware.c
++++ b/arch/x86/kernel/cpu/vmware.c
+@@ -25,14 +25,19 @@
+ #include <linux/init.h>
+ #include <linux/export.h>
+ #include <linux/clocksource.h>
++#include <linux/cc_platform.h>
+ #include <linux/cpu.h>
+ #include <linux/efi.h>
++#include <linux/mm.h>
++#include <linux/preempt.h>
+ #include <linux/reboot.h>
++#include <linux/set_memory.h>
+ #include <linux/static_call.h>
+ #include <linux/sched/cputime.h>
+ #include <asm/div64.h>
+ #include <asm/x86_init.h>
+ #include <asm/hypervisor.h>
++#include <asm/cpufeature.h>
+ #include <asm/cpuid/api.h>
+ #include <asm/timer.h>
+ #include <asm/apic.h>
+@@ -147,6 +152,7 @@ static struct cyc2ns_data vmware_cyc2ns __ro_after_init;
+ static bool vmw_sched_clock __initdata = true;
+ static DEFINE_PER_CPU_DECRYPTED(struct vmware_steal_time, vmw_steal_time) __aligned(64);
+ static bool has_steal_clock;
++static bool vmw_steal_time_ready;
+ static bool steal_acc __initdata = true; /* steal time accounting */
  
+ static __init int setup_vmw_sched_clock(char *s)
+@@ -280,7 +286,9 @@ static void vmware_disable_steal_time(void)
+ 
+ static void vmware_guest_cpu_init(void)
+ {
+-	if (has_steal_clock)
++	if (has_steal_clock &&
++	    (!cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT) ||
++	     vmw_steal_time_ready))
+ 		vmware_register_steal_time();
+ }
+ 
+@@ -325,6 +333,92 @@ static int vmware_cpu_down_prepare(unsigned int cpu)
+ }
+ #endif
+ 
++static void __init vmware_steal_time_range(int cpu, unsigned long *start,
++					   int *numpages)
++{
++	unsigned long addr = (unsigned long)per_cpu_ptr(&vmw_steal_time, cpu);
++
++	*start = addr & PAGE_MASK;
++	*numpages = DIV_ROUND_UP(offset_in_page(addr) +
++				 sizeof(struct vmware_steal_time), PAGE_SIZE);
++}
++
++static int __init vmware_decrypt_steal_time(void)
++{
++	int cpu, failed_cpu, numpages, ret;
++	unsigned long start;
++
++	if (!has_steal_clock ||
++	    !cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT))
++		return 0;
++
++	/*
++	 * TDX's conversion callback derives the physical range with __pa(),
++	 * so the storage must live in the direct map. The page per-CPU
++	 * allocator, which is also the automatic fallback when the embedding
++	 * allocator fails, hands out vmalloc addresses instead. Reject those
++	 * before converting anything, so no page is left converted.
++	 */
++	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST)) {
++		for_each_possible_cpu(cpu) {
++			if (!is_vmalloc_addr(per_cpu_ptr(&vmw_steal_time, cpu)))
++				continue;
++
++			pr_warn("steal time disabled: TDX requires a direct mapping\n");
++			has_steal_clock = false;
++			return 0;
++		}
++	}
++
++	for_each_possible_cpu(cpu) {
++		vmware_steal_time_range(cpu, &start, &numpages);
++		ret = set_memory_decrypted(start, numpages);
++		if (ret) {
++			failed_cpu = cpu;
++			goto rollback;
++		}
++
++		/*
++		 * Conversion need not preserve the zeroes. The host
++		 * initializes only the counter on enable, so the guest
++		 * must initialize the reserved words itself.
++		 */
++		memset(per_cpu_ptr(&vmw_steal_time, cpu), 0,
++		       sizeof(struct vmware_steal_time));
++	}
++
++	vmw_steal_time_ready = true;
++	preempt_disable();
++	vmware_guest_cpu_init();
++	preempt_enable();
++	if (!has_steal_clock) {
++		pr_warn("failed to register boot CPU steal-time memory\n");
++		failed_cpu = nr_cpu_ids;
++		goto rollback_pages;
++	}
++	return 0;
++
++rollback:
++	pr_warn("failed to decrypt steal-time memory for CPU %d: %d\n",
++		failed_cpu, ret);
++
++rollback_pages:
++	for_each_possible_cpu(cpu) {
++		vmware_steal_time_range(cpu, &start, &numpages);
++		ret = set_memory_encrypted(start, numpages);
++		if (ret)
++			pr_warn("failed to re-encrypt steal-time memory for CPU %d: %d\n",
++				cpu, ret);
++		if (cpu == failed_cpu)
++			break;
++	}
++
++	vmw_steal_time_ready = false;
++	has_steal_clock = false;
++	return 0;
++}
++early_initcall(vmware_decrypt_steal_time);
++
+ static __init int activate_jump_labels(void)
+ {
+ 	if (has_steal_clock) {
 -- 
 2.53.0
-
