@@ -1,166 +1,152 @@
-Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f100.google.com (mail-pj1-f100.google.com [209.85.216.100])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B116B342538;
-	Wed, 16 Sep 2026 00:41:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.97.179.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3993D361965
+	for <virtualization@lists.linux.dev>; Wed, 16 Sep 2026 05:05:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.100
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789519270; cv=none; b=dUY0FdVr0exrJEzroe7SUjafV7yxgyq4cojbwdJhxhwpDYNhT6/tZDIfCeW1EZ9KpHzn+UWcAoF1aT4LIikTLyOcZOlZ2RSM9V2ITBrf5SU4MwtaDUPgR+17DZMeAB26R9hFvkPA0PJeSCTTXM2u6OF6fdCc1wq8fgtjMWuXsxA=
+	t=1789535154; cv=none; b=o+jsTTIT/4VXvf7VErlcaSbjKCaWD74+vVE/qncnb0MtU7/IBkie0zsu02utLV6SX2DJnMxYM1zy2vf2uAkknIdNuRvNVoN3bggGMo4HglbMoRuuP5ObAP6MrWLNiToX44Gdee6OYH8ieOgEhLUkuI/1po10mV4u44w/sbj7OEM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789519270; c=relaxed/simple;
-	bh=PiYQJkAGkuJBIyzKHKtgcR6WQgdtYuoTQCzilchGnWs=;
-	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=t7H5uJX4wCQHoxL/0fZS3oKhXLd5fBMXQJ2HGsYsaMFBOmrif/3xEGFfxUzZ7o7ign6+boHVuURfhPUAB7pcmo1P0t1mIRnDMmMZHF5g8cyV2HKanlppZV8BhBeZ3yoGp5Of4KfGFnBYTD+yCRPh6ZgV6kulCosOcuUv5KRU0uY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com; spf=pass smtp.mailfrom=igalia.com; dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b=sOZbLu5e; arc=none smtp.client-ip=213.97.179.56
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igalia.com
+	s=arc-20240116; t=1789535154; c=relaxed/simple;
+	bh=jUsdJh8Hh+QQW+V8f3/afoIgbxaF+ULvWELh063IS2Y=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=RmoNuYSm1TpuPSV6DCflUgBEKhw7Ib3hCy6P8r0Gd9zJZAnpb68C/6b2iUh/ugR6n8ShHIK8MppYWCjzCif1tHeAeaZSWxIHT9p65kuklpD+WmJ/0znSrZ0FOk8YT9ngPXcenXCtx4UOv0qbGtVOmZMKx1qpA+pnFooUcDQpPDo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=P9VJKulJ; arc=none smtp.client-ip=209.85.216.100
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b="sOZbLu5e"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
-	s=20170329; h=Content-Transfer-Encoding:Content-Type:Message-ID:Subject:Cc:To
-	:From:Date:MIME-Version:From:Reply-To;
-	bh=NheJufshGj64fhQKNC2c1j1k0ck6W8lDGbWhTay9uUc=; b=sOZbLu5ewE2w8rWxU4D/CswcOx
-	vscT/TR8V1ChxhajcNhxsAxXX1GdIm1/RSRx7ubFcr0dhqE/e/Aer1+4AVYBL2AlOv1C4Q4APfSgV
-	bRUb14/0B5DwqRLMIYou200gkuWYkYtB9Mb8rQ6eSfBtDTDYS7QqI4UH9SzM8KxR8GhZrq7sMc/Bd
-	DSCwoISx0sN0zEwd5oiMfAhueKhCXJO8CRKnmS91PYW62IzBRAnIGt97wWKyLxiNvisbUFbYC3vBs
-	gLqbtDk2oQLAcdruS5xD7b4sKxqWd7Y/XGluJ1o57LoXxm07Kd4Y5Oari8tZ2vtnzM3eg77XVBp+Z
-	mnfwUndg==;
-Received: from maestria.local.igalia.com ([192.168.10.14] helo=mail.igalia.com)
-	by fanzine2.igalia.com with esmtps 
-	(Cipher TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim)
-	id 1x6dhc-002hgB-1A; Wed, 16 Sep 2026 02:40:43 +0200
-Received: from webmail.service.igalia.com ([192.168.21.45])
-	by mail.igalia.com with esmtp (Exim)
-	id 1x6dha-0087zL-Kq; Wed, 16 Sep 2026 02:40:43 +0200
-Received: from localhost ([127.0.0.1] helo=webmail.igalia.com)
-	by webmail.service.igalia.com with esmtp (Exim 4.98.2)
-	(envelope-from <mfo@igalia.com>)
-	id 1x6dha-00000002ADJ-2w79;
-	Wed, 16 Sep 2026 02:40:42 +0200
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="P9VJKulJ"
+Received: by mail-pj1-f100.google.com with SMTP id 98e67ed59e1d1-395cf2535acso1920949a91.1
+        for <virtualization@lists.linux.dev>; Tue, 15 Sep 2026 22:05:53 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1789535153; x=1790139953;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:dkim-signature:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=+i3/9cwENYafIlAkV2jcoorZwd9xMxSWurzxiZS8EDE=;
+        b=nEMTe/cN6fXOpt2Ab3O8PcX95tEXKGtViAwNRKtV1Tmx3Y+2+lPWd2/PbfPHGuM2gB
+         SbrjwMcV66iRXCwIGS2lhPyUEtOUr3YVEWc3pa1GB+p2HXXM34KMX4S80+2UDbopkOMx
+         NFyqYvISUCJTnRVvSdKv6+mB5f27riFh6Su/Q4SmhxAt6Fdq/3idGvxqVEfbTy5k+0N4
+         lqbwr1jDDi82/ZTwc5rQT4YsXWvQ98sz8mFGnejy33MeIzL4TVpQ+9cihU+IMOjtM4v+
+         15bEcEuYsjdvp+l3kor9E28LqG/6xc1+wqh2nwdNjOX/CkKuHwW3pS+Zvm4toDqjUtKJ
+         /E/A==
+X-Forwarded-Encrypted: i=1; AKwUvBwAX78C7XhgUM1OAG/BW9++PnxhLuPlw634qKDJPwrjhtiI6r5Ky+b00k43Z8gncRMtpP+N3+tyQLbz6whQlw==@lists.linux.dev
+X-Gm-Message-State: AFuF++la8KsGr8VvGZWjA1bfFQHSn7yc7bB3h79v+Oit25y6BTnLle4O
+	06gjry6mQka4qqNVZ3/4dKbcwPPMAQb5CeCsJ1ougAz3rsz5ORJ6edEvYwL9CzcoZ1MGTRZVcn5
+	BI3FlABaNmmneDFYOUdIsysAwDYcL5NCazL6XZirAiUxmc1q3DqoauFoemiwGkW6GL89ZV9o912
+	1yDHwUCaZap8jPis0bgiitV3RnyRZtgVLQWgeEGqBfZoLBgFevTXUrAkYwn7RH+w9FHmuJInUfl
+	jNtuXyvzhKA6jVyBWI=
+X-Gm-Gg: AYBFou0+Px1EtOFtGPz6+J40ToZNiNmMM+4cl9FNEvelfxr9q88LvLTkrsyY3aEtpiZ
+	V5yOlqlXPELdzE3R1uWj063nlZcGkkXV212AQWE+XfMB3GlTcf9j0Eng2Xd/xDnw6PVBcoNydEF
+	ofCb0bwnP+4feRQGkXvf6wqumASI+2wmpQa80Mcf5F0r/+krwjgOK4v5r+JjrUnpWZueMVM9XSq
+	UX1d2dCaKxhtwKUxhmCS1KedLDjZqz2MVzHESrbFMwst3bpeXISbN48l1x9PGXW6nbRXzbdQaXz
+	aRe7UQc8UdS7LDJ/LRVYSP8PMEz5dtaZo47JYXZGq7JubP6wzJcvlMIoD1ApvwVbN+8Uh0D6zNv
+	OGGFm0t+SvR3WUjayDS6c81EYlFhggKb9OJKqpp8yeu4WIQaQysGVaUevSo1zL3iIc3tFLMuEmH
+	fROl8JISNp2Y5X7Mk3Frw4nPFsIrRbKtKB
+X-Received: by 2002:a17:90b:2e07:b0:39d:e1da:81e5 with SMTP id 98e67ed59e1d1-39e20132ca6mr1141915a91.11.1789535152427;
+        Tue, 15 Sep 2026 22:05:52 -0700 (PDT)
+Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-98.dlp.protect.broadcom.com. [144.49.247.98])
+        by smtp-relay.gmail.com with ESMTPS id 98e67ed59e1d1-39e1b3efe54sm799740a91.1.2026.09.15.22.05.51
+        for <virtualization@lists.linux.dev>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 15 Sep 2026 22:05:52 -0700 (PDT)
+X-Relaying-Domain: broadcom.com
+X-CFilter-Loop: Reflected
+Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-39e18af9f48so1253015a91.1
+        for <virtualization@lists.linux.dev>; Tue, 15 Sep 2026 22:05:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google; t=1789535150; x=1790139950; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=+i3/9cwENYafIlAkV2jcoorZwd9xMxSWurzxiZS8EDE=;
+        b=P9VJKulJniKA8ujO0uaek7hFObY3Agf52QmV7LCJsa/30BjY50Ad67hf0XTvFriZTE
+         9O0k94C7hQ8JwkQNuqqHNUXAh14HH8wyx9Ny0hmPoyb9c/RIAAEFKuo2ze8QWnloW+hB
+         0kU87fhFzklme8/PSyeWj2rwIQacAOa0oh+Qg=
+X-Forwarded-Encrypted: i=1; AKwUvBzOL87cO8cYlhU01ONHYcTHyG4+5L1+MSSae0gStiLR3UEVz2/HpfrYKX98LzEhZkXGXNNYh5WbuGjWw1NhgA==@lists.linux.dev
+X-Received: by 2002:a17:90b:39a6:b0:398:a649:8fa3 with SMTP id 98e67ed59e1d1-39dfe1c9d0emr9817207a91.23.1789535150506;
+        Tue, 15 Sep 2026 22:05:50 -0700 (PDT)
+X-Received: by 2002:a17:90b:39a6:b0:398:a649:8fa3 with SMTP id 98e67ed59e1d1-39dfe1c9d0emr9817170a91.23.1789535150025;
+        Tue, 15 Sep 2026 22:05:50 -0700 (PDT)
+Received: from vertex.localdomain ([192.19.144.250])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-33bf5e40494sm3951386eec.15.2026.09.15.22.05.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 15 Sep 2026 22:05:49 -0700 (PDT)
+From: Zack Rusin <zack.rusin@broadcom.com>
+To: Borislav Petkov <bp@alien8.de>,
+	Ajay Kaher <ajay.kaher@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>,
+	x86@kernel.org,
+	Dennis Zhou <dennis@kernel.org>,
+	Tejun Heo <tj@kernel.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Kiryl Shutsemau <kas@kernel.org>,
+	Rick Edgecombe <rick.p.edgecombe@intel.com>
+Cc: Thomas Gleixner <tglx@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"H . Peter Anvin" <hpa@zytor.com>,
+	virtualization@lists.linux.dev,
+	bcm-kernel-feedback-list@broadcom.com,
+	linux-kernel@vger.kernel.org,
+	Christoph Lameter <cl@gentwo.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Tom Lendacky <thomas.lendacky@amd.com>,
+	Bo Gan <bo.gan@broadcom.com>,
+	linux-mm@kvack.org,
+	linux-arch@vger.kernel.org,
+	linux-coco@lists.linux.dev,
+	kvm@vger.kernel.org,
+	Zack Rusin <zack.rusin@broadcom.com>
+Subject: [PATCH v1 0/2] x86/vmware: Share steal-time storage in encrypted guests
+Date: Wed, 16 Sep 2026 01:05:38 -0400
+Message-ID: <cover.1789488039.git.zack.rusin@broadcom.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Date: Tue, 15 Sep 2026 21:40:42 -0300
-From: Mauricio Faria de Oliveira <mfo@igalia.com>
-To: Joel Granados <joel.granados@kernel.org>
-Cc: Kees Cook <kees@kernel.org>, Nathan Chancellor <nathan@kernel.org>,
- Nicolas Schier <nsc@kernel.org>, "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo
- Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
- kernel-dev@igalia.com, linux-riscv@lists.infradead.org,
- linux-kernel@vger.kernel.org, fsverity@lists.linux.dev,
- keyrings@vger.kernel.org, bpf@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, linux-kbuild@vger.kernel.org,
- netdev@vger.kernel.org, linux-wpan@vger.kernel.org,
- lvs-devel@vger.kernel.org, netfilter-devel@vger.kernel.org,
- coreteam@netfilter.org, linux-sctp@vger.kernel.org,
- linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
- bridge@lists.linux.dev, mptcp@lists.linux.dev, rds-devel@oss.oracle.com,
- virtualization@lists.linux.dev
-Subject: Re: [PATCH RFC v3 00/13] sysctl: add module aliases
-In-Reply-To: <uufwu7rqyxf7h55lgavcwrnylnq5gdbd7o5d7mfugrxpblds2d@adra5c2z22gg>
-References: <20260819-sysctl-module-aliases-v3-0-aab90569365d@igalia.com>
- <bpnqwggtidgiec5akns3fa5edbsvl7xf55dxabtwng2xspy4pn@ue554aii2ngk>
- <53155340c897560bfc67e61ba9568fd6@igalia.com>
- <mokz5pdtwswkyab4byfq7q7m6ac2g6ceoi6jflyxmaszaibzqa@su6m4kamtdpy>
- <b1a6cec17e7c828fcebe310ca2a0d25b@igalia.com>
- <rywhz6soawf5dzyui5g7dnbufsgpxr7ma7honuhejwgncemzrm@f32at7hl6ugm>
- <6e93af907298022f077126f1be7bd386@igalia.com>
- <uufwu7rqyxf7h55lgavcwrnylnq5gdbd7o5d7mfugrxpblds2d@adra5c2z22gg>
-Message-ID: <cdc75421500371a8839fe5347af5c103@igalia.com>
-X-Sender: mfo@igalia.com
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spam-Report: NO, Score=-2.1, Tests=ALL_TRUSTED=-3,BAYES_50=0.8,KAM_DMARC_NONE=0.125,KAM_DMARC_STATUS=0.005
-X-Spam-Score: -20
-X-Spam-Bar: --
+Content-Transfer-Encoding: 8bit
+X-DetectorID-Processed: b00c1d49-9d2e-4205-b15f-d015386d3d5e
 
-On 2026-09-10 04:29, Joel Granados wrote:
-> On Wed, Sep 09, 2026 at 02:29:30PM -0300, Mauricio Faria de Oliveira wrote:
->> On 2026-09-09 11:07, Joel Granados wrote:
->> > On Fri, Sep 04, 2026 at 02:45:23PM -0300, Mauricio Faria de Oliveira wrote:
->> >> On 2026-09-04 10:41, Joel Granados wrote:
->> >> > On Thu, Aug 20, 2026 at 06:22:13PM -0300, Mauricio Faria de Oliveira wrote:
->> >> >> On 2026-08-20 09:51, Joel Granados wrote:
->> >> >> > On Wed, Aug 19, 2026 at 03:16:13PM -0300, Mauricio Faria de Oliveira wrote:
->> >> >> >> This series adds 'sysctl:' aliases to modules that register sysctl tables; e.g.:
->> > <... snip ...>
->> >> > use the correct call moving forward?
->> >>
->> >> This scheme currently covers all modules, AFAIK, as it is wrapped in the
->> >> functions that register sysctl tables.
->> >>
->> >> On moving forward: usage of such functions in a way that breaks a
->> >> requirement of this series (e.g., failing to specify the template
->> >> table/path parameter(s), or not having constant initializers) hits a
->> >> build error, as the requirements are actually from the compiler.
->> >>
->> >> >> I guess that a different design could use MODULE_SYSCTL_TABLE() as
->> >> >> MODULE_DEVICE_TABLE(), declared per table instead of wrapped into
->> >> >> register sysctl functions.
->> >> >> However, it seems to require moving the value of the path argument (or
->> >> >> its template) into the macro and still referencing it in the function
->> >> >> (or its instantiation of the template), which adds obfuscation, to all
->> >> >> callers.
->> >> >>
->> >> >> What do you think?
->> >> > It might be that having it inside the module subsys is more work, but I
->> >> > believe that there is the right place to have it. I still don't see that
->> >> > adding a module specific arg to the sysctl register is a good thing.
->> >>
->> >> Ok, cool. I can work on a different design.
->> >>
->> >> Please just let me know whether you are OK with the remaining (above),
->> >> and I'll be happy to tackle this.
->> >
->> > What is "the remaining"?
->> 
->> I meant the rest of the email, addressing the points/questions you
->> raised.
-> 
-> * The dependency on a sysctl path to load a module still is
->   backwards to me. It should be: I need feature A, I load modules
->   M{1,2,3} for A and I set sysctl S{1,2,3...}. Not sure why sysctl tools
->   do it the other way around.
+VMware registers each per-CPU steal-time GPA with the host. An encrypted
+guest must first convert that storage to shared memory, but the existing
+setup publishes the address without conversion.
 
-Right, but note:
-- the feature may, or may not, be built as a module (unknown to sysctl
-tool).
-- there is no simple way to identify which module provides a sysctl,
-today.
+Patch 1 makes the decrypted per-CPU section available with
+CONFIG_X86_MEM_ENCRYPT, including TDX-only configurations. Patch 2 defers
+encrypted-guest setup until allocator-backed page-table splitting is
+available, converts every possible CPU's storage before publishing any
+GPA, and attempts to roll back all conversions on failure.
 
-Let's compare this with device-id module aliases: userspace doesn't know
-whether a driver is built-in or a module, but it can load the module, if
-any, based on the device-id, not the module name.
+TDX's conversion callback uses __pa(), so patch 2 preflights every possible
+CPU and leaves steal time disabled if a TDX guest uses vmalloc-backed
+per-CPU storage. This covers percpu_alloc=page and automatic allocator
+fallback. AMD encrypted guests support those mappings and are not rejected.
+Supporting them in TDX would require a separate conversion-API change.
 
-> * The fact that the invariance is in the sysctl path and not the module
->   identifier maybe points to a deeper issue.
+Conversion need not preserve zeroes, and the host initializes only the
+8-byte counter. Patch 2 therefore clears each 64-byte object after
+conversion and before registration, without disturbing other decrypted
+objects that can share its page.
 
-It does seem that the invariance in the sysctl path is correct, as that
-doesn't change with the variable of whether the code is built-in or a
-module.
+The intended merge path is tip's x86/vmware branch, following
+commit ac26963a1175 ("percpu: Introduce DEFINE_PER_CPU_DECRYPTED").
+Per-CPU and asm-generic maintainer Acks are requested for patch 1.
 
-A similar comparison with device-id module aliases applies, IIUIC.
+This replaces patch 4 of Alexey's v2 posting:
+https://lore.kernel.org/all/20260309235250.2611115-1-alexey.makhalov@broadcom.com/
 
-> * I still believe that this is better placed outside the sysctl
->   subsys as it does not cater solely to module loading.
+Zack Rusin (2):
+  percpu: Use X86_MEM_ENCRYPT for decrypted per-CPU data
+  x86/vmware: Decrypt steal-time storage before sharing it
 
-Understood; your point about a module-specific argument in sysctl
-register functions precisely confirmed that this approach is misplaced.
+ arch/x86/kernel/cpu/vmware.c      | 96 ++++++++++++++++++++++++++++++-
+ include/asm-generic/vmlinux.lds.h |  2 +-
+ include/linux/percpu-defs.h       |  2 +-
+ 3 files changed, 97 insertions(+), 3 deletions(-)
 
-I'll try a different design, more similar to MODULE_DEVICE_TABLE().
-Maybe the only requirement from sysctl is for struct
-ctl_table.procname's offset to be zero (for file2alias). And apparently
-something with the path string in a table declaration macro. We'll see.
 
-Thanks again for reviewing and providing constructive feedback. That's
-very appreciated.
-
-> 
-> Best
-
+base-commit: fd73f4a6659897191fa0d40695fe370925dd3780
 -- 
-Mauricio
+2.53.0
