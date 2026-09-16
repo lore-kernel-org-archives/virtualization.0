@@ -1,59 +1,59 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E1824EBAFB;
-	Wed, 16 Sep 2026 11:14:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 791624AF674
+	for <virtualization@lists.linux.dev>; Wed, 16 Sep 2026 12:18:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789557298; cv=none; b=g+oyzcF9N3GScAaZ8t2sOEfx5A6+O/3pl/rnSfNNXiRCYmUVFUjsNSadr+Ls63jg69lfems1KmQNQNwMNyOILQGEzkKZAwUbA8a9qdD24NjgwQ+g9K5dvOOOpRpJ0An6vo8lfRPb7oOqt1dZNUoxMg1yB8uMSwjUp8WG4kJMA0E=
+	t=1789561137; cv=none; b=QnNTQyy7SBDNtxnHjRyNpSCP1LEX9BolfnDhGvDlUJxizHCzWzmiEs4Mm34fBmABfk2sSMMCqHrmW234DTuvkOueCAZ4KdtKXXmBzybngbm0ovi+dCKf4IhKnt8fClCVCDUbmUXDvs0wvzQ1NEEYtiv67oI08PDHlMoxWqSvyY0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789557298; c=relaxed/simple;
-	bh=yob98D+KfLoQVfrMwBowstHbsQyf89G7JrrLYNu6US0=;
+	s=arc-20240116; t=1789561137; c=relaxed/simple;
+	bh=6WWXK1YEgeNBV054WxjBb7B9Vj75OABXRc5yXZlGHSU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=CG5AdejYb7TJedCQQk+ePtgFraDxJy6UN1s7BG2PeG70rlpGeWC3oDXQ40N2DOLrjyDEY2jiwP3qDxCnDHW5Kw3KYRcX53f75RmhwgoZ9mPgVlxq8mcb3UBOrOOvTkpko2qzupkkLBxqzk2g6jPsXFfK9mavasP/72m2hRqS6/A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XJVBTuuY; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=C4A6qH/3kA52WoPHnm4XkApw7XPJpaVehNlj7HldqcfTVctJmJSVMmA18ucLEB7VdNXFHvjuf1egVYmUit/c6W3sWZzAChqLyiOl0pVNkUK7x+VSosz4qHt3zgU9G+4MPYMLc0F9f9bRaoRpbYQ3AfbvOrzPFZSKb1Kb/vutHRM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=D4f3aphR; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XJVBTuuY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B9C01F00899;
-	Wed, 16 Sep 2026 11:14:36 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="D4f3aphR"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2ED21F000FF;
+	Wed, 16 Sep 2026 12:18:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789557277;
-	bh=JmNMzbrEv6yrDdkqLEFNGkwZbyvBDG+2DCzdYiaiGec=;
+	s=k20260515; t=1789561136;
+	bh=g3nJkuOIIREUaA/BODadsUt0oMvW89mcTSVk+TBxQTM=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=XJVBTuuY5fxQgaNMqwXdW/8lMVnaanRpKX/ufNaN3rAml3SeqsA7gNP2Cte1203MW
-	 1ifeIXo7/j4lidlX0ZIQGq8k7L9cOxeK9CuwH9j2b2BuEO6tMjccM1jt6Tr18u/QrY
-	 hMWXD7FhhAKT4v23M7EQ51T0VzbNJpBAE2Teu3SqAKtwY28edU9Veq5nj0E/qarTsk
-	 Y5MLlcGK2SgsAp44DSYDLgETx4QPJ72bYzom+6LNN9GvCCkJPDNgC6cb9Sp/IjmdZ1
-	 G11bIHkhIvvp4phXYlQMyh0vsVmyIKKT0lcBst2yRskYsPJ27WW1UDuAZVqWw4KzGE
-	 e+wnUSn+HPR6A==
-Received: from phl-compute-02.internal (phl-compute-02.internal [10.202.2.42])
-	by mailfauth.ams.internal (Postfix) with ESMTP id 0CBB9198006E;
-	Wed, 16 Sep 2026 07:14:30 -0400 (EDT)
+	b=D4f3aphRbKTCYsr2/YdXXnNmP/c0zn+7f5CJPLOJU5Ag2ihsF9YAuf/mxPe5qbWft
+	 RuJi+8IW2fqsg2OF0+gmzWHc2BZ4j4PTjyLzOz6AXC/PLF6S9HdJruYCs9q1aBBa08
+	 8ZHvdqKz4yosb2VOnkK+Ge5a3oc1M8xppXnjlaquXG9GOt81jNxcjCCBLr3Ao5sI/6
+	 BahavSPx3iHj0YFmmT9k2mAHR+8Qz/8CGxdMyrpN7ANNhao26Bl05UJf0Ue5Rfo74u
+	 /bJEB1hlV/SynllZ7gk30FFmaNk7xpCzcneGOvAY4XI56CwUaA/YCw+pHaapShTTsS
+	 Z2H/oC/TGFtGw==
+Received: from phl-compute-03.internal (phl-compute-03.internal [10.202.2.43])
+	by mailfauth.ams.internal (Postfix) with ESMTP id 9C3EF1980047;
+	Wed, 16 Sep 2026 08:18:49 -0400 (EDT)
 Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-02.internal (MEProxy); Wed, 16 Sep 2026 07:14:34 -0400
-X-ME-Sender: <xms:FnqqamPaDD8QL2vYJf5rPY1guVD00XIkXlvtUp2kyTOR0mI5zavK8Q>
-    <xme:FnqqaprVgAB0AbVW80dCO0gfst6mh3Q8bsTcIXNRVqeFmUcPdoQoq2P6wkUApTYgm
-    9B-SJ7IRgbaoAy2gOP_hfTX6Lx0XAPM7EaxjvA--dUsKia2zykZz-vE>
-X-ME-Received: <xmr:FnqqalIxLKjX1ys8z_hH0D0sbTbkXRBGQSo8vb8ioRKY7qOi1WQrN_P7kE8>
-X-ME-Proxy-Cause: dmFkZTEHTPffs6tQZam3XMf5jo2JovVPU0EEMKVfKe73Lr74zoVZQHJyA8b0O/Fo6fSSgj
-    xUKdMfiJbhpGK7MzbpLZ4vi1COv9k9i7YAq2TZMwFP23/ASP2WUMk4lChOX6I50KMKC6wT
-    kMdp6iZDkSDR0NTSFIsVzIaBvzYEAhBfX6Vm03NOb64oYcKjhiFiVSbzNblFnd0RnuqjMv
-    xLV9OVuRbiJ92LHLQj/Y7FEjUIFd43z4c+ENu1F36bTtNYO5pEza9N/P3dzK5PWtYJF5P9
-    8J1lyhwhCU00lRtsdLhPl+viOUkwTU4PNcGtVVeqfBeJDGiiFqRC019XiGpsZdJHdjiyXq
-    o0iCd1wtzdVEbX7S+cmcnjdn1ZweHEEmR/LlP+mMdVT+ApO+3GGyevETMKEToeDPaKYBnc
-    x2SSwqjb7EpUPpfBe3HvtRCHf3MHx9rL5ePCYwci90styEDO14TzgdT0Eo1MVjRsLYRMbV
-    bpFduV0xbXgPXoCE50cksswXfyYtgmC/Qz2FhyoDkRMb59z47vcMUe4nK/U+eJsOyjsltT
-    GMeja+BaPdoCnmk7f9bLUEipmZtZp3LuiAesFXPF+Xk2+Y4c7HiHAQslOdqBahhqh0ggf1
-    gvrZP5p41Mp8yGtSPmYtruSmi8La1nNE1GaMkkffF4ticgnB49i6liQcLNHQ
-X-ME-Proxy: <xmx:FnqqaqfYaxX9AvJDNNWWTgMwm0YglJiWAA3ucUcH874sEbQpWmnE2w>
-    <xmx:FnqqaseTAv4mVrFWWUTkENbjGMK2MZNABt-4yS-FhUGwildSpd4rcg>
-    <xmx:FnqqahYGL0Pdm8P54UOoK7OTY6TInkKNP5WRtOs26wZwzpgM1808Zw>
-    <xmx:Fnqqapp3HwaAb32SNLyBOPsLrtssDa0FAESEy5cuiOkrTdlqjNQ6rg>
-    <xmx:FnqqasZMmjEJ6shM5jBiOxXn-Sz5yqPhqBen--r0kTpweTj6AIZlBiJD>
+  by phl-compute-03.internal (MEProxy); Wed, 16 Sep 2026 08:18:53 -0400
+X-ME-Sender: <xms:KYmqalRLUKQ46xVHQNAqn_SpMCWEJPEnVGHPtE9pzFa946VuffulsQ>
+    <xme:KYmqasdqqQzLLGbURN2ksP1011QzixMMfmpF8lNUTzKITQDDUxPPxIKCHfuAtHzHK
+    HePpXZVWutif9vuPFKO5v9KU79xJFks9D-SgyH4nfh2k-fblP6MxBcb-Q>
+X-ME-Received: <xmr:KYmqai4oFAoRIup95gPn3oxV9GZR0bmPcVh4y3t-o5HV8Kj-6Zg9KNTuehc>
+X-ME-Proxy-Cause: dmFkZTF/htPXCt3Vp5AMDzX4aViluNR37AwoAasTR8iHLjBZ9vB+37s09E5FAj3fIBktXf
+    wD7jyU9p9m8acEr6Ra3scjJrTilVkEufiTVp8kg6W1u05cirw+hDmrgiY3yqIDsNCGGy4Z
+    NhlL2XmoVVdXSi7pWEyIFPv29lkrmEA3vKS966LaOo5Roq203cNGaURFEmJuo4rr3dx3pl
+    zRvPBAEFOPc4BaV8VgR4olkNsATDKNUJ2aL3kSE+ZeDgohHMV8NuWlBUr1Y7gSpUtMk43S
+    pHxrvHb6UYaqOu5IrjHeg8msBZNq9Ws0Y9sYF6moF2neMeMXhIcDUsNMr5TA/1SnWdrbnv
+    krg8yzA58Iyw1wZU0OAObVQ8m4UiYc1907t7mzYhwQjpudg0+8QPH1YgpeY0d8JMVdr0rE
+    I5cdBJmZizSGHOliBIKAT49rDuCWkjlzVhcGpA/FSylhtI2vOZ35amP2Bpu/ffULhom6KK
+    mAFZrnyuq/2DovcPoXQKkstvBgE4kd6res0YrZ3TPJzPbjo01wcRbJyjyMarV3bBWIRJ2U
+    /nfjKeUYZx8uSLHmxv0YkpN2OTgeBBvRg8w5ox13JY97RAKWHu1XAFS+AJFTFFrgA3BMc9
+    4qUEfpEZPGPotDW9vPvWAQY4X3sf4al6PYefswJLQwFlMv/gcWohOVdYNR3w
+X-ME-Proxy: <xmx:KYmqalZSh5ALRNUk-yGxJZtajzA-EP-yYLtuDHVayGKZTkMcKh7jSg>
+    <xmx:KYmqalt_kssyM3YMu8dwBID1pt4VvyP-Mkj4cux8cj19ZAJNXpj0Vg>
+    <xmx:KYmqamtGLQwsCpo5AynCQsRx8Mzfx9LtL8HamC26SVKkpQEEcWC-6A>
+    <xmx:KYmqauptDI-qdtg3rUZiebczKcGTquH5dulg1Jd6BPm1F5o5OVxSfQ>
+    <xmx:KYmqat4kHc5k7IM1jrC0PaSyoI4CLHsuMRGImK3xFqk2X2jADcQ2D4xX>
 Feedback-ID: i10464835:Fastmail
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 16 Sep 2026 07:14:29 -0400 (EDT)
-Date: Wed, 16 Sep 2026 12:14:28 +0100
+ 16 Sep 2026 08:18:48 -0400 (EDT)
+Date: Wed, 16 Sep 2026 13:18:46 +0100
 From: Kiryl Shutsemau <kas@kernel.org>
 To: Zack Rusin <zack.rusin@broadcom.com>
 Cc: Borislav Petkov <bp@alien8.de>, Ajay Kaher <ajay.kaher@broadcom.com>, 
@@ -66,11 +66,10 @@ Cc: Borislav Petkov <bp@alien8.de>, Ajay Kaher <ajay.kaher@broadcom.com>,
 	Andrew Morton <akpm@linux-foundation.org>, Tom Lendacky <thomas.lendacky@amd.com>, 
 	Bo Gan <bo.gan@broadcom.com>, linux-mm@kvack.org, linux-arch@vger.kernel.org, 
 	linux-coco@lists.linux.dev, kvm@vger.kernel.org
-Subject: Re: [PATCH v1 1/2] percpu: Use X86_MEM_ENCRYPT for decrypted per-CPU
- data
-Message-ID: <aqp5yxa2qcsv-dvt@thinkstation>
+Subject: Re: [PATCH v1 0/2] x86/vmware: Share steal-time storage in encrypted
+ guests
+Message-ID: <aqqGUAX65s4LdJkr@thinkstation>
 References: <cover.1789488039.git.zack.rusin@broadcom.com>
- <07cdda86e2c60b27a18023e2e5fae339b78db0ab.1789488039.git.zack.rusin@broadcom.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -79,60 +78,63 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <07cdda86e2c60b27a18023e2e5fae339b78db0ab.1789488039.git.zack.rusin@broadcom.com>
+In-Reply-To: <cover.1789488039.git.zack.rusin@broadcom.com>
 
-On Wed, Sep 16, 2026 at 01:05:39AM -0400, Zack Rusin wrote:
-> Decrypted per-CPU data is gated by AMD_MEM_ENCRYPT. With
-> INTEL_TDX_GUEST=y and AMD_MEM_ENCRYPT=n it falls back to ordinary
-> per-CPU storage, so converting a variable to shared memory can expose
-> unrelated data on the same page.
+On Wed, Sep 16, 2026 at 01:05:38AM -0400, Zack Rusin wrote:
+> VMware registers each per-CPU steal-time GPA with the host. An encrypted
+> guest must first convert that storage to shared memory, but the existing
+> setup publishes the address without conversion.
 > 
-> Gate the declarations and linker section on X86_MEM_ENCRYPT, which both
-> AMD_MEM_ENCRYPT and INTEL_TDX_GUEST select. Existing AMD configurations
-> are unchanged.
-> 
-> Keep the decrypted subsection page-aligned at both ends. The per-CPU
-> template and each allocated per-CPU unit are also page-aligned, so page
-> conversion cannot expose ordinary per-CPU data. TDX-only configurations
-> may need additional space for this alignment and isolation.
-> 
-> Signed-off-by: Zack Rusin <zack.rusin@broadcom.com>
-> ---
->  include/asm-generic/vmlinux.lds.h | 2 +-
->  include/linux/percpu-defs.h       | 2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
-> index b2988aa12f66..1448e791773e 100644
-> --- a/include/asm-generic/vmlinux.lds.h
-> +++ b/include/asm-generic/vmlinux.lds.h
-> @@ -1013,7 +1013,7 @@
->   * Note: We use a separate section so that only this section gets
->   * decrypted to avoid exposing more than we wish.
->   */
-> -#ifdef CONFIG_AMD_MEM_ENCRYPT
-> +#ifdef CONFIG_X86_MEM_ENCRYPT
->  #define PERCPU_DECRYPTED_SECTION					\
->  	. = ALIGN(PAGE_SIZE);						\
->  	*(.data..percpu..decrypted)					\
-> diff --git a/include/linux/percpu-defs.h b/include/linux/percpu-defs.h
-> index dbe3267a0a13..54ce1442d918 100644
-> --- a/include/linux/percpu-defs.h
-> +++ b/include/linux/percpu-defs.h
-> @@ -172,7 +172,7 @@
->   * Declaration/definition used for per-CPU variables that should be accessed
->   * as decrypted when memory encryption is enabled in the guest.
->   */
-> -#ifdef CONFIG_AMD_MEM_ENCRYPT
-> +#ifdef CONFIG_X86_MEM_ENCRYPT
->  #define DECLARE_PER_CPU_DECRYPTED(type, name)				\
->  	DECLARE_PER_CPU_SECTION(type, name, "..decrypted")
+> Patch 1 makes the decrypted per-CPU section available with
+> CONFIG_X86_MEM_ENCRYPT, including TDX-only configurations. Patch 2 defers
+> encrypted-guest setup until allocator-backed page-table splitting is
+> available, converts every possible CPU's storage before publishing any
+> GPA, and attempts to roll back all conversions on failure.
 
-DECLARE_PER_CPU_DECRYPTED() is not used anywhere. Do we want to drop it?
+I acked 1/2, but I don't like where 2/2 does the conversion.
 
-Otherwise:
+A variable declared with DEFINE_PER_CPU_DECRYPTED() ends up in a
+dedicated, page-aligned linker section. The point of the section is that
+one place converts it. Instead every user does it itself: KVM in
+sev_map_percpu_data(), and now VMware in vmware_decrypt_steal_time(),
+each with its own vendor checks and failure handling. The macro today
+only buys page isolation, not the shared mapping its name promises.
 
-Acked-by: Kiryl Shutsemau (Meta) <kas@kernel.org>
+The underlying problem is that the whole "decrypted section"
+infrastructure is built around SME/SEV and was never generalized.
+__bss_decrypted, early_set_memory_decrypted() and
+mem_encrypt_free_decrypted_mem() are all under CONFIG_AMD_MEM_ENCRYPT
+and implemented in mem_encrypt_amd.c. sme_postprocess_startup() converts
+.bss..decrypted only if sme_get_me_mask() is set, so a TDX guest never
+shares it. 1/2 moves the per-CPU linker section to X86_MEM_ENCRYPT, but
+nothing that would act on that section follows.
+
+Rather than have every TDX user reinvent the conversion, I would rather
+see the infrastructure made vendor-neutral: boundary symbols for the
+per-CPU decrypted section like the ones .bss..decrypted has, an early
+conversion primitive that works on TDX as well as SEV, and a single
+conversion of both sections at boot. Then sev_map_percpu_data() and
+this driver's loop go away.
+
+> TDX's conversion callback uses __pa(), so patch 2 preflights every possible
+> CPU and leaves steal time disabled if a TDX guest uses vmalloc-backed
+> per-CPU storage. This covers percpu_alloc=page and automatic allocator
+> fallback. AMD encrypted guests support those mappings and are not rejected.
+> Supporting them in TDX would require a separate conversion-API change.
+
+Refusing vmalloc-backed storage on TDX is the right call, and not because
+of the __pa() in the callback. Converting a vmalloc alias means either
+fracturing the direct map or leaving a private direct-map alias to a
+shared page, and the latter is a guest shutdown the moment
+load_unaligned_zeropad() steps into it. See the comment in
+tdx_early_init() and the earlier discussion of the same idea:
+
+https://lore.kernel.org/all/xqi2bkulnhen2vax5msbzczlaywx3dsc7ezpn7oo5qn7u7xzap@xmaseinov7tf/
+
+But that decision belongs in the same central place as the conversion.
+If the first per-CPU chunk is vmalloc-backed on TDX, the decrypted
+section is simply not shared, and users see that, instead of every
+driver re-deriving it.
 
 -- 
   Kiryl Shutsemau / Kirill A. Shutemov
