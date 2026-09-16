@@ -1,33 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7973E4963CF;
-	Wed, 16 Sep 2026 23:39:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D43D4AB3B5;
+	Wed, 16 Sep 2026 23:39:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789601960; cv=none; b=h2eaQK+5iDmJjhE6zP89n0qctyAs8d1OTGdv1pIXUkpGEJFKvmt7Ea6PMbUu5QebOQcnXx0mxBFTwBFKKavTm5cfcMAIZg3WV3oTyJP3/t2Dqeu7k7KgBCycNjkCW9CByOKFS52KybvKPbd2Fkdit5yvdHA9RXFZgKKN460mTgQ=
+	t=1789601961; cv=none; b=fdaVGZw5tAF+XYXDIwseMaROMGjxbl6prDbLTmtvWRfBATY1RK8D5BKt6ySLbFsH3MQHb0pu7dDPISX/F2dT2t/rXCgDMKXN0U8UygFR+OFn8BFQyj24maikgbBBExTpCmfrRiANjV5UL8/LgJChx7wBdv6pK0AlBAQM0JYB4xc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789601960; c=relaxed/simple;
-	bh=Fgf5+6fLSs4Fm6W6pne9+i/4mUYhu624mn9y5ABC+7A=;
+	s=arc-20240116; t=1789601961; c=relaxed/simple;
+	bh=iWzhTfSozXXM+lntzjqYajGJ154AXJP+CJho0JJF1Sk=;
 	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=aO5pX/SfUBQbKLKXBuz25A76B7YdPkJawNt+xPfjNukqL8hPJ9+Xj3H7PRxp/sB+gbRoPcO67GPngEBKubEInohYFhZmNZB4jqdW1lf5yaa5o1GZFua+wPYtDKzdKm9hvsj2RRBeqB9Q8Wy8IE6uVCx3/L50ISupLppEEeYS2vk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oSV++m7j; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:MIME-Version; b=dA/osQc+uRtfZwlPUylVb4oeW9XdITExpKf/fcV/ceJ74Syc9wgltKo/NjmVZrhe071zwwWtLgjadXuSIP6nr6/i6s+GHAl/cTwRQXLUP8l26c1a44z64WtcMC9Yx9pbWNh2W+sobcaN9VkrLtA1KJhWorc0FEoEtz4efFKFTW8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RmEJ5fI/; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oSV++m7j"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BC941F00898;
-	Wed, 16 Sep 2026 23:39:16 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RmEJ5fI/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61ABB1F00899;
+	Wed, 16 Sep 2026 23:39:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789601957;
-	bh=PkNEb2IafQiLXy/mmBKntIkV6PocevA1a6nPMjOMtiE=;
+	s=k20260515; t=1789601960;
+	bh=VJr9XzYaVEQFQOTiu+z8jJTc4QbuNgO1YA8XzQY5KyE=;
 	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=oSV++m7jhBJZRYNM+XqYHiVC9NwtTc6Uf32fpoQvMT6+BuJqUIEkkVU9zXMF/J5vD
-	 TjTdReCs0cUp9kilKGeT5fNtO7SfHzWlQamIgFiJpiLn3e9d50/3FmMvyeH5xxc3dx
-	 8Cn1Pa+7gjitV01b+BuoYrPdvNEeyNQKQkoPd8zsTORjdSW6VpJ9VYwpHjT18CgQXd
-	 MyRhFnI7xBKj+Z0rSYfVEtM2vdmTGWT1Ptr5V99teqvtDSL/Xtu/cR6gJNPuPXNKqs
-	 naLXyahhpIhkMZtcxE4UKrOxVvzoWMom9nhu3Cqza7Xl4TIjpGzFqUpCsNUFKAidKb
-	 m6IVcJ3EAiG2Q==
-Subject: Re: [PATCH net v2 3/5] vsock: Enforce no-transport invariant for
- TCP_LISTEN sockets
+	b=RmEJ5fI/UNw+B2Cn2EETGeKvx2izEJIifHVZGPQhL+cK87PXHzQRJy0+3wtcVFxOb
+	 KbuPTQAwRjAKJ3ln91ERoLQKzKHWLegLDXdxE8R8eze8X55u+roCrSslqN6SnCZts3
+	 4L7JD0JoXDf/LLnOJMr7ISwf1txPGU7EnZV/9R5cIkfcA5JfnafWVh+0PGZenLhh/P
+	 hHQykfmkQ6K+FeZqni6u4GgV0tEfRubpkk6cvPXVUwYqU93X3xXe82ZPnSatrzfNjW
+	 d+dcc5Py5VuRDZ4CJ7y6gOEKS5oX9O2WvJGHqgSTqJFPYvDIxfuRrZZMNOG09TidDH
+	 OTPNK+hWxanEA==
+Subject: Re: [PATCH net v2 5/5] vsock: Handle sudden TCP_CLOSE during connect
 From: netdev-bot+sashiko@kernel.org
 To: mhal@rbox.co
 Cc: stefanha@redhat.com, sgarzare@redhat.com, mst@redhat.com,
@@ -36,11 +35,11 @@ Cc: stefanha@redhat.com, sgarzare@redhat.com, mst@redhat.com,
  pabeni@redhat.com, horms@kernel.org, asias@redhat.com, kvm@vger.kernel.org,
  virtualization@lists.linux.dev, netdev@vger.kernel.org,
  linux-kernel@vger.kernel.org
-Date: Wed, 16 Sep 2026 23:39:15 +0000
-Message-ID: <178960195580.22033.2015490803994413730@kernel.org>
-In-Reply-To: <20260915-vsock-connect-reset-closing-v2-3-a1d9abb472f7@rbox.co>
-References: <20260915-vsock-connect-reset-closing-v2-3-a1d9abb472f7@rbox.co>
-X-sashiko-severity: High
+Date: Wed, 16 Sep 2026 23:39:18 +0000
+Message-ID: <178960195898.22033.11234095166779171405@kernel.org>
+In-Reply-To: <20260915-vsock-connect-reset-closing-v2-5-a1d9abb472f7@rbox.co>
+References: <20260915-vsock-connect-reset-closing-v2-5-a1d9abb472f7@rbox.co>
+X-sashiko-severity: Medium
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -50,134 +49,107 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 
-Thank you for your contribution! Sashiko AI review found 1 potential
+Thank you for your contribution! Sashiko AI review found 2 potential
 issue(s) to consider:
 
-Critical: 0 · High: 1 · Medium: 0 · Low: 0
+Critical: 0 · High: 0 · Medium: 1 · Low: 1
 
-- [High] Incomplete race fix: `vsk->transport != NULL` is not a reliable
-  sentinel for "a connect() waiter is still in flight", so the exact bug…
+- [Medium] The new consumer in vsock_connect() reads the poison flag with
+  READ_ONCE(vsk->peer_shutdown) (net/vmw_vsock/af_vsock.c:1747), but the…
+- [Low] Undeclared intra-series dependency: the new guard in
+  vsock_connect() (net/vmw_vsock/af_vsock.c:1747) only *reads*…
 
 --
 
-vsock: Enforce no-transport invariant for TCP_LISTEN sockets
+vsock: Handle sudden TCP_CLOSE during connect
 
-The patch makes vsock_listen() reject sockets that already have a transport
-assigned, so that a socket cannot become a listener while a connect() wait
-loop is still running on it.
+This adds a check in vsock_connect() that refuses a fresh connect attempt
+with -ECONNRESET when vsk->peer_shutdown is already set, so that a socket
+poisoned by a lockless virtio/PM/vhost/VMCI reset event cannot be handed a
+new transport or pushed back into TCP_SYN_SENT.
 
 > diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> index f840498b58afb..499e902becfad 100644
+> index adf3f018347ea..972952d04a81a 100644
 > --- a/net/vmw_vsock/af_vsock.c
 > +++ b/net/vmw_vsock/af_vsock.c
-> @@ -1973,13 +1973,13 @@ static int vsock_listen(struct socket *sock, int backlog)
->  		goto out;
->  	}
->  
-> -	if (sock->state != SS_UNCONNECTED) {
-> +	vsk = vsock_sk(sk);
+> @@ -1743,6 +1743,12 @@ static int vsock_connect(struct socket *sock, struct sockaddr_unsized *addr,
+>  			goto out;
+>  		}
+>
+> +		/* Virtio/PM events are serviced locklessly. */
+> +		if (READ_ONCE(vsk->peer_shutdown)) {
+> +			err = -ECONNRESET;
+> +			goto out;
+> +		}
 > +
-> +	if (sock->state != SS_UNCONNECTED || vsk->transport) {
->  		err = -EINVAL;
->  		goto out;
->  	}
 
-[Severity: High]
-Is vsk->transport a reliable indicator that no connect() waiter is in
-flight?
+[Severity: Low]
+The comment mentions virtio/PM events, but this hunk only reads
+vsk->peer_shutdown.  For the virtio/PM path the flag is published by
+virtio_vsock_reset_sock() in net/vmw_vsock/virtio_transport.c:
 
-vsock_assign_transport() drops the old transport before the new one is
-validated and initialized:
+	vsk->peer_shutdown = SHUTDOWN_MASK;
+	sk->sk_state = TCP_CLOSE;
+	sk->sk_err = ECONNRESET;
 
-net/vmw_vsock/af_vsock.c:vsock_assign_transport() {
-	...
-	if (vsk->transport) {
-		vsk->transport->release(vsk);
-		vsock_deassign_transport(vsk);	/* vsk->transport = NULL */
-		...
+That store comes from the immediately preceding patch in this series
+("vsock/virtio: Streamline socket reset on transport/PM event"); at the
+parent commit virtio_vsock_reset_sock() only sets sk_state and sk_err.
+
+Given the Fixes: d021c344051a tag reaching back to 2013, would it be worth
+spelling out the dependency so that a stable/AUTOSEL pick does not take this
+commit alone?  On its own the new check would be a no-op for exactly the
+virtio/PM scenario the changelog leads with, and only vhost's
+vhost_vsock_reset_orphans() and VMCI's vmci_transport_handle_detach() (which
+already set the flag) would be covered.
+
+[Severity: Medium]
+Should the writers of this flag be marked to match the new READ_ONCE()
+reader?  The two handlers named in the changelog store it plainly:
+
+net/vmw_vsock/virtio_transport.c:virtio_vsock_reset_sock() {
+	vsk->peer_shutdown = SHUTDOWN_MASK;
+	sk->sk_state = TCP_CLOSE;
+	sk->sk_err = ECONNRESET;
+	sk_error_report(sk);
+}
+
+drivers/vhost/vsock.c:vhost_vsock_reset_orphans() {
+	sock_set_flag(sk, SOCK_DONE);
+	vsk->peer_shutdown = SHUTDOWN_MASK;
+	sk->sk_state = TCP_CLOSE;
+	sk->sk_err = ECONNRESET;
+}
+
+Both run from vsock_for_each_connected_socket() under
+spin_lock_bh(&vsock_table_lock) only, never under lock_sock(), so they share
+no lock with vsock_connect().  Every other lockless writer of the field uses
+WRITE_ONCE(), for example vmci_transport_handle_detach(),
+virtio_transport_recv_pkt() in virtio_transport_common.c and
+hvs_close_connection() in hyperv_transport.c.  Is the plain store racing the
+new marked read something KCSAN would flag here?
+
+There is also no barrier pairing the poison store with the sk_state/sk_err
+stores that connect() actually leaves its wait loop on.  Can the following
+still happen on a weakly ordered machine?
+
+	connect() wait loop exits on timeout/signal:
 		sk->sk_state = TCP_CLOSE;
-		...
-	}
+		sock->state = SS_UNCONNECTED;
+		vsock_transport_cancel_pkt(vsk);
 
-	if (sk->sk_type == SOCK_SEQPACKET) {
-		if (!new_transport->seqpacket_allow ||
-		    !new_transport->seqpacket_allow(vsk, remote_cid)) {
-			module_put(new_transport->module);
-			return -ESOCKTNOSUPPORT;
-		}
-	}
+	userspace retries connect(), reads peer_shutdown == 0,
+	falls through to vsock_assign_transport() and
+		sk->sk_state = TCP_SYN_SENT;
 
-	ret = new_transport->init(vsk, psk);
-	if (ret) {
-		module_put(new_transport->module);
-		return ret;
-	}
+while the socket is still hashed in connected_table.  A later OP_RESPONSE
+then reaches virtio_transport_recv_connecting(), which calls
+vsock_insert_connected() unconditionally, and __vsock_insert_connected() does
+a bare list_add() on an already-linked node.  That is the list_add double add
+splat described in the sibling commit 6f06a44e.
 
-	vsk->transport = new_transport;
-	...
-}
-
-Both of those failure returns happen after vsock_deassign_transport(), so
-the socket is left with vsk->transport == NULL while it is still alive and
-still bound (vsock_remove_sock() keeps the binding unless SOCK_DEAD is set).
-
-The seqpacket path looks reachable without any allocation failure: only
-virtio_transport.c and vsock_loopback.c define .seqpacket_allow, so a
-SOCK_SEQPACKET reassignment that resolves to vmci returns -ESOCKTNOSUPPORT.
-The init path is reachable via the kzalloc in
-virtio_transport_do_socket_init().
-
-Can the following interleaving still put a listener into TCP_CLOSE?
-
-Thread A: blocking connect(), transport T1 assigned, TCP_SYN_SENT,
-	  sock->state = SS_CONNECTING, enters the wait loop
-Thread B: connect() on the same fd hits case SS_CONNECTING (-EALREADY)
-	  and joins the same wait loop
-Thread A: timeout fires and runs the signal/timeout branch of
-	  vsock_connect(), leaving TCP_CLOSE / SS_UNCONNECTED and keeping
-	  T1 ("We keep the binding and the transport assigned"), while
-	  thread B still sleeps with the sock lock released
-Thread C: connect() to a peer that resolves to a different transport, so
-	  vsock_assign_transport() deassigns T1 and then fails at the
-	  seqpacket_allow check or in init(); vsk->transport is now NULL
-Thread D: listen() sees sock->state == SS_UNCONNECTED and
-	  vsk->transport == NULL, passes the new gate and sets TCP_LISTEN
-Thread B: wakes up; TCP_LISTEN is neither TCP_ESTABLISHED nor TCP_CLOSING
-	  and sk_err == 0, so it keeps looping, and on the next
-	  signal/timeout it runs:
-
-net/vmw_vsock/af_vsock.c:vsock_connect() {
-	...
-		if (signal_pending(current) || timeout == 0) {
-			err = timeout == 0 ? -ETIMEDOUT : sock_intr_errno(timeout);
-			...
-			sk->sk_state = TCP_CLOSE;
-			sock->state = SS_UNCONNECTED;
-
-			vsock_transport_cancel_pkt(vsk);
-
-			goto out_wait;
-		}
-	...
-}
-
-That stale waiter rewrites sk_state and sock->state without re-checking
-whether the socket became a listener in the meantime, so accept() on it
-would then return -EINVAL and incoming requests would no longer be queued,
-while entries from the listener phase remain on pending_links/accept_queue.
-
-The window is also user-controllable through SO_VM_SOCKETS_CONNECT_TIMEOUT,
-which sets vsk->connect_timeout read at loop entry.
-
-Reading the rest of the series, up to b93debf817d4 ("vsock: Handle sudden
-TCP_CLOSE during connect"), vsock_assign_transport() is unchanged,
-vsock_listen() still gates only on sock->state != SS_UNCONNECTED ||
-vsk->transport, and the waiter still rewrites sk_state/sock->state, so the
-gap does not appear to be closed later either.
-
-Would it make more sense to express the invariant as "no connect() waiter
-outstanding", or to make the reassignment failure paths not leave a live
-socket transport-less?
+Would a WRITE_ONCE() for both stores, plus explicit ordering between the
+peer_shutdown store and the sk_state/sk_err stores, close that window?
 
 -- 
 Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260915-vsock-connect-reset-closing-v2-0-a1d9abb472f7%40rbox.co
