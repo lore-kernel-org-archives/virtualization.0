@@ -1,66 +1,66 @@
-Received: from mail-oo2-f40.google.com (mail-oo2-f40.google.com [74.125.231.168])
+Received: from mail-oo2-f39.google.com (mail-oo2-f39.google.com [74.125.231.167])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFA4E4BD344
-	for <virtualization@lists.linux.dev>; Wed, 16 Sep 2026 17:00:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.231.168
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3AB054DD3B3
+	for <virtualization@lists.linux.dev>; Wed, 16 Sep 2026 17:06:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.231.167
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789578051; cv=none; b=neQvESeyfWiUXV2+Qr77/elPn4qbZY47Q9jNrC5CRX1YwOhWMIvlbXXG9DmFcCjgkzI0TdBfIqLO95XFB4BXVfNNTLXkJcLjjvxpDYNGGIt826/l7PatWdTzP5Xs1Z4K/RtSiE6UM2OGrU8x/kFqPMhgvsD2Lmf/WhtKj6XSQqE=
+	t=1789578419; cv=none; b=OHIJvYsabvOY7WAGD5wUJsRkoVCyANBGb6oflKwbL/PbOJQuut9qq9vbbLjVFQ3aiJQJEF6etO+PtG9brxIpJd/nsM9dPsM70P47w5FL1uRNNOFDZHW22hMZJwi19L4IQ7h6GWpxvkZpUu6/L1hRpOSdX5rQw3NKEyeBOx9KcII=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789578051; c=relaxed/simple;
-	bh=Ky6tqUlPctwf9kmSA68nL3wRxEYqHtONMZuz2rSl+Vg=;
+	s=arc-20240116; t=1789578419; c=relaxed/simple;
+	bh=qfLN5WLAFy26QaPMK2Ae9ZgOW29L0epdNq5+HfGEGw4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bvcUHu1JtIPT7d/lDcIYKsvl89Pk/56tyru5tuw4NnnB1Ei11dYme+TAk706L2X6S0WomlJXse8TdYvL5Mx1y55Tf+oLPBl7crh8CvhY7ouqBxJWNXbbNN9MX0WLPzkM6XLC3BEpEOTt+5pWEoEHJ8g8AWlV5oR6oiU+1qc6k1c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=i3AwPn4S; arc=none smtp.client-ip=74.125.231.168
+	 Content-Type:Content-Disposition:In-Reply-To; b=BsFUvhwGCmaLUHspY7LbR/7bh/+L9husI2YL6/BxmBlQhyU5Psk71B+rKiKwqaJp0RiySlk4AfJyU7cJp7oJmTWvXHypcja6TSXTNvsjV16VVcRQQ0A4MEw1lB9StYJ3EJ0sF/SBeJmVCdvEvQaSabxWys4i8N0AbCfzBsFEaLE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nK+naW7h; arc=none smtp.client-ip=74.125.231.167
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="i3AwPn4S"
-Received: by mail-oo2-f40.google.com with SMTP id 46e09a7af769-805440319deso874021a34.2
-        for <virtualization@lists.linux.dev>; Wed, 16 Sep 2026 10:00:29 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nK+naW7h"
+Received: by mail-oo2-f39.google.com with SMTP id 46e09a7af769-7ff1e4ffb3aso835966a34.1
+        for <virtualization@lists.linux.dev>; Wed, 16 Sep 2026 10:06:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789578026; x=1790182826; darn=lists.linux.dev;
+        d=gmail.com; s=20251104; t=1789578389; x=1790183189; darn=lists.linux.dev;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=kV5xMCFq0mEVtZsKF5EmMvJNOJj0hLOiv+MHAekOLlU=;
-        b=i3AwPn4SZNKO/OSJwnt0Ew5CZXs2TOdIj9UFQ/EpAkUKFt7EG/6zVCjIN8FOTBo6D6
-         GaBc/Ty1IWgayG1wp9MljMHLNokOIhgp1qrpD2JxGnOcNEO3GIsQ1Xr76ipeujQoHb9R
-         e7vmO174TiC1bHz0FKaDRzFSZUZ1rWv+CFGoAds0IHCxMEHZtpcixgtd2aDYl2UzY3x7
-         Am/nkdiWTj1T3MPhNT+Rga7LPQDa1Xau/ZUQ17rpSw9AXk3aCuO63hGeZwCPmRXGR1cP
-         gW3Lo5ND00U9b0jUs72i2sgIhCzbb92rk+qC0beM3Vm5UuKj/pOQIBqziaqDUB49Qtks
-         5r4Q==
+        bh=r0v/Glg/t1TxvoAL2KbqVzGsnLvj1ftPu+eZkPIP73o=;
+        b=nK+naW7hlCU2NyVtk47+oUmrWktmBGEmmS0zjwQaiM373o6TuY3ptDtIiwdz6ADT5/
+         9r1dlFQs7F/0loFkUlPf5r2pDIHas24TD2MgPStza3Om+pUk+3XGhcGNrTTBgffu2Ki3
+         fcEE8m3NoxBP8yov+Y+mF0gk8eV7BBjuuww/Yi1FbezQuET0Sguzns6/Iuw836D5MfmH
+         YI5hs47tc1cTmo5thHweqdeWC+HlbzQN8c12XyYnv+Dan/80GymdH1HlRIymqHPlFzdp
+         w0anV1hxP+9kXRHO5JOLAIVBzELNwbM7jWFiIjXTT/IhWPQX9FccmVIRdXcvFT0LD4ZX
+         Tlpg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789578026; x=1790182826;
+        d=1e100.net; s=20260707; t=1789578389; x=1790183189;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=kV5xMCFq0mEVtZsKF5EmMvJNOJj0hLOiv+MHAekOLlU=;
-        b=gCuQ3gb4omXU68D2W8jNTROKs32AOmGcjf5EGANEwuB/exXLyYvWEEDfnBJl0FvCFh
-         rOwf6/xuMBSg5Urxsa3ea0e1Se2pz5a2ekQuNf1EuwLAAYD9n2m3JkcEq9CwihA4Bd1i
-         XkxL9rL2ebFlPCyVzSJBurbaa04Pqli7tuHDeJEhKlBUEhWqldob5Ohu4AA8+g3w0VEP
-         bd1fQ64tTcYnLZ6Ayi0NvlyBlQ1LLdB8+SnCZeAuZbqdSLNO0wuZBOtuIOSt7HxgPMY1
-         kScm0/134x8l3s5j4B8KFR4Ec6gX5i8j+NC0rxXDtp5ZbF4YyaOKzMCnaje1t82O3czS
-         dKTg==
-X-Forwarded-Encrypted: i=1; AKwUvBy9b10sPSDUf0gnaXFNvpLMwx7+olVBqWs4gqFYVMg844YEUilKF7hpCEOW5w3OqJePrkCL3xdbjXSfGH0SXA==@lists.linux.dev
-X-Gm-Message-State: AFuF++nDY8G74bb/DlDYkS+zCFYAtQfeCbOAp7sQBrPy2789KMQE5e4/
-	ie/6Uis1oaigzydmhhnMzp1G3eFpvmTRMx/1zfbT7Ff9sJkwlJ8h8Uwi
-X-Gm-Gg: AYBFou22D1gnTcpKaRoYvOmalZzYlaM2PgBtxYIHASXN8G9lPO5qbInBNqZH25FJ25L
-	A0St7zKsEHKOtUbfrgS/RarnMP8L4fFQWUxNBY0JOwF2Ppg0zurDE9veYB6BUuS2P5fjqfWzvD1
-	tbk2O7c47UdNPJYO3+CLwwn/rOgVRQ1f44ultxfUKgWY8PTwCx9ZtiO+cqk4sCITkhgnz0KK3UK
-	rRKEmDM/MfWyPk/suZr5jV8/gmLLpKoz570EyZX9jAGxYmJ667JHHNvHci2n6r/CI0pofQj6SEc
-	rklE2KrrBj7b/ee1FBth5x904CjSl66PGb+3zDr5EKR3+0SYDpZa75pganKa8R8YKIBIDs92iQl
-	NaP7XZYZO+5N9JlXlSHV549znzEZy3a15qImAxfFFwm9+kDZSGAtY98OVYDdTdg8xUY7DfV10ZN
-	yHSYdzjEmobBP3ecZt8EAejm5QbY8zNCEQt7Ra+BYjsidjs9xECU11iMIjwn1a64loCL2mfvPEj
-	3mCkoTLVqDWLDM4wsrp
-X-Received: by 2002:a05:6830:67d5:b0:7f6:96ad:36a8 with SMTP id 46e09a7af769-80b2d416a86mr4148110a34.8.1789578025959;
-        Wed, 16 Sep 2026 10:00:25 -0700 (PDT)
-Received: from devvm29614.prn0.facebook.com ([2a03:2880:ff:54::])
-        by smtp.gmail.com with ESMTPSA id 46e09a7af769-80c4619a868sm391941a34.8.2026.09.16.10.00.23
+        bh=r0v/Glg/t1TxvoAL2KbqVzGsnLvj1ftPu+eZkPIP73o=;
+        b=qsCjuxIASk6LPZ/rV4QQS8oHQARIL535w/cOI+oGia1hltpUk14dputpA6jgvjMEpH
+         VAP3MacwDJEDnRpRWxbr6m1+Llegn708nom9pQg44UuOJEgETNZHa1aLX0Lage1J4Svj
+         iIKhSkf9qLynTrZbgzC6IC4SOlW1bo/cyVxZRINvVybHzWAKXY1NqXTfsHGjzjVVKB87
+         fun4NshgbIG4VDapQnhwaeJifL8KqgEk2+MJMkFOiy1Ztr7uM77lNcGj3mGt7I3dSGGx
+         8hjcKEjgcHQ4jpyiCH0GofSlhUAutPvuSac6HH1wkhL87a8plBLkIprP8RhDX9pWJjhy
+         s86w==
+X-Forwarded-Encrypted: i=1; AKwUvBztbARXjsjEH6Q8PDVh3zuMHsG2Sofoo0ex9Rtv6aqiRZ22sqWXqdVTbvvhCgRIUCZc/C5halvaGWejuH6N2g==@lists.linux.dev
+X-Gm-Message-State: AFuF++lSVIY/DGukASnbfM16h6BBAHJpm4HZZGVp0+aG4H0CUMOgwzzH
+	f9pdKWoMx9HDcmmAd3ccjAmYaJEHzifNvxDGLP6aY0/w2p8ksEYK9RzB
+X-Gm-Gg: AYBFou0o/okk/1+Tdx4KBGx3z3nR+K63Jy4HZzR85elKQlOmLs9mk62WgzMeurHZRiW
+	7xYtY5eAVtcy3ewrntqHfqGhqW+BgHKrkD47fySQgPIa9n0KMDkdZZXY0znkmvH3EPTaKH+VW1r
+	Q8du2geg1Hc9KkFcsDBzEhtQRaoiLBVRcoLc9zLUnvb8M19y6DaCkIxYoW8hu0o13Yog4Vyf5ir
+	4peFjVwikUto2Xe5DXiW5tgt3c6WZOwfP+nRWz0Bjf/oBK7uLnJW0gLlCn9mSGeRlTZ5Jz0iZUl
+	wh8QfMTfuhJvU/3IskMmOUafbg8RDmXFHGXJayOSMtGCF1tSfQKm6OpK0GfGknoo3Kkn9abAvJJ
+	RQGgl4UP1rLgnptUHYwC8EFNqVElwEJ1RMOnz7uz9lwuh2i0EpKRkOp/HAS9nSiYwIO4eoL9QRG
+	fsBsIpBr5bmkfwPz63hmsJR1CFZIHyeKnsoDxtJSu+eTMuIwgKUOCrPZs0R0Xcr75wx4OOVk5XZ
+	4M45vCTKcaG7gJnf/YGZxLfdUKZg8Y=
+X-Received: by 2002:a05:6830:2705:b0:806:1e7:4167 with SMTP id 46e09a7af769-80b2da2b31fmr3730712a34.13.1789578388877;
+        Wed, 16 Sep 2026 10:06:28 -0700 (PDT)
+Received: from devvm29614.prn0.facebook.com ([2a03:2880:ff:46::])
+        by smtp.gmail.com with ESMTPSA id 46e09a7af769-80c46199e89sm362502a34.9.2026.09.16.10.06.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Sep 2026 10:00:24 -0700 (PDT)
-Date: Wed, 16 Sep 2026 10:00:21 -0700
+        Wed, 16 Sep 2026 10:06:28 -0700 (PDT)
+Date: Wed, 16 Sep 2026 10:06:24 -0700
 From: Bobby Eshleman <bobbyeshleman@gmail.com>
 To: Stefano Garzarella <sgarzare@redhat.com>
 Cc: "David S. Miller" <davem@davemloft.net>,
@@ -79,15 +79,14 @@ Cc: "David S. Miller" <davem@davemloft.net>,
 	kvm@vger.kernel.org, linux-kselftest@vger.kernel.org,
 	sargun@sargun.me, jlinbox@meta.com,
 	Bobby Eshleman <bobbyeshleman@meta.com>
-Subject: Re: [PATCH net-next 0/6] vsock: assign the guest vsock device to a
- network namespace
-Message-ID: <aqrLJWnHJ8DxK8cF@devvm29614.prn0.facebook.com>
+Subject: Re: [PATCH net-next 3/6] vsock/virtio: support guest device network
+ namespace
+Message-ID: <aqrMkHgwZdEz1dq+@devvm29614.prn0.facebook.com>
 References: <20260902-vsock-guest-ns-v1-0-9995383e9a8b@meta.com>
- <apqGcFDFm9_Wtw4q@sgarzare-redhat>
- <apsANK7ySuRzzK0V@devvm29614.prn0.facebook.com>
- <aqkaTXHDf5nfPL9w@sgarzare-redhat>
- <aqmDuxMuEN5lS/0J@devvm29614.prn0.facebook.com>
- <aqqNEl6Hyk_h9C8r@sgarzare-redhat>
+ <20260902-vsock-guest-ns-v1-3-9995383e9a8b@meta.com>
+ <aqlkWGyoUYrgQUzz@sgarzare-redhat>
+ <aqmLFzcF3MmwRITz@devvm29614.prn0.facebook.com>
+ <aqqNZX0gk0I6AbVG@sgarzare-redhat>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -96,70 +95,139 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <aqqNEl6Hyk_h9C8r@sgarzare-redhat>
+In-Reply-To: <aqqNZX0gk0I6AbVG@sgarzare-redhat>
 
-On Wed, Sep 16, 2026 at 02:36:07PM +0200, Stefano Garzarella wrote:
-> On Tue, Sep 15, 2026 at 10:43:23AM -0700, Bobby Eshleman wrote:
-> > On Tue, Sep 15, 2026 at 12:16:47PM +0200, Stefano Garzarella wrote:
-> > > On Fri, Sep 04, 2026 at 10:30:28AM -0700, Bobby Eshleman wrote:
-> > > > On Fri, Sep 04, 2026 at 10:55:17AM +0200, Stefano Garzarella wrote:
-> > > > > On Wed, Sep 02, 2026 at 04:00:46PM -0700, Bobby Eshleman wrote:
-> > > > > > vsock network namespaces let a host put each VM in a namespace of its
-> > > > > > own. A guest has no equivalent yet. It has a single G2H device that
-> > > > > > cannot be assigned to a network namespace.
-> > > > >
-> > > > > Thanks for this, I'll do a proper review next week, in the mean time some
-> > > > > comments below:
-> > > > >
-> > > > > >
-> > > > > > This series lets a guest move that device into a network namespace. A
-> > > > > > new ioctl on /dev/vsock, IOCTL_VM_SOCKETS_ASSIGN_G2H_NETNS, assigns the
-> > > > > > device to the namespace of the calling process. The namespace's existing
-> > > > >
-> > > > > Why an ioctl?
-> > > > >
-> > > > > I'm asking because I'd like to know if you've already considered any
-> > > > > alternatives (sysfs, netlink, etc.)
-> > > > >
-> > > > > How do you think the ioctl should be used? Should we provide an userspace
-> > > > > tool, or extending some existing tools?
-> > > > >
-> > > > > Thanks,
-> > > > > Stefano
+On Wed, Sep 16, 2026 at 02:44:28PM +0200, Stefano Garzarella wrote:
+> On Tue, Sep 15, 2026 at 11:14:47AM -0700, Bobby Eshleman wrote:
+> > On Tue, Sep 15, 2026 at 05:47:02PM +0200, Stefano Garzarella wrote:
+> > > On Wed, Sep 02, 2026 at 04:00:49PM -0700, Bobby Eshleman wrote:
+> > > > From: Bobby Eshleman <bobbyeshleman@meta.com>
 > > > >
-> > > > Really only because /dev/vsock exists and the prior series used it.
-> > > 
-> > > Yeah, I vaguely remember that we may have discussed switching to netlink in
-> > > that thread, but I can't find it.
-> > > 
+> > > > virtio-vsock did not have namespace support (the device was always
+> > > > accessible to any global namespace).
 > > > >
-> > > > Considering netlink, it might be the better option because there is a
-> > > > lot of prior art solving problems we might have in the future. For
-> > > > example, I was thinking about when users suddenly lose access to vsock,
-> > > > with just the current assign ioctl there is no way for apps or users to
-> > > > figure out why this happened. We can have an ioctl() setter for user,
-> > > > but in netdev world users can actually get a notification via netlink as
-> > > > to which namespace the device went to and what its ifindex is there (see
-> > > > __dev_change_net_namespace() for the RTM_DELLINK and RTM_NEWLINK
-> > > > messages). There is probably more, but that's the case that comes to
-> > > > mind.
+> > > > Make the virtio-vsock device assignable to a namespace and initialize it
+> > > > to init_net. Because virtio-vsock and init_net are both hardcoded to
+> > > > global mode, nothing changes until the assign ioctl is issued.
+> > > >
+> > > > When the device's local-mode namespace is being destroyed, received
+> > > > packets are reset until new valid a namespace has been assigned and/or
+> > > > automatically returned to, and the next RX batch begins (in
+> > > > virtio_transport_rx_work). They are reset rather than dropped because
+> > > > vsock does not retransmit, so a silent drop would leave the host waiting
+> > > > for a timeout, and a connection request arriving in that window has no
+> > > > socket whose teardown would tell it otherwise. This requires making
+> > > > virtio_transport_reset_no_sock() available outside of the common code.
+> > > >
+> > > > When a device is assigned to a namespace, every already established
+> > > > vsock socket that is no longer able to reach the device is forcibly
+> > > > reset. For that reason, adding new sockets to the connected table must
+> > > > be performed atomically with regards to namespace assignment. This
+> > > > ensures that when the socket is added to the connected table that it
+> > > > actually passes the new reachability conditions set by ns assignment. If
+> > > > it wins the race to the table and does NOT pass the reachability tests,
+> > > > then the reset sweep will correctly catch it. This is the purpose
+> > > > of the new helper 'vsock_maybe_set_connected()'.
+> > > >
+> > > > Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
+> > > > ---
+> > > > include/linux/virtio_vsock.h            |  2 ++
+> > > > net/vmw_vsock/virtio_transport.c        | 28 ++++++++++++++++++++++------
+> > > > net/vmw_vsock/virtio_transport_common.c | 28 +++++++++++++++++++++-------
+> > > > 3 files changed, 45 insertions(+), 13 deletions(-)
+> > > >
+> > > > diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
+> > > > index f91704731057..9c68ce1d7fb4 100644
+> > > > --- a/include/linux/virtio_vsock.h
+> > > > +++ b/include/linux/virtio_vsock.h
+> > > > @@ -286,6 +286,8 @@ void virtio_transport_inc_tx_pkt(struct virtio_vsock_sock *vvs, struct sk_buff *
+> > > > u32 virtio_transport_get_credit(struct virtio_vsock_sock *vvs, u32 wanted);
+> > > > void virtio_transport_put_credit(struct virtio_vsock_sock *vvs, u32 credit);
+> > > > void virtio_transport_deliver_tap_pkt(struct sk_buff *skb);
+> > > > +int virtio_transport_reset_no_sock(const struct virtio_transport *t,
+> > > > +				   struct sk_buff *skb, struct net *net);
+> > > > int virtio_transport_purge_skbs(void *vsk, struct sk_buff_head *list);
+> > > > int virtio_transport_read_skb(struct vsock_sock *vsk, skb_read_actor_t read_actor);
+> > > > int virtio_transport_notify_set_rcvlowat(struct vsock_sock *vsk, int val);
+> > > > diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+> > > > index 4f9aa9c4c3aa..a453a4f828dc 100644
+> > > > --- a/net/vmw_vsock/virtio_transport.c
+> > > > +++ b/net/vmw_vsock/virtio_transport.c
+> > > > @@ -540,9 +540,14 @@ static bool virtio_transport_msgzerocopy_allow(void)
+> > > > 	return true;
+> > > > }
+> > > >
+> > > > +static bool virtio_transport_netns_assign_allow(void)
+> > > > +{
+> > > > +	return true;
+> > > > +}
+> > > > +
+> > > > bool virtio_transport_stream_allow(struct vsock_sock *vsk, u32 cid, u32 port)
+> > > > {
+> > > > -	return vsock_net_mode_global(vsk);
+> > > > +	return vsock_g2h_net_reachable(sock_net(sk_vsock(vsk)));
+> > > > }
+> > > >
+> > > > static bool virtio_transport_seqpacket_allow(struct vsock_sock *vsk,
+> > > > @@ -587,6 +592,7 @@ static struct virtio_transport virtio_transport = {
+> > > > 		.seqpacket_has_data       = virtio_transport_seqpacket_has_data,
+> > > >
+> > > > 		.msgzerocopy_allow        = virtio_transport_msgzerocopy_allow,
+> > > > +		.netns_assign_allow       = virtio_transport_netns_assign_allow,
+> > > >
+> > > > 		.notify_poll_in           = virtio_transport_notify_poll_in,
+> > > > 		.notify_poll_out          = virtio_transport_notify_poll_out,
+> > > > @@ -616,7 +622,7 @@ virtio_transport_seqpacket_allow(struct vsock_sock *vsk, u32 remote_cid)
+> > > > 	struct virtio_vsock *vsock;
+> > > > 	bool seqpacket_allow;
+> > > >
+> > > > -	if (!vsock_net_mode_global(vsk))
+> > > > +	if (!vsock_g2h_net_reachable(sock_net(sk_vsock(vsk))))
+> > > > 		return false;
+> > > >
+> > > > 	seqpacket_allow = false;
+> > > > @@ -634,6 +640,9 @@ static void virtio_transport_rx_work(struct work_struct *work)
+> > > > 	struct virtio_vsock *vsock =
+> > > > 		container_of(work, struct virtio_vsock, rx_work);
+> > > > 	struct virtqueue *vq;
+> > > > +	struct net *net;
+> > > > +
+> > > > +	net = vsock_g2h_net_get();
+> > > >
+> > > > 	mutex_lock(&vsock->rx_lock);
+> > > >
+> > > > @@ -682,10 +691,14 @@ static void virtio_transport_rx_work(struct work_struct *work)
+> > > >
+> > > > 			virtio_transport_deliver_tap_pkt(skb);
+> > > >
+> > > > -			/* Force virtio-transport into global mode since it
+> > > > -			 * does not yet support local-mode namespacing.
+> > > > -			 */
+> > > > -			virtio_transport_recv_pkt(&virtio_transport, skb, NULL);
+> > > > +			if (unlikely(!net)) {
+> > > > +				virtio_transport_reset_no_sock(
+> > > > +					&virtio_transport, skb, &init_net);
 > > > 
-> > > netlink seems like the right way to go, do you think it'll be a real pain to
-> > > implement?
+> > > Why init_net?
 > > 
-> > It is really not bad... it'll include a yaml spec in
-> > Documentation/netlink/specs/ of call names and perms, a new target for
-> > generated code in the Makefile, a handler, and then
-> > tools/net/ynl/ynl-regen.sh generates the plumbing.
+> > This parameter is actually unused by virtio_transport_reset_no_sock(),
+> > its call to virtio_transport_send_pkt(), and even the eventual call to
+> > virtio_transport_deliver_tap_pkt()... so maybe NULL w/ a comment would
+> > be better?
 > 
-> Ah, nice! So, do you want to try that direction?
-> 
-> Thanks,
-> Stefano
-> 
+> mmm, should we remove that parameter if unused?
 
-Let's give it a go. I have a draft of it for v2 and looks reasonable to
-me.
+Sadly the vhost path uses it for its vhost_vsock lookup by CID. I guess
+it would be needed by g2h too if it had multiple devices and had to
+lookup by net+CID.
 
-Best,
+> 
+> Anyway, not in this series/patch.
+> 
+> Here, anything is fine, just put a comment with the reason.
+
+
+Sounds good!
+
+Thanks,
 Bobby
