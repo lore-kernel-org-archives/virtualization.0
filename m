@@ -1,254 +1,115 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23E464A689C;
-	Wed, 16 Sep 2026 22:04:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFC33347BC4;
+	Wed, 16 Sep 2026 22:05:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789596262; cv=none; b=T4+iXI9OnalOnu5qEEXLAFB44I8J2nz4GrGd0t2WuUAWBxGpioxNZ8M3LiOM12Bd4B4y62CotN8H/f3+lLkNofcQwC8Z5hazp+z7rjAC+Na3ONwGyC9aD9rYp+noD6LYr9ktVUgQXkXpmji2MNyNNOuVWaKT4BdoxuGV/wWnr3k=
+	t=1789596365; cv=none; b=X6WXVdgULII3kP5B/K3o2EmFP/22XRKHJPyhyuqQfP15sShZi+Se038P4hq3ujx5TrbEivxjYnxMVr4zulj7Zvth/peHgv8zQYR64BFpsaOrQzaAt2gXP73TCKJjZ03qSznERyU19XGdW2haytnbJl4tWs2Y7O2lwZHsOpnxHXs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789596262; c=relaxed/simple;
-	bh=EtvbuklPTPVXZnxPZXWEklfU5Vq3uW4LB+72UMXB6wM=;
+	s=arc-20240116; t=1789596365; c=relaxed/simple;
+	bh=Xb4MKcnaALu2Rd/YZIsSOYVPfGEWIQJNk4HWg4lMdaw=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=N6n5FAyoOB6K7+w3d/2MKUSlZQGGQmaFBzO/RBIVm/VpFRAkgul9yRYiF9iJqSe7+v7sRlAj80AijnandHTgQK8Q7d05Dq84XZkv/faMAT8ImrNWdBDMbDgxytR6ooc51p3j4qFbigtMNgUT1dWhGpg/dpNKew62joeTwjpqXz0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=T534NpDS; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=N3qqeDi17AbYX8axaJPMbt7tibOhRy/+x/2QYuManFjeFDusTaPk4/4H05reRaK3V84Lkv+q2blsw/7kYDimP/H8U77R6yW9JeQFXw4VCIQtRQYLJ255ibApxQxcxBRYFaHjmSKqohcHTHki5pDws3165YDXSpl/ANSwwZEGBq0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=djcfwnSa; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="T534NpDS"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B33731F000FF;
-	Wed, 16 Sep 2026 22:04:11 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="djcfwnSa"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A08551F000FF;
+	Wed, 16 Sep 2026 22:05:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789596252;
-	bh=d50bke8M6hJYG40XNpBeWs6P8+3tukrXfK7gW02ekrA=;
+	s=k20260515; t=1789596354;
+	bh=+12P79pT3iD9dGsIfn0ExlhQE/WvzcLpi21fFxB7ZUQ=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=T534NpDSrcmre+JuwpLely9OL+Jn+GFvmO2rQNs8vkt+zz6u3P0zmOuEV42s4iAWw
-	 Hxg72SOO8bnCyC23N/QrSBnQ8wYsIYN8ukwmCddF+KbmRsbEgjQvNRVeQ3d0hpqibN
-	 tF4ddgPv9xW98R9U9hlkyp6EaCeTa3NYSwfHrZFLjH7gk/g5sBeE8KS9Ye0PRpKr6P
-	 wBH3uhMvAYCMkRbjOzNult3g1wA1FEN91cw93XgaWA3B2kjTe9XkAwo3UNxXiUAGOb
-	 yQxQ99znG7gD3QJ66N5aBHnzBouULo38LG7XiXj3rKP+Ph7VRWaQvJT0kYoxC/HhAb
-	 +INmgX4bSwGbA==
+	b=djcfwnSaNN2sB1JenlgMwVl/UH/ObokPVO9OZdSla0LSlTgmcexdAr0/88piCjcqp
+	 PguO0EV6EjzRb0TuGlu5ACblIXunSSGXH5kCVsAQiBc/h4w1+SxFDXmfXFvMTWv4rO
+	 2wIPdtdNd2o1gi1Ev34JxAuCI1Xk5vGOalqXWRi8bvTFPpNEad3aW0Uv1DQdq9hEn+
+	 Gz/sdiOzJS5pub0t8bjNpuJAJr8iWXzT40ixCuTdMCGu/5wPeVtEoxECpTqzTeIKBg
+	 568Lohg22hj0Y+mNhDghIlRA6BgoGSh5usD2ri7JiC23BBHgchg8ssCHPfTM84HkLl
+	 jNuMJQRD9cWOA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RFC 11/12] dt-bindings: remoteproc: imx-rproc: support
- virtio
+Subject: Re: [PATCH RFC 10/12] remoteproc: imx_rproc: always use
+ non-blocking mailboxes
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Francesco Valla" <francesco@valla.it>
-Cc: robh@kernel.org, devicetree@vger.kernel.org, imx@lists.linux.dev, "Eugenio
- Perez" <eperezma@redhat.com>, conor+dt@kernel.org, Frank.Li@kernel.org, virtualization@lists.linux.dev, "Michael
- S. Tsirkin" <mst@redhat.com>
-In-Reply-To: <20260916-remoteproc_virtio_map-v1-11-dac8c5eb4aa9@valla.it>
+Cc: Frank.Li@kernel.org, robh@kernel.org, devicetree@vger.kernel.org, conor+dt@kernel.org, "Michael
+ S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev, imx@lists.linux.dev, "Eugenio
+ Perez" <eperezma@redhat.com>
+In-Reply-To: <20260916-remoteproc_virtio_map-v1-10-dac8c5eb4aa9@valla.it>
 References: <20260916-remoteproc_virtio_map-v1-0-dac8c5eb4aa9@valla.it>
- <20260916-remoteproc_virtio_map-v1-11-dac8c5eb4aa9@valla.it>
+ <20260916-remoteproc_virtio_map-v1-10-dac8c5eb4aa9@valla.it>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 16 Sep 2026 22:04:11 +0000
-Message-Id: <20260916220411.B33731F000FF@smtp.kernel.org>
+Date: Wed, 16 Sep 2026 22:05:53 +0000
+Message-Id: <20260916220553.A08551F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] remoteproc: out-of-bounds access in rproc_virtio_bounce_slot() fal=
-lback
-- [High] remoteproc: map_records state corruption for sub-page buffers
-- [Medium] remoteproc: fwnode reference leak in rproc_handle_vdev()
-- [Low] dt-bindings: spi-virtio.yaml has incorrect $id path
-- [Low] dt-bindings: remoteproc-virtio uses maxItems on object
+- [High] remoteproc: stack use-after-free in imx_rproc_kick() due to non-bl=
+ocking mailbox
 --
 
-commit f36ec8f81fd31468ec48cdde83e92aca3916fcb9
+commit c47129240ff337ab849e03d40342b679177d2bcf
 Author: Francesco Valla <francesco@valla.it>
 
-dt-bindings: remoteproc: imx-rproc: support virtio
+remoteproc: imx_rproc: always use non-blocking mailboxes
 
-Add support for virtio devices description.
+This commit changes the imx_rproc mailbox to non-blocking mode to prevent
+sleeping during kick operations, aligning the behavior with other remoteproc
+drivers. It also removes the close-reopen action on the mailboxes during
+restart and shutdown.
 
-> diff --git a/Documentation/devicetree/bindings/remoteproc/remoteproc-virt=
-io.yaml b/Documentation/devicetree/bindings/remoteproc/remoteproc-virtio.ya=
-ml
-> new file mode 100644
-> index 0000000000000..c4a0d84b14600
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/remoteproc/remoteproc-virtio.yaml
-
+> diff --git a/drivers/remoteproc/imx_rproc.c b/drivers/remoteproc/imx_rpro=
+c.c
+> index 745ce52cd8226..100440328f92e 100644
+> --- a/drivers/remoteproc/imx_rproc.c
+> +++ b/drivers/remoteproc/imx_rproc.c
 [ ... ]
-
-> +    patternProperties:
-> +      "^vdev@[0-9a-f]+$":
-> +        type: object
-> +
-> +        properties:
-> +          reg:
-> +            description: Virtio device index inside the resource table.
-> +            maxItems: 1
-> +
-> +        additionalProperties:
-> +          type: object
-> +          $ref: /schemas/virtio/virtio-device.yaml
-> +          maxItems: 1
-
-[Severity: Low]
-Does this maxItems: 1 have any effect?
-
-maxItems is a JSON schema keyword that strictly applies only to arrays. Sin=
-ce
-the child node is declared as type: object, maxItems: 1 is completely ignor=
-ed
-by the schema validator. Should maxProperties be used on the parent node in=
-stead
-if the goal was to limit the node to a single child?
-
-> diff --git a/Documentation/devicetree/bindings/spi/spi-virtio.yaml b/Docu=
-mentation/devicetree/bindings/spi/spi-virtio.yaml
-> new file mode 100644
-> index 0000000000000..1a0a0763bd2fa
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/spi/spi-virtio.yaml
-> @@ -0,0 +1,52 @@
-> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/i2c/i2c-virtio.yaml#
-
-[Severity: Low]
-Is the $id path correct?
-
-DT schema subsystem guidelines strictly require the $id property path to ex=
-actly
-match the file's location relative to Documentation/devicetree/bindings/. T=
-his
-newly introduced file has its $id incorrectly declared as
-http://devicetree.org/schemas/i2c/i2c-virtio.yaml# due to a copy-paste erro=
-r.
-This mismatch breaks the schema cross-referencing system during
-dt_binding_check.
-
-> diff --git a/drivers/remoteproc/remoteproc_core.c b/drivers/remoteproc/re=
-moteproc_core.c
-> index 1ed4067148491..e3ecc61cc1def 100644
-> --- a/drivers/remoteproc/remoteproc_core.c
-> +++ b/drivers/remoteproc/remoteproc_core.c
-
-[ ... ]
-
-> @@ -511,8 +528,16 @@ static int rproc_handle_vdev(struct rproc *rproc, vo=
-id *ptr,
->  	 * as device id, then we get duplication in sysfs, so need to use
->  	 * PLATFORM_DEVID_AUTO to auto select device id.
->  	 */
-> -	pdev =3D platform_device_register_data(dev, "rproc-virtio", PLATFORM_DE=
-VID_AUTO, &rvdev_data,
-> -					     sizeof(rvdev_data));
-> +	memset(&pdev_info, 0, sizeof(pdev_info));
-> +	pdev_info.parent =3D dev;
-> +	pdev_info.fwnode =3D rproc_get_vdev_fwnode(dev->parent, rvdev_data.inde=
-x);
-> +	pdev_info.of_node_reused =3D true;
-> +	pdev_info.name =3D "rproc-virtio";
-> +	pdev_info.id =3D PLATFORM_DEVID_AUTO;
-> +	pdev_info.data =3D &rvdev_data;
-> +	pdev_info.size_data =3D sizeof(rvdev_data);
-> +
-> +	pdev =3D platform_device_register_full(&pdev_info);
-
-[Severity: Medium]
-Does this code leak the fwnode reference in rproc_handle_vdev()?
-
-rproc_get_vdev_fwnode() iterates over child nodes and returns a fwnode hand=
-le
-with an incremented reference count via fwnode_get_next_child_node(). This
-returned fwnode is assigned to pdev_info.fwnode.
-
-platform_device_register_full() internally passes this to device_set_node(),
-which explicitly takes its own reference to the fwnode by calling
-fwnode_handle_get(). After platform_device_register_full() returns,
-rproc_handle_vdev() exits without ever dropping its original reference acqu=
-ired
-by rproc_get_vdev_fwnode(), causing a permanent fwnode resource reference l=
-eak.
-
-> diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/=
-remoteproc_virtio.c
-> index d5e9ff045a28a..d21b3b8044df9 100644
-> --- a/drivers/remoteproc/remoteproc_virtio.c
-> +++ b/drivers/remoteproc/remoteproc_virtio.c
-
-[ ... ]
-
-> +static inline unsigned int rproc_virtio_bounce_slot(struct device *dma_d=
-ev,
-> +						    dma_addr_t dma_handle)
-> +{
-> +	const dma_addr_t dma_base =3D dma_dev_coherent_base(dma_dev);
-> +
-> +	return (dma_handle - dma_base) >> PAGE_SHIFT;
-> +}
-> +
-> +static dma_addr_t rproc_virtio_map_page(union virtio_map map, struct pag=
-e *page,
-> +					unsigned long offset, size_t size,
-> +					enum dma_data_direction dir,
-> +					unsigned long attrs)
-> +{
-
-[ ... ]
-
-> +	if (paddr >=3D dma_base && paddr < (dma_base + dma_size)) {
-> +		// The allocation details will be recorded also in this case,
-> +		// indicating that no bounce buffer was allocated.
-> +		map_handle =3D (dma_addr_t)paddr;
-> +		bounce =3D NULL;
-> +	} else {
-> +		// Allocate bounce buffer from device coherent memory
-> +		bounce =3D dma_alloc_coherent(dev, size, &map_handle, GFP_KERNEL | __G=
-FP_ZERO);
-> +		if (!bounce)
-> +			return DMA_MAPPING_ERROR;
-> +
-> +		// Copy data to bounce buffer
-> +		memcpy(bounce, vaddr, size);
-> +	}
-> +
-> +	// Save bounce details
-> +	record =3D &rvdev->map_records[rproc_virtio_bounce_slot(dev, map_handle=
-)];
-> +
-> +	record->original =3D vaddr;
-> +	record->size =3D size;
-> +	record->bounce =3D bounce;
+> @@ -877,7 +877,7 @@ static void imx_rproc_rx_callback(struct mbox_client =
+*cl, void *msg)
+>  	queue_work(priv->workqueue, &priv->rproc_work);
+>  }
+> =20
+> -static int imx_rproc_xtr_mbox_init(struct rproc *rproc, bool tx_block)
+> +static int imx_rproc_xtr_mbox_init(struct rproc *rproc)
+>  {
+>  	struct imx_rproc *priv =3D rproc->priv;
+>  	struct device *dev =3D priv->dev;
+> @@ -900,7 +900,7 @@ static int imx_rproc_xtr_mbox_init(struct rproc *rpro=
+c, bool tx_block)
+> =20
+>  	cl =3D &priv->cl;
+>  	cl->dev =3D dev;
+> -	cl->tx_block =3D tx_block;
+> +	cl->tx_block =3D false;
 
 [Severity: High]
-Can this write out-of-bounds in rproc_virtio_map_page() if the device lacks=
- a
-dedicated coherent memory pool, or if the pool is exhausted?
+With the mailbox permanently changed to asynchronous/non-blocking mode,
+mbox_send_message() will now return immediately without waiting for
+transmission to complete.
 
-When a bounce buffer is needed, it calls dma_alloc_coherent(). If the device
-pool is exhausted or non-existent, it transparently falls back to generic s=
-ystem
-memory. The returned map_handle will not be based at dma_base.
+Does this cause a stack use-after-free when the remote processor is kicked?
+Looking at imx_rproc_kick():
 
-rproc_virtio_bounce_slot() will then compute a completely uncontrolled slot
-index using (map_handle - dma_base) >> PAGE_SHIFT. The function then writes=
- to
-rvdev->map_records[slot], causing an immediate out-of-bounds array write and
-corrupting adjacent kernel memory.
+static void imx_rproc_kick(struct rproc *rproc, int vqid)
+{
+	...
+	__u32 mmsg;
+	...
+	mmsg =3D vqid << 16;
+	err =3D mbox_send_message(priv->tx_ch, (void *)&mmsg);
+	...
+}
 
-[Severity: High]
-Can this corrupt the map_records state for sub-page buffers?
-
-If virtio drivers map multiple sub-page buffers (e.g., headers or small
-requests) that happen to fall within the same physical page in the coherent
-pool, they will compute the exact same slot index because the shift operati=
-on
-in rproc_virtio_bounce_slot() discards the offset.
-
-The second mapping will overwrite the map_records entry of the first mapping
-(record->original and record->size). During rproc_virtio_unmap_page(), this
-leads to a WARN_ON(size !=3D record->size) trigger and incorrectly clears t=
-he
-shared state, corrupting subsequent unmaps for that page.
+Because mmsg is allocated on the stack, queuing its pointer for asynchronous
+transmission means the mailbox framework could dereference the pointer and
+read garbage from the destroyed stack frame after imx_rproc_kick() returns.
+This could crash the remote core or disrupt IPC.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260916-remoteproc=
-_virtio_map-v1-0-dac8c5eb4aa9@valla.it?part=3D11
+_virtio_map-v1-0-dac8c5eb4aa9@valla.it?part=3D10
