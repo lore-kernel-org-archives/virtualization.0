@@ -1,98 +1,123 @@
-Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9619470122;
-	Wed, 16 Sep 2026 08:16:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05F9044C662
+	for <virtualization@lists.linux.dev>; Wed, 16 Sep 2026 08:18:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789546578; cv=none; b=Uydt0L/t/SzXWDfgM1XD05p5xv9T2XnC+i4YgutjTWd6UwJEQU+tbfL2iZSVt3yxd1I/w8Hru91GdtQ9rdCm2LiQ3EonkAh/To+O09vJEnlrhUrn1CCCC9qhjbRyGxN5I9kaBkgEpoc6f9I6BSthnweaSNj5aW0zEAFf41FumkI=
+	t=1789546738; cv=none; b=bKkD7bPxK9vPMTjqmDc1WhjUwrHZ3vYD5kOfD/MCcrBeydRz621m9Z/lirK8IAX1fRG+HWAQ3w08HwIAwVprx+jKO5YPf3naGAB9sPx898pHd9v9jAHBVAtpXe1SQPib7RyYp/WMQMF9jjTlkkX6yCSU1RyiGLq/Tj/QlTpk4bY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789546578; c=relaxed/simple;
-	bh=vAWXRduAxp0wWtGfOedB7op+EeKTyWEO0yX9bqU7PbE=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:Content-Type:
-	 MIME-Version:Message-ID; b=IA3BOPsok4k/BnOGSp1JdL+/Xq6o6Z6QO7If/QEg4269KCkJCQXLh7pGXOSl2MyGrGrNURs8fWsbrgJQcYs28aIb/xJwqlKTcYk5ESPfTN7s1iYhN9MdDMkuqVfepk/RRUud5lfSkidOmLJ+NcubTrzwC2Ae1F4rzZHjL5hN6h8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=b8pWtK8I; arc=none smtp.client-ip=117.135.210.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1789546738; c=relaxed/simple;
+	bh=YqNgkMJsDR8dxQthE8qTdTAI1jWpt8pQzbwYa+L8wXE=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=KiqO7GXNAE75AMygHM0TJh2wCKVjLpOxSZXd4GTGJfCaJtFFkAqK39qdRM5pXNu/8CXmS4nFNpaNKlENEkFa/T+2IX1LBJn8SZrZQaXPIIFA5pcKVl/41T+1HNwOyE/aAeNLNOieJU+JsMvvfGVGGjdYUaceMwA7I5YXofeVG+8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SMQ3U0Wz; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="b8pWtK8I"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=Date:From:To:Subject:Content-Type:MIME-Version:
-	Message-ID; bh=vAWXRduAxp0wWtGfOedB7op+EeKTyWEO0yX9bqU7PbE=; b=b
-	8pWtK8IxkFFjGVaQ+WCi98ixN0FuQp08HwOhpt8phh7vfWRGc1xkRBQTwlNWddh7
-	mlFH4jOMPvCRnPY1FekUZu9RvwGE4ZQn6IB9Qvl5PLhVBl4dB6Sqzg8POoJ9jfEw
-	8lcYNLUPqerxhsv7Y+mp6I4GECpk5GUdAyidjs/u1g=
-Date: Wed, 16 Sep 2026 16:15:56 +0800 (CST)
-From: "Lange Tang" <lange_tang@163.com>
-To: sashiko-reviews@lists.linux.dev
-Cc: "mst@redhat.com" <mst@redhat.com>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"Eugenio Perez" <eperezma@redhat.com>, jasowangio@gmail.com
-Subject: Re:Re: [RFC RESEND 3/3] virtio_net: add rx_timeouts per-queue
- statistic
-X-Priority: 3
-X-Mailer: Coremail Webmail Server Version 2023.4-cmXT build
- 20260511(2e539873) Copyright (c) 2002-2026 www.mailtech.cn 163com
-In-Reply-To: <20260909092718.D3F471F00A3D@smtp.kernel.org>
-References: <20260908092646.108865-1-lange_tang@163.com>
- <20260908092646.108865-4-lange_tang@163.com>
- <20260909092718.D3F471F00A3D@smtp.kernel.org>
-X-NTES-SC: AL_Qu2TC/mfuU0u4CiYZOkfmUgRg+c/XsK4svUj24VVOJF8jAzpyBAhV1Z6DWLQ/tCLEy6PoQevXydf1fl1T7tRbqch5YId3ASGf3q4U0pLl9bhlA==
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset=GBK
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SMQ3U0Wz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 223451F000FF;
+	Wed, 16 Sep 2026 08:18:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789546732;
+	bh=YfjH2pO37xZeCQWPRV24yBXGGb8Fx28ToVG+YqDAB64=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=SMQ3U0Wzm2FEypZKOoXGnXsLz0lB20ulnr8JN+dbxQ32DptdqiWZvAqZil3FvCiFj
+	 Zh5LvJBQbnH9nFhtZHi1afZrOLdyHuNvU9re3trxekAb0QL0YEKYbSxKxZDWmwmeT4
+	 /JLHrBfR0g5ec2LHNFqNN+gIBVzDEQI63FJvNEegyQpzLU6UyYOtqcXae4suiLtU3i
+	 C3Eyo2zPjXmsJAXCaxVJtYFKvCWnXvp5L84lwqBsFVdp1bzrtKR1H4gt1YNlsmpbVY
+	 HyqyAadDx9xjmOo0Z/hv6V6Y0YUoeK32s3NUvdOb58RPCwIvPVULqJZHHltsnxCzjd
+	 EkV//WqQDdMKA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] vhost-scsi: initialize command pools for late I/O
+ virtqueues
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Linfeng Sun" <linfeng.sun.dev@gmail.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev, "Eugenio
+ Perez" <eperezma@redhat.com>
+In-Reply-To: <20260916-fix-warning-in-sbitmap_get-v2-1-e61a09047089@gmail.com>
+References: <20260916-fix-warning-in-sbitmap_get-v2-1-e61a09047089@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 16 Sep 2026 08:18:51 +0000
+Message-Id: <20260916081852.223451F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Message-ID: <47821357.7140.1a0a9496d89.Coremail.lange_tang@163.com>
-X-Coremail-Locale: zh_CN
-X-CM-TRANSID:fSgvCgDX30w9UKpqnQpIAA--.25917W
-X-CM-SenderInfo: 5odqwvxbwd0wi6rwjhhfrp/xtbC-R1olmqqUD12zwAA3K
-X-Coremail-Antispam: 1U5529EdanIXcx71UUUUU7vcSsGvfC2KfnxnUU==
 
-QXQgMjAyNi0wOS0wOSAxNzoyNzoxOCwgc2FzaGlrby1ib3RAa2VybmVsLm9yZyB3cm90ZToKPlRo
-YW5rIHlvdSBmb3IgeW91ciBjb250cmlidXRpb24hIFNhc2hpa28gQUkgcmV2aWV3IGZvdW5kIDEg
-cG90ZW50aWFsIGlzc3VlKHMpIHRvIGNvbnNpZGVyOgo+LSBbSGlnaF0gQ29uY3VycmVudCB3cml0
-ZXJzIHRvIHBlci1xdWV1ZSB1NjRfc3RhdHNfc3luYyBmcm9tIHRpbWVyIGNvbnRleHQgYW5kIE5B
-UEkgdmlvbGF0ZSBtdXR1YWwgZXhjbHVzaW9uLgo+LS0KPgo+Y29tbWl0IDJlNWZhMjI5ZmY0Yzhj
-NzczODQ4ZDBjMWYzNmIxNGMyZDJmMmVkZjcKPkF1dGhvcjogTG9uZ2p1biBUYW5nIDx0YW5nbG9u
-Z2p1bkBreWxpbm9zLmNuPgo+Cj52aXJ0aW9fbmV0OiBhZGQgcnhfdGltZW91dHMgcGVyLXF1ZXVl
-IHN0YXRpc3RpYwo+Cj5UaGlzIGNvbW1pdCBhZGRzIGFuIHJ4X3RpbWVvdXRzIGZpZWxkIHRvIHRo
-ZSBwZXItcXVldWUgUlggc3RhdGlzdGljcy4KPkl0IGluY3JlbWVudHMgdGhlIGNvdW50ZXIgd2hl
-biB0aGUgUlggd2F0Y2hkb2cgZmlyZXMgYW5kIGV4cG9zZXMgaXQKPnZpYSBldGh0b29sIHRvIHRy
-YWNrIHBlci1xdWV1ZSBzdGFsbCBldmVudHMuCj4KPj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvbmV0
-L3ZpcnRpb19uZXQuYyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+PiAtLS0gYS9kcml2ZXJz
-L25ldC92aXJ0aW9fbmV0LmMKPj4gKysrIGIvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4KPlsg
-Li4uIF0KPgo+PiBAQCAtMzA5NCw2ICszMDk3LDEwIEBAIHN0YXRpYyB2b2lkIHZpcnRuZXRfcnhf
-d2F0Y2hkb2coc3RydWN0IHRpbWVyX2xpc3QgKnQpCj4+ICAJCQl1bnNpZ25lZCBpbnQgc3RhbGxf
-bXMgPQo+PiAgCQkJCWppZmZpZXNfdG9fbXNlY3MoamlmZmllcyAtIHJxLT53YXRjaGRvZ19qaWZm
-aWVzKTsKPj4gIAo+PiArCQkJdTY0X3N0YXRzX3VwZGF0ZV9iZWdpbigmcnEtPnN0YXRzLnN5bmNw
-KTsKPj4gKwkJCXU2NF9zdGF0c19pbmMoJnJxLT5zdGF0cy5yeF90aW1lb3V0cyk7Cj4+ICsJCQl1
-NjRfc3RhdHNfdXBkYXRlX2VuZCgmcnEtPnN0YXRzLnN5bmNwKTsKPgo+W1NldmVyaXR5OiBIaWdo
-XQo+RG9lcyB0aGlzIGludHJvZHVjZSBhIHJhY2UgY29uZGl0aW9uIHdpdGggdGhlIE5BUEkgcG9s
-bCBsb29wPwo+Cj5UaGUgdTY0X3N0YXRzX3N5bmMgQVBJIHJlcXVpcmVzIG11dHVhbGx5IGV4Y2x1
-c2l2ZSB3cml0ZXJzIHBlciBzeW5jcC4KPlRoaXMgdGltZXIgY2FsbGJhY2sgKHZpcnRuZXRfcnhf
-d2F0Y2hkb2cpIGV4ZWN1dGVzIGluIGEgZ2xvYmFsIHRpbWVyIHNvZnRpcnEKPmNvbnRleHQgb24g
-YW4gYXJiaXRyYXJ5IENQVSBhbmQgd3JpdGVzIHRvIHJxLT5zdGF0cy5zeW5jcC4KPgo+Q29uY3Vy
-cmVudGx5LCBOQVBJIHBvbGxpbmcgZXhlY3V0ZXMgaW4gdGhlIHJlY2VpdmUgcXVldWUncyBib3Vu
-ZCBzb2Z0aXJxCj5jb250ZXh0IG9uIGFub3RoZXIgQ1BVIGFuZCBhbHNvIHdyaXRlcyB0byBycS0+
-c3RhdHMuc3luY3AuIFNpbmNlCj5yeF90aW1lb3V0cyB3YXMgYWRkZWQgdG8gdmlydG5ldF9ycV9z
-dGF0c19kZXNjLCBOQVBJIGR5bmFtaWNhbGx5IGl0ZXJhdGVzCj5vdmVyIGl0IGR1cmluZyB2aXJ0
-bmV0X3JlY2VpdmUoKToKPgo+ZHJpdmVycy9uZXQvdmlydGlvX25ldC5jOnZpcnRuZXRfcmVjZWl2
-ZSgpIHsKPiAgICAuLi4KPiAgICB1NjRfc3RhdHNfYWRkKGl0ZW0sIHU2NF9zdGF0c19yZWFkKHNy
-YykpOwo+ICAgIC4uLgo+fQo+Cj5Db25jdXJyZW50IHdyaXRlcnMgY29ycnVwdCB0aGUgc2VxdWVu
-Y2UgY291bnRlciBvbiAzMi1iaXQgc3lzdGVtcywgY2F1c2luZwo+cmVhZGVycyAoc3VjaCBhcyBu
-ZG9fZ2V0X3N0YXRzNjQgdmlhIGV0aHRvb2wpIHRvIHNwaW4gaW4gYW4gaW5maW5pdGUKPnJldHJ5
-IGxvb3AuCgpUaGlzIGlzIGEgcmVhbCBidWcuIHU2NF9zdGF0c19zeW5jIHJlcXVpcmVzIG11dHVh
-bGx5IGV4Y2x1c2l2ZSB3cml0ZXJzLCAgYnV0IHRoZSAKd2F0Y2hkb2cgdGltZXIgcnVucyBvbiBh
-biBhcmJpdHJhcnkgQ1BVIHdoaWxlIHRoZSBxdWV1ZSdzIE5BUEkgYWdncmVnYXRlcyBycS0+c3Rh
-dHMgdW5kZXIgdGhlIHNhbWUgc3luY3AuIAoKSSB3aWxsIGZpeCB0aGlzIGluIHRoZSBuZXh0IHJl
-dmlzaW9uIGJ5IG1vdmluZyB0aGUgcnhfdGltZW91dHMgYWNjb3VudGluZyB3cml0ZSBpbnRvIHRo
-ZSBOQVBJIHBvbGw7IHRoZSB3YXRjaGRvZyAKd2lsbCBvbmx5IGRldGVjdCB0aGUgc3RhbGwgYW5k
-IGNhbGwgbmFwaV9zY2hlZHVsZSgpLgoKSSB3b3VsZCBhcHByZWNpYXRlIGFueSBmZWVkYmFjaywg
-ZXNwZWNpYWxseSBvbiB3aGV0aGVyIHRoaXMgZGlyZWN0aW9uIGlzIHdvcnRoIHB1cnN1aW5nLgoK
-VGhhbmtzLgpMb25nanVuCj4KPi0tIAo+U2FzaGlrbyBBSSByZXZpZXcgoaQgaHR0cHM6Ly9zYXNo
-aWtvLmRldi8jL3BhdGNoc2V0LzIwMjYwOTA4MDkyNjQ2LjEwODg2NS0xLWxhbmdlX3RhbmdAMTYz
-LmNvbT9wYXJ0PTMK
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Medium] vhost-scsi: double fetch of vq_index in SET_VRING_ADDR
+--
+
+commit 9fca211b81e6c842310a6804151d7dcf766af409
+Author: Linfeng Sun <linfeng.sun.dev@gmail.com>
+
+vhost-scsi: initialize command pools for late I/O virtqueues
+
+This commit delays the allocation of command pools for skipped I/O
+virtqueues during VHOST_SCSI_SET_ENDPOINT. When VHOST_SET_VRING_ADDR
+subsequently completes their setup, it allocates the pools and activates
+only the newly configured queue.
+
+Link: https://patch.msgid.link/20260908-fix-warning-in-sbitmap_get-v1-1-767=
+c2c211a2b@gmail.com
+
+> diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+> index 4f8c0260bc9e7..efca343626664 100644
+> --- a/drivers/vhost/scsi.c
+> +++ b/drivers/vhost/scsi.c
+
+[ ... ]
+
+> @@ -2464,12 +2503,19 @@ vhost_scsi_ioctl(struct file *f,
+>  		mutex_unlock(&vs->dev.mutex);
+>  		return r;
+>  	default:
+> +		if (ioctl =3D=3D VHOST_SET_VRING_ADDR &&
+> +		    get_user(vq_index, (u32 __user *)argp))
+> +			return -EFAULT;
+> +
+>  		mutex_lock(&vs->dev.mutex);
+>  		r =3D vhost_dev_ioctl(&vs->dev, ioctl, argp);
+> -		if (r =3D=3D -ENOIOCTLCMD)
+> +		if (r =3D=3D -ENOIOCTLCMD) {
+>  			r =3D vhost_vring_ioctl(&vs->dev, ioctl, argp);
+> -		else
+> +			if (!r && ioctl =3D=3D VHOST_SET_VRING_ADDR)
+> +				r =3D vhost_scsi_activate_vq(vs, vq_index);
+
+[Severity: Medium]
+Could this introduce a double fetch vulnerability?
+
+The index is fetched first here in vhost_scsi_ioctl():
+    get_user(vq_index, (u32 __user *)argp)
+
+And then later in the call chain it fetches the index again from the
+same user pointer:
+
+vhost_vring_ioctl() -> vhost_get_vq_from_user():
+    get_user(idx, idxp);
+
+If a malicious userspace thread (such as a VMM) modifies the index in the
+payload between these two fetches, could it decouple virtqueue configuration
+from activation? This might lead to state confusion where one virtqueue gets
+its addresses configured by vhost_vring_set_num_addr(), while a completely
+different virtqueue index (vq_index from the first fetch) is unexpectedly
+activated by vhost_scsi_activate_vq().
+
+While array_index_nospec() in vhost_scsi_activate_vq() prevents out-of-boun=
+ds
+accesses, could activating a queue that wasn't actually targeted for address
+configuration lead to unintended behavior?
+
+> +		} else {
+>  			vhost_scsi_flush(vs);
+> +		}
+>  		mutex_unlock(&vs->dev.mutex);
+>  		return r;
+>  	}
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260916-fix-warnin=
+g-in-sbitmap_get-v2-1-e61a09047089@gmail.com?part=3D1
