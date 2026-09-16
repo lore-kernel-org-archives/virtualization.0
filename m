@@ -1,138 +1,155 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm2-f13.google.com (mail-wm2-f13.google.com [74.125.225.141])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F3964A6CE9
-	for <virtualization@lists.linux.dev>; Wed, 16 Sep 2026 09:30:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BA234B048F
+	for <virtualization@lists.linux.dev>; Wed, 16 Sep 2026 09:50:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.141
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789551019; cv=none; b=gNslblqFmlKSMlSTzDJRhQKEZP1GzEEwm5HbVfZciCzKHV40RZ4Suwcfc5TW4rB07g6Yxz+6B3u7EXFhaKHun68cmJrsmQm4sdRt6v28sVh7xlpnqzxIUmQH9ciD4g0zOap4vuGe+haUvu8u08/Kjwa/as5GumP40oU9Zn/6yM0=
+	t=1789552238; cv=none; b=H0oieJorzb81V34lNKTw/qvLr98yQ52pV3xcfD+ei6joyeRk22Vu55/0S2gp77SplgtqNseUTBvwzShAwG7rUSBXSkpXW4UjF9dkjgl7GkV59BOrJiHPtkenZpuQ8i6XF535FIeS/Pzvgw/OS94nzYWV916UkLbx2LuUJWWrC/g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789551019; c=relaxed/simple;
-	bh=rVlNPjI4P2z37o7qE9/JXBSWEwGmZChcHXGnM7D9n6c=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=RCeR/mLN7qumqoum8B2gSZbt1gvKgP75nBjsGh9ukuMoD91mYhM5wN4UKo2Ln8Ztfi7qUDKDbU0B/joPuWuZ9Z0D3OD4ae/xenScyM53K5JcuUFyiHwPNmxznXy9ly3006V62EIt6J3tVvB+Q0HudAcSmABuOuCb0EBA7Kx6xjg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Fs7uoYbK; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1789552238; c=relaxed/simple;
+	bh=zVftL0e6KTn1Fup/RmgkkUqXURXldH56P13A6WLi8KQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=AqsJTl1xxQs2WsUFbBXdPD9+T0CvxzJgnj/eLVQoXXPhsU5zSiAiTlgKp5ZFjMjqDBoDMDLsfHttQQjFHdTgMAdH6g1bLmHItSx8bsw2lMvTweZRJd92uWRQD3r/fAhxjanZ1c7bp/nuXqncXUVwsjFbpxKOt5uIugq6rg93lTs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VfsHaQ8z; arc=none smtp.client-ip=74.125.225.141
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Fs7uoYbK"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1789550999;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=pLJ3zniryXoIXYXj2kORk+UpoeKS9R6ImYDJyVbdKgw=;
-	b=Fs7uoYbKDKY066K9mEP3HRx+ID0WQ/kgm9TcfeRaV/m2a/zUOl35CscWm0lj0D1cQaem/v
-	8GDTETseFv5XUW4Waf59eLU87zvZeHYcQwD8ZJjWXk95nZSpTwms9w85ZC5lolaTKIUgQt
-	SfSDULybjPURnR4f4dhCzrAI3hDsPnU=
-Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com
- [209.85.214.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-633-CxkmmuqtO1ujDl_2JPEx-Q-1; Wed, 16 Sep 2026 05:29:56 -0400
-X-MC-Unique: CxkmmuqtO1ujDl_2JPEx-Q-1
-X-Mimecast-MFC-AGG-ID: CxkmmuqtO1ujDl_2JPEx-Q_1789550995
-Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-2ce7dff6253so21891485ad.1
-        for <virtualization@lists.linux.dev>; Wed, 16 Sep 2026 02:29:56 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VfsHaQ8z"
+Received: by mail-wm2-f13.google.com with SMTP id 5b1f17b1804b1-49e8185e037so3877815e9.3
+        for <virtualization@lists.linux.dev>; Wed, 16 Sep 2026 02:50:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789552219; x=1790157019; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=79YAdtaHEv3S3nDvYc6X9C5ar06F3FncZEtUncQdJQ4=;
+        b=VfsHaQ8zYkwmd/iEt5S57McxT/aMkyWItzxtCnJk8ZpJ0XVO5Zf7LvYHldbYTEsoS3
+         2nJqAYBRHlTAJBGMZ7l/b+NDe65hyw+7ZlObV7dN1NUJ/lE5NWIYB6JsHTNUGgHcyamh
+         M9BVdtzI1skh7omRDZaFC4JWWPDFSatUPRDvauo9RVKeccYSQb1j6vatmVwJ7cNL4DNo
+         KXR14c/5PvNlBGzZa4dETfZpKip9h8Pf9OY/S5njjB98G0YZ1BpiQPSXSGSYlORDlVmD
+         RAEk0HxRBZL9X36S7q7MbEIVKDJiPxuKPPf/as0Rr+IayUVa2EjtRtYOecwAvXekIy3n
+         DbUw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789550995; x=1790155795;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
+        d=1e100.net; s=20260707; t=1789552219; x=1790157019;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=pLJ3zniryXoIXYXj2kORk+UpoeKS9R6ImYDJyVbdKgw=;
-        b=JZYqCmCu1hyjRT5q5ipT7k+NbXToJKdW2zGIOpl9B1jTFE089xffr0jShAIcSJLxRt
-         SANweUcSfuhW8ZYlyOHh0t6Zr6M2moOHGWtnVLR/OIAyOkASjl+EWxbxY68iuOJ0H9xV
-         3im/XHXM/N/JvLx8iZYNrf/t1grksMikddiGAr1OpDzj7sVCoIxl32fSTSTajp+OsqW+
-         bMJgNOQUDx4pdZcQMJAdE6/RjMHkjyFPe4kn7noCtZZ4XpbGapkwXTe2gEniXJQbKWoG
-         7HyCRkMTG2eEoc+8LXgO914rkQYpFhQmEtHclieSwH+nes2R0fkSZPDj1lehoXBzkYys
-         Gw7w==
-X-Forwarded-Encrypted: i=1; AKwUvBxIkRBx/AHlbvT8NAB1jNZnweI2VixTMzErAwTyS0TDN10KGuQsF6gYzVVVESjXDeUMLQ8jfi1xMnVvoBvrbg==@lists.linux.dev
-X-Gm-Message-State: AFuF++k/pZWGnSCqlweARA3v0aYpBuUB7cL3rCxCjlLvWCHTpppsGymI
-	hnMkbhfLuQ6wxlsQCB5ZjIlYg8Ce9nR81P6V+CnBND5nSLrkwoDDMBAUfs+dy40jK8qvdBcceOI
-	Gsnn5Ff3+/mI2t+uHpgD10pWXiVdkMUSUJ1rZJKKoaG1LIYR5VBHXTR3eRobeT6aHXBoc41XIR8
-	gsL1eoBfzQaKp1MHx7eFlmXsw+KXW6txMYe1js1RICQyQ=
-X-Gm-Gg: AYBFou1Rjm1eclovrH3MzLpYeYAy0ujApM8nHfojnXIlB/98HFLT6bfVB60kP0+V47O
-	XuNfe3yx0ysMKnw9nSNahwZSK1eoD+HgwobnWPSAjB/bOSRjoQg6PSLSYfPSLVEGIvAiuTs3hsG
-	2Ebe2L+IzmEuwL12kRIx2PrF2ufa6aAeqtCeLjmYh3389lFTZgOXv+QQJd
-X-Received: by 2002:a17:903:3b8f:b0:2d7:4bc8:41a4 with SMTP id d9443c01a7336-2dd8ea1cd1dmr23798685ad.10.1789550995062;
-        Wed, 16 Sep 2026 02:29:55 -0700 (PDT)
-X-Received: by 2002:a17:903:3b8f:b0:2d7:4bc8:41a4 with SMTP id
- d9443c01a7336-2dd8ea1cd1dmr23798155ad.10.1789550994573; Wed, 16 Sep 2026
- 02:29:54 -0700 (PDT)
+        bh=79YAdtaHEv3S3nDvYc6X9C5ar06F3FncZEtUncQdJQ4=;
+        b=pcCKVTPCUcrTOy151QNVLI69MMpxb6igKtbMzasvW5IIoKA6aeUfqijvrgvDkuzxlF
+         2gdPss3gpeYj5Roor0ZtOTXcN3oyXK3Fqq/QU6wsqJJueolRRxutS1FJ2y/tcYfpBhh3
+         r1H4ar3G5RFfqjm8cw47EDUu4kPsG3UW0djhDBO2yqQ2FibVtfOmQFRmwbxSgrUFDnTB
+         Zr9FdmqIT2V1r9GyhALViqSJGVa1ft3m7pPjD0H6O4zctqeC7zstLmwpiDXtFcXUHDEv
+         1AL0JM6UyoNTUfa3zMv8VzJw+hlaAoGnJGj3dSB9sL/X5XZuTObnJBzPuw3Wy9niXQet
+         I1dg==
+X-Forwarded-Encrypted: i=1; AKwUvBy91oQkG/PzUhU/Os6jgiC+xPx044/ovMAksZQOrdWwu6aSonvAj/clhuusmdemhMLOinNlkACwpT19r+FtSA==@lists.linux.dev
+X-Gm-Message-State: AFuF++nczZcjDxmBYZTT4+XWK8TJbOO7stT76++fa3BgNDuGSPv9wSvz
+	vxubUgnvLo2kpJzitfJJSWywixXAmik1m+D1NLkT80Ra3jGlQWEObks2
+X-Gm-Gg: AYBFou30lBQ1wqeXfBZ6SkavhQ97TYI/Uy4g/jMaH+FoFattmu5R3+eFuXIesPqsLuD
+	wKTd9ypnkxrX09lCHiMLAlotGiuOnwoSn5r5x7ifKSBk525zf/vFlkxu9h1bpUh4A7XJlJQnwJi
+	YLKEqrnVae7DcF+y0KRzJjMTqnps2Sf+cQfpRHWco6fiOouqxnVN3wRiTkmJwHc4Z618RVjAlWD
+	UAKuOlz1jhepDSGa+eFoxZEZMdnkyCcnR6cgjtPoF83hQve5+mv1tNdjhJhl8bCiE6Iq+WV74EJ
+	lT9VgMpnOZRjkBfdlR/awMl05KWWSHvGTqKUPkYTi/eUMRinq71ONAeZczWwqXZcFqOoMdklJPN
+	yLXtfjMGPl9n0Ne+Yq6Aw/SlqlMwo/sJQVsuxrVyiX8pvOr2JJqN+ZIXhIZD/62/3wuy+Nrz1mm
+	N4CzR8U/6K8C5fYj2ryNYbist1s43fKAigPEQr8+gHicF8rQi64QZpY2hh0tpF/ADNkn0MwfNHP
+	S8H3nyikEBiUmkMOwk3nySbRH+XIZOsNKywGBEZ4SnoDQI=
+X-Received: by 2002:a05:600c:4ec6:b0:49c:fea3:8633 with SMTP id 5b1f17b1804b1-49eb732aec0mr19444455e9.24.1789552219000;
+        Wed, 16 Sep 2026 02:50:19 -0700 (PDT)
+Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49e83b02245sm84055225e9.10.2026.09.16.02.50.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 16 Sep 2026 02:50:18 -0700 (PDT)
+Date: Wed, 16 Sep 2026 10:50:17 +0100
+From: David Laight <david.laight.linux@gmail.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Jann Horn <jannh@google.com>, Christian Brauner <brauner@kernel.org>,
+ Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>, Ingo
+ Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>,
+ linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-mm@kvack.org, Oleg Nesterov <oleg@redhat.com>,
+ linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+ linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+ linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+ linux-parisc@vger.kernel.org, linux-sh@vger.kernel.org,
+ sparclinux@vger.kernel.org, linux-um@lists.infradead.org, Jens Axboe
+ <axboe@kernel.dk>, io-uring@vger.kernel.org, netdev@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-gpio@vger.kernel.org,
+ linux-arm-msm@vger.kernel.org, dri-devel@lists.freedesktop.org,
+ bpf@vger.kernel.org, David Airlie <airlied@redhat.com>,
+ virtualization@lists.linux.dev, kvm@vger.kernel.org,
+ kexec@lists.infradead.org, linux-hyperv@vger.kernel.org
+Subject: Re: [PATCH RFC POC 00/50] file: handle files on syscall exit
+Message-ID: <20260916105017.13ea5e36@pumpkin>
+In-Reply-To: <CAHk-=wi3Kkqgfg6zUTHpQoZNL2VOB4vYqpi6RX0WNO++29UtyQ@mail.gmail.com>
+References: <20260915-work-fd-reserve-unify-folded-v1-0-4d5217d6b246@kernel.org>
+	<CAG48ez1RsdT=O=-0city3vjgWhDvY424KtTmrCJntWy5ds3HBQ@mail.gmail.com>
+	<CAHk-=wi3Kkqgfg6zUTHpQoZNL2VOB4vYqpi6RX0WNO++29UtyQ@mail.gmail.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260911124540.279841-1-tzimmermann@suse.de> <20260911124540.279841-3-tzimmermann@suse.de>
-In-Reply-To: <20260911124540.279841-3-tzimmermann@suse.de>
-From: Javier Martinez Canillas <javierm@redhat.com>
-Date: Wed, 16 Sep 2026 11:29:42 +0200
-X-Gm-Features: AcwNN1VjQRR608PaSU5v9yXg9eP7o3aE9lu55JInhqrDujLUhvS3kxSMIUXF4N0
-Message-ID: <CAFOAJEfWX09ZvnQvn1+SBeW4_MaSRO2JNLfoJRGYS4jXGr-09w@mail.gmail.com>
-Subject: Re: [PATCH v5 02/14] drm/panic: Test address from kmap op for NULL
-To: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: jfalempe@redhat.com, airlied@gmail.com, maarten.lankhorst@linux.intel.com, 
-	mripard@kernel.org, geert@linux-m68k.org, rdunlap@infradead.org, 
-	dri-devel@lists.freedesktop.org, linux-doc@vger.kernel.org, 
-	amd-gfx@lists.freedesktop.org, rust-for-linux@vger.kernel.org, 
-	linux-hyperv@vger.kernel.org, intel-gfx@lists.freedesktop.org, 
-	intel-xe@lists.freedesktop.org, imx@lists.linux.dev, 
-	linux-arm-kernel@lists.infradead.org, nouveau@lists.freedesktop.org, 
-	linux-renesas-soc@vger.kernel.org, virtualization@lists.linux.dev, 
-	sashiko-reviews@lists.linux.dev, stable@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 5NHHS3YVlbmPEd45VynZqTYgh9Krx7Ggxuq-PVzo7vc_1789550995
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Hello Thomas,
+On Tue, 15 Sep 2026 12:08:57 -0700
+Linus Torvalds <torvalds@linux-foundation.org> wrote:
 
-On Fri, Sep 11, 2026 at 2:46=E2=80=AFPM Thomas Zimmermann <tzimmermann@suse=
-.de> wrote:
->
-> Do nothing if kmap_local_page_try_from_panic() returns NULL. This is
-> not likely to hapen, as the previous page from the same memory area
-> has been mapped successfully.
->
-> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-> Fixes: 23437509a694 ("drm/panic: Fix 24bit pixel crossing page boundaries=
-")
-> Cc: Javier Martinez Canillas <javierm@redhat.com>
-> Cc: Jocelyn Falempe <jfalempe@redhat.com>
-> Cc: dri-devel@lists.freedesktop.org
-> Cc: <stable@vger.kernel.org> # v6.18+
-> ---
->  drivers/gpu/drm/drm_panic.c | 2 ++
->  1 file changed, 2 insertions(+)
->
-> diff --git a/drivers/gpu/drm/drm_panic.c b/drivers/gpu/drm/drm_panic.c
-> index ba21df4be338..d28ce8878e05 100644
-> --- a/drivers/gpu/drm/drm_panic.c
-> +++ b/drivers/gpu/drm/drm_panic.c
-> @@ -178,6 +178,8 @@ static void drm_panic_write_pixel24_xpage(void *vaddr=
-, struct page *next_page,
->         u8 *p =3D vaddr + offset;
->
->         vaddr2 =3D kmap_local_page_try_from_panic(next_page);
-> +       if (!vaddr2)
-> +               return;
->
->         *p++ =3D color & 0xff;
->         color >>=3D 8;
-> --
-> 2.55.0
->
+> On Tue, 15 Sept 2026 at 10:52, Jann Horn <jannh@google.com> wrote:
+> >
+> > Is this mainly about stuff like "we installed a file descriptor and
+> > then the following put_user() failed"? Because if so, I think a nicer
+> > fix would be to have a policy of "if userspace provides unwritable
+> > memory to a syscall, just keep going and pretend the access worked",
+> > and maybe have a sysctl that kills the process when this happens to
+> > emphasize that userspace should not be doing this.  
+> 
+> We've done that before, where we just ignore put_user() errors and the
+> user gets whatever the user gets.
+> 
+> It is maybe not optimal, but it's fine. You can find quite a lot of
+> unchecked put_user() calls with a pattern like
+> 
+>         git grep '^[[:space:]]*put_user(.*);'
+> 
+> and some of them are in core code - see the two in kernel/fork.c, for example.
+> 
+> One of them says "if userspace has not set up a proper pointer then
+> tough luck". The other one doesn't even bother with a comment.
 
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+I think the code should try to return EFAULT (IIRC that is too hard
+in one of the exec cases).
+Otherwise very unexpected things might happen if the memory is just
+readonly.
+If you ignore the error and the pointer is invalid the application will
+get a SIGSEGV and (usually) die.
+But winding back kernel data because a user copy failed is likely to
+be problematic/difficult and at best have error path code that isn't
+really tested.
 
---=20
-Best regards,
+As well as writing fd numbers to userspace, some sockopt code tries to
+wind back if the write to optlen fails (which has been read earlier).
 
-Javier Martinez Canillas
-Core Platforms
-Red Hat
+I've forgotten which Unix converted EFAULT to SIGSEGV in the system
+call exit code - I'm sure one of the ones I've used did.
+
+David
+
+> 
+> The scheduler has two cases too, although one of them is admittedly
+> for another error case.
+> 
+> So yes, saying "if you pass bogus arguments, you get what you get" is
+> a valid model. It's perhaps not the *preferred* model, but it's not
+> wrong.
+> 
+> It *would* be wrong to take code that already has error handling and
+> remove the error handling, though.
+> 
+>                   Linus
+> 
 
