@@ -1,201 +1,143 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86B7B4DE72D;
-	Thu, 17 Sep 2026 14:20:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9B014ABBAD
+	for <virtualization@lists.linux.dev>; Thu, 17 Sep 2026 15:40:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789654808; cv=none; b=CKw4rkb7DfnNqoBAvUYcIrx2H+xaMslqqyZ5nzvJ/Z6qz7pZqR01RLJ0USvA2x/ejHENVdHPk9r/F2hnckapXGlNzP3id4SnIWiydRuJaxM+f6uHQwctx200AdT0FAHLgiFMvWr3PYIiqUDelv9R8kIwfDEO/D7sfYZzRfueXwo=
+	t=1789659609; cv=none; b=UoVdnlBGZNuWDNqUI9oZ/qit3pt/woMo1zUVsw8tMvMLWzFHfQ5kIYpJ6ku8l+5LHyuj2W/0hcOTqiPVNjdYbDJBEzAoHynWXvAujCKLFzPoXFyllCget3Mmrf2MmW+QILlxZ10S0G+ckWrnGYOk/m8KZIdosnvGitzqMMaEXCc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789654808; c=relaxed/simple;
-	bh=xa57NPFmTC5Yj/MpeYtU7y7Y4kssDDqDWXCcU5XWsSY=;
-	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=X9rAkkzHFBnqBFNruG35/wWckYLDsvGMUoy9RvmdQy0/Z06CEXb7JQsins6pOZ9BJNFrDR1A14ZUBk/9zRd8+MRJMt3fxDJEEBmLpvt9rVCSuqGi6LVhuMLtIMRhV7FVDtCnM7NW3FARlVdB68yLj4tTGTbz7/BCKsg4k1IXI2Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SFgMRizz; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789659609; c=relaxed/simple;
+	bh=ZEPRZWQSbrRLK6spoQmF7XlsJWpr55fNU8xc6W79Ubc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=TcmJq+Tp+p4YD/aAeDtATdrNqof28q2sTKk05FFmmtbZCnD+mkxTRCILOIvABNCNfk1OYW4QjPS2rrzy9RPJ4+gXExZpfxcbUu1NJ034V21y2IGPf7mTaqrBMhEeDH8c9ye18wj5qa/6TDiMfmh4VTNgvE/T4tYZiVcFoZzSVZw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=E1Z7TWC2; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SFgMRizz"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4EA61F000FF;
-	Thu, 17 Sep 2026 14:20:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789654807;
-	bh=2b6Fc6mZqxGMWHKPgaUO0EmAKAWEWiz9CQ8Lh3O1i7Q=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=SFgMRizzakEYYR4ek8mkV+aeeiwakh5m4snf49LOhCvyaR9S8o/LMQ4Mfhov86mwU
-	 4IUg601urXAc0fJn4WT6EASrkXz0LhNOgLWI4Svqze14bBkxxxTWjwqzHCDgljqvUu
-	 9dBAOK/QCGVXWSi9ZlPjpDu4XkJzUSbZMx2K5RtPmIT2uuC1vTckyR6++ExsNzpMxt
-	 DlSDVSlotQGkLnBdxGWZ+LaaOn5zyo9BqxuQSBXiEEhdEdrKTgLkZ/7UHoUzu7jOXq
-	 RQHdA5VaRTh1NkKxG9MwunETgAaK4ptxsCOZNW8ktAF2MPUYEoqGBpa4iKrr8lWmrm
-	 S9fhATAF5x0bg==
-Subject: Re: [PATCH] vsock: preserve child namespace mode on an empty write
-From: netdev-bot+sashiko@kernel.org
-To: qwe.aldo@gmail.com
-Cc: sgarzare@redhat.com, virtualization@lists.linux.dev,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org,
- kuba@kernel.org
-Date: Thu, 17 Sep 2026 14:20:06 +0000
-Message-ID: <178965480627.22033.2840574060294474673@kernel.org>
-In-Reply-To: <20260915111417.2726515-1-qwe.aldo@gmail.com>
-References: <20260915111417.2726515-1-qwe.aldo@gmail.com>
-X-sashiko-severity: High
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="E1Z7TWC2"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1789659597;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ksHKsD+rPQygiKBYrLWLevL1zmQIyZm3/sEyFnk8qqU=;
+	b=E1Z7TWC2wbaPU8BywJLek7nEPK/uL3+2kCsZ/xJolYQC/tDTJgHGO8Qv5st6I4drPtMv5Y
+	I25bndemQogU9YPiICcl3FwqxknyQHSy4PefE9uz2j0JmDOcy85P7sk+FDfWz3EhRPM76f
+	h6RDIcuVAldwypiufidLLj5tR54wb20=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-389-W7T9hV6COtys0gSX6NLsiw-1; Thu, 17 Sep 2026 11:39:56 -0400
+X-MC-Unique: W7T9hV6COtys0gSX6NLsiw-1
+X-Mimecast-MFC-AGG-ID: W7T9hV6COtys0gSX6NLsiw_1789659595
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-49e6862e924so7790155e9.0
+        for <virtualization@lists.linux.dev>; Thu, 17 Sep 2026 08:39:56 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1789659595; x=1790264395;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=ksHKsD+rPQygiKBYrLWLevL1zmQIyZm3/sEyFnk8qqU=;
+        b=dXahGOfMCC2mnPJSJ1nxJUMdtH7zA4++gqCLWKtaRNzl1bQ/WUjkcforSCP444hBLO
+         8QNdHMU2FE96jYuCSQcJ51VIH5HQ3DMiNK005CXTOKfHzQog/3T4QDsaJw66Zn+9y9PT
+         1LQXWvGNublS0dSM59nw2rY/wtdW3QdsfLH7Ew6CtISsaPZoQH0R5eoV531lD9DWdFrs
+         Lv6cBpana2wMy2uNFWKLB5sQKyBQN8DwDBeyPi+wj+UjKtyRMTzKbLNXvINoVeMOyTfw
+         t6fjEjlk/AmB+7bSg+28fJnVF4dQF3Mud1Hbk9w/3cTsInkRXBoKd3lRQjBpRUP98/YZ
+         Wh5w==
+X-Forwarded-Encrypted: i=1; AKwUvBxmz17wkZ2wAbKg3eeqUL6CHTpown92W3Vn5HaThDxRD9SCMxCUwfi3lO6aPQAsc1+Z1f/GqdfZdM9izJJg+A==@lists.linux.dev
+X-Gm-Message-State: AFuF++n6zddPAMTdyaHfY0fZNsAhMGGurOOgPj1TqQVL47nV6+T5qSU7
+	i4I8xouHZm8uarxa8UuQw7O8+4k+TrGgERhceW5P8edrEE9V/L6Cs0CYkHJ6QsglWLtG9HXQ22q
+	3c7ChBnhKdnRuuDsw3X0cRDQv5rse1NPzy/wExd3YQABQgEcA/WQ9O9NJ/GaVdJbJS52X
+X-Gm-Gg: AYBFou0/2ErSBRwFgJmtD2PXkyhvT/0pM2Qr8xvaGKMjdbtpmewa62DZ1xJ6uQPc0cI
+	r2RI2KHamt+2+RuKsF4We4+wFXnS55q3MiiY033hsTP5PhQO6JPppe/P09OUPvm85Sf7EQ6kjsu
+	ZhNlc1qhpUUFsGlvQvDxbQzxtZS0BuyfjLyfujwoRn8KvGKl2Dj8EZLSSx3YjPy60GHM1SBCBaj
+	FB67fwxZan82G2pBqdFcO3BCk43hH2597SbrGnsebQLthuz+OfH3Vno18Dh7JH99/mM1ZJ8181M
+	0DUuHbztezgy642lUHYFqipmfuqz0Gh2fRo9DnRVlMqFgAc9OkaDzhnbFv/iqufHCMUvVDmIMFT
+	AXr09yU2rbz5mR2XbYWCld9Y=
+X-Received: by 2002:a05:600c:4e86:b0:49d:15b9:2a2a with SMTP id 5b1f17b1804b1-49eb72f3d08mr88668645e9.10.1789659595194;
+        Thu, 17 Sep 2026 08:39:55 -0700 (PDT)
+X-Received: by 2002:a05:600c:4e86:b0:49d:15b9:2a2a with SMTP id 5b1f17b1804b1-49eb72f3d08mr88668225e9.10.1789659594734;
+        Thu, 17 Sep 2026 08:39:54 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-79-236.inter.net.il. [80.230.79.236])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4870bf342a0sm16364931f8f.24.2026.09.17.08.39.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 17 Sep 2026 08:39:53 -0700 (PDT)
+Date: Thu, 17 Sep 2026 11:39:50 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Andrey Drobyshev <andrey.drobyshev@virtuozzo.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	sgarzare@redhat.com, stefanha@redhat.com, dongli.zhang@oracle.com,
+	maciej.szmigiero@oracle.com, bchaney@akamai.com,
+	mark.kanda@oracle.com, ptikhomirov@virtuozzo.com, den@openvz.org
+Subject: Re: [PATCH v6 0/5] vhost/vsock: add support for VHOST_RESET_OWNER
+ and CPR migration
+Message-ID: <20260917113941-mutt-send-email-mst@kernel.org>
+References: <20260724114542.734623-1-andrey.drobyshev@virtuozzo.com>
+ <20260730194858-mutt-send-email-mst@kernel.org>
+ <f8646e25-7e81-4f19-aecc-a040caac1103@virtuozzo.com>
+ <ea805767-9e3f-455a-a4d6-828063aaf2f4@virtuozzo.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <ea805767-9e3f-455a-a4d6-828063aaf2f4@virtuozzo.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: bTgxFW-hq7bR2H91C6nBVDyio94hfgv7SrbMwM2r0YY_1789659595
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue(s) to consider:
+On Mon, Sep 14, 2026 at 12:09:35PM +0300, Andrey Drobyshev wrote:
+> On 7/31/26 11:31 AM, Andrey Drobyshev wrote:
+> > On 7/31/26 2:49 AM, Michael S. Tsirkin wrote:
+> >> On Fri, Jul 24, 2026 at 02:45:37PM +0300, Andrey Drobyshev wrote:
+> >>> v5 -> v6:
+> >>>
+> >>>   * Patch 4:
+> >>>     - make sync+flush conditional by adding a bool 'sync' param to the
+> >>>       chain, as suggested by Michael:
+> >>>         vhost_dev_reset_owner()
+> >>>           vhost_dev_cleanup()
+> >>>             vhost_workers_free()
+> >>>
+> >>>     - reword commit message and comment;
+> >>>     - drop Fixes;
+> >>>
+> >>>   * Patch 5:
+> >>>     - add 'sync' param to vhost_dev_reset_owner() call.
+> >>>
+> >>> v5: https://lore.kernel.org/virtualization/20260720102241.371610-1-andrey.drobyshev@virtuozzo.com
+> >>
+> >> does not apply for me is this for net next?
+> >> in that case
+> >>
+> >> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+> >>
+> > 
+> > The series is based on tag v7.2-rc1.  However I think the reason it
+> > doesn't apply is you already have v5 of this series queued in
+> > mst/linux-next, commits ddb0918e36c4^..ad5b642c84d0, with your S-o-b.
+> > 
+> > So you might roll it back and take v6 instead (only commits 4 and 5
+> > differ), or leave v5 in the tree, or I can send you v5->v6 difference
+> > separately.  Whichever you prefer.
+> 
+> Friendly ping.
+> 
+> I noticed that these patches were queued in your linux-next tree, but
+> got dropped afterwards and never made it to your last PR (used to be
+> ddb0918e36c4^..ad5b642c84d0).  To be clear: the series targets your
+> vhost tree, not net-next tree.  Since it applies cleanly on your current
+> vhost branch - please let me know if it's ready or there's smth else
+> that should be fixed.
+> 
+> Thanks,
+> Andrey
 
-Critical: 0 · High: 1 · Medium: 0 (1) · Low: 0
+I'll put this in next, thanks!
 
-- [High] Incomplete fix: a zero-length write to
-  /proc/sys/net/vsock/child_ns_mode still consumes the write-once child-…
-
-Pre-existing issues:
-- [Medium] Non-atomic publication in vsock_net_set_child_mode()
-  (include/net/af_vsock.h:289-302): child_ns_mode_locked is published by…
-
---
-
-vsock: preserve child namespace mode on an empty write
-
-This initializes new_mode in vsock_net_child_mode_string() from the current
-child mode, so the caller no longer reads an uninitialized enum when
-__vsock_net_mode_string() returns success for a zero-length write.
-
-> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> index f840498b58afb..9f89f199478b9 100644
-> --- a/net/vmw_vsock/af_vsock.c
-> +++ b/net/vmw_vsock/af_vsock.c
-> @@ -2888,6 +2888,7 @@ static int vsock_net_child_mode_string(const struct ctl_table *table, int write,
->  	int ret;
->  
->  	net = container_of(table->data, struct net, vsock.child_ns_mode);
-> +	new_mode = vsock_net_child_mode(net);
->  
->  	ret = __vsock_net_mode_string(table, write, buffer, lenp, ppos,
->  				      vsock_net_child_mode(net), &new_mode);
-
-[Severity: High]
-The changelog says "Initialize new_mode from the current child mode so that
-an empty write is a no-op."  Is the empty write really a no-op after this
-change?
-
-A zero-length write still reaches the handler with write == 1 and
-*lenp == 0.  fs/read_write.c:vfs_write() has no count == 0 early return
-(rw_verify_area() only rejects negative counts), and
-fs/proc/proc_sysctl.c:proc_sys_call_handler() does not short-circuit
-either:
-
-	if (write) {
-		error = -EFAULT;
-		if (!copy_from_iter_full(kbuf, count, iter))
-			goto out_free_buf;
-		kbuf[count] = '\0';
-	}
-	...
-	error = table->proc_handler(table, write, kbuf, &count, &iocb->ki_pos);
-
-copy_from_iter_full(kbuf, 0, iter) returns true, so
-vsock_net_child_mode_string() is entered with *lenp == 0.
-
-__vsock_net_mode_string() then returns 0 without parsing anything:
-
-	if (!table->data || !table->maxlen || !*lenp) {
-		*lenp = 0;
-		return 0;
-	}
-
-Since that return value is indistinguishable from "a mode was parsed",
-vsock_net_child_mode_string() falls into its write block anyway:
-
-	if (write) {
-		...
-		if (!vsock_net_set_child_mode(net, new_mode))
-			return -EBUSY;
-	}
-
-so vsock_net_set_child_mode() is still called, now with the seeded current
-mode rather than a stack value.
-
-Does that still consume the write-once latch?  In
-include/net/af_vsock.h:vsock_net_set_child_mode():
-
-	int new_locked = mode + 1;
-	int old_locked = 0; /* unlocked */
-
-	if (try_cmpxchg(&net->vsock.child_ns_mode_locked,
-			&old_locked, new_locked)) {
-		WRITE_ONCE(net->vsock.child_ns_mode, mode);
-		return true;
-	}
-
-On a fresh namespace vsock_net_init() leaves child_ns_mode_locked at 0, so
-the cmpxchg succeeds and the mode is latched permanently.
-
-Would this sequence then break a later legitimate lockdown on a global-mode
-namespace?
-
-	write(fd, "", 0);                     /* returns 0, latches GLOBAL+1 */
-	echo local > .../child_ns_mode        /* cmpxchg fails, -EBUSY */
-
-Documentation/admin-guide/sysctl/net.rst describes the behaviour as:
-
-  The first write to ``child_ns_mode`` locks its value. Subsequent writes of
-  the same value succeed, but writing a different value returns ``-EBUSY``.
-
-which ties the lock and the -EBUSY to writing a mode value, not to a write
-that supplies no value.
-
-Would it be more in line with the changelog to skip the write handling
-entirely when nothing was parsed, for example an early
-"if (write && !*lenp) return 0;" in vsock_net_child_mode_string(), or having
-__vsock_net_mode_string() report "no value parsed" distinctly from success,
-instead of re-applying the current mode through the cmpxchg?
-
-[Severity: Medium]
-This is a pre-existing issue and not introduced by this patch, but while
-looking at vsock_net_set_child_mode() in include/net/af_vsock.h: is the
-publication of the lock and of the mode value atomic with respect to
-namespace creation?
-
-	if (try_cmpxchg(&net->vsock.child_ns_mode_locked,
-			&old_locked, new_locked)) {
-		WRITE_ONCE(net->vsock.child_ns_mode, mode);
-		return true;
-	}
-
-	return old_locked == new_locked;
-
-The lock becomes observable before the child_ns_mode store, and a second
-writer of the same mode returns success from the last line without waiting
-for that store:
-
-CPU0 (writes "local" on a global-mode netns)
-	try_cmpxchg() succeeds, child_ns_mode_locked = LOCAL+1
-	/* preempted here, before WRITE_ONCE(child_ns_mode, LOCAL) */
-
-CPU1 (writes "local")
-	try_cmpxchg() fails, old_locked == LOCAL+1 == new_locked
-	return true;			/* sysctl write reports success */
-
-CPU2 (creates a netns after CPU1's write returned)
-net/vmw_vsock/af_vsock.c:vsock_net_init()
-	net->vsock.mode = vsock_net_child_mode(current->nsproxy->net_ns);
-	net->vsock.child_ns_mode = net->vsock.mode;
-
-Can the new namespace read VSOCK_NET_MODE_GLOBAL here and permanently
-inherit the more permissive mode even though userspace was told the "local"
-lockdown was committed?
-
-A barrier does not seem sufficient, since the reader has already observed
-the lock publication that precedes the value store.  Would publishing the
-mode and its locked state together help, for example deriving child_ns_mode
-from child_ns_mode_locked, or adding an in-progress state that the second
-writer waits on?
-
--- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260915111417.2726515-1-qwe.aldo%40gmail.com
