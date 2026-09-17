@@ -1,146 +1,163 @@
-Received: from mail-wm2-f13.google.com (mail-wm2-f13.google.com [74.125.225.141])
+Received: from mail-ua1-f99.google.com (mail-ua1-f99.google.com [209.85.222.99])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6DA68313E0D
-	for <virtualization@lists.linux.dev>; Thu, 17 Sep 2026 22:02:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.141
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F5CA37D114
+	for <virtualization@lists.linux.dev>; Thu, 17 Sep 2026 23:08:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.99
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789682552; cv=none; b=lpNER147Zs1Ly2W65+vsRpE186LHspy5mK4yr+AW+4x5KPxf52xsukmfpO/trTSbrDquW5c/rvkp2NfnmnrnlMmEBOHeYGPP5z3/jMpE+t+/WRwYdx5XhZ4mCp0CaIHH+UwsAocilfRdln33Euvv2kEpfDPB1rcbEQsotXuDoD0=
+	t=1789686485; cv=none; b=IG0gEdzbkc2r3VSPM4sD/2Jb2DEWF3kfjRk2kcJQxivGd2zV9gdVAyopW4XLaGTiq6DPTJVk4zFfQOy5l24UNGf9M2vU6ktxURhfF3lsVtG/W9VX9K3moejkHb8f8DtuueTqXqv6fxwU6coPfKvz/l2E5DQkjUY1PBF8PKM67DY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789682552; c=relaxed/simple;
-	bh=IIELrcZjQaM+R/WjXfTSMq+xkgqRBe/9+IjDCcmboY4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=rUTytH5c0ze4pf60nzC+C7EkjFOadJYEeHsyMwAtFo7D2/J0/jBkwFlV/bX9YE1e+I4lQ65U71DPJXPQmlqXyvLwhsRRbHVQhUKu5rFELliwIsQ34v7LSR2Mh1Wcj75yDwx91Jdmk2DH5hLVCd01Yubh3IsUeM4CkDYlkhVh6lg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=isec.pl; spf=pass smtp.mailfrom=isec.pl; dkim=pass (2048-bit key) header.d=isec.pl header.i=@isec.pl header.b=S0YUGZoQ; arc=none smtp.client-ip=74.125.225.141
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=isec.pl
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=isec.pl
+	s=arc-20240116; t=1789686485; c=relaxed/simple;
+	bh=Qyk7IaW5D9rtnfADN57JI/cA1ywHq81PbOJcwVPWGSs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=XhEhGQUYQSaDEZQiWGyESbHhTDOc1Sp4IUrn0MSEjoZLYjkzFCa2vSIepzgNIEs1g0FaZqjz2WvRXdAcbbrfX7sp3yCdHHQL9COFBuXe8yO91PewPBb8rauSQO94naghmB5w9l0nO8qpUdyW2QPQaJ6mwp0OBiH1DonIsHVsKfY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=ZIOfmENo; arc=none smtp.client-ip=209.85.222.99
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=isec.pl header.i=@isec.pl header.b="S0YUGZoQ"
-Received: by mail-wm2-f13.google.com with SMTP id 5b1f17b1804b1-49e8185e037so635035e9.3
-        for <virtualization@lists.linux.dev>; Thu, 17 Sep 2026 15:02:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=isec.pl; s=google; t=1789682548; x=1790287348; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=B/yXPaD69b7u/Az65Ta16/Sktw7FkIXu2IrXlAc4/yg=;
-        b=S0YUGZoQhKjVYSG8MSr2n1yLDXhK63DYrfBZho84MBmww59AvAFX8+k6sg/PntzQGU
-         XtR0wjyA3+Kl3i5j0HCCMrpAFYdekA5/pTFUyRFqkCOsaOXuycN4v81sn5ZoXbjTo38h
-         gr5LYQ7HBVnlMxOsQ2qObM5fe6BqwKkdtGkTwUErHbdATeVTKQtsuRmHnndCbFjQFKAJ
-         ouA4Edu/QI2ADtCpt5vgH0GFm2k5k8AqDZNPCnyFfpwwsF61NaEQhwWfUjWznq6AjHS1
-         OJfyXkTc3b0k/paGje1dVtUKFu8v47bkO51WRz0PGISwpWs0C4CWW7KnVQQ/GQKbtqwH
-         ielQ==
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="ZIOfmENo"
+Received: by mail-ua1-f99.google.com with SMTP id a1e0cc1a2514c-98089686ee7so25806241.0
+        for <virtualization@lists.linux.dev>; Thu, 17 Sep 2026 16:08:00 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789682548; x=1790287348;
-        h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=B/yXPaD69b7u/Az65Ta16/Sktw7FkIXu2IrXlAc4/yg=;
-        b=Uz1d47hoh5UydjqVuLMtrObYg83ecwc0hpSmptfpzVZbq/iTNsMAVTMn/5EoAVXvxp
-         xos7kZHKeo6FywHcgxsJMfRBO00IKPttZ0c8GxfS/1x1JG0ry2KtaX7mQzPzcXNOPJkb
-         dphGuY/4rfXLDsSfFU6DGR/4eIDjzB5LWEikQ3HLO3U7fQkyezJRoN+i6EnjzOjxS3sC
-         HRCxDcb1veW0Py0KUeQ8mOk1cEtEPxmFX/KmiYr6nfIQQe+7DIzBCT0PJ3mRk57Ej6e9
-         vEG7OMoi37bwYMIusmyfmapOSy4YsNLN8ubOVWD6li9oe9g7DuXLZgqUJRRLqPFPNmFc
-         OJrw==
-X-Forwarded-Encrypted: i=1; AKwUvBwFYhkOIsxON1utJQeKXjyUm9VE19KOZ4XJ+sqbPRx13tvBiF/AADCdkNobNQKWUyX9Rcn7CSbJ5tWaCK67sA==@lists.linux.dev
-X-Gm-Message-State: AFuF++k/zLMCRNzi7Ve44faAhrTnqYP1OS3nKA9WnUaDC9fbmibuOQpA
-	xcPhppINDBsj5EqEQqY7EDbOwvr+DGQhdeprzm/dC2tOrG9gbzWstQlTa4BFyCDzMOk=
-X-Gm-Gg: AYBFou2U82K8Rj00zLSVD93dOdcAC7lZ58QdWKnwbaqtVCKgvv7Owd1Or7t2VIqq3cn
-	vHOaOa8RozPGlIgQJ3XFe2ivhjfpsy3vW5MtCEINCB450i1ScuNlhsa9pedlE/C6BfE2MUK1dBs
-	X+aD/TrwNPejeRpb4fnbUutVulwZEHb/LDEuwRzq2/olFOf0xERJbQz8igPLRzKYAqxjsBAwins
-	6qDO6oeAVDaGnlimoJ9ozsHBDyOfzEniX/kes78WJzDNO3W5lqG5yNs7IbZjA1x6ovz9NX9Z1Ge
-	zcX36v6uOHZfusdVPVXtVYWdGqezHpjV3wGk+J3GDi2Vxeboyp2jNHdhFHq3UEewgAoaAUn16pC
-	74XdmdAjbAS8Qxpf0xqAtwVA6c2kAUElOPckdN5teNvVauvYE/hyQpyOeW4oyvDz39DuF+0LqD+
-	euQmQ0SLWrb5mmw/dgsKJCToBxYxGc9HYZ9m63z67iiG7LpcPPkuiPaOqmuguNjHtbR6gJqoUhb
-	dGF09TNzCXfah1gSnSWV1dW+bvQ8D4m4sqYf9WILbxVbYQ=
-X-Received: by 2002:a05:600c:83c8:b0:49d:2536:402e with SMTP id 5b1f17b1804b1-49fc5851e92mr2295905e9.30.1789682548680;
-        Thu, 17 Sep 2026 15:02:28 -0700 (PDT)
-Received: from localhost.localdomain ([2a02:a318:80b3:9080:744c:a1ba:d233:283a])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49fbd23ac75sm106258905e9.13.2026.09.17.15.02.27
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Thu, 17 Sep 2026 15:02:28 -0700 (PDT)
-From: =?UTF-8?q?Bart=C5=82omiej=20Dmitruk?= <bartlomiej.dmitruk@isec.pl>
-To: Bryan Tan <bryan-bt.tan@broadcom.com>,
-	Vishnu Dasa <vishnu.dasa@broadcom.com>
-Cc: pv-drivers.linux@broadcom.com,
-	netdev@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	"Michael S . Tsirkin" <mst@redhat.com>
-Subject: [PATCH] vsock/vmci: harden datagram receive access check (netns bypass + cached_peer race)
-Date: Fri, 18 Sep 2026 00:02:24 +0200
-Message-ID: <20260917220225.56200-1-bartlomiej.dmitruk@isec.pl>
-X-Mailer: git-send-email 2.46.2
+        d=1e100.net; s=20260707; t=1789686476; x=1790291276;
+        h=content-transfer-encoding:content-type:in-reply-to:content-language
+         :from:references:cc:to:subject:user-agent:mime-version:date
+         :message-id:dkim-signature:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=KkBkFvNjZkmBQ+ciR5KjrTSHBNZ+IYK3WHfHxYYYMK8=;
+        b=vWPtqr74eQjzlnRtY/gXCZoj/sOm39/kLNKsUMoSqKg5YLwXpEcjHklKyiKK6hfhHZ
+         EB27V0IBFru4Rf1/90hCgdDbdb3hMsFVviYTpKvApw2OV7w1/J7GOkr8ciW4DNtz5E1Y
+         AmjfV+OqZD83vqquxeu0O76Pdt3jwxU8hIhBbJzZ1TURYAtKQ2jg2iYl6nAjFrCef7VM
+         JAgF+bXthUVCrG7GzEGDh4UUlSIwPLD3sJatIicMNM47lvcpjyxv6iCQVe2XPQPNGqB0
+         5n0TcHUiXnZGHBRRng5tR0Cdg18L/mD4nHFqqr1q3tlPbfjJuk0NXa8d3JAo8rgL4/Zd
+         iU0w==
+X-Forwarded-Encrypted: i=1; AKwUvBwrOasdlXU6Gumn3ZdCy5TOaFCV1VHbBEubKDTnmP4vjyltbmAMnAZd7SHiqOTnsJ/ZsCR4u2ST8D2AE8ZcVg==@lists.linux.dev
+X-Gm-Message-State: AFuF++nzYce/5fEWvSuaZ7d5i2NTPr3Zh35C0MoDzXIPloa70T73PVfC
+	0pwgmepEHOIZTfDQeXYRlN1xMpfXh7Ee6YBIDQd7SLoyEoHj8/PXoVHcBppz41GFJWZwav6PrJl
+	f7geoDL2Mn6zW29Bm9VBUeu3sRU++fKEyfvaIFVEcLPalRc/+XuTnapVBUN2nK9x85IDeuHsRuJ
+	b+lYT+RjzD2B6u0/uReLIirtdjmHiDI/35dXRJ6LVOg20KGq3m7ZfFzKYeWgVlJnIOwKx4yHbQm
+	lPMliBe7s72XKQwugGoPWBJQyA=
+X-Gm-Gg: AYBFou2eH8ht8/utFnp2TmL9+nQnu2P/NaFerixpLspZea78ndMeSvrb9cdZfnp1FMr
+	KiL5f3kMN5sNFELnr/RKsaHY8jOIZaaK7CAGBjNhLflxKdadhkFglSakmeaXbfxB+DothGU8yBX
+	HoqcsMNJeBzVjg/6bp9rMjpAlSQspnqJ4oRvSbGl76AUA3L82o424sRjQ+FSezqDLZ/lUjYsQV1
+	Zfm7MTzR6EV9CfKAW0FQNGjbHk8wx/+O6zne62ouOqsFTGDe4EbrUSAokCXOjE5uzkk/dkGuk5N
+	ZQRoFoS0TSss4V0Vdt9NY6yzQqRRNM8blddmA/w953kvYyqk8PD5hllhDMUxTUd5BkMRjObVgZG
+	HlOBpWiBiwOWEaPPz4r0CwPzcn1scKv/lfGPthBOGpQFvGDl5TY9J5MEc2/S1QwShw21M8vY3P2
+	xn2GxEJxTKFlcthqZ8gN0sRMS2/fd0nRIMt6/KSz3nfb4=
+X-Received: by 2002:a05:6102:510a:b0:7a1:f7e2:aadf with SMTP id ada2fe7eead31-7a55c28a242mr349409137.17.1789686476391;
+        Thu, 17 Sep 2026 16:07:56 -0700 (PDT)
+Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-125.dlp.protect.broadcom.com. [144.49.247.125])
+        by smtp-relay.gmail.com with ESMTPS id 71dfb90a1353d-5c9a524df98sm1578614e0c.3.2026.09.17.16.07.56
+        for <virtualization@lists.linux.dev>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 17 Sep 2026 16:07:56 -0700 (PDT)
+X-Relaying-Domain: broadcom.com
+X-CFilter-Loop: Reflected
+Received: by mail-pg1-f198.google.com with SMTP id 41be03b00d2f7-cc4e496e5c3so55235a12.0
+        for <virtualization@lists.linux.dev>; Thu, 17 Sep 2026 16:07:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google; t=1789686475; x=1790291275; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:in-reply-to:content-language
+         :from:references:cc:to:subject:user-agent:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=KkBkFvNjZkmBQ+ciR5KjrTSHBNZ+IYK3WHfHxYYYMK8=;
+        b=ZIOfmENoyHAtAHpc8jvCgMRgnSKHdMSnmRahUNYFdZtXbKkCmej0+P+GXnpEXcW/Iu
+         RRJyOGFp+hGfz5EODAfR4a4aruBz3yxaOixIR0mlfNYqyseDS6SMB3IIck/ft5jbFter
+         Ub62w2rCjDBMTSbwToWSQfEPx7mTFWunlp6to=
+X-Forwarded-Encrypted: i=1; AKwUvBxStJNSw5/r/CUvwZ/QiA0cZNUtPd1re+iAdkWrVAt+L6Nf4PVyyJdIkBvhvOjKnc7gV8Jb7VDG72Q/s0h1ig==@lists.linux.dev
+X-Received: by 2002:a17:90b:1e04:b0:39e:4c80:f680 with SMTP id 98e67ed59e1d1-39e54f3dba9mr1123049a91.31.1789686474961;
+        Thu, 17 Sep 2026 16:07:54 -0700 (PDT)
+X-Received: by 2002:a17:90b:1e04:b0:39e:4c80:f680 with SMTP id 98e67ed59e1d1-39e54f3dba9mr1122991a91.31.1789686474393;
+        Thu, 17 Sep 2026 16:07:54 -0700 (PDT)
+Received: from [10.211.247.235] ([216.221.25.44])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-33bf596e1f6sm21060020eec.1.2026.09.17.16.07.52
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 17 Sep 2026 16:07:54 -0700 (PDT)
+Message-ID: <58026818-7737-4560-be64-5cf22f2d8d69@broadcom.com>
+Date: Thu, 17 Sep 2026 16:07:56 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 0/4] x86/vmware: Preserve panic diagnostics in
+ vmware.log
+To: Zack Rusin <zack.rusin@broadcom.com>, Borislav Petkov <bp@alien8.de>,
+ Ajay Kaher <ajay.kaher@broadcom.com>,
+ Alexey Makhalov <alexey.makhalov@broadcom.com>, x86@kernel.org,
+ Petr Mladek <pmladek@suse.com>, Joel Granados <joel.granados@kernel.org>,
+ Baoquan He <baoquan.he@linux.dev>
+Cc: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>, "H . Peter Anvin"
+ <hpa@zytor.com>, virtualization@lists.linux.dev,
+ bcm-kernel-feedback-list@broadcom.com, linux-kernel@vger.kernel.org,
+ John Ogness <john.ogness@linutronix.de>, Steven Rostedt
+ <rostedt@goodmis.org>, Sergey Senozhatsky <senozhatsky@chromium.org>,
+ Kees Cook <kees@kernel.org>, Andrew Morton <akpm@linux-foundation.org>,
+ Mike Rapoport <rppt@kernel.org>, Pasha Tatashin <pasha.tatashin@soleen.com>,
+ Pratyush Yadav <pratyush@kernel.org>, Dave Young <ruirui.yang@linux.dev>,
+ Jonathan Corbet <corbet@lwn.net>, Bo Gan <bo.gan@broadcom.com>,
+ Brennan Lamoreaux <brennan.lamoreaux@broadcom.com>,
+ kexec@lists.infradead.org, linux-doc@vger.kernel.org
+References: <cover.1788414671.git.zack.rusin@broadcom.com>
+From: Maaz Mombasawala <maaz.mombasawala@broadcom.com>
+Content-Language: en-US
+In-Reply-To: <cover.1788414671.git.zack.rusin@broadcom.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
+X-DetectorID-Processed: b00c1d49-9d2e-4205-b15f-d015386d3d5e
 
-vmci_transport_allow_dgram() gates delivery of incoming VMCI datagrams. It
-has two problems, both in this one function, fixed together here.
+On 9/8/26 11:07 AM, Zack Rusin wrote:
+> A virtual machine may have neither guest-local persistent storage nor
+> working userspace after a panic. The host's vmware.log remains available
+> after the VM terminates, and a production encrypted guest is the only
+> component able to export readable panic text. Hyper-V already provides
+> this class of host-persistent panic reporting.
+> 
+> Add a panic-only VMware logger that copies the newest 4 KiB of the kernel
+> log and sends it with bounded low-bandwidth RPC work. Ordinary guests
+> enable text transfer by default; encrypted guests require an administrator
+> to opt in through kernel.vmware_record_panic_msg. A separate late dumper
+> reports the structured crash event after built-in dumpers and suppresses
+> the event while a crash kernel is loaded, because a configured VMware host
+> may terminate the VM before the reporting hypercall returns.
+> 
+> Patch 4 makes panic diagnostics run before kdump by default on VMware
+> guests. This follows existing platform uses of
+> crash_kexec_post_notifiers, with Hyper-V as the closest guest-reporting
+> precedent. Unlike Hyper-V, VMware exposes no capability bit for this
+> behavior. An explicit crash_kexec_post_notifiers=0 still wins, and patch 4
+> can be dropped without affecting patches 1 through 3.
+> 
+> This replaces patches 2 and 3 of Alexey's v2 posting:
+> https://lore.kernel.org/all/20260309235250.2611115-1-alexey.makhalov@broadcom.com/
+> 
+> The intended merge path is tip's x86/vmware branch. Boris please review the
+> VMware transport and policy. Petr and John, please review the panic-only
+> dumper use and registration ordering. Joel and Kees, please review the
+> sysctl. Baoquan and the KEXEC/KDUMP team, please review the 
+> loaded-crash-kernel guard and the default in patch 4.
+> 
+> Zack Rusin (4):
+>   x86/vmware: Add a bounded panic log sender
+>   x86/vmware: Add the vmware_record_panic_msg sysctl
+>   x86/vmware: Report guest crashes after kmsg dumpers
+>   x86/vmware: Run panic diagnostics before kdump by default
+> 
+>  Documentation/admin-guide/sysctl/kernel.rst |  14 ++
+>  arch/x86/include/asm/vmware.h               |   2 +
+>  arch/x86/kernel/cpu/vmware.c                | 245 ++++++++++++++++++++
+>  3 files changed, 261 insertions(+)
+> 
+> 
+> base-commit: cee9395acd8043be0644b25c34bfa86623f2b935
 
-1. Namespace bypass: the send hook vmci_transport_dgram_allow() refuses
-   datagrams when the socket's netns is not in global mode
-   (vsock_net_mode_global()), but the receive path never checks it. A socket
-   bound in a non-global (local) netns therefore receives datagrams from
-   peers it could never send to, defeating namespace isolation.
 
-2. Data race / stale ACL: the decision was cached in vsock->cached_peer and
-   vsock->cached_peer_allow_dgram with an unsynchronized check-then-set.
-   The function is called both from the lockless receive tasklet
-   (vmci_transport_recv_dgram_cb(), no socket lock) and from the lock_sock()
-   send path; lock_sock() does not exclude bottom halves, so the two contexts
-   race on those fields. An interleave can return a stale 'allow' for a
-   VMCI_PRIVILEGE_FLAG_RESTRICTED peer (and it is a plain data race
-   regardless). The in-code comment claiming the fields are never modified
-   outside create/destruct is contradicted by the send path.
+LGTM for the series
 
-Add the symmetric net-mode check and drop the cache, evaluating the decision
-on every datagram; there is no shared mutable state left to race. The now
-unused cached_peer{,_allow_dgram} members can be removed in a follow-up.
+Reviewed-by: Maaz Mombasawala <maaz.mombasawala@broadcom.com>
 
-Signed-off-by: Bartłomiej Dmitruk <bartlomiej.dmitruk@isec.pl>
----
-diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
---- a/net/vmw_vsock/vmci_transport.c
-+++ b/net/vmw_vsock/vmci_transport.c
-@@ -529,18 +529,25 @@
- 	if (VMADDR_CID_HYPERVISOR == peer_cid)
- 		return true;
- 
--	if (vsock->cached_peer != peer_cid) {
--		vsock->cached_peer = peer_cid;
--		if (!vmci_transport_is_trusted(vsock, peer_cid) &&
--		    (vmci_context_get_priv_flags(peer_cid) &
--		     VMCI_PRIVILEGE_FLAG_RESTRICTED)) {
--			vsock->cached_peer_allow_dgram = false;
--		} else {
--			vsock->cached_peer_allow_dgram = true;
--		}
--	}
-+	/* Enforce the per-netns mode on the receive path, symmetrically with
-+	 * the send hook vmci_transport_dgram_allow(): a socket in a non-global
-+	 * (local) netns must not receive datagrams it could never send.
-+	 */
-+	if (!vsock_net_mode_global(vsock))
-+		return false;
- 
--	return vsock->cached_peer_allow_dgram;
-+	/* Evaluate on every datagram instead of caching the decision in
-+	 * vsock->cached_peer{,_allow_dgram}: those fields were an
-+	 * unsynchronized check-then-set shared between the lockless receive
-+	 * tasklet and the lock_sock() send path, which could return a stale
-+	 * 'allow' for a restricted peer.
-+	 */
-+	if (!vmci_transport_is_trusted(vsock, peer_cid) &&
-+	    (vmci_context_get_priv_flags(peer_cid) &
-+	     VMCI_PRIVILEGE_FLAG_RESTRICTED))
-+		return false;
-+
-+	return true;
- }
- 
- static int
+-- 
+Maaz Mombasawala <maaz.mombasawala@broadcom.com>
