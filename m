@@ -1,73 +1,74 @@
 Received: from mail-wm2-f13.google.com (mail-wm2-f13.google.com [74.125.225.141])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1EB73A4523
-	for <virtualization@lists.linux.dev>; Thu, 17 Sep 2026 22:01:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6DA68313E0D
+	for <virtualization@lists.linux.dev>; Thu, 17 Sep 2026 22:02:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.141
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789682484; cv=none; b=flSN1HTMfCPr5DbwOKbYHLm03cIzUriDWIt6HtGdQDp7BBwuRt7IbrSSZNj5KwqvnIvNyi3JyM7Z6p2Tm5XrBveFHJxwps1UFZvLyMhSvOGQSzK57H5wAGkFJwrNiyboS4ueYP1E+BnNFnKGr+msOVzv6KzxxEYYsJmsq0MYOBk=
+	t=1789682552; cv=none; b=lpNER147Zs1Ly2W65+vsRpE186LHspy5mK4yr+AW+4x5KPxf52xsukmfpO/trTSbrDquW5c/rvkp2NfnmnrnlMmEBOHeYGPP5z3/jMpE+t+/WRwYdx5XhZ4mCp0CaIHH+UwsAocilfRdln33Euvv2kEpfDPB1rcbEQsotXuDoD0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789682484; c=relaxed/simple;
-	bh=P5/CfOGFGVjMXctTHGuF1aX3rpeY4JVXEkJv3aLXfN8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=N/kLxg8CsdQbS5T9Jg2SFGaoHO+hmOGkYRHRLfhElYJlScEUzaX1Wyf+a08LOsr3EtOYdl0C4XMS6QCqJOKz8+diPvgQT0ILW5n8UxlfHk7FO9AdbfQyhUi3y2mAunI8V8uNNTpR6a/d0r9cin4WA5/uPqaDd5CZ6yXLJhP+Mr4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=isec.pl; spf=pass smtp.mailfrom=isec.pl; dkim=pass (2048-bit key) header.d=isec.pl header.i=@isec.pl header.b=QGE+ZpHJ; arc=none smtp.client-ip=74.125.225.141
+	s=arc-20240116; t=1789682552; c=relaxed/simple;
+	bh=IIELrcZjQaM+R/WjXfTSMq+xkgqRBe/9+IjDCcmboY4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=rUTytH5c0ze4pf60nzC+C7EkjFOadJYEeHsyMwAtFo7D2/J0/jBkwFlV/bX9YE1e+I4lQ65U71DPJXPQmlqXyvLwhsRRbHVQhUKu5rFELliwIsQ34v7LSR2Mh1Wcj75yDwx91Jdmk2DH5hLVCd01Yubh3IsUeM4CkDYlkhVh6lg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=isec.pl; spf=pass smtp.mailfrom=isec.pl; dkim=pass (2048-bit key) header.d=isec.pl header.i=@isec.pl header.b=S0YUGZoQ; arc=none smtp.client-ip=74.125.225.141
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=isec.pl
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=isec.pl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=isec.pl header.i=@isec.pl header.b="QGE+ZpHJ"
-Received: by mail-wm2-f13.google.com with SMTP id 5b1f17b1804b1-49e79a408deso480185e9.2
-        for <virtualization@lists.linux.dev>; Thu, 17 Sep 2026 15:01:21 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=isec.pl header.i=@isec.pl header.b="S0YUGZoQ"
+Received: by mail-wm2-f13.google.com with SMTP id 5b1f17b1804b1-49e8185e037so635035e9.3
+        for <virtualization@lists.linux.dev>; Thu, 17 Sep 2026 15:02:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=isec.pl; s=google; t=1789682480; x=1790287280; darn=lists.linux.dev;
+        d=isec.pl; s=google; t=1789682548; x=1790287348; darn=lists.linux.dev;
         h=content-transfer-encoding:content-type:mime-version:message-id:date
          :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=Ro6SttdQWiVFkbJS47mTtfdYN9m9RFgqNhFOaAFAJrw=;
-        b=QGE+ZpHJGE2wxSelf0v6qy9KtTdxO2VS2oWYNGWYpnXjDEXdLydQZSi3JJl1K6qNVH
-         3yEL266a/3F24A5sT02iWqhp/MbD+FxmgJ5dFdeBYQC1ekvb5AhR+ozVLhiJuybdB8r0
-         s3iXPBH2U5Ql1x8b9xgo3rmDxJrp4JGX71+Y1oEnv4TLbIJiNIV1tFJqIyv/BDJAWmDS
-         MOSq3Z8ERNIOqWlfyfmJ33fwoTekEzDW1B6XetDempPWXhCUl4R7978RvOQti2uzrcJb
-         SuE0WRhwe8ej/O4nkFSLoi6hQ6jLgo086gUYtnU6q7E/+T4GG6TnnoBm+wSC3hDovWPO
-         cyKA==
+        bh=B/yXPaD69b7u/Az65Ta16/Sktw7FkIXu2IrXlAc4/yg=;
+        b=S0YUGZoQhKjVYSG8MSr2n1yLDXhK63DYrfBZho84MBmww59AvAFX8+k6sg/PntzQGU
+         XtR0wjyA3+Kl3i5j0HCCMrpAFYdekA5/pTFUyRFqkCOsaOXuycN4v81sn5ZoXbjTo38h
+         gr5LYQ7HBVnlMxOsQ2qObM5fe6BqwKkdtGkTwUErHbdATeVTKQtsuRmHnndCbFjQFKAJ
+         ouA4Edu/QI2ADtCpt5vgH0GFm2k5k8AqDZNPCnyFfpwwsF61NaEQhwWfUjWznq6AjHS1
+         OJfyXkTc3b0k/paGje1dVtUKFu8v47bkO51WRz0PGISwpWs0C4CWW7KnVQQ/GQKbtqwH
+         ielQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789682480; x=1790287280;
+        d=1e100.net; s=20260707; t=1789682548; x=1790287348;
         h=content-transfer-encoding:content-type:mime-version:message-id:date
          :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=Ro6SttdQWiVFkbJS47mTtfdYN9m9RFgqNhFOaAFAJrw=;
-        b=0ELFHRznnhiSya9Tk+IFcs/uaAOlae4Ub3E0QEiaUso1gKfdZ73TCJAM/33X2mA9Vn
-         YFRfsI8SLGfCfKUazRxzDDSD41om0Xo97B3ZyxExbGG/MZnVzfoOxI9Coeux6r6u2Wj5
-         befd++SmF9XseJ0xn9h+uP1q5NzwOk3nTRsAg2bDVWl14zcHVZiAVWmYhtuoCc+pnJ12
-         e35xJUuDtZixTurZovEDg9XzvrwLW7V/4ZZfrYDLOkpEKIpQ/Hi3cHYG5tcNhpEgnJ02
-         PLAi125jR3VSWeKBy+o3xzofBHACJk7zKShQlW7pqn/822uGorfZi0w4PBzHpZ/urgi0
-         pmTg==
-X-Forwarded-Encrypted: i=1; AKwUvBzY7fXHATj56V4suz2j5av7X0LK3I7g+RIgVKSlbpbrW5OqO1WsqU5C0P/0+L56sQ17irrZ6Ae32o+doBNYdg==@lists.linux.dev
-X-Gm-Message-State: AFuF++mxT8BTYtGbTFTaajK5tf23xfFf2lJRJeja6GLn2J5W71GdNZMB
-	5H7g/WaSjZJ+M+SagqX9XbVCaqrbhSvzSFTm8Sv0ZIryIi5vEtqVMb3A068F1C0DbDk=
-X-Gm-Gg: AYBFou1o3SUNNskxHKJ569yHU+eXWAGeKEln1M+8WNcLme7/aOW4/B1Yx9VUuzDe7t+
-	ndeIkbVTx81H9oj3+AEtfpceCkukKwc6hv+Cv44nlYyFI/IV4iZZMxRh5lpdRNEzX/o7Ct1Uka6
-	WkMx/7pY3j98/JJ1Z/mgyaRnHVHFL1dskHlDsHNUI/zsxdOzGkp9GUkjHUzhnt+T2sH3idEoOq5
-	9JaELoO/AuTj69Nr8VEWbD52AuaOroCge8C78dEkbto+wb6VKqhWiiXsbBfUJdhQ6U/S0c2q9vc
-	rusPL3JL2h9VfaR+PguBbSooHxvZ1HDnTF4pK8WCP7vg6Iqtc8E/1NXhnBqZQ9SQqRQ3shNv8rH
-	A0A/QfaI0fKlaYR2uYqo0h5AZUg8A6goZLasB0LLbcjuFuwZBBMvnmZ0ItfvSo32IMi96yQCVrx
-	Ui0vl7AZ+ojhAqEO3iAdKVmsPhflmN2//2B98Jf5OmHz6h345gCJ/gnA62sjM2q0y4l2n2UZ57r
-	sNZ1w8smfFXwjbXu+TIbNftRXRyEM9xU8qB+qz1I95Rf9FO
-X-Received: by 2002:a05:600c:4e46:b0:49e:642a:4f6f with SMTP id 5b1f17b1804b1-49fc585e9edmr2469425e9.33.1789682479877;
-        Thu, 17 Sep 2026 15:01:19 -0700 (PDT)
+        bh=B/yXPaD69b7u/Az65Ta16/Sktw7FkIXu2IrXlAc4/yg=;
+        b=Uz1d47hoh5UydjqVuLMtrObYg83ecwc0hpSmptfpzVZbq/iTNsMAVTMn/5EoAVXvxp
+         xos7kZHKeo6FywHcgxsJMfRBO00IKPttZ0c8GxfS/1x1JG0ry2KtaX7mQzPzcXNOPJkb
+         dphGuY/4rfXLDsSfFU6DGR/4eIDjzB5LWEikQ3HLO3U7fQkyezJRoN+i6EnjzOjxS3sC
+         HRCxDcb1veW0Py0KUeQ8mOk1cEtEPxmFX/KmiYr6nfIQQe+7DIzBCT0PJ3mRk57Ej6e9
+         vEG7OMoi37bwYMIusmyfmapOSy4YsNLN8ubOVWD6li9oe9g7DuXLZgqUJRRLqPFPNmFc
+         OJrw==
+X-Forwarded-Encrypted: i=1; AKwUvBwFYhkOIsxON1utJQeKXjyUm9VE19KOZ4XJ+sqbPRx13tvBiF/AADCdkNobNQKWUyX9Rcn7CSbJ5tWaCK67sA==@lists.linux.dev
+X-Gm-Message-State: AFuF++k/zLMCRNzi7Ve44faAhrTnqYP1OS3nKA9WnUaDC9fbmibuOQpA
+	xcPhppINDBsj5EqEQqY7EDbOwvr+DGQhdeprzm/dC2tOrG9gbzWstQlTa4BFyCDzMOk=
+X-Gm-Gg: AYBFou2U82K8Rj00zLSVD93dOdcAC7lZ58QdWKnwbaqtVCKgvv7Owd1Or7t2VIqq3cn
+	vHOaOa8RozPGlIgQJ3XFe2ivhjfpsy3vW5MtCEINCB450i1ScuNlhsa9pedlE/C6BfE2MUK1dBs
+	X+aD/TrwNPejeRpb4fnbUutVulwZEHb/LDEuwRzq2/olFOf0xERJbQz8igPLRzKYAqxjsBAwins
+	6qDO6oeAVDaGnlimoJ9ozsHBDyOfzEniX/kes78WJzDNO3W5lqG5yNs7IbZjA1x6ovz9NX9Z1Ge
+	zcX36v6uOHZfusdVPVXtVYWdGqezHpjV3wGk+J3GDi2Vxeboyp2jNHdhFHq3UEewgAoaAUn16pC
+	74XdmdAjbAS8Qxpf0xqAtwVA6c2kAUElOPckdN5teNvVauvYE/hyQpyOeW4oyvDz39DuF+0LqD+
+	euQmQ0SLWrb5mmw/dgsKJCToBxYxGc9HYZ9m63z67iiG7LpcPPkuiPaOqmuguNjHtbR6gJqoUhb
+	dGF09TNzCXfah1gSnSWV1dW+bvQ8D4m4sqYf9WILbxVbYQ=
+X-Received: by 2002:a05:600c:83c8:b0:49d:2536:402e with SMTP id 5b1f17b1804b1-49fc5851e92mr2295905e9.30.1789682548680;
+        Thu, 17 Sep 2026 15:02:28 -0700 (PDT)
 Received: from localhost.localdomain ([2a02:a318:80b3:9080:744c:a1ba:d233:283a])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49fc6ca43edsm1669305e9.0.2026.09.17.15.01.19
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49fbd23ac75sm106258905e9.13.2026.09.17.15.02.27
         (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Thu, 17 Sep 2026 15:01:19 -0700 (PDT)
+        Thu, 17 Sep 2026 15:02:28 -0700 (PDT)
 From: =?UTF-8?q?Bart=C5=82omiej=20Dmitruk?= <bartlomiej.dmitruk@isec.pl>
-To: Stefano Garzarella <sgarzare@redhat.com>,
-	"Michael S . Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org,
+To: Bryan Tan <bryan-bt.tan@broadcom.com>,
+	Vishnu Dasa <vishnu.dasa@broadcom.com>
+Cc: pv-drivers.linux@broadcom.com,
+	netdev@vger.kernel.org,
 	virtualization@lists.linux.dev,
-	kvm@vger.kernel.org
-Subject: [RFC PATCH] vsock: keep SOCK_SEQPACKET message boundaries on interrupted send
-Date: Fri, 18 Sep 2026 00:01:00 +0200
-Message-ID: <20260917220101.55744-1-bartlomiej.dmitruk@isec.pl>
+	Stefano Garzarella <sgarzare@redhat.com>,
+	"Michael S . Tsirkin" <mst@redhat.com>
+Subject: [PATCH] vsock/vmci: harden datagram receive access check (netns bypass + cached_peer race)
+Date: Fri, 18 Sep 2026 00:02:24 +0200
+Message-ID: <20260917220225.56200-1-bartlomiej.dmitruk@isec.pl>
 X-Mailer: git-send-email 2.46.2
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -78,63 +79,68 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-A credit-limited SOCK_SEQPACKET send transmits fragments as credit becomes
-available, and the VIRTIO_VSOCK_SEQ_EOM flag is set only on the fragment
-where msg_data_left() reaches 0.  If vsock_connectible_sendmsg() exits via
-out_err after a partial send -- notably the non-terminal -EINTR path
-(signal_pending while blocked for credit), but also sk_err / peer
-RCV_SHUTDOWN -- the already-transmitted fragments carry no EOM.  The
-receiver only advances msg_count / sets msg_ready on an EOM skb, so the
-orphaned fragments are silently merged into the *next* message, violating
-SOCK_SEQPACKET atomicity.
+vmci_transport_allow_dgram() gates delivery of incoming VMCI datagrams. It
+has two problems, both in this one function, fixed together here.
 
-Reproduced on vsock_loopback: an -EINTR-aborted partial send of 'A's is
-merged into the next 'B' message; recv() returns one [A...][B...] message
-instead of just the 'B' message (reproducer + before/after below the ---).
+1. Namespace bypass: the send hook vmci_transport_dgram_allow() refuses
+   datagrams when the socket's netns is not in global mode
+   (vsock_net_mode_global()), but the receive path never checks it. A socket
+   bound in a non-global (local) netns therefore receives datagrams from
+   peers it could never send to, defeating namespace isolation.
 
-Since a SEQPACKET message is bounded by min(peer_buf_alloc, buf_alloc)
-(EMSGSIZE gate in virtio_transport_seqpacket_enqueue()), the sender can
-wait for room for the whole remaining message before enqueuing, so the
-message is committed atomically or not at all; an error while waiting then
-leaves nothing on the wire.  SOCK_STREAM behaviour is unchanged
-(min_space == 1 reproduces the old "wait while space == 0").
+2. Data race / stale ACL: the decision was cached in vsock->cached_peer and
+   vsock->cached_peer_allow_dgram with an unsynchronized check-then-set.
+   The function is called both from the lockless receive tasklet
+   (vmci_transport_recv_dgram_cb(), no socket lock) and from the lock_sock()
+   send path; lock_sock() does not exclude bottom halves, so the two contexts
+   race on those fields. An interleave can return a stale 'allow' for a
+   VMCI_PRIVILEGE_FLAG_RESTRICTED peer (and it is a plain data race
+   regardless). The in-code comment claiming the fields are never modified
+   outside create/destruct is contradicted by the send path.
 
-RFC: an alternative is to close a partially-sent message with an explicit
-EOM on the error path; feedback on the preferred approach welcome.
+Add the symmetric net-mode check and drop the cache, evaluating the decision
+on every datagram; there is no shared mutable state left to race. The now
+unused cached_peer{,_allow_dgram} members can be removed in a follow-up.
 
 Signed-off-by: Bartłomiej Dmitruk <bartlomiej.dmitruk@isec.pl>
 ---
-
-Testing (vsock_loopback, unprivileged, single process; reproducer in
-t_vuln004.c): receiver buf_alloc=16384; a 14000-byte message is left unread
-to shrink credit to 2384; an 8000-byte message is sent with alarm(1) so the
-send is interrupted (-EINTR) after a partial 2384-byte fragment; the 14000
-message is drained; then a 1000-byte message is sent.
-
-  before: recv() returns one 3384-byte message = 2384 'A' (orphan) + 1000 'B'
-  after:  recv() returns one 1000-byte message = 1000 'B'   (boundary intact)
-
-Normal SEQPACKET send/recv (the 14000- and 1000-byte whole messages) works
-unchanged.
-
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -2250,9 +2250,16 @@
+diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+--- a/net/vmw_vsock/vmci_transport.c
++++ b/net/vmw_vsock/vmci_transport.c
+@@ -529,18 +529,25 @@
+ 	if (VMADDR_CID_HYPERVISOR == peer_cid)
+ 		return true;
  
- 	while (total_written < len) {
- 		ssize_t written;
-+		/* For SEQPACKET wait until the whole remaining message fits, so
-+		 * it is enqueued atomically.  A credit-limited partial send that
-+		 * then errors out (e.g. -EINTR) would otherwise leave EOM-less
-+		 * fragments that the peer merges into the next message.
-+		 */
-+		s64 min_space = (sk->sk_type == SOCK_SEQPACKET) ?
-+				(s64)(len - total_written) : 1;
+-	if (vsock->cached_peer != peer_cid) {
+-		vsock->cached_peer = peer_cid;
+-		if (!vmci_transport_is_trusted(vsock, peer_cid) &&
+-		    (vmci_context_get_priv_flags(peer_cid) &
+-		     VMCI_PRIVILEGE_FLAG_RESTRICTED)) {
+-			vsock->cached_peer_allow_dgram = false;
+-		} else {
+-			vsock->cached_peer_allow_dgram = true;
+-		}
+-	}
++	/* Enforce the per-netns mode on the receive path, symmetrically with
++	 * the send hook vmci_transport_dgram_allow(): a socket in a non-global
++	 * (local) netns must not receive datagrams it could never send.
++	 */
++	if (!vsock_net_mode_global(vsock))
++		return false;
  
- 		add_wait_queue(sk_sleep(sk), &wait);
--		while (vsock_stream_has_space(vsk) == 0 &&
-+		while (vsock_stream_has_space(vsk) < min_space &&
- 		       sk->sk_err == 0 &&
- 		       !(sk->sk_shutdown & SEND_SHUTDOWN) &&
- 		       !(vsk->peer_shutdown & RCV_SHUTDOWN)) {
+-	return vsock->cached_peer_allow_dgram;
++	/* Evaluate on every datagram instead of caching the decision in
++	 * vsock->cached_peer{,_allow_dgram}: those fields were an
++	 * unsynchronized check-then-set shared between the lockless receive
++	 * tasklet and the lock_sock() send path, which could return a stale
++	 * 'allow' for a restricted peer.
++	 */
++	if (!vmci_transport_is_trusted(vsock, peer_cid) &&
++	    (vmci_context_get_priv_flags(peer_cid) &
++	     VMCI_PRIVILEGE_FLAG_RESTRICTED))
++		return false;
++
++	return true;
+ }
+ 
+ static int
