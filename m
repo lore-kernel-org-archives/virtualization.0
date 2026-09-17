@@ -1,104 +1,170 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4C344AA1FE
-	for <virtualization@lists.linux.dev>; Thu, 17 Sep 2026 10:34:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0EFF84BEE58
+	for <virtualization@lists.linux.dev>; Thu, 17 Sep 2026 10:38:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789641288; cv=none; b=pUCQ0A20Av53zAX0d7Cri8FZanQBNibHatazVLaeSSrxCxFwx2wYzQC8l9HMsGYZXV1gmDhN9X89FPAdfc97PI25rygbrbABUi0koxc3+uMErk1oPy9G1m3Wm5OB7FxjWeOPvloeVPdX7GEVlTHRWrR+2kAjx9qgvzRhYe5z/N4=
+	t=1789641498; cv=none; b=pLTiORKoihBL5FdPDkur9KuFySYH/Yi2VwWvCrnTVrbJChoUnoddHBzCdIq9MDjhQycJi6QtBFG24UdUjLLYhy8nZHkiFnLq+Y+G6pAF1+Y3cj/HBgi2Dkqc66rwjaKuBxbv10jU9E5OEYPEwboYAfdFUI/903DQLN1vB0bPJTs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789641288; c=relaxed/simple;
-	bh=ydXj21x8XPJkU2RBkFvgIUcGg75r5gSgGv1OlHMB6f8=;
+	s=arc-20240116; t=1789641498; c=relaxed/simple;
+	bh=dXOllHo9ttLBQq5bp+jRXQdWqDbj/xLbrZVJU/Yd+2g=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=q/99LJ4dWTx29Lt+LCWDm/eYKtewgaysAcHBW7SDoAcTfQJzUTQClg5/6ngf+f92t/czFkqLRLycVcd9NT5KG9ZjHCuU6dDRboT6VyCyy9kNa1pfF9699bP7plbNh+P/PQEVHuvyZ9ARbw17pTVSnNxUUFFZ93wzH9sKH6NKukA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OsQ7N44W; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=m9VWyqgo7BWslEqYxd4gvimXJiV+OjzbbpGNhH7NFFDBRkou7k0Mo/nVz99PPZbBgwceLMCouqNvWOqQChSkakXGvVjy7VFI7y9408OGCSR9ri+EPDmPZ9HlVC42sNdkh/Ev+3iPmayVWC/D9scwJEXqwvffBuTr+xsz0y8WaDs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Hna2aaPI; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OsQ7N44W"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92F271F000FF;
-	Thu, 17 Sep 2026 10:34:37 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Hna2aaPI"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E83911F000FF;
+	Thu, 17 Sep 2026 10:38:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789641277;
-	bh=A5vZJgu6y0sFszhGK8CduL/HbXSIZ/z1c/boerVDM2M=;
+	s=k20260515; t=1789641489;
+	bh=9qTsxEj3Um15bf5hTLhvTnNr14o866YJtkfn25RWeOc=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=OsQ7N44Wkcxo01qpGvDlqi5QGTlzb1ttT2HN2hJ3kWJlZWs4EZCUMMgG7xdEcj7HR
-	 5V2/PYnObXYH3tCY1jsiDS6WPcvcPj2760OpsCKb6sYFqUhowAbtKS6WrSBPu/Zf46
-	 qMVjFlKDCM3owrnduoroh8A+pWo+ML7TouJBNns7YfZsqPDgNE7K134N1B4XyE6VBi
-	 sTVp+MhM1TO4MElm/OgYpdysH6jp7EXzvuX6HQUIh61v8ma3Z3iScPfWRTHTvVNQbF
-	 KGB19gBp3Ejqk2Gfgzb/Gi3XpnLcp6TxjSdgOF3IjqgRvoTlWdFApv0MSXxKcO+wre
-	 B9izSKiq0p8yw==
+	b=Hna2aaPIjQzAuM3nCq4Cu5DB9cZOxA8BMRawRE09KaE8qRPG9Nj4Bwmo6NkoAuQxR
+	 cAr+OFOrXhgkCUti8aPtbYnoD/QvvIig9t1GNLlukJRxIGGpPgE2T7+U5i26GaacJK
+	 FsgqHf6+ifz5LctuaHzhW0yQAdAB3NGF7ztp3Agqmu5mwkOqVRVeItgu7E5NOM+U93
+	 KmjYnlr6KWZcSS8jheKsBqI5KSQVyMsUy3SkeA8vVrm4KkXWa632Y6n+t8CjFF1ki7
+	 lSbZXyNsBVP4XZncdQS3PQrnTglW9HFyeMwIAOTiETmyAbolK/8mI5DXQBxKzTyEVt
+	 PUo07sLzCP7ag==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 2/4] drm/virtgpu api: add blob userptr resource
+Subject: Re: [PATCH v6 3/4] drm/virtio: implement userptr support for
+ zero-copy memory access
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Honglei Huang" <honghuan@amd.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <20260917102540.1312102-3-honghuan@amd.com>
+Cc: virtualization@lists.linux.dev, dri-devel@lists.freedesktop.org, "Eugenio
+ Perez" <eperezma@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+In-Reply-To: <20260917102540.1312102-4-honghuan@amd.com>
 References: <20260917102540.1312102-1-honghuan@amd.com>
- <20260917102540.1312102-3-honghuan@amd.com>
+ <20260917102540.1312102-4-honghuan@amd.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 17 Sep 2026 10:34:37 +0000
-Message-Id: <20260917103437.92F271F000FF@smtp.kernel.org>
+Date: Thu, 17 Sep 2026 10:38:08 +0000
+Message-Id: <20260917103808.E83911F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [High] virtio-gpu: guest-only blob flags leaked to host breaking wire ABI
+- [Critical] drm/virtio: missing pointer clear in virtio_gpu_userptr_get_pa=
+ges()
+- [Critical] drm/virtio: unconditional dma_map_sgtable() causes data corrup=
+tion
 --
 
-commit ce150cb1a68528e491d40b28c03376311a653c0c
+commit 6e836cf8f7dd384050e500d6dbf47a69c2767c26
 Author: Honglei Huang <Honglei1.Huang@amd.com>
+Subject: drm/virtio: implement userptr support for zero-copy memory access
 
-drm/virtgpu api: add blob userptr resource
+This commit adds userptr blob objects so the guest kernel can pin an existi=
+ng
+userspace mapping and advertise it as CREATE_BLOB backing entries. It pins
+pages using pin_user_pages_fast() and maps the scatterlist for the device.
 
-This commit adds DRM ioctl flags and a userptr field to allow userspace
-to request a blob backed by an existing process mapping. It introduces
-guest-only flags VIRTGPU_BLOB_FLAG_USE_USERPTR and
-VIRTGPU_BLOB_FLAG_USERPTR_RDONLY for guest pin behavior.
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_userptr.c b/drivers/gpu/drm/v=
+irtio/virtgpu_userptr.c
+> new file mode 100644
+> --- /dev/null
+> +++ b/drivers/gpu/drm/virtio/virtgpu_userptr.c
+> @@ -0,0 +1,323 @@
+[ ... ]
+> +static int
+> +virtio_gpu_userptr_get_pages(struct virtio_gpu_object_userptr *userptr)
+> +{
+[ ... ]
+> +		ret =3D pin_user_pages_fast(userptr->start + pinned * PAGE_SIZE,
+> +					  num_pages, flag,
+> +					  userptr->pages + pinned);
+> +
+> +		if (ret < 0) {
+> +			if (pinned)
+> +				unpin_user_pages(userptr->pages, pinned);
+> +			kvfree(userptr->pages);
+> +			return ret;
+> +		}
 
-> diff --git a/include/uapi/drm/virtgpu_drm.h b/include/uapi/drm/virtgpu_dr=
-m.h
-> index 95587e12aed57..6171b4e2300b1 100644
-> --- a/include/uapi/drm/virtgpu_drm.h
-> +++ b/include/uapi/drm/virtgpu_drm.h
-> @@ -186,6 +186,9 @@ struct drm_virtgpu_resource_create_blob {
->  #define VIRTGPU_BLOB_FLAG_USE_MAPPABLE     0x0001
->  #define VIRTGPU_BLOB_FLAG_USE_SHAREABLE    0x0002
->  #define VIRTGPU_BLOB_FLAG_USE_CROSS_DEVICE 0x0004
-> +/* Guest-only flags */
-> +#define VIRTGPU_BLOB_FLAG_USE_USERPTR      0x0008
-> +#define VIRTGPU_BLOB_FLAG_USERPTR_RDONLY   0x0010
+[Severity: Critical]
+Does this error path leave a dangling pointer? The userptr->pages array is
+freed here but not set to NULL.
 
-[Severity: High]
-Do these guest-only flags leak to the host and break the virtio wire ABI?
+If pin_user_pages_fast() fails, this bubbles up to virtio_gpu_userptr_creat=
+e()=20
+which jumps to err_cleanup and calls virtio_gpu_cleanup_object(). That
+function ultimately invokes virtio_gpu_userptr_put_pages():
 
-When userspace calls the DRM_IOCTL_VIRTGPU_RESOURCE_CREATE_BLOB ioctl,
-verify_blob() assigns rc_blob->blob_flags directly to params->blob_flags.
-This struct is passed to virtio_gpu_userptr_create(), which calls
-virtio_gpu_cmd_resource_create_blob().
+	if (userptr->pages) {
+		unpin_user_pages(userptr->pages, userptr->npages);
+		kvfree(userptr->pages);
+		userptr->pages =3D NULL;
+	}
 
-In virtio_gpu_cmd_resource_create_blob(), the flags are written directly to
-the command without masking:
-
-drivers/gpu/drm/virtio/virtgpu_vq.c:virtio_gpu_cmd_resource_create_blob() {
-    ...
-    cmd_p->blob_flags =3D cpu_to_le32(params->blob_flags);
-    ...
-}
-
-If these guest-only flags are not masked out before being sent to the host,
-will strict hosts reject the command with an error, making the userptr
-feature unusable?=20
-
-I noticed this wire ABI violation appears to remain unfixed at the end of
-the patch series (commit 357076bf581c).
+Because userptr->pages wasn't cleared, won't this result in a use-after-free
+and double-free when the cleanup function executes?
 
 [ ... ]
+> +static int
+> +virtio_gpu_userptr_get_entries(struct virtio_gpu_device *vgdev,
+> +			       struct virtio_gpu_object_userptr *userptr,
+> +			       struct virtio_gpu_mem_entry **ents,
+> +			       unsigned int *nents)
+> +{
+> +	bool use_dma_api =3D virtio_gpu_use_dma_api(vgdev->vdev);
+[ ... ]
+> +	if (use_dma_api) {
+> +		for_each_sgtable_dma_sg(userptr->sgt, sg, si) {
+> +			(*ents)[si].addr =3D cpu_to_le64(sg_dma_address(sg));
+> +			(*ents)[si].length =3D cpu_to_le32(sg_dma_len(sg));
+> +			(*ents)[si].padding =3D 0;
+> +		}
+> +	} else {
+> +		for_each_sgtable_sg(userptr->sgt, sg, si) {
+> +			(*ents)[si].addr =3D cpu_to_le64(sg_phys(sg));
+> +			(*ents)[si].length =3D cpu_to_le32(sg->length);
+> +			(*ents)[si].padding =3D 0;
+> +		}
+> +	}
+[ ... ]
+> +int virtio_gpu_userptr_create(struct virtio_gpu_device *vgdev,
+> +			      struct drm_file *file,
+> +			      struct virtio_gpu_object_params *params,
+> +			      struct virtio_gpu_object **bo_ptr)
+> +{
+[ ... ]
+> +	sgt =3D drm_prime_pages_to_sg(vgdev->ddev, userptr->pages,
+> +				    userptr->npages);
+> +	if (IS_ERR(sgt)) {
+> +		ret =3D PTR_ERR(sgt);
+> +		goto err_cleanup;
+> +	}
+> +
+> +	ret =3D dma_map_sgtable(drm_dev_dma_dev(vgdev->ddev), sgt,
+> +			      DMA_BIDIRECTIONAL, 0);
+
+[Severity: Critical]
+Can this unconditional DMA mapping cause silent data corruption?
+
+If the system uses SWIOTLB bounce buffers and the device is configured to
+bypass the DMA API, the dma_map_sgtable() call will allocate a bounce buffe=
+r.
+
+Later in virtio_gpu_userptr_get_entries(), the code branches based on
+virtio_gpu_use_dma_api(), and if false it ignores the DMA address and passes
+the raw physical address (sg_phys) to the device.
+
+Since the raw physical address is passed to the device when DMA is bypassed,
+the device will write directly to the original physical memory. However,
+during cleanup, dma_unmap_sgtable() with DMA_BIDIRECTIONAL will copy the
+unmodified bounce buffer back over the original memory. Will this overwrite
+and destroy the data written by the device?
+
+> +	if (ret) {
+> +		sg_free_table(sgt);
+> +		kfree(sgt);
+> +		goto err_cleanup;
+> +	}
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260917102540.1312=
-102-1-honghuan@amd.com?part=3D2
+102-1-honghuan@amd.com?part=3D3
