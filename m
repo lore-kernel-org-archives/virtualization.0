@@ -1,45 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95C994ACC9E
-	for <virtualization@lists.linux.dev>; Thu, 17 Sep 2026 10:33:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4C344AA1FE
+	for <virtualization@lists.linux.dev>; Thu, 17 Sep 2026 10:34:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789641221; cv=none; b=iXUoqOux9yl8TWsEo6N0UUNCenkwkP2p70jAZgwXFckkbHOmm6K6mqyos1LxrLYlxIQr4zF5MAlswWKmEBJ6aTKxXZDj8geluh74pWO9R8eXzhAoTNVpGOxT6S6+mB9T2yeqsV3NwJpNWD4IGDa42s1y9z9crJ7tAyLU3k49sd8=
+	t=1789641288; cv=none; b=pUCQ0A20Av53zAX0d7Cri8FZanQBNibHatazVLaeSSrxCxFwx2wYzQC8l9HMsGYZXV1gmDhN9X89FPAdfc97PI25rygbrbABUi0koxc3+uMErk1oPy9G1m3Wm5OB7FxjWeOPvloeVPdX7GEVlTHRWrR+2kAjx9qgvzRhYe5z/N4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789641221; c=relaxed/simple;
-	bh=M0PPXgEINzQHq+yY0t4Epbic7GLGnjRq+ven9qDdOC4=;
+	s=arc-20240116; t=1789641288; c=relaxed/simple;
+	bh=ydXj21x8XPJkU2RBkFvgIUcGg75r5gSgGv1OlHMB6f8=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=YQl5NlZJhbm3eRNEMR+KQrWqh8Odr+OO0C4k/b4u5pjdlavh8pWewwmZlT+orMrZ5q564jKyXCU20DTiupsQcm2QyOaC9YMBkXaGZEnmz8/oXohtSONilMR+jWZS3umaMIlJKs3jr7SYd0JtYAoDS7M9R8K885xManaomL+sqo0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QhBgFjDl; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=q/99LJ4dWTx29Lt+LCWDm/eYKtewgaysAcHBW7SDoAcTfQJzUTQClg5/6ngf+f92t/czFkqLRLycVcd9NT5KG9ZjHCuU6dDRboT6VyCyy9kNa1pfF9699bP7plbNh+P/PQEVHuvyZ9ARbw17pTVSnNxUUFFZ93wzH9sKH6NKukA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OsQ7N44W; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QhBgFjDl"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8A7D1F000FF;
-	Thu, 17 Sep 2026 10:33:31 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OsQ7N44W"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92F271F000FF;
+	Thu, 17 Sep 2026 10:34:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789641212;
-	bh=ystkHgfg/B2+LWhyt4IqYeXfy5fWKql2JcdLt5+qRwI=;
+	s=k20260515; t=1789641277;
+	bh=A5vZJgu6y0sFszhGK8CduL/HbXSIZ/z1c/boerVDM2M=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=QhBgFjDlrqKyxZblUiGQD0fHQ7o7EcENTQMUO9gWu7a0RsgvndkwR/+s8uj9OLpug
-	 kAEivoqIxthMuDsUrSKlzWLTR8J4o6Wbq9+ANIWp0vNcKNMsJYbN+W8/cij7xZH8T7
-	 siW7cElkAAdDHltBchifW1KHZOFkWUlQVSIQXf/H14qIxo5rg4BvCEDrgz6ii8JiNW
-	 h4VhCI7tQsl6ZZNVGgcUyUyI7xJ8YemICBuDeD1Dy2uFGqqZeppBkxsdyvQic35R8A
-	 u9ApcFFiw9CTn+u7bX2TCXKDFIBtoHufO1kSrOFVP6RQcx7vBMotBr/ZRpYnIK3aL1
-	 Mrt7EkrHKtuCg==
+	b=OsQ7N44Wkcxo01qpGvDlqi5QGTlzb1ttT2HN2hJ3kWJlZWs4EZCUMMgG7xdEcj7HR
+	 5V2/PYnObXYH3tCY1jsiDS6WPcvcPj2760OpsCKb6sYFqUhowAbtKS6WrSBPu/Zf46
+	 qMVjFlKDCM3owrnduoroh8A+pWo+ML7TouJBNns7YfZsqPDgNE7K134N1B4XyE6VBi
+	 sTVp+MhM1TO4MElm/OgYpdysH6jp7EXzvuX6HQUIh61v8ma3Z3iScPfWRTHTvVNQbF
+	 KGB19gBp3Ejqk2Gfgzb/Gi3XpnLcp6TxjSdgOF3IjqgRvoTlWdFApv0MSXxKcO+wre
+	 B9izSKiq0p8yw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 1/4] drm/virtio-gpu: Add VIRTIO_GPU_CAPSET_ROCM
- capability
+Subject: Re: [PATCH v6 2/4] drm/virtgpu api: add blob userptr resource
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Honglei Huang" <honghuan@amd.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev, "Eugenio
- Perez" <eperezma@redhat.com>, dri-devel@lists.freedesktop.org
-In-Reply-To: <20260917102540.1312102-2-honghuan@amd.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev, "Eugenio
+ Perez" <eperezma@redhat.com>
+In-Reply-To: <20260917102540.1312102-3-honghuan@amd.com>
 References: <20260917102540.1312102-1-honghuan@amd.com>
- <20260917102540.1312102-2-honghuan@amd.com>
+ <20260917102540.1312102-3-honghuan@amd.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 17 Sep 2026 10:33:31 +0000
-Message-Id: <20260917103331.A8A7D1F000FF@smtp.kernel.org>
+Date: Thu, 17 Sep 2026 10:34:37 +0000
+Message-Id: <20260917103437.92F271F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -48,44 +47,58 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Medium] uapi: VIRTIO_GPU_CAPSET_ROCM defines unstandardized capset ID 8
+- [High] virtio-gpu: guest-only blob flags leaked to host breaking wire ABI
 --
 
-commit ddbf02d8a1557a4976371db4a94be88bc1f7052f
-Author: Honglei Huang <honghuan@amd.com>
+commit ce150cb1a68528e491d40b28c03376311a653c0c
+Author: Honglei Huang <Honglei1.Huang@amd.com>
 
-drm/virtio-gpu: Add VIRTIO_GPU_CAPSET_ROCM capability
+drm/virtgpu api: add blob userptr resource
 
-This commit adds a new GPU capability set VIRTIO_GPU_CAPSET_ROCM to the vir=
-tio
-gpu UAPI header to support ROCm compute workloads in virtualized environmen=
-ts.
+This commit adds DRM ioctl flags and a userptr field to allow userspace
+to request a blob backed by an existing process mapping. It introduces
+guest-only flags VIRTGPU_BLOB_FLAG_USE_USERPTR and
+VIRTGPU_BLOB_FLAG_USERPTR_RDONLY for guest pin behavior.
 
-> diff --git a/include/uapi/linux/virtio_gpu.h b/include/uapi/linux/virtio_=
-gpu.h
-> index 4f530d90058c7..3d4dfadc9d789 100644
-> --- a/include/uapi/linux/virtio_gpu.h
-> +++ b/include/uapi/linux/virtio_gpu.h
-> @@ -321,6 +321,7 @@ struct virtio_gpu_cmd_submit {
->  #define VIRTIO_GPU_CAPSET_VENUS 4
->  #define VIRTIO_GPU_CAPSET_CROSS_DOMAIN 5
->  #define VIRTIO_GPU_CAPSET_DRM 6
-> +#define VIRTIO_GPU_CAPSET_ROCM 8
+> diff --git a/include/uapi/drm/virtgpu_drm.h b/include/uapi/drm/virtgpu_dr=
+m.h
+> index 95587e12aed57..6171b4e2300b1 100644
+> --- a/include/uapi/drm/virtgpu_drm.h
+> +++ b/include/uapi/drm/virtgpu_drm.h
+> @@ -186,6 +186,9 @@ struct drm_virtgpu_resource_create_blob {
+>  #define VIRTGPU_BLOB_FLAG_USE_MAPPABLE     0x0001
+>  #define VIRTGPU_BLOB_FLAG_USE_SHAREABLE    0x0002
+>  #define VIRTGPU_BLOB_FLAG_USE_CROSS_DEVICE 0x0004
+> +/* Guest-only flags */
+> +#define VIRTGPU_BLOB_FLAG_USE_USERPTR      0x0008
+> +#define VIRTGPU_BLOB_FLAG_USERPTR_RDONLY   0x0010
 
-[Severity: Medium]
-Does allocating this ID without specification standardization risk permanen=
-t ABI
-collisions?
+[Severity: High]
+Do these guest-only flags leak to the host and break the virtio wire ABI?
 
-If the virtio standard later assigns ID 8 to another capability, this UAPI
-addition could cause a conflict. Furthermore, skipping ID 7 leaves an
-undocumented gap that might conflict with virtio standardization protocols.
-Has ID 8 been allocated in the upstream virtio specification?
+When userspace calls the DRM_IOCTL_VIRTGPU_RESOURCE_CREATE_BLOB ioctl,
+verify_blob() assigns rc_blob->blob_flags directly to params->blob_flags.
+This struct is passed to virtio_gpu_userptr_create(), which calls
+virtio_gpu_cmd_resource_create_blob().
 
-> =20
->  /* VIRTIO_GPU_CMD_GET_CAPSET_INFO */
->  struct virtio_gpu_get_capset_info {
+In virtio_gpu_cmd_resource_create_blob(), the flags are written directly to
+the command without masking:
+
+drivers/gpu/drm/virtio/virtgpu_vq.c:virtio_gpu_cmd_resource_create_blob() {
+    ...
+    cmd_p->blob_flags =3D cpu_to_le32(params->blob_flags);
+    ...
+}
+
+If these guest-only flags are not masked out before being sent to the host,
+will strict hosts reject the command with an error, making the userptr
+feature unusable?=20
+
+I noticed this wire ABI violation appears to remain unfixed at the end of
+the patch series (commit 357076bf581c).
+
+[ ... ]
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260917102540.1312=
-102-1-honghuan@amd.com?part=3D1
+102-1-honghuan@amd.com?part=3D2
