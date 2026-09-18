@@ -1,105 +1,181 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com [209.85.128.71])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 780EB390C85
-	for <virtualization@lists.linux.dev>; Fri, 18 Sep 2026 12:48:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F450502786
+	for <virtualization@lists.linux.dev>; Fri, 18 Sep 2026 13:51:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.71
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789735686; cv=none; b=gPwr7ocQTcrh7WLkBAceQtT08Hp7q8NSb74vTepiJNeWloC89M+dkFKl1UojkVrbID2EpYjLJ7pNWqFGJzbQxrAYuA+KkeW2AZkTgWqnND1MPeE3zzq/Yp4WNOwmGY6M1j6QeARcPM7voBGEaN+JZGjoBZUeg11IQ4eNYb0896Y=
+	t=1789739486; cv=none; b=ivKv8uA3mhGVLFlCIlWxdO7vcA1yUivoqLP+HYxc/H6lD2Urpl/0dgsFSaKeZFz6ebAqXRA92xwmetfEc1Q5V6bvRTLFTzNN0kR4C3ZeWrjEf5Dw/1/Asi92deLyLzBbAih+sRCGNq3g+0zCfhQX+Qr5TjSGyagNNGX6EJgPUTg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789735686; c=relaxed/simple;
-	bh=q9aV8UEMRbT/uR1gFd6YDDhJxj0IDZcbyD15EdPgcc0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=Pl7iE1+O3lS+lJYK1yRHZb0R9cRdgW59KJ3h4pDAs4xvR9LmOky9FAy+wQbjDo/+CvGcyH1yYnb0OXdV9PsPCMLMRsTNRNBz3P+i+wbmJYnu1mGUntrxZTod+NVna6NlLOPxkpQ8enXP/FuMdRRgx81nm42yonXRnoI8YXiPzBU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iKPlUlfX; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1789739486; c=relaxed/simple;
+	bh=nhO0uCJLmHjyjirxMOVm/JMihRC8hJvWPltGRHbYrN0=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=q6Q4jPzISpbFWE9sWabLdbyP0VJ77MubSNbxjXYhdXhNP6BKLfGXs+dm8JIbgNodba6H7cQZFOY4uQjDIYNUtEwaPkN3/c7cN9Zxi8lZfJiAbsyTjqnrjX0FBkxVaGhRXGsa33yOHOBGcs8jhZwykIeQJoSvhE3ScEnOwptuYSM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--sergiiushakov.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=iMZlAiYJ; arc=none smtp.client-ip=209.85.128.71
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--sergiiushakov.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iKPlUlfX"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1789735681;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=v+JaQ3C2cAyYFQJK2/l9R/7/otniBmov2ptyT3UUpaA=;
-	b=iKPlUlfXdznxed0XDB18GmFl+48sWj0fL0zUo9XsTJY5kFlS2Eu8YAPIbl2tPlUTvYtYpV
-	7vrUKmp4fncovq4buIhvMpl3TWajbOvCSIUbcwByZcDeru1kOkW98T+DBN5aHBTvI68ERX
-	rpjRopwPHDJzodHDeqXSbiACF9YF5uQ=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-323-oNgA64SaPwmpPgGCbQ377w-1; Fri, 18 Sep 2026 08:47:58 -0400
-X-MC-Unique: oNgA64SaPwmpPgGCbQ377w-1
-X-Mimecast-MFC-AGG-ID: oNgA64SaPwmpPgGCbQ377w_1789735677
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-49cf9df1eadso4449865e9.3
-        for <virtualization@lists.linux.dev>; Fri, 18 Sep 2026 05:47:57 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789735677; x=1790340477;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="iMZlAiYJ"
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4957287363bso7294925e9.0
+        for <virtualization@lists.linux.dev>; Fri, 18 Sep 2026 06:51:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1789739483; x=1790344283; darn=lists.linux.dev;
+        h=content-type:cc:to:from:subject:message-id:references:mime-version
+         :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=v+JaQ3C2cAyYFQJK2/l9R/7/otniBmov2ptyT3UUpaA=;
-        b=e0EnAKL758KIfaJ9vPCtqX53Em7Zkf+kp1NQvr7uxIpUce3/dGxWqkOxWtm2h0ccFX
-         86VrSjVlmSTCZ2o8X51BQk4SVFQWKzsxDuNXojeGYpL00wBRgnIeUyAwdULbXLk5vXma
-         1zd2bwpw/B0v35chpu1cQC/+ai3F3qaX+XbwvikrIojl9+V/iTftbE3EYJaEwMgVXadC
-         w6IclagQNkXanfhtcq0wpqMKijFEMVmMLN/En/NvV0U9eIdjbDjyi5K+vdHBcfl23FHH
-         QandN8dfm8xpHDg4n85qYACOGz7nfRuCAkq0zoHQw2x0+GXlsmIQdwBid5FOx0/83yy8
-         FQNw==
-X-Forwarded-Encrypted: i=1; AKwUvBzn87s7cPuxZQ4Bp214bTDL0J2Q7ncWo0GmuwlUEyyNEKk0c4o/n0U8OiCpTCz+NtSN3QZUDkL39JN75M341Q==@lists.linux.dev
-X-Gm-Message-State: AFuF++kgw+39iXBXESjhjAs++pR3fXKQWI4+NXHYrWmMx7b6e9I9upFK
-	MD7bsTxDP8prum6n6/MjSKImhrwADkE7fROfEU6iDhildGIFC+0b/xhRj1j3Vx8AlnERzfPWlow
-	zV5wQ/wAnHlmbK++QtdUu6O/M2GbN3XeidQYw1vTTXa3+ZGQ5DqVKxVAIIwIR+DRSsU29
-X-Gm-Gg: AYBFou0VCWvd5P/cAfEd44X3tvY4usL3DoLeHV3JN8eUFfL+LW9u/bYpnJtw3syQ91w
-	IeEakNAtIgF/Vff1FifB03wWHJc6zJHUTAFVCxftEpKIVq6TGkW/H2WwBoHB0cm+/Dsy19iG9dJ
-	nPdG4iUseblD3igdnjKVv1awzoXJc93Wxig9h3oYK+ekQgk5RVs9alkGKQi/9E4smXMEDdlP/H4
-	Lb8Z/zd0m4blbhq/zWMG0FRsSXbYsjh4Peitv+kU4acJVJi15LoeCel2PBtRo2GtHl6/bH2g98U
-	iajL12616Xn7XvJpopSs1pzTW/H983dyx/G4RMKcrPpFnUVCkPUOfCqJnKVp7YocYzC6bReS6vY
-	YG4Lx6pyQE/cNyivUI0OkSHohZdRxYM+ixpU2zsJWDFGyZQ==
-X-Received: by 2002:a05:600c:1d99:b0:499:8ff5:8ecc with SMTP id 5b1f17b1804b1-49fc56dacbfmr35462195e9.15.1789735676769;
-        Fri, 18 Sep 2026 05:47:56 -0700 (PDT)
-X-Received: by 2002:a05:600c:1d99:b0:499:8ff5:8ecc with SMTP id 5b1f17b1804b1-49fc56dacbfmr35461105e9.15.1789735675472;
-        Fri, 18 Sep 2026 05:47:55 -0700 (PDT)
-Received: from sgarzare-redhat (host-79-53-30-11.retail.telecomitalia.it. [79.53.30.11])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49fc58a1176sm39414825e9.2.2026.09.18.05.47.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 18 Sep 2026 05:47:54 -0700 (PDT)
-Date: Fri, 18 Sep 2026 14:47:41 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Ivy Lopez <skunkolee@gmail.com>
-Cc: kys@microsoft.com, haiyangz@microsoft.com, wei.liu@kernel.org, 
-	decui@microsoft.com, longli@microsoft.com, davem@davemloft.net, edumazet@google.com, 
-	kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, 
-	linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] vsock/hv_sock: fix socket/table leak when rescind races
- the delayed close
-Message-ID: <aq0ydoRGx4hq7BdR@sgarzare-redhat>
-References: <20260917220213.56102-1-bartlomiej.dmitruk@isec.pl>
- <20260918025650.15990-1-skunkolee@gmail.com>
+        bh=eReSrbiKW9Bm7tiCx6GP2jpAQfD5imbh5NHzgm8A6aU=;
+        b=iMZlAiYJkOvxyKtjevybP1/CZKbfU60T1MNYHtm97kZz+hA+emIPBCUFUN3A8o07QN
+         b9sa8b8Z00UC7KiA2HzExBkU5c+uubob+kp4iRDlMXkyGlT8XzeXSPpYXTySFhgNkBvw
+         qAqWN7QZHny/q7yGqzoH1NbVNro5rxkww0RAqsQjS5+BRGiF+Ugh2x0dQM/ZMzbi06gr
+         KZLF1XSMXmZPoehXQjG+ugk+gs+3AZB5BgCYBNvGa1wsY4yL/jaZOMTU8njHQNp3U+v7
+         3MMx2ktkqRCTDOUj11kpnL5T6vktv3EVhh67j3yjHievUVXDwJcO6wiFrajZfte881E7
+         2yiA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1789739483; x=1790344283;
+        h=content-type:cc:to:from:subject:message-id:references:mime-version
+         :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=eReSrbiKW9Bm7tiCx6GP2jpAQfD5imbh5NHzgm8A6aU=;
+        b=Fl4JGBS4xdH5DzBfVQGKttDIjwLemfeduUitCKZ15AjLRkSOS1nxC8z6UoKCdgW8A4
+         +asGUmN37dFEmWwsEKTXS/rG+9BDWI9123PsaJtM5IC7brWFEVkx/iDvXPFS97O1P7pS
+         RS+gVJeOypefLr1DC/b0d00XvF8Ufzqc32zGowdSCpw5IvAoVdK2M6YDNCMrYHRLJE8H
+         opcBCIYsdJWDQDLz1/FQY423O5xfdCZK/jI+jiKXWCG2bWo4wHIGX6PyTPENSdlEjyIe
+         1/O6Xkgh6kWxG2c3H4DWXHoGk0HnJaFNfcQr5yS4C2t9Ml48q8H6gfG5XiH9EjQL553o
+         NrRA==
+X-Gm-Message-State: AFuF++lX60VNA+VQF8BI9kb00yL544gxlIS3QsDlZbrD1qysvjtOa1ql
+	KJ98I/JS0CVXeu5Xs4NCn0tjaJErxoiqeLbNPxvfFkDS4Y9yFG/F6kc2qx9IAgzor7KaSve1tnO
+	BnIMIcGlnDxr/7jmF3+rQ9ksvQY7fTY7uMA==
+X-Received: from wmxe3-n1.prod.google.com ([2002:a05:600d:6503:10b0:49e:6c0c:b61c])
+ (user=sergiiushakov job=prod-delivery.src-stubby-dispatcher) by
+ 2002:a05:600c:5251:b0:49c:fa20:cc00 with SMTP id 5b1f17b1804b1-49fc5736898mr30776365e9.23.1789739482636;
+ Fri, 18 Sep 2026 06:51:22 -0700 (PDT)
+Date: Fri, 18 Sep 2026 15:51:20 +0200
+In-Reply-To: <20260918083557-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-In-Reply-To: <20260918025650.15990-1-skunkolee@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: XdOvYq7H0QfPnHP1BpK_dYRUFhUbn5KrlZJCovDhDgg_1789735677
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Mime-Version: 1.0
+References: <20260918083557-mutt-send-email-mst@kernel.org>
+X-Mailer: git-send-email 2.55.0.1082.g2b9226bbc0-goog
+Message-ID: <20260918135120.1261150-1-sergiiushakov@google.com>
+Subject: [PATCH v4] virtio-blk: clamp max_segments to virtqueue ring size
+From: Sergii Ushakov <sergiiushakov@google.com>
+To: mst@redhat.com, axboe@kernel.dk, stefanha@redhat.com, hch@lst.de
+Cc: virtualization@lists.linux.dev, linux-block@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, jasowang@redhat.com, xuanzhuo@linux.alibaba.com, 
+	eperezma@redhat.com, pbonzini@redhat.com, sergiiushakov@google.com
+Content-Type: text/plain; charset="UTF-8"
 
-On Thu, Sep 17, 2026 at 08:56:50PM -0600, Ivy Lopez wrote:
->LGTM.
->
->Should this need a Fixes: tag and possibly a Cc: stable@vger.kernel.org?
->
+In virtblk_add_req(), each request consumes 2 extra descriptors (out_hdr
+and in_hdr) in addition to the data scatter-gather segments.
 
-Yes, please.
+When a hypervisor (e.g. QNX Hypervisor) advertises VIRTIO_BLK_F_SEG_MAX
+with seg_max = 1024 alongside a 1024-entry split ring (vring.num = 1024)
+and VIRTIO_RING_F_INDIRECT_DESC disabled, lim->max_segments is set to
+1024. When the block layer submits requests with 1023 or 1024 data
+segments, total_sg reaches 1025 or 1026. This exceeds vring.num (1024),
+causing virtqueue_add_split() to return -ENOSPC and permanently wedge
+the blk-mq queue.
 
-Also, if LLM was used, we should add also Assisted-by tag, see 
-https://docs.kernel.org/process/coding-assistants.html
+Furthermore, the Virtio specification (2.7.5.3.1) requires that a
+descriptor chain never exceed the Queue Size, and virtqueue_add_split()
+falls back to direct descriptors if indirect table allocation fails.
 
-Stefano
+Fix this by:
+1. Rejecting queues with ring_size < 3 at probe, or
+   ring_size < (queue_max_segments + 2) during resume/reset recovery in
+   init_vq().
+2. Unconditionally clamping sg_elems to (ring_size - 2) across all
+   virtqueues in virtblk_read_limits().
+
+Fixes: 0864b79a1533 ("virtio: block: dynamic maximum segments")
+Signed-off-by: Sergii Ushakov <sergiiushakov@google.com>
+---
+Changes in v4:
+- Add Fixes tag.
+- Add code comments in init_vq() documenting the constants 3 and + 2.
+
+ drivers/block/virtio_blk.c | 44 +++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 43 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 32bf3ba07a9d..cafca309b4d0 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -1021,6 +1021,30 @@ static int init_vq(struct virtio_blk *vblk)
+ 		goto out;
+ 
+ 	for (i = 0; i < num_vqs; i++) {
++		unsigned int ring_size = virtqueue_get_vring_size(vqs[i]);
++		/*
++		 * Each request consumes 2 extra descriptors (out_hdr and
++		 * in_hdr) in addition to the data segments.
++		 *
++		 * At initial probe (!vblk->disk), each virtqueue must fit at
++		 * least 1 data segment + 2 header descriptors (3).
++		 * On resume/recovery (vblk->disk), each virtqueue must fit the
++		 * existing queue_max_segments() + 2 header descriptors.
++		 */
++		unsigned int min_ring_size = 3;
++
++		if (vblk->disk)
++			min_ring_size = queue_max_segments(vblk->disk->queue) + 2;
++
++		if (ring_size < min_ring_size) {
++			dev_err(&vdev->dev,
++				"virtqueue %u ring size %u is smaller than minimum %u\n",
++				i, ring_size, min_ring_size);
++			vdev->config->del_vqs(vdev);
++			err = -EINVAL;
++			goto out;
++		}
++
+ 		spin_lock_init(&vblk->vqs[i].lock);
+ 		vblk->vqs[i].vq = vqs[i];
+ 	}
+@@ -1253,7 +1277,7 @@ static int virtblk_read_limits(struct virtio_blk *vblk,
+ 	u16 min_io_size;
+ 	u8 physical_block_exp, alignment_offset;
+ 	size_t max_dma_size;
+-	int err;
++	int err, i;
+ 
+ 	/* We need to know how many segments before we allocate. */
+ 	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_SEG_MAX,
+@@ -1267,6 +1291,23 @@ static int virtblk_read_limits(struct virtio_blk *vblk,
+ 	/* Prevent integer overflows and honor max vq size */
+ 	sg_elems = min_t(u32, sg_elems, VIRTIO_BLK_MAX_SG_ELEMS - 2);
+ 
++	/*
++	 * virtblk_add_req() uses separate outgoing and incoming header
++	 * descriptors (out_hdr and in_hdr), consuming 2 extra descriptors
++	 * per request in addition to the data segments.
++	 *
++	 * Per virtio specification (2.7.5.3.1), a driver MUST NOT create a
++	 * descriptor chain longer than the Queue Size of the device.
++	 *
++	 * Clamp max_segments to (ring_size - 2) across all virtqueues so
++	 * that a request never exceeds the ring size of any queue.
++	 */
++	for (i = 0; i < vblk->num_vqs; i++) {
++		u32 ring_size = virtqueue_get_vring_size(vblk->vqs[i].vq);
++
++		sg_elems = min_t(u32, sg_elems, ring_size - 2);
++	}
++
+ 	/* We can handle whatever the host told us to handle. */
+ 	lim->max_segments = sg_elems;
+ 
+@@ -1466,6 +1507,7 @@ static int virtblk_probe(struct virtio_device *vdev)
+ 	mutex_init(&vblk->vdev_mutex);
+ 
+ 	vblk->vdev = vdev;
++	vblk->disk = NULL;
+ 
+ 	INIT_WORK(&vblk->config_work, virtblk_config_changed_work);
+ 
+-- 
+2.55.0.1082.g2b9226bbc0-goog
 
