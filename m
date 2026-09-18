@@ -1,150 +1,207 @@
-Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20D00481DD;
-	Fri, 18 Sep 2026 14:22:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.97.179.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E1373DEFE2
+	for <virtualization@lists.linux.dev>; Fri, 18 Sep 2026 14:27:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789741363; cv=none; b=EhKTjW6nbTcwn5aaIzsS0l6f+27YW7Bw/1lmsvlmB/ybMHl51qufqBtOEwdEwWaYOONMuSEGjgJPFB7upZDTa+hpeXZNMtB1c0pYOVSa12Ol3Kcdttl6R1j9LJE6/g4HZ7ndii+W3v04J5DDVwbSnGG0p6Pi9vYYdBvs+c0bTCk=
+	t=1789741680; cv=none; b=tm825G0dZeDuwYV15O+AABQ6O7PWAQN8IhOai/eiima5Vh6pdEW/Rgw5Y5f0Jfb21/RA5YYQeanuDbSigGjR8SB7GvihFw1qPVitZbzfvO8zlMwmTJL03vPy5otwSaoUe5g1a4xQ3DFcSv2pmIW4dnQyRL2iC+9sRaulOhpxHHA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789741363; c=relaxed/simple;
-	bh=cbGPyXO8tDYVSie4U1A8gTgdS3deiymDv3GNSI34Uws=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=e1p1iS42WniirBg6amGGbyyAzxy4YlFU4rHltu2HPlF4fcdHe9i9bi5+T7ypwZkdthY+9VDvwpFScab/Ixc/mU4T8R7vd5AOGm6Xldcdoe+v06cFrzBYxOscRFZyxKzPINR3Q/IwCWpInGE8GDd+bZrck65GIh8AAelf9YaLPsE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com; spf=pass smtp.mailfrom=igalia.com; dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b=EaeCuaRd; arc=none smtp.client-ip=213.97.179.56
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igalia.com
+	s=arc-20240116; t=1789741680; c=relaxed/simple;
+	bh=qWPM8mEcQAiZiBe5wIuy4aqUTDeswnrEyUyg1zkQHi0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=MnXTn8aYXLLX5SocVvIb3k24zBChouhcvhScXgxmcFzbivbRblvc4EDwy+0Z50T5gPtpp/qtBGeW2iR6DMMX/kLnuzs66H++skve659Do8vRP8CGnzqb8DKN6yl9iqXC8HKOAWsuM64L/Z/AkSrUSDZeNH0Hc6DK20w/O9cpo3M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YkYrkVSK; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b="EaeCuaRd"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
-	s=20170329; h=Content-Transfer-Encoding:Content-Type:From:Cc:To:Subject:
-	MIME-Version:Date:Message-ID:From:Reply-To;
-	bh=pYtYAfDJI8svYgT1CrIOHRyiBJYKlCKWW3kx3NqqXaA=; b=EaeCuaRdcRqVmNl2UEMC6QisP0
-	kg5w3HbqifVeXKkmWkqX/s3URonieftbiyE2PXXeRhhfc7HXBuk3ieziDcosLAl1GrXN3pT6ugQQq
-	7Yd8nkvCaLko1T29eHPgIpQ0LBjrbe168rUfvyfmaNFS3b6QmCCyPi/4ili4OPD+j1n2Up6AkH9Pg
-	+r98FiPmT98FQqtjOkmlYk626vUg+wOJmym5DE6qYjYmRFS7C9K2Iwfzo5JuE7qJQqZoWr5xZRTiC
-	O/cDJYTRL4ZnoBCzihKo6i6OeOl2UssF1T8i6v5xx2DiVvS2vTEzVHpCNR3RhrQhUf8EIuy6MX4u7
-	9nJTRW5A==;
-Received: from [191.32.244.140] (helo=[192.168.1.56])
-	by fanzine2.igalia.com with esmtpsa 
-	(Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128) (Exim)
-	id 1x7ZTG-003yti-Ta; Fri, 18 Sep 2026 16:21:46 +0200
-Message-ID: <bc0bdd14-5e6a-0676-cd04-14fb0bb93cd5@igalia.com>
-Date: Fri, 18 Sep 2026 11:21:38 -0300
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YkYrkVSK"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1789741676;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Tzy4rg64m2nfrHznucdcUVmAGxkvGHwxFBaPQdjr128=;
+	b=YkYrkVSK+1em0CaBrSnAFiTUIwgfaX3bMTKCTXJ5nOl38OrSUaOSEAZQPg1DHtEzFTbno2
+	RHcaR1Dg03346Knt8dNZFn5gT3yfwsNcXNzn1OIYcsLyEU6HwIVI26xpf/k3P0K7ek/JPL
+	m8tCLbaP8J5nJlxDYWs4JxaLd9iddKM=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-617-RYn2H8OlN_WDzx0HO3ZQtg-1; Fri, 18 Sep 2026 10:27:54 -0400
+X-MC-Unique: RYn2H8OlN_WDzx0HO3ZQtg-1
+X-Mimecast-MFC-AGG-ID: RYn2H8OlN_WDzx0HO3ZQtg_1789741674
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-486f3c0d896so467438f8f.3
+        for <virtualization@lists.linux.dev>; Fri, 18 Sep 2026 07:27:54 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1789741673; x=1790346473;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=Tzy4rg64m2nfrHznucdcUVmAGxkvGHwxFBaPQdjr128=;
+        b=hzgbTLoX/6dQHk0AUaK/XTHMAWgqsTBLmN5Vke7mVOiGJg0EPH7Gutd/cLpxOMP51E
+         F2JadjVDXfJ5cflJc8Lc65im0KQiECpTnSYbBtf2czrKVTIuB+Pk2N1HPW7mnkMdtmeS
+         KRcO8bvy2wMzFYweMWepNqu6saYsN0V25fqdJ0UwGf18yvF8UMiUv9FCtjFvezJh/rWO
+         WkX4ZJiW/Ml6UOfBW30fXmTKIZT0FBbDwvmIGUAMvByFPkoYHzTKbarTePVti+UWTuvb
+         jcZ8IFheM4Egd+7LaumwoV5MHgFxt006DeUBo4P+ppG0Cdp9naeMCWPIFrN/o1GOLSzu
+         kgpQ==
+X-Forwarded-Encrypted: i=1; AKwUvBzezxblSy6G71sd0gPlxxJ1rN0CARDrvY6BfEjpR8ZD2ePwoLw1zcJRqRKcz1jiXyJOMNMGyNlV3xumemnXeA==@lists.linux.dev
+X-Gm-Message-State: AFuF++ngghGZ3nstDW5z9K08qPLDnoINY0j+sARF4IMoVLYdze+qGNP5
+	b4bATWB6CSiNcTQLOSzAxO94AYs3eGqtyl4bzb2OOpAoYyq9vniHwqR4d7f6MugnluJ6CcZ+QFO
+	CeL++L2jEYRVBq6K96dh5FAzFI6v7x2jpr2dUppOi4zDK57u8dgAuAvA00vyDpHn+ly64
+X-Gm-Gg: AYBFou2AROHF6U1y8vrD9zHFI5JXZZOB0XFIVJICv9fSXLJ4Jv9iyOS4PrhVKDqeyCD
+	/uVT2e0fDj/wK3fRu5V+1tRDCg1NVAWkdVDE2ShEQ9MP1gcw8OTYILasrhdUHAFjs6htJqJ2slO
+	jqrdVmlzg/264WGKpeyq22zGcTVAnwh/UrIs0RGDMBzPKqaXSZoVjGbpHdB6dvYclXVzIjCBotw
+	lVYvuM6UygqO6bY16azfyWz0plrvN8W5vLW3eZ0mOZ9MbG67WmfZ18+6dwI65DltypgsUjXYJS5
+	WpXYx/TECjkt8RB14/xwDFnj7FuaWCpLxQXRSquLaDQ/veg6qJgvJdVsA94tIY+e5VnbvFI6Z/j
+	/y6G3SR3S+jWSSn1Bd1cyX53eHDrWRLNW4zJHgK1pNdhAYw==
+X-Received: by 2002:a05:600d:4449:10b0:49f:cc2a:f73a with SMTP id 5b1f17b1804b1-49fcc2af743mr10053605e9.25.1789741673564;
+        Fri, 18 Sep 2026 07:27:53 -0700 (PDT)
+X-Received: by 2002:a05:600d:4449:10b0:49f:cc2a:f73a with SMTP id 5b1f17b1804b1-49fcc2af743mr10053175e9.25.1789741672904;
+        Fri, 18 Sep 2026 07:27:52 -0700 (PDT)
+Received: from sgarzare-redhat (host-79-53-30-11.retail.telecomitalia.it. [79.53.30.11])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48720081426sm4196721f8f.33.2026.09.18.07.27.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 18 Sep 2026 07:27:52 -0700 (PDT)
+Date: Fri, 18 Sep 2026 16:27:46 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Bobby Eshleman <bobbyeshleman@gmail.com>
+Cc: "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Jason Wang <jasowangio@gmail.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, Shuah Khan <shuah@kernel.org>, 
+	Randy Dunlap <rdunlap@infradead.org>, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, kvm@vger.kernel.org, 
+	linux-kselftest@vger.kernel.org, sargun@sargun.me, jlinbox@meta.com, 
+	Bobby Eshleman <bobbyeshleman@meta.com>
+Subject: Re: [PATCH net-next 2/6] vsock: add IOCTL_VM_SOCKETS_ASSIGN_G2H_NETNS
+Message-ID: <aq1D1S9p9vRl7eV_@sgarzare-redhat>
+References: <20260902-vsock-guest-ns-v1-0-9995383e9a8b@meta.com>
+ <20260902-vsock-guest-ns-v1-2-9995383e9a8b@meta.com>
+ <aqlTlFvQL34-WViB@sgarzare-redhat>
+ <aqmTYoCMmzx1BM1v@devvm29614.prn0.facebook.com>
+ <aqqPXr2LNJUM4yMW@sgarzare-redhat>
+ <aqsI5BXRB96dkIHm@devvm29614.prn0.facebook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.15.1
-Subject: Re: [PATCH v1 4/4] x86/vmware: Run panic diagnostics before kdump by
- default
-Content-Language: en-US
-To: Zack Rusin <zack.rusin@broadcom.com>, Petr Mladek <pmladek@suse.com>
-Cc: Borislav Petkov <bp@alien8.de>, Ajay Kaher <ajay.kaher@broadcom.com>,
- Alexey Makhalov <alexey.makhalov@broadcom.com>, x86@kernel.org,
- Joel Granados <joel.granados@kernel.org>, Baoquan He <baoquan.he@linux.dev>,
- Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Dave Hansen <dave.hansen@linux.intel.com>, "H . Peter Anvin"
- <hpa@zytor.com>, virtualization@lists.linux.dev,
- bcm-kernel-feedback-list@broadcom.com, linux-kernel@vger.kernel.org,
- John Ogness <john.ogness@linutronix.de>, Steven Rostedt
- <rostedt@goodmis.org>, Sergey Senozhatsky <senozhatsky@chromium.org>,
- Kees Cook <kees@kernel.org>, Andrew Morton <akpm@linux-foundation.org>,
- Mike Rapoport <rppt@kernel.org>, Pasha Tatashin <pasha.tatashin@soleen.com>,
- Pratyush Yadav <pratyush@kernel.org>, Dave Young <ruirui.yang@linux.dev>,
- Jonathan Corbet <corbet@lwn.net>, Bo Gan <bo.gan@broadcom.com>,
- Brennan Lamoreaux <brennan.lamoreaux@broadcom.com>,
- kexec@lists.infradead.org, linux-doc@vger.kernel.org,
- Stephen Brennan <stephen.s.brennan@oracle.com>
-References: <cover.1788414671.git.zack.rusin@broadcom.com>
- <7487011dfb95aadda9515b22a5852680df1982c5.1788414671.git.zack.rusin@broadcom.com>
- <aquttpMVKX8e6zGB@pathway.suse.cz>
- <CABQX2QPJVg-dZB9f4ydRU_5W7nyWwVCQtDoRGoe1+9cA7wyUDw@mail.gmail.com>
-From: "Guilherme G. Piccoli" <gpiccoli@igalia.com>
-In-Reply-To: <CABQX2QPJVg-dZB9f4ydRU_5W7nyWwVCQtDoRGoe1+9cA7wyUDw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <aqsI5BXRB96dkIHm@devvm29614.prn0.facebook.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: EcSx1-uUhU4X9gatkIom5lKs1qWjYx5kQy7LjYbZWCk_1789741674
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-Hi Petr, Zack - thanks for CCing me!
-Some comments below:
-
-
-On 18/09/2026 00:23, Zack Rusin wrote:
+On Wed, Sep 16, 2026 at 02:23:48PM -0700, Bobby Eshleman wrote:
+>On Wed, Sep 16, 2026 at 02:57:43PM +0200, Stefano Garzarella wrote:
+>> On Tue, Sep 15, 2026 at 11:50:10AM -0700, Bobby Eshleman wrote:
+>> > On Tue, Sep 15, 2026 at 05:28:25PM +0200, Stefano Garzarella wrote:
+>> > > On Wed, Sep 02, 2026 at 04:00:48PM -0700, Bobby Eshleman wrote:
+>> > > > From: Bobby Eshleman <bobbyeshleman@meta.com>
+>> > > >
+>> > > > Namespaces let a host isolate a VM's vsock traffic to a specific
+>> > > > namespace, but in a guest vsock traffic cannot be isolated to a
+>> > > > namespace. The vsock device is hardcoded to global mode and can't be
+>> > > > moved into a local-mode namespace.
+>> > > >
+>> > > > Introduce ioctl IOCTL_VM_SOCKETS_ASSIGN_G2H_NETNS on /dev/vsock that
+>> > >
+>> > > We already discussed about netlink, but I'm not sure how much work can
+>> > > take, here just another alternative, what about adding
+>> > > /proc/sys/net/vsock/g2h_owner sysctl that can be read/write where:
+>> > > 0 - no owner
+>> > > 1 - owner
+>> > >
+>> > > 0 -> 1 transition, move the device in the new nets
+>> > > 1 -> 0 transition, reset back to init_ns
+>> >
+>> > That seems reasonable, but if multi-device support ever lands, this
+>> > might be harder to adapt cleanly?
+>>
+>> I see, but maybe we can have a dev0/ dev1/ subfolders in that case.
+>>
+>> >
+>> > >
+>> > > > gives userspace a way to move the device to the calling pid's namespace.
+>> > > > The call requires CAP_NET_ADMIN in the root user namespace. A privileged
+>> > > > user wishing to "unassign" the device can move it to the init_netns,
+>> > > > which is hardcoded to global mode (so no unassign call is necessary).
+>> > > >
+>> > > > A getter to read the current assignment back was considered, returning
+>> > > > either the namespace's net_cookie or its nsfs inode number, but neither
+>> > > > seemed useful enough to bake into the uAPI now. It can be added later if
+>> > > > a user turns up that needs it.
+>> > > >
+>> > > > Add a transport hook to indicate support for guest namespacing, so that
+>> > > > transports may opt in/out. A transport that opts out keeps the
+>> > > > reachability rules it had before this ioctl existed.
+>> > > >
+>> > > > Sockets are reset when the underlying device moves to a different
+>> > > > namespace, so as to prevent reachability from the previous and now
+>> > > > disallowed namespace.
+>> > > >
+>> > > > Following the approach of netdevs, the device returns to init_net when
+>> > > > its namespace is removed. Care is taken to not break flows when the
+>> > > > device is inside a global namespace that is being torn down and alive
+>> > > > sockets are in a different global namespace. In this scenario, the
+>> > > > device's netns getter pre-emptively falls back to the init_net (always
+>> > > > global) so that these flows are not disrupted. If init_netns ever
+>> > > > supports local-mode in the future, this logic will have to be changed.
+>> > > >
+>> > > > Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
+>> > > > Link: https://lore.kernel.org/all/20200427142518.uwssa6dtasrp3bfc@steredhat/
+>> > > > Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
+>> > > > ---
+>> > > > Documentation/admin-guide/sysctl/net.rst |  18 +++
+>> > > > include/net/af_vsock.h                   |   7 ++
+>> > > > include/uapi/linux/vm_sockets.h          |   6 +
+>> > > > net/vmw_vsock/af_vsock.c                 | 198 ++++++++++++++++++++++++++++++-
+>> > > > 4 files changed, 228 insertions(+), 1 deletion(-)
+>> > > >
+>>
 >> [...]
->> Maybe, we should start with something simple, and introduce
->> one more panic notifier as a start. It might be called either:
 >>
->>   + "panic_hypervisor_list" because "crash_kexec_post_notifiers = true"
->>     seems to be primary set on hypervisors.
+>> >
+>> > One thing I realized when answering your uAPI questions and looking at
+>> > the code is that IOCTL_VM_SOCKETS_GET_LOCAL_CID is not namespace aware,
+>> > but I think it probably should be? I remember for host ns we strived for
+>> > truly strong isolation.
 >>
->> But I would rather make it more generic and call it
+>> Can you elabore a bit more?
 >>
->>   + panic_pre_crash_kexec or panic_pre_kdump because there might be
->>     more notifiers which are either 100% safe and useful or are worth
->>     the risk before calling crash dump.
->>
->> We could put there x86/vmware notifiers as a start. And we could later
->> move there other important notifiers.
->>
->> How does that sound, please?
-> 
+>
+>I'm wondering if IOCTL_VM_SOCKETS_GET_LOCAL_CID should not reveal the
 
-It's a good idea, IMO. We could start with this, Zach commented some
-implementation details below...and after it gets merged, we could move
-other hypervisors that currently set "crash_kexec_post_notifiers" to
-this list and eventually, unexport this symbol. We should avoid having
-code forcing this parameter, as Petr said, many notifiers are executed
-if that is set.
+Okay, I see now, too many IOCTL_VM_SOCKETS involved and I didn't get you 
+were referring to the GET_LOCAL_CID xD
 
-(I'm CCing Stephen Brennan here, I recall he had problems with this
-being auto-set, we talked about that in the panic notifiers big
-discussions in the past heh)
+>CID of the g2h device if the device has been moved to an inaccessible
+>namespace? In this case, fallback to the results of h2g/local and
+>through to returning VMADDR_CID_ANY if neither of those transports are
+>loaded.
 
-The only thing I'd like to suggest: I think we should have a parameter
-that disables running this list, which would be the opposite of
-"crash_kexec_post_notifiers".
+Yeah, I agree. I'm not 100% sure if it's really an issue if we reveal it 
+to any workspace, but I also don't see why we should do that. So, yeah, 
+if possible we should reveal it only in the namespace assigned to the 
+G2H.
 
-I would implement it as something like: "postpone_pre_kexec_notifiers"
-or something like that. The parameter would basically "move" this list
-execution to the same time as the current notifiers, gating them to
-"crash_kexec_post_notifiers". This way, we'd allow users to debug kexec
-failures maybe related to the "early" notifiers. WDYT?
+>
+>I also considered whether or not /dev/vsock should even be visible from
+>within an inaccessible namespace in order to not leak even the mere
+>presence of the vsock device, but it seems to me that /dev/vsock's
+>presence doesn't leak anything besides the presence of the vsock module.
+>
 
+Will this break userspace doing IOCTL_VM_SOCKETS_GET_LOCAL_CID on 
+loopback, etc. ?
 
-> [...]
-> I think that without that default though, x86 oops_end() can enter
-> crash_kexec(regs) before reaching panic(), for example with
-> panic_on_oops=1. To cover that path too, I'd call the chain from
-> __crash_kexec() after the image check and register capture, under the
-> existing kexec lock. A second call in vpanic(), immediately before
-> kmsg_dump_desc(), would cover the fallback path. And I think a
-> set-once guard would prevent duplicate or recursive dispatch.
-> 
+Thanks,
+Stefano
 
-Regarding this, 2 things:
-
-a) I think you could change kexec_should_crash() to "return 0" also in
-case the new list is set to run, the same is done currently for
-"crash_kexec_post_notifiers". Makes sense?
-
-b) Well, does this whole panic diag thing you're implementing here aims
-only at x86 guests ? Or would it be possible to run, for example, arm64
-guests? Asking this because in x86 and some other architectures (but not
-arm64[0]), it's possible to override machine_crash_shutdown() handler,
-and run things prior to a kexec. Take a look on how Hyper-V does that on
-arch/x86 - this could be just what you need, except if you plan to have
-it for all architectures heh
-
-Finally, if possible please keep me looped in the following patches, I'm
-very interested on that =)
-Cheers,
-
-
-Guilherme
-
-
-[0]
-https://lore.kernel.org/r/427a8277-49f0-4317-d6c3-4a15d7070e55@igalia.com/
