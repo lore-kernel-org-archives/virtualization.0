@@ -1,266 +1,278 @@
-Received: from CY7PR03CU001.outbound.protection.outlook.com (mail-westcentralusazon11010040.outbound.protection.outlook.com [40.93.198.40])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pz2-f43.google.com (mail-pz2-f43.google.com [74.125.228.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0297250B41B
-	for <virtualization@lists.linux.dev>; Fri, 18 Sep 2026 15:48:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.198.40
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789746523; cv=fail; b=Nyp0dG2IU3Yt+6ASRazrua2dqnU7Fv3tGZvOq+F/18oj5sDFO5KK0DeHHGyxd81sdpKQGgL/jIw3UEfpX+2EsIAFqZpzU33xaVvWlJgDM075DCXvGTBAa1IAv9PMrNEy6Po8bAJzBg0hfqiln5mMP+8KJxXzJjExVdFNY6zoSO0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789746523; c=relaxed/simple;
-	bh=2yH2Sf9Tkl7+cTrtoB96NGFSKh38+u0FIK7EwclaQks=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=kiqy346MQ3pHbMMvHCp0Tnhnm1FYA7c/8o/Tsaah9eikTDcuju9vwaOYFooUFh9mSZE8ngFdFtTL0lLhIblPV8xyUIOz+4azoT5qx0kRl685U/4gyPdHmmgXhi1cFn5wtMpm0t6NpnTo3o4zoffWrNNVwXGugFF9tFkHktCAWMQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=NfLcdKyU; arc=fail smtp.client-ip=40.93.198.40
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF32F5158B5
+	for <virtualization@lists.linux.dev>; Fri, 18 Sep 2026 16:53:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.43
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789750441; cv=none; b=C3LS+OhQhW9/2jqAiEvM7//TDxmTlJ/bHiDsGbRttItS7qhqy4BA7dI61ugWRuCokF7+eBJPbBRKyD3+LtPZHI/TkV1aDohdOKPD75RlTqR9aUZQ18h0UBGFQY4KZR+NObe9M7q0OlutIf3X041NmA0HrxnqbmSrPm5NMDOINFo=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789750441; c=relaxed/simple;
+	bh=2EvlZasgpZ/lIxySBiQPHv2EmQ3k7uR84drJbmi41ZE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=cvzl0Z/0esneHpdj1WQvELPFFmroim0KePgRdvtKP7dUAVVZJW4yqIKGtIqeZqmRjqgeyxlY4NKPTCXp0RHpBM4gIHIooF7N3arUwkAa3munLbP/LEKkzG8TXm1NgNHGQPfpBqN/tzZgxKA5zB+Y8hZd8WG9sACWjyfy43OzJ34=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=uQsmyq1p; arc=none smtp.client-ip=74.125.228.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="NfLcdKyU"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=JJoQLIx1Tu6B7Z6YAJJbD1gzUSa4y+2K4D+CGAKL9zD6eFr3x0FKiQtUO2Rp76rk+rBsaWA0h6cY0HvVSgnTGu2wPDna5f0doZr590cvxEnNP6kMw34uACRB91vpOC4JUJD5x8GJkdo8bH2eysOuyyfCB+wEy+yArN0eyfW5QkK/rozeD/SCHk/lOQGp5DXNbC2jVRoDXuB7XQ9getUTI2nBiBhjTyKpFVp4NTcrF0M6SQNB+f7TQCIicloj2miku01Gd7oylIm85szzeMldE4+a9eDewg78BHZWye8pX2pNPLuSPI2g4ru0JWP8i+8gb824yt6+vGRRndcl4G6aFQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=9pPCfm9RWL4J4x/97y6sGVvkd5DdoP94qa+oXo2cPig=;
- b=Le+bjWwFm6OoG7VM4hq+hDoVJ3Hw3xyQvuPuNZ8443yW8gJKi9WSZ1utNlSAxRObOqR85i4OApnx7H7QeJWwDA4I/WWmuAictTPpG6hON+lwbUcx8oyrvpcYMCm0ZlND9AFalwdJ7G1QOAYGNxrIhy/IebHzjMK23IFPgnMjZ5O+dKUBp4L8zJ61YLka165Vum+pEAsEje3fK2oP5X24rFR06/7KD2GCR7/oXpa8annwwYX05C72jnxscyBGBkCyvIF+wtu3tIjUJO3n46Vo+iFjFsxYiqJuWpQWv+Y7nJ343lysWauvF/Na+UHzDFaNKlRvI7EMccy1ddfvnuW3jg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=9pPCfm9RWL4J4x/97y6sGVvkd5DdoP94qa+oXo2cPig=;
- b=NfLcdKyUA3MkX+vCYud1IhC9RwBJfPb0Bx/k9kgQoAL/Cj0KEfP3jMmN0DJjfW50uZAojM8mM5tBVoMpWfeLXCMHTjFey6TNHggWQVkhXNNoD5uWhz9kvIcT5YqA5cC2Z/CeAjtgUVe+AxJBOYT9QmgdfW/WMvXLT5Ykl+oK020=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from CY8PR12MB7170.namprd12.prod.outlook.com (2603:10b6:930:5a::18)
- by BY5PR12MB4145.namprd12.prod.outlook.com (2603:10b6:a03:212::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.428.13; Fri, 18 Sep
- 2026 15:48:38 +0000
-Received: from CY8PR12MB7170.namprd12.prod.outlook.com
- ([fe80::7565:bdd3:383a:de5f]) by CY8PR12MB7170.namprd12.prod.outlook.com
- ([fe80::7565:bdd3:383a:de5f%3]) with mapi id 15.21.0428.011; Fri, 18 Sep 2026
- 15:48:37 +0000
-Message-ID: <6f36d088-9366-48fa-b67a-659eabbd1c42@amd.com>
-Date: Fri, 18 Sep 2026 23:48:32 +0800
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v8 2/4] drm/virtgpu api: add blob userptr resource
-To: Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>
-Cc: Gurchetan Singh <gurchetansingh@chromium.org>,
- Chia-I Wu <olvaffe@gmail.com>, Ray Huang <Ray.Huang@amd.com>,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, Dmitry Osipenko
- <dmitry.osipenko@collabora.com>, David Airlie <airlied@redhat.com>,
- Gerd Hoffmann <kraxel@redhat.com>
-References: <20260918095940.2253018-1-honghuan@amd.com>
- <20260918095940.2253018-3-honghuan@amd.com>
- <a08fc58b-c67a-4a96-a967-7280c8f9e965@rsg.ci.i.u-tokyo.ac.jp>
-Content-Language: en-US
-From: "Huang, Honglei" <honghuan@amd.com>
-In-Reply-To: <a08fc58b-c67a-4a96-a967-7280c8f9e965@rsg.ci.i.u-tokyo.ac.jp>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: TY4PR01CA0062.jpnprd01.prod.outlook.com
- (2603:1096:405:370::14) To CY8PR12MB7170.namprd12.prod.outlook.com
- (2603:10b6:930:5a::18)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="uQsmyq1p"
+Received: by mail-pz2-f43.google.com with SMTP id d2e1a72fcca58-85469a3490bso1114975b3a.3
+        for <virtualization@lists.linux.dev>; Fri, 18 Sep 2026 09:53:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1789750438; x=1790355238; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=vVUde7IRkQCiapOxCzvLvGC5LfRJvKccbFMpxGxukJw=;
+        b=uQsmyq1pq4IhhVufDyd46Pa0k/KgFIak7RlU3jFZBwf0qn6bdFXAH9xLMVcjrXP14a
+         14LqegNjxl9FH/Us8oJCzQ9RTSfzIZAmSmTTKW0WxQTmXryyZt/7xwP1jV7F1/ugx1Vc
+         cm9s2WjYjVfb9rezVwlqWZ6F0nMmT3ZPmNo7AjORRaydV0sROGurQcVGvq7zYXFeaDO4
+         Uw3YgwhH0m0JTsugFSYcn7ovUisMn4nFoqJr87Arc/N8NHO+NOgrDy3SwOteUrY6pEqv
+         eO5pXwOxgn9np5VPh6OpFBUMqy3F6N37r2OV9ga6MBMVzU7aTGIo52dZYryqjYs6TvWn
+         ulzA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1789750438; x=1790355238;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=vVUde7IRkQCiapOxCzvLvGC5LfRJvKccbFMpxGxukJw=;
+        b=wvt6hO0OQAvW+zdwHh6XBypjiKnAtTAHnBE5rMzrAN5UWY3ZYtq7pQKzc9p08ELek5
+         tsMzq5W0c7F/EIOpov5w8ClpRk3Khd2u1Ggo96cy7DMOUgX6KdA+zz1EHjyyvHguLnhN
+         tBGHr7drWE4+FNzIPf55zrNQQiOam4xho2Qw2nB/N+zm0Auq799H7RBAWzEsXm6hsU+S
+         SI1+Smc4leddXl8e97DhCYYnJw2rgp4+7/7E2KOJCtFMyTbL4iWN810ddu1kzaNZGElQ
+         9KpBgRaLd2VyWFxTL/KtkvnWGXE7X697XvBwbZRC6BmGvaLLhxQGeT8H0xk810kRR87C
+         vbfg==
+X-Forwarded-Encrypted: i=1; AKwUvBzsw95J1AWmNgMWRz+Fw3ZVBiGVP0zK6LjwjAWXIbjWACTrORO7GUhKMwevp781OslBK/CMLgQ/MHtLU8+1zA==@lists.linux.dev
+X-Gm-Message-State: AFuF++k2MJej4MMFxaDV0MASyuh74c4eQZlPmfKSknPXbb1AtYZ3Ryxq
+	u4tjogPVZpYvkda5uR9nteDUu2DEhbvjMf5SALu72ukmeGmu78qcUYj1C6VS2lumtGo=
+X-Gm-Gg: AYBFou2LfiO+lZ9QYebCK8EFEdelGT8u9S0NwbvxFeMK1SKfU5xwRRun1WvY8g4il9h
+	3gcLC69bz9HDBd0t9LGdfenKUaK6fxSY2bYnhuijBalxr5BUEtJD6ecZgV5XrdekFZ4xeqf9v7x
+	Mjlnp26SDtN5ooppwFN6kKmUjkemv6gaXhEpnWKNWBbHEs5ZphreX9jh+IeSXPF1x9P+46eSFJc
+	bNWYaal+l6O8pSSEQ0KrBUp9QY4cr1Sa6PP4G6RS9xblkZloFBn5fzCZcZQ8hrgGglJzxSskO1X
+	PqoWBZx0D0UUdWQJjCnNz/a+XGI7svOTZOcDp6jztPXmFzqr/n+0DlAEtDhO8WtfoHwDI4XeQJp
+	SMruIGNskZ91NrYXmf5zMVdZ72T+0p0NpMzqDDczEcJT7t5hOWsceEeQ3QDDaXnEtTRsT4yuU/Y
+	vM3p7N+nvoonnS9WGk6YREexE4zkwV0Fyf6sLM/Ptn7sePlm+Dx4jx6oF1KDmJ8cmgmO9GmBru1
+	CU=
+X-Received: by 2002:a05:6a00:ad89:b0:847:77e9:acbb with SMTP id d2e1a72fcca58-874dc3f65a8mr6351046b3a.13.1789750438072;
+        Fri, 18 Sep 2026 09:53:58 -0700 (PDT)
+Received: from p14s ([2604:3d09:148c:c800:ff7b:49b4:123e:4989])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-877a6bec901sm69019b3a.4.2026.09.18.09.53.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 18 Sep 2026 09:53:57 -0700 (PDT)
+Date: Fri, 18 Sep 2026 10:53:54 -0600
+From: Mathieu Poirier <mathieu.poirier@linaro.org>
+To: Francesco Valla <francesco@valla.it>
+Cc: Bjorn Andersson <andersson@kernel.org>, Kees Cook <kees@kernel.org>,
+	"Gustavo A. R. Silva" <gustavoars@kernel.org>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Mark Brown <broonie@kernel.org>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>, Frank Li <Frank.Li@nxp.com>,
+	Peng Fan <peng.fan@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>,
+	linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org,
+	devicetree@vger.kernel.org, virtualization@lists.linux.dev,
+	imx@lists.linux.dev, iommu@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH RFC 00/12] remoteproc: add support for any virtio device
+Message-ID: <aq1sooGCYUiWbhMH@p14s>
+References: <20260916-remoteproc_virtio_map-v1-0-dac8c5eb4aa9@valla.it>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY8PR12MB7170:EE_|BY5PR12MB4145:EE_
-X-MS-Office365-Filtering-Correlation-Id: 47a06a0d-0bec-4ee6-04ae-08df159c4df6
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|23010399003|376014|1800799024|366016|10067099003|11063799006|22082099003|18002099003|56012099006|4143699003;
-X-Microsoft-Antispam-Message-Info:
-	XITswcXts4eoL7b4RlCfQR5yIGb/8W75jDnMUywYFy0hQZdjK2zwVGMo2/MTxtja42xO0sCN3UhIdCAyrbEGW3pt9ohgd0PkXJvGzWuuee396Sws49UmyuizsLn7H/jjGnUaZeiHmt9Ux1p5VgODuoDRRHibM+x/HW3u3MKiJb0lJ/Xid2qOzh/RHxD80S69Kpvph/sFn+DzqCuXaHJMKw0VpJrQfMu/JeT+ixVFKSr7dbpPBArxJ5z4L9QRQ9XOZNy88qxeRcuU5ZnF0Qni4YoIPmd5zczWUHNe9Ad81rxQ1XOdoUQigOz3jh64BzIxKYDnkERyZrBX9WJvbQ3FIcrLG/i644kYWQd5TSgocGVjHCbB5fO+D5BFdKxiwJ4nd9IiVqvjcXugHurnIiTogE8UKalEVLFVdEpWReu8jOYke4jFEsm3gaqlK8S89rImDUhKKI1IIWLfL3agV40Y/zJewZHdsUeJXF4C7fxQO9gEVO7qvEZqBhvwvxqfJ1kZGbFUwcpNw9Vgd7stgJIvuMr7nPMcmtAaohiLRnW9dWmAhJ68iLmKoRFrRGQRp8BZuZfUvaSFmTtoKE6aAI16QD4zcW/jK6HelN3JCZQO3TICutzwpsFf0u65YzBTnOSFrS1lDOFxfq98z4BsaATD5b0IY2DCjLRe+qIu2o/UVmU=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR12MB7170.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(376014)(1800799024)(366016)(10067099003)(11063799006)(22082099003)(18002099003)(56012099006)(4143699003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?V2RXN1IrcE1iMkJkL2tMeEtLeE5lWHhzL0lEUVpuRElqVzRpcmloenRzTzEz?=
- =?utf-8?B?VTJMZVNNd0lHZnZtd1RXNXFIdk5JQnFVQkZ5dkhpcUpPbGJPcHc5MEE5eFFU?=
- =?utf-8?B?UWd1TjlxM0VIQ004cVhLOXpuNkhGb2tiRVgrUDUvSURnZnl5YTlQL0d3MzdG?=
- =?utf-8?B?V2tIOTBZU3htajJyN3ZleStiaTZaZkg2K3JpUHROUXJPcjV5MWJyR0kyRmFK?=
- =?utf-8?B?bHhmR1gvZERjb2NtL1NQYkFzZU0yMWk3cWU3bXArYUlxQVlaUkNBeFA4Mkpv?=
- =?utf-8?B?MVg1V0lZRWR4c0xTT1lDUWVKWWNUUTZzaWRSVDZwMTY0Z2szMDljSExPNEM4?=
- =?utf-8?B?V3VtendQWjFoVUpQSmRzV2FZQUZQSjdSbHA4TkRuWlp4VlpyUUsxNHIxVVh2?=
- =?utf-8?B?S29IYm5IWHlPR1VZRFIzMHN6MU9Ic0NRRmwxbHphZ1BmazRsV25NaENpeDVI?=
- =?utf-8?B?T0x3Z0hTMzF6Z2hQOHlrNzlHMkl2eFZEZHNFaXh6MWVWaWo5TGZheTFsQWxI?=
- =?utf-8?B?TDdCQTFRd3dIb1B3Mmt5VEI2NFcyYTFjK3VNSmhQd2FYc0w3TXE3WHA5ZmVG?=
- =?utf-8?B?MUhsdVpjUVdrcTIvVVNBbWVVckVUTHppUFFCajkrL0tXTFZKVEkxTlVIbERI?=
- =?utf-8?B?bTA5YWkrVEtBNDVZc2VWSmczNng0b0FTV1I4MURjSHhSb3VUdkloRXlySlB2?=
- =?utf-8?B?NTdjbVpGQWcxcHhBajZYMDQvcjZWYTNjUk44bXBoc2QyOFdFZFFtZWJZUWxC?=
- =?utf-8?B?NitYRXFsZnpIRFk5TlhGdFZWN21jWWVlaTVicWV3WERhNVA0VDBGRVgvbEdI?=
- =?utf-8?B?d1pGUmxlTzdvTXMyRllZQVlCNGNEblJ4UU1uRnJ3WWdVN3padXdkV0s2Vjkw?=
- =?utf-8?B?LytxME1XajJ1QXZQLzZqS0ZVOVk5SEJBUC85RW1vN3dvOS90aGIrd01GVW1P?=
- =?utf-8?B?QUhIckJaTm1ubEFsWmdrMmZjZ1YxMGNHVnE2NDdQbUlOL3VxajlabW5sRzNK?=
- =?utf-8?B?WmpiTzRybVZwVElpYmdSaGRNZ3VaOEtqNW9zZ1BRU0JXZUhFR3FnVUV5VzV6?=
- =?utf-8?B?dnJZOGRYd1lQRXgrQURlL0ZuWkdDUzdhaThwNDBvTE1UQmYwZVVUR1NEZmtW?=
- =?utf-8?B?blEvQ2RLak9NWmRUd1ZYRE50TlNrUFdZMk1jSzQ4ME5OWE4xNEgvYWFBY1dE?=
- =?utf-8?B?RGpwT0tNZG90VWlvRWxlaTdUd3Q1VXpmUlY5RXY5azhhU1BMdmNBeTJZT3ZC?=
- =?utf-8?B?cHp5bEpWZnJCUXVNREN3UXpxZXAwTC9OYUQzUkNseEpaekU3UFd1a295TVpG?=
- =?utf-8?B?VnhnWHBxbDFZVWdOeXg1WEt2cU15VlhrNVA0TVJub0Nid083YmRuT05nQ3ha?=
- =?utf-8?B?UCtrZnM1Y2ZWR1V5bDhEd2RKWEhTZHVJYXVtNlhCamZJUU1pZStFNjNxUlpn?=
- =?utf-8?B?WjZndk1uUlJqeGFWNjdCcmZ6aUhueFBjZVBZYXZjcGpqVEpmKzFtZ1JlaVhW?=
- =?utf-8?B?bHFJK0poS0p2VUJacWRYdHRNNjJ0KzFNc0RQQVVNMGxhVkluc25qQ2Jpakcw?=
- =?utf-8?B?UlhVL3FtMmlHb1poWGcyRWZpcVBtM2diN1FlU1c4ZDlHRVdFdDdEaTNsVjNQ?=
- =?utf-8?B?YzV2U3FoTEZwaFFKZkhaLzA5WmYrRXE0Y1B4enRNMm5rL2lxQjhaeHd2ZlY5?=
- =?utf-8?B?UVVMOVdGejFBZnUvaEd2bGNNNkdpaG9oWmphSE5rOUkxRGh6amtHdGVXWFdY?=
- =?utf-8?B?UDJHeE5kejRRRmVRVE5raUQ0VWZtN00wQkZ6Sk85a1F3dXVTWEJwMGFTMjFM?=
- =?utf-8?B?UjJucUl1Q3ZYUWcyN2hCSWFZbUtrNEZpOGZCM05IeGk3SEJlWHhqVTYxMWFW?=
- =?utf-8?B?L0RSdFNGemtJS1NHaWU4eFhseHlLZmxzTFBJY09OY1I2MG9Nbi90bnpvajJJ?=
- =?utf-8?B?anliYkZiUzR6QUxSdzJNUGJCZkV4SDh6SlYzaXBWUEZ2ZERVaEplOHIxSUxa?=
- =?utf-8?B?K0RuQTc1aGlObTB6VnUvWGhPditrNlR2dGZsSXZjcktFa25LNkhWNW9GR0Rh?=
- =?utf-8?B?RDA5L2RpL2F1bkhMdmZNQkZIK3Z5UlJCYmZYbnNpcU1pdlN3clNpWUw2Wnd6?=
- =?utf-8?B?L1lWVHVpNCthc2FvaHZLYkMxVXNKMlVhaGVwUE5xRHBzN0FiUWovRnoxMjhX?=
- =?utf-8?B?S09SU3dGNHBha2gzNU4rUDhrZERKY1hVQjg3ZUtJOGIvMUJIRlNtMStjZmI0?=
- =?utf-8?B?eisydmlPME9RUFVBeG1ZZnQ2WWt5NnZmVk41UTRjZGlSbUZVZ0dMN04xM3g4?=
- =?utf-8?B?emZzSGEvUjJHTlJLQWk1S3ZrR3V5K2g2VnhpRjUwVGlvMzZ1OFFDUT09?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 47a06a0d-0bec-4ee6-04ae-08df159c4df6
-X-MS-Exchange-CrossTenant-AuthSource: CY8PR12MB7170.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Sep 2026 15:48:37.9018
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 0l/kfLAba3lWSvgY85K8uwbIh/LxrTadzWhD4a1N4+YgBPis9lmN5ihhr1RxaT6NZnUxTY24rNKkrf9dV2YPcA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR12MB4145
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260916-remoteproc_virtio_map-v1-0-dac8c5eb4aa9@valla.it>
+
+Hi Francesco,
+
+I have started reviewing this set but given the size and implications, it will
+take me a few days to get through.
+
+Thanks,
+Mathieu
 
 
-
-On 9/18/2026 8:12 PM, Akihiko Odaki wrote:
-> On 2026/09/18 18:59, Honglei Huang wrote:
->> Add a userptr address field so userspace can request a blob backed
->> by an existing process mapping. A non-zero userptr selects that
->> path; probe VIRTGPU_PARAM_USERPTR before using the field.
->>
->> GPU-readonly backing is requested with the virtio CREATE_BLOB wire
->> flag VIRTIO_GPU_BLOB_FLAG_USE_READONLY (also
->> VIRTGPU_BLOB_FLAG_USE_READONLY). The device MUST NOT write such a
->> resource. The guest pins without FOLL_WRITE only when the device
->> advertised VIRTIO_GPU_F_BLOB_READONLY (VIRTGPU_PARAM_BLOB_READONLY).
->>
->> Signed-off-by: Honglei Huang <honghuan@amd.com>
->> ---
->>   include/uapi/drm/virtgpu_drm.h  | 13 +++++++++++++
->>   include/uapi/linux/virtio_gpu.h |  6 ++++++
->>   2 files changed, 19 insertions(+)
->>
->> diff --git a/include/uapi/drm/virtgpu_drm.h b/include/uapi/drm/ 
->> virtgpu_drm.h
->> index 95587e12ae..80f73b3276 100644
->> --- a/include/uapi/drm/virtgpu_drm.h
->> +++ b/include/uapi/drm/virtgpu_drm.h
->> @@ -99,6 +99,8 @@ struct drm_virtgpu_execbuffer {
->>   #define VIRTGPU_PARAM_SUPPORTED_CAPSET_IDs 7 /* Bitmask of supported 
->> capability set ids */
->>   #define VIRTGPU_PARAM_EXPLICIT_DEBUG_NAME 8 /* Ability to set debug 
->> name from userspace */
->>   #define VIRTGPU_PARAM_BLOB_ALIGNMENT 9 /* Device alignment 
->> requirements for blobs */
->> +#define VIRTGPU_PARAM_USERPTR 10 /* CREATE_BLOB userptr field is 
->> supported */
->> +#define VIRTGPU_PARAM_BLOB_READONLY 11 /* 
->> VIRTGPU_BLOB_FLAG_USE_READONLY is honored */
->>   struct drm_virtgpu_getparam {
->>       __u64 param;
->> @@ -186,6 +188,10 @@ struct drm_virtgpu_resource_create_blob {
->>   #define VIRTGPU_BLOB_FLAG_USE_MAPPABLE     0x0001
->>   #define VIRTGPU_BLOB_FLAG_USE_SHAREABLE    0x0002
->>   #define VIRTGPU_BLOB_FLAG_USE_CROSS_DEVICE 0x0004
->> +/* Wire flag: device MUST NOT write. Guest pins without FOLL_WRITE.
->> + * Rejected unless VIRTGPU_PARAM_BLOB_READONLY is 1.
->> + */
+On Wed, Sep 16, 2026 at 11:10:45PM +0200, Francesco Valla wrote:
+> Hello,
 > 
-> According to Documentation/process/coding-style.rst, the preferred style 
-> for long (multi-line) comments is:
+> this patch series introduces the possibility to support generic virtio
+> devices over the remotepoc transport, whereas today only rpmsg and
+> virtio-console are supported.
 > 
->      /*
->       * This is the preferred style for multi-line
->       * comments in the Linux kernel source code.
->       * Please use it consistently.
->       *
->       * Description:  A column of asterisks on the left side,
->       * with beginning and ending almost-blank lines.
->       */
+> == Introduction ==
 > 
-> So please avoid putting text on the same line as the opening /*.
+> Support for devices other than rpmsg was originally planned [1] and is
+> declared inside the documentation [2], but is in practice not there for
+> the majority of (if not all) the platforms that provide remoteproc
+> capabilities due to memory allocation.
 > 
-> Furthermore, because this is a UAPI header (defining the interface 
-> between userspace and the kernel, rather than the guest and the host), 
-> it should use terminology appropriate for userspace. Kernel-internal 
-> implementation details like FOLL_WRITE and terms like "guest" shouldn't 
-> be mentioned here.
+> While vrings are pre-allocated in an area that is reachable by both the
+> local (i.e.; Linux) and remote processors, buffers produced by virtio
+> drivers aren't, since they typically get allocated through kmalloc.
+> The aforementioned rpmsg and virtio-console drivers instead use a trick
+> to overcome this limitation and allocate these buffers directly from
+> the remoteproc device's coherent memory area, somewhat breaking the
+> separation between the driver and the underlying transport.
 > 
-> That being said, I don't think this comment is necessary in the first 
-> place. Anyone who needs to know the exact behavior will look at the 
-> virtio specification. I recommend just dropping the comment entirely.
+> == Well, nice, but why? ==
 > 
-
-Thanks for the review, will remove this comment here.
-
->> +#define VIRTGPU_BLOB_FLAG_USE_READONLY     0x0008
->>       /* zero is invalid blob_mem */
->>       __u32 blob_mem;
->>       __u32 blob_flags;
->> @@ -205,6 +211,13 @@ struct drm_virtgpu_resource_create_blob {
->>   #define DRM_VIRTGPU_BLOB_FLAG_HINT_DEFER_MAPPING        0x0001
->>       __u32 blob_hints;
->>       __u32 pad2;
->> +
->> +    /*
->> +     * Guest VA to pin as blob backing. Non-zero selects the userptr
->> +     * path and is valid only with VIRTGPU_BLOB_MEM_GUEST. Must be 0
->> +     * otherwise. Probe VIRTGPU_PARAM_USERPTR before using this field.
->> +     */
+> Main usecase is sharing/virtualization of devices in hypervisor-less
+> mixed-criticality contexts, where a subset of peripherals are controlled
+> by a "safety" real-time processor but still need to be used by the Linux
+> world. Several solutions have been / are being proposed [3] [4], but
+> none of them re-uses the existing, standardized virtio specifications. 
 > 
-> This comment is useful since it discusses UAPI specifics. However, 
-> please avoid the term "Guest VA". Since guest userspace has no concept 
-> of a "host" or "PA" (physical address), simply saying "address" is 
-> sufficient and more concise.
-
-Got it, will modify the comment in next version.
-
-Regards,
-Honglei
-
+> == The proposal ==
+> 
+> The proposed approach is to introduce a bounce buffering mechanism that
+> is transparent to the drivers and can expose to remoteproc devices only
+> memory areas they can access. This is obtained by defining the .map
+> memeber of each registered vdev and use the map() and unmap() callback
+> to bounce data to and from the remote processor, just like the swiotlb
+> framework is doing in other contexts, using the device's coherent memory
+> area and the associated functions to allocate the bounce buffers.
+> 
+> During the map() callback the address of the incoming buffer is compared
+> against the coherent memory address base and size, to pass through
+> buffers already suitable for remoteproc usage (e.g.: the ones allocated
+> by the rpmsg framework).
+> 
+> == Status and open points ==
+> 
+> The series was tested against a custom Zephyr application [5] running on
+> the Cortex-M33 processor of an i.MX93 and exposing six different virtio
+> devices:
+> 
+>   - rpmsg
+>   - entropy (rng)
+>   - gpio
+>   - i2c
+>   - spi
+>   - can
+> 
+> On top of three of them (unsurprisingly: i2c, spi, and gpio) several
+> devices where declared inside Linux devicetree and successfully used
+> (well, technically I'm still experiencing difficulties with gpio
+> interrupts not firing on the M33, but that's not really related to the
+> series). 
+> 
+> Several open points are still present, and needs to be either
+> investigated or discussed:
+> 
+>   - for each bounce buffer an entire page is allocated from the coherent
+>     memory pool; this is a waste for most of the allocations, which take
+>     on average 32 to 64 bytes. An option can be to initialize a DMA pool
+>     on one page and allocate small buffers from it?
+> 
+>   - the support in its current form allocates more memory than before
+>     (for bounce buffer tracking) also for existing usecases (i.e.,
+>     mainly rpmsg).
+> 
+>   - an additional issue still exist - and is not solved by this series -
+>     for a subset of virtio devices: communication through the device's
+>     config space. The remoteproc transport expects this config space to
+>     be somewhat constant, and there is no provision to sync changes made
+>     by the driver with the remote device. This prevents e.g.
+>     virtio-input to work.  
+> 
+>   - device de-registration on remoteproc stop is causing oopses (under
+>     investigation - might no be strictly tied to the series)
+> 
+> == Patches breakdown ==
+> 
+> Patches 1 and 2 are cleanups to the remoteproc-virtio driver and could
+> be applied independently of this series.
+> 
+> Patch 3 was submitted a couple of months ago [6] and paves the road for
+> the actual support of generic virtio devices, removing the fixed number
+> of 2 for the vrings associated to a vdev.
+> 
+> Patch 4 introduces two new APIs for coherent memory areas associated to
+> devices that are used later.
+> 
+> Patch 5 might somewhat be controversial, as it unconditionally defines
+> the VIRTIO_F_VERSION_1 feature for all vdevs. This is required to
+> support some virtio device types, and there is no other mean of
+> defining it, since the field reserved for features inside the resource
+> table is limited to 32 bits. Given that the 1.x virtio specifications
+> are ~10 years old this still seems reasonable.
+> 
+> Patch 6 is were the bounce buffering mechanism is introduced; another
+> feature (VIRTIO_F_ACCESS_PLATFORM) is there unconditionally defined to
+> force the virtio framework to use the new map APIs.
+> 
+> Patches 7 and 8 are new devicetree bindings, the first for spi-virtio
+> (modelled against the existing ones for gpio-virtio and i2c-virtio) and
+> the second for declaring virtio device inside a devicetree. This is not
+> required for some devices (e.g.: can, net, gpu), but for others is
+> necessary to declare child devices and link them.
+> 
+> Patch 9 is used to convince the remoteproc-virtio transport to parse the
+> bindings just defined; it is worth noting that the virtio framework
+> already has the support for devicetree declarations and this adds only
+> the glue between the existing support and remoteproc.
+> 
+> Patches 10 and 11 are i.MX-specific and enable the usage of the newly
+> introduced support on this family of platforms. The first one might
+> probably be sumbitted as-is independently of the series, as it aligns
+> the behavior of imx-rproc to the other platforms in relation to mailbox
+> usage.
+> 
+> Finally, patch 12 is the PoC that has been used to develop and test the
+> series and shall not be merged.
+> 
+> ======
+> 
+> Thank you in advance for any comment you may want to leave.
 > 
 > Regards,
-> Akihiko Odaki
+> Francesco
 > 
->> +    __u64 userptr;
->>   };
->>   #define VIRTGPU_CONTEXT_PARAM_CAPSET_ID       0x0001
->> diff --git a/include/uapi/linux/virtio_gpu.h b/include/uapi/linux/ 
->> virtio_gpu.h
->> index 3d4dfadc9d..33f5332e59 100644
->> --- a/include/uapi/linux/virtio_gpu.h
->> +++ b/include/uapi/linux/virtio_gpu.h
->> @@ -72,6 +72,10 @@
->>    * must be aligned to that value.
->>    */
->>   #define VIRTIO_GPU_F_BLOB_ALIGNMENT      5
->> +/*
->> + * VIRTIO_GPU_BLOB_FLAG_USE_READONLY
->> + */
->> +#define VIRTIO_GPU_F_BLOB_READONLY       6
->>   enum virtio_gpu_ctrl_type {
->>       VIRTIO_GPU_UNDEFINED = 0,
->> @@ -415,6 +419,8 @@ struct virtio_gpu_resource_create_blob {
->>   #define VIRTIO_GPU_BLOB_FLAG_USE_MAPPABLE     0x0001
->>   #define VIRTIO_GPU_BLOB_FLAG_USE_SHAREABLE    0x0002
->>   #define VIRTIO_GPU_BLOB_FLAG_USE_CROSS_DEVICE 0x0004
->> +/* Device MUST NOT write. Driver may pin read-only guest pages. */
->> +#define VIRTIO_GPU_BLOB_FLAG_USE_READONLY     0x0008
->>       /* zero is invalid blob mem */
->>       __le32 blob_mem;
->>       __le32 blob_flags;
+> [1] https://lore.kernel.org/all/1330589497-4139-1-git-send-email-ohad@wizery.com/
+> [2] https://elixir.bootlin.com/linux/v7.2.5/source/Documentation/staging/remoteproc.rst#L26
+> [3] https://lore.kernel.org/linux-remoteproc/20260721204704.400781-1-shenwei.wang@oss.nxp.com/
+> [4] https://cfp.embedded-recipes.org/er2026/talk/PCYPJP/
+> [5] https://github.com/WallaceIT/zephyr/tree/multi_vdev
+> [6] https://lore.kernel.org/all/20260621-vring_flex-v1-1-c6c582fbe94b@valla.it/
 > 
-
+> Signed-off-by: Francesco Valla <francesco@valla.it>
+> ---
+> Francesco Valla (12):
+>       remoteproc: virtio: cleanup rproc_add_virtio_dev error path
+>       remoteproc: virtio: replace commas with semicolons
+>       remoteproc: virtio: support dynamic number of vrings
+>       dma-coherent: add base and size APIs
+>       remoteproc: always report VIRTIO_F_VERSION_1 feature
+>       remoteproc: virtio: add bounce buffering for data buffers
+>       dt-bindings: spi: add bindings for spi-virtio
+>       dt-bindings: remoteproc: add remoteproc-virtio
+>       remoteproc: search for a fwnode during vdev registration
+>       remoteproc: imx_rproc: always use non-blocking mailboxes
+>       dt-bindings: remoteproc: imx-rproc: support virtio
+>       PoC: arm64: dts: imx93-11x11-frdm: add multiple vdevs
+> 
+>  .../bindings/remoteproc/fsl,imx-rproc.yaml         |   3 +-
+>  .../bindings/remoteproc/remoteproc-virtio.yaml     |  89 +++++++++
+>  .../devicetree/bindings/spi/spi-virtio.yaml        |  52 +++++
+>  arch/arm64/boot/dts/freescale/imx93-11x11-frdm.dts | 128 +++++++++++-
+>  drivers/remoteproc/imx_rproc.c                     |  49 +----
+>  drivers/remoteproc/imx_rproc.h                     |   1 -
+>  drivers/remoteproc/remoteproc_core.c               |  43 +++-
+>  drivers/remoteproc/remoteproc_virtio.c             | 222 ++++++++++++++++++---
+>  include/linux/dma-map-ops.h                        |  10 +
+>  include/linux/remoteproc.h                         |  24 ++-
+>  kernel/dma/coherent.c                              |  34 ++++
+>  11 files changed, 562 insertions(+), 93 deletions(-)
+> ---
+> base-commit: 9b87fdc9af2fbfcdb5c24a64139685ef80f6573f
+> change-id: 20260915-remoteproc_virtio_map-bcf32a5fab54
+> 
+> Best regards,
+> --  
+> Francesco Valla <francesco@valla.it>
+> 
