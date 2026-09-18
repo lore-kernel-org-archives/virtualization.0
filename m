@@ -1,75 +1,159 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from www3579.sakura.ne.jp (www3579.sakura.ne.jp [49.212.243.89])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C8564D6C57
-	for <virtualization@lists.linux.dev>; Fri, 18 Sep 2026 10:21:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFD1A4A2E32;
+	Fri, 18 Sep 2026 11:27:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=49.212.243.89
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789726863; cv=none; b=Qqe+rawuInwIugvGZksH3EdOJNw/CTlmfLbeqS2n6RsmhuQgX1gVWVIzxEJgqfnYpEX1D5De7lwPMveq9ppV5rwz4gIwI89AMSp8gmR1w0igYf487J5htdt2xx2McQGiPqtcZTSwHMImRI0IZWbgQijxpV7fy14T+KM6X0MfH/I=
+	t=1789730868; cv=none; b=lGAxYhKgTso9QGrVxJnKRqmFN2Wa2eg+6EtfcXLhf0otxY97TCgliLjUiIW8g65FAEd/QB5immGVyihxUTt8OW3yK5VQEFh8LLmdZFeQKVK46mW4DABXAbl284RbExRLqaH2pVyOWg0/mHG72KX/Tfro8aCV1gvRCba0V28jhTY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789726863; c=relaxed/simple;
-	bh=Rxpkj7pp/Op5UkN01geCBSyaQDou7gWmpjsEUNkgPYM=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=nWqYyedo0MF6HMoiaJ8x2ubDdoqyHw/PeENcSrknBoe7Xb4T9OwAZoKJRQeMG+lxb31GT9oG3ha6ubyVWu3Qdh7keSMFkw8hJuKfHugybiwbuMEcKTUDs+2HPsFaISoGjE3gGUoL/ehAG+5pjW0fhZuQa3y/AuwOiNC4MPLU/Zc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=a1Wf6GXK; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789730868; c=relaxed/simple;
+	bh=5bllnEZITG6g5WM53GNNBgmTTKBLf2+g25D+SPBAwYU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=osMLWTDip9qE0gB7jMkU5jokVzn0NnlgSCvCrWNAqzLFagESonetxOZwkO+euRutqgHJN+vbnjz+uxwo3UNqlwiQ7zpph+69znS9Ahi0zK9wvqYdE0uNpwG187mza2hwd0bmfwsbRr3T1MPV1NOJ46BfOZgun13Qwf1SMUehr4s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rsg.ci.i.u-tokyo.ac.jp; spf=pass smtp.mailfrom=rsg.ci.i.u-tokyo.ac.jp; dkim=pass (2048-bit key) header.d=rsg.ci.i.u-tokyo.ac.jp header.i=@rsg.ci.i.u-tokyo.ac.jp header.b=BJ9UTxO7; arc=none smtp.client-ip=49.212.243.89
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rsg.ci.i.u-tokyo.ac.jp
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rsg.ci.i.u-tokyo.ac.jp
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="a1Wf6GXK"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5847E1F000FF;
-	Fri, 18 Sep 2026 10:21:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789726861;
-	bh=KDsfkNxMFu5fqNLr0RTeR89UAJDLSJBZCWfVWM75MFo=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=a1Wf6GXKTpNhuJQ9XN32fR3nMZ5wEl8C+cq410//0xpco48IwJ+d/k2I67gsnqZ5Y
-	 iFVILAh5ViSspakfHFTG+W5HjXnSwO5+u840QIVGQx5NiFCpWX/KwcEjxNT7H7kUav
-	 9Z2KcfDq+tbWB9mG07wkhW92NDGq7UoS3FAANKbtQZ/SmlqUmfrO45UkgrwKBG9Qr7
-	 /AX0rU3Qt2YiHgQpS0J3ezafg0NLZkWgVU3P6UCVzSvstIN6Wwx+YYkoM6Lh/YhS0U
-	 CVpKwkjkXuNCCJFQ/B6SPt42fnmp9er4Y/NOEwwZ5MEU2epucl/gFrohyPDe3iftYn
-	 dWFhN+PwJ7x2A==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v8 3/4] drm/virtio: implement userptr support for
- zero-copy memory access
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Honglei Huang" <honghuan@amd.com>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, dri-devel@lists.freedesktop.org, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <20260918095940.2253018-4-honghuan@amd.com>
-References: <20260918095940.2253018-1-honghuan@amd.com>
- <20260918095940.2253018-4-honghuan@amd.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 18 Sep 2026 10:21:00 +0000
-Message-Id: <20260918102101.5847E1F000FF@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=rsg.ci.i.u-tokyo.ac.jp header.i=@rsg.ci.i.u-tokyo.ac.jp header.b="BJ9UTxO7"
+Received: from [133.11.54.183] (h183.csg.ci.i.u-tokyo.ac.jp [133.11.54.183])
+	(authenticated bits=0)
+	by www3579.sakura.ne.jp (8.16.1/8.16.1) with ESMTPSA id 68IBRSKC032121
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO);
+	Fri, 18 Sep 2026 20:27:29 +0900 (JST)
+	(envelope-from odaki@rsg.ci.i.u-tokyo.ac.jp)
+DKIM-Signature: a=rsa-sha256; bh=GKwtw9XaAg0KCgc5gwZGgqhmhkqEKy9SW8tYh8z2dSU=;
+        c=relaxed/relaxed; d=rsg.ci.i.u-tokyo.ac.jp;
+        h=From:Message-ID:To:Subject:Date;
+        s=rs20250326; t=1789730849; v=1;
+        b=BJ9UTxO7gcJ4+1NQyuRiHNgiuMiuP2cK/63+qtaQcJnokO5QiUzExsscux3CCZhK
+         5r0Z/C0SAsw69EumqeTWpATA3c5wpdXWYmEQPs0MpTuan1FO4FfG+A2fdwo5DaTy
+         k0p48PaLphcB/8BlUbVlQYpbdwYxaU9h6G7a1LpeLAmxwqDqMmZEvOXnBOBgfpat
+         REO/kmgCpLRnqUzvIbV4NvN9QKOgznOeqG7DuGpgc1t0htipn4BHOtwPKQiCto9k
+         wyOaYeH7lXsQlWU/bTCZYV5PLbaEfueYUwaZXJECR0gER2kRejYp021aysqQHXx0
+         HhKyGYHRExBg7fh1VPzOig==
+Message-ID: <0e644466-8b4e-48bb-9322-e47c59c5c77c@rsg.ci.i.u-tokyo.ac.jp>
+Date: Fri, 18 Sep 2026 20:27:28 +0900
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v8 1/4] drm/virtio-gpu: Add VIRTIO_GPU_CAPSET_ROCM
+ capability
+To: "Huang, Honglei" <honghuan@amd.com>, sashiko-reviews@lists.linux.dev
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev,
+        Eugenio Perez <eperezma@redhat.com>, dri-devel@lists.freedesktop.org
+References: <20260918095940.2253018-1-honghuan@amd.com>
+ <20260918095940.2253018-2-honghuan@amd.com>
+ <20260918100746.2BB741F000FF@smtp.kernel.org>
+ <9fcb3203-63f4-4332-a47e-916774e11eb3@amd.com>
+Content-Language: en-US
+From: Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>
+In-Reply-To: <9fcb3203-63f4-4332-a47e-916774e11eb3@amd.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-> Add userptr blob objects so the guest kernel can pin an existing
-> userspace mapping and advertise it as CREATE_BLOB backing entries.
->=20
-> - New virtio_gpu_object_userptr type for userptr resources
-> - Pin pages with pin_user_pages_fast() and FOLL_LONGTERM
-> - Omit FOLL_WRITE when VIRTGPU_BLOB_FLAG_USE_READONLY is set
-> - Charge FOLL_LONGTERM pins against RLIMIT_MEMLOCK
-> - DMA-map the scatterlist only when virtio_gpu_use_dma_api() is
->   required; use DMA_TO_DEVICE for USE_READONLY blobs
-> - Sync userptr SG for the device on TRANSFER_TO_HOST
-> - Mark writable pages dirty when unpinning
-> - Keep pages pinned until RESOURCE_UNREF is queued; drop them from
->   cleanup_object() on the unref response or on create failure
-> - Clear userptr->pages on pin failure to avoid double-free on cleanup
-> - Reject unaligned or overflowing userptr ranges at create time
-> - Disallow PRIME export of userptr objects
-> - Save CREATE_BLOB params and restore userptr resources after
->   hibernation without using the shmem restore path
->=20
-> Signed-off-by: Honglei Huang <honghuan@amd.com>
+On 2026/09/18 19:13, Huang, Honglei wrote:
+> 
+> 
+> This patch is for adding ROCm capset only, can be spited into another 
+> thread if it is needed.
+> 
+> Regards,
+> Honglei
+> 
+> On 9/18/2026 6:07 PM, sashiko-bot@kernel.org wrote:
+>> Thank you for your contribution! Sashiko AI review found 2 potential 
+>> issue(s) to consider:
+>> - [Medium] virtio-gpu: premature UAPI exposure of unfinalized 
+>> capability ID
+>> - [Low] virtio-gpu: missing DRM UAPI alias for ROCM capability set
+>> -- 
+>>
+>> commit a394228d77eeafc9f1dcc36150380f8561f1ee49
+>> Author: Honglei Huang <honghuan@amd.com>
+>>
+>> drm/virtio-gpu: Add VIRTIO_GPU_CAPSET_ROCM capability
+>>
+>> This commit adds a new GPU capability set VIRTIO_GPU_CAPSET_ROCM with 
+>> ID 8
+>> to support ROCm compute workloads. The commit message notes that the
+>> matching virtio-gpu specification change is currently in progress.
+>>
+>>> diff --git a/include/uapi/linux/virtio_gpu.h b/include/uapi/linux/ 
+>>> virtio_gpu.h
+>>> index 4f530d90058c7..3d4dfadc9d789 100644
+>>> --- a/include/uapi/linux/virtio_gpu.h
+>>> +++ b/include/uapi/linux/virtio_gpu.h
+>>> @@ -321,6 +321,7 @@ struct virtio_gpu_cmd_submit {
+>>>   #define VIRTIO_GPU_CAPSET_VENUS 4
+>>>   #define VIRTIO_GPU_CAPSET_CROSS_DOMAIN 5
+>>>   #define VIRTIO_GPU_CAPSET_DRM 6
+>>> +#define VIRTIO_GPU_CAPSET_ROCM 8
+>>
+>> [Severity: Medium]
+>> Is it safe to expose this speculative capability ID to userspace 
+>> before the
+>> virtio-gpu specification is finalized?
+>>
+>> The commit message states the specification change for ID 8 is in 
+>> progress.
+>> Because the Linux UAPI is frozen once released, exposing this ID now 
+>> could
+>> permanently commit the kernel to ID 8 for ROCm. If the OASIS virtio
+>> technical committee assigns a different ID or rejects the proposal, would
+>> this leave the Linux UAPI permanently incompatible with the standard?
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+It is actually somewhat common to introduce a capset before updating the 
+virtio specification, as capsets remain opaque to both the spec and the 
+kernel without strict interface stability enforcement (for example, 
+VIRTIO_GPU_CAPSET_DRM is still not in the spec). However, we must at 
+least wait until the virglrenderer developers agree to implement it.
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260918095940.2253=
-018-1-honghuan@amd.com?part=3D3
+An unfortunate complication is that gfxstream has already claimed 
+capsets 7–9 prior to updating the spec or kernel headers:
+
+https://github.com/magma-gpu/rutabaga_gfx/blob/v0.1.85/ffi/src/include/rutabaga_gfx_ffi.h#L41-L43
+
+You could target capset 10 instead, but I advise coordinating with the 
+VCL developers first to avoid further collisions.
+
+Additionally, "[PATCH v8 2/4] drm/virtgpu api: add blob userptr 
+resource" poses a more critical issue: it adds 
+VIRTIO_GPU_F_BLOB_READONLY and VIRTIO_GPU_BLOB_FLAG_USE_READONLY, 
+directly altering semantics explicitly defined in the spec. We should 
+see at least a draft spec patch posted before moving forward, so this 
+series should remain an RFC until then.
+
+>>
+>> [Severity: Low]
+>> Also, should there be a corresponding DRM UAPI alias added for this 
+>> capability
+>> set?
+>>
+>> Previous capability sets have matching definitions in virtgpu_drm.h, 
+>> such as
+>> VIRTGPU_DRM_CAPSET_VENUS and VIRTGPU_DRM_CAPSET_DRM. Without adding a 
+>> similar
+>> VIRTGPU_DRM_CAPSET_ROCM alias, userspace DRM clients relying on 
+>> virtgpu_drm.h
+>> for the DRM_IOCTL_VIRTGPU_GET_CAPS ioctl will lack the necessary 
+>> constant to
+>> query ROCm capabilities natively.
+
+As for Sashiko's suggestion regarding DRM UAPI aliases, while I am 
+unsure why those aliases were introduced initially, adding one here 
+makes sense for internal consistency.
+
+Regards,
+Akihiko Odaki
+
+>>
+>>>   /* VIRTIO_GPU_CMD_GET_CAPSET_INFO */
+>>>   struct virtio_gpu_get_capset_info {
+>>
+> 
 
