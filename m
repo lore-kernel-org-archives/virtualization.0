@@ -1,77 +1,119 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pz2-f40.google.com (mail-pz2-f40.google.com [74.125.228.40])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 684CF345ED2;
-	Sat, 19 Sep 2026 12:43:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD4482D2394
+	for <virtualization@lists.linux.dev>; Sat, 19 Sep 2026 13:18:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.40
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789821824; cv=none; b=gMD3lcmTMUtstsRAtRsWhUQDbwkONKLGNfQszDG5Xu8r9r1aqb2cgpfaXbomE5EcsKRHi2LE/9+Sk2O2eUwmSnCler0/at9J0ALKkpABpIEcmyL5WbbblqfdF0VVabiks+DpQ1ISPYhe78UN0EDpTCDsFAC/JfURBXliC56vrng=
+	t=1789823891; cv=none; b=jaLK/7hJzETEmkQSiVbUt9vFVA396JDXdlSMqvsvRe8mIV+RN37Ha4Tpz3WkvSAUgSDE5uHYZrP+aiztGL+CQQeJcize+915EsYNvWtcJwu4nB0GFrCk7GkWmqiy+kp71FszdXnuExDWgwSXnMM8xBpFM6RpzMGYOOZ4Hdn2xXQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789821824; c=relaxed/simple;
-	bh=BnH3aoLxRKIE3Ma0+9/j5SzrGY8ao/QGld34xRrwFvo=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=K4kmRgC1Dqv7J/7/rwAf++8Ehi+ipRbnOU1xBUoUdZ+c1T+SG7tdGq/XOXSWHlN5az50thn7DFw9ZJgaXVE9kn8nVGHWVPcdsyZFVDYLInV86KR1B/cYUqTlRQKiQW7dwnmLQh5To9E0bDqrPRKEki061uxoXsxDojc2Oa8HJuE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=X1qpurOD; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789823891; c=relaxed/simple;
+	bh=CsmY2C0LUhQFV2xkI5Vula3YY7rYEiZTWt4OODXOZMg=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=DL1phnyex6yRmYe2sayXr1sBncSJkuAGHSDAFfnZqIv2j6VBTUGuHxvmauLjn82weYSnIYqq2VAhmeGF2LFsStWJZwpQMj++O9+zzAIifyRHS7FigzBhMb7xC4hKR424DuKR2f+S59CjuNJ284QiJQqLj6ZznjFSktnpxnC0X7A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IF2s2pd2; arc=none smtp.client-ip=74.125.228.40
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="X1qpurOD"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B35AB1F000FF;
-	Sat, 19 Sep 2026 12:43:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789821823;
-	bh=BnH3aoLxRKIE3Ma0+9/j5SzrGY8ao/QGld34xRrwFvo=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=X1qpurODU3izzhJK0zx18xi6Rwhqj89uhep9IdjVWlp3erJvMKk58YNuanBh/itAV
-	 QCBVUeQwtFzzaK8eZZ7mD7v9YYFCVHiVk0nWy/7/DDhPCYrWddb/dxKo4lqz9O6Kna
-	 H9YpfJxzBi4UzhUqKTT2gV9DfaSlxgE89XT39tACiSegryrYn49Z7eg+pkTwSHjmL8
-	 atTTaqwzNQPXFw9be7VMcBfjKSQ8qki3VIii1PRCB2+jo3C7X4DcGnFSnqRQP0LRSS
-	 HAfk3g6o0Rqx/3sLKqxl+ziDbn7F3bMUi0akuFvyqyapz0YlfCoUlW6HNesa/D1ff3
-	 HQxYFu+QDKnzg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] vsock/hv_sock: don't finish a connection on a socket
- being released
-Reply-To: sashiko-reviews@lists.linux.dev
-To: =?utf-8?b?QmFydMWCb21pZWogRG1pdHJ1aw==?= <bartlomiej.dmitruk@isec.pl>
-Cc: "Eugenio Perez" <eperezma@redhat.com>, linux-hyperv@vger.kernel.org, "Michael
- S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev
-In-Reply-To: <20260919123128.28868-1-bartlomiej.dmitruk@isec.pl>
-References: <20260919123128.28868-1-bartlomiej.dmitruk@isec.pl>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 19 Sep 2026 12:43:42 +0000
-Message-Id: <20260919124342.B35AB1F000FF@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IF2s2pd2"
+Received: by mail-pz2-f40.google.com with SMTP id 41be03b00d2f7-cc515bef69dso1074962a12.2
+        for <virtualization@lists.linux.dev>; Sat, 19 Sep 2026 06:18:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789823889; x=1790428689; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=JsTGylBrKeTBmgAOYV6+2j7T7Vnx2su+clGWmC3zkts=;
+        b=IF2s2pd2avez1tO5mmjD9bEj1SeqWAInHn4Vwvbkepsa5ITvOrnq5vKQeDG2zIh1Ev
+         nLqjsMVfKFcTnMpKlY7c2VG4PiKpPLof7mvB85JkRgN5sGcrTI7Rrfo8DUGiyvN7ZGHg
+         tkZAJEmu9XFIWkHyhmJAQUOtyNSIg7nF0HN5qeaZg5+ng9ZfRVBdTnkA5x4JHplaOFLJ
+         VkWGnuzTD0EgOZTHvat0jEOoueaVoTx28vtUtXRm+LMYYudnbhLUYWnNgkS9rTLBqIa4
+         XR+r9fjOfivoCqhyYhTFb+6RIyd8C40XAAeT6JXZA+aTBJ70akMXKHpT1u5RgTBvrK6w
+         cj1A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1789823889; x=1790428689;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=JsTGylBrKeTBmgAOYV6+2j7T7Vnx2su+clGWmC3zkts=;
+        b=EejjnmOvE1mWsi+Uoifk4MhrsjXZpRFWdB7SkN9YhgLLof758I1kdMB3moQEgwtoCy
+         CaMjsUd9My5NQbOsioW1ncNJKbbqoIsWlUN+rWl4RYBlbTdHeQYTcu4gcb5wS884f9kR
+         Wl4FYPXz/S3yEqwKkHLn5oTz6sCm6D0TZbSvyoGbr6eF7ZV72JVAeIYJVvb7IrmxAMsv
+         7D4sLqfRhiJDEaLm9VvVIXQ/D6SlzCaDuOyidtzfcziwnD6yXQ9WhR/f2BNAXcszwL7K
+         N9eam9CWiU7PVkV3zdQcteZAAlRxoOQLcmOdqqZk4Sn5VzauZBCClcMuTHmZ+ogUbGVA
+         MYvA==
+X-Forwarded-Encrypted: i=1; AKwUvBzOtPC6VI5dehVYj7AnB2JjYNrVNfzEBOcjAMnCR2i1cMi/NqGZ2sHr1CNeNE+Bn3KDBlWy2wpJEhBN3xZQCA==@lists.linux.dev
+X-Gm-Message-State: AFuF++kyGdHzFZHk/gcTncUStrdXRfjZ7FtozU6dkSNKqt/vXMtxzOdw
+	AUhYwd6RMWs1rFsPXIw9fBFoi83XE0PBlIJBBk9wXfb/qUT2eaN8pw61
+X-Gm-Gg: AYBFou0IqqorkQ2t6M/7UMOV7TyE+dJM5uuRaZvVqe9LgkEuKaTexM7SR7pXWb4b0xf
+	V1hKUBfrRBPwGlReOpHUdbASDXEHDZhEY8/VltweypMG6kafrCjZHQfk47E+DNntAW0JYvkAOcW
+	AFbNMzov9Awdo5NoKc/YaTrdBJD+Qa+84ds41CBycPcugrnClwYjHrukI87ZgffDCQ4m3a3qQIv
+	7Q4ChZ+0Qj5KNfd/ylvmcjebVRsnIRL96Lciwut22DMPAQFmwxSAmhZQX4a10QuJnJWYyl7xm4s
+	rOV5FmDXld7A6uOKEym7iffEtd9atY/DmI8Rtw6Le4MoMoBNFhO8pkOY6RjwjD1CAEbJ3aMwmgP
+	JmAPFTtOnr34AuoR0DBLU+s91QbotwTdAigtg/ufm4RcI9/+7IApl6CrE/4ieyTpXEc/XPnkh/M
+	6SD+jpzPhV46CrbTfq1RMy2diMt9yQwqVRy1/1slMccSfWM69otAhYq0lHPNE98vMMlEuVPw==
+X-Received: by 2002:a17:90b:5706:b0:39e:6c6a:209e with SMTP id 98e67ed59e1d1-39e6c6a234emr3242069a91.63.1789823888812;
+        Sat, 19 Sep 2026 06:18:08 -0700 (PDT)
+Received: from gmail.com ([188.253.12.32])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3a023cf10bbsm1276314a91.3.2026.09.19.06.18.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 19 Sep 2026 06:18:08 -0700 (PDT)
+From: Jia Jia <physicalmtea@gmail.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowangio@gmail.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Nicholas Bellinger <nab@linux-iscsi.org>,
+	kvm@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] vhost: keep vring addresses stable while the backend is attached
+Date: Sat, 19 Sep 2026 21:17:44 +0800
+Message-Id: <20260919131744.131030-1-physicalmtea@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-> hvs_open_connection() only checks sk->sk_state (TCP_LISTEN for a
-> host-initiated connection, TCP_SYN_SENT for a guest-initiated one) before
-> proceeding. __vsock_release() sets sk->sk_shutdown =3D SHUTDOWN_MASK and,=
- for
-> a listener, flushes the accept queue, while leaving sk_state unchanged. A
-> VMBUS channel offer that races close() therefore still passes the state
-> check and either enqueues a child onto the already-flushed accept queue
-> (conn_from_host) or completes a connection on a socket being torn down
-> (!conn_from_host); the socket and its VMBUS channel then leak.
->=20
-> The virtio transport guards the listener case in
-> virtio_transport_recv_listen(); hv_sock has no equivalent. Add a
-> sk_shutdown =3D=3D SHUTDOWN_MASK check to the common path right after
-> lock_sock(), so both the host- and guest-initiated paths bail out.
-> hv_sock holds lock_sock(sk) across hvs_open_connection(), so the check is
-> race-free.
->=20
-> This was found by code inspection; I do not have Hyper-V hardware to test=
- on.
->=20
-> Fixes: ae0078fcf0a5 ("hv_sock: implements Hyper-V transport for Virtual S=
-ockets (AF_VSOCK)")
-> Signed-off-by: Bart=C5=82omiej Dmitruk <bartlomiej.dmitruk@isec.pl>
+vhost-scsi keeps the response and bounce-buffer iovecs until the backend
+completes the command.  If userspace changes the vring addresses while the
+command is in flight, the completion data is copied through the old iovecs
+while vhost_add_used() updates the new used ring.  The guest then no longer
+sees the completion.
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+Reject changes to the vring addresses while a backend is attached to the
+queue.  Keep accepting the current addresses so userspace can update
+VHOST_VRING_F_LOG or log_guest_addr without stopping the backend.  Queues
+that have not been attached retain the existing setup behavior; userspace
+must detach the backend before changing their addresses.
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260919123128.2886=
-8-1-bartlomiej.dmitruk@isec.pl?part=3D1
+Fixes: 057cbf49a1f0 ("tcm_vhost: Initial merge for vhost level target fabric driver")
+Signed-off-by: Jia Jia <physicalmtea@gmail.com>
+---
+ drivers/vhost/vhost.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 44cac11b68d2..074590838de5 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -2150,6 +2150,17 @@ static long vhost_vring_set_addr(struct vhost_dev *d,
+ 				a.flags & (0x1 << VHOST_VRING_F_LOG),
+ 				a.log_guest_addr))
+ 			return -EINVAL;
++
++		/*
++		 * Commands may retain iovecs derived from the current ring
++		 * addresses.  Keep the addresses unchanged while the backend
++		 * is attached.
++		 */
++		if ((vq->desc || vq->avail || vq->used) &&
++		    (vq->desc != (void __user *)(unsigned long)a.desc_user_addr ||
++		     vq->avail != (void __user *)(unsigned long)a.avail_user_addr ||
++		     vq->used != (void __user *)(unsigned long)a.used_user_addr))
++			return -EBUSY;
+ 	}
+ 
+ 	vq->log_used = !!(a.flags & (0x1 << VHOST_VRING_F_LOG));
