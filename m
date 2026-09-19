@@ -1,76 +1,76 @@
-Received: from mail-pj2-f17.google.com (mail-pj2-f17.google.com [74.125.227.145])
+Received: from mail-pj2-f13.google.com (mail-pj2-f13.google.com [74.125.227.141])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1885937AA6D
-	for <virtualization@lists.linux.dev>; Sat, 19 Sep 2026 21:52:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.145
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50A653932E3
+	for <virtualization@lists.linux.dev>; Sat, 19 Sep 2026 21:52:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.141
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789854759; cv=none; b=cg6dj1aw6nzeCVzsYX8AylkGL1sU8NTGdzWaae04nTQGNYCXCtPrcsCHTLrS9WAcdFuC1bMZuaN438OyeAW47bxI/TY5vQ8jmz6RXSOfMx4OKJdskbNYTk1qK9ERgb+8nyKjhtjt+d4QSFyl+eY+ZSGc2jN3yIE0uCGnSKqJUC8=
+	t=1789854760; cv=none; b=Ggc3HzUgb4b0mAnaulVCdVzOBoiZi+mKFNgeM8mzZpLxkzvNEkX4rgCNDEwaTi9EGwVnF+ouRBtUWQnskNdPOqdXjHk6xNkob8RUGTn+ahKH+Y23SSv4xxhwCNdgQ13mtuO7GCFfkPeauz9jnjCGRjlGyZ4QUJk4FwTF1+BVBug=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789854759; c=relaxed/simple;
-	bh=NE6kyRSM9D9+ObNWClCJeHTHbyuytLFmTKruJmNdFlc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ZhwQjbd8rIM5PU9E58cO3FL1OF0wjfHdfZLdZqtcETWsHA5lcz2vTBBhOHBsUyiRIeiv3PSjCAHtobgflKcYuUaBnIIufFNcqzI0yhJJ9spBIRPtSQgD8OaeYOXem/Tuzm6JyjaD/7Op0mh0m2siEsY+w0kCviS2c5Nj7TFEGao=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hKcAvD89; arc=none smtp.client-ip=74.125.227.145
+	s=arc-20240116; t=1789854760; c=relaxed/simple;
+	bh=U1jq3rVIXf2vsobUdSDWCpqO680/ab1TVPGCTkzaIrc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ZQ9ko5XMLqUxUfqr+6qG81qHY58uatvItz2nnYfwvFZgJfHiRT3nMsPEFZXYQT5BDrvNUbUhpqGJk5bd3vGvgELLDlCZHXq7hghrkyuoF1MlJAQdFXZ+0zGt4EgVuB1jNvhCnBM6RalSsvUTN139L/xDR7YFcyKXAbZCM93Q+yw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fBo4e4+M; arc=none smtp.client-ip=74.125.227.141
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hKcAvD89"
-Received: by mail-pj2-f17.google.com with SMTP id d9443c01a7336-2db1ca06a25so12602695ad.2
-        for <virtualization@lists.linux.dev>; Sat, 19 Sep 2026 14:52:35 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fBo4e4+M"
+Received: by mail-pj2-f13.google.com with SMTP id 98e67ed59e1d1-396ccdaea75so608530a91.1
+        for <virtualization@lists.linux.dev>; Sat, 19 Sep 2026 14:52:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789854753; x=1790459553; darn=lists.linux.dev;
+        d=gmail.com; s=20251104; t=1789854752; x=1790459552; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=4UB+obLd5sZwu+zoy2b+DbkHvLbMMvfZd67jH6/qC/s=;
-        b=hKcAvD898y/xbyLJxt+Ul3f8Zp5hhvpcOL4VoouniCBu2qGZW3PHm3/QztjIHGN2qZ
-         +gKQdnF8Z5FxWt1WONIvZiizk4GEv8zzhkNBtG9wZjSTCX7tHKHFw5QeODaNFVJ1jzRk
-         H1GMD2h9CkY61G5Zj0gwUaLClQLT6GoVj73Cpa6Bc4De9JNBIkZt89O2rewas5tNHHgY
-         oDFJmxkSvKUPu6isab2EijBixKTLPRIhgxBrRxYb7+1/MkWojUdxnG9wNQ1R2AeH6HoN
-         H1JEQMVhXqgt1PoXyjotvBvQt01wT0hF7kieMSvpsKdc1HdK+wyy0urcYecGwU8bYRCD
-         iVkw==
+        bh=SFfjjVYuyX+ZWtIQTKnBoyatvatssXhZQujt0x3z3r0=;
+        b=fBo4e4+MI9VfOgApn+xa7ldu60JWosO7sxXUSVhcGE/DgYmcuQmiPb3p0k+jLk7xi6
+         6ylUH3S4+4c/MEFxz8KaTiUdnJGQlTGMs/ZS7mVr5Otbwj1jjSiu93DxMGu7xrsn6hST
+         kLRZkQBuqBjmwQu36MRaeUwQBKXW9Y6ct0j4HxIeMoycoY+nXBuXeJK98v38UBdCAzr6
+         SalN8+C3uFHE/eaFNt8q6w2YqXWJIC52hpn9rOvnJFExUsQgPGXwWDsx7faiXw0FntLI
+         YDX4eYxpfBkse+7zLSswBnSdCXuyDBAI6HbhjA0ry29S6alFAuuIAls1/SF8+frG3nlO
+         XnTQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789854753; x=1790459553;
+        d=1e100.net; s=20260707; t=1789854752; x=1790459552;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=4UB+obLd5sZwu+zoy2b+DbkHvLbMMvfZd67jH6/qC/s=;
-        b=sT4sUXx5G2FXl1VTLMasf1Xy2On3SyUAwNUUO1N/3DP77KwCZQ6X6vsV1RvL39hYpd
-         6W2+s+W0eYaLQ81LemEKjx/obruUjbmCD6n5gYm7YsZHxVwkVkG6UcR/fPupEwHYNygV
-         5RbgnkNkS1u2TnC+pvAEPAprmGFBy58LE9t7jYDyglfifqNV6oKgFDzzsKEEOLKEkGeF
-         R0lnK7lFvRXaotRYLB4JDBdZXlACJW2NhFZnzUfn6h2f6QWtnoDJeWcqezZamFdOV1Q2
-         I6x/+wAR15TVCLaFLwZT4AmBx1aAhgsUChhz+RtWL69Akc72IC0uT/6p27l3VFCgg0jf
-         9D8g==
-X-Forwarded-Encrypted: i=1; AKwUvBwg2oifVNfYOjj+zM4DLYUDyTPxIQqIyynSSxZh2S3nmXg34qV0MI5UxW64ycgt7QJW4z5nLro5vYIqoH45kQ==@lists.linux.dev
-X-Gm-Message-State: AFuF++n0gK+09dAJzgd3gDgK8NVTfIKqnBePb5OwA2gyMeJtipv/+iy9
-	5RnAonTcfeUs8gF0/2/AR3Kzfu/Nqs/V0EUekrecSK/8G9LLEkmkZQixfTGIF+pl
-X-Gm-Gg: AYBFou3sW4OvfhABWOX2rDexJ7of8iDWqli1FHbTrt11dntyyNDjyOCQ7HUKc8O7gtO
-	VLPuwe9lVKAhae855LQwn4lyQ8Q6W2Swee+bAbA9gRq9LocgrQKXp5TJGIDF3mHr7NHx5lqel/9
-	ozNYjyTPyB97fcWSs3qEI9XTq8GDYqpSROwigIdGOVczfec9ttpwXtk/pqNHkm4dumJehUmcKIc
-	JAS2YVDnWQswD0nhS8VQPEOwcf2SXtz4ynlSwfa4G22/sNROsfESyXHr5/nPrSxPR0aeDWPkikR
-	HL3zB++4aa7Q6B5qqMRVsEGvLoFsRngj/O2U5o/ct4qJtiGNQx483MwkMnuKhAA8s6wgorVHynY
-	gQUd5u+9PT+IFto2VDICnIxAfOjzDC+85hLVYm47/CJePvWwZTBe4h9rVaexup+XeNF1xmTdPju
-	AY62VYn+0++4+dWGMzUMMwd5RijraYKzfE1LKUDd4DJgx1Kr2UHNEfVFDlDLpuldBd5MHB/zEJD
-	qXgOx0F1HGK+fESW31WixnpZgQoSWFStGiTnWdEor7Ov0MGDyETVY2cb10Gxq0bGD/I53jAdX1G
-	1u44rzVEHg==
-X-Received: by 2002:a17:902:fc45:b0:2dd:c100:80b1 with SMTP id d9443c01a7336-2ddc100811dmr48563035ad.44.1789854753097;
-        Sat, 19 Sep 2026 14:52:33 -0700 (PDT)
+        bh=SFfjjVYuyX+ZWtIQTKnBoyatvatssXhZQujt0x3z3r0=;
+        b=FttYGickEZ8IH0G89BtVvp5vqtixu4ZA7hSiK4ylxg19B9eTTNIr4+va4uN1zvUkVQ
+         k2D7mWguaE8/VfmwehZaOioRLxgRo14C7HC5fyfnkGu/a5eIgQJiGkq/Fq04JR5UNUX6
+         joe0Ng+0tL6LHGamfdyFEEPygyGWCF8m9c7OXUq9y1uAUovNMeJ7pqWXENa8kEH2tcJo
+         qmRQd9Enoh1Zy9Lz38wqVUXF+x1d45M3gnROqIU4IOGzDVUEigV9kUB9KA17kzVTd6RN
+         lzqLdh5wIxO+DikT9ZYh+4C+Jv/yzhDT2n1QU9N8XvdpnwDhT4LItZOHqWvlog3gBvK7
+         GGwg==
+X-Gm-Message-State: AFuF++ly6LK07l+cR/OOElRCgU9EetZ0OyyORCS3mNl9B0tWYCHbtURG
+	isKgqEC0dPWoR2bz4EjoSP3n6pAP7GJIEqS586xYbyaHpzm9Piy8UQvm
+X-Gm-Gg: AYBFou03DUriySRtOo447Yb4ZrcMkxXm3OvMN+FpgpEDw772+PGk1+oEeff7QyhpO9j
+	O/IHU9eUiw1MsAt8Tf9UlGa461OSEDfD00z5g19tGJtTOJAiwqKOISk8PoMLI9OGFMCPm8PfS/r
+	oBkMHTZeC+HQFE8bavbhaHUe6a48m1OJ1bC/KCoqtXjaTYFXczy4kosEbMko9N4gttgtCIoO5iQ
+	2NZ8Jhv7JaRO8i3Kkkfyu1+b8Tmb5gsJeBSmhdLHThm40LsIeHeooULPBQNpVlOqcGeLYtcJEwU
+	/EeoY4LzztEW++Y8835GWtFcV0tXLTCPREoeJJ9tbhlInp3kTp3wDRfzgcJTjoeBGO16eSpPEMv
+	ITysNPx23BLQ6UBnFAHr81PN/7OgdgtSRgwF+55U088l3ecb3U+SKAqTKun4eNnITT87trE2DTH
+	eNmkX4jJalk8JEyGOyjlKk/xfiAQaqFXFgsQtssg3UN6pP7Sz4kOKm6niLBSpvhtD9a76BB733Q
+	rYK/sDls1KCQ3Dl8gqwck9qakpTddzy1Dz64CNH9Q70Xan+nfQ7BrobES3Jg0GF26oNNsMhkHYo
+	8ldu7+5ZJ3SuhQpmIWE1
+X-Received: by 2002:a17:90b:3908:b0:39e:3d38:7ef1 with SMTP id 98e67ed59e1d1-39e5565236dmr6546738a91.10.1789854751817;
+        Sat, 19 Sep 2026 14:52:31 -0700 (PDT)
 Received: from phui-2.c.googlers.com.com (67.51.127.34.bc.googleusercontent.com. [34.127.51.67])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2ddc180395fsm12881915ad.81.2026.09.19.14.52.32
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3a02526e27dsm1883481a91.0.2026.09.19.14.52.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 19 Sep 2026 14:52:32 -0700 (PDT)
+        Sat, 19 Sep 2026 14:52:31 -0700 (PDT)
 From: Hui Peng <benquike@gmail.com>
 To: airlied@redhat.com,
 	kraxel@redhat.com,
-	dmitry.osipenko@collabora.com,
-	gurchetansingh@chromium.org,
-	olvaffe@gmail.com,
-	tzimmermann@suse.de
-Cc: dri-devel@lists.freedesktop.org,
-	virtualization@lists.linux.dev,
+	maarten.lankhorst@linux.intel.com,
+	mripard@kernel.org,
+	tzimmermann@suse.de,
+	simona@ffwll.ch
+Cc: virtualization@lists.linux.dev,
+	spice-devel@lists.freedesktop.org,
+	dri-devel@lists.freedesktop.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH] drm/virtio: fix 0-byte blob ZERO_SIZE_PTR, GEM leak, and context_init rollback
-Date: Sat, 19 Sep 2026 21:52:32 +0000
-Message-ID: <20260919215232.3470178-1-benquike@gmail.com>
+Subject: [PATCH] drm/qxl: fix cursor OOB read, dirty-rect bounds, and monitors double-fetch
+Date: Sat, 19 Sep 2026 21:52:30 +0000
+Message-ID: <20260919215230.3469792-1-benquike@gmail.com>
 X-Mailer: git-send-email 2.55.0.1082.g2b9226bbc0-goog
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -80,202 +80,207 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Fix multiple issues in virtio-gpu VRAM mapping, blob creation, and context
-initialization:
+Fix out-of-bounds accesses and missing bounds checks in the QXL display
+and dirty-framebuffer drawing paths:
 
-1. In virtio_gpu_vram_mmap(), set vram->map_state = STATE_ERR if deferred
-   virtio_gpu_vram_map() fails so callers do not treat an unmapped VRAM
-   node as valid.
-2. In verify_blob(), reject rc_blob->size == 0 or size values that wrap
-   PAGE_ALIGN() to prevent kvmalloc_array(0, ...) from returning
-   ZERO_SIZE_PTR.
-3. In virtio_gpu_gem_create(), virtio_gpu_resource_create_ioctl(), and
-   virtio_gpu_resource_create_blob_ioctl(), use drm_gem_object_put()
-   instead of drm_gem_object_release() on error so the BO's free callback
-   is properly invoked.
-4. In virtio_gpu_context_init_ioctl(), stage context parameters into local
-   variables and only commit them to vfpriv after all parameters and
-   ring_idx_mask have been validated.
+1. In qxl_create_cursor() and qxl_cursor_atomic_check(), verify that the
+   cursor GEM BO is at least 64 * 64 * 4 bytes (16 KiB) before copying
+   into the QXL cursor command, and zero-initialize the stack struct
+   qxl_cursor header.
+2. In qxl_draw_dirty_fb() and qxl_framebuffer_surface_dirty(), validate
+   clip coordinates against the framebuffer dimensions and negative x/y
+   offsets before computing pixel pointers, and handle odd clip counts
+   when DRM_MODE_FB_DIRTY_ANNOTATE_COPY is set.
+3. In qxl_display_copy_rom_client_monitors_config(), read
+   qdev->rom->client_monitors_config.count once with READ_ONCE() and
+   clamp num_monitors to ARRAY_SIZE(heads).
+4. In qxl_prepare_shadow(), propagate qxl_bo_create() allocation failures
+   to qxl_plane_prepare_fb().
 
-Fixes: 16845c5d5409 ("drm/virtio: implement blob resources: implement vram object")
-Fixes: 85c83ea915ed ("drm/virtio: implement context init: allocate an array of fence contexts")
+Fixes: f64122c1f6ad ("drm: add new QXL driver. (v1.4)")
+Fixes: b4b27f08f9f9 ("drm/qxl: rework cursor plane")
 Assisted-by: LLM
 Signed-off-by: Hui Peng <benquike@gmail.com>
 ---
-diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
-index 66c3f6f74e9c..d2f0b8a3f172 100644
---- a/drivers/gpu/drm/virtio/virtgpu_gem.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
-@@ -45,7 +45,7 @@ static int virtio_gpu_gem_create(struct drm_file *file,
+diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
+index 0719fc6a52d5..0fc14312e027 100644
+--- a/drivers/gpu/drm/qxl/qxl_display.c
++++ b/drivers/gpu/drm/qxl/qxl_display.c
+@@ -82,7 +82,7 @@ static int qxl_display_copy_rom_client_monitors_config(struct qxl_device *qdev)
+ 	uint32_t crc;
+ 	int status = MONITORS_CONFIG_UNCHANGED;
  
- 	ret = drm_gem_handle_create(file, &obj->base.base, &handle);
- 	if (ret) {
--		drm_gem_object_release(&obj->base.base);
-+		drm_gem_object_put(&obj->base.base);
- 		return ret;
+-	num_monitors = qdev->rom->client_monitors_config.count;
++	num_monitors = READ_ONCE(qdev->rom->client_monitors_config.count);
+ 	crc = crc32(0, (const uint8_t *)&qdev->rom->client_monitors_config,
+ 		  sizeof(qdev->rom->client_monitors_config));
+ 	if (crc != qdev->rom->client_monitors_config_crc)
+@@ -95,9 +95,9 @@ static int qxl_display_copy_rom_client_monitors_config(struct qxl_device *qdev)
+ 		DRM_DEBUG_KMS("client monitors list will be truncated: %d < %d\n",
+ 			      qxl_num_crtc, num_monitors);
+ 		num_monitors = qxl_num_crtc;
+-	} else {
+-		num_monitors = qdev->rom->client_monitors_config.count;
+ 	}
++	if (num_monitors > ARRAY_SIZE(qdev->rom->client_monitors_config.heads))
++		num_monitors = ARRAY_SIZE(qdev->rom->client_monitors_config.heads);
+ 	if (qdev->client_monitors_config
+ 	      && (num_monitors != qdev->client_monitors_config->count)) {
+ 		status = MONITORS_CONFIG_MODIFIED;
+@@ -454,6 +454,9 @@ static int qxl_framebuffer_surface_dirty(struct drm_framebuffer *fb,
+ 		norect.x2 = fb->width;
+ 		norect.y2 = fb->height;
+ 	} else if (flags & DRM_MODE_FB_DIRTY_ANNOTATE_COPY) {
++		if (num_clips < 2)
++			goto out_lock_end;
++		clips++;
+ 		num_clips /= 2;
+ 		inc = 2; /* skip source rects */
+ 	}
+@@ -601,7 +604,7 @@ static struct qxl_bo *qxl_create_cursor(struct qxl_device *qdev,
+ 	struct qxl_cursor cursor;
+ 	int ret;
+ 
+-	if (!user_bo)
++	if (!user_bo || user_bo->tbo.base.size < size)
+ 		return NULL;
+ 
+ 	ret = qxl_bo_create(qdev, sizeof(struct qxl_cursor) + size,
+@@ -618,6 +621,7 @@ static struct qxl_bo *qxl_create_cursor(struct qxl_device *qdev,
+ 	if (ret)
+ 		goto err_unmap;
+ 
++	memset(&cursor, 0, sizeof(cursor));
+ 	cursor.header.unique = 0;
+ 	cursor.header.type = SPICE_CURSOR_TYPE_ALPHA;
+ 	cursor.header.width = 64;
+@@ -819,10 +823,11 @@ static void qxl_calc_dumb_shadow(struct qxl_device *qdev,
+ 		DRM_DEBUG("%dx%d\n", surf->width, surf->height);
+ }
+ 
+-static void qxl_prepare_shadow(struct qxl_device *qdev, struct qxl_bo *user_bo,
+-			       int crtc_index)
++static int qxl_prepare_shadow(struct qxl_device *qdev, struct qxl_bo *user_bo,
++			      int crtc_index)
+ {
+ 	struct qxl_surface surf;
++	int ret;
+ 
+ 	qxl_update_dumb_head(qdev, crtc_index,
+ 			     user_bo);
+@@ -836,9 +841,11 @@ static void qxl_prepare_shadow(struct qxl_device *qdev, struct qxl_bo *user_bo,
+ 				(&qdev->dumb_shadow_bo->tbo.base);
+ 			qdev->dumb_shadow_bo = NULL;
+ 		}
+-		qxl_bo_create(qdev, surf.height * surf.stride,
+-			      true, true, QXL_GEM_DOMAIN_SURFACE, 0,
+-			      &surf, &qdev->dumb_shadow_bo);
++		ret = qxl_bo_create(qdev, surf.height * surf.stride,
++				    true, true, QXL_GEM_DOMAIN_SURFACE, 0,
++				    &surf, &qdev->dumb_shadow_bo);
++		if (ret)
++			return ret;
+ 	}
+ 	if (user_bo->shadow != qdev->dumb_shadow_bo) {
+ 		if (user_bo->shadow) {
+@@ -851,6 +858,7 @@ static void qxl_prepare_shadow(struct qxl_device *qdev, struct qxl_bo *user_bo,
+ 		user_bo->shadow = qdev->dumb_shadow_bo;
+ 		qxl_bo_pin(user_bo->shadow);
+ 	}
++	return 0;
+ }
+ 
+ static int qxl_plane_prepare_fb(struct drm_plane *plane,
+@@ -869,7 +877,9 @@ static int qxl_plane_prepare_fb(struct drm_plane *plane,
+ 
+ 	if (plane->type == DRM_PLANE_TYPE_PRIMARY &&
+ 	    user_bo->is_dumb) {
+-		qxl_prepare_shadow(qdev, user_bo, new_state->crtc->index);
++		ret = qxl_prepare_shadow(qdev, user_bo, new_state->crtc->index);
++		if (ret)
++			return ret;
  	}
  
-diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index 3d8e4ccdb7c1..fb7225d91752 100644
---- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -185,7 +185,7 @@ static int virtio_gpu_resource_create_ioctl(struct drm_device *dev, void *data,
+ 	if (plane->type == DRM_PLANE_TYPE_CURSOR &&
+@@ -919,7 +929,25 @@ static const uint32_t qxl_cursor_plane_formats[] = {
+ 	DRM_FORMAT_ARGB8888,
+ };
  
- 	ret = drm_gem_handle_create(file, obj, &handle);
- 	if (ret) {
--		drm_gem_object_release(obj);
-+		drm_gem_object_put(obj);
- 		return ret;
- 	}
- 
-@@ -490,6 +490,9 @@ static int verify_blob(struct virtio_gpu_device *vgdev,
- 			return -EINVAL;
- 	}
- 
-+	if (rc_blob->size == 0 || rc_blob->size > ULONG_MAX - PAGE_SIZE + 1)
++static int qxl_cursor_atomic_check(struct drm_plane *plane,
++				   struct drm_atomic_commit *state)
++{
++	struct drm_plane_state *new_plane_state = drm_atomic_get_new_plane_state(state,
++										 plane);
++	struct drm_framebuffer *fb = new_plane_state->fb;
++
++	if (!fb)
++		return 0;
++
++	if (fb->width != 64 || fb->height != 64 ||
++	    !fb->obj[0] || fb->obj[0]->size < 64 * 64 * 4)
 +		return -EINVAL;
 +
- 	params->blob_mem = rc_blob->blob_mem;
- 	params->size = rc_blob->size;
- 	params->blob = true;
-@@ -557,14 +560,14 @@ static int virtio_gpu_resource_create_blob_ioctl(struct drm_device *dev,
- 	if (params.blob_flags & VIRTGPU_BLOB_FLAG_USE_CROSS_DEVICE) {
- 		ret = virtio_gpu_resource_assign_uuid(vgdev, bo);
- 		if (ret) {
--			drm_gem_object_release(obj);
-+			drm_gem_object_put(obj);
- 			return ret;
- 		}
- 	}
- 
- 	ret = drm_gem_handle_create(file, obj, &handle);
- 	if (ret) {
--		drm_gem_object_release(obj);
-+		drm_gem_object_put(obj);
- 		return ret;
- 	}
- 
-@@ -616,6 +619,15 @@ static int virtio_gpu_context_init_ioctl(struct drm_device *dev,
- 		goto out_unlock;
- 	}
- 
-+	u32 context_init = vfpriv->context_init;
-+	u32 num_rings = vfpriv->num_rings;
-+	u64 ring_idx_mask = vfpriv->ring_idx_mask;
-+	bool explicit_debug_name = vfpriv->explicit_debug_name;
-+	bool num_rings_set = (vfpriv->base_fence_ctx != 0);
-+	char debug_name[DEBUG_NAME_MAX_LEN];
++	return 0;
++}
 +
-+	memcpy(debug_name, vfpriv->debug_name, sizeof(debug_name));
-+
- 	for (i = 0; i < num_params; i++) {
- 		param = ctx_set_params[i].param;
- 		value = ctx_set_params[i].value;
-@@ -633,16 +645,16 @@ static int virtio_gpu_context_init_ioctl(struct drm_device *dev,
- 			}
+ static const struct drm_plane_helper_funcs qxl_cursor_helper_funcs = {
++	.atomic_check = qxl_cursor_atomic_check,
+ 	.atomic_update = qxl_cursor_atomic_update,
+ 	.atomic_disable = qxl_cursor_atomic_disable,
+ 	.prepare_fb = qxl_plane_prepare_fb,
+diff --git a/drivers/gpu/drm/qxl/qxl_draw.c b/drivers/gpu/drm/qxl/qxl_draw.c
+index 3a3e127ce297..302c17d87d1c 100644
+--- a/drivers/gpu/drm/qxl/qxl_draw.c
++++ b/drivers/gpu/drm/qxl/qxl_draw.c
+@@ -154,27 +154,40 @@ void qxl_draw_dirty_fb(struct qxl_device *qdev,
+ 	struct qxl_drm_image *dimage;
+ 	int ret;
  
- 			/* Context capset ID already set */
--			if (vfpriv->context_init &
-+			if (context_init &
- 			    VIRTIO_GPU_CONTEXT_INIT_CAPSET_ID_MASK) {
- 				ret = -EINVAL;
- 				goto out_unlock;
- 			}
+-	ret = alloc_drawable(qdev, &release);
+-	if (ret)
+-		return;
+-
+-	clips->x1 += dumb_shadow_offset;
+-	clips->x2 += dumb_shadow_offset;
+-
+-	left = clips->x1;
+-	right = clips->x2;
++	left = clips->x1 + dumb_shadow_offset;
++	right = clips->x2 + dumb_shadow_offset;
+ 	top = clips->y1;
+ 	bottom = clips->y2;
  
--			vfpriv->context_init |= value;
-+			context_init |= value;
- 			break;
- 		case VIRTGPU_CONTEXT_PARAM_NUM_RINGS:
--			if (vfpriv->base_fence_ctx) {
-+			if (num_rings_set) {
- 				ret = -EINVAL;
- 				goto out_unlock;
- 			}
-@@ -652,30 +664,31 @@ static int virtio_gpu_context_init_ioctl(struct drm_device *dev,
- 				goto out_unlock;
- 			}
- 
--			vfpriv->base_fence_ctx = dma_fence_context_alloc(value);
--			vfpriv->num_rings = value;
-+			num_rings = value;
-+			num_rings_set = true;
- 			break;
- 		case VIRTGPU_CONTEXT_PARAM_POLL_RINGS_MASK:
--			if (vfpriv->ring_idx_mask) {
-+			if (ring_idx_mask) {
- 				ret = -EINVAL;
- 				goto out_unlock;
- 			}
- 
--			vfpriv->ring_idx_mask = value;
-+			ring_idx_mask = value;
- 			break;
- 		case VIRTGPU_CONTEXT_PARAM_DEBUG_NAME:
--			if (vfpriv->explicit_debug_name) {
-+			if (explicit_debug_name) {
- 				ret = -EINVAL;
- 				goto out_unlock;
- 			}
- 
--			ret = strncpy_from_user(vfpriv->debug_name,
-+			memset(debug_name, 0, sizeof(debug_name));
-+			ret = strncpy_from_user(debug_name,
- 						u64_to_user_ptr(value),
- 						DEBUG_NAME_MAX_LEN - 1);
- 			if (ret < 0)
- 				goto out_unlock;
- 
--			vfpriv->explicit_debug_name = true;
-+			explicit_debug_name = true;
- 			ret = 0;
- 			break;
- 		default:
-@@ -684,17 +697,28 @@ static int virtio_gpu_context_init_ioctl(struct drm_device *dev,
- 		}
+ 	/* skip the first clip rect */
+ 	for (i = 1, clips_ptr = clips + inc;
+ 	     i < num_clips; i++, clips_ptr += inc) {
+-		left = min_t(int, left, (int)clips_ptr->x1);
+-		right = max_t(int, right, (int)clips_ptr->x2);
++		left = min_t(int, left, (int)clips_ptr->x1 + dumb_shadow_offset);
++		right = max_t(int, right, (int)clips_ptr->x2 + dumb_shadow_offset);
+ 		top = min_t(int, top, (int)clips_ptr->y1);
+ 		bottom = max_t(int, bottom, (int)clips_ptr->y2);
  	}
  
--	if (vfpriv->ring_idx_mask) {
-+	if (ring_idx_mask) {
- 		valid_ring_mask = 0;
--		for (i = 0; i < vfpriv->num_rings; i++)
-+		for (i = 0; i < num_rings; i++)
- 			valid_ring_mask |= 1ULL << i;
- 
--		if (~valid_ring_mask & vfpriv->ring_idx_mask) {
-+		if (~valid_ring_mask & ring_idx_mask) {
- 			ret = -EINVAL;
- 			goto out_unlock;
- 		}
- 	}
- 
-+	vfpriv->context_init = context_init;
-+	if (num_rings_set && !vfpriv->base_fence_ctx) {
-+		vfpriv->base_fence_ctx = dma_fence_context_alloc(num_rings);
-+		vfpriv->num_rings = num_rings;
-+	}
-+	vfpriv->ring_idx_mask = ring_idx_mask;
-+	if (explicit_debug_name && !vfpriv->explicit_debug_name) {
-+		memcpy(vfpriv->debug_name, debug_name, sizeof(vfpriv->debug_name));
-+		vfpriv->explicit_debug_name = true;
-+	}
++	if (dumb_shadow_offset < 0 || dumb_shadow_offset > INT_MAX - fb->width)
++		return;
 +
- 	virtio_gpu_create_context_locked(vgdev, vfpriv);
- 	virtio_gpu_notify(vgdev);
++	left = clamp_t(int, left, dumb_shadow_offset,
++		       dumb_shadow_offset + fb->width);
++	right = clamp_t(int, right, dumb_shadow_offset,
++			dumb_shadow_offset + fb->width);
++	top = clamp_t(int, top, 0, fb->height);
++	bottom = clamp_t(int, bottom, 0, fb->height);
++
++	if (left >= right || top >= bottom)
++		return;
++
++	if ((size_t)bottom * stride > fb->obj[0]->size)
++		return;
++
++	ret = alloc_drawable(qdev, &release);
++	if (ret)
++		return;
++
+ 	width = right - left;
+ 	height = bottom - top;
  
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vram.c b/drivers/gpu/drm/virtio/virtgpu_vram.c
-index 5b4a3ab81cd5..aaeae38afc0e 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vram.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vram.c
-@@ -248,7 +248,10 @@ void virtio_gpu_vram_map_deferred(struct virtio_gpu_object_vram *vram)
- 		return;
- 
- 	mutex_lock(&map_lock);
--	if (!drm_mm_node_allocated(&vram->vram_node))
--		virtio_gpu_vram_map(&vram->base);
-+	if (!drm_mm_node_allocated(&vram->vram_node)) {
-+		vram->map_state = STATE_INITIALIZING;
-+		if (virtio_gpu_vram_map(&vram->base))
-+			vram->map_state = STATE_ERR;
-+	}
- 	mutex_unlock(&map_lock);
- }
