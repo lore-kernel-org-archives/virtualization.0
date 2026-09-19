@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 177BF1FC0
-	for <virtualization@lists.linux.dev>; Sat, 19 Sep 2026 22:04:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1335B37C92A
+	for <virtualization@lists.linux.dev>; Sat, 19 Sep 2026 22:15:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789855486; cv=none; b=nkjabpDiOBgvLSNo7CbNUSNHaZ5CwgHdiSYcsHb0DN5io4kPrPWxO5rVRjA00Td8w3X+4XQCxHasjkj6K06b6kfDc3wUFXPZY1fE33Bvm33+Qcl67mdyc7HonfChKpqigxAXJ0dvmimCYELFihLyTs2QYilpMm799c82c1DxCUs=
+	t=1789856117; cv=none; b=k5XiUdj8RTbx/HLD6zfqe/hYhdkRcTGyugOSN/VHHzBj1ecWhXv2/I7QOR7VsTJz/CsXX+LVY6disP+DsT5iwajsqG/w1qhk7swdacZfrOajx7+X7jEGNrkhqzULW25+kT249PP/iqQ/wzpzbqKzeGZuN21JeC2WT9dROypBoW0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789855486; c=relaxed/simple;
-	bh=WB9uPzdvfgHzORD1E1kvKtwc1AvscY7nX9iLfY2znwY=;
+	s=arc-20240116; t=1789856117; c=relaxed/simple;
+	bh=mm42zjeZEyxatcG1+G7MJvUEzT19UDOYM61kp4o7uUQ=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=XRHLLnCthwa+ONlfzWOZv95Q8R2I+caHeoww+sRVPt6YfFvYfVEubFUd9GSRU6xUU9TmitwJIrg6J4CQOoDgSdakiT75obK+bFiaPQlzGcAhyMphISOYuQMqPVgTvj080O5vHaHPkiH+g7mfH5fkLEn4Iu1/CViDTUA+RFkVWnk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=c0ZZlz6d; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=Hn3UPFPk8Zbuj630/K5eDLDuuYcNdXs4OzKaw0nsfOPgg4YmAJGDe4ZKGOZ/Gaz2819FoyuJQOqw9PfTtQuzznwAYXgCDHDJaw3O88TnkNTj4QaiALGad/HApiPetjHeC4X1kZfSMzKr788w9jr/JBOH0JvT3oQgg/q22X+774U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gHgD/EZ9; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="c0ZZlz6d"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7712B1F000FF;
-	Sat, 19 Sep 2026 22:04:44 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gHgD/EZ9"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55CF01F000FF;
+	Sat, 19 Sep 2026 22:15:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789855484;
-	bh=i0Ci9e6/zH1hprYr8tXdNt/Xr9WaX+YFs4mjCv5TbVk=;
+	s=k20260515; t=1789856115;
+	bh=g0V6bqgdshBf93AEaMSLofIKx74YdMRzCtFg3iNiUdc=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=c0ZZlz6dAPfocwwUc+xFHCF7zctqla/4IX7LIbTTK8sXLcaAX+j3MHLw68atmokm1
-	 fz6j0zGY4jmVVinr0uHGs+XSjXnFBLP5x2//C0ptHVF5KXZ9AWkcTLCI4wF2rD7nUu
-	 QL+XLlPGoHVEVw+MDpB3/UyRtZNcht1hDUn3oH7PG4l7ifLVRttEdSISo566KH2kBA
-	 lj4k5cMp1/k0Gul6vP05qzPYbVHg8QtSwVV+oWV+MHgxjQKIyULFs8L7Gp921AAtsm
-	 DRrnjk4Ld9RgSFCnrtmnAbgc8+KJpjZ4ZgU0C1wDSqLaCefdFPwGGPw+eYH1t2jApY
-	 GGO76uEz7STOQ==
+	b=gHgD/EZ9glfkO4xS+RkfLxqry1CkdnESi/+2fERA3MC0InkorqnlwKPqCwy3zsFmW
+	 AR8MkvDiESrehrmrw+LrUv0xOGN0hAwBh3uApHZz4qgFhhqEvfa2eZaMmVYenj7TQw
+	 lRU5ppNdLnGCDNaeeFFMhcrHNAg1JSglYAQRuiuriPwLn+r4Y0wYzcdjdhkZ0rM85X
+	 6FNcba46MZTAbO69eWp2iCcxC76RammoEfgL/KSfPEgiLJD8Y6gLC8QxUTI/Tq2FTX
+	 AFkMsaidhrcQrZmXODRD3sv3pZ8vFYG6Ot6SilcN0mMRr/KYaSllxaS/z9YQi2JsT9
+	 4KQW6xsHVb9iw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] drm/qxl: fix cursor OOB read, dirty-rect bounds, and
- monitors double-fetch
+Subject: Re: [PATCH] drm/qxl: fix vmalloc OOB write, surface size overflow,
+ and BO reloc leaks
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Hui Peng" <benquike@gmail.com>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, dri-devel@lists.freedesktop.org, "Eugenio
+Cc: dri-devel@lists.freedesktop.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20260919215230.3469792-1-benquike@gmail.com>
-References: <20260919215230.3469792-1-benquike@gmail.com>
+In-Reply-To: <20260919215228.3469508-1-benquike@gmail.com>
+References: <20260919215228.3469508-1-benquike@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 19 Sep 2026 22:04:44 +0000
-Message-Id: <20260919220444.7712B1F000FF@smtp.kernel.org>
+Date: Sat, 19 Sep 2026 22:15:14 +0000
+Message-Id: <20260919221515.55CF01F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -47,94 +47,95 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
 Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [High] drm/qxl: missing offset in clipping rectangles breaks rendering
-- [Low] drm/qxl: dead code in dumb_shadow_offset bounds check
+- [High] drm/qxl: Silent failure in apply_reloc allows bypassing hardware r=
+elocations
+- [Medium] drm/qxl: Meaningful code and commit message mismatch on BO reser=
+vation
 --
 
-commit dbbac4275ce84b9a554a655eca70f851083fc445
+commit 19602cc9bae945e0036cb9d92dfb3b6be072f8de
 Author: Hui Peng <benquike@gmail.com>
-drm/qxl: fix cursor OOB read, dirty-rect bounds, and monitors double-fetch
 
-This commit fixes out-of-bounds accesses and missing bounds checks in the
-QXL display and dirty-framebuffer drawing paths.
+drm/qxl: fix vmalloc OOB write, surface size overflow, and BO reloc leaks
 
-> diff --git a/drivers/gpu/drm/qxl/qxl_draw.c b/drivers/gpu/drm/qxl/qxl_dra=
-w.c
-> --- a/drivers/gpu/drm/qxl/qxl_draw.c
-> +++ b/drivers/gpu/drm/qxl/qxl_draw.c
-> @@ -154,27 +154,40 @@ void qxl_draw_dirty_fb(struct qxl_device *qdev,
->  	struct qxl_drm_image *dimage;
->  	int ret;
+This commit addresses multiple memory safety and resource management issues
+in the QXL driver, including out-of-bounds kernel vmalloc writes during
+relocation processing, integer overflows in surface size calculations, and
+resource leaks.
+
+> 3. In qxl_process_single_command(), prevent overwriting the union
+>    qxl_release_info header at offset 0 of cmd_bo, and reserve/unreserve
+>    non-command dst_bo buffers around apply_reloc()/apply_surf_reloc().
+
+[Severity: Medium]
+The commit message mentions adding logic to reserve/unreserve non-command
+dst_bo buffers around apply_reloc() and apply_surf_reloc(). Is this
+description accurate?
+
+Looking at the relocation loop in qxl_process_single_command(), there are
+no local reserve or unreserve calls added by this patch.
+
+It seems qxlhw_handle_to_bo() adds dst_bo to the release object, which is
+then batch-reserved by qxl_release_reserve_list() before the loop. The
+buffers appear to be safely reserved already, but does the commit message
+need an update to reflect the actual batch reservation mechanism used?
+
+> diff --git a/drivers/gpu/drm/qxl/qxl_ioctl.c b/drivers/gpu/drm/qxl/qxl_io=
+ctl.c
+> index 591b026ceff9c..6bb609bc6a7ea 100644
+> --- a/drivers/gpu/drm/qxl/qxl_ioctl.c
+> +++ b/drivers/gpu/drm/qxl/qxl_ioctl.c
+> @@ -89,6 +89,8 @@ apply_reloc(struct qxl_device *qdev, struct qxl_reloc_i=
+nfo *info)
+>  	void *reloc_page;
 > =20
-> -	ret =3D alloc_drawable(qdev, &release);
-> -	if (ret)
-> -		return;
-> -
-> -	clips->x1 +=3D dumb_shadow_offset;
-> -	clips->x2 +=3D dumb_shadow_offset;
-> -
-> -	left =3D clips->x1;
-> -	right =3D clips->x2;
-> +	left =3D clips->x1 + dumb_shadow_offset;
-> +	right =3D clips->x2 + dumb_shadow_offset;
-
-[Severity: High]
-Will this change break rendering on secondary monitors by omitting the offs=
-et
-from the hardware clipping rectangles?
-
-The original code modified clips->x1 and clips->x2 in place, which meant
-dumb_shadow_offset was automatically included when setting up the rects arr=
-ay
-later in the function.
-
-Now that clips is not mutated, rects gets the original un-offset coordinate=
-s:
-
-drivers/gpu/drm/qxl/qxl_draw.c:qxl_draw_dirty_fb() {
-        ...
-        clips_ptr =3D clips;
-        for (i =3D 0; i < num_clips; i++, clips_ptr +=3D inc) {
-                rects[i].left   =3D clips_ptr->x1;
-                rects[i].right  =3D clips_ptr->x2;
-        ...
-}
-
-The hardware expects clip rectangles to match the shadow surface coordinates
-of the drawable. Because skipping this offset clips out the valid rendering
-area entirely, should dumb_shadow_offset be explicitly added to rects[i].le=
-ft
-and rects[i].right?
-
->  	top =3D clips->y1;
->  	bottom =3D clips->y2;
-> =20
->  	/* skip the first clip rect */
->  	for (i =3D 1, clips_ptr =3D clips + inc;
->  	     i < num_clips; i++, clips_ptr +=3D inc) {
-> -		left =3D min_t(int, left, (int)clips_ptr->x1);
-> -		right =3D max_t(int, right, (int)clips_ptr->x2);
-> +		left =3D min_t(int, left, (int)clips_ptr->x1 + dumb_shadow_offset);
-> +		right =3D max_t(int, right, (int)clips_ptr->x2 + dumb_shadow_offset);
->  		top =3D min_t(int, top, (int)clips_ptr->y1);
->  		bottom =3D max_t(int, bottom, (int)clips_ptr->y2);
->  	}
-> =20
-> +	if (dumb_shadow_offset < 0 || dumb_shadow_offset > INT_MAX - fb->width)
+>  	reloc_page =3D qxl_bo_kmap_atomic_page(qdev, info->dst_bo, info->dst_of=
+fset & PAGE_MASK);
+> +	if (!reloc_page)
 > +		return;
 
-[Severity: Low]
-Is this bounds check operating as intended?
+[Severity: High]
+Does returning early without an error code here allow unpatched commands to
+reach the hardware?
 
-Because dumb_shadow_offset is a uint32_t, the < 0 check is unconditionally
-false.
+If qxl_bo_kmap_atomic_page() fails (for example, due to vmalloc exhaustion
+when a user specifies a dumb buffer for dst_bo), this silently aborts the
+relocation.
 
-Additionally, fb->width is unsigned, so does INT_MAX - fb->width result
-in an implicit unsigned calculation? While this may functionally protect
-against overflow due to core DRM limits on fb->width, it leaves the validat=
-ion
-logic brittle.
+Since the caller loop in qxl_process_single_command() assumes success:
+
+    for (i =3D 0; i < cmd->relocs_num; ++i) {
+        if (reloc_info[i].type =3D=3D QXL_RELOC_TYPE_BO)
+            apply_reloc(qdev, &reloc_info[i]);
+        ...
+    }
+
+could this allow a user to bypass validation and submit unpatched,
+user-controlled physical addresses to the virtual GPU? Should these apply
+functions return an error code to properly abort the ioctl?
+
+>  	*(uint64_t *)(reloc_page + (info->dst_offset & ~PAGE_MASK)) =3D qxl_bo_=
+physical_address(qdev,
+>  											      info->src_bo,
+>  											      info->src_offset);
+> @@ -105,6 +107,8 @@ apply_surf_reloc(struct qxl_device *qdev, struct qxl_=
+reloc_info *info)
+>  		id =3D info->src_bo->surface_id;
+> =20
+>  	reloc_page =3D qxl_bo_kmap_atomic_page(qdev, info->dst_bo, info->dst_of=
+fset & PAGE_MASK);
+> +	if (!reloc_page)
+> +		return;
+
+[Severity: High]
+Similar to apply_reloc() above, this early return silently ignores the map
+failure for surface relocations, leading to the same risk of submitting a
+corrupted command to the hardware.
+
+>  	*(uint32_t *)(reloc_page + (info->dst_offset & ~PAGE_MASK)) =3D id;
+>  	qxl_bo_kunmap_atomic_page(qdev, info->dst_bo, reloc_page);
+>  }
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260919215230.3469=
-792-1-benquike@gmail.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260919215228.3469=
+508-1-benquike@gmail.com?part=3D1
