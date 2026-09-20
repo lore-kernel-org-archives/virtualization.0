@@ -1,62 +1,64 @@
-Received: from mail-ed2-f12.google.com (mail-ed2-f12.google.com [74.125.228.76])
+Received: from mail-ej2-f12.google.com (mail-ej2-f12.google.com [74.125.228.140])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A84CF475337
-	for <virtualization@lists.linux.dev>; Sun, 20 Sep 2026 19:47:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.76
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64D5347277C
+	for <virtualization@lists.linux.dev>; Sun, 20 Sep 2026 19:47:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789933637; cv=none; b=Ipu23Rcu7xlJJfo5lK81RoxpOBpCw8PSSoDFucVy8/zJkE43EaTToVICMA6IbinFjUV7vgaVc5W/XmaZds9MPD2mign3siKlnk6b+oyEK167tnQBWpYpfgTN4DFlEN+3kaxlUsv7WzSfhZm41DTtnXrQj0hl5fxufjgcI17ouwM=
+	t=1789933639; cv=none; b=bs3R5ALAaC6gBXKZO1OeywGBrkGbEhYduBMg92WLBmFlyWWbfpnQM+mE/WtHad/LO/4W7uCdOTLC1BYk03b7q7ec1WJ3xc/eksL2YYtt0gpa6hWp1HZl17FIQzbchM7DQVg0T5gjQ6/DPc2ZfplDYFWjPiG96VQdv1argWNspQ4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789933637; c=relaxed/simple;
-	bh=k//2B9OVyNb3LfKfZMQ5Ujz7TjjuUTfaf0JY99BJpE0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=PHTGMM7iB1S2grHH2xeLeh3jLzXf5Bedm0bAYbqOvpAiHOYLUDkVXVeeEOTb5+lHgxBvMkxaii6uR4DVBzyILrkIzZnIRihtFlAWwV4s/LjMaDrTrw9lE7PVAaGr5o+MAvDH7+oyPg7Qn3Xa3132kHE4ecyJbcRGwe7A1uDQvw4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YZrmPJmF; arc=none smtp.client-ip=74.125.228.76
+	s=arc-20240116; t=1789933639; c=relaxed/simple;
+	bh=P2kW8ATtvkNqZncHYca4L+gsqhgusrW42yBbrkJoSd8=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=XJQBpHUGom3MU98xL9h8b8DBluK/RXoTaWQO2MAA0bY4gfekJJZkzFAfWxTop3KWsZf8cRiRBGxVoBu0UeQjMSs5rnVZRLXkUrueOwzNSskRy/1wPFq5QBqNfXRLiezVNYTfNc6yffpSo5UMescOLyJ7TGNcMhujpsl/fcZUA/k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ETiFO4mj; arc=none smtp.client-ip=74.125.228.140
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YZrmPJmF"
-Received: by mail-ed2-f12.google.com with SMTP id 4fb4d7f45d1cf-6a9ba73bee8so1674445a12.0
-        for <virtualization@lists.linux.dev>; Sun, 20 Sep 2026 12:47:15 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ETiFO4mj"
+Received: by mail-ej2-f12.google.com with SMTP id a640c23a62f3a-c2940ef15c1so282905366b.1
+        for <virtualization@lists.linux.dev>; Sun, 20 Sep 2026 12:47:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789933634; x=1790538434; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=6GiF+RaRfkQVR72zMKUjo/mKJQNiAbemXLgy1Bp7FnY=;
-        b=YZrmPJmFUrVunbE2L7Qoi2OGDhGzbGVmGOZ8yp7+CyUCVH8xJsPKunLvL8w/9XLnHv
-         Xlr+iUVtNV5uSQ+vus0utBYUpZnfK/Pwk9OC0SlzKe1e6nqaYDkRPDwQpAEP37d6X0lm
-         amT2zkoSlC14Ul244hGGybDNUmoZFeX0Lrhwf7hnrKMzT9hD9eDuPVtoAiVdyUGotLLS
-         7bQtU7fHxjVh8zp+/j6MhL1hUYgfyIiLxuY8s3ZgS+ZpRfRpXV/RbduwMyA7/dUJRlkZ
-         laS66PZdqaGsRxtBJQM5yB7q/FF2m4O5cnUfo0RJFnDviEKeOrKKQCJ5HmSQeqJjXjvC
-         +7rg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789933634; x=1790538434;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1789933635; x=1790538435; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=6GiF+RaRfkQVR72zMKUjo/mKJQNiAbemXLgy1Bp7FnY=;
-        b=iqtZKmB7Rr7Y6BR1P6Ymm0aHSir7JMGIKoRS9gWOYe6Icl6M8nIC0/AmPLQAOVnK+5
-         Wbp2BInIvoB4IR3AzIdrC04zSTuS5hfSeH23u+JJdYX0OWwg7s3H6GwEpiy5IV+YKMBO
-         1KDdOmY7jGpsUTzdbMO9ueIJneMbUXY7/g0+Bw8AJNhnKoRmyz4l3qj9LRty+cVwC3An
-         FNx/JI9XoZTA9aUz0S24lNiJuFn4s9FVaCfmg+494HaHarmsR6rRv6Jy5P72d9red9Zp
-         sGy9OIsqyVfT3Ka6HDqgZzk6GT/P+DSMq8wFjWvMLuo2EGXljBpmNO3/jOmGwXApcdtn
-         +HVw==
-X-Forwarded-Encrypted: i=1; AKwUvBx8T9QEaUa5trT5pqhSdO8locIZK4CoYe6E8/P64Ps7SWSHc3MBEmjVnnDy9wQLlBzkCKRTO0wfUD18mc7adQ==@lists.linux.dev
-X-Gm-Message-State: AFuF++k3qe4lpSrZ9p+F+FuEZCnJdvlvhiAsfHWoDR3iRlHxoErIggt3
-	aIRldJPlh1oTRhMFXw7PwdPzURsnjV7HF/csi1cxCeQvCGjqjRN3/8uo
-X-Gm-Gg: AYBFou3cACA9cZNG3hTzipKelw4TBjYQ9jMhP8mvqyQdD8M9UxypKGR5y7acGN7HpK5
-	VQpXPRvpzIA6e2LLPpyQIP4PgtEXC7syMlpWZ/olp7QaVB0M5vui7vNH0iJmpcedIDvPHV9b6dz
-	SrvbEkAfz1z7bCw3DHaFgg2V17nESNcNyE8S2uXHwH8tDeU6Xjeljlj7irXTKTwnsF56xl2Bz+5
-	OiOIoPYNfCqozSUPreGaO2aE8cNzY6WJ9TpwITpT2mMUIPP/TuOfWPhZMNxSjVjVGpLrkQkPlWZ
-	Sk/dib9LMTOfeRhcFC0y2k688kBH1U8/M/47xBOeaUzJtCwC1D8O+MjVqbSvBVHGAgxoY0NzwAt
-	FAUeJbaao7nL5NbLHOY02CszWuqtLtJvj7oPXXYeg0R28aVysZZP9fsFAW1kIJTM2k2AhHa+GyD
-	MShbEeq5qSTKvo51iKe3QCfCTKueR75FGDtbNA+ZtL25QKihO1FNbQoZYR540I9olJFLMvcHpQL
-	grUvbNYcR3Gnv3VnLNyUISvAh2tkuY0pKUMQaNgA6mJ5JsgN+YKMnT6KWE=
-X-Received: by 2002:a17:907:9616:b0:c29:d1b8:6c4b with SMTP id a640c23a62f3a-c2a16401446mr770255366b.4.1789933633593;
-        Sun, 20 Sep 2026 12:47:13 -0700 (PDT)
+        bh=Ecyy9bn6zcz7JfajH979ClHOPnn+4eN95YmsvJYzOX0=;
+        b=ETiFO4mjal5Q+IAo9unwxgdXmMtoIbVNPcAIwAdJdzilqDJuwErpTQdF9/WjE6gfOL
+         OdAsAz2MKyCFyn1FwiNjsswY+LWQqJ4I6xNX42Bux41WvR/YlnEKgp+RUVbYBnik8wTX
+         r8saTJzO3UnzTrQXx0dW4Rv1Y0Vz14+uYTtTdlFt0DAoM73WjafHWd0+UYLpKQelUsnd
+         A++wRTJQFPauMEc2xTkoCYLnpA9LLBwFs7GMK4g+rik0D/hIzn/Us3q1fl8Ihiqyaqt7
+         wRAExOeK5GUWwuqvw9vQL6/5/HHUC+slxVNs0nXejUiLjtx0L0G7L+GCnO9hQq84c+gV
+         euCQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1789933635; x=1790538435;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=Ecyy9bn6zcz7JfajH979ClHOPnn+4eN95YmsvJYzOX0=;
+        b=n29YITqV6Wenuo1o0q3xcyZI/TArw716Su01d8hms1LDE0/iBr1R0ED9LE10Tln6cS
+         bSJt9gW/ykTlQ/XlapfA9wCwuFRXlnzOVQUbwV3dWJLrDtb47I6XLnoaoO27pmDXIy3B
+         HItwGWxl/IKHCN+iwK3YIfnjNvz0Z5CfE+vSjWc3iTsUcM8mXzbqk3YM928I1MlCfPJv
+         ugmojBc07lsfb+ZfMbB6+SPIcKxoRb1zQAjYMeLHP0IkSIMMeovMz+UveTviJdXLdhxM
+         bTOTLomP1WD7dPyO0vugF1JjRKAZNBwMDFvF5LvGm993KpOZWu1EOcE4PlikikjCMQiH
+         WRaA==
+X-Forwarded-Encrypted: i=1; AKwUvBySecDMCsOQrC+tjAAvTbmCy2YctkCI1yXaTHkcomZUposuYTHKAW6tJdFfBVv3Q+XFoEE17WJT2iMxwvmQ1Q==@lists.linux.dev
+X-Gm-Message-State: AFuF++nGWXEwHrSvI/DYFHMyKO+VMnnhG/dPS4DdD3kGBnSiyv0jP7/f
+	C2XDF73uIAiia1A/J2aiXrGkoYlKbz807hxDii/3YoZrX/nc7B8mdV6B
+X-Gm-Gg: AYBFou0lkC+AWCaGWbTs3hu15IEZRPigV5A+Roa5iZiEstbLR3rtIFC3hvrMDOk7P/q
+	ZaCpJllczVTvXjYjpk4WQkH+30xGByhUeCGFLFqN5N/yb6wbru7bTzEvIIwQ4BCTHkAXOxDi9k+
+	E3xtzz3ZC5HBsI3036fSXNrX/eHRZBhVo99m+fJPATOx1fmBFZpfmiK/J7f72Jkc04X8zw9Hjjc
+	uzpChIXLNaRoZOaqybjaOZxFMNgHZYi/uEaL9PfjlVgTlOnDfi5/uAUDI4yJBarmTkHBpPEbvVa
+	ZbeYpKIuAyJiqiDOC3xgOwekbY9QS0cDoMlq/DVYUfN94vKSRtLTboKDmtE5P93mp7wgA5FRp6W
+	vsh0nLYUqo5Egrp4N4MdSFnyZeryLBW9nH7uUxROxyKdTtLJZLFVdaV12YeFoWxNF5zQjjlxtMs
+	K9RfvDtTeBPypoEfK2598WRa9PLzLIHVOpyZ6mGqjzL9dAB2Qeb6Ok008Mbz4uwW9xRxWS1Ya63
+	sN4BDSGyfcEUve3AQj4pe6yBStGpxzdPMdWpMIMYXqJJ2eSUJNQBCXklaE=
+X-Received: by 2002:a17:907:3cd4:b0:c29:4d59:9833 with SMTP id a640c23a62f3a-c2a1569a4b8mr756590066b.15.1789933635349;
+        Sun, 20 Sep 2026 12:47:15 -0700 (PDT)
 Received: from dohko.chello.ie (188-141-5-72.dynamic.upc.ie. [188.141.5.72])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c2a358ff8edsm211768466b.61.2026.09.20.12.47.12
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c2a358ff8edsm211768466b.61.2026.09.20.12.47.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 20 Sep 2026 12:47:13 -0700 (PDT)
+        Sun, 20 Sep 2026 12:47:14 -0700 (PDT)
 From: David Carlier <devnexen@gmail.com>
 To: netdev@vger.kernel.org
 Cc: sgarzare@redhat.com,
@@ -68,10 +70,12 @@ Cc: sgarzare@redhat.com,
 	virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org,
 	David Carlier <devnexen@gmail.com>
-Subject: [PATCH net-next 0/2] vsock: receive queue hint for io_uring
-Date: Sun, 20 Sep 2026 20:47:08 +0100
-Message-ID: <20260920194710.1114748-1-devnexen@gmail.com>
+Subject: [PATCH net-next 1/2] vsock: report pending receive data to io_uring
+Date: Sun, 20 Sep 2026 20:47:09 +0100
+Message-ID: <20260920194710.1114748-2-devnexen@gmail.com>
 X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260920194710.1114748-1-devnexen@gmail.com>
+References: <20260920194710.1114748-1-devnexen@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -80,51 +84,80 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-AF_VSOCK stream receives never fill msghdr.msg_inq. io_uring initialises the
-hint to -1 and treats that as "unknown", so it cannot set
-IORING_CQE_F_SOCK_NONEMPTY, and it speculatively retries a multishot receive
-after every completion, including when the queue is already empty.
+AF_VSOCK stream receives never fill msghdr.msg_inq, so io_uring cannot set
+IORING_CQE_F_SOCK_NONEMPTY and retries a multishot receive even after the
+queue has been drained.
 
-Patch 1 fills the hint at the common exit of __vsock_connectible_recvmsg(),
-reusing vsock_stream_has_data(), the transport callback that SIOCINQ already
-uses. Following tcp_inq_hint(), it reports a terminal hint of 1 once the
-connection is finished, so the caller still performs the receive that
-observes EOF. Patch 2 adds selftest coverage.
+Fill the hint at the common receive exit using the transport callback that
+SIOCINQ already uses, and report 1 once the connection is finished so the
+caller performs the receive which observes EOF, as TCP does after a FIN.
 
-Numbers come from a ping-pong over vsock loopback using io_uring multishot
-receive, 4 KiB messages, the queue drained between messages, with kernel
-receives counted by a kprobe. The baseline is the same tree with patch 1
-reverted:
+A vsock loopback ping-pong with io_uring multishot receive drops entries
+into __vsock_connectible_recvmsg from 1.97 to 1.00 per delivered message,
+and receiver CPU time by about 3% (25 runs of 50000 messages, p=0.006).
 
-  entries per delivered message   1.97 -> 1.00       (5000 messages)
-  receiver CPU time, median       1.640s -> 1.587s   (-3.2%)
-  receiver wall time, median      3.260s -> 3.183s   (-2.4%)
+Signed-off-by: David Carlier <devnexen@gmail.com>
+---
+ net/vmw_vsock/af_vsock.c | 39 +++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 39 insertions(+)
 
-Timing is 25 runs of 50000 messages per kernel; CPU gives Mann-Whitney
-p=0.006, wall time does not separate from noise (p=0.12), as expected for a
-latency-bound workload.
-
-The hint is gated to SOCK_STREAM; seqpacket is untouched. SO_INQ and SCM_INQ
-are deliberately left out: they need their own per-socket state and
-ancillary-message semantics, and a byte-count contract would have to account
-for transports reporting less than the whole queue. That can follow.
-
-Testing: built and run under virtme-ng on loopback, where the new cases pass
-and vsock_test still passes 41 of 41 with a clean dmesg. Other transports
-were reviewed but not tested. Hyper-V reports the current packet rather than
-the whole queue and can return -EIO; an undercount only understates what is
-readable, and a negative result leaves the caller's hint untouched.
-
-David Carlier (2):
-  vsock: report pending receive data to io_uring
-  vsock/test: cover receive queue hints
-
- net/vmw_vsock/af_vsock.c               |  39 +++
- tools/testing/vsock/vsock_uring_test.c | 367 +++++++++++++++++++++++++
- 2 files changed, 406 insertions(+)
-
-
-base-commit: cea851523034d83dc61d882b1a6a3ad273480f7b
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index f840498b58af..63309708c916 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -2543,6 +2543,38 @@ static int __vsock_seqpacket_recvmsg(struct sock *sk, struct msghdr *msg,
+ 	return err;
+ }
+ 
++/* Bytes a following receive can consume, 1 if it would only see EOF, or a
++ * negative value to leave the caller's hint alone.
++ *
++ * Called under the socket lock after a nonnegative stream receive, so a NULL
++ * transport implies SOCK_DONE.
++ */
++static int vsock_inq_hint(struct sock *sk)
++{
++	struct vsock_sock *vsk = vsock_sk(sk);
++	s64 data;
++
++	if ((sk->sk_shutdown & RCV_SHUTDOWN) ||
++	    (sock_flag(sk, SOCK_DONE) && sk->sk_state != TCP_ESTABLISHED))
++		return 1;
++
++	if (!vsk->transport)
++		return 1;
++
++	data = vsock_stream_has_data(vsk);
++	if (data < 0)
++		return -1;
++	if (data > 0)
++		return (int)min_t(s64, data, INT_MAX);
++
++	/* Empty but finished: keep the caller reading so it sees EOF. */
++	if (sock_flag(sk, SOCK_DONE) ||
++	    (READ_ONCE(vsk->peer_shutdown) & SEND_SHUTDOWN))
++		return 1;
++
++	return 0;
++}
++
+ int
+ __vsock_connectible_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+ 			    int flags)
+@@ -2606,6 +2638,13 @@ __vsock_connectible_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+ 		err = __vsock_seqpacket_recvmsg(sk, msg, len, flags);
+ 
+ out:
++	if (msg->msg_get_inq && err >= 0 && sk->sk_type == SOCK_STREAM) {
++		int inq = vsock_inq_hint(sk);
++
++		if (inq >= 0)
++			msg->msg_inq = inq;
++	}
++
+ 	release_sock(sk);
+ 	return err;
+ }
 -- 
 2.55.0
 
