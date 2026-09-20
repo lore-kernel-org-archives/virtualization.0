@@ -1,89 +1,60 @@
-Received: from mxout022.mail.hostpoint.ch (mxout022.mail.hostpoint.ch [217.26.49.196])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC5043559D6;
-	Sun, 20 Sep 2026 19:22:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.26.49.196
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73C2D3C5DC5
+	for <virtualization@lists.linux.dev>; Sun, 20 Sep 2026 19:29:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789932177; cv=none; b=DqMORtUl9RP20WRkJ3QA36jOZnF3F/Bib0UDwdpWOi4xPZAxDLgdhZ0puBmJvpYfKH0J+jaUyeyJ2GOW0r3cErsk1f9QqcLgABOgVtYjO+1SYR7mv/nXHhoTfuQ0O1XQfVlF7qdLwlH0XMM7mKnJ1co3//a9yVgfT32Djea03Zg=
+	t=1789932582; cv=none; b=TUWVLjk4Z4YjMGPmD7I3xqubP3DzwemhH1t7hEynast1craYWHbLWJaC7nLAK5gcT8vfSOBtPnkotjvCpM2sl+oe8QMYB4pJJT2iXcBQmex/uG7Q6Xcl1tW2TQCOAijU0WbG+/I1b//Gs97nSjuED9A/GWr+N2acnXGDbNVZAXk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789932177; c=relaxed/simple;
-	bh=KfiKVqkGiI50aZKch9SuX0904yUARaE+2fx0b0z9Cx8=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=XiBHjA/7WlactoC9f8wF7GzPBbqycfXuAhcvC8uotm6HMm3lMkUnDCxpSRzdmwmml8BJ6QsBKxKCeZrKQ0qSvtWHyCi0VBvgXlVnmmUIPzU/NRE2/JIyNjs5IFkkkhHhjACW37hfCeka1ImV8Owhsl7juvV/oyRmO1y7eWrJ8dA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sebastianvonarx.ch; spf=pass smtp.mailfrom=sebastianvonarx.ch; arc=none smtp.client-ip=217.26.49.196
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sebastianvonarx.ch
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sebastianvonarx.ch
-Received: from asmtp012.mail.hostpoint.internal ([10.4.1.185] helo=asmtp012.mail.hostpoint.ch)
-	by mxout013.mail.hostpoint.ch with esmtps  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-	(Exim 4.99.5 (FreeBSD))
-	(envelope-from <linux@sebastianvonarx.ch>)
-	id 1x8MXA-00000000G8V-0Xed;
-	Sun, 20 Sep 2026 20:45:04 +0200
-Received: from [2a02:aa13:e47f:2280:d4b0:56c5:656d:f4f1] (helo=omarchy)
-	by asmtp012.mail.hostpoint.ch with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-	(Exim 4.99.5 (FreeBSD))
-	(envelope-from <linux@sebastianvonarx.ch>)
-	id 1x8MX9-00000000NQ9-3uLY;
-	Sun, 20 Sep 2026 20:45:04 +0200
-X-Authenticated-Sender-Id: linux@sebastianvonarx.ch
-From: Sebastian von Arx <linux@sebastianvonarx.ch>
-To: David Airlie <airlied@redhat.com>,
-	Gerd Hoffmann <kraxel@redhat.com>,
-	Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Cc: Gurchetan Singh <gurchetansingh@chromium.org>,
-	Chia-I Wu <olvaffe@gmail.com>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Simona Vetter <simona@ffwll.ch>,
-	dri-devel@lists.freedesktop.org,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Sebastian von Arx <linux@sebastianvonarx.ch>
-Subject: [PATCH 2/2] drm/virtio: Propagate drm_encoder_init() errors
-Date: Sun, 20 Sep 2026 20:42:44 +0200
-Message-ID: <20260920184244.464343-3-linux@sebastianvonarx.ch>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260920184244.464343-1-linux@sebastianvonarx.ch>
+	s=arc-20240116; t=1789932582; c=relaxed/simple;
+	bh=ZCEb7PWxWjqFXQU9Aa1wIndmD1/mjEbe7eeXsYlBY9E=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=Uws0pJc5jfqb/YsyEB5mYhR1YN2tHofH3GtF5VhNKX7NfEee523IlkHqmLj+w5+XF+d50bCB1oCLN8ua47H3aOGW95o/tHoSDWkMUEpDWO6yBygQ2mbyetv2WUUsgmtLoQJH/KwDg37x4KqhGbWoVMO1a0oij7/GBQyeqGYzH6c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VxPBeChF; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VxPBeChF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B06891F000FF;
+	Sun, 20 Sep 2026 19:29:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789932581;
+	bh=ZCEb7PWxWjqFXQU9Aa1wIndmD1/mjEbe7eeXsYlBY9E=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=VxPBeChFm1kfmAHFDzUusOB4q1TVtxvmFtelNjQrvzNZT7nK7y/jXeWqT5QYlLBzo
+	 Oxmn++OSXhC6H9rBldzloDhSVMf6XbHIqqPLT7OnPQxf7qzMWgZCCIo+JOJdWFp+87
+	 c61GY5DX1C372ocLv2NjUINUxGbztVs4jrZ/FUzzyeYmnRBc4SZzQQkjVtZmXztd0m
+	 EzF+YkWbgvofJ4x5cEj1jN6dtJihlUNZbXxk4f/Ls1pQGrFvRk1XZJA4atvjkFBiyb
+	 yNHEoU1jzZPUhkeR/iZIFebIRWERjbwbAK3fJChQAP+T2ja1CJzUoU2ibtLE+wpKFr
+	 kNI2KzGbeJagg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 1/2] drm/virtio: Open-code drm_simple_encoder_init()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Sebastian von Arx" <linux@sebastianvonarx.ch>
+Cc: "Eugenio Perez" <eperezma@redhat.com>, dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev, "Michael
+ S. Tsirkin" <mst@redhat.com>
+In-Reply-To: <20260920184244.464343-2-linux@sebastianvonarx.ch>
 References: <20260920184244.464343-1-linux@sebastianvonarx.ch>
+ <20260920184244.464343-2-linux@sebastianvonarx.ch>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sun, 20 Sep 2026 19:29:40 +0000
+Message-Id: <20260920192940.B06891F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-vgdev_output_init() ignores errors from drm_encoder_init(), so output
-setup continues even when encoder initialization fails, for example
-because of an allocation failure.
+> drm_simple_encoder_init() only wraps drm_encoder_init() with a
+> cleanup callback. Open-code the helper in preparation for removing
+> drm_simple_encoder_init().
+>=20
+> Assisted-by: LLM
+> Signed-off-by: Sebastian von Arx <linux@sebastianvonarx.ch>
 
-Check the return value and propagate the error to the caller.
+Sashiko has reviewed this patch and found no issues. It looks great!
 
-Assisted-by: LLM
-Signed-off-by: Sebastian von Arx <linux@sebastianvonarx.ch>
----
- drivers/gpu/drm/virtio/virtgpu_display.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-index b01178027..1c790d6a6 100644
---- a/drivers/gpu/drm/virtio/virtgpu_display.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-@@ -310,7 +310,11 @@ static int vgdev_output_init(struct virtio_gpu_device *vgdev, int index)
- 	if (vgdev->has_edid)
- 		drm_connector_attach_edid_property(connector);
- 
--	drm_encoder_init(dev, encoder, &virtio_gpu_encoder_funcs, DRM_MODE_ENCODER_VIRTUAL, NULL);
-+	ret = drm_encoder_init(dev, encoder, &virtio_gpu_encoder_funcs,
-+			       DRM_MODE_ENCODER_VIRTUAL, NULL);
-+	if (ret)
-+		return ret;
-+
- 	drm_encoder_helper_add(encoder, &virtio_gpu_enc_helper_funcs);
- 	encoder->possible_crtcs = 1 << index;
- 
--- 
-2.55.0
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260920184244.4643=
+43-2-linux@sebastianvonarx.ch?part=3D1
 
