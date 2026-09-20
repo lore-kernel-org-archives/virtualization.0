@@ -1,205 +1,275 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr2-f12.google.com (mail-wr2-f12.google.com [74.125.225.76])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A33D933F8BC
-	for <virtualization@lists.linux.dev>; Sun, 20 Sep 2026 08:41:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58685347BA7
+	for <virtualization@lists.linux.dev>; Sun, 20 Sep 2026 09:08:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.76
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789893665; cv=none; b=WL+P5gXiPwSyarhBis9zBxrmm3gzkdKykMZZddp2CDD/HDh0JbrCMG5QfKRfthp14VP/1x5BgMesJtIBMd3A0d+VgwLZb3gdPAXVtdEFIvnkxBYBpoJaGxb5spKo9wZqqD/169tLpJcIDrq0ZYr5piqkcF3kVIbcq3CvX8wvHIw=
+	t=1789895338; cv=none; b=nXnyXs6T9pRiDVomtQux5pkKch+9X+BySfoc1bxYq3+lulAaSiR8GQ9Yio7pukL6mOEhohbt1OwEr6/pH5/iGkhxdv2grxlVYljFjueRocEK1S8uPpZO2pmeuDCwd22ABNPXeR4G8nyUrfeVUywyd/MvsgKc++CIcETrgbDL9QE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789893665; c=relaxed/simple;
-	bh=ykGXpOTSwkD+kZlTkUDlQyQhAvjdAjJfcMPyyTVPUJg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=HyjUqblO/Nyx1iSCGAzmfbC8jFHJWhFd3xOXu3iq7L0CKL32ELW4uf48zvSM2nJk55vMr7wWOBc9IeBKlzDkvmtsszpzToGr+J0H+XcyDEttp4z+UsFRXYI3NBLqc94BG/i9gZc1TGlDL7XovTEJxk09aJRFFDVbWCpEcZMPgjA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QTk9ZVCZ; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1789895338; c=relaxed/simple;
+	bh=Kpj/3YYcrWVRQOfZB3Vpm+urkRgZJqiel/b4w8mA/z0=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=OYwSXDfuuiYOdOx5vrd2PhmZcNDuYxsDSaijN89t6PrIl+nKbfhZg8fp1Dd8CNZ9TA0GavYicMaW632s8pwOaLZPwAAwpeIQJgxZdU3ZjL9CkMGjZFRbUD1FhQj9e6JqYoL3SabgHIXsIr7hR6zb7EV85ZVzqmId24E/6x4zjGM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nS9QTI0X; arc=none smtp.client-ip=74.125.225.76
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QTk9ZVCZ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1789893662;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=oTt5rsEMUhc0hpK6WOw/BRk/X47z1K1j501rXPcd6ms=;
-	b=QTk9ZVCZ7Y0ec/FgX27ywPr3UtFkZfMfbaQrTzFrxVyoNst57qpLjM5BH4n0zhCBXXV6sb
-	7eE9lHiqux/wGDJ5t2tFWjnXEY4iEp0CbvlLqg7+lNOX+G9JzLDbhhlaJELEpFQArrJS9n
-	6RELKz6zX39EefIuQbLntUtAzWDTd7A=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-657-0lyrmvADOpeFq6FAB2H1aw-1; Sun, 20 Sep 2026 04:41:00 -0400
-X-MC-Unique: 0lyrmvADOpeFq6FAB2H1aw-1
-X-Mimecast-MFC-AGG-ID: 0lyrmvADOpeFq6FAB2H1aw_1789893660
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-48589603501so916708f8f.3
-        for <virtualization@lists.linux.dev>; Sun, 20 Sep 2026 01:41:00 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nS9QTI0X"
+Received: by mail-wr2-f12.google.com with SMTP id ffacd0b85a97d-482f63546c5so1605532f8f.2
+        for <virtualization@lists.linux.dev>; Sun, 20 Sep 2026 02:08:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789895334; x=1790500134; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=LuoIcNR8M3VmrQ/YOAKp2aarikMbYVcQakxWPsHNlLI=;
+        b=nS9QTI0XbiejZEsUHZtlbPcKuWGbtzz81Dua9jPKHjq/7zSRT4eJFL+udzRm8R6A4y
+         /V2XO+RVMj4XfKor9PjRvpT4TTXRKdVW7l4xkW+milUnU/93ETt20tX4slY86QQgWQO/
+         fM1yIgPpQbBY1lAQ1T4Du5+tThR+xqeLvXG2ZxxT5AR4hlz5t8Pv9L/H+9ZSl628xjxn
+         KMTdGWVTEp62fLTnzokuY7TYFl8zO4lkcScrbWqKq3RTCsI1Ten9wb6SM5SZX5hMhOo3
+         A77vNaC+s120zRpyLsZ6bacahqSZZ694kY2e1T+7+rcwR6NCUzyjIrTUYjAC7C+Xc9y4
+         lgYg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789893659; x=1790498459;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
+        d=1e100.net; s=20260707; t=1789895334; x=1790500134;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=oTt5rsEMUhc0hpK6WOw/BRk/X47z1K1j501rXPcd6ms=;
-        b=Pd+kPyPBVIbkYmXe+XNWAvKyQ5TjLeQiEh9g+JnYgkYeRViCq9CYC4Ch4emqKiep2A
-         CU5taMMPJAB18MRXOIj/MSTdCTTcW/XyY/7ogEmDU5dw68ZD+nHTfga8eMfLeDiFdSZa
-         8eu4saOnXlNT3wP+mVl0eRH+NMvzpAllQFYm9Q2gTNB9h1f+itLcJprwiWId9ABLA/5I
-         83H7qsMkesMtKomXV8HEgmnpWKCaLS5nQQhLDHCnS/NHpmkb/zCvxToIJMOR3jch82SA
-         cCxkghRWphMXYg70H66NeeOn3ocef3XufEK0xtm/g8Gx6hivuAW2lcLWR7kRA5BpkTe5
-         6IbQ==
-X-Forwarded-Encrypted: i=1; AKwUvBw2dRe41I8KivG8PnVrwOWA6FjVLxiOK6XEUKYLGxeCqjzR9ybazPjpbwoiXbOBUmAy0kqDRehMlcoCO1QKcg==@lists.linux.dev
-X-Gm-Message-State: AFuF++l9RUqHlwnKq45n9opgK/vgfppmb+lMNty0+4FPNyurnZ2b3+k6
-	fvEeX01l0jCEgg9RxB882mqKgvhww7d0/Tc/N4UE5hg6ZCPAgB/HShAiwA4wtHxEayaaPtXAQwb
-	tSwm5s4V3dA6q7YXdsOfJwT43oLZSVlXNLf3xjsjZoSZWker+qP29lkNeo1bm4cfedulL
-X-Gm-Gg: AYBFou0266U+BPlY+qb8JVhMfl+nWWRnLELWSLnf7eF1qWYMV5Ib70aI30XWzL6IBuZ
-	We5GWnCXjJ4fl3X1ie7IvDIo8i3+MtMY0Bi0CzYHfb+Ogw9BbMtJoUjXzPm7tGhE45LSZ2oVaaz
-	goBIFLP70lOVjkp3XzefSHHHd9bBlZXBSJUiUbaTWEu/jCEsz/FM4X0BQx4L49HWVJmS1x8kkMM
-	LFrBxRHVlw8Su6GgMQX0vmpmr+JQklYoIogPNPqaZcUP9biCCY7oH0grFNaISnGQaV61wdXDQKP
-	ns0auuamVIs+SOSgaJeD4824mZJmydfKbd+AipXKs1fHzk5K8fqC9aMU+DCEsN001ttScdGbnBz
-	WU+77bQehrYZiooRPe21PDVw=
-X-Received: by 2002:a05:6000:491e:b0:485:8fb2:b8cd with SMTP id ffacd0b85a97d-4871e21572fmr10552281f8f.6.1789893659478;
-        Sun, 20 Sep 2026 01:40:59 -0700 (PDT)
-X-Received: by 2002:a05:6000:491e:b0:485:8fb2:b8cd with SMTP id ffacd0b85a97d-4871e21572fmr10552255f8f.6.1789893658887;
-        Sun, 20 Sep 2026 01:40:58 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-79-236.inter.net.il. [80.230.79.236])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48724422790sm12616968f8f.5.2026.09.20.01.40.57
+        bh=LuoIcNR8M3VmrQ/YOAKp2aarikMbYVcQakxWPsHNlLI=;
+        b=14QdO9MPKxDo/lD3I6Yq7q6xbTOWvq4t9mU2C/3tNCaEKFrvpSFuKBvse9CEgxz2Ia
+         wuxLshibUD6jXSSk0Ykg54m7usn3tYDP3N7lzDCOUESR3RimyDdzzLQyou84jVbzxlZc
+         fhsF2WdbPKpl1fvC+DFHaN6J8olodv0zDI9/1lX1nmLE0E5Nr65jIBmcctYW+b3oVIZC
+         y1pQ+fhFKTE8Bfn81dp8Y3fOyc6U1zvg+PFErMWztLUJTIeg09BrmGbMppwexDSzBUqy
+         P9gOfqDbep5DzMlGrd/PrHmT5difXMFKm6cGc+C8NMI5X9bGmHkfWx86V+QeM/m7LG0w
+         NwDg==
+X-Forwarded-Encrypted: i=1; AKwUvByb3L9yGEyoDD9TlwUbLIPHY8iTXUwCpBXALr6pR42Os/kluEckpDUSxo2+nEu/Fc693aRVtLNLZZB3fV5iAQ==@lists.linux.dev
+X-Gm-Message-State: AFuF++lsAakbuvvlmDEWEeFSeY07wwEh0tI1tprlnpe9+Nr4wZUj0UvD
+	2EikInSvfTyq4W2yRVRqiRyl621WL1z7vTL82FXuXYF9KwFLtJCP4dS+
+X-Gm-Gg: AYBFou3Fv9zGhbQmzHW+vJ0tOgNZovqfRMuGjw1JOqLvPVx8dXXXKagOt8FhTpx3WzQ
+	DbbBmMnRRQTqqzuqAVAYw4ew4FOPKbFKwnFylmeXaa9ntzQZmTnsu4p1NFdnu9bacuiMI0marJn
+	dGA3ixGVIgkagOHnmCv330Zt5tQxrrdRdfG9jWqxQCiEN9JbXJb4adeiCiWRqSzBE59LIdyKoIf
+	ghOx8VJD1v4Hbxmws0LrxohYeAK6O2P1w9hSSpCkntWW+i7JY3AallqYXwRuHfdtZMmrmYCPRm6
+	LbNSpkqYCe4goTUINJjPM0AUE+FZ+H5+RxAPsNvS7k5c/NupfsXKxE8axLwINDkhsHJNedNdZ93
+	pPTWuVTlSQnrdzvEFfaDC/OUdJBmHyk7/euNKTo+KuKNFl9UHhiZEsqSCI+6mlehDuwgFsxT8WF
+	KR3Go8NiTcvaDqbzeIo1q9lmTvujkyQQzZcb8ubco1Hcq/KalPGNYgmU3l+APlz4p2PlIqg/+Lw
+	0s21j82+YqjnBgXd9JhVqq79pDXvZ+UJ4A=
+X-Received: by 2002:a05:6000:2210:b0:487:b4a:3f54 with SMTP id ffacd0b85a97d-4871e269d90mr11394524f8f.29.1789895334332;
+        Sun, 20 Sep 2026 02:08:54 -0700 (PDT)
+Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-487244229d5sm13813240f8f.2.2026.09.20.02.08.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 20 Sep 2026 01:40:57 -0700 (PDT)
-Date: Sun, 20 Sep 2026 04:40:55 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Peng Hao <flyingpenghao@gmail.com>
-Cc: jasowangio@gmail.com, virtualization@lists.linux.dev
-Subject: Re: [PATCH] virtio_pci_modern: skip unused trailing driver feature
- words
-Message-ID: <20260920043705-mutt-send-email-mst@kernel.org>
-References: <20260920065746.86415-1-flyingpeng@tencent.com>
+        Sun, 20 Sep 2026 02:08:53 -0700 (PDT)
+Date: Sun, 20 Sep 2026 10:08:52 +0100
+From: David Laight <david.laight.linux@gmail.com>
+To: =?UTF-8?B?QmFydMWCb21pZWo=?= Dmitruk <bartlomiej.dmitruk@isec.pl>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella
+ <sgarzare@redhat.com>, "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang
+ <jasowangio@gmail.com>, Eugenio =?UTF-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, "David S . Miller"
+ <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski
+ <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman
+ <horms@kernel.org>, kvm@vger.kernel.org, virtualization@lists.linux.dev,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] vsock: keep SOCK_SEQPACKET message boundaries on
+ interrupted send
+Message-ID: <20260920100852.7806895b@pumpkin>
+In-Reply-To: <20260919122916.28226-1-bartlomiej.dmitruk@isec.pl>
+References: <20260919122916.28226-1-bartlomiej.dmitruk@isec.pl>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260920065746.86415-1-flyingpeng@tencent.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: R-9HqTQBERfppj7z_ax6XiRqnnjYRGzQkf_qjOjSOOg_1789893660
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-On Sun, Sep 20, 2026 at 02:57:46PM +0800, Peng Hao wrote:
-> Since commit 69b9461512246 ("virtio_pci_modern: allow configuring
-> extended features"), vp_modern_set_extended_features() writes all 128
-> feature bits on every device.  Each 32-bit word requires one write to
-> guest_feature_select and another to guest_feature, even when the upper
-> 64 feature bits are all zero.
-> 
-> Feature negotiation starts after a device reset, which clears the
-> device-side driver features.  There is therefore no need to write
-> trailing zero 64-bit words on the first feature finalization.
-> 
-> finalize_features() can, however, be called again without an intervening
-> reset when a driver's validate callback changes the negotiated features.
-> Remember how many words were written since the last reset and include
-> that range in the next write, so that a repeated finalization can clear
-> features which were previously enabled.
-> 
-> This avoids four MMIO writes for devices which negotiate no feature
-> above bit 63, while preserving the full-overwrite behavior when the
-> negotiated feature range shrinks.
-> 
-> Signed-off-by: Peng Hao <flyingpeng@tencent.com>
+On Sat, 19 Sep 2026 14:29:15 +0200
+Bart=C5=82omiej Dmitruk <bartlomiej.dmitruk@isec.pl> wrote:
 
-I don't get it. pci updates features in units of 32 bit dwords.
+> A credit-limited SOCK_SEQPACKET send transmits fragments as credit becomes
+> available, and the VIRTIO_VSOCK_SEQ_EOM flag is set only on the fragment
+> where msg_data_left() reaches 0. If vsock_connectible_sendmsg() exits via
+> out_err after a partial send -- notably the non-terminal -EINTR path
+> (signal_pending while blocked for credit), but also sk_err / peer
+> RCV_SHUTDOWN -- the already-transmitted fragments carry no EOM. The recei=
+ver
+> only advances msg_count / sets msg_ready on an EOM skb, so the orphaned
+> fragments are silently merged into the next message, violating SOCK_SEQPA=
+CKET
+> atomicity.
 
-Most devices only use the 1st 32 bit dword.
+Should the unsent fragments just get requeued with an EOM flag?
+The receiving system will have a partial message (and should be allowed to
+pass that to an application) and will append the fragments to it when
+they arrive.
 
-/scm/linux$ git grep _F_ include/uapi/linux/virtio*h|grep [4-9][0-9]|wc -l
-21
-/scm/linux$ git grep _F_ include/uapi/linux/virtio*h|wc -l
-190
+>=20
+> Wait until the whole remaining SEQPACKET message fits before enqueuing, s=
+o a
+> message is committed atomically (with its EOM) or not started; an error w=
+hile
+> waiting then leaves nothing on the wire. SOCK_STREAM behaviour is unchang=
+ed
+> (min_space =3D=3D 1 reproduces the old "wait while space =3D=3D 0").
 
-Why are you tracking 64-bit qwords?
+Why should the message ever fit?
+ISO transport (which no one really uses any more) maps to SEQPACKET.
+It is perfectly valid for a file transfer program to send the entire file
+as one 'message' by not sending EOM until the end of file fragment.
 
+David
 
+>=20
+> To avoid blocking forever on a message that can never fit -- a peer can
+> advertise a small buf_alloc, or the message can simply exceed the transmit
+> buffer -- reject such a message up front with -EMSGSIZE (the same error t=
+he
+> transport already returns for an oversized message) instead of waiting. T=
+his
+> needs the transport's maximum message size, added as a new optional
+> seqpacket_max_size() transport op implemented by the virtio/loopback
+> transports.
+>=20
+> Signed-off-by: Bart=C5=82omiej Dmitruk <bartlomiej.dmitruk@isec.pl>
+> Assisted-by: Claude (Anthropic)
 > ---
->  drivers/virtio/virtio_pci_modern_dev.c | 22 +++++++++++++++++++++-
->  include/linux/virtio_pci_modern.h      |  3 +++
->  2 files changed, 24 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/virtio/virtio_pci_modern_dev.c b/drivers/virtio/virtio_pci_modern_dev.c
-> index 413a8c353463..8211e491a17b 100644
-> --- a/drivers/virtio/virtio_pci_modern_dev.c
-> +++ b/drivers/virtio/virtio_pci_modern_dev.c
-> @@ -230,6 +230,8 @@ int vp_modern_probe(struct virtio_pci_modern_device *mdev)
->  
->  	check_offsets();
->  
-> +	mdev->driver_features_u64s = 1;
+> Changes in v2:
+>  - Fix an indefinite wait the v1 approach introduced for oversized
+>    SOCK_SEQPACKET messages (reported by the Sashiko AI review on v1): the
+>    atomic-wait could never be satisfied when len > the transport's max
+>    message size (e.g. a peer advertising a small peer_buf_alloc), so the
+>    sender blocked instead of returning -EMSGSIZE. v2 checks this up front=
+ via
+>    the new seqpacket_max_size() op and returns -EMSGSIZE without waiting.
+>  - v1: https://lore.kernel.org/netdev/20260917220101.55744-1-bartlomiej.d=
+mitruk@isec.pl/
+>=20
+> Testing (vsock_loopback, unprivileged):
+>  - Interrupted partial send (-EINTR) no longer leaks orphan bytes into the
+>    next message (recv() returns only the next message).
+>  - Oversized message and small-peer_buf_alloc cases return -EMSGSIZE prom=
+ptly
+>    instead of blocking.
+>  - Normal SEQPACKET send/recv unaffected.
+>=20
+> diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
+> index f91704731..e96790c03 100644
+> --- a/include/linux/virtio_vsock.h
+> +++ b/include/linux/virtio_vsock.h
+> @@ -219,6 +219,7 @@ virtio_transport_seqpacket_dequeue(struct vsock_sock =
+*vsk,
+>  s64 virtio_transport_stream_has_data(struct vsock_sock *vsk);
+>  s64 virtio_transport_stream_has_space(struct vsock_sock *vsk);
+>  u32 virtio_transport_seqpacket_has_data(struct vsock_sock *vsk);
+> +u32 virtio_transport_seqpacket_max_size(struct vsock_sock *vsk);
+> =20
+>  ssize_t virtio_transport_unsent_bytes(struct vsock_sock *vsk);
+> =20
+> diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+> index 5549298c1..d94c613ef 100644
+> --- a/include/net/af_vsock.h
+> +++ b/include/net/af_vsock.h
+> @@ -143,6 +143,7 @@ struct vsock_transport {
+>  				 size_t len);
+>  	bool (*seqpacket_allow)(struct vsock_sock *vsk, u32 remote_cid);
+>  	u32 (*seqpacket_has_data)(struct vsock_sock *vsk);
+> +	u32 (*seqpacket_max_size)(struct vsock_sock *vsk);
+> =20
+>  	/* Notification. */
+>  	int (*notify_poll_in)(struct vsock_sock *, size_t, bool *);
+> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+> index f840498b5..ac64cb957 100644
+> --- a/net/vmw_vsock/af_vsock.c
+> +++ b/net/vmw_vsock/af_vsock.c
+> @@ -2250,9 +2250,32 @@ static int vsock_connectible_sendmsg(struct socket=
+ *sock, struct msghdr *msg,
+> =20
+>  	while (total_written < len) {
+>  		ssize_t written;
+> +		s64 min_space;
 > +
->  	if (mdev->device_id_check) {
->  		devid = mdev->device_id_check(pci_dev);
->  		if (devid < 0)
-> @@ -446,14 +448,29 @@ void vp_modern_set_extended_features(struct virtio_pci_modern_device *mdev,
->  				     const u64 *features)
->  {
->  	struct virtio_pci_common_cfg __iomem *cfg = mdev->common;
-> +	u8 u64s = VIRTIO_FEATURES_U64S;
-> +	u8 write_u64s;
->  	int i;
->  
-> -	for (i = 0; i < VIRTIO_FEATURES_BITS / 32; i++) {
-> +	/*
-> +	 * A reset clears the device-side driver features, so trailing zero
-> +	 * words need not be written.  Include words written by the previous
-> +	 * call, though, so a repeated feature finalization can clear features
-> +	 * that were previously enabled.
-> +	 */
-> +	while (u64s > 1 && !features[u64s - 1])
-> +		u64s--;
-> +
-> +	write_u64s = max(u64s, mdev->driver_features_u64s);
-> +
-> +	for (i = 0; i < write_u64s * 2; i++) {
->  		u32 cur = features[i >> 1] >> (32 * (i & 1));
->  
->  		vp_iowrite32(i, &cfg->guest_feature_select);
->  		vp_iowrite32(cur, &cfg->guest_feature);
->  	}
-> +
-> +	mdev->driver_features_u64s = u64s;
+> +		if (sk->sk_type =3D=3D SOCK_SEQPACKET) {
+> +			/* A SEQPACKET message must be delivered atomically, so
+> +			 * wait until the whole remaining message fits before
+> +			 * enqueuing.  Otherwise a credit-limited partial send that
+> +			 * later errors out (e.g. -EINTR) leaves EOM-less fragments
+> +			 * that the peer merges into the next message.
+> +			 *
+> +			 * Reject a message that can never fit up front so the wait
+> +			 * below cannot block forever (a peer may advertise a small
+> +			 * buf_alloc); this mirrors the -EMSGSIZE the transport
+> +			 * returns for an oversized message.
+> +			 */
+> +			if (transport->seqpacket_max_size &&
+> +			    len > transport->seqpacket_max_size(vsk)) {
+> +				err =3D -EMSGSIZE;
+> +				goto out_err;
+> +			}
+> +			min_space =3D len - total_written;
+> +		} else {
+> +			min_space =3D 1;
+> +		}
+> =20
+>  		add_wait_queue(sk_sleep(sk), &wait);
+> -		while (vsock_stream_has_space(vsk) =3D=3D 0 &&
+> +		while (vsock_stream_has_space(vsk) < min_space &&
+>  		       sk->sk_err =3D=3D 0 &&
+>  		       !(sk->sk_shutdown & SEND_SHUTDOWN) &&
+>  		       !(vsk->peer_shutdown & RCV_SHUTDOWN)) {
+> diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_tran=
+sport.c
+> index 4f9aa9c4c..b7d587a20 100644
+> --- a/net/vmw_vsock/virtio_transport.c
+> +++ b/net/vmw_vsock/virtio_transport.c
+> @@ -585,6 +585,7 @@ static struct virtio_transport virtio_transport =3D {
+>  		.seqpacket_enqueue        =3D virtio_transport_seqpacket_enqueue,
+>  		.seqpacket_allow          =3D virtio_transport_seqpacket_allow,
+>  		.seqpacket_has_data       =3D virtio_transport_seqpacket_has_data,
+> +		.seqpacket_max_size       =3D virtio_transport_seqpacket_max_size,
+> =20
+>  		.msgzerocopy_allow        =3D virtio_transport_msgzerocopy_allow,
+> =20
+> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virt=
+io_transport_common.c
+> index f225f53ed..e10e7b958 100644
+> --- a/net/vmw_vsock/virtio_transport_common.c
+> +++ b/net/vmw_vsock/virtio_transport_common.c
+> @@ -994,6 +994,19 @@ virtio_transport_seqpacket_enqueue(struct vsock_sock=
+ *vsk,
 >  }
->  EXPORT_SYMBOL_GPL(vp_modern_set_extended_features);
->  
-> @@ -495,6 +512,9 @@ void vp_modern_set_status(struct virtio_pci_modern_device *mdev,
->  {
->  	struct virtio_pci_common_cfg __iomem *cfg = mdev->common;
->  
-> +	if (!status)
-> +		mdev->driver_features_u64s = 1;
+>  EXPORT_SYMBOL_GPL(virtio_transport_seqpacket_enqueue);
+> =20
+> +u32 virtio_transport_seqpacket_max_size(struct vsock_sock *vsk)
+> +{
+> +	struct virtio_vsock_sock *vvs =3D vsk->trans;
+> +	u32 max_size;
 > +
->  	/*
->  	 * Per memory-barriers.txt, wmb() is not needed to guarantee
->  	 * that the cache coherent memory writes have completed
-> diff --git a/include/linux/virtio_pci_modern.h b/include/linux/virtio_pci_modern.h
-> index 9a3f2fc53bd6..8df287d545c9 100644
-> --- a/include/linux/virtio_pci_modern.h
-> +++ b/include/linux/virtio_pci_modern.h
-> @@ -27,6 +27,8 @@
->   *		    Returns the found device id or ERRNO
->   * @dma_mask:	    Optional mask instead of the traditional DMA_BIT_MASK(64),
->   *		    for vendor devices with DMA space address limitations
-> + * @driver_features_u64s: Number of 64-bit driver feature words programmed
-> + *		    since the last device reset
->   */
->  struct virtio_pci_modern_device {
->  	struct pci_dev *pci_dev;
-> @@ -49,6 +51,7 @@ struct virtio_pci_modern_device {
->  
->  	int (*device_id_check)(struct pci_dev *pdev);
->  	u64 dma_mask;
-> +	u8 driver_features_u64s;
->  };
->  
->  /*
-> -- 
-> 2.43.7
+> +	spin_lock_bh(&vvs->tx_lock);
+> +	max_size =3D virtio_transport_tx_buf_size(vvs);
+> +	spin_unlock_bh(&vvs->tx_lock);
+> +
+> +	return max_size;
+> +}
+> +EXPORT_SYMBOL_GPL(virtio_transport_seqpacket_max_size);
+> +
+>  int
+>  virtio_transport_dgram_dequeue(struct vsock_sock *vsk,
+>  			       struct msghdr *msg,
+> diff --git a/net/vmw_vsock/vsock_loopback.c b/net/vmw_vsock/vsock_loopbac=
+k.c
+> index 8068d1b6e..b9a0cc861 100644
+> --- a/net/vmw_vsock/vsock_loopback.c
+> +++ b/net/vmw_vsock/vsock_loopback.c
+> @@ -90,6 +90,7 @@ static struct virtio_transport loopback_transport =3D {
+>  		.seqpacket_enqueue        =3D virtio_transport_seqpacket_enqueue,
+>  		.seqpacket_allow          =3D vsock_loopback_seqpacket_allow,
+>  		.seqpacket_has_data       =3D virtio_transport_seqpacket_has_data,
+> +		.seqpacket_max_size       =3D virtio_transport_seqpacket_max_size,
+> =20
+>  		.msgzerocopy_allow        =3D vsock_loopback_msgzerocopy_allow,
+> =20
+>=20
 
