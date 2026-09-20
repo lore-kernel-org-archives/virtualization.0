@@ -1,180 +1,265 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19671432BF4
-	for <virtualization@lists.linux.dev>; Sun, 20 Sep 2026 12:35:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5147F42E405
+	for <virtualization@lists.linux.dev>; Sun, 20 Sep 2026 12:38:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789907717; cv=none; b=TRvbWPDJVb/b5+JMs7dQ9cIit/TgL5ArMu1KlalwroFur7eDKqETT1K/vH1IEJsliu71FXDZItlgyodfVoLPC7Ky5zQrXiP6nQ51rJGZ+YpJmVYVGwzbZgaM7pjVTBKjXN+o3NywElz/0uaPOe5sljXF/iICDIxp6HJroZ5k7Jk=
+	t=1789907942; cv=none; b=tZ+N7DeW9rY4FT0YPxVgV31pEGS+E48m+LAX3+AEEWYExZd/ruy8eqAvyNRU/qrQ6XTBxJyyfCeHyMLGF1h2C68re5Oe99tHqwgxrmiuU2svYizZWxAg4RHVt+lrXY9AHQ5IkiQ+9GPg1kjPVW8aHx9kPOuOLqFZSEPojalwqjo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789907717; c=relaxed/simple;
-	bh=vOWSSfsUvi1RaV9RxDc11nUarP9nRYcVCF9Bev54o68=;
+	s=arc-20240116; t=1789907942; c=relaxed/simple;
+	bh=8fyPPEx77qko/wwfCJOuflY0phl+ZlIf7pcwbZrd/Bw=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=s3Gx4nskZvYyNbKoYmQEIEOjbkkg8wloypRYypbsBRNyTy87Ioiiz39VX623X6wuBsDgMn4Ibgvb3i4GgBJTRwSWR4r6PVUFx/IVsBLMlZW74GJkR+N+fnwMrT9BoYiOioP0TLppNtNiixxAzyq/fYb2NKDPf/KtIokI2DoRMTg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=idr8wRqF; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=g4elnV3lISKxoLb3LZaGqfXyaTMWHt/RHZkDgdzf8epySVqkMfN9LVSL1Ixm/X1ihDQx/ZYW2DtxkuFp66axSz0ylQevwPqe7bgBmpkdtyTZKO7Ba3AQd9w24rkXlY2xArQt7ST1Fex3V8rOqtS5qSg40U8kfEv2z/JKU8j9AHc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Kg1cUBul; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="idr8wRqF"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 012D31F000FF;
-	Sun, 20 Sep 2026 12:35:04 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Kg1cUBul"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF61D1F000FF;
+	Sun, 20 Sep 2026 12:38:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789907705;
-	bh=4qJrh0TScrbWaDFooRarS9DEpbh6NKu6itHlz2girnk=;
+	s=k20260515; t=1789907921;
+	bh=aHuL77ADTbQsVK0tLmAweE9mn7naqBZD5Y7GrmIEvWY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=idr8wRqF6+230CDQb2sf9tgnF1++j1jum1vjU7BEj7Bcvu5M5Gcb9Oudy11o6as9M
-	 fzxzte20VhYsNBJqSuKSZQKy8iBB5rsAIdgLqowVKqpSwDFAI6F3Qa+v3xJDFzAT+f
-	 H1RRhWP6HyO7b3mbhGpm1IqaIiv83eq8qrzR/a2NgU6b47Lew2KzcUQdP8ORWCXsGs
-	 QZ1gEZ2T4zxahrdK0zrG2OwA8unGXLenSj76hdkxN6fUN2wljx7PiLCABm2jc7TEib
-	 oFlbHbix1rx45xzpXDgUCNJqYOf88YzNd1xjID6rbqzq0Yj+I5CspleaOKbnuM98QX
-	 yf44dy8MLIvAA==
+	b=Kg1cUBulPT0eiOpcBUZy+DrBH6sbqiKcffukz6v39lGO7WL6EpsE6WlwxjbkU0+Xa
+	 fHWQYsngo++j4gInAImCrxr8qU/68Y+iybxOtn3AwcCAj5tB0vRHFd+4YBbRu2IJ7h
+	 S8xoLdBpKI7othNn5ESe2txK+2OtnB6xONn5hjg+Tx31t63EyGGeeAcDzS3O5zQ5nl
+	 utVfF65K3Kx+G/h8W8XYgG2qAnWofqvr9GXILOea+OeqajwPajWwzKw5g2aE10n7JP
+	 jrEnV2YEMj9rjiHOtP0vnlqnTQnW3I9svZMXvD6tzbgLTrRkeJqryjcCH2Gdo+YiPF
+	 b9KsVK8RBs+pg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 1/2] virtio_blk: Add control virtqueue support
+Subject: Re: [PATCH v3 2/2] virtio_blk: add inline encryption support
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Linlin Zhang" <linlin.zhang@oss.qualcomm.com>
 Cc: "Eugenio Perez" <eperezma@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev
-In-Reply-To: <20260920122444.2549493-2-linlin.zhang@oss.qualcomm.com>
+In-Reply-To: <20260920122444.2549493-3-linlin.zhang@oss.qualcomm.com>
 References: <20260920122444.2549493-1-linlin.zhang@oss.qualcomm.com>
- <20260920122444.2549493-2-linlin.zhang@oss.qualcomm.com>
+ <20260920122444.2549493-3-linlin.zhang@oss.qualcomm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sun, 20 Sep 2026 12:35:04 +0000
-Message-Id: <20260920123505.012D31F000FF@smtp.kernel.org>
+Date: Sun, 20 Sep 2026 12:38:40 +0000
+Message-Id: <20260920123840.EF61D1F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
 s) to consider:
-- [High] block/virtio_blk: DMA coherency violation on creq->abandoned
-- [Medium] block/virtio_blk: TOCTOU race in control request timeout leads t=
-o memory leak
+- [High] block: memory leak of sensitive cryptographic key material in virt=
+io_blk
+- [High] block: DMA cacheline sharing in virtblk_ctrl_request causes data c=
+orruption
+- [High] block: deadlock in virtblk_crypto_generate_key() due to vdev_mutex
+- [Medium] block: incorrect bitwise arithmetic in get_supported_blk_key_typ=
+es() breaks negotiation
+- [Medium] block: Kconfig VIRTIO_BLK_INLINE_ENCRYPTION tristate causes link=
+er errors
 --
 
-commit e5e45f06d7dfecf78d290eb12655787cf1bee763
+commit 3dd149ac489e952ca2319a45325b2d578747f639
 Author: linlzhan <linlin.zhang@oss.qualcomm.com>
 
-virtio_blk: Add control virtqueue support
+virtio_blk: add inline encryption support
 
-This patch adds support for the optional virtio-blk control virtqueue,
-allowing the driver to manage control-queue requests independently from
-the data path. The control virtqueue is intended for a subsequent inline
-encryption implementation.
+This commit adds support for the virtio-blk inline encryption feature,
+allowing the guest to offload per-I/O encryption to the host. It wires up
+device characteristics to a blk_crypto_profile and manages keys via the
+control virtqueue.
+
+> diff --git a/drivers/block/Kconfig b/drivers/block/Kconfig
+> index 858320b6ebb7e..58bb050d4617c 100644
+> --- a/drivers/block/Kconfig
+> +++ b/drivers/block/Kconfig
+> @@ -372,4 +372,16 @@ config BLK_DEV_ZONED_LOOP
+> =20
+>  	  If unsure, say N.
+> =20
+> +config VIRTIO_BLK_INLINE_ENCRYPTION
+> +	tristate "Virtio block inline encryption support"
+> +	depends on VIRTIO_BLK && BLK_INLINE_ENCRYPTION
+
+[Severity: Medium]
+Should this option be a bool instead of a tristate?
+
+If a user configures CONFIG_VIRTIO_BLK=3Dy and CONFIG_BLK_INLINE_ENCRYPTION=
+=3Dm,
+this dependency evaluates to 'm'. Because the inline encryption code is
+integrated directly into virtio_blk.c using IS_ENABLED(), it gets compiled
+as built-in alongside virtio_blk. It will then attempt to link against
+blk_crypto_profile_init() and other block crypto symbols which are loadable
+modules, causing unresolved symbol errors during linking.
 
 > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 32bf3ba07a9dc..2fad86e8f7a9a 100644
+> index 2fad86e8f7a9a..30c303364ca97 100644
 > --- a/drivers/block/virtio_blk.c
 > +++ b/drivers/block/virtio_blk.c
 [ ... ]
-> @@ -110,6 +123,20 @@ struct virtblk_req {
->  	struct scatterlist sg[];
+> @@ -124,7 +136,21 @@ struct virtblk_req {
 >  };
 > =20
-> +struct virtblk_ctrl_request {
-> +	__virtio32 type;
-> +	u8 status;
+>  struct virtblk_ctrl_request {
+> +	/* Type byte, always its own out-sg for every command. */
+>  	__virtio32 type;
+> +	/* Out request, sent as a second, separate out-sg if any. */
+> +	union {
+> +		struct virtio_blk_crypto_key_desc key_desc;
+> +		struct virtio_blk_crypto_key_blob blob;
+> +	} out_req;
 > +
-> +	struct completion *compl;
-> +	/*
-> +	 * Set when virtblk_ctrl_vq_request()'s waiter timed out and moved on
-> +	 * without freeing this request. Whichever of virtblk_ctrlq_callback()
-> +	 * or virtblk_ctrl_vq_drain() later retrieves the buffer must free
-> +	 * @compl and this struct instead of calling complete() on them.
-> +	 */
-> +	bool abandoned;
-> +};
+> +	/* In response */
+> +	union {
+> +		struct virtio_blk_crypto_key_blob blob;
+> +		struct virtio_blk_crypto_sw_secret secret;
+> +		struct virtio_blk_crypto_modes modes;
+> +	} in_resp;
+> +	/* Status byte, always its own in-sg for every command. */
+>  	u8 status;
+> =20
+>  	struct completion *compl;
 
 [Severity: High]
-Could this cause a DMA coherency violation? The struct bundles the
-device-written DMA field (status) with a CPU-modified software flag
-(abandoned) within the same cacheline.
+Could this struct layout cause cacheline corruption on architectures with
+non-coherent DMA?
 
-On non-cache-coherent architectures, if the CPU writes to the abandoned
-flag while the device is actively DMA-writing to the status field, it
-could result in cacheline tearing. This might lead to either silent data
-corruption of the DMA-mapped response or loss of the CPU write.
+The virtblk_ctrl_request struct dynamically allocates fields mapped for=20
+DMA_TO_DEVICE (type, out_req) and DMA_FROM_DEVICE (status, in_resp),
+alongside CPU-modified fields (abandoned, compl). Because the struct is
+not cacheline aligned internally, these fields share CPU cachelines. If the
+CPU writes to the abandoned field while a DMA operation is occurring, or
+before dma_unmap_sg() invalidates the cache for DMA_FROM_DEVICE, the cache
+coherency conflict might overwrite or discard data.
 
 [ ... ]
-> +static void virtblk_ctrlq_callback(struct virtqueue *vq)
+> +static int virtblk_crypto_keyslot_program(struct blk_crypto_profile *pro=
+file,
+> +					   const struct blk_crypto_key *key,
+> +					   unsigned int slot)
 > +{
-> +	struct virtio_blk *vblk =3D vq->vdev->priv;
-> +	struct virtblk_ctrl_request *creq;
-> +	unsigned long flags;
-> +	unsigned int len;
-> +
-> +	spin_lock_irqsave(&vblk->ctrl_vq.lock, flags);
-> +	do {
-> +		virtqueue_disable_cb(vq);
-> +		while ((creq =3D virtqueue_get_buf(vq, &len)) !=3D NULL) {
-> +			bool drained =3D false;
-> +			bool abandoned =3D creq->abandoned;
-> +
-> +			if (WARN_ON_ONCE(!vblk->ctrl_vq.inflight)) {
 [ ... ]
-> +			if (drained)
-> +				complete(&vblk->ctrl_vq.drained);
-> +			if (abandoned) {
-> +				kfree(creq->compl);
-> +				kfree(creq);
-> +			} else {
-> +				complete(creq->compl);
-> +			}
-> +			spin_lock_irqsave(&vblk->ctrl_vq.lock, flags);
-> +		}
-> +	} while (!virtqueue_enable_cb(vq));
-> +	spin_unlock_irqrestore(&vblk->ctrl_vq.lock, flags);
+> +	creq->type =3D cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_CRYPTO_KEYSLOT_=
+PROGRAM);
+> +
+> +	err =3D set_virtblk_crypto_key_desc(vblk->vdev, creq, key, slot);
+> +	if (err)
+> +		goto out_free;
+> +
+> +	sg_init_one(&type_sg, &creq->type, sizeof(creq->type));
+> +	sg_init_one(&out_req_sg, &creq->out_req.key_desc, sizeof(creq->out_req.=
+key_desc));
+> +	sg_init_one(&status_sg, &creq->status, sizeof(creq->status));
+> +	sgs[0] =3D &type_sg;
+> +	sgs[1] =3D &out_req_sg;
+> +	sgs[2] =3D &status_sg;
+> +
+> +	err =3D virtblk_ctrl_vq_request(vblk, creq, sgs, 2, 1);
+
+[Severity: Medium]
+This is a pre-existing issue, but does virtblk_ctrl_vq_request() contain a
+race condition when handling timeouts for these allocated control requests?
+
+If wait_for_completion_timeout() times out, virtblk_ctrl_vq_request() sets
+creq->abandoned =3D true to inform the callback to free the memory. However=
+, if
+the interrupt fires exactly after the timeout expires but before the lock is
+acquired, virtblk_ctrlq_callback() reads abandoned =3D=3D false and assumes=
+ the
+waiting thread will free it. The waiting thread then returns -ETIMEDOUT and
+skips freeing it, leading to a permanent leak of both creq and compl.
+
+> +	if (err =3D=3D -ETIMEDOUT)
+> +		goto out_unlock;
+> +	if (err)
+> +		goto out_free;
+> +
+> +	err =3D blk_status_to_errno(virtblk_result(creq->status));
+> +out_free:
+> +	kfree(creq);
+
+[Severity: High]
+Does this leak sensitive cryptographic key material in memory?
+
+The creq buffer contains the plaintext or wrapped key descriptor, but it is
+freed via kfree() instead of kfree_sensitive(). The fscrypt subsystem rules
+mandate that keys must be zeroized after use to prevent memory disclosure.
+
+[ ... ]
+> +static int virtblk_crypto_derive_sw_secret(struct blk_crypto_profile *pr=
+ofile,
+> +					    const u8 *eph_key, size_t eph_key_size,
+> +					    u8 sw_secret[BLK_CRYPTO_SW_SECRET_SIZE])
+> +{
+[ ... ]
+> +	err =3D blk_status_to_errno(virtblk_result(creq->status));
+> +	if (err)
+> +		goto out_free;
+> +
+> +	memcpy(sw_secret, creq->in_resp.secret.secret, BLK_CRYPTO_SW_SECRET_SIZ=
+E);
+> +out_free:
+> +	kfree(creq);
+
+[Severity: High]
+Similar to virtblk_crypto_keyslot_program(), does this leave the highly
+sensitive derived software secret in memory instead of zeroizing it with
+kfree_sensitive()?
+
+[ ... ]
+> +static int virtblk_crypto_generate_key(struct blk_crypto_profile *profil=
+e,
+> +					u8 lt_key[BLK_CRYPTO_MAX_HW_WRAPPED_KEY_SIZE])
+> +{
+> +	struct virtio_blk *vblk =3D virtblk_from_profile(profile);
+> +	struct scatterlist type_sg, resp_sg, status_sg, *sgs[3];
+> +	struct virtblk_ctrl_request *creq;
+> +	unsigned int key_size;
+> +	int err;
+> +
+> +	mutex_lock(&vblk->vdev_mutex);
+> +	if (!vblk->vdev) {
+> +		err =3D -ENXIO;
+> +		goto out_unlock;
+> +	}
+> +
+> +	creq =3D kzalloc_obj(*creq, GFP_KERNEL);
+
+[Severity: High]
+Can holding vdev_mutex during a GFP_KERNEL allocation cause a deadlock here?
+
+Under memory pressure, GFP_KERNEL triggers direct reclaim, which flushes
+dirty pages to the block device. If the bio requires inline encryption, the
+block layer synchronously calls virtblk_crypto_keyslot_program() from the I=
+/O
+submission path. That callback immediately attempts to acquire vdev_mutex,
+which is already held by the sleeping thread, causing a strict AB-BA/AA
+deadlock.
+
+[ ... ]
+> +static unsigned int get_supported_blk_key_types(u8 virtio_key_types)
+> +{
+> +	unsigned int supported =3D 0;
+> +
+> +	if (virtio_key_types & VIRTIO_BLK_CRYPTO_KEY_TYPE_RAW)
+> +		supported |=3D virtio_key_type_to_blk(VIRTIO_BLK_CRYPTO_KEY_TYPE_RAW);
+> +	if (virtio_key_types & VIRTIO_BLK_CRYPTO_KEY_TYPE_HW_WRAPPED)
+> +		supported |=3D virtio_key_type_to_blk(VIRTIO_BLK_CRYPTO_KEY_TYPE_HW_WR=
+APPED);
+> +
+> +	return supported;
 > +}
 
 [Severity: Medium]
-Is there a race condition here that could lead to a memory leak of both
-the request and completion structs?
+Does this construct an invalid capability bitmask by directly bitwise ORing
+raw enum values instead of shifting them?
 
-If a request times out exactly as the device completes it, the IRQ thread
-might read creq->abandoned as false, unlock the spinlock, and get
-preempted.
-
-Meanwhile, virtblk_ctrl_vq_request() wakes up from the timeout, acquires
-the lock, sets creq->abandoned to true, unlocks, and returns -ETIMEDOUT.
-
-When the callback resumes, it checks its local abandoned variable (which
-is still false) and calls complete(creq->compl) instead of freeing the
-memory. Because the caller already discarded the pointer upon timeout,
-both creq and compl would be permanently leaked.
-
-[ ... ]
-> +/* Submit a control-queue request and wait for completion. */
-> +static int virtblk_ctrl_vq_request(struct virtio_blk *vblk,
-[ ... ]
-> +	if (wait_for_completion_timeout(comp, VIRTBLK_CTRL_VQ_TIMEOUT)) {
-> +		mutex_unlock(&vblk->ctrl_vq.mutex);
-> +		kfree(comp);
-> +		return 0;
-> +	}
-> +
-> +	/*
-> +	 * The host hasn't responded within the timeout. @creq is still
-> +	 * owned by the device, so don't touch its DMA-target fields or
-> +	 * free it here. Mark it abandoned and hand ownership of both @creq
-> +	 * and @comp to whichever of virtblk_ctrlq_callback() or
-> +	 * virtblk_ctrl_vq_drain() retrieves the buffer later; unlock the
-> +	 * mutex so subsequent requests aren't serialized behind an
-> +	 * unresponsive host.
-> +	 */
-> +	spin_lock_irqsave(&vblk->ctrl_vq.lock, flags);
-> +	creq->abandoned =3D true;
-> +	spin_unlock_irqrestore(&vblk->ctrl_vq.lock, flags);
-> +	mutex_unlock(&vblk->ctrl_vq.mutex);
-> +
-> +	dev_warn(&vblk->vdev->dev,
-> +		 "control queue request timed out, abandoning\n");
-> +	return -ETIMEDOUT;
-> +}
-
-[Severity: High]
-This timeout path is where the CPU writes to the shared cacheline while
-the DMA operation might still be in flight. Does this trigger the DMA
-coherency violation mentioned above for struct virtblk_ctrl_request?
+The block layer's profile->key_types_supported strictly requires a bitmask
+where support is represented as (1 << BLK_CRYPTO_KEY_TYPE_...). For
+BLK_CRYPTO_KEY_TYPE_HW_WRAPPED (value 2), the accumulated enum value sets
+bit 1, making supported equal to 3. The core block layer later checks
+3 & (1 << 2), which evaluates to 0, incorrectly causing
+blk_crypto_config_supported() to reject hardware-wrapped keys as unsupporte=
+d.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260920122444.2549=
-493-1-linlin.zhang@oss.qualcomm.com?part=3D1
+493-1-linlin.zhang@oss.qualcomm.com?part=3D2
