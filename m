@@ -1,265 +1,139 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from sender6-op-o11.zoho.com (sender6-op-o11.zoho.com [165.173.180.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5147F42E405
-	for <virtualization@lists.linux.dev>; Sun, 20 Sep 2026 12:38:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789907942; cv=none; b=tZ+N7DeW9rY4FT0YPxVgV31pEGS+E48m+LAX3+AEEWYExZd/ruy8eqAvyNRU/qrQ6XTBxJyyfCeHyMLGF1h2C68re5Oe99tHqwgxrmiuU2svYizZWxAg4RHVt+lrXY9AHQ5IkiQ+9GPg1kjPVW8aHx9kPOuOLqFZSEPojalwqjo=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789907942; c=relaxed/simple;
-	bh=8fyPPEx77qko/wwfCJOuflY0phl+ZlIf7pcwbZrd/Bw=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=g4elnV3lISKxoLb3LZaGqfXyaTMWHt/RHZkDgdzf8epySVqkMfN9LVSL1Ixm/X1ihDQx/ZYW2DtxkuFp66axSz0ylQevwPqe7bgBmpkdtyTZKO7Ba3AQd9w24rkXlY2xArQt7ST1Fex3V8rOqtS5qSg40U8kfEv2z/JKU8j9AHc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Kg1cUBul; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4699A3D9DA2
+	for <virtualization@lists.linux.dev>; Sun, 20 Sep 2026 18:18:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=165.173.180.11
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789928289; cv=pass; b=NuRnhfSaQjRk95DU9yPrqaKaEz8drW/ar0ArlHOwTk1LOI9UwkTBtbFEqKLrj0OBVhwXeSbCVp2ahxBVgo6XYoXLPiglxq2ErHXB+gwLm6nZqmsrUgjzjTXeBCoiXCRfB5kDuxDmB+VDdROQ6LtZogJbaRZrPUBOz1xrTXzGQd8=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789928289; c=relaxed/simple;
+	bh=S+LOcEE1DbE35+dSTVsPbu8xY6UuKl8h6wobiBS0di4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=FXbmvc0WcAkB9cmf8wcR7cPNIzQocsswwihgaIo9wRIFdGC4ir/uLHrhjhBsj3Pe/E1dREKUDBzZe2XHm6Ztaph/Pl3kiJD6bEmHOaackWG+Cq1Da6I5TnS84mF+O7IJwcx6VVGi2EsQg4Dv/X6DmCz0KIpYyGqaRvRwc3gQ1x4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=KH/V+zG7; arc=pass smtp.client-ip=165.173.180.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Kg1cUBul"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF61D1F000FF;
-	Sun, 20 Sep 2026 12:38:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789907921;
-	bh=aHuL77ADTbQsVK0tLmAweE9mn7naqBZD5Y7GrmIEvWY=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Kg1cUBulPT0eiOpcBUZy+DrBH6sbqiKcffukz6v39lGO7WL6EpsE6WlwxjbkU0+Xa
-	 fHWQYsngo++j4gInAImCrxr8qU/68Y+iybxOtn3AwcCAj5tB0vRHFd+4YBbRu2IJ7h
-	 S8xoLdBpKI7othNn5ESe2txK+2OtnB6xONn5hjg+Tx31t63EyGGeeAcDzS3O5zQ5nl
-	 utVfF65K3Kx+G/h8W8XYgG2qAnWofqvr9GXILOea+OeqajwPajWwzKw5g2aE10n7JP
-	 jrEnV2YEMj9rjiHOtP0vnlqnTQnW3I9svZMXvD6tzbgLTrRkeJqryjcCH2Gdo+YiPF
-	 b9KsVK8RBs+pg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 2/2] virtio_blk: add inline encryption support
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Linlin Zhang" <linlin.zhang@oss.qualcomm.com>
-Cc: "Eugenio Perez" <eperezma@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev
-In-Reply-To: <20260920122444.2549493-3-linlin.zhang@oss.qualcomm.com>
-References: <20260920122444.2549493-1-linlin.zhang@oss.qualcomm.com>
- <20260920122444.2549493-3-linlin.zhang@oss.qualcomm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 20 Sep 2026 12:38:40 +0000
-Message-Id: <20260920123840.EF61D1F000FF@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="KH/V+zG7"
+ARC-Seal: i=1; a=rsa-sha256; t=1789928282; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=SAEnyvZpKItdGgtrwdgNDa7dT/EjfXwLBb/WpFBZkReEP/2OIJEJBF5vJea3AdaqUVBqz5dlqjEefHJ3qHjMb0KHNhzhIKiAu9CVmOmxqMTmrPA6oKQrXuPVmbESNam/XZoaCIs+PjiMBv7C5Lmeemtqk/p19rnC4OheZf74zoc=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1789928282; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=GFNHSv1bkiLsdkm43V7QlYc8Y5ZyVjeQhgBrgRct49w=; 
+	b=HRv+n9CP4ZLkPXKGGWXaXxxNx5rcWeszrsx022R2COaWcXFWAyAqMJrIHp1fzi/QBc+TbfZqRo86UHikxBK529yvemScuE2zo0dhtoy/ZTWlEJ1EJcUh5+j55XpMTTeOFuuiV2yQoj5TdrIHr0j/RMQhEg2hjs+QFLCsMVA31e8=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
+	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1789928282;
+	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
+	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=GFNHSv1bkiLsdkm43V7QlYc8Y5ZyVjeQhgBrgRct49w=;
+	b=KH/V+zG7bQ2krktLE8jd7CGhj2NhGFaNts1+cllKcOQMKu2sv5cbFJ5nOWJoIeaa
+	wCOdFpd4k8HX18/wS9MKix/AlUrvg5fE8JnChgUvX+6FEywf+WVPcoIKVMWg+WX5jsB
+	2QVPcpgyBFuDwmlFV4zwT8tNBwYv/ObPUWkInSiA=
+Received: by smtp.zohomail.com with SMTPS id 1789928281835764.7553887960684;
+	Sun, 20 Sep 2026 11:18:01 -0700 (PDT)
+Message-ID: <7452e614-91ff-48b8-b2ee-b01285985bf4@collabora.com>
+Date: Sun, 20 Sep 2026 21:17:57 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] drm/virtio: fix memory leak of fence event on execbuffer
+ failure
+To: Peiyang He <peiyang_he@smail.nju.edu.cn>, airlied@redhat.com,
+ kraxel@redhat.com, dri-devel@lists.freedesktop.org
+Cc: linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+ virtualization@lists.linux.dev, gurchetansingh@chromium.org
+References: <D320EAB5680C1411+20260908121323.2405044-1-peiyang_he@smail.nju.edu.cn>
+Content-Language: en-US
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+In-Reply-To: <D320EAB5680C1411+20260908121323.2405044-1-peiyang_he@smail.nju.edu.cn>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ZohoMailClient: External
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
-s) to consider:
-- [High] block: memory leak of sensitive cryptographic key material in virt=
-io_blk
-- [High] block: DMA cacheline sharing in virtblk_ctrl_request causes data c=
-orruption
-- [High] block: deadlock in virtblk_crypto_generate_key() due to vdev_mutex
-- [Medium] block: incorrect bitwise arithmetic in get_supported_blk_key_typ=
-es() breaks negotiation
-- [Medium] block: Kconfig VIRTIO_BLK_INLINE_ENCRYPTION tristate causes link=
-er errors
---
-
-commit 3dd149ac489e952ca2319a45325b2d578747f639
-Author: linlzhan <linlin.zhang@oss.qualcomm.com>
-
-virtio_blk: add inline encryption support
-
-This commit adds support for the virtio-blk inline encryption feature,
-allowing the guest to offload per-I/O encryption to the host. It wires up
-device characteristics to a blk_crypto_profile and manages keys via the
-control virtqueue.
-
-> diff --git a/drivers/block/Kconfig b/drivers/block/Kconfig
-> index 858320b6ebb7e..58bb050d4617c 100644
-> --- a/drivers/block/Kconfig
-> +++ b/drivers/block/Kconfig
-> @@ -372,4 +372,16 @@ config BLK_DEV_ZONED_LOOP
-> =20
->  	  If unsure, say N.
-> =20
-> +config VIRTIO_BLK_INLINE_ENCRYPTION
-> +	tristate "Virtio block inline encryption support"
-> +	depends on VIRTIO_BLK && BLK_INLINE_ENCRYPTION
-
-[Severity: Medium]
-Should this option be a bool instead of a tristate?
-
-If a user configures CONFIG_VIRTIO_BLK=3Dy and CONFIG_BLK_INLINE_ENCRYPTION=
-=3Dm,
-this dependency evaluates to 'm'. Because the inline encryption code is
-integrated directly into virtio_blk.c using IS_ENABLED(), it gets compiled
-as built-in alongside virtio_blk. It will then attempt to link against
-blk_crypto_profile_init() and other block crypto symbols which are loadable
-modules, causing unresolved symbol errors during linking.
-
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 2fad86e8f7a9a..30c303364ca97 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-[ ... ]
-> @@ -124,7 +136,21 @@ struct virtblk_req {
->  };
-> =20
->  struct virtblk_ctrl_request {
-> +	/* Type byte, always its own out-sg for every command. */
->  	__virtio32 type;
-> +	/* Out request, sent as a second, separate out-sg if any. */
-> +	union {
-> +		struct virtio_blk_crypto_key_desc key_desc;
-> +		struct virtio_blk_crypto_key_blob blob;
-> +	} out_req;
-> +
-> +	/* In response */
-> +	union {
-> +		struct virtio_blk_crypto_key_blob blob;
-> +		struct virtio_blk_crypto_sw_secret secret;
-> +		struct virtio_blk_crypto_modes modes;
-> +	} in_resp;
-> +	/* Status byte, always its own in-sg for every command. */
->  	u8 status;
-> =20
->  	struct completion *compl;
-
-[Severity: High]
-Could this struct layout cause cacheline corruption on architectures with
-non-coherent DMA?
-
-The virtblk_ctrl_request struct dynamically allocates fields mapped for=20
-DMA_TO_DEVICE (type, out_req) and DMA_FROM_DEVICE (status, in_resp),
-alongside CPU-modified fields (abandoned, compl). Because the struct is
-not cacheline aligned internally, these fields share CPU cachelines. If the
-CPU writes to the abandoned field while a DMA operation is occurring, or
-before dma_unmap_sg() invalidates the cache for DMA_FROM_DEVICE, the cache
-coherency conflict might overwrite or discard data.
-
-[ ... ]
-> +static int virtblk_crypto_keyslot_program(struct blk_crypto_profile *pro=
-file,
-> +					   const struct blk_crypto_key *key,
-> +					   unsigned int slot)
-> +{
-[ ... ]
-> +	creq->type =3D cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_CRYPTO_KEYSLOT_=
-PROGRAM);
-> +
-> +	err =3D set_virtblk_crypto_key_desc(vblk->vdev, creq, key, slot);
-> +	if (err)
-> +		goto out_free;
-> +
-> +	sg_init_one(&type_sg, &creq->type, sizeof(creq->type));
-> +	sg_init_one(&out_req_sg, &creq->out_req.key_desc, sizeof(creq->out_req.=
-key_desc));
-> +	sg_init_one(&status_sg, &creq->status, sizeof(creq->status));
-> +	sgs[0] =3D &type_sg;
-> +	sgs[1] =3D &out_req_sg;
-> +	sgs[2] =3D &status_sg;
-> +
-> +	err =3D virtblk_ctrl_vq_request(vblk, creq, sgs, 2, 1);
-
-[Severity: Medium]
-This is a pre-existing issue, but does virtblk_ctrl_vq_request() contain a
-race condition when handling timeouts for these allocated control requests?
-
-If wait_for_completion_timeout() times out, virtblk_ctrl_vq_request() sets
-creq->abandoned =3D true to inform the callback to free the memory. However=
-, if
-the interrupt fires exactly after the timeout expires but before the lock is
-acquired, virtblk_ctrlq_callback() reads abandoned =3D=3D false and assumes=
- the
-waiting thread will free it. The waiting thread then returns -ETIMEDOUT and
-skips freeing it, leading to a permanent leak of both creq and compl.
-
-> +	if (err =3D=3D -ETIMEDOUT)
-> +		goto out_unlock;
-> +	if (err)
-> +		goto out_free;
-> +
-> +	err =3D blk_status_to_errno(virtblk_result(creq->status));
-> +out_free:
-> +	kfree(creq);
-
-[Severity: High]
-Does this leak sensitive cryptographic key material in memory?
-
-The creq buffer contains the plaintext or wrapped key descriptor, but it is
-freed via kfree() instead of kfree_sensitive(). The fscrypt subsystem rules
-mandate that keys must be zeroized after use to prevent memory disclosure.
-
-[ ... ]
-> +static int virtblk_crypto_derive_sw_secret(struct blk_crypto_profile *pr=
-ofile,
-> +					    const u8 *eph_key, size_t eph_key_size,
-> +					    u8 sw_secret[BLK_CRYPTO_SW_SECRET_SIZE])
-> +{
-[ ... ]
-> +	err =3D blk_status_to_errno(virtblk_result(creq->status));
-> +	if (err)
-> +		goto out_free;
-> +
-> +	memcpy(sw_secret, creq->in_resp.secret.secret, BLK_CRYPTO_SW_SECRET_SIZ=
-E);
-> +out_free:
-> +	kfree(creq);
-
-[Severity: High]
-Similar to virtblk_crypto_keyslot_program(), does this leave the highly
-sensitive derived software secret in memory instead of zeroizing it with
-kfree_sensitive()?
-
-[ ... ]
-> +static int virtblk_crypto_generate_key(struct blk_crypto_profile *profil=
-e,
-> +					u8 lt_key[BLK_CRYPTO_MAX_HW_WRAPPED_KEY_SIZE])
-> +{
-> +	struct virtio_blk *vblk =3D virtblk_from_profile(profile);
-> +	struct scatterlist type_sg, resp_sg, status_sg, *sgs[3];
-> +	struct virtblk_ctrl_request *creq;
-> +	unsigned int key_size;
-> +	int err;
-> +
-> +	mutex_lock(&vblk->vdev_mutex);
-> +	if (!vblk->vdev) {
-> +		err =3D -ENXIO;
-> +		goto out_unlock;
+On 9/8/26 15:13, Peiyang He wrote:
+> virtio_gpu_execbuffer_ioctl() reserves a DRM event with
+> drm_event_reserve_init() when VIRTGPU_EXECBUF_RING_IDX selects a ring that
+> userspace has enabled polling for. virtio_gpu_init_submit() does this
+> before the BO handles, the command buffer, the syncobj arrays and the
+> in-fence are processed, so every later error path runs with the event
+> already pending, including plain argument validation failures such as an
+> invalid bo_handle or an in-syncobj that carries no fence.
+> 
+> On those paths, virtio_gpu_cleanup_submit() drops the out-fence without
+> cancelling the event. The fence is freed without ever having been emitted,
+> taking the only driver-side pointer to the event with it. Closing the DRM
+> file does not help. drm_events_release() unlinks pending events but
+> deliberately leaves the freeing to the driver's later drm_send_event(),
+> which never runs for an orphaned event, so the allocation is leaked
+> permanently.
+> 
+> Found when fuzzing the virtio driver with Syzkaller:
+> 
+> 	BUG: memory leak
+> 	unreferenced object 0xffff88802c176e80 (size 96):
+> 	comm "syz.1.367", pid 10561, jiffies 4294960122
+> 	hex dump (first 32 bytes):
+> 		00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+> 		c8 6e 17 2c 80 88 ff ff 00 00 00 00 00 00 00 00  .n.,............
+> 	backtrace (crc e1973c6b):
+> 		kmemleak_alloc_recursive include/linux/kmemleak.h:44 [inline]
+> 		slab_post_alloc_hook mm/slub.c:4597 [inline]
+> 		slab_alloc_node mm/slub.c:4917 [inline]
+> 		__kmalloc_cache_noprof+0x49d/0x6f0 mm/slub.c:5485
+> 		_kmalloc_noprof include/linux/slab.h:988 [inline]
+> 		_kzalloc_noprof include/linux/slab.h:1309 [inline]
+> 		virtio_gpu_fence_event_create drivers/gpu/drm/virtio/virtgpu_submit.c:282 [inline]
+> 		virtio_gpu_init_submit drivers/gpu/drm/virtio/virtgpu_submit.c:398 [inline]
+> 		virtio_gpu_execbuffer_ioctl+0xbbf/0x1aa0 drivers/gpu/drm/virtio/virtgpu_submit.c:505
+> 		drm_ioctl_kernel+0x1f4/0x3e0 drivers/gpu/drm/drm_ioctl.c:817
+> 		drm_ioctl+0x5f4/0xc70 drivers/gpu/drm/drm_ioctl.c:914
+> 		vfs_ioctl fs/ioctl.c:51 [inline]
+> 		__do_sys_ioctl fs/ioctl.c:597 [inline]
+> 		__se_sys_ioctl fs/ioctl.c:583 [inline]
+> 		__x64_sys_ioctl+0x18e/0x210 fs/ioctl.c:583
+> 		do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+> 		do_syscall_64+0x116/0x800 arch/x86/entry/syscall_64.c:94
+> 		entry_SYSCALL_64_after_hwframe+0x77/0x7f
+> 
+> Fix by cancelling and freeing the DRM event on the execbuffer error path
+> before dropping the fence. Clear the fence's event pointer after
+> cancellation so it does not retain a dangling pointer.
+> 
+> Fixes: cd7f5ca33585 ("drm/virtio: implement context init: add virtio_gpu_fence_event")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Peiyang He <peiyang_he@smail.nju.edu.cn>
+> Assisted-by: Codex:gpt-5.6-luna
+> ---
+>  drivers/gpu/drm/virtio/virtgpu_submit.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+> 
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_submit.c b/drivers/gpu/drm/virtio/virtgpu_submit.c
+> index 32cb1e4aa425..734b1e976a75 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_submit.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_submit.c
+> @@ -538,6 +538,10 @@ int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
+>  	virtio_gpu_process_post_deps(&submit);
+>  	virtio_gpu_complete_submit(&submit);
+>  cleanup:
+> +	if (ret && submit.out_fence && submit.out_fence->e) {
+> +		drm_event_cancel_free(dev, &submit.out_fence->e->base);
+> +		submit.out_fence->e = NULL;
 > +	}
-> +
-> +	creq =3D kzalloc_obj(*creq, GFP_KERNEL);
+>  	virtio_gpu_cleanup_submit(&submit);
+>  
+>  	return ret;
 
-[Severity: High]
-Can holding vdev_mutex during a GFP_KERNEL allocation cause a deadlock here?
+Applied to misc-fixes, thanks!
 
-Under memory pressure, GFP_KERNEL triggers direct reclaim, which flushes
-dirty pages to the block device. If the bio requires inline encryption, the
-block layer synchronously calls virtblk_crypto_keyslot_program() from the I=
-/O
-submission path. That callback immediately attempts to acquire vdev_mutex,
-which is already held by the sleeping thread, causing a strict AB-BA/AA
-deadlock.
-
-[ ... ]
-> +static unsigned int get_supported_blk_key_types(u8 virtio_key_types)
-> +{
-> +	unsigned int supported =3D 0;
-> +
-> +	if (virtio_key_types & VIRTIO_BLK_CRYPTO_KEY_TYPE_RAW)
-> +		supported |=3D virtio_key_type_to_blk(VIRTIO_BLK_CRYPTO_KEY_TYPE_RAW);
-> +	if (virtio_key_types & VIRTIO_BLK_CRYPTO_KEY_TYPE_HW_WRAPPED)
-> +		supported |=3D virtio_key_type_to_blk(VIRTIO_BLK_CRYPTO_KEY_TYPE_HW_WR=
-APPED);
-> +
-> +	return supported;
-> +}
-
-[Severity: Medium]
-Does this construct an invalid capability bitmask by directly bitwise ORing
-raw enum values instead of shifting them?
-
-The block layer's profile->key_types_supported strictly requires a bitmask
-where support is represented as (1 << BLK_CRYPTO_KEY_TYPE_...). For
-BLK_CRYPTO_KEY_TYPE_HW_WRAPPED (value 2), the accumulated enum value sets
-bit 1, making supported equal to 3. The core block layer later checks
-3 & (1 << 2), which evaluates to 0, incorrectly causing
-blk_crypto_config_supported() to reject hardware-wrapped keys as unsupporte=
-d.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260920122444.2549=
-493-1-linlin.zhang@oss.qualcomm.com?part=3D2
+-- 
+Best regards,
+Dmitry
