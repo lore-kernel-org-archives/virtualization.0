@@ -1,43 +1,43 @@
-Received: from sender6-op-o11.zoho.com (sender6-op-o11.zoho.com [165.173.180.11])
+Received: from sender5-op-o11.zoho.com (sender5-op-o11.zoho.com [165.173.182.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4699A3D9DA2
-	for <virtualization@lists.linux.dev>; Sun, 20 Sep 2026 18:18:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=165.173.180.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BFE93D9DA2
+	for <virtualization@lists.linux.dev>; Sun, 20 Sep 2026 18:19:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=165.173.182.11
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789928289; cv=pass; b=NuRnhfSaQjRk95DU9yPrqaKaEz8drW/ar0ArlHOwTk1LOI9UwkTBtbFEqKLrj0OBVhwXeSbCVp2ahxBVgo6XYoXLPiglxq2ErHXB+gwLm6nZqmsrUgjzjTXeBCoiXCRfB5kDuxDmB+VDdROQ6LtZogJbaRZrPUBOz1xrTXzGQd8=
+	t=1789928348; cv=pass; b=dHbni3u0pP0PG+HqadVByIPShHQ074h5du8uTGQj85mtnuzC0JXdTGj1RfEf+v6PhKOpFrJ4W5J9nhjoxX1C7qa/E2VG5Uavi3iHhBI188ZZTsGmFWfWyENXDyc2PhvPhE4nGNsfcFe9DStDWX0Ma2MGZptyoaxBuX3oVOswZ4Q=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789928289; c=relaxed/simple;
-	bh=S+LOcEE1DbE35+dSTVsPbu8xY6UuKl8h6wobiBS0di4=;
+	s=arc-20240116; t=1789928348; c=relaxed/simple;
+	bh=+X4OzsY3stcqbywP9OeHUn7Zys0o9g7OYuRZNgPlxYs=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=FXbmvc0WcAkB9cmf8wcR7cPNIzQocsswwihgaIo9wRIFdGC4ir/uLHrhjhBsj3Pe/E1dREKUDBzZe2XHm6Ztaph/Pl3kiJD6bEmHOaackWG+Cq1Da6I5TnS84mF+O7IJwcx6VVGi2EsQg4Dv/X6DmCz0KIpYyGqaRvRwc3gQ1x4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=KH/V+zG7; arc=pass smtp.client-ip=165.173.180.11
+	 In-Reply-To:Content-Type; b=NDOcdVliurqzA5U2pS99NZwl51m8UZBXuCGAkgSBsZ16AbUfz1bvNVhTmTcpfN+fD3c8TOVUeFt02knL3o8enDT3206QWd9ODVxMWBV60f4xYHs3ELD+WamocG1gYqbiDUb1nJCcftL74oEfxpE2rmWO82Z6nLfkL0ndMFhpxFM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=ifpdPC4q; arc=pass smtp.client-ip=165.173.182.11
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="KH/V+zG7"
-ARC-Seal: i=1; a=rsa-sha256; t=1789928282; cv=none; 
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="ifpdPC4q"
+ARC-Seal: i=1; a=rsa-sha256; t=1789928326; cv=none; 
 	d=zohomail.com; s=zohoarc; 
-	b=SAEnyvZpKItdGgtrwdgNDa7dT/EjfXwLBb/WpFBZkReEP/2OIJEJBF5vJea3AdaqUVBqz5dlqjEefHJ3qHjMb0KHNhzhIKiAu9CVmOmxqMTmrPA6oKQrXuPVmbESNam/XZoaCIs+PjiMBv7C5Lmeemtqk/p19rnC4OheZf74zoc=
+	b=LNghYtD4OlH9P0WaTUm6A3H9I2vTZRSnc3C4vn49JtzUOMuNwnz03SzjvAEBBKTCRHUKLqY1Rrfzu3MRnPO79MnarWmuDFdnnHFZe/cOG1g1486lzJC9yZRqCF8/H15tSkfPs1mt934BzpswLYq0e7GwS7a1b0ekTJke8vA5SGE=
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1789928282; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=GFNHSv1bkiLsdkm43V7QlYc8Y5ZyVjeQhgBrgRct49w=; 
-	b=HRv+n9CP4ZLkPXKGGWXaXxxNx5rcWeszrsx022R2COaWcXFWAyAqMJrIHp1fzi/QBc+TbfZqRo86UHikxBK529yvemScuE2zo0dhtoy/ZTWlEJ1EJcUh5+j55XpMTTeOFuuiV2yQoj5TdrIHr0j/RMQhEg2hjs+QFLCsMVA31e8=
+	t=1789928326; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=x7YggTuTmPe64d88OlRZlcygIYMj9+soGRs8ans7674=; 
+	b=Ss0TClOGw55bZKYXiMOzKXvN3OqMBbcfL1I/bngAbTpg6klunAnzMu6oBzaDwh0LfmAW0aHVGW3nNKjA7Xutqzo56kDb8o2EhkpcDPIh2KCCL/NWxuZrorwSM/hCkZ4UJA5AwWX24ZenRiuZIoI/4M44BOO1fK5nWl/yrurZSWc=
 ARC-Authentication-Results: i=1; mx.zohomail.com;
 	dkim=pass  header.i=collabora.com;
 	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
 	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1789928282;
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1789928326;
 	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
 	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=GFNHSv1bkiLsdkm43V7QlYc8Y5ZyVjeQhgBrgRct49w=;
-	b=KH/V+zG7bQ2krktLE8jd7CGhj2NhGFaNts1+cllKcOQMKu2sv5cbFJ5nOWJoIeaa
-	wCOdFpd4k8HX18/wS9MKix/AlUrvg5fE8JnChgUvX+6FEywf+WVPcoIKVMWg+WX5jsB
-	2QVPcpgyBFuDwmlFV4zwT8tNBwYv/ObPUWkInSiA=
-Received: by smtp.zohomail.com with SMTPS id 1789928281835764.7553887960684;
-	Sun, 20 Sep 2026 11:18:01 -0700 (PDT)
-Message-ID: <7452e614-91ff-48b8-b2ee-b01285985bf4@collabora.com>
-Date: Sun, 20 Sep 2026 21:17:57 +0300
+	bh=x7YggTuTmPe64d88OlRZlcygIYMj9+soGRs8ans7674=;
+	b=ifpdPC4qGitMf24+5bTuT3JLVA5ypDdMvFJqqNr100XLqTevKPb9/s9l0qbY/Aa9
+	/ExqUjpyEgN4yqL2Kff3qlNUcSUaJXxkeYoq3s5iNBltTenvEwGzld7b2aistuNey6B
+	fFnHzyv2P673DsFUpgBlslqKk14aMmBwYekgkhII=
+Received: by smtp.zohomail.com with SMTPS id 1789928325465408.72793580338316;
+	Sun, 20 Sep 2026 11:18:45 -0700 (PDT)
+Message-ID: <f60abdeb-d62f-4034-a73f-2b954006f3af@collabora.com>
+Date: Sun, 20 Sep 2026 21:18:40 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -45,92 +45,61 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] drm/virtio: fix memory leak of fence event on execbuffer
- failure
-To: Peiyang He <peiyang_he@smail.nju.edu.cn>, airlied@redhat.com,
- kraxel@redhat.com, dri-devel@lists.freedesktop.org
-Cc: linux-kernel@vger.kernel.org, stable@vger.kernel.org,
- virtualization@lists.linux.dev, gurchetansingh@chromium.org
-References: <D320EAB5680C1411+20260908121323.2405044-1-peiyang_he@smail.nju.edu.cn>
+Subject: Re: [PATCH v2 0/4] drm/virtio: fix GEM object leaks on error paths
+To: moonafterrain@outlook.com, David Airlie <airlied@redhat.com>,
+ Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Simona Vetter <simona@ffwll.ch>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Dave Airlie <airlied@gmail.com>
+Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, Yuhao Jiang <danisjiang@gmail.com>
+References: <20260915-fixes-v2-0-a0d799e4db66@outlook.com>
 Content-Language: en-US
 From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-In-Reply-To: <D320EAB5680C1411+20260908121323.2405044-1-peiyang_he@smail.nju.edu.cn>
+In-Reply-To: <20260915-fixes-v2-0-a0d799e4db66@outlook.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 X-ZohoMailClient: External
 
-On 9/8/26 15:13, Peiyang He wrote:
-> virtio_gpu_execbuffer_ioctl() reserves a DRM event with
-> drm_event_reserve_init() when VIRTGPU_EXECBUF_RING_IDX selects a ring that
-> userspace has enabled polling for. virtio_gpu_init_submit() does this
-> before the BO handles, the command buffer, the syncobj arrays and the
-> in-fence are processed, so every later error path runs with the event
-> already pending, including plain argument validation failures such as an
-> invalid bo_handle or an in-syncobj that carries no fence.
+On 9/15/26 10:39, Junrui Luo via B4 Relay wrote:
+> v1 fixed one drm_gem_object_release() misuse in virtio_gpu_gem_create().
+> Dmitry asked for the other occurrences the Sashiko bot pointed at [1], so
+> v2 turns it into a series.
 > 
-> On those paths, virtio_gpu_cleanup_submit() drops the out-fence without
-> cancelling the event. The fence is freed without ever having been emitted,
-> taking the only driver-side pointer to the event with it. Closing the DRM
-> file does not help. drm_events_release() unlinks pending events but
-> deliberately leaves the freeing to the driver's later drm_send_event(),
-> which never runs for an orphaned event, so the allocation is leaked
-> permanently.
+> Patches 1-3 replace drm_gem_object_release() with drm_gem_object_put() on
+> the GEM creation error paths. Patch 1 is unchanged from v1.
 > 
-> Found when fuzzing the virtio driver with Syzkaller:
+> Patch 4 adds the missing drm_gem_object_release() before kfree(vram) in
+> virtio_gpu_vram_create().
 > 
-> 	BUG: memory leak
-> 	unreferenced object 0xffff88802c176e80 (size 96):
-> 	comm "syz.1.367", pid 10561, jiffies 4294960122
-> 	hex dump (first 32 bytes):
-> 		00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-> 		c8 6e 17 2c 80 88 ff ff 00 00 00 00 00 00 00 00  .n.,............
-> 	backtrace (crc e1973c6b):
-> 		kmemleak_alloc_recursive include/linux/kmemleak.h:44 [inline]
-> 		slab_post_alloc_hook mm/slub.c:4597 [inline]
-> 		slab_alloc_node mm/slub.c:4917 [inline]
-> 		__kmalloc_cache_noprof+0x49d/0x6f0 mm/slub.c:5485
-> 		_kmalloc_noprof include/linux/slab.h:988 [inline]
-> 		_kzalloc_noprof include/linux/slab.h:1309 [inline]
-> 		virtio_gpu_fence_event_create drivers/gpu/drm/virtio/virtgpu_submit.c:282 [inline]
-> 		virtio_gpu_init_submit drivers/gpu/drm/virtio/virtgpu_submit.c:398 [inline]
-> 		virtio_gpu_execbuffer_ioctl+0xbbf/0x1aa0 drivers/gpu/drm/virtio/virtgpu_submit.c:505
-> 		drm_ioctl_kernel+0x1f4/0x3e0 drivers/gpu/drm/drm_ioctl.c:817
-> 		drm_ioctl+0x5f4/0xc70 drivers/gpu/drm/drm_ioctl.c:914
-> 		vfs_ioctl fs/ioctl.c:51 [inline]
-> 		__do_sys_ioctl fs/ioctl.c:597 [inline]
-> 		__se_sys_ioctl fs/ioctl.c:583 [inline]
-> 		__x64_sys_ioctl+0x18e/0x210 fs/ioctl.c:583
-> 		do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
-> 		do_syscall_64+0x116/0x800 arch/x86/entry/syscall_64.c:94
-> 		entry_SYSCALL_64_after_hwframe+0x77/0x7f
+> Only compile-tested (x86_64, CONFIG_DRM_VIRTIO_GPU=m).
 > 
-> Fix by cancelling and freeing the DRM event on the execbuffer error path
-> before dropping the fence. Clear the fence's event pointer after
-> cancellation so it does not retain a dangling pointer.
+> [1] https://lore.kernel.org/all/55240372-c265-4b38-be94-f29a58ddbb22@collabora.com/
 > 
-> Fixes: cd7f5ca33585 ("drm/virtio: implement context init: add virtio_gpu_fence_event")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Peiyang He <peiyang_he@smail.nju.edu.cn>
-> Assisted-by: Codex:gpt-5.6-luna
+> Changes in v2:
+> - Add patches 2-4 covering the other occurrences reported by the bot
+>   (Dmitry Osipenko)
+> - Link to v1: https://lore.kernel.org/r/20260815-virtgpu-gem-create-leak-v1-1-a4e9fb18caa3@outlook.com
+> 
+> Signed-off-by: Junrui Luo <moonafterrain@outlook.com>
 > ---
->  drivers/gpu/drm/virtio/virtgpu_submit.c | 4 ++++
->  1 file changed, 4 insertions(+)
+> Junrui Luo (4):
+>       drm/virtio: fix object leak when drm_gem_handle_create() fails
+>       drm/virtio: fix object leak in virtio_gpu_resource_create_ioctl()
+>       drm/virtio: fix object leaks in virtio_gpu_resource_create_blob_ioctl()
+>       drm/virtio: release the GEM object on virtio_gpu_vram_create() errors
 > 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_submit.c b/drivers/gpu/drm/virtio/virtgpu_submit.c
-> index 32cb1e4aa425..734b1e976a75 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_submit.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_submit.c
-> @@ -538,6 +538,10 @@ int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
->  	virtio_gpu_process_post_deps(&submit);
->  	virtio_gpu_complete_submit(&submit);
->  cleanup:
-> +	if (ret && submit.out_fence && submit.out_fence->e) {
-> +		drm_event_cancel_free(dev, &submit.out_fence->e->base);
-> +		submit.out_fence->e = NULL;
-> +	}
->  	virtio_gpu_cleanup_submit(&submit);
->  
->  	return ret;
+>  drivers/gpu/drm/virtio/virtgpu_gem.c   |  2 +-
+>  drivers/gpu/drm/virtio/virtgpu_ioctl.c |  6 +++---
+>  drivers/gpu/drm/virtio/virtgpu_vram.c  | 17 +++++++++--------
+>  3 files changed, 13 insertions(+), 12 deletions(-)
+> ---
+> base-commit: 587858367581b9c55c3690f4e63382ad622719d4
+> change-id: 20260915-fixes-8c6917e90665
+> 
+> Best regards,
 
 Applied to misc-fixes, thanks!
 
