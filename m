@@ -1,213 +1,138 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4BAF43B6DA
-	for <virtualization@lists.linux.dev>; Sun, 20 Sep 2026 12:25:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B359C7081A;
+	Sun, 20 Sep 2026 12:31:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789907121; cv=none; b=THkdMPVM4f6W2dHknOKPAwxmifAXirTQ7M7UiP1ddkVlzaO888/p3Ld8pe3788bVfmHjDbgj9Hr6qcEffci0SE85vErj/haPfqbaP6dL9GXKNphuEnOStegmLsMlZMX9fd2tEAT6E2LIRZOtqAwaFRM/ghJJz4V0zWwyJl7dOj0=
+	t=1789907496; cv=none; b=QP+C86EslYsnyfhnfd/Pvd8jywZP9c70+jdewD+OHU1gAZPsgnDuvlIrHs7y+MOmnhluL0+LIuGGnpW0UiZx7n3tDNn1sjHG92CMeD6c1OaSoHMcdEhDWdRnpX/hE0IZg3SimJtOt3Iz/oGDqedAi/b/KiVjgDwQQLZd8EQTIP8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789907121; c=relaxed/simple;
-	bh=9ys3681p32APqj6Z88pRcCV7fPw5mjcOa7rsGo8U5ZA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=M1INZ17W9QjujTX313TAVOI1HCZDHni0+C4ngeDoj6KBmEKsv+rtmaxVTPfl4ex0pc//tWCBQDRHfBxF4vNCwNQ/3A4gz+b7ePgwGWLQ8VUcwH4ydjKeGR5WOCBnE5J8LZ/YmfRvVdjs4YhbZsI1eIYroMhvVK+Ix2M8NCThtjg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=INB501Xm; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=NajDhKfI; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1789907496; c=relaxed/simple;
+	bh=ASMq3FNooPSEO1HqMpusUY/rkyOZL3h0UiPcC4l50XY=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=WXS67L9l4DtgiK/mg2jeqtEyvBcaLe4DM6DAyBXx7Gg+6sngNBKQ3yHa9Zlx9vjTkBlOZ0lDB7LcvD3qmoRB/tZwekXtGEebq7RnIlrGlPiARAFml1oonHCiziF1Xko0KUHk4H+jgNsoJA10OTPssBoXZIKWCm2W6TgAvw0dz0M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=A4jPOMnf; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="INB501Xm";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="NajDhKfI"
-Received: from pps.filterd (m0279864.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68KBoNZw975928
-	for <virtualization@lists.linux.dev>; Sun, 20 Sep 2026 12:24:57 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=qcppdkim1; bh=nHGqvNi0X1PSleAmas4B81l/3KNqRkeiVL8
-	aUDF2Tt4=; b=INB501XmUi1cS4dB9XVFh2i0kPwkEouV/hwHE1MOXGc7wyjC95j
-	MlhrxBIekXsN3RGomAUacgzRgFqLHgMWFpBgoae6l4KSCuL+cfK+QsqcbAV683xf
-	isFz4g/1wDqKYPvSP75ao5SfDWePyU97jFoUR6bjBDX0WkRkOAY9nUBGoOErxPy0
-	007nSfu88b5d1qA+J8IDBKt/buA0yEJd/w/8boLWO6m13RBDsaUAWuwAlTUclCps
-	3nJWvQgJs2kpfpDWOPHudNbgwYcr1m/AeULUzL37FEvrATEGLxgx0wCsEZCxitaS
-	HSzT8bb0XssSEhK1TwsQtzhgzdea1gZhoSw==
-Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com [209.85.214.199])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4gskjk2udm-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <virtualization@lists.linux.dev>; Sun, 20 Sep 2026 12:24:57 +0000 (GMT)
-Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-2ce7dfd33ffso29602095ad.0
-        for <virtualization@lists.linux.dev>; Sun, 20 Sep 2026 05:24:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1789907096; x=1790511896; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=nHGqvNi0X1PSleAmas4B81l/3KNqRkeiVL8aUDF2Tt4=;
-        b=NajDhKfIJKz9zYlu0SfyT35rwyxxWtSLgsAQYSRYZ/ofk13OPCgSyb1sg2O1KKaeXF
-         VHSH3DxyZMcdu0CM5nJCqdtVy5C+kguAWuSmUCXFp/gEPs0RE4ozTFpTg5N7FpPi9Yt+
-         mIQU9/qBDuuLYZDlr+QJqLYr9PTejMSjdwC6IeJw0DfMimFtg/O9BRIb6KevEUz5h2Y/
-         MaXdmW3NTJ+45f6InFq3m6Hi75FayMg35kakDwrmL/d+V1jU64gUEsdCzJ9xqqlKr6mk
-         i7vdU0rEipWOODHlOt4s6lxpeocffWvCu/Bo1jps640/AzaxFZP5gb7sYNE6if7ZXTaM
-         BzIg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789907096; x=1790511896;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=nHGqvNi0X1PSleAmas4B81l/3KNqRkeiVL8aUDF2Tt4=;
-        b=R2QYmPZbtSGTTimvB13IgZ8gAheD2NRKzOX8TAIj2hJPer+XpeLb7gGNcAGgL0a/4m
-         7jY5BehlrJ9GjU+oHS//HE3AzVnnILeM4/uBzEcbeovZ1tPrz4G/vMP+ygUI7WspQE/F
-         G/aLAJOVhFWdkOtuwRMWjVtfaod21kD7dMKfknyF/wtFBKwRT8A8Bh8VI9ffLCyMJQXC
-         Ong8icDe4zOWiNam6luBTCPoTu9GLJsF2e2kxJWa/SChz+bFyeUa6B5bqn7DaNkB7hHY
-         4b53M2jq7T255rQSSrr2jXLmSa59JrsFpE7ddIKIGPiaM/no5cPXirB+rcrAcLlfXoP7
-         0uxw==
-X-Forwarded-Encrypted: i=1; AKwUvBzSILPRu6G29AAh7+F/L/Dic4YDnJaTDaIg6lh7eL9d2BP/aawVfyTnIFTJ+WHpcxRG+KHVYSHCWNYJhRDdZw==@lists.linux.dev
-X-Gm-Message-State: AFuF++motRVKcL8iXsJbRKgQhfvCbJfGQl/veLpDW1LLcPszqnIkIPWX
-	9F1QHL+U+E+NKlzUJVFdjyCBMn/clAs1uMQOI0gPd/qTSE2n/2+zmrtcuxPAT0ACIJf3jAI4VfF
-	jpr/V1gGRujZJsYjg4PPKNny1hS2YbeK4NoO2z7gPa/ku4es2FsGxxg5h90AXG2xIWRmdXQ==
-X-Gm-Gg: AYBFou35yYNh0jq0Z7aGjfMwfVkZDLXPSHyVdAsFbYAVwg53VTK9KxdyXdfo5UP0ZLD
-	ldSWs0ZRLVroCe2NAedOqH/+9z7SvGzsFCHHY1UQN30GhnH128bbAQ94Sz28qBhBpCMj43hfMDF
-	feDc0q+Hy2C/0nuOXP8qkYUyBbEfOlCjRh4ul51pVFk23PxmCCTxaaTDXvy/v+OGChqHO8pt2Ue
-	ZGdbklRyqDcgR2Uf9ZIXviuIsJr0RLdPmTQP/1/QCZrZ2GMonXcI4nJdoBbiqsLDcJA7Scrubqu
-	27FZ1SxAMYZ9tIdTC0zW1C2bYgzTJD1Bp70zfIxM7qrDRtTRSLh4TGfzWHqHvTQkCDWxasYPcl0
-	Lly16GTAC3YngccDrIX9SzHYQqIPYuYi8gtf0VUEhTL/JLpCvlR9MhTePnQ==
-X-Received: by 2002:a17:903:46c6:b0:2dd:ad73:5b67 with SMTP id d9443c01a7336-2ddb1c196d2mr119168875ad.23.1789907096575;
-        Sun, 20 Sep 2026 05:24:56 -0700 (PDT)
-X-Received: by 2002:a17:903:46c6:b0:2dd:ad73:5b67 with SMTP id d9443c01a7336-2ddb1c196d2mr119168665ad.23.1789907096095;
-        Sun, 20 Sep 2026 05:24:56 -0700 (PDT)
-Received: from u24-san1p10108.qualcomm.com (i-global254.qualcomm.com. [199.106.103.254])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-33c331aef9bsm12007386eec.25.2026.09.20.05.24.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 20 Sep 2026 05:24:55 -0700 (PDT)
-From: Linlin Zhang <linlin.zhang@oss.qualcomm.com>
-To: mst@redhat.com, jasowangio@gmail.com, axboe@kernel.dk, ebiggers@kernel.org,
-        stefanha@redhat.com
-Cc: pbonzini@redhat.com, eperezma@redhat.com, xuanzhuo@linux.alibaba.com,
-        virtualization@lists.linux.dev, linux-block@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v3 0/2] FBE virtualization: inline encryption for virtio-blk guests
-Date: Sun, 20 Sep 2026 05:24:30 -0700
-Message-ID: <20260920122444.2549493-1-linlin.zhang@oss.qualcomm.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="A4jPOMnf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F29901F000FF;
+	Sun, 20 Sep 2026 12:31:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789907481;
+	bh=x7Rj+1lR8yco9L3uUKrFikg1vos+ZhMx9ekAaju3IsA=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=A4jPOMnfgp6Majaj+E4qINiJINQ2rJMWGrLoChrQfIiPz/fV9o2XrHytqnMZcMe2s
+	 VnsjYnsi8wwvq/L7wVAXQ4QjUIDD2YY9S73PjcSfWw+/wPLxt1tEOgC5rxjW4OVJDI
+	 mnrhAHxgn8MgBBy78aIHDJcb2s6vyIorc9Uf1iSR7sSLAOF1YAxk3UfED1Mhotc2Rc
+	 LGNViXdwhaJTo5eT8sse6dOjFuyuOHgC3gfMrw+zQLd7z7QYHkiUsJAdouLtDsFTTm
+	 odUcv2hv3eQIylzSLvb/gaY1MVGhg2w8o+pWulnhWdwpwbF9Xpcv0mMbqGjS19GLa9
+	 RYBWLfQSFOhdw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] vsock: keep SOCK_SEQPACKET message boundaries on
+ interrupted send
+Reply-To: sashiko-reviews@lists.linux.dev
+To: =?utf-8?b?QmFydMWCb21pZWogRG1pdHJ1aw==?= <bartlomiej.dmitruk@isec.pl>
+Cc: virtualization@lists.linux.dev, kvm@vger.kernel.org, "Eugenio Perez" <eperezma@redhat.com>, "Michael
+ S. Tsirkin" <mst@redhat.com>
+In-Reply-To: <20260919122916.28226-1-bartlomiej.dmitruk@isec.pl>
+References: <20260919122916.28226-1-bartlomiej.dmitruk@isec.pl>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sun, 20 Sep 2026 12:31:20 +0000
+Message-Id: <20260920123120.F29901F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Authority-Analysis: v=2.4 cv=H6JOUOYi c=1 sm=1 tr=0 ts=6aafd099 cx=c_pps
- a=JL+w9abYAAE89/QcEU+0QA==:117 a=JYp8KDb2vCoCEuGobkYCKw==:17
- a=VdqzKS8jKosA:10 a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=u7WPNUs3qKkmUXheDGA7:22 a=DJpcGTmdVt4CTyJn9g5Z:22 a=VwQbUJbxAAAA:8
- a=EUspDBNiAAAA:8 a=82hO2hxRqmGPxkN32ysA:9 a=324X-CrmTo6CU4MGRt3R:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTIwMDE4MCBTYWx0ZWRfX4kK2i8Su2iHu
- DonBT+PxGZ01/2MIRgEp3aLgOzD3E8bYgcNLnTHtita0S+iSDP4/C/wlrubN9z+F2SktR6Vvwww
- u8PuUcnxU2mqnpyxxarvMN+cOBDIoSqrHzJhq2RHvNGuIEsE3fjurpdB/B4QM+vORgXmW+U2fM4
- AOH6ncebi0WIjhK0dX39KsncigeuYDxDp2JlmfSAT3OEtf55X2RbrzSQ9ShCPFsTsOT1OP6L0+A
- mYQL+Vrvt3ROLm8XJWJrmiFvE5Dext+9VsbLqW3W9xlZiNb9tVTE6b2B3PuS3T2TUNlF59ZT0O+
- gEAKnL7pwUuwlCIiXpN0bsBbdV/7j0dgzOlLhR7qYHPBZsbddTC1zdgNtFToBKzMBBsQhxdaZ8m
- QSUCq7SWIgrPyWTYTGuoFtKRVRYhhp0oALSAFqLDVTkDj0OZNCjfoxpY9pxe1fwUGNZzYo4ms2y
- Zt7tmA7XOsAEMWtaNUw==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTIwMDE4MCBTYWx0ZWRfXxhZgL5RN3Eap
- q5F7s3WJW3qQgG6Y+bhrBJpnMEgmw+DTZZklBsqhvLB2z8BPrFl1fCRrXAj+R6LxT8XTPBSQ5Gr
- HGGYAdECfYPAlLzC9KCcliY+D9ifL+Y=
-X-Proofpoint-ORIG-GUID: DLtOs0xzN2YeRwYdMUc74pQAh501MOaq
-X-Proofpoint-GUID: DLtOs0xzN2YeRwYdMUc74pQAh501MOaq
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-20_04,2026-09-16_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 phishscore=0 suspectscore=0 bulkscore=0 lowpriorityscore=0
- impostorscore=0 adultscore=0 spamscore=0 malwarescore=0 clxscore=1015
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609200180
 
-From: linlzhan <linlin.zhang@oss.qualcomm.com>
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [High] vsock: vhost_transport missing seqpacket_max_size causes indefinit=
+e hang
+- [Medium] vsock: seqpacket wait loop hangs if peer dynamically shrinks buf=
+fer
+--
 
-The virtio-blk driver currently does not preserve blk-crypto metadata when
-dispatching encrypted bios to the virtio queue. As a result, inline
-encryption cannot be used for virtio block devices.
+commit faa45a951be47102c344158967938f9970eb6270
+Author: Bart=C5=82omiej Dmitruk <bartlomiej.dmitruk@isec.pl>
 
-This series enables inline encryption for guest VMs on platforms where the
-Inline Crypto Engine (ICE) is owned by the host or another virtual machine.
-It extends virtio-blk with a crypto control virtqueue and carries the
-required encryption metadata with data requests.
+vsock: keep SOCK_SEQPACKET message boundaries on interrupted send
 
-The series consists of:
+A credit-limited SOCK_SEQPACKET send transmits fragments as credit becomes
+available, and the VIRTIO_VSOCK_SEQ_EOM flag is set only on the fragment
+where msg_data_left() reaches 0. If vsock_connectible_sendmsg() exits via
+out_err after a partial send, the already-transmitted fragments carry no EO=
+M.
+The receiver only advances msg_count / sets msg_ready on an EOM skb, so the
+orphaned fragments are silently merged into the next message, violating
+SOCK_SEQPACKET atomicity.
 
-  1. Add control virtqueue support.
-     This allows the guest to exchange key management requests with the
-     virtio-blk backend without mixing them with regular I/O requests.
+> diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+> index 5549298c1ec6b..d94c613ef604b 100644
+> --- a/include/net/af_vsock.h
+> +++ b/include/net/af_vsock.h
+> @@ -143,6 +143,7 @@ struct vsock_transport {
+>  				 size_t len);
+>  	bool (*seqpacket_allow)(struct vsock_sock *vsk, u32 remote_cid);
+>  	u32 (*seqpacket_has_data)(struct vsock_sock *vsk);
+> +	u32 (*seqpacket_max_size)(struct vsock_sock *vsk);
+> =20
 
-  2. Add inline encryption support.
-     The driver advertises the device encryption capabilities through a
-     struct blk_crypto_profile and carries encryption metadata, including
-     the virtual keyslot and data unit number (DUN), in virtio requests.
+[Severity: High]
+Does vhost_transport in drivers/vhost/vsock.c also need to implement this
+callback?
 
-On the backend (blk-crypto-proxy, will be committed in another patch as
-suggested.), the key table mapping virtual slot to the block crypto
-key is maintained, so that the request metadata can be used to resolve
-the guest keyslot to the corresponding block crypto key and to reconstruct
-the blk-crypto context before submitting the bio to the underlying block
-device. 
+It implements SOCK_SEQPACKET, but appears to omit the newly required
+seqpacket_max_size() callback. If the callback is NULL, the max size check =
+in
+vsock_connectible_sendmsg() is skipped. If a user application sends a
+SOCK_SEQPACKET message larger than the transport's buffer size, this will
+cause an indefinite wait loop because the space can never reach min_space.
 
-This keeps the guest integrated with the existing blk-crypto and filesystem
-encryption frameworks while preserving inline-encryption semantics across
-the virtualization boundary.
+>  	/* Notification. */
+>  	int (*notify_poll_in)(struct vsock_sock *, size_t, bool *);
 
-This is compatible for the virtio SPEC update which is under review:
-https://lore.kernel.org/all/20260913161628.368484-1-linlin.zhang@oss.qualcomm.com/
+[ ... ]
 
-Known limitations:
-  - Virtio block inline encryption depends on the new control virtqueue
-  - Inline encryption is mutually exclusive with VIRTIO_BLK_F_ZONED.
+> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+> index 9b71479a2b295..01fc9ac6fa2b5 100644
+> --- a/net/vmw_vsock/af_vsock.c
+> +++ b/net/vmw_vsock/af_vsock.c
+> @@ -2250,9 +2250,32 @@ static int vsock_connectible_sendmsg(struct socket=
+ *sock, struct msghdr *msg,
+> =20
+>  	while (total_written < len) {
+>  		ssize_t written;
+> +		s64 min_space;
+> +
+> +		if (sk->sk_type =3D=3D SOCK_SEQPACKET) {
 
-Testing:
-Compilation pass on Linux-next.
-End-to-end FBE virtualization with wrapped key enabled was validated
-on top of gunyah hypervisor.  wrapped_key_test is a local utility to
-get wrapped key and ephemeral wrapped key via storage ioctl interfaces.
-  - /data/wrapped_key_test /dev/block/userdata generate
-  - /data/wrapped_key_test /dev/block/userdata prepare /data/lt_key.bin
-  - /data/fscryptctl insert_wrapped_key < /data/eph_key.bin
-  - /data/fscryptctl set_policy --identifier=20f553802e64e36b43469211266a5f1c /data/testing
-  - echo "data" > /data/testing/file.txt
-  - sync and reboot
-  - /data/wrapped_key_test /dev/block/userdata prepare /data/lt_key.bin
-  - /data/fscryptctl insert_wrapped_key < /data/eph_key_2.bin
-  - /data/fscryptctl set_policy --identifier=d8ca51d6d2094b73b2dae5ee7e3a10b6 /data/testing
-  - cat /data/testing/file.txt
+[ ... ]
 
----
-Changes Changes v2 => v3:
-  - Fix issues reported by sashiko-bot
-    - Change to the pointer of struct completion in the control-queue
-      request to avoid DMA cacheline sharing
-    - Submit a control-queue request with a timeout monitor
-    - Freeze the data plane before marking the control queue as dead
-    - Transmit the kernel blk-crypto-mod-num and key_type to those
-      defined by virtio SPEC
-    - Replace GFP_KERNEL with GFP_NOIO when allocating the memory for
-      control-queue request in the key program/evict flow
-    - Move the check of inline encryption support to a independent
-      conditional branch.
-v2: https://lore.kernel.org/all/20260914133733.15429-1-linlin.zhang@oss.qualcomm.com/
+> +			if (transport->seqpacket_max_size &&
+> +			    len > transport->seqpacket_max_size(vsk)) {
+> +				err =3D -EMSGSIZE;
+> +				goto out_err;
+> +			}
+> +			min_space =3D len - total_written;
+> +		} else {
+> +			min_space =3D 1;
+> +		}
+> =20
+>  		add_wait_queue(sk_sleep(sk), &wait);
+> -		while (vsock_stream_has_space(vsk) =3D=3D 0 &&
+> +		while (vsock_stream_has_space(vsk) < min_space &&
 
-Changes v1 => v2:
-  - Use control virtqueue to perform key management requests
-  - Extend virtio_blk_crypto_msg::dun from a single __virtio64 to a
-    four-element __virtio64 array to support larger DUN sizes.
-  - Remove data_unit_size_bit in virtio_blk_crypto_msg struct
-v1: https://lore.kernel.org/all/20260827160806.1295313-1-linlin.zhang@oss.qualcomm.com/
+[Severity: Medium]
+What happens if the remote peer dynamically shrinks its receive buffer to a
+size smaller than min_space while the sender is waiting in this loop?
 
-linlzhan (2):
-  virtio_blk: Add control virtqueue support
-  virtio_blk: add inline encryption support
+Since the seqpacket_max_size() check is outside the sleep loop, if the space
+ceiling shrinks below min_space during the wait, the sender could be
+permanently trapped without re-evaluating the max size.
 
- drivers/block/Kconfig           |  12 +
- drivers/block/virtio_blk.c      | 907 +++++++++++++++++++++++++++++++-
- include/linux/virtio_blk.h      |  87 +++
- include/uapi/linux/virtio_blk.h | 124 ++++-
- 4 files changed, 1111 insertions(+), 19 deletions(-)
- create mode 100644 include/linux/virtio_blk.h
+>  		       sk->sk_err =3D=3D 0 &&
 
--- 
-2.34.1
-
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260919122916.2822=
+6-1-bartlomiej.dmitruk@isec.pl?part=3D1
