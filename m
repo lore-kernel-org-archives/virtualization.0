@@ -1,99 +1,115 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv2-f12.google.com (mail-qv2-f12.google.com [74.125.230.140])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 644A8313293
-	for <virtualization@lists.linux.dev>; Sat, 19 Sep 2026 23:00:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BAAC2BEFF5
+	for <virtualization@lists.linux.dev>; Sun, 20 Sep 2026 00:47:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789858844; cv=none; b=K82gELMhMDamCNN0zZFG7MaMR1afgHoZmgB+BIKxcAxvamJ9n7JBr0RoH8pR5TT65NBx2QKCLAKyJTegprcX1yIdIloRv7nVqhsK2Rl7CcAGHEXq7TjGjUWOyfyh6k9f5cT3ezuyHlf+J52pVqf1Z04KuX3XGlFrEzEng1RB7jk=
+	t=1789865269; cv=none; b=avhkb4UU21Ovrhok7bkrVJ6AEa0CjxxfmtECUpzwMimQ2JONOXquN+fwGT1vLhKS/jdYjb0LOx41HTqW83BjTGfeUEA11I0JAJt/4CG/XhR31tyN1I/ZnUqj6QP4F5zM5ZLmakI+YDAkFmP0lcUxEJ2u20mjY8J1j58R0Pvp9ko=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789858844; c=relaxed/simple;
-	bh=/VK3JYgQ8JKiWHmKhiePQ3J1ORqJ+UbaQp8XPYVR7t4=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=gBlth1SACFZJOCNQT+NpIQ1w2dpi6Lqb7Jnh5ZUY38r0Tk5gEADcPKIE4BAwAgxttN7M4zzzROMbPa7aCpKxaSyCeFNBts36A4ledL9YYTwHT1CV5SRdPcSvZf+iRC7z6Wki8wPWVE+dXhBIe3CobQQb8tBbZuPpFDxRAhHdnP8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=desEpKzC; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789865269; c=relaxed/simple;
+	bh=MJvGxSsNpYy/kU91KFXt9TSv8kDRgzqAw11+tcx0VCw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=DJsrK5icV9zlBgwj1Aljr3u2EUUKZLpGninvmHndRCkQg3Uf80+iVxmWiB/ciCMVszrXQKc5tK75gnsKZ1QPZYeXHk0/S9iSLG3TF2jpqnU5mF7QJADKEUJUd6T4dZo1e0PUA+tnKK24ItfEXusRJTjqp+uDDYivy3KcLENHVpk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rO0qgA9h; arc=none smtp.client-ip=74.125.230.140
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="desEpKzC"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C53131F000FF;
-	Sat, 19 Sep 2026 23:00:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789858843;
-	bh=C0d2ZWO4CyCK99h+SiUrTZNlcp/cT+ADhzqAMSenMwI=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=desEpKzCrRtL2ZYgsZehD+XpE9jw21k8q52TnisUsXNWKMkb7uIaKHume95RFo69Q
-	 1xlwThUx5DWOWL1A5omcIew/raguCUJYldX7uV+kRsC4MeJ244hQIt8KxqheTg4da2
-	 nD4ihfju7xmgM25U5kmMQ/x3+ikWoByjrr/D0ygOCAn22QIdaqkYl6Gi/+JHG/wkcJ
-	 P05n9mniIuZhSjXaIk/T3f/B0MeOZaO0ieX71yF0iJIEvOWpX7aFOp9nBkB86abQlH
-	 Prw6HLsDA7W+FQLE9wJl4WCO2GTm8Ij2E/gVuf5XYNOLL3g5jZZ72tA2CpFM8RxENi
-	 iNEnV9uCqgbog==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] drm/virtio: fix vbuf->objs double-free, fence NULL
- deref, and sgt error path
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Hui Peng" <benquike@gmail.com>
-Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev, "Michael
- S. Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>
-In-Reply-To: <20260919223440.3884176-1-benquike@gmail.com>
-References: <20260919223440.3884176-1-benquike@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 19 Sep 2026 23:00:42 +0000
-Message-Id: <20260919230042.C53131F000FF@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rO0qgA9h"
+Received: by mail-qv2-f12.google.com with SMTP id 6a1803df08f44-90cdfc9b6e4so19962956d6.3
+        for <virtualization@lists.linux.dev>; Sat, 19 Sep 2026 17:47:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789865267; x=1790470067; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=X2mvB3CBHopypng5GIwWVc/CrGw3Rh9PvRGGQJXfiH0=;
+        b=rO0qgA9hjVbILEtuBsQ4uaQr8le5j1Buhn1vdiHJrqZlaFJBfXkyCnuY3qyq0fozvQ
+         KxIaWn0f+1sS+Hz1OdI0JG26pbeZramVJxiINAfoZucFB+zfeBs+8+TOgjlwTiJmNIsL
+         flpubObYkf4SPeEs1jcq0tn8wad/kq0hgmgafrLFZg/4/EwoJjynElWkkJvAMF4J9As4
+         0bLkcUZ0vw/E34espqcKR6n53RdmOSw5/ND4bFc+TglTiU19PgGv8AMmvO26KGUSXqxJ
+         cJd13P96RBRe5bLIvkhmhjKVzwluxvDhw6THRlHTPgJNOapYBQ7STeXf5h1VqP/SDOTs
+         oFGA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1789865267; x=1790470067;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=X2mvB3CBHopypng5GIwWVc/CrGw3Rh9PvRGGQJXfiH0=;
+        b=Oc5dCVOU8l92ixU8otLPs3hVzgzMO/NqpQ767DR7tTpy22ti3RXj4yF4L40g3b4Caj
+         436ygNBxc9VdPpKkzesq7jRWH6sOWqAAjcS2Jg7rQj+VaSgF2TgmVR8UpVSfpFjKjyAi
+         U9n5NhFItB7h4ACHlpARBB2YeAjepAU5tZRGLVTcoPnhyGSazqyIIrPkYnjsmx7w3r/Q
+         hV+BNqGO96WSvYLuYpiXi1SjqjSyDovgf/IuJq4a8l9hxY/rbY2MU9wqZryY1zeyc5E2
+         2gmKpTvTPwhe4JHvXnbLC+GbHj0PVF/vC1f1Yl3z2sYT53tDkVdzsYXQEH741iybRGBx
+         93Uw==
+X-Forwarded-Encrypted: i=1; AKwUvBy8VkzIC3iYfy+82kX+D59NOSUOXESksVCBh8wdVeHE8fG6jf69RhnrR/cgaHQHxD4FNZFubbZ6LwWf7YpHiQ==@lists.linux.dev
+X-Gm-Message-State: AFuF++nlXyALZiqwGE2S3UKgnvA5QapZC9eJ7s9dPDU4v10Ys14WC+Lz
+	RY/AfdV0DFMUxeDOBkmsVo3MHtOzZY9kVEM0jeddzrDkKmkmELW74Pjy
+X-Gm-Gg: AYBFou23raWsQqWuSL//1J8Vw8abOApZADmqxXf4fBcBr1zpN8kxPpF+3ZJn3eIZF0P
+	2IIPiMcIVtFjd2Ee7ncP8XDNsY9ZXM9Hk7vu8dc4r5BttNNMOyu7GuGk2i4ZmDnXUt0OyeSkPaj
+	iTXL9zib9FBmWPwWkyOCLp54H9HQ8TtTRl2K1NSV1SadvAUYcA6ZV4VYuSuZR8TGP4dtUHSHcmP
+	izIzKmRBc0iAvVjtOhLDGMnzBdcAA1JtAvcR35u+8HUvZohv7GlRjY4e3R+sNOwgxxow8a0ofP5
+	I9PzmcaRc7OwpDoxLjpvhtxJHWs7fYWZMvF8Yb9D1dGQfG4BMl6ySzDQb/fXaMj7UzBTluJFo+O
+	+i4Hixg9RzyxA/mGvYaUAoRr0mXIbv152IiZL9tr1fM4OXckTvjlRqkGN5EwYnsII/kfnSJ/d5I
+	We+Zj9FaJp+Vp0YD9YYJRZO+KrqpzjPRxa5zhMflSGyBH/AgiMDp2bP8BA5RljYqDFapjhLsH5G
+	PRGmrvLWSb+7sDEzyUAhASJO47GiBjPpHamK43A1VBzkQ9AUtemDEapy4JuX3eXlIK2BwvF
+X-Received: by 2002:a05:6214:434a:b0:910:63c3:5c70 with SMTP id 6a1803df08f44-9129c780e53mr36692256d6.19.1789865267075;
+        Sat, 19 Sep 2026 17:47:47 -0700 (PDT)
+Received: from localhost.localdomain ([2601:155:4200:2c80:c8b1:39dc:7ddc:dd0c])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-9126078cab2sm32122436d6.0.2026.09.19.17.47.46
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Sat, 19 Sep 2026 17:47:46 -0700 (PDT)
+From: Paulos Yibelo <habte.yibelo@gmail.com>
+To: netdev@vger.kernel.org
+Cc: mst@redhat.com,
+	jasowangio@gmail.com,
+	eperezma@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	virtualization@lists.linux.dev,
+	dsahern@kernel.org,
+	idosch@nvidia.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	horms@kernel.org,
+	willemb@google.com,
+	hannes@stressinduktion.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH net v4 0/2] net: prevent partial checksums from modifying IPv4 headers
+Date: Sat, 19 Sep 2026 20:47:31 -0400
+Message-ID: <20260920004733.6473-1-habte.yibelo@gmail.com>
+X-Mailer: git-send-email 2.46.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] drm/virtio: double-free of vbuf->objs in virtio_gpu_reclaim_vbufs
---
+A TUN or virtio-net user can supply CHECKSUM_PARTIAL metadata whose
+checksum start resolves inside the IPv4 header after link-layer headers
+are removed. On the IPv4 fragmentation path, skb_checksum_help() may then
+modify an IHL which was already parsed and validated. ip_do_fragment()
+subsequently trusts the changed IHL and can copy beyond the skb's logical
+linear head into emitted IPv4 options.
 
-commit 94995582490827616358d8c115ec5215d43b829f
-Author: Hui Peng <benquike@gmail.com>
-Subject: drm/virtio: fix vbuf->objs double-free, fence NULL deref, and sgt =
-error path
+Patch 1 validates the checksum start relative to skb_network_header().
+Patch 2 independently validates and retains the IPv4 header length before
+checksum completion.
 
-This patch modifies virtio_gpu_dequeue_ctrl_func() and free_vbuf() to
-consolidate vbuf->objs cleanup inside free_vbuf(). It also handles fence
-cancellation and checks for exbuf->size in submit initialization.
+The issue and this series were reviewed privately. The source reproducer
+and complete runtime evidence remain available privately.
 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio=
-/virtgpu_vq.c
-> --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-> @@ -202,6 +202,10 @@ static void *virtio_gpu_alloc_cmd_cb(struct virtio_g=
-pu_device *vgdev,
->  static void free_vbuf(struct virtio_gpu_device *vgdev,
->  		      struct virtio_gpu_vbuffer *vbuf)
->  {
-> +	if (vbuf->objs) {
-> +		virtio_gpu_array_put_free_delayed(vgdev, vbuf->objs);
-> +		vbuf->objs =3D NULL;
-> +	}
+Validation included strict checkpatch, focused W=1 builds, a complete
+build, two test boots, a legitimate fragmented CHECKSUM_PARTIAL control,
+and both forged cases.
 
-[Severity: High]
-Does this change introduce a double-free when called from
-virtio_gpu_reclaim_vbufs()?
+Paulos Yibelo (2):
+  net: validate virtio checksum start after network header
+  ipv4: reject partial checksums covering the IP header
 
-Looking at virtio_gpu_reclaim_vbufs() in the same file, the loop manually
-frees the objects but does not clear the pointer before calling the newly
-updated free_vbuf():
+ include/linux/virtio_net.h |  5 +++--
+ net/ipv4/ip_output.c       | 23 +++++++++++++++++------
+ 2 files changed, 20 insertions(+), 8 deletions(-)
 
-	while ((vbuf =3D virtqueue_detach_unused_buf(vgdev->ctrlq.vq))) {
-		if (vbuf->objs)
-			virtio_gpu_array_put_free(vbuf->objs);
-		if (vbuf->resp_cb_data)
-			virtio_gpu_cleanup_object(vbuf->resp_cb_data);
-		free_vbuf(vgdev, vbuf);
-	}
-
-Since free_vbuf() now also attempts to free vbuf->objs via
-virtio_gpu_array_put_free_delayed(), and the pointer is not cleared in
-virtio_gpu_reclaim_vbufs(), won't this trigger a double-free on device
-teardown when there are unused control queue buffers with attached objects?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260919223440.3884=
-176-1-benquike@gmail.com?part=3D1
+base-commit: 9d565b6b72fe3f41fd43636e143072848105189f
