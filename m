@@ -1,70 +1,70 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 730B251DAF8
-	for <virtualization@lists.linux.dev>; Mon, 21 Sep 2026 22:19:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF13351C33C
+	for <virtualization@lists.linux.dev>; Mon, 21 Sep 2026 22:44:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790029150; cv=none; b=JiYoHbTQMorpS1DSphx1Ulyy0ae9NhYiAdXPbChJ0StVYlc26eYWJfcIIORZ6nHagICkC8Fzf6bKBzYOCDQaLk04NBAPNVDkWRkw5hcpupnXzeto9gfvpss8pauNyNwaQpE7JdZF/9547+nhz7ATw1+j6q+wBg8U21S9o+hfKP8=
+	t=1790030693; cv=none; b=MthJJbw6Mz0tZoXhIcLCUw+y8dV/M23e8M6jXUW46I/0fos3zTiO/UKrzUBklppvBwlknUOP1SBmPRgXiZg8dDdNiC5IsV+w0Ry7wonMw4KrTgQ2nyaky8I9NNioEbGAqU4yQGAxY6Vxp78PA8GPfalTyg/BWAk8UECsIHnz2cw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790029150; c=relaxed/simple;
-	bh=Ei4Pcff18AwS+t/cle98zJDwbkIH7q3+1+YutrVx4aA=;
+	s=arc-20240116; t=1790030693; c=relaxed/simple;
+	bh=b/w2QCTzhqBiXQb4AzjN2M3mM1Ujft2Q/i3P0al6uYM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=s7eSXGw/Q816LNRWSBBnuH6gMVKfd4zi4Dcuh0n6X1o5rLDEHvQaEe9gZu8GNaNd9dHbvlQjUMFpuuYJCRwAmplTwNXXMyCQPGURm+j0qA9r5N8m+4RBI+RzDLYYd2iWrK9Muntr3Nvb30YmVETNdmbQBMUhirryZzDmNeMr4KI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Yl4tfLkr; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=P841JswjWs06Ha2EqQGj9Jk7d3ILT/hM9RDMvtqUbSE5EpQkVObUF8KPblLH9BfyBFKEh96OBNAVEZcBs5tiRt7rcu3b1ixL0nSkQGWK11g9BsCMuxdl0Hf4qELPuGsi8wyTlLxYQHcdgSx18EquqS+IXW6nR7glErmOvaHgZcE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BnY1oOkU; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Yl4tfLkr"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BnY1oOkU"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1790029147;
+	s=mimecast20190719; t=1790030690;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=GghXQp9Ze0KvyQdgR20zMclVJoewmD0MiZE2OAf9lwY=;
-	b=Yl4tfLkr+LBioaXUrCYvOKBS76o4IEqOAl/NwKqFRShwfRHo057ovDtNuK25IrPCDV7B4b
-	ZOtXcT5wW7jBOfx4Xp5SGYM6/6oiw21SAerDuE8e0d+4ocA9Vs52p1DAgo69eza995w9h+
-	fD4SP+76XFlOtjMwdUGi5KGAt+ng3V0=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=TPgxbULSS/zvX6qwagU7VAmjM6bHsH7Jq1qgcjiY+lQ=;
+	b=BnY1oOkU2U40815Ky4qbsiDJVj2nOHyTa8Pc0G10PGZqW+Dorz3B2G+jCQLKiFowcUbMSi
+	Kx8tdNPlOjNz4XdvgtOKigqpFzWqZI7O38K66djV4LN1R5rqozw90YAzqlnMgKlUTTwdOg
+	Lv0i3LazPpXec+5Pp/FD484O2g1Wm/8=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-552-XFVLgzRFNeOjLpexUtW42w-1; Mon, 21 Sep 2026 18:19:06 -0400
-X-MC-Unique: XFVLgzRFNeOjLpexUtW42w-1
-X-Mimecast-MFC-AGG-ID: XFVLgzRFNeOjLpexUtW42w_1790029145
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-49cf5bd2f12so46514075e9.1
-        for <virtualization@lists.linux.dev>; Mon, 21 Sep 2026 15:19:05 -0700 (PDT)
+ us-mta-460-eF66NP6RNcWb-7CvfyZblQ-1; Mon, 21 Sep 2026 18:44:47 -0400
+X-MC-Unique: eF66NP6RNcWb-7CvfyZblQ-1
+X-Mimecast-MFC-AGG-ID: eF66NP6RNcWb-7CvfyZblQ_1790030686
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4994d67d0e3so27045315e9.2
+        for <virtualization@lists.linux.dev>; Mon, 21 Sep 2026 15:44:47 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790029145; x=1790633945;
+        d=1e100.net; s=20260707; t=1790030686; x=1790635486;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=GghXQp9Ze0KvyQdgR20zMclVJoewmD0MiZE2OAf9lwY=;
-        b=ZWGbUb1fRHTs43z+WElopCQrOSjg8PDTxG32ZteTW0WHxU5Onsva5GubO9AWPdRnmz
-         TzUrPGf6loHCH3jKe+CBMZ6UeK9QF6kPTp5+gLncRIROmfhWS4SLt9IcgEGZHPQxERXo
-         rV1yR71qS7XkoJI37TMIzt7q+fg3wD2GDsWc0NKsL3PYOcBpxxUSldu+XIa93xsIb9sl
-         cLjscVGZXiUKTpwW6ePm7GOD/9TxH3aXFIQMekcs0DlrfR0exeXU9fj4tzKmFEgapYWL
-         eZmYUCXleDJA3KMTtn1STfvH0NOVFef6a6icIX4t6nJmJJX6bktgfdEDEWwTlKLz+64t
-         ZqCA==
-X-Forwarded-Encrypted: i=1; AKwUvBzLdBmil1+RJT0GxekAZB5QTBmC8rfvhwRkEmRd6LIeN1U/8KPFMK1BtWzTz+ZGaJ4Duh4EV3Ilq51PhDjPfg==@lists.linux.dev
-X-Gm-Message-State: AFuF++mMmL3Jg5arDea02fAIo5Xdaanj/51QZEbwNXiSYvX4bjc+bTLJ
-	N8VivhZghEMH6oiMKGxBCB8ZaNsp+JjxomPBBAVYPJ8eBwDIaVWyepONL1e4ahwv8yDPsMYaPzM
-	zLpwxJAXzksh4VpplXaCeCPS2DIW27wTDFkVuOPr020a44YpJpqSveWgfT7Pg6t9yKLri
-X-Gm-Gg: AYBFou3FFMBfTxnuvQgyW89mLZgF+Asz4KKu1DIrewbXB5yXeQWojCcBYslmVcuwXV9
-	Vk2TlkXxWZkdOjSCfn3mODBYURphQz5LpupBqoZMGlG7qqeGpLwX/uI/wENYrM2+X1Lq1iAtB2x
-	sINdNMsDpvd6PPefRja9n8ceu8UwlfQsWWKhRpNBtJg77CGmdKdJFafVjGY10d8VnAoueH1uGn6
-	ZcCSLoeunoOV37aJavx5Ko5Hflrjp0YoEm6dNd2WLr27M4enHARrgy8FbNyQqYLPYSweYaoJGUf
-	tsbXmUMvHSCQuGbssFscPQl9E2yRClQEJO5VDMG/eYCSn3UoxWgX6VZnEhJJ43Vyma+rhPpt1Wl
-	zDluMzolML2arGurkU7dVOaY=
-X-Received: by 2002:a05:600c:6610:b0:49f:bc28:e8bc with SMTP id 5b1f17b1804b1-49fc573576bmr159622605e9.17.1790029144741;
-        Mon, 21 Sep 2026 15:19:04 -0700 (PDT)
-X-Received: by 2002:a05:600c:6610:b0:49f:bc28:e8bc with SMTP id 5b1f17b1804b1-49fc573576bmr159622215e9.17.1790029144197;
-        Mon, 21 Sep 2026 15:19:04 -0700 (PDT)
+        bh=TPgxbULSS/zvX6qwagU7VAmjM6bHsH7Jq1qgcjiY+lQ=;
+        b=d3RNimaiABekdmBmqS/ldQMLhSive7UhAtcRm9tQYk5J/tJfHQZ2a3GbDJDGLx4Mi8
+         v5Krz73Zqev2Puzo1eSE2bz3HQKwWE7hNc/ba14sKkzCfuIEfucCo1BstYCNiXvhQ3Ql
+         Mklj3M9H+RjMaHRzX+lu3c/mwgEJOLzTcKerORxV6BGmOqnA74plIoSHBU2PmFWzvBII
+         osMLardYCsm4OT7UM9uDYGjRnJq3Lk2OCKeRJbEy91rfOft1je4vAzWvAW2tKQmBuymC
+         A+W2XD9TrrQ0Lzz5+CZzLvjraijw+u55/chi97OK4uvR9w8q+nVRONV3HPdhZymxu6gh
+         yBIQ==
+X-Forwarded-Encrypted: i=1; AKwUvBxgmai3OrGAH2VcXJPU0PZ3IK+PQQClrbUJv+qnWcIRY7DNZGAbjQE4N730JEgXt9HJfDPQiBOXQ7a4+q+Z8g==@lists.linux.dev
+X-Gm-Message-State: AFuF++moKjVuroMsum8kh6Pkn4TZNgj1qolExEYaqzMhyMUEB27DrCms
+	+BF/kvVqbCn8Zg5Qd0mEjGGv2bYivMyiquft+93mE/eOKGK6INn1JOyr6o0HlD5F27QsS4JZS3F
+	68SVlvPgByHWYrEP+XiUT5tI58vupHN/AlSDq7Lf3kOmcPItmFmVHO35DcOWf0RSFV95/
+X-Gm-Gg: AYBFou1K9ZlhlXhTRYIicWOGYccVXJsAWWyWnWdE8zz/6X0V453cbuSnAyWX7nxqCZN
+	tcluq0OGEc8QmUwU/QSW5xzNIkhlKIVCSKwXMgu/U44mcUho7MiloH3yW+h2wZYgszBzyWUGk+i
+	hVcwXF3x7p0nAkNll/Y7J5MEEoIzdpPAnutlnolH3c/tVI1CCoq0mOpBLPiOVhYdly2kRhYnvxI
+	Y2W0tD0b8HVHBP2fZ3nGzUa9IkeM6zaTkLQ1TXtqm9D3ZBmuerQXVRA3VIY2eZS0f22kXMi7dLp
+	4KFtBJr4T7uwDq+/fL3IAJfeA8SF95tL6GBIR038Xfukg67cMp7/xqvxZkDNPO8Ulc5XpQoNrEM
+	emzFM/EOT6gAMDPb4UvTxlGE=
+X-Received: by 2002:a05:6000:26c2:b0:487:b32:9d6f with SMTP id ffacd0b85a97d-4871e21beabmr19615277f8f.22.1790030685807;
+        Mon, 21 Sep 2026 15:44:45 -0700 (PDT)
+X-Received: by 2002:a05:6000:26c2:b0:487:b32:9d6f with SMTP id ffacd0b85a97d-4871e21beabmr19615238f8f.22.1790030685299;
+        Mon, 21 Sep 2026 15:44:45 -0700 (PDT)
 Received: from redhat.com (IGLD-80-230-79-236.inter.net.il. [80.230.79.236])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49fda0ce97dsm7873445e9.7.2026.09.21.15.19.01
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48862731bf9sm26579f8f.1.2026.09.21.15.44.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Sep 2026 15:19:03 -0700 (PDT)
-Date: Mon, 21 Sep 2026 18:18:59 -0400
+        Mon, 21 Sep 2026 15:44:44 -0700 (PDT)
+Date: Mon, 21 Sep 2026 18:44:40 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Paulos Yibelo <habte.yibelo@gmail.com>
 Cc: netdev@vger.kernel.org, richard@nod.at, anton.ivanov@cambridgegreys.com,
@@ -80,7 +80,7 @@ Cc: netdev@vger.kernel.org, richard@nod.at, anton.ivanov@cambridgegreys.com,
 	linux-kernel@vger.kernel.org
 Subject: Re: [PATCH net v5 1/2] net: validate virtio checksum start after
  network header
-Message-ID: <20260921181341-mutt-send-email-mst@kernel.org>
+Message-ID: <20260921183657-mutt-send-email-mst@kernel.org>
 References: <20260920004733.6473-1-habte.yibelo@gmail.com>
  <20260921025341.44846-1-habte.yibelo@gmail.com>
  <20260921025341.44846-2-habte.yibelo@gmail.com>
@@ -92,7 +92,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 In-Reply-To: <20260921025341.44846-2-habte.yibelo@gmail.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: bXoUNUjgGjmGq4SEfBHKNPS45sPar8hx0BtFhQATerA_1790029145
+X-Mimecast-MFC-PROC-ID: 4GoTO5gJy7Z9Zbx57JkbAMWhQSBJEyDPjgqzmv3QczU_1790030686
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -272,12 +272,6 @@ On Sun, Sep 20, 2026 at 10:53:40PM -0400, Paulos Yibelo wrote:
 > +static inline int
 > +virtio_net_hdr_get_l3_offset(const struct sk_buff *skb,
 > +			     const struct virtio_net_hdr *hdr)
-
-
-+virtio_net_hdr_eth_get_l3_offset  ?
-
-since this assumes ethernet...
-
 > +{
 > +	unsigned int parse_depth = VLAN_MAX_DEPTH;
 > +	const struct ethhdr *eth;
@@ -316,6 +310,11 @@ since this assumes ethernet...
 >  {
 > -	unsigned int nh_min_len = sizeof(struct iphdr);
 > +	int nh_min_len = sizeof(struct iphdr);
+
+
+So why is this IPv4 specific assumption still here? Confused.
+
+
 >  	unsigned int gso_type = 0;
 >  	unsigned int thlen = 0;
 >  	unsigned int p_off = 0;
@@ -429,6 +428,11 @@ since this assumes ethernet...
 >  				tp_len = -EINVAL;
 >  				goto tpacket_error;
 >  			}
+
+Will this do the right thing for ETH_P_IP sockets? even with vlan tags
+in the frame?
+
+
 > @@ -3103,7 +3104,8 @@ static int packet_snd(struct socket *sock, struct msghdr *msg, size_t len)
 >  	packet_parse_headers(skb, sock);
 >  
