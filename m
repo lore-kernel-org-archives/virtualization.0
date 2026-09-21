@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48C852BE053
-	for <virtualization@lists.linux.dev>; Mon, 21 Sep 2026 00:47:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8E072C21F7
+	for <virtualization@lists.linux.dev>; Mon, 21 Sep 2026 00:47:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789951678; cv=none; b=Czj7EWvKzLAljH+mcuxlGph4989cOkz+yA+5OuIADKGrxsY0g+HU+7DcZ03LqLUk9h9yKxmQVvCryeSNjKXnn0XJlCiIPyyBYxdrU8XdbKFkYmz0fkQ0d/RTah5+N38B+sqP//d/eujQARN3oBk8fLasZmjmG2XiUNOmlOC+1AQ=
+	t=1789951679; cv=none; b=JyjHDJDM90625+3KtIKeyA0S8Ln6iQcm+uLfcnGGdDBnq9UE96LCah7HE3Qt7SFRfAJVteEV9OUEV5Mxw+p/Maxw3q6Ffj7Q02UnbHKeKXnrbsIbSwmCKCidaXgqV6+H+ymLlLjsyH+Zzr5PHbER9lua6JkqnzLuj8sGFwIq9oA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789951678; c=relaxed/simple;
-	bh=dUzdwDDgyb1IySSqXocNI5twjl7cKyumNZitsoRdeL4=;
+	s=arc-20240116; t=1789951679; c=relaxed/simple;
+	bh=8Np2atyJ5Pty3iSaZ8OyeBApEFr+OT+xsUs9NsS4uCg=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=BxBc2ukIlNMEVO7GlrVfXV+7FExNrAuQYcA73rX9hUlcoGKs/PLiTVfTdG46tBJ2qb4/QHV0AqaNfOE8XV1YvcxMRsE2wRhfU4j75Y7yghN8tCBKL3bgLQttdubn+G4Wgppfc7myaeUro1HtJje5H68SI/tX8sLs5YRhtm/Qhns=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PUGS6ELW; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=sCERSRubkcgC2PD8hKkPCcVw0eh/JeAFv7zAsVFzYecKjvyBceQajvKPREVBpc689g9KI9RDGvzme8DAhIPwlV069qeqp1NMyg3Tq+nNYblRfTfDVQTxUz4I4QYPdcvvqCCqDb2KILnZk0hz0Ije9tjW5LnSy1odrqFcA1ih/44=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=O0VAyJi6; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PUGS6ELW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDA031F000FF;
-	Mon, 21 Sep 2026 00:47:54 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="O0VAyJi6"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A71CB1F00893;
+	Mon, 21 Sep 2026 00:47:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
 	s=k20260515; t=1789951675;
-	bh=3V1s1zeb/BuBqZhmSZmTOd2mJSd9fwTfL144kFkpWuc=;
+	bh=Sg/I8c2ci3YjtlNMPUIwHULsz4R1dmjgtu7mRYa8lMs=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=PUGS6ELWvHIuUGHc8bdGzIroEeJ28K0OEnYXqAcpJaf1/7Q/qIiv17oenD5SXHKk1
-	 NMIe5z43dkroAM1Q3ZIyIqiTpNSJJHDk9HHaW75oDwHEkGTebLBVMtSTgziJ9VhiB4
-	 NaEUKyQu1n/KCAxR3jQFrlp8K1n19Zj+aH2EyUkrPemmUbCtr0AndbB9zb3e9vLKVc
-	 Glh+URCernFPsjndTWYa6o+u1ofYsBIVeGDMyEzHcDpIWCutI3WrX5grZ63oXyI90z
-	 +Fmvr26Pknn+lTcK4w4rZIulRV3FW/S0IVntruycQMEW3QMhCjXnTyjeO/tdPmQtJ2
-	 jy+SLXufDKwOw==
+	b=O0VAyJi6alREWwG8fgQzMKdOmfu84JWiNYglFXPm4OZK4v54iYtdrjLiNAR/Qb87K
+	 LLrLIZ/jtu0OCjlBgv1I5am2hibnf0coD2vVUcOOc131PVulMYjjxX8gVbH5YrUrNR
+	 6rzg9Hm7lKiuKbd1uVlWypSJt/Gfq5Wb4o/THAYzPUPcHcQgpYDtSDWAD0fqxR6Oba
+	 XwVwIye5FypyU7Hr/7pSuKwavpicurYkRwjie7QVNA0Vyt4c6sNiEI7PK4e4BTQuDn
+	 7Rv2wCiJ2rKZTr8xmk4KwtVxsum1r9NMQqmE7bLv03q73KLohvCFTutT0bJ2jqSGE3
+	 o26wFcxhZvPzw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net v4 1/2] net: validate virtio checksum start after
- network header
+Subject: Re: [PATCH net v4 2/2] ipv4: reject partial checksums covering the
+ IP header
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Paulos Yibelo" <habte.yibelo@gmail.com>
-Cc: "Eugenio Perez" <eperezma@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev
-In-Reply-To: <20260920004733.6473-2-habte.yibelo@gmail.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>, virtualization@lists.linux.dev
+In-Reply-To: <20260920004733.6473-3-habte.yibelo@gmail.com>
 References: <20260920004733.6473-1-habte.yibelo@gmail.com>
- <20260920004733.6473-2-habte.yibelo@gmail.com>
+ <20260920004733.6473-3-habte.yibelo@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 21 Sep 2026 00:47:54 +0000
-Message-Id: <20260921004754.DDA031F000FF@smtp.kernel.org>
+Date: Mon, 21 Sep 2026 00:47:55 +0000
+Message-Id: <20260921004755.A71CB1F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -47,68 +47,54 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] net: virtio_net_hdr_to_skb security check bypassed for TUN devices
+- [Medium] ipv4: signed-to-unsigned conversion bypasses checksum offset val=
+idation
 --
 
-commit 1c7e0adac42db0550277cf456f6845d512993ef1
+commit 35b578df884cddd68694d6e6f060c95a3382e235
 Author: Paulos Yibelo <habte.yibelo@gmail.com>
 
-net: validate virtio checksum start after network header
+ipv4: reject partial checksums covering the IP header
 
-__virtio_net_hdr_to_skb() rejects a CHECKSUM_PARTIAL start smaller than an
-estimated minimum network-header length. The comparison currently uses the
-offset from skb->data rather than the offset from skb_network_header().
+ip_do_fragment() completes a CHECKSUM_PARTIAL skb before reading the IPv4
+header length. A virtualization interface can supply a checksum start that
+still points inside the IPv4 header after link-layer removal.
 
-> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-> index c381b916c1b54..a95ad465b9887 100644
-> --- a/include/linux/virtio_net.h
-> +++ b/include/linux/virtio_net.h
+> diff --git a/net/ipv4/ip_output.c b/net/ipv4/ip_output.c
+> index a24cc8ee11d3e..ff902a2dd0ade 100644
+> --- a/net/ipv4/ip_output.c
+> +++ b/net/ipv4/ip_output.c
+> @@ -770,16 +770,28 @@ int ip_do_fragment(struct net *net, struct sock *sk=
+, struct sk_buff *skb,
+
 [ ... ]
-> @@ -104,7 +104,8 @@ static inline int __virtio_net_hdr_to_skb(struct sk_b=
-uff *skb,
-> =20
->  		if (!skb_partial_csum_set(skb, start, off))
->  			return -EINVAL;
-> -		if (skb_transport_offset(skb) < nh_min_len)
-> +		if (skb_transport_offset(skb) < nh_min_len ||
-> +		    skb_transport_offset(skb) - skb_network_offset(skb) < nh_min_len)
 
-[Severity: High]
-Does this check get bypassed for TUN/TAP devices?
+> +	/* Complete offloaded checksums only after the validated IP header. */
+> +	if (skb->ip_summed =3D=3D CHECKSUM_PARTIAL) {
+> +		if (unlikely(skb_checksum_start_offset(skb) < hlen)) {
 
-Looking at drivers/net/tun.c:tun_get_user(), the virtio_net_hdr parsing is
-invoked before the network header is reset:
+[Severity: Medium]
+Will this comparison correctly catch negative checksum offsets?
 
-drivers/net/tun.c:tun_get_user() {
-	...
-	if (tun_vnet_hdr_tnl_to_skb(tun->flags, features, skb, &hdr)) {
-		atomic_long_inc(&tun->rx_frame_errors);
-		err =3D -EINVAL;
-		goto free_skb;
-	}
-	...
-	skb_reset_network_header(skb);
-	...
-}
+If a TUN/TAP device supplies a packet with a csum_start that points before
+the linear data, skb_checksum_start_offset(skb) will return a negative int.
 
-Because skb->network_header is uninitialized when __virtio_net_hdr_to_skb()
-is called, it retains its 0 value from allocation. This causes
-skb_network_offset(skb) to evaluate to a negative value, such as -64 for
-prepad bytes.
+Since hlen is an unsigned int, this negative offset will be promoted to a
+large unsigned value during the comparison, bypassing the validation check.
 
-The new check then simplifies to start + prepad < nh_min_len. Since prepad
-is typically >=3D 32 and nh_min_len is usually around 20, this comparison is
-always false. This completely bypasses the security check and leaves TUN/TAP
-devices vulnerable to the memory corruption this patch intends to fix.
+This could allow an invalid packet to proceed to skb_checksum_help(), which
+safely aborts the operation but triggers a WARN_ONCE that can cause a panic
+if panic_on_warn is enabled.
 
-While a subsequent patch in the series mitigates the consequence for IPv4 in
-ip_do_fragment(), are other paths like IPv6 fragmentation via ip6_fragment()
-still fully exposed to this bypass?
-
->  			return -EINVAL;
-> =20
->  		nh_min_len =3D skb_transport_offset(skb);
+> +			err =3D -EINVAL;
+> +			goto fail;
+> +		}
+> +		err =3D skb_checksum_help(skb);
+> +		if (err)
+> +			goto fail;
+> +		iph =3D ip_hdr(skb);
+> +	}
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260920004733.6473=
--1-habte.yibelo@gmail.com?part=3D1
+-1-habte.yibelo@gmail.com?part=3D2
