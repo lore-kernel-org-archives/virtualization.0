@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F7B14A49B5;
-	Mon, 21 Sep 2026 14:57:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 554E04AAC6D;
+	Mon, 21 Sep 2026 14:57:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790002643; cv=none; b=sSVAxrwQrscICDHDioscWI9yTC+2sl3KEh1LqvZhkAliMvG+xUqyDJo2CSl6kRgRoFJfgzlgHhTVhSCb10T1WfJaXq33AfdF+yDPHki5/12ijRBYShsKDzw/HZyntcn+Ogmt+nI5LfIQ/276uXaMNhYsTRBq9Sxuy9iKAIpQudo=
+	t=1790002655; cv=none; b=gI9DqQQSaBYZi161VbgBkRCJMezEMMrHIHrRuSwZlaokRu7wEH4KJ7BJ2MfaEpgfrPjlqTXJABRcMD8OasZ4ZNEgtEMG/RWWuD34dNYAIfj4LgKJZ/ZPTHkyHGPAm0t5MpS7ghXZi67rYGuP2W6zDTnY/6D95ChtarpOC4fk+RU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790002643; c=relaxed/simple;
-	bh=V7hH/x2g+kzPIPkAjPiUEdVxrGDoZLCkQ9RcFHB7aBM=;
+	s=arc-20240116; t=1790002655; c=relaxed/simple;
+	bh=3gOyPAAyRM14ppvX9qybOzAOjaNGAodcNKPhkswsOVU=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=BZAYlEQoEt9Tw31ajjdqh7lP7NGelj+CWb7XgXHq0N9ZRAaNDGSZIFN6RXMP1+sNDp4MnefhkXok0A5tT+vTMM4HojxZs2eGet0R/yfw6Jti19vIFZK1rw3u6C6zCB0pI9bOiAQqtd9tKChcc8TLEHpHi8IQg+e+B/oVBe60XBI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bl7KFB4Q; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=etb04JjOvxfvcOvclRqPVE4+ceOtguBgI2Jj22ENldNvERAKMDC/FA7tPr1dW3F9BLpwQ2t2pNjCjXp3G/ktgohJtlLpcwC2s3dStvcxF0ik1J9bVHdjF2VOxs5XMrCerQF9YQ4UYJzD0s5E77RLWfkQvI8pTTBTIZyoAimNLoc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kyBEG052; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bl7KFB4Q"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F4141F000FF;
-	Mon, 21 Sep 2026 14:57:14 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kyBEG052"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C61A1F00893;
+	Mon, 21 Sep 2026 14:57:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790002634;
-	bh=gT17G4nuRQeQGGc/erpzcQ/m2R9h+lB6HcPo9OiizCY=;
+	s=k20260515; t=1790002651;
+	bh=qsVGzYTxLq6Dv3XSWGte/36iDt1vGem0gxVwLaOTeck=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=bl7KFB4Q145SbGq91cVqKExgAWECLyYNIrEo6efofUbI12E8m4s8IcTvhkcl9EF2m
-	 LHyRD9lEO/9bMuHIOoVvhmJ01dlt2SIvZisF9Xk8TwmptmFfureq5swoSIcQP11IBQ
-	 tWqbTfas6bs6UBELL55MkHWEmmzmK0Pd5PnpcoO2yMtv9RzeHaIaf1tDbc+DFFgil3
-	 sJJpok6oEj8OYgygpGsBaSfi+zqaGpzWRegQqRbnMHct1LpLXFH81aLabUqfCT45tV
-	 J1mgdsPmIm83G2j/BvVhigzDurFe8spK1D4nTPdAAk7tOkHtEwqjN+uWbj3yzsGUWq
-	 CKTT1eicczgZA==
+	b=kyBEG052qh3xVqmNRteq6D99wUF5/UPDqE4hhvvtwyrEraePwjKCFE1byOSLVgEJK
+	 9/xfc8SGInVFRrHkXYHVS+PE2g/uQ9t3eynnxt1x8gM0hbPGg2pRCop7NhLWy8UQu8
+	 u5/lYYa3kq8suESCr40XjD+F7rCwaJXCTNc5nYzFXQKH38y1Dy9xXEkjpTkdX1gf8P
+	 EI62N9804GUtBEDEglsebDBLkdYgCw0Fa+otZE86Akkg1E4EfCbW7cerXzg1m65cWW
+	 bYoldwtWc8sTWgjwzthwdQhIWmmIo+86cQPTHo2pGHtWagp7IxnRpyrwhNqnHqP2Po
+	 /D8cAjXHm8DfQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RFC v3 1/2] virtio-net: support receive timestamp
+Subject: Re: [PATCH RFC v3 2/2] tun: support rx-tstamp
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Steffen Trumtrar" <s.trumtrar@pengutronix.de>
-Cc: bpf@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>, virtualization@lists.linux.dev
-In-Reply-To: <20260921-v6-7-topic-virtio-net-ptp-v3-1-3350851c4f88@pengutronix.de>
+Cc: virtualization@lists.linux.dev, "Eugenio Perez" <eperezma@redhat.com>, bpf@vger.kernel.org, "Michael
+ S. Tsirkin" <mst@redhat.com>
+In-Reply-To: <20260921-v6-7-topic-virtio-net-ptp-v3-2-3350851c4f88@pengutronix.de>
 References: <20260921-v6-7-topic-virtio-net-ptp-v3-0-3350851c4f88@pengutronix.de>
- <20260921-v6-7-topic-virtio-net-ptp-v3-1-3350851c4f88@pengutronix.de>
+ <20260921-v6-7-topic-virtio-net-ptp-v3-2-3350851c4f88@pengutronix.de>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 21 Sep 2026 14:57:14 +0000
-Message-Id: <20260921145714.8F4141F000FF@smtp.kernel.org>
+Date: Mon, 21 Sep 2026 14:57:30 +0000
+Message-Id: <20260921145731.1C61A1F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -47,148 +47,145 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
 Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
-- [Critical] virtio-net: VIRTIO_NET_F_TSTAMP hardcodes header length to 32 =
-bytes, corrupting packet data
-- [High] virtio-net: enabling XDP silently drops active hardware timestamps
-- [Medium] virtio-net: virtnet_hwtstamp_set silently ignores TX requests an=
-d violates RX filter API
+- [High] net: info leak via out-of-bounds stack read in __tun_vnet_hdr_put()
+- [High] net: truncation of extended virtio-net headers breaks offloads in =
+__tun_vnet_hdr_get()
+- [Medium] net: incorrect endianness when storing virtio-net timestamp in t=
+un_put_user()
 --
 
-commit 15f4245460ab5be4391d81d6596e3464857cb226
+commit f6ec01e41ac769b584380d489021709a59d0a180
 Author: Steffen Trumtrar <s.trumtrar@pengutronix.de>
 
-virtio-net: support receive timestamp
+tun: support rx-tstamp
 
-This commit adds optional hardware RX timestamp offload support for virtio-=
-net
-by introducing the VIRTIO_NET_F_TSTAMP feature. It expands the virtio-net
-header and provides implementation for ndo_hwtstamp_set and get.
-
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index e34c52d059d39..ef6238cb336b9 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -499,6 +505,8 @@ struct virtio_net_common_hdr {
->  		struct virtio_net_hdr_v1_hash hash_v1_hdr;
->  		struct virtio_net_hdr_v1_hash_tunnel tnl_hdr;
->  	};
-> +
-> +	__le16 tstamp[4];	/* 64-bit timestamp, 2-byte aligned */
->  };
-
-[Severity: Critical]
-Does appending tstamp after the union statically pin its offset to 24 bytes
-(the size of virtio_net_hdr_v1_hash_tunnel)? If smaller headers are
-negotiated, this layout does not appear to match the actual hardware format.
+Demonstrate support for new virtio-net features
+VIRTIO_NET_HDR_F_TSTAMP
 
 [ ... ]
 
-> @@ -2590,6 +2619,9 @@ static void receive_buf(struct virtnet_info *vi, st=
-ruct receive_queue *rq,
->  	if (unlikely(!skb))
->  		return;
+> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+> index 5a302709a68aa..924784771b6b7 100644
+> --- a/drivers/net/tun.c
+> +++ b/drivers/net/tun.c
+> @@ -2157,12 +2157,23 @@ static ssize_t tun_put_user(struct tun_struct *tu=
+n,
+>  	}
 > =20
-> +	if (likely(skb) && likely(!vi->xdp_enabled) && READ_ONCE(vi->hwts_rx_en=
-))
-> +		virtnet_record_rx_tstamp(vi, skb);
+>  	if (vnet_hdr_sz) {
+> -		struct virtio_net_hdr_v1_hash_tunnel hdr;
+> -		struct virtio_net_hdr *gso;
+> +		struct virtio_net_common_hdr hdr;
+> =20
+>  		memset(&hdr, 0, sizeof(hdr));
 > +
->  	virtnet_receive_done(vi, rq, skb, flags);
->  }
+> +		/* hdr has at least the size up to and including the tstamp field. */
+> +		if (vnet_hdr_sz >=3D offsetof(struct virtio_net_common_hdr, tstamp) +
+> +				   sizeof_field(struct virtio_net_common_hdr, tstamp)) {
+> +			u64 tstamp =3D ktime_get_clocktai_ns();
+> +
+> +			hdr.tstamp[0] =3D (tstamp & 0x000000000000ffffULL) >> 0;
+> +			hdr.tstamp[1] =3D (tstamp & 0x00000000ffff0000ULL) >> 16;
+> +			hdr.tstamp[2] =3D (tstamp & 0x0000ffff00000000ULL) >> 32;
+> +			hdr.tstamp[3] =3D (tstamp & 0xffff000000000000ULL) >> 48;
+
+[Severity: Medium]
+Since tstamp is defined as a __virtio16 array, does this need to use
+cpu_to_tun_vnet16() for byte swapping?
+
+Assigning a host-endian value directly using native 16-bit shifts could cor=
+rupt
+the timestamp when read by the guest if the negotiated virtio endianness di=
+ffers
+from the host native endianness.
+
+> +		}
+> +
+>  		ret =3D tun_vnet_hdr_tnl_from_skb(tun->flags, tun->dev, skb,
+
+[ ... ]
+
+> diff --git a/drivers/net/tun_vnet.h b/drivers/net/tun_vnet.h
+> index f4c652b1fa44d..0a7fe1ce889b5 100644
+> --- a/drivers/net/tun_vnet.h
+> +++ b/drivers/net/tun_vnet.h
+> @@ -122,15 +119,20 @@ static inline int __tun_vnet_hdr_get(int sz, unsign=
+ed int flags,
+>  				     struct iov_iter *from,
+>  				     struct virtio_net_hdr *hdr)
+>  {
+> -	unsigned int parsed_size =3D tun_vnet_parse_size(features);
+> +	unsigned int parsed_size =3D tun_vnet_parse_size(sz);
+> +	u8 tmp[sizeof(struct virtio_net_common_hdr)]; // temp buffer with known=
+ size
+>  	u16 hdr_len;
+> =20
+>  	if (iov_iter_count(from) < sz)
+>  		return -EINVAL;
+> =20
+> -	if (!copy_from_iter_full(hdr, parsed_size, from))
+> +	/* copy parsed size data to the tmp buffer, otherwise compiler will com=
+plain */
+> +	if (!copy_from_iter_full(tmp, parsed_size, from))
+>  		return -EFAULT;
+> =20
+> +	/* now copy the relevant data from tmp to hdr */
+> +	memcpy(hdr, tmp, min(parsed_size, sizeof(*hdr)));
 
 [Severity: High]
-While virtnet_hwtstamp_set() prevents enabling hardware timestamps if XDP is
-already loaded, does the reverse sequence leave the system in an inconsiste=
-nt
-state?
+Does this artificially limit the copy to exactly 10 bytes?
 
-If a user enables hardware timestamping first, and then loads an XDP progra=
-m,
-virtnet_xdp_set() does not check vi->hwts_rx_en. Once vi->xdp_enabled becom=
-es
-true, receive_buf() will silently drop all hardware timestamps without
-returning an error to userspace.
+Because hdr is passed as a pointer to struct virtio_net_hdr, sizeof(*hdr)
+evaluates statically to 10 bytes.
 
-[ ... ]
-
-> @@ -6212,6 +6268,61 @@ static void virtnet_tx_timeout(struct net_device *=
-dev, unsigned int txqueue)
-[ ... ]
-> +static int virtnet_hwtstamp_set(struct net_device *dev,
-> +				struct kernel_hwtstamp_config *config,
-> +				struct netlink_ext_ack *extack)
-> +{
-> +	struct virtnet_info *vi =3D netdev_priv(dev);
-> +
-> +	if (!netif_running(dev))
-> +		return -EINVAL;
-> +
-> +	if (!vi->has_tstamp)
-> +		return -EOPNOTSUPP;
-> +
-> +	config->tx_type =3D HWTSTAMP_TX_OFF;
-
-[Severity: Medium]
-Since this overwrites the requested tx_type without returning an error code
-like -ERANGE, will this silently drop TX timestamp requests and mislead
-userspace applications into assuming their TX configuration was applied?
+Callers like tun_get_user() might allocate a larger structure, but they will
+only receive 10 bytes, causing extended virtio-net header fields (such as h=
+ash
+values or tunnel offsets) to be silently dropped.
 
 > +
-> +	if (unlikely(vi->xdp_enabled))
-> +		return -EOPNOTSUPP;
-> +
-> +	switch (config->rx_filter) {
-> +	case HWTSTAMP_FILTER_NONE:
-> +		WRITE_ONCE(vi->hwts_rx_en, false);
-> +		break;
-> +	case HWTSTAMP_FILTER_PTP_V1_L4_SYNC:
-> +	case HWTSTAMP_FILTER_PTP_V1_L4_DELAY_REQ:
-> +	case HWTSTAMP_FILTER_PTP_V2_L4_DELAY_REQ:
-> +	case HWTSTAMP_FILTER_PTP_V2_L4_SYNC:
-> +	case HWTSTAMP_FILTER_PTP_V2_EVENT:
-> +		WRITE_ONCE(vi->hwts_rx_en, true);
-> +		break;
-> +	case HWTSTAMP_FILTER_ALL:
-> +	default:
-> +		config->rx_filter =3D HWTSTAMP_FILTER_NONE;
-> +		return -ERANGE;
-> +	}
-
-[Severity: Medium]
-When specific PTP RX filters are requested, the driver enables vi->hwts_rx_=
-en,
-and receive_buf() then unconditionally reads timestamps for all packets.
-
-Since the driver effectively implements HWTSTAMP_FILTER_ALL semantics,
-shouldn't it accept HWTSTAMP_FILTER_ALL and upgrade specific PTP filters to
-it, rather than rejecting it with -ERANGE?
-
-[ ... ]
-
-> @@ -6922,6 +7038,12 @@ static int virtnet_probe(struct virtio_device *vde=
-v)
->  	else
->  		vi->hdr_len =3D sizeof(struct virtio_net_hdr);
+>  	hdr_len =3D tun_vnet16_to_cpu(flags, hdr->hdr_len);
 > =20
-> +	if (vi->has_tstamp)
-> +		vi->hdr_len =3D offsetof(struct virtio_net_common_hdr, tstamp) +
-> +			      sizeof_field(struct virtio_net_common_hdr, tstamp);
+>  	if (hdr->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) {
+> @@ -155,14 +157,17 @@ static inline int tun_vnet_hdr_get(int sz, unsigned=
+ int flags,
+> =20
+>  static inline int __tun_vnet_hdr_put(int sz, netdev_features_t features,
+>  				     struct iov_iter *iter,
+> -				     const struct virtio_net_hdr *hdr)
+> +				     const struct virtio_net_common_hdr *hdr)
+>  {
+> -	unsigned int parsed_size =3D tun_vnet_parse_size(features);
+> +	unsigned int parsed_size =3D tun_vnet_parse_size(sz);
+> +	u8 buf[sizeof(*hdr)];
+> =20
+>  	if (unlikely(iov_iter_count(iter) < sz))
+>  		return -EINVAL;
+> =20
+> -	if (unlikely(copy_to_iter(hdr, parsed_size, iter) !=3D parsed_size))
+> +	memcpy(buf, hdr, parsed_size);
+
+[Severity: High]
+Could this copy leak uninitialized kernel stack memory to userspace?
+
+Callers like tap_put_user() and tun_put_user_xdp() allocate a 10-byte
+struct virtio_net_hdr on the kernel stack and pass its pointer to
+tun_vnet_hdr_put().
+
+Because tun_vnet_hdr_put() casts the 10-byte pointer to the 32-byte
+struct virtio_net_common_hdr:
+
+    return __tun_vnet_hdr_put(sz, 0, iter, (struct virtio_net_common_hdr *)=
+hdr);
+
+and parsed_size can be up to 32 bytes (depending on vnet_hdr_sz), this
+memcpy could read 22 bytes past the end of the 10-byte struct.
+
 > +
-
-[Severity: Critical]
-Does setting the header length to 32 bytes unconditionally here break the
-dynamic header sizing for other feature combinations?
-
-If a device negotiates VIRTIO_NET_F_TSTAMP and VIRTIO_NET_F_MRG_RXBUF but
-not HASH or TUNNEL, the hardware sends a 20-byte header, but the driver now
-assumes 32 bytes. Will this cause the receive path to consume 12 bytes of
-payload as part of the header, and the transmit path to push 12 bytes of
-padding into the device, leading to data corruption?
-
-> +	vi->hwts_rx_en =3D false;
-> +
->  	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_UDP_TUNNEL_GSO_CSUM))
->  		vi->rx_tnl_csum =3D true;
+> +	if (unlikely(copy_to_iter(buf, parsed_size, iter) !=3D parsed_size))
+>  		return -EFAULT;
+>
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260921-v6-7-topic=
--virtio-net-ptp-v3-0-3350851c4f88@pengutronix.de?part=3D1
+-virtio-net-ptp-v3-0-3350851c4f88@pengutronix.de?part=3D2
