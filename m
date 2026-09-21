@@ -1,131 +1,233 @@
-Received: from mail-ed2-f12.google.com (mail-ed2-f12.google.com [74.125.228.76])
+Received: from mail-wm2-f12.google.com (mail-wm2-f12.google.com [74.125.225.140])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8FC302E7631
-	for <virtualization@lists.linux.dev>; Mon, 21 Sep 2026 03:31:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.228.76
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789961485; cv=pass; b=fVywTowQL8BegrJcs2a7hNvN0Ijq+VndaX/8Cha4mWwZxxTa7xwX34npucI3dM1+Mt2/EdLGiRjDVW6q107BhQIKy6LjHYsUowCDc9KLygTiEw5O4y97trRXjP0Ha/EkRQaT27wfpO0OhTdf1Sn54vAheLgWFjD2QPEVOUKB/9k=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789961485; c=relaxed/simple;
-	bh=1JgJndpiQjTJjF4DQFibfiYrBkEpUhcO1uo3E1MTk/w=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=bquGRLZNOUBLYcH3Sddk9O1yMcUo+q3tN56Hld4bFP+Bz6jxbyC65R61QF6/xxU3i56kzI56lxYilv/TTnwzr4avVRbzL4E2rDA8/1Fr/gf2rv6SN1yIUh5+ThKBTFshCNQcTzZBqBo0lRLd2I9GFUsaW3SYtiswjxlKUAGWziA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=RiLSjEYd; arc=pass smtp.client-ip=74.125.228.76
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DC9E4503FA
+	for <virtualization@lists.linux.dev>; Mon, 21 Sep 2026 08:23:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.140
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789979028; cv=none; b=faPAxKOttEaBcpqJhfvoEF7FeOIzOJFePzwmqS3Ps62GKj6jIt4S+He3uR4aTwWrAJybaxARx8TIslK3tmVIRGgAj6huA0xwh7oFiGms2IhY5eJvvLILMHABs9cVKUS8BLnkv13B6aOkhV0zAIrCRAQ99vbq0BCYeKxFmBaYO8M=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789979028; c=relaxed/simple;
+	bh=xcjHNliDAAlJxE4i6y1GMT1/Vnv55RTh/tAGPwCPNZI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=nfrJvmYagfdMOprqWrsdK/2tnurbJ124WEt8onExRY3auJvA+k5jhXbAOJrbcYsDobn4qrsqa8npQnMwD5PrbAZ9RrM4MQQJUz0D8Nphnk7rU3OGIzPc8+75bufnsiePBWTiCBkVvX5GnYidiBxtIgkwgerA3GiWKMIwb1hMbSI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=g6R2pyQs; arc=none smtp.client-ip=74.125.225.140
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="RiLSjEYd"
-Received: by mail-ed2-f12.google.com with SMTP id 4fb4d7f45d1cf-6a9ab2a135dso3246176a12.1
-        for <virtualization@lists.linux.dev>; Sun, 20 Sep 2026 20:31:23 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1789961482; cv=none;
-        d=google.com; s=arc-20260327;
-        b=nQIIy2zEZP4a9oJKCzDDMuTt7n58lIKskdVkNXEZT/3a5S5Q+6AwLXSEk/HPkdmGk/
-         CmIOC5dE8AFbabzzzHKlj+F8GVS1IQ3QKY7gUY4FckdzVHrTgOHs02h9AfpByP4jSJT0
-         9HUQHk5tWG6kSqDRIlv2h+ePzEdR08NctA1XQz6FjUS09/cnmsdXfGrVSJkbIAEdyChQ
-         ji5IFBg7rPyOj5E3wRnFkqlhn+vZuTCFWR/j/mJu+sHMuGIiMVw2qP+4TypUWHRqaTJP
-         FaKYPabYB5zeBjm/EbTbmfNQBjWRh2YudIUoppGHq33UALrROPxLBInRsPDNr1Nus3Zi
-         wiSg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=1JgJndpiQjTJjF4DQFibfiYrBkEpUhcO1uo3E1MTk/w=;
-        fh=Fr1UJgmzSJDcS/2fpL1aA+BcMHUJx95ecRvnz45Q5YQ=;
-        b=N5UcUblgqHg+SLMJOVAcJ5ecz1u8iFGpdI5V0hT0x09ub+M8bWEBiL6WzSPYZCcpxQ
-         pmR+6ZIVcPu8igeCQ08VhdnDwKFvAB22POhbpvo3d12j6wYQll0KoMFHhyD1tWQVbDMv
-         vQmfD8WUeTRBLYJQYHKdscuZmIC44j6p2MXQo2HWTjXNBpKsyoqEct8JYNfIO9Cd/N1O
-         QEHnzLyGmiASVBugb++yBosTu/sntqciaX1hNpl0x+2G43/1VPUipGraOQJninRPpyrD
-         W60WV6HksC2Ugt1KC9x2C0oqG6SosECqbFzdD9Y1vhDWPTte7NJHSW1nQN5YdQKT7O7+
-         TYtw==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="g6R2pyQs"
+Received: by mail-wm2-f12.google.com with SMTP id 5b1f17b1804b1-49b912d3931so19629825e9.3
+        for <virtualization@lists.linux.dev>; Mon, 21 Sep 2026 01:23:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1789961482; x=1790566282; darn=lists.linux.dev;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=1JgJndpiQjTJjF4DQFibfiYrBkEpUhcO1uo3E1MTk/w=;
-        b=RiLSjEYdPu5omADaMBZS/9YLX5kZkj9gO5rjW/VD+96biz1hgSuAiGZuKq4CNvPGtT
-         /0X4Y6MA3KpsUr+n5Odv2Ooj8CAZEkwiee6uqE8wlP7DUxYw0yEeXK7FyBI85aR6jHGy
-         /ZwtcieBfUVSJ7FiTJOmJMdRgn7mcpIdsai1nu2ubiJ+gmEmff8OVe0+D07vvoUnVO3A
-         bKiC46cQ0VZV2DPng8/5eG9FBeCT83yYHffvhmEiPEVUYHhaRxBTBETnHI7GsaupbCb1
-         0SnWWtH/WCrlNFt3yF2uSwcqjUH2ZAFKCKaxrsIshoDQnTl6hm0lGENufq7xTW5T5X93
-         YTqg==
+        d=suse.com; s=google; t=1789979023; x=1790583823; darn=lists.linux.dev;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=qVkcwRd6JhJoKhW863CUio5f3wgxadePOqahgAJN2pE=;
+        b=g6R2pyQs2rAn+XgFDFpV/4j523oPRKCUWOIMSDp781awx7fAiVP6qtxZCRixHRzbJr
+         keKHhCbCJqbgvI0oRTlIPlpCrevVPkxDdaZiMw1nyevCHK+n5H0sPglpl/7NMAU9+vvw
+         2CVjfTtTXyOzy6FUWVIWhhSJoCAi6skpggXiPasA3qlBVoe4rc0vQXxL20fUdUHbNoJV
+         UnWkrP9vxAw9dMH1pcRdQwJiiCn3MX4ejYgswE8JLUGnVF9iNHVh+dxeyllgvXMG0XEW
+         t1frDKQ06F3gObXgZCvZZznMDj+PzF64VxQDbtn4WWmUG8y0/8FEcEXLlziyxBGmuwFW
+         i+HQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789961482; x=1790566282;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=1JgJndpiQjTJjF4DQFibfiYrBkEpUhcO1uo3E1MTk/w=;
-        b=Xo3Qf2nUttNTNabY5GVpH8JoWltwGybnOxFebiPIRn6CtPirQXLTy+1yz8ajBvwABK
-         +V9zSgw2XS7+qim0WYF3Pn4Avoclxw8b1xmgitX7O11IhyqoN/sLXriD6fLixxqU6wyF
-         gqpyTqEMdPU4TGkbvmzhk5kX8VD7sN8mTg4le3nvZZ4UM2vH72eOaPbeprl5Gp7dved2
-         51m76+dl3lY8hsEG6RvWAm9keUSsj27/k+kiDaNu+qvEhNr2XCqbgw3PlOm3Bwu4oSJ7
-         dWGs8NJ3+Bpv2siIzK8zy4RCXJVPX9JnWS56jpFc0ce7zj0Wzs16t/k7FTQ2mZ5Gghu5
-         gp9A==
-X-Forwarded-Encrypted: i=1; AKwUvBz3MMX8EL5TPF0uupgCx53IQiCLp1fXmSeFFrkU1qBUUTOXEU/B0PdPbJRDNwTy4CNCXSuMogZ7xU+cCZBmOw==@lists.linux.dev
-X-Gm-Message-State: AFuF++lcC9NBpOvQfyYJSNt49QYgV17ANoN8jJrpV1QazOeEcXDT/L4o
-	mwrEd16yltIxOTmpeXggn13ZyZPgnHOIEY/CvwCD+lNLCBiRln7YtashAomtiMvZRx7xoB55H+d
-	lEdG50ut1sEjTF3J3pwpCjpS0LRYQJgZndKWP/GKUVA==
-X-Gm-Gg: AYBFou2njFnN0RAD6pvEFD+qtL2JQLheFXRqBa3Pk8bdjGD9wJciD5+RoRNlCejLQ3e
-	fT3/H+VX/E4DUUcFSJ8vBQaowSQmlGSfkDfuPM8Q9zRlKh5Sav/6H+AboE7Yyhm8i9s2VkEeTwu
-	qoO6qgJHd+p+hbeAPcw0hFNE5g2F8GDt+8e2Bv4yYhSFO+FaCb7StXpnzLW7IXMsd0pns89WKBa
-	XXEX623zZgt5s8dJsw+rSuF3RQW5k6To9uzMS8VdAv+5nWXxxfkrsA00Vg3IX2knZMcJlYv47Yl
-	uvxmNP8UKTEk9HBzkwaBLXTaeSRqN1892EJeItQcMTj1W0EuG/ptjqJXUkWAeGZiIh49g3HiuXT
-	ffbb2k7cdL7cp6Q==
-X-Received: by 2002:a05:6402:4394:b0:6a9:ab7f:c8f with SMTP id
- 4fb4d7f45d1cf-6aa54611e57mr5885453a12.17.1789961481999; Sun, 20 Sep 2026
- 20:31:21 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1789979023; x=1790583823;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=qVkcwRd6JhJoKhW863CUio5f3wgxadePOqahgAJN2pE=;
+        b=JO7HQzrLhgqFMsiFoFLvlZFPU9nUqdpf77MrDkCStSoUuu4k1HlA4n7yieUxVblxbT
+         v93DUdnWGToWAVP+OUXUaz+G00Z67iHoyyH+6J7RBODhREI+CelQV4WHZ9BEkbiroN6B
+         AhjLkoBLMHDKjHrvxGoooIuBbFOs+o5v2T6sIlQ6od6VTkT50lrOMjDYxtaIFGHRjOA3
+         1EY9m0FeuvEL/3sp26TGW1B8r3MnybGBVRr73ej26JJsJgRHghctGP0za8J6GaH93CMB
+         +r9RHvjex/9yeWK1Y0T43mtHJZQTFXm4qs1hpHwgd9Fe3SkMfl7s/LM836ltcOOIf3Af
+         vbcQ==
+X-Forwarded-Encrypted: i=1; AKwUvBw6uBiPHNqsKb0mmpiCE4q03uwQ8vZt/l7h6W0FCo8YKigPm0tzO3Kocxa+92wCgvZoDriP6rRadc4jui1isg==@lists.linux.dev
+X-Gm-Message-State: AFuF++k3V3TVygia0FZ6IoU/QMhBOAddIDEJgQkLCpFHYaYkB+W5cBx6
+	R/Mf4H/1FT5+D8LhLpMXqa8sPoSbMrbpPANNPGqkXz1G12CoNfCN2Oj7dox+LIK6Ddg=
+X-Gm-Gg: AYBFou3PL8cl0hnwcslytm//FLfJPbMjhr4/xEgtUiRMPiMEePuNphhMalbXQe6w+93
+	sizX+sFUTjvDGNS6LHuD5FoMhmIUDYe1Af4h5Y8NoGOuKEqdVo5UwB3q1NYKE/5bpN0ojbxrL50
+	Hdevnw4JDBTC9lhC/2kLntDYBAljl8scXAbgyWOJFLn/jo/qM6UeKQ0mqUq9iZ1id8m1vSpHQit
+	pDlVbCa6I+4UfOrxzQ561kgT6CnlDQtGwTWDyb3NXB1ivq5DK2tUKMKxQu5AXpilQfTMr4qJc1O
+	Wc8XGSijfoaS+oJR4E93/GtXuwIWYq9MlEJfboY3ug7t7oUMDVXsWV4mAEfHsY5D0QMNpU6afSR
+	9/HEdegq1rSXB9mf3ZxCnFQ8VOIlvfRTTMdQULzQNmIV2wIZ312K7yz7S0oGLNDPggtKCNXGu12
+	8S2E71/oskwx/p/KR2OQVYIvKUtwJcCh3Iri7ALgeGhz4N6mfHMnhK+MNxwx9pz7c+1JGfYdK+J
+	Q==
+X-Received: by 2002:a05:600c:4e14:b0:49e:7cfc:a9b7 with SMTP id 5b1f17b1804b1-49fc5735f17mr121597825e9.18.1789979023335;
+        Mon, 21 Sep 2026 01:23:43 -0700 (PDT)
+Received: from pathway.suse.cz ([176.114.240.130])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49fc585920fsm582435985e9.4.2026.09.21.01.23.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 21 Sep 2026 01:23:42 -0700 (PDT)
+Date: Mon, 21 Sep 2026 10:23:40 +0200
+From: Petr Mladek <pmladek@suse.com>
+To: Zack Rusin <zack.rusin@broadcom.com>
+Cc: "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Ajay Kaher <ajay.kaher@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>, x86@kernel.org,
+	Joel Granados <joel.granados@kernel.org>,
+	Baoquan He <baoquan.he@linux.dev>,
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"H . Peter Anvin" <hpa@zytor.com>, virtualization@lists.linux.dev,
+	bcm-kernel-feedback-list@broadcom.com, linux-kernel@vger.kernel.org,
+	John Ogness <john.ogness@linutronix.de>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Sergey Senozhatsky <senozhatsky@chromium.org>,
+	Kees Cook <kees@kernel.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Mike Rapoport <rppt@kernel.org>,
+	Pasha Tatashin <pasha.tatashin@soleen.com>,
+	Pratyush Yadav <pratyush@kernel.org>,
+	Dave Young <ruirui.yang@linux.dev>,
+	Jonathan Corbet <corbet@lwn.net>, Bo Gan <bo.gan@broadcom.com>,
+	Brennan Lamoreaux <brennan.lamoreaux@broadcom.com>,
+	kexec@lists.infradead.org, linux-doc@vger.kernel.org,
+	Stephen Brennan <stephen.s.brennan@oracle.com>
+Subject: Re: [PATCH v1 4/4] x86/vmware: Run panic diagnostics before kdump by
+ default
+Message-ID: <arDpjCVbUFcdwq1A@pathway.suse.cz>
+References: <cover.1788414671.git.zack.rusin@broadcom.com>
+ <7487011dfb95aadda9515b22a5852680df1982c5.1788414671.git.zack.rusin@broadcom.com>
+ <aquttpMVKX8e6zGB@pathway.suse.cz>
+ <CABQX2QPJVg-dZB9f4ydRU_5W7nyWwVCQtDoRGoe1+9cA7wyUDw@mail.gmail.com>
+ <bc0bdd14-5e6a-0676-cd04-14fb0bb93cd5@igalia.com>
+ <CABQX2QMDNHcKotEa_t9Y37L+uHhV-CfqSR2vcRpNT1c2O9C_2Q@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260916-remoteproc_virtio_map-v1-0-dac8c5eb4aa9@valla.it>
- <aq1sooGCYUiWbhMH@p14s> <aq453yukMHiNb1jp@bywater>
-In-Reply-To: <aq453yukMHiNb1jp@bywater>
-From: Mathieu Poirier <mathieu.poirier@linaro.org>
-Date: Sun, 20 Sep 2026 21:31:11 -0600
-X-Gm-Features: AcwNN1W3qE53RFtHuPGOztjJSdwljZIvy9Wk3z8AN3NJ17iDKQARaTMy5b-3hH0
-Message-ID: <CANLsYkySF+eF-FURnnT6UJv7P5Sg2HdfMSBZnZy_BLyCMvuofw@mail.gmail.com>
-Subject: Re: [PATCH RFC 00/12] remoteproc: add support for any virtio device
-To: Francesco Valla <francesco@valla.it>
-Cc: Bjorn Andersson <andersson@kernel.org>, Kees Cook <kees@kernel.org>, 
-	"Gustavo A. R. Silva" <gustavoars@kernel.org>, Marek Szyprowski <m.szyprowski@samsung.com>, 
-	Robin Murphy <robin.murphy@arm.com>, Mark Brown <broonie@kernel.org>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Frank Li <Frank.Li@nxp.com>, 
-	Peng Fan <peng.fan@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>, 
-	linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	devicetree@vger.kernel.org, virtualization@lists.linux.dev, 
-	imx@lists.linux.dev, iommu@lists.linux.dev, 
-	linux-arm-kernel@lists.infradead.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CABQX2QMDNHcKotEa_t9Y37L+uHhV-CfqSR2vcRpNT1c2O9C_2Q@mail.gmail.com>
 
-On Sat, 19 Sept 2026 at 01:33, Francesco Valla <francesco@valla.it> wrote:
->
-> Hi Mathieu,
->
-> On Fri, Sep 18, 2026 at 10:53:54AM -0600, Mathieu Poirier wrote:
-> > Hi Francesco,
+On Fri 2026-09-18 19:00:13, Zack Rusin wrote:
+> On Fri, Sep 18, 2026 at 10:26 AM Guilherme G. Piccoli
+> <gpiccoli@igalia.com> wrote:
 > >
-> > I have started reviewing this set but given the size and implications, it will
-> > take me a few days to get through.
->
-> I'm going through the review done by sashiko - would you prefer me
-> sending a v2 with the trivial errors already ironed out before doing
-> a complete review?
->
+> > Hi Petr, Zack - thanks for CCing me!
+> > Some comments below:
+> 
+> Hi, Guilherme.
+> 
+> Thanks for looking at this and for adding Stephen. I'll keep you both copied.
+> 
+> > On 18/09/2026 00:23, Zack Rusin wrote:
+> > >> [...]
+> > >> Maybe, we should start with something simple, and introduce
+> > >> one more panic notifier as a start. It might be called either:
+> > >>
+> > >>   + "panic_hypervisor_list" because "crash_kexec_post_notifiers = true"
+> > >>     seems to be primary set on hypervisors.
+> > >>
+> > >> But I would rather make it more generic and call it
+> > >>
+> > >>   + panic_pre_crash_kexec or panic_pre_kdump because there might be
+> > >>     more notifiers which are either 100% safe and useful or are worth
+> > >>     the risk before calling crash dump.
+> > >>
+> > >> We could put there x86/vmware notifiers as a start. And we could later
+> > >> move there other important notifiers.
+> > >>
+> > >> How does that sound, please?
+> > >
+> >
+> > It's a good idea, IMO. We could start with this, Zach commented some
+> > implementation details below...and after it gets merged, we could move
+> > other hypervisors that currently set "crash_kexec_post_notifiers" to
+> > this list and eventually, unexport this symbol. We should avoid having
+> > code forcing this parameter, as Petr said, many notifiers are executed
+> > if that is set.
+> 
+> Agreed. The v2 I'm working on drops VMware's assignment to
+> crash_kexec_post_notifiers and leaves the existing setting unchanged.
+> 
+> > (I'm CCing Stephen Brennan here, I recall he had problems with this
+> > being auto-set, we talked about that in the panic notifiers big
+> > discussions in the past heh)
+> >
+> > The only thing I'd like to suggest: I think we should have a parameter
+> > that disables running this list, which would be the opposite of
+> > "crash_kexec_post_notifiers".
+> >
+> > I would implement it as something like: "postpone_pre_kexec_notifiers"
+> > or something like that. The parameter would basically "move" this list
+> > execution to the same time as the current notifiers, gating them to
+> > "crash_kexec_post_notifiers". This way, we'd allow users to debug kexec
+> > failures maybe related to the "early" notifiers. WDYT?
+> 
+> I'm happy to add that as a separate patch if Petr agrees. With it set,
+> the new list would follow ordinary panic-notifier ordering relative to
+> kdump: it would run before a successful transition only when
+> crash_kexec_post_notifiers is also set. If panic reaches the late
+> site, the list would remain eligible to run there. I'd keep that site
+> after sys_info() and before the kmsg dumpers so the log includes the
+> additional notifier and panic_print output available at that point.
+> 
+> I've called it panic_pre_kdump_postpone after the list, but I'm fine
+> with whatever name you and Petr prefer.
 
-We can wait if the errors are trivial.
+I do not have strong opinion whether we need the new parameter. It is rather
+a call for kexec/crash_dump maintainers.
 
+But if we added it, we should make it clear that it is intended for
+debugging of kexec/crash_dump failures. And that it might prevent
+correct handling of the crash on hypervisors side.
+
+> > > [...]
+> > > I think that without that default though, x86 oops_end() can enter
+> > > crash_kexec(regs) before reaching panic(), for example with
+> > > panic_on_oops=1. To cover that path too, I'd call the chain from
+> > > __crash_kexec() after the image check and register capture, under the
+> > > existing kexec lock. A second call in vpanic(), immediately before
+> > > kmsg_dump_desc(), would cover the fallback path. And I think a
+> > > set-once guard would prevent duplicate or recursive dispatch.
+> > >
 > >
-> > Thanks,
-> > Mathieu
+> > Regarding this, 2 things:
 > >
->
-> Thank you!
->
-> Regards,
-> Francesco
->
+> > a) I think you could change kexec_should_crash() to "return 0" also in
+> > case the new list is set to run, the same is done currently for
+> > "crash_kexec_post_notifiers". Makes sense?
+
+Honestly, it does not make sense to me ;-) My understanding is
+that the new list would allow to run kexec/crash_dump a safe
+way under a hypervisor. So, it should be safe to do it
+directly in oops_end().
+
+> I'd prefer to leave kexec_should_crash() unchanged. The direct oops
+> path supplies the exception registers to crash_kexec(regs), while
+> routing it through panic() would capture later state instead. In my
+> early v2 tests, the vmcores from the direct-oops path retain the
+> original fault registers in the crash notes. Some crash callers, for
+> example uv_nmi_kdump(), also bypass kexec_should_crash(). Calling the
+> chain from __crash_kexec() after register capture covers those paths
+> without changing their routing, and the shared once-only guard
+> prevents duplicate or recursive dispatch.
+
+Makes sense to me.
+
+> > b) Well, does this whole panic diag thing you're implementing here aims
+> > only at x86 guests ? Or would it be possible to run, for example, arm64
+> > guests? Asking this because in x86 and some other architectures (but not
+> > arm64[0]), it's possible to override machine_crash_shutdown() handler,
+> > and run things prior to a kexec. Take a look on how Hyper-V does that on
+> > arch/x86 - this could be just what you need, except if you plan to have
+> > it for all architectures heh
+> 
+> I'd like to support arm64 guests in the near future, but I figured
+> especially for review sake to limit our client in this series to x86.
+> So I prefer the common chain Petr proposed: as the thread you linked
+> shows, arm64 deliberately has no such override, and the chain gives
+> other clients a place to migrate away from forcing
+> crash_kexec_post_notifiers.
+
+Sounds good to me. Let's start simple. ;-)
+
+Best Regards,
+Petr
