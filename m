@@ -1,448 +1,277 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF13351C33C
-	for <virtualization@lists.linux.dev>; Mon, 21 Sep 2026 22:44:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0626C47D442;
+	Mon, 21 Sep 2026 23:30:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790030693; cv=none; b=MthJJbw6Mz0tZoXhIcLCUw+y8dV/M23e8M6jXUW46I/0fos3zTiO/UKrzUBklppvBwlknUOP1SBmPRgXiZg8dDdNiC5IsV+w0Ry7wonMw4KrTgQ2nyaky8I9NNioEbGAqU4yQGAxY6Vxp78PA8GPfalTyg/BWAk8UECsIHnz2cw=
+	t=1790033435; cv=none; b=IxMCibVcfNvUjvNEaXdc8O2UTl4QG58GF9IpWYeMMcsy7E+/Xr1k3BowNXTQckjkIHAWFlAd4llUyOeOluGSY2jxFO1sMuN/papAa+pQ2UDy/dkmsEZaJUBP2S6whV8YDbelVfgPlOowkfXHBPHE/kVy03pWgJg1GBikFbjXS34=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790030693; c=relaxed/simple;
-	bh=b/w2QCTzhqBiXQb4AzjN2M3mM1Ujft2Q/i3P0al6uYM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=P841JswjWs06Ha2EqQGj9Jk7d3ILT/hM9RDMvtqUbSE5EpQkVObUF8KPblLH9BfyBFKEh96OBNAVEZcBs5tiRt7rcu3b1ixL0nSkQGWK11g9BsCMuxdl0Hf4qELPuGsi8wyTlLxYQHcdgSx18EquqS+IXW6nR7glErmOvaHgZcE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BnY1oOkU; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1790033435; c=relaxed/simple;
+	bh=b7p82YLJXnLVxHzjv3zA2aepK0Y2viauWgsFonjsNew=;
+	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=Rpgk+mrOgsNJxu+n8ix1icuS/lzH6DWG6SUObJpTCYq+kdbKWMBFdXc5NZns/iShaPYjxg41+uIqv6/aFT2ZWnJ7CuFt5NcGZdIgx4S2IigGzt3m+V/G39uMLAy6PQOfDjYsNKqEx5lJ9WWoyzEg1rf0djPvwaJb59/u7Wv+z6A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=D69MFRyd; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BnY1oOkU"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1790030690;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=TPgxbULSS/zvX6qwagU7VAmjM6bHsH7Jq1qgcjiY+lQ=;
-	b=BnY1oOkU2U40815Ky4qbsiDJVj2nOHyTa8Pc0G10PGZqW+Dorz3B2G+jCQLKiFowcUbMSi
-	Kx8tdNPlOjNz4XdvgtOKigqpFzWqZI7O38K66djV4LN1R5rqozw90YAzqlnMgKlUTTwdOg
-	Lv0i3LazPpXec+5Pp/FD484O2g1Wm/8=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-460-eF66NP6RNcWb-7CvfyZblQ-1; Mon, 21 Sep 2026 18:44:47 -0400
-X-MC-Unique: eF66NP6RNcWb-7CvfyZblQ-1
-X-Mimecast-MFC-AGG-ID: eF66NP6RNcWb-7CvfyZblQ_1790030686
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4994d67d0e3so27045315e9.2
-        for <virtualization@lists.linux.dev>; Mon, 21 Sep 2026 15:44:47 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790030686; x=1790635486;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=TPgxbULSS/zvX6qwagU7VAmjM6bHsH7Jq1qgcjiY+lQ=;
-        b=d3RNimaiABekdmBmqS/ldQMLhSive7UhAtcRm9tQYk5J/tJfHQZ2a3GbDJDGLx4Mi8
-         v5Krz73Zqev2Puzo1eSE2bz3HQKwWE7hNc/ba14sKkzCfuIEfucCo1BstYCNiXvhQ3Ql
-         Mklj3M9H+RjMaHRzX+lu3c/mwgEJOLzTcKerORxV6BGmOqnA74plIoSHBU2PmFWzvBII
-         osMLardYCsm4OT7UM9uDYGjRnJq3Lk2OCKeRJbEy91rfOft1je4vAzWvAW2tKQmBuymC
-         A+W2XD9TrrQ0Lzz5+CZzLvjraijw+u55/chi97OK4uvR9w8q+nVRONV3HPdhZymxu6gh
-         yBIQ==
-X-Forwarded-Encrypted: i=1; AKwUvBxgmai3OrGAH2VcXJPU0PZ3IK+PQQClrbUJv+qnWcIRY7DNZGAbjQE4N730JEgXt9HJfDPQiBOXQ7a4+q+Z8g==@lists.linux.dev
-X-Gm-Message-State: AFuF++moKjVuroMsum8kh6Pkn4TZNgj1qolExEYaqzMhyMUEB27DrCms
-	+BF/kvVqbCn8Zg5Qd0mEjGGv2bYivMyiquft+93mE/eOKGK6INn1JOyr6o0HlD5F27QsS4JZS3F
-	68SVlvPgByHWYrEP+XiUT5tI58vupHN/AlSDq7Lf3kOmcPItmFmVHO35DcOWf0RSFV95/
-X-Gm-Gg: AYBFou1K9ZlhlXhTRYIicWOGYccVXJsAWWyWnWdE8zz/6X0V453cbuSnAyWX7nxqCZN
-	tcluq0OGEc8QmUwU/QSW5xzNIkhlKIVCSKwXMgu/U44mcUho7MiloH3yW+h2wZYgszBzyWUGk+i
-	hVcwXF3x7p0nAkNll/Y7J5MEEoIzdpPAnutlnolH3c/tVI1CCoq0mOpBLPiOVhYdly2kRhYnvxI
-	Y2W0tD0b8HVHBP2fZ3nGzUa9IkeM6zaTkLQ1TXtqm9D3ZBmuerQXVRA3VIY2eZS0f22kXMi7dLp
-	4KFtBJr4T7uwDq+/fL3IAJfeA8SF95tL6GBIR038Xfukg67cMp7/xqvxZkDNPO8Ulc5XpQoNrEM
-	emzFM/EOT6gAMDPb4UvTxlGE=
-X-Received: by 2002:a05:6000:26c2:b0:487:b32:9d6f with SMTP id ffacd0b85a97d-4871e21beabmr19615277f8f.22.1790030685807;
-        Mon, 21 Sep 2026 15:44:45 -0700 (PDT)
-X-Received: by 2002:a05:6000:26c2:b0:487:b32:9d6f with SMTP id ffacd0b85a97d-4871e21beabmr19615238f8f.22.1790030685299;
-        Mon, 21 Sep 2026 15:44:45 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-79-236.inter.net.il. [80.230.79.236])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48862731bf9sm26579f8f.1.2026.09.21.15.44.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Sep 2026 15:44:44 -0700 (PDT)
-Date: Mon, 21 Sep 2026 18:44:40 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Paulos Yibelo <habte.yibelo@gmail.com>
-Cc: netdev@vger.kernel.org, richard@nod.at, anton.ivanov@cambridgegreys.com,
-	johannes@sipsolutions.net, willemdebruijn.kernel@gmail.com,
-	jasowangio@gmail.com, eperezma@redhat.com,
-	xuanzhuo@linux.alibaba.com, andrew+netdev@lunn.ch,
-	pablo@netfilter.org, fw@strlen.de, phil@nwl.cc, razor@blackwall.org,
-	idosch@nvidia.com, dsahern@kernel.org, davem@davemloft.net,
-	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-	horms@kernel.org, linux-um@lists.infradead.org,
-	virtualization@lists.linux.dev, netfilter-devel@vger.kernel.org,
-	coreteam@netfilter.org, bridge@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net v5 1/2] net: validate virtio checksum start after
- network header
-Message-ID: <20260921183657-mutt-send-email-mst@kernel.org>
-References: <20260920004733.6473-1-habte.yibelo@gmail.com>
- <20260921025341.44846-1-habte.yibelo@gmail.com>
- <20260921025341.44846-2-habte.yibelo@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="D69MFRyd"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F6CF1F000FF;
+	Mon, 21 Sep 2026 23:30:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790033424;
+	bh=ssEn1ac94OxG61fDvH9GJy/OHnTvjSDi25gSmKvZCRQ=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References;
+	b=D69MFRydMY/5uAZ4QGGgBVuTdiKiTrq9z87yi/TxyWjKzEBozdOEWRY3grNm5wOGe
+	 yw7SlJx77854Qh0Xj7fEtjRNSiHUDmvKNzcv3ShAdD6VzTozgG13MdlDqZeLu2uG5j
+	 EUtxygrul/YVuk8PIfh4jRbxAHXZhIU5MJbWtA4r25WuebopPCtJ7DE+0aE6KVxkhn
+	 DU6buRQB5IfFyW3o3/r5akENTeE6ib3y8oeDFVvaca1Rit6qXF8UCAoMat9P5ro5LF
+	 JWpqAesBjpdToraWOutqQZOvq9+Q6J/9drETv0f4lQc8XD69hIpmkYka68JbSr0Wim
+	 xl9pHu80hbCNw==
+Subject: Re: [PATCH] vsock/vmci: harden datagram receive access check (netns
+ bypass + cached_peer race)
+From: netdev-bot+sashiko@kernel.org
+To: bartlomiej.dmitruk@isec.pl
+Cc: bryan-bt.tan@broadcom.com, vishnu.dasa@broadcom.com,
+ pv-drivers.linux@broadcom.com, netdev@vger.kernel.org,
+ virtualization@lists.linux.dev, sgarzare@redhat.com, mst@redhat.com,
+ kuba@kernel.org
+Date: Mon, 21 Sep 2026 23:30:23 +0000
+Message-ID: <179003342317.2160803.2680774487036888926@kernel.org>
+In-Reply-To: <20260917220225.56200-1-bartlomiej.dmitruk@isec.pl>
+References: <20260917220225.56200-1-bartlomiej.dmitruk@isec.pl>
+X-sashiko-severity: High
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260921025341.44846-2-habte.yibelo@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 4GoTO5gJy7Z9Zbx57JkbAMWhQSBJEyDPjgqzmv3QczU_1790030686
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-On Sun, Sep 20, 2026 at 10:53:40PM -0400, Paulos Yibelo wrote:
-> __virtio_net_hdr_to_skb() rejects a CHECKSUM_PARTIAL start smaller than
-> an estimated minimum network-header length. Its input offsets are relative
-> to skb->data.
-> 
-> Using skb_network_offset() here is unsafe. TUN/TAP, virtio-net, and UML
-> parse a received virtio header before skb->network_header is established.
-> On an skb with headroom, the resulting negative offset enlarges the
-> apparent distance to the transport header and can admit a checksum start
-> inside the network header.
-> 
-> Pass the data-relative L3 offset to the converter explicitly. IFF_TUN uses
-> zero, AF_PACKET supplies its established network offset, and Ethernet
-> receive paths parse Ethernet and nested VLAN headers with
-> skb_header_pointer(), without changing skb state. Use the same origin for
-> tunnel-offset validation, and make UML propagate conversion failures.
-> 
-> This does not require a virtual-machine guest. A TUN or TAP device with
-> virtio-net header support is sufficient to reach these paths.
-> 
-> Fixes: 49d14b54a527 ("net: test for not too small csum_start in virtio_net_hdr_to_skb()")
-> Fixes: a2fb4bc4e2a6 ("net: implement virtio helpers to handle UDP GSO tunneling.")
-> Reported-by: Paulos Yibelo <habte.yibelo@gmail.com>
-> Link: https://lore.kernel.org/netdev/20260920004733.6473-2-habte.yibelo@gmail.com/
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Paulos Yibelo <habte.yibelo@gmail.com>
-> ---
-> Changes in v5:
-> - Replace the not-yet-established skb network-header offset with an
->   explicit data-relative L3 origin.
-> - Cover all in-tree callers, including Ethernet/VLAN receive paths,
->   tunnel metadata, and UML error propagation.
-> - Drop the prior Acked-by and Reviewed-by tags because the code changed.
-> 
-> Changes in v4:
-> - State that a TUN device is sufficient and no guest is required, as
->   noted by Michael S. Tsirkin.
-> 
-> Changes in v3:
-> - Keep the network-relative comparison on one line for readability, as
->   requested by David Ahern.
-> 
-> Changes in v2:
-> - Make nh_min_len an int and remove the casts, as suggested by Michael S.
->   Tsirkin.
-> 
->  arch/um/drivers/vector_transports.c | 10 +++-
->  drivers/net/tun_vnet.h              | 28 ++++++++++-
->  drivers/net/virtio_net.c            |  8 ++-
->  include/linux/virtio_net.h          | 76 +++++++++++++++++++++++------
->  net/packet/af_packet.c              |  6 ++-
->  5 files changed, 106 insertions(+), 22 deletions(-)
-> 
-> diff --git a/arch/um/drivers/vector_transports.c b/arch/um/drivers/vector_transports.c
-> index ddd127ee9..79bc05fc6 100644
-> --- a/arch/um/drivers/vector_transports.c
-> +++ b/arch/um/drivers/vector_transports.c
-> @@ -197,6 +197,7 @@ static int raw_verify_header(
->  	uint8_t *header, struct sk_buff *skb, struct vector_private *vp)
->  {
->  	struct virtio_net_hdr *vheader = (struct virtio_net_hdr *) header;
-> +	int network_offset;
+Thank you for your contribution! Sashiko AI review found 4 potential
+issue(s) to consider.
+
+Critical: 0 · High: 2 · Medium: 1 · Low: 1
+
+If you believe none of the issues are legitimate, please reply to each
+issue of Medium severity or higher and explain why the AI is wrong.
+If any of them are legitimate and you plan to respin, please let patchwork
+know by including "pw-bot: cr" as a separate line at the end of your reply
+(one such reply per series is enough).
+
+- [High] The new per-netns gate in vmci_transport_allow_dgram()
+  (net/vmw_vsock/vmci_transport.c:536) is placed after the unconditional…
+- [High] net/vsock: severe receive fast-path performance regression
+- [Medium] Missing `Fixes:` and `Cc: stable@vger.kernel.org` trailers for
+  two distinct, user-visible defects.
+- [Low] After this patch, include/net/af_vsock.h:42-45 still defines and
+  documents `bool cached_peer_allow_dgram; /* Dgram communication…
+
+--
+
+vsock/vmci: harden datagram receive access check (netns bypass + cached_peer race)
+
+This adds a per-netns mode check to vmci_transport_allow_dgram() on the
+datagram receive path and removes the cached_peer/cached_peer_allow_dgram
+caching so the access decision is recomputed for every datagram.  A few
+questions below about the placement of the new check, the commit trailers,
+and the now unused struct members.
+
+On the commit message:
+
+> Add the symmetric net-mode check and drop the cache, evaluating the decision
+> on every datagram; there is no shared mutable state left to race. The now
+> unused cached_peer{,_allow_dgram} members can be removed in a follow-up.
+>
+> Signed-off-by: Bartłomiej Dmitruk <bartlomiej.dmitruk@isec.pl>
+
+[Severity: Medium]
+Should this carry Fixes: tags, and Cc: stable for the namespace half?
+
+The receive-path netns gap only exists from the commit that introduced
+vsock_net_mode_global() — git blame of include/net/af_vsock.h points at
+eafb64f40ca4 ("vsock: add netns to vsock core"):
+
+  static inline bool vsock_net_mode_global(struct vsock_sock *vsk)
+  {
+          return vsock_net_mode(sock_net(sk_vsock(vsk))) == VSOCK_NET_MODE_GLOBAL;
+  }
+
+The cached_peer check-then-set predates that and goes back to the original
+VMCI transport.
+
+A sibling netns fix already in this tree, 2ec28c09b320 ("vsock: ignore empty
+child namespace mode writes"), carries Fixes: eafb64f40ca4 plus
+Cc: stable@vger.kernel.org.  Without equivalent trailers here, how are
+backporters expected to know which trees still have the bypass?
+
+> diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+> index 1f186e8f83640..37b6f6eca962b 100644
+> --- a/net/vmw_vsock/vmci_transport.c
+> +++ b/net/vmw_vsock/vmci_transport.c
+> @@ -529,18 +529,25 @@ static bool vmci_transport_allow_dgram(struct vsock_sock *vsock, u32 peer_cid)
+>  	if (VMADDR_CID_HYPERVISOR == peer_cid)
+>  		return true;
 >  
->  	if ((vheader->gso_type != VIRTIO_NET_HDR_GSO_NONE) &&
->  		(vp->req_size != 65536)) {
-> @@ -209,8 +210,13 @@ static int raw_verify_header(
->  	if ((vheader->flags & VIRTIO_NET_HDR_F_DATA_VALID) > 0)
->  		return 1;
+> -	if (vsock->cached_peer != peer_cid) {
+> -		vsock->cached_peer = peer_cid;
+> -		if (!vmci_transport_is_trusted(vsock, peer_cid) &&
+> -		    (vmci_context_get_priv_flags(peer_cid) &
+> -		     VMCI_PRIVILEGE_FLAG_RESTRICTED)) {
+> -			vsock->cached_peer_allow_dgram = false;
+> -		} else {
+> -			vsock->cached_peer_allow_dgram = true;
+> -		}
+> -	}
+> +	/* Enforce the per-netns mode on the receive path, symmetrically with
+> +	 * the send hook vmci_transport_dgram_allow(): a socket in a non-global
+> +	 * (local) netns must not receive datagrams it could never send.
+> +	 */
+> +	if (!vsock_net_mode_global(vsock))
+> +		return false;
+
+[Severity: High]
+Is the new check reachable for peer_cid == VMADDR_CID_HYPERVISOR?
+
+The hypervisor early return above it is unconditional, so in
+vmci_transport_allow_dgram() the netns mode is never consulted for CID 0.
+
+The send hook the comment names does the opposite ordering:
+
+net/vmw_vsock/vmci_transport.c:vmci_transport_dgram_allow() {
+	if (!vsock_net_mode_global(vsk))
+		return false;
+
+	if (cid == VMADDR_CID_HYPERVISOR) {
+		/* Registrations of PBRPC Servers do not modify VMX/Hypervisor
+		 * state and are allowed.
+		 */
+		return port == VMCI_UNITY_PBRPC_REGISTER;
+	}
+
+	return true;
+}
+
+So a SOCK_DGRAM socket in a local-mode netns still accepts hypervisor-sourced
+datagrams while its own sends to the hypervisor are refused, which looks like
+the exact case the comment says must not happen ("a socket in a non-global
+(local) netns must not receive datagrams it could never send").
+
+Nothing appears to keep such a socket from registering the receive callback:
+vsock_assign_transport() picks transport_dgram for SOCK_DGRAM with no netns
+check, and __vsock_bind_dgram() -> vmci_transport_dgram_bind() registers
+vmci_transport_recv_dgram_cb() unconditionally.
+
+Then vmci_transport_allow_dgram() is the only gate before the datagram is
+queued:
+
+net/vmw_vsock/vmci_transport.c:vmci_transport_recv_dgram_cb() {
+	vsk = vsock_sk(sk);
+	if (!vmci_transport_allow_dgram(vsk, dg->src.context))
+		return VMCI_ERROR_NO_ACCESS;
+	...
+}
+
+And hypervisor-sourced datagrams do reach ordinary handlers; only the event
+resource is special-cased:
+
+drivers/misc/vmw_vmci/vmci_guest.c {
+	if (dg->src.context == VMCI_HYPERVISOR_CONTEXT_ID &&
+	    dg->dst.resource == VMCI_EVENT_HANDLER) {
+		result = vmci_event_dispatch(dg);
+	} else {
+		result = vmci_datagram_invoke_guest_handler(dg);
+	}
+}
+
+Would moving the vsock_net_mode_global() test above the hypervisor early
+return be the intended shape here?  If a receive-side exception for CID 0 is
+deliberate, could the comment say so, and should it mirror the send side's
+VMCI_UNITY_PBRPC_REGISTER port restriction?
+
 >  
-> -	virtio_net_hdr_to_skb(skb, vheader, virtio_legacy_is_little_endian());
-> -	return 0;
-> +	network_offset = virtio_net_hdr_get_l3_offset(skb, vheader);
-> +	if (network_offset < 0)
-> +		return network_offset;
+> -	return vsock->cached_peer_allow_dgram;
+> +	/* Evaluate on every datagram instead of caching the decision in
+> +	 * vsock->cached_peer{,_allow_dgram}: those fields were an
+> +	 * unsynchronized check-then-set shared between the lockless receive
+> +	 * tasklet and the lock_sock() send path, which could return a stale
+> +	 * 'allow' for a restricted peer.
+> +	 */
+
+[Severity: Low]
+This isn't a bug, but could the two struct members go away in this same
+patch rather than a follow-up?  After this change, a tree-wide grep for
+cached_peer matches only the two definitions and this new prose comment:
+
+include/net/af_vsock.h:struct vsock_sock {
+	...
+	/* Accessed without the socket lock held. This means it can never be
+	 * modified outsided of socket create or destruct.
+	 */
+	bool trusted;
+	bool cached_peer_allow_dgram;	/* Dgram communication allowed to
+					 * cached peer?
+					 */
+	u32 cached_peer;  /* Context ID of last dgram destination check. */
+	...
+}
+
+The block that this patch deletes was the only reader and writer, so the
+header now documents per-socket ACL caching state that no code maintains.
+
+> +	if (!vmci_transport_is_trusted(vsock, peer_cid) &&
+> +	    (vmci_context_get_priv_flags(peer_cid) &
+> +	     VMCI_PRIVILEGE_FLAG_RESTRICTED))
+> +		return false;
 > +
-> +	return virtio_net_hdr_to_skb(skb, vheader,
-> +				     virtio_legacy_is_little_endian(),
-> +				     network_offset);
+> +	return true;
 >  }
->  
->  static bool get_uint_param(
-> diff --git a/drivers/net/tun_vnet.h b/drivers/net/tun_vnet.h
-> index f4c652b1f..1c83c359d 100644
-> --- a/drivers/net/tun_vnet.h
-> +++ b/drivers/net/tun_vnet.h
-> @@ -177,10 +177,27 @@ static inline int tun_vnet_hdr_put(int sz, struct iov_iter *iter,
->  	return __tun_vnet_hdr_put(sz, 0, iter, hdr);
->  }
->  
-> +static inline int
-> +tun_vnet_hdr_get_l3_offset(unsigned int flags, const struct sk_buff *skb,
-> +			   const struct virtio_net_hdr *hdr)
-> +{
-> +	if ((flags & TUN_TYPE_MASK) != IFF_TAP)
-> +		return 0;
-> +
-> +	return virtio_net_hdr_get_l3_offset(skb, hdr);
-> +}
-> +
->  static inline int tun_vnet_hdr_to_skb(unsigned int flags, struct sk_buff *skb,
->  				      const struct virtio_net_hdr *hdr)
->  {
-> -	return virtio_net_hdr_to_skb(skb, hdr, tun_vnet_is_little_endian(flags));
-> +	int network_offset = tun_vnet_hdr_get_l3_offset(flags, skb, hdr);
-> +
-> +	if (network_offset < 0)
-> +		return network_offset;
-> +
-> +	return virtio_net_hdr_to_skb(skb, hdr,
-> +				     tun_vnet_is_little_endian(flags),
-> +				     network_offset);
->  }
->  
->  /*
-> @@ -199,10 +216,17 @@ tun_vnet_hdr_tnl_to_skb(unsigned int flags, netdev_features_t features,
->  			struct sk_buff *skb,
->  			const struct virtio_net_hdr_v1_hash_tunnel *hdr)
->  {
-> +	const struct virtio_net_hdr *vnet_hdr = (const struct virtio_net_hdr *)hdr;
-> +	int network_offset = tun_vnet_hdr_get_l3_offset(flags, skb, vnet_hdr);
-> +
-> +	if (network_offset < 0)
-> +		return network_offset;
-> +
->  	return virtio_net_hdr_tnl_to_skb(skb, hdr,
->  				features & NETIF_F_GSO_UDP_TUNNEL,
->  				features & NETIF_F_GSO_UDP_TUNNEL_CSUM,
-> -				tun_vnet_is_little_endian(flags));
-> +				tun_vnet_is_little_endian(flags),
-> +				network_offset);
->  }
->  
->  static inline int tun_vnet_hdr_from_skb(unsigned int flags,
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index e34c52d05..059eeb18e 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -2502,6 +2502,7 @@ static void virtnet_receive_done(struct virtnet_info *vi, struct receive_queue *
->  {
->  	struct virtio_net_common_hdr *hdr;
->  	struct net_device *dev = vi->dev;
-> +	int network_offset;
->  
->  	hdr = skb_vnet_common_hdr(skb);
->  	if (dev->features & NETIF_F_RXHASH && vi->has_rss_hash_report)
-> @@ -2515,9 +2516,12 @@ static void virtnet_receive_done(struct virtnet_info *vi, struct receive_queue *
->  		goto frame_err;
->  	}
->  
-> -	if (virtio_net_hdr_tnl_to_skb(skb, &hdr->tnl_hdr, vi->rx_tnl,
-> +	network_offset = virtio_net_hdr_get_l3_offset(skb, &hdr->hdr);
-> +	if (network_offset < 0 ||
-> +	    virtio_net_hdr_tnl_to_skb(skb, &hdr->tnl_hdr, vi->rx_tnl,
->  				      vi->rx_tnl_csum,
-> -				      virtio_is_little_endian(vi->vdev))) {
-> +				      virtio_is_little_endian(vi->vdev),
-> +				      network_offset)) {
->  		net_warn_ratelimited("%s: bad gso: type: %x, size: %u, flags %x tunnel %d tnl csum %d\n",
->  				     dev->name, hdr->hdr.gso_type,
->  				     hdr->hdr.gso_size, hdr->hdr.flags,
-> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-> index c381b916c..a4c005796 100644
-> --- a/include/linux/virtio_net.h
-> +++ b/include/linux/virtio_net.h
-> @@ -48,11 +48,49 @@ static inline int virtio_net_hdr_set_proto(struct sk_buff *skb,
->  	return 0;
->  }
->  
-> +/*
-> + * Return the L3 offset of an Ethernet frame starting at skb->data.
-> + * The offset is unused without NEEDS_CSUM, so avoid parsing and return zero.
-> + */
-> +static inline int
-> +virtio_net_hdr_get_l3_offset(const struct sk_buff *skb,
-> +			     const struct virtio_net_hdr *hdr)
-> +{
-> +	unsigned int parse_depth = VLAN_MAX_DEPTH;
-> +	const struct ethhdr *eth;
-> +	struct ethhdr ethbuf;
-> +	__be16 protocol;
-> +	int depth = ETH_HLEN;
-> +
-> +	if (!(hdr->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM))
-> +		return 0;
-> +
-> +	eth = skb_header_pointer(skb, 0, sizeof(ethbuf), &ethbuf);
-> +	if (!eth)
-> +		return -EINVAL;
-> +
-> +	protocol = eth->h_proto;
-> +	while (eth_type_vlan(protocol)) {
-> +		const struct vlan_hdr *vh;
-> +		struct vlan_hdr vhdr;
-> +
-> +		vh = skb_header_pointer(skb, depth, sizeof(vhdr), &vhdr);
-> +		if (!vh || !--parse_depth)
-> +			return -EINVAL;
-> +
-> +		protocol = vh->h_vlan_encapsulated_proto;
-> +		depth += VLAN_HLEN;
-> +	}
-> +
-> +	return depth;
-> +}
-> +
->  static inline int __virtio_net_hdr_to_skb(struct sk_buff *skb,
->  					  const struct virtio_net_hdr *hdr,
-> -					  bool little_endian, u8 hdr_gso_type)
-> +					  bool little_endian, u8 hdr_gso_type,
-> +					  int network_offset)
->  {
-> -	unsigned int nh_min_len = sizeof(struct iphdr);
-> +	int nh_min_len = sizeof(struct iphdr);
 
+[Severity: High]
+Was the per-datagram cost of dropping the cache measured?
 
-So why is this IPv4 specific assumption still here? Confused.
+vmci_transport_allow_dgram() is called from
+vmci_transport_recv_dgram_cb(), i.e. from the VMCI receive tasklet,
+once for every incoming datagram.  After this change both remaining
+tests can walk the global context list:
 
+  vmci_transport_is_trusted() -> vmci_is_context_owner() -> vmci_ctx_get()
+  vmci_context_get_priv_flags() -> vmci_ctx_get()
 
->  	unsigned int gso_type = 0;
->  	unsigned int thlen = 0;
->  	unsigned int p_off = 0;
-> @@ -98,16 +136,20 @@ static inline int __virtio_net_hdr_to_skb(struct sk_buff *skb,
->  		u32 start = __virtio16_to_cpu(little_endian, hdr->csum_start);
->  		u32 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
->  		u32 needed = start + max_t(u32, thlen, off + sizeof(__sum16));
-> +		int transport_offset;
->  
->  		if (!pskb_may_pull(skb, needed))
->  			return -EINVAL;
->  
->  		if (!skb_partial_csum_set(skb, start, off))
->  			return -EINVAL;
-> -		if (skb_transport_offset(skb) < nh_min_len)
-> +
-> +		transport_offset = skb_transport_offset(skb);
-> +		if (transport_offset < nh_min_len || network_offset < 0 ||
-> +		    network_offset > transport_offset - nh_min_len)
->  			return -EINVAL;
->  
-> -		nh_min_len = skb_transport_offset(skb);
-> +		nh_min_len = transport_offset;
->  		p_off = nh_min_len + thlen;
->  		if (!pskb_may_pull(skb, p_off))
->  			return -EINVAL;
-> @@ -206,9 +248,11 @@ static inline int __virtio_net_hdr_to_skb(struct sk_buff *skb,
->  
->  static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
->  					const struct virtio_net_hdr *hdr,
-> -					bool little_endian)
-> +					bool little_endian,
-> +					int network_offset)
->  {
-> -	return __virtio_net_hdr_to_skb(skb, hdr, little_endian, hdr->gso_type);
-> +	return __virtio_net_hdr_to_skb(skb, hdr, little_endian, hdr->gso_type,
-> +				       network_offset);
->  }
->  
->  /* This function must be called after virtio_net_hdr_from_skb(). */
-> @@ -287,7 +331,7 @@ static inline int virtio_net_hdr_from_skb(const struct sk_buff *skb,
->  	return 0;
->  }
->  
-> -static inline unsigned int virtio_l3min(bool is_ipv6)
-> +static inline int virtio_l3min(bool is_ipv6)
->  {
->  	return is_ipv6 ? sizeof(struct ipv6hdr) : sizeof(struct iphdr);
->  }
-> @@ -297,18 +341,19 @@ virtio_net_hdr_tnl_to_skb(struct sk_buff *skb,
->  			  const struct virtio_net_hdr_v1_hash_tunnel *vhdr,
->  			  bool tnl_hdr_negotiated,
->  			  bool tnl_csum_negotiated,
-> -			  bool little_endian)
-> +			  bool little_endian, int network_offset)
->  {
->  	const struct virtio_net_hdr *hdr = (const struct virtio_net_hdr *)vhdr;
-> -	unsigned int inner_nh, outer_th, inner_th;
-> -	unsigned int inner_l3min, outer_l3min;
->  	u8 gso_inner_type, gso_tunnel_type;
->  	bool outer_isv6, inner_isv6;
-> +	int inner_nh, outer_th, inner_th;
-> +	int inner_l3min, outer_l3min;
->  	int ret;
->  
->  	gso_tunnel_type = hdr->gso_type & VIRTIO_NET_HDR_GSO_UDP_TUNNEL;
->  	if (!gso_tunnel_type)
-> -		return virtio_net_hdr_to_skb(skb, hdr, little_endian);
-> +		return virtio_net_hdr_to_skb(skb, hdr, little_endian,
-> +					     network_offset);
->  
->  	/* Tunnel not supported/negotiated, but the hdr asks for it. */
->  	if (!tnl_hdr_negotiated)
-> @@ -332,19 +377,22 @@ virtio_net_hdr_tnl_to_skb(struct sk_buff *skb,
->  	outer_isv6 = gso_tunnel_type & VIRTIO_NET_HDR_GSO_UDP_TUNNEL_IPV6;
->  	inner_isv6 = gso_inner_type == VIRTIO_NET_HDR_GSO_TCPV6;
->  	inner_l3min = virtio_l3min(inner_isv6);
-> -	outer_l3min = ETH_HLEN + virtio_l3min(outer_isv6);
-> +	outer_l3min = virtio_l3min(outer_isv6);
->  
->  	inner_th = __virtio16_to_cpu(little_endian, hdr->csum_start);
->  	inner_nh = le16_to_cpu(vhdr->inner_nh_offset);
->  	outer_th = le16_to_cpu(vhdr->outer_th_offset);
-> -	if (outer_th < outer_l3min ||
-> +	if (network_offset < 0 ||
-> +	    outer_th < outer_l3min ||
-> +	    network_offset > outer_th - outer_l3min ||
->  	    inner_nh < outer_th + sizeof(struct udphdr) ||
->  	    inner_th < inner_nh + inner_l3min)
->  		return -EINVAL;
->  
->  	/* Let the basic parsing deal with plain GSO features. */
->  	ret = __virtio_net_hdr_to_skb(skb, hdr, true,
-> -				      hdr->gso_type & ~gso_tunnel_type);
-> +				      hdr->gso_type & ~gso_tunnel_type,
-> +				      network_offset);
->  	if (ret)
->  		return ret;
->  
-> diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
-> index 50cae32ae..04c80e23d 100644
-> --- a/net/packet/af_packet.c
-> +++ b/net/packet/af_packet.c
-> @@ -2901,7 +2901,8 @@ static int tpacket_snd(struct packet_sock *po, struct msghdr *msg)
->  		}
->  
->  		if (has_vnet_hdr) {
-> -			if (virtio_net_hdr_to_skb(skb, &vnet_hdr, vio_le())) {
-> +			if (virtio_net_hdr_to_skb(skb, &vnet_hdr, vio_le(),
-> +						  skb_network_offset(skb))) {
->  				tp_len = -EINVAL;
->  				goto tpacket_error;
->  			}
+and vmci_ctx_get() is a linear search:
 
-Will this do the right thing for ETH_P_IP sockets? even with vlan tags
-in the frame?
+drivers/misc/vmw_vmci/vmci_context.c:vmci_ctx_get() {
+	rcu_read_lock();
+	list_for_each_entry_rcu(c, &ctx_list.head, list_item) {
+		if (c->cid == context_id) {
+	...
+}
 
+For an untrusted socket vsock->trusted is false, so the && does not
+short-circuit and both lookups run: two traversals proportional to the
+number of registered VMCI contexts, per packet, in softirq context,
+where the cached_peer path used to be one u32 compare.  On a host with
+many contexts that is new fast-path work; in a guest
+vmci_host_code_active() is false so vmci_context_get_priv_flags()
+returns early, but vmci_is_context_owner() is still on the path.
 
-> @@ -3103,7 +3104,8 @@ static int packet_snd(struct socket *sock, struct msghdr *msg, size_t len)
->  	packet_parse_headers(skb, sock);
->  
->  	if (vnet_hdr_sz) {
-> -		err = virtio_net_hdr_to_skb(skb, &vnet_hdr, vio_le());
-> +		err = virtio_net_hdr_to_skb(skb, &vnet_hdr, vio_le(),
-> +					    skb_network_offset(skb));
->  		if (err)
->  			goto out_free;
->  		len += vnet_hdr_sz;
-> -- 
-> 2.46.0
+I am not defending the racy check-then-set — the interleave you
+describe is real, and the stale-allow outcome is worse than the cost.
+But is removing the cache outright the only way out?  cached_peer and
+cached_peer_allow_dgram could be collapsed into a single word (cid plus
+an allow bit) accessed with READ_ONCE()/WRITE_ONCE(), which kills the
+torn/mismatched-pair problem while keeping the common case O(1) —
+though that still returns a stale verdict if the peer's privilege flags
+change after the first datagram, so perhaps you concluded that any
+caching is unsound here.
 
+Could you say which it is in the changelog, and give some idea of the
+impact (datagram rate, context count) of evaluating on every packet?
+The cache was presumably added for a reason, and a note that VMCI
+datagram receive is slow enough for two context lookups not to matter
+would make the trade-off reviewable.
+
+[ ... ]
+
+-- 
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260917220225.56200-1-bartlomiej.dmitruk%40isec.pl
