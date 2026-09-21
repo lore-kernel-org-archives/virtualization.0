@@ -1,84 +1,77 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6689E1A6811
-	for <virtualization@lists.linux.dev>; Mon, 21 Sep 2026 03:01:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6396F78F3A
+	for <virtualization@lists.linux.dev>; Mon, 21 Sep 2026 03:01:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789959690; cv=none; b=OMj0t8bQVTvx2AMlCGXBNghfj08VLB3/FP6kZnNFlVBtiJBeUnclfzEtCsXNIKhpytAwLY5BDE3FE1S0FtiCP6UOIHopQFbmVRWcYk2DEeEsXIinS2O83EWy0iLXZ7Su7pZVkBazIeVpNrmMDmlNd4XsXZcUBAfwWYQYMJLijmc=
+	t=1789959691; cv=none; b=e+vAn1g74Av8n5mKMH5NnCNWHeLwDGimR5n0eHwyiSsP8YKVUyz6bIuAY5SzEA9UhPRPCfecrwh/Q8gT/YR5MNVj6ifZkas/6R7fp6pgxXmlLYL5LMqSP0LkwfrjoMvFpqwr1KG+57rsWlSHQiFlZl3jTCXO22OYTOfpXC4kdFM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789959690; c=relaxed/simple;
-	bh=vfxdQWV7vd6pkx5aZWx+nOJ2FUxFj0TlaSoQ2f9C9ig=;
+	s=arc-20240116; t=1789959691; c=relaxed/simple;
+	bh=7IcHGfPDRuZRHhw7rM6LkzcWnAUON/Yrjr7x41OZ3CA=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=NVSRwTe6xoqHUcgfqsoqrRU2jcaT0EeJiehRtQMkxS6frS+nrmz7dAH0QrOVZuBgQBZa3GxA1jf5q5Foz43EMN/G4ckg3L2qHfwWKcO/WgKss2dFeOr7n8Wlj/bWCKRnvI8zV/fxZOWE3F+3p/SFLIDSusAcHg1Vnjhj+GPa8is=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lZpy1vjU; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=GW0yAWzLcxxVTSfCAGvszjsey3u+TpT8t+AnjfxN+XM4sP1LyJ31slcygaM8bdm/m44AYl+LNkRx4dVx74/0jwj996L4jp01flm2cjSl3FWZR6gG1N5Hw1QsnKy6wTPAt+lLJi5y3QPTiZWGZ5l13ZBzIIupsxQqSJTyHSrPrw0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MsVxmzBN; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lZpy1vjU"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A9D51F000FF;
-	Mon, 21 Sep 2026 03:01:28 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MsVxmzBN"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0CA61F00893;
+	Mon, 21 Sep 2026 03:01:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789959689;
-	bh=vfxdQWV7vd6pkx5aZWx+nOJ2FUxFj0TlaSoQ2f9C9ig=;
+	s=k20260515; t=1789959690;
+	bh=7IcHGfPDRuZRHhw7rM6LkzcWnAUON/Yrjr7x41OZ3CA=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=lZpy1vjUMztXv8vtQ9Toqn72Nx/8MjCvYCO54utCzkZou747n/VHpRJKVc85aHS3W
-	 o/RPEt4rK/IO0S+OjKkgnu92YE6KbQGL4JoPO6pcf0/0RmwbKQ7oW7yj6os9UdeSi6
-	 Z17tfF8He3KxFP3nT6n+7XxQm4QM4nnhe4wYHBvnM3A+IsyHO8QBcyoOBAKeUcNANk
-	 4sNmyeNeNwRKmTFIYOA2AJGzuAI0jCYZHw57kXpnGTPcsOstBPREZ0tatUiXZwWAkn
-	 +z0B0pOU0ZnzI8aUcLv2Voc6Jeb49s7UTEtXzmtG7sIMYWtsQ9TDwJqvw7EfMqyBfo
-	 K35f4KRXsfZdQ==
+	b=MsVxmzBNa2+TOOhNROyi2WUTeLM+ImP+1NH52BQ4Yf1KJMZvPf3D6fMDSVLb6RVuO
+	 xM9vPF5NJT6cjPPxUolz69GLCarXvIhxZjogt8RXVK789o5vZ3LNRVYa76pB8A4gd6
+	 ZuArqIUfba8O5AWmAAeElZY2UbiTh3QQ0ZA+z1Z/kCWq49BLLGftUeJfdgyPKkujQB
+	 syDU272VMN0O9JejI9m8LOxnkMWcs82ZtwkVRlxNp3z8p2juX9w9i9n3t8f7mAgFhH
+	 uOHALanGSuU/tgCqV41i3IVKtG8E7+Y15BJnadAyPPMdJQ8S1+aB/BTkva/r2aA6gO
+	 PuiDF/lKv5zHw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net v5 2/2] ip: reject partial checksums covering
- network headers
+Subject: Re: [PATCH net v5 1/2] net: validate virtio checksum start after
+ network header
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Paulos Yibelo" <habte.yibelo@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <20260921025341.44846-3-habte.yibelo@gmail.com>
+Cc: "Eugenio Perez" <eperezma@redhat.com>, virtualization@lists.linux.dev, "Michael
+ S. Tsirkin" <mst@redhat.com>
+In-Reply-To: <20260921025341.44846-2-habte.yibelo@gmail.com>
 References: <20260920004733.6473-1-habte.yibelo@gmail.com>
  <20260921025341.44846-1-habte.yibelo@gmail.com>
- <20260921025341.44846-3-habte.yibelo@gmail.com>
+ <20260921025341.44846-2-habte.yibelo@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 21 Sep 2026 03:01:28 +0000
-Message-Id: <20260921030129.0A9D51F000FF@smtp.kernel.org>
+Date: Mon, 21 Sep 2026 03:01:29 +0000
+Message-Id: <20260921030129.C0CA61F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-> ip_do_fragment() and nf_br_ip_fragment() complete a CHECKSUM_PARTIAL skb
-> before reading the IPv4 header length. ip6_fragment() and br_ip6_fragment=
-()
-> complete one after parsing the IPv6 header chain. A virtualization
-> interface can supply a checksum start which, after link-layer removal,
-> still points inside that parsed network header.
+> __virtio_net_hdr_to_skb() rejects a CHECKSUM_PARTIAL start smaller than
+> an estimated minimum network-header length. Its input offsets are relative
+> to skb->data.
 >=20
-> skb_checksum_help() then writes the completed checksum into header bytes
-> the stack has already consumed. For IPv4, changing iph->ihl after routing
-> and validation can make fragmentation copy beyond the skb's logical linear
-> head into transmitted options. A negative checksum-start offset is reject=
-ed
-> by skb_checksum_help(), but only after a WARN_ONCE which can panic a
-> panic_on_warn system.
+> Using skb_network_offset() here is unsafe. TUN/TAP, virtio-net, and UML
+> parse a received virtio header before skb->network_header is established.
+> On an skb with headroom, the resulting negative offset enlarges the
+> apparent distance to the transport header and can admit a checksum start
+> inside the network header.
 >=20
-> Validate the checksum start against the parsed header length before
-> completing it. For IPv4, read and validate IHL first, retain it, and
-> reacquire iph after skb_checksum_help() in both implementations. For IPv6,
-> use the length returned by ip6_find_1stfragopt() in both implementations.
+> Pass the data-relative L3 offset to the converter explicitly. IFF_TUN uses
+> zero, AF_PACKET supplies its established network offset, and Ethernet
+> receive paths parse Ethernet and nested VLAN headers with
+> skb_header_pointer(), without changing skb state. Use the same origin for
+> tunnel-offset validation, and make UML propagate conversion failures.
 >=20
-> Compare the signed checksum-start offset with the bounded signed header
-> length so integer promotion cannot bypass either boundary.
+> This does not require a virtual-machine guest. A TUN or TAP device with
+> virtio-net header support is sufficient to reach these paths.
 >=20
-> Fixes: dbd3393c56a8 ("ipv4: add defensive check for CHECKSUM_PARTIAL skbs=
- in ip_fragment")
-> Fixes: 405c92f7a541 ("ipv6: add defensive check for CHECKSUM_PARTIAL skbs=
- in ip_fragment")
-> Fixes: 3c171f496ef5 ("netfilter: bridge: add connection tracking system")
-> Fixes: 764dd163ac92 ("netfilter: nf_conntrack_bridge: add support for IPv=
-6")
+> Fixes: 49d14b54a527 ("net: test for not too small csum_start in virtio_ne=
+t_hdr_to_skb()")
+> Fixes: a2fb4bc4e2a6 ("net: implement virtio helpers to handle UDP GSO tun=
+neling.")
 > Reported-by: Paulos Yibelo <habte.yibelo@gmail.com>
-> Link: https://lore.kernel.org/netdev/20260920004733.6473-3-habte.yibelo@g=
+> Link: https://lore.kernel.org/netdev/20260920004733.6473-2-habte.yibelo@g=
 mail.com/
 > Cc: stable@vger.kernel.org
 > Signed-off-by: Paulos Yibelo <habte.yibelo@gmail.com>
@@ -87,5 +80,5 @@ Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260921025341.4484=
-6-1-habte.yibelo@gmail.com?part=3D2
+6-1-habte.yibelo@gmail.com?part=3D1
 
