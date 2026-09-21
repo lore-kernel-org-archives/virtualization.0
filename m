@@ -1,64 +1,64 @@
-Received: from mail-qk2-f41.google.com (mail-qk2-f41.google.com [74.125.230.233])
+Received: from mail-qk2-f42.google.com (mail-qk2-f42.google.com [74.125.230.234])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF2EA32C924
-	for <virtualization@lists.linux.dev>; Mon, 21 Sep 2026 02:53:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.233
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4AD5A331A57
+	for <virtualization@lists.linux.dev>; Mon, 21 Sep 2026 02:53:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.234
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789959234; cv=none; b=Mfxve6Ga1iJlUsghO35Ajx1mAwnQX0BZBF/6Z6lQO+2WG/rrmFxFXqvcB7/sgmKsDszPY25FA1M9JSgB6XP1wktX9COdescxS8sTTLV3n6CnLuVEuGhBjT0weV1WEKOAyz9Q48Az2fwA2h9/1BKsMaKb0v3Ith8VY/cWhstwylw=
+	t=1789959236; cv=none; b=ok9C3FeQD6E3HcGLddgG47/EzexnNhXJQ2rI88MN9dZr1yEgzxGgFKh7J6Rt5Z4vgIZwjZ/sRLIIA2dZxjuUsaKZ9ZDlSBBMjcZyaPL0+085kVbqySU2qQdL7g6qRwEwA/5aPg8OjGg4RpbiWUHurK4DSVyoW1sOE2ScN231AMw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789959234; c=relaxed/simple;
-	bh=rF+0orxhGM2+72iiMlOGhSqGFV1AnZmnKlaVomftXAs=;
+	s=arc-20240116; t=1789959236; c=relaxed/simple;
+	bh=o7u+Ilnkg+4xjG93z/0C0NZxlAlBcA2mnfdP5ehaM74=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Y7l08Vo0PO3/57ZpM+eaBeqB2574tbeCtwjxVv6tD0MaiAp2BKZ98JzKrVt9yfgEw0WMK1see6cgTVRUaymxbeKGTIg+OBHmSnNdoYCucTxPmzEokl5RDkSUYqpK04fJgZ9c1l6mhxG0u8g8YTyLcQf0F9+/IDHK4RghegLCMjQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=q0kPamZ6; arc=none smtp.client-ip=74.125.230.233
+	 MIME-Version; b=uUbVJe0XD60Khsp9Z5mQIOqvLplY+XSlOo1wcd4yCYfOYo0Lg1nZbkh6PbjDt8w/jQMP06nJMqE9cDLScHMkawpvtg1zLxB6b5egB9EGJQJjfk29wt7UJPFe1aPMuHqyr1vdaF2nc7KeY0jMusYfLCY5NGkOzhEUkL85TpT9Qus=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bqneQHKc; arc=none smtp.client-ip=74.125.230.234
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="q0kPamZ6"
-Received: by mail-qk2-f41.google.com with SMTP id af79cd13be357-93bfd70b08cso108708385a.2
-        for <virtualization@lists.linux.dev>; Sun, 20 Sep 2026 19:53:51 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bqneQHKc"
+Received: by mail-qk2-f42.google.com with SMTP id af79cd13be357-93be29bb454so268882285a.1
+        for <virtualization@lists.linux.dev>; Sun, 20 Sep 2026 19:53:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789959230; x=1790564030; darn=lists.linux.dev;
+        d=gmail.com; s=20251104; t=1789959233; x=1790564033; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=fkhGS8LwLr9AchoqrwEQvfmCs6eRJO1/8RM9quRrKBU=;
-        b=q0kPamZ6KGr2L29exByKyzPKAf49weW0buq3VMWio0azK+ni0/BtS8UoIwEb7pWbWo
-         myVz+vk51YQydJbicGjVKR7YFpmQdsxvOoJWx3Ha2Mjm1rFk3elwHkGbXuVIcQmFiC/j
-         D1qa9zu8UMcUw92XElMlR1WMqHiZB9uBEz//t4HnC9FtJjiTZzSwfeVEG1YeFU7RjxY1
-         poxNQyiTQ1+51tGrfsVlnahszfSDozUPXrYxJo8vI65Vj66dlPU8810eZ+1QOTqkVxY6
-         0PR8SJxNV1ajgHjEOMczhR/wX9eh2I83DJbzwYAwzxE5vismYgRzDeSEAy3X+eK6IgPU
-         +5EQ==
+        bh=u8Ct4yW9W4ymcEv428o4m/ZX/KrAWtAnJ7CKPNzyvYY=;
+        b=bqneQHKchCRiDLZpRqrdZtPfhXCf+eFhDL2tx2yItR58QQq7xKhJJ/ROQ1ODj8i8wr
+         78RzeAFUgl53lFImce1jOWetl5U86xT33YUgeLpIYWdVtZAmZr/+NtD0i1XGDDakAI0s
+         geIM6/N5AfKCaAafSaznN3s6Fbl5D10pFdv2YfP817oxtpe8VOe6ubPbFgEqJC2zFEi7
+         0K1Z+sO+I1RLQfaVCBSIe1ufAf9Rcn7Vocx9G77/xhot0jKOuuOFoTwo3evp74bnebvB
+         ODfjBeoLNtPtflNKDYcOPgNuPjgRyxv3UgOmnzyUQicwdrd6OR8Zz6TaibdN4UlvjpIr
+         9CPA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789959230; x=1790564030;
+        d=1e100.net; s=20260707; t=1789959233; x=1790564033;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=fkhGS8LwLr9AchoqrwEQvfmCs6eRJO1/8RM9quRrKBU=;
-        b=t3W59pZXk88UgLp9IMaRaxdhbUBHA5bzWPP+pPXuof2YykOVEj3nv7klfcviBV/bn2
-         Lg2m1MDmitOqI3f4wO6Zw5USXMS8SYZz2HooYOVcPmunS576TXMQKqoP8oouosjVO788
-         5KiWz5iQJ4HNXn9YQPsA8tKhl93As2cAP4HZIMsMMoO+43QRvoI86gJQCTQztfZcec3o
-         ZoIQN/hrQwIKP/aBy1upawpctBmeZKtkXzmFJt3XJeuF7okLaAbcIVIwHhKE55Ty6oBH
-         2T1FEoW9+spseXHM7kR0CL1wtV3bn5Q+v/24JxM7vKmBk17el7AJl5vrXZpcpUAz2KxA
-         Aicg==
-X-Forwarded-Encrypted: i=1; AKwUvBzT6THMTGfrDitbpMu+Y24QCseZzi49vMDNM8nmgK6zV6Gwzc5iQxRaiOw2vak2q3+hP4CsSVHE3ykZhXyd6w==@lists.linux.dev
-X-Gm-Message-State: AFuF++nsWx1oMQNh4ZLAhALIpS0zPw1lWrxwd1tqvH4lagalI0y10mZE
-	aBM3bgU1AARDk6gOcuq0n7yynE7ZyJf718fmIQ0b+VedJJayy8/nHKmA
-X-Gm-Gg: AYBFou1b08TsYT45ffqYK0RPeN6znSCs2HSk96DFDlzTrE36XA0+9oePosBql2lEosg
-	j+CXulfaRkUaUv6xcuoISMklyZrFsSV987iNxG/Ek54tbompuKv+qqpQ2nG8IYhyNyLq6ewlAb+
-	JxpNrVdDWE+k0CAh9keqqcQ8k8ggY1+UHrD6+Zhi6Bb3F/IM0Fv6UcC9cOIJdkAh485E4MoI/FG
-	lAJ3pHPV0QU3czk1ZkDFfYAnDMNJDdZtVTYcx8FpVvo7GKKWTPIGQFZ2A3UhZKdwYnzxUvucV7i
-	sMuPYJqBpyY65+LA6L9WZQlsPmvElDQSchJjAlthd67gChPxOpbzi7CZ8L125Rw0cqrqBHArzTI
-	Ui28e7S5EAbOzAybya5IGfI1hQf3yYTTG1lsRCkIyjBJKsInymB+hO6RMWuMi9aNYkkpi13pJpS
-	gadfFnNQAMgBD7gH/V1nm7OBdM9zAsZLFtSjSqsb3ORJnpXr27kHKilHR+8UJrRwZxYrBEztEhp
-	JWQKdCp6rTYDFQ26EbARudYSl6LDV+n+amd1/YNYBO8WLP/xI3CImgk+g3/63wlgj9NHTa7
-X-Received: by 2002:a05:620a:298c:b0:93b:d7a1:ba0b with SMTP id af79cd13be357-93bf5742f73mr878321485a.54.1789959230321;
-        Sun, 20 Sep 2026 19:53:50 -0700 (PDT)
+        bh=u8Ct4yW9W4ymcEv428o4m/ZX/KrAWtAnJ7CKPNzyvYY=;
+        b=lbcroaYmaaBi8p+MNoWXG9ieG7WN6ekeO/cp+fgub4gd4Bu9vw9gGstUTcvRFqWnZH
+         xFqUAm6v0vekWxw0/BycsXsByt9V3rJ3u/NaP91L1/e3AgipGOiW7phdgipt95CrywC5
+         361LHLbadMCE3VTZVaIAsYuXm00XdII/ke7j8GbPAjikeZ4M0gGgP8cnXnzCQoe4Vw2e
+         B1LjUGaqhkV5nUJvnCdYDGjBIeQShEtgtofFYIb/HErgBw5Bf5kjA9kGp6viL3tVr9z+
+         0vcc3ObnYHYUbxLVbMTmu0Sj/flIG8pSMvZwVNj2LE5HZQo2O7NnLIk2B/QaYQV4ofjb
+         7e2A==
+X-Forwarded-Encrypted: i=1; AKwUvBzdYDToxqCQVwDUf3QeoLv/dbp6HscIEZvX3sagO1b8ONMT+Xrft53LGjQPySy+fqBXs/ZHo/kNW2n27uycPA==@lists.linux.dev
+X-Gm-Message-State: AFuF++nt7QBNJuLByOQbBbZkgQuvO/mmmd0beHXjgmJBTYBkPAo0qKS1
+	ovzXe2wUGSuvLwLQq3p/Cz+mf3ueWPKPCDvqMi2QKb8QSnQk4NxEC759
+X-Gm-Gg: AYBFou2tuDZQbiVfb+juMmqq0afm4Dx+KHwWZvPUg2Bz1dCFAWXRucze+PzlOwNjul+
+	iRezm8WKQfN79TJN9+q9m5C2H8T5z++EgJoLX1EVD6wxDksbDEyhMW0yzKocDiuRVHCBjoi+V+/
+	PfL2muP+w8ouHYsszFmuUVDfuvU5npSFmcrCWIs8mGawxTgkqw8HCq9sId43YyDEjdcpV50Wm8N
+	7YEiiHayHiOeZeYD5LlPucnmBppy7s7QXv+6etkpOhaVxsooNymWxnHeed40wC2l0C+l8hHpxMe
+	iSgsKmTTIYXAEgTumD6wQGLNExQfCvvkVO82MPfh3A3kq2yLqIcTLpQ6XhiGjQ/05nfJjF7PaXh
+	XTi4UMPyMvZfz3Z/QAMNN1UWafDBJfAoTj5voIOE0yFGFjUs3TgxP+ZJqkXee1l7N6VMy1SlyEm
+	qc+Csy/VpkVNKNFoRJcuZULSsKwMDKk88tSL8FdP8EHCJsj/NHfwdP4wb6pNiAlSDQAYScqomFZ
+	oUEUJEAscqXAX0Cp5f33YAofpt/wf9R27EP8lLg+/l2WXmlWJIhmQZkvpooRK2NTOSXKcYO
+X-Received: by 2002:a05:620a:1724:b0:93b:d7a0:d9f0 with SMTP id af79cd13be357-93bf57eea2emr869731285a.74.1789959232559;
+        Sun, 20 Sep 2026 19:53:52 -0700 (PDT)
 Received: from localhost.localdomain ([2601:155:4200:2c80:64b9:5e22:f77c:324e])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-93bedb3de58sm528732785a.37.2026.09.20.19.53.48
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-93bedb3de58sm528732785a.37.2026.09.20.19.53.50
         (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Sun, 20 Sep 2026 19:53:49 -0700 (PDT)
+        Sun, 20 Sep 2026 19:53:51 -0700 (PDT)
 From: Paulos Yibelo <habte.yibelo@gmail.com>
 To: netdev@vger.kernel.org
 Cc: richard@nod.at,
@@ -87,9 +87,9 @@ Cc: richard@nod.at,
 	coreteam@netfilter.org,
 	bridge@lists.linux.dev,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH net v5 1/2] net: validate virtio checksum start after network header
-Date: Sun, 20 Sep 2026 22:53:40 -0400
-Message-ID: <20260921025341.44846-2-habte.yibelo@gmail.com>
+Subject: [PATCH net v5 2/2] ip: reject partial checksums covering network headers
+Date: Sun, 20 Sep 2026 22:53:41 -0400
+Message-ID: <20260921025341.44846-3-habte.yibelo@gmail.com>
 X-Mailer: git-send-email 2.46.0
 In-Reply-To: <20260921025341.44846-1-habte.yibelo@gmail.com>
 References: <20260920004733.6473-1-habte.yibelo@gmail.com>
@@ -102,37 +102,41 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-__virtio_net_hdr_to_skb() rejects a CHECKSUM_PARTIAL start smaller than
-an estimated minimum network-header length. Its input offsets are relative
-to skb->data.
+ip_do_fragment() and nf_br_ip_fragment() complete a CHECKSUM_PARTIAL skb
+before reading the IPv4 header length. ip6_fragment() and br_ip6_fragment()
+complete one after parsing the IPv6 header chain. A virtualization
+interface can supply a checksum start which, after link-layer removal,
+still points inside that parsed network header.
 
-Using skb_network_offset() here is unsafe. TUN/TAP, virtio-net, and UML
-parse a received virtio header before skb->network_header is established.
-On an skb with headroom, the resulting negative offset enlarges the
-apparent distance to the transport header and can admit a checksum start
-inside the network header.
+skb_checksum_help() then writes the completed checksum into header bytes
+the stack has already consumed. For IPv4, changing iph->ihl after routing
+and validation can make fragmentation copy beyond the skb's logical linear
+head into transmitted options. A negative checksum-start offset is rejected
+by skb_checksum_help(), but only after a WARN_ONCE which can panic a
+panic_on_warn system.
 
-Pass the data-relative L3 offset to the converter explicitly. IFF_TUN uses
-zero, AF_PACKET supplies its established network offset, and Ethernet
-receive paths parse Ethernet and nested VLAN headers with
-skb_header_pointer(), without changing skb state. Use the same origin for
-tunnel-offset validation, and make UML propagate conversion failures.
+Validate the checksum start against the parsed header length before
+completing it. For IPv4, read and validate IHL first, retain it, and
+reacquire iph after skb_checksum_help() in both implementations. For IPv6,
+use the length returned by ip6_find_1stfragopt() in both implementations.
 
-This does not require a virtual-machine guest. A TUN or TAP device with
-virtio-net header support is sufficient to reach these paths.
+Compare the signed checksum-start offset with the bounded signed header
+length so integer promotion cannot bypass either boundary.
 
-Fixes: 49d14b54a527 ("net: test for not too small csum_start in virtio_net_hdr_to_skb()")
-Fixes: a2fb4bc4e2a6 ("net: implement virtio helpers to handle UDP GSO tunneling.")
+Fixes: dbd3393c56a8 ("ipv4: add defensive check for CHECKSUM_PARTIAL skbs in ip_fragment")
+Fixes: 405c92f7a541 ("ipv6: add defensive check for CHECKSUM_PARTIAL skbs in ip_fragment")
+Fixes: 3c171f496ef5 ("netfilter: bridge: add connection tracking system")
+Fixes: 764dd163ac92 ("netfilter: nf_conntrack_bridge: add support for IPv6")
 Reported-by: Paulos Yibelo <habte.yibelo@gmail.com>
-Link: https://lore.kernel.org/netdev/20260920004733.6473-2-habte.yibelo@gmail.com/
+Link: https://lore.kernel.org/netdev/20260920004733.6473-3-habte.yibelo@gmail.com/
 Cc: stable@vger.kernel.org
 Signed-off-by: Paulos Yibelo <habte.yibelo@gmail.com>
 ---
 Changes in v5:
-- Replace the not-yet-established skb network-header offset with an
-  explicit data-relative L3 origin.
-- Cover all in-tree callers, including Ethernet/VLAN receive paths,
-  tunnel metadata, and UML error propagation.
+- Compare the checksum-start offset and IPv4 header length as signed
+  values.
+- Add parsed-header checks to the IPv4/IPv6 output and bridge-netfilter
+  fragmentation paths.
 - Drop the prior Acked-by and Reviewed-by tags because the code changed.
 
 Changes in v4:
@@ -140,302 +144,147 @@ Changes in v4:
   noted by Michael S. Tsirkin.
 
 Changes in v3:
-- Keep the network-relative comparison on one line for readability, as
-  requested by David Ahern.
+- No code changes.
 
 Changes in v2:
-- Make nh_min_len an int and remove the casts, as suggested by Michael S.
-  Tsirkin.
+- No code changes.
 
- arch/um/drivers/vector_transports.c | 10 +++-
- drivers/net/tun_vnet.h              | 28 ++++++++++-
- drivers/net/virtio_net.c            |  8 ++-
- include/linux/virtio_net.h          | 76 +++++++++++++++++++++++------
- net/packet/af_packet.c              |  6 ++-
- 5 files changed, 106 insertions(+), 22 deletions(-)
+ net/bridge/netfilter/nf_conntrack_bridge.c | 21 +++++++++++++++-----
+ net/ipv4/ip_output.c                       | 23 ++++++++++++++++------
+ net/ipv6/ip6_output.c                      | 12 ++++++++---
+ net/ipv6/netfilter.c                       | 12 ++++++++---
+ 4 files changed, 51 insertions(+), 17 deletions(-)
 
-diff --git a/arch/um/drivers/vector_transports.c b/arch/um/drivers/vector_transports.c
-index ddd127ee9..79bc05fc6 100644
---- a/arch/um/drivers/vector_transports.c
-+++ b/arch/um/drivers/vector_transports.c
-@@ -197,6 +197,7 @@ static int raw_verify_header(
- 	uint8_t *header, struct sk_buff *skb, struct vector_private *vp)
- {
- 	struct virtio_net_hdr *vheader = (struct virtio_net_hdr *) header;
-+	int network_offset;
+diff --git a/net/bridge/netfilter/nf_conntrack_bridge.c b/net/bridge/netfilter/nf_conntrack_bridge.c
+index 7ecb8a26b..d81ed8692 100644
+--- a/net/bridge/netfilter/nf_conntrack_bridge.c
++++ b/net/bridge/netfilter/nf_conntrack_bridge.c
+@@ -38,18 +38,29 @@ static int nf_br_ip_fragment(struct net *net, struct sock *sk,
+ 	struct iphdr *iph;
+ 	int err = 0;
  
- 	if ((vheader->gso_type != VIRTIO_NET_HDR_GSO_NONE) &&
- 		(vp->req_size != 65536)) {
-@@ -209,8 +210,13 @@ static int raw_verify_header(
- 	if ((vheader->flags & VIRTIO_NET_HDR_F_DATA_VALID) > 0)
- 		return 1;
+-	/* for offloaded checksums cleanup checksum before fragmentation */
+-	if (skb->ip_summed == CHECKSUM_PARTIAL &&
+-	    (err = skb_checksum_help(skb)))
++	iph = ip_hdr(skb);
++	hlen = iph->ihl * 4;
++	if (unlikely(hlen < sizeof(*iph) || hlen > skb_headlen(skb))) {
++		err = -EINVAL;
+ 		goto blackhole;
++	}
  
--	virtio_net_hdr_to_skb(skb, vheader, virtio_legacy_is_little_endian());
--	return 0;
-+	network_offset = virtio_net_hdr_get_l3_offset(skb, vheader);
-+	if (network_offset < 0)
-+		return network_offset;
-+
-+	return virtio_net_hdr_to_skb(skb, vheader,
-+				     virtio_legacy_is_little_endian(),
-+				     network_offset);
- }
+-	iph = ip_hdr(skb);
++	/* Complete offloaded checksums only after the validated IP header. */
++	if (skb->ip_summed == CHECKSUM_PARTIAL) {
++		if (unlikely(skb_checksum_start_offset(skb) < (int)hlen)) {
++			err = -EINVAL;
++			goto blackhole;
++		}
++		err = skb_checksum_help(skb);
++		if (err)
++			goto blackhole;
++		iph = ip_hdr(skb);
++	}
  
- static bool get_uint_param(
-diff --git a/drivers/net/tun_vnet.h b/drivers/net/tun_vnet.h
-index f4c652b1f..1c83c359d 100644
---- a/drivers/net/tun_vnet.h
-+++ b/drivers/net/tun_vnet.h
-@@ -177,10 +177,27 @@ static inline int tun_vnet_hdr_put(int sz, struct iov_iter *iter,
- 	return __tun_vnet_hdr_put(sz, 0, iter, hdr);
- }
+ 	/*
+ 	 *	Setup starting values
+ 	 */
  
-+static inline int
-+tun_vnet_hdr_get_l3_offset(unsigned int flags, const struct sk_buff *skb,
-+			   const struct virtio_net_hdr *hdr)
-+{
-+	if ((flags & TUN_TYPE_MASK) != IFF_TAP)
-+		return 0;
-+
-+	return virtio_net_hdr_get_l3_offset(skb, hdr);
-+}
-+
- static inline int tun_vnet_hdr_to_skb(unsigned int flags, struct sk_buff *skb,
- 				      const struct virtio_net_hdr *hdr)
- {
--	return virtio_net_hdr_to_skb(skb, hdr, tun_vnet_is_little_endian(flags));
-+	int network_offset = tun_vnet_hdr_get_l3_offset(flags, skb, hdr);
-+
-+	if (network_offset < 0)
-+		return network_offset;
-+
-+	return virtio_net_hdr_to_skb(skb, hdr,
-+				     tun_vnet_is_little_endian(flags),
-+				     network_offset);
- }
+-	hlen = iph->ihl * 4;
+ 	frag_max_size -= hlen;
+ 	ll_rs = LL_RESERVED_SPACE(skb->dev);
+ 	mtu = skb->dev->mtu;
+diff --git a/net/ipv4/ip_output.c b/net/ipv4/ip_output.c
+index a24cc8ee1..fa6a74d20 100644
+--- a/net/ipv4/ip_output.c
++++ b/net/ipv4/ip_output.c
+@@ -770,16 +770,28 @@ int ip_do_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
+ 	struct ip_frag_state state;
+ 	int err = 0;
  
- /*
-@@ -199,10 +216,17 @@ tun_vnet_hdr_tnl_to_skb(unsigned int flags, netdev_features_t features,
- 			struct sk_buff *skb,
- 			const struct virtio_net_hdr_v1_hash_tunnel *hdr)
- {
-+	const struct virtio_net_hdr *vnet_hdr = (const struct virtio_net_hdr *)hdr;
-+	int network_offset = tun_vnet_hdr_get_l3_offset(flags, skb, vnet_hdr);
-+
-+	if (network_offset < 0)
-+		return network_offset;
-+
- 	return virtio_net_hdr_tnl_to_skb(skb, hdr,
- 				features & NETIF_F_GSO_UDP_TUNNEL,
- 				features & NETIF_F_GSO_UDP_TUNNEL_CSUM,
--				tun_vnet_is_little_endian(flags));
-+				tun_vnet_is_little_endian(flags),
-+				network_offset);
- }
+-	/* for offloaded checksums cleanup checksum before fragmentation */
+-	if (skb->ip_summed == CHECKSUM_PARTIAL &&
+-	    (err = skb_checksum_help(skb)))
+-		goto fail;
+-
+ 	/*
+ 	 *	Point into the IP datagram header.
+ 	 */
  
- static inline int tun_vnet_hdr_from_skb(unsigned int flags,
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index e34c52d05..059eeb18e 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -2502,6 +2502,7 @@ static void virtnet_receive_done(struct virtnet_info *vi, struct receive_queue *
- {
- 	struct virtio_net_common_hdr *hdr;
- 	struct net_device *dev = vi->dev;
-+	int network_offset;
- 
- 	hdr = skb_vnet_common_hdr(skb);
- 	if (dev->features & NETIF_F_RXHASH && vi->has_rss_hash_report)
-@@ -2515,9 +2516,12 @@ static void virtnet_receive_done(struct virtnet_info *vi, struct receive_queue *
- 		goto frame_err;
- 	}
- 
--	if (virtio_net_hdr_tnl_to_skb(skb, &hdr->tnl_hdr, vi->rx_tnl,
-+	network_offset = virtio_net_hdr_get_l3_offset(skb, &hdr->hdr);
-+	if (network_offset < 0 ||
-+	    virtio_net_hdr_tnl_to_skb(skb, &hdr->tnl_hdr, vi->rx_tnl,
- 				      vi->rx_tnl_csum,
--				      virtio_is_little_endian(vi->vdev))) {
-+				      virtio_is_little_endian(vi->vdev),
-+				      network_offset)) {
- 		net_warn_ratelimited("%s: bad gso: type: %x, size: %u, flags %x tunnel %d tnl csum %d\n",
- 				     dev->name, hdr->hdr.gso_type,
- 				     hdr->hdr.gso_size, hdr->hdr.flags,
-diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-index c381b916c..a4c005796 100644
---- a/include/linux/virtio_net.h
-+++ b/include/linux/virtio_net.h
-@@ -48,11 +48,49 @@ static inline int virtio_net_hdr_set_proto(struct sk_buff *skb,
- 	return 0;
- }
- 
-+/*
-+ * Return the L3 offset of an Ethernet frame starting at skb->data.
-+ * The offset is unused without NEEDS_CSUM, so avoid parsing and return zero.
-+ */
-+static inline int
-+virtio_net_hdr_get_l3_offset(const struct sk_buff *skb,
-+			     const struct virtio_net_hdr *hdr)
-+{
-+	unsigned int parse_depth = VLAN_MAX_DEPTH;
-+	const struct ethhdr *eth;
-+	struct ethhdr ethbuf;
-+	__be16 protocol;
-+	int depth = ETH_HLEN;
-+
-+	if (!(hdr->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM))
-+		return 0;
-+
-+	eth = skb_header_pointer(skb, 0, sizeof(ethbuf), &ethbuf);
-+	if (!eth)
-+		return -EINVAL;
-+
-+	protocol = eth->h_proto;
-+	while (eth_type_vlan(protocol)) {
-+		const struct vlan_hdr *vh;
-+		struct vlan_hdr vhdr;
-+
-+		vh = skb_header_pointer(skb, depth, sizeof(vhdr), &vhdr);
-+		if (!vh || !--parse_depth)
-+			return -EINVAL;
-+
-+		protocol = vh->h_vlan_encapsulated_proto;
-+		depth += VLAN_HLEN;
+ 	iph = ip_hdr(skb);
++	hlen = iph->ihl * 4;
++	if (unlikely(hlen < sizeof(*iph) || hlen > skb_headlen(skb))) {
++		err = -EINVAL;
++		goto fail;
 +	}
 +
-+	return depth;
-+}
-+
- static inline int __virtio_net_hdr_to_skb(struct sk_buff *skb,
- 					  const struct virtio_net_hdr *hdr,
--					  bool little_endian, u8 hdr_gso_type)
-+					  bool little_endian, u8 hdr_gso_type,
-+					  int network_offset)
- {
--	unsigned int nh_min_len = sizeof(struct iphdr);
-+	int nh_min_len = sizeof(struct iphdr);
- 	unsigned int gso_type = 0;
- 	unsigned int thlen = 0;
- 	unsigned int p_off = 0;
-@@ -98,16 +136,20 @@ static inline int __virtio_net_hdr_to_skb(struct sk_buff *skb,
- 		u32 start = __virtio16_to_cpu(little_endian, hdr->csum_start);
- 		u32 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
- 		u32 needed = start + max_t(u32, thlen, off + sizeof(__sum16));
-+		int transport_offset;
++	/* Complete offloaded checksums only after the validated IP header. */
++	if (skb->ip_summed == CHECKSUM_PARTIAL) {
++		if (unlikely(skb_checksum_start_offset(skb) < (int)hlen)) {
++			err = -EINVAL;
++			goto fail;
++		}
++		err = skb_checksum_help(skb);
++		if (err)
++			goto fail;
++		iph = ip_hdr(skb);
++	}
  
- 		if (!pskb_may_pull(skb, needed))
- 			return -EINVAL;
+ 	mtu = ip_skb_dst_mtu(sk, skb);
+ 	if (IPCB(skb)->frag_max_size && IPCB(skb)->frag_max_size < mtu)
+@@ -789,7 +801,6 @@ int ip_do_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
+ 	 *	Setup starting values.
+ 	 */
  
- 		if (!skb_partial_csum_set(skb, start, off))
- 			return -EINVAL;
--		if (skb_transport_offset(skb) < nh_min_len)
-+
-+		transport_offset = skb_transport_offset(skb);
-+		if (transport_offset < nh_min_len || network_offset < 0 ||
-+		    network_offset > transport_offset - nh_min_len)
- 			return -EINVAL;
+-	hlen = iph->ihl * 4;
+ 	if (mtu < hlen + 8) {
+ 		err = -EMSGSIZE;
+ 		goto fail;
+diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
+index 550965058..d157b6ade 100644
+--- a/net/ipv6/ip6_output.c
++++ b/net/ipv6/ip6_output.c
+@@ -942,9 +942,15 @@ int ip6_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
+ 	frag_id = ipv6_select_ident(net, &ipv6_hdr(skb)->daddr,
+ 				    &ipv6_hdr(skb)->saddr);
  
--		nh_min_len = skb_transport_offset(skb);
-+		nh_min_len = transport_offset;
- 		p_off = nh_min_len + thlen;
- 		if (!pskb_may_pull(skb, p_off))
- 			return -EINVAL;
-@@ -206,9 +248,11 @@ static inline int __virtio_net_hdr_to_skb(struct sk_buff *skb,
+-	if (skb->ip_summed == CHECKSUM_PARTIAL &&
+-	    (err = skb_checksum_help(skb)))
+-		goto fail;
++	if (skb->ip_summed == CHECKSUM_PARTIAL) {
++		if (unlikely(skb_checksum_start_offset(skb) < (int)hlen)) {
++			err = -EINVAL;
++			goto fail;
++		}
++		err = skb_checksum_help(skb);
++		if (err)
++			goto fail;
++	}
  
- static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
- 					const struct virtio_net_hdr *hdr,
--					bool little_endian)
-+					bool little_endian,
-+					int network_offset)
- {
--	return __virtio_net_hdr_to_skb(skb, hdr, little_endian, hdr->gso_type);
-+	return __virtio_net_hdr_to_skb(skb, hdr, little_endian, hdr->gso_type,
-+				       network_offset);
- }
+ 	prevhdr = skb_network_header(skb) + nexthdr_offset;
+ 	hroom = LL_RESERVED_SPACE(rt->dst.dev);
+diff --git a/net/ipv6/netfilter.c b/net/ipv6/netfilter.c
+index a7025ec87..da7ada12f 100644
+--- a/net/ipv6/netfilter.c
++++ b/net/ipv6/netfilter.c
+@@ -144,9 +144,15 @@ int br_ip6_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
+ 	frag_id = ipv6_select_ident(net, &ipv6_hdr(skb)->daddr,
+ 				    &ipv6_hdr(skb)->saddr);
  
- /* This function must be called after virtio_net_hdr_from_skb(). */
-@@ -287,7 +331,7 @@ static inline int virtio_net_hdr_from_skb(const struct sk_buff *skb,
- 	return 0;
- }
+-	if (skb->ip_summed == CHECKSUM_PARTIAL &&
+-	    (err = skb_checksum_help(skb)))
+-		goto blackhole;
++	if (skb->ip_summed == CHECKSUM_PARTIAL) {
++		if (unlikely(skb_checksum_start_offset(skb) < (int)hlen)) {
++			err = -EINVAL;
++			goto blackhole;
++		}
++		err = skb_checksum_help(skb);
++		if (err)
++			goto blackhole;
++	}
  
--static inline unsigned int virtio_l3min(bool is_ipv6)
-+static inline int virtio_l3min(bool is_ipv6)
- {
- 	return is_ipv6 ? sizeof(struct ipv6hdr) : sizeof(struct iphdr);
- }
-@@ -297,18 +341,19 @@ virtio_net_hdr_tnl_to_skb(struct sk_buff *skb,
- 			  const struct virtio_net_hdr_v1_hash_tunnel *vhdr,
- 			  bool tnl_hdr_negotiated,
- 			  bool tnl_csum_negotiated,
--			  bool little_endian)
-+			  bool little_endian, int network_offset)
- {
- 	const struct virtio_net_hdr *hdr = (const struct virtio_net_hdr *)vhdr;
--	unsigned int inner_nh, outer_th, inner_th;
--	unsigned int inner_l3min, outer_l3min;
- 	u8 gso_inner_type, gso_tunnel_type;
- 	bool outer_isv6, inner_isv6;
-+	int inner_nh, outer_th, inner_th;
-+	int inner_l3min, outer_l3min;
- 	int ret;
- 
- 	gso_tunnel_type = hdr->gso_type & VIRTIO_NET_HDR_GSO_UDP_TUNNEL;
- 	if (!gso_tunnel_type)
--		return virtio_net_hdr_to_skb(skb, hdr, little_endian);
-+		return virtio_net_hdr_to_skb(skb, hdr, little_endian,
-+					     network_offset);
- 
- 	/* Tunnel not supported/negotiated, but the hdr asks for it. */
- 	if (!tnl_hdr_negotiated)
-@@ -332,19 +377,22 @@ virtio_net_hdr_tnl_to_skb(struct sk_buff *skb,
- 	outer_isv6 = gso_tunnel_type & VIRTIO_NET_HDR_GSO_UDP_TUNNEL_IPV6;
- 	inner_isv6 = gso_inner_type == VIRTIO_NET_HDR_GSO_TCPV6;
- 	inner_l3min = virtio_l3min(inner_isv6);
--	outer_l3min = ETH_HLEN + virtio_l3min(outer_isv6);
-+	outer_l3min = virtio_l3min(outer_isv6);
- 
- 	inner_th = __virtio16_to_cpu(little_endian, hdr->csum_start);
- 	inner_nh = le16_to_cpu(vhdr->inner_nh_offset);
- 	outer_th = le16_to_cpu(vhdr->outer_th_offset);
--	if (outer_th < outer_l3min ||
-+	if (network_offset < 0 ||
-+	    outer_th < outer_l3min ||
-+	    network_offset > outer_th - outer_l3min ||
- 	    inner_nh < outer_th + sizeof(struct udphdr) ||
- 	    inner_th < inner_nh + inner_l3min)
- 		return -EINVAL;
- 
- 	/* Let the basic parsing deal with plain GSO features. */
- 	ret = __virtio_net_hdr_to_skb(skb, hdr, true,
--				      hdr->gso_type & ~gso_tunnel_type);
-+				      hdr->gso_type & ~gso_tunnel_type,
-+				      network_offset);
- 	if (ret)
- 		return ret;
- 
-diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
-index 50cae32ae..04c80e23d 100644
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -2901,7 +2901,8 @@ static int tpacket_snd(struct packet_sock *po, struct msghdr *msg)
- 		}
- 
- 		if (has_vnet_hdr) {
--			if (virtio_net_hdr_to_skb(skb, &vnet_hdr, vio_le())) {
-+			if (virtio_net_hdr_to_skb(skb, &vnet_hdr, vio_le(),
-+						  skb_network_offset(skb))) {
- 				tp_len = -EINVAL;
- 				goto tpacket_error;
- 			}
-@@ -3103,7 +3104,8 @@ static int packet_snd(struct socket *sock, struct msghdr *msg, size_t len)
- 	packet_parse_headers(skb, sock);
- 
- 	if (vnet_hdr_sz) {
--		err = virtio_net_hdr_to_skb(skb, &vnet_hdr, vio_le());
-+		err = virtio_net_hdr_to_skb(skb, &vnet_hdr, vio_le(),
-+					    skb_network_offset(skb));
- 		if (err)
- 			goto out_free;
- 		len += vnet_hdr_sz;
+ 	prevhdr = skb_network_header(skb) + nexthdr_offset;
+ 	hroom = LL_RESERVED_SPACE(skb->dev);
 -- 
 2.46.0
