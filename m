@@ -1,233 +1,198 @@
-Received: from mail-wm2-f12.google.com (mail-wm2-f12.google.com [74.125.225.140])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from MW6PR02CU001.outbound.protection.outlook.com (mail-westus2azolkn19012023.outbound.protection.outlook.com [52.103.10.23])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DC9E4503FA
-	for <virtualization@lists.linux.dev>; Mon, 21 Sep 2026 08:23:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.140
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789979028; cv=none; b=faPAxKOttEaBcpqJhfvoEF7FeOIzOJFePzwmqS3Ps62GKj6jIt4S+He3uR4aTwWrAJybaxARx8TIslK3tmVIRGgAj6huA0xwh7oFiGms2IhY5eJvvLILMHABs9cVKUS8BLnkv13B6aOkhV0zAIrCRAQ99vbq0BCYeKxFmBaYO8M=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789979028; c=relaxed/simple;
-	bh=xcjHNliDAAlJxE4i6y1GMT1/Vnv55RTh/tAGPwCPNZI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nfrJvmYagfdMOprqWrsdK/2tnurbJ124WEt8onExRY3auJvA+k5jhXbAOJrbcYsDobn4qrsqa8npQnMwD5PrbAZ9RrM4MQQJUz0D8Nphnk7rU3OGIzPc8+75bufnsiePBWTiCBkVvX5GnYidiBxtIgkwgerA3GiWKMIwb1hMbSI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=g6R2pyQs; arc=none smtp.client-ip=74.125.225.140
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF5874A093D
+	for <virtualization@lists.linux.dev>; Mon, 21 Sep 2026 13:59:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.103.10.23
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789999173; cv=fail; b=OUKO9jHpAfaNkifXzFDm04lqzw5u6YueSE1vvaQuxfObVQBZaJ/1R9+La4lau8IqBuLfl3NO+ZnLPYUmollEpEHBuGlqNqY9BAgfupQNoagllPR8N5qZh52piYide/AoM8SaVNAywDS7NyaqdUG94W4ltSiaFtrb2VDu/Mill7Q=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789999173; c=relaxed/simple;
+	bh=7GkY4vP9i+C5sm2dA3sLhX4sdgPKxYV0HcIHRi/JpDc=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=Cm9eKKm3vvIkb3vMmAypIomZhrtEJ3eSGusw0nGKAWajp2VMJ9h1zdu+wpi98LqbI/6dOtjLe5QxbAY6hC8wthjqJweg/4cmOaZCpdzPipW57/y0ZT7UeE5ho+fACHgTMVKFLBHRRZx79YnHoxX+5PAZZoR4uzBdtO0qM3k/i/A=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com; spf=pass smtp.mailfrom=outlook.com; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=P4a3vcPZ; arc=fail smtp.client-ip=52.103.10.23
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="g6R2pyQs"
-Received: by mail-wm2-f12.google.com with SMTP id 5b1f17b1804b1-49b912d3931so19629825e9.3
-        for <virtualization@lists.linux.dev>; Mon, 21 Sep 2026 01:23:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1789979023; x=1790583823; darn=lists.linux.dev;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=qVkcwRd6JhJoKhW863CUio5f3wgxadePOqahgAJN2pE=;
-        b=g6R2pyQs2rAn+XgFDFpV/4j523oPRKCUWOIMSDp781awx7fAiVP6qtxZCRixHRzbJr
-         keKHhCbCJqbgvI0oRTlIPlpCrevVPkxDdaZiMw1nyevCHK+n5H0sPglpl/7NMAU9+vvw
-         2CVjfTtTXyOzy6FUWVIWhhSJoCAi6skpggXiPasA3qlBVoe4rc0vQXxL20fUdUHbNoJV
-         UnWkrP9vxAw9dMH1pcRdQwJiiCn3MX4ejYgswE8JLUGnVF9iNHVh+dxeyllgvXMG0XEW
-         t1frDKQ06F3gObXgZCvZZznMDj+PzF64VxQDbtn4WWmUG8y0/8FEcEXLlziyxBGmuwFW
-         i+HQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789979023; x=1790583823;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=qVkcwRd6JhJoKhW863CUio5f3wgxadePOqahgAJN2pE=;
-        b=JO7HQzrLhgqFMsiFoFLvlZFPU9nUqdpf77MrDkCStSoUuu4k1HlA4n7yieUxVblxbT
-         v93DUdnWGToWAVP+OUXUaz+G00Z67iHoyyH+6J7RBODhREI+CelQV4WHZ9BEkbiroN6B
-         AhjLkoBLMHDKjHrvxGoooIuBbFOs+o5v2T6sIlQ6od6VTkT50lrOMjDYxtaIFGHRjOA3
-         1EY9m0FeuvEL/3sp26TGW1B8r3MnybGBVRr73ej26JJsJgRHghctGP0za8J6GaH93CMB
-         +r9RHvjex/9yeWK1Y0T43mtHJZQTFXm4qs1hpHwgd9Fe3SkMfl7s/LM836ltcOOIf3Af
-         vbcQ==
-X-Forwarded-Encrypted: i=1; AKwUvBw6uBiPHNqsKb0mmpiCE4q03uwQ8vZt/l7h6W0FCo8YKigPm0tzO3Kocxa+92wCgvZoDriP6rRadc4jui1isg==@lists.linux.dev
-X-Gm-Message-State: AFuF++k3V3TVygia0FZ6IoU/QMhBOAddIDEJgQkLCpFHYaYkB+W5cBx6
-	R/Mf4H/1FT5+D8LhLpMXqa8sPoSbMrbpPANNPGqkXz1G12CoNfCN2Oj7dox+LIK6Ddg=
-X-Gm-Gg: AYBFou3PL8cl0hnwcslytm//FLfJPbMjhr4/xEgtUiRMPiMEePuNphhMalbXQe6w+93
-	sizX+sFUTjvDGNS6LHuD5FoMhmIUDYe1Af4h5Y8NoGOuKEqdVo5UwB3q1NYKE/5bpN0ojbxrL50
-	Hdevnw4JDBTC9lhC/2kLntDYBAljl8scXAbgyWOJFLn/jo/qM6UeKQ0mqUq9iZ1id8m1vSpHQit
-	pDlVbCa6I+4UfOrxzQ561kgT6CnlDQtGwTWDyb3NXB1ivq5DK2tUKMKxQu5AXpilQfTMr4qJc1O
-	Wc8XGSijfoaS+oJR4E93/GtXuwIWYq9MlEJfboY3ug7t7oUMDVXsWV4mAEfHsY5D0QMNpU6afSR
-	9/HEdegq1rSXB9mf3ZxCnFQ8VOIlvfRTTMdQULzQNmIV2wIZ312K7yz7S0oGLNDPggtKCNXGu12
-	8S2E71/oskwx/p/KR2OQVYIvKUtwJcCh3Iri7ALgeGhz4N6mfHMnhK+MNxwx9pz7c+1JGfYdK+J
-	Q==
-X-Received: by 2002:a05:600c:4e14:b0:49e:7cfc:a9b7 with SMTP id 5b1f17b1804b1-49fc5735f17mr121597825e9.18.1789979023335;
-        Mon, 21 Sep 2026 01:23:43 -0700 (PDT)
-Received: from pathway.suse.cz ([176.114.240.130])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49fc585920fsm582435985e9.4.2026.09.21.01.23.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Sep 2026 01:23:42 -0700 (PDT)
-Date: Mon, 21 Sep 2026 10:23:40 +0200
-From: Petr Mladek <pmladek@suse.com>
-To: Zack Rusin <zack.rusin@broadcom.com>
-Cc: "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>, x86@kernel.org,
-	Joel Granados <joel.granados@kernel.org>,
-	Baoquan He <baoquan.he@linux.dev>,
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"H . Peter Anvin" <hpa@zytor.com>, virtualization@lists.linux.dev,
-	bcm-kernel-feedback-list@broadcom.com, linux-kernel@vger.kernel.org,
-	John Ogness <john.ogness@linutronix.de>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Sergey Senozhatsky <senozhatsky@chromium.org>,
-	Kees Cook <kees@kernel.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Pasha Tatashin <pasha.tatashin@soleen.com>,
-	Pratyush Yadav <pratyush@kernel.org>,
-	Dave Young <ruirui.yang@linux.dev>,
-	Jonathan Corbet <corbet@lwn.net>, Bo Gan <bo.gan@broadcom.com>,
-	Brennan Lamoreaux <brennan.lamoreaux@broadcom.com>,
-	kexec@lists.infradead.org, linux-doc@vger.kernel.org,
-	Stephen Brennan <stephen.s.brennan@oracle.com>
-Subject: Re: [PATCH v1 4/4] x86/vmware: Run panic diagnostics before kdump by
- default
-Message-ID: <arDpjCVbUFcdwq1A@pathway.suse.cz>
+	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="P4a3vcPZ"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=Ee/XE/iHhGOGhF1S1mEUBEw4zrkP8pjL+qSEyr4KgEqjJ0l1kUUEWyCB95tQPNM59rqkiwrr8/pjZLlb6vXMSlIXBzeqJMr4lhhkCjKeS+P0JlBo3SiF5A07ovuGc9fAW4GG/5JOgU+a8hWPmpzkV2ugTP1JV08SHV5TfsUhcaN4C1jr9AamQNCa8paGbBmzE7GhnjZ+thlIq28AwWmAjZXtYjIqUR9H57GDxDnqAFsAN0tq+NbD+06WGwbVcLAD5aNE4mbf13ernkiMEnDuJSs2t34OxF+bna7jBqYeLcb4oTEaP8W8NkOayoQgJ89Knr2+307NIAul/jeC4EpIpg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=QL4ZdK8AUnq/CagraVKaEOD57HNhxdY9hysb0mZBhTM=;
+ b=t5dWRcAYbhNP73Pu/n+hPuilQQVqVViJJ0OqnwXSi0QOMaP7b9sc/IsTo1a7sDKr0GYjZWPqxwXyfod9J1QHy/3dl8WT349NsPRskyd64K5MB9MvwbtKw54p2QB7QAGpVJj9V6/y4ab4BfYCGpk7xbvwwgod1dCvkJvP7Z2o8dHR8l9wl6xs9qSMw69tPk0wum5EGh58F2OdwzZNUSXobiRpBGI97tzUbwYb1f5xsiXHvgE4LAFRjTg4XyHw4DvvOYbeV9OVSknZdS5E455CjGs73wMh+HVDbP/aJpPjP3l2VkpskRSKX/BWOrlTSOTyjdsrVNZrMzBxPpH6FReA+Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=QL4ZdK8AUnq/CagraVKaEOD57HNhxdY9hysb0mZBhTM=;
+ b=P4a3vcPZeWjfTd7qGJuFSIPirF73MDiKakVylcDBEV1K7Ks/Yc4Ggy5tpaX2bUWvoIweP8ZdK9ULwkr8O8NBRUrdIgzwuJE7CWsSy0I8Fx9D/wm4tK7fqREuIn9H6JSqmPfaSyBhGgTmIvi5PYRX/v/Sibx51bOfs8DP+u7JAjpC/Ax3Wwe2zMXFnkZzForrznw5e1pbbLKlVDqzvL50SCixooB41yUV8icnMnZ6SxvS1ForOsGSSXsN8hYYCaxHMnd6QzLoqeZ337zp++fAXWyCMIqEkRh7+TRh1DL1OvAFXoFL4cOZcKniNv9lV3vCw7cjJdVe/+jJbs1tr+ylvg==
+Received: from SN6PR02MB4157.namprd02.prod.outlook.com (2603:10b6:805:33::23)
+ by DS1PR02MB10419.namprd02.prod.outlook.com (2603:10b6:8:213::18) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.428.16; Mon, 21 Sep
+ 2026 13:59:26 +0000
+Received: from SN6PR02MB4157.namprd02.prod.outlook.com
+ ([fe80::900:1ccf:2b1e:52b6]) by SN6PR02MB4157.namprd02.prod.outlook.com
+ ([fe80::900:1ccf:2b1e:52b6%5]) with mapi id 15.21.0428.015; Mon, 21 Sep 2026
+ 13:59:25 +0000
+From: Michael Kelley <mhklinux@outlook.com>
+To: Zack Rusin <zack.rusin@broadcom.com>, Borislav Petkov <bp@alien8.de>, Ajay
+ Kaher <ajay.kaher@broadcom.com>, Alexey Makhalov
+	<alexey.makhalov@broadcom.com>, "x86@kernel.org" <x86@kernel.org>, Petr
+ Mladek <pmladek@suse.com>, Joel Granados <joel.granados@kernel.org>, Baoquan
+ He <baoquan.he@linux.dev>
+CC: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Dave
+ Hansen <dave.hansen@linux.intel.com>, "H . Peter Anvin" <hpa@zytor.com>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"bcm-kernel-feedback-list@broadcom.com"
+	<bcm-kernel-feedback-list@broadcom.com>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, John Ogness <john.ogness@linutronix.de>,
+	Steven Rostedt <rostedt@goodmis.org>, Sergey Senozhatsky
+	<senozhatsky@chromium.org>, Kees Cook <kees@kernel.org>, Andrew Morton
+	<akpm@linux-foundation.org>, Mike Rapoport <rppt@kernel.org>, Pasha Tatashin
+	<pasha.tatashin@soleen.com>, Pratyush Yadav <pratyush@kernel.org>, Dave Young
+	<ruirui.yang@linux.dev>, Jonathan Corbet <corbet@lwn.net>, Bo Gan
+	<bo.gan@broadcom.com>, Brennan Lamoreaux <brennan.lamoreaux@broadcom.com>,
+	"kexec@lists.infradead.org" <kexec@lists.infradead.org>,
+	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>
+Subject: RE: [PATCH v1 1/4] x86/vmware: Add a bounded panic log sender
+Thread-Topic: [PATCH v1 1/4] x86/vmware: Add a bounded panic log sender
+Thread-Index: AQDzRMZMPXW8diaCGPo9yW1hFxpnOwFlsqbluKHn46A=
+Date: Mon, 21 Sep 2026 13:59:25 +0000
+Message-ID:
+ <SN6PR02MB41574A11D309A0530C63E0FED4842@SN6PR02MB4157.namprd02.prod.outlook.com>
 References: <cover.1788414671.git.zack.rusin@broadcom.com>
- <7487011dfb95aadda9515b22a5852680df1982c5.1788414671.git.zack.rusin@broadcom.com>
- <aquttpMVKX8e6zGB@pathway.suse.cz>
- <CABQX2QPJVg-dZB9f4ydRU_5W7nyWwVCQtDoRGoe1+9cA7wyUDw@mail.gmail.com>
- <bc0bdd14-5e6a-0676-cd04-14fb0bb93cd5@igalia.com>
- <CABQX2QMDNHcKotEa_t9Y37L+uHhV-CfqSR2vcRpNT1c2O9C_2Q@mail.gmail.com>
+ <18115e519d85b753c147b45470120721eaf14505.1788414671.git.zack.rusin@broadcom.com>
+In-Reply-To:
+ <18115e519d85b753c147b45470120721eaf14505.1788414671.git.zack.rusin@broadcom.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: SN6PR02MB4157:EE_|DS1PR02MB10419:EE_
+x-ms-office365-filtering-correlation-id: 48ecb68a-5d3e-4804-b347-08df17e88bf3
+x-ms-exchange-slblob-mailprops:
+ YfhX3sd/0TWTq462A1ci1xfPBdi3ebdlDESEEZ3ciwWGdGunGE597jySxvEiJ5WDZKkW7Z50PFsRPjw8UH8Xp8qt3lU4X+89RuEP8ONAqOW/hEvpb5ljuH8h0rHv6G1qOk1nbIAGSUjtBZbxcQaF3OAVkAMoVyuesYDIEUGi2y8J44Rc/Sz7U01FrdeFnLAcnxzpOvhckzVksODHVUI6N9jiWxv8CgOGyZf2HdiDcOMcrgt3QvcHTSk9+3jizkJnlTJZiur0NovJ2qkYCk2TzHQMa+6GPhzUHy1IhVUDzebouu79PL+bkfWT6tAY+2fP/YZiiLRlwde4CnRzAaJfOWDEcNQZMjab9SLkt2NicJgwta37Ej/2x9fytR35d3nLSzFk/5J8rX2FwMKJZUfbYNZFvDXhHYx80xlX6ygolv//DTh9JwNMw1M4oyL4ihmBP6OJ6bToAT36LYNPCDDSaf7wjy68gKzTHWf5r6rw2yKQfODp8/JeCu0PEflY0DuI13yt26iIABMvpNs1Z+bDk/q2Ib/4dKMKyDKfRdLRC/XgE6/NfH/YAYEivkiKUrWxEJJIcULncS/jeWQ8uN6UJV4sCmyp7SXQ/cjYtmKqZUJTwWQOIotDtjwWraQPEg+PJks6A3H8VApxjYTpPcy9jmFixQ6ek4IM2ZBptMZ85BFhF+0JO5VfCbOa6KFozKi4bPgZkkXPNqAv4Fk7Mh33COXOXoniDTEdeboTmTbV5+x1ELmjMBQSrBZMjUYbZVYrTyioUfTshjwlOLV6Ki9Y5TofHV6rD1r1dvKCJ7hczrY=
+x-microsoft-antispam:
+ BCL:0;ARA:14566002|8060799015|8062599012|19110799012|25010399006|4140399003|31061999003|37011999003|55001999006|24021099003|13091999003|15080799012|52005399003|40105399003|41105399003|12091999003|1602099012|10035399007|2607281247196008|102099032|440099028|3412199025|4302099013;
+x-microsoft-antispam-message-info:
+ =?us-ascii?Q?NobZbp/DHWCHMZtwh1YD62OaWAJxrXTAjxNlCVnK1ebuiGF5oz1Cfejcbw4r?=
+ =?us-ascii?Q?pMj0+//iOIEiMEeTr3uwiDcccnPKXye1lgEvlNMyX+C9Rab36BdwjFetl6Mw?=
+ =?us-ascii?Q?pEeM3iBaO/JdQj9Nl8v45gVdClu06UNocPjL0SgbGGqqafsdI4suAsuAkbxw?=
+ =?us-ascii?Q?sTqToVTUZqW2BnYRVqgDQ9RnaOM3SPYxrKzStE1buHlPhtLDdGp/6Ls2d4b5?=
+ =?us-ascii?Q?iawG7GalN9AwFMqKN82AUwWK6xhTguqjIEJ1O9FJzvG7B1uuL592BvgI1OnP?=
+ =?us-ascii?Q?ZW2mI3RNs6fugsi4xjvylTHFN16XpXxRGslslpUgh10OR8k9JFm6AnROorNl?=
+ =?us-ascii?Q?Ggh7VD3YZrBA0s1eEJEiCo7hUkDDAVv/giUOzzGAbw8mKqlhulJPL+NWRG/2?=
+ =?us-ascii?Q?FOp5qd/HFacNsSdoOSNZVQKP8xOImOHrx8qNe2ERTERTBvZt2zXEaNAjhn09?=
+ =?us-ascii?Q?K+Sfym/3MkPI3YhX2OCHDNba3la/JKfL7rH0GivUe9QwKxWQvlHBnoT29POb?=
+ =?us-ascii?Q?xv8pwIL+pUZzr4RxKWxsnMUwzb30YM7azxGgPmT/NQag/20mRnDJvgEnSdx6?=
+ =?us-ascii?Q?5HqFx5h+1Dw7jBdIb/7B7vfBK1F6fUugo5HljYtXdCWOb21sed0qjz1yLozh?=
+ =?us-ascii?Q?7DGMAMiZBEbiTC6D++RGteaUdNZNWzdCro9mdatn1hR8rZbUOiDyfKAHIdG3?=
+ =?us-ascii?Q?Cbr9RH22Er5/Sq85KcS7L3v7H8RZTHYBqKjzJSCSJlOYippBgXetFyfIIL6h?=
+ =?us-ascii?Q?8wdJv1q1PB1w/tBOooZI4GUrk3LjDoLUUM6yLKJveQV7pdzTKL8CuhhX9UvM?=
+ =?us-ascii?Q?qXJnTAaIqYA0enBYV0V+cEqn5TquufefU3EThOnzMZQg0hS+tIzLFKP3m9vk?=
+ =?us-ascii?Q?0v9IrgVJtkDSgPrdstDIrQOEmJtmHcSrG034QUL7e7u7PvyFEXBVAEaDw09e?=
+ =?us-ascii?Q?Ln8IQ0H79rWmrToQAVFqBmmyk/VrGRBHjuNHqibRa45VpshAi4ynBKVYfcWs?=
+ =?us-ascii?Q?v76Wn2itpQKrgRXW2UkncyT4J3huE6hXvF7gf9rjegfU1+t9yih0a+kmUcdQ?=
+ =?us-ascii?Q?8O3a6bQMkC1n/4R4M20ejRNxTKi/l9HalOnTxTqNv0vfpUYD0M2/Pmyoio0Z?=
+ =?us-ascii?Q?4uYPNZJGiA88HIkOGWJteoRkkeXdCrxsDA=3D=3D?=
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?Tz2LNnjhxvG/xaIR+ePFaJ1Ihsvuqlof+Ql4UW0EAF6tF1+NV0RGWV38wEZT?=
+ =?us-ascii?Q?1tqKB+R/anZXzvm3oPvN3quztlFzuaLIdS2G5ycxChy3oNsN4YB8GJtUhDvX?=
+ =?us-ascii?Q?DuREZPAWa/OGhDBMS4A/ATKrQydjgZ75AV/Z55RqHTddR4JOF8dnEQa8/GxB?=
+ =?us-ascii?Q?kPoKvBMrnX4uaddDY0rVtJ2IIDwx6SlGkCrLPqe3FOKGyv4cM58dLV3JFMVr?=
+ =?us-ascii?Q?Egj8vonwX1rbnEpImdnX3LRhFR4aCBvtK9T5dZuuNjGDfGJy4MYyhv5nJjCZ?=
+ =?us-ascii?Q?JuEwVdQ0YQ6VSA4XCW2ZE/l+KX/ZNND8MRt1syCB+1xECOAOBx4oPG/n6j0g?=
+ =?us-ascii?Q?Q6T6ZtGoHa6vVUmSnF52D7VVGrHhEzgU7ovtTdOLt4vav8p6SpCK59b3lgd9?=
+ =?us-ascii?Q?0s2uB7CR+DwW7N2ghLqHfEvmDzfDjbCHxhwK1uy1vHW+Vksp4OqdWIziBDbm?=
+ =?us-ascii?Q?UAp63s5HaayknGt7/v3HfoAwYHa5kygBZhTY18qN6xfSeQoljrgbF2rcdlWd?=
+ =?us-ascii?Q?lB3JvKZxXUAhVHSQbeWRtMfCqgwC1uvyRjJqNQHcNbUgOvZbln5bI+BUpoAJ?=
+ =?us-ascii?Q?9uzkQ4vt/KNhcb6jaRyACrqi6WPvHyo8LnsNEirPM411LuKYkdkeRo7TcGiG?=
+ =?us-ascii?Q?OHKfKDCd166r8f+G0CBxEP8CLSwb3VsYK+zd3bXDPhnKLMQ6cv/wBD8wW0TL?=
+ =?us-ascii?Q?f54voAlY6AoIoV7pHEGAn8sa0G/iMBQTdNVr/MfkASbxrf6+Gmk8y88zZbSe?=
+ =?us-ascii?Q?MFVBHy6FpvrxsNOZK5if6zZuQqSkboPHqIzvZrwmASNMpY46ILNqM3jL0Z+G?=
+ =?us-ascii?Q?sdoZ68YtfzsoQHN7rBEM2m2sGLch18jvfoiMpYv6Vn8cDTLjCG6dUVLiO9Qr?=
+ =?us-ascii?Q?EYRW+44m77xH8gsRHHqgH3JJ31kFemJU/kCdkYOTrF4QC2K9m7lktlg9W+Dz?=
+ =?us-ascii?Q?FmhQOl0XDEgPnhCIifLZv0k1Sm9ilNVSWv9Gh3UuJo87Jf79lUU/qLSfD1BF?=
+ =?us-ascii?Q?QEIuyYR8qhIo+akGQCN73Vdtnq9IHSQVjOnGI6OAn7EsC3cWHcir0FdfSEV6?=
+ =?us-ascii?Q?vSoEacjB7YSipBThzRp6Kv49nr16GTgnCwUTRwK3/c0mBVnCDMRXcLr3zu53?=
+ =?us-ascii?Q?t1XzUc4c0I8UfXfSVWy8Rof1Gcv5KbUjA93N+3oDyPq1IaPpvR4fOuKqIVCs?=
+ =?us-ascii?Q?q/SIU8EmN4TYYDkXL1hxR1IMTFACYEFeo300kWPh2fC3TjCrKigVj78FAiLX?=
+ =?us-ascii?Q?S6Kvpyd3ISWPiY9xiVTIYY1jD8aLc0yspxa1NPQqjh/FFlJa80bJ6jjBasSZ?=
+ =?us-ascii?Q?XB31nCO9oNK+arhGAtAOo/UVB7pyMlfJKwfiTu8mYahtFx3o1ZH8pWNLaZBi?=
+ =?us-ascii?Q?cOT19KM=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CABQX2QMDNHcKotEa_t9Y37L+uHhV-CfqSR2vcRpNT1c2O9C_2Q@mail.gmail.com>
+X-OriginatorOrg: outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: SN6PR02MB4157.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-CrossTenant-Network-Message-Id: 48ecb68a-5d3e-4804-b347-08df17e88bf3
+X-MS-Exchange-CrossTenant-originalarrivaltime: 21 Sep 2026 13:59:25.7501
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS1PR02MB10419
 
-On Fri 2026-09-18 19:00:13, Zack Rusin wrote:
-> On Fri, Sep 18, 2026 at 10:26 AM Guilherme G. Piccoli
-> <gpiccoli@igalia.com> wrote:
-> >
-> > Hi Petr, Zack - thanks for CCing me!
-> > Some comments below:
-> 
-> Hi, Guilherme.
-> 
-> Thanks for looking at this and for adding Stephen. I'll keep you both copied.
-> 
-> > On 18/09/2026 00:23, Zack Rusin wrote:
-> > >> [...]
-> > >> Maybe, we should start with something simple, and introduce
-> > >> one more panic notifier as a start. It might be called either:
-> > >>
-> > >>   + "panic_hypervisor_list" because "crash_kexec_post_notifiers = true"
-> > >>     seems to be primary set on hypervisors.
-> > >>
-> > >> But I would rather make it more generic and call it
-> > >>
-> > >>   + panic_pre_crash_kexec or panic_pre_kdump because there might be
-> > >>     more notifiers which are either 100% safe and useful or are worth
-> > >>     the risk before calling crash dump.
-> > >>
-> > >> We could put there x86/vmware notifiers as a start. And we could later
-> > >> move there other important notifiers.
-> > >>
-> > >> How does that sound, please?
-> > >
-> >
-> > It's a good idea, IMO. We could start with this, Zach commented some
-> > implementation details below...and after it gets merged, we could move
-> > other hypervisors that currently set "crash_kexec_post_notifiers" to
-> > this list and eventually, unexport this symbol. We should avoid having
-> > code forcing this parameter, as Petr said, many notifiers are executed
-> > if that is set.
-> 
-> Agreed. The v2 I'm working on drops VMware's assignment to
-> crash_kexec_post_notifiers and leaves the existing setting unchanged.
-> 
-> > (I'm CCing Stephen Brennan here, I recall he had problems with this
-> > being auto-set, we talked about that in the panic notifiers big
-> > discussions in the past heh)
-> >
-> > The only thing I'd like to suggest: I think we should have a parameter
-> > that disables running this list, which would be the opposite of
-> > "crash_kexec_post_notifiers".
-> >
-> > I would implement it as something like: "postpone_pre_kexec_notifiers"
-> > or something like that. The parameter would basically "move" this list
-> > execution to the same time as the current notifiers, gating them to
-> > "crash_kexec_post_notifiers". This way, we'd allow users to debug kexec
-> > failures maybe related to the "early" notifiers. WDYT?
-> 
-> I'm happy to add that as a separate patch if Petr agrees. With it set,
-> the new list would follow ordinary panic-notifier ordering relative to
-> kdump: it would run before a successful transition only when
-> crash_kexec_post_notifiers is also set. If panic reaches the late
-> site, the list would remain eligible to run there. I'd keep that site
-> after sys_info() and before the kmsg dumpers so the log includes the
-> additional notifier and panic_print output available at that point.
-> 
-> I've called it panic_pre_kdump_postpone after the list, but I'm fine
-> with whatever name you and Petr prefer.
+From: Zack Rusin <zack.rusin@broadcom.com> Sent: Tuesday, September 8, 2026=
+ 11:07 AM
+>=20
+> A virtual machine may have no guest-local persistent storage or working
+> userspace after a panic. Preserve the newest kernel log tail in the host
+> vmware.log, which remains available after the VM terminates.
+>=20
+> Allocate one page during early init and register a panic-only kmsg dumper=
+.
+> Copy the newest records once, prefix them with "log ", and send one
+> explicit-length RPC message over the low-bandwidth register path. The pag=
+e
+> limit bounds panic-time work and avoids sharing guest memory with the hos=
+t.
 
-I do not have strong opinion whether we need the new parameter. It is rather
-a call for kexec/crash_dump maintainers.
+Hyper-V provides a similar capability to push the newest 4 KiB of the
+kmsg log to the host so it is preserved after the VM terminates. I've used
+this functionality on many occasions, and it is definitely valuable. The bi=
+ggest
+problem is that 4 KiB is often not enough bytes to capture the most relevan=
+t
+part of the stack dump that's created by panic(). If you can expand to 8 Ki=
+B,
+I think you'll find that works much better. For Hyper-V, we're still stuck
+with the 4 KiB limit because negotiating and staging the expansion with the
+host hasn't gotten above that team's cut line.
 
-But if we added it, we should make it clear that it is intended for
-debugging of kexec/crash_dump failures. And that it might prevent
-correct handling of the crash on hypervisors side.
+Michael
 
-> > > [...]
-> > > I think that without that default though, x86 oops_end() can enter
-> > > crash_kexec(regs) before reaching panic(), for example with
-> > > panic_on_oops=1. To cover that path too, I'd call the chain from
-> > > __crash_kexec() after the image check and register capture, under the
-> > > existing kexec lock. A second call in vpanic(), immediately before
-> > > kmsg_dump_desc(), would cover the fallback path. And I think a
-> > > set-once guard would prevent duplicate or recursive dispatch.
-> > >
-> >
-> > Regarding this, 2 things:
-> >
-> > a) I think you could change kexec_should_crash() to "return 0" also in
-> > case the new list is set to run, the same is done currently for
-> > "crash_kexec_post_notifiers". Makes sense?
-
-Honestly, it does not make sense to me ;-) My understanding is
-that the new list would allow to run kexec/crash_dump a safe
-way under a hypervisor. So, it should be safe to do it
-directly in oops_end().
-
-> I'd prefer to leave kexec_should_crash() unchanged. The direct oops
-> path supplies the exception registers to crash_kexec(regs), while
-> routing it through panic() would capture later state instead. In my
-> early v2 tests, the vmcores from the direct-oops path retain the
-> original fault registers in the crash notes. Some crash callers, for
-> example uv_nmi_kdump(), also bypass kexec_should_crash(). Calling the
-> chain from __crash_kexec() after register capture covers those paths
-> without changing their routing, and the shared once-only guard
-> prevents duplicate or recursive dispatch.
-
-Makes sense to me.
-
-> > b) Well, does this whole panic diag thing you're implementing here aims
-> > only at x86 guests ? Or would it be possible to run, for example, arm64
-> > guests? Asking this because in x86 and some other architectures (but not
-> > arm64[0]), it's possible to override machine_crash_shutdown() handler,
-> > and run things prior to a kexec. Take a look on how Hyper-V does that on
-> > arch/x86 - this could be just what you need, except if you plan to have
-> > it for all architectures heh
-> 
-> I'd like to support arm64 guests in the near future, but I figured
-> especially for review sake to limit our client in this series to x86.
-> So I prefer the common chain Petr proposed: as the thread you linked
-> shows, arm64 deliberately has no such override, and the chain gives
-> other clients a place to migrate away from forcing
-> crash_kexec_post_notifiers.
-
-Sounds good to me. Let's start simple. ;-)
-
-Best Regards,
-Petr
+>=20
+> Keep the source immutable for up to three attempts. Retry only checkpoint
+> responses, zero-fill a short final word, and close the single RPC channel
+> on every exit after open. The panic callback allocates nothing, does not
+> sleep, and emits no printk messages.
+>=20
+> Free the page and leave panic logging disabled if dumper registration
+> fails, including when CONFIG_PRINTK=3Dn.
+>=20
+> Link: https://lore.kernel.org/r/20260309235250.2611115-3-alexey.makhalov@=
+broadcom.com
+> Co-developed-by: Bo Gan <bo.gan@broadcom.com>
+> Signed-off-by: Bo Gan <bo.gan@broadcom.com>
+> Co-developed-by: Alexey Makhalov <alexey.makhalov@broadcom.com>
+> Signed-off-by: Alexey Makhalov <alexey.makhalov@broadcom.com>
+> Signed-off-by: Zack Rusin <zack.rusin@broadcom.com>
+> ---
+>  arch/x86/include/asm/vmware.h |   1 +
+>  arch/x86/kernel/cpu/vmware.c  | 158 ++++++++++++++++++++++++++++++++++
+>  2 files changed, 159 insertions(+)
