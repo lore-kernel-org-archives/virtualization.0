@@ -1,70 +1,70 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E568351C07F
-	for <virtualization@lists.linux.dev>; Mon, 21 Sep 2026 22:11:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 730B251DAF8
+	for <virtualization@lists.linux.dev>; Mon, 21 Sep 2026 22:19:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790028716; cv=none; b=Nqsep7M4K3afh7oy2+eT3Kxwi0byfh/ojBxxKHpxRRkMakJSSFiBrN0uKsfZmIwVPCOmEL0ZERML21PHKXCnBypzyV+NeOva7YXkPc5zwbDDzc4q74ry8EeREsUMZ9+LRKqJ9MlR65E3zezD4Ye857FyyweYsWF532DmXxrp8eY=
+	t=1790029150; cv=none; b=JiYoHbTQMorpS1DSphx1Ulyy0ae9NhYiAdXPbChJ0StVYlc26eYWJfcIIORZ6nHagICkC8Fzf6bKBzYOCDQaLk04NBAPNVDkWRkw5hcpupnXzeto9gfvpss8pauNyNwaQpE7JdZF/9547+nhz7ATw1+j6q+wBg8U21S9o+hfKP8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790028716; c=relaxed/simple;
-	bh=q0b06H+N0ITPh2NinCByKwKWrM2C2VKLzILYbz5IuNs=;
+	s=arc-20240116; t=1790029150; c=relaxed/simple;
+	bh=Ei4Pcff18AwS+t/cle98zJDwbkIH7q3+1+YutrVx4aA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=LgA0vNjtFd1xeAOQnLzaFspdC9Q8A6JatMp03Ln15DnEgpgeMnzkZjYo7H8RI6pL5emenNHFQDMrFBI/bT5VQX311Nka9cwkd5WsK899bqUyuFBanSWOEPZPsy+FtbkyzISFLTERks2LDtOP64XvlQxrkJgmYCVExl6mmRqQWV0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Yhdfh/nr; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=s7eSXGw/Q816LNRWSBBnuH6gMVKfd4zi4Dcuh0n6X1o5rLDEHvQaEe9gZu8GNaNd9dHbvlQjUMFpuuYJCRwAmplTwNXXMyCQPGURm+j0qA9r5N8m+4RBI+RzDLYYd2iWrK9Muntr3Nvb30YmVETNdmbQBMUhirryZzDmNeMr4KI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Yl4tfLkr; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Yhdfh/nr"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Yl4tfLkr"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1790028708;
+	s=mimecast20190719; t=1790029147;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=AEt+ciqD7T2EQYKNoKayyfuhYvhsmv+e842rE5yabjs=;
-	b=Yhdfh/nr/iQ6yDBnbJI7fnoXv5OO7Ji2RpLamsaqlTvljhEUdqNxiD6g0Va7aMoAiLIYev
-	IBKysKPODTsTJN3xnZaheKZEfIS8BL3MHXyGcSoNM7kk+wR3QYRPSEFJj2CHn4ZPElDLFg
-	g+cCZmeB8fKiATpuXYxdXXD9PEfdhiU=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=GghXQp9Ze0KvyQdgR20zMclVJoewmD0MiZE2OAf9lwY=;
+	b=Yl4tfLkr+LBioaXUrCYvOKBS76o4IEqOAl/NwKqFRShwfRHo057ovDtNuK25IrPCDV7B4b
+	ZOtXcT5wW7jBOfx4Xp5SGYM6/6oiw21SAerDuE8e0d+4ocA9Vs52p1DAgo69eza995w9h+
+	fD4SP+76XFlOtjMwdUGi5KGAt+ng3V0=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-426-QxYBvVW2PaWwXLk9WCHaAg-1; Mon, 21 Sep 2026 18:11:46 -0400
-X-MC-Unique: QxYBvVW2PaWwXLk9WCHaAg-1
-X-Mimecast-MFC-AGG-ID: QxYBvVW2PaWwXLk9WCHaAg_1790028706
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-49e73659ac5so48817615e9.2
-        for <virtualization@lists.linux.dev>; Mon, 21 Sep 2026 15:11:46 -0700 (PDT)
+ us-mta-552-XFVLgzRFNeOjLpexUtW42w-1; Mon, 21 Sep 2026 18:19:06 -0400
+X-MC-Unique: XFVLgzRFNeOjLpexUtW42w-1
+X-Mimecast-MFC-AGG-ID: XFVLgzRFNeOjLpexUtW42w_1790029145
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-49cf5bd2f12so46514075e9.1
+        for <virtualization@lists.linux.dev>; Mon, 21 Sep 2026 15:19:05 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790028705; x=1790633505;
+        d=1e100.net; s=20260707; t=1790029145; x=1790633945;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=AEt+ciqD7T2EQYKNoKayyfuhYvhsmv+e842rE5yabjs=;
-        b=AL11582fOkR2fmTr9RIUZwcw/XA69Q2DdMzS8hDjNM/j1+kTopAzUMGSdmlQnATY2h
-         lcAunlnWCYMObav6tn9n21j2xLv1FdA+rqq3CTyB0Asws4vsKl6Gi+q/0dnJU1gey1Gk
-         vjs2IvM6UiTwFdqnn8zelDUIULMTLOsn4nWZ93/UgomxPkk5tnU9D/y9MXb1PkWtAI2c
-         nmVn6EboXDGhSmEGr2zUmWbYuaLkzUHtK7BqwRqv9VGO9SWdN97n63LjB83knDyZy0yL
-         NnKcoy/jIF5c9jEPqKtS8gmOqjaBz4BDc/msMYF24OdqEpM1g3dVpPnWGqppgGU2QqII
-         0gTw==
-X-Forwarded-Encrypted: i=1; AKwUvBxhjKSEVviWV8jN3Yo5aA6SthZ6gM5T92uY6WG/lNCzwr7JZHZ6aKpQknYsQ9CR+Pn/fdmUQhk26OJ5i5Qa1A==@lists.linux.dev
-X-Gm-Message-State: AFuF++mlWCZUG49pUvBoRuQK7wkT197Xm+E933TOMPPiLGuHN7sjEl5E
-	xxRK8XNEBMVgePTKsKYJ/XBRsBXtJDE8ILacCYaohJLQXl7+OMuVt90lNZNgtKNWiYZrVF7VdYz
-	PX7A/1RdHkOqW7x1SJwEnSC496peJQ2UZxcpwjYITrJ23Gf/SF5QGoGzV+NiV4PL+NK/I
-X-Gm-Gg: AYBFou14R6PAxcP45iA4xOi77JvR8GOa+kTHqBHKoPHTjWym/5zAV22gJNEauNRcaJu
-	/w1U+yj4KLrBN9MSEribMPQVoArCzXdaLjqhJYmuOfvAreAy8MweJhO8lsx2uCILzrFKpjf/+Td
-	mRMGS11Ia/H7HvWxxMN3SnIYPTk+J7XdcIq9n2D/Ui7Pq/Vs5RELeW1YEpBkoyvPkr+puNjGYZA
-	et+4mA3obZ8aymv/my4JyZVhCfkTmZuhSSmbvSztciftTwk6kbh66IM+wCOQp8cqwHruwNZo8hz
-	0whdBOTBdW+SjwIXGShG4dkaPZORa30AApkmcyPgQDQHxZ3wBQhwJwmcTOqhEeu8Rjk4NLfsjNH
-	YjWEcxJSlsfAg1FPjRyg18sg=
-X-Received: by 2002:a05:600c:4f09:b0:493:aa0a:45ad with SMTP id 5b1f17b1804b1-49fc56692c6mr166467235e9.2.1790028705423;
-        Mon, 21 Sep 2026 15:11:45 -0700 (PDT)
-X-Received: by 2002:a05:600c:4f09:b0:493:aa0a:45ad with SMTP id 5b1f17b1804b1-49fc56692c6mr166467095e9.2.1790028704912;
-        Mon, 21 Sep 2026 15:11:44 -0700 (PDT)
+        bh=GghXQp9Ze0KvyQdgR20zMclVJoewmD0MiZE2OAf9lwY=;
+        b=ZWGbUb1fRHTs43z+WElopCQrOSjg8PDTxG32ZteTW0WHxU5Onsva5GubO9AWPdRnmz
+         TzUrPGf6loHCH3jKe+CBMZ6UeK9QF6kPTp5+gLncRIROmfhWS4SLt9IcgEGZHPQxERXo
+         rV1yR71qS7XkoJI37TMIzt7q+fg3wD2GDsWc0NKsL3PYOcBpxxUSldu+XIa93xsIb9sl
+         cLjscVGZXiUKTpwW6ePm7GOD/9TxH3aXFIQMekcs0DlrfR0exeXU9fj4tzKmFEgapYWL
+         eZmYUCXleDJA3KMTtn1STfvH0NOVFef6a6icIX4t6nJmJJX6bktgfdEDEWwTlKLz+64t
+         ZqCA==
+X-Forwarded-Encrypted: i=1; AKwUvBzLdBmil1+RJT0GxekAZB5QTBmC8rfvhwRkEmRd6LIeN1U/8KPFMK1BtWzTz+ZGaJ4Duh4EV3Ilq51PhDjPfg==@lists.linux.dev
+X-Gm-Message-State: AFuF++mMmL3Jg5arDea02fAIo5Xdaanj/51QZEbwNXiSYvX4bjc+bTLJ
+	N8VivhZghEMH6oiMKGxBCB8ZaNsp+JjxomPBBAVYPJ8eBwDIaVWyepONL1e4ahwv8yDPsMYaPzM
+	zLpwxJAXzksh4VpplXaCeCPS2DIW27wTDFkVuOPr020a44YpJpqSveWgfT7Pg6t9yKLri
+X-Gm-Gg: AYBFou3FFMBfTxnuvQgyW89mLZgF+Asz4KKu1DIrewbXB5yXeQWojCcBYslmVcuwXV9
+	Vk2TlkXxWZkdOjSCfn3mODBYURphQz5LpupBqoZMGlG7qqeGpLwX/uI/wENYrM2+X1Lq1iAtB2x
+	sINdNMsDpvd6PPefRja9n8ceu8UwlfQsWWKhRpNBtJg77CGmdKdJFafVjGY10d8VnAoueH1uGn6
+	ZcCSLoeunoOV37aJavx5Ko5Hflrjp0YoEm6dNd2WLr27M4enHARrgy8FbNyQqYLPYSweYaoJGUf
+	tsbXmUMvHSCQuGbssFscPQl9E2yRClQEJO5VDMG/eYCSn3UoxWgX6VZnEhJJ43Vyma+rhPpt1Wl
+	zDluMzolML2arGurkU7dVOaY=
+X-Received: by 2002:a05:600c:6610:b0:49f:bc28:e8bc with SMTP id 5b1f17b1804b1-49fc573576bmr159622605e9.17.1790029144741;
+        Mon, 21 Sep 2026 15:19:04 -0700 (PDT)
+X-Received: by 2002:a05:600c:6610:b0:49f:bc28:e8bc with SMTP id 5b1f17b1804b1-49fc573576bmr159622215e9.17.1790029144197;
+        Mon, 21 Sep 2026 15:19:04 -0700 (PDT)
 Received: from redhat.com (IGLD-80-230-79-236.inter.net.il. [80.230.79.236])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49fda8f04f7sm2635925e9.0.2026.09.21.15.11.41
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49fda0ce97dsm7873445e9.7.2026.09.21.15.19.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Sep 2026 15:11:44 -0700 (PDT)
-Date: Mon, 21 Sep 2026 18:11:39 -0400
+        Mon, 21 Sep 2026 15:19:03 -0700 (PDT)
+Date: Mon, 21 Sep 2026 18:18:59 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Paulos Yibelo <habte.yibelo@gmail.com>
 Cc: netdev@vger.kernel.org, richard@nod.at, anton.ivanov@cambridgegreys.com,
@@ -80,7 +80,7 @@ Cc: netdev@vger.kernel.org, richard@nod.at, anton.ivanov@cambridgegreys.com,
 	linux-kernel@vger.kernel.org
 Subject: Re: [PATCH net v5 1/2] net: validate virtio checksum start after
  network header
-Message-ID: <20260921181115-mutt-send-email-mst@kernel.org>
+Message-ID: <20260921181341-mutt-send-email-mst@kernel.org>
 References: <20260920004733.6473-1-habte.yibelo@gmail.com>
  <20260921025341.44846-1-habte.yibelo@gmail.com>
  <20260921025341.44846-2-habte.yibelo@gmail.com>
@@ -92,7 +92,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 In-Reply-To: <20260921025341.44846-2-habte.yibelo@gmail.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: nDZlwbXUB6-mwSo9Y1QtOnp9Bgk4ZeQ8_yyReYhussU_1790028706
+X-Mimecast-MFC-PROC-ID: bXoUNUjgGjmGq4SEfBHKNPS45sPar8hx0BtFhQATerA_1790029145
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -123,10 +123,6 @@ On Sun, Sep 20, 2026 at 10:53:40PM -0400, Paulos Yibelo wrote:
 > Link: https://lore.kernel.org/netdev/20260920004733.6473-2-habte.yibelo@gmail.com/
 > Cc: stable@vger.kernel.org
 > Signed-off-by: Paulos Yibelo <habte.yibelo@gmail.com>
-
-
-v4 had assisted-by tag? same q for patch 2.
-
 > ---
 > Changes in v5:
 > - Replace the not-yet-established skb network-header offset with an
@@ -276,6 +272,12 @@ v4 had assisted-by tag? same q for patch 2.
 > +static inline int
 > +virtio_net_hdr_get_l3_offset(const struct sk_buff *skb,
 > +			     const struct virtio_net_hdr *hdr)
+
+
++virtio_net_hdr_eth_get_l3_offset  ?
+
+since this assumes ethernet...
+
 > +{
 > +	unsigned int parse_depth = VLAN_MAX_DEPTH;
 > +	const struct ethhdr *eth;
