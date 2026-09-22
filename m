@@ -1,525 +1,261 @@
-Received: from mail-oi2-f12.google.com (mail-oi2-f12.google.com [74.125.231.204])
+Received: from mail-oa1-f100.google.com (mail-oa1-f100.google.com [209.85.160.100])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CF0044F54B
-	for <virtualization@lists.linux.dev>; Tue, 22 Sep 2026 17:34:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.231.204
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 835D3475341
+	for <virtualization@lists.linux.dev>; Tue, 22 Sep 2026 17:54:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.100
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790098486; cv=none; b=XiI2XxmzdQTzJnVzW3aFVnvRQi+7ohbtr22u40qoFrLolDp0ovcoW7aMZJq3fG/o/Fvnde47pgCIoG8JpfFQIuWnPcmBYyg12kRsg7yfWfkvHvj+i0TtBqo61B9wQuGHfneB83i1h7MJSgyTrRqstIi1eWgEvwjjD5I017vIhdc=
+	t=1790099688; cv=none; b=NWUYCojNo39AX8btbgEv25KOQQrgNyAoyani8Jd9UiP5U/+yzc6CmrdXpTriht0xX7hw7B2JN85FwGcZ6ORel5jMCnTNVMxunqtvKqsuokf0T7GjsXUfAa+xoqj3b+rxpqNBV4YVqH1qay4cZpxU3cU7FkC9QrhixzVxvBnHJ24=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790098486; c=relaxed/simple;
-	bh=srDzdhvMj3KdOsMVOhhwSn/IoI3jpC6iMoebja5C2TM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=NYmlxtFJ1LQ/wmnMj3PMqwg5/vSy7ZrgIuqQ0Pgk4Wvavma7+lOochTnzqn60dxyDDMIiSaDExblrGklCCjPzO1NK1zcL6ulZQtglpjfJWgfQGrqkRvvh9I78jDgQZTD6BBixAYJmhL7k7483LSifme5ivH9rbLe529Al0VvRzE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NlBnmoUO; arc=none smtp.client-ip=74.125.231.204
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1790099688; c=relaxed/simple;
+	bh=XGhdONqCSQLgaoSRHzO9ryAh1SWBKXgSz551iDT7c/0=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=uPz+c4SX+qSPxf2pHyoxIpn1AgVJquKXODqcZ7EzlFeFzFaBysa8thwr24kU9LGM/EskzjgqYRwsLzlUx484t5OZz2Zb7I4L13SqwbhestfIpaVKEGOR9uUPVMtkNnzyUTb9EpShyB5IsztDHM8ikOwNtqY3z43lkITSzy5/BQM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=dzNUO34K; arc=none smtp.client-ip=209.85.160.100
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NlBnmoUO"
-Received: by mail-oi2-f12.google.com with SMTP id 5614622812f47-4b37a2c0356so106552b6e.2
-        for <virtualization@lists.linux.dev>; Tue, 22 Sep 2026 10:34:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790098484; x=1790703284; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=6zcM3cGWUUS94N+RJZHSRLZz5yzOVCUjkjJz2pMqCX0=;
-        b=NlBnmoUOP//LgRWvgrqwp/08zI2HcGFsiBsx9wQsRUqdkSjyvL8YT8y5dC8WjK7Nh0
-         DnyfpApDM8c4EYZQ/0JZ8lUkJEcLImwew1Vo/JcXabzd5DwoWC/h14XQtBzhP6wj7idS
-         icsJpv8OkBUoRrU9Y2vZNtKv0V8tjzrsIQ38XOMISgPooPGDXcCYykPjv9M0ObBxzS7q
-         wqzTIi2F2bHynAD9SETe7uv+Qx1WnnJ3Vf3Zr8zkuum1d1Y/ryBfl/nYmEuKF4lNrfn3
-         tFYfByFsLxSw4oMwsMyVzz9XvxyyCqVbtJJBh5RQUJhfY+RTOLiXDyMYESXIJ7qPDpdU
-         mZAA==
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="dzNUO34K"
+Received: by mail-oa1-f100.google.com with SMTP id 586e51a60fabf-475920b9ca2so9614fac.1
+        for <virtualization@lists.linux.dev>; Tue, 22 Sep 2026 10:54:46 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790098484; x=1790703284;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+        d=1e100.net; s=20260707; t=1790099685; x=1790704485;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:dkim-signature:x-gm-gg:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=a/hxb6JUsSHXY2tvjmestPS7iRJeRJN3ZxmSVDOrXZQ=;
+        b=iwJQ8gR2o051DfeQy5AAXZk7+jtOdzJipIPMdwQa31cRygbGVHfbbGDA2pTx9fg2YO
+         x6T8u8P2ErXAY9AkQ0iuHRsNf0ceTumQG+jZKHmM10Rnk+/9ROk97Z44HHncIXvoVLOG
+         SDGNjrwF2OBwZy+emVbX7GUBjN/1fomdhu1v2P2c/Xn3VAlm3oxriiKXmYE+5gPXi8Tk
+         0LKJHpyoonLe4gLAy0Th7ygMhPlNm/yNCxC+SXePoCqAPyb/vjQQwwAZklBvpnzKYe/m
+         z+HGKC6kPRCJ4sr/BFB4WCfEKH9z2PTNLgLnZaiAqnTa57r4kcUjuFjM+aUYDg263Byu
+         +Z7A==
+X-Forwarded-Encrypted: i=1; AKwUvByzma70KbmjYIN/J/BMjoz7UhyKl1OSi1c0Q5XLUzaNfrMYjPEEyXaDCt0eCskV7usQxCC9N4ZdM6cbKaQaxw==@lists.linux.dev
+X-Gm-Message-State: AFuF++l4zJs6tEQqxRIJKFjiDNFbK0Mo/VtUDlWaSdJ0XNA/HLBBielM
+	dtqstJ7sECdafDqlUD8op27+eYM9Hd+8PbyrGNxq3gwGDfT5822azifRGvkEB83gOLrSg8vPioz
+	8jaR25/dy4Db6uutpY/C8hSUXeSPCtYrsqDGq+b64vc27o/NXTHLZiLtzr+X8nzInCFx+KYXsbC
+	N5z/Jxg/q94cYOu8RhP8A84P/Ooz0NQ0kAT4/pMh6PfzGDDEfV8mStvyZiQbovkGTes2U1YedrF
+	KHeX/ojw5cGPsKI9Tc=
+X-Gm-Gg: AYBFou2HyL5iQ4a7ga4Omr8FH3YA9LJ+kCtVcuRW8R7qfrg5R2n+RqNhpNLrK4piYAV
+	wKj2dJYqvy9krCFeYd8tKBCDVRWfXyZDN6ZpvtT4uUrTaIcBGKoX7XnFdL4S3Dltm3V6RFyta2O
+	On6DlUkJinb8VkMHk97wF/6Q9TMMRLnthKNJcryd5ywLRxjGQ2hcfmkVBaWTSikR2AJWuHYySvy
+	5gsiPFBaUteo8lMdSY/0IXPVEjLvCJpL+RC0A/JLFO8IuM4kRhiKdD36F3cCBypQBC8xmnBeGR5
+	woZjBHqldJr+y4xkgCJGuLo+92Xj4vQRI5ouLtPV3UOOKl46hrsOjqCzX9q403bUQ/eyT4dWl+y
+	uvMew7JoKIvyyytyEfGp3OC/C4YDPnU7Wi8l/M2qPkM/QFHu4SDmZAfbmIujRI5cyIDTkhmVH4X
+	dBrbMOp+RHHdh7OXYb9XO3+7fUMAsU8YBjug4=
+X-Received: by 2002:a05:6870:c18e:b0:48f:e21c:cd73 with SMTP id 586e51a60fabf-4908c3dbc14mr390469fac.58.1790099685080;
+        Tue, 22 Sep 2026 10:54:45 -0700 (PDT)
+Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-120.dlp.protect.broadcom.com. [144.49.247.120])
+        by smtp-relay.gmail.com with ESMTPS id 586e51a60fabf-4908f1ee2a3sm9478fac.11.2026.09.22.10.54.44
+        for <virtualization@lists.linux.dev>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 22 Sep 2026 10:54:45 -0700 (PDT)
+X-Relaying-Domain: broadcom.com
+X-CFilter-Loop: Reflected
+Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-c252b87e9a2so4639166b.3
+        for <virtualization@lists.linux.dev>; Tue, 22 Sep 2026 10:54:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google; t=1790099683; x=1790704483; darn=lists.linux.dev;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=6zcM3cGWUUS94N+RJZHSRLZz5yzOVCUjkjJz2pMqCX0=;
-        b=e/h1Y6DrRsmMTbIhZ+2pauOTqDb+CJKILN91jZMNBXOp4A3PHGhpmbfhcJrZgLiUP+
-         rS3wDnqgoS22YJTb8ihMuGzJtYmkzqNIToeCPdbUokWpHpCH3KiYa/w4Kh+saUEvfRZe
-         s4lbOkQS1QKZ6mm9Qiski4Yoegfv+AT34AzigKrxb3afEyVTzWyqveMotbwFv8xeNpKY
-         bcN603+d+o/e6+p7EWNjS0cmQQmKOsR7UOeRHyHEiZjI3oL4NIBlM0qp1lkWSt8uMSWb
-         r+1GBmu8eK5itea6VhOdHnLXkkYtDGsAmUAnd/Vp8UkHTuhNUq4AUsf3UN7Z3XqMV8Sa
-         z/kQ==
-X-Forwarded-Encrypted: i=1; AKwUvBxbuyhszFnsEDbYYaE4fPB20PveopzsO2MYoXDHxLWcY7KHyw8l+LbW8C2IQXHbVFYZolMqRwh6h+SF+WFMAw==@lists.linux.dev
-X-Gm-Message-State: AFuF++m1LFTvOoUgoKc7q70CLSbjFl4Ma4h12D62A/nEyNWFlv/lxLfp
-	6UWswcMMlB7CJJCScVvRou2lJt+nMj8rOVVqE5zopbun0Hwa1HOG7xLz
-X-Gm-Gg: AYBFou1ge972g5xuBB7BuP50su0fvArlZ7QT79KZzPrnDQy5EGX2exMOZLwCOHA9mbT
-	8iNTSTSiIOGqC+iTs9xx5nVtKydGK5D8O6dttM4M6Xx91XU0mR1mdOXdLZiOKnOwEQjLyHUgiqk
-	+MI/+0dMgjqvT74QDfJVcWTm7i35WwFTa1bs2owEHet20VAgZ93IcgH5Zkxa2t8S/lVKCN/zr3V
-	p1HZcJxUbdX908pkaw60XNopA6GWWAC0C9bcUeQmFzP0IehUpZwSy6I7Dz/FMivuUtlrsJeyn/l
-	m0jl9e6iq8qaJSxoMkI9T69XWOE+z9L3RsqwhlSCOFUnYJ0R/5pne07Iqr1TIoGyBmtPlJb3VO+
-	wWQmXT6CjczVe/04yiBO5LxSXIHqUFM7ZSIod0Vnw5r5YptN2PjZOCEitCbBruOQt/0wfgXzENZ
-	o8FeAHDakctH2/bhu4XLDcgiv/l6fjyd9ZF3iOGkWgnPCIbSmqxvriQXWmTpANDOElpyQl42IY8
-	SMB4vyU64+ryOVp18g=
-X-Received: by 2002:a05:6820:1511:b0:6cd:3ffc:e33c with SMTP id 006d021491bc7-6d2d3509e33mr79768eaf.90.1790098483693;
-        Tue, 22 Sep 2026 10:34:43 -0700 (PDT)
-Received: from devvm29614.prn0.facebook.com ([2a03:2880:ff:2::])
-        by smtp.gmail.com with ESMTPSA id 586e51a60fabf-4908efd733bsm218697fac.18.2026.09.22.10.34.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 22 Sep 2026 10:34:42 -0700 (PDT)
-Date: Tue, 22 Sep 2026 10:34:39 -0700
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-To: David Carlier <devnexen@gmail.com>
-Cc: netdev@vger.kernel.org, sgarzare@redhat.com, davem@davemloft.net,
-	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-	horms@kernel.org, virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net-next 2/2] vsock/test: cover receive queue hints
-Message-ID: <arK8L3S5F+9XREpe@devvm29614.prn0.facebook.com>
-References: <20260920194710.1114748-1-devnexen@gmail.com>
- <20260920194710.1114748-3-devnexen@gmail.com>
+        bh=a/hxb6JUsSHXY2tvjmestPS7iRJeRJN3ZxmSVDOrXZQ=;
+        b=dzNUO34KnBvzr8ot2peWi2FjqQ+3UIw53itaFOrOuMtev4FDPAa7VwgrqLpw0J1F+C
+         ji3J+rI8RGUKljqsH2uMVaEHbh7QOzhzI2jaC59NHMTSCl+Tf+Wvu3VwSOL2hfSYauf9
+         ic9w3i+txhu8Q6FF8RYlGnSSAW4gyvgTeUHxg=
+X-Forwarded-Encrypted: i=1; AKwUvBzJtLBs+b3TVtOsBxEoYLV/wgIciTdWIiVZkukkGcsudh4Igx/yJQC/P57/Xarq37hsFhb3U8du+/HULNtXgQ==@lists.linux.dev
+X-Received: by 2002:a17:906:6a0e:b0:c28:f9e4:836c with SMTP id a640c23a62f3a-c2a157c36c4mr1359937166b.28.1790099683308;
+        Tue, 22 Sep 2026 10:54:43 -0700 (PDT)
+X-Received: by 2002:a17:906:6a0e:b0:c28:f9e4:836c with SMTP id
+ a640c23a62f3a-c2a157c36c4mr1359934866b.28.1790099682926; Tue, 22 Sep 2026
+ 10:54:42 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260920194710.1114748-3-devnexen@gmail.com>
+References: <20260919123208.29032-1-bartlomiej.dmitruk@isec.pl> <20260919123208.29032-2-bartlomiej.dmitruk@isec.pl>
+In-Reply-To: <20260919123208.29032-2-bartlomiej.dmitruk@isec.pl>
+From: Vishnu Dasa <vishnu.dasa@broadcom.com>
+Date: Tue, 22 Sep 2026 10:54:30 -0700
+X-Gm-Features: AcwNN1VxZOQcFFCm7caZKqYMY5PSHL2XX9LEeKhSmLyKVEfu0HCiGbBZkwyQ0Bg
+Message-ID: <CAF+opq12yFHNZXUoWn24GnBozm7Zvfwh3FiCZRsDypLw7WY-pA@mail.gmail.com>
+Subject: Re: [PATCH v2 2/2] vsock/vmci: enforce per-netns mode on the datagram
+ receive path
+To: =?UTF-8?Q?Bart=C5=82omiej_Dmitruk?= <bartlomiej.dmitruk@isec.pl>
+Cc: Bryan Tan <bryan-bt.tan@broadcom.com>, Stefano Garzarella <sgarzare@redhat.com>, 
+	bcm-kernel-feedback-list@broadcom.com, 
+	"David S . Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	"Michael S . Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+X-DetectorID-Processed: b00c1d49-9d2e-4205-b15f-d015386d3d5e
+Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha-256;
+	boundary="000000000000c051e9065c160f7c"
 
-On Sun, Sep 20, 2026 at 08:47:10PM +0100, David Carlier wrote:
-> Add io_uring receive tests checking IORING_CQE_F_SOCK_NONEMPTY across a
-> partial receive, draining while the peer stays connected, EOF, a
-> nonblocking receive on an empty queue, a zero-length request, and a
-> multishot receive with provided buffers.
-> 
-> Signed-off-by: David Carlier <devnexen@gmail.com>
+--000000000000c051e9065c160f7c
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+On Sat, Sep 19, 2026 at 5:32=E2=80=AFAM Bart=C5=82omiej Dmitruk
+<bartlomiej.dmitruk@isec.pl> wrote:
+>
+> The send hook vmci_transport_dgram_allow() refuses datagrams when the soc=
+ket's
+> netns is not in global mode (vsock_net_mode_global()), but the receive pa=
+th
+> (vmci_transport_recv_dgram_cb() -> vmci_transport_allow_dgram()) did not,=
+ so a
+> socket bound in a non-global (local) netns received datagrams from peers =
+it
+> could never send to, defeating namespace isolation.
+>
+> Add the check at the start of the receive decision, before the
+> VMADDR_CID_HYPERVISOR short-circuit, so the hypervisor CID is covered too
+> (matching the send side).
+>
+> This was found by code inspection; I do not have VMCI hardware to test on
+> (compile-tested only).
+>
+> Fixes: eafb64f40ca4 ("vsock: add netns to vsock core")
+> Signed-off-by: Bart=C5=82omiej Dmitruk <bartlomiej.dmitruk@isec.pl>
+> Assisted-by: Claude (Anthropic)
+
+Reviewed-by: Vishnu Dasa <vishnu.dasa@broadcom.com>
+
 > ---
->  tools/testing/vsock/vsock_uring_test.c | 367 +++++++++++++++++++++++++
->  1 file changed, 367 insertions(+)
-> 
-> diff --git a/tools/testing/vsock/vsock_uring_test.c b/tools/testing/vsock/vsock_uring_test.c
-> index 5c3078969659..318e17bd28bc 100644
-> --- a/tools/testing/vsock/vsock_uring_test.c
-> +++ b/tools/testing/vsock/vsock_uring_test.c
-> @@ -13,7 +13,10 @@
->  #include <liburing.h>
->  #include <unistd.h>
->  #include <sys/mman.h>
-> +#include <sys/ioctl.h>
->  #include <linux/kernel.h>
-> +#include <linux/sockios.h>
-> +#include <errno.h>
->  #include <error.h>
->  
->  #include "util.h"
-> @@ -28,6 +31,10 @@
->  
->  #define VSOCK_TEST_DATA_MAX_IOV 3
->  
-> +#define HINT_CHUNK_SIZE		4096
-> +#define HINT_BUF_GROUP		1
-> +#define HINT_BUF_ENTRIES	4
+> v2: perform the netns check first (before the hypervisor early return) so
+>     hypervisor datagrams are also gated in local mode -- the Sashiko AI r=
+eview
+>     noted v1 left that path partially bypassed.
+> v1: https://lore.kernel.org/netdev/20260917220225.56200-1-bartlomiej.dmit=
+ruk@isec.pl/
+>
+> diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transpor=
+t.c
+> --- a/net/vmw_vsock/vmci_transport.c
+> +++ b/net/vmw_vsock/vmci_transport.c
+> @@ -532,6 +532,14 @@
+>  static bool vmci_transport_allow_dgram(struct vsock_sock *vsock, u32 pee=
+r_cid)
+>  {
+>         u64 access;
 > +
->  struct vsock_io_uring_test {
->  	/* Number of valid elements in 'vecs'. */
->  	int vecs_cnt;
-> @@ -211,6 +218,341 @@ void test_stream_uring_msg_zc_client(const struct test_opts *opts)
->  		vsock_io_uring_client(opts, &test_data_array[i], true);
->  }
->  
-> +struct uring_inq_ctx {
-> +	struct io_uring ring;
-> +	int fd;
-> +};
-> +
-> +static void inq_server_init(struct uring_inq_ctx *ctx,
-> +			    const struct test_opts *opts)
-> +{
-> +	ctx->fd = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
-> +	if (ctx->fd < 0) {
-> +		perror("accept");
-> +		exit(EXIT_FAILURE);
-> +	}
-> +
-> +	if (io_uring_queue_init(RING_ENTRIES_NUM, &ctx->ring, 0))
-> +		error(1, errno, "io_uring_queue_init");
-> +}
-> +
-> +static void inq_server_exit(struct uring_inq_ctx *ctx)
-> +{
-> +	io_uring_queue_exit(&ctx->ring);
-> +	close(ctx->fd);
-> +}
-> +
-> +/* Submit a single receive and report both its result and its CQE flags. */
-> +static int inq_recv(struct uring_inq_ctx *ctx, void *buf, size_t len,
-> +		    int flags, unsigned int *cflags)
-> +{
-> +	struct io_uring_sqe *sqe;
-> +	struct io_uring_cqe *cqe;
-> +	int res;
-> +
-> +	sqe = io_uring_get_sqe(&ctx->ring);
-> +	io_uring_prep_recv(sqe, ctx->fd, buf, len, flags);
-> +
-> +	if (io_uring_submit(&ctx->ring) != 1)
-> +		error(1, errno, "io_uring_submit");
-> +
-> +	if (io_uring_wait_cqe(&ctx->ring, &cqe))
-> +		error(1, errno, "io_uring_wait_cqe");
-> +
-> +	res = cqe->res;
-> +	*cflags = cqe->flags;
-> +	io_uring_cqe_seen(&ctx->ring, cqe);
-> +
-> +	return res;
-> +}
-> +
-> +static void expect_res(int res, int expected, const char *what)
-> +{
-> +	if (res != expected) {
-> +		fprintf(stderr, "%s: expected %d, got %d\n", what, expected,
-> +			res);
-> +		exit(EXIT_FAILURE);
-> +	}
-> +}
-> +
-> +static void expect_nonempty(unsigned int cflags, bool expected,
-> +			    const char *what)
-> +{
-> +	bool nonempty = !!(cflags & IORING_CQE_F_SOCK_NONEMPTY);
-> +
-> +	if (nonempty != expected) {
-> +		fprintf(stderr, "%s: expected SOCK_NONEMPTY %d, got %d\n",
-> +			what, expected, nonempty);
-> +		exit(EXIT_FAILURE);
-> +	}
-> +}
-> +
-> +/* Wait until the whole payload is queued, so the hint is deterministic. */
-> +static void inq_wait_queued(int fd, int len)
-> +{
-> +	if (!vsock_ioctl_int(fd, SIOCINQ, len)) {
-> +		fprintf(stderr, "SIOCINQ not supported\n");
-> +		exit(EXIT_FAILURE);
-> +	}
-> +}
-> +
-> +static void inq_send_chunks(const struct test_opts *opts, int chunks)
-> +{
-> +	char buf[HINT_CHUNK_SIZE];
-> +	int fd, i;
-> +
-> +	fd = vsock_stream_connect(opts->peer_cid, opts->peer_port);
-> +	if (fd < 0) {
-> +		perror("connect");
-> +		exit(EXIT_FAILURE);
-> +	}
-> +
-> +	memset(buf, 0xa5, sizeof(buf));
-> +	for (i = 0; i < chunks; i++)
-> +		send_buf(fd, buf, sizeof(buf), 0, sizeof(buf));
-> +
-> +	control_writeln("SENT");
-> +	control_expectln("DONE");
-> +	close(fd);
-> +}
-> +
-> +static void test_stream_uring_inq_client(const struct test_opts *opts)
-> +{
-> +	inq_send_chunks(opts, 2);
-> +}
-> +
-> +static void test_stream_uring_inq_server(const struct test_opts *opts)
-> +{
-> +	char buf[HINT_CHUNK_SIZE];
-> +	struct uring_inq_ctx ctx;
-> +	unsigned int cflags;
-> +	int res;
-> +
-> +	inq_server_init(&ctx, opts);
-> +
-> +	control_expectln("SENT");
-> +	inq_wait_queued(ctx.fd, 2 * HINT_CHUNK_SIZE);
-> +
-> +	/* Data remains after this receive, so the flag must be set. */
-> +	res = inq_recv(&ctx, buf, sizeof(buf), 0, &cflags);
-> +	expect_res(res, HINT_CHUNK_SIZE, "partial receive");
-> +	expect_nonempty(cflags, true, "partial receive");
-> +
-> +	/* This receive drains the queue while the peer stays connected. */
-> +	res = inq_recv(&ctx, buf, sizeof(buf), 0, &cflags);
-> +	expect_res(res, HINT_CHUNK_SIZE, "draining receive");
-> +	expect_nonempty(cflags, false, "draining receive");
-> +
-> +	control_writeln("DONE");
-> +	inq_server_exit(&ctx);
-> +}
-> +
-> +static void test_stream_uring_inq_eof_client(const struct test_opts *opts)
-> +{
-> +	char buf[HINT_CHUNK_SIZE];
-> +	int fd;
-> +
-> +	fd = vsock_stream_connect(opts->peer_cid, opts->peer_port);
-> +	if (fd < 0) {
-> +		perror("connect");
-> +		exit(EXIT_FAILURE);
-> +	}
-> +
-> +	memset(buf, 0x5a, sizeof(buf));
-> +	send_buf(fd, buf, sizeof(buf), 0, sizeof(buf));
-> +	control_writeln("SENT");
-> +
-> +	control_expectln("DRAINED");
-> +	close(fd);
-> +	control_writeln("CLOSED");
-> +
-> +	control_expectln("DONE");
-> +}
-> +
-> +static void test_stream_uring_inq_eof_server(const struct test_opts *opts)
-> +{
-> +	char buf[HINT_CHUNK_SIZE];
-> +	struct uring_inq_ctx ctx;
-> +	unsigned int cflags;
-> +	int res;
-> +
-> +	inq_server_init(&ctx, opts);
-> +
-> +	control_expectln("SENT");
-> +	inq_wait_queued(ctx.fd, HINT_CHUNK_SIZE);
-> +
-> +	res = inq_recv(&ctx, buf, sizeof(buf), 0, &cflags);
-> +	expect_res(res, HINT_CHUNK_SIZE, "drain before EOF");
-> +	expect_nonempty(cflags, false, "drain before EOF");
-> +
-> +	control_writeln("DRAINED");
-> +	control_expectln("CLOSED");
-> +
-> +	/* The queue is empty and the peer is gone.  The hint stays non-zero
-> +	 * so that this receive happens and reports EOF, as TCP does after a
-> +	 * FIN.
-> +	 */
-> +	res = inq_recv(&ctx, buf, sizeof(buf), 0, &cflags);
-> +	expect_res(res, 0, "receive at EOF");
-> +	expect_nonempty(cflags, true, "receive at EOF");
-> +
-> +	control_writeln("DONE");
-> +	inq_server_exit(&ctx);
-> +}
-> +
-> +static void test_stream_uring_inq_empty_client(const struct test_opts *opts)
-> +{
-> +	int fd;
-> +
-> +	fd = vsock_stream_connect(opts->peer_cid, opts->peer_port);
-> +	if (fd < 0) {
-> +		perror("connect");
-> +		exit(EXIT_FAILURE);
-> +	}
-> +
-> +	control_writeln("READY");
-> +	control_expectln("DONE");
-> +	close(fd);
-> +}
-> +
-> +static void test_stream_uring_inq_empty_server(const struct test_opts *opts)
-> +{
-> +	char buf[HINT_CHUNK_SIZE];
-> +	struct uring_inq_ctx ctx;
-> +	unsigned int cflags;
-> +	int res;
-> +
-> +	inq_server_init(&ctx, opts);
-> +
-> +	control_expectln("READY");
-> +
-> +	/* A failed receive must not leave a stale positive hint. */
-> +	res = inq_recv(&ctx, buf, sizeof(buf), MSG_DONTWAIT, &cflags);
-> +	expect_res(res, -EAGAIN, "empty nonblocking receive");
-> +	expect_nonempty(cflags, false, "empty nonblocking receive");
+> +       /* Enforce the per-netns mode first, symmetrically with the send =
+hook
+> +        * vmci_transport_dgram_allow(): a socket in a non-global (local)=
+ netns
+> +        * must not receive datagrams it could never send (this also cove=
+rs the
+> +        * hypervisor CID).
+> +        */
+> +       if (!vsock_net_mode_global(vsock))
+> +               return false;
+>
+>         if (VMADDR_CID_HYPERVISOR =3D=3D peer_cid)
+>                 return true;
 
+--000000000000c051e9065c160f7c
+Content-Type: application/pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
 
-
-> +
-> +	control_writeln("DONE");
-> +	inq_server_exit(&ctx);
-> +}
-> +
-> +static void test_stream_uring_inq_zerolen_client(const struct test_opts *opts)
-> +{
-> +	inq_send_chunks(opts, 1);
-> +}
-> +
-> +static void test_stream_uring_inq_zerolen_server(const struct test_opts *opts)
-> +{
-> +	char buf[HINT_CHUNK_SIZE];
-> +	struct uring_inq_ctx ctx;
-> +	unsigned int cflags;
-> +	int res;
-> +
-> +	inq_server_init(&ctx, opts);
-> +
-> +	control_expectln("SENT");
-> +	inq_wait_queued(ctx.fd, HINT_CHUNK_SIZE);
-> +
-> +	/* A zero-length request is not an error and still describes the
-> +	 * queue behind it.
-> +	 */
-> +	res = inq_recv(&ctx, buf, 0, 0, &cflags);
-> +	expect_res(res, 0, "zero-length receive");
-> +	expect_nonempty(cflags, true, "zero-length receive");
-> +
-> +	control_writeln("DONE");
-> +	inq_server_exit(&ctx);
-> +}
-> +
-> +static void test_stream_uring_inq_mshot_client(const struct test_opts *opts)
-> +{
-> +	char buf[HINT_CHUNK_SIZE];
-> +	int fd;
-> +
-> +	fd = vsock_stream_connect(opts->peer_cid, opts->peer_port);
-> +	if (fd < 0) {
-> +		perror("connect");
-> +		exit(EXIT_FAILURE);
-> +	}
-> +
-> +	memset(buf, 0x3c, sizeof(buf));
-> +	send_buf(fd, buf, sizeof(buf), 0, sizeof(buf));
-> +	control_writeln("SENT");
-> +
-> +	control_expectln("DRAINED");
-> +	close(fd);
-> +	control_writeln("CLOSED");
-> +
-> +	control_expectln("DONE");
-> +}
-> +
-> +static void test_stream_uring_inq_mshot_server(const struct test_opts *opts)
-> +{
-> +	static char bufs[HINT_BUF_ENTRIES][HINT_CHUNK_SIZE];
-> +	struct io_uring_buf_ring *br;
-> +	struct uring_inq_ctx ctx;
-> +	struct io_uring_sqe *sqe;
-> +	struct io_uring_cqe *cqe;
-> +	int i, ret;
-> +
-> +	inq_server_init(&ctx, opts);
-> +
-> +	br = io_uring_setup_buf_ring(&ctx.ring, HINT_BUF_ENTRIES,
-> +				     HINT_BUF_GROUP, 0, &ret);
-> +	if (!br) {
-> +		fprintf(stderr, "io_uring_setup_buf_ring: %d\n", ret);
-> +		exit(EXIT_FAILURE);
-> +	}
-> +
-> +	for (i = 0; i < HINT_BUF_ENTRIES; i++)
-> +		io_uring_buf_ring_add(br, bufs[i], HINT_CHUNK_SIZE, i,
-> +				      io_uring_buf_ring_mask(HINT_BUF_ENTRIES),
-> +				      i);
-> +	io_uring_buf_ring_advance(br, HINT_BUF_ENTRIES);
-> +
-> +	sqe = io_uring_get_sqe(&ctx.ring);
-> +	io_uring_prep_recv_multishot(sqe, ctx.fd, NULL, 0, 0);
-> +	sqe->flags |= IOSQE_BUFFER_SELECT;
-> +	sqe->buf_group = HINT_BUF_GROUP;
-> +
-> +	if (io_uring_submit(&ctx.ring) != 1)
-> +		error(1, errno, "io_uring_submit");
-> +
-> +	control_expectln("SENT");
-> +
-> +	/* The payload completion drains the queue and keeps the request
-> +	 * armed, so the hint must report the queue as empty.
-> +	 */
-> +	if (io_uring_wait_cqe(&ctx.ring, &cqe))
-> +		error(1, errno, "io_uring_wait_cqe");
-> +
-> +	expect_res(cqe->res, HINT_CHUNK_SIZE, "multishot payload");
-> +	expect_nonempty(cqe->flags, false, "multishot payload");
-
-It looks like this assertion holds true even without the first patch,
-since msg_inq is initalized to -1 and nonempty is only set if msg_inq >
-0.
-
-As of right now, this test actually passes without the first patch.
-After cherry-picking only the tests to net-next and yanking out the
-other test cases, I see:
-
-	client exit=0
-	server exit=0
-	Control socket listening on 0.0.0.0:5200
-	Control socket connection accepted...
-	0 - SOCK_STREAM io_uring receive hint on empty queue...ok
-	1 - SOCK_STREAM io_uring multishot receive hint...ok
-	All tests have been executed. Waiting other peer...ok
-
-
-I wonder if it might be better to have the sender send two chunks so we
-can first assert that NONEMPTY is flipped on, and then again that it has
-flipped back off?
-
-Best,
-Bobby
-
-> +	if (!(cqe->flags & IORING_CQE_F_MORE)) {
-> +		fprintf(stderr, "multishot payload: request not rearmed\n");
-> +		exit(EXIT_FAILURE);
-> +	}
-> +	io_uring_cqe_seen(&ctx.ring, cqe);
-> +
-> +	control_writeln("DRAINED");
-> +	control_expectln("CLOSED");
-> +
-> +	/* EOF ends multishot regardless of the hint. */
-> +	if (io_uring_wait_cqe(&ctx.ring, &cqe))
-> +		error(1, errno, "io_uring_wait_cqe");
-> +
-> +	expect_res(cqe->res, 0, "multishot EOF");
-> +	if (cqe->flags & IORING_CQE_F_MORE) {
-> +		fprintf(stderr, "multishot EOF: request still armed\n");
-> +		exit(EXIT_FAILURE);
-> +	}
-> +	io_uring_cqe_seen(&ctx.ring, cqe);
-> +
-> +	control_writeln("DONE");
-> +	io_uring_free_buf_ring(&ctx.ring, br, HINT_BUF_ENTRIES,
-> +			       HINT_BUF_GROUP);
-> +	inq_server_exit(&ctx);
-> +}
-> +
->  static struct test_case test_cases[] = {
->  	{
->  		.name = "SOCK_STREAM io_uring test",
-> @@ -222,6 +564,31 @@ static struct test_case test_cases[] = {
->  		.run_server = test_stream_uring_msg_zc_server,
->  		.run_client = test_stream_uring_msg_zc_client,
->  	},
-> +	{
-> +		.name = "SOCK_STREAM io_uring receive queue hint",
-> +		.run_server = test_stream_uring_inq_server,
-> +		.run_client = test_stream_uring_inq_client,
-> +	},
-> +	{
-> +		.name = "SOCK_STREAM io_uring receive hint at EOF",
-> +		.run_server = test_stream_uring_inq_eof_server,
-> +		.run_client = test_stream_uring_inq_eof_client,
-> +	},
-> +	{
-> +		.name = "SOCK_STREAM io_uring receive hint on empty queue",
-> +		.run_server = test_stream_uring_inq_empty_server,
-> +		.run_client = test_stream_uring_inq_empty_client,
-> +	},
-> +	{
-> +		.name = "SOCK_STREAM io_uring receive hint zero-length",
-> +		.run_server = test_stream_uring_inq_zerolen_server,
-> +		.run_client = test_stream_uring_inq_zerolen_client,
-> +	},
-> +	{
-> +		.name = "SOCK_STREAM io_uring multishot receive hint",
-> +		.run_server = test_stream_uring_inq_mshot_server,
-> +		.run_client = test_stream_uring_inq_mshot_client,
-> +	},
->  	{},
->  };
->  
-> -- 
-> 2.55.0
-> 
+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
+R/NZ5tTafc0SyuWmEVyFR825FbSoi1HwMkY1/lsU/2Ny0PK1+9WamuvV11QKd2dN0bYDXrT9uWC/
+Cw+IDnr+5S21lWL9xM3S7htf+QjbSezM58DicE0QLGoXIYZ98zGOum91sMMgq2YfQKCVeOcD/7SL
+0tftIn9SftUtPTeRab5qssPI8Aqo18uk3WxLqQRQv57jHWDis/0CAwEAAaOCAdkwggHVMA4GA1Ud
+DwEB/wQEAwIFoDCBkwYIKwYBBQUHAQEEgYYwgYMwRgYIKwYBBQUHMAKGOmh0dHA6Ly9zZWN1cmUu
+Z2xvYmFsc2lnbi5jb20vY2FjZXJ0L2dzZ2NjcjZzbWltZWNhMjAyMy5jcnQwOQYIKwYBBQUHMAGG
+LWh0dHA6Ly9vY3NwLmdsb2JhbHNpZ24uY29tL2dzZ2NjcjZzbWltZWNhMjAyMzBlBgNVHSAEXjBc
+MAkGB2eBDAEFAwEwCwYJKwYBBAGgMgEoMEIGCisGAQQBoDIKAwIwNDAyBggrBgEFBQcCARYmaHR0
+cHM6Ly93d3cuZ2xvYmFsc2lnbi5jb20vcmVwb3NpdG9yeS8wCQYDVR0TBAIwADBBBgNVHR8EOjA4
+MDagNKAyhjBodHRwOi8vY3JsLmdsb2JhbHNpZ24uY29tL2dzZ2NjcjZzbWltZWNhMjAyMy5jcmww
+IwYDVR0RBBwwGoEYdmlzaG51LmRhc2FAYnJvYWRjb20uY29tMBMGA1UdJQQMMAoGCCsGAQUFBwME
+MB8GA1UdIwQYMBaAFAApNp5ceroPry1QLdugI4UYsKCSMB0GA1UdDgQWBBSDkmQlbsGdC/WLbyB/
+f4VlMvD+ozANBgkqhkiG9w0BAQsFAAOCAgEAYv4/sGMrazXrWECSGMFJ6YIDir3jLsYCcD/xTMfS
+bXSiWFQ/ZiFLbxfVV9JJKkkKR29ow0Eo1fBaZMCDhnax7746XJn6qJ0Iz5MyLKFB2DKt3UO2q1PB
++wh73XKXTx6FDnbFRDjtyam6uKjknIMrZcFVTyFwUiY9zKz5pK40OPx4ZzdWxOCKMnCblGOiqvS+
+gHpKXHRfCd9Ul1teGR1+muz+L7fJfrx9WUBNDFFIhwZEevLSVo7wIoyT2PG0fIk2yjKCFOT3CVVy
+E5LT/kzQHjq7Y36GeUxozu21FbrNYm4Ivlh1OV9suNl/3iN1j9kFAdgg/8QXh9USKmg2zaS/S9lc
+1YYUOS+Epg0WBwhAwWtVym636KWqu4Esgz2XWX1260rHG0sIxkdxzvBwsUYpf3e1axBlOHHr1Jz+
+vDtQVeBUS7fBAVDWnBJrKNn+jseGnpcqBDQSSNq1kB44XhKZFApne6lKSCqYkE3qXnr7Dp0CXm+G
+pPoyxqxotis4l4Dl4A3btCkYLp/dzOS00M71f185BKufW7S/16rj/jVUzgz2AjGvM/OC0SWvGoB2
+tDdyBMmW1/0xK5rKGnmfM07/k8agfS2J6eI1iWB35m1Ni2SoCoLGoLlvUA4OhexyRqMTTjyllKtA
+0Z9TF7kzBYUx8Qa7zfaTaIsVorChiSjphpgxggJXMIICUwIBATBiMFIxCzAJBgNVBAYTAkJFMRkw
+FwYDVQQKExBHbG9iYWxTaWduIG52LXNhMSgwJgYDVQQDEx9HbG9iYWxTaWduIEdDQyBSNiBTTUlN
+RSBDQSAyMDIzAgwcY9XKjV0+TQvViOkwDQYJYIZIAWUDBAIBBQCggccwLwYJKoZIhvcNAQkEMSIE
+IBH5FrfexFJpoUypchQyJdKqPeYwm/tqaEEeiTGt+JXWMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0B
+BwEwHAYJKoZIhvcNAQkFMQ8XDTI2MDkyMjE3NTQ0M1owXAYJKoZIhvcNAQkPMU8wTTALBglghkgB
+ZQMEASowCwYJYIZIAWUDBAEWMAsGCWCGSAFlAwQBAjAKBggqhkiG9w0DBzALBgkqhkiG9w0BAQcw
+CwYJYIZIAWUDBAIBMA0GCSqGSIb3DQEBAQUABIIBALqfqsiC6fm6mwjwUoFvh3tMT6f6XRPuYOBv
+fwpB5HTT2RbZU56ciRKn3vZyOLXL313AktH3XYnbQvBhwPAlRJ8RmYkWJm26yq+oBF+Le13RjfNE
+nYfgzWvvATG0KA861ig77tfTcnwfN/5r3V6LwDVhhfzkUR79iowdHkT0UD20SH7aJ55eq5USmpHz
+j32UWU85xKCy2sz3gqI9PCQ/15RSKmvrOcJjRcL34lVYXpCzyTaOnwqiGFmSKxZZpqWIHX9Eb7nO
+8kWBWquj2d6fFi8TQOMBfEPNz8rCRVt+qXdybP6FTXKdVCKQaFiFgbhYQyZtHQ42SUI+blZpkEHc
+TnU=
+--000000000000c051e9065c160f7c--
