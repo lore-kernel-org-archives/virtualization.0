@@ -1,57 +1,52 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95F6A54280D;
-	Tue, 22 Sep 2026 13:43:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D77954857A;
+	Tue, 22 Sep 2026 13:43:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790084623; cv=none; b=HFb0X4v3E4LLRnqSzFgOg77ivrUUVbH4DoWCeX7YYt0f0hJKyb+5z7QBOub9nlASOhv0eovZ/beEjfWeD4DR8fH4pwHyta8esKabJiop4RzZ3N50C3naKq5zLAtsXcaN45CxFEcaE7Dy0R0u4hWcwWofCydvt5CvfYVJZ2eUXew=
+	t=1790084624; cv=none; b=cSr+o7h76h7P6J5C8bTNWPJNw2rrL8y+uhD+liSXhUOzlxn+eUZ0ThSQsJhW4BWXrW+DQvUOKGvCHUFZiNMc3shi0FDK9R4F5sfiMC7/+UKSJw6cdxRi8d9+zdII3oaMKbXoS2kxu9bGBc9LrggUXySp5jHzR6NvUEUvlDc9w+0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790084623; c=relaxed/simple;
-	bh=DO6aRf0dJvim68jbtyQ1gOZHoTkyc8X8+IJJj+SV6VI=;
+	s=arc-20240116; t=1790084624; c=relaxed/simple;
+	bh=XoYZH+yOUHf4HF6yjIqqwJQ4q3wAL/sdHgzzwf3GumA=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=PWDc732OIsd95UEqS2klhHzih+bKvEg2hmNIbTFaAh86iOWlxlADnKcQEKUf/CKvxzt3NM9tusTTbY2dZHYKwu+brQsSO50oJCLtGi/zvjWzD6Sfodjog6xgN6n8KnHVV/rc029v2YPGFkFS4SJX0QZ5Yr+dm/EhTTD2l2ptZxg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AZ3D771f; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=Thz3Ogdg7rMDcVG+XchyAKSoVNY9z+LxCMXDLwF5boHHESL8URk8AobNak+Voy9onsVNGKgHzZNhYIhLVLWBbUCgUu4P9y6i0+TVuKuH+OL+n4aX1+JtLYAaohqSQMZN36pbNvNKAAJH4Xq3aTGMkhSyGg+EsynaCBDT0wCtGeg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YzFf9Pj9; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AZ3D771f"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25B3E1F00899;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YzFf9Pj9"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C15311F00893;
 	Tue, 22 Sep 2026 13:43:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790084622;
-	bh=DO6aRf0dJvim68jbtyQ1gOZHoTkyc8X8+IJJj+SV6VI=;
+	s=k20260515; t=1790084623;
+	bh=XoYZH+yOUHf4HF6yjIqqwJQ4q3wAL/sdHgzzwf3GumA=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=AZ3D771fv+kcosjlZ5sIsflTs/jLVp5XOgntSC5CgTYwJYPxugSVrLU3ALVfaKl1D
-	 pSIkLcQoOitjp3pXjDGjfALe3tJzVcNdcwlExf7U2/i19wNiZstr1ZSOJUWJ1GcBXD
-	 neWhxUKt7G0rc7qS0oOkgAeTA8tCw9c4JBs1wM6AWCaxHwpMKXjh9ePlUaxvWVwyYo
-	 ZE0F+0KB6hcZYBepyjL7GmzM/nXQwq1l0EcNdqKhy8QMluDnr5K/vMsLDMMfDaU3xj
-	 bkqk90ro1yGBvM8eUFX4WgOlCwgLzgGxMMCqod8LkeUmyTvyKDpecu1TMLF8VJXZf0
-	 b3gxFJVKom3wg==
+	b=YzFf9Pj9e6Pc8y2DdyQGVkhzdT9lGd4VHW0xDoaB5DYzNcWrbVop1SycFqWbBiFDh
+	 YVC2qHbu+kFu72H7Faza20Q/ovIpMg/x+k9B6yYBI0phXsnrBPx7atCNrpFeRKsxgz
+	 w05yRFk1zHQns7bzf38qVXwjOCrfytYfoz3UVEGYYZCokcfCsH2EqLtS95xFn0fvuf
+	 zeqZJxby2z0+Lw8PiazgOBtPlig/NM/IJpyMuIEI9Pqb9zdJ6U+wKbxD9YmASbVhyK
+	 A2q/UvtVePRwRhcE2X+HQXGB2ZV3JfTQLwQ3TfVGGOew45+GYd4feiH1mrJ06yQZjj
+	 0aRX5vr/FQn5A==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net v3 3/8] vsock: do not preserve transport assignment
+Subject: Re: [PATCH net v3 4/8] vsock: drop the re-assignment logic
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Michal Luczaj" <mhal@rbox.co>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, kvm@vger.kernel.org, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <20260922-vsock-connect-reset-closing-v3-3-78907b8200d4@rbox.co>
+Cc: kvm@vger.kernel.org, "Eugenio Perez" <eperezma@redhat.com>, "Michael S.
+ Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev
+In-Reply-To: <20260922-vsock-connect-reset-closing-v3-4-78907b8200d4@rbox.co>
 References: <20260922-vsock-connect-reset-closing-v3-0-78907b8200d4@rbox.co>
- <20260922-vsock-connect-reset-closing-v3-3-78907b8200d4@rbox.co>
+ <20260922-vsock-connect-reset-closing-v3-4-78907b8200d4@rbox.co>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 22 Sep 2026 13:43:41 +0000
-Message-Id: <20260922134342.25B3E1F00899@smtp.kernel.org>
+Date: Tue, 22 Sep 2026 13:43:42 +0000
+Message-Id: <20260922134342.C15311F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-> Introduce vsock_unconnected_reset() and adapt vsock_connect().
->=20
-> Change transport assignment life cycle. On connect(), socket gets a
-> transport assigned. If connection fails (init went wrong, peer
-> misbehaviour, time out, signal), transport is de-assigned and socket state
-> is re-initialized. Once the connection is established, transport remains
-> assigned until close().
+> On a failed connect(), transport is de-assigned. Connected socket keeps
+> transport until close(). Hence, no more re-assigning.
 >=20
 > Signed-off-by: Michal Luczaj <mhal@rbox.co>
 
@@ -59,5 +54,5 @@ Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260922-vsock-conn=
-ect-reset-closing-v3-0-78907b8200d4@rbox.co?part=3D3
+ect-reset-closing-v3-0-78907b8200d4@rbox.co?part=3D4
 
