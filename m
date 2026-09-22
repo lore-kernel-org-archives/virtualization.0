@@ -1,290 +1,121 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45EAE31282F
-	for <virtualization@lists.linux.dev>; Tue, 22 Sep 2026 09:13:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADF1642E40F
+	for <virtualization@lists.linux.dev>; Tue, 22 Sep 2026 09:23:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790068386; cv=none; b=nG9Mlir0kI5DUagpZn+BG6FJoRE7WKhBrNGfpxKeuzN/1gYweGvMbj/xNA9N1/I2bR2nCNmx5RNzGoNxcNa6yqVdlJTRCkln9iOT0mAxo8uDROdmGIQgw8xR05Yj+g1VPVFkdN+dSaFra/ULJTpPCWVxJlHFkkiRTM08q/x3FB4=
+	t=1790068983; cv=none; b=EuCeyv8P/38xLDe4oMbAfe9EVjrEAicNIr4Yjqk1N+0YYwMR9Sy9NUcow+JmwLsnIlGA3JdrBgA+G91hrVTddUeokAeK8lnxSVQpdmcyQJfmYx0A27DMUs6Ia0Dsz0TWZ6twQ1Ee+2nPGAHW5vRsfHxCytkyQxoZz892xEFQxOA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790068386; c=relaxed/simple;
-	bh=8Q4gM0McMjESHxjUzbPBWqlqB5yQLJclDgBSkLIsmYM=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=GhsskTQMdG7cS/eWY82XvsIdvkBuh6EdygTQHwGfUXH+CDnvMTy9t8luH9cmMjLT/N5/Ec9MvkNU8sXLy21GYKlhRvCRDYmrjUHvPQVQVWfAUROznUdmpQWOpm/qbsKHJZw8hZVRkaO34mUNFgeF3LRgf8Z17zY8i0e7H5RJOnM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jbA7qR5m; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790068983; c=relaxed/simple;
+	bh=0MlNWyi4hCXVJVEWimjJfjTosZLJAjP+I7BsGPwrE50=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=SRwwNIvQ2YZUvidauEgetImQP1rDJq67q4Csrxt/1Z0l+Ew2c0bBkzuZgywrW3nwfcEk2SduvX9O2b3y9gMwzI0gSnknuZtmkzJuLt4ZAGS8na75Qrez2AIRG9kH4KZI7p9N5AsX2RKbPAFZ9NjgcLYXaPS1HbPqoY7XJ1Fjdy4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JojTQ7H2; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jbA7qR5m"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A4A41F000FF;
-	Tue, 22 Sep 2026 09:13:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790068384;
-	bh=OGNJDAQJgH5SCP52S6rTDIGwz7lWq3gikYuEnLLi5dY=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=jbA7qR5mp2V+IX3cryo0ZdrultK6IrBh5rbPS4oSGr5RVMsaQ8tnc/HEy+sSmxYsj
-	 2Qy4X7bsEhCkhZaYyzZVPFKPV1L3OP5DbnTIoyJBAfvJl3K7AbXlDbKNVaUT34jBDh
-	 Cqum+ikjD0gVGoKqCJLldrB0eke+MdiRJR4a7OPD5Xov4whyuesesVa4KAej9zff/W
-	 kfdPMbddULfMyV9mIBhrC+uX5SooutRIGAbsnmPz/qR8WurZPgkP7vuTx5eK5RyZxG
-	 Egg8+AptgoA98P4mYsgc4rZPCJYpuNhQmVuW8XK3w7kuVYqcSWQgcMPmtVe1ewSMph
-	 2f0N0LNKs7iEA==
-From: sashiko-bot@kernel.org
-Subject: Re: [RFC PATCH v2 1/1] cpufreq: virtio: add driver to report host
- frequency to guests
-Reply-To: sashiko-reviews@lists.linux.dev
-To: Baorui.Liu <baorliu@amd.com>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <20260922090224.430-2-baorliu@amd.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JojTQ7H2"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1790068979;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=rpAVQ1UlV+yVL/E0QTVtJ9fL9FL/1XwCUiRQoK1VFSk=;
+	b=JojTQ7H2pBNe5yFMbDwJ7+sE5gEhge6YPdwq9ej4Yt86p1x2QcWM6bD06XTsFoWf7tAVN2
+	CaGMUgYRlf0EtK+aUlz2rhsUFsRLhea0eW7UobzvVEhJ9OiTZ+qukkLs8jNDdT6m1gu/4c
+	g/M6nm/lWMVuDLLXyAfSAPjnGRN4NWs=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-128-Vj9rVnmmNJijPll8ITp0ZQ-1; Tue, 22 Sep 2026 05:22:58 -0400
+X-MC-Unique: Vj9rVnmmNJijPll8ITp0ZQ-1
+X-Mimecast-MFC-AGG-ID: Vj9rVnmmNJijPll8ITp0ZQ_1790068977
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-495689bfcc8so28970905e9.1
+        for <virtualization@lists.linux.dev>; Tue, 22 Sep 2026 02:22:57 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790068977; x=1790673777;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=rpAVQ1UlV+yVL/E0QTVtJ9fL9FL/1XwCUiRQoK1VFSk=;
+        b=Vm01wN5aTBoFMQG+IccB016x8YnHxgdAL5ecBCKG9tXDl8vbZGnl5Aba5mkuKSUoEU
+         7jXeF/aEdkRo431R98+L6rTTJrZM8ICp+KBUMY4GY9E7bTQYg6Ltpitaoy6MeoZMl3Ty
+         o7zSO1Hvu2Ic3W5o/YBifKyCPF0dRRjQ+nzhwy1d2V/AtlEpFJ2PusQi4EQFAnebYSbt
+         T8qbw/XOKuYFsryQFuOzxK2+PPpWv6c43/yXLGOwYQWXHhLRdzT+qELANsDc6LjSmXQm
+         FjxstKY5ZpzeWRcOaGA+Kywfu3AtRNvFXYvi3ty8UAxYke1DzaVjg+jWMfI528LJlxyw
+         qzzg==
+X-Forwarded-Encrypted: i=1; AKwUvBy8W9XVAmv7Usx7jDS9xNGWLTKDlv8uKe2r5JIbeX/51hPWZVjzN0krIDPuStrwktfqo8jjvuMLqJYI7CxRMw==@lists.linux.dev
+X-Gm-Message-State: AFuF++kNgWTa4B4lTM3tjhdevgLGIo6iicmB8k+HddLXQauRIS0HSSTi
+	Cdk9OANJ6LOmv26NBPOfhMMUhpVj1/bXmDmypPT61RerU2JTGhZlFsLJW7gVjc7eijdETgUtB+0
+	lNDdYo/AWF/wM+iiSMjZJdhyG1+ZH+5vpl7ArGOApJbHFpAb534mU/5cCtO3X7N446ANr
+X-Gm-Gg: AYBFou3d1KXMGueY9I6VE7oVmn5ZYJJJClskPSXGB0rnhnmPsoCUCkBoPHUgAwHiQB2
+	1wpKSvhet9It+xC3xB8x+uUrsoirzhX7HKaOZq64bYzATCp336uO+Bh+eZ0Wy5e7T+dRHmdEAnE
+	F+Ob/5A8MAhUrqjrGNkKzfgNuWB43dTjlFzPhNocOPhnoLC/aebLL3dreUsePJ3qEIToIlOQFBH
+	g56K8Y/UFqm50sb6VWQ0O46inHzOWMSuODmPoSjJvxkeQz7RHzcDxppu8+2To8pXj8xYsiW8eCR
+	Usjn1jQ+zKz/iBYOeEvvu9I4pMGoUFT0MkMST9tn3CjqjO/0wLuQkxDuw8duzp20Bwf6oGKiVcp
+	Rpmewf9VinSofwUe/7b3vLio=
+X-Received: by 2002:a05:600c:a013:b0:49e:6891:27a8 with SMTP id 5b1f17b1804b1-49fc574a9bcmr167312765e9.25.1790068976722;
+        Tue, 22 Sep 2026 02:22:56 -0700 (PDT)
+X-Received: by 2002:a05:600c:a013:b0:49e:6891:27a8 with SMTP id 5b1f17b1804b1-49fc574a9bcmr167312555e9.25.1790068976311;
+        Tue, 22 Sep 2026 02:22:56 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-79-236.inter.net.il. [80.230.79.236])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49fd8ce2623sm79760035e9.13.2026.09.22.02.22.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 22 Sep 2026 02:22:55 -0700 (PDT)
+Date: Tue, 22 Sep 2026 05:22:53 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: "Baorui.Liu" <baorliu@amd.com>
+Cc: linux-pm@vger.kernel.org, rafael@kernel.org, viresh.kumar@linaro.org,
+	saravanak@kernel.org, jasowangio@gmail.com, eperezma@redhat.com,
+	xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev
+Subject: Re: [RFC PATCH v2 0/1] cpufreq: virtio frontend to report host CPU
+ frequency
+Message-ID: <20260922052231-mutt-send-email-mst@kernel.org>
 References: <20260916073735.541-1-baorliu@amd.com>
- <20260922090224.430-2-baorliu@amd.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 22 Sep 2026 09:13:04 +0000
-Message-Id: <20260922091304.9A4A41F000FF@smtp.kernel.org>
+ <20260922090224.430-1-baorliu@amd.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+In-Reply-To: <20260922090224.430-1-baorliu@amd.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: cjBOfFqxEvMiVICk6nNNXGNa4jpZWFdYP6bWAjlYLd8_1790068977
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Thank you for your contribution! Sashiko AI review found 6 potential issue(=
-s) to consider:
-- [Critical] virtio: stack use-after-free of completion struct on timeout
-- [High] virtio: DMA API violation by mapping same buffer for IN and OUT
-- [High] virtio: global virtio_cpufreq_dev clobbered on secondary device pr=
-obe
-- [High] virtio: missing virtio_reset_device() before deleting virtqueues
-- [High] virtio: data race in virtqueue access between IRQ handler and get()
-- [High] cpufreq: explicit transition begin inside target_index causes dead=
-lock
---
+On Tue, Sep 22, 2026 at 05:02:23PM +0800, Baorui.Liu wrote:
+> This is RFC v2 of the guest virtio-cpufreq frontend.
+> 
+> Changes since RFC v1
+> ====================
+> - Fix 0-day kbuild error: cpufreq_generic_attr is gone on current
+>   linux-pm; use cpufreq_freq_attr_scaling_available_freqs.
+>   Reported-by: kernel test robot <lkp@intel.com>
+>   Closes: https://lore.kernel.org/oe-kbuild-all/202609191437.OaXd0Blz-lkp@intel.com/
+> 
+> RFC notes unchanged: experimental virtio ID 42, hardcoded OPPs,
+> sleeping .get(), QEMU backend is a separate series.
+> 
+> v1: https://lore.kernel.org/r/20260916073735.541-1-baorliu@amd.com
 
-commit e9d1547c4f482aad7a2452a1f8c4a163f33031fa
-Author: Baorui.Liu <baorliu@amd.com>
+could you link to qemu and spec series, please?
 
-    cpufreq: virtio: add driver to report host frequency to guests
 
-    Add a virtio frontend that queries the host for the frequency of the ma=
-pped
-    pCPU and exposes it through the cpufreq .get() callback.
+> Baorui.Liu (1):
+>   cpufreq: virtio: add driver to report host frequency to guests
+> 
+>  drivers/cpufreq/Kconfig          |  14 ++
+>  drivers/cpufreq/Makefile         |   1 +
+>  drivers/cpufreq/virtio-cpufreq.c | 240 +++++++++++++++++++++++++++++++
+>  include/uapi/linux/virtio_ids.h  |   1 +
+>  4 files changed, 256 insertions(+)
+>  create mode 100644 drivers/cpufreq/virtio-cpufreq.c
+> 
+> -- 
+> 2.34.1
 
-    Link: https://lore.kernel.org/oe-kbuild-all/202609191437.OaXd0Blz-lkp@i=
-ntel.com/
-
-> diff --git a/drivers/cpufreq/virtio-cpufreq.c b/drivers/cpufreq/virtio-cp=
-ufreq.c
-> new file mode 100644
-> index 0000000000000..aa04fd7fd3436
-> --- /dev/null
-> +++ b/drivers/cpufreq/virtio-cpufreq.c
-
-[ ... ]
-
-> +static int virtio_cpufreq_target_index(struct cpufreq_policy *policy,
-> +				       unsigned int index)
-> +{
-> +	struct cpufreq_freqs freqs;
-> +
-> +	freqs.old =3D policy->cur;
-> +	freqs.new =3D policy->freq_table[index].frequency;
-> +
-> +	/*
-> +	 * This frontend does not change host frequency. It only keeps
-> +	 * the cpufreq core in sync so userspace can observe values.
-> +	 */
-> +	cpufreq_freq_transition_begin(policy, &freqs);
-
-[Severity: High]
-Does this explicit call to cpufreq_freq_transition_begin() cause a deadlock?
-
-The cpufreq core already handles frequency transitions by setting
-policy->transition_ongoing and invoking cpufreq_freq_transition_begin()
-prior to calling .target_index(). Calling it again here will hit a true
-transition_ongoing flag and block forever on wait_event() inside the transi=
-tion
-begin sequence.
-
-> +	cpufreq_freq_transition_end(policy, &freqs, 0);
-> +
-> +	return 0;
-> +}
-
-[ ... ]
-
-> +static void virtio_cpufreq_vq_cb(struct virtqueue *vq)
-> +{
-> +	struct completion *done;
-> +	unsigned int len;
-> +
-> +	while ((done =3D virtqueue_get_buf(vq, &len)) !=3D NULL)
-
-[Severity: High]
-Can this lockless access to the virtqueue in the IRQ handler race with
-virtqueue_add_sgs() in virtio_cpufreq_get()?
-
-If a timeout occurs in virtio_cpufreq_get(), the mutex is dropped, allowing
-a new request to start. A delayed host reply can cause virtqueue_get_buf()
-to execute concurrently with a new virtqueue_add_sgs() request, corrupting
-the virtqueue free list.
-
-> +		complete(done);
-
-[Severity: Critical]
-Does this write to a destroyed stack frame if a timeout occurred?
-
-When virtio_cpufreq_get() times out, it returns and destroys the stack-allo=
-cated
-struct completion done. However, the pointer remains queued in the virtqueu=
-e.
-When the host eventually responds, the IRQ handler extracts the dangling po=
-inter
-and executes complete(done), causing stack memory corruption.
-
-> +}
-> +
-> +static unsigned int virtio_cpufreq_get(unsigned int cpu)
-> +{
-> +	struct virtio_cpufreq *vc =3D virtio_cpufreq_dev;
-> +	struct virtio_cpufreq_req *req;
-> +	struct scatterlist out_sg, in_sg, *sgs[2];
-> +	struct completion done;
-> +	unsigned int freq_khz;
-> +	int ret;
-> +
-> +	if (!vc || !vc->vq)
-> +		return virtio_cpufreq_fallback(cpu);
-> +
-> +	req =3D kzalloc_obj(*req, GFP_KERNEL);
-> +	if (!req)
-> +		return virtio_cpufreq_fallback(cpu);
-> +
-> +	req->cpu_id =3D cpu_to_le32(cpu);
-> +
-> +	init_completion(&done);
-> +	sg_init_one(&out_sg, req, sizeof(*req));
-> +	sg_init_one(&in_sg, req, sizeof(*req));
-
-[Severity: High]
-Is it a violation of the DMA API to map the exact same buffer (req) for both
-the OUT and IN scatterlists?
-
-This causes the underlying DMA API to map the same memory with DMA_TO_DEVICE
-and DMA_FROM_DEVICE concurrently, violating ownership rules and causing
-bounce buffer (SWIOTLB) cache corruption. It also directly violates the
-Virtio specification against descriptors containing both device-readable
-and device-writable memory.
-
-> +	sgs[0] =3D &out_sg;
-> +	sgs[1] =3D &in_sg;
-> +
-> +	mutex_lock(&vc->lock);
-> +	ret =3D virtqueue_add_sgs(vc->vq, sgs, 1, 1, &done, GFP_KERNEL);
-> +	if (ret) {
-> +		mutex_unlock(&vc->lock);
-> +		kfree(req);
-> +		return virtio_cpufreq_fallback(cpu);
-> +	}
-> +
-> +	virtqueue_kick(vc->vq);
-> +	ret =3D wait_for_completion_timeout(&done, msecs_to_jiffies(1000));
-> +	mutex_unlock(&vc->lock);
-
-[Severity: High]
-Does dropping the mutex on timeout allow virtio_cpufreq_vq_cb() to race with
-a new request?
-
-> +
-> +	if (!ret) {
-> +		/*
-> +		 * The buffer may still be on the virtqueue. Leak it
-> +		 * rather than freeing while the host may still write.
-> +		 */
-> +		return virtio_cpufreq_fallback(cpu);
-
-[Severity: Critical]
-Does returning here abandon the stack-allocated struct completion done while
-it is still in the virtqueue?
-
-The function returns on timeout without removing the request from the
-virtqueue. When the host eventually responds, virtio_cpufreq_vq_cb() will
-call complete(done) on a destroyed stack frame.
-
-> +	}
-
-[ ... ]
-
-> +static int virtio_cpufreq_probe(struct virtio_device *vdev)
-> +{
-> +	struct virtio_cpufreq *vc;
-> +	struct virtqueue *vq;
-> +	int ret;
-> +
-> +	vc =3D devm_kzalloc(&vdev->dev, sizeof(*vc), GFP_KERNEL);
-> +	if (!vc)
-> +		return -ENOMEM;
-> +
-> +	mutex_init(&vc->lock);
-> +	vc->vdev =3D vdev;
-> +
-> +	vq =3D virtio_find_single_vq(vdev, virtio_cpufreq_vq_cb, "requests");
-> +	if (IS_ERR(vq))
-> +		return PTR_ERR(vq);
-> +
-> +	vc->vq =3D vq;
-> +	vdev->priv =3D vc;
-> +	virtio_cpufreq_dev =3D vc;
-
-[Severity: High]
-Does this unconditional assignment clobber the global pointer if a second
-device is probed?
-
-If a second device is probed, it overwrites the active virtio_cpufreq_dev
-pointer. Registration of the second cpufreq driver fails with -EEXIST,
-causing the error path to set the global pointer to NULL. This severs the
-first, still-active device permanently, causing all subsequent .get()
-callbacks to fail.
-
-> +	virtio_device_ready(vdev);
-> +
-> +	ret =3D cpufreq_register_driver(&virtio_cpufreq_driver);
-> +	if (ret) {
-> +		vdev->config->del_vqs(vdev);
-
-[Severity: High]
-Is it safe to delete virtqueues while the device is in the READY state
-without calling virtio_reset_device() first?
-
-Because virtio_reset_device() is not called first to stop the device,
-the host may still actively process requests or DMA into the rings,
-causing a use-after-free corruption of kernel heap memory.
-
-> +		virtio_cpufreq_dev =3D NULL;
-
-[Severity: High]
-Does nulling the global pointer on a failed secondary probe break the prima=
-ry
-active device?
-
-> +		return ret;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static void virtio_cpufreq_remove(struct virtio_device *vdev)
-> +{
-> +	cpufreq_unregister_driver(&virtio_cpufreq_driver);
-> +	virtio_cpufreq_dev =3D NULL;
-> +	vdev->config->del_vqs(vdev);
-
-[Severity: High]
-Are virtqueues being deleted without first calling virtio_reset_device()?
-
-Allowing the virtqueues to be freed while the device is fully active could
-lead to the host continuing to actively process requests or DMA into the
-rings, causing a use-after-free corruption.
-
-> +}
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260922090224.430-=
-1-baorliu@amd.com?part=3D1
