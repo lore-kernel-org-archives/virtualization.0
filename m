@@ -1,81 +1,81 @@
-Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
+Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 422B1491587
-	for <virtualization@lists.linux.dev>; Tue, 22 Sep 2026 18:37:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B1883C0A00
+	for <virtualization@lists.linux.dev>; Tue, 22 Sep 2026 18:37:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.171
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790102235; cv=pass; b=VgGfJU/s4YHgUkWh9YPlG4UvvdR5X+6XPyVVMqol9MFD690wicGAxA6iSQ6wEBqWQLTAAROCujUXa+VlshflmTeWGxbf+AZVsrfvr/xSbhEyboZ+OI284UWLYcSLtUGCNDakqP00w3OGbqqg5OEzuqNw3SWdBfYHx/pXIEf7yVs=
+	t=1790102276; cv=pass; b=W6J2cbYIMZ/YtU8nAjIf+oePN3gg4xPjdIzDK2yWEw/NbI3l7qomEGCApYMcPohWvlJjc4oct1a9Pqd6JJER8DQEVAVg+25sEruMUZMX5ZSCP+pHcEia1E0QoEpTs5F5uiKGnKMY79msr5me3ibcFRqnzl1l35vovRyydQlEoCY=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790102235; c=relaxed/simple;
-	bh=rnHVfxRLkxrfC2X/JrRH7SXq33Nyv/9lZ/llakOoOJ8=;
+	s=arc-20240116; t=1790102276; c=relaxed/simple;
+	bh=GC04Ie97f/Zq8XtAwt9c2zHV55wa3YAROIuWcRsg4So=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Hr4LGgH80LKpduuu9JW8AS+he8qmIQD0u8rGn09t/AWoCSpbxxTY6jkwr8IiWgiM6jvFgoZvuenAgbOgYQNOr30m3ES3hY0c2OioqHwandKr/jimPbOdivan65k7AD77ydiy5qMdeTIqyjoz0eSUR6itM5p9U1pjA+7WtyaXYhA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=p6Rye1tl; arc=pass smtp.client-ip=209.85.214.176
+	 To:Cc:Content-Type; b=gUBuLKctHPti7MuXM2E9EY1eUqAMqfQIFc6K9nL/gaCyAYAUGvLGVm1LxEjj+Ci80gZXfuxf6GeeIitwxgeb3qa99HeNDTkiegnYzRNkyWP9dXKrxJQ005Msa4Tx4IUoC2/ZoQOe25twWMaFHkqDu1NyrpdDwrZ8pOBaueQEorw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Sg5nPThx; arc=pass smtp.client-ip=209.85.214.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="p6Rye1tl"
-Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-2d8fd7a3f38so11355ad.1
-        for <virtualization@lists.linux.dev>; Tue, 22 Sep 2026 11:37:12 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1790102232; cv=none;
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Sg5nPThx"
+Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2d8fd7a3f38so11435ad.1
+        for <virtualization@lists.linux.dev>; Tue, 22 Sep 2026 11:37:54 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1790102274; cv=none;
         d=google.com; s=arc-20260327;
-        b=N8o4Qs4qREp9yUjcS2co069d1b92bSFg27sgj21PWYXvMGpXWPhTTztG6iEGpHpUIf
-         Yu4Ze7gGHDjSdh7+++Bv5FwiY/aivS20D5OhLgRSHqI/ICFBjbYhQBOSZZ/bOPyGN4Pi
-         kJMdKjivt6etJMbJU69kGJKamX9HCYJElZbV8P8WrQtUU47M1fL0GSEXVdvXI2OtOkOp
-         Hq/+Cotx1quZa/aJbNa2XmrvlcWaeQ6UwI8ROtHcIDXqC2C3JsV5J9847SzwdhaYNpUW
-         H5VZI7RLn7F7E5iTrd0tJfvtFNb3M0M2CTl4uCaTG9Fpsysj+m00ZuI040RSZP/oobOe
-         lnag==
+        b=Ui3bsx8FglM7knNmbfUjmke+eNcK/vyHBKFr2I2Y9Z3bV4keOQUL2qZ5wmF3WcOFMD
+         POqW0qlpBu50n4476PDOfTkPNCvlmtHiF8aQS9VZaNZyjjIAfzkSFCGaf1FwjJax4j2X
+         7Juuz3XdywKz+tcem0JZPvec3R9l1n0pcm9WYSYlgR9jTeHi8hLDuBi1NjAYS9uXcgmU
+         LpSamuSf+dQFxM9RB8H4gBXBjjqgKub3Zryrd1bh5ziygt1s1L+zrAeQnP6v9YpaSnby
+         Mlx4OwZw/RKz7lhGAuw5q0W6F0PTY2aQ6O2cQi5LHqpoEjWl5bjV1KWbPSXcMw5ozEwb
+         SNEA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=lpala58T80XtNEXVFk/kyfJQMDM4aNUtQaSa/5dA71o=;
-        fh=/bCTxy88UcZZv5WHGLSlwJNww89J41jKPjzP87uOGg0=;
-        b=hxzRLskO9NhxVpekyf101kR5G70hWMSLEgMpfWPhnRuuX9g7NEo4zRm0CnPbYgMf3l
-         mbYX7q0vB6opHa7mYHdGAfXRu6mYKm1LfFbEEcto1bULtKroNc21M3b2IxAST7Rgp6fT
-         8bon/EjmXht3uIGTb7+TfNHrsESo8M70KEfcZY0SL7TAeI3R0dbfyrNCz1wt48ooK/rN
-         G9RZ6NfA3djFDOmjEudyBmRrf5o6jKeWRZkK8fRa6DSiHR4By/BQ2v++lhgniVCDlZv+
-         BCebKlKH8S3kidE0fvbNcesFAKhaWIy2fakKqlO2W6raW8IEZvN8vB4P9GMXkqWlHil7
-         nukw==;
+        bh=ul4WPBIsIalN/8MTPa0QQf2L1vwjM0y5V5k/PebbUpY=;
+        fh=zliO8GyhSMi00IXASqKcq+iUDvIpBfB+d5pQq0GJaCg=;
+        b=A06wedRQF7f9vJFObqzD09jMMATTXWrDLSNS4w9VR4dAJpTar1jIseDZzL/eN4HAAa
+         X2c2erWDw/eH1b++cr0RqBQx73mFCGwkNodEBrXXHLuZSqBTdWgtrcxW7Pi4e7QeScjw
+         k+cOjGfvFq/RVEw+k7HjzxKP/GZOrx078baePj87qheXwLkFnO8qjXGWPRWaMqHLJKdr
+         b1QZAEpVPEZRJScjSpw06LONWnY5/r4qyaOXSFmRBbYldOuXnnSaoUYf6/VEASQ6raU3
+         Amy1y+irVFipg01MDhe5U7IfPFeMaxRhpFPlD9+PpmGnbLPl4hVyEgU88i36ONpIREmV
+         smYA==;
         darn=lists.linux.dev
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1790102232; x=1790707032; darn=lists.linux.dev;
+        d=google.com; s=20251104; t=1790102274; x=1790707074; darn=lists.linux.dev;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=lpala58T80XtNEXVFk/kyfJQMDM4aNUtQaSa/5dA71o=;
-        b=p6Rye1tloUV0K1W+GBtFCABVyyle4CT7ansEUakiFm7ZGmiwATd6z4rpoTouNsbyWw
-         /OwDcgOh9MssZ/+AZ0skDeOwpp8G5R3/SfKhwaznoVGftFBo/JGizP/Ggu/IYsvgqlrN
-         HZlfO6dVbX53B5VMB1XpOjMjdYRCqKJ2lrikcCsMu38TNRgd7Y7AHEJsPe9uz4qMvKNB
-         xpH6SGeSD4RPbshS4aiRfwmwACdTwA93/TlYS1esEEMhnY8N+gAo8hievQcrR3NvKAGd
-         Jn/soDq+c5OnhmZLmpfHKnzQexY1cGm3BzPv9XgmM7EkpwF8dL2Shr52K5Fm4jnMGNaJ
-         625g==
+        bh=ul4WPBIsIalN/8MTPa0QQf2L1vwjM0y5V5k/PebbUpY=;
+        b=Sg5nPThx13i3NIw1fAmFQCQBRZNGGro78OyyTVUjl7pPZnww4jooKUe9cOMIiMukrO
+         8UagrvyYPPMHhUhyTNIRrYdXEMEB7ngL41KHxJIX8Fc04hK0soyvtKaFUw52SeazeTkr
+         ngqij6IlEdSffoBAl+6HQzm8fTTEpKda5Y4/OGeOAmDGEAjk/PTet01ZFA9k2b3whtYL
+         yxbnhAAiHvSZZc8LpsGzcs0QoYVJiuzBn/2YoTPWCjkCk54PNI9TncwjzfB36nuv7us6
+         Az5nmCYVKiPPq/QwoMC8ZkFst7lJVzewtg7QRM1bGt/kA4qXMm/27VVrRCWffZQUmo3j
+         Zcfg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790102232; x=1790707032;
+        d=1e100.net; s=20260707; t=1790102274; x=1790707074;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=lpala58T80XtNEXVFk/kyfJQMDM4aNUtQaSa/5dA71o=;
-        b=s1TGRiPPncN8gMaZuotkXs3k0LTkpuBzy1u7eDSK70rpZA5+rxfDA5QIfLTd7Qe5bn
-         Q40IijrhNz/hbznB0+pByByaPrbljQtYIvJqWv8+gCmtz0OaKVCFFaP4JA0oaSTT9Po5
-         Im5AhgMORnC85dBY40EaqGKMjgZOxwcxneTZrdCrFem9CLkcN1FInqd4B2rgr8LBZd+R
-         g6505SSB5VTZVS0cm9EJz8jncE9r1XOIyWtbDj13Ej55LDChEwg7qBlYlcvNglWct8ck
-         Help0na6qrNdpJLeaBqqNTEBOp6eFAQExlr+XDGeMQpJqa2gMmdrgkNDoo76xddoKfEE
-         akRA==
-X-Forwarded-Encrypted: i=1; AKwUvByLQlaS6NNWaCJyrdY1c/fcJhZf6Od34GAfJM6BhBoc+IcY1JNCUYfqacX/o39ZxiS0jzLYjiataJsIwzHiig==@lists.linux.dev
-X-Gm-Message-State: AFuF++n0waFLhmhAVgWKWneHu+QPJfhWSxfR1IPV+87jTkvpKP3S1unO
-	nXfZ1aIow5n1KYs7Oc4C1gxB9+6ArGB9FY0lncE9A385MfkefDJlyxSsIy3TciMQKt+y/MV9a0V
-	vhBK9JSRDlVveqvIr3U8aW8tOtY/iQ5p+/igOVcw=
-X-Gm-Gg: AYBFou2EfWt5FKDpFFCzFGCiiUckfru28Ouk7PELNkf2rwTi91emFb15xuW/hpAlezG
-	ar3e8vxVigMI/aggQztw9AY6HPtPBb2mcuuswASTQS2JFiqTzSuiex7jt0WknvZF9b6Yyw+9Muu
-	yiurdy8wqfOu5hRdZyVGbP5v+BJlIKuD0BtlJN5+aC/wY8NAwLiZ2ovIf3jAqOadvDBr5I289FJ
-	9ev8sTfi4nmPSFL2hrHR8CTYm+ov3duwctWCarH5W8cihEl9hrru6+C93tWKGKGn+T+kg/go615
-	jMn5fmmcsY/92BIlbPsWjAI6L8CQpIovWkRqsi9cXvdTBwbDGppc+EE=
-X-Received: by 2002:a17:902:e80c:b0:2d3:153d:acae with SMTP id
- d9443c01a7336-2df69b92393mr958145ad.0.1790102230685; Tue, 22 Sep 2026
- 11:37:10 -0700 (PDT)
+        bh=ul4WPBIsIalN/8MTPa0QQf2L1vwjM0y5V5k/PebbUpY=;
+        b=Qt/VUTBDO41EeZMdAX6IQd0P3Xy3ddhS4n5BgK5Lu7tcfdh42Oief+R17Gd5wEc7B0
+         z7WmdezSyt8Q6TF3CLaIDYENLlozijL2TRV653jjo0FIBliKYyNk4q8BTXumQ+O1zPHh
+         7OpKc2EkMoK36+99W/ZCv9WYnX3JMKi9AjGSKSXdLuDsqnepjS8KUhQz2rlLbwXZgQ7E
+         9Tzf+QgVsO7R+StJKro8qfv0eR5x8imn6LHeIJ5toNDuYOevbSGE9Y3pVHKr+SnGScYr
+         zNmtxYjiGixDohYE67Mxkp16q9hXgZ/inGNMdib1TUmMiqydD5c7u8kLi+GAw1P5Depv
+         J83A==
+X-Forwarded-Encrypted: i=1; AKwUvBxPZhLni+P99C/bY8qUlA59kZVDmpWp5n0fOPv4CRFfyRubFLppzkwvPTJWc9rchUwflLHXI+vJx9T8RhEjFw==@lists.linux.dev
+X-Gm-Message-State: AFuF++kAU2MqE8EXHyNM2r0UcKHd1KTN+IMCY9TOvsgrN8ZeyK1+24wK
+	kDZxHYx4Lp3Aud+A329MV9/FHgR/xg9EXz4atUkPu9+Z9DuaK/4FLS08DOLNKv+kdOjUmkiGALf
+	mfvzOzU8YY4RtqNcjo/yrXYTX3fmZfLeQl6BAbsw=
+X-Gm-Gg: AYBFou2cXSl7/ErBbBG2d128PSO947QR5MqbcQvgqoxQEIa5ML30Yai03FT4ZSDabig
+	PTxvbtfpE6Mdknn7ZAXXqlRd8SHVtE21XddPICWYGmcMVXyPGRpQSADPs958oS5JXGDpJGQs00A
+	emUh1qmh/C0liRelcrQK7RlFa4UufK5+hhUZOm4Bi2guTO3WB5O5UDljmUks/zmYMTcNq/xPLJr
+	JJ5bf2sHpAYENI7A2PmfXi9csZWBpPbkBLyp06DVoWqQqmb8m+2JItzteLurHy013QbKrGAF33U
+	r/UFXQiVXfCYrbHt8d69VaC5uGdT3Sjv/nFB4aJINgC4SFEjKavCRA==
+X-Received: by 2002:a17:902:c402:b0:2dd:53ce:f2bc with SMTP id
+ d9443c01a7336-2df69e0221amr497185ad.3.1790102272855; Tue, 22 Sep 2026
+ 11:37:52 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -83,12 +83,12 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 References: <20260917171921.2810550-1-briandaniels@google.com>
- <20260917171921.2810550-2-briandaniels@google.com> <20260919154110-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20260919154110-mutt-send-email-mst@kernel.org>
+ <20260917171921.2810550-2-briandaniels@google.com> <20260919160109-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20260919160109-mutt-send-email-mst@kernel.org>
 From: Brian Daniels <briandaniels@google.com>
-Date: Tue, 22 Sep 2026 14:36:58 -0400
-X-Gm-Features: AcwNN1VaOVuGEw8P3BG9MLi-fRb7W9KpK1nDZUD5qmMHTW4L28mo84TJwjh7dK8
-Message-ID: <CAD4i_GR9p0x+6wgecspf-kQ6gvHSiJzEr4NYHebM5usf2QU7pQ@mail.gmail.com>
+Date: Tue, 22 Sep 2026 14:37:40 -0400
+X-Gm-Features: AcwNN1XqZusjozJC8ZHjfAksaG_jJdxa_4CmpoQkdXqryBtCuswiVynRt4cYD0Q
+Message-ID: <CAD4i_GQLH2D2OPk+1azN4gZUKiqG0FfTWChTwFa9ki0SBK6dyg@mail.gmail.com>
 Subject: Re: [PATCH v9 1/4] media: virtio: Add skeleton virtio-media driver
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Mauro Carvalho Chehab <mchehab@kernel.org>, adelva@google.com, aesteve@redhat.com, 
@@ -101,7 +101,7 @@ Cc: Mauro Carvalho Chehab <mchehab@kernel.org>, adelva@google.com, aesteve@redha
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Sep 19, 2026 at 3:52=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
+On Sat, Sep 19, 2026 at 4:03=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
  wrote:
 >
 > On Thu, Sep 17, 2026 at 01:19:17PM -0400, Brian Daniels wrote:
@@ -126,6 +126,17 @@ s
 > > Assisted-by: Antigravity:gemini-3.5-flash
 > > Co-developed-by: Brian Daniels <briandaniels@google.com>
 > > Signed-off-by: Brian Daniels <briandaniels@google.com>
+>
+>
+> I dislike it when a header with no users is added like this.
+> fact is you missed initialization of reserved precisely
+> because it is not in the patch that uses that struct.
+>
+> just add things as they are used.
+
+Thanks, I'll look into reformatting this patch series as you say in
+the next revision
+
 > > ---
 > >  MAINTAINERS                                |   8 +
 > >  drivers/media/Kconfig                      |  13 +
@@ -425,26 +436,6 @@ ist **sgs,
 > > +     video_set_drvdata(vd, vv);
 > > +
 > > +     vd->device_caps =3D virtio_cread32(virtio_dev, 0);
->
-> please use offsetof device_caps not hard coded "0".
->
-> Also, the spec says:
->
->
->   struct virtio_media_config {
->       le32 device_caps;
->       le32 device_type;
->       le8 card[32];
->   };
->
->
-> you (and v4l) should define them as le32 and use virtio_cread_le.
-
-Albert left similar comments, I'll be sure to do this in the next
-revision, thanks!
-
->
->
 > > +     if (vd->device_caps & (V4L2_CAP_VIDEO_M2M | V4L2_CAP_VIDEO_M2M_MP=
 LANE))
 > > +             vd->vfl_dir =3D VFL_DIR_M2M;
