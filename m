@@ -1,137 +1,193 @@
-Received: from mail-ed2-f12.google.com (mail-ed2-f12.google.com [74.125.228.76])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0E6E54B1BF
-	for <virtualization@lists.linux.dev>; Tue, 22 Sep 2026 13:53:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.228.76
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790085203; cv=pass; b=Jr/llY8ZWX4bpjQ/6i5Cq34/L+jWQN0FPvxvprC/fa40SPVZAq7gNAu2VPNYoc3b0yetUTL6ZpOULlHRcnoRmE3Ftz8r1jwEf+mo0Yn4Rm3orEoU+hn+QoJqFzA2kzYYGEnZxB166xsmsZNQZaViaG956rwPQKYvYkJ2s95mLTA=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790085203; c=relaxed/simple;
-	bh=0hurBNTkrVz1B/9TW5ipWegr4/ZEEZE2GB3faJsOdT4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=rveZ5qudHfNHc8PBETWiX+y3rAadG0G95jfJrv4JAmujlWEkQStxLeAu0M4wYv+6GPJY8Xjy4UrKnAFtmSj4H4uU8RSMPW9bnS3HQegkUl3VMWA/YZWkWF6CYywSCOvPZeTRpH/ImlvCgFohRUbX0V52SqvfmOo02tNWPRyIxng=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=xJfQrXKj; arc=pass smtp.client-ip=74.125.228.76
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA56947C0EE
+	for <virtualization@lists.linux.dev>; Tue, 22 Sep 2026 13:56:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1790085396; cv=none; b=R2lSYX6AMHbWMlA5V25ZPvxqDPE9EaAw0OO6Gzx9OU12igNilR3AsXiKCMlJAEQic+hbbsMdr1bi3NHC2M/X9suFWqP/i6GDBDW4TZ7we6nKIoRYwkpCEl0gOf1SzYH14/cliUijdDdQS6XrR0Mf/P5sLY7dB0mpYIDuVyaa7Hk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1790085396; c=relaxed/simple;
+	bh=xpzff7gTANmin7ayImKqNSwtv/jMmdVMSrHmqXKpE6g=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=Gcd32rIl9kFGe7J7b51/+zGk6ZRhQuuADk4mQtNbcGMcLWOwUliuvhkDFzTyS4yaUfsi24EdgwzzQxih7J5vIyFy/RIh6lmGBWfdSDAy3CK/ARc/JLR5P5Kv1ysXIREkTR9poB8912QWyZiqEIswXx+OXEKcvFgoz6x03n0XR1g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ht7ELrCF; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="xJfQrXKj"
-Received: by mail-ed2-f12.google.com with SMTP id 4fb4d7f45d1cf-6a6056ac81fso7427991a12.2
-        for <virtualization@lists.linux.dev>; Tue, 22 Sep 2026 06:53:21 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1790085200; cv=none;
-        d=google.com; s=arc-20260327;
-        b=JcaqqeZx3z3jP7nCMdUIpiieKsSV2J4I4RQC9/Y9EbpjtLWBz/EAiARTFtdtMdgmO3
-         J+L1zoevIx3dolVFsP9G6/6yA/YViUbJCxSotEUliro6+EP1CtIL1JVgDdvoMjHeGFUA
-         2hLiHtuDH1ZwTAvdnG28eFFsc2WMzRJwJeriRqbSIXtDcqaswUZOafoh9UJKXnzCztby
-         RFQlLHkvnow6VhV4ROLmrghW4mAD/XBI2Pzwgp22WomveeCIE0ft2Xhkcdg8xc+pTlpC
-         1SPIBOY1iwVSTacdBDfTrRZv/CQudLKWLb5X1bRYB2D3wA+i6cb6tJcXBV0QfC+JQcAy
-         w2FA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=awCRBzfBSO0cm9zEvmZIeCCRXLT0QzBOpw1tpjmmlbQ=;
-        fh=mnPj3ez1GiNSC/tgH9nSP19oaIzkbFTw0a64CZCil2M=;
-        b=Y7tOHFnWq6dcWraOEMIehjlRADFmRxtyPg7TzVeQ6JGe6qQKhRZsd84ZX1OI0boDLu
-         UtvD4iF6IZtfggnKCZK0wW9lEuSGmuB6OQNB75Ho29OiX54FwwjISFf+qEOqsaIeKu7U
-         PJgxptb8w3a2VtV+gAAYBLmy4ExiSUnjq/tfYiRIBzbMFNoOPOah8Cj9th4YZVVUflhm
-         g3H0WFn5T+/oaytUa3NYzbPs38Ou6Bchqmj4AgRqVSIBicjtfzCe3rBJmTbkTJZT5fOE
-         wSs/h6AkGyvxFbapyNQ5eQM78SlYRNyK/xF3DFTM5jvXuocTUgZQXn382pn19mdQtIL1
-         09ag==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1790085200; x=1790690000; darn=lists.linux.dev;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=awCRBzfBSO0cm9zEvmZIeCCRXLT0QzBOpw1tpjmmlbQ=;
-        b=xJfQrXKjUWONG38womQya5smAp9gsRcpsxsyRwgvpI5Dp7ZDiAkkzhfhHut7wFte5B
-         vQdLlY797vE0NiHcp7Y35lRyoX1wo+MTiIN/rdxz6CfM3J8VNvty72SPio8AFDVBzwtt
-         BscQFUVPPVojZdoPhHUwDSyS6OYnVOUkLIZCS67aPx1uYCD1YPVUGkaoqPaYqjPZ3igp
-         AqQTgK3EhsTKkNywF3NQRTaobCOmXVWantfAtBgIo9TiOY/5HUx3kLdx3v1v1zanCfet
-         kCeqGTws8GhEDy/4evDN5CNx8PM9QuvWGdT+culDnAwwW1Cqvu6e2RPdBe03ClsLJsRc
-         VDNQ==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ht7ELrCF"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1790085393;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=CSAJceS2lTxo7RYYkwSiAWcerJGzn5wbrFBMDwrG220=;
+	b=Ht7ELrCFsQ0Re0Qwpyi//HdhycAci3yKV9Q/Eyz+W8SoIbQ0JccJPHzDjUnhcFErv8BFL0
+	Oqj49gRZj4N59R0CDQlTx8S47pGeaotpTELHx2AnrIyVulz3edGQj2LxjiNkHYRRXiMCtU
+	UR9KjUXV647r3ruMUCCHCaVfBgB/Obg=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-145-s3siVB9cNe6lPwELFhuioQ-1; Tue, 22 Sep 2026 09:56:29 -0400
+X-MC-Unique: s3siVB9cNe6lPwELFhuioQ-1
+X-Mimecast-MFC-AGG-ID: s3siVB9cNe6lPwELFhuioQ_1790085388
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-49b0e6638e3so35212785e9.2
+        for <virtualization@lists.linux.dev>; Tue, 22 Sep 2026 06:56:29 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790085200; x=1790690000;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=awCRBzfBSO0cm9zEvmZIeCCRXLT0QzBOpw1tpjmmlbQ=;
-        b=XrGxKOO8f0fLIeJn7bVLm9CQMK0HZ4mCs0ky+DGeABpYkHznqsoEBv2NsIQqaZ0STm
-         oGLUjBCZRAn2EdQCSRyoKEhZ4TlEJRCO23o3GF5GHXa0kA0LmyUGpFaUAq8lbBDX1Rww
-         WW3MzWXNvrUU67th2vCMDT69MQkkroJ0aCUVu8SlZZTECU2A5a7g1y01rJOdAWHCgbrN
-         EOvkBk/r98ZZc92L8jSq4B+/qsuV2iRleZeTkdXCWpx1D4haLIezNGlLfVHMHQxaTtng
-         igF+4T60yNo+lOYjPF1QpESebkxJy+PdQIjUvMWcMbyn07IlHH3/7QqXPBab5BtFuw1n
-         nuhw==
-X-Forwarded-Encrypted: i=1; AKwUvBzDZ1ONdLG6segMn0fsMOv/bSbKQpBCjzb3fuLD94VfYVmoRyqaB9rjEr1ZI9uV5OIZImH7HMZhRBuj/q25xg==@lists.linux.dev
-X-Gm-Message-State: AFuF++kjjzVoTOd2MkVIDn0fBwVcucCTCuds/Y19nb7s5I74RSLie1nF
-	+AalEQ6aUzcxQw6fYhtFdVIUKeJ/JrWfRIOc0GIdApbyaIb2dWVtr8tJGYevwmmuPkox6vpbzlv
-	xLxcs868QQFysot9FqiuVYQNlG+dhk/goikll15ualw==
-X-Gm-Gg: AYBFou0INdbBoPBUD3HNPmk+8Wkbj9drzSVS9HYEnako6rqI79pUAaLGIikWOeBoYNm
-	8zd9UvmEnU+pF9ovwlpFpjLJFgCkvT6IVMFsYhQXORQAeyGyNQNw5yngujsCYeaHNUd0z3eRFQf
-	6QkCGI9aLVV5w7fV41JGevJ//A9Ri4zoFynmMGMlaJdpsVCrlx1TURt4QqfNIFYIyust9kLm49h
-	9NNjVs7UhVoZtPC7GWq+/HRnAlNy01Fr5WY1sHR1OUtv6wBJu4lJhiQWx632XnHpRMLJyH225pt
-	M7IvKtmyBkaCFxDEaL3PwbpIMQl/RieRXtfZibjyke7Db8d/eDWPcj13sOKlNk2x7uMxTPq9ZaF
-	HPuNy0x2kd+jF
-X-Received: by 2002:a05:6402:20c3:20b0:6aa:9210:262 with SMTP id
- 4fb4d7f45d1cf-6aa92100342mr3351155a12.22.1790085199929; Tue, 22 Sep 2026
- 06:53:19 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1790085388; x=1790690188;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=CSAJceS2lTxo7RYYkwSiAWcerJGzn5wbrFBMDwrG220=;
+        b=x82E6+Hx2u9I77/ZXxmETGOBfm24sHDUXTbSRe2qYGQEaebJ2VT63HYnAwWOp/260a
+         Bb/a2D4PNYo5PHwuEGeeqltUVa4F0cjqYqzI6OOfcAK/ujNdls2tqv/wOEqnDS7Ja1OB
+         b3l95vjRz0bwzlAWIllAa0LMie1FBfffOFAPfAc+S5kd0xOR8PpS/p+QtgTXEZH4Flrh
+         WS+hl2TCV431Uo33zZzOAOjFUoY/PAclBUJNHyQBez1brA19d7zWnC5sKCeCyOmyHz7o
+         4xxHOIwZ71hqoviXTJkFsz92236dRSqATiLfIS4JrfxT+F+Au74WjqMn2HsrsnqWs5QR
+         cn9g==
+X-Forwarded-Encrypted: i=1; AKwUvBwIY4r+0BF1xzor7HAp48A8DrU4tFPwuPo2T2T2le5JW3/vXQA8xiFI9y7BVt5NvCw7IT5CpvrOuRJDje3m6A==@lists.linux.dev
+X-Gm-Message-State: AFuF++lowmV5jWpxATCkgf2QC1WKJlSpdWrwuvoholKPxt7+ylvPS+A0
+	kIxc13E17bbnmFgn8nknNX0mVBiS2ocbDZiK57S/AU4pVn7rdO2xMps5dkO3l121AZIclf24LW+
+	xeJME9shcj3zMvqdaYeLXriFy+79nVhGEkOM47H6kITJIXcKW/Fj0J5qoZnERfjYKAcIT
+X-Gm-Gg: AYBFou1gWPiOmd9gnjStNFTdLgkDnBenwrMcY0r5B2uHP0+YnZIq+7trRG1udIuCoxr
+	dt6urMtormYxSXmpwNVFKBc61WYAuNvNk2ze9bktC3y3/SmNRqufGcASBbmHcIOH6F7kdxg2ldQ
+	+OP2yh3BtF4JANLno1e6Cra9dEG/VRpSICftlY1D7xMRulU5ABCBasF9uGF5OseSWZPN7mow94J
+	2SUjKWBPSf4f+cyLg2CpiUW6DN0yIYl+Gl43dfNETiqytjtiEi6vufh4OHowPj3lfywo52OW+UM
+	YhlNix4QXInuUGJ1X0u2Ec1Lre3aKWBrI6IaB7Tj/YCpeoorFrijFo5YCIFjwcJDRiNjLRp6FPa
+	gNwH39/ioVIsEylzOrzJFJa5cpqKoxQK+Qdnt+mIESKooWsSARQ4=
+X-Received: by 2002:a05:600c:6298:b0:499:bf0e:95c8 with SMTP id 5b1f17b1804b1-49fc5687adamr193025365e9.1.1790085388315;
+        Tue, 22 Sep 2026 06:56:28 -0700 (PDT)
+X-Received: by 2002:a05:600c:6298:b0:499:bf0e:95c8 with SMTP id 5b1f17b1804b1-49fc5687adamr193024815e9.1.1790085387814;
+        Tue, 22 Sep 2026 06:56:27 -0700 (PDT)
+Received: from sgarzare-redhat (host-82-53-134-131.retail.telecomitalia.it. [82.53.134.131])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49fdace7941sm63084875e9.2.2026.09.22.06.56.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 22 Sep 2026 06:56:27 -0700 (PDT)
+Date: Tue, 22 Sep 2026 15:56:19 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: David Carlier <devnexen@gmail.com>
+Cc: netdev@vger.kernel.org, davem@davemloft.net, edumazet@google.com, 
+	kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net-next 1/2] vsock: report pending receive data to
+ io_uring
+Message-ID: <arKF7P9gqq7ehX-k@sgarzare-redhat>
+References: <20260920194710.1114748-1-devnexen@gmail.com>
+ <20260920194710.1114748-2-devnexen@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260916-remoteproc_virtio_map-v1-0-dac8c5eb4aa9@valla.it>
- <aq1sooGCYUiWbhMH@p14s> <aq453yukMHiNb1jp@bywater> <CANLsYkySF+eF-FURnnT6UJv7P5Sg2HdfMSBZnZy_BLyCMvuofw@mail.gmail.com>
- <arIfj-1Ji6HEBHLJ@bywater>
-In-Reply-To: <arIfj-1Ji6HEBHLJ@bywater>
-From: Mathieu Poirier <mathieu.poirier@linaro.org>
-Date: Tue, 22 Sep 2026 07:53:08 -0600
-X-Gm-Features: AcwNN1V0zenE0U1QivuzVoqHQLJIIYIxl9SSuy2ocYOHZBqajP-1AfG4uh0OqKk
-Message-ID: <CANLsYkzaxwx8NJAOki_wkzauL68ourd12qF8PzzVKW++PJXZfw@mail.gmail.com>
-Subject: Re: [PATCH RFC 00/12] remoteproc: add support for any virtio device
-To: Francesco Valla <francesco@valla.it>
-Cc: Bjorn Andersson <andersson@kernel.org>, Kees Cook <kees@kernel.org>, 
-	"Gustavo A. R. Silva" <gustavoars@kernel.org>, Marek Szyprowski <m.szyprowski@samsung.com>, 
-	Robin Murphy <robin.murphy@arm.com>, Mark Brown <broonie@kernel.org>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Frank Li <Frank.Li@nxp.com>, 
-	Peng Fan <peng.fan@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>, 
-	linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	devicetree@vger.kernel.org, virtualization@lists.linux.dev, 
-	imx@lists.linux.dev, iommu@lists.linux.dev, 
-	linux-arm-kernel@lists.infradead.org
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20260920194710.1114748-2-devnexen@gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: BQqoQmm0yP1VQqkwHXJsNFlTWKPQBqbjEuDigi1ShsA_1790085388
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-On Tue, 22 Sept 2026 at 00:29, Francesco Valla <francesco@valla.it> wrote:
+On Sun, Sep 20, 2026 at 08:47:09PM +0100, David Carlier wrote:
+>AF_VSOCK stream receives never fill msghdr.msg_inq, so io_uring cannot set
+>IORING_CQE_F_SOCK_NONEMPTY and retries a multishot receive even after the
+>queue has been drained.
 >
-> On Sun, Sep 20, 2026 at 09:31:11PM -0600, Mathieu Poirier wrote:
-> > On Sat, 19 Sept 2026 at 01:33, Francesco Valla <francesco@valla.it> wrote:
-> > >
-> > > Hi Mathieu,
-> > >
-> > > On Fri, Sep 18, 2026 at 10:53:54AM -0600, Mathieu Poirier wrote:
-> > > > Hi Francesco,
-> > > >
-> > > > I have started reviewing this set but given the size and implications, it will
-> > > > take me a few days to get through.
-> > >
-> > > I'm going through the review done by sashiko - would you prefer me
-> > > sending a v2 with the trivial errors already ironed out before doing
-> > > a complete review?
-> > >
-> >
-> > We can wait if the errors are trivial.
-> >
+>Fill the hint at the common receive exit using the transport callback that
+>SIOCINQ already uses, and report 1 once the connection is finished so the
+>caller performs the receive which observes EOF, as TCP does after a FIN.
 >
-> Not all of them are. I have been a bit to naive about the bounce buffer
-> management w.r.t. what can happen if a memory area is not specified and
-> I will need to rethink/rework that part.
+>A vsock loopback ping-pong with io_uring multishot receive drops entries
+>into __vsock_connectible_recvmsg from 1.97 to 1.00 per delivered message,
+>and receiver CPU time by about 3% (25 runs of 50000 messages, p=0.006).
+>
+>Signed-off-by: David Carlier <devnexen@gmail.com>
+>---
+> net/vmw_vsock/af_vsock.c | 39 +++++++++++++++++++++++++++++++++++++++
+> 1 file changed, 39 insertions(+)
+>
+>diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+>index f840498b58af..63309708c916 100644
+>--- a/net/vmw_vsock/af_vsock.c
+>+++ b/net/vmw_vsock/af_vsock.c
+>@@ -2543,6 +2543,38 @@ static int __vsock_seqpacket_recvmsg(struct sock *sk, struct msghdr *msg,
+> 	return err;
+> }
+>
+>+/* Bytes a following receive can consume, 1 if it would only see EOF, or a
+>+ * negative value to leave the caller's hint alone.
+>+ *
+>+ * Called under the socket lock after a nonnegative stream receive, so a NULL
+>+ * transport implies SOCK_DONE.
+>+ */
+>+static int vsock_inq_hint(struct sock *sk)
+
+can we add "stream" in the name so it's clear that is stream only?
+
+(e.g. vsock_stream_inq_hint)
+
+>+{
+>+	struct vsock_sock *vsk = vsock_sk(sk);
+>+	s64 data;
+>+
+>+	if ((sk->sk_shutdown & RCV_SHUTDOWN) ||
+>+	    (sock_flag(sk, SOCK_DONE) && sk->sk_state != TCP_ESTABLISHED))
+>+		return 1;
+>+
+>+	if (!vsk->transport)
+>+		return 1;
+
+Can we squash this in the previous block?
+
+>+
+>+	data = vsock_stream_has_data(vsk);
+>+	if (data < 0)
+>+		return -1;
+>+	if (data > 0)
+>+		return (int)min_t(s64, data, INT_MAX);
+
+nit: IMO we can remove the int cast.
+
+>+
+>+	/* Empty but finished: keep the caller reading so it sees EOF. */
+>+	if (sock_flag(sk, SOCK_DONE) ||
+>+	    (READ_ONCE(vsk->peer_shutdown) & SEND_SHUTDOWN))
+>+		return 1;
+>+
+>+	return 0;
+>+}
+>+
+> int
+> __vsock_connectible_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+> 			    int flags)
+>@@ -2606,6 +2638,13 @@ __vsock_connectible_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+> 		err = __vsock_seqpacket_recvmsg(sk, msg, len, flags);
+>
+> out:
+>+	if (msg->msg_get_inq && err >= 0 && sk->sk_type == SOCK_STREAM) {
+
+Why only STREAM?
+A comment here and in the commit would be nice.
+
+
+
+>+		int inq = vsock_inq_hint(sk);
+>+
+>+		if (inq >= 0)
+
+Why assigning only >= 0 values?
+
+Thanks,
+Stefano
+
+
+>+			msg->msg_inq = inq;
+>+	}
+>+
+> 	release_sock(sk);
+> 	return err;
+> }
+>-- 
+>2.55.0
 >
 
-Ok, I'll keep an eye out for that.  I'm already halfway through your
-work, so there's no need for a new version now.
-
-> Regrads,
-> Francesco
->
