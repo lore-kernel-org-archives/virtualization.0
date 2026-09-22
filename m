@@ -1,65 +1,65 @@
-Received: from mail-pj2-f43.google.com (mail-pj2-f43.google.com [74.125.227.171])
+Received: from mail-pz2-f12.google.com (mail-pz2-f12.google.com [74.125.228.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C0C653B337
-	for <virtualization@lists.linux.dev>; Tue, 22 Sep 2026 15:10:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4265552930
+	for <virtualization@lists.linux.dev>; Tue, 22 Sep 2026 15:40:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790089812; cv=none; b=A9j0rXN4nmovEGysnPK9DE1/ZCrRgcQvXaOgtKcJka3fAgdXX4ql9S4NnyYwJaUgAufyG232ZJzXXEADmMcGWgkBfHxPdCIOh5XEI8fdEP3P80btzNpsoY+hzjuV/FsO37sY1pT6vZG10eHKnFsidkJrlOV5HcRIOZX2D0TngXs=
+	t=1790091638; cv=none; b=Ln38jcHxyfQ1uXueGO+qxl0/YLq9b4l6kpwxoTT2cmVOYixkgqT/XNmYqu7YB4wekLDuvJXsEnC9WyXSwxnvYRJMkEc4OOkD7wY1/e+GBkXTXEnljkJdQuHilQelIny18J/wq3jhLtdL2G3WGevsxwoATscn7m+LRrRSb+vsEBo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790089812; c=relaxed/simple;
-	bh=eZvJzrFV596OF1br1NU0yVbzXelFlV68AjwAwCh1swg=;
+	s=arc-20240116; t=1790091638; c=relaxed/simple;
+	bh=983PoGRnItfbcGLq9/2KSAqK/+R/CY53c2rZGuZ7b1E=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=heyjGHD4gl4kNwbZMNDdwwEM5O1CcnO1c4WYsKhc9yo5fKNyOho37yDKBMHBxpoiH9ODppFODmEjBh98Kg+Er9woB9FkE8jRoIxVszQQkTeB0tbPv7HaYJMjdEsCEjQxBqyIsUbrpHvj8B9V+ZJwczNaUMwOSGSr6LiRXm7bpUk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=KU0SFQVg; arc=none smtp.client-ip=74.125.227.171
+	 Content-Type:Content-Disposition:In-Reply-To; b=hNoEVOkdyyhLwLsjr1HZPzFUOyJbBF1oI+Up4epKLvJk/uZi8sn2bXkS38IfH1rRwigssXvK29XfjMBPuB0CUCNOyWunQg+20aScSIgcTI0F58f9CnB6YWfcFMwYjc1EklztnRcoXXV3IirgtNbr79OLKMaZMLAiIHK3u3dcGzk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=dcp9wa72; arc=none smtp.client-ip=74.125.228.12
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="KU0SFQVg"
-Received: by mail-pj2-f43.google.com with SMTP id d9443c01a7336-2d9004a1ac0so28729355ad.3
-        for <virtualization@lists.linux.dev>; Tue, 22 Sep 2026 08:10:10 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="dcp9wa72"
+Received: by mail-pz2-f12.google.com with SMTP id d2e1a72fcca58-85469d20963so29932b3a.1
+        for <virtualization@lists.linux.dev>; Tue, 22 Sep 2026 08:40:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1790089809; x=1790694609; darn=lists.linux.dev;
+        d=linaro.org; s=google; t=1790091635; x=1790696435; darn=lists.linux.dev;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=nEUSfYy3fMUXK5aMDHvOLpQjElNKnWNceOG4CaIeRdw=;
-        b=KU0SFQVgATLuM4RnGiqUMwRzSNebzeFZP12AonvKYPJW1xt7JkujYKCD1JH4REdd+z
-         soYUndyLvkFcGabgSgloLo5UYoKfGUm2jX9uraleaw26N0FTaPW0aofNg1zfE+7W4n7C
-         zFq5MWD0XId3DIkSwBBor2Nq4KTjoPdToa+EmX/vk6ufg6K4n3Tea6EpeY+AgAAC7F4q
-         MkH/nXD93z3OU5wCXfKmNDdDVVuT/LQ8nlpivszqpNfOnwMin/vTwBrSpS3I4Me03mma
-         AjuMfHXzxH6nQGWsZwPvFxSYvdMRdkT49syeVp6LbozcJUSAZaCC8X6dwi0gFdgJqRyD
-         buQA==
+        bh=2HjM704yjUPc3oYEkUo0s9e3MpU0+mzXloxkK4JXLZM=;
+        b=dcp9wa72JzU00uAowJShd8OdBJckvy2Kcwva80E6xnFYqaD8Ziq/cO3AD85pGWRPIg
+         rzlJFjRVhO+erflXvZ3VaxqgGnnvVSwFJSnI9sVHtvUGeXpJDx3G7BT+9JprmAd2LKgk
+         Gba4eHR4YeR7q2xm9SEjZapyyDb3Hc593chssHxVNYHaepbRfyJStxcC9fKwP+sU6OAE
+         trQXCvHJPLeF1MmatuYWt3+JJo/p7kTcA5RJjypzExkuEb3DoMKhdK5vcv6xr6aFW2i5
+         SxvjNs+3khSEYkCQeWuIYyYeyyRWu3g2cJDFVrhEvU3QU7TLLH1p91x2vloesmgogk4x
+         iN7A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790089809; x=1790694609;
+        d=1e100.net; s=20260707; t=1790091635; x=1790696435;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=nEUSfYy3fMUXK5aMDHvOLpQjElNKnWNceOG4CaIeRdw=;
-        b=Ylk+PmmvkFJ8BCvEvRIe5HotJ7DQ4ga2bcehsmOc35ZeTWEFw1WVnOGzOptqCk99Cr
-         mNx6/uuSLr85Iv9qF6S+DwCGO4SEMyTr3ao6SDBZTsIaAmy4VDmpnx1YNCtBw1CWfXZP
-         nbg0FpokrbtQ4Kd7hgph9J2wicdfWLxm4dp54squEzNqjqN8daoTzoso3/IO9flYCVix
-         j60xQoWUXRDPZneo8jlJW6cYmHNZY/f3hGLSAfF8APRvC+HluCZTpdtOOsgtr0EOI6Vc
-         3xSddHv0ywEiQrlBibcEG0B/KGgixx8NmwgSsXYRG7vGVojXQXV1pA706gseRTAmw2C2
-         c8aQ==
-X-Forwarded-Encrypted: i=1; AKwUvBz8zHm2Q9ro7LZsNjb+RyJofKCcrRyXami4n/SfoQhjkwc9Bl/I2HHUctPdoUbUyIHRQSc5KE4e8pn3tetJJA==@lists.linux.dev
-X-Gm-Message-State: AFuF++lU5lnaWTSi1Z41U8r+PGhO9WzzKrmFh3NxQx1s65rvT58fhVmA
-	aMGdKzMceNdKFr506TqobyBIX2MJ/Q1CteNH+2hUKV8/YSxIC58pPfTIoB76sPEGUZw=
-X-Gm-Gg: AYBFou1PnkEpt9e+pncPa6XlMX6JeoagJLH3IJZm+Jblr1WbO/c0TSAC6PhEoM4XVWj
-	3CczsdmI3iFKTMiptu6+DFBbSKI0MAJGfVfMJgg4isS0H65Bxl9nvkszJtO0HFmd6PAmWt+UDmm
-	5xU4ymqs036z+KOBNp8DGaxWsywk+5cnOzyTUIn9zgQFMTqLPvITZrpei0JkjMXkVpSaDoks5pN
-	1WtyzrD2TpaKrtiY+zoez3t+Nw6RieM9jQkb9p8pyrRHRDbmcyl08hdDvh6pjT1i+27IAmM8cm9
-	Du6InrYs6IzcLfUnh5wrfOdK9LcfVXlTgIifF7glIP/U1wYLt1F2WKuZgj7d2pF6gbgwjCJFLEv
-	v7FbO1ql4pXuyTUgfRoxpyXSbBGcu45rI+BAD4EWUAJThriqnhxso7DNkEGfI0yghqFfZbVjduv
-	PG1zI580C31F7RhxIy3nCgBwB4403Mz/wEMvxzNA41B8zgjyLWeFe1+/rJGyYjm0ZKLPxcTkj/
-X-Received: by 2002:a17:902:db0f:b0:2dd:76b1:3509 with SMTP id d9443c01a7336-2df609d1b62mr16580265ad.14.1790089809191;
-        Tue, 22 Sep 2026 08:10:09 -0700 (PDT)
+        bh=2HjM704yjUPc3oYEkUo0s9e3MpU0+mzXloxkK4JXLZM=;
+        b=Q0/IfsmhnWLL9eSrKCOPKKZS9DJgjBKLG3vSgLE1vxAF4yawsPPdaZdBD/r6sjCtPm
+         6GChKpee67NZFBvAONwU5XJrCJFwSbPcUXJcD/AOFPoieeHfxXK/OLlL46wFx7NGEgod
+         2uKnEMYhNTLMaGPcqGTZsotigxeyTEsZuvCN8Swgfwb5fbgbUplx4z7ZLpubEgFby/qo
+         MZrV6zxob0A+kPemc7X6JcEq6lLauVszdEzid/+gj5XaoGsPfTY4DHSYNqwscA60UiCH
+         fRYvi+DyiGcPbnpberDYLdjvm1oM8uE99db8BkkGIomnp4JYfLb0XUKoC6WSMhgfDnCE
+         oc+w==
+X-Forwarded-Encrypted: i=1; AKwUvBz0nldswFWKKz46DUFLQycNFfIdgswX6rjuQP+AzngLliIxdhoGOsgEjdV5W49aBESYpY+eH5sKQhMqolNDJw==@lists.linux.dev
+X-Gm-Message-State: AFuF++mkqVEWFqQlGoBs3A7yaQOUVJ1ylnz2zJSLkf5yw0fyORcsw+O4
+	7PjRxTI2+CImzh5ljhPELdZN7Yg3DqO9Yr0G1RvST2mSB93aKYP+vPkt8r/HJMlKF6E=
+X-Gm-Gg: AYBFou1MGQA+q9nQWdN8ojQKMVdhwFCeTre1eBvSWuXbNI5Sng3eG7+2EF36pz3HOwP
+	iUf4hjNSyi5Ck4urzYRf/XdOCzr3XEde4E+vnIiyHOjy4CbcnXj9bwtJDeU9B5Xz3VKBf1lONdv
+	VuO7H+a0ICvqmEyG6nyXOVuxuH/di9Cq6IoQnLaactnEbA42MrfdMxzK5KiTL3klPqXIYrOQ+b4
+	s4WSpY4DRTzgOKGpHwx0e/CMI28RJbLnMBdGaauSr07WBSrWgSLByEdROpJDyvw+i41T5PPKthg
+	aFnCB15urIxa4jBNmUKaOfTQUSZJfCVBOSVy9D1Hke8RULkoPG6330MQGPbC+SmIIze30eebkUi
+	l+eATCBWsxhSHTfHTjPiE0yoPa3KvuWs0b4uyqRIZ+6ZbYSWUj2gWYrnvZfjxZCoSQP2K38oGl9
+	vf1bK4/Sn9Oo8ar/TgY1LLd6UvzAKQwyr58zhqIZ79PYwsfMPKvldXiLBAMbZo1faTMgxpadww
+X-Received: by 2002:a05:6a00:1393:b0:85b:8606:627f with SMTP id d2e1a72fcca58-87c82f7f151mr1827877b3a.26.1790091635190;
+        Tue, 22 Sep 2026 08:40:35 -0700 (PDT)
 Received: from p14s ([2604:3d09:148c:c800:1046:ab8:737c:d2e2])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2df5d0563eesm11964455ad.69.2026.09.22.08.10.06
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-87c2fc4b581sm1104255b3a.7.2026.09.22.08.40.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 22 Sep 2026 08:10:08 -0700 (PDT)
-Date: Tue, 22 Sep 2026 09:10:05 -0600
+        Tue, 22 Sep 2026 08:40:34 -0700 (PDT)
+Date: Tue, 22 Sep 2026 09:40:31 -0600
 From: Mathieu Poirier <mathieu.poirier@linaro.org>
 To: Francesco Valla <francesco@valla.it>
 Cc: Bjorn Andersson <andersson@kernel.org>, Kees Cook <kees@kernel.org>,
@@ -74,13 +74,10 @@ Cc: Bjorn Andersson <andersson@kernel.org>, Kees Cook <kees@kernel.org>,
 	devicetree@vger.kernel.org, virtualization@lists.linux.dev,
 	imx@lists.linux.dev, iommu@lists.linux.dev,
 	linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH RFC 05/12] remoteproc: always report VIRTIO_F_VERSION_1
- feature
-Message-ID: <arKaTaFuNW936nwg@p14s>
+Subject: Re: [PATCH RFC 08/12] dt-bindings: remoteproc: add remoteproc-virtio
+Message-ID: <arKhbxi3Snbt1_Mn@p14s>
 References: <20260916-remoteproc_virtio_map-v1-0-dac8c5eb4aa9@valla.it>
- <20260916-remoteproc_virtio_map-v1-5-dac8c5eb4aa9@valla.it>
- <arFRqopkkJf7Nlq4@p14s>
- <arIgI4E5rGXq9H0P@bywater>
+ <20260916-remoteproc_virtio_map-v1-8-dac8c5eb4aa9@valla.it>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -89,79 +86,134 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <arIgI4E5rGXq9H0P@bywater>
+In-Reply-To: <20260916-remoteproc_virtio_map-v1-8-dac8c5eb4aa9@valla.it>
 
-On Tue, Sep 22, 2026 at 08:32:15AM +0200, Francesco Valla wrote:
-> On Mon, Sep 21, 2026 at 09:47:54AM -0600, Mathieu Poirier wrote:
-> > On Wed, Sep 16, 2026 at 11:10:50PM +0200, Francesco Valla wrote:
-> > > There is currently no way to report the VIRTIO_F_VERSION_1 using the
-> > > resource table alone, as the per-vdev feature array is limited to 32
-> > > bits.
-> > > 
-> > > Considering that the VirtIO 1.0 specification is now ~10 years old,
-> > > always report the VIRTIO_F_VERSION_1 feature, as some drivers depend on
-> > > it.
-> > > 
-> > > Signed-off-by: Francesco Valla <francesco@valla.it>
-> > > ---
-> > >  drivers/remoteproc/remoteproc_virtio.c | 10 ++++++----
-> > >  1 file changed, 6 insertions(+), 4 deletions(-)
-> > > 
-> > > diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
-> > > index 74e0da970f1d..cfd66d9d1c9e 100644
-> > > --- a/drivers/remoteproc/remoteproc_virtio.c
-> > > +++ b/drivers/remoteproc/remoteproc_virtio.c
-> > > @@ -249,7 +249,7 @@ static u64 rproc_virtio_get_features(struct virtio_device *vdev)
-> > >  
-> > >  	rsc = (void *)rvdev->rproc->table_ptr + rvdev->rsc_offset;
-> > >  
-> > > -	return rsc->dfeatures;
-> > > +	return rsc->dfeatures | (1ULL << VIRTIO_F_VERSION_1);
-> > 
-> > I understand this.
-> > 
-> > >  }
-> > >  
-> > >  static void rproc_transport_features(struct virtio_device *vdev)
-> > > @@ -275,14 +275,16 @@ static int rproc_virtio_finalize_features(struct virtio_device *vdev)
-> > >  	/* Give virtio_rproc a chance to accept features. */
-> > >  	rproc_transport_features(vdev);
-> > >  
-> > > -	/* Make sure we don't have any features > 32 bits! */
-> > > -	BUG_ON((u32)vdev->features != vdev->features);
-> > > +	/* Make sure we don't have any features > 32 bits except VIRTIO_F_VERSION_1 */
-> > > +	if (WARN_ON_ONCE((u32)vdev->features !=
-> > > +			 (vdev->features & ~(1ULL << VIRTIO_F_VERSION_1))))
-> > > +		return -1;
-> > 
-> > And this.
-> > 
-> > >  
-> > >  	/*
-> > >  	 * Remember the finalized features of our vdev, and provide it
-> > >  	 * to the remote processor once it is powered on.
-> > >  	 */
-> > > -	rsc->gfeatures = vdev->features;
-> > > +	rsc->gfeatures = vdev->features & ~(1ULL << VIRTIO_F_VERSION_1);
-> > >  
-> > 
-> > But I'm having trouble with this one.  
-> > 
-> > First bit 32 of vdev->features gets cleared and then bit 0 to 31 are assigned to
-> > rsc->gfeatures.  Why bother with clearing bit 32?
-> >
+On Wed, Sep 16, 2026 at 11:10:53PM +0200, Francesco Valla wrote:
+> Add a new binding to describe remoteproc-provided virtio devices; while
+> these are discovered through a resource table parsed by the remoteproc
+> infrastructure at runtime, their description can be needed to probe
+> non-discoverable buses (such as I2C) or to link consumers and suppliers.
 > 
-> Bits > 31 gets silently dropped because rsc->gfeatures is a u32; this
-> was inserted to explicitly drop the flag that has been inserted before
-> and avoid the "silently". It has no real funtional impact and can be
-> safely dropped.
->
+> Each vdev is described by a dedicated "group" node, which then includes
+> a virtio-device node, which binding is already existent and used by
+> virtio-mmio. Each vdev shall be stattically linked to a "group" node
+> using its index inside the resource table as the reg property of the
+> node; this permits to have multiple instances of the same type of
+> device.
+> 
+> The binding is intended to be generic and adopted by any remoteproc
+> provider.
+> 
+> Signed-off-by: Francesco Valla <francesco@valla.it>
+> ---
+>  .../bindings/remoteproc/remoteproc-virtio.yaml     | 89 ++++++++++++++++++++++
+>  1 file changed, 89 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/remoteproc/remoteproc-virtio.yaml b/Documentation/devicetree/bindings/remoteproc/remoteproc-virtio.yaml
+> new file mode 100644
+> index 000000000000..c4a0d84b1460
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/remoteproc/remoteproc-virtio.yaml
+> @@ -0,0 +1,89 @@
+> +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/remoteproc/remoteproc-virtio.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +
+> +title: Virtio devices over remoteproc
+> +
+> +description: |
+> +  Virtio devices ("vdevs") can be exposed using the remoteproc infrastructure
+> +  and its resource table. For some of them, a device tree node might be needed
+> +  to describe remote undiscoverable hardware and/or connect consumers and
+> +  providers.
+> +
+> +maintainers:
+> +  - Francesco Valla <francesco@valla.it>
+> +
+> +properties:
+> +  virtio:
+> +    description: Contains a group of Virtio devices exposed by the remoteproc.
+> +
+> +    properties:
+> +      '#address-cells':
+> +        const: 1
+> +
+> +      '#size-cells':
+> +        const: 0
+> +
+> +    patternProperties:
+> +      "^vdev@[0-9a-f]+$":
+> +        type: object
+> +
+> +        properties:
+> +          reg:
+> +            description: Virtio device index inside the resource table.
+> +            maxItems: 1
+> +
+> +        additionalProperties:
+> +          type: object
+> +          $ref: /schemas/virtio/virtio-device.yaml
+> +          maxItems: 1
+> +
+> +        required:
+> +          - reg
+> +
+> +    additionalProperties: false
+> +
+> +    required:
+> +      - '#address-cells'
+> +      - '#size-cells'
+> +
+> +additionalProperties: true
+> +
+> +examples:
+> +  - |
+> +    remoteproc-cm33 {
+> +      virtio {
+> +          #address-cells = <1>;
+> +          #size-cells = <0>;
+> +
+> +          vdev@0 {
+> +              reg = <0>;
+> +
 
-We have come to the same conclusion.
- 
-> > >  	return 0;
-> > >  }
-> > > 
-> > > -- 
-> > > 2.55.0
-> > > 
+Do we need the 'reg' since we already have vdev@X?  I'll let the DT people
+provide their input on this.
+
+> +              gpio {
+> +                  compatible = "virtio,device29";
+> +
+> +                  gpio-controller;
+> +                  #gpio-cells = <2>;
+> +              };
+> +          };
+> +
+> +          vdev@1 {
+> +              reg = <1>;
+> +
+> +              i2c {
+> +                  compatible = "virtio,device22";
+> +
+> +                  #address-cells = <1>;
+> +                  #size-cells = <0>;
+> +
+> +                  eeprom@50 {
+> +                      compatible = "atmel,24c1025";
+> +                      reg = <0x50>;
+> +                  };
+
+The previous patch introduced bindings for virtio SPI while the above two are
+for GPIO and I2c, which is very confusing.  I suggest you pick one and apply
+everywhere.
+
+> +              };
+> +          };
+> +      };
+> +    };
+> +...
+> 
+> -- 
+> 2.55.0
+> 
