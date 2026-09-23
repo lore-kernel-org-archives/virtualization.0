@@ -1,46 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62B6E51EE0C;
-	Wed, 23 Sep 2026 12:46:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 513144CDDCA;
+	Wed, 23 Sep 2026 12:56:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790167596; cv=none; b=ouTU7hFcYd/B4hjqJ94OQo6BppgisxR66OCWAn/KqOaNXDmJKz8TH5bR7p74YHFGDZV5Ski14leNpYE1f6awugdYOmoeByGArqM6kqHNpv/dahGA6b3bmWhYPYGuhuEUdiaV0iB7qCyT18GTtncs35ncigyx3bPvhd4TC7QrhtA=
+	t=1790168182; cv=none; b=SYAFZ/SuTA/dG74u/5RkNE90M16pAgy/mCxhS+IwpYmhbe/2IACegz0cWS+Xga2gyN/9xayY1MrU+r7LVjtWebchCciceEaYxc1ly8barhcFYoAkdsW1iEYqP2UYKLRYtNMBFrasFde7gIoZE1jEUinyGRq0iTCK5qFmnV+xU18=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790167596; c=relaxed/simple;
-	bh=o373JaRvIMBaRzOlt0PlMiXmyhP7s3N7mpWqgD980G8=;
+	s=arc-20240116; t=1790168182; c=relaxed/simple;
+	bh=treFHUc/YjLYlM9q5FDkKoie64i/yZQeYRwBjM9sFz0=;
 	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=WKA+b6qj5yRG/bZFcnJXU3e7Ifpxq+P7+fbmJIJKXW1vVhrzDAgCQEmD0ZpZR9h/Jx45eIW2cPoeT8+mirYwnyWU5SZ8T55OkXydNJeyFVjXTzMnhbTKYVLSPnUUaY2C1aKHsu1X4iai6K0FI1MFYWemexUuVpoEoOKwDXe8+r8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cI6JcwOO; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:MIME-Version; b=tDe8TAtUiDjp3JP8lluEMlcyhkP2K+eBH6UCM1Za4+tAmU1WEAOV185hLf77cFkaywKWJy/1K6Qcl3WweK+iuFY5xVRh/AscxiBv0UGreET/f3BdiF73ZO1bd/WQq5yEK7zV0EIpxjZjnxwEl2NPvj/5UtnrtPccMhrp2l86fkM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hLw/rutn; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cI6JcwOO"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F1AF1F00893;
-	Wed, 23 Sep 2026 12:46:34 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hLw/rutn"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F2661F00899;
+	Wed, 23 Sep 2026 12:56:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790167595;
-	bh=eiThmUCDTi6jUA1esSlRxj1CPMF6e/wEMRadt309C40=;
+	s=k20260515; t=1790168180;
+	bh=QJ6DOuVBg7NHKkWgSpbKSuaNZziP6/c5aWGVHYAvCGM=;
 	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=cI6JcwOOIRFhRxM8g4WpDcr26Js/UM4pa3y6rPO5TdH4Wb1y5NgachHOYLD/F8sFb
-	 +RkopNzqh7Ud98DWWg5xe/00LsqtbbDrF1qzGFMwjMzq/fkbjGyG96TSPKh/M94N1Z
-	 Db99mCnvapocPleW5Nej70sJ9MLb7EcNQ5ovOIo7HpD34mMuFdwggf3IySvy5ytCIr
-	 hmPyAUY9qghKGtUZQHa3FM0KIk29TwmqfSjn0pmoQm1jXL1RYnmSrwQYJkuVEMkLt7
-	 tf/51tznVrfQQB6PCa2i/B6Z1dZKq6wOmZZeT6kxG2QRMRqJhtjqKvOZK1mQSjyNPr
-	 oVnVRIcP6YDpQ==
-Subject: Re: [PATCH v2] vsock/hv_sock: don't finish a connection on a socket
- being released
+	b=hLw/rutn6K57hW+SRqMB7mq5r6ECmTWZpKBsd6zbL0XhVkJhDcSTvsw9fyWf+P4jC
+	 1QYt4kPuxreWwzi36PqwwZbcbnPAGhpfZQGjVKI/+8Yalv33m7+9/p6dzPNdqit93l
+	 1OyoiHBcx9LvJIRjaQ4RZr2N31pJfjda217DqATs4i/pnYdjejmLW5SKmxyYrzVuD+
+	 TV5XoMcebai1ZAsLIgM9kwLMTujaxrLQlW6/Sk9W+2ypIRTC//FrlhVP+SrNuv1MMM
+	 xmlMOC61C4CG6kTJdXKTuei0mkIUq8GusjNwQt0pCUEPMeaV46FZZ02SqQYFBlpsqu
+	 KnPFmzzfEKAew==
+Subject:
+ Re: [PATCH v2 1/2] vsock/vmci: make the cached_peer dgram decision race-safe
 From: netdev-bot+sashiko@kernel.org
 To: bartlomiej.dmitruk@isec.pl
-Cc: kys@microsoft.com, haiyangz@microsoft.com, wei.liu@kernel.org,
- decui@microsoft.com, longli@microsoft.com, sgarzare@redhat.com,
- davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
- horms@kernel.org, mst@redhat.com, linux-hyperv@vger.kernel.org,
- virtualization@lists.linux.dev, netdev@vger.kernel.org,
+Cc: bryan-bt.tan@broadcom.com, vishnu.dasa@broadcom.com, sgarzare@redhat.com,
+ bcm-kernel-feedback-list@broadcom.com, davem@davemloft.net,
+ edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
+ mst@redhat.com, virtualization@lists.linux.dev, netdev@vger.kernel.org,
  linux-kernel@vger.kernel.org
-Date: Wed, 23 Sep 2026 12:46:33 +0000
-Message-ID: <179016759361.2160803.2565725244445913228@kernel.org>
-In-Reply-To: <20260919123128.28868-1-bartlomiej.dmitruk@isec.pl>
-References: <20260919123128.28868-1-bartlomiej.dmitruk@isec.pl>
-X-sashiko-severity: Critical
+Date: Wed, 23 Sep 2026 12:56:19 +0000
+Message-ID: <179016817970.2160803.9851803268227445626@kernel.org>
+In-Reply-To: <20260919123208.29032-1-bartlomiej.dmitruk@isec.pl>
+References: <20260919123208.29032-1-bartlomiej.dmitruk@isec.pl>
+X-sashiko-severity: High
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -53,7 +52,7 @@ MIME-Version: 1.0
 Thank you for your contribution! Sashiko AI review found 2 potential
 issue(s) to consider.
 
-Critical: 1 · High: 0 · Medium: 1 · Low: 0
+Critical: 0 · High: 1 · Medium: 0 (1) · Low: 1 (1)
 
 If you believe none of the issues are legitimate, please reply to each
 issue of Medium severity or higher and explain why the AI is wrong.
@@ -61,135 +60,230 @@ If any of them are legitimate and you plan to respin, please let patchwork
 know by including "pw-bot: cr" as a separate line at the end of your reply
 (one such reply per series is enough).
 
-- [Critical] The new `goto out` makes the reversed teardown order at the
-  `out:` label of hvs_open_connection() (`sock_put(sk)` at…
-- [Medium] Commit message understates the impact of the race it fixes:
-  for the guest-initiated (!conn_from_host) path the pre-patch race is a…
+- [High] The fix's entire synchronization mechanism is a plain `u64`
+  (`vsock_sock::cached_peer_access`) accessed with…
+- [Low] Both lockless call sites of vmci_transport_allow_dgram() still
+  carry the comment "NOTE: We access the socket struct without holding…
+
+Pre-existing issues:
+- [Medium] The per-socket decision cache is keyed only on the peer CID
+  and is never invalidated: grep confirms vsock_sock::cached_peer_access…
+- [Low] The patch keeps a VMCI-transport-only cache inside the generic
+  struct vsock_sock and, in the core header…
 
 --
 
-vsock/hv_sock: don't finish a connection on a socket being released
+vsock/vmci: make the cached_peer dgram decision race-safe
 
-This adds a sk_shutdown == SHUTDOWN_MASK check to hvs_open_connection()
-right after lock_sock(), so a VMBUS channel offer that races close() bails
-out instead of completing a connection or enqueueing a child on a socket
-that __vsock_release() has already torn down.  The check is placed in the
-common path so it covers both the conn_from_host and !conn_from_host cases.
+This replaces the two unsynchronized cache fields in struct vsock_sock
+(cached_peer and cached_peer_allow_dgram) with a single u64
+cached_peer_access that packs the peer CID together with a validity and an
+allow bit.  vmci_transport_allow_dgram() now reads and publishes that word
+with READ_ONCE()/WRITE_ONCE() so that the lockless receive tasklet and the
+lock_sock() send path are said to be unable to observe a stale allow
+decision.
 
-Two questions below, one about the commit message and one about the exit
-path the new check now jumps to.
+The v1 posting is referenced from the changelog:
+https://lore.kernel.org/netdev/20260917220225.56200-1-bartlomiej.dmitruk@isec.pl/
 
-> (!conn_from_host && sk->sk_state != TCP_SYN_SENT))
-> 		goto out;
+> diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+> index 5549298c1ec6..9d59b8fe2853 100644
+> --- a/include/net/af_vsock.h
+> +++ b/include/net/af_vsock.h
+> @@ -39,10 +39,13 @@ struct vsock_sock {
+>  	 * modified outsided of socket create or destruct.
+>  	 */
+>  	bool trusted;
+> -	bool cached_peer_allow_dgram;	/* Dgram communication allowed to
+> -					 * cached peer?
+> -					 */
+> -	u32 cached_peer;  /* Context ID of last dgram destination check. */
+> +	/* Cached dgram access decision for the last peer, packed as
+> +	 * (cid << 32) | VALID | ALLOW and accessed via READ_ONCE()/
+> +	 * WRITE_ONCE() so the lockless receive tasklet and the
+> +	 * lock_sock() send path cannot race to a stale decision.
+> +	 * See vmci_transport_allow_dgram().
+> +	 */
+> +	u64 cached_peer_access;
 
-Regarding this part of the changelog:
+[Severity: Low]
+This isn't a bug introduced by this patch (the cached_peer and
+cached_peer_allow_dgram fields already lived here), but since the
+representation is being rewritten anyway: could the cache move into the
+VMCI transport's own state (vsk->trans, struct vmci_transport) instead?
 
-    "or completes a connection on a socket being torn down
-    (!conn_from_host); the socket and its VMBUS channel then leak."
+grep shows cached_peer_access is read and written only from
+net/vmw_vsock/vmci_transport.c, yet the core header now documents a
+VMCI-specific bit packing convention and points at
+vmci_transport_allow_dgram(), which the virtio, hyperv and loopback
+transports never use.
+
+>  	const struct cred *owner;
+>  	/* Rest are SOCK_STREAM only. */
+>  	long connect_timeout;
+> diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+> index 1f186e8f8364..31728e26a770 100644
+> --- a/net/vmw_vsock/vmci_transport.c
+> +++ b/net/vmw_vsock/vmci_transport.c
+> @@ -524,23 +524,38 @@ static bool vmci_transport_is_trusted(struct vsock_sock *vsock, u32 peer_cid)
+>   * only if it is trusted as described in vmci_transport_is_trusted.
+>   */
+>  
+> +/* Packing for vsk->cached_peer_access. */
+> +#define VMCI_DGRAM_ACCESS_VALID		BIT_ULL(0)
+> +#define VMCI_DGRAM_ACCESS_ALLOW		BIT_ULL(1)
+> +#define VMCI_DGRAM_ACCESS_CID_SHIFT	32
+> +
+>  static bool vmci_transport_allow_dgram(struct vsock_sock *vsock, u32 peer_cid)
+>  {
+> +	u64 access;
+> +
+>  	if (VMADDR_CID_HYPERVISOR == peer_cid)
+>  		return true;
+>  
+> -	if (vsock->cached_peer != peer_cid) {
+> -		vsock->cached_peer = peer_cid;
+> -		if (!vmci_transport_is_trusted(vsock, peer_cid) &&
+> -		    (vmci_context_get_priv_flags(peer_cid) &
+> -		     VMCI_PRIVILEGE_FLAG_RESTRICTED)) {
+> -			vsock->cached_peer_allow_dgram = false;
+> -		} else {
+> -			vsock->cached_peer_allow_dgram = true;
+> -		}
+> -	}
+> -
+> -	return vsock->cached_peer_allow_dgram;
+> +	/* Cache the trusted/restricted decision for the last peer to avoid the
+> +	 * O(N) vmci_ctx_get() lookup on every datagram.  Read/update it through
+> +	 * a single word so a race between the lockless receive tasklet and the
+> +	 * lock_sock() send path only forces a recompute -- it can never return a
+> +	 * stale allow for a restricted peer.
+> +	 */
+> +	access = READ_ONCE(vsock->cached_peer_access);
+> +	if ((access & VMCI_DGRAM_ACCESS_VALID) &&
+> +	    (u32)(access >> VMCI_DGRAM_ACCESS_CID_SHIFT) == peer_cid)
+> +		return !!(access & VMCI_DGRAM_ACCESS_ALLOW);
+
+[Severity: High]
+Does the "single word" property actually hold on 32-bit builds?  The CID
+lives in bits 32-63 and VALID/ALLOW in bits 0-1, so the tag and the
+decision are in two different 32-bit access units, and a plain u64
+READ_ONCE()/WRITE_ONCE() is not single-copy atomic there.
+include/asm-generic/rwonce.h is explicit about it:
+
+/*
+ * Yes, this permits 64-bit accesses on 32-bit architectures. These will
+ * actually be atomic in some cases (namely Armv7 + LPAE), but for others we
+ * rely on the access being split into 2x32-bit accesses for a 32-bit quantity
+ * (e.g. a virtual address) and a strong prevailing wind.
+ */
+
+CONFIG_VMWARE_VMCI builds on 32-bit x86 as well:
+
+drivers/misc/vmw_vmci/Kconfig:
+	depends on (X86 || ARM64) && !CPU_BIG_ENDIAN && PCI
+
+So with the cache holding (A << 32) | VALID | ALLOW, and
+vmci_transport_dgram_enqueue() -> vmci_transport_allow_dgram() publishing
+(B << 32) | VALID for a restricted peer B:
+
+CPU0 (sendmsg, lock_sock held, i386: two 32-bit stores)
+	store high word: CID = B
+	<-- softirq / other CPU runs here
+	store low word:  VALID (ALLOW cleared)
+
+CPU1 (vmci_transport_recv_dgram_cb(), receive tasklet, no socket lock)
+	access = READ_ONCE(vsock->cached_peer_access);
+	  sees high word B, low word still VALID | ALLOW
+	returns true for the restricted peer B
+
+The reader side can tear the same way, since gcc on i386 loads the low word
+first.  Since lock_sock() does not exclude softirqs, this also happens on a
+single CPU.
+
+Would an atomic64_t / cmpxchg64 based field, a seqcount, or an encoding
+that fits in one native word (for example a separate validity/allow flag
+plus a CID compared after the flags load, or a 30-bit CID plus two flag
+bits in an unsigned long) close this for CONFIG_X86_32?
+
+As written, the unconditional claims in the changelog ("pack the peer CID
+and the decision into a single word accessed with READ_ONCE()/WRITE_ONCE().
+A race then only forces a recompute and can never return a stale allow"),
+in the new function comment, and in the new struct vsock_sock comment hold
+only on 64-bit.  Could those be either fixed or scoped?
 
 [Severity: Medium]
-For the guest-initiated path, is a leak really the pre-patch outcome?  In
-__vsock_release() sock_orphan() runs immediately before the shutdown mask
-is set:
+This is a pre-existing issue and not introduced by this patch, since the
+old "if (vsock->cached_peer != peer_cid)" logic had the same lifetime
+semantics, but the cache-hit path above is keyed on the peer CID alone and
+is never invalidated.  Can it outlive the context it describes?
 
-net/vmw_vsock/af_vsock.c:__vsock_release() {
-	...
-	sock_orphan(sk);
-	sk->sk_shutdown = SHUTDOWN_MASK;
-	...
-}
+vmci_ctx_create() only avoids CIDs of contexts that are currently live:
 
-so sk->sk_socket is already NULL in exactly the state the new check
-detects.  For a socket in TCP_SYN_SENT, hvs_release() ->
-hvs_close_lock_held() returns early and leaves sk_state alone:
-
-net/vmw_vsock/hyperv_transport.c:hvs_close_lock_held() {
-	if (!(sk->sk_state == TCP_ESTABLISHED ||
-	      sk->sk_state == TCP_CLOSING))
-		return true;
+drivers/misc/vmw_vmci/vmci_context.c:vmci_ctx_create() {
+	while (vmci_ctx_exists(cid)) {
+		/* We reserve the lowest 16 ids for fixed contexts. */
+		cid = max(cid, VMCI_RESERVED_CID_LIMIT - 1) + 1;
 	...
 }
 
-which means the pre-patch state check in hvs_open_connection() passes and
-the !conn_from_host completion path runs:
+and IOCTL_VMCI_INIT_CONTEXT lets the caller pick both the CID and the
+privilege flags:
 
-net/vmw_vsock/hyperv_transport.c:hvs_open_connection() {
-	...
-	} else {
-		sk->sk_state = TCP_ESTABLISHED;
-		sk->sk_socket->state = SS_CONNECTED;
+drivers/misc/vmw_vmci/vmci_host.c:vmci_host_do_init_context() {
+	vmci_host_dev->context = vmci_ctx_create(init_block.cid,
+						 init_block.flags, 0,
 	...
 }
 
-Wouldn't that dereference a NULL sk->sk_socket and oops the guest rather
-than leak the socket and channel?  Should the changelog describe that as
-the impact for the guest-initiated path, since it also changes how urgent
-a stable backport looks?
+So an ALLOW cached for CID X can survive destruction of that context, and a
+later context reusing CID X with VMCI_PRIVILEGE_FLAG_RESTRICTED (or a
+different owning uid) keeps being allowed without vmci_context_get_priv_flags()
+being consulted again.  The inverse direction exists too:
+vmci_context_get_priv_flags() returns VMCI_NO_PRIVILEGE_FLAGS while
+!vmci_host_code_active(), so an ALLOW cached in that window survives host
+personality activation.
 
-> +	/* __vsock_release() may have already set sk_shutdown = SHUTDOWN_MASK
-> +	 * (and, for a listener, flushed the accept queue) while leaving the
-> +	 * socket in TCP_LISTEN/TCP_SYN_SENT.  Proceeding would enqueue a child
-> +	 * onto a released listener, or complete a connection on a released
-> +	 * socket, leaking it and its VMBUS channel.
-> +	 */
-> +	if (sk->sk_shutdown == SHUTDOWN_MASK)
-> +		goto out;
+Would a generation counter bumped on VMCI context create/destroy, folded
+into the cached word, address this?
 
-[Severity: Critical]
-Can this new goto out free sk and then touch it?  The out: label in
-hvs_open_connection() drops the reference before unlocking:
+> +
+> +	access = VMCI_DGRAM_ACCESS_VALID |
+> +		 ((u64)peer_cid << VMCI_DGRAM_ACCESS_CID_SHIFT);
+> +	if (vmci_transport_is_trusted(vsock, peer_cid) ||
+> +	    !(vmci_context_get_priv_flags(peer_cid) &
+> +	      VMCI_PRIVILEGE_FLAG_RESTRICTED))
+> +		access |= VMCI_DGRAM_ACCESS_ALLOW;
+> +
+> +	WRITE_ONCE(vsock->cached_peer_access, access);
 
-net/vmw_vsock/hyperv_transport.c:hvs_open_connection() {
+[Severity: Low]
+Should the two call-site comments be updated in the same patch?  Both
+lockless callers still say the opposite of the new struct vsock_sock
+comment:
+
+net/vmw_vsock/vmci_transport.c:vmci_transport_recv_dgram_cb() {
 	...
-out:
-	/* Release refcnt obtained when we called vsock_find_bound_socket() */
-	sock_put(sk);
-
-	release_sock(sk);
-}
-
-Counting references for the race the patch targets:
-
-CPU1 (VMBUS offer worker)
-hvs_open_connection()
-   vsock_find_bound_socket() -> sock_hold()	/* refs: alloc + bound + this */
-   lock_sock(sk)				/* blocks */
-
-CPU0 (close)
-__vsock_release()
-   sock_set_flag(sk, SOCK_DEAD);
-   vsk->transport->release() -> hvs_release() -> hvs_close_lock_held()
-       -> vsock_remove_sock()			/* bound ref dropped */
-   sk->sk_shutdown = SHUTDOWN_MASK;
-   while ((pending = vsock_dequeue_accept(sk)) != NULL) { ... }
-   release_sock(sk);
-   sock_put(sk);				/* only CPU1's ref left */
-
-CPU1 then acquires the lock, the new sk_shutdown == SHUTDOWN_MASK test
-fires, and control goes straight to out: without ever reaching the later
-sock_hold()/vsock_enqueue_accept() that used to keep sk alive on the
-success path.  sock_put() therefore takes the refcount 1 -> 0.  vsock does
-not set SOCK_RCU_FREE anywhere under net/vmw_vsock/, so sk_free() ->
-__sk_free() -> sk_prot_free() frees the struct sock right there, and the
-following release_sock(sk) spin-locks sk->sk_lock.slock, runs the backlog
-and wakes sk->sk_lock.wq on freed memory.
-
-The rest of the file already uses the other order, for example:
-
-net/vmw_vsock/hyperv_transport.c:hvs_close_connection() {
-	lock_sock(sk);
-	hvs_do_close_lock_held(vsock_sk(sk), true);
-	release_sock(sk);
-
-	/* Release the refcnt for the channel that's opened in
-	 * hvs_open_connection().
+	 * NOTE: We access the socket struct without holding the lock here.
+	 * This is ok because the field we are interested is never modified
+	 * outside of the create and destruct socket functions.
 	 */
-	sock_put(sk);
+	vsk = vsock_sk(sk);
+	if (!vmci_transport_allow_dgram(vsk, dg->src.context))
+	...
 }
 
-Should the out: label be reordered to release_sock(sk) before
-sock_put(sk) as part of this change, given the new check makes this exit
-the expected outcome of the race?
+The same text sits above the call in vmci_transport_recv_stream_cb(), and
+both copies are still there at the end of the series (45f790ccc007).  The
+helper now does WRITE_ONCE(vsock->cached_peer_access, access) from exactly
+that tasklet context, and the changelog already calls the comment out ("The
+in-code comment claiming the fields are never modified outside
+create/destruct is contradicted by the send path") without touching it.
+
+> +	return !!(access & VMCI_DGRAM_ACCESS_ALLOW);
+>  }
+>  
+>  static int
 
 -- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260919123128.28868-1-bartlomiej.dmitruk%40isec.pl
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260919123208.29032-1-bartlomiej.dmitruk%40isec.pl
