@@ -1,186 +1,136 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vs2-f40.google.com (mail-vs2-f40.google.com [74.125.227.40])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A13844C4E2;
-	Wed, 23 Sep 2026 12:56:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3FB05304B2
+	for <virtualization@lists.linux.dev>; Wed, 23 Sep 2026 13:50:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.40
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790168183; cv=none; b=CXEfz09W/fLpP/Yqm8r+fK6bxPyQRLbg2pGvTaK+BH/0ICQsY6KlzuQjn79iwTKKvtpohZQCuYDx1MJZmarFw9/cd/obS9xtbvIuSdK+ong3o10cYdwUQUof0BZljT1+GrZhiFFVl8uNjGDMzFeoLyxiCiJXEHHFXCh3m1AShng=
+	t=1790171416; cv=none; b=Rh7WgL0Uzx9XqtcbACJebruCCjzXxftxyl1SDihbml0UfjCFPcs/eHyap3XemYcGMO6COzWRfNBZa4eG1C0k/qVIPwYLWqjw1YbAPXoCeL6K0l4Bk817d9QIhi7C26QQm5epsWDqBqaPqEROHo1ZMsxKB0giUQcNG/rSlIi6KQ4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790168183; c=relaxed/simple;
-	bh=LzJEruODDUPU73rqcnJtFWsHFPjSXRP/LTH0UAEBWnI=;
-	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=OKYmdymHrjiBcb00KaV8dOEJcnL4zotClVTTCyCLV/GNUuLpx6ehcXmP0ylP9Dk4gXlt4ZW6PzfJdiFsHZ+YMe2vJ0rBrbzBXfVWKDG1Bs7jeJUfQzNrvrCcERnPMjvdC/Tnh2nNiZmH3mVwJklTK2wU1ZSWWBQhEqRNS1UhaaY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SvQiQUsf; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790171416; c=relaxed/simple;
+	bh=7Le+bSKS4i++0atX4ob/re5jRUUIa9YEDMNPqlpG9Jk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=S6IoaOEbsZvcpKUB3jJLAUDfJzpStjZ5jikJQcGL05t2tqlAfjOwK/aXPSt3xLfpKIY2wAYOYPGGWyGqebka3S6ZxFFK8rjr59bj4tVwHvPonQbf//UTVxIn6H1UfERyBlaKT+OBYi90eEKIMQB97Mhe1LNSPA9N49YUreu4cdM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OPzsX+eS; arc=none smtp.client-ip=74.125.227.40
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SvQiQUsf"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 870B21F000FF;
-	Wed, 23 Sep 2026 12:56:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790168182;
-	bh=3uUhtAR2k0hPaE4q7IxQRMBAokmtgKcz0lOtbcN/3eA=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=SvQiQUsfVQZRXUO5/FwsLtxY+h0jo4b/6HpYlE6vmJ2SvkTIpI8X949Jn1bEH/yYV
-	 orCrR2RIXPB6OqNfTWt7nC58HzbuL4jNGxb3+Gm+zS0fw9ULufsMP2z0t8UQhm+KWJ
-	 vxbLhHKTuol4SaYIsB0C9B9P4UQ+zG085/0k+aJ9jeMU2CrcFjWG5ZOFn0PaV1+5Js
-	 aJOMIgr83zIt1CEtPDdiJRFhsZXYwO0OzZaWFYny5avLUmutE4MbpH7W6g/I5tK2V3
-	 UClqdPdIcbSpo5BzEgjsTdygqYqOvGSTjX+3AusKObMSEXhFQi/fTdgmKwCdtFPwch
-	 QSjlEvxEDEriw==
-Subject: Re: [PATCH v2 2/2] vsock/vmci: enforce per-netns mode on the datagram
- receive path
-From: netdev-bot+sashiko@kernel.org
-To: bartlomiej.dmitruk@isec.pl
-Cc: bryan-bt.tan@broadcom.com, vishnu.dasa@broadcom.com, sgarzare@redhat.com,
- bcm-kernel-feedback-list@broadcom.com, davem@davemloft.net,
- edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
- mst@redhat.com, virtualization@lists.linux.dev, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Date: Wed, 23 Sep 2026 12:56:21 +0000
-Message-ID: <179016818112.2160803.16758605437197754903@kernel.org>
-In-Reply-To: <20260919123208.29032-2-bartlomiej.dmitruk@isec.pl>
-References: <20260919123208.29032-2-bartlomiej.dmitruk@isec.pl>
-X-sashiko-severity: High
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OPzsX+eS"
+Received: by mail-vs2-f40.google.com with SMTP id ada2fe7eead31-7a0477a4a01so280241137.2
+        for <virtualization@lists.linux.dev>; Wed, 23 Sep 2026 06:50:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1790171412; x=1790776212; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=GIg/ABLVf9+aKRgVLx2ojwBZLXuVOVgsPgIbjXHaOXw=;
+        b=OPzsX+eSzrMNpn+NcT1zE9dnJ2gb9K66ntWl2Res7n4+kpfSwA8cRxBBDpRzlFIRmn
+         Tt4H/DCjajabYGIGqiOk629vzAxRg63+VNyfdSsryCjbHifL3W1UOYeMBaWIywLjaqBd
+         aYq10ArtOufdC85NRdfug2Kua1/gx/1+dn5vkBNn51/KQGIVt87CFdRNma9nxhHNdoao
+         D6+A1ohDDVoasgXo97J10xxDIU7iBJaGRG7AHDiey91Wpt6Y4p+l0shCStTmBlFetl+v
+         d1uVW8k/Mor2corY+styxp38/nKpGcLN6N2n/c7+6TcEWCbk6FyJ+AtmKtFoCc/4hbEp
+         AS8A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790171412; x=1790776212;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=GIg/ABLVf9+aKRgVLx2ojwBZLXuVOVgsPgIbjXHaOXw=;
+        b=oBRIhrDatoHjjRYsBSf0qpanF+XPzMbO9/+akJ1nY2hbMCrng2ql6nouMn8ejJBRkO
+         trfa4c+loj23gO+j9ko25s+HIEcBZJTpxG5SdX5gqGJW8/8+yYuoAHcQjUet0Etr++nK
+         qi7dGgob/JlbdGjm0H5A8nqNotjFOdTUhKpLSNsAcU8jW9YUsEIXl7Ugk8gUNw1Vzzx+
+         ycfwDNtG/p1M9+dqCCEz0rvbqxMiaCJIS1wUk2/dZpsGOGdFgcDISa0CjP1s8uVrLBl1
+         AqMKxcIlIWix4CEs9gLqMXStBzLkHlFGQMWjtcasTATE2cIgCBTms76Wg0E0UMcSX6Gf
+         431Q==
+X-Forwarded-Encrypted: i=1; AKwUvBykqhY7dUIaBQdTH+ja5rFh8cMbPAkmmZKnwAuZWlMxjZcpwkadcEpPJGCXf469rAjO6mPLzGimvOjxuz7vBg==@lists.linux.dev
+X-Gm-Message-State: AFuF++nXuMqpUhgdWo9fCVvOaoKa4ZTLHBZ11G8bIptVsd0vzzi6tpuD
+	2HVwWW9QC+E2ndbFbHcIxGlsA10Meob+k2EdWzZK68oCTiWZwWlFWAvE
+X-Gm-Gg: AYBFou1XpBVnUcSi7CDbpoi+3y3YbyFOhweWjPMAy7R1um8cPOhbcojvfDiPyfJjCxt
+	SJcR2mUXstCyT2O04txGv/g1PJPi58vn6a0rLE9cI5Y9hPiDwZVVqdbOT+hplaFDVBNqVyD2O8h
+	xZpFhk5m8l2eRzzKsxHcUfIRidPuc2WfJIxrYGYNPDK2Wc9693MrdoTthjL+0K7Y6PnkUx/allP
+	OMX2hvqK/DSVsEOtdyTNtjAY0ITsAYWeSLWArLT3d7rzL20sDsnW0cMGh6dQv8GXeFXkM3KqR7a
+	2/ImdcleAH+o+FZgZIKaVf9MIBmrjYEX45Xr17nOdg2jviJjE/qEvMp8fRNKoOiI6W9tTcLGeCa
+	QJh406hQqD/GkfvDeB2Ohlxc+4KotLAFWrli7PLw61R+SWLGfxQPmeXgfQUsfRq/r1ZVGZH2fgv
+	Pwu5XkCQjpWgXubuv1G48/e9LZeGRya2vqzC4KwBWAChgZZQnM2Zr1L8kNdcOHsPU=
+X-Received: by 2002:a05:6102:291e:b0:7a7:ad9f:53c6 with SMTP id ada2fe7eead31-7ac1bb4a3f7mr2276292137.13.1790171411528;
+        Wed, 23 Sep 2026 06:50:11 -0700 (PDT)
+Received: from beelink.. ([187.13.30.172])
+        by smtp.gmail.com with ESMTPSA id a1e0cc1a2514c-9852407d1f2sm113126241.6.2026.09.23.06.50.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 23 Sep 2026 06:50:10 -0700 (PDT)
+From: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
+To: airlied@redhat.com,
+	kraxel@redhat.com
+Cc: dri-devel@lists.freedesktop.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	spice-devel@lists.freedesktop.org,
+	Aldo Ariel Panzardo <qwe.aldo@gmail.com>,
+	Sashiko <sashiko-bot@kernel.org>
+Subject: [PATCH] drm/qxl: remove double page-size scaling in kmap fallback paths
+Date: Wed, 23 Sep 2026 10:49:52 -0300
+Message-ID: <20260923134952.1750600-1-qwe.aldo@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue(s) to consider.
+qxl_bo_kmap_atomic_page() takes a page_offset parameter that callers
+compute as a byte offset aligned to a page boundary:
 
-Critical: 0 · High: 1 · Medium: 0 · Low: 0 (1)
+    reloc_page = qxl_bo_kmap_atomic_page(qdev, info->dst_bo,
+                                         info->dst_offset & PAGE_MASK);
 
-If you believe none of the issues are legitimate, please reply to each
-issue of Medium severity or higher and explain why the AI is wrong.
-If any of them are legitimate and you plan to respin, please let patchwork
-know by including "pw-bot: cr" as a separate line at the end of your reply
-(one such reply per series is enough).
+The VRAM/PRIV path adds it directly to the mapping base (both in
+bytes), which is correct:
 
-- [High] Torn 64-bit lockless access to `vsock->cached_peer_access` on
-  32-bit builds defeats the access-control invariant the series claims…
+    offset = bo->tbo.resource->start << PAGE_SHIFT;
+    return io_mapping_map_atomic_wc(map, offset + page_offset);
 
-Pre-existing issues:
-- [Low] Stale justification comments in both lockless callers of
-  `vmci_transport_allow_dgram()`.
+But the two system-memory fallback paths multiply it by PAGE_SIZE
+again:
+
+    rptr = bo->kptr + (page_offset * PAGE_SIZE);
+
+For page_offset = 0x5000 (page 5), this computes
+0x5000 * 0x1000 = 0x5000000, a 80 MiB offset instead of 20 KiB,
+producing a massive out-of-bounds access into kernel memory.
+
+Remove the spurious multiplication so the fallback paths use the
+same byte-offset semantics as the io_mapping path.
+
+Fixes: f64122c1f6ad ("drm: add new QXL driver. (v1.4)")
+Cc: stable@vger.kernel.org
+Reported-by: Sashiko <sashiko-bot@kernel.org>
+Signed-off-by: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
+---
+ drivers/gpu/drm/qxl/qxl_object.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/gpu/drm/qxl/qxl_object.c b/drivers/gpu/drm/qxl/qxl_object.c
+index XXXXXXX..YYYYYYY 100644
+--- a/drivers/gpu/drm/qxl/qxl_object.c
++++ b/drivers/gpu/drm/qxl/qxl_object.c
+@@ -223,7 +223,7 @@ void *qxl_bo_kmap_atomic_page(struct qxl_device *qdev,
+ 	return io_mapping_map_atomic_wc(map, offset + page_offset);
+ fallback:
+ 	if (bo->kptr) {
+-		rptr = bo->kptr + (page_offset * PAGE_SIZE);
++		rptr = bo->kptr + page_offset;
+ 		return rptr;
+ 	}
+
+@@ -232,7 +232,7 @@ void *qxl_bo_kmap_atomic_page(struct qxl_device *qdev,
+ 		return NULL;
+ 	rptr = bo_map.vaddr; /* TODO: Use mapping abstraction properly */
+
+-	rptr += page_offset * PAGE_SIZE;
++	rptr += page_offset;
+ 	return rptr;
+ }
 
 --
-
-vsock/vmci: enforce per-netns mode on the datagram receive path
-
-This adds a vsock_net_mode_global() check at the top of
-vmci_transport_allow_dgram() so the receive path refuses datagrams when the
-socket's netns is not in global mode, matching the send hook
-vmci_transport_dgram_allow().  The check is placed before the
-VMADDR_CID_HYPERVISOR short-circuit so hypervisor datagrams are gated too.
-
-> diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
-> index 31728e26a770..d6791459e2fd 100644
-> --- a/net/vmw_vsock/vmci_transport.c
-> +++ b/net/vmw_vsock/vmci_transport.c
-> @@ -533,6 +533,14 @@ static bool vmci_transport_allow_dgram(struct vsock_sock *vsock, u32 peer_cid)
->  {
->  	u64 access;
->  
-> +	/* Enforce the per-netns mode first, symmetrically with the send hook
-> +	 * vmci_transport_dgram_allow(): a socket in a non-global (local) netns
-> +	 * must not receive datagrams it could never send (this also covers the
-> +	 * hypervisor CID).
-> +	 */
-> +	if (!vsock_net_mode_global(vsock))
-> +		return false;
-> +
->  	if (VMADDR_CID_HYPERVISOR == peer_cid)
->  		return true;
->  
-
-[Severity: High]
-While looking at the rest of vmci_transport_allow_dgram(), can the packed
-cached_peer_access word tear on 32-bit builds?
-
-The helper reads and writes the decision as one u64:
-
-net/vmw_vsock/vmci_transport.c:vmci_transport_allow_dgram() {
-	access = READ_ONCE(vsock->cached_peer_access);
-	if ((access & VMCI_DGRAM_ACCESS_VALID) &&
-	    (u32)(access >> VMCI_DGRAM_ACCESS_CID_SHIFT) == peer_cid)
-		return !!(access & VMCI_DGRAM_ACCESS_ALLOW);
-	...
-	WRITE_ONCE(vsock->cached_peer_access, access);
-	return !!(access & VMCI_DGRAM_ACCESS_ALLOW);
-}
-
-and the comment above it, plus the field comment in include/net/af_vsock.h,
-state that using a single word means the race between the receive tasklet
-and the send path "can never return a stale allow for a restricted peer".
-
-include/asm-generic/rwonce.h says the opposite for a 64-bit access on a
-32-bit architecture:
-
- * Yes, this permits 64-bit accesses on 32-bit architectures. These will
- * actually be atomic in some cases (namely Armv7 + LPAE), but for others we
- * rely on the access being split into 2x32-bit accesses ... and a strong
- * prevailing wind.
-
-drivers/misc/vmw_vmci/Kconfig allows this on 32-bit x86:
-
-	depends on (X86 || ARM64) && !CPU_BIG_ENDIAN && PCI
-
-The reader runs with no socket lock held, from
-vmci_transport_recv_dgram_cb() and vmci_transport_recv_stream_cb(), while
-the writer can run concurrently from vmci_transport_dgram_enqueue() under
-lock_sock(), which does not exclude bottom halves.
-
-So on i386, with the cache holding {cid=B, VALID, ALLOW clear} for a
-RESTRICTED peer B, can this happen?
-
-CPU0 (sendmsg, trusted peer A) in vmci_transport_allow_dgram()
-	WRITE_ONCE(vsock->cached_peer_access, access);
-	  -> low word stored first: VALID|ALLOW
-	  -> high word still holds B
-
-CPU1 (receive tasklet, datagram from restricted peer B)
-	access = READ_ONCE(vsock->cached_peer_access);
-	  -> low = VALID|ALLOW, high = B
-	(u32)(access >> VMCI_DGRAM_ACCESS_CID_SHIFT) == peer_cid  /* matches */
-	return !!(access & VMCI_DGRAM_ACCESS_ALLOW);              /* true */
-
-That would accept a datagram from a VMCI_PRIVILEGE_FLAG_RESTRICTED context
-on a non-trusted socket, and the mirrored tear (new high word, old low word)
-would drop legitimate datagrams.
-
-Would an atomic64_t accessed with atomic64_read()/atomic64_set(), a
-seqcount, or plain serialization be needed here instead of u64
-READ_ONCE()/WRITE_ONCE()?
-
-[Severity: Low]
-This isn't an issue introduced by this patch, but since
-vmci_transport_allow_dgram() is being touched: both lockless callers still
-carry a justification that no longer matches the helper.
-
-vmci_transport_recv_dgram_cb() and vmci_transport_recv_stream_cb() both say:
-
-	 * NOTE: We access the socket struct without holding the lock here.
-	 * This is ok because the field we are interested is never modified
-	 * outside of the create and destruct socket functions.
-	 */
-	vsk = vsock_sk(sk);
-	if (!vmci_transport_allow_dgram(vsk, dg->src.context))
-		return VMCI_ERROR_NO_ACCESS;
-
-but the helper writes socket state on the ordinary receive and send paths:
-
-	WRITE_ONCE(vsock->cached_peer_access, access);
-
-and the field comment in include/net/af_vsock.h documents that both the
-receive tasklet and the lock_sock() send path update it.
-
-Could the NOTE be reworded to name the fields that really are immutable
-(trusted, owner) and mention that cached_peer_access has its own
-READ_ONCE()/WRITE_ONCE() protocol?
-
--- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260919123208.29032-1-bartlomiej.dmitruk%40isec.pl
+2.43.0
