@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB94A53A39F;
-	Wed, 23 Sep 2026 19:21:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E08BC56852A;
+	Wed, 23 Sep 2026 19:21:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790191265; cv=none; b=Y9aLFAIWzfj+uiNeCGFxTByna2y9w8DJyBezFdRfJcb5CAhXI4WXkIcQSnfuNQjMJkh8x0wCP4o3UCsx/csyEBcXLvbQ52b7Vge0XTAhvTRqaigxGAKgU/S+1i9AUAM7o3+PCgrm9Bl85Hy/CpksSZVrl8I0lG27BmdoYtRbaQ0=
+	t=1790191267; cv=none; b=bkdw2AbWzRvAtOBx6cRH5RsxZB3IHemLGi+ESUUfz3VflTIfcKvWWwgbocPwRz8A9mF6425L+N6/Ct4en9rNZLPidVFdRxnfXIVh67I3xn5qxil+s3mLzmd1M9fLgruI3s+Jes5v1G5/vG1JT5smJPK3SFFkI72KUx7LiaOaFEE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790191265; c=relaxed/simple;
-	bh=MSzjk43nVLEI3G1iWZYdHCkUZe5MKeIZHJxi9uM9Z+4=;
+	s=arc-20240116; t=1790191267; c=relaxed/simple;
+	bh=BbvRAyUq5si+HS0OKOdfIlG/hjjuTRiLMlc9eYdaXGE=;
 	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=fr6C1OSO121c1xS4Df1KEjT+yr/7aZBXE8bMbeH6S61J1dWLoaK1etl5r5rWcPUBGKuO4nULbIOkimNDQyvow8+XF5mwm8yIRIKEhX3VZgP4Vlh8daoa5NjmMtjyilQqUmG1ch9kFupaIoNnhfo+HBXAAgo6KN7QBSfRPDWolSo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LrM0fNlU; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:MIME-Version; b=QejA0e1EVGTq1uJo9YlabR2jKeHZNtKBnj4rUmRKlgBaBrn2vkB8bvtgelwSW0RVowL+LXmEK2uYKveDJJnenAOTpGJKQXDr8n+tUkCzsO5YMFp9ECXu5XH7/8qVHPBMNzGvwaokPvc6XST+XaJaoNq/cdCd2uq00+5YgegrD0A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HmemUDme; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LrM0fNlU"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B8A71F000FF;
-	Wed, 23 Sep 2026 19:21:02 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HmemUDme"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 282411F00893;
+	Wed, 23 Sep 2026 19:21:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790191263;
-	bh=ECY5keikJDXh5BcSGxdffluNTcWvVPoRdzPoz/NZ8iQ=;
+	s=k20260515; t=1790191265;
+	bh=z32N1aXGLCLiP1S0LGtMEjOpi02MNIgclPWjnkfH/AE=;
 	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=LrM0fNlURTxU8uMoYp8C45P9qvyro/8ZLbKJITlijAIsPNFLlVslZOwHiMZk7+0SK
-	 w/MrHFd3YGkQQqUKU/9kGxEZpHRe/CtzKdlKaMQjK/BFE/SdRQVeUXIFNGv22fa64S
-	 ap7nKHeb+VsxQPhxeHODLB+lVQ4wjjsxeQq/lkbAV33i3lBe3ZAuTWRn9ICJzq89k5
-	 JGYBN05gsOhwRLZRXmF91ae4xSzjsUvN9BG83T8b2A3dvizokoqWKwLkvF71BSVWuD
-	 MM52SVgt6Uq+9XUMuLRz/I4BUIkyjy6/0wcLc6r9JrOXdiV83K8z0Ubm80uySdUODD
-	 jRuKwY69KNWlw==
-Subject: Re: [PATCH net-next v2 3/6] vsock: add a netlink command to assign
- the g2h device to a netns
+	b=HmemUDmenZkoqIDtAutmzKvcEoolHzyPkzatRlFZmbTDaE7rWAPlVIHabAV47wnXB
+	 maIZYGqYqyI20tehlWtUB2S/6V831XF7wJCH1UoIcpX4GLunMPy4qxm5vK6R1lJTQC
+	 JLdWoFEED/iGBPdkQRdbga48vTvSY1OB/CctyEZWH2mkn7HcROMRMyLP7LwDwCmub6
+	 CwgLqfprr7kxIwjPyLs/r38YCQTiaHmwjHkz0fq8ZPZqDz5f/JNH0INcYdi5A2tLx8
+	 iWwGHuN8VWlJ4dykjDViCmYN82DbwKaG0ydUn2WHxCFaGxV0kWpH+b0CBXqfKB8lEo
+	 eIh+eAc0X0uoA==
+Subject: Re: [PATCH net-next v2 4/6] vsock/virtio: support guest device
+ network namespace
 From: netdev-bot+sashiko@kernel.org
 To: bobbyeshleman@gmail.com
 Cc: sgarzare@redhat.com, davem@davemloft.net, edumazet@google.com,
@@ -39,11 +39,11 @@ Cc: sgarzare@redhat.com, davem@davemloft.net, edumazet@google.com,
  linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, kvm@vger.kernel.org,
  linux-kselftest@vger.kernel.org, sargun@sargun.me, jlinbox@meta.com,
  sdf.kernel@gmail.com, bobbyeshleman@meta.com
-Date: Wed, 23 Sep 2026 19:21:01 +0000
-Message-ID: <179019126153.2160803.2250276732411996714@kernel.org>
-In-Reply-To: <20260921-vsock-guest-ns-v2-3-693bd78fde9e@meta.com>
-References: <20260921-vsock-guest-ns-v2-3-693bd78fde9e@meta.com>
-X-sashiko-severity: High
+Date: Wed, 23 Sep 2026 19:21:03 +0000
+Message-ID: <179019126374.2160803.9294641399796135651@kernel.org>
+In-Reply-To: <20260921-vsock-guest-ns-v2-4-693bd78fde9e@meta.com>
+References: <20260921-vsock-guest-ns-v2-4-693bd78fde9e@meta.com>
+X-sashiko-severity: Medium
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -53,10 +53,10 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 
-Thank you for your contribution! Sashiko AI review found 6 potential
+Thank you for your contribution! Sashiko AI review found 3 potential
 issue(s) to consider.
 
-Critical: 0 · High: 1 · Medium: 2 · Low: 3
+Critical: 0 · High: 0 · Medium: 2 · Low: 1
 
 If you believe none of the issues are legitimate, please reply to each
 issue of Medium severity or higher and explain why the AI is wrong.
@@ -64,308 +64,236 @@ If any of them are legitimate and you plan to respin, please let patchwork
 know by including "pw-bot: cr" as a separate line at the end of your reply
 (one such reply per series is enough).
 
-- [High] vsock_g2h_reset_unreachable() marks a socket
-  TCP_CLOSE/ECONNRESET but leaves it linked in vsock_connected_table…
-- [Medium] vhost_vsock_set_cid()'s collision check against the G2H device
-  CID became namespace-conditional (`vsock_find_cid(vsock->net,…
-- [Medium] vsock_g2h_reset_unreachable() invokes the new sleepable
-  `t->reset(vsk, NULL)` callback with only vsock_register_mutex held and…
-- [Low] DISCARDED (resolved later in the series).
-- [Low] DISCARDED (resolved later in the series).
-- [Low] DISCARDED (blocked by the transport patch later in the series).
+- [Medium] virtio_transport_rx_work() samples the g2h namespace once per
+  work invocation (`net = vsock_g2h_net_get()` at…
+- [Medium] By setting `.netns_assign_allow = true` and `.reset =
+  virtio_transport_reset` (net/vmw_vsock/virtio_transport.c:590-591)…
+- [Low] virtio_transport_reset_no_sock() is promoted to an exported
+  cross-module API (declared in include/linux/virtio_vsock.h,…
 
 --
 
-vsock: add a netlink command to assign the g2h device to a netns
+vsock/virtio: support guest device network namespace
 
-This adds a vsock generic netlink family with VSOCK_CMD_DEV_NETNS_SET and
-VSOCK_CMD_DEV_NETNS_GET, which move the guest-to-host vsock device into the
-caller's network namespace and read that assignment back. Reachability of the
-device, and visibility of its CID through the local-CID ioctl, bind() and
-loopback transport selection, now depend on the namespace asking. Sockets that
-can no longer reach the device after a move are reset, and the device returns
-to init_net when its namespace is destroyed.
+This makes the virtio-vsock guest device assignable to a network namespace
+and initializes it to init_net.  The RX work now looks up the currently
+assigned namespace and resets received packets while no valid namespace is
+available, and new connected sockets are inserted via the new
+vsock_maybe_set_connected() helper so insertion is atomic with respect to
+namespace assignment.
 
-Link: https://lore.kernel.org/all/20200427142518.uwssa6dtasrp3bfc@steredhat/
+A few questions below.
 
-A few questions below about the new reachability and reset paths.
-
-> diff --git a/Documentation/admin-guide/sysctl/net.rst b/Documentation/admin-guide/sysctl/net.rst
-> index fe43e85959583..f2d8e4e84f89b 100644
-> --- a/Documentation/admin-guide/sysctl/net.rst
-> +++ b/Documentation/admin-guide/sysctl/net.rst
-> @@ -529,6 +529,29 @@ their hosts. The behavior of VSOCK sockets in a network namespace is determined
-
-[ ... ]
-
-> +Support is transport dependent. A G2H transport that does not implement the
-> +move refuses the command with ``EOPNOTSUPP``; of the in-tree guest transports
-> +only virtio-vsock implements it.
-
-[Severity: Low]
-
-At this commit, does any transport set netns_assign_allow and ->reset?
-
-vsock_netns_assignable() requires both, and neither is set by any in-tree
-transport here, so VSOCK_CMD_DEV_NETNS_SET can only return -ENODEV or
--EOPNOTSUPP while this text says virtio-vsock implements the move.
-vsock_g2h_net_get() and vsock_maybe_set_connected() also have no callers
-yet.
-
-The following patch in the series, "vsock/virtio: support guest device
-network namespace", adds .netns_assign_allow = true and
-.reset = virtio_transport_reset to virtio_transport and wires up both
-helpers, so the text becomes accurate at the end of the series. Would it
-read better to add this paragraph in that patch?
+> diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
+> index f91704731057e..5d15b6d6bdf7f 100644
+> --- a/include/linux/virtio_vsock.h
+> +++ b/include/linux/virtio_vsock.h
+> @@ -286,6 +286,9 @@ void virtio_transport_inc_tx_pkt(struct virtio_vsock_sock *vvs, struct sk_buff *
+>  u32 virtio_transport_get_credit(struct virtio_vsock_sock *vvs, u32 wanted);
+>  void virtio_transport_put_credit(struct virtio_vsock_sock *vvs, u32 credit);
+>  void virtio_transport_deliver_tap_pkt(struct sk_buff *skb);
+> +int virtio_transport_reset(struct vsock_sock *vsk, struct sk_buff *skb);
+> +int virtio_transport_reset_no_sock(const struct virtio_transport *t,
+> +				   struct sk_buff *skb, struct net *net);
+>  int virtio_transport_purge_skbs(void *vsk, struct sk_buff_head *list);
+>  int virtio_transport_read_skb(struct vsock_sock *vsk, skb_read_actor_t read_actor);
+>  int virtio_transport_notify_set_rcvlowat(struct vsock_sock *vsk, int val);
+> diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+> index 4f9aa9c4c3aa5..5ad93af4bd2b1 100644
+> --- a/net/vmw_vsock/virtio_transport.c
+> +++ b/net/vmw_vsock/virtio_transport.c
 
 [ ... ]
 
-> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-> index abed1fbcf66cc..badc064964b31 100644
-> --- a/drivers/vhost/vsock.c
-> +++ b/drivers/vhost/vsock.c
-> @@ -828,9 +828,11 @@ static int vhost_vsock_set_cid(struct vhost_vsock *vsock, u64 guest_cid)
->  		return -EINVAL;
+> @@ -587,6 +587,8 @@ static struct virtio_transport virtio_transport = {
+>  		.seqpacket_has_data       = virtio_transport_seqpacket_has_data,
 >  
->  	/* Refuse if CID is assigned to the guest->host transport (i.e. nested
-> -	 * VM), to make the loopback work.
-> +	 * VM), to make the loopback work. Only when that device is reachable
-> +	 * from this VM's namespace, which is the same test the guest CID
-> +	 * collision check below applies.
->  	 */
-> -	if (vsock_find_cid(guest_cid))
-> +	if (vsock_find_cid(vsock->net, guest_cid))
->  		return -EADDRINUSE;
+>  		.msgzerocopy_allow        = virtio_transport_msgzerocopy_allow,
+> +		.netns_assign_allow       = true,
+> +		.reset                    = virtio_transport_reset,
 
 [Severity: Medium]
 
-This collision check is now conditional on the g2h device being reachable
-from vsock->net, but that condition can change after the CID has been
-accepted. Is it re-checked anywhere?
+Setting .netns_assign_allow = true makes vsock_netns_assignable() true for
+the g2h transport, which activates the reset sweep in
+vsock_g2h_reset_unreachable().  That sweep calls t->reset() while holding
+only vsock_register_mutex and a socket reference, never lock_sock(sk):
 
-With the device assigned to a local mode namespace A, a VMM in namespace B
-sees vsock_find_cid(B, guest_cid) return false, because
-__vsock_registered_transport_cid() reports VMADDR_CID_ANY for the g2h slot
-when !vsock_g2h_net_reachable(B). So a CID that previously got -EADDRINUSE
-is now installed.
+net/vmw_vsock/af_vsock.c:vsock_g2h_reset_unreachable() {
+	...
+		sk->sk_state = TCP_CLOSE;
+		sk->sk_err = ECONNRESET;
+		sk_error_report(sk);
+	...
+	list_for_each_entry_safe(vsk, tmp, &reset_list, pending_reset) {
+		list_del_init(&vsk->pending_reset);
+		t->reset(vsk, NULL);
+	...
+}
 
-The device can become reachable from B afterwards, either by another
-VSOCK_CMD_DEV_NETNS_SET or automatically when namespace A is deleted and
-vsock_g2h_net_reset() moves the device back to init_net.
-vsock_g2h_net_assign() only walks vsock_connected_table, so registered
-vhost guest CIDs are never revisited, and then:
+virtio_transport_reset() -> virtio_transport_send_pkt_info() addresses the
+RST straight out of the socket:
 
-  - vsock_use_local_transport(B, cid) computes a non-ANY g2h CID and
-    returns true, so vsock_assign_transport() picks transport_local ahead
-    of transport_h2g and connects intended for the nested guest land on
-    vsock_loopback
-  - vsock_find_cid(B, cid) starts accepting bind() on that CID
+	if (!info->remote_cid) {
+		dst_cid	= vsk->remote_addr.svm_cid;
+		dst_port = vsk->remote_addr.svm_port;
 
-Does the nested guest become unreachable from that namespace at that
-point, which is what the pre-patch unconditional check prevented?
+Those fields are normally only stable under lock_sock(sk).
 
-> diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
-> index 370fcd3ddabc2..dbf1a6aa367fe 100644
-> --- a/include/net/af_vsock.h
-> +++ b/include/net/af_vsock.h
-> @@ -190,6 +192,16 @@ struct vsock_transport {
->  
->  	/* Zero-copy. */
->  	bool (*msgzerocopy_allow)(void);
-> +
-> +	/* True if the G2H transport honours VSOCK_CMD_DEV_NETNS_SET. A
-> +	 * transport that sets this must also implement reset.
-> +	 */
-> +	bool netns_assign_allow;
-> +
-> +	/* Send a reset to @vsk's peer. @skb is the packet being replied to, or
-> +	 * NULL when the reset is not a reply. May sleep.
-> +	 */
-> +	int (*reset)(struct vsock_sock *vsk, struct sk_buff *skb);
->  };
-
-[Severity: Medium]
-
-Which locks may a ->reset() implementation assume are held?
-
-vsock_g2h_reset_unreachable() calls t->reset(vsk, NULL) with only
-vsock_register_mutex held and no socket lock. Every existing caller of
-virtio_transport_reset(), the implementation wired up later in the series
-(close work and close timeout, the recv "destroy" paths, shutdown), runs
-under lock_sock() or lock_sock_nested(), which is what serialises
-vsk->trans and the addresses the reset reads against close/release and
-recv processing.
-
-Taking lock_sock() around the callback does not look available from this
-call site, since vsock_connect() holds lock_sock(sk) and then acquires
-vsock_register_mutex inside vsock_assign_transport(), making sock lock ->
-register mutex the established order.
-
-The sweep also stores sk->sk_state and sk->sk_err under vsock_table_lock
-only, so a concurrent lock_sock() holder can overwrite sk_state and the
-reset is lost.
-
-Separately, the loop performs one sleeping send per collected socket while
-holding vsock_register_mutex, which blocks socket creation, connect and
-the CID getters for the duration. Can the resets run outside that mutex,
-and can this comment state the locking context the callback is invoked in?
-
-> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> index 95a435aef512b..9938dd5010192 100644
-> --- a/net/vmw_vsock/af_vsock.c
-> +++ b/net/vmw_vsock/af_vsock.c
-
-[ ... ]
-
-> @@ -654,6 +716,13 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
->  		goto err;
->  	}
->  
-> +	if (new_transport && new_transport == transport_g2h &&
-> +	    vsock_netns_assignable(new_transport) &&
-> +	    !vsock_g2h_net_reachable(sock_net(sk))) {
-> +		ret = -ENETUNREACH;
-> +		goto err;
-> +	}
-> +
-
-[Severity: Low]
-
-This gate sits after the same-transport shortcut a few lines above it:
-
-	if (vsk->transport && vsk->transport == new_transport) {
-		ret = 0;
-		goto err;
-	}
-
-so a socket that already holds transport_g2h, for instance one left
-assigned by an earlier failed connect, never reaches the -ENETUNREACH
-check.
-
-At the end of the series nothing is emitted from an excluded namespace,
-because vsock_connect() calls transport->stream_allow() right after
-vsock_assign_transport() and the following patch makes
-virtio_transport_stream_allow() return vsock_g2h_net_reachable(...). Would
-it still be clearer to place this check before the shortcut?
-
-> @@ -742,6 +812,173 @@ bool vsock_find_cid(unsigned int cid)
->  }
->  EXPORT_SYMBOL_GPL(vsock_find_cid);
-
-[ ... ]
-
-> +/* Move @vsk to TCP_ESTABLISHED and into the connected table, unless the device
-> + * has moved to a namespace @vsk cannot reach. Returns false without doing
-> + * either in that case.
-> + *
-> + * The reset sweep walks the same table under the same lock, so an assign
-> + * cannot land between the check and the insert: either the sweep finds @vsk
-> + * and resets it, or @vsk is never added.
-> + */
-> +bool vsock_maybe_set_connected(struct vsock_sock *vsk)
-> +{
-> +	struct list_head *list;
-> +	bool reachable;
-> +
-> +	list = vsock_connected_sockets(&vsk->remote_addr, &vsk->local_addr);
-> +
-> +	spin_lock_bh(&vsock_table_lock);
-> +	reachable = vsock_g2h_reachable_sk(vsk);
-> +	if (reachable) {
-> +		sk_vsock(vsk)->sk_state = TCP_ESTABLISHED;
-> +		__vsock_insert_connected(list, vsk);
-> +	}
-> +	spin_unlock_bh(&vsock_table_lock);
-> +
-> +	return reachable;
-> +}
-> +EXPORT_SYMBOL_GPL(vsock_maybe_set_connected);
-
-[Severity: Low]
-
-The invariant described here needs every connected-table insertion of an
-assignable transport to go through this helper, but nothing calls it in
-this commit.
-
-The next patch, "vsock/virtio: support guest device network namespace",
-adds the calls in virtio_transport_recv_connecting() and
-virtio_transport_recv_listen(), so the invariant holds from there on. Is
-the split intentional, or should the helper land with its users?
-
-> +/* Reset every connected socket of @t that can no longer reach the g2h device,
-> + * and let the transport tell each peer.
-> + */
-> +static void vsock_g2h_reset_unreachable(const struct vsock_transport *t)
-> +{
-
-[ ... ]
-
-> +			if (vsk->transport != t ||
-> +			    sk->sk_state == TCP_CLOSE ||
-> +			    vsock_g2h_reachable_sk(vsk))
-> +				continue;
-> +
-> +			sk->sk_state = TCP_CLOSE;
-> +			sk->sk_err = ECONNRESET;
-> +			sk_error_report(sk);
-> +
-> +			sock_hold(sk);
-> +			list_add_tail(&vsk->pending_reset, &reset_list);
-> +		}
-> +	}
-> +
-> +	spin_unlock_bh(&vsock_table_lock);
-
-[Severity: High]
-
-The sweep marks the socket TCP_CLOSE with ECONNRESET but leaves it linked
-in vsock_connected_table and keeps vsk->transport assigned. Can that
-socket then be inserted into the table a second time?
-
-A connector blocked in vsock_connect() wakes up, leaves the wait loop and
-runs:
+The sk_error_report() above wakes a blocking connect(), which then runs:
 
 net/vmw_vsock/af_vsock.c:vsock_connect() {
-	...
 	err = sock_error(sk);
 	if (err) {
 		sk->sk_state = TCP_CLOSE;
 		sock->state = SS_UNCONNECTED;
 	}
+}
+
+and returns -ECONNRESET.  If userspace retries connect() immediately, the
+
+	memcpy(&vsk->remote_addr, remote_addr,
+	       sizeof(vsk->remote_addr));
+
+in vsock_connect() runs before vsock_assign_transport() blocks on
+vsock_register_mutex, so it is not serialized against the sweep that is
+still walking reset_list.
+
+Can the sweep then read the freshly overwritten remote_addr and send the
+RST to the new destination, so the actual peer of the connection that was
+just torn down never gets a reset and waits for a timeout instead?
+
+>  
+>  		.notify_poll_in           = virtio_transport_notify_poll_in,
+>  		.notify_poll_out          = virtio_transport_notify_poll_out,
+
+[ ... ]
+
+> @@ -633,7 +635,11 @@ static void virtio_transport_rx_work(struct work_struct *work)
+>  {
+>  	struct virtio_vsock *vsock =
+>  		container_of(work, struct virtio_vsock, rx_work);
+> +	struct virtio_transport *t = &virtio_transport;
+>  	struct virtqueue *vq;
+> +	struct net *net;
+> +
+> +	net = vsock_g2h_net_get();
+>  
+>  	mutex_lock(&vsock->rx_lock);
+>  
+> @@ -682,10 +688,14 @@ static void virtio_transport_rx_work(struct work_struct *work)
+>  
+>  			virtio_transport_deliver_tap_pkt(skb);
+>  
+> -			/* Force virtio-transport into global mode since it
+> -			 * does not yet support local-mode namespacing.
+> -			 */
+> -			virtio_transport_recv_pkt(&virtio_transport, skb, NULL);
+> +			/* The virtio send path does not use @net. */
+> +			if (unlikely(!net)) {
+> +				virtio_transport_reset_no_sock(t, skb, NULL);
+> +				kfree_skb(skb);
+> +				continue;
+> +			}
+> +
+> +			virtio_transport_recv_pkt(t, skb, net);
+
+[Severity: Medium]
+
+The namespace is sampled once per work invocation and then pinned with a
+hard reference for the whole drain loop:
+
+	net = vsock_g2h_net_get();
+	...
+	do {
+		...
+			virtio_transport_recv_pkt(t, skb, net);
+	} while (!virtqueue_enable_cb(vq));
+
+Meanwhile the assign path publishes the new namespace and then sweeps the
+connected table:
+
+net/vmw_vsock/af_vsock.c:vsock_g2h_net_assign() {
+	...
+	rcu_assign_pointer(vsock_g2h_net, net);
+	vsock_g2h_reset_unreachable(transport_g2h);
 	...
 }
 
-so connect() is retryable while the socket is still a member of the
-connected table. On the retry vsock_assign_transport() takes the shortcut:
+As soon as the new pointer is published, a connect() from the newly
+assigned namespace is permitted, because vsock_assign_transport() consults
+vsock_g2h_net_reachable() which already reads it.  If the host RESPONSE for
+that connection is drained by the batch still holding the previous
+namespace, vsock_find_connected_socket_net(&src, &dst, net) does not find
+the socket (vsock_net_check_mode() of the local-mode new net against the
+old net is false), so virtio_transport_recv_pkt() falls into
 
-	if (vsk->transport && vsk->transport == new_transport) {
-		ret = 0;
-		goto err;
-	}
+	(void)virtio_transport_reset_no_sock(t, skb, net);
 
-which skips vsk->transport->release() and vsock_deassign_transport(), so
-vsock_remove_connected() is never reached. When the handshake completes
-again, virtio_transport_recv_connecting() reaches:
+and the just-established connection is reset.  Is that acceptable for the
+remainder of an in-flight batch, or should the namespace be re-read per
+packet?
 
-net/vmw_vsock/af_vsock.c:__vsock_insert_connected() {
-	sock_hold(&vsk->sk);
-	list_add(&vsk->connected_table, list);
-}
+In the other direction, between the rcu_assign_pointer() above and the
+per-socket store in vsock_g2h_reset_unreachable():
 
-on a node that is already linked. Does this corrupt the connected hash
-bucket and leak the extra sock_hold()? A self-referential bucket would
-make later list_for_each_entry() walks under vsock_table_lock, including
-this sweep, vsock_find_connected_socket() and
-vsock_for_each_connected_socket(), never terminate, and with
-CONFIG_DEBUG_LIST the second list_add() trips the corruption check.
+		sk->sk_state = TCP_CLOSE;
+		sk->sk_err = ECONNRESET;
 
-Reaching the reachable-again state does not need a second netlink call:
-vsock_g2h_net_reset() moves the device back to init_net when the assigned
-namespace is deleted.
+can the in-flight batch still resolve packets against the old namespace and
+deliver payload plus credit updates into sockets that the device no longer
+belongs to?
 
-Should the sweep also call vsock_remove_connected() on the sockets it
-resets, or otherwise deassign the transport, so a retry cannot re-insert
-an already linked node?
+The commit message describes the batch granularity only for the dying
+namespace case:
+
+  "received packets are reset until a new valid namespace has been assigned
+   and/or automatically returned to, and the next RX batch begins"
+
+Should it also describe what happens to packets of the newly assigned
+namespace while an older batch is still draining?
+
+>  		}
+>  	} while (!virtqueue_enable_cb(vq));
+>  
+
+[ ... ]
+
+> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+> index f225f53ed4bab..c24049b2a3866 100644
+> --- a/net/vmw_vsock/virtio_transport_common.c
+> +++ b/net/vmw_vsock/virtio_transport_common.c
+
+[ ... ]
+
+> @@ -1315,8 +1315,8 @@ static int virtio_transport_reset(struct vsock_sock *vsk,
+>   * loopback, this is the namespace of the socket. For vhost, this is the
+>   * namespace of the VM (i.e., vhost_vsock).
+>   */
+> -static int virtio_transport_reset_no_sock(const struct virtio_transport *t,
+> -					  struct sk_buff *skb, struct net *net)
+> +int virtio_transport_reset_no_sock(const struct virtio_transport *t,
+> +				   struct sk_buff *skb, struct net *net)
+
+[Severity: Low]
+
+This isn't a bug, but the comment above still enumerates only the loopback
+and vhost meanings of @net, while the helper is now exported via
+include/linux/virtio_vsock.h and the new caller in
+virtio_transport_rx_work() passes NULL.  Whether NULL is fine depends on
+the ->send_pkt behind @t: virtio_transport_send_pkt() ignores @net, and
+vhost_transport_send_pkt() passes it to vhost_vsock_get() ->
+vsock_net_check_mode(), which treats NULL as VSOCK_NET_MODE_GLOBAL.  Could
+the comment be extended to say that NULL is permitted and what it means?
+
+>  {
+>  	struct virtio_vsock_hdr *hdr = virtio_vsock_hdr(skb);
+>  	struct virtio_vsock_pkt_info info = {
+> @@ -1355,6 +1355,7 @@ static int virtio_transport_reset_no_sock(const struct virtio_transport *t,
+>  
+>  	return t->send_pkt(reply, net);
+>  }
+> +EXPORT_SYMBOL_GPL(virtio_transport_reset_no_sock);
 
 [ ... ]
 
