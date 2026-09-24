@@ -1,183 +1,120 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.3])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14AA9457E63
-	for <virtualization@lists.linux.dev>; Thu, 24 Sep 2026 10:17:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7474C175A6B
+	for <virtualization@lists.linux.dev>; Thu, 24 Sep 2026 12:38:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.3
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790245047; cv=none; b=Qxf7ueL7GCZ5HJdDpFGTgJK+sLLcXCdH477nH+Y636Mcd11zcWXQqMHtEK8C7GlPCr086+mNcK2oegPm2xaaTaORpMYm8aFoaf5xYAFt5rkMiDjzyBM1r6VbZzCfo8lY0e3HXEt0csobkQmR3spbEDPBvZPKc3Bnfdz6tXBQTJY=
+	t=1790253493; cv=none; b=JdCAvlgNgmduP8Ryh043OT4ikCTsdeLrBqGU8B5M37QbrYEk7tOuH8BcXbnKwD99FjePO6kYE7Hc86LqSso3weFRRYOCIvGqi69IdBbED4g4ZH4dsBQHLQTnJBjaMKCcHAYNWpLpQ8jNV2xs0bXNFdRbAG2VHjQMuP8F2GJdarM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790245047; c=relaxed/simple;
-	bh=OLQtN8/9/Nf4flz3Kt2BUy4OlOf9PndZym7N2lg6lbA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=LCOe7xikQ26JsbtD/4BWrmyGDwbMQ06SOulvyBgWt7cKhdPvJXVI1PDKVqTRieoxychhjyd2QfZ17lAg57PvLrkSsXTL1pexIGxMiZnOIBXeWRTdLVGlUTKQkw+VHvS37FNnRh5j0bPh3vX3Kp+5H5BRxiiFfQLlVy66azBGki8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=a62eB1VJ; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1790253493; c=relaxed/simple;
+	bh=Hcm2V1FjfCdS2q8ffU+druoMGH34tBS3gHs1f06JO0M=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=cBiFo2NazTYjj9FTyNyLP5qJWEk0pBmQ5M4eSrzVAUda1Hwkz40wveKS2WW0dioNBzF+eAlQnJPrdahbjePLUJeQJCIdxA6LNeL/RqPBpqK41opw+8TFGvQ1eTzJZNj7pSa1qq6nIH/xKafk+Sl7c0uoPRaD+MlEHRE199rK5LU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=WLezWYFL; arc=none smtp.client-ip=117.135.210.3
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="a62eB1VJ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1790245034;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=H6EUUW1m1zoaB7DVxqcfClkBe+yQHGLp6gBbcFMHwFk=;
-	b=a62eB1VJw75EktJS75+2xdXvr1XdUTzZGANOZ6VNC2K0i37XkEM8udyTyctf9fc+AKAPln
-	XW0baWTvX4xpvYoXgo98WNM1uDEe0X2xP1nFeFFKflB0F6mEu+k2nNaPuqaICwupl8noAZ
-	Y1Tvd58bMrb1sEWfEUbSeZJfgEJEcD4=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-645-qoEADte2P1K244txsGbEQg-1; Thu, 24 Sep 2026 06:17:12 -0400
-X-MC-Unique: qoEADte2P1K244txsGbEQg-1
-X-Mimecast-MFC-AGG-ID: qoEADte2P1K244txsGbEQg_1790245032
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-486f768517dso1453347f8f.1
-        for <virtualization@lists.linux.dev>; Thu, 24 Sep 2026 03:17:12 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790245031; x=1790849831;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=H6EUUW1m1zoaB7DVxqcfClkBe+yQHGLp6gBbcFMHwFk=;
-        b=esavTt31EwkOUq7NCeSmlZkFL2AjWQVTr3sBX4/VVTB+zDVKZMk4Md42eBeCW9x3Wo
-         Egotsz9ZwJ/puMIudeGq1pZrBFh5yXHZiDZlgRbVNwQjs8V2UgudyAZfHOhsRJ9bJxmD
-         Sg4FCzYwa8P5vfZT3KUpdlsBNIcJMZDEAKhOCvvouVRtgWUkZCcDKYQs2j/dxrnPCyTN
-         5Tw8T0ycU/Jz29RkwzIjW9ml1wgNAeBxoWoYJyq8vJ69GIr/34QzPfPdch0OoBp2FFB2
-         CNzRpPk1MmKScxMxOwv/JUGIrBoFQsxEDGlfsQ02em8lexNPYrX+8SV4Ilu35Zwh6wA6
-         bqAA==
-X-Forwarded-Encrypted: i=1; AKwUvBymFWKWBo3cTE6YDVbcLo2AupN6yBNowjpY4Yj2l2C1/oatRr3LqwGTD7FqQ+KE/9CvNvCbWx3AFIL0ZSK5Mw==@lists.linux.dev
-X-Gm-Message-State: AFuF++mtoqxEFj8f0mduL1Tqy0/w5GccxD1GnlorZ3lWEw0Gj0uZ3Fd7
-	AcvDNcnCkAhd6y0iKCteaYTaCvRezJOYF4rjRgYC9dHsf07zsj/UCqWQrPskiQrVpv3PZHpuqyV
-	/oNDYijTlLMKBHSpAd8HWVLBEzTBA5exof4arLOTDl9aAnhdFI6KXxOlVEadMEiZ/RMl3
-X-Gm-Gg: AYBFou0SXCICMfdZXoqCJ2q/VXsigLNFgyTq7178HNij5RJCWAijZf3lEjdAEnximzk
-	bNkRn2jGxNiGf2rA6CnJogCRKURU0Ym18RcooJcy0LnofbDlO34c6aXUjTpSKEGfaloAid7+AOK
-	k+w7qsGTqWKOaXTzyEvFgRZjbXmYgAbJAS5Vs8VfxQ7LBvehctJeeusrG4Eo2BkLq5G9OljpaMU
-	G966ubB+bFRhcjC0U+Yteat4//eUP/tqmH3kAsO+2VFEG/nZYGR24RCG4INx+IpvYX0myc5B/B1
-	esMpkL7O0osRT9PVbdNT0YHASMsk/zENe534TB11yVXXiTIVMUku1rkgqFb/rjeSNPXw8gyzrwI
-	nDPwu58XzpPaHRlQwWNS3YwVgCoziMldqvfEgKFSeDNOrzmsKVgQ=
-X-Received: by 2002:a5d:5e93:0:b0:487:27f9:82a with SMTP id ffacd0b85a97d-488716f74b7mr3255268f8f.31.1790245031504;
-        Thu, 24 Sep 2026 03:17:11 -0700 (PDT)
-X-Received: by 2002:a5d:5e93:0:b0:487:27f9:82a with SMTP id ffacd0b85a97d-488716f74b7mr3255203f8f.31.1790245030920;
-        Thu, 24 Sep 2026 03:17:10 -0700 (PDT)
-Received: from sgarzare-redhat (host-82-53-134-131.retail.telecomitalia.it. [82.53.134.131])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-488684863d9sm13714443f8f.12.2026.09.24.03.17.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 24 Sep 2026 03:17:10 -0700 (PDT)
-Date: Thu, 24 Sep 2026 12:17:04 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Michal Luczaj <mhal@rbox.co>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, "David S. Miller" <davem@davemloft.net>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Asias He <asias@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net v2 3/5] vsock: Enforce no-transport invariant for
- TCP_LISTEN sockets
-Message-ID: <arT3jXoS7OaU6Tsc@sgarzare-redhat>
-References: <20260915-vsock-connect-reset-closing-v2-0-a1d9abb472f7@rbox.co>
- <20260915-vsock-connect-reset-closing-v2-3-a1d9abb472f7@rbox.co>
- <aqp7CV9DnfsG1GJc@sgarzare-redhat>
- <0bc40e5c-8790-4a36-84bc-80e0bfe6b504@rbox.co>
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="WLezWYFL"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=PE
+	PnVVexH+hFXfSPkcaX+kZ98oVF8UZaUHBxwCAYz/I=; b=WLezWYFL5Ag+IBoTaE
+	mIIAveOeVxAYekHqcmfWs3ZhrUacI41HOo5CmMz+6E+h6luX+7Ig4uT5Qd5RLPfv
+	uKCQwOpufHtQi610oCg4Eyi4Tfs7NMmaRqBFWwEqz0PIqafmjOxv/YoMgSdUX1qx
+	yvNi7Cnnf+4oHHrHaHIC6ITrE=
+Received: from pc.localdomain (unknown [])
+	by gzsmtp5 (Coremail) with SMTP id QCgvCgAXhnqMGbVqI5arBA--.27527S2;
+	Thu, 24 Sep 2026 20:37:34 +0800 (CST)
+From: Jiale Yao <yaojiale02@163.com>
+To: Dave Airlie <airlied@redhat.com>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	David Airlie <airlied@gmail.com>,
+	Simona Vetter <simona@ffwll.ch>,
+	=?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
+	virtualization@lists.linux.dev,
+	spice-devel@lists.freedesktop.org,
+	dri-devel@lists.freedesktop.org,
+	linux-kernel@vger.kernel.org
+Cc: Jiale Yao <yaojiale02@163.com>,
+	stable@vger.kernel.org
+Subject: [PATCH] drm/qxl: validate client monitor index before access
+Date: Thu, 24 Sep 2026 20:37:30 +0800
+Message-Id: <20260924123731.803007-1-yaojiale02@163.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <0bc40e5c-8790-4a36-84bc-80e0bfe6b504@rbox.co>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: rsOc4BTr9wHNQFdu0B9t23XBo_v9eaA1pGEwUy2120E_1790245032
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:QCgvCgAXhnqMGbVqI5arBA--.27527S2
+X-Coremail-Antispam: 1Uf129KBjvJXoWxZr4ktrWkXw4xGF4xtw4Dtwb_yoW5Gw4rpr
+	Z8tFy5Kr1kJFyaya1DAa4xWF4rC34qyFWI934fG3WavFyqkrWYyFyDtrn8uF9xJF98AF18
+	uw1FgFZFvF1DCF7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0piAwIDUUUUU=
+X-CM-SenderInfo: x1dryxhdohiji6rwjhhfrp/xtbC8A5xq2q1GY5e-QAA3P
 
-On Tue, Sep 22, 2026 at 03:18:13PM +0200, Michal Luczaj wrote:
->On 9/16/26 14:30, Stefano Garzarella wrote:
->> On Tue, Sep 15, 2026 at 03:15:14PM +0200, Michal Luczaj wrote:
->>> A non-blocking connect() running in parallel with a blocking connect(),
->>> combined with a racy listen() that hits right after a connect timeout:
->>> TCP_SYN_SENT -> TCP_CLOSE -> TCP_LISTEN, while the connect() loop is still
->>> in progress.
->>>
->>> Enforce the invariant. Prevent a socket from becoming a listener after
->>> acquiring a transport.
->>
->> We should improve this comment; it's not entirely clear to me, TBH.
->
->The race I was thinking about:
->
->sk is CLOSE UNCONNECTED
->non-blocking connect():
->  sk := SYN_SENT CONNECTING
->  enqueue vsock_connect_timeout()
->                                   blocking connect():
->                                     release_sock()
->                                     schedule_timeout()
->vsock_connect_timeout():
->  sk := CLOSE UNCONNECTED
->listen():
->  sk := LISTEN UNCONNECTED
->                                     lock_sock()
->                                     sk is TCP_LISTEN UNCONNECTED
->
->It's not really critical (blocking connect() just timeouts), but I thought
->the invariant should be enforced once and for all.
+client_monitors_config is allocated with space for count heads, while QXL
+creates qxl_num_crtc outputs whose indexes range from zero to
+qxl_num_crtc - 1.  The monitor count may be smaller than qxl_num_crtc, but
+qxl_update_offset_props() and qxl_conn_get_modes() use the output index to
+access heads[] without checking it against count.
 
-I see, would it better to do this change in net-next?
+Starting QEMU with "-device qxl-vga,xres=1024,yres=768" provides one
+client monitor while the driver creates four outputs by default.  KASAN
+reported the first out-of-bounds access during probe, with
+qxl_update_offset_props() inlined into its caller:
 
->
->>> @@ -1973,13 +1973,13 @@ static int vsock_listen(struct socket *sock, int backlog)
->>> 		goto out;
->>> 	}
->>>
->>> -	if (sock->state != SS_UNCONNECTED) {
->>> +	vsk = vsock_sk(sk);
->>> +
->>> +	if (sock->state != SS_UNCONNECTED || vsk->transport) {
->>
->> Are we changing the behavior when an error occurs?
->>
->> If we call `connect()` on a socket (with no others running in parallel),
->> it fails, and then when we call `listen()`, it now fails, whereas before
->> it didn't. Can this happen? Is that what we want?
->
->Ah, true, I didn't consider that. So yeah, we'd changing the behaviour.
->
->> If so, we should mention it at least in the commit description; if not,
->> perhaps we should unassign the transport in the `connect` call.
->
->Do you mean immediately un-assign on every transition from SYN_SENT to
->CLOSE (failure, timeout, signal)? Then we could also drop the re-assign
->logic. I think that's a nice idea.
+  BUG: KASAN: slab-out-of-bounds in
+  qxl_display_read_client_monitors_config+0x2379/0x2e30
+  Read of size 4 at addr ffff88810403e170 by task swapper/0/1
+  Call Trace:
+   qxl_display_read_client_monitors_config+0x2379/0x2e30
+   qxl_modeset_init+0x6a6/0x7b0
+   qxl_pci_probe+0x150/0x2d0
 
-yeah, that!
+The same configuration reaches the unchecked access in
+qxl_conn_get_modes() when userspace enumerates connectors.
 
->
->---
->
->I've addressed all your other comments for v2 and went through Ashiko's
->reports (side effects of lockless peer_shutdown write, imperfect
->no-transport TCP_LISTENER enforcement). I've decided to try the
->eager-unassign approach. I think/hope this way we sidestep the lockless
->writes and enforce the invariant without breaking the API, while fixing the
->bugs.
->
->This should probably be RFC, but I'm posting as v3[1] so netdev's LLM can
->have a go (too). Hope I'm not breaking any workflow. Let me know what you
->think.
+Skip offset updates for outputs that have no corresponding client head,
+and retain the default preferred mode dimensions in qxl_conn_get_modes()
+when its output index is outside the client head array.
 
-I think you can add RFC also on a v3 patch, just to make it clear you 
-are not sure it's ready to be merged.
+Fixes: 7dea0941f880 ("drm/qxl: use suggested x/y offset properties to pass guest prefs")
+Fixes: 1b043677d4be ("drm/qxl: add qxl_add_mode helper function")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jiale Yao <yaojiale02@163.com>
+---
+ drivers/gpu/drm/qxl/qxl_display.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-That said, thanks for that :-) I'll take a look today or next week 
-because I'm off tomorrow.
-
-I'm just worried it's becoming too big for net. Anyway, I'll comment 
-there.
-
-Thanks,
-Stefano
+diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
+index 0719fc6a52d5..25f786ab7f1b 100644
+--- a/drivers/gpu/drm/qxl/qxl_display.c
++++ b/drivers/gpu/drm/qxl/qxl_display.c
+@@ -158,6 +158,9 @@ static void qxl_update_offset_props(struct qxl_device *qdev)
+ 	list_for_each_entry(connector, &dev->mode_config.connector_list, head) {
+ 		output = drm_connector_to_qxl_output(connector);
+ 
++		if (output->index >= qdev->client_monitors_config->count)
++			continue;
++
+ 		head = &qdev->client_monitors_config->heads[output->index];
+ 
+ 		drm_object_property_set_value(&connector->base,
+@@ -1056,7 +1059,8 @@ static int qxl_conn_get_modes(struct drm_connector *connector)
+ 	unsigned int pheight = 768;
+ 	int ret = 0;
+ 
+-	if (qdev->client_monitors_config) {
++	if (qdev->client_monitors_config &&
++	    output->index < qdev->client_monitors_config->count) {
+ 		struct qxl_head *head;
+ 		head = &qdev->client_monitors_config->heads[output->index];
+ 		if (head->width)
+-- 
+2.34.1
 
