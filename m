@@ -1,32 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8766648096F;
-	Thu, 24 Sep 2026 13:15:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2005B4854F2;
+	Thu, 24 Sep 2026 13:15:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790255709; cv=none; b=NfMViS/X/ghiW+k4A1gsBg/N5VrKKYb+m7KO5szfoQDSL+IHcS6wK+00yRQUYiQ/Xud6z3hgcbFZTLIetDk72ojnNb64l3CvQfjSCBjBkD4YhrqabotNh/gJgR8lj1dJFPCC8vkVrnEiVu4j6maYNOc8J2QTosGKvipr/J03sSU=
+	t=1790255711; cv=none; b=e67NJ3VS3opkspvTx/gDG7ZKS0f7zHvm8hQUqUzYejjDQHIRv5VpUbEtCKQoJIJoUoacnab8gj4y5dwQQ+GzPbso/3eTXRFjHCqH1NGXPOdBoDXicTmgivyn1jiFhiGBjH6/lJA+h9vIxygAWFlRv1wQuBilWdy5qGgy43tATRM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790255709; c=relaxed/simple;
-	bh=oqoB2lrXibWoRaZlOMGU+9FJXSMPqmM6IgKONybd2HI=;
+	s=arc-20240116; t=1790255711; c=relaxed/simple;
+	bh=kxG5drWNI1YkqfoR+fQYyOx2/eVcHAFM//dXBmkX/bg=;
 	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=QkZ8Qk911HG1prmq3uJJqMV+19l6G85lYXlR6Jn+dSRJilxCwoDh74Xd5tg5xpcC3TWV5fhkHcGlql/vNmEIaX4G+c0SA5S/TEf5dNq8fREzLavqbSqEBeFYv8G09/DYCoqRjiPzvHr26QUOrlOalrHsWD3cjHitsStoaHQwcSw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MZByoMuO; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:MIME-Version; b=CxJSb7840pkTHhc4Y5WHARYxxd3UFqcFQo0bPBBD7FRB2ZysHBnBLgCD99CCGdwQiHF3ckiLLzDQiDh3He7U6mBXh9Bsfq/vo/qfKWshBR36QRq9++pY7zzxPyrZadWiCislq9YBayTFqw1uBu1qNIr4dz+Du++8cuZo6ihI0lM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Y4oUvOuD; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MZByoMuO"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41F4C1F000FF;
-	Thu, 24 Sep 2026 13:15:06 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Y4oUvOuD"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B551B1F00893;
+	Thu, 24 Sep 2026 13:15:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790255707;
-	bh=h5DHjDtJA0Z9XkY1ugtFj02RoadRwZe5IvVliuif+Fc=;
+	s=k20260515; t=1790255708;
+	bh=zfcxlp81RZQ0P3BS23/W58Ta2s6bNUUwTVV2DPii4F8=;
 	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=MZByoMuO/lsk239DluCY1FfHk7j5utvwe58ogf+cAtx4tQaSk54+FRIzto1SKbPCE
-	 kjvaAdChJcuVRF3Q0MKCDfRkul1UhBq9Gnt7jicfnNF+szlDKxNxUoc/U1J0NeOak6
-	 iu7FRxqA+tREeWGOqDaLwHtnW53BEe2nkfUS7W1wvnfjoOa7FffePiq4aVlRRwmNZy
-	 3/gCyiENSl96wSzSoo3D/7HKlhQHoYebT9VllpQVf/wG/adgkmzzyo3FU5XnMr6rne
-	 E+0v5zg3RS40tlGUIv9fDbxrmIpsHwnyuxzHqbQTkW1PYg31GFBokD/JMY8UuslBsF
-	 N9PnwpGUt43KQ==
-Subject: Re: [PATCH net v3 5/8] vsock: treat TCP_CLOSING as once-established
+	b=Y4oUvOuDwOd+ZYsjYakukFb4tNH+G0x3AVqtOGfQssIfeUA/gDc/nnLamDIQMj3ZQ
+	 RUizSw+5nwmBrE529kDcZwpcviM4ADSs0tiWkdhIDyaubg1ID5ONkeZjbu9ZCLo5zF
+	 4BIQ9xLO2wn12ABQQyPgsg3JkvT5yJk/Z7XKDmRQkEZXp0r6sq2hYBFL+2p3O/ZGOF
+	 /am3/uhcDAdYy4J4nj3208nkSYqmrJFUoH3mkvPoGmmke8hlzVbfB7doQ2CPwSsTWu
+	 GWOp4n2sQ9d7sWRNqnWUmyLFLycZB4++SKJl4asilTM1cd+zdM+5f4RwqtArruSTuT
+	 oR3bNK2/kMTEQ==
+Subject:
+ Re: [PATCH net v3 6/8] vsock: handle socket bricking due to transport event
 From: netdev-bot+sashiko@kernel.org
 To: mhal@rbox.co
 Cc: stefanha@redhat.com, sgarzare@redhat.com, mst@redhat.com,
@@ -35,10 +36,10 @@ Cc: stefanha@redhat.com, sgarzare@redhat.com, mst@redhat.com,
  pabeni@redhat.com, horms@kernel.org, kvm@vger.kernel.org,
  virtualization@lists.linux.dev, netdev@vger.kernel.org,
  linux-kernel@vger.kernel.org, imv4bel@gmail.com
-Date: Thu, 24 Sep 2026 13:15:05 +0000
-Message-ID: <179025570581.2160803.6664724141686428896@kernel.org>
-In-Reply-To: <20260922-vsock-connect-reset-closing-v3-5-78907b8200d4@rbox.co>
-References: <20260922-vsock-connect-reset-closing-v3-5-78907b8200d4@rbox.co>
+Date: Thu, 24 Sep 2026 13:15:07 +0000
+Message-ID: <179025570732.2160803.4275584152310711154@kernel.org>
+In-Reply-To: <20260922-vsock-connect-reset-closing-v3-6-78907b8200d4@rbox.co>
+References: <20260922-vsock-connect-reset-closing-v3-6-78907b8200d4@rbox.co>
 X-sashiko-severity: High
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
@@ -52,7 +53,7 @@ MIME-Version: 1.0
 Thank you for your contribution! Sashiko AI review found 2 potential
 issue(s) to consider.
 
-Critical: 0 · High: 1 · Medium: 0 · Low: 1
+Critical: 0 · High: 2 · Medium: 0 · Low: 0
 
 If you believe none of the issues are legitimate, please reply to each
 issue of Medium severity or higher and explain why the AI is wrong.
@@ -60,152 +61,164 @@ If any of them are legitimate and you plan to respin, please let patchwork
 know by including "pw-bot: cr" as a separate line at the end of your reply
 (one such reply per series is enough).
 
-- [High] The failed-connect cleanup at the out_reset label of
-  vsock_connect() (net/vmw_vsock/af_vsock.c:1883-1884), which this patch…
-- [Low] Concern (validated as NOT a defect to report against this
-  series): the new short-circuit in vsock_connect() enumerates only…
+- [High] Over-broad new guard in vsock_unconnected_reset(): the early
+  return also fires for sockets that were never established.
+- [High] Incomplete race guard: vmci_transport_handle_detach() can brick
+  a socket that is still TCP_SYN_SENT / SS_CONNECTING, which the new…
 
 --
 
-vsock: treat TCP_CLOSING as once-established
+vsock: handle socket bricking due to transport event
 
-The patch makes blocking connect() stop treating a socket that already
-reached TCP_ESTABLISHED and then moved to TCP_CLOSING (or picked up an
-sk_err) as a failed connection attempt, returning 0 instead. It also makes
-the out_reset cleanup call vsock_unconnected_reset() unconditionally rather
-than only when err is non-zero.
-
-Link: https://lore.kernel.org/netdev/anzT1fREOSyHT99k@v4bel/
+Transport events reset connected sockets to TCP_CLOSE without holding
+lock_sock(), so connect() can observe the reset concurrently.  This patch
+makes vsock_unconnected_reset() bail out early when the socket-level state
+is SS_CONNECTED or SS_DISCONNECTING, on the premise that transport events
+leave SS_CONNECTED unchanged.
 
 > diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> index 5cecd1c9c6e50..ff4140aaf1f32 100644
+> index ff4140aaf1f32..5a2d7e10ecb88 100644
 > --- a/net/vmw_vsock/af_vsock.c
 > +++ b/net/vmw_vsock/af_vsock.c
-> @@ -1846,15 +1846,19 @@ static int vsock_connect(struct socket *sock, struct sockaddr_unsized *addr,
->  		timeout = schedule_timeout(timeout);
->  		lock_sock(sk);
+> @@ -1663,6 +1663,19 @@ static void vsock_unconnected_reset(struct sock *sk)
 >  
-> -		/* Connection established. Whatever happens to socket once we
-> -		 * release it, that's not connect()'s concern. No need to go
-> +		/* Connection was established. Whatever happens to socket once
-> +		 * we release it, that's not connect()'s concern. No need to go
->  		 * into signal and timeout handling. Call it a day.
->  		 *
->  		 * Note that allowing to "reset" an already established socket
->  		 * here is racy and insecure.
->  		 */
-> -		if (sk->sk_state == TCP_ESTABLISHED)
-> -			break;
-> +		if (sk->sk_state == TCP_ESTABLISHED ||
-> +		    sk->sk_state == TCP_CLOSING) {
-> +			err = 0;
-> +			finish_wait(sk_sleep(sk), &wait);
-> +			goto out;
-> +		}
-
-[Severity: Low]
-This isn't a bug, but the new short circuit lists only TCP_ESTABLISHED and
-TCP_CLOSING as "once established", while an established socket can also be
-taken straight to TCP_CLOSE by a transport event while connect() is
-scheduled out:
-
-net/vmw_vsock/vmci_transport.c:vmci_transport_handle_detach() {
-	...
-			sk->sk_state = TCP_CLOSE;
-		}
-		sk->sk_state_change(sk);
-}
-
-net/vmw_vsock/virtio_transport.c:virtio_vsock_reset_sock() {
-	sk->sk_state = TCP_CLOSE;
-	sk->sk_err = ECONNRESET;
-	sk_error_report(sk);
-}
-
-Those sockets were established as well, but they miss this check, so
-connect() still returns -ECONNRESET or -ETIMEDOUT for them.
-
-The cleanup side of that case is covered by the follow-up patch in this
-series, "vsock: handle socket bricking due to transport event", which adds
-an early return to vsock_unconnected_reset() for sock->state ==
-SS_CONNECTED or SS_DISCONNECTING, and neither of the two transport paths
-above modifies sk->sk_socket->state.
-
-Is the remaining difference in the connect() return value for the TCP_CLOSE
-case the intended behaviour?
-
+>  	sock_owned_by_me(sk);
 >  
->  		/* If connection was _not_ established and a signal/timeout came
->  		 * to be, we want the socket's state reset. We keep the binding.
-> @@ -1877,8 +1881,7 @@ static int vsock_connect(struct socket *sock, struct sockaddr_unsized *addr,
->  out_wait:
->  	finish_wait(sk_sleep(sk), &wait);
->  out_reset:
-> -	if (err)
-> -		vsock_unconnected_reset(sk);
-> +	vsock_unconnected_reset(sk);
+> +	/*
+> +	 * Transport events are serviced by resetting each connected socket to
+> +	 * TCP_CLOSE. The reset is done under vsock_table_lock but without
+> +	 * taking lock_sock(), so it is effectively lockless from the
+> +	 * perspective of connect().
+> +	 *
+> +	 * Preserve socket's bricked status. Also check SS_DISCONNECTING, since
+> +	 * shutdown() may race us.
+> +	 */
+> +	if (sk->sk_socket->state == SS_CONNECTED ||
+> +	    sk->sk_socket->state == SS_DISCONNECTING)
+> +		return;
+> +
 
 [Severity: High]
-With this call now unconditional, can a VMCI detach during the handshake
-turn this cleanup into a silent no-op plus a warning backtrace?
+Can the SS_DISCONNECTING part of this test also swallow the reset for a
+socket that never established?
 
-vmci_transport_handle_detach() sets the flags before it inspects sk_state,
-and it explicitly handles the TCP_SYN_SENT case:
+vsock_shutdown() moves any socket that is not SS_UNCONNECTED to
+SS_DISCONNECTING, including one that is merely SS_CONNECTING /
+TCP_SYN_SENT:
+
+net/vmw_vsock/af_vsock.c:vsock_shutdown() {
+	...
+	if (sock->state == SS_UNCONNECTED) {
+		err = -ENOTCONN;
+		if (sock_type_connectible(sk->sk_type))
+			goto out;
+	} else {
+		sock->state = SS_DISCONNECTING;
+		err = 0;
+	}
+	...
+}
+
+For a blocking connect(), thread A sleeps in schedule_timeout() with the
+socket lock released, thread B calls shutdown(fd, SHUT_RD).  sk_state stays
+TCP_SYN_SENT and sk_err stays 0, so the wait loop keeps sleeping until the
+timeout or a signal, then takes out_wait -> out_reset ->
+vsock_unconnected_reset(), which now returns here because sock->state is
+SS_DISCONNECTING.
+
+For a non-blocking connect(), the same guard in vsock_connect_timeout()
+does not filter a SHUT_RD-only shutdown:
+
+net/vmw_vsock/af_vsock.c:vsock_connect_timeout() {
+	...
+	if (sk->sk_state == TCP_SYN_SENT &&
+	    (sk->sk_shutdown != SHUTDOWN_MASK)) {
+		sk->sk_err = ETIMEDOUT;
+		sk_error_report(sk);
+		vsock_unconnected_reset(sk);
+	}
+	...
+}
+
+so the worker calls the helper and the reset is swallowed there too.
+
+In both cases vsock_transport_cancel_pkt(), vsock_deassign_transport() and
+the WRITE_ONCE(sk->sk_state, TCP_CLOSE) / sk->sk_socket->state =
+SS_UNCONNECTED below are skipped, and no further timeout is armed.  Does
+that leave the socket stuck in TCP_SYN_SENT with the transport still
+assigned and the VIRTIO_VSOCK_OP_REQUEST not cancelled?
+
+A late response then still matches TCP_SYN_SENT:
+
+net/vmw_vsock/virtio_transport_common.c:virtio_transport_recv_connecting() {
+	...
+	case VIRTIO_VSOCK_OP_RESPONSE:
+		sk->sk_state = TCP_ESTABLISHED;
+		sk->sk_socket->state = SS_CONNECTED;
+		vsock_insert_connected(vsk);
+	...
+}
+
+so the connection can complete and become usable for send()/recv() after
+connect() already returned -ETIMEDOUT or -EINTR.  A retry of connect() now
+hits case SS_DISCONNECTING: err = -EINVAL, whereas before this patch the
+failure path reset the socket to TCP_CLOSE / SS_UNCONNECTED.
+
+Would an explicit flag, or a vsock_connected_table membership test, express
+the intended "socket was once established" condition better than
+sock->state?
+
+[Severity: High]
+The commit message says "But transport events leave SS_CONNECTED state
+unchanged" and lists vmci_transport_handle_detach() as one of the handlers.
+Does that hold for the VMCI detach path?
+
+vmci_transport_handle_detach() runs from vmci_transport_peer_detach_cb()
+under trans->lock plus bh_lock_sock() only, i.e. concurrently with a
+connect() that released the socket lock in schedule_timeout(), and it
+mutates a socket that is still in the handshake:
 
 net/vmw_vsock/vmci_transport.c:vmci_transport_handle_detach() {
-	...
+	if (!vmci_handle_is_invalid(vmci_trans(vsk)->qp_handle)) {
 		sock_set_flag(sk, SOCK_DONE);
-	...
 		WRITE_ONCE(vsk->peer_shutdown, SHUTDOWN_MASK);
-	...
+		...
 			if (sk->sk_state == TCP_SYN_SENT) {
 				sk->sk_state = TCP_CLOSE;
 				sk->sk_err = ECONNRESET;
-				sk_error_report(sk);
-				return;
-			}
+	...
 }
 
-The valid qp_handle that this path requires is already installed while the
-client socket is still TCP_SYN_SENT, by
-vmci_transport_recv_connecting_client_negotiate(), which also subscribes
-detach_sub_id; TCP_ESTABLISHED is only set later on ATTACH. The detach
-callback runs under bh_lock_sock() while blocking connect() has dropped the
-socket lock in release_sock()/schedule_timeout().
+A client socket already owns a valid qp_handle while still TCP_SYN_SENT,
+because vmci_transport_recv_connecting_client_negotiate() publishes
+vmci_trans(vsk)->qp_handle and detach_sub_id before ATTACH arrives;
+SS_CONNECTED is only set later in the ATTACH branch of
+vmci_transport_recv_connecting_client().
 
-The woken connect() then sees sk_state == TCP_CLOSE, so the new
-ESTABLISHED/TCP_CLOSING short circuit above does not apply, it leaves the
-loop on sk_err != 0, takes err = sock_error(sk) and reaches
-vsock_unconnected_reset(), where the first check fires and returns:
+Since the handler never touches sk->sk_socket->state, connect() left it at
+SS_CONNECTING, so the new check does not match.  connect()'s loop exits on
+sk_err != 0 and reaches out_reset -> vsock_unconnected_reset(), where the
+existing checks below fire:
 
-net/vmw_vsock/af_vsock.c:vsock_unconnected_reset() {
 	if (WARN_ON_ONCE(vsk->peer_shutdown) ||
 	    WARN_ON_ONCE(sock_flag(sk, SOCK_DONE)) ||
 	    WARN_ON_ONCE(sk->sk_state != TCP_SYN_SENT &&
 			 sk->sk_state != TCP_CLOSE))
 		return;
-	...
-}
 
-That skips vsock_transport_cancel_pkt(), vsock_deassign_transport(), the
-WRITE_ONCE(sk->sk_state, TCP_CLOSE) and sk->sk_socket->state =
-SS_UNCONNECTED.
+Can a peer VM detaching mid-handshake therefore still produce these
+WARN_ON_ONCE() splats and still skip vsock_transport_cancel_pkt() and
+vsock_deassign_transport(), leaving the stale transport assignment the
+patch aims to avoid?
 
-Does that leave the socket with its transport still assigned and
-sock->state stuck at SS_CONNECTING, so later connect() attempts return
--EALREADY for O_NONBLOCK, or re-enter the loop, burn the full
-vsk->connect_timeout and return -ETIMEDOUT?
+This appears to be still present at the end of the series; the later commit
+6b7829ad only adds the TCP_LISTEN check.
 
-Before this series the same path simply did sk->sk_state = TCP_CLOSE;
-sock->state = SS_UNCONNECTED; with no warning, and the socket stayed
-retryable. At the end of the series the new SS_CONNECTED/SS_DISCONNECTING
-early return in vsock_unconnected_reset() does not cover this case, since
-sock->state is SS_CONNECTING here and sk_state is TCP_CLOSE, so the
-WARN_ON_ONCE(vsk->peer_shutdown) check is still the one that fires.
+>  	/*
+>  	 * Only connected socks may have peer_shutdown or SOCK_DONE set.
+>  	 *
 
->  out:
->  	release_sock(sk);
->  	return err;
+Thanks for looking into these.
 
 -- 
 Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260922-vsock-connect-reset-closing-v3-0-78907b8200d4%40rbox.co
