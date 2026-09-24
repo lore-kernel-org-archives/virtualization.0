@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E741447D938;
-	Thu, 24 Sep 2026 13:15:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8766648096F;
+	Thu, 24 Sep 2026 13:15:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790255707; cv=none; b=Sbf2Zjl95RBDPVA/MP2cV8GFR57/84dMDoZj7dGeYgTDN3TaOHDIkC4gdsL8BHcgcN8ZAze3NVTUld46vAsr9CPi2fN9iRs+3CMBaNF+ChF+n6I1XRyRs+dGp2fNX5rMbCO64qG97aZqX8nWtVdq3QsePLUkojA5mpQ6zcyCR0w=
+	t=1790255709; cv=none; b=NfMViS/X/ghiW+k4A1gsBg/N5VrKKYb+m7KO5szfoQDSL+IHcS6wK+00yRQUYiQ/Xud6z3hgcbFZTLIetDk72ojnNb64l3CvQfjSCBjBkD4YhrqabotNh/gJgR8lj1dJFPCC8vkVrnEiVu4j6maYNOc8J2QTosGKvipr/J03sSU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790255707; c=relaxed/simple;
-	bh=IVOFSzKDDnuAQJvDeDKAkHzBxHHeO9GrAPHb+jDNZB4=;
+	s=arc-20240116; t=1790255709; c=relaxed/simple;
+	bh=oqoB2lrXibWoRaZlOMGU+9FJXSMPqmM6IgKONybd2HI=;
 	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=ltXAtX4Mobkbpa/1F88ts3+a81pMOGnknvc4MlcoIFrf/XBSrmlSYRdHw1PkYTLIgPq6fICFqna7YcihoRdvDv/go6AGhdrGjB6tS2EH5GnfrI8DjKoqIULD+7ZY/0xF14cHuAiUtXyUSW3e/m70Piu4V8kpD8mDfsEPXDifB40=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lGwSPG1k; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:MIME-Version; b=QkZ8Qk911HG1prmq3uJJqMV+19l6G85lYXlR6Jn+dSRJilxCwoDh74Xd5tg5xpcC3TWV5fhkHcGlql/vNmEIaX4G+c0SA5S/TEf5dNq8fREzLavqbSqEBeFYv8G09/DYCoqRjiPzvHr26QUOrlOalrHsWD3cjHitsStoaHQwcSw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MZByoMuO; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lGwSPG1k"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5E111F00898;
-	Thu, 24 Sep 2026 13:15:04 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MZByoMuO"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41F4C1F000FF;
+	Thu, 24 Sep 2026 13:15:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790255705;
-	bh=Yv+LvmDc4+GOwovnKN15pAyNbsYBYUIHkB9gzQ0Y8JE=;
+	s=k20260515; t=1790255707;
+	bh=h5DHjDtJA0Z9XkY1ugtFj02RoadRwZe5IvVliuif+Fc=;
 	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=lGwSPG1kwOjE0VJO7W3V7NRRNfHMXYDEz9nsP0bNPZHNb7Z6kZ8a5Ly0gUKWULwx4
-	 ukCaFPC1nJx3sWX8UwA2Lo+6Aq5mTDR35k+4Yv4osQQ/loWdUBsG/HCFqL0+Nanas9
-	 248W/bgJ8WyhCYM346TrwA+M7u4F5pzGqmC2zODOH048boQPQkFER81pi46cwMpok0
-	 GggPjhA7bUxDuAJ1EnKhJoxKcfWzlzfOLzcS/Qj2fsu54QmbSXQ+lNLmcBdicnUP3Y
-	 lmoClDpgIy5B07ADocDeJzRnGw76FWcjvTsdu00W97RE3etnKgm88NCekqLF+WLn20
-	 6rcbvZwab4SfQ==
-Subject: Re: [PATCH net v3 4/8] vsock: drop the re-assignment logic
+	b=MZByoMuO/lsk239DluCY1FfHk7j5utvwe58ogf+cAtx4tQaSk54+FRIzto1SKbPCE
+	 kjvaAdChJcuVRF3Q0MKCDfRkul1UhBq9Gnt7jicfnNF+szlDKxNxUoc/U1J0NeOak6
+	 iu7FRxqA+tREeWGOqDaLwHtnW53BEe2nkfUS7W1wvnfjoOa7FffePiq4aVlRRwmNZy
+	 3/gCyiENSl96wSzSoo3D/7HKlhQHoYebT9VllpQVf/wG/adgkmzzyo3FU5XnMr6rne
+	 E+0v5zg3RS40tlGUIv9fDbxrmIpsHwnyuxzHqbQTkW1PYg31GFBokD/JMY8UuslBsF
+	 N9PnwpGUt43KQ==
+Subject: Re: [PATCH net v3 5/8] vsock: treat TCP_CLOSING as once-established
 From: netdev-bot+sashiko@kernel.org
 To: mhal@rbox.co
 Cc: stefanha@redhat.com, sgarzare@redhat.com, mst@redhat.com,
@@ -35,11 +35,11 @@ Cc: stefanha@redhat.com, sgarzare@redhat.com, mst@redhat.com,
  pabeni@redhat.com, horms@kernel.org, kvm@vger.kernel.org,
  virtualization@lists.linux.dev, netdev@vger.kernel.org,
  linux-kernel@vger.kernel.org, imv4bel@gmail.com
-Date: Thu, 24 Sep 2026 13:15:04 +0000
-Message-ID: <179025570429.2160803.6079312973703621422@kernel.org>
-In-Reply-To: <20260922-vsock-connect-reset-closing-v3-4-78907b8200d4@rbox.co>
-References: <20260922-vsock-connect-reset-closing-v3-4-78907b8200d4@rbox.co>
-X-sashiko-severity: Medium
+Date: Thu, 24 Sep 2026 13:15:05 +0000
+Message-ID: <179025570581.2160803.6664724141686428896@kernel.org>
+In-Reply-To: <20260922-vsock-connect-reset-closing-v3-5-78907b8200d4@rbox.co>
+References: <20260922-vsock-connect-reset-closing-v3-5-78907b8200d4@rbox.co>
+X-sashiko-severity: High
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -49,10 +49,10 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 
-Thank you for your contribution! Sashiko AI review found 3 potential
+Thank you for your contribution! Sashiko AI review found 2 potential
 issue(s) to consider.
 
-Critical: 0 · High: 0 · Medium: 1 · Low: 2
+Critical: 0 · High: 1 · Medium: 0 · Low: 1
 
 If you believe none of the issues are legitimate, please reply to each
 issue of Medium severity or higher and explain why the AI is wrong.
@@ -60,39 +60,123 @@ If any of them are legitimate and you plan to respin, please let patchwork
 know by including "pw-bot: cr" as a separate line at the end of your reply
 (one such reply per series is enough).
 
-- [Medium] The invariant this patch asserts ("On a failed connect(),
-  transport is de-assigned", enforced by the new…
-- [Low] Two in-tree comments still justify the SOCK_DEAD gating in
-  vsock_remove_sock() by the "transport reassignment" case, which…
-- [Low] vsock_assign_transport() gains a hard precondition (the socket
-  must have neither ->transport nor ->trans set, otherwise WARN +…
+- [High] The failed-connect cleanup at the out_reset label of
+  vsock_connect() (net/vmw_vsock/af_vsock.c:1883-1884), which this patch…
+- [Low] Concern (validated as NOT a defect to report against this
+  series): the new short-circuit in vsock_connect() enumerates only…
 
 --
 
-vsock: drop the re-assignment logic
+vsock: treat TCP_CLOSING as once-established
 
-This removes the transport re-assignment path from vsock_assign_transport()
-and replaces it with an assertion that the socket has no transport and no
-private transport state yet.  The rationale given is that a failed
-connect() de-assigns the transport and a connected socket keeps its
-transport until close().
+The patch makes blocking connect() stop treating a socket that already
+reached TCP_ESTABLISHED and then moved to TCP_CLOSING (or picked up an
+sk_err) as a failed connection attempt, returning 0 instead. It also makes
+the out_reset cleanup call vsock_unconnected_reset() unconditionally rather
+than only when err is non-zero.
+
+Link: https://lore.kernel.org/netdev/anzT1fREOSyHT99k@v4bel/
 
 > diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> index 20181ddde114f..5cecd1c9c6e50 100644
+> index 5cecd1c9c6e50..ff4140aaf1f32 100644
 > --- a/net/vmw_vsock/af_vsock.c
 > +++ b/net/vmw_vsock/af_vsock.c
-> @@ -604,6 +604,9 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
->  	__u8 remote_flags;
->  	int ret;
+> @@ -1846,15 +1846,19 @@ static int vsock_connect(struct socket *sock, struct sockaddr_unsized *addr,
+>  		timeout = schedule_timeout(timeout);
+>  		lock_sock(sk);
 >  
-> +	if (WARN_ON_ONCE(vsk->transport || vsk->trans))
-> +		return -EINVAL;
-> +
+> -		/* Connection established. Whatever happens to socket once we
+> -		 * release it, that's not connect()'s concern. No need to go
+> +		/* Connection was established. Whatever happens to socket once
+> +		 * we release it, that's not connect()'s concern. No need to go
+>  		 * into signal and timeout handling. Call it a day.
+>  		 *
+>  		 * Note that allowing to "reset" an already established socket
+>  		 * here is racy and insecure.
+>  		 */
+> -		if (sk->sk_state == TCP_ESTABLISHED)
+> -			break;
+> +		if (sk->sk_state == TCP_ESTABLISHED ||
+> +		    sk->sk_state == TCP_CLOSING) {
+> +			err = 0;
+> +			finish_wait(sk_sleep(sk), &wait);
+> +			goto out;
+> +		}
 
-[Severity: Medium]
-Is the invariant behind this assertion always true?  The commit message
-says "On a failed connect(), transport is de-assigned", but
-vsock_unconnected_reset() can return early without de-assigning:
+[Severity: Low]
+This isn't a bug, but the new short circuit lists only TCP_ESTABLISHED and
+TCP_CLOSING as "once established", while an established socket can also be
+taken straight to TCP_CLOSE by a transport event while connect() is
+scheduled out:
+
+net/vmw_vsock/vmci_transport.c:vmci_transport_handle_detach() {
+	...
+			sk->sk_state = TCP_CLOSE;
+		}
+		sk->sk_state_change(sk);
+}
+
+net/vmw_vsock/virtio_transport.c:virtio_vsock_reset_sock() {
+	sk->sk_state = TCP_CLOSE;
+	sk->sk_err = ECONNRESET;
+	sk_error_report(sk);
+}
+
+Those sockets were established as well, but they miss this check, so
+connect() still returns -ECONNRESET or -ETIMEDOUT for them.
+
+The cleanup side of that case is covered by the follow-up patch in this
+series, "vsock: handle socket bricking due to transport event", which adds
+an early return to vsock_unconnected_reset() for sock->state ==
+SS_CONNECTED or SS_DISCONNECTING, and neither of the two transport paths
+above modifies sk->sk_socket->state.
+
+Is the remaining difference in the connect() return value for the TCP_CLOSE
+case the intended behaviour?
+
+>  
+>  		/* If connection was _not_ established and a signal/timeout came
+>  		 * to be, we want the socket's state reset. We keep the binding.
+> @@ -1877,8 +1881,7 @@ static int vsock_connect(struct socket *sock, struct sockaddr_unsized *addr,
+>  out_wait:
+>  	finish_wait(sk_sleep(sk), &wait);
+>  out_reset:
+> -	if (err)
+> -		vsock_unconnected_reset(sk);
+> +	vsock_unconnected_reset(sk);
+
+[Severity: High]
+With this call now unconditional, can a VMCI detach during the handshake
+turn this cleanup into a silent no-op plus a warning backtrace?
+
+vmci_transport_handle_detach() sets the flags before it inspects sk_state,
+and it explicitly handles the TCP_SYN_SENT case:
+
+net/vmw_vsock/vmci_transport.c:vmci_transport_handle_detach() {
+	...
+		sock_set_flag(sk, SOCK_DONE);
+	...
+		WRITE_ONCE(vsk->peer_shutdown, SHUTDOWN_MASK);
+	...
+			if (sk->sk_state == TCP_SYN_SENT) {
+				sk->sk_state = TCP_CLOSE;
+				sk->sk_err = ECONNRESET;
+				sk_error_report(sk);
+				return;
+			}
+}
+
+The valid qp_handle that this path requires is already installed while the
+client socket is still TCP_SYN_SENT, by
+vmci_transport_recv_connecting_client_negotiate(), which also subscribes
+detach_sub_id; TCP_ESTABLISHED is only set later on ATTACH. The detach
+callback runs under bh_lock_sock() while blocking connect() has dropped the
+socket lock in release_sock()/schedule_timeout().
+
+The woken connect() then sees sk_state == TCP_CLOSE, so the new
+ESTABLISHED/TCP_CLOSING short circuit above does not apply, it leaves the
+loop on sk_err != 0, takes err = sock_error(sk) and reaches
+vsock_unconnected_reset(), where the first check fires and returns:
 
 net/vmw_vsock/af_vsock.c:vsock_unconnected_reset() {
 	if (WARN_ON_ONCE(vsk->peer_shutdown) ||
@@ -101,125 +185,27 @@ net/vmw_vsock/af_vsock.c:vsock_unconnected_reset() {
 			 sk->sk_state != TCP_CLOSE))
 		return;
 	...
-	vsock_deassign_transport(vsk);
-	...
 }
 
-With the VMCI transport, can a peer detach during the handshake produce
-exactly that state?  vmci_transport_recv_connecting_client_negotiate()
-subscribes the detach callback while sk_state is still TCP_SYN_SENT, and
-then:
+That skips vsock_transport_cancel_pkt(), vsock_deassign_transport(), the
+WRITE_ONCE(sk->sk_state, TCP_CLOSE) and sk->sk_socket->state =
+SS_UNCONNECTED.
 
-net/vmw_vsock/vmci_transport.c:vmci_transport_handle_detach() {
-	sock_set_flag(sk, SOCK_DONE);
+Does that leave the socket with its transport still assigned and
+sock->state stuck at SS_CONNECTING, so later connect() attempts return
+-EALREADY for O_NONBLOCK, or re-enter the loop, burn the full
+vsk->connect_timeout and return -ETIMEDOUT?
 
-	/* On a detach the peer will not be sending or receiving
-	 * anymore.
-	 */
-	WRITE_ONCE(vsk->peer_shutdown, SHUTDOWN_MASK);
-	...
-		if (sk->sk_state == TCP_SYN_SENT) {
-	...
-			sk->sk_state = TCP_CLOSE;
-			sk->sk_err = ECONNRESET;
-}
+Before this series the same path simply did sk->sk_state = TCP_CLOSE;
+sock->state = SS_UNCONNECTED; with no warning, and the socket stayed
+retryable. At the end of the series the new SS_CONNECTED/SS_DISCONNECTING
+early return in vsock_unconnected_reset() does not cover this case, since
+sock->state is SS_CONNECTING here and sk_state is TCP_CLOSE, so the
+WARN_ON_ONCE(vsk->peer_shutdown) check is still the one that fires.
 
-The blocking connect() then wakes on sk_err and takes:
-
-net/vmw_vsock/af_vsock.c:vsock_connect() {
-out_reset:
-	if (err)
-		vsock_unconnected_reset(sk);
-}
-
-so WARN_ON_ONCE(vsk->peer_shutdown) fires and the transport is never
-de-assigned, leaving sock->state at SS_CONNECTING until close().  A later
-vsock_assign_transport() on that socket would then hit the new assertion
-added here.
-
-At this commit there also seems to be a second, transport-independent way
-in: a peer RESPONSE followed by RST leaves the socket in TCP_CLOSING with
-SOCK_DONE and peer_shutdown set while connect() sleeps, and since the wait
-loop here only breaks on TCP_ESTABLISHED, a signal or the connect timeout
-routes to out_reset with err != 0 and trips the same warnings.  That second
-path looks like it is addressed later in the series by "vsock: treat
-TCP_CLOSING as once-established" and the SS_CONNECTED guard from "vsock:
-handle socket bricking due to transport event", but the VMCI detach case
-appears to survive to the end of the series.
-
-Would it make sense to make vsock_unconnected_reset() de-assign the
-transport unconditionally, or to normalize SOCK_DONE/peer_shutdown there
-before the checks?
-
-[Severity: Low]
-Could the new precondition be documented?  vsock_assign_transport() is
-EXPORT_SYMBOL_GPL'd and called by the transports
-(virtio_transport_common.c, vmci_transport.c, hyperv_transport.c), but the
-descriptive block above the function still only covers transport selection
-and the -ENODEV case:
-
-/* Assign a transport to a socket and call the .init transport callback.
- *
- * Note: for connection oriented socket this must be called when vsk->remote_addr
- * is set ...
- *  - anything else goes to h2g or returns -ENODEV if no h2g is available
- */
-
-and the declaration in include/net/af_vsock.h carries no documentation.  A
-note that the function is one-shot per socket and now returns -EINVAL if
-vsk->transport or vsk->trans is already set would help future callers.
-
-[ ... ]
-
-> @@ -668,26 +666,6 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
->  	 */
->  	mutex_unlock(&vsock_register_mutex);
->  
-> -	if (vsk->transport) {
-> -		/* transport->release() must be called with sock lock acquired.
-> -		 * This path can only be taken during vsock_connect(), where we
-> -		 * have already held the sock lock. In the other cases, this
-> -		 * function is called on a new socket which is not assigned to
-> -		 * any transport.
-> -		 */
-> -		vsk->transport->release(vsk);
-> -		vsock_deassign_transport(vsk);
-> -
-> -		/* transport's release() and destruct() can touch some socket
-> -		 * state, since we are reassigning the socket to a new transport
-> -		 * during vsock_connect(), let's reset these fields to have a
-> -		 * clean state.
-> -		 */
-> -		sock_reset_flag(sk, SOCK_DONE);
-> -		sk->sk_state = TCP_CLOSE;
-> -		WRITE_ONCE(vsk->peer_shutdown, 0);
-> -	}
-> -
-
-[Severity: Low]
-With this block gone, two comments elsewhere in the file still explain a
-load-bearing check in terms of reassignment.  Should they be updated?
-
-net/vmw_vsock/af_vsock.c:vsock_remove_sock() {
-	/* Transport reassignment must not remove the binding. */
-	if (sock_flag(sk_vsock(vsk), SOCK_DEAD))
-		vsock_remove_bound(vsk);
-}
-
-net/vmw_vsock/af_vsock.c:__vsock_release() {
-	/* Indicate to vsock_remove_sock() that the socket is being released and
-	 * can be removed from the bound_table. Unlike transport reassignment
-	 * case, where the socket must remain bound despite vsock_remove_sock()
-	 * being called from the transport release() callback.
-	 */
-	sock_set_flag(sk, SOCK_DEAD);
-}
-
-The SOCK_DEAD test itself still looks necessary, but for other callers:
-virtio_transport_recv_connected() and virtio_transport_remove_sock() on the
-RST path, and hvs_do_close_lock_held() from hvs_close_connection(), all run
-on live sockets without SOCK_DEAD set.  The reassignment reason the
-comments name no longer exists after this patch.
+>  out:
+>  	release_sock(sk);
+>  	return err;
 
 -- 
 Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260922-vsock-connect-reset-closing-v3-0-78907b8200d4%40rbox.co
