@@ -1,122 +1,108 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93AFB4CE67A;
-	Thu, 24 Sep 2026 20:28:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F41142DA3F;
+	Thu, 24 Sep 2026 21:27:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790281707; cv=none; b=HKUtTPC4FbHKj3Oaecs22UvfuGt2vHkIf+uaWytG3u6PT2bGdWPrhJg0X0dcnDO5GerAdr628egd+Gv5yiQTerv7cI0YhJpBAJrekD1ewbE4PCsXNtE7viyfPSdS54brSTSzOwTG5gtVX3s1tFKMNrURjaQ5fncX7iXn5RB2Khk=
+	t=1790285239; cv=none; b=VzDcDSrEHtVlAc1/jB/FIj64BnEXnUsT7RARqHZaZZR5lnBEo+SLdNjnWsUD/4IUYCjNQedYrDSh3oXu+Arnr0K9oAkw9HfDIMNBOo8z6489LVsg18qGdGTGtDJJWu8h131YzRfRvE4Y5zffFJjwZucSCEEaDhq82lf3543cVm8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790281707; c=relaxed/simple;
-	bh=/24pHmW0tMHYsRs5q5YjvnJhsHslqlSjqq669/OBrRM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EMB98LrnEXo8KYpL2PVrQKO3GFmVFGK0SlFlR6XiqWEVZs8K0eMRfQGQbSbqTjQbnmQpH4oQuq7CPefWb3q8nux7/O2vHv88xK0v8BgRXx8jykpbl4hsIcA8Qjr7TM+WQEBXznu1CZbrue2c+/UnkGRKktaOdP7oJc/cNWNA+Q4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FTvJKGgH; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790285239; c=relaxed/simple;
+	bh=KX6S2KAd9hBLXAzjAvyNvq9yC7dJdXKRN35HJNHvgNI=;
+	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
+	 In-Reply-To:Content-Type; b=mEE4UcXhEF5vahrnQJKiHXWZ81fJl1fyel0gV6bDc3icATBbvobhA+QuEHRuefB5lSLn6ieteTqYCWhIpyQGek9JZTn7l0PRBw6E+471TXZNkPd10iw+iaLlzmYR4wmnYzxqqphXLTURitDunc+BvnF3RlDyGz79zv79Sy6CQvU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=c23E9Zbc; arc=none smtp.client-ip=185.226.149.37
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FTvJKGgH"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C4841F00898;
-	Thu, 24 Sep 2026 20:28:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790281700;
-	bh=mj2nxfp8a8MvY9/fQ8w1l7StlrKAQ0MmfyffH1beKyk=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=FTvJKGgHpKc1cDVZOCu7HiuN7ehKD8WNhkzt8tnu/L15py9t1NimtU2IUKVpWxWH1
-	 LzU3X1/JzLxFW87j5BBHIJwb4XhDYCmKE4k7PUr0F0y0uh97ykaIZCONUXqe1bg2hg
-	 VY0inWbya2Vfy8DZlgGpv+jS5NrVB9HTEp9WqVqJUpvoYQokgmJw0HXCBj5R0W+FQn
-	 nslMY7VBsod/ptJLG77UDy0RsEQqoosyrcttmsPyofn35T6firEinQukSARKZF9DWD
-	 69QCnCEyxL0MWV8weT28VlB+FNjCvCTPoHzl0OWq1mjtAseSP60Op6SLJwxaXjwZjT
-	 PEG2DH/I0JFmQ==
-Date: Thu, 24 Sep 2026 22:28:15 +0200
-From: Andi Shyti <andi.shyti@kernel.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Yuho Choi <oss.patchbox@gmail.com>, 
-	Viresh Kumar <viresh.kumar@linaro.org>, "Chen, Jian Jun" <jian.jun.chen@intel.com>, 
-	Vincent Whitchurch <vincent.whitchurch@axis.com>, linux-i2c@vger.kernel.org, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v1] Revert "i2c: virtio: Avoid hang by using
- interruptible completion wait"
-Message-ID: <arWHzKEfy6HKMZr1@zenone.zhora.eu>
-References: <20260922050251.403857-1-oss.patchbox@gmail.com>
- <20260922011619-mutt-send-email-mst@kernel.org>
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="c23E9Zbc"
+Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
+	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	(Exim 4.93)
+	(envelope-from <mhal@rbox.co>)
+	id 1x9qy0-00A1qG-8t; Thu, 24 Sep 2026 23:26:56 +0200
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
+	s=selector1; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:References:
+	Cc:To:Subject:From:MIME-Version:Date:Message-ID;
+	bh=zv7elalyRokW/RhgmvtT+jxT3TUvW+OYbEu+/JCpeuA=; b=c23E9Zbc+3EtVBdRgZ5uoqmXv/
+	M3j98PPHxR3AfHxcxysTAtiOgY58FRFRO/qsj6+zMKiI4jScJmlcfaWytqzU5cBnyABFIbXadN5bq
+	Ru48bFxQonTjD4wWF1MerjbfjjnEOUXEKxGmcKlqrT5VRQiZAjwsW9MEFaX0Vgb8Dd73tP1ew63/w
+	A5TMziW0G94VrL8ob584QV5wJTh+BqQTWGtAp7gvnB+XxwHj1gVRTPlWf6FkWtrZPlqk1tmszsABC
+	nF5zTbXS1EggneHPP4GZYvATEfh88RNnJMgt9Tk2wkVhmlLLQZKTUjJhG9RGklejJ6qz6uIiDhjaY
+	ySfjeR8A==;
+Received: from [10.9.9.73] (helo=submission02.runbox)
+	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
+	(envelope-from <mhal@rbox.co>)
+	id 1x9qxt-0006Im-Ch; Thu, 24 Sep 2026 23:26:49 +0200
+Received: by submission02.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.95)
+	id 1x9qxe-006JSk-M8;
+	Thu, 24 Sep 2026 23:26:34 +0200
+Message-ID: <6aa976c6-f057-49a6-8ffa-08f7fc002b14@rbox.co>
+Date: Thu, 24 Sep 2026 23:26:28 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260922011619-mutt-send-email-mst@kernel.org>
+User-Agent: Mozilla Thunderbird
+From: Michal Luczaj <mhal@rbox.co>
+Subject: Re: [PATCH net v2 2/5] vsock/virtio: Streamline socket reset on
+ transport/PM event
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin"
+ <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Simon Horman <horms@kernel.org>, Asias He <asias@redhat.com>,
+ kvm@vger.kernel.org, virtualization@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20260915-vsock-connect-reset-closing-v2-0-a1d9abb472f7@rbox.co>
+ <20260915-vsock-connect-reset-closing-v2-2-a1d9abb472f7@rbox.co>
+ <aqp3Po7OcubJboM_@sgarzare-redhat>
+ <3cbeb82a-60ff-4129-b630-5404df1f689e@rbox.co>
+ <arTwyyLVU3jM5fTA@sgarzare-redhat>
+Content-Language: pl-PL, en-GB
+In-Reply-To: <arTwyyLVU3jM5fTA@sgarzare-redhat>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Viresh, can I have a comment from you here, please?
+On 9/24/26 12:06, Stefano Garzarella wrote:
+> On Tue, Sep 22, 2026 at 03:17:30PM +0200, Michal Luczaj wrote:
+>> On 9/16/26 14:30, Stefano Garzarella wrote:
+>>> On Tue, Sep 15, 2026 at 03:15:13PM +0200, Michal Luczaj wrote:
+>>>> Follow vhost's vhost_vsock_reset_orphans() and VMCI's
+>>>> vmci_transport_handle_detach(): set SHUTDOWN_MASK, which will come handy
+>>>> later in the series.
+>>>
+>>> IMO it would be better to include the reason here as well. Every commit
+>>> should explain why doing a change.
+>>
+>> Sure, will do.
+>>
+>>>> static void virtio_vsock_reset_sock(struct sock *sk)
+>>>> {
+>>>> +	struct vsock_sock *vsk = vsock_sk(sk);
+>>>> +
+>>>> 	/* vmci_transport.c doesn't take sk_lock here either.  At least we're
+>>>> 	 * under vsock_table_lock so the sock cannot disappear while we're
+>>>> 	 * executing.
+>>>> 	 */
+>>>>
+>>>> +	vsk->peer_shutdown = SHUTDOWN_MASK;
+>>>
+>>> In all other places we use WRITE_ONCE/READ_ONCE on vsk->peer_shutdown,
+>>> should we do the same here?
+>>
+>> Right, we should. Isn't this also the case for sk_state and sk_err?
+> 
+> Are those read without the sk_lock?
 
-Thanks,
-Andi
+net/vmw_vsock/diag.c's sk_diag_fill()/vsock_diag_dump() do read sk_state
+without the sk_lock. As for sk_err: vsock_poll(). That said, I agree only
+WRITE_ONCE(peer_shutdown) would makes sense here. But we're not doing it in
+v3 anyway, so no problem.
 
-On Tue, Sep 22, 2026 at 01:17:06AM -0400, Michael S. Tsirkin wrote:
-> On Tue, Sep 22, 2026 at 01:02:51AM -0400, Yuho Choi wrote:
-> > This reverts commit a663b3c47ab10f66130818cf94eb59c971541c3f.
-> > 
-> > When a transfer is interrupted by a signal, virtio_i2c_complete_reqs()
-> > stops waiting for the remaining requests and virtio_i2c_xfer() frees the
-> > reqs array while the virtqueue descriptors are still in flight on the
-> > device.  The backend can then write into freed memory, and
-> > virtio_i2c_msg_done() calls complete() on already-freed requests.
-> > 
-> > Commit 84e1d0bf1d71 ("i2c: virtio: disable timeout handling") removed the
-> > exact same failure mode caused by timeouts, concluding there was no simple
-> > fix because the buffers must be held until the device returns them.  A hang
-> > due to an unresponsive backend is preferable to guest memory corruption.
-> > Restore the unconditional wait until request lifetime can be decoupled
-> > safely.
-> > 
-> > Fixes: a663b3c47ab1 ("i2c: virtio: Avoid hang by using interruptible completion wait")
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Yuho Choi <oss.patchbox@gmail.com>
-> 
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> 
-> > ---
-> > A proper interruptible wait requires refcounting requests and bounce
-> > buffering to hold memory until the backend returns descriptors (similar
-> > to virtio_rtc/virtio_pmem). Since that is a larger rework unsuitable for
-> > stable, revert to uninterruptible wait first.
-> 
-> another way is ring or device reset, if that is acceptable.
-> 
-> >  drivers/i2c/busses/i2c-virtio.c | 15 +++++++--------
-> >  1 file changed, 7 insertions(+), 8 deletions(-)
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-virtio.c b/drivers/i2c/busses/i2c-virtio.c
-> > index 5da6fef92bec3..581e55b5c65ba 100644
-> > --- a/drivers/i2c/busses/i2c-virtio.c
-> > +++ b/drivers/i2c/busses/i2c-virtio.c
-> > @@ -116,16 +116,15 @@ static int virtio_i2c_complete_reqs(struct virtqueue *vq,
-> >  	for (i = 0; i < num; i++) {
-> >  		struct virtio_i2c_req *req = &reqs[i];
-> >  
-> > -		if (!failed) {
-> > -			if (wait_for_completion_interruptible(&req->completion))
-> > -				failed = true;
-> > -			else if (req->in_hdr.status != VIRTIO_I2C_MSG_OK)
-> > -				failed = true;
-> > -			else
-> > -				j++;
-> > -		}
-> > +		wait_for_completion(&req->completion);
-> > +
-> > +		if (!failed && req->in_hdr.status != VIRTIO_I2C_MSG_OK)
-> > +			failed = true;
-> >  
-> >  		i2c_put_dma_safe_msg_buf(reqs[i].buf, &msgs[i], !failed);
-> > +
-> > +		if (!failed)
-> > +			j++;
-> >  	}
-> >  
-> >  	return j;
-> > 
-> > base-commit: f0100363d8c374bd8e9ea7c9ba02744f0b802ca4
-> > -- 
-> > 2.43.0
-> 
