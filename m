@@ -1,51 +1,51 @@
-Received: from BN1PR04CU002.outbound.protection.outlook.com (mail-eastus2azon11010046.outbound.protection.outlook.com [52.101.56.46])
+Received: from SA9PR02CU001.outbound.protection.outlook.com (mail-southcentralusazon11013022.outbound.protection.outlook.com [40.93.196.22])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBE0F430CE3
-	for <virtualization@lists.linux.dev>; Thu, 24 Sep 2026 09:25:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.56.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF1D7386C21
+	for <virtualization@lists.linux.dev>; Thu, 24 Sep 2026 09:33:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.196.22
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790241937; cv=fail; b=bGd/fNcXqzaZpn+7tyEGpEEZxVKoS4Bk0Pvel1W3kM03s47d7T0S+q/eFa2fFTAVEAA3JM+r915XDfpLnC05zJp1xhk+tcFCWoUrW8NbbElXtSj/kpGJE33+m7y0FBo5e4wFd51Nowp+g7Bxr3xm/zcIbY02fMa4tBuwyg7shis=
+	t=1790242423; cv=fail; b=bkKGzWYHyKijOIdzT49n1md2aBKjbOMjy5N/nORX9zJfZ+eLcu9ucQdHX66RAdr9GUTl8zKuQiLKRWICXo20qzooCnif1MV4J1TZSisS9N5/LsA5IfPHAv4OFwEnjbVifQhVvzkB4W70CCTqbyhj2txlwwvNn63B20+1gzH7T2Q=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790241937; c=relaxed/simple;
-	bh=RFF233Rm4ayNPp8gabHKCIVMNaH0VuMdv97PG7SE/Es=;
+	s=arc-20240116; t=1790242423; c=relaxed/simple;
+	bh=MPY21J/gDcgOnLtF6YjdYL4/MiVzJTsYmu36oo6LB6c=;
 	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=hYNMK9+jr6x9JI36eLfl5ZFZKOv8NVgx/WI8C2sj8OhMjIxZFJjLUGgg7YwFjTiZamelTBEsmLcUbyO9x+W74905K44x+7M6M3s9fBgiqnkS42kSFq3CGrgPW7GpqDIQRYGyBFI7JvNgq/mIKvWpco/dFloE0XM049MUq96kmro=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=cpDTsVR9; arc=fail smtp.client-ip=52.101.56.46
+	 Content-Type:MIME-Version; b=nrcLiGxiBkV/DMoE8zl5NRKTpIubrt4jeu6iJ3NkK46x3azj/NDUPMuPKFW1SHYoK6buzR2zIBBNR+n3VOQNmEfe8eNCJh+0yHkja6BNKPVnTwE9IL+XsLXUEvNVON6SAujlu1Y5tf2eGnYqcnCLANQAOHScQLJW2etds04e65I=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=eePlhzt1; arc=fail smtp.client-ip=40.93.196.22
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="cpDTsVR9"
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="eePlhzt1"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=S+JjZokeKxRdLm2RIK7evPEvc9olIbs/qU5/jluQVKKe4sbbqHCp++hhsyX3RF7NW/03YodL1lSTdyl2ok13TrMMVr5iduzT+UGavu81RvFJc342QbVvOA4lSa2GagDBcWlXobH9TW/FeN/XvxLOajG3Y41bcV6MomSHFS4G0GNwOTKiC0KFfOBWsV6pYxPy3LNT5OleUn9QZHGxxH4w3Ta4dfQE7hVuW7M8NP+HB73D6Yn0d2d/yVDAiYD5kG7gdCfy5+Wil/kEI91slQIprOA8hs3vLZsk/xPCd0GIT78pb5d1Jc1CH26KDM21bEJGybdmZz2FDBe2XiM4d7QPgA==
+ b=NXUqmoBmqCnyIJrFgMxTcuqPmZROdy7v7tcGmm4F/V0haDtBpK0dwiZrT3nI3Fzw7iRsKsd7OR2wxb4u4cVc2YUDK4lA59NcK8rx4U8xH9Wciv0ZtBqj1WG28mSSgcnid2dPpAtbIgjAD16OPq5MVVRLSk8mLALbdUuqT1eE7xPX5C4IYDWGlOoTdRQC5zbEhd/Mv6MeSWCaVTcem1DcDc4xJendPXZlfrWt0BHvcU2UJ9UvwRksbX9YCU9IVuqg/BqQ1dgOiT98vJh7j9Hft3Kv5QYomF+S8jMJq3+Jz7z6QyiTbqVRhyZF6IGQVWz9V+9L6bPnjPVsFmexkoTy1A==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=T6CKV5maBEoLqPmQWc3RXgEe933RpD+Q7F+b3XN2b7g=;
- b=ByHTpNT3Ob2/wY5CEmt8Iv4rrxZpF55+2PryN4f3IXWuFuegQvHI4PwXOFmSOfczT/kNosvnSfGL4DLR7Jq8+FRZhpm9WOo7dHbYBnB32NNAftDQQF/yQIpr+Q3oV3UAyeheHPw7ppHpoNYXkhR4cSZHashu2i70Uge73bM9Qqp1v5Mvl4YQqJ1GAzq5t17QJbtDx2i/uMq5SrLkPUckV838EW20ZDIG4Wvgztke1HcwIZsRMcTojKDLX1dc4wdIJwQJyY2gv1/RgmInVa6yuOWHlW9QruhJaBX12Q2g4YVx9SRo5dORh5oKpGuYYXn40gMuniTGYkuuWsSehICDwA==
+ bh=NXQPfMUg+SdUIFFBM1exZDDx6eVj5aOZlkA1vmGOynw=;
+ b=uyHMxDbLxIhR5sEpHB2vYtr87To4Cv+OfD/uejArZfJvq2E0KVIKFr/3DIxruFD/vTxlvj6SGguppNqUY7M0SemgZ+zEsVEyYDqEYsuRkvokp6JixXht3U2JIx6vAneV6nB9aA3m8U8E4Ze0wIe3VBwRXgUanVV0jOXSCHimJbAJ7V4EIijhB/11oogL2PqNwwjukFyWXKqfzPe7kn0oQNEbkTcdmHmQrJ8eBxzL2RDTUMTAuG4cTd5BuRf78D19T6VwcaKEEZ6pemNNs/eq9iCcNxmzo/63gpnBS2+LXKVnOpY4Qr2kbXdYntyWxo//ticRI7kPemUMrU39RRWFow==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
  header.d=amd.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=T6CKV5maBEoLqPmQWc3RXgEe933RpD+Q7F+b3XN2b7g=;
- b=cpDTsVR970BVV6j0eB39rWXmxGYYu+DrZD4Nmypm+INSS5K5NaBhIqY8ZxnucT+GZTqn6uIWaQJ1LSfZmWgsLVwXyXKYgxxYG7Eol9DoFuUH+3RhuZJzGjw29CLeATGs5z5H9fbjMjZ9/bkD0KtT6DfEcp4SUvnZOc7lOeEkprk=
+ bh=NXQPfMUg+SdUIFFBM1exZDDx6eVj5aOZlkA1vmGOynw=;
+ b=eePlhzt1TU+JPVOPLPwbaWnWn1gyrW5UHNzqqBztAQNtTRbCsPhkU5aD2iv90k1MV50lwygDsYIguxYa0+hMCcqGmcV4Ddkzk3c5sHPObzySt0oFY76Xm2c9MwKtzaqmttq3gqkpe6Xd0T7VO6p2eQlGZDbD8jzdNCURs7o1ifA=
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=amd.com;
 Received: from CY8PR12MB7170.namprd12.prod.outlook.com (2603:10b6:930:5a::18)
- by CY5PR12MB6226.namprd12.prod.outlook.com (2603:10b6:930:22::5) with
+ by SA1PR12MB9002.namprd12.prod.outlook.com (2603:10b6:806:38b::14) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.428.13; Thu, 24 Sep
- 2026 09:25:20 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.451.18; Thu, 24 Sep
+ 2026 09:33:38 +0000
 Received: from CY8PR12MB7170.namprd12.prod.outlook.com
  ([fe80::7565:bdd3:383a:de5f]) by CY8PR12MB7170.namprd12.prod.outlook.com
  ([fe80::7565:bdd3:383a:de5f%3]) with mapi id 15.21.0451.014; Thu, 24 Sep 2026
- 09:25:20 +0000
-Message-ID: <4813f53c-d6f4-4e2b-a92d-2218b6e49951@amd.com>
-Date: Thu, 24 Sep 2026 17:25:13 +0800
+ 09:33:38 +0000
+Message-ID: <38a483e3-fc0c-44f9-be08-eef3851bf38a@amd.com>
+Date: Thu, 24 Sep 2026 17:33:31 +0800
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v8 3/4] drm/virtio: implement userptr support for
- zero-copy memory access
+Subject: Re: [PATCH v8 4/4] drm/virtio: wire blob ioctl creation to userptr
+ objects
 To: Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>
 Cc: Gurchetan Singh <gurchetansingh@chromium.org>,
  Chia-I Wu <olvaffe@gmail.com>, Ray Huang <Ray.Huang@amd.com>,
@@ -54,15 +54,15 @@ Cc: Gurchetan Singh <gurchetansingh@chromium.org>,
  <dmitry.osipenko@collabora.com>, David Airlie <airlied@redhat.com>,
  Gerd Hoffmann <kraxel@redhat.com>
 References: <20260918095940.2253018-1-honghuan@amd.com>
- <20260918095940.2253018-4-honghuan@amd.com>
- <30ce57b1-21ab-4fb3-9e6c-75d061807b17@rsg.ci.i.u-tokyo.ac.jp>
+ <20260918095940.2253018-5-honghuan@amd.com>
+ <73afcd33-14a0-4c26-8cfd-1737e46463c9@rsg.ci.i.u-tokyo.ac.jp>
 Content-Language: en-US
 From: "Huang, Honglei" <honghuan@amd.com>
-In-Reply-To: <30ce57b1-21ab-4fb3-9e6c-75d061807b17@rsg.ci.i.u-tokyo.ac.jp>
+In-Reply-To: <73afcd33-14a0-4c26-8cfd-1737e46463c9@rsg.ci.i.u-tokyo.ac.jp>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: TPYP295CA0028.TWNP295.PROD.OUTLOOK.COM
- (2603:1096:7d0:a::17) To CY8PR12MB7170.namprd12.prod.outlook.com
+X-ClientProxiedBy: TPYP295CA0026.TWNP295.PROD.OUTLOOK.COM
+ (2603:1096:7d0:a::20) To CY8PR12MB7170.namprd12.prod.outlook.com
  (2603:10b6:930:5a::18)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -71,693 +71,241 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY8PR12MB7170:EE_|CY5PR12MB6226:EE_
-X-MS-Office365-Filtering-Correlation-Id: bb7816c0-10ec-4157-3c7d-08df1a1dc0c1
+X-MS-TrafficTypeDiagnostic: CY8PR12MB7170:EE_|SA1PR12MB9002:EE_
+X-MS-Office365-Filtering-Correlation-Id: 7a5919fd-83b4-4aec-0c70-08df1a1ee9a6
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|23010399003|1800799024|376014|366016|10067099003|5023799004|11063799006|18002099003|22082099003|56012099006|4143699003;
+	BCL:0;ARA:13230040|376014|1800799024|366016|23010399003|6133799003|18002099003|22082099003|56012099006|11063799006|10067099003|4143699003;
 X-Microsoft-Antispam-Message-Info:
-	6qdfFrKY6AyignNxW/7X2NlRQWSdclQlR1wpZvT/IPQXTH4iLZZaWeyOZSWovx6LvoLwQoDQE0QHxw0sIJ9wmt5p+ILVwUxn8u0kiQ7QxJjfCnYcbVJVtTaO8BqRv7P3CLMVet38ROFTvuJsmH71cwWFFutxR7PNHEW7TaAlYA4lHv6WPpAsMNIqMqf+PemZtdtxCp6dI9o1Jp+HwCGeClRWQegIEoiLkI8hhuIgbP3dn/wx3g+VapUSxBuOdJzLKIRGX1ZvVMVJ0aLh46VDAceAXvTDcgiPnuWayn69+mA4OShv6UO698vv8zu7ns3BZPzYYzlNSI6mOWS8WTGz6iFHkCEBKYaSFxkYh0CkQ0jBc1neEPcJCoipOsyLoihvnLGlTGjtoILfkgbabMCt5Eyt97c2UwDOYTm2WgdkC1Av2zSkU76gURaViDEDSfzteipjMsCsOgSEdVTP2ccxL/VAu1xUaRf8p9rh0JC7s6xbnCd4pvjxZZ9kbt+46Mem5cirfsZhSfjqvzyjRoSWlqecCX8Hkj4R2RMw+af7S1CXueLEbG/ryFhoAXs+Id3gpHjdfSBryDQyd8H/ErY/03RC9N40SYh022A9YGcFQj9rHx2jzpY91CeVi1XLHvlF7XwVOHBysst3pWAXqr/nIGZVktaiNwmoK3QG9F8jcaA=
+	htQru202/K6Vvsjn3Msex2ABBsZX/GfvydIMjLi1Pnr6H5Bo5QttkXbQroAkR84CVW7guBFcsIYgUqS3qqFLdNHe0GnATUep1q72Rfe8lHpMhRxBM/wptDXCgzpXSZvz5P1bjcskJ23LW9G97BUTyw8rKGVylX4h9ls6XGo6BU2xikLZQs4nEMkilmyevRXJfVxbRSSGukHuFSYIxHDDL/1PlS6MWmKewl6rZdAYkJ0xwQeHWnUsBCi3pHQNIZ92EVoe1MqVGj6xS+EdRHUhOjRHBoQO8k2MaMxF8syGv+7kgbOHExi8IWvQYOn3p5W1/vRKs1Halq/tE8BlAll9CdHutn2hLM3e+LndRhX+bVh1ZS5psjNpi37UXGZiCEfhFXzpJZttpWMFEwYnEXWM0u3Bhpzwat+ELCMRg5Fn0EcigUOCYAWRsxIxFZKPcIJHwBfotZPIgiEkfF1Y7tzqe5LSp2jgcTkpORugbQDVYFDV1aNJtcU90kyNgXLv4EeE8fCjLDpZgNZtg1Wu/t8ohgNQkklHTEr3xSMhws8bxDMu7W38BW/8bKxEg3APCgM6MOlf9i/ogXVOSP+I1FFf/xmz6Sw8LVEh1c5omHdUgVo8j/z/xXgG/X1VFMHXXSrI6kEkD2EHNJc8GYuq37hXB5EO0pDgCxOYItiskzflfNU=
 X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR12MB7170.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(1800799024)(376014)(366016)(10067099003)(5023799004)(11063799006)(18002099003)(22082099003)(56012099006)(4143699003);DIR:OUT;SFP:1101;
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR12MB7170.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(366016)(23010399003)(6133799003)(18002099003)(22082099003)(56012099006)(11063799006)(10067099003)(4143699003);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?aDMvV1AzNGlRT3cvVElkM2VyTXNEMmIrVmhDUzJITDVaUHhrcUtSWk4zZEVG?=
- =?utf-8?B?T2M1d0RSVWRaV3g0LzNQcTRlREo4b3MrVEtEaW5ucDI2VGt3M08ySGtVSzJE?=
- =?utf-8?B?YXlaK2RFSE9UTy9QSWttWVE5RnhERXZLT3dGOFN2QjVHRkZTa2xVcW9hOGVX?=
- =?utf-8?B?aFlRSmVpdll5MVVQT3BxSkd3YlBlTVRKZThHNFQ5YTJkVDlpdXlJS2N1NXUr?=
- =?utf-8?B?THJHckdtcGRVaGg5aTdyNU5lWFlkRng5ZUkwVHpZRWRVRW1sM3ZjaXZpRGYx?=
- =?utf-8?B?aXJpTzBUWWNKN1gwOU9lejV6Y1FrWFk4Ry82NkJBcGVUck15dGQ1WmlXYjhv?=
- =?utf-8?B?ZnBkb05UQXhySkFsTm03dDY5M0txT1BpaGRmb2tXSzVhdWpTcHJiWHZLa1RE?=
- =?utf-8?B?bWpRaExGK2VQeXI3bklSZmc0ak1nSjNuYXNmSmUzbDIybjNzUXBENXJNUHIr?=
- =?utf-8?B?Smw2eVZ1QXJQQTZBaGZxc2ppaFB6c3JjOFA1d1h1b0g2UVdmUzArOVJLcFNv?=
- =?utf-8?B?OG1xMWxCVzhOUVdER0d4NGlLR1d4Z3ljOURRZURUdm5oTTdmdmdHYlFJM2Vz?=
- =?utf-8?B?MkhEQ2FXTUpaTWtkdEZubzV5WXNkN2hzdXVDWDNNQW5WRWlvTUtPZ1I0VnE2?=
- =?utf-8?B?RkhENE1kdHBUTG9nYnplNlUyQXZVQUxzMFdJYU00RG9ncWFwNUpWOW9lM1BD?=
- =?utf-8?B?VlViM0ZwYWZhZXR3WUxtbVBVaHNPQ0lEWjRCdVRONlB3N01KRWVpRUFCMDFs?=
- =?utf-8?B?MmluVlBCWmxjbVM3ZkNKMDc2enVHak9zbFFrWlJJeEV1dWlPREFHQ1NNbUo4?=
- =?utf-8?B?VGtMTVBVeElxTDRZU3lIdDJiWWRHQ2ZKRWNlV1JQckViOXd2ZlcrelkydjNw?=
- =?utf-8?B?WDhiTmJxMTFwdVNyRyt6SjVQc0dYSkhUMU80S242aWRkZWRweUlQaHFyWVJk?=
- =?utf-8?B?dWRZVkV1eWxaVFRxSkI5TnNuVnZUeUpMbWs5RG1tYXAxVHVBUmkyQkdWZGxu?=
- =?utf-8?B?VlFGVTRERkNJNWltY2xaMnJvOWZ4SU5jNDU2VjBBOHoyRFpJTHZvemQ1SnFn?=
- =?utf-8?B?YmQ5dGRJUEVGUElkaEQwZlpXOVRsQmNhZnlJSmRiZCt1anhMMStUUWJiV1NQ?=
- =?utf-8?B?dmZoMGhJVG8zamsrSU9TUDNRaUF5ekFGN21Gb3QzK0cxeWdrSjBBMCt6RU5q?=
- =?utf-8?B?TVBuSk5RYmd1azNtQkp5TXNpMmR3S3g3aXhWWndkbkQ3MW9BNmVhSnphNnAz?=
- =?utf-8?B?a3NTMFVnWmZLWkpnUElGYXJ0R0pWSVZKZk5pdnM5ZWszYVZ4TnRnU0VDdnFz?=
- =?utf-8?B?VzJ2UHMyVFRuakdWejIwUzZxTGNGL2NOQ3VmemI4anhKZFJqRVFia0F4dk5Y?=
- =?utf-8?B?YU54K24wMllwbjRCcEtUVlAwZHFydDBXVkFlN2xBMVBZMy9OUFQ4ejFOOEla?=
- =?utf-8?B?UWMxZ3FDYlZENFlsOWNSUWI0ZTBXVSszdVVGZlNxL3NEbnNWQUNlU3l6dlJ4?=
- =?utf-8?B?elJnSTQzSUpxd0FQaDR1QVRieGhWYnJ3eXRLUEtkQnh3TmNrL0NrcVhsVy9P?=
- =?utf-8?B?Ym5NTWVheTkvSXh0TkpjNUpIaEtmZ043Wmt1am1xbmZPLzNZSE1rQ1BMWER0?=
- =?utf-8?B?RGFxcEFHeTdwTkhON3RJbmVXcER1ODN1S0ZEYXpsOUlPUXE3cE9XWk40T2sw?=
- =?utf-8?B?SXJKY2lFZHN2ZWE4SEwvK253eFRjQnd6Znl1ckprb2JhUEVPT1l5K292L0lo?=
- =?utf-8?B?eFVrUlFJQUxCQmlEem8xYUNZZ0w0RFFGT21nc0JkdHc5N1BmUURoUzdNWGpn?=
- =?utf-8?B?NlU1Tmd2cGVYQ21nTk5nY3hZMENMVDd1L3Y3NXRwQzVNWlYvZ3RTUEduTUg5?=
- =?utf-8?B?TWFxSWxUbnBpOVdYZURVOW1KcWtqVi94NFkxd2xMaE8rTTg2cStjU1Jmem5z?=
- =?utf-8?B?TXJlcWpiVlhHdkNyV2hrMVhmR0ZaRTdXSTdnNnNoNlUvTXdVcFo0QkVXNTNP?=
- =?utf-8?B?R0ZDVFd3VWVZVnhHdFduMFZ6SXBVMVV6QW5lMCtCUnd6K204MDE3ck9nZTl6?=
- =?utf-8?B?YWlPVW9malh1dHJHODFWQ2dldWZXL2QzSTdrZ052cC8rNUdHcUZKL2VGOFBl?=
- =?utf-8?B?S1k5U0hCSDkxL2ZlcUZwa1VFYVQ2eGF1aXR1WGNIOVpHdnNoNnZRR2NVNHRx?=
- =?utf-8?B?aUhrdWxyYm56SHZSa1B2NGU2MjduTUhHTys1Z2JMdlNCN1EvN1ZYeEpCNTlL?=
- =?utf-8?B?eDZoMTBSUVVTUDIxYlIrTXMvY1ZpcCs2UGo0a0EzMFhwNWp4OEFPcy9aTXBt?=
- =?utf-8?Q?aXDM8+h9a9tDcTHlni?=
+	=?utf-8?B?bllNbDRkT0ZJQzZlSjFldGtnRzBna1lSblZtZ1lLNFgzaWpDSnpjSkxpRm1R?=
+ =?utf-8?B?dCtjTW9PYWJwZHRaT2tTT2FvQ2k5YlgxdHRYVHRDNmZIYk9UQzY4MWFWWFVU?=
+ =?utf-8?B?T2N2bVpKRzRNQnpORkdlWU0zWEdaay9SRVQ4YUJMaXl6RG5pUVNCZWpJTnlZ?=
+ =?utf-8?B?ZWsyZjc2d24yZERraVhzaXdCZjFlTytRd2FBWC9mK3NqUitGOGtMV2VWaFJr?=
+ =?utf-8?B?cVBIaDh2dGdHSGJSUzlVaWVXY2JtaDUrTFBTQWIvMkxoZkZuZ2w0T3Mvc3FN?=
+ =?utf-8?B?dXJIUlJRLy8xV0tGaSt3b3lONFZKU0JlNDdFZW9aNTA0aFJxbE5CYmVidXVT?=
+ =?utf-8?B?Nlp5SjJyNHFvVkh6SThvOHhlNjh0VDRPeWdIdHl4WG0wNGtKRG5rRGxFZTZ1?=
+ =?utf-8?B?TXBqdVhqZWIxYWltU0gyNzRQNXovWk02bUV0VjlWRFZOV3EvbkM0QVdPeTEr?=
+ =?utf-8?B?OUhEZVpQU0p6cFROY2hDdlFOMkNtTWpTTnZJNitIT1NycEplUnFsWEFaVEJn?=
+ =?utf-8?B?SWMvaXc1RFNUb3J5enEyZXp1UE9aQUkzSHRIUlY1cG1IazNlNXJuSUJZN0x5?=
+ =?utf-8?B?amZJNUp1RnMyTlhGc280a3ZpK0lMc24vUys2bHZ6M1hOOFdYTmVVYkhLMjBy?=
+ =?utf-8?B?YzRGSytSTnk2SW4vMmw0QjRUalZmMXRXT1hmZ2NiOWJrUXFtVmt0M0RGK0ww?=
+ =?utf-8?B?ZXl1UEk0cWx2SUdkQVc5Ynpob2xUcUlYcFREN0o4ZWtQY29uMVFDMGRqZHA4?=
+ =?utf-8?B?TENOT2QzMHFCa2d3OGk5VGpVcUppRklKT0ZLblZCeDZVVUVJU2Jkem9pMTdH?=
+ =?utf-8?B?OXk5YThVRzNIQnUrNldRUkpaTzFYZ0M0UUY3eEU0VHhtemFyOXNtUUVWVHFl?=
+ =?utf-8?B?U0VmZVhOc3JPNExDN1VrcjFKVlhZLzBsemZOd2ZJbFZ6dHF1eWdTekpMSmJV?=
+ =?utf-8?B?SnB6cGo4RGhjV1VTd3hUd1ZSNmJRTjJLWnNpdUUzeGlubzFBRHc0TWpJRjZJ?=
+ =?utf-8?B?SExsMFZYQm1VNHNQUWlRY1lPUCt0aGRCdEpUWkp4V3BXNUdiNWROa0lJTm9C?=
+ =?utf-8?B?Q3FGNERMR1BSc2hLNm4wSVo1WlpwYUtZUGpLSFNvYlpzY3pTL0hCcjVnWko2?=
+ =?utf-8?B?STQxQTlnM1FzS3ZYbGE4Z0lMbHJEaG52SnVReXFCYzU1MWEyQ3VHemZlTTdh?=
+ =?utf-8?B?ODBxdit1eHBvVEx3UWJNamlDYXRMMmppaDM3ZHQzQmxQczd3VDJVa3FUeHRV?=
+ =?utf-8?B?d2tBRkpsQWU0eVAwT0kySTJYdFRlOE9teW1iRmFsSmFmNUxWYkZCQUpndzNL?=
+ =?utf-8?B?SjRNcTRqQ0U3SjEreTJOWm9QVCtiVWFQdWVGUFI0a0JpUHdieFJHYTdnZXdV?=
+ =?utf-8?B?U0RWKzV2dDRkZWtvWmFadFRYZDFnWG9uRG9kVlpXbnFnalFDamxMam9BTkpX?=
+ =?utf-8?B?NXpyekd1NDR6QWV6d25mb2d2RjIrT3NLYzZEZXBBSitXcWJzc2pSWFEvOW1k?=
+ =?utf-8?B?SGpyN2wxSkc4NlY1Z1Yza01oT1ZPZVArY2ovZTF4NitIc2Q2c3JISXVqUjEv?=
+ =?utf-8?B?VXJ0TGxySW9YTzRBa2ttT2U4VExiczB2ZFBHL3NQclBxYS9BM0l5YTFYTnNT?=
+ =?utf-8?B?aDVtaXBkekVhaWVzUi9CZkhGS2J1SzBDMXRlN1VOeU1BNVpVY3dhNDdQMEhV?=
+ =?utf-8?B?L2xYMjFJa2NEYmZmS2did2VhWG9JU1lqM250d0RRazA4ZUM1NWtDK3Bmb1ZV?=
+ =?utf-8?B?elFTT01jOG1NVUVjMURWL3hhZGg3QkVlOW1oT2ZTQk9pcmh4RmE3NkJFS01X?=
+ =?utf-8?B?TlBzUjE4QzlqcUtDNjZYMlZSS1l4akxhVDBWWGUyNHZsc2xIQWhiQlBnRnhH?=
+ =?utf-8?B?c09aYVhZN0d1VHRickxrVndFY0g2c0wzR2lKVlBCSWE1NFcxK3ZCM1lHZXda?=
+ =?utf-8?B?TzRobXozZDNrNjF2NmVCWmdzV1A1d001enlMKzQxVjNTbEU5L2hoUHpUd1Vx?=
+ =?utf-8?B?ZWtLMW84QVVKeSs0VGlxcEdGS1I3emxGTmVJQS9HOWZBK2J6SXNydnhPb3ZM?=
+ =?utf-8?B?bWplRmZ6YmVCVU1xUWNmdS9yL3BXZWJQQzFWMDJpRm9NMTRNOU1nQXIwZ3BU?=
+ =?utf-8?B?REFON250ZC80NDRObWFPZGVFcU9GOUJEWWRwcW0zSzVSblZDMEE0bUx4Mi9x?=
+ =?utf-8?B?ZzhuVldnaXRhcHhUdWd2OEg0WlR0TU9PYi9EOGtRTlFKcHdlbXA4RlZua3hx?=
+ =?utf-8?B?VXRkMTZRdTFtU3pSemMyR3dTaEl1ZTlJUjV2UjFIM1RGdUZnMHlTSmxaYWhD?=
+ =?utf-8?Q?Clv9sd5gk5ZXI/Co2Q?=
 X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: bb7816c0-10ec-4157-3c7d-08df1a1dc0c1
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7a5919fd-83b4-4aec-0c70-08df1a1ee9a6
 X-MS-Exchange-CrossTenant-AuthSource: CY8PR12MB7170.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Sep 2026 09:25:20.4745
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Sep 2026 09:33:38.3646
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: xG0YpEEvM91ywfroNGoJ73VX9FxF75sil+MEQ8AraxE53o8Biqz4X+80cNJBki8vN37k08R5nJ15cygNH2ojSA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY5PR12MB6226
+X-MS-Exchange-CrossTenant-UserPrincipalName: IiqN0OkeHBD4oo+otJnfwXB9NSa6IwqTw/OHT/Kk2wwu5nw0OQckLO45qMv3Xe5zVJzn6aYekP3IjGZ29uCcVg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR12MB9002
 
 
 
-On 9/19/2026 4:59 PM, Akihiko Odaki wrote:
+On 9/19/2026 10:28 PM, Akihiko Odaki wrote:
 > On 2026/09/18 18:59, Honglei Huang wrote:
->> Add userptr blob objects so the guest kernel can pin an existing
->> userspace mapping and advertise it as CREATE_BLOB backing entries.
+>> Integrate userptr into the blob resource creation ioctl.
 >>
->> - New virtio_gpu_object_userptr type for userptr resources
->> - Pin pages with pin_user_pages_fast() and FOLL_LONGTERM
->> - Omit FOLL_WRITE when VIRTGPU_BLOB_FLAG_USE_READONLY is set
->> - Charge FOLL_LONGTERM pins against RLIMIT_MEMLOCK
->> - DMA-map the scatterlist only when virtio_gpu_use_dma_api() is
->>    required; use DMA_TO_DEVICE for USE_READONLY blobs
->> - Sync userptr SG for the device on TRANSFER_TO_HOST
->> - Mark writable pages dirty when unpinning
->> - Keep pages pinned until RESOURCE_UNREF is queued; drop them from
->>    cleanup_object() on the unref response or on create failure
->> - Clear userptr->pages on pin failure to avoid double-free on cleanup
->> - Reject unaligned or overflowing userptr ranges at create time
->> - Disallow PRIME export of userptr objects
->> - Save CREATE_BLOB params and restore userptr resources after
->>    hibernation without using the shmem restore path
+>> - A non-zero userptr selects virtio_gpu_userptr_create()
+>> - Reject userptr unless blob_mem is VIRTGPU_BLOB_MEM_GUEST
+>> - Reject VIRTGPU_BLOB_FLAG_USE_READONLY unless the device
+>>    advertised VIRTIO_GPU_F_BLOB_READONLY
+>> - Advertise VIRTGPU_PARAM_USERPTR and VIRTGPU_PARAM_BLOB_READONLY
 >>
 >> Signed-off-by: Honglei Huang <honghuan@amd.com>
 >> ---
->>   drivers/gpu/drm/virtio/Makefile          |   3 +-
->>   drivers/gpu/drm/virtio/virtgpu_drv.h     |  43 +++
->>   drivers/gpu/drm/virtio/virtgpu_object.c  |  22 ++
->>   drivers/gpu/drm/virtio/virtgpu_userptr.c | 365 +++++++++++++++++++++++
->>   drivers/gpu/drm/virtio/virtgpu_vq.c      |  33 +-
->>   5 files changed, 456 insertions(+), 10 deletions(-)
->>   create mode 100644 drivers/gpu/drm/virtio/virtgpu_userptr.c
+>>   drivers/gpu/drm/virtio/virtgpu_debugfs.c |  1 +
+>>   drivers/gpu/drm/virtio/virtgpu_ioctl.c   | 35 ++++++++++++++++++++----
+>>   drivers/gpu/drm/virtio/virtgpu_kms.c     |  8 ++++--
+>>   3 files changed, 37 insertions(+), 7 deletions(-)
 >>
->> diff --git a/drivers/gpu/drm/virtio/Makefile b/drivers/gpu/drm/virtio/ 
->> Makefile
->> index d2e1788a82..fe7332a621 100644
->> --- a/drivers/gpu/drm/virtio/Makefile
->> +++ b/drivers/gpu/drm/virtio/Makefile
->> @@ -6,6 +6,7 @@
->>   virtio-gpu-y := virtgpu_drv.o virtgpu_kms.o virtgpu_gem.o 
->> virtgpu_vram.o \
->>       virtgpu_display.o virtgpu_vq.o \
->>       virtgpu_fence.o virtgpu_object.o virtgpu_debugfs.o 
->> virtgpu_plane.o \
->> -    virtgpu_ioctl.o virtgpu_prime.o virtgpu_trace_points.o 
->> virtgpu_submit.o
->> +    virtgpu_ioctl.o virtgpu_prime.o virtgpu_trace_points.o 
->> virtgpu_submit.o \
->> +    virtgpu_userptr.o
->>   obj-$(CONFIG_DRM_VIRTIO_GPU) += virtio-gpu.o
->> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/ 
->> virtio/virtgpu_drv.h
->> index 9df4c71173..e0941cc187 100644
->> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
->> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
->> @@ -105,6 +105,7 @@ struct virtio_gpu_object_params {
->>       uint32_t blob_flags;
->>       uint64_t blob_id;
->>       uint32_t blob_hints;
->> +    uint64_t userptr;
->>   };
->>   struct virtio_gpu_object {
->> @@ -138,12 +139,42 @@ struct virtio_gpu_object_vram {
->>       struct drm_mm_node vram_node;
->>   };
->> +struct virtio_gpu_object_userptr;
+>> diff --git a/drivers/gpu/drm/virtio/virtgpu_debugfs.c b/drivers/gpu/ 
+>> drm/virtio/virtgpu_debugfs.c
+>> index 3a68a16b58..b8b9b40584 100644
+>> --- a/drivers/gpu/drm/virtio/virtgpu_debugfs.c
+>> +++ b/drivers/gpu/drm/virtio/virtgpu_debugfs.c
+>> @@ -55,6 +55,7 @@ static int virtio_gpu_features(struct seq_file *m, 
+>> void *data)
+>>                   vgdev->has_resource_assign_uuid);
+>>       virtio_gpu_add_bool(m, "blob resources", vgdev->has_resource_blob);
+>> +    virtio_gpu_add_bool(m, "blob readonly", vgdev->has_blob_readonly);
+>>       virtio_gpu_add_bool(m, "context init", vgdev->has_context_init);
+>>       virtio_gpu_add_int(m, "cap sets", vgdev->num_capsets);
+>>       virtio_gpu_add_int(m, "scanouts", vgdev->num_scanouts);
+>> diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/ 
+>> virtio/virtgpu_ioctl.c
+>> index 3d8e4ccdb7..3dc058e50e 100644
+>> --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+>> +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+>> @@ -36,7 +36,10 @@
+>>   #define VIRTGPU_BLOB_FLAG_USE_MASK (VIRTGPU_BLOB_FLAG_USE_MAPPABLE | \
+>>                       VIRTGPU_BLOB_FLAG_USE_SHAREABLE | \
+>> -                    VIRTGPU_BLOB_FLAG_USE_CROSS_DEVICE)
+>> +                    VIRTGPU_BLOB_FLAG_USE_CROSS_DEVICE | \
+>> +                    VIRTGPU_BLOB_FLAG_USE_READONLY)
 >> +
->> +struct virtio_gpu_object_userptr_ops {
->> +    int (*get_pages)(struct virtio_gpu_object_userptr *userptr);
->> +    void (*put_pages)(struct virtio_gpu_object_userptr *userptr);
->> +};
->> +
->> +struct virtio_gpu_object_userptr {
->> +    struct virtio_gpu_object base;
->> +    const struct virtio_gpu_object_userptr_ops *ops;
->> +    /* Protects pages and sgt. */
->> +    struct mutex lock;
->> +
->> +    uint64_t start;
->> +    uint32_t npages;
->> +    uint32_t bo_handle;
->> +    uint32_t flags;
->> +
->> +    struct virtio_gpu_device *vgdev;
->> +    struct drm_file *file;
->> +    struct page **pages;
->> +    struct sg_table *sgt;
->> +    bool dma_mapped;
->> +    enum dma_data_direction dma_dir;
->> +    struct mm_struct *mm;
->> +};
->> +
->>   #define to_virtio_gpu_shmem(virtio_gpu_object) \
->>       container_of((virtio_gpu_object), struct 
->> virtio_gpu_object_shmem, base)
->>   #define to_virtio_gpu_vram(virtio_gpu_object) \
->>       container_of((virtio_gpu_object), struct virtio_gpu_object_vram, 
->> base)
->> +#define to_virtio_gpu_userptr(virtio_gpu_object) \
->> +    container_of((virtio_gpu_object), struct 
->> virtio_gpu_object_userptr, base)
->> +
->>   struct virtio_gpu_object_array {
->>       struct ww_acquire_ctx ticket;
->>       struct list_head next;
->> @@ -284,6 +315,7 @@ struct virtio_gpu_device {
->>       bool has_host_visible;
->>       bool has_context_init;
->>       bool has_blob_alignment;
->> +    bool has_blob_readonly;
->>       bool hibernated;
->>       struct virtio_shm_region host_visible_region;
->>       struct drm_mm host_visible_mm;
->> @@ -562,4 +594,15 @@ void virtio_gpu_vram_map_deferred(struct 
->> virtio_gpu_object_vram *vram);
->>   int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
->>                   struct drm_file *file);
->> +/* virtgpu_userptr.c */
->> +int virtio_gpu_userptr_create(struct virtio_gpu_device *vgdev,
->> +                  struct drm_file *file,
->> +                  struct virtio_gpu_object_params *params,
->> +                  struct virtio_gpu_object **bo_ptr);
->> +bool virtio_gpu_is_userptr(struct virtio_gpu_object *bo);
->> +void virtio_gpu_userptr_dma_sync_for_device(struct virtio_gpu_object 
->> *bo);
->> +int virtio_gpu_userptr_restore(struct virtio_gpu_device *vgdev,
->> +                   struct virtio_gpu_object *bo,
->> +                   struct virtio_gpu_mem_entry **ents,
->> +                   unsigned int *nents);
->>   #endif
->> diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/ 
->> drm/virtio/virtgpu_object.c
->> index 49899485be..ab21494b1c 100644
->> --- a/drivers/gpu/drm/virtio/virtgpu_object.c
->> +++ b/drivers/gpu/drm/virtio/virtgpu_object.c
->> @@ -91,6 +91,16 @@ void virtio_gpu_cleanup_object(struct 
->> virtio_gpu_object *bo)
->>           drm_gem_free_mmap_offset(&vram->base.base.base);
->>           drm_gem_object_release(&vram->base.base.base);
->>           kfree(vram);
->> +    } else if (virtio_gpu_is_userptr(bo)) {
->> +        struct virtio_gpu_object_userptr *userptr =
->> +            to_virtio_gpu_userptr(bo);
->> +
->> +        mutex_lock(&userptr->lock);
->> +        userptr->ops->put_pages(userptr);
->> +        mutex_unlock(&userptr->lock);
->> +        mutex_destroy(&userptr->lock);
->> +        drm_gem_object_release(&userptr->base.base.base);
->> +        kfree(userptr);
->>       } else {
->>           drm_gem_object_release(&bo->base.base);
->>           kfree(bo);
->> @@ -316,6 +326,18 @@ int virtio_gpu_object_restore_all(struct 
->> virtio_gpu_device *vgdev)
->>               continue;
->>           }
->> +        if (virtio_gpu_is_userptr(bo)) {
->> +            ret = virtio_gpu_userptr_restore(vgdev, bo, &ents,
->> +                             &nents);
->> +            if (ret)
->> +                break;
->> +
->> +            virtio_gpu_cmd_resource_create_blob(vgdev, bo,
->> +                                &bo->params,
->> +                                ents, nents);
->> +            continue;
->> +        }
->> +
->>           if (bo->params.blob || bo->attached) {
->>               ret = virtio_gpu_object_shmem_init(vgdev, bo, &ents,
->>                                  &nents);
->> diff --git a/drivers/gpu/drm/virtio/virtgpu_userptr.c b/drivers/gpu/ 
->> drm/virtio/virtgpu_userptr.c
->> new file mode 100644
->> index 0000000000..ccfd96844e
->> --- /dev/null
->> +++ b/drivers/gpu/drm/virtio/virtgpu_userptr.c
->> @@ -0,0 +1,365 @@
->> +// SPDX-License-Identifier: GPL-2.0
->> +#include <linux/dma-mapping.h>
->> +#include <linux/limits.h>
->> +#include <linux/mm.h>
->> +#include <linux/overflow.h>
->> +#include <linux/pid.h>
->> +#include <linux/sched/mm.h>
->> +#include <linux/sched/signal.h>
->> +#include <linux/vmalloc.h>
->> +
->> +#include "virtgpu_drv.h"
->> +#include <drm/drm_gem.h>
->> +
->> +static void virtio_gpu_userptr_free(struct drm_gem_object *obj)
->> +{
->> +    struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(obj);
->> +    struct virtio_gpu_device *vgdev = obj->dev->dev_private;
->> +
->> +    /*
->> +     * Keep pages pinned until RESOURCE_UNREF completes. The response
->> +     * callback calls virtio_gpu_cleanup_object(), which drops them.
->> +     */
->> +    if (bo->created) {
->> +        virtio_gpu_remove_from_restore_list(bo);
->> +        virtio_gpu_cmd_unref_resource(vgdev, bo, false);
->> +        virtio_gpu_notify(vgdev);
->> +        return;
->> +    }
->> +
->> +    virtio_gpu_cleanup_object(bo);
->> +}
->> +
->> +static struct dma_buf *
->> +virtio_gpu_userptr_prime_export(struct drm_gem_object *obj, int flags)
->> +{
->> +    return ERR_PTR(-EINVAL);
->> +}
->> +
->> +static const struct drm_gem_object_funcs virtio_gpu_userptr_funcs = {
->> +    .open = virtio_gpu_gem_object_open,
->> +    .close = virtio_gpu_gem_object_close,
->> +    .free = virtio_gpu_userptr_free,
->> +    .export = virtio_gpu_userptr_prime_export,
->> +};
->> +
->> +bool virtio_gpu_is_userptr(struct virtio_gpu_object *bo)
->> +{
->> +    return bo->base.base.funcs == &virtio_gpu_userptr_funcs;
->> +}
->> +
->> +void virtio_gpu_userptr_dma_sync_for_device(struct virtio_gpu_object 
->> *bo)
->> +{
->> +    struct virtio_gpu_object_userptr *userptr = 
->> to_virtio_gpu_userptr(bo);
->> +    struct device *dev;
->> +
->> +    if (!userptr->dma_mapped)
->> +        return;
->> +
->> +    dev = drm_dev_dma_dev(userptr->base.base.base.dev);
->> +    dma_sync_sgtable_for_device(dev, userptr->sgt, DMA_TO_DEVICE);
->> +}
->> +
->> +static int
->> +virtio_gpu_userptr_get_pages(struct virtio_gpu_object_userptr *userptr)
->> +{
->> +    unsigned int flag = FOLL_LONGTERM;
->> +    unsigned int num_pages, pinned = 0;
->> +    int ret = 0;
->> +
->> +    if (userptr->pages)
->> +        return 0;
->> +
->> +    userptr->pages = kvmalloc_array(userptr->npages, sizeof(struct 
->> page *),
->> +                    GFP_KERNEL);
->> +    if (!userptr->pages)
->> +        return -ENOMEM;
->> +
->> +    if (!(userptr->flags & VIRTGPU_BLOB_FLAG_USE_READONLY))
->> +        flag |= FOLL_WRITE;
->> +
->> +    do {
->> +        num_pages = userptr->npages - pinned;
->> +
->> +        ret = pin_user_pages_fast(userptr->start + pinned * PAGE_SIZE,
->> +                      num_pages, flag,
->> +                      userptr->pages + pinned);
->> +
->> +        if (ret < 0) {
->> +            if (pinned)
->> +                unpin_user_pages(userptr->pages, pinned);
->> +            kvfree(userptr->pages);
->> +            userptr->pages = NULL;
->> +            return ret;
->> +        }
->> +
->> +        pinned += ret;
->> +
->> +    } while (pinned < userptr->npages);
->> +
->> +    return 0;
->> +}
->> +
->> +static void
->> +virtio_gpu_userptr_unaccount(struct virtio_gpu_object_userptr *userptr)
->> +{
->> +    if (!userptr->mm)
->> +        return;
->> +
->> +    atomic64_sub(userptr->npages, &userptr->mm->pinned_vm);
->> +    mmdrop(userptr->mm);
->> +    userptr->mm = NULL;
->> +}
->> +
->> +static void
->> +virtio_gpu_userptr_put_pages(struct virtio_gpu_object_userptr *userptr)
->> +{
->> +    struct drm_device *dev = userptr->base.base.base.dev;
->> +
->> +    if (userptr->sgt) {
->> +        if (userptr->dma_mapped)
->> +            dma_unmap_sgtable(drm_dev_dma_dev(dev), userptr->sgt,
->> +                      userptr->dma_dir, 0);
->> +        userptr->dma_mapped = false;
->> +        sg_free_table(userptr->sgt);
->> +        kfree(userptr->sgt);
->> +        userptr->sgt = NULL;
->> +    }
->> +
->> +    if (userptr->pages) {
->> +        bool dirty = !(userptr->flags & VIRTGPU_BLOB_FLAG_USE_READONLY);
->> +
->> +        unpin_user_pages_dirty_lock(userptr->pages, userptr->npages,
->> +                        dirty);
->> +        kvfree(userptr->pages);
->> +        userptr->pages = NULL;
->> +    }
->> +
->> +    virtio_gpu_userptr_unaccount(userptr);
->> +}
->> +
->> +static int
->> +virtio_gpu_userptr_get_entries(struct virtio_gpu_device *vgdev,
->> +                   struct virtio_gpu_object_userptr *userptr,
->> +                   struct virtio_gpu_mem_entry **ents,
->> +                   unsigned int *nents)
->> +{
->> +    bool use_dma_api = virtio_gpu_use_dma_api(vgdev->vdev);
->> +    struct scatterlist *sg;
->> +    unsigned int count;
->> +    int si;
->> +
->> +    count = use_dma_api ? userptr->sgt->nents : userptr->sgt- 
->> >orig_nents;
->> +    if (!count)
+>> +#define VIRTGPU_BLOB_HINT_MASK DRM_VIRTGPU_BLOB_FLAG_HINT_DEFER_MAPPING
+>>   /* Must be called with &virtio_gpu_fpriv.struct_mutex held. */
+>>   static void virtio_gpu_create_context_locked(struct 
+>> virtio_gpu_device *vgdev,
+>> @@ -122,6 +125,12 @@ static int virtio_gpu_getparam_ioctl(struct 
+>> drm_device *dev, void *data,
+>>               return -ENOENT;
+>>           value = vgdev->blob_alignment;
+>>           break;
+>> +    case VIRTGPU_PARAM_USERPTR:
+>> +        value = 1;
+>> +        break;
+>> +    case VIRTGPU_PARAM_BLOB_READONLY:
+>> +        value = vgdev->has_blob_readonly ? 1 : 0;
+>> +        break;
+>>       default:
+>>           return -EINVAL;
+>>       }
+>> @@ -453,11 +462,23 @@ static int verify_blob(struct virtio_gpu_device 
+>> *vgdev,
+>>       if (rc_blob->blob_flags & ~VIRTGPU_BLOB_FLAG_USE_MASK)
+>>           return -EINVAL;
+>> +    if (rc_blob->blob_hints & ~VIRTGPU_BLOB_HINT_MASK)
 >> +        return -EINVAL;
 >> +
->> +    *ents = kvmalloc_array(count, sizeof(**ents), GFP_KERNEL);
->> +    if (!*ents)
->> +        return -ENOMEM;
->> +
->> +    if (use_dma_api) {
->> +        for_each_sgtable_dma_sg(userptr->sgt, sg, si) {
->> +            (*ents)[si].addr = cpu_to_le64(sg_dma_address(sg));
->> +            (*ents)[si].length = cpu_to_le32(sg_dma_len(sg));
->> +            (*ents)[si].padding = 0;
->> +        }
->> +    } else {
->> +        for_each_sgtable_sg(userptr->sgt, sg, si) {
->> +            (*ents)[si].addr = cpu_to_le64(sg_phys(sg));
->> +            (*ents)[si].length = cpu_to_le32(sg->length);
->> +            (*ents)[si].padding = 0;
->> +        }
+>>       if (rc_blob->blob_flags & VIRTGPU_BLOB_FLAG_USE_CROSS_DEVICE) {
+>>           if (!vgdev->has_resource_assign_uuid)
+>>               return -EINVAL;
+>>       }
+>> +    if (rc_blob->blob_flags & VIRTGPU_BLOB_FLAG_USE_READONLY) {
+>> +        if (!vgdev->has_blob_readonly)
+>> +            return -EINVAL;
 >> +    }
 >> +
->> +    *nents = count;
->> +    return 0;
->> +}
->> +
->> +int virtio_gpu_userptr_restore(struct virtio_gpu_device *vgdev,
->> +                   struct virtio_gpu_object *bo,
->> +                   struct virtio_gpu_mem_entry **ents,
->> +                   unsigned int *nents)
->> +{
->> +    struct virtio_gpu_object_userptr *userptr = 
->> to_virtio_gpu_userptr(bo);
->> +    int ret;
->> +
->> +    mutex_lock(&userptr->lock);
->> +    if (!userptr->sgt || !userptr->pages) {
->> +        mutex_unlock(&userptr->lock);
+>> +    if (rc_blob->userptr &&
+>> +        rc_blob->blob_mem != VIRTGPU_BLOB_MEM_GUEST)
 >> +        return -EINVAL;
->> +    }
 >> +
->> +    if (userptr->dma_mapped) {
->> +        struct device *dev = drm_dev_dma_dev(vgdev->ddev);
->> +
->> +        dma_unmap_sgtable(dev, userptr->sgt, userptr->dma_dir, 0);
->> +        userptr->dma_mapped = false;
->> +        ret = dma_map_sgtable(dev, userptr->sgt, userptr->dma_dir, 0);
+>>       switch (rc_blob->blob_mem) {
+>>       case VIRTGPU_BLOB_MEM_GUEST:
+>>           *guest_blob = true;
+>> @@ -495,6 +516,7 @@ static int verify_blob(struct virtio_gpu_device 
+>> *vgdev,
+>>       params->blob = true;
+>>       params->blob_flags = rc_blob->blob_flags;
+>>       params->blob_hints = rc_blob->blob_hints;
+>> +    params->userptr = rc_blob->userptr;
+>>       if (vgdev->has_blob_alignment &&
+>>           !IS_ALIGNED(params->size, vgdev->blob_alignment))
+>> @@ -518,9 +540,10 @@ static int 
+>> virtio_gpu_resource_create_blob_ioctl(struct drm_device *dev,
+>>       struct virtio_gpu_fpriv *vfpriv = file->driver_priv;
+>>       struct drm_virtgpu_resource_create_blob *rc_blob = data;
+>> -    if (verify_blob(vgdev, vfpriv, &params, rc_blob,
+>> -            &guest_blob, &host3d_blob))
+>> -        return -EINVAL;
+>> +    ret = verify_blob(vgdev, vfpriv, &params, rc_blob,
+>> +              &guest_blob, &host3d_blob);
+>> +    if (ret)
+>> +        return ret;
+>>       if (vgdev->has_virgl_3d)
+>>           virtio_gpu_create_context(dev, file);
+>> @@ -538,7 +561,9 @@ static int 
+>> virtio_gpu_resource_create_blob_ioctl(struct drm_device *dev,
+>>                         vfpriv->ctx_id, NULL, NULL);
+>>       }
+>> -    if (guest_blob)
+>> +    if (guest_blob && params.userptr)
+>> +        ret = virtio_gpu_userptr_create(vgdev, file, &params, &bo);
+>> +    else if (guest_blob)
+>>           ret = virtio_gpu_object_create(vgdev, &params, &bo, NULL);
+>>       else if (!guest_blob && host3d_blob)
+>>           ret = virtio_gpu_vram_create(vgdev, &params, &bo);
+>> diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/ 
+>> virtio/virtgpu_kms.c
+>> index 1d4d3bf46a..06c2bded49 100644
+>> --- a/drivers/gpu/drm/virtio/virtgpu_kms.c
+>> +++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+>> @@ -249,15 +249,19 @@ int virtio_gpu_init(struct virtio_device *vdev, 
+>> struct drm_device *dev)
+>>           vgdev->blob_alignment = blob_alignment;
+>>       }
+>> +    if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_BLOB_READONLY))
 > 
-> This maps with attributes 0, allowing bounce buffers instead of
-> "zero-copy memory access". It is also unclear what coherence guarantee 
-> the UAPI is intended to provide.
+> This hits BUG(). It queries queries VIRTIO_GPU_F_BLOB_READONLY, but the 
+> feature is absent from the driver’s features[]. virtio_has_feature() 
+> validates device-specific queries through 
+> virtio_check_driver_offered_feature(), which executes BUG() for an 
+> unregistered feature. This affects ordinary probe regardless of host 
+> support.
+> 
+> Please add the feature to the array and ensure that the patch is 
+> properly tested before submission.
 
+Really thanks for the point out, we did test in previous version patch,
+but for passing AI review I have to added the VIRTIO_GPU_F_BLOB_READONLY 
+before send out, the AI review are so many, to address it I made many 
+changes, resulted in this issue being overlooked. And I have tested the 
+V9, the guest boot is OK, basic function is ok.
 
-This is a good point, will modify the commit and patch tittle to remove
-ero-copy memory access.
-And in virtio_gpu_object_shmem_init it also uses dma_map_sgtable(..., 
-0), so keep 0 here.
+And due to the changing for virtio gpu, many other components need to be 
+changed, need some times to give qemu/virglrender... code. We have a
+lot of parallel tasks here. But I will keep changing code until you are 
+satisfied.
 
 Regards,
 Honglei
 
-> 
->> +        if (ret) {
->> +            mutex_unlock(&userptr->lock);
->> +            return ret;
->> +        }
->> +        userptr->dma_mapped = true;
->> +    }
->> +
->> +    ret = virtio_gpu_userptr_get_entries(vgdev, userptr, ents, nents);
->> +    mutex_unlock(&userptr->lock);
->> +    return ret;
->> +}
->> +
->> +static int
->> +virtio_gpu_userptr_init(struct drm_device *dev, struct drm_file *file,
->> +            struct virtio_gpu_object_userptr *userptr,
->> +            struct virtio_gpu_object_params *params,
->> +            const struct virtio_gpu_object_userptr_ops *ops)
->> +{
->> +    struct drm_gem_object *obj;
->> +    int ret;
->> +
->> +    userptr->start = params->userptr;
->> +    userptr->npages = params->size >> PAGE_SHIFT;
->> +    userptr->flags = params->blob_flags;
->> +
->> +    mutex_init(&userptr->lock);
->> +    userptr->vgdev = dev->dev_private;
->> +    userptr->file = file;
->> +    userptr->ops = ops;
->> +
->> +    /*
->> +     * Allocate the resource id before GEM init so a failure here can
->> +     * unwind with a plain kfree and does not need a special id=0 guard
->> +     * in the shared resource_id_put helper.
->> +     */
->> +    ret = virtio_gpu_resource_id_get(userptr->vgdev,
->> +                     &userptr->base.hw_res_handle);
->> +    if (ret) {
->> +        mutex_destroy(&userptr->lock);
->> +        return ret;
->> +    }
->> +
->> +    obj = &userptr->base.base.base;
->> +    obj->funcs = &virtio_gpu_userptr_funcs;
->> +
->> +    drm_gem_private_object_init(dev, obj, params->size);
->> +    INIT_LIST_HEAD(&userptr->base.restore_node);
->> +
->> +    return 0;
->> +}
->> +
->> +static const struct virtio_gpu_object_userptr_ops 
->> virtio_gpu_userptr_ops = {
->> +    .get_pages = virtio_gpu_userptr_get_pages,
->> +    .put_pages = virtio_gpu_userptr_put_pages,
->> +};
->> +
->> +int virtio_gpu_userptr_create(struct virtio_gpu_device *vgdev,
->> +                  struct drm_file *file,
->> +                  struct virtio_gpu_object_params *params,
->> +                  struct virtio_gpu_object **bo_ptr)
->> +{
->> +    struct virtio_gpu_object_userptr *userptr;
->> +    struct virtio_gpu_mem_entry *ents = NULL;
->> +    struct sg_table *sgt;
->> +    struct mm_struct *mm;
->> +    unsigned long lock_limit;
->> +    unsigned long start;
->> +    unsigned long end;
->> +    s64 new_pinned;
->> +    unsigned int nents;
->> +    int ret;
->> +
->> +    *bo_ptr = NULL;
->> +
->> +    if (!params->size || !IS_ALIGNED(params->size, PAGE_SIZE) ||
->> +        params->userptr != (unsigned long)params->userptr)
->> +        return -EINVAL;
->> +
->> +    start = params->userptr;
->> +    if (!IS_ALIGNED(start, PAGE_SIZE) ||
->> +        check_add_overflow(start, (unsigned long)params->size, &end))
->> +        return -EINVAL;
->> +
->> +    if (!can_do_mlock())
->> +        return -EPERM;
->> +
->> +    if (params->size >> PAGE_SHIFT > INT_MAX)
->> +        return -E2BIG;
->> +
->> +    if (!access_ok((void __user *)start, params->size))
->> +        return -EFAULT;
->> +
->> +    userptr = kzalloc_obj(*userptr);
->> +    if (!userptr)
->> +        return -ENOMEM;
->> +
->> +    ret = virtio_gpu_userptr_init(vgdev->ddev, file, userptr, params,
->> +                      &virtio_gpu_userptr_ops);
->> +    if (ret) {
->> +        kfree(userptr);
->> +        return ret;
->> +    }
->> +
->> +    mm = current->mm;
->> +    mmgrab(mm);
->> +    lock_limit = rlimit(RLIMIT_MEMLOCK) >> PAGE_SHIFT;
->> +    new_pinned = atomic64_add_return(userptr->npages, &mm->pinned_vm);
->> +    if (new_pinned < 0 ||
->> +        (new_pinned > lock_limit && !capable(CAP_IPC_LOCK))) {
->> +        atomic64_sub(userptr->npages, &mm->pinned_vm);
->> +        mmdrop(mm);
->> +        ret = new_pinned < 0 ? -EOVERFLOW : -ENOMEM;
->> +        goto err_cleanup;
->> +    }
->> +    userptr->mm = mm;
->> +
->> +    mutex_lock(&userptr->lock);
->> +    ret = userptr->ops->get_pages(userptr);
->> +    mutex_unlock(&userptr->lock);
->> +    if (ret)
->> +        goto err_cleanup;
->> +
->> +    sgt = drm_prime_pages_to_sg(vgdev->ddev, userptr->pages,
->> +                    userptr->npages);
->> +    if (IS_ERR(sgt)) {
->> +        ret = PTR_ERR(sgt);
->> +        goto err_cleanup;
->> +    }
->> +
->> +    userptr->sgt = sgt;
->> +
->> +    /*
->> +     * Match shmem blobs: only DMA-map when the virtio DMA API is in
->> +     * use. Mapping unconditionally can create SWIOTLB bounce buffers
->> +     * that get copied back over guest pages on unmap even though the
->> +     * host was given sg_phys() addresses.
->> +     */
->> +    if (virtio_gpu_use_dma_api(vgdev->vdev)) {
->> +        enum dma_data_direction dir =
->> +            (userptr->flags & VIRTGPU_BLOB_FLAG_USE_READONLY) ?
->> +            DMA_TO_DEVICE : DMA_BIDIRECTIONAL;
->> +
->> +        ret = dma_map_sgtable(drm_dev_dma_dev(vgdev->ddev), sgt,
->> +                      dir, 0);
->> +        if (ret)
->> +            goto err_cleanup;
->> +
->> +        userptr->dma_dir = dir;
->> +        userptr->dma_mapped = true;
->> +    }
->> +
->> +    ret = virtio_gpu_userptr_get_entries(vgdev, userptr, &ents, &nents);
->> +    if (ret)
->> +        goto err_cleanup;
->> +
->> +    virtio_gpu_cmd_resource_create_blob(vgdev, &userptr->base, 
->> params, ents,
->> +                        nents);
->> +
->> +    userptr->base.params = *params;
->> +    virtio_gpu_add_object_to_restore_list(vgdev, &userptr->base);
->> +
->> +    *bo_ptr = &userptr->base;
->> +    return 0;
->> +
->> +err_cleanup:
->> +    virtio_gpu_cleanup_object(&userptr->base);
->> +    return ret;
->> +}
->> diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/ 
->> virtio/virtgpu_vq.c
->> index c02c03c10d..dcbd7bb7a6 100644
->> --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
->> +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
->> @@ -781,9 +781,14 @@ int 
->> virtio_gpu_panic_cmd_transfer_to_host_2d(struct virtio_gpu_device *vgdev,
->>       struct virtio_gpu_vbuffer *vbuf;
->>       bool use_dma_api = virtio_gpu_use_dma_api(vgdev->vdev);
->> -    if (virtio_gpu_is_shmem(bo) && use_dma_api)
->> -        dma_sync_sgtable_for_device(vgdev->vdev->dev.parent,
->> -                        bo->base.sgt, DMA_TO_DEVICE);
->> +    if (use_dma_api) {
->> +        if (virtio_gpu_is_shmem(bo))
->> +            dma_sync_sgtable_for_device(vgdev->vdev->dev.parent,
->> +                            bo->base.sgt,
->> +                            DMA_TO_DEVICE);
->> +        else if (virtio_gpu_is_userptr(bo))
->> +            virtio_gpu_userptr_dma_sync_for_device(bo);
->> +    }
->>       cmd_p = virtio_gpu_panic_alloc_cmd_resp(vgdev, &vbuf, 
->> sizeof(*cmd_p));
->>       memset(cmd_p, 0, sizeof(*cmd_p));
->> @@ -812,9 +817,14 @@ void virtio_gpu_cmd_transfer_to_host_2d(struct 
->> virtio_gpu_device *vgdev,
->>       struct virtio_gpu_vbuffer *vbuf;
->>       bool use_dma_api = virtio_gpu_use_dma_api(vgdev->vdev);
->> -    if (virtio_gpu_is_shmem(bo) && use_dma_api)
->> -        dma_sync_sgtable_for_device(vgdev->vdev->dev.parent,
->> -                        bo->base.sgt, DMA_TO_DEVICE);
->> +    if (use_dma_api) {
->> +        if (virtio_gpu_is_shmem(bo))
->> +            dma_sync_sgtable_for_device(vgdev->vdev->dev.parent,
->> +                            bo->base.sgt,
->> +                            DMA_TO_DEVICE);
->> +        else if (virtio_gpu_is_userptr(bo))
->> +            virtio_gpu_userptr_dma_sync_for_device(bo);
->> +    }
->>       cmd_p = virtio_gpu_alloc_cmd(vgdev, &vbuf, sizeof(*cmd_p));
->>       memset(cmd_p, 0, sizeof(*cmd_p));
->> @@ -1245,9 +1255,14 @@ void virtio_gpu_cmd_transfer_to_host_3d(struct 
->> virtio_gpu_device *vgdev,
->>       struct virtio_gpu_vbuffer *vbuf;
->>       bool use_dma_api = virtio_gpu_use_dma_api(vgdev->vdev);
->> -    if (virtio_gpu_is_shmem(bo) && use_dma_api)
->> -        dma_sync_sgtable_for_device(vgdev->vdev->dev.parent,
->> -                        bo->base.sgt, DMA_TO_DEVICE);
->> +    if (use_dma_api) {
->> +        if (virtio_gpu_is_shmem(bo))
->> +            dma_sync_sgtable_for_device(vgdev->vdev->dev.parent,
->> +                            bo->base.sgt,
->> +                            DMA_TO_DEVICE);
->> +        else if (virtio_gpu_is_userptr(bo))
->> +            virtio_gpu_userptr_dma_sync_for_device(bo);
-> 
-> This code is ineffective since the transfer ioctl rejects 
-> VIRTGPU_BLOB_MEM_GUEST.
+
 > 
 > Regards,
 > Akihiko Odaki
+> 
+>> +        vgdev->has_blob_readonly = true;
+>> +
+>>       DRM_INFO("features: %cvirgl %cedid %cresource_blob %chost_visible",
+>>            vgdev->has_virgl_3d    ? '+' : '-',
+>>            vgdev->has_edid        ? '+' : '-',
+>>            vgdev->has_resource_blob ? '+' : '-',
+>>            vgdev->has_host_visible ? '+' : '-');
+>> -    DRM_INFO("features: %ccontext_init %cblob_alignment\n",
+>> +    DRM_INFO("features: %ccontext_init %cblob_alignment 
+>> %cblob_readonly\n",
+>>            vgdev->has_context_init ? '+' : '-',
+>> -         vgdev->has_blob_alignment ? '+' : '-');
+>> +         vgdev->has_blob_alignment ? '+' : '-',
+>> +         vgdev->has_blob_readonly ? '+' : '-');
+>>       ret = virtio_gpu_find_vqs(vgdev);
+>>       if (ret) {
+> 
 
