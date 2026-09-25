@@ -1,80 +1,83 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mta1.migadu.com (out-152.mta1.migadu.com [95.215.58.152])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48F2542254A;
-	Fri, 25 Sep 2026 05:30:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3113C1922FD
+	for <virtualization@lists.linux.dev>; Fri, 25 Sep 2026 05:44:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.152
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790314233; cv=none; b=EhaQQ4/+aknpAbFzkhHkGugWJ3+74OM1aTFjxzsi8FlOPtMOgznuYDlGtdVlzlMHCF76yxHn7NRoNV++7onipE5WjXoEMTDeA++bkwsJPNlGwecT7NwwMFd+5urQzAfqD0JSmp5zEH1Zr2PPPXLgBN4WIBKIAsusUBBNx4dPhgE=
+	t=1790315058; cv=none; b=HVSrZk6dNRJ3IcWolUeyYwYcvWt2a0Viyt48zE0KpPnEYAbfiOjvtZm8IfRMNbnGggpCCsRBn5paCSkhS8UE2huhYRaLCGejeFN5yFXrwKCfL+OU3RgOuRdcSR0OJlEM1VH+5HiJ2AImIF3Bo2sBGQsHj7pfzXGYJhDXbBKjL3g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790314233; c=relaxed/simple;
-	bh=Vm6y+kb6d3AAicaKw5V1YqyzTIfFAOWsPoeWj0Za46M=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=tiGMetAHpbrXHWxFe4zR+l7HtwfQ9cJdjorQYUWmDt2Ct6QD6SRyEFmH9wf3SOXP6QyVrQRoFhTZ0yMOQWrDQq4hsDMhdrchTMoTUBAXrod4q7Cdz4I+IwsCYUgUsf1PYQA9y3ttJh4ZecCwZbX25cdIsfICUskYIM2Kbdp7JWs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=ymvcJ1o3; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790315058; c=relaxed/simple;
+	bh=5F6F7qba1uzyjFZMv+EeaWChEVyxbKI9bB3fX112gzw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=iRGWBLFdWl9640f0H+x5T/7AtixQEH7AbK1g2cFRqef+eWk9Sho1c4bbDsIBwzidlwKtQBeNPzrgCMfXCYaYG+Hj/2qA3Q7h9SL7TWf0Z4CjrSE6HFZvEqrrqieKjyE6WSFQbXtt978whx4AiOLL0PHRGz0gCg3xyRb5pfrOWe8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=XLLTWw8C; arc=none smtp.client-ip=95.215.58.152
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="ymvcJ1o3"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A61A31F000FF;
-	Fri, 25 Sep 2026 05:30:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxfoundation.org;
-	s=korg; t=1790314232;
-	bh=fsmfaAlwomBG7ZWIcRIUtE2yiIAyNCmMx2YuHDSU5dw=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=ymvcJ1o3M+Jc9bm3fuvrUUOillZujQZ/L9jbW0oNuQucAJ3kcv78m2M3H6DeMLlmX
-	 fbzXKpJOtmck9yiGKvQAh5I0Nm6b9YaDQ+Nynqq1GHdZlUqUAi8p9R+zB3lE5ZzPgA
-	 fARkEIp4hAynU8mB5j2Pdzm7fX7YK/KD9a7DVXpI=
-Date: Fri, 25 Sep 2026 07:21:39 +0200
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: Igor Skalkin <igor.skalkin@oss.qualcomm.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowangio@gmail.com>, virtualization@lists.linux.dev,
-	linux-usb@vger.kernel.org,
-	Vasilii Ianikeev <vasilii.ianikeev@oss.qualcomm.com>,
-	Aiswarya Cyriac <aiswarya.cyriac@oss.qualcomm.com>,
-	Anton Yakovlev <anton.yakovlev@oss.qualcomm.com>,
-	Trilok Soni <trilok.soni@oss.qualcomm.com>
-Subject: Re: [PATCH 1/8] virtio-usb: add protocol header and skeleton
- dual-role driver
-Message-ID: <2026092509-slightly-driver-1b18@gregkh>
-References: <20260924160907.145405-1-igor.skalkin@oss.qualcomm.com>
- <20260924160907.145405-2-igor.skalkin@oss.qualcomm.com>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="XLLTWw8C"
+X-Envelope-To: virtualization@lists.linux.dev
+DKIM-Signature: a=rsa-sha256; bh=5F6F7qba1uzyjFZMv+EeaWChEVyxbKI9bB3fX112gzw=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1790315054; v=1; x=1790919854;
+ b=XLLTWw8CMCBodxzboYQbeud9j4W5k097vZbJH7Fxa+WDrz+DxDXwi+Z69cKGi+kHHwLD1P4n
+ VNAwZ8rjy3gz6oNIX+HER+c8pT/1TjW5bqSq8KjvUQe1bfM0+Wl9bWm6Ft4ZK5cvRmkFVexga8a
+ KK6J7qRsLTrFw1A3HhqE4vNo=
+X-Envelope-To: virtualization@lists.linux.dev
+Received: by smtp.migadu.com with ESMTPS id 14310745666562df;
+	Fri, 25 Sep 2026 05:44:13 +0000
+X-Mizu-Trace-ID: 14310745666562df
+X-Migadu-Flow: FLOW_OUT
+From: Lance Yang <lance.yang@linux.dev>
+To: sj@kernel.org,
+	mst@redhat.com,
+	david@kernel.org
+Cc: damon@lists.linux.dev,
+	linux-mm@kvack.org,
+	virtualization@lists.linux.dev,
+	ryncsn@gmail.com,
+	kunwu.chan@gmail.com,
+	lianux.mm@gmail.com,
+	baohua@kernel.org,
+	xueyuan.chen21@gmail.com,
+	Lance Yang <lance.yang@linux.dev>
+Subject: [FYI] DAMON and virtio-balloon in DeepSeek's DSec paper
+Date: Fri, 25 Sep 2026 13:44:08 +0800
+Message-ID: <20260925054408.10431-1-lance.yang@linux.dev>
+X-Mailer: git-send-email 2.49.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260924160907.145405-2-igor.skalkin@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Thu, Sep 24, 2026 at 06:09:00PM +0200, Igor Skalkin wrote:
-> +/* VIRTIO_USB_EVT_HOST_PORT_CONNECTED/DISCONNECTED */
-> +enum {
-> +	VIRTIO_USB_SPEED_UNKNOWN = 0,
-> +	VIRTIO_USB_SPEED_LOW,
-> +	VIRTIO_USB_SPEED_FULL, /* usb 1.1 */
-> +	VIRTIO_USB_SPEED_HIGH, /* usb 2.0 */
-> +	VIRTIO_USB_SPEED_WIRELESS, /* wireless (usb 2.5) */
-> +	VIRTIO_USB_USB_SPEED_SUPER, /* usb 3.0 */
-> +	VIRTIO_USB_SPEED_SUPER_PLUS, /* usb 3.1 */
+Hi all,
 
-Please enumerate all of your enums with explicit values as these are
-going to userspace.
+I was reading DeepSeek's new DSec paper[1] and found a nice use of DAMON
+and virtio-balloon:
 
-> +};
-> +
-> +struct virtio_usb_host_port_event {
-> +	__le32 code; /* VIRTIO_USB_EVT_HOST_PORT_XXX */
-> +	__le32 port_id;
-> +	__le32 speed; /* VIRTIO_USB_SPEED_XXX */
-> +	__le32 padding;
+With this kind of workload, an agent may read a file once and never touch
+it again, while those pages remain in the guest page cache. Without memory
+pressure in the guest, they can stay cached even though the host would
+like that memory back ...
 
-All of your padding fields MUST be verified to only be set to 0.
+The trick is DAMON + virtio-balloon free-page reporting :) DAMON reclaims
+cold file pages from the guest page cache; buddy gets a chance to coalesce
+them into reportable blocks, and virtio-balloon passes those blocks to
+Firecracker. Firecracker can then drop the host backing with MADV_DONTNEED.
 
-These are basic "how to write a uapi" things, did you all not read the
-in-kernel documentation for this?
+And it worked: time-integrated host memory use fell by 21.2%, while peak
+usage stayed about the same, with no significant CPU overhead. Pretty cool
+to see these pieces show up in another real, large-scale system :)
 
-thanks,
+Kernel work still changes the world. Cheers to that!
 
-greg k-h
+Anyhow, I still don't know DAMON and virtio-balloon as well as I should
+(mostly I just know the people who built them) :P
+
+[1] https://arxiv.org/html/2609.22978
+
+Cheers, Lance
