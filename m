@@ -1,38 +1,38 @@
 Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDE0B453A54;
-	Fri, 25 Sep 2026 07:50:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14F6844A401;
+	Fri, 25 Sep 2026 07:51:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790322608; cv=none; b=nluegcE9Z5/1zwnvY7hAeShpqcOFyCLDr0oX97UKEyVcrzEJ3pvuXR16HO3TFucdSqEL+pUe3DMHzNhiLmVfI6xEmKdUytUvOT3PtQvqB/r4ULmAzvXoZzFROSSSf+BbEYI45PO2UzGrYgvzf93Alg09YVVgW7BZPF1cW0mPizM=
+	t=1790322712; cv=none; b=R1i4EXVkfQHgfZW+9YwVd561Ej556FH0m9vEW+RnH05+z6ZqDfCmH7q+GtpY1RUXaGwWO1UsNebJ+1IxYlNxK/zGPu24yVSIFJ59fWvRgXxbeVCHufUViIbxmnKEdzbKhHtX+wNo4p/BqIyNlib8QslAVwxYf30x3wFZZiUSssM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790322608; c=relaxed/simple;
-	bh=jzKi0jRt9cauVGk6fvzC3PhVlMI87uyvXvGpAVe7xhQ=;
+	s=arc-20240116; t=1790322712; c=relaxed/simple;
+	bh=H4dOP6z8cvSIvC6o3SOjbFDKrFPVd6jypn23lrkidZw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OFmsTriz3dU08PYoquGB5e0nI3Fm+hhIoKq/NsWXvkVE2my0ReiNefjS9np2FC9zyhiLFnVusHsFFwi1qaIE5tYdHGEZgJxFzH9VOHzre70dy3mKcs8jT51qU1kqYuKJGD1PPkFQKEmJ1tTnSKm3sPPLakUfy9n8D0L5k9kqKOc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=pass smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=Ood8IM7h; arc=none smtp.client-ip=90.155.92.199
+	 Content-Type:Content-Disposition:In-Reply-To; b=AoyGX6giUDwMzLDcNo2ZLirs3kWWlsUPnUtGw+DAoAr+3Tu0Nf/NHaUhkrJuWGk+PB39nVms3MOBeGyftfv8sybE1MWVe3I2vK0b/WNjAofPtIvPV3DGvShR226d+Ng2qa6KEyIYher4uCWmzsueEuk6KNgEZwJIp0MSLXgwHlU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=pass smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=kGwG7lj1; arc=none smtp.client-ip=90.155.92.199
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="Ood8IM7h"
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="kGwG7lj1"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
 	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
 	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=SI/MwWqv4yxwHThYUWRmZ7a1tSIE2B84HOyuWakguyc=; b=Ood8IM7h5ph/AwvDMkaS9J34EC
-	+PxRHmWDSZbE5uy/Sn4DCRnJKLphzFrUXG5/iktrtgYq3ZavQ20IOKosd5LoLLcGGb31eZkv3+rbH
-	oWpSo9k16qh59gj70Jc4PO1Np6Fy4LXY8v7v4g2CN1A/LTuEy4pV3in7K1lW+6dp50S0fqYxKA9RJ
-	vQzip1t3QdOVFl6XairtlvX+1UNc+R13eXC2t6igAwNEsTerFuZxr0vfTsiSNak1QSQ5cf0yJ5LLG
-	VnZfJZM0pGiWVhn1Z1F2QJ4WSlVF+RgFJ92SYEy/rzLn0BRmu5HbZLFtLOsu3t0OIIMnX44MKrRS/
-	W8+th5eA==;
+	bh=4xIvUf6Fn/gIIXV95CPOPd+qR13P+eKRk/BuK/+dOvA=; b=kGwG7lj13TocCCszVJUFUR24jL
+	4N3LeGxfCiBpknmVmHegSveO0il1OABq7CWfIEAyIkgUqKYsM3iosgH8kwBTl5v8IpCzbXTn8QuJP
+	5p9fiS3MkussRwk90e+rq0DzlThIa11gHD6HuWbuvaF6aHj5Z35neCKB7Zs4v5Cv7hQVFw4xuCSgC
+	3mzjiiuqyNtojrrsvf5Nse5fIsGO2RC1BuT+1cVTge2Oy16yXi1feMDKDCW2E8JcJrsBh8Y8zWr4v
+	Btu3Jv58zxeLaWXuVwf7rSWKeEOd2yDP0H75muq2KabwuHa/blsWm6YcUESikQFobdUcSF29A57ZR
+	h3Rv3fHg==;
 Received: from 77-249-17-252.cable.dynamic.v4.ziggo.nl ([77.249.17.252] helo=noisy.programming.kicks-ass.net)
 	by desiato.infradead.org with esmtpsa (Exim 4.99.2 #2 (Red Hat Linux))
-	id 1xA0gs-0000000Gi6A-3pkQ;
-	Fri, 25 Sep 2026 07:49:55 +0000
+	id 1xA0iW-0000000GiAO-273E;
+	Fri, 25 Sep 2026 07:51:36 +0000
 Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
-	id 7115530070F; Fri, 25 Sep 2026 09:49:53 +0200 (CEST)
-Date: Fri, 25 Sep 2026 09:49:53 +0200
+	id 1049030070F; Fri, 25 Sep 2026 09:51:35 +0200 (CEST)
+Date: Fri, 25 Sep 2026 09:51:34 +0200
 From: Peter Zijlstra <peterz@infradead.org>
 To: Shrikanth Hegde <sshegde@linux.ibm.com>
 Cc: linux-kernel@vger.kernel.org, mingo@kernel.org, juri.lelli@redhat.com,
@@ -49,11 +49,11 @@ Cc: linux-kernel@vger.kernel.org, mingo@kernel.org, juri.lelli@redhat.com,
 	rdunlap@infradead.org, kernellwp@gmail.com,
 	linux-doc@vger.kernel.org, jgross@suse.com,
 	virtualization@lists.linux.dev, sunlightlinux@gmail.com
-Subject: Re: [PATCH v13 08/13] sched/core: Push current task from non
- preferred CPU
-Message-ID: <20260925074953.GG4121339@noisy.programming.kicks-ass.net>
+Subject: Re: [PATCH v13 09/13] sched/debug: Add migration stats due to non
+ preferred CPUs
+Message-ID: <20260925075134.GH4121339@noisy.programming.kicks-ass.net>
 References: <20260909135617.871006-1-sshegde@linux.ibm.com>
- <20260909135617.871006-9-sshegde@linux.ibm.com>
+ <20260909135617.871006-10-sshegde@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -62,118 +62,71 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260909135617.871006-9-sshegde@linux.ibm.com>
+In-Reply-To: <20260909135617.871006-10-sshegde@linux.ibm.com>
 
-On Wed, Sep 09, 2026 at 07:26:12PM +0530, Shrikanth Hegde wrote:
-> Actively push out the current running task on a non-preferred CPU. Since
-> the task is currently running, a stopper thread must be queued to push the
-> task out. However, if the task is pinned only to non-preferred CPUs,
-> it will continue running there. This helps to maintain userspace
-> affinities, unlike CPU hotplug or isolated cpusets.
+On Wed, Sep 09, 2026 at 07:26:13PM +0530, Shrikanth Hegde wrote:
+> Add a new stat,
+> - nr_migrations_cpu_non_preferred: number of migrations happened since
+>   a CPU was marked as non preferred due to high steal time.
+
+My reading of the below code ends up with something like:
+
+ - nr_migrations_cpu_non_preferred: number of push migrations while the
+   CPU is non-preferred.
+
+Hmm?
+
+> Signed-off-by: Shrikanth Hegde <sshegde@linux.ibm.com>
+> ---
+>  include/linux/sched.h | 1 +
+>  kernel/sched/core.c   | 9 +++++++--
+>  kernel/sched/debug.c  | 1 +
+>  3 files changed, 9 insertions(+), 2 deletions(-)
 > 
-> Though the code is similar to __balance_push_cpu_stop and quite close to
-> push_cpu_stop, it is kept separate as it provides a cleaner
-> implementation specifically for CONFIG_PREFERRED_CPU.
-
-I would have preferred the code looking more like
-__balance_push_cpu_stop(). Now you're written more or less the same, but
-visually different for no reason. This makes comparing them unnecessarily
-hard.
-
-> Add the npc_push_work_pending flag to protect the work buffer.
-
-I can't help but read NPC as Non-Playing-Character. Too much RPGs, and
-that ain't Rocket Propelled Grenades. TLA are such fun :-)
-
-
-> +#ifdef CONFIG_PREFERRED_CPU
-> +static DEFINE_PER_CPU(struct cpu_stop_work, npc_push_task_work);
+> diff --git a/include/linux/sched.h b/include/linux/sched.h
+> index d7cc77181ef9..48639b0c75d0 100644
+> --- a/include/linux/sched.h
+> +++ b/include/linux/sched.h
+> @@ -554,6 +554,7 @@ struct sched_statistics {
+>  	u64				nr_failed_migrations_running;
+>  	u64				nr_failed_migrations_hot;
+>  	u64				nr_forced_migrations;
+> +	u64				nr_migrations_cpu_non_preferred;
+>  
+>  	u64				nr_wakeups;
+>  	u64				nr_wakeups_sync;
+> diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+> index 458b8c6fd9af..fb8404bd47e2 100644
+> --- a/kernel/sched/core.c
+> +++ b/kernel/sched/core.c
+> @@ -11239,8 +11239,13 @@ static int sched_non_preferred_cpu_push_stop(void *arg)
+>  	context_unsafe_alias(rq);
+>  
+>  	if (task_rq(p) == rq && task_on_rq_queued(p) &&
+> -	    !is_migration_disabled(p))
+> -		rq = __migrate_task(rq, &rf, p, cpu);
+> +	    !is_migration_disabled(p)) {
+> +		struct rq *dest_rq = __migrate_task(rq, &rf, p, cpu);
 > +
-> +static int sched_non_preferred_cpu_push_stop(void *arg)
-> +{
-> +	struct task_struct *p = arg;
-> +	struct rq *rq = this_rq();
-> +	struct rq_flags rf;
-> +	int cpu;
-> +
-> +	if (cpu_preferred(rq->cpu)) {
-> +		scoped_guard(rq_lock_irqsave, rq)
-> +			rq->npc_push_work_pending = false;
-> +		put_task_struct(p);
-> +		return 0;
+> +		if (rq != dest_rq)
+> +			schedstat_inc(p->stats.nr_migrations_cpu_non_preferred);
+> +		rq = dest_rq;
 > +	}
-> +
-> +	raw_spin_lock_irq(&p->pi_lock);
-> +
-> +	/*
-> +	 * select_fallback_rq() may acquire the rq lock in case of fallback.
-> +	 * So call it before grabbing rq lock. If the task migrates to
-> +	 * another CPU before the rq lock is acquired, subsequent validation
-> +	 * of task's current rq will help to safely bail out.
-> +	 */
-> +	cpu = select_fallback_rq(rq->cpu, p);
-> +	rq_lock(rq, &rf);
-> +	rq->npc_push_work_pending = false;
-> +	update_rq_clock(rq);
-> +
-> +	context_unsafe_alias(rq);
-> +
-> +	if (task_rq(p) == rq && task_on_rq_queued(p) &&
-> +	    !is_migration_disabled(p))
-> +		rq = __migrate_task(rq, &rf, p, cpu);
-> +
-> +	rq_unlock(rq, &rf);
-> +	raw_spin_unlock_irq(&p->pi_lock);
-> +	put_task_struct(p);
-> +
-> +	return 0;
-> +}
-
-Anyway, I ended up with:
-
-  static int sched_non_preferred_cpu_push_stop(void *arg)
-  {
-	  struct task_struct *p = arg;
-	  struct rq *rq = this_rq();
-	  struct rq_flags rf;
-	  int cpu;
-
-	  if (cpu_preferred(rq->cpu)) {
-		  scoped_guard (rq_lock_irqsave, rq)
-			  rq->npc_push_work_pending = false;
-		  put_task_struct(p);
-		  return 0;
-	  }
-
-	  scoped_guard (raw_spinlock_irq, &p->pi_lock) {
-		  /*
-		   * select_fallback_rq() may acquire the rq lock in case of
-		   * fallback. So call it before grabbing rq lock. If the task
-		   * migrates to another CPU before the rq lock is acquired,
-		   * subsequent validation of task's current rq will help to
-		   * safely bail out.
-		   */
-		  cpu = select_fallback_rq(rq->cpu, p);
-
-		  rq_lock(rq, &rf);
-		  rq->npc_push_work_pending = false;
-		  update_rq_clock(rq);
-
-		  context_unsafe_alias(rq);
-
-		  if (task_rq(p) == rq && task_on_rq_queued(p) &&
-		      !is_migration_disabled(p))
-			  rq = __migrate_task(rq, &rf, p, cpu);
-		  rq_unlock(rq, &rf);
-	  }
-
-	  put_task_struct(p);
-
-	  return 0;
-  }
-
-And note how you have an extra !is_migration_disabled() vs
-__balance_push_cpu_stop(). Either yours is superfluous or
-__balance_push_cpu_stop() should have one. Which is it?
-
-
+>  
+>  	rq_unlock(rq, &rf);
+>  	raw_spin_unlock_irq(&p->pi_lock);
+> diff --git a/kernel/sched/debug.c b/kernel/sched/debug.c
+> index fda10b3fa249..e6a3b516c703 100644
+> --- a/kernel/sched/debug.c
+> +++ b/kernel/sched/debug.c
+> @@ -1440,6 +1440,7 @@ void proc_sched_show_task(struct task_struct *p, struct pid_namespace *ns,
+>  		P_SCHEDSTAT(nr_failed_migrations_running);
+>  		P_SCHEDSTAT(nr_failed_migrations_hot);
+>  		P_SCHEDSTAT(nr_forced_migrations);
+> +		P_SCHEDSTAT(nr_migrations_cpu_non_preferred);
+>  		P_SCHEDSTAT(nr_wakeups);
+>  		P_SCHEDSTAT(nr_wakeups_sync);
+>  		P_SCHEDSTAT(nr_wakeups_migrate);
+> -- 
+> 2.52.0
+> 
