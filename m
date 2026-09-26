@@ -1,62 +1,64 @@
-Received: from mail-qk2-f40.google.com (mail-qk2-f40.google.com [74.125.230.232])
+Received: from mail-qk2-f43.google.com (mail-qk2-f43.google.com [74.125.230.235])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FED836EAA4
-	for <virtualization@lists.linux.dev>; Sat, 26 Sep 2026 16:31:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.232
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 878F43806C2
+	for <virtualization@lists.linux.dev>; Sat, 26 Sep 2026 16:31:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.235
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790440293; cv=none; b=E6WQFjrUEK5Wr2rksf2EMlIdxh8sP4e0t3OE/ruEw9CcihItlnZFYE5p1XNXjS/97uxFNDVElJzvgh7c/jXKqN48m1fQSK7NIaTbzjK/wMOS+sAlWhTo5JLIeEqzVGA7LgUrny8R3XUL+Wt0B+B8YTRDEDsn1xFleWs5meMUYXM=
+	t=1790440296; cv=none; b=jvcQB2JF++XgCxZdExHwWlAlulFSHkPA+jkrttD+KMBc/7SkKQizskGt7jXbqpkOibNnNdOzxoLSiuFFeXMU4rEm4IPthDVvzyvZF9LWN0ggpYyOS2Fep9RwSUfuZDyg5dgH3w5+KKRfNJXPtIpjXGhDElGzMNzVFwr+1eBxL9Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790440293; c=relaxed/simple;
-	bh=QQLHPEkZmbpj70DVPITpOLcJJxjVmK33AzoQr5/JFAg=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=MMeIkyDpjlBpd4KmL49vZEPnRF4NaO+5ALqcNx/N5krdfnEOp5ONxE3R2p3kjEp/dBGolmHFGLkkNRMSXMtHwjA4QEwQRN7Eil8esem8xo6OpEJXaIhSU5L4PCREmYrqtG7jav2EB0mFIbPsQ/XZubCtz33muCdS4IjhjGoqEdw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=pUWv2OIB; arc=none smtp.client-ip=74.125.230.232
+	s=arc-20240116; t=1790440296; c=relaxed/simple;
+	bh=js86bFRXeGRz01VfgdSLlpFJ18e21n6Navx1JM9ocZ8=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=MUMpTydxMnjCeAvjNEI+O6Xnm57O9W5xtD2Hz4eawIQFCwmSwBMlpjOFaDQbRtXsbvxjaazSLgcWg/n4Ev/iGNSKL1WZ+RZsXQa6GFkGVuFPi7B5t+lSs/yh5kwwgfgEyuQqLqFfzu8IR90myUYl+zEWhEOAtF/k7P8Vg4LoDgo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=pNsCES6a; arc=none smtp.client-ip=74.125.230.235
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pUWv2OIB"
-Received: by mail-qk2-f40.google.com with SMTP id af79cd13be357-93c5b166b8fso46753685a.0
-        for <virtualization@lists.linux.dev>; Sat, 26 Sep 2026 09:31:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pNsCES6a"
+Received: by mail-qk2-f43.google.com with SMTP id af79cd13be357-93910a0cefaso168661785a.2
+        for <virtualization@lists.linux.dev>; Sat, 26 Sep 2026 09:31:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790440289; x=1791045089; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=T+XTa7v9YGLEx2g2NOBefUwMoQWTvFtXhbpvBGy7RY4=;
-        b=pUWv2OIBRNMa3zYVm3WmcOkRVSM5lFZInZfPzmreBa8/WIhpNtGjbiVtoE9AzzEfH+
-         bIDF0ZbUx5bJDucGlXJDPyKwvILrkxGh5DlJkor5G/ir6aDF6aGtufJWtOCnrpCmz0rl
-         Pu67sYI4AR/B2ygBJhVAP98wBZrtb5rplZ9xtZ1bEJrphR3N1c3oeGpD4ft8duIcAdQI
-         HNRsfOHRn3lFXDJUgcIQfHRA3xzPjZZ37MOvXzXYchOVfMiST8qVvryLUY+4gJpR8qfR
-         QAXkSJO1r2KGDcoOsl9wkbIJeShKE44NPX8P5S7j7YaG0q0CeY7cGWZhd1JGuUnfYHse
-         kbrA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790440289; x=1791045089;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1790440291; x=1791045091; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=T+XTa7v9YGLEx2g2NOBefUwMoQWTvFtXhbpvBGy7RY4=;
-        b=frJqTFgy6EDFLz/D8LHm5RDfsXiAUwbNs5lXkoxrmYfVd5Sd93Ai8Qah4gK7nK6yTK
-         g3G9SYop/m8BOuqXuxm5PpZCYA9uB5R9TyLm+rKxkLPQ7imp4z9tZ//o5q3LIcMGCerI
-         8ziG9VGfeGyPF645TTK6F/G9maYj14WPvmIEiiJkZUcppPm9vdn4cIR/FzHo5+//VQEG
-         49C81sB81jIaWRgOYRi2oe7SGtSFlnUKBpM3nuD4z6aQRyxMG2SbdyZZ41w818CNyt7e
-         sJSDqXoZJJrMV63q7jZLXmVJGb7gUWhdexMFSNcMqS1DBQ3HdpDbc8wd58Z+/4yGZUpO
-         VaMg==
-X-Forwarded-Encrypted: i=1; AKwUvBxBjfwzlQNu3urq7n5aC4uJgmTVGpre7dptHzWMUKEnLmCVysVYcj3s1EuYRhiVGCbbwsVyHMWYD2I15CI6yA==@lists.linux.dev
-X-Gm-Message-State: AFuF++ljFZz1oSv4CPwg2emLJMLR+44RuPtsrGQLxR6UmjPHj4hdGlg4
-	kf7L10PPFYdy8qll9PYFTL1yX58cJCixRFQ1buu75I1zK6WvmGMFPPkO
-X-Gm-Gg: AYBFou3xqTWIkO7suNks6CPv2eTnQ2xKohWtEe89wCm5uDxvMu4nYYc2vRbAgI4Zd+T
-	9P95ZBSs4A/imdBd2baKTqAwVaMpwH4gm3xtHE6pYq8gs4AAk+ocf99XFYVe8Ox+WBAOMCyQvFB
-	CjxRZiOHidPIy2s7rPXBnvNwbbUZo70LjUtVPMQZA5m+IQ2/IfWQHfYED99xEoHI62kulOuofpl
-	bl+NDQWoTClQHCsNoyzOs37dIdSAr1nFCWPeyFHGnCl6IgzQmKss8ybLq875Ltkpx5dbHn0uedX
-	oDn812HWvmtT+0yh/mQCuHa5MqN/HebMMfmCYlL/ogfv2AxOjAflRUM5WYyn1nwP1NvQJbm9PCH
-	nYpT5Pd6iU06E5wn73ihm91qakEdgeaZWqy/rlpGNo4ZdxX3wDmSzSRUSYU4ZxM5Q9THZuKh/BM
-	luc98jlNgPxc9yUz0oWFEH0qzAcoqfimpX4jE4mLASYHrh2QuybOM1R8Wr0hJN4Ohu/YUfLpxTQ
-	gz7uRKwfNfIoOqkRkW9aM1pjksP3iTZ2rTLWYPuWR0qQlnVickb406SNSo6iq7yDAQ=
-X-Received: by 2002:a05:620a:400d:b0:93b:d7a2:dd29 with SMTP id af79cd13be357-93c43d2d070mr1066129985a.57.1790440288703;
-        Sat, 26 Sep 2026 09:31:28 -0700 (PDT)
+        bh=ilWbdrK2o5HYjWejTvlhwKOghbkTj1jD2D3PzsAcjlU=;
+        b=pNsCES6aUkTd3pgKUbilRq9R9BSAwcFp3XObzxx7bHb9cHA3NHi3VerUX91GrxBJCJ
+         VH0rd7yqay1gSmAS/fqcArN1suVow7q6bV8finVEhiNWKEOVUL3qEtfMtiV12s6fFdkE
+         Bq9G9ADG9kD2EJIUyxrBEi+E3rQGQ9N246IujOycr52bv9Rqtw9xKSaG1KbQsWJLSsh2
+         ts0Z2ez1ixDFS1IRheWb2LCPfsAEyjFQLmW62+CEDzAyQYYojjIhTmuEr7VMGE7BmJcj
+         FzcRb3Q4KebyDouKoW4TEy1BIh2Dns844vJNFdpWife/aFxm4DlfXr297LfRG7dNbF9T
+         BjEA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790440291; x=1791045091;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=ilWbdrK2o5HYjWejTvlhwKOghbkTj1jD2D3PzsAcjlU=;
+        b=XElvYKFmu5S7szgXwiNuFkUeQijmHi0yK+MU1aXadJD6HkLsbU2+Ywx2o51rIXFQGD
+         A35cDhy2PHJyRvLtH1pqogaD1eNBh48nCz8B2dYEwHSOXj/cqRFINdXbOQ1p/yX6w1/a
+         BIcE1HqSiQg1MnOHqITqiEMoNY0tEizNB+y6hVEBkT/u8lO6twdLQb3rEBoGfdKet5Cz
+         NpgQ2lY1FOOAPwzwOoszedQA4s7RRuoaAzYrv4XkibLpHyowc+l4cJHxixbcNCNtjMti
+         YNN/FFN9VpxX1eQmhQyk+AR0TGRAiSI1ewbzKw03DPA7VJsSmN9c98T2BXSztXE/3GKW
+         b17Q==
+X-Forwarded-Encrypted: i=1; AKwUvBxKGWnqm8JYqdNPVJtMmo0yFTbxQV1geVsmAaeVg6+eB/39F4RJRYLv/l/dHVK1aCf4Vzv0NTWpBpFcPn7btA==@lists.linux.dev
+X-Gm-Message-State: AFuF++mVJ7+uPkSsuR+7ry39ijCbIG2A3cZ3VaaM+BTt5TnuwxjYRWYi
+	tSQO1e+s5hTF53iELHQR81e41vRPDhhV36v02hRnekVEIfOfbkFPKqtX
+X-Gm-Gg: AYBFou2g7VjPS1ecG4MoZOwb0mt2XNbHX8+p8NQFRwLhnpJJdC9kT45FimJLmuXwo+E
+	aLlgWreGnk0LSe5QxtDnEUDna02Cu5+lgEwvNEfPl8IsvfPKUcd4cW+C1vDb1tw3VkAo6jqo9gy
+	5cXk+BiQKfXNslm9XQrs+5fGySsZ2ILVMBtyWTqUvnQwSoFF0N8AhyyT2YKmlrKLQBQqQVX09Zm
+	JrOPYAbEiLT+zuLvMyeXiS+Mo3LxEyutWIF06XnCu0mCuV5DQkgeqeNFoldlTCy6dTCvjz2E26R
+	UtS6dz0knpImIriSHb1kAhn4I3HfKBCJAVhr3JEvcLt2+CkUgrlEC5veiqiTEgUt3GP40HOqID+
+	8tZhQglJq2UVZMM+GbblyL2PFtHc24vn4I7OFR1dstgiX6c5eGWYE8MHtTfA59kpwwMo6CgxyQv
+	2GzEN3+e/zLjgR1gwsxfq84SHAb9hlBFOPCauJHmyVH1OXbc9vcoy83faPUuHRWUCtEXytOouHP
+	keDXgM0MdmBgN/OGnYs4CtmvorP5UYfqwWoESYw3TxpoC8au9mTOjTUisTxaT/Yx80k
+X-Received: by 2002:a05:620a:4111:b0:939:13a7:70f0 with SMTP id af79cd13be357-93c43b7f202mr1155214985a.5.1790440290642;
+        Sat, 26 Sep 2026 09:31:30 -0700 (PDT)
 Received: from localhost.localdomain ([2600:4040:29f7:9600:f571:6178:b590:34a4])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-93c4fe09037sm341332385a.27.2026.09.26.09.31.26
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-93c4fe09037sm341332385a.27.2026.09.26.09.31.28
         (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Sat, 26 Sep 2026 09:31:27 -0700 (PDT)
+        Sat, 26 Sep 2026 09:31:29 -0700 (PDT)
 From: Dillon Amburgey <dillona@gmail.com>
 To: Dave Airlie <airlied@redhat.com>,
 	Gerd Hoffmann <kraxel@redhat.com>
@@ -73,10 +75,12 @@ Cc: Dillon Amburgey <dillona@gmail.com>,
 	christian.koenig@amd.com,
 	krisman@collabora.co.uk,
 	noralf@tronnes.org
-Subject: [PATCH v3 0/5] drm/qxl: fix shared-primary lifetime and source packing
-Date: Sat, 26 Sep 2026 12:31:18 -0400
-Message-ID: <20260926163123.39217-1-dillona@gmail.com>
+Subject: [PATCH v3 1/5] drm/qxl: unpin the framebuffer when plane preparation fails
+Date: Sat, 26 Sep 2026 12:31:19 -0400
+Message-ID: <20260926163123.39217-2-dillona@gmail.com>
 X-Mailer: git-send-email 2.50.1
+In-Reply-To: <20260926163123.39217-1-dillona@gmail.com>
+References: <20260926163123.39217-1-dillona@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -85,58 +89,32 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-QXL packs dumb framebuffers into a shared primary surface. Failed
-preparation and multihead updates can leave shadow bindings inconsistent;
-packing whole allocations instead of visible sources also produces
-oversized surfaces and incorrect coordinates. Patch 4 establishes atomic
-ownership of the shared shadow before patch 5 changes its geometry.
+qxl_plane_prepare_fb() pins the framebuffer before preparing its GEM
+fences. If GEM preparation fails, the atomic helper cleans up only the
+previously prepared planes, leaving this framebuffer pinned.
 
-This series supersedes the single-patch v2 posted on September 24:
-https://lore.kernel.org/r/20260925033011.12560-1-dillona@gmail.com
+Unpin this plane's framebuffer before returning the preparation error.
 
-Changes since v2:
-- Split out fixes for framebuffer pin unwinding, DirtyFB commit ordering
-  and error propagation, and stale disabled-head-zero monitor metadata.
-- Replace BO-global shadow mutation and the shared redraw flag with
-  prepared atomic plane-state ownership. Include every primary plane and
-  CRTC in commit dependencies, replacing the lockless redraw of other
-  heads. This addresses the state-lifetime and redraw-flag races raised
-  by Sashiko AI:
-  https://lore.kernel.org/r/20260925034208.6B9F61F000FF@smtp.kernel.org
-- Separate shadow lifetime from source-sized packing, retaining source
-  X/Y translation, packed monitor origins and clipped DirtyFB updates.
-- Rebase onto mainline 6812ce4e4379 and expand regression coverage.
+Fixes: 6071c4c2a319 ("drm/qxl: add drm_gem_plane_helper_prepare_fb")
+Assisted-by: LLM sparse
+Signed-off-by: Dillon Amburgey <dillona@gmail.com>
+---
+ drivers/gpu/drm/qxl/qxl_display.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-The series also applies and builds on drm-misc-fixes 94cf5971b1d0.
-For drm-misc-next 98c7fc4219b9, patch 4 needs adaptation to the new
-atomic_create_state API.
-
-Validation:
-- Each commit builds on x86 with W=1 and no new sparse diagnostics.
-  The final QXL driver is also compile-tested on ARM and ARM64.
-- QEMU/KVM tests cover error unwinding, commit/DirtyFB ordering, shared
-  framebuffers, source offsets, clipped damage and concurrent modesets.
-  Error-path and ordering tests used test-only hooks, absent from the
-  series and final kernel.
-- End-to-end Xorg/SPICE tests verify multihead resizing and DPMS resume
-  without an application repaint.
-
-OpenAI Codex assisted development and review of the patches and regression
-fixtures.
-
-Dillon Amburgey (5):
-  drm/qxl: unpin the framebuffer when plane preparation fails
-  drm/qxl: wait for pending commits before applying DirtyFB
-  drm/qxl: clear the monitor configuration for disabled head zero
-  drm/qxl: own packed primary shadows in atomic plane state
-  drm/qxl: pack dumb heads from their plane source rectangles
-
- drivers/gpu/drm/qxl/qxl_display.c | 370 ++++++++++++++++++------------
- drivers/gpu/drm/qxl/qxl_draw.c    |   6 +-
- drivers/gpu/drm/qxl/qxl_drv.h     |   5 +-
- 3 files changed, 229 insertions(+), 152 deletions(-)
-
-
-base-commit: 6812ce4e4379ffc99c52401ec28f0d7ffbc36206
--- 
-2.43.0
+diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
+index 0719fc6a52d5..1f869734e14d 100644
+--- a/drivers/gpu/drm/qxl/qxl_display.c
++++ b/drivers/gpu/drm/qxl/qxl_display.c
+@@ -887,7 +887,10 @@ static int qxl_plane_prepare_fb(struct drm_plane *plane,
+ 	if (ret)
+ 		return ret;
+ 
+-	return drm_gem_plane_helper_prepare_fb(plane, new_state);
++	ret = drm_gem_plane_helper_prepare_fb(plane, new_state);
++	if (ret)
++		qxl_bo_unpin(user_bo);
++	return ret;
+ }
+ 
+ static void qxl_plane_cleanup_fb(struct drm_plane *plane,
