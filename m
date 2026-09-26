@@ -1,108 +1,74 @@
-Received: from out28-122.mail.aliyun.com (out28-122.mail.aliyun.com [115.124.28.122])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB0ED36D500
-	for <virtualization@lists.linux.dev>; Sat, 26 Sep 2026 16:08:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.28.122
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56210272E56;
+	Sat, 26 Sep 2026 16:16:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790438889; cv=none; b=twopNUViqfOTMH0ada4MxyD+HXDNhdS2EqrAHdt9OdKCVigFVCsEeF7N43pLeAh836N1yH/zHJnhfcWmCfs2UY4Shv5Lsm2/g0B8lW6hr3/9zLVLD/nYN5VnVhS8+PO1EDf5XXn4op6zdZnQlwEpIRlLPnpdMK5rmYhoxn1a5gs=
+	t=1790439363; cv=none; b=jc8/rP3f3tV7gqI60JQV+caQxYdSR4k2QZui+7jswvR5jbkxxH22Sgq+WMI02xHfGOhi6OiVgr4UVvulAsvWpq/+7KdcMqJTRMgAdKMjcgACJeGaL4eTe0xCx1wj+WSAtXJObDEox9ENTNxcndXz2A1dMcB4PG4GI/6ioIQ5jWE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790438889; c=relaxed/simple;
-	bh=tqLckBEZHvSegR6zv+qVZBZSgGXz+gwBiExasXQX3fI=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ltiH6k91UwCw2zYiK+lFUOQGYuhXXKWDTSSZt/UghRtPfBzb7L/OthmcjeQOxO2RikmvTP4Md8Ee4DfnR1Rym8IVlxg9684AoReO030cBomVTI2J5i4EqCAwpqOJM6BEFoKhfBzDWMC6v0pdMMBbr31/EIKPZgr4BoQ+7Oq+nXo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xiaopeng.com; spf=pass smtp.mailfrom=xiaopeng.com; dkim=pass (1024-bit key) header.d=xiaopeng.com header.i=@xiaopeng.com header.b=pyPyB0br; arc=none smtp.client-ip=115.124.28.122
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xiaopeng.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xiaopeng.com
+	s=arc-20240116; t=1790439363; c=relaxed/simple;
+	bh=koJdcjq/zxVsqRg8BoZjo0AeCO/+whsDFtkvTmURmqY=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=O1kbqhMg5+qmwnsLN7LCl4e0kRoa2IGeuN+PvRx4MaWYf56DoTXUfKSEQ67816yImpXswa2MK1m4+Iezab091qzrdnw9mHvnGLD82sXI21skfAsJuu8sNT0AoTV8dNNieKM2SHtMw9fxjAsPNw1OzYlTtxfKLZNZVgyztC3kxqI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZXbJXf3C; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=xiaopeng.com header.i=@xiaopeng.com header.b="pyPyB0br"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=xiaopeng.com; s=default;
-	t=1790438878; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=Vmew8F6cGoltC/zlxLQ/V2Ko/5hlJ0diq7QdLHv/b2g=;
-	b=pyPyB0brJjkU6YAnShJGXKM0IIkWQV6CkkyiQwgYBV+8zTaTE+UOXwb2Rq/RtqMJHBUOnv6gcHy+vQ688j0/rgtzlsfW+V/qMqfSZd+m+Nva4H5U7ztHA5F8jfMba/p1QVMpYl8OBXo5u+fW4UdqqayrpUU9lLqd/ZHhOwgp64o=
-X-Alimail-AntiSpam:AC=CONTINUE;BC=0.0451441|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_alarm|0.0306825-0.00118257-0.968135;FP=3451580394671390456|0|0|0|0|-1|-1|-1;HT=maildocker-contentspam033037006180;MF=fangxy@xiaopeng.com;NM=1;PH=DS;RN=9;RT=9;SR=0;TI=SMTPD_---.jOPHQ-s_1790438876;
-Received: from localhost.localdomain(mailfrom:fangxy@xiaopeng.com fp:SMTPD_---.jOPHQ-s_1790438876 cluster:ay29)
-          by smtp.aliyun-inc.com;
-          Sun, 27 Sep 2026 00:07:57 +0800
-From: Fang Xieyan <fangxy@xiaopeng.com>
-To: "Michael S . Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowangio@gmail.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>,
-	stable@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	kvm@vger.kernel.org,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v2] vringh: reject empty / undersized indirect descriptor tables
-Date: Sun, 27 Sep 2026 00:07:55 +0800
-Message-ID: <20260926160755.21485-1-fangxy@xiaopeng.com>
-X-Mailer: git-send-email 2.50.1
-In-Reply-To: <20260924030627.13287-1-fangxy@xiaopeng.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZXbJXf3C"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4A301F000FF;
+	Sat, 26 Sep 2026 16:16:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790439361;
+	bh=pURLcO7UGj5kYuwalRzZ8iE9wpSw4sCWI7WDvd9AV/k=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=ZXbJXf3CxF7DiSLnh/Yca7TTaSAeVJ/FzcctjD9Bm9NJKjGQziPJBRRyqhrrhowml
+	 VPAD6zUHzAlXpOnFIsndc8wDsU7jUm3V082bu9EcE0bSDMnUHEop4ZDBIjvr0T5mDT
+	 jRUpCODUawGKF1bjYT0pHD8zc01OZc7i5Vjk2tT793o0JirPZMu40M0cPFLCA7fpaX
+	 VpjH+LbgojkPx022mAKvZb02CqjBBz2r67fttvajz4YL+6Vwvr2WELC12IcVIe4/lk
+	 7Bc2b063cNbEUO/Fqgg1jnYIuBBlrfMVS0IUuxBiMylQxBdRT5zPtPNRi9b0V8/gyY
+	 aNsorYQAnoLXA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] vringh: reject empty / undersized indirect
+ descriptor tables
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Fang Xieyan" <fangxy@xiaopeng.com>
+Cc: virtualization@lists.linux.dev, kvm@vger.kernel.org, "Eugenio Perez" <eperezma@redhat.com>, "Michael
+ S. Tsirkin" <mst@redhat.com>
+In-Reply-To: <20260926160755.21485-1-fangxy@xiaopeng.com>
 References: <20260924030627.13287-1-fangxy@xiaopeng.com>
+ <20260926160755.21485-1-fangxy@xiaopeng.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 26 Sep 2026 16:16:01 +0000
+Message-Id: <20260926161601.A4A301F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-move_to_indirect() validates an indirect descriptor table only with
-"len % sizeof(struct vring_desc)".  A descriptor flagged
-VRING_DESC_F_INDIRECT with len == 0 passes that test, so *desc_max is
-set to 0 while *descs points at the empty table.  __vringh_iov() then
-copies one struct vring_desc from descs[0] -- 16 bytes past the end of
-the table -- before the "indirect_count > desc_max" loop detection
-aborts the walk.  The over-read value is discarded when the walk aborts
-and is never used to map anything, but the access itself is out of
-bounds.
+> move_to_indirect() validates an indirect descriptor table only with
+> "len % sizeof(struct vring_desc)".  A descriptor flagged
+> VRING_DESC_F_INDIRECT with len =3D=3D 0 passes that test, so *desc_max is
+> set to 0 while *descs points at the empty table.  __vringh_iov() then
+> copies one struct vring_desc from descs[0] -- 16 bytes past the end of
+> the table -- before the "indirect_count > desc_max" loop detection
+> aborts the walk.  The over-read value is discarded when the walk aborts
+> and is never used to map anything, but the access itself is out of
+> bounds.
+>=20
+> Reject any len smaller than one descriptor, alongside the existing
+> stride check, so an empty table is refused with -EINVAL and no
+> descriptor is ever fetched from it.
+>=20
+> Fixes: f87d0fbb5798 ("vringh: host-side implementation of virtio rings.")
+> Cc: stable@vger.kernel.org
+> Assisted-by: Hawkeye:GLM-5.3-flash
+> Assisted-by: Qoder:Qwen3.8-Max
+> Signed-off-by: Fang Xieyan <fangxy@xiaopeng.com>
 
-Reject any len smaller than one descriptor, alongside the existing
-stride check, so an empty table is refused with -EINVAL and no
-descriptor is ever fetched from it.
+Sashiko has reviewed this patch and found no issues. It looks great!
 
-Fixes: f87d0fbb5798 ("vringh: host-side implementation of virtio rings.")
-Cc: stable@vger.kernel.org
-Assisted-by: Hawkeye:GLM-5.3-flash
-Assisted-by: Qoder:Qwen3.8-Max
-Signed-off-by: Fang Xieyan <fangxy@xiaopeng.com>
----
- drivers/vhost/vringh.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-Changes in v2:
-  - Commit message rewritten per Michael's review: the over-read value
-    is copied into a local struct vring_desc and never reaches the
-    caller, so the security framing ("leak" etc.) is dropped and this
-    is presented as the plain out-of-bounds read fix it is.
-  - Code is unchanged; the diff is identical to v1.
-
-Testing:
-  Userspace reproducer carrying the move_to_indirect()/__vringh_iov()
-  logic with an instrumented copy() (len == 0 indirect table, 2048-byte
-  mapped region followed by 64 guard bytes):
-
-    without the fix:  reads 16 bytes past the table end, returns -ELOOP
-    with the fix:     returns -EINVAL, no read past the table end
-
-diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
-index 9066f9f..0767748 100644
---- a/drivers/vhost/vringh.c
-+++ b/drivers/vhost/vringh.c
-@@ -197,8 +197,9 @@ static int move_to_indirect(const struct vringh *vrh,
- 	}
- 
- 	len = vringh32_to_cpu(vrh, desc->len);
--	if (unlikely(len % sizeof(struct vring_desc))) {
--		vringh_bad("Strange indirect len %u", desc->len);
-+	if (unlikely(len < sizeof(struct vring_desc) ||
-+		     len % sizeof(struct vring_desc))) {
-+		vringh_bad("Invalid indirect len %u", desc->len);
- 		return -EINVAL;
- 	}
- 
--- 
-2.50.1
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260926160755.2148=
+5-1-fangxy@xiaopeng.com?part=3D1
 
