@@ -1,114 +1,117 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk2-f13.google.com (mail-qk2-f13.google.com [74.125.230.205])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97CAA282F18
-	for <virtualization@lists.linux.dev>; Sat, 26 Sep 2026 16:45:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92AE449D5A6
+	for <virtualization@lists.linux.dev>; Sat, 26 Sep 2026 20:20:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.205
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790441129; cv=none; b=uGfCTaVuWD6w9Sm/YQ0xIXIlaPLxJsBTRFTFWuZvtBOUR0etg2DQD1q4gzLQBDSB1oaQtcx4UAhKQpxHhx7yod8S9E5qsktzK8vxbTvjqozsTW1DEieyfxIbHKx6XGL005JISqXbjLVfNStGMHSTMn8bbpjlBoYxhA9yiv4NinM=
+	t=1790454049; cv=none; b=QvGBt9NnNOMtvVBiFu1Ae4vsS15TCcm3S2T+k3qhfeo4qNkEZ7RHzFbstkqNxCnUh+7G3D4KaGx0Y94Z6w/WpwSDoanKVfhOjtLsK3/AUSYFPfG+12KepFZYBepA/V6EF7l3LQKK9L6J7lK/X7jX5pLnp9xWUZ8iJebQ6+WqDV0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790441129; c=relaxed/simple;
-	bh=znTIs4tveTIYhRUfknUllR3xi0OwTF+GDg84Z6ATVlg=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=AhTiHklznIpic/IOn6GNNAi4j95iS4OCndnOxEHNUyink0Izjya7L8kW3uF6LQgWwpdvy175yySLDLmPwDCxX8HOCkZej6mMUYXI04jd3dbdfweHW78KQR77waVG2W6LWIkJQSNTcQUkBre4aHBC9mXRbgkJLldZN9pz9cTUaSY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=b433+7lJ; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790454049; c=relaxed/simple;
+	bh=TeA4rzx3tIqodbILhjQ27AMr7aKkw2UurfV3eDfJVl0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=qob1VSQiROHiGetN5nLhps4vzGM5i7JZf4USd0k7zFMVC9TbILu/06pnZMhodULmrmcBAzKun/o2dXjnKAWCushfivSwKugXwdoqPpjBVfc745U7wzpiUa74yS8Hp27CNjQ3E5CdH/S2U2pL/GhmmE9t2+2BjnJof/v3VkG4nEA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nwYcbuNo; arc=none smtp.client-ip=74.125.230.205
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="b433+7lJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10A6B1F000FF;
-	Sat, 26 Sep 2026 16:45:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790441128;
-	bh=eBSqfbhjWjoAiDL2kXMoCacLfdApMR9UMjr3lvXXzXk=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=b433+7lJr/DukG+SPD97RxcKCQhmgRHpGxcps+ev5c25a57smgxooyWyIcOeaWNvC
-	 NsYn7Y/OvABKNGzPBoYS8kn2PRUywuzQbhP9O/YbfPxoQXhTkSf898E38/Ixo+70af
-	 D3qZavkfX6dutGGojVrwx6J57B3toUC8fYnACv/bZABfIxH/r9wJJ3RPXCrHTMJxAB
-	 hzZt1Jgq+R2505P9oXxw+p2j9oEiP3w2XItw8s+DiRrSx/Yg4OXx238AHcGcijDRIr
-	 sOVNVY0paoy6+Y6Q5/lrN75Lu/Mm8dy+rPLi6u07Nhs9K3DX3HwE07M6rUEqcMzg20
-	 dc8j2CLoQoQHQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 5/5] drm/qxl: pack dumb heads from their plane source
- rectangles
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Dillon Amburgey" <dillona@gmail.com>
-Cc: dri-devel@lists.freedesktop.org, "Eugenio Perez" <eperezma@redhat.com>, virtualization@lists.linux.dev, "Michael
- S. Tsirkin" <mst@redhat.com>
-In-Reply-To: <20260926163123.39217-6-dillona@gmail.com>
-References: <20260926163123.39217-1-dillona@gmail.com>
- <20260926163123.39217-6-dillona@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 26 Sep 2026 16:45:27 +0000
-Message-Id: <20260926164528.10A6B1F000FF@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nwYcbuNo"
+Received: by mail-qk2-f13.google.com with SMTP id d75a77b69052e-52fb766bfd3so17062251cf.0
+        for <virtualization@lists.linux.dev>; Sat, 26 Sep 2026 13:20:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1790454046; x=1791058846; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=1yMSXbv0RzpnT7LQIOAfBfWiKfyiEPbJB+JqeZgxSJQ=;
+        b=nwYcbuNoG/6gXGuiPZu9SRnVusW/B4f4R0nt+m4tu8gdkqI5AYAMEPQQpJitb2G62e
+         jUpwwxuqStTEqD5i+cBmzBV7pOyZYZeRBNUt9mhIsEmnBUnEMTjySWNoE/wFfRT/5MvU
+         OSwAaJ7UcrAyCIW9P3Y2qXqWoihKWmFU4mkXMBiA4qcGfE5N2z97d1QBNcq0VSSs+en8
+         WDe8LGS1zG1Sl3W5EdKHopIazsd65AaypkL4JEHmwwYK56ga9fKMjLyYq/A9Rpj2yNYj
+         cx4G3GuSf96/JbeNEh68xhkUf9WrBHVYkbTpQfrXAY4g4+CkZ5zBEC3EikciJb4sTi2d
+         Gr+w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790454046; x=1791058846;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=1yMSXbv0RzpnT7LQIOAfBfWiKfyiEPbJB+JqeZgxSJQ=;
+        b=QfKuE9DFUhZU79xVd7o51Y57kMiRlqAcTa4aS1UzJCBxe5hd/epyU5v/eo80mLHO8K
+         H/0tJV/wgQpReycQvwesbBe0TXthlgxR8N8Wu+Yr+MmldS9DnHqpKNYAaIOeRksOnbK9
+         ZQIpJF/njseVrVbtILXn1xO71H+T2lGTOoo8wu7Al7kr7MU26yHqpjjG/36Hhqad45+k
+         26N7elpXx1Nie845y4cUV8Jkantz0/2E/GkUFimhZ8eITjNvKJULAhmGtpAOPfv2j69F
+         QWiuamCoi+YUZ9xjfZJkdY1XwYNAldS8OrAZJZIppgaD8oxx/5QNNmiV4KG7e4VIsihL
+         ZpAQ==
+X-Forwarded-Encrypted: i=1; AKwUvBx2MsN0x+HouEXnLrBBGjWKjZfNjQfGKc8IoOe+FsDabRGmwG9SKdSTBmEhONrrcQjb9v4ycYkKFdopLICs4A==@lists.linux.dev
+X-Gm-Message-State: AFuF++mCP7VzxPsiNLzyEonqNR+1da8Naqi7j1/EA3eGmIHDHcnvD2A6
+	Vm0GTwNmHajrcTGh5+iG3gXJC5M2OVpfCeb2RaIxHMMrC8tIWZeedsuX
+X-Gm-Gg: AYBFou25WhN7Wy+wuJcvJ7KFIV0Dnmm7isO+kNuN7RV/YyQYjWH22uDeUoLwQMmi8hY
+	sOBVqR46SIlxcdU/AxYbhgBkrnFNaquPkGUClv0I9bVJxfMo/pVK3xQQJt029JNFMrrJ8NMyj9Q
+	OHldMWksr3HHnrLm+a0Gt0xtaG/NW0FcIU/IVBOyD58+t7/6skFMzI+itJZRBtBZV5Eg/AFGGHX
+	uQnwM/p6PnQQKE6GhPyNM8+CiXVqcuijP3nbv5ek2gwJTDeaWGA5m1bpSDawLF4qQEvIfV68MCx
+	77BlaE/bzdQvOMBb/s2Q/Ri7XFTUf4QbdCLqu3ikaymP9H0KkprC9dVO/zjfC9zZ4wTFmrVTOFe
+	NB2xKO5zmg33vzMv4/F6sW/K2b5HHgIJaBDVLbndR72R1PUeIlOsMKxK5MVbE7v9v1x4rP3vRD8
+	+Ns4LEcFPXtafqKyR0p/V8wcayOwFrvzGQsWsKqt7zBseE76JdrJz1Sb+wP1yFJ3ocnpqKI4Azq
+	XS8CKkHQ1UrKu1dWvqvCQ==
+X-Received: by 2002:a05:622a:15c4:b0:530:178a:9dd8 with SMTP id d75a77b69052e-5330b556ae7mr122052901cf.8.1790454046528;
+        Sat, 26 Sep 2026 13:20:46 -0700 (PDT)
+Received: from i4-gl-tmk5904.ad.psu.edu ([130.203.156.186])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-5332238c585sm25325811cf.20.2026.09.26.13.20.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 26 Sep 2026 13:20:46 -0700 (PDT)
+From: Yuho Choi <oss.patchbox@gmail.com>
+To: David Airlie <airlied@redhat.com>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+	Dongwon Kim <dongwon.kim@intel.com>
+Cc: Gurchetan Singh <gurchetansingh@chromium.org>,
+	Chia-I Wu <olvaffe@gmail.com>,
+	dri-devel@lists.freedesktop.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	Yuho Choi <oss.patchbox@gmail.com>,
+	stable@vger.kernel.org
+Subject: [PATCH v1] drm/virtio: Reset device before deleting virtqueues on freeze
+Date: Sat, 26 Sep 2026 16:20:27 -0400
+Message-ID: <20260926202040.1313385-1-oss.patchbox@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] drm/qxl: hardcoded horizontal monitors_config breaks vertical mult=
-i-monitor layouts
---
+virtgpu_freeze() waits for the control and cursor queues to drain and
+then deletes the virtqueues, but nothing tells the device to stop first.
+del_vqs() frees the vring backing, but does not provide a generic device
+quiesce operation. In particular, modern virtio-pci keeps enabled queues
+active until the device is reset, so the device is left DRIVER_OK with
+its queues pointing at memory that has been freed and may be reused while
+the guest is suspended. virtio_device_restore() only resets the device
+later, on resume.
 
-commit 8c2ba11a8cac6cfc531b9cc6ef9a78703db0c342
-Author: Dillon Amburgey <dillona@gmail.com>
+Reset the device before deleting the virtqueues, the way
+virtio_gpu_deinit() already does on removal.
 
-drm/qxl: pack dumb heads from their plane source rectangles
+Fixes: cad6a879a7fb ("drm/virtio: Freeze and restore hooks to support suspend and resume")
+Cc: stable@vger.kernel.org
+Signed-off-by: Yuho Choi <oss.patchbox@gmail.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_drv.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-This commit sizes packed heads from their plane source rectangles and
-copies only those rectangles to their packed origins. It intercepts DirtyFB
-clips with every matching plane source and applies horizontal and vertical
-offsets to map modesets and dirty updates identically.
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
+index 2aaa7cb08085..52c174f9bff7 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.c
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+@@ -225,6 +225,7 @@ static int virtgpu_freeze(struct virtio_device *vdev)
+ 		goto err_resume;
+ 	}
+ 
++	virtio_reset_device(vdev);
+ 	vdev->config->del_vqs(vdev);
+ 
+ 	return 0;
+-- 
+2.43.0
 
-> diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_=
-display.c
-> --- a/drivers/gpu/drm/qxl/qxl_display.c
-> +++ b/drivers/gpu/drm/qxl/qxl_display.c
-> @@ -369,8 +369,10 @@ static void qxl_crtc_update_monitors_config(struct d=
-rm_crtc *crtc,
->  		head.y =3D crtc->y;
->  		if (qdev->monitors_config->count < i + 1)
->  			qdev->monitors_config->count =3D i + 1;
-> -		if (to_qxl_plane_state(crtc->primary->state)->shadow)
-> -			head.x +=3D to_qxl_plane_state(crtc->primary->state)->x;
-> +		if (to_qxl_plane_state(crtc->primary->state)->shadow) {
-> +			head.x =3D to_qxl_plane_state(crtc->primary->state)->x;
-> +			head.y =3D 0;
-> +		}
-
-[Severity: High]
-Does overwriting head.x with the shadow buffer's horizontal offset and
-explicitly zeroing head.y here discard the guest's actual vertical layout
-information?
-
-If a user configures a multi-monitor layout in the guest that is not purely
-side-by-side (like a vertical or custom arrangement), it appears
-qxl_crtc_update_monitors_config() will override the layout data sent to the
-SPICE client. Could this break the SPICE client's window placement and
-destroy absolute mouse input mapping on secondary monitors, since the
-client's coordinate space would no longer match the guest's?
-
-[ ... ]
-
-> @@ -847,9 +877,8 @@ static int qxl_prepare_shadow(struct drm_plane *plane,
->  		other =3D to_qxl_plane_state(ps);
->  		if (ps =3D=3D new_state)
->  			qps->x =3D surf.width;
-> -		bo =3D gem_to_qxl_bo(ps->fb->obj[0]);
-> -		surf.width +=3D bo->surf.width;
-> -		surf.height =3D max_t(u32, surf.height, bo->surf.height);
-> +		surf.width +=3D ps->src_w >> 16;
-> +		surf.height =3D max_t(u32, surf.height, ps->src_h >> 16);
-
-[Severity: High]
-Does accumulating surf.width here in qxl_prepare_shadow() force all CRTCs
-to be packed horizontally in the shadow buffer?
-
-It seems this horizontal packing might be what necessitates overriding the
-layout coordinates in qxl_crtc_update_monitors_config() above.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260926163123.3921=
-7-1-dillona@gmail.com?part=3D5
