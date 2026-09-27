@@ -1,238 +1,164 @@
-Received: from www3579.sakura.ne.jp (www3579.sakura.ne.jp [49.212.243.89])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj2-f41.google.com (mail-pj2-f41.google.com [74.125.227.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 496C21E9B37
-	for <virtualization@lists.linux.dev>; Sun, 27 Sep 2026 01:04:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=49.212.243.89
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D228435F5E3
+	for <virtualization@lists.linux.dev>; Sun, 27 Sep 2026 04:07:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790471079; cv=none; b=Tk8URhocdHMA/jrBDqdoWpygkWVHhGd1m9hpuSvTZVOPbmHwsfknIcpHmwQdvPp4e69rwklFum6qvVwbePAp6XTDTeyjOWS43ZaWViPi4RzKwFzSbA2pC6vz1/jJMtAvP3Vmbeh9hT+mShAXfNjNGiRhs2iEBPhrOt/lFJYfeM4=
+	t=1790482024; cv=none; b=NdIaOlIVhPvkqs65TiwGYcNAjv+K00Stk1Fuh0BslWVAG5+gOJ8+BI4BnmYCv3IffFUhOB8PUBoe/r04Wv3m+KsHwtjYiIFxC2uy5geyH/2Lefm3PIdmqjAkaBibZXlUPDAVyO1Mbf4Ff1ex6Wp6r5TD2a5YaxoFFEzV+BnS5Lg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790471079; c=relaxed/simple;
-	bh=vyonlww27nd+448wt9qP8foNfWYDEX6H7rEhX/94mF0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=hkGUzAX83EvRBq8MIY53+y66l6uR1pxcZOqnbGt0jsOb7ZVFYYPLo2ysiHObEaW7zQyiusI2bZqdZiDtGIXu/wJPIuuJ9zhv6hAeIwih76hteGAjlrs+zXL+Z0qHg89wuowM7zrxe8wFLQC0lihINuwBYdPSDwSO9eRMFAjhR60=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rsg.ci.i.u-tokyo.ac.jp; spf=pass smtp.mailfrom=rsg.ci.i.u-tokyo.ac.jp; dkim=pass (2048-bit key) header.d=rsg.ci.i.u-tokyo.ac.jp header.i=@rsg.ci.i.u-tokyo.ac.jp header.b=YEOIrGIT; arc=none smtp.client-ip=49.212.243.89
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rsg.ci.i.u-tokyo.ac.jp
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rsg.ci.i.u-tokyo.ac.jp
+	s=arc-20240116; t=1790482024; c=relaxed/simple;
+	bh=088gMiMMdfhBakYerlGjzfvUzuNsGRYEXZYzg3JNdDw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=PyZJ1mg9eSOfaBN23Zh1WbBESzErd/CLKNEXLhCfCgdCYpUqq8kpGmpqPRXPIoC2D+1TD14k9LVD/KHVNEuqlQ35BdsOnWjbcIpuuE/CsSyubq5uBZmZsINnCEORSQ8qZy8AbdCQvIJbb5s/Qcpt9zhyBJAf1mTSVbbe9G/nbFw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=pB4SJQ+V; arc=none smtp.client-ip=74.125.227.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rsg.ci.i.u-tokyo.ac.jp header.i=@rsg.ci.i.u-tokyo.ac.jp header.b="YEOIrGIT"
-Received: from [192.168.10.153] (p865013-ipoe.ipoe.ocn.ne.jp [153.242.222.12])
-	(authenticated bits=0)
-	by www3579.sakura.ne.jp (8.16.1/8.16.1) with ESMTPSA id 68R14B7G059851
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO);
-	Sun, 27 Sep 2026 10:04:11 +0900 (JST)
-	(envelope-from odaki@rsg.ci.i.u-tokyo.ac.jp)
-DKIM-Signature: a=rsa-sha256; bh=j9w0REUefCOyn/q9h5nw6t2GYkHFhe/4JUNcRaBJ3ls=;
-        c=relaxed/relaxed; d=rsg.ci.i.u-tokyo.ac.jp;
-        h=From:Message-ID:To:Subject:Date;
-        s=rs20250326; t=1790471051; v=1;
-        b=YEOIrGITN814dVoh8ELZYeibUAW/GbzKPm4z47VTZqNMlKKiY95jCfzAzE+q7hF8
-         iJwqg53LOLXUgElRtk1Vumhe9pq+Umaxlq//Xb/IaLz2f71i02FNAXu4NB4Xg5K1
-         quJ4ik9W6q518wDvbSX69acii7WdEVtW4rxpD3MSaTLBFqFLJmFSNMjzR9qEjKOm
-         GcH/dn5Uv4hHxCK70uGgOI8MyzvapSNEqr8IDmbvM/REtL9wIcbgMHRM7Y0jegBR
-         TcSBLbesnW/n4Fa7pmijBu3CqQxVgxkJ68JADrR9xfsFjzhVWmJGWwhxG1fsNvay
-         SahpQXVZnbMdM+gCqtn3Ag==
-Message-ID: <88d78717-d935-4c7f-a123-c6ddff761e97@rsg.ci.i.u-tokyo.ac.jp>
-Date: Sun, 27 Sep 2026 10:04:10 +0900
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pB4SJQ+V"
+Received: by mail-pj2-f41.google.com with SMTP id 98e67ed59e1d1-3a0b6200eb0so1533892a91.2
+        for <virtualization@lists.linux.dev>; Sat, 26 Sep 2026 21:07:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1790482022; x=1791086822; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=7z9jyGFvSNyPE4j90ojKfCFxGEKOnKcOHIMpedzYh5o=;
+        b=pB4SJQ+V5Va3hz/+Pr5buH+dnWNjq1Ob2cfQGbDe7yNPDfCpY9+IR6oPEumDW57bCR
+         HlIlLNfQ1hh/8o3UcNdx8Vm3Csewir7ROUZ9/j2wheoGIU+xE5RGduLYxuKdU7+tHO1N
+         h+3crZXsxSWSofA+rzzhvifb6ooDdtSfm4E/1k4swAEJmbURAqPIIh7WWYs/DFJcbs/4
+         VwI/7w1vKhYv0ykybJF0LxnIn3P5cvibSzMm+KMAYZD+6/EffRF25NjsTITbtduXVwfN
+         deBWepsvjBoP9bTfaBschplMftcWcJn3jrtfZXn9kWn0forn3lPuikhyOY0JHPEYHs3K
+         C9Cw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790482022; x=1791086822;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=7z9jyGFvSNyPE4j90ojKfCFxGEKOnKcOHIMpedzYh5o=;
+        b=iY4eR6KlfBxP0d6h9Vv9Vhav7HNMdCBQoYMs22rGVzCDaL1p6SF34mKIG1RJ6xSaB5
+         SDFxMhihyKQv+jDrdZy/ccYNyHbL5bVC5oLAnILuVrDIBeKQouYLp6AWJsuTbKxBHveB
+         a6fODc0VACQNQM9rSe9/Jl1cSZ2HEpo80zQ3tLmSyPdG0qhRVo+Cs/CPsVmllkhFB5Gl
+         iPPDBPb/ectTX0nwD+LId3Pc4KSY1KUQkDYEb/JQdBXdo7ec4F4M03fNnqNJ+vejTUL1
+         lmiKDFp/8MrwyCbW7wgvnmrP56zlggkfhVQj5PtLPKawauYVXXrR7HBusW3cQDniZkb+
+         iTkg==
+X-Forwarded-Encrypted: i=1; AKwUvBxBf80ysecjfru+Y6rsqqXHWFA14H/HEZ56PO/MXV1FsAhIvBjwn74naQW6RUL8zBBbgj6pOeao6pBO5cNjhg==@lists.linux.dev
+X-Gm-Message-State: AFq9FYKely5ZPzwmEXAc0b183irAT/u8a1PJYeMT4f06ixg86HMdks62
+	FGjVP2xc0ohkDgqGXXXluHlxCHQ28Zt0l74Y6qw4/B74TXbhx9+eN7zf
+X-Gm-Gg: AYBFou2KtbPzDiboE52hUfxufbiQt62Ri+1WlDZcHDS7EMF4x3j0l4L3OeNw8hlAtpa
+	jOU1DOWW5exENYSlXzrdchFQQ8Rx0dHZu1VaXaULQ1L17J2rR3j7+4ccQQQixi4foI5TDP0VKiB
+	0PVt8ietcf2BLWpFjocvzpKAYRjX9U7FhE7uwo2DgrNlpiJll0vZja6efrbN/VHT4lNLM0WacZx
+	W2ggX6lHkbrxKqGL6A17UMVXmOQuLUpsk9BkZSR9eVGQMUDs74ZEhmxBhdZmtEBa2kwRzmr870d
+	SBM4PcE1Om6sPDYU8nd7oL6x2/P3gR++1k11KmeOU2i9pqtDtaO3JxSrljAlQzoc14XP74agW1F
+	PFi2kRq3XIBCWXjeWGV65bTLApDerUEBTHwSianBKUA/eFGpNj3zC/GcVDS/i4EMPzIdU+UTywj
+	PKoBx8gh5cimxzIXjk6BjBjWr0GLYtkcTUe+iwaRHeLq5ZrYUBEdpIIWzdokKMkoRnmTemdlfOo
+	IF3UOoeGazC5AFv
+X-Received: by 2002:a17:90b:57e8:b0:39e:6c6a:6578 with SMTP id 98e67ed59e1d1-3a0bb6537admr5254135a91.59.1790482022096;
+        Sat, 26 Sep 2026 21:07:02 -0700 (PDT)
+Received: from thangnn-ASUS.. ([2405:4802:1d4a:e90:3a0c:2ea9:4ab7:bd1b])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3a0e7036e3bsm5833191a91.13.2026.09.26.21.06.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 26 Sep 2026 21:07:01 -0700 (PDT)
+From: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>
+To: David Airlie <airlied@redhat.com>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Cc: Gurchetan Singh <gurchetansingh@chromium.org>,
+	Chia-I Wu <olvaffe@gmail.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Simona Vetter <simona@ffwll.ch>,
+	dri-devel@lists.freedesktop.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>,
+	syzbot+d93b9064fe5f74af3aa3@syzkaller.appspotmail.com
+Subject: [PATCH] drm/virtio: put GEM objects when dropping a vbuf on unplug
+Date: Sun, 27 Sep 2026 11:06:55 +0700
+Message-ID: <20260927040655.14531-1-ngocthang2710.1999@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v9 4/4] drm/virtio: wire blob ioctl creation to
- userptr objects
-To: Honglei Huang <honghuan@amd.com>, dmitry.osipenko@collabora.com,
-        airlied@redhat.com, kraxel@redhat.com
-Cc: gurchetansingh@chromium.org, olvaffe@gmail.com, Ray.Huang@amd.com,
-        dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
-        linux-kernel@vger.kernel.org
-References: <20260924095556.1326164-1-honghuan@amd.com>
- <20260924095556.1326164-5-honghuan@amd.com>
-Content-Language: en-US
-From: Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>
-In-Reply-To: <20260924095556.1326164-5-honghuan@amd.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-On 2026/09/24 18:55, Honglei Huang wrote:
-> Integrate userptr into the blob resource creation ioctl.
-> 
-> - A non-zero userptr selects virtio_gpu_userptr_create()
-> - Reject userptr unless blob_mem is VIRTGPU_BLOB_MEM_GUEST
-> - Reject VIRTGPU_BLOB_FLAG_USE_READONLY unless the device
->    advertised VIRTIO_GPU_F_BLOB_READONLY
-> - Advertise VIRTGPU_PARAM_USERPTR and VIRTGPU_PARAM_BLOB_READONLY
-> - Add VIRTIO_GPU_F_BLOB_READONLY to the driver's features[] array
-> 
-> virtio_has_feature() routes device-specific feature bits through
-> virtio_check_driver_offered_feature(), which calls BUG() when the
-> driver queries a bit it never declared in features[]. The
-> VIRTIO_GPU_F_BLOB_READONLY probe added to virtio_gpu_init() hit
-> exactly that: every probe crashed regardless of host support because
-> the bit was missing from features[]. Registering it there fixes the
-> crash.
-> 
-> Signed-off-by: Honglei Huang <honghuan@amd.com>
-> ---
->   drivers/gpu/drm/virtio/virtgpu_debugfs.c |  1 +
->   drivers/gpu/drm/virtio/virtgpu_drv.c     |  1 +
->   drivers/gpu/drm/virtio/virtgpu_ioctl.c   | 35 ++++++++++++++++++++----
->   drivers/gpu/drm/virtio/virtgpu_kms.c     |  8 ++++--
->   4 files changed, 38 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_debugfs.c b/drivers/gpu/drm/virtio/virtgpu_debugfs.c
-> index 3a68a16b58..b8b9b40584 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_debugfs.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_debugfs.c
-> @@ -55,6 +55,7 @@ static int virtio_gpu_features(struct seq_file *m, void *data)
->   			    vgdev->has_resource_assign_uuid);
->   
->   	virtio_gpu_add_bool(m, "blob resources", vgdev->has_resource_blob);
-> +	virtio_gpu_add_bool(m, "blob readonly", vgdev->has_blob_readonly);
->   	virtio_gpu_add_bool(m, "context init", vgdev->has_context_init);
->   	virtio_gpu_add_int(m, "cap sets", vgdev->num_capsets);
->   	virtio_gpu_add_int(m, "scanouts", vgdev->num_scanouts);
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
-> index 2aaa7cb080..f1edd20c37 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-> @@ -182,6 +182,7 @@ static unsigned int features[] = {
->   	VIRTIO_GPU_F_RESOURCE_BLOB,
->   	VIRTIO_GPU_F_CONTEXT_INIT,
->   	VIRTIO_GPU_F_BLOB_ALIGNMENT,
-> +	VIRTIO_GPU_F_BLOB_READONLY,
->   };
->   
->   #ifdef CONFIG_PM_SLEEP
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> index 3d8e4ccdb7..3dc058e50e 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> @@ -36,7 +36,10 @@
->   
->   #define VIRTGPU_BLOB_FLAG_USE_MASK (VIRTGPU_BLOB_FLAG_USE_MAPPABLE | \
->   				    VIRTGPU_BLOB_FLAG_USE_SHAREABLE | \
-> -				    VIRTGPU_BLOB_FLAG_USE_CROSS_DEVICE)
-> +				    VIRTGPU_BLOB_FLAG_USE_CROSS_DEVICE | \
-> +				    VIRTGPU_BLOB_FLAG_USE_READONLY)
-> +
-> +#define VIRTGPU_BLOB_HINT_MASK DRM_VIRTGPU_BLOB_FLAG_HINT_DEFER_MAPPING
->   
->   /* Must be called with &virtio_gpu_fpriv.struct_mutex held. */
->   static void virtio_gpu_create_context_locked(struct virtio_gpu_device *vgdev,
-> @@ -122,6 +125,12 @@ static int virtio_gpu_getparam_ioctl(struct drm_device *dev, void *data,
->   			return -ENOENT;
->   		value = vgdev->blob_alignment;
->   		break;
-> +	case VIRTGPU_PARAM_USERPTR:
-> +		value = 1;
-> +		break;
-> +	case VIRTGPU_PARAM_BLOB_READONLY:
-> +		value = vgdev->has_blob_readonly ? 1 : 0;
-> +		break;
->   	default:
->   		return -EINVAL;
->   	}
-> @@ -453,11 +462,23 @@ static int verify_blob(struct virtio_gpu_device *vgdev,
->   	if (rc_blob->blob_flags & ~VIRTGPU_BLOB_FLAG_USE_MASK)
->   		return -EINVAL;
->   
-> +	if (rc_blob->blob_hints & ~VIRTGPU_BLOB_HINT_MASK)
-> +		return -EINVAL;
-> +
->   	if (rc_blob->blob_flags & VIRTGPU_BLOB_FLAG_USE_CROSS_DEVICE) {
->   		if (!vgdev->has_resource_assign_uuid)
->   			return -EINVAL;
->   	}
->   
-> +	if (rc_blob->blob_flags & VIRTGPU_BLOB_FLAG_USE_READONLY) {
-> +		if (!vgdev->has_blob_readonly)
-> +			return -EINVAL;
-> +	}
-> +
-> +	if (rc_blob->userptr &&
-> +	    rc_blob->blob_mem != VIRTGPU_BLOB_MEM_GUEST)
-> +		return -EINVAL;
-> +
->   	switch (rc_blob->blob_mem) {
->   	case VIRTGPU_BLOB_MEM_GUEST:
->   		*guest_blob = true;
-> @@ -495,6 +516,7 @@ static int verify_blob(struct virtio_gpu_device *vgdev,
->   	params->blob = true;
->   	params->blob_flags = rc_blob->blob_flags;
->   	params->blob_hints = rc_blob->blob_hints;
-> +	params->userptr = rc_blob->userptr;
->   
->   	if (vgdev->has_blob_alignment &&
->   	    !IS_ALIGNED(params->size, vgdev->blob_alignment))
-> @@ -518,9 +540,10 @@ static int virtio_gpu_resource_create_blob_ioctl(struct drm_device *dev,
->   	struct virtio_gpu_fpriv *vfpriv = file->driver_priv;
->   	struct drm_virtgpu_resource_create_blob *rc_blob = data;
->   
-> -	if (verify_blob(vgdev, vfpriv, &params, rc_blob,
-> -			&guest_blob, &host3d_blob))
-> -		return -EINVAL;
-> +	ret = verify_blob(vgdev, vfpriv, &params, rc_blob,
-> +			  &guest_blob, &host3d_blob);
-> +	if (ret)
-> +		return ret;
->   
->   	if (vgdev->has_virgl_3d)
->   		virtio_gpu_create_context(dev, file);
-> @@ -538,7 +561,9 @@ static int virtio_gpu_resource_create_blob_ioctl(struct drm_device *dev,
->   				      vfpriv->ctx_id, NULL, NULL);
->   	}
->   
-> -	if (guest_blob)
-> +	if (guest_blob && params.userptr)
-> +		ret = virtio_gpu_userptr_create(vgdev, file, &params, &bo);
+virtio_gpu_queue_ctrl_sgs() drops the command when drm_dev_enter() fails
+or when vqs_released is set. It unlocks the reservation and frees the
+vbuf, but never releases the references that the caller handed over in
+vbuf->objs. Those references are normally dropped from the dequeue path,
+which never sees a command that was not queued.
 
-After userptr creation has pinned pages, charged pinned_vm, queued 
-resource creation, and registered the object for restore, the 
-[handle-creation failure path calls drm_gem_object_release() directly. 
-The UUID-assignment failure path does likewise.
+If a framebuffer flush races with device removal, the GEM object backing
+the fbdev buffer keeps a stale reference, is never freed, and its node is
+still in the vma offset manager when the drm_device is released:
 
-That function releases GEM internals; it does not invoke the object’s 
-.free callback. The userptr pages, DMA mapping, memlock charge, and host 
-resource therefore remain unreleased, with no userspace handle available 
-to close them.
+  Memory manager not clean during takedown.
+  WARNING: drivers/gpu/drm/drm_mm.c:965 at drm_mm_takedown
+  Call Trace:
+   drm_managed_release
+   drm_dev_put
+   virtio_dev_remove
+   virtio_pci_remove
+   pci_device_remove
+   remove_store
 
-These error paths predate the series, but this patch routes long-term 
-userptr pins through them.
+Drop the object references together with the vbuf on both early-exit
+paths.
 
-Regards,
-Akihiko Odaki
+Reported-by: syzbot+d93b9064fe5f74af3aa3@syzkaller.appspotmail.com
+Closes: https://syzkaller.appspot.com/bug?extid=d93b9064fe5f74af3aa3
+Fixes: b7170f9457f2 ("drm/virtio: return virtio_gpu_queue errors")
+Signed-off-by: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_vq.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
-> +	else if (guest_blob)
->   		ret = virtio_gpu_object_create(vgdev, &params, &bo, NULL);
->   	else if (!guest_blob && host3d_blob)
->   		ret = virtio_gpu_vram_create(vgdev, &params, &bo);
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-> index 1d4d3bf46a..06c2bded49 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-> @@ -249,15 +249,19 @@ int virtio_gpu_init(struct virtio_device *vdev, struct drm_device *dev)
->   		vgdev->blob_alignment = blob_alignment;
->   	}
->   
-> +	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_BLOB_READONLY))
-> +		vgdev->has_blob_readonly = true;
-> +
->   	DRM_INFO("features: %cvirgl %cedid %cresource_blob %chost_visible",
->   		 vgdev->has_virgl_3d    ? '+' : '-',
->   		 vgdev->has_edid        ? '+' : '-',
->   		 vgdev->has_resource_blob ? '+' : '-',
->   		 vgdev->has_host_visible ? '+' : '-');
->   
-> -	DRM_INFO("features: %ccontext_init %cblob_alignment\n",
-> +	DRM_INFO("features: %ccontext_init %cblob_alignment %cblob_readonly\n",
->   		 vgdev->has_context_init ? '+' : '-',
-> -		 vgdev->has_blob_alignment ? '+' : '-');
-> +		 vgdev->has_blob_alignment ? '+' : '-',
-> +		 vgdev->has_blob_readonly ? '+' : '-');
->   
->   	ret = virtio_gpu_find_vqs(vgdev);
->   	if (ret) {
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index c02c03c10d92..b36c4da04b18 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -208,6 +208,17 @@ static void free_vbuf(struct virtio_gpu_device *vgdev,
+ 	kmem_cache_free(vgdev->vbufs, vbuf);
+ }
+ 
++static void virtio_gpu_drop_vbuf(struct virtio_gpu_device *vgdev,
++				 struct virtio_gpu_vbuffer *vbuf, bool locked)
++{
++	if (vbuf->objs) {
++		if (locked)
++			virtio_gpu_array_unlock_resv(vbuf->objs);
++		virtio_gpu_array_put_free(vbuf->objs);
++	}
++	free_vbuf(vgdev, vbuf);
++}
++
+ void virtio_gpu_reclaim_vbufs(struct virtio_gpu_device *vgdev)
+ {
+ 	struct virtio_gpu_vbuffer *vbuf;
+@@ -410,9 +421,7 @@ static int virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
+ 	int ret, idx;
+ 
+ 	if (!drm_dev_enter(vgdev->ddev, &idx)) {
+-		if (fence && vbuf->objs)
+-			virtio_gpu_array_unlock_resv(vbuf->objs);
+-		free_vbuf(vgdev, vbuf);
++		virtio_gpu_drop_vbuf(vgdev, vbuf, fence);
+ 		return -ENODEV;
+ 	}
+ 
+@@ -432,9 +441,7 @@ static int virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
+ 		 * synchronize_srcu() wait in drm_dev_unplug().
+ 		 */
+ 		if (vgdev->vqs_released) {
+-			if (fence && vbuf->objs)
+-				virtio_gpu_array_unlock_resv(vbuf->objs);
+-			free_vbuf(vgdev, vbuf);
++			virtio_gpu_drop_vbuf(vgdev, vbuf, fence);
+ 			drm_dev_exit(idx);
+ 			return -ENODEV;
+ 		}
+-- 
+2.43.0
 
