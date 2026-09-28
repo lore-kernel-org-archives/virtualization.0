@@ -1,155 +1,164 @@
-Received: from mail-oi1-f197.google.com (mail-oi1-f197.google.com [209.85.167.197])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 471BC4BF94E
-	for <virtualization@lists.linux.dev>; Mon, 28 Sep 2026 14:21:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.197
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 016BF4D6C3F;
+	Mon, 28 Sep 2026 14:44:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790605299; cv=none; b=bvhduD9+03EmHZugRMQ7/+YXZr6FphlYt2ng2XK91OlXgQckXegHAwtZLtdRjfj9LeOE3yQMRGDSDla5dEHF6WHPiRTy3/fcDsjPiWxL4DED4+hAsuORtJMEtKZQzflNX+obS1PAwQx1dfbazFrhftvX/SRRQu1jdX5eYYlq+xM=
+	t=1790606693; cv=none; b=Jtf9wCinAZoh8aBeh80XdmpB+ENB8cFvtF9cxpHMyHmbyZ56hUWJtQsMX1Og5deZe0KatmxgxOZJMGFoDiwvvc3tgF1ZFXvP6s7gCMJhawD52XLwqKKZjGmJyDtzFcnvDu2LUeT5SXy1oBM/Ie08oYjGm3TxpcTxazz5veXz+7k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790605299; c=relaxed/simple;
-	bh=l8LnOTZIQoA0h2h21hFNgU7pEPJnhkdZGBQKHKFCzbs=;
-	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
-	 Content-Type; b=Md27jjJb84pUCz3ceu2m8Y4KXhplk5hCtBtKgvTBf/9mOkT9Bae3zrT1zK0gDxmA2MZtPdFasRCW/f8F7qTpL8SeZLb82Iw9JIWqPkT20U8DSLP/VJkOPIbFXxueFpnUH4e2DtgVFiQHvu9m80vyr3aQNStF9/SasTh6GzXVHQw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.167.197
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-oi1-f197.google.com with SMTP id 5614622812f47-4a7de733fa9so5176534b6e.3
-        for <virtualization@lists.linux.dev>; Mon, 28 Sep 2026 07:21:38 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790605297; x=1791210097;
-        h=content-type:to:from:subject:message-id:in-reply-to:date
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=vubk7muu+YkhKRkIvbgFvnTZh6exw+2ow1dFCKoAylI=;
-        b=Qmcp4iWGtJHBJzbr5Utq8kKVohrXh/B7swglZ/oRjzsSpPRShP2F43fb1UOBs0/MPb
-         L8RrpzfXaGtjlkGmb3sxQHcokNoq+V78zvw3kYP/uz9QPpCWGz6ysXFxUKqrgzTGJIYC
-         sufpwp+icbLcwhr5qsMASqa10mdtMvdEgZq+r33E9xrnIfpt+rwgHqeU/Hn0QQiYt7KE
-         5Wzn0R+4drR9pzRbtLijPOTS4SQDdNWkWZG8noyAe/KeFBrVe/1oHwDVtC21OHgXVS1Z
-         D+6ae3hz5DRtyGBOoo66+0wTCoGqNIOKnORx1nqor0lMe0NBrH59jR5k177aO//hWOgs
-         Varw==
-X-Forwarded-Encrypted: i=1; AKwUvBwrESRrG03pvwZyJIi6Wv8H+D49fxQUGKE8Ih4siqZV9Sq610GROQyuDTu/1PGmOZUwlEcgZwxmolfArvE6Cw==@lists.linux.dev
-X-Gm-Message-State: AFuF++kCeg7w52FD4CMtK5nhT11uqzqtyA2Y60coWpUIIftVJ59ZBYJ6
-	FhlBpQ5l6iyQPzf4T3BNCroU5k2mmA0sSx4p/YIgZfGyaQR/SRzBFkh2O/sIBZkG5EZ33yymF2f
-	VAueAcr644tebNpkxx0LuJdS9kGmuwPbfgWL7SBfT8UAIAJVFH58XhMxLvc0=
+	s=arc-20240116; t=1790606693; c=relaxed/simple;
+	bh=ke9JBBtwtylHKdeQZ1wwGoeFC0gM2nZZGn1nsc7tj3o=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=PUKfXsTFFDZwP6WQdoVlWvlxfapVZ+fJz9k0sLnD9kug1W2ABGACnLAiAmYzgmzN//OAeFK7GjV6dmy85k8Rj0kKm3y9+WjcVgQzF0pISNlzbifpJGo0PDmvR7k7zp1uonv2bIGR2ZwwpVSLxujY1yAjyvrkfqivKOPNtoj/i4Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=nbEuX46B; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="nbEuX46B"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E50FB1F00893;
+	Mon, 28 Sep 2026 14:44:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxfoundation.org;
+	s=korg; t=1790606691;
+	bh=fss5/qW2KRPxMx2bFllwYMgwLmwU+5fSludVz5uECCQ=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=nbEuX46BYgySxw8NlsdBzixeoKoIP130DIb7IHtw95XNdhuz/Bqik10EefmXQrQe3
+	 Ks0ugd5BiLP5zi4u/vuD3fcopLZ4Y3emQH9MpqtkZYafP2p2ZNvfjscOb8KyeQgjPv
+	 ojzCdSGcrSpNaVCNKdP8scMWiVF0LRsGJiZ7O0Ls=
+Date: Mon, 28 Sep 2026 16:44:45 +0200
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Igor Skalkin <igor.skalkin@oss.qualcomm.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>, virtualization@lists.linux.dev,
+	linux-usb@vger.kernel.org,
+	Vasilii Ianikeev <vasilii.ianikeev@oss.qualcomm.com>,
+	Aiswarya Cyriac <aiswarya.cyriac@oss.qualcomm.com>,
+	Anton Yakovlev <anton.yakovlev@oss.qualcomm.com>,
+	Trilok Soni <trilok.soni@oss.qualcomm.com>
+Subject: Re: [PATCH 0/8] virtio-usb: add dual-role virtio USB driver
+Message-ID: <2026092846-word-shape-dab9@gregkh>
+References: <20260924160907.145405-1-igor.skalkin@oss.qualcomm.com>
+ <2026092520-aerosol-brim-22d1@gregkh>
+ <1149e188-7279-4c60-bd96-f8d75d721ae0@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6808:1914:b0:4ca:8d6f:4258 with SMTP id
- 5614622812f47-4d72e06ff3dmr12786028b6e.37.1790605297180; Mon, 28 Sep 2026
- 07:21:37 -0700 (PDT)
-Date: Mon, 28 Sep 2026 07:21:37 -0700
-In-Reply-To: <6a9826cf.9266084e.bf0d7.0008.GAE@google.com>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <6aba77f1.e548f532.1ca396.0049.GAE@google.com>
-Subject: Re: [syzbot] [dri?] [virt?] WARNING in virtio_gpu_free_object
-From: syzbot <syzbot+3590d97d8a586fa955c2@syzkaller.appspotmail.com>
-To: airlied@redhat.com, dmitry.osipenko@collabora.com, 
-	dri-devel@lists.freedesktop.org, gurchetansingh@chromium.org, 
-	kraxel@redhat.com, linux-kernel@vger.kernel.org, 
-	maarten.lankhorst@linux.intel.com, mripard@kernel.org, olvaffe@gmail.com, 
-	simona@ffwll.ch, syzkaller-bugs@googlegroups.com, tao1.yu@intel.com, 
-	tzimmermann@suse.de, virtualization@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1149e188-7279-4c60-bd96-f8d75d721ae0@oss.qualcomm.com>
 
-syzbot has found a reproducer for the following issue on:
+On Mon, Sep 28, 2026 at 03:55:38PM +0200, Igor Skalkin wrote:
+> 
+> 
+> On 9/25/2026 7:17 AM, Greg Kroah-Hartman wrote:
+> > On Thu, Sep 24, 2026 at 06:08:59PM +0200, Igor Skalkin wrote:
+> >> This series adds a new virtio-usb driver: a dual-role virtio device
+> >> capable of acting as a USB host controller, a USB device controller,
+> >> or both simultaneously with runtime role switching between the two
+> >> (USB OTG-style role switching) on ports that support it.
+> >>
+> >> The corresponding virtio-usb device specification has been posted to
+> >> virtio-comment for review. This series matches the v2 revision of
+> >> that spec, which reconciles a small number of protocol details
+> >> (per-role virtqueue presentation, host-role vp_idx for hub/multi-VP
+> >> support, and the device-role BIND/UNBIND event split) that were
+> >> clarified while integrating and testing this driver against the
+> >> spec:
+> > 
+> > Why do we need this at all when we have other ways of doing usb devices
+> > through virtio?
+> > 
+> > Why is a USB virtio spec needed at all, who is going to use it?
+> > 
+> > 
+> For device classes that already have a virtio equivalent (storage, HID,
+> video, audio) there's no need for virtio-usb: we can use
+> virtio-blk/virtio-input/virtio-video/virtio-snd directly.
+> What virtio-usb actually addresses is different: protocols that are
+> about raw USB semantics itself, not about any particular device class.
+> Two concrete cases we care about. ADB (Android Debug Bridge), a specific
+> USB interface/vendor-class protocol used throughout Android development
+> and debugging, with no meaningful way to express it as a block or HID
+> device. And Android Auto (AOA) / Apple CarPlay, USB-level
+> control-transfer and vendor-negotiation protocols used when a phone is
+> plugged into an automotive head unit.
+> Our motivating use case is automotive cockpit virtualization: a physical
+> USB port where a phone is plugged in needs to be handed to a guest VM
+> running the head-unit stack, and that guest needs to run one of these
+> USB-native protocols. The existing software on both sides already speaks
+> raw USB and works unmodified if it sees a real-looking USB device.
+> virtio-usb lets that keep working, instead of needing a new bespoke
+> virtio spec for every such protocol as new USB-based ecosystems show up.
 
-HEAD commit:    72d3fcf802c4 Linux 7.3-rc5
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=168a2ac9580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=7d012d9c67977ee4
-dashboard link: https://syzkaller.appspot.com/bug?extid=3590d97d8a586fa955c2
-compiler:       gcc (Debian 14.2.0-19) 14.2.0, GNU ld (GNU Binutils for Debian) 2.44
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=118a2ac9580000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=1324e325580000
+So you just want "raw" usb, then why not use usb-ip?  Isn't that what
+it's there for?  Or just mount usbfs and expose that to the host as
+that's what adb is using already, right?
 
-Downloadable assets:
-disk image (non-bootable): https://storage.googleapis.com/syzbot-assets/d900f083ada3/non_bootable_disk-72d3fcf8.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/57f8c24b5f88/vmlinux-72d3fcf8.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/6587a00eaa7f/bzImage-72d3fcf8.xz
+> >>   [RFC PATCH v2] virtio-usb: Add initial virtio-usb specification
+> >>   Igor Skalkin <igor.skalkin@oss.qualcomm.com>
+> >>   virtio-comment@lists.linux.dev
+> >>   https://lore.kernel.org/virtio-comment/20260924154007.143927-1-igor.skalkin@oss.qualcomm.com/
+> >>
+> >> This driver has been tested end-to-end against our own userspace
+> >> virtio-usb device implementation (host-side backend) in two setups:
+> > 
+> > Where is that code and why isn't it part of this submission?
+> > 
+> The backend we used for the testing described above is an internal
+> implementation that we're not releasing as part of this submission - it
+> integrates with some systems that aren't ready to be public. We
+> recognize that limits independent verification of our specific test
+> results, and we don't think that's an ideal situation.
 
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+3590d97d8a586fa955c2@syzkaller.appspotmail.com
+Then we can't even review this at all, sorry, you all know better than
+that.
 
-Console: switching to colour dummy device 80x25
-------------[ cut here ]------------
-DEBUG_LOCKS_WARN_ON(lock->magic != lock)
-WARNING: kernel/locking/mutex.c:625 at __mutex_lock_common kernel/locking/mutex.c:625 [inline], CPU#2: syz.0.17/5926
-WARNING: kernel/locking/mutex.c:625 at __mutex_lock+0x944/0x1bd0 kernel/locking/mutex.c:821, CPU#2: syz.0.17/5926
-Modules linked in:
-CPU: 2 UID: 0 PID: 5926 Comm: syz.0.17 Not tainted syzkaller #0 PREEMPT(full) 
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
-RIP: 0010:__mutex_lock_common kernel/locking/mutex.c:625 [inline]
-RIP: 0010:__mutex_lock+0x94b/0x1bd0 kernel/locking/mutex.c:821
-Code: 0f b6 14 11 38 d0 7c 08 84 d2 0f 85 c0 10 00 00 44 8b 05 e8 55 71 05 45 85 c0 75 13 48 8d 3d ac 61 74 05 48 c7 c6 c0 f6 ef 8b <67> 48 0f b9 3a 90 e9 1b f8 ff ff 4d 8d a7 f0 0a 00 00 4c 89 e7 e8
-RSP: 0018:ffffc900043f7b30 EFLAGS: 00010246
-RAX: 0000000000000003 RBX: ffff888100b551c0 RCX: 1ffffffff228b180
-RDX: 0000000000000000 RSI: ffffffff8beff6c0 RDI: ffffffff914897d0
-RBP: ffffc900043f7ca0 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000001 R12: 0000000000000000
-R13: 0000000000000000 R14: dffffc0000000000 R15: ffff888027028b60
-FS:  0000555564139500(0000) GS:ffff8880d5d4f000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000001b32f24008 CR3: 00000000296f3000 CR4: 0000000000352ef0
-Call Trace:
- <TASK>
- virtio_gpu_remove_from_restore_list drivers/gpu/drm/virtio/virtgpu_object.c:70 [inline]
- virtio_gpu_free_object+0xec/0x280 drivers/gpu/drm/virtio/virtgpu_object.c:106
- drm_gem_object_free+0x60/0xa0 drivers/gpu/drm/drm_gem.c:1164
- kref_put include/linux/kref.h:65 [inline]
- __drm_gem_object_put include/drm/drm_gem.h:562 [inline]
- drm_gem_object_put include/drm/drm_gem.h:575 [inline]
- drm_gem_object_put include/drm/drm_gem.h:572 [inline]
- drm_client_buffer_delete drivers/gpu/drm/drm_client.c:201 [inline]
- drm_client_buffer_delete+0x1d8/0x270 drivers/gpu/drm/drm_client.c:185
- drm_fbdev_shmem_fb_destroy+0xc5/0x110 drivers/gpu/drm/drm_fbdev_shmem.c:67
- put_fb_info drivers/video/fbdev/core/fbmem.c:61 [inline]
- put_fb_info+0xb8/0xf0 drivers/video/fbdev/core/fbmem.c:56
- fb_release+0x13e/0x190 drivers/video/fbdev/core/fb_chrdev.c:381
- __fput+0x3ff/0xb50 fs/file_table.c:512
- task_work_run+0x150/0x240 kernel/task_work.c:233
- resume_user_mode_work include/linux/resume_user_mode.h:50 [inline]
- __exit_to_user_mode_loop kernel/entry/common.c:70 [inline]
- exit_to_user_mode_loop+0x1d8/0x700 kernel/entry/common.c:101
- __exit_to_user_mode_prepare include/linux/irq-entry-common.h:207 [inline]
- syscall_exit_to_user_mode_prepare include/linux/irq-entry-common.h:230 [inline]
- syscall_exit_to_user_mode include/linux/entry-common.h:343 [inline]
- do_syscall_64+0x661/0x790 arch/x86/entry/syscall_64.c:89
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
-RIP: 0033:0x7f1e7cf9e159
-Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 e8 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007fffb76db628 EFLAGS: 00000246 ORIG_RAX: 00000000000001b4
-RAX: 0000000000000000 RBX: 00007fffb76db710 RCX: 00007f1e7cf9e159
-RDX: 0000000000000000 RSI: 000000000000001e RDI: 0000000000000003
-RBP: 000000000000e123 R08: 0000000000000001 R09: 0000000000000000
-R10: 0000001b32320000 R11: 0000000000000246 R12: 0000000000000000
-R13: 00007f1e7d225fac R14: 00007f1e7d225fa8 R15: 00007f1e7d225fa0
- </TASK>
-----------------
-Code disassembly (best guess):
-   0:	0f b6 14 11          	movzbl (%rcx,%rdx,1),%edx
-   4:	38 d0                	cmp    %dl,%al
-   6:	7c 08                	jl     0x10
-   8:	84 d2                	test   %dl,%dl
-   a:	0f 85 c0 10 00 00    	jne    0x10d0
-  10:	44 8b 05 e8 55 71 05 	mov    0x57155e8(%rip),%r8d        # 0x57155ff
-  17:	45 85 c0             	test   %r8d,%r8d
-  1a:	75 13                	jne    0x2f
-  1c:	48 8d 3d ac 61 74 05 	lea    0x57461ac(%rip),%rdi        # 0x57461cf
-  23:	48 c7 c6 c0 f6 ef 8b 	mov    $0xffffffff8beff6c0,%rsi
-* 2a:	67 48 0f b9 3a       	ud1    (%edx),%rdi <-- trapping instruction
-  2f:	90                   	nop
-  30:	e9 1b f8 ff ff       	jmp    0xfffff850
-  35:	4d 8d a7 f0 0a 00 00 	lea    0xaf0(%r15),%r12
-  3c:	4c 89 e7             	mov    %r12,%rdi
-  3f:	e8                   	.byte 0xe8
+> >>   4-5: USB OTG-style role query and role-switching support.
+> > 
+> > There's a reason OTG isn't used anymore by devices, how have you
+> > addressed those problems here?  And why duplicate the failures of the
+> > past?
+> > 
+> We're not implementing ID-pin detection, HNP, or SRP - none of that.
+> "OTG" here is just a reused name for something much simpler: an explicit
+> role-switch command exposed to the guest via sysfs. Device-to-host is
+> driver-initiated (guest writes to that sysfs entry); host-to-device is
+> host-initiated (the host switches on its own and notifies the guest).
+> Either direction is always granted - no negotiation step to get wrong.
+> Happy to rename the OTG-tagged commands/constants if the naming is
+> causing confusion.
 
+"OTG" has a _VERY_ specific definition in the USB world, don't attempt
+to re-define it please.  That way lies madness...
 
----
-If you want syzbot to run the reproducer, reply with:
-#syz test: git://repo/address.git branch-or-commit-hash
-If you attach or paste a git patch, syzbot will apply it before testing.
+> >>   6:   endpoint-lifecycle robustness rework (async split-phase state
+> >>        machine, replacing an earlier out-of-tree gadget.nonatomic
+> >>        patch that didn't pass upstream review).
+> >>   7:   SuperSpeed device-role support.
+> > 
+> > Why should speed settings matter to a virtual connection?
+> >
+> Because the kernel APIs we're implementing on top of are inherently
+> speed-typed, not because of any real electrical/physical constraint.
+> usb_hcd (host role) and the USB Gadget API (device role) both bake speed
+> into their core design - it drives enumeration, bandwidth scheduling,
+> and descriptor selection (e.g. SuperSpeed companion descriptors) in the
+> USB core and in gadget function drivers. dummy_hcd is a good precedent:
+> it's also a purely virtual host controller with no real signaling, and
+> it still has to declare and support different speed configurations,
+> because the framework requires it. We're in the same position -
+> unmodified guest USB class drivers and gadget function drivers depend on
+> accurate speed information regardless of what's actually behind the
+> interface.
+
+This is a virtual connection, speed means nothing here other than some
+descriptor stuff in a few places.
+
+Again, try using the existing code, usb-ip or usbfs, don't invent
+something new, especially when it's not even visable to anyone.  Would
+you want to attempt to review something like this in that situation?
+
+thanks,
+
+greg k-h
