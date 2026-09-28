@@ -1,57 +1,57 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 541C438F624
-	for <virtualization@lists.linux.dev>; Mon, 28 Sep 2026 05:39:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37D533911DF
+	for <virtualization@lists.linux.dev>; Mon, 28 Sep 2026 05:39:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790573966; cv=none; b=KtwnIzHCCr8LJO43WDwwtla+T1WVi1Ck+Yk4wMydTbRtRouk84iM/XR5hLZ9YV0BS+c2vdCVTCXReofDEUJKRrSew2fUUkKN8Yu6gJSr4HK5XZrUl8w32B/HlSQAAQ8dar2oVk0WB7hGhubbEGF0GvOoZJ6QQaqpuHATLqZ6kDU=
+	t=1790573974; cv=none; b=GOT5ChD0zVMC7CNvsC1QRC8uDT2oWadlsEpchsiywHzFw8x33HJll43J3gJqhaLTyx/XpydUu46wQN33PN8fNIhU966Km8hAndTNxXXwI8MRAvvgKGJO441twnfqbkiDPImfL34nxoOuJhzra78b1T+ffkzLxOf3/+bEIUwob5c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790573966; c=relaxed/simple;
-	bh=cCcN25wxQ0amDxXfkakTvCLp9vaOSJu+PcSRy4xXwT0=;
+	s=arc-20240116; t=1790573974; c=relaxed/simple;
+	bh=WV94R4bdSJj1h+wqg3qTB69SyGPxryLA3aAI7gZJb5Q=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=cdGiZaXiK3AGjU5JnhF3retrJvnK8KeicoDW9/XaNbqrJZFOC3FtXVX8eu3yteX08ikHomr/LH7J2i0pjgN5dKKVavsPATJ1xjluHC1wAGCYn+3M2wgUh4+8mqxmO20Ss7lSjU6IRU/hDOSvDeBObbzzTQEMgCew6LywiyPCQQk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rFJoJcYq; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=EhkLDRauV8F5L3sAIKNoNv5+s/FJY77WGF5mF+m7Tyl/T5hGA5NCJ6vz+F0KGs6CMKbeAY+22hfXGqCIBX4tTNrkWmf9Ma1IJ2220sA6GdjWywER26p293aTFdazyleXSTPweQqV2c7zhTy6eIIzgeJUuzNxXeE/MObO5iXzmtY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=JA+trgJW; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rFJoJcYq"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68RGWOGS244825;
-	Mon, 28 Sep 2026 05:39:02 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="JA+trgJW"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68REscbj030241;
+	Mon, 28 Sep 2026 05:39:14 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=XRlAaDFrmNDeJHVPL
-	dO791mIaiCLsR4lZg/ONlxLNp0=; b=rFJoJcYq7wPjkVNzEUZG3aqHEIYWutzUK
-	wzwdHwFyJaX1h4Uo9tQgIqYOawQs/xWXW48gmcVG9LlQx25YD3P79gduxPVcw1CG
-	MN1za9Cj2AAUYwYGe+c0U6Alqc3DllZcV/u4VmltTdbOHTzgUQUR2qdz5FWhfayY
-	DRMNZOBFAfhgWQaNv5ixl1Bx2JKlifmn3lNYNcWKnSuEjVscNYcsWmuAhzan6Kh9
-	I6Nm6cdkhQuaq74elLxnJo13D3ZTrKmzVBb8davfJ+wmy/LmYJpUcA38UCCPt3rK
-	SjdGyUB0hoQAU9mx/uGfvJ/fuGHQUZAsSyzSS1jMV2/6NpsXW5+2g==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gx5s4ygd6-1
+	:mime-version:references:subject:to; s=pp1; bh=ACCi0W5xeo6XQLJNz
+	dWH/VD9NE5Z4JGt9f0/KSO0OnY=; b=JA+trgJWpXO5wsjz9X0WfvxwlWNsaWS8K
+	GTaCOsGPY78vt9nkqpNulfgiPCtRW+hERIqeQbQ4CR+akqhjpXTVJV+DEnl+icGZ
+	WF4dFO5m4tXq4McUv7h5c/bahBCUwx2VjNksFXChe6j9oK7oHVQm6ChLMcmI4uXj
+	RUE3gJyTCWzbrFxVWtYaFmgPL9/E/SgqaAAmkrvIBzP7ZIzoTTi+FEOFVa8Q2PNz
+	CpG7xV/evHGOdYIpdOMUULQJQNYHjks+pGBohgTCXU6kRSteejMjiwEF8fIqwk2P
+	0XkIKSnEeWLB8pC84k1xGhsG6GLzL2ul0wK6p7lVDnCrydLDq9zHw==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gx3fjyg6u-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Mon, 28 Sep 2026 05:39:02 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68S3FXN72024361;
-	Mon, 28 Sep 2026 05:39:00 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gxrrw3wsp-1
+	Mon, 28 Sep 2026 05:39:13 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68S3c19j2157899;
+	Mon, 28 Sep 2026 05:39:13 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gxsvhbrye-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 28 Sep 2026 05:39:00 +0000 (GMT)
+	Mon, 28 Sep 2026 05:39:12 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68S5curp48431416
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68S5d9O251118580
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 28 Sep 2026 05:38:57 GMT
+	Mon, 28 Sep 2026 05:39:09 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D051520043;
-	Mon, 28 Sep 2026 05:38:56 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id E38F420043;
+	Mon, 28 Sep 2026 05:39:08 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 796B320040;
-	Mon, 28 Sep 2026 05:38:45 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 7008320040;
+	Mon, 28 Sep 2026 05:38:57 +0000 (GMT)
 Received: from li-7bb28a4c-2dab-11b2-a85c-887b5c60d769.ibm.com.com (unknown [9.124.213.68])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 28 Sep 2026 05:38:45 +0000 (GMT)
+	Mon, 28 Sep 2026 05:38:57 +0000 (GMT)
 From: Shrikanth Hegde <sshegde@linux.ibm.com>
 To: linux-kernel@vger.kernel.org, mingo@kernel.org, peterz@infradead.org,
         juri.lelli@redhat.com, vincent.guittot@linaro.org,
@@ -67,9 +67,9 @@ Cc: sshegde@linux.ibm.com, tglx@kernel.org, gregkh@linuxfoundation.org,
         rafael@kernel.org, rdunlap@infradead.org, kernellwp@gmail.com,
         linux-doc@vger.kernel.org, jgross@suse.com,
         virtualization@lists.linux.dev, sunlightlinux@gmail.com
-Subject: [PATCH v14 06/13] sched/core: Try to use a preferred CPU in is_cpu_allowed
-Date: Mon, 28 Sep 2026 11:07:21 +0530
-Message-ID: <20260928053728.797539-7-sshegde@linux.ibm.com>
+Subject: [PATCH v14 07/13] sched/fair: Load balance only among preferred CPUs
+Date: Mon, 28 Sep 2026 11:07:22 +0530
+Message-ID: <20260928053728.797539-8-sshegde@linux.ibm.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260928053728.797539-1-sshegde@linux.ibm.com>
 References: <20260928053728.797539-1-sshegde@linux.ibm.com>
@@ -82,126 +82,92 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTI4MDAyMiBTYWx0ZWRfX48bCQTaZfK1T
- ViFblsbB5NoI1zmk1j1q77+m+83AjBW4SKFEXksfSzRrMJoQoRSIrtV8Mnv5BvMuiIkkf8iVKEY
- VpsAj+XND/ycyPijUnancJ0/6A24p7o=
-X-Authority-Analysis: v=2.4 cv=HJ5WhYtv c=1 sm=1 tr=0 ts=6ab9fd76 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+X-Proofpoint-ORIG-GUID: GOj41IppJTqaxUQvPK9LqLFz8UUsGgwl
+X-Proofpoint-GUID: 2GOIzXwwlPJWKaLWJywVw1qEUyuPkHq6
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTI4MDAyMiBTYWx0ZWRfXw0WuEv4LP/f3
+ uwWqZhu4fqCAtqRtV/gszJpm6CSjFzakv+kbfkYHPSuEPoAR6BRdFwecIMDI6Lipv88a0cfvFFo
+ a/F5n+H4UyrZySKCCPFUcXUmAjE3LMs=
+X-Authority-Analysis: v=2.4 cv=Vv62kO2n c=1 sm=1 tr=0 ts=6ab9fd82 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8 a=xlrYe_syFdJcAglVzgYA:9
-X-Proofpoint-GUID: lxQbB7vwlYLEmCs_F56N1raLOqBTBzVD
-X-Proofpoint-ORIG-GUID: WfFh8Be1OCZjNYGT8X0DYobdNiRo1wrU
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTI4MDAyMiBTYWx0ZWRfX4ync0jFq9vdA
- p5K29yZ2JXkS4+iJ8cc5VOgzBvOR8J5VUtVYl/nfYnNZeuqzYY9o4LtEpzRwN9wZGqVKnYWVbUu
- TxnhQ3dvtuwxA+ouBNrsq4OAZzsUPJ8HQIsP+7atzKvIhqS9xNSdkuhdGc2RNr8rDeQFjLLcoMh
- xrdQjQsJei1+QPA8nFJBKXd3mKXL2Fxa5vxXc6onLl7YM0PgoDHc2FzIXhnFx5Cxz23rFruH3f6
- 1mAfDFNSVY30onkPsAnzqhWPICNSuCd4uT1Xo4mJfRNm036tS3SMFKUxY7o1OZdw5aHt+dWXDZn
- x9GB+cvQ3x+XfY5uYcnxZL2VS8xnnXcVf4nB61AFyl7iBawkeZuvSTv7Qjnibf5PH6osWGO7L74
- e/juIYikg1khOu56paN9I8MNg8A/O1WaXP8wLwRjGGxSJc+QQPVeXTeHUQbOJV2DNwjR/ByOo7V
- C0cS91HMyTujUrE8l3w==
+ a=Y2IxJ9c9Rs8Kov3niI8_:22 a=Ikd4Dj_1AAAA:8 a=VnNF1IyMAAAA:8
+ a=f1WSfB00kwmd_FHdG74A:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTI4MDAyMiBTYWx0ZWRfX8AJFZiVf5BtC
+ OtylOX+ZqJ2w1kXY9bl/1fG1xaS1r9T0SW9LvK6gFsyX9n5Tn9q+mMcLYIrR7CZv5o3UMrFQosp
+ 6A4WRq+BewXetXIQnQ7qs4mRHiQhWd/wpaHXHwfpT4FbVwZXCpfGobH7jawNa67Gol7s+irtWse
+ zGpLPLFl1cFJ9KHEnGKmPVgxFM0s3lF6tFJH5xf/NzfWtqswGZJ9WDPwAY6Ct3LFMOvWabetNE0
+ iJKpEuiPSGE4g7WHbNBjwaZ+fDUjspXaP1zKkJZkqoUiW3C3bQ2ci2vIbPQ3oOucw06hLxx063D
+ 9l2BKcCcq2gERB0BpqJ6JJnwdpf0wtI/KVy5iFw8G9khOIPRVZvPqlM2iE1T38nxCmZle1vpKko
+ Qde832VDfxTOoSoM4YNBLkdPxY/q+fbDSOtTXnDGYWHMvPp71oltSArqKtq8enCtQJ9BC4V+ixE
+ 03wg2xjfWMN/0cT5hkg==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-09-26_05,2026-09-21_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 suspectscore=0 bulkscore=0 clxscore=1015 lowpriorityscore=0
- spamscore=0 impostorscore=0 phishscore=0 priorityscore=1501 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609280022
+ suspectscore=0 spamscore=0 phishscore=0 bulkscore=0 adultscore=0
+ priorityscore=1501 malwarescore=0 clxscore=1015 lowpriorityscore=0
+ impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
+ definitions=main-2609280022
 
-When possible, try to choose a preferred CPU.
+When a CPU is marked as non-preferred, any load pulled towards it is
+pointless since the task will be pushed out again in the next tick.
+So, consider only preferred CPUs for load balancing.
 
-This is essential to maintain user affinities when preferred
-CPUs change. A task pinned on a non-preferred CPU should continue
-to run there, since this is a non-user triggered event.
+This ensures load balancing does not fight against the push task mechanism
+which happens at the tick. Also, this stops active balancing from happening
+on a non-preferred CPU pulling the load.
 
-If a CPU is non-preferred and the task can run on other CPUs which are
-currently preferred, then choose a preferred CPU instead.
-This is decided by checking if cpus_ptr, cpu_preferred_mask and
-task possible CPUs intersect or not. If yes, then the task has
-other preferred CPUs. This takes care of tasks with architecture-specific
-CPU masks (e.g., 32-bit tasks on arm64).
+This also means there is no load balancing if a task is pinned only to
+non-preferred CPUs. They will continue to run where they were previously
+running before the CPUs were marked as non-preferred.
 
-The push task mechanism uses a stopper thread which calls
-select_fallback_rq() and uses this mechanism to pick a preferred CPU.
+Bail out early for NEWIDLE balancing, as load balancing is done only on
+preferred CPUs. Note that idle balancing is allowed to go through, since
+that naturally updates nohz.next_balance when all the idle CPUs are
+non-preferred.
 
-This takes care of the wakeup path for FAIR tasks too.
-is_cpu_allowed() is called to ensure wakeups happen on preferred CPUs.
-With that, additional checks in available_idle_cpu() are not necessary.
+Also, optimization in find_new_ilb() is skipped. The steal governor driver,
+which is introduced in later patches, updates the preferred CPUs state in
+descending order. find_new_ilb() checks for idle CPUs in ascending order.
+Hence, in most common scenarios, the idle CPU found by find_new_ilb() will
+already be a preferred CPU. When all idle CPUs are non-preferred, the first
+idle CPU has to be chosen anyway. All of this is naturally handled in
+find_new_ilb() currently. Adding additional complexity to it for rare
+edge cases is not necessary.
 
-Ignore the preferred CPU state if a task's affinity is changing and
-its new mask no longer includes the CPU it is currently running on.
-This ensures migration_cpu_stop() does not abort, preventing the task
-from being stranded outside its allowed affinity.
-
-For the majority of cases, this would still keep select_fallback_rq()
-as O(N). cpumask_intersects_and(), which is O(N), is called only if
-!cpu_preferred. The task running there is expected to move out.
-Subsequently, it should run on a preferred CPU. This becomes O(N**2)
-only for tasks pinned solely to non-preferred CPUs. That is a rare case.
-
-Overhead is minimal when the CPU is preferred.
-
+Reviewed-by: Yury Norov <ynorov@nvidia.com>
 Signed-off-by: Shrikanth Hegde <sshegde@linux.ibm.com>
 ---
- kernel/sched/core.c | 30 ++++++++++++++++++++++++++++--
- 1 file changed, 28 insertions(+), 2 deletions(-)
+ kernel/sched/fair.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 0183c75d7d51..04400f934cc7 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -2504,6 +2504,24 @@ static inline bool rq_has_pinned_tasks(struct rq *rq)
- 	return rq->nr_pinned;
- }
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 03206e15e6fe..1c687c3c70f1 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -13467,7 +13467,7 @@ static int sched_balance_rq(int this_cpu, struct rq *this_rq,
+ 	};
+ 	bool need_unlock = false;
  
-+static inline bool task_can_migrate_to_preferred(struct task_struct *p, int cpu)
-+{
-+	/* No need to migrate from a preferred CPU */
-+	if (cpu_preferred(cpu))
-+		return false;
-+
-+	/* Only FAIR tasks honor preferred CPU state */
-+	if (unlikely(p->sched_class != &fair_sched_class))
-+		return false;
-+
-+	/* Ignore preferred state if task affinity is changing */
-+	if (unlikely(!cpumask_test_cpu(task_cpu(p), p->cpus_ptr)))
-+		return false;
-+
-+	return cpumask_intersects_and(p->cpus_ptr, cpu_preferred_mask,
-+				      task_cpu_possible_mask(p));
-+}
-+
- /*
-  * Per-CPU kthreads are allowed to run on !active && online CPUs, see
-  * __set_cpus_allowed_ptr() and select_fallback_rq().
-@@ -2519,8 +2537,12 @@ static inline bool is_cpu_allowed(struct task_struct *p, int cpu)
- 		return cpu_online(cpu);
+-	cpumask_and(cpus, sched_domain_span(sd), cpu_active_mask);
++	cpumask_and(cpus, sched_domain_span(sd), cpu_preferred_mask);
  
- 	/* Non kernel threads are not allowed during either online or offline. */
--	if (!(p->flags & PF_KTHREAD))
-+	if (!(p->flags & PF_KTHREAD)) {
-+		/* Try to use preferred CPU if task's affinity allows */
-+		if (task_can_migrate_to_preferred(p, cpu))
-+			return false;
- 		return cpu_active(cpu);
-+	}
+ 	schedstat_inc(sd->lb_count[idle]);
  
- 	/* KTHREAD_IS_PER_CPU is always allowed. */
- 	if (kthread_is_per_cpu(p))
-@@ -2530,7 +2552,11 @@ static inline bool is_cpu_allowed(struct task_struct *p, int cpu)
- 	if (cpu_dying(cpu))
- 		return false;
+@@ -14582,10 +14582,8 @@ static int sched_balance_newidle(struct rq *this_rq, struct rq_flags *rf)
+ 	 */
+ 	this_rq->idle_stamp = rq_clock(this_rq);
  
--	/* But are allowed during online. */
-+	/* Try to keep unbound kthreads on a preferred CPU if possible. */
-+	if (task_can_migrate_to_preferred(p, cpu))
-+		return false;
-+
-+	/* Otherwise, they are allowed to run on online CPU. */
- 	return cpu_online(cpu);
- }
+-	/*
+-	 * Do not pull tasks towards !active CPUs...
+-	 */
+-	if (!cpu_active(this_cpu))
++	/* Do not pull tasks towards !preferred CPUs */
++	if (!cpu_preferred(this_cpu))
+ 		return 0;
  
+ 	/*
 -- 
 2.52.0
 
