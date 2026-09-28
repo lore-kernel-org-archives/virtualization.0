@@ -1,289 +1,187 @@
-Received: from mail-oo2-f39.google.com (mail-oo2-f39.google.com [74.125.231.167])
+Received: from mail-pj2-f19.google.com (mail-pj2-f19.google.com [74.125.227.147])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F89B140E5F
-	for <virtualization@lists.linux.dev>; Mon, 28 Sep 2026 12:31:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.231.167
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790598690; cv=pass; b=YmtoRzNGoS4nGTGHfAeL9ziPg0C2fCL2Ae2ckSh4BX/hRN2ucsT7GcFIMpzAnqmqQCrqnXr8ngycEXXq3JAUTuj7D4y/ymMeGPwAkpYpUYsh0W6c2HwOzHUHDtRXdhbMAY9YzTrYHhp/SiAMagrHK7DxA+mp++Fm1HUJvH/8wI0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790598690; c=relaxed/simple;
-	bh=pGqjouXigEb8Rd7xXM5yqOmz3KJeVZQOEeavZvKc804=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=tH48RoE0FAV1CwuFJ5lecRZJTVafRYmuVu0WikVFWZlYM4QW22lk5mC9M3vBG1E92t4U3Psfg/bGEGlJ85hTM0ozA8gkSrsm77p9o9OqZgDzIZMmIg+b3ucEn/9oaCkPtaP39umFEzQpAQiRdPU5MWthfXKyMa3dV7un39zzOXA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=quygOSwL; arc=pass smtp.client-ip=74.125.231.167
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A27032EEE61
+	for <virtualization@lists.linux.dev>; Mon, 28 Sep 2026 12:35:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.147
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1790598902; cv=none; b=UodMwBZ/lgUGiJcn70DguE2D9kthVVcImmqJA75A3lKYuvoS86gibO+ykPxWQmOIRP2VVPDv4yjI6Zny7DMsnYetwFqUJH9YGNeOVkYmS0lHZTINhag/VqeVdvrYoALCLKzf5PqbWANBSoLCvtlTZwyA6EcasiIzY9L729QwpJc=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1790598902; c=relaxed/simple;
+	bh=l8o0E6eZA+HbYfciaj1MMVO+r3oJ8uoV2GSkjNnZkFs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=YSomOretfIr/9rqqhVKZg9yBMlBJs/ndJ6F8hQ0fAk3BqYWZf042mpn7oAkx+sJxcBlCe2eILTRG04145w45rJTz2jiDjxTf1Ui8GbqFuYy0iWEIHoBXTEksfza5Zl6Duc658x83/iXsyhgG9Vuv0enPDSCRppnOgtm9FCfQVhw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Lncv0w6w; arc=none smtp.client-ip=74.125.227.147
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="quygOSwL"
-Received: by mail-oo2-f39.google.com with SMTP id 46e09a7af769-81c05431513so552816a34.0
-        for <virtualization@lists.linux.dev>; Mon, 28 Sep 2026 05:31:28 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1790598687; cv=none;
-        d=google.com; s=arc-20260327;
-        b=A40z5p4Rfd0k3BseKFIiZR77OXZh0SOK/m9PGC8tLv8iRwb23GUu1FP4ur9Z4B1989
-         Wei69YdWJspu7mzWGS3KyPa4tZ2Y4h59bXPufVsstOyCUbKy6vT8ICITMGqQMvJ3hfbm
-         C0iEhS1zr+/eSgCLj8BorcGD1vJBtXC8nAU8ITVjLDnNR9Q5tNWfhLwNPaOflrmgPkOO
-         IknGaZqf0AKOakwfKtTsXF+6OdUjw/8O1TZWLZZ0dnEj+XjpEloFb0pfrA00ULr8NVj9
-         ee0z7RE4RH5RHGNXiCyUHiSfzgji104DB83NoyUQDpp13dUlgg+hnwMaqyg8jTjNyZVp
-         PqPw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=G/GuFzECGjj3tn+lVvuFmxVqX0AegRDhg/drhFkgRmI=;
-        fh=AkW0YdvFoXeX1H2jA5WJZgI+f24LtquM63fPA1B94Ds=;
-        b=Mp2gqg1vNrE8Sr4cgwTU0Qpjhm6oqPzDlWwxMGG/ZJjUJNG08tipwMSWyb53Zw06p5
-         Y04LsPol/AeyHZkSV1vK6bpBbVbSmbcBgNjsEihQmq7NEtghnwv+E5+31lb6alMTaA+W
-         1Mh44sdeNH364f9uLu6V3SauEbyfIl/RZQMnbRdfW7xaEU6R7ca4l+XuPFLEAGBUNGuT
-         qnBMNT8Q6dNJZgqcV0WW934mt3RfT7aPZnplb3BHStgYVoitNR00tFyBI1QLauu7Tz1s
-         a/yYhWrJA5poTklkeP+w3X8Kb+Ficln1wECN1szGabao0xKk1mfK4vARxiqnJ/uRjiSK
-         r5Hg==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Lncv0w6w"
+Received: by mail-pj2-f19.google.com with SMTP id d9443c01a7336-2db18fe433fso12247735ad.2
+        for <virtualization@lists.linux.dev>; Mon, 28 Sep 2026 05:35:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790598687; x=1791203487; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=G/GuFzECGjj3tn+lVvuFmxVqX0AegRDhg/drhFkgRmI=;
-        b=quygOSwL8qLMIh9M/7aEnAKXWHOmF8XKXKMNtApDlUUty2luzWdfWa/I6/gUOytZvi
-         2LBwpLnqXHHYS1RhmrnMOYqVrFmXaRxuUPBqe+fP5tY+Hh/qhY07EAaUfgZgAifFumTx
-         VUaPh4SBw0P+gBdBdYcCt+2/3eg81JCNavVnKfyibSW6jFtMzk6oYrwjR8W3+eDlpXKj
-         seLrgVxPUR9sgitJ44zuAOFPsQUf33E94Te0H+ORL/+BdaSWlZDcUhOxUgUyuiXfMsrb
-         GMGd0JdyRV+eXw/bljXI6H/LYjdQK4llNmt3gcxhvncSITcnsox9jOZe+ZjK4tBvDlla
-         pReA==
+        d=gmail.com; s=20251104; t=1790598900; x=1791203700; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=1F775RSHM+vaSTLyjPdAF399IJckotTdZzdfE7Jr3XQ=;
+        b=Lncv0w6wwkG4vIGhR7BpWGqv2YWSR5Y/qvb2Y0skbXysrgMjWKY6QixEiSOdvNeN8S
+         4Rj2jBOTDWldJeUKWFn7i4sqTdZ6FThxaifVFkD3+0ydEZpJXzt4XrJZ65TpjZPxO2YI
+         XeVHAQ0LfI6G0wOXgkr6d6h7cPws88qVESQl2voKa4ItDChdK/AxAdSLwFlz8BTdFndo
+         A33v0t5wnaYyI7FiZx3CcUuOjYOh5Jquu19uneJ0TRjzjZIsw103wgx1GpMQXf2snegE
+         RXaWDb2ou4StXeaBDUSNGq0dm8VQi2u5RikkdERNRQsPh6eK0KxouFUmlpGT6pq+9w4G
+         Mk0Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790598687; x=1791203487;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=G/GuFzECGjj3tn+lVvuFmxVqX0AegRDhg/drhFkgRmI=;
-        b=IxmNj8RnLPIWd4cAIlpr+G7o9ZEX/Dfru6DgRPC6ghfd15Dur7XxKef1x4vtNrddOf
-         brAJpPJDKNJEHK82H3GIBi1gzzJDfM0htJ3XG1NShEU/Mk+CBw+G1Cocj6m5bfJ1e+iN
-         wLiXpJjJriQm8Nie5AFPD3o4trx7YST+4bTulCqk+atc01lNfuWhvmfQMBEnwCNDlRRD
-         1qBtu1JWt+z7WecGGzNhaQGKArgkKQ8ZNW4isFdR2zEPjBSYEslBXkWVrxrihSYeF2F4
-         vzC7ASIdTOvH92y3BHdNvaBbf1rCLqyFXhrosVJkDNPjSAr7nBqn/WGlA4Xzwd7rd03m
-         c60w==
-X-Forwarded-Encrypted: i=1; AKwUvBwkU677znTRiluzRuhVjtrMSN0bb0vsTqT8U5F3Ls3fZPSRNPo6+97V0NAej3vl9R5RhKutqTuQyYlV8/4rjw==@lists.linux.dev
-X-Gm-Message-State: AFuF++nKpKePGYqi9ipRPF7E+204eggnh/wgDN/HIolggb9b9Hh9RWjr
-	jOhy+z8uTl19eWjoRQQhOLMZdEbPe2ENuQ2sW9dp+266DdURTKPNX1LY8B/lWKmcv5XwG0HMZN4
-	cuRtfRFpqhOyuYBJqf93cCWilTj/ArCE=
-X-Gm-Gg: AYBFou0tccEraKNh1pZySHMvXuTYGwdZzkOLHubd6udsWaowEWmJi/KLj6sDkubnrmu
-	1IGh+3ZyjbB3ScYYHo3LTeJvOExWE1mZIhjSTk1LIq1T2fJRk7YFbSEC3ytU3QmcDnQHWMWGFgZ
-	wz/YWuwygzF1BmMPRrm3UoY6FYB8GTfQME+zymUcAwc5izQ1lJJXuKwrvpn01YpMRXR7NXt1PqB
-	UQ/LXVpVk2b7H+8kPxpxXWPtEjq1w28iB6ES0K5G8CGzpwHG+Z2hDRTO84dzGosmDBKM+pewKn+
-	SnaMb5MdMa+CvgizbkK3pOgZFL1Zgcdx81xcRkof4T2lf79Bi5l4GbCUSa7d2UkHMg==
-X-Received: by 2002:a05:6830:6612:b0:80a:b8da:2792 with SMTP id
- 46e09a7af769-81780d935bbmr12897007a34.6.1790598687334; Mon, 28 Sep 2026
- 05:31:27 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1790598900; x=1791203700;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=1F775RSHM+vaSTLyjPdAF399IJckotTdZzdfE7Jr3XQ=;
+        b=VewfMcra4hvDxRaKfbmW2aOzw0NOfiN5EV8tZu7LXSZMPnnY05I5I8U8M1XC1i5qxY
+         cX5hRd4JUdaybRHMJGPV6iGJ5o5rX+xovj+GEh+fowARBW/eLGhIS/xRGuGmkURn9KYI
+         b52GWuaeAM30sEBDsqMOH3FJyEAlP7w9+fCenV4eQp+hdyvtek5ApD9QFS2V3NgAuVw3
+         W1n1NoNDXB5pgSrJA+B02wbs3BeyQq8dvGDE52WAOLAfi9Bmcd6YLqERIhv6L6efV3Hy
+         x1t0qXrQJm6Q9YN5XPWZx7HKK+Sb6XcCBHQAiVNe/Q6T7lcu0e8+kGuScsI9xu9Moj9h
+         fOnA==
+X-Gm-Message-State: AFq9FYLg/Lr/VflZiQSQdN7p5tKzopTFgLz7nq7y4mpo0IaRBwRZZniT
+	b1S74vAWHTxPqgjWSzbxCEtd9QgRFDI5OBwtFyhdPiTZfQ1XA6LY8OmK
+X-Gm-Gg: AYBFou2v8MfQhuWuRIJEYBBQB1J+nnTXvM/1oT9NMfk3kuhuxphw8e0GJTEZcPwKhBP
+	WmqJnm5Cpy0myyVFsNuc24QoHRe64VNWJJfXKrKqVDtZo1+Upj4mxdjE8Lqhnwh96UyOaKnZMMA
+	iP40bU23jCgNdcWCYV4nAjxLmXEQwvFNRIQeRxTDySxl3lQFRNf2U4TuF4/8iCF6/lUA2UZz5VK
+	DrIMOdNr0lMnW/UX9thgtLZ7KFXYuVksa2gFTxxUS6zBEIJnTU9IJwko9juUolCqKtS+U+1e4Tc
+	J6u112NsEgPtQm1UQD/ASsWfx3Ucn91iTqEEMzbXoefkaCP+HlfD1SORnpuwFR3AIrg7jpPhaXw
+	IqUnxnfrkWMf0vcEZVH6pDiWX4NM1Uva7NSTpFrW6CtCVlQrJuDx0Lym8GI7ypBEfDpGenDfUuW
+	tMfEN9jRfgYe7OXXzcuwkjD2sGngXEWcqwfHHxz3q4OThzmjLApO/zKW8u69ZIHHsksYetRhfNE
+	lZbigT4xmzRJwX75gU8GqFyC0I5YRVYgT+aMQnqGQ==
+X-Received: by 2002:a17:903:3c4d:b0:2dd:c100:b2c6 with SMTP id d9443c01a7336-2df7dc506e7mr109108145ad.49.1790598899706;
+        Mon, 28 Sep 2026 05:34:59 -0700 (PDT)
+Received: from FLYINGPENG-MC2.tencent.com ([43.132.141.21])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2df9143a3aasm40343605ad.53.2026.09.28.05.34.58
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Mon, 28 Sep 2026 05:34:59 -0700 (PDT)
+From: Peng Hao <flyingpenghao@gmail.com>
+X-Google-Original-From: Peng Hao <flyingpeng@tencent.com>
+To: mst@redhat.com,
+	jasowangio@gmail.com
+Cc: virtualization@lists.linux.dev
+Subject: [PATCH v3] virtio_pci_modern: skip unused driver feature registers
+Date: Mon, 28 Sep 2026 20:34:55 +0800
+Message-ID: <20260928123455.49982-1-flyingpeng@tencent.com>
+X-Mailer: git-send-email 2.47.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260924071412.6765-1-flyingpeng@tencent.com> <20260924115824-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20260924115824-mutt-send-email-mst@kernel.org>
-From: Hao Peng <flyingpenghao@gmail.com>
-Date: Mon, 28 Sep 2026 20:31:15 +0800
-X-Gm-Features: AclHuK_kdU5PyJnHQ_ad60HVD_nWmMgrJNTDshhNQLOnxTybD-GkEk9UjSZymio
-Message-ID: <CAPm50aJzfPLvt4S+Fz7=i_B0Gi6EPET1d+-mt0bdYdq7Tk3wcQ@mail.gmail.com>
-Subject: Re: [PATCH v2] virtio_pci_modern: skip trailing zero feature dwords
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: jasowangio@gmail.com, virtualization@lists.linux.dev, 
-	Peng Hao <flyingpeng@tencent.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Fri, Sep 25, 2026 at 12:05=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com=
-> wrote:
->
-> On Thu, Sep 24, 2026 at 03:14:12PM +0800, Peng Hao wrote:
-> > Since commit 69b9461512246 ("virtio_pci_modern: allow configuring
-> > extended features"), vp_modern_set_extended_features() writes all four
-> > feature dwords on every device, even when the upper ones are zero.
-> >
-> > Feature negotiation follows a device reset, which clears the device-sid=
-e
-> > driver features, so trailing zero dwords need not be written at all.
-> > finalize_features() can be called again without an intervening reset,
-> > though, when a driver's validate callback narrows the features, so also
-> > write any dword written since the last reset, to clear what the previou=
-s
-> > call had enabled.
-> >
-> > Devices negotiating nothing above bit 63 save four MMIO writes; those
-> > using the 64..95 range (e.g. the UDP tunnel GSO features) save two.
-> > Counting dwords rather than 64-bit words is what makes the latter work:
-> > with VIRTIO_F_VERSION_1 at bit 32 the second dword is set on every mode=
-rn
-> > device, so a qword count never drops below two.
-> >
-> > Signed-off-by: Peng Hao <flyingpeng@tencent.com>
->
-> So .. why does all this matter? how many exits do you save
-> during a guest boot? is it worth the complexity?
->
-it depends on the number of modern virtio-pci devices:
-  - A device using only feature bits 0..63 previously required eight
-MMIO writes and now requires four, saving four
-    MMIO writes, normally four VM-exits.
-  - A device using bits 64..95 saves two MMIO writes/exits.
-  - Thus, for example, a guest with five ordinary modern virtio-pci
-devices saves about 20 exits during their
-    initial feature negotiation.
+vp_modern_set_extended_features() currently writes all four 32-bit
+driver feature registers.  Selecting and writing each register requires
+two MMIO accesses, and each access may cause a VM exit when Linux runs as
+a guest.
 
+The virtio core resets a device before feature negotiation.  Resetting
+clears all driver feature registers, so the initial finalization only
+needs to write through the highest nonzero register.  A typical modern
+device uses bits 0..63 and therefore saves four MMIO accesses, or up to
+four VM exits, during each feature negotiation.  Devices using a feature
+in bits 64..95 save two.
 
-> > ---
-> >  drivers/virtio/virtio_pci_modern_dev.c | 32 ++++++++++++++++++++++----
-> >  include/linux/virtio_pci_modern.h      |  3 +++
-> >  2 files changed, 31 insertions(+), 4 deletions(-)
-> >
-> > diff --git a/drivers/virtio/virtio_pci_modern_dev.c b/drivers/virtio/vi=
-rtio_pci_modern_dev.c
-> > index 413a8c353463..7b4da37b6ae5 100644
-> > --- a/drivers/virtio/virtio_pci_modern_dev.c
-> > +++ b/drivers/virtio/virtio_pci_modern_dev.c
-> > @@ -230,6 +230,8 @@ int vp_modern_probe(struct virtio_pci_modern_device=
- *mdev)
-> >
-> >       check_offsets();
-> >
-> > +     mdev->driver_features_dwords =3D 1;
-> > +
-> >       if (mdev->device_id_check) {
-> >               devid =3D mdev->device_id_check(pci_dev);
-> >               if (devid < 0)
-> > @@ -437,6 +439,11 @@ vp_modern_get_driver_extended_features(struct virt=
-io_pci_modern_device *mdev,
-> >  }
-> >  EXPORT_SYMBOL_GPL(vp_modern_get_driver_extended_features);
-> >
-> > +static u32 vp_modern_features_dword(const u64 *features, int dword)
-> > +{
-> > +     return features[dword / 2] >> (32 * (dword % 2));
-> > +}
-> > +
-> >  /*
-> >   * vp_modern_set_extended_features - set features to device
-> >   * @mdev: the modern virtio-pci device
-> > @@ -446,14 +453,27 @@ void vp_modern_set_extended_features(struct virti=
-o_pci_modern_device *mdev,
-> >                                    const u64 *features)
-> >  {
-> >       struct virtio_pci_common_cfg __iomem *cfg =3D mdev->common;
-> > -     int i;
-> > +     int dwords =3D VIRTIO_FEATURES_BITS / 32;
-> > +     int i, write_dwords;
-> >
-> > -     for (i =3D 0; i < VIRTIO_FEATURES_BITS / 32; i++) {
-> > -             u32 cur =3D features[i >> 1] >> (32 * (i & 1));
->
->
-> below is arguing with previous version of code
-> instead of straight explaining what is this code doing.
-> pls rewrite this comment.
->
-> > +     /*
-> > +      * A device reset
->
-> what "a device reset"? who did reset and when?
->
-> > clears the driver features, so trailing all-zero
->
-> trailing?
->
-> > +      * dwords need not be written out.  Include any dword written sin=
-ce
-> > +      * that reset,
->
-> what "that" reset?
->
-The reset in question is performed by the virtio core.
-register_virtio_device() calls virtio_reset_device() before
-  driver matching and feature negotiation. For modern virtio-pci,
-vp_reset() writes zero to device_status and waits
-  for the device to report zero. That reset clears all driver feature regis=
-ters.
-> > though, so that a repeated finalization can clear
-> > +      * features which were enabled by the previous one.
-> > +      */
->
-> > +     while (dwords > 1 && !vp_modern_features_dword(features, dwords -=
- 1))
-> > +             dwords--;
->
-dwords is the number of registers needed to represent the new feature
-set. The loop examines
- register dwords - 1 and reduces the count while the highest register
-is zero. Register 0
- remains part of the range.
-> what's all this > 1, - 1?
->
-> > +
-> > +     write_dwords =3D max_t(int, dwords, mdev->driver_features_dwords)=
-;
->
-> and what is this. i have a vague idea but needs a comment.
->
-> >
-> > +     for (i =3D 0; i < write_dwords; i++) {
-> >               vp_iowrite32(i, &cfg->guest_feature_select);
-> > -             vp_iowrite32(cur, &cfg->guest_feature);
-> > +             vp_iowrite32(vp_modern_features_dword(features, i),
-> > +                          &cfg->guest_feature);
-> >       }
-> > +
-> > +     mdev->driver_features_dwords =3D dwords;
->
->
-> contradicts the comment near driver_features_dwords.
->
-> >  }
-> >  EXPORT_SYMBOL_GPL(vp_modern_set_extended_features);
-> >
-> > @@ -495,6 +515,10 @@ void vp_modern_set_status(struct virtio_pci_modern=
-_device *mdev,
-> >  {
-> >       struct virtio_pci_common_cfg __iomem *cfg =3D mdev->common;
-> >
-> > +     /* A reset clears the device's copy of the driver features. */
-> > +     if (!status)
-> > +             mdev->driver_features_dwords =3D 1;
->
-> so why 1 not 0?
->
-Initializing driver_features_dwords to 1 after reset was unnecessarily
-confusing. The reset leaves no
-previously programmed range to clear, so the new version sets it to 0.
-> > +
-> >       /*
-> >        * Per memory-barriers.txt, wmb() is not needed to guarantee
-> >        * that the cache coherent memory writes have completed
-> > diff --git a/include/linux/virtio_pci_modern.h b/include/linux/virtio_p=
-ci_modern.h
-> > index 9a3f2fc53bd6..b9f4783f0e02 100644
-> > --- a/include/linux/virtio_pci_modern.h
-> > +++ b/include/linux/virtio_pci_modern.h
-> > @@ -27,6 +27,8 @@
-> >   *               Returns the found device id or ERRNO
-> >   * @dma_mask:            Optional mask instead of the traditional DMA_=
-BIT_MASK(64),
-> >   *               for vendor devices with DMA space address limitations
-> > + * @driver_features_dwords: Number of 32-bit driver feature words writ=
-ten
-> > + *               to the device since the last reset
-> >   */
-> >  struct virtio_pci_modern_device {
-> >       struct pci_dev *pci_dev;
-> > @@ -49,6 +51,7 @@ struct virtio_pci_modern_device {
-> >
-> >       int (*device_id_check)(struct pci_dev *pdev);
-> >       u64 dma_mask;
-> > +     u8 driver_features_dwords;
-> >  };
-> >
-> >  /*
-> > --
-> > 2.43.7
->
+A driver's validate callback may remove features and cause a second
+finalization without another reset.  Track how many registers the
+previous finalization wrote and cover at least that range on the next
+call, writing zero where needed to clear a removed feature.
+
+Signed-off-by: Peng Hao <flyingpeng@tencent.com>
+---
+ drivers/virtio/virtio_pci_modern_dev.c | 38 ++++++++++++++++++++++++--
+ include/linux/virtio_pci_modern.h      |  3 ++
+ 2 files changed, 38 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/virtio/virtio_pci_modern_dev.c b/drivers/virtio/virtio_pci_modern_dev.c
+index 413a8c3..631b60f 100644
+--- a/drivers/virtio/virtio_pci_modern_dev.c
++++ b/drivers/virtio/virtio_pci_modern_dev.c
+@@ -437,6 +437,11 @@ vp_modern_get_driver_extended_features(struct virtio_pci_modern_device *mdev,
+ }
+ EXPORT_SYMBOL_GPL(vp_modern_get_driver_extended_features);
+ 
++static u32 vp_modern_features_dword(const u64 *features, unsigned int index)
++{
++	return features[index / 2] >> (32 * (index % 2));
++}
++
+ /*
+  * vp_modern_set_extended_features - set features to device
+  * @mdev: the modern virtio-pci device
+@@ -446,14 +451,38 @@ void vp_modern_set_extended_features(struct virtio_pci_modern_device *mdev,
+ 				     const u64 *features)
+ {
+ 	struct virtio_pci_common_cfg __iomem *cfg = mdev->common;
++	u8 required_features_dwords = VIRTIO_FEATURES_BITS / 32;
++	u8 features_dwords_to_write;
+ 	int i;
+ 
+-	for (i = 0; i < VIRTIO_FEATURES_BITS / 32; i++) {
+-		u32 cur = features[i >> 1] >> (32 * (i & 1));
++	/*
++	 * Find the highest 32-bit feature register containing a negotiated
++	 * feature.  Register 0 is always written, even when no device-specific
++	 * feature was negotiated.
++	 */
++	while (required_features_dwords > 1 &&
++	       !vp_modern_features_dword(features,
++					 required_features_dwords - 1))
++		required_features_dwords--;
+ 
++	/*
++	 * vp_modern_set_status(mdev, 0) clears every driver feature register
++	 * and sets driver_features_dwords to 0.  The first finalization
++	 * therefore only needs to write required_features_dwords.  If
++	 * finalization is repeated without a reset, also rewrite every register
++	 * touched by the previous call so that features removed by validation
++	 * are cleared.
++	 */
++	features_dwords_to_write = max(required_features_dwords,
++				       mdev->driver_features_dwords);
++
++	for (i = 0; i < features_dwords_to_write; i++) {
+ 		vp_iowrite32(i, &cfg->guest_feature_select);
+-		vp_iowrite32(cur, &cfg->guest_feature);
++		vp_iowrite32(vp_modern_features_dword(features, i),
++			     &cfg->guest_feature);
+ 	}
++
++	mdev->driver_features_dwords = required_features_dwords;
+ }
+ EXPORT_SYMBOL_GPL(vp_modern_set_extended_features);
+ 
+@@ -495,6 +524,9 @@ void vp_modern_set_status(struct virtio_pci_modern_device *mdev,
+ {
+ 	struct virtio_pci_common_cfg __iomem *cfg = mdev->common;
+ 
++	if (!status)
++		mdev->driver_features_dwords = 0;
++
+ 	/*
+ 	 * Per memory-barriers.txt, wmb() is not needed to guarantee
+ 	 * that the cache coherent memory writes have completed
+diff --git a/include/linux/virtio_pci_modern.h b/include/linux/virtio_pci_modern.h
+index 9a3f2fc..7a5b200 100644
+--- a/include/linux/virtio_pci_modern.h
++++ b/include/linux/virtio_pci_modern.h
+@@ -27,6 +27,8 @@
+  *		    Returns the found device id or ERRNO
+  * @dma_mask:	    Optional mask instead of the traditional DMA_BIT_MASK(64),
+  *		    for vendor devices with DMA space address limitations
++ * @driver_features_dwords: Number of 32-bit driver feature registers written
++ *		    by the most recent feature finalization, or 0 after reset
+  */
+ struct virtio_pci_modern_device {
+ 	struct pci_dev *pci_dev;
+@@ -49,6 +51,7 @@ struct virtio_pci_modern_device {
+ 
+ 	int (*device_id_check)(struct pci_dev *pdev);
+ 	u64 dma_mask;
++	u8 driver_features_dwords;
+ };
+ 
+ /*
