@@ -1,218 +1,199 @@
-Received: from delivery.antispam.mailspamprotection.com (delivery.antispam.mailspamprotection.com [185.56.87.12])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8310E3BB670;
-	Sun, 27 Sep 2026 22:13:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=185.56.87.12
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790547207; cv=pass; b=TosS/QSOXkdXpuot022gMtoNsE2IdSVmDLV6sTJ2piRnbHAJ1gE1oK6QDsizDK5nYGZ6SfX5E4BHZSNld8CTCpXwaruzR86eNlj9h0Q290ZoqFDWa+aEOkDpxKIqEKKCBQaRX4XlNEtuXD1wE4N4fMVpGYJ5BHbRkFd1doHEDGU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790547207; c=relaxed/simple;
-	bh=g3a6aFez5u5R7XhphSxDPGFXrJlVJwrOjK3Tk7gWDUU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=TNjTmqCafHybXIB7IjfGjZMsYOQrjP6Pqt8AKEboogF2L+ttrsVRC39wagom2y2RmTh7Vo73wchcKX3X7pDEP9CkhUX9nmHvlCipECBrcKusBN3e631/FTqUOnRf48/oHPDNSCuj7E4ixGukO1hVjhwwobGtaTINf8psS0E/UGg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=valla.it; spf=pass smtp.mailfrom=valla.it; dkim=pass (1024-bit key) header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.b=TA5+TXW8; dkim=pass (1024-bit key) header.d=valla.it header.i=@valla.it header.b=FL5/baBM; arc=pass smtp.client-ip=185.56.87.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=valla.it
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=valla.it
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 995123845A7
+	for <virtualization@lists.linux.dev>; Mon, 28 Sep 2026 05:38:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1790573901; cv=none; b=He4RrE24nNtGvNNhsA/m2erFFzGB6QOoKd+cOgyW2C2C5iGOZ56oOjhJiPgeZ/M81elC3rI2tMV8Md0ovWM0q2Q5fXQ/Qh4YAgPl3Vs3tC9ev5t7Y+z0V15LSME2hU0tgP2KuJkUguxZedJP6UhQn73oWn2SPR54cKjr+N4kQXI=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1790573901; c=relaxed/simple;
+	bh=CR6lPjPmIs7B/vZ6MqXQRnma9EgaPId0HcCnLjsrn7Q=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=ESjw7bNjir2aDkxKQL4QhEx7eC6pZe1VBfJOfavgdqBj4RXOd70DQtQRgCiP08W46vaXrvRqcMaH37VjQjWisZIW/C36oXP3a3Ecw+/Kg93bsgh8NwoM7wylPTLWzKcyWGGbsxSWYEJggvo3e1y77zmu5fVvBg3M+BIGQkb20wU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ZYB0HaKV; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.b="TA5+TXW8";
-	dkim=pass (1024-bit key) header.d=valla.it header.i=@valla.it header.b="FL5/baBM"
-ARC-Seal: i=1; cv=none; a=rsa-sha256; d=outgoing.instance-europe-west4-tjj1.prod.antispam.mailspamprotection.com; s=arckey; t=1790547204;
-	 b=JTOsATYUtEnhZf3Sgp/iD44N52HgdhoKO+KhM347TSMGmqP+VpAmjAyUYTwrVC3OPlAj+8KcoC
-	  +g5YMdAHFDjdbb2WspmX1NN4RHbpN670D65VMQ5nTHVeAwzyOBzupqI+SWGk+dH1f6M4WUfRd4
-	  DuZDwC+aSPZ4TzJBEwbuXCmSrkBVhIEankmpn/wglESvbowRvWA7r84OcYBMWdqQJbi2cR4oNy
-	  2w/RwWG3iyJjCwA5bN1RQtltnquRqAxY6au6iSBsrAjhxQezSryc0LDzHEs0+NY/V2zHjUbJ2/
-	  THhkD8ne2b/9OlIX6kQot9Pl/s5tG9245dlcNZVT+iDn7g==;
-ARC-Authentication-Results: i=1; outgoing.instance-europe-west4-tjj1.prod.antispam.mailspamprotection.com; smtp.remote-ip=35.214.173.214;
-	iprev=pass (214.173.214.35.bc.googleusercontent.com) smtp.remote-ip=35.214.173.214;
-	auth=pass (LOGIN) smtp.auth=esm19.siteground.biz;
-	dkim=pass header.d=valla.it header.s=default header.a=rsa-sha256;
-	arc=none
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed; d=outgoing.instance-europe-west4-tjj1.prod.antispam.mailspamprotection.com; s=arckey; t=1790547204;
-	bh=g3a6aFez5u5R7XhphSxDPGFXrJlVJwrOjK3Tk7gWDUU=;
-	h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:
-	  From:Date:DKIM-Signature:DKIM-Signature;
-	b=rnNNROMYEOoT2IGEaZ0LAAXrsdk/ZoP+EmY67XdyncCUpJ1LPF3ooHTxINofzkgsASFrxUVQe6
-	  BAkLE/BToLG6pTBPC6Z/UWGdbSDzwj1jXjNA0f+12lGbXHRiWbWpX3Zk+CF89pvTLNxrcu0hEH
-	  4qywzfbh/6wFC5WEd2HezIfFgQe8r48K0+gc2NKKScpDWP5U2vLlpM9XU/t8YIP3S6h4SJ09v5
-	  QvKmADNujeaXKLCWbLzw5k7sc9VLFO4o8QycrUjpKBQo1Tdbfg96hj8OG7+1I9EZrac32oddMf
-	  ie5c1om+I1Ebrju+aAtSqQLX7zbtqPIa+qXVGM4aroshSA==;
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=antispam.mailspamprotection.com; s=default; h=CFBL-Feedback-ID:CFBL-Address
-	:Content-Type:MIME-Version:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-	List-Unsubscribe:Content-Transfer-Encoding;
-	bh=9LWHPNFgWOuxhAUuO+Xov6euQfWdO2vKk+2zNuLyRVI=; b=TA5+TXW8ui69q30PU7LYeTSKLA
-	o5i3TU4XBz2ZtnJJHBUHyzULbiFIxzwidRArrnjke+YPwdp1VfjWyyVW3TDwodUL9uP1Ha4uH5FsL
-	9bUk1R2ZNLYwxj+MLAALIfSUfJLocr0iHtoV5zSGv1gotg/0DDpttTBTkHIZtXHn1qcE=;
-Received: from 214.173.214.35.bc.googleusercontent.com ([35.214.173.214] helo=esm19.siteground.biz)
-	by instance-europe-west4-tjj1.prod.antispam.mailspamprotection.com with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-	(Exim 4.100.1)
-	(envelope-from <francesco@valla.it>)
-	id 1xAx7T-00000000mgL-0ykI;
-	Sun, 27 Sep 2026 22:13:15 +0000
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=valla.it;
-	s=default; h=Subject:Cc:To:From:Date:list-help:list-unsubscribe:
-	list-subscribe:list-post:list-owner:list-archive;
-	bh=9LWHPNFgWOuxhAUuO+Xov6euQfWdO2vKk+2zNuLyRVI=; b=FL5/baBM4QfixLkgL9NSA6Gyy2
-	e1NYko/DLCVpo5o5+Rbfp/9900ufixVb3f8AGPtX/OPhC9dncfOIpVHwSCZvGdZ3rM3UMtZddQ9Ur
-	oz9rBVaIxeWlXzNCpvxp9IpKiOI6hQ/Hx6U4NFNTSbJo/G5AYMKSunvdUnfPaJPR9taY=;
-Received: from [79.45.60.29] (port=64303 helo=bywater)
-	by esm19.siteground.biz with essmtpa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-	(Exim 4.100.1)
-	(envelope-from <francesco@valla.it>)
-	id 1xAx72-000000002xa-3Ygs;
-	Sun, 27 Sep 2026 22:12:48 +0000
-Date: Mon, 28 Sep 2026 00:12:46 +0200
-From: Francesco Valla <francesco@valla.it>
-To: Robin Murphy <robin.murphy@arm.com>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>, 
-	Bjorn Andersson <andersson@kernel.org>, Kees Cook <kees@kernel.org>, 
-	"Gustavo A. R. Silva" <gustavoars@kernel.org>, Marek Szyprowski <m.szyprowski@samsung.com>, 
-	Mark Brown <broonie@kernel.org>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Frank Li <Frank.Li@nxp.com>, 
-	Peng Fan <peng.fan@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>, 
-	linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, 
-	virtualization@lists.linux.dev, imx@lists.linux.dev, iommu@lists.linux.dev, 
-	linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH RFC 06/12] remoteproc: virtio: add bounce buffering for
- data buffers
-Message-ID: <armUKG0TYwHkpG56@bywater>
-References: <20260916-remoteproc_virtio_map-v1-0-dac8c5eb4aa9@valla.it>
- <20260916-remoteproc_virtio_map-v1-6-dac8c5eb4aa9@valla.it>
- <arKlvZGqu2nt6Ci0@p14s>
- <arLXthhYbKkwZ9zY@bywater>
- <CANLsYkwNOukGX68=NVvwNP7iudP3EcKN6C2L2o9nVCTRxFVxFg@mail.gmail.com>
- <arP38OEaabFFu8lJ@bywater>
- <araOI_duKIAbphq6@p14s>
- <1b55f680-2413-4db1-b928-ed5741696d07@arm.com>
- <arbEmz1jy0V7gjrU@bywater>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ZYB0HaKV"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68RGSGt22592686;
+	Mon, 28 Sep 2026 05:38:04 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=892+fRqgga7UiOa0g
+	Yx1oSkKwKbBRGQrN7BUe+0/Oyg=; b=ZYB0HaKV4v45HbM6UQV2vXEp8umBl5fl4
+	JoUzP3tMqyn/Mc+Gqat6FWK/zj0Ri1jf+I/VntSpSt2V1SMLnbqPILCc2IZlYLfn
+	sQ4BkNkdHQFXLX/4FX7i149KLJHE4epZezO/eO7jdfOrEHkArkXwPAN58iTAObkx
+	hz6XlL9RUMyF6z//cMtAbQ2Xzi5VAf6+H/IoGSg5zUnSrz9QNSuHcXIKm/hCwnH1
+	SQEOPAmsQz1Qnw48y1WkVnVhZnQZ0z8y0r2ClXsuWd+hVxQDhleGlCgCINqNRYOt
+	9/jpkff1Y2/ZrSB9hklAtZBp2Q6IjYMdJegrJckOnbdz23tbasxPg==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gx5qqyg00-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Mon, 28 Sep 2026 05:38:03 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68S4GILb2157653;
+	Mon, 28 Sep 2026 05:38:02 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gxsvhbrw1-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 28 Sep 2026 05:38:02 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68S5bwX131392032
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 28 Sep 2026 05:37:58 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5D98820043;
+	Mon, 28 Sep 2026 05:37:58 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3581F20040;
+	Mon, 28 Sep 2026 05:37:48 +0000 (GMT)
+Received: from li-7bb28a4c-2dab-11b2-a85c-887b5c60d769.ibm.com.com (unknown [9.124.213.68])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 28 Sep 2026 05:37:47 +0000 (GMT)
+From: Shrikanth Hegde <sshegde@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, mingo@kernel.org, peterz@infradead.org,
+        juri.lelli@redhat.com, vincent.guittot@linaro.org,
+        yury.norov@gmail.com, kprateek.nayak@amd.com, iii@linux.ibm.com,
+        corbet@lwn.net, meted@linux.ibm.com, ynorov@nvidia.com
+Cc: sshegde@linux.ibm.com, tglx@kernel.org, gregkh@linuxfoundation.org,
+        pbonzini@redhat.com, seanjc@google.com, vschneid@redhat.com,
+        huschle@linux.ibm.com, rostedt@goodmis.org, dietmar.eggemann@arm.com,
+        maddy@linux.ibm.com, srikar@linux.ibm.com, hdanton@sina.com,
+        chleroy@kernel.org, vineeth@bitbyteword.org, frederic@kernel.org,
+        arighi@nvidia.com, pauld@redhat.com, christian.loehle@arm.com,
+        tj@kernel.org, tommaso.cucinotta@gmail.com, maz@kernel.org,
+        rafael@kernel.org, rdunlap@infradead.org, kernellwp@gmail.com,
+        linux-doc@vger.kernel.org, jgross@suse.com,
+        virtualization@lists.linux.dev, sunlightlinux@gmail.com
+Subject: [PATCH v14 01/13] sched/cputime: Add kcpustat_field_total helper
+Date: Mon, 28 Sep 2026 11:07:16 +0530
+Message-ID: <20260928053728.797539-2-sshegde@linux.ibm.com>
+X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260928053728.797539-1-sshegde@linux.ibm.com>
+References: <20260928053728.797539-1-sshegde@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <arbEmz1jy0V7gjrU@bywater>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - esm19.siteground.biz
-X-AntiAbuse: Original Domain - lists.linux.dev
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - valla.it
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-SGantispam-id: 8c5efdb70f6422d0810553cee4634225
-X-AntiAbuse: ID - 8c5efdb70f6422d0810553cee4634225
-AntiSpam-DLS: false
-AntiSpam-DLSP: 
-AntiSpam-DLSRS: 
-AntiSpam-TS: 1.0
-CFBL-Address: feedback@antispam.mailspamprotection.com; report=arf
-CFBL-Feedback-ID: 1xAx7T-00000000mgL-0ykI-feedback@antispam.mailspamprotection.com
-Authentication-Results: outgoing.instance-europe-west4-tjj1.prod.antispam.mailspamprotection.com;
-	iprev=pass (214.173.214.35.bc.googleusercontent.com) smtp.remote-ip=35.214.173.214;
-	auth=pass (LOGIN) smtp.auth=esm19.siteground.biz;
-	dkim=pass header.d=valla.it header.s=default header.a=rsa-sha256;
-	arc=none
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTI4MDAyMiBTYWx0ZWRfX+2OjZj3HRGt8
+ hj5cJ7LRVqDPzDfJtbX0M3pO1nT538JjRLO8Nn6ZPPONp71NyjG0vCRR3UUP+GGF9/USaPeqtgf
+ b+87tpG4FNDWfZPSrGjwSGP+k+JTn+5E1oVIU+vQpf5NnZWOCEIMzFt8raPoV+U0HSbgTHjScXm
+ Ile3ePefMyqP73qzSIxik3CpZsrXdmFLaHo/mgvuIlTsKQFR5kFnE3OCggq7v7Zp0XyTuE5qg4i
+ kmpzSqANGw09DPexvS/wtZo8LnTOGSv0n8R4vIQpatVhdmQUN1mHKfh7MHDxycJoanYc4J684J9
+ jRTwPleDmxOcazM8u99RFhNTWLWtio9IzVnCPCXMIOOanwiQhYXMQBUivEZ6ROXIbBDxQKLKoZV
+ EDYL2EsNPoNzo47tVhNn/jf9ugsPHH+oeqMz0InTZJkwQ2yl+iVIzKCVpeWKouHsMWivP87r7al
+ 7MkN55cAiRBBDgvBhPA==
+X-Authority-Analysis: v=2.4 cv=SPbXx+vH c=1 sm=1 tr=0 ts=6ab9fd3c cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=pGLkceISAAAA:8 a=VwQbUJbxAAAA:8 a=Ikd4Dj_1AAAA:8
+ a=VnNF1IyMAAAA:8 a=e8TCS894uZmGZegT9CcA:9
+X-Proofpoint-ORIG-GUID: TfOJIZQfneDVHPj9kYCvClPObCTbIm_j
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTI4MDAyMiBTYWx0ZWRfX7Atg57VeLfB9
+ KgOVynp+OaAxzxeQcBkEMZa/i2wV/8yFJQHFFBgGBM41fQjkzG7FjAIJ/ARvmeYk5jf8P7opWcn
+ yJb1uOtLXsgRWm0kGU49M5TukmO9J38=
+X-Proofpoint-GUID: Z0klzcSu0mugIBGtFY80S_6hXNe_OMmI
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-09-26_05,2026-09-21_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 suspectscore=0 clxscore=1015 spamscore=0
+ lowpriorityscore=0 malwarescore=0 adultscore=0 bulkscore=0 impostorscore=0
+ phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
+ definitions=main-2609280022
 
-On Fri, Sep 25, 2026 at 09:05:43PM +0200, Francesco Valla wrote:
-> Hi Robin, Mathieu,
-> 
-> On Fri, Sep 25, 2026 at 05:48:25PM +0100, Robin Murphy wrote:
-> > On 25/09/2026 4:07 pm, Mathieu Poirier wrote:
-> > > On Wed, Sep 23, 2026 at 06:05:35PM +0200, Francesco Valla wrote:
-> > > > On Wed, Sep 23, 2026 at 08:44:41AM -0600, Mathieu Poirier wrote:
-> > > > > On Tue, 22 Sept 2026 at 13:39, Francesco Valla <francesco@valla.it> wrote:
-> > > > > > 
-> > > > > > On Tue, Sep 22, 2026 at 09:58:53AM -0600, Mathieu Poirier wrote:
-> > > > > > > On Wed, Sep 16, 2026 at 11:10:51PM +0200, Francesco Valla wrote:
-> > > > > > > > Depending on the driver originating them, data buffers used for virtio
-> > > > > > > > communication can either:
-> > > > > > > > 
-> > > > > > > >    - already be allocated from the coherent memory area that is
-> > > > > > > >      accessible by the remote processor; this is the case of rpmsg
-> > > > > > > >      and the rproc flavor of virtio-console;
-> > > > > > > >    - be allocated from generic kmem, and thus not accessible directly by
-> > > > > > > >      the remote processor.
-> > > > > > > > 
-> > > > > > > > Exploiting the map operations, which are used by the virtio framework
-> > > > > > > > when VIRTIO_F_ACCESS_PLATFORM is part of a vdev's feature flags, add
-> > > > > > > > bounce buffering for the second case: when the map() callback is called
-> > > > > > > > for a buffer, one or more pages of coherent memory are allocated and
-> > > > > > > > data is copied to them, then they are exposed to the remote processor;
-> > > > > > > > the data is  then bounced back on unmap().
-> > > > > > > > 
-> > > > > > > > The first case is not impacted, since buffers already suitable for
-> > > > > > > > remote transmission are passed through.
-> > > > > > > > 
-> > > > > > > > With the bounce buffering in place, any kind of virtio device can be
-> > > > > > > > supported through the remoteproc-virtio transport, at least from a
-> > > > > > > > data exchange standpoint.
-> > > > > > > 
-> > > > > > > Is this _necessary_ for the imx93 platform you are implementing feature for?
-> > > > > > > 
-> > > > > > 
-> > > > > > If I don't want to fundamentally change how the remoteproc integration
-> > > > > > works (i.e.: using buffers only from a pre-shared area), yes. While in
-> > > > > > my test environment the Cortex-M33 serving as remoteproc is able to
-> > > > > > access the whole RAM space, that is not always the case.
-> > > > > 
-> > > > > The first sentence tells me it is mandatory while the second says it
-> > > > > is not.  I understand the use case but don't want to bloat the
-> > > > > subsystem with code that is trying to address a problem you currently
-> > > > > don't have.
-> > > > > 
-> > > > 
-> > > > Let me rephrase: while on i.MX93 the Cortex-M33 can theoretically access
-> > > > the whole RAM space, that is not a good idea from a security point of
-> > > > view and can be the source of a number of bugs. The target is to
-> > > > statically define a static shared memory area (as I am doing on i.MX95)
-> > > > and only use that.
-> > > 
-> > > As Robin pointed out, have you looked at using a restricted-dma-pool for that?
-> > > Note that I am not familiar with the concept but open to go that way if it can
-> > > work for us.
-> > > 
-> > > Robin, can you point us to a simple example we could look at?
-> > The only in-tree example is mt8192-asurada.dtsi, but even there the
-> > fundamental principle seems exactly the same - the system interconnect is
-> > locked down such that there's only a particular region of "shared" memory
-> > that PCIe DMA can access, so the restricted pool is placed there, and in
-> > that case can occupy the entire region since the wifi adapter only really
-> > does streaming DMA - restricted pools have some limited ability to act as a
-> > fallback for coherent allocations, which won't work for everything, but does
-> > happen to be enough for that wifi driver.
-> > 
-> > Here it would be a case of reserving some of the shared region for a
-> > restricted pool alongside the "vdevbuffer" coherent pool, adding it to the
-> > memory-region list of the relevant device(s), and usually that would then
-> > just work, since the setup is all done automatically by the core DT code.
-> > However I know remoteproc does some funky stuff with child devices, so it's
-> > quite possible there might need to be something more done there. But still
-> > far, far less than reimplementing a whole other bounce-buffering system.
-> > 
-> > Thanks,
-> > Robin.
-> 
-> I took a look at the restricted-memory-pool - with which I wasn't
-> familiar - and seems exactly what is needed here.
-> 
-> I am working on a new prototype with it - if everything works as
-> expected (I still did not have time to try it) it should only need some
-> very limited glue code, cutting the modifications in the
-> remoteproc_virtio driver by 95%. I'll let you knwow.
->
+Provide a new helper function which sums up a given type of cpustat
+over a specified cpumask.
 
-Quick update: it works, with minimal glue code as expected. I am
-preparing a v2 based on restricted-memory-pool, but it will take some
-days, as I am addressing the other topics pointed out by Mathieu. I plan
-to propose an update to the documentation too, since the setup is not so
-straightforward.
+This allows the caller's code to be simpler and avoids duplication.
+For example, subsequent patch in the steal governor use this exact
+same pattern when calculating steal time.
 
-Thank you again.
+Number of cpus can be derived from cpumask_weight() where necessary.
 
-Regards,
-Francesco
+Suggested-by: Yury Norov <yury.norov@gmail.com>
+Acked-by: Frederic Weisbecker <frederic@kernel.org>
+Reviewed-by: Yury Norov <ynorov@nvidia.com>
+Reviewed-by: Mete Durlu <meted@linux.ibm.com>
+Signed-off-by: Shrikanth Hegde <sshegde@linux.ibm.com>
+---
+ arch/s390/kernel/hiperdispatch.c | 10 +++-------
+ fs/proc/uptime.c                 |  6 +-----
+ include/linux/kernel_stat.h      | 11 +++++++++++
+ 3 files changed, 15 insertions(+), 12 deletions(-)
+
+diff --git a/arch/s390/kernel/hiperdispatch.c b/arch/s390/kernel/hiperdispatch.c
+index 217206522266..c21496f0a141 100644
+--- a/arch/s390/kernel/hiperdispatch.c
++++ b/arch/s390/kernel/hiperdispatch.c
+@@ -207,16 +207,12 @@ static unsigned long hd_calculate_steal_percentage(void)
+ {
+ 	unsigned long time_delta, steal_delta, steal, percentage;
+ 	static ktime_t prev;
+-	int cpus, cpu;
++	int cpus;
+ 	ktime_t now;
+ 
+-	cpus = 0;
+-	steal = 0;
+ 	percentage = 0;
+-	for_each_cpu(cpu, &hd_vmvl_cpumask) {
+-		steal += kcpustat_cpu(cpu).cpustat[CPUTIME_STEAL];
+-		cpus++;
+-	}
++	steal = kcpustat_field_total(CPUTIME_STEAL, &hd_vmvl_cpumask);
++	cpus = cpumask_weight(&hd_vmvl_cpumask);
+ 	/*
+ 	 * If there is no vertical medium and low CPUs steal time
+ 	 * is 0 as vertical high CPUs shouldn't experience steal time.
+diff --git a/fs/proc/uptime.c b/fs/proc/uptime.c
+index 433aa947cd57..53143c66cbe1 100644
+--- a/fs/proc/uptime.c
++++ b/fs/proc/uptime.c
+@@ -15,12 +15,8 @@ static int uptime_proc_show(struct seq_file *m, void *v)
+ 	struct timespec64 idle;
+ 	u64 idle_nsec;
+ 	u32 rem;
+-	int i;
+-
+-	idle_nsec = 0;
+-	for_each_possible_cpu(i)
+-		idle_nsec += kcpustat_field(CPUTIME_IDLE, i);
+ 
++	idle_nsec = kcpustat_field_total(CPUTIME_IDLE, cpu_possible_mask);
+ 	ktime_get_boottime_ts64(&uptime);
+ 	timens_add_boottime(&uptime);
+ 
+diff --git a/include/linux/kernel_stat.h b/include/linux/kernel_stat.h
+index 9ca6c2259dfe..c1e85550bf12 100644
+--- a/include/linux/kernel_stat.h
++++ b/include/linux/kernel_stat.h
+@@ -196,6 +196,17 @@ static inline void kcpustat_cpu_fetch(struct kernel_cpustat *dst, int cpu)
+ }
+ #endif /* !CONFIG_VIRT_CPU_ACCOUNTING_GEN */
+ 
++static inline u64 kcpustat_field_total(enum cpu_usage_stat usage, const struct cpumask *cpus)
++{
++	u64 total = 0;
++	int cpu;
++
++	for_each_cpu(cpu, cpus)
++		total += kcpustat_field(usage, cpu);
++
++	return total;
++}
++
+ extern void account_user_time(struct task_struct *, u64);
+ extern void account_guest_time(struct task_struct *, u64);
+ extern void account_system_time(struct task_struct *, int, u64);
+-- 
+2.52.0
 
