@@ -1,96 +1,134 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A866C377A93;
-	Mon, 28 Sep 2026 18:07:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 088E82E5B2A;
+	Mon, 28 Sep 2026 18:08:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790618826; cv=none; b=RAuQwHq/fXOjLUdU03xdR9QjRFojvW7bxLYIr3CEMZlaYu4Oh9L3K3CrBrXlXczhZ2QAkIxfLHqdX5kPdyu3w7QyC0b0O2x7yM4tnk9Lom2cud9c0Wkpk0KqIe8FavRmoMtQiXAcyLZ/3gulRQOvE0KlFesS9hb6qRIcSRT17PA=
+	t=1790618914; cv=none; b=StnfLoWToak9b3mG+gc9AzuUtPxkiHEarldgg9KI6fJmzUWZNnyqzkSzkrWloG8xHZLQDs53eFVU1Z5G4pMjUB4j08IlFtkg6oOtbT9Keddr//s9duj8JcXY4hr/yDZ+65Nb/1yChYz90oW1mahm7yGkWTSFHbcvw10ZVlBX0Eg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790618826; c=relaxed/simple;
-	bh=aXEt8cLj5MZO0I73asHe3zofPVNAzMphdpTAK0N6FfY=;
+	s=arc-20240116; t=1790618914; c=relaxed/simple;
+	bh=VAduLh3TWvxqkROFoB30Uwt0Ie9dflZ2OL65Gd/XqzE=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=X5WnPkRUmCkG0gV+NA+F4PKpQ6UIe3nLN3Kxm//CG8DNXcwtr6yyUzqblPS6kO7EH4QEATrm4W53nv+N1PSha3czFb+ueFAqoVi2EoW1frqVV6NbvqMi3fwQonoSXllK6YOng8kV9WX7vUFow9XWNmWaANpubITFV7u4mmDaCBg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VkdDllWB; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=YNX2s5uQtA48/wuMUdomJ0ej4pjfNl1aaOJZeQLs1pS131Mvz0SksGfBGwQukwNt9yDhY+eajZ9WdB+2wYo/lRqOP2hYLK+Zqu12rAN+sAHt+/j9yhU+8+omCKDdnepEXuOksWzuXYIIaA/vrT00Ehplx965kCnHX0c18Y39vGs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BgFTbxNP; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VkdDllWB"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99F9E1F00893;
-	Mon, 28 Sep 2026 18:07:01 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BgFTbxNP"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A3461F000FF;
+	Mon, 28 Sep 2026 18:08:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790618823;
-	bh=aXEt8cLj5MZO0I73asHe3zofPVNAzMphdpTAK0N6FfY=;
+	s=k20260515; t=1790618912;
+	bh=WUr4DNIEp8vqgR+y+EucUuJJumlJdmOaA0wpDfnBg4M=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=VkdDllWBAWV5FGuXwvbjEPRrpIDNW0dE7ueXGI1WvWp/AW/N7EAHBRQDMLs2+H3nz
-	 pLEKPGak1yaX9UVq9Fb1ucxNAhmv6RWC70uuRxMLoWv6SR2MvvK3A5DtgZ6u97b+A3
-	 xQtUpOQCtgBAySTeKXC1iLN8suUD9vmVagzo41ghn1qN/UGn5ubVotTTdDczQLk4gS
-	 4K8YIEQOask3UeRdr8cFTjBIok+hbWq/Fb567PzFNDVn/hhYv0r2cv5Hzs+d0CRxoO
-	 LwTagIm3x2qKu+gV6bbSJY9txsQB9ar07NT+kGal5ajgx0Hveq3co6x4xFXdGLYrEK
-	 zAwMIRi9TF9Ug==
+	b=BgFTbxNPFcXz6LSX4MLAxqXhEI3Ogbu+y2r9j0teZHuz/LNFhM56tuSTuG1QKMbAn
+	 wNmeS1dZVeLgx14gogaR33nyrlxs052QlsSwV3O8C3k/2yr1YcCOJpzz6mKu78b63u
+	 5PXcWBa8QdKK+HZA2/l/u62C2b4yfPTmpQzgVedkYjSoB3BbhqvBmAsZRk83hPuEy9
+	 Pugfp3WQS/BrQ3kROsvl0hisrK67VTSbClkdohHx0VMN8f+Ql9rRBCzY10AY+iYSYz
+	 5Bb6XrLVoYMRsN+hP48oUAZ5hVt7FfcM1ZpkW4H7PUSkkOtVa3/BRAhbJM3IJTgQqx
+	 dQwNRTLrSR1PA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 4/6] x86/vmware: Add a bounded pre-kdump log sender
+Subject: Re: [PATCH v2 2/6] crash: Notify pre-kdump callbacks before
+ switching kernels
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Baoquan He" <baoquan.he@linux.dev>, "Dave Young" <ruirui.yang@linux.dev>, "Zack
- Rusin" <zack.rusin@broadcom.com>, "Pratyush Yadav" <pratyush@kernel.org>, "Mike
- Rapoport" <rppt@kernel.org>, "Pasha Tatashin" <pasha.tatashin@soleen.com>, "Petr
- Mladek" <pmladek@suse.com>, "Andrew Morton" <akpm@linux-foundation.org>
-Cc: bcm-kernel-feedback-list@broadcom.com, "Thomas Gleixner" <tglx@kernel.org>, "Brennan
- Lamoreaux" <brennan.lamoreaux@broadcom.com>, "Ian Forbes" <ian.forbes@broadcom.com>, "Michael
- Kelley" <mhklinux@outlook.com>, "Steven Rostedt" <rostedt@goodmis.org>, "Jonathan
- Corbet" <corbet@lwn.net>, "Michael S. Tsirkin" <mst@redhat.com>, "Kees Cook" <kees@kernel.org>, "Randy
- Dunlap" <rdunlap@infradead.org>, "Ajay Kaher" <ajay.kaher@broadcom.com>, "Maaz
- Mombasawala" <maaz.mombasawala@broadcom.com>, "Joel Granados" <joel.granados@kernel.org>, "Bo
- Gan" <bo.gan@broadcom.com>, virtualization@lists.linux.dev, "John Ogness" <john.ogness@linutronix.de>, "Sergey
- Senozhatsky" <senozhatsky@chromium.org>, "Guilherme G. Piccoli" <gpiccoli@igalia.com>, kexec@lists.infradead.org, "Alexey
- Makhalov" <alexey.makhalov@broadcom.com>, "Ingo Molnar" <mingo@redhat.com>, "Borislav
- Petkov" <bp@alien8.de>, x86@kernel.org, "Shuah Khan" <skhan@linuxfoundation.org>, "Stephen
- Brennan" <stephen.s.brennan@oracle.com>, linux-doc@vger.kernel.org, "Eugenio
- Perez" <eperezma@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org, "Dave
- Hansen" <dave.hansen@linux.intel.com>
-In-Reply-To: <c1313dbfd632d2d4f2c5a14577df24a6c1b3c34a.1790014793.git.zack.rusin@broadcom.com>
+To: "Petr Mladek" <pmladek@suse.com>, "Baoquan He" <baoquan.he@linux.dev>, "Mike
+ Rapoport" <rppt@kernel.org>, "Andrew Morton" <akpm@linux-foundation.org>, "Pratyush
+ Yadav" <pratyush@kernel.org>, "Dave Young" <ruirui.yang@linux.dev>, "Zack
+ Rusin" <zack.rusin@broadcom.com>, "Pasha Tatashin" <pasha.tatashin@soleen.com>
+Cc: "Kees Cook" <kees@kernel.org>, linux-doc@vger.kernel.org, "Shuah Khan" <skhan@linuxfoundation.org>, "H.
+ Peter Anvin" <hpa@zytor.com>, "Dave Hansen" <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org, "Ian
+ Forbes" <ian.forbes@broadcom.com>, "Borislav Petkov" <bp@alien8.de>, "Joel
+ Granados" <joel.granados@kernel.org>, "Brennan Lamoreaux" <brennan.lamoreaux@broadcom.com>, "Guilherme
+ G. Piccoli" <gpiccoli@igalia.com>, "Ajay Kaher" <ajay.kaher@broadcom.com>, "Bo
+ Gan" <bo.gan@broadcom.com>, virtualization@lists.linux.dev, "Sergey
+ Senozhatsky" <senozhatsky@chromium.org>, "Ingo Molnar" <mingo@redhat.com>, x86@kernel.org, "Michael
+ S. Tsirkin" <mst@redhat.com>, "Maaz Mombasawala" <maaz.mombasawala@broadcom.com>, "Alexey
+ Makhalov" <alexey.makhalov@broadcom.com>, "Thomas Gleixner" <tglx@kernel.org>, "John
+ Ogness" <john.ogness@linutronix.de>, "Stephen Brennan" <stephen.s.brennan@oracle.com>, "Steven
+ Rostedt" <rostedt@goodmis.org>, "Jonathan Corbet" <corbet@lwn.net>, "Randy
+ Dunlap" <rdunlap@infradead.org>, "Michael Kelley" <mhklinux@outlook.com>, "Eugenio
+ Perez" <eperezma@redhat.com>, kexec@lists.infradead.org, bcm-kernel-feedback-list@broadcom.com
+In-Reply-To: <9ef573cdbbf5e659eea16fa23afeaf2488049198.1790014793.git.zack.rusin@broadcom.com>
 References: <cover.1790014793.git.zack.rusin@broadcom.com>
- <c1313dbfd632d2d4f2c5a14577df24a6c1b3c34a.1790014793.git.zack.rusin@broadcom.com>
+ <9ef573cdbbf5e659eea16fa23afeaf2488049198.1790014793.git.zack.rusin@broadcom.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 28 Sep 2026 18:07:01 +0000
-Message-Id: <20260928180701.99F9E1F00893@smtp.kernel.org>
+Date: Mon, 28 Sep 2026 18:08:28 +0000
+Message-Id: <20260928180829.3A3461F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-> Preserve the newest kernel log tail in the host's vmware.log, which can
-> outlive a guest with no working userspace or persistent storage.
->=20
-> Allocate an 8 KiB buffer during early init and register on
-> panic_pre_kdump_list. A 4 KiB buffer can omit useful stack-trace
-> context. Use a fixed byte budget so transfer work does not scale
-> with PAGE_SIZE.
->=20
-> Copy the newest records, prefix them with "log ", and send one RPC over
-> the low-bandwidth register interface. Bound the transfer to 8 KiB and
-> at most three checkpoint attempts; zero-fill a partial payload word and
-> close the channel after every successful open.
->=20
-> The callback allocates nothing and emits no printk messages. Enable it
-> for ordinary guests, leaving encrypted guests disabled until explicitly
-> enabled by the sysctl. Skip initialization without printk support, and
-> leave logging disabled after allocation or registration failure.
->=20
-> Suggested-by: Michael Kelley <mhklinux@outlook.com>
-> Link: https://lore.kernel.org/r/SN6PR02MB41574A11D309A0530C63E0FED4842@SN=
-6PR02MB4157.namprd02.prod.outlook.com
-> Link: https://lore.kernel.org/r/20260309235250.2611115-3-alexey.makhalov@=
-broadcom.com
-> Co-developed-by: Bo Gan <bo.gan@broadcom.com>
-> Signed-off-by: Bo Gan <bo.gan@broadcom.com>
-> Co-developed-by: Alexey Makhalov <alexey.makhalov@broadcom.com>
-> Signed-off-by: Alexey Makhalov <alexey.makhalov@broadcom.com>
-> Signed-off-by: Zack Rusin <zack.rusin@broadcom.com>
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Medium] panic: Pre-kdump callbacks always receive NULL message in defaul=
+t config
+--
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+commit 8884313d127ae4b9734baebea7b4ba8dd25b38a5
+Author: Zack Rusin <zack.rusin@broadcom.com>
+
+crash: Notify pre-kdump callbacks before switching kernels
+
+Fatal x86 oopses can call crash_kexec() without reaching panic(). Run the
+pre-kdump chain from __crash_kexec() as well, after finding a loaded image
+under the kexec lock and capturing the original registers.
+
+Link: https://lore.kernel.org/r/aquttpMVKX8e6zGB@pathway.suse.cz
+
+>     the shared guard skips callbacks already invoked by panic().
+
+[Severity: Medium]
+Is this statement accurate?
+
+During a standard panic-triggered kdump with crash_kexec_post_notifiers=3D0
+(the default configuration), vpanic() calls __crash_kexec(NULL) before it
+formats the panic message and calls its own explicit
+panic_notify_pre_kdump(buf).
+
+Because __crash_kexec(NULL) runs first, won't the new
+panic_notify_pre_kdump(NULL) call consume the once-per-boot atomic guard,
+rather than being skipped by it?
+
+> diff --git a/kernel/crash_core.c b/kernel/crash_core.c
+> index 2b36aa9fade06..5d9fe9e00f39f 100644
+> --- a/kernel/crash_core.c
+> +++ b/kernel/crash_core.c
+[ ... ]
+> @@ -139,6 +140,7 @@ void __noclone __crash_kexec(struct pt_regs *regs)
+>  			struct pt_regs fixed_regs;
+> =20
+>  			crash_setup_regs(&fixed_regs, regs);
+> +			panic_notify_pre_kdump(NULL);
+
+[Severity: Medium]
+Will this cause pre-kdump notifiers to receive a NULL message pointer inste=
+ad
+of the expected panic message?
+
+If a system panic occurs and kexec is configured with the default setting of
+crash_kexec_post_notifiers=3D0, vpanic() triggers __crash_kexec(NULL) before
+reaching its own explicit panic_notify_pre_kdump(buf):
+
+kernel/panic.c:vpanic() {
+    ...
+    if (!_crash_kexec_post_notifiers)
+        __crash_kexec(NULL);
+    ...
+    panic_notify_pre_kdump(buf);
+}
+
+When this happens, __crash_kexec() will invoke panic_notify_pre_kdump() with
+a NULL message pointer. This permanently consumes the once-per-boot guard,
+and any callback relying on the documented msg parameter will experience
+data loss or potential NULL dereferences, violating the API contract that
+promises the panic message during a panic.
+
+>  			crash_save_vmcoreinfo();
+>  			machine_crash_shutdown(&fixed_regs);
+>  			crash_cma_clear_pending_dma();
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/cover.1790014793.gi=
-t.zack.rusin@broadcom.com?part=3D4
-
+t.zack.rusin@broadcom.com?part=3D2
