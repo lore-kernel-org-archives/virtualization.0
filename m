@@ -1,112 +1,96 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CB9E36B920;
-	Mon, 28 Sep 2026 18:06:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A866C377A93;
+	Mon, 28 Sep 2026 18:07:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790618791; cv=none; b=RXfCYPpRDGbFGYbywj4gKRW56A6GxiUvSi9xOPzgh3LkGnCZyP09Jge5ArlZt9rh2iSfwmcger5VsatXT6O0ABu1Lkv1zD3dBBwisyT4BP/r/Q7b9CQ8rzcrtWTxqIAjSba9gnPXtUfLGR2DQgNPjaTvQ/b7gCcVaxttuxD81a4=
+	t=1790618826; cv=none; b=RAuQwHq/fXOjLUdU03xdR9QjRFojvW7bxLYIr3CEMZlaYu4Oh9L3K3CrBrXlXczhZ2QAkIxfLHqdX5kPdyu3w7QyC0b0O2x7yM4tnk9Lom2cud9c0Wkpk0KqIe8FavRmoMtQiXAcyLZ/3gulRQOvE0KlFesS9hb6qRIcSRT17PA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790618791; c=relaxed/simple;
-	bh=rlEcCFeUPs+x9r7HXq7bxxuRWx4JY4b5aq3nw05rsIw=;
+	s=arc-20240116; t=1790618826; c=relaxed/simple;
+	bh=aXEt8cLj5MZO0I73asHe3zofPVNAzMphdpTAK0N6FfY=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=n753JQCciwRqwl9Wu6VjGf6kO1psl4gZxy7myF1J8Eq6CoAsxkNftitr+lI+0sosOyGAk/CdZfqrLuAd0WpSjxrXwCAppGuWZu9lrabi+wT7asdepVwWwRRrIC9cxqQ+kE5zJS/jqBgldNuM8LQKA8GtPuvfknlxlmiFD9OtT6w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SAzBJX+m; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=X5WnPkRUmCkG0gV+NA+F4PKpQ6UIe3nLN3Kxm//CG8DNXcwtr6yyUzqblPS6kO7EH4QEATrm4W53nv+N1PSha3czFb+ueFAqoVi2EoW1frqVV6NbvqMi3fwQonoSXllK6YOng8kV9WX7vUFow9XWNmWaANpubITFV7u4mmDaCBg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VkdDllWB; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SAzBJX+m"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E672E1F000FF;
-	Mon, 28 Sep 2026 18:06:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VkdDllWB"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99F9E1F00893;
+	Mon, 28 Sep 2026 18:07:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790618789;
-	bh=VvnLUUTkX/vIglRHw90BFQnofbQcleiKGqQ/3UvoQgw=;
+	s=k20260515; t=1790618823;
+	bh=aXEt8cLj5MZO0I73asHe3zofPVNAzMphdpTAK0N6FfY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=SAzBJX+miQZMsrjtZnZVwB+vVsYd8t/CB1vCRrh254uQduyjLc1tWlok7LeiQvVgN
-	 kOcV8DN5elvF6rMYTI5lCVXHCpd3Cg8TyCLberdU2d+YykpmwkjSf/Jc28p3vYye8h
-	 7OgpThCBX+HO58moCieWN4AWtE4ghMRMRnUVeitcYTFB4fG/XWTpPw8KSUK1l5PPtS
-	 bv2we7ISA08i4FUkQV39V3TYifCK7J/C9WVsoU6T/sBmYSNqEj+Anj4m0l8mWATdRi
-	 4pmmA/FFIpGQDXLvbReFBLRYn4BRiR5n9QkOaNXJRUm72njTHy5dsGAq2mCQILiMkg
-	 bEXDFPbwrp1ow==
+	b=VkdDllWBAWV5FGuXwvbjEPRrpIDNW0dE7ueXGI1WvWp/AW/N7EAHBRQDMLs2+H3nz
+	 pLEKPGak1yaX9UVq9Fb1ucxNAhmv6RWC70uuRxMLoWv6SR2MvvK3A5DtgZ6u97b+A3
+	 xQtUpOQCtgBAySTeKXC1iLN8suUD9vmVagzo41ghn1qN/UGn5ubVotTTdDczQLk4gS
+	 4K8YIEQOask3UeRdr8cFTjBIok+hbWq/Fb567PzFNDVn/hhYv0r2cv5Hzs+d0CRxoO
+	 LwTagIm3x2qKu+gV6bbSJY9txsQB9ar07NT+kGal5ajgx0Hveq3co6x4xFXdGLYrEK
+	 zAwMIRi9TF9Ug==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 5/6] x86/vmware: Add the vmware_record_panic_msg
- sysctl
+Subject: Re: [PATCH v2 4/6] x86/vmware: Add a bounded pre-kdump log sender
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Mike Rapoport" <rppt@kernel.org>, "Petr Mladek" <pmladek@suse.com>, "Pasha
- Tatashin" <pasha.tatashin@soleen.com>, "Baoquan He" <baoquan.he@linux.dev>, "Zack
- Rusin" <zack.rusin@broadcom.com>, "Andrew Morton" <akpm@linux-foundation.org>, "Pratyush
- Yadav" <pratyush@kernel.org>, "Dave Young" <ruirui.yang@linux.dev>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, "Borislav Petkov" <bp@alien8.de>, "Guilherme
- G. Piccoli" <gpiccoli@igalia.com>, "Shuah Khan" <skhan@linuxfoundation.org>, "Dave
- Hansen" <dave.hansen@linux.intel.com>, "Michael Kelley" <mhklinux@outlook.com>, "Ajay
- Kaher" <ajay.kaher@broadcom.com>, linux-doc@vger.kernel.org, "Stephen
- Brennan" <stephen.s.brennan@oracle.com>, "Eugenio Perez" <eperezma@redhat.com>, virtualization@lists.linux.dev, "Bo
- Gan" <bo.gan@broadcom.com>, "Maaz Mombasawala" <maaz.mombasawala@broadcom.com>, "Kees
- Cook" <kees@kernel.org>, "Steven Rostedt" <rostedt@goodmis.org>, x86@kernel.org, "Jonathan
- Corbet" <corbet@lwn.net>, "Thomas Gleixner" <tglx@kernel.org>, "Brennan
- Lamoreaux" <brennan.lamoreaux@broadcom.com>, "Joel Granados" <joel.granados@kernel.org>, kexec@lists.infradead.org, "John
- Ogness" <john.ogness@linutronix.de>, "Sergey Senozhatsky" <senozhatsky@chromium.org>, "Michael
- S. Tsirkin" <mst@redhat.com>, "Alexey Makhalov" <alexey.makhalov@broadcom.com>, "Randy
- Dunlap" <rdunlap@infradead.org>, "Ingo Molnar" <mingo@redhat.com>, bcm-kernel-feedback-list@broadcom.com, linux-kernel@vger.kernel.org, "Ian
- Forbes" <ian.forbes@broadcom.com>
-In-Reply-To: <269888613b5dc16d19899b2c87c5ecdfd2610e8d.1790014793.git.zack.rusin@broadcom.com>
+To: "Baoquan He" <baoquan.he@linux.dev>, "Dave Young" <ruirui.yang@linux.dev>, "Zack
+ Rusin" <zack.rusin@broadcom.com>, "Pratyush Yadav" <pratyush@kernel.org>, "Mike
+ Rapoport" <rppt@kernel.org>, "Pasha Tatashin" <pasha.tatashin@soleen.com>, "Petr
+ Mladek" <pmladek@suse.com>, "Andrew Morton" <akpm@linux-foundation.org>
+Cc: bcm-kernel-feedback-list@broadcom.com, "Thomas Gleixner" <tglx@kernel.org>, "Brennan
+ Lamoreaux" <brennan.lamoreaux@broadcom.com>, "Ian Forbes" <ian.forbes@broadcom.com>, "Michael
+ Kelley" <mhklinux@outlook.com>, "Steven Rostedt" <rostedt@goodmis.org>, "Jonathan
+ Corbet" <corbet@lwn.net>, "Michael S. Tsirkin" <mst@redhat.com>, "Kees Cook" <kees@kernel.org>, "Randy
+ Dunlap" <rdunlap@infradead.org>, "Ajay Kaher" <ajay.kaher@broadcom.com>, "Maaz
+ Mombasawala" <maaz.mombasawala@broadcom.com>, "Joel Granados" <joel.granados@kernel.org>, "Bo
+ Gan" <bo.gan@broadcom.com>, virtualization@lists.linux.dev, "John Ogness" <john.ogness@linutronix.de>, "Sergey
+ Senozhatsky" <senozhatsky@chromium.org>, "Guilherme G. Piccoli" <gpiccoli@igalia.com>, kexec@lists.infradead.org, "Alexey
+ Makhalov" <alexey.makhalov@broadcom.com>, "Ingo Molnar" <mingo@redhat.com>, "Borislav
+ Petkov" <bp@alien8.de>, x86@kernel.org, "Shuah Khan" <skhan@linuxfoundation.org>, "Stephen
+ Brennan" <stephen.s.brennan@oracle.com>, linux-doc@vger.kernel.org, "Eugenio
+ Perez" <eperezma@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org, "Dave
+ Hansen" <dave.hansen@linux.intel.com>
+In-Reply-To: <c1313dbfd632d2d4f2c5a14577df24a6c1b3c34a.1790014793.git.zack.rusin@broadcom.com>
 References: <cover.1790014793.git.zack.rusin@broadcom.com>
- <269888613b5dc16d19899b2c87c5ecdfd2610e8d.1790014793.git.zack.rusin@broadcom.com>
+ <c1313dbfd632d2d4f2c5a14577df24a6c1b3c34a.1790014793.git.zack.rusin@broadcom.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 28 Sep 2026 18:06:27 +0000
-Message-Id: <20260928180627.E672E1F000FF@smtp.kernel.org>
+Date: Mon, 28 Sep 2026 18:07:01 +0000
+Message-Id: <20260928180701.99F9E1F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Low] doc: rST title underline too short for vmware_record_panic_msg
---
+> Preserve the newest kernel log tail in the host's vmware.log, which can
+> outlive a guest with no working userspace or persistent storage.
+>=20
+> Allocate an 8 KiB buffer during early init and register on
+> panic_pre_kdump_list. A 4 KiB buffer can omit useful stack-trace
+> context. Use a fixed byte budget so transfer work does not scale
+> with PAGE_SIZE.
+>=20
+> Copy the newest records, prefix them with "log ", and send one RPC over
+> the low-bandwidth register interface. Bound the transfer to 8 KiB and
+> at most three checkpoint attempts; zero-fill a partial payload word and
+> close the channel after every successful open.
+>=20
+> The callback allocates nothing and emits no printk messages. Enable it
+> for ordinary guests, leaving encrypted guests disabled until explicitly
+> enabled by the sysctl. Skip initialization without printk support, and
+> leave logging disabled after allocation or registration failure.
+>=20
+> Suggested-by: Michael Kelley <mhklinux@outlook.com>
+> Link: https://lore.kernel.org/r/SN6PR02MB41574A11D309A0530C63E0FED4842@SN=
+6PR02MB4157.namprd02.prod.outlook.com
+> Link: https://lore.kernel.org/r/20260309235250.2611115-3-alexey.makhalov@=
+broadcom.com
+> Co-developed-by: Bo Gan <bo.gan@broadcom.com>
+> Signed-off-by: Bo Gan <bo.gan@broadcom.com>
+> Co-developed-by: Alexey Makhalov <alexey.makhalov@broadcom.com>
+> Signed-off-by: Alexey Makhalov <alexey.makhalov@broadcom.com>
+> Signed-off-by: Zack Rusin <zack.rusin@broadcom.com>
 
-commit c541f42ddd949c322e4b6facb84fc17737ed184a
-Author: Zack Rusin <zack.rusin@broadcom.com>
-
-x86/vmware: Add the vmware_record_panic_msg sysctl
-
-This commit adds a new sysctl kernel.vmware_record_panic_msg to control
-whether panic or fatal-oops data is written to the host log before kdump.
-It allows administrators to configure this logging behavior depending on
-guest encryption, and defers sysctl registration until the logger is ready.
-
-Link: https://lore.kernel.org/r/4e73yd2ofpdzl6rptzvd74no3hnyfblknoq7wzxlw7f=
-3zjbz7c@srfabx6lsusj
-
-> diff --git a/Documentation/admin-guide/sysctl/kernel.rst b/Documentation/=
-admin-guide/sysctl/kernel.rst
-> index ffea61d448ebb..be13c143b8bb0 100644
-> --- a/Documentation/admin-guide/sysctl/kernel.rst
-> +++ b/Documentation/admin-guide/sysctl/kernel.rst
-
-[ ... ]
-
-> @@ -1690,6 +1690,26 @@ entry will default to 2 instead of 0.
->  =3D =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> =20
-> =20
-> +vmware_record_panic_msg
-> +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-
-[Severity: Low]
-Is the underline for this section title one character too short?
-
-The title vmware_record_panic_msg is 23 characters long, but the underline
-is only 22 characters long. In reStructuredText, the underline must be at
-least as long as the text it underlines, so this regression will trigger a
-warning during Sphinx documentation builds.
-
-> +
-> +Controls whether panic or fatal-oops kmsg data is written to the host's
-> +``vmware.log`` before kdump. This setting does not control the separate
+Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/cover.1790014793.gi=
-t.zack.rusin@broadcom.com?part=3D5
+t.zack.rusin@broadcom.com?part=3D4
+
