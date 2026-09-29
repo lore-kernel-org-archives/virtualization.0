@@ -1,76 +1,119 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A312038B148
-	for <virtualization@lists.linux.dev>; Tue, 29 Sep 2026 07:16:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17D843AAF69;
+	Tue, 29 Sep 2026 07:54:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790666214; cv=none; b=dqxyAx9C8syQOJ9xyyKeJILJSW5ozNv0LfJ28UfDr8W+iFYGJ22LlfexFeoHK1WPIHa9qws+M20tjI3IMH4iPmd40tpK9ExHyOn1p5aOuMJi4E432r7l2KeRQs/4FmPIuQSJ68gxeG4ZMN3L5q9xNues6Z0fTvQBe+yP2Ga0IAA=
+	t=1790668496; cv=none; b=HSaB7+PJqagDA8McZubPZhdl3TW4tPF/vDSw3u00lnfO2TrtGTVBnp6twts4wJJqhEdjeFlQQpsNlbtal9OT4QwBRMIXgTcBZ9R2gi1b6vaCNlFwaBQEjFhCSBdp5FKi3+qM6f9mXx3GcioMNM8uVUnNjRn6aNZR2pr+WCq23I4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790666214; c=relaxed/simple;
-	bh=l7Vwkevx3LLIJgJE/nCB9tv8ngrh2dULtvk7RySerkI=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=aksE1JUC14edx+oeQep+uQ+jHhO+FDwcFz+Ka+r1cvkBpyoxR6LN0bR2xD6RHrHae53Uej/grqXEiqMb5pI8FLv4oSENvGwSalJsw/TmZFv44LZnD4ayJcoVXq6JJN28sx1qLWVTBmgys5Snn1ld2aX+YGHayyaKo4KU1WpezLc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XTuTHVLV; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790668496; c=relaxed/simple;
+	bh=BMIu3XzRkJm+A1W6ZZm3DtEJrTbu/WBqZDXJAhuao4Y=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=LJiUFPAuE8GxvaIZZkdNr5NORA5t/yfa6ZGMnRBw9gweKEUCLTpCkLNhNSbIjYp4GK9Wl+S25KwdF48wxh75QnjTsBfQyFy9THU9RKgbMDORT2qmkQr7tUAxNBUH6eP21NrEyotA6WLjnAtabxrp5f6QPE+zvmj9E7mGGG6i6Ho=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=pass smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=bmQLzw4r; arc=none smtp.client-ip=90.155.92.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XTuTHVLV"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E67C1F00898;
-	Tue, 29 Sep 2026 07:16:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790666213;
-	bh=/SdbbcPpSAU3qNhopsqNbdN09LfadPeBo0E9CzGhLgk=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=XTuTHVLVvcPsvwAB2u22IXamiM9zWz7tOHPxrIMFM+D1HcJDwzhfVmxdxpl5wbhxP
-	 P6W0yW65qVU12SsyotLazDyapZO96meCinWwJHTXnguJNy+OFjEM9jpr/o76JynYwO
-	 T6dU1wRf6gBIjwTuWJFvz07g5zMTpBNa823AfMeUz0dGIa/nNxxVSajkcHVus+kbQK
-	 ADbUEroao//nXDs+G0lqf465iz38PQ6ZZn4sk2jVk1MbB24BAiUVaanrayMsTftCCM
-	 Vi+3ajgkRTjoNy3yv/Wp0hbkDNLyE4v789irPcxGHxFPNdjZf7jdinT0aoMRdGL3Kj
-	 UnxC3CYvu7Q4Q==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] drm/virtio: Destroy obj_restore_lock on the final
- drm_dev_put()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Abhin Parekadan Jose" <abhinjoses@gmail.com>
-Cc: virtualization@lists.linux.dev, dri-devel@lists.freedesktop.org, "Eugenio
- Perez" <eperezma@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
-In-Reply-To: <20260929070714.169412-1-abhinjoses@gmail.com>
-References: <20260929070714.169412-1-abhinjoses@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 29 Sep 2026 07:16:52 +0000
-Message-Id: <20260929071653.1E67C1F00898@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="bmQLzw4r"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=zT6GlfQft/QJeAy0pckXvrIl9KIiBoLg2QYNryNymLU=; b=bmQLzw4rqkY4fV8qO1gp2+zRk4
+	nhnwFpj7IgIbEV0UNBL0AOnauwbzBlCrL0ajhvhUVi+pNnh8SIZRzeefsOeh2Kr+NSn2B/sAIj7Vh
+	Cx4AjbKvt+mRby1KlKqiNENB9NvJZhwvbf7gm1HC3bSiE/zr2kOf2x6WRKTNv+D2/KJS9G+aCQfJy
+	toxyW81SwYmF7/bHp3ab0R0jpaRE1WptNnL1lIFsaUvgJvNpq1mWDNvoRc/z4pdNqCh2Tcmi+TgDy
+	hVZUhCFgMIoSgF2tN4jnyl9609fBdFBT+W9F9gzKS5Fe2LmAP+mdiNLql6o3NqdHV3RMF1f+4q+yR
+	ZPnsshtw==;
+Received: from 77-249-17-252.cable.dynamic.v4.ziggo.nl ([77.249.17.252] helo=noisy.programming.kicks-ass.net)
+	by desiato.infradead.org with esmtpsa (Exim 4.99.2 #2 (Red Hat Linux))
+	id 1xBSfV-00000002Jcc-0zm7;
+	Tue, 29 Sep 2026 07:54:30 +0000
+Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
+	id F1E06300446; Tue, 29 Sep 2026 09:54:26 +0200 (CEST)
+Date: Tue, 29 Sep 2026 09:54:26 +0200
+From: Peter Zijlstra <peterz@infradead.org>
+To: Zack Rusin <zack.rusin@broadcom.com>
+Cc: Kiryl Shutsemau <kas@kernel.org>, Borislav Petkov <bp@alien8.de>,
+	x86@kernel.org, Dennis Zhou <dennis@kernel.org>,
+	Tejun Heo <tj@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+	Rick Edgecombe <rick.p.edgecombe@intel.com>,
+	Tom Lendacky <thomas.lendacky@amd.com>,
+	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Vitaly Kuznetsov <vkuznets@redhat.com>,
+	Ajay Kaher <ajay.kaher@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>,
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"H. Peter Anvin" <hpa@zytor.com>, virtualization@lists.linux.dev,
+	bcm-kernel-feedback-list@broadcom.com, linux-kernel@vger.kernel.org,
+	Christoph Lameter <cl@gentwo.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Bo Gan <bo.gan@broadcom.com>, linux-mm@kvack.org,
+	linux-arch@vger.kernel.org, linux-coco@lists.linux.dev,
+	kvm@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
+	"K. Y. Srinivasan" <kys@microsoft.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>,
+	Long Li <longli@microsoft.com>, Andy Lutomirski <luto@kernel.org>,
+	linux-doc@vger.kernel.org, linux-hyperv@vger.kernel.org,
+	Nathan Chancellor <nathan@kernel.org>, Kees Cook <kees@kernel.org>,
+	Ashish Kalra <ashish.kalra@amd.com>
+Subject: Re: [PATCH v2 2/6] percpu: Bound decrypted storage for all x86
+ encrypted guests
+Message-ID: <20260929075426.GQ4120091@noisy.programming.kicks-ass.net>
+References: <20260929040256.543767-1-zack.rusin@broadcom.com>
+ <20260929040256.543767-3-zack.rusin@broadcom.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260929040256.543767-3-zack.rusin@broadcom.com>
 
-> virtio_gpu_deinit() calls mutex_destroy() on obj_restore_lock, but
-> deinit runs from virtio_gpu_remove() at unbind or PCI remove, and GEM
-> objects can outlive that. An open /dev/fb0 keeps the fbdev buffer
-> alive, and the fbdev DRM client holds a drm_device reference. When the
-> fd is finally closed, the buffer is freed and takes the destroyed lock:
->=20
->   fb_release()
->     drm_fbdev_shmem_fb_destroy()
->       drm_client_buffer_delete()
->         virtio_gpu_free_object()
->           virtio_gpu_remove_from_restore_list()
->             mutex_lock(&vgdev->obj_restore_lock)
->=20
->   DEBUG_LOCKS_WARN_ON(lock->magic !=3D lock)
->   WARNING: kernel/locking/mutex.c:625 at __mutex_lock+0xf2c/0x12ec
-> [ ... ]
-> Fixes: 54a970048296 ("drm/virtio: Add support for saving and restoring vi=
-rtio_gpu_objects")
-> Reported-by: syzbot+3590d97d8a586fa955c2@syzkaller.appspotmail.com
-> Closes: https://syzkaller.appspot.com/bug?extid=3D3590d97d8a586fa955c2
-> Assisted-by: LLM
-> Signed-off-by: Abhin Parekadan Jose <abhinjoses@gmail.com>
+On Tue, Sep 29, 2026 at 12:02:51AM -0400, Zack Rusin wrote:
+> TDX also needs shared per-CPU buffers. Use X86_MEM_ENCRYPT for their
+> definition and placement, and provide page-aligned boundaries so the
+> architecture can convert each CPU's whole section before registration.
+> 
+> Define the boundaries in the SMP template or UP data as appropriate.
+> Drop the unused DECLARE_PER_CPU_DECRYPTED() macro.
+> 
+> Suggested-by: Kiryl Shutsemau <kas@kernel.org>
+> Link: https://lore.kernel.org/r/aqqGUAX65s4LdJkr@thinkstation
+> Signed-off-by: Zack Rusin <zack.rusin@broadcom.com>
+> ---
+>  include/asm-generic/vmlinux.lds.h | 12 ++++++++----
+>  include/linux/percpu-defs.h       |  7 ++-----
+>  2 files changed, 10 insertions(+), 9 deletions(-)
+> 
+> diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
+> index 64bc2bfdd2ec..145fcdbbe9db 100644
+> --- a/include/asm-generic/vmlinux.lds.h
+> +++ b/include/asm-generic/vmlinux.lds.h
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+> @@ -1022,11 +1024,13 @@
+>   * Note: We use a separate section so that only this section gets
+>   * decrypted to avoid exposing more than we wish.
+>   */
+> -#ifdef CONFIG_AMD_MEM_ENCRYPT
+> +#if defined(CONFIG_X86_MEM_ENCRYPT) && defined(CONFIG_SMP)
+>  #define PERCPU_DECRYPTED_SECTION					\
+>  	. = ALIGN(PAGE_SIZE);						\
+> +	__start_percpu_decrypted = .;					\
+>  	*(.data..percpu..decrypted)					\
+> -	. = ALIGN(PAGE_SIZE);
+> +	. = ALIGN(PAGE_SIZE);						\
+> +	__end_percpu_decrypted = .;
+>  #else
+>  #define PERCPU_DECRYPTED_SECTION
+>  #endif
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260929070714.1694=
-12-1-abhinjoses@gmail.com?part=3D1
+So you're page aligning something that will get different protection and
+will thus shatter large pages?
 
+That is somewhat uncool. We like large pages, large pages are good.
