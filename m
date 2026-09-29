@@ -1,74 +1,108 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A7A34FDA42
-	for <virtualization@lists.linux.dev>; Tue, 29 Sep 2026 09:56:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 455C733EB01;
+	Tue, 29 Sep 2026 11:50:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790675795; cv=none; b=hVe66lLKgy2LI3Y6LgboqsV/k+BgnhiMPaYMuDm73kPCIBIi5vv4EivpszH6paWT3udWLmYwH+XpA1r4afsT3yAkJecuv6PitGqAv6VY0+68MS41WeJ2IIc08z6Ew+MAkoA6ivtooo4wc+RxcC7MTolEusszVKI2MTQJW40Q75U=
+	t=1790682652; cv=none; b=Z7mAMz/8s6/QA+zYaNzgeKBSfE8auVMyRiQJWSRautNsJ6Mp+LIDF7LzfylBpt/Fse0xM+GqkoqMo8JsM/+EoPzKfLCeIBZIkrfqK4dY7NMRuRFvWaheBMIyvBK/JUpdwL7OYCQvD/8K9GTyY8zCkweFhRm0hNvhbjIU0lg0rLU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790675795; c=relaxed/simple;
-	bh=W7m81uvh+hMihEszUwAcMs8Qx99+nGYQ+Iqlygs+c7A=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ZsDJJIImIwvXv8sW7yCG3r7XJGQI1OhX6dAdHZEHOtQqVZ55GwLT1nSwDxOEl3mo/0lG1kB7Nim+Z07X+jnj49Rt2t0yvr0VgBUi6IRR6wVdZ8x9aQX2joZPiotQpoGMzXiC655PgSX7G3NnSORlKQYFDJnt6GYbxMjYxLOEIfI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OP3c30fW; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790682652; c=relaxed/simple;
+	bh=HaNsiVNKubstmF8CH9ZhGViUbpvtMFcHdIt3mzeyAjM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=JhWTu7P8aDlH9lixB/DScnD0awSmBjAaPDbKrvHIm4JiWSPrr11glKHUeJDLdD6/9XiuhpFJdS/gCGoyfhnxyNZaOl1GioXhqEbmKLP6sEqdLqUmxgeRjQz0/lsjVxJrrO8J8Mk6kGUaKNu9tz1YTfefmcYfQrJnZEvM+rzU+Bo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YGWo0Fum; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OP3c30fW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70DDF1F00898;
-	Tue, 29 Sep 2026 09:56:32 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YGWo0Fum"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF0211F00893;
+	Tue, 29 Sep 2026 11:50:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790675792;
-	bh=faSfHP6XTq/JaG90ay0mc9KqmrrvSS7yLQ2DiSGY0w0=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=OP3c30fWMO6ka2/xmicblSCBM2Dx1eDiY8MDLNvoqSJX6XgvLH01lDkdtSOj/rJ7G
-	 +29IV1qWnmENDuBZdK7oZHlZAR4daHSzJq8yF03/ggweDDX4XeASgtXzSJCLQHtVIU
-	 +eQK63ogwBNbJl7zJ6yTEM82nQ6KhYG9BPA0lqIPO29FLbxbxSNby9jL0KRxT+CvTS
-	 QMLJe8cplVEVovGKpz6KKCHuHJZuheOtr1lSXIdVBM9lgCqXm1Z74zhDdzcAh0uuOZ
-	 UNfbs6Ou6LbE6sADP4rINIVWZgpH7/sGR69d4r/PqOy0tF8DxNK4xaPW7u48Au02yp
-	 h8EvyEp1Julyw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] fuse: propagate SB_POSIXACL to submounts
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Tarun Khandelwal" <tkhandelwal32@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <20260929094812.93374-1-tkhandelwal32@gmail.com>
-References: <20260929094812.93374-1-tkhandelwal32@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 29 Sep 2026 09:56:32 +0000
-Message-Id: <20260929095632.70DDF1F00898@smtp.kernel.org>
+	s=k20260515; t=1790682650;
+	bh=bZ6CS82RsS8l09lcevntPYrLvDhywmDPJLM6pMJwFLA=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=YGWo0FumpUS2dSk/kcS89s5J9yEC5/fnL/wsIx+OELgatbSpn6aZJSEOt0UtJxFET
+	 O+s4aSpDadSpP1ixfCkmViXggiCVXU3DDBmaGFEGmicL8gThwoOw9SO00oy5QHUxMG
+	 vR3UOTqanwp+/d1tnRHZ2SN3eRjAeVy9rz63ECWsLQJuvSunaIxYRy1KfcJ+YWOaQx
+	 QHJsJ6SjADYnbcrZeoRgkDLQNCygbEtY8a9ENkdpV5zSbe3IkFyA+yIGlJTJp4fmBJ
+	 oITLgHZNuSAZ/Q5fYYIdUsa/LSwXsBkacRwCPIYA1nDE+Oj3J8xGHKZfwCkyEbk1Ul
+	 A3/FW1R/TUDUg==
+Date: Tue, 29 Sep 2026 13:50:45 +0200
+From: Niklas Cassel <cassel@kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+	Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Cc: Damien Le Moal <dlemoal@kernel.org>, virtualization@lists.linux.dev,
+	linux-block@vger.kernel.org
+Subject: Re: [PATCH] virtio_blk: set the zone write granularity
+Message-ID: <arumFSTmHt3J0XRJ@ryzen>
+References: <20260918140641.2031075-2-cassel@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260918140641.2031075-2-cassel@kernel.org>
 
-> From: Tarun Khandelwal <tarun@supabase.io>
->=20
-> fuse_fill_super_common() always sets SB_POSIXACL on the superblock, but
-> fuse_fill_super_submount() never does. Submount superblocks are created
-> from an fs_context with no sb_flags, so the superblock of an automounted
-> FUSE_ATTR_SUBMOUNT directory (e.g. a virtiofs export containing another
-> host mount) lacks SB_POSIXACL, even though it shares the fuse_conn, and
-> thus fc->posix_acl, with its parent.
->=20
-> Since IS_POSIXACL() is false on such a submount, the VFS:
->=20
->  - fails setting POSIX ACLs with -EOPNOTSUPP and hides existing ACLs,
->    without sending any request to the server;
->  - applies the umask itself on create, so default ACLs on the server are
->    not honoured for new files;
-> [ ... ]
-> reported by getfacl on the submount, and default ACLs and ACL-based
-> access checks behave the same as on the root mount. Tested on v7.3-rc5
-> in a QEMU guest.
->=20
-> Signed-off-by: Tarun Khandelwal <tarun@supabase.io>
+On Fri, Sep 18, 2026 at 04:06:42PM +0200, Niklas Cassel wrote:
+> virtblk_read_zoned_limits() reads the write granularity that the device
+> reports in virtio_blk_zoned_characteristics and assigns it to the
+> physical block size and to io_min, but never to the limit that is named
+> after it. queue_limits.zone_write_granularity is left at zero, so
+> blk_validate_zoned_limits() raises it to the logical block size:
+> 
+> 	if (lim->zone_write_granularity < lim->logical_block_size)
+> 		lim->zone_write_granularity = lim->logical_block_size;
+> 
+> A device that reports a granularity coarser than its logical block size,
+> which is what the field exists to express, therefore has it silently
+> reduced. A 512e host managed disk passed through to a guest reports a
+> logical block size of 512 and a write granularity of 4096, and the guest
+> ends up with a zone write granularity of 512.
+> 
+> bio_split_alignment() returns lim->zone_write_granularity if it is non-zero
+> and bio_split_io_at() may split a bio with as per bio_split_alignment().
+> This can real to the write getting rejected by the host drive, as the write
+> is not aligned to the physical block size.
+> 
+> zonefs also takes its block size from bdev_zone_write_granularity(), so it
+> would incorrectly use 512 on a disk that requires 4096.
+> 
+> sd_zbc_read_zones() sets the limit from the physical block size for the
+> same reason. NVMe ZNS and null_blk leave it unset, but the fallback
+> gives the right answer for them, as their write granularity is the
+> logical block size. virtio carries a separate value that may exceed it.
+> 
+> Set the zone write granularity from the value that the device reports.
+> 
+> Fixes: 95bfec41bd3d ("virtio-blk: add support for zoned block devices")
+> Signed-off-by: Niklas Cassel <cassel@kernel.org>
+> ---
+>  drivers/block/virtio_blk.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index 32bf3ba07a9d..c8bfbf8435ac 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -743,6 +743,7 @@ static int virtblk_read_zoned_limits(struct virtio_blk *vblk,
+>  		dev_warn(&vdev->dev, "zero write granularity reported\n");
+>  		return -ENODEV;
+>  	}
+> +	lim->zone_write_granularity = wg;
+>  	lim->physical_block_size = wg;
+>  	lim->io_min = wg;
+>  
+> 
+> base-commit: 5dd1818b15d98d4a20806cd00b1b40320b06004f
+> -- 
+> 2.55.0
+> 
 
-Sashiko has reviewed this patch and found no issues. It looks great!
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260929094812.9337=
-4-1-tkhandelwal32@gmail.com?part=3D1
-
+Gentle ping
