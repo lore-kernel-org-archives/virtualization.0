@@ -1,82 +1,93 @@
-Received: from mail-dy1-f198.google.com (mail-dy1-f198.google.com [74.125.82.198])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA7034E430B
-	for <virtualization@lists.linux.dev>; Tue, 29 Sep 2026 18:14:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.198
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20F9255C305;
+	Tue, 29 Sep 2026 18:50:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790705648; cv=none; b=k7Gy9HYjzqO692HN4PjzOVyzvNfHOhDUxGnMmwYQnz2R7z1Ht77JfBKCMgZT8SYh0s0Uo1CdWkygOW8xUeFsAtU9mc144Neib1GrAgKky+b/7BAz8NcvcNJN0juxeu1YhiwQnz5RFuKUbpVY62REVFsX1R2tXPwHbbr7/Q1cgbs=
+	t=1790707820; cv=none; b=YKIzEliCjfdvYKq/JgbYFkOnZY+QbcUfSTa2wELkITWRaGtnGJBf1efX+Br12RMxG0f6+ElfH1g/7ApERPImJaBaaJVLGg977WKYgax2IRZdFeXac7wOgCOJTh8FXyEbs1x7jUkqd7et3V9L+O1n2BOVXA5Mdd3q4rgO83G6+Tk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790705648; c=relaxed/simple;
-	bh=mZh9La+paKQR4zf/FQmxkRWHM4xhm7VufrGTHjDBftg=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=ZyHzd+G+WgxSs0IsVeWsydZ7F3JZ7/161wl2ia7RIcSzkeqwyKteoFvhW0Am62EI+JFngBvFaRILORZ7+Qrdk5AgzCrOkUrzN2gA4CIs+LuAJ9DhlQI4FlKySa7KjZlgi4OWwSiUWkSQLBMZorJa2V7hdVjfEFoRPMtkVz2+omk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--pratmal.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=hJGPNSw/; arc=none smtp.client-ip=74.125.82.198
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--pratmal.bounces.google.com
+	s=arc-20240116; t=1790707820; c=relaxed/simple;
+	bh=a0j9ZYPE0kpuxcGqfOeJqb1F8DjbAgg+aDr2TDXJr2k=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=EDv2RLoUMXUceJD8SbUvs7l7UEbtke0Eut+mGUOhiG8Cf7x6ABe4avXb51jDUER/9SeS8jVEvUD23C4EIneZO8tXaGJg48U8ULex8jdS1KV1epsudvSgKqTxfdpDzRVXPCZJ4/UTEPU1PD22iZMKC4H7Hr6PsnFbsEFqqTBVZq8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AKL/NQJo; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="hJGPNSw/"
-Received: by mail-dy1-f198.google.com with SMTP id 5a478bee46e88-34bbf2e3c5cso2265484eec.0
-        for <virtualization@lists.linux.dev>; Tue, 29 Sep 2026 11:14:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1790705644; x=1791310444; darn=lists.linux.dev;
-        h=content-type:cc:to:from:subject:message-id:references:mime-version
-         :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=mZh9La+paKQR4zf/FQmxkRWHM4xhm7VufrGTHjDBftg=;
-        b=hJGPNSw/3Lg4R/yaRcrTjblK0vxwgxK/JTUDUJl1EX2svwiJlJ9XBplFFe2F1qrd7h
-         vWjqayVd9Dsw3OWp43tcIzC7TvpcuZTBWVhaYc43pWwxtlyp1x+aw4EJDnwcGxMXKT0u
-         sHmK6FOFXns5ugEErzoV1nWDeDVI+6Js8O4ENyWr2xEBv+x44PRrzicA/EWCUYtsd6OB
-         Z+YVUuE69JwZ6N+tbPi4IYgSsIi3FMFKkfmSgEHooqXz4gWTg83phtICRTIaC1JAwV5e
-         WgRsQy+GxMqYQLFEw7akyjyn92EpmUxna2zynEpHOY0EK+sYdCjPtl3OitAN5mhOZ/Ue
-         VMjg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790705644; x=1791310444;
-        h=content-type:cc:to:from:subject:message-id:references:mime-version
-         :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=mZh9La+paKQR4zf/FQmxkRWHM4xhm7VufrGTHjDBftg=;
-        b=avWycChDkdXuTfP3g5p7YM7Fttv554PY4We7KFmBgi3LDq13cXvyj49fHbENW44pbs
-         nyGedBMQbnyHWD2NSdYlT8FhpY4o2yKp69yQP8oLX4RnQxYs1XcZD5nJVToR9a1ySpgQ
-         EY9tk4buf/vPGAXBCj8LUQW37yaDoNcSuTslpNajBwGeivhs1Yrb88hXXIPPKSSisSjj
-         8ij1z7I4fk5tiwMG35Kq9n2HAHqF8zTopO83xYlcATHowISIO01tD1UW5mnNQpalMn7N
-         oMLr2z3Y9Kg+Oy1bqOo4XSShaQ/dB+T2/aN0EfBGuyX1v2562onN2SVuTnFoCfCwd1eD
-         npmg==
-X-Forwarded-Encrypted: i=1; AKwUvBzbr3WLwXgH6CZsFFmPVEkEmdLIXzRRdAJit3Q5eGwqJHB2AiPz6vvZhBOPmUj/XgUzjmExyfFlUonArmgXjg==@lists.linux.dev
-X-Gm-Message-State: AFq9FYJq3/eJDrzcDzknKrFsSpyk+aV8tGSm6uNYClgf75ZJLgYlwhpH
-	n6+WefhSNDRHWYXY2apukP+YwERZpdtit813HmTq6GRip62gVoyDXDE94lJde16rNpGvFNp8fMU
-	ARTN+24XzZw==
-X-Received: from dybme43.prod.google.com ([2002:a05:7301:18ab:b0:34a:10b2:be3d])
- (user=pratmal job=prod-delivery.src-stubby-dispatcher) by 2002:a05:7300:c8c8:b0:33c:e61:e201
- with SMTP id 5a478bee46e88-34c647d537fmr196806eec.22.1790705643313; Tue, 29
- Sep 2026 11:14:03 -0700 (PDT)
-Date: Tue, 29 Sep 2026 18:14:02 +0000
-In-Reply-To: <20260929123241.1408414-1-huang-jl@deepseek.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AKL/NQJo"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12C211F000FF;
+	Tue, 29 Sep 2026 18:50:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790707818;
+	bh=a0j9ZYPE0kpuxcGqfOeJqb1F8DjbAgg+aDr2TDXJr2k=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date;
+	b=AKL/NQJoQyB/VbLk21OaTs+Mad4FePYdN1yez5LipKrQ8ppXndkJ5NvSAie+kvhQ7
+	 Yqyl0+b/kdqogNgUALIq95bXiZ9mFnXgC+4UviSh6lZef0lMj6jNLORKe9IN31zuNT
+	 Vu8/t9RdpxSVVjF9Al3+GYkpLpqdUtRfCxKhcz0Wriu/JQRqpMn8u5EoboVp/bfF4C
+	 cAB0XC1Pnny4KkDArsPRqCbt9dFO62WiZa9rNGDOdAyit5ChZkRHAy8b14ZbocdFUt
+	 CA+EzLSqc4y19uaW8WZ9YTKy0iq3H/SVKVhdX4xUFyS1KmdYw5GkoFZzzmgjoSkYbO
+	 7CDUOnBLTgKsA==
+From: Thomas Gleixner <tglx@kernel.org>
+To: Yury Norov <ynorov@nvidia.com>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Yury Norov <ynorov@nvidia.com>, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+ Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller"
+ <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski
+ <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Matthew Wilcox
+ <willy@infradead.org>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar
+ <mingo@redhat.com>, Will Deacon <will@kernel.org>, Boqun Feng
+ <boqun@kernel.org>, Waiman Long <longman@redhat.com>, Dennis Zhou
+ <dennis@kernel.org>, Tejun Heo <tj@kernel.org>, Christoph Lameter
+ <cl@gentwo.org>, "Paul E. McKenney" <paulmck@kernel.org>, Frederic
+ Weisbecker <frederic@kernel.org>, Neeraj Upadhyay
+ <neeraj.upadhyay@kernel.org>, Joel Fernandes <joelagnelf@nvidia.com>, Josh
+ Triplett <josh@joshtriplett.org>, Uladzislau Rezki <urezki@gmail.com>,
+ Steven Rostedt <rostedt@goodmis.org>, Mathieu Desnoyers
+ <mathieu.desnoyers@efficios.com>, Lai Jiangshan <jiangshanlai@gmail.com>,
+ Zqiang <qiang.zhang@linux.dev>, Onur =?utf-8?Q?=C3=96zkan?=
+ <work@onurozkan.dev>, Kees Cook
+ <kees@kernel.org>, Joel Granados <joel.granados@kernel.org>, Anna-Maria
+ Behnsen <anna-maria@linutronix.de>, Juri Lelli <juri.lelli@redhat.com>,
+ Vincent Guittot <vincent.guittot@linaro.org>, Dietmar Eggemann
+ <dietmar.eggemann@arm.com>, Ben Segall <bsegall@google.com>, Mel Gorman
+ <mgorman@suse.de>, Valentin Schneider <vschneid@redhat.com>, K Prateek
+ Nayak <kprateek.nayak@amd.com>, Mike Rapoport <rppt@kernel.org>, "Liam R.
+ Howlett" <liam@infradead.org>, Lorenzo Stoakes <ljs@kernel.org>, Vlastimil
+ Babka <vbabka@kernel.org>, Jann Horn <jannh@google.com>, Pedro Falcato
+ <pfalcato@suse.de>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang
+ <jasowangio@gmail.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio
+ =?utf-8?Q?P=C3=A9rez?= <eperezma@redhat.com>, Sebastian Andrzej Siewior
+ <bigeasy@linutronix.de>, Clark Williams <clrkwllms@kernel.org>, Nathan
+ Chancellor <nathan@kernel.org>, Nick Desaulniers
+ <ndesaulniers@google.com>, Bill Wendling <morbo@google.com>, Justin Stitt
+ <justinstitt@google.com>, linuxppc-dev@lists.ozlabs.org,
+ linux-kernel@vger.kernel.org, wireguard@lists.zx2c4.com,
+ netdev@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
+ rcu@vger.kernel.org, virtualization@lists.linux.dev,
+ linux-rt-devel@lists.linux.dev, llvm@lists.linux.dev, Yury Norov
+ <yury.norov@gmail.com>
+Subject: Re: [PATCH 12/17] timers: assert static storage for DEFINE_TIMER()
+In-Reply-To: <20260915031334.1194975-7-ynorov@nvidia.com>
+References: <20260915030336.1192299-1-ynorov@nvidia.com>
+ <20260915031334.1194975-7-ynorov@nvidia.com>
+Date: Tue, 29 Sep 2026 20:50:15 +0200
+Message-ID: <87o6dfj3iw.ffs@fw13>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <20260929123241.1408414-1-huang-jl@deepseek.com>
-X-Mailer: git-send-email 2.56.0.rc1.315.gc6ed9934b7-goog
-Message-ID: <20260929181402.44684-1-pratmal@google.com>
-Subject: Re: [FYI] DAMON and virtio-balloon in DeepSeek's DSec paper
-From: Pratyush Mallick <pratmal@google.com>
-To: huang-jl@deepseek.com
-Cc: baohua@kernel.org, damon@lists.linux.dev, david@kernel.org, 
-	kunwu.chan@gmail.com, lance.yang@linux.dev, lianux.mm@gmail.com, 
-	linux-mm@kvack.org, mst@redhat.com, ryncsn@gmail.com, sj@kernel.org, 
-	virtualization@lists.linux.dev, xiang@kernel.org, xueyuan.chen21@gmail.com
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+Content-Type: text/plain
 
-> We have not yet fully explored how best to tune the DAMON and free-page
-> reporting parameters for our workloads.
+On Mon, Sep 14 2026 at 23:13, Yury Norov wrote:
+> DEFINE_TIMER() marks a timer as statically initialized for debugobjects.
+> An automatic local timer instead needs timer_setup_on_stack() and the
+> corresponding on-stack destruction before leaving scope.
+>
+> Add ASSERT_STATIC_STORAGE() to catch automatic declarations at compile
+> time. The timer lockdep key is already static; this check enforces the
+> debugobjects storage contract. Leave __TIMER_INITIALIZER() unchanged.
+>
+> Assisted-by: OpenAI Codex
+> Signed-off-by: Yury Norov <ynorov@nvidia.com>
 
-You can also try tuning page_reporting_delay_ms, which can help you with
-saving time-integrated host memory.
-
-[1] https://lore.kernel.org/20260731193705.2902728-1-pratmal@google.com
-
-Thanks,
-Pratyush
+Reviewed-by: Thomas Gleixner <tglx@kernel.org>
