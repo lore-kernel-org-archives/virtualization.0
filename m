@@ -1,163 +1,181 @@
-Received: from mta1.migadu.com (out-208.mta1.migadu.com [95.215.58.208])
+Received: from mail-pj2-f12.google.com (mail-pj2-f12.google.com [74.125.227.140])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B582536B91A
-	for <virtualization@lists.linux.dev>; Wed, 30 Sep 2026 03:36:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.208
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5A88399000
+	for <virtualization@lists.linux.dev>; Wed, 30 Sep 2026 04:42:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790739402; cv=none; b=c49EFfgJ4n/cemFdqa7b4NjqbkKLp7RwdAs62BkZL/qp7yCjLhEHiYtQQqGMweM/CAKTbMcYzme6534IWFb5GPOplpQ6mLqyPB6IQAr8HuftATf8wUJmRGLNl287Ut8sKjBVxe3hxnVANFduQfiH05/E1Csc30kqYVASJuVnbRk=
+	t=1790743324; cv=none; b=cmMxA3PcfMomVFXXkRD2xjWXJyEtMZUQxGhadX5zFBKkHIruni1wSfV4CTXAATFLp0HVJH7YHv9Csu74mHyki8plgfXltz+mi9R/AkOBB24iLOl+bgdSNxeWGtNvjkegXfdadewm8gCeRIQFouH9luEHq48cUrb2hhyc8bPCTrc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790739402; c=relaxed/simple;
-	bh=UGu6hnp7zOzIji6/SbzCysLcwMM7yV0BdKnkgtzfNIQ=;
-	h=Content-Type:Mime-Version:Subject:From:In-Reply-To:Date:Cc:
-	 Message-Id:References:To; b=m5qhkW6FohNykscqmsVWe4MV/Y+q09nzDH70fkU2C8Tuf/tbFIXyN0WwnUSQqMfZU5mcwJsx1hwx5dsVd6hEa908awYR1PHSZi/PREVIVpiTdJXG1kKNA9MrlCwxG5LcYSpPDRw8gzykY59RNslyj7U/L/yS3F4jojTBG6oaEko=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=VvU+1/Vn; arc=none smtp.client-ip=95.215.58.208
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1790743324; c=relaxed/simple;
+	bh=hVK5ZaKV4XKlAN+5/oG1cx4MwyE5N3AwnSgb6VJtQF4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=SUwz+diHMpNEB5de8iuPFjtIMWC8w4uPPeL+UjcpRb6fXwnCAj4Zym4YqCLo4zg1R/7Vgb9r//CDQWFbNcrj6Usbgzr8fK9bLWC9UXjTRUDrkD65o85/YnGtH1QgmnpbYL0F7zrNRn38RF6RWNMIjN5CV7Akpttb9jfxCkr3U4o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UEXFQdje; arc=none smtp.client-ip=74.125.227.140
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="VvU+1/Vn"
-X-Envelope-To: virtualization@lists.linux.dev
-DKIM-Signature: a=rsa-sha256; bh=UGu6hnp7zOzIji6/SbzCysLcwMM7yV0BdKnkgtzfNIQ=;
- c=simple/simple; d=linux.dev;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1790739398; v=1; x=1791344198;
- b=VvU+1/VnbPIh/soOlHQ3yAjfFdjnE05G4a6JM3kzNVkS3xXrPEIeaBD61771dm0Zmp234NjV
- 9qdtKPRd8uIc3Xu+mbZMgaDYyVXOWS3g0DEZ8f4ZnI50BKpzZ1EhAqxgbGEL5e7pMroJuex7rH/
- nnA9j4+F/DeUPIBYsHmqYrBM=
-X-Envelope-To: virtualization@lists.linux.dev
-Received: by mta10.migadu.com with ESMTPS id 9bc00279546608ff;
-	Wed, 30 Sep 2026 03:36:37 +0000
-X-Mizu-Trace-ID: 9bc00279546608ff
-X-Migadu-Flow: FLOW_OUT
-Content-Type: text/plain;
-	charset=us-ascii
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UEXFQdje"
+Received: by mail-pj2-f12.google.com with SMTP id d9443c01a7336-2d8fbef5018so33446465ad.0
+        for <virtualization@lists.linux.dev>; Tue, 29 Sep 2026 21:42:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1790743321; x=1791348121; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=ud4fTEqxQzrUTwARn11POV1Taqipw52FWd2xdX+lQEY=;
+        b=UEXFQdjeroSrgH3O6+VYhXbLO7z7bw11IIPCr5m1IqagK+iVWSiBTA9AYtCI2JJwK7
+         bs4br9xLHuNuQ/lkw4StDpZQ9OOU0gCwICWRliRIxm1noFb2ZAP4CK5OsCEzJUzRg7df
+         AqhNGvWkZJJNsh5GUFCxi7KDN8eTW5/DYk436Yf36bDAh9OOQyKzNhVC6mLzFqHFW9sI
+         sJS2UMDsT3eTJwA4MMnR05tJWhuCFpZnVcdeUjgWtV7CBh0T9zOs5BesIBLtTXOziUxx
+         SfVwIbrOVAsiuxjEq/D2PGQ6WbpLnkOZTFl9FQtMf7Ols73cdCanhx7wMV2Luk4KG3DS
+         V6Bg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790743321; x=1791348121;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=ud4fTEqxQzrUTwARn11POV1Taqipw52FWd2xdX+lQEY=;
+        b=cp2Cn6ApZG3nTcDEPUAhIo3Df7SJnwk6PhXl/cupf5O06IP6gq7vp/rEpZQTVdYxr9
+         HsoIeRpxq+JhN9L2oIkHV+glL0qOARqMNyWiF5HxyP6GDj9LG/os4TnNB3TmJMG8VWuN
+         PL3jYq4epDOjCIMnZ+vdQshjjbl/ou85Bp986fosqivlu3SBCOrMmJZgQKfn4wq14gz/
+         85I4P8zzNVdnMeinVAt3/wzYXhL03C3XRDY8Evc7/e4Xqtszi+BhOsiVOM0j5WevA9a5
+         jTSj4YPfL8pGDULWixcfjUzA5in5/oYbQ8a9iO0dadjFRaJAJfj742RHzh3/wRVODHjV
+         WWPw==
+X-Forwarded-Encrypted: i=1; AKwUvBwQ+1MSayowxEKC0uB+9wfhDMwxW53beBxQQjnIUmNNpyy4GnAnOwF3Ewanq+I/bFnYINS5VmsJR8yMmYsDug==@lists.linux.dev
+X-Gm-Message-State: AFq9FYJdcMEp8D4AjcIDvihw71DNAp5vDjXKlv4xtBvzzS2Ygtu0jc+9
+	C5VQHCRkJiSEEk9McnGakGO7tOMDK59fcJXhCufz/DLboTGmyukRLRNu
+X-Gm-Gg: AYBFou1Hme7XfOtbox6/VMq4ffV6PiFNzE3s4MMFigi5MNBiYz7NbbV1yLQrKiJYUNW
+	VdW2r6R72HNVUTQcpEhSsIhYJfUffUtlcPQuh8S9ue2RcbjMyNbwFT3mCcoRcqTDugM4BllEyjy
+	GSxzl9q7X2VMClP4WEkKtqYm1U/1kRev//C94FoeIomn3Nyui3dVbRTh8t7UyEkD7vcDYD30cCL
+	0hV5VMgqyOdCFN1SWmgOoPMaDNHylWyN3vXR/IZho98kgAYYkLeBvTJ+8zQYzFWZSjzC1/LQn04
+	VxClZZy0TP2UEDLIelhdTFoyBYGjiMZsMb27T4ZD5bs/+sClye0p5htgRwO060H+7WA491l+vYc
+	XVwcdZGT3FtpfRaDkvuNyhCWs9GT7GRkKgyI6F6hWYL7w0x+jx83pFO8bPvR7M0fEBwVOIlm040
+	lAsw2gd2y5Zbs+bprJNbnJG9fGB/eWSZUnHY4+9Wd0OiR15a1IAeoSQJN0lFssjt2SLD39e24aY
+	s5DR3OC+cI=
+X-Received: by 2002:a17:902:ce90:b0:2df:9eb0:761a with SMTP id d9443c01a7336-2e2e4a25a1bmr2167915ad.25.1790743320928;
+        Tue, 29 Sep 2026 21:42:00 -0700 (PDT)
+Received: from ancienth-X870E-Nova-WiFi ([125.186.72.2])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2e2e5b89c06sm538155ad.24.2026.09.29.21.41.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 29 Sep 2026 21:42:00 -0700 (PDT)
+From: Daehyeon Ko <4ncienth@gmail.com>
+To: Stefan Hajnoczi <stefanha@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>
+Cc: Daehyeon Ko <4ncienth@gmail.com>,
+	"Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	kvm@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH net] vhost/vsock: trim nonlinear SKBs to declared payload length
+Date: Wed, 30 Sep 2026 13:41:45 +0900
+Message-ID: <20260930044147.3818241-1-4ncienth@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3901.100.1.1.11\))
-Subject: Re: [FYI] DAMON and virtio-balloon in DeepSeek's DSec paper
-From: Muchun Song <muchun.song@linux.dev>
-In-Reply-To: <aruyFPzEe3pS_Qzx@XiangdeMacBook-Pro.local>
-Date: Wed, 30 Sep 2026 11:36:23 +0800
-Cc: Jialiang Huang <huang-jl@deepseek.com>,
- lance.yang@linux.dev,
- baohua@kernel.org,
- damon@lists.linux.dev,
- david@kernel.org,
- kunwu.chan@gmail.com,
- lianux.mm@gmail.com,
- linux-mm@kvack.org,
- mst@redhat.com,
- ryncsn@gmail.com,
- sj@kernel.org,
- virtualization@lists.linux.dev,
- xueyuan.chen21@gmail.com
-Content-Transfer-Encoding: 7bit
-Message-Id: <AA71E56E-F29A-44B2-B5A0-7806CD684B21@linux.dev>
-References: <20260925054408.10431-1-lance.yang@linux.dev>
- <20260929123241.1408414-1-huang-jl@deepseek.com>
- <aruyFPzEe3pS_Qzx@XiangdeMacBook-Pro.local>
-To: Gao Xiang <xiang@kernel.org>
-X-Mailer: Apple Mail (2.3901.100.1.1.11)
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
+vhost_vsock_alloc_skb() sizes its skb from the total guest descriptor
+length, while virtio_vsock_hdr.len independently declares the payload
+length.  Since commit ab9aa2f3afc2 ("vhost/vsock: Allocate nonlinear SKBs
+for handling large receive buffers"), large descriptors use skb fragments.
 
+virtio_vsock_skb_put() currently changes only skb->len for a nonlinear
+skb, leaving skb->data_len and all fragments attached.  The zero-payload
+fast path skips the helper entirely.  A guest can therefore retain the
+full descriptor allocation while receive credit accounts no payload.
 
-> On Sep 29, 2026, at 20:41, Gao Xiang <xiang@kernel.org> wrote:
-> 
-> On Tue, Sep 29, 2026 at 08:32:41PM +0800, Jialiang Huang wrote:
->> Hi all,
->> 
->> I'm an engineer at DeepSeek. Thanks for the discussion, and thanks
->> to everyone working on DAMON and virtio-balloon free-page reporting.
->> They have been very useful for our workloads.
->> 
->> Gao Xiang wrote:
->>> It can cause sync 4K faults on the host in the worst case
->> 
->> This is one of our concerns with virtio-pmem as well: moving I/O onto
->> the page-fault path can introduce performance trade-offs. The other
->> concern is the substantial struct page overhead for large images.
->> 
->> For now, we enable virtio-pmem only for moderately sized, frequently
->> used read-only images, where there is more opportunity to share the
->> same host page cache across sandboxes, as Gao pointed out.
->> 
->> Muchun's vmemmap work is also interesting to us. My understanding is
->> that it allocates private backing for struct page metadata on demand,
->> which could help reduce the upfront memory overhead for large images.
-> 
-> Although I haven't had a chance and time to look into that, the main
-> concern from me is that mmap() access will call
-> "dax_fault_iter->vmemmap_materialize_page()", and malicious sandbox
-> workloads (or not malicious, just valid mmap workloads) can cause guest
-> memory OOMs due to "struct page balloon" for large rootfs in the worst
-> cases and cause the follow-up mmap access failure, because the guest
-> memory size may not even fulfill "struct page" for large rootfs.
+On Linux v7.2, 455 zero-payload skbs retained 30,255,680 bytes on a
+256 KiB receive buffer while rx_bytes and buf_used remained zero.  A
+full-payload control retained 265,984 bytes in four skbs.  The existing
+SKB_TRUESIZE(0) queue budget caps skb count but does not account for these
+descriptor-sized fragments.
 
-I agree that this is a real issue with v1.
+Set skb->len to the fragment length before calling pskb_trim(), then trim
+to the declared payload length.  This releases unused fragments and lets
+skb_condense() reduce truesize.  Move the zero-payload return after the
+helper so zero-length packets are trimmed too.
 
-One detail is that merely establishing the mapping does not materialize
-the metadata. Materialization happens when a fault resolves to an
-allocated DAX extent, before its PFN is inserted into a userspace
-mapping. However, that distinction does not remove the problem.
+These skbs are newly allocated, unique, and have no frag_list, so the trim
+does not enter an allocation-bearing path.  Keep a warning for a violated
+caller contract.
 
-In the worst case, a workload can fault enough of the pmem range to
-restore the full vmemmap cost, about 1.56% of the pmem size. Since v1
-does not dematerialize private vmemmap pages, even a one-time scan can
-retain that cost until the device is removed.
+The fixed v7.2 image left a one-byte skb with no fragments and reduced
+the zero-payload queue to one 960-byte skb.  The build had no compiler
+warnings, and the run had no sanitizer, WARN, oops, or panic findings.
 
-The follow-up mentioned in the cover letter is intended to make the
-optimization reversible. One possible direction would be to invalidate
-clean DAX entries under memory pressure and zap their userspace
-mappings. Once a DAX entry has been removed and the corresponding PFNs
-have no remaining mappings, references, or pins that require private
-metadata, the associated vmemmap backing could be remapped to the
-shared read-only page. A later access would fault and materialize it
-again.
+Fixes: ab9aa2f3afc2 ("vhost/vsock: Allocate nonlinear SKBs for handling large receive buffers")
+Cc: stable@vger.kernel.org
+Assisted-by: LLM
+Signed-off-by: Daehyeon Ko <4ncienth@gmail.com>
+---
+Required configuration is CONFIG_VSOCKETS, CONFIG_VIRTIO_VSOCKETS_COMMON,
+and CONFIG_VHOST_VSOCK.
 
-This would address the persistent ballooning caused by a one-time scan,
-but it would not help while a large DAX working set remains actively
-used or pinned.
+The source reproducer is available privately to maintainers and is
+omitted from this public AI-assisted report. It exercises the real
+allocation helper and VSOCK receive queue from an in-kernel module, not
+a live guest virtqueue. Guest control is source-confirmed, but live guest
+end-to-end validation and deliberate host OOM were not performed. No KASAN
+splat is expected or claimed; the oracle is retained truesize and receive
+credit state above.
 
-As a separate policy mechanism for that case, one possible direction
-would be to account the faulted pmem range to the faulting mm's memory
-cgroup: PAGE_SIZE for a PTE mapping and PMD_SIZE for a PMD mapping.
-This would intentionally account the mapped DAX capacity.
+ drivers/vhost/vsock.c        | 6 ++----
+ include/linux/virtio_vsock.h | 9 ++++++---
+ 2 files changed, 8 insertions(+), 7 deletions(-)
 
-Such accounting could be explicitly enabled through a cgroup v2 mount
-option, following the opt-in model of memory_hugetlb_accounting, so the
-existing FS-DAX accounting semantics would remain unchanged by default.
+diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+index abed1fbcf66c..fa59456abda9 100644
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -400,10 +400,6 @@ vhost_vsock_alloc_skb(struct vhost_virtqueue *vq,
+ 
+ 	payload_len = le32_to_cpu(hdr->len);
+ 
+-	/* No payload */
+-	if (!payload_len)
+-		return skb;
+-
+ 	/* The pkt is too big or the length in the header is invalid */
+ 	if (payload_len + sizeof(*hdr) > len) {
+ 		kfree_skb(skb);
+@@ -411,6 +407,8 @@ vhost_vsock_alloc_skb(struct vhost_virtqueue *vq,
+ 	}
+ 
+ 	virtio_vsock_skb_put(skb, payload_len);
++	if (!payload_len)
++		return skb;
+ 
+ 	if (skb_copy_datagram_from_iter(skb, 0, &iov_iter, payload_len)) {
+ 		vq_err(vq, "Failed to copy %zu byte payload\n", payload_len);
+diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
+index f91704731057..31358683e23e 100644
+--- a/include/linux/virtio_vsock.h
++++ b/include/linux/virtio_vsock.h
+@@ -51,10 +51,13 @@ static inline void virtio_vsock_skb_put(struct sk_buff *skb, u32 len)
+ {
+ 	DEBUG_NET_WARN_ON_ONCE(skb->len);
+ 
+-	if (skb_is_nonlinear(skb))
+-		skb->len = len;
+-	else
++	if (skb_is_nonlinear(skb)) {
++		skb->len = skb->data_len;
++		if (WARN_ON_ONCE(pskb_trim(skb, len)))
++			return;
++	} else {
+ 		skb_put(skb, len);
++	}
+ }
+ 
+ static inline struct sk_buff *
 
-With such accounting, an active or pinned DAX working set could still
-reach its cgroup limit, but it could not grow private vmemmap without
-corresponding cgroup usage. This is only a possible direction for
-bounding the peak working set, though, and I have not worked through
-all of its implementation details yet.
-
-Thanks,
-Muchun
-
-> 
-> Thanks,
-> Gao Xiang
-> 
->> 
->> For disks without virtio-pmem, DAMON with virtio-balloon free-page
->> reporting lets us reclaim cold guest page-cache pages and return
->> the memory to the host, without those virtio-pmem-specific issues.
->> The two approaches complement each other in our setup.
->> 
->> We have not yet fully explored how best to tune the DAMON and free-page
->> reporting parameters for our workloads. For example, the kernel's default
->> free-page reporting granularity is 2 MiB, which is fairly coarse:
->> reclaiming cold pages does not necessarily produce free blocks of that
->> size. We still need to evaluate how finer reporting granularity and
->> different DAMON settings affect memory savings and workload performance.
->> 
->> Best,
->> Jialiang Huang
-> 
-> 
-
+base-commit: 54518e0e827f4ca9229ae657022c60bf60f5c1bf
+-- 
+2.55.0
