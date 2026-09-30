@@ -1,152 +1,169 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mta1.migadu.com (out-245.mta1.migadu.com [95.215.58.245])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFFBF3B47E1;
-	Wed, 30 Sep 2026 08:54:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 543AD28B4E2
+	for <virtualization@lists.linux.dev>; Wed, 30 Sep 2026 09:37:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.245
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790758468; cv=none; b=mnEgI5YW+Klq7I2iK+jJruQM65Z25U8OM8xACXk6vNTR43HPW6jrJtZwAnsclWZzJPDq+aS7ssbp47UZwmgJlZ7tJTZej9CiLb/cqgUiLWn2+DeJak/tGZF0ThAFHn613L/+h7OQSf0A/0IiYPmCvVdWFJBnPTUx9W5jGfGlYqs=
+	t=1790761056; cv=none; b=Ij0oEEcbI5oDgs+kXOttSX4Y0n+Lm0CFWHi+fOPxkOioQGQHc8IB7qdYgg1txqTHdoMAmmLsH11xLUpNvPaKZJao0Hy36gjhZtqWlCqpNxzALujuzK8/sMDo1H/MfYAeSH3qispFl+EE0k3zhPJXc5fVVR9o+6oze4snhTyn0L4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790758468; c=relaxed/simple;
-	bh=/bg6wWvn3UxxefOMsl8JIomiL9mMcf6RS3vUGzzxCZM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=LsbuHRseMrk9O3C6HL/bKNM5qdpL+C7j9HHIq22WaMu8FEztCP1wZOtyhNdyiVB/Rf703m/DuzCVKj/6MvAXWxTEGwA/jmtDxQAQ4LYdC9BTaStEFCFycOV1ZQK/d+Pv0TB099yHVFbCp7thgXd2O5iS2q8Xu6avBjP+wxbiqYc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=pass smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=aJzc5jIL; arc=none smtp.client-ip=90.155.50.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
+	s=arc-20240116; t=1790761056; c=relaxed/simple;
+	bh=X6NhOSSQEW58fF/T8iO6Cc8WhbapIj1EK2DhImjFRYI=;
+	h=Content-Type:Mime-Version:Subject:From:In-Reply-To:Date:Cc:
+	 Message-Id:References:To; b=Ux+R5em0sSUG6yOB2vWXXLI/93Lz06CcHxWK7TqatgT1dF4JzcvuWomp/nPUE/UIlwW/LQ/7o4G7exYxAiUgCWMVVcCiD2Otn7Ihu0GnMh0CSoPfnOU2VVrF43LRFeQJnCavDZJqi8A3dacUqR/W36UfmSuHdl3QDMT/u53iU3c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=vDaXKaPx; arc=none smtp.client-ip=95.215.58.245
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="aJzc5jIL"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Transfer-Encoding:
-	Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:
-	Sender:Reply-To:Content-ID:Content-Description;
-	bh=0UFYYKBUewXLJbGJZ9BEDna7/dDF99emZQefLuG6AWg=; b=aJzc5jIL6ZEo+riFOwoxR1oSNm
-	C2hf1HPOb9+KTK8px2ooi5YPLIeRFxTZoinR6pVkeYDaZKn09QeR00yhVqRRjAPKdAPRJkoIrT7S/
-	hRxVygx6bLPrPlKZSnQKreIhSWLLbwZnFvcJlIoRpu0zHhaZDBm7i980rS/vK3fK3nujDtN/6z8l8
-	fLgOlnTOkOldZJL6u6dcGPuFYD8IOAfYYLYx7hVPjXkwkJJiUSDbMGWUxsizvsvnVwzDCw78nf0AV
-	IzzNDXK6Hdr8Iec9g2P2seZ7jfrgAs9zrZtJEFt/4RzEbuMhSVTPiYHQJ3yrkx4qqkpIjr6CULMaD
-	pmozWVDw==;
-Received: from 77-249-17-252.cable.dynamic.v4.ziggo.nl ([77.249.17.252] helo=noisy.programming.kicks-ass.net)
-	by casper.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
-	id 1xBq4s-0000000B7se-1SQm;
-	Wed, 30 Sep 2026 08:54:14 +0000
-Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
-	id D9DFA300673; Wed, 30 Sep 2026 10:54:13 +0200 (CEST)
-Date: Wed, 30 Sep 2026 10:54:13 +0200
-From: Peter Zijlstra <peterz@infradead.org>
-To: Zack Rusin <zack.rusin@broadcom.com>
-Cc: Kiryl Shutsemau <kas@kernel.org>, Borislav Petkov <bp@alien8.de>,
-	x86@kernel.org, Dennis Zhou <dennis@kernel.org>,
-	Tejun Heo <tj@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-	Rick Edgecombe <rick.p.edgecombe@intel.com>,
-	Tom Lendacky <thomas.lendacky@amd.com>,
-	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Vitaly Kuznetsov <vkuznets@redhat.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"H. Peter Anvin" <hpa@zytor.com>, virtualization@lists.linux.dev,
-	bcm-kernel-feedback-list@broadcom.com, linux-kernel@vger.kernel.org,
-	Christoph Lameter <cl@gentwo.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Bo Gan <bo.gan@broadcom.com>, linux-mm@kvack.org,
-	linux-arch@vger.kernel.org, linux-coco@lists.linux.dev,
-	kvm@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
-	"K. Y. Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Long Li <longli@microsoft.com>, Andy Lutomirski <luto@kernel.org>,
-	linux-doc@vger.kernel.org, linux-hyperv@vger.kernel.org,
-	Nathan Chancellor <nathan@kernel.org>, Kees Cook <kees@kernel.org>,
-	Ashish Kalra <ashish.kalra@amd.com>
-Subject: Re: [PATCH v2 2/6] percpu: Bound decrypted storage for all x86
- encrypted guests
-Message-ID: <20260930085413.GH88198@noisy.programming.kicks-ass.net>
-References: <20260929040256.543767-1-zack.rusin@broadcom.com>
- <20260929040256.543767-3-zack.rusin@broadcom.com>
- <20260929075426.GQ4120091@noisy.programming.kicks-ass.net>
- <CABQX2QP0+Jr6gG0nZkDggvyGWCSHMNVKPPavZTYBqH+wg7rdMg@mail.gmail.com>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="vDaXKaPx"
+X-Envelope-To: virtualization@lists.linux.dev
+DKIM-Signature: a=rsa-sha256; bh=X6NhOSSQEW58fF/T8iO6Cc8WhbapIj1EK2DhImjFRYI=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1790761052; v=1; x=1791365852;
+ b=vDaXKaPxoHUDe6xJBYjz/b8ax5TbwYLTCOwoNEhfLYhiepxMG3G0feiagcL8gJplJONpzP6n
+ 7UaYmpuzQVxXSNzMEmWt/60cDauC6JZRdlFQXy0pWDNhIoITDUu/5K5kdiqlTLeiMPzzzGnfHmb
+ KW0ixfR6RPFSBS78pfS7lAKw=
+X-Envelope-To: virtualization@lists.linux.dev
+Received: by mta10.migadu.com with ESMTPS id 2848c540328b850a;
+	Wed, 30 Sep 2026 09:37:31 +0000
+X-Mizu-Trace-ID: 2848c540328b850a
+X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain;
+	charset=us-ascii
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <CABQX2QP0+Jr6gG0nZkDggvyGWCSHMNVKPPavZTYBqH+wg7rdMg@mail.gmail.com>
-
-On Tue, Sep 29, 2026 at 01:12:45PM -0400, Zack Rusin wrote:
-> On Tue, Sep 29, 2026 at 3:54=E2=80=AFAM Peter Zijlstra <peterz@infradead.=
-org> wrote:
-> > On Tue, Sep 29, 2026 at 12:02:51AM -0400, Zack Rusin wrote:
-> > > @@ -1022,11 +1024,13 @@
-> > >   * Note: We use a separate section so that only this section gets
-> > >   * decrypted to avoid exposing more than we wish.
-> > >   */
-> > > -#ifdef CONFIG_AMD_MEM_ENCRYPT
-> > > +#if defined(CONFIG_X86_MEM_ENCRYPT) && defined(CONFIG_SMP)
-> > >  #define PERCPU_DECRYPTED_SECTION                                    =
- \
-> > >       . =3D ALIGN(PAGE_SIZE);                                        =
-   \
-> > > +     __start_percpu_decrypted =3D .;                                =
-   \
-> > >       *(.data..percpu..decrypted)                                    =
- \
-> > > -     . =3D ALIGN(PAGE_SIZE);
-> > > +     . =3D ALIGN(PAGE_SIZE);                                        =
-   \
-> > > +     __end_percpu_decrypted =3D .;
-> > >  #else
-> > >  #define PERCPU_DECRYPTED_SECTION
-> > >  #endif
-> >
-> > So you're page aligning something that will get different protection and
-> > will thus shatter large pages?
-> >
-> > That is somewhat uncool. We like large pages, large pages are good.
->=20
-> I'm a huge large pages fan too. I have a poster in my office and
-> everything... And I never do things that are uncool. I have a wwcdd
-> (what would cool dude do) bracelet and I look at it every time I make
-> a decision, which given that I'm old gets on my wife's nerves a lot.
-> That is to say I'm handsome and innocent.
-
-:-)
-
-> The alignment isn't new. It has been there since ac26963a1175
-> ("percpu: Introduce DEFINE_PER_CPU_DECRYPTED") under AMD_MEM_ENCRYPT,
-> which common distro kernels enable. This patch extends it to TDX-only
-> builds and adds the boundary symbols. On bare metal and in ordinary
-> guests nothing changes protection, so no large pages are split.
-
-Right, I saw it is pre-existing, but you made me notice ;-)
-
-Anyway, the thing that wasn't immediately obvious was that we only
-really change the protection for (sekjoer) guests. This means I mostly
-don't care.
-
-> In confidential guests, yes, converting each CPU's page splits the
-> direct map around it. The alignment doesn't cause that: a large
-
-Nit you could 2M align, so alignment is somewhat related.
-
-> mapping can't be part private and part shared, so a converted page
-> can't stay inside one. The alignment only keeps unrelated per-CPU data
-> out of the shared page. Because that page sits in every CPU's per-CPU
-> unit, each 2M mapping that holds one of them becomes 4K mappings,
-> including the ordinary per-CPU data around it. In the layouts we've
-> tested that's most of the first per-CPU chunk.
-
-So perhaps a little more invasive would be poking at the per-cpu
-allocator and having a whole 'decrypted' pcpu_chunk which is 2M aligned
-or something.
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3901.100.1.1.11\))
+Subject: Re: [FYI] DAMON and virtio-balloon in DeepSeek's DSec paper
+From: Muchun Song <muchun.song@linux.dev>
+In-Reply-To: <ary5Nn9le4xG7_-N@MacBookPro>
+Date: Wed, 30 Sep 2026 17:37:11 +0800
+Cc: Jialiang Huang <huang-jl@deepseek.com>,
+ lance.yang@linux.dev,
+ baohua@kernel.org,
+ damon@lists.linux.dev,
+ david@kernel.org,
+ kunwu.chan@gmail.com,
+ lianux.mm@gmail.com,
+ linux-mm@kvack.org,
+ mst@redhat.com,
+ ryncsn@gmail.com,
+ sj@kernel.org,
+ virtualization@lists.linux.dev,
+ xueyuan.chen21@gmail.com
+Content-Transfer-Encoding: 7bit
+Message-Id: <CEE47F27-874B-486A-995F-E223249659FE@linux.dev>
+References: <20260925054408.10431-1-lance.yang@linux.dev>
+ <20260929123241.1408414-1-huang-jl@deepseek.com>
+ <aruyFPzEe3pS_Qzx@XiangdeMacBook-Pro.local>
+ <AA71E56E-F29A-44B2-B5A0-7806CD684B21@linux.dev>
+ <ary5Nn9le4xG7_-N@MacBookPro>
+To: Gao Xiang <xiang@kernel.org>
+X-Mailer: Apple Mail (2.3901.100.1.1.11)
 
 
-Anyway, as long as this is sekjoer guests only, I really could not be
-bothered much. Proceed, but perhaps put on a comment in the
-vmlinux.lds.h to clarify this, for those of us who do not live in
-coconut land?
+
+> On Sep 30, 2026, at 15:24, Gao Xiang <xiang@kernel.org> wrote:
+> 
+> On Wed, Sep 30, 2026 at 11:36:23AM +0800, Muchun Song wrote:
+>> 
+>> 
+>>> On Sep 29, 2026, at 20:41, Gao Xiang <xiang@kernel.org> wrote:
+>>> 
+>>> On Tue, Sep 29, 2026 at 08:32:41PM +0800, Jialiang Huang wrote:
+>>>> Hi all,
+>>>> 
+>>>> I'm an engineer at DeepSeek. Thanks for the discussion, and thanks
+>>>> to everyone working on DAMON and virtio-balloon free-page reporting.
+>>>> They have been very useful for our workloads.
+>>>> 
+>>>> Gao Xiang wrote:
+>>>>> It can cause sync 4K faults on the host in the worst case
+>>>> 
+>>>> This is one of our concerns with virtio-pmem as well: moving I/O onto
+>>>> the page-fault path can introduce performance trade-offs. The other
+>>>> concern is the substantial struct page overhead for large images.
+>>>> 
+>>>> For now, we enable virtio-pmem only for moderately sized, frequently
+>>>> used read-only images, where there is more opportunity to share the
+>>>> same host page cache across sandboxes, as Gao pointed out.
+>>>> 
+>>>> Muchun's vmemmap work is also interesting to us. My understanding is
+>>>> that it allocates private backing for struct page metadata on demand,
+>>>> which could help reduce the upfront memory overhead for large images.
+>>> 
+>>> Although I haven't had a chance and time to look into that, the main
+>>> concern from me is that mmap() access will call
+>>> "dax_fault_iter->vmemmap_materialize_page()", and malicious sandbox
+>>> workloads (or not malicious, just valid mmap workloads) can cause guest
+>>> memory OOMs due to "struct page balloon" for large rootfs in the worst
+>>> cases and cause the follow-up mmap access failure, because the guest
+>>> memory size may not even fulfill "struct page" for large rootfs.
+>> 
+>> I agree that this is a real issue with v1.
+>> 
+>> One detail is that merely establishing the mapping does not materialize
+>> the metadata. Materialization happens when a fault resolves to an
+>> allocated DAX extent, before its PFN is inserted into a userspace
+>> mapping. However, that distinction does not remove the problem.
+>> 
+>> In the worst case, a workload can fault enough of the pmem range to
+>> restore the full vmemmap cost, about 1.56% of the pmem size. Since v1
+>> does not dematerialize private vmemmap pages, even a one-time scan can
+>> retain that cost until the device is removed.
+>> 
+>> The follow-up mentioned in the cover letter is intended to make the
+>> optimization reversible. One possible direction would be to invalidate
+>> clean DAX entries under memory pressure and zap their userspace
+>> mappings. Once a DAX entry has been removed and the corresponding PFNs
+>> have no remaining mappings, references, or pins that require private
+>> metadata, the associated vmemmap backing could be remapped to the
+>> shared read-only page. A later access would fault and materialize it
+>> again.
+> 
+> BTW, it's impossible for shared DAX entries (like the current XFS DAX
+> with reflink and EROFS will support this feature later too for chunk
+> memory sharing), since you cannot just use mapping and index to get
+> the VMA like page cache does unless you invent another new mechanism
+> for this.
+
+You're right. For the reflink scenario, reclamation is currently
+difficult. If we want to reclaim, it would also be in three stages:
+1) reclaim the struct page corresponding to PFNs that no longer have
+any mapping; 2) reclaim the cases where mappings exist but are not
+reflink; 3) reclaim the reflink scenario.
+
+These three stages go from simple to difficult. Of course, I hadn't
+thought this far ahead before. So in the v1 version, not even the
+first stage was implemented. At the very least, before I act, I need
+enough planning and thought.
+
+> 
+> Reclaiming page entry mechanism seems it can be used for or overlapped
+> to another types of memory (in order to save struct page memory in
+> general): I'm not sure if it needs wider discussion on reclaiming
+> "struct page" in general first.
+
+Of course, I don't think struct page saving is the focus of the discussion
+here, so we can stop discussing it.
+
+> 
+> Anyway, it'd be better to get some numbers with RL or agent workloads
+> (especially the host memory is under reasonable pressure) before
+> landing all these new infras upstream if proceeding in this way.
+
+At least for now, as far as I'm concerned, I don't intend to land all the
+features mentioned here. The first thing I want to address is on-demand
+allocation of struct page.
+
+Thanks,
+Muchun
+
+> 
+> Thanks,
+> Gao Xiang
+
+
