@@ -1,226 +1,170 @@
-Received: from www3579.sakura.ne.jp (www3579.sakura.ne.jp [49.212.243.89])
+Received: from delivery.antispam.mailspamprotection.com (delivery.antispam.mailspamprotection.com [185.56.87.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29A473AE1A0
-	for <virtualization@lists.linux.dev>; Wed, 30 Sep 2026 04:56:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=49.212.243.89
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790744224; cv=none; b=Ja5IBUGwxuG5ehMErAiHYwi5dPU0GOlqu/4mp3l0Ksbn6sedYPG04B4mnchpRGqscKTxHJxdimHQLo9Hqft0FZ7TT2RrZuSJUszXCKDajtXIxLLZUzG6TPPfw+lwjCBqVgP4dkZB5N9/dESMx4lAA2T1GPjRcfZWKZ3OZuyDeaE=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790744224; c=relaxed/simple;
-	bh=1LzUJWyVpEJ6t0FLAllTJUVlsjTLhKqKyXpXO76wJIg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ByO2nTXq0rdH1Zor2wLoECLTt9doVOFhM9WzdynSzJV/RghR7AZ5zrEyewXf713r/EMWkhcncoVyDcn1zi3JngFz3c+PczpC79nuMxx7c5G5XNbhM986vwhF+8G92ASc+SUxBasTKzR+FvDxP9QyF5yb0hyuRMIqJ0y0946XmDM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rsg.ci.i.u-tokyo.ac.jp; spf=pass smtp.mailfrom=rsg.ci.i.u-tokyo.ac.jp; dkim=pass (2048-bit key) header.d=rsg.ci.i.u-tokyo.ac.jp header.i=@rsg.ci.i.u-tokyo.ac.jp header.b=ZJMvIwby; arc=none smtp.client-ip=49.212.243.89
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rsg.ci.i.u-tokyo.ac.jp
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rsg.ci.i.u-tokyo.ac.jp
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 793643B8BBF;
+	Wed, 30 Sep 2026 06:19:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=185.56.87.1
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1790749164; cv=pass; b=Wb/MGI+8rtQQc6EI3yFZYHj7hmAxtzzXaWT1Ho2/uBajDuZbqbnShiz9Uet6TIAtsQWAnkuemk+PiPCnb7okqmSw8SiFwzRyh4if5OEgZR1tb6J4fPTo2XWuZ2/TfQ8CLlFDgRa1zeeQyGHUolT5SKZbEAaoND82SOvyAKfk1h4=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1790749164; c=relaxed/simple;
+	bh=zFoTYb73ldMKwmEbO428TD3BtZYTxTeL01meO4CkLck=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=CNeiVnGh7GCh/6NkTbjlICmxp0AWFBjbnUVzVYSO5zjhFoJvtwV391I1gyD/pb5yzWcTvJPTwRoigdKNl/omAel4qGEe72FON9Yc8MNECGg/cTzCYzt8Ov5W0YJglU/z6PnUpUBsfUvCM8uN7u4/VMxLp82xl3xKWIcz8eOWqC8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=valla.it; spf=pass smtp.mailfrom=valla.it; dkim=pass (1024-bit key) header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.b=kZSrusab; dkim=pass (1024-bit key) header.d=valla.it header.i=@valla.it header.b=vNWaZTSM; arc=pass smtp.client-ip=185.56.87.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=valla.it
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=valla.it
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rsg.ci.i.u-tokyo.ac.jp header.i=@rsg.ci.i.u-tokyo.ac.jp header.b="ZJMvIwby"
-Received: from [133.11.54.183] (h183.csg.ci.i.u-tokyo.ac.jp [133.11.54.183])
-	(authenticated bits=0)
-	by www3579.sakura.ne.jp (8.16.1/8.16.1) with ESMTPSA id 68U4uQrb098371
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO);
-	Wed, 30 Sep 2026 13:56:26 +0900 (JST)
-	(envelope-from odaki@rsg.ci.i.u-tokyo.ac.jp)
-DKIM-Signature: a=rsa-sha256; bh=Il6Pn8W1NJX9qhwbRcpycT2Saqf/wh2/BgvOLGH6lG4=;
-        c=relaxed/relaxed; d=rsg.ci.i.u-tokyo.ac.jp;
-        h=From:Message-ID:To:Subject:Date;
-        s=rs20250326; t=1790744186; v=1;
-        b=ZJMvIwbyT8HsLngGKDH8Dxl0o6DaQol1ktghTGr8gxAPjovpuDN1bQfkJcXPUJfp
-         VTTNJ22GMW1PslrLxc5OsAR0JsKbo2suAjU0opJkeP9Ive4PqU3sq7Bczbw6wEPl
-         5590um/csXpYGEFb+W0ZkIUy6U6k80/YZgshn2v4rZShf7OJjcaUvRxJZErJFiSB
-         3qA3GqNktTXgv4ChUSK54faOGV209MrbZ/nt+r3vLIocCzAwhMrXedGZtohA/3jC
-         BQDp7FbMNoHyyD6tiMRLLqnALtGhGXfxQTJ2wG6ODOp5pAzsGkthx/tOjcUs9X5T
-         ReqciSAod4gJPVdAE60hcw==
-Message-ID: <dce3d9ed-87a7-43fe-b7d8-c7281514f7d1@rsg.ci.i.u-tokyo.ac.jp>
-Date: Wed, 30 Sep 2026 13:56:26 +0900
+	dkim=pass (1024-bit key) header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.b="kZSrusab";
+	dkim=pass (1024-bit key) header.d=valla.it header.i=@valla.it header.b="vNWaZTSM"
+ARC-Seal: i=1; cv=none; a=rsa-sha256; d=outgoing.instance-europe-west4-kr49.prod.antispam.mailspamprotection.com; s=arckey; t=1790749162;
+	 b=iDIhjD5f4n1aKHTSDHb2PIRdiX27rHYZRhLCzBEe4Wuw/mirMIOVxAJ8v+glq+dgfzaohapmRc
+	  hAEgjbNs+qVXMQbOHbmqAdJyBGqQfqIJxe7SysjKE3nYV8U8uAJvE8hchGv/nwVEztb16CunWj
+	  FCCkc9NxUO7M8L3egfHcTfg+edY8KajS65vSiOkbNntCV0Y70z4Z6rghAGm4U2S6AsXQkFLBQR
+	  /merw5ROacY6KLeh/n7rQ0r2AAEC8Ro9u4hmHNBc5HxA0TZ1c4zeQBPpYpzMjx4xAiJgzmy2ZA
+	  ziQ28o/eQMZNb/S6OENmMJfZPGt3c0uYow+tcN8Piave+Q==;
+ARC-Authentication-Results: i=1; outgoing.instance-europe-west4-kr49.prod.antispam.mailspamprotection.com; smtp.remote-ip=35.214.173.214;
+	iprev=pass (214.173.214.35.bc.googleusercontent.com) smtp.remote-ip=35.214.173.214;
+	auth=pass (LOGIN) smtp.auth=esm19.siteground.biz;
+	dkim=pass header.d=valla.it header.s=default header.a=rsa-sha256;
+	arc=none
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed; d=outgoing.instance-europe-west4-kr49.prod.antispam.mailspamprotection.com; s=arckey; t=1790749162;
+	bh=zFoTYb73ldMKwmEbO428TD3BtZYTxTeL01meO4CkLck=;
+	h=In-Reply-To:Content-Transfer-Encoding:Content-Type:MIME-Version:References:
+	  Message-ID:Subject:Cc:To:From:Date:DKIM-Signature:DKIM-Signature;
+	b=1BOTpyvUPijcdxHh9te/Oay/m9Bm24F2aV78fK8EY5y6iVxB97gzeIbo1wlzKW4gPzqNgcZO5f
+	  mckaH3Ey/kRZTkgvSspa1D7WNj29ufp+IpMsz875GgiBHVcse0uc1dqTmqg8aE/6RYXL61p/5t
+	  yKW0eFaXE4vC7CH//Gf4J4ethOkpvwzyiENE5JkUbL0d6SNPWDWPHRu84Foty08PqmeR59Krah
+	  azXp3zkOpdE/pv/cHG3S31iUJDPzAeA/S9aHKAWVu202gC9RahFT2I67Xwvh+tQXeB/+0pU1hN
+	  a2rOvfcoHRL9HPTJ9fNoixLv5+XIDd7tgqhPenfSH89TYg==;
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=antispam.mailspamprotection.com; s=default; h=CFBL-Feedback-ID:CFBL-Address
+	:Content-Transfer-Encoding:Content-Type:MIME-Version:Message-ID:Subject:Cc:To
+	:From:Date:Reply-To:List-Unsubscribe;
+	bh=AbLTFjIhx+uI0756kXzx+0Wed7ebu42odZefl23u124=; b=kZSrusab/QZIiCLVOpmjc2TsLT
+	0sqbamHWLyEE4NaQhyIeGwZ5L94+aQc14Q6IPSSn5KhFD7+TYZ0E6iEDLphnxl6kn70K17Y1OELQL
+	A974K74x773b9mvjAJH1zMSVfAm+cV8I/1yYuyPFfmJ0Eil+0ZeH5EcdmQN/pVeupZ+U=;
+Received: from 214.173.214.35.bc.googleusercontent.com ([35.214.173.214] helo=esm19.siteground.biz)
+	by instance-europe-west4-kr49.prod.antispam.mailspamprotection.com with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+	(Exim 4.100.1)
+	(envelope-from <francesco@valla.it>)
+	id 1xBnes-00000000DDm-39hf;
+	Wed, 30 Sep 2026 06:19:15 +0000
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=valla.it;
+	s=default; h=Subject:Cc:To:From:Date:list-help:list-unsubscribe:
+	list-subscribe:list-post:list-owner:list-archive;
+	bh=AbLTFjIhx+uI0756kXzx+0Wed7ebu42odZefl23u124=; b=vNWaZTSMdKSjuGWs4B1nAJLk+v
+	JgZgpuuMYwkOKAokZdtW4FbhvcKdbSfQAbmDZuPhMmsifXY+It3LX1H5Tlom/t/67KuTCjwJ5VbNj
+	f7iaIxoAD//wZICuPL52kUW9hdtchJiO7XOsr74gbRyS39at1urOoT9laQIF81sUJWDo=;
+Received: from [87.14.44.235] (port=64978 helo=bywater)
+	by esm19.siteground.biz with essmtpa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+	(Exim 4.100.1)
+	(envelope-from <francesco@valla.it>)
+	id 1xBneo-00000000PI1-2Ld3;
+	Wed, 30 Sep 2026 06:19:10 +0000
+Date: Wed, 30 Sep 2026 08:19:08 +0200
+From: Francesco Valla <francesco@valla.it>
+To: sashiko-reviews@lists.linux.dev
+Cc: devicetree@vger.kernel.org, virtualization@lists.linux.dev, 
+	Eugenio Perez <eperezma@redhat.com>, robh@kernel.org, conor+dt@kernel.org, 
+	"Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 1/2] dt-bindings: spi: add bindings for spi-virtio
+Message-ID: <arypmHeudsJm4RIN@bywater>
+References: <20260929-spi-virtio-bindings-v1-0-6a0eef3213b3@valla.it>
+ <20260929-spi-virtio-bindings-v1-1-6a0eef3213b3@valla.it>
+ <20260929165015.E5DDF1F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v9 3/4] drm/virtio: implement userptr resource support
-To: "Huang, Honglei" <honghuan@amd.com>, dmitry.osipenko@collabora.com,
-        airlied@redhat.com, kraxel@redhat.com
-Cc: gurchetansingh@chromium.org, olvaffe@gmail.com, Ray.Huang@amd.com,
-        dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
-        linux-kernel@vger.kernel.org, Felix Kuehling <Felix.Kuehling@amd.com>,
-        amd-gfx@lists.freedesktop.org
-References: <20260924095556.1326164-1-honghuan@amd.com>
- <20260924095556.1326164-4-honghuan@amd.com>
- <fd17a38e-a827-41a5-a46e-db2135bb9257@rsg.ci.i.u-tokyo.ac.jp>
- <37c0ef9c-7249-4785-a3fd-646d816e2d4c@amd.com>
- <47d7114c-f035-4628-a911-c7ab30d55a75@rsg.ci.i.u-tokyo.ac.jp>
- <ae305517-e678-4ac3-93d3-f250bd37b2be@amd.com>
-Content-Language: en-US
-From: Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>
-In-Reply-To: <ae305517-e678-4ac3-93d3-f250bd37b2be@amd.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260929165015.E5DDF1F000FF@smtp.kernel.org>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - esm19.siteground.biz
+X-AntiAbuse: Original Domain - lists.linux.dev
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - valla.it
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-SGantispam-id: ad6de6e4cc0feb0ba0f106e4f1151177
+X-AntiAbuse: ID - ad6de6e4cc0feb0ba0f106e4f1151177
+AntiSpam-DLS: false
+AntiSpam-DLSP: 
+AntiSpam-DLSRS: 
+AntiSpam-TS: 1.0
+CFBL-Address: feedback@antispam.mailspamprotection.com; report=arf
+CFBL-Feedback-ID: 1xBnes-00000000DDm-39hf-feedback@antispam.mailspamprotection.com
+Authentication-Results: outgoing.instance-europe-west4-kr49.prod.antispam.mailspamprotection.com;
+	iprev=pass (214.173.214.35.bc.googleusercontent.com) smtp.remote-ip=35.214.173.214;
+	auth=pass (LOGIN) smtp.auth=esm19.siteground.biz;
+	dkim=pass header.d=valla.it header.s=default header.a=rsa-sha256;
+	arc=none
 
-On 2026/09/29 11:22, Huang, Honglei wrote:
+On Tue, Sep 29, 2026 at 04:50:14PM +0000, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
+> - [Low] dt-bindings: spi-virtio: undocumented compatible in example
+> --
 > 
+> commit eb6ae8a9a8b3aa403347f70589897a8c7d297186
+> Author: Francesco Valla <francesco@valla.it>
 > 
-> On 9/29/2026 1:25 AM, Akihiko Odaki wrote:
->> On 2026/09/29 1:22, Huang, Honglei wrote:
->>>
->>>
->>> On 9/26/2026 7:33 PM, Akihiko Odaki wrote:
->>>> On 2026/09/24 18:55, Honglei Huang wrote:
->>>>> Add userptr blob objects so the guest kernel can pin an existing
->>>>> userspace mapping and advertise it as CREATE_BLOB backing entries.
->>>>>
->>>>> - New virtio_gpu_object_userptr type for userptr resources
->>>>> - Pin pages with pin_user_pages_fast() and FOLL_LONGTERM
->>>>> - Omit FOLL_WRITE when VIRTGPU_BLOB_FLAG_USE_READONLY is set
->>>>> - Charge FOLL_LONGTERM pins against RLIMIT_MEMLOCK
->>>>> - DMA-map the scatterlist only when virtio_gpu_use_dma_api() is
->>>>>    required; use DMA_TO_DEVICE for USE_READONLY blobs
->>>>> - Mark writable pages dirty when unpinning
->>>>> - Keep pages pinned until RESOURCE_UNREF is queued; drop them from
->>>>>    cleanup_object() on the unref response or on create failure
->>>>> - Clear userptr->pages on pin failure to avoid double-free on cleanup
->>>>> - Reject unaligned or overflowing userptr ranges at create time
->>>>> - Disallow PRIME export of userptr objects
->>>>> - Save CREATE_BLOB params and restore userptr resources after
->>>>>    hibernation without using the shmem restore path
->>>>>
->>>>> The hibernation restore path maps with the same attrs and direction
->>>>> used at create time, as documented next to the call. Like shmem
->>>>> blobs, the DMA API can still bounce through a buffer there. This
->>>>> design only avoids a second guest side shmem allocation and memcpy,
->>>>> nothing more.
->>>>
->>>> I don't see the restore path is documented though this says 
->>>> "documented next to the call".
->>>
->>> Will fix in next version
->>>
->>>>
->>>>>
->>> ...
->>>>> +        goto err_cleanup;
->>>>> +    }
->>>>> +
->>>>> +    userptr->sgt = sgt;
->>>>> +
->>>>> +    if (virtio_gpu_use_dma_api(vgdev->vdev)) {
->>>>> +        enum dma_data_direction dir =
->>>>> +            (userptr->flags & VIRTGPU_BLOB_FLAG_USE_READONLY) ?
->>>>> +            DMA_TO_DEVICE : DMA_BIDIRECTIONAL;
->>>>> +
->>>>> +        ret = dma_map_sgtable(drm_dev_dma_dev(vgdev->ddev), sgt,
->>>>> +                      dir, 0);
->>>>
->>>> I checked the ROCm code and documentation, and I do not see how this 
->>>> mapping satisfies the HIP coherence contract when bounce buffers or 
->>>> explicit DMA cache maintenance are required.
->>>>
->>>> HIP distinguishes two coherence models:
->>>>
->>>>  > Coarse-grained coherence: The memory is considered up-to-date only
->>>>  > after synchronization performed using hipDeviceSynchronize(),
->>>>  > hipStreamSynchronize(), or any blocking operation that acts on the
->>>>  > null stream such as hipMemcpy(). To avoid the cache from being
->>>>  > accessed by a part of the system while simultaneously being 
->>>> written by
->>>>  > another, the memory is made visible only after the caches have been
->>>>  > flushed.
->>>>  >
->>>>  > Fine-grained coherence: The memory is coherent even while being
->>>>  > modified by a part of the system. Fine-grained coherence ensures 
->>>> that
->>>>  > up-to-date data is visible to others regardless of kernel 
->>>> boundaries.
->>>>  > This can be useful if both host and device operate on the same data.
->>>>
->>>> https://rocm.docs.amd.com/projects/HIP/en/docs-10.0.0/how-to/ 
->>>> hip_runtime_api/memory_management/coherence_control.html
->>>>
->>>> Fine-grained access requires coherence throughout execution; copying
->>>> between the original pages and a bounce buffer only at kernel 
->>>> boundaries
->>>> would not suffice. Coarse-grained access could support such copies, but
->>>> they must occur at the required synchronization points. I found no code
->>>> that synchronizes this DMA mapping at those points.
->>>>
->>>
->>> Whether dma_map_sgtable() bounces is decided by the platform's IOMMU/ 
->>> SWIOTLB behind the device, not by we request. attrs=0 here just 
->>> matches the existing shmem blob path, and is exactly what native 
->>> (non- virtualized) ROCm's own userptr support does too:
->>>
->>> // drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c, 
->>> kfd_mem_dmamap_userptr()
->>> ret = dma_map_sgtable(adev->dev, ttm->sg, direction, 0);
->>>
->>> And HIP's coarse-grained/fine-grained coherence isn't a DMA layer 
->>> property, it is a GPU VM/cache thing. In upstream KFD it's 
->>> implemented as GPU MMU page table attributes (MTYPE_CC/MTYPE_RW, the 
->>> SNOOPED bit), set by whichever driver programs the real GPU's page 
->>> tables for this memory:
->>>
->>> // drivers/gpu/drm/amd/amdkfd/kfd_svm.c, svm_range_get_pte_flags()
->>> mapping_flags |= coherent ? AMDGPU_VM_MTYPE_CC : AMDGPU_VM_MTYPE_RW;
->>> pte_flags |= snoop ? AMDGPU_PTE_SNOOPED : 0;
->>>
->>> I really want to disable the bounce buffers in DMA, but it is a 
->>> platform behaviour, can not disable it in this layer. And in XEN, the 
->>> dmapping for it is another form of iovector/simple sgtable. And if 
->>> use the virtio-iommu or somthing else, the efficiency and the 
->>> complexity of driver integration are both lower than using iovector/ 
->>> sgtable directly.
->>> And for how to handle the DMA thing for userptr, since we have so 
->>> many concern about it, maybe we can drop this part in next version. 
->>> But we may have the AI review warn/error.
->>
->> Documentation/core-api/dma-attributes.rst says:
->>
->>  > DMA_ATTR_REQUIRE_COHERENT
->>  > -------------------------
->>  >
->>  > DMA mapping requests with the DMA_ATTR_REQUIRE_COHERENT fail on any
->>  > system where SWIOTLB or cache management is required. This should only
->>  > be used to support uAPI designs that require continuous HW DMA
->>  > coherence with userspace processes, for example RDMA and DRM. At a
->>  > minimum the memory being mapped must be userspace memory from
->>  > pin_user_pages() or similar.
->>  >
->>  > Drivers should consider using dma_mmap_pages() instead of this
->>  > interface when building their uAPIs, when possible.
->>  >
->>  > It must never be used in an in-kernel driver that only works with
->>  > kernel memory.
->>
->> This is exactly our use case. Although the platform decides whether a
->> mapping requires bouncing or cache maintenance, 
->> DMA_ATTR_REQUIRE_COHERENT lets the driver reject mappings that cannot 
->> meet this requirement.
->>
->> The shmem path serves a different use case, but amdkfd is a relevant 
->> comparison. HIP's coherence guarantees depend on both the GPU VM/cache 
->> configuration and the DMA mapping established by the kernel driver. 
->> GPU page table attributes alone cannot make a bounce buffer coherent 
->> with the original userspace pages.
->>
->> The amdkfd mapping you cited therefore warrants discussion with its
->> developers as well. I have CCed the maintainer.
+> dt-bindings: spi: add bindings for spi-virtio
 > 
+> This commit adds device tree bindings for spi-virtio based on virtio-device.
+> It defines the properties and node dependencies for the virtio SPI controller.
 > 
-> Will add DMA_ATTR_REQUIRE_COHERENT in virtio GPU userptr in next version.
-> And are there some places else need to be modified?
+> > diff --git a/Documentation/devicetree/bindings/spi/spi-virtio.yaml b/Documentation/devicetree/bindings/spi/spi-virtio.yaml
+> > new file mode 100644
+> > index 0000000000000..5b8639dd2e1f1
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/spi/spi-virtio.yaml
+> 
+> [ ... ]
+> 
+> > +examples:
+> > +  - |
+> > +    virtio@3000 {
+> > +        compatible = "virtio,mmio";
+> > +        reg = <0x3000 0x100>;
+> > +        interrupts = <41>;
+> > +
+> > +        spi {
+> > +            compatible = "virtio,device2d";
+> > +
+> > +            #address-cells = <1>;
+> > +            #size-cells = <0>;
+> > +
+> > +            sram@0 {
+> > +                compatible = "microchip,mchp23k256";
+> 
+> [Severity: Low]
+> Is this compatible string documented in any existing binding schema?
+>
 
-I don't have anything else to add right now. As a QEMU developer, I've 
-only reviewed the more obvious aspects of this patch, so others may have 
-deeper kernel-specific feedback.
+Yes - the compatible fot the Microchip MCHP23K256 is documented in:
 
-At this stage, my main priority is seeing how the current feedback is 
-resolved. Before we dig deeper into the low-level details, I’d also like 
-to review the virtio specification changes alongside the 
-QEMU/virglrenderer implementation so I can better evaluate the overall 
-design.
+  Documentation/devicetree/bindings/mtd/microchip,mchp23k256.yaml
 
-Regards,
-Akihiko Odaki
+> The dt_binding_check tool strictly validates all compatible strings against
+> known schemas, so an undocumented compatible string in an example will emit a
+> schema validation warning.
+> 
+> When running make dt_binding_check on the new spi-virtio.yaml file, it
+> parses the example and attempts to match microchip,mchp23k256 against
+> registered bindings, which fails if none exist.
+> 
+> > +                reg = <0>;
+> > +                spi-max-frequency = <20000000>;
+> > +            };
+> > +        };
+> > +    };
+> > +
+> > +...
+> 
+> -- 
+> Sashiko AI review � https://sashiko.dev/#/patchset/20260929-spi-virtio-bindings-v1-0-6a0eef3213b3@valla.it?part=1
