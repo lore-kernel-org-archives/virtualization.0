@@ -1,50 +1,50 @@
-Received: from mail-pz2-f6.google.com (mail-pz2-f6.google.com [74.125.228.6])
+Received: from mail-pz2-f7.google.com (mail-pz2-f7.google.com [74.125.228.7])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22A7538C2A0
-	for <virtualization@lists.linux.dev>; Wed, 30 Sep 2026 08:21:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.6
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2396038CFE1
+	for <virtualization@lists.linux.dev>; Wed, 30 Sep 2026 08:21:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.7
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790756467; cv=none; b=YyxUVuWhrg2ea37777vSstuqxRic4URvR69EqkwULHRaBae+CLXcwejy5tdqzwRf4fxFdA6fL9e6d6kACHQrrQB6c0cfLqikYOkRGDyYPQl01h+Ct8CoHuMgz459bquWq9XQuMwrqAt8NoP8tLQzawjJj06lWi0ppCTNPrfKgzc=
+	t=1790756475; cv=none; b=TYbEFHJxRFcuQkcUbiWIYVa3v4Kgi0crMz7mby9Wcg8YOKt1lrTCDeXUVWabD0qHFdnD2Ibh5l9Y7/I7BgLrJ0c7Str4parPC3HLM+U6qkmMzcl2A/hfc+aUo01F9yEzrvfxhhZAx0yO2DKPfJhVE3E3mHzZfDTitLOGbWdndkw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790756467; c=relaxed/simple;
-	bh=EH2ClwoL3M6yVYOwkre3mOJduO5W/XN6Vq9zM16CB5g=;
+	s=arc-20240116; t=1790756475; c=relaxed/simple;
+	bh=P0WnxZam+SUgpdEBgJI3LyZDEoc1jUHTMId8rRtkibI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=U6mSkuEacQ7rpo8C5ZIdBLyEe9bpEIvhtijhTRhSgIhMAgIeCO2cQDnNLz6H8cPZEZqK9LHgmvQL+DnrDjPY/6joUMt0JJLTjF2FZm2IXvG/DJ3DnSH/0KELhk4R4YNEQAd1uweBG6JNYOx09CKsD8f+VWlAgDdz9uezRJoPORU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=foxmail.com; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=74.125.228.6
+	 MIME-Version; b=qOoyv64ltAPiEBt4IEZyi1dsFiX7/MRX6njwXDYJwQjPWYR/u8W9wvKXV7nx4cK+C/Zlvgf9p90whDsyzSDYgcIEx06T1yKYY8eAnlJQJrJiDK3YWwc1g6W5TLhRDWCLngyM4nzzDWpdEFyojVlwF0+oh7orKGZhr9pILXHGkOE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=foxmail.com; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=74.125.228.7
 Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=foxmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-pz2-f6.google.com with SMTP id 41be03b00d2f7-cc75f2924abso3504531a12.1
-        for <virtualization@lists.linux.dev>; Wed, 30 Sep 2026 01:21:04 -0700 (PDT)
+Received: by mail-pz2-f7.google.com with SMTP id 41be03b00d2f7-cc4ae08cca6so353661a12.0
+        for <virtualization@lists.linux.dev>; Wed, 30 Sep 2026 01:21:13 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790756464; x=1791361264;
+        d=1e100.net; s=20260707; t=1790756473; x=1791361273;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=ZqdxT67lLu+zzttJbC4gppTruXTdwqprw/04FtUuWRk=;
-        b=aP1HO9rvEUd4GUYvMHUkxBmcllbApQ+RwBaylhTSgdR9M3jcOrRiH6oXCbq8nBPtKW
-         DHU8tOkAdIiW4KMo26XUc5w0zPRTHMXBrPHByQfjY/B0H37usKSfnNXK8YQZEP2Aib5W
-         odH2Fbwb01Dt482ywzkffteHJ+Z4A5ci8q+NxO9s1UfNPl9Jzw5tIxQ7RREAAHOOCBW3
-         8go6P43TPZElPNFq3I8xod+AUQj8GW0uCJn4Yy0b3l+hdIutGimKsJN3cw6Ti1v6uRf6
-         afqGE/yFOSdhlemwi7HtiXTGt5u5JTMjV5pFlhGOlcaJX5xMOTTMv1Nxz3iS15TwBeeI
-         ldgg==
-X-Forwarded-Encrypted: i=1; AKwUvBw7rHLGCa7XYRb0jfrsPMUV4B0cXCGpxPYysyng9smvzDfzjVscKFcmMRK6Ds2Ppks+HnU8vV7oI/SWrxEfPQ==@lists.linux.dev
-X-Gm-Message-State: AFuF++nl+E74fU5K4TUIcSYTrI1JgGfm44gF0RC3n2qgwpMRMPwIavh5
-	ab5KhxgMSn+IH3jFPwXX0rkMZE+KfxVp/Z6B79TMXCXT/Dd2sl6BsL+T
-X-Gm-Gg: AYBFou1k07nZYpb1jYSr4Jw+o1JikFO9OWid9g+6szJM+QlQTJ6TP6hy4hdcChncw33
-	jBotXOpnarK7rigm/2V9TDZs1anwr02Cg7FlZob6NDDt9et7K4XVxvXA/nhg6830w/DZf8uvonm
-	/+DHpvHjqw6eTzxjvQG+CeeLUpkbtYk320koxtzXI2nSb/D79HSqjDXt+VwqACkYI9AyVc+i3O2
-	i0QUhDwnRurHnUiIO2C0psGxHo8+BGDQxfeL7E5ZepLpa2ol5FEjNSOdLn0dbXyOTla2r54OaOq
-	h5138b5mZsg0LRL0lB+GgoYoe9cPy689rlPR8zd1KfInuSHPytqVCVEdhSwkP7i3OrOZMPQdRow
-	UGU812E8ceFrVziP+AIIFGIi9m+NEGV3K6p8+QJLW7gmsoKTYOeQy/OYLV5s+ghuw1UAmpIZIYP
-	M7Qsfyd8mVXI7oUpWr2WB2AOpuGRp6KLnJ6TktlGAKyjorLYSK7SKKdeDemOMBVKbHRJuYBSUn9
-	dxto4ELp1FJReEsQKY=
-X-Received: by 2002:a05:6a00:2e2a:b0:886:cae0:fb69 with SMTP id d2e1a72fcca58-8874d0abc1bmr420479b3a.44.1790756464283;
-        Wed, 30 Sep 2026 01:21:04 -0700 (PDT)
+        bh=Eq1BMklhPqpvc1j1QI1dLTGY02tlXth1DYlMuyL2BbQ=;
+        b=xWmHEPoP/nwpd/Se0J9o2lIuvvc4oA+hn7f6HijLN1/Gvbrw56y5JzFXz7JkJgl93X
+         UDoC8fZ8se9uyy8XpDaNmxfm4n5nG3CMLzdKgS4Q+JKe1Y9qO50oNktMm+zZueiucqNv
+         dwXjsBUoJ/17dVLqqyw4rU6dArEV+GdU2JpgElgaK7i9EflI7uyR7M6LjrtyMx8YVwp5
+         4RGgxjOFOQDZNkIXWgNsSF6zLr7Dw94FzTRnH3TnuSXzajCMVzpxKVhhOSJVzdrkEGSe
+         /TcFyDLScqF0ksy68YFzP7Lvd6QtvVkDljHzP1mJGT1XuGcRTspxJ74hu02T0LwcYQF3
+         pVbg==
+X-Forwarded-Encrypted: i=1; AKwUvBzFEh8PL4ASvAsSc99GayZjf0V/Lqvr8yb2togGm2UouvbfNnOLoDaQyxBnwuvF+rCGSL2xBeP2Z7ni3ytr3g==@lists.linux.dev
+X-Gm-Message-State: AFuF++ljN0jj4UZK3UqEsGi82wrXvkY4tljGsNQEluo4ceQEb21IzP9L
+	RilCM78jL4CuHoFa++92RGtKpqu5rkwVLw28WS2IyI3RPa7/Ls8RCmf2
+X-Gm-Gg: AYBFou3cnhj8EQfT5PAyqBMYKPpe5oPYAjjo4xSUz0NBnb6teGZ+X1qNOX9qWcbBl4w
+	UmEBFRbYGK8nxVSYZm81K34YPi65luGsAH1c2Ogc/l2JqhRC5MoJvjkyrqQAoyxCoLqueB3oDZO
+	MrZPN1jpd8zMUOaEkgr6hLRbXlEa5Tdjy02yirdmWQgi5BuWYyoOpYReHjnZvdJcAvsQBo/6LGE
+	jhBpoXxZBHhklxgyGI8EFR7Y29lO4PkJ9PQOL0MvX76B3FA3V6AuQIVFTyT90GskxNmbvhaQry9
+	YancA3KUL3kwcmf6pfQM24BOoKSEcw0jOLTF3zUwq0dOnkL+AsIm1ryqTrVTpwZiniXRt2kvAbJ
+	8dIYVuNph9zldNh8WOuys23+Bn2CFAEMdo9ChNbdUV68hzXlBfmIp25qoBo/NyFTXNglr6jBHaa
+	AzmPkOiBYBh8BExfiaqnAb8D35CouUT464gjHBGbGvUh6TJUJ2osSBBCjWlG9a9OaMtJaMqGrjX
+	G0s87Taml0ZgrcN9WI=
+X-Received: by 2002:a05:6a21:1145:b0:3d3:adbf:777c with SMTP id adf61e73a8af0-3de9e6e601amr682846637.24.1790756473028;
+        Wed, 30 Sep 2026 01:21:13 -0700 (PDT)
 Received: from foxmail.com ([120.239.72.254])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8872643904asm419955b3a.45.2026.09.30.01.20.59
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8872643904asm419955b3a.45.2026.09.30.01.21.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 30 Sep 2026 01:21:03 -0700 (PDT)
+        Wed, 30 Sep 2026 01:21:12 -0700 (PDT)
 From: Jianlin Shi <shijianlin11@foxmail.com>
 To: netdev@vger.kernel.org,
 	virtualization@lists.linux.dev
@@ -60,9 +60,9 @@ Cc: mst@redhat.com,
 	talgi@nvidia.com,
 	hengqi@linux.alibaba.com,
 	horms@kernel.org
-Subject: [PATCH 1/2] dim: clear irq_moder on init failure
-Date: Wed, 30 Sep 2026 16:19:51 +0800
-Message-ID: <8d6a637142c411f83771fda5b57bb4451651488b.1790751008.git.shijianlin11@foxmail.com>
+Subject: [PATCH 2/2] virtio-net: unwind VQs when irq moderation init fails
+Date: Wed, 30 Sep 2026 16:19:52 +0800
+Message-ID: <4e21386a0840526578eac3dd10443758bf3b84e2.1790751008.git.shijianlin11@foxmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <cover.1790751008.git.shijianlin11@foxmail.com>
 References: <cover.1790751008.git.shijianlin11@foxmail.com>
@@ -74,33 +74,35 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-net_dim_init_irq_moder() publishes the allocated object in
-dev->irq_moder before copying the moderation profiles.  If kmemdup()
-fails, the object is freed but the pointer is left dangling.
-net_dim_free_irq_moder() treats a non-NULL irq_moder as live, so a
-caller unwinding the failure path would use-after-free.
+virtnet_probe() calls init_vqs() before virtnet_init_irq_moder().
+The failure path used "goto free", which only calls free_netdev() and
+skips virtio_reset_device() and virtnet_del_vqs().  The virtqueues and
+their DMA mappings leak.
 
-NULL the pointer after freeing it.  On error the device is left as if
-initialization never happened.
+Use the existing free_irq_moder label, as virtnet_create_page_pools()
+already does.  This is safe only after net_dim_init_irq_moder() clears
+dev->irq_moder on failure; otherwise virtnet_free_irq_moder() would
+free the dangling pointer.
 
-Fixes: f750dfe825b90 ("ethtool: provide customized dim profile management")
+Fixes: dcb67f6a9ead6 ("virtio-net: support dim profile fine-tuning")
 Signed-off-by: Jianlin Shi <shijianlin11@foxmail.com>
 ---
- lib/dim/net_dim.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/virtio_net.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/lib/dim/net_dim.c b/lib/dim/net_dim.c
-index d8d4f6553559..bf59deae6a29 100644
---- a/lib/dim/net_dim.c
-+++ b/lib/dim/net_dim.c
-@@ -141,6 +141,7 @@ int net_dim_init_irq_moder(struct net_device *dev, u8 profile_flags,
- 	kfree(rxp);
- free_moder:
- 	kfree(moder);
-+	dev->irq_moder = NULL;
- 	return -ENOMEM;
- }
- EXPORT_SYMBOL(net_dim_init_irq_moder);
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index e34c52d059d3..ef61097c4404 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -6996,7 +6996,7 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 
+ 		err = virtnet_init_irq_moder(vi);
+ 		if (err)
+-			goto free;
++			goto free_irq_moder;
+ 	}
+ 
+ 	/* Create page pools for receive queues.
 -- 
 2.43.0
 
