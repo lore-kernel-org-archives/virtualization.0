@@ -1,169 +1,99 @@
-Received: from mta1.migadu.com (out-245.mta1.migadu.com [95.215.58.245])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 543AD28B4E2
-	for <virtualization@lists.linux.dev>; Wed, 30 Sep 2026 09:37:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.245
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C57C2483BF1;
+	Wed, 30 Sep 2026 10:33:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790761056; cv=none; b=Ij0oEEcbI5oDgs+kXOttSX4Y0n+Lm0CFWHi+fOPxkOioQGQHc8IB7qdYgg1txqTHdoMAmmLsH11xLUpNvPaKZJao0Hy36gjhZtqWlCqpNxzALujuzK8/sMDo1H/MfYAeSH3qispFl+EE0k3zhPJXc5fVVR9o+6oze4snhTyn0L4=
+	t=1790764421; cv=none; b=DSPpdVrA+A0DMx2jo1vsNdseFt9c5PNLqCrALUO6gth6MX1SoNGfFYDSaball48p6vn2bSyFsPoDFkngPAs3jmUAy9jQTavdL/5QJWbicH9VsU1zEbowrz5p7wzXX+w/t7MIq8vaZfH+JeP66C76ZLIhE6p4WN/XEzvR3IVxnlQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790761056; c=relaxed/simple;
-	bh=X6NhOSSQEW58fF/T8iO6Cc8WhbapIj1EK2DhImjFRYI=;
-	h=Content-Type:Mime-Version:Subject:From:In-Reply-To:Date:Cc:
-	 Message-Id:References:To; b=Ux+R5em0sSUG6yOB2vWXXLI/93Lz06CcHxWK7TqatgT1dF4JzcvuWomp/nPUE/UIlwW/LQ/7o4G7exYxAiUgCWMVVcCiD2Otn7Ihu0GnMh0CSoPfnOU2VVrF43LRFeQJnCavDZJqi8A3dacUqR/W36UfmSuHdl3QDMT/u53iU3c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=vDaXKaPx; arc=none smtp.client-ip=95.215.58.245
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1790764421; c=relaxed/simple;
+	bh=XUXsuBcRAysMuaa5IFwWmmuXxHPIpZZNg9s0slH8TlI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=IPmDc+dpkTYABFtG6BJptAQJfIFrWBmdTrafSQSKB7T9GljVevogfm5sBSaWo+N3KudG1NGUCvNgEW0RGHcxOneAUVbt+tc2rGFv7d/lIIviFioQ7Y4vwZ9YhPNIDsFCHa3TUo7t4IKrVLpwf+Fq4BWfzxtJS06OXWulINgqhmg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mFYtGKpD; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="vDaXKaPx"
-X-Envelope-To: virtualization@lists.linux.dev
-DKIM-Signature: a=rsa-sha256; bh=X6NhOSSQEW58fF/T8iO6Cc8WhbapIj1EK2DhImjFRYI=;
- c=simple/simple; d=linux.dev;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1790761052; v=1; x=1791365852;
- b=vDaXKaPxoHUDe6xJBYjz/b8ax5TbwYLTCOwoNEhfLYhiepxMG3G0feiagcL8gJplJONpzP6n
- 7UaYmpuzQVxXSNzMEmWt/60cDauC6JZRdlFQXy0pWDNhIoITDUu/5K5kdiqlTLeiMPzzzGnfHmb
- KW0ixfR6RPFSBS78pfS7lAKw=
-X-Envelope-To: virtualization@lists.linux.dev
-Received: by mta10.migadu.com with ESMTPS id 2848c540328b850a;
-	Wed, 30 Sep 2026 09:37:31 +0000
-X-Mizu-Trace-ID: 2848c540328b850a
-X-Migadu-Flow: FLOW_OUT
-Content-Type: text/plain;
-	charset=us-ascii
-Precedence: bulk
-X-Mailing-List: virtualization@lists.linux.dev
-List-Id: <virtualization.lists.linux.dev>
-List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
-List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3901.100.1.1.11\))
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mFYtGKpD"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F7321F000FF;
+	Wed, 30 Sep 2026 10:33:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790764420;
+	bh=+DHevYFtTq9LXip3P6yx2LmGPrDIe2gZf1mJcG2SySg=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=mFYtGKpDX0b9KjPmZS692yinOoPah6ZGGq0I1FramSDyXTiA7QYBhBVI/JblfVCfr
+	 N57pJP5APLX6fXbpxyr4r/3q72ud866zC8eDGWyH95Sy2BrvvNZpGW4WAW356UJ/JG
+	 2laHbLBfqLu/EvUNG2afTr6QYgcVIXFJbCDhQPubqAf4Xr9zPpZTfwQE0QkvsuIxxp
+	 ssMKDyL6dwhgqaxlnvnJncyNWYTqjTfBsEJt9lkDJG/HxtXSOhga4P2W0xTW9w7BHZ
+	 w8N1xYJZYAKmabHd63kHkYjxZWrJ6NxdQ2MMo6qBPV5Q2IRZSkmtg9EhMo8PyVPQcV
+	 e0e4IPAjn50vA==
+Date: Wed, 30 Sep 2026 12:33:33 +0200
+From: Gao Xiang <xiang@kernel.org>
+To: Muchun Song <muchun.song@linux.dev>
+Cc: Gao Xiang <xiang@kernel.org>, Jialiang Huang <huang-jl@deepseek.com>,
+	lance.yang@linux.dev, baohua@kernel.org, damon@lists.linux.dev,
+	david@kernel.org, kunwu.chan@gmail.com, lianux.mm@gmail.com,
+	linux-mm@kvack.org, mst@redhat.com, ryncsn@gmail.com, sj@kernel.org,
+	virtualization@lists.linux.dev, xueyuan.chen21@gmail.com,
+	Matthew Wilcox <willy@infradead.org>
 Subject: Re: [FYI] DAMON and virtio-balloon in DeepSeek's DSec paper
-From: Muchun Song <muchun.song@linux.dev>
-In-Reply-To: <ary5Nn9le4xG7_-N@MacBookPro>
-Date: Wed, 30 Sep 2026 17:37:11 +0800
-Cc: Jialiang Huang <huang-jl@deepseek.com>,
- lance.yang@linux.dev,
- baohua@kernel.org,
- damon@lists.linux.dev,
- david@kernel.org,
- kunwu.chan@gmail.com,
- lianux.mm@gmail.com,
- linux-mm@kvack.org,
- mst@redhat.com,
- ryncsn@gmail.com,
- sj@kernel.org,
- virtualization@lists.linux.dev,
- xueyuan.chen21@gmail.com
-Content-Transfer-Encoding: 7bit
-Message-Id: <CEE47F27-874B-486A-995F-E223249659FE@linux.dev>
+Message-ID: <arzlfSOgtC-CLoZt@MacBookPro>
 References: <20260925054408.10431-1-lance.yang@linux.dev>
  <20260929123241.1408414-1-huang-jl@deepseek.com>
  <aruyFPzEe3pS_Qzx@XiangdeMacBook-Pro.local>
  <AA71E56E-F29A-44B2-B5A0-7806CD684B21@linux.dev>
  <ary5Nn9le4xG7_-N@MacBookPro>
-To: Gao Xiang <xiang@kernel.org>
-X-Mailer: Apple Mail (2.3901.100.1.1.11)
+ <CEE47F27-874B-486A-995F-E223249659FE@linux.dev>
+Precedence: bulk
+X-Mailing-List: virtualization@lists.linux.dev
+List-Id: <virtualization.lists.linux.dev>
+List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
+List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <CEE47F27-874B-486A-995F-E223249659FE@linux.dev>
 
-
-
-> On Sep 30, 2026, at 15:24, Gao Xiang <xiang@kernel.org> wrote:
+On Wed, Sep 30, 2026 at 05:37:11PM +0800, Muchun Song wrote:
 > 
-> On Wed, Sep 30, 2026 at 11:36:23AM +0800, Muchun Song wrote:
->> 
->> 
->>> On Sep 29, 2026, at 20:41, Gao Xiang <xiang@kernel.org> wrote:
->>> 
->>> On Tue, Sep 29, 2026 at 08:32:41PM +0800, Jialiang Huang wrote:
->>>> Hi all,
->>>> 
->>>> I'm an engineer at DeepSeek. Thanks for the discussion, and thanks
->>>> to everyone working on DAMON and virtio-balloon free-page reporting.
->>>> They have been very useful for our workloads.
->>>> 
->>>> Gao Xiang wrote:
->>>>> It can cause sync 4K faults on the host in the worst case
->>>> 
->>>> This is one of our concerns with virtio-pmem as well: moving I/O onto
->>>> the page-fault path can introduce performance trade-offs. The other
->>>> concern is the substantial struct page overhead for large images.
->>>> 
->>>> For now, we enable virtio-pmem only for moderately sized, frequently
->>>> used read-only images, where there is more opportunity to share the
->>>> same host page cache across sandboxes, as Gao pointed out.
->>>> 
->>>> Muchun's vmemmap work is also interesting to us. My understanding is
->>>> that it allocates private backing for struct page metadata on demand,
->>>> which could help reduce the upfront memory overhead for large images.
->>> 
->>> Although I haven't had a chance and time to look into that, the main
->>> concern from me is that mmap() access will call
->>> "dax_fault_iter->vmemmap_materialize_page()", and malicious sandbox
->>> workloads (or not malicious, just valid mmap workloads) can cause guest
->>> memory OOMs due to "struct page balloon" for large rootfs in the worst
->>> cases and cause the follow-up mmap access failure, because the guest
->>> memory size may not even fulfill "struct page" for large rootfs.
->> 
->> I agree that this is a real issue with v1.
->> 
->> One detail is that merely establishing the mapping does not materialize
->> the metadata. Materialization happens when a fault resolves to an
->> allocated DAX extent, before its PFN is inserted into a userspace
->> mapping. However, that distinction does not remove the problem.
->> 
->> In the worst case, a workload can fault enough of the pmem range to
->> restore the full vmemmap cost, about 1.56% of the pmem size. Since v1
->> does not dematerialize private vmemmap pages, even a one-time scan can
->> retain that cost until the device is removed.
->> 
->> The follow-up mentioned in the cover letter is intended to make the
->> optimization reversible. One possible direction would be to invalidate
->> clean DAX entries under memory pressure and zap their userspace
->> mappings. Once a DAX entry has been removed and the corresponding PFNs
->> have no remaining mappings, references, or pins that require private
->> metadata, the associated vmemmap backing could be remapped to the
->> shared read-only page. A later access would fault and materialize it
->> again.
-> 
-> BTW, it's impossible for shared DAX entries (like the current XFS DAX
-> with reflink and EROFS will support this feature later too for chunk
-> memory sharing), since you cannot just use mapping and index to get
-> the VMA like page cache does unless you invent another new mechanism
-> for this.
 
-You're right. For the reflink scenario, reclamation is currently
-difficult. If we want to reclaim, it would also be in three stages:
-1) reclaim the struct page corresponding to PFNs that no longer have
-any mapping; 2) reclaim the cases where mappings exist but are not
-reflink; 3) reclaim the reflink scenario.
-
-These three stages go from simple to difficult. Of course, I hadn't
-thought this far ahead before. So in the v1 version, not even the
-first stage was implemented. At the very least, before I act, I need
-enough planning and thought.
+...
 
 > 
-> Reclaiming page entry mechanism seems it can be used for or overlapped
-> to another types of memory (in order to save struct page memory in
-> general): I'm not sure if it needs wider discussion on reclaiming
-> "struct page" in general first.
-
-Of course, I don't think struct page saving is the focus of the discussion
-here, so we can stop discussing it.
-
+> > 
+> > Anyway, it'd be better to get some numbers with RL or agent workloads
+> > (especially the host memory is under reasonable pressure) before
+> > landing all these new infras upstream if proceeding in this way.
 > 
-> Anyway, it'd be better to get some numbers with RL or agent workloads
-> (especially the host memory is under reasonable pressure) before
-> landing all these new infras upstream if proceeding in this way.
+> At least for now, as far as I'm concerned, I don't intend to land all the
+> features mentioned here. The first thing I want to address is on-demand
+> allocation of struct page.
 
-At least for now, as far as I'm concerned, I don't intend to land all the
-features mentioned here. The first thing I want to address is on-demand
-allocation of struct page.
+From my point of view, on-demend allocation of `struct page` for FSDAX
+is indeed useful and can be landed upstream, mainly because `struct page`
+initialization takes much long time for large FSDAX devices even a small
+range is used, that impacts the guest startup time a lot.
+
+But in order to make it safe for production, I suggest reserve the
+guest memory in advance for the worst cases of `struct page` at the first
+stage, otherwise it could cause unexpected issues for many guest workloads:
+it's hard to perdict if the guest memory is still enough, it's unfriendly
+to system designers as well (that would completely based on their
+experience and hard to ensure the service quality beforehand.)
+
+Since the guest memory for `struct page` is touched on-demand, the memory
+over-committing on the host is still workable, the memory reservation
+can be removed after the reclaim path is done.
 
 Thanks,
-Muchun
+Gao Xiang
+
 
 > 
 > Thanks,
-> Gao Xiang
-
-
+> Muchun
+> 
+> > 
+> > Thanks,
+> > Gao Xiang
+> 
+> 
