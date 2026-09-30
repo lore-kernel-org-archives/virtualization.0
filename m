@@ -1,194 +1,150 @@
-Received: from mail-qk2-f41.google.com (mail-qk2-f41.google.com [74.125.230.233])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from delivery.antispam.mailspamprotection.com (delivery.antispam.mailspamprotection.com [185.56.87.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B401C4F472F
-	for <virtualization@lists.linux.dev>; Wed, 30 Sep 2026 15:59:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.233
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790783974; cv=none; b=opTnDNA22Ro72NngutCTPjk7Wb8GrI40CSF7K8WX7ora+tGMyvnOs6lboqkqfb5wcwLgGBJNDYjPtetogi/HWPcXoa+FM4ndaZ29ieDFgDYeGAn1183ieBrxdapoOqOGnVdV49ICcDw7x23pMmrZm5D4L8AT4gocTkKIWiDERXI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790783974; c=relaxed/simple;
-	bh=50nZY6PQAtGtgZSOnvkvfuQNWS2RvqbnnzACfieinj4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dApgcRiMraHvoqGUCZcpG5ww7Z0hH3jYMFW6+7/XtDPeyrhh9PB53/t4jmPtV0rgvBdP1iFAnRZpI3cnZbCngwDHbGtGb92DZK1WEWjR/JEseE6d5ZAJRgNPD35bBVqatVw7JE5YY75xLGgwz4LDvyZ27ibW2TT/S5IlwDfRitE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EKRekJ7K; arc=none smtp.client-ip=74.125.230.233
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACFE951A138
+	for <virtualization@lists.linux.dev>; Wed, 30 Sep 2026 16:07:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=185.56.87.5
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1790784480; cv=pass; b=DGmXsSXYy4fkpRfCxdueQPrHN9Z7lAlbJvfjFu3aDfBikxDia8LprXP8e5m5Lteq3bXx8USeoTEWmGKYIgT4VrCIY3V+7aky5UrYaXZATlkBJLbUHuisZBfjAfRBkRE7Py11Hsf6ub7XYe/YTu29yKfXsaVgYV7/4O+U7iDqkXo=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1790784480; c=relaxed/simple;
+	bh=uSh6Ndk8HHsadtIVQXx7nQmrmgTpDlhjRHbrdndeFDg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=uLOx8huF+53uCG7xnR523jKpYWNj4ROEwCdnzwttULTeeNTZsZUo6odaSVMUgghHibNGeVPI86GBuxOM9Ri00YqbWSL0ixE4kvhCdjYr06DwQuMWjkQBYZP59Bd2nkr9+S8aKYhaOD1n47sOsF3GaEIpPL8jUHN8FTYtBPgfzSE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=valla.it; spf=pass smtp.mailfrom=valla.it; dkim=pass (1024-bit key) header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.b=sKYGFrCN; dkim=pass (1024-bit key) header.d=valla.it header.i=@valla.it header.b=KL9852F5; arc=pass smtp.client-ip=185.56.87.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=valla.it
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=valla.it
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EKRekJ7K"
-Received: by mail-qk2-f41.google.com with SMTP id d75a77b69052e-532c7643bc4so65386091cf.3
-        for <virtualization@lists.linux.dev>; Wed, 30 Sep 2026 08:59:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790783967; x=1791388767; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=BzkcCjYLhlXtlTgNVSY8HEZ8Fih4l8n9pVSwPxokMKk=;
-        b=EKRekJ7KegGN9qN0XKMTG4kavTV7nP4vwo907bgdVZ1zVL2D5aKvF71RuznDiAd59i
-         olnqNzg8lDs/UrzdN+KQL2vIImd+hAEqTTgakCE/du+fKtzKRzULy9FtIOYWaHpa985y
-         P+utJ7L7hDJvm10FeEd7Wr1KGn/9C/kOYg4TTKKixw8DQLBo2YWRZ8ndM11g4UoLsZF3
-         CFM/CMbQEYbKHNQtCpKzX/bkifNLK8iqD1QRHGSftpHO+l5yovpSJbYAuVClm5r/ZHiB
-         Aa1QyyXEoh9jhbWYyzzqkDDkp1KHLnxqeOZPEBC68KJ0RUqrYLZixDwF/za8btrOGeGf
-         /jEw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790783967; x=1791388767;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=BzkcCjYLhlXtlTgNVSY8HEZ8Fih4l8n9pVSwPxokMKk=;
-        b=lwLOVHIjXAZnpJRjJ83xTzf0eenLiSH2yXA4y7jnZxnQd3hmsET9B9VAnOxJ6M8tHN
-         GVmEdzlpFX3+lW+oa2ciXvraiamVeaP2I+/mVb1BdrawECcsmynPUi2ke5kRvNtkkfGL
-         E4dqGUObcjji89tKXBfj3MELbfShmvpRqP4O7zGztuBshlSdu+BvuiS/6T0SOBJh7BAj
-         A9CfDWDWvngPbWagFSlLx0FiN3u18s5YIxvjrB4qJfuF9/wRaB0CO7xqOt9UobemlUg6
-         WYa66EWCdK8S1b1amIdW68hueSqRXIczSWlI9xQZs1VAmXWQ/uGQfcVCeibYxCm+KXf8
-         /j4w==
-X-Forwarded-Encrypted: i=1; AKwUvBzd9ha0kSiJGVCFNfHOVskiLAzWTBdMraYOZIOY6NUpYsKcbuSP8puBNimt/ohfpxS7jZRyz1NgLEodHe1gNQ==@lists.linux.dev
-X-Gm-Message-State: AFuF++kdeq/4oC1TXKgXJHESyufBPrPuw+50tBs/wFQx7JinwydB/Imv
-	ASoY3tStQt+5Dy5LJq4GvDFvkRQJxKqoLS5ibiwSujzGBXwQk+hXYp0Q
-X-Gm-Gg: AYBFou18eRGHnsmfOovRgfafoOSsD2eajwCpJgPBFHVU0Cmhbpw8iAig7Pt60DjzVNF
-	YcCV6RT9GeGZ2lxFyWvcdsZJByqIitAIiyRJp9STidGSfTHKyPKn2Y3MZDqsOzPLeKh0FcsBq9j
-	xK08JLL7aMNDiTBkXqJPfJWlQnGYzkKaqjGkwqaohl/oS2rnkFWbHJBVPyLBtWcM5qnWgPxYPYn
-	/toozxOSiEYPmz7xnFHJUbffC0ZfxBied4JiC+Mr1x1fJMmXYA0m3aD4iU26Hr1ewRCTJ5J0mpt
-	cLNq0ILqEg3a8a9IcP0w9DBysi32GhPZpCsD3+x/Ig0zmqv7DfufGVzcU62B4aMeWP5sWmNDEBQ
-	/FVDOOEQ6LBPQHGTgH20H+2I5EyOyBVJdg+cUMf3+cgepWk984XhisYxFsmrPAlrdrcxfeXlZ28
-	A4GjXX2jRwqdG2hFGsXh/355v4e6K5wYdDuRUz/mfsoSKmoJtbqXZy+GNNvHEyMAD7t50lKJyLT
-	gKAMd6MGaD/zRmEzrpW3g==
-X-Received: by 2002:a05:622a:985:b0:530:b2e4:4e30 with SMTP id d75a77b69052e-53374d801bcmr35448021cf.61.1790783966849;
-        Wed, 30 Sep 2026 08:59:26 -0700 (PDT)
-Received: from i4-gl-tmk5904.ad.psu.edu ([130.203.156.186])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-5338253300fsm2866831cf.27.2026.09.30.08.59.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 30 Sep 2026 08:59:26 -0700 (PDT)
-From: Yuho Choi <oss.patchbox@gmail.com>
-To: Zhu Lingshan <lingshan.zhu@kernel.org>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowangio@gmail.com>
-Cc: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Yuho Choi <oss.patchbox@gmail.com>
-Subject: [PATCH RFC v1] vdpa/ifcvf: Time out and report device reset failure
-Date: Wed, 30 Sep 2026 11:59:01 -0400
-Message-ID: <20260930155920.1684465-1-oss.patchbox@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (1024-bit key) header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.b="sKYGFrCN";
+	dkim=pass (1024-bit key) header.d=valla.it header.i=@valla.it header.b="KL9852F5"
+ARC-Seal: i=1; cv=none; a=rsa-sha256; d=outgoing.instance-europe-west4-8s9d.prod.antispam.mailspamprotection.com; s=arckey; t=1790784472;
+	 b=D+so2I5AxHsltUAdUom+6HJ+MeapWbHLBvXcBmUmKnORaaV+y1dPJsE4U0EhK0mdTQJ8lybWUN
+	  N675AQ5EnHM8oBWArbaXxYE+9PfI+YGdtZA7ioK792pwBtSaFIn0DExg3PxAbPiBmzxnbR3gVy
+	  3z4tTIRoY/IMx2jGC0AjEOpRVNNRfer6rGkrGyoW8kqKCMcVl4jPMFcJweN9IHERlakE32/gTz
+	  Gs03wcKJmr3mKxOvEyZwBL8/faPbq6PXBBosPolhjV1Pd1+0SB1UmGOo91Ty5pn2Y9OF7LZUqT
+	  JoFbnWphosivRYLkAg89aWEZ6ApN0PZHdRHY6eNpi/XkhQ==;
+ARC-Authentication-Results: i=1; outgoing.instance-europe-west4-8s9d.prod.antispam.mailspamprotection.com; smtp.remote-ip=35.214.173.214;
+	iprev=pass (214.173.214.35.bc.googleusercontent.com) smtp.remote-ip=35.214.173.214;
+	auth=pass (LOGIN) smtp.auth=esm19.siteground.biz;
+	dkim=pass header.d=valla.it header.s=default header.a=rsa-sha256;
+	arc=none
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed; d=outgoing.instance-europe-west4-8s9d.prod.antispam.mailspamprotection.com; s=arckey; t=1790784472;
+	bh=uSh6Ndk8HHsadtIVQXx7nQmrmgTpDlhjRHbrdndeFDg=;
+	h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:
+	  From:Date:DKIM-Signature:DKIM-Signature;
+	b=pHI4UA7fyMNVoDap3QM4d3EeYIQxHY9MykT5qTlwfxb37sHKM8v+wVb0z/d9peFmgyACYJfty8
+	  ElfuuYEMTa2QOEeA7+Ex5OMRsaiwTO6Qw1I0NZhmRHeJsYrppgQWFbpg++5bNW4fG78FPa3Dvo
+	  jzmCZiePVEGD1cIzgcrID417eN97Kookohb1drtMD9NcAKgJSqKKZmeTGrkF6kKDNEDCTRjbQT
+	  II1UDTzPuT2d9+HDTMMSjeyFYIaGkaVVyK5i4v7yhfPszYSFhz+GBjQZYPj6BSVh++sdfSHUtB
+	  4oq+NlchmUFyoDOVrQsb0YjZSc/eKzI79h5DaO5BrTs3hA==;
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=antispam.mailspamprotection.com; s=default; h=CFBL-Feedback-ID:CFBL-Address
+	:Content-Type:MIME-Version:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+	List-Unsubscribe:Content-Transfer-Encoding;
+	bh=dP3jA4xLY1vRZxU2Q34betBGbV5S3gISyd5gwp53GhY=; b=sKYGFrCNkUlc/jbw9jHiZcwnHv
+	ua7E+wlC2kVXe3O9eLyk5AJ9P1R4WTvNJi2S001nvUXQaqTrV2QW4PcMSA3lDij61li5IU0ISGYmm
+	ujYeJxRjBPqbBk4tQMW1i4Ooi6V+B2G6hLnVMZQHVJxjH9fH53XDkDUQEOme7gbEBv1g=;
+Received: from 214.173.214.35.bc.googleusercontent.com ([35.214.173.214] helo=esm19.siteground.biz)
+	by instance-europe-west4-8s9d.prod.antispam.mailspamprotection.com with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+	(Exim 4.100.1)
+	(envelope-from <francesco@valla.it>)
+	id 1xBwkW-0000000E0Ql-2yGi
+	for virtualization@lists.linux.dev;
+	Wed, 30 Sep 2026 16:01:41 +0000
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=valla.it;
+	s=default; h=Subject:Cc:To:From:Date:list-help:list-unsubscribe:
+	list-subscribe:list-post:list-owner:list-archive;
+	bh=dP3jA4xLY1vRZxU2Q34betBGbV5S3gISyd5gwp53GhY=; b=KL9852F57TwOirk5hpKe/6AAas
+	Ch7amGbhS2pdRcxtmR8nhoAnhQQveQpq29lAnx1yzEUt937S2L0yqYqrNoWrBiW1o6NWcGwwa5bs5
+	qLhD2LlArvXL8SV44ZifN31KEXb6txZ5lJ2z8o652qGHEPo97y3+XqWH+b8JTTfd9ELQ=;
+Received: from [87.14.44.235] (port=62882 helo=bywater)
+	by esm19.siteground.biz with essmtpa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+	(Exim 4.100.1)
+	(envelope-from <francesco@valla.it>)
+	id 1xBwkE-000000004sz-36Mg;
+	Wed, 30 Sep 2026 16:01:22 +0000
+Date: Wed, 30 Sep 2026 18:01:20 +0200
+From: Francesco Valla <francesco@valla.it>
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Mark Brown <broonie@kernel.org>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+	Conor Dooley <conor+dt@kernel.org>, Haixu Cui <quic_haixcui@quicinc.com>, 
+	Jason Wang <jasowangio@gmail.com>, Viresh Kumar <viresh.kumar@linaro.org>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
+	linux-spi@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH 0/2] Add devicetree bindings for spi-virtio
+Message-ID: <ar0wnqVFn10MISod@bywater>
+References: <20260929-spi-virtio-bindings-v1-0-6a0eef3213b3@valla.it>
+ <20260930-neon-automatic-rooster-e2eec5@quoll>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260930-neon-automatic-rooster-e2eec5@quoll>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - esm19.siteground.biz
+X-AntiAbuse: Original Domain - lists.linux.dev
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - valla.it
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-SGantispam-id: aac7ff679ca8086ce7c3a41a47d352e7
+X-AntiAbuse: ID - aac7ff679ca8086ce7c3a41a47d352e7
+AntiSpam-DLS: false
+AntiSpam-DLSP: 
+AntiSpam-DLSRS: 
+AntiSpam-TS: 1.0
+CFBL-Address: feedback@antispam.mailspamprotection.com; report=arf
+CFBL-Feedback-ID: 1xBwkW-0000000E0Ql-2yGi-feedback@antispam.mailspamprotection.com
+Authentication-Results: outgoing.instance-europe-west4-8s9d.prod.antispam.mailspamprotection.com;
+	iprev=pass (214.173.214.35.bc.googleusercontent.com) smtp.remote-ip=35.214.173.214;
+	auth=pass (LOGIN) smtp.auth=esm19.siteground.biz;
+	dkim=pass header.d=valla.it header.s=default header.a=rsa-sha256;
+	arc=none
 
-ifcvf_reset() writes 0 to device_status and polls it without a bound,
-and ifcvf_vdpa_reset() always returns 0. A device that does not finish
-the reset, or one that was surprise-removed and reads back 0xff, keeps
-the caller in the reset path forever.
+Hello Krzysztof,
 
-Bound the poll with readx_poll_timeout() and return -ETIMEDOUT from
-.reset, so that callers such as VHOST_VDPA_SET_STATUS(0) see the failure
-instead of hanging. Stop right away with -ENODEV once the device reads
-back all ones and is no longer present, as there is nothing left to
-wait for.
+On Wed, Sep 30, 2026 at 01:58:38PM +0200, Krzysztof Kozlowski wrote:
+> On Tue, Sep 29, 2026 at 06:41:54PM +0200, Francesco Valla wrote:
+> > Add bindings for spi-virtio, like the ones that already exists for
+> > gpio-virtio and i2c-virtio. A node using these would not be used to
+> > probe the device, which is registered by the virtio transport
+> > (e.g.: virtio-mmio) but to declare properties and/or child nodes.
+> 
+> Keep proper versioning of your work and DO NOT IGNORE previous
+> discussions. This was discussed before, no?
+> 
+> https://lore.kernel.org/all/20260916-remoteproc_virtio_map-v1-7-dac8c5eb4aa9@valla.it/
+>
 
-Fixes: 386a26208524 ("vDPA/ifcvf: synchronize irqs in the reset routine")
-Signed-off-by: Yuho Choi <oss.patchbox@gmail.com>
----
-RFC for two reasons:
-- The spec gives no bound for a reset; 10 seconds follows octeon_ep's
-  OCTEP_HW_TIMEOUT.
-- vhost_vdpa_release() ignores a reset failure and still tears the
-  mappings down, so on close a timeout turns a hang into teardown while
-  the device may still be active. That needs a separate fix in
-  vhost-vdpa.
+This is correct, the first patch was an accesssory part of a RFC series I
+sent some days ago. I decided to drop it from that series as it was
+outside its particular scope, as Mathieu noted [1], after picking up a
+copy-paste error signalled by sashiko.
 
-Compile-tested only (x86_64 defconfig + IFCVF, W=1).
+I should definitely have mentioned that in the cover letter.
 
- drivers/vdpa/ifcvf/ifcvf_base.c | 24 +++++++++++++++++++++---
- drivers/vdpa/ifcvf/ifcvf_base.h |  3 ++-
- drivers/vdpa/ifcvf/ifcvf_main.c |  4 +---
- 3 files changed, 24 insertions(+), 7 deletions(-)
+However, I believe this to be independent of that particular series.
 
-diff --git a/drivers/vdpa/ifcvf/ifcvf_base.c b/drivers/vdpa/ifcvf/ifcvf_base.c
-index d5507b63b6cdb..8a6c8f8314d53 100644
---- a/drivers/vdpa/ifcvf/ifcvf_base.c
-+++ b/drivers/vdpa/ifcvf/ifcvf_base.c
-@@ -8,6 +8,8 @@
-  *
-  */
- 
-+#include <linux/iopoll.h>
-+
- #include "ifcvf_base.h"
- 
- u16 ifcvf_set_vq_vector(struct ifcvf_hw *hw, u16 qid, int vector)
-@@ -201,11 +203,27 @@ void ifcvf_set_status(struct ifcvf_hw *hw, u8 status)
- 	vp_iowrite8(status, &hw->common_cfg->device_status);
- }
- 
--void ifcvf_reset(struct ifcvf_hw *hw)
-+static bool ifcvf_reset_done(struct ifcvf_hw *hw, u8 status)
- {
-+	/* A surprise-removed device reads back all ones and never resets */
-+	return !status || (status == 0xff && !pci_device_is_present(hw->pdev));
-+}
-+
-+int ifcvf_reset(struct ifcvf_hw *hw)
-+{
-+	u8 status;
-+	int ret;
-+
- 	ifcvf_set_status(hw, 0);
--	while (ifcvf_get_status(hw))
--		msleep(1);
-+	ret = readx_poll_timeout(ifcvf_get_status, hw, status,
-+				 ifcvf_reset_done(hw, status),
-+				 1000, IFCVF_RESET_TIMEOUT_US);
-+	if (ret) {
-+		IFCVF_ERR(hw->pdev, "timed out waiting for device reset\n");
-+		return ret;
-+	}
-+
-+	return status ? -ENODEV : 0;
- }
- 
- u64 ifcvf_get_hw_features(struct ifcvf_hw *hw)
-diff --git a/drivers/vdpa/ifcvf/ifcvf_base.h b/drivers/vdpa/ifcvf/ifcvf_base.h
-index aa36de361c10e..57d00b881582b 100644
---- a/drivers/vdpa/ifcvf/ifcvf_base.h
-+++ b/drivers/vdpa/ifcvf/ifcvf_base.h
-@@ -29,6 +29,7 @@
- 
- #define IFCVF_LM_BAR			4
- #define IFCVF_MIN_VQ_SIZE		64
-+#define IFCVF_RESET_TIMEOUT_US		(10 * USEC_PER_SEC)
- 
- #define IFCVF_ERR(pdev, fmt, ...)	dev_err(&pdev->dev, fmt, ##__VA_ARGS__)
- #define IFCVF_DBG(pdev, fmt, ...)	dev_dbg(&pdev->dev, fmt, ##__VA_ARGS__)
-@@ -112,7 +113,7 @@ void ifcvf_write_dev_config(struct ifcvf_hw *hw, u64 offset,
- 			    const void *src, int length);
- u8 ifcvf_get_status(struct ifcvf_hw *hw);
- void ifcvf_set_status(struct ifcvf_hw *hw, u8 status);
--void ifcvf_reset(struct ifcvf_hw *hw);
-+int ifcvf_reset(struct ifcvf_hw *hw);
- u64 ifcvf_get_dev_features(struct ifcvf_hw *hw);
- u64 ifcvf_get_hw_features(struct ifcvf_hw *hw);
- int ifcvf_verify_min_features(struct ifcvf_hw *hw, u64 features);
-diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c b/drivers/vdpa/ifcvf/ifcvf_main.c
-index 2af1cec958848..6c569f01bec91 100644
---- a/drivers/vdpa/ifcvf/ifcvf_main.c
-+++ b/drivers/vdpa/ifcvf/ifcvf_main.c
-@@ -444,9 +444,7 @@ static int ifcvf_vdpa_reset(struct vdpa_device *vdpa_dev)
- 	if (status & VIRTIO_CONFIG_S_DRIVER_OK)
- 		ifcvf_free_irq(vf);
- 
--	ifcvf_reset(vf);
--
--	return 0;
-+	return ifcvf_reset(vf);
- }
- 
- static u16 ifcvf_vdpa_get_vq_num_max(struct vdpa_device *vdpa_dev)
+> b4 solves the first problem for you.
+>
+> Best regards,
+> Krzysztof
+> 
 
-base-commit: 551c722f40809618230001baccf219193e22fc5a
--- 
-2.43.0
+Thank you!
+
+
+Regards,
+Francesco
+
+
+
+[1] https://lore.kernel.org/all/CANLsYkzC5DU8j_QJLkuUcV2tYb=G86L_G4yiBZTePKSqiRdd6w@mail.gmail.com/
 
