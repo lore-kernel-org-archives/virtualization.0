@@ -1,66 +1,152 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C08A33A9FF
-	for <virtualization@lists.linux.dev>; Wed, 30 Sep 2026 08:33:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFFBF3B47E1;
+	Wed, 30 Sep 2026 08:54:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790757238; cv=none; b=dit0YlbIw1hvj2Xaq+XSLg+HBT0TvUO0ItEwJ1kgTompoBwZbvvVE42p8HityuR3cvJ7JBvg7qKGAY+mNEF2npbVXSRT3c+6bGYndZpbRpk8CJusshFjTT0b64Yj6WraPJthx4RwMUIKITKhl+gWLxCn6yZEzTzleoxWnPqy28I=
+	t=1790758468; cv=none; b=mnEgI5YW+Klq7I2iK+jJruQM65Z25U8OM8xACXk6vNTR43HPW6jrJtZwAnsclWZzJPDq+aS7ssbp47UZwmgJlZ7tJTZej9CiLb/cqgUiLWn2+DeJak/tGZF0ThAFHn613L/+h7OQSf0A/0IiYPmCvVdWFJBnPTUx9W5jGfGlYqs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790757238; c=relaxed/simple;
-	bh=GaBX9vHnKCwY9osIX0K9RsWtWXvZAWquDS/wuWnwh6U=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=kAwOClMn3PYWA+susG5FeJRBmP4aKQnROPcaEUZHpzjiH7EyQDkn6LpoOhBfv+oUdJrjPxOdhPPVYh81KR/MXCbTM6riFnkbi0OuTgsnilcwzk4RMN8FBZwzuxLAvGh2eR3E62tWigwd10rQHPEStWZE9qv3ksk4kVu8lKDbPgQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=k9IvryVT; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790758468; c=relaxed/simple;
+	bh=/bg6wWvn3UxxefOMsl8JIomiL9mMcf6RS3vUGzzxCZM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=LsbuHRseMrk9O3C6HL/bKNM5qdpL+C7j9HHIq22WaMu8FEztCP1wZOtyhNdyiVB/Rf703m/DuzCVKj/6MvAXWxTEGwA/jmtDxQAQ4LYdC9BTaStEFCFycOV1ZQK/d+Pv0TB099yHVFbCp7thgXd2O5iS2q8Xu6avBjP+wxbiqYc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=pass smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=aJzc5jIL; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="k9IvryVT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8C951F000FF;
-	Wed, 30 Sep 2026 08:33:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790757225;
-	bh=Chv2iC4KPM48cALOlb4uO/PUN/VBNQV2z6cw6zTXais=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=k9IvryVTC/w0nGVVOf7XEUdeLD3ufSMTYjjDfofgUgABTIOs0HMygKBlwWuS6inwL
-	 NvSHCQy07LWmxqZR3/wn0qIV5bbhsM1qM6jBFBtmdWAGRMoPemeX69/IuyYmBBrEJV
-	 N6hA423AycuuuzDluagBvLoVgwldu4Et1bxKJGAIMW/1QoN70XDdWwEIH+xGx36L/0
-	 Dppr3vV3yprecvnZAAE27+2EqIB9MIOisTNQkBYRyit2yOC6cItm6/iG3VYO9kUWjF
-	 Wm1zpbahc81eB42S8W2axPzk2bTPu9gN14nFxedL4GGYWiRJdUQdFvQonem84WpY9P
-	 M+RU6vh8f68XQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/2] dim: clear irq_moder on init failure
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Jianlin Shi" <shijianlin11@foxmail.com>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <8d6a637142c411f83771fda5b57bb4451651488b.1790751008.git.shijianlin11@foxmail.com>
-References: <cover.1790751008.git.shijianlin11@foxmail.com>
- <8d6a637142c411f83771fda5b57bb4451651488b.1790751008.git.shijianlin11@foxmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 30 Sep 2026 08:33:44 +0000
-Message-Id: <20260930083344.E8C951F000FF@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="aJzc5jIL"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Transfer-Encoding:
+	Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:
+	Sender:Reply-To:Content-ID:Content-Description;
+	bh=0UFYYKBUewXLJbGJZ9BEDna7/dDF99emZQefLuG6AWg=; b=aJzc5jIL6ZEo+riFOwoxR1oSNm
+	C2hf1HPOb9+KTK8px2ooi5YPLIeRFxTZoinR6pVkeYDaZKn09QeR00yhVqRRjAPKdAPRJkoIrT7S/
+	hRxVygx6bLPrPlKZSnQKreIhSWLLbwZnFvcJlIoRpu0zHhaZDBm7i980rS/vK3fK3nujDtN/6z8l8
+	fLgOlnTOkOldZJL6u6dcGPuFYD8IOAfYYLYx7hVPjXkwkJJiUSDbMGWUxsizvsvnVwzDCw78nf0AV
+	IzzNDXK6Hdr8Iec9g2P2seZ7jfrgAs9zrZtJEFt/4RzEbuMhSVTPiYHQJ3yrkx4qqkpIjr6CULMaD
+	pmozWVDw==;
+Received: from 77-249-17-252.cable.dynamic.v4.ziggo.nl ([77.249.17.252] helo=noisy.programming.kicks-ass.net)
+	by casper.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
+	id 1xBq4s-0000000B7se-1SQm;
+	Wed, 30 Sep 2026 08:54:14 +0000
+Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
+	id D9DFA300673; Wed, 30 Sep 2026 10:54:13 +0200 (CEST)
+Date: Wed, 30 Sep 2026 10:54:13 +0200
+From: Peter Zijlstra <peterz@infradead.org>
+To: Zack Rusin <zack.rusin@broadcom.com>
+Cc: Kiryl Shutsemau <kas@kernel.org>, Borislav Petkov <bp@alien8.de>,
+	x86@kernel.org, Dennis Zhou <dennis@kernel.org>,
+	Tejun Heo <tj@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+	Rick Edgecombe <rick.p.edgecombe@intel.com>,
+	Tom Lendacky <thomas.lendacky@amd.com>,
+	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Vitaly Kuznetsov <vkuznets@redhat.com>,
+	Ajay Kaher <ajay.kaher@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>,
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"H. Peter Anvin" <hpa@zytor.com>, virtualization@lists.linux.dev,
+	bcm-kernel-feedback-list@broadcom.com, linux-kernel@vger.kernel.org,
+	Christoph Lameter <cl@gentwo.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Bo Gan <bo.gan@broadcom.com>, linux-mm@kvack.org,
+	linux-arch@vger.kernel.org, linux-coco@lists.linux.dev,
+	kvm@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
+	"K. Y. Srinivasan" <kys@microsoft.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>,
+	Long Li <longli@microsoft.com>, Andy Lutomirski <luto@kernel.org>,
+	linux-doc@vger.kernel.org, linux-hyperv@vger.kernel.org,
+	Nathan Chancellor <nathan@kernel.org>, Kees Cook <kees@kernel.org>,
+	Ashish Kalra <ashish.kalra@amd.com>
+Subject: Re: [PATCH v2 2/6] percpu: Bound decrypted storage for all x86
+ encrypted guests
+Message-ID: <20260930085413.GH88198@noisy.programming.kicks-ass.net>
+References: <20260929040256.543767-1-zack.rusin@broadcom.com>
+ <20260929040256.543767-3-zack.rusin@broadcom.com>
+ <20260929075426.GQ4120091@noisy.programming.kicks-ass.net>
+ <CABQX2QP0+Jr6gG0nZkDggvyGWCSHMNVKPPavZTYBqH+wg7rdMg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <CABQX2QP0+Jr6gG0nZkDggvyGWCSHMNVKPPavZTYBqH+wg7rdMg@mail.gmail.com>
 
-> net_dim_init_irq_moder() publishes the allocated object in
-> dev->irq_moder before copying the moderation profiles.  If kmemdup()
-> fails, the object is freed but the pointer is left dangling.
-> net_dim_free_irq_moder() treats a non-NULL irq_moder as live, so a
-> caller unwinding the failure path would use-after-free.
+On Tue, Sep 29, 2026 at 01:12:45PM -0400, Zack Rusin wrote:
+> On Tue, Sep 29, 2026 at 3:54=E2=80=AFAM Peter Zijlstra <peterz@infradead.=
+org> wrote:
+> > On Tue, Sep 29, 2026 at 12:02:51AM -0400, Zack Rusin wrote:
+> > > @@ -1022,11 +1024,13 @@
+> > >   * Note: We use a separate section so that only this section gets
+> > >   * decrypted to avoid exposing more than we wish.
+> > >   */
+> > > -#ifdef CONFIG_AMD_MEM_ENCRYPT
+> > > +#if defined(CONFIG_X86_MEM_ENCRYPT) && defined(CONFIG_SMP)
+> > >  #define PERCPU_DECRYPTED_SECTION                                    =
+ \
+> > >       . =3D ALIGN(PAGE_SIZE);                                        =
+   \
+> > > +     __start_percpu_decrypted =3D .;                                =
+   \
+> > >       *(.data..percpu..decrypted)                                    =
+ \
+> > > -     . =3D ALIGN(PAGE_SIZE);
+> > > +     . =3D ALIGN(PAGE_SIZE);                                        =
+   \
+> > > +     __end_percpu_decrypted =3D .;
+> > >  #else
+> > >  #define PERCPU_DECRYPTED_SECTION
+> > >  #endif
+> >
+> > So you're page aligning something that will get different protection and
+> > will thus shatter large pages?
+> >
+> > That is somewhat uncool. We like large pages, large pages are good.
 >=20
-> NULL the pointer after freeing it.  On error the device is left as if
-> initialization never happened.
->=20
-> Fixes: f750dfe825b90 ("ethtool: provide customized dim profile management=
-")
-> Signed-off-by: Jianlin Shi <shijianlin11@foxmail.com>
+> I'm a huge large pages fan too. I have a poster in my office and
+> everything... And I never do things that are uncool. I have a wwcdd
+> (what would cool dude do) bracelet and I look at it every time I make
+> a decision, which given that I'm old gets on my wife's nerves a lot.
+> That is to say I'm handsome and innocent.
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+:-)
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/cover.1790751008.gi=
-t.shijianlin11@foxmail.com?part=3D1
+> The alignment isn't new. It has been there since ac26963a1175
+> ("percpu: Introduce DEFINE_PER_CPU_DECRYPTED") under AMD_MEM_ENCRYPT,
+> which common distro kernels enable. This patch extends it to TDX-only
+> builds and adds the boundary symbols. On bare metal and in ordinary
+> guests nothing changes protection, so no large pages are split.
 
+Right, I saw it is pre-existing, but you made me notice ;-)
+
+Anyway, the thing that wasn't immediately obvious was that we only
+really change the protection for (sekjoer) guests. This means I mostly
+don't care.
+
+> In confidential guests, yes, converting each CPU's page splits the
+> direct map around it. The alignment doesn't cause that: a large
+
+Nit you could 2M align, so alignment is somewhat related.
+
+> mapping can't be part private and part shared, so a converted page
+> can't stay inside one. The alignment only keeps unrelated per-CPU data
+> out of the shared page. Because that page sits in every CPU's per-CPU
+> unit, each 2M mapping that holds one of them becomes 4K mappings,
+> including the ordinary per-CPU data around it. In the layouts we've
+> tested that's most of the first per-CPU chunk.
+
+So perhaps a little more invasive would be poking at the per-cpu
+allocator and having a whole 'decrypted' pcpu_chunk which is 2M aligned
+or something.
+
+
+Anyway, as long as this is sekjoer guests only, I really could not be
+bothered much. Proceed, but perhaps put on a comment in the
+vmlinux.lds.h to clarify this, for those of us who do not live in
+coconut land?
