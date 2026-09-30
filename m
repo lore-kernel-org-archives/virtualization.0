@@ -1,52 +1,68 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f196.google.com (mail-pf1-f196.google.com [209.85.210.196])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B34F33B6CC;
-	Wed, 30 Sep 2026 08:08:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 828EF30C157
+	for <virtualization@lists.linux.dev>; Wed, 30 Sep 2026 08:20:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.196
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790755732; cv=none; b=W5L+MFYX55HI2mVrcTtZ/Vy2wH8LzrN3mySWQJPAgEE116rtL3vimXyDwdIXN960IzjsDzfRJ4wh3V1zqVKIv2a8upea79t2KTLPvk1dlnRjQYUOUg6sMhU8FyZq18jvR6120ZcRQ2t612xJNRQA2th56BruDwim8tVnGTRQ2uw=
+	t=1790756415; cv=none; b=i6Ej1EcIDfCeJQPoPDdEWiQDL0/T/s07ywlQ0SEdytUd4yQ4T3MaZ5thx2fuz9vpLRWiym6JQSqEMzxrqt0xV/10iYpJ/TjAkUY1ZKUFAKul48DB3E6eavjrD0mQG/dCzLXGSPZARpyzlfYFTHK7EtTJfXhsp5/DsPC3h9O6vaw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790755732; c=relaxed/simple;
-	bh=3jpX3++RlolaBIRiSpDY68a58XgumXoiTLt1jbMCgN0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=UGw72l8xGqJ9EJD8++sq23XNR8bY8kej8zR3Q/tDhIhRDZfyllD9UM7dD4vk/Vxd4dAfIpVq4zmayWASw8son1n7/RFbEQlMcyVfbAk90/9OYd8nKB2MIT12YDYbohdWRyr1VnuI/Mg6Ko6eFlcTZjPeC3OdieBgyL1VYse+oVk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XggV0HEx; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XggV0HEx"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 652C11F000FF;
-	Wed, 30 Sep 2026 08:08:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790755725;
-	bh=EgiI2zzwe8TB/ZW7XItAedr7ZYnB5/cnPC/QFupZv60=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=XggV0HEx4iFhJNOcs0B7+qgnbnzi6NXR5MD9WbJ7i65myhUAHSTmNy6Ac7ZhgF93d
-	 2vR5/dLU6+PjoDXGP0wPigAZTRWnD4cYe93FRgqToAC/9KtR1TRCOPpUfK1jTaFzcg
-	 3QSk8SN+ocw23C9X3rs/lQqj5dU9+xFAZcjAq0qKugUCSA5GX3Lg/OQCQNttM5ycih
-	 yIRoFMzfv495BHVUK4a4Mbe5MWHkXqbu779h24yeOclupcxVOTD6VmFgL9EsiFqOtM
-	 VrzmxBcdP4ebr6Sk9sQI/LUDhMnozE4r0E2FYr9xxMez6HkxaAA5nDEzc8expHpxR2
-	 P8GOR9B/XDPtA==
-From: SJ Park <sj@kernel.org>
-To: Lian Wang <lianux.mm@gmail.com>
-Cc: SJ Park <sj@kernel.org>,
-	Jialiang Huang <huang-jl@deepseek.com>,
-	lance.yang@linux.dev,
-	KunWu Chan <kunwu.chan@gmail.com>,
-	baohua@kernel.org,
-	damon@lists.linux.dev,
-	david@kernel.org,
-	linux-mm@kvack.org,
-	mst@redhat.com,
-	ryncsn@gmail.com,
-	virtualization@lists.linux.dev,
-	xueyuan.chen21@gmail.com,
-	xiang@kernel.org
-Subject: Re: [FYI] DAMON and virtio-balloon in DeepSeek's DSec paper
-Date: Wed, 30 Sep 2026 01:08:38 -0700
-Message-ID: <20260930080838.10887-1-sj@kernel.org>
-X-Mailer: git-send-email 2.47.3
-In-Reply-To: <20260930030747.47294-1-lianux.mm@gmail.com>
-References: 
+	s=arc-20240116; t=1790756415; c=relaxed/simple;
+	bh=ycztRh6KW31aMbR9JOx+NIxGDJnhNwHNSAWSFQMDw7g=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=cHWKVhZi2//ci0EMB4ib5lMme6hhm//p/mfpouO6oY1mHYlld4M25bZHgvSGvlToSW/RgxMi8jKdhsx0Mr68f1EVAw3oNN8t466lZksU7zvDhnz/6la1BLq23+085I8+mKVuL7fo/kitFzlXxSaxO3857ETxoGLFseqdz0bUhpE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=foxmail.com; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.210.196
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=foxmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-pf1-f196.google.com with SMTP id d2e1a72fcca58-885cd98d226so516154b3a.1
+        for <virtualization@lists.linux.dev>; Wed, 30 Sep 2026 01:20:09 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790756409; x=1791361209;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=mlT9uucan4516HjvpINSh7L9WJQ72N4e/zzaGJgPCFg=;
+        b=O8LPd/gDtibvPGg437F5Z1QxOWBGwravZr0jU0cvOxCUJK9P6/GsT6uyNd5XPKV+HS
+         Rxj9ExEJwrlDCTPgY1ozuoTHUJPZRZG4xK1zpfqmv4Fv32gUu/aWnJ8L4C7tKiG1wcua
+         GwWBgtPwoePtViUvYGxqulh67MzlfgzmUq/MXYymAng9GjzL+OKhmzn/OSJ4b9PE7LYL
+         skLvvzoHeNVPfhhMMGxJF9SJlqSbVVPO15n8PuomuWLUMoLyIv6fpGPTGaG4XkY5Mie4
+         se2yLY7JD9RKK53Foeyw1nel1P3g5Q/AXLFR4KzBkHkY5VZjqM7mmU5F0dpcZhYQJmXN
+         uY3g==
+X-Forwarded-Encrypted: i=1; AKwUvBxzZsq96tUyYd/ba0Id+qmt6tGjOb/29wNHZM0SaFMH1Iy7A4xUkKy7cfYJwQTVDgBfZs4F6N4JcL/6pxXX5g==@lists.linux.dev
+X-Gm-Message-State: AFq9FYICkr75xvghKslpy4ae88/9ODJHHgX/Oo6JAm8TldDYH+uP/n37
+	klxpNlS1dQfPtn1V8oN/MdSQu/++sEg0YGWeS803BCZs/q6lL2geJXok
+X-Gm-Gg: AYBFou3bu70Rmpj7hcZbe+NNvpK/4VHOpvwjp6YbUhvi34IWrh0L1xntFI0/cz+fxem
+	PzesX/CfSOx25CmSz1f4ggjDUTFtPuIEij510FiSPIZVbSAYGqsCw8Jo2h7oKINppe6TsnyvXKY
+	cOiAEhp+naSZ7LazjuLRW8af+c/cQ06tjaKWe4AcC44t2d3uTGyS57HGyVMXkruUWbjgXF9S2VR
+	nh5RpMNa5tPPQWrTPgRlCYNOSwPSf+JFwaNI3Xmas0dWcJSWSRX2VZ8yA0qrZ6OXjtLcWDDb4ty
+	ATd9qCNCdBgqpijQkvJ/GMR3Jy8Q+VnQ5Z6nWjDgzbCuprsLu/ZXGcnT9zpHmCIzhjp0o3pXzzy
+	aa6mhG3+xSfz9wMK3jWQ3us95S9yPimpFVLNmSmI6e7YoRIyB2U7/SjLC3LLd+oFvdX9vpgOIQ+
+	GsIySV70/t8Vp6pAQLpLyjqQULvVdM1R2mohpyvg1TyewducDqRoFE5MvibhleRFAO6Ck09l2Kw
+	j/yvt5DZW/nRC0L49s=
+X-Received: by 2002:a05:6a00:22d4:b0:887:29b1:27f3 with SMTP id d2e1a72fcca58-8874e34619amr311376b3a.44.1790756408640;
+        Wed, 30 Sep 2026 01:20:08 -0700 (PDT)
+Received: from foxmail.com ([120.239.72.254])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8872643904asm419955b3a.45.2026.09.30.01.20.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 30 Sep 2026 01:20:08 -0700 (PDT)
+From: Jianlin Shi <shijianlin11@foxmail.com>
+To: netdev@vger.kernel.org,
+	virtualization@lists.linux.dev
+Cc: mst@redhat.com,
+	jasowangio@gmail.com,
+	eperezma@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	andrew+netdev@lunn.ch,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	talgi@nvidia.com,
+	hengqi@linux.alibaba.com,
+	horms@kernel.org
+Subject: [PATCH 0/2] virtio-net/dim: fix irq moderation init failure unwind
+Date: Wed, 30 Sep 2026 16:19:50 +0800
+Message-ID: <cover.1790751008.git.shijianlin11@foxmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -55,105 +71,27 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Hi Lian,
+net_dim_init_irq_moder() leaves dev->irq_moder dangling when profile
+allocation fails.  virtio-net probe then skips virtqueue teardown if
+that init fails after init_vqs().
 
-On Wed, 30 Sep 2026 11:07:29 +0800 Lian Wang <lianux.mm@gmail.com> wrote:
+Patch 1 makes the dim init failure path clear irq_moder, so
+net_dim_free_irq_moder() is a no-op.
 
-> Hi SJ,
-> 
-> On Tue, 29 Sep 2026 09:56:03 -0700 SJ Park <sj@kernel.org> wrote:
-> 
-> > I agree the reclaim-reporting granularity mismatch could be a room to improve.
-> 
-> Thanks for pointing us back to the Access/Contiguity-aware Memory
-> Autoscaling proposal. Jialiang's description gives us a useful deployment
-> context and a concrete problem to investigate.
-> 
-> The guest reclaim/reporting case and our host-side THP/tiering case are
-> different, but both raise questions about how workload behaviour and
-> monitoring granularity should guide kernel actions.
-> 
-> KunWu and I would like to help move this work forward together, alongside
-> the existing DAMON roadmap. For now, I would like to share a few possible
-> areas for discussion:
-> 
-> 1. Workloads, DAMON policies, and tiering. My current work includes
->    improving masim-based experiments and studying TPP-inspired memory
->    tiering. We would like to make the workloads more representative and
->    better understand how DAMON's observations and policy settings affect
->    placement decisions. The aim is to understand where configuration
->    changes are sufficient and where code changes, if any, would help.
-> 
-> 2. Testing and contributing to the existing PMU work. Our initial focus
->    would be on helping with the Arm SPE integration and testing the IBS
->    and PEBS work on x86, in coordination with the people already working
->    on these. The experiments could evaluate whether finer-grained
->    sampling provides useful additional information, and at what CPU
->    cost. We could leave huge-page-specific mechanisms for a later
->    discussion, guided by the results.
-> 
-> 3. Following up on the DeepSeek workload. If the team is interested, we
->    could learn more about the workloads and tuning questions they can
->    share, and study the path from workload behaviour and monitoring
->    parameters through reclaim and free-page reporting. Pratyush's
->    reporting-delay suggestion adds another useful dimension. This may
->    provide a practical starting point for revisiting parts of the
->    access/contiguity-aware autoscaling work and evaluating their
->    relevance to the reported workload.
-> 
-> Could we discuss whether some of these could become follow-up milestones
-> in the DAMON discussions at LPC, or here on the mailing list?
+Patch 2 sends the virtio-net failure through the existing
+free_irq_moder unwind (reset + del_vqs), matching the page-pool
+failure path.
 
-Thank you for adding topics to discuss.
+Patch 2 depends on patch 1.
 
-Of course we could disucss anywhere anytime.  I think Access/Contituity-aware
-Memory Autoscaling (ACMA) could be just a parallel project.  It doens't need to
-be an extension of, or blocked by "beyond-page table access bit" project, in my
-humble opinion.
+Jianlin Shi (2):
+  dim: clear irq_moder on init failure
+  virtio-net: unwind VQs when irq moderation init fails
 
-ACMA is still on my TODO list.  It is mainly a matter of prioritization.  As it
-becomes clear it requires more attention, I could allocate more time for the
-project.  There was a user showing interest recently.  I'm planning to
-prioritize it more.  If DeepSeek could confirm their interest, it could help me
-prioritizing it further.
+ drivers/net/virtio_net.c | 2 +-
+ lib/dim/net_dim.c        | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-As always, coding may not be that difficult and take that long time.  Testing
-might be the biggest challenge.  I don't have good test infrastructure now.
-Actually the lack of good test infrastructure is one of my biggest DAMON
-maintenance concerns nowadays.  Others' help on testing or test infra would be
-super helpful.
+-- 
+2.43.0
 
-If someone wants to implement and contribute it based on the proposed idea, it
-would also be nice.
-
-> We would be
-> happy to help organise the discussion and take on agreed pieces of
-> testing or development. We would also welcome closer collaboration with
-> DeepSeek and other interested MM developers, including Muchun, where our
-> work overlaps.
-
-Sounds great.  That would be super productive collaborations.
-
-> 
-> This is only a brief outline for now. I plan to bring the experimental
-> results and remaining questions to LPC. After discussing and aligning on
-> the details there, we plan to share a more detailed proposal with the
-> community and write up the planned work and experimental findings in
-> blog posts.
-
-We could keep discussing in mailing list, but of course in person discussions
-are always helpful.  I'm eagerly looking forward to the next week :)
-
-> 
-> I appreciate how much is already on your schedule. We hope to support
-> the existing plans and help with agreed tasks as the scope becomes
-> clearer. There is no urgency to reply; we can discuss these ideas
-> whenever it fits your schedule.
-
-Appreciate your continued and grateful contributions, Lian.
-
-
-Thanks,
-SJ
-
-[...]
