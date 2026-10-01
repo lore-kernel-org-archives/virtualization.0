@@ -1,214 +1,118 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lr2-f35.google.com (mail-lr2-f35.google.com [74.125.230.99])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AA3D381C4
-	for <virtualization@lists.linux.dev>; Thu,  1 Oct 2026 00:01:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790812879; cv=none; b=KGR6LE6qyQ1GQAlc+O5SAEA3qfFQqsKJMxd1ypOWPFne7u8m6oD86WQzpa2HQ3CduZSCssGz1pKMtGPGSk3qnoxcO80fAkKb5OHui8irKkgTYUO2v+nXM8CB5NFKF3oHeHY+c+2XN6gJsMo7ppTojeumS95mYtagdRx9HcD+BJ4=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790812879; c=relaxed/simple;
-	bh=V7Z0lo0BEjogYiV25NYNKTeD7zQZ54Ay2SS/FBwCFv4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=qk0Xt7gscqRDZHWFO0lUBlM+6w7qgU2dVdDAFZtRlZGmbNaAKe6KgqA+Wx7YCJJ37uFytezAFPxivDTeCbe1FjBrUDuDs4um1hVfqTVKhNTMSW/4pHmBQh0j14JFM4LdabTCo6cBGILjDBZH1k0LLRv/zfFG61zkemwkEsVNrX4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=C9DPFJrU; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D680031D72E
+	for <virtualization@lists.linux.dev>; Thu,  1 Oct 2026 04:48:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.230.99
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1790830120; cv=pass; b=Ckq79587iMXzooXR4j+8LZjK6ev25gfKEqWmEerSGo7OgUBY0neFSucmAAN83pr69OAayY45Cioy1m2zN03B2qsHR1nCg1cLNaOACsDaYvSm2PnwvbMvaFALKFdYO0sjvH2W0bRoEN1Udj/P6GB0z9dBkzQVMDA1214my5qWEfM=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1790830120; c=relaxed/simple;
+	bh=3ABacmlhv8U64sW7//9fPqLoIWrV59ydnWI6VCca9rE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Rul0i1IBcEU0XWoWErYLUjZJ1b6cdjPql79S/kBt0Nz1muA6huDNQz4ozP2glDtk+vkpGgNMKkbTrvUI/LPEhpw9zi8G9/1JmipdU6bDhyeSB83fe4u1hzwBvzY0Gjlwqt9TsCvzaxIBVd4ZmsN2Nr+ab+TWXvtiedJisShRIbk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LUCOG0CG; arc=pass smtp.client-ip=74.125.230.99
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="C9DPFJrU"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1790812876;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=17b3o9vAQ4ol6sSQnDn082zijc6Ge4gxTOdOGz1SJGg=;
-	b=C9DPFJrU2+GJI1lOnwDfbEi8Wa2O8ecEokSvpFzNk1Fo4tG3ZygsVzwSHWocABbd3vrJRI
-	LWXlmxRulMJ8PQGxEvLC+RvNhjAdKbu/HvN4DxMqtcAaO5Wg+rj54WCh5bNAnCRNe2U4y+
-	hICfD+5naKjGAQSBchCkFJs4xvQmLkU=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-693-RC5XndoYNECV_UPPNwzsOw-1; Wed, 30 Sep 2026 20:01:12 -0400
-X-MC-Unique: RC5XndoYNECV_UPPNwzsOw-1
-X-Mimecast-MFC-AGG-ID: RC5XndoYNECV_UPPNwzsOw_1790812871
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-49e6b5c5f44so89144375e9.2
-        for <virtualization@lists.linux.dev>; Wed, 30 Sep 2026 17:01:12 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790812871; x=1791417671;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LUCOG0CG"
+Received: by mail-lr2-f35.google.com with SMTP id 38308e7fff4ca-3a58fef219fso11620951fa.1
+        for <virtualization@lists.linux.dev>; Wed, 30 Sep 2026 21:48:38 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1790830117; cv=none;
+        d=google.com; s=arc-20260327;
+        b=jBueNpAzVncZ1S9tu4IrPcbAOd6zZ0Fdv12uzKwza7JV2QZ+O858SxACnH0v3H6G7a
+         jOiTpcslVIP6ULCZ2gaB1HYHBUK2zBuyvehwTSt2JeSS2VqYj/mkfqpFDkG4hB7suBnI
+         pzEryNYm/EG64cv+cq7fPyFSbiE6jFKRe1SIYqVeGL5we1Zs/kJgjvghILyTZYVP4T4W
+         t1sTBUcoivZcYmrJfs7+1sXaiXHeFYs1WAS2zIOdnI17rsSLVEIYLT/GXZSYIpEEulAP
+         Wp2Wb2MjQg6zoslOYsNz0F8wotlkMwcGJx+MZ1dw/9mzOyaZtxR4fLT8WOiwqG8SvdT9
+         bprA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=3ABacmlhv8U64sW7//9fPqLoIWrV59ydnWI6VCca9rE=;
+        fh=D+LVSM5MOkiaiqmpgNazc9TfRvucwK0pNYxbqATZ2e8=;
+        b=ZLUNgDgFZ/j02VrfogFEi4aN+5qMaVF8Qa79lEKBrD+MoLALoQAIhK2w05H/4bgUk+
+         s67z2tRXTUOw+C95OG+F4IWmo+K3PAv43o4l5OJBXFoFeO59F5HcT6zmGs+hTybypugc
+         WdutmSr0t90i4I+TRk92ydbqVCpEqkANq6eE61S4op2gafuvYNOtMSaKJGWfoZeirYBW
+         60VrOgePZc5hSwe6ocFSBHGVvGov15LT7UaOlLiP958XmENpWj/mmC4uMUAe6T0SPcmh
+         yCSk+MpRmagfbnHk5TU7sVJk2f6T0Sj4ukqjl6LMuroTMK6hGVQePjpoOSsGN78+OzU8
+         bBow==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1790830117; x=1791434917; darn=lists.linux.dev;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=17b3o9vAQ4ol6sSQnDn082zijc6Ge4gxTOdOGz1SJGg=;
-        b=r8ZeFWVmnUJyizrheMc7yjtirDg3KnkW3FX0fE+LYoUf68int68S463qE7NR6uOPIB
-         vK2O8XgH9BJLfDqYYK39vg8mITvv6i1X7kt5UchhUw/7iTiTz6Cbnjsy9eyfsY7hxXsM
-         /q6Gam2D3C0mpR2U8+pz8eZUuYnsN1cYKX2K/jYiwrY7qRBFh3bwaWCEV+0HUXZ3rqar
-         Ag5peve3bPew+r03GajObJX6FcIjQFmSTfqtYjKRXf7UvdNr5qO8I4x+oQ47tLQVpT7T
-         Wh6TvV86Y+jXY8YQLWhCakNIEU1Sy9gp0oDTz0OWCIDoq8hxnuYF3dRglVBj0IdWXdx2
-         hIRQ==
-X-Forwarded-Encrypted: i=1; AKwUvBy8ClAFs16Ky1zFjPS7Vf1AtjPOMM716+Cfw0J1p3nHQe8z/IIeor95hkb9W2641oUuOTopKX2oo/ifc3q8FQ==@lists.linux.dev
-X-Gm-Message-State: AFuF++kl4qMVbrtmqjl6PSwu4/1/LrFf+KyrDnWzBJAcH5C+OVElcC4o
-	hQbap0LZLsONtuVoxxXqC2ALa4PZ7/EF1Ir0Ec8EO6l7hxmL1X836TKuy8uUwU1TNg+77eSGdH7
-	+UNZpep3qsHXig3DX7SKsOoo4bdCT2fQunokQtDM1NxoMmBHfqjtXo0Ph/LOCrkzigVbt
-X-Gm-Gg: AYBFou1CpxjbPxnjil2GKeZNMilt+9azGO9vg90gasJUrg0qp6A+54KaNb2WZ1GhIfd
-	/wjCWf7Ep/Nxe+U8+HIMkA/nmlERz93zSAft7nh3W/wp9G1b+EXVyXkOkqHR6oUTfxyHIR+WW6p
-	ljTy0EELwJ4z9w6/lmNhpG1WcVaHJ9u4qzecAa9x7+sdhVPUOymlMxnIMz8UiOEbGoo1hwQxSuI
-	ptZhSfuEU6WlUn61xdJzJKyduY4DdRv+DSAAXa1qWMdg5zhwIo3Icdp4KQ0KG1wFGpajsymZMvp
-	1Rz2ujxnzFXuLM5G/QcXdDnTD3IRMNPuP88qKJJ8qXxL8BvoX/MMmwQjmlUiJiD4bGHlVw==
-X-Received: by 2002:a05:600d:82d1:b0:49c:dada:30b7 with SMTP id 5b1f17b1804b1-4a01ad7d7a7mr56140775e9.2.1790812871240;
-        Wed, 30 Sep 2026 17:01:11 -0700 (PDT)
-X-Received: by 2002:a05:600d:82d1:b0:49c:dada:30b7 with SMTP id 5b1f17b1804b1-4a01ad7d7a7mr56140525e9.2.1790812870775;
-        Wed, 30 Sep 2026 17:01:10 -0700 (PDT)
-Received: from redhat.com ([2a02:586:1d05:2c0:d92a:1b52:ee3f:b73d])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a01f936e3dsm21962555e9.8.2026.09.30.17.01.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 30 Sep 2026 17:01:10 -0700 (PDT)
-Date: Wed, 30 Sep 2026 20:01:07 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Yuho Choi <oss.patchbox@gmail.com>
-Cc: Zhu Lingshan <lingshan.zhu@kernel.org>,
-	Jason Wang <jasowangio@gmail.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RFC v1] vdpa/ifcvf: Time out and report device reset
- failure
-Message-ID: <20260930195908-mutt-send-email-mst@kernel.org>
-References: <20260930155920.1684465-1-oss.patchbox@gmail.com>
+        bh=3ABacmlhv8U64sW7//9fPqLoIWrV59ydnWI6VCca9rE=;
+        b=LUCOG0CG+b14BxU8Lnn8GjQL4rTJ4RwkPgD37NBrbodRcO5k2zfc8VZdd2m4mFxWVI
+         SrX/FieeAkm+AF05VKvY95R0TVMYEE6+kvEP21+4KexXlj+dLYoe4ORqPHirFkLPbd8h
+         9/jVZr53NSbkyzIE6qx7ZUGr+AG92EEzvbIX5e3+SWQmvLTog6s/1i3O5v6dAkxt/atC
+         mjcwihLgv90UZsI4y2SXoTWy6Dz9tfsKbXc1AhxRpAsg9tzYGvPvUJUsDeJWpGVY3rbI
+         0D0lxBhZVVNmT3FtLDgg1mIi5eWP+IZONbx63FXTcu0wUzzKvKpW77+9vrTA7O++Zagk
+         S02A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790830117; x=1791434917;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=3ABacmlhv8U64sW7//9fPqLoIWrV59ydnWI6VCca9rE=;
+        b=LiqH6MVVhZpBfowYhxqcsjxrOO8gBSzy7zM3pM9ej67qBITVSNbVQjJsLb4QsQ6T8W
+         7GVu1qG7rZIz8pNNpnctl07KIpF/48LqC3jP7K3LfHYCxh8s3AKGI1J3cJDJTMTWfSVy
+         DV3Oe/qVlRVVGOoLyYvAQ1yToG14z1n+339ZJvBfr5kAQCtv1w9Bk/62vP9B4qqJs8ui
+         aEggKNKUi+FKEzTcTWeK+dkauld+so6JLKQIIwhMPA5uFXUF4eWfKWNJqaHTdudEhJ38
+         /x6WERM7Dpwcmz3dMQWKC0DEtxDcGcG5BZnsJWWiGcSJ5qs3ZeGK8bx8jZ7URHT4VhhT
+         +EPA==
+X-Forwarded-Encrypted: i=1; AKwUvBxkbA8D2gHm3pyUifHXeIYfk1xFw+Mg5BCRlJZUhQLP07FrHsdy6xbPUlLaJatm0IYFW3vP7Ua6vKhC+cuYXw==@lists.linux.dev
+X-Gm-Message-State: AFq9FYKvOhzbUGhxH0vnP3oid9FNngRhh8sGCAvO1FS9PTqpLt/ssHSn
+	/9jivmvpw4uWN7dT5HFGA64Wy/K+0gsf3SsP520Tj74RzkiqBAx9kpUpuKnMpr1GgRENC0+viqg
+	AVIodQkRklrP0NPBDlcfDFDCh/lmZCwU=
+X-Gm-Gg: AYBFou1+mLmiTzNbuFXhiM+AhJ6SYI8exc2h9xsOEmHeRCDitWe/kOyAoCoYOvn3uqa
+	CR1Dsn26hmZ4emTqadAGM0XbuoNuFZ0Z+Pze4us+A6/d7Kil5t6rxBMcMJmXD+ANnRhJXIbVkro
+	He75WMw8cN1bSoBB9TvWFv1t2Q4aWS2lVZ0Z4PlY9SQM5int86B8n8vGXdjlf/1kiUk4IdfOoXM
+	5I1CaXrz5biV+XqIH+4CpeYSr0dfIynuQTqNOxiW8o0ijWnlyhQ1cTXrwq29MuDR1hdKsw/Dfhm
+	duFawnyWCo1g+SMDe0VA4LleWCkSFS5q3MUIFitw6EA2eRqO9hvFWA==
+X-Received: by 2002:a2e:8806:0:b0:3a7:6590:7eda with SMTP id
+ 38308e7fff4ca-3a7833a2488mr2717631fa.14.1790830116633; Wed, 30 Sep 2026
+ 21:48:36 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260930155920.1684465-1-oss.patchbox@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: vfb6qiOew_C-xzI_VKKLJYgTH72Rb8B_MiI6IW-xxKQ_1790812871
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+References: <20260930155920.1684465-1-oss.patchbox@gmail.com> <20260930195908-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20260930195908-mutt-send-email-mst@kernel.org>
+From: Yuho Choi <oss.patchbox@gmail.com>
+Date: Thu, 1 Oct 2026 00:48:25 -0400
+X-Gm-Features: AclHuK8nX9Hl6iAsCD15Gr_6NKLb1XER29fZC1Iq7_Rz_t2zgcFj4klPKJNXK7k
+Message-ID: <CAGG=RgDH1fCe3uiFkVY=v=cgcdGc_E0nyGk-v72mR4mefCY=Ng@mail.gmail.com>
+Subject: Re: [PATCH RFC v1] vdpa/ifcvf: Time out and report device reset failure
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Zhu Lingshan <lingshan.zhu@kernel.org>, Jason Wang <jasowangio@gmail.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On Wed, Sep 30, 2026 at 11:59:01AM -0400, Yuho Choi wrote:
-> ifcvf_reset() writes 0 to device_status and polls it without a bound,
-> and ifcvf_vdpa_reset() always returns 0. A device that does not finish
-> the reset, or one that was surprise-removed and reads back 0xff, keeps
-> the caller in the reset path forever.
-> 
-> Bound the poll with readx_poll_timeout() and return -ETIMEDOUT from
-> .reset, so that callers such as VHOST_VDPA_SET_STATUS(0) see the failure
-> instead of hanging.
+Thanks for the review.
 
-No one handles reset errors. You can not timeout this.
+On Wed, 30 Sept 2026 at 20:01, Michael S. Tsirkin <mst@redhat.com> wrote:
+>
+> No one handles reset errors. You can not timeout this.
 
-> Stop right away with -ENODEV once the device reads
-> back all ones and is no longer present, as there is nothing left to
-> wait for.
-> 
-> Fixes: 386a26208524 ("vDPA/ifcvf: synchronize irqs in the reset routine")
-> Signed-off-by: Yuho Choi <oss.patchbox@gmail.com>
+Agreed, returning early lets callers free memory the device may still
+DMA into.
 
-Use standard is present APIs not "all ones" hacks.
+For a device that is present but never completes the reset, would it
+be acceptable to fence it instead: pci_clear_master() after a bounded wait,
+and pci_set_master() only once a later reset completes? .reset would
+then always return with the device quiet, so caller can keep ignoring
+the result.
 
+> Use standard is present APIs not "all ones" hacks.
 
+Will do, v2 will use the present APIs.
 
-> ---
-> RFC for two reasons:
-> - The spec gives no bound for a reset; 10 seconds follows octeon_ep's
->   OCTEP_HW_TIMEOUT.
-> - vhost_vdpa_release() ignores a reset failure and still tears the
->   mappings down, so on close a timeout turns a hang into teardown while
->   the device may still be active. That needs a separate fix in
->   vhost-vdpa.
-> 
-> Compile-tested only (x86_64 defconfig + IFCVF, W=1).
-> 
->  drivers/vdpa/ifcvf/ifcvf_base.c | 24 +++++++++++++++++++++---
->  drivers/vdpa/ifcvf/ifcvf_base.h |  3 ++-
->  drivers/vdpa/ifcvf/ifcvf_main.c |  4 +---
->  3 files changed, 24 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/vdpa/ifcvf/ifcvf_base.c b/drivers/vdpa/ifcvf/ifcvf_base.c
-> index d5507b63b6cdb..8a6c8f8314d53 100644
-> --- a/drivers/vdpa/ifcvf/ifcvf_base.c
-> +++ b/drivers/vdpa/ifcvf/ifcvf_base.c
-> @@ -8,6 +8,8 @@
->   *
->   */
->  
-> +#include <linux/iopoll.h>
-> +
->  #include "ifcvf_base.h"
->  
->  u16 ifcvf_set_vq_vector(struct ifcvf_hw *hw, u16 qid, int vector)
-> @@ -201,11 +203,27 @@ void ifcvf_set_status(struct ifcvf_hw *hw, u8 status)
->  	vp_iowrite8(status, &hw->common_cfg->device_status);
->  }
->  
-> -void ifcvf_reset(struct ifcvf_hw *hw)
-> +static bool ifcvf_reset_done(struct ifcvf_hw *hw, u8 status)
->  {
-> +	/* A surprise-removed device reads back all ones and never resets */
-> +	return !status || (status == 0xff && !pci_device_is_present(hw->pdev));
-> +}
-> +
-> +int ifcvf_reset(struct ifcvf_hw *hw)
-> +{
-> +	u8 status;
-> +	int ret;
-> +
->  	ifcvf_set_status(hw, 0);
-> -	while (ifcvf_get_status(hw))
-> -		msleep(1);
-> +	ret = readx_poll_timeout(ifcvf_get_status, hw, status,
-> +				 ifcvf_reset_done(hw, status),
-> +				 1000, IFCVF_RESET_TIMEOUT_US);
-> +	if (ret) {
-> +		IFCVF_ERR(hw->pdev, "timed out waiting for device reset\n");
-> +		return ret;
-> +	}
-> +
-> +	return status ? -ENODEV : 0;
->  }
->  
->  u64 ifcvf_get_hw_features(struct ifcvf_hw *hw)
-> diff --git a/drivers/vdpa/ifcvf/ifcvf_base.h b/drivers/vdpa/ifcvf/ifcvf_base.h
-> index aa36de361c10e..57d00b881582b 100644
-> --- a/drivers/vdpa/ifcvf/ifcvf_base.h
-> +++ b/drivers/vdpa/ifcvf/ifcvf_base.h
-> @@ -29,6 +29,7 @@
->  
->  #define IFCVF_LM_BAR			4
->  #define IFCVF_MIN_VQ_SIZE		64
-> +#define IFCVF_RESET_TIMEOUT_US		(10 * USEC_PER_SEC)
->  
->  #define IFCVF_ERR(pdev, fmt, ...)	dev_err(&pdev->dev, fmt, ##__VA_ARGS__)
->  #define IFCVF_DBG(pdev, fmt, ...)	dev_dbg(&pdev->dev, fmt, ##__VA_ARGS__)
-> @@ -112,7 +113,7 @@ void ifcvf_write_dev_config(struct ifcvf_hw *hw, u64 offset,
->  			    const void *src, int length);
->  u8 ifcvf_get_status(struct ifcvf_hw *hw);
->  void ifcvf_set_status(struct ifcvf_hw *hw, u8 status);
-> -void ifcvf_reset(struct ifcvf_hw *hw);
-> +int ifcvf_reset(struct ifcvf_hw *hw);
->  u64 ifcvf_get_dev_features(struct ifcvf_hw *hw);
->  u64 ifcvf_get_hw_features(struct ifcvf_hw *hw);
->  int ifcvf_verify_min_features(struct ifcvf_hw *hw, u64 features);
-> diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c b/drivers/vdpa/ifcvf/ifcvf_main.c
-> index 2af1cec958848..6c569f01bec91 100644
-> --- a/drivers/vdpa/ifcvf/ifcvf_main.c
-> +++ b/drivers/vdpa/ifcvf/ifcvf_main.c
-> @@ -444,9 +444,7 @@ static int ifcvf_vdpa_reset(struct vdpa_device *vdpa_dev)
->  	if (status & VIRTIO_CONFIG_S_DRIVER_OK)
->  		ifcvf_free_irq(vf);
->  
-> -	ifcvf_reset(vf);
-> -
-> -	return 0;
-> +	return ifcvf_reset(vf);
->  }
->  
->  static u16 ifcvf_vdpa_get_vq_num_max(struct vdpa_device *vdpa_dev)
-> 
-> base-commit: 551c722f40809618230001baccf219193e22fc5a
-> -- 
-> 2.43.0
-
+Thanks,
+Yuho
