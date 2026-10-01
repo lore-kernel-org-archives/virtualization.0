@@ -1,239 +1,196 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA5623EF0A0;
-	Thu,  1 Oct 2026 16:35:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 195193E2ADF;
+	Thu,  1 Oct 2026 17:13:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790872510; cv=none; b=cFTyaWAJjEfqFmfAnWhDsAxB5tEK8YNvd/w9OyEB5axU2AM+6zIOu69fg6xFKT6JXQ2/h7Ql9hTJzAHjdjklfdI0/dMXr51zq3YiVye0+C9ifR3KQyMZ4G2J4jdrYOi0IkxocnAb7OGlmQkc86+re8bvuxiNsBOxzRbZassU80A=
+	t=1790874826; cv=none; b=hI7tqh+NWTZBTSxtBY1KNkQqZOQtmiq4wrOIzjobU9/G3aRhm7k/s+I76CkoklqH2qofEjyf9bRg1U4LYw/EtN303qnliked8khsgc+ewiPFnn+nAHp6Pzkh3e7gE4ZBzgc2hEz0yZLROZvJfJ2WQROMVPlLueCuW1iTGbOSkvE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790872510; c=relaxed/simple;
-	bh=K9ipQYhDUImEGFkWItdOFON/xTYTCacdhdBcgKQDA/Y=;
-	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=pSNHNEfqed3OWRUqUKP9eJoIUCUrAI2GMHoqbzHgW7eUV9QEtEBPR5AlmVFBkEgLALrTjFjTZ/F0loxS/TgdQgi7fZoHh/ak//cVI00cM1w2P4JiBeJjzu4rtNpm180JkJby9A6P22n8dKziB5nKZCmcntpIYorlBJC8rGCPFLY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ebApsIb2; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790874826; c=relaxed/simple;
+	bh=lhq8JKa61aTi2bOedB2Rr/BQnnWBa3OKYCB3YEzC3dc=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=HyPXwG5VkKkughA55khicV8K6VfMLJeXZa0KbRRSkUj/TiyJsTtiK7ScUckzZ3fWg/XiNEsFwcH/FcjRv3/qk9nLjc/LyIaDGl21M+ilh4cYEYPZ4L/cMby/IEuQcvxQoa0dEKRPCpLKMI0MSxG69J/FthSfaMiBrLeb1EMJXFk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Pu4Nr4N0; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ebApsIb2"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F1151F000FF;
-	Thu,  1 Oct 2026 16:35:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790872508;
-	bh=u32X4VpgmHbk5ebw0Pu1w8aVte2ZcN+S8G/K2mFCaiU=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=ebApsIb2FOL2jH3V++g/q73QKPEF+WeYpfs7qNi/FzMfzD28r3sXO7LqFtPKaonKW
-	 V6G2lKCJBjnacRYaemv80x0CpjdbKe2hMaVP1goEJ/ySyhy12ANiPtQIRjKPGt6tZj
-	 niGv0ceupVDlwUpqDtRPLWjWoB0H2OT+ILS6z/1pPTDrEJE5jhwOVtw4bMuvolR/uN
-	 mp4+Y8+Gj2ugVa4XR6hcbLYvAU5oQioinGZwlmpmdnLb6e9ZKT5PRXz3tx3ZpMgGVC
-	 0whZkjwgqhV9enCE3oNy192dzfed+X+rVquXnHk1ZGFdUyHPv1BfIZp7etd46i6XRq
-	 TR3gfWdYgHHPg==
-Subject: Re: [PATCH net] vsock/bpf: release sock lock while waiting for data
- in recvmsg
-From: netdev-bot+sashiko@kernel.org
-To: jrmmhm.kernel@eldare.de
-Cc: sgarzare@redhat.com, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
- bobby.eshleman@bytedance.com, mst@redhat.com, virtualization@lists.linux.dev,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bpf@vger.kernel.org,
- stable@vger.kernel.org
-Date: Thu, 01 Oct 2026 16:35:07 +0000
-Message-ID: <179087250713.434549.8388772928991296342@kernel.org>
-In-Reply-To: <20260929-kbh3-1-022-fix-v1-1-cc97cc95d269@eldare.de>
-References: <20260929-kbh3-1-022-fix-v1-1-cc97cc95d269@eldare.de>
-X-sashiko-severity: Medium
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Pu4Nr4N0"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 146D6C2BCC7;
+	Thu,  1 Oct 2026 17:13:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1790874825;
+	bh=lhq8JKa61aTi2bOedB2Rr/BQnnWBa3OKYCB3YEzC3dc=;
+	h=From:Date:Subject:To:Cc:Reply-To:From;
+	b=Pu4Nr4N0SCi9iwuahSsPUdyfOR56ompJLH+Bhfm1/eFG/ix/XPZD6JJArSmt0gYPx
+	 0OSN1c5VQh4CiC1ZWcR7USgV4SGLLH/P1LvrvfMEQ2lnmbP3C40b697yUI2/NAA7k0
+	 DKWoDz7giesPUpqTnzO9lgEoArUVlUVuq+9wECDdnWbju7PrLr9yyJLS76GQxVOqH8
+	 fxmwqMuiXmQ/grX6JecJF0x3kAdTLSS9s2St5jL7az3Z4jnghisaxDFhFe8c99Cxym
+	 5w7/z/8G0DTvp+IjcXyAACjmQiKrXA7nl9hdghlwUujCbxWUK7BAt/d8orpNDPxepI
+	 4ax8ZceHlJ6Ww==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E308BCA5FD4;
+	Thu,  1 Oct 2026 17:13:44 +0000 (UTC)
+From: Jerome Mohm via B4 Relay <devnull+jrmmhm.kernel.eldare.de@kernel.org>
+Date: Thu, 01 Oct 2026 19:13:29 +0200
+Subject: [PATCH net] vsock/virtio: clear vqs[] to avoid a UAF on a failed
+ PM restore
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20261001-vsock-restore-uaf-send-v1-1-5da60f707506@eldare.de>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yWM0QrCMAwAf2Xk2UAzYaK/Ij50bapRaCXpxmDs3
+ +3c4x3crWCswga3bgXlWUxKbkCnDsLL5yejxMbQu34g5whnK+GDylaLMk4+oXGOSClcztcheRo
+ jtPirnGT5j++QucLjkDaNbw51X8K2/QCBE6SYfwAAAA==
+X-Change-ID: 20261001-vsock-restore-uaf-send-1fc7396fa1bd
+To: "Michael S. Tsirkin" <mst@redhat.com>, 
+ Jason Wang <jasowangio@gmail.com>, 
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+ Stefan Hajnoczi <stefanha@redhat.com>, 
+ Stefano Garzarella <sgarzare@redhat.com>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+ Simon Horman <horms@kernel.org>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux.dev, 
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ stable@vger.kernel.org, Jerome Mohm <jrmmhm.kernel@eldare.de>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1790874824; l=4969;
+ i=jrmmhm.kernel@eldare.de; s=20260928; h=from:subject:message-id;
+ bh=OzDITxghnCYWCrZYjn50doFti2WNlSPFkziXexLwJqE=;
+ b=gJV0ZugB4Fep9rZp+kEVHlD38YYd8UmQENkr+fukRe8g1yhWWzWG6WECTSs6uOS/yFvZZY7R9
+ ORFIua46Ha4Aa1Cz94X/RmyKurU7eskGPowCKDtVwxCAjCLjlIM8ofH
+X-Developer-Key: i=jrmmhm.kernel@eldare.de; a=ed25519;
+ pk=xRCxNXbnNottaHpmvPDAOC9NuMJxqKo24abkehKRVlo=
+X-Endpoint-Received: by B4 Relay for jrmmhm.kernel@eldare.de/20260928 with
+ auth_id=1075
+X-Original-From: Jerome Mohm <jrmmhm.kernel@eldare.de>
+Reply-To: jrmmhm.kernel@eldare.de
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue(s) to consider.
+From: Jerome Mohm <jrmmhm.kernel@eldare.de>
 
-Critical: 0 · High: 0 (2) · Medium: 1 · Low: 0
+virtio_vsock_vqs_del() frees the virtqueues via del_vqs() but never
+clears vsock->vqs[]. If a later virtio_vsock_restore() fails to
+reallocate them (its error path is a bare "goto out" that only unlocks
+and returns), the driver is left bound with a dangling vqs[]. The next
+virtio_vsock_vqs_del() - on a second freeze or on remove/unbind - then
+passes a freed vring_virtqueue to virtqueue_detach_unused_buf(), a slab
+use-after-free. KASAN on a guest with a virtio-vsock device, after a
+restore made to fail by fault injection:
 
-If you believe none of the issues are legitimate, please reply to each
-issue of Medium severity or higher and explain why the AI is wrong.
-If any of them are legitimate and you plan to respin, please let patchwork
-know by including "pw-bot: cr" as a separate line at the end of your reply
-(one such reply per series is enough).
+  BUG: KASAN: slab-use-after-free in virtqueue_detach_unused_buf
+  Read of size 4 at addr ... by task repro
+   virtqueue_detach_unused_buf
+   virtio_vsock_vqs_del (net/vmw_vsock/virtio_transport.c:785)
+   virtio_vsock_remove
+   virtio_dev_remove
+   ... unbind_store
+  Freed by task ...:
+   kfree
+   vp_del_vqs
+   virtio_vsock_freeze          <- the preceding freeze freed the vq
+  Allocated by task 1:
+   vring_create_virtqueue
+   virtio_vsock_vqs_init
+   virtio_vsock_probe           <- original allocation at probe
 
-- [Medium] Because the patch releases the socket lock around wait_woken()
-  in vsock_msg_wait_data() (net/vmw_vsock/vsock_bpf.c:52-57), the virtio…
+The object is the RX vring_virtqueue freed during the freeze;
+vsock->vqs[RX] still points at it. virtqueue_detach_unused_buf() does
+not guard a NULL vq, so a bare NULL-out is not enough on its own.
 
-Pre-existing issues:
-- [High] In net/vmw_vsock/vsock_bpf.c, vsock_msg_wait_data() stops
-  waiting only when the local socket has RCV_SHUTDOWN set (line 43: `if…
-- [High] vsock_bpf_recvmsg() in net/vmw_vsock/vsock_bpf.c has no zero-
-  length early return.
+Clear vsock->vqs[] after del_vqs() in virtio_vsock_vqs_del(), skip the
+detach loops when a vq pointer is NULL, and also clear the array when
+virtio_find_vqs() fails partway in virtio_vsock_vqs_init() (which can
+leave freed pointers behind). This mirrors virtio_blk
+commit 0739c2c6a015 ("virtio_blk: NULL out vqs to avoid double free on
+failed resume") and virtio_rtc commit 548d2208455f ("virtio: rtc: tear
+down old virtqueues before restore"); virtio_console carries the same
+stale-pointers-after-failed-restore fix.
 
---
+Testing: reproduced on a private VM with a KASAN fuzz kernel based on
+v7.3-rc5. The restore allocation failure was forced with CONFIG_FAILSLAB
+steered by the fault-injection stacktrace filter to the virtio-vsock
+restore path only; a guest-root program drives a pm_test=devices
+freeze/restore cycle (so .restore returns -ENOMEM) and then unbinds the
+device. The unfixed kernel reports the slab-use-after-free above; with
+this patch the same run makes restore fail identically yet produces no
+KASAN report. checkpatch.pl --strict is clean and the build is
+warning-free. The reproducer is available on request.
 
-vsock/bpf: release sock lock while waiting for data in recvmsg
+Fixes: bd50c5dc182b ("vsock/virtio: add support for device suspend/resume")
+Cc: stable@vger.kernel.org
+Assisted-by: LLM
+Signed-off-by: Jerome Mohm <jrmmhm.kernel@eldare.de>
+---
+ net/vmw_vsock/virtio_transport.c | 28 +++++++++++++++++++++++-----
+ 1 file changed, 23 insertions(+), 5 deletions(-)
 
-This commit drops the socket lock around wait_woken() in
-vsock_msg_wait_data(). The transport rx path, virtio_transport_recv_pkt(),
-can then take lock_sock() and deliver data while a sockmap reader sleeps.
-Before this change, a blocking recv() and the shared vsock delivery worker
-deadlocked on the same socket lock.
+diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+index 4f9aa9c4c3aa..0553c0641fd2 100644
+--- a/net/vmw_vsock/virtio_transport.c
++++ b/net/vmw_vsock/virtio_transport.c
+@@ -714,8 +714,15 @@ static int virtio_vsock_vqs_init(struct virtio_vsock *vsock)
+ 	atomic_set(&vsock->queued_replies, 0);
+ 
+ 	ret = virtio_find_vqs(vdev, VSOCK_VQ_MAX, vsock->vqs, vqs_info, NULL);
+-	if (ret < 0)
++	if (ret < 0) {
++		/*
++		 * On a partial failure virtio_find_vqs() can leave freed
++		 * virtqueue pointers in vsock->vqs[]; clear them so a later
++		 * virtio_vsock_vqs_del() does not detach a freed virtqueue.
++		 */
++		memset(vsock->vqs, 0, sizeof(vsock->vqs));
+ 		return ret;
++	}
+ 
+ 	virtio_vsock_update_guest_cid(vsock);
+ 
+@@ -782,19 +789,30 @@ static void virtio_vsock_vqs_del(struct virtio_vsock *vsock)
+ 	virtio_reset_device(vdev);
+ 
+ 	mutex_lock(&vsock->rx_lock);
+-	while ((skb = virtqueue_detach_unused_buf(vsock->vqs[VSOCK_VQ_RX])))
+-		kfree_skb(skb);
++	if (vsock->vqs[VSOCK_VQ_RX])
++		while ((skb = virtqueue_detach_unused_buf(vsock->vqs[VSOCK_VQ_RX])))
++			kfree_skb(skb);
+ 	mutex_unlock(&vsock->rx_lock);
+ 
+ 	mutex_lock(&vsock->tx_lock);
+-	while ((skb = virtqueue_detach_unused_buf(vsock->vqs[VSOCK_VQ_TX])))
+-		kfree_skb(skb);
++	if (vsock->vqs[VSOCK_VQ_TX])
++		while ((skb = virtqueue_detach_unused_buf(vsock->vqs[VSOCK_VQ_TX])))
++			kfree_skb(skb);
+ 	mutex_unlock(&vsock->tx_lock);
+ 
+ 	virtio_vsock_skb_queue_purge(&vsock->send_pkt_queue);
+ 
+ 	/* Delete virtqueues and flush outstanding callbacks if any */
+ 	vdev->config->del_vqs(vdev);
++
++	/*
++	 * del_vqs() has freed the virtqueues. Clear the stale pointers: if a
++	 * later virtio_vsock_restore() fails to allocate new ones, the driver
++	 * stays bound with a dangling vqs[] and the next virtio_vsock_vqs_del()
++	 * would detach a freed virtqueue (use-after-free). Mirrors virtio_blk
++	 * commit 0739c2c6a015.
++	 */
++	memset(vsock->vqs, 0, sizeof(vsock->vqs));
+ }
+ 
+ static int virtio_vsock_probe(struct virtio_device *vdev)
 
-> diff --git a/net/vmw_vsock/vsock_bpf.c b/net/vmw_vsock/vsock_bpf.c
-> index 9049d26486460..bb7d81a95baa6 100644
-> --- a/net/vmw_vsock/vsock_bpf.c
-> +++ b/net/vmw_vsock/vsock_bpf.c
-> @@ -50,7 +50,9 @@ static bool vsock_msg_wait_data(struct sock *sk, struct sk_psock *psock, long ti
->  	sk_set_bit(SOCKWQ_ASYNC_WAITDATA, sk);
->  	ret = vsock_has_data(sk, psock);
->  	if (!ret) {
-> +		release_sock(sk);
->  		wait_woken(&wait, TASK_INTERRUPTIBLE, timeo);
-> +		lock_sock(sk);
->  		ret = vsock_has_data(sk, psock);
+---
+base-commit: a7bfaba4823e3c165bb2004c74eff7c096672bc7
+change-id: 20261001-vsock-restore-uaf-send-1fc7396fa1bd
 
-[Severity: Medium]
-With the lock dropped here, virtio_transport_recv_pkt() can run while the
-reader sleeps. Can it wake the reader for events that carry no data?
+Best regards,
+--  
+Jerome Mohm <jrmmhm.kernel@eldare.de>
 
-The reader sleeps on sk_sleep(sk) with woken_wake_function(), which
-ignores the poll key. virtio_transport_recv_pkt() calls sk_write_space()
-for every packet when space is available:
 
-net/vmw_vsock/virtio_transport_common.c:virtio_transport_recv_pkt() {
-    ...
-	if (space_available)
-		sk->sk_write_space(sk);
-    ...
-}
-
-OP_CREDIT_UPDATE in virtio_transport_recv_connected() does the same. For
-vsock this is sock_def_write_space(), which calls
-wake_up_interruptible_sync_poll() on the same wait queue.
-
-OP_SHUTDOWN and RST call sk_state_change(). An SK_DROP verdict or a
-redirect to another socket also wakes the reader through
-sk_psock_data_ready(), without queuing anything for it.
-
-After such a wakeup, vsock_has_data() returns false. vsock_msg_wait_data()
-then returns false without waiting again for the rest of timeo, and
-vsock_bpf_recvmsg() does this:
-
-		if (!vsock_msg_wait_data(sk, psock, timeo)) {
-			copied = -EAGAIN;
-			break;
-		}
-
-Would a blocking recv() with no SO_RCVTIMEO then fail with -EAGAIN as
-soon as the peer sends a credit update?
-
-For comparison, vsock_connectible_wait_data() loops until one of these
-happens: data arrives, sk_err is set, RCV_SHUTDOWN or peer SEND_SHUTDOWN
-is seen, the timeout expires, or a signal is pending. On a signal it
-returns sock_intr_errno().
-
-The BPF path also returns -EAGAIN when a signal is pending. That part
-existed before this patch.
-
-Should vsock_msg_wait_data() loop the same way that
-vsock_connectible_wait_data() does?
-
->  	}
->  	sk_clear_bit(SOCKWQ_ASYNC_WAITDATA, sk);
-
-[Severity: High]
-This is a pre-existing issue and was not introduced by this patch. Can a
-blocking recv() still hang after the peer shuts down or resets?
-
-The only exit condition vsock_msg_wait_data() checks is a local shutdown:
-
-	if (sk->sk_shutdown & RCV_SHUTDOWN)
-		return true;
-
-The virtio, vhost and loopback transports report a peer shutdown only
-through vsk->peer_shutdown:
-
-- virtio_transport_recv_connected() sets it for OP_SHUTDOWN.
-- virtio_transport_do_close() sets peer_shutdown = SHUTDOWN_MASK and
-  SOCK_DONE for RST or a full close.
-
-sk->sk_shutdown changes only on a local shutdown().
-
-Suppose the peer has shut down and the receive and psock queues are
-empty:
-
-- vsock_bpf_recvmsg() skips the native fallback.
-- sk_msg_recvmsg() returns 0.
-- vsock_msg_wait_data() sleeps in wait_woken().
-
-vsock_remove_sock() has already removed the socket, so no further wakeups
-will arrive. The recv() sleeps until a signal arrives or a finite
-SO_RCVTIMEO expires.
-
-Meanwhile vsock_poll() reports EPOLLIN | EPOLLRDNORM on peer
-SEND_SHUTDOWN. poll() says the socket is readable while recv() blocks.
-
-If the reader is already asleep when the shutdown arrives, the
-sk_state_change() wakeup that this patch now allows makes recv() return
--EAGAIN instead of 0. A retry then hangs as described above.
-
-The native vsock_connectible_wait_data() handles this case:
-
-		if (sk->sk_err != 0 ||
-		    (sk->sk_shutdown & RCV_SHUTDOWN) ||
-		    (vsk->peer_shutdown & SEND_SHUTDOWN)) {
-			break;
-		}
-
-__vsock_connectible_recvmsg() also returns 0 for a socket that is not
-TCP_ESTABLISHED and has SOCK_DONE set.
-
-After this fix, this is the remaining case where a blocking recv() hangs
-until a signal arrives. Could it be handled while aligning with
-vsock_connectible_wait_data()?
-
-[Severity: High]
-This is also a pre-existing issue and was not introduced by this patch.
-Can vsock_bpf_recvmsg() spin forever with the socket lock held when len
-is 0?
-
-tcp_bpf, udp_bpf and unix_bpf all return early with "if (!len) return 0;",
-and __vsock_connectible_recvmsg() handles len == 0 explicitly.
-vsock_bpf_recvmsg() does neither.
-
-If psock->ingress_msg is not empty, for example after SK_PASS or an
-ingress redirect, sk_psock_queue_empty() is false. The native fallback is
-then skipped:
-
-	if (vsock_has_data(sk, psock) && sk_psock_queue_empty(psock)) {
-
-With len == 0, __sk_msg_recvmsg() never enters its
-"while (copied != len)" loop. It returns 0 without consuming anything, so
-the loop in vsock_bpf_recvmsg() repeats:
-
-	copied = sk_msg_recvmsg(sk, psock, msg, len, flags);
-	while (copied == 0) {
-		long timeo = sock_rcvtimeo(sk, flags & MSG_DONTWAIT);
-
-		if (!vsock_msg_wait_data(sk, psock, timeo)) {
-			copied = -EAGAIN;
-			break;
-		}
-		...
-		copied = sk_msg_recvmsg(sk, psock, msg, len, flags);
-	}
-
-vsock_msg_wait_data() sees that vsock_has_data() is true and returns true
-without sleeping, so the loop never reaches the new release_sock(). The
-loop never calls cond_resched() or checks for signals, and it keeps
-ownership of lock_sock(sk) the whole time.
-
-Would the vsock-loopback worker or the vhost/virtio rx path then block in
-lock_sock() on this socket? That would stop rx for every socket on the
-transport, which is the symptom this commit sets out to fix.
-
-Would adding the same "if (!len) return 0;" check that the other *_bpf
-recvmsg implementations have be enough here?
-
--- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260929-kbh3-1-022-fix-v1-1-cc97cc95d269%40eldare.de
