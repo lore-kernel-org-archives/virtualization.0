@@ -1,72 +1,72 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37F9F39CCFE;
-	Thu,  1 Oct 2026 12:19:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A0177E792;
+	Thu,  1 Oct 2026 12:26:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790857171; cv=none; b=HnSkyu062NPx0kzFXbHgjRpJqrxvqtaUankSzJSiVWMsAKf/xrsnYm7qY4dNHYVsQLfktAuC7F0+2ewDtxhJ+fo1We+MY1qNepOG1wUEnr/Gq+7tRZ7wkcRnkcuNwSyHcPG8v9bS/+p9RnMl4RQgQRYckiztzSMeScxeOq12/10=
+	t=1790857602; cv=none; b=EXQo/ftBOiGRdIWdks7YSZ0Ha7Bk3Gb39FPC9+70Gv47Gh6iKZQZVD9wUb/ukf7Iwc5zq/XNrkRNt/4drAy6j0RKWwJwJ/Jd7qjjUBOYVBYXyqxGlZYH96jr3Kh49KCl1D1fHZ7uOidYe1A4onjboQct16VyrKbvO+PsKyRBomc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790857171; c=relaxed/simple;
-	bh=x8GQ9TqAFu5driuvo38kqzYt3n324pebOlaNmEELI+s=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=n8mbcjUDH4WM9+SD2NAQI/8h20n04kbzWRRjVBYvaSvqNIyuOBXvnisi8vD4xa6sNB0rEfR5hU/9ZLpTziiXsYZcg3TNPB8u09WHKLILtxgWy/F7Ptr0MZ3dNZBmWHMziZr7J6GyBuQ9THXBSCqVDWWgSpvergMBKZjqqZVKsK4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EyFSZjTM; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790857602; c=relaxed/simple;
+	bh=bkCuTs837g+9aewkTPrqJxbKJ1hZ5Y4Uu85+sD/30v4=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=MqBfQNpiEzahktO59tFZhTJuYdWPwzYBKAVToDOEkBfnGH/Ph4mzcYHvApzfnbkKMSUjomDKS3vvN5fvmniAupPT4fLLb5LjWMFsKQ6k9FyWKRXhbKp5fMDZbK472OLH2Vglpy/+U6snU+ZAb6gZbH+hSuXuEYieA9fhuLQ7dlw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=or9qp2E3; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EyFSZjTM"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF4881F000FF;
-	Thu,  1 Oct 2026 12:19:28 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="or9qp2E3"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E2361F000FF;
+	Thu,  1 Oct 2026 12:26:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790857169;
-	bh=PJRu7W6/Or1we5Gv3BgoLEtby0D0Y0UGgfjBHfRc5+k=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=EyFSZjTMaC4BT02n5Chn+UwLM3nWI0PM/4h/DxrmAjas47bjROfw4LLbZhDMkZS8W
-	 YXUJVR5iICzEqg3+EwbVuLvM5/UbJTfCbfgOtTI82zTOQVX5zTkNo7ljg3ptgR187i
-	 fErz8t10wHMvc1dV0rCpvId22sawD88c6sZIfBppa/9WIbUVArJM7O0GuYP0vCUXoF
-	 tlmwqEDXtc+8QeI1ZXhgQ1pHRe72tQ8a7Fom4ke2FfB8ZCwIAp7deI6qU2Qj8h6rUZ
-	 dHSofLcDMBnQoxhg2oA1FCYwgabhA5i68cNIlypPXZBwDZhpyzV9n1fBAJ3xtBkFSX
-	 8TpCW743gm+tQ==
-From: netdev-bot+sinfo@kernel.org
-To: Daehyeon Ko <4ncienth@gmail.com>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>,
- Stefano Garzarella <sgarzare@redhat.com>,
- "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>,
- Eugenio =?utf-8?q?P=C3=A9rez?= <eperezma@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- "David S . Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Simon Horman <horms@kernel.org>, virtualization@lists.linux.dev,
- kvm@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org,
- linux-kernel@vger.kernel.org
+	s=k20260515; t=1790857600;
+	bh=LvTK3dcJ4MovklybGQxKneeayBBtRTGGB/P6YcFO4sM=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=or9qp2E3Knn8FgZLtoi7SXfOtZrDFJFco2KWsqBeK4t5gLgx0yDSMF9VxUuVUW0Rk
+	 9W/jtWqD+U8oNhZmKkGR6dwQdN+cHJ2mSj24QLtR73IIJRLuH/oY5OTgEbikgYCzpb
+	 wDm4bukVcC9sjdmixSWw2GFlr+KMHyXK63QHSx8ahPIfWKLzM51XOUTC9hBLc3CQZV
+	 GWIvjPl6LxBY9NYCs6HZF0RZ7ektLYSS799WbgpJXJrEYhdA9XOMpGlXTatzIJcCxj
+	 LtM7TYGjUmKDF0a50ct+m67gkUwyAnopjFwspSsyYZitf0otyorgbEcpje0ZXwMsJb
+	 CLOZbZTrJsWCw==
+From: sashiko-bot@kernel.org
 Subject: Re: [PATCH net] vsock: account only unread bytes in read_skb()
-Date: Thu, 01 Oct 2026 12:19:28 +0000
-Message-ID: <179085716831.31693.13222203434770065965@kernel.org>
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Daehyeon Ko" <4ncienth@gmail.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>, virtualization@lists.linux.dev, kvm@vger.kernel.org, bpf@vger.kernel.org
 In-Reply-To: <20261001121541.2983379-1-4ncienth@gmail.com>
 References: <20261001121541.2983379-1-4ncienth@gmail.com>
-Auto-Submitted: auto-generated
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 01 Oct 2026 12:26:40 +0000
+Message-Id: <20261001122640.9E2361F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
 
-Hi!
+> After a partial stream receive, rx_bytes tracks the unread suffix while
+> buf_used and peer credit still cover the whole packet.
+> virtio_transport_read_skb() dequeues that packet but passes pkt_len for
+> both counters, underflowing rx_bytes.
+>=20
+> On a connected CID_LOCAL stream with an SK_SKB verdict, a 40-byte read
+> from a 100-byte packet made SIOCINQ report -40, an empty recv return
+> ELOOP, and poll report the empty socket readable.  After verdict detach,
+> receiving 40 bytes wrapped the counter to zero and hid those queued bytes
+> until one more byte arrived.  The fixed run kept the counter balanced
+> and exposed all queued data immediately.
+>=20
+> Subtract only skb->len minus the VSOCK offset from rx_bytes.  Retain the
+> full packet length for buf_used and peer credit.
+>=20
+> Fixes: 45ca7e9f0730 ("vsock/virtio: fix `rx_bytes` accounting for stream =
+sockets")
+> Cc: stable@vger.kernel.org
+> Assisted-by: LLM
+> Signed-off-by: Daehyeon Ko <4ncienth@gmail.com>
 
-This is an automated message. This series looks like a fix, but its
-commit messages seem to be missing some information:
+Sashiko has reviewed this patch and found no issues. It looks great!
 
- - How the issue was discovered, e.g. hit in production, hit during
-   development, syzbot report, manual code inspection, LLM or static
-   analysis tool scan.
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261001121541.2983=
+379-1-4ncienth@gmail.com?part=3D1
 
-Please do not repost the series just to address the above. Instead,
-reply to this email with the missing information, so that reviewers
-can take it into account. If the series needs another revision for
-other reasons, please include the information in the commit messages
-then.
-
-The evaluation is done by an LLM so it may be wrong, if you think
-that is the case please reply and explain.
