@@ -1,127 +1,146 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from cvsmtppost05.nm.naver.com (cvsmtppost05.nm.naver.com [114.111.35.27])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC804393DE6
-	for <virtualization@lists.linux.dev>; Sun,  4 Oct 2026 12:10:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C34F3199920
+	for <virtualization@lists.linux.dev>; Sun,  4 Oct 2026 12:44:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.111.35.27
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791115851; cv=none; b=UnrK4PMg1n1NpxmmeH7OUVQ0bSF/VgalH329U3kQXQBruoJtD9YhqMd/RYLAeiYbLsLD80EhcX6jLo1i7DF03imz/QOifkiKNPxtxy36l8+W3EqGAC+1+mc2N08mJNPHnZzDq6ULfPlMtVUDKuCqYTssHQf+Z1g2dfnTViUGsbs=
+	t=1791117864; cv=none; b=bd5qD5k6Z6vjIGhY5y4BftmacCMhrC+cHYVpiQza/AjxCGfYbVtFFhFg2q0tTYxHlDlXvau8e3iuXguoY5wRvkuR8ZeoRg7nZ2XtoqWvuKcq4zl48M82bi7mFzD4uTHZbCH/x9l4JnLy2Y99+h/MEUJaM7Efb/So6bMti3wG6dA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791115851; c=relaxed/simple;
-	bh=EKdSBjEUuU45itwlowRX3+zb54ZdrXb3joGWmVhRNes=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=gta3tr68cLK9bHwwqreBjJY1ovUpNkS7dKVSpmJRC6MIS4H3QUu5b/H94iC3g1bdbWzl8QjR5fI0K9a26htgRLWPwDsE9J1b2iPXrm5rapYlp4wL/h5+W6Tu1mqinevon7I5r7sgsJZzIYeBArihC4OYh4iOVLn2lIoUbPsSBOM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=B53mHCoj; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791117864; c=relaxed/simple;
+	bh=vKlmh903O9l6vLPy3nGfF3jjtRSyQOnuIrV3u0yo9iE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=YQd24JkwJmmwy5jMlwHmEaFt5Gok8xZR/jb95xbcpochjtY4t+EP5UwHytStACe8nVyalZvfOM4U7rh6i9X4TGVHagrKKUpHqEMLnR98PWspJPJ837AYRsYEBvWa4iy40hgzaqoHKpBVnlNVUVUIKs+ZTiry8ypla8Qd1XmtX5c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=naver.com; spf=pass smtp.mailfrom=naver.com; dkim=pass (2048-bit key) header.d=naver.com header.i=@naver.com header.b=ViyzyQsC; arc=none smtp.client-ip=114.111.35.27
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=naver.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=naver.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="B53mHCoj"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 590941F0089A;
-	Sun,  4 Oct 2026 12:10:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791115849;
-	bh=yzz42xnJYOR58R8GdLBZ58bybo5cd4s62o3r0LnGx/A=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=B53mHCojOTumfhPht8SPs2cKC1dKoHdJ0f/khqdKcTBBhaXUqRzEex1z/KjQBqxRb
-	 aMYtmYfkMGgNkvDupEr/TlvLEL23Hz/dwpcU8NWYfTw3Mr04VkGT5otEbBJu5jNX/i
-	 aOLvPsLQfso0wYIiSHFryRE85V1ajDvKfBDpVuzvrQW3KLThjaBW9cly3hJHvub7m9
-	 2VuhL4Z7DlxltKDutqWHtVUDNIBKH8bGDD6T62guAmWA62AmFAEANEX4Qh1LjDFnx+
-	 35eT3ss/SSiCKEzhsUXVTdz9r02Y+xrclX4+iXFyGZa5yNwnJhrF+pt48nFBE9Y3YU
-	 qKepKwcqRSBWw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 6/6] iommu/virtio: batch the mapping replay on domain
- attach
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Anlai Lu" <agicy@qq.com>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <tencent_ED730B6C7A1FCF7E8C5BA1E836D75257620A@qq.com>
-References: <tencent_85AC6E749F6A912B7BB9FF360F8ECB3F5C09@qq.com>
- <tencent_ED730B6C7A1FCF7E8C5BA1E836D75257620A@qq.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 04 Oct 2026 12:10:48 +0000
-Message-Id: <20261004121049.590941F0089A@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=naver.com header.i=@naver.com header.b="ViyzyQsC"
+Received: from cvsendbo004.nm ([10.112.24.36])
+  by cvsmtppost05.nm.naver.com with ESMTP id rr-1jBU-SQSuJMdntrKyLw
+  for <virtualization@lists.linux.dev>;
+  Sun, 04 Oct 2026 12:34:14 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=naver.com; s=s20171208;
+	t=1791117254; bh=vKlmh903O9l6vLPy3nGfF3jjtRSyQOnuIrV3u0yo9iE=;
+	h=From:To:Subject:Date:Message-ID:From:Subject:Feedback-ID:
+	 X-Works-Security;
+	b=ViyzyQsCdA5hgbd0UBwju7VcLj+OyS8/CDRT6dLiZ0DdPjqba0hE9IWOTCLBnlknr
+	 eOlUUBV0m5fjTrvVesaecV2LxdC/YvJaeMRO3uVCw7dDSWNNMCuZ/T1L9zLveqsk+L
+	 KdeJ4rOWrl1CuK5GU8LHocR/AaURwYvmUptNTTznMNCceibYrMqJ/tJ3eNuJWCP/7M
+	 EdCj5lLklwijvpVYEeV7x2UuCMBERoONrFhoHbpz14bxGpZrxiszpea7T16BxrdMvp
+	 wN2Pt0hRfwdPPtSsnfChqm5rQMeMhdl4kf8PqI6g+FBkHIKWhgyWfnWY4m02MkJjOf
+	 BKHuz+DG6s7Wg==
+X-Session-ID: 6UKYWWETTnuweS1g2CSHKA
+X-Works-Send-Opt: O9+wpzGdjHmdKHFOMr39Ko3YKHmwKHmwFAbrFxKrKqEmjJkaBd9YKBmm
+X-Works-Smtp-Source: PdK/KAulFqJZ+HmqFx2d+6E=
+Received: from localhost.localdomain ([115.136.205.4])
+  by cvnsmtp002.nm.naver.com with ESMTP id 6UKYWWETTnuweS1g2CSHKA
+  for <multiple recipients>
+  (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384);
+  Sun, 04 Oct 2026 12:34:13 -0000
+From: sungbyeongchan <tjdqudcks0424@naver.com>
+To: German Maglione <gmaglione@redhat.com>,
+	Vivek Goyal <vgoyal@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Miklos Szeredi <miklos@szeredi.hu>
+Cc: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	virtualization@lists.linux.dev,
+	fuse-devel@lists.linux.dev,
+	linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH] virtiofs: validate fixed-output response length
+Date: Sun,  4 Oct 2026 21:34:05 +0900
+Message-ID: <20261004123405.586168-1-tjdqudcks0424@naver.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Medium] iommu/virtio: memory leak of queued requests on device removal
---
+A short successful virtiofs response can leave the fixed-output
+portion of the request argument buffer unwritten. The completion path
+nevertheless copies the full declared output to the request destination,
+allowing stale allocator contents to reach callers such as
+fuse_statfs().
 
-commit db185ffd41ba01e7309f7ee2d8c108a5d39c6450
-Author: Anlai Lu <agicy@qq.com>
+Require successful fixed-output responses to contain their complete
+declared output. Continue to permit a shorter final argument only for
+out_argvar requests, and do not copy output arguments from error
+replies.
 
-iommu/virtio: batch the mapping replay on domain attach
+A header-only FUSE_STATFS success returned stale fields in nine of
+nine calls across three boots. The patched kernel rejected the short
+response in three boots and preserved complete replies and existing
+error controls.
 
-This commit optimizes the domain attach process by queueing all mapping
-requests and waiting for them once, rather than sending them synchronously
-one by one. This significantly reduces the IRQ-off window and attach time
-when dealing with a large number of mappings.
+Fixes: a62a8ef9d97d ("virtio-fs: add virtiofs filesystem")
+Signed-off-by: sungbyeongchan <tjdqudcks0424@naver.com>
+---
+ fs/fuse/virtio_fs.c | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
-> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-> index 4e578d4255f6b..7b883f59221f5 100644
-> --- a/drivers/iommu/virtio-iommu.c
-> +++ b/drivers/iommu/virtio-iommu.c
-[ ... ]
-> @@ -656,23 +698,57 @@ static int viommu_domain_map_identity(struct viommu=
-_endpoint *vdev,
->  }
-> =20
->  /*
-> - * viommu_replay_mappings - re-send MAP requests
-> + * viommu_replay_mappings - send every mapping of the domain again
-[ ... ]
-> +	while (!done) {
-> +		struct viommu_mapping *mapping;
-> +		struct virtio_iommu_req_map map;
-[ ... ]
-> +		ret =3D viommu_add_req(vdomain->viommu, &map, sizeof(map), &status);
-> =20
-> -		ret =3D viommu_send_req_sync(vdomain->viommu, &map, sizeof(map));
-> -		if (ret) {
-[ ... ]
-> +		if (mapping->iova.last =3D=3D ULONG_MAX)
-> +			done =3D true;
-> +		else
-> +			next_iova =3D mapping->iova.last + 1;
-> +		spin_unlock_irqrestore(&vdomain->mappings_lock, flags);
-> =20
-> -		node =3D interval_tree_iter_next(node, 0, -1UL);
-> +		if (ret)
-> +			break;
->  	}
-> -	spin_unlock_irqrestore(&vdomain->mappings_lock, flags);
-> =20
-> -	return ret;
-> +	/* Wait for all of them outside the lock: this is the batched drain */
-> +	viommu_sync_req(vdomain->viommu);
+diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+index f15e516ebcb5c..288848f23e7ec 100644
+--- a/fs/fuse/virtio_fs.c
++++ b/fs/fuse/virtio_fs.c
+@@ -730,6 +730,10 @@ static void copy_args_from_argbuf(struct fuse_args *args, struct fuse_req *req)
+ 	unsigned int num_out;
+ 	unsigned int i;
+ 
++	/* Error replies contain only the output header. */
++	if (req->out.h.error)
++		goto out;
++
+ 	remaining = req->out.h.len - sizeof(req->out.h);
+ 	num_in = args->in_numargs - args->in_pages;
+ 	num_out = args->out_numargs - args->out_pages;
+@@ -755,6 +759,7 @@ static void copy_args_from_argbuf(struct fuse_args *args, struct fuse_req *req)
+ 	if (args->out_argvar)
+ 		args->out_args[args->out_numargs - 1].size = remaining;
+ 
++out:
+ 	kfree(req->argbuf);
+ 	req->argbuf = NULL;
+ }
+@@ -762,7 +767,9 @@ static void copy_args_from_argbuf(struct fuse_args *args, struct fuse_req *req)
+ /* Verify that the server properly follows the FUSE protocol */
+ static bool virtio_fs_verify_response(struct fuse_req *req, unsigned int len)
+ {
++	struct fuse_args *args = req->args;
+ 	struct fuse_out_header *oh = &req->out.h;
++	unsigned int expected;
+ 
+ 	if (len < sizeof(*oh)) {
+ 		pr_warn("virtio-fs: response too short (%u)\n", len);
+@@ -777,6 +784,25 @@ static bool virtio_fs_verify_response(struct fuse_req *req, unsigned int len)
+ 			oh->unique, req->in.h.unique);
+ 		return false;
+ 	}
++
++	if (oh->error) {
++		if (len != sizeof(*oh)) {
++			pr_warn("virtio-fs: error response too long (%u)\n", len);
++			return false;
++		}
++		return true;
++	}
++
++	expected = sizeof(*oh) +
++		   fuse_len_args(args->out_numargs, args->out_args);
++	if (len > expected ||
++	    (len < expected &&
++	     (!args->out_argvar ||
++	      expected - len > args->out_args[args->out_numargs - 1].size))) {
++		pr_warn("virtio-fs: invalid response length (%u, expected %u)\n",
++			len, expected);
++		return false;
++	}
+ 	return true;
+ }
+ 
+-- 
+2.43.0
 
-[Severity: Medium]
-If the virtio-iommu device is removed (e.g., via hot-unplug or driver unbin=
-d)
-while we are queuing these batched requests, could this leak the dynamically
-allocated struct viommu_request objects?
-
-Looking at viommu_sync_req(), it short-circuits when the device is removed
-without draining the list:
-
-drivers/iommu/virtio-iommu.c:viommu_sync_req() {
-	...
-	if (!viommu_device_live(viommu)) {
-		spin_unlock_irqrestore(&viommu->request_lock, flags);
-		return 0;
-	}
-	...
-}
-
-Any queued requests would remain in viommu->requests. Since viommu_remove()
-tears down the virtqueues and sets viommu->removed =3D true, but does not
-iterate over the viommu->requests list to free the pending elements, it
-appears these requests would permanently leak.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/tencent_85AC6E749F6=
-A912B7BB9FF360F8ECB3F5C09@qq.com?part=3D6
