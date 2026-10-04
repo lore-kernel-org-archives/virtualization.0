@@ -1,60 +1,61 @@
-Received: from out162-62-57-49.mail.qq.com (out162-62-57-49.mail.qq.com [162.62.57.49])
+Received: from out162-62-58-211.mail.qq.com (out162-62-58-211.mail.qq.com [162.62.58.211])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C999A39CCFE;
-	Sun,  4 Oct 2026 13:03:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.62.57.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D186D421251;
+	Sun,  4 Oct 2026 13:04:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.62.58.211
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791119001; cv=none; b=QSS/E2ud+LNGdolNBL2gvUqrRRC3ZPnpgfT1rLRH5uJ+L3eNGin0a/gvAM2+djxceaX8o7756BwgJ1GP/Rv6SeRHBITYp399ug2yaulGOVXTV86hMl9u1zcVJqManm+r7i8Cc5hpkHuy5ei1wCjBrJK/IynC5RYZ3CrjRiYQYvE=
+	t=1791119061; cv=none; b=dbFvqR+pV46YMque4PEe1C6Bbcqc/yJ+ON7i0F3+W+NUFi23htxqD6/0kELxZyqJ0tzcxhUfpSIUCYtsespiSA3ILOn4bTPP6Puw532bAjLOdLvi0D8++t724saEXGlMlAgKA+4M10tXYQKregFeoRTdp4YAtugV+8O4ZMEyAvk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791119001; c=relaxed/simple;
-	bh=2GWJESrEnQCGfV7YDGyLOGugS7dMlTqZM/OpNxTWUEo=;
+	s=arc-20240116; t=1791119061; c=relaxed/simple;
+	bh=rTrPGs/6gIYXgawRDaWv1j0V8mqrl6e2mJv8wMh56MU=;
 	h=Message-ID:From:To:Cc:Subject:Date:In-Reply-To:References:
-	 MIME-Version; b=Ef084RGMtiXrfClTYYJiasqw4tsDVpW5BOT7YE6qzs9pLTPnVmKOOzGpQDCyi3SEKcNv5uR5FSMkexh3uR/iVqaEIjwPqhucghSBsnYM4eY0eKKtZ6KX2lOw9tM2sDADt4Y225Clw8piUknFJk2DB83UiFIruiXP3bJGlAi9AJc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com; spf=pass smtp.mailfrom=qq.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=USgVBA+a; arc=none smtp.client-ip=162.62.57.49
+	 MIME-Version; b=LPn1ISxQUhTdQh5y8p2UQB0EqO6IWn+TMsumhTxxUa7gbEbdS/PzQ+XMVolsPNaXKbplj/njSIWFm+/161tBPaiO9codDjofH3AS3hF4+LmnpUNkwExkQrIhVxPvU7A8tu39kt60laA61KRM8jXZXzOI6rMQBYRMC3khvVSDqVo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com; spf=pass smtp.mailfrom=qq.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=mtRHSUJf; arc=none smtp.client-ip=162.62.58.211
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="USgVBA+a"
+	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="mtRHSUJf"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
-	t=1791118994; bh=/jSyFVpBj1H5coY+WG6g1BpkBwLD4Tj8rf0lzvZEY2s=;
+	t=1791119055; bh=1sUK1jwzkfXeuosRyWgebZbS7VsC96r41xwmpwXMUQ8=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=USgVBA+aFOJju2WjRcPd9ZQ993vbNTPEHUh77Iw6fi/2n84TxbcYbL/w0OGfu3KlM
-	 CBfyLHhhPGyX6nLxGmL1tBEVc5ipDFiJSErjzFeTuUMfS2BZXFOkyBPgPeINZbKpbL
-	 Pm1o46Y2v7dF00RBB456T8PbzYIPLsTqKXw6pLGk=
+	b=mtRHSUJfGIxbE3UQMBSNTwEXX4KHlcRUqBMVZ+YsU5+oOYc8iuK5EZkj7gRnFnbUy
+	 q9A0dQITucL13wBQVI8ZZyHyi613vC8kca17JQZP65jZ9cSJ2WFZ+3tceX2mr8mlKt
+	 phNzq+evbs9TwBGnbZWL99/GBYgkbz9V9dz4O2co=
 Received: from xiuos ([2001:da8:201:1175:6e92:bfff:fe3b:37c3])
 	by newxmesmtplogicsvrsza63-0.qq.com (NewEsmtp) with SMTP
-	id BB1B629; Sun, 04 Oct 2026 21:02:59 +0800
-X-QQ-mid: xmsmtpt1791118979tyvbsivrb
-Message-ID: <tencent_5B39F7D3E6FAF1C347B6158C6E71ED66E506@qq.com>
-X-QQ-XMAILINFO: Npv5yIQT4nxMw+qkM5H01NnRA1Jp8prtziatVLGFccRKwxrHnOvQNWjbCbqplS
-	 EANGXKfW7ksAzQkKBVUhKsJntXrtNppq+fb0/l6T8xrkFJSeEuvdSfDq0vjixLPm7gGUtLS5Ps4r
-	 3X61WhhALjmEYoqs5bR9M3ZVhvSXOZgy1nDFOXYEgzIcIbhB+Ku+PYPe353/HamH34ui4Jmm2SrA
-	 Hjrnzk6QQ64XbygZ4+PvxLH0U6RpDiIrphujf5J99K5Es6ITgc9glY658vi04T9srriYIHGHlzgi
-	 Y8KMH7x88lVRxohAgUxVHsYackDT47G6CjSpZoBTUxkoZS0zApgPOf2PlPjwdA37qrh9ggX+E9Jy
-	 L5AnqhJ4CYlB6yKjgh9JYBN4bQMvyNrIMpfgd3s+Lzm0/QeJWtLcEs3KDPmE3ovSWhLwLOV8dTYo
-	 VlCLyxeYzojinUzSn3/vCPdtSsjGfDaSO9w/SIfxXRF1w4LlFgBtEPOHnkRj8aEDW5Lkv42RDclb
-	 y5Sp000tx3qSALJeSN2nPHyx86lrVkqLCQrOmkj+oH6ObDgdjrqED/kDathBis7dV4OV1+6+9Qt5
-	 A1fc5U/50g3iQNvp5hyASlfL0RHcZpedUqxxIJEG/1pvqPSrDONPv/ZAFnF2htIYjUFTMjxmpRjj
-	 BZV82NB+OcxInMjGGGfdnlxMjsSAv1RUeZLlaw1PMOrZQpUUZYP7bPXSBxV4fxtN7jq4UY4CIUpB
-	 n2PrFWiqQeiFEOPI716y/uukZjyQei3VuIg1B5f5n63UefCRWR/7M2YsB4CvOdapoTfqu5IC6MuU
-	 KDgixuBlC8Lfc/CA9UWapr/ps1XljRS6BrRkvNL1B8AuY8O3BhKE96iLU8irVrcfUOqtEtGjXKOO
-	 wX/Du9gmLuPK1hnhlwAKRo1jbF4o/0y/Xhr4Oo3UnN5xnGrxY/nfODRtHCKoTfFmFZpSVHWENYsl
-	 lI41hPYz8ZPVjeWzWIlhEbKkTEyVa8nEDqqUB+4xm6nMPg8jNHAlrrbkhESiwQLOZAQerXLaxJ0m
-	 3209y5Jf9D9ssWpCRo6MKMOK2OKgfthzCXNairsBVsx1S+pG/LeIt4vf5S26f5DXfrA6KT9Q==
-X-QQ-XMRINFO: Mp0Kj//9VHAxzExpfF+O8yhSrljjwrznVg==
+	id 1070AA28; Sun, 04 Oct 2026 21:04:07 +0800
+X-QQ-mid: xmsmtpt1791119047t3apx62qw
+Message-ID: <tencent_0775C96A4F2A7BB91937DF8EA13FEAACAA09@qq.com>
+X-QQ-XMAILINFO: OOO9dHjlsLs7iatHntpbBYiOSPtdbAHahXXXGypKHpgKYr2YnfIg3h2Lx2mMhz
+	 GlrqVDrgjg/wyj3O5pdyW1aWisVVm2k36TZrTTIAhWwCql0m7Vo4/nPX4mbTlVIqtpvZ32TaWhwv
+	 3m8Qh1QO4R9AXOiUm/NWQJesbJNFiDIwKEdqKMbjckzccwOyhN2Wqm/0ZMR0AHxBpG/WQvQcryN/
+	 TxJfduy6NBHjZk7p4f8OsJ0/fS3eQ2bDX5Duf4FyyTQseFnhLbh6WnYc6vBYlzY2KC8g8oHA5JWf
+	 rSB6QI2QG0MkpfPccFQ0lcUfoXfHNHXDkLKz8UgpSA7LFb1Kd0CxY+4zi7Wh667aN+44s1AQaLb+
+	 8PkINq+oq+Kak9mdBOg5sK27CEEF+UkBcA57Tl+Zi6Bl3TTbYr2m/nuzmmTKQJ5Xljk9yXSMWVc2
+	 BctqQqqr7bqfeHa1k0ne+dBA0QoWdetQKFIsyGSA14ELqLWd9Fa0KASPTccpmMH/G9/ItcnuzS2W
+	 41+lne+7qg5/JkUk8SbDUhDwq5Xs/MfdMKBJMviJ93tiaecJ+qAfYAEjb48Qpxa0eiIz0HW3vCh7
+	 HiY/t6jR61SVv9LHcuGilKdAvJayNSvrWjMK4CahxOC6ruOhT0Ivf/eFqUm89tQLnIHtavI/MeV8
+	 79+xe9lWbwTiOXB0r5ATl7W5ojPxYZwJw+DOPXi8RygrA8Hl9CacUuScVtcyVruiANhm4CN+Ok/N
+	 iDmNOQcWXDslUdi7vEl6q+7hF08kFGTYeYfb/VJnWAI/UZjYlgQsSGggqxfeFU8U44Tx/I3eKlBg
+	 5HKExglpMolgxps+R2MqWhWx4F4FIQvjQRQeLasOdaqcqpOKBaMLUwVxN4KRO37cc4mKw8oiyuXh
+	 YWt2pSoFa/FQZU1LSBDrVVDWWhn3ShfuOX9EDOi/xjITW78tXhKm+aRMbE62xM5heItpVhBnB7vV
+	 r1ucE4rHZ6SfppSwfs7ZSYrl0NZ0K4pDYl1mK6i1K58Q+FsyrQkDWcNIj5cQ1fPqazEO1xX5mLc2
+	 2hw5s/04vt8n6ixY/KbnFQxQnVJ1b2VsjmvPCakHeFB0d6DsCVMGAJ96VOUmW2aS27Q9Pp28u37p
+	 /9WwsmONbnN7QdYOV2P+RVzvl1cvt3RkEs4MMhDi/HsCQAAuo=
+X-QQ-XMRINFO: OD9hHCdaPRBwH5bRRRw8tsiH4UAatJqXfg==
 From: Anlai Lu <agicy@qq.com>
 To: sashiko-bot@kernel.org
 Cc: virtualization@lists.linux.dev,
 	iommu@lists.linux.dev,
 	"Michael S . Tsirkin" <mst@redhat.com>,
 	Eugenio Perez <eperezma@redhat.com>
-Subject: Re: [PATCH 1/6] iommu/virtio: publish the endpoint before replaying it
-Date: Sun,  4 Oct 2026 13:02:58 +0000
-X-OQ-MSGID: <20261004130258.3225640-1-agicy@qq.com>
+Subject: Re: [PATCH 4/6] iommu/virtio: stop queueing and draining once the device is removed
+Date: Sun,  4 Oct 2026 13:04:07 +0000
+X-OQ-MSGID: <20261004130407.3226174-1-agicy@qq.com>
 X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20261004120832.082DA1F000FF@smtp.kernel.org>
-References: <20261004120832.082DA1F000FF@smtp.kernel.org>
+In-Reply-To: <20261004120957.CEB961F000FF@smtp.kernel.org>
+References: <20261004120957.CEB961F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -63,66 +64,35 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-> [Severity: High]
-> Does this ignore the immediate need to restore mappings for the current
-> reverted endpoint?
+> [Severity: Medium]
+> If a device is removed while IOMMU requests are queued but not yet synced,
+> does this early return bypass __viommu_sync_req() where those pending
+> requests would normally be freed?
+> When setting viommu->removed to true during teardown, do we also need to
+> iterate over the viommu->requests list and free any abandoned
+> viommu_request objects?
 
-That path is the ATTACH request *failing*, and there the endpoint cannot
-have moved: the request could not be queued, so nothing reached the device.
-I checked this with a failslab injection on the ATTACH request: the trace
-shows no ATTACH for the target domain at all, and the endpoint stays on the
-domain it was on - which, in the flows here, is the core's empty blocking
-domain.
+Yes, they are left behind, and it is a real leak.  They cannot be freed at
+that point, though: the virtqueue still owns them - it holds them as the
+buffer data and has their scatterlists mapped - and the device may still be
+using them until it is reset a few lines later.
 
-In the other failure mode - a device rejecting an ATTACH it has received -
-the driver still assumes the endpoint stayed where it was; that is the same
-assumption the baseline made.  With QEMU, the only rejection that happens
-after it detached the endpoint from its old domain needs a bypass flag that
-does not match the target domain, and this driver cannot send one: it only
-sets BYPASS for the domain it reserved at probe time.
+The cleanup belongs after the reset and before the queues are deleted,
+where virtqueue_detach_unused_buf() releases both the object and its DMA
+mapping, as other drivers do at removal - and that is what the v2 I just
+sent does:
 
-So the old domain still holds the endpoint and all of its mappings, and
-there is nothing to restore here.  replay_pending is only re-armed
-conservatively, for the case where the old domain's count had reached zero
-while the endpoint was retired.
+	vq = viommu->vqs[VIOMMU_REQUEST_VQ];
+	while ((req = virtqueue_detach_unused_buf(vq))) {
+		list_del(&req->list);
+		kfree(req);
+	}
+	vdev->config->del_vqs(vdev);
 
-> [Severity: High]
-> If viommu_replay_mappings() fails during viommu_attach_dev(), the endpoint
-> is reverted to its old domain on the hardware.
-> Since the old domain's mappings were dropped by the device when the
-> endpoint initially moved, does the reverted domain now lack all mappings
-> on the physical device?
-> Could this cause all subsequent DMA from this device to fault silently, as
-> the OS assumes the old domain is still fully intact?
-
-This one is deliberate, and it is bounded.  After a failed replay the
-endpoint is put back on the old domain, whose device-side mappings the
-device dropped when the endpoint left it; they are re-sent by the next
-attach to that domain, which replay_pending forces - the flag is set
-exactly when the old domain's count reached zero, i.e. when the device
-dropped it.
-
-What bounds the window until then: in the flows this series targets, the
-old domain is the empty blocking/identity domain that the core attaches
-before the user's domain, so there is nothing that can be missing.  If the
-old domain is a populated one, the state is still better than the
-baseline's: the baseline left the device on the *new* domain (with its
-partial mappings) while the driver and the core believed the endpoint was
-on the old one - the same missing mappings on the wrong domain, plus a
-count that the next attach would underflow.
-
-If you would rather have the old domain whole again before the failing
-attach returns, that is one extra call: replay old_vdomain right after a
-successful revert (a failure there leaves replay_pending set, as now).  I
-left it out because it adds a full replay - potentially as expensive as the
-one that just failed - to an error path that the next attach to that domain
-repairs anyway.  Happy to add it if that is preferred.
-
-The comments in the v2 I just sent say this in the code, so a reader does
-not need this thread: the ATTACH-failure exit states that the endpoint is
-still on the old domain with its mappings and that nothing has to be
-replayed, and the failed-replay exit states that the old domain's replay
-is left to its next attach.
+The baseline did not clean up either, but worse: with no removal state it
+would call virtqueue_get_buf() on the already-deleted virtqueues, i.e.
+use-after-free, rather than leak.  The flag turns that into "queueing and
+draining stop"; the loop above closes the loop on what is left.
 
 Thanks,
 Anlai
