@@ -1,50 +1,50 @@
-Received: from out162-62-58-211.mail.qq.com (out162-62-58-211.mail.qq.com [162.62.58.211])
+Received: from out162-62-57-49.mail.qq.com (out162-62-57-49.mail.qq.com [162.62.57.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95B513AFD0A;
-	Sun,  4 Oct 2026 13:01:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.62.58.211
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4735C45041C;
+	Sun,  4 Oct 2026 13:01:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.62.57.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791118894; cv=none; b=NcPS6QpctQRV+yWr1U6X/a7cAajL0BwrP9OCRRARv4/Qc4I01fSSWyVkoyB+ELeBQ16sYcwavzfuBS9y0zO81YmKtASz9B6CwMhOhbc/KpKEaplq+ncLvkYDxnIlaGJDfqwPF0vr0gv4xCaYsmRJOU5u2AK6CSId8UxprF37ik8=
+	t=1791118896; cv=none; b=eTWYmCQORRqV8+TjoJQ2IAXMhtbEF+ZVqyi3Xf4jfikGM9sovOnGC96TJS5Am27nmfryisSXV+OvIYtCnZdfrJh+Rw5M9Ied9uoyGDeeIrACyGbLh0MqIaoJZAJRnAmsfEISTMdS3GzdRhCTGXjmGVjnDDksv3IGbegiSurztak=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791118894; c=relaxed/simple;
-	bh=OLm8pvvaW1sQ9zo1tojzShZIchnfCb+HDeNmvS5Cn4Y=;
+	s=arc-20240116; t=1791118896; c=relaxed/simple;
+	bh=mfUaFcZYqkVJqitlN13YmY5Dk01ph7q2xThl/6efWGs=;
 	h=Message-ID:From:To:Cc:Subject:Date:In-Reply-To:References:
-	 MIME-Version; b=EVzBP6NAx5htzkKN020zV4/gQLxRBGiHAVTq/KQlnyGPV3O+RObnYvkstz+GHZb+iySXb2vVQFKbcrtAZERJy5HJhMYJxCtyRk7iISdUAZV59MsnKor7kDOeBdJ/GMdZ5+Y4m38ZJK3ll458bIAdeht5EXVsLcoXRbg82T44zVM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com; spf=pass smtp.mailfrom=qq.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=MjbyWZTQ; arc=none smtp.client-ip=162.62.58.211
+	 MIME-Version; b=dHtnC/c/GR1gdFsKThm+zjLxYHWpPeNcfa93TjhUJDqrUCUsJugOQXp+3Wq5lVI1zn5BSqgLMLaAw35sb2nX+aUkZt+6FBsvzT/kQE+FKCWisIvQ8ZuLaodgIu4EpECnOUUABqYGhmERHiF5c37ZWG8QyKaaWt4h3r8WdC4vco4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com; spf=pass smtp.mailfrom=qq.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=r5Xr0Ujb; arc=none smtp.client-ip=162.62.57.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="MjbyWZTQ"
+	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="r5Xr0Ujb"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
-	t=1791118887; bh=qdTozFLv9mjel7LKU3NvX5BPQwY50Wo8yZpFEcVIaXo=;
+	t=1791118889; bh=/Gpb1MJc8GoBPuty8IFwcD8PfPxx1MzaXkRX/KqQeMQ=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=MjbyWZTQRNtON02po2/XUgZoMbxNM8KRJKMN8hbWrBXncM5MqnQbxoSg0qWiTTXkv
-	 TMTWZ8EXXgp1c0ik44PWaUsz/2jUnWHsKTjKuTnj/fMC/UqmhX9tIOXX9UkCbogSLu
-	 e5GYCT74DeAT2YQ5BzTvfhRPW/L2tGSzMHF0c1K4=
+	b=r5Xr0UjbWea6HmobxfmaAty9oJ6U6Gv5/5uSEuBgBg22apNfT8VwzTnKFlSDpM3Cr
+	 NEVkBrkokZFyy5HC+1in8EMd6cKOAZ+Or162aaNd4wx/htrcr8CbKZS7XjAHT0+H/g
+	 djEkgMEE/kZRA8gdyhO6+YT775eg53vxWN6C8paM=
 Received: from xiuos ([2001:da8:201:1175:6e92:bfff:fe3b:37c3])
 	by newxmesmtplogicsvrszb51-1.qq.com (NewEsmtp) with SMTP
 	id 4EAF2BA; Sun, 04 Oct 2026 21:01:14 +0800
-X-QQ-mid: xmsmtpt1791118885tsccphgng
-Message-ID: <tencent_E9DADACA296EBD4DBF63DB0F072B37DDCC07@qq.com>
-X-QQ-XMAILINFO: OVFdYp27KdlJELpXMf14EcCQbRyDheKqSgOZK6zMvC0reuT1YmlDcoCnFsS5mw
-	 qZm8JS5FkGTabHHKF+JqwFXojke4DuICUqHlxXbEVPTp8FzsKs3jIjZR/bJTWRFinA4+bASLtFQI
-	 h4b3tDeFJhVN2wK32yaJ5MgTB3Iu904p8M9PR2vGt5v0t6WYFBAuOueyAaJfZRtexrdsy2H7sL7J
-	 jqSCb80YJHFF7M6SPHQKJStWpOgrTG201UzM/EqKXiBGfaI5i0AEGCxVwGkmZNXTfqr3LPlHKQRM
-	 +aN7FOADrYOyrMEJkYdzdnt+kwnraKmsDB0WdttN+UzJqZw4bogvo7qlObDy3G11K2S8vVLikjnu
-	 70Vc7hB74mkkuwHMU7QG0pRjeNbFxr/xNjrgDihigm3NuiFdNHICMIlKKTGvoB6fO+pIxR0S+I2c
-	 SlEJlAKhIxJLsnLB6RrAW1M5YitdW0ByHOficTheHvlRIXew+hQ4UtFtYEvwP1ZlslwlYDQE8k13
-	 xDkdlui8NmAwxcfNeA6AlIwyYBt+dyzNOcEMqFI+DOL3JQUt64qz6nxqbnSWyTNNSNHkYb58tOCu
-	 /Oki/lQSaqCxJ6/b53ipHMBBp0wxEedOQ7ZZng92F5ar/BcjR1FGGTXNCZX5h/YTKDvIcDeo7acC
-	 nYGOsQ3Oskmihnruf6Say3MQYnCPGwoFWz3u2Uu+021oXvzRpkpJ2I3K/E2ZnNlgb+7WH1PJdenp
-	 FzPKjJnCt8WwvONs1+iCqmEay2iOXRkw9ysXerDTmH78gx3Vga/QNy8Cl52hKlz3Z0S+fppxNTe5
-	 SU7GmsjZtZckJ3djZF9gku2gEaJpGAuLbb+E09kD7RxoxjbH8LM8jrRftaPcvJmCLbRlL4EeEfS3
-	 afAUxHEJ09pyF2BG52h3SqARTz+NVsxeCL3CDLT4w9ttI3ml9Ged03eyfAAsgZRjJhTPnaR3ZTId
-	 QvydSe0oAkucqYwcnNnO8QGF/ye/AovzyzTo78UAuwadszCJjbdtCaWBW59HDZZ0KYj+q+AlEjYa
-	 UtHzga7h86x7qCjVQIbzFRjX/Gm+OlBBbGUbNiMhD5+rdtvCObFmsOAEX2aqw7H4JrOOBEbI53cO
-	 dLZW8PT6X4yAPGkaX1C4nYA4tYyyyGlpD15heud0zBwCsCHeCV2d6KmoO7HxUNzXCJsFKy0sQBQS
-	 vjCjPVfg7+KLnioIovnJD1R8jpdkwvxsnO8ko=
-X-QQ-XMRINFO: NI4Ajvh11aEjEMj13RCX7UuhPEoou2bs1g==
+X-QQ-mid: xmsmtpt1791118886tby8awh9f
+Message-ID: <tencent_5FCFC7891F9B565EBA65B56B951EDC219B08@qq.com>
+X-QQ-XMAILINFO: NBMltDMjH0L19/E8hhJGj7LXCGPJjwUdp4Su2Gw9+f3n/mSCij2dNCrjcQgJrq
+	 dG4a3p48x+oEUUbaXs9tj2cEDDEEj90DjqP+hrwTYD2IApomMJLKpZnqzdvuOb4KvBIpZvaut8sQ
+	 ePYPLv+sTYYAlKW0YNd0Q9tR9roY7n1FNAocxdI4xMkkw/iTZkR7SInc4AhJHAXjwkWyfO7p17oo
+	 9JIf6FEoTsTqq/HPYZxzizSJHHISfHrxYAToGB2Ys7WcrY2I9KKX0OwDDNxQmzSClkWkKPij7O3F
+	 ZOYdwtNcgK7vks0gGX+77n6mZSh8uZMNok7Jht/sEeJ3YSR9DI4QL5x25SiEudtuVQLb3A3HEHUE
+	 3TJ2HXbZ5u++UdCJuro/K799T/yq+K8CPvtXswtRRTIlJhQX3wbxz4g47VqEzYwK3foigBu+KRA1
+	 KO9dZzk27HCplgapZyWdyIgPWJEUrtHquX2fv3Gw/c4/UvddO7OSpAZzci3d3bDs0ENm4VhUCFDc
+	 u0DcBrvetm++XtJ9QuGgsiCDM0WaDvRaGd/2IGEoShLKMmnjPmFBkHTv2idQKYHMj2EOcei4N0ZK
+	 AEBDW24SePyK2M65b5ychDhpFH5jWDdv5XhWjCZLWL0E3mMq1doarSb9ZIuCZ7wpdFct851FHFYH
+	 BXfSwacmOIlOxaPTUpBPo/P8Te6cHjPT9lRE5xXYzbd48X42Is2vNsjursABp31E7PaoPy/vvUOo
+	 xeeUaFmRUQ+nIB6dJ9ipWJwTku1dsWNnxapphnR6L5c8SMFQ32AU2Q+/1aQv04ftry7sUwdWpHFm
+	 jmXFns6FEP6H+JTRqxUIJ+wUExO9ilCEgjR4bCGYXoT10xD6nprKTvtAsuX/lhDbWnVGQEdHLRHU
+	 n2rjavODYSQIhWh8fpiNTaPCLjEZKdiaNdkqDQdz47aTALnrIDf1CTWtagEJ/GIbkSyzHg3CKwFL
+	 /z5fSdru56BVdQy89J8BXhmDTMf0IIsD+vPEA/D4WWXt799+XVH9QAQJbMapLe1oEH/ztbKkA8HB
+	 W5OX4VoS4GSTbcKeLjjbuPr8jGLLPa2Kj27DVEpvOatFxRiexSFW+e+c1EJ4r85HI8/cWMhLGNtW
+	 tooXvzD9nQFSdAC4SukefqpYNo/yf9NXpwbtvzIcS3lAakn0Rr2V1dJouclNX/7NJEYNXRuJVcSL
+	 fl7nI=
+X-QQ-XMRINFO: MSVp+SPm3vtSI1QTLgDHQqIV1w2oNKDqfg==
 From: Anlai Lu <agicy@qq.com>
 To: Jean-Philippe Brucker <jpb@kernel.org>,
 	Joerg Roedel <joro@8bytes.org>,
@@ -54,9 +54,9 @@ Cc: Robin Murphy <robin.murphy@arm.com>,
 	iommu@lists.linux.dev,
 	linux-kernel@vger.kernel.org,
 	Anlai Lu <agicy@qq.com>
-Subject: [PATCH v2 3/6] iommu/virtio: allocate the UNMAP request with the mapping
-Date: Sun,  4 Oct 2026 13:01:10 +0000
-X-OQ-MSGID: <20261004130113.3225005-3-agicy@qq.com>
+Subject: [PATCH v2 4/6] iommu/virtio: stop queueing and draining once the device is removed
+Date: Sun,  4 Oct 2026 13:01:11 +0000
+X-OQ-MSGID: <20261004130113.3225005-4-agicy@qq.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <tencent_D757B544955DDC509B5DC7161F425620BA08@qq.com>
 References: <tencent_D757B544955DDC509B5DC7161F425620BA08@qq.com>
@@ -68,210 +68,123 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The iommu core states the contract plainly (iommufd pages.c): a driver
-may not fail unmap for reasons beyond bad arguments, and in particular
-may not allocate on the unmap path, because the caller may free the
-memory as soon as unmap returns. viommu_del_mappings() still allocated
-the UNMAP request there, so a forced allocation failure left the device
-mapping a page the driver had already released, while the caller was told
-nothing.
+viommu_remove() resets the device and deletes the virtqueues while
+userspace may still hold domains that it maps or attaches, and nothing
+stopped a request from being queued - or a drain from walking the queue -
+on a virtqueue that was being torn down.
 
-Allocate that request object with the mapping instead - on the map path,
-which is allowed to fail and reports the failure to the caller that is
-mapping - and free it with the mapping when no UNMAP is sent: the unmap
-path then only fills in and queues a request. Measured with a fault
-injected into that allocation (failslab, on the fault-injection harness
-this work used): the unpatched driver returns success for a re-map of the
-same IOVA while the device still translates it to the freed page, proven
-with a real DMA through the QEMU iommu-testdev; with this patch the same
-scenario reports no such case in any round and the DMA lands on the new
-page. The unmap path allocates nothing afterwards, and the device sees
-the same request stream.
+Set ->removed under request_lock before the teardown - the lock a
+queueing path holds while it checks liveness and adds the request, and
+the one the drain holds for its whole run - check it in the queueing
+helper, and let the drain return early when it is set.
+
+A drain that returns early leaves the requests still on the queue
+behind, and the device cannot complete them either.  Detach them
+from the request virtqueue - which unmaps their DMA mappings - and
+free them after the device is reset, when it can no longer be using
+them, and before the queues are deleted, so that the objects do not
+leak.
 
 Fixes: edcd69ab9a32 ("iommu: Add virtio-iommu driver")
 Signed-off-by: Anlai Lu <agicy@qq.com>
 ---
- drivers/iommu/virtio-iommu.c | 101 +++++++++++++++++++++++++++++------
- 1 file changed, 85 insertions(+), 16 deletions(-)
+ drivers/iommu/virtio-iommu.c | 49 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 49 insertions(+)
 
 diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-index bb328f29ba71..f886941d8f3b 100644
+index f886941d8f3b..7119030dbcb3 100644
 --- a/drivers/iommu/virtio-iommu.c
 +++ b/drivers/iommu/virtio-iommu.c
-@@ -54,10 +54,18 @@ struct viommu_dev {
- 	u32				probe_size;
- };
- 
-+struct viommu_request;
-+
- struct viommu_mapping {
- 	phys_addr_t			paddr;
- 	struct interval_tree_node	iova;
- 	u32				flags;
+@@ -42,6 +42,11 @@ struct viommu_dev {
+ 	spinlock_t			request_lock;
+ 	struct list_head		requests;
+ 	void				*evts;
 +	/*
-+	 * The request that will carry this mapping's UNMAP, allocated with the
-+	 * mapping: the unmap path must not allocate, since the caller may free
-+	 * the memory as soon as it returns (see iommu_unmap_nofail()).
++	 * Set before the teardown: nothing may be queued or drained after
++	 * that.
 +	 */
-+	struct viommu_request		*unmap_req;
- };
++	bool				removed;
  
- struct viommu_domain {
-@@ -296,6 +304,29 @@ static int viommu_add_req(struct viommu_dev *viommu, void *buf, size_t len)
- 	return ret;
- }
+ 	/* Device configuration */
+ 	struct iommu_domain_geometry	geometry;
+@@ -116,6 +121,16 @@ static struct viommu_domain viommu_identity_domain;
+ #define to_viommu_domain(domain)	\
+ 	container_of(domain, struct viommu_domain, domain)
  
-+/* Queue a request whose object was allocated earlier (the unmap path) */
-+static int viommu_queue_prealloc_req(struct viommu_dev *viommu,
-+				     struct viommu_request *req, void *buf,
-+				     size_t len)
++/*
++ * The device can be removed while its domains still exist (userspace may hold
++ * them for a while), and the queues go away with it: nothing may be queued or
++ * drained after that.
++ */
++static bool viommu_device_live(struct viommu_dev *viommu)
 +{
-+	off_t write_offset;
-+	unsigned long flags;
-+	int ret;
-+
-+	write_offset = viommu_get_write_desc_offset(viommu, buf, len);
-+	if (write_offset <= 0)
-+		return -EINVAL;
-+
-+	spin_lock_irqsave(&viommu->request_lock, flags);
-+	req->len = len;
-+	req->writeback = NULL;
-+	memcpy(req->buf, buf, write_offset);
-+	ret = __viommu_queue_req(viommu, req, write_offset);
-+	spin_unlock_irqrestore(&viommu->request_lock, flags);
-+
-+	return ret;
++	return !viommu->removed;
 +}
 +
- /*
-  * Send a request and wait for it to complete. Return the request status (as an
-  * errno)
-@@ -360,6 +391,19 @@ static int viommu_add_mapping(struct viommu_domain *vdomain, u64 iova, u64 end,
- 	if (!mapping)
- 		return -ENOMEM;
+ static int viommu_get_req_errno(void *buf, size_t len)
+ {
+ 	struct virtio_iommu_req_tail *tail = buf + len - sizeof(*tail);
+@@ -206,6 +221,10 @@ static int viommu_sync_req(struct viommu_dev *viommu)
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&viommu->request_lock, flags);
++	if (!viommu_device_live(viommu)) {
++		spin_unlock_irqrestore(&viommu->request_lock, flags);
++		return 0;
++	}
+ 	ret = __viommu_sync_req(viommu);
+ 	if (ret)
+ 		dev_dbg(viommu->dev, "could not sync requests (%d)\n", ret);
+@@ -229,6 +248,9 @@ static int __viommu_queue_req(struct viommu_dev *viommu,
+ 
+ 	assert_spin_locked(&viommu->request_lock);
+ 
++	if (!viommu_device_live(viommu))
++		return -ENODEV;
++
+ 	sg_init_one(&top_sg, req->buf, write_offset);
+ 	sg_init_one(&bottom_sg, req->buf + write_offset,
+ 		    req->len - write_offset);
+@@ -1569,12 +1591,39 @@ static int viommu_probe(struct virtio_device *vdev)
+ static void viommu_remove(struct virtio_device *vdev)
+ {
+ 	struct viommu_dev *viommu = vdev->priv;
++	struct viommu_request *req;
++	struct virtqueue *vq;
++	unsigned long flags;
+ 
+ 	iommu_device_sysfs_remove(&viommu->iommu);
+ 	iommu_device_unregister(&viommu->iommu);
  
 +	/*
-+	 * The UNMAP request object, allocated here: the unmap path may not
-+	 * allocate (iommu_unmap_nofail()), so the failure is paid for by the
-+	 * caller that is mapping, which is allowed to fail.
++	 * The queues go away here: nothing may be queued or drained from now
++	 * on.  Taking request_lock is what tells a drain in flight that it has
++	 * to finish before the teardown, since the drain holds it throughout.
 +	 */
-+	mapping->unmap_req = kzalloc_flex(*mapping->unmap_req, buf,
-+					  sizeof(struct virtio_iommu_req_unmap),
-+					  GFP_ATOMIC);
-+	if (!mapping->unmap_req) {
-+		kfree(mapping);
-+		return -ENOMEM;
++	spin_lock_irqsave(&viommu->request_lock, flags);
++	viommu->removed = true;
++	spin_unlock_irqrestore(&viommu->request_lock, flags);
++
+ 	/* Stop all virtqueues */
+ 	virtio_reset_device(vdev);
++
++	/*
++	 * The device cannot complete the requests still on the queue, and
++	 * the drain does not touch them anymore: detach them from the
++	 * request virtqueue - which releases their scatterlists - and free
++	 * them.
++	 */
++	spin_lock_irqsave(&viommu->request_lock, flags);
++	vq = viommu->vqs[VIOMMU_REQUEST_VQ];
++	while ((req = virtqueue_detach_unused_buf(vq))) {
++		list_del(&req->list);
++		kfree(req);
 +	}
++	spin_unlock_irqrestore(&viommu->request_lock, flags);
 +
- 	mapping->paddr		= paddr;
- 	mapping->iova.start	= iova;
- 	mapping->iova.last	= end;
-@@ -387,6 +431,7 @@ static int viommu_add_mapping(struct viommu_domain *vdomain, u64 iova, u64 end,
- 		if (ret) {
- 			interval_tree_remove(&mapping->iova, &vdomain->mappings);
- 			spin_unlock_irqrestore(&vdomain->mappings_lock, irqflags);
-+			kfree(mapping->unmap_req);
- 			kfree(mapping);
- 			return ret;
- 		}
-@@ -414,7 +459,7 @@ static size_t viommu_del_mappings(struct viommu_domain *vdomain,
- {
- 	size_t unmapped = 0;
- 	unsigned long flags;
--	bool spanning = false;
-+	struct viommu_request *span_req = NULL;
- 	u64 span_start = 0, span_end = 0;
- 	struct interval_tree_node *node, *next;
+ 	vdev->config->del_vqs(vdev);
  
-@@ -445,48 +490,72 @@ static size_t viommu_del_mappings(struct viommu_domain *vdomain,
- 		 * range is the mappings' own: the caller's requested range can
- 		 * begin or end inside another mapping and would then invalidate
- 		 * nothing at all, and a range spanning a gap would drop a
--		 * mapping that is not being removed.
-+		 * mapping that is not being removed.  The request object was
-+		 * allocated with the first mapping of the run, so this cannot
-+		 * fail for lack of memory.
- 		 */
- 		if (queue_unmap && vdomain->nr_endpoints) {
--			if (spanning && mapping->iova.start == span_end + 1) {
-+			if (span_req && mapping->iova.start == span_end + 1) {
- 				span_end = mapping->iova.last;
-+				/* this mapping's object is not needed */
-+				kfree(mapping->unmap_req);
-+				mapping->unmap_req = NULL;
- 			} else {
--				if (spanning) {
--					struct virtio_iommu_req_unmap unmap = {
--						.head.type	= VIRTIO_IOMMU_T_UNMAP,
--						.domain		= cpu_to_le32(vdomain->id),
--						.virt_start	= cpu_to_le64(span_start),
--						.virt_end	= cpu_to_le64(span_end),
--					};
--
--					if (viommu_add_req(vdomain->viommu, &unmap,
--							   sizeof(unmap))) {
-+				struct virtio_iommu_req_unmap unmap = {
-+					.head.type	= VIRTIO_IOMMU_T_UNMAP,
-+					.domain		= cpu_to_le32(vdomain->id),
-+					.virt_start	= cpu_to_le64(span_start),
-+					.virt_end	= cpu_to_le64(span_end),
-+				};
-+
-+				if (span_req) {
-+					struct viommu_request *req = span_req;
-+
-+					span_req = NULL;
-+					if (viommu_queue_prealloc_req(vdomain->viommu,
-+								      req, &unmap,
-+								      sizeof(unmap))) {
-+						/*
-+						 * The request object was
-+						 * already there, so this is
-+						 * not an allocation failure:
-+						 * the run is not unmapped on
-+						 * the device, and the caller
-+						 * is told so.
-+						 */
-+						kfree(req);
- 						unmapped -= span_end - span_start + 1;
- 						dev_warn_ratelimited(vdomain->viommu->dev,
- 								     "could not queue an unmap\n");
- 						goto out;
- 					}
- 				}
--				spanning = true;
-+				span_req = mapping->unmap_req;
- 				span_start = mapping->iova.start;
- 				span_end = mapping->iova.last;
-+				mapping->unmap_req = NULL;
- 			}
- 		}
- 
- 		interval_tree_remove(node, &vdomain->mappings);
-+		kfree(mapping->unmap_req);
- 		kfree(mapping);
- 		unmapped += size;
- 	}
- 
--	if (spanning) {
-+	if (span_req) {
- 		struct virtio_iommu_req_unmap unmap = {
- 			.head.type	= VIRTIO_IOMMU_T_UNMAP,
- 			.domain		= cpu_to_le32(vdomain->id),
- 			.virt_start	= cpu_to_le64(span_start),
- 			.virt_end	= cpu_to_le64(span_end),
- 		};
-+		struct viommu_request *req = span_req;
- 
--		if (viommu_add_req(vdomain->viommu, &unmap, sizeof(unmap))) {
-+		span_req = NULL;
-+		if (viommu_queue_prealloc_req(vdomain->viommu, req, &unmap,
-+					      sizeof(unmap))) {
-+			kfree(req);
- 			unmapped -= span_end - span_start + 1;
- 			dev_warn_ratelimited(vdomain->viommu->dev,
- 					     "could not queue an unmap\n");
+ 	dev_info(&vdev->dev, "device removed\n");
 -- 
 2.55.0
 
