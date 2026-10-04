@@ -1,106 +1,148 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from out162-62-57-49.mail.qq.com (out162-62-57-49.mail.qq.com [162.62.57.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2DE84156F0;
-	Sun,  4 Oct 2026 12:56:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BD2B44AB6C;
+	Sun,  4 Oct 2026 13:00:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.62.57.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791118566; cv=none; b=LXvJIuUSj1zbz+B66D+uaZL9a0XSJAuGPJ+WokueTtHqL1INn3xwCfkE6SWsA1rSQTJu03eWoMUQDRJas1Vp493G9zH5PaA7fO+6Auf/VxXms22YPo+YCEGYjQpohAGMQQtHGALA1Mui/V/fUUThl8c7Ed/pIbzUDFck8qW20Ks=
+	t=1791118823; cv=none; b=ftm4paL8XHkGpL1hfYQ8PicEM50DcQDUp+Wbi28sFn+u/51xMXLYdhH9R+N1L7TX2Ayy3Nxl/G4nOyQF3VkXHTjn+ziFDkzsIS4Oj1QYPpl3hNrMmH9JEHsLIsPb/dnoRO9N/RPbtiVEtnICFRT5112YZQ3+8puHP7PWoJ4SGH0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791118566; c=relaxed/simple;
-	bh=a7fEkya+eiLiIllDm+mhWmrv3McI5X/eL0cHkPiNtyw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Yd1WD4vL8XEHK70Gj4LDsJA3istKsSDTC8XKdxzpEWa1kI3W6xryg8RGvhFE4s1307UYy6Rq/dlc+DuEq9aSCLY9kREGT50zklIWoNWufnlRa8x0WnQ1s2d+z13/pk1gDpkvrzF3A/wPIu1JKdQBo9mBMobPdKOHi8RixBaKWIg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=yshBgo+i; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791118823; c=relaxed/simple;
+	bh=6Hj1cL+LJotPl+FVFDnC5D8apXfe1+/uuwaEIb0djlg=;
+	h=Message-ID:From:To:Cc:Subject:Date:MIME-Version; b=mVK4TXE3kzFbVVvllEMtNNsmxwQLQh0dExfJg1GF6vPwPszMg6SYzo6VYT5y4nS7aDyM1w72vS5DwZYk/j1UsXiKfDPemkLSYOJOq3MBckUHq2dEXQXq8P2AjDA8v10Gqw55KzwxbqvBkLdqGo8sasoiBUZ50KhhCK4KWr5+J3g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com; spf=pass smtp.mailfrom=qq.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=cpr/BJ1m; arc=none smtp.client-ip=162.62.57.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="yshBgo+i"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF7871F000FF;
-	Sun,  4 Oct 2026 12:56:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxfoundation.org;
-	s=korg; t=1791118564;
-	bh=+zyDIlut7TP1j+n//D3AqYQMcrNu+Ijij1LbJXSVLPI=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=yshBgo+i7fF7Shqs12G8SVVUGuFA0fiV1ORRHZWol+yLghFe+eEKrWR1jHQBAbZx5
-	 0IXkME2pCN9M1ylMuwoI+Jge97xNtEsp7cbgPLkBIeJWRkRN2n8tEOsm8kknusl5PJ
-	 PKdD0KLV9Kyk0v4r/cgujjMK3/hDbeT1dm5w5Qis=
-Date: Sun, 4 Oct 2026 14:56:00 +0200
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: sungbyeongchan <tjdqudcks0424@naver.com>
-Cc: German Maglione <gmaglione@redhat.com>, Vivek Goyal <vgoyal@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Miklos Szeredi <miklos@szeredi.hu>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	virtualization@lists.linux.dev, fuse-devel@lists.linux.dev,
-	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] virtiofs: validate fixed-output response length
-Message-ID: <2026100445-cataract-anthem-8edb@gregkh>
-References: <20261004123405.586168-1-tjdqudcks0424@naver.com>
+	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="cpr/BJ1m"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
+	t=1791118813; bh=3yCK4Moh7XYc7YAvGVA6/15V7iheywb3ZZ7BFnLrWyE=;
+	h=From:To:Cc:Subject:Date;
+	b=cpr/BJ1mr3K7k5ZC5LudtvWqtuU7sqlA3clss92Tc1eDuvSCRuIDxN/JZttyvTk4U
+	 xfCcKCaBX9IJq2z18zRLXKjB39qx/mccPLcJRtVPaitmxmCE710V4ta9BXrmRucqDA
+	 3uYk0rguTNt2dK4NsQd1Z75SPCD6MKdCl1oABIHE=
+Received: from xiuos ([2001:da8:201:1175:6e92:bfff:fe3b:37c3])
+	by newxmesmtplogicsvrsza53-0.qq.com (NewEsmtp) with SMTP
+	id EF320A55; Sun, 04 Oct 2026 20:59:51 +0800
+X-QQ-mid: xmsmtpt1791118791t0clyr4q0
+Message-ID: <tencent_D757B544955DDC509B5DC7161F425620BA08@qq.com>
+X-QQ-XMAILINFO: MtVuuZx9Of9Q8kqEOgsouvcC72uiDLmJwtYoCS+VOfiODem4xYsTUMqZn9XLOO
+	 9jTvUzyBkJYnv1/gxnmwIJKw3QIV2FhEkh5XRCy8ysl375HjU77ZSYN/rhucnTyd94We/lzOpShM
+	 OqCejj0rRrJJlk4venFnHBDUQK3RgRMc5STVjGUQ8o/l1LdaxH8GzSXrkE9L06V95K4UFBsVCysU
+	 ldqOUUknE53uVdlw9hZiU1Q2PhMH7Mo6utIuCAxHNJ2gcsaa2yf/Lwm0yyv/KQn09vA0X4SPN2iU
+	 +pQAIvs0Gnh/4OJMdWzisTClW1vT/Z7hgOOoNSz4IZZHdMRcGfSMwN2H36qxQxw8sML1O4nPClCs
+	 u18H3wMAGcmxNgBx6r+WMZffhlBTtpDhHEj37ZffR5j+0CbvM5zCkI+q7goEcpEPIBlE6RzgRoi6
+	 FnG2uGLiKzYQ1z5I7+aKysCxXqlxFML4zLrAbObTW3BABROioVHe8zXjSoqX24mGZUnGAZJrsygT
+	 8bAr2orrRfdra91Q+QMVu419K0VDNStlAOnxgnsPA2rjn4R/moao7XLcukPKxJiN5mJ2wQpjaTFW
+	 GYfPZzCbObuCL/8Iyj0GSrgXYYB/IsST5dmILa5TcfHsQKWd8BekcyNmLnLcEUw9HDpeUz1IiV9J
+	 GYJH7ywgf1Kp+B5uZkRit6LVWiJZigLCyglSmBBPvfArudBqAVYeYtAZdrt9RCmMNh7d5D57zWYl
+	 NOcaQYR9GT9REFeudHD8vzjO54M0BAt4V+COsVLYr4Pkcp9s3bGCjKk5Zvu8lOixImblvIGBxZU9
+	 6J7FktDY4K7claMHsNzPq9oP+JhjeiKMF0uxHa+PeRYRl5iD7uePZDFNhJCxjNmF6XJcM/V6YMW8
+	 oS4J42xrY2O4QUdrtZw8LdAhfXype1RBnQghD4SgqmZsLPIm+qiwj39utEcBhZlQwgxj9fFUgvTe
+	 HV6lmz2DbuMe1o/Fee474JHJIbApPtW9Lu6lgoqwXhm1JePwgbNe/GjOAji/fa9jjkWNlx6EF1nW
+	 bByb0NQ4C20w5fsI7ZX+tfQuQfidKeyXaWQfE4dVntW3NCZ2/j0LgACRhIUhvXhoL+uXrx9F8Ymh
+	 u3SR/XaBDIMLw2pB6HpI+/04TGgRjZQQ44N9gASwASPDxOuvkQ68iTDGcXRs/Gvjb58yEV1UP1Vi
+	 0behg=
+X-QQ-XMRINFO: M/715EihBoGS47X28/vv4NpnfpeBLnr4Qg==
+From: Anlai Lu <agicy@qq.com>
+To: Jean-Philippe Brucker <jpb@kernel.org>,
+	Joerg Roedel <joro@8bytes.org>,
+	Will Deacon <will@kernel.org>
+Cc: Robin Murphy <robin.murphy@arm.com>,
+	virtualization@lists.linux.dev,
+	iommu@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	Anlai Lu <agicy@qq.com>
+Subject: [PATCH v2 0/6] iommu/virtio: batch the mapping replay
+Date: Sun,  4 Oct 2026 12:59:34 +0000
+X-OQ-MSGID: <20261004125934.3224379-1-agicy@qq.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261004123405.586168-1-tjdqudcks0424@naver.com>
+Content-Transfer-Encoding: 8bit
 
-On Sun, Oct 04, 2026 at 09:34:05PM +0900, sungbyeongchan wrote:
-> A short successful virtiofs response can leave the fixed-output
-> portion of the request argument buffer unwritten. The completion path
-> nevertheless copies the full declared output to the request destination,
-> allowing stale allocator contents to reach callers such as
-> fuse_statfs().
-> 
-> Require successful fixed-output responses to contain their complete
-> declared output. Continue to permit a shorter final argument only for
-> out_argvar requests, and do not copy output arguments from error
-> replies.
-> 
-> A header-only FUSE_STATFS success returned stale fields in nine of
-> nine calls across three boots. The patched kernel rejected the short
-> response in three boots and preserved complete replies and existing
-> error controls.
-> 
-> Fixes: a62a8ef9d97d ("virtio-fs: add virtiofs filesystem")
-> Signed-off-by: sungbyeongchan <tjdqudcks0424@naver.com>
-> ---
->  fs/fuse/virtio_fs.c | 26 ++++++++++++++++++++++++++
->  1 file changed, 26 insertions(+)
-> 
+The virtio-iommu device frees a domain together with its last endpoint, so
+the first endpoint attaching to a domain that already has mappings must
+rebuild it: viommu_replay_mappings() re-sends every mapping the driver
+holds. That walk sent one synchronous request per mapping with
+mappings_lock held - and with it interrupts disabled. The IRQ-off window
+therefore grew with the number of mappings: 233 ms for 8192 4K mappings,
+about 29 s for a million, long enough to add scheduling latency to
+everything else running on the CPU.
 
-Hi,
+The same code had two long-standing defects, fixed by the first patches:
 
-This is the friendly patch-bot of Greg Kroah-Hartman.  You have sent him
-a patch that has triggered this response.  He used to manually respond
-to these common problems, but in order to save his sanity (he kept
-writing the same thing over and over, yet to different people), I was
-created.  Hopefully you will not take offence and will fix the problem
-in your patch and resubmit it so that it can be accepted into the Linux
-kernel tree.
+ - nr_endpoints was bumped only after the replay, without the lock, while
+   viommu_map_pages() read the same counter, also without the lock, to
+   decide whether to send a MAP itself or leave it to the replay. A map
+   racing the first attach could be sent by nobody and never reach the
+   device.
 
-You are receiving this message because of the following common error(s)
-as indicated below:
+ - viommu_unmap_pages() removed whole mappings from its tree but queued a
+   single UNMAP built from the range the caller asked for, after dropping
+   the lock: the device could keep translating memory the driver had
+   released, and a concurrent map could be sent ahead of the UNMAP. That
+   queueing also allocated on the unmap path, which iommu_unmap_nofail()
+   does not allow.
 
-- It looks like you did not use your "real" name for the patch on either
-  the Signed-off-by: line, or the From: line (both of which have to
-  match).  Please read the kernel file,
-  Documentation/process/submitting-patches.rst for how to do this
-  correctly.
+The series:
 
-- You have marked a patch with a "Fixes:" tag for a commit that is in an
-  older released kernel, yet you do not have a cc: stable line in the
-  signed-off-by area at all, which means that the patch will not be
-  applied to any older kernel releases.  To properly fix this, please
-  follow the documented rules in the
-  Documentation/process/stable-kernel-rules.rst file for how to resolve
-  this.
+ - 1/6 publishes the endpoint before the replay, tracks an unfinished
+   replay with replay_pending, and puts the endpoint back on the old
+   domain when the ATTACH or the replay fails - with a replay pending for
+   it if the device dropped its mappings - so a failed attach cannot leave
+   the endpoint count short, the endpoint unattached (bypassed), or the
+   endpoint recorded on a domain the core does not reference;
+ - 2/6 queues one UNMAP per contiguous run of removed mappings, in the
+   section that removes them, covering the mappings' own ranges;
+ - 3/6 allocates the UNMAP request together with the mapping, on the map
+   path, so the unmap path never allocates;
+ - 4/6 stops queueing and draining once the device is removed;
+ - 5/6 reads the endpoint count under the lock in the iotlb paths;
+ - 6/6 queues the replayed mappings, one per lock section, and waits once.
 
-If you wish to discuss this problem further, or you have questions about
-how to resolve this issue, please feel free to respond to this email and
-Greg will reply once he has dug out from the pending patches received
-from other developers.
+Measured with QEMU/KVM and iommufd, N=8192 4K mappings: max IRQ-off window
+233.7 ms -> 1.4-2.5 ms, flat from N=64 to 32768; attach ioctl 218.9/249.0
+-> 50.3/48.8 ms (48-67 ms across runs); viommu_send_req_sync() calls 8193
+-> 1; the device receives exactly the same MAPs. With large pages the
+same 256 MB attach is about 4 ms (197 device requests); the remaining cost
+is the device processing one MAP per mapping, which the protocol
+requires. The concurrent map-vs-first-attach test loses mappings on the
+unpatched driver in several runs and none with the series; lockdep and
+KCSAN report nothing. Allocation-failure and device-rejection paths were
+exercised with test-only fault injection in QEMU.
 
-thanks,
+Patches 1-4 carry Fixes: tags for the original driver commit. Behaviour
+that predates this work - in particular, how a MAP the device rejects on
+the map path - is deliberately left unchanged. Based on v7.3-rc5
+(ce1e0223d8ad).
 
-greg k-h's patch email bot
+Changes since v1:
+ - 1/6's comments now say why a failed ATTACH is reported without
+   replaying (the endpoint did not move, so the old domain still holds it
+   and its mappings), and why a failed replay leaves the old domain's
+   mappings to its next attach, and viommu_restore_endpoint()'s kernel-doc
+   covers both of its call sites;
+ - 4/6 detaches the requests left on the request queue and frees them
+   after the device is reset and before the queues are deleted, instead
+   of leaking them (pointed out in review).
+
+Anlai Lu (6):
+  iommu/virtio: publish the endpoint before replaying it
+  iommu/virtio: queue an UNMAP for every removed mapping
+  iommu/virtio: allocate the UNMAP request with the mapping
+  iommu/virtio: stop queueing and draining once the device is removed
+  iommu/virtio: read the endpoint count under the lock in the iotlb
+    paths
+  iommu/virtio: batch the mapping replay on domain attach
+
+ drivers/iommu/virtio-iommu.c | 673 +++++++++++++++++++++++++++++------
+ 1 file changed, 569 insertions(+), 104 deletions(-)
+
+-- 
+2.55.0
+
