@@ -1,99 +1,185 @@
-Received: from out162-62-58-211.mail.qq.com (out162-62-58-211.mail.qq.com [162.62.58.211])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D186D421251;
-	Sun,  4 Oct 2026 13:04:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.62.58.211
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 747F7429024
+	for <virtualization@lists.linux.dev>; Sun,  4 Oct 2026 13:04:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791119061; cv=none; b=dbFvqR+pV46YMque4PEe1C6Bbcqc/yJ+ON7i0F3+W+NUFi23htxqD6/0kELxZyqJ0tzcxhUfpSIUCYtsespiSA3ILOn4bTPP6Puw532bAjLOdLvi0D8++t724saEXGlMlAgKA+4M10tXYQKregFeoRTdp4YAtugV+8O4ZMEyAvk=
+	t=1791119066; cv=none; b=k9ND7GLNplrakdIIaSPLiQ81ioWyTlls5ClFlj7QBZxpNc+XIibfec4X4NuFBBLhxvshV/w3qrm5upcC7EnZGt6MOsHBFje4GuyrYRJ+qZf4xR+8/cYeny3oTmZ5coQcvfuujEFp+WDAVe81I/Ss095AJVNjWviQtlR7x6xKUVI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791119061; c=relaxed/simple;
-	bh=rTrPGs/6gIYXgawRDaWv1j0V8mqrl6e2mJv8wMh56MU=;
-	h=Message-ID:From:To:Cc:Subject:Date:In-Reply-To:References:
-	 MIME-Version; b=LPn1ISxQUhTdQh5y8p2UQB0EqO6IWn+TMsumhTxxUa7gbEbdS/PzQ+XMVolsPNaXKbplj/njSIWFm+/161tBPaiO9codDjofH3AS3hF4+LmnpUNkwExkQrIhVxPvU7A8tu39kt60laA61KRM8jXZXzOI6rMQBYRMC3khvVSDqVo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com; spf=pass smtp.mailfrom=qq.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=mtRHSUJf; arc=none smtp.client-ip=162.62.58.211
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
+	s=arc-20240116; t=1791119066; c=relaxed/simple;
+	bh=7anAYD/6TRMXLRUH246n3DaplZOuPGwjq6Ld4ohe3W0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=hUP/0yE6CQ/Pzngo1oRb7RkLQdUVSYbZEYJK6kqyLkBYk7vJYfQvhWuhsjUQoD+wvE250BcvcetPMkfadHZPCBoIUe5iCwXCI9cR5XizXWa7ApEmLrZrsgdwUnYLOwAfufcilEKDgfm8W4PwKaUJ3DvDuvosz6R7LKF4YCSX31Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=A0rzJtEI; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="mtRHSUJf"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
-	t=1791119055; bh=1sUK1jwzkfXeuosRyWgebZbS7VsC96r41xwmpwXMUQ8=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=mtRHSUJfGIxbE3UQMBSNTwEXX4KHlcRUqBMVZ+YsU5+oOYc8iuK5EZkj7gRnFnbUy
-	 q9A0dQITucL13wBQVI8ZZyHyi613vC8kca17JQZP65jZ9cSJ2WFZ+3tceX2mr8mlKt
-	 phNzq+evbs9TwBGnbZWL99/GBYgkbz9V9dz4O2co=
-Received: from xiuos ([2001:da8:201:1175:6e92:bfff:fe3b:37c3])
-	by newxmesmtplogicsvrsza63-0.qq.com (NewEsmtp) with SMTP
-	id 1070AA28; Sun, 04 Oct 2026 21:04:07 +0800
-X-QQ-mid: xmsmtpt1791119047t3apx62qw
-Message-ID: <tencent_0775C96A4F2A7BB91937DF8EA13FEAACAA09@qq.com>
-X-QQ-XMAILINFO: OOO9dHjlsLs7iatHntpbBYiOSPtdbAHahXXXGypKHpgKYr2YnfIg3h2Lx2mMhz
-	 GlrqVDrgjg/wyj3O5pdyW1aWisVVm2k36TZrTTIAhWwCql0m7Vo4/nPX4mbTlVIqtpvZ32TaWhwv
-	 3m8Qh1QO4R9AXOiUm/NWQJesbJNFiDIwKEdqKMbjckzccwOyhN2Wqm/0ZMR0AHxBpG/WQvQcryN/
-	 TxJfduy6NBHjZk7p4f8OsJ0/fS3eQ2bDX5Duf4FyyTQseFnhLbh6WnYc6vBYlzY2KC8g8oHA5JWf
-	 rSB6QI2QG0MkpfPccFQ0lcUfoXfHNHXDkLKz8UgpSA7LFb1Kd0CxY+4zi7Wh667aN+44s1AQaLb+
-	 8PkINq+oq+Kak9mdBOg5sK27CEEF+UkBcA57Tl+Zi6Bl3TTbYr2m/nuzmmTKQJ5Xljk9yXSMWVc2
-	 BctqQqqr7bqfeHa1k0ne+dBA0QoWdetQKFIsyGSA14ELqLWd9Fa0KASPTccpmMH/G9/ItcnuzS2W
-	 41+lne+7qg5/JkUk8SbDUhDwq5Xs/MfdMKBJMviJ93tiaecJ+qAfYAEjb48Qpxa0eiIz0HW3vCh7
-	 HiY/t6jR61SVv9LHcuGilKdAvJayNSvrWjMK4CahxOC6ruOhT0Ivf/eFqUm89tQLnIHtavI/MeV8
-	 79+xe9lWbwTiOXB0r5ATl7W5ojPxYZwJw+DOPXi8RygrA8Hl9CacUuScVtcyVruiANhm4CN+Ok/N
-	 iDmNOQcWXDslUdi7vEl6q+7hF08kFGTYeYfb/VJnWAI/UZjYlgQsSGggqxfeFU8U44Tx/I3eKlBg
-	 5HKExglpMolgxps+R2MqWhWx4F4FIQvjQRQeLasOdaqcqpOKBaMLUwVxN4KRO37cc4mKw8oiyuXh
-	 YWt2pSoFa/FQZU1LSBDrVVDWWhn3ShfuOX9EDOi/xjITW78tXhKm+aRMbE62xM5heItpVhBnB7vV
-	 r1ucE4rHZ6SfppSwfs7ZSYrl0NZ0K4pDYl1mK6i1K58Q+FsyrQkDWcNIj5cQ1fPqazEO1xX5mLc2
-	 2hw5s/04vt8n6ixY/KbnFQxQnVJ1b2VsjmvPCakHeFB0d6DsCVMGAJ96VOUmW2aS27Q9Pp28u37p
-	 /9WwsmONbnN7QdYOV2P+RVzvl1cvt3RkEs4MMhDi/HsCQAAuo=
-X-QQ-XMRINFO: OD9hHCdaPRBwH5bRRRw8tsiH4UAatJqXfg==
-From: Anlai Lu <agicy@qq.com>
-To: sashiko-bot@kernel.org
-Cc: virtualization@lists.linux.dev,
-	iommu@lists.linux.dev,
-	"Michael S . Tsirkin" <mst@redhat.com>,
-	Eugenio Perez <eperezma@redhat.com>
-Subject: Re: [PATCH 4/6] iommu/virtio: stop queueing and draining once the device is removed
-Date: Sun,  4 Oct 2026 13:04:07 +0000
-X-OQ-MSGID: <20261004130407.3226174-1-agicy@qq.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20261004120957.CEB961F000FF@smtp.kernel.org>
-References: <20261004120957.CEB961F000FF@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="A0rzJtEI"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1791119063;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=b81/l0OmO6iEtzu5AbsolvHlUCUYYBliPDEbzdU8/ic=;
+	b=A0rzJtEI52cIs3rR7eovJU8Z2wWrJEOJ2zM9DD6a0FqYT2iAaohRc5eiRJQmluPJT/STXw
+	L+YSRvrq5kuLDMHoaU1+JnmGbC0tQd4fZmJeVEqqU0HgBKhm3TP3k7xVb39xloDhGtKUBq
+	PjbYqVUgzoshaNOXz56Hi0w9Yq3x+3w=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-646-f0MIVuwWOzSLc791bavNkg-1; Sun, 04 Oct 2026 09:04:22 -0400
+X-MC-Unique: f0MIVuwWOzSLc791bavNkg-1
+X-Mimecast-MFC-AGG-ID: f0MIVuwWOzSLc791bavNkg_1791119061
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4a171b68dfeso650525e9.2
+        for <virtualization@lists.linux.dev>; Sun, 04 Oct 2026 06:04:22 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791119061; x=1791723861;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=b81/l0OmO6iEtzu5AbsolvHlUCUYYBliPDEbzdU8/ic=;
+        b=ARnH0sLMwuCdFwTIBFlelBFwrFr4dN8uYX35hApl2fcdVPOO7wbxEaxBPUH7JMCGVa
+         Q+bMfHU5rduxtmm1oEPJBYScOdT1Lew+lEnA+fFYygld/cukMfWMzZwW3EmMnFrh/O+z
+         JisIp2p5bgX8FqbLcEVUgtvKLs/Qiypl0sltDF0X+HVtgRkQgMUtV62sO6lXz6y+n01e
+         Ag4v6K/ZDC7A7MDoTHVeM1g7+1qe//RNRsVRlDwKRygHAmcGNLIKTasRjzXSDGZ38z5L
+         0vXVH/cYE4EgM9n/zFWrVmHwuKAAe3he7lwvEQFS2Kl1yfKWfN+PkZ56LhNdrHyVD3Fz
+         nkrA==
+X-Forwarded-Encrypted: i=1; AKwUvBwHYXDGRs3UPnBc8ZJ+HtbhzBV1oQtpTZYylhHvTG2PqhMvLqTUVgFKqLZxqw3bfnbGt6JUNTLhjeKC1Qh89g==@lists.linux.dev
+X-Gm-Message-State: AFuF++m81rj1vedsKja6acTGVF5i1MVtDZeD/HzZbQ5bH0LzTNjlTyOu
+	jPwkH73MJfXo/CVoj+Gpjz9uxAc5HFvYy7tncxa+lilr41Hv2k+FtIx6KsyUew8xxvXqI4Hv1ZE
+	+Ny9RaFBudy5V6MPsexYnhiR0NmFn2csgASovp/lNFPUVWZRFqVPkm3DZM7Wh3hJoDfd/
+X-Gm-Gg: AYBFou10F8o+uRFUiGNDh62PbldnDwZpRv4gSfiMJUGG9HpVcqvHyaHvFMDsYatlnWK
+	V92CJLYzEJA6a/BVYAmi1/nkkbWqfV89hZerlZm+Dchy0CLO3+eHkPLKmHb8oYnDBzReAu7/3kN
+	bgaPzD63dz1dg+2TxWBDI/283JE/6m9iZkco7Kp3aJMfb5426ZCbh9Nv3JFNJVbzTnrDI86UDYA
+	TAMG/4TSB5CnKuWrNmAhbl0smmWPcGhHsLxFz51vnjuiIw+LoetcD4oCahI3wvUj7/BWxV3v2j2
+	oCMMn4M/HThx5Q762v2wG9ZXBJGEgn5mF9aFhFH2/tidJHYXvkehkoqirsdbnnEfSGiH4UY4
+X-Received: by 2002:a05:600d:3:b0:4a0:25db:4591 with SMTP id 5b1f17b1804b1-4a1680f7aefmr63834675e9.23.1791119060780;
+        Sun, 04 Oct 2026 06:04:20 -0700 (PDT)
+X-Received: by 2002:a05:600d:3:b0:4a0:25db:4591 with SMTP id 5b1f17b1804b1-4a1680f7aefmr63834285e9.23.1791119060264;
+        Sun, 04 Oct 2026 06:04:20 -0700 (PDT)
+Received: from redhat.com ([2a06:c701:73fb:d100:601d:d7d4:d03f:527b])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a0276f92d9sm240649945e9.4.2026.10.04.06.04.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 04 Oct 2026 06:04:19 -0700 (PDT)
+Date: Sun, 4 Oct 2026 09:04:16 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: sungbyeongchan <tjdqudcks0424@naver.com>
+Cc: German Maglione <gmaglione@redhat.com>, Vivek Goyal <vgoyal@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Miklos Szeredi <miklos@szeredi.hu>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	virtualization@lists.linux.dev, fuse-devel@lists.linux.dev,
+	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH] virtiofs: validate fixed-output response length
+Message-ID: <20261004085805-mutt-send-email-mst@kernel.org>
+References: <20261004123405.586168-1-tjdqudcks0424@naver.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20261004123405.586168-1-tjdqudcks0424@naver.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: wkor40zz1_bU2fxSZFAUaMKx3n42ivEcFKC4I3HmW5o_1791119061
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> [Severity: Medium]
-> If a device is removed while IOMMU requests are queued but not yet synced,
-> does this early return bypass __viommu_sync_req() where those pending
-> requests would normally be freed?
-> When setting viommu->removed to true during teardown, do we also need to
-> iterate over the viommu->requests list and free any abandoned
-> viommu_request objects?
+On Sun, Oct 04, 2026 at 09:34:05PM +0900, sungbyeongchan wrote:
+> A short successful virtiofs response can leave the fixed-output
+> portion of the request argument buffer unwritten. The completion path
+> nevertheless copies the full declared output to the request destination,
+> allowing stale allocator contents to reach callers such as
+> fuse_statfs().
+> 
+> Require successful fixed-output responses to contain their complete
+> declared output. Continue to permit a shorter final argument only for
+> out_argvar requests, and do not copy output arguments from error
+> replies.
+> 
+> A header-only FUSE_STATFS success returned stale fields in nine of
+> nine calls across three boots. The patched kernel rejected the short
+> response in three boots and preserved complete replies and existing
+> error controls.
+> 
+> Fixes: a62a8ef9d97d ("virtio-fs: add virtiofs filesystem")
+> Signed-off-by: sungbyeongchan <tjdqudcks0424@naver.com>
+> ---
+>  fs/fuse/virtio_fs.c | 26 ++++++++++++++++++++++++++
+>  1 file changed, 26 insertions(+)
+> 
+> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+> index f15e516ebcb5c..288848f23e7ec 100644
+> --- a/fs/fuse/virtio_fs.c
+> +++ b/fs/fuse/virtio_fs.c
+> @@ -730,6 +730,10 @@ static void copy_args_from_argbuf(struct fuse_args *args, struct fuse_req *req)
+>  	unsigned int num_out;
+>  	unsigned int i;
+>  
+> +	/* Error replies contain only the output header. */
+> +	if (req->out.h.error)
+> +		goto out;
+> +
+>  	remaining = req->out.h.len - sizeof(req->out.h);
+>  	num_in = args->in_numargs - args->in_pages;
+>  	num_out = args->out_numargs - args->out_pages;
+> @@ -755,6 +759,7 @@ static void copy_args_from_argbuf(struct fuse_args *args, struct fuse_req *req)
+>  	if (args->out_argvar)
+>  		args->out_args[args->out_numargs - 1].size = remaining;
+>  
+> +out:
+>  	kfree(req->argbuf);
+>  	req->argbuf = NULL;
+>  }
+> @@ -762,7 +767,9 @@ static void copy_args_from_argbuf(struct fuse_args *args, struct fuse_req *req)
+>  /* Verify that the server properly follows the FUSE protocol */
+>  static bool virtio_fs_verify_response(struct fuse_req *req, unsigned int len)
+>  {
+> +	struct fuse_args *args = req->args;
+>  	struct fuse_out_header *oh = &req->out.h;
+> +	unsigned int expected;
+>  
+>  	if (len < sizeof(*oh)) {
+>  		pr_warn("virtio-fs: response too short (%u)\n", len);
+> @@ -777,6 +784,25 @@ static bool virtio_fs_verify_response(struct fuse_req *req, unsigned int len)
+>  			oh->unique, req->in.h.unique);
+>  		return false;
+>  	}
+> +
+> +	if (oh->error) {
+> +		if (len != sizeof(*oh)) {
+> +			pr_warn("virtio-fs: error response too long (%u)\n", len);
+> +			return false;
+> +		}
+> +		return true;
+> +	}
 
-Yes, they are left behind, and it is a real leak.  They cannot be freed at
-that point, though: the virtqueue still owns them - it holds them as the
-buffer data and has their scatterlists mapped - and the device may still be
-using them until it is reset a few lines later.
 
-The cleanup belongs after the reset and before the queues are deleted,
-where virtqueue_detach_unused_buf() releases both the object and its DMA
-mapping, as other drivers do at removal - and that is what the v2 I just
-sent does:
+What if oh->error > 0?  Won't we still have the uninitialized problem
+then if callers treat it as success? E.g. the ioctl path seems to do
+this... Maybe reject that? Or oh->error <= -512 for that matter, as
+fuse_send_ioctl does?
 
-	vq = viommu->vqs[VIOMMU_REQUEST_VQ];
-	while ((req = virtqueue_detach_unused_buf(vq))) {
-		list_del(&req->list);
-		kfree(req);
-	}
-	vdev->config->del_vqs(vdev);
 
-The baseline did not clean up either, but worse: with no removal state it
-would call virtqueue_get_buf() on the already-deleted virtqueues, i.e.
-use-after-free, rather than leak.  The flag turns that into "queueing and
-draining stop"; the loop above closes the loop on what is left.
-
-Thanks,
-Anlai
+> +
+> +	expected = sizeof(*oh) +
+> +		   fuse_len_args(args->out_numargs, args->out_args);
+> +	if (len > expected ||
+> +	    (len < expected &&
+> +	     (!args->out_argvar ||
+> +	      expected - len > args->out_args[args->out_numargs - 1].size))) {
+> +		pr_warn("virtio-fs: invalid response length (%u, expected %u)\n",
+> +			len, expected);
+> +		return false;
+> +	}
+>  	return true;
+>  }
+>  
+> -- 
+> 2.43.0
+> 
 
