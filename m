@@ -1,171 +1,61 @@
-Received: from mail-dy2-f42.google.com (mail-dy2-f42.google.com [74.125.229.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out162-62-57-49.mail.qq.com (out162-62-57-49.mail.qq.com [162.62.57.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 041A2424D58
-	for <virtualization@lists.linux.dev>; Sun,  4 Oct 2026 10:51:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.229.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F036313E03;
+	Sun,  4 Oct 2026 11:55:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.62.57.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791111093; cv=none; b=eN92NABtMA9YrS4jCYEfU+qqnZJbZw7z+YduO5TvKkM3mb0ivDx8LELY056uvC1+TYrrdl4/XztlvJ4DbGTt+McDSTQuCYg6rphJAgeIhX0p0rp84+tXqZbVUnG2QqzeoyJx4yrqpqdmGJ3n4NpOh+kc3ReriIreck5Z8GeACiI=
+	t=1791114949; cv=none; b=Lx/OREMKbYB07O+7M0GqFsqSjzn6MBVUAY5UeiyEq+c/UQtlPzupMEmeGqd8ZfHKJA/RpXAbUjBpqlzXRmkzvyDKeFjAeoISrx9TD4Kj0VOEliFzNd14MCJFx8oyQLo+D2qKNFIJ+d0ApfmwBOvN9WMS5uA7CV5IDo3uhyNztV4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791111093; c=relaxed/simple;
-	bh=4MRxwd7MzrAqfyJ7mimlrfGaFAcX/tkMDz0Yg+CsHtE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ge8d4vbuZiWbUoT7q5IBZSBI7+pNBTAXDapv9Yv66opMknAS5mw9PXz8grW7CJd0DD/PoLw3LiCUt/S7otLo787XtYMUCkG+2CjP7aarfPfEwwM1RHgnCNbhkT4KfyaXK/0awbF814Qy5Gsxy2fB+DgEB+umyB/kJSjGCP41xaE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dKh0xIvL; arc=none smtp.client-ip=74.125.229.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1791114949; c=relaxed/simple;
+	bh=2diUWiMumXZ8fcMT/hP3C8YLZMxoeUnkBqrM4miqhvs=;
+	h=Message-ID:From:To:Cc:Subject:Date:MIME-Version; b=dvAnvLDB8qALGs9ZwOUw4jSij4U+Eg+BUIBwL5KxC8vw1EvEHcIzBYmSIyNkAuEyR7+7UP3WCGU1A9dyfl6Si7aylZiFFjhlfNxxBIIbWK8b6KmlecfvuWL0HSOB5NspEPWKtXmaL1GH6ZYDGNRLO/tL5hj3tzANBiMkJ4UycIE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com; spf=pass smtp.mailfrom=qq.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=n6jBNXf4; arc=none smtp.client-ip=162.62.57.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dKh0xIvL"
-Received: by mail-dy2-f42.google.com with SMTP id 5a478bee46e88-35129e4607cso148333eec.1
-        for <virtualization@lists.linux.dev>; Sun, 04 Oct 2026 03:51:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791111087; x=1791715887; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=OU10JUkOnCjExkP9pLJslSiL15VSpV7uAw3VaBnuTMo=;
-        b=dKh0xIvLP5VNLGq6t1sK3fjFMWyrtVhlWOyeUHY60IL2IEKQrQ6BJXHU3WewkEjcb3
-         Rdz90ipQitgX6mQrvakm+C4A/14G7b3sATGqqBM2H3NXSw3u4HUBI4E6GXQyQYCo1aFU
-         odBFB6PHRKoCOdiTX8SAoYhQsLujqlCP4cbgrNLgqsgdUca5mMumz30hww2G9Kxsy7s5
-         RdZL0+KzNMAdNDB0fM37N/STLgfgWv3ZovpZvXDEFhbKs94kYz6GAXghjOSuF910CdLc
-         cwHuDdvlEoWsaTdo2FKyGTeHjg3u5XoF4YKRe8l6Z5qlsprF7YK+IUHFBLcUxj7/RR5n
-         VT4Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791111087; x=1791715887;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=OU10JUkOnCjExkP9pLJslSiL15VSpV7uAw3VaBnuTMo=;
-        b=WlwGf7c/50OouYmuWpfg10wJh8pyjikG/jGgdoRlWlQMUNlWDWBInI4yKFav03jJRg
-         RNiI74xb/y2H3i7STDXBwkX9s13tACJBp5RScaG+8y2Biam1Xq10qFZEKMt1Xt79WgQM
-         gQXjJlHjr9gxpgv4tdHKP8dGWUCKPs0XQ7rg9B0snl0iWCxxga3skMf4V1eMbozOi2VR
-         ZVCkcUf/bb0SKPRsufBqbfI9sornXzX/cXpDe72CETy4LrGjzR2FT9NzoGTJ/YE1L5w6
-         rDly9U38FXzw6arccW3drXGf05QXjTAh1In5o4oiHKPa5TwQH9QsCpFUyx/56tKKDiiP
-         898Q==
-X-Forwarded-Encrypted: i=1; AKwUvBzqqmFIfoPbU9jtu2LqxGhujPeemP8Gbc/07H5+MwhxU4My1jlfL3HVZXaFHs7G16P31XlASYFfAOT0S5g2MA==@lists.linux.dev
-X-Gm-Message-State: AFq9FYLupopn9RvMcoX0Pb5DZ9QSvxcjgt3UTpM+OpPWR1xzi4RDhgp5
-	koo3UWnSefcW5xdyfDjuCOf8CXHnLTKz8DNWca2UaO0EOxYYg+ET1Vp+
-X-Gm-Gg: AYBFou1zBBVvbEpAyzJqg7EXus2DMawIi18jfJVqLbbzSSsQtY2yPAU22X08m4OAhCG
-	hh75dp55xGsTpsmKVILm6ChBI3fcnx1MF/V9yIcqNRRq1rN3iX2vcuiZOQYQ91oZXXO/sL/jd2F
-	rcUWv35qhTqWb9NRAHfoplYF5Rr2M66kIypgYmBnIGMFQdeKq+iioGVeEPNjb4RAJ6vlo5GNPFr
-	z588MBARIWOAwTQ244qFd2+X7EPcmttuerV7pSRjwQPt+j6aGZxO4XE8brHWLklQzEVOdQeyvEW
-	GXyMv/JZsj1S4eRpWaG/CrXcYis9gRbq3ciyDiucXwcjtct9S0fg8zw4fE362W8ejPIw/pQ1UqN
-	cky2frhFS3dHYx7OrMTxoMCwYi9ihiraEk6F+bHF9+KJasjirbozY9esko65Cn8Smxfbee3C1e8
-	FbaunG4RFZsUcVIolgPK9GvFkwjnnNzX6ZbLAkFcLAuC7Y4CUehTiJhDxAF2Y0u5M0FwWApT6gJ
-	EmhV7za1VbYxtySrdOT8syOHCGKWTWFfI56tO2EQrAPrMs=
-X-Received: by 2002:a05:7300:e5c2:b0:341:3ca2:de2d with SMTP id 5a478bee46e88-34f15077edfmr9383419eec.6.1791111087081;
-        Sun, 04 Oct 2026 03:51:27 -0700 (PDT)
-Received: from Anshuman ([123.63.59.156])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-35127161474sm3815965eec.13.2026.10.04.03.50.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 04 Oct 2026 03:51:26 -0700 (PDT)
-From: Anshuman <anshumantewari123@gmail.com>
-To: kees@kernel.org
-Cc: Frank.Li@kernel.org,
-	James.Bottomley@HansenPartnership.com,
-	airlied@gmail.com,
-	akpm@linux-foundation.org,
-	andriy.shevchenko@linux.intel.com,
-	anton.ivanov@cambridgegreys.com,
-	apparmor@lists.ubuntu.com,
-	atomlin@atomlin.com,
-	benjamin.berg@intel.com,
-	bhelgaas@google.com,
-	bp@alien8.de,
-	bvanassche@acm.org,
-	corey@minyard.net,
-	da.gomez@kernel.org,
-	daniel.lezcano@kernel.org,
-	dave.hansen@linux.intel.com,
-	david.e.box@linux.intel.com,
-	dmaengine@vger.kernel.org,
-	dri-devel@lists.freedesktop.org,
-	dvyukov@google.com,
-	elver@google.com,
-	eperezma@redhat.com,
-	georgia.garcia@canonical.com,
-	glider@google.com,
-	gor@linux.ibm.com,
-	gregkh@linuxfoundation.org,
-	hansg@kernel.org,
-	hare@suse.de,
-	hca@linux.ibm.com,
-	hpa@zytor.com,
-	ilpo.jarvinen@linux.intel.com,
-	intel-gfx@lists.freedesktop.org,
-	jani.nikula@linux.intel.com,
-	jasowang@redhat.com,
-	jbaron@akamai.com,
-	jgg@ziepe.ca,
-	jim.cromie@gmail.com,
-	jirislaby@kernel.org,
-	jmorris@namei.org,
-	johannes@sipsolutions.net,
-	john.johansen@canonical.com,
-	joonas.lahtinen@linux.intel.com,
-	kasan-dev@googlegroups.com,
-	kvm@vger.kernel.org,
-	laurent.pinchart@ideasonboard.com,
-	lenb@kernel.org,
-	leon@kernel.org,
-	linux-acpi@vger.kernel.org,
-	linux-arch@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-hardening@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-media@vger.kernel.org,
-	linux-mm@kvack.org,
-	linux-modules@vger.kernel.org,
-	linux-pci@vger.kernel.org,
-	linux-pm@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
-	linux-scsi@vger.kernel.org,
-	linux-security-module@vger.kernel.org,
-	linux-serial@vger.kernel.org,
-	linux-um@lists.infradead.org,
-	linux-usb@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	lukasz.luba@arm.com,
-	macro@orcam.me.uk,
-	martin.petersen@oracle.com,
-	mcgrof@kernel.org,
-	mchehab@kernel.org,
-	mingo@redhat.com,
-	mst@redhat.com,
-	netdev@vger.kernel.org,
-	openipmi-developer@lists.sourceforge.net,
-	paul@paul-moore.com,
-	pbonzini@redhat.com,
-	pengpeng@iscas.ac.cn,
-	peterz@infradead.org,
-	petr.pavlu@suse.com,
-	qemu-devel@nongnu.org,
-	rafael@kernel.org,
-	richard@nod.at,
-	rodrigo.vivi@intel.com,
-	rui.zhang@intel.com,
-	samitolvanen@google.com,
-	seanjc@google.com,
-	serge@hallyn.com,
-	simona@ffwll.ch,
-	somlo@cmu.edu,
-	srinivas.pandruvada@linux.intel.com,
-	stable@vger.kernel.org,
-	stern@rowland.harvard.edu,
-	tglx@kernel.org,
-	tiwei.btw@antgroup.com,
-	tursulin@ursulin.net,
-	usb-storage@lists.one-eyed-alien.net,
+	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="n6jBNXf4"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
+	t=1791114935; bh=fDJo9jmeOP/YKrCNIkJcfkH1W9LcFEnZJGyu0LsmuUI=;
+	h=From:To:Cc:Subject:Date;
+	b=n6jBNXf4XO+QI0r8QgmjdE7GIDjol9+9/L2zZy+GhAhXAZpr9Gy5YsJySVWvUFGUX
+	 /DxXLAEf+JZHCryLEzr4IQYXSshWcPfhfujfomNTkFPLyMpsypz+8iLdBZHXLpCEOo
+	 yYaXAbsorJPcqPbvBTrd9086h/HCNzE0qFsfWH3o=
+Received: from xiuos ([2001:da8:201:1175:6e92:bfff:fe3b:37c3])
+	by newxmesmtplogicsvrsza63-0.qq.com (NewEsmtp) with SMTP
+	id DDEB88E5; Sun, 04 Oct 2026 19:55:30 +0800
+X-QQ-mid: xmsmtpt1791114930t5b6nu8wc
+Message-ID: <tencent_85AC6E749F6A912B7BB9FF360F8ECB3F5C09@qq.com>
+X-QQ-XMAILINFO: OATpkVjS499uoNK3avNKS6+xPFpvNlg/AYkyPBeGn7Z8Kgr/eJTLNXfWylHBwl
+	 j6V1CDX3eO5g/ly8uJri9A7MZyLoZ9eUypuNR7mwb3P0A2NVUNjG+L2peZaOpkxcUaswaDs+J592
+	 g7ytTkKmjuyWF9XG7OZjgPuLJoT9dA2fyG8iBeXsxbfJxEFrfdoCL31f1t8KPol/RHM1qL6diuXF
+	 7gCDmu1UiQPckouojFlVw8dSV8UPk4eJO7Qw+KIljzKA1pQ0ctoPjH4AeHjrxQOYO+UvGyPOxPs6
+	 n9hCBkVlS3bwXcnKFyEeB0mBQArSvhmEOLlvBPvnhTKdUmYSYyon/gCJyGC7uf+qhOE5XILZBNyt
+	 hyCKnBwrCGW9Nao8bHd/qv2B2AQ1M5bQCx5YwXMsw8AG8FgiDDwY7DghaLtcFded8prWl0rKM4eR
+	 y+A0gK9xxPUqcpdVwlRiqvSfeKWph/hyB2c/7qk8GPGaLL3W/d+aeyVOA9PpTmQ7rcuHCPxk6z6N
+	 C2ODlc7x/YnMJa9pH2cfeVrCWFTnJlX/0tH9xELGGIuavjFVud17emQhpdyBtdfLs8J3VvDdcFf5
+	 zJ958PxTwBSlDGsZVFufaFszLJM2Iivs/NPU7PDv0NkCYxXMo4gDH8/0mI5UhizKcjqFZqoTRPM7
+	 M22+kdjLbV3DptOXkZoYHa9NbEhPqvw9eABWCI6mJZSK0c+qHhFm4LnNPwUZc+3dASqENyhx0zuJ
+	 ep5FK6G9+635aQ5bkWz2TznNqGbK+6agLGoMDjuzQCdoaGIGCgGAI3Us4ycqx7qY7sErqpyFXhWB
+	 6k55U+HzZkBUNOf8C4lJzJESr+aKM6m38gt823TWW77b8zqJQUPODjz0lj7Lfz7D8lW9bs8k0bRG
+	 D3eL+++IZuP/AW3fccotIO68kVRHhRrfalCK+WJxtZ7iwJtFHUInpRIbs5CJ6L2azNc610uXWnjw
+	 K0hGmTtSTwlmSwEPZR48kTtF9cjEIpPQQGVJzqaGb8ChRgfSWiBuYL1b78U6AF9P9qARKd52FBLL
+	 qgfp5hCq/ghcRD0bK+THq8apA+Xnpob9lQ96P66Y+kESePE2Yu7+wfWvO11tuQKSOZjsvU+g/aYb
+	 yK2pGDA1ogPIo1Vzs=
+X-QQ-XMRINFO: OWPUhxQsoeAVwkVaQIEGSKwwgKCxK/fD5g==
+From: Anlai Lu <agicy@qq.com>
+To: Jean-Philippe Brucker <jpb@kernel.org>,
+	Joerg Roedel <joro@8bytes.org>,
+	Will Deacon <will@kernel.org>
+Cc: Robin Murphy <robin.murphy@arm.com>,
 	virtualization@lists.linux.dev,
-	vkoul@kernel.org,
-	x86@kernel.org,
-	xuanzhuo@linux.alibaba.com
-Subject: Re: [PATCH 01/11] params: bound array element output to the caller's page buffer
-Date: Sun,  4 Oct 2026 16:17:41 +0530
-Message-ID: <20261004104741.51238-1-anshumantewari123@gmail.com>
+	iommu@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	agicy@qq.com
+Subject: [PATCH 0/6] iommu/virtio: batch the mapping replay
+Date: Sun,  4 Oct 2026 11:55:28 +0000
+X-OQ-MSGID: <20261004115528.3180918-1-agicy@qq.com>
 X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260521133326.2465264-1-kees@kernel.org>
-References: <20260521133326.2465264-1-kees@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -174,23 +64,74 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-On Thu, May 21, 2026 at 06:33:14AM -0700, Kees Cook wrote:
-> ret = min(ret, (int)(PAGE_SIZE - 1 - off));
-> if (!ret)
-> 	break;
+The virtio-iommu device frees a domain together with its last endpoint, so
+the first endpoint attaching to a domain that already has mappings must
+rebuild it: viommu_replay_mappings() re-sends every mapping the driver
+holds. That walk sent one synchronous request per mapping with
+mappings_lock held - and with it interrupts disabled. The IRQ-off window
+therefore grew with the number of mappings: 233 ms for 8192 4K mappings,
+about 29 s for a million, long enough to add scheduling latency to
+everything else running on the CPU.
 
-One question about the truncation behavior here: when an element does
-not fully fit in the remaining buffer, this min() can cause only part
-of that element to be copied. For example, if the remaining space is
-4 bytes and the next element produces "123456789\n", the resulting
-output could contain only "1234".
+The same code had two long-standing defects, fixed by the first patches:
 
-This leaves the reader with no way to distinguish a genuinely short
-value from one that was truncated due to the PAGE_SIZE limit, while
-the array otherwise still looks like a normal comma-separated list.
+ - nr_endpoints was bumped only after the replay, without the lock, while
+   viommu_map_pages() read the same counter, also without the lock, to
+   decide whether to send a MAP itself or leave it to the replay. A map
+   racing the first attach could be sent by nobody and never reach the
+   device.
 
-Is this partial-element truncation intentional for this patch, or is
-the expectation that it gets handled as part of the later seq_buf
-conversion? Would it be preferable to avoid copying an element unless
-it fits completely, and leave the larger-buffer case to be addressed
-later in the series?
+ - viommu_unmap_pages() removed whole mappings from its tree but queued a
+   single UNMAP built from the range the caller asked for, after dropping
+   the lock: the device could keep translating memory the driver had
+   released, and a concurrent map could be sent ahead of the UNMAP. That
+   queueing also allocated on the unmap path, which iommu_unmap_nofail()
+   does not allow.
+
+The series:
+
+ - 1/6 publishes the endpoint before the replay, tracks an unfinished
+   replay with replay_pending, and puts the endpoint back on the old
+   domain when the ATTACH or the replay fails - with a replay pending for
+   it if the device dropped its mappings - so a failed attach cannot leave
+   the endpoint count short, the endpoint unattached (bypassed), or the
+   endpoint recorded on a domain the core does not reference;
+ - 2/6 queues one UNMAP per contiguous run of removed mappings, in the
+   section that removes them, covering the mappings' own ranges;
+ - 3/6 allocates the UNMAP request together with the mapping, on the map
+   path, so the unmap path never allocates;
+ - 4/6 stops queueing and draining once the device is removed;
+ - 5/6 reads the endpoint count under the lock in the iotlb paths;
+ - 6/6 queues the replayed mappings, one per lock section, and waits once.
+
+Measured with QEMU/KVM and iommufd, N=8192 4K mappings: max IRQ-off window
+233.7 ms -> 1.4-2.5 ms, flat from N=64 to 32768; attach ioctl 218.9/249.0
+-> 50.3/48.8 ms (48-67 ms across runs); viommu_send_req_sync() calls 8193
+-> 1; the device receives exactly the same MAPs. With large pages the
+same 256 MB attach is about 4 ms (197 device requests); the remaining cost
+is the device processing one MAP per mapping, which the protocol
+requires. The concurrent map-vs-first-attach test loses mappings on the
+unpatched driver in several runs and none with the series; lockdep and
+KCSAN report nothing. Allocation-failure and device-rejection paths were
+exercised with test-only fault injection in QEMU.
+
+Patches 1-4 carry Fixes: tags for the original driver commit. Behaviour
+that predates this work - in particular, how a MAP the device rejects on
+the map path - is deliberately left unchanged. Based on v7.3-rc5
+(ce1e0223d8ad).
+
+Anlai Lu (6):
+  iommu/virtio: publish the endpoint before replaying it
+  iommu/virtio: queue an UNMAP for every removed mapping
+  iommu/virtio: allocate the UNMAP request with the mapping
+  iommu/virtio: stop queueing and draining once the device is removed
+  iommu/virtio: read the endpoint count under the lock in the iotlb
+    paths
+  iommu/virtio: batch the mapping replay on domain attach
+
+ drivers/iommu/virtio-iommu.c | 642 +++++++++++++++++++++++++++++------
+ 1 file changed, 538 insertions(+), 104 deletions(-)
+
+-- 
+2.55.0
+
