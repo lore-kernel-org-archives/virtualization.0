@@ -1,45 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAA26393DE6
-	for <virtualization@lists.linux.dev>; Sun,  4 Oct 2026 12:09:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC804393DE6
+	for <virtualization@lists.linux.dev>; Sun,  4 Oct 2026 12:10:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791115799; cv=none; b=ET1Kj2NXLgHY4pDWo9AQyI8fMBSXVNlo7QuGVTRG0xPrjqIyeFCf+lZtn7XyE7Yepf9Oxrp/bpYhE6QWRO3wnDTkDMaRAeEQdM62P3nIJCA02RVKZZLKwKkpVFz6ewXrglfhCVze1RlnQ/4KGlXV472DFEI4e4PM2HffZvcSBuk=
+	t=1791115851; cv=none; b=UnrK4PMg1n1NpxmmeH7OUVQ0bSF/VgalH329U3kQXQBruoJtD9YhqMd/RYLAeiYbLsLD80EhcX6jLo1i7DF03imz/QOifkiKNPxtxy36l8+W3EqGAC+1+mc2N08mJNPHnZzDq6ULfPlMtVUDKuCqYTssHQf+Z1g2dfnTViUGsbs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791115799; c=relaxed/simple;
-	bh=oFfJQIWIq4CYbpGfXTBradDyDdIStUGLeBNS66HVerk=;
+	s=arc-20240116; t=1791115851; c=relaxed/simple;
+	bh=EKdSBjEUuU45itwlowRX3+zb54ZdrXb3joGWmVhRNes=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=DLncv568XMYbGv7tMDlVfRgotXRlYAceJYoXOtn0eRDFs+/jaIOWA1Oo8p5++sYSJ6EqU1yHQ6EsSAVQJILVWakkjk/gPeh0EfMgvl4+Sq8SOokjRgRsP2tMOjacgrH86MlwY0KKarTVQp9o7PDFN0UfBPSeHjUOOz3K5+hb30Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eoozN0Su; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=gta3tr68cLK9bHwwqreBjJY1ovUpNkS7dKVSpmJRC6MIS4H3QUu5b/H94iC3g1bdbWzl8QjR5fI0K9a26htgRLWPwDsE9J1b2iPXrm5rapYlp4wL/h5+W6Tu1mqinevon7I5r7sgsJZzIYeBArihC4OYh4iOVLn2lIoUbPsSBOM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=B53mHCoj; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eoozN0Su"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEB961F000FF;
-	Sun,  4 Oct 2026 12:09:57 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="B53mHCoj"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 590941F0089A;
+	Sun,  4 Oct 2026 12:10:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791115798;
-	bh=LmrfE7zIT4QurttLNZvT/1VzvHPKBlxoYm/TrFFmqZ0=;
+	s=k20260515; t=1791115849;
+	bh=yzz42xnJYOR58R8GdLBZ58bybo5cd4s62o3r0LnGx/A=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=eoozN0Su5j99iQsXmeo5GFkv5r2wIhx9fgqMHdnct712Spms+RDmV+2t3gLBtUttR
-	 jhFkhP3xsS6UCPgfwkuMkJQctkdhnwLzTU+ux/DME5kvMVnoIE96wA15Js0krqQpmu
-	 XBUuv1Dz4+bVgfDeg2dhhme75iJYUNm0LBUBXWd8N31lLjdyz0Axfxm2G0+cZ0uVEM
-	 KJMND/0wmQIeBBvX6jiGMNA+mWp0ZkYgV43NnERUylsghep0PCcFSRLQLVGn+nKqub
-	 cF39J5sosH2SdWAGypHcLWRYRWDyjVziVlnGMcvgU5atTknizR3UagAONmCmyCaPO/
-	 ceTX0Mx30Bc5A==
+	b=B53mHCojOTumfhPht8SPs2cKC1dKoHdJ0f/khqdKcTBBhaXUqRzEex1z/KjQBqxRb
+	 aMYtmYfkMGgNkvDupEr/TlvLEL23Hz/dwpcU8NWYfTw3Mr04VkGT5otEbBJu5jNX/i
+	 aOLvPsLQfso0wYIiSHFryRE85V1ajDvKfBDpVuzvrQW3KLThjaBW9cly3hJHvub7m9
+	 2VuhL4Z7DlxltKDutqWHtVUDNIBKH8bGDD6T62guAmWA62AmFAEANEX4Qh1LjDFnx+
+	 35eT3ss/SSiCKEzhsUXVTdz9r02Y+xrclX4+iXFyGZa5yNwnJhrF+pt48nFBE9Y3YU
+	 qKepKwcqRSBWw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 4/6] iommu/virtio: stop queueing and draining once the
- device is removed
+Subject: Re: [PATCH 6/6] iommu/virtio: batch the mapping replay on domain
+ attach
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Anlai Lu" <agicy@qq.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <tencent_110F1F4156EDBA12B5409541DC2D9BA0C708@qq.com>
+In-Reply-To: <tencent_ED730B6C7A1FCF7E8C5BA1E836D75257620A@qq.com>
 References: <tencent_85AC6E749F6A912B7BB9FF360F8ECB3F5C09@qq.com>
- <tencent_110F1F4156EDBA12B5409541DC2D9BA0C708@qq.com>
+ <tencent_ED730B6C7A1FCF7E8C5BA1E836D75257620A@qq.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sun, 04 Oct 2026 12:09:57 +0000
-Message-Id: <20261004120957.CEB961F000FF@smtp.kernel.org>
+Date: Sun, 04 Oct 2026 12:10:48 +0000
+Message-Id: <20261004121049.590941F0089A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -48,81 +48,80 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Medium] iommu/virtio: memory leak of pending requests on device removal
+- [Medium] iommu/virtio: memory leak of queued requests on device removal
 --
 
-commit 64ef340ce80cdcdb5ed14c36f584818573bc5be9
+commit db185ffd41ba01e7309f7ee2d8c108a5d39c6450
 Author: Anlai Lu <agicy@qq.com>
 
-iommu/virtio: stop queueing and draining once the device is removed
+iommu/virtio: batch the mapping replay on domain attach
 
-This commit introduces a removed flag to the viommu_dev struct to indicate
-when the device is being torn down. It sets the flag under the request_lock=
- in
-viommu_remove() and checks it in the queueing and syncing paths to prevent
-queueing or draining operations from running on virtqueues that are being
-destroyed.
+This commit optimizes the domain attach process by queueing all mapping
+requests and waiting for them once, rather than sending them synchronously
+one by one. This significantly reduces the IRQ-off window and attach time
+when dealing with a large number of mappings.
 
 > diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-> index 1a43664587514..ba1d78e4daa0b 100644
+> index 4e578d4255f6b..7b883f59221f5 100644
 > --- a/drivers/iommu/virtio-iommu.c
 > +++ b/drivers/iommu/virtio-iommu.c
 [ ... ]
-> @@ -206,6 +221,10 @@ static int viommu_sync_req(struct viommu_dev *viommu)
->  	unsigned long flags;
+> @@ -656,23 +698,57 @@ static int viommu_domain_map_identity(struct viommu=
+_endpoint *vdev,
+>  }
 > =20
->  	spin_lock_irqsave(&viommu->request_lock, flags);
-> +	if (!viommu_device_live(viommu)) {
-> +		spin_unlock_irqrestore(&viommu->request_lock, flags);
-> +		return 0;
-> +	}
-
-[Severity: Medium]
-If a device is removed while IOMMU requests are queued but not yet synced,
-does this early return bypass __viommu_sync_req() where those pending reque=
-sts
-would normally be freed?
-
->  	ret =3D __viommu_sync_req(viommu);
->  	if (ret)
->  		dev_dbg(viommu->dev, "could not sync requests (%d)\n", ret);
+>  /*
+> - * viommu_replay_mappings - re-send MAP requests
+> + * viommu_replay_mappings - send every mapping of the domain again
 [ ... ]
-> @@ -1555,10 +1577,20 @@ static int viommu_probe(struct virtio_device *vde=
-v)
->  static void viommu_remove(struct virtio_device *vdev)
->  {
->  	struct viommu_dev *viommu =3D vdev->priv;
-> +	unsigned long flags;
+> +	while (!done) {
+> +		struct viommu_mapping *mapping;
+> +		struct virtio_iommu_req_map map;
+[ ... ]
+> +		ret =3D viommu_add_req(vdomain->viommu, &map, sizeof(map), &status);
 > =20
->  	iommu_device_sysfs_remove(&viommu->iommu);
->  	iommu_device_unregister(&viommu->iommu);
+> -		ret =3D viommu_send_req_sync(vdomain->viommu, &map, sizeof(map));
+> -		if (ret) {
+[ ... ]
+> +		if (mapping->iova.last =3D=3D ULONG_MAX)
+> +			done =3D true;
+> +		else
+> +			next_iova =3D mapping->iova.last + 1;
+> +		spin_unlock_irqrestore(&vdomain->mappings_lock, flags);
 > =20
-> +	/*
-> +	 * The queues go away here: nothing may be queued or drained from now
-> +	 * on.  Taking request_lock is what tells a drain in flight that it has
-> +	 * to finish before the teardown, since the drain holds it throughout.
-> +	 */
-> +	spin_lock_irqsave(&viommu->request_lock, flags);
-> +	viommu->removed =3D true;
-> +	spin_unlock_irqrestore(&viommu->request_lock, flags);
-> +
+> -		node =3D interval_tree_iter_next(node, 0, -1UL);
+> +		if (ret)
+> +			break;
+>  	}
+> -	spin_unlock_irqrestore(&vdomain->mappings_lock, flags);
+> =20
+> -	return ret;
+> +	/* Wait for all of them outside the lock: this is the batched drain */
+> +	viommu_sync_req(vdomain->viommu);
 
 [Severity: Medium]
-When setting viommu->removed to true during teardown, do we also need to
-iterate over the viommu->requests list and free any abandoned viommu_request
-objects?
+If the virtio-iommu device is removed (e.g., via hot-unplug or driver unbin=
+d)
+while we are queuing these batched requests, could this leak the dynamically
+allocated struct viommu_request objects?
 
-These objects are dynamically allocated here:
+Looking at viommu_sync_req(), it short-circuits when the device is removed
+without draining the list:
 
-drivers/iommu/virtio-iommu.c:__viommu_add_req() {
-...
-	req =3D kzalloc_flex(*req, buf, len, GFP_ATOMIC);
-...
+drivers/iommu/virtio-iommu.c:viommu_sync_req() {
+	...
+	if (!viommu_device_live(viommu)) {
+		spin_unlock_irqrestore(&viommu->request_lock, flags);
+		return 0;
+	}
+	...
 }
 
-and bypassing __viommu_sync_req() leaves them without a cleanup path before
-the queues are destroyed.
+Any queued requests would remain in viommu->requests. Since viommu_remove()
+tears down the virtqueues and sets viommu->removed =3D true, but does not
+iterate over the viommu->requests list to free the pending elements, it
+appears these requests would permanently leak.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/tencent_85AC6E749F6=
-A912B7BB9FF360F8ECB3F5C09@qq.com?part=3D4
+A912B7BB9FF360F8ECB3F5C09@qq.com?part=3D6
