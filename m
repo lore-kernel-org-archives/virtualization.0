@@ -1,29 +1,29 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF3C239E9AC;
-	Sun,  4 Oct 2026 12:55:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2DE84156F0;
+	Sun,  4 Oct 2026 12:56:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791118547; cv=none; b=HIjbN7r9g4huOEAo1o68KyNU/n6MlJc1AH91jDotBAY/FRB9rlZPNVKwyUn9F3xqU3BZygQh7LlC5/5Am64haDLRRdF/leW77bbm0nMBEAPoHNylwFlmW+aUXkDxggVvOzhstKa0N1FTPcoIqZDjvUIDo+U9jSk8F9ENsKwf9ws=
+	t=1791118566; cv=none; b=LXvJIuUSj1zbz+B66D+uaZL9a0XSJAuGPJ+WokueTtHqL1INn3xwCfkE6SWsA1rSQTJu03eWoMUQDRJas1Vp493G9zH5PaA7fO+6Auf/VxXms22YPo+YCEGYjQpohAGMQQtHGALA1Mui/V/fUUThl8c7Ed/pIbzUDFck8qW20Ks=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791118547; c=relaxed/simple;
-	bh=xg8YgNjj6PxAPhGgLkCHQIFG8rYJR9Jg/pZU2JYoDQE=;
+	s=arc-20240116; t=1791118566; c=relaxed/simple;
+	bh=a7fEkya+eiLiIllDm+mhWmrv3McI5X/eL0cHkPiNtyw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=olbTfv/smZW5cYhE4NyHxZgo8bpzE0xi7u2Hz80Ggp0fY7/5iDnUQsmY9kDRRciysXjPkvJ+P0b4saepLADIWlHue6+ID9FxXjBmw8JPWn//HU7IT2jv1j5f3vNOg4WKDMWRY22+krA7mb9EjMm1nvKA7+Bh1eW6ziQ19FKaTt8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=aERLBpOK; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=Yd1WD4vL8XEHK70Gj4LDsJA3istKsSDTC8XKdxzpEWa1kI3W6xryg8RGvhFE4s1307UYy6Rq/dlc+DuEq9aSCLY9kREGT50zklIWoNWufnlRa8x0WnQ1s2d+z13/pk1gDpkvrzF3A/wPIu1JKdQBo9mBMobPdKOHi8RixBaKWIg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=yshBgo+i; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="aERLBpOK"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1E461F000FF;
-	Sun,  4 Oct 2026 12:55:44 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="yshBgo+i"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF7871F000FF;
+	Sun,  4 Oct 2026 12:56:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxfoundation.org;
-	s=korg; t=1791118545;
-	bh=BFEKnbTLXmgagiAI1vAISoB39XR9rpuzExoAMyIR4EI=;
+	s=korg; t=1791118564;
+	bh=+zyDIlut7TP1j+n//D3AqYQMcrNu+Ijij1LbJXSVLPI=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=aERLBpOKo546ecrYvslGXt2+L64I7saKpBBZo/78jcG9QBQQ56Y85Sl/RGtpV7seP
-	 XOBJbNaaDi8fZzUeCfHesJynxW8KJT45Mg+nMIvhiAG4rA5aiyIPuGz41JibXOrGET
-	 bxcZ96Asogt7es0SDzqcmigchDq4SxqO/9PWlntM=
-Date: Sun, 4 Oct 2026 14:55:40 +0200
+	b=yshBgo+i7fF7Shqs12G8SVVUGuFA0fiV1ORRHZWol+yLghFe+eEKrWR1jHQBAbZx5
+	 0IXkME2pCN9M1ylMuwoI+Jge97xNtEsp7cbgPLkBIeJWRkRN2n8tEOsm8kknusl5PJ
+	 PKdD0KLV9Kyk0v4r/cgujjMK3/hDbeT1dm5w5Qis=
+Date: Sun, 4 Oct 2026 14:56:00 +0200
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To: sungbyeongchan <tjdqudcks0424@naver.com>
 Cc: German Maglione <gmaglione@redhat.com>, Vivek Goyal <vgoyal@redhat.com>,
@@ -33,7 +33,7 @@ Cc: German Maglione <gmaglione@redhat.com>, Vivek Goyal <vgoyal@redhat.com>,
 	virtualization@lists.linux.dev, fuse-devel@lists.linux.dev,
 	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] virtiofs: validate fixed-output response length
-Message-ID: <2026100406-refocus-false-c5e8@gregkh>
+Message-ID: <2026100445-cataract-anthem-8edb@gregkh>
 References: <20261004123405.586168-1-tjdqudcks0424@naver.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -68,64 +68,39 @@ On Sun, Oct 04, 2026 at 09:34:05PM +0900, sungbyeongchan wrote:
 >  fs/fuse/virtio_fs.c | 26 ++++++++++++++++++++++++++
 >  1 file changed, 26 insertions(+)
 > 
-> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-> index f15e516ebcb5c..288848f23e7ec 100644
-> --- a/fs/fuse/virtio_fs.c
-> +++ b/fs/fuse/virtio_fs.c
-> @@ -730,6 +730,10 @@ static void copy_args_from_argbuf(struct fuse_args *args, struct fuse_req *req)
->  	unsigned int num_out;
->  	unsigned int i;
->  
-> +	/* Error replies contain only the output header. */
-> +	if (req->out.h.error)
-> +		goto out;
-> +
->  	remaining = req->out.h.len - sizeof(req->out.h);
->  	num_in = args->in_numargs - args->in_pages;
->  	num_out = args->out_numargs - args->out_pages;
-> @@ -755,6 +759,7 @@ static void copy_args_from_argbuf(struct fuse_args *args, struct fuse_req *req)
->  	if (args->out_argvar)
->  		args->out_args[args->out_numargs - 1].size = remaining;
->  
-> +out:
->  	kfree(req->argbuf);
->  	req->argbuf = NULL;
->  }
-> @@ -762,7 +767,9 @@ static void copy_args_from_argbuf(struct fuse_args *args, struct fuse_req *req)
->  /* Verify that the server properly follows the FUSE protocol */
->  static bool virtio_fs_verify_response(struct fuse_req *req, unsigned int len)
->  {
-> +	struct fuse_args *args = req->args;
->  	struct fuse_out_header *oh = &req->out.h;
-> +	unsigned int expected;
->  
->  	if (len < sizeof(*oh)) {
->  		pr_warn("virtio-fs: response too short (%u)\n", len);
-> @@ -777,6 +784,25 @@ static bool virtio_fs_verify_response(struct fuse_req *req, unsigned int len)
->  			oh->unique, req->in.h.unique);
->  		return false;
->  	}
-> +
-> +	if (oh->error) {
-> +		if (len != sizeof(*oh)) {
-> +			pr_warn("virtio-fs: error response too long (%u)\n", len);
-> +			return false;
-> +		}
-> +		return true;
-> +	}
-> +
-> +	expected = sizeof(*oh) +
-> +		   fuse_len_args(args->out_numargs, args->out_args);
-> +	if (len > expected ||
-> +	    (len < expected &&
-> +	     (!args->out_argvar ||
-> +	      expected - len > args->out_args[args->out_numargs - 1].size))) {
-> +		pr_warn("virtio-fs: invalid response length (%u, expected %u)\n",
-> +			len, expected);
 
-why let remote connections spam the kernel log?  And you don't need the
-"prefix" of virtio-fs for pr_*() calls if it is working properly.
+Hi,
+
+This is the friendly patch-bot of Greg Kroah-Hartman.  You have sent him
+a patch that has triggered this response.  He used to manually respond
+to these common problems, but in order to save his sanity (he kept
+writing the same thing over and over, yet to different people), I was
+created.  Hopefully you will not take offence and will fix the problem
+in your patch and resubmit it so that it can be accepted into the Linux
+kernel tree.
+
+You are receiving this message because of the following common error(s)
+as indicated below:
+
+- It looks like you did not use your "real" name for the patch on either
+  the Signed-off-by: line, or the From: line (both of which have to
+  match).  Please read the kernel file,
+  Documentation/process/submitting-patches.rst for how to do this
+  correctly.
+
+- You have marked a patch with a "Fixes:" tag for a commit that is in an
+  older released kernel, yet you do not have a cc: stable line in the
+  signed-off-by area at all, which means that the patch will not be
+  applied to any older kernel releases.  To properly fix this, please
+  follow the documented rules in the
+  Documentation/process/stable-kernel-rules.rst file for how to resolve
+  this.
+
+If you wish to discuss this problem further, or you have questions about
+how to resolve this issue, please feel free to respond to this email and
+Greg will reply once he has dug out from the pending patches received
+from other developers.
 
 thanks,
 
-greg k-h
+greg k-h's patch email bot
