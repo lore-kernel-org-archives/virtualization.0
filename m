@@ -1,45 +1,46 @@
-Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
+Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5908124DCF9;
-	Mon,  5 Oct 2026 00:43:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DB6E1F12FB;
+	Mon,  5 Oct 2026 01:05:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791161020; cv=none; b=r79q3Z5CkJ+xt/WZ4EO1no6Ma/HZA8W0y1ODnClMRl5T2rYOdhehth7CIbvxsl4Qy0NPB8m+gKth2GaE5o1GdRXu0FagBiR9Su8BT4T5CJh6KkTH188/CeRsnD+yZPny8rkGLhAe4Ied8KSH0jqMFMk3QarD+q7uHEiXkZmTejs=
+	t=1791162361; cv=none; b=f6ALM2jnBzhGWCZ06yrKvxRDUs7AySXRu0+WXqNRJLHwm7aW5MZLJL/D/LNG8oIpT+fCie2NJtfVpfTQSNYJNHDaMhIcCCq6ai+ip3ycPi6U70syBovyy3swj4PJQSy4Lqn4XBpR/TJ9oSTjCWKRzHotgTTJlgHuL0prnmo4qgI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791161020; c=relaxed/simple;
-	bh=KvqnzX9smOrBIuSz6S0KV5qNfps2KgiMoCIUcNnSKfU=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=SPx9VIJT++91UzDk1IxCHax1IeDEbdIPUVxvAhgpJNSpJbRyAgRsjw/LR5Y9a0ctMZkKAeaexdmPfLtic+SG6Y5dFHaLUk+8C4gdyfk23Nrjkj/33f0jmVftamM4cE98hP1rU2YhEs6017l8KlNZRKIVnxH5IJOpBYEUK/jwXD4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=Z7atUyWx; arc=none smtp.client-ip=185.226.149.37
+	s=arc-20240116; t=1791162361; c=relaxed/simple;
+	bh=6hKZyAxMsAcaXlL1jQNmLGPEHssZUOfzDofJ9l3AAYs=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=f/EJxTspQegO1JDBpC0AWvMrP3lVUMxxlX0m8fZUcW4dk6SoR1Mq9HqSxUUzksbT31rBBMy6QDowZx4QTbRn2+ywSP3Yps2tLdVyjLLQ636vRzRhkA0rinXs0dkRDj7iyUdok4tsDnnnaWQBXL4Ktb6QxMlAnaxirVgxzquJxBc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=f/7fNSml; arc=none smtp.client-ip=185.226.149.38
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="Z7atUyWx"
-Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
-	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="f/7fNSml"
+Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
+	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
 	(Exim 4.93)
 	(envelope-from <mhal@rbox.co>)
-	id 1xDWXr-00BHFF-MA; Mon, 05 Oct 2026 02:27:07 +0200
+	id 1xDWXr-00BeDO-IT; Mon, 05 Oct 2026 02:27:07 +0200
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector1; h=Cc:To:Content-Transfer-Encoding:Content-Type:MIME-Version:
-	Message-Id:Date:Subject:From; bh=tVlV4UZqBeeHCemy5wFEoi/THPCJIIEMwXyBJC+bMPE=
-	; b=Z7atUyWxs5JfbQi/nqiCSUIJ6YOxs8WMjld/7o6oJCE8jD2xrCbuNmvcprOryv8UR3SCjSgKa
-	ekqXteYyA9AhQSKjtaQy8SxY8zEjFkLUTZCovQr2lm4WiB5YDMM3l5JRPucjMrenlX+X8qDcBulBB
-	YpVEWfQffAyfgNmDcjFFfQStfF/uK1W4tWBriNdZSIlbQKzzC1kc4ClNGViJNJIjFJ9MikFo6REVc
-	OBCTAlxQoA8drAM1LHYBapBIwHzRXlfCKqWrJpHmO/UXN4E8t4G9A/Aj6hAdq9u1b7mRsCeRPMx9D
-	8HL9SC6lBv3PTQO3Hb35Ou5LFiB5RtpxPUL9LQ==;
+	s=selector1; h=Cc:To:In-Reply-To:References:Message-Id:
+	Content-Transfer-Encoding:Content-Type:MIME-Version:Subject:Date:From;
+	bh=jPeu6T7GcllC8FvZxJ+u0tfvoOw0GMjN0KPHe/0xo9A=; b=f/7fNSmlGhH7nEcWnhDBuZzxLi
+	4lOsnQ4H4OON59k0kuS6tUydl1nKO9pMhnCZq2mSyvjuVxA41sssatUVGtQeqa1uneZpnnyT2s1ph
+	Q3v7Yu5mYUJ6kg4VSpI7xc7+4KqTXXTo3Syd3Y06g4M9CSJyyuD5KRNG9Ou6p00+utr/tossk2yWP
+	EDyO6l8Vi/QKn7QdSZTAK1AS2daYRIx/efcJgNYe+rN+zbMp4ELw7NsOOpjJaV8L2tEVdP7hM8CQ9
+	HxsP/ZrD3julwogz4d86CacmCcpwSW5y0QRcBw+sWrNdt93RJF9ZjE+6R+0qb0c1+Gfll9rr/CeKR
+	504ICkDw==;
 Received: from [10.9.9.72] (helo=submission01.runbox)
-	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
+	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
 	(envelope-from <mhal@rbox.co>)
-	id 1xDWXg-0004tt-NY; Mon, 05 Oct 2026 02:26:57 +0200
+	id 1xDWXd-0002qY-EG; Mon, 05 Oct 2026 02:26:55 +0200
 Received: by submission01.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim 4.95)
-	id 1xDWXK-00AQqX-Uv;
-	Mon, 05 Oct 2026 02:26:35 +0200
+	id 1xDWXL-00AQqX-TB;
+	Mon, 05 Oct 2026 02:26:36 +0200
 From: Michal Luczaj <mhal@rbox.co>
-Subject: [PATCH net v4] vsock: fix connect() races
-Date: Mon, 05 Oct 2026 02:26:21 +0200
-Message-Id: <20261005-vsock-connect-reset-closing-v4-0-15d41cfda3ed@rbox.co>
+Date: Mon, 05 Oct 2026 02:26:22 +0200
+Subject: [PATCH net v4] vsock: treat TCP_CLOSING as once-established
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -48,12 +49,9 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/33QwY4CIQwG4FcxnO0G6iiwp32PjYcBirJrYAMj0
- Zh5d5E9qJc5tmm/v+mNFcqBCvtc3VimGkpIsRXDesXscYwHguBazZDjjivkUEuyv2BTjGQnyFR
- oAntKJcQDaOUcKrnTTnrWhL9MPly6/s0iTWz/3yxn89O2H+5j7BjKlPK131BFH+5xmuvFuCpAw
- JajVkZb643/yiZdPmzqORVfJLFdlhA4jMLp0ZhBopfv0uZFQlyWNk2SSnNp2re4G57SPM93czv
- fXW8BAAA=
-X-Change-ID: 20260820-vsock-connect-reset-closing-98dd28769d7f
+Message-Id: <20261005-vsock-connect-reset-closing-v4-1-15d41cfda3ed@rbox.co>
+References: <20261005-vsock-connect-reset-closing-v4-0-15d41cfda3ed@rbox.co>
+In-Reply-To: <20261005-vsock-connect-reset-closing-v4-0-15d41cfda3ed@rbox.co>
 To: Stefan Hajnoczi <stefanha@redhat.com>, 
  Stefano Garzarella <sgarzare@redhat.com>, 
  "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>, 
@@ -67,40 +65,81 @@ Cc: kvm@vger.kernel.org, virtualization@lists.linux.dev,
  Hyunwoo Kim <imv4bel@gmail.com>, Michal Luczaj <mhal@rbox.co>
 X-Mailer: b4 0.15.2
 
-Handle a racy socket change in connect(). This iteration focuses on a
-single issue and aims for minimal changes.
+Handle the TCP_ESTABLISHED -> TCP_CLOSING transition on OP_RST, which can
+race with the connect loop. Immediately break and return 0 on
+ESTABLISHED/CLOSING. The return value of connect() should reflect what
+happened up to the point the connection was established or failed. Events
+that occur afterwards must not affect it. E.g. even if OP_RW has already
+set sk_err, connect() should still return 0, not ENOBUFS because of it.
+Adapt the inaccurate comment above signal_pending().
 
-I'm keeping this as a 1-patch series so as not to confuse the patchwork.
+Resetting a socket that is still present in connected_table can lead to
+memory corruption. The reporter noted lost transports for in-flight skbs,
+and I have reproduced crashes caused by re-insertion into connected_table.
 
+  list_add double add: new=, prev=, next=.
+  kernel BUG at lib/list_debug.c:35!
+  Oops: invalid opcode: 0000 [#1] SMP KASAN NOPTI
+  Workqueue: vsock-loopback vsock_loopback_work
+  RIP: 0010:__list_add_valid_or_report+0x11f/0x130
+  Call Trace:
+   vsock_insert_connected.cold+0xe/0x13
+   virtio_transport_recv_pkt+0x10e9/0x1460
+   vsock_loopback_work+0x305/0x480
+   process_one_work+0xe4c/0x1560
+   worker_thread+0x4f1/0xd60
+   kthread+0x36e/0x470
+   ret_from_fork+0x47b/0x6b0
+   ret_from_fork_asm+0x1a/0x30
+
+This fix is supplementary to commit 002541ef650b ("vsock: Ignore
+signal/timeout on connect() if already established"). Details under Link.
+
+Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+Reported-by: Hyunwoo Kim <imv4bel@gmail.com>
+Link: https://lore.kernel.org/netdev/anzT1fREOSyHT99k@v4bel/
+Signed-off-by: Michal Luczaj <mhal@rbox.co>
 ---
-Changes in v4:
-- Defer all other patches to net-next (Stefano)
-- Link to v3: https://patch.msgid.link/20260922-vsock-connect-reset-closing-v3-0-78907b8200d4@rbox.co
-
-Changes in v3:
-- Change the transport assignment life cycle (Stafano)
-- Expand comments (Stafano)
-- CC: drop bouncing address
-- Link to v2: https://patch.msgid.link/20260915-vsock-connect-reset-closing-v2-0-a1d9abb472f7@rbox.co
-
-Changes in v2:
-- CC: drop bouncing addresses
-- Add more related fixes
-- Handle ENOBUFS (Bobby)
-- Consume sk_err (Stefano)
-- Link to v1: https://patch.msgid.link/20260909-vsock-connect-reset-closing-v1-1-50298b9ccfbf@rbox.co
-
----
-Michal Luczaj (1):
-      vsock: treat TCP_CLOSING as once-established
-
  net/vmw_vsock/af_vsock.c | 17 ++++++++---------
  1 file changed, 8 insertions(+), 9 deletions(-)
----
-base-commit: 6dc989ea46b96ce170840174b4a38c4a387fb005
-change-id: 20260820-vsock-connect-reset-closing-98dd28769d7f
 
-Best regards,
---  
-Michal Luczaj <mhal@rbox.co>
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 9b71479a2b29..14fe24b05f9c 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1834,23 +1834,22 @@ static int vsock_connect(struct socket *sock, struct sockaddr_unsized *addr,
+ 		timeout = schedule_timeout(timeout);
+ 		lock_sock(sk);
+ 
+-		/* Connection established. Whatever happens to socket once we
+-		 * release it, that's not connect()'s concern. No need to go
++		/* Connection was established. Whatever happens to socket once
++		 * we release it, that's not connect()'s concern. No need to go
+ 		 * into signal and timeout handling. Call it a day.
+ 		 *
+ 		 * Note that allowing to "reset" an already established socket
+ 		 * here is racy and insecure.
+ 		 */
+-		if (sk->sk_state == TCP_ESTABLISHED)
+-			break;
++		if (sk->sk_state == TCP_ESTABLISHED ||
++		    sk->sk_state == TCP_CLOSING) {
++			err = 0;
++			goto out_wait;
++		}
+ 
+ 		/* If connection was _not_ established and a signal/timeout came
+ 		 * to be, we want the socket's state reset. User space may want
+-		 * to retry.
+-		 *
+-		 * sk_state != TCP_ESTABLISHED implies that socket is not on
+-		 * vsock_connected_table. We keep the binding and the transport
+-		 * assigned.
++		 * to retry, so we keep the binding and the transport assigned.
+ 		 */
+ 		if (signal_pending(current) || timeout == 0) {
+ 			err = timeout == 0 ? -ETIMEDOUT : sock_intr_errno(timeout);
+
+-- 
+2.56.0
 
