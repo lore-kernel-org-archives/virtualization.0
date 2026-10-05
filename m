@@ -1,45 +1,45 @@
-Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
+Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E9F62D0C62;
-	Mon,  5 Oct 2026 07:59:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3F2337CD45;
+	Mon,  5 Oct 2026 07:59:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791187162; cv=none; b=p43jZClCM/MDXBOJPeO+vw/cIOUmq4UKJ+lfbuAEDZWIVsHVPeGBUmm6FarO/Oh2t823SYK3skcB+xTp4Jg78s77oa53RkS8GwfHR6svmLBIjhYI1G+555blq/YwjY2O5+aMgw0kH5GYnhltLau1Ngl2BWlVlc7jqBWXb0tbNKY=
+	t=1791187174; cv=none; b=Er3aYZviywFjSYVM4ViP2pTOguW22zU12gOYVv+sZtx8Z5CLC7paRDmh4R3Sg7JznfiRNslTvWkkIaNnlRggUNMECx74k9WkwRmf+UPk9wmTiAZkj/MGnvddOjWH/CtUQ2mcbQwr2WlZQetjblEsOhM/ZxZkMrSpoXeTc27SIMQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791187162; c=relaxed/simple;
-	bh=3adjiKAH+6HaJMTW85vT+6EBnWOE9GxWCepkhgKsSlw=;
+	s=arc-20240116; t=1791187174; c=relaxed/simple;
+	bh=jpWF2fgTTsQNMBqjrX3o9f1OjcJ8sDKl5kFBIYtr1z0=;
 	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
-	 In-Reply-To:Content-Type; b=H2NjVHtKhqyM2yEyKuEdnqU473O2Qq+MFkjJVpr4MIHD5bOQ6nLT77LfspgfCGK41mmgBkFxYbEme+Z5xI8vlZA5rVfR+64B/KiFHfCSWAi/UusfZvLLMFj7IvqSGFEYYjmSzACDArR1C53m+rAPFG5dAS3DFp82niw5mIi2OwY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=RWukGX3q; arc=none smtp.client-ip=185.226.149.38
+	 In-Reply-To:Content-Type; b=UWZmz+qjdsWt8abl8jOKucaODetlClNmn4NG1Ty0rXykU8ErT14ajkausQf7nc+81t9gTP9fusLCAmgtUh+PuimaUCDeKO21olL9srufrnlShshX4q1LSnJwZDq811p37vxRnLeVPcbHwYlHR6FAE4pUNKwCC+sVPASIDWKEQZc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=kW049N0E; arc=none smtp.client-ip=185.226.149.37
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="RWukGX3q"
-Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
-	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="kW049N0E"
+Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
+	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
 	(Exim 4.93)
 	(envelope-from <mhal@rbox.co>)
-	id 1xDdbH-00CVxw-9i; Mon, 05 Oct 2026 09:59:07 +0200
+	id 1xDdbY-00C9cH-Ug; Mon, 05 Oct 2026 09:59:24 +0200
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
 	s=selector1; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:References:
 	Cc:To:Subject:From:MIME-Version:Date:Message-ID;
-	bh=NBTyedRxjJcnKdZU6ILSCqu2r4jMC+wfZ9g+5/uELAA=; b=RWukGX3qR13xJbHx6oaAvPVfel
-	nGK72deOiiNns8sxv1aObpQrN5DEND9gmM2ckw846WVy6Mmd2EbfpZetXkbFUlNjDLWdbZyg9h1dW
-	jPGabVf2EEm8WHL8xNSLspsnJkw0ct6c/ekvJlGssxd5pgi3Qn8pSijs/ZmQLy5CaONs+GYsp7kS/
-	B/cwSLkjcwALyIw3hwZH6YgBd7kcsz3b0solnHVB6zRpvDBLWTr2w+MfeeQNIJ+hjaLRXxviWBVYR
-	CeBAtaqXjrUB5NYivcewCD09Pm+WXqETTxCvvZPPOL4gCUWRYTcG6S6r+uZQIpZkmQvC8rj2W8vlb
-	cw7G5a1Q==;
-Received: from [10.9.9.72] (helo=submission01.runbox)
-	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
+	bh=AJpRXQHRBb4+gY4/3S+W6fpaM8ojmDIBRhQ4aGx7Imw=; b=kW049N0Ewaq+URE6huHVFmZ0di
+	5O0JtV6sqo7SlROpp2utVSdu3YzDX5lKRidExLdFTskN2YdxIyaKXQG+B9wLNElUC0aSCDYQyQTDz
+	8seBh+lh8ri+ifM0z1MWwthdR1gbJoDH8C5Twx8PQBN0rbOqvdA9w1rvfp8M0I1FJwQeTJ+O6nMVV
+	G8uPsJnnDTacK7qJUwq1tNEEKfWVYmoS46OwFI4cyb1kQz5jAZzyp7tm3I6Quw+Gm3t12A2+5paHy
+	rz3OpuC88yeL4Ik0UvyCBETAtNP4Fri4EjRfTIF4WX4bEY3JcnsKSTo8TjurZpYBWdFYr6HbiaWSL
+	1GLZjbNg==;
+Received: from [10.9.9.74] (helo=submission03.runbox)
+	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
 	(envelope-from <mhal@rbox.co>)
-	id 1xDdb5-0005h3-AQ; Mon, 05 Oct 2026 09:58:55 +0200
-Received: by submission01.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	id 1xDdbR-0003yJ-Qv; Mon, 05 Oct 2026 09:59:17 +0200
+Received: by submission03.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim 4.95)
-	id 1xDdat-00BZ6W-UX;
-	Mon, 05 Oct 2026 09:58:44 +0200
-Message-ID: <1f07aa52-7820-40ac-b2ec-0e498ee841e6@rbox.co>
-Date: Mon, 5 Oct 2026 09:58:37 +0200
+	id 1xDdbJ-00BpL3-Pe;
+	Mon, 05 Oct 2026 09:59:09 +0200
+Message-ID: <4dfb9200-8bd1-4806-90d8-892529b79962@rbox.co>
+Date: Mon, 5 Oct 2026 09:59:08 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -48,65 +48,110 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 From: Michal Luczaj <mhal@rbox.co>
-Subject: Re: [PATCH net v2 3/5] vsock: Enforce no-transport invariant for
- TCP_LISTEN sockets
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin"
- <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- "David S. Miller" <davem@davemloft.net>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Simon Horman <horms@kernel.org>, Asias He <asias@redhat.com>,
- kvm@vger.kernel.org, virtualization@lists.linux.dev, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20260915-vsock-connect-reset-closing-v2-0-a1d9abb472f7@rbox.co>
- <20260915-vsock-connect-reset-closing-v2-3-a1d9abb472f7@rbox.co>
- <aqp7CV9DnfsG1GJc@sgarzare-redhat>
- <0bc40e5c-8790-4a36-84bc-80e0bfe6b504@rbox.co>
- <arT3jXoS7OaU6Tsc@sgarzare-redhat>
- <6c1516ca-4699-4d9b-af6e-c7762759d495@rbox.co>
- <arpBYXWb9pohx-8v@sgarzare-redhat>
+Subject: Re: [PATCH net] vsock/bpf: release sock lock while waiting for data
+ in recvmsg
+To: Stefano Garzarella <sgarzare@redhat.com>, jrmmhm.kernel@eldare.de,
+ Bobby Eshleman <bobbyeshleman@meta.com>
+Cc: "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+ Bobby Eshleman <bobby.eshleman@bytedance.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bpf@vger.kernel.org,
+ stable@vger.kernel.org
+References: <20260929-kbh3-1-022-fix-v1-1-cc97cc95d269@eldare.de>
+ <ar4gvlZL1JyPycg1@sgarzare-redhat>
 Content-Language: pl-PL, en-GB
-In-Reply-To: <arpBYXWb9pohx-8v@sgarzare-redhat>
+In-Reply-To: <ar4gvlZL1JyPycg1@sgarzare-redhat>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 9/28/26 12:31, Stefano Garzarella wrote:
-> On Thu, Sep 24, 2026 at 11:26:47PM +0200, Michal Luczaj wrote:
->> On 9/24/26 12:17, Stefano Garzarella wrote:
->>> On Tue, Sep 22, 2026 at 03:18:13PM +0200, Michal Luczaj wrote:
->>>> ...
->>>> I've addressed all your other comments for v2 and went through Ashiko's
->>>> reports (side effects of lockless peer_shutdown write, imperfect
->>>> no-transport TCP_LISTENER enforcement). I've decided to try the
->>>> eager-unassign approach. I think/hope this way we sidestep the lockless
->>>> writes and enforce the invariant without breaking the API, while fixing the
->>>> bugs.
->>>>
->>>> This should probably be RFC, but I'm posting as v3[1] so netdev's LLM can
->>>> have a go (too). Hope I'm not breaking any workflow. Let me know what you
->>>> think.
->>>
->>> I think you can add RFC also on a v3 patch, just to make it clear you 
->>> are not sure it's ready to be merged.
->>>
->>> That said, thanks for that :-) I'll take a look today or next week 
->>> because I'm off tomorrow.
->>>
->>> I'm just worried it's becoming too big for net. Anyway, I'll comment 
->>> there.
->>
->> Yeah, I get it. Would you rather have a single net.git patch[1] for the
->> original report + keep all the rest for net-next, or do the whole series as
->> is, but slowly at net-next?
+On 10/1/26 11:01, Stefano Garzarella wrote:
+> +cc Bobby and Michal who touched this code recently
 > 
-> I'd go with the first option. Let's try to get the fix into net first, 
-> and then move the rest to net-next at a reasonable pace. WDYT?
+> On Tue, Sep 29, 2026 at 06:33:04PM +0200, Jerome Mohm via B4 Relay wrote:
+>> From: Jerome Mohm <jrmmhm.kernel@eldare.de>
+>>
+>> vsock_bpf_recvmsg() takes lock_sock(sk) and holds it across the whole
+>> receive loop, including vsock_msg_wait_data(), which sleeps in
+>> wait_woken() without dropping the lock. When data arrives, the
+>> transport's delivery context (the vsock-loopback worker, or the
+>> virtio/vhost rx path) calls virtio_transport_recv_pkt() -> lock_sock()
+>> on the same socket and blocks. That context is the only one that would
+>> queue the skb and call sk_data_ready() to wake the reader, so neither
+>> side makes progress. A blocking recv() hangs until a signal arrives (a
+>> finite SO_RCVTIMEO also breaks it); while it lasts the shared delivery
+>> worker is stalled, so all vsock rx on that transport stops, not only
+>> the affected socket. The hung-task watchdog reports the worker blocked
+>> in D state:
+>>
+>>  INFO: task kworker/1:3:107 blocked for more than 5 seconds.
+>>  task:kworker/1:3 state:D Workqueue: vsock-loopback vsock_loopback_work
+>>  Call Trace:
+>>   __schedule
+>>   schedule
+>>   __lock_sock
+>>   lock_sock_nested
+>>   virtio_transport_recv_pkt
+>>   vsock_loopback_work
+>>
+>> The reader holds the same sk_lock-AF_VSOCK it is waiting on, taken in
+>> vsock_bpf_recvmsg().
+>>
+>> This code is based on net/unix/unix_bpf.c, whose unix_msg_wait_data()
+>> drops u->iolock around wait_woken() and re-takes it afterwards. The
+>> vsock port substituted lock_sock() for that serialisation lock but
+>> omitted the unlock and relock. tcp_bpf and the native
+>> vsock_connectible_wait_data() both drop the lock across the wait;
+>> vsock_bpf is the only one that does not.
+>>
+>> Release the socket lock around the wait and re-acquire it before
+>> re-checking for data, so the caller's locking is unchanged.
+>>
+>> Fixes: 634f1a7110b4 ("vsock: support sockmap")
+>> Cc: stable@vger.kernel.org
+>> Assisted-by: LLM
+>> Signed-off-by: Jerome Mohm <jrmmhm.kernel@eldare.de>
+>> ---
+>> net/vmw_vsock/vsock_bpf.c | 2 ++
+>> 1 file changed, 2 insertions(+)
+>>
+>> diff --git a/net/vmw_vsock/vsock_bpf.c b/net/vmw_vsock/vsock_bpf.c
+>> index 9049d2648646..bb7d81a95baa 100644
+>> --- a/net/vmw_vsock/vsock_bpf.c
+>> +++ b/net/vmw_vsock/vsock_bpf.c
+>> @@ -50,7 +50,9 @@ static bool vsock_msg_wait_data(struct sock *sk, struct sk_psock *psock, long ti
+>> 	sk_set_bit(SOCKWQ_ASYNC_WAITDATA, sk);
+>> 	ret = vsock_has_data(sk, psock);
+>> 	if (!ret) {
+>> +		release_sock(sk);
+>> 		wait_woken(&wait, TASK_INTERRUPTIBLE, timeo);
+>> +		lock_sock(sk);
+>> 		ret = vsock_has_data(sk, psock);
+>> 	}
+>> 	sk_clear_bit(SOCKWQ_ASYNC_WAITDATA, sk);
+>>
+>> ---
+>> base-commit: 72d3fcf802c45d00b300f25b848a93c3a2bd7c7e
+>> change-id: 20260929-kbh3-1-022-fix-340aa3f7f071
+>>
+>> Best regards,
+>> --
+>> Jerome Mohm <jrmmhm.kernel@eldare.de>
+>>
+> 
+> LGTM, but I'd like also Bobby and Michal opinion:
+> 
+> Acked-by: Stefano Garzarella <sgarzare@redhat.com>
 
-Sure, there it is:
-https://lore.kernel.org/netdev/20261005-vsock-connect-reset-closing-v4-0-15d41cfda3ed@rbox.co/
+I took a look at v2 and I don't really have any functional comments. Well,
+besides the use of READ_ONCE, but that's probably something we need to
+tackle separately?
+
+A single-patch v2 addresses not only the original bug, but also sashiko's
+complains about the pre-existing issues (making the subject stale?), but I
+didn't know if you'd rather have all of that stuffed together, so I
+refrained from commenting to avoid confusing the author.
 
 thanks,
 Michal
-
