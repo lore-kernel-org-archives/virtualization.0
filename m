@@ -1,194 +1,75 @@
-Received: from cvsmtppost01.nm.naver.com (cvsmtppost01.nm.naver.com [114.111.35.25])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADD2D3B71B3
-	for <virtualization@lists.linux.dev>; Tue,  6 Oct 2026 18:24:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.111.35.25
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 051B148E0C5
+	for <virtualization@lists.linux.dev>; Tue,  6 Oct 2026 18:36:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791311062; cv=none; b=mKX/QKBJ7wdNPmnn0mVzp1DpVOUxt3p0Htc/cXCwpf/lWYZHFwdU9j83iO8eXzvBnSOGMebSJMRJavXjefbe0elf717xr4i/3RblIufpmtCzy8UjxloRYbWwWJsoWqzUOcv+C2aEr9cGklAeoFIZT2plbiF+Hwi64a7CzURep5c=
+	t=1791311778; cv=none; b=ulssiby9xy0kKb0YltGz2P7W0A9AHfKst70A93+dDajvj201BqpIjJoBk0izzxaMME+2ZJHPWNTUAWbwN+1ZxFfuct5jTU04FK+ogfCx9tbe3h597K2jxNv20bLpR11T0VAdFR/HbUSCQbUT+/xHaIVYskUkWxFKdeatsb/bM9c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791311062; c=relaxed/simple;
-	bh=wqqL1PwifQP6F0DbX5AnTlT3bL5yGbWuuRMWRY1NtHs=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=FRNNj/RvtIUnm/Tx45LBRkC+m3aQNPK4wM9kKc+oYDg115KPP3NRoxNm6/diMrnD/5+PpDf5oezx7vX38RHj6h+BsywE4eddmty/wXgfeqXcj3th0+7mbKNYUOaJZt1q6yuLMBwGSt2BYNYHOxn3/96XJ72VM0I1u7Luo106xWA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=naver.com; spf=pass smtp.mailfrom=naver.com; dkim=pass (2048-bit key) header.d=naver.com header.i=@naver.com header.b=VlRE/gsI; arc=none smtp.client-ip=114.111.35.25
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=naver.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=naver.com
+	s=arc-20240116; t=1791311778; c=relaxed/simple;
+	bh=GdL21/BK6UCZNShVB6rRZAFnsX7mhzOyuEep2krkc9k=;
+	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
+	 Date; b=NM/Urq9BRC1Rkb998ifMlHp3EQInqBjuvxv48sojugRouy/m8DJNu1YQXy4yzA5Q3e1Dv+TbTzIjSEYzsPoZd7kwnYi/apJP5OHdytPTLv3pY67i5RCV+WBtrk+iEwCd8FLNL84T5ErKbM8Jycvz4jP7+P7D1oZZ9wI1jvj+5Bg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Jec3sEIy; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=naver.com header.i=@naver.com header.b="VlRE/gsI"
-Received: from cvsendbo017.nm ([10.112.18.57])
-  by cvsmtppost01.nm.naver.com with ESMTP id Tv6o3H6lR3Gr07sH8llPfQ
-  for <virtualization@lists.linux.dev>;
-  Tue, 06 Oct 2026 18:24:17 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=naver.com; s=s20171208;
-	t=1791311057; bh=wqqL1PwifQP6F0DbX5AnTlT3bL5yGbWuuRMWRY1NtHs=;
-	h=From:To:Subject:Date:Message-ID:From:Subject:Feedback-ID:
-	 X-Works-Security;
-	b=VlRE/gsItxVY+Zl0tiaw4+9lc5xtFuPyqW0WbiwTtUQep+Ac5hUDiTmmOV0o9QnPd
-	 hUAyRP0Y30Zoqg7DQHhUfw/S0xQAHWx95rVG89huoe7dkoUIZv4qkn3TWlR6KxNghk
-	 m72ggszf21dYaJh6pZoMKPfXv2BXvFA07Q0otBfl/dvPF01eHA8Fg6A+he3PcXBCK4
-	 fx+vDzYnHgrWGcyHEoNBxTThd7cAlVYdm99LB8o3LIkkqOUnN90Uu9Nfk3YgjIQZRQ
-	 FiWi29MsGQJRqgapxrKtcgNo5T6TKOcOJDluDqyZWSX5rdnrhYuWlvFFkZDPNMwHEp
-	 brOf/Li2JpGBQ==
-X-Session-ID: 4ca3zSTOSIW6-bXMuvuUsw
-X-Works-Send-Opt: O9ewpzGdjHmdKHFOMr39Ko3YKHmwKNmwFAbrFxKrKqEmjJkaBd9YKBmm
-X-Works-Smtp-Source: s9nXKoulFqJZ+HmXFxM/+6E=
-Received: from localhost.localdomain ([115.136.205.4])
-  by cvnsmtp006.nm.naver.com with ESMTP id 4ca3zSTOSIW6-bXMuvuUsw
-  for <multiple recipients>
-  (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384);
-  Tue, 06 Oct 2026 18:24:17 -0000
-From: sungbyeongchan <tjdqudcks0424@naver.com>
-To: German Maglione <gmaglione@redhat.com>,
-	Vivek Goyal <vgoyal@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Miklos Szeredi <miklos@szeredi.hu>
-Cc: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	"Michael S . Tsirkin" <mst@redhat.com>,
-	virtualization@lists.linux.dev,
-	fuse-devel@lists.linux.dev,
-	linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH v2] virtiofs: validate fixed-output response length
-Date: Wed,  7 Oct 2026 03:24:08 +0900
-Message-ID: <20261006182408.1301152-1-tjdqudcks0424@naver.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20261004123405.586168-1-tjdqudcks0424@naver.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Jec3sEIy"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F5071F00906;
+	Tue,  6 Oct 2026 18:36:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791311776;
+	bh=GdL21/BK6UCZNShVB6rRZAFnsX7mhzOyuEep2krkc9k=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Jec3sEIyK5ZQ0kmKl/PxBJZLjRz381Bos5Ip3q3/stGk91GiAnnB4lRDJnMjtZkQN
+	 YulnLzfrS0TxOJS5+F8SzqmXRjIWPY2Ppd3W6VJXsyf88bXFZrMkI3XFxzrQhjM/+h
+	 vb+fBrP1B/W1AOZ3PeCi+cFKaV/0kYgG3llTgidphGj1KHMlWYy/z9V1JUbo0SrkzQ
+	 gus7cryzTM2Ev8mOexk0/rUfPlXy/wAMI8wp/mEKQaUGOY4p9UtW2utDVEkM2t34Ei
+	 H0WWYlx7iAUMPtIz2Q2d4NPeiBjQIBe1DiiCAJwwe9YhK5CWTiLhkrgv2POw8UuYh8
+	 Fqf0ZpyQJt7yA==
+Message-ID: <sashiko-outbox-162358@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] virtiofs: validate fixed-output response length
+Reply-To: sashiko-reviews@lists.linux.dev
+To: sungbyeongchan <tjdqudcks0424@naver.com>
+Cc: "Eugenio Perez" <eperezma@redhat.com>, virtualization@lists.linux.dev, "Michael
+ S. Tsirkin" <mst@redhat.com>
+In-Reply-To: <20261006182408.1301152-1-tjdqudcks0424@naver.com>
 References: <20261004123405.586168-1-tjdqudcks0424@naver.com>
+ <20261006182408.1301152-1-tjdqudcks0424@naver.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 06 Oct 2026 18:36:16 +0000
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-A short successful virtiofs response can leave the fixed-output
-portion of the request argument buffer unwritten. The completion path
-nevertheless copies the full declared output to the request destination,
-allowing stale allocator contents to reach callers such as
-fuse_statfs().
+> A short successful virtiofs response can leave the fixed-output
+> portion of the request argument buffer unwritten. The completion path
+> nevertheless copies the full declared output to the request destination,
+> allowing stale allocator contents to reach callers such as
+> fuse_statfs().
+>=20
+> Require successful fixed-output responses to contain their complete
+> declared output. Continue to permit a shorter final argument only for
+> out_argvar requests. Reject positive and internal restart error values,
+> require valid error replies to be header-only, and do not copy output
+> arguments from error replies.
+>=20
+> A header-only FUSE_STATFS success returned stale fields in nine of
+> nine calls across three boots. The fixed kernel rejected the short
+> response and preserved complete replies, valid error replies, and
+> variable-output controls.
+>=20
+> Fixes: a62a8ef9d97d ("virtio-fs: add virtiofs filesystem")
+> Cc: stable@vger.kernel.org
+> Assisted-by: LLM
+> Signed-off-by: sungbyeongchan <tjdqudcks0424@naver.com>
 
-Require successful fixed-output responses to contain their complete
-declared output. Continue to permit a shorter final argument only for
-out_argvar requests. Reject positive and internal restart error values,
-require valid error replies to be header-only, and do not copy output
-arguments from error replies.
+Sashiko has reviewed this patch and found no issues. It looks great!
 
-A header-only FUSE_STATFS success returned stale fields in nine of
-nine calls across three boots. The fixed kernel rejected the short
-response and preserved complete replies, valid error replies, and
-variable-output controls.
-
-Fixes: a62a8ef9d97d ("virtio-fs: add virtiofs filesystem")
-Cc: stable@vger.kernel.org
-Assisted-by: LLM
-Signed-off-by: sungbyeongchan <tjdqudcks0424@naver.com>
----
-Changes in v2:
-- Reject positive and internal restart error values.
-- Require error replies to be header-only.
-- Rate-limit malformed-response warnings.
-- Rely on the existing FUSE pr_fmt prefix.
-- Add Cc: stable@vger.kernel.org.
-- Use the reporter identity consistently.
-
- fs/fuse/virtio_fs.c | 43 ++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 38 insertions(+), 5 deletions(-)
-
-diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-index f15e516ebcb5c..fffbe08d9114a 100644
---- a/fs/fuse/virtio_fs.c
-+++ b/fs/fuse/virtio_fs.c
-@@ -4,6 +4,8 @@
-  * Copyright (C) 2018 Red Hat, Inc.
-  */
- 
-+#include "fuse_i.h"
-+
- #include <linux/fs.h>
- #include <linux/dax.h>
- #include <linux/pci.h>
-@@ -20,7 +22,6 @@
- #include <linux/cleanup.h>
- #include <linux/uio.h>
- #include "dev.h"
--#include "fuse_i.h"
- #include "fuse_dev_i.h"
- 
- /* Used to help calculate the FUSE connection's max_pages limit for a request's
-@@ -730,6 +731,10 @@ static void copy_args_from_argbuf(struct fuse_args *args, struct fuse_req *req)
- 	unsigned int num_out;
- 	unsigned int i;
- 
-+	/* Error replies contain only the output header. */
-+	if (req->out.h.error)
-+		goto out;
-+
- 	remaining = req->out.h.len - sizeof(req->out.h);
- 	num_in = args->in_numargs - args->in_pages;
- 	num_out = args->out_numargs - args->out_pages;
-@@ -755,6 +760,7 @@ static void copy_args_from_argbuf(struct fuse_args *args, struct fuse_req *req)
- 	if (args->out_argvar)
- 		args->out_args[args->out_numargs - 1].size = remaining;
- 
-+out:
- 	kfree(req->argbuf);
- 	req->argbuf = NULL;
- }
-@@ -762,19 +768,46 @@ static void copy_args_from_argbuf(struct fuse_args *args, struct fuse_req *req)
- /* Verify that the server properly follows the FUSE protocol */
- static bool virtio_fs_verify_response(struct fuse_req *req, unsigned int len)
- {
-+	struct fuse_args *args = req->args;
- 	struct fuse_out_header *oh = &req->out.h;
-+	unsigned int expected;
- 
- 	if (len < sizeof(*oh)) {
--		pr_warn("virtio-fs: response too short (%u)\n", len);
-+		pr_warn_ratelimited("response too short (%u)\n", len);
- 		return false;
- 	}
- 	if (oh->len != len) {
--		pr_warn("virtio-fs: oh.len mismatch (%u != %u)\n", oh->len, len);
-+		pr_warn_ratelimited("oh.len mismatch (%u != %u)\n",
-+				    oh->len, len);
- 		return false;
- 	}
- 	if (oh->unique != req->in.h.unique) {
--		pr_warn("virtio-fs: oh.unique mismatch (%llu != %llu)\n",
--			oh->unique, req->in.h.unique);
-+		pr_warn_ratelimited("oh.unique mismatch (%llu != %llu)\n",
-+				    oh->unique, req->in.h.unique);
-+		return false;
-+	}
-+	if (oh->error <= -ERESTARTSYS || oh->error > 0) {
-+		pr_warn_ratelimited("invalid error value (%d)\n", oh->error);
-+		return false;
-+	}
-+
-+	if (oh->error) {
-+		if (len != sizeof(*oh)) {
-+			pr_warn_ratelimited("error response too long (%u)\n",
-+					    len);
-+			return false;
-+		}
-+		return true;
-+	}
-+
-+	expected = sizeof(*oh) +
-+		   fuse_len_args(args->out_numargs, args->out_args);
-+	if (len > expected ||
-+	    (len < expected &&
-+	     (!args->out_argvar ||
-+	      expected - len > args->out_args[args->out_numargs - 1].size))) {
-+		pr_warn_ratelimited("invalid response length (%u, expected %u)\n",
-+				    len, expected);
- 		return false;
- 	}
- 	return true;
--- 
-2.43.0
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261006182408.1301=
+152-1-tjdqudcks0424@naver.com?part=3D1
 
