@@ -1,53 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57CC94A4984;
-	Tue,  6 Oct 2026 18:39:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CE4B3CB557;
+	Tue,  6 Oct 2026 21:11:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791311954; cv=none; b=nm7LUjcRQ/+x/hxrRUWkc0PdH6ATmUBWm/nvlqYXTGoxRE8hM+hYvCJ5AG6Khxy1vOG0WBjRyzSrkbwRF0CPlvVMU42kSccn+adPGfIe6O16ZHPJ1yB78jyPsUsjg3PsubOS99IF7sKhQN5JPgs7c4JIRLjK9ZGRROlOsGn/kJU=
+	t=1791321080; cv=none; b=nbjxRoKeraeBqaL2GpnCu3E6WseOFmJzR2cTiJCtcTWI63AtbbyExvLBLMZe7uk1OummsVEf2cAhgLhfVH28SLGpR4DmFqQ7+v+LR4CG5zBsFOtBtYybu4MvQ1QI4T3/oPvTiqBfyxzck54zwgTYeGYjk+2DaXveRLFDMDq/pY8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791311954; c=relaxed/simple;
-	bh=SgYVEBbK9gokPeiiA7ouZX+NAJnfVYbgExuEMlh0ws4=;
+	s=arc-20240116; t=1791321080; c=relaxed/simple;
+	bh=eJqOm82J5R97HC3hp/za/6cr1vYqL7mkBxRsrF7MZYs=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kYyAqZgNR4BnwvmjMFdU7iO+EP07F5tQB7htZV2dcOdJZjDw4mkKjXt2AqjegrxYdcQpJWzNsTX8ZbteuAzV9alqDhWIaQqr56kNyGI5RKCkDr5z1/2xO+pQfXWy5juGDtjME0GmJxlk9cBmU74gCAn0vBSuTjUxD10TM+I281k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gk6GjwcC; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=NlLxoROw5C9YGAr6kPcZimm2vpSSHA6jMeSa5vBa3YtbNZnFCe4vN6AtzypA6uoof2NnH6pyBET7QQO42sGDjwhbR3HV9m5uIb4e7+YEVdpwgSM1sj9wLMJxepWJK2io0o47B+2ldfxw6iGjwjQYqAxHQi6TKUj3nA2iJjz9txM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=WFY9ILpc; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gk6GjwcC"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CC881F0089B;
-	Tue,  6 Oct 2026 18:39:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791311951;
-	bh=YnuOeuo/LodeBx6Sgln5fFHIlb9TcaUTmkgxnYAmmVo=;
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="WFY9ILpc"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39E0E1F0089B;
+	Tue,  6 Oct 2026 21:11:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxfoundation.org;
+	s=korg; t=1791321078;
+	bh=s67wcmLdvo6Va5riA42IT5CjgvqjWz2QO0DX2E+Vc6I=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=gk6GjwcCcwF0BnSp+fwOsMz0okjMzU7Y/H0nrSZLiq3H85mI/+8VFmvi3VKF6fyoY
-	 xBCKO+AfsNCIyiZrJyvKwJ2Xjgg//Vo+gDM/ZiDDjDJqpcPoq5IHk5OQPGy4s+9HBE
-	 NYdVEAvQ0bTbspMPorb+92ddphVavQaAi2RaT4cduu2n+oGoZVnQu/ChThV8JbTPYm
-	 ZG5v6xaNhUuSefo2vtOiUTyzvwW+IxWn6UyyGeX+JzvBf2YKiQdy92Qk/Acb3A0Snw
-	 3qRPnljHIzJY07gIvWLxtyPGT2KUMim+rkeVEqIVSZYrb0QPORNVZE8dM6HaBYnwbD
-	 aLxOhdzU0sFRA==
-Date: Tue, 6 Oct 2026 13:39:10 -0500
-From: Rob Herring <robh@kernel.org>
-To: Francesco Valla <francesco@valla.it>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>,
-	Bjorn Andersson <andersson@kernel.org>, Kees Cook <kees@kernel.org>,
-	"Gustavo A. R. Silva" <gustavoars@kernel.org>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Robin Murphy <robin.murphy@arm.com>,
-	Mark Brown <broonie@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, Frank Li <Frank.Li@nxp.com>,
-	Peng Fan <peng.fan@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>,
-	linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org, virtualization@lists.linux.dev,
-	imx@lists.linux.dev, iommu@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH RFC 08/12] dt-bindings: remoteproc: add remoteproc-virtio
-Message-ID: <20261006183910.GA2890477-robh@kernel.org>
-References: <20260916-remoteproc_virtio_map-v1-0-dac8c5eb4aa9@valla.it>
- <20260916-remoteproc_virtio_map-v1-8-dac8c5eb4aa9@valla.it>
- <arKhbxi3Snbt1_Mn@p14s>
- <arLZj2DxBazf3wMd@bywater>
+	b=WFY9ILpcu8vuCmq1IJ7t1QwNcC+ULQTEEUJwfMx8idPGp3hYtsaAzaxVjHnVIr1gQ
+	 nTyAZD+nOMdbQ1Nop+D+FBqdvvfVGNXAE52ckG1ANs772zaWoRM4MEb52ldaXY0XOn
+	 gfI+jV8IDmDa1ASaQGfBjaX9oVUHsc5eW1JTotlM=
+Date: Tue, 6 Oct 2026 23:11:14 +0200
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: sungbyeongchan <tjdqudcks0424@naver.com>
+Cc: German Maglione <gmaglione@redhat.com>, Vivek Goyal <vgoyal@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Miklos Szeredi <miklos@szeredi.hu>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	"Michael S . Tsirkin" <mst@redhat.com>,
+	virtualization@lists.linux.dev, fuse-devel@lists.linux.dev,
+	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: Re: [PATCH v2] virtiofs: validate fixed-output response length
+Message-ID: <2026100633-roping-stardust-a6ab@gregkh>
+References: <20261004123405.586168-1-tjdqudcks0424@naver.com>
+ <20261006182408.1301152-1-tjdqudcks0424@naver.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -56,117 +46,88 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <arLZj2DxBazf3wMd@bywater>
+In-Reply-To: <20261006182408.1301152-1-tjdqudcks0424@naver.com>
 
-On Tue, Sep 22, 2026 at 09:44:20PM +0200, Francesco Valla wrote:
-> On Tue, Sep 22, 2026 at 09:40:31AM -0600, Mathieu Poirier wrote:
-> > On Wed, Sep 16, 2026 at 11:10:53PM +0200, Francesco Valla wrote:
-> > > Add a new binding to describe remoteproc-provided virtio devices; while
-> > > these are discovered through a resource table parsed by the remoteproc
-> > > infrastructure at runtime, their description can be needed to probe
-> > > non-discoverable buses (such as I2C) or to link consumers and suppliers.
-> > > 
-> > > Each vdev is described by a dedicated "group" node, which then includes
-> > > a virtio-device node, which binding is already existent and used by
-> > > virtio-mmio. Each vdev shall be stattically linked to a "group" node
-> > > using its index inside the resource table as the reg property of the
-> > > node; this permits to have multiple instances of the same type of
-> > > device.
-> > > 
-> > > The binding is intended to be generic and adopted by any remoteproc
-> > > provider.
-> > > 
-> > > Signed-off-by: Francesco Valla <francesco@valla.it>
-> > > ---
-> > >  .../bindings/remoteproc/remoteproc-virtio.yaml     | 89 ++++++++++++++++++++++
-> > >  1 file changed, 89 insertions(+)
-> > > 
-> > > diff --git a/Documentation/devicetree/bindings/remoteproc/remoteproc-virtio.yaml b/Documentation/devicetree/bindings/remoteproc/remoteproc-virtio.yaml
-> > > new file mode 100644
-> > > index 000000000000..c4a0d84b1460
-> > > --- /dev/null
-> > > +++ b/Documentation/devicetree/bindings/remoteproc/remoteproc-virtio.yaml
-> > > @@ -0,0 +1,89 @@
-> > > +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-> > > +%YAML 1.2
-> > > +---
-> > > +$id: http://devicetree.org/schemas/remoteproc/remoteproc-virtio.yaml#
-> > > +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> > > +
-> > > +title: Virtio devices over remoteproc
-> > > +
-> > > +description: |
-> > > +  Virtio devices ("vdevs") can be exposed using the remoteproc infrastructure
-> > > +  and its resource table. For some of them, a device tree node might be needed
-> > > +  to describe remote undiscoverable hardware and/or connect consumers and
-> > > +  providers.
-> > > +
-> > > +maintainers:
-> > > +  - Francesco Valla <francesco@valla.it>
-> > > +
-> > > +properties:
-> > > +  virtio:
-> > > +    description: Contains a group of Virtio devices exposed by the remoteproc.
-> > > +
-> > > +    properties:
-> > > +      '#address-cells':
-> > > +        const: 1
-> > > +
-> > > +      '#size-cells':
-> > > +        const: 0
-> > > +
-> > > +    patternProperties:
-> > > +      "^vdev@[0-9a-f]+$":
-> > > +        type: object
-> > > +
-> > > +        properties:
-> > > +          reg:
-> > > +            description: Virtio device index inside the resource table.
-
-Who/what defines the resource table?
-
-> > > +            maxItems: 1
-> > > +
-> > > +        additionalProperties:
-> > > +          type: object
-> > > +          $ref: /schemas/virtio/virtio-device.yaml
-> > > +          maxItems: 1
-> > > +
-> > > +        required:
-> > > +          - reg
-> > > +
-> > > +    additionalProperties: false
-
-Preferred to put this before 'properties' in the indented cases. Easier 
-to see what level it belongs to.
-
-> > > +
-> > > +    required:
-> > > +      - '#address-cells'
-> > > +      - '#size-cells'
-> > > +
-> > > +additionalProperties: true
-> > > +
-> > > +examples:
-> > > +  - |
-> > > +    remoteproc-cm33 {
-> > > +      virtio {
-> > > +          #address-cells = <1>;
-> > > +          #size-cells = <0>;
-> > > +
-> > > +          vdev@0 {
-> > > +              reg = <0>;
-> > > +
-> > 
-> > Do we need the 'reg' since we already have vdev@X?  I'll let the DT people
-> > provide their input on this.
-> >
+On Wed, Oct 07, 2026 at 03:24:08AM +0900, sungbyeongchan wrote:
+> A short successful virtiofs response can leave the fixed-output
+> portion of the request argument buffer unwritten. The completion path
+> nevertheless copies the full declared output to the request destination,
+> allowing stale allocator contents to reach callers such as
+> fuse_statfs().
 > 
-> AFAIK yes, because the rproc_get_vdev_fwnode() helpers search for indexed
-> child nodes using the 'reg' property, not the node name. This I believe
-> is the preferred way of doing things.
+> Require successful fixed-output responses to contain their complete
+> declared output. Continue to permit a shorter final argument only for
+> out_argvar requests. Reject positive and internal restart error values,
+> require valid error replies to be header-only, and do not copy output
+> arguments from error replies.
+> 
+> A header-only FUSE_STATFS success returned stale fields in nine of
+> nine calls across three boots. The fixed kernel rejected the short
+> response and preserved complete replies, valid error replies, and
+> variable-output controls.
+> 
+> Fixes: a62a8ef9d97d ("virtio-fs: add virtiofs filesystem")
+> Cc: stable@vger.kernel.org
+> Assisted-by: LLM
+> Signed-off-by: sungbyeongchan <tjdqudcks0424@naver.com>
 
-It is either both unit-address and reg or neither. It's preferred to 
-have them unless you are just making up numbers.
+Real name please.
 
-Rob
+> ---
+> Changes in v2:
+> - Reject positive and internal restart error values.
+> - Require error replies to be header-only.
+> - Rate-limit malformed-response warnings.
+> - Rely on the existing FUSE pr_fmt prefix.
+> - Add Cc: stable@vger.kernel.org.
+> - Use the reporter identity consistently.
+> 
+>  fs/fuse/virtio_fs.c | 43 ++++++++++++++++++++++++++++++++++++++-----
+>  1 file changed, 38 insertions(+), 5 deletions(-)
+> 
+> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+> index f15e516ebcb5c..fffbe08d9114a 100644
+> --- a/fs/fuse/virtio_fs.c
+> +++ b/fs/fuse/virtio_fs.c
+> @@ -4,6 +4,8 @@
+>   * Copyright (C) 2018 Red Hat, Inc.
+>   */
+>  
+> +#include "fuse_i.h"
+> +
+
+Why is this moved?
+
+
+
+>  #include <linux/fs.h>
+>  #include <linux/dax.h>
+>  #include <linux/pci.h>
+> @@ -20,7 +22,6 @@
+>  #include <linux/cleanup.h>
+>  #include <linux/uio.h>
+>  #include "dev.h"
+> -#include "fuse_i.h"
+>  #include "fuse_dev_i.h"
+>  
+>  /* Used to help calculate the FUSE connection's max_pages limit for a request's
+> @@ -730,6 +731,10 @@ static void copy_args_from_argbuf(struct fuse_args *args, struct fuse_req *req)
+>  	unsigned int num_out;
+>  	unsigned int i;
+>  
+> +	/* Error replies contain only the output header. */
+> +	if (req->out.h.error)
+> +		goto out;
+
+But no error is returned?
+
+>  	if (len < sizeof(*oh)) {
+> -		pr_warn("virtio-fs: response too short (%u)\n", len);
+> +		pr_warn_ratelimited("response too short (%u)\n", len);
+
+Isn't these ratelimited() changes separate from the original issue here?
+That should be a separate patch.
+
+thanks,
+
+greg k-h
