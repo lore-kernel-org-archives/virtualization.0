@@ -1,74 +1,107 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from cvsmtppost03.nm.naver.com (cvsmtppost03.nm.naver.com [114.111.35.152])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7AAB3CD8BD;
-	Tue,  6 Oct 2026 08:29:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FA7D39E18E
+	for <virtualization@lists.linux.dev>; Tue,  6 Oct 2026 09:11:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.111.35.152
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791275341; cv=none; b=Wjw28sgEnoSxtyFGxtevfdmxp8WlYXh+pGkEaqDr2XvWuseW7gQ6Go6z0HdHdn77wB8TNy2aRdtKiky09A7BbxljAwHKluzo2Mx9G42V1M87o+4tLqgOXThJ8/1e2BWR1ynPUaY3NbQo/qXus43T6UeD1fkC8NPGgjwC/arRr9E=
+	t=1791277915; cv=none; b=DR4EnI8gdG4bmlGFkWZJeS9FvKtBSbxXdSJelR4RtS+wMB4S0T++cDhPny5Jmgr7/HGqk+SukS0hiF4xbkcjJWs6dyo4i2sfWLSYF4zx4Jg7TMfn0T06c/bJavsfVlwK76VwYrUPYW1iOamBO0FY3q+J9TiwG3kafPmzFqhrXP0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791275341; c=relaxed/simple;
-	bh=4iw3G0TbgLLSK0wn4Oi01o41mOFoWSuTHvidFV5xYSc=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=oY86+kpS2tAGmTYw0JlDNW18J1iAHczPJA51I8R4PwWthUkQm5uL/EtfEU7+xNEcuh8AcymYdf9IRi+tRzxv9AWKNcVDrdzdDwRECiHQAzXoBXcIFeBziL+M1hVHqncoVp9UKAZqIm8BMqokITXE3oEb1edFDXHV0bXzZGgqdfE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UA5oYM9e; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791277915; c=relaxed/simple;
+	bh=r7GWK6joItOg6Ntv0ykmRQ+Tls4D1qhGwDu9d9IJOXQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=gc2c46cSNKYSTWHlfAjmKZzqE8AZbSpf2/42siEnT5jjSXWXlfg0LnK1zlJoje8ujjnBDCQgJpz/oBW+2py2m6MAyq9fXrQKn1s1+uCJP5SX8z1eGSh6MxdSKSJi+lHmjiCA8upcS1eeusdvd0uUD/0iK483r4Q8g0xG/qBQZOc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=naver.com; spf=pass smtp.mailfrom=naver.com; dkim=pass (2048-bit key) header.d=naver.com header.i=@naver.com header.b=UXs19Q9L; arc=none smtp.client-ip=114.111.35.152
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=naver.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=naver.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UA5oYM9e"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5664C1F000FF;
-	Tue,  6 Oct 2026 08:29:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791275340;
-	bh=jmbOLCQaT2M2vqA5H+5LHx9I5pcwz+t1V9YKBKhM64o=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=UA5oYM9eAErTf9a92wPUf/7h/LkPqNPPufEg4p1DZWOkTNSWP1fipmxt+itPxY6wo
-	 +SnT5XfdHKbpXVGlIok7LFXW/ak1mKYSKTETxk65cEUcT4eHHY1CyW8RYw+AZIzQ2t
-	 xFfpliMoifZ7lewQqTMlk/ps8pM7xdou/m4j7g3iDYMHtz8QpifPWby0QSPaIJO2Uc
-	 Rvh4ziQk+1neliJurQ86/Uw7P4BvGAfE88PMpnhsIuqZCg8VJX5ehKGgrhj5y/UU+x
-	 GwDWcTnjjnGlH5/I1HY5skMN/Pw8uR73W72cnI3w1oaH7l/TVYX/8lcjYinKGixPyn
-	 0LC2Im+P6RPvA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] vhost-scsi: do not count PI bytes in the data length
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Jia Jia" <physicalmtea@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>, virtualization@lists.linux.dev, kvm@vger.kernel.org
-In-Reply-To: <20261006082102.27085-1-physicalmtea@gmail.com>
-References: <20261006082102.27085-1-physicalmtea@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 06 Oct 2026 08:28:59 +0000
-Message-Id: <20261006082900.5664C1F000FF@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=naver.com header.i=@naver.com header.b="UXs19Q9L"
+Received: from cvsendbo010.nm ([10.112.20.44])
+  by cvsmtppost03.nm.naver.com with ESMTP id skXQfUyKTlW2fKOCdf+0gQ
+  for <virtualization@lists.linux.dev>;
+  Tue, 06 Oct 2026 09:11:46 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=naver.com; s=s20171208;
+	t=1791277906; bh=r7GWK6joItOg6Ntv0ykmRQ+Tls4D1qhGwDu9d9IJOXQ=;
+	h=From:To:Subject:Date:Message-ID:From:Subject:Feedback-ID:
+	 X-Works-Security;
+	b=UXs19Q9LeU67sqtFr98u1XjzOHd7hJhaxuWAUXcktjfC71RbcufPON5kEvOsyfPhw
+	 xt4weK6zXKUAEA606ZAJ+6oDqDwSvGhnAcuvxErqDv9rnzP+LqGxrISa0RXUerbIfG
+	 VBWX7hyuLuKbiURRsYRkJQX94WpxTnaDEEH2jY3G1TyVwRMOIOaIPDLiA4KJmApSVK
+	 gkD54DnJYLcybZJTW2lVQwMS5LcYdOtG4u9dMmyy9LQGy/W1of41pi//+hVqzOxXGV
+	 wpCeGPDUSzW6szUCB1rExEENWpC0ht09gXtzwM/EtzIaFPOWJtsL7Q00VIPFRO9bAe
+	 oxkbldF7Pl+dw==
+X-Session-ID: kaYUNaXsSC24pT6O6xNBew
+X-Works-Send-Opt: OsFwpzGdjHmdKHFOMr39Ko3YKHm/jAudFqM9KqMqFxIYkEljxBmwjAg=
+X-Works-Smtp-Source: /ZYdKoulFqJZ+Hm9KAE9+6E=
+Received: from localhost.localdomain ([115.136.205.4])
+  by cvnsmtp008.nm.naver.com with ESMTP id kaYUNaXsSC24pT6O6xNBew
+  for <multiple recipients>
+  (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384);
+  Tue, 06 Oct 2026 09:11:45 -0000
+From: sungbyeongchan <tjdqudcks0424@naver.com>
+To: "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
+	"Martin K . Petersen" <mkp@kernel.org>,
+	"Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>
+Cc: linux-scsi@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	security@kernel.org
+Subject: [BUG] scsi: short virtio-scsi VPD response exposes stale heap data
+Date: Tue,  6 Oct 2026 18:11:36 +0900
+Message-ID: <20261006091138.827988-1-tjdqudcks0424@naver.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-> vhost_scsi_handle_vq() moves pi_bytesout and pi_bytesin into the
-> protection sgl and subtracts them from exp_data_len.  The length passed
-> to TCM is still exp_data_len + prot_bytes.
->=20
-> That sum matched an older target path which subtracted prot_length
-> again.  sbc_check_prot() now replaces data_length from the CDB only
-> when the protect field is non-zero, and only for READ and WRITE.
-> target_cmd_size_check() leaves a write's data_length unchanged when the
-> CDB size is smaller.
->=20
-> MODE SELECT, SET TARGET PORT GROUPS and UNMAP then use data_length as
-> the size of t_data_sg.  The PI bytes are not in that sgl.  A parameter
-> list that ends on a page is followed by a read of the next physical
-> page.
->=20
-> [ ... ]
->   ret_from_fork
->   ret_from_fork_asm
->=20
-> Fixes: 9f977ef7b671 ("vhost-scsi: Include prot_bytes into expected data t=
-ransfer length")
-> Signed-off-by: Jia Jia <physicalmtea@gmail.com>
+Hello,
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+I found a stale heap information disclosure in the SCSI VPD cache path
+when a virtio-scsi backend completes a short data-in response as
+successful.
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261006082102.2708=
-5-1-physicalmtea@gmail.com?part=3D1
+The backend first declares a 256-byte VPD page, then writes only the
+four-byte VPD header.  virtscsi_vq_done() obtains the used length from
+virtqueue_get_buf(), but that length is not propagated to
+virtscsi_complete_cmd().  With good status and resid=0, the SCSI core
+accepts the device-declared page size.  scsi_get_vpd_buf() allocates the
+cache with kmalloc(), and the mode-0444 vpd_pg80 sysfs attribute later
+copies the unwritten tail to an unprivileged reader.
+
+I reproduced this twice on commit
+ff47652a4b66c067c765a7ad464d930b5a9367cc with a local
+vhost-user-scsi backend.  In both runs, uid 65534 read 252 stale bytes
+from a reused same-size heap object after the four valid VPD bytes.  A
+normal full response returned only its valid data.  Reporting the short
+transfer through resid prevented the stale marker from being returned.
+
+The demonstrated impact is a bounded guest-kernel heap disclosure to an
+unprivileged sysfs reader.  I did not demonstrate arbitrary read/write,
+code execution, host compromise, guest escape, or privilege escalation.
+
+As a minimal disclosure mitigation I tested changing the cached VPD
+allocation to kzalloc().  The malicious fixed A/B returned a zero tail,
+and the normal VPD control was unchanged.  This mitigation prevents the
+disclosure but does not make virtio-scsi reject every inconsistent
+used-length/residual pair; maintainers may prefer to propagate and
+validate the actual transfer length instead.
+
+I performed a best-effort public duplicate search through 2026-10-06
+and found no exact public report for this short virtio-scsi VPD response
+and sysfs disclosure path.
+
+This report was prepared with AI assistance and is being treated as
+public under Documentation/process/security-bugs.rst.  A tested source
+reproducer, backend, logs, configuration, and proposed mitigation are
+available to the maintainers on request; the reproducer is intentionally
+not attached to this public report.
+
+Assisted-by: LLM
+
+Regards,
+sungbyeongchan
 
