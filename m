@@ -1,109 +1,66 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1901F21CC71
-	for <virtualization@lists.linux.dev>; Tue,  6 Oct 2026 00:53:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66AF4883F;
+	Tue,  6 Oct 2026 01:53:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791248034; cv=none; b=kPSQZT6J3aZiNW76QOlPL1DxPibm1+Ph0g9wB4++RppYbbgww08WQyY/JN+PywuLHoENDcI7mDmVCeURvYAazBqhFXHmw5ErCq3MBtApXARCzJiVRz2aU1i/NaHAlku0U8or4Vt8yQiVO8HR7SDgmWVU0n4tSyvWnUkAt1ctgsw=
+	t=1791251617; cv=none; b=g44J5MnMTvPcfgwr5tY2jb7+kD3XaLxiLeFD3YH0gNEPH1R+NynMAtSfUuChGe8DsXC7pKrZd3pWuJFU8stV1jvwEk+9sFYCiDx9DYWFygnJwC7mQCjbalrP2Qet0K+RYfZzEfddlQIkvrt0XncOa8Nq4JMs8GHbk8z2USqGViI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791248034; c=relaxed/simple;
-	bh=Bgv7qwFq9cSEstGjo0jg5VHaOr0aKJgmAVQ9YYLKJ+Y=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=t7EBPa1DY2UDiCyOlNgkj5mWWTXwCXVXiYq7xeVqcPYAGF5J20sBnR9hCOiLzNUWJTtIsnlM/zB8y+x8Hdy9pKFHUP/SSINM32IIoBPRJljYSEyUN0gsqyjS5Kaa7ohqSbiOyZ1r5hGSLFWXG6OxMtt9UtdsRAu+u2eDa+2qHCM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QdLv2lDk; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791251617; c=relaxed/simple;
+	bh=AzQyIcHNd8fG3k5agIF9efZmuC+BqGp5ie+dcPpaPz4=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=mwXrnjCjEw9S6UGfVKO4Ye8Qa4uR5/o009UnLMzEvo6ES2oC0IN4yCEeVrxPkjMWg22i/uwXEvau0q7je3HYwEBX79eCd4cFWSI8XUCWB7dIPEFY7Ow92Oe9V2eVamwYEy9c8IsVj0qe85ZhJfHKzUpBh4pkBTgWud0ehfVyjjc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gSqn2bvf; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QdLv2lDk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77E821F000FF;
-	Tue,  6 Oct 2026 00:53:52 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gSqn2bvf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 985C51F000FF;
+	Tue,  6 Oct 2026 01:53:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791248032;
-	bh=nZyWsuZ29X2XjD5qUL3PY1cLlVg7igHjAZzuJpMN4rU=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=QdLv2lDk/b4OVrPWre/WwQ+NPyhC1mAgJJjxNUsce5T61RC9G/rT7yfTsBasaFTfX
-	 LqTG9iZdyPdPZzrgMX5Pnx9nacRQCBz7J+n3GhItqB2aPH2KFrfsxn91wgM6tA+dbT
-	 i62Klv6xYIJrYSVo+QSbvkTvpzAMIqn3xMSG4OnB3sCRdiFubx1XHP4ud9LnaZ8Lvc
-	 KxcKqSt/yzRrGAgFA6HLVQjHnz0ZuH9OHJlDbYQDHZl1BVowxPu26kyn2i6GiQR1/w
-	 lCSDLSzbEoDTwZT7ruypdExqtVqbZk/HVwl4bizP8v+0cDlANsgQL3LUaDPNMXoGzg
-	 doepAKHknnSPA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] drm/virtio: do not enforce blob_alignment in
- cross-domain contexts
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Val Packett" <val@invisiblethingslab.com>
-Cc: virtualization@lists.linux.dev, dri-devel@lists.freedesktop.org, "Michael
- S. Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>
-In-Reply-To: <20261006004044.2242154-1-val@invisiblethingslab.com>
-References: <20261006004044.2242154-1-val@invisiblethingslab.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 06 Oct 2026 00:53:52 +0000
-Message-Id: <20261006005352.77E821F000FF@smtp.kernel.org>
+	s=k20260515; t=1791251616;
+	bh=xMgPxSGMoyA2CWveA4xxkgTpI3T40jtyd4gazW6Ysws=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=gSqn2bvfb4xYBAUmuqSCxfUX4xGQ49uYiO58AlcgPDKzVd9a+59OkhreL7Pu7aXAt
+	 VSYFYg//hMaZvtKWPKAm6ygaiZVXEciJLI2d2E5VsVDhkLTMFnkyjRSqVyckWi9RCk
+	 MHOpPVTJwwMdNI8XGVDerNM+relaRyaQ55cgCX2mipPN0DdKIxsoYV8cOI+hDAwy+e
+	 k+1vX37fTIwDwzj43bDOcsqNAt9I1RnX2Y8pCbl9rSbGkvz7R5aSV8sui/JLaxaDiV
+	 l8LANuFGiHJv7ZRCwlJVqhhqylrqp6mir/81tkUse+9wkb7gB8WoA58rZBNQ5TGVp6
+	 FxCxSTCzXxV9g==
+Date: Mon, 5 Oct 2026 18:53:35 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: Jianlin Shi <shijianlin11@foxmail.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev, mst@redhat.com,
+ jasowangio@gmail.com, eperezma@redhat.com, xuanzhuo@linux.alibaba.com,
+ andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+ pabeni@redhat.com, talgi@nvidia.com, hengqi@linux.alibaba.com,
+ horms@kernel.org
+Subject: Re: [PATCH 1/2] dim: clear irq_moder on init failure
+Message-ID: <20261005185335.2f8e8b42@kernel.org>
+In-Reply-To: <8d6a637142c411f83771fda5b57bb4451651488b.1790751008.git.shijianlin11@foxmail.com>
+References: <cover.1790751008.git.shijianlin11@foxmail.com>
+	<8d6a637142c411f83771fda5b57bb4451651488b.1790751008.git.shijianlin11@foxmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [Critical] drm/virtio: NULL pointer dereference in verify_blob() when 3D =
-features are disabled
-- [Medium] drm/virtio: data race when reading vfpriv->context_init in verif=
-y_blob()
---
+On Wed, 30 Sep 2026 16:19:51 +0800 Jianlin Shi wrote:
+> net_dim_init_irq_moder() publishes the allocated object in
+> dev->irq_moder before copying the moderation profiles.  If kmemdup()
+> fails, the object is freed but the pointer is left dangling.
+> net_dim_free_irq_moder() treats a non-NULL irq_moder as live, so a
+> caller unwinding the failure path would use-after-free.
+> 
+> NULL the pointer after freeing it.  On error the device is left as if
+> initialization never happened.
 
-commit e614dba4f51f24b9effac7458783e310e89be777
-Author: Val Packett <val@invisiblethingslab.com>
-drm/virtio: do not enforce blob_alignment in cross-domain contexts
 
-The commit prevents enforcing blob_alignment requirements in cross-domain
-contexts, as resources created there are arbitrary shared system memory fil=
-es
-like Wayland keymaps.
-
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/vir=
-tio/virtgpu_ioctl.c
-> --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> @@ -540,6 +540,8 @@ static int verify_blob(struct virtio_gpu_device *vgde=
-v,
->  	params->blob_hints =3D rc_blob->blob_hints;
-> =20
->  	if (vgdev->has_blob_alignment &&
-> +	    (vfpriv->context_init & VIRTIO_GPU_CONTEXT_INIT_CAPSET_ID_MASK) !=3D
-> +	    VIRTIO_GPU_CAPSET_CROSS_DOMAIN &&
-
-[Severity: Critical]
-If a virtio-gpu device advertises VIRTIO_GPU_F_RESOURCE_BLOB and
-VIRTIO_GPU_F_BLOB_ALIGNMENT but not VIRTIO_GPU_F_VIRGL, could this cause a
-NULL pointer dereference?
-
-In this scenario, virtio_gpu_driver_open() returns successfully but leaves
-file->driver_priv (which is passed as vfpriv) as NULL. When userspace then
-calls DRM_IOCTL_VIRTGPU_RESOURCE_CREATE_BLOB with VIRTGPU_BLOB_MEM_GUEST,
-verify_blob() is reached without aborting on the has_virgl_3d check.
-
-This newly added code will then unconditionally dereference
-vfpriv->context_init because vgdev->has_blob_alignment is true, causing a
-kernel panic. Is there a way to verify vfpriv is not NULL before accessing
-context_init?
-
-[Severity: Medium]
-Does this introduce a data race when reading context_init?
-
-This accesses the lock-protected context_init field without acquiring
-vfpriv->context_lock. A lockless read of context_init could read a partially
-written bitmask if updated concurrently, leading to incorrectly enforcing or
-bypassing blob alignment checks and returning spurious -EINVAL to userspace.
-
-This could happen if userspace calls DRM_IOCTL_VIRTGPU_CONTEXT_INIT and
-DRM_IOCTL_VIRTGPU_RESOURCE_CREATE_BLOB concurrently on the same file
-descriptor.
-
->  	    !IS_ALIGNED(params->size, vgdev->blob_alignment))
->  		return -EINVAL;
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261006004044.2242=
-154-1-val@invisiblethingslab.com?part=3D1
+Please add an example sequence of calls in the current source tree
+where this is a problem. Dangling pointers are not an issue unless
+something tries to deref them.
+-- 
+pw-bot: cr
