@@ -1,75 +1,95 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from cvsmtppost21.nm.naver.com (cvsmtppost21.nm.naver.com [114.111.35.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C42D33B27E7
-	for <virtualization@lists.linux.dev>; Tue,  6 Oct 2026 10:10:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E7FB3D9529
+	for <virtualization@lists.linux.dev>; Tue,  6 Oct 2026 10:21:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.111.35.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791281449; cv=none; b=r6xSHDTN2W8QMCprQz2Pn7MyPww+Xpf/XW4U9+FOtmlJ3d1DUpp19soEFv1AwmovqdkPnVjgKyUY0/y8eT4jSDZvbKyTS7UP71JIhfXq2CMNuedUpPb5WjW98RKr94oPB+0GXwF2xVFl0QZxrC2icCQr2I+oTxd4Atmsj065eqc=
+	t=1791282092; cv=none; b=Cil3oe7TY1Hp3QD65qR5camH7BD7nJw5VhMk/FwIOiuXAn63Ue3LzgEMRD8rfshc1gqhew0x7c4gfxyWlsC2dRLYGrXzkY1tP7ejOHDSx9fPkTlq0ywxcAzFpDx70eHqmuapXxR4jOgCw/XKEcQYzVBz2tUSdGZl57jOaRdGTlA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791281449; c=relaxed/simple;
-	bh=f5ZaCcXphri7bMhe7GM20TiwTIEqiWMLqhHDtLfhq4E=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ESEDuqr6GZR6L3ba6FjyzyalJJ5PL+4jH3PRcut0+1iYpJooSEX0WpQLk48ToVCORYq4IlpFmp8pj4ORQfOy7PK6RFwBeSZM2f/Ih6L1PAh/AOBGpbM1IjFoU6ncNImFkv5kyTuw1VAY2oefvjstthc1M7ssmdBR3CcJ5iwC+bY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JPtIyMUT; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791282092; c=relaxed/simple;
+	bh=QqulCsapT2Fj83sxvE+DQ+IFCCV3oHDYRXWdlknJDXM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=i4T+HZQAFTcsa0sBz5m1aT3I2Lw9CbXc/W8xKTo4kLkR5+Gtud/tTexdDxZIod1/kdDiArk67HF5eUyzBCIWD/7V1T3YZcwLa7k0YbKFIgWJf213OCneRF0Um1VwbR8CBYIQHeA90SYHhVKuBUuc/mIwofeso46+9TmUqfFhfqw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=naver.com; spf=pass smtp.mailfrom=naver.com; dkim=pass (2048-bit key) header.d=naver.com header.i=@naver.com header.b=NZtZY2bG; arc=none smtp.client-ip=114.111.35.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=naver.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=naver.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JPtIyMUT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2285A1F000FF;
-	Tue,  6 Oct 2026 10:10:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791281448;
-	bh=f5ZaCcXphri7bMhe7GM20TiwTIEqiWMLqhHDtLfhq4E=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=JPtIyMUTIaYJ8mi8ODivKsttDO9xSlAJJeXv8NVDtC4k3o2/SGTCtDjc/MPQ84beX
-	 SiboIoSLwwZnnYtbzxurPwc3k2UmqrQAuG5SKzkUkV/yyG3rmfewzxIgAP1tEb26wv
-	 0bqPcNor33CmkZEpTaO9kp7FV5sMIH5VrgNviax0fGBYzIkmPIpy8qHJdynJUHzr8t
-	 Qv/09taCxX7c7WHGoljFRwqer7bWDsAKwPIuSgvy71lmgygF6Y8dKtLfv7Mrjyijb0
-	 c8nybvkNlV/YYPRXG9xPy5zNyq3qA9QG4NgwFnJAd2c1FVhxnr7SncnqHBlkv8rJW1
-	 prtb6KXvZqtcA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] virtio_ring: use shadow flags when detaching split
- descriptors
-Reply-To: sashiko-reviews@lists.linux.dev
-To: sungbyeongchan <tjdqudcks0424@naver.com>
-Cc: "Eugenio Perez" <eperezma@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev
-In-Reply-To: <20261006100400.842345-1-tjdqudcks0424@naver.com>
-References: <20261006100400.842345-1-tjdqudcks0424@naver.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 06 Oct 2026 10:10:47 +0000
-Message-Id: <20261006101048.2285A1F000FF@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=naver.com header.i=@naver.com header.b="NZtZY2bG"
+Received: from cvsendbo002.nm ([10.112.20.42])
+  by cvsmtppost21.nm.naver.com with ESMTP id anPUWllhTXqELGN6l40B7A
+  for <virtualization@lists.linux.dev>;
+  Tue, 06 Oct 2026 10:21:21 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=naver.com; s=s20171208;
+	t=1791282081; bh=QqulCsapT2Fj83sxvE+DQ+IFCCV3oHDYRXWdlknJDXM=;
+	h=From:To:Subject:Date:Message-ID:From:Subject:Feedback-ID:
+	 X-Works-Security;
+	b=NZtZY2bGJESDcPACv4Klb5akAQJeAaikUNp5jak0dFfbWw6G2J/Eugrn6O1/AV7D4
+	 MP9o3ZPLVMPo8Y2Bh2sOzsUOoki0FYyEqxCwI4A85zEL4FtMtKrdadR4XDQy7s4T5n
+	 k+UHXO/hMQ+bUM3VgR50+wGB90JR9gf1P5J8eiE4rhKMgy3sz29virUJ0RqdCouXws
+	 yYW+GqDsL7hy7rwjAJeKjJghhrlqM8T2IgNoXUYxmcpNd1DqA1rWvx0jzxykHNSYFC
+	 flIklu9PJkcBRqabYa6zTKCFjASu3oDKXl946crAh2dRfxQJWEVMUdyZi65JHqF9GU
+	 RIM5o0lNgBjjg==
+X-Session-ID: ye+qwul7SeqKFDwcQXNVyg
+X-Works-Send-Opt: OPewpzGdjHmdKHFOMr39Ko3YKBmrjAudFqM9KqMqFxIYkEljxBmwjAg=
+X-Works-Smtp-Source: /dYdKoulFqJZ+HmmaAMl+6E=
+Received: from localhost.localdomain ([115.136.205.4])
+  by cvnsmtp003.nm.naver.com with ESMTP id ye+qwul7SeqKFDwcQXNVyg
+  for <multiple recipients>
+  (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384);
+  Tue, 06 Oct 2026 10:21:20 -0000
+From: sungbyeongchan <tjdqudcks0424@naver.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	sungbyeongchan <tjdqudcks0424@naver.com>
+Subject: [PATCH v2] virtio_ring: use shadow flags when detaching split descriptors
+Date: Tue,  6 Oct 2026 19:21:12 +0900
+Message-ID: <20261006102112.847280-1-tjdqudcks0424@naver.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-> Split virtqueues save descriptor flags and next indexes in desc_extra
-> before publishing descriptors to the device. The detach path uses the
-> shadow next index, but decides whether to continue by rereading the NEXT
-> flag from the shared descriptor.
->=20
-> A device can change the flag after publication and make
-> detach_buf_split_in_order() detach an adjacent active descriptor. This
-> overcounts num_free and may put a descriptor on the free list twice.
->=20
-> Use the shadow flags for the continuation decision as well. This keeps
-> all detach metadata in the same driver-owned snapshot and avoids an
-> unnecessary shared-ring read.
->=20
-> A VDUSE/virtio-vdpa test which changed NEXT after publication made six
-> valid completions return seven descriptors, with one descriptor ID
-> duplicated on refill. With this change, the same test returned six
-> unique descriptors, while the unmodified control remained unchanged.
->=20
-> Fixes: 72b5e8958738 ("virtio-ring: store DMA metadata in desc_extra for s=
-plit virtqueue")
-> Assisted-by: LLM
-> Signed-off-by: sungbyeongchan <tjdqudcks0424@naver.com>
+Fixes: 72b5e8958738 ("virtio-ring: store DMA metadata in desc_extra for split virtqueue")
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Assisted-by: LLM
+Signed-off-by: sungbyeongchan <tjdqudcks0424@naver.com>
+---
+Changes in v2:
+- Drop the commit message paragraphs as requested by Michael S. Tsirkin.
+- Add Michael's Acked-by.
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+ drivers/virtio/virtio_ring.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261006100400.8423=
-45-1-tjdqudcks0424@naver.com?part=3D1
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index db678f5a80e03..b4cb433df1dec 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -905,7 +905,6 @@ static unsigned detach_buf_split_in_order(struct vring_virtqueue *vq,
+ {
+ 	struct vring_desc_extra *extra;
+ 	unsigned int i;
+-	__virtio16 nextflag = cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_NEXT);
+ 
+ 	/* Clear data ptr. */
+ 	vq->split.desc_state[head].data = NULL;
+@@ -915,7 +914,7 @@ static unsigned detach_buf_split_in_order(struct vring_virtqueue *vq,
+ 	/* Put back on free list: unmap first-level descriptors and find end */
+ 	i = head;
+ 
+-	while (vq->split.vring.desc[i].flags & nextflag) {
++	while (extra[i].flags & VRING_DESC_F_NEXT) {
+ 		i = vring_unmap_one_split(vq, &extra[i]);
+ 		vq->vq.num_free++;
+ 	}
+-- 
+2.43.0
 
