@@ -1,75 +1,72 @@
-Received: from cvsmtppost25.nm.naver.com (cvsmtppost25.nm.naver.com [114.111.35.37])
+Received: from cvsmtppost09.nm.naver.com (cvsmtppost09.nm.naver.com [114.111.35.29])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 253E739D6FA
-	for <virtualization@lists.linux.dev>; Tue,  6 Oct 2026 09:39:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.111.35.37
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFE2A288C2D
+	for <virtualization@lists.linux.dev>; Tue,  6 Oct 2026 09:41:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.111.35.29
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791279574; cv=none; b=cQrcDwNxJtypE95A7e8u/V/aOhlgw0Q7sxengcTQQ7XBO2P9KDP8Ohuua/w1MY8EzmaJZsHNIDNhnfdaGT70BvAr3ug6ono0pra3ceHZMjDsgTYEYAsuTTP+vJZeATf+KR7LwWGSfEcQShSHriKMaWC6zuzsSFX/CNT0piaOOE8=
+	t=1791279664; cv=none; b=t+B/Ij4d3zg/fBDGnp7b2RdHlERcS2A2a3iXkxVe2+VstdneXaIEYAOzskRg5jVPZik1Olhlsa3C9t97bIn20iyAQYNdo5L2t6KvoZXOX+X40cWqJcl2rRxvGMDdr9PLj7fSOHsTAv9oXjC1R4QWcpLLjUWJGwsLgRJPhc3QB60=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791279574; c=relaxed/simple;
-	bh=hv3YkMknznKDrsXSimNXNHCUepDX0g8wBzpKCmfDKCM=;
+	s=arc-20240116; t=1791279664; c=relaxed/simple;
+	bh=YYPZaLYh/AGF2Mo2RrRIfqQEFxAd2U5C3TQJ9SjmAzk=;
 	h=MIME-Version:Message-ID:Date:From:In-Reply-To:References:To:Cc:
-	 Subject:Content-Type; b=tgZuJRjppt1Rak98jVE1VQUOK/VtJHIMX76wXqNQbKEWwVWvZSNT/3S2oAIsGbLGU8NI6YB6qVD4h785xNdcXoBY3j4EOGtfqpQSQ57lLY/SKMyHBkgu5VA+6L56DIkS2VfYz5UgrXHPqABUzBmrSwb8G9Qzl7WHoQnpGIxzeMs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=naver.com; spf=pass smtp.mailfrom=naver.com; dkim=pass (2048-bit key) header.d=naver.com header.i=@naver.com header.b=O7gTclpi; arc=none smtp.client-ip=114.111.35.37
+	 Subject:Content-Type; b=A/j7qu0YFiZCgY4xMoHlX9DzQJSP8GCL08qY+G3Bq9BY/iMONNJrQV8+HLlFbRj5zFJUJEdzOJ1N6eU4STcHuo8dnbrrW8churc60Oi1uiOuQFTkMaFx9JvDwr0HmEaljhmiYVEFBDK6SK38ouViNNMpr1nXejXKdPJvrZ9THWY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=naver.com; spf=pass smtp.mailfrom=naver.com; dkim=pass (2048-bit key) header.d=naver.com header.i=@naver.com header.b=n11hUOUH; arc=none smtp.client-ip=114.111.35.29
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=naver.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=naver.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=naver.com header.i=@naver.com header.b="O7gTclpi"
-X-Works-Smtp-Source: /rbdKoulFqJCpNmdFouXWHF0
-Received: from nv1s-hmac-real-8 ([10.180.31.91])
-  by cvsmtppost25.nm.naver.com with ESMTP id MwoHjybGSRW6u6GQjMHheQ
+	dkim=pass (2048-bit key) header.d=naver.com header.i=@naver.com header.b="n11hUOUH"
+X-Works-Smtp-Source: /rbdKoulFqJCpNmdFxUXWHF0
+Received: from nv1m-hmac-real-21 ([10.174.201.121])
+  by cvsmtppost09.nm.naver.com with ESMTP id c9Bh+r3PRjG7ZDJQ5A-oNw
   for <multiple recipients>;
-  Tue, 06 Oct 2026 09:39:24 -0000
+  Tue, 06 Oct 2026 09:40:54 -0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=naver.com; s=s20171208;
-	t=1791279564; bh=hv3YkMknznKDrsXSimNXNHCUepDX0g8wBzpKCmfDKCM=;
+	t=1791279654; bh=YYPZaLYh/AGF2Mo2RrRIfqQEFxAd2U5C3TQJ9SjmAzk=;
 	h=Message-ID:Date:From:To:Subject:From:Subject:Feedback-ID:
 	 X-Works-Security;
-	b=O7gTclpiqViA/Df+zAKBcL2MFJ2lb3qWbclC1vVtUdorMUFA7jzrg/hiNlUbCx3sh
-	 VXpfRK83yWPj1YWGPPRKYJzYfVqqsEYSJSXbUwiv3My6jYoLkARZC85CPesR8Pq0bM
-	 qUts3liwMaeGxiAqe5j7KaAYLBWydlGPzm1aE7WdPI5ZWGRiZUO3/lE4SeaTMgW6xU
-	 hexDD+8CcojMDc6LyJzKXmaFj+2fgovb1LsrFhwzV4Bj6exq7+ZRvsHlQI1Qak5ykw
-	 o2gxCY9lVmsOFIvKmOjQ4phG+bAoUtvNHiEmgEqxEH6fOsNK7XFJZl36pvVg3sunOh
-	 9//U5DCmvVuAg==
-X-Session-ID: f14b3a2c8effbebe64322f257b2efacdfda1d8d7f9ece28e845c3184cf597b3f
+	b=n11hUOUHRB1drTEsa1j68h69xM7Ja0kgk95iaRCzZVa1/eccp7RAXnXO+qdvs8MMl
+	 gbv/o6r66xYJB3AFKGUNr30VWSUYR0ZCZkIJ6A5ze5fmM9VRjHs0cE0FFXYEsa1hsY
+	 di5EwRIfU6f4SJuAb+iBcMNo3dHYcOnpnvZ08LS0C4IWdssW0QoYU8LLCNTwYAqHcm
+	 XfOty+xHIsZ0NBDyUYtwGNkS7IhSp3Gis0EcloGOFh97mPeBrkect/mPoDMW9vIPNb
+	 Pm2bDXKtAbG80/9B0zAjVRdUpPHE5mSiQN9zVF0v2AgY7AuabHC6cb2v06GpRzmHyn
+	 H9LJYjXSFa8rg==
+X-Session-ID: de6069da94262c02ccc43bde41baf2b12ad3d5b5b4f1cc355529d536c6ce9173
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Message-ID: <2b6ae98573123157c0d5aca458dd4d1@cweb009.nm>
-Date: Tue, 06 Oct 2026 18:39:23 +0900
+Message-ID: <96622e4086e5fb77b8148631fa6ca16e@cweb003.nm>
+Date: Tue, 06 Oct 2026 18:40:54 +0900
 From: =?utf-8?B?7ISx67OR7LCs?= <tjdqudcks0424@naver.com>
-In-Reply-To: <20261006052105-mutt-send-email-mst@kernel.org>
-References: <20261006091210.828229-1-tjdqudcks0424@naver.com>
-	<20261006052105-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20261006052300-mutt-send-email-mst@kernel.org>
+References: <20261006091138.827988-1-tjdqudcks0424@naver.com>
+	<20261006052300-mutt-send-email-mst@kernel.org>
 Importance: normal
 To: =?utf-8?B?TWljaGFlbCBTLiBUc2lya2lu?= <mst@redhat.com>
-Cc: =?utf-8?B?SmFzb24gV2FuZw==?= <jasowangio@gmail.com>,
-	=?utf-8?B?RXVnZW5pbyBQZXJleg==?= <eperezma@redhat.com>,
-	=?utf-8?B?WHVhbiBaaHVv?= <xuanzhuo@linux.alibaba.com>,
+Cc: =?utf-8?B?SmFtZXMgRSAuIEogLiBCb3R0b21sZXk=?= <James.Bottomley@hansenpartnership.com>,
+	=?utf-8?B?TWFydGluIEsgLiBQZXRlcnNlbg==?= <mkp@kernel.org>,
+	=?utf-8?B?SmFzb24gV2FuZw==?= <jasowangio@gmail.com>,
+	<linux-scsi@vger.kernel.org>,
 	<virtualization@lists.linux.dev>,
 	<linux-kernel@vger.kernel.org>,
 	<security@kernel.org>
-Subject: =?utf-8?B?UmU6IFtCVUddIHZpcnRpb19yaW5nOiBWRFVTRSBiYWNrZW5kIGNhbiBjb3JydXB0IHNwbA==?=
-	=?utf-8?B?aXQtcmluZyBmcmVlIGxpc3Q=?=
-X-Works-Send-Opt: OPewpzGdjHmdKHFOMr39Ko3YKHmXjAudFqM9KqMqFxIYkEljxBmwjAg=
+Subject: =?utf-8?B?UmU6IFtCVUddIHNjc2k6IHNob3J0IHZpcnRpby1zY3NpIFZQRCByZXNwb25zZSBleHBvcw==?=
+	=?utf-8?B?ZXMgc3RhbGUgaGVhcCBkYXRh?=
+X-Works-Send-Opt: OsFwpzGdjHmdKHFOMr39Ko3YKHm/jAudFqM9KqMqFxIYkEljxBmwjAg=
 Content-Type: text/plain;
 	charset="utf-8"
 Content-Transfer-Encoding: base64
 
-WWVzLCB0aGUgYmFja2VuZCBjYXVzZXMgdGhlIGRyaXZlciB0byBjb3JydXB0IGl0cyBvd24gdmly
-dHF1ZXVlCmZyZWUtbGlzdCBhY2NvdW50aW5nLgoKTXkgY29uY2VybiB3YXMgdGhhdCwgYWZ0ZXIg
-cHJpdmlsZWdlZCBWRFVTRSBzZXR1cCwgYSBkZWxlZ2F0ZWQKdW5wcml2aWxlZ2VkIGJhY2tlbmQg
-Y2FuIHRyaWdnZXIgdGhpcyBieSBtb2RpZnlpbmcgYSBwdWJsaXNoZWQKZGVzY3JpcHRvci4gSG93
-ZXZlciwgbXkgY3VycmVudCByZXByb2R1Y2VyIGRlbW9uc3RyYXRlcyBkdXBsaWNhdGUKZGVzY3Jp
-cHRvciBhbGxvY2F0aW9uIG9ubHkuIEl0IGRvZXMgbm90IGRlbW9uc3RyYXRlIGEgaG9zdAptZW1v
-cnktc2FmZXR5IHZpb2xhdGlvbiwgY3Jvc3MtZGV2aWNlIGltcGFjdCwgaW5mb3JtYXRpb24gZGlz
-Y2xvc3VyZSwKb3IgcHJpdmlsZWdlIGVzY2FsYXRpb24uCgpJIHRoZXJlZm9yZSBhZ3JlZSB0aGF0
-IHRoZSBjdXJyZW50IGV2aWRlbmNlIHN1cHBvcnRzIGEgcm9idXN0bmVzcwppc3N1ZSByYXRoZXIg
-dGhhbiBhIGNvbmZpcm1lZCBzZWN1cml0eSB2dWxuZXJhYmlsaXR5LgoKV291bGQgYSBwYXRjaCB1
-c2luZyB0aGUgZHJpdmVyLW93bmVkIGRlc2NfZXh0cmEgZmxhZ3MgZHVyaW5nIGRldGFjaApzdGls
-bCBiZSBjb25zaWRlcmVkIHdvcnRod2hpbGUsIG9yIGlzIHByb3RlY3Rpb24gYWdhaW5zdCB0aGlz
-IGJhY2tlbmQKYmVoYXZpb3Igb3V0c2lkZSB0aGUgaW50ZW5kZWQgdGhyZWF0IG1vZGVsPwoKUmVn
-YXJkcywKc3VuZ2J5ZW9uZ2NoYW4=
+WWVzLCB0aGF0IGlzIGEgZmFpciBzdW1tYXJ5LgoKTW9yZSBwcmVjaXNlbHksIGEgc2hvcnQgc3Vj
+Y2Vzc2Z1bCB2aXJ0aW8tc2NzaSByZXNwb25zZSBjYXVzZXMgdGhlCmd1ZXN0IGtlcm5lbCB0byBj
+YWNoZSBieXRlcyB0aGF0IHdlcmUgbm90IHN1cHBsaWVkIGJ5IHRoZSBkZXZpY2UgYW5kCmV4cG9z
+ZSB0aGVtIHRocm91Z2ggdGhlIHdvcmxkLXJlYWRhYmxlIFZQRCBzeXNmcyBhdHRyaWJ1dGUuCgpU
+aGUgZ3Vlc3Qta2VybmVsIGhlYXAgZGlzY2xvc3VyZSBpcyByZXByb2R1Y2libGUuIEkgYWdyZWUg
+dGhhdCBpdHMKc2VjdXJpdHkgY2xhc3NpZmljYXRpb24gZGVwZW5kcyBvbiB3aGV0aGVyIHRoZSB2
+aXJ0aW8tc2NzaQpkZXZpY2UvYmFja2VuZCBpcyBjb25zaWRlcmVkIHRydXN0ZWQgaW4gdGhlIHJl
+bGV2YW50IHRocmVhdCBtb2RlbC4KCldvdWxkIHZhbGlkYXRpbmcgYW5kIHByb3BhZ2F0aW5nIHRo
+ZSBhY3R1YWwgdmlydHF1ZXVlIHVzZWQgbGVuZ3RoIGJlCndvcnRod2hpbGUgYXMgYSByb2J1c3Ru
+ZXNzIGZpeD8KClJlZ2FyZHMsCnN1bmdieWVvbmdjaGFuCg==
