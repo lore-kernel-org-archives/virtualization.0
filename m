@@ -1,222 +1,278 @@
-Received: from delivery.antispam.mailspamprotection.com (delivery.antispam.mailspamprotection.com [185.56.87.0])
+Received: from PH7PR06CU001.outbound.protection.outlook.com (mail-westus3azon11010005.outbound.protection.outlook.com [52.101.201.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C34A396597;
-	Wed,  7 Oct 2026 17:05:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=185.56.87.0
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE5F74CDA30;
+	Wed,  7 Oct 2026 18:41:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.201.5
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791392756; cv=pass; b=cnIliZAmIDNbmOSwz8yAQfVcN2ce9Md/LoT+T5PTxl4DtSj6pn5Em38K/aKY7VCmUZg3ldrWzCK0ciMmYkcs5jioPcnKlZRZkQN2SAyZawazGASIbK5rEVDrBSX6wFxuuyVjqZYosHtQ+xUmjqv5NDAV7zF1jUxP1YfmbzXgUMI=
+	t=1791398482; cv=fail; b=bLijz6dWVcYibrxbAbdEEgws1Bw3/PiTmBAVLYi9+RlMhPm6y+9kjPbIVtdTlIh97KGci+A8HRGf+7yq/MbvFq2u/BUgToWOIUpdo63HARLu3GQR8zDYHpsVv5L0iKkRdlrObjQdt1kQt7LndF3Dc6l1+nIZttuprXHoFH3ctzE=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791392756; c=relaxed/simple;
-	bh=zWZ8FsXv6P2pM5aRRcbjwFhBPvqExbHMMrdKWPrYp+w=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=mQIpKbxCRiD6Y/YbvzwBI/9Thb5hlFHiZvy0pPNYWzv01UvmGXagSW+lRq3AbwVKRt3wwyvunnWPJH7mqX63ZrYN0/6TZarqq2fwkwYmOxO3QSbs5dBrJKIRXo8qViqRvVUIwYvjIGhjQGdpd1U1o1HZROsoHgRK5Er92sLt1s8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=valla.it; spf=pass smtp.mailfrom=valla.it; dkim=pass (1024-bit key) header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.b=1QXFMbgo; dkim=pass (1024-bit key) header.d=valla.it header.i=@valla.it header.b=rGQH2Jt/; arc=pass smtp.client-ip=185.56.87.0
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=valla.it
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=valla.it
+	s=arc-20240116; t=1791398482; c=relaxed/simple;
+	bh=zi77yqyeuC9E2MbAPyj4FZFZlUS3+5Wk4POyOdPQvio=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=O6annn9QvKiiDSgYYeQMSCwX7Mm7pvLOPpohu2kpP2luhEsLXkNz9Q1F7Q5pH8ndr9D9WRkpCUEGV10fu/TcMAR2MCzsM4XbAaj+awEHIVvIA2mEULit2sQtlpK7Amyco8fyCZTSnbTbgjAZpUZef21b/D1JwuVdHVZFZM2eZTs=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=SVBa/4n8; arc=fail smtp.client-ip=52.101.201.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.b="1QXFMbgo";
-	dkim=pass (1024-bit key) header.d=valla.it header.i=@valla.it header.b="rGQH2Jt/"
-ARC-Seal: i=1; cv=none; a=rsa-sha256; d=outgoing.instance-europe-west4-1b4f.prod.antispam.mailspamprotection.com; s=arckey; t=1791392754;
-	 b=kqpz4SBOsmVe4sWITwxWJ/Bm4N5xyykQ6uTBbnyawCsBqOvp5vaI4UjJeOfl4jM/mV5Wtlh/KR
-	  kPEX+wAy8oKcnjXrUy0tzq5N9P5r5mJ1EQaiJ8JRsX76MVbBaIFDTRomwItntvgrs1EZKFJD95
-	  GA7iwAdfcg1wanMALHfNn5Sqs5C1d206NCqvzH6kWdMFt0tEp3nMcX7QwEszuEnFF48tWMiCz+
-	  d5WIoPARuINFoM5VLY8F+1DBOhaceJDSJtb3zzDUWVL2I2Pu/mKpkRV8k634XCH/TEnLhgO7Rk
-	  qjK//ujbtOmba+SpdJXd9it7DvREyr/QN6nJx5CA6KPxug==;
-ARC-Authentication-Results: i=1; outgoing.instance-europe-west4-1b4f.prod.antispam.mailspamprotection.com; smtp.remote-ip=35.214.173.214;
-	iprev=pass (214.173.214.35.bc.googleusercontent.com) smtp.remote-ip=35.214.173.214;
-	auth=pass (LOGIN) smtp.auth=esm19.siteground.biz;
-	dkim=pass header.d=valla.it header.s=default header.a=rsa-sha256;
-	arc=none
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed; d=outgoing.instance-europe-west4-1b4f.prod.antispam.mailspamprotection.com; s=arckey; t=1791392754;
-	bh=zWZ8FsXv6P2pM5aRRcbjwFhBPvqExbHMMrdKWPrYp+w=;
-	h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:
-	  From:Date:DKIM-Signature:DKIM-Signature;
-	b=Sam6xDxwhd2n0pTapfXilBkRNDjBKAbLyymdD0HQBEH9F3HbERhwJrEuSuAILZYz/6bo9sSYa3
-	  HxLIrm1b6i2NAut0MVVHbeOd1i333Yo7fMUpq72MmLHtUMwoL/CFwlKYhANwnTg7gilv8Rwq/0
-	  vPiX91BibIskfK/HqmQd8lDb4jZaThGA4I1uaLRvXZuKeeqOrpbIUDacgl3ts3RYOTBjP9Mpv1
-	  4SchT/0Q4DjUjC9NdOQ+v9sCe0SoxONcun+OjcJ3gjkDAT3DGqt4ZTqrXHV/ChobQzpr2QHRjt
-	  3FdDuVUf9GlGekuwRZQrpb21MMY+Mg7tMnVeXeUULhOs6g==;
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=antispam.mailspamprotection.com; s=default; h=CFBL-Feedback-ID:CFBL-Address
-	:Content-Type:MIME-Version:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-	List-Unsubscribe:Content-Transfer-Encoding;
-	bh=tLwUzAmQhGSL3Ue4ZR+yc6YJqjUkv8c/LUizgFvUpEU=; b=1QXFMbgo+pkNfF3Q0MJJ0TFjBd
-	WS2IzCaXEJA5OCmWHRXVJGFQQmXW1UsoXxZ4ltQIAF15k3ow+dDC1WT0XVaobysSuPBs8E6zBUxrT
-	picNUzj5RK0q8aYYxQIPpWN7sXTwWAj/ZrZqfGO9fojUpUrlGh8Es0CCX6eVCzQGbkmA=;
-Received: from 214.173.214.35.bc.googleusercontent.com ([35.214.173.214] helo=esm19.siteground.biz)
-	by instance-europe-west4-1b4f.prod.antispam.mailspamprotection.com with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-	(Exim 4.100.1)
-	(envelope-from <francesco@valla.it>)
-	id 1xEUbD-00000008OUD-37ot;
-	Wed, 07 Oct 2026 16:34:36 +0000
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=valla.it;
-	s=default; h=Subject:Cc:To:From:Date:list-help:list-unsubscribe:
-	list-subscribe:list-post:list-owner:list-archive;
-	bh=tLwUzAmQhGSL3Ue4ZR+yc6YJqjUkv8c/LUizgFvUpEU=; b=rGQH2Jt/bpeF930y+rHYkN2zf8
-	97TtVSvsaaG5aGcB4PZfyMk7r2RX3uiBz38jxRRTSPle16p8V/ICrwQiDPiognt0S2z0kAnDjDYyP
-	KOckZczNOgULzyrqXvYBnhG1X2IVXykdOIdCVq4OfsXhbomC4NP/QV3KzGUgCqn84S2E=;
-Received: from [79.14.200.104] (port=64271 helo=bywater)
-	by esm19.siteground.biz with essmtpa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-	(Exim 4.100.1)
-	(envelope-from <francesco@valla.it>)
-	id 1xEUau-00000000MYn-3hbM;
-	Wed, 07 Oct 2026 16:34:17 +0000
-Date: Wed, 7 Oct 2026 18:34:14 +0200
-From: Francesco Valla <francesco@valla.it>
-To: Rob Herring <robh@kernel.org>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>, 
-	Bjorn Andersson <andersson@kernel.org>, Kees Cook <kees@kernel.org>, 
-	"Gustavo A. R. Silva" <gustavoars@kernel.org>, Marek Szyprowski <m.szyprowski@samsung.com>, 
-	Robin Murphy <robin.murphy@arm.com>, Mark Brown <broonie@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Frank Li <Frank.Li@nxp.com>, 
-	Peng Fan <peng.fan@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>, 
-	linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, 
-	virtualization@lists.linux.dev, imx@lists.linux.dev, iommu@lists.linux.dev, 
-	linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH RFC 08/12] dt-bindings: remoteproc: add remoteproc-virtio
-Message-ID: <asZ0KdG7lloNwDfx@bywater>
-References: <20260916-remoteproc_virtio_map-v1-0-dac8c5eb4aa9@valla.it>
- <20260916-remoteproc_virtio_map-v1-8-dac8c5eb4aa9@valla.it>
- <arKhbxi3Snbt1_Mn@p14s>
- <arLZj2DxBazf3wMd@bywater>
- <20261006183910.GA2890477-robh@kernel.org>
- <CANLsYkwhrqk0nQNFuP_5aMYQCLGsLrzm-z9YP+Fvv-C1Ug8trg@mail.gmail.com>
- <20261007134206.GB2792240-robh@kernel.org>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="SVBa/4n8"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=a8+hAvJ3RrpxXByjBphDC6MJP0TG1K2MsURoBdpHoIElWfW2VWaOZ1lzHJS60EWNnSEaceUMTk1153kni9G3G9MVV0vCruNYoJ+cGu0PGF9piv4z8b+s5p/zB+15S8QaQuLECE/5Wjx9I4lIHknWwuOKTvrzFtA3R3cTdOraLvQQ6+QoY5qn4sYJZhqAIBEBDRsps8joFeES0e9tZJiTd5jI84SVsER5/wyEZ/JidCYa4o9VPxAaOVeQOA902sx7gFeQPVeaQ6xfkPcNLRBmWHVoQJWrIJYwWaqe4R8H9ePjHPwVFeVNN3YT557cEfLpg95Ua7UufG6SPj2y8XhvyA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Xe6ID+bZlqtBW1bVP0ExkDex/hp98McNVbJmbTXNkAk=;
+ b=xUiyHnWQLdapZv8n4CeYnv4Cf8ZUMFSdIZLFsinakZ3VDnXpvnWUPiplqDr6fu7EOvnZqF+RcOhRqEMcWYeSUpnIOPdCyFRIgfuL8z0OZsfcCbBGYGbM7pBGuU3AA5/h9URFRy/rbyAoZLMp2DSdeoSCHbxclsJTE4qomDJ7iEnrlMESxoZhXKcbLSiCQYzpw8GfWtQnKXZoNb177qtvTaMmkVCozQvBGrKLGT+4ZuuJoLS6HdFtNfk/TvpcnaRce1dsLLTeb90DwZj9767L7VnOpF/45+f3w7b48GeGZ/4Udq39WL8vyPq5vqBKYZ06590KTVwi1IVPz0SLPxVIqQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Xe6ID+bZlqtBW1bVP0ExkDex/hp98McNVbJmbTXNkAk=;
+ b=SVBa/4n88zXNZAVvXL+g7p1rACV0EdtLcxv/IEn1U8vEzh6wtfG+U+nbf7vRED+/4hlYn2R6ihYUEaKBlhExFmSbizpCbhqgZfFM3q/6DEIFESV6RK7DBamzkveksI1TEIFbl6a13vwR/5IFmm5+1Ist8g6saO5//TVsSG58x/6zY9iK8rMpOWsMWoIyGH0RUHfR8D/iDvsT2ZMz43k5EyAXqQtJc84Fo/0CvliQUbHh1CbkUFDmnLVmGnA2IVxtYyTdzWoT1iyHYGgBvOMO1M2lc7N/ZwlzUHci/8hNfwJT3LPymJ5ok7/87EMxPa0Fm7kDHyDhk8fbY0nMafkQ8A==
+Authentication-Results: mx.microsoft.com 1; dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from DS0PR12MB6486.namprd12.prod.outlook.com (2603:10b6:8:c5::21) by
+ LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.496.16; Wed, 7 Oct
+ 2026 18:41:08 +0000
+Received: from DS0PR12MB6486.namprd12.prod.outlook.com
+ ([fe80::88a9:f314:c95f:8b33]) by DS0PR12MB6486.namprd12.prod.outlook.com
+ ([fe80::88a9:f314:c95f:8b33%6]) with mapi id 15.21.0496.010; Wed, 7 Oct 2026
+ 18:41:08 +0000
+Date: Wed, 7 Oct 2026 14:41:05 -0400
+From: Joel Fernandes <joelagnelf@nvidia.com>
+To: Yury Norov <ynorov@nvidia.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	"Jason A. Donenfeld" <Jason@zx2c4.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Matthew Wilcox <willy@infradead.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>,
+	Boqun Feng <boqun@kernel.org>, Waiman Long <longman@redhat.com>,
+	Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
+	Christoph Lameter <cl@gentwo.org>,
+	"Paul E. McKenney" <paulmck@kernel.org>,
+	Frederic Weisbecker <frederic@kernel.org>,
+	Neeraj Upadhyay <neeraj.upadhyay@kernel.org>,
+	Josh Triplett <josh@joshtriplett.org>,
+	Uladzislau Rezki <urezki@gmail.com>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	Lai Jiangshan <jiangshanlai@gmail.com>,
+	Zqiang <qiang.zhang@linux.dev>,
+	Onur =?iso-8859-1?Q?=D6zkan?= <work@onurozkan.dev>,
+	Kees Cook <kees@kernel.org>,
+	Joel Granados <joel.granados@kernel.org>,
+	Anna-Maria Behnsen <anna-maria@linutronix.de>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Juri Lelli <juri.lelli@redhat.com>,
+	Vincent Guittot <vincent.guittot@linaro.org>,
+	Dietmar Eggemann <dietmar.eggemann@arm.com>,
+	Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+	Valentin Schneider <vschneid@redhat.com>,
+	K Prateek Nayak <kprateek.nayak@amd.com>,
+	Mike Rapoport <rppt@kernel.org>,
+	"Liam R. Howlett" <liam@infradead.org>,
+	Lorenzo Stoakes <ljs@kernel.org>,
+	Vlastimil Babka <vbabka@kernel.org>, Jann Horn <jannh@google.com>,
+	Pedro Falcato <pfalcato@suse.de>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+	Clark Williams <clrkwllms@kernel.org>,
+	Nathan Chancellor <nathan@kernel.org>,
+	Nick Desaulniers <ndesaulniers@google.com>,
+	Bill Wendling <morbo@google.com>,
+	Justin Stitt <justinstitt@google.com>,
+	linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+	wireguard@lists.zx2c4.com, netdev@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
+	rcu@vger.kernel.org, virtualization@lists.linux.dev,
+	linux-rt-devel@lists.linux.dev, llvm@lists.linux.dev,
+	Yury Norov <yury.norov@gmail.com>
+Subject: Re: [PATCH 16/17] rcu: assert static storage for RCU sync and SRCU
+ definitions
+Message-ID: <20261007184105.GA3837481@joelbox>
+References: <20260915030336.1192299-1-ynorov@nvidia.com>
+ <20260915031334.1194975-11-ynorov@nvidia.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260915031334.1194975-11-ynorov@nvidia.com>
+X-ClientProxiedBy: CH5P220CA0001.NAMP220.PROD.OUTLOOK.COM
+ (2603:10b6:610:1ef::7) To DS0PR12MB6486.namprd12.prod.outlook.com
+ (2603:10b6:8:c5::21)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261007134206.GB2792240-robh@kernel.org>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - esm19.siteground.biz
-X-AntiAbuse: Original Domain - lists.linux.dev
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - valla.it
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-SGantispam-id: 7f844bbd81814414b18190a4a9dc02a6
-X-AntiAbuse: ID - 7f844bbd81814414b18190a4a9dc02a6
-AntiSpam-DLS: false
-AntiSpam-DLSP: 
-AntiSpam-DLSRS: 
-AntiSpam-TS: 1.0
-CFBL-Address: feedback@antispam.mailspamprotection.com; report=arf
-CFBL-Feedback-ID: 1xEUbD-00000008OUD-37ot-feedback@antispam.mailspamprotection.com
-Authentication-Results: outgoing.instance-europe-west4-1b4f.prod.antispam.mailspamprotection.com;
-	iprev=pass (214.173.214.35.bc.googleusercontent.com) smtp.remote-ip=35.214.173.214;
-	auth=pass (LOGIN) smtp.auth=esm19.siteground.biz;
-	dkim=pass header.d=valla.it header.s=default header.a=rsa-sha256;
-	arc=none
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DS0PR12MB6486:EE_|LV2PR12MB5869:EE_
+X-MS-Office365-Filtering-Correlation-Id: 96cebd4b-8beb-4a8b-00e0-08df24a28d52
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|23010399003|376014|7416014|1800799024|56012099006|4143699003|11063799006|10067099003|22082099003|18002099003|3023799007;
+X-Microsoft-Antispam-Message-Info:
+	km/sLw1aRgIpDArK63X/Bu3rzTmuiUAT9JcYZYorRUMltzs0DP7M2znXLWuGcYZoUfdWihNnexMkpEyRBHLn14+ag2dgD++ciX+l9r5M4m94zuHWYIcGW1lsnvdgQCWou5l2sL8H88IIgrW/S3+qsH6WUn3kwJpZFb2t9IHDFEembXEr7/Ox2oUB7fXtQrN2KM/ComWTUY2aLztxnV4fD6emI9w9T8ohLh1N81p8qFON2z2aaO3QP1o56rHpuqp83/TapvJZsT5oRP8p1hJlojZAzUas5UglWWilqd6A/IBKj8FHlhkpdAqXmTpcEt16RP051rYgotGgDjqwcMppTzuAGJCa2ALFYKGb/H+lCe9FSgLM1zuLpSURiuHRrpgJVZ1/lMfnxJHsxYarFefa7Kx7vr0LbiwfhQAuZ6Or6PIADFDybz6kbddVeJbDe6TUwcj9vBKt2zMfKDBwOnMlhIMUQlR5SFrwJcr3+Z5pEOccF7UTHgzPlLW4LvmEnikXCXW0o5XrsgMWQ/BNXl6J9TbIOkhXRPPhOJEfcxzft/j8Dy/Q2C0XGOVwlb+52OYEZ23nESAxp1JcyqAgNmVSrU9gTEbt9qET62KY0WU57nbDPKU5wNsNbpM7I0sXl87Hu/sZp4CcjZAX04v6wYNpLjT6c1H5LUCxpb4d3/tgfxk=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR12MB6486.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(23010399003)(376014)(7416014)(1800799024)(56012099006)(4143699003)(11063799006)(10067099003)(22082099003)(18002099003)(3023799007);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?YcCgtGKX3hsMgXPwzuXd50nZtBAtfsn4io+NOrdMttYGOP/YSEzk26zhQxtI?=
+ =?us-ascii?Q?UGL7f2/OIAxYtuQmNANdNqItdQy7ll7GMu5JcAuPlMFWNkNh8EaCYMTH6o0s?=
+ =?us-ascii?Q?iNBFupJldbhEK7bJLP8fH56qlAgyEGkIe6T6PDgYrP73obejiDWCb81gtVWs?=
+ =?us-ascii?Q?0e8WrVLg344KvQZZntYCsf26Xbk8RJdK2SXr92l0R+TwCIPAsmlQ1wQAph8t?=
+ =?us-ascii?Q?vux0Bd8tYCkZoxNJggf6ZDUMYXVKlRpLuLaOpXfyIC+uY5k/KJwpw8YVmCJl?=
+ =?us-ascii?Q?L0gWlSSc/tYWkvcikEiHCsr0pbuNNRLBYkvCbY9r2udIweMDLAxRDjpPh6B1?=
+ =?us-ascii?Q?t20VWXwHt5pmNSlmSmtvQDg53odUXHwHjLv2zD3bSQv44YEcNIxuGlkrTCk8?=
+ =?us-ascii?Q?qXrLhejHLKltMgjy2M8BJXQVgIsbMGf0LmmKJNHbC2ZZGVpFG8kFEhqIKTt5?=
+ =?us-ascii?Q?oXzEvK/D1xbwuNZ1u5sD8mTayzbD4bDmZCAS0LMh8ExmVylQ+ze8lIoOGPK2?=
+ =?us-ascii?Q?BUBSQFrVxL3LeGrgiXq55AZk+dNmGU0/XHRCRo429/igxhYKgOaFWxq7Keke?=
+ =?us-ascii?Q?CQF0CXJvjKC2n3PF7yeGWUbXpAB2o+2zN/IhNA55APKvv7Bm2ceXyKLj0sz0?=
+ =?us-ascii?Q?IsvLWnbkNUWvWSv8hvGu0dKwshReemcnzqRBsOx7vgwrRq+R+n+8ZsXn7lDr?=
+ =?us-ascii?Q?6oHRqUk4NRsRIWsfcvt3RNIqepaOS2nHLUmZs3XqF+C4g8jLDQcdgHwZiTV/?=
+ =?us-ascii?Q?gdP1tDSsD2hd63+Tf4n1H5seUFc13CodpKk0G+9SCSIYN4pMyIftizRVeFst?=
+ =?us-ascii?Q?A7Ks8+siDYrSpjd5n/G+w7mlCoM0GSEWALIhCOfLMlIUhW260Q7QiBnr/0Wc?=
+ =?us-ascii?Q?fMXiJnMR5T2AvHltGUBrs6dO8l+T2Dx5i+Vp/dUQFN/POdbXNkYHFBrw7L8Z?=
+ =?us-ascii?Q?yrIRSykXQlILIGaMaWUD0HmX/0r3wci1miPSh86Pw8h/faw1PqzzA5U2tIZ8?=
+ =?us-ascii?Q?y0oG+1g4GJWUvnGXdUguGErOESM8d5i5hNatUqoBtdK22FRkI3SpPF49Pq5Y?=
+ =?us-ascii?Q?xouKUrWvECB+VJJc31evHWX5nUNi9g7wHBlSyP1EnHFldVq3p+KY9P6jXtd0?=
+ =?us-ascii?Q?7hfjBJktgr94lJxLXCgmqoJTX2DJQHEa7Ihp8ZT1/lWGbwFAKe6joW1md3zV?=
+ =?us-ascii?Q?75VDDocVNnfBKWFTaBgyMiIhLizloMDSkMftNA1OfQtRsC+ebAWDaWM3Z+rg?=
+ =?us-ascii?Q?HS8pZ3gC1OQBF8kJeonQAFLaAZpHBy/L2YwwQ+0Wgdft1ig0w5HH9IFqgGMI?=
+ =?us-ascii?Q?9XwRcRYNpkxCnw5kfmuCtoe94q7EX9fGbl423O2cNXlLnfQ0drCG+HYUqpvt?=
+ =?us-ascii?Q?fEFAonoyKWBkeOY6+UQobp6TuZrXtTOhz61T4ozwXdDFsZ+Dapms0bCiTgdU?=
+ =?us-ascii?Q?IaHXsnLZ9cUH79mZCmx2nSYv5jobUxNZricJ2qm40DtBrR8m+rBc8aEn5n7E?=
+ =?us-ascii?Q?a66I2bnN2z/3OeHRK3SF7hYpT2hQ3cCZDxjQW+xdNalSmdzDtNIPFUMQUPK3?=
+ =?us-ascii?Q?BankZ5rLjm/GQiOZI/c08TBOMod9dyPc0wohr8Djx+7zfD6juIGQgjmpMh7i?=
+ =?us-ascii?Q?QiS4iC6Koc7lS0is78rJqXFqlg/GMyJG2WbPVE4rP4Untyt5clgEHd57G4rt?=
+ =?us-ascii?Q?Ez2QOTRTvOggMG+roa7IDKCwmKPea1yhZ4lJLzPc9+hGsf0YVvS4XbaiKrqx?=
+ =?us-ascii?Q?1JO/n33mLA=3D=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 96cebd4b-8beb-4a8b-00e0-08df24a28d52
+X-MS-Exchange-CrossTenant-AuthSource: DS0PR12MB6486.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Oct 2026 18:41:08.5901
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: Y6u3PpNCAMpFmgRSZKmtKhUKhU9qHkNWzQpVL7OQAFGH4FPWaMsshXEwO1OdMFntXpJfvwNF0NxnIXg22bOa1g==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV2PR12MB5869
 
-Hello Rob,
-
-On Wed, Oct 07, 2026 at 08:42:06AM -0500, Rob Herring wrote:
-> On Tue, Oct 06, 2026 at 06:51:52PM -0600, Mathieu Poirier wrote:
-> > On Tue, 6 Oct 2026 at 12:39, Rob Herring <robh@kernel.org> wrote:
-> > >
-> > > On Tue, Sep 22, 2026 at 09:44:20PM +0200, Francesco Valla wrote:
-> > > > On Tue, Sep 22, 2026 at 09:40:31AM -0600, Mathieu Poirier wrote:
-> > > > > On Wed, Sep 16, 2026 at 11:10:53PM +0200, Francesco Valla wrote:
-> > > > > > Add a new binding to describe remoteproc-provided virtio devices; while
-> > > > > > these are discovered through a resource table parsed by the remoteproc
-> > > > > > infrastructure at runtime, their description can be needed to probe
-> > > > > > non-discoverable buses (such as I2C) or to link consumers and suppliers.
-> > > > > >
-> > > > > > Each vdev is described by a dedicated "group" node, which then includes
-> > > > > > a virtio-device node, which binding is already existent and used by
-> > > > > > virtio-mmio. Each vdev shall be stattically linked to a "group" node
-> > > > > > using its index inside the resource table as the reg property of the
-> > > > > > node; this permits to have multiple instances of the same type of
-> > > > > > device.
-> > > > > >
-> > > > > > The binding is intended to be generic and adopted by any remoteproc
-> > > > > > provider.
-> > > > > >
-> > > > > > Signed-off-by: Francesco Valla <francesco@valla.it>
-> > > > > > ---
-> > > > > >  .../bindings/remoteproc/remoteproc-virtio.yaml     | 89 ++++++++++++++++++++++
-> > > > > >  1 file changed, 89 insertions(+)
-> > > > > >
-> > > > > > diff --git a/Documentation/devicetree/bindings/remoteproc/remoteproc-virtio.yaml b/Documentation/devicetree/bindings/remoteproc/remoteproc-virtio.yaml
-> > > > > > new file mode 100644
-> > > > > > index 000000000000..c4a0d84b1460
-> > > > > > --- /dev/null
-> > > > > > +++ b/Documentation/devicetree/bindings/remoteproc/remoteproc-virtio.yaml
-> > > > > > @@ -0,0 +1,89 @@
-> > > > > > +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-> > > > > > +%YAML 1.2
-> > > > > > +---
-> > > > > > +$id: http://devicetree.org/schemas/remoteproc/remoteproc-virtio.yaml#
-> > > > > > +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> > > > > > +
-> > > > > > +title: Virtio devices over remoteproc
-> > > > > > +
-> > > > > > +description: |
-> > > > > > +  Virtio devices ("vdevs") can be exposed using the remoteproc infrastructure
-> > > > > > +  and its resource table. For some of them, a device tree node might be needed
-> > > > > > +  to describe remote undiscoverable hardware and/or connect consumers and
-> > > > > > +  providers.
-> > > > > > +
-> > > > > > +maintainers:
-> > > > > > +  - Francesco Valla <francesco@valla.it>
-> > > > > > +
-> > > > > > +properties:
-> > > > > > +  virtio:
-> > > > > > +    description: Contains a group of Virtio devices exposed by the remoteproc.
-> > > > > > +
-> > > > > > +    properties:
-> > > > > > +      '#address-cells':
-> > > > > > +        const: 1
-> > > > > > +
-> > > > > > +      '#size-cells':
-> > > > > > +        const: 0
-> > > > > > +
-> > > > > > +    patternProperties:
-> > > > > > +      "^vdev@[0-9a-f]+$":
-> > > > > > +        type: object
-> > > > > > +
-> > > > > > +        properties:
-> > > > > > +          reg:
-> > > > > > +            description: Virtio device index inside the resource table.
-> > >
-> > 
-> > There are 2 configurations we need to account for: (1) each device
-> > located behind the remote processor gets its own set of virtqueues and
-> > adheres to the virtio specifications.  This is the configuration
-> > targeted by this thread.  The other configuration (2), discussed in
-> > the other thread, involves virtio piggy-backed over RPMSG.  The hope
-> > is to represent both configurations using the same bindings.  For (1),
-> > virtio devices will be advertised in the resource table and for (2),
-> > virtio devices will be announced via the existing remoteproc namespace
-> > service.
-> > 
-> > > Who/what defines the resource table?
-> > 
-> > The resource table is part of the firmware image and is parsed by the
-> > remoteproc core.  For (1), as presented in this set, "reg" links the
-> > entry in the resource table with the device definition in the DT.  For
-> > (2), the definition is also a device index, but said index is
-> > communicated to the remoteproc core using a namespace announcement
-> > rather than the resource table.
-> > 
-> > I hope to establish bindings for configuration (1) and merge that work
-> > first.  Once that is done we can extend it to cover (2).
+On Mon, Sep 14, 2026 at 11:13:31PM -0400, Yury Norov wrote:
+> DEFINE_RCU_SYNC() contains a statically initialized wait queue. SRCU
+> static definitions similarly rely on persistent lockdep keys and, in
+> Tiny SRCU, a statically initialized work item.
 > 
-> "Defined by firmware" is all I needed. Please make sure the binding 
-> patches include this information or I'll forget and just ask again.
->
+> Add ASSERT_STATIC_STORAGE() to DEFINE_RCU_SYNC(), both Tree SRCU
+> __DEFINE_SRCU() variants and Tiny SRCU's common DEFINE_SRCU() declaration.
+> This covers the non-static FAST and FAST_UPDOWN wrappers too. Tiny SRCU's
+> explicitly static declarations already enforce the required duration.
+> The existing per-CPU restrictions on Tree SRCU declarations still apply.
+> 
+> Assisted-by: OpenAI Codex
+> Signed-off-by: Yury Norov <ynorov@nvidia.com>
 
-I'll include this detail in the next version of the bindings; I'm always
-working on .rst documentation to add to the next version of the patchset.
+All the changes make sense to me. I'm ok with carrying this for -rcu 7.5
+unless you want to take it.
 
-> Rob
+Reviewed-by: Joel Fernandes <joelagnelf@nvidia.com>
 
-Regards,
-Francesco
+thanks,
 
+Joel Fernandes
+
+
+> ---
+>  include/linux/rcu_sync.h | 4 +++-
+>  include/linux/srcutiny.h | 4 +++-
+>  include/linux/srcutree.h | 7 +++++--
+>  3 files changed, 11 insertions(+), 4 deletions(-)
+> 
+> diff --git a/include/linux/rcu_sync.h b/include/linux/rcu_sync.h
+> index 3860dbb9107a..c10b6d30561a 100644
+> --- a/include/linux/rcu_sync.h
+> +++ b/include/linux/rcu_sync.h
+> @@ -10,6 +10,7 @@
+>  #ifndef _LINUX_RCU_SYNC_H_
+>  #define _LINUX_RCU_SYNC_H_
+>  
+> +#include <linux/compiler.h>
+>  #include <linux/wait.h>
+>  #include <linux/rcupdate.h>
+>  
+> @@ -48,6 +49,7 @@ extern void rcu_sync_dtor(struct rcu_sync *);
+>  	}
+>  
+>  #define	DEFINE_RCU_SYNC(name)	\
+> -	struct rcu_sync name = __RCU_SYNC_INITIALIZER(name)
+> +	struct rcu_sync name = __RCU_SYNC_INITIALIZER(name);	\
+> +	ASSERT_STATIC_STORAGE(name)
+>  
+>  #endif /* _LINUX_RCU_SYNC_H_ */
+> diff --git a/include/linux/srcutiny.h b/include/linux/srcutiny.h
+> index fbcf13bc12d1..40b592b4e2d8 100644
+> --- a/include/linux/srcutiny.h
+> +++ b/include/linux/srcutiny.h
+> @@ -11,6 +11,7 @@
+>  #ifndef _LINUX_SRCU_TINY_H
+>  #define _LINUX_SRCU_TINY_H
+>  
+> +#include <linux/compiler.h>
+>  #include <linux/irq_work_types.h>
+>  #include <linux/swait.h>
+>  
+> @@ -48,7 +49,8 @@ void srcu_tiny_irq_work(struct irq_work *irq_work);
+>   * Tree SRCU, which needs some per-CPU data.
+>   */
+>  #define DEFINE_SRCU(name) \
+> -	struct srcu_struct name = __SRCU_STRUCT_INIT(name, name, name, name)
+> +	struct srcu_struct name = __SRCU_STRUCT_INIT(name, name, name, name);	\
+> +	ASSERT_STATIC_STORAGE(name)
+>  #define DEFINE_STATIC_SRCU(name) \
+>  	static struct srcu_struct name = __SRCU_STRUCT_INIT(name, name, name, name)
+>  #define DEFINE_SRCU_FAST(name) DEFINE_SRCU(name)
+> diff --git a/include/linux/srcutree.h b/include/linux/srcutree.h
+> index 75e54e4f963f..8bea8044230a 100644
+> --- a/include/linux/srcutree.h
+> +++ b/include/linux/srcutree.h
+> @@ -11,6 +11,7 @@
+>  #ifndef _LINUX_SRCU_TREE_H
+>  #define _LINUX_SRCU_TREE_H
+>  
+> +#include <linux/compiler.h>
+>  #include <linux/rcu_node_tree.h>
+>  #include <linux/completion.h>
+>  
+> @@ -217,13 +218,15 @@ struct srcu_struct {
+>  								      fast);			\
+>  	extern struct srcu_struct * const __srcu_struct_##name;					\
+>  	struct srcu_struct * const __srcu_struct_##name						\
+> -		__section("___srcu_struct_ptrs") = &name
+> +		__section("___srcu_struct_ptrs") = &name;					\
+> +	ASSERT_STATIC_STORAGE(name)
+>  #else
+>  # define __DEFINE_SRCU(name, fast, is_static)							\
+>  	static DEFINE_PER_CPU(struct srcu_data, name##_srcu_data);				\
+>  	static struct srcu_usage name##_srcu_usage = __SRCU_USAGE_INIT(name##_srcu_usage);	\
+>  	is_static struct srcu_struct name =							\
+> -		__SRCU_STRUCT_INIT(name, name##_srcu_usage, name##_srcu_data, fast)
+> +		__SRCU_STRUCT_INIT(name, name##_srcu_usage, name##_srcu_data, fast);		\
+> +	ASSERT_STATIC_STORAGE(name)
+>  #endif
+>  #define DEFINE_SRCU(name)		__DEFINE_SRCU(name, 0, /* not static */)
+>  #define DEFINE_STATIC_SRCU(name)	__DEFINE_SRCU(name, 0, static)
+> -- 
+> 2.53.0
+> 
