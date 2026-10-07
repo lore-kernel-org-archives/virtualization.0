@@ -1,106 +1,103 @@
-Received: from mail-oi1-f176.google.com (mail-oi1-f176.google.com [209.85.167.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from sender5-op-o11.zoho.com (sender5-op-o11.zoho.com [165.173.182.11])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D93B220D4FC
-	for <virtualization@lists.linux.dev>; Wed,  7 Oct 2026 22:07:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.176
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791410846; cv=none; b=Ep2xw6CCFkk2dJtzA7EfUbNLgRzBRBHbAA9OE+WPYsFzaAq9jgDgEaKBae9NS1CWgfWBAEbuBJUGtb52jXWYu7pjQYKfDOJMxd844A7qg9ycZWCy1LhBf2ph9KA7RpuRMe0APmdzn2phc9MVJXiYf8UBq34yI9q8RJgqG8ubfSo=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791410846; c=relaxed/simple;
-	bh=pzcU6DRrnPP2DBnNwpaFuVjPLcGW2IMFoch8YJke0x0=;
-	h=From:Content-Type:Mime-Version:Subject:Message-Id:Date:To; b=ILf2xbdlOr7rB9FDTbeGNP5mpyhSdsW2bZWU/R2CiEpw1/XAwSkPL1lnrii0E5m4kAh/MT5ni1CAt3JadPr54sc7/eBR0tZPgmaFB6wo2HVrr0grCuwjRhX15DYuTK1bvKY1bRgGGtI45Qa2jZJ8Ban28ieeBASGxTQABxX0S70=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cYhHGM54; arc=none smtp.client-ip=209.85.167.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1ECA244AB8E
+	for <virtualization@lists.linux.dev>; Wed,  7 Oct 2026 22:22:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=165.173.182.11
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791411783; cv=pass; b=PXSH2+FLuAwOIp/ieKkNP0ZLAKilQmRXbz/KUYv6lIynsj+jyKkb0mBWbsOzL/XUHUQcmZLerkZa5sGU0RRphwc/4kyf0GwPOT0fmZnsUzkOdilU1pooMc1wvVNZ+Um4zTgq7VaGeZzjiwsKfPKwln+6mkUGKlBHIC6zfRHRqTo=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791411783; c=relaxed/simple;
+	bh=N68G1kNPC29Y3dj0xPRSwtB03/2aAzzJzyo9nJ4okvI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=IOZbshuCBgpV91jZuq5M6bSiMKTQbtTLCp8XxQ1GDGUIpqMEY4eNfx881/N28OqQn7jrm2r+rE05cy6fBTtnI1V0K0548nNeTD7VE5HDduNYT8BtCtXb7puuBo/RIlYxKdE0oev7Sas2YxrauLSq3kbEFVPRM/vN/INEAxxvZ60=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=AeAj9Llj; arc=pass smtp.client-ip=165.173.182.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cYhHGM54"
-Received: by mail-oi1-f176.google.com with SMTP id 5614622812f47-4f66bb2ab57so1056685b6e.3
-        for <virtualization@lists.linux.dev>; Wed, 07 Oct 2026 15:07:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791410843; x=1792015643; darn=lists.linux.dev;
-        h=to:date:message-id:subject:mime-version:content-transfer-encoding
-         :content-type:from:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=pzcU6DRrnPP2DBnNwpaFuVjPLcGW2IMFoch8YJke0x0=;
-        b=cYhHGM543yRRyiyqfeeN11LQAM4q8PV+zVfGNB2/N5COllarsbpBxnzUn322useDb/
-         LxHlg1xhsxd+gAYTAJ3VnXEwdAmjED+YGBm58tD8JbzXPd1FzZWIjHST6Yb4RbIvIox8
-         2NMty5frEHInAvpn+tkH2JuE2tLNVuw2C0dPIVeUMbRMCjoN/mZrywGECNLs0wkNANKC
-         1WGkCWxxS3JV2Gf+7v9C/7azqyImTzsBompW2NVlTj1r6WCaTSCl0kP/CYVvWZIg6i55
-         JmoWcw+b9AF8ImcyYmdegnO1enb1m5OSCMSALl3aWvrxB6uB1DFDU7jWreK6lrEh54Rs
-         gzfA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791410843; x=1792015643;
-        h=to:date:message-id:subject:mime-version:content-transfer-encoding
-         :content-type:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=pzcU6DRrnPP2DBnNwpaFuVjPLcGW2IMFoch8YJke0x0=;
-        b=aE4GuFgvFHLxHxCnLKBTSQVL/tUxpaJpBw5uN85neP8yhMyz+J5teOsShuFsoCFrno
-         VQn2Z+7Pp4nNxwir1Y8y1HrAW2OhyXLriPO18lxPm7+6q/7KFe2HWbyIt1kpOwVus/j2
-         hQ10oEtGM0SfyMbBbxu2jGlBMRQ2PM/DighUJmUOCYMJ/7JjEOPRLJv2OUbm6XBF/5Kf
-         2swQ+lG+qsIohj1wUUl070GmqCM5IFDYpYZf01a9Ney75rFnoFbx+qmkjDNAeWDV0R4f
-         InEBoTzjCEDMUKkLh3La+PAJWe+u0A3t3FyvxQRSQ11ESd3qPa1eYvIYdI+U+sen1HAC
-         uwBQ==
-X-Forwarded-Encrypted: i=1; AKwUvBx50ugv2E4I1k0ICQUo46SkCxLxin3GdKN0h/RbWmB1aEw4Ixs2k+CTKu8t21ZLDiXkryBvfV3xYWIS5GJecg==@lists.linux.dev
-X-Gm-Message-State: AFuF++lo2FAyvKnusVMtJIySaq/iLRI8FCMTaLrbN+PABt7TlJmwPVLB
-	JcF+vtICjA+fTjvOpc0mVTKkoDcP6TtojbF96b95PE1ESQ+I1v22hyGJ
-X-Gm-Gg: AYBFou1iq7lNqyIUTDn7aG/qf9VDtielwF+JUyJrVz5cOK3qxm5GvYHbFFm4xyXVuPd
-	tUhIz189ANI2p7ILJUGN+EVeq25pByI5RevgmQlN0q5jDE7Pzl3vQrcCxuM1lJvqOxj2aM5Ikoy
-	WChWANGqjOcTxErbO2DNhW5qfPwxNjMYXUl4xwYhhjNcEcMQjmrkg6Kp9D18FTdw0AM+NWZVe4t
-	L7mU1KTRlspOrLw+Er6twJ1hiCNrfRhhCpXK4SwvmxckBjWl4vMw++Q30TgTf52xB94UHTFshzF
-	XwKt/xJntKt7uESEICeW8edpk9daA+XI4SBDVfiRUwnzCni1QlwCRpJh+1dfwZTp4Dki9ePTAby
-	BkgAc0yZYXUVVpMVglsijG1Zl7n9AQ2BEleTteI61S13YIt4m5oumtabNhM3B08PIlDDXPt9q8I
-	gBQclzQuY3S0OHAlA2N6e1wRKnlilv8OdkEQzjIDj8ze85tMLk4xekP6+d+CRtZa3+c61bs+697
-	9uF4RkZS8IVH38zhaiug4reomc=
-X-Received: by 2002:a05:6808:1585:b0:4f8:4a95:9b3b with SMTP id 5614622812f47-4fc481c5f12mr3624420b6e.68.1791410843223;
-        Wed, 07 Oct 2026 15:07:23 -0700 (PDT)
-Received: from smtpclient.apple ([2600:1700:220:4650:f501:3b3:565b:2d79])
-        by smtp.gmail.com with ESMTPSA id 5614622812f47-4fc431ede8fsm3802983b6e.0.2026.10.07.15.07.22
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 07 Oct 2026 15:07:22 -0700 (PDT)
-From: Azadeh Aftahi <aftahi334@gmail.com>
-Content-Type: text/plain;
-	charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="AeAj9Llj"
+ARC-Seal: i=1; a=rsa-sha256; t=1791411775; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=jvQFPzEiH3dqW0DGDSMLpVLaXoyJ4dv05KspH+dqEbEWsEsdXpWtZofhsUPZnwrBHzbBFWxK2R7Ji/vgtZw2RkUtHGY3vkhS2PW2J9QAZV0ja1f2YCy9Lno9hilLtmHdxQ85Tn+QTu89dU5sJq+fabcB6q28gt92yQr3squJvlA=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1791411775; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=Z2nIKukZw95dcKC5lhzGGPxFQ69nGF5VaLvHA5MuW3Y=; 
+	b=ir1zmXvhuaHtgU5IYRJBC4A5vKIT0BkoatnRQtbC4hmiBepa1SllR7Y9lwDk0Li9YJuPhcpoFz2fqFJloNLjd4jVBcc2wg0vYujKma4MAr8QlhREznQVnV6/m2aYmh5VbTh48DIKw623X0vguZf7QohkSAIeEgGQcfqPxxfds80=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
+	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1791411775;
+	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
+	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-ID:MIME-Version:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=Z2nIKukZw95dcKC5lhzGGPxFQ69nGF5VaLvHA5MuW3Y=;
+	b=AeAj9Llj1w0I1954263tBAGt8nXp/9qvJr99VrxkoFK/oTDhT+dEjDCTtBDvsvd0
+	eYvOU3kn80IXxlyOHbCrqsm8UeuEzhGv2amIfVwi3oPAXSYJQiSxacJgGD48VlVGa93
+	15TpyUGo0ophcNJh6vUUhxM609aEaPNjS2HTLa+k=
+Received: by smtp.zohomail.com with SMTPS id 1791411773989975.026492163321;
+	Wed, 7 Oct 2026 15:22:53 -0700 (PDT)
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+To: David Airlie <airlied@redhat.com>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Chia-I Wu <olvaffe@gmail.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: dri-devel@lists.freedesktop.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v1] Revert "drm/virtio: Add pixel blend mode property to cursor plane"
+Date: Thu,  8 Oct 2026 01:22:44 +0300
+Message-ID: <20261007222244.295186-1-dmitry.osipenko@collabora.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3864.700.51.1.1\))
-Subject: [RFC] virtio-net: AF_XDP zero-copy TX checksum offload
-Message-Id: <247B8E70-8100-419A-95C4-71E43361FF73@gmail.com>
-Date: Wed, 7 Oct 2026 17:07:12 -0500
-To: netdev@vger.kernel.org,
- virtualization@lists.linux.dev,
- bpf@vger.kernel.org
-X-Mailer: Apple Mail (2.3864.700.51.1.1)
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-ZohoMailClient: External
 
-Hi all,
+The cursor blending mode was added twice because the same change was
+applied by accident from different patches. Revert the second patch.
 
-I'm planning to work on single-buffer AF_XDP zero-copy TX checksum =
-offload for virtio-net.
+Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Link: https://lore.kernel.org/dri-devel/ce84d3d2-e78b-4939-aecf-9ef7267bd42a@samsung.com/
+Fixes: 6947b78df4d2 ("drm/virtio: Add pixel blend mode property to cursor plane")
+Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_plane.c | 13 -------------
+ 1 file changed, 13 deletions(-)
 
-Current net-next's virtnet_xsk_xmit_one() does not consume XSK TX =
-checksum metadata and uses the shared zeroed virtio header.
+diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+index b422eba42a5f..640815af4098 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_plane.c
++++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+@@ -589,7 +589,6 @@ struct drm_plane *virtio_gpu_plane_init(struct virtio_gpu_device *vgdev,
+ 	struct drm_plane *plane;
+ 	const uint32_t *formats;
+ 	int nformats;
+-	int ret;
+ 
+ 	if (type == DRM_PLANE_TYPE_CURSOR) {
+ 		formats = virtio_gpu_cursor_formats;
+@@ -615,17 +614,5 @@ struct drm_plane *virtio_gpu_plane_init(struct virtio_gpu_device *vgdev,
+ 		drm_plane_create_blend_mode_property(plane,
+ 						     BIT(DRM_MODE_BLEND_PREMULTI));
+ 
+-	if (type == DRM_PLANE_TYPE_CURSOR) {
+-		/*
+-		 * The cursor plane exposes a format with an alpha channel,
+-		 * which requires a blend mode property. The host blends
+-		 * premultiplied alpha, matching the property's default.
+-		 */
+-		ret = drm_plane_create_blend_mode_property(plane,
+-							   BIT(DRM_MODE_BLEND_PREMULTI));
+-		if (ret)
+-			return ERR_PTR(ret);
+-	}
+-
+ 	return plane;
+ }
+-- 
+2.55.0
 
-I found Xuan's 2021 proposal anticipating separate headers for checksum =
-support, and the merged 2024 zero-copy TX series,=20
-but I couldn't find a checksum-specific follow-up implementation.
-
-The proposed scope is to map the existing XSK checksum metadata API to =
-VIRTIO_NET_F_CSUM,=20
-using a DMA-safe per-packet virtio header whose lifetime extends until =
-TX completion, with corresponding completion, reset, and unbind cleanup.
-
-I would keep the initial scope limited to single-buffer TX: no =
-multi-buffer RX, timestamps, launch time, or GSO.
-
-I'd also add checksum and header-lifetime coverage using the existing =
-XSK selftest framework with QEMU/TAP.
-
-Is anyone already working on this? If not, does this scope and =
-per-packet-header approach sound reasonable for a follow-up patch?
-
-Thanks,
-Azadeh=
