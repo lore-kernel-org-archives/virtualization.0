@@ -1,108 +1,157 @@
-Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5789045D90B;
-	Wed,  7 Oct 2026 09:25:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26AF049A3A1;
+	Wed,  7 Oct 2026 13:42:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791365144; cv=none; b=XnG95yszCXeOOiH+OJMVGD4pmLzgKByWltJ4S7F7vwEXutiLAAWi+BWUAtwkTgd8FMNqdKIi/NkFoRpCyp12qE3GEFeXeJA5ofE0AvBHB8EuaiOOEIH2qzQ77tdfdk8JuTAO4Qbi7il5D4UUxf88gLSzGacJD/re2HVHN/uZdec=
+	t=1791380542; cv=none; b=PpMkIpry8EgTfy2Vpqb82ZWpA78nnwuyuQrdVA2fplaWCXRQWkfxZLzWePVejuSlNyl62eLUXkLaG/+zRtuhloOdB06jZvbAtgPXmPA49+Lxj4EMLkcJxD/Juq1qDBkRiFBkb5iRgrT17OK+ibz1oTPVS01ZTbA7qB30d7JxAdM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791365144; c=relaxed/simple;
-	bh=X1iQiZAoBlGzZUp8UHo6VqQTPEenXfO56TjfxrcDB+w=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
-	 In-Reply-To:Content-Type; b=Uaz7w5W6FcYpHDaaVXt18wrrriXgVE7EyPEqVXbtqnEyzz4h0wRKagSRhEbkwf32NN6ndX/9jNhUtUzkits8fqhJ+/PxA4GilsTilO5G7iD2AgGndm1kCFUFyeC0NdQg1s47tQZh2Pl2QKPUpIO6KzVHGg3gFkIEHwzJrUoeeQ4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=ghiKbUID; arc=none smtp.client-ip=185.226.149.37
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
+	s=arc-20240116; t=1791380542; c=relaxed/simple;
+	bh=qmpa9rE6GJHLG//YEJz01A1fPrtit8l6U5tzJjoqjdk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=kqWRhWrSRm3cqzLiUPiKSzNe7A12+iB6St56AvRSotmyTEccWlzDCVHLDVFFp/ZBOnlrUnfH1yIQTuieQ6Y+5gA0QfgCcttOwlBsm2wfaabYQ/qEoam+jCVs4OtnbdD5WVLw7JLQcJS8/1IoRDPVTY0qT9/4pOawMTFzXR+SeX0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nOujq+Nj; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="ghiKbUID"
-Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
-	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-	(Exim 4.93)
-	(envelope-from <mhal@rbox.co>)
-	id 1xENtW-000pSp-GI; Wed, 07 Oct 2026 11:25:02 +0200
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector1; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:References:
-	Cc:To:Subject:From:MIME-Version:Date:Message-ID;
-	bh=XVG330B7pnghrp1aXOfIvxamKNeiNYv7XmyKw+Y1T/o=; b=ghiKbUIDhVEpwH9HlKToSn+s7v
-	bQ+RslnEJbUiBRNk30S3ItncCWxSiWk7Ne5qrw0RWdHbMRB8u0NB5RfWA2QLVRWnCgGej89EjKvZa
-	ekXr4Ir55im2JKzO+yQWSNkflICWZl4/UkHMJkuADa47NRmlfLcBNR6pDSeTFE8IjiyvbKxHW08Hp
-	MQpwdslAJ7mBpwUwrZDodqcxGBfzhKndf/hJ4eXdwNCgpCUrdYh44UfEbSC22snD/Ov7x/RnD8+RV
-	uKevxzj2ddcwYuEv7Tf9Kaa+cU/XwtMjGweK3k3BfBK92Cupse31F5jObPRUv52suGwOvr01/mwyP
-	wiq5xu3A==;
-Received: from [10.9.9.74] (helo=submission03.runbox)
-	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
-	(envelope-from <mhal@rbox.co>)
-	id 1xENtK-0005HW-Fz; Wed, 07 Oct 2026 11:24:50 +0200
-Received: by submission03.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.95)
-	id 1xENt7-002JEu-C3;
-	Wed, 07 Oct 2026 11:24:37 +0200
-Message-ID: <011a9085-0bb4-433b-afc5-9c787cde0e12@rbox.co>
-Date: Wed, 7 Oct 2026 11:24:32 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nOujq+Nj"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 652E31F0089B;
+	Wed,  7 Oct 2026 13:42:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791380527;
+	bh=/Ac6jmKXgYnbA5+fLFbamqJmh4YrIFsnTxkJqKIfZ64=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=nOujq+NjKY4kUQCwPij4R9g8Vgk5cdS/+8teCrbeQKpDJ9tM01853QeN24meJxzCp
+	 jm7dvnD0zVR0MgPnABNb8hHR22Pf18/DNqxIhTBVY3wFHk4jA//m+1YST9aRStCtEX
+	 ERnFB6TgRgP6P9JV1cCEFcMMsNRhEPVcKC5KE/Qytx+liQq0yalntT71rECE4AI5Di
+	 unTXArgcVMXmkNSYUwyLu+Oadp4gB+0bwZCYebcDHlVKB1+j8JYmSaV86+GOCuJUOW
+	 uXqxqSVmonEln0+9JRSlcFdt8vm11NDlt+Idpxq4QvOlukB1lMpt8GNMbMPcKDo+fZ
+	 KJIwVmaieLZow==
+Date: Wed, 7 Oct 2026 08:42:06 -0500
+From: Rob Herring <robh@kernel.org>
+To: Mathieu Poirier <mathieu.poirier@linaro.org>,
+	Francesco Valla <francesco@valla.it>
+Cc: Bjorn Andersson <andersson@kernel.org>, Kees Cook <kees@kernel.org>,
+	"Gustavo A. R. Silva" <gustavoars@kernel.org>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Mark Brown <broonie@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>, Frank Li <Frank.Li@nxp.com>,
+	Peng Fan <peng.fan@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>,
+	linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org,
+	devicetree@vger.kernel.org, virtualization@lists.linux.dev,
+	imx@lists.linux.dev, iommu@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH RFC 08/12] dt-bindings: remoteproc: add remoteproc-virtio
+Message-ID: <20261007134206.GB2792240-robh@kernel.org>
+References: <20260916-remoteproc_virtio_map-v1-0-dac8c5eb4aa9@valla.it>
+ <20260916-remoteproc_virtio_map-v1-8-dac8c5eb4aa9@valla.it>
+ <arKhbxi3Snbt1_Mn@p14s>
+ <arLZj2DxBazf3wMd@bywater>
+ <20261006183910.GA2890477-robh@kernel.org>
+ <CANLsYkwhrqk0nQNFuP_5aMYQCLGsLrzm-z9YP+Fvv-C1Ug8trg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-From: Michal Luczaj <mhal@rbox.co>
-Subject: Re: [PATCH net v4] vsock: treat TCP_CLOSING as once-established
-To: netdev-bot+sashiko@kernel.org
-Cc: stefanha@redhat.com, sgarzare@redhat.com, mst@redhat.com,
- jasowangio@gmail.com, eperezma@redhat.com, davem@davemloft.net,
- xuanzhuo@linux.alibaba.com, kuba@kernel.org, pabeni@redhat.com,
- horms@kernel.org, edumazet@kernel.org, kvm@vger.kernel.org,
- virtualization@lists.linux.dev, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, imv4bel@gmail.com
-References: <20261005-vsock-connect-reset-closing-v4-1-15d41cfda3ed@rbox.co>
- <179133282699.434549.6239722975007408103@kernel.org>
-Content-Language: pl-PL, en-GB
-In-Reply-To: <179133282699.434549.6239722975007408103@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CANLsYkwhrqk0nQNFuP_5aMYQCLGsLrzm-z9YP+Fvv-C1Ug8trg@mail.gmail.com>
 
-On 10/7/26 02:27, netdev-bot+sashiko@kernel.org wrote:
-> [Severity: High]
-> Can vsock_connect() still reset a socket that is already linked in
-> vsock_connected_table? This check only covers TCP_ESTABLISHED and
-> TCP_CLOSING. At least two transports move an established socket that is
-> already in the table straight to TCP_CLOSE, and neither one unlinks it.
+On Tue, Oct 06, 2026 at 06:51:52PM -0600, Mathieu Poirier wrote:
+> On Tue, 6 Oct 2026 at 12:39, Rob Herring <robh@kernel.org> wrote:
+> >
+> > On Tue, Sep 22, 2026 at 09:44:20PM +0200, Francesco Valla wrote:
+> > > On Tue, Sep 22, 2026 at 09:40:31AM -0600, Mathieu Poirier wrote:
+> > > > On Wed, Sep 16, 2026 at 11:10:53PM +0200, Francesco Valla wrote:
+> > > > > Add a new binding to describe remoteproc-provided virtio devices; while
+> > > > > these are discovered through a resource table parsed by the remoteproc
+> > > > > infrastructure at runtime, their description can be needed to probe
+> > > > > non-discoverable buses (such as I2C) or to link consumers and suppliers.
+> > > > >
+> > > > > Each vdev is described by a dedicated "group" node, which then includes
+> > > > > a virtio-device node, which binding is already existent and used by
+> > > > > virtio-mmio. Each vdev shall be stattically linked to a "group" node
+> > > > > using its index inside the resource table as the reg property of the
+> > > > > node; this permits to have multiple instances of the same type of
+> > > > > device.
+> > > > >
+> > > > > The binding is intended to be generic and adopted by any remoteproc
+> > > > > provider.
+> > > > >
+> > > > > Signed-off-by: Francesco Valla <francesco@valla.it>
+> > > > > ---
+> > > > >  .../bindings/remoteproc/remoteproc-virtio.yaml     | 89 ++++++++++++++++++++++
+> > > > >  1 file changed, 89 insertions(+)
+> > > > >
+> > > > > diff --git a/Documentation/devicetree/bindings/remoteproc/remoteproc-virtio.yaml b/Documentation/devicetree/bindings/remoteproc/remoteproc-virtio.yaml
+> > > > > new file mode 100644
+> > > > > index 000000000000..c4a0d84b1460
+> > > > > --- /dev/null
+> > > > > +++ b/Documentation/devicetree/bindings/remoteproc/remoteproc-virtio.yaml
+> > > > > @@ -0,0 +1,89 @@
+> > > > > +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
+> > > > > +%YAML 1.2
+> > > > > +---
+> > > > > +$id: http://devicetree.org/schemas/remoteproc/remoteproc-virtio.yaml#
+> > > > > +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> > > > > +
+> > > > > +title: Virtio devices over remoteproc
+> > > > > +
+> > > > > +description: |
+> > > > > +  Virtio devices ("vdevs") can be exposed using the remoteproc infrastructure
+> > > > > +  and its resource table. For some of them, a device tree node might be needed
+> > > > > +  to describe remote undiscoverable hardware and/or connect consumers and
+> > > > > +  providers.
+> > > > > +
+> > > > > +maintainers:
+> > > > > +  - Francesco Valla <francesco@valla.it>
+> > > > > +
+> > > > > +properties:
+> > > > > +  virtio:
+> > > > > +    description: Contains a group of Virtio devices exposed by the remoteproc.
+> > > > > +
+> > > > > +    properties:
+> > > > > +      '#address-cells':
+> > > > > +        const: 1
+> > > > > +
+> > > > > +      '#size-cells':
+> > > > > +        const: 0
+> > > > > +
+> > > > > +    patternProperties:
+> > > > > +      "^vdev@[0-9a-f]+$":
+> > > > > +        type: object
+> > > > > +
+> > > > > +        properties:
+> > > > > +          reg:
+> > > > > +            description: Virtio device index inside the resource table.
+> >
 > 
-> net/vmw_vsock/virtio_transport.c:virtio_vsock_reset_sock() {
-> 	sk->sk_state = TCP_CLOSE;
-> 	sk->sk_err = ECONNRESET;
-> 	sk_error_report(sk);
-> }
+> There are 2 configurations we need to account for: (1) each device
+> located behind the remote processor gets its own set of virtqueues and
+> adheres to the virtio specifications.  This is the configuration
+> targeted by this thread.  The other configuration (2), discussed in
+> the other thread, involves virtio piggy-backed over RPMSG.  The hope
+> is to represent both configurations using the same bindings.  For (1),
+> virtio devices will be advertised in the resource table and for (2),
+> virtio devices will be announced via the existing remoteproc namespace
+> service.
 > 
-> virtio_vsock_event_handle() calls this for every connected socket on
-> VIRTIO_VSOCK_EVENT_TRANSPORT_RESET. It does not take lock_sock().
+> > Who/what defines the resource table?
 > 
-> net/vmw_vsock/vmci_transport.c:vmci_transport_handle_detach() {
-> 	...
-> 			sk->sk_state = TCP_CLOSE;
-> 		}
-> 		sk->sk_state_change(sk);
-> 	...
-> }
+> The resource table is part of the firmware image and is parsed by the
+> remoteproc core.  For (1), as presented in this set, "reg" links the
+> entry in the resource table with the device definition in the DT.  For
+> (2), the definition is also a device index, but said index is
+> communicated to the remoteproc core using a namespace announcement
+> rather than the resource table.
+> 
+> I hope to establish bindings for configuration (1) and merge that work
+> first.  Once that is done we can extend it to cover (2).
 
-Right, that's a known issue[1], to be handled separately.
+"Defined by firmware" is all I needed. Please make sure the binding 
+patches include this information or I'll forget and just ask again.
 
-> [ ... ]
-> sk_state does not seem to track table membership reliably. Would it be
-> more robust to check sock->state == SS_CONNECTED instead (the transports
-> set it together with vsock_insert_connected()),
-
-vsock_shutdown() complicates this. It can flip SS_CONNECTED to
-SS_DISCONNECTING.
-
-> or to check membership in
-> connected_table directly? That check would have to guard both the
-> signal/timeout reset inside the loop and the sock_error() reset after the
-> loop.
-
-Lack of membership check for connected_table is not the root cause of the
-issue. But, sure, we can discuss adding it as a sanity check.
-
-[1]: https://lore.kernel.org/netdev/arpBYXWb9pohx-8v@sgarzare-redhat/
+Rob
