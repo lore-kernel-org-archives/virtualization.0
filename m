@@ -1,154 +1,154 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0.infotecs.ru (mx0.infotecs.ru [91.244.183.115])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B6474963B6
-	for <virtualization@lists.linux.dev>; Thu,  8 Oct 2026 12:55:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9CD894AF14F
+	for <virtualization@lists.linux.dev>; Thu,  8 Oct 2026 14:38:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.244.183.115
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791464142; cv=none; b=RzySegmzJJ7gCTl7dIgn7LT4Nl04wtQ0BcLkS7wHmgfZ06gINiHce9SGDWoZ2P1ljkOroL0C4aAyLvay3/7xi3082oSGI09cw01C9M/h0Niewjt1C+WpFnjTFLx8ItEcvMIjhXDRwK6AKz8/SeXh+jkDlAHvHJcodOqRUIv2sUk=
+	t=1791470330; cv=none; b=bkWOhihgqoMP7pWvw7JwuKfxEWnmUazImwEpPs01Gv4rOo+5cJPlhHKW5ziGsHwKbc+TwoQAqhPfjIlaGM2pw1NETzN1mx0VFohjcblzEE4ho/g6BHPhRr2WXI7I/SbEFt/L/K44Ws1AvD5JN9DehGa/GJ/6RUzVL3anH40+iNU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791464142; c=relaxed/simple;
-	bh=1ScEMZALS+KyeCebEanxsN3jjfN2QTpMSftH9q5jvfc=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=aZ/0v582BtPgSq0+9vUzSzItk25lZ2GLJ3GVmyP/161uuhoB04RGvrhtFX9uKycRmlLrVHowhwz5hWXux5VNOPpGnC/PwSz3KRQHwtcRmDoBNvf3Da6l3/v2tt2Z/jp1sx0ESJgjh1eub5IkRPSFp07oOX1n1Hzo/jiok64bM6I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=inRmw/gq; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791470330; c=relaxed/simple;
+	bh=SvnYYBxdfdpjmcYG5sNvTSf9Ty62rmIIqCC9XEmp0I0=;
+	h=From:To:CC:Subject:Date:Message-ID:Content-Type:MIME-Version; b=SCv4L0SuSOX7zg309gtlfh1r67DDg8u1pI0n8J/e0oOPvpjFZHVOFLzstQ/e0Z09WDSL8CdyeT3+a960UE41RF/7uT316aeC7fgi8Pi4GO4GjsLAI4Y2QkNWU5a+Gfcu8Zm7N0kYdR6moVLTWFcF/+j/vOLuJofAFufdHmctpcs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=infotecs.ru; spf=pass smtp.mailfrom=infotecs.ru; dkim=pass (1024-bit key) header.d=infotecs.ru header.i=@infotecs.ru header.b=RSu9p6Oa; arc=none smtp.client-ip=91.244.183.115
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=infotecs.ru
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infotecs.ru
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="inRmw/gq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6F7D1F000FF;
-	Thu,  8 Oct 2026 12:55:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791464140;
-	bh=rktpP2gLSLdIsTiZgovPuFnm9RdrBC9/eEzpNZqp2rw=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=inRmw/gqAubl9e5PXsJ2sTlQ1LjTVIpXM0imTm2Nw0UzzeNzI8SWTUiZyUMcmjvfu
-	 AiAQSDPdNe6+ilpfXYU5FPYfu8x6Rurbt6BZqwYgUhewBmmuY8CkGbKgYQu1jZeqhN
-	 WgiI9wLbQ6un382nhs8h2qbcM1f2sAQ2R9iUNUXKZMJie+1mZX5n3S6hzndygVNLMh
-	 QLX54V1q7HzwqexY29AKo/GFLBDu7woQk56TQwoo5zlvRHbUvl4jQ6C9jgarfV/NeA
-	 iA2Vly73EMOlhjsAMVZoVp3skF63GkTIGxd5YYYsfFXmlagKyW9iUARNifU0NfvQ8V
-	 tOwzECMMpP8aQ==
-Message-ID: <sashiko-outbox-164182@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] drm/qxl: Fix out-of-bounds read in
- qxl_update_offset_props()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Julio Faracco" <jcfaracco@gmail.com>
-Cc: dri-devel@lists.freedesktop.org, "Eugenio Perez" <eperezma@redhat.com>, virtualization@lists.linux.dev, "Michael
- S. Tsirkin" <mst@redhat.com>
-In-Reply-To: <20261008124317.32199-1-jcfaracco@gmail.com>
-References: <20261008124317.32199-1-jcfaracco@gmail.com>
-Content-Type: text/plain; charset=utf-8
+	dkim=pass (1024-bit key) header.d=infotecs.ru header.i=@infotecs.ru header.b="RSu9p6Oa"
+DKIM-Filter: OpenDKIM Filter v2.11.0 mx0.infotecs.ru 71ACD2C0AF4
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=infotecs.ru; s=mx;
+	t=1791470317; bh=htPXIEhRGs69ipmacXA0sfdS032MwL4Sz2/AfLnlVmo=;
+	h=From:To:CC:Subject:Date:From;
+	b=RSu9p6Oajt2xDYXzQ4JG4WYVZgVJyj9opo0c8xWveTkmPIuCG1EpQsryEH8pqYWVU
+	 YPCksgtDTpcerpgyb2cv6+e/nIqfLmhO/YcEioDxXohW4V4qGRbFADf491YDeNpD4T
+	 trK+iFFfbVI3YY1oxZ5BJJ4MOiTCG5ffOboUDBWM=
+Received: from mx0.infotecs-nt (localhost [127.0.0.1])
+	by mx0.infotecs.ru (Postfix) with ESMTP id 71ACD2C0AF4;
+	Thu,  8 Oct 2026 17:38:37 +0300 (MSK)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mx0.infotecs-nt 180DD2C07F8
+Received: from msk-exch-02.infotecs-nt (msk-exch-02.infotecs-nt [10.0.7.192])
+	by mx0.infotecs-nt (Postfix) with ESMTP id 180DD2C07F8;
+	Thu,  8 Oct 2026 17:38:37 +0300 (MSK)
+From: Ilia Gavrilov <Ilia.Gavrilov@infotecs.ru>
+To: Stefano Garzarella <sgarzare@redhat.com>
+CC: "David S. Miller" <davem@davemloft.net>, Eric Dumazet
+	<edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
+	<pabeni@redhat.com>, Simon Horman <horms@kernel.org>, George Zhang
+	<georgezhang@vmware.com>, Dmitry Torokhov <dtor@vmware.com>, Andy King
+	<acking@vmware.com>, "virtualization@lists.linux.dev"
+	<virtualization@lists.linux.dev>, "netdev@vger.kernel.org"
+	<netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, "lvc-project@linuxtesting.org"
+	<lvc-project@linuxtesting.org>
+Subject: [PATCH net] vsock: Fix memory leak in vmci_transport_recv_dgram_cb()
+Thread-Topic: [PATCH net] vsock: Fix memory leak in
+ vmci_transport_recv_dgram_cb()
+Thread-Index: AQHdVzKz7XEhPTpWk0WlXpednvmcFg==
+Date: Thu, 8 Oct 2026 14:38:36 +0000
+Message-ID: <20261008143805.86227-1-Ilia.Gavrilov@infotecs.ru>
+Accept-Language: ru-RU, en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+x-exclaimer-md-config: 208ac3cd-1ed4-4982-a353-bdefac89ac0a
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 08 Oct 2026 12:55:40 +0000
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+X-KSMG-AntiPhishing: NotDetected
+X-KSMG-AntiSpam-Interceptor-Info: not scanned
+X-KSMG-AntiSpam-Status: not scanned, disabled by settings
+X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 3.0.0.9059, bases: 2026/10/08 12:42:00 #28666424
+X-KSMG-AntiVirus-Status: NotDetected, skipped
+X-KSMG-LinksScanning: NotDetected
+X-KSMG-Message-Action: skipped
+X-KSMG-Rule-ID: 8
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] drm/qxl: Incomplete fix leaves out-of-bounds read in qxl_conn_get_=
-modes()
-- [High] drm/qxl: Lockless reallocation of client_monitors_config causes Us=
-e-After-Free
---
+During the closure of a datagram socket, the vmci_transport_recv_dgram_cb()
+function may be called, which will add the packets
+to the socket's backlog; then, after the receive queue is cleared,
+the __release_sock() function will move the packet back from the socket's
+backlog to the receive queue, which will lead to a memory leak.
 
-commit 3364903c8ea46fb8e3ab3b182d79c5b5a9cc250d
-Author: Julio Faracco <jcfaracco@gmail.com>
+sock_close
+  __sock_release
+    __vsock_release
+      // take ownership by user-space
+      lock_sock_nested
+      sock_set_flag(sk, SOCK_DEAD)
+      vmci_transport_release
+                                      vmci_dispatch_dgs
+                                        vmci_datagram_invoke_guest_handler
+                                          vmci_transport_recv_dgram_cb
+                                            sk_receive_skb
+                                              if (!sock_owned_by_user(sk))
+                                                  [...]
+                                         (!)  else if sk_add_backlog()
+                                                  [...]
+  (!) skb_queue_purge(&sk->sk_receive_queue)
 
-    drm/qxl: Fix out-of-bounds read in qxl_update_offset_props()
+      release_sock
+        __release_sock
+          // move all packets from the backlog
+          // to the receive queue
+   (!)    sk_backlog_rcv
+            vsock_queue_rcv_skb
+            [...]
+              __sock_queue_rcv_skb
+                if (!sock_flag(sk, SOCK_DEAD))
+                  // Since the socket is "dead", the function will not
+                  // be called
+                  sk->sk_data_ready(sk)
+        sock_release_ownership(sk);
+        sock_put
 
-This patch introduces a helper to safely validate bounds when the client
-reports fewer monitors than configured, preventing an out-of-bounds read.
-The helper is applied to several functions across the qxl display driver.
+Add a receive queue cleanup in the socket destructor to fix this.
 
-> diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_=
-display.c
-> --- a/drivers/gpu/drm/qxl/qxl_display.c
-> +++ b/drivers/gpu/drm/qxl/qxl_display.c
-> @@ -148,6 +148,21 @@ static int qxl_display_copy_rom_client_monitors_conf=
-ig(struct qxl_device *qdev)
->  	return status;
->  }
-> =20
-> +/*
-> + * Return the client monitors config head for @output, or NULL when the
-> + * client monitors config is absent or does not cover this output's inde=
-x.
-> + */
-> +static struct qxl_head *qxl_output_get_client_head(struct qxl_output *ou=
-tput)
-> +{
-> +	struct qxl_device *qdev =3D to_qxl(output->base.dev);
-> +	struct qxl_monitors_config *cfg =3D qdev->client_monitors_config;
-> +
-> +	if (!cfg || output->index >=3D cfg->count)
-> +		return NULL;
-> +
-> +	return &cfg->heads[output->index];
+syzkaller report:
 
-[Severity: High]
-Does this code create a use-after-free race condition?
+unreferenced object 0xffff8880117bfb80 (size 240):
+  comm "irq/56-vmw_vmci", pid 205, jiffies 4295064448 (age 73.992s)
+  hex dump (first 32 bytes):
+    78 dc 26 1e 80 88 ff ff 78 dc 26 1e 80 88 ff ff  x.&.....x.&.....
+    00 00 00 00 00 00 00 00 c0 da 26 1e 80 88 ff ff  ..........&.....
+  backtrace:
+    [<ffffffff82be8d97>] __alloc_skb+0x287/0x330 net/core/skbuff.c:505
+    [<ffffffffa114bcbd>] vmci_transport_recv_dgram_cb+0xbd/0x210 [vmw_vsock=
+_vmci_transport]
+    [<ffffffffa05072c6>] vmci_datagram_invoke_guest_handler+0x366/0x450 [vm=
+w_vmci]
+    [<ffffffffa050ad75>] vmci_dispatch_dgs+0x235/0x490 [vmw_vmci]
+    [<ffffffffa050b025>] vmci_interrupt+0x55/0x290 [vmw_vmci]
+    [<ffffffff8137ad2b>] irq_thread_fn+0x8b/0x1a0 kernel/irq/manage.c:1205
+    [<ffffffff8137c7ae>] irq_thread+0x28e/0x530 kernel/irq/manage.c:1314
+    [<ffffffff81253dd6>] kthread+0x2e6/0x3a0 kernel/kthread.c:376
+    [<ffffffff81004392>] ret_from_fork+0x22/0x30 arch/x86/entry/entry_64.S:=
+295
 
-The qxl_client_monitors_config_work_func() workqueue asynchronously executes
-qxl_display_copy_rom_client_monitors_config() and=20
-qxl_alloc_client_monitors_config(), which frees and reallocates=20
-qdev->client_monitors_config before acquiring the DRM modeset locks.
+Found by InfoTeCS on behalf of Linux Verification Center
+(linuxtesting.org) with Syzkaller.
 
-Since this helper reads qdev->client_monitors_config into cfg without any
-synchronization locks, if the background workqueue frees the configuration
-array immediately after this fetch:
+Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+Signed-off-by: Ilia Gavrilov <Ilia.Gavrilov@infotecs.ru>
+---
+ net/vmw_vsock/af_vsock.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-    kfree(qdev->client_monitors_config);
-
-could the subsequent bounds check (cfg->count) and array access
-(&cfg->heads[output->index]) dereference freed memory?
-
-> +}
-> +
->  static void qxl_update_offset_props(struct qxl_device *qdev)
-
-[ ... ]
-
-> @@ -1111,15 +1127,17 @@ static enum drm_connector_status qxl_conn_detect(
->  		drm_connector_to_qxl_output(connector);
->  	struct drm_device *ddev =3D connector->dev;
->  	struct qxl_device *qdev =3D to_qxl(ddev);
-> +	struct qxl_head *head;
->  	bool connected =3D false;
-> =20
->  	/* The first monitor is always connected */
->  	if (!qdev->client_monitors_config) {
->  		if (output->index =3D=3D 0)
->  			connected =3D true;
-> -	} else
-> -		connected =3D qdev->client_monitors_config->count > output->index &&
-> -		     qxl_head_enabled(&qdev->client_monitors_config->heads[output->ind=
-ex]);
-> +	} else {
-> +		head =3D qxl_output_get_client_head(output);
-> +		connected =3D head && qxl_head_enabled(head);
-> +	}
-
-[Severity: High]
-Does qxl_conn_get_modes() remain vulnerable to the same out-of-bounds read?
-
-This patch fixes the issue here and in a few other places, but=20
-qxl_conn_get_modes() has an identical pattern that was not updated:
-
-    if (qdev->client_monitors_config) {
-        struct qxl_head *head;
-        head =3D &qdev->client_monitors_config->heads[output->index];
-        if (head->width)
-            ...
-
-If output->index exceeds qdev->client_monitors_config->count during a mode
-probe, won't this still trigger the KASAN slab-out-of-bounds memory read?
-
-> =20
->  	DRM_DEBUG("#%d connected: %d\n", output->index, connected);
->
-
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 9b71479a2b29..fbafd882a12c 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1048,6 +1048,7 @@ static void vsock_sk_destruct(struct sock *sk)
+ {
+ 	struct vsock_sock *vsk =3D vsock_sk(sk);
+=20
++	__skb_queue_purge(&sk->sk_receive_queue);
+ 	/* Flush MSG_ZEROCOPY leftovers. */
+ 	__skb_queue_purge(&sk->sk_error_queue);
+=20
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261008124317.3219=
-9-1-jcfaracco@gmail.com?part=3D1
+2.47.3
