@@ -1,96 +1,55 @@
-Received: from wxsgout04.xfusion.com (wxsgout03.xfusion.com [36.139.52.80])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 807483AEF55
-	for <virtualization@lists.linux.dev>; Thu,  8 Oct 2026 16:59:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=36.139.52.80
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D9763A900B;
+	Thu,  8 Oct 2026 17:03:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791478797; cv=none; b=UqhZkLZMC1L9PpOAnlPJYpWbbqIgb0eDbonNVaiAUeZROXx07RukLravEwb7uHjjOdjPQyBOSk9x+nKKbPWHtBO8k/bmitDLGNhPqLXdWnSLsMFqN3vox2hlcStTO5BJ0m8zAVjxuiHyO1UD5o7mi4mJa3DmbLhHjQoSm+eXcB8=
+	t=1791479034; cv=none; b=b7pVp2aXaEXtxr1zta2ppHpg/3VlEQgQRuVCQ7TZfso79hyzw1fjmYIqj82JToDHk6POBp+IaQIsIb7mei1KdKmHhN0n1O+gsQkNFNO9PUB9Gtv1M2WkOSB6LWi96XRgBhcTSht9EzeZhKgn/H9UUsP57y+nIep3fAyzCK+iT3Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791478797; c=relaxed/simple;
-	bh=DPS89jnvGKfosnNmRUYPSk22BtY8EzulP4pxtvNuLic=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Cpf5kU5SZ9n50ElP2urBgD86wPnPlP6Z9lzesDdwrewJ3YJgd77DnqbqWUHhPt1Nat8+UAaZgg9cGc0Bb2RUZRvLSqt6bE2rh62y5J9US0ta4uU9tUfVpONKK/KwYYf9XHExmwN5jUnfPYJU6L4XkAHRNDx0+bWKAyuXGR5lMFs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xfusion.com; spf=pass smtp.mailfrom=xfusion.com; arc=none smtp.client-ip=36.139.52.80
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xfusion.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xfusion.com
-Received: from wuxpheds03048.xfusion.com (unknown [10.32.143.30])
-	by wxsgout04.xfusion.com (SkyGuard) with ESMTPS id 4j0wjw3TzqzBDpk5;
-	Fri,  9 Oct 2026 00:41:24 +0800 (CST)
-Received: from DESKTOP-Q8I2N5U.xfusion.com (10.82.130.100) by
- wuxpheds03048.xfusion.com (10.32.143.30) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_RSA_WITH_AES_128_CBC_SHA256) id 15.2.2562.46;
- Fri, 9 Oct 2026 00:41:53 +0800
-From: shechenglong <shechenglong@xfusion.com>
-To: <dmitry.osipenko@collabora.com>, <airlied@redhat.com>,
-	<kraxel@redhat.com>, <tzimmermann@suse.de>
-CC: <gurchetansingh@chromium.org>, <olvaffe@gmail.com>,
-	<maarten.lankhorst@linux.intel.com>, <mripard@kernel.org>, <simona@ffwll.ch>,
-	<dri-devel@lists.freedesktop.org>, <virtualization@lists.linux.dev>,
-	<linux-kernel@vger.kernel.org>, <stone.xulei@xfusion.com>,
-	<chenjialong@xfusion.com>
-Subject: Re: [PATCH RESEND] drm/virtio: expose GEM memory statistics through fdinfo
-Date: Fri, 9 Oct 2026 00:41:34 +0800
-Message-ID: <20261008164135.510-1-shechenglong@xfusion.com>
-X-Mailer: git-send-email 2.37.1.windows.1
-In-Reply-To: <ce72b2f5-1343-44e9-89fe-e2de4efb7e9c@collabora.com>
-References: <ce72b2f5-1343-44e9-89fe-e2de4efb7e9c@collabora.com>
+	s=arc-20240116; t=1791479034; c=relaxed/simple;
+	bh=m0JHlrkY6xDVCDKQCvoGOXdszsBxiXKJOVumrugRMIU=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=Co3284tKuTYy1ZyFM48vtw82cY2Y6zhW87YK7LhRZWB06P2rDVaJLTRB3Iias4Hx1ulnxFstY48kFwtoEQJSEoQESobrFgUmxZL4+zpQSASGySAYUvnTOdwJ2Fs1ZiUwJ6Rf+1okrZe2Kxy0VAjbNTi7Y7MqOPHBpw0I5+42eZA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cFzkZHur; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cFzkZHur"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A7891F000FF;
+	Thu,  8 Oct 2026 17:03:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791479033;
+	bh=cE8svecQU6hVayIRGXWmu5m+S3bQy/8AOVXJcUz4+R4=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=cFzkZHurxEWJXfzMMQN1DF9f1xRst19i7wBkXsgJeuytToRz159u8eG6hDS8WG9Pu
+	 bJyT3RefcG792xHiJLp4bpsP/0QAlkuLudU/TbOTmVIY9Bo5qw9RsnGeXrZcwGNSUn
+	 mxX/ocyhcpmG+SH4wN7d/E70mJadJIAI8fbYyvExLQdstBNFKKAs+K0YVz/dMwCCvK
+	 rOwnncE9BASb4iU8M8Oua8bOZT1qCBOvRfhZmRb9W61GXPXl49WBT6ZIDsbSoI6ofm
+	 oaOE6DhnPSqxrNOHLH3in0+BJUMMzMGLj+Chvx+t19kZvpHKcLIGJ7eKl8R9CmM9ax
+	 zvuLtZFJ+gbaA==
+Date: Thu, 8 Oct 2026 10:03:52 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: physicalmtea@gmail.com
+Cc: stefanha@redhat.com, sgarzare@redhat.com, mst@redhat.com,
+ jasowangio@gmail.com, eperezma@redhat.com, xuanzhuo@linux.alibaba.com,
+ davem@davemloft.net, edumazet@kernel.org, pabeni@redhat.com,
+ horms@kernel.org, virtualization@lists.linux.dev, kvm@vger.kernel.org,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/5] vsock: split socket lookup from locked RX
+ processing
+Message-ID: <20261008100352.706042b7@kernel.org>
+In-Reply-To: <20261002074551.318789-2-physicalmtea@gmail.com>
+References: <20261002074551.318789-2-physicalmtea@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: wuxpheds03045.xfusion.com (10.32.131.99) To
- wuxpheds03048.xfusion.com (10.32.143.30)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Thu, 8 Oct 2026 00:44:34 +0300, Dmitry Osipenko wrote:
-> Usefulness of this change is dubious. VirtIO-GPU has different types of
-> RAM, I'd expect them all represented properly instead of only shmem.
+On Fri,  2 Oct 2026 07:45:47 +0000 physicalmtea@gmail.com wrote:
+> Split virtio_transport_recv_pkt() so socket lookup is separate from the
+> receive state machine that runs under the socket lock.
 
-Hi Dmitry,
-
-Thanks for the review.
-
-Agreed that a generic memory collector does not map well onto
-virtio-gpu, given its different memory types. For v2, I plan to
-replace it with virtio-gpu-specific accounting and to document the
-semantics of each reported value explicitly:
-
-- Guest shmem objects: reported under the "memory" region as
-  drm-total/drm-shared, based on the guest GEM object size. These
-  reflect the requested buffer size; drm-resident, if reported, would
-  be derived from the actual state of the guest backing pages.
-
-- Host-only blobs (VIRTGPU_BLOB_MEM_HOST3D): reported under a separate
-  region, tentatively "host3d", using the requested blob size. These
-  values would be documented as logical sizes and not as actual host
-  RAM or VRAM consumption.
-
-- Mixed blobs (VIRTGPU_BLOB_MEM_HOST3D_GUEST): the guest shadow
-  backing is accounted under "memory", while the logical blob size is
-  exposed through a separate, documented supplementary key. This
-  distinguishes mixed resources from guest-only ones without
-  presenting the supplementary value as additional measured host
-  memory.
-
-- Imported dma-bufs: handled explicitly, without assuming that they
-  are backed by local shmem.
-
-Usage of the host-visible memory region would be reported separately
-from the backing statistics and would not be used to infer host
-residency.
-
-The actual host allocation size and residency, including legacy virgl
-resources and the host part of mixed blobs, are not available through
-the existing guest/host interface. Reporting them would require
-additional host/renderer support, so I propose leaving that out of
-this series unless you consider it a prerequisite.
-
-Does this scope match your expectations for v2? Are there other
-memory types or accounting semantics you would like covered?
-
-Best regards,
-Chenglong She
+Please add a cover letter to the series and repost correctly threaded.
