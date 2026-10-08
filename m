@@ -1,143 +1,200 @@
-Received: from mail-ot1-f54.google.com (mail-ot1-f54.google.com [209.85.210.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from fout-a8-smtp.messagingengine.com (fout-a8-smtp.messagingengine.com [103.168.172.151])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF60F3E9C3C
-	for <virtualization@lists.linux.dev>; Thu,  8 Oct 2026 20:10:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D7E4357D08
+	for <virtualization@lists.linux.dev>; Thu,  8 Oct 2026 20:59:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.151
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791490244; cv=none; b=hOORqmkR+msaCIms96ViQzPW8mH+YXQX4OemI3sWuZC/7/fdaKZ4KYzodhlTSn2ptdc4ELyxtRIurHCaEA1aoYlPh7SnxZUCUcbVAVmIDCyXjeIcyigzt8CrtX2nFYqSd0UCjb/FI2jMJCyrQ94YEVB7rodiK+o6V+/8N5PXaYY=
+	t=1791493200; cv=none; b=mcbVM5ZHBYEUmgIXS5UlTi5l1zTkdnZjdxnJE5qxMEb4HooOV/9HahAqnMURPpNwWxQeU6JAlOjvvOajNsx8edWCd+bkupHJt96uxvdBbCDacsvKTORILhdhiZ9JmKTXSbnWKqxIpJYlxSrFTWHTyqxbo+iaNxoojQVt1esVhxg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791490244; c=relaxed/simple;
-	bh=yF3jq0/vOMO/ywfXfijmGEGeer2JbGwa3Sl3cQeG6rg=;
-	h=Content-Type:Mime-Version:Subject:From:In-Reply-To:Date:Cc:
-	 Message-Id:References:To; b=ayoOA6OEfMaFmsqwOrs5xlGqCeMPDdVsLnKR9JPoFdeZCdb/ULNNuEvRdSm17fkW6X/xuKuxWcLqaqjf0/EkLo8/9wBw9ppm+wH+nojRsYRMBoJTcC7w4WgHVgBHTAYT6FE2O4Pt/vd3YDoGBWKWrci3bapPpFsew93uJqDTDdU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bqmP2TCj; arc=none smtp.client-ip=209.85.210.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1791493200; c=relaxed/simple;
+	bh=ZSqN70r27tz0dBTGFGExJE8gBajqQvCl+6z1RjfY5cg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=jsnIIYGvJiGSw1Eg9bozwsfSUJIhxBTeQ1pg/nV4wgvtHfhX+JhrjQ9169FfdBup0TVrzscTKIErsMPRByvr5epI83EViaGBvFsYXWs4JRtbrnoCnRtI4NqTkKsWco7CfbBFOV/EIaLjyRimKlKeQXZuXPtbhwAT/zNQot05qDE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=invisiblethingslab.com; spf=pass smtp.mailfrom=invisiblethingslab.com; dkim=pass (2048-bit key) header.d=invisiblethingslab.com header.i=@invisiblethingslab.com header.b=HDkaD2HH; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=Dtg9fjTA; arc=none smtp.client-ip=103.168.172.151
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=invisiblethingslab.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=invisiblethingslab.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bqmP2TCj"
-Received: by mail-ot1-f54.google.com with SMTP id 46e09a7af769-823b938464fso4344889a34.2
-        for <virtualization@lists.linux.dev>; Thu, 08 Oct 2026 13:10:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791490238; x=1792095038; darn=lists.linux.dev;
-        h=to:references:message-id:content-transfer-encoding:cc:date
-         :in-reply-to:from:subject:mime-version:content-type:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=yF3jq0/vOMO/ywfXfijmGEGeer2JbGwa3Sl3cQeG6rg=;
-        b=bqmP2TCjTeInPuoeqHorwuy4Q+xd9GSdgjIuPpUNLr9Q520Fn1E2wFa99CdziI95T4
-         R2nVuGajM/WCx1sqVb1C28+yyaqPW0fnu64+3KdsOHOPULIlKlA6OB+PCYDZ7JCpEm1m
-         8rWnS7qfI5HMjrG+texq1R6b36xPVK1dNYlmYfLMLs+Qffo8Al6WGyUCKlmmB6dHR2Nm
-         IDImCHCzOR5FuM4/6phWe0eZRP65FY/gT+9hs6mEZScXYiKKxBaC+RSRaFXMPiH9TsbH
-         AXZnCxA4nPxCe9qEdfwOAbN/L4c/k+25QX8669RjSaQK/y/PJKsbi+5OkTg1GY/yJNM+
-         hQhQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791490238; x=1792095038;
-        h=to:references:message-id:content-transfer-encoding:cc:date
-         :in-reply-to:from:subject:mime-version:content-type:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=yF3jq0/vOMO/ywfXfijmGEGeer2JbGwa3Sl3cQeG6rg=;
-        b=YL8YeN9QRcLFX0qo+XFaAp/nazvJafljB2NUtJiH19C1wM7lR2yBE+aoeEGr33/0j4
-         BrJmshjkVI2z9MhCVyhg7qwm4qn9lJ9gcIT+dQ6/CFRbuTDv+NrIoh2t4wDgYGRhIuoM
-         KpeHpZSuMyZOkWEJrJ3pFESpKMz0wp62pcRYyPKHV/qi61q+CbqN17pXl4whOB/Wp1xM
-         Be+eUnTMTbDOHfE2UVKxynz6XlA7ZMogLZYy0xif1SnHs28Cx3WdHVVvErQMtk6Hh/7H
-         csJwRrOf4yWjNvNV0MBS7bMLFcALHNNMMA0lqCM4AEEqM6T5YmoKW9dgE39HP/MfXVFE
-         by5g==
-X-Forwarded-Encrypted: i=1; AKwUvBxGBf7iNuxN0hD8AA2Tf4mLDCwfxbHXPSjNVZTZ21fVFCoHZkoHOyW+dgDtVGT9eXE65pa1PWeLRkFqO4yx9w==@lists.linux.dev
-X-Gm-Message-State: AFuF++kWla/oFHpg1sCLhJwenKDWTvuWwB/Vh9EyPnipXZ6IW4k7AzPD
-	YI3uijiyXJs1XtpV0euI41l6NDSkCeGkYELiO3nYOWbP52FASAcps3wE
-X-Gm-Gg: AYBFou3piFm3XqWxXeDajpmpl/dEi343SgU+YKIprY9ZJQL9ru1V2gu7Ii/RcXu7fxt
-	ILILGptS6J7aL7r9PZhvE05PWysBzgcysexYmGYwW7zM3LSFTEzgY9wIAzpgFo3d5TVkCQHx1zu
-	P1o6a60i3/gNvM6Ma7XSieosnmlDCFLCIW6Vsixf9Jjv6/+KUBm7EErkCdKYZY+otZlmvEMVbBT
-	vZ9sFHIc9RGrIJwoL64VoNW7ATxgq9wxKVEgiEyFCLvEc4vvZHCzBlqBJI3ZqF6qASQz8U4paxA
-	z2CSeeyICkKHGVDxoh5jMzn54JWM2R/xUq9QiQ+Yo6ryaICt+7NzP3cRIBa+EbzygP1DE4D9pP+
-	tKxxZKxmc0jRY4KfQ/07OW9V2NSQIN+XdODADzkX6UmPDLE0VbofHC0KrII0pnL4EbkRVAbDx0z
-	cRp23IxMfPuS44Uln8U3U3K+SWMTZHOLSNRbQRDO11xmYAKUdENUpvG0C1YLm1Pc4YusVZwH0JM
-	jnqdnCGdq00MSC9oTCvZFhGr2o=
-X-Received: by 2002:a05:6830:2105:b0:806:9a8d:4b9b with SMTP id 46e09a7af769-82acf49f6a5mr7338564a34.15.1791490237678;
-        Thu, 08 Oct 2026 13:10:37 -0700 (PDT)
-Received: from smtpclient.apple ([2600:1700:220:4650:f501:3b3:565b:2d79])
-        by smtp.gmail.com with ESMTPSA id 46e09a7af769-82fc7cc90aasm601054a34.4.2026.10.08.13.10.36
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 08 Oct 2026 13:10:37 -0700 (PDT)
-Content-Type: text/plain;
-	charset=utf-8
+	dkim=pass (2048-bit key) header.d=invisiblethingslab.com header.i=@invisiblethingslab.com header.b="HDkaD2HH";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="Dtg9fjTA"
+Received: from phl-compute-05.internal (phl-compute-05.internal [10.202.2.45])
+	by mailfout.phl.internal (Postfix) with ESMTP id AB1F8EC0327
+	for <virtualization@lists.linux.dev>; Thu,  8 Oct 2026 16:59:57 -0400 (EDT)
+Received: from phl-frontend-03 ([10.202.2.162])
+  by phl-compute-05.internal (MEProxy); Thu, 08 Oct 2026 16:59:57 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	invisiblethingslab.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:from:from:in-reply-to
+	:in-reply-to:message-id:mime-version:references:reply-to:subject
+	:subject:to:to; s=fm1; t=1791493197; x=1791579597; bh=7+AhoGYgBy
+	NcaiYeKP8aO75OvP8u4IEViIBwpAS096A=; b=HDkaD2HHXiKLOIJzRRtBiS/kuu
+	ZFuk2VBU7fv0DNoonmmzZYBQbTQXAGayoQSExsTmaetb0ONAfPrzwwb/giz0yV7v
+	sxjaeSpWsW/ovDYipFsltIYIFHBHynHI8lkifRyeXm3Jsxsx5DBAWW47ncps8K8I
+	7rIMXNbN8VNJ3lMMk8hzJVRJvhtD5BogmM9ML4lMCtkGIru9ZXu2C9xqWUQm5Dgk
+	bbVVqqot03yIsU4/OHzryBr2knopUDVRd970BUIH6/iqbpeBmw8//nOvwKIZiPLl
+	EW3ELCLEXELQW6LbgV+BKR9/+//rlNSEGN/hB6PV7SmFGU0ywmSM00gkmtoA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1791493197; x=
+	1791579597; bh=7+AhoGYgByNcaiYeKP8aO75OvP8u4IEViIBwpAS096A=; b=D
+	tg9fjTAvPJ9OhvaLC8feeBlklqc1zaObW29YJqw9P+mLBMqldjj4KWlqyvgvdrY7
+	MqqBNPouZh+VF5qmCC1SJ9ZmsMrP4bnbOTwLkqAFEZtRdAeaV1eC9LB3nGvpArKP
+	WCjD5FrAEQTPX3kffA4qwzz41EsIAU/3CtGpecx68rSTmgp7h5kCNtuv//+N4DUi
+	VHoVHZjoB6ntoiTtCFu+n2JKHmLw0h5bqYSaezshrFjIVSxybkIQ/U8YWlkeiCEj
+	HPkizOg+wuYC9rvLLxWLOoik5EHCpOhHVl8ZI6cNQP2KO+5ognRsvI/ygJv+oPvZ
+	UsVUiPasMhM9ibSHBrmAA==
+X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-06;
+	repo=github.com/dkim2wg/interop; date=2026-10-04; sw=lmtpprox;
+	action=sign d=invisiblethingslab.com a=rsa-sha256;
+DKIM2-Signature: i=1; m=1; t=1791493197; d=invisiblethingslab.com;
+	mf=PHZhbEBpbnZpc2libGV0aGluZ3NsYWIuY29tPg==;
+	rt=PHZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LmRldj4=;
+	s=fm1:rsa-sha256:BRwavoDnxWycasaxlA9iJvUTxt8dPF+OAF1MLb/dQgSebq2
+	sTqgUCaNbpw/dNRs+dOAt+eo7H2DyoHTZpz2AxlwJDceyZcSc/l+P/mvcdn682YA
+	N8kTbov+K+YACXIuiKIyKp4GrNeFG8XBwcbw6RPNQ7t+Whn4GcnUopkPqVXHNlc3
+	AMj0N/px6Fx7xqEpcAEqun4CFOD0F60rSgsX/dBXbDbQP7WMQmQ3riwjUSUgM3Yn
+	aZLkzs3UHC/Uk40x8q2PmZlFrvGOXXrf8kZ37EgCLYQueSYKay04oSp3eFJ5TtHq
+	C5InSKaVTQWqSZV5d8xzhoalTpzpJ8sig5j7UgQ==;
+X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-06;
+	repo=github.com/dkim2wg/interop; date=2026-10-04; sw=lmtpprox;
+	action=mi-m=1; hc=15;
+	hn=autocrypt,cc,content-language,content-transfer-encoding,
+	content-type,date,feedback-id,from,in-reply-to,message-id,
+	mime-version,references,subject,to,user-agent;
+Message-Instance: m=1; h=sha256:i6JEWJ4IPoj6sTPShGKAeVCIv0NwupZWYTrqHINYiMg=:ZSqN70r27tz0dBTGFGExJE8gBajqQvCl+6z1RjfY5cg=;
+X-ME-Sender: <xms:TQTIanUpo6kzgT77SOJl9Q8ZTGfgO6PLri8G5asRgWPcYaTy458elQ>
+    <xme:TQTIajS4WR0dLTwqFWxHLB4uSs4DNZ5wstBdWnpnHuHsRhGxS0PQFMi6k6Cgw_eBi
+    RsHNftC8YE_ajEMTNnqKLZYAEymvhrz-VU5uV74ZkGVhxI9BjYl>
+X-ME-Received: <xmr:TQTIasBzGcqTEiBeq-EsDKVR5QcAE0UQ6xsdQw-1Qrz24BPgPdIYGqdZk2yDkV8R_jFZiwUDsNbWwZMsI27D_BoExDHa6AXGPw>
+X-ME-Proxy-Cause: dmFkZTGWHnmgy+7bRoDaOQ8rB99ldtlBzRyzoeZaSC1i9ZR+w9Y50+YZBHoyWGoOSGl/iS
+    rrtGM0CUf8X/1jcWn9wdCFp+EmBgTY8pOkA16G/rkskNMOTXsGZ/qqYpyOf7R/tilVFWbg
+    Z/Wn75wbEdZkCJF6oQyrPqZSoz6TZHVVJg+Cmwdx6+Cy8GLpHWuOqdSYKVl3DvHv59+1rz
+    gWo6xFVkKdeO9I13ZlpJJl6kr7kL6eVRvF9FjBJvTDNYMBGX9zJjWx7tlRZJmWKwqxjkIZ
+    DDFh1wWJeyZhotKxBNuXjWOZ14Lp70Rb5JVm6RhIAO7YRlCJl0hCCvBifh7vomSZ7bJZAW
+    5c8RHZv5YNqNT1SVJJzPgWX/nIbVY8qqwUU20nW6tdMNdGtKc4FTdXTDIkSkG5VNBVwVC+
+    sfCfY3d9mZlGsq1RbBJwzasXhtv1lzhiAk65GqE7hNV2jz4l+xmN6x8W4kxUY1Njx6iJYB
+    H8c6kohYtyhLomKz6hTUIgg8rQeGoGdPYDMnZAhktV/9X7gVLONAUSsiMZ5EnmkiMgePyV
+    IgMVOO33DqFR+pcyOpjJhX+Uqe4tKNJohTWkilbFkMw48WQWWLGxsTONmV1re8KKgfCr3x
+    zn72x4nFrxtjH1ZYJ5U0HmQlTenrDtw0ownjB40VOehOBomg+ZXWZJly8ZVA
+X-ME-Proxy: <xmx:TQTIajsQVVDoGvUVokR830jD3vmx82GcVytywP3vjq90ZgVUj54JEw>
+    <xmx:TQTIai9zm-AeLomp9CEO6xe7FqpX5HmG-Ma_RIFVA7iYrmI5jbcnkg>
+    <xmx:TQTIaiSEHtuCxtHHRvTWaWvk1iLnA9uJIPHhBLmDSyODWdYOBkOQWQ>
+    <xmx:TQTIasUuYqIQKZry4Uhs5C9AK3lZbXREZWK4ayd3whuvd2Sz_EprfQ>
+    <xmx:TQTIakaIIo1w5HlbJxrr28rqeksuqaLeU7BHfziBwpI_npr9TPi5bJgd>
+Feedback-ID: i001e48d0:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
+ 8 Oct 2026 16:59:54 -0400 (EDT)
+Message-ID: <4d86ec37-ce27-4556-966e-4b4e80ec0718@invisiblethingslab.com>
+Date: Thu, 8 Oct 2026 17:59:51 -0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3864.700.51.1.1\))
-Subject: Re: [RFC] virtio-net: AF_XDP zero-copy TX checksum offload
-From: Azadeh Aftahi <aftahi334@gmail.com>
-In-Reply-To: <1791423335.8486545-2-xuanzhuo@linux.alibaba.com>
-Date: Thu, 8 Oct 2026 15:10:26 -0500
-Cc: magnus.karlsson@intel.com,
- maciej.fijalkowski@intel.com,
- sdf@fomichev.me,
- netdev@vger.kernel.org,
- virtualization@lists.linux.dev,
- bpf@vger.kernel.org,
- mst@redhat.com,
- jasowangio@gmail.com,
- eperezma@redhat.com
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <5FA6FB0F-51BB-407C-BD2B-A13FC2FC94BF@gmail.com>
-References: <9DB6FE89-98AB-47CF-9B57-5F47FBB6DAE8@gmail.com>
- <1791423335.8486545-2-xuanzhuo@linux.alibaba.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-X-Mailer: Apple Mail (2.3864.700.51.1.1)
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] drm/virtio: do not enforce blob_alignment in
+ cross-domain contexts
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Simona Vetter <simona@ffwll.ch>, Sergio Lopez <slp@redhat.com>
+Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org
+References: <20261006154913.2689067-2-val@invisiblethingslab.com>
+ <8b0fbe1a-1410-42d7-8031-611795ae39d9@collabora.com>
+Content-Language: en-US
+From: Val Packett <val@invisiblethingslab.com>
+Autocrypt: addr=val@invisiblethingslab.com; keydata=
+ xm8EaFTEiRMFK4EEACIDAwQ+qzawvLuE95iu+QkRqp8P9z6XvFopWtYOaEnYf/nE8KWCnsCD
+ jz82tdbKBpmVOdR6ViLD9tzHvaZ1NqZ9mbrszMXq09VfefoCfZp8jnA2yCT8Y4ykmv6902Ne
+ NnlkVwrNKFZhbCBQYWNrZXR0IDx2YWxAaW52aXNpYmxldGhpbmdzbGFiLmNvbT7CswQTEwkA
+ OxYhBAFMrro+oMGIFPc7Uc87uZxqzalRBQJoVMSJAhsDBQsJCAcCAiICBhUKCQgLAgQWAgMB
+ Ah4HAheAAAoJEM87uZxqzalRlIIBf0cujzfSLhvib9iY8LBh8Tirgypm+hJHoY563xhP0YRS
+ pmqZ6goIuSGpEKcW5mV3egF/TLLAOjsfroWae4giImTVOJvLOsUycxAP4O5b1Qiy+cCGsHKA
+ nCRzrvqnPkyf4OeRznMEaFTEiRIFK4EEACIDAwSffe3tlMmmg3eKVp7SJ+CNZLN0M5qzHSCV
+ dBBkIVvEJo+8SDg4jrx/832rxpvMCz2+x7+OHaeBHKafhOWUccYBLKqV/3nBftxCkbzXDbfY
+ d02BY9H4wBIn0Y3GnwoIXRgDAQkJwpgEGBMJACAWIQQBTK66PqDBiBT3O1HPO7mcas2pUQUC
+ aFTEiQIbDAAKCRDPO7mcas2pUaptAX9f7yUJLGU4C6XjMJvXd8Sz6cGTyxkngPtUyFiNqtad
+ /GXBi3vHKYNfSrdqJ8wmZ8MBgOqWaaa1wE4/3qZU8d4RNR8mF7O40WYK/wdf1ycq1uGad8PN
+ UDOwAqdfvuF3w8QMPw==
+In-Reply-To: <8b0fbe1a-1410-42d7-8031-611795ae39d9@collabora.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Hi Xuan,
 
-Thank you for the response and encouragement.
-I'll proceed with the single-buffer AF_XDP zero-copy TX checksum offload =
-work and share an RFC patch for review once the initial implementation =
-and tests are ready.
+On 10/8/26 4:33 AM, Dmitry Osipenko wrote:
+> On 10/6/26 18:42, Val Packett wrote:
+>> VIRTIO_GPU_F_BLOB_ALIGNMENT is designed for GPU rendering context types,
+>> however VIRTIO_GPU_CAPSET_CROSS_DOMAIN is not one of those. Resources
+>> created under cross-domain contexts are arbitrary shared system memory
+>> files, which includes unusual things like Wayland keymaps received
+>> from the host compositor. Do not enforce alignment requirements there.
+>>
+>> Fixes: 47248e0d8264 ("drm/virtio: honor blob_alignment requirements")
+>> Signed-off-by: Val Packett <val@invisiblethingslab.com>
+>> ---
+>>
+>> v2: also check has_virgl_3d to prevent dereferencing NULL vfpriv
+>> v1: https://lore.kernel.org/all/20261006004044.2242154-1-val@invisiblethingslab.com/
+>>
+>> ~val
+>>
+>> ---
+>>   drivers/gpu/drm/virtio/virtgpu_ioctl.c | 4 +++-
+>>   1 file changed, 3 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+>> index 3ddd5481d6bc..4d5ae062834d 100644
+>> --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+>> +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+>> @@ -551,7 +551,9 @@ static int verify_blob(struct virtio_gpu_device *vgdev,
+>>   	params->blob_flags = rc_blob->blob_flags;
+>>   	params->blob_hints = rc_blob->blob_hints;
+>>   
+>> -	if (vgdev->has_blob_alignment &&
+>> +	if (vgdev->has_blob_alignment && vgdev->has_virgl_3d &&
+>> +	    (vfpriv->context_init & VIRTIO_GPU_CONTEXT_INIT_CAPSET_ID_MASK) !=
+>> +	    VIRTIO_GPU_CAPSET_CROSS_DOMAIN &&
+>>   	    !IS_ALIGNED(params->size, vgdev->blob_alignment))
+>>   		return -EINVAL;
+>>   
+> What userspace has this problem and why it re-purposes virtio-gpu to act
+> as udmabuf for arbitrary data that never reaches host?
 
-Thanks,
-Azadeh
+Sorry, what do you mean by that?
 
-> On Oct 7, 2026, at 8:35=E2=80=AFPM, Xuan Zhuo =
-<xuanzhuo@linux.alibaba.com> wrote:
->=20
-> On Mon, 5 Oct 2026 17:28:35 -0500, Azadeh Aftahi <aftahi334@gmail.com> =
-wrote:
->> Hi all,
->>=20
->> I'm planning to work on single-buffer AF_XDP zero-copy TX checksum =
-offload for virtio-net.
->>=20
->> Current net-next's virtnet_xsk_xmit_one() does not consume XSK TX =
-checksum metadata and uses the shared zeroed virtio header.
->>=20
->> I found Xuan's 2021 proposal anticipating separate headers for =
-checksum support, and the merged 2024 zero-copy TX series, but I =
-couldn't find a checksum-specific follow-up implementation.
->>=20
->> The proposed scope is to map the existing XSK checksum metadata API =
-to VIRTIO_NET_F_CSUM, using a DMA-safe per-packet virtio header whose =
-lifetime extends until TX completion, with corresponding completion, =
-reset, and unbind cleanup.
->>=20
->> I would keep the initial scope limited to single-buffer TX: no =
-multi-buffer RX, timestamps, launch time, or GSO.
->>=20
->> I'd also add checksum and header-lifetime coverage using the existing =
-XSK selftest framework with QEMU/TAP.
->>=20
->> Is anyone already working on this? If not, does this scope and =
-per-packet-header approach sound reasonable for a follow-up patch?
->=20
-> It seems no one has taken this work forward yet; I would welcome it if =
-you were
-> to do so.
->=20
-> Thanks.
->=20
->=20
->>=20
->> Thanks,
->> Azadeh
+This is not related to data that "never reaches host" at all! The error 
+I referred to in the patch message literally says "received *from* the 
+host"…??
 
+Guest userspace is any of the cross-domain proxies:
+
+* https://codeberg.org/drakulix/wl-cross-domain-proxy
+* https://github.com/talex5/wayland-proxy-virtwl
+* https://github.com/google/sommelier-rs (or old C++ version)
+
+VIRTIO_GPU_CAPSET_CROSS_DOMAIN "repurposes virtio-gpu" to act as a 
+cross-VM UNIX socket transport that supports fd passing. By referring to 
+virtio-gpu resources in the send command the guest can make the device 
+send the resources' corresponding host fds to the host Wayland 
+compositor. It can refer to resources from other contexts, in order to 
+present drm/venus/etc rendered buffers on Wayland surfaces. (i.e. the 
+host would send the actual dma-buf from virglrenderer) But the resources 
+created on the cross-domain context itself are system memory buffers, 
+generally used for software rendering and miscellaneous Wayland "stuff" 
+like keymaps which are sent *from* the host, and exposed to Wayland 
+clients in the guest. Socket receive handling in rutabaga-gfx stores 
+incoming fds and returns their IDs to the guest, then the guest does a 
+CREATE_BLOB with matching blob_id, which creates a virtio-gpu resource 
+from the incoming buffer, so the guest can just MAP_BLOB it. These are 
+the blobs that are not aligned to anything because they're just 
+arbitrary memfds on the host.
+
+~val
 
