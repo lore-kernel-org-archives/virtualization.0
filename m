@@ -1,119 +1,182 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 884BB47CC73
-	for <virtualization@lists.linux.dev>; Thu,  8 Oct 2026 09:56:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 027713D45F4
+	for <virtualization@lists.linux.dev>; Thu,  8 Oct 2026 10:16:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791453371; cv=none; b=HLGLfQQYc/obkL7/Lnj3YpUCYLDaV0WRZ0a1o86UtTW5YOFsJUGBF5+AiCTg/uvUAFDTtAZlUjAXfkfulc8kUR41dw1E4c3ji4yF/NMUOyexZXqR24kJKatUVWk60IP6566yC3TtobcAISoM31Cp6hAdgM7TgFAVM2zq9C+egBE=
+	t=1791454595; cv=none; b=jhHoA4X4snjm9SBDrqJ1L9XkKIuIw0Bb/d2AzrBAsjYpg2P4zUV+2gWbbhb2TDFG1RBmXfyycotTE/LMXhg5txVlJ1FsMIbnmcB1Jdc6sCV8b54s0hc2GMYbLgZkPJUgx682lxElDSqlCNSbiFZaKW0Isg8lFcu4xoktrkNUwHg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791453371; c=relaxed/simple;
-	bh=pr0Z3tnTE9qKi7myGQwr6we5PwEU55hr/TcA+71hQXg=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=WoVcYKPFrfiKdhtarCA23S8NW8GJCgxGrwIQwCT0Kw0jC+VJc5XPZl2oOYeB+TJ97N4Hu+d80x++fM7abOQlDB6afeZYbMahJgYZ5527HEhth0LzJ9l8UTHC48M7exj0o9NlPuFjzlbdqx5pttR/WyGWdJhwn8QW93dBVrnJB7o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RfLC6t6D; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791454595; c=relaxed/simple;
+	bh=U28lcf97/CjhFUZfOOidZjKnIealHaMgfzCpUp3Xteo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=OOf7FnCWA4ZXzIQd+lojszFR0cBeic0EMOfGuEZTHeqBfVVTKNXLetB/efgVAyDzWrPUqDiaOhBSE349j39LOb2lDP+47RHD8teXI2t6n0zy4Zx6sThrm9uqj3Rl7W5QXjxpnP2uO8jMjGen6Dy6h7lQTiTj290PtNXigUamUPM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LkN1osq1; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RfLC6t6D"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBD761F000FF;
-	Thu,  8 Oct 2026 09:56:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791453364;
-	bh=i2NaYmcLz7pcgLwd6SnF0NT7P2rUvHNkoiSnxYWVwc4=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=RfLC6t6DY5xOq0VILHYR/E8/vXIwhOkMI1zr00Bkt7ROPynt4g33K2EtWxWQ3SD1w
-	 yqi8OqmJ69hrNNSTDe9RBk6bQIN6Vs9KNxt38L6pDHMHICgZKaesI+ayq76KEje/v1
-	 bQAPUeUYz78lAGKoQDMt+kk5wR6VwiqdZ16EgPOKcwOEqGXYnHhgaNSt8bEx2VThmB
-	 1iPzG6JiRy9fgT7Esf/ukCxSVcmgy9R2pM7BnHORjN48wHB3LVMjVd+0nWo3rg/y6w
-	 J38YRpO3pmK81lHWypATQ8wIGRwa3woX5SlK1rOzdxPoUkxBucqUQkBfWVzQDOztOF
-	 YE7zVDsy0fQ2A==
-Message-ID: <sashiko-outbox-163970@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] iommu/virtio: bound the probe-property walk to the
- probe buffer
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Yehyeong Lee" <yhlee@isslab.korea.ac.kr>
-Cc: "Eugenio Perez" <eperezma@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev
-In-Reply-To: <20261008094240.1082031-1-yhlee@isslab.korea.ac.kr>
-References: <20261008094240.1082031-1-yhlee@isslab.korea.ac.kr>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 08 Oct 2026 09:56:03 +0000
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LkN1osq1"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1791454592;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=SP1f9UNmtX0LiVyYf6TXLIff3crRsFq13nTHi/mc7ek=;
+	b=LkN1osq1VF7WrSb8WQcbHQlpYtWq0jMqnrHkQ9pxOVhviU+T3JFAG8Ky/0asTBUBkWb2Nx
+	skysUldKPNiK1CV1wC1onmZy3SjRPRM0txtdgYtqY2ElxIwBSJ/cYWyjas38zfsUjevG6c
+	vzAJ1SjP8r7c2L5UwX4OoYBEDzBdtCw=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-97-nXyMUTfBMuKeFdtVz6TBqA-1; Thu, 8 Oct 2026 10:16:30 +0000
+X-MC-Unique: nXyMUTfBMuKeFdtVz6TBqA-1
+X-Mimecast-MFC-AGG-ID: nXyMUTfBMuKeFdtVz6TBqA_1791454590
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-49e6b5c5f44so74591605e9.2
+        for <virtualization@lists.linux.dev>; Thu, 08 Oct 2026 03:16:30 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791454589; x=1792059389;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=SP1f9UNmtX0LiVyYf6TXLIff3crRsFq13nTHi/mc7ek=;
+        b=wcwK839E2EVBCtugUvGNgYqwMuZ6fjqdYTfsU7/MSyiwul2Bdy3i3GCgYqeYFXmLZa
+         ETyBmdvl4psAwUkd5jT4zz945q0jawh4kBzDtdouk4Ty3a0mjsZOklUs/7mXEnAasYjO
+         8hXpnfCtWUi9UdtjenDYHocpZzRoRagE5IC+I+hVVnL/pOun3/wRab6uJPCVu9vkpiPS
+         6aNjiEcGjozMqwXW2O2sUoRDkCEkp1VqfsnS8nxaaHSBw2t+ez1rK3q4NOquB4rFXqjz
+         br/v1oeszSokU7V6HUctBYqC3BzrC8VlzmRXxTqD6qLqsh9X/ljyYQKGEFoS1YKEqjRt
+         4hUg==
+X-Forwarded-Encrypted: i=1; AKwUvBzjzQEnAS6VTD5gkCQbqzxsEdavJqomyIiBSBT9ZJwPth5can2daW8CxvmcYEIyeKXQrlWuiinVB2+46IGrrQ==@lists.linux.dev
+X-Gm-Message-State: AFuF++nSoFfTX45ZugRmb/OWGD6HGAh/vbyq/Zxd+wL3RZZnu39m4rC9
+	mefXby0WOxhQcLtPV15tNmvat7KnuXyyztIjl/pkRcxwEQKovBUPOnqH8F9Cng88QbjV3rtxDJJ
+	PiwFHQIOupHSQgZac+azWbKGVSQFtAxtMC41XBldLjtyr9j3TqQMr/EAsIIP/eefo90Zy
+X-Gm-Gg: AYBFou0Xs3J+dusw5/DvTbHW4yjAaeSaZ7szLsraxzXEs8HQXONu+EzXDtJxegGBI4r
+	qsspuH4MpAC0PA67zS4qcKQ8L4qS5Yw2WCJCxLoId8TiFwxn5QWQrVnzR7kOIT5se7PvZBi5K9o
+	aMwvKWH6SxUjL31YjMwurgjD5Kf5/ngnHyMQpVo7jiml+4qhVN86Kverb7yyf65YFi9UX6h3fk4
+	Why7TWJN8a7mAgPPiNes8jZxDi4y7iIRiAfoCPyBMokk/TG45DRiiMeVIxSm63wUwW+7a5LGcdZ
+	Oet46Ax+oOjyKUDWdQEFOrrGDVlokFG8Y+YBvscC/JxolorQnqeEoj5fcXArgpA8bLs0siiSjXu
+	MVcW/W+tl8Lmmq/gdFX74qgDd+JIw
+X-Received: by 2002:a05:600c:3e0a:b0:4a1:6c0c:ab93 with SMTP id 5b1f17b1804b1-4a18045995fmr80698285e9.28.1791454589601;
+        Thu, 08 Oct 2026 03:16:29 -0700 (PDT)
+X-Received: by 2002:a05:600c:3e0a:b0:4a1:6c0c:ab93 with SMTP id 5b1f17b1804b1-4a18045995fmr80696665e9.28.1791454588042;
+        Thu, 08 Oct 2026 03:16:28 -0700 (PDT)
+Received: from sgarzare-redhat (90-181-163-241.rco.o2.cz. [90.181.163.241])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a1843d1ea0sm60309235e9.8.2026.10.08.03.16.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 08 Oct 2026 03:16:27 -0700 (PDT)
+Date: Thu, 8 Oct 2026 12:16:25 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Ilia Gavrilov <Ilia.Gavrilov@infotecs.ru>
+Cc: "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	George Zhang <georgezhang@vmware.com>, Dmitry Torokhov <dtor@vmware.com>, Andy King <acking@vmware.com>, 
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, 
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "lvc-project@linuxtesting.org" <lvc-project@linuxtesting.org>
+Subject: Re: [PATCH net] vsock: Fix memory leak in
+ vmci_transport_recv_dgram_cb()
+Message-ID: <asds3RsjgMTh8OFj@sgarzare-redhat>
+References: <20261007143716.1984702-1-Ilia.Gavrilov@infotecs.ru>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+In-Reply-To: <20261007143716.1984702-1-Ilia.Gavrilov@infotecs.ru>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: wbfpCU9TVQe2gqNkh1qep-3gpUuUxRSdDs4hY0RdPA0_1791454590
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] iommu/virtio: unaligned 64-bit access due to unvalidated property =
-length
---
+On Wed, Oct 07, 2026 at 02:37:47PM +0000, Ilia Gavrilov wrote:
+>During the closure of a datagram socket, the vmci_transport_recv_dgram_cb()
+>function may be called, which will add the packets
+>to the socket's backlog; then, after the receive queue is cleared,
+>the __release_sock() function will move the packet back from the socket's
+>backlog to the receive queue, which will lead to a memory leak.
+>
+>sock_close
+>  __sock_release
+>    __vsock_release
+>      // take ownership by user-space
+>      lock_sock_nested
+>      sock_set_flag(sk, SOCK_DEAD)
+>      vmci_transport_release
+>                                      vmci_dispatch_dgs
+>                                        vmci_datagram_invoke_guest_handler
+>                                          vmci_transport_recv_dgram_cb
+>                                            sk_receive_skb
+>                                              if (!sock_owned_by_user(sk))
+>                                                  [...]
+>                                         (!)  else if sk_add_backlog()
+>                                                  [...]
+>  (!) skb_queue_purge(&sk->sk_receive_queue)
+>
+>      release_sock
+>        __release_sock
+>          // move all packets from the backlog
+>          // to the receive queue
+>   (!)    sk_backlog_rcv
+>            vsock_queue_rcv_skb
+>            [...]
+>              __sock_queue_rcv_skb
+>                if (!sock_flag(sk, SOCK_DEAD))
+>                  // Since the socket is "dead", the function will not
+>                  // be called
+>                  sk->sk_data_ready(sk)
+>        sock_release_ownership(sk);
+>        sock_put
+>
+>Add a receive queue cleanup in the socket destructor to fix this.
+>
+>syzkaller report:
+>
+>unreferenced object 0xffff8880117bfb80 (size 240):
+>  comm "irq/56-vmw_vmci", pid 205, jiffies 4295064448 (age 73.992s)
+>  hex dump (first 32 bytes):
+>    78 dc 26 1e 80 88 ff ff 78 dc 26 1e 80 88 ff ff  x.&.....x.&.....
+>    00 00 00 00 00 00 00 00 c0 da 26 1e 80 88 ff ff  ..........&.....
+>  backtrace:
+>    [<ffffffff82be8d97>] __alloc_skb+0x287/0x330 net/core/skbuff.c:505
+>    [<ffffffffa114bcbd>] vmci_transport_recv_dgram_cb+0xbd/0x210 [vmw_vsock_vmci_transport]
+>    [<ffffffffa05072c6>] vmci_datagram_invoke_guest_handler+0x366/0x450 [vmw_vmci]
+>    [<ffffffffa050ad75>] vmci_dispatch_dgs+0x235/0x490 [vmw_vmci]
+>    [<ffffffffa050b025>] vmci_interrupt+0x55/0x290 [vmw_vmci]
+>    [<ffffffff8137ad2b>] irq_thread_fn+0x8b/0x1a0 kernel/irq/manage.c:1205
+>    [<ffffffff8137c7ae>] irq_thread+0x28e/0x530 kernel/irq/manage.c:1314
+>    [<ffffffff81253dd6>] kthread+0x2e6/0x3a0 kernel/kthread.c:376
+>    [<ffffffff81004392>] ret_from_fork+0x22/0x30 arch/x86/entry/entry_64.S:295
+>
+>Found by InfoTeCS on behalf of Linux Verification Center
+>(linuxtesting.org) with Syzkaller.
+>
+>Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+>Signed-off-by: Ilia Gavrilov <Ilia.Gavrilov@infotecs.ru>
+>---
+> net/vmw_vsock/af_vsock.c | 1 +
+> 1 file changed, 1 insertion(+)
+>
+>diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+>index 9b71479a2b29..fbafd882a12c 100644
+>--- a/net/vmw_vsock/af_vsock.c
+>+++ b/net/vmw_vsock/af_vsock.c
+>@@ -1048,6 +1048,7 @@ static void vsock_sk_destruct(struct sock *sk)
+> {
+> 	struct vsock_sock *vsk = vsock_sk(sk);
+>
 
-commit 1966676bc77a49f0f207bc2272bebf67d2bd8f06
-Author: Yehyeong Lee <yhlee@isslab.korea.ac.kr>
+nit: maybe a comment here referring to vmci datagram could be nice to 
+have if you send a v2. In any case, also this version is fine to me:
 
-iommu/virtio: bound the probe-property walk to the probe buffer
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 
-This commit prevents an out-of-bounds read in viommu_probe_endpoint() by
-checking if the property fits within the probe allocation before
-dereferencing it. It also moves the length check in viommu_add_resv_mem()
-ahead of the memory accesses to avoid reading past the end of the
-allocation.
+>+	__skb_queue_purge(&sk->sk_receive_queue);
+> 	/* Flush MSG_ZEROCOPY leftovers. */
+> 	__skb_queue_purge(&sk->sk_error_queue);
+>
+>-- 
+>2.47.3
+>
 
-> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-> index 587fc13197f12..dbc997a6e3568 100644
-> --- a/drivers/iommu/virtio-iommu.c
-> +++ b/drivers/iommu/virtio-iommu.c
-> @@ -489,6 +489,9 @@ static int viommu_add_resv_mem(struct viommu_endpoint=
- *vdev,
->  	struct iommu_resv_region *region =3D NULL, *next;
->  	unsigned long prot =3D IOMMU_WRITE | IOMMU_NOEXEC | IOMMU_MMIO;
-> =20
-> +	if (len < sizeof(*mem))
-> +		return -EINVAL;
-> +
->  	start =3D start64 =3D le64_to_cpu(mem->start);
->  	end =3D end64 =3D le64_to_cpu(mem->end);
-
-[Severity: High]
-If a buggy or malicious device supplies an unaligned property length earlier
-in the parsing loop, could the mem pointer passed to viommu_add_resv_mem()
-be unaligned?
-
-Because the virtio_iommu_probe_resv_mem structure is not packed, the
-compiler assumes natural alignment. On architectures with strict alignment
-requirements (such as ARM or SPARC), wouldn't these direct 64-bit
-dereferences via le64_to_cpu() trigger a hardware alignment fault and lead
-to a kernel panic?
-
-[ ... ]
-
-> @@ -563,8 +564,10 @@ static int viommu_probe_endpoint(struct viommu_dev *=
-viommu, struct device *dev)
->  	type =3D le16_to_cpu(prop->type) & VIRTIO_IOMMU_PROBE_T_MASK;
-> =20
->  	while (type !=3D VIRTIO_IOMMU_PROBE_T_NONE &&
-> -	       cur < viommu->probe_size) {
-> +	       cur + sizeof(*prop) <=3D viommu->probe_size) {
->  		len =3D le16_to_cpu(prop->length) + sizeof(*prop);
-> +		if (len > viommu->probe_size - cur)
-> +			break;
-
-[Severity: High]
-The virtio-iommu specification requires property lengths to be 8-byte
-aligned, but this length validation does not enforce alignment.
-
-Can an unaligned property length from the untrusted device advance the cur
-offset incorrectly?
-
-viommu_probe_endpoint()
-    ...
-    cur +=3D len;
-
-Wouldn't this cause subsequent property structures to be mapped to unaligned
-memory addresses?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261008094240.1082=
-031-1-yhlee@isslab.korea.ac.kr?part=3D1
