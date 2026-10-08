@@ -1,182 +1,111 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 027713D45F4
-	for <virtualization@lists.linux.dev>; Thu,  8 Oct 2026 10:16:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79662494827
+	for <virtualization@lists.linux.dev>; Thu,  8 Oct 2026 10:27:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791454595; cv=none; b=jhHoA4X4snjm9SBDrqJ1L9XkKIuIw0Bb/d2AzrBAsjYpg2P4zUV+2gWbbhb2TDFG1RBmXfyycotTE/LMXhg5txVlJ1FsMIbnmcB1Jdc6sCV8b54s0hc2GMYbLgZkPJUgx682lxElDSqlCNSbiFZaKW0Isg8lFcu4xoktrkNUwHg=
+	t=1791455232; cv=none; b=NSKP7zMntJX2p5Mw3yubyWsxqSpjORhIKnYcEOdY7WId0CPSAplExaBBqVxw1LDPAU4cuYya2LdC3/g29B4xdG3RjCQ6e3uLq13KpYNXHiZxqlWUCdqk39QAYzjRKMy7CgyGlY1IzBCAUN03IgS5wgdpUrqyeeuzGh8AFErzg2g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791454595; c=relaxed/simple;
-	bh=U28lcf97/CjhFUZfOOidZjKnIealHaMgfzCpUp3Xteo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=OOf7FnCWA4ZXzIQd+lojszFR0cBeic0EMOfGuEZTHeqBfVVTKNXLetB/efgVAyDzWrPUqDiaOhBSE349j39LOb2lDP+47RHD8teXI2t6n0zy4Zx6sThrm9uqj3Rl7W5QXjxpnP2uO8jMjGen6Dy6h7lQTiTj290PtNXigUamUPM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LkN1osq1; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1791455232; c=relaxed/simple;
+	bh=QhCEJCWFqwrvmCjcqkWNZlTEDRjVdZZGuz074t6eMjc=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=oLjLtOtQNZutOLoPNN/TGGQzcx4/Xy5CQQxLFgMSvDEYM8S7VoE3bK4zX+KvceSQ17uBD9lRFEtiOaKAiPeKU/B3gV9GGg4FHsBw8EyMePJAgQpHWXiNlK0YXIEydDuam+GGm5MYnjKt6whE3kySiChoxVyvRPgZKtl/LKCJE0k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=isslab.korea.ac.kr; spf=none smtp.mailfrom=isslab.korea.ac.kr; dkim=pass (2048-bit key) header.d=isslab-korea-ac-kr.20251104.gappssmtp.com header.i=@isslab-korea-ac-kr.20251104.gappssmtp.com header.b=SGfcgKO6; arc=none smtp.client-ip=209.85.214.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=isslab.korea.ac.kr
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=isslab.korea.ac.kr
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LkN1osq1"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1791454592;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=SP1f9UNmtX0LiVyYf6TXLIff3crRsFq13nTHi/mc7ek=;
-	b=LkN1osq1VF7WrSb8WQcbHQlpYtWq0jMqnrHkQ9pxOVhviU+T3JFAG8Ky/0asTBUBkWb2Nx
-	skysUldKPNiK1CV1wC1onmZy3SjRPRM0txtdgYtqY2ElxIwBSJ/cYWyjas38zfsUjevG6c
-	vzAJ1SjP8r7c2L5UwX4OoYBEDzBdtCw=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-97-nXyMUTfBMuKeFdtVz6TBqA-1; Thu, 8 Oct 2026 10:16:30 +0000
-X-MC-Unique: nXyMUTfBMuKeFdtVz6TBqA-1
-X-Mimecast-MFC-AGG-ID: nXyMUTfBMuKeFdtVz6TBqA_1791454590
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-49e6b5c5f44so74591605e9.2
-        for <virtualization@lists.linux.dev>; Thu, 08 Oct 2026 03:16:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=isslab-korea-ac-kr.20251104.gappssmtp.com header.i=@isslab-korea-ac-kr.20251104.gappssmtp.com header.b="SGfcgKO6"
+Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2e812e2b31bso3062385ad.3
+        for <virtualization@lists.linux.dev>; Thu, 08 Oct 2026 03:27:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=isslab-korea-ac-kr.20251104.gappssmtp.com; s=20251104; t=1791455231; x=1792060031; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=yYFMzSsUO1/6oY0m9yqtR64F8Xqv2JTUxrApkdvIlak=;
+        b=SGfcgKO6rSEdfjAJPBfae+8fL2h2389M+B1ZOeUWxAInCIe4JjHRhtTADkv1uSkNJ9
+         FWsPLnPeNNeJTrEPCRUlcoNNpklYb6+/Gnut3jMDd92D0prQVrQZzpcmdTNNVsu68ECR
+         xGOiDw/8rwwu4oXyfxaBIQ6UI7Sb+IyVI9YsHsZC5MLve/knqML+A2Zxz0JL8JlsmJBa
+         1isYJA1C7J5hqAzkE5aLa14u/5Wkoaa9kjKt3rb4Cie2FOB5qXId9fYUL+diAia6hTlJ
+         4nXfmp1zbjrJGANKZovWhz4T79QlYGyScfx7cRd0L9QYGkQTiav/9txBnIkspSjgKG7/
+         aw7w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791454589; x=1792059389;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=SP1f9UNmtX0LiVyYf6TXLIff3crRsFq13nTHi/mc7ek=;
-        b=wcwK839E2EVBCtugUvGNgYqwMuZ6fjqdYTfsU7/MSyiwul2Bdy3i3GCgYqeYFXmLZa
-         ETyBmdvl4psAwUkd5jT4zz945q0jawh4kBzDtdouk4Ty3a0mjsZOklUs/7mXEnAasYjO
-         8hXpnfCtWUi9UdtjenDYHocpZzRoRagE5IC+I+hVVnL/pOun3/wRab6uJPCVu9vkpiPS
-         6aNjiEcGjozMqwXW2O2sUoRDkCEkp1VqfsnS8nxaaHSBw2t+ez1rK3q4NOquB4rFXqjz
-         br/v1oeszSokU7V6HUctBYqC3BzrC8VlzmRXxTqD6qLqsh9X/ljyYQKGEFoS1YKEqjRt
-         4hUg==
-X-Forwarded-Encrypted: i=1; AKwUvBzjzQEnAS6VTD5gkCQbqzxsEdavJqomyIiBSBT9ZJwPth5can2daW8CxvmcYEIyeKXQrlWuiinVB2+46IGrrQ==@lists.linux.dev
-X-Gm-Message-State: AFuF++nSoFfTX45ZugRmb/OWGD6HGAh/vbyq/Zxd+wL3RZZnu39m4rC9
-	mefXby0WOxhQcLtPV15tNmvat7KnuXyyztIjl/pkRcxwEQKovBUPOnqH8F9Cng88QbjV3rtxDJJ
-	PiwFHQIOupHSQgZac+azWbKGVSQFtAxtMC41XBldLjtyr9j3TqQMr/EAsIIP/eefo90Zy
-X-Gm-Gg: AYBFou0Xs3J+dusw5/DvTbHW4yjAaeSaZ7szLsraxzXEs8HQXONu+EzXDtJxegGBI4r
-	qsspuH4MpAC0PA67zS4qcKQ8L4qS5Yw2WCJCxLoId8TiFwxn5QWQrVnzR7kOIT5se7PvZBi5K9o
-	aMwvKWH6SxUjL31YjMwurgjD5Kf5/ngnHyMQpVo7jiml+4qhVN86Kverb7yyf65YFi9UX6h3fk4
-	Why7TWJN8a7mAgPPiNes8jZxDi4y7iIRiAfoCPyBMokk/TG45DRiiMeVIxSm63wUwW+7a5LGcdZ
-	Oet46Ax+oOjyKUDWdQEFOrrGDVlokFG8Y+YBvscC/JxolorQnqeEoj5fcXArgpA8bLs0siiSjXu
-	MVcW/W+tl8Lmmq/gdFX74qgDd+JIw
-X-Received: by 2002:a05:600c:3e0a:b0:4a1:6c0c:ab93 with SMTP id 5b1f17b1804b1-4a18045995fmr80698285e9.28.1791454589601;
-        Thu, 08 Oct 2026 03:16:29 -0700 (PDT)
-X-Received: by 2002:a05:600c:3e0a:b0:4a1:6c0c:ab93 with SMTP id 5b1f17b1804b1-4a18045995fmr80696665e9.28.1791454588042;
-        Thu, 08 Oct 2026 03:16:28 -0700 (PDT)
-Received: from sgarzare-redhat (90-181-163-241.rco.o2.cz. [90.181.163.241])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a1843d1ea0sm60309235e9.8.2026.10.08.03.16.26
+        d=1e100.net; s=20260707; t=1791455231; x=1792060031;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=yYFMzSsUO1/6oY0m9yqtR64F8Xqv2JTUxrApkdvIlak=;
+        b=cUidcd0LALERuuvtzEPEwTCQ1JK8MJs6NEezMOeYdJIUSajTzRyuEeB7YhN4XFgnGM
+         XL58DjedcY/oGUQwdq1tO0C5BeTcaEa283u2pO+grzbqAOuTuFbjdAqnQQsgIsx+sz2F
+         1oVmvvZOKdr5UHF77IstaATyiCt84uQgkaq2jFmkvQ4Qm8zWXVUcZw2ko/3wsMcFT7k6
+         /mtjMkYUxRsJ0lVzwHeFXk5cilVgf83Q27pHYwvdcWdNn4HD7IpMRqYUp3ASdX02c29I
+         TvQAvFmV54LCAjj6kfbpnmLotwtjFZTplVfHirBHzu7Icc4vSFLrWJ6o5CRJDcogYJxc
+         ZZ3A==
+X-Forwarded-Encrypted: i=1; AKwUvByediIbcczk4xlHA6/VP4AyYjQPCIV09VjKjbDbWx8hJSEB5iKEM+TViVTwZPKnEzqx529SSbrvzapSWyehtg==@lists.linux.dev
+X-Gm-Message-State: AFq9FYJ11riojVJmlaLFYsSH9A3jhgRKEExPbc6G9c1SxlCO4obd6N31
+	XndA3PxW/rgt+ozIsgXZiNF6dYVjow0dzivGAq2Sq6YX6emA5y+ym74HgIz7bBzw+JI=
+X-Gm-Gg: AYBFou1AaZghFfHUOJo5mQE6srhLGu3r94EUvCHPCffF9lCH6gCje5RkIKwO0LyfFwV
+	8Cf5ugyrn0h7jVfYxcaLz3k6dOsGOemLPJoKgU9GMIZPNcZa3bGiPc2W2hbKOMnb8cYfJHaGTBJ
+	kYDXdxTezpISlr4q5S49IGCIFjVMC5laFWPEgxf9aife97lzOpfgxJCVviU2TsGW/hw9cHha8em
+	5KSnNQ0VisEjBtYD/OmLPb3k62ziQ7Fa0Z6D89mBW/LbSggfuPtXPHalikZ6+sdtab9HZ/AcHGh
+	he2fYUT8DUHtRcdT4P+HltSsqOo+u6ALMvDr7Rjx7RKLWIkg8EakMjx/B1RyEFXhIleXGaW9Bi0
+	yt1DLyTtAMQ/uYlY1v+/7kXCsUpy+O4JXwxDrRqvtoxYeK08qghCZg8F/ot9e8i+wwuKsc5FIPi
+	/IucRhseTkantzrYMeQHJmJojgVNA6hHOUDmKdZiGr7j2yswsPscVJh1tDxoqbD2hCBsCTFq3OT
+	g3luA==
+X-Received: by 2002:a17:902:f707:b0:2e2:ed2b:87f8 with SMTP id d9443c01a7336-2e600509214mr44172725ad.41.1791455230764;
+        Thu, 08 Oct 2026 03:27:10 -0700 (PDT)
+Received: from yhlee-960QFG.. ([125.131.91.97])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2e6046fdbcasm22578185ad.13.2026.10.08.03.27.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 08 Oct 2026 03:16:27 -0700 (PDT)
-Date: Thu, 8 Oct 2026 12:16:25 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Ilia Gavrilov <Ilia.Gavrilov@infotecs.ru>
-Cc: "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	George Zhang <georgezhang@vmware.com>, Dmitry Torokhov <dtor@vmware.com>, Andy King <acking@vmware.com>, 
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, 
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "lvc-project@linuxtesting.org" <lvc-project@linuxtesting.org>
-Subject: Re: [PATCH net] vsock: Fix memory leak in
- vmci_transport_recv_dgram_cb()
-Message-ID: <asds3RsjgMTh8OFj@sgarzare-redhat>
-References: <20261007143716.1984702-1-Ilia.Gavrilov@infotecs.ru>
+        Thu, 08 Oct 2026 03:27:10 -0700 (PDT)
+From: Yehyeong Lee <yhlee@isslab.korea.ac.kr>
+To: jpb@kernel.org,
+	joro@8bytes.org,
+	will@kernel.org
+Cc: robin.murphy@arm.com,
+	eric.auger@redhat.com,
+	mst@redhat.com,
+	virtualization@lists.linux.dev,
+	iommu@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	sashiko-bot@kernel.org,
+	Yehyeong Lee <yhlee@isslab.korea.ac.kr>
+Subject: Re: [PATCH] iommu/virtio: bound the probe-property walk to the probe buffer
+Date: Thu,  8 Oct 2026 19:26:53 +0900
+Message-ID: <20261008102653.1084996-1-yhlee@isslab.korea.ac.kr>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <sashiko-outbox-163970@kernel.org>
+References: <sashiko-outbox-163970@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20261007143716.1984702-1-Ilia.Gavrilov@infotecs.ru>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: wbfpCU9TVQe2gqNkh1qep-3gpUuUxRSdDs4hY0RdPA0_1791454590
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Wed, Oct 07, 2026 at 02:37:47PM +0000, Ilia Gavrilov wrote:
->During the closure of a datagram socket, the vmci_transport_recv_dgram_cb()
->function may be called, which will add the packets
->to the socket's backlog; then, after the receive queue is cleared,
->the __release_sock() function will move the packet back from the socket's
->backlog to the receive queue, which will lead to a memory leak.
->
->sock_close
->  __sock_release
->    __vsock_release
->      // take ownership by user-space
->      lock_sock_nested
->      sock_set_flag(sk, SOCK_DEAD)
->      vmci_transport_release
->                                      vmci_dispatch_dgs
->                                        vmci_datagram_invoke_guest_handler
->                                          vmci_transport_recv_dgram_cb
->                                            sk_receive_skb
->                                              if (!sock_owned_by_user(sk))
->                                                  [...]
->                                         (!)  else if sk_add_backlog()
->                                                  [...]
->  (!) skb_queue_purge(&sk->sk_receive_queue)
->
->      release_sock
->        __release_sock
->          // move all packets from the backlog
->          // to the receive queue
->   (!)    sk_backlog_rcv
->            vsock_queue_rcv_skb
->            [...]
->              __sock_queue_rcv_skb
->                if (!sock_flag(sk, SOCK_DEAD))
->                  // Since the socket is "dead", the function will not
->                  // be called
->                  sk->sk_data_ready(sk)
->        sock_release_ownership(sk);
->        sock_put
->
->Add a receive queue cleanup in the socket destructor to fix this.
->
->syzkaller report:
->
->unreferenced object 0xffff8880117bfb80 (size 240):
->  comm "irq/56-vmw_vmci", pid 205, jiffies 4295064448 (age 73.992s)
->  hex dump (first 32 bytes):
->    78 dc 26 1e 80 88 ff ff 78 dc 26 1e 80 88 ff ff  x.&.....x.&.....
->    00 00 00 00 00 00 00 00 c0 da 26 1e 80 88 ff ff  ..........&.....
->  backtrace:
->    [<ffffffff82be8d97>] __alloc_skb+0x287/0x330 net/core/skbuff.c:505
->    [<ffffffffa114bcbd>] vmci_transport_recv_dgram_cb+0xbd/0x210 [vmw_vsock_vmci_transport]
->    [<ffffffffa05072c6>] vmci_datagram_invoke_guest_handler+0x366/0x450 [vmw_vmci]
->    [<ffffffffa050ad75>] vmci_dispatch_dgs+0x235/0x490 [vmw_vmci]
->    [<ffffffffa050b025>] vmci_interrupt+0x55/0x290 [vmw_vmci]
->    [<ffffffff8137ad2b>] irq_thread_fn+0x8b/0x1a0 kernel/irq/manage.c:1205
->    [<ffffffff8137c7ae>] irq_thread+0x28e/0x530 kernel/irq/manage.c:1314
->    [<ffffffff81253dd6>] kthread+0x2e6/0x3a0 kernel/kthread.c:376
->    [<ffffffff81004392>] ret_from_fork+0x22/0x30 arch/x86/entry/entry_64.S:295
->
->Found by InfoTeCS on behalf of Linux Verification Center
->(linuxtesting.org) with Syzkaller.
->
->Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
->Signed-off-by: Ilia Gavrilov <Ilia.Gavrilov@infotecs.ru>
->---
-> net/vmw_vsock/af_vsock.c | 1 +
-> 1 file changed, 1 insertion(+)
->
->diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
->index 9b71479a2b29..fbafd882a12c 100644
->--- a/net/vmw_vsock/af_vsock.c
->+++ b/net/vmw_vsock/af_vsock.c
->@@ -1048,6 +1048,7 @@ static void vsock_sk_destruct(struct sock *sk)
-> {
-> 	struct vsock_sock *vsk = vsock_sk(sk);
->
+Thanks for the review.  Both points are the same concern: an unaligned property
+making mem->start and mem->end unaligned.
 
-nit: maybe a comment here referring to vmci datagram could be nice to 
-have if you send a v2. In any case, also this version is fine to me:
+This is pre-existing.  viommu_add_resv_mem() already performed the le64_to_cpu()
+reads of mem->start and mem->end before this patch; the patch only adds the
+bounds check in the walk and moves the existing length check ahead of those
+reads, so it neither introduces nor widens the unaligned access.
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+And it does not fault on the architectures that build this driver.  VIRTIO_IOMMU
+depends on (ARM64 || X86) (drivers/iommu/Kconfig), and both select
+HAVE_EFFICIENT_UNALIGNED_ACCESS and read unaligned normal memory without
+trapping.  I tested this on x86-64: with the RESV_MEM property forced to an odd
+offset so mem->start and mem->end are misaligned, the values are read back
+correctly with no alignment fault, both with and without this patch (I have not
+run the same on arm64).  The 8-byte property alignment is a device-side
+requirement; the driver does not need to rely on it, since an unaligned property
+is still read correctly here.
 
->+	__skb_queue_purge(&sk->sk_receive_queue);
-> 	/* Flush MSG_ZEROCOPY leftovers. */
-> 	__skb_queue_purge(&sk->sk_error_queue);
->
->-- 
->2.47.3
->
+If you would prefer the parser to be alignment-safe regardless, for instance for
+a UBSAN_ALIGNMENT build, I can convert the device-provided reads to
+get_unaligned_le64() as a follow-up.
 
+Thanks,
+Yehyeong
