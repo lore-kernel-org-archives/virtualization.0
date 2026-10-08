@@ -1,58 +1,37 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0F823D902D
-	for <virtualization@lists.linux.dev>; Thu,  8 Oct 2026 07:19:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 552BA3DF00B
+	for <virtualization@lists.linux.dev>; Thu,  8 Oct 2026 07:19:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791443947; cv=none; b=FxvHOfN/Q/9i8OFz/xvZqklCkOdqEMeJlUpr8IQxCe++XL3FJT/sxvbFbQrKl3a2VbpFze+/vpaw3njHn/WTlgSZ9775/FkxmjXHuVwHPg+g4Uh6J/1RCj7SKdyV1dmZYrsK837o0SIRKX47clcAdsDDdsD9wVVAmCpeI8u5Axo=
+	t=1791443987; cv=none; b=MikbJefiqrdqaUPV3QDKCERwRHJy3Jos6b5wQBqoBTMqD9tdO4XOSX7kFj5NlHPFq5fEgyCHG3yHjzAPIPMH9nU5GFRBoy2TKXnHwLNvcSp+QnfWP+fwXfybTZrNP0kmqV+wJZJoymTa+EXyc/xxFRFEHUv4X+ch8cWNGmOqveA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791443947; c=relaxed/simple;
-	bh=OXckmZoORfCfsw1UPiKwxm+X1mTqVlMFf6dIPLsq7Xc=;
+	s=arc-20240116; t=1791443987; c=relaxed/simple;
+	bh=/kzVoVk5PsNlCLxCkKXedZDtmSZUJBXARrSyIWflFsE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=lg+RLpqre+kIpK9A3ufJQn2EChUv6Dgm3gDMIPs3isy5H52R1rEOs7OMg2UEBgkvCedAKhS1+9JgSx28NH+g6s8kMbFPamKjorKKddgLPtNwJU7y4t4psarHSDy0f9uVAEY8X48mAmcrY3ewfGROhvtB30aNzpUTpGb7jpoqcn0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=shalKE8x; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=shalKE8x; arc=none smtp.client-ip=195.135.223.131
+	 MIME-Version; b=n5EXZsnbTkMK4edg8oJd81fVvVTYMHHcqhnXtWXXWQsUterANlpSOz78rt57kmX5o5pj6ZM3CYi8wlJieUriK5O22Yqhim3RyYU7zDviMNoOmxadoOm2fdOrcxfdl2P9HKVvN+rOX8FekDQ+9wPBk9DUkY0zPAL5G7y3c8MMsw4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; arc=none smtp.client-ip=195.135.223.130
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="shalKE8x";
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="shalKE8x"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id C1F561F798;
-	Thu,  8 Oct 2026 07:19:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1791443942; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=KEZF3yzq2dSvKZ0QOIEjn84/joS2N0z8mHCENm5CI9Q=;
-	b=shalKE8xhn8Ji4UUC4lR0nXJOMjl0y+JW+iqOKbErcFJEoT091Uq3MI7QGTRQ1Woa9104k
-	c5nYekkMXoAPk9UgBUlVUSEQwgPIV1HKMeAOO3Su5ZZz0QSlIcy7bVuZeIPenCx9a7Tpmo
-	DFcBkhlKEvrkFRwmlP6y2QP1wLRuVFo=
-Authentication-Results: smtp-out2.suse.de;
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 6D3F221B5A;
+	Thu,  8 Oct 2026 07:19:42 +0000 (UTC)
+Authentication-Results: smtp-out1.suse.de;
 	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1791443942; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=KEZF3yzq2dSvKZ0QOIEjn84/joS2N0z8mHCENm5CI9Q=;
-	b=shalKE8xhn8Ji4UUC4lR0nXJOMjl0y+JW+iqOKbErcFJEoT091Uq3MI7QGTRQ1Woa9104k
-	c5nYekkMXoAPk9UgBUlVUSEQwgPIV1HKMeAOO3Su5ZZz0QSlIcy7bVuZeIPenCx9a7Tpmo
-	DFcBkhlKEvrkFRwmlP6y2QP1wLRuVFo=
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 2F78913354;
-	Thu,  8 Oct 2026 07:19:02 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id CB12913354;
+	Thu,  8 Oct 2026 07:19:41 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id qb3SMuVDx2pVcQAAD6G6ig
-	(envelope-from <jgross@suse.com>); Thu, 08 Oct 2026 07:19:02 +0000
+	id lKZxJw1Ex2rAcQAAD6G6ig
+	(envelope-from <jgross@suse.com>); Thu, 08 Oct 2026 07:19:41 +0000
 From: Juergen Gross <jgross@suse.com>
 To: linux-kernel@vger.kernel.org,
 	x86@kernel.org,
@@ -66,9 +45,9 @@ Cc: Juergen Gross <jgross@suse.com>,
 	Ajay Kaher <ajay.kaher@broadcom.com>,
 	Alexey Makhalov <alexey.makhalov@broadcom.com>,
 	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>
-Subject: [PATCH v4 03/13] x86/msr: Remove rdmsr_safe()
-Date: Thu,  8 Oct 2026 09:18:29 +0200
-Message-ID: <20261008071839.2247074-4-jgross@suse.com>
+Subject: [PATCH v4 10/13] x86/msr: Remove wrmsr()
+Date: Thu,  8 Oct 2026 09:18:36 +0200
+Message-ID: <20261008071839.2247074-11-jgross@suse.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20261008071839.2247074-1-jgross@suse.com>
 References: <20261008071839.2247074-1-jgross@suse.com>
@@ -79,81 +58,61 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Score: -6.80
-X-Spam-Level: 
+X-Rspamd-Pre-Result: action=no action;
+	module=replies;
+	Message is reply to one we originated
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Spamd-Result: default: False [-4.00 / 50.00];
+	REPLY(-4.00)[]
+X-Rspamd-Queue-Id: 6D3F221B5A
+X-Rspamd-Pre-Result: action=no action;
+	module=replies;
+	Message is reply to one we originated
 X-Spam-Flag: NO
-X-Spamd-Result: default: False [-6.80 / 50.00];
-	REPLY(-4.00)[];
-	BAYES_HAM(-3.00)[100.00%];
-	MID_CONTAINS_FROM(1.00)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_MISSING_CHARSET(0.50)[];
-	NEURAL_HAM_SHORT(-0.20)[-0.999];
-	MIME_GOOD(-0.10)[text/plain];
-	RCVD_COUNT_TWO(0.00)[2];
-	MIME_TRACE(0.00)[0:+];
-	FROM_HAS_DN(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[12];
-	TO_DN_SOME(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	ARC_NA(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	DKIM_SIGNED(0.00)[suse.com:s=susede1];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	R_RATELIMIT(0.00)[to_ip_from(RLfdszjqhz8kzzb9uwpzdm8png)];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.com:email];
-	RCVD_TLS_ALL(0.00)[]
+X-Spam-Score: -4.00
+X-Spam-Level: 
+X-Rspamd-Action: no action
 
-rdmsr_safe() has no users left. Delete it.
+wrmsr() has no users left. Delete it.
 
 Signed-off-by: Juergen Gross <jgross@suse.com>
 ---
- arch/x86/include/asm/msr.h      | 10 ----------
- arch/x86/include/asm/paravirt.h | 10 ----------
- 2 files changed, 20 deletions(-)
+ arch/x86/include/asm/msr.h      | 5 -----
+ arch/x86/include/asm/paravirt.h | 5 -----
+ 2 files changed, 10 deletions(-)
 
 diff --git a/arch/x86/include/asm/msr.h b/arch/x86/include/asm/msr.h
-index 6fb7125608c7..776a2daa2ba2 100644
+index 776a2daa2ba2..badab5762f3a 100644
 --- a/arch/x86/include/asm/msr.h
 +++ b/arch/x86/include/asm/msr.h
-@@ -205,16 +205,6 @@ static inline int wrmsrq_safe(u32 msr, u64 val)
- 	return native_write_msr_safe(msr, val);
- }
+@@ -186,11 +186,6 @@ do {								\
+ 	(void)((high) = (u32)(__val >> 32));			\
+ } while (0)
  
--/* rdmsr with exception handling */
--#define rdmsr_safe(msr, low, high)				\
--({								\
--	u64 __val;						\
--	int __err = native_read_msr_safe((msr), &__val);	\
--	(*low) = (u32)__val;					\
--	(*high) = (u32)(__val >> 32);				\
--	__err;							\
--})
+-static inline void wrmsr(u32 msr, u32 low, u32 high)
+-{
+-	native_write_msr(msr, (u64)high << 32 | low);
+-}
 -
- static inline int rdmsrq_safe(u32 msr, u64 *p)
- {
- 	return native_read_msr_safe(msr, p);
+ #define rdmsrq(msr, val)			\
+ 	((val) = native_read_msr((msr)))
+ 
 diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index 0591aa38fd85..97b082095572 100644
+index 97b082095572..47d4e36d14cb 100644
 --- a/arch/x86/include/asm/paravirt.h
 +++ b/arch/x86/include/asm/paravirt.h
-@@ -177,16 +177,6 @@ static inline int wrmsrq_safe(u32 msr, u64 val)
- 	return paravirt_write_msr_safe(msr, val);
- }
+@@ -157,11 +157,6 @@ do {						\
+ 	val2 = _l >> 32;			\
+ } while (0)
  
--/* rdmsr with exception handling */
--#define rdmsr_safe(msr, a, b)				\
--({							\
--	u64 _l;						\
--	int _err = paravirt_read_msr_safe((msr), &_l);	\
--	(*a) = (u32)_l;					\
--	(*b) = (u32)(_l >> 32);				\
--	_err;						\
--})
+-static __always_inline void wrmsr(u32 msr, u32 low, u32 high)
+-{
+-	paravirt_write_msr(msr, (u64)high << 32 | low);
+-}
 -
- static __always_inline int rdmsrq_safe(u32 msr, u64 *p)
- {
- 	return paravirt_read_msr_safe(msr, p);
+ #define rdmsrq(msr, val)			\
+ do {						\
+ 	val = paravirt_read_msr(msr);		\
 -- 
 2.55.0
 
