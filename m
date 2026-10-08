@@ -1,124 +1,96 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from wxsgout04.xfusion.com (wxsgout03.xfusion.com [36.139.52.80])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE8DF2BE656
-	for <virtualization@lists.linux.dev>; Thu,  8 Oct 2026 16:02:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 807483AEF55
+	for <virtualization@lists.linux.dev>; Thu,  8 Oct 2026 16:59:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=36.139.52.80
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791475341; cv=none; b=bhkBIUkYJxpRk+iqJD7bhAnxKSKAxolC4FYaYglC9T1wLu1mcL5K8LnRxfah9sG4cFPt2K4NFOmuXvO2DX7LXs7AitvvBSCycKxSrSiOQTZCfOmgA0voNiN5NgVPn7TW8aUlezkDQFTGhtXcuIkoo8aJGlUOxrsAPZbiG1wtzAI=
+	t=1791478797; cv=none; b=UqhZkLZMC1L9PpOAnlPJYpWbbqIgb0eDbonNVaiAUeZROXx07RukLravEwb7uHjjOdjPQyBOSk9x+nKKbPWHtBO8k/bmitDLGNhPqLXdWnSLsMFqN3vox2hlcStTO5BJ0m8zAVjxuiHyO1UD5o7mi4mJa3DmbLhHjQoSm+eXcB8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791475341; c=relaxed/simple;
-	bh=tLM8VtgCTiJeWanOYIim4nvZdH6bkNRkWQrJQt9pbT0=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=HucXmTSDaLm7XkZAfHOKPw+VNih+d0UMirg0MVQV7U0BZ1uT3610sH6DqVt0+0ldiusX7HtIvUq6lHaV4cXaY8JokrDfVnL0tneKYq/vMD+/mDhZaTKhqkSohcA3IKzZgRWibYNNe2MjWovhrh7uSogaKSI5ModVg7S5dT07+3I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UrTqHEsl; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UrTqHEsl"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 663EA1F000FF;
-	Thu,  8 Oct 2026 16:02:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791475340;
-	bh=LbSzFmjdbFQNnnw5zyfrch3z5uqe+fr3eBb+EfhCGBI=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=UrTqHEsl/B19pJPPaQvfXUHpbRKM8wMh36pHA003m2Oy/uiZT/9j1TT98wo2J1Wsk
-	 KK9Ir4h7N0K01AA9j1zZy1NG4YcCX5K9wa9Mbr9np4igLAsvIPx+QbLtfF3ner4gSk
-	 ePkkqig6Ru8+0T9c+dinz9ccWiURukqc0J+CXFV05fc4WOA24vQGvglhYSci8HTRbb
-	 882ijw1Qbesjh2/01QawSVhh+q7FQUzAqFI0/azcCz9mZwGRRfZVg6dr81TPZkzYWY
-	 +X0eim2U5HMkws4+uNrL/ajHhqGdNWu6UU2sDeKD/J8htG/dDfF77FmPW2cFSj3mOr
-	 8nWKlmwNQgthA==
-Message-ID: <sashiko-outbox-164363@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH V2] drm/qxl: Fix out-of-bounds read in client monitors
- head access
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Julio Faracco" <jcfaracco@gmail.com>
-Cc: dri-devel@lists.freedesktop.org, "Eugenio Perez" <eperezma@redhat.com>, virtualization@lists.linux.dev, "Michael
- S. Tsirkin" <mst@redhat.com>
-In-Reply-To: <20261008155034.55688-1-jcfaracco@gmail.com>
-References: <20261008155034.55688-1-jcfaracco@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 08 Oct 2026 16:02:19 +0000
+	s=arc-20240116; t=1791478797; c=relaxed/simple;
+	bh=DPS89jnvGKfosnNmRUYPSk22BtY8EzulP4pxtvNuLic=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=Cpf5kU5SZ9n50ElP2urBgD86wPnPlP6Z9lzesDdwrewJ3YJgd77DnqbqWUHhPt1Nat8+UAaZgg9cGc0Bb2RUZRvLSqt6bE2rh62y5J9US0ta4uU9tUfVpONKK/KwYYf9XHExmwN5jUnfPYJU6L4XkAHRNDx0+bWKAyuXGR5lMFs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xfusion.com; spf=pass smtp.mailfrom=xfusion.com; arc=none smtp.client-ip=36.139.52.80
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xfusion.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xfusion.com
+Received: from wuxpheds03048.xfusion.com (unknown [10.32.143.30])
+	by wxsgout04.xfusion.com (SkyGuard) with ESMTPS id 4j0wjw3TzqzBDpk5;
+	Fri,  9 Oct 2026 00:41:24 +0800 (CST)
+Received: from DESKTOP-Q8I2N5U.xfusion.com (10.82.130.100) by
+ wuxpheds03048.xfusion.com (10.32.143.30) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_RSA_WITH_AES_128_CBC_SHA256) id 15.2.2562.46;
+ Fri, 9 Oct 2026 00:41:53 +0800
+From: shechenglong <shechenglong@xfusion.com>
+To: <dmitry.osipenko@collabora.com>, <airlied@redhat.com>,
+	<kraxel@redhat.com>, <tzimmermann@suse.de>
+CC: <gurchetansingh@chromium.org>, <olvaffe@gmail.com>,
+	<maarten.lankhorst@linux.intel.com>, <mripard@kernel.org>, <simona@ffwll.ch>,
+	<dri-devel@lists.freedesktop.org>, <virtualization@lists.linux.dev>,
+	<linux-kernel@vger.kernel.org>, <stone.xulei@xfusion.com>,
+	<chenjialong@xfusion.com>
+Subject: Re: [PATCH RESEND] drm/virtio: expose GEM memory statistics through fdinfo
+Date: Fri, 9 Oct 2026 00:41:34 +0800
+Message-ID: <20261008164135.510-1-shechenglong@xfusion.com>
+X-Mailer: git-send-email 2.37.1.windows.1
+In-Reply-To: <ce72b2f5-1343-44e9-89fe-e2de4efb7e9c@collabora.com>
+References: <ce72b2f5-1343-44e9-89fe-e2de4efb7e9c@collabora.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: wuxpheds03045.xfusion.com (10.32.131.99) To
+ wuxpheds03048.xfusion.com (10.32.143.30)
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] drm/qxl: use-after-free in qxl_output_get_client_head() due to con=
-current reallocation
---
+On Thu, 8 Oct 2026 00:44:34 +0300, Dmitry Osipenko wrote:
+> Usefulness of this change is dubious. VirtIO-GPU has different types of
+> RAM, I'd expect them all represented properly instead of only shmem.
 
-commit 81383457292a90ad6073bf06583b55f1415d8a86
-Author: Julio Faracco <jcfaracco@gmail.com>
+Hi Dmitry,
 
-drm/qxl: Fix out-of-bounds read in client monitors head access
+Thanks for the review.
 
-This commit factors out the client monitors configuration access into a new
-qxl_output_get_client_head() helper function to prevent out-of-bounds reads
-when the client reports fewer monitors than the default. It updates several
-places, including the mode probe path, to use this new helper.
+Agreed that a generic memory collector does not map well onto
+virtio-gpu, given its different memory types. For v2, I plan to
+replace it with virtio-gpu-specific accounting and to document the
+semantics of each reported value explicitly:
 
-> diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_=
-display.c
-> index 63fc7c6a7f1a5..9be9ded8d1639 100644
-> --- a/drivers/gpu/drm/qxl/qxl_display.c
-> +++ b/drivers/gpu/drm/qxl/qxl_display.c
-> @@ -148,6 +148,21 @@ static int qxl_display_copy_rom_client_monitors_conf=
-ig(struct qxl_device *qdev)
->  	return status;
->  }
-> =20
-> +/*
-> + * Return the client monitors config head for @output, or NULL when the
-> + * client monitors config is absent or does not cover this output's inde=
-x.
-> + */
-> +static struct qxl_head *qxl_output_get_client_head(struct qxl_output *ou=
-tput)
-> +{
-> +	struct qxl_device *qdev =3D to_qxl(output->base.dev);
-> +	struct qxl_monitors_config *cfg =3D qdev->client_monitors_config;
-> +
-> +	if (!cfg || output->index >=3D cfg->count)
-> +		return NULL;
-> +
-> +	return &cfg->heads[output->index];
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+- Guest shmem objects: reported under the "memory" region as
+  drm-total/drm-shared, based on the guest GEM object size. These
+  reflect the requested buffer size; drm-resident, if reported, would
+  be derived from the actual state of the guest backing pages.
 
-[Severity: High]
-Does this introduce a potential use-after-free?
+- Host-only blobs (VIRTGPU_BLOB_MEM_HOST3D): reported under a separate
+  region, tentatively "host3d", using the requested blob size. These
+  values would be documented as logical sizes and not as actual host
+  RAM or VRAM consumption.
 
-If an unprivileged userspace process inside the guest repeatedly invokes the
-DRM_IOCTL_MODE_GETCONNECTOR ioctl (which calls qxl_conn_detect() and
-qxl_conn_get_modes()), it will read qdev->client_monitors_config into the
-local cfg pointer here.
+- Mixed blobs (VIRTGPU_BLOB_MEM_HOST3D_GUEST): the guest shadow
+  backing is accounted under "memory", while the logical blob size is
+  exposed through a separate, documented supplementary key. This
+  distinguishes mixed resources from guest-only ones without
+  presenting the supplementary value as additional measured host
+  memory.
 
-Meanwhile, a concurrent qxl_client_monitors_config_work_func worker thread
-could be reallocating qdev->client_monitors_config in response to host
-monitor configuration changes:
+- Imported dma-bufs: handled explicitly, without assuming that they
+  are backed by local shmem.
 
-qxl_display_copy_rom_client_monitors_config() {
-  ...
-  if (qxl_alloc_client_monitors_config(qdev, num_monitors)) {
-  ...
-}
+Usage of the host-visible memory region would be reported separately
+from the backing statistics and would not be used to infer host
+residency.
 
-qxl_alloc_client_monitors_config() {
-  ...
-  kfree(qdev->client_monitors_config);
-  qdev->client_monitors_config =3D NULL;
-  ...
-}
+The actual host allocation size and residency, including legacy virgl
+resources and the host part of mixed blobs, are not available through
+the existing guest/host interface. Reporting them would require
+additional host/renderer support, so I propose leaving that out of
+this series unless you consider it a prerequisite.
 
-Since the worker thread frees the structure without holding
-mode_config.connection_mutex or any other lock, could the worker free the
-configuration after the reader fetches the pointer but before it accesses t=
-he
-array?
+Does this scope match your expectations for v2? Are there other
+memory types or accounting semantics you would like covered?
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261008155034.5568=
-8-1-jcfaracco@gmail.com?part=3D1
+Best regards,
+Chenglong She
