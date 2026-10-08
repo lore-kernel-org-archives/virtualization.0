@@ -1,76 +1,110 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from sender5-op-o11.zoho.com (sender5-op-o11.zoho.com [165.173.182.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D95F4119ED;
-	Thu,  8 Oct 2026 07:37:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791445046; cv=none; b=KhfvSGRK4Lc02gUrUCGqUdEivIckgTJnibbEOhyJ7qX6w4XOIUODI++J1ZDO981TAFRnRAidlbu5ZitGD9AziCLCQ6qQhXWIeEmOWxOdk7sG+dms0lp8PUCh4TiroP9bjl9vKb58CLy+oSuGgRwp8FFleDRxzOls2EMMXhCDSO4=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791445046; c=relaxed/simple;
-	bh=3pGQQisnrlTCh82rt6Ix+M6fpGWmCG47wVBncF6BF+Q=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=alQl2KC+1UlAHAJiISbJKAUioyw+Vp6b2SNXDtxXuiyxB5EHoexYereHx6o/unp1+Yz9klp5WdxV3oTmF7FYReCsNQpP6EP7auuVPUZVQ0F6P8MYoaMODJm6mDXZNkCAwfPsDKxz9OZ0Yf9+yF/aUj6zdOF9Oaj79sp9UolzAWc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kzInXlkk; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADB5448E0C4
+	for <virtualization@lists.linux.dev>; Thu,  8 Oct 2026 09:35:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=165.173.182.11
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791452159; cv=pass; b=idhqz9Nblkf3zd4KkKmu5uXcoTLRwYaUsK8zOrtG+exoO2Q2YkG7obI72ebMJMPG5LM2/PBdswvQrn0p61SM8lbvbfrShtSusD1mQ/BNuk1Mdj5FhEnVGeFkYz7YkliGndAdydwkSdQ/UGhxPG81SN7g2oLqICRTQHPFfy2++f8=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791452159; c=relaxed/simple;
+	bh=CsXYTuo01XtZSg/MVmH+hBf2Z5KKaYx+e/CEG7TgInY=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=utUzC1DAHZPBy2xknmL0u5DGLaPKP5RZGWAOWkrccELRClowyGdEZbTRicJoz0yq+p2SRTCTd3UXmfuGl0R1Y6H/3S4fKjrtt8CfTXnkLfY+5n6qkVpZKO+LCghvJGj9FtaHVhpte2cX253HpHI2MOk2HyPd0XgnBZNeJecwN6U=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=Ovbcn+Dp; arc=pass smtp.client-ip=165.173.182.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kzInXlkk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 142191F000FF;
-	Thu,  8 Oct 2026 07:37:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791445035;
-	bh=9nh0eDL8VlS8CbRVuCMsRERyCaNvya5PFxbGvhuNeIE=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=kzInXlkke8Pjiz8kPnaLTJkwDXkEhcaqaDyLYDZ/5MFzfgpKx3ciR++cirT1JpcLX
-	 gwQxYV7fQuD9fNEE4Xx2/loRWEtR0KqFWXrWU1NJuFU/OzX2tkhY/U8pzEnnv3Y4Xg
-	 2BdkWR79A3GXVueJPuhpR7OQ6qbm84FZmXkRtAJW9Byei/z8hpUUFO9om9+eFfafk2
-	 YdVi+REpSbfaL5ktLQzov1fEbQRN5rb3XIQW83fBKWEc4xxD8Tz+kY/xj63kOJbPI6
-	 m641LiKCzGcjz3JAPLZBLddAI3g8sKY8frhRoT/n0aBsZC6kaoi8cf1zy2bVEdmq1X
-	 llKKjP4Oozz/g==
-Message-ID: <sashiko-outbox-163770@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 12/13] treewide: convert rdmsrq() from a macro to an
- inline function
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Juergen Gross" <jgross@suse.com>
-Cc: linux-hwmon@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev, "Michael
- S. Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>, linux-pci@vger.kernel.org, linux-gpio@vger.kernel.org, cassel@kernel.org, linux-ide@vger.kernel.org, linux-perf-users@vger.kernel.org, kvm@vger.kernel.org, dlemoal@kernel.org, linux-hyperv@vger.kernel.org
-In-Reply-To: <20261008071839.2247074-13-jgross@suse.com>
-References: <20261008071839.2247074-1-jgross@suse.com>
- <20261008071839.2247074-13-jgross@suse.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 08 Oct 2026 07:37:14 +0000
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="Ovbcn+Dp"
+ARC-Seal: i=1; a=rsa-sha256; t=1791452151; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=EFzOhrqF0D6RuIeHK3Z2/DXsEUOj+JrWQ9MnFSNWYDF6l3jaTv9EU9Qn/7mz6oGsaoE0boIw0Rf1qfP8gEHkxBmO43LfWlJOR3Mco5gqPNOc4/J8Ef0IOopWiOnSQ25N5bzl0hj2X9AXim1T7/dbc+yTEA0tW72A9OjfU64yWYk=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1791452151; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=4VnOjx2KntnOr3fpM0koQeAVv8fD8ZmjHvdUfitA1NY=; 
+	b=l4Rn2lcc0fJA4FJgkZD44+XZEk2j+htHGejMFV/4mRYXYaiM0RLoiLKdICmqwIkJ7srcTkGmEr67tS0DOPqeVxl3s0BAix/8BvFZ/PBU8MWX6y9+EQ//yn8YZOaQzWGS68TfAbuiCpQJM00uSYw2uEEdy6QF3WuqWVXTtIo8/EM=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
+	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1791452151;
+	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
+	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:From:From:To:To:Cc:Cc:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=4VnOjx2KntnOr3fpM0koQeAVv8fD8ZmjHvdUfitA1NY=;
+	b=Ovbcn+DpQthlnuB5owvSuEw90A3H4zHhemwX43JTiNpXACYToaLlzcX+yQuYgak/
+	9b/s89n4kXQNwAeBUMAKauSWUuaUkQgPD6RfreQusEHcWhzdK2Ou5Z0iz6pczO36p95
+	OtKJFGov53ROX8QGw0vMghIID2zmafUpuahri99g=
+Received: by smtp.zohomail.com with SMTPS id 1791452150818849.5609116892517;
+	Thu, 8 Oct 2026 02:35:50 -0700 (PDT)
+Message-ID: <dae2c4c1-0b60-4975-83d6-924d5255db94@collabora.com>
+Date: Thu, 8 Oct 2026 12:35:44 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1] Revert "drm/virtio: Add pixel blend mode property to
+ cursor plane"
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+To: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org
+References: <20261007222244.295186-1-dmitry.osipenko@collabora.com>
+Content-Language: en-US
+In-Reply-To: <20261007222244.295186-1-dmitry.osipenko@collabora.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ZohoMailClient: External
 
-> Today rdmsrq() is a macro using its second parameter as the target for
-> storing the read MSR value.
->=20
-> Convert rdmsrq() to an inline function returning the MSR value.
->=20
-> The users have been converted using the following semantic patch:
->=20
->   // Options: --include-headers
->=20
->   virtual patch
->   virtual report
->=20
->   @@
->   expression msr, val;
->   @@
->   (
->   - rdmsrq(msr,val)
->   + val =3D rdmsrq(msr)
->   )
->=20
-> Signed-off-by: Juergen Gross <jgross@suse.com>
+On 10/8/26 01:22, Dmitry Osipenko wrote:
+> The cursor blending mode was added twice because the same change was
+> applied by accident from different patches. Revert the second patch.
+> 
+> Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
+> Link: https://lore.kernel.org/dri-devel/ce84d3d2-e78b-4939-aecf-9ef7267bd42a@samsung.com/
+> Fixes: 6947b78df4d2 ("drm/virtio: Add pixel blend mode property to cursor plane")
+> Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+> ---
+>  drivers/gpu/drm/virtio/virtgpu_plane.c | 13 -------------
+>  1 file changed, 13 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+> index b422eba42a5f..640815af4098 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_plane.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+> @@ -589,7 +589,6 @@ struct drm_plane *virtio_gpu_plane_init(struct virtio_gpu_device *vgdev,
+>  	struct drm_plane *plane;
+>  	const uint32_t *formats;
+>  	int nformats;
+> -	int ret;
+>  
+>  	if (type == DRM_PLANE_TYPE_CURSOR) {
+>  		formats = virtio_gpu_cursor_formats;
+> @@ -615,17 +614,5 @@ struct drm_plane *virtio_gpu_plane_init(struct virtio_gpu_device *vgdev,
+>  		drm_plane_create_blend_mode_property(plane,
+>  						     BIT(DRM_MODE_BLEND_PREMULTI));
+>  
+> -	if (type == DRM_PLANE_TYPE_CURSOR) {
+> -		/*
+> -		 * The cursor plane exposes a format with an alpha channel,
+> -		 * which requires a blend mode property. The host blends
+> -		 * premultiplied alpha, matching the property's default.
+> -		 */
+> -		ret = drm_plane_create_blend_mode_property(plane,
+> -							   BIT(DRM_MODE_BLEND_PREMULTI));
+> -		if (ret)
+> -			return ERR_PTR(ret);
+> -	}
+> -
+>  	return plane;
+>  }
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+Marek, could you please give your r-b?
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261008071839.2247=
-074-1-jgross@suse.com?part=3D12
-
+-- 
+Best regards,
+Dmitry
