@@ -1,75 +1,102 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj2-f10.google.com (mail-pj2-f10.google.com [74.125.227.138])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A656A4C2273
-	for <virtualization@lists.linux.dev>; Thu,  8 Oct 2026 14:49:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D63944D7D3B
+	for <virtualization@lists.linux.dev>; Thu,  8 Oct 2026 15:44:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791470983; cv=none; b=KmQVSK/G5fXJlfdIADS0r8KLtEFKMuS0KHNv4U+RV14gsXunNIK16+7TBCJt3oSD+vdPidrY96JUDsJuJcCaf+4WQODwdZV29k/wbWcXlj1uPxFpLpngLi3F+FmX61CkQsidkJ0lIIVNlfUyPKGjCnu1yh7tUfbnLMj5DUes3Xs=
+	t=1791474250; cv=none; b=ARlqsRVMI8e3mThOH7yTEgxB4VxlGQdTptXuPYr+rQBMmB6Q4aZWYG44xGZKVFsKzo9Tf4gbKs4Q/uKEa3fH/bFuzrT/ybklLzi2IEc8AYlCAwxTDk9kYCwpd0VYtdpiJF33FNNcegPK4FswR2lTBXhEjZgF8QuJPA6BnzwLylY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791470983; c=relaxed/simple;
-	bh=kXs4O0p/YPKklR7HQYjK4igi9xyN+E1DUQqxA9E9TgM=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=Yydahtsk5xw5mAtI/PaSdl75w8el2/cBopX+F44+H8yrgD+ctYtp/bXLVFsIPLZAmJS7uI2T4n++tuahd+k4lmu7iIVtRt+9VbyemrLaj07Gru+iubNCtbi7Jckm2NsooBn877/4E9LEeYXQuPDkHD+seYX4qtKzNRG8axPIb98=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RMclNnDC; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RMclNnDC"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFEE51F000FF;
-	Thu,  8 Oct 2026 14:49:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791470970;
-	bh=ivgdeM9IjeZZ+WaSfVrqTkHPJxH6P62MDMa6JC6Qhcg=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=RMclNnDCRPcP3kJk6K5VO5LVThza4Tjxb+lhgcfjGj+Ysg87gR42ThGwcSOfLj6fe
-	 XDrW7InRF4uuYEB6Vvh+aak0FV7u7dAUrZPiHvedh+gpGWVrdC5iCvD6qkHlHGMTGx
-	 8tvoiVyODRGucO9k/61uK8YQ7PcpGQ5q+U7J4/jB2W8c3eYrtYvTaPwTrA5WWCX1F9
-	 +quPDLr873q9rOfozA1fqZxNfC9T34bZae8fWbQumNEFbb+lTix2DdRgSJD+HgdikC
-	 PfRe13jaCRESWfjZjiOwu9lxzfBqdoYbR37/Xu5oMjoWg9uNTF07fyqSCLbwOENHVt
-	 nNGNFcqEknseQ==
-Message-ID: <sashiko-outbox-164325@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net v2] vsock: Fix memory leak in
- vmci_transport_recv_dgram_cb()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Ilia Gavrilov" <Ilia.Gavrilov@infotecs.ru>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>, virtualization@lists.linux.dev
-In-Reply-To: <20261008144046.90853-1-Ilia.Gavrilov@infotecs.ru>
-References: <20261008144046.90853-1-Ilia.Gavrilov@infotecs.ru>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 08 Oct 2026 14:49:29 +0000
+	s=arc-20240116; t=1791474250; c=relaxed/simple;
+	bh=Q6PFR6LWngt7oO1hw+7z9E0HVKsg7+Hw7FqbuBdwgOE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=BFeWHNM885hIR/iOiqCbHAXHq2uKmc+rwKXK7z6RaJ39IH1BRTJ+d+KFFTrz70d1KQ7VlJBY+7i0bpayNIw/zLT4DqrR8owuMtq4il6SZdv9WKsT1dZwbYzoPIBn5c1sgwNIQUerzAKYm6NV5KVthGddtpznx8zhGvlt4QR+aaA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=foxmail.com; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=74.125.227.138
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=foxmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-pj2-f10.google.com with SMTP id d9443c01a7336-2dd9bce707bso18263205ad.1
+        for <virtualization@lists.linux.dev>; Thu, 08 Oct 2026 08:44:08 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791474248; x=1792079048;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=6SvLzTjNzSdiMNylsVe/w8AxhahIiHxW+GTteqlNxbM=;
+        b=fkk6pH8z/8bhc4dCImMEOWeKmnagvT3DpqmJMplq5a+ZGTWZwDrePgE3hQtcEEj+1F
+         thTaLPWoTYDudBVP6o1qKv3c5v0t0nvqdi4af5ECCOG+iWtN1nsQjEKa9o9DSAXddEqf
+         ryVUBTXlBmnITzT38P8eGfTIYK9Bj2NM/UpDnuR6ZAyY75PDX7qudTRD+6kc8hfcGvFl
+         k8P9NeU168xtQChc8cAM5VqfDz0gsKd4DOl8RLG5rXR/vpBqXeI0L6yRy/I1HZBDkANP
+         ZutC4wWr2lDT2ZTs0UmmuDYo4XcuR6CrpGL5HTkpRQOP5azjX2r9qDVkq5hMK6852E4Z
+         Hnrg==
+X-Forwarded-Encrypted: i=1; AKwUvBzN0IjPRWViWyPxPDqe2vFdYrC6NMet5kJOl/dvx8Q/GA55tMrn9nDbXdbhCqf6DBNqyBVI/4O9yQ+GiMM3oA==@lists.linux.dev
+X-Gm-Message-State: AFq9FYL0YgpksfaKLVHGknOiam0W/1k+1v0ZtL6pXBco9UXx24DPNIZB
+	hA7zHelcbGq5Xh8eVYx8RfzI+qRKcmOhGwtyEIpkaBY7tnFOxqTVizDN
+X-Gm-Gg: AYBFou3ZXdwMLkPe/lx6/g+A3sSZ1cj6rcRJiGc9zrqahZJmVF5p9SnhCSl0s6UlqF8
+	Fydy7ruHNFcnl4QGD0F9iq5pdaK3CPuSK28vjt70ecFJkx8aHDUemfgxUOMlnFkeEluGoPIxrYT
+	m6Kln5hYS2VCoa5n1CVlGUhzGck2fSkYgM/UYCl3a6JP9b9MokGSzxKeS6d0RFXD9rVFoALVbZB
+	SPeA7DZeCCl/ksF5gYFSoR7UcmWbhPSWF7i9w/lb7vhmoPpFfMdi9NStHVqyekgsAlbGUJ9ZOw+
+	EycuDv6kv36AunjJtuYsYltOrs4LzQ2fbBZCNMKK/U6e/8q3r1qWOi3/eGBVV7j5MdCmch7y8M4
+	xhRG08cz8r5XgYvaW2/XlftgVVNgZuGM3MjNHarNFIpuqXWTNINBT2jkxkAWTpYpAyiGGFJzyKN
+	6hnpyEh6efzcypnq54ZASO8JRmyakW/OxZu8UKRBwpAv996tc1/66Q3ptbyt9CPnnj5Bo3HLq/7
+	w==
+X-Received: by 2002:a17:903:380b:b0:2e2:b00f:564f with SMTP id d9443c01a7336-2e600388f4dmr49211465ad.18.1791474247996;
+        Thu, 08 Oct 2026 08:44:07 -0700 (PDT)
+Received: from foxmail.com ([138.199.21.232])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2e604852563sm27443785ad.62.2026.10.08.08.43.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 08 Oct 2026 08:44:07 -0700 (PDT)
+From: Jianlin Shi <shijianlin11@foxmail.com>
+To: kuba@kernel.org,
+	netdev@vger.kernel.org,
+	virtualization@lists.linux.dev
+Cc: mst@redhat.com,
+	jasowangio@gmail.com,
+	eperezma@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	andrew+netdev@lunn.ch,
+	davem@davemloft.net,
+	edumazet@google.com,
+	pabeni@redhat.com,
+	talgi@nvidia.com,
+	hengqi@linux.alibaba.com,
+	horms@kernel.org
+Subject: Re: [PATCH 1/2] dim: clear irq_moder on init failure
+Date: Thu,  8 Oct 2026 23:42:27 +0800
+Message-ID: <20261008154227.10902-1-shijianlin11@foxmail.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20261005185335.2f8e8b42@kernel.org>
+References: <cover.1790751008.git.shijianlin11@foxmail.com> <8d6a637142c411f83771fda5b57bb4451651488b.1790751008.git.shijianlin11@foxmail.com> <20261005185335.2f8e8b42@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-> During the closure of a datagram socket, the vmci_transport_recv_dgram_cb=
-()
-> function may be called, which will add the packets
-> to the socket's backlog; then, after the receive queue is cleared,
-> the __release_sock() function will move the packet back from the socket's
-> backlog to the receive queue, which will lead to a memory leak.
->=20
-> sock_close
->   __sock_release
->     __vsock_release
->       // take ownership by user-space
->       lock_sock_nested
->       sock_set_flag(sk, SOCK_DEAD)
->       vmci_transport_release
->                                       vmci_dispatch_dgs
->                                         vmci_datagram_invoke_guest_handler
-> [ ... ]
-> (linuxtesting.org) with Syzkaller.
->=20
-> Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
-> Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-> Signed-off-by: Ilia Gavrilov <Ilia.Gavrilov@infotecs.ru>
+You're right - there is no such sequence on current mainline.
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+net_dim_init_irq_moder() has a single in-tree caller (virtio-net). If it
+fails, virtnet_probe() still does "goto free", which only ends in
+free_netdev(). Nothing calls net_dim_free_irq_moder() on that path, so
+the stale dev->irq_moder value is never dereferenced; it disappears when
+the net_device is freed.
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261008144046.9085=
-3-1-Ilia.Gavrilov@infotecs.ru?part=3D1
+The dereference becomes reachable with the unwind change in patch 2:
 
+  virtnet_init_irq_moder()
+    -> net_dim_init_irq_moder()  /* fails after kfree(moder); irq_moder stale */
+  goto free_irq_moder;            /* patch 2 */
+    virtnet_free_irq_moder()
+      net_dim_free_irq_moder()
+        /* non-NULL irq_moder => */
+        rtnl_dereference(dev->irq_moder->rx_profile)  /* UAF */
+        kfree(dev->irq_moder)                         /* freed again */
+
+So patch 1 is not fixing a reachable bug on today's tree by itself; it is
+a hard prerequisite for patch 2. Without patch 1, patch 2 would trade the
+virtqueue leak for UAF (and a second kfree of moder) on this error path.
+
+I can add this call chain to the patch 1 commit message in v2 if you prefer.
+
+Jianlin
