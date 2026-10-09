@@ -1,96 +1,115 @@
-Received: from sender5-op-o11.zoho.com (sender5-op-o11.zoho.com [165.173.182.11])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04C763955E4
-	for <virtualization@lists.linux.dev>; Fri,  9 Oct 2026 18:53:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=165.173.182.11
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791572003; cv=pass; b=Jl74xw/G3fr88kh7fP3xYsbeglj4BN64CxDJWYCwtQIiTBf7TDo8mxJoSiCbEV5eesYGj3jMiMtBCJmeyQw9e9nLz5WNQisJqzagaHf8s1Tm8BbasIkCMOSmX7pJH6U/MaqAY/iqxp7gIt+t3vZVFvENsGbk+b/tMLecs61rymk=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791572003; c=relaxed/simple;
-	bh=rrPe0S8ehMzogdnF4nvdXJJxr8a2gOQJbjrgOpLmnyk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Q9ZVLeeca6fuco0sqa8OqPZYdpsoAsKPKGZK6dVn77S1Gs/X4lrM+Ggx63wVAcfSSzHe4c0CIGDxXoFmzJe7BGPaKmhF5ZJfMB/tWpsTAwQ0yZ2gbXSlUovTkvRdSyIfMTTmuz5m2sf2GbAY+G32qkPpHctqoB2E6fQYEd9kkNI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=Cxn1+BVb; arc=pass smtp.client-ip=165.173.182.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1038364927;
+	Fri,  9 Oct 2026 19:12:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791573163; cv=none; b=IIQ16vax2YYCHgKLo7e9sbqG3IFS+Ug1Vg0vxmvPXdKBhgq+t7oo2YIpryrFZR/xTnOAqxUX2zagFQfnjUGY6EMGd2yu/aWiKDaQ367FCADIpcPhZMPi2PZVNTQoRGlD49xF24TW635CBFsF/4t/wD+LPD2p7O4pJqhIeMQHd6Y=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791573163; c=relaxed/simple;
+	bh=dI7yNES8vy0Vp9MAylrU8pN5l02RpxIO+MerfTq06I4=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To; b=HisDIiSD8jNBHjMRGyvs1VoTqM47n7UDHe67hw8TP/Mr1S7b4XuG/dvHKZ2KanUhl0YetPwJoz6YUxLvD/mjN0auIUS/WEtgv7NgR7uCQwcFHDTEEts7tIgoSX4X7bXtpfiTz2DfI5/BERBuluKmZ14/u1PemhFbnDejQ505ir8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EYswCNDI; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="Cxn1+BVb"
-ARC-Seal: i=1; a=rsa-sha256; t=1791571992; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=SVbjiXRc8QpmfT6PzujOK89mibaK1eVJ6rTtPddsZsXKEOPSdBIcTZoB78g3LztSgkc0N5t8cO8LcPSSBEQ9Nvv5u19PanNsLr+yz8F1NE/Ofc0oqjFPfNQQMiQVYltuoMGEOWUPS/+ch5LiuDMJBpUnqZVknx50dm144eqbRGw=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1791571992; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=VduCiD25+U1tGSGh8M5XVocEG3tjjHxcQLHCVseounc=; 
-	b=LMfCLr4BpWbvpAyen2B/UpI9sjXFFYLkGTG7VIBPydNlMUKJvwW4vRc7yYDFINV66fhuY3EVDDerF6wq4owYy8lxbMTx2rXZf3mhyRKz3dQWiq9IoQP6T0ap+EcFz9sgPI0hJM6HMtYmhh7ka8DSAdXKLmL+b1w4gw+hkJav4AY=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
-	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1791571992;
-	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
-	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=VduCiD25+U1tGSGh8M5XVocEG3tjjHxcQLHCVseounc=;
-	b=Cxn1+BVbh00aU758SljWWJjoL0usqzDvGjur8PzVHltMDnXxMPHyZCVZ3Jnxo79D
-	zBRijQCDPbg2G4+cjcudddemJxPbSCJumxN5AvswlWnCDbjzEJ8W0rx7sVqn6SQAxbR
-	sPKXGheruDeFPjKCz4iiJW4bJ1eDz0Et+bcrycck=
-Received: by smtp.zohomail.com with SMTPS id 1791571991301128.1329973129134;
-	Fri, 9 Oct 2026 11:53:11 -0700 (PDT)
-Message-ID: <dfa2f117-1094-40b9-9445-ab2bbf62ff2e@collabora.com>
-Date: Fri, 9 Oct 2026 21:53:07 +0300
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EYswCNDI"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5634E1F000FF;
+	Fri,  9 Oct 2026 19:12:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791573161;
+	bh=Ohx75tmHA5qclGITPedELWTuh0yXsoWm9n0VsA2gkRM=;
+	h=Date:From:To:Cc:Subject:In-Reply-To;
+	b=EYswCNDIwSO0PWG1Osf12Fp9gdgx8xMfjvd/zNRZpqYGKntnYMhlnH8By7YNjBDyU
+	 WPcVjwG+HQamgZx1mGQUaXGoVPcV5fV7kv1eIhbWPbFvBv6ZAa3CzQuonYYzCKpzmF
+	 zn41jiKujFmP2tsnIkTb6Kik721VfvpJjnBSpfHWlEtbZQmen5wh4M08ys91+6O36S
+	 lj1YtQ5WnV7QzqflRQ7DYH4LZwDVo5ZCN3vY/pVTrZI1CmY1G4REddNlgzZVFhd6r1
+	 ybQyBkZlE4TWQP9zBcyRDSPmlbnNdRdZU8k1t3Jee1K339VpcGseqBe3a39HjLeeZf
+	 LPcNae00WlVoQ==
+Date: Fri, 9 Oct 2026 14:12:40 -0500
+From: Bjorn Helgaas <helgaas@kernel.org>
+To: Leon Romanovsky <leon@kernel.org>
+Cc: Pavel Popov <pavel.e.popov@intel.com>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Logan Gunthorpe <logang@deltatee.com>,
+	Jim Chow <jim.chow@broadcom.com>,
+	Radu Rugina <radu.rugina@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>,
+	Wei Liu <wei.liu@kernel.org>, Michael Kelley <mhklinux@outlook.com>,
+	Lukas Wunner <lukas@wunner.de>,
+	Nathan Ciobanu <nathan.d.ciobanu@linux.intel.com>,
+	bcm-kernel-feedback-list@broadcom.com,
+	virtualization@lists.linux.dev, linux-hyperv@vger.kernel.org,
+	linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/2] PCI/P2PDMA: Allow P2PDMA in VMware and Hyper-V
+ guests on Intel hosts
+Message-ID: <20261009191240.GA999260@bhelgaas>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v9 3/4] drm/virtio: implement userptr resource support
-To: Honglei Huang <honghuan@amd.com>, odaki@rsg.ci.i.u-tokyo.ac.jp,
- airlied@redhat.com, kraxel@redhat.com
-Cc: gurchetansingh@chromium.org, olvaffe@gmail.com, Ray.Huang@amd.com,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org
-References: <20260924095556.1326164-1-honghuan@amd.com>
- <20260924095556.1326164-4-honghuan@amd.com>
-Content-Language: en-US
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-In-Reply-To: <20260924095556.1326164-4-honghuan@amd.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-ZohoMailClient: External
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261009180847.GD11438@unreal>
 
-24.09.2026 12:55, Honglei Huang пишет:
-> +int virtio_gpu_userptr_create(struct virtio_gpu_device *vgdev,
-> +			      struct drm_file *file,
-> +			      struct virtio_gpu_object_params *params,
-> +			      struct virtio_gpu_object **bo_ptr)
-> +{
-> +	struct virtio_gpu_object_userptr *userptr;
-> +	struct virtio_gpu_mem_entry *ents = NULL;
-> +	struct sg_table *sgt;
-> +	struct mm_struct *mm;
-> +	unsigned long lock_limit;
-> +	unsigned long start;
-> +	unsigned long end;
-> +	s64 new_pinned;
-> +	unsigned int nents;
-> +	int ret;
-> +
-> +	*bo_ptr = NULL;
-> +
-> +	if (!params->size || !IS_ALIGNED(params->size, PAGE_SIZE) ||
-> +	    params->userptr != (unsigned long)params->userptr)
-> +		return -EINVAL;
-> +
-> +	start = params->userptr;
-> +	if (!IS_ALIGNED(start, PAGE_SIZE) ||
-> +	    check_add_overflow(start, (unsigned long)params->size, &end))
-> +		return -EINVAL;
+On Fri, Oct 09, 2026 at 09:08:47PM +0300, Leon Romanovsky wrote:
+> On Fri, Oct 09, 2026 at 11:58:33AM -0500, Bjorn Helgaas wrote:
+> > On Fri, Oct 09, 2026 at 08:40:32AM -0700, Pavel Popov wrote:
+> > > VMware and Hyper-V expose passthrough devices to guest VMs without an
+> > > explicit host bridge device. Consequently, host_bridge_whitelist()
+> > > cannot automatically identify the underlying host bridge structure,
+> > > causing Peer-to-Peer DMA (P2PDMA) requests to be rejected unless the
+> > > device IDs are explicitly listed in pci_p2pdma_whitelist[]. To enable
+> > > P2PDMA support in virtualized environments on Intel hosts, this series
+> > > introduces hypervisor_supports_p2pdma().
+> > > 
+> > > Although alternative P2PDMA mechanisms are in development [1], their
+> > > adoption timeline in hypervisors remains uncertain. This solution
+> > > addresses the immediate need to support both new and existing
+> > > hypervisor deployments.
+> > > 
+> > > The patches are organized by hypervisor for clarity. While the primary
+> > > focus is VMware, a corresponding Hyper-V patch addresses the same
+> > > pattern and is included for maintainer consideration.
+> > > 
+> > > [1] https://lore.kernel.org/r/20260812-hmat-p2p-v1-0-75ac41380585@nvidia.com
+> > > 
+> > > Pavel Popov (2):
+> > >   PCI/P2PDMA: Allow P2PDMA in VMware guests on Intel hosts
+> > >   PCI/P2PDMA: Allow P2PDMA in Hyper-V guests on Intel hosts
+> > > 
+> > >  drivers/pci/p2pdma.c | 21 +++++++++++++++++++++
+> > >  1 file changed, 21 insertions(+)
+> > 
+> > Applied with the #ifdef tweak Logan suggested to pci/p2pdma for v7.4,
+> > thanks!
+> 
+> Bjorn,
+> 
+> I disagree with this decision for several reasons:
+> 
+> 1. Note where `hypervisor_supports_p2pdma()` is called: before
+>    `host_bridge_whitelist()`. This means the code ignores the hypervisor
+>    topology. The claim that the VM has a virtual bridge, causing
+>    `pci_p2pdma_whitelist()` to fail, describes exactly how P2P is expected
+>    to work today.
+> 
+> 2. We are not developing an alternative solution. This is the right
+>    solution, and there is broad agreement that it is the only reliable
+>    way to enable P2P in VMs, for ALL emulation software stacks.
+> 
+> 3. This problem has existed and been known for at least the past eight
+>    years, since Logan upstreamed P2P support. The claim "we need it now
+>    and ASAP" is not valid at all.
+> 
+> 4. The proposed hack does not solve the P2P-in-VM problem; it only makes it work
+>    in some random cases. An HMAT-based solution will still be needed, even on systems
+>    that use this hack.
+> 
+> Let's get the HMAT solution merged sooner rather than later. To make that happen,
+> we need a coordinated effort across the industry, not hacks to work around the
+> problem.
 
-There is new vgdev->blob_alignment defining host page size as it may
-differ from guest's page. Will be good to validate both.
-
--- 
-Best regards,
-Dmitry
+OK, I'll drop this while we discuss it.
