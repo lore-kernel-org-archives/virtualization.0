@@ -1,179 +1,166 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from sender6-op-o11.zoho.com (sender6-op-o11.zoho.com [165.173.180.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3EE846EC64
-	for <virtualization@lists.linux.dev>; Fri,  9 Oct 2026 10:15:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791540928; cv=none; b=CynaHzsJf0CQ8BIcJSyQb4N46TFPkcxiJqhlcaEzFsTzUAzX6f3hBBUe6N8pdq0jLYS0sUuVQ4PTHSiW1CbKI77BilZYV742O0q4gXoOEdlflEX6TmNi6D7FVSUQ9pf63JThXrrJCHN/7oW0S/vQgQOuqseM72D5hAuqsP+AjmA=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791540928; c=relaxed/simple;
-	bh=jyDEhNWEktcDeVA66O0x0HheikRt8+3NMW3l44bD31Y=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=a3GxDNqN6SWvalVoMKuaaq0GNp7VSNO917X3fkdxKmCl8FMsqUrIQjH0KnDhiWyuonsWnFnztoicFFQj+c4wG6HdE/inmOACE6H0kUFAZ6gxfDFjLEqujOoQr46seff7fKUMSwSMtIsCuW2P0F370EmddkqOGdBFin8QSDo9bfI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YR9lUCsA; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 991F04C10EB
+	for <virtualization@lists.linux.dev>; Fri,  9 Oct 2026 11:04:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=165.173.180.11
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791543854; cv=pass; b=BFAUutpHLqx/Hb4vZFphgdQYFjKnkD2i/WrztZg/0JtwY60sPwLLbJx9IheTXe6gtzxNKjCPTkotMVHLDTP6UrDEuEtP5wAw5lLjWijoy7qYIWQQN4xWY1kPe/S24yvOuVl1Lul34rDEe8mI+RQPEP99z5eh0EMxcb3w9SJdyOk=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791543854; c=relaxed/simple;
+	bh=HU/x38tNo8wZ0AuOIsi19+HVuQxNr0X2ubpha5PHPiY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ix1Ma5iLW23iHvcVRF/0EQKjXT/nw4stq30YFDrU7Dr6nZwzJNcZuSI5Y8MrCnt7TnZon3hKa/h7jW+H/OlCf23rDZEgeoGMgQYfLRKpc1QynctfPhrYe4ywCa3+PmwZX+l3M8zDNjKH31co9S39JkDofTlsSK1+GprzbDCOU6E=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=BLuUpfUa; arc=pass smtp.client-ip=165.173.180.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YR9lUCsA"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1791540923;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=8qjpcfD3LG1eZs8VSpA9jEQmEOMfOU2B/T9s4mzaz2E=;
-	b=YR9lUCsAExcPNjoNYfo2P79M1+v6Q6fA40V3z5ir7T6I5ynYnrKTqloRtWlyy6HosSqV1n
-	syvhZ8qCNUpv9ObcG3YMd2xYxzjq8MOwpvPXYPgsiuMlaYCgzaKdF2GaOJ3maDwAuQthb5
-	ey5W3LjJ5MAp9g80RxGm5U+pKF/v8nQ=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-611-0hYZybGRNW2IK8cVkyaDKA-1; Fri, 09 Oct 2026 06:15:22 -0400
-X-MC-Unique: 0hYZybGRNW2IK8cVkyaDKA-1
-X-Mimecast-MFC-AGG-ID: 0hYZybGRNW2IK8cVkyaDKA_1791540921
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-48b0679906dso3751430f8f.3
-        for <virtualization@lists.linux.dev>; Fri, 09 Oct 2026 03:15:22 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791540921; x=1792145721;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=8qjpcfD3LG1eZs8VSpA9jEQmEOMfOU2B/T9s4mzaz2E=;
-        b=ZVBwf1DDy6CQTPlSLKdf8CVaPIpXttjZUrGzt1msbmtL9lMcT3jr3Q60TFvEURlVZh
-         AO6gaH1U/XK+CnCrEoueCqgyYtTMXdnxdrbJLSOlVN6aq3K4s4U73QaN10jWPpooj9tO
-         zdx8BLsPDs3R2bLglp0FFazIrA7zQsVcNdUEV0pghTfPIZ10tfPL2/H1kl80W6GltMiM
-         uokXujFpcNWaT7jWQaCVvozLHRzoBwCqYJ6CeXjySJRTrSp2ZHA8JUzSUcUYHStJcE9V
-         X5hFzo9/DC8vKYZrF+dpNFnaBGBeGQS8PJjNkK+8neqfXdysyPDcupzRkZYwK6nQs5c0
-         BKSA==
-X-Forwarded-Encrypted: i=1; AKwUvBwUOGB+oCex/gokMc1EgGAwWzDXITqSFmpErrtzqWzoT0S383bfjKuXecvF5sRpvdVIKhXA7JkqByjWkRGG0A==@lists.linux.dev
-X-Gm-Message-State: AFuF++m6RUXX2XyEV+IgSYTbyGbgu5J/dMrpd33WGzszWJ1iIvmIECa+
-	7RGKZP502vwCjffVf2Q2zO2drR8OxFGpzdCw6a4CAOeeo0UymS7sEyMaIooWK48SvGFxdhfX+zP
-	ARKVzLCb9dUok4aarix1WMgtbFpzyPPkRaUFAo7MdtzAEBQlV7VxZKMsrQWnH8frMskd2
-X-Gm-Gg: AYBFou2uEbMbTeHiA5+oSEWiWnh8SOVnPkCEDI4dZ1x9Rc02LSPvmAHYARWsfbL1OiG
-	6Aj1BHXFr5J+cG+/TcTb5nGjQqI1eJvWARxgyPRXqnHHa5BZjwmunPAYSCxr6RkzHPwJ2kAugJl
-	E5DXvgaV8A+Si5waKi++eKDytMU/nfJfocag5Ewx6rO5GXtsJngD1622nbC0/dMmHDLG+IYo968
-	iOx4Uiq35OOTe3nQddlZQNDLEi9HJb7Oel5dI07OV6N26G0uOZeRf3x0EtS2tfFO736Jt/9eQqS
-	/bxMLk+vwqjbzJT45uCzAICy3aflFT8VJvVq3fS9nRVyb+9xfDtQXENUKfc8egbK4awVDVxaugo
-	M
-X-Received: by 2002:a05:600c:6989:b0:4a0:1f9e:5f7d with SMTP id 5b1f17b1804b1-4a18e4a0030mr24138465e9.7.1791540921034;
-        Fri, 09 Oct 2026 03:15:21 -0700 (PDT)
-X-Received: by 2002:a05:600c:6989:b0:4a0:1f9e:5f7d with SMTP id 5b1f17b1804b1-4a18e4a0030mr24137885e9.7.1791540920563;
-        Fri, 09 Oct 2026 03:15:20 -0700 (PDT)
-Received: from sgarzare-redhat ([5.11.115.77])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a18bea0f1csm80901885e9.9.2026.10.09.03.15.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 09 Oct 2026 03:15:19 -0700 (PDT)
-Date: Fri, 9 Oct 2026 12:15:16 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Michal Luczaj <mhal@rbox.co>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, "David S. Miller" <davem@davemloft.net>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Eric Dumazet <edumazet@kernel.org>, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Hyunwoo Kim <imv4bel@gmail.com>
-Subject: Re: [PATCH net v4] vsock: treat TCP_CLOSING as once-established
-Message-ID: <asi-oV3fF1erjxVs@sgarzare-redhat>
-References: <20261005-vsock-connect-reset-closing-v4-0-15d41cfda3ed@rbox.co>
- <20261005-vsock-connect-reset-closing-v4-1-15d41cfda3ed@rbox.co>
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="BLuUpfUa"
+ARC-Seal: i=1; a=rsa-sha256; t=1791543825; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=Lbu7mK3foQG91+/R97L5K3gl0S+EiTPMKu86RBiU0Erh8Tv0ql4kROEDY8JyOxTIILTM8kFcEeZyoqU0zpi1RPy3X5jc7vVbdZGAakDi9vAGEp0UaDC1QpPLxfCTR9pu383VjGB+H+LJxVYhI6o8QuSUwhymLLHMfLaZ3/R+HhY=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1791543825; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=6VeP7OZP4fl2d+SeH1xW2SsZlw8sptiCYA73mXgU3+4=; 
+	b=ltMAs8NoqJEdBg3T7a0XNhKkosbScEDNPOwv1Mw7jXibNkhyTAtDIG42XieJPHqdkScN3w6mBEBxVPqtvfQzPomUM2oUh1to8dKXhCzi6HfjPDzWKGs822rf1b0wRESu/dcJnBChtn8ZL51ETey9ABO/BGabRvXSm4p3SlhDacQ=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
+	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1791543825;
+	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
+	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=6VeP7OZP4fl2d+SeH1xW2SsZlw8sptiCYA73mXgU3+4=;
+	b=BLuUpfUa9jBAe949z8Z72+OF92L43TUHquroQh8Oo3SB2jPrRId9pMF9RI6AQM42
+	zmY6UcREMFw9j0gTkjt/IEbMggXDyo6hqIdXEC/JBkkch9sZP2cDy+xBYUT6ugturCJ
+	s9UXcjlAqMkifngnvB+67Jhr8dXkS8Obz5TAP+es=
+Received: by smtp.zohomail.com with SMTPS id 1791543824599306.9382623529217;
+	Fri, 9 Oct 2026 04:03:44 -0700 (PDT)
+Message-ID: <8c0920fc-2f3f-425a-84d8-2aa701cb2388@collabora.com>
+Date: Fri, 9 Oct 2026 14:03:39 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20261005-vsock-connect-reset-closing-v4-1-15d41cfda3ed@rbox.co>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: HUNOwcBYle8i23Bdwc52mmp0CypiAE6cNOL_G8cudeE_1791540921
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] drm/virtio: do not enforce blob_alignment in
+ cross-domain contexts
+To: Val Packett <val@invisiblethingslab.com>,
+ David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Simona Vetter <simona@ffwll.ch>, Sergio Lopez <slp@redhat.com>
+Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org
+References: <20261006154913.2689067-2-val@invisiblethingslab.com>
+ <8b0fbe1a-1410-42d7-8031-611795ae39d9@collabora.com>
+ <4d86ec37-ce27-4556-966e-4b4e80ec0718@invisiblethingslab.com>
+Content-Language: en-US
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+In-Reply-To: <4d86ec37-ce27-4556-966e-4b4e80ec0718@invisiblethingslab.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-ZohoMailClient: External
 
-On Mon, Oct 05, 2026 at 02:26:22AM +0200, Michal Luczaj wrote:
->Handle the TCP_ESTABLISHED -> TCP_CLOSING transition on OP_RST, which can
->race with the connect loop. Immediately break and return 0 on
->ESTABLISHED/CLOSING. The return value of connect() should reflect what
->happened up to the point the connection was established or failed. Events
->that occur afterwards must not affect it. E.g. even if OP_RW has already
->set sk_err, connect() should still return 0, not ENOBUFS because of it.
->Adapt the inaccurate comment above signal_pending().
->
->Resetting a socket that is still present in connected_table can lead to
->memory corruption. The reporter noted lost transports for in-flight skbs,
->and I have reproduced crashes caused by re-insertion into connected_table.
->
->  list_add double add: new=, prev=, next=.
->  kernel BUG at lib/list_debug.c:35!
->  Oops: invalid opcode: 0000 [#1] SMP KASAN NOPTI
->  Workqueue: vsock-loopback vsock_loopback_work
->  RIP: 0010:__list_add_valid_or_report+0x11f/0x130
->  Call Trace:
->   vsock_insert_connected.cold+0xe/0x13
->   virtio_transport_recv_pkt+0x10e9/0x1460
->   vsock_loopback_work+0x305/0x480
->   process_one_work+0xe4c/0x1560
->   worker_thread+0x4f1/0xd60
->   kthread+0x36e/0x470
->   ret_from_fork+0x47b/0x6b0
->   ret_from_fork_asm+0x1a/0x30
->
->This fix is supplementary to commit 002541ef650b ("vsock: Ignore
->signal/timeout on connect() if already established"). Details under Link.
->
->Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
->Reported-by: Hyunwoo Kim <imv4bel@gmail.com>
->Link: https://lore.kernel.org/netdev/anzT1fREOSyHT99k@v4bel/
->Signed-off-by: Michal Luczaj <mhal@rbox.co>
->---
-> net/vmw_vsock/af_vsock.c | 17 ++++++++---------
-> 1 file changed, 8 insertions(+), 9 deletions(-)
+On 10/8/26 23:59, Val Packett wrote:
+> 
+> On 10/8/26 4:33 AM, Dmitry Osipenko wrote:
+>> On 10/6/26 18:42, Val Packett wrote:
+>>> VIRTIO_GPU_F_BLOB_ALIGNMENT is designed for GPU rendering context types,
+>>> however VIRTIO_GPU_CAPSET_CROSS_DOMAIN is not one of those. Resources
+>>> created under cross-domain contexts are arbitrary shared system memory
+>>> files, which includes unusual things like Wayland keymaps received
+>>> from the host compositor. Do not enforce alignment requirements there.
+>>>
+>>> Fixes: 47248e0d8264 ("drm/virtio: honor blob_alignment requirements")
+>>> Signed-off-by: Val Packett <val@invisiblethingslab.com>
+>>> ---
+>>>
+>>> v2: also check has_virgl_3d to prevent dereferencing NULL vfpriv
+>>> v1: https://lore.kernel.org/all/20261006004044.2242154-1-
+>>> val@invisiblethingslab.com/
+>>>
+>>> ~val
+>>>
+>>> ---
+>>>   drivers/gpu/drm/virtio/virtgpu_ioctl.c | 4 +++-
+>>>   1 file changed, 3 insertions(+), 1 deletion(-)
+>>>
+>>> diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/
+>>> drm/virtio/virtgpu_ioctl.c
+>>> index 3ddd5481d6bc..4d5ae062834d 100644
+>>> --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+>>> +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+>>> @@ -551,7 +551,9 @@ static int verify_blob(struct virtio_gpu_device
+>>> *vgdev,
+>>>       params->blob_flags = rc_blob->blob_flags;
+>>>       params->blob_hints = rc_blob->blob_hints;
+>>>   -    if (vgdev->has_blob_alignment &&
+>>> +    if (vgdev->has_blob_alignment && vgdev->has_virgl_3d &&
+>>> +        (vfpriv->context_init &
+>>> VIRTIO_GPU_CONTEXT_INIT_CAPSET_ID_MASK) !=
+>>> +        VIRTIO_GPU_CAPSET_CROSS_DOMAIN &&
+>>>           !IS_ALIGNED(params->size, vgdev->blob_alignment))
+>>>           return -EINVAL;
+>>>   
+>> What userspace has this problem and why it re-purposes virtio-gpu to act
+>> as udmabuf for arbitrary data that never reaches host?
+> 
+> Sorry, what do you mean by that?
+> 
+> This is not related to data that "never reaches host" at all! The error
+> I referred to in the patch message literally says "received *from* the
+> host"…??
+> 
+> Guest userspace is any of the cross-domain proxies:
+> 
+> * https://codeberg.org/drakulix/wl-cross-domain-proxy
+> * https://github.com/talex5/wayland-proxy-virtwl
+> * https://github.com/google/sommelier-rs (or old C++ version)
+> 
+> VIRTIO_GPU_CAPSET_CROSS_DOMAIN "repurposes virtio-gpu" to act as a
+> cross-VM UNIX socket transport that supports fd passing. By referring to
+> virtio-gpu resources in the send command the guest can make the device
+> send the resources' corresponding host fds to the host Wayland
+> compositor. It can refer to resources from other contexts, in order to
+> present drm/venus/etc rendered buffers on Wayland surfaces. (i.e. the
+> host would send the actual dma-buf from virglrenderer) But the resources
+> created on the cross-domain context itself are system memory buffers,
+> generally used for software rendering and miscellaneous Wayland "stuff"
+> like keymaps which are sent *from* the host, and exposed to Wayland
+> clients in the guest. Socket receive handling in rutabaga-gfx stores
+> incoming fds and returns their IDs to the guest, then the guest does a
+> CREATE_BLOB with matching blob_id, which creates a virtio-gpu resource
+> from the incoming buffer, so the guest can just MAP_BLOB it. These are
+> the blobs that are not aligned to anything because they're just
+> arbitrary memfds on the host.
 
+Blob is a chunk of memory intended to be shared between host and guest.
 
-LGTM! Thanks!
+The shared mappable buffer size must be aligned to a page size
+granularity that satisfies both host and guest requirement.
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+If I'm now reading correctly, you're saying that here blob size is
+arbitrary payload data size, even not the the aligned size of memory
+blob that contains payload. And userspace code implicitly relies on
+kernel to round-up payload size to a guest's page size.
 
->
->diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
->index 9b71479a2b29..14fe24b05f9c 100644
->--- a/net/vmw_vsock/af_vsock.c
->+++ b/net/vmw_vsock/af_vsock.c
->@@ -1834,23 +1834,22 @@ static int vsock_connect(struct socket *sock, struct sockaddr_unsized *addr,
-> 		timeout = schedule_timeout(timeout);
-> 		lock_sock(sk);
->
->-		/* Connection established. Whatever happens to socket once we
->-		 * release it, that's not connect()'s concern. No need to go
->+		/* Connection was established. Whatever happens to socket once
->+		 * we release it, that's not connect()'s concern. No need to go
-> 		 * into signal and timeout handling. Call it a day.
-> 		 *
-> 		 * Note that allowing to "reset" an already established socket
-> 		 * here is racy and insecure.
-> 		 */
->-		if (sk->sk_state == TCP_ESTABLISHED)
->-			break;
->+		if (sk->sk_state == TCP_ESTABLISHED ||
->+		    sk->sk_state == TCP_CLOSING) {
->+			err = 0;
->+			goto out_wait;
->+		}
->
-> 		/* If connection was _not_ established and a signal/timeout came
-> 		 * to be, we want the socket's state reset. User space may want
->-		 * to retry.
->-		 *
->-		 * sk_state != TCP_ESTABLISHED implies that socket is not on
->-		 * vsock_connected_table. We keep the binding and the transport
->-		 * assigned.
->+		 * to retry, so we keep the binding and the transport assigned.
-> 		 */
-> 		if (signal_pending(current) || timeout == 0) {
-> 			err = timeout == 0 ? -ETIMEDOUT : sock_intr_errno(timeout);
->
->-- 
->2.56.0
->
+We now have blob_alignment and verifying the unaligned params->size.
+Given the userspace dependency on the kernel's implicit round-up, we
+should be checking blob_alignment of the rounded-up params->size:
 
++	if (*guest_blob)
++		params->size = roundup(params->size, PAGE_SIZE);
+
+	if (vgdev->has_blob_alignment &&
+	    !IS_ALIGNED(params->size, vgdev->blob_alignment))
+		return -EINVAL;
+
+Does it work for you?
+
+-- 
+Best regards,
+Dmitry
