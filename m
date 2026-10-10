@@ -1,62 +1,63 @@
-Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
+Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27D3D32B113
-	for <virtualization@lists.linux.dev>; Sat, 10 Oct 2026 14:23:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7464B495059
+	for <virtualization@lists.linux.dev>; Sat, 10 Oct 2026 14:23:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791642204; cv=none; b=NqcfzwsIVgZAE7HxaualXQ4II4Kp5hoBL7LDltRAcT69/axIdNStyuw2fuXfl6vucvXRYjbannvEOUhn0JLOgrPegy3TWHfZxqsB7plWKKjky1ait+JIGXoSbAY46WU5ImFDbbXekDaSowDiqn8GPf4TkuPB2Ry0i59Xu4fvJn8=
+	t=1791642210; cv=none; b=gjpyxzDzQuZkXX6RFnq0x0O9a4deA5a1gwTa8knrHAK+XPrzn3SFeUQJhYpTvBv/WToFAO28LJiTAgOJoireTRJyTz+4AHVtv168D2PpQUJWn4fw6RPChV4UDiKQLFOmqLSqZoM/ikCQPYDrhzofiVWxp1MxJYxC/XbJqPeNFXg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791642204; c=relaxed/simple;
-	bh=4T9nQP9zI8Um0KD02ZgaELtECfj/1eQuGFpZovzAt2c=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=GK5gwYWcN6UeJC9IagnrBrEm8VSI65Eqj6bY9WlkFNGqyShmME7o6HfX7ofkhjETb5tVL0eMkaP8lvywo5kM4fIYXrpWOuuORE2M1TMXhYvUeFh2nVnH76crSHm6+6IpTGCzrDmDSetqFRVK8utkrkO4gqga4Cp7849SyedKvCY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Wp1JiU+1; arc=none smtp.client-ip=209.85.214.169
+	s=arc-20240116; t=1791642210; c=relaxed/simple;
+	bh=SrTKDRuW9NZ2EjBREXpMO3zaIjzegK2qKsQrkr1UKlc=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=LAnU93YR020C08MtS1IhwtTC4JaUqjhZA2VWvKW4qivr2Mf/YmdYJazIoCkCCT8Xa4/yKdSfFovF+x56KQUHHqvXB7tW4OZQNoHpFk3C4Ptr10Da0l8tdWruhmpkKnkpzMEN3puOw9l8CPgUwF1DclG5rfHE7DOmT7s9I7MvTlE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RlirmBTX; arc=none smtp.client-ip=209.85.214.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Wp1JiU+1"
-Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-2d560775ca2so2272355ad.1
-        for <virtualization@lists.linux.dev>; Sat, 10 Oct 2026 07:23:22 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RlirmBTX"
+Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-2e61f017091so3428545ad.1
+        for <virtualization@lists.linux.dev>; Sat, 10 Oct 2026 07:23:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791642201; x=1792247001; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=OeL2aIjFwVAv8sSCYCVGfdYfrjImjk5Kbtp5DQOr+I0=;
-        b=Wp1JiU+1KCRLjJstQX45gMfYcvkhHRt8CBKwEzfRilID83Pt05SKVILjIgio1Nxd2W
-         NZbxZLeJjX5O5+oOo15LFkApOpSnesEDvvcayOGRIyP5z/74BXfE+r+KloOR3Xz7t+zf
-         tNtXWNBAlnjtxf9keVMB6bSZand2kIE5sEM0UGvsHBJ7dlre0mdZKokf7kdUuUiDqNfc
-         Kt/jTqS0L+wOoXUeK3AHTmOEwHtXQ6ZAnzIxIS1kWHgRTDtXRRpymY3eAb24TwrKysPE
-         LyfKvcejC0qACd8D72CCuDRPlYGsQfBncytqZePkfGFtm1lclyk3+BA+eHKubE5E4yFk
-         5Pdg==
+        d=gmail.com; s=20251104; t=1791642208; x=1792247008; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=ft+6QFIF5f2VFqvcShDWqZDBbOT/nzezeoFifhj5jXM=;
+        b=RlirmBTXqOWajyrYpoW4Uh7xKHGBT8g2ZVNJcSgtm5x8mCd3wrEuSttFL7ZaWyitVN
+         N53vqaHl+Is7BcieDHIzu71RrAFMsPIjTTR5ki72ekbpMpakFKSFjtqvReybWrJfEdDM
+         3HGUShWKo4xNhHhk6Dg1gq96v5/NZYrWbTdULYweGtUQzyBFsDM57SzsevfpW4inNdD6
+         wSuKsSNAfPN+K+K20EmGD6+1kAkSztSMlamCnx2ZABzvoyQll7nvq4IuREMlyXJHE84R
+         hpV03Wa7aNgTRS+ZLqkZe5o9jKsZbCJ4zKVXFWV9qeJmyS8t77Vwwt42PbfKYmjWA+E+
+         nRYQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791642201; x=1792247001;
-        h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=OeL2aIjFwVAv8sSCYCVGfdYfrjImjk5Kbtp5DQOr+I0=;
-        b=F/oqHZNYPUq/wdlOE/9i8i1Q/FuhLe+rs9bXYDI+u2Iri2DEmpMdcLZ0raxLe9PVQU
-         PQbkd5FtdqLT/BGfFUoy7B3ipQKjtun1ADAw87eVcmq5PrAxIGS9CW4WIrMzMuX68duX
-         K6Zj0kqLw33WEADIuJsbMxFNK9IY+Y2qVpezl5NCDg8mSpNrcAXju5PFWjJXQKHaKvAV
-         HtDhlMe+DswdF2hSWTKmfmGDCSDhGi+5kPPT7pnnK8gidNCoVlhsleHdjDcaHDawE4Ec
-         PKp6ueGJKfxMm2If6a6Jp7VW+j7k7baqxev9COPb0Vwa26TyTflc+75R1VUlMfSe8DCH
-         4J+w==
-X-Forwarded-Encrypted: i=1; AKwUvBwiAWhwLIzpmGHxeBBvIBUX4W4bRkD2EBnrEculH7vL5i5NaRD8QUAOphnbjE+gpcTCuZkb1WIPlQ5BDoZ/Xw==@lists.linux.dev
-X-Gm-Message-State: AFq9FYLaM3byrBepldFKGs4kE2mHmvuuaREt5vijQWGnLJPlwrHL7r5G
-	jgQEXnSaOd687qoL4I9eeU6b5rNpuerbO3APN48iMpkm9cbS8iRMyFaD
-X-Gm-Gg: AYBFou1jrRk+2l+1WJAlMnAJL/tPSLCZ2u4NVS85kRJpwc6DI6IA3IDo9oNB+PTZEcb
-	frJu5exx03IVo9GHDcTCZBCWLeT5zIfnDp5NhGdmzuG5zgrBrLKsKFIsAe6o4e6JSyCSTmOWYGd
-	eVyW5tAwKNSvx8oynQmXc+t2VZQqMTXfAgS+WXflFq3jNIxnc7NVjiWa0EYo/cPzd6OCnv0yJ65
-	LT1teNIAX8aDEyV12YGx5wYSm4iI06x0r1ubPUUaNLy1ljAyu5cYMR078ZfPDFKt6PZYD9dvvr6
-	mwiYX5qWOv9CcCc39Z/aW/vVItPBnhtE+UdS35qGT7fEZRf/AhQ7TRa4P7cshxKtFejGKeGzQ5N
-	Ld1CqqXc/jOCiAN3q7uH7AgH6RC7g27Ept7keTRhyp3DKOBUEuAcEGEIlD5pRziltSzTUd2yUID
-	75ZchpumNuHptmBQixNqZWeIYlSXKTOmaeu559e7aNQ29kU2J6FFmN0zhHWJvHpnGdBW9mTCc=
-X-Received: by 2002:a17:903:1967:b0:2e8:2d05:9780 with SMTP id d9443c01a7336-2e8427f0315mr36579415ad.8.1791642201074;
-        Sat, 10 Oct 2026 07:23:21 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1791642208; x=1792247008;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=ft+6QFIF5f2VFqvcShDWqZDBbOT/nzezeoFifhj5jXM=;
+        b=u3jeuwNzdwAAc3mgs9wleX4FNhnu1eqDPi1IjHDxLU7LSW9cQgq3DcWMLAM61uLjK5
+         nSBggzlVgAzN3yLr8rEszFus3rsBmSVRm+v0TzVVIX8QGD+cJp1lAd9mQl+Vtsq7CV6j
+         BBl33e23h9EAHITqL5ti7ioSRIq5VoIEOBzD7yIZPnmg5ELlJf4+MrmJqYez2zG7waNc
+         +VF9XsqXn6bFNX8JKJyKkbcAslNV7yXJy4NkAAR4sMLBw/YiuzenEIfRDcLs13fGuXW4
+         QV+ieerPNXeTMsDFQ2pIuuFU2JYcLzrWHJwwhnHjD/wnfF/m+DGmiUOVPW9GqOIt0Xje
+         g+8A==
+X-Forwarded-Encrypted: i=1; AKwUvBzhYKf5ZGoI+sxOZRXyrIms7kUwcRpcWFJPPySOhba297tnDaTrzzpq/Ojnv1LwZj/3TswIQjtHeHkB5AVieg==@lists.linux.dev
+X-Gm-Message-State: AFq9FYIxcVCRKL8uYHwZXa3Q6aL+5+5feBvrOFXfql97W/J4bVORKqBZ
+	EtFGiml/TNyFr6MfXYDgmGkRbvB5Q9Rx5cetEuHaSda4dYwKIvzKjA/3
+X-Gm-Gg: AYBFou1JjnX/zL754+yPV8r/ES+7C6zjdXn/nECU7zzblzY4TYINUKFpX+JDYWyaz8U
+	SoFguJx9hF+EBYjzrzMIVF+oYIJ4Nx52jw4BDdLIikedcPHwMOFY4whssllIgWkB7RhUPWi1sUG
+	ax4/YiHXKvIQn+BRKXj8NIKlHGO8Gfub1K5Vn19N1q1X05TmS70OR/cKifnxLxGabi2l7aVW9A3
+	KKbrVbFB5QZZzhb4zejXCMbjgqTMF8/goJQp1rHH+S6wsJPgGkWyTVzZ+E8ekqzmpAfV6dnSBBu
+	2qfrufVF4Ix6wmg6k2hBm25Pt50wFOGbmcyErspPp/UCO5HaE9Q6OWG9Aj1h9wKApY7Ef19Lh4J
+	hTfb2MINvpyS4aO1FUFzLDvGMEfzQLdK9+lpKi60DjOW29LzMXghgylyoFzgNhiEK2sWoW/5TNI
+	56CMnEbJQsSCrq1+ENcTde3moFe0uVvwTHsmmFSlH6MmiD+OwK1H1+1bD1mOBWWQiCy+OkHg==
+X-Received: by 2002:a17:903:15c8:b0:2e8:f7a:c69d with SMTP id d9443c01a7336-2e8429a8013mr40631895ad.15.1791642207520;
+        Sat, 10 Oct 2026 07:23:27 -0700 (PDT)
 Received: from gmail.com ([188.253.12.32])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2e841a0401esm23676615ad.4.2026.10.10.07.23.15
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2e841a0401esm23676615ad.4.2026.10.10.07.23.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 10 Oct 2026 07:23:20 -0700 (PDT)
+        Sat, 10 Oct 2026 07:23:26 -0700 (PDT)
 From: Jia Jia <physicalmtea@gmail.com>
 To: stefanha@redhat.com,
 	sgarzare@redhat.com,
@@ -75,231 +76,234 @@ Cc: mst@redhat.com,
 	linux-kernel@vger.kernel.org,
 	bpf@vger.kernel.org,
 	Jia Jia <physicalmtea@gmail.com>
-Subject: [PATCH net-next v2 0/5] vsock/virtio: reduce RX per-packet socket overhead
-Date: Sat, 10 Oct 2026 22:22:42 +0800
-Message-Id: <20261010142247.99223-1-physicalmtea@gmail.com>
+Subject: [PATCH net-next v2 1/5] vsock/virtio: split socket lookup from locked RX processing
+Date: Sat, 10 Oct 2026 22:22:43 +0800
+Message-Id: <20261010142247.99223-2-physicalmtea@gmail.com>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20261010142247.99223-1-physicalmtea@gmail.com>
+References: <20261010142247.99223-1-physicalmtea@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-This series reduces per-packet socket overhead in the virtio-vsock RX
-worker.
+Split virtio_transport_recv_pkt() so socket lookup is separate from the
+receive state machine that runs under the socket lock.
 
-Patch 1: separate socket lookup from locked packet processing.
+Keep virtio_transport_recv_pkt() on its existing per-packet locking path.
+Pass the source and destination addresses used for lookup to the locked
+receive path so they are decoded only once.
 
-Patch 2: keep one socket lock across a bounded run of established
-STREAM/RW packets for the same native socket.
+Pass the network namespace and decoded address tuple through a packet
+context to the locked receive path.
 
-Patch 3: reuse the locked socket for later packets with the same
-address tuple.
+Preserve source validation and failure handling. Keep the lookup reference
+separate from the skb owner reference so the locked receive path can manage
+the two lifetimes independently.
 
-Patch 4: coalesce default write-space notifications while that
-lock is held.
-
-Patch 5: defer the default readable callback until after the batch
-unlocks.
-
-Performance:
-
-Tested on a single-stream vsock connection (one Guest receiver thread on
-CPU0, virtio-vsock IRQ on Guest CPU1, fresh QEMU Guest per state, 16
-balanced AB/BA pairs per payload). The host uses vhost-vsock.
-
-For throughput, vsock_perf runs on the host as the
-sender, with a custom single-threaded Guest receiver pinned to Guest CPU0
-using blocking recv(). The fixed-64K table uses a 64K buffer; the matched
-table uses the sender's request size. The virtio-vsock IRQ/RX worker is
-pinned to Guest CPU1. To normalize run times across payloads into a
-bounded, deterministic window and avoid long runs being skewed by host
-background noise or virtualization scheduling jitter, transfer sizes scale
-proportionally with the request size (64B/64M, 256B/256M, etc.), capped at
-2G for 4K–64K. The custom receiver keeps the recv() size and count
-explicit; vsock_perf's receiver uses poll()+read().
-
-Latency uses a custom user-space vsock ping-pong tool.
-
-The measurements below were collected for the RX batching series.
-
-This benchmark does not run vsock_perf on both ends. Instead, it uses
-vsock_perf as the sender on the host (vhost-vsock) side and a custom
-blocking recv() program without poll() on the Guest side, with the receiver
-thread pinned to Guest CPU0 (and the virtio-vsock RX worker pinned to Guest
-CPU1). Plain blocking recv() combined with strict core pinning gives
-audit-level determinism for tracing a single-threaded TID.
-
-I think it is necessary to do further testing on the large I/O throughput
-peak observed at 4K to find the root cause (and rule out anything
-introduced by the measurement method). I used kprobe and temporary
-trace_printk in the source for mechanism diagnostics. The diagnostic
-data shows that lock wait time and contention at 4K both decrease strictly
-monotonically as payload size increases;
-wire-level tracing also confirms that 4K is split into two packets, and
-that all sizes can reach the 64K batching limit.
-
-The nature of the prominent 4K throughput gain most likely lies in it
-sitting exactly at the end-to-end pipeline sweet spot between host and
-guest:
-
-Compared with 1K and smaller payloads: 4K halves the packet intensity, so
-upstream host-side syscall and interrupt injection overhead is no longer
-the bottleneck across the whole path, allowing the host to supply data
-adequately.
-
-Compared with larger 8K to 64K payloads: 4K keeps the payload size
-moderate, and combined with the observed syscall reduction and cycle
-improvement, the batch-draining benefit from notification coalescing is
-fully realized.
-
-As payload size increases further from 8K to 64K, the overall gain shrinks
-smoothly, consistent with Amdahl's law, because system execution time
-shifts toward page copying and VQ processing.
-
-With all patches applied:
-
-End-to-end RX throughput (64K Guest recv() size, SO_RCVLOWAT=1; Gbit/s):
-
-  payload  baseline RX  PATCH RX  throughput change (95% CI)
-           (Gbit/s)      (Gbit/s)
-  64B      0.1065       0.2503    +135.00% [+130.35%, +139.74%]
-  256B     0.5722       1.0286     +79.76% [+75.40%, +84.23%]
-  512B     1.1464       1.9779     +72.53% [+69.50%, +75.63%]
-  1K       2.2714       3.6368     +60.12% [+56.92%, +63.37%]
-  4K       3.9095       7.7160     +97.37% [+92.09%, +102.79%]
-  8K       3.3436       5.3111     +58.84% [+53.49%, +64.38%]
-  16K      3.8876       5.7456     +47.80% [+45.45%, +50.18%]
-  64K      4.0056       5.3590     +33.79% [+29.37%, +38.36%]
-
-Fixed-syscall stress test (receiver recv() size = sender write size;
-Gbit/s):
-
-  payload baseline PATCH    throughput change (95% CI)    recv()
-          RX       RX                                     (base/patch)
-          (Gbit/s) (Gbit/s)
-  64B     0.1259   0.2651   +110.52% [+99.08%, +122.62%]  1048577/1048577
-  256B    0.3790   0.9444   +149.20% [+134.70%, +164.60%] 1048577/1048577
-  512B    0.7768   1.7009   +118.97% [+103.94%, +135.11%] 1048577/1048577
-  1K      1.4886   2.9477   +98.02% [+84.82%, +112.17%]   1048577/1048577
-  4K      2.1129   4.7331   +124.01% [+115.40%, +132.96%] 537436/525524
-  8K      2.8698   5.3683   +87.06% [+80.96%, +93.37%]    276448/264109
-  16K     3.5156   5.8463   +66.30% [+63.10%, +69.55%]    147849/132267
-  64K     4.2459   5.8576   +37.96% [+35.26%, +40.71%]    48447/33144
-
-Request-response latency (Ping-Pong RTT, 10,000 requests):
-
-  payload  baseline mean RTT (us)  PATCH mean RTT (us)  change (95% CI)
-  64B      221.968                  218.144              -1.72%
-                                                        [-4.23%, +0.85%]
-  256B     126.968                  124.541              -1.91%
-                                                        [-3.35%, -0.45%]
-  4K       130.362                  126.664              -2.84%
-                                                        [-5.12%, -0.50%]
-
-Diagnostic Guest CPU1 system-wide cycles (fixed-64K receiver, with perf):
-
-  Buffer size  baseline cycles/B  PATCH cycles/B  cycles change (95% CI)
-  64B      62.032            52.370          -15.58% [-17.16%, -13.96%]
-  256B     15.287            13.630          -10.84% [-12.51%, -9.14%]
-  512B      7.306             6.611           -9.51% [-10.92%, -8.08%]
-  1K        3.811             3.458           -9.25% [-10.96%, -7.50%]
-  4K        1.850             1.669           -9.75% [-11.78%, -7.67%]
-  8K        1.504             1.363           -9.36% [-12.97%, -5.60%]
-  16K       1.321             1.210           -8.37% [-10.61%, -6.07%]
-  64K       1.342             1.227           -8.57% [-10.87%, -6.21%]
-
-Patch-scope measurements and attribution:
-
-The series was tested cumulatively in two ranges, using the same
-single-stream setup and paired AB/BA runs. The table below shows results
-from patches 1–3 only, before the notification changes in patches 4–5.
-
-  payload  baseline RX  PATCH RX  throughput change (95% CI)
-           (Gbit/s)      (Gbit/s)
-  64B      0.1211       0.2534    +109.26% [+106.34%, +112.23%]
-  256B     0.5671       0.9989     +76.15% [+70.63%, +81.85%]
-  512B     1.1334       1.9000     +67.64% [+64.64%, +70.69%]
-  1K       2.2650       3.5610     +57.22% [+50.91%, +63.79%]
-  4K       3.8331       7.2888     +90.15% [+83.46%, +97.09%]
-  8K       4.8244       7.6636     +58.85% [+53.71%, +64.16%]
-  16K      5.4979       8.2469     +50.00% [+45.57%, +54.57%]
-  64K      3.8875       4.7588     +22.41% [+17.77%, +27.24%]
-
-Fixed-syscall stress test (receiver recv() size = sender write size;
-no perf; Gbit/s):
-
-  payload baseline PATCH    throughput change (95% CI)    recv()
-          RX       RX                                     (base/patch)
-          (Gbit/s) (Gbit/s)
-  64B     0.1397   0.2646   +89.40% [+80.92%, +98.27%]    1048577/1048577
-  256B    0.3960   0.9516   +140.34% [+117.48%, +165.60%] 1048577/1048577
-  512B    0.7541   1.6496   +118.74% [+101.42%, +137.55%] 1048577/1048577
-  1K      1.4903   2.8793   +93.21% [+77.06%, +110.82%]   1048577/1048577
-  4K      2.9466   6.2284   +111.37% [+97.52%, +126.20%]  538192/525220
-  8K      4.0043   6.9249   +72.94% [+60.18%, +86.71%]    276313/263852
-  16K     4.8981   7.5599   +54.34% [+49.77%, +59.06%]    147576/131600
-  64K     5.9294   7.7897   +31.37% [+27.18%, +35.70%]    50207/33014
-
-Ping-Pong RTT (10,000 requests; no perf):
-
-  payload  baseline mean RTT (us)  PATCH mean RTT (us)  change (95% CI)
-  64B      119.688                  119.739              +0.04%
-                                                        [-2.61%, +2.77%]
-  256B     120.603                  124.485              +3.22%
-                                                        [-0.44%, +7.01%]
-  4K       121.921                  122.491              +0.47%
-                                                        [-3.51%, +4.61%]
-
-Guest CPU1 system-wide aggregate cycles (fixed-64K receiver, with perf;
-cycles/byte):
-
-  Buffer size  baseline cycles/B  PATCH cycles/B  cycles change (95% CI)
-  64B      66.838             60.012           -10.21% [-13.03%, -7.30%]
-  256B     13.446             12.305            -8.49% [-11.23%, -5.66%]
-  512B      6.833              6.317            -7.54% [ -9.52%, -5.52%]
-  1K        3.558              3.434            -3.48% [ -6.02%, -0.87%]
-  4K        1.806              1.686            -6.64% [ -8.69%, -4.54%]
-  8K        1.457              1.403            -3.73% [ -5.64%, -1.78%]
-  16K       1.295              1.279            -1.24% [ -5.21%, +2.89%]
-  64K       1.214              1.198            -1.30% [ -4.06%, +1.53%]
-
-The split-patch tests show that PATCH 2 and PATCH 3 mainly contribute to
-the improvement in I/O Throughput, while PATCH 4 and PATCH 5 mainly
-contribute to the improvements in cycles and RTT latency (although PATCH
-2-3 show no obvious regression here).
-
+Signed-off-by: Jia Jia <physicalmtea@gmail.com>
 ---
-v2:
-  - stop a batch after it consumes the last skb metadata slot, sharing the
-    admission predicate with virtio_transport_inc_rx_pkt()
-  - move replacement-callback handoff into vsock, process queued skbs one
-    at a time, and trigger the handoff from vsock_bpf_update_proto() on
-    attach and detach
-  - reduce the packet-context diff in the locked receive helper
-  - keep RX batch counters in the batch state and reset them in the finish
-    path
-  - use the vsock/virtio subject prefix and add the requested measurements
-v1: https://lore.kernel.org/virtualization/20261002074551.318789-1-physicalmtea@gmail.com/
+ net/vmw_vsock/virtio_transport_common.c | 139 ++++++++++++++++--------
+ 1 file changed, 96 insertions(+), 43 deletions(-)
 
-Jia Jia (5):
-  vsock/virtio: split socket lookup from locked RX processing
-  vsock/virtio: amortize RX socket locking for stream packets
-  vsock/virtio: reuse same-flow socket lookup in RX batches
-  vsock/virtio: coalesce RX write-space notifications in lock batches
-  vsock/virtio: defer RX readable notifications until batch unlock
-
- include/linux/virtio_vsock.h            |  16 ++
- include/net/af_vsock.h                  |   8 +
- net/vmw_vsock/af_vsock.c                | 104 +++++++++
- net/vmw_vsock/virtio_transport.c        |  29 ++-
- net/vmw_vsock/virtio_transport_common.c | 389 +++++++++++++++++++++++++++-----
- net/vmw_vsock/vsock_bpf.c               |   2 +
- 6 files changed, 496 insertions(+), 52 deletions(-)
-
-base-commit: 8df0638138d3e0344fd1fb36cf2d1ca1cf5028f0
+diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+index f225f53..e3e75e5 100644
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -1774,81 +1774,97 @@ static bool virtio_transport_valid_type(u16 type)
+ 	       (type == VIRTIO_VSOCK_TYPE_SEQPACKET);
+ }
+ 
+-/* We are under the virtio-vsock's vsock->rx_lock or vhost-vsock's vq->mutex
+- * lock.
+- */
+-void virtio_transport_recv_pkt(struct virtio_transport *t,
+-			       struct sk_buff *skb, struct net *net)
++static void
++virtio_transport_recv_pkt_init_addrs(struct sk_buff *skb,
++				     struct sockaddr_vm *src,
++				     struct sockaddr_vm *dst)
+ {
+ 	struct virtio_vsock_hdr *hdr = virtio_vsock_hdr(skb);
+-	struct sockaddr_vm src, dst;
+-	struct vsock_sock *vsk;
+-	struct sock *sk;
+-	bool space_available;
+ 
+-	vsock_addr_init(&src, le64_to_cpu(hdr->src_cid),
++	vsock_addr_init(src, le64_to_cpu(hdr->src_cid),
+ 			le32_to_cpu(hdr->src_port));
+-	vsock_addr_init(&dst, le64_to_cpu(hdr->dst_cid),
++	vsock_addr_init(dst, le64_to_cpu(hdr->dst_cid),
+ 			le32_to_cpu(hdr->dst_port));
++}
++
++static void
++virtio_transport_trace_recv_pkt(struct sk_buff *skb,
++				const struct sockaddr_vm *src,
++				const struct sockaddr_vm *dst)
++{
++	struct virtio_vsock_hdr *hdr = virtio_vsock_hdr(skb);
+ 
+-	trace_virtio_transport_recv_pkt(src.svm_cid, src.svm_port,
+-					dst.svm_cid, dst.svm_port,
++	trace_virtio_transport_recv_pkt(src->svm_cid, src->svm_port,
++					dst->svm_cid, dst->svm_port,
+ 					le32_to_cpu(hdr->len),
+ 					le16_to_cpu(hdr->type),
+ 					le16_to_cpu(hdr->op),
+ 					le32_to_cpu(hdr->flags),
+ 					le32_to_cpu(hdr->buf_alloc),
+ 					le32_to_cpu(hdr->fwd_cnt));
++}
+ 
+-	if (!virtio_transport_valid_type(le16_to_cpu(hdr->type))) {
+-		(void)virtio_transport_reset_no_sock(t, skb, net);
+-		goto free_pkt;
+-	}
++static struct sock *
++virtio_transport_recv_pkt_find_socket(struct sk_buff *skb,
++				      struct sockaddr_vm *src,
++				      struct sockaddr_vm *dst,
++				      struct net *net)
++{
++	struct virtio_vsock_hdr *hdr = virtio_vsock_hdr(skb);
++	struct sock *sk;
+ 
+-	/* The socket must be in connected or bound table
+-	 * otherwise send reset back
+-	 */
+-	sk = vsock_find_connected_socket_net(&src, &dst, net);
+-	if (!sk) {
+-		sk = vsock_find_bound_socket_net(&dst, net);
+-		if (!sk) {
+-			(void)virtio_transport_reset_no_sock(t, skb, net);
+-			goto free_pkt;
+-		}
+-	}
++	if (!virtio_transport_valid_type(le16_to_cpu(hdr->type)))
++		return NULL;
++
++	sk = vsock_find_connected_socket_net(src, dst, net);
++	if (!sk)
++		sk = vsock_find_bound_socket_net(dst, net);
++	if (!sk)
++		return NULL;
+ 
+ 	if (virtio_transport_get_type(sk) != le16_to_cpu(hdr->type)) {
+-		(void)virtio_transport_reset_no_sock(t, skb, net);
+ 		sock_put(sk);
+-		goto free_pkt;
++		return NULL;
+ 	}
+ 
+-	if (!skb_set_owner_sk_safe(skb, sk)) {
+-		WARN_ONCE(1, "receiving vsock socket has sk_refcnt == 0\n");
+-		goto free_pkt;
+-	}
++	return sk;
++}
+ 
+-	vsk = vsock_sk(sk);
++struct virtio_transport_rx_pkt_ctx {
++	struct net *net;
++	const struct sockaddr_vm *src;
++	const struct sockaddr_vm *dst;
++};
+ 
+-	lock_sock(sk);
++/*
++ * The caller holds sk's socket lock and must free skb if this returns true.
++ */
++static bool
++virtio_transport_recv_pkt_locked(struct virtio_transport *t,
++				 struct sk_buff *skb, struct sock *sk,
++				 const struct virtio_transport_rx_pkt_ctx *ctx)
++{
++	const struct sockaddr_vm *src = ctx->src;
++	const struct sockaddr_vm *dst = ctx->dst;
++	struct vsock_sock *vsk = vsock_sk(sk);
++	struct net *net = ctx->net;
++	bool space_available;
+ 
+-	/* Check if sk has been closed or assigned to another transport before
+-	 * lock_sock (note: listener sockets are not assigned to any transport)
++	/* Check after acquiring the socket lock. Listener sockets accept packets
++	 * from any source and are not assigned to a transport.
+ 	 */
+ 	if (sock_flag(sk, SOCK_DONE) ||
+ 	    (sk->sk_state != TCP_LISTEN &&
+-	     !vsock_check_source(vsk, &t->transport, &src))) {
++	     !vsock_check_source(vsk, &t->transport, src))) {
+ 		(void)virtio_transport_reset_no_sock(t, skb, net);
+-		release_sock(sk);
+-		sock_put(sk);
+-		goto free_pkt;
++		return true;
+ 	}
+ 
+ 	space_available = virtio_transport_space_update(sk, skb);
+ 
+ 	/* Update CID in case it has changed after a transport reset event */
+ 	if (vsk->local_addr.svm_cid != VMADDR_CID_ANY)
+-		vsk->local_addr.svm_cid = dst.svm_cid;
++		vsk->local_addr.svm_cid = dst->svm_cid;
+ 
+ 	if (space_available)
+ 		sk->sk_write_space(sk);
+@@ -1875,12 +1891,49 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
+ 		break;
+ 	}
+ 
++	return false;
++}
++
++/* We are under the virtio-vsock's vsock->rx_lock or vhost-vsock's vq->mutex
++ * lock.
++ */
++void virtio_transport_recv_pkt(struct virtio_transport *t,
++			       struct sk_buff *skb, struct net *net)
++{
++	struct virtio_transport_rx_pkt_ctx ctx;
++	struct sockaddr_vm src, dst;
++	struct sock *sk;
++	bool free_pkt;
++
++	virtio_transport_recv_pkt_init_addrs(skb, &src, &dst);
++	virtio_transport_trace_recv_pkt(skb, &src, &dst);
++
++	sk = virtio_transport_recv_pkt_find_socket(skb, &src, &dst, net);
++	if (!sk) {
++		(void)virtio_transport_reset_no_sock(t, skb, net);
++		goto free_pkt;
++	}
++
++	if (!skb_set_owner_sk_safe(skb, sk)) {
++		WARN_ONCE(1, "receiving vsock socket has sk_refcnt == 0\n");
++		goto free_pkt;
++	}
++
++	lock_sock(sk);
++	ctx = (struct virtio_transport_rx_pkt_ctx) {
++		.net = net,
++		.src = &src,
++		.dst = &dst,
++	};
++	free_pkt = virtio_transport_recv_pkt_locked(t, skb, sk, &ctx);
+ 	release_sock(sk);
+ 
+ 	/* Release refcnt obtained when we fetched this socket out of the
+ 	 * bound or connected list.
+ 	 */
+ 	sock_put(sk);
++	if (free_pkt)
++		kfree_skb(skb);
+ 	return;
+ 
+ free_pkt:
 -- 
-2.53.0
+2.34.1
+
