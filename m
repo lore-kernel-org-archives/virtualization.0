@@ -1,220 +1,158 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.18])
+Received: from BYAPR05CU005.outbound.protection.outlook.com (mail-westusazon11010058.outbound.protection.outlook.com [52.101.85.58])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EBCF373C00;
-	Sat, 10 Oct 2026 04:58:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791608334; cv=none; b=tDqntHxtgp+hPZ/WJFO9D7qpG7cVmhBfkllwSHGK3KLFglW5R+pXr6/Kb17vZeDU2eOCsysFJhvN5SUBoDkBi9a/dYqykYbyrtqyhACgEg6Y5hEtu/LPyVEOicQjXGEAO9ZVXJ2V0qcTDQyCJnmLR+xIwu3UGh1tEIzO28aI/D8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791608334; c=relaxed/simple;
-	bh=wPLfCe6T+S/gCrFoE2GfzPMLJXw739UlhNUlKDcz5Qo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=eYrwHfU7coW3hAgRe103Ddk1jhQOB4f977aPaeNk/AYSYgUwm0H7Gs7+srqm8CwZ7eHvUUWBn2B41fb2yNtEc5mBpDiyn/W2VPFYaCX1vF/UWd7VzAAISyFk3PfJvuDv5oXa92IORwVVax+YCtycbCGkAl9mcrpE6YeoRCJ3tis=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Xouw0ooQ; arc=none smtp.client-ip=192.198.163.18
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02C8536F419
+	for <virtualization@lists.linux.dev>; Sat, 10 Oct 2026 07:36:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.85.58
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791617798; cv=fail; b=TWMeC/frQ0JqmIYsNOfbGheuq1ah5sxEd2gHfVp0hOVqMuLvEYOGSTi1lIqfyQa6VfrbfLiMbxbQemRRPIuBCPLBMNv5P4DKwo07eyNVlK8Mv8BStUioAys7PmMfuwuPK1pqA9MFA4ZEJK+SrL76Eyik7dUKE38gVkoZfjSTPOE=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791617798; c=relaxed/simple;
+	bh=Cuc2of1MgMf3Bp0xeC/K6tHnse31yCR1NjWzCD8OBR4=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=kBQHPJubstjsSVpMwxXd7Ws7hvTUWv60JVdl4bSkVKs4fJ2nb+3+w7zGeKKjtWegyiK3cslDvZEMbPaOfvedRln0g83ZeebSKcooHj9NjD61iJqjb5JLPc7alHOPJCqo0g7y2iaKDu94zMFMhvejsZchxOrEibogQNJPp4mmJzw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=2QZuiSnz; arc=fail smtp.client-ip=52.101.85.58
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Xouw0ooQ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1791608332; x=1823144332;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=wPLfCe6T+S/gCrFoE2GfzPMLJXw739UlhNUlKDcz5Qo=;
-  b=Xouw0ooQCD+gpCVToIy+q3e30HTH9N2Hj8qucDomCrC9pxk+XteEbd/I
-   Nrvc65CUFWCDIcX2E/iS214ZCtqwnrRidpgH0W6rapi6OA3Y1TO+ToKL/
-   c382H5TYXyLoginOJxaOcDi7jEb3KSujc9A1BCpdZG6ydt/NYT4u6UK9n
-   fIyBgOTE2fmUlU4oUUFS5dJctffPKz4GigICsGPa0YP2tz04gV1FrGz5t
-   8/h5HosaGXSkaAMZUYmQ+pRnkLwfotSd6mWa1gqVeRK+y9YkLxJIvbkCm
-   bc8FryfJ3wS/0ecQG2hBOEF/zejBOtpb9+CEVEO0ONO2jn3mUG5k4Ei4q
-   g==;
-X-CSE-ConnectionGUID: RHL72wFSSUSy/egyE+dlyQ==
-X-CSE-MsgGUID: e1lp8CD1Qci3NgQYMiVtRQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11930"; a="419629"
-X-IronPort-AV: E=Sophos;i="6.27,149,1787036400"; 
-   d="scan'208";a="419629"
-Received: from orviesa010.jf.intel.com ([10.64.159.150])
-  by fmvoesa112.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2026 21:58:51 -0700
-X-CSE-ConnectionGUID: aNlxjUvIR1K9yDLAbMhm9A==
-X-CSE-MsgGUID: ob+7cjSZQbqK+04lE0pgWw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,149,1787036400"; 
-   d="scan'208";a="926771"
-Received: from lkp-server01.sh.intel.com (HELO 0caa9d2d175c) ([10.239.97.150])
-  by orviesa010.jf.intel.com with ESMTP; 09 Oct 2026 21:58:49 -0700
-Received: from kbuild by 0caa9d2d175c with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1xFPAT-000000006VZ-2EwS;
-	Sat, 10 Oct 2026 04:58:45 +0000
-Date: Sat, 10 Oct 2026 12:58:11 +0800
-From: kernel test robot <lkp@intel.com>
-To: Linlin Zhang <linlin.zhang@oss.qualcomm.com>, mst@redhat.com,
-	jasowangio@gmail.com, axboe@kernel.dk, ebiggers@kernel.org,
-	stefanha@redhat.com
-Cc: oe-kbuild-all@lists.linux.dev, pbonzini@redhat.com, eperezma@redhat.com,
-	xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev,
-	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v4 2/2] virtio_blk: add inline encryption support
-Message-ID: <202610101218.PA25qZJG-lkp@intel.com>
-References: <20261009041727.3170811-3-linlin.zhang@oss.qualcomm.com>
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="2QZuiSnz"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=v+psvXNHbhHji5V8amCltzUYCDPEuf5Xcko7UBvD5OrDP0ggGA8BTLwM/bRB/7fShXi6ulvhlcqyRuVpWhD54C7YjTeBALooBNVJhDimi1gV4K+4azTGcFETdQWpdddjxLsJaTIpqU2SPH1i0AQoPUBHgA0wJXRDV5Nc+nrtgxGThagxk5yH/rL+M3k2lwOF0+BBPj+GMfWLzZtrUGIh3B7V6CXW0vHy7vaO+EoYQdlBep425WQuWKiFQKGVvHzaMIsgmLXzTykwJiDqVConxrIKHAalaDID4G0K3+qPIgN/kCIbzxqavJAkPzKXQA2IbZSECrFCiuPpH1ZejMvdyA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=VYz9r8PmsOwxzyPyrjquMnAjad0LJaf3uyKSiBQn1Yc=;
+ b=BeG41VlB+4a1xwQ2I4C3B1oP6XWkhWlA75laBfLe0rLxtb4Ss9xKirqtm9a720U++pFOECNCChPOyqCkA0iPIDKSxf+yx0SKYrZuTAlgMvACbu21h4K2kAtlC/VxEIeD4eNpQ05ChX0eIX/6j+xYpWTi4CvOPgAxnMCMoXqbfLvRmdetYvjp2JuoGdWgc9+/SUOYcou7j7iXt8060gM/TBD5Mh8IX2ASK7/zPEUNQPqmuIrKRWfYunG8t1PmzqUE04Y3TIZ/MtrpxyhW0OzcG9F+/zx5lDO5/puhh7cfKkITBuvcPlVhZHFZygne0H04qhE153chPP/9lLQ43yeI5g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=VYz9r8PmsOwxzyPyrjquMnAjad0LJaf3uyKSiBQn1Yc=;
+ b=2QZuiSnzzgfXhyIDicFeha9up3FQ60iy1qiQl2/j/Kz8mdHn6G7WRiXO9gdM6OpJjAKfqj2hl4RBn44+mEAeTRHRvJMB314UhEPQU6q/veA0VursZa8StEE3D/ioOmcIk+15RFbCwZtzFVeK68SyXJ6I1rB8tC6GZFgRnvbm0lE=
+Authentication-Results: mx.microsoft.com 1; dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from CY8PR12MB7170.namprd12.prod.outlook.com (2603:10b6:930:5a::18)
+ by DM6PR12MB4042.namprd12.prod.outlook.com (2603:10b6:5:215::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.496.16; Sat, 10 Oct
+ 2026 07:36:32 +0000
+Received: from CY8PR12MB7170.namprd12.prod.outlook.com
+ ([fe80::7565:bdd3:383a:de5f]) by CY8PR12MB7170.namprd12.prod.outlook.com
+ ([fe80::7565:bdd3:383a:de5f%3]) with mapi id 15.21.0496.010; Sat, 10 Oct 2026
+ 07:36:32 +0000
+Message-ID: <16241811-671c-4962-aa3c-ac8f3ffb4f2c@amd.com>
+Date: Sat, 10 Oct 2026 15:36:20 +0800
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH v9 3/4] drm/virtio: implement userptr resource support
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Cc: gurchetansingh@chromium.org, olvaffe@gmail.com, Ray.Huang@amd.com,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, odaki@rsg.ci.i.u-tokyo.ac.jp,
+ airlied@redhat.com, kraxel@redhat.com
+References: <20260924095556.1326164-1-honghuan@amd.com>
+ <20260924095556.1326164-4-honghuan@amd.com>
+ <69e33ec9-a0bc-4d02-b20d-9c0c03236a42@collabora.com>
+Content-Language: en-US
+From: "Huang, Honglei" <honghuan@amd.com>
+In-Reply-To: <69e33ec9-a0bc-4d02-b20d-9c0c03236a42@collabora.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: TPYP295CA0057.TWNP295.PROD.OUTLOOK.COM (2603:1096:7d0:8::8)
+ To CY8PR12MB7170.namprd12.prod.outlook.com (2603:10b6:930:5a::18)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261009041727.3170811-3-linlin.zhang@oss.qualcomm.com>
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CY8PR12MB7170:EE_|DM6PR12MB4042:EE_
+X-MS-Office365-Filtering-Correlation-Id: d72145b7-6fbb-4d4b-6e6b-08df26a1348d
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|23010399003|376014|366016|1800799024|10067099003|18002099003|22082099003|261009220027099003|261009223027099003|261009223327099003|261009221227099003|4143699003|261009221727099003|11063799006|56012099006;
+X-Microsoft-Antispam-Message-Info:
+	nvzxsQpaFWKzsoMk6zMxOgDII7N8G97k0ehiYX4hUsCp3cKKKl0vCj0M0eSrS7vEbGBMqI+UOmTOeZ3qb+/H4q9QD+JV6JSq170ju12a1lAWHeRfGPLb3a6vK6UsmVC2Io4lm9h4ase7Fli/rFTAuD/Xsbkz4WfnzMpYpkc1uipml+g2i6Dq64JQQRAod5nH/phFeaBZKA2cMjPqSEQRM0Rq2OD1Q4uY5mI+21Ca0/LwQP0JVzeWmfhCESDYhwBdbfIX33bjSSr3nQ4Htaa70LB1bkDroYH1BKhXSv5kpQBu1cXu/gBJ4FOXMZGAR5c84ijOZfQmP9wRpN7qFx+yQzk6+rWm2QrCifZ+lzkbyg8oh9aUglCTYU4PVTLRu7vSsJ8jWPtNqUv77PdIzh9joagiqtM3R+lz4m/WBhSFq/kDp7FMNIxyuKUEkgky6RZv9U1oPS3vShg5LArILKEJfRSnwur3hSx/n2PQBMeAGuHtE52AYBrSU55TIdq4ydJd7yTuusSxnSa8TkPqSNm9HeD2OJIC3lmaHQaSfVJHZ5TFGAxicEnzSWhq2HZcw4W3wdxaYykrCpvGdqzKytOe23WCqpXbO8jGkd+x2RB7O2kj6PNJdA6eD/6sxKOT3YeEj0t+j+ApbnzDyrLtVwtOh2vCcRPJeg8CPQuq5wBpBPE=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR12MB7170.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(376014)(366016)(1800799024)(10067099003)(18002099003)(22082099003)(261009220027099003)(261009223027099003)(261009223327099003)(261009221227099003)(4143699003)(261009221727099003)(11063799006)(56012099006);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?aVVmblRqRTFqVkI3V0ZuUzVHYjYxVjJ4MS83a0V0VW9xbk0yeVU3MnVSRE50?=
+ =?utf-8?B?Nmk3M0hzZlRraVN1cTZTVDFFeEt5aXQyeGROYUQvVERFajdhbkRvOW90UUYw?=
+ =?utf-8?B?MU0ydFA0bmdtb1d2NXBQRFYzOWdFVk9ZM0VaRFNuYUhtYzBZb0dkalpsd21P?=
+ =?utf-8?B?OTB6UzI2dE5WZ0JSMFlSMzVxT2VNK3p3OEEzbWswSHRITk1mbkVrZ2w5ZG9U?=
+ =?utf-8?B?UGdTZ0NqMEd3ZU1RV2xwbTg5RkVkdzh1bVlaQXNCZTMxSGpRbGNicmRpQmVV?=
+ =?utf-8?B?eUZLbGwzYXFtWlYxRFIwV1ZscldUUjA5RWYvNllzZHVCV1J0c2VmcUk0MTI5?=
+ =?utf-8?B?ZmExQ2x3cGxJZ2NHYlIxWjB5ZHdwbk1WREF4UWhkZ3FGUFZhOEwrMjhMUVhM?=
+ =?utf-8?B?czkxZzRlR3ExMHNqbjBUUlFUclQ5bW5SZlQ1cS9MWjJCVDBpbWQ2MmdMRWR4?=
+ =?utf-8?B?Vythb3NpL2ZZQ0UvK1RlOVJ5VmhmQlhXZlJ3ZmVNQXAxQ3VJdXo3amlsMWFI?=
+ =?utf-8?B?bHdKSUg1MmVoLzVVSDJWcUd0U1RaalVLcGR0M1REb1RKOXZMQ2ZsQ0VTYTBy?=
+ =?utf-8?B?TjBwa256OEpGODJ0Q2Q1YWxURThVa2crYU5ZWk9lTG5mQ0prZ1Zqcng4MmVL?=
+ =?utf-8?B?SWo3eFBVOW1GNTd3Tkc1ekFxcHFXZi9zZStyYWNERUl5WkxMdWpweFI2SnBJ?=
+ =?utf-8?B?ZnBVMHdNdWY3ekY5dlhZSXI0ZW9PTnNndzViRGxOem85YTYxb3J6TDlaRmk5?=
+ =?utf-8?B?TmcrYXBjdkVJbmlGQWRQL2pwTzRINzhybkdJT29VNmlmdUtrejh5ZnJYSVlY?=
+ =?utf-8?B?cVBwZExUV29rdHFoK2ZZVkd4U1pDWWpsS0I0d1R5QUtyemhUcGttTUd2TmFz?=
+ =?utf-8?B?a2JTV09ZTkVybkJBU0s0bG1LZDFMR3BIbW9EU2NJQkd3SzVLaWFsbUFSNjNL?=
+ =?utf-8?B?Mk84aWlHcTZkekVGWDhDTVJBcCt3eWtmVjE1TG5KQW1aRjV1M2xiS1JpVC9Q?=
+ =?utf-8?B?cGliSlpHdXFYRlo1RUFiMmxpcVRDWldwNkF0MHhLTXlEZ3NWVWhSQlhDWWJa?=
+ =?utf-8?B?elJSakJNS0pIcHQ4QUZoR2NYQ1prZmxMMDhUTElFdm9ZR2hvK21kdjhUa3ZQ?=
+ =?utf-8?B?SDlUNWhOVGVlQXRCd0gxSmZWU3JtRDJMQUxkSFpVOHlwalNhaXl4SFgxTWNI?=
+ =?utf-8?B?K2szWDhSbWRubkNEOE43dmJ4SDFlNTh5N0xiT2FUOW5tWkEzZjF5SmNRdk5K?=
+ =?utf-8?B?TldMeWJoYlVtZUZXYTYxVVczemF3Y1pEUE1GcjJqQ3ZOTHVtL0kyelhjWnB5?=
+ =?utf-8?B?eUtmYjdrUmExZ2tWQXZXdFZVZDhhV1JzUjNWL2FLWlZ6ZUE4WnRpT01sVlNX?=
+ =?utf-8?B?TlphQ0F2YTRuSjV3SUd5YjltR3huN3BsVGJ6R0o4T3EvQXdNZWJRM3FRc2hK?=
+ =?utf-8?B?Mi9ERWg2THo5Y2lleWZPRkx2eXRjWFJzTk9sRnFDdEhXT0dtd2pna2pFVk9O?=
+ =?utf-8?B?QlVXNGw0c0FlZkpNbWsrRnErY2ZTc1ZiNGRNb3IrVFQ1TUZOWWJVZGtCZGcy?=
+ =?utf-8?B?MitoWDJCT0dabm5ha1BLdEkzK29taUw3ZTJtSUxaQVVPSThaZzY5Qm9RWlJG?=
+ =?utf-8?B?VzVaR3hEeTlDK0doLy8reGFDT01lajlvaDJTY1czSGIxdEVHdzNBSkFmNkpw?=
+ =?utf-8?B?a0lWNEs4MFFZN3JxeHlPdWJMVzVMcEIyQS9HcDQ0RTI4N3RVbXhxVXBtQ0ln?=
+ =?utf-8?B?cm1WQjhhTVNFNkNTNVdvWVdiUitTUEhmQzlxY0VNbm5HY083VWlmZTMrUUUx?=
+ =?utf-8?B?Y09FajVqKzF0a1FycW1ic0grSjhlMExFR0JxSHZDbHpEN3pKOEVtRWp1R25T?=
+ =?utf-8?B?VTVTOUdSUDN6SHhPbXR3c2xXNFY4amRDUUxWdllRSjJ0UTNrQTVKbjlBNHpY?=
+ =?utf-8?B?U1hUZFZGdEc4d2Z6L251Wkd1TU44eEQxd1g4NkVpdkd4RmI5WFZpVERsTGZM?=
+ =?utf-8?B?d2tlbXlOSTBTY3pEQmRuSUNJbVFDWWlrQTQ0RnAvTWkrU2syZVBYNDZPVi9P?=
+ =?utf-8?B?cU01YmxjeE82VDcyQ1h5SXpTY3I2ZUMyL3M2QTZqYzZPeFpvdnVTeWtXbk9U?=
+ =?utf-8?B?dk1ucFJPNXIwVVlGZWxTaGs1MXk3cFIvNkdZdmxGSVZFeEtxTk9tOGhtN0Nq?=
+ =?utf-8?B?VGlYNVU1TWNaZFljQU41dEg5L0d0UGhJSlErLzFiSXRHcWV3MTdmT3VYNEZD?=
+ =?utf-8?B?VjlNWHBYR2xQNzdhYjlnRkRsSHp5RVYxdjFmQzRBREtMMzdyRXRWZ0R6MC8z?=
+ =?utf-8?B?Z2dDL3dTdXZJSmkwcDhCSVNQdHFmUUNtdS9xSjRub3RnYXVMai9jQT09?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: d72145b7-6fbb-4d4b-6e6b-08df26a1348d
+X-MS-Exchange-CrossTenant-AuthSource: CY8PR12MB7170.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Oct 2026 07:36:32.6358
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: vzQUwkCnhyWsVAB28FIwMSAHUKM1rs+WLEjNNWD+2vhOP+hWufD2LBy42ecHpBrYvWrwX1Tn8lIffeq3U1xNvA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4042
 
-Hi Linlin,
-
-kernel test robot noticed the following build errors:
-
-[auto build test ERROR on axboe/for-next]
-[also build test ERROR on mst-vhost/linux-next linus/master v7.3-rc6 next-20261008]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/Linlin-Zhang/virtio_blk-Add-control-virtqueue-support/20261008-211713
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/axboe/linux.git for-next
-patch link:    https://lore.kernel.org/r/20261009041727.3170811-3-linlin.zhang%40oss.qualcomm.com
-patch subject: [PATCH v4 2/2] virtio_blk: add inline encryption support
-config: x86_64-defconfig (https://download.01.org/0day-ci/archive/20261010/202610101218.PA25qZJG-lkp@intel.com/config)
-compiler: gcc-14 (Debian 14.2.0-19) 14.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20261010/202610101218.PA25qZJG-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202610101218.PA25qZJG-lkp@intel.com/
-
-All errors (new ones prefixed by >>):
-
-   drivers/block/virtio_blk.c: In function 'virtblk_setup_cmd':
->> drivers/block/virtio_blk.c:414:61: error: 'struct request' has no member named 'crypt_keyslot'
-     414 |                                 blk_crypto_keyslot_index(req->crypt_keyslot));
-         |                                                             ^~
->> drivers/block/virtio_blk.c:417:58: error: 'struct request' has no member named 'crypt_ctx'
-     417 |                                 cpu_to_virtio64(vdev, req->crypt_ctx->bc_dun[i]);
-         |                                                          ^~
-   drivers/block/virtio_blk.c: At top level:
-   drivers/block/virtio_blk.c:1066:12: warning: 'virtblk_ctrl_vq_request' defined but not used [-Wunused-function]
-    1066 | static int virtblk_ctrl_vq_request(struct virtio_blk *vblk,
-         |            ^~~~~~~~~~~~~~~~~~~~~~~
 
 
-vim +414 drivers/block/virtio_blk.c
+On 10/10/2026 2:32 AM, Dmitry Osipenko wrote:
+> 24.09.2026 12:55, Honglei Huang пишет:
+>> +static struct dma_buf *
+>> +virtio_gpu_userptr_prime_export(struct drm_gem_object *obj, int flags)
+>> +{
+>> +	return ERR_PTR(-EINVAL);
+>> +}
+>> +
+>> +static const struct drm_gem_object_funcs virtio_gpu_userptr_funcs = {
+>> +	.open = virtio_gpu_gem_object_open,
+>> +	.close = virtio_gpu_gem_object_close,
+>> +	.free = virtio_gpu_userptr_free,
+>> +	.export = virtio_gpu_userptr_prime_export,
+>> +};
+> 
+> Is virtio_gpu_userptr_prime_export() optional?
+> 
+Yes it is optional, but if not set this callback then .export will 
+fallback to  drm_gem_prime_export, userptr can not support the export
+feature, to prevent silent failure, an explicit registration method is 
+used here to ensure it is not supported.
 
-   318	
-   319	static blk_status_t virtblk_setup_cmd(struct virtio_device *vdev,
-   320					      struct request *req,
-   321					      struct virtblk_req *vbr)
-   322	{
-   323		size_t in_hdr_len = sizeof(vbr->in_hdr.status);
-   324		bool unmap = false;
-   325		u32 type;
-   326		u64 sector = 0;
-   327		int i;
-   328	
-   329		if (!IS_ENABLED(CONFIG_BLK_DEV_ZONED) && op_is_zone_mgmt(req_op(req)))
-   330			return BLK_STS_NOTSUPP;
-   331	
-   332		/* Set fields for all request types */
-   333		vbr->out_hdr.base.ioprio = cpu_to_virtio32(vdev, req_get_ioprio(req));
-   334	
-   335		switch (req_op(req)) {
-   336		case REQ_OP_READ:
-   337			if (is_crypto_request(req))
-   338				type = VIRTIO_BLK_T_CRYPTO_IN;
-   339			else
-   340				type = VIRTIO_BLK_T_IN;
-   341			sector = blk_rq_pos(req);
-   342			break;
-   343		case REQ_OP_WRITE:
-   344			if (is_crypto_request(req))
-   345				type = VIRTIO_BLK_T_CRYPTO_OUT;
-   346			else
-   347				type = VIRTIO_BLK_T_OUT;
-   348			sector = blk_rq_pos(req);
-   349			break;
-   350		case REQ_OP_FLUSH:
-   351			type = VIRTIO_BLK_T_FLUSH;
-   352			break;
-   353		case REQ_OP_DISCARD:
-   354			type = VIRTIO_BLK_T_DISCARD;
-   355			break;
-   356		case REQ_OP_WRITE_ZEROES:
-   357			type = VIRTIO_BLK_T_WRITE_ZEROES;
-   358			unmap = !(req->cmd_flags & REQ_NOUNMAP);
-   359			break;
-   360		case REQ_OP_SECURE_ERASE:
-   361			type = VIRTIO_BLK_T_SECURE_ERASE;
-   362			break;
-   363		case REQ_OP_ZONE_OPEN:
-   364			type = VIRTIO_BLK_T_ZONE_OPEN;
-   365			sector = blk_rq_pos(req);
-   366			break;
-   367		case REQ_OP_ZONE_CLOSE:
-   368			type = VIRTIO_BLK_T_ZONE_CLOSE;
-   369			sector = blk_rq_pos(req);
-   370			break;
-   371		case REQ_OP_ZONE_FINISH:
-   372			type = VIRTIO_BLK_T_ZONE_FINISH;
-   373			sector = blk_rq_pos(req);
-   374			break;
-   375		case REQ_OP_ZONE_APPEND:
-   376			type = VIRTIO_BLK_T_ZONE_APPEND;
-   377			sector = blk_rq_pos(req);
-   378			in_hdr_len = sizeof(vbr->in_hdr.zone_append);
-   379			break;
-   380		case REQ_OP_ZONE_RESET:
-   381			type = VIRTIO_BLK_T_ZONE_RESET;
-   382			sector = blk_rq_pos(req);
-   383			break;
-   384		case REQ_OP_ZONE_RESET_ALL:
-   385			type = VIRTIO_BLK_T_ZONE_RESET_ALL;
-   386			break;
-   387		case REQ_OP_DRV_IN:
-   388			/*
-   389			 * Out header has already been prepared by the caller (virtblk_get_id()
-   390			 * or virtblk_submit_zone_report()), nothing to do here.
-   391			 */
-   392			return 0;
-   393		default:
-   394			WARN_ON_ONCE(1);
-   395			return BLK_STS_IOERR;
-   396		}
-   397	
-   398		/* Set fields for non-REQ_OP_DRV_IN request types */
-   399		vbr->in_hdr_len = in_hdr_len;
-   400		vbr->out_hdr.base.type = cpu_to_virtio32(vdev, type);
-   401		vbr->out_hdr.base.sector = cpu_to_virtio64(vdev, sector);
-   402	
-   403		if (type == VIRTIO_BLK_T_DISCARD || type == VIRTIO_BLK_T_WRITE_ZEROES ||
-   404		    type == VIRTIO_BLK_T_SECURE_ERASE) {
-   405			if (virtblk_setup_discard_write_zeroes_erase(req, unmap))
-   406				return BLK_STS_RESOURCE;
-   407		}
-   408	
-   409		if (type == VIRTIO_BLK_T_CRYPTO_IN || type == VIRTIO_BLK_T_CRYPTO_OUT) {
-   410			memset(&vbr->out_hdr.crypto_append.msg, 0,
-   411				sizeof(vbr->out_hdr.crypto_append.msg));
-   412			vbr->out_hdr.crypto_append.msg.slot =
-   413				cpu_to_virtio32(vdev,
- > 414					blk_crypto_keyslot_index(req->crypt_keyslot));
-   415			for (i = 0; i < ARRAY_SIZE(vbr->out_hdr.crypto_append.msg.dun); i++) {
-   416				vbr->out_hdr.crypto_append.msg.dun[i] =
- > 417					cpu_to_virtio64(vdev, req->crypt_ctx->bc_dun[i]);
-   418			}
-   419		}
-   420	
-   421		return 0;
-   422	}
-   423	
-
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Regards,
+Honglei
