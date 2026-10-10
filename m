@@ -1,84 +1,185 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5451333EB10
-	for <virtualization@lists.linux.dev>; Sat, 10 Oct 2026 08:25:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1F4B2DE702;
+	Sat, 10 Oct 2026 12:22:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791620739; cv=none; b=NJVPwOvQ5sOX8VFuY1bfa/ffo3mAPALJ93jlw/YompFQF3mvh8ADUJIsaF+uuiVD9bVISweVyxnVdhkzixwKpePS8jiGMQJJ5U5ySq98civU7iISsoRUegW2dHkuwXcUHT528fmZM0KOF2TQZG0UcvBMnnrv/iArV8xamrXOhok=
+	t=1791634979; cv=none; b=rAoPX2iKvckuTgdLbS+oV8eNGYFW/4qXGhgKeNtk4otuILjubIDovk9eR10Hny/8GjAaM3tDJANbZaVAlM+qh4rCRlhnk2Np9r5dGdIQgrRJ1UdO0bJwK2m7hlRsPbV2tAzg+XsNPIQadRzfMABomda9sQgDaZr/S7jQ8k0+/6o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791620739; c=relaxed/simple;
-	bh=l+LWO5ycdCmu4ZU/ksAogEG9Yq9rXchf0u9mWfiATHY=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=KKzYt69UUIE26PvlT6qJQk/kWsgu//GkwHZi4Tu6JmbkLUJwwGapfJfl+/HZNrFh+iy+0Q0xsItSs0cCmKG1lBzMuUX+yrkny6gJQCmYh5glsjl8ir6r/SweZ8Occju5UWr2InzIK5rUvrraXBTxMTLLvV5rqhHqPSNt2upz5es=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GdhVJcB8; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791634979; c=relaxed/simple;
+	bh=jLM7n8anMoy/v6dyJjxgPud6P59bzWMAS6Egmu7KLDY=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=kSoKRj+2rdU/aRmDZ7UgkrrcTZ+VGo7+m7upcmNWqvropCQ3gmRumnCW7fhmYKomY/bNhCB5xc3qZvuvOznyO7nUW9dhZddp/lqtRTScloIYP7mIDNeEhExOA8nG+PnK2bYI6RX/GK/NcXzY+aymFWWXCUj7y3IuRZMUhIIe1WY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lQuSqbaT; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GdhVJcB8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C7A81F000FF;
-	Sat, 10 Oct 2026 08:25:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791620738;
-	bh=x+4satxCSpiRaEjVG+1jUwCcdCWkA6udaR3PPJ5co4E=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=GdhVJcB8X99tCAdmMJ/PPvO94Z4fM19jVvATvTL3tvzz1W+2NY5cqLQBeYgLDK4od
-	 CBCGSdWgOKtU1Yey0bikwV/pzDWhqs2nY7WUl+YHMz7C6tViSEvhFXtRUh5ja6uSr2
-	 GJWYOXeQWuBEtfU2B98LQDjuSjcBAnPU9JT2LP1MzYiMjqZWKuFRD4H6WbzJMb/RPA
-	 wj8WSnsgi7NyKOnZzf8u8C733WmFFvZ/whHZjQvyZzkqw6qEmxXGFNrqu6MGyxvQ+T
-	 aIcpnCkqlh5T7hImziGAGAEHQJsZwzsisdKENjS3DUD6rooummJ6VaE7aAccJB2Zni
-	 ZmqiObM+4fU8w==
-Message-ID: <sashiko-outbox-166346@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] drm/virtio: reject mappable HOST3D blobs without
- host-visible memory
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Henry Martin" <bsdhenrymartin@gmail.com>
-Cc: dri-devel@lists.freedesktop.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <20261010081059.3096312-1-bsdhenrymartin@gmail.com>
-References: <20261010081059.3096312-1-bsdhenrymartin@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 10 Oct 2026 08:25:37 +0000
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lQuSqbaT"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 4CB6DC2BCB9;
+	Sat, 10 Oct 2026 12:22:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1791634979;
+	bh=jLM7n8anMoy/v6dyJjxgPud6P59bzWMAS6Egmu7KLDY=;
+	h=From:Date:Subject:To:Cc:Reply-To:From;
+	b=lQuSqbaTusay8awkGQoF+u1so0+uw+Ln7jkwps6PT0MW24Z4NOghcCENZn6AvPUfp
+	 8goCQUhOzjN2Q0idmVq5iB6Qr7+G4p+SbHOji6RY3UxawW+IqZ3fnn18VBT5OUyIOz
+	 BopQTrRhLVy0AQx2g330TSmsFYwD3icYPdCTuvR2F0zpwyjjaJkla8uYKILzLcxWq0
+	 AEkGSjjj/R4fkfqEqMxF3JQz0h5hIFXYW3as8G4XqfgvZg4rZUhJXoIHUL/HD95QEK
+	 tRe5eSbrWuEjqiX/y3pp/uuRaCCxvBruau9qncBMlHqj5HNRGQ5M/86xhpmmtukASr
+	 fJLRIImc6VUGw==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 294FDCA6017;
+	Sat, 10 Oct 2026 12:22:59 +0000 (UTC)
+From: Linfeng Sun via B4 Relay <devnull+linfeng.sun.dev.gmail.com@kernel.org>
+Date: Sat, 10 Oct 2026 20:22:58 +0800
+Subject: [PATCH v3] vhost-scsi: reject delayed virtqueue setup
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20261010-fix-warning-in-sbitmap_get-v3-1-33de562d1359@gmail.com>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/43NQQ6CMBCF4auQrq1pR1PAlfcwxrR1gDFSSIuoI
+ dzdFjesjMuXvHz/xAJ6wsAO2cQ8jhSoc3HsNhmzjXY1crrGzUCAEqUoeEUv/tTekas5OR4MDa3
+ uLzUO3CiAUmNlhRIsAr3H+F7w0/m7w8Pc0A5JTI+GwtD591IfZfr9FRollzxXuQULUmowx7rVd
+ N/armUpNMKKkuonBZFCJXVs7nNRlGtqnucPZQoLhCEBAAA=
+X-Change-ID: 20260908-fix-warning-in-sbitmap_get-b6229aefc060
+To: "Michael S. Tsirkin" <mst@redhat.com>, 
+ Jason Wang <jasowangio@gmail.com>, 
+ Mike Christie <michael.christie@oracle.com>, 
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>
+Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+ Linfeng Sun <linfeng.sun.dev@gmail.com>
+X-Mailer: b4 0.16.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1791634978; l=5354;
+ i=linfeng.sun.dev@gmail.com; s=20261010; h=from:subject:message-id;
+ bh=tSXH3z3FUfG59x/oF0TAiwVbAv/p4oxB4J5rJGqlY2Y=;
+ b=R9/F95DB5IZDhvYSXThGx9td/upl0Ol2tRW2/50nKqagWnDoBfHyBsWBHFDC2RPqj6RhSInkI
+ 5Im3y0H5nVXDA4uV/bEGhNaPtutCZujlLfE9LoDZP1Heo85C5Ipd/NZ
+X-Developer-Key: i=linfeng.sun.dev@gmail.com; a=ed25519;
+ pk=IPHLe8L3bTveNcYFP12okRAIWs4eqaVd4jrqSNMj7UU=
+X-Endpoint-Received: by B4 Relay for linfeng.sun.dev@gmail.com/20261010
+ with auth_id=1150
+X-Original-From: Linfeng Sun <linfeng.sun.dev@gmail.com>
+Reply-To: linfeng.sun.dev@gmail.com
 
-> virtio_gpu_resource_create_blob_ioctl() -> verify_blob() validates
-> blob flags, memory type, context and alignment, but never checks
-> VIRTGPU_BLOB_FLAG_USE_MAPPABLE against vgdev->has_host_visible.
->=20
-> For blob_mem =3D=3D VIRTGPU_BLOB_MEM_HOST3D the blob is created via
-> virtio_gpu_vram_create(), and on a device without host-visible
-> memory (plain virtio-gpu-pci,blob=3Don with no hostmem) the failure
-> comes too late: the GEM object has been allocated, a host resource
-> id taken and the create_blob command issued when
-> virtio_gpu_vram_map() returns -EINVAL, and the cleanup calls
-> virtio_gpu_vram_free(), which is a no-op while bo->created is still
-> false (the host response has not been processed yet).  Every such
-> blob creation permanently leaks the vram object and its resource
-> id; /dev/dri/renderD* is reachable by unprivileged users.
->=20
-> Guest-backed blobs (VIRTGPU_BLOB_MEM_GUEST and
-> VIRTGPU_BLOB_MEM_HOST3D_GUEST) mmap through the shmem path and do
-> not need host-visible memory, so only the HOST3D case is rejected.
->=20
-> Commit 036d28db1818a ("drm/virtio: release the GEM object on
-> virtio_gpu_vram_create() errors") fixed the sibling error paths but
-> missed this one.  Reject the impossible combination at ioctl entry,
-> making the failure mode unreachable.
->=20
-> This issue was discovered by Tencent CodeBuddy Security.
->=20
-> Cc: stable@vger.kernel.org
-> Fixes: 16845c5d5409 ("drm/virtio: implement blob resources: implement vra=
-m object")
-> Signed-off-by: Henry Martin <bsdhenrymartin@gmail.com>
+From: Linfeng Sun <linfeng.sun.dev@gmail.com>
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+vhost_scsi_set_endpoint() allocates command pools only for I/O
+virtqueues that are already set up, but publishes the backend for every
+virtqueue. Userspace can complete a skipped queue after attaching the
+endpoint, then kick it with scsi_tags uninitialized and trigger the
+alloc_hint warning in sbitmap_get().
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261010081059.3096=
-312-1-bsdhenrymartin@gmail.com?part=3D1
+Delayed virtqueue setup is not supported. Leave skipped I/O virtqueues
+inactive and reject changes to the vring size or addresses while an
+endpoint is attached. Userspace must clear the endpoint before changing
+the vring configuration.
+
+I found this bug myself, though the patch was written with AI assistance.
+
+Fixes: 25b98b64e284 ("vhost scsi: alloc cmds per vq instead of session")
+Assisted-by: OpenAI-Codex:GPT-5.6
+Signed-off-by: Linfeng Sun <linfeng.sun.dev@gmail.com>
+---
+I checked QEMU and found no evidence it's affected. I haven't checked 
+VirtualBox because I am not familiar with it. However, the virtio spec 
+doesn't require a specific operation order, so a new VMM could still 
+trigger this issue. 
+
+Crash log:
+[   34.698961] ------------[ cut here ]------------
+[   34.699385] WARNING: lib/sbitmap.c:286 at sbitmap_get+0x227/0x270, CPU#0: vhost-82/88
+[   34.700542] Modules linked in:
+[   34.701309] CPU: 0 UID: 0 PID: 88 Comm: vhost-82 Not tainted 7.3.0-rc2+ #14 PREEMPT(full)
+[   34.701958] Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+[   34.702717] RIP: 0010:sbitmap_get+0x227/0x270
+[   34.703247] Code: 41 8d 5d 01 89 df 44 89 fe e8 f5 3a 46 ff 31 c0 44 39 fb 0f 43 d8 e8 38 46 46 ff 65 41 89 1c 24 e9 25 ff ff ff e8 29 46 46 ff <0f> 0b eb ba e8 20 46 46 ff 44 89 fe 31 ff 45 31 e4 e8 c3 3b 46 ff
+[   34.704234] RSP: 0018:ffffc90000ec3bb0 EFLAGS: 00000246
+[   34.704677] RAX: 0000000000000000 RBX: ffff88800500dee8 RCX: 0000000000000000
+[   34.705166] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff88800500dee8
+[   34.705584] RBP: ffffc90000ec3be0 R08: 0000000000000000 R09: 0000000000000000
+[   34.705988] R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000006
+[   34.706477] R13: 0000000000000000 R14: 0000000000000000 R15: ffff8880050094d0
+[   34.706955] FS:  0000000014d05380(0000) GS:ffff888099c36000(0000) knlGS:0000000000000000
+[   34.707463] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   34.707854] CR2: 00007c0c3c20e000 CR3: 0000000008e47000 CR4: 00000000000006f0
+[   34.708592] Call Trace:
+[   34.709259]  <TASK>
+[   34.709822]  vhost_scsi_handle_vq+0x4a9/0x1b20
+[   34.710437]  ? update_cfs_rq_load_avg+0x2e/0x230
+[   34.710874]  vhost_scsi_handle_kick+0x2c/0x40
+[   34.711292]  vhost_run_work_list+0xa6/0xf0
+[   34.711673]  vhost_task_fn+0x76/0x1b0
+[   34.712003]  ? __sanitizer_cov_trace_const_cmp1+0x1a/0x30
+[   34.712506]  ? recalc_sigpending+0xe1/0x130
+[   34.712890]  ? __pfx_vhost_task_fn+0x10/0x10
+[   34.713325]  ret_from_fork+0x37a/0x630
+[   34.713673]  ? __pfx_vhost_task_fn+0x10/0x10
+[   34.714031]  ret_from_fork_asm+0x1a/0x30
+[   34.714535] RIP: 0033:0x0
+[   34.715201] Code: Unable to access opcode bytes at 0xffffffffffffffd6.
+[   34.715587] RSP: 002b:0000000000000000 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+[   34.716158] RAX: 0000000000000000 RBX: 000000000048bb20 RCX: 000000000041ca3d
+[   34.716571] RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000003
+[   34.716957] RBP: 00007ffcac47c4e0 R08: 00000000ffffffff R09: 0000000000000000
+[   34.717418] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000004
+[   34.717826] R13: 00007ffcac47c778 R14: 00000000004af868 R15: 0000000000000001
+[   34.718363]  </TASK>
+---
+Changes in v3:
+- Reject delayed virtqueue setup instead of activating it.
+- Link to v2: https://patch.msgid.link/20260916-fix-warning-in-sbitmap_get-v2-1-e61a09047089@gmail.com
+
+Changes in v2:
+- Activate only the virtqueue specified by VHOST_SET_VRING_ADDR.
+- Mask the userspace provided index before accessing the virtqueue array.
+- Link to v1: https://patch.msgid.link/20260908-fix-warning-in-sbitmap_get-v1-1-767c2c211a2b@gmail.com
+---
+ drivers/vhost/scsi.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+index 885fac5ed042..1710bc8e4381 100644
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -2105,6 +2105,9 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
+ 
+ 		for (i = 0; i < vs->dev.nvqs; i++) {
+ 			vq = &vs->vqs[i].vq;
++			if (i >= VHOST_SCSI_VQ_IO && !vs->vqs[i].scsi_cmds)
++				continue;
++
+ 			mutex_lock(&vq->mutex);
+ 			vhost_vq_set_backend(vq, vs_tpg);
+ 			vhost_vq_init_access(vq);
+@@ -2466,10 +2469,16 @@ vhost_scsi_ioctl(struct file *f,
+ 	default:
+ 		mutex_lock(&vs->dev.mutex);
+ 		r = vhost_dev_ioctl(&vs->dev, ioctl, argp);
+-		if (r == -ENOIOCTLCMD)
+-			r = vhost_vring_ioctl(&vs->dev, ioctl, argp);
+-		else
++		if (r == -ENOIOCTLCMD) {
++			if (vs->vs_tpg &&
++			    (ioctl == VHOST_SET_VRING_NUM ||
++			     ioctl == VHOST_SET_VRING_ADDR))
++				r = -EBUSY;
++			else
++				r = vhost_vring_ioctl(&vs->dev, ioctl, argp);
++		} else {
+ 			vhost_scsi_flush(vs);
++		}
+ 		mutex_unlock(&vs->dev.mutex);
+ 		return r;
+ 	}
+
+---
+base-commit: c69023b5e16e5ffe9368603dca76d85bd544ee57
+
+Best regards,
+-- 
+Linfeng Sun <linfeng.sun.dev@gmail.com>
+
 
