@@ -1,181 +1,178 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 644333C1D4E
-	for <virtualization@lists.linux.dev>; Fri,  9 Oct 2026 19:13:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=198.175.65.21
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791573221; cv=fail; b=gT9xn6LFT1hdDpP9KDhMgnN9XQfJodABXay8kPdcR14eEaFO12S2Uwf4TnoYn0xon3gMfUYl+MHyc57tkt8amUInUC38K0sK+9CRugPlJ3XiYiv6SWdsSFQ/zDJjPdgvjFWWmJfl/dVgfDbweEXCtEAW6kpXwzfsg3QIFRpeVU4=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791573221; c=relaxed/simple;
-	bh=HCqHwmygKIxDjCi5aFimWAubMgvua4PLaas5pmdi6N8=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=EDFN7SS4l56l3VEnNt8DRhEifFCCLMTZotaI3VTzdm7ytmWCn58CwBzNPCTZzSQItZYqk8iQyukQ5JS75yF2iC2bVvZAg/ArIQACebclrwT1zh2a/ona3MOSuAheVSq49VbxCtjWasIGbLz+UcJh5e5VZne8XRFCVJZPONad5G0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=arXeCA8e; arc=fail smtp.client-ip=198.175.65.21
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 014E3175A68;
+	Sat, 10 Oct 2026 01:14:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.14
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791594856; cv=none; b=S9zvqg1jfbaQe5aBkrDu7JoPdTy8SSySybR0O8knx+kGIKSkeyo5WUFvTptIq7yZMxhVahYtrPHLv8ZBF2TzckLWCkZKt0c7YkLXf6gjFFIeTE/a/mQzGpKlITqBDnRRBQZxKjJ/i+zCACus/Oc0JoiZUkBPmNFHrY4iHHFe/jk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791594856; c=relaxed/simple;
+	bh=wWi1fYkDfEMTATllQGmVnSdpixloEtWsRLbg8D3c0CA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=H557mdemHU/+HOsonLOX6s9X1kYDbp+CXRnYtOA1B9tVdxtqV44Buzu6Rh7qugHi+c8ohCDxfcy0c7FIvkN0LvQ0GY0Nz/xTMI9A79ggn/b0VC4BoKQVTCn6bNE+5jxKMis+rOpx27tvoTrYt6ml+tSf5MhljV6uq7vMiiEKR8o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=KDkqYl5O; arc=none smtp.client-ip=192.198.163.14
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="arXeCA8e"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="KDkqYl5O"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1791573221; x=1823109221;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=HCqHwmygKIxDjCi5aFimWAubMgvua4PLaas5pmdi6N8=;
-  b=arXeCA8eefiqDdtEVjo9sSCq9stj9zM4JzqpuWtJ9/UDWn+aIaPxpSQa
-   3UDvp8FD9pCNiAZf+WGC9X4nY19Yi62HnR0K7JwlXC9MNGZFM1SgQAysR
-   9m+TqZbx9Cyoz22/0Tgm8XQARzhAl+36sYONuN49agKLZiWBpghXr4Ap1
-   2kn3/yB/FRWQOvyZRn5H1AYHy0yIYURTBM1kTFvCm/5kwJThn5GNipKKr
-   eVvHErdiztuI/+oT3ZcToCxihaJSXp4rGp64MRtgMv0co+lbWhdl11T3+
-   uZNhXVWm6Hy3ta2bmN7vyo56VAjisRiDYADFHEYnQV5YUoAMwKoPrvxcr
-   Q==;
-X-CSE-ConnectionGUID: L8ItoVdETsaOYzoVhl5XOQ==
-X-CSE-MsgGUID: 18d1C/FZSWGjEcOf/JlXnw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11930"; a="474984"
-X-IronPort-AV: E=Sophos;i="6.27,148,1787036400"; 
-   d="scan'208";a="474984"
-Received: from orviesa005.jf.intel.com ([10.64.159.145])
-  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2026 12:13:40 -0700
-X-CSE-ConnectionGUID: 03pxQFtGSGKHJvlvble6/Q==
-X-CSE-MsgGUID: EmxLonHUQRirhBGIRB26rw==
+  t=1791594855; x=1823130855;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=wWi1fYkDfEMTATllQGmVnSdpixloEtWsRLbg8D3c0CA=;
+  b=KDkqYl5OtatMRDaVq4Lia2DnC/aTrjO0jg+7VbA7Z7xRxyt+ku5sY0QI
+   Ei9iCSmUKTbzAfTKI0j5DpvUXlIGuPZziG5kKuWup04VFGC3bhieym278
+   fFE3R7A1xOcRKYRvEWk33rAu0oJBHtxHCVnvum4kh/ngZHJu/Ir0ygqs0
+   znMM22yptgtPZL0vq3uX++mPEOO0MfciEUg5BQuH74JMY0az+9ZIkKVB2
+   4yrsg6qosbJOVUnZsxHaovRs+UlLXont1+8UoIUyY6ZEZUGtZkpq9cB6m
+   0lKerP/ZDLvKqQ5qy7U/ekEE/bEl7ERCHRfH/Tw8/hxIFY3H8GVfrat9Z
+   g==;
+X-CSE-ConnectionGUID: eqHaFkVYQSOeFUUvD4jN+Q==
+X-CSE-MsgGUID: lkMnrvMoSTO3aYqOHfRAQw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11930"; a="405944"
+X-IronPort-AV: E=Sophos;i="6.27,149,1787036400"; 
+   d="scan'208";a="405944"
+Received: from orviesa003.jf.intel.com ([10.64.159.143])
+  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2026 18:14:14 -0700
+X-CSE-ConnectionGUID: chpxsJ+ETrWnsIo+xkBV6g==
+X-CSE-MsgGUID: Dau6AiOOQPuK5q7NyBoScg==
 X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,148,1787036400"; 
-   d="scan'208";a="361560"
-Received: from orsmsx901.amr.corp.intel.com ([10.22.229.23])
-  by orviesa005.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2026 12:13:40 -0700
-Received: from ORSMSX903.amr.corp.intel.com (10.22.229.25) by
- ORSMSX901.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.49; Fri, 9 Oct 2026 12:13:39 -0700
-Received: from ORSEDG901.ED.cps.intel.com (10.7.248.11) by
- ORSMSX903.amr.corp.intel.com (10.22.229.25) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.49 via Frontend Transport; Fri, 9 Oct 2026 12:13:39 -0700
-Received: from DM5PR21CU001.outbound.protection.outlook.com (52.101.62.44) by
- edgegateway.intel.com (134.134.137.111) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.49; Fri, 9 Oct 2026 12:13:39 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=uxhvC5JI9TANHFTsCOC61vCrba1tNvENEu9CagOVCS37r9Azj581fhmdH0r7dGIRdRJNg3zWdEgJTVVyjCOzs8oL1F7PiRXKdAL4pcioYOddPHMR4eY7D+8YslCtBKwX4vbjcIDB/QR6KzX2lyAUYSQGYPDTJre7aRPeoA5wR16zOiXWCoF9B5VyPOFT1aOja0//MnUABUks6mhnVTHFC1II2nyD6JVeWC8TR78PnE/UrHlCTryqAsJ2i4+EroU06hGXnJ65FNxq2L/eB2LRt58FuoH//FslQkdxnJIudBIDLHTwKMgGFy+t9ePTImayvbCJGXPw7Q1IG/WxiGlJAQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=HCqHwmygKIxDjCi5aFimWAubMgvua4PLaas5pmdi6N8=;
- b=vSBJ6Ece4pvG7ktG2IOOgjJW+eqzxsXHe00cWSA+SMdphyK3FR3fI84BcEHhaPvSXePfPQS4m4PD+Qyg4zRqGJoAjnB/M6Nke4Wz9kM8zSpLd1pcErFM2H7TCDoOPUVnvXAAc59VVWKAaIGkzr50ThVCBgljgKyD9f5Lt1ma6MF0Cln5BSBVfQQecGm1MLSBZnuJR/l0juHiu2ojTFBdqs9dgdKYotXb3EGZ9krRzaazk+zF4LkRErinqWsdNP4AHrHACECbgA2gPjHvOHYjs+7RZKO5B0047FdHWTLW6N3vm05zeE6Z8p4SrZwkWTv+D/iiCiHJTYlUpdg5625zjg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from LV2PR11MB6070.namprd11.prod.outlook.com (2603:10b6:408:179::22)
- by CH0PR11MB5282.namprd11.prod.outlook.com (2603:10b6:610:bd::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.496.17; Fri, 9 Oct
- 2026 19:13:31 +0000
-Received: from LV2PR11MB6070.namprd11.prod.outlook.com
- ([fe80::4c84:af62:dc60:fd9]) by LV2PR11MB6070.namprd11.prod.outlook.com
- ([fe80::4c84:af62:dc60:fd9%5]) with mapi id 15.21.0496.015; Fri, 9 Oct 2026
- 19:13:31 +0000
-From: "Popov, Pavel E" <pavel.e.popov@intel.com>
-To: Leon Romanovsky <leon@kernel.org>, Bjorn Helgaas <helgaas@kernel.org>, Jim
- Chow <jim.chow@broadcom.com>, Bjorn Helgaas <bhelgaas@google.com>, Logan
- Gunthorpe <logang@deltatee.com>
-CC: Radu Rugina <radu.rugina@broadcom.com>, Alexey Makhalov
-	<alexey.makhalov@broadcom.com>, Wei Liu <wei.liu@kernel.org>, Michael Kelley
-	<mhklinux@outlook.com>, Lukas Wunner <lukas@wunner.de>, Nathan Ciobanu
-	<nathan.d.ciobanu@linux.intel.com>, "bcm-kernel-feedback-list@broadcom.com"
-	<bcm-kernel-feedback-list@broadcom.com>, "virtualization@lists.linux.dev"
-	<virtualization@lists.linux.dev>, "linux-hyperv@vger.kernel.org"
-	<linux-hyperv@vger.kernel.org>, "linux-pci@vger.kernel.org"
-	<linux-pci@vger.kernel.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH 0/2] PCI/P2PDMA: Allow P2PDMA in VMware and Hyper-V guests
- on Intel hosts
-Thread-Topic: [PATCH 0/2] PCI/P2PDMA: Allow P2PDMA in VMware and Hyper-V
- guests on Intel hosts
-Thread-Index: AQHdWASZkl/0se0hWEKzOo9DW5a5oLb1bsyAgAATn4CAAAJWMIAACQKAgAAB5iA=
-Date: Fri, 9 Oct 2026 19:13:31 +0000
-Message-ID: <LV2PR11MB60707DAD12BFBEAB681463B7B2922@LV2PR11MB6070.namprd11.prod.outlook.com>
-References: <20261009154034.82321-1-pavel.e.popov@intel.com>
- <20261009165833.GA991924@bhelgaas> <20261009180847.GD11438@unreal>
- <LV2PR11MB6070D3FCBC3EAED4FA0191EFB2922@LV2PR11MB6070.namprd11.prod.outlook.com>
- <20261009184923.GE11438@unreal>
-In-Reply-To: <20261009184923.GE11438@unreal>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: mx.microsoft.com 1; dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: LV2PR11MB6070:EE_|CH0PR11MB5282:EE_
-x-ms-office365-filtering-correlation-id: 594f8989-a266-410f-8df0-08df26396818
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|7416014|23010399003|376014|366016|1800799024|11063799006|38070700021|4143699003|56012099006|18002099003|22082099003|10067099003;
-x-microsoft-antispam-message-info: k788Xtc3PmXFpjxHr0jl6f9zqdH3DdGefwnIYE7ao3IFDhZZ1vAo49yjboj/cp8fe2dtm90YX50yJ7UZHs7O1SuLDbS6hSZfdD0/487/+KjlbXZTj8f50h4fw8fkD+4/7JyJtmXGHjpUPS+5qi9bhNWk7D//usK8Gz3YqHgF5vbk73Cw2NKcIhvK96AmU3OnUGdN13cToHzdJX2Wq6EDBGg8Qv/Vpn01jTwB25sfKNRM9WqASChYaMee8cnY4AAe0obQysbRzzvY/4OXk9v4gAQB7WwL5a3MGoARmv3wY0DinMAeMkgkqkxE8n+PTA2hNJ01apOT5JKxAD2/eZ5ja8KagffSZ2QPKwvq1Bmff871aQ5ijhsaQsgTQCOO6CMyO56YOBa4vb1cJPYf0d8wu86JwcWcsFNQ6Z+QvAz+ifSZNPyk7txFqmyFXyR/rZFL3q+rZ1FBuc3wF6PwcMhsefIskqgFim/ugeQfpNnjeJ0F15mEpNxGKH6GysQRUJRVRYYZxE0crdz//zkrAqXhB8oSijLkT5o/O39Ex5imsKcqQOLkUDWRYkV6iRmUrg24GjLfMC8fcuG1eVDzQfcao7QEzxRwr4AHdXWkc8V2RdD+74xitp0HpjspxABABGXYvq8vDUWBrSz3E7UeqrYaxeYz4mhkRUN0ZCBF7UyQQgQAjfCu5ZLLU0y5dNpH3oBd8RhVTisnmkClWh2rIDjFH8ZSn2CfBNZ88qPfJpuiV9A=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR11MB6070.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(23010399003)(376014)(366016)(1800799024)(11063799006)(38070700021)(4143699003)(56012099006)(18002099003)(22082099003)(10067099003);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?AB7GcuUxcveYvCgF6LQ/VmNhoLh/o4tQBzDZxe3JRwwuVHdvuny6xJQtGqVi?=
- =?us-ascii?Q?dQF6bbxoGduoRRqAbvUnYWl6L96gzVR1hNn9iKabKrCiELefHt27yOoeRbbd?=
- =?us-ascii?Q?Gz0SBytzWE4OguDEKDw4MkFggFsbNCOs8mXxgQ5E0acMYOzJZDMhtp+V/x9l?=
- =?us-ascii?Q?gULPs+q+iYNNEMsBLwc17THq4KWa3Z84OQmaqAmxIN4SCLw1irFO0yum88kN?=
- =?us-ascii?Q?zwOgBTSYZ+ofZndM1Ye3b7Poyzaj6Jn+9NcRW8AgDKF0qZglBRX071HcixPC?=
- =?us-ascii?Q?t+gR17WcnS/IEm5S16eSr0XjMIUUlGBkF9KPAvmNsoerZniUkx8V/tvN3knE?=
- =?us-ascii?Q?laN7PakXHiXqf+a5K3qIrI3XGYAeQhyRh7NElyLiUUjC/iJqTNHg2L4FPvEM?=
- =?us-ascii?Q?061uQTdvbd2CfTcZp6e0h3n8ORySshPQcd9bnVss4fuP36/P1GtpjYPiHZKG?=
- =?us-ascii?Q?9Vh5Dlz+YhueyQZDXVFlXUiNTMe+33zhwo2VNxpkP4ZPMY/doWDl+tKCUJR+?=
- =?us-ascii?Q?g6RLhHmh/wfr46/9wmsvw9iVNmIs5g/t1xY8nr45BY92wdKz7+cEBEcNmDsP?=
- =?us-ascii?Q?p+gAtUe7igyf/8M8bZMds2nUa6UIBL9K6x/y9mB8MzR0TJ3+DgiYGAiTPr6u?=
- =?us-ascii?Q?ZGWZKNQRKAtVDbrz4gwTA3KkHfic9HEs/sAvokYeYYR8yiyPjH13IZI79hx2?=
- =?us-ascii?Q?/uAS7EXwl8K0O9WVbwpiMEk6tCO4n4bbPjZZEeJyNXaPmRGvmAz2Vfx/bnFf?=
- =?us-ascii?Q?7JxNFNDk2RQKSqamsjE35eZ+TL3IfHY9eM1VAhrRjij52Hj6BliTnVKJazpx?=
- =?us-ascii?Q?TQUmgrU0GNhL/4Ks7EhiwQJl70Rees5WntAljGYhpF46X1jMbYZC5LLwjc8U?=
- =?us-ascii?Q?CJCoeRt3v9jb5gByy9CyIKUdIz47wy5XPCV0glESus0iL/6bTG2Np/TGkSaB?=
- =?us-ascii?Q?BCHsalDnxmU8QLAyg5rLYBhYSRErp3U6FWDy8UHoLbaEI57unxVGMHWI/n0a?=
- =?us-ascii?Q?lfKBR6YyKMh2J7ZyL6gqL88rd0o2qT7JKR235S/yJeLhrZ2yXYT7tfGqOQ0K?=
- =?us-ascii?Q?cN5FPmXvFMrzh8Behn9+Mcr3KsySDgz+qTi58bXubU+HE1r6IYK+aZlW5smI?=
- =?us-ascii?Q?YzPmpYs2jylF8Tm5pWcR7Gy1N0a7q8Z3ERifWEArAihYHyMQAs1xh3x/aPEF?=
- =?us-ascii?Q?ni8Zj3+KhNxDDGTViFA0obt1kSO81cBds/Bb/+UF67p2z3APugn8Aw7kPYEw?=
- =?us-ascii?Q?RrP24lBV/bt1jVD8Zw19tSednNTWzakXSRogpGbTVuMCJAhKFRBrfPyT1ohK?=
- =?us-ascii?Q?tX23qG0CSFbUyCJcQLkjjTGhIWzgLay3zdMkYFVJt141pQ/2wFCm+tDyfi0v?=
- =?us-ascii?Q?WfsYSDntIlub4XmneE1NXyz4Pzx0ifkR/h/7bvq1LPHS2G21AHG4p4klbZds?=
- =?us-ascii?Q?CVdAHdS6gJbSG+atAH5uQIsgNoB1FmIzPk/f1oxTnQ1o8NxlokeiRZmAdHGi?=
- =?us-ascii?Q?3ZO2aCPhq2eVQs0moLy2k2TnUNTeBdJqCk9YWEFkdFKIPQ9s4uVLMXROll8A?=
- =?us-ascii?Q?nSjSX4Tvj028HVgDLud8UeLO3LxZet0KPKo9yaJl9lxUO+Tar6h/bFt8nqBG?=
- =?us-ascii?Q?BruSbdbJQ5ldemSAJFMrsMhULV69I55iHoiMSd5TbjVijxpHOmIqXWLL2nsa?=
- =?us-ascii?Q?4ZAHr8MoWFrhCDujIeGxNygxr0bjcvduIEiDPBRY+OtD7Sgrx6qQzyDsXOLx?=
- =?us-ascii?Q?o8zzJjrrow=3D=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+X-IronPort-AV: E=Sophos;i="6.27,149,1787036400"; 
+   d="scan'208";a="434275"
+Received: from lkp-server01.sh.intel.com (HELO 0caa9d2d175c) ([10.239.97.150])
+  by orviesa003.jf.intel.com with ESMTP; 09 Oct 2026 18:14:11 -0700
+Received: from kbuild by 0caa9d2d175c with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1xFLf6-000000006MY-3LSv;
+	Sat, 10 Oct 2026 01:14:08 +0000
+Date: Sat, 10 Oct 2026 09:13:29 +0800
+From: kernel test robot <lkp@intel.com>
+To: Linlin Zhang <linlin.zhang@oss.qualcomm.com>, mst@redhat.com,
+	jasowangio@gmail.com, axboe@kernel.dk, ebiggers@kernel.org,
+	stefanha@redhat.com
+Cc: oe-kbuild-all@lists.linux.dev, pbonzini@redhat.com, eperezma@redhat.com,
+	xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev,
+	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4 1/2] virtio_blk: Add control virtqueue support
+Message-ID: <202610100905.au1oY0vX-lkp@intel.com>
+References: <20261009041727.3170811-2-linlin.zhang@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Exchange-RoutingPolicyChecked: pswVS0ehIHQ+CJ00iNaoY0dzI52QRgKuSCL7gzIImKHYh5j04wE4i7G2bx2jrbOV24vv44O4j40twrNvXsQS42s6r684bR+PDIJe98iRBzvXNfo+5KzuJaPjY8lmLT+1R6NSnqioUwv9SRrqwX6XgL6scV79dIK+b1cGr1dxr+jOkX/RInsg59qP5SoolPlzm3rTgkQBAGEes7fvYAy/Ozbh+897SQylOlda8umRrPl/nP51sURVjYwhVBtOauqzM/ouiTTcUvOvxmGh5EHg2yGCCdOd5ceLqiEHsNOcjIJxreARekpZjwT5Oo+LVUvvpJ+bOdHNiQVTTOWNY7WmSw==
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR11MB6070.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 594f8989-a266-410f-8df0-08df26396818
-X-MS-Exchange-CrossTenant-originalarrivaltime: 09 Oct 2026 19:13:31.1090
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: c0Qysd8R+ZmKBf7WfKy5X6oVuYm2+jiXT3JaS8g0eNnlPaf994HsPrTvYIapxLteX8KLjdVWgwqhtULGEUoSgg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH0PR11MB5282
-X-OriginatorOrg: intel.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261009041727.3170811-2-linlin.zhang@oss.qualcomm.com>
 
-Leon,
+Hi Linlin,
 
-Understood on all points, and I agree HMAT is the proper fix. We discussed
-it with Lukas Wunner as well. Exposing HMAT is on the hypervisor side; Jim
-Chow from VMware can speak to their plans. Even once HMAT lands in Linux,
-it only helps guests after the hypervisors add support for it.
+kernel test robot noticed the following build warnings:
 
-The key point for us is that today there is no path at all for
-passthrough devices on VMware or Hyper-V, and that is what this patch
-addresses. We reviewed it with VMware and aligned on this approach for the
-guest in the meantime.
+[auto build test WARNING on axboe/for-next]
+[also build test WARNING on mst-vhost/linux-next linus/master v7.3-rc6 next-20261008]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-Is there anything you would recommend to make the series acceptable as an
-interim? Bjorn, Logan, your view would help here as well.
+url:    https://github.com/intel-lab-lkp/linux/commits/Linlin-Zhang/virtio_blk-Add-control-virtqueue-support/20261008-211713
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/axboe/linux.git for-next
+patch link:    https://lore.kernel.org/r/20261009041727.3170811-2-linlin.zhang%40oss.qualcomm.com
+patch subject: [PATCH v4 1/2] virtio_blk: Add control virtqueue support
+config: x86_64-defconfig (https://download.01.org/0day-ci/archive/20261010/202610100905.au1oY0vX-lkp@intel.com/config)
+compiler: gcc-14 (Debian 14.2.0-19) 14.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20261010/202610100905.au1oY0vX-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202610100905.au1oY0vX-lkp@intel.com/
+
+All warnings (new ones prefixed by >>):
+
+>> drivers/block/virtio_blk.c:1000:12: warning: 'virtblk_ctrl_vq_request' defined but not used [-Wunused-function]
+    1000 | static int virtblk_ctrl_vq_request(struct virtio_blk *vblk,
+         |            ^~~~~~~~~~~~~~~~~~~~~~~
+
+
+vim +/virtblk_ctrl_vq_request +1000 drivers/block/virtio_blk.c
+
+   998	
+   999	/* Submit a control-queue request and wait for completion. */
+> 1000	static int virtblk_ctrl_vq_request(struct virtio_blk *vblk,
+  1001					    struct virtblk_ctrl_request *creq,
+  1002					    struct scatterlist *sgs[],
+  1003					    unsigned int out_sgs, unsigned int in_sgs)
+  1004	{
+  1005		struct virtblk_ctrl_completion *comp;
+  1006		unsigned long flags;
+  1007		int err;
+  1008	
+  1009		/*
+  1010		 * GFP_NOIO: this may be reached on the bio-submission path
+  1011		 * (memory reclaim writing back dirty pages to this same device),
+  1012		 * so GFP_KERNEL could self-deadlock.
+  1013		 */
+  1014		comp = kmalloc_obj(*comp, GFP_NOIO);
+  1015		if (!comp)
+  1016			return -ENOMEM;
+  1017		init_completion(&comp->done);
+  1018		comp->abandoned = false;
+  1019	
+  1020		mutex_lock(&vblk->ctrl_vq.mutex);
+  1021		creq->compl = comp;
+  1022	
+  1023		spin_lock_irqsave(&vblk->ctrl_vq.lock, flags);
+  1024		if (vblk->ctrl_vq.dead) {
+  1025			spin_unlock_irqrestore(&vblk->ctrl_vq.lock, flags);
+  1026			mutex_unlock(&vblk->ctrl_vq.mutex);
+  1027			kfree(comp);
+  1028			creq->compl = NULL;
+  1029			return -ENODEV;
+  1030		}
+  1031		err = virtqueue_add_sgs(vblk->ctrl_vq.vq, sgs, out_sgs, in_sgs, creq, GFP_ATOMIC);
+  1032		if (!err) {
+  1033			vblk->ctrl_vq.inflight++;
+  1034			virtqueue_kick(vblk->ctrl_vq.vq);
+  1035		}
+  1036		spin_unlock_irqrestore(&vblk->ctrl_vq.lock, flags);
+  1037		if (err) {
+  1038			mutex_unlock(&vblk->ctrl_vq.mutex);
+  1039			kfree(comp);
+  1040			creq->compl = NULL;
+  1041			return err;
+  1042		}
+  1043	
+  1044		if (wait_for_completion_timeout(&comp->done, VIRTBLK_CTRL_VQ_TIMEOUT)) {
+  1045			mutex_unlock(&vblk->ctrl_vq.mutex);
+  1046			kfree(comp);
+  1047			creq->compl = NULL;
+  1048			return 0;
+  1049		}
+  1050	
+  1051		/*
+  1052		 * The host hasn't responded within the timeout. @creq is still
+  1053		 * owned by the device, so don't touch its DMA-target fields or
+  1054		 * free it here. Mark it abandoned and hand ownership of both @creq
+  1055		 * and @comp to whichever of virtblk_ctrlq_callback() or
+  1056		 * virtblk_ctrl_vq_drain() retrieves the buffer later; unlock the
+  1057		 * mutex so subsequent requests aren't serialized behind an
+  1058		 * unresponsive host.
+  1059		 */
+  1060		spin_lock_irqsave(&vblk->ctrl_vq.lock, flags);
+  1061		comp->abandoned = true;
+  1062		spin_unlock_irqrestore(&vblk->ctrl_vq.lock, flags);
+  1063		mutex_unlock(&vblk->ctrl_vq.mutex);
+  1064	
+  1065		dev_warn(&vblk->vdev->dev,
+  1066			 "control queue request timed out, abandoning\n");
+  1067		return -ETIMEDOUT;
+  1068	}
+  1069	
+
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
