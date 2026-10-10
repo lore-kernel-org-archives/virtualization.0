@@ -1,43 +1,43 @@
 Received: from sender5-op-o11.zoho.com (sender5-op-o11.zoho.com [165.173.182.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C7874BEE53
-	for <virtualization@lists.linux.dev>; Sat, 10 Oct 2026 19:40:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E71CC2E7622
+	for <virtualization@lists.linux.dev>; Sat, 10 Oct 2026 20:05:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=165.173.182.11
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791661230; cv=pass; b=ORXN7/Ganl1uCcX8Ny8D0LJVdvWKCSTMCEDhJsJFJAOw4IE4s1aafDS8Z01sP1hQaFTmRXpnm65i1V+3hlpO3pltnQld4vTGzqkVRniUeORkVCLkrCY4ZvfiP1x/dVtUrKsoo14MI/uumPuNnnaCeSs9F3cBtjH4zo4WYtWCdeo=
+	t=1791662723; cv=pass; b=ZeZ0/+BNvLe4Y/ibye/mhZs0kow2e0VpevDZYiRd6plNWpm7QeUseUr+maXvw06P1EE5ZvS/D7ZlCIg+AuxI28wPsMBFR8bGwZy7Rl1mS1j5YJ6ULGW6Kl2PMk29bqg4TJE8gMw5Qn+7qSHLbpEdhW22LmHpx3KPDU6lXqUQJ+4=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791661230; c=relaxed/simple;
-	bh=1GT795kp5Cfa+r1V7HMnWZK1IO4s/LVdhapoK2VhtwE=;
+	s=arc-20240116; t=1791662723; c=relaxed/simple;
+	bh=ks60+6qU+UK7gaXO6jw0WhVNUVXMz5wDLFxByNVuv9E=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ExGF0eZ4TkfZ1arcYoylgXCukVKbpYVo8tfGHdnO8PqDTcTAe25XAcdRSyEJY+swNoUrPa725SnEMbnuE3qERyto01P3nNlILZVxBDT8ig6H5lM/HswC05tLv9MI3m87/gP35NBR+rxVhb240s8XRxPEB+wUpnYcv3bKY0Oxszk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=JDaEzveQ; arc=pass smtp.client-ip=165.173.182.11
+	 In-Reply-To:Content-Type; b=FU2X3DNmbxQUMEVRC5XA9AfRX0hHdR7WHT8ZgIUiu2n36yh7GYaDtPj0IcNpuJCkcTeF+0Txd7KfB45kdVYgMXbQQp3WcpacqDl2YD+dcDfO9mEVWQL9XXJ6Wvm4Jl1fBeYaUWkfKVwYlbIhZh0lbFTUzrxZJAYdEN+0bmCg0OU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=VffhjRea; arc=pass smtp.client-ip=165.173.182.11
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="JDaEzveQ"
-ARC-Seal: i=1; a=rsa-sha256; t=1791661215; cv=none; 
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="VffhjRea"
+ARC-Seal: i=1; a=rsa-sha256; t=1791662715; cv=none; 
 	d=zohomail.com; s=zohoarc; 
-	b=jOVMcMlXIlZnSpACpf4Pqxp/7jlo+3qpOHhpakmicYzeOk9TOYS4LQ3TGDRr3EWU2oxMqvV3rA73U9OVMn9PXr3cqt6Jy7AV2fUaYSFcengJF0Vx4rlqEmSx4YWsrrTvJ+f0OfxbBlQoRXzD9Q4xSSLlWK2vZ5iGfS4uTDCU2D8=
+	b=Y3EIQJhUWX0V9ut354Rom+PlvEyE7yN2/uNsW2QK+zD6OWZs8Q2af27/sXABVdap+26U7LeKRIYLdgIM3CWOEwmXb406j4vihYtHG/Ng/Qixo6Fg5UKjx8Tpmq95/WRasOQN/bFm8z4eQpbe/vJdhmDprYnwLeZTDwc3m9fUuQo=
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1791661215; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=tGFZqLd/CUqBzd/rHklA3dBN+DEG/eudRQPd5sjb+xU=; 
-	b=DeT/fBXTHlw66gIYt1IsCUL0UcXVdVHh7KMBKKaE9qYFyVQVAzRA/lqt2YxsQ97t3hRgGLWGzCXTuUdtTq86vDkt5f5I8QquuIGd6bYJBl2p8cAaP+eKQewXoJZ3Xa6fMExr8ut0dV6wWqotB4YGHKPdbUSsveJ/h7haDT/8r/M=
+	t=1791662715; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=86nH4rDPCAqx0bxA8LuKagPLnUL7JcTSpGdqaI2PTR0=; 
+	b=aVkszdlXQfgQFcSKLeNRqa+zJzxm/N2Wk5NboogKvqR5Cj7Ieiq4cge43EDdoha4JJUnNxkzb6mf6F4VlUh4f6FKjODSAv8CFvf8DrTE7JLYnheTqhKm+U3hk8APH3HvPz4t7V+pXMbVVxFwMUU7i4eRh9/7ftQrslAmDDgiDuQ=
 ARC-Authentication-Results: i=1; mx.zohomail.com;
 	dkim=pass  header.i=collabora.com;
 	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
 	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1791661215;
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1791662715;
 	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
 	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=tGFZqLd/CUqBzd/rHklA3dBN+DEG/eudRQPd5sjb+xU=;
-	b=JDaEzveQlJM4lH/BjpZxYy+Z96wrdGxIqKoUNfYIgSn2wFsuikVlLabWNDStIfdB
-	SBHMYpxIfsGz60LNDFS6d9bwUvkC9ttwL+o1dFuiKFPhfNN1t/+I1ENtj7nPUtreqLz
-	2/mhuX5ldYkRuERlueVvIL7ENMQGKyk53Y0EVuXk=
-Received: by smtp.zohomail.com with SMTPS id 1791661214417655.9702130701353;
-	Sat, 10 Oct 2026 12:40:14 -0700 (PDT)
-Message-ID: <f717bc84-57f4-4001-a15b-fcdca67bb9b4@collabora.com>
-Date: Sat, 10 Oct 2026 22:40:09 +0300
+	bh=86nH4rDPCAqx0bxA8LuKagPLnUL7JcTSpGdqaI2PTR0=;
+	b=VffhjReaT5Y2JjqiyZnkGofHg5YS3ki8unGDYRb8rytUdxTjgZBcsXQboBySqZG2
+	xwf7ia/7gjw4/LIeV31ICdv3OmPNNb1TkP4CryNAnlclsC+ucg3JoNI4ZbM4UxQjCKB
+	amnvGrFhUqZH1+aD4ajCD1snxBWWWPOdrGckLGVU=
+Received: by smtp.zohomail.com with SMTPS id 1791662713047795.6206079359732;
+	Sat, 10 Oct 2026 13:05:13 -0700 (PDT)
+Message-ID: <3b853922-1d29-4d50-a3c3-64db18963ed5@collabora.com>
+Date: Sat, 10 Oct 2026 23:05:07 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -45,107 +45,77 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] drm/virtio: do not enforce blob_alignment in
- cross-domain contexts
-To: Val Packett <val@invisiblethingslab.com>,
- David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
+Subject: Re: [PATCH v3] drm/virtio: share one vbuf cache across all devices
+To: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>,
+ David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>
+Cc: Hillf Danton <hdanton@sina.com>,
  Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
  <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
  Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- Simona Vetter <simona@ffwll.ch>, Sergio Lopez <slp@redhat.com>,
- Yiwei Zhang <zzyiwei@chromium.org>, Ryan Neph <ryanneph@chromium.org>
-Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org
-References: <20261006154913.2689067-2-val@invisiblethingslab.com>
- <8b0fbe1a-1410-42d7-8031-611795ae39d9@collabora.com>
- <4d86ec37-ce27-4556-966e-4b4e80ec0718@invisiblethingslab.com>
+ Simona Vetter <simona@ffwll.ch>, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+ syzbot+1b129b44597a126d2d79@syzkaller.appspotmail.com
+References: <20261010150429.17036-1-ngocthang2710.1999@gmail.com>
 Content-Language: en-US
 From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-In-Reply-To: <4d86ec37-ce27-4556-966e-4b4e80ec0718@invisiblethingslab.com>
+In-Reply-To: <20261010150429.17036-1-ngocthang2710.1999@gmail.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 X-ZohoMailClient: External
 
-On 10/8/26 23:59, Val Packett wrote:
+On 10/10/26 18:04, Nguyen Ngoc Thang wrote:
+> virtio_gpu_alloc_vbufs() creates a kmem_cache with the fixed name
+> "virtio-gpu-vbufs" for every virtio-gpu device and destroys it from
+> virtio_gpu_release(), which only runs once the last drm_device
+> reference is dropped.
 > 
-> On 10/8/26 4:33 AM, Dmitry Osipenko wrote:
->> On 10/6/26 18:42, Val Packett wrote:
->>> VIRTIO_GPU_F_BLOB_ALIGNMENT is designed for GPU rendering context types,
->>> however VIRTIO_GPU_CAPSET_CROSS_DOMAIN is not one of those. Resources
->>> created under cross-domain contexts are arbitrary shared system memory
->>> files, which includes unusual things like Wayland keymaps received
->>> from the host compositor. Do not enforce alignment requirements there.
->>>
->>> Fixes: 47248e0d8264 ("drm/virtio: honor blob_alignment requirements")
->>> Signed-off-by: Val Packett <val@invisiblethingslab.com>
->>> ---
->>>
->>> v2: also check has_virgl_3d to prevent dereferencing NULL vfpriv
->>> v1: https://lore.kernel.org/all/20261006004044.2242154-1-
->>> val@invisiblethingslab.com/
->>>
->>> ~val
->>>
->>> ---
->>>   drivers/gpu/drm/virtio/virtgpu_ioctl.c | 4 +++-
->>>   1 file changed, 3 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/
->>> drm/virtio/virtgpu_ioctl.c
->>> index 3ddd5481d6bc..4d5ae062834d 100644
->>> --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
->>> +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
->>> @@ -551,7 +551,9 @@ static int verify_blob(struct virtio_gpu_device
->>> *vgdev,
->>>       params->blob_flags = rc_blob->blob_flags;
->>>       params->blob_hints = rc_blob->blob_hints;
->>>   -    if (vgdev->has_blob_alignment &&
->>> +    if (vgdev->has_blob_alignment && vgdev->has_virgl_3d &&
->>> +        (vfpriv->context_init &
->>> VIRTIO_GPU_CONTEXT_INIT_CAPSET_ID_MASK) !=
->>> +        VIRTIO_GPU_CAPSET_CROSS_DOMAIN &&
->>>           !IS_ALIGNED(params->size, vgdev->blob_alignment))
->>>           return -EINVAL;
->>>   
->> What userspace has this problem and why it re-purposes virtio-gpu to act
->> as udmabuf for arbitrary data that never reaches host?
+> Two live virtio-gpu devices are enough to hit this: the second
+> kmem_cache_create() call finds the name already taken and
+> kmem_cache_sanity_check() WARNs. This reproduces at plain boot with
+> two "-device virtio-gpu-pci" on the QEMU command line, no sysfs
+> remove/rescan or held-open fd needed.
 > 
-> Sorry, what do you mean by that?
+>   kmem_cache of name 'virtio-gpu-vbufs' already exists
+>   WARNING: mm/slab_common.c:111 at __kmem_cache_create_args
+>   Call Trace:
+>    virtio_gpu_alloc_vbufs
+>    virtio_gpu_init
+>    virtio_gpu_probe
+>    ...
 > 
-> This is not related to data that "never reaches host" at all! The error
-> I referred to in the patch message literally says "received *from* the
-> host"…??
+> syzbot found the same WARNing through a different path: open an
+> fbdev node, then remove and rescan its PCI device over sysfs. The
+> drm_device reference the open fd holds delays virtio_gpu_release(),
+> so the old cache is still around when the rescan probes the device
+> again and calls virtio_gpu_alloc_vbufs() a second time.
 > 
-> Guest userspace is any of the cross-domain proxies:
+> Either way kmem_cache_create() still returns a valid (merged) cache,
+> so the device keeps working; the WARN is not a probe failure. But it
+> is a real defect: as the comment next to the check says, a duplicate
+> name "confuses slabtop, et al", and it is exactly what syzbot and
+> any panic_on_warn setup treat as a crash.
 > 
-> * https://codeberg.org/drakulix/wl-cross-domain-proxy
-> * https://github.com/talex5/wayland-proxy-virtwl
-> * https://github.com/google/sommelier-rs (or old C++ version)
+> The vbuf size is the same for every device, so create the cache once
+> at module init and destroy it at module exit instead of per device.
 > 
-> VIRTIO_GPU_CAPSET_CROSS_DOMAIN "repurposes virtio-gpu" to act as a
-> cross-VM UNIX socket transport that supports fd passing. By referring to
-> virtio-gpu resources in the send command the guest can make the device
-> send the resources' corresponding host fds to the host Wayland
-> compositor. It can refer to resources from other contexts, in order to
-> present drm/venus/etc rendered buffers on Wayland surfaces. (i.e. the
-> host would send the actual dma-buf from virglrenderer) But the resources
-> created on the cross-domain context itself are system memory buffers,
-> generally used for software rendering and miscellaneous Wayland "stuff"
-> like keymaps which are sent *from* the host, and exposed to Wayland
-> clients in the guest. Socket receive handling in rutabaga-gfx stores
-> incoming fds and returns their IDs to the guest, then the guest does a
-> CREATE_BLOB with matching blob_id, which creates a virtio-gpu resource
-> from the incoming buffer, so the guest can just MAP_BLOB it. These are
-> the blobs that are not aligned to anything because they're just
-> arbitrary memfds on the host.
+> Reported-by: syzbot+1b129b44597a126d2d79@syzkaller.appspotmail.com
+> Closes: https://syzkaller.appspot.com/bug?extid=1b129b44597a126d2d79
+> Signed-off-by: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>
+> ---
+> No Fixes: tag. I could not pin down which commit introduced the
+> dedicated per-device cache (dc5698e80cf7, the original driver commit,
+> still used a plain kzalloc() pool); happy to add the right one if
+> someone can point to it.
+> 
+> v3: back to one cache shared at module scope (Dmitry), not kzalloc()/
+>     kfree() (v2) -- kmem_cache keeps the allocation off the general
+>     kmalloc slabs for this latency-sensitive path. Commit message
+>     corrected: the duplicate-name WARN does not fail the probe (the
+>     cache still gets created, merged with the existing one), and the
+>     trigger is any two live virtio-gpu devices, not just the syzbot
 
-RE "These are the blobs that are not aligned to anything because they're
-just arbitrary memfds on the host." I'll appreciate confirmation from
-people more familiar with Sommelier internals like Gurchetan, Yiwei or Ryan.
-
-In a case it is a correct claim, might be better to remove the
-blob_alignment check entirely and let blob sharing fail naturally if
-alignment is wrong.
+I booted QEMU with two virtio-gpu devs, each created own kmem_cache and
+there is no warning.
 
 -- 
 Best regards,
