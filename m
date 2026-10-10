@@ -1,43 +1,43 @@
 Received: from sender5-op-o11.zoho.com (sender5-op-o11.zoho.com [165.173.182.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E71CC2E7622
-	for <virtualization@lists.linux.dev>; Sat, 10 Oct 2026 20:05:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90B713CF963
+	for <virtualization@lists.linux.dev>; Sat, 10 Oct 2026 20:11:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=165.173.182.11
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791662723; cv=pass; b=ZeZ0/+BNvLe4Y/ibye/mhZs0kow2e0VpevDZYiRd6plNWpm7QeUseUr+maXvw06P1EE5ZvS/D7ZlCIg+AuxI28wPsMBFR8bGwZy7Rl1mS1j5YJ6ULGW6Kl2PMk29bqg4TJE8gMw5Qn+7qSHLbpEdhW22LmHpx3KPDU6lXqUQJ+4=
+	t=1791663095; cv=pass; b=RNUgjzEhQnWA71af56rX6njSVD98Jd7j7UaixyseJOOFeAcx0YyaT99RfRbSwtEf08CRguxMMN+tUyuJxEQkkvlF4ixeg6bChdIUY2ppihzayiDdbnESeE4xjZMulf3WD3EDyewCLHmJjf+ITzloXrsiKQPt2JUHixBpZgP9nPY=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791662723; c=relaxed/simple;
-	bh=ks60+6qU+UK7gaXO6jw0WhVNUVXMz5wDLFxByNVuv9E=;
+	s=arc-20240116; t=1791663095; c=relaxed/simple;
+	bh=w5fRRU3aj3jyVk5q7XtQZcWg+4yHTcFHtXjisa0N+Xk=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=FU2X3DNmbxQUMEVRC5XA9AfRX0hHdR7WHT8ZgIUiu2n36yh7GYaDtPj0IcNpuJCkcTeF+0Txd7KfB45kdVYgMXbQQp3WcpacqDl2YD+dcDfO9mEVWQL9XXJ6Wvm4Jl1fBeYaUWkfKVwYlbIhZh0lbFTUzrxZJAYdEN+0bmCg0OU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=VffhjRea; arc=pass smtp.client-ip=165.173.182.11
+	 In-Reply-To:Content-Type; b=mazbtjdZSS7mpTRBtA5LKNbhdA4syrKhaDxNYH0Y+dt8insYH9jX/wVXTe8xNDdpGP5GAwOWH0wFFND5tVx4PKec1mZSEiAf8ATuXyrMI2DYaocg+3ZJCKihY1G18oew5AhpcMRan+tJdUDWARR5iCIGrSurDizuzMAYfUQU4KY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=S+JoghMs; arc=pass smtp.client-ip=165.173.182.11
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="VffhjRea"
-ARC-Seal: i=1; a=rsa-sha256; t=1791662715; cv=none; 
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="S+JoghMs"
+ARC-Seal: i=1; a=rsa-sha256; t=1791663075; cv=none; 
 	d=zohomail.com; s=zohoarc; 
-	b=Y3EIQJhUWX0V9ut354Rom+PlvEyE7yN2/uNsW2QK+zD6OWZs8Q2af27/sXABVdap+26U7LeKRIYLdgIM3CWOEwmXb406j4vihYtHG/Ng/Qixo6Fg5UKjx8Tpmq95/WRasOQN/bFm8z4eQpbe/vJdhmDprYnwLeZTDwc3m9fUuQo=
+	b=aqK4hrydh8m7R0nIlQ7V3e0KUCUZ3NHOTuKJ8DRts3KeYH1dOAmpL7v653rBKcaJ1xjK3YeBZRVWFB5rffnet4Q4qa4/1AVYkAwWyuqc594gEar84UQZ6XYCnMWRKGYQL4KR8e9YMeoiKCENknnlRPDM34Ikar1LdBdltc8lg8k=
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1791662715; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=86nH4rDPCAqx0bxA8LuKagPLnUL7JcTSpGdqaI2PTR0=; 
-	b=aVkszdlXQfgQFcSKLeNRqa+zJzxm/N2Wk5NboogKvqR5Cj7Ieiq4cge43EDdoha4JJUnNxkzb6mf6F4VlUh4f6FKjODSAv8CFvf8DrTE7JLYnheTqhKm+U3hk8APH3HvPz4t7V+pXMbVVxFwMUU7i4eRh9/7ftQrslAmDDgiDuQ=
+	t=1791663075; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=fhpHISKN2ejdt1SYpWE67fgDiBtyNOwb9rbmi+vJp4M=; 
+	b=a9aj72gXAIALOxhiEY/K/B3dG/Jy/xSDnN6xAmmudEpBUgxlgE1tPhpBEOi+sGdCtWet/YF4YC2aahmdSlNF4v36nDqTuzFk9Hd0wOCPZSVfKlkth4iHnM3oC1e3JVtPAHU7+K0B5ElHDJWp7xXeO7U3OQOfqXCe1Jw7Q1iD/YA=
 ARC-Authentication-Results: i=1; mx.zohomail.com;
 	dkim=pass  header.i=collabora.com;
 	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
 	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1791662715;
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1791663075;
 	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
 	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=86nH4rDPCAqx0bxA8LuKagPLnUL7JcTSpGdqaI2PTR0=;
-	b=VffhjReaT5Y2JjqiyZnkGofHg5YS3ki8unGDYRb8rytUdxTjgZBcsXQboBySqZG2
-	xwf7ia/7gjw4/LIeV31ICdv3OmPNNb1TkP4CryNAnlclsC+ucg3JoNI4ZbM4UxQjCKB
-	amnvGrFhUqZH1+aD4ajCD1snxBWWWPOdrGckLGVU=
-Received: by smtp.zohomail.com with SMTPS id 1791662713047795.6206079359732;
-	Sat, 10 Oct 2026 13:05:13 -0700 (PDT)
-Message-ID: <3b853922-1d29-4d50-a3c3-64db18963ed5@collabora.com>
-Date: Sat, 10 Oct 2026 23:05:07 +0300
+	bh=fhpHISKN2ejdt1SYpWE67fgDiBtyNOwb9rbmi+vJp4M=;
+	b=S+JoghMsC/PvKhW+b+nohiJEp2LDhQ6HM98POHR5tVPy9HTB6Ch9FJR0CkyHftAC
+	F+YYpzYKZ2WifQw0pTuR1va/s0/Ks0s2nYtUvr6hWpJh594BitJqZNkDIh5KAX58LGe
+	Q3WwNgCOp/GpCdBIfwDyk0WmkVbmSSxLq5RAsh9Y=
+Received: by smtp.zohomail.com with SMTPS id 1791663075057635.7254755559173;
+	Sat, 10 Oct 2026 13:11:15 -0700 (PDT)
+Message-ID: <d459ced7-99f0-46c1-961c-0f6815163596@collabora.com>
+Date: Sat, 10 Oct 2026 23:11:10 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -45,77 +45,71 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3] drm/virtio: share one vbuf cache across all devices
-To: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>,
- David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>
-Cc: Hillf Danton <hdanton@sina.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- Simona Vetter <simona@ffwll.ch>, dri-devel@lists.freedesktop.org,
- virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- syzbot+1b129b44597a126d2d79@syzkaller.appspotmail.com
-References: <20261010150429.17036-1-ngocthang2710.1999@gmail.com>
+Subject: Re: [PATCH RESEND] drm/virtio: expose GEM memory statistics through
+ fdinfo
+To: shechenglong <shechenglong@xfusion.com>, airlied@redhat.com,
+ kraxel@redhat.com, tzimmermann@suse.de
+Cc: gurchetansingh@chromium.org, olvaffe@gmail.com,
+ maarten.lankhorst@linux.intel.com, mripard@kernel.org, simona@ffwll.ch,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, stone.xulei@xfusion.com,
+ chenjialong@xfusion.com
+References: <ce72b2f5-1343-44e9-89fe-e2de4efb7e9c@collabora.com>
+ <20261008164135.510-1-shechenglong@xfusion.com>
 Content-Language: en-US
 From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-In-Reply-To: <20261010150429.17036-1-ngocthang2710.1999@gmail.com>
+In-Reply-To: <20261008164135.510-1-shechenglong@xfusion.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 X-ZohoMailClient: External
 
-On 10/10/26 18:04, Nguyen Ngoc Thang wrote:
-> virtio_gpu_alloc_vbufs() creates a kmem_cache with the fixed name
-> "virtio-gpu-vbufs" for every virtio-gpu device and destroys it from
-> virtio_gpu_release(), which only runs once the last drm_device
-> reference is dropped.
+On 10/8/26 19:41, shechenglong wrote:
+> On Thu, 8 Oct 2026 00:44:34 +0300, Dmitry Osipenko wrote:
+>> Usefulness of this change is dubious. VirtIO-GPU has different types of
+>> RAM, I'd expect them all represented properly instead of only shmem.
 > 
-> Two live virtio-gpu devices are enough to hit this: the second
-> kmem_cache_create() call finds the name already taken and
-> kmem_cache_sanity_check() WARNs. This reproduces at plain boot with
-> two "-device virtio-gpu-pci" on the QEMU command line, no sysfs
-> remove/rescan or held-open fd needed.
+> Hi Dmitry,
 > 
->   kmem_cache of name 'virtio-gpu-vbufs' already exists
->   WARNING: mm/slab_common.c:111 at __kmem_cache_create_args
->   Call Trace:
->    virtio_gpu_alloc_vbufs
->    virtio_gpu_init
->    virtio_gpu_probe
->    ...
+> Thanks for the review.
 > 
-> syzbot found the same WARNing through a different path: open an
-> fbdev node, then remove and rescan its PCI device over sysfs. The
-> drm_device reference the open fd holds delays virtio_gpu_release(),
-> so the old cache is still around when the rescan probes the device
-> again and calls virtio_gpu_alloc_vbufs() a second time.
+> Agreed that a generic memory collector does not map well onto
+> virtio-gpu, given its different memory types. For v2, I plan to
+> replace it with virtio-gpu-specific accounting and to document the
+> semantics of each reported value explicitly:
 > 
-> Either way kmem_cache_create() still returns a valid (merged) cache,
-> so the device keeps working; the WARN is not a probe failure. But it
-> is a real defect: as the comment next to the check says, a duplicate
-> name "confuses slabtop, et al", and it is exactly what syzbot and
-> any panic_on_warn setup treat as a crash.
+> - Guest shmem objects: reported under the "memory" region as
+>   drm-total/drm-shared, based on the guest GEM object size. These
+>   reflect the requested buffer size; drm-resident, if reported, would
+>   be derived from the actual state of the guest backing pages.
 > 
-> The vbuf size is the same for every device, so create the cache once
-> at module init and destroy it at module exit instead of per device.
+> - Host-only blobs (VIRTGPU_BLOB_MEM_HOST3D): reported under a separate
+>   region, tentatively "host3d", using the requested blob size. These
+>   values would be documented as logical sizes and not as actual host
+>   RAM or VRAM consumption.
 > 
-> Reported-by: syzbot+1b129b44597a126d2d79@syzkaller.appspotmail.com
-> Closes: https://syzkaller.appspot.com/bug?extid=1b129b44597a126d2d79
-> Signed-off-by: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>
-> ---
-> No Fixes: tag. I could not pin down which commit introduced the
-> dedicated per-device cache (dc5698e80cf7, the original driver commit,
-> still used a plain kzalloc() pool); happy to add the right one if
-> someone can point to it.
+> - Mixed blobs (VIRTGPU_BLOB_MEM_HOST3D_GUEST): the guest shadow
+>   backing is accounted under "memory", while the logical blob size is
+>   exposed through a separate, documented supplementary key. This
+>   distinguishes mixed resources from guest-only ones without
+>   presenting the supplementary value as additional measured host
+>   memory.
 > 
-> v3: back to one cache shared at module scope (Dmitry), not kzalloc()/
->     kfree() (v2) -- kmem_cache keeps the allocation off the general
->     kmalloc slabs for this latency-sensitive path. Commit message
->     corrected: the duplicate-name WARN does not fail the probe (the
->     cache still gets created, merged with the existing one), and the
->     trigger is any two live virtio-gpu devices, not just the syzbot
-
-I booted QEMU with two virtio-gpu devs, each created own kmem_cache and
-there is no warning.
+> - Imported dma-bufs: handled explicitly, without assuming that they
+>   are backed by local shmem.
+> 
+> Usage of the host-visible memory region would be reported separately
+> from the backing statistics and would not be used to infer host
+> residency.
+> 
+> The actual host allocation size and residency, including legacy virgl
+> resources and the host part of mixed blobs, are not available through
+> the existing guest/host interface. Reporting them would require
+> additional host/renderer support, so I propose leaving that out of
+> this series unless you consider it a prerequisite.
+> 
+> Does this scope match your expectations for v2? Are there other
+> memory types or accounting semantics you would like covered?
+Sounds okay
 
 -- 
 Best regards,
