@@ -1,185 +1,61 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FDE8175D53;
-	Sun, 11 Oct 2026 07:33:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07C58360EF5;
+	Sun, 11 Oct 2026 07:43:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791704013; cv=none; b=BsLtYdKRsTxr5rchK8FL1MRpxnfbvrN/yVx0CZ369cLvOKWsw5ZifeIffwermrxxITmnqvDs/ItqM210uwDJb+7NRvResSVDBWJvhr+QG7ba1Hbbi9fYclN6aypOS4rVd8sVj8iWtctLipcunoEqSy62yBDa8jVis8WTn5S/9cQ=
+	t=1791704608; cv=none; b=eh3/++tIBc8f0kXhjjsBGZOtYtPo+Ll1cJmYf/IgCKy/v+G08uKJ06LOoUjj/xhdHG6xQNMYMoWO3OFgzcAF0Iovdh3re+vN1vvI5RTRor3WaWKlIeUqrJG31ILSx8dIRjV89rAFReq2TciUjzUMLlWjlTzlcMPPOC1U1nIPNJc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791704013; c=relaxed/simple;
-	bh=Li7QPjdVKJpfvpbeJYy6aMf2uiChf08TlqmxReXVqaQ=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=oiLw/virXeLRJb6Sgv8El86P4pTrIP49kNAjlcmRQzzFunY+y2b1I0SBEzn4m0m3hoqpKf2pFf6zB4mwDUBXRX2+moJdQjJgrS8jl88Jup8pg+0yzupyk7gPRGogci2TSGjqC9L+qAfmdulTsXf4OsQJCYBRyTRKBd/7KoIV/zA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FrJIQRka; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1791704608; c=relaxed/simple;
+	bh=76F1tp3XYAaUTHaar4ATx5HBvyaaV6k44j13mU+CFwk=;
+	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
+	 Date; b=QiIl9qertLgwDcphwO9vhgiYISkvj6+QYLxK9dZ5N25VrXaulofhK2aFRwEYeb1bYOSvcO34oefV3HWCF/Y06e/MDE8jt3zW3tj85BxgaBAZxs4+eu1mhIrzfJW2I7wdw7RCzFR1RcOgHsL2jH0J/uMvnBDWFWXM6F/Ij8bE4J4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lN8RqNVV; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FrJIQRka"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 15C44C2BCF5;
-	Sun, 11 Oct 2026 07:33:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1791704013;
-	bh=Li7QPjdVKJpfvpbeJYy6aMf2uiChf08TlqmxReXVqaQ=;
-	h=From:Date:Subject:To:Cc:Reply-To:From;
-	b=FrJIQRkaqRi1DMuwlNvNSJv9sb++EVkoqASj3l8Mtem22X/wbaVTiqpc+iKNKwgFf
-	 UBXd4fyzTZsGjmMvQ9b/pS7H6AiK6LBevm+iSwqrA4PSnA19ThlNt9x7Y4NE6TJa20
-	 OepUZr+/WsilGNp6AN+GImDPBivCRSFjDogyhCwBRihQNuJqFD2oj5YlEU9/hPPaD7
-	 p66LPWIAKjQdPY2fHb8BFS9Ph7xlarI780dt5aNf4Mc4LpIkjJtiD3+lIV1Ivh4QoD
-	 x7oVv+eXkfJ+rBsVwCz1g7blLNIAihlAjUInsuVMQw9S3OmwQpTr71A7vy4zv1HNAF
-	 piVWK0WTgCWiQ==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DB62DCA9EBD;
-	Sun, 11 Oct 2026 07:33:32 +0000 (UTC)
-From: Linfeng Sun via B4 Relay <devnull+linfeng.sun.dev.gmail.com@kernel.org>
-Date: Sun, 11 Oct 2026 15:33:30 +0800
-Subject: [PATCH] vhost: reject backend enable without a kick file
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lN8RqNVV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5967C1F0089B;
+	Sun, 11 Oct 2026 07:43:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791704607;
+	bh=76F1tp3XYAaUTHaar4ATx5HBvyaaV6k44j13mU+CFwk=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=lN8RqNVVyGGm5gqMvT8+5C64zCS2AYFdkm1/8kDOjhBZSWjyY9W+KOsB+ZtELvukf
+	 r5YwJOVtyjUi8Zbx8NinxUdQ3QIpZ61SpC/0xKmlMY2eDJovsoY5Ay8iGV3X8jsmVM
+	 Z1HLMELw9sMf8aQyZdsD/RAchsq9aJSSjyltq18SSc5kzUtfGVXmYprO5dCleky4mI
+	 olev7uQIzl4IhxmVHyQbRD6RXeBkBxuWwbWdp7FC+RPZ2LzwgOJqyo3wsvijsN1yUR
+	 vIw6mX0kEj3B/86psk+2uuqjW4cL/2rKva0nBY7gip4QpJwjsTBq06LJJ7bKqr7Otn
+	 zGArlV49KkxRw==
+Message-ID: <sashiko-outbox-167108@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] vhost: reject backend enable without a kick file
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Linfeng Sun" <linfeng.sun.dev@gmail.com>
+Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, kvm@vger.kernel.org, "Eugenio
+ Perez" <eperezma@redhat.com>
+In-Reply-To: <20261011-fix-null-pointer-in-vhost_test_set_backend-v1-1-60b2f12d64c6@gmail.com>
+References: <20261011-fix-null-pointer-in-vhost_test_set_backend-v1-1-60b2f12d64c6@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sun, 11 Oct 2026 07:43:26 +0000
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261011-fix-null-pointer-in-vhost_test_set_backend-v1-1-60b2f12d64c6@gmail.com>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yWNQQrCMBBFr1Jm7UBSo1KvIqWk6WhHy6Rk0iKU3
- t2omw9v8d/bQCkxKVyrDRKtrBylgD1UEEYvD0IeCkNt6rM11uKd3yjLNOEcWTIlZMF1jJq7TGW
- Uctf78CIZ0DTu2JA7Be8uUIRzovL+xW7tn3XpnxTytwD7/gHIgGoYjgAAAA==
-X-Change-ID: 20261011-fix-null-pointer-in-vhost_test_set_backend-09439e45ca47
-To: "Michael S. Tsirkin" <mst@redhat.com>, 
- Jason Wang <jasowangio@gmail.com>, 
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux.dev, 
- linux-kernel@vger.kernel.org, Linfeng Sun <linfeng.sun.dev@gmail.com>
-X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1791704011; l=5233;
- i=linfeng.sun.dev@gmail.com; s=20261010; h=from:subject:message-id;
- bh=eZ1DZ28a+86fOznwSiX0c0JcYbu2CGeoKTJCHCyhpfo=;
- b=1llHowXxVWEg+42F2EhlCrPKV4cn91bxeVpvDzNIRuoH/4LV+e9ZI9Rhb3yDjYylp1SLiCl91
- GEdpgkEWKiOAE/2SD9hi0VfgumH/5iH+/1fq68IuWqcLchET5977aEh
-X-Developer-Key: i=linfeng.sun.dev@gmail.com; a=ed25519;
- pk=IPHLe8L3bTveNcYFP12okRAIWs4eqaVd4jrqSNMj7UU=
-X-Endpoint-Received: by B4 Relay for linfeng.sun.dev@gmail.com/20261010
- with auth_id=1150
-X-Original-From: Linfeng Sun <linfeng.sun.dev@gmail.com>
-Reply-To: linfeng.sun.dev@gmail.com
 
-From: Linfeng Sun <linfeng.sun.dev@gmail.com>
+> From: Linfeng Sun <linfeng.sun.dev@gmail.com>
+>=20
+> Enabling a backend without VHOST_SET_VRING_KICK dereferences a NULL
+> vq->kick in vhost_poll_start(). Reject the request with -EINVAL.
+>=20
+> Fixes: 264ee5aa81ec ("tools/virtio: Add --reset")
+> Assisted-by: OpenAI-Codex:GPT-5.6
+> Signed-off-by: Linfeng Sun <linfeng.sun.dev@gmail.com>
 
-Enabling a backend without VHOST_SET_VRING_KICK dereferences a NULL
-vq->kick in vhost_poll_start(). Reject the request with -EINVAL.
+Sashiko has reviewed this patch and found no issues. It looks great!
 
-Fixes: 264ee5aa81ec ("tools/virtio: Add --reset")
-Assisted-by: OpenAI-Codex:GPT-5.6
-Signed-off-by: Linfeng Sun <linfeng.sun.dev@gmail.com>
----
-I used // because b4 ignores lines starting with #. Please uncomment those 
-lines before reproducing.
----- reproduce.c ----
-// #include <fcntl.h>
-// #include <linux/vhost.h>
-// #include <stdint.h>
-// #include <stdlib.h>
-// #include <sys/ioctl.h>
-// #include <unistd.h>
-
-// #define VHOST_TEST_SET_BACKEND _IOW(VHOST_VIRTIO, 0x32, int)
-
-static char ring[4096];
-
-int main(void)
-{
-	struct vhost_memory *memory;
-	struct vhost_vring_state state = { .num = 1 };
-	struct vhost_vring_addr addr = { 0 };
-	struct vhost_vring_file backend = { 0 };
-	int fd;
-
-	memory = calloc(1, sizeof(*memory) + sizeof(memory->regions[0]));
-	memory->nregions = 1;
-	memory->regions[0].memory_size = sizeof(ring);
-	memory->regions[0].userspace_addr = (uintptr_t)ring;
-
-	addr.desc_user_addr = (uintptr_t)ring;
-	addr.avail_user_addr = (uintptr_t)ring + 64;
-	addr.used_user_addr = (uintptr_t)ring + 128;
-
-	fd = open("/dev/vhost-test", O_RDWR);
-	ioctl(fd, VHOST_SET_OWNER, NULL);
-	ioctl(fd, VHOST_SET_MEM_TABLE, memory);
-	ioctl(fd, VHOST_SET_VRING_NUM, &state);
-	ioctl(fd, VHOST_SET_VRING_ADDR, &addr);
-	return ioctl(fd, VHOST_TEST_SET_BACKEND, &backend);
-}
-
----- crash log ----
-[   12.537464] BUG: kernel NULL pointer dereference, address: 0000000000000008
-[   12.538119] #PF: supervisor read access in kernel mode
-[   12.538452] #PF: error_code(0x0000) - not-present page
-[   12.538855] PGD 8ddb067 P4D 8ddb067 PUD 8d3b067 PMD 0 
-[   12.539665] Oops: Oops: 0000 [#1] SMP NOPTI
-[   12.540406] CPU: 0 UID: 0 PID: 88 Comm: poc Tainted: G           OE       7.3.0-rc2+ #1 PREEMPT(full) 
-[   12.541088] Tainted: [O]=OOT_MODULE, [E]=UNSIGNED_MODULE
-[   12.541411] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
-[   12.542015] RIP: 0010:vhost_poll_start+0x41/0xf0
-[   12.542802] Code: 8f fe 48 83 7b 10 00 74 1c 31 db e8 d9 d1 8f fe 89 d8 5b 41 5c 41 5d 5d 31 d2 31 c9 31 f6 31 ff c3 cc cc cc cc e8 bf d1 8f fe <49> 8b 44 24 08 4c 8b 68 48 4d 85 ed 74 7b e8 ac d1 8f fe 4c 89 e7
-[   12.543670] RSP: 0018:ffffc90000ebfdc0 EFLAGS: 00000246
-[   12.544081] RAX: 0000000000000000 RBX: ffff888008d88170 RCX: 0000000000000000
-[   12.544476] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff888008d88170
-[   12.544873] RBP: ffffc90000ebfdd8 R08: 0000000000000000 R09: 0000000000000000
-[   12.545266] R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
-[   12.545654] R13: ffff888008d88008 R14: 0000000000000000 R15: 0000000000000000
-[   12.546110] FS:  000000003a5c4380(0000) GS:ffff8880a9836000(0000) knlGS:0000000000000000
-[   12.546550] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   12.546901] CR2: 0000000000000008 CR3: 0000000008ce1000 CR4: 00000000000006f0
-[   12.547496] Call Trace:
-[   12.548068]  <TASK>
-[   12.548605]  vhost_test_ioctl+0x6cd/0x730 [vhost_test]
-[   12.549194]  ? __pfx_vhost_test_ioctl+0x10/0x10 [vhost_test]
-[   12.549597]  __x64_sys_ioctl+0x10e/0x160
-[   12.549941]  x64_sys_call+0x2b5/0x27e0
-[   12.550243]  do_syscall_64+0xbf/0x550
-[   12.550565]  ? fpregs_assert_state_consistent+0x7b/0xc0
-[   12.550933]  ? irqentry_exit+0x44/0x790
-[   12.551270]  ? prandom_u32_state+0xd/0x90
-[   12.551612]  ? do_syscall_64+0x31/0x550
-[   12.551948]  entry_SYSCALL_64_after_hwframe+0x76/0x7e
-[   12.552361] RIP: 0033:0x41c19d
-[   12.552914] Code: 04 25 28 00 00 00 48 89 45 c8 31 c0 48 8d 45 10 c7 45 b0 10 00 00 00 48 89 45 b8 48 8d 45 d0 48 89 45 c0 b8 10 00 00 00 0f 05 <89> c2 3d 00 f0 ff ff 77 1a 48 8b 45 c8 64 48 2b 04 25 28 00 00 00
-[   12.553749] RSP: 002b:00007ffd30f78940 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-[   12.554234] RAX: ffffffffffffffda RBX: 00000000004860a4 RCX: 000000000041c19d
-[   12.554620] RDX: 00007ffd30f789b8 RSI: 000000004004af32 RDI: 0000000000000003
-[   12.555010] RBP: 00007ffd30f78990 R08: 00000000004b2820 R09: 0000000000000000
-[   12.555400] R10: 0000000000000001 R11: 0000000000000246 R12: 0000000000001000
-[   12.555788] R13: 00007ffd30f78b28 R14: 00000000004ad868 R15: 0000000000000001
-[   12.556239]  </TASK>
-[   12.556478] Modules linked in: vhost_test(OE)
-[   12.557136] CR2: 0000000000000008
-[   12.557983] ---[ end trace 0000000000000000 ]---
----
- drivers/vhost/test.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
-index 84ed9ea81219..65dc8c71336d 100644
---- a/drivers/vhost/test.c
-+++ b/drivers/vhost/test.c
-@@ -287,6 +287,10 @@ static long vhost_test_set_backend(struct vhost_test *n, unsigned index, int fd)
- 		r = -EFAULT;
- 		goto err_vq;
- 	}
-+	if (enable && !vq->kick) {
-+		r = -EINVAL;
-+		goto err_vq;
-+	}
- 	if (!enable) {
- 		vhost_poll_stop(&vq->poll);
- 		backend = vhost_vq_get_backend(vq);
-
----
-base-commit: c69023b5e16e5ffe9368603dca76d85bd544ee57
-change-id: 20261011-fix-null-pointer-in-vhost_test_set_backend-09439e45ca47
-
-Best regards,
---  
-Linfeng Sun <linfeng.sun.dev@gmail.com>
-
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261011-fix-null-p=
+ointer-in-vhost_test_set_backend-v1-1-60b2f12d64c6@gmail.com?part=3D1
 
