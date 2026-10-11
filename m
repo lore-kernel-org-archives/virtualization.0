@@ -1,113 +1,240 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0AA6B42B324;
-	Sun, 11 Oct 2026 09:00:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0CA313CA92;
+	Sun, 11 Oct 2026 10:28:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791709216; cv=none; b=KVkZkkbR0vuZEn2zZlOk8mRxk7TdZwZB01f0SMEBuEE5aYsFfzwbF0mBeF7o6WEDfcsaoBAVyovmwq1rBKwA27hemodT/BqZl6qMeoQF7XMkkQcjq2HCDcU0aNIHll2u91OxZIlB/8NZ66qmswoTEkBkkXm1EdofWcq3tUvfGCU=
+	t=1791714509; cv=none; b=NGJeSR20gIyl1RU4gHqtjZHyhDHVrsSPyR6rnoh/7fUHmctQUqTNs5OigKOqnRMyHMa6zzA1uCYTnIdqp0A7jsaMxupURLnAMecpjUjNSaalVLoFE7fjoIyF7LohzjXMr3JooGd1c+ZkgSDBwBgqWe6IQconrrwVuLFNh68mAkI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791709216; c=relaxed/simple;
-	bh=EmHyOirDOkYfzi4Y4J2mRpblcIDFRi6DTfbHn2VJZbc=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=U9rr+9OrsDerukjR+d4A7qOHA8QxG1d+lIFxt4cKe0MspUVw/4H0/Tv9w+isa0134r8q6oYX1ytFu9ZzPXAkyJrYBLHj69nb0LUXaWibP2F4A1eQQ+Rdcgxg2Hz2eX4tLheUnxl5goi3EXV8B2aN+PNuY9DQAxmvs1xhiNCoQiY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=H2dsjkvf; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791714509; c=relaxed/simple;
+	bh=pVgYNgS2Wq6t34mwzWDSXYpjiPgJu5Z08wQvagRIc9w=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=WN58d82nEav8a2687phlSTFlK9JAzBxZlIiaU6nUeSuIduQqr+jMaQeQoWsQwbCFhvA1/ymm5ap3pB6CRP3hQxzhxa40X40WqIb3J3kw2N6EGTsQMpSNuMPZfqLW+IP4/icFY/w7/six1x6Hx1SfLTpdXVltR4HAvYzVTDJvVTQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=D69w9uXA; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="H2dsjkvf"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A8EC1F0089B;
-	Sun, 11 Oct 2026 09:00:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791709212;
-	bh=r+BptpkQZtr4OIPIcsuP8Xj/UnxZ74orldA+7tJ9dpE=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=H2dsjkvfF+O+EMJoBAFWgGN9CeOacZqpvKWtY13yOEEMgvSjtNYHfdVaxrbmMH7La
-	 2wOYYA2Js57UGx5QPx5d/dgj5Au5pcluwxV7IfNzmAckR8/kockviLxPYv11zQoAeT
-	 VoSVM5pWxxLN2dcR5xx1534cgdCc3npxro4n0Z6ciEPY6qAxlEfg6AvzGsXC1FJLal
-	 dTiAXnZx7MXOOJXPMcT106GbSDfAktwfrJaS9FNaoWUD2y8bYL8stYGxwxrBXwP3TF
-	 1tX28naggdeIYOmMNgrrh+AHfYKCDTbOJuhxquQ4LAbKXDv94UQFTBza4740V1/F/j
-	 xD/L5IrvxdqlA==
-Message-ID: <sashiko-outbox-167137@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] vhost-vdpa: initialize state before publishing cdev
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Linfeng Sun" <linfeng.sun.dev@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev, "Eugenio
- Perez" <eperezma@redhat.com>, kvm@vger.kernel.org
-In-Reply-To: <20261011-fix-null-pointer-in-vhost_vdpa_release-v1-1-43ebc225f938@gmail.com>
-References: <20261011-fix-null-pointer-in-vhost_vdpa_release-v1-1-43ebc225f938@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 11 Oct 2026 09:00:11 +0000
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="D69w9uXA"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 2EFB3C2BCF5;
+	Sun, 11 Oct 2026 10:28:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1791714509;
+	bh=pVgYNgS2Wq6t34mwzWDSXYpjiPgJu5Z08wQvagRIc9w=;
+	h=From:Date:Subject:To:Cc:Reply-To:From;
+	b=D69w9uXAaHI04sapbXT3wJDtUmRyyGV3iPBnE/lJmydS/9etT1WmNztvE4q79SrwS
+	 kMpOZHt25wMk4tlG/5fG7HmjVZ1Cj/BtfCJSGrL9+W+1FrnnkAvg6cnxCGrbYSruSP
+	 yg5L6mijqcqHKD8TSzBJz/H78gGjHuDePGXzCz+568etlufBmplTOJhJNRDUaPy6/A
+	 CaPr85pscd8P8LytLEqpMPKP7ceCcNh4FkvSmwhpum8q5sCZUbMmB7kcgSHh7+GJ92
+	 uMkiy/H/vc9Q9AX95PW4gnrhXP3JIpRIwSPqCPWaGsH8rLV5Q3C3oZfOEMdZdwEULK
+	 wkSDeUb75HiGA==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A442CA9EC9;
+	Sun, 11 Oct 2026 10:28:29 +0000 (UTC)
+From: Linfeng Sun via B4 Relay <devnull+linfeng.sun.dev.gmail.com@kernel.org>
+Date: Sun, 11 Oct 2026 18:28:24 +0800
+Subject: [PATCH v2] vhost-vdpa: initialize state before publishing cdev
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Message-Id: <20261011-fix-null-pointer-in-vhost_vdpa_release-v2-1-66ba929971ce@gmail.com>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/5WOQQqDMBREryJZ9xcTtWhXvUcRSfSrv8REEg0t4
+ t0b7Qm6fDDzZjbm0RF6dk825jCQJ2siiEvC2lGaAYG6yEyk4sZTzqGnN5hVa5gtmQUdkIEwWr8
+ 0oZtl41Cj9Agqr4pelZWUsmRRNjuMzXPoWf/Yr+qF7XLYj8RIfrHucz4J/Mj9PRo4cMgzVK0QR
+ V9l5WOYJOlraydW7/v+BTTre2zuAAAA
+X-Change-ID: 20261011-fix-null-pointer-in-vhost_vdpa_release-b495fb89aaa8
+To: "Michael S. Tsirkin" <mst@redhat.com>, 
+ Jason Wang <jasowangio@gmail.com>, 
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+ Tiwei Bie <tiwei.bie@intel.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux.dev, 
+ linux-kernel@vger.kernel.org, Linfeng Sun <linfeng.sun.dev@gmail.com>
+X-Mailer: b4 0.16.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1791714507; l=6389;
+ i=linfeng.sun.dev@gmail.com; s=20261010; h=from:subject:message-id;
+ bh=Y4G9d2bUpJtXcpE3Vn6RvUFwVHOuniSMy9HdJebScIo=;
+ b=ujctTiK45KYSvbubMxadqYvnoUFlL43mc0BaxQe8wIwi3lAC5E5SpCD4/UTcp3nQuGW+Jfmsq
+ a1FIR3+iUQKAea4hf8I+piL/jz3Ki/Z67ApDZOTiRvNgpvI6StCOwMJ
+X-Developer-Key: i=linfeng.sun.dev@gmail.com; a=ed25519;
+ pk=IPHLe8L3bTveNcYFP12okRAIWs4eqaVd4jrqSNMj7UU=
+X-Endpoint-Received: by B4 Relay for linfeng.sun.dev@gmail.com/20261010
+ with auth_id=1150
+X-Original-From: Linfeng Sun <linfeng.sun.dev@gmail.com>
+Reply-To: linfeng.sun.dev@gmail.com
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] vhost_vdpa: Use-After-Free of parent vdpa_device on probe failure
---
-
-commit b1425fc64c0e35d298bf8e859d19dd2bf03f896d
-Author: Linfeng Sun <linfeng.sun.dev@gmail.com>
-
-vhost-vdpa: initialize state before publishing cdev
+From: Linfeng Sun <linfeng.sun.dev@gmail.com>
 
 Initialize the completion and as hash buckets before cdev_device_add()
 makes the device accessible.
 
-> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-> index ff7d907191712..35e2f5b2293bf 100644
-> --- a/drivers/vhost/vdpa.c
-> +++ b/drivers/vhost/vdpa.c
-> @@ -1678,17 +1678,16 @@ static int vhost_vdpa_probe(struct vdpa_device *v=
-dpa)
-> =20
->  	cdev_init(&v->cdev, &vhost_vdpa_fops);
->  	v->cdev.owner =3D THIS_MODULE;
-> +	init_completion(&v->completion);
-> +	for (i =3D 0; i < VHOST_VDPA_IOTLB_BUCKETS; i++)
-> +		INIT_HLIST_HEAD(&v->as[i]);
-> =20
->  	r =3D cdev_device_add(&v->cdev, &v->dev);
->  	if (r)
->  		goto err;
+Fixes: 4c8cf31885f6 ("vhost: introduce vDPA-based backend")
+Assisted-by: OpenAI-Codex:GPT-5.6
+Signed-off-by: Linfeng Sun <linfeng.sun.dev@gmail.com>
+---
+I used // because b4 ignores lines starting with #. Please uncomment those 
+lines before reproducing.
+---- reproduce.c ----
+// #include <fcntl.h>
+// #include <pthread.h>
+// #include <stdatomic.h>
+// #include <unistd.h>
 
-[Severity: High]
-Is there a use-after-free risk on the error path if cdev_device_add()
-returns an error?
+// #define THREADS 16
 
-If device_add() fails within cdev_device_add(), the character device might
-have already been added successfully via cdev_add(), allowing a concurrent
-open() to succeed. In this scenario, vhost_vdpa_probe() jumps to err and
-returns an error, causing the driver core to abandon the device bind and
-free the parent vdpa_device.
+static const char *device_path;
+static const char *sysfs_path;
+static atomic_int stop;
 
-However, the successfully opened file descriptor pins the vhost_vdpa object
-and its file operations. When this file descriptor is later closed,
-vhost_vdpa_release() is called and attempts to reset the device:
+static void *open_close(void *unused)
+{
+	(void)unused;
 
-vhost_vdpa_release()
-  vhost_vdpa_reset()
-    _compat_vdpa_reset()
-      struct vdpa_device *vdpa =3D v->vdpa;
-      const struct vdpa_config_ops *ops =3D vdpa->config;
+	while (!atomic_load(&stop)) {
+		int fd;
 
-Since the parent vdpa_device has already been freed, will this dereference
-result in a use-after-free?
+		if (access(sysfs_path, F_OK))
+			continue;
+		fd = open(device_path, O_RDWR);
+		if (fd >= 0)
+			close(fd);
+	}
+	return NULL;
+}
 
-> =20
-> -	init_completion(&v->completion);
->  	vdpa_set_drvdata(vdpa, v);
-> =20
-> -	for (i =3D 0; i < VHOST_VDPA_IOTLB_BUCKETS; i++)
-> -		INIT_HLIST_HEAD(&v->as[i]);
-> -
->  	return 0;
-> =20
->  err:
+int main(int argc, char **argv)
+{
+	pthread_t threads[THREADS];
+	int i;
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261011-fix-null-p=
-ointer-in-vhost_vdpa_release-v1-1-43ebc225f938@gmail.com?part=3D1
+	if (argc != 3)
+		return 1;
+	device_path = argv[1];
+	sysfs_path = argv[2];
+
+	for (i = 0; i < THREADS; i++)
+		if (pthread_create(&threads[i], NULL, open_close, NULL))
+			return 1;
+
+	sleep(45);
+	atomic_store(&stop, 1);
+	for (i = 0; i < THREADS; i++)
+		pthread_join(threads[i], NULL);
+	return 0;
+}
+
+---- crash ----
+[   23.959139] BUG: unable to handle page fault for address: fffffffffffffff8
+[   23.959859] #PF: supervisor read access in kernel mode
+[   23.960291] #PF: error_code(0x0000) - not-present page
+[   23.960740] PGD 4869067 P4D 4869067 PUD 486b067 PMD 0 
+[   23.961718] Oops: Oops: 0000 [#1] SMP NOPTI
+[   23.962395] CPU: 1 UID: 0 PID: 126 Comm: poc Not tainted 7.3.0-rc2+ #1 PREEMPT(full) 
+[   23.963059] Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+[   23.963890] RIP: 0010:complete+0x44/0x80
+[   23.964656] Code: 41 d8 01 49 89 c4 8b 03 83 f8 ff 74 05 83 c0 01 89 03 48 8b 53 10 48 8d 43 10 48 39 c2 74 29 48 8b 5b 10 31 d2 be 03 00 00 00 <48> 8b 7b f8 e8 e3 65 fc ff 48 8b 13 48 8b 43 08 48 89 42 08 48 89
+[   23.965679] RSP: 0018:ffffc9000141bc38 EFLAGS: 00000046
+[   23.966109] RAX: ffff888008a678d8 RBX: 0000000000000000 RCX: 0000000000000000
+[   23.966513] RDX: 0000000000000000 RSI: 0000000000000003 RDI: 0000000000000000
+[   23.967005] RBP: ffffc9000141bc50 R08: 0000000000000000 R09: 0000000000000000
+[   23.967483] R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000246
+[   23.967896] R13: ffff888008a678d0 R14: 0000000000000000 R15: ffffffff83541780
+[   23.968384] FS:  00007dcd511046c0(0000) GS:ffff8880b94b6000(0000) knlGS:0000000000000000
+[   23.968933] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   23.969398] CR2: fffffffffffffff8 CR3: 0000000009a41000 CR4: 00000000000006f0
+[   23.970091] Call Trace:
+[   23.970735]  <TASK>
+[   23.971266]  vhost_vdpa_release+0x175/0x190
+[   23.971862]  ? __pfx_vhost_vdpa_release+0x10/0x10
+[   23.972298]  __fput+0x1c2/0x520
+[   23.972692]  fput_close_sync+0x6e/0x140
+[   23.973040]  __x64_sys_close+0x51/0xd0
+[   23.973362]  x64_sys_call+0x2680/0x27e0
+[   23.973655]  do_syscall_64+0xbf/0x550
+[   23.973969]  ? restore_fpregs_from_fpstate+0xa1/0x110
+[   23.974322]  ? switch_fpu_return+0xbd/0x190
+[   23.974630]  ? do_syscall_64+0x299/0x550
+[   23.974962]  ? putname+0x7f/0xd0
+[   23.975267]  ? do_faccessat+0x3fe/0x570
+[   23.975583]  ? __sanitizer_cov_trace_cmp4+0x16/0x30
+[   23.975934]  ? fpregs_assert_state_consistent+0x7b/0xc0
+[   23.976272]  ? do_syscall_64+0xfd/0x550
+[   23.976591]  ? __sanitizer_cov_trace_cmp4+0x16/0x30
+[   23.976949]  ? fpregs_assert_state_consistent+0x7b/0xc0
+[   23.977304]  ? do_syscall_64+0xfd/0x550
+[   23.977611]  ? prandom_u32_state+0xd/0x90
+[   23.977933]  ? do_syscall_64+0x31/0x550
+[   23.978248]  entry_SYSCALL_64_after_hwframe+0x76/0x7e
+[   23.978644] RIP: 0033:0x41e94c
+[   23.979296] Code: 0f 05 48 3d 00 f0 ff ff 77 3c c3 0f 1f 00 55 48 89 e5 48 83 ec 10 89 7d fc e8 b0 a5 02 00 8b 7d fc 89 c2 b8 03 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 2c 89 d7 89 45 fc e8 12 a6 02 00 8b 45 fc c9
+[   23.980064] RSP: 002b:00007dcd51104220 EFLAGS: 00000293 ORIG_RAX: 0000000000000003
+[   23.980511] RAX: ffffffffffffffda RBX: 00007dcd51104cdc RCX: 000000000041e94c
+[   23.980887] RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000003
+[   23.981251] RBP: 00007dcd51104230 R08: 0000000000000000 R09: 00007dcd511046c0
+[   23.981604] R10: 0000000000000000 R11: 0000000000000293 R12: 00007dcd511046c0
+[   23.981960] R13: ffffffffffffffb8 R14: 0000000000000000 R15: 00007ffe8c98a0f0
+[   23.982377]  </TASK>
+[   23.982597] Modules linked in:
+[   23.983036] CR2: fffffffffffffff8
+[   23.983847] ---[ end trace 0000000000000000 ]---
+---
+Changes in v2:
+- Block opens until probe completes.
+- Link to v1: https://patch.msgid.link/20261011-fix-null-pointer-in-vhost_vdpa_release-v1-1-43ebc225f938@gmail.com
+
+To: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowangio@gmail.com>
+To: Eugenio Pérez <eperezma@redhat.com>
+To: Tiwei Bie <tiwei.bie@intel.com>
+Cc: kvm@vger.kernel.org
+Cc: virtualization@lists.linux.dev
+Cc: linux-kernel@vger.kernel.org
+---
+ drivers/vhost/vdpa.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index ff7d90719171..6cff1ed2004e 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -1655,7 +1655,7 @@ static int vhost_vdpa_probe(struct vdpa_device *vdpa)
+ 		return minor;
+ 	}
+ 
+-	atomic_set(&v->opened, 0);
++	atomic_set(&v->opened, 1);
+ 	spin_lock_init(&v->config_lock);
+ 	v->minor = minor;
+ 	v->vdpa = vdpa;
+@@ -1678,16 +1678,17 @@ static int vhost_vdpa_probe(struct vdpa_device *vdpa)
+ 
+ 	cdev_init(&v->cdev, &vhost_vdpa_fops);
+ 	v->cdev.owner = THIS_MODULE;
++	init_completion(&v->completion);
++	for (i = 0; i < VHOST_VDPA_IOTLB_BUCKETS; i++)
++		INIT_HLIST_HEAD(&v->as[i]);
+ 
+ 	r = cdev_device_add(&v->cdev, &v->dev);
+ 	if (r)
+ 		goto err;
+ 
+-	init_completion(&v->completion);
+ 	vdpa_set_drvdata(vdpa, v);
+ 
+-	for (i = 0; i < VHOST_VDPA_IOTLB_BUCKETS; i++)
+-		INIT_HLIST_HEAD(&v->as[i]);
++	atomic_set_release(&v->opened, 0);
+ 
+ 	return 0;
+ 
+
+---
+base-commit: c69023b5e16e5ffe9368603dca76d85bd544ee57
+change-id: 20261011-fix-null-pointer-in-vhost_vdpa_release-b495fb89aaa8
+
+Best regards,
+--  
+Linfeng Sun <linfeng.sun.dev@gmail.com>
+
+
