@@ -1,367 +1,118 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from sender5-op-o11.zoho.com (sender5-op-o11.zoho.com [165.173.182.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0BD145FFC1;
-	Sun, 11 Oct 2026 14:25:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791728755; cv=none; b=Al0qKe7TWNyqurqAB6XPmBmZZ5OCb/irPqIOSVE79uEPtn5jnpucl4i1bBp+sfLAnpz2ToqQTqsRs6/O7jqkSlFUSJk8ic+PALeBAGmJXT+52dbxvXyqj8chsGqLpmxL2iP6yPoCUecZXhLlDcrsxWnoJqexg7UFGhBnmvMYpxM=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791728755; c=relaxed/simple;
-	bh=Lito27FAcJjJgFKmuwJxNqlg4XB1uwuMiZ4brDv6PYI=;
-	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=L/XMDhlzIwFcXka7PBYRnQCtpTQnxPuR3cEzVsixPMV8Bsscw13h3v1MLZu1uTqF6eH7KvvpUBvJEGCicKN2uVjg9ywB/UUDieYZALNjoTqhVWiE3ujv7fab9reR8MdfOuhvnBS+FdZt7BQPAkgrok6xtrXV2gTQNnt80+Ix/h8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ivZkunCJ; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C00AB4499B0
+	for <virtualization@lists.linux.dev>; Sun, 11 Oct 2026 22:04:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=165.173.182.11
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791756262; cv=pass; b=aoN5LsSMtzHc8XnBYoVa4N4L84puBLA4nVV7mUgGNMjjTB4zvRCT383m7XwWJ5yLKoEBrZLK0T2HwgUppBPKcKBizOXkF/jP0DlCh/QuvBCmh/VPjP3gNMfIxToiBbcXVtZQ/aVdn7dhbjr3M6OuzLNcg2ewLseoziSj0A2dXeY=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791756262; c=relaxed/simple;
+	bh=7UPp9ElkGnZalsMH/5actDI6CxXZr0lhP963YES1Dqs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=gFCRWXu8jFzLQfnBVmOI0gPCBf7G1Air012mLpZoLCSmJMh5bnhnWixq6+RorT37qrRmXXZ0ydjvfmi9OmomTdBob2f/C4XkQtjn1XmV0TrHXbelPLXDk0KiZWjkFoI35htX5cFasgnRg1LAqYpHvg3tXa/rjqcPbXlgaUbC+DY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=ivhPQ/0N; arc=pass smtp.client-ip=165.173.182.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ivZkunCJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 736FE1F0089B;
-	Sun, 11 Oct 2026 14:25:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791728753;
-	bh=vMTPsdj6wCJsOSGzLMqIJMkvsXUZ4bZ2rafitDf6kq4=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=ivZkunCJcA9HcgLmUv7jdH9+q3b9v8P1A4FDNlgpfX2BxSy5OZcNme+sAlnBuzXAV
-	 3mUVnOD5AM+cekKmc5i6XDzu7Ek/MEjCD/3wMv0EWL20RgRxqIHHUalZcCpAholfn/
-	 3tvZCDmNljS8fVoADHUO9wCOL9I47t468PJdpelgEI15/VAIeoavu6xntpx24MeEpd
-	 dP+ow+kYCM+uCEx6Iui7QUbl88fso4TB2jsvWzeKDQ2D/nTYI9BkQ+Ph00vt634E5p
-	 eGxqcVoIulpYs0hb2K7gM0oHK7e08//PMJZWLFNpqo5uIRhg89Dff2y7kEoNqrWO2c
-	 4Ik/8+MhfT93w==
-Subject: Re: [PATCH net-next v2 5/5] vsock/virtio: defer RX readable
- notifications until batch unlock
-From: netdev-bot+sashiko@kernel.org
-To: physicalmtea@gmail.com
-Cc: stefanha@redhat.com, sgarzare@redhat.com, netdev@vger.kernel.org,
- virtualization@lists.linux.dev, kvm@vger.kernel.org, mst@redhat.com,
- jasowangio@gmail.com, eperezma@redhat.com, xuanzhuo@linux.alibaba.com,
- davem@davemloft.net, edumazet@kernel.org, kuba@kernel.org, pabeni@redhat.com,
- horms@kernel.org, linux-kernel@vger.kernel.org, bpf@vger.kernel.org
-Date: Sun, 11 Oct 2026 14:25:52 +0000
-Message-ID: <179172875205.434549.8636973340087490564@kernel.org>
-In-Reply-To: <20261010142247.99223-6-physicalmtea@gmail.com>
-References: <20261010142247.99223-6-physicalmtea@gmail.com>
-X-sashiko-severity: High
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="ivhPQ/0N"
+ARC-Seal: i=1; a=rsa-sha256; t=1791756245; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=XBGn0EDiYLl2ayemR909LBeoVeG4BdqbgPbug6BE2YDLi4qdojAkJjOVsECwylTRN8bgJKbIj1IZix1be3boaFrCyffPZvxyZrcHif4cofQVryIe/SVV2pMk5MYf3Xau6FxiLGh+yb211yqLCwyx1isZrFO+yaF020a84blHPJc=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1791756245; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=nCzvftucFk6WSAIfrGo74dUEjckzzf0Uo1ODZeMVfTo=; 
+	b=YgTA7zWhjYvHNFjzFGXCFMih5yaH5SMU9/n/N4ZDvM1aacmOLwyUg77tdZWIjrvPOkDvSXJHXh4+VezUld0gS3mz90WBSnE4F3ya3Nsg7it0Z9L1PiXbESSMyM1Wmt/NaoW3Y4Nc60oKHufw5Y6R7gk+frzZ4T+OhnHA61ZofZk=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
+	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1791756245;
+	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
+	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=nCzvftucFk6WSAIfrGo74dUEjckzzf0Uo1ODZeMVfTo=;
+	b=ivhPQ/0N5acPf1VXsyY1WmGHwLXFfthSlusOrjJzvFQIyJqkf9z/cLlkACyPsapR
+	tz1f6OmP6GQ0VYTMR1X28PXbR8gdIwgFagIq3j4fbXfDcki846JFZuS5pQDG1Pv86LB
+	iSk+0r5u4dTG72UuNQLaaQXE33VwJmKir8n7Tg4c=
+Received: by smtp.zohomail.com with SMTPS id 1791756244116211.11807230278964;
+	Sun, 11 Oct 2026 15:04:04 -0700 (PDT)
+Message-ID: <cd9e6f0f-808d-4aa3-992b-e1d0af833175@collabora.com>
+Date: Mon, 12 Oct 2026 01:04:00 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1] Revert "drm/virtio: Add pixel blend mode property to
+ cursor plane"
+To: Marek Szyprowski <m.szyprowski@samsung.com>,
+ David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>
+Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org
+References: <20261007222244.295186-1-dmitry.osipenko@collabora.com>
+ <CGME20261008093604eucas1p1857ec36ab7da379e75cb5f8bb993b1b6@eucas1p1.samsung.com>
+ <dae2c4c1-0b60-4975-83d6-924d5255db94@collabora.com>
+ <64f7ea95-516f-4b95-a42e-14fd606879f9@samsung.com>
+Content-Language: en-US
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+In-Reply-To: <64f7ea95-516f-4b95-a42e-14fd606879f9@samsung.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ZohoMailClient: External
 
-Thank you for your contribution! Sashiko AI review found 4 potential
-issue(s) to consider.
+On 10/8/26 12:40, Marek Szyprowski wrote:
+> On 08.10.2026 11:35, Dmitry Osipenko wrote:
+>> On 10/8/26 01:22, Dmitry Osipenko wrote:
+>>> The cursor blending mode was added twice because the same change was
+>>> applied by accident from different patches. Revert the second patch.
+>>>
+>>> Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
+>>> Link: https://lore.kernel.org/dri-devel/ce84d3d2-e78b-4939-aecf-9ef7267bd42a@samsung.com/
+>>> Fixes: 6947b78df4d2 ("drm/virtio: Add pixel blend mode property to cursor plane")
+>>> Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+>>> ---
+>>>  drivers/gpu/drm/virtio/virtgpu_plane.c | 13 -------------
+>>>  1 file changed, 13 deletions(-)
+>>>
+>>> diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+>>> index b422eba42a5f..640815af4098 100644
+>>> --- a/drivers/gpu/drm/virtio/virtgpu_plane.c
+>>> +++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+>>> @@ -589,7 +589,6 @@ struct drm_plane *virtio_gpu_plane_init(struct virtio_gpu_device *vgdev,
+>>>  	struct drm_plane *plane;
+>>>  	const uint32_t *formats;
+>>>  	int nformats;
+>>> -	int ret;
+>>>  
+>>>  	if (type == DRM_PLANE_TYPE_CURSOR) {
+>>>  		formats = virtio_gpu_cursor_formats;
+>>> @@ -615,17 +614,5 @@ struct drm_plane *virtio_gpu_plane_init(struct virtio_gpu_device *vgdev,
+>>>  		drm_plane_create_blend_mode_property(plane,
+>>>  						     BIT(DRM_MODE_BLEND_PREMULTI));
+>>>  
+>>> -	if (type == DRM_PLANE_TYPE_CURSOR) {
+>>> -		/*
+>>> -		 * The cursor plane exposes a format with an alpha channel,
+>>> -		 * which requires a blend mode property. The host blends
+>>> -		 * premultiplied alpha, matching the property's default.
+>>> -		 */
+>>> -		ret = drm_plane_create_blend_mode_property(plane,
+>>> -							   BIT(DRM_MODE_BLEND_PREMULTI));
+>>> -		if (ret)
+>>> -			return ERR_PTR(ret);
+>>> -	}
+>>> -
+>>>  	return plane;
+>>>  }
+>> Marek, could you please give your r-b?
+> 
+> Reviewed-by: Marek Szyprowski <m.szyprowski@samsung.com>
 
-Critical: 0 · High: 1 · Medium: 1 (1) · Low: 2
-
-If you believe none of the issues are legitimate, please reply to each
-issue of Medium severity or higher and explain why the AI is wrong.
-If any of them are legitimate and you plan to respin, please let patchwork
-know by including "pw-bot: cr" as a separate line at the end of your reply
-(one such reply per series is enough).
-
-- [High] The new attach-time handoff passes partially read skbs to
-  read_skb, which ignores the read offset.
-- [Medium] Sockmap attach/detach now drains queued data on every vsock
-  socket, and the commit message wrongly says non-batched sockets keep…
-- [Low] The commit message says "Sampling at batch finish takes
-  sk_callback_lock once." That holds only on the native path.
-- [Low] vsock_rx_callback_handoff() calls sk_data_ready without the
-  sk_rcvlowat/SOCK_DONE check that vsock_data_ready() and the per-packet…
-
-Pre-existing issues:
-- [Medium] vsock_rx_callback_handoff() reads sk_data_ready under
-  read_lock_bh(&sk->sk_callback_lock), releases the lock, and only then…
-
---
-
-vsock/virtio: defer RX readable notifications until batch unlock
-
-During virtio vsock RX batches, this commit holds back the native
-sock_def_readable() notification until the batch has dropped the socket
-lock. If sk_data_ready or sk_write_space has been replaced, for example
-by sockmap, a new vsock_rx_callback_handoff() passes queued skbs to the
-current callback one at a time. vsock_bpf_update_proto() now schedules
-that handoff on sockmap attach and detach.
-
-> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> index fe7f49da6c4bc..df6faee0bd37a 100644
-> --- a/net/vmw_vsock/af_vsock.c
-> +++ b/net/vmw_vsock/af_vsock.c
-> @@ -931,6 +931,107 @@ static int __vsock_bind(struct sock *sk, struct sockaddr_vm *addr)
-
-[ ... ]
-
-> +/* Caller holds lock_sock(). */
-> +void vsock_rx_callback_handoff(struct sock *sk)
-> +{
-> +	struct vsock_sock *vsk = vsock_sk(sk);
-> +	void (*write_space)(struct sock *sk);
-> +	void (*data_ready)(struct sock *sk);
-> +	bool wrote = false;
-> +	s64 before, after;
-> +	int i;
-> +
-> +	if (sock_flag(sk, SOCK_DEAD) || !vsk->transport)
-> +		return;
-> +
-> +	read_lock_bh(&sk->sk_callback_lock);
-> +	data_ready = READ_ONCE(sk->sk_data_ready);
-> +	if (READ_ONCE(sk->sk_prot) != sk->sk_prot_creator &&
-> +	    data_ready == vsk->default_data_ready) {
-> +		read_unlock_bh(&sk->sk_callback_lock);
-> +		/*
-> +		 * start_verdict publishes sk_data_ready after the proto swap.
-> +		 * Retry once before treating this as a stable non-RX setup.
-> +		 */
-> +		if (!vsk->rx_cb_retried) {
-> +			vsk->rx_cb_retried = true;
-> +			vsock_rx_callback_queue(sk, 1);
-> +			return;
-> +		}
-> +		vsk->rx_cb_retried = false;
-> +		data_ready(sk);
-> +		return;
-> +	}
-> +	read_unlock_bh(&sk->sk_callback_lock);
-> +	vsk->rx_cb_retried = false;
-> +
-> +	for (i = 0; i < VSOCK_RX_CB_HANDOFF_MAX; i++) {
-> +		read_lock_bh(&sk->sk_callback_lock);
-> +		data_ready = READ_ONCE(sk->sk_data_ready);
-> +		write_space = READ_ONCE(sk->sk_write_space);
-> +		read_unlock_bh(&sk->sk_callback_lock);
-
-[Severity: Medium]
-This is a pre-existing issue, but sk_callback_lock here only covers
-reading the pointers, not calling them. Can a concurrent sockmap delete
-restore sk_data_ready and clear the psock between this read_unlock_bh()
-and the data_ready(sk) call below?
-
-The delete path takes only write_lock_bh(&sk->sk_callback_lock), not
-lock_sock():
-
-__sock_map_delete()
-  sock_map_unref()
-    sock_map_del_link() / sk_psock_drop()
-
-In that case the stale sk_psock_verdict_data_ready() still dequeues an
-skb through virtio_transport_read_skb(). That lowers rx_bytes and sends a
-credit update. sk_psock_verdict_recv() then finds no psock:
-
-net/core/skmsg.c:sk_psock_verdict_recv() {
-    ...
-	if (unlikely(!psock)) {
-		len = 0;
-		tcp_eat_skb(sk, skb);
-		sock_drop(sk, skb);
-		goto out;
-	}
-    ...
-}
-
-So the skb is dropped after it has already been credited to the peer.
-
-The baseline vsock_data_ready() has the same window. It calls
-sk->sk_data_ready(sk) under lock_sock() without sk_callback_lock, and
-tcp_data_ready() has the same issue. This patch adds more call sites
-with the same pattern: the attach-kicked work item and the batch-finish
-handoff. Taking the read lock here can also make it look as if the call
-is protected when it is not.
-
-> +
-> +		if (!wrote && write_space != vsk->default_write_space) {
-> +			write_space(sk);
-> +			wrote = true;
-> +		}
-> +		if (data_ready == vsk->default_data_ready) {
-> +			data_ready(sk);
-> +			break;
-> +		}
-> +		before = vsock_stream_has_data(vsk);
-> +		if (before <= 0)
-> +			break;
-> +		data_ready(sk);
-
-[Severity: Low]
-Neither of these data_ready(sk) calls checks sk->sk_rcvlowat or
-SOCK_DONE, unlike vsock_data_ready() and the per-packet path in
-virtio_transport_recv_connected(). Is that intended?
-
-For a replaced callback such as the sockmap verdict, data_ready(sk) runs
-whenever vsock_stream_has_data() > 0. The verdict program can then see
-data below SO_RCVLOWAT that the per-packet path would hold back.
-
-For the default callback the call is unconditional, both here and in the
-retry branch above:
-
-		vsk->rx_cb_retried = false;
-		data_ready(sk);
-		return;
-
-Doesn't this wake readers when no readable event was pending? That
-happens on every attach and restore kick from vsock_bpf_update_proto().
-It also happens when virtio_transport_rx_batch_finish() enters the
-handoff with only write_space_pending set.
-
-> +		after = vsock_stream_has_data(vsk);
-> +		if (after >= before)
-> +			break;
-
-[Severity: High]
-Can this hand a partially read skb to read_skb?
-
-A native stream read can consume only part of the head skb. In that
-case virtio_transport_stream_do_dequeue() advances the private offset,
-leaves the skb queued, and lowers rx_bytes only by the bytes copied:
-
-		VIRTIO_VSOCK_SKB_CB(skb)->offset += bytes;
-		...
-		virtio_transport_dec_rx_pkt(vvs, bytes, dequeued);
-
-If the socket is then added to a sockmap with a verdict program, the new
-kick in vsock_bpf_update_proto() runs this loop:
-
-vsock_rx_callback_work()
-  vsock_rx_callback_handoff()
-    sk_psock_verdict_data_ready()
-      vsock_read_skb()
-        virtio_transport_read_skb()
-
-virtio_transport_read_skb() does not look at the offset:
-
-	pkt_len = le32_to_cpu(hdr->len);
-	virtio_transport_dec_rx_pkt(vvs, pkt_len, pkt_len);
-	...
-	return recv_actor(sk, skb);
-
-Take a 1000 byte skb with 400 bytes already read, so rx_bytes is 600.
-The verdict program sees all 1000 bytes, 400 of them a second time. The
-u32 rx_bytes then wraps to 4294966896.
-
-The after >= before check above sees no progress and stops. But
-vsock_stream_has_data() now reports about 4GB, so poll stays readable.
-The next native read hits WARN_ONCE("rx_queue is empty, but rx_bytes is
-non-zero") and returns -EFAULT.
-
-The offset handling in virtio_transport_read_skb() predates this patch.
-In the baseline the same corruption needs a partial read, then an
-attach, then another packet from the peer. With this patch the extra
-packet is no longer needed, and the new attach-time drain depends on
-read_skb handling already-queued skbs correctly.
-
-> +		if (i == VSOCK_RX_CB_HANDOFF_MAX - 1 && after > 0)
-> +			vsock_rx_callback_queue(sk, 0);
-> +	}
-> +}
-
-[ ... ]
-
-> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-> index e5637291f3185..6b96d8ac0d598 100644
-> --- a/net/vmw_vsock/virtio_transport_common.c
-> +++ b/net/vmw_vsock/virtio_transport_common.c
-
-[ ... ]
-
-> @@ -1986,33 +2007,45 @@ EXPORT_SYMBOL_GPL(virtio_transport_recv_pkt);
-
-[ ... ]
-
-> -	if (write_space_pending) {
-> -		vsk = vsock_sk(sk);
-> +	vsk = vsock_sk(sk);
-> +	if (write_space_pending)
->  		vsk->default_write_space(sk);
-> -		write_space = READ_ONCE(sk->sk_write_space);
-> -		if (write_space != vsk->default_write_space)
-> -			write_space(sk);
-> +
-> +	read_lock_bh(&sk->sk_callback_lock);
-> +	native = vsock_rx_cb_is_native(sk);
-> +	read_unlock_bh(&sk->sk_callback_lock);
-> +
-> +	if (native) {
-> +		release_sock(sk);
-> +		if (data_ready_pending)
-> +			vsk->default_data_ready(sk);
-> +		sock_put(sk);
-> +		return;
->  	}
->  
-> +	if (write_space_pending || data_ready_pending)
-> +		vsock_rx_callback_handoff(sk);
-
-[Severity: Low]
-The commit message says:
-
-    Sampling at batch finish takes sk_callback_lock once.
-
-Does that hold on the non-native path? sk_callback_lock is taken once
-here for vsock_rx_cb_is_native(). vsock_rx_callback_handoff() then takes
-it again at the top. It takes it once more on each loop iteration, up
-to VSOCK_RX_CB_HANDOFF_MAX (64) times, and the requeued work can do all
-of this again.
-
-[ ... ]
-
-> diff --git a/net/vmw_vsock/vsock_bpf.c b/net/vmw_vsock/vsock_bpf.c
-> index 9049d26486460..7770a6c51dbe5 100644
-> --- a/net/vmw_vsock/vsock_bpf.c
-> +++ b/net/vmw_vsock/vsock_bpf.c
-> @@ -154,6 +154,7 @@ int vsock_bpf_update_proto(struct sock *sk, struct sk_psock *psock, bool restore
->  	if (restore) {
->  		sk->sk_write_space = psock->saved_write_space;
->  		sock_replace_proto(sk, psock->sk_proto);
-> +		vsock_rx_callback_kick(sk);
->  		return 0;
->  	}
->  
-> @@ -166,6 +167,7 @@ int vsock_bpf_update_proto(struct sock *sk, struct sk_psock *psock, bool restore
->  
->  	vsock_bpf_check_needs_rebuild(psock->sk_proto);
->  	sock_replace_proto(sk, &vsock_bpf_prot);
-> +	vsock_rx_callback_kick(sk);
->  	return 0;
->  }
-
-[Severity: Medium]
-These kicks run for every AF_VSOCK socket added to or removed from a
-sockmap or sockhash, not only for sockets in a virtio RX batch. Is this
-change in behaviour intended?
-
-RX batching exists only in the guest virtio transport
-(virtio_transport_rx_work() -> virtio_transport_recv_pkt_batch()).
-vhost_vsock and vsock_loopback always use virtio_transport_recv_pkt().
-Both still set .read_skb = virtio_transport_read_skb, so their sockets
-reach this code too. The same is true of SOCK_SEQPACKET sockets, which
-virtio_transport_recv_pkt_batchable() rejects.
-
-Before this patch, sk_data_ready was not called by either path:
-
-sock_map_link() -> sock_map_init_proto() -> vsock_bpf_update_proto()
-sk_psock_start_verdict()
-
-Data queued before attach only reached the verdict program when a later
-packet arrived.
-
-Now the kick pushes that data through sk_psock_verdict_data_ready(), up
-to 64 skbs per pass, and requeues itself if data remains. The verdict
-program can redirect or drop data that arrived before attach, where it
-used to stay for the native reader.
-
-If only the prot was swapped, for example with a msg_parser-only map,
-the handoff calls the default callback unconditionally after one retry.
-That adds an extra wakeup on every attach and detach.
-
-The commit message says "non-batched sockets keep their existing
-behavior". It also says the handoff is scheduled "so an attach or detach
-outside the worker still drains skbs already queued".
-
-Neither statement seems to fit what the code does: this is a new sockmap
-behaviour for every vsock transport that has read_skb, and the subject
-line does not mention it. Could this be split out, or at least
-described in the commit message?
+Thanks, applied to misc-fixes
 
 -- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261010142247.99223-1-physicalmtea%40gmail.com
+Best regards,
+Dmitry
