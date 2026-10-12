@@ -1,435 +1,197 @@
-Received: from mail-qk1-f169.google.com (mail-qk1-f169.google.com [209.85.222.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from PH8PR06CU001.outbound.protection.outlook.com (mail-westus3azon11012041.outbound.protection.outlook.com [40.107.209.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F8863A4F5F
-	for <virtualization@lists.linux.dev>; Mon, 12 Oct 2026 05:51:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.222.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46EA41F94F;
+	Mon, 12 Oct 2026 06:01:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.209.41
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791784316; cv=pass; b=O0MbhlXMn1/KJj4Y+SFdLGn1gt9lUZ9ZjlCR7whLjb+ZK8iZSvZssX1KJSjrfqgPXAQ2ZpN0j5/VNra9LcqySDTVcoPIbAvvAdEXiYaB+oxXoMuOy0KO36YhPQR1xyr94ncoIr5PHOpf4LY746tDcRtQeJ6d/EKO4T3uDC0jP3c=
+	t=1791784866; cv=fail; b=AAClVGZcoo3cepUVqD7UyDb+Izm7NzWIVTM5RCF2/UYN5s/zMa0ZdniRHYDKg8NRkvZYmpcAF+3QKR+owHngnKHzQHmBCgdX/jswRU5EePP/gQpD2Hp0gfTBNdB5su3uwgkhg0f/rB1yyVkIcY4RMiruxswVBXgg5XjUtvSLFvw=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791784316; c=relaxed/simple;
-	bh=RMrOyRWgelCdaTh04TeQVAi8/u5010xn5Q8zRGB/p/U=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=az/U5bApbvqHDQXBID+afKtLxO56Tllqzv4hei8p3ZOh/9KD3qP2vpf2Dk4VuodeJ6N+fiSJ1BvaYWHtbeGWY+9K2SvkwLHutjViRbdx4XtLbn40/jTGEiXdlaCHaW15AHUqncTOY3f5EWKiUCiodbN1MoNARhjnbHHGj1kf1tM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GW130bn5; arc=pass smtp.client-ip=209.85.222.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1791784866; c=relaxed/simple;
+	bh=rf7S4klWLVfWwWBj3aqJMRirrB0msIgkbMFJqObAXf0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=GyKpmfWOKwTbkx986hFZHMri/pQCeSd4FRcUa083YVnQT24wLRbUKd1VhaGlNYGpuM25k1ZUqAwNpLgSGQldkMapvOlgqaBFnzbiF0vt6/eFsmb+SHBem7nG9FJj8s+oFmbOts64nCaywxpkaVfDZBpuGl6RWsPFFnAX/xT22cU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=REvgliFe; arc=fail smtp.client-ip=40.107.209.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GW130bn5"
-Received: by mail-qk1-f169.google.com with SMTP id af79cd13be357-92f0b5ed131so215057885a.3
-        for <virtualization@lists.linux.dev>; Sun, 11 Oct 2026 22:51:55 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1791784314; cv=none;
-        d=google.com; s=arc-20260327;
-        b=VsnXKzTnNgLKo/cOSmKMJT7vuZTSVEsWXrHGlDx9yiDF8w7BdWouwRiPWIRwjTJUwc
-         ORH7Kj2qiexAbg41zxrQPa9STcxVhIBBmnLCW0ZQ0JF0RgrLVbpduuB9kCaeUCZpZtFi
-         XZ/ODKKLUQfXWdys9kG3jytyKLT401bxSllYArtfOzXItH66SpIYyMd93jN10n0qXEfg
-         pEqd47q1X94ekAJidCXWPPnaaBrilPIt9vbSMCP6BUPf53i+NWAO0bmw/Z0Rpr/UZcsN
-         jmkOSRAHHQ5oebzy9P4DcGAXDdzScXh4etUknwUtCCn47QN55otp3RRWsaoFRtBQ0I3L
-         VQMw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=CC8Mxf5P9+FMx1bJlSArM03EiTJXelj+K+rGTNeTbzQ=;
-        fh=JPuzoyGHvwqq5cbtbABiYtIdaBbb7P0ZrmyOpTY+PJo=;
-        b=aUGpTgFy1xZFCnFBkxkFrsu7/qu3ZhOVatj3is1GBR0xkMD20KLbRhdmqEcEH9BjLp
-         ftUu8Gody0lnrPfKVssodWyhX8H0Mc/H5hd4Qty8bmmkuh8nbOgUWGREw17xXfeur+LL
-         07+unZgOCqavOUhvPRckPd12xCihssj/gKnC2PosjJMIR4tDcIeUo4U36S8XjhdBx/2g
-         r4O7MoqZNlbjWM5xR9F+VXpGmXFouEm+u8rBaIk0TcFzDsGM7Bwy6EQ2VJUhVLU+JABp
-         EoCPzkcQflodnxlEvog5bilLr6a76Rul9gca4hc3AR+uTMPnk5DKVCGsUVsd039EOF17
-         o8zQ==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791784314; x=1792389114; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=CC8Mxf5P9+FMx1bJlSArM03EiTJXelj+K+rGTNeTbzQ=;
-        b=GW130bn543nIXbN/kzNNuxMsMQ+ELFNM32v97VA/w/jONbzR2zEU4/3XR4EaJm+6yO
-         hKozABZENiv5HFNBR5xUdDzD55s16026ZiWYQcRH3FMuBtdMBMmikbHkpSlY7dHGuJpi
-         8/+XZhSRP0dgmlmwokO5/lwAc/H43y/wgWnBjPC4amVA+YXsDi/tPuHZJqhK4MYHGN72
-         JyD0YE0MAJWGzzELoG8ILARV2qjAtuh/CXlk9J4mYE4T994SL1jN9asxo/hVym08LmCo
-         o/EOAcUAEPdFG6osmWnUUX+9Gy5Pqsi6/NdG1/jEeQXkU0po+cI9hrpAfv+CpQo6P2DN
-         z1Fg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791784314; x=1792389114;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=CC8Mxf5P9+FMx1bJlSArM03EiTJXelj+K+rGTNeTbzQ=;
-        b=ND8MHPMmp/Rc94gtgi7md6rfVl0TuWBvZH3WRqUsIvL0ZG16EdcLHX6tnvOXTzlJon
-         tjIJBUIysC+qEKkryC+pGENDgId9on6YdHOtGWqWjFWNup5LQJfkFuc6EwidAESAAi0g
-         FYl7/+cYojrkT97oLJsAUpYK1MOAHpn130J4vIgjJ+mzt31jsdqEVfYIpmAQGJFFB0KT
-         JHOKi0OZNi9/O218i9TInF7yEADnWAKcVV9HYoMDKUnNmYerXPJYwVF9J92nKzBzDsh3
-         fkdaP3ijIWIVJG9MC/wQRuvaEgxkm/H5izZpXDgTbx86SoII7IbCjCE+jAQpJ8zNpO55
-         tDUg==
-X-Forwarded-Encrypted: i=1; AKwUvBw/eAqqzWc7NUj7jAkPR2QfdUiSlBmIguZ/Fec8h9GpUUv/jsEp/FU3IkT5SmYJZOYprGbSc1qh6bPOfO8jpg==@lists.linux.dev
-X-Gm-Message-State: AFq9FYJbmAK0FZNwD5pbT67+GedRWTSBDLvWLByWxN4XNePArLHBbqEc
-	jtkJdKdz++4ZKK3gGK8rdmipjVfiHxZe6HW1Q0TaGWXfRkIALd+QIgLH/eY6hudPHOnA7eqNW6r
-	mMplfMkfE2L9AEk5jN8QKyIKypmgXW74=
-X-Gm-Gg: AYBFou0TIb48AXq+kHadcjP5vy9u+MSyLdZY7rbEgsff5cdGHWzOFgRTldNtN9WRk/u
-	K6sZwx/AfiPHGwe+CWHSiiKJkDE1ytZXEBu4U9lp0daA6mh0vHl2pZC0WJ5CTCOi7ZrxK3MMgUs
-	xb3yt322cY37oFe/EA1LeRlGufY3bxpUf9ZXt6Ld0krBdUkuG8i60J+Mb60XYL09/5wR7Z2Sqn4
-	eSxSSX1hh8Th6kt2xlLZ2fEC4Gk2PXTOSzhMDEnS9f/3cP7163DCxdt8MVc+P6xq/4D6w5LCtGp
-	MSSZsToms43QaLzppHR32VmFzUtw9WApUBCq/R/VeyoiDGSwi2V2doM=
-X-Received: by 2002:a05:620a:711a:b0:93e:7dfa:2f3f with SMTP id
- af79cd13be357-93ebd493d90mr1580936385a.62.1791784313402; Sun, 11 Oct 2026
- 22:51:53 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="REvgliFe"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=YdndVQv7Pp/pjB5WZW1ATFwHqVZf7bIhmQY5jsohIhPKQK7sZtLw8qPP40XcUUs6lk1v3PEIQ2bmmmsNavAlf/5BlhXEdQ9l2ZUm+jA900TSAkAHW+aCzoaeQta+OOKqdCKNuhykMSzTkqk+k7jklOZVBKVYgYQjbaAtCA7pFausMrbujP9/PcNo4QMY/DKaz7FW+TxGGAgJmqJyjcEKdmdkX3G/1HZTWG08SKnhDVM4ziQGTYo8GKAyj3awAVe4zffhDquOkOWT60KfyvTTAjq4jKxA5xVdQb5/XQq66fAmXAVylf4BYN2POrL2IR+z4zNslAiX8JKow2ji1He7rg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=7Smck2Bpq2BqceuhanfQ8/7aHT50jGp8guUJfZ5IM5M=;
+ b=LDvY6hp+Ap5qA+w75mmWJGWvnibPSCwJtgFM3FbeIIPWnicycJ+H8vDuPvxLVnbqsqtkePLJ/7TED/Bdyzo0XDOY+Ao5siob7w6+YVWjqLBVHNHNHC89o/71QRDPKadlgLHP235IntuKPI2Mu71pWt9UdGUAeLkk4vtPNQtZFw9xp4/0scjf27iuBOU3Uo0oawz0iU3gz/ql4IPFY3HgL9wa2MForacGndCb1q/y12LSgOdrRAoPTtWNrsYp8emOlEko5wviW2r1TCpKhWArIOaIytL/1ZkPhbNznHufevgNX1EDPA58HEr2O+cQiVoXGyyV/U+hTribXz/I3VkPJg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=suse.com smtp.mailfrom=amd.com; dmarc=pass
+ (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=7Smck2Bpq2BqceuhanfQ8/7aHT50jGp8guUJfZ5IM5M=;
+ b=REvgliFe6xqeGmJaHQpBPQkuDcwnC+71UR0LQltJw4zmcdi+ul5Edno40nCS2b8kCnBCy2MdkkhnLagyiHXQoz4nJNO+GH9rrb5HIxUjIgeXsOoxFvc3Qdv8Y4HYw1atKJLnaq8aU2EfwdemOoFyUWu4kNwujEiK3uPZ1l0PgJo=
+Received: from BN0PR04CA0020.namprd04.prod.outlook.com (2603:10b6:408:ee::25)
+ by DM4PR12MB5915.namprd12.prod.outlook.com (2603:10b6:8:68::12) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.496.17; Mon, 12 Oct
+ 2026 06:00:50 +0000
+Received: from BL2PEPF000352CE.namprd02.prod.outlook.com
+ (2603:10b6:408:ee:cafe::4d) by BN0PR04CA0020.outlook.office365.com
+ (2603:10b6:408:ee::25) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.21.496.15 via Frontend Transport; Mon,
+ 12 Oct 2026 06:00:50 +0000
+X-MS-Exchange-Authentication-Results: mx.microsoft.com 1; spf=pass (sender IP
+ is 165.204.84.17) smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=satlexmb07.amd.com; pr=C
+Received: from satlexmb07.amd.com (165.204.84.17) by
+ BL2PEPF000352CE.mail.protection.outlook.com (10.167.249.136) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.21.522.6 via Frontend Transport; Mon, 12 Oct 2026 06:00:50 +0000
+Received: from satlexmb07.amd.com (10.181.42.216) by satlexmb07.amd.com
+ (10.181.42.216) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.53; Mon, 12 Oct
+ 2026 01:00:44 -0500
+Received: from [10.136.45.168] (10.180.168.240) by satlexmb07.amd.com
+ (10.181.42.216) with Microsoft SMTP Server id 15.2.2562.53 via Frontend
+ Transport; Mon, 12 Oct 2026 01:00:21 -0500
+Message-ID: <c40415f4-7bc8-4479-a07c-22b9f67a7613@amd.com>
+Date: Mon, 12 Oct 2026 11:30:15 +0530
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20261010142247.99223-6-physicalmtea@gmail.com> <179172875205.434549.8636973340087490564@kernel.org>
-In-Reply-To: <179172875205.434549.8636973340087490564@kernel.org>
-From: Jia Jia <physicalmtea@gmail.com>
-Date: Mon, 12 Oct 2026 13:51:17 +0800
-X-Gm-Features: AclHuK8Ki9X54bInYhhv1pL0dcfB74cVT9pZCzrKL4qZHpNOUX6PRTgdoDnVTQ4
-Message-ID: <CAJwVaMKUa-c2e_jgGfQ63rMPYyYi8-reZYNBBiKTKQdXe1xV-Q@mail.gmail.com>
-Subject: Re: [PATCH net-next v2 5/5] vsock/virtio: defer RX readable
- notifications until batch unlock
-To: netdev-bot+sashiko@kernel.org
-Cc: stefanha@redhat.com, sgarzare@redhat.com, netdev@vger.kernel.org, 
-	virtualization@lists.linux.dev, kvm@vger.kernel.org, mst@redhat.com, 
-	jasowangio@gmail.com, eperezma@redhat.com, xuanzhuo@linux.alibaba.com, 
-	davem@davemloft.net, edumazet@kernel.org, kuba@kernel.org, pabeni@redhat.com, 
-	horms@kernel.org, linux-kernel@vger.kernel.org, bpf@vger.kernel.org
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 12/13] treewide: convert rdmsrq() from a macro to an
+ inline function
+To: Juergen Gross <jgross@suse.com>, <linux-kernel@vger.kernel.org>,
+	<x86@kernel.org>, <linux-perf-users@vger.kernel.org>,
+	<linux-hyperv@vger.kernel.org>, <kvm@vger.kernel.org>,
+	<virtualization@lists.linux.dev>, <linux-edac@vger.kernel.org>,
+	<linux-pci@vger.kernel.org>, <linux-pm@vger.kernel.org>,
+	<linux-coco@lists.linux.dev>, <linux-acpi@vger.kernel.org>,
+	<linux-ide@vger.kernel.org>, <dri-devel@lists.freedesktop.org>,
+	<linux-crypto@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
+	<linux-hwmon@vger.kernel.org>, <linux-mtd@lists.infradead.org>,
+	<platform-driver-x86@vger.kernel.org>, <linux-fbdev@vger.kernel.org>
+CC: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+	"H. Peter Anvin" <hpa@zytor.com>, Peter Zijlstra <peterz@infradead.org>,
+	Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim
+	<namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, "Alexander
+ Shishkin" <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@kernel.org>,
+	Ian Rogers <irogers@google.com>, Adrian Hunter <adrian.hunter@intel.com>,
+	James Clark <james.clark@linaro.org>, "K. Y. Srinivasan" <kys@microsoft.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, "Dexuan
+ Cui" <decui@microsoft.com>, Long Li <longli@microsoft.com>, "Sean
+ Christopherson" <seanjc@google.com>, Paolo Bonzini <pbonzini@redhat.com>,
+	"Ajay Kaher" <ajay.kaher@broadcom.com>, Alexey Makhalov
+	<alexey.makhalov@broadcom.com>, Broadcom internal kernel review list
+	<bcm-kernel-feedback-list@broadcom.com>, Josh Poimboeuf
+	<jpoimboe@kernel.org>, Pawan Gupta <pawan.kumar.gupta@linux.intel.com>, "Pu
+ Wen" <puwen@hygon.cn>, Tony Luck <tony.luck@intel.com>, Reinette Chatre
+	<reinette.chatre@intel.com>, Dave Martin <Dave.Martin@arm.com>, James Morse
+	<james.morse@arm.com>, Babu Moger <babu.moger@amd.com>, Tony W Wang-oc
+	<TonyWWang-oc@zhaoxin.com>, Vitaly Kuznetsov <vkuznets@redhat.com>, "Andy
+ Lutomirski" <luto@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, "Rafael
+ J. Wysocki" <rafael@kernel.org>, Pavel Machek <pavel@kernel.org>, "Kiryl
+ Shutsemau" <kas@kernel.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>,
+	Boris Ostrovsky <boris.ostrovsky@oracle.com>, Len Brown <lenb@kernel.org>,
+	Damien Le Moal <dlemoal@kernel.org>, Niklas Cassel <cassel@kernel.org>,
+	"David Airlie" <airlied@redhat.com>, Olivia Mackall <olivia@selenic.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>, Viresh Kumar
+	<viresh.kumar@linaro.org>, "Huang Rui" <ray.huang@amd.com>, Mario Limonciello
+	<mario.limonciello@amd.com>, "Perry Yuan" <perry.yuan@amd.com>, Srinivas
+ Pandruvada <srinivas.pandruvada@linux.intel.com>, Yazen Ghannam
+	<yazen.ghannam@amd.com>, Linus Walleij <linusw@kernel.org>, Bartosz
+ Golaszewski <brgl@kernel.org>, Guenter Roeck <linux@roeck-us.net>, Artem
+ Bityutskiy <artem.bityutskiy@linux.intel.com>, Artem Bityutskiy
+	<dedekind1@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman
+	<gregkh@linuxfoundation.org>, Miquel Raynal <miquel.raynal@bootlin.com>,
+	Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>,
+	Ashok Raj <ashok.raj.linux@gmail.com>, Hans de Goede <hansg@kernel.org>,
+	=?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, "Rajneesh
+ Bhardwaj" <irenic.rajneesh@gmail.com>, Xi Pardee <xi.pardee@linux.intel.com>,
+	Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>,
+	Lukasz Luba <lukasz.luba@arm.com>, Helge Deller <deller@gmx.de>,
+	<xen-devel@lists.xenproject.org>, <linux-geode@lists.infradead.org>, "Michael
+ Kelley" <mhklinux@outlook.com>, Zhongqiu Han <zhongqiu.han@oss.qualcomm.com>
+References: <20261008071839.2247074-1-jgross@suse.com>
+ <20261008071839.2247074-13-jgross@suse.com>
+Content-Language: en-US
+From: K Prateek Nayak <kprateek.nayak@amd.com>
+In-Reply-To: <20261008071839.2247074-13-jgross@suse.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BL2PEPF000352CE:EE_|DM4PR12MB5915:EE_
+X-MS-Office365-Filtering-Correlation-Id: 7cfeebe3-ee41-47b1-9a45-08df28262b02
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|32650700020|82310400026|23010399003|1800799024|376014|36860700016|7416014|18002099003|10067099003|22082099003|921020|4143699003|11063799006|56012099006;
+X-Microsoft-Antispam-Message-Info:
+	iF/4vsFZ0oCxke5nY+IzxcsajSzz5fPHlKfX0Y7e1Yx6IxBZC2sr3ME/4gk3EsXUGoPLFu//3fq/5B93Fmnz6J+cejonYpLtAT5O3MoE9q/2qtUyA6JQVe9/KyUI0Zq2D53G0gSEYWNHVkklvOhGU3AX60Gl1/Dp2o8a7kr9auN2+ROJk55lgWuFVdOkGsnI/RjqR5yBE4YcIzdhUzo75yL+R1wluPkHvKzcBNUfJfs6UStcg3RvocQJvos3t8Ie55dbTBkmiXWO4GzaPMQMnWvyrNt99CU+kzYB2REQ6ZgmORiF6Vk/sQETKzhd/wI0RnhOuijITF21qZ+26lP8Z1rMGjpDfGCIA9/mHEWxy19fLdKyoLhnKunjb3sOk/NjA6nyZye1VKAQiR8L+P5Ix+8q4LpC4K9NO5pUbHiCkPwvUKcnq+gpAnjBtETeBz9J8IgxTvjLZVYS/5A/5aHcDzbNe/52x+IvEtxiu4QwbGgfgQNEwe5+0Ldvt/OFZn81u5mxvzdiUgvrqnm5Z0EPSmw6fhhzpuABtp4EULwt7/UHejEZxA8hCVUgDY1Q+MtNR7qd7b7NKZfskF+X+GyK6f1MXX9RGTjpff8PVrN7Vh2ybgNyjgBkyttYSxy15Sbssdy9hqKgVgE1S47frdT5p4BSbk28gX3HPHxEKRKgrLPQYvWGajX7RRYx+4XJkjMv2YlOgsIGCq/STIrTUogxtK+o1EhIKanpaAYU/pnTG0R/okTYWsplHnynkYPwx2IJ
+X-Forefront-Antispam-Report:
+	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:satlexmb07.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(32650700020)(82310400026)(23010399003)(1800799024)(376014)(36860700016)(7416014)(18002099003)(10067099003)(22082099003)(921020)(4143699003)(11063799006)(56012099006);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	7oS2RettfJciXjAoPrqIpsgslkhkkpGAiW01FyzZHJNa6VOeV1Fs9l0RKNylshp8F43mwG7dYZK4yEnC3v2OZJfklqhnVYV8xmuueMD12u9jjbrj9fZR1VkqsUWmm6umnN6nxJeXy+PoYlQEQJEoloPH4EFw7pN+5lvyUMKMLbcWDF1wFCxmgit2RPf6HuaBXte6l7/4hBbWSHicYtdXGpY5AbGKJBmFA25RMv92aM3cXFiCCKCvG1U1CnGToXMhntV12UFo+3Pw59MKrc8GTvPBosZ0etwE2n1Wp4DIHjySvFMuIGuPBtltL9UDWxOmFJngwwXyApuTDlKSDb3h4ptwXkO8ss96jh/qHKPb0lo2Kg4bHCwK5V1iWIh7xJJ4YSFLPtrgDz0pQVTJQQpgka82T+jZZUitzlQX5OGrgr2p+XXZY9v881FQ+I0KBjNe
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Oct 2026 06:00:50.4752
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7cfeebe3-ee41-47b1-9a45-08df28262b02
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[satlexmb07.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource: BL2PEPF000352CE.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB5915
 
->
-> Thank you for your contribution! Sashiko AI review found 4 potential
-> issue(s) to consider.
->
-> Critical: 0 =C2=B7 High: 1 =C2=B7 Medium: 1 (1) =C2=B7 Low: 2
->
-> If you believe none of the issues are legitimate, please reply to each
-> issue of Medium severity or higher and explain why the AI is wrong.
-> If any of them are legitimate and you plan to respin, please let patchwor=
-k
-> know by including "pw-bot: cr" as a separate line at the end of your repl=
-y
-> (one such reply per series is enough).
->
-> - [High] The new attach-time handoff passes partially read skbs to
->   read_skb, which ignores the read offset.
-> - [Medium] Sockmap attach/detach now drains queued data on every vsock
->   socket, and the commit message wrongly says non-batched sockets keep=E2=
-=80=A6
-> - [Low] The commit message says "Sampling at batch finish takes
->   sk_callback_lock once." That holds only on the native path.
-> - [Low] vsock_rx_callback_handoff() calls sk_data_ready without the
->   sk_rcvlowat/SOCK_DONE check that vsock_data_ready() and the per-packet=
-=E2=80=A6
->
-> Pre-existing issues:
-> - [Medium] vsock_rx_callback_handoff() reads sk_data_ready under
->   read_lock_bh(&sk->sk_callback_lock), releases the lock, and only then=
-=E2=80=A6
->
-> --
->
-> vsock/virtio: defer RX readable notifications until batch unlock
->
-> During virtio vsock RX batches, this commit holds back the native
-> sock_def_readable() notification until the batch has dropped the socket
-> lock. If sk_data_ready or sk_write_space has been replaced, for example
-> by sockmap, a new vsock_rx_callback_handoff() passes queued skbs to the
-> current callback one at a time. vsock_bpf_update_proto() now schedules
-> that handoff on sockmap attach and detach.
->
-> > diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> > index fe7f49da6c4bc..df6faee0bd37a 100644
-> > --- a/net/vmw_vsock/af_vsock.c
-> > +++ b/net/vmw_vsock/af_vsock.c
-> > @@ -931,6 +931,107 @@ static int __vsock_bind(struct sock *sk, struct s=
-ockaddr_vm *addr)
->
-> [ ... ]
->
-> > +/* Caller holds lock_sock(). */
-> > +void vsock_rx_callback_handoff(struct sock *sk)
-> > +{
-> > +     struct vsock_sock *vsk =3D vsock_sk(sk);
-> > +     void (*write_space)(struct sock *sk);
-> > +     void (*data_ready)(struct sock *sk);
-> > +     bool wrote =3D false;
-> > +     s64 before, after;
-> > +     int i;
-> > +
-> > +     if (sock_flag(sk, SOCK_DEAD) || !vsk->transport)
-> > +             return;
-> > +
-> > +     read_lock_bh(&sk->sk_callback_lock);
-> > +     data_ready =3D READ_ONCE(sk->sk_data_ready);
-> > +     if (READ_ONCE(sk->sk_prot) !=3D sk->sk_prot_creator &&
-> > +         data_ready =3D=3D vsk->default_data_ready) {
-> > +             read_unlock_bh(&sk->sk_callback_lock);
-> > +             /*
-> > +              * start_verdict publishes sk_data_ready after the proto =
-swap.
-> > +              * Retry once before treating this as a stable non-RX set=
-up.
-> > +              */
-> > +             if (!vsk->rx_cb_retried) {
-> > +                     vsk->rx_cb_retried =3D true;
-> > +                     vsock_rx_callback_queue(sk, 1);
-> > +                     return;
-> > +             }
-> > +             vsk->rx_cb_retried =3D false;
-> > +             data_ready(sk);
-> > +             return;
-> > +     }
-> > +     read_unlock_bh(&sk->sk_callback_lock);
-> > +     vsk->rx_cb_retried =3D false;
-> > +
-> > +     for (i =3D 0; i < VSOCK_RX_CB_HANDOFF_MAX; i++) {
-> > +             read_lock_bh(&sk->sk_callback_lock);
-> > +             data_ready =3D READ_ONCE(sk->sk_data_ready);
-> > +             write_space =3D READ_ONCE(sk->sk_write_space);
-> > +             read_unlock_bh(&sk->sk_callback_lock);
->
-> [Severity: Medium]
-> This is a pre-existing issue, but sk_callback_lock here only covers
-> reading the pointers, not calling them. Can a concurrent sockmap delete
-> restore sk_data_ready and clear the psock between this read_unlock_bh()
-> and the data_ready(sk) call below?
->
-> The delete path takes only write_lock_bh(&sk->sk_callback_lock), not
-> lock_sock():
->
-> __sock_map_delete()
->   sock_map_unref()
->     sock_map_del_link() / sk_psock_drop()
->
-> In that case the stale sk_psock_verdict_data_ready() still dequeues an
-> skb through virtio_transport_read_skb(). That lowers rx_bytes and sends a
-> credit update. sk_psock_verdict_recv() then finds no psock:
->
-> net/core/skmsg.c:sk_psock_verdict_recv() {
->     ...
->         if (unlikely(!psock)) {
->                 len =3D 0;
->                 tcp_eat_skb(sk, skb);
->                 sock_drop(sk, skb);
->                 goto out;
->         }
->     ...
-> }
->
-> So the skb is dropped after it has already been credited to the peer.
->
-> The baseline vsock_data_ready() has the same window. It calls
-> sk->sk_data_ready(sk) under lock_sock() without sk_callback_lock, and
-> tcp_data_ready() has the same issue. This patch adds more call sites
-> with the same pattern: the attach-kicked work item and the batch-finish
-> handoff. Taking the read lock here can also make it look as if the call
-> is protected when it is not.
->
-> > +
-> > +             if (!wrote && write_space !=3D vsk->default_write_space) =
-{
-> > +                     write_space(sk);
-> > +                     wrote =3D true;
-> > +             }
-> > +             if (data_ready =3D=3D vsk->default_data_ready) {
-> > +                     data_ready(sk);
-> > +                     break;
-> > +             }
-> > +             before =3D vsock_stream_has_data(vsk);
-> > +             if (before <=3D 0)
-> > +                     break;
-> > +             data_ready(sk);
->
-> [Severity: Low]
-> Neither of these data_ready(sk) calls checks sk->sk_rcvlowat or
-> SOCK_DONE, unlike vsock_data_ready() and the per-packet path in
-> virtio_transport_recv_connected(). Is that intended?
->
-> For a replaced callback such as the sockmap verdict, data_ready(sk) runs
-> whenever vsock_stream_has_data() > 0. The verdict program can then see
-> data below SO_RCVLOWAT that the per-packet path would hold back.
->
-> For the default callback the call is unconditional, both here and in the
-> retry branch above:
->
->                 vsk->rx_cb_retried =3D false;
->                 data_ready(sk);
->                 return;
->
-> Doesn't this wake readers when no readable event was pending? That
-> happens on every attach and restore kick from vsock_bpf_update_proto().
-> It also happens when virtio_transport_rx_batch_finish() enters the
-> handoff with only write_space_pending set.
->
-> > +             after =3D vsock_stream_has_data(vsk);
-> > +             if (after >=3D before)
-> > +                     break;
->
-> [Severity: High]
-> Can this hand a partially read skb to read_skb?
->
-> A native stream read can consume only part of the head skb. In that
-> case virtio_transport_stream_do_dequeue() advances the private offset,
-> leaves the skb queued, and lowers rx_bytes only by the bytes copied:
->
->                 VIRTIO_VSOCK_SKB_CB(skb)->offset +=3D bytes;
->                 ...
->                 virtio_transport_dec_rx_pkt(vvs, bytes, dequeued);
->
-> If the socket is then added to a sockmap with a verdict program, the new
-> kick in vsock_bpf_update_proto() runs this loop:
->
-> vsock_rx_callback_work()
->   vsock_rx_callback_handoff()
->     sk_psock_verdict_data_ready()
->       vsock_read_skb()
->         virtio_transport_read_skb()
->
-> virtio_transport_read_skb() does not look at the offset:
->
->         pkt_len =3D le32_to_cpu(hdr->len);
->         virtio_transport_dec_rx_pkt(vvs, pkt_len, pkt_len);
->         ...
->         return recv_actor(sk, skb);
->
-> Take a 1000 byte skb with 400 bytes already read, so rx_bytes is 600.
-> The verdict program sees all 1000 bytes, 400 of them a second time. The
-> u32 rx_bytes then wraps to 4294966896.
->
-> The after >=3D before check above sees no progress and stops. But
-> vsock_stream_has_data() now reports about 4GB, so poll stays readable.
-> The next native read hits WARN_ONCE("rx_queue is empty, but rx_bytes is
-> non-zero") and returns -EFAULT.
->
-> The offset handling in virtio_transport_read_skb() predates this patch.
-> In the baseline the same corruption needs a partial read, then an
-> attach, then another packet from the peer. With this patch the extra
-> packet is no longer needed, and the new attach-time drain depends on
-> read_skb handling already-queued skbs correctly.
->
-> > +             if (i =3D=3D VSOCK_RX_CB_HANDOFF_MAX - 1 && after > 0)
-> > +                     vsock_rx_callback_queue(sk, 0);
-> > +     }
-> > +}
->
-> [ ... ]
->
-> > diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/vi=
-rtio_transport_common.c
-> > index e5637291f3185..6b96d8ac0d598 100644
-> > --- a/net/vmw_vsock/virtio_transport_common.c
-> > +++ b/net/vmw_vsock/virtio_transport_common.c
->
-> [ ... ]
->
-> > @@ -1986,33 +2007,45 @@ EXPORT_SYMBOL_GPL(virtio_transport_recv_pkt);
->
-> [ ... ]
->
-> > -     if (write_space_pending) {
-> > -             vsk =3D vsock_sk(sk);
-> > +     vsk =3D vsock_sk(sk);
-> > +     if (write_space_pending)
-> >               vsk->default_write_space(sk);
-> > -             write_space =3D READ_ONCE(sk->sk_write_space);
-> > -             if (write_space !=3D vsk->default_write_space)
-> > -                     write_space(sk);
-> > +
-> > +     read_lock_bh(&sk->sk_callback_lock);
-> > +     native =3D vsock_rx_cb_is_native(sk);
-> > +     read_unlock_bh(&sk->sk_callback_lock);
-> > +
-> > +     if (native) {
-> > +             release_sock(sk);
-> > +             if (data_ready_pending)
-> > +                     vsk->default_data_ready(sk);
-> > +             sock_put(sk);
-> > +             return;
-> >       }
-> >
-> > +     if (write_space_pending || data_ready_pending)
-> > +             vsock_rx_callback_handoff(sk);
->
-> [Severity: Low]
-> The commit message says:
->
->     Sampling at batch finish takes sk_callback_lock once.
->
-> Does that hold on the non-native path? sk_callback_lock is taken once
-> here for vsock_rx_cb_is_native(). vsock_rx_callback_handoff() then takes
-> it again at the top. It takes it once more on each loop iteration, up
-> to VSOCK_RX_CB_HANDOFF_MAX (64) times, and the requeued work can do all
-> of this again.
->
-> [ ... ]
->
-> > diff --git a/net/vmw_vsock/vsock_bpf.c b/net/vmw_vsock/vsock_bpf.c
-> > index 9049d26486460..7770a6c51dbe5 100644
-> > --- a/net/vmw_vsock/vsock_bpf.c
-> > +++ b/net/vmw_vsock/vsock_bpf.c
-> > @@ -154,6 +154,7 @@ int vsock_bpf_update_proto(struct sock *sk, struct =
-sk_psock *psock, bool restore
-> >       if (restore) {
-> >               sk->sk_write_space =3D psock->saved_write_space;
-> >               sock_replace_proto(sk, psock->sk_proto);
-> > +             vsock_rx_callback_kick(sk);
-> >               return 0;
-> >       }
-> >
-> > @@ -166,6 +167,7 @@ int vsock_bpf_update_proto(struct sock *sk, struct =
-sk_psock *psock, bool restore
-> >
-> >       vsock_bpf_check_needs_rebuild(psock->sk_proto);
-> >       sock_replace_proto(sk, &vsock_bpf_prot);
-> > +     vsock_rx_callback_kick(sk);
-> >       return 0;
-> >  }
->
-> [Severity: Medium]
-> These kicks run for every AF_VSOCK socket added to or removed from a
-> sockmap or sockhash, not only for sockets in a virtio RX batch. Is this
-> change in behaviour intended?
->
-> RX batching exists only in the guest virtio transport
-> (virtio_transport_rx_work() -> virtio_transport_recv_pkt_batch()).
-> vhost_vsock and vsock_loopback always use virtio_transport_recv_pkt().
-> Both still set .read_skb =3D virtio_transport_read_skb, so their sockets
-> reach this code too. The same is true of SOCK_SEQPACKET sockets, which
-> virtio_transport_recv_pkt_batchable() rejects.
->
-> Before this patch, sk_data_ready was not called by either path:
->
-> sock_map_link() -> sock_map_init_proto() -> vsock_bpf_update_proto()
-> sk_psock_start_verdict()
->
-> Data queued before attach only reached the verdict program when a later
-> packet arrived.
->
-> Now the kick pushes that data through sk_psock_verdict_data_ready(), up
-> to 64 skbs per pass, and requeues itself if data remains. The verdict
-> program can redirect or drop data that arrived before attach, where it
-> used to stay for the native reader.
->
-> If only the prot was swapped, for example with a msg_parser-only map,
-> the handoff calls the default callback unconditionally after one retry.
-> That adds an extra wakeup on every attach and detach.
->
-> The commit message says "non-batched sockets keep their existing
-> behavior". It also says the handoff is scheduled "so an attach or detach
-> outside the worker still drains skbs already queued".
->
-> Neither statement seems to fit what the code does: this is a new sockmap
-> behaviour for every vsock transport that has read_skb, and the subject
-> line does not mention it. Could this be split out, or at least
-> described in the commit message?
->
+Hello Juergen,
 
-I will drop the attempt to preserve RX batching across sockmap cb
-replacements, at least for this optimization series.
+On 10/8/2026 12:48 PM, Juergen Gross wrote:
+> Today rdmsrq() is a macro using its second parameter as the target for
+> storing the read MSR value.
+> 
+> Convert rdmsrq() to an inline function returning the MSR value.
+> 
+> The users have been converted using the following semantic patch:
+> 
+>   // Options: --include-headers
+> 
+>   virtual patch
+>   virtual report
+> 
+>   @@
+>   expression msr, val;
+>   @@
+>   (
+>   - rdmsrq(msr,val)
+>   + val = rdmsrq(msr)
+>   )
+> 
+> Signed-off-by: Juergen Gross <jgross@suse.com>
+> Acked-by: Damien Le Moal <dlemoal@kernel.org>      # ATA
+> Reviewed-by: Michael Kelley <mhklinux@outlook.com> # Hyper-V
+> Acked-by: Rafael J. Wysocki (Intel) <rafael@kernel.org> # ACPI, cpufreq, powercap, thermal
+> Acked-by: Sean Christopherson <seanjc@google.com>
+> Acked-by: Reinette Chatre <reinette.chatre@intel.com> # resctrl
+> Reviewed-by: Zhongqiu Han <zhongqiu.han@oss.qualcomm.com> # cpufreq
+> Acked-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>		# pdx86
 
-> --
-> Sashiko AI review =C2=B7 https://netdev-ai.bots.linux.dev/sashiko/#/patch=
-set/20261010142247.99223-1-physicalmtea%40gmail.com
+Feel free to include:
+
+Reviewed-by: K Prateek Nayak <kprateek.nayak@amd.com> # amd-pstate
+Tested-by: K Prateek Nayak <kprateek.nayak@amd.com>
+
+-- 
+Thanks and Regards,
+Prateek
+
