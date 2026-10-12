@@ -1,197 +1,176 @@
-Received: from PH8PR06CU001.outbound.protection.outlook.com (mail-westus3azon11012041.outbound.protection.outlook.com [40.107.209.41])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46EA41F94F;
-	Mon, 12 Oct 2026 06:01:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.209.41
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791784866; cv=fail; b=AAClVGZcoo3cepUVqD7UyDb+Izm7NzWIVTM5RCF2/UYN5s/zMa0ZdniRHYDKg8NRkvZYmpcAF+3QKR+owHngnKHzQHmBCgdX/jswRU5EePP/gQpD2Hp0gfTBNdB5su3uwgkhg0f/rB1yyVkIcY4RMiruxswVBXgg5XjUtvSLFvw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791784866; c=relaxed/simple;
-	bh=rf7S4klWLVfWwWBj3aqJMRirrB0msIgkbMFJqObAXf0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=GyKpmfWOKwTbkx986hFZHMri/pQCeSd4FRcUa083YVnQT24wLRbUKd1VhaGlNYGpuM25k1ZUqAwNpLgSGQldkMapvOlgqaBFnzbiF0vt6/eFsmb+SHBem7nG9FJj8s+oFmbOts64nCaywxpkaVfDZBpuGl6RWsPFFnAX/xT22cU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=REvgliFe; arc=fail smtp.client-ip=40.107.209.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C8D23644D4
+	for <virtualization@lists.linux.dev>; Mon, 12 Oct 2026 06:08:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791785330; cv=none; b=MdHMhnvLFxS6/iYKQi3mZzIXmTR1l2jJKPUnSHBy38zuM75utwc1Bo5P2cb7GG4mEo/WNgdCTOjqPIFCbT+I4I7K27INo6o4JF0+netPi/maAkfkkVH4I6M/yudPERRpeXlV582WmU+ql1LhpDO3miZQESS5DVUaXENz/qhskfE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791785330; c=relaxed/simple;
+	bh=cosHv8xyr0t36btszO5L0e7U/LiWe3xxiHukHmufOB0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=W4CvltY80oWs+Roa2WN76qdhxcNZKYoQjfqFTlGoSVDIp5elUUl8yrG+yONDGpPW0ZKARI5taN5VpdhkuVSjbDycZERVQA3cL6Dms6KuDNj0Jyf+6xxwfm+6MVfQ5mFL8TJBs4/lx83rBd40iB5PE0vZvptKpY8qS6F+3PmzyHM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=J45YA/B7; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="REvgliFe"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=YdndVQv7Pp/pjB5WZW1ATFwHqVZf7bIhmQY5jsohIhPKQK7sZtLw8qPP40XcUUs6lk1v3PEIQ2bmmmsNavAlf/5BlhXEdQ9l2ZUm+jA900TSAkAHW+aCzoaeQta+OOKqdCKNuhykMSzTkqk+k7jklOZVBKVYgYQjbaAtCA7pFausMrbujP9/PcNo4QMY/DKaz7FW+TxGGAgJmqJyjcEKdmdkX3G/1HZTWG08SKnhDVM4ziQGTYo8GKAyj3awAVe4zffhDquOkOWT60KfyvTTAjq4jKxA5xVdQb5/XQq66fAmXAVylf4BYN2POrL2IR+z4zNslAiX8JKow2ji1He7rg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=7Smck2Bpq2BqceuhanfQ8/7aHT50jGp8guUJfZ5IM5M=;
- b=LDvY6hp+Ap5qA+w75mmWJGWvnibPSCwJtgFM3FbeIIPWnicycJ+H8vDuPvxLVnbqsqtkePLJ/7TED/Bdyzo0XDOY+Ao5siob7w6+YVWjqLBVHNHNHC89o/71QRDPKadlgLHP235IntuKPI2Mu71pWt9UdGUAeLkk4vtPNQtZFw9xp4/0scjf27iuBOU3Uo0oawz0iU3gz/ql4IPFY3HgL9wa2MForacGndCb1q/y12LSgOdrRAoPTtWNrsYp8emOlEko5wviW2r1TCpKhWArIOaIytL/1ZkPhbNznHufevgNX1EDPA58HEr2O+cQiVoXGyyV/U+hTribXz/I3VkPJg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=suse.com smtp.mailfrom=amd.com; dmarc=pass
- (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=7Smck2Bpq2BqceuhanfQ8/7aHT50jGp8guUJfZ5IM5M=;
- b=REvgliFe6xqeGmJaHQpBPQkuDcwnC+71UR0LQltJw4zmcdi+ul5Edno40nCS2b8kCnBCy2MdkkhnLagyiHXQoz4nJNO+GH9rrb5HIxUjIgeXsOoxFvc3Qdv8Y4HYw1atKJLnaq8aU2EfwdemOoFyUWu4kNwujEiK3uPZ1l0PgJo=
-Received: from BN0PR04CA0020.namprd04.prod.outlook.com (2603:10b6:408:ee::25)
- by DM4PR12MB5915.namprd12.prod.outlook.com (2603:10b6:8:68::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.496.17; Mon, 12 Oct
- 2026 06:00:50 +0000
-Received: from BL2PEPF000352CE.namprd02.prod.outlook.com
- (2603:10b6:408:ee:cafe::4d) by BN0PR04CA0020.outlook.office365.com
- (2603:10b6:408:ee::25) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.21.496.15 via Frontend Transport; Mon,
- 12 Oct 2026 06:00:50 +0000
-X-MS-Exchange-Authentication-Results: mx.microsoft.com 1; spf=pass (sender IP
- is 165.204.84.17) smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=satlexmb07.amd.com; pr=C
-Received: from satlexmb07.amd.com (165.204.84.17) by
- BL2PEPF000352CE.mail.protection.outlook.com (10.167.249.136) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.522.6 via Frontend Transport; Mon, 12 Oct 2026 06:00:50 +0000
-Received: from satlexmb07.amd.com (10.181.42.216) by satlexmb07.amd.com
- (10.181.42.216) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.53; Mon, 12 Oct
- 2026 01:00:44 -0500
-Received: from [10.136.45.168] (10.180.168.240) by satlexmb07.amd.com
- (10.181.42.216) with Microsoft SMTP Server id 15.2.2562.53 via Frontend
- Transport; Mon, 12 Oct 2026 01:00:21 -0500
-Message-ID: <c40415f4-7bc8-4479-a07c-22b9f67a7613@amd.com>
-Date: Mon, 12 Oct 2026 11:30:15 +0530
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="J45YA/B7"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1791785328;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=4GRhXvDSJMGEbosLzlxSFhMKfkKZMp2xgG1/1x2ODX0=;
+	b=J45YA/B7+WuCkye1ig7y1UPcvvJOHKqyr3Uz8XhfoabJQQULvVcr9ki1uB4VO0CWMUi4K+
+	sQMMuDavndKVLTycnnqxPZU/qt9LBK2V1lIMrmqq21aczW6vUqGgFL0tE8kLS0gs0ccOPM
+	hCCFw5rQr+KkLl7Caoh0Kib26hgEMwg=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-484-9sd6PNyZMVyscX6gUAIB-g-1; Mon, 12 Oct 2026 06:08:47 +0000
+X-MC-Unique: 9sd6PNyZMVyscX6gUAIB-g-1
+X-Mimecast-MFC-AGG-ID: 9sd6PNyZMVyscX6gUAIB-g_1791785326
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-48c4f6f66dfso422553f8f.3
+        for <virtualization@lists.linux.dev>; Sun, 11 Oct 2026 23:08:46 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791785326; x=1792390126;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=4GRhXvDSJMGEbosLzlxSFhMKfkKZMp2xgG1/1x2ODX0=;
+        b=gYQ0V+P2JS9Ap/QW63dd6y6MUfRsnlzxlv3e5Q0ApgD2AoIIIlfbHcgvJd9d5hAP7M
+         wGmQ5sWYHSUWEkh1mC3PlP2WYuj3ryy+TFOLnTDTB4jbdd6v/Jyr3ECBkOMocKvf71AJ
+         8EyeRZfvXNJl8Rfini9cu6WKfLkfDWG9B1Oz4F8jfMbuWObiU53oY+VUDopATaYC7emx
+         wyR5uJDZU2jM49C/6lEo+sJBlWFFI66/jMvWXfqpjEyNQzRLCnPgrKY9+kUtLK7XsGn9
+         NXNj4Iv80bKtdy5S8j9ggN6r8p5z+ufU1hSi5PZfjK1kfwGP6158S5GPnSn4CExE3y/+
+         AM8g==
+X-Forwarded-Encrypted: i=1; AKwUvBzMnkofjt8ApeVb+ZOncqwZqaVQagZsrUpSggwIl8BofCz1O6bi3SNyjLUVgeJCNYrBN8Vq/fdNnTjPdAh7Jw==@lists.linux.dev
+X-Gm-Message-State: AFq9FYIjWHe+LlVuDdC8jjIviMoI2oi6kX21RPpdkFxsPgwVPfvqPNDB
+	QKcE/EwDPDPyt5Zjf05ksArKy+N3t08hcfJ/g1iQZpgtJxOphmrl5U3MVVGdeu7mhXU7VkokSyX
+	2mbH7q2o30Ht5skAPq8cYrmJ4HAZSFyVgc5k/KNYpCJx+MswTV2mMZlER/7Epc0EGBZxz
+X-Gm-Gg: AYBFou1q09cJcPmZ2cD0TIyMU94D+KmAU+oQZ6MwRZFw1cHhKmxvngpvRpMEGCOHve3
+	Gd8N29Frj1s9hZJSXdTc557MSA9Y30LEq7FQ7XCnJVp2gju5YIqZEADwgeDbsLnp1jczN+gVf0n
+	ZkfHsrQdWPHSDso2rOgZ0tHBVPXMmHQJNHqSsGJi+FA0ov3oCihw7MMHx6rI3aA3ozHTPtQs2TJ
+	VKwKAuLx3Da9ElR3wbiFepHi+U18q4FQZl0549yA8SODm/5wPgniYltwhuQGwOCKhdNxLB6/UgL
+	woAMvx64y+BjNvEDVaO/zwaAmZ01Kds7IoqRvDcx6tvuZER82RbmzJHP6XjXuDEOtDynqg==
+X-Received: by 2002:a05:6000:26c6:b0:48b:10af:f85e with SMTP id ffacd0b85a97d-48dbaaee1admr14696048f8f.33.1791785325676;
+        Sun, 11 Oct 2026 23:08:45 -0700 (PDT)
+X-Received: by 2002:a05:6000:26c6:b0:48b:10af:f85e with SMTP id ffacd0b85a97d-48dbaaee1admr14695991f8f.33.1791785325117;
+        Sun, 11 Oct 2026 23:08:45 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc0:3fd7:5300:3d6b:52a4:a23f:9d0b])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48db98c38f4sm19939856f8f.27.2026.10.11.23.08.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 11 Oct 2026 23:08:44 -0700 (PDT)
+Date: Mon, 12 Oct 2026 02:08:41 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jia Jia <physicalmtea@gmail.com>
+Cc: Mike Christie <michael.christie@oracle.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Nicholas Bellinger <nab@linux-iscsi.org>,
+	virtualization@lists.linux.dev, kvm@vger.kernel.org,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] vhost-scsi: do not count PI bytes in the data length
+Message-ID: <20261012015950-mutt-send-email-mst@kernel.org>
+References: <20261011014803.100454-1-physicalmtea@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 12/13] treewide: convert rdmsrq() from a macro to an
- inline function
-To: Juergen Gross <jgross@suse.com>, <linux-kernel@vger.kernel.org>,
-	<x86@kernel.org>, <linux-perf-users@vger.kernel.org>,
-	<linux-hyperv@vger.kernel.org>, <kvm@vger.kernel.org>,
-	<virtualization@lists.linux.dev>, <linux-edac@vger.kernel.org>,
-	<linux-pci@vger.kernel.org>, <linux-pm@vger.kernel.org>,
-	<linux-coco@lists.linux.dev>, <linux-acpi@vger.kernel.org>,
-	<linux-ide@vger.kernel.org>, <dri-devel@lists.freedesktop.org>,
-	<linux-crypto@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
-	<linux-hwmon@vger.kernel.org>, <linux-mtd@lists.infradead.org>,
-	<platform-driver-x86@vger.kernel.org>, <linux-fbdev@vger.kernel.org>
-CC: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
-	"H. Peter Anvin" <hpa@zytor.com>, Peter Zijlstra <peterz@infradead.org>,
-	Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim
-	<namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, "Alexander
- Shishkin" <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@kernel.org>,
-	Ian Rogers <irogers@google.com>, Adrian Hunter <adrian.hunter@intel.com>,
-	James Clark <james.clark@linaro.org>, "K. Y. Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, "Dexuan
- Cui" <decui@microsoft.com>, Long Li <longli@microsoft.com>, "Sean
- Christopherson" <seanjc@google.com>, Paolo Bonzini <pbonzini@redhat.com>,
-	"Ajay Kaher" <ajay.kaher@broadcom.com>, Alexey Makhalov
-	<alexey.makhalov@broadcom.com>, Broadcom internal kernel review list
-	<bcm-kernel-feedback-list@broadcom.com>, Josh Poimboeuf
-	<jpoimboe@kernel.org>, Pawan Gupta <pawan.kumar.gupta@linux.intel.com>, "Pu
- Wen" <puwen@hygon.cn>, Tony Luck <tony.luck@intel.com>, Reinette Chatre
-	<reinette.chatre@intel.com>, Dave Martin <Dave.Martin@arm.com>, James Morse
-	<james.morse@arm.com>, Babu Moger <babu.moger@amd.com>, Tony W Wang-oc
-	<TonyWWang-oc@zhaoxin.com>, Vitaly Kuznetsov <vkuznets@redhat.com>, "Andy
- Lutomirski" <luto@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, "Rafael
- J. Wysocki" <rafael@kernel.org>, Pavel Machek <pavel@kernel.org>, "Kiryl
- Shutsemau" <kas@kernel.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>,
-	Boris Ostrovsky <boris.ostrovsky@oracle.com>, Len Brown <lenb@kernel.org>,
-	Damien Le Moal <dlemoal@kernel.org>, Niklas Cassel <cassel@kernel.org>,
-	"David Airlie" <airlied@redhat.com>, Olivia Mackall <olivia@selenic.com>,
-	Herbert Xu <herbert@gondor.apana.org.au>, Viresh Kumar
-	<viresh.kumar@linaro.org>, "Huang Rui" <ray.huang@amd.com>, Mario Limonciello
-	<mario.limonciello@amd.com>, "Perry Yuan" <perry.yuan@amd.com>, Srinivas
- Pandruvada <srinivas.pandruvada@linux.intel.com>, Yazen Ghannam
-	<yazen.ghannam@amd.com>, Linus Walleij <linusw@kernel.org>, Bartosz
- Golaszewski <brgl@kernel.org>, Guenter Roeck <linux@roeck-us.net>, Artem
- Bityutskiy <artem.bityutskiy@linux.intel.com>, Artem Bityutskiy
-	<dedekind1@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman
-	<gregkh@linuxfoundation.org>, Miquel Raynal <miquel.raynal@bootlin.com>,
-	Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>,
-	Ashok Raj <ashok.raj.linux@gmail.com>, Hans de Goede <hansg@kernel.org>,
-	=?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, "Rajneesh
- Bhardwaj" <irenic.rajneesh@gmail.com>, Xi Pardee <xi.pardee@linux.intel.com>,
-	Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>,
-	Lukasz Luba <lukasz.luba@arm.com>, Helge Deller <deller@gmx.de>,
-	<xen-devel@lists.xenproject.org>, <linux-geode@lists.infradead.org>, "Michael
- Kelley" <mhklinux@outlook.com>, Zhongqiu Han <zhongqiu.han@oss.qualcomm.com>
-References: <20261008071839.2247074-1-jgross@suse.com>
- <20261008071839.2247074-13-jgross@suse.com>
-Content-Language: en-US
-From: K Prateek Nayak <kprateek.nayak@amd.com>
-In-Reply-To: <20261008071839.2247074-13-jgross@suse.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BL2PEPF000352CE:EE_|DM4PR12MB5915:EE_
-X-MS-Office365-Filtering-Correlation-Id: 7cfeebe3-ee41-47b1-9a45-08df28262b02
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|32650700020|82310400026|23010399003|1800799024|376014|36860700016|7416014|18002099003|10067099003|22082099003|921020|4143699003|11063799006|56012099006;
-X-Microsoft-Antispam-Message-Info:
-	iF/4vsFZ0oCxke5nY+IzxcsajSzz5fPHlKfX0Y7e1Yx6IxBZC2sr3ME/4gk3EsXUGoPLFu//3fq/5B93Fmnz6J+cejonYpLtAT5O3MoE9q/2qtUyA6JQVe9/KyUI0Zq2D53G0gSEYWNHVkklvOhGU3AX60Gl1/Dp2o8a7kr9auN2+ROJk55lgWuFVdOkGsnI/RjqR5yBE4YcIzdhUzo75yL+R1wluPkHvKzcBNUfJfs6UStcg3RvocQJvos3t8Ie55dbTBkmiXWO4GzaPMQMnWvyrNt99CU+kzYB2REQ6ZgmORiF6Vk/sQETKzhd/wI0RnhOuijITF21qZ+26lP8Z1rMGjpDfGCIA9/mHEWxy19fLdKyoLhnKunjb3sOk/NjA6nyZye1VKAQiR8L+P5Ix+8q4LpC4K9NO5pUbHiCkPwvUKcnq+gpAnjBtETeBz9J8IgxTvjLZVYS/5A/5aHcDzbNe/52x+IvEtxiu4QwbGgfgQNEwe5+0Ldvt/OFZn81u5mxvzdiUgvrqnm5Z0EPSmw6fhhzpuABtp4EULwt7/UHejEZxA8hCVUgDY1Q+MtNR7qd7b7NKZfskF+X+GyK6f1MXX9RGTjpff8PVrN7Vh2ybgNyjgBkyttYSxy15Sbssdy9hqKgVgE1S47frdT5p4BSbk28gX3HPHxEKRKgrLPQYvWGajX7RRYx+4XJkjMv2YlOgsIGCq/STIrTUogxtK+o1EhIKanpaAYU/pnTG0R/okTYWsplHnynkYPwx2IJ
-X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:satlexmb07.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(32650700020)(82310400026)(23010399003)(1800799024)(376014)(36860700016)(7416014)(18002099003)(10067099003)(22082099003)(921020)(4143699003)(11063799006)(56012099006);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	7oS2RettfJciXjAoPrqIpsgslkhkkpGAiW01FyzZHJNa6VOeV1Fs9l0RKNylshp8F43mwG7dYZK4yEnC3v2OZJfklqhnVYV8xmuueMD12u9jjbrj9fZR1VkqsUWmm6umnN6nxJeXy+PoYlQEQJEoloPH4EFw7pN+5lvyUMKMLbcWDF1wFCxmgit2RPf6HuaBXte6l7/4hBbWSHicYtdXGpY5AbGKJBmFA25RMv92aM3cXFiCCKCvG1U1CnGToXMhntV12UFo+3Pw59MKrc8GTvPBosZ0etwE2n1Wp4DIHjySvFMuIGuPBtltL9UDWxOmFJngwwXyApuTDlKSDb3h4ptwXkO8ss96jh/qHKPb0lo2Kg4bHCwK5V1iWIh7xJJ4YSFLPtrgDz0pQVTJQQpgka82T+jZZUitzlQX5OGrgr2p+XXZY9v881FQ+I0KBjNe
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Oct 2026 06:00:50.4752
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7cfeebe3-ee41-47b1-9a45-08df28262b02
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[satlexmb07.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource: BL2PEPF000352CE.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB5915
+In-Reply-To: <20261011014803.100454-1-physicalmtea@gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: -JaqRJRu8ZBVHbnhEVsxHeHADrM_JL_oRTFawqpWqIg_1791785326
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Hello Juergen,
+On Sun, Oct 11, 2026 at 09:48:03AM +0800, Jia Jia wrote:
+> vhost_scsi_handle_vq() moves pi_bytesout or pi_bytesin into the
+> protection sgl and subtracts those bytes from exp_data_len.  The length
+> passed to TCM is still exp_data_len + prot_bytes.
+> 
+> prot_bytes comes from virtio_scsi_cmd_req_pi.  With
+> VIRTIO_SCSI_F_T10_PI negotiated, vhost reads that header and does not
+> check that the CDB is a READ or WRITE.  sbc_check_prot() replaces
+> data_length from the CDB only when the protect field is non-zero.
+> target_cmd_size_check() leaves a write's data_length unchanged when the
+> CDB size is smaller, so a command that does not get that replacement
+> keeps a data_length larger than the data sgl.
+> 
+> The KASAN report is a MODE SELECT whose header had pi_bytesout set.
+> The data sgl held only the parameter list.  spc_emulate_modeselect()
+> walked data_length and read the next physical page.
+> 
+> Pass the data sgl length.  Protected READ and WRITE still take their
+> length from the CDB in sbc_check_prot().
+> 
+> KASAN reports:
+> 
+>   BUG: KASAN: use-after-free in spc_emulate_modeselect+0x145/0x380 [target_core_mod]
+>   Read of size 1
+> 
+>   spc_emulate_modeselect
+>   __target_execute_cmd
+>   target_execute_cmd
+>   vhost_scsi_write_pending
+>   transport_generic_new_cmd
+>   __target_submit
+>   target_queued_submit_work
+>   process_one_work
+>   worker_thread
+>   kthread
+>   ret_from_fork
+>   ret_from_fork_asm
+> 
+> Fixes: 9f977ef7b671 ("vhost-scsi: Include prot_bytes into expected data transfer length")
+> Signed-off-by: Jia Jia <physicalmtea@gmail.com>
+> ---
+> v2:
+>   - Drop the claim that target used to subtract prot_length.
+>     9f977ef7b671 cites 14ef9200, which is not in the tree
+>   - prot_bytes comes from virtio_scsi_cmd_req_pi
 
-On 10/8/2026 12:48 PM, Juergen Gross wrote:
-> Today rdmsrq() is a macro using its second parameter as the target for
-> storing the read MSR value.
-> 
-> Convert rdmsrq() to an inline function returning the MSR value.
-> 
-> The users have been converted using the following semantic patch:
-> 
->   // Options: --include-headers
-> 
->   virtual patch
->   virtual report
-> 
->   @@
->   expression msr, val;
->   @@
->   (
->   - rdmsrq(msr,val)
->   + val = rdmsrq(msr)
->   )
-> 
-> Signed-off-by: Juergen Gross <jgross@suse.com>
-> Acked-by: Damien Le Moal <dlemoal@kernel.org>      # ATA
-> Reviewed-by: Michael Kelley <mhklinux@outlook.com> # Hyper-V
-> Acked-by: Rafael J. Wysocki (Intel) <rafael@kernel.org> # ACPI, cpufreq, powercap, thermal
-> Acked-by: Sean Christopherson <seanjc@google.com>
-> Acked-by: Reinette Chatre <reinette.chatre@intel.com> # resctrl
-> Reviewed-by: Zhongqiu Han <zhongqiu.han@oss.qualcomm.com> # cpufreq
-> Acked-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>		# pdx86
 
-Feel free to include:
+you can mention the other patches you sent fixing
+security maybe this will calm down sashiko.
 
-Reviewed-by: K Prateek Nayak <kprateek.nayak@amd.com> # amd-pstate
-Tested-by: K Prateek Nayak <kprateek.nayak@amd.com>
+> 
+>  drivers/vhost/scsi.c | 8 ++++++--
+>  1 file changed, 6 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+> index 4f8c0260bc9e..4bd29c2ceed9 100644
+> --- a/drivers/vhost/scsi.c
+> +++ b/drivers/vhost/scsi.c
+> @@ -1534,9 +1534,13 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
+>  		 * vhost_scsi_queue_data_in() and vhost_scsi_queue_status()
+>  		 */
+>  		cmd->tvc_vq_desc = vc.head;
+> +		/*
+> +		 * exp_data_len is the data sgl. prot_bytes already sit in
+> +		 * the protection sgl. Protected READ and WRITE replace
+> +		 * data_length from the CDB in sbc_check_prot().
 
--- 
-Thanks and Regards,
-Prateek
+this is barely readable - could you improve pls? even if that makes it
+a bit more verbose.
+
+
+
+
+> +		 */
+>  		vhost_scsi_target_queue_cmd(nexus, cmd, cdb, lun, task_attr,
+> -					    data_direction,
+> -					    exp_data_len + prot_bytes);
+> +					    data_direction, exp_data_len);
+>  		ret = 0;
+>  err:
+>  		/*
+> -- 
+> 2.53.0
 
