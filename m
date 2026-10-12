@@ -1,221 +1,236 @@
-Received: from mail-oa1-f54.google.com (mail-oa1-f54.google.com [209.85.160.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-00082601.pphosted.com (mx0a-00082601.pphosted.com [67.231.145.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A117F475327
-	for <virtualization@lists.linux.dev>; Mon, 12 Oct 2026 22:17:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C716F30D3EB
+	for <virtualization@lists.linux.dev>; Mon, 12 Oct 2026 22:49:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.145.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791843473; cv=none; b=ucGUmNcDpYuVTk9rLyHTaHx8EEeItdYare0d0u6mhtLIhT2HLsoHwGhwA5bfCiEVqZEooHIylEVs4oD0P7Fih7A16ZGfYraCAEIMVy4aY2x8eT0vryMzYcEr44N+dMNh+3I2RZlOBwWpH0pJVJnH4soW5fVj81YnRZwe4xiUmjQ=
+	t=1791845377; cv=none; b=hZdJjMcUNOx+m4+ka5McBjUSk5TEyA/0iVRnfZVpnENM7J1ztQUyIJBXBOgSM+ysqG+CGtiEQ4YOz6x6uiXCh6PUQIjKDVgd1XPhdKUJmiD0b7ggo8nTVa28FPRLpipAqwQ0XXREKPcsyIH3QYm5DNQxgRqW/xrbChlagEwDW3o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791843473; c=relaxed/simple;
-	bh=gtoYvpUKjEumvZ9NZ4lgt37kt3RngiiSW4yRL0iX9gI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bSGlEMat2DMRUgxH8pqBLWNa19NVIeSWCIELI1afegyfkbgsDl8BEwTe1dz8EuhBzCYbUENf6i7To5EZMRvUi2GEbAjJK4BYNJDXmfoogVdOJChn1rgpyt6xWg49b7MsW1JQwpX4VfFtkTJOaRwA3KlIFLf0HYA6N8/R7RiuK3k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NGCWrALl; arc=none smtp.client-ip=209.85.160.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1791845377; c=relaxed/simple;
+	bh=Uflvu9o3Tf1o1o2kOWVHQ/oUQ6OAnRm4XFaNypsQaiU=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-ID:References:
+	 In-Reply-To:To:CC; b=iBbOKnpPPqO+eRP2GNRrpzsYFadUzJw5ErGR4drnyDLzpM49dVsVuaRJ6loYW4xyGsBAzXz80/4iDb0PZmISsFBoZVaiLM/WkkADcxjjUmQdSuesCbtNAnbzXdXf1VgZcMbdcoFUMwwyIY0xH1tsKY9uE8AoDLpdVS3srgcf9uo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com; spf=pass smtp.mailfrom=meta.com; dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b=arZwgk+m; arc=none smtp.client-ip=67.231.145.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NGCWrALl"
-Received: by mail-oa1-f54.google.com with SMTP id 586e51a60fabf-4a6bb779d13so305706fac.1
-        for <virtualization@lists.linux.dev>; Mon, 12 Oct 2026 15:17:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791843470; x=1792448270; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=F68EtWrkn2Wfb2ayNm/k6SKK8v3U+BQEExnVnz6byuA=;
-        b=NGCWrALlwlboqyXZpqfNDxADfgUBX6nbEiCP4hXpM3jx8ELMLr9Gz0Drj3yVb8JhUn
-         8ptBbLdBYF+DX34+iCL21Q03/hWqkyNkY0svTq/lv7e1f8/ZoCShVR77VICsPA+dN8WL
-         tvP3teb/Yj/vkPn8RFZu+4fS3msBkmLIVPDLRwUhrHwNfFOZUj/Vfvhe2S63vPeQsLt8
-         MsjU2oLPEHHCa5Nd45Z8c4LgsYpgs9Ig7iQ4QBie1uWUEugsqUDRkho3YgJ34X6uRLHv
-         3ipAMidH+YwgGboJ+uqKM+uP6eIMGVQsDanoZGVsDKFPrIIpObBOf5NJ/AXQ5KFA+IRS
-         xTyA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791843470; x=1792448270;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=F68EtWrkn2Wfb2ayNm/k6SKK8v3U+BQEExnVnz6byuA=;
-        b=sVM9xI7KmJQ5WZOPybr+iIR9o/wdaEiVKeMKcsy4T+iyp8v/3AP2lZHQB69AAM27J3
-         27nIO3JFASRtOLUbWoKMucAMUoSTlPBOwZUKVMxddqSW7hz25tm9eib+LU5GPsAZtHi2
-         44B7DzUIfUp8Nq8rGUe2A3GfOFtnUQIhzWuUv3aUv6BeNr1XKXPPDh5iQFK3ucHZJl/i
-         SYFvB9mlJb0PPfnfwchn1NGpHfAJeLxAW4RFUk1kVewOGDxRoouH2hKFiaC+kUSJM1yM
-         7ks9sNCNyTLQn6y+WeYBOCctM4767gQpXPLuSFLoHc9/elOveTeDoQEbkNC+KBAyqzhf
-         1q3A==
-X-Forwarded-Encrypted: i=1; AKwUvByDgidrFEswl567xLIP+mNv+yp+kY9qK4Kjw4ygmiZ6QSDRmjiS3RKgUOEAfg4WAfC7msHtagYO/ElSfSrCTw==@lists.linux.dev
-X-Gm-Message-State: AFq9FYJaXvClBd5rfSg60tUgL3fsIuXEbUd7RACZSQUxCeEmk2O07gX1
-	Po7P7qbp1xtxmDZved8wSgOBCnqpnguuolsME1EjE6ay2HgKCkSAQsJ6
-X-Gm-Gg: AYBFou3srm9PpxmHKxvMS2n0t/Fz1KhcqVIWwHHbzxJSlI+yQxx4qZblGWFFJE8lyjU
-	yGXSyHtEc1eMFZTQcBwAiDFLZLNqK9U4oneR3lOU9h55DCNvg6KO8WwDAJMTQ52K+fLYj7G8Dwh
-	ltGhFjraGhCwy71vIEPoCSC73YMmemRN+W6Iift54PtoYCechKPvhNtekKbVjw7oi0GQ1vonUJV
-	aGAMMoOZWNU4ez85FfPDXynRCx2Efk3OlelxTjSz5LbDVj43oCJ7o5t8KXOx98aKte40oPbo9nI
-	YnZ1wAI3pK1JQ7FfrLZpA2TTFIQEg8ab7F1phu0dRQRCSFWglp9SUuod29HyRKE1zv2KjEC8h3v
-	fPWZigiI64otEcOgilsXP5MMmYrES8RJGgU3uh6IjrUPQv6uBcwefQPk1rHxK78RHswNT9hTUTR
-	BKt/vYFewzomnODr6OM0m22Y/kC/6zhEqoUacFUKQxg/1w8v8rxx+UjyHz8iMAK/AUWaWn1CbyH
-	4DsMgEdmJdosrjz0+J8
-X-Received: by 2002:a05:6870:c213:b0:448:a3d6:c2d2 with SMTP id 586e51a60fabf-4a2a8955927mr10013926fac.10.1791843470199;
-        Mon, 12 Oct 2026 15:17:50 -0700 (PDT)
-Received: from devvm29614.prn0.facebook.com ([2a03:2880:ff:44::])
-        by smtp.gmail.com with ESMTPSA id 586e51a60fabf-4a2a85edf81sm10977018fac.15.2026.10.12.15.17.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Oct 2026 15:17:48 -0700 (PDT)
-Date: Mon, 12 Oct 2026 15:17:45 -0700
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-To: Jia Jia <physicalmtea@gmail.com>
-Cc: stefanha@redhat.com, sgarzare@redhat.com, netdev@vger.kernel.org,
-	virtualization@lists.linux.dev, kvm@vger.kernel.org, mst@redhat.com,
-	jasowangio@gmail.com, eperezma@redhat.com,
-	xuanzhuo@linux.alibaba.com, davem@davemloft.net,
-	edumazet@kernel.org, kuba@kernel.org, pabeni@redhat.com,
-	horms@kernel.org, linux-kernel@vger.kernel.org, bpf@vger.kernel.org
-Subject: Re: [PATCH net-next v2 3/5] vsock/virtio: reuse same-flow socket
- lookup in RX batches
-Message-ID: <as1ciTHT2O40E/Uq@devvm29614.prn0.facebook.com>
-References: <20261010142247.99223-1-physicalmtea@gmail.com>
- <20261010142247.99223-4-physicalmtea@gmail.com>
+	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b="arZwgk+m"
+Received: from pps.filterd (m0044012.ppops.net [127.0.0.1])
+	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69CJOhFW1060277;
+	Mon, 12 Oct 2026 15:49:24 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=
+	pps82601-s2048-2026-q3; bh=2nz+v+R8l94S02t93riyzoSS3nvjG8vzF4Ylc
+	mo4+qw=; b=arZwgk+mYJ+Sy/Dupz4jSaxO5Sn+WoJog5D1YpTEQFq/mlvGkRKRR
+	o7bOBmzVKF/Nal1VRfrxt1LUgW8U8k0tBqIqbUhd5GtywJ3za3wxkmv1wnV928Ei
+	A8D0IYPmoSbE0wGAysuEga8AJz/0ufHawXm0NPNwBBUTqimm4oX/vAlbhm+AcWwa
+	bZpoEEtdf68WT73C7QFyjXBLnDT7CdvzoS4Lrz8mlieDlge/dkJKq7iPdsAk6w6D
+	LKwVAlaTbiFtvi2fmHSpMNouzIy3K31xMXQSg8EjZOMYjW2kI+WX8dGATy53NJqR
+	ePOEgosVBZItmdKOc5d03ctrPzRPdq0QA==
+Received: from mail.thefacebook.com ([163.114.134.16])
+	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4h7k208a4p-12
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
+	Mon, 12 Oct 2026 15:49:23 -0700 (PDT)
+Received: from localhost (2620:10d:c085:108::4) by mail.thefacebook.com
+ (2620:10d:c08b:78::2ac9) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.49; Mon, 12 Oct
+ 2026 22:49:21 +0000
+From: Bobby Eshleman <bobbyeshleman@meta.com>
+Date: Mon, 12 Oct 2026 15:48:38 -0700
+Subject: [PATCH net-next v3 7/7] selftests/vsock: test the netns assign
+ privilege checks
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261010142247.99223-4-physicalmtea@gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-ID: <20261012-vsock-guest-ns-v3-7-b32447c66b23@meta.com>
+References: <20261012-vsock-guest-ns-v3-0-b32447c66b23@meta.com>
+In-Reply-To: <20261012-vsock-guest-ns-v3-0-b32447c66b23@meta.com>
+To: Stefano Garzarella <sgarzare@redhat.com>,
+        "David S. Miller"
+	<davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
+	<pabeni@redhat.com>,
+        Simon Horman <horms@kernel.org>, Jonathan Corbet
+	<corbet@lwn.net>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Stefan Hajnoczi
+	<stefanha@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang
+	<jasowangio@gmail.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+        Shuah Khan
+	<shuah@kernel.org>, Randy Dunlap <rdunlap@infradead.org>,
+        Donald Hunter
+	<donald.hunter@gmail.com>,
+        Eric Dumazet <edumazet@kernel.org>,
+        Eric Dumazet
+	<edumazet@kernel.org>
+CC: <virtualization@lists.linux.dev>, <netdev@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <linux-doc@vger.kernel.org>,
+        <kvm@vger.kernel.org>, <linux-kselftest@vger.kernel.org>,
+        <sargun@sargun.me>, <jlinbox@meta.com>,
+        Bobby Eshleman <bobbyeshleman@gmail.com>,
+        Bobby Eshleman
+	<bobbyeshleman@meta.com>
+X-Mailer: b4 0.14.3
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDEyMDA5MCBTYWx0ZWRfX75PLWjwkGirj
+ YRTVBVAQfUZgYOmgLq5NyYSpKBfL4k55cgfalXBjCT5xc1Wg620M/wrX0tLgeKuACHE4zqpK2Qj
+ NWhPf8Qf/MKCe8G89GhI4WbyxeEjZMc=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDEyMDA5MCBTYWx0ZWRfXzCTuE2oFU9Yc
+ aIytWY8fH+XZ1GzTdsdIjOxXDw4DCZ+RA6RvBfRoRht1TTs+Yz2Y3GyYoFVgVlrYtv59wHJoces
+ icHSTG2tG7FU7etvyDG6cwXJxnYscQYR1NE6e9Cb1vZW+aqXNobm74oHi+DjSNxnawqJ8uHRefa
+ s9Y7wNg7tShoFY4NGHN3ZWOwg92sT4pva602aVBALLo7qEc9zVT3s1J+KsYOLZx1krrZ7IIdQ2b
+ Y5Tfle1n6LyF4ksGLrDXjyD+bm8Coknp+9B3B5x0BbcEkwIupgk9YO3RxbGrtUFEbKtf0UIkdFe
+ J76052rsJITM9A1mLoNQk9g3LRG+BpnLFGhkPGgh+8/gwsS7znTtPQ0aVyNyo/1Q2rCRPJYeEnO
+ qZqt4qLSdOrXG9/R4VYQS7Sk59XPnBM9HsYO83kEUIKHNwqci+mSOdoRl1RjC33HVMsZR57/TbJ
+ tnQ+ARhJl6fV5Bim6dA==
+X-Proofpoint-ORIG-GUID: SpCDCBekkNcIA3frARyWbttPHlQVyAmz
+X-Authority-Analysis: v=2.4 cv=Z/V5j3RA c=1 sm=1 tr=0 ts=6acd63f3 cx=c_pps
+ a=CB4LiSf2rd0gKozIdrpkBw==:117 a=CB4LiSf2rd0gKozIdrpkBw==:17
+ a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=7x6HtfJdh03M6CCDgxCd:22 a=PAz_-FQ8hEVmOPYdF0yf:22 a=VabnemYjAAAA:8
+ a=ehl-fRECcIfF51WkWLIA:9 a=QEXdDO2ut3YA:10 a=gKebqoRLp9LExxC7YDUY:22
+X-Proofpoint-GUID: SpCDCBekkNcIA3frARyWbttPHlQVyAmz
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-10-12_06,2026-10-09_01,2025-10-01_01
 
-On Sat, Oct 10, 2026 at 10:22:45PM +0800, Jia Jia wrote:
-> An RX lock batch still looks up the socket for every packet and takes a
-> temporary lookup reference, even though the batch already holds a reference
-> to the locked socket.
-> 
-> Record the network namespace and packet address tuple when a batch starts.
-> Reuse the batch socket for later STREAM/RW packets with the same tuple, and
-> release the batch before looking up a different flow.
-> 
-> The cached path still traces every packet, takes an skb owner reference,
-> validates socket state, source and transport, updates credit, and runs the
-> receive state machine. Only the socket table lookup and its temporary
-> reference are skipped.
-> 
-> Signed-off-by: Jia Jia <physicalmtea@gmail.com>
-> ---
->  include/linux/virtio_vsock.h            |  3 ++
->  net/vmw_vsock/virtio_transport_common.c | 58 +++++++++++++++----------
->  2 files changed, 38 insertions(+), 23 deletions(-)
-> 
-> diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
-> index 26dde6909c4e..d6528681e052 100644
-> --- a/include/linux/virtio_vsock.h
-> +++ b/include/linux/virtio_vsock.h
-> @@ -287,6 +287,9 @@ struct virtio_transport_rx_batch {
->  	struct sock *sk;
->  	unsigned int pkts;
->  	size_t bytes;
-> +	struct net *net;
-> +	struct sockaddr_vm src;
-> +	struct sockaddr_vm dst;
->  };
->  
->  void virtio_transport_recv_pkt_batch(struct virtio_transport *t,
-> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-> index e67dfcaa279c..73e5c7dfe8b4 100644
-> --- a/net/vmw_vsock/virtio_transport_common.c
-> +++ b/net/vmw_vsock/virtio_transport_common.c
-> @@ -1977,6 +1977,7 @@ void virtio_transport_rx_batch_finish(struct virtio_transport_rx_batch *batch)
->  	batch->sk = NULL;
->  	batch->pkts = 0;
->  	batch->bytes = 0;
-> +	batch->net = NULL;
->  
->  	if (!sk)
->  		return;
-> @@ -2008,6 +2009,37 @@ void virtio_transport_recv_pkt_batch(struct virtio_transport *t,
->  	virtio_transport_recv_pkt_init_addrs(skb, &src, &dst);
->  	virtio_transport_trace_recv_pkt(skb, &src, &dst);
->  
-> +	if (batch->sk) {
-> +		if (batch->net == net &&
-> +		    vsock_addr_equals_addr(&batch->src, &src) &&
-> +		    vsock_addr_equals_addr(&batch->dst, &dst) &&
-> +		    virtio_transport_recv_pkt_batchable(t, batch->sk)) {
-> +			sk = batch->sk;
-> +			if (!skb_set_owner_sk_safe(skb, sk)) {
-> +				WARN_ONCE(1, "receiving vsock socket has sk_refcnt == 0\n");
-> +				virtio_transport_rx_batch_finish(batch);
-> +				kfree_skb(skb);
-> +				return;
-> +			}
-> +
-> +			ctx = (struct virtio_transport_rx_pkt_ctx) {
-> +				.net = net,
-> +				.src = &src,
-> +				.dst = &dst,
-> +				.batchable = &batchable,
-> +			};
-> +			free_pkt = virtio_transport_recv_pkt_locked(t, skb, sk, &ctx);
-> +
-> +			if (!batchable)
-> +				virtio_transport_rx_batch_finish(batch);
-> +			if (free_pkt)
-> +				kfree_skb(skb);
-> +			return;
-> +		}
-> +
-> +		virtio_transport_rx_batch_finish(batch);
-> +	}
-> +
->  	sk = virtio_transport_recv_pkt_find_socket(skb, &src, &dst, net);
->  	if (!sk) {
->  		virtio_transport_rx_batch_finish(batch);
-> @@ -2018,33 +2050,10 @@ void virtio_transport_recv_pkt_batch(struct virtio_transport *t,
->  
->  	if (!skb_set_owner_sk_safe(skb, sk)) {
->  		WARN_ONCE(1, "receiving vsock socket has sk_refcnt == 0\n");
-> -		virtio_transport_rx_batch_finish(batch);
->  		kfree_skb(skb);
->  		return;
->  	}
->  
-> -	if (batch->sk && batch->sk != sk) {
-> -		/* Never acquire a second socket lock. */
-> -		virtio_transport_rx_batch_finish(batch);
-> -	}
-> -
-> -	if (batch->sk == sk) {
-> -		/* Keep the batch reference; drop this packet's lookup reference. */
-> -		sock_put(sk);
-> -		ctx = (struct virtio_transport_rx_pkt_ctx) {
-> -			.net = net,
-> -			.src = &src,
-> -			.dst = &dst,
-> -			.batchable = &batchable,
-> -		};
-> -		free_pkt = virtio_transport_recv_pkt_locked(t, skb, sk, &ctx);
-> -		if (!batchable)
-> -			virtio_transport_rx_batch_finish(batch);
-> -		if (free_pkt)
-> -			kfree_skb(skb);
-> -		return;
-> -	}
-> -
+VSOCK_CMD_DEV_NETNS_SET refuses callers without CAP_NET_ADMIN in the
+init user namespace.
 
-Not sure I love adding code and then removing it in the same series.
-Seems like these are asking to be squashed?
+Add two tests: one confirms that CAP_NET_ADMIN is required even by a
+privileged user and the other confirms that CAP_NET_ADMIN in an
+unprivileged user ns alone is insufficient.
 
->  	lock_sock(sk);
->  	/*
->  	 * Sockmap removal restores the native protocol under sk_callback_lock.
-> @@ -2063,6 +2072,9 @@ void virtio_transport_recv_pkt_batch(struct virtio_transport *t,
->  	free_pkt = virtio_transport_recv_pkt_locked(t, skb, sk, &ctx);
->  	if (start_batch && batchable) {
->  		/* Keep the lookup reference until the batch is released. */
-> +		batch->net = net;
-> +		batch->src = src;
-> +		batch->dst = dst;
+CONFIG_USER_NS is needed to test the CAP_NET_ADMIN + unprivileged user
+ns case.
 
-Similar to my comment in the other patch, seems these are all in sk
-already?
+Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
+---
+Changes in v3:
+- Require setpriv only for the ns_guest_ tests, not the whole script
 
-Best,
-Bobby
+Changes in v2:
+- Assert only that the command fails, not EPERM: ynl's cli.py does not
+  report the errno (Sashiko)
+- Use ynl cli.py for the assign
+---
+ tools/testing/selftests/vsock/config    |  1 +
+ tools/testing/selftests/vsock/vmtest.sh | 54 ++++++++++++++++++++++++++++++++-
+ 2 files changed, 54 insertions(+), 1 deletion(-)
+
+diff --git a/tools/testing/selftests/vsock/config b/tools/testing/selftests/vsock/config
+index 5f0a4f17dfc9..4b31085558fa 100644
+--- a/tools/testing/selftests/vsock/config
++++ b/tools/testing/selftests/vsock/config
+@@ -109,3 +109,4 @@ CONFIG_FS_DAX=y
+ CONFIG_MEMORY_HOTPLUG=y
+ CONFIG_MEMORY_HOTREMOVE=y
+ CONFIG_ZONE_DEVICE=y
++CONFIG_USER_NS=y
+diff --git a/tools/testing/selftests/vsock/vmtest.sh b/tools/testing/selftests/vsock/vmtest.sh
+index 7693d5e0a1d0..d5d7b0660c5d 100755
+--- a/tools/testing/selftests/vsock/vmtest.sh
++++ b/tools/testing/selftests/vsock/vmtest.sh
+@@ -93,6 +93,8 @@ readonly TEST_NAMES=(
+ 	ns_guest_assign_g2h_netns_host_connect_ok
+ 	ns_guest_assign_g2h_netns_pins_ns_ok
+ 	ns_guest_assign_g2h_netns_old_conn_send_fails
++	ns_guest_assign_g2h_netns_no_cap_net_admin_fails
++	ns_guest_assign_g2h_netns_unpriv_user_ns_fails
+ )
+ readonly TEST_DESCS=(
+ 	# vm_server_host_client
+@@ -187,6 +189,12 @@ readonly TEST_DESCS=(
+ 
+ 	# ns_guest_assign_g2h_netns_old_conn_send_fails
+ 	"Check connections made before the assign stop sending once they lose the device."
++
++	# ns_guest_assign_g2h_netns_no_cap_net_admin_fails
++	"Check assigning the guest's vsock device to a namespace needs CAP_NET_ADMIN."
++
++	# ns_guest_assign_g2h_netns_unpriv_user_ns_fails
++	"Check an unprivileged user cannot claim the guest's vsock device via a user ns."
+ )
+ 
+ readonly USE_SHARED_VM=(
+@@ -199,6 +207,8 @@ readonly USE_SHARED_VM=(
+ 	ns_guest_assign_g2h_netns_host_connect_ok
+ 	ns_guest_assign_g2h_netns_pins_ns_ok
+ 	ns_guest_assign_g2h_netns_old_conn_send_fails
++	ns_guest_assign_g2h_netns_no_cap_net_admin_fails
++	ns_guest_assign_g2h_netns_unpriv_user_ns_fails
+ )
+ readonly NS_MODES=("local" "global")
+ 
+@@ -368,7 +378,7 @@ check_ns_guest_deps() {
+ 		return 0
+ 	fi
+ 
+-	for dep in unshare python3; do
++	for dep in unshare setpriv python3; do
+ 		if [[ ! -x $(command -v "${dep}") ]]; then
+ 			log_host "no ${dep} for test ${tname}"
+ 			return 1
+@@ -1909,6 +1919,48 @@ test_ns_guest_assign_g2h_netns_pins_ns_ok() {
+ 	return "${KSFT_PASS}"
+ }
+ 
++test_ns_guest_assign_g2h_netns_no_cap_net_admin_fails() {
++	local cmd="unshare -n setpriv --bounding-set=-net_admin"
++	local rc
++
++	vm_ssh "init_ns" -- "${cmd}" python3 /root/ynl/cli.py --no-schema \
++		--spec /root/ynl/vsock.yaml --do dev-netns-set &>/dev/null
++	rc=$?
++
++	if [[ "${rc}" -eq 0 ]]; then
++		log_host "assign unexpectedly succeeded without CAP_NET_ADMIN"
++		return "${KSFT_FAIL}"
++	fi
++
++	return "${KSFT_PASS}"
++}
++
++test_ns_guest_assign_g2h_netns_unpriv_user_ns_fails() {
++	local unpriv_uid=65534
++	local unpriv
++	local rc
++
++	unpriv="setpriv --reuid=${unpriv_uid} --regid=${unpriv_uid}"
++	unpriv="${unpriv} --clear-groups"
++
++	if ! vm_ssh "init_ns" -- "${unpriv} unshare -U true"; then
++		log_host "unprivileged user namespaces unavailable, skipping"
++		return "${KSFT_SKIP}"
++	fi
++
++	vm_ssh "init_ns" -- "${unpriv} unshare -Urn" \
++		python3 /root/ynl/cli.py --no-schema \
++		--spec /root/ynl/vsock.yaml --do dev-netns-set &>/dev/null
++	rc=$?
++
++	if [[ "${rc}" -eq 0 ]]; then
++		log_host "assign unexpectedly succeeded for unprivileged user"
++		return "${KSFT_FAIL}"
++	fi
++
++	return "${KSFT_PASS}"
++}
++
+ shared_vm_test() {
+ 	local tname
+ 
+
+-- 
+2.53.0-Meta
+
