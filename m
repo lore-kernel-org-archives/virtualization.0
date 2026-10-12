@@ -1,181 +1,435 @@
-Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com [209.85.221.51])
+Received: from mail-qk1-f169.google.com (mail-qk1-f169.google.com [209.85.222.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4F503016F5
-	for <virtualization@lists.linux.dev>; Mon, 12 Oct 2026 05:44:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.51
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791783895; cv=none; b=uoKgX5niFW+f59BNSXl0FoD/VndHsPBmWpvPIJ5Vugw4AdScyM/2gXY/1RMkoZgVvFSaGUXTIv1xpVxsjeMI7+UVvcm+D9LWHRYL5Y7HDnKiK7r/ttkeEDsCpLFcn/FqhX2/WWH7cSvgWu4zNB145uat3nDNZY1vWtZ5H8E2rxI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791783895; c=relaxed/simple;
-	bh=jOkeAbcKgUrvZorlr+tay1hGWHPBmlHApl1BltEE+iw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DVKBVXv2H+NAeka7ETNe+NGE+DdWoAwbJmwZLdiXy/ZiEh1AQqIz5YapywJv/HfhlB8QMV2pCEDC63dB6/jxnmhmcSHJGqt0umRzc/+RF2g/iSFZyLUa6qlumoH5RO8hS6xiC9YNIaO2JGqSKk3BIU4JaFPLI5acYkHibDEp38w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=igrigI9H; arc=none smtp.client-ip=209.85.221.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F8863A4F5F
+	for <virtualization@lists.linux.dev>; Mon, 12 Oct 2026 05:51:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.222.169
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791784316; cv=pass; b=O0MbhlXMn1/KJj4Y+SFdLGn1gt9lUZ9ZjlCR7whLjb+ZK8iZSvZssX1KJSjrfqgPXAQ2ZpN0j5/VNra9LcqySDTVcoPIbAvvAdEXiYaB+oxXoMuOy0KO36YhPQR1xyr94ncoIr5PHOpf4LY746tDcRtQeJ6d/EKO4T3uDC0jP3c=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791784316; c=relaxed/simple;
+	bh=RMrOyRWgelCdaTh04TeQVAi8/u5010xn5Q8zRGB/p/U=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=az/U5bApbvqHDQXBID+afKtLxO56Tllqzv4hei8p3ZOh/9KD3qP2vpf2Dk4VuodeJ6N+fiSJ1BvaYWHtbeGWY+9K2SvkwLHutjViRbdx4XtLbn40/jTGEiXdlaCHaW15AHUqncTOY3f5EWKiUCiodbN1MoNARhjnbHHGj1kf1tM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GW130bn5; arc=pass smtp.client-ip=209.85.222.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="igrigI9H"
-Received: by mail-wr1-f51.google.com with SMTP id ffacd0b85a97d-48c02782159so819050f8f.0
-        for <virtualization@lists.linux.dev>; Sun, 11 Oct 2026 22:44:53 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GW130bn5"
+Received: by mail-qk1-f169.google.com with SMTP id af79cd13be357-92f0b5ed131so215057885a.3
+        for <virtualization@lists.linux.dev>; Sun, 11 Oct 2026 22:51:55 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1791784314; cv=none;
+        d=google.com; s=arc-20260327;
+        b=VsnXKzTnNgLKo/cOSmKMJT7vuZTSVEsWXrHGlDx9yiDF8w7BdWouwRiPWIRwjTJUwc
+         ORH7Kj2qiexAbg41zxrQPa9STcxVhIBBmnLCW0ZQ0JF0RgrLVbpduuB9kCaeUCZpZtFi
+         XZ/ODKKLUQfXWdys9kG3jytyKLT401bxSllYArtfOzXItH66SpIYyMd93jN10n0qXEfg
+         pEqd47q1X94ekAJidCXWPPnaaBrilPIt9vbSMCP6BUPf53i+NWAO0bmw/Z0Rpr/UZcsN
+         jmkOSRAHHQ5oebzy9P4DcGAXDdzScXh4etUknwUtCCn47QN55otp3RRWsaoFRtBQ0I3L
+         VQMw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=CC8Mxf5P9+FMx1bJlSArM03EiTJXelj+K+rGTNeTbzQ=;
+        fh=JPuzoyGHvwqq5cbtbABiYtIdaBbb7P0ZrmyOpTY+PJo=;
+        b=aUGpTgFy1xZFCnFBkxkFrsu7/qu3ZhOVatj3is1GBR0xkMD20KLbRhdmqEcEH9BjLp
+         ftUu8Gody0lnrPfKVssodWyhX8H0Mc/H5hd4Qty8bmmkuh8nbOgUWGREw17xXfeur+LL
+         07+unZgOCqavOUhvPRckPd12xCihssj/gKnC2PosjJMIR4tDcIeUo4U36S8XjhdBx/2g
+         r4O7MoqZNlbjWM5xR9F+VXpGmXFouEm+u8rBaIk0TcFzDsGM7Bwy6EQ2VJUhVLU+JABp
+         EoCPzkcQflodnxlEvog5bilLr6a76Rul9gca4hc3AR+uTMPnk5DKVCGsUVsd039EOF17
+         o8zQ==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791783892; x=1792388692; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+        d=gmail.com; s=20251104; t=1791784314; x=1792389114; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=btW4jQ1y+/SiqS0gs878Y5z0xH+cJraR47l5WrmrTe4=;
-        b=igrigI9HKp0ZHMZBia9SIw8AcvDicoTru8Uxx5Z+omHKQMKhKONT7HEmmWUdfrPzFx
-         UQDiKVqlH14peMWGOIjjUD+DVS9bnbsnAVsw3hi8ggu3t163XKDSwCjYDvRrjDoQh3xQ
-         P2hWYqLf0yUomob+ZIaR8WkJt9LMAEgoDBuZaXs+C+0lWR9jPdVx2e7ygGkU3bmGfjcE
-         KLdn0TtMovMLBJbjVIh7WC5HTspJiFVcKYGl7jAMWp1T2yG0JLZ3MnetH6lIa5L9bUVz
-         STO4K/S4V4ANm6pPO8LVzRnlQMCi3ktP1/5NN87ww+0G//isW/gKJCd/cojU3ZJqT34N
-         O5nQ==
+        bh=CC8Mxf5P9+FMx1bJlSArM03EiTJXelj+K+rGTNeTbzQ=;
+        b=GW130bn543nIXbN/kzNNuxMsMQ+ELFNM32v97VA/w/jONbzR2zEU4/3XR4EaJm+6yO
+         hKozABZENiv5HFNBR5xUdDzD55s16026ZiWYQcRH3FMuBtdMBMmikbHkpSlY7dHGuJpi
+         8/+XZhSRP0dgmlmwokO5/lwAc/H43y/wgWnBjPC4amVA+YXsDi/tPuHZJqhK4MYHGN72
+         JyD0YE0MAJWGzzELoG8ILARV2qjAtuh/CXlk9J4mYE4T994SL1jN9asxo/hVym08LmCo
+         o/EOAcUAEPdFG6osmWnUUX+9Gy5Pqsi6/NdG1/jEeQXkU0po+cI9hrpAfv+CpQo6P2DN
+         z1Fg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791783892; x=1792388692;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
+        d=1e100.net; s=20260707; t=1791784314; x=1792389114;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=btW4jQ1y+/SiqS0gs878Y5z0xH+cJraR47l5WrmrTe4=;
-        b=EdWNG/1p/QbuNts8+ziaOMKDvy2vvYHXxMF+LySjUl6pdXBTELlmZgTsSWfQbc80xG
-         GdI9XIsXBWSDhJdwAS6qGeRdzDD016HtN+oHUhSs5DD9psuGBDhE41b+cvu4ZXee6Pma
-         dC0vPp7MXlHiYpMpLb0K3Wj+OZwvKyROHwr24FEW9RsPRV8wJ72LlXkBCPsWKepVBDAU
-         NVJKkLCJ55FUzeT9McNjHf5O9TP/YiIj2bNQ0uJnXD7mYalfeb9XeOhhXAxi2sogayl7
-         rHzDn7VkGWF8jjYDwPluDSOLk+apuLhSAGVMVTq523KexSeyeFd1LDJi5p00hrido2jv
-         Xtsw==
-X-Forwarded-Encrypted: i=1; AKwUvBzXp1fYIKECdG7OZJUKXWiWQdLOPDrRqfOCJL31E/pQswSLADGiD+x6iVDE3w8Gro69OtfdFiLS1uivthZdEQ==@lists.linux.dev
-X-Gm-Message-State: AFq9FYJcXBzmvdbiIDwXtcTA8xXE6D0As7FFcWBXfe1VCjpEZpqU+ZFR
-	Iq4m7ZnWWtb5a4Fe+GmsG9y2U7pw/O2gP5bvtLAyqE0hd4rXrwDtzARO
-X-Gm-Gg: AYBFou1q+nwWrSEywTQ7F4AizgP8HUiKMnsvBpSnQnqRjA22R1vbDuPA/523lVMUKW6
-	Mc9SNF/w2rF0F3Iv7UG76UpR0qDretCsuCfYXMnSX98WFYCL74rhg1yBfmEq4/ZXRDZTvQbVGwf
-	qGSEZFlvN5aV/kywrkPpG5m/UFi/Bq2yH//1rcueG8zqL7QYS5upcHi/+SRgFeL8u5j/GDyaDnU
-	O1B43zJNSlovAiTdLfgPs2hb5OvozAAFtmRaKxhByi3Wm7jr9gHL6b0C/TaFUVKfUZvKN4jK08T
-	c1ZcVw9iDdS8X5YLY9qz40kAF0GagAqdPAhoiIMXoVtSXk8HBS1l/yD8dWGTld6+6msmIzmyDdl
-	8M4bOVTQ9DjPpL2poOMpSNuAUE9R6y+B9FV62hpU8meV4tgk3hs9fuickNmE5josBfhL+ypy+Z5
-	MANSa64ND5YBktpaSP8xkn6NnrkOmIICJ8XEdOgYCST4W786I/FC72pvDdUkmTdEIBPgGUKO+8R
-	lsqbKxHsxqnyNbikjEMLz+OBglfnHfzoSHyVz8BsoXWrjYU4fz9vw==
-X-Received: by 2002:a05:600c:6215:b0:4a0:eae0:b30e with SMTP id 5b1f17b1804b1-4a18e4ca157mr133079995e9.22.1791783891940;
-        Sun, 11 Oct 2026 22:44:51 -0700 (PDT)
-Received: from home-desktop (dynamic-002-214-019-128.2.214.pool.telefonica.de. [2.214.19.128])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a18bf35930sm256330645e9.13.2026.10.11.22.44.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 11 Oct 2026 22:44:51 -0700 (PDT)
-Date: Mon, 12 Oct 2026 07:44:49 +0200
-From: Abhin Parekadan Jose <abhinjoses@gmail.com>
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-	Gerd Hoffmann <kraxel@redhat.com>,
-	David Airlie <airlied@redhat.com>
-Cc: Gurchetan Singh <gurchetansingh@chromium.org>,
-	Chia-I Wu <olvaffe@gmail.com>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Simona Vetter <simona@ffwll.ch>,
-	Dongwon Kim <dongwon.kim@intel.com>,
-	dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	syzbot+3590d97d8a586fa955c2@syzkaller.appspotmail.com
-Subject: Re: [PATCH] drm/virtio: Destroy obj_restore_lock on the final
- drm_dev_put()
-Message-ID: <asxz0Xvv5jO9gAol@home-desktop>
-References: <20260929070714.169412-1-abhinjoses@gmail.com>
+        bh=CC8Mxf5P9+FMx1bJlSArM03EiTJXelj+K+rGTNeTbzQ=;
+        b=ND8MHPMmp/Rc94gtgi7md6rfVl0TuWBvZH3WRqUsIvL0ZG16EdcLHX6tnvOXTzlJon
+         tjIJBUIysC+qEKkryC+pGENDgId9on6YdHOtGWqWjFWNup5LQJfkFuc6EwidAESAAi0g
+         FYl7/+cYojrkT97oLJsAUpYK1MOAHpn130J4vIgjJ+mzt31jsdqEVfYIpmAQGJFFB0KT
+         JHOKi0OZNi9/O218i9TInF7yEADnWAKcVV9HYoMDKUnNmYerXPJYwVF9J92nKzBzDsh3
+         fkdaP3ijIWIVJG9MC/wQRuvaEgxkm/H5izZpXDgTbx86SoII7IbCjCE+jAQpJ8zNpO55
+         tDUg==
+X-Forwarded-Encrypted: i=1; AKwUvBw/eAqqzWc7NUj7jAkPR2QfdUiSlBmIguZ/Fec8h9GpUUv/jsEp/FU3IkT5SmYJZOYprGbSc1qh6bPOfO8jpg==@lists.linux.dev
+X-Gm-Message-State: AFq9FYJbmAK0FZNwD5pbT67+GedRWTSBDLvWLByWxN4XNePArLHBbqEc
+	jtkJdKdz++4ZKK3gGK8rdmipjVfiHxZe6HW1Q0TaGWXfRkIALd+QIgLH/eY6hudPHOnA7eqNW6r
+	mMplfMkfE2L9AEk5jN8QKyIKypmgXW74=
+X-Gm-Gg: AYBFou0TIb48AXq+kHadcjP5vy9u+MSyLdZY7rbEgsff5cdGHWzOFgRTldNtN9WRk/u
+	K6sZwx/AfiPHGwe+CWHSiiKJkDE1ytZXEBu4U9lp0daA6mh0vHl2pZC0WJ5CTCOi7ZrxK3MMgUs
+	xb3yt322cY37oFe/EA1LeRlGufY3bxpUf9ZXt6Ld0krBdUkuG8i60J+Mb60XYL09/5wR7Z2Sqn4
+	eSxSSX1hh8Th6kt2xlLZ2fEC4Gk2PXTOSzhMDEnS9f/3cP7163DCxdt8MVc+P6xq/4D6w5LCtGp
+	MSSZsToms43QaLzppHR32VmFzUtw9WApUBCq/R/VeyoiDGSwi2V2doM=
+X-Received: by 2002:a05:620a:711a:b0:93e:7dfa:2f3f with SMTP id
+ af79cd13be357-93ebd493d90mr1580936385a.62.1791784313402; Sun, 11 Oct 2026
+ 22:51:53 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260929070714.169412-1-abhinjoses@gmail.com>
+References: <20261010142247.99223-6-physicalmtea@gmail.com> <179172875205.434549.8636973340087490564@kernel.org>
+In-Reply-To: <179172875205.434549.8636973340087490564@kernel.org>
+From: Jia Jia <physicalmtea@gmail.com>
+Date: Mon, 12 Oct 2026 13:51:17 +0800
+X-Gm-Features: AclHuK8Ki9X54bInYhhv1pL0dcfB74cVT9pZCzrKL4qZHpNOUX6PRTgdoDnVTQ4
+Message-ID: <CAJwVaMKUa-c2e_jgGfQ63rMPYyYi8-reZYNBBiKTKQdXe1xV-Q@mail.gmail.com>
+Subject: Re: [PATCH net-next v2 5/5] vsock/virtio: defer RX readable
+ notifications until batch unlock
+To: netdev-bot+sashiko@kernel.org
+Cc: stefanha@redhat.com, sgarzare@redhat.com, netdev@vger.kernel.org, 
+	virtualization@lists.linux.dev, kvm@vger.kernel.org, mst@redhat.com, 
+	jasowangio@gmail.com, eperezma@redhat.com, xuanzhuo@linux.alibaba.com, 
+	davem@davemloft.net, edumazet@kernel.org, kuba@kernel.org, pabeni@redhat.com, 
+	horms@kernel.org, linux-kernel@vger.kernel.org, bpf@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Gentle ping on this fix for the syzbot report.
+>
+> Thank you for your contribution! Sashiko AI review found 4 potential
+> issue(s) to consider.
+>
+> Critical: 0 =C2=B7 High: 1 =C2=B7 Medium: 1 (1) =C2=B7 Low: 2
+>
+> If you believe none of the issues are legitimate, please reply to each
+> issue of Medium severity or higher and explain why the AI is wrong.
+> If any of them are legitimate and you plan to respin, please let patchwor=
+k
+> know by including "pw-bot: cr" as a separate line at the end of your repl=
+y
+> (one such reply per series is enough).
+>
+> - [High] The new attach-time handoff passes partially read skbs to
+>   read_skb, which ignores the read offset.
+> - [Medium] Sockmap attach/detach now drains queued data on every vsock
+>   socket, and the commit message wrongly says non-batched sockets keep=E2=
+=80=A6
+> - [Low] The commit message says "Sampling at batch finish takes
+>   sk_callback_lock once." That holds only on the native path.
+> - [Low] vsock_rx_callback_handoff() calls sk_data_ready without the
+>   sk_rcvlowat/SOCK_DONE check that vsock_data_ready() and the per-packet=
+=E2=80=A6
+>
+> Pre-existing issues:
+> - [Medium] vsock_rx_callback_handoff() reads sk_data_ready under
+>   read_lock_bh(&sk->sk_callback_lock), releases the lock, and only then=
+=E2=80=A6
+>
+> --
+>
+> vsock/virtio: defer RX readable notifications until batch unlock
+>
+> During virtio vsock RX batches, this commit holds back the native
+> sock_def_readable() notification until the batch has dropped the socket
+> lock. If sk_data_ready or sk_write_space has been replaced, for example
+> by sockmap, a new vsock_rx_callback_handoff() passes queued skbs to the
+> current callback one at a time. vsock_bpf_update_proto() now schedules
+> that handoff on sockmap attach and detach.
+>
+> > diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+> > index fe7f49da6c4bc..df6faee0bd37a 100644
+> > --- a/net/vmw_vsock/af_vsock.c
+> > +++ b/net/vmw_vsock/af_vsock.c
+> > @@ -931,6 +931,107 @@ static int __vsock_bind(struct sock *sk, struct s=
+ockaddr_vm *addr)
+>
+> [ ... ]
+>
+> > +/* Caller holds lock_sock(). */
+> > +void vsock_rx_callback_handoff(struct sock *sk)
+> > +{
+> > +     struct vsock_sock *vsk =3D vsock_sk(sk);
+> > +     void (*write_space)(struct sock *sk);
+> > +     void (*data_ready)(struct sock *sk);
+> > +     bool wrote =3D false;
+> > +     s64 before, after;
+> > +     int i;
+> > +
+> > +     if (sock_flag(sk, SOCK_DEAD) || !vsk->transport)
+> > +             return;
+> > +
+> > +     read_lock_bh(&sk->sk_callback_lock);
+> > +     data_ready =3D READ_ONCE(sk->sk_data_ready);
+> > +     if (READ_ONCE(sk->sk_prot) !=3D sk->sk_prot_creator &&
+> > +         data_ready =3D=3D vsk->default_data_ready) {
+> > +             read_unlock_bh(&sk->sk_callback_lock);
+> > +             /*
+> > +              * start_verdict publishes sk_data_ready after the proto =
+swap.
+> > +              * Retry once before treating this as a stable non-RX set=
+up.
+> > +              */
+> > +             if (!vsk->rx_cb_retried) {
+> > +                     vsk->rx_cb_retried =3D true;
+> > +                     vsock_rx_callback_queue(sk, 1);
+> > +                     return;
+> > +             }
+> > +             vsk->rx_cb_retried =3D false;
+> > +             data_ready(sk);
+> > +             return;
+> > +     }
+> > +     read_unlock_bh(&sk->sk_callback_lock);
+> > +     vsk->rx_cb_retried =3D false;
+> > +
+> > +     for (i =3D 0; i < VSOCK_RX_CB_HANDOFF_MAX; i++) {
+> > +             read_lock_bh(&sk->sk_callback_lock);
+> > +             data_ready =3D READ_ONCE(sk->sk_data_ready);
+> > +             write_space =3D READ_ONCE(sk->sk_write_space);
+> > +             read_unlock_bh(&sk->sk_callback_lock);
+>
+> [Severity: Medium]
+> This is a pre-existing issue, but sk_callback_lock here only covers
+> reading the pointers, not calling them. Can a concurrent sockmap delete
+> restore sk_data_ready and clear the psock between this read_unlock_bh()
+> and the data_ready(sk) call below?
+>
+> The delete path takes only write_lock_bh(&sk->sk_callback_lock), not
+> lock_sock():
+>
+> __sock_map_delete()
+>   sock_map_unref()
+>     sock_map_del_link() / sk_psock_drop()
+>
+> In that case the stale sk_psock_verdict_data_ready() still dequeues an
+> skb through virtio_transport_read_skb(). That lowers rx_bytes and sends a
+> credit update. sk_psock_verdict_recv() then finds no psock:
+>
+> net/core/skmsg.c:sk_psock_verdict_recv() {
+>     ...
+>         if (unlikely(!psock)) {
+>                 len =3D 0;
+>                 tcp_eat_skb(sk, skb);
+>                 sock_drop(sk, skb);
+>                 goto out;
+>         }
+>     ...
+> }
+>
+> So the skb is dropped after it has already been credited to the peer.
+>
+> The baseline vsock_data_ready() has the same window. It calls
+> sk->sk_data_ready(sk) under lock_sock() without sk_callback_lock, and
+> tcp_data_ready() has the same issue. This patch adds more call sites
+> with the same pattern: the attach-kicked work item and the batch-finish
+> handoff. Taking the read lock here can also make it look as if the call
+> is protected when it is not.
+>
+> > +
+> > +             if (!wrote && write_space !=3D vsk->default_write_space) =
+{
+> > +                     write_space(sk);
+> > +                     wrote =3D true;
+> > +             }
+> > +             if (data_ready =3D=3D vsk->default_data_ready) {
+> > +                     data_ready(sk);
+> > +                     break;
+> > +             }
+> > +             before =3D vsock_stream_has_data(vsk);
+> > +             if (before <=3D 0)
+> > +                     break;
+> > +             data_ready(sk);
+>
+> [Severity: Low]
+> Neither of these data_ready(sk) calls checks sk->sk_rcvlowat or
+> SOCK_DONE, unlike vsock_data_ready() and the per-packet path in
+> virtio_transport_recv_connected(). Is that intended?
+>
+> For a replaced callback such as the sockmap verdict, data_ready(sk) runs
+> whenever vsock_stream_has_data() > 0. The verdict program can then see
+> data below SO_RCVLOWAT that the per-packet path would hold back.
+>
+> For the default callback the call is unconditional, both here and in the
+> retry branch above:
+>
+>                 vsk->rx_cb_retried =3D false;
+>                 data_ready(sk);
+>                 return;
+>
+> Doesn't this wake readers when no readable event was pending? That
+> happens on every attach and restore kick from vsock_bpf_update_proto().
+> It also happens when virtio_transport_rx_batch_finish() enters the
+> handoff with only write_space_pending set.
+>
+> > +             after =3D vsock_stream_has_data(vsk);
+> > +             if (after >=3D before)
+> > +                     break;
+>
+> [Severity: High]
+> Can this hand a partially read skb to read_skb?
+>
+> A native stream read can consume only part of the head skb. In that
+> case virtio_transport_stream_do_dequeue() advances the private offset,
+> leaves the skb queued, and lowers rx_bytes only by the bytes copied:
+>
+>                 VIRTIO_VSOCK_SKB_CB(skb)->offset +=3D bytes;
+>                 ...
+>                 virtio_transport_dec_rx_pkt(vvs, bytes, dequeued);
+>
+> If the socket is then added to a sockmap with a verdict program, the new
+> kick in vsock_bpf_update_proto() runs this loop:
+>
+> vsock_rx_callback_work()
+>   vsock_rx_callback_handoff()
+>     sk_psock_verdict_data_ready()
+>       vsock_read_skb()
+>         virtio_transport_read_skb()
+>
+> virtio_transport_read_skb() does not look at the offset:
+>
+>         pkt_len =3D le32_to_cpu(hdr->len);
+>         virtio_transport_dec_rx_pkt(vvs, pkt_len, pkt_len);
+>         ...
+>         return recv_actor(sk, skb);
+>
+> Take a 1000 byte skb with 400 bytes already read, so rx_bytes is 600.
+> The verdict program sees all 1000 bytes, 400 of them a second time. The
+> u32 rx_bytes then wraps to 4294966896.
+>
+> The after >=3D before check above sees no progress and stops. But
+> vsock_stream_has_data() now reports about 4GB, so poll stays readable.
+> The next native read hits WARN_ONCE("rx_queue is empty, but rx_bytes is
+> non-zero") and returns -EFAULT.
+>
+> The offset handling in virtio_transport_read_skb() predates this patch.
+> In the baseline the same corruption needs a partial read, then an
+> attach, then another packet from the peer. With this patch the extra
+> packet is no longer needed, and the new attach-time drain depends on
+> read_skb handling already-queued skbs correctly.
+>
+> > +             if (i =3D=3D VSOCK_RX_CB_HANDOFF_MAX - 1 && after > 0)
+> > +                     vsock_rx_callback_queue(sk, 0);
+> > +     }
+> > +}
+>
+> [ ... ]
+>
+> > diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/vi=
+rtio_transport_common.c
+> > index e5637291f3185..6b96d8ac0d598 100644
+> > --- a/net/vmw_vsock/virtio_transport_common.c
+> > +++ b/net/vmw_vsock/virtio_transport_common.c
+>
+> [ ... ]
+>
+> > @@ -1986,33 +2007,45 @@ EXPORT_SYMBOL_GPL(virtio_transport_recv_pkt);
+>
+> [ ... ]
+>
+> > -     if (write_space_pending) {
+> > -             vsk =3D vsock_sk(sk);
+> > +     vsk =3D vsock_sk(sk);
+> > +     if (write_space_pending)
+> >               vsk->default_write_space(sk);
+> > -             write_space =3D READ_ONCE(sk->sk_write_space);
+> > -             if (write_space !=3D vsk->default_write_space)
+> > -                     write_space(sk);
+> > +
+> > +     read_lock_bh(&sk->sk_callback_lock);
+> > +     native =3D vsock_rx_cb_is_native(sk);
+> > +     read_unlock_bh(&sk->sk_callback_lock);
+> > +
+> > +     if (native) {
+> > +             release_sock(sk);
+> > +             if (data_ready_pending)
+> > +                     vsk->default_data_ready(sk);
+> > +             sock_put(sk);
+> > +             return;
+> >       }
+> >
+> > +     if (write_space_pending || data_ready_pending)
+> > +             vsock_rx_callback_handoff(sk);
+>
+> [Severity: Low]
+> The commit message says:
+>
+>     Sampling at batch finish takes sk_callback_lock once.
+>
+> Does that hold on the non-native path? sk_callback_lock is taken once
+> here for vsock_rx_cb_is_native(). vsock_rx_callback_handoff() then takes
+> it again at the top. It takes it once more on each loop iteration, up
+> to VSOCK_RX_CB_HANDOFF_MAX (64) times, and the requeued work can do all
+> of this again.
+>
+> [ ... ]
+>
+> > diff --git a/net/vmw_vsock/vsock_bpf.c b/net/vmw_vsock/vsock_bpf.c
+> > index 9049d26486460..7770a6c51dbe5 100644
+> > --- a/net/vmw_vsock/vsock_bpf.c
+> > +++ b/net/vmw_vsock/vsock_bpf.c
+> > @@ -154,6 +154,7 @@ int vsock_bpf_update_proto(struct sock *sk, struct =
+sk_psock *psock, bool restore
+> >       if (restore) {
+> >               sk->sk_write_space =3D psock->saved_write_space;
+> >               sock_replace_proto(sk, psock->sk_proto);
+> > +             vsock_rx_callback_kick(sk);
+> >               return 0;
+> >       }
+> >
+> > @@ -166,6 +167,7 @@ int vsock_bpf_update_proto(struct sock *sk, struct =
+sk_psock *psock, bool restore
+> >
+> >       vsock_bpf_check_needs_rebuild(psock->sk_proto);
+> >       sock_replace_proto(sk, &vsock_bpf_prot);
+> > +     vsock_rx_callback_kick(sk);
+> >       return 0;
+> >  }
+>
+> [Severity: Medium]
+> These kicks run for every AF_VSOCK socket added to or removed from a
+> sockmap or sockhash, not only for sockets in a virtio RX batch. Is this
+> change in behaviour intended?
+>
+> RX batching exists only in the guest virtio transport
+> (virtio_transport_rx_work() -> virtio_transport_recv_pkt_batch()).
+> vhost_vsock and vsock_loopback always use virtio_transport_recv_pkt().
+> Both still set .read_skb =3D virtio_transport_read_skb, so their sockets
+> reach this code too. The same is true of SOCK_SEQPACKET sockets, which
+> virtio_transport_recv_pkt_batchable() rejects.
+>
+> Before this patch, sk_data_ready was not called by either path:
+>
+> sock_map_link() -> sock_map_init_proto() -> vsock_bpf_update_proto()
+> sk_psock_start_verdict()
+>
+> Data queued before attach only reached the verdict program when a later
+> packet arrived.
+>
+> Now the kick pushes that data through sk_psock_verdict_data_ready(), up
+> to 64 skbs per pass, and requeues itself if data remains. The verdict
+> program can redirect or drop data that arrived before attach, where it
+> used to stay for the native reader.
+>
+> If only the prot was swapped, for example with a msg_parser-only map,
+> the handoff calls the default callback unconditionally after one retry.
+> That adds an extra wakeup on every attach and detach.
+>
+> The commit message says "non-batched sockets keep their existing
+> behavior". It also says the handoff is scheduled "so an attach or detach
+> outside the worker still drains skbs already queued".
+>
+> Neither statement seems to fit what the code does: this is a new sockmap
+> behaviour for every vsock transport that has read_skb, and the subject
+> line does not mention it. Could this be split out, or at least
+> described in the commit message?
+>
 
-Dmitry, Gerd, do you have a preference between moving mutex_destroy()
-to virtio_gpu_release() (this patch) and using drmm_mutex_init()? I can
-send a v2 with the other option if you prefer it.
+I will drop the attempt to preserve RX batching across sockmap cb
+replacements, at least for this optimization series.
 
-Thanks,
-Abhin
-
-On Tue, Sep 29, 2026 at 07:07:14AM +0000, Abhin Parekadan Jose wrote:
-> virtio_gpu_deinit() calls mutex_destroy() on obj_restore_lock, but
-> deinit runs from virtio_gpu_remove() at unbind or PCI remove, and GEM
-> objects can outlive that. An open /dev/fb0 keeps the fbdev buffer
-> alive, and the fbdev DRM client holds a drm_device reference. When the
-> fd is finally closed, the buffer is freed and takes the destroyed lock:
-> 
->   fb_release()
->     drm_fbdev_shmem_fb_destroy()
->       drm_client_buffer_delete()
->         virtio_gpu_free_object()
->           virtio_gpu_remove_from_restore_list()
->             mutex_lock(&vgdev->obj_restore_lock)
-> 
->   DEBUG_LOCKS_WARN_ON(lock->magic != lock)
->   WARNING: kernel/locking/mutex.c:625 at __mutex_lock+0xf2c/0x12ec
-> 
-> virtio_gpu_deinit() should only do hardware teardown in this case
-> related virtio, its queues and others. Software state that GEM callbacks
-> still use belongs in virtio_gpu_release(), which runs on the final
-> drm_dev_put().
-> 
-> There are two equivalent ways to tie the mutex lifetime to the
-> drm_device:
-> 
->  1) Move mutex_destroy() from virtio_gpu_deinit() to the end of
->     virtio_gpu_release(). This is what this patch does. It is the
->     smallest change and keeps the teardown next to the rest of the
->     final-put software cleanup.
-> 
->  2) Initialise the lock with drmm_mutex_init() (checking its return
->     value) and drop mutex_destroy() from virtio_gpu_deinit(), so DRM's
->     managed release destroys it. This also covers the virtio_gpu_init()
->     error path, where release returns early because dev_private is
->     NULL. Skipping mutex_destroy() there is harmless, since it only
->     matters for mutex debugging.
-> 
-> Either fix removes the WARN. Option 1 is sent as the smaller change,
-> and option 2 can be done instead if preferred.
-> 
-> Reproduced on arm64 QEMU (-device virtio-gpu-pci) with DEBUG_MUTEXES
-> and PROVE_LOCKING: open /dev/fb0, write 1 to
-> /sys/bus/pci/devices/0000:00:01.0/remove, then close the fd. With this
-> patch the WARN is gone, and rebinding brings back /dev/fb0 and
-> /dev/dri/card0.
-> 
-> Fixes: 54a970048296 ("drm/virtio: Add support for saving and restoring virtio_gpu_objects")
-> Reported-by: syzbot+3590d97d8a586fa955c2@syzkaller.appspotmail.com
-> Closes: https://syzkaller.appspot.com/bug?extid=3590d97d8a586fa955c2
-> Assisted-by: LLM
-> Signed-off-by: Abhin Parekadan Jose <abhinjoses@gmail.com>
-> ---
->  drivers/gpu/drm/virtio/virtgpu_kms.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-> index 1d4d3bf46a20..0ec755c35050 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-> @@ -354,7 +354,6 @@ void virtio_gpu_deinit(struct drm_device *dev)
->  	virtio_reset_device(vgdev->vdev);
->  	virtio_gpu_reclaim_vbufs(vgdev);
->  	vgdev->vdev->config->del_vqs(vgdev->vdev);
-> -	mutex_destroy(&vgdev->obj_restore_lock);
->  }
->  
->  void virtio_gpu_release(struct drm_device *dev)
-> @@ -370,6 +369,8 @@ void virtio_gpu_release(struct drm_device *dev)
->  
->  	if (vgdev->has_host_visible)
->  		drm_mm_takedown(&vgdev->host_visible_mm);
-> +
-> +	mutex_destroy(&vgdev->obj_restore_lock);
->  }
->  
->  int virtio_gpu_driver_open(struct drm_device *dev, struct drm_file *file)
-> 
-> base-commit: 72d3fcf802c45d00b300f25b848a93c3a2bd7c7e
-> -- 
-> 2.51.1
-> 
+> --
+> Sashiko AI review =C2=B7 https://netdev-ai.bots.linux.dev/sashiko/#/patch=
+set/20261010142247.99223-1-physicalmtea%40gmail.com
