@@ -1,42 +1,42 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAAFB3D5C2C;
-	Mon, 12 Oct 2026 23:05:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6E793D5657;
+	Mon, 12 Oct 2026 23:05:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791846319; cv=none; b=t5wBdvJv/wI/zpIbVlN51uspST7VsyWc4xwUliqvwWPp7l/zSilNDE+E/e57QCmgUnbt9VL/EQ6BcoWxv1cgJN57fGuOZ5vS6EgKJBYhvJLVuAZdAmSQQTJadpJV5+jITtKtKl6cbZwpbQI0rITTot47QNiCxGy7vwmVNmRcVUA=
+	t=1791846325; cv=none; b=h4IMRrvDtZ2JoSV4jsyBW8VsqKBmsYWKzw0lH7QQGUNQXtD3mvDDS2rJlrB9T6fdCzj4jL0xKbUDXfS6ZPAmoukp3T2w1D0Vu3HhqIKG6VtXXWkmJPyPswZFPbNkPIGaxrUf9FjtnYOjOV28pFehBJ2LSceRvd4Pfv70hF/VlJ8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791846319; c=relaxed/simple;
-	bh=x0lYv4rfTlSeRJA0LVaf08RmrJwQQi83K1ND/6IMxgA=;
+	s=arc-20240116; t=1791846325; c=relaxed/simple;
+	bh=7Gs2QdBt3PR39yrrKwUpGNQyh9Iw4PftSm8kARKedas=;
 	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=bFim62q5ws1em3AOLwE6TH4Rfmhf845W3bTWvhwq7MoKS+6Cb2/RBfxh0v0jrbM4V5kBRDEqrYrew+4ImuQxm5pRzNsL9UkppICbjS49ZzYc92aSLpbFmp9LkC/a48lR/LPkR0TwMjn4OZyVmOVdJKE/tWB3H7WKmQmj3Hhlxg4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kysKZhJw; arc=none smtp.client-ip=100.103.45.18
+	 Date; b=GvI5XfLTAOtxCJrW0I+s+ihQUGEgcp/pO/KiJXSyQqCDKmQ1K0QoMldEQHwLtyaUWD7jNSyQnuDBL5yfg7sHIVoLDoYbrUBkPTYGJiCYn8IbPRBzgN1abcQcCkbeBncjgYdItCh7MCWSoqr28khuByc/xTfft4L1cwlaqfdZOLo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NcYxiqRb; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kysKZhJw"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 891821F0089B;
-	Mon, 12 Oct 2026 23:05:18 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NcYxiqRb"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 714CF1F008A1;
+	Mon, 12 Oct 2026 23:05:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791846318;
-	bh=x0lYv4rfTlSeRJA0LVaf08RmrJwQQi83K1ND/6IMxgA=;
+	s=k20260515; t=1791846320;
+	bh=7Gs2QdBt3PR39yrrKwUpGNQyh9Iw4PftSm8kARKedas=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=kysKZhJw+83TPPwSBzuIdAUpq2uwLAguxvEw9iNfnlKsXRvyybnEgVTAWchDmBhn8
-	 XxxyS8e74pzLskDf4lkYllCH+3CFmjF7+Mnw7ZpRKG8o774YwIDuZeasvJ8vPIdzGg
-	 qVde8YSrWFexhmE9mMJ/objqPZvOV+DLqci5ac8b/IifISCm3tyxrdLUEZKhFLjoEd
-	 8Dfk8NleKwAmccf8aV1s5Bwso0JE9YLWaDY8kOS7CB0lBacZ0Jv5gW0sxmhe/5x7d3
-	 m9ynQUQUuGASrzAvrgn/vH0ScKNqC9ZID9tvZ4KEEwgUItS+/pGNSAha8vUdL5ESXM
-	 7T/SM5ixaeDNw==
-Message-ID: <sashiko-outbox-168694@kernel.org>
+	b=NcYxiqRbu+9nWacLMcwX2dP7cR53lGVzRHfI6CzkDGgDSkpzoiB2wdq/c51icqRJM
+	 gwnapCT3+6fp9WV3MPNHcQV3f9N/jqjFDqDBVMD2+ElrV6msHK47JyCZirtYwD01AJ
+	 peDDsWX8Ykks6DUcwLiJLzJ9wiUvTthcEuAdShvzMbWjjbqHenr8wcJXRntR3tfPSo
+	 VZBEVvS6gMdIxDoBgwf3AbBy5QTJ3EUOY+Z+TV0accno0k09k3sWX79oSWhNQ0BvP/
+	 AgSRBF6RBjSu6ojmveM7rHYq9SkgggmaZi4ophmPDObRYM8H8jyBRhjWpiWW408oET
+	 hHoGrRi4g9G0A==
+Message-ID: <sashiko-outbox-168695@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net-next v3 7/7] selftests/vsock: test the netns assign
- privilege checks
+Subject: Re: [PATCH net-next v3 3/7] vsock: pass the netns to
+ ->has_remote_cid()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Bobby Eshleman" <bobbyeshleman@meta.com>
-Cc: virtualization@lists.linux.dev, "Eugenio Perez" <eperezma@redhat.com>, "Michael
- S. Tsirkin" <mst@redhat.com>, kvm@vger.kernel.org
-In-Reply-To: <20261012-vsock-guest-ns-v3-7-b32447c66b23@meta.com>
+Cc: "Eugenio Perez" <eperezma@redhat.com>, kvm@vger.kernel.org, "Michael S.
+ Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev
+In-Reply-To: <20261012-vsock-guest-ns-v3-3-b32447c66b23@meta.com>
 References: <20261012-vsock-guest-ns-v3-0-b32447c66b23@meta.com>
- <20261012-vsock-guest-ns-v3-7-b32447c66b23@meta.com>
+ <20261012-vsock-guest-ns-v3-3-b32447c66b23@meta.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 Date: Mon, 12 Oct 2026 23:05:18 +0000
@@ -46,15 +46,13 @@ List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-> VSOCK_CMD_DEV_NETNS_SET refuses callers without CAP_NET_ADMIN in the
-> init user namespace.
+> The transports only use the socket to find its network namespace. Pass
+> the namespace instead, so that a later patch can ask whether a CID is
+> taken in a namespace without necessarily having a socket on hand. This
+> will help with avoiding CID collisions when devices move between
+> namespaces.
 >=20
-> Add two tests: one confirms that CAP_NET_ADMIN is required even by a
-> privileged user and the other confirms that CAP_NET_ADMIN in an
-> unprivileged user ns alone is insufficient.
->=20
-> CONFIG_USER_NS is needed to test the CAP_NET_ADMIN + unprivileged user
-> ns case.
+> No functional change.
 >=20
 > Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
 
@@ -62,5 +60,5 @@ Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261012-vsock-gues=
-t-ns-v3-0-b32447c66b23@meta.com?part=3D7
+t-ns-v3-0-b32447c66b23@meta.com?part=3D3
 
