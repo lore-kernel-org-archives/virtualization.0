@@ -1,62 +1,64 @@
-Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
+Received: from mail-wr1-f46.google.com (mail-wr1-f46.google.com [209.85.221.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EC3B3AEF5F
-	for <virtualization@lists.linux.dev>; Mon, 12 Oct 2026 23:55:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C4E33E4119
+	for <virtualization@lists.linux.dev>; Mon, 12 Oct 2026 23:55:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791849332; cv=none; b=YD5cmFOHfUPZlzMAhCSBPKbdYXx7sgavjUn4DncboZ9NKyVAjjMMWb/hIvfytW/rjSnZmQrSz8lp+R6UIExsHE2VuTPY8arZvFl6lE5B62G6D3cmNFeEvPcnSzoX4fsmBZqYm5zsRmB2jVGSrkBaKdvpL8EDDOQNQ2R3NksXsYw=
+	t=1791849334; cv=none; b=Ayosu7/YocNkqx35icI0lEUM44hlbQfyugd9i5KLgt/MJ/wtOG41LyWNoOmWgalMqfy7KSDoUuCqnkHCWvps6sipMCdXPrGgn6HaZhelzyCCSCvMiZXAroXEZL1qGtD0f3zUeUA/iDAFdcxCn8l/xdLruzikEi/hqYmARxS0j0s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791849332; c=relaxed/simple;
-	bh=1w1F988jNPgirGYn7lWZqWgUsbQey03z212sKRJwP10=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Ihe+Zu7ljTU20LJPtpgmtUCoF3GZ2sjurboOzwyCMdP7GDly2jwZox+BeD6nFsZhqEjKHCtcb/xN1td4mW14eM4alYw0PAKAq1pcKuesnAocwQpeGeETg40fYS/CJ7zjJMZuTC7iXZNQeBfR3jMLgq6mZ6Efn1hWuaajNxTOWzY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lH3omFg4; arc=none smtp.client-ip=209.85.221.49
+	s=arc-20240116; t=1791849334; c=relaxed/simple;
+	bh=7Jppg6yM4EgF1LiDYJeOE79I8PpMZq9yJUvSKhHYuQk=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=QMJfwdKCiwyel6Z8VjdwJtMchmheU9BmvvnqyxGwEP6KYS7ctOFHaaUBAP77Zn9BvxEzf0SqLACV/yDm1t3eQwk0zVXhV0cNDBzTthC4BUpeXBMplPzUenFece4DcMyvLoVAr9MNyZWaqcIarn5Wl97FU2zW9bJouNXslRi2TyI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OidXR6H+; arc=none smtp.client-ip=209.85.221.46
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lH3omFg4"
-Received: by mail-wr1-f49.google.com with SMTP id ffacd0b85a97d-48c45111bebso1331249f8f.0
-        for <virtualization@lists.linux.dev>; Mon, 12 Oct 2026 16:55:31 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OidXR6H+"
+Received: by mail-wr1-f46.google.com with SMTP id ffacd0b85a97d-48c4207ac26so2259970f8f.0
+        for <virtualization@lists.linux.dev>; Mon, 12 Oct 2026 16:55:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791849330; x=1792454130; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=/evjTB7G1IHnw2ZoU85Mql0h2mL/HYgEXMQE1oqOuN0=;
-        b=lH3omFg4oFtm/gvgYt2CZhQE4vubVDo/KjpTtRlY/YA5rIsq5DpJTldR6f641Rdek3
-         D5n12TvgoLYvMv76eO/Wx7O1PrPOaVdjeIn2jur7zwoL29jup+7pc9dSk9iMKeHHNHP7
-         Wndp9iGGpdAElbAFvIEIxRRlAIYhHZtDswjOLDI6Dtrv8hVgSSeGO9y9R5rv9uM7I2ul
-         Yzmct5QGF1brpz5OSbK4E+f7NHDQxc3tSgNuGGzmDapoUut7Yeo+VhtFfv1tOrxCow4P
-         LbStTJSi+ipNUYwuucoYlumDL0NfoZJLznsO7JJ2DWi6n6dTqKO1oz2gLa1pQekwpQ7h
-         2gsg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791849330; x=1792454130;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1791849331; x=1792454131; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=/evjTB7G1IHnw2ZoU85Mql0h2mL/HYgEXMQE1oqOuN0=;
-        b=V2xkgIrGsQT3wbmfM2Mv7rKArWntFY+UuJLaT1SarnbV5NMGnwFvJ3K5+j7q9pZr/2
-         GpGJNGBeMnqrMS7F0w4lswCo7ySX8YjcpK3pFZ0JLcHEiRd1O658+V5ql9a4pY6xPVJm
-         4GLZszKIQdyuDdS7cmTgfr0woZhRQlmFvmzg4zmG9UaDXX0aOq568bF9fIw1wkxSQm9p
-         FuRcaNUtVLbQGvmtpj5SV7qHqP3P5t4JeJK9nah3heL6bhvElzN7vmcr7tubTEePJJLW
-         IZmdcExggYIHTuRbPVdv2Lo/NeL6uAxG4SEQl0nSW/ElEapw+3OqBrS6a8dP1i399xjb
-         v+Jg==
-X-Forwarded-Encrypted: i=1; AKwUvBwgN7z+ijWsE2frTTIZ45Ma5R/61YjEkswkj67hRVbK/w0HD5cUuUNDgKqGE84qHVzYwBSInetvAte9KHQZLA==@lists.linux.dev
-X-Gm-Message-State: AFq9FYI9X5iANxKh9okh6t9x25ULuBvEjVznioHSLAbo329WgIOdxbKk
-	HgPBO5exo9Rlwl7Wpa1WlXkdc7FXGPWopFmMpPft+HJoW2pi5HyZjqhI
-X-Gm-Gg: AYBFou3R25bAmtWYpb5T6gRj9sGOdN4B/Up8a2Zz9ntpbVEj6a14uOTvcaci45uowX0
-	Uu7/55BoukGrAzo0/oe3SYItNF7CRGRDYYBx1hVQyOVSsoWFW8OhvznwN6FQZMEJNKXBgJy7M66
-	Hd8lJON1uuzlZXWn/8uWUFzpuoBJHqqRBSFK1wOR2d+DjvklqslAbXVgSRWoY+XCXSNNmal1RRT
-	62JsZOWQr3tJzRCWa8EIglOBIidcvEquxOaBv9HR31yZM6weLCwY3d14o1KkcAMcWvQBeAYTQEE
-	9WwYP7c7tbjkwf2SwXj8PIoGBVFnArV6FsvjIQoJGN6SnvGZ2HYXwszFXAyS6xjTSLB8xOA16NM
-	7R5UV05NG6C6Pl4JQTVyiObbqj4bGUdByxTpYjfHGUi2HP9FjZo6i3oJ1Wgwl4DV5ukkbRgMPS1
-	7GvW5FRNLqKDgARXkptbt7fx1spQR0iB9stT38V7BLZ7o0tWZ0fsRBw7vwA+Jb5xbrI9bzxGHG+
-	L8C6iKY1N7OKzrsD6NppznUzw6lqV3GMwcigNI3Ljv2yMvC/RI4bN16RQY=
-X-Received: by 2002:a5d:6b92:0:b0:48c:8126:a266 with SMTP id ffacd0b85a97d-48dbace9838mr16800523f8f.34.1791849329200;
-        Mon, 12 Oct 2026 16:55:29 -0700 (PDT)
+        bh=gBDjfcYpOnFL2AwGB62aVDEEQFBwxjTJIGQXAUNz3X8=;
+        b=OidXR6H+sYgUIsYhYqGg4kC95sAyGCOEqvAs7uGTRZRRnUwbkOrlg2rmHgUkZ77bP/
+         d/Qvo51o4m2UxdC7L8eewPPcr2bR86Mzc76jnwLdwNC5lSe4DEz9qJZvEG/Q3a7FU0k+
+         Z5RBTid9QfODihigzWuasiAEqzg3qFxVZbe9Hz7nMUMfWIvasQlrd3Ar9EcJni6OdYj3
+         crq7YamNewktuyR02u1ZBRmQiQMfL1feiJB6YWXaHglbRWx0X+2BfpNq24HoVLU6ofqi
+         FcIaTFHXKYqceMb1yUXxIiYLFJQf68Hc5zQhUy3ljNp+qiuap+8BbGvx23rkdG0H+a6F
+         azLQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791849331; x=1792454131;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=gBDjfcYpOnFL2AwGB62aVDEEQFBwxjTJIGQXAUNz3X8=;
+        b=xHH9kdiuvQeOmG176gXEhayQGtE7g1OkPL9jkBJP/5QLdAsKav/LnXNglWdzbEGpLq
+         qq84uHm2VuK0w5ZAZjEfVjIn84kIVz2/lVf6Lq4ZVfPTwfoFzN57uf4f0avMSd4u3ger
+         8x5XD0FC5cdqd51tLDtrBeqvMJ3fg1p+7BJDJjQFMPRD4i4ZFB33UL9RXZrKTfVnzyPP
+         FfMtPcAh0DLL33zCfqo7HQ2Zg+/nQkhR80GoW/JBp35UASezw+FxDPZj3aY+4EnV5H07
+         rLYnR+yyVAFBeOJokfW9edKSLON+VS8xWk2wWDcijrH4xTrSOKIPoiJ+MNgpH8GPHdSM
+         USVQ==
+X-Forwarded-Encrypted: i=1; AKwUvBzw4CxByKokFNP3o1zwCG5d12asBTtpFf2JFHy6PaIjJFBsTShEeY8CjhcNUtX4tVdeP5vyCGDti+ebAuDsdw==@lists.linux.dev
+X-Gm-Message-State: AFq9FYIIoE3xAGoPLYAw4eeh33GJb79lSv9wrYw/Xy+7u/p/kOQPnXFV
+	FIYvjj4zTpycZS/6Ru9snUnrZIHhayAit/voqJCPTbN4QK+ORL07caZ7
+X-Gm-Gg: AYBFou0BYajWYWnitHTannIqOjyNoXCCsGRBNIkod8V7daX5gE4hlramKOBthHVGZck
+	yr5zI7ToPlAekZT6tO4ayuSa7RnFaJd8go5RGt9OhLZ734ucrmBB43RHfDK7DuH/f86494pHAQ5
+	w43+R6483UfMzB1O/xtWSiFUz58XzCBmOKGCPn3txSkldXckJGMl0nVAJXlWd/7I/0OBL3v8y8a
+	8m0WPePxXWTmFwYkDa/Glrn5fDqfrg4nOrpPxygV37Fxvpdu3P2RE5VOIXp6fSHjFnXX8p0wKds
+	530r27e9wFqUVJWTb1IBdT78LW8CXETi5ekzM84wiIltSVMR7Pqe/UhdfZEsIP2nk0qtheGrUOK
+	dMoiFppPGq7ybELtfam7tFV5zYq2p+WxH14qjJM7ZRZ62EeTqnyL8uBNEuDyAjSubAc4ECcSJAz
+	m7Zq3YWt5JMJsTNHi9x7HXqdqtEDr8SoMobj6O5GUNjQIzXwYx0xAA4BuXqqYfJqRL7wOlQofQ8
+	xRvY8dYkDtHnsMTNIEdJ+2omTd/XxkPrczKovY1fstku+aQJt0sadn5kKwI
+X-Received: by 2002:a05:6000:290b:b0:487:2805:6834 with SMTP id ffacd0b85a97d-48dbace156emr19400809f8f.42.1791849331313;
+        Mon, 12 Oct 2026 16:55:31 -0700 (PDT)
 Received: from dohko.chello.ie (188-141-5-72.dynamic.upc.ie. [188.141.5.72])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48de0967a0dsm1933762f8f.3.2026.10.12.16.55.26
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48de0967a0dsm1933762f8f.3.2026.10.12.16.55.29
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Oct 2026 16:55:27 -0700 (PDT)
+        Mon, 12 Oct 2026 16:55:30 -0700 (PDT)
 From: David Carlier <devnexen@gmail.com>
 To: netdev@vger.kernel.org
 Cc: sgarzare@redhat.com,
@@ -69,10 +71,12 @@ Cc: sgarzare@redhat.com,
 	virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org,
 	David Carlier <devnexen@gmail.com>
-Subject: [PATCH net-next 0/2] vsock: SO_INQ for stream sockets
-Date: Tue, 13 Oct 2026 00:55:22 +0100
-Message-ID: <20261012235524.41468-1-devnexen@gmail.com>
+Subject: [PATCH net-next 1/2] vsock: support SO_INQ on stream sockets
+Date: Tue, 13 Oct 2026 00:55:23 +0100
+Message-ID: <20261012235524.41468-2-devnexen@gmail.com>
 X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20261012235524.41468-1-devnexen@gmail.com>
+References: <20261012235524.41468-1-devnexen@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -81,28 +85,123 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This is the follow-up announced in the receive queue hint series [1]:
-SO_INQ and SCM_INQ for AF_VSOCK stream sockets, as AF_UNIX has.
+SO_INQ makes recvmsg() return the bytes left in the receive queue in an
+SCM_INQ cmsg, saving a SIOCINQ call per receive. AF_UNIX stream sockets
+support it, AF_VSOCK fails with ENOPROTOOPT.
 
-The value is the one SIOCINQ returns, so on Hyper-V it covers the
-current packet only. The flag is per socket, is not inherited by
-accepted sockets, and the sockmap receive path does not report it.
+Add it for SOCK_STREAM, reusing the hint already computed for io_uring.
+As with TCP_INQ, 1 is reported once the stream is finished so the caller
+reads again and sees EOF. No cmsg is sent when the transport cannot
+report the queue length.
 
-Tested over loopback with vsock_test and vsock_uring_test.
+SOCK_SEQPACKET is refused, as on AF_UNIX: its transport callback counts
+messages, not bytes.
 
-[1] https://lore.kernel.org/netdev/20260923184008.153541-1-devnexen@gmail.com/
+Signed-off-by: David Carlier <devnexen@gmail.com>
+---
+ include/net/af_vsock.h   |  1 +
+ net/vmw_vsock/af_vsock.c | 41 +++++++++++++++++++++++++++++++---------
+ 2 files changed, 33 insertions(+), 9 deletions(-)
 
-David Carlier (2):
-  vsock: support SO_INQ on stream sockets
-  vsock/test: cover SO_INQ
-
- include/net/af_vsock.h           |   1 +
- net/vmw_vsock/af_vsock.c         |  41 +++++--
- tools/testing/vsock/vsock_test.c | 191 +++++++++++++++++++++++++++++++
- 3 files changed, 224 insertions(+), 9 deletions(-)
-
-
-base-commit: a4057f51efc2b74ddf46721e83f45e9efb13649d
+diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+index 5549298c1ec6..e8481f12312e 100644
+--- a/include/net/af_vsock.h
++++ b/include/net/af_vsock.h
+@@ -68,6 +68,7 @@ struct vsock_sock {
+ 	u64 buffer_size;
+ 	u64 buffer_min_size;
+ 	u64 buffer_max_size;
++	bool recvmsg_inq;
+ 
+ 	/* Private to transport. */
+ 	void *trans;
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 1c2d1cea67f4..874dc1545a35 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -2050,29 +2050,38 @@ static int vsock_connectible_setsockopt(struct socket *sock,
+ 	transport = vsk->transport;
+ 
+ 	if (level == SOL_SOCKET) {
+-		int zerocopy;
++		int v;
+ 
+-		if (optname != SO_ZEROCOPY) {
++		if (optname != SO_ZEROCOPY && optname != SO_INQ) {
+ 			release_sock(sk);
+ 			return sock_setsockopt(sock, level, optname, optval, optlen);
+ 		}
+ 
+ 		/* Use 'int' type here, because variable to
+-		 * set this option usually has this type.
++		 * set these options usually has this type.
+ 		 */
+-		COPY_IN(zerocopy);
++		COPY_IN(v);
+ 
+-		if (zerocopy < 0 || zerocopy > 1) {
++		if (v < 0 || v > 1) {
+ 			err = -EINVAL;
+ 			goto exit;
+ 		}
+ 
++		if (optname == SO_INQ) {
++			if (sk->sk_type != SOCK_STREAM) {
++				err = -ENOPROTOOPT;
++				goto exit;
++			}
++			vsk->recvmsg_inq = v;
++			goto exit;
++		}
++
+ 		if (transport && !vsock_msgzerocopy_allow(transport)) {
+ 			err = -EOPNOTSUPP;
+ 			goto exit;
+ 		}
+ 
+-		sock_valbool_flag(sk, SOCK_ZEROCOPY, zerocopy);
++		sock_valbool_flag(sk, SOCK_ZEROCOPY, v);
+ 		goto exit;
+ 	}
+ 
+@@ -2581,6 +2590,7 @@ __vsock_connectible_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+ 	struct sock *sk;
+ 	struct vsock_sock *vsk;
+ 	const struct vsock_transport *transport;
++	bool do_cmsg = false;
+ 	int err;
+ 
+ 	sk = sock->sk;
+@@ -2637,13 +2647,26 @@ __vsock_connectible_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+ 		err = __vsock_seqpacket_recvmsg(sk, msg, len, flags);
+ 
+ out:
+-	/* Seqpacket has_data counts messages, while io_uring treats msg_inq as
+-	 * a byte length when sizing retries, so only streams report a hint.
++	/* Seqpacket has_data counts messages, while SCM_INQ reports bytes and
++	 * io_uring treats msg_inq as a byte length when sizing retries, so
++	 * only streams report it.
+ 	 */
+-	if (msg->msg_get_inq && err >= 0 && sk->sk_type == SOCK_STREAM)
++	if ((vsk->recvmsg_inq | msg->msg_get_inq) && err >= 0 &&
++	    sk->sk_type == SOCK_STREAM) {
+ 		msg->msg_inq = vsock_stream_inq_hint(sk);
+ 
++		/* A negative hint means the transport could not tell. SCM_INQ
++		 * has no encoding for that, so report nothing.
++		 */
++		do_cmsg = vsk->recvmsg_inq && msg->msg_inq >= 0;
++	}
++
+ 	release_sock(sk);
++
++	if (do_cmsg)
++		put_cmsg(msg, SOL_SOCKET, SCM_INQ, sizeof(msg->msg_inq),
++			 &msg->msg_inq);
++
+ 	return err;
+ }
+ 
 -- 
 2.55.0
 
