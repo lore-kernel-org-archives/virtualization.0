@@ -1,128 +1,129 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-00082601.pphosted.com (mx0a-00082601.pphosted.com [67.231.145.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A3D84D17AD;
-	Mon, 12 Oct 2026 18:21:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED62F4252D1
+	for <virtualization@lists.linux.dev>; Mon, 12 Oct 2026 19:58:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.145.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791829286; cv=none; b=ML8Swq/hJMIDcLVlGMLQ6OxQM4de0UhaSa+6/tji6+UbYBbpfMMVI9RIAqJ6Mr1mf85HDBNy8uFtqciVza72Dv468OV5YYcZYxqVBE4tZAu//HJE4UUfJtUeCWvUNly6mUyx8vcHLwl21vatVOc7GIc3lPu+GwHh4pTk/hcj8OE=
+	t=1791835112; cv=none; b=TKRT1bS7Z7GfVIBb2shEe1uv51yXq0RA1gsd0tOMnPtOIfdXbfX5c6NVt6d9nLf3BxskxsoABVfhZr/i2LThnbyxOihe4Z/7nEPe06xWce2zYwmgbaMreKLy2J8jBzFGsmMCfjy9K+6V16Ma2nF3x3Pg68KW10OPIJioF0tHwmM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791829286; c=relaxed/simple;
-	bh=GokQC8PwSMPms7h9TUvMR7EX3GCXm6AF9xv3+ZiKNmM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=RozsrOIG9mLzWpPoudefoJnJSGhTHKGarUz9tuHBOOaa+29/UXTWPwrl6bYJIDg82MQ7AjPqabrNMnz49ViIDikz/7THm70xI1gP+ao/kQ0zXnzK9pZkMAoz3u72E5YHJgYRTHXogi5Mf0Rc3Jmm3SnmTY1jzDPIHfo2TmBtPKo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FRcP+6YD; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791835112; c=relaxed/simple;
+	bh=LHDpUqoIUY73agKLC0JPTYyrCYH/uP7gZDbQ0lKiftQ=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-ID:To:CC; b=GvbDZz6IDunUNTbZC3U9hU0cMzvtvGIHKuwpFIUw96tCfuKGrvwyWSx75suLFTKg/OavBjJnzYdbcwe6T/3x+kutfk5ufq39x1Dm1hZojSm/WF6nRmzZx1ImmrjmyGKMWqMdH2d+OvYbIqoFWLrpj4xm/yxLA9/0NlxvAEafVP4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com; spf=pass smtp.mailfrom=meta.com; dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b=NkIVWrnF; arc=none smtp.client-ip=67.231.145.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FRcP+6YD"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 288491F0089B;
-	Mon, 12 Oct 2026 18:21:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791829284;
-	bh=/aD7zxrJKQIFMiKB+gxigqy0JMoHWjODlkczBalS5sk=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=FRcP+6YD3v/0s/Ilz1oTwJ9tasghp5Up4LVtAEi8Lue37ZeJebd0rC6wAlyQC88n/
-	 sfPAU1nHDdNmqioY4cfB+OKDlPkO6HKNuWxzmQDA6FbZuUEd+cwdBlHH5d8wQWXIpc
-	 y+aBKK6NSIzE1+9YUmNJAiMX42rT8/8GJrNRtak2AnYg6j9rYjuY0938MB0eczeqlx
-	 eke9wjBNdJfV7BI1K87Uj7FARvcvxF9ItRd62DdK24FTDTCwgSZIc6VA+lqHvdwXPY
-	 OyCXAZaIvfJY1zB39yZLvBZnO0mejec8Q5+Rbid/0pUwyYRKzNzQsXolM0vTGHRco8
-	 c447J6S4WVWxg==
-Date: Mon, 12 Oct 2026 21:21:20 +0300
-From: Leon Romanovsky <leon@kernel.org>
-To: "Popov, Pavel E" <pavel.e.popov@intel.com>
-Cc: Bjorn Helgaas <helgaas@kernel.org>, Jim Chow <jim.chow@broadcom.com>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	Logan Gunthorpe <logang@deltatee.com>,
-	Radu Rugina <radu.rugina@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Wei Liu <wei.liu@kernel.org>, Michael Kelley <mhklinux@outlook.com>,
-	Lukas Wunner <lukas@wunner.de>,
-	Nathan Ciobanu <nathan.d.ciobanu@linux.intel.com>,
-	"bcm-kernel-feedback-list@broadcom.com" <bcm-kernel-feedback-list@broadcom.com>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
-	"linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/2] PCI/P2PDMA: Allow P2PDMA in VMware and Hyper-V
- guests on Intel hosts
-Message-ID: <20261012182120.GJ219304@unreal>
-References: <20261009154034.82321-1-pavel.e.popov@intel.com>
- <20261009165833.GA991924@bhelgaas>
- <20261009180847.GD11438@unreal>
- <LV2PR11MB6070D3FCBC3EAED4FA0191EFB2922@LV2PR11MB6070.namprd11.prod.outlook.com>
- <20261009184923.GE11438@unreal>
- <LV2PR11MB60707DAD12BFBEAB681463B7B2922@LV2PR11MB6070.namprd11.prod.outlook.com>
- <20261011054700.GF11438@unreal>
- <LV2PR11MB60708F76EB7D6E5A40E82853B29F2@LV2PR11MB6070.namprd11.prod.outlook.com>
- <20261012162410.GH219304@unreal>
- <DS7PR11MB6064DA61339B9AB0F52EBED4B29F2@DS7PR11MB6064.namprd11.prod.outlook.com>
+	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b="NkIVWrnF"
+Received: from pps.filterd (m0528008.ppops.net [127.0.0.1])
+	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69CJO5Ms1953201;
+	Mon, 12 Oct 2026 12:58:28 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pps82601-s2048-2026-q3; bh=aySQG+wpA
+	fhuaLrRAC0TXgBqWFy64W/qu6r3MZnQmOs=; b=NkIVWrnF9Mo0Ah2iHKueG4WqA
+	ANIMpNOtxzQLT1j7FxRmsjh+SyePN/OigIKb9u8B33p/Q/LHDQeDhT1VyZ6VSbTh
+	9gzDnRovggCx8636rYKqXQ+6eKUBd//9wi9gMMPSFsSoGIv2wt7giTinkUcVvUJN
+	tNSu9mzPiSxG22soSp2kQmG5JXhbfQSFO7BkaplLt5l8km48yl+nyh8zwzipqxBc
+	X7QNhTHpf+62plkFXlCPRpPoQXMbo4XLrrMVMzywVjnuJdwzFgtVjjU3KzISdQut
+	GABUr/iBOOnoAgG2JR9KlJSGFSLAy/UNoRvf6bnThjsEaelkVII7G4pFdqyJg==
+Received: from mail.thefacebook.com ([163.114.134.16])
+	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4h89yjsmk0-2
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
+	Mon, 12 Oct 2026 12:58:27 -0700 (PDT)
+Received: from localhost (2620:10d:c085:208::f) by mail.thefacebook.com
+ (2620:10d:c08b:78::2ac9) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.49; Mon, 12 Oct
+ 2026 19:58:27 +0000
+From: Bobby Eshleman <bobbyeshleman@meta.com>
+Date: Mon, 12 Oct 2026 12:58:08 -0700
+Subject: [PATCH net] MAINTAINERS: add Bobby Eshleman as vsock reviewer
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <DS7PR11MB6064DA61339B9AB0F52EBED4B29F2@DS7PR11MB6064.namprd11.prod.outlook.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-ID: <20261012-add-maintainers-v1-1-ef0488f460db@meta.com>
+X-B4-Tracking: v=1; b=H4sIANA7zWoC/x3MwQmAMAwF0FXCP1uwPRTpKuIh2qg5GKUVEcTdB
+ d8A70GVolKR6EGRS6vuhkS+IUwr2yJOMxIhtCH61gfHObuN1U5Wk1LdOEXpOM4cuxEN4Sgy6/2
+ PPUxODO/7AaLHUMtmAAAA
+X-Change-ID: 20261012-add-maintainers-bc6e8a6fa68b
+To: <netdev@vger.kernel.org>, <virtualization@lists.linux.dev>,
+        <kvm@vger.kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+        Eric Dumazet
+	<edumazet@kernel.org>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        "Jakub
+ Kicinski" <kuba@kernel.org>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        "Michael
+ S. Tsirkin" <mst@redhat.com>, <linux-kernel@vger.kernel.org>,
+        Bobby Eshleman
+	<bobbyeshleman@gmail.com>
+CC: Bobby Eshleman <bobbyeshleman@meta.com>
+X-Mailer: b4 0.14.3
+X-Proofpoint-GUID: 30UUzFJCRlRT9JyEHzj6nT4uM6MJ5sDW
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDEyMDA3OSBTYWx0ZWRfX1xOF1rEgGnxV
+ Rg50UoHUwXKcQwh9pig03bdolJX6KqA3wCXyaCbzREHr1mqpL6d7mZee+8AMXjMc+zrFwz5+/ON
+ TujjMjOMFoax8UiCDEgkQ0N0W7hJvu0=
+X-Authority-Analysis: v=2.4 cv=YaUodARf c=1 sm=1 tr=0 ts=6acd3be3 cx=c_pps
+ a=CB4LiSf2rd0gKozIdrpkBw==:117 a=CB4LiSf2rd0gKozIdrpkBw==:17
+ a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=7x6HtfJdh03M6CCDgxCd:22 a=_1IyUuN4QrATX339ibzo:22 a=VabnemYjAAAA:8
+ a=20KFwNOVAAAA:8 a=VwQbUJbxAAAA:8 a=YPFdDlkatZT_ntEAilkA:9 a=QEXdDO2ut3YA:10
+ a=gKebqoRLp9LExxC7YDUY:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDEyMDA3OSBTYWx0ZWRfXy7ZpZF9Ocwzf
+ FePX7xoY9jPRXtsanQ0ZHyAcnidYMUBQSiIAY9lz5DiBHklWo2noNfUNvBcILravUK2QmmR4S1q
+ TbvgWp728ApKuhuWEpffX8gWxKWU/ILejvR79Euc+U7KNBWtLVJTWPVcRzHazNTS0bEDUaYNrcd
+ UZvr/rWEIO7nAWIrsj8XXVJq1dyma6lqa6USIn2cihoiHn6gkzrb1ILkOiMpLHz34/TzOGd2BrX
+ SqDWkVwPg4LTViJw7JEXtOBvm6ygEtNL73ak3XI87K43ejRcG6geARxhBdLbGZotykXjZtaLNjg
+ DJRyhogVeMCldDW+NnQ6IyDxD8X1WzDWe8aubro461yc5xsZGsG1KJuBy3E83t4fOpDNNgTnuMt
+ zcrNpCVuvTTNm4lzR1xG+uBW2p0PwG+ffaU8czJ3zsvmjZvGsxafYsXflEaeGiUbnCGCPrTaQrR
+ Af6ixAlCcEptHzrhN2Q==
+X-Proofpoint-ORIG-GUID: 30UUzFJCRlRT9JyEHzj6nT4uM6MJ5sDW
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-10-12_06,2026-10-09_01,2025-10-01_01
 
-On Mon, Oct 12, 2026 at 04:45:08PM +0000, Popov, Pavel E wrote:
-> > I'm not following your reasoning here. In the cover letter, you say that
-> > VMware reviewed your work. If VMware wants to provide P2P support to its
-> > users, it can add the necessary support itself. As for Microsoft, there's
-> > no need to worry; it can handle the ACPI changes just fine.
-> 
-> The cover letter sentence on this, "their adoption timeline in
-> hypervisors remains uncertain", was written with VMware's input; Jim,
-> Radu and Alexey are on CC and can speak for ESXi. But whatever VMware
-> and Microsoft do in future releases, guests on already shipped ESXi and
-> Hyper-V versions are not going to get HMAT, and those stay in production
-> for years. On them, passthrough GPUs, NICs and NVMe drives have no P2PDMA
-> at all without a kernel-side fallback.
-> 
-> > Of course not. P2P operation depends on the hypervisor topology, which
-> > the proposed code does not account for.
-> 
-> The guest topology is what the code already evaluates, unchanged: the
-> common upstream bridge walk and the ACS checks run first, and the new
-> check is reached only after they fail, right where cpu_supports_p2pdma()
-> already bypasses the host bridge lookup for AMD Zen. What the guest sees
-> is a flat topology:
-> 
-> VMware, four GPUs:
-> 
->   -+-[0000:00]-+-00.0  Intel 440BX/ZX/DX Host bridge
->    |           +-07.x  PIIX4 ISA/IDE/ACPI, VMCI, SVGA
->    +-[0000:02]-+-00.0  VMware PVSCSI
->    |           +-01.0  VMware VMXNET3
->    |           ...
->    \-[0000:03]-+-00.0  Intel GPU
->                +-01.0  Intel GPU
->                +-02.0  Intel GPU
->                \-03.0  Intel GPU
-> 
-> Hyper-V, four GPUs:
-> 
->   -[2fc0:00]---00.0  Intel GPU
->   -[542b:00]---00.0  Intel GPU
->   -[5c71:00]---00.0  Intel GPU
->   -[9624:00]---00.0  Intel GPU
-> 
-> The passthrough devices sit directly on root buses with no host bridge
-> device and no root ports; on Hyper-V each is alone in its own PCI
-> domain. There is no upstream bridge to share, no ACS to evaluate, and
-> the host bridge lookup lands on the endpoint itself. The topology
-> carries no routing information, so the check falls back to the CPU model
-> and hypervisor type. HMAT would provide what the topology cannot; when
-> your HMAT-based detection lands it should be consulted first, so this
-> check is never reached where HMAT exists.
+I've been reviewing vsock via lore+lei for a while now.
 
-Please read all of my responses. I was explicit about why the check inside
-the guest VM produces random results. However, your responses continue
-to focus on the guest, which is not the problem.
+Finally adding myself as a formal reviewer, since vsock will continue
+being stuck with me for the foreseeable future.
 
-In the meantime, add:
-Nacked-by: Leon Romanovsky <leon@kernel.org>
+Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
+---
+ MAINTAINERS | 2 ++
+ 1 file changed, 2 insertions(+)
 
-to any patches that do not fix the hypervisor first.
+diff --git a/MAINTAINERS b/MAINTAINERS
+index f53047aa8d3c..cc1341f6e15c 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -28840,6 +28840,7 @@ F:	virt/lib/
+ VIRTIO AND VHOST VSOCK DRIVER
+ M:	Stefan Hajnoczi <stefanha@redhat.com>
+ M:	Stefano Garzarella <sgarzare@redhat.com>
++R:	Bobby Eshleman <bobbyeshleman@meta.com>
+ L:	kvm@vger.kernel.org
+ L:	virtualization@lists.linux.dev
+ L:	netdev@vger.kernel.org
+@@ -29145,6 +29146,7 @@ F:	drivers/media/test-drivers/vivid/*
+ 
+ VM SOCKETS (AF_VSOCK)
+ M:	Stefano Garzarella <sgarzare@redhat.com>
++R:	Bobby Eshleman <bobbyeshleman@meta.com>
+ L:	virtualization@lists.linux.dev
+ L:	netdev@vger.kernel.org
+ S:	Maintained
 
-Thanks
+---
+base-commit: 8e2fbe0e75d38690d551456658194c632933cb57
+change-id: 20261012-add-maintainers-bc6e8a6fa68b
+
+Best regards,
+-- 
+Bobby Eshleman <bobbyeshleman@meta.com>
+
