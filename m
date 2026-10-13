@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FA7E55D895;
-	Tue, 13 Oct 2026 22:51:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54F6A519922;
+	Tue, 13 Oct 2026 22:51:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791931925; cv=none; b=DMfoKs9WRO2QnNmVJG6ke7HCnIwhon/TvE+JdPz6opmiqHrMtdSe0Mub5Qceoz7puSGev167R2r4AbC5kEtVIfJcsIiqyqjU5GAeEWwSkcg18uZjAqk4tdU7Ba2d/uW4tCufTMdedOI2sdgsUSj0jOjYTbjGM1pNIMXEPqifUuc=
+	t=1791931928; cv=none; b=UMfadM5iQoSWVAI2cxW2rPQ+EsSjHPqsfsiB5vUzC7SJtPBkFP09VD3zB0M+HnRHJfRgzxtX2NA6B+3TjcAZUuxv05fYz67B49U0mCsMfq4hDkOVGT3aWoE6QyQ8LNRF4wwhpasKxKLcKKTd90ZxOaRs2I8cepXO0UyFz4a5iTo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791931925; c=relaxed/simple;
-	bh=CCVIN8tDxFjyce8Qxi3ujZwuOTphI4nRXCsdICLjqTQ=;
+	s=arc-20240116; t=1791931928; c=relaxed/simple;
+	bh=zvmrfl0wIlPrQzTG6BzYpoFiY1TWBC1KaLC3+hI5dpM=;
 	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=M8exj/xgdgULt7DQFzJnP8De4D2yppNgP636F2XNWkMLkhF9ZR7waOUx69eDWrHCqAybPey4l53RwR/NwrW8luzlyboeLNlnmzkVYIxy/4S7O5gRa64umXa6/UeFbuPoeBQIn+DkDq5WgRymgJjfZZmgR67HM8rRrU1jyRmo2Dg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EgY35Fiy; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:MIME-Version; b=QvvtHIOfl+lNLsN60t2KX8tFOonOebPKDs0aTsAyWuSnvi0/g3fNyBEGh9jllCMRNnd+oFb3LA7Yt1bLzro7DCcN7FJJhg2MJFi4iBz0pNR5iDGlrmBpkxKogyC6oEvoHdg7rgdMAhsyptqjXR7VdVWh4Di+yq+9L1y++TEWW4U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NXyNhdS/; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EgY35Fiy"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 356E41F000FF;
-	Tue, 13 Oct 2026 22:51:56 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NXyNhdS/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15D041F00893;
+	Tue, 13 Oct 2026 22:51:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791931917;
-	bh=ihtthPd1qtSs1WqvN2e62G8drpORFvU+QPjdaQHYU1I=;
+	s=k20260515; t=1791931919;
+	bh=SxFpD0jFUukbA8RESTUQDKcCYWdjCShdI2BwwoNvpEs=;
 	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=EgY35Fiy4gFlNd/j2QzMrfvZOmCd1Mow8KC4gkJuxPq0As1NPJTKrMYqAIGHbaIOS
-	 WxPEdEuXrFqZmxczkmTC5afQqTsY9qap0A/vcPAZznhqcC/pwt48j22bZodK7wkIho
-	 mLDU9zBXfFq8lI7vLrgb6yti2rM9LsL7ywQ0N32ejy5oxCQHpX5dXOvg2lQjNUH/YO
-	 pAdJ+RGGi0pjG/Yi3jVU4ha3U4GVd6sXhn/1mxdL+jwarwFL0+mrX2GEa3a2b2IHkk
-	 WApXmNWLuPkQ6+ZKj/JwnB1WiXeyHQrwSbPvD0e0+TQNbLS+Iz/rm2HXRiuX0Yf29X
-	 JV1ZDQ7gV3JYQ==
-Subject: Re: [PATCH net-next v3 4/7] vsock: add a netlink command to assign
- the g2h device to a netns
+	b=NXyNhdS/xbrhc0XdQeQZtaipaPCTHAD2MfiNpLo8oVOgmfUxBEojHsWPuG7NO5ai5
+	 SRiT9jgR14kBOFTw0I2anDlpK41EiqiULO1Wpx0SBOU+pDNr64J7KiviqD9d06MmwP
+	 OGJHEBx6Mkv4Y4sK/P66823jS11ZgVWtslmUFM7NwKcHnz0ytGjbmqu2li8fOmtTj7
+	 PFrxVa1nrg/5iIYtrJ2JdtrBl7cfVEDmS0Uolg0JffPlc17ROtx4GvzrTeqHueMsBa
+	 tFjf0zscZ2ZivXD2FQiT8jviM2WJYKAThqW4miAtAGKO2gxr6+J2DBS5ppnA9DkuRV
+	 HGZEyrfrLTxlg==
+Subject: Re: [PATCH net-next v3 5/7] vsock/virtio: support guest device
+ network namespace
 From: netdev-bot+sashiko@kernel.org
 To: bobbyeshleman@meta.com
 Cc: sgarzare@redhat.com, davem@davemloft.net, kuba@kernel.org,
@@ -39,10 +39,10 @@ Cc: sgarzare@redhat.com, davem@davemloft.net, kuba@kernel.org,
  linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, kvm@vger.kernel.org,
  linux-kselftest@vger.kernel.org, sargun@sargun.me, jlinbox@meta.com,
  bobbyeshleman@gmail.com
-Date: Tue, 13 Oct 2026 22:51:55 +0000
-Message-ID: <179193191574.434549.17107426250790354528@kernel.org>
-In-Reply-To: <20261012-vsock-guest-ns-v3-4-b32447c66b23@meta.com>
-References: <20261012-vsock-guest-ns-v3-4-b32447c66b23@meta.com>
+Date: Tue, 13 Oct 2026 22:51:57 +0000
+Message-ID: <179193191764.434549.1279241501217519580@kernel.org>
+In-Reply-To: <20261012-vsock-guest-ns-v3-5-b32447c66b23@meta.com>
+References: <20261012-vsock-guest-ns-v3-5-b32447c66b23@meta.com>
 X-sashiko-severity: Medium
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
@@ -53,10 +53,10 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 
-Thank you for your contribution! Sashiko AI review found 4 potential
+Thank you for your contribution! Sashiko AI review found 3 potential
 issue(s) to consider.
 
-Critical: 0 · High: 0 · Medium: 2 · Low: 2
+Critical: 0 · High: 0 (1) · Medium: 1 · Low: 2
 
 If you believe none of the issues are legitimate, please reply to each
 issue of Medium severity or higher and explain why the AI is wrong.
@@ -64,235 +64,199 @@ If any of them are legitimate and you plan to respin, please let patchwork
 know by including "pw-bot: cr" as a separate line at the end of your reply
 (one such reply per series is enough).
 
-- [Medium] Take a namespace that cannot reach the assigned G2H device, on
-  a system with vhost-vsock (H2G) and vsock_loopback loaded.
-- [Medium] `vsock_g2h_reset_unreachable()` in net/vmw_vsock/af_vsock.c
-  resets sockets without lock_sock() while the device stays live.
-- [Low] No in-tree transport sets the new capability at this commit.
-- [Low] `vsock_g2h_net_assign()` in net/vmw_vsock/af_vsock.c sends the
-  success reply before it commits the assignment.
+- [Medium] A socket closed by device reassignment can still send packets
+  through the device it supposedly lost access to.
+- [Low] The implementation-notes comment at the top of
+  net/vmw_vsock/af_vsock.c still gives virtio-vsock as the example of a…
+- [Low] The dev-netns-set uAPI doc in
+  Documentation/netlink/specs/vsock.yaml (added by the earlier commit…
+
+Pre-existing issues:
+- [High] This problem was not introduced by this patch, but the patch's
+  new isolation can be bypassed through vsock packet capture.
 
 --
 
-vsock: add a netlink command to assign the g2h device to a netns
+vsock/virtio: support guest device network namespace
 
-This patch adds a vsock generic netlink family with two commands.
-VSOCK_CMD_DEV_NETNS_SET moves the guest's G2H vsock device into the
-caller's network namespace, and VSOCK_CMD_DEV_NETNS_GET reports where the
-device is. After a move, connected sockets that can no longer reach the
-device are closed with ECONNRESET, and the assignment holds a reference on
-the target namespace.
+This commit makes the virtio-vsock guest device assignable to a network
+namespace. It re-reads the assigned netns for each packet in
+virtio_transport_rx_work(). It also uses vsock_maybe_set_connected() so
+that new connections are added to the connected table atomically with
+respect to namespace assignment.
 
-Link: https://lore.kernel.org/all/20200427142518.uwssa6dtasrp3bfc@steredhat/
-
-> diff --git a/Documentation/admin-guide/sysctl/net.rst b/Documentation/admin-guide/sysctl/net.rst
-> index fe43e85959583..9276479004c0f 100644
-> --- a/Documentation/admin-guide/sysctl/net.rst
-> +++ b/Documentation/admin-guide/sysctl/net.rst
-> @@ -529,6 +529,43 @@ their hosts. The behavior of VSOCK sockets in a network namespace is determined
-
-[ ... ]
-
-> +Support is transport dependent. A G2H transport that does not implement the
-> +move refuses the command with ``EOPNOTSUPP``. Of the in-tree guest transports,
-> +only virtio-vsock implements it.
-
-[Severity: Low]
-This is a minor point. Is this sentence accurate at this commit?
-
-No in-tree transport sets netns_assign_allow yet, so this check in
-vsock_g2h_net_assign() always fails:
-
-	if (!vsock_net_assignable(transport_g2h)) {
-
-As a result, VSOCK_CMD_DEV_NETNS_SET returns -EOPNOTSUPP (or -ENODEV) for
-every G2H transport. The new exports vsock_g2h_net_get(), vsock_g2h_net_eq()
-and vsock_maybe_set_connected() also have no callers yet.
-
-The next patch in the series, "vsock/virtio: support guest device network
-namespace", adds .netns_assign_allow = true to virtio_transport and calls
-those helpers. So the mismatch only exists at bisect points between the two
-patches. Could this sentence move into that patch?
-
-> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> index 8f34bf68f9164..e663be3bbfa0b 100644
-> --- a/net/vmw_vsock/af_vsock.c
-> +++ b/net/vmw_vsock/af_vsock.c
-
-[ ... ]
-
-> @@ -564,7 +632,12 @@ static bool vsock_use_local_transport(unsigned int remote_cid)
->  		return true;
+> diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+> index eced6929405df..4123924536dd6 100644
+> --- a/net/vmw_vsock/virtio_transport.c
+> +++ b/net/vmw_vsock/virtio_transport.c
+> @@ -542,7 +542,7 @@ static bool virtio_transport_msgzerocopy_allow(void)
 >  
->  	if (transport_g2h) {
-> -		return remote_cid == transport_g2h->get_local_cid();
-> +		u32 cid = __vsock_registered_transport_cid(&transport_g2h, net);
-> +
-> +		/* The device may be unreachable from @net, in which case
-> +		 * @remote_cid is not the local CID.
-> +		 */
-> +		return cid != VMADDR_CID_ANY && remote_cid == cid;
->  	} else {
->  		return remote_cid == VMADDR_CID_HOST;
->  	}
+>  bool virtio_transport_stream_allow(struct vsock_sock *vsk, u32 cid, u32 port)
+>  {
+> -	return vsock_net_mode_global(vsk);
+> +	return vsock_g2h_net_reachable(sock_net(sk_vsock(vsk)));
+>  }
 
 [Severity: Medium]
-Suppose the G2H device has been assigned to a local mode namespace, and
-vhost-vsock and vsock_loopback are also loaded. What happens in a namespace
-that can no longer reach the device?
+virtio_transport_stream_allow() gates new connections. Now that the
+device can be assigned, can a socket closed by
+vsock_g2h_reset_unreachable() still put packets on the device?
 
-In that namespace, IOCTL_VM_SOCKETS_GET_LOCAL_CID in vsock_dev_do_ioctl()
-gets VMADDR_CID_ANY from transport_g2h and falls back to transport_h2g:
+The sweep only changes sk_state and sk_err, then removes the socket from
+the connected table:
 
-	cid = vsock_registered_transport_cid(&transport_g2h, net);
-	if (cid == VMADDR_CID_ANY)
-		cid = vsock_registered_transport_cid(&transport_h2g,
-						     net);
+net/vmw_vsock/af_vsock.c:vsock_g2h_reset_unreachable() {
+    ...
+			sk->sk_state = TCP_CLOSE;
+			sk->sk_err = ECONNRESET;
+			sk_error_report(sk);
 
-vhost_transport_get_local_cid() returns VHOST_VSOCK_DEFAULT_HOST_CID, so the
-namespace is told its local CID is 2. __vsock_find_cid(net, 2) is also true
-through the transport_h2g && cid == VMADDR_CID_HOST check, so bind() to
-CID 2 succeeds.
+			__vsock_remove_connected(vsk);
+    ...
+}
 
-A connect() to CID 2 then enters the transport_g2h branch above, because the
-pointer is non-NULL. It returns false because cid is VMADDR_CID_ANY, so the
-remote_cid == VMADDR_CID_HOST loopback fallback in the else branch is never
-reached.
+It does not touch vsk->transport or sock->state, which stays
+SS_CONNECTED. vsock_shutdown() only rejects SS_UNCONNECTED:
 
-vsock_assign_transport() then picks transport_g2h for
-remote_cid <= VMADDR_CID_HOST and fails at the new check:
+net/vmw_vsock/af_vsock.c:vsock_shutdown() {
+    ...
+	if (sock->state == SS_UNCONNECTED) {
+		err = -ENOTCONN;
+		if (sock_type_connectible(sk->sk_type))
+			goto out;
+	} else {
+		sock->state = SS_DISCONNECTING;
+    ...
+			vsock_send_shutdown(sk, mode);
+    ...
+}
 
-	if (vsock_g2h_unreachable(new_transport, sock_net(sk))) {
-		ret = -ENETUNREACH;
+So calling shutdown() on the old fd goes through:
 
-Should an unreachable G2H transport be treated the same as an absent one
-here, so that connecting to the namespace's own reported CID uses loopback?
-The later virtio patch in the series makes this path reachable and does not
-change this logic.
+vsock_send_shutdown()
+  virtio_transport_shutdown()
+    virtio_transport_send_pkt_info()
+      virtio_transport_send_pkt()
 
-[ ... ]
+virtio_transport_send_pkt() never uses its net argument before it queues
+the packet on the device. sock->state never goes back to SS_UNCONNECTED,
+so this can be repeated.
 
-> @@ -742,8 +823,267 @@ bool vsock_find_cid(unsigned int cid)
+The wire header carries only CIDs and ports. Suppose the newly assigned
+local namespace reuses the same guest/host port tuple. Could these
+SHUTDOWN packets then tear down a host connection that now belongs to
+the new owner?
 
-[ ... ]
-
-> +/* Close every connected socket of @t that can no longer reach the g2h device.
-> + */
-> +static void vsock_g2h_reset_unreachable(const struct vsock_transport *t)
-> +{
-> +	struct vsock_sock *vsk, *tmp;
-> +	struct sock *sk;
-> +	int i;
-> +
-> +	lockdep_assert_held(&vsock_register_mutex);
-> +
-> +	spin_lock_bh(&vsock_table_lock);
-> +
-> +	for (i = 0; i < ARRAY_SIZE(vsock_connected_table); i++) {
-> +		list_for_each_entry_safe(vsk, tmp, &vsock_connected_table[i],
-> +					 connected_table) {
-> +			sk = sk_vsock(vsk);
-> +
-> +			if (vsk->transport != t ||
-> +			    sk->sk_state == TCP_CLOSE ||
-> +			    vsock_g2h_reachable_sk(vsk))
-> +				continue;
-> +
-> +			/* If close has already been scheduled for this socket,
-> +			 * we can skip.
-> +			 */
-> +			if (vsk->close_work_scheduled)
-> +				continue;
-> +
-> +			sk->sk_state = TCP_CLOSE;
-> +			sk->sk_err = ECONNRESET;
-> +			sk_error_report(sk);
-> +
-> +			__vsock_remove_connected(vsk);
-
-[Severity: Medium]
-Can these writes race with the socket's own state machine?
-
-Only vsock_register_mutex and vsock_table_lock are held here, and neither
-one excludes lock_sock() holders. close_work_scheduled is read the same way.
-
-The existing lockless resets, virtio_vsock_reset_sock() and
-vhost_vsock_reset_orphans(), only run when the device is going away. Here
-the device keeps running, so its RX path can work on the same socket at the
-same time.
-
-With the later virtio patch, virtio_transport_rx_work() checks
-vsock_g2h_net_eq(net) for each packet but does not synchronize with the
-swap. That patch's commit message also notes that an assign can land while
-rx_work is draining a batch:
-
-CPU1 (assign)                      CPU2 (rx_work)
-                                   vsock_g2h_net_eq(net) returns true
-vsock_g2h_net_swap()
-                                   virtio_transport_recv_pkt()
-                                     lock_sock(sk)
-                                     sk_state is TCP_ESTABLISHED
-vsock_g2h_reset_unreachable()
-  sk->sk_state = TCP_CLOSE
-  sk->sk_err = ECONNRESET
-  __vsock_remove_connected(vsk)
-                                     virtio_transport_recv_connected()
-                                       virtio_transport_do_close()
-                                         sk->sk_state = TCP_CLOSING
-
-If an incoming SHUTDOWN or RST arrives at that point, doesn't the socket end
-up in TCP_CLOSING with ECONNRESET set and outside the connected table?
-
-There is a similar window on the send side. vsock_connectible_sendmsg() may
-already have passed its sk_err check and could enqueue one more chunk
-through the device after the sweep. KCSAN would also likely report these
-unannotated stores against the locked writers.
-
-Refcounting looks balanced, because vsock_remove_connected() re-checks table
-membership. So the effect appears to be limited to inconsistent socket
-state.
+Even without a tuple collision, the namespace that lost the device can
+still send traffic on it. That seems to contradict the documented rule
+"assigned to a local mode namespace - only that namespace may use it".
 
 [ ... ]
 
-> +static int vsock_g2h_net_assign(struct net *net, struct sk_buff *msg,
-> +				struct genl_info *info)
-> +{
-
-[ ... ]
-
-> +	ret = -EMSGSIZE;
-> +	hdr = genlmsg_iput(msg, info);
-> +	if (!hdr)
-> +		goto unlock;
-> +	genlmsg_end(msg, hdr);
-> +
-> +	ret = genlmsg_reply(msg, info);
-> +	msg = NULL;
-> +	if (ret)
-> +		goto unlock;
-> +
-> +	old = vsock_g2h_net_swap(net, &old_tracker);
-> +
-> +	/* See vsock_maybe_set_connected() comment about synchronizing with
-> +	 * connecting sockets.
-> +	 */
-> +	vsock_g2h_reset_unreachable(transport_g2h);
+> @@ -587,6 +587,7 @@ static struct virtio_transport virtio_transport = {
+>  		.seqpacket_has_data       = virtio_transport_seqpacket_has_data,
+>  
+>  		.msgzerocopy_allow        = virtio_transport_msgzerocopy_allow,
+> +		.netns_assign_allow       = true,
 
 [Severity: Low]
-Is this ordering intended? The success reply goes out before
-vsock_g2h_net_swap() and vsock_g2h_reset_unreachable() run.
+This isn't a bug, but the implementation notes at the top of
+net/vmw_vsock/af_vsock.c still use virtio-vsock as the example of a
+transport without local mode support:
 
-This means userspace can see VSOCK_CMD_DEV_NETNS_SET succeed while
-vsock_g2h_net still points at the old namespace and the established sockets
-there are still open. Those sockets' send and receive paths take lock_sock(),
-not vsock_register_mutex, so the mutex does not hold them off.
+ *       a different transport that *does* support local mode. For
+ *       example, virtio-vsock may not support local mode, but the socket
+ *       may still accept a connection from vhost-vsock which does.
 
-The move also depends on the reply being delivered. genlmsg_reply() does a
-MSG_DONTWAIT unicast, so if the requester's receive buffer is full it
-returns -EAGAIN and the swap is skipped. Neither the commit message nor the
-docs mention this failure mode.
+This patch sets netns_assign_allow, and virtio_transport_rx_work() now
+delivers into the assigned namespace. So virtio-vsock can serve a local
+mode namespace once the device is assigned.
 
-Could the swap and the sweep run first, with the reply sent after them?
+Should this example be updated? It also seems to conflict with the
+sysctl doc, which says "Of the in-tree guest transports, only
+virtio-vsock implements it."
+
+[Severity: Low]
+This is the first transport to set netns_assign_allow, so the
+dev-netns-set behaviour becomes reachable with this patch. The uAPI doc
+in Documentation/netlink/specs/vsock.yaml, added earlier in this series,
+says:
+
+        Movement to an unreachable local namespace results in sockets being
+        closed with ECONNRESET. Peers are not guaranteed to be notified via
+        an RST.
+
+However, vsock_g2h_reset_unreachable() closes every socket that fails
+vsock_g2h_reachable_sk() after any move:
+
+			if (vsk->transport != t ||
+			    sk->sk_state == TCP_CLOSE ||
+			    vsock_g2h_reachable_sk(vsk))
+				continue;
+
+That includes moving the device out of a local namespace L and back to
+init_net or another global namespace. vsock_net_check_mode(L, init_net)
+is false, so every connected socket in L is closed with ECONNRESET.
+
+Should the yaml text also cover moves out of a local namespace? The
+sysctl doc already does ("from a namespace that can no longer reach the
+device").
+
+[ ... ]
+
+> @@ -682,10 +688,15 @@ static void virtio_transport_rx_work(struct work_struct *work)
+>  
+>  			virtio_transport_deliver_tap_pkt(skb);
+
+[Severity: High]
+This is a pre-existing issue and was not introduced by this patch. Can
+the vsock tap path bypass the isolation that this patch adds?
+
+virtio_transport_deliver_tap_pkt() runs for every received packet,
+before any namespace is applied. vsock_deliver_tap() then clones the
+packet, payload included, to every entry on the global vsock_tap_all
+list:
+
+net/vmw_vsock/af_vsock_tap.c:__vsock_deliver_tap() {
+    ...
+	list_for_each_entry_rcu(tmp, &vsock_tap_all, list) {
+		ret = __vsock_deliver_tap_skb(skb, tmp->dev);
+    ...
+}
+
+vsock_add_tap(), called from vsockmon_open(), only checks the device
+type:
+
+	if (unlikely(vt->dev->type != ARPHRD_VSOCKMON))
+		return -EINVAL;
+
+Nothing on the tap path filters with net_eq() or vsock_net_check_mode().
+vsockmon has no netns restriction either. So CAP_NET_ADMIN over any
+netns, including one owned by a user namespace, is enough to create a
+vsockmon device, bring it up and capture on it with AF_PACKET.
+
+Once the guest device is assigned to a local mode namespace, can any
+other namespace still read all guest<->host vsock traffic this way?
+
+The TX side in virtio_transport_send_pkt_work() appears to have the same
+exposure, and vhost-vsock local mode already had it. By contrast, nlmon
+taps are kept per netns.
+
+>  
+> -			/* Force virtio-transport into global mode since it
+> -			 * does not yet support local-mode namespacing.
+> +			/* Only grab a reference if the net changes underneath
+> +			 * us.
+>  			 */
+> -			virtio_transport_recv_pkt(&virtio_transport, skb, NULL);
+> +			if (unlikely(!vsock_g2h_net_eq(net))) {
+> +				put_net_track(net, &ns_tracker);
+> +				net = vsock_g2h_net_get(&ns_tracker);
+> +			}
+> +
+> +			virtio_transport_recv_pkt(t, skb, net);
+
+[ ... ]
 
 -- 
 Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261012-vsock-guest-ns-v3-0-b32447c66b23%40meta.com
