@@ -1,43 +1,43 @@
-Received: from sender6-op-o11.zoho.com (sender6-op-o11.zoho.com [165.173.180.11])
+Received: from sender5-op-o11.zoho.com (sender5-op-o11.zoho.com [165.173.182.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0DB636C0DC
-	for <virtualization@lists.linux.dev>; Tue, 13 Oct 2026 22:12:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=165.173.180.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17F3655C1BB
+	for <virtualization@lists.linux.dev>; Tue, 13 Oct 2026 22:17:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=165.173.182.11
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791929548; cv=pass; b=C+wVJ2EH3dLAZtjU0JP5OX46jTSm5d80Eur03PWkTUXQlfKnZZhXBAWrIRzckuFjpcQ2Qbu0jaLxt0n6ZZpTTbxje9d7Xt5nLRONBt8RcGHei+3xL9c/Wd4miaGx7ZfYgDYkgYCuwKaOZTcRcsuZztxxYmWiWOtagSMW3k6vb60=
+	t=1791929839; cv=pass; b=hYTplu707XOE0dzLENHTyi5JPerEN9OLaq88ztshh6FqSp4QuPYNf/JOGw4rF7Lnvt37/AActXZpoSZao/Qi9KU6ZLLbqaGbK0H88bQYdzVkwoXl148sd/ECQK3NyxVJT26hb2PjyrgaYekkS48GzDu22nORlaQSXxNdyBy+t0E=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791929548; c=relaxed/simple;
-	bh=sb6lDyvEWxW/tjWYo4JwxUo8AyjP0zcs8wstHaj2Qbo=;
+	s=arc-20240116; t=1791929839; c=relaxed/simple;
+	bh=h2L/RJ8WHNQilLxT+KVPW9Tt0qEt4Lbvq8TrLxVriWc=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=gCKrzR2tTolYby50IaCuA88rsL2G8VMHBcJ64ikx0bP2IIx5w5p/gQe0IuKaP17+0ceQoaEOAO6g15dcDYTz9/gMwpSWw0eZbj09kMOAmPQQOPJ2nJ3rkS9SjAsufm7e0UuX9uJH49jZl4kaWhiU0gwxzMZOyJG+yP/r+55qS3s=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=FgwTvW/Z; arc=pass smtp.client-ip=165.173.180.11
+	 In-Reply-To:Content-Type; b=HPOdj80AD+CjaWd+prv/UjJWvOIW5UquB0LeJqsRQRoxNgGFZJ/6E2omTCsc1PAHmIwb5v96ymhrCrtKRaXZ9TJXjJytf+S9OQ5VusVxUgT/CoB1XPzrgeAzdx4nGkeXKxvKffuRFbRkOr9Cuvrp2qUcUBDmfiI/SaxkgF7w5Nw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=j34/J2Xo; arc=pass smtp.client-ip=165.173.182.11
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="FgwTvW/Z"
-ARC-Seal: i=1; a=rsa-sha256; t=1791929535; cv=none; 
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="j34/J2Xo"
+ARC-Seal: i=1; a=rsa-sha256; t=1791929824; cv=none; 
 	d=zohomail.com; s=zohoarc; 
-	b=WZ8lGLaO87ls1aXK8rTZT9do0J6fz3Lpy2S6nmQ+8B5E4FvuFP+Js++jGkDAkd0ZHP7KK40QJcg/ixxkMJooUJ7IhRkT9ktVDMk2SKd1jBUmpYMNU05iWBIiTawOlMubJNdNfjXbC2k5yJzTSltxJFPuhlKTYWf2Z1gkmIPlWik=
+	b=Yk4rBXovmUFk6eKK66VVbtNchh49n30GnbnkTzkiXeAA6MzAsJIrLtNtDzlq2Vp3TLMn+x2CHd0g0XKVQ7mOdLfrDLFt/bltW5Tsj4yd8C6jPyannuBrqyXMrmNXmkn5OA6VVnxw33oMsPj0GH1tl/Rk/tjLCdZB60GvpfhdPAk=
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1791929535; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=wcRc/T/eXCLTFhEcSFkccExr1kJjQjBISfxi0aCVTa0=; 
-	b=gJF37XSVKZheqM+qhSL/UvYxl2Ml6/zC4kNEVGVIJhxBITD10HY6nYxf9K+q8jZMiXShQGe7eo67nWzQyMcq2tDrSQSKfz5eKY2kjchhcC8SN0558Oul5QGoLyYibAGIkNMOV77hBGAmiXaCww80KXANs7HWAKb/t6S/mAiJ2OU=
+	t=1791929824; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=hAUVqH5LFcZWXZcpTpzwv3BreH7B5rvcbLwTNqdkXLU=; 
+	b=eWBhwkIRGUavkfyihRjwW2zTiQPpbDNQnxyhVG+QIxTRFfVckCZ+YzFdKum8B8jVU/r24dHiQPeLU+Rb3XIesQ55p1HxHkxMJp3pZMKzmKUTG9l5gCvvHfbYB4scedmg/Yi4MlkdcypPo7+t4FCBe2hA6B0m2G6T4GSNjQSjnHw=
 ARC-Authentication-Results: i=1; mx.zohomail.com;
 	dkim=pass  header.i=collabora.com;
 	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
 	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1791929535;
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1791929824;
 	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
 	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=wcRc/T/eXCLTFhEcSFkccExr1kJjQjBISfxi0aCVTa0=;
-	b=FgwTvW/ZRIn4lUW0mVdAVa61kGyLcB1+oc9BqdXLwx2rIhxQA5lLYXjbS0nYXbtq
-	4/KTPTX489rpeHnfLGs4BoER6pX2Yy7oL/dzEDi+n1Qo/ku2nRvqO4rUkYiWBv+V7Ej
-	33dXRF6mHAfF3Q6YT/NkMmGHSVJRAjWlb0D5ATMM=
-Received: by smtp.zohomail.com with SMTPS id 1791929533139758.2008581627222;
-	Tue, 13 Oct 2026 15:12:13 -0700 (PDT)
-Message-ID: <d9ee1d07-4277-4a18-a857-c82f200fe76c@collabora.com>
-Date: Wed, 14 Oct 2026 01:12:08 +0300
+	bh=hAUVqH5LFcZWXZcpTpzwv3BreH7B5rvcbLwTNqdkXLU=;
+	b=j34/J2XoLuWGhJXwlCkDxD2pQqlGy7ThbTCijUeU1P3XVx2LFCLNgwNSbaXcg3y4
+	gWSWPjhIHZRf1tWyupnSNnGx/H5tVyLFhgF6AORr/UJlw9Z8IT1jRf2g9gUiZ/DeIhY
+	l2F4BxSt4JdMBvDXedXSdP+/cfHcJySk5KzHvJmY=
+Received: by smtp.zohomail.com with SMTPS id 1791929822632526.8167997651227;
+	Tue, 13 Oct 2026 15:17:02 -0700 (PDT)
+Message-ID: <537679fc-8aea-472f-a7af-b15bd3cf27fd@collabora.com>
+Date: Wed, 14 Oct 2026 01:16:57 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -45,86 +45,115 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v9 3/4] drm/virtio: implement userptr resource support
-To: "Huang, Honglei" <honghuan@amd.com>
-Cc: gurchetansingh@chromium.org, olvaffe@gmail.com, Ray.Huang@amd.com,
+Subject: Re: [PATCH] drm/virtio: Destroy obj_restore_lock on the final
+ drm_dev_put()
+To: Abhin Parekadan Jose <abhinjoses@gmail.com>,
+ Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@redhat.com>
+Cc: Gurchetan Singh <gurchetansingh@chromium.org>,
+ Chia-I Wu <olvaffe@gmail.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Simona Vetter <simona@ffwll.ch>, Dongwon Kim <dongwon.kim@intel.com>,
  dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, odaki@rsg.ci.i.u-tokyo.ac.jp,
- airlied@redhat.com, kraxel@redhat.com
-References: <20260924095556.1326164-1-honghuan@amd.com>
- <20260924095556.1326164-4-honghuan@amd.com>
- <dfa2f117-1094-40b9-9445-ab2bbf62ff2e@collabora.com>
- <7c32c182-5b49-4dc0-9c97-a4238743f28c@amd.com>
- <efd5fa89-e888-469a-ac80-e6e605f9a015@collabora.com>
- <317cc6e9-8e15-462d-9e9c-2657011b7128@amd.com>
+ linux-kernel@vger.kernel.org,
+ syzbot+3590d97d8a586fa955c2@syzkaller.appspotmail.com
+References: <20260929070714.169412-1-abhinjoses@gmail.com>
+ <asxz0Xvv5jO9gAol@home-desktop>
 Content-Language: en-US
 From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-In-Reply-To: <317cc6e9-8e15-462d-9e9c-2657011b7128@amd.com>
+In-Reply-To: <asxz0Xvv5jO9gAol@home-desktop>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 X-ZohoMailClient: External
 
-On 10/13/26 08:32, Huang, Honglei wrote:
+On 10/12/26 08:44, Abhin Parekadan Jose wrote:
+> Gentle ping on this fix for the syzbot report.
 > 
+> Dmitry, Gerd, do you have a preference between moving mutex_destroy()
+> to virtio_gpu_release() (this patch) and using drmm_mutex_init()? I can
+> send a v2 with the other option if you prefer it.
 > 
-> On 10/10/2026 8:50 PM, Dmitry Osipenko wrote:
->> On 10/10/26 10:37, Huang, Honglei wrote:
->>>
->>>
->>> On 10/10/2026 2:53 AM, Dmitry Osipenko wrote:
->>>> 24.09.2026 12:55, Honglei Huang пишет:
->>>>> +int virtio_gpu_userptr_create(struct virtio_gpu_device *vgdev,
->>>>> +                  struct drm_file *file,
->>>>> +                  struct virtio_gpu_object_params *params,
->>>>> +                  struct virtio_gpu_object **bo_ptr)
->>>>> +{
->>>>> +    struct virtio_gpu_object_userptr *userptr;
->>>>> +    struct virtio_gpu_mem_entry *ents = NULL;
->>>>> +    struct sg_table *sgt;
->>>>> +    struct mm_struct *mm;
->>>>> +    unsigned long lock_limit;
->>>>> +    unsigned long start;
->>>>> +    unsigned long end;
->>>>> +    s64 new_pinned;
->>>>> +    unsigned int nents;
->>>>> +    int ret;
->>>>> +
->>>>> +    *bo_ptr = NULL;
->>>>> +
->>>>> +    if (!params->size || !IS_ALIGNED(params->size, PAGE_SIZE) ||
->>>>> +        params->userptr != (unsigned long)params->userptr)
->>>>> +        return -EINVAL;
->>>>> +
->>>>> +    start = params->userptr;
->>>>> +    if (!IS_ALIGNED(start, PAGE_SIZE) ||
->>>>> +        check_add_overflow(start, (unsigned long)params->size, &end))
->>>>> +        return -EINVAL;
->>>>
->>>> There is new vgdev->blob_alignment defining host page size as it may
->>>> differ from guest's page. Will be good to validate both.
->>>>
->>>
->>> Will add blob_alignment check in next version, thanks for the review.
->> Missed that verify_blob() already should be validating the userptr
->> blob_alignment. The patches look good.
+> Thanks,
+> Abhin
+> 
+> On Tue, Sep 29, 2026 at 07:07:14AM +0000, Abhin Parekadan Jose wrote:
+>> virtio_gpu_deinit() calls mutex_destroy() on obj_restore_lock, but
+>> deinit runs from virtio_gpu_remove() at unbind or PCI remove, and GEM
+>> objects can outlive that. An open /dev/fb0 keeps the fbdev buffer
+>> alive, and the fbdev DRM client holds a drm_device reference. When the
+>> fd is finally closed, the buffer is freed and takes the destroyed lock:
 >>
->> BTW, previously the extra AMD KFD patches were needed on host kernel,
->> did they land upstream?
-> 
-> According to KFD maintainer, they want to us to add those virtio
-> specific feature into drm svm, a new SVM frame work based on drm svm
-> helpers. We are working on it:
-> https://lore.kernel.org/amd-gfx/20260804094246.1719318-1-ray.huang@amd.com/
-> 
-> And the amdgpu VM maintainer has agreed that he will help to consider
-> how to intergate the virtio requirements into the design of amdgpu drmsvm.
-> 
-> And for now we can use a user space method to replace the AMD KFD
-> patches function, it is mremap, it also works, we tested it, but
-> it has some performance loss, I will update the whole thing when all the
-> components code are ready.
-
-Thanks for the clarification
+>>   fb_release()
+>>     drm_fbdev_shmem_fb_destroy()
+>>       drm_client_buffer_delete()
+>>         virtio_gpu_free_object()
+>>           virtio_gpu_remove_from_restore_list()
+>>             mutex_lock(&vgdev->obj_restore_lock)
+>>
+>>   DEBUG_LOCKS_WARN_ON(lock->magic != lock)
+>>   WARNING: kernel/locking/mutex.c:625 at __mutex_lock+0xf2c/0x12ec
+>>
+>> virtio_gpu_deinit() should only do hardware teardown in this case
+>> related virtio, its queues and others. Software state that GEM callbacks
+>> still use belongs in virtio_gpu_release(), which runs on the final
+>> drm_dev_put().
+>>
+>> There are two equivalent ways to tie the mutex lifetime to the
+>> drm_device:
+>>
+>>  1) Move mutex_destroy() from virtio_gpu_deinit() to the end of
+>>     virtio_gpu_release(). This is what this patch does. It is the
+>>     smallest change and keeps the teardown next to the rest of the
+>>     final-put software cleanup.
+>>
+>>  2) Initialise the lock with drmm_mutex_init() (checking its return
+>>     value) and drop mutex_destroy() from virtio_gpu_deinit(), so DRM's
+>>     managed release destroys it. This also covers the virtio_gpu_init()
+>>     error path, where release returns early because dev_private is
+>>     NULL. Skipping mutex_destroy() there is harmless, since it only
+>>     matters for mutex debugging.
+>>
+>> Either fix removes the WARN. Option 1 is sent as the smaller change,
+>> and option 2 can be done instead if preferred.
+>>
+>> Reproduced on arm64 QEMU (-device virtio-gpu-pci) with DEBUG_MUTEXES
+>> and PROVE_LOCKING: open /dev/fb0, write 1 to
+>> /sys/bus/pci/devices/0000:00:01.0/remove, then close the fd. With this
+>> patch the WARN is gone, and rebinding brings back /dev/fb0 and
+>> /dev/dri/card0.
+>>
+>> Fixes: 54a970048296 ("drm/virtio: Add support for saving and restoring virtio_gpu_objects")
+>> Reported-by: syzbot+3590d97d8a586fa955c2@syzkaller.appspotmail.com
+>> Closes: https://syzkaller.appspot.com/bug?extid=3590d97d8a586fa955c2
+>> Assisted-by: LLM
+>> Signed-off-by: Abhin Parekadan Jose <abhinjoses@gmail.com>
+>> ---
+>>  drivers/gpu/drm/virtio/virtgpu_kms.c | 3 ++-
+>>  1 file changed, 2 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+>> index 1d4d3bf46a20..0ec755c35050 100644
+>> --- a/drivers/gpu/drm/virtio/virtgpu_kms.c
+>> +++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+>> @@ -354,7 +354,6 @@ void virtio_gpu_deinit(struct drm_device *dev)
+>>  	virtio_reset_device(vgdev->vdev);
+>>  	virtio_gpu_reclaim_vbufs(vgdev);
+>>  	vgdev->vdev->config->del_vqs(vgdev->vdev);
+>> -	mutex_destroy(&vgdev->obj_restore_lock);
+>>  }
+>>  
+>>  void virtio_gpu_release(struct drm_device *dev)
+>> @@ -370,6 +369,8 @@ void virtio_gpu_release(struct drm_device *dev)
+>>  
+>>  	if (vgdev->has_host_visible)
+>>  		drm_mm_takedown(&vgdev->host_visible_mm);
+>> +
+>> +	mutex_destroy(&vgdev->obj_restore_lock);
+>>  }
+>>  
+>>  int virtio_gpu_driver_open(struct drm_device *dev, struct drm_file *file)
+Calling virtio_gpu_deinit() from virtio_gpu_release() might be a better
+option
 
 -- 
 Best regards,
