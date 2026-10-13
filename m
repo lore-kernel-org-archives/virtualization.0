@@ -1,133 +1,156 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f177.google.com (mail-pf1-f177.google.com [209.85.210.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1A0C378823
-	for <virtualization@lists.linux.dev>; Tue, 13 Oct 2026 08:04:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C760F3B71D3
+	for <virtualization@lists.linux.dev>; Tue, 13 Oct 2026 08:57:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791878688; cv=none; b=pvFshbSGWoANkgsB3vuDlZBa7mhZm6tSAFWKGO+0H7wSosLr9iLWn+yxnrcK8mW7vR8JzVplXd9V3pZZ9UJJVNJk9cTHvGmp+JZ2HL3r9jGhj4LejHQfOM9j7RK2Oqwt8bvqjDyOs/johF/e0B268rYkFzasSGBqaaIFxRO4Jb8=
+	t=1791881879; cv=none; b=q4AT9tqcVxQ5gNvvkrXwcXkQVoTEBZ6R7cS+oWyp97DeGOBUjUxf3rvqU/p/ZqBisnkmQtzqirsnfHGgTs9fuVzAz3POCrmK+MnS2JhfhrDgTccrSCRUBlqcWAu+ecFakZ3tBVQYAaBBG2qAQAWmtCeNt8KCkuB+IDsejJ+Uvaw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791878688; c=relaxed/simple;
-	bh=8alo1z2WqxXoprEqmgM7n8kTavZAoljzKQpk3YwunMI=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=m3uGsueuFF7T+4rHNpVd/m41MC2L0oUU+f44FfVbmj1/xPTT1RFj+FpmVVydT46ssoErEVoIbd4bYb0TygpaQZXtzZM69aBoj0PSflf2ipNOrNXyqL5F0JaTxkW8pX01qE8J3Jlwhid0OpbfEeC+WWb8mE/2FPEWq/5/PJLDofE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NG8C7qt2; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791881879; c=relaxed/simple;
+	bh=lYJGf+muHCD1eVAUKTuW/9iJgLeoqKbg+w62GkKkB7Q=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ES3IN6tdylvFOm5/SVq/tKrIdksLrH1GsuWm5TYKk8xmmV0FJZxchsC1RMGYe8AnSe3WJWgt9yRLeJ3HATrPr/xZBBp2/JlUccMHUZjIkiMZeJjpveCHTui3uPewz6fH7rCj55UzsIpLTyWvqDwx9iVAAtgWE08HixAmm0CImMA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YZUazX9B; arc=none smtp.client-ip=209.85.210.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NG8C7qt2"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42AB51F00893;
-	Tue, 13 Oct 2026 08:04:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791878687;
-	bh=iisMLJZwD7/8JsYSzX7UYkhZQo+eTXtRrUlZCSX37g8=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=NG8C7qt2aMxyYnK9hH1h+Cf5G52W7Fhva7GHr9wrl/a920x3eV2oDF34wO8zxB883
-	 49HZ18rQ3/8vIzcMatbRgQNP9Z+dd0JZU7soPjW55pOIJ0Gsz+euN0XDcss2dp3gOi
-	 vSKoX1PCyqagQ/O4N47ExUBLKy6x70aNZiPUIgnkJgLl7xnecLiQYD9mUnZoFy8XL6
-	 Ma6eXGJG1hdYsrK4QxZCgQ7vCpLF1wwds5DYQi4wvbko3AULrvt87k/olhZxbsJiQ+
-	 Z0O9IdtE6wDMccz6llB/Et5smIxqFjj/vemly5JuhOnPM8iLK0BuJZk4ejemVVhdTV
-	 k1b3TDIi28fMw==
-Message-ID: <sashiko-outbox-169220@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 2/5] ALSA: virtio: Recover PCM state after a failed
- start
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Joonho Lee" <mynameisjune111@gmail.com>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <9b9b0698d28e1d2b6d3a94f62cfbd97a7e308854.1791877396.git.mynameisjune111@gmail.com>
-References: <cover.1791877396.git.mynameisjune111@gmail.com>
- <9b9b0698d28e1d2b6d3a94f62cfbd97a7e308854.1791877396.git.mynameisjune111@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 13 Oct 2026 08:04:46 +0000
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YZUazX9B"
+Received: by mail-pf1-f177.google.com with SMTP id d2e1a72fcca58-884062f3296so1706292b3a.0
+        for <virtualization@lists.linux.dev>; Tue, 13 Oct 2026 01:57:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1791881877; x=1792486677; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=XdgLBlwXA+05WisR6qNktOAyZ+0TTRkW7hNmWtduX/s=;
+        b=YZUazX9BDmP4YHheplBSF55PayU4t4p9L2sy+s2SPcyIDizrRKn1/4SeoYzyHV+AZQ
+         T3kItzINYNCp0bBcGa94d5/cGFZNqlymG7G96e58u2MbN25adf1rXmz9kECnA28kMPbr
+         RIkBRK4GlciMRyao+jrjJY92ryZ3J+5BozzLoaZdIwtm0RQLz4vuhy/FTOZhlCpLs1hN
+         HfzTuabpdD49Wk9yhrnLoGR3Wg/FnHRc9BM83QVVHitw1C8Qt7bWndtviGS7g0+AUSRQ
+         dYctqJoidraI9gbPJbDyj2W/1SjcUtAZqSXb3mtQybYzE82GRNJlLWwtI/pWA4ULBGwb
+         keKw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791881877; x=1792486677;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=XdgLBlwXA+05WisR6qNktOAyZ+0TTRkW7hNmWtduX/s=;
+        b=UwWoKR7DZpuw4lsHOPEItkZADEINNoNOCjAAzdHWC4g/TVhaeHFe9TlAdt3rdq5Khf
+         1xaGJknSCcpXtfmnXhV4m6S9WY5nfmZaR4os62vnjYQX/KJ5sH1hWwNbFuG9CCSIyh35
+         207vzrFfn/SHsrVGE1g4qXeUZLdvHEA0hf61dUoe0NwnSMR3LzE8+AelRCbI+XNnBMEk
+         MonerYQP3A4XGxsCOcJ0YWSb4/WhAKmyshA2tqK3ARstvTpPhzkmRusrSCEcD2VlJLxA
+         C9a4t8U4RPL9+eOCVBXcw4HyngENFzkD0kXUjY6QklKXjVH5naIpGtGkdI4Sga66tr11
+         wX9Q==
+X-Forwarded-Encrypted: i=1; AKwUvBx5CwvyPHFd11mHR4IyEwrjI5Jr5/tYNDXUhZnx+wwyiKF75V3R2HBUFX3HaG4QL0PajXBpjW557Ncd8YfVqQ==@lists.linux.dev
+X-Gm-Message-State: AFq9FYLBN0TzCttWr8Q6becVEvhGoMajahOpftQ0hyWHtlX6D8v31Ea+
+	q8b24bL+YAxSw9FV3xK6zeziB0GSi3fYVEWak9h/NWjRDJo0mByaSYpW
+X-Gm-Gg: AYBFou2uqfPv3OR5N0ITmwmPCvAT2Eq4qyNs3Az5No9/zKFun4RvDM5vxpvtpas3uyH
+	2uW9Z2+EhXzkf2aZ9cxAPOqmAbVaeqfnKJlV0XHgN7abkpRoNWf0YFU7IAH3MYaAS60qtRQ9GVy
+	YzgWAZinUx2ShImUYNTaXrsdeLtbZmvg9sBnTQsYSetEXx3twmZvPtC1NsAAB+omCX5UwF2ATgk
+	j6Wp1a/yv3sqJ/unVrMeASL11padUh7RZh8/BVaVMd8Bad5EzTfiqdywJJn3fnj3NgUkr1T/Nn0
+	Z+fynIXKJPxXQ85uKRgfXb6UmkKG9hChUlpckMxpUcFmdAXKR7m/A4yxYdgZzHiIR0q7DZOttr4
+	aVh37t0DaFG0j4BvbWjCIQEqOsU/EBZdh36xruWSA1s9UxK5DbSX1y+bbMz87Qo0yZkBMzac9Vp
+	wdi4DOE2l+4/F1sDTW7hr81y54H1M+b7bd/wmHYf+remQ5EAI7jZMTkfNzBoF1FSWUunocML1JR
+	g6OpzqRmW3wV4A9h2AWIsZ6Tl/fmzShAYyuiY6QO9FbaSXsX28C8YygJRsbdwFglJ7HlS89TKVD
+	Eph+PnHDS9U/xHVG
+X-Received: by 2002:a05:6a21:b98:b0:3de:7dd6:ff8f with SMTP id adf61e73a8af0-3e16be94558mr8871796637.50.1791881876834;
+        Tue, 13 Oct 2026 01:57:56 -0700 (PDT)
+Received: from localhost.localdomain ([183.96.175.225])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cd6063d31dcsm1838592a12.3.2026.10.13.01.57.54
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Tue, 13 Oct 2026 01:57:56 -0700 (PDT)
+From: Joonho Lee <mynameisjune111@gmail.com>
+To: Takashi Iwai <tiwai@suse.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>,
+	Jaroslav Kysela <perex@perex.cz>,
+	virtualization@lists.linux.dev,
+	linux-sound@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Matias Ezequiel Vara Larsen <mvaralar@redhat.com>,
+	Eugenio Perez <eperezma@redhat.com>
+Subject: [PATCH v3 0/5] ALSA: virtio: Fix request lifetime and error recovery
+Date: Tue, 13 Oct 2026 17:57:47 +0900
+Message-ID: <cover.1791881787.git.mynameisjune111@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Medium] sound: virtio: Data race on vss->stopped due to missing ALSA str=
-eam lock in prepare/hw_params
---
+A failed PCM start or a timed-out request can leave virtio-snd messages
+owned by the device after the caller returns. Retrying can then reuse
+pending messages, and freeing ALSA or control buffers can leave their
+addresses in a virtqueue.
 
-commit cf7b0007082a8c0e3a16320e4229781856250174
-Author: Joonho Lee <mynameisjune111@gmail.com>
-ALSA: virtio: Recover PCM state after a failed start
+This series fixes enqueue-error recovery and keeps the memory referenced
+by outstanding requests alive until completion or device reset. Reset
+also detaches unused descriptors before deleting the queues, releasing
+their DMA mappings and cancelling PCM messages without reporting them
+as completed audio.
 
-This commit modifies the capture trigger to disable transfers, mark the str=
-eam
-as stopped, and arm the stop operating flag if a PCM START fails. It also a=
-dds
-checks in the hw_params and prepare callbacks to reject retries if the stre=
-am
-is stopped, until a subsequent sync_stop resolves the state.
+Changes since v2, following the Sashiko AI review:
+- Patch 2 protects all stopped-state accesses with vss->lock, including
+  hw_params, prepare, open, STOP and sync_stop completion. The RELEASE
+  decision and stopped=true transition now share a critical section.
+  Sleeping operations remain outside the spinlock.
+- Patch 5 aligns every DMA region for both cache maintenance and typed
+  CPU accesses, and removes the initial +1 offset. This handles coherent
+  systems where dma_get_cache_alignment() returns 1, as well as odd
+  region lengths that could otherwise misalign later payloads.
+- Patches 1, 3 and 4 are unchanged.
 
-> diff --git a/sound/virtio/virtio_pcm_ops.c b/sound/virtio/virtio_pcm_ops.c
-> index a40ea394bf174..fe8e0dc3eafca 100644
-> --- a/sound/virtio/virtio_pcm_ops.c
-> +++ b/sound/virtio/virtio_pcm_ops.c
-[ ... ]
-> @@ -224,6 +233,12 @@ static int virtsnd_pcm_hw_params(struct snd_pcm_subs=
-tream *substream,
->  			vss->sid);
->  		return -EBADFD;
->  	}
-> +	if (vss->stopped) {
+Validation of the final v3 source:
+- ARM64 W=1 module build and ARM32 CONFIG_MMU=n driver object build.
+- Source-extracted ASan/UBSan PCM, control, reset, ACK and DMA lifetime
+  regressions on macOS arm64. The v2 control allocator produces UBSan
+  misalignment diagnostics; the v3 allocator passes typed header and
+  request/response integer64 accesses with DMA alignments 1, 2, 4, 8,
+  32, 64 and 128.
+- Deterministic stopped-state lock instrumentation catches unlocked v2
+  accesses and passes 73 lifecycle assertions for v3. It covers ACK
+  failure, RELEASE failure/retry and ACK during RELEASE, and checks that
+  blocking operations do not run with the spinlock held.
 
-[Severity: Medium]
-Is it safe to read vss->stopped locklessly here?
+The stopped-state test instruments extracted source; it is not KCSAN or
+an actual threaded kernel race test. NOMMU was compiled, not booted.
+Physical non-coherent DMA hardware and host microphone behavior were
+not tested by these regressions. The QEMU ARM64 KASAN fault/recovery runs
+reported in v2 have not been rerun for these v3 changes.
 
-ALSA explicitly drops the stream lock (group->mutex) before invoking
-virtsnd_pcm_hw_params(), virtsnd_pcm_prepare(), and hw_free() (which calls
-virtsnd_pcm_sync_stop()).
+Reproducer source and instructions:
+https://github.com/whatisyourname0/virtio-snd-reproducer/tree/3ee5c7c1e864dae50a127b0a25cd122532daa6de
 
-Concurrently, ioctls like SNDRV_PCM_IOCTL_FORWARD (which invoke the ack
-callback) acquire group->mutex but not buffer_mutex.
+Based on sound.git for-next commit
+8d70e364e866bdfca81eee24d0688fac9472cfb9.
 
-This means virtsnd_pcm_pb_ack() can execute concurrently with
-virtsnd_pcm_hw_params() or virtsnd_pcm_prepare() on the same substream.
+AI assistance was used for code changes, tests, review and patch text.
+Assisted-by trailers are included. Sashiko's findings were checked against
+the driver and covered by regressions before incorporating the fixes.
 
-Since the ack path writes to vss->stopped under vss->lock, reading it here
-without vss->lock could result in a data race. A torn read or compiler
-reordering could result in an incorrect stream state being observed.
+Previous series Message-ID:
+<cover.1791877396.git.mynameisjune111@gmail.com>
 
-> +		dev_err(&vdev->dev, "SID %u: stream release failed\n",
-> +			vss->sid);
-> +		substream->runtime->stop_operating =3D true;
-> +		return -EBADFD;
-> +	}
-> =20
->  	rc =3D virtsnd_pcm_dev_set_params(vss, params_buffer_bytes(hw_params),
-[ ... ]
-> @@ -274,6 +289,13 @@ static int virtsnd_pcm_prepare(struct snd_pcm_substr=
-eam *substream)
->  	struct virtio_device *vdev =3D vss->snd->vdev;
->  	struct virtio_snd_msg *msg;
-> =20
-> +	if (vss->stopped) {
+Joonho Lee (5):
+  ALSA: virtio: Propagate PCM send failures through ACK
+  ALSA: virtio: Recover PCM state after a failed start
+  ALSA: virtio: Retain queued messages through device reset
+  ALSA: virtio: Keep PCM DMA buffers alive through device ownership
+  ALSA: virtio: Keep control payloads alive through DMA completion
 
-[Severity: Medium]
-Similarly, vss->stopped is read locklessly here in virtsnd_pcm_prepare().
-Could this also race with concurrent ack callbacks for the same reason?
+ sound/virtio/virtio_card.c    |  44 ++++-
+ sound/virtio/virtio_card.h    |   2 +
+ sound/virtio/virtio_ctl_msg.c | 307 +++++++++++++++++++++++++++-------
+ sound/virtio/virtio_ctl_msg.h |  28 +++-
+ sound/virtio/virtio_kctl.c    | 104 ++++++------
+ sound/virtio/virtio_pcm.h     |  17 +-
+ sound/virtio/virtio_pcm_msg.c | 295 +++++++++++++++++++++++++++++---
+ sound/virtio/virtio_pcm_ops.c | 165 +++++++++++++++---
+ 8 files changed, 798 insertions(+), 164 deletions(-)
 
-This problem wasn't introduced by this patch, but vss->stopped is also
-written locklessly at the end of virtsnd_pcm_sync_stop().
 
-Since virtsnd_pcm_sync_stop() is called from hw_free where ALSA also drops
-group->mutex, could that lockless write also race with concurrent ack
-callbacks?
+base-commit: 8d70e364e866bdfca81eee24d0688fac9472cfb9
+-- 
+2.54.0 (Apple Git-157)
 
-> +		dev_err(&vdev->dev, "SID %u: stream release failed\n",
-> +			vss->sid);
-> +		substream->runtime->stop_operating =3D true;
-> +		return -EBADFD;
-> +	}
-> +
->  	if (!vss->suspended) {
->  		if (virtsnd_pcm_msg_pending_num(vss)) {
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/cover.1791877396.gi=
-t.mynameisjune111@gmail.com?part=3D2
