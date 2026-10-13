@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54F6A519922;
-	Tue, 13 Oct 2026 22:51:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA61D54EED2;
+	Tue, 13 Oct 2026 22:52:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791931928; cv=none; b=UMfadM5iQoSWVAI2cxW2rPQ+EsSjHPqsfsiB5vUzC7SJtPBkFP09VD3zB0M+HnRHJfRgzxtX2NA6B+3TjcAZUuxv05fYz67B49U0mCsMfq4hDkOVGT3aWoE6QyQ8LNRF4wwhpasKxKLcKKTd90ZxOaRs2I8cepXO0UyFz4a5iTo=
+	t=1791931930; cv=none; b=WPmdBDOGsMA8GbmakNflAkVgTthyHQFneaY/SALaE2jzdLLCHtM742X94818RxgUYHraQgpHb0AETc3slZroIefoEFT0rocU//IeouCZP5e8hPAEexjVizkxpcOO2zsYwKvYYzws2GSJP9i7O7D375shjGXi4a3pUKHpSwNtJFs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791931928; c=relaxed/simple;
-	bh=zvmrfl0wIlPrQzTG6BzYpoFiY1TWBC1KaLC3+hI5dpM=;
+	s=arc-20240116; t=1791931930; c=relaxed/simple;
+	bh=86JppvybnyB3lCNi7hGcAGBAWF6H0lUMWQw/AswC8es=;
 	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=QvvtHIOfl+lNLsN60t2KX8tFOonOebPKDs0aTsAyWuSnvi0/g3fNyBEGh9jllCMRNnd+oFb3LA7Yt1bLzro7DCcN7FJJhg2MJFi4iBz0pNR5iDGlrmBpkxKogyC6oEvoHdg7rgdMAhsyptqjXR7VdVWh4Di+yq+9L1y++TEWW4U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NXyNhdS/; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:MIME-Version; b=RhUWZw2w6bo60SCddd2V0txb8UhUEmr8xRikhmRUciSkQYqv8pwo4t6MPhmaBwyMWCSVjqaXKRHRsw6f4GKzDc/Kqe8smBTGmWLnpaJG1midc9cDI+BjYdzW/hR5b0p2Ai7DF7NAYnnUVdUpaVj25sNs9+Ag71VmDqiJXLqJ0YY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Y3XJNWa9; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NXyNhdS/"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15D041F00893;
-	Tue, 13 Oct 2026 22:51:58 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Y3XJNWa9"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C3E51F00898;
+	Tue, 13 Oct 2026 22:52:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791931919;
-	bh=SxFpD0jFUukbA8RESTUQDKcCYWdjCShdI2BwwoNvpEs=;
+	s=k20260515; t=1791931921;
+	bh=lQA2K7G0slA/+sDvMsoSxwgG9JnaLWjLSD+d35CVtHc=;
 	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=NXyNhdS/xbrhc0XdQeQZtaipaPCTHAD2MfiNpLo8oVOgmfUxBEojHsWPuG7NO5ai5
-	 SRiT9jgR14kBOFTw0I2anDlpK41EiqiULO1Wpx0SBOU+pDNr64J7KiviqD9d06MmwP
-	 OGJHEBx6Mkv4Y4sK/P66823jS11ZgVWtslmUFM7NwKcHnz0ytGjbmqu2li8fOmtTj7
-	 PFrxVa1nrg/5iIYtrJ2JdtrBl7cfVEDmS0Uolg0JffPlc17ROtx4GvzrTeqHueMsBa
-	 tFjf0zscZ2ZivXD2FQiT8jviM2WJYKAThqW4miAtAGKO2gxr6+J2DBS5ppnA9DkuRV
-	 HGZEyrfrLTxlg==
-Subject: Re: [PATCH net-next v3 5/7] vsock/virtio: support guest device
- network namespace
+	b=Y3XJNWa9fOqjl9N1RaZfSzATOXb5L/VWTok5rbJ6jvwe3jB0zVNlfMyqcXOxycdia
+	 RyW1Y6MQMz8jv3R2T3/+Q3aC1bkaDcM6vuXNV6ffoOk8FYHLx9PpaA78F5s/TLW/C8
+	 nBKJrIf1aqkk+PM8KLh5MM42Ga0pau25JthpobZK7m2V7aCLcW7VScdceR6hGiassW
+	 bOSN/OkuwadM9Qexubm3d9eYYgAqHnjB/6roBYwE4ZtY+Gc3NxseDC7Ect9aIC1/xG
+	 N551aE9lw54z9pRzuESNBnLOic/7QHyrYdjR7aaOB+eRoAfb3zKG/h+LHqmq3+F+kR
+	 t++84nCrRWGSw==
+Subject: Re: [PATCH net-next v3 6/7] selftests/vsock: test the guest vsock
+ device network namespace
 From: netdev-bot+sashiko@kernel.org
 To: bobbyeshleman@meta.com
 Cc: sgarzare@redhat.com, davem@davemloft.net, kuba@kernel.org,
@@ -39,10 +39,10 @@ Cc: sgarzare@redhat.com, davem@davemloft.net, kuba@kernel.org,
  linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, kvm@vger.kernel.org,
  linux-kselftest@vger.kernel.org, sargun@sargun.me, jlinbox@meta.com,
  bobbyeshleman@gmail.com
-Date: Tue, 13 Oct 2026 22:51:57 +0000
-Message-ID: <179193191764.434549.1279241501217519580@kernel.org>
-In-Reply-To: <20261012-vsock-guest-ns-v3-5-b32447c66b23@meta.com>
-References: <20261012-vsock-guest-ns-v3-5-b32447c66b23@meta.com>
+Date: Tue, 13 Oct 2026 22:51:59 +0000
+Message-ID: <179193191962.434549.16824396981142750170@kernel.org>
+In-Reply-To: <20261012-vsock-guest-ns-v3-6-b32447c66b23@meta.com>
+References: <20261012-vsock-guest-ns-v3-6-b32447c66b23@meta.com>
 X-sashiko-severity: Medium
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
@@ -53,10 +53,10 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 
-Thank you for your contribution! Sashiko AI review found 3 potential
+Thank you for your contribution! Sashiko AI review found 5 potential
 issue(s) to consider.
 
-Critical: 0 · High: 0 (1) · Medium: 1 · Low: 2
+Critical: 0 · High: 0 · Medium: 1 · Low: 4
 
 If you believe none of the issues are legitimate, please reply to each
 issue of Medium severity or higher and explain why the AI is wrong.
@@ -64,199 +64,268 @@ If any of them are legitimate and you plan to respin, please let patchwork
 know by including "pw-bot: cr" as a separate line at the end of your reply
 (one such reply per series is enough).
 
-- [Medium] A socket closed by device reassignment can still send packets
-  through the device it supposedly lost access to.
-- [Low] The implementation-notes comment at the top of
-  net/vmw_vsock/af_vsock.c still gives virtio-vsock as the example of a…
-- [Low] The dev-netns-set uAPI doc in
-  Documentation/netlink/specs/vsock.yaml (added by the earlier commit…
-
-Pre-existing issues:
-- [High] This problem was not introduced by this patch, but the patch's
-  new isolation can be bypassed through vsock packet capture.
+- [Medium] test_ns_guest_assign_g2h_netns_old_conn_send_fails can report
+  KSFT_FAIL on a correct kernel when the guest is slow.
+- [Low] Three of the new negative tests pass whenever the host does not
+  end up with "TEST" in its output file, whatever the reason.
+- [Low] TEST_DESCS says test_ns_guest_assign_g2h_netns_pins_ns_ok checks
+  that "the assignment keeps the ns alive when deleted, and that…
+- [Low] test_ns_guest_assign_g2h_netns_pins_ns_ok uses a fixed `sleep
+  ${WAIT_PERIOD}` (3s) after vm_ns_stop() and then makes one connect…
+- [Low] Each new ns_guest_* test ends with vm_ns_stop() and
+  vm_reset_g2h(), or ns_old_conn_cleanup().
 
 --
 
-vsock/virtio: support guest device network namespace
+selftests/vsock: test the guest vsock device network namespace
 
-This commit makes the virtio-vsock guest device assignable to a network
-namespace. It re-reads the assigned netns for each packet in
-virtio_transport_rx_work(). It also uses vsock_maybe_set_connected() so
-that new connections are added to the connected table atomically with
-respect to namespace assignment.
+This adds vmtest.sh cases for assigning the guest vsock device to a
+network namespace. The cases cover connectivity from local and initial
+namespaces, namespace pinning on deletion, and old connections losing
+the device. The device is driven through the ynl cli.py, and the ns_guest_
+tests are skipped if their dependencies are missing.
 
-> diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
-> index eced6929405df..4123924536dd6 100644
-> --- a/net/vmw_vsock/virtio_transport.c
-> +++ b/net/vmw_vsock/virtio_transport.c
-> @@ -542,7 +542,7 @@ static bool virtio_transport_msgzerocopy_allow(void)
->  
->  bool virtio_transport_stream_allow(struct vsock_sock *vsk, u32 cid, u32 port)
->  {
-> -	return vsock_net_mode_global(vsk);
-> +	return vsock_g2h_net_reachable(sock_net(sk_vsock(vsk)));
+> diff --git a/tools/testing/selftests/vsock/vmtest.sh b/tools/testing/selftests/vsock/vmtest.sh
+> index 310dfc2a39ad5..7693d5e0a1d07 100755
+> --- a/tools/testing/selftests/vsock/vmtest.sh
+> +++ b/tools/testing/selftests/vsock/vmtest.sh
+
+[ ... ]
+
+> @@ -1421,6 +1598,317 @@ test_ns_delete_both_ok() {
+>  	check_ns_delete_doesnt_break_connection "both"
 >  }
+>  
+> +# Send a string from the guest to a host listener and leave what the host
+> +# received in <outfile>.
+> +guest_send_to_host() {
+> +	local ns=$1
+> +	local nspid=$2
+> +	local port=$3
+> +	local outfile=$4
+> +	local cmd="echo TEST | socat -u STDIN VSOCK-CONNECT:2:${port}"
+> +	local pid
+> +
+> +	socat -u VSOCK-LISTEN:"${port}" STDOUT > "${outfile}" 2>/dev/null &
+> +	pid=$!
+> +	host_wait_for_listener "${ns}" "${port}" "vsock"
+> +
+> +	vm_ns_exec "${ns}" "${nspid}" "${cmd}" 2>/dev/null
+
+[Severity: Low]
+
+The exit status of the guest command is thrown away here.
+host_wait_for_listener() doesn't signal readiness either: wait_for_listener()
+exits its for loop with status 0 when it runs out of intervals.
+
+The negative tests then count any empty outfile as success:
+
+test_ns_guest_local_connect_to_host_fails() {
+    ...
+	if [[ "${result}" == TEST ]]; then
+		return "${KSFT_FAIL}"
+	fi
+
+	return "${KSFT_PASS}"
+}
+
+Several things can leave outfile empty: a transient ssh or nsenter
+failure, a socat start failure, or a host listener that never comes up.
+Would any of these make test_ns_guest_local_connect_to_host_fails,
+test_ns_guest_assign_g2h_netns_init_ns_connect_fails and the first half of
+test_ns_guest_assign_g2h_netns_pins_ns_ok report KSFT_PASS, exactly as if
+the kernel had refused the connection?
+
+The positive sibling tests use the same paths, so they would catch a
+harness that is always broken, but not a transient failure.
+
+Could the result of vm_ns_exec() be checked, so that a harness failure
+can be told apart from a refused connect?
+
+> +
+> +	timeout "${WAIT_PERIOD}" \
+> +		bash -c 'while [[ ! -s '"${outfile}"' ]]; do sleep 1; done'
+
+[ ... ]
+
+> +ns_old_conn_cleanup() {
+
+[ ... ]
+
+> +	vm_ns_exec "init_ns" "" "pkill -f VSOCK-CONNECT:2:${port}" &>/dev/null
+> +	terminate_pids "${pid}" "${sender}"
+> +	wait "${pid}" "${sender}" 2>/dev/null
+> +	rm -f "${outfile}"
+> +	vm_ns_stop "init_ns" "${nspid}"
+> +	vm_reset_g2h
+> +}
+
+[Severity: Low]
+
+This vm_ns_stop() plus vm_reset_g2h() sequence ends every new ns_guest_
+test, here and in the test functions themselves. It drops the last
+reference on the guest netns, and the teardown then runs asynchronously:
+
+vm_reset_g2h()
+  -> vsock_g2h_net_assign()
+    -> vsock_g2h_net_release()
+         synchronize_rcu();
+         put_net_track(old, tracker);
+           -> cleanup_net queued on a workqueue
+
+run_shared_vm_test() reads the guest counters as soon as the test
+function returns:
+
+	eval test_"${name}"
+	rc=$?
+	...
+	vm_oops_cnt_after=$(vm_dmesg_oops_count "init_ns")
+	...
+	vm_warn_cnt_after=$(vm_dmesg_warn_count "init_ns")
+
+Could an Oops or WARN from that netns teardown show up after this
+sample? It would then be charged to the next shared VM test. If this is
+the last test before terminate_pidfiles kills the VM, it would never be
+counted.
+
+The commit message says the tests cover "ns destruction", so is it worth
+waiting for the teardown to finish before the test returns?
+
+> +
+> +test_ns_guest_assign_g2h_netns_old_conn_send_fails() {
+> +	local gap=$(( WAIT_PERIOD * 3 ))
+
+[ ... ]
+
+> +	# Send a message, wait, then send another. While waiting, assign the
+> +	# device to a namespace. Confirm the second message does not arrive.
+> +	vm_ssh "init_ns" -- \
+> +		"(echo FIRST; sleep ${gap}; echo SECOND) |" \
+> +		"socat -u STDIN VSOCK-CONNECT:2:${port}" &>/dev/null &
+> +	sender=$!
+> +
+> +	timeout "$(( WAIT_PERIOD * WAIT_PERIOD_MAX ))" \
+> +		bash -c 'while [[ ! -s '"${outfile}"' ]]; do sleep 1; done'
+> +
+> +	started=${SECONDS}
+> +	if ! vm_ns_assign_g2h "init_ns" "${nspid}"; then
+
+[ ... ]
+
+> +	fi
+> +	elapsed=$(( SECONDS - started ))
+> +
+> +	sleep $(( gap + WAIT_PERIOD ))
+> +
+> +	result=$(cat "${outfile}")
+
+[ ... ]
+
+> +	if [[ ${elapsed} -ge ${gap} ]]; then
+> +		log_host "assign took ${elapsed}s, longer than the ${gap}s gap"
+> +		return "${KSFT_SKIP}"
+> +	fi
+> +
+> +	if [[ "${result}" == *SECOND* ]]; then
+> +		log_host "old connection still delivered after the assign"
+> +		return "${KSFT_FAIL}"
+> +	fi
 
 [Severity: Medium]
-virtio_transport_stream_allow() gates new connections. Now that the
-device can be assigned, can a socket closed by
-vsock_g2h_reset_unreachable() still put packets on the device?
 
-The sweep only changes sk_state and sk_err, then removes the socket from
-the connected table:
+Can this return KSFT_FAIL on a correct kernel when the guest is slow?
 
-net/vmw_vsock/af_vsock.c:vsock_g2h_reset_unreachable() {
-    ...
-			sk->sk_state = TCP_CLOSE;
-			sk->sk_err = ECONNRESET;
-			sk_error_report(sk);
+The guest's sleep ${gap} (9s) starts as soon as FIRST is written. The
+host stopwatch starts only after the 1s poll loop notices FIRST in
+outfile, so the connect and poll delay before started=${SECONDS} is never
+counted. On top of that, elapsed has whole-second resolution.
 
-			__vsock_remove_connected(vsk);
-    ...
-}
+Suppose that delay plus the real assign time (ssh, nsenter, python3,
+PyYAML, spec parsing, netlink) goes past 9s while elapsed is still under
+9. Then SECOND goes out over the still-attached device before the swap
+and reaches the host. The test reports "old connection still delivered
+after the assign" instead of the KSFT_SKIP the elapsed check was meant to
+give. On TCG or nested guests this seems plausible.
 
-It does not touch vsk->transport or sock->state, which stays
-SS_CONNECTED. vsock_shutdown() only rejects SS_UNCONNECTED:
+Could the stopwatch start when the sender is launched instead, so the
+skip check covers the whole interval?
 
-net/vmw_vsock/af_vsock.c:vsock_shutdown() {
-    ...
-	if (sock->state == SS_UNCONNECTED) {
-		err = -ENOTCONN;
-		if (sock_type_connectible(sk->sk_type))
-			goto out;
-	} else {
-		sock->state = SS_DISCONNECTING;
-    ...
-			vsock_send_shutdown(sk, mode);
-    ...
-}
-
-So calling shutdown() on the old fd goes through:
-
-vsock_send_shutdown()
-  virtio_transport_shutdown()
-    virtio_transport_send_pkt_info()
-      virtio_transport_send_pkt()
-
-virtio_transport_send_pkt() never uses its net argument before it queues
-the packet on the device. sock->state never goes back to SS_UNCONNECTED,
-so this can be repeated.
-
-The wire header carries only CIDs and ports. Suppose the newly assigned
-local namespace reuses the same guest/host port tuple. Could these
-SHUTDOWN packets then tear down a host connection that now belongs to
-the new owner?
-
-Even without a tuple collision, the namespace that lost the device can
-still send traffic on it. That seems to contradict the documented rule
-"assigned to a local mode namespace - only that namespace may use it".
+Separately, the verdict comes from one read of outfile after a fixed
+sleep $(( gap + WAIT_PERIOD )), and nothing waits for the sender to
+finish. Is that intended?
 
 [ ... ]
 
-> @@ -587,6 +587,7 @@ static struct virtio_transport virtio_transport = {
->  		.seqpacket_has_data       = virtio_transport_seqpacket_has_data,
->  
->  		.msgzerocopy_allow        = virtio_transport_msgzerocopy_allow,
-> +		.netns_assign_allow       = true,
-
-[Severity: Low]
-This isn't a bug, but the implementation notes at the top of
-net/vmw_vsock/af_vsock.c still use virtio-vsock as the example of a
-transport without local mode support:
-
- *       a different transport that *does* support local mode. For
- *       example, virtio-vsock may not support local mode, but the socket
- *       may still accept a connection from vhost-vsock which does.
-
-This patch sets netns_assign_allow, and virtio_transport_rx_work() now
-delivers into the assigned namespace. So virtio-vsock can serve a local
-mode namespace once the device is assigned.
-
-Should this example be updated? It also seems to conflict with the
-sysctl doc, which says "Of the in-tree guest transports, only
-virtio-vsock implements it."
-
-[Severity: Low]
-This is the first transport to set netns_assign_allow, so the
-dev-netns-set behaviour becomes reachable with this patch. The uAPI doc
-in Documentation/netlink/specs/vsock.yaml, added earlier in this series,
-says:
-
-        Movement to an unreachable local namespace results in sockets being
-        closed with ECONNRESET. Peers are not guaranteed to be notified via
-        an RST.
-
-However, vsock_g2h_reset_unreachable() closes every socket that fails
-vsock_g2h_reachable_sk() after any move:
-
-			if (vsk->transport != t ||
-			    sk->sk_state == TCP_CLOSE ||
-			    vsock_g2h_reachable_sk(vsk))
-				continue;
-
-That includes moving the device out of a local namespace L and back to
-init_net or another global namespace. vsock_net_check_mode(L, init_net)
-is false, so every connected socket in L is closed with ECONNRESET.
-
-Should the yaml text also cover moves out of a local namespace? The
-sysctl doc already does ("from a namespace that can no longer reach the
-device").
+> +test_ns_guest_assign_g2h_netns_pins_ns_ok() {
 
 [ ... ]
 
-> @@ -682,10 +688,15 @@ static void virtio_transport_rx_work(struct work_struct *work)
->  
->  			virtio_transport_deliver_tap_pkt(skb);
-
-[Severity: High]
-This is a pre-existing issue and was not introduced by this patch. Can
-the vsock tap path bypass the isolation that this patch adds?
-
-virtio_transport_deliver_tap_pkt() runs for every received packet,
-before any namespace is applied. vsock_deliver_tap() then clones the
-packet, payload included, to every entry on the global vsock_tap_all
-list:
-
-net/vmw_vsock/af_vsock_tap.c:__vsock_deliver_tap() {
-    ...
-	list_for_each_entry_rcu(tmp, &vsock_tap_all, list) {
-		ret = __vsock_deliver_tap_skb(skb, tmp->dev);
-    ...
-}
-
-vsock_add_tap(), called from vsockmon_open(), only checks the device
-type:
-
-	if (unlikely(vt->dev->type != ARPHRD_VSOCKMON))
-		return -EINVAL;
-
-Nothing on the tap path filters with net_eq() or vsock_net_check_mode().
-vsockmon has no netns restriction either. So CAP_NET_ADMIN over any
-netns, including one owned by a user namespace, is enough to create a
-vsockmon device, bring it up and capture on it with AF_PACKET.
-
-Once the guest device is assigned to a local mode namespace, can any
-other namespace still read all guest<->host vsock traffic this way?
-
-The TX side in virtio_transport_send_pkt_work() appears to have the same
-exposure, and vhost-vsock local mode already had it. By contrast, nlmon
-taps are kept per netns.
-
->  
-> -			/* Force virtio-transport into global mode since it
-> -			 * does not yet support local-mode namespacing.
-> +			/* Only grab a reference if the net changes underneath
-> +			 * us.
->  			 */
-> -			virtio_transport_recv_pkt(&virtio_transport, skb, NULL);
-> +			if (unlikely(!vsock_g2h_net_eq(net))) {
-> +				put_net_track(net, &ns_tracker);
-> +				net = vsock_g2h_net_get(&ns_tracker);
-> +			}
+> +	vm_ns_stop "init_ns" "${nspid}"
+> +	sleep "${WAIT_PERIOD}"
 > +
-> +			virtio_transport_recv_pkt(t, skb, net);
+> +	outfile=$(mktemp)
+> +	guest_send_to_host "init_ns" "" "${port}" "${outfile}"
+> +	result=$(cat "${outfile}")
+> +	if [[ "${result}" == TEST ]]; then
+> +		log_host "device returned to the init ns instead of pinning it"
 
-[ ... ]
+[Severity: Low]
+
+vm_ns_stop() only waits for the holder process to exit. The netns
+teardown (cleanup_net) runs asynchronously after that. Here, a fixed
+sleep followed by a single connect from the init ns is the only evidence
+that the deleted namespace was pinned.
+
+Suppose a regression stopped the assignment from pinning the netns, and
+teardown returned the device to init_net only after more than about 3s
+plus the guest_send_to_host() setup. Wouldn't this connect still fail, so
+the test passes anyway?
+
+Would it be more robust to query the assignment directly with
+dev-netns-get than to rely on a timed connect? It reports
+VSOCK_A_NETNS_ID, or NETNSA_NSID_NOT_ASSIGNED when the device isn't in the
+caller's ns.
+
+> +		rm -f "${outfile}"
+> +		vm_reset_g2h
+> +		return "${KSFT_FAIL}"
+> +	fi
+> +
+> +	# Assigning it back is what releases the deleted namespace.
+> +	vm_reset_g2h
+> +
+> +	guest_send_to_host "init_ns" "" "$(( port + 1 ))" "${outfile}"
+> +	result=$(cat "${outfile}")
+> +	rm -f "${outfile}"
+> +
+> +	if [[ "${result}" != TEST ]]; then
+> +		log_host "device did not come back on reassign: [${result}]"
+> +		return "${KSFT_FAIL}"
+> +	fi
+
+[Severity: Low]
+
+The TEST_DESCS entry for this test says:
+
+	"Check the assignment keeps the ns alive when deleted, and that reassigning releases it."
+
+Does the test check either half of that? It only checks reachability
+from the guest's init ns, before and after vm_reset_g2h().
+
+If vsock_g2h_net_release() lost its put_net_track(), the old netns would
+leak and this test would still pass:
+
+net/vmw_vsock/af_vsock.c:vsock_g2h_net_release() {
+	synchronize_rcu();
+	put_net_track(old, tracker);
+}
+
+The test also never checks that the deleted namespace is still alive. A
+device that is simply unreachable from init_net, for example one left
+pointing at a freed netns, would look the same.
+
+Could the description be narrowed, or could the test check the release
+directly?
 
 -- 
 Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261012-vsock-guest-ns-v3-0-b32447c66b23%40meta.com
