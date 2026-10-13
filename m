@@ -1,317 +1,199 @@
-Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from PH8PR06CU001.outbound.protection.outlook.com (mail-westus3azon11012022.outbound.protection.outlook.com [40.107.209.22])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E4273AD513
-	for <virtualization@lists.linux.dev>; Tue, 13 Oct 2026 05:30:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.173
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791869451; cv=none; b=lKZJtS0WAbgGVLcKDuxWBFubejQws2qpDlTSlo1IGxz7Y30lgjkoA1VfldclBcDrvD1QszOm5yWMnJdm+VTzyj8J5myG4mQyDTQAJE7VAvOwTYCtv9qS1YU3ftjn6tGDUFZPDvhucq23WaECgVP3Hhi+AxlBebRazYNlyAktj2A=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791869451; c=relaxed/simple;
-	bh=AZpMcQVd242wNsymyeLV+kUSdiW8V59Q0tvwcs6k848=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=jBWPgdk3ayCScJJO6Z6ZloZktkz9eAJadK7GJm2PcuiTyto2vnhyLQZ+enyr32JTxkWC8ABbn27u3KPnqOqAaiUbTUczarsfCqLooreKqRgiK+Tq1ygxPaDcJC3cxoReU73dkxBI4VVfuVWVlMqocg3iamXcpnJWAq4guIlAPmE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZAwv4sC2; arc=none smtp.client-ip=209.85.214.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 995DE418A46
+	for <virtualization@lists.linux.dev>; Tue, 13 Oct 2026 05:32:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.209.22
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791869569; cv=fail; b=KgChefcMTUIwy7Y4UYbZLhhVBiPObuy3weW4uboaXnNpAAAc7D0lOwseFmOm7g6JUS7YexPsMqrsn8cNyvbQj2u/9qToAM+N+IpjdfuBuC3eVVEaemv5dattwaXmFY+Z+skNYAblPbtC8Ho7rVzDf0tZD6P8lec3xTBM3eLthVU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791869569; c=relaxed/simple;
+	bh=QvdmH+1E/3Y/P59DuYGAWRG/HcJfs6UbnwqKOo2wKs0=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=WHpE6wRV2s2XXn0LNMLbUDHjTN8HCsV/hGdDBS5tuO8zCd61eFUAIsK6hjFFGVKWGUReXnPwtyCNJZA1/AyYwOTMEMZ8x7MlmSwrRs5PYRP5PUZuMWkvb85zFFabyc8OwJps3ohC0/Aw2QuCHFL8nWPd3x0ZUr8rvMqHN2JAlx8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=blbTBsZI; arc=fail smtp.client-ip=40.107.209.22
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZAwv4sC2"
-Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-2dd76b1361dso14330115ad.1
-        for <virtualization@lists.linux.dev>; Mon, 12 Oct 2026 22:30:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791869446; x=1792474246; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=mgSlMltKjH9fZj/9bm3MvgD0zfBRnf6rS+vp3uicNHM=;
-        b=ZAwv4sC2s7X/kFJCVL3zEPYGGk0YT2yyI9ZimIMzbtZjg0BhroIRpHNjYh+SapN4xY
-         Y7sMtFPZW3loQtaX4sEdu18Ku3ER+BP/jEwxeBZPVN3cKnDdH+Kfd/3O6TmawbNOh61D
-         bxNFPdoHgBPfAUwG5e+TBkr9fEtYWrRxI9mv0hbxnKG2CNbusX93xOUmdPbBPo5MN9Ra
-         RYgaB/NIWkmSK/HQw5vXY6/7J5q5F3FFznjylm2WcGyqiZ2lnRGur59l9RWVD2XkGFzg
-         4tjsn4u3pm0jSksEwkUK2tim+WwXiOOHXA1kTyGiMqkaiJHyjqZioO78MM9XkiApfKbK
-         cC0Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791869446; x=1792474246;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=mgSlMltKjH9fZj/9bm3MvgD0zfBRnf6rS+vp3uicNHM=;
-        b=WFSCdKFKd2jVQaHAulWfE0yOq9Mjlj9SvSlZa0DJQo2nLAN3zULJu9bu7sdDhaVvUK
-         qk/b+Jf0HCQXJPbYNvoLiOqGvO7PU29wWAkpausdzFrjvHypKh32B72ikBGCCvoXL3bu
-         1FmXiHVMYdLjpQxDSkV1f5u8lVtTqFH2KWJ/pVpUegHcZaUA32/yPLNUffEEhGs7Qhos
-         wNBvPhHd8CWnv9orVDn1YgqM9Fu3+kdyWGJKeap44BO7eP+ztxWEalfuYBnGFYVAVHz8
-         URU+wqTDermTTCmM033VdMYxVp07DCuf8wxOnZWkIrvCdV8+NF4YhNh4EmJzAaxrXual
-         L2hw==
-X-Forwarded-Encrypted: i=1; AKwUvByq4J2Rh+u8J83s7HCqTju4T1NLOMpDiaMMfDLR7HXz33tgb2oxmCaWVgtiwF8ujqVkv3n6CN/WiaGVjLAqLA==@lists.linux.dev
-X-Gm-Message-State: AFq9FYJXSkILJrz/SBVfCJ9e58GjL1nb8/IiI/zfB9ZjI00U/1vNLPWA
-	Ax6dtfbFqI3EAoiKbeGgXYEK2HBJthKkPNOIWUkkQjVj4oPQR24K9Of+
-X-Gm-Gg: AYBFou0D71wuCtoSKPcl4lPBn/Zr5B4v8EnXXkPP7UB9KcBl2mBAuqJoVjf/hOZa/bO
-	N3WhTBAQGDAK/HAxW9Nyp8YnMj2X7ySs04P389uQHzDNwMjlmkNqjIJmW/IZqK/TPO7fshZM/hB
-	Ufwg1ZbvMhlrxJL673WOfa2zHEeTgQe2ITL8Izzlb+J6efWinv1w9AEoxntyubWBmaYn2ql+yG9
-	XLdrNzs7Ua7FdKXMhkukKG7lfHt0WSaEU0raAIyGLljRPdtPnhMxHgjPprgYdvYy5jHKRSn3tyX
-	+wkKSLY6d20eVQ4BQ4YerXIZQWxFh9NLqS56kbUe1+tFH5LHaKPu3Qhw8psTb8GrziG0GldOSJr
-	wd4zkye4wpIgRfzAXj3SHygxvGVxtxrSDEOKC/thNTY1U3YBF64Cex10zSdt553OZjx7Gi2ViTI
-	jB6b+VlKXHXALLcrF0mvtN4xzWlJWpJyF8HX1EOZknjsYfPb+BsF9XHbcIRBqz9VGrJ2DDwblwu
-	5puJ4z/BQuPmlrbiJMHE7ncQpUA+LihnsOd7FywNZepZISGieifEQmJuEIbKNv+l1754ym4fBVt
-	Fu8jX+CEFNt9eL2K
-X-Received: by 2002:a17:903:3c45:b0:2e5:64ad:2da4 with SMTP id d9443c01a7336-2e842e0b50bmr113874005ad.56.1791869445546;
-        Mon, 12 Oct 2026 22:30:45 -0700 (PDT)
-Received: from localhost.localdomain ([183.96.175.225])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2e8422b8cb6sm50820915ad.60.2026.10.12.22.30.43
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Mon, 12 Oct 2026 22:30:44 -0700 (PDT)
-From: Joonho Lee <mynameisjune111@gmail.com>
-To: Anton Yakovlev <anton.yakovlev@opensynergy.com>,
-	Takashi Iwai <tiwai@suse.com>
-Cc: Joonho Lee <mynameisjune111@gmail.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jaroslav Kysela <perex@perex.cz>,
-	virtualization@lists.linux.dev,
-	linux-sound@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v1 4/5] ALSA: virtio: Retain PCM DMA pages until messages are freed
-Date: Tue, 13 Oct 2026 14:30:25 +0900
-Message-ID: <6b6421f719a49ce0195c3d43f58b50e40a6e9347.1791867377.git.mynameisjune111@gmail.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <cover.1791867377.git.mynameisjune111@gmail.com>
-References: <cover.1791867377.git.mynameisjune111@gmail.com>
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="blbTBsZI"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=rVFfqu+H+4C0gXGeFRr1LLV70Xvk5zS7yKRWV9/9JWtQStU20dYmzxDgMGNoo1fLpHFzpOYG17V+Drv5mzg1AWMAcUBYhTPn1NJATUtZyVPTqjUvW5VF0CZz3AOjjThsI/eMFOj5aDT5xre/HPWR4UnpCaH3szzdOCISv3VuslA9i2qrzydw5nbstv0JuId4+NJ0D1cx1+2iFekioXKdaBvMc9nzc9GQMKzzwgnT2hkRq9C/zOl7kU0cmiCkZzTxuIZo/JkmEP5u2y6qQEV529jxrX7OZBDkfYTjLZVDAXmmjr/fZ2YRKJSpmjSr8qx1IBs+X1322k0x77lyT8bOuA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=K8VQXQmUVa0Z1a9lKoKA8Za5Ck+uwHEa63Py6ca9DmQ=;
+ b=Olf+X4z/Y8aWcEyaTmWsOFx8/icLo7irIvGKiTbC/EIiDkmx1zbKg0fqXafUOffExcFGpUaYyvyRxCvdjmYxLppZh9K8lUe0toXkrrLU2xGQVhnNMYoFAhr6BcdEwO4irkEVKcyV92Rog2YYlzcxJHHUeDqcGX5byaQLwgp9PGpYpVE3YHX8H/7sGWN8URMXMpMmmeai5tmvqj6sTXIfmBrCpqajwQenL6wMwMLsZ9vyv6Sq5oqJB8aumXKvZoDoNEOiJ9giOl1VsEU2aa8Hv1NHQobDm/bpPeSatCoPso+vUDbrJpP5RNROLCxEo9BFhaBtjXTLyYIIxXp+n8kGKA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=K8VQXQmUVa0Z1a9lKoKA8Za5Ck+uwHEa63Py6ca9DmQ=;
+ b=blbTBsZIpwEVzpk58DzjvuPFZdd8XWj45dyOg72wlntVfgx2cCZyS84BPJKUbVI6bCIYxZWmvU6zbWjG+ATwFEu6Jw/TY9VUQwsX+CPLloZ29hJfn02T68vZ66lM8YhY/yEt5xuck2K64N087XWl992WDdaGuWSSIYl8fAUoi+U=
+Authentication-Results: mx.microsoft.com 1; dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from CY8PR12MB7170.namprd12.prod.outlook.com (2603:10b6:930:5a::18)
+ by SA1PR12MB6752.namprd12.prod.outlook.com (2603:10b6:806:259::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.496.21; Tue, 13 Oct
+ 2026 05:32:43 +0000
+Received: from CY8PR12MB7170.namprd12.prod.outlook.com
+ ([fe80::7565:bdd3:383a:de5f]) by CY8PR12MB7170.namprd12.prod.outlook.com
+ ([fe80::7565:bdd3:383a:de5f%3]) with mapi id 15.21.0496.021; Tue, 13 Oct 2026
+ 05:32:42 +0000
+Message-ID: <317cc6e9-8e15-462d-9e9c-2657011b7128@amd.com>
+Date: Tue, 13 Oct 2026 13:32:28 +0800
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH v9 3/4] drm/virtio: implement userptr resource support
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Cc: gurchetansingh@chromium.org, olvaffe@gmail.com, Ray.Huang@amd.com,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, odaki@rsg.ci.i.u-tokyo.ac.jp,
+ airlied@redhat.com, kraxel@redhat.com
+References: <20260924095556.1326164-1-honghuan@amd.com>
+ <20260924095556.1326164-4-honghuan@amd.com>
+ <dfa2f117-1094-40b9-9445-ab2bbf62ff2e@collabora.com>
+ <7c32c182-5b49-4dc0-9c97-a4238743f28c@amd.com>
+ <efd5fa89-e888-469a-ac80-e6e605f9a015@collabora.com>
+Content-Language: en-US
+From: "Huang, Honglei" <honghuan@amd.com>
+In-Reply-To: <efd5fa89-e888-469a-ac80-e6e605f9a015@collabora.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: TPYP295CA0045.TWNP295.PROD.OUTLOOK.COM (2603:1096:7d0:7::6)
+ To CY8PR12MB7170.namprd12.prod.outlook.com (2603:10b6:930:5a::18)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CY8PR12MB7170:EE_|SA1PR12MB6752:EE_
+X-MS-Office365-Filtering-Correlation-Id: 3df93b3f-edd5-4843-570a-08df28eb6734
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|376014|366016|1800799024|23010399003|4143699003|11063799006|56012099006|18002099003|22082099003|261009221227099003|10067099003|261009223027099003;
+X-Microsoft-Antispam-Message-Info:
+	Xl7cSjGxoJX5ndXiCQNL12bLFgbciipzG8YEHBfL4LO9edq3Dj517wVFqxqXNi8r54dPH8F+BeR9GIdd+7kq75Vz15sKk1oUVDGHdZ1vlXlSqqgECjWllFoNEUuLFW0ZZUiFL7RW7KLil2CsWhUat/d+ozf5SBeKX63fey3cx6AIOZxRNAo8PwrqRSsQul5H45LVEYHYWfrLlCxpOAyDHdrNQ7ron141OPpGVGMbYZf0RqgeIgDZ50cU95ViZBdT15rfWVcf1Sh3cCaqgOSX62CGM7P76mAgJJyR8qnV5NunzEe1x0fC51I7gTZ9bn2D1/b+OzFU1m/WQvaYMneqRoBa1wRq0r8I1xINKbSFR0XWi+A1nmU7Tal40xWzgZOTEhXLFd7GlirLt5MGSCT85c8FZDVmALL7bKIx7u3X6GBjcbbOQiykku+CXsmNJFAZM5PCbSDHW//dOa5WyQ5WLpPhz6YdndXsSnI7lDqsxXsZ4yz12c/jULUl5BgFXVVLmPS4FiATX8qw7bTZ7x0A7z1NxX4eKf5i2yN5dpLGCp1iS/qJO4zd0dQwLCuPrfKy3PnfuBkj/GEGDOnZGGQLhquxydjTgU95UXatM+ZycT96PEzx6aeNhUegxxl/KD5c
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR12MB7170.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(366016)(1800799024)(23010399003)(4143699003)(11063799006)(56012099006)(18002099003)(22082099003)(261009221227099003)(10067099003)(261009223027099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?clZ4Qi9LOVBxVFQxT2I0NlRUZWk1ZEJjaG9rQnR1ekwrR1Q0b21EV0hUd0xC?=
+ =?utf-8?B?WGtnZUF2ODlzZHliUytHRlVtTEhMRHE0UnE5bURmN1picmpMTUpkV0tVM01C?=
+ =?utf-8?B?WmgvODNtdkhjaTJaVWdxcEk5dlV2cDdsYzlMbzNseno2QnFOcUl5MW9SUGtS?=
+ =?utf-8?B?REdHVGdpd3FYc1JXT25vZ2hJZkYrelpFNkUvNHpkeTZESWJHaGpLS2dyUVNs?=
+ =?utf-8?B?N0s3Y0tKa3RzYkkxRXlDdGxPSnc1Qk9CalVETHZqWExaTDFHc3c5alVjdUxL?=
+ =?utf-8?B?QUZRZmdoWklXRlAwNi9sTGsrTGpTRzdVTmdYQnM3RXF5djVsNmNaaEg1MVk0?=
+ =?utf-8?B?bzJtV3NhNDZLUE5ZOVNZM050OHR5YSsvV05FblVnTVBmK3JtdTVFZ0w1ZXA3?=
+ =?utf-8?B?dUlFalovY2VXSll2b2R2RTd2cW5uNGlkbkdoT0luMXRCS1hCczRNTXhSdHY2?=
+ =?utf-8?B?U21IYVJxNXBFdXRYVnJuY1BGQnNqVVBZSW1mTVZUVG1RZ2h4MDJLaG9FZDVQ?=
+ =?utf-8?B?RVdKZFZpcXhlRVhLWlBHb0JJRTROMXJROGFsUHI0YlIwaXhUQXBDU3psWUo3?=
+ =?utf-8?B?bXNYdDVxVVU3YURXSExIZ3U3Z0pxSGNSZjBST05Hd2NMU2p6cjlKZkVHbFU5?=
+ =?utf-8?B?a1pvc3htbFFhQU9nWG5CeExHMGJpWXpXY3JQei95VXluQkFjZ0REUUxoaGNq?=
+ =?utf-8?B?cDYzNkVPTjlwWThFakMrc2JlNGVzWDNudjJXN2poMHppNktqSDZNQ0FpeFd0?=
+ =?utf-8?B?akE2VlI2WUNieG9MZ1FpT0tZRll0VW1vRkM5czV3OHpzY3NuSVhib1UyeU9q?=
+ =?utf-8?B?QWZEb2I1ZzZPNkN3dmhsTUtRMlZzSjhJQkZWaE5SaC9GRXZmQ3VUOCtBM21Q?=
+ =?utf-8?B?aG5Hc0ppV0VHMmhHdlQ5elJjQ2c5TU5zZG12L2hweDE0bVlXWE9KdktvQkNl?=
+ =?utf-8?B?QU1iL2lYLzU1Q0RUMmZnY29RWUpkUUpPMnJzUnRZNTNFdHFmWi9WdDQvYVdE?=
+ =?utf-8?B?YmwvSVh1a041Q0I4eWhaMEpZMzFFTEVnNzBZbVplNnRlL25kM3I3eUpIQmlt?=
+ =?utf-8?B?SXgxT3hJSGlObjg1ZW5QRVNoSmZmb2R2U3lhVXpkWUw1N0N6c0t0R1JZeFpZ?=
+ =?utf-8?B?ait4S1IwMUsvdEpKZDBGSWc2UUVxK2traUowTVk5M0VUV2tZTVZIdnVNTUpv?=
+ =?utf-8?B?OWY5bjVEN1dLMTNRZzhWQ0QrU1ZXMGtPcTlBd2NlTld0NGtSR2NLUEZvY3Vr?=
+ =?utf-8?B?QTRZV1RJYzMyVHVYNC8xemxqQXJpTzlCZ28zTFQ1TGNuZHFDQ2liUHhPVS9v?=
+ =?utf-8?B?TG9Ub0IxMVpxdllHQituTVdhUmdkNlFsL0U3YTNWT2VYU3U3am5DTTlJU0Fz?=
+ =?utf-8?B?ZEVXN0JzNWg0K2lvNVFwdzMvWXhyMHpUQ0ZjZ0x2M01yTjNCeEQzUmd2NS91?=
+ =?utf-8?B?c21WOWNuZGNRNGE4V3R0OFlaeGFGTVNtc0FFc1RIR3dObzBXcXNmamtYOC9W?=
+ =?utf-8?B?WnZvRDNqRFZVS2plTDRDQUNrM0tKR0hsRXVxMVdjZHlMZFJnWlBJTzBTTGNx?=
+ =?utf-8?B?YmgrQ2t1dXdyZVFmUVpNa1hkWUJEd1VVUHNTc1dkS2hQenZ2SStxRXhNS2RG?=
+ =?utf-8?B?V2U3SjJZRzcwRUdSQzRHandyWjhZbUxvQVNzTUdyOUxNM2JzRWh0dmRBYkM0?=
+ =?utf-8?B?dFUvRjgwKytPNHJrelRCYXAxVUhjWWh6OC9uZDNMT2F1VERTdlJyQXJLejlF?=
+ =?utf-8?B?NjlwVTVmQmpvR1pXNHpXM3ZwM2pDOEM1ZXQyOWxCeFB2a0lHd3IyRzVWdnVi?=
+ =?utf-8?B?bU80WkZka1hSdWdKNUlDbS9iN0U2cEUwNFVzSldPamErd1h5aE8xOHhDa1p4?=
+ =?utf-8?B?K0xNM0Z3ZGdaQzNkUHZONHZKUlY4UFFjZDByT1pDUkI2MXdmSGo4OTMxNy9o?=
+ =?utf-8?B?S2MvaWFweFpsTjU4enVHN2U2UWFQNXdwZWxMV0pCTW8xdXZLS3VMQ0Y3TFJi?=
+ =?utf-8?B?QnRDUVpJQklRLzhXK3ZSZ3R1S2Q1VUpUV0lwTGZHeFBRbVV6MFg3RkM5b3NU?=
+ =?utf-8?B?NDNpcGF4Zzk0cnRhUEdKR2lzUHVsSDNncXZqUXdDTUh0ZlVhWm8zWHhTdytu?=
+ =?utf-8?B?UDF0a2ZsL3BraXQ5bTVGWExHcmpqcnpNdjZYZU9VdndrOEI0WEtOU1VIdEww?=
+ =?utf-8?B?ZHVGZGhpTHkrQ0gwUzBxcWJnckFweENpSlNoSzlqYmpBU044WjlBUjVWZ0d0?=
+ =?utf-8?B?Q0I5ZGs2bUFxMEFkOUlYOUR1MVpHai9FZ2pneENNdjJYQjlzeHhtWmhrNVpn?=
+ =?utf-8?Q?t0nP/t3wYNf8su9scD?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 3df93b3f-edd5-4843-570a-08df28eb6734
+X-MS-Exchange-CrossTenant-AuthSource: CY8PR12MB7170.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Oct 2026 05:32:42.6772
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: Be3QdUSb1tPsbNLiVHg+1OSbj3k2uP6Bs7yCsNx+AM/2ryymr7V57EoztoamVyZiy/0TApugxpHzQz3Z2MshiA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR12MB6752
 
-PCM I/O scatterlists point directly into the ALSA runtime's vmalloc
-buffer. If RELEASE or queue draining times out, ALSA still frees that
-managed buffer during hw_free/close while the device may retain the
-queued descriptors. Keeping only the virtio_pcm_msg objects alive does
-not keep their backing pages allocated.
 
-Take a reference to each page backing the PCM buffer before building the
-I/O scatterlists, and release those references only when the messages
-are freed after device ownership ends. This keeps late device DMA away
-from pages that the allocator could otherwise reuse after ALSA releases
-the vmalloc mapping.
 
-Fixes: f40a28679e0b ("ALSA: virtio: handling control and I/O messages for the PCM device")
-Assisted-by: LLM
-Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
----
-Validation: separate ARM64 W=1 module build at this commit. With the
-full series, delayed capture completion passed two KASAN/QEMU runs;
-the tree through patch 3 reproduced freed-page reads. Playback late
-access and allocation-failure paths also have ASan/UBSan shim tests.
+On 10/10/2026 8:50 PM, Dmitry Osipenko wrote:
+> On 10/10/26 10:37, Huang, Honglei wrote:
+>>
+>>
+>> On 10/10/2026 2:53 AM, Dmitry Osipenko wrote:
+>>> 24.09.2026 12:55, Honglei Huang пишет:
+>>>> +int virtio_gpu_userptr_create(struct virtio_gpu_device *vgdev,
+>>>> +                  struct drm_file *file,
+>>>> +                  struct virtio_gpu_object_params *params,
+>>>> +                  struct virtio_gpu_object **bo_ptr)
+>>>> +{
+>>>> +    struct virtio_gpu_object_userptr *userptr;
+>>>> +    struct virtio_gpu_mem_entry *ents = NULL;
+>>>> +    struct sg_table *sgt;
+>>>> +    struct mm_struct *mm;
+>>>> +    unsigned long lock_limit;
+>>>> +    unsigned long start;
+>>>> +    unsigned long end;
+>>>> +    s64 new_pinned;
+>>>> +    unsigned int nents;
+>>>> +    int ret;
+>>>> +
+>>>> +    *bo_ptr = NULL;
+>>>> +
+>>>> +    if (!params->size || !IS_ALIGNED(params->size, PAGE_SIZE) ||
+>>>> +        params->userptr != (unsigned long)params->userptr)
+>>>> +        return -EINVAL;
+>>>> +
+>>>> +    start = params->userptr;
+>>>> +    if (!IS_ALIGNED(start, PAGE_SIZE) ||
+>>>> +        check_add_overflow(start, (unsigned long)params->size, &end))
+>>>> +        return -EINVAL;
+>>>
+>>> There is new vgdev->blob_alignment defining host page size as it may
+>>> differ from guest's page. Will be good to validate both.
+>>>
+>>
+>> Will add blob_alignment check in next version, thanks for the review.
+> Missed that verify_blob() already should be validating the userptr
+> blob_alignment. The patches look good.
+> 
+> BTW, previously the extra AMD KFD patches were needed on host kernel,
+> did they land upstream?
 
- sound/virtio/virtio_pcm.h     |   5 ++
- sound/virtio/virtio_pcm_msg.c | 110 ++++++++++++++++++++++++++++++++--
- sound/virtio/virtio_pcm_ops.c |   2 +
- 3 files changed, 112 insertions(+), 5 deletions(-)
+According to KFD maintainer, they want to us to add those virtio 
+specific feature into drm svm, a new SVM frame work based on drm svm 
+helpers. We are working on it:
+https://lore.kernel.org/amd-gfx/20260804094246.1719318-1-ray.huang@amd.com/
 
-diff --git a/sound/virtio/virtio_pcm.h b/sound/virtio/virtio_pcm.h
-index 8837dfc12828..56ac2769b05b 100644
---- a/sound/virtio/virtio_pcm.h
-+++ b/sound/virtio/virtio_pcm.h
-@@ -13,6 +13,7 @@
- 
- struct virtio_pcm;
- struct virtio_pcm_msg;
-+struct page;
- 
- /**
-  * struct virtio_pcm_substream - VirtIO PCM substream.
-@@ -38,6 +39,8 @@ struct virtio_pcm_msg;
-  * @msgs: Allocated I/O messages.
-  * @nmsgs: Number of allocated I/O messages.
-  * @msg_count: Number of pending I/O messages in the virtqueue.
-+ * @dma_pages: Pages backing DMA messages, retained until messages are freed.
-+ * @ndma_pages: Number of retained pages.
-  * @msg_empty: Notify when msg_count is zero.
-  */
- struct virtio_pcm_substream {
-@@ -60,6 +63,8 @@ struct virtio_pcm_substream {
- 	struct virtio_pcm_msg **msgs;
- 	unsigned int nmsgs;
- 	unsigned int msg_count;
-+	struct page **dma_pages;
-+	unsigned int ndma_pages;
- 	wait_queue_head_t msg_empty;
- };
- 
-diff --git a/sound/virtio/virtio_pcm_msg.c b/sound/virtio/virtio_pcm_msg.c
-index 5371f4985fd0..46bf4df65974 100644
---- a/sound/virtio/virtio_pcm_msg.c
-+++ b/sound/virtio/virtio_pcm_msg.c
-@@ -3,6 +3,9 @@
-  * virtio-snd: Virtio sound device
-  * Copyright (C) 2021 OpenSynergy GmbH
-  */
-+#include <linux/limits.h>
-+#include <linux/mm.h>
-+#include <linux/overflow.h>
- #include <sound/pcm_params.h>
- 
- #include "virtio_card.h"
-@@ -75,6 +78,73 @@ static int virtsnd_pcm_sg_num(u8 *data, unsigned int length)
- 	return num;
- }
- 
-+/**
-+ * virtsnd_pcm_dma_pages_put() - Release retained PCM buffer pages.
-+ * @vss: VirtIO PCM substream.
-+ *
-+ * Context: Process context.
-+ */
-+static void virtsnd_pcm_dma_pages_put(struct virtio_pcm_substream *vss)
-+{
-+	while (vss->ndma_pages)
-+		put_page(vss->dma_pages[--vss->ndma_pages]);
-+	kfree(vss->dma_pages);
-+	vss->dma_pages = NULL;
-+}
-+
-+/**
-+ * virtsnd_pcm_dma_pages_get() - Retain the pages backing the PCM buffer.
-+ * @vss: VirtIO PCM substream.
-+ * @data: PCM buffer address.
-+ * @length: PCM buffer size.
-+ *
-+ * Keep the backing pages alive while virtqueue descriptors can still refer to
-+ * them, even if ALSA releases the vmalloc mapping after a failed drain.
-+ *
-+ * Context: Process context.
-+ * Return: 0 on success, -errno on failure.
-+ */
-+static int virtsnd_pcm_dma_pages_get(struct virtio_pcm_substream *vss,
-+				     u8 *data, size_t length)
-+{
-+	size_t i;
-+	size_t npages;
-+	size_t span;
-+
-+	if (!data || !length || !is_vmalloc_addr(data))
-+		return -EINVAL;
-+	if (vss->dma_pages || vss->ndma_pages)
-+		return -EBUSY;
-+
-+	if (check_add_overflow(length, (size_t)offset_in_page(data), &span))
-+		return -EOVERFLOW;
-+
-+	npages = span / PAGE_SIZE + !!(span % PAGE_SIZE);
-+	if (npages > UINT_MAX)
-+		return -EOVERFLOW;
-+
-+	vss->dma_pages = kcalloc(npages, sizeof(*vss->dma_pages), GFP_KERNEL);
-+	if (!vss->dma_pages)
-+		return -ENOMEM;
-+
-+	for (i = 0; i < npages; i++) {
-+		struct page *page = vmalloc_to_page(data + i * PAGE_SIZE);
-+
-+		if (!page)
-+			goto err_put_pages;
-+
-+		get_page(page);
-+		vss->dma_pages[vss->ndma_pages++] = page;
-+	}
-+
-+	return 0;
-+
-+err_put_pages:
-+	virtsnd_pcm_dma_pages_put(vss);
-+
-+	return -EINVAL;
-+}
-+
- /**
-  * virtsnd_pcm_sg_from() - Build sg-list from vmalloc'ed buffer.
-  * @sgs: Preallocated sg-list to populate.
-@@ -133,22 +203,42 @@ int virtsnd_pcm_msg_alloc(struct virtio_pcm_substream *vss,
- 			  unsigned int periods, unsigned int period_bytes)
- {
- 	struct snd_pcm_runtime *runtime = vss->substream->runtime;
-+	size_t buffer_bytes;
- 	unsigned int i;
-+	int rc;
-+
-+	if (vss->msgs || vss->nmsgs || vss->dma_pages || vss->ndma_pages)
-+		return -EBUSY;
-+
-+	if (check_mul_overflow((size_t)periods, (size_t)period_bytes,
-+			       &buffer_bytes))
-+		return -EOVERFLOW;
-+
-+	if (!runtime->dma_area || buffer_bytes > runtime->dma_bytes)
-+		return -EINVAL;
-+
-+	rc = virtsnd_pcm_dma_pages_get(vss, runtime->dma_area, buffer_bytes);
-+	if (rc)
-+		return rc;
- 
- 	vss->msgs = kzalloc_objs(*vss->msgs, periods);
--	if (!vss->msgs)
--		return -ENOMEM;
-+	if (!vss->msgs) {
-+		rc = -ENOMEM;
-+		goto err_free_pages;
-+	}
- 
- 	vss->nmsgs = periods;
- 
- 	for (i = 0; i < periods; ++i) {
--		u8 *data = runtime->dma_area + period_bytes * i;
-+		u8 *data = runtime->dma_area + (size_t)period_bytes * i;
- 		int sg_num = virtsnd_pcm_sg_num(data, period_bytes);
- 		struct virtio_pcm_msg *msg;
- 
- 		msg = kzalloc_flex(*msg, sgs, sg_num + 2);
--		if (!msg)
--			return -ENOMEM;
-+		if (!msg) {
-+			rc = -ENOMEM;
-+			goto err_free_msgs;
-+		}
- 
- 		msg->substream = vss;
- 		sg_init_one(&msg->sgs[PCM_MSG_SG_XFER], &msg->xfer,
-@@ -162,6 +252,15 @@ int virtsnd_pcm_msg_alloc(struct virtio_pcm_substream *vss,
- 	}
- 
- 	return 0;
-+
-+err_free_msgs:
-+	virtsnd_pcm_msg_free(vss);
-+	return rc;
-+
-+err_free_pages:
-+	virtsnd_pcm_dma_pages_put(vss);
-+
-+	return rc;
- }
- 
- /**
-@@ -177,6 +276,7 @@ void virtsnd_pcm_msg_free(struct virtio_pcm_substream *vss)
- 	for (i = 0; vss->msgs && i < vss->nmsgs; ++i)
- 		kfree(vss->msgs[i]);
- 	kfree(vss->msgs);
-+	virtsnd_pcm_dma_pages_put(vss);
- 
- 	vss->msgs = NULL;
- 	vss->nmsgs = 0;
-diff --git a/sound/virtio/virtio_pcm_ops.c b/sound/virtio/virtio_pcm_ops.c
-index f2362f0dd80a..82f2d2f9dd64 100644
---- a/sound/virtio/virtio_pcm_ops.c
-+++ b/sound/virtio/virtio_pcm_ops.c
-@@ -25,6 +25,8 @@
-  *   signal or due to a timeout. In this case, the device can still access
-  *   messages even after calling ops->hw_free(). It can also issue an interrupt,
-  *   and the interrupt handler will also try to access message structures.
-+ *   The messages retain references to the PCM buffer pages until they are
-+ *   freed, so late DMA does not target pages released by ALSA.
-  *
-  *   Therefore, freeing of already allocated messages occurs:
-  *
--- 
-2.54.0 (Apple Git-157)
+And the amdgpu VM maintainer has agreed that he will help to consider 
+how to intergate the virtio requirements into the design of amdgpu drmsvm.
+
+And for now we can use a user space method to replace the AMD KFD 
+patches function, it is mremap, it also works, we tested it, but
+it has some performance loss, I will update the whole thing when all the 
+components code are ready.
+
+Regards,
+Honglei
+
+
+> 
 
