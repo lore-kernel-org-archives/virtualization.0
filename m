@@ -1,96 +1,96 @@
-Received: from mail-yx1-f43.google.com (mail-yx1-f43.google.com [74.125.224.43])
+Received: from mail-yx1-f54.google.com (mail-yx1-f54.google.com [74.125.224.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF1DC54CF72
-	for <virtualization@lists.linux.dev>; Tue, 13 Oct 2026 20:30:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3911F47CA9D
+	for <virtualization@lists.linux.dev>; Tue, 13 Oct 2026 20:33:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.54
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791923435; cv=pass; b=WFhFiOg8cZZ9nrdCinT/GbyZs7hgXvQrm+C2PAhmyqxUQgNswnh8GCwZJgLr4ySbfO4YzVcWZ+3CusiBDULAzQiPyKUPwHKUrxB9egm9N97BeptTLI0llVizFA/mFXhZbDWjzcs2R7k67O9haFkA0MmVNBQuHuGqAzMkaTRCYsc=
+	t=1791923586; cv=pass; b=XmNqtsqfBeuxZ5zKNTtvm++eBayA6xqLFUTwQ4/W3wHnb6hwCKhpGGKNi1i0frVDG66cLQHPboxGFMX0XE8by5kOl5du+BmJ+7D869fb+SX1Hj+1xKJDrV9KXjxnjQcqJtvj3gJylBRqzdYbq5D0oj3X+aYBWpWbQYheDmXdbDY=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791923435; c=relaxed/simple;
-	bh=v91tamJ4lur5vC0yoc8PA+H+9sgMG/EoWrw7MxUej9U=;
+	s=arc-20240116; t=1791923586; c=relaxed/simple;
+	bh=guoFD20zEk9cIM8OGpiI6ZacaO2x+w0vW/appO61b84=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=KTDbaf0UPIRjCCglMjEqEFoIVWiLu5RCaEsto6MZp9zGWnC44g1r/vTPRl8Y2bTFFwxGvOt+S/Cl47bNOBr0z72c43ueRVT1P47vTSxxS9mSE+vVb/ecQVtgjPNMpVsSxK61LZzPoD6gTRyH9kJVUZ5uDYU6Kxqu1gaBYAZ7mY4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KTQr/7uq; arc=pass smtp.client-ip=74.125.224.43
+	 To:Cc:Content-Type; b=CjJarnz14oQhiqc3L04oPtFBlSO9qWN8+0uuHGfrxpTFmyLx3I3k5JjjfvCGdbcSzXpfYdwU5pb+0GtwpvZUFYd8Czt6xcltk9VaGsRssNqikcKTix+acwezrsGfciFRsKt/7tCbYkVciYg7JrBiH6KfIynFp8RVOgBYHRkzBJE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EDKTMDDW; arc=pass smtp.client-ip=74.125.224.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KTQr/7uq"
-Received: by mail-yx1-f43.google.com with SMTP id 956f58d0204a3-677af43eed4so3076841d50.0
-        for <virtualization@lists.linux.dev>; Tue, 13 Oct 2026 13:30:32 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1791923432; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EDKTMDDW"
+Received: by mail-yx1-f54.google.com with SMTP id 956f58d0204a3-676858d42f8so2738212d50.2
+        for <virtualization@lists.linux.dev>; Tue, 13 Oct 2026 13:33:04 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1791923584; cv=none;
         d=google.com; s=arc-20260327;
-        b=s66Bg8ljbQhOzivATawMcdstGpxDKUJqRfO0JXpRxSjVBzkxByyZ6YztrLT0yLold0
-         S4tm0jMGH1f2qujhVnjpHhzz39OTmvkwbe7+WDXMwNzne1WMZsNCi+6dv8Q3wijkYu/8
-         oP6FybJuKlwADuRWObr7cXXHqF6qTxo+rzf7z63x8IIMYGua9zcodMwXxW5+/XFYfR3a
-         9W+3FxfbwWtRRlIA5AUJW/xLjQ3kaa9yOZMdN9b4KGR4ZVUjhb/5h2qFLYG8w8yTBwF4
-         Z4qe3Gv0QK1SPFsJuDZecNYsrAjvR2wEsxjQvL+OxUmgtbJ+YUgVTBiL7blPx2YFbDFp
-         0LXA==
+        b=lVybFVt6dUgrg2hgEl53ODBrxghTuWeu9Gd12M89gyHgrTAnwnpAuPHox0cT8sIc5E
+         GalMScLJG2FFQZbFUlFlgZbDLZ/ydxsgwmJ73fQGycFNX6azYYzCGQmSOTh+M07X0ANP
+         AArtF11xZddHvtLLjr33OArGfJ1JOWSEjk8IrYnEFkl7gzgUy5TjidR9QoALHD7i0rtZ
+         cZ1JPxsB9p8k92agihXDCG4IDb6qptd0Lif+o11lYxMYshkjcUWrYd+EgnWhEOh829bv
+         CqI907N4ryvynBoQtPd2NLT9sA19VFCNJuoWA9nFtXGdZeE1oa67ALpObA/sQ+msXm+B
+         BL2g==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=PZ4+EgAKfEgLHQ/9kN3KZ8YlHNWXSOHDiqf8U2cJ1wI=;
-        fh=ub12uKknBvY9LeJnw5cJWJCemv3zkfgjkTsh7P4JEw4=;
-        b=WRtk3S2LhCpC+B0cjVSCw0YsozXOzJgbAa5TovVfGUOgR+qzlHytNuqJrnqEc8gPPQ
-         ggSoxElXkfXxUkRwEdoC9MVl+JB6HW4FlhhjTVc8S5gjGgIF8jLWIh8vQR4bcqfTmahd
-         gMW1ykGhIzAVPb+CXWawUbpNNVwpjqFSfNdjr7fnBSk56Shqc4tJ5pZTcmilx9E9/BtY
-         xR7ZiSGGbaBcBP+pgBFoAduRwXrtkAEE/0I34YFuyRL9T5FqKSZraXblKifcVp6LIypT
-         E5pcRlPyl0k9+cz8Uhps+ML5Xgo3x/pXNqxgeHsqSuto/knxhTVUr3v5QEqZahzQVlbz
-         XFWQ==;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=fjZWNfknzV1F6JAInAE8o3x3W3fwqE841SsbudO4cc8=;
+        fh=vi7VST77W7VyoFBVElzGxeNo5IK009nmbDpC2rzhNE0=;
+        b=T/CsBw64+JOvwG+uAYNzoF1jQky2+/mxgVbZWgkXiaQOxYy5oCKWavy1J4urJ6Cwrf
+         7RLheTxCXxUQPq9Kv4j5eP15dE0JQJUAoHVXb5F+G8DDyGg64wHIbc6YfesOBJbSg5n2
+         rWdf09YRzEz8s/IDBMNQiuV/JC/cwdNmB4cWs8EoaZaCBQmjShEtWYJVzJvX6R5Y3B53
+         K4xfNN/hjpgTtCmNFewjW7HWOuoVCREWbsfGt4MIvMVCU2s09SiKamHhFZY3emOoeaj0
+         tIFaxpKIuPvvXi7vApe99V92C5NXwwLbRUDhJ6k5fypbPxZanOtZHa9nob4OhCnOuVNr
+         W6ww==;
         darn=lists.linux.dev
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791923432; x=1792528232; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=PZ4+EgAKfEgLHQ/9kN3KZ8YlHNWXSOHDiqf8U2cJ1wI=;
-        b=KTQr/7uq8Jd8UsbaamObVs2OqDD2c0mAikMc1RnNFiibrNG2CsAS2977n5H7ar3Rjw
-         uZO6FYCCmuqOM0514KeJkFEi3ofa8ZEUEKbQghEAncLGdONCZh87y1CdW4ZKeL33kCu7
-         qALGWwLEFCPrFUPRJvDg2n+oR94VJcoVVTRHMmKnaoPRHOBD6NJs/WfOUmWpvJq2Fz5i
-         G+ktbhNEnZKVX2dfCMks7tF8i4LlR9RhxqMzL7CWsxnlfR35LUtsS8u5HPmKCGCUnvH4
-         35lMaeTbVVDAVIvQ8nHTLcHJEOiHxQSEFtPfSeFX9RQtyprXs/nFb+FoXmiS8AXsqosz
-         tKBQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791923432; x=1792528232;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+        d=gmail.com; s=20251104; t=1791923584; x=1792528384; darn=lists.linux.dev;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=PZ4+EgAKfEgLHQ/9kN3KZ8YlHNWXSOHDiqf8U2cJ1wI=;
-        b=iXbubPMuikpMFLMEkTQnO1ZSW0X6DBtrD2Hfq4i/QA3+LqLYHG7Xa5TVbzuqtZ6QN2
-         tFgtc2eBxajT6ZWnpe+oo2SguNyjLiuQBi8Qs0pB1febp9h/eSo02/xdR3+z6SLfWd/3
-         CAJlx8/xYFIyWiMlEkeucAbo1UgR1tC7BOe5Xuvm26uJjKuZjXhyTK5c1wZ3qfxIl0Jb
-         M+5v4qv1+uGvzjQCKIvkLqdTlQSr6D/5djcII8pPwnIsHHSLWMOgOFGbKkp+oGcCQAms
-         sk+qs9/VngcY3ecd8dizdLwqYUvg6tjj8KmYdzTPuttNdBxFHe1kq9ECDTHg7bCwLsQe
-         eGKQ==
-X-Forwarded-Encrypted: i=1; AKwUvBzu/pSsT1Y7XqL1wzBuCiFBfwkeLqnVG3VI+QdmNbcn+ldy5YNXTtcvSzC2oxRj0HTxdPRZcVs0fH+1zIu2NQ==@lists.linux.dev
-X-Gm-Message-State: AFq9FYKc6/02/EFgYbaa3oW5iWBlMO/7pCGYcJWX6bY8xwp5XuTsBkHL
-	WL/C9ZJnbTheDX43nO8BZ9GW6K57GQzqnYfh9YoRAlt5o0bUWihHhfemCfIZvKzRbAn2wzXUiMh
-	D66HTQoGE3HndKtL+g/DMDCTwL+FG9G8=
-X-Gm-Gg: AYBFou0BiHCcEjN/t9MbzrjIjZM+7XMsXFqSHkn7Is0HOpVrKr/Gy7ubVJmuxDPIP4Q
-	OiSqTsLE4DhT5adQ/8RUB3xyiPbDtiE7CLBAiI9jXtOm4UoQjyXc7LyZsQjW3gois6LCti5yfuN
-	QhdIIdhgo1UVd9Tsa1XvI9pJZSStkQfhAq2iXDc/bL0FANA+c+zjIHRiOrV99lxZp3SBK0EqZqg
-	EkEEcVpRThAQCp/TUh5qekHkPkDuW1guKWFqIsKK0P7rVTrF4Ht7hmmfcZ6jl+DDY0bMiBM7exm
-	WwO/2B+EIOWPSat5C+Qx/6gHJ2bJqk3v/GMcgsDwRoXkQGH7xWy2sIQiAygpM5CZqWDw5/hWdlX
-	PrRJ2gE19Bfpbh7Q0q1CAQJWu7rPm/7rsfD3E5BGG
-X-Received: by 2002:a05:690e:4148:b0:674:cc60:9ac2 with SMTP id
- 956f58d0204a3-679369ed352mr4676766d50.46.1791923431579; Tue, 13 Oct 2026
- 13:30:31 -0700 (PDT)
+        bh=fjZWNfknzV1F6JAInAE8o3x3W3fwqE841SsbudO4cc8=;
+        b=EDKTMDDWScJfoGCavscKFVjrvU7zWgggkAA/tKZR4lzbctQ2WwpfZrDcD7u3K72gUu
+         +wgkZiskh9YAKTTnMmnch8to3MhKEFsF+1DYRIIvgy5lU5O6mvn5y3xaoHpeUj3EKl85
+         EbOCKm36ycLnabjCtuUrrhKMbsMqEvhorniBRKbjTzgMoeAoFXdcjDH63V9P4u0nNhS2
+         DXel9xFgwWYXhZ4SeGTFwK/sUTxN66dtdtXjQDB9GuyVS7VEsN8WyeEpNlWOpUINuidT
+         dJYtd9doDD9dBzVvBb68RoJHAsXHk5tTg9xUSIv0/pjDJ81+6ZUwJe0d7ythG1PfvbEH
+         R/mQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791923584; x=1792528384;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=fjZWNfknzV1F6JAInAE8o3x3W3fwqE841SsbudO4cc8=;
+        b=pkKXTPU93mzBbNxpeTrrjIL9kMjUdwPuYjm1X8wLtN/6PU2xuWVtYVc/J3QVo0fBio
+         YCexdcQU3Kyu1pLkK1QhHUXw4NdkteNGuW5fm4YHbB+OQBW+RF6EZsvVebHuaOSTiylE
+         z9ngWi+EwlF8yr7HeKGLdIvohzbt2Lgtl9D6Vv/JrmpShnqM8pRfwQUQq1e/we+yQpBm
+         nRpVgOli1kqesPNL1DrGpThXTqcNye4vJM/qNj/p/s2ylbgqKgNTJyzC7LjlVI0KBnAA
+         qExuslePxAfUUPaslLGnIVspMtRjdqRho6t1Pe2bSZTxoi9/0yV8mJwA7RUFDc8nLNN1
+         t30w==
+X-Forwarded-Encrypted: i=1; AKwUvBzWhICDg46D6635M+ciJoa+5h4i7TRULr2L0PXzVJF6TpQGET61FvjrSQ13TVOoWhZaBM9BusqFfMtL+AAlCw==@lists.linux.dev
+X-Gm-Message-State: AFq9FYK3cht2MWiqPy79yfQaA4ZRCk2c0SwF+B9L8njGhqZZYxTemqmH
+	PfCkiB75PIixcnXyXbs9r8BBuubg742qsQa8vumuyZkI0YauJotVr8pKficSEnmVhMmsEyVbob5
+	tUh3mEU4BoJfpyDEgp8Fk7f932i3GBwk=
+X-Gm-Gg: AYBFou1fvQCU7jxeUncYDnETYMiLW1NSiUh+B0aDZ6IJ7EfUwB6Uz9ITXiaC36tznta
+	17iontuHdr+BQN15ADOfABTR3flHSbEYr6X7gwpegCJCgustQHyXmIRMTuzD1ExoqXY/E75WXnT
+	GWSq9klD07CoGJjw6DCYcs/8/JEQHTywQ5jbcExyGglgg87KyiMzcc/dqY7bA+RCcdCxCdcJnfO
+	+Sl/B3sG5ulQL3Xw6gNl50Fw3IM4PQFJlCECMT9uNd3iUkOnryyLrQAhWi/6sSJNmoCNIooA0TM
+	a1012+iXLjZ3It5tHYDmDAVnQlgw8R969LZ4TcnWbl/iK1ueOurdzdLvJF4tTAcbzT3/EYRWQ36
+	rbnkQatJ8Aww/aauX5gcrEzJqgD7AR+j9Lt31ZomH
+X-Received: by 2002:a05:690e:168b:b0:675:b778:a423 with SMTP id
+ 956f58d0204a3-679362bf517mr4886393d50.142.1791923584078; Tue, 13 Oct 2026
+ 13:33:04 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <cover.1791887415.git.mst@redhat.com> <CAF=yD-JhTbmYmHUkkruPcyvSWv0QhVeGWC=K=ZvvpMdkzA-jig@mail.gmail.com>
- <20261013143716-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20261013143716-mutt-send-email-mst@kernel.org>
+References: <cover.1791887415.git.mst@redhat.com> <e12c6a45aae251d1642af55d8d3121e554993a66.1791887415.git.mst@redhat.com>
+ <20261013070549-mutt-send-email-mst@kernel.org> <CAF=yD-KdTn2rHyp_j8ORr9F5hpm=TzaPRan5+gvLiYBd9HP-sg@mail.gmail.com>
+ <20261013143335-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20261013143335-mutt-send-email-mst@kernel.org>
 From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Date: Tue, 13 Oct 2026 14:29:53 -0600
-X-Gm-Features: AclHuK8wZI7uIJlX-2etJDs8Vk1Tx42gw4A7NIBFItdYxL1q3Y6FeTRL8Oizybs
-Message-ID: <CAF=yD-LLNm1K5r37-y2thyvLJN58ruffUUHy-6BUh1CGVmep0Q@mail.gmail.com>
-Subject: Re: [PATCH net-next 0/4] more virtio-net csum hardening
+Date: Tue, 13 Oct 2026 14:32:26 -0600
+X-Gm-Features: AclHuK_AY3efVdSO1MP2W2AAhlxVTMjkmeXG8cBqCPBuysQoPjuKaPNm0xvEtb8
+Message-ID: <CAF=yD-Lz92nGVFab1Dq8M9VusDsKf-ioda8KrZoyh28x3Xtg4Q@mail.gmail.com>
+Subject: Re: [PATCH net-next 3/4] net: resolve uncommon partial checksums at ingress
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: linux-kernel@vger.kernel.org, Jason Wang <jasowangio@gmail.com>, 
 	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
@@ -98,76 +98,45 @@ Cc: linux-kernel@vger.kernel.org, Jason Wang <jasowangio@gmail.com>,
 	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, 
 	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org, 
 	virtualization@lists.linux.dev, Max Krasnyansky <maxk@qualcomm.com>, 
-	Paulos Yibelo <habte.yibelo@gmail.com>, Chris Arges <carges@cloudflare.com>
+	Rusty Russell <rusty@rustcorp.com.au>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, Oct 13, 2026 at 12:41=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com=
-> wrote:
->
-> On Tue, Oct 13, 2026 at 08:41:19AM -0600, Willem de Bruijn wrote:
-> > On Tue, Oct 13, 2026 at 4:58=E2=80=AFAM Michael S. Tsirkin <mst@redhat.=
-com> wrote:
-> > >
-> > > Allowing untrusted hardware to specify csum start/offset for
-> > > CHECKSUM_PARTIAL was not a good idea, because, if it edits the packet
-> > > outside the actual checksum, and depending on the setup, the networki=
-ng
-> > > stack could be looking at the packet both before and after the edit, =
-and
-> > > seeing different results.
-> > >
-> > > Previously, commit 6785011f8b16 ("ipv4: validate checksum_start befor=
-e
-> > > completing checksum") validated all known instances where this
-> > > causes the most grief, but the real fix is to make sure
-> > > that either only actual checksum fields are ever edited,
-> > > or the checksum is completed before the net stack looks at it,
-> > > so it is always consistent.
+> > > > +
+> > > > +     if (virtio_net_csum_partial_ok_at_offset(skb, gso_inner_type, inner_nh,
+> > > > +                                            inner_proto))
+> > > > +             return 0;
+> > > > +
+> > > > +     if (skb_is_gso(skb))
+> > > > +             return -EINVAL;
 > >
-> > +1 on the general approach of performing the checksum offload at
-> > input, unless the input can easily be validated to be one of a few
-> > common protocols. That greatly reduces the risk vs my previous attempt
-> > at trying to drop.
+> > This is a risk the commit message will have to call out.
+>
+> I tried with this:
+>
+>         > > > We can't easily "complete the checksum" for GSO we don't recognize - GSO
+>         > > > assumes knowledge of the protocol. We could segment ignoring the
+>         > > > checksum then do whatever csum_start and csum_offset say, but that
+>         > > > seems like an overkill for something that should happen.
+>
+> I guess I can add a more detailed explanation about what the risk is?
+
+Let's just explicitly mention the consequence: non-standard GSO
+packets that previous would be sent may now fail.
+
+>
+> > I don't see a simple way around it. We discussed segmenting here too,
+> > but that requires intrusive changes to all callers too.
+> > Alternatively,
 > >
-> > Since we do not know the full extent of grief, I think this too should
-> > go to net and stable.
->
-> I think it needs a bit more testing to be frank, I do not see it
-> wait months out of the tree. So if this lands in next before the
-> merge window, we are good I think. If we miss that I will target net.
->
->
-> > That would mean initially a single patch that
-> > touches as few files as possible. The helper function in
-> > include/linux/ip.h and conversion of existing open coded parsers to
-> > use that can follow up later in net-next.
->
-> I don't see the value to be frank.
-> What moving code between files accomplishes, I donnu.
-> Squashing things surely makes review harder?
-> Does your backporting system really struggle with trivial
-> dependencies like this?
->
-> I can drop patch 2 and will if I am targeting net.
-
-Good. This is not about "my" backporting, but upstream stable.
-Refactor patches do not belong there.
-
-Since patch 3 might have to be backported in the future if a serious
-abuse surfaces, even if you now land it in net-next, it is better to
-not depend on other patches.
-
+> > 1. call segmentation, but only to see it remove the SKB_GSO_DODGY and
+> > thus verify that the TSO/USO packet is valid. Still drop otherwise.
+> > This also does not add overhead, because it would be called later
+> > anyway.
 > >
-> > > This basically does this: checksum at ingress, except in a narrow lis=
-t
-> > > of specified known good cases.
-> > >
-> > > Fixes: f43798c27684 ("tun: Allow GSO using virtio_net_hdr")
-> > >
-> > > Michael S. Tsirkin (4):
-> > >   net: add ip4_parse()
-> > >   net: use ip4_parse() in receive validation
-> > >   net: resolve uncommon partial checksums at ingress
-> > >   net: account for ingress-resolved virtio net hdr state
+> > 2. a failsafe off-by-default sysctl + static_branch that skips the
+> > drop when set. Messy, but so is the situation we're dealing with.
 >
+> Tack this on top or do you feel it's needed straight away.
+
+Not urgent. Can even wait until a report appears. But worth taking a
+look sooner if either of us gets around to it.
