@@ -1,69 +1,62 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77B0C3A0B24
-	for <virtualization@lists.linux.dev>; Tue, 13 Oct 2026 09:25:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F2803EB11C
+	for <virtualization@lists.linux.dev>; Tue, 13 Oct 2026 09:38:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791883549; cv=none; b=VmV7OJVNcXW0LY5RSB2B4p3M0urHM5I8ZtyKsd1mwHUhlXqgMTq1aKhRx0OlxDezOw7xUvHOGemRy/oriRdbCj3cdLfOqXFHj8ZGijMomM4ACBzml1qaasRd61z92qTGUyDquM+KJF2Y7jPcn3AdKZr1Hd8Tw7VCpYi66mx2dkY=
+	t=1791884297; cv=none; b=QVmj0zoqgiy9Vc6GDLx34YuDIOQoao74HmMqP0yncjjwuq4jrk2gz0fzcTiahHZlYvkU2ufCUoAxVVkcvCC5UX7jP70pl8s7QzPdJ8WfQ8iC+FPSd5zegkepmIPa7BGrHr8ENPk+QkVd+q+m3AbeNMmH19HykGW7Gg24ijAQJgc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791883549; c=relaxed/simple;
-	bh=NvYBZm3n1Liz+5IlxpHGZ+oive3veh6QIbLUfZfIqb8=;
+	s=arc-20240116; t=1791884297; c=relaxed/simple;
+	bh=+8dDG47XMcCWEpZNJ8+Kk4+tTLpZMolCj/POsgshYhY=;
 	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=ZX7x+V0sAIvcfZzYcEMzAxl+p5cdAW2T3Om3iIcpwn+tfAjBAC9HYSTP5qBp8l5jA5TyGkXXsGzPXhjkW2oTtx944FXHmUiMnfpSVAmMmCBBDiWi8vElBPQu48/EGLDBjLzKq//hVP7Q8hbVLEyfOs2QLgkzNOhpv0ZahvbEvYA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=h1SRbS0/; arc=none smtp.client-ip=100.103.45.18
+	 Date; b=TRodXjjGWj0NXgk2wggiIrVnIuM+2rqjkHpY1hu+2RfAKmz0uv1xD4J40MvfZmmZAO0jv/MwOxQEyVqFUdzoA2k3OdRwap8Tyn02mJFtAfKbNHJAzkVlMT9oYMWkV2kXJ6IMmezLC1WR8ODloNnMKyfqeMMZXz25bcWl6I+IN3Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Yot7VtfB; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="h1SRbS0/"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED8D11F000FF;
-	Tue, 13 Oct 2026 09:25:47 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Yot7VtfB"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7501C1F000FF;
+	Tue, 13 Oct 2026 09:38:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791883548;
-	bh=NvYBZm3n1Liz+5IlxpHGZ+oive3veh6QIbLUfZfIqb8=;
+	s=k20260515; t=1791884295;
+	bh=+8dDG47XMcCWEpZNJ8+Kk4+tTLpZMolCj/POsgshYhY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=h1SRbS0/5Lfv9vItSCVBHXY1a37YKGFLB1zQtuGTxU+R5gCLoYKXQE0b+spK2TP4T
-	 ppdFA1ySU9+btcI0U8HErIdLfmi6E+3IV/avpBlkY5DpHy8zTHr4Z//9zwXizG5xZE
-	 VRXY4JlgkysR//DqS044zy5VBDC6/IrlE02waVcCIpePC8jNAXLVxXD8rOJjjx1j41
-	 V/b2PzhgCrqIoid0entcQl+IyFwm7NLpRUGN3IlGXYpKtX4GMtpHqRmB/9cYI+rCL8
-	 RS3EacPZeCd1GA6tqSc12WUnNyH2nek3huiQTIlqmEoAHlTsRn3m5wFBJXOpLAtoQj
-	 IuaXHDx4NBYzQ==
-Message-ID: <sashiko-outbox-169327@kernel.org>
+	b=Yot7VtfBeW9zWwie1sM0bMgnqE2rKCuDcEIwZFlSoCpFwmmWmaKvbvSwUsukyZSFg
+	 Cb7ofPqiXMCZi1UQCeuzNqoqYF9/eGhn70ifXROkPhfGeu+mysJIrWSG8sOEPqxc+a
+	 Z1OAFUWX0boApJ+bD9E83vGvIn0Oe6rbxg5TBLZzGPYivWnd3Mi71SvGveRTHRFoj6
+	 VdQNmKPjonei97u8BomwMhQ0HPCemk/jWryWlaTFUQ/pNoGneJ4HJohjrXj3nQjN8J
+	 kd9ly430pFdE5FZdc6bPz6WQWi2mNplYQzczImVxmx/ZCOmPw9Elx7vzZAWjHT3y6e
+	 tDSkGNwrvKl+g==
+Message-ID: <sashiko-outbox-169360@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 2/5] ALSA: virtio: Recover PCM state after a failed
- start
+Subject: Re: [PATCH v3 3/5] ALSA: virtio: Retain queued messages through
+ device reset
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Joonho Lee" <mynameisjune111@gmail.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <e190adbdcb15294b8146cc2f64c43bde5e6a28ff.1791881787.git.mynameisjune111@gmail.com>
+In-Reply-To: <c813ae359e4672b93d940f884903f99a29371434.1791881787.git.mynameisjune111@gmail.com>
 References: <cover.1791881787.git.mynameisjune111@gmail.com>
- <e190adbdcb15294b8146cc2f64c43bde5e6a28ff.1791881787.git.mynameisjune111@gmail.com>
+ <c813ae359e4672b93d940f884903f99a29371434.1791881787.git.mynameisjune111@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 13 Oct 2026 09:25:47 +0000
+Date: Tue, 13 Oct 2026 09:38:14 +0000
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-> Capture trigger queues I/O messages before PCM_START. If the START
-> message cannot be allocated or sent, transfers may remain queued, and
-> ALSA does not invoke the action undo callback for the failed trigger.
+> Keep the control queue available through snd_card_free() so close-time
+> STOP and RELEASE commands can still be submitted. Block new control
+> requests and mark pending messages canceled before reset, then release
+> their queue references only after reset and queue deletion.
 >=20
-> Mark the stream stopped and disable transfers for every failed START
-> path. Arm runtime->stop_operating so sync_stop releases pending I/O and
-> prevents prepare, hw_params, or START retries until release succeeds.
+> For PCM queues, detach each remaining virtqueue buffer after the device
+> has stopped DMA and retire its message without reporting a normal
+> completion. Detach all queues before deleting them so outstanding DMA
+> mappings are unmapped and no token remains for a late device completion.
 >=20
-> The stopped flag is shared with ACK callbacks that can run without the
-> ALSA stream lock. Protect every stopped access with vss->lock. Read the
-> pending message count under the same lock in open and hw_params. In
-> sync_stop, decide whether RELEASE is needed and mark the stream stopped
-> in one locked transition; leave it stopped when release or draining fails.
->=20
-> Always cancel elapsed-period work in sync_stop, even when no RELEASE
-> is needed.
->=20
-> Fixes: da76e9f3e43a ("ALSA: virtio: PCM substream operators")
+> Fixes: 9d45e514da88 ("ALSA: virtio: handling control messages")
 > Assisted-by: LLM
 > Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
 
@@ -71,5 +64,5 @@ Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/cover.1791881787.gi=
-t.mynameisjune111@gmail.com?part=3D2
+t.mynameisjune111@gmail.com?part=3D3
 
