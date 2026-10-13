@@ -1,191 +1,131 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from sender6-op-o11.zoho.com (sender6-op-o11.zoho.com [165.173.180.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B31205581FD
-	for <virtualization@lists.linux.dev>; Tue, 13 Oct 2026 20:57:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791925033; cv=none; b=JBd3jQTe2/FnO5oQHJ3Kz2cXMzz4Uv+x0pz3LF/sCkmP30K2/QCm+V/vb5YTNVMbeKYXDH06vi2kKrFF1Cdi4z9RwUmkkJEKHufj51vaUQ+uR7nsA7ZbL4Y7juKVUTYlP1Kpx8elvGH+WqJsxK16vNKbkBnz98TheRndEn+dGsc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791925033; c=relaxed/simple;
-	bh=4+SSE6EU8udPXmhUPtFyuoXGs8hahHA+j3OUghNKKrM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=ReXyWjkKaWvVMtgww/0wb8FeWqzX9YbDT6vWs52ns4RFfjfQpm4LAELWb2RtZo6SsB2h5TrvdpkVOG44PU9cQ6tnF7nsfqTZ3JFgHOHIqp4VyrkvLQiLSOz3hf2wwiPaTqUpYCBfPj3BVB7mxV38YYr+gsI6EmYDd1vLS1l07ak=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LOnrLfBz; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0DB636C0DC
+	for <virtualization@lists.linux.dev>; Tue, 13 Oct 2026 22:12:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=165.173.180.11
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791929548; cv=pass; b=C+wVJ2EH3dLAZtjU0JP5OX46jTSm5d80Eur03PWkTUXQlfKnZZhXBAWrIRzckuFjpcQ2Qbu0jaLxt0n6ZZpTTbxje9d7Xt5nLRONBt8RcGHei+3xL9c/Wd4miaGx7ZfYgDYkgYCuwKaOZTcRcsuZztxxYmWiWOtagSMW3k6vb60=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791929548; c=relaxed/simple;
+	bh=sb6lDyvEWxW/tjWYo4JwxUo8AyjP0zcs8wstHaj2Qbo=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=gCKrzR2tTolYby50IaCuA88rsL2G8VMHBcJ64ikx0bP2IIx5w5p/gQe0IuKaP17+0ceQoaEOAO6g15dcDYTz9/gMwpSWw0eZbj09kMOAmPQQOPJ2nJ3rkS9SjAsufm7e0UuX9uJH49jZl4kaWhiU0gwxzMZOyJG+yP/r+55qS3s=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=FgwTvW/Z; arc=pass smtp.client-ip=165.173.180.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LOnrLfBz"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1791925028;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=pwPXkeY12Wi/XtJvw9dMwqYtHY2GvFteBkFGECaSB9k=;
-	b=LOnrLfBzMPVCHWEFKQSEj3y1YjT5/HW/cOepBeQIY7NPqyIa/R6wnGpV6dJkY383XaS9YY
-	yMdRm7bMxc6qaILJWwP+LEe8pk/8efpK3i2xGXasv1PruuV6vKloYUiQanoTg7GrFFq/ME
-	EPlgGtH3pawg9i8sdeM2YJLVmOUGYXk=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-132-ElgQfQd2OFeHEVAlsXVtGg-1; Tue, 13 Oct 2026 20:57:07 +0000
-X-MC-Unique: ElgQfQd2OFeHEVAlsXVtGg-1
-X-Mimecast-MFC-AGG-ID: ElgQfQd2OFeHEVAlsXVtGg_1791925026
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4a01d1fb07bso2957485e9.2
-        for <virtualization@lists.linux.dev>; Tue, 13 Oct 2026 13:57:07 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791925026; x=1792529826;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=pwPXkeY12Wi/XtJvw9dMwqYtHY2GvFteBkFGECaSB9k=;
-        b=wUfqNyLjDMBjZ46vko83wHWFXU/fSJSpwX5HR5KDhig/2vl4L500UrghUUPhtIU4my
-         qmsx6WLirbBFeY7RXhhN3jz3/EZ54s9WfTlRGLSHwt1MN7aUXXp3+Qiz976tGQoYjPAf
-         Ubvo/dSKi2xq0+JaxPH8FG3mllqGsR6QyQTKGIAAfIBlKhBnVN0jjrfxgSFEVbm/ZmIn
-         7LhCa/LQGyivLJKsVlbq9gZPwkzuJ4o2S3/Wg9uuPHjI6AyNcSWyoyQOGIjCzeKjm/Wy
-         VDf/EilB8sDbwJv0cDE9Rn8Bx3TjrdfxAZL1guRUeOLSFPwiDexOVVy0U45YWKpP2o7s
-         jJ5g==
-X-Forwarded-Encrypted: i=1; AKwUvByjLTPx4WI3gOVUyVVvafjAdzEwNbleMtEISSywWFKDLZZ1PGhf4eK/S6JMp9QWKzmsQ60iFiHBljLh6S9b0g==@lists.linux.dev
-X-Gm-Message-State: AFq9FYLP/ZU0C8QWMEz9qEPswHbumBWV+b0zgcR6GoBun5O+2Fk0ObDY
-	a81/JV2JJFGo1rvmJG483qi8PXmlMKO1szgkC9VV3RILoowPdZs+bSbGRV1erVtcZTstbzJIG0x
-	/s2eG4wqn31QkbBgnMenp7yR/0x+wtpE66RRnySDFnP7W3KvUiBrxIb5nbOkZpS7O42ey
-X-Gm-Gg: AYBFou1gvq1EnOZAyu2zqX/41LkS9koXUzDZ+8worK6opgjjaH9RWfMLhGHJcAsdn0o
-	WcohOqVMisv0yc1Ui/R8w6h/8vKmUcXdzFABd1AE6oJodg3dtN2GMZ78sT3AfTO4ou7C23q+ezl
-	u3ZL3UZi+xkHVhB0Onev74N2OhIiTm0hYtQ51/E0LFM/s5Ps8MxAWahHgVj3w+vSyiWC8qvQHm/
-	mHlWJuaLIQS5Mqp3OfgAu6cS1GjOtbLrjNWM2o3sT3dnknaH+WMXAyckKHVl6F7DMMYVjEOsjLY
-	o65iF91RDr68w3Vx2gFDUkcLTJzASs3nxv8Yqx/lvJs6zCfPRlRoyH03gAAe0BDtWtDnew==
-X-Received: by 2002:a05:600c:4e47:b0:4a1:813f:2a65 with SMTP id 5b1f17b1804b1-4a18e4b1a6fmr240282285e9.15.1791925026057;
-        Tue, 13 Oct 2026 13:57:06 -0700 (PDT)
-X-Received: by 2002:a05:600c:4e47:b0:4a1:813f:2a65 with SMTP id 5b1f17b1804b1-4a18e4b1a6fmr240281265e9.15.1791925024016;
-        Tue, 13 Oct 2026 13:57:04 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:3fd7:5300:3d6b:52a4:a23f:9d0b])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48de7273a0esm2387988f8f.29.2026.10.13.13.56.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 13 Oct 2026 13:57:00 -0700 (PDT)
-Date: Tue, 13 Oct 2026 16:56:56 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Jason Wang <jasowangio@gmail.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@kernel.org>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	netdev@vger.kernel.org, virtualization@lists.linux.dev,
-	Max Krasnyansky <maxk@qualcomm.com>,
-	Paulos Yibelo <habte.yibelo@gmail.com>,
-	Chris Arges <carges@cloudflare.com>
-Subject: Re: [PATCH net-next 0/4] more virtio-net csum hardening
-Message-ID: <20261013165547-mutt-send-email-mst@kernel.org>
-References: <cover.1791887415.git.mst@redhat.com>
- <CAF=yD-JhTbmYmHUkkruPcyvSWv0QhVeGWC=K=ZvvpMdkzA-jig@mail.gmail.com>
- <20261013143716-mutt-send-email-mst@kernel.org>
- <CAF=yD-LLNm1K5r37-y2thyvLJN58ruffUUHy-6BUh1CGVmep0Q@mail.gmail.com>
- <20261013163109-mutt-send-email-mst@kernel.org>
- <CAF=yD-LtGVWrGzs2shhfxzDdwfid=1=TYBcOVQ8Nt10gAHpjWQ@mail.gmail.com>
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="FgwTvW/Z"
+ARC-Seal: i=1; a=rsa-sha256; t=1791929535; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=WZ8lGLaO87ls1aXK8rTZT9do0J6fz3Lpy2S6nmQ+8B5E4FvuFP+Js++jGkDAkd0ZHP7KK40QJcg/ixxkMJooUJ7IhRkT9ktVDMk2SKd1jBUmpYMNU05iWBIiTawOlMubJNdNfjXbC2k5yJzTSltxJFPuhlKTYWf2Z1gkmIPlWik=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1791929535; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=wcRc/T/eXCLTFhEcSFkccExr1kJjQjBISfxi0aCVTa0=; 
+	b=gJF37XSVKZheqM+qhSL/UvYxl2Ml6/zC4kNEVGVIJhxBITD10HY6nYxf9K+q8jZMiXShQGe7eo67nWzQyMcq2tDrSQSKfz5eKY2kjchhcC8SN0558Oul5QGoLyYibAGIkNMOV77hBGAmiXaCww80KXANs7HWAKb/t6S/mAiJ2OU=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
+	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1791929535;
+	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
+	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=wcRc/T/eXCLTFhEcSFkccExr1kJjQjBISfxi0aCVTa0=;
+	b=FgwTvW/ZRIn4lUW0mVdAVa61kGyLcB1+oc9BqdXLwx2rIhxQA5lLYXjbS0nYXbtq
+	4/KTPTX489rpeHnfLGs4BoER6pX2Yy7oL/dzEDi+n1Qo/ku2nRvqO4rUkYiWBv+V7Ej
+	33dXRF6mHAfF3Q6YT/NkMmGHSVJRAjWlb0D5ATMM=
+Received: by smtp.zohomail.com with SMTPS id 1791929533139758.2008581627222;
+	Tue, 13 Oct 2026 15:12:13 -0700 (PDT)
+Message-ID: <d9ee1d07-4277-4a18-a857-c82f200fe76c@collabora.com>
+Date: Wed, 14 Oct 2026 01:12:08 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CAF=yD-LtGVWrGzs2shhfxzDdwfid=1=TYBcOVQ8Nt10gAHpjWQ@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Yw4ERzOrofa8stkB4LTR00JtxX3LY1-bkUuvpqGBA_Q_1791925026
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH v9 3/4] drm/virtio: implement userptr resource support
+To: "Huang, Honglei" <honghuan@amd.com>
+Cc: gurchetansingh@chromium.org, olvaffe@gmail.com, Ray.Huang@amd.com,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, odaki@rsg.ci.i.u-tokyo.ac.jp,
+ airlied@redhat.com, kraxel@redhat.com
+References: <20260924095556.1326164-1-honghuan@amd.com>
+ <20260924095556.1326164-4-honghuan@amd.com>
+ <dfa2f117-1094-40b9-9445-ab2bbf62ff2e@collabora.com>
+ <7c32c182-5b49-4dc0-9c97-a4238743f28c@amd.com>
+ <efd5fa89-e888-469a-ac80-e6e605f9a015@collabora.com>
+ <317cc6e9-8e15-462d-9e9c-2657011b7128@amd.com>
+Content-Language: en-US
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+In-Reply-To: <317cc6e9-8e15-462d-9e9c-2657011b7128@amd.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-ZohoMailClient: External
 
-On Tue, Oct 13, 2026 at 02:54:24PM -0600, Willem de Bruijn wrote:
-> On Tue, Oct 13, 2026 at 2:36 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > On Tue, Oct 13, 2026 at 02:29:53PM -0600, Willem de Bruijn wrote:
-> > > On Tue, Oct 13, 2026 at 12:41 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > >
-> > > > On Tue, Oct 13, 2026 at 08:41:19AM -0600, Willem de Bruijn wrote:
-> > > > > On Tue, Oct 13, 2026 at 4:58 AM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > > > >
-> > > > > > Allowing untrusted hardware to specify csum start/offset for
-> > > > > > CHECKSUM_PARTIAL was not a good idea, because, if it edits the packet
-> > > > > > outside the actual checksum, and depending on the setup, the networking
-> > > > > > stack could be looking at the packet both before and after the edit, and
-> > > > > > seeing different results.
-> > > > > >
-> > > > > > Previously, commit 6785011f8b16 ("ipv4: validate checksum_start before
-> > > > > > completing checksum") validated all known instances where this
-> > > > > > causes the most grief, but the real fix is to make sure
-> > > > > > that either only actual checksum fields are ever edited,
-> > > > > > or the checksum is completed before the net stack looks at it,
-> > > > > > so it is always consistent.
-> > > > >
-> > > > > +1 on the general approach of performing the checksum offload at
-> > > > > input, unless the input can easily be validated to be one of a few
-> > > > > common protocols. That greatly reduces the risk vs my previous attempt
-> > > > > at trying to drop.
-> > > > >
-> > > > > Since we do not know the full extent of grief, I think this too should
-> > > > > go to net and stable.
-> > > >
-> > > > I think it needs a bit more testing to be frank, I do not see it
-> > > > wait months out of the tree. So if this lands in next before the
-> > > > merge window, we are good I think. If we miss that I will target net.
-> > > >
-> > > >
-> > > > > That would mean initially a single patch that
-> > > > > touches as few files as possible. The helper function in
-> > > > > include/linux/ip.h and conversion of existing open coded parsers to
-> > > > > use that can follow up later in net-next.
-> > > >
-> > > > I don't see the value to be frank.
-> > > > What moving code between files accomplishes, I donnu.
-> > > > Squashing things surely makes review harder?
-> > > > Does your backporting system really struggle with trivial
-> > > > dependencies like this?
-> > > >
-> > > > I can drop patch 2 and will if I am targeting net.
-> > >
-> > > Good. This is not about "my" backporting, but upstream stable.
-> > > Refactor patches do not belong there.
-> > >
-> > > Since patch 3 might have to be backported in the future if a serious
-> > > abuse surfaces, even if you now land it in net-next, it is better to
-> > > not depend on other patches.
-> >
-> > Right. While this is targeting next, I will reorder it last in series so
-> > it's obvious for people it can be dropped.
-> >
-> > Thanks a lot for the review!
+On 10/13/26 08:32, Huang, Honglei wrote:
 > 
-> Of course. Thanks for the fixes!
 > 
-> I would open-code ip4_parse directly in "net: resolve uncommon partial
-> checksums at ingress". It's not a lot of code. Then that patch stands
-> on its own.
-
-Ok if you prefer, except I'll make it a small inline in the same file.
-Easier to then dedup at the end.
-
-> And then optionally squash patches 1 and 2 and place them at the end
-> of this series as one dedup patch, or send that separately later.
-> Personally I would drop that entirely and leave the existing code as
-> is. But either way.
+> On 10/10/2026 8:50 PM, Dmitry Osipenko wrote:
+>> On 10/10/26 10:37, Huang, Honglei wrote:
+>>>
+>>>
+>>> On 10/10/2026 2:53 AM, Dmitry Osipenko wrote:
+>>>> 24.09.2026 12:55, Honglei Huang пишет:
+>>>>> +int virtio_gpu_userptr_create(struct virtio_gpu_device *vgdev,
+>>>>> +                  struct drm_file *file,
+>>>>> +                  struct virtio_gpu_object_params *params,
+>>>>> +                  struct virtio_gpu_object **bo_ptr)
+>>>>> +{
+>>>>> +    struct virtio_gpu_object_userptr *userptr;
+>>>>> +    struct virtio_gpu_mem_entry *ents = NULL;
+>>>>> +    struct sg_table *sgt;
+>>>>> +    struct mm_struct *mm;
+>>>>> +    unsigned long lock_limit;
+>>>>> +    unsigned long start;
+>>>>> +    unsigned long end;
+>>>>> +    s64 new_pinned;
+>>>>> +    unsigned int nents;
+>>>>> +    int ret;
+>>>>> +
+>>>>> +    *bo_ptr = NULL;
+>>>>> +
+>>>>> +    if (!params->size || !IS_ALIGNED(params->size, PAGE_SIZE) ||
+>>>>> +        params->userptr != (unsigned long)params->userptr)
+>>>>> +        return -EINVAL;
+>>>>> +
+>>>>> +    start = params->userptr;
+>>>>> +    if (!IS_ALIGNED(start, PAGE_SIZE) ||
+>>>>> +        check_add_overflow(start, (unsigned long)params->size, &end))
+>>>>> +        return -EINVAL;
+>>>>
+>>>> There is new vgdev->blob_alignment defining host page size as it may
+>>>> differ from guest's page. Will be good to validate both.
+>>>>
+>>>
+>>> Will add blob_alignment check in next version, thanks for the review.
+>> Missed that verify_blob() already should be validating the userptr
+>> blob_alignment. The patches look good.
+>>
+>> BTW, previously the extra AMD KFD patches were needed on host kernel,
+>> did they land upstream?
 > 
-> >
-> > > > >
-> > > > > > This basically does this: checksum at ingress, except in a narrow list
-> > > > > > of specified known good cases.
-> > > > > >
-> > > > > > Fixes: f43798c27684 ("tun: Allow GSO using virtio_net_hdr")
-> > > > > >
-> > > > > > Michael S. Tsirkin (4):
-> > > > > >   net: add ip4_parse()
-> > > > > >   net: use ip4_parse() in receive validation
-> > > > > >   net: resolve uncommon partial checksums at ingress
-> > > > > >   net: account for ingress-resolved virtio net hdr state
-> > > >
-> >
+> According to KFD maintainer, they want to us to add those virtio
+> specific feature into drm svm, a new SVM frame work based on drm svm
+> helpers. We are working on it:
+> https://lore.kernel.org/amd-gfx/20260804094246.1719318-1-ray.huang@amd.com/
+> 
+> And the amdgpu VM maintainer has agreed that he will help to consider
+> how to intergate the virtio requirements into the design of amdgpu drmsvm.
+> 
+> And for now we can use a user space method to replace the AMD KFD
+> patches function, it is mremap, it also works, we tested it, but
+> it has some performance loss, I will update the whole thing when all the
+> components code are ready.
 
+Thanks for the clarification
+
+-- 
+Best regards,
+Dmitry
