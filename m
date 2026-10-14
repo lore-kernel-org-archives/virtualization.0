@@ -1,195 +1,211 @@
-Received: from mail-lj1-f170.google.com (mail-lj1-f170.google.com [209.85.208.170])
+Received: from mail-pf1-f177.google.com (mail-pf1-f177.google.com [209.85.210.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3562944999F
-	for <virtualization@lists.linux.dev>; Wed, 14 Oct 2026 06:43:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.170
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791960195; cv=pass; b=IB6JstwV6JArT2aXlQcA4oUEPAnj8DzaPUHPTzXIMeF2PWeCJZyJDYg/RadqdSV6gg2xQDDy1w3A7j0zMXidwr78ZGkmd/WFzY2AtWOttUAc+irIuCkLu6P6MKxN5jE0aFoUpzqELNtCV2+SV7lilR0apzh0jPbkXxR9pylHuIw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791960195; c=relaxed/simple;
-	bh=kF9c+8KKO+ipWwSE4hjYVCkfFFSKZ4K0zjQHaC5WzaA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Zotll3bnxtjn915btt3w0epM+5kNKHYhzRjy4dHNDftnjrUjP5XRYsPB9FLbAg5JxOzuuPAbCdb59AuPRwgL5+40sujJXKebIPdQoFtrl/4LOfPb0cQ3TD/FRd+GVXH76TiHhLKQQyp/MzdWpf80bnHX8i+aJ/dd5n7XL2FnH/E=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KIqQW+zg; arc=pass smtp.client-ip=209.85.208.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7AC54A206F
+	for <virtualization@lists.linux.dev>; Wed, 14 Oct 2026 08:15:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.177
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791965737; cv=none; b=dexsg2uH9O8CilR89TRu2sGPpHIt9j/4uWhefzlePvUOsTXIAl3cQ7Gy4FuT0F0G2SoMCpJ5NyeP4lgf/CQ0l+OHulrznMsDGnc0J/hvzFMi447f+0maKgZboQ3qiMzsMt3jSlXm1VQQB8cXgI+pNvNFhkPPw3Nn747W063DF6E=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791965737; c=relaxed/simple;
+	bh=Jy21Spwkgjb6XMpEYLFn8RZ8houUdP1vTbK7y45kJuE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=Dx8e/44kYKnFPweFuBIREqtqYtVxOUqnvR3788mM6JRqQ4HF/keV6XZde+wzKNu/cJmMTTGHYRm5MkddLIhbJ2W5x45+un//srpV6ui1AHyI7EZzkzs2HROzUyvBFB+mCBkufKm6AINAIT5EGpuMDSRAzN6Kdx6El2r24g14A+s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MTWeWneT; arc=none smtp.client-ip=209.85.210.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KIqQW+zg"
-Received: by mail-lj1-f170.google.com with SMTP id 38308e7fff4ca-3aae898c0afso5686271fa.1
-        for <virtualization@lists.linux.dev>; Tue, 13 Oct 2026 23:43:14 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1791960192; cv=none;
-        d=google.com; s=arc-20260327;
-        b=AZys4BVva8lrD2jbReRU1r9S5Z+skOJj8IO6qL/J5J80V82YuarRHFR/m9RLuAkM+O
-         Yr/VGziajy9yR4La/76qTv7DkB+ffWNg/d3pOYzGf2VU69sKHdpk1YPzPJkZeV2Myvm4
-         e3MZ4rrlnvW0mUKb2iGUdcY2QbfAYbt63I3Pfg+WRZX2Z1Ckze6oci73tYuKbZ0Eoy1F
-         d36S/yteVrDFn7q1DGg0HQS6vNfnBYuXsvuXz2Wy5cPTzd8VTN3NDebrIg1/W6SeTyU/
-         UR7zDItbRggPBfmP7LIBQx/bkik9e/QjGGGT0BDQnRLCTwl6LpAHoJ3sm22Gj2//C/M3
-         FUoA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=ZwsjYHPheqBa+JzSbow2ZB78X+lBjsll/uWCTK8ljxY=;
-        fh=tl6NNNMpQTW9sV3Ja80Fx5+O/stN6ke3F+UZ8PJlhzI=;
-        b=LLtumFJuKmnM1FJZU6586gcqrrsccL1kzdAiXOcg+l0+xuNfSNtt2EK4vfg6XCJi2a
-         /C5lEU8nF2loU1vWfjIc1CzpbPKV7D44XMJ3ZhevVcMcwmfHsqmBn809dBdqBfppd9+w
-         rnP+SHw2x4p4cjrS9PuPTHSqYRjlhLh92JN2gcKTu2anGOFq61AdUlw4Jn+LjFtHQDX2
-         9aEUwHjD7DRU20B5uYKhHXmeJBBy2pGD3ypMEHHOOTSPRK+aSrPH2TaNF8NvnaiwEsfg
-         fnLmbUXpnAyoyHDjjn7F/py8devnaoOrauN8oie51Q7/RuyM5JSxrm+D79BqoEg8t88F
-         /HdQ==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MTWeWneT"
+Received: by mail-pf1-f177.google.com with SMTP id d2e1a72fcca58-89a595332c7so2024680b3a.0
+        for <virtualization@lists.linux.dev>; Wed, 14 Oct 2026 01:15:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791960192; x=1792564992; darn=lists.linux.dev;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=ZwsjYHPheqBa+JzSbow2ZB78X+lBjsll/uWCTK8ljxY=;
-        b=KIqQW+zgiavOxE74N14wX/IuzAbQ1p8peGUb0O3L3NSKcxh2Nk7Mn2xmYNtiPA2AiC
-         bnMKyUpNsY+uX0hCq8sjX6Ed4jBgvSfTWfnINnXwQjGQdeTbBcU8TkzOqE3mzgwxZt8u
-         QlT03cHpH3A/TUzxgrEJtxfmsAUU0zxPR62LB/V/D4aHgukBhcDZRUo9t8NXIQ3rCAQs
-         4GEj6rm8ntqv77A9Qz05X3/7nVxVw0tkxIjoJ9qejdXgiTQi2o0Xgn/E705qO6kvg3rN
-         AWtVQDCCAxoYm5O3B+E2QXayNLTC8lERwePtD4R6fqgOogt2HWUrYPlTwgkWbZ8Vz6Ge
-         DDmA==
+        d=gmail.com; s=20251104; t=1791965732; x=1792570532; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=PboKOrqQwewyKEheT1zYUFWFbeqlewnmjUU+OIA0cnM=;
+        b=MTWeWneTKWw5yuNyCunFIbXJjb5cPB3trwc2WNgrv+mj7O4vUUVkknYKaINkn4Yrql
+         bG+4FI65mZFCqimJAF47c1v/s0iBDD9oK25ZHNwT7sqUIXdH6DWN1bf+9kqSQtq/zR7u
+         wGnYgdnIfxncgneMWZJQJFWSNJJIFrp/Z7rqU8nEXFX9NOHEtbJNBrr9jNJEyrQL12Zl
+         ZdP6xBXWMG3mZEZ72x8hSSBreH080/ruvb8wlv2u3KJwMvPIfCnZo+h+Ff0XYc1O9lHZ
+         yxL848gAZHSsrV6Ix5viN79QxCRzdVU3CPp7S64eCUypMXqDCdxtjLLzkkQL2Ug9QDD5
+         XztQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791960192; x=1792564992;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=ZwsjYHPheqBa+JzSbow2ZB78X+lBjsll/uWCTK8ljxY=;
-        b=TWZEorY8P/KLkmWV0IouqIqeu6XR5gXg9GwOFdp+tO/2+fBZgQfHLk99gzERqYeNZB
-         uxU9FZBjLFVlqvjZRG1NDifL2V8YxJt873GaElpiQ4lxq0cgnP5uEjjdsaHPp2rRIFyW
-         z/H9r4za7LKXFAvQbN3KGQpjOgxkZ/jPMSdV25WtGBYe9DSxxfuCiwsChDGV2f4vBVwM
-         EmlHPzLjgGkBNkrJI2EPfWxZTCqxUtIeoHJzkOWYdvHXIFPU8zjtfkgYTi2lmHjPmWuY
-         TjYJdSoLdFbIsVDJfgZjKQ9AJZDskg5EgmPbhTpOI/haacTT+ODE/wJVlbXxPUCGnvrX
-         IT+A==
-X-Forwarded-Encrypted: i=1; AKwUvBzI1vLb/uvoQskPRzG3WehgZ79cuUYydw7qi7rV4vlOOqhs6+KP/q1r7MjKiXVlK1yp3PBAdPSf4yDps6W/5A==@lists.linux.dev
-X-Gm-Message-State: AFq9FYJrFpWaoPOU5mFLxXJeaRGAZii6JsRtUQOwvZSGM4/8roUCeHrP
-	NS7fBqp6DmiHysILfRVT4pDuXv2efsgTD/s9CmkrqyN1ftLDDFWUAPk7H1dj0YM9RRAapx9mnhH
-	KCVeOCmJrn+ulAbX7DaqXaabGteo5zLUnjpv7dNWmMmht
-X-Gm-Gg: AYBFou2W/y70vIa/542Wa2Udu6VoLRW6B0S9T5F1HL5yzTxZsSJom5Ays0LlIvr184o
-	UfW5FMFIqT7w1TW6wFFX76BpiwdOiHGJOva+p/VG5URhzK9ZWD3Og35UxpTX5iHeGdFgMIm/wnF
-	Zi/fT+fJOYaGs+59UYC5jnriQ5f0TjV4XYWvQuwHyeWuk4SaP4HCKD8Q2sVtrZCpWUwJfyx5ThJ
-	zJYjYNBlRPaSCep0EmRJHsrg1hQj52n2tNC7Fmrp8xGr7U25WRoYZbHJ1S5hK5SFg1KB8ySg/l1
-	emRhb8/o/gzR/lZFnn3WJgHVb+I/kdKBi/6uMyI+tbSLyE4woC2s69EVezkMXaSByHGH3ccg9WJ
-	CAQ4sRXHq6t0kvvsXoeD+MYRkKdIvoa53dbxfK/6SXoSmSQP1dZ1uP8TFShMNSWKZxttQxW6Fpg
-	==
-X-Received: by 2002:a2e:b888:0:b0:3a9:82c2:ec1e with SMTP id
- 38308e7fff4ca-3a9c537ed07mr33111191fa.15.1791960191931; Tue, 13 Oct 2026
- 23:43:11 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1791965732; x=1792570532;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=PboKOrqQwewyKEheT1zYUFWFbeqlewnmjUU+OIA0cnM=;
+        b=nTrK/BVX8d/gbHUq6ElVZuLrCjDlXtHqi822eEu2h1uLs33hgCe3e0b93tDDEABnh1
+         XQKl3+Q27FAINbrLm0qN4EXeKkLpBwZnQ+a5q2Gf7mjf5DBuoC1L8dGRQidJSpHsamw0
+         7ZW6fgxIK5+tviVapxlGBfXjJQCouBlMDNMRlgFUWZz6aEprFAmPf0y7PJvJgIi9Du77
+         T4pe+3rG+w7KVmp31tGVlA9kWb1bthvydZIqk//JtYLIhXlMcQnLcI8P6YBJhiGWZx1H
+         MGDrC7YCiF+xTlO7oG0mBh3eHMn5U9FBmm4X1IIW6MdUGO4Mu4+Rr7cCX7CSQpNYYMnM
+         aCVQ==
+X-Forwarded-Encrypted: i=1; AKwUvBx/+KeOgCuO3qx1HZ7VNURe8y1DOoIxFhdbjeJIyFl1dmb3gplZywlXLCtudjU+SHIKBL9JwayzeQt6Ob3fPA==@lists.linux.dev
+X-Gm-Message-State: AFq9FYI6cSvFLkPrkACfJBtFtrQlB/RGNy1GJOcG3MNLuh3awKuOYVYT
+	CIGO7nXp+bxtvnvx0w/msnwGl17nxAIWfc9vVaR8VF0jWX/29dXgX2M4
+X-Gm-Gg: AYBFou0nqMj0KrQ7TR3oC4Us1aGPDyENCmZCCc9Uj2KJEYw63g/z5AimWFeXRE3qi+X
+	BPhD/o5XZYU/19U66daZY/MzrNE++SzfS61/tFwt5sV8P0RSEwyeOxmNwOZSU4ArmUPJB8p8EG0
+	f45EP234OQGBrkWiuKYhjD98MlPAHRcM6IFXvkgMs2OqVLurtzzFlDqzDoIIS4liyrcCHt2JZwM
+	RJIvFqgrPZ70/jQVMl+96fxSdPk/MtV5FkIVZdkPYlHd5Id5nxvyu3KgWph85ov/BlWHkYst3oO
+	/QMKOr0OIytD7ZU4FP6Salqf7zzzFiujkxM1IE4yfvbBR4Af2l6iBWI9cyU01L17XRUyUXFzTZh
+	bhrlVy0WjwfuuhJSNp+zfe5UDkgEeW0/Y/YE6Vpz0FqGeQDDxvWtjhT6g6Sc2AF2S9rigfoNg7K
+	SO6oGGRas+8DZR8j+FtscK1Fq3V/bl5CqRRub+YkK1sKu5DuEyk3agvhrqoYuNW84V3itkDHuoN
+	GZ2lMxvmbljVYQWUC9IVLW4gLPH7sdfwqM6VpoT9jB5yEn0tfiItlKTji03AFQXNcHzcLYs5u6K
+	sqpknrrd8FZKCj4=
+X-Received: by 2002:a05:6a00:23c8:b0:874:705d:f64d with SMTP id d2e1a72fcca58-897c6443144mr11859234b3a.27.1791965731814;
+        Wed, 14 Oct 2026 01:15:31 -0700 (PDT)
+Received: from localhost.localdomain ([121.137.86.182])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-89d803cf66fsm796426b3a.32.2026.10.14.01.15.28
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Wed, 14 Oct 2026 01:15:30 -0700 (PDT)
+From: Joonho Lee <mynameisjune111@gmail.com>
+To: Takashi Iwai <tiwai@suse.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jaroslav Kysela <perex@perex.cz>,
+	linux-sound@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: [RFC PATCH v2 0/1] ALSA: virtio: wait through signals for PCM teardown
+Date: Wed, 14 Oct 2026 17:15:25 +0900
+Message-ID: <rfc-v2-generic-control-wait-0.2eddd58a796e497f@gmail.com>
+In-Reply-To: <rfc-generic-control-wait-0.112c40f0e9284eaa@gmail.com>
+References: <rfc-generic-control-wait-0.112c40f0e9284eaa@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260929094812.93374-1-tkhandelwal32@gmail.com> <CAPwBhz_ow3BFEns2WL69Gj2BmOHGiFOEzP7U-=FfzSvoH=DZSA@mail.gmail.com>
-In-Reply-To: <CAPwBhz_ow3BFEns2WL69Gj2BmOHGiFOEzP7U-=FfzSvoH=DZSA@mail.gmail.com>
-From: Tarun Khandelwal <tkhandelwal32@gmail.com>
-Date: Wed, 14 Oct 2026 12:12:34 +0530
-X-Gm-Features: AclHuK_roABVrEaRhuHK5p8P-AhgVeh6e8Rm4bmNzCFIfTidAX3p_1c6lDNfvkM
-Message-ID: <CAPwBhz-yAXeZTca0iFT=9fVhD8k7rUQBtjNKCw_FKPFzYFC2gw@mail.gmail.com>
-Subject: Re: [PATCH] fuse: propagate SB_POSIXACL to submounts
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: fuse-devel@lists.linux.dev, linux-fsdevel@vger.kernel.org, 
-	virtualization@lists.linux.dev, German Maglione <gmaglione@redhat.com>, 
-	Vivek Goyal <vgoyal@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	linux-kernel@vger.kernel.org, Tarun Khandelwal <tarun@supabase.io>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-(Resending as plain text, the lists bounced the previous copy.)
+Changes since RFC v1
 
-Hi Miklos,
+The implementation patch is unchanged. This revision adds machine-readable
+base/prerequisite information and updates the integrated regression results
+to use the revised core capture-drain patch. The generic wait and VZ
+behavior changes proposed in v1 remain open design questions.
 
-Gentle ping on this one.
+The public base and ordered prerequisite patch IDs appear below. The local
+v3 tip d58a3ac9b1719fdf8ce9d286be606128aeebf1aa is reconstructed by applying
+the five v3 patches to that public base; it is not an upstream commit.
 
-It fixes POSIX ACLs being unusable (and not enforced) on virtiofs
-submounts, so it may be a candidate for fixes. If leaving SB_POSIXACL
-off submounts was intentional, I'm happy to rework or drop it.
+This is v2 of this follow-up RFC, not v4 of the five-patch virtio-snd
+lifetime series. The v3 prerequisite thread is:
+https://lore.kernel.org/all/cover.1791881787.git.mynameisjune111@gmail.com/
+The submitted v3 fixes ACK error propagation, failed START recovery, and
+message/buffer lifetime through completion and reset. It does not add the
+VZ capture profile or the ALSA core drain handling in these companion RFCs.
 
-Thanks,
-Tarun
+A pending signal can end the STOP or RELEASE wait while the request is
+still owned by the device. A later teardown can then submit another RELEASE
+before the earlier request completes. Keeping its memory alive, as v3 does,
+does not by itself resolve that ordering problem.
 
-On Wed, 14 Oct 2026 at 11:22, Tarun Khandelwal <tkhandelwal32@gmail.com> wrote:
->
-> Hi Miklos,
->
-> Gentle ping on this one.
->
-> It fixes POSIX ACLs being unusable (and not enforced) on virtiofs
-> submounts, so it may be a candidate for fixes. If leaving SB_POSIXACL
-> off submounts was intentional, I'm happy to rework or drop it.
->
-> Thanks,
-> Tarun
->
-> On Tue, 29 Sept 2026 at 15:18, Tarun Khandelwal <tkhandelwal32@gmail.com> wrote:
->>
->> From: Tarun Khandelwal <tarun@supabase.io>
->>
->> fuse_fill_super_common() always sets SB_POSIXACL on the superblock, but
->> fuse_fill_super_submount() never does. Submount superblocks are created
->> from an fs_context with no sb_flags, so the superblock of an automounted
->> FUSE_ATTR_SUBMOUNT directory (e.g. a virtiofs export containing another
->> host mount) lacks SB_POSIXACL, even though it shares the fuse_conn, and
->> thus fc->posix_acl, with its parent.
->>
->> Since IS_POSIXACL() is false on such a submount, the VFS:
->>
->>  - fails setting POSIX ACLs with -EOPNOTSUPP and hides existing ACLs,
->>    without sending any request to the server;
->>  - applies the umask itself on create, so default ACLs on the server are
->>    not honoured for new files;
->>  - skips ACL checks in acl_permission_check(), so with
->>    default_permissions (implied by FUSE_POSIX_ACL) access is decided by
->>    the mode bits alone and restrictive ACL entries are not enforced.
->>
->> Copy SB_POSIXACL from the parent superblock, as is already done for the
->> other superblock fields inherited from it. It cannot be set in
->> fuse_sb_defaults(), because fuse_fill_super_common() checks whether the
->> flag was passed at mount time to decide fc->dont_mask before setting it.
->>
->> Reproducer, with virtiofsd 1.10.0 started with --posix-acl and an export
->> containing a nested mount:
->>
->>   host# mount -t tmpfs none /srv/share
->>   host# mkdir /srv/share/child
->>   host# mount -t tmpfs none /srv/share/child
->>   host# touch /srv/share/rootfile /srv/share/child/childfile
->>   guest# mount -t virtiofs <tag> /mnt
->>   guest# setfacl -m u:12345:rw /mnt/rootfile           # works
->>   guest# setfacl -m u:12345:rw /mnt/child/childfile
->>   setfacl: /mnt/child/childfile: Operation not supported
->>
->> With this patch the second setfacl succeeds, ACLs set on the host are
->> reported by getfacl on the submount, and default ACLs and ACL-based
->> access checks behave the same as on the root mount. Tested on v7.3-rc5
->> in a QEMU guest.
->>
->> Signed-off-by: Tarun Khandelwal <tarun@supabase.io>
->> ---
->> I wasn't sure whether leaving SB_POSIXACL off submount superblocks was
->> intentional. I would have opened an issue first, but since the fix is a
->> one-liner I'm sending the patch directly. If there is a reason for the
->> current behaviour, I'm happy to rework this or drop it.
->>
->>  fs/fuse/inode.c | 2 ++
->>  1 file changed, 2 insertions(+)
->>
->> diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
->> index e9552be36..ef3c7fac4 100644
->> --- a/fs/fuse/inode.c
->> +++ b/fs/fuse/inode.c
->> @@ -1629,6 +1629,8 @@ static int fuse_fill_super_submount(struct super_block *sb,
->>         WARN_ON(sb->s_bdi != &noop_backing_dev_info);
->>         sb->s_bdi = bdi_get(parent_sb->s_bdi);
->>
->> +       sb->s_flags |= parent_sb->s_flags & SB_POSIXACL;
->> +
->>         sb->s_xattr = parent_sb->s_xattr;
->>         sb->s_export_op = parent_sb->s_export_op;
->>         sb->s_time_gran = parent_sb->s_time_gran;
->> --
->> 2.43.0
->>
+This patch makes synchronous STOP and RELEASE waits non-interruptible,
+using the existing message timeout. Completion or reset cancellation can
+still wake the waiter. Other control requests remain interruptible.
+
+This changes teardown responsiveness for virtio-snd generally, even with
+all VZ options disabled: a signal no longer ends these waits immediately.
+It does not introduce a new ioctl or wire command. Each wait uses the
+configured timeout; this is not a bound on the whole close/exit sequence.
+A timeout still leaves device completion uncertain; this patch alone
+does not establish safe retry ordering after every timeout.
+
+Dependencies
+
+This patch applies directly to v3, independently of the two ALSA core drain
+patches. The companion VZ capture RFC requires this patch and both core
+patches. Keeping these reviews separate should allow a decision on teardown
+waiting without requiring agreement on the VZ compatibility profile.
+
+Validation and limits
+
+Earlier isolated v3-plus-wait-change STD and VZ builds passed. The earlier
+source-extracted comparison passed 108 candidate assertions; v3 has the
+expected 14 wait-selection failures, without sanitizer diagnostics. This
+models kernel primitives, not real scheduler interleavings or hardware DMA.
+
+The complete local candidate (v3 plus all four RFC patches, including the
+revised core locking) was freshly built on 2026-10-14 as an ARM64 Image and
+full module set with W=1, KASAN, PROVE_LOCKING, LOCKDEP and
+DEBUG_ATOMIC_SLEEP, release 7.3.0-rc6-snd-rfc-cleanup-lockdep.
+There were no build errors or warnings in the changed sound paths; 517
+-Woverride-init warnings remain in two unchanged ARM64 base files.
+This is a rebuild of the pinned candidate, not a rebase to a newer upstream
+or sound maintainer tree.
+
+With this kernel, delayed PREPARE/START/STOP/RELEASE responses passed under
+ordinary TCG: each targeted command executes once, then its response is
+held for 1500 ms against a 1000 ms driver timeout. The reader wakes with
+zero frames and final XRUN/-EPIPE; prepare returns -EIO before reprobe and
+capture succeeds afterwards. STOP/RELEASE may first return -EIO or -EPIPE,
+depending on which ALSA wait/XRUN condition is observed first.
+
+The direct STOP and RELEASE tests hold a request, send SIGKILL, then perform
+device unbind/rebind after the process exits. Exit took 1.03s and 1.05s of
+guest time. Reset cancels the held descriptor, and no late completion is
+observed beyond its original deadline; playback/capture/replay passes.
+These runs exercise reset after timeout, not every reset/wait race.
+
+The QEMU 11.1.2 fixture includes backend reset cleanup changes as well as
+fault injection. These are integrated candidate results, not standalone
+v3 or isolated-patch proof, and not stock-QEMU, VZ or hardware acceptance.
+Earlier runs failed follow-on capture with ring saturation and overruns;
+those logs remain retained. Final passes do not establish a permanent fix
+for load or clock/scheduling sensitivity.
+
+All ten ordinary-TCG regression scenarios passed with the fresh candidate,
+as did the additional linked-stream error/recovery fixture and 24 Python
+harness tests. Successful runtime logs contained no KASAN, lockdep, WARNING,
+BUG, Oops or panic diagnostics. Initial harness/CPU-configuration failures
+are retained as invalid attempts, not counted as kernel passes.
+No new real-microphone or VZ runtime test was performed for this revision.
+
+Reproducer
+
+The previously published source package remains at this pinned commit:
+https://github.com/whatisyourname0/virtio-snd-reproducer/tree/7a9876738bdc70ce669f02ec31fe8968eb0ee4fc/rfc/vz-capture-20261014
+It contains the original RFC snapshots, kernel builder, QEMU fixture and
+ten runtime commands. It does not contain the revised core locking or the
+newly rebuilt linked-stream fixture. Do not treat it as the exact source
+of the new results above. Existing v3 patches in it are build prerequisites,
+not patches being resubmitted.
+
+The revised source stack, four signed implementation patches, exact kernel
+config and portable linked-stream fixture are published at this commit:
+https://github.com/whatisyourname0/virtio-snd-reproducer/tree/64fa85f3260b45e7dbb85c4eee68a5b4a8b064e1/rfc/vz-capture-20261014/sashiko-followup
+The public source recipe reconstructs all eight changed files byte-for-byte
+against the tested candidate. The packaged linked fixture also passed with
+freshly compiled probes, a new Alpine rootfs and a rebuilt test module on
+the same KASAN/lockdep kernel. The public archive was downloaded and checked
+against the local source package. See README.md and RESULTS.txt at that URL.
+This supplements the earlier bundle; use its corrected core 2/2 patch
+rather than the earlier core 2/2 snapshot.
+
+Questions for review
+
+- Is a bounded, non-interruptible STOP/RELEASE wait the right teardown
+  contract, given the effect on process exit latency?
+- Would retaining explicit in-flight teardown state across an interrupted
+  wait be preferable to changing interruptibility?
+- Should timeout/retry serialization be required in this generic change,
+  rather than addressed separately by the companion state machine?
+
+Joonho Lee (1):
+  ALSA: virtio: wait through signals for PCM teardown
+
+ sound/virtio/virtio_ctl_msg.c | 15 ++++++++++++++-
+ sound/virtio/virtio_ctl_msg.h |  3 +++
+ 2 files changed, 17 insertions(+), 1 deletion(-)
+
+base-commit: 8d70e364e866bdfca81eee24d0688fac9472cfb9
+prerequisite-patch-id: 39fb327a004c966ab90f66a34a64bbdbb3ffb475
+prerequisite-patch-id: 7c6bc344656fd839ae0d697ba18d66ac0b47827a
+prerequisite-patch-id: 9dd290ac3147fa7b49a475d7df8a6172778f2860
+prerequisite-patch-id: f4c24a5e441343a690f4ac2437f181c815bc23d0
+prerequisite-patch-id: ab4a5b770247a65272ab7af18a75a147daf81287
