@@ -1,230 +1,195 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f170.google.com (mail-lj1-f170.google.com [209.85.208.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A373341442E;
-	Wed, 14 Oct 2026 06:33:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791959594; cv=none; b=AniO4a50yu4Wul49G24RqmjWnp/tlGxfu+4Rc9iZVaKxupk04aE/m/zK0DTvF5uj8kLxY2487m7LpxM+RnS87oAeSsi/ScB/iDsi4ybkABJKYMapwnYBugpsEgJLf4SaqgRuw0YERIuFJqGvMUO8+BE2ArhPqQFnuPaoDKJMYvw=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791959594; c=relaxed/simple;
-	bh=cAIywBzkCt8Lviyejkt3agFeuwMEaHmMiq6vSrZ5EbU=;
-	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=hps4cUqgXXKSNjkcEwxDIKejC2WMU19+jOczLAy5Ksy8KbhrqxXZGympQr147ua1sdwuQUu5uhxi362p+rPj73q/eZ+e4QnAIlLkyFVxSOIMC5/Mn5HtLXBmibf0Qie8RYPYxTeYUv3b5DNutPAB7BnOws2XWE2JlJ2eDa5JprQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BsRFwhyP; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3562944999F
+	for <virtualization@lists.linux.dev>; Wed, 14 Oct 2026 06:43:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.170
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791960195; cv=pass; b=IB6JstwV6JArT2aXlQcA4oUEPAnj8DzaPUHPTzXIMeF2PWeCJZyJDYg/RadqdSV6gg2xQDDy1w3A7j0zMXidwr78ZGkmd/WFzY2AtWOttUAc+irIuCkLu6P6MKxN5jE0aFoUpzqELNtCV2+SV7lilR0apzh0jPbkXxR9pylHuIw=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791960195; c=relaxed/simple;
+	bh=kF9c+8KKO+ipWwSE4hjYVCkfFFSKZ4K0zjQHaC5WzaA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Zotll3bnxtjn915btt3w0epM+5kNKHYhzRjy4dHNDftnjrUjP5XRYsPB9FLbAg5JxOzuuPAbCdb59AuPRwgL5+40sujJXKebIPdQoFtrl/4LOfPb0cQ3TD/FRd+GVXH76TiHhLKQQyp/MzdWpf80bnHX8i+aJ/dd5n7XL2FnH/E=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KIqQW+zg; arc=pass smtp.client-ip=209.85.208.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BsRFwhyP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 237701F00893;
-	Wed, 14 Oct 2026 06:33:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791959583;
-	bh=wI/vaaNxrZHGSu+C0IaS6QHTgleVRRrjMvxvMj4WfWg=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=BsRFwhyPkz3wH0IUyX9xdqPn1Or+3kjS/Y/Pjv55NflWdb3M9brdQzxiE4Jj0P4bM
-	 clVi8M9a/74g3DW7IjVxQJLzp8Yn6eV+eJpYbILyMbsXSomQ/QcYKToX8zoFHeHKeT
-	 co4LL5f+g5U4csS9GpF8qUAAGfYghD9fv7Clv+mM4a9c1ytuSWZPx+WAf2v8mDuN6H
-	 xlj7XQ8cEpteFGe5VYEl6IEtw8hM95eXEoFJ9jvgcDOc3+pNX6RN8+vXZPdmttFTOb
-	 DJ1+pg6jevwqLi9qK6lWDu3bLPDYvBcFuEJnF0xibVG/Mh3gO7radYC2Zlm1X2cP4l
-	 Vlm0OkAHkXBlw==
-Subject: Re: [PATCH net-next v3 3/4] vsock/virtio: coalesce RX write-space
- notifications in lock batches
-From: netdev-bot+sashiko@kernel.org
-To: physicalmtea@gmail.com
-Cc: stefanha@redhat.com, sgarzare@redhat.com, mst@redhat.com,
- jasowangio@gmail.com, eperezma@redhat.com, xuanzhuo@linux.alibaba.com,
- davem@davemloft.net, edumazet@kernel.org, kuba@kernel.org, pabeni@redhat.com,
- horms@kernel.org, virtualization@lists.linux.dev, kvm@vger.kernel.org,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Date: Wed, 14 Oct 2026 06:33:01 +0000
-Message-ID: <179195958167.434549.3993403899530916978@kernel.org>
-In-Reply-To: <20261013063112.168321-4-physicalmtea@gmail.com>
-References: <20261013063112.168321-4-physicalmtea@gmail.com>
-X-sashiko-severity: Low
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KIqQW+zg"
+Received: by mail-lj1-f170.google.com with SMTP id 38308e7fff4ca-3aae898c0afso5686271fa.1
+        for <virtualization@lists.linux.dev>; Tue, 13 Oct 2026 23:43:14 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1791960192; cv=none;
+        d=google.com; s=arc-20260327;
+        b=AZys4BVva8lrD2jbReRU1r9S5Z+skOJj8IO6qL/J5J80V82YuarRHFR/m9RLuAkM+O
+         Yr/VGziajy9yR4La/76qTv7DkB+ffWNg/d3pOYzGf2VU69sKHdpk1YPzPJkZeV2Myvm4
+         e3MZ4rrlnvW0mUKb2iGUdcY2QbfAYbt63I3Pfg+WRZX2Z1Ckze6oci73tYuKbZ0Eoy1F
+         d36S/yteVrDFn7q1DGg0HQS6vNfnBYuXsvuXz2Wy5cPTzd8VTN3NDebrIg1/W6SeTyU/
+         UR7zDItbRggPBfmP7LIBQx/bkik9e/QjGGGT0BDQnRLCTwl6LpAHoJ3sm22Gj2//C/M3
+         FUoA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=ZwsjYHPheqBa+JzSbow2ZB78X+lBjsll/uWCTK8ljxY=;
+        fh=tl6NNNMpQTW9sV3Ja80Fx5+O/stN6ke3F+UZ8PJlhzI=;
+        b=LLtumFJuKmnM1FJZU6586gcqrrsccL1kzdAiXOcg+l0+xuNfSNtt2EK4vfg6XCJi2a
+         /C5lEU8nF2loU1vWfjIc1CzpbPKV7D44XMJ3ZhevVcMcwmfHsqmBn809dBdqBfppd9+w
+         rnP+SHw2x4p4cjrS9PuPTHSqYRjlhLh92JN2gcKTu2anGOFq61AdUlw4Jn+LjFtHQDX2
+         9aEUwHjD7DRU20B5uYKhHXmeJBBy2pGD3ypMEHHOOTSPRK+aSrPH2TaNF8NvnaiwEsfg
+         fnLmbUXpnAyoyHDjjn7F/py8devnaoOrauN8oie51Q7/RuyM5JSxrm+D79BqoEg8t88F
+         /HdQ==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1791960192; x=1792564992; darn=lists.linux.dev;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=ZwsjYHPheqBa+JzSbow2ZB78X+lBjsll/uWCTK8ljxY=;
+        b=KIqQW+zgiavOxE74N14wX/IuzAbQ1p8peGUb0O3L3NSKcxh2Nk7Mn2xmYNtiPA2AiC
+         bnMKyUpNsY+uX0hCq8sjX6Ed4jBgvSfTWfnINnXwQjGQdeTbBcU8TkzOqE3mzgwxZt8u
+         QlT03cHpH3A/TUzxgrEJtxfmsAUU0zxPR62LB/V/D4aHgukBhcDZRUo9t8NXIQ3rCAQs
+         4GEj6rm8ntqv77A9Qz05X3/7nVxVw0tkxIjoJ9qejdXgiTQi2o0Xgn/E705qO6kvg3rN
+         AWtVQDCCAxoYm5O3B+E2QXayNLTC8lERwePtD4R6fqgOogt2HWUrYPlTwgkWbZ8Vz6Ge
+         DDmA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791960192; x=1792564992;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=ZwsjYHPheqBa+JzSbow2ZB78X+lBjsll/uWCTK8ljxY=;
+        b=TWZEorY8P/KLkmWV0IouqIqeu6XR5gXg9GwOFdp+tO/2+fBZgQfHLk99gzERqYeNZB
+         uxU9FZBjLFVlqvjZRG1NDifL2V8YxJt873GaElpiQ4lxq0cgnP5uEjjdsaHPp2rRIFyW
+         z/H9r4za7LKXFAvQbN3KGQpjOgxkZ/jPMSdV25WtGBYe9DSxxfuCiwsChDGV2f4vBVwM
+         EmlHPzLjgGkBNkrJI2EPfWxZTCqxUtIeoHJzkOWYdvHXIFPU8zjtfkgYTi2lmHjPmWuY
+         TjYJdSoLdFbIsVDJfgZjKQ9AJZDskg5EgmPbhTpOI/haacTT+ODE/wJVlbXxPUCGnvrX
+         IT+A==
+X-Forwarded-Encrypted: i=1; AKwUvBzI1vLb/uvoQskPRzG3WehgZ79cuUYydw7qi7rV4vlOOqhs6+KP/q1r7MjKiXVlK1yp3PBAdPSf4yDps6W/5A==@lists.linux.dev
+X-Gm-Message-State: AFq9FYJrFpWaoPOU5mFLxXJeaRGAZii6JsRtUQOwvZSGM4/8roUCeHrP
+	NS7fBqp6DmiHysILfRVT4pDuXv2efsgTD/s9CmkrqyN1ftLDDFWUAPk7H1dj0YM9RRAapx9mnhH
+	KCVeOCmJrn+ulAbX7DaqXaabGteo5zLUnjpv7dNWmMmht
+X-Gm-Gg: AYBFou2W/y70vIa/542Wa2Udu6VoLRW6B0S9T5F1HL5yzTxZsSJom5Ays0LlIvr184o
+	UfW5FMFIqT7w1TW6wFFX76BpiwdOiHGJOva+p/VG5URhzK9ZWD3Og35UxpTX5iHeGdFgMIm/wnF
+	Zi/fT+fJOYaGs+59UYC5jnriQ5f0TjV4XYWvQuwHyeWuk4SaP4HCKD8Q2sVtrZCpWUwJfyx5ThJ
+	zJYjYNBlRPaSCep0EmRJHsrg1hQj52n2tNC7Fmrp8xGr7U25WRoYZbHJ1S5hK5SFg1KB8ySg/l1
+	emRhb8/o/gzR/lZFnn3WJgHVb+I/kdKBi/6uMyI+tbSLyE4woC2s69EVezkMXaSByHGH3ccg9WJ
+	CAQ4sRXHq6t0kvvsXoeD+MYRkKdIvoa53dbxfK/6SXoSmSQP1dZ1uP8TFShMNSWKZxttQxW6Fpg
+	==
+X-Received: by 2002:a2e:b888:0:b0:3a9:82c2:ec1e with SMTP id
+ 38308e7fff4ca-3a9c537ed07mr33111191fa.15.1791960191931; Tue, 13 Oct 2026
+ 23:43:11 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+References: <20260929094812.93374-1-tkhandelwal32@gmail.com> <CAPwBhz_ow3BFEns2WL69Gj2BmOHGiFOEzP7U-=FfzSvoH=DZSA@mail.gmail.com>
+In-Reply-To: <CAPwBhz_ow3BFEns2WL69Gj2BmOHGiFOEzP7U-=FfzSvoH=DZSA@mail.gmail.com>
+From: Tarun Khandelwal <tkhandelwal32@gmail.com>
+Date: Wed, 14 Oct 2026 12:12:34 +0530
+X-Gm-Features: AclHuK_roABVrEaRhuHK5p8P-AhgVeh6e8Rm4bmNzCFIfTidAX3p_1c6lDNfvkM
+Message-ID: <CAPwBhz-yAXeZTca0iFT=9fVhD8k7rUQBtjNKCw_FKPFzYFC2gw@mail.gmail.com>
+Subject: Re: [PATCH] fuse: propagate SB_POSIXACL to submounts
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: fuse-devel@lists.linux.dev, linux-fsdevel@vger.kernel.org, 
+	virtualization@lists.linux.dev, German Maglione <gmaglione@redhat.com>, 
+	Vivek Goyal <vgoyal@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	linux-kernel@vger.kernel.org, Tarun Khandelwal <tarun@supabase.io>
+Content-Type: text/plain; charset="UTF-8"
 
-Thank you for your contribution! Sashiko AI review found more severe
-issue(s) in other patches of this series. This mail is only an FYI, in case
-you want to address the nit picks below when you respin.
+(Resending as plain text, the lists bounced the previous copy.)
 
-Low priority / nit picks for your consideration:
+Hi Miklos,
 
-- [Low] The patch is presented purely as a performance optimisation but
-  gives no numbers.
-- [Low] Retained for the separate validation policy; my baseline decision
-  is that this is not a real defect.
-- [Low] The patch changes the behaviour of three interfaces without
-  updating their comments.
+Gentle ping on this one.
 
---
+It fixes POSIX ACLs being unusable (and not enforced) on virtiofs
+submounts, so it may be a candidate for fixes. If leaving SB_POSIXACL
+off submounts was intentional, I'm happy to rework or drop it.
 
-vsock/virtio: coalesce RX write-space notifications in lock batches
+Thanks,
+Tarun
 
-This commit stops calling sk_write_space() for every packet in a virtio
-vsock RX lock batch. It records one pending notification and delivers it
-through the saved default callback before release_sock(). The default
-callback is saved in __vsock_create(), and sockets whose sk_write_space
-has been replaced are no longer eligible for batching.
-
-> Each received packet updates peer credit and calls sk_write_space() when
-> send space is available. A writer cannot use the newly advertised credit
-> until the socket lock is released, so repeated callbacks within one lock
-> batch cannot let it make progress sooner.
-
-[Severity: Low]
-This shows that the change is safe, but are there any numbers showing it
-helps? Neither this commit message nor the other three in the series
-gives throughput, CPU or wakeup-count data, or names a workload where
-per-packet sk_write_space() costs something measurable.
-
-The change does have costs. Every struct vsock_sock gets a new function
-pointer, including VMCI and Hyper-V sockets, but only the virtio RX batch
-path reads it. virtio_transport_recv_pkt_batchable() gets one more
-admission condition. The wakeup moves to
-virtio_transport_rx_batch_finish().
-
-The callback being coalesced is also cheap when nobody is waiting.
-sock_def_write_space() only calls sock_writeable(), skwq_has_sleeper()
-and sk_wake_async_rcu().
-
-Documentation/process/submitting-patches.rst says:
-
-  Quantify optimizations and trade-offs. If you claim improvements in
-  performance ... include numbers that back them up. But also describe
-  non-obvious costs.
-
-Could the commit message include measurements that justify the extra
-per-socket field?
-
-> diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
-> index 5549298c1ec6b..9d8ae62209eda 100644
-> --- a/include/net/af_vsock.h
-> +++ b/include/net/af_vsock.h
-> @@ -63,6 +63,8 @@ struct vsock_sock {
->  	u32 peer_shutdown;
->  	bool sent_request;
->  	bool ignore_connecting_rst;
-> +	/* Initial callback, used to identify replacements. */
-> +	void (*default_write_space)(struct sock *sk);
-
-[Severity: Low]
-This comment only describes the identification role.
-virtio_transport_rx_batch_finish() also calls this pointer to deliver
-deferred notifications. Should the comment say that too?
-
-Two other comments are also unchanged by this patch.
-
-The comment above the exported virtio_transport_rx_batch_finish() still
-reads:
-
-  For a non-empty batch, the caller must hold the socket lock acquired with
-  lock_sock(). This function releases the lock and the batch's lookup
-  reference.
-
-It does not say that a write-space callback now runs from this function
-while the socket lock is still held. At the end of the series it also
-runs a data-ready callback after release_sock(), and the comment is
-still the same.
-
-The comment above virtio_transport_recv_pkt_locked() documents
-@batchable and the return value, but not the new @batch parameter:
-
-  The caller holds sk's socket lock.  Set @batchable if the socket can remain
-  locked for another ordinary STREAM/RW packet.  Return true if the caller
-  must free @skb.
-
-A non-NULL @batch suppresses the immediate sk->sk_write_space() call and
-defers it to batch finish. Could these comments be updated to match?
-
-[ ... ]
-
-> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-> index bfe40ecf0b2f0..d6ebfde880db6 100644
-> --- a/net/vmw_vsock/virtio_transport_common.c
-> +++ b/net/vmw_vsock/virtio_transport_common.c
-
-[ ... ]
-
-> @@ -1860,8 +1862,12 @@ virtio_transport_recv_pkt_locked(struct virtio_transport *t,
->  	if (vsk->local_addr.svm_cid != VMADDR_CID_ANY)
->  		vsk->local_addr.svm_cid = dst->svm_cid;
->  
-> -	if (space_available)
-> -		sk->sk_write_space(sk);
-> +	if (space_available) {
-> +		if (batch)
-> +			batch->write_space_pending = true;
-> +		else
-> +			sk->sk_write_space(sk);
-> +	}
-
-[ ... ]
-
-> @@ -1954,15 +1960,20 @@ EXPORT_SYMBOL_GPL(virtio_transport_recv_pkt);
->   */
->  void virtio_transport_rx_batch_finish(struct virtio_transport_rx_batch *batch)
->  {
-> +	bool write_space_pending = batch->write_space_pending;
->  	struct sock *sk = batch->sk;
->  
->  	batch->sk = NULL;
->  	batch->pkts = 0;
->  	batch->bytes = 0;
-> +	batch->write_space_pending = false;
->  
->  	if (!sk)
->  		return;
->  
-> +	if (write_space_pending)
-> +		vsock_sk(sk)->default_write_space(sk);
-
-[Severity: Low]
-Is it intended to call the saved default callback here rather than the
-current sk->sk_write_space?
-
-sock_map_update_elem() from BPF takes only bh_lock_sock(). It can
-therefore attach a psock while the RX batch holds lock_sock(). In that
-case sk_psock_start_verdict() does:
-
-	WRITE_ONCE(sk->sk_write_space, sk_psock_write_space);
-
-A notification latched for a packet admitted before the attach would
-then skip sk_psock_write_space(), which is what schedules psock->work.
-
->From a closer look, this may be harmless:
-
-- virtio_transport_sock_has_psock() is checked at every packet
-  boundary, and the psock is published before sk_write_space is
-  replaced. So only a packet admitted before that point can leave a
-  pending notification. That is the same outcome as the pre-series case
-  where the attach lands just after that packet's own sk_write_space()
-  call.
-
-- The next packet fails admission and takes the non-batched path, which
-  calls the new sk_psock_write_space().
-
-- sk_psock_backlog() reschedules itself with
-  schedule_delayed_work(&psock->work, 1) on -EAGAIN. It is also
-  scheduled on enqueue, so psock TX should not stall.
-
-- sk_psock_write_space() forwards to psock->saved_write_space, so
-  user-space writers get the same wakeup either way.
-
-If that reasoning holds, would a short comment explaining why it is safe
-to bypass a callback installed mid-batch help future readers?
-
-> +
->  	release_sock(sk);
->  	sock_put(sk);
->  }
-
-[ ... ]
-
--- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261013063112.168321-1-physicalmtea%40gmail.com
+On Wed, 14 Oct 2026 at 11:22, Tarun Khandelwal <tkhandelwal32@gmail.com> wrote:
+>
+> Hi Miklos,
+>
+> Gentle ping on this one.
+>
+> It fixes POSIX ACLs being unusable (and not enforced) on virtiofs
+> submounts, so it may be a candidate for fixes. If leaving SB_POSIXACL
+> off submounts was intentional, I'm happy to rework or drop it.
+>
+> Thanks,
+> Tarun
+>
+> On Tue, 29 Sept 2026 at 15:18, Tarun Khandelwal <tkhandelwal32@gmail.com> wrote:
+>>
+>> From: Tarun Khandelwal <tarun@supabase.io>
+>>
+>> fuse_fill_super_common() always sets SB_POSIXACL on the superblock, but
+>> fuse_fill_super_submount() never does. Submount superblocks are created
+>> from an fs_context with no sb_flags, so the superblock of an automounted
+>> FUSE_ATTR_SUBMOUNT directory (e.g. a virtiofs export containing another
+>> host mount) lacks SB_POSIXACL, even though it shares the fuse_conn, and
+>> thus fc->posix_acl, with its parent.
+>>
+>> Since IS_POSIXACL() is false on such a submount, the VFS:
+>>
+>>  - fails setting POSIX ACLs with -EOPNOTSUPP and hides existing ACLs,
+>>    without sending any request to the server;
+>>  - applies the umask itself on create, so default ACLs on the server are
+>>    not honoured for new files;
+>>  - skips ACL checks in acl_permission_check(), so with
+>>    default_permissions (implied by FUSE_POSIX_ACL) access is decided by
+>>    the mode bits alone and restrictive ACL entries are not enforced.
+>>
+>> Copy SB_POSIXACL from the parent superblock, as is already done for the
+>> other superblock fields inherited from it. It cannot be set in
+>> fuse_sb_defaults(), because fuse_fill_super_common() checks whether the
+>> flag was passed at mount time to decide fc->dont_mask before setting it.
+>>
+>> Reproducer, with virtiofsd 1.10.0 started with --posix-acl and an export
+>> containing a nested mount:
+>>
+>>   host# mount -t tmpfs none /srv/share
+>>   host# mkdir /srv/share/child
+>>   host# mount -t tmpfs none /srv/share/child
+>>   host# touch /srv/share/rootfile /srv/share/child/childfile
+>>   guest# mount -t virtiofs <tag> /mnt
+>>   guest# setfacl -m u:12345:rw /mnt/rootfile           # works
+>>   guest# setfacl -m u:12345:rw /mnt/child/childfile
+>>   setfacl: /mnt/child/childfile: Operation not supported
+>>
+>> With this patch the second setfacl succeeds, ACLs set on the host are
+>> reported by getfacl on the submount, and default ACLs and ACL-based
+>> access checks behave the same as on the root mount. Tested on v7.3-rc5
+>> in a QEMU guest.
+>>
+>> Signed-off-by: Tarun Khandelwal <tarun@supabase.io>
+>> ---
+>> I wasn't sure whether leaving SB_POSIXACL off submount superblocks was
+>> intentional. I would have opened an issue first, but since the fix is a
+>> one-liner I'm sending the patch directly. If there is a reason for the
+>> current behaviour, I'm happy to rework this or drop it.
+>>
+>>  fs/fuse/inode.c | 2 ++
+>>  1 file changed, 2 insertions(+)
+>>
+>> diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
+>> index e9552be36..ef3c7fac4 100644
+>> --- a/fs/fuse/inode.c
+>> +++ b/fs/fuse/inode.c
+>> @@ -1629,6 +1629,8 @@ static int fuse_fill_super_submount(struct super_block *sb,
+>>         WARN_ON(sb->s_bdi != &noop_backing_dev_info);
+>>         sb->s_bdi = bdi_get(parent_sb->s_bdi);
+>>
+>> +       sb->s_flags |= parent_sb->s_flags & SB_POSIXACL;
+>> +
+>>         sb->s_xattr = parent_sb->s_xattr;
+>>         sb->s_export_op = parent_sb->s_export_op;
+>>         sb->s_time_gran = parent_sb->s_time_gran;
+>> --
+>> 2.43.0
+>>
