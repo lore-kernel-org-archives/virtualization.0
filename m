@@ -1,101 +1,90 @@
-Received: from sender6-op-o11.zoho.com (sender6-op-o11.zoho.com [165.173.180.11])
+Received: from r3-11.sinamail.sina.com.cn (r3-11.sinamail.sina.com.cn [202.108.3.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C020354CF53
-	for <virtualization@lists.linux.dev>; Tue, 13 Oct 2026 22:56:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=165.173.180.11
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791932199; cv=pass; b=Mq9glfg/Vs7lL1LSXSOd1QC+j7UE5yAHPZLEnF6OU7l+tAdIp5Y8Z2jwNUm1voH5ZK4weq5EWu0Gzu6mJ7tpcZdAC358wkTcGTeJVkHI7bo4XIzkLYZudQNwHCNqB9hmwrK2f0+RrYV4ZGglkuyyWAwTzIhvxhI1cj34YE9+Fhs=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791932199; c=relaxed/simple;
-	bh=bAB7dsPzcz67xHbWPAM5JI8JnYKNsnf4lQG5iXou8Kw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=P6NWb89Ms1b4rpzSOnxQAsd0sv1gqZg55jHxxNPBmvrLMVhQJQH/eK8ciwrfJhv7FfGNto3EZHf6lifUdbJHekxuLPNWin/zTwa4OpPIW3bgiHWMdxn81wRM13cdVPDEpOoOhhSDumHQgvjaNOi/RYgLrq/yON2KbOdCJvbH7XA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=kHdQx/yk; arc=pass smtp.client-ip=165.173.180.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52B582C21D0
+	for <virtualization@lists.linux.dev>; Wed, 14 Oct 2026 01:41:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.108.3.11
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791942098; cv=none; b=I6WV9m1tauk0ZoKn/xshmTueHhVUp4//gx/qCV6bieIkKDzjxZ6McX1lxVeVadbleedEs6RjclrY2jIIOlwB22x1GLT8mCtDn+mr5I9DpgeD0FiC5JsiknJM+/3eoxuycTQqhg18KC6haqG1UuGpUikjibZ6fHSUbzrRczn6hSo=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791942098; c=relaxed/simple;
+	bh=bCaUzIelB9WpZwF/pwMwTNqan3Z0wPcZ2evd+e1nY4E=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=KYDOlTd8kg85Y1MYSHOmogssbTEgtQBQrbB3cCV3LqUy3LYk0pTYjotl1z2m5e/MlhaibF7AIh0SaWzsw220hvrtfpdciHCw+rbm4Gq23EIk2OJZoikP7DHyLysRvYclWnJ31TwENzOuAGEw0ea2ioKFbch4uU43SFIpXHO1b5Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sina.com; spf=pass smtp.mailfrom=sina.com; dkim=pass (1024-bit key) header.d=sina.com header.i=@sina.com header.b=JbzSKmni; arc=none smtp.client-ip=202.108.3.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sina.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sina.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="kHdQx/yk"
-ARC-Seal: i=1; a=rsa-sha256; t=1791932185; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=bNVvhYdc3iC1WLIzS0fZNO0qcM7zrvTBm9pfdKoDA+dxTRkfdxZ02pISKtbT+BzLrYeO2J8AEcGXsYm5GU9j5xnM7/R2UoMGMmX6PA/b1pCkFxUNEjQo6kNQHn47mkxfyzHNWkJKikzFz5zhcFpQouVnvAmepLUuKIHvdLyJrro=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1791932185; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=is/u4zp7L+bid1uy+FMp9cPkHU9FjH1P79khU+iYi1s=; 
-	b=jpMfXxH3wSI0OkaZcD1lHZ2MWkAxUqb7eEgx5BNwsaqFP/Z6lM17Rszj8IRfgnxI3BAuYq/ezE5UnKUFZzvsQV+ccz5UTSc5e1sO2gqtaiFBYmkYKlUXqydc1zg7NzPTJLGotAgvxZyDwrtxT57yu2fFdSl2IIhQaGVfPrI4dZ0=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
-	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1791932185;
-	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
-	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=is/u4zp7L+bid1uy+FMp9cPkHU9FjH1P79khU+iYi1s=;
-	b=kHdQx/yka/sQoYcL1VofEdOgUAAShvGiyVxKxTPRMe/IE6JEaiemAH47QtlGVkz6
-	I4uQTtv82fP4bvdZ123YaiAYKd1b3pn9jVbRmrSxChZD8Poippv5dh0i4U70oxlK1Wf
-	yl7pBDuKVqWKUAmcaN1z6zNHIyvdCpEw4ILiwgtA=
-Received: by smtp.zohomail.com with SMTPS id 1791932183629232.553043639708;
-	Tue, 13 Oct 2026 15:56:23 -0700 (PDT)
-Message-ID: <05f4612c-a034-4e77-9a00-9cadd9f7e2c9@collabora.com>
-Date: Wed, 14 Oct 2026 01:56:19 +0300
+	dkim=pass (1024-bit key) header.d=sina.com header.i=@sina.com header.b="JbzSKmni"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sina.com; s=201208; t=1791942094;
+	bh=Gukd+7qBDkCL0LwJkx1bGcwYtROGaDWytHz0r2JFleE=;
+	h=From:Subject:Date:Message-ID;
+	b=JbzSKmniJVAA9CnbW+dTXOK6MSIOaz03h3PuzPjG6QBj4CBto4wJiDOjG+b4HOAAh
+	 EKq1abq/gLIJCOMMG9j2RhEvEEWjTaQluWEf22NyGeIlaCmpcdkqXPEP0Dsgzmf0lY
+	 q/cxqba5XjGV/4Sn/+03cFMSCV3rnWWpX5/OZyWY=
+X-SMAIL-HELO: localhost.localdomain
+Received: from unknown (HELO localhost.localdomain)([114.249.62.194])
+	by sina.com (10.54.253.34) with ESMTP
+	id 6ACEDDC100004107; Wed, 14 Oct 2026 09:41:25 +0800 (CST)
+X-Sender: hdanton@sina.com
+X-Auth-ID: hdanton@sina.com
+Authentication-Results: sina.com;
+	 spf=none smtp.mailfrom=hdanton@sina.com;
+	 dkim=none header.i=none;
+	 dmarc=none action=none header.from=hdanton@sina.com
+X-SMAIL-MID: 3659906291904
+X-SMAIL-UIID: 3E8AF85D807741DB8AE66A308ECF1F7E-20261014-094125-1
+From: Hillf Danton <hdanton@sina.com>
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Cc: David Airlie <airlied@redhat.com>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>,
+	linux-kernel@vger.kernel.org,
+	syzbot+1b129b44597a126d2d79@syzkaller.appspotmail.com,
+	dri-devel@lists.freedesktop.org,
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH] drm/virtio: share one vbuf cache across all devices
+Date: Wed, 14 Oct 2026 09:41:10 +0800
+Message-ID: <20261014014112.515-1-hdanton@sina.com>
+In-Reply-To: <bf25fc38-95d7-4cb5-b0ee-6afe1488e5e7@collabora.com>
+References: 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1] drm/virtio: Reset device before deleting virtqueues on
- freeze
-To: Yuho Choi <oss.patchbox@gmail.com>, David Airlie <airlied@redhat.com>,
- Gerd Hoffmann <kraxel@redhat.com>, Dongwon Kim <dongwon.kim@intel.com>
-Cc: Gurchetan Singh <gurchetansingh@chromium.org>,
- Chia-I Wu <olvaffe@gmail.com>, dri-devel@lists.freedesktop.org,
- virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- stable@vger.kernel.org
-References: <20260926202040.1313385-1-oss.patchbox@gmail.com>
-Content-Language: en-US
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-In-Reply-To: <20260926202040.1313385-1-oss.patchbox@gmail.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ZohoMailClient: External
+Content-Transfer-Encoding: 8bit
 
-On 9/26/26 23:20, Yuho Choi wrote:
-> virtgpu_freeze() waits for the control and cursor queues to drain and
-> then deletes the virtqueues, but nothing tells the device to stop first.
-> del_vqs() frees the vring backing, but does not provide a generic device
-> quiesce operation. In particular, modern virtio-pci keeps enabled queues
-> active until the device is reset, so the device is left DRIVER_OK with
-> its queues pointing at memory that has been freed and may be reused while
-> the guest is suspended. virtio_device_restore() only resets the device
-> later, on resume.
-> 
-> Reset the device before deleting the virtqueues, the way
-> virtio_gpu_deinit() already does on removal.
-> 
-> Fixes: cad6a879a7fb ("drm/virtio: Freeze and restore hooks to support suspend and resume")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Yuho Choi <oss.patchbox@gmail.com>
-> ---
->  drivers/gpu/drm/virtio/virtgpu_drv.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
-> index 2aaa7cb08085..52c174f9bff7 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-> @@ -225,6 +225,7 @@ static int virtgpu_freeze(struct virtio_device *vdev)
->  		goto err_resume;
->  	}
->  
-> +	virtio_reset_device(vdev);
->  	vdev->config->del_vqs(vdev);
->  
->  	return 0;
-
-Applied to misc-fixes, thanks!
-
--- 
-Best regards,
-Dmitry
+On Fri, 9 Oct 2026 20:39:54 +0300 Dmitry Osipenko wrote:
+>27.09.2026 07:09, Nguyen Ngoc Thang пишет:
+>> On Sun, 27 Sep 2026, Hillf Danton wrote:
+>>> What is unclear -- why is kmalloc failing to work in 2026?
+>> 
+>> kmalloc isn't failing. The failure is in kmem_cache_create(): the driver
+>> creates a dedicated cache with a fixed global name for each device, so a
+>> second probe while the first drm_device is still alive (release is
+>> deferred by an open /dev/fbN) trips the duplicate-name check.
+>> 
+>> Your question made me look at whether the dedicated cache is needed at all.
+>> A vbuf is sizeof(struct virtio_gpu_vbuffer) + 96 + 24 = 216 bytes, which
+>> lands in kmalloc-256 anyway, so the cache buys nothing over kzalloc()/kfree().
+>> Dropping it also removes the lifetime problem entirely and needs no
+>> module-level state.
+>> 
+>> I'll send a v2 that switches the kmem_cache_zalloc() calls and
+>> kmem_cache_free() to kzalloc()/kfree() and deletes the cache setup and
+>> teardown.
+>> 
+>> Thanks,
+>> Nguyen Ngoc Thang
+>
+> kmem_cache is used by GPU drivers to avoid kmalloc stalls in a
+> latency-sensitive job-submission code path.
+>
+This makes no sense before showing the stall, given my failure of locating
+the lore page where the tglx dude was taught a few years back (by Mathew
+Wilcox?) that the percpu page is faster that thought.
