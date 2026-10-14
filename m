@@ -1,43 +1,43 @@
 Received: from sender6-op-o11.zoho.com (sender6-op-o11.zoho.com [165.173.180.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2FF564A2A4A
-	for <virtualization@lists.linux.dev>; Wed, 14 Oct 2026 21:02:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F81747DFA0
+	for <virtualization@lists.linux.dev>; Wed, 14 Oct 2026 21:03:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=165.173.180.11
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792011760; cv=pass; b=bcsKZdiueaZ1Ns2hfPviEA2mJ9INCePTmw5PjUiD7Fk2PsMZu31W6bkCnpF1pPUp+Tnch2aLkbYsAu+8VgXkUpiQIh6jr5Hcv2rcxFM2Az4JWjdMFVJSymh5wZR4FWMPfsoihuomWDR/u5tmv5oBPfCRYtpZCL36TxVfPsO7NQQ=
+	t=1792011839; cv=pass; b=lNajwwenu6jPoXUo/94GJtVqUqOMbYf3NqP/Xz1cjZb0vcBOMbDjE5E28ucBHE16/dL3ZgzMvHVGtcBjRoAqcwwIxXfGIEVsDljhV/Qcp5pXWHAEYiijKo9zjREVzV637iKehP6/mln/S/2UOyI6r5ZYf2hXeKzm7j8A16W6Ims=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792011760; c=relaxed/simple;
-	bh=AggDeTcSQkCXzqrfyH77JXRMkSatFNE22kphl7JxcTs=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=uzpXpUevxgXgnUWqpQQqFbPtfYRa/kNUfb+oAG8bOTH43GiXyt0GUmGNwpOtXvWc3Zlz3IaF16QNuOkxYEHZ99lQXr0G7Gl9tWd6m/i+qjbTf0HSXuzkG8Iz14N5rmhDJ8N1+xqD80HfybJSVkINabkvCpWrJ5fVeRz22Ag3Hdw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=OaRrc1zI; arc=pass smtp.client-ip=165.173.180.11
+	s=arc-20240116; t=1792011839; c=relaxed/simple;
+	bh=hQ+3ixWZSWCaB7DIMnxiLTYYC/EatAKsu6DQudQfNPk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=QL4euFne2Z63/XGq663+t2snz4cY2/35dpXitXkZPw9FHbodQrxt06mSJavQ+pfLXgsNzEqjYZyvHvAxSMYeKBI81amYpRE5YC4kEojOLHRekVrrT7LbweLTzUcHaCpGuF6lD1V9PUoz1GhddlSnCBxaqzJkIiiSfFzsq8zalF0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=P9HcgNrw; arc=pass smtp.client-ip=165.173.180.11
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="OaRrc1zI"
-ARC-Seal: i=1; a=rsa-sha256; t=1792011745; cv=none; 
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="P9HcgNrw"
+ARC-Seal: i=1; a=rsa-sha256; t=1792011819; cv=none; 
 	d=zohomail.com; s=zohoarc; 
-	b=lYNTdWVFF97u70Tf+c8K1WJGtLlOIlGREp542fs1/lpNV6J8H0Nnl+9CoM1euxl23t2H6dVaK/HYLtZqnphgOKWfds5jfBf07/upbU1tt022QzBX0crsz3d0PaYAP/cY8q2Gk8NU4SAkl+QeHyIXRXi75fDypjclVC8awix1N2g=
+	b=DS24hgiAZTMXMuMA77Epom4iA6pRdEZtBw2kY2Lg8ejFdx1x15KQbXu3UneKDX5GiUMIdhuw36iidKOrihDT1A6688TZ4lq38fY5kB6fNaSxd+W+AfqdycNCmYfNCndqKf9TgwXTDBqC4Ksw8qnS168jSKlzLhJDUwuOZodmkTc=
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1792011745; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=jhhvsN4ExcnX7pHhsI2wNoBnhSu5FDiZCbkI5WrCx0E=; 
-	b=KU+e+WLUCdFHUbW8CsND02KOS7lr4zsdOuz8gVvl59MhjsIOcTi5FyBSW5QPWt0fOpaDMoDVEZRvMnfUMCdWxo0UHzWOfInSczC//0LJJfTV55OBam9KYdeo3y6UtRw1evUUzYwrR9FICFCsu+32KnRjFJImCYdnNsC+4SfwVkU=
+	t=1792011819; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=TO/lIMPRy42IA1901iUdgP3yZWKR6dl0nOUutKb0wR0=; 
+	b=hX/dfSJOhNxAzG7C52j8ZEDkZYiP2n1eDOAUzMukHHAOfA74lc1p3Dk1Y+P8wdRUBwLckObH8zw8EZIbuZGSSUi62Vr/xQTihA5h0JL4eSOUNMkx9afhpAlAhYIbhvrokv6mLW3Leha7Oy9CfNDDqo0ARH2C0Gd7vlO7Tphw/j4=
 ARC-Authentication-Results: i=1; mx.zohomail.com;
 	dkim=pass  header.i=collabora.com;
 	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
 	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1792011745;
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1792011819;
 	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
-	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:From:From:To:To:Cc:Cc:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=jhhvsN4ExcnX7pHhsI2wNoBnhSu5FDiZCbkI5WrCx0E=;
-	b=OaRrc1zIg+ciVXU1hI/IMhYHVVqSm24bV2mYeIjmvip6m84YOs9H6KhdvdFNW3Vm
-	2DoU/QVfLSE+NTdEq/okYs4Fst8D4zTGu1wVH4dh2ZmWgocAoZuUbkaLXHeCKkC+kUE
-	f5hfEBlhyXAm9Lezsom0Hd0bDtR5fLqMhGpmJrPI=
-Received: by smtp.zohomail.com with SMTPS id 1792011743470340.1435335265422;
-	Wed, 14 Oct 2026 14:02:23 -0700 (PDT)
-Message-ID: <6c0f26af-e363-46b8-b3b9-8d3910297dc0@collabora.com>
-Date: Thu, 15 Oct 2026 00:02:18 +0300
+	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=TO/lIMPRy42IA1901iUdgP3yZWKR6dl0nOUutKb0wR0=;
+	b=P9HcgNrwgmif3VkXwO9nQRNUfoaIjEFHmlKeEj5rYoKCVFNn1siEuiStzfE1XwX9
+	CSlYj3XCDJQtKKGrD4CBFFS1KnBfxkYEx+PVVEXFOH3PxVsI5583uPhRv6sA8si0/5o
+	rn4LLvQdMXSbYLz7sNYZuChb5eO2pC5Afyd0IqIE=
+Received: by smtp.zohomail.com with SMTPS id 1792011817897320.64940566528196;
+	Wed, 14 Oct 2026 14:03:37 -0700 (PDT)
+Message-ID: <8e193dd9-4ceb-4bd0-a28f-f4af084b73e8@collabora.com>
+Date: Thu, 15 Oct 2026 00:03:32 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -45,147 +45,128 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] drm/virtio: do not enforce blob_alignment in
- cross-domain contexts
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-To: Val Packett <val@invisiblethingslab.com>,
- David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
+Subject: Re: [PATCH] drm/virtio: Destroy obj_restore_lock on the final
+ drm_dev_put()
+To: Abhin Parekadan Jose <abhinjoses@gmail.com>
+Cc: Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@redhat.com>,
  Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
  <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
  Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- Simona Vetter <simona@ffwll.ch>, Sergio Lopez <slp@redhat.com>,
- Yiwei Zhang <zzyiwei@chromium.org>, Ryan Neph <ryanneph@chromium.org>
-Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org
-References: <20261006154913.2689067-2-val@invisiblethingslab.com>
- <8b0fbe1a-1410-42d7-8031-611795ae39d9@collabora.com>
- <4d86ec37-ce27-4556-966e-4b4e80ec0718@invisiblethingslab.com>
- <f717bc84-57f4-4001-a15b-fcdca67bb9b4@collabora.com>
+ Simona Vetter <simona@ffwll.ch>, Dongwon Kim <dongwon.kim@intel.com>,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org,
+ syzbot+3590d97d8a586fa955c2@syzkaller.appspotmail.com
+References: <20260929070714.169412-1-abhinjoses@gmail.com>
+ <asxz0Xvv5jO9gAol@home-desktop>
+ <537679fc-8aea-472f-a7af-b15bd3cf27fd@collabora.com>
+ <as_drl4kYXmgOfRn@home-desktop>
 Content-Language: en-US
-In-Reply-To: <f717bc84-57f4-4001-a15b-fcdca67bb9b4@collabora.com>
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+In-Reply-To: <as_drl4kYXmgOfRn@home-desktop>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 X-ZohoMailClient: External
 
-On 10/10/26 22:40, Dmitry Osipenko wrote:
-> On 10/8/26 23:59, Val Packett wrote:
->>
->> On 10/8/26 4:33 AM, Dmitry Osipenko wrote:
->>> On 10/6/26 18:42, Val Packett wrote:
->>>> VIRTIO_GPU_F_BLOB_ALIGNMENT is designed for GPU rendering context types,
->>>> however VIRTIO_GPU_CAPSET_CROSS_DOMAIN is not one of those. Resources
->>>> created under cross-domain contexts are arbitrary shared system memory
->>>> files, which includes unusual things like Wayland keymaps received
->>>> from the host compositor. Do not enforce alignment requirements there.
+On 10/14/26 22:53, Abhin Parekadan Jose wrote:
+> On Wed, Oct 14, 2026 at 01:16:57AM +0300, Dmitry Osipenko wrote:
+>> On 10/12/26 08:44, Abhin Parekadan Jose wrote:
+>>> Gentle ping on this fix for the syzbot report.
+>>>
+>>> Dmitry, Gerd, do you have a preference between moving mutex_destroy()
+>>> to virtio_gpu_release() (this patch) and using drmm_mutex_init()? I can
+>>> send a v2 with the other option if you prefer it.
+>>>
+>>> Thanks,
+>>> Abhin
+>>>
+>>> On Tue, Sep 29, 2026 at 07:07:14AM +0000, Abhin Parekadan Jose wrote:
+>>>> virtio_gpu_deinit() calls mutex_destroy() on obj_restore_lock, but
+>>>> deinit runs from virtio_gpu_remove() at unbind or PCI remove, and GEM
+>>>> objects can outlive that. An open /dev/fb0 keeps the fbdev buffer
+>>>> alive, and the fbdev DRM client holds a drm_device reference. When the
+>>>> fd is finally closed, the buffer is freed and takes the destroyed lock:
 >>>>
->>>> Fixes: 47248e0d8264 ("drm/virtio: honor blob_alignment requirements")
->>>> Signed-off-by: Val Packett <val@invisiblethingslab.com>
+>>>>   fb_release()
+>>>>     drm_fbdev_shmem_fb_destroy()
+>>>>       drm_client_buffer_delete()
+>>>>         virtio_gpu_free_object()
+>>>>           virtio_gpu_remove_from_restore_list()
+>>>>             mutex_lock(&vgdev->obj_restore_lock)
+>>>>
+>>>>   DEBUG_LOCKS_WARN_ON(lock->magic != lock)
+>>>>   WARNING: kernel/locking/mutex.c:625 at __mutex_lock+0xf2c/0x12ec
+>>>>
+>>>> virtio_gpu_deinit() should only do hardware teardown in this case
+>>>> related virtio, its queues and others. Software state that GEM callbacks
+>>>> still use belongs in virtio_gpu_release(), which runs on the final
+>>>> drm_dev_put().
+>>>>
+>>>> There are two equivalent ways to tie the mutex lifetime to the
+>>>> drm_device:
+>>>>
+>>>>  1) Move mutex_destroy() from virtio_gpu_deinit() to the end of
+>>>>     virtio_gpu_release(). This is what this patch does. It is the
+>>>>     smallest change and keeps the teardown next to the rest of the
+>>>>     final-put software cleanup.
+>>>>
+>>>>  2) Initialise the lock with drmm_mutex_init() (checking its return
+>>>>     value) and drop mutex_destroy() from virtio_gpu_deinit(), so DRM's
+>>>>     managed release destroys it. This also covers the virtio_gpu_init()
+>>>>     error path, where release returns early because dev_private is
+>>>>     NULL. Skipping mutex_destroy() there is harmless, since it only
+>>>>     matters for mutex debugging.
+>>>>
+>>>> Either fix removes the WARN. Option 1 is sent as the smaller change,
+>>>> and option 2 can be done instead if preferred.
+>>>>
+>>>> Reproduced on arm64 QEMU (-device virtio-gpu-pci) with DEBUG_MUTEXES
+>>>> and PROVE_LOCKING: open /dev/fb0, write 1 to
+>>>> /sys/bus/pci/devices/0000:00:01.0/remove, then close the fd. With this
+>>>> patch the WARN is gone, and rebinding brings back /dev/fb0 and
+>>>> /dev/dri/card0.
+>>>>
+>>>> Fixes: 54a970048296 ("drm/virtio: Add support for saving and restoring virtio_gpu_objects")
+>>>> Reported-by: syzbot+3590d97d8a586fa955c2@syzkaller.appspotmail.com
+>>>> Closes: https://syzkaller.appspot.com/bug?extid=3590d97d8a586fa955c2
+>>>> Assisted-by: LLM
+>>>> Signed-off-by: Abhin Parekadan Jose <abhinjoses@gmail.com>
 >>>> ---
+>>>>  drivers/gpu/drm/virtio/virtgpu_kms.c | 3 ++-
+>>>>  1 file changed, 2 insertions(+), 1 deletion(-)
 >>>>
->>>> v2: also check has_virgl_3d to prevent dereferencing NULL vfpriv
->>>> v1: https://lore.kernel.org/all/20261006004044.2242154-1-
->>>> val@invisiblethingslab.com/
->>>>
->>>> ~val
->>>>
->>>> ---
->>>>   drivers/gpu/drm/virtio/virtgpu_ioctl.c | 4 +++-
->>>>   1 file changed, 3 insertions(+), 1 deletion(-)
->>>>
->>>> diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/
->>>> drm/virtio/virtgpu_ioctl.c
->>>> index 3ddd5481d6bc..4d5ae062834d 100644
->>>> --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
->>>> +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
->>>> @@ -551,7 +551,9 @@ static int verify_blob(struct virtio_gpu_device
->>>> *vgdev,
->>>>       params->blob_flags = rc_blob->blob_flags;
->>>>       params->blob_hints = rc_blob->blob_hints;
->>>>   -    if (vgdev->has_blob_alignment &&
->>>> +    if (vgdev->has_blob_alignment && vgdev->has_virgl_3d &&
->>>> +        (vfpriv->context_init &
->>>> VIRTIO_GPU_CONTEXT_INIT_CAPSET_ID_MASK) !=
->>>> +        VIRTIO_GPU_CAPSET_CROSS_DOMAIN &&
->>>>           !IS_ALIGNED(params->size, vgdev->blob_alignment))
->>>>           return -EINVAL;
->>>>   
->>> What userspace has this problem and why it re-purposes virtio-gpu to act
->>> as udmabuf for arbitrary data that never reaches host?
->>
->> Sorry, what do you mean by that?
->>
->> This is not related to data that "never reaches host" at all! The error
->> I referred to in the patch message literally says "received *from* the
->> host"…??
->>
->> Guest userspace is any of the cross-domain proxies:
->>
->> * https://codeberg.org/drakulix/wl-cross-domain-proxy
->> * https://github.com/talex5/wayland-proxy-virtwl
->> * https://github.com/google/sommelier-rs (or old C++ version)
->>
->> VIRTIO_GPU_CAPSET_CROSS_DOMAIN "repurposes virtio-gpu" to act as a
->> cross-VM UNIX socket transport that supports fd passing. By referring to
->> virtio-gpu resources in the send command the guest can make the device
->> send the resources' corresponding host fds to the host Wayland
->> compositor. It can refer to resources from other contexts, in order to
->> present drm/venus/etc rendered buffers on Wayland surfaces. (i.e. the
->> host would send the actual dma-buf from virglrenderer) But the resources
->> created on the cross-domain context itself are system memory buffers,
->> generally used for software rendering and miscellaneous Wayland "stuff"
->> like keymaps which are sent *from* the host, and exposed to Wayland
->> clients in the guest. Socket receive handling in rutabaga-gfx stores
->> incoming fds and returns their IDs to the guest, then the guest does a
->> CREATE_BLOB with matching blob_id, which creates a virtio-gpu resource
->> from the incoming buffer, so the guest can just MAP_BLOB it. These are
->> the blobs that are not aligned to anything because they're just
->> arbitrary memfds on the host.
+>>>> diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+>>>> index 1d4d3bf46a20..0ec755c35050 100644
+>>>> --- a/drivers/gpu/drm/virtio/virtgpu_kms.c
+>>>> +++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+>>>> @@ -354,7 +354,6 @@ void virtio_gpu_deinit(struct drm_device *dev)
+>>>>  	virtio_reset_device(vgdev->vdev);
+>>>>  	virtio_gpu_reclaim_vbufs(vgdev);
+>>>>  	vgdev->vdev->config->del_vqs(vgdev->vdev);
+>>>> -	mutex_destroy(&vgdev->obj_restore_lock);
+>>>>  }
+>>>>  
+>>>>  void virtio_gpu_release(struct drm_device *dev)
+>>>> @@ -370,6 +369,8 @@ void virtio_gpu_release(struct drm_device *dev)
+>>>>  
+>>>>  	if (vgdev->has_host_visible)
+>>>>  		drm_mm_takedown(&vgdev->host_visible_mm);
+>>>> +
+>>>> +	mutex_destroy(&vgdev->obj_restore_lock);
+>>>>  }
+>>>>  
+>>>>  int virtio_gpu_driver_open(struct drm_device *dev, struct drm_file *file)
+>> Calling virtio_gpu_deinit() from virtio_gpu_release() might be a better
+>> option
 > 
-> RE "These are the blobs that are not aligned to anything because they're
-> just arbitrary memfds on the host." I'll appreciate confirmation from
-> people more familiar with Sommelier internals like Gurchetan, Yiwei or Ryan.
-> 
-> In a case it is a correct claim, might be better to remove the
-> blob_alignment check entirely and let blob sharing fail naturally if
-> alignment is wrong.
-> 
+> Wouldn't that end up freeing the virtqueues twice, or using them after
+> they are freed? virtio_gpu_deinit() would then run from both the
+> virtio_gpu_remove() path and the virtio_gpu_release() path.
+> or do you mean removing it from virtio_gpu_remove() and calling it only
+> from virtio_gpu_release()?
+> This is only from a high-level look so far. I'll look into it more
+> closely and get back to you.
 
-Reproduced the bug with Sommelier.
-
-Driver always implicitly rounds up BO size up to PAGE_SIZE for both
-guest and host blobs [1][2], hence need to retain this old behavior to
-fix the problem properly.
-
-Please send v2
-
-[1]
-https://elixir.bootlin.com/linux/v7.2.10/source/drivers/gpu/drm/virtio/virtgpu_object.c#L217
-[2]
-https://elixir.bootlin.com/linux/v7.2.10/source/drivers/gpu/drm/virtio/virtgpu_vram.c#L210
-
---- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -539,9 +539,15 @@ static int verify_blob(struct virtio_gpu_device *vgdev,
-        params->blob_flags = rc_blob->blob_flags;
-        params->blob_hints = rc_blob->blob_hints;
-
--       if (vgdev->has_blob_alignment &&
--           !IS_ALIGNED(params->size, vgdev->blob_alignment))
--               return -EINVAL;
-+       /*
-+        * Blob sizes always implicitly rounded up to PAGE_SIZE by the
-+        * driver, userspace may be unaware of the host's alignment.
-+        * Round up to the larger of the host and guest page sizes.
-+        */
-+       if (vgdev->has_blob_alignment)
-+               params->size = ALIGN(params->size,
-+                                    max_t(u32, vgdev->blob_alignment,
-PAGE_SIZE));
-
-        return 0;
- }
-
-
+Remove from virtio_gpu_remove() and call only from virtio_gpu_release().
 
 -- 
 Best regards,
