@@ -1,152 +1,117 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from Chamillionaire.breakpoint.cc (Chamillionaire.breakpoint.cc [91.216.245.30])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23E084E4316
-	for <virtualization@lists.linux.dev>; Thu, 15 Oct 2026 09:45:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22289513564
+	for <virtualization@lists.linux.dev>; Thu, 15 Oct 2026 10:39:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.216.245.30
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792057518; cv=none; b=TDbPzYAaEVqNGUAFuqHs/deFdTBUp2+uL49I0CNYbLGGw4vS+TIn5UBytQUtc4hjAKa7da8QVj9whfHQuXYCVw1ENyX31lXbyq5Ai18GRDyvdcodWAgDIwZJWxT7msqM4WWgRMEDQ74M1Nx2V6VfidUs9EcF6pNDqTa/glOmXBw=
+	t=1792060758; cv=none; b=L9d9pz/TlzRjLCWIrz56w5MywlTy/SGG1FzaE7FvWGl6dRJVQDGMTNTtshKLoBzXM5HD9xU47oNt4ZRfw1UCxrRI6eHuDztRAEjSkZmsX3a8vl9taaxiBVS9ogD54sDbRPP6oT1GPIZv1fTo6U7uSehY46h0lIFzlXyfAk6Esp8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792057518; c=relaxed/simple;
-	bh=hQ/O1jXrg7vtXtaXIgXlSw0Yo6Wdunyn/TqAF45Oh2k=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=pwnjSTvqRPEUQCijwucqMBTsplqco+QC/4q7/D0XAvfSUWMhVgEA2gidUvZndgBVcFm+L8M1f4P9DHk6mcu2usCLFKOqr/Jpw6rBL2XebtFLSMHVTaW6uQF3jDj49qDiquGZQ7MPodODMfBQhS94js3RaydvpKfqNJmYjz9kDV0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YY/2NJg8; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YY/2NJg8"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1792057516;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=t/+KZUJjxU9hKUHG/eUaO/FcCKTpYENEUj2QT3nk9hY=;
-	b=YY/2NJg8jBFdNqaeZ0Nz2MWRF9gyovOOeoqcDvgo9zBH946eBgZ0HNLS4/SOWw839DkO8k
-	Sp9V5SAoBBY9N1QbME1SPSU1AU0LGlz8W8rYVo2QJk9flXq/xNlBmck7PwSpRpDB7TXKDI
-	SEciSkAZGwap0T+aTdW276jzclH+EEI=
-Received: from mail-yw1-f199.google.com (mail-yw1-f199.google.com
- [209.85.128.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-677-V6HzIbo-NrKikOU0N9cciQ-1; Thu, 15 Oct 2026 09:45:15 +0000
-X-MC-Unique: V6HzIbo-NrKikOU0N9cciQ-1
-X-Mimecast-MFC-AGG-ID: V6HzIbo-NrKikOU0N9cciQ_1792057514
-Received: by mail-yw1-f199.google.com with SMTP id 00721157ae682-837aaa9a3f6so58819377b3.0
-        for <virtualization@lists.linux.dev>; Thu, 15 Oct 2026 02:45:15 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792057514; x=1792662314;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=t/+KZUJjxU9hKUHG/eUaO/FcCKTpYENEUj2QT3nk9hY=;
-        b=rbCB0NJHDcwvDxLi6mboYN7ZYcBZeLCTGpqy0TS0dSjIZ0/m3zq+tJLlC+c5aa8oBA
-         Na54KvH6GJJQY2xvylyW6fcEKKhkG4LGOcOkpafqujwiIuLWM2+QcFCEbK7qA0AjSZuN
-         PGGiQflWY3XJNYUa9PFY1ErrQCmJPnyBv/KDC9cMWiB6BxfVwqao9KLhJsfCdpC+UiJN
-         sI5yBRDge/gdjSXzTvGMAGnwhvW+BHI/x/J2YgbxA9Iutyg+IfcO8jR9fylxSRSHe0NF
-         EQo2EFGn+wmtmZvJv2Az+0Vds1zm0XVk7XT5eiD5bKGXx5/aU3TR6iuQf8yjmEVlRaG5
-         F3pA==
-X-Forwarded-Encrypted: i=1; AKwUvBwrB+EZMGwKOup25+00na2iCEh7Qit6RrAdVXgW1azHvWmLc7Ed/Alwpz8Ueeo9kI1kKe6V7yISEWDfQaTDaw==@lists.linux.dev
-X-Gm-Message-State: AFq9FYLMeXOnDEsW0PT81wHQZDQ1qet7B2OE635Y3iT7x4oj5/Gu+ELA
-	qXOU+O0GFu+cH7zIYlEEbITlcDWwy2mpEbnbyYyg+HBLLiZYaDF+06vErZYtGmcinQR56LwpVK+
-	+8VWJyoFBX2EwEzuOtCAktO5yK5LzQs9vjmkOFPBmXFNKOh8QkfKamISrBhc4ZadcUCcFRdtuPy
-	xGoyP09ffqen0Z0gKvTW4NTvuB+h9cSTknOY6IRtxMGyo=
-X-Gm-Gg: AYBFou3aJswZ2NQ0xi63k1wlH+e1McHYondZ39+G96Em9gqwq88r0uxqcDmL9Pa2Ydd
-	s64eEjRfeImZ3uHTsfgF4N5KCIZlhc6h3csFNCh+9C9UhDuPtc4ukgvm9Wnvx8UN4lokxFbtcC3
-	TrnlDGOu7is0PUjg7IbeYTh5k3O3gOcqt7bvdBNiS3u4DJasp8QWxZQ5Np6UuWQ5/+jgbubaZXX
-	TuTn7nfjpneTd+NZHdWw5ej5f4G3h6CCowFMhQHEZhzwY37SlfYBfTcFsU=
-X-Received: by 2002:a05:690c:e3c8:b0:8b0:a352:f99b with SMTP id 00721157ae682-8b0a352fd39mr45441677b3.5.1792057514223;
-        Thu, 15 Oct 2026 02:45:14 -0700 (PDT)
-X-Received: by 2002:a05:690c:e3c8:b0:8b0:a352:f99b with SMTP id
- 00721157ae682-8b0a352fd39mr45441587b3.5.1792057513796; Thu, 15 Oct 2026
- 02:45:13 -0700 (PDT)
+	s=arc-20240116; t=1792060758; c=relaxed/simple;
+	bh=uBijJrZM4mnefoRvItG7+mBcA6wx00llHnG2gvGYJU8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=t4NofZJRcx6wNvw3QN3NklDcmUwVS7Ox3lIg8hV3D7U9MjByJxeCuFLDT36Yp3Xbv2q02Bfp21wB7gIXWc/fsbh2H/YUYKLY3eL9YAj18fnj5UUCCJn/Ps5gclo89h/8NPt/KwSLeXnqwtZr+F3EpoCX/A05VEIJnyJB+n1Z/+I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=strlen.de; spf=pass smtp.mailfrom=strlen.de; arc=none smtp.client-ip=91.216.245.30
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=strlen.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=strlen.de
+Received: by Chamillionaire.breakpoint.cc (Postfix, from userid 1003)
+	id 13087606E2; Thu, 15 Oct 2026 12:39:13 +0200 (CEST)
+Date: Thu, 15 Oct 2026 12:39:12 +0200
+From: Florian Westphal <fw@strlen.de>
+To: Zihan Xi <zihanx@nebusec.ai>
+Cc: netfilter-devel@vger.kernel.org, virtualization@lists.linux.dev,
+	intel-wired-lan@lists.osuosl.org, bpf@vger.kernel.org,
+	pablo@netfilter.org, phil@nwl.cc, davem@davemloft.net,
+	edumazet@kernel.org, pabeni@redhat.com, horms@kernel.org,
+	kaber@trash.net, jengelh@medozas.de, andrew+netdev@lunn.ch,
+	mst@redhat.com, jasowangio@gmail.com, eperezma@redhat.com,
+	xuanzhuo@linux.alibaba.com, aleksander.lobakin@intel.com,
+	ast@kernel.org, daniel@iogearbox.net, hawk@kernel.org,
+	john.fastabend@gmail.com, sdf@fomichev.me,
+	magnus.karlsson@intel.com, maciej.fijalkowski@intel.com,
+	willemb@google.com, alice.kernel@fastmail.im,
+	eilaimemedsnaimel@gmail.com, imv4bel@gmail.com,
+	shiming.cheng@mediatek.com, sd@queasysnail.net, vega@nebusec.ai,
+	root@tr0jan.top
+Subject: Re: [PATCH nf v8 0/3] netfilter: bound asynchronous packet
+ duplication
+Message-ID: <atCtUFcG9b4ykXY3@strlen.de>
+References: <cover.1792048855.git.zihanx@nebusec.ai>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20261015094049.107999-1-eperezma@redhat.com>
-In-Reply-To: <20261015094049.107999-1-eperezma@redhat.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Thu, 15 Oct 2026 11:44:37 +0200
-X-Gm-Features: AclHuK-LzQXrraKcjrq2gn14rhkXoC0CRIcZZIDODKUQmzqbCXSFbFDTcemdS_k
-Message-ID: <CAJaqyWeozDb=fgxNvcN7-ZYGBmAMZ1pABj=h_nv9T=4GAaSNGw@mail.gmail.com>
-Subject: Re: [PATCH] MAINTAINERS: add missing virtio/vdpa/vduse/vhost headers
-To: mst@redhat.com
-Cc: Stefano Garzarella <sgarzare@redhat.com>, linux-kernel@vger.kernel.org, 
-	Laurent Vivier <lvivier@redhat.com>, virtualization@lists.linux.dev, 
-	Jason Wang <jasowangio@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: UPIDbwBRHwuBtmZeV_c91m6-PlVD6w4ouNHHUyzGmEo_1792057514
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cover.1792048855.git.zihanx@nebusec.ai>
 
-On Thu, Oct 15, 2026 at 11:40=E2=80=AFAM Eugenio P=C3=A9rez <eperezma@redha=
-t.com> wrote:
->
-> Several headers related to virtio, vDPA, VDUSE and vhost were not
-> covered by any specific MAINTAINERS entry and fell through to the
-> catch-all THE REST section:
->
-> - include/linux/device-id/virtio.h: not matched by the existing
->   "include/linux/virtio*.h" glob, which only matches files directly
->   under include/linux/ and does not recurse into subdirectories.
->
-> - include/uapi/linux/vdpa.h: the in-kernel include/linux/vdpa.h was
->   listed under VIRTIO CORE but its UAPI companion was missing; the
->   "include/uapi/linux/virtio_*.h" pattern does not match it because
->   the filename lacks the "virtio_" prefix.
->
-> - include/uapi/linux/vduse.h: there is no dedicated VDUSE section in
->   MAINTAINERS; the driver lives under drivers/vdpa/ which is already
->   covered by VIRTIO CORE, so the UAPI header belongs there too.
->
-> - include/uapi/linux/vhost_types.h: the VIRTIO HOST (VHOST) section
->   explicitly lists include/uapi/linux/vhost.h but omits its companion
->   types header.
->
-> Assisted-by: claude-sonnet 4.6
+Zihan Xi <zihanx@nebusec.ai> wrote:
+> Hi Linux kernel maintainers,
+> 
+> We found and validated an issue in netfilter packet duplication. The bug
+> is reachable by an unprivileged user in user and network namespaces.
+> Bounded tests exercised the fixes. Non-duplication packet semantics are
+> intended to remain unchanged. MIRRED flow offload for affected netdev dup
+> rules is rejected because it cannot enforce the duplication-depth limit.
+> 
+> We will provide detailed information about the bug
+> in this email, along with a PoC to trigger it.
 
-I forgot:
-Suggested-by: Michael S. Tsirkin <mst@redhat.com>
+Series makes no sense to me, sorry.  I dislike the 2nd patch, I see no
+reason why we need to make changes all over the place for this...?
 
-Also, in case it is useful, the model looked for all the potentially
-missed files.
+Also, if we go with 2nd patch, why do we still need the first?
 
-> Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
-> ---
->  MAINTAINERS | 4 ++++
->  1 file changed, 4 insertions(+)
->
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index f53047aa8d3c..9f85882f307e 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -28903,9 +28903,12 @@ F:     drivers/block/virtio_blk.c
->  F:     drivers/crypto/virtio/
->  F:     drivers/vdpa/
->  F:     drivers/virtio/
-> +F:     include/linux/device-id/virtio.h
->  F:     include/linux/vdpa.h
->  F:     include/linux/virtio*.h
->  F:     include/linux/vringh.h
-> +F:     include/uapi/linux/vdpa.h
-> +F:     include/uapi/linux/vduse.h
->  F:     include/uapi/linux/virtio_*.h
->  F:     net/vmw_vsock/virtio*
->  F:     tools/virtio/
-> @@ -28979,6 +28982,7 @@ F:      drivers/vhost/
->  F:     include/linux/sched/vhost_task.h
->  F:     include/linux/vhost_iotlb.h
->  F:     include/uapi/linux/vhost.h
-> +F:     include/uapi/linux/vhost_types.h
->  F:     kernel/vhost_task.c
->
->  VIRTIO HOST (VHOST-SCSI)
-> --
-> 2.56.0
->
+> The IPv4 and IPv6 duplication helpers use a task-local guard while a cloned
+> packet traverses output hooks. If NFQUEUE suspends that traversal, the
+> output call can return and clear the guard before a later verdict resumes
+> the remaining hooks. The resumed packet can reach another duplication
+> consumer without the original guard. This can cause repeated packet
+> processing and consume CPU and network resources.
 
+"Don't do that, then"?
+
+I think the kernel should not crash when misused, but I don't think
+kernel should have to do extreme stunts to detect such loops.
+
+There are probably many other ways to make kernel allocate lots of
+memory or waste cpu cycles.
+
+E.g. via create use of veth and bridges, sched plug, teql, ...
+
+> Patch 1 records the
+> guard in the queue entry and restores it during reinjection. It keeps
+> bottom halves disabled during the reinjection traversal, restoring the
+> verdict task state before reenabling them.
+
+Its small enough, so I have no objections to this patch.
+
+> The netdev nft dup path has a separate synchronous transmit recursion
+> counter. It does not accompany a duplicated skb through asynchronous
+> software receive paths. Patch 2 carries a bounded duplication depth through
+> skb and supported XDP conversions, resets it on reused buffers, and rejects
+> MIRRED flow offload where the software depth cannot be enforced. This scope
+> covers software skb/XDP continuity, not packet loops through physical
+> hardware or userspace device round trips.
+
+I think it would be better to first go to the drawing board and make ONE
+facility that governs the recursion part.
+
+From a quick glance, the difference is historical from time when
+per-module pcpu counters were used, so nf_dup netdev could not see the state
+of nft_dup toggle.  Now that its in task struct anyway, maybe its time to
+just zap the egress recursion counter and first make a patch that
+uses the bool toggle for both egress and normal dup?
+
+I would like to remove code, not add more.
+
+> At PRE_ROUTING and LOCAL_IN, the IPv4 and IPv6 helpers decrement TTL or
+> hop limit on the copy. Patch 3 stops creating copies when the value is
+> <= 1, so the decrement cannot reach zero or wrap a zero value to the
+> maximum.
+
+Thats unrelated problem.  There are other places that do TTL/HL
+decrements.  I think it makes sense to clean this up in -next and
+add common helpers and then use those.
