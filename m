@@ -1,117 +1,180 @@
-Received: from sipsolutions.net (s3.sipsolutions.net [168.119.38.16])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D5F7525A76;
-	Thu, 15 Oct 2026 12:55:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.38.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0E8B315D49
+	for <virtualization@lists.linux.dev>; Thu, 15 Oct 2026 13:30:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792068936; cv=none; b=Jo5AIapjdDNWvHVmld9zVUTziq974r8CGgDpe5GaJX2A6FKVr7bZRrP2KyUvy2fbJHW1Q8fup4m2BcOnB/S43msKCqSYqdaY/DurWiIxq5akv9Qe8HgLbK+jpQHl2SCkX+wuMFlpov6lCa0QqFU9xnXQgGPfhIVoawKP6NluDmA=
+	t=1792071036; cv=none; b=eBCobGLyUA7WaOUfVe8aPkeMk+uutgStJffpws4rrXCZO0q36wXl8YRuFW34Cbd3mMeB3g5JjbOYC0om5HCbLPrqSs1EIbnU5CSxJIo5KUK6aw+9T9s0cfZUvYH1Zm2MnfGDWEgwu6r+n1YaJaGgLY5/swBvOnmM5tUiqqYYqGo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792068936; c=relaxed/simple;
-	bh=1VL3ul+oyEqH/SBvPY1P3l7zVD9s1jUU5EEiHqlYnhE=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=CODgOYjSITQV829hQzExWbazQR9g1Ldhs7Tyi2UVD3OeUoLfbJHpAzf4ekXvD+pRqZH9SfhQ4v8p6Aojt/JUC9AWrhMhCF6OJIKQ0DeQNeBa7JzE7YwHy1TThq2Nc8CbktmtdPpW/6UjZXfqjnMuUC+L999SPPIPNgedALCLees=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=permerror header.from=sipsolutions.net; spf=pass smtp.mailfrom=sipsolutions.net; dkim=pass (2048-bit key) header.d=sipsolutions.net header.i=@sipsolutions.net header.b=wHImKLHW; arc=none smtp.client-ip=168.119.38.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=permerror header.from=sipsolutions.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sipsolutions.net
+	s=arc-20240116; t=1792071036; c=relaxed/simple;
+	bh=cwW617JewnF8m+D1Vc8i8JYYQvrKn3pSl1v+w1CVZhE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=jGAU9MFBpR5aHVR+zfVwT36+HN1QWsi65NUZP7+zoqs5yLLF3UH8ibCDla5de/2YYpGvi4DaHD8DaKEP2GGJoJ5rc+d74ZlXvDnmoX+oDDMQz2mAJq+1XFXm7gruXxz4IuR8hPPtDNBQqZBORfTD3WWiUp1+X3iOl7dBgFJ67a0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QlNitezl; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sipsolutions.net header.i=@sipsolutions.net header.b="wHImKLHW"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=sipsolutions.net; s=mail; h=MIME-Version:Content-Transfer-Encoding:
-	Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender
-	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-To:
-	Resent-Cc:Resent-Message-ID; bh=zL4P1buyUO0HTa8tz5fIfgHMxvjhBM1cuXeP1N+bW10=;
-	t=1792068935; x=1793278535; b=wHImKLHWjYOEFReQdzIl9jLd6b48Nsnes8s4ioAQnRsH1ld
-	M08QoGB+/w7SF1ugXglUIHta+zD4ZdWkd+fu1NWAU+pNDRHmiu/k6C72wWsZWOfXvHfux0/j1N4vb
-	eWRcEBrc3ifePfHbBjolTBFK86TKpwqaMZJ0+dotRCAxuV/6aoGNl5k+mZ6JspqXM9wenWEd7BsDA
-	R8dD8DPRqlNu9ghObdeJl6QejWwVTNS1d4YLetEihADDCMa7KA7rUrK9AbsP07pa/mGeiyQHqzZ6t
-	Ddj87I3sQkoYKDPVxgGUIfqJGLAW37BWcMWFCOHMs9z/mDg7kMXjiWJ7NdiAfSpw==;
-Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_X25519__ECDSA_SECP256R1_SHA256__AES_256_GCM:256)
-	(Exim 4.98.2)
-	(envelope-from <johannes@sipsolutions.net>)
-	id 1xHKzU-00000003bXE-0Kyl;
-	Thu, 15 Oct 2026 14:55:24 +0200
-Message-ID: <64ee40b97fc447bbf3abb80250ad0d9f3cf3c6fa.camel@sipsolutions.net>
-Subject: Re: [PATCH net-next v2 2/7] um: vector: honor virtio net hdr
- conversion failures
-From: Johannes Berg <johannes@sipsolutions.net>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Willem de Bruijn	
- <willemdebruijn.kernel@gmail.com>, Jason Wang <jasowangio@gmail.com>, 
- Eugenio =?ISO-8859-1?Q?P=E9rez?=	 <eperezma@redhat.com>, Xuan Zhuo
- <xuanzhuo@linux.alibaba.com>, Andrew Lunn	 <andrew+netdev@lunn.ch>, "David
- S. Miller" <davem@davemloft.net>, Eric Dumazet	 <edumazet@kernel.org>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni	 <pabeni@redhat.com>,
- netdev@vger.kernel.org, virtualization@lists.linux.dev,  Rusty Russell
- <rusty@rustcorp.com.au>, Max Krasnyansky <maxk@qualcomm.com>, Richard
- Weinberger <richard@nod.at>,  Anton Ivanov
- <anton.ivanov@cambridgegreys.com>, linux-um@lists.infradead.org
-Date: Thu, 15 Oct 2026 14:55:23 +0200
-In-Reply-To: <20261015085119-mutt-send-email-mst@kernel.org>
-References: <cover.1792067836.git.mst@redhat.com>
-	 <6716834884238de0ab1ab313004044122aa2adbf.1792067836.git.mst@redhat.com>
-	 <8420ba1fe84fc7d105825026802d4ad10d44af71.camel@sipsolutions.net>
-	 <20261015085119-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.60.2 (3.60.2-2.fc44) 
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QlNitezl"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1792071032;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=uoo2tu2S9XmQrr+C0lJWQJpw+2qkSB2NHh3Sjnut3aY=;
+	b=QlNitezl5pAtgfIHKboPjGqZ6liKlqvzl4IA9OUlM3LSj9epvjz7+SfxUwnbiMp3TQjvHI
+	KIXO6mzHi1iVIQ2eknz8WXvDa2D+I+F/PvU+gK+pYhRZLPdKaa6Zp2ekw6VhAWPHvEvS77
+	Rg9V7CasTmgkgjt/QByompjv7LDvc/k=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-645-jZhKT_TkPcymFKzakdTIBw-1; Thu, 15 Oct 2026 13:30:30 +0000
+X-MC-Unique: jZhKT_TkPcymFKzakdTIBw-1
+X-Mimecast-MFC-AGG-ID: jZhKT_TkPcymFKzakdTIBw_1792071029
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-4887e5afd67so4058212f8f.3
+        for <virtualization@lists.linux.dev>; Thu, 15 Oct 2026 06:30:30 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792071029; x=1792675829;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=uoo2tu2S9XmQrr+C0lJWQJpw+2qkSB2NHh3Sjnut3aY=;
+        b=1vcu7unpo/n3wFwDJkKL32jfEzUsuf9ouz5b+SccRjzcwwlQpDrVd41jkOBa96wNbN
+         mB7vKTYRXpJgUN7hg41FdhTuyr0POs29qmL5lIQzKFW89clRWhAfwbPqKW9c2CX9ZIp2
+         tnnOLprFfAaL6ALJ9pLs/YNwplHRDIIXbjoMgRZtlV9b+9qL99w8tmOC5OjaxGrkDlzv
+         j5NI8Zy/dSLy+aW3ZO/S9dp1nqYcu6FRQXTzY0XCCQknEKH5VlUZGAA0mH+0vj2Ap0/X
+         VhVUaljM2gCDKtRrQlvAySXvcRAR6baldvNsZioWbjGF/o/MJMWzSvAas9LPLXVIYh9D
+         tcMQ==
+X-Forwarded-Encrypted: i=1; AKwUvBynnCf/ECJnHxRg/zB7RfbVO9GkA3GX3SQbwdaxLtB4Psq1Q7IIonkP53D8NYZhf6w2LeX4H/Uvi0omFPcyCQ==@lists.linux.dev
+X-Gm-Message-State: AFq9FYLEqGqNaXfjbtLQYWLVc3HjuQ4khPtzXW+3dUz6Ki1VcjwLOkDw
+	hj8P+m/3CcJryIEKm9NgqPyJwONXgQSWYHez6sFa8cGHvu21T2Iz/0ikZuKK4MpuvCcBhxqT/qk
+	A6s3vjQlidK8905amq70FtewPUhbOYl8mbvxI543ylEJMGFKbkNfQpjspsOg/1aY56MXw
+X-Gm-Gg: AYBFou0XQHqTjS4Js/vlt3uy3NMZQbN2sGYG6mzREv4Jl/j83/T8o9a4qBpCLK9ewEf
+	RkY315Drunclp7fzXFI9x071AS9eqoOvGGqw60jpDOGfRgNixDT2nKQaHRatxqIGvyGuvvRouws
+	Tp+jhqPBiQMBFG3buU2Ekk0zqFrYREP+NAntS8+S/b9n5E8OkFUx5XD90brbQ5OuW3NOUo3XQzf
+	X1kP30Vn9ETnqpAt6oocIdf2SVx7GcLnf3RIRcvX8rkeb20SybGGIl+lQcK1MhjaA/9fONWEk9B
+	irKUnO9IXendDkxBzM6PiZ58cWIsvVnFYaV9hL4mYJFKrDJjF45aa63F5+M0CjwgxT4TAf4WBci
+	YXRJQRg==
+X-Received: by 2002:a05:6000:984:b0:48d:c29e:40c3 with SMTP id ffacd0b85a97d-48dc29e4118mr32903762f8f.33.1792071028978;
+        Thu, 15 Oct 2026 06:30:28 -0700 (PDT)
+X-Received: by 2002:a05:6000:984:b0:48d:c29e:40c3 with SMTP id ffacd0b85a97d-48dc29e4118mr32903697f8f.33.1792071028315;
+        Thu, 15 Oct 2026 06:30:28 -0700 (PDT)
+Received: from sgarzare-redhat ([193.207.147.123])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48de0aaa9f9sm18997598f8f.19.2026.10.15.06.30.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 15 Oct 2026 06:30:26 -0700 (PDT)
+Date: Thu, 15 Oct 2026 15:30:21 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>
+Cc: mst@redhat.com, linux-kernel@vger.kernel.org, 
+	Laurent Vivier <lvivier@redhat.com>, virtualization@lists.linux.dev, 
+	Jason Wang <jasowangio@gmail.com>
+Subject: Re: [PATCH] MAINTAINERS: add missing virtio/vdpa/vduse/vhost headers
+Message-ID: <atDSrbtSsWL_3JDp@sgarzare-redhat>
+References: <20261015094049.107999-1-eperezma@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-malware-bazaar: not-scanned
+In-Reply-To: <20261015094049.107999-1-eperezma@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: b_az0AiAVe6J7tAckUCSsHP37JE0yLsyKZam1LYpQIY_1792071029
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Thu, 2026-10-15 at 08:52 -0400, Michael S. Tsirkin wrote:
-> On Thu, Oct 15, 2026 at 02:47:01PM +0200, Johannes Berg wrote:
-> > On Thu, 2026-10-15 at 08:41 -0400, Michael S. Tsirkin wrote:
-> > > virtio_net_hdr_to_skb() refuses packets whose checksum metadata
-> > > it cannot make sense of, but the vector raw transport ignored
-> > > its return value: rejected packets went on into the stack with
-> > > their metadata unvalidated.
-> > >=20
-> > > Propagate the failure.
-> > >=20
-> > > Assisted-by: LLM
-> > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > > ---
-> > >  arch/um/drivers/vector_transports.c | 4 +++-
-> > >  1 file changed, 3 insertions(+), 1 deletion(-)
-> > >=20
-> > > diff --git a/arch/um/drivers/vector_transports.c b/arch/um/drivers/ve=
-ctor_transports.c
-> > > index e1fb2a76fdff..8b7548458663 100644
-> > > --- a/arch/um/drivers/vector_transports.c
-> > > +++ b/arch/um/drivers/vector_transports.c
-> > > @@ -210,7 +210,9 @@ static int raw_verify_header(
-> > >  		return 1;
-> > > =20
-> > >  	skb_set_network_header(skb, ETH_HLEN);
-> > > -	virtio_net_hdr_to_skb(skb, vheader, virtio_legacy_is_little_endian(=
-));
-> > > +	if (virtio_net_hdr_to_skb(skb, vheader,
-> > > +			virtio_legacy_is_little_endian()) < 0)
-> > > +		return -1;
-> > >  	return 0;
-> > >=20
-> >=20
-> > Seems it'd be simpler to just
-> >=20
-> > 	return virtio_net_hdr_to_skb(...);
-> >=20
-> > As far as I can tell, the function only returns -EINVAL or 0 (never a
-> > positive value), and the caller only cares about negative (error) or
-> > positive (no checksum needed), so that'd be equivalent?
-> >=20
-> > johannes
->=20
-> if raw_verify_header can safely return any errno - i did not want to
-> audit it.
+On Thu, Oct 15, 2026 at 11:40:49AM +0200, Eugenio Pérez wrote:
+>Several headers related to virtio, vDPA, VDUSE and vhost were not
+>covered by any specific MAINTAINERS entry and fell through to the
+>catch-all THE REST section:
+>
+>- include/linux/device-id/virtio.h: not matched by the existing
+>  "include/linux/virtio*.h" glob, which only matches files directly
+>  under include/linux/ and does not recurse into subdirectories.
+>
+>- include/uapi/linux/vdpa.h: the in-kernel include/linux/vdpa.h was
+>  listed under VIRTIO CORE but its UAPI companion was missing; the
+>  "include/uapi/linux/virtio_*.h" pattern does not match it because
+>  the filename lacks the "virtio_" prefix.
+>
 
-You already used an LLM and still didn't want to? ;-)
+Maybe we should tell to the agent to avoid useless info in the commit 
+message, I mean it's pretty clear that "include/uapi/linux/virtio_*.h" 
+will not match include/uapi/linux/vdpa.h ...
 
-I checked briefly (by hand) and it seems fine, it's assigned to the
-function pointer, which only has two callers on the _kern.c side.
+>- include/uapi/linux/vduse.h: there is no dedicated VDUSE section in
+>  MAINTAINERS; the driver lives under drivers/vdpa/ which is already
+>  covered by VIRTIO CORE, so the UAPI header belongs there too.
+>
+>- include/uapi/linux/vhost_types.h: the VIRTIO HOST (VHOST) section
+>  explicitly lists include/uapi/linux/vhost.h but omits its companion
+>  types header.
+>
+>Assisted-by: claude-sonnet 4.6
 
-johannes
+nit: the suggested tag in Documentation/process/coding-assistants.rst is
+Assisted-by: LLM [TOOL1] [TOOL2]
+
+>Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
+>---
+> MAINTAINERS | 4 ++++
+> 1 file changed, 4 insertions(+)
+
+Anyway, the patch LGTM:
+
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+
+
+Maybe to be fixed in another patch, LLM here found also others files 
+related to virtio/vhost/vdpa uncovered:
+
+Other virtio-related files not covered by any virtio/vhost/vdpa
+MAINTAINERS entry:
+
+- Documentation/ABI/testing/sysfs-fs-virtiofs
+   Current:   no section (THE REST only)
+   Suggested: VIRTIO FILE SYSTEM
+
+- Documentation/userspace-api/vduse.rst
+   Current:   DOCUMENTATION only
+   Suggested: VIRTIO CORE (already lists sysfs-class-vduse)
+
+- include/trace/events/vsock_virtio_transport_common.h
+   Current:   TRACING only
+   Suggested: VIRTIO AND VHOST VSOCK DRIVER
+              (next to virtio_transport_common.c)
+
+- drivers/nvdimm/virtio_pmem.h
+   Current:   LIBNVDIMM only
+   Suggested: VIRTIO PMEM DRIVER (lists virtio_pmem.c and
+              nd_virtio.c, but not the header)
+
+- Documentation/devicetree/bindings/gpio/gpio-virtio.yaml
+   Current:   GPIO + DT bindings
+   Suggested: VIRTIO GPIO DRIVER
+
+- Documentation/devicetree/bindings/i2c/i2c-virtio.yaml
+   Current:   I2C + DT bindings
+   Suggested: VIRTIO I2C DRIVER
+
+- Documentation/networking/device_drivers/ethernet/amd/pds_vdpa.rst
+   Current:   NETWORKING + DOCUMENTATION
+   Suggested: PDS DSC VIRTIO DATA PATH ACCELERATOR
+              (only lists drivers/vdpa/pds/)
+
+- include/linux/mlx5/mlx5_ifc_vdpa.h
+   Current:   MLX5 core/IB only
+   Suggested: possibly MELLANOX MLX5 VDPA DRIVER (debatable, it's an
+              mlx5 interface header)
+
+
+I'll send a fix for the vsock events.
+
+Thanks,
+Stefano
+
