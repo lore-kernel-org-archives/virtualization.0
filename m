@@ -1,106 +1,171 @@
-Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBE2451C040
-	for <virtualization@lists.linux.dev>; Thu, 15 Oct 2026 11:54:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.173
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792065284; cv=pass; b=IJI7+/UCEQCyvCaTdVzTv8mGJdajefgHG9f7FG+NOHl83EZ2GYXlhEOfMPI7wSqI11FRK8pGTrGbEak6KwM6wazDR95MW+Eaqhb5qo1Ls66HsKSYXYhLEIKGtRdmVvc09M2gkIsXsZ/tum7Wol3J6C0HnFNjf3gfmMKOqA74ojA=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792065284; c=relaxed/simple;
-	bh=ttWWCBe5s6LvEvuhu7UMsF9414H3CKAKMZfdr0bsCwA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Hq+NUJo/xug+ErMVEl7+k0WnZ8OwVotnm7RGOHwKFVNJKgnA2HYhMX9BxxKwIMhwDvU2VuopwUH5+ZOxFEoeaoUZWUDIpGveUrac23yPLzWGOFB3hAWjZB7Pi3r7a7FpU1TEz/y/yXkMq8//8hdHiEDkN/iHjWfrEJsTv7t2jZg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=szeredi.hu; spf=pass smtp.mailfrom=szeredi.hu; dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b=T67Cui0a; arc=pass smtp.client-ip=209.85.160.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=szeredi.hu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=szeredi.hu
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50C7F51FCDA
+	for <virtualization@lists.linux.dev>; Thu, 15 Oct 2026 12:41:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1792068081; cv=none; b=q4vlK6/GtMnkOwGAia01PBZGdWdTM+q6UHNDHvrrg6QukhnlirrFdE2/zhddvPjKqEeRq6YNwjMwwBE6s1fXgcP3/XRv2q5FWykaZumBcFvkZ+t0znQAbBqz1uLBPC5yaNP3mdNHE/aO8yQuCpxGCQ33hCvo+nPbOm+7W+DRS8U=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1792068081; c=relaxed/simple;
+	bh=ULFAxBtXFUyYxoYoJoEfrtH9PizTTVRo0tYPLbXLjgo=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=eWU7DEqvnpYHO7ysvmbKM/XIOYKyO1mUg9cnYxEE1+kZ1TP1ZliL4FZqfCTIn0HewbeLj8LZ2/wYfClQo7DVKKO86DmEDwn8YqhYaCDKSvUtmw5AKXYsHYpe64GGEU5EMOgi1pRHS9lfxDvAb2xGVEnl7klmsBdQyIZ0ilit7Ws=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HIpn2tBr; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b="T67Cui0a"
-Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-533797e72e8so8533491cf.2
-        for <virtualization@lists.linux.dev>; Thu, 15 Oct 2026 04:54:41 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1792065281; cv=none;
-        d=google.com; s=arc-20260327;
-        b=W/h1NFNEnZUFe9viy3P+ffzx8jbRe3yZCyRpVd03YtB7Zu30KlG1i90d466Sfz4Ym0
-         fOpsrQyviCm9y9PggBrHCkpbhc9jIddq1+kCPD2xN2T7OcCHvkq0EwWQ5sWIhVf4xJkZ
-         Ch2EIeXsaKTTdtYRP+PGUHFvTFzjlGmoaAyZF9iwvjrP+OyOmKkn0xhQWjtrsXOv0jr7
-         0ALpRy8vJwOiTtNAojHRpuj3A1Li9VtgCfISEIDQrqwVOztxno8dr2xS/eG/t9i3d/uC
-         4RE+yM8UTUR01OsLSZVU7zrEJrH6+MwEU5jdfKSIEJNvDVE4R7ucO/6/KFVjkSgH2Z/n
-         uuGg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=ttWWCBe5s6LvEvuhu7UMsF9414H3CKAKMZfdr0bsCwA=;
-        fh=9QD3RcPuGcsqmRxxPzsVhc7D9dY7t/4NNNdOLavroL0=;
-        b=DPmbi3dI3zfEdqYVioLcjvmL4X/DlufjhWGcYNON0oSO7mWXcM3/vmDC5LL4Bs5iFF
-         Ev/Tvbc5afVbQnn7asYXBJ3sUgJ9t4xx5wMo6B3Q2tJD+ok9MRY7itJqKFcJj28g81T2
-         oWY5Mzqf/sm+f/ZENix/001mo4La/XmdblmA8OoGNqtDhRAa+DLVqhh3HG4EfcozMlV1
-         6+WZWWXTHPh8h8tVbjonLLN9qAz6ZVB+sIcH1F9qLM2ojcVRwhwykqOGOjYjRbwuGKq/
-         ZNMyB0Abkkxty7accF59rXCgc9//xdTqll+eo4GaNrtYSO7qsix+ZLPQd6xmrUyBR3z6
-         mDCw==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=szeredi.hu; s=google; t=1792065281; x=1792670081; darn=lists.linux.dev;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=ttWWCBe5s6LvEvuhu7UMsF9414H3CKAKMZfdr0bsCwA=;
-        b=T67Cui0aTt5MXQ7pmaxG7jj2z2NmM8jCAZgWwa3SJZSTQcBsWOA86i6VGqGjALt9Ne
-         cuduEc9JxVr/vM1MWm40LlvkdnWZ8kIqQTgDwmxoH+zvh6Sy3lJVWVZL5rWNVqiW8vUs
-         I/lkZyYpzRCi2ktW4V7ABaMMh+LbXm4NlDZXI=
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HIpn2tBr"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1792068079;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=6+E5kAELX03rlqVLLUN+DuDipBZlXtEdhg/J6E2iFuo=;
+	b=HIpn2tBrAY95ypcZVMIKk268vqtjZ4qJI8xEsLnd6ayxF6mWpENTS/8foKaXnm1E+/4m13
+	RAztzDnJWEelQXgT4twAyhP+AIaeLylBn99AuSwhn1dNjxG12aFOWulkRb6Zfkm6Bf+Wo4
+	aTG4Lg0KOsMVSm4MIblHTDOw3gXkusM=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-548-6RV30dUNNeCKCadeLf8pWQ-1; Thu, 15 Oct 2026 12:41:18 +0000
+X-MC-Unique: 6RV30dUNNeCKCadeLf8pWQ-1
+X-Mimecast-MFC-AGG-ID: 6RV30dUNNeCKCadeLf8pWQ_1792068077
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-49cdc4080ddso40706135e9.1
+        for <virtualization@lists.linux.dev>; Thu, 15 Oct 2026 05:41:17 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792065281; x=1792670081;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=ttWWCBe5s6LvEvuhu7UMsF9414H3CKAKMZfdr0bsCwA=;
-        b=bmughcql09ZDFCbu3K/qZZiZYS4UAXwBDFuwiMaQmdrukk5hnsmWsMMK1p4Wnr/89g
-         1QCpjvWoKl31cWAON3zbxWVzTh2j3NNHh4ZSlPW5yu3vL1seqt5KRTFzcgF0jmQ+WANY
-         rQ6O55nwgdAhKTTZ2531xxJSPw7Hs0Dq4WpkOIu/VEVtQpyS7EOCdyP+fnxR6Zv3W5/L
-         AGnuD6J3+QzIWLC9EBZzpegU7eom8qQyaSpCq98llqfllSRndTR+78Td/ukv1UH6Yj2o
-         vMxM85Z0/PD8Wl/6RCg0OmNbTSVIFDZptLsvyFJ5j/XT9ADPKe8W2kMSt8sfLiJ9A0Na
-         OOvw==
-X-Forwarded-Encrypted: i=1; AKwUvBxYBgXDAKlXJyqOZecVa9NKn578oBE13azRXtZtueBhnxWzMcaNnaVrPlJ6qLXvd+baVycnrK8ltuw4EiCykQ==@lists.linux.dev
-X-Gm-Message-State: AFq9FYJCmc91udmfVh9CfwMc/I9jzEY9G761TwO/BDZwQByZ1YFaSUKA
-	HO5RFN4q/BrDnK2oiEz/xdAyVCz2V3I5o2rWhU7zWKs8OLTep/1IVJY4tXNZhheAxJBm8wBmsC+
-	MQNh6h0cSuSakJ+JPOg+Rtvjm96vRkUidvnvXRQzKtA==
-X-Gm-Gg: AYBFou1D2d3zELt3n6Min2JEe1ap4LBylIbk/f3u86Bczy9UK8lWfMt0eLCTzFQ5mUA
-	Y/ar+o/3LNUF1ZWbuOvM+NjWjeZQK+Qmzj2rpLqqYU7hpD3emAagkUAWCjdrU5OWIsOSYBXA6hW
-	J+9GRebM0e/3trRowYkfUFp8+PqsFpJZ32O2ZifTyFI+xDoOd+8KldiDvzjawvPn60WLdPk6CjV
-	CnWD0tEmonREEQABnnccKZ1TQbWcNHv5XVml9Pyqrx0j9b2I2qEs8lDVRi+CXMUU+o2C26acc0e
-	R+4hTm41djj6kIDEaeGp2eTzGv+DtE/ba72mXjRqw21Yql7OzxG4Tsqvjl9hIrsPO68+5zYW/nl
-	eW/73im7FmGaEdImi2g==
-X-Received: by 2002:ac8:5705:0:b0:532:f0a2:ef4 with SMTP id
- d75a77b69052e-5359fa9f9abmr292049781cf.26.1792065280681; Thu, 15 Oct 2026
- 04:54:40 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1792068077; x=1792672877;
+        h=content-transfer-encoding:content-disposition:content-type
+         :mime-version:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=6+E5kAELX03rlqVLLUN+DuDipBZlXtEdhg/J6E2iFuo=;
+        b=mD39RbxTOTXvQPLWebx98O97Z/+QfiQb96wnBaEAnqBIs+l9AUsr+lT6Mr5zOi6EpO
+         35bdaFKkL7s9xZxsCST9QnFR4Jfb08KZl/a5Zt4hYFxlWgT1JT2rHDbz8tqxcUBV8Qre
+         DZnuH8OVmo0j03Td1vARW5XLlXRj4DDBnplhTnp0Yq1qf7a1dgGg97hRVaUfYBM60Drf
+         40s5eZJW+lLUQMOnJAr2w1ojSP9v51zXwA+AhFbOspNSGvVDRGc6nLQBMO4Da15GXoTE
+         87bavNiHxKXL5qsGBJW9assYAl/NucskLFC7XHgqrUapX6Smk/2wPkGsJk3sSuMpfM3/
+         9SfA==
+X-Forwarded-Encrypted: i=1; AKwUvByPBQURGHFSmHxvSrLZ2eLgNT0QJ45cBQWlO0dV/FYAlASMFn8zI2AwXupjp9nDNQTB9N07GCxpV+UkJP4VDw==@lists.linux.dev
+X-Gm-Message-State: AFq9FYIDa6+U1gqPgN4xh9pFITH0RyftNVomLBoATfsZvENcYs048jXo
+	DhJ1Jdrsagh/lA+Y6mYeCF6EvSV5b/QgnrMlWnqMS0CA9eW9YQ8NBid3XeBJ0q73Yl5AMSqNfU2
+	5CzsMExe6Cybn/bQ2fG0eoDt9HuMOIcT47x78PCmyornDNQEtchjjrlTklTtbpiGRMjAc
+X-Gm-Gg: AYBFou2UpxcqivhS1IvxO/q02Fj64+RpozY2t6qBG9FCaUwPJRX+8R3SiIVeu9F0ipo
+	7QDhaoNmv8sMb9aqOvrECXaIc6dyhO5QvyBARQx9G9u8FFMvzJya4hG1NRDVB1TTCyFlsagVDS2
+	mTk7GT7aKuWFTa1Sm1taSnYZNgeBUYcpkVJf+JasFruXoEMqE/yEzqNBmzGxMXoRWPRCD9NiU8S
+	knqTYvnz0q0C5hSfs8vxvrLz7b6GTjdFWEKR2Nz8qKRhTlcsjWz7Dti0Ks8WqvYm3cyXAXbHsu6
+	o9Gn2p6naDC6ndMc9oc1hzOBKpgvptGO+25oCTHp6ag+6azxB/EoCTKDHNBOCGslCeNz0Q==
+X-Received: by 2002:a05:600c:a011:b0:49e:6581:7baf with SMTP id 5b1f17b1804b1-4a18e447d8bmr371386935e9.2.1792068076536;
+        Thu, 15 Oct 2026 05:41:16 -0700 (PDT)
+X-Received: by 2002:a05:600c:a011:b0:49e:6581:7baf with SMTP id 5b1f17b1804b1-4a18e447d8bmr371386275e9.2.1792068075878;
+        Thu, 15 Oct 2026 05:41:15 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc0:3fd7:5300:3d6b:52a4:a23f:9d0b])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a1bdc036a4sm78912855e9.11.2026.10.15.05.41.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 15 Oct 2026 05:41:15 -0700 (PDT)
+Date: Thu, 15 Oct 2026 08:41:12 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@kernel.org>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	netdev@vger.kernel.org, virtualization@lists.linux.dev,
+	Rusty Russell <rusty@rustcorp.com.au>,
+	Max Krasnyansky <maxk@qualcomm.com>
+Subject: [PATCH net-next v2 0/7] more virtio-net csum hardening
+Message-ID: <cover.1792067836.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260929094812.93374-1-tkhandelwal32@gmail.com>
-In-Reply-To: <20260929094812.93374-1-tkhandelwal32@gmail.com>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Thu, 15 Oct 2026 13:54:29 +0200
-X-Gm-Features: AclHuK-b14bcg6mR4vOtm8iYsjO-WDFkkV-OiklyH6IKsJTNTAuDKd92iU3RYd8
-Message-ID: <CAJfpegs1Zq1zKfGDOucL_PZMUwVuHjandRn-rrNrBPnKex8hcA@mail.gmail.com>
-Subject: Re: [PATCH] fuse: propagate SB_POSIXACL to submounts
-To: Tarun Khandelwal <tkhandelwal32@gmail.com>
-Cc: fuse-devel@lists.linux.dev, linux-fsdevel@vger.kernel.org, 
-	virtualization@lists.linux.dev, German Maglione <gmaglione@redhat.com>, 
-	Vivek Goyal <vgoyal@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	linux-kernel@vger.kernel.org, Tarun Khandelwal <tarun@supabase.io>
-Content-Type: text/plain; charset="UTF-8"
+X-Mailer: git-send-email 2.51.2.2891.g4157995a80.dirty
+X-Mutt-Fcc: =sent
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: dk70ib8E7EgZqui0ZBYsabABLAQwusw_2LnlAQCOmXs_1792068077
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Tue, 29 Sept 2026 at 11:48, Tarun Khandelwal <tkhandelwal32@gmail.com> wrote:
 
-> Copy SB_POSIXACL from the parent superblock, as is already done for the
-> other superblock fields inherited from it. It cannot be set in
-> fuse_sb_defaults(), because fuse_fill_super_common() checks whether the
-> flag was passed at mount time to decide fc->dont_mask before setting it.
+As reported first by Paulos Yibelo <habte.yibelo@gmail.com> (after which
+others, credited below, found more ways the bug can affect users):
 
-Applied, thanks.
+allowing untrusted hardware to specify csum start/offset for
+CHECKSUM_PARTIAL was not a good idea, because, if it edits the packet
+outside the actual checksum, and depending on the setup, the networking
+stack could be looking at the packet both before and after the edit, and
+seeing different results.
 
-Miklos
+Previously, commit 6785011f8b16 ("ipv4: validate checksum_start before
+completing checksum") validated all known instances where this
+causes the most grief, but the real fix is to make sure
+that either only actual checksum fields are ever edited,
+or the checksum is completed before the net stack looks at it,
+so it is always consistent.
+
+
+This basically goes back to
+what we did before f43798c27684 ("tun: Allow GSO using virtio_net_hdr"),
+except in a narrow list of specified known good cases.
+
+
+Summary of the patchset:
+  net: account for ingress-resolved virtio net hdr state
+	- accounting, not the fix itself, dependency of the next one
+  net: resolve uncommon partial checksums at ingress
+	- fix itself
+  net: add a sysctl to opt out of virtio net hdr checksum validation
+	- reducing risk of the fix by adding a sysctl to disable it
+  net: add ip4_parse()
+  virtio_net: cleanup protocol calculation
+	- cleanup resulting code duplication
+	 (kept separate to simplify backporting)
+
+Fixes: f43798c27684 ("tun: Allow GSO using virtio_net_hdr")
+
+Changes since v1:
+	- reorder patches to fix bisectability, addressing
+	  a comment by Björn Töpel.
+	- code refactoring, different patch splitup,
+	  a sysctl knob to disable as suggested by Willem de Bruijn.
+	- fix a bunch of minor issues spotted by LLMs
+
+
+Michael S. Tsirkin (7):
+  net: account for ingress-resolved virtio net hdr state
+  um: vector: honor virtio net hdr conversion failures
+  um: vector: trim skbs before verifying the header
+  net: resolve uncommon partial checksums at ingress
+  net: add a sysctl to opt out of virtio net hdr checksum validation
+  net: add ip4_parse()
+  virtio_net: cleanup protocol calculation
+
+ Documentation/admin-guide/sysctl/net.rst |  15 ++
+ arch/um/drivers/vector_kern.c            |   6 +-
+ arch/um/drivers/vector_transports.c      |   4 +-
+ drivers/net/tap.c                        |   4 +-
+ drivers/net/tun.c                        |  41 +++-
+ drivers/net/virtio_net.c                 |   2 +-
+ include/linux/ip.h                       |  24 +++
+ include/linux/virtio_net.h               | 249 ++++++++++++++++++++++-
+ include/net/netns/core.h                 |   1 +
+ net/bridge/br_netfilter_hooks.c          |  15 +-
+ net/core/dev.c                           |   6 +
+ net/core/net_namespace.c                 |   1 +
+ net/core/sysctl_net_core.c               |  54 +++++
+ net/ipv4/ip_input.c                      |  13 +-
+ net/ipv4/netfilter/nf_reject_ipv4.c      |  13 +-
+ net/packet/af_packet.c                   |   4 +-
+ 16 files changed, 404 insertions(+), 48 deletions(-)
+
+-- 
+MST
+
