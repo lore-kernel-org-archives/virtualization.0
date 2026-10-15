@@ -1,77 +1,120 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3431040F731
-	for <virtualization@lists.linux.dev>; Thu, 15 Oct 2026 09:37:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6285A511E69
+	for <virtualization@lists.linux.dev>; Thu, 15 Oct 2026 09:40:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792057081; cv=none; b=Zg51e3G1e+oD1duf7nYyKdPp44ACm3CChyA4wyaJ0clcd1ONI3Iyvnh1kIxRGwJmMB6khV666i4SADhbm82fZ0iS2KIryhJv2emT6+m0MNMnaI2R7RqjNVmOHJ3rnnRMLWe8FCqtTuGwE8pG/o0hnE76ygMLRQbi5BcmRpssFcc=
+	t=1792057267; cv=none; b=ZWoPcBeb4oe5uERHhqeCcbwyCKynfixiLlpgm4hbhammvssLu6QzieJTiWc24TROuJzeo1wTZYnECr3IDSdVUY8RO/+P8qf8uNv91EjOM9kfp7lJJ4H6cXsgs6Q/ciKS5SIrZhlSKvPD6Mbop1h8cUGF1+VxZBuqdT/83NF5IyM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792057081; c=relaxed/simple;
-	bh=8R+FKaXx7PMv9sTVAKquQkEbakDnu1OzhnfjDXax4+M=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=TC121mEGmH6ZHRsp3ToJLpchqWlLLJ/hXwhD8ewl/aZYUUEmakAIUlv4metsNYzyDDckiIKos71AWsxzvBNOpoIiKzg1KAb5MoaXWsWLdVi24XD83LoYBqGUvx77aGS8tnlhArK3dR5JuT1TQbpLte6tLPYJid1RroVh0PmDAIM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BJO72oKb; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1792057267; c=relaxed/simple;
+	bh=jcmAYAvdEcsFMdvikgCEMkfSlfbJawTSfOf8u6XBDu8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=K2WZmyPGgUyYRIc4v7Xc15b+/KItD0GUjMjSmQerR4Q/LkJo/4KH8OzkXWi7rQXJcm2EnFj3uCD+IXfIPprlEuxGiRgZztWVWzVnuid+goQLRFKdxcICTaOuB1t0jLflFpgd79j3ZfuHo8kzhTbE56LzJHsOoYuS0TJg9y0SFjU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gA+jo1b8; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BJO72oKb"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DE8D1F000C4;
-	Thu, 15 Oct 2026 09:37:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792057078;
-	bh=sXMKt3/69GAJlODqaeRnZ9I5hGLFI5bsd+QtX0Xr4Vk=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=BJO72oKbxPlUSAmbSbe9KRblPTjy4CB+dS/K4HmvdqShL52hXrNiAG2FfUr6WwtS8
-	 mDha4fRUEP7/yVf+Wm8uZsvtz786oTCd454/JW/FLEVWAAFe+aZpUqUH1+Ja+7L+PN
-	 U4pv5AA2lSwgprDBs2DonXNCspVF+DuLU2+hmNfNEydR93VIxTkg8Utvjx/CROlu49
-	 C5pXw7s22JlENWxxyTTtdTIMJVnDBERgqEuJPgTNNG6qaEQQbNda1Hc+poE4MsnjRN
-	 11u6x5xm2erAg+Ce5JtAP8sJic4+CVoHjlFOXv80F14KgXQ3WGGlOZkNeyBJZczjik
-	 4sw1qxe4dAtPg==
-Message-ID: <sashiko-outbox-172581@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] vringh: validate user address in the IOTLB use_va read
- helper
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Haoran Wang" <haoranwangsec@gmail.com>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <6ad09d48.81b1ab59.3da7fb.9fc9@mx.google.com>
-References: <6ad09d48.81b1ab59.3da7fb.9fc9@mx.google.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 15 Oct 2026 09:37:57 +0000
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gA+jo1b8"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1792057258;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=EKTHpdVjPq7g/VigfEsF6UTQweUIccbtUrCpbcIAEt0=;
+	b=gA+jo1b8s97n2ri+4juV2zakT9eJWMxDpW1LxN7eQ2hfP/7zd/y8n6HvcBeo2I4jfivUs7
+	guewp8LyTyIdDmlIXo5TMme6qt5CCXPh2QcIrYHqJPj+J/BlTKa7GT9RqJLOw9Ane4YOMv
+	60ZOfW0vw6VEPeCUE/NMGZ93AuSfQZU=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-390-PX3QPshYOKiSHjwq8OiKBg-1; Thu,
+ 15 Oct 2026 09:40:54 +0000
+X-MC-Unique: PX3QPshYOKiSHjwq8OiKBg-1
+X-Mimecast-MFC-AGG-ID: PX3QPshYOKiSHjwq8OiKBg_1792057254
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id AB35B1955F6D;
+	Thu, 15 Oct 2026 09:40:53 +0000 (UTC)
+Received: from fedora.redhat.com (unknown [10.44.32.184])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 41E9C195608A;
+	Thu, 15 Oct 2026 09:40:50 +0000 (UTC)
+From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
+To: mst@redhat.com
+Cc: Stefano Garzarella <sgarzare@redhat.com>,
+	linux-kernel@vger.kernel.org,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Laurent Vivier <lvivier@redhat.com>,
+	virtualization@lists.linux.dev,
+	Jason Wang <jasowangio@gmail.com>
+Subject: [PATCH] MAINTAINERS: add missing virtio/vdpa/vduse/vhost headers
+Date: Thu, 15 Oct 2026 11:40:49 +0200
+Message-ID: <20261015094049.107999-1-eperezma@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
+X-Mimecast-MFC-PROC-ID: As80XMakwhPgj_ooUNMRI3l_NHICvB4hdL0m1DSWJeg_1792057254
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-> From c165d81ad210155e0ac8eff7a571d9e525c00113 Mon Sep 17 00:00:00 2001
-> From: Haoran Wang <haoranwangsec@gmail.com>
-> Date: Thu, 15 Oct 2026 16:59:32 +0800
-> Subject: [PATCH] vringh: validate user address in the IOTLB use_va read h=
-elper
->=20
-> getu16_iotlb() reads a 2-byte value from the address returned by
-> iotlb_translate() using __get_user(), which skips access_ok().
-> iotlb_translate() only performs an IOTLB interval lookup and does not
-> validate the address as a user pointer.  In the vhost-vdpa + vdpa_sim
-> use_va path, vdpa_sim's default passthrough IOTLB identity-maps the
-> whole address space and vdpasim_set_vq_address() stores the
-> controller-supplied vring address verbatim, so a controller with
-> CAP_NET_ADMIN can point the vring avail_user_addr at a kernel address.
-> On a vq kick the worker then dereferences that kernel address via
-> __get_user(), leaking 2 bytes of kernel memory per read; the value is
-> disclosed to dmesg by vringh_bad().
->=20
-> get_user() is access_ok() + __get_user(), use it instead so a kernel
-> address is rejected with -EFAULT rather than dereferenced.
->=20
->=20
-> Signed-off-by: Haoran Wang <haoranwangsec@gmail.com>
+Several headers related to virtio, vDPA, VDUSE and vhost were not
+covered by any specific MAINTAINERS entry and fell through to the
+catch-all THE REST section:
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+- include/linux/device-id/virtio.h: not matched by the existing
+  "include/linux/virtio*.h" glob, which only matches files directly
+  under include/linux/ and does not recurse into subdirectories.
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/6ad09d48.81b1ab59.3=
-da7fb.9fc9@mx.google.com?part=3D1
+- include/uapi/linux/vdpa.h: the in-kernel include/linux/vdpa.h was
+  listed under VIRTIO CORE but its UAPI companion was missing; the
+  "include/uapi/linux/virtio_*.h" pattern does not match it because
+  the filename lacks the "virtio_" prefix.
+
+- include/uapi/linux/vduse.h: there is no dedicated VDUSE section in
+  MAINTAINERS; the driver lives under drivers/vdpa/ which is already
+  covered by VIRTIO CORE, so the UAPI header belongs there too.
+
+- include/uapi/linux/vhost_types.h: the VIRTIO HOST (VHOST) section
+  explicitly lists include/uapi/linux/vhost.h but omits its companion
+  types header.
+
+Assisted-by: claude-sonnet 4.6
+Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
+---
+ MAINTAINERS | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index f53047aa8d3c..9f85882f307e 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -28903,9 +28903,12 @@ F:	drivers/block/virtio_blk.c
+ F:	drivers/crypto/virtio/
+ F:	drivers/vdpa/
+ F:	drivers/virtio/
++F:	include/linux/device-id/virtio.h
+ F:	include/linux/vdpa.h
+ F:	include/linux/virtio*.h
+ F:	include/linux/vringh.h
++F:	include/uapi/linux/vdpa.h
++F:	include/uapi/linux/vduse.h
+ F:	include/uapi/linux/virtio_*.h
+ F:	net/vmw_vsock/virtio*
+ F:	tools/virtio/
+@@ -28979,6 +28982,7 @@ F:	drivers/vhost/
+ F:	include/linux/sched/vhost_task.h
+ F:	include/linux/vhost_iotlb.h
+ F:	include/uapi/linux/vhost.h
++F:	include/uapi/linux/vhost_types.h
+ F:	kernel/vhost_task.c
+ 
+ VIRTIO HOST (VHOST-SCSI)
+-- 
+2.56.0
 
