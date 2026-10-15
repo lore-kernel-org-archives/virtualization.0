@@ -1,64 +1,64 @@
-Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com [209.85.128.47])
+Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38C3A4DD3C9
-	for <virtualization@lists.linux.dev>; Thu, 15 Oct 2026 15:43:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D84432F0C48
+	for <virtualization@lists.linux.dev>; Thu, 15 Oct 2026 15:43:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792079037; cv=none; b=NUU1fRUIEkTiM1WegqErAeT20c/EcZ0qdY+9zU5U4Ynsf1Qgp91u+7AHtxvrQc+9maJV7rXh502X63U6g60xPBY7bE+3I2N615iXwkIA/H3/+MwHaAfkuXkGMVWjitopQM+7FuuEiE2pvYjHleUEgXpjvqGT69ukwG1OK0nA8yc=
+	t=1792079043; cv=none; b=Lwmqqc0L/i8qqL1MJGrAwFH01AAejY1z6wBcdI6VQ3Jpg+CQ6JMeeYCJmE/7exn/tfbwdTUtyl3F6NXx/EPitNO1OFZcKqmpDc1Ozc+ldNp7ruSISijXoW3IDCO7/+cr7VazbjZih90L1Ai5xSZBv0zdOCijHldUsgttF57zQBk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792079037; c=relaxed/simple;
-	bh=cjliimpdVuKniQW64DNaS43E2VHJ8S1ZygL4W+E5f/o=;
+	s=arc-20240116; t=1792079043; c=relaxed/simple;
+	bh=QPUr45PzMu/8RpW9lNwZfx8Bpv3qdCpILxrSxT0z04s=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=f2z9ep4ueo/8H4kOxCW7Peap6PJZ2c+4Ft+lc/dlwxcN35kKieni4igo1zQCnziuBdNPX4u3JRZN9Lmjos7BGoYeate4BgfXW76iKkyOSSCHo/jbNxW/7E9XE4AuKGWR8hltgbw9zWcQNbAXL1N3h6THFmILMS1xhI20XZhdZRE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AVG9i3jv; arc=none smtp.client-ip=209.85.128.47
+	 MIME-Version; b=h3TtsZAMjb/Yd7l0uNICFwkbkTNBBlU1rlWyNk/xNdq5iWU6xWO1pP8Gk8w5wmlOWWXABdyGzgHHexFKqQ4qsSBXwDaTtb+S5CWqMqmA6u2Uck4mANR9gINO+5XJe8KG+fOg15muH+J+frcgX+1Daz9c8f85T6wo1SPmMDf+cr4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CByzWUz1; arc=none smtp.client-ip=209.85.128.52
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AVG9i3jv"
-Received: by mail-wm1-f47.google.com with SMTP id 5b1f17b1804b1-4a0213948d3so34021715e9.2
-        for <virtualization@lists.linux.dev>; Thu, 15 Oct 2026 08:43:44 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CByzWUz1"
+Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-4a022fee0caso51643105e9.1
+        for <virtualization@lists.linux.dev>; Thu, 15 Oct 2026 08:43:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792079023; x=1792683823; darn=lists.linux.dev;
+        d=gmail.com; s=20251104; t=1792079021; x=1792683821; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=5J5a55Pg+YpfFRUGFYyLBsKQw7Ye+GLO4/t3xMgXcbc=;
-        b=AVG9i3jvb+hn+BypiA6/guT+nrfLZ+oNTDAYZCmSYmS5ZgxCxL7KfBjbUpFvFf+5jQ
-         O6Q1s2rfLpyjt2oN6NejsePSTxOlE86RLBNg2CMugHvlKxbyjJwWgdc+kD21yxbUSjfs
-         /WjZswTLfK8ZJluYny3oC6YlGZwURQfQzI4Qnu6f2xgwRnwNXLztN7yCn4Q+KNHfpOX6
-         sQq4RnuGn5iUe+QdPzwGh+jeYrTWuSLFASuh6kaHl+XkFWBoSYd8qbCfqlNL8vnvW2bt
-         YUpWFNVLQMbsmxp+5HIYgVXrCaV6h0hgGKt6hbGrNxemXMo6dV5AlzsnhNJOiLrhAfRu
-         Orqw==
+        bh=HffmXfJKy6j0voVhf7+euRmSr6xXXF4Ar0m+br65Sq0=;
+        b=CByzWUz1gDUD+LmNJCo5x5UFN2ZZSY16Vb9FH2nJNhu2r+iYz9cQA7ezae8ZTtXhYS
+         J1CR6M8tZLZtyjzvRcC8JGRZcpncu766cnQJ0eb7zHpbiz/toVwr7MAw0+TNYDdGVuEF
+         BONbW2y5s3NUZmj1JmzRab/4Lm5cu7geIc7I//Wh0VAF4ezxo7lAeTU0LRrYkoY/BxA1
+         r2ViKucCDDX5WDNdWCq74h+fdX5gZG3eI+TJupsFUdh0y40UZHP9K4EGIkK+1VjHl8AI
+         c6lprKhueUDOVQEuLY7AwhRlhAwqGypfK7C7PAv30pZtj/6yGqi7xdqmPNLLkrJhRGGI
+         ZmGg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792079023; x=1792683823;
+        d=1e100.net; s=20260707; t=1792079021; x=1792683821;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=5J5a55Pg+YpfFRUGFYyLBsKQw7Ye+GLO4/t3xMgXcbc=;
-        b=dxvO+9ucw5n6wkR1N7/lBMJYgD+tfVlwINYzkhvh5+piF96o6Hz/bYeGqbUiJ7HZ2B
-         SGXPYa3W0d4CH19cVyZMoWB0PSMUPEGcXq8odG5sNwidoEu7n+1uTWm41aioqyb67XUY
-         1ar1Vz7kzlqdHGuLQaheaPnN/RrXzTejH+WQ4BohT9/iIF7ke5655W2gOthAY3cc/xx6
-         5JRmeIp0JVkft/JJRxroup57VSJc5ep5tB2K2KlPMl1fLu02zKTyTgpffaMZzjwzVucU
-         sZ57bG2Bug3XV/SW+j6xHFNKSuj9TzURSdO42IV9Lc9iPjOgrDgpF4KORh8Qm81QKxdI
-         5KqQ==
-X-Forwarded-Encrypted: i=1; AKwUvBzAzIThVPhjdu89TcRgLNr48RC6u9msx+UjbICfjB3AKN0ohOdNPzYu2fZCoHC979roMzrYSHZkAo8l+ZHFLg==@lists.linux.dev
-X-Gm-Message-State: AFq9FYJhYtgTcPa2EosYKi4ETh3IQ7wy1lFZtZb9KtR3Jhf89vIzjnKe
-	7+9GY5OkmwTtMGJBHy/yOkzq2ssQTKWUOLoqbRMK5lUQ7fAQW9f2DGVz
-X-Gm-Gg: AYBFou2vPcvM5xdcqaakKuHlQEuRzPSN5ivrHszIuRj7TtE837VIqZBbbCBQD/FAriR
-	GNYmQ8FJN1BOb0uTzxhnJYoIZbqNuHaLEWKi1qh3SzSAaNv2mquSkJG2w5pW8qKJafbNN25GyXk
-	qWim/8LslXI0LZogxqhaDB/QLrgHz09mVHPhLuPau/fl2nc0Y3ewlRcd3Tl4roOqAfoE0OGdQ8l
-	JuXrUrrWFeRDO2SoNLWinmarnyID35Jkf1tz/FI6mLppBDzIOB3TPU+mLmHdt+VDxrJoBKTqJJk
-	nqaQ+PD87SWu83ng01jfr3I1/k8yt0iPu6BN006ZVnCkRpban2pkZCCfcvgM6UBr9CeMeK93hPM
-	+NkFNTiTQ3wxEKR3R0/Wyjq6wjpxJytZ/8dAJZLkMgt3q/rISG4Cuoddc4nMWBGoM2WAV03r7LD
-	igQw1625uBMo+MeadAFICardP61tYjzBQEe+3dRIbb2ECeI6jAQqkeGdJEY/IaVG0qTTYGrEBfI
-	bKCn5lkMtlkqDVr40+DsejfidTcwo0WCww/m7W4eKUePk1PNDgOB0WA4PE=
-X-Received: by 2002:a05:600c:6384:b0:4a1:7741:ec43 with SMTP id 5b1f17b1804b1-4a18e4b8966mr365881315e9.26.1792079023060;
-        Thu, 15 Oct 2026 08:43:43 -0700 (PDT)
+        bh=HffmXfJKy6j0voVhf7+euRmSr6xXXF4Ar0m+br65Sq0=;
+        b=266PzX8vBLdvvr9oZtuPnLD1zD03MTJOSRw/+rJb8XpkIjlwxFqkezxv2NA/+4Pq1L
+         Oth7UqGerMXAyNtgBx8mjP3eoFWtrQSgc4peFkm5vO6sfhENLqoLGyquAmbiS5JJGdFb
+         yahtqV5zGVrtPAAE+KwsvNjrLrFrtUBiYBHRu6g2M1siyMnBd98xAN0j2Jp+upkCSUfW
+         ZqCI4y7Vsd8vrKReqcXK8fmRtdyobXnDzR+MtTItXZsebOqp2/mmL7bz6dzryCSJzZjo
+         owo3+4XW09EpuA4L35LIRNLZF8sB/hzsCGUwx8dr4HtkKwQ2MQFtNWwz+Ae+qsBNVz7a
+         Y6gw==
+X-Forwarded-Encrypted: i=1; AKwUvByGf6B0H9P464K2HZvXiC42twjaLITb4fwvoUUXD1yOpvoPRLroC7WESr+fh+PXnarxU58Tuq1IJVoi9cZpmw==@lists.linux.dev
+X-Gm-Message-State: AFq9FYL3D4UeUSe88HrIXFxb001pNufvJAjMX5Q3uV/qzz6GOLTrL0N/
+	i6BQhPOeV//tHO27PQR6aOsxzB9X23IhDg5hI7BhVMeB11OLbINJIVww
+X-Gm-Gg: AYBFou0PZlWukOltCq1esArJN5iK6LPddiOtY3ZfEYwP4riyyxkz7tdV5NuO62EpoKQ
+	dqN0n6T1YkzCbr8wumNQP7oIE+/Z5ImCi6RPEYI8OoNOzJc2oZ/7Dh9tFSEL+esrr/BVWQIoEvY
+	z1oKozYaVux3fKdxkGqoSIZRqrSVz0YzP5QF48E5Z07egXNA6nMHtfXDRHigzlBK3Q0TvKGkSp1
+	IFePL4TLkNr4wi9irkSqk4tu9hTQueA/ZgbYPmWwMHLe74+84vjgpi8PmejaTvOM2q5L5+gcUMX
+	uwrgZ6WMci5I+Iou2REzlG9sHIITwqleyoqz6p79MXmHGoLjZ4ZzqowADzjZ2rmcOKSAQr3kvjK
+	+JN/LbgturkSq+44fDdACy9vlt8G2YZCDy15gWmwSGzg7mUgtyB1idP7DsHn5qNtAEK9FMCnwOB
+	rSITrYYzoV1aFYzPpc/ZpyQ//WYDV5efk2bs5RBn76w2JctRVddU5sRGV/8iJpG3bS2kOAhivkx
+	/jJTey+SMAG9+H/yuLJJm3fT3lRmC98aDQmkAfIe++NzEENCXFzSs3htcVd
+X-Received: by 2002:a05:600c:350b:b0:4a1:ad01:f8dc with SMTP id 5b1f17b1804b1-4a1ad01f924mr184426785e9.21.1792079020615;
+        Thu, 15 Oct 2026 08:43:40 -0700 (PDT)
 Received: from dohko.chello.ie (188-141-5-72.dynamic.upc.ie. [188.141.5.72])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a1bd640be0sm61940825e9.1.2026.10.15.08.43.40
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a1bd640be0sm61940825e9.1.2026.10.15.08.43.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 15 Oct 2026 08:43:41 -0700 (PDT)
+        Thu, 15 Oct 2026 08:43:40 -0700 (PDT)
 From: David Carlier <devnexen@gmail.com>
 To: netdev@vger.kernel.org
 Cc: sgarzare@redhat.com,
@@ -71,9 +71,9 @@ Cc: sgarzare@redhat.com,
 	virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org,
 	David Carlier <devnexen@gmail.com>
-Subject: [PATCH net-next v2 2/2] vsock/test: cover SO_INQ
-Date: Thu, 15 Oct 2026 16:43:34 +0100
-Message-ID: <20261015154334.3217358-3-devnexen@gmail.com>
+Subject: [PATCH net-next v2 1/2] vsock: support SO_INQ on stream sockets
+Date: Thu, 15 Oct 2026 16:43:33 +0100
+Message-ID: <20261015154334.3217358-2-devnexen@gmail.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20261015154334.3217358-1-devnexen@gmail.com>
 References: <20261015154334.3217358-1-devnexen@gmail.com>
@@ -85,312 +85,195 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Check the SCM_INQ value after a partial receive, after draining the
-queue and at EOF, that no cmsg is sent while the option is off, that
-accepted sockets inherit it from the listener, and that out of range
-values and SOCK_SEQPACKET are rejected.
+SO_INQ makes recvmsg() return the bytes left in the receive queue in an
+SCM_INQ cmsg, saving a SIOCINQ call per receive. AF_UNIX stream sockets
+support it, AF_VSOCK fails with ENOPROTOOPT.
+
+Add it for SOCK_STREAM, reusing the hint already computed for io_uring.
+As with TCP_INQ, 1 is reported once the stream is finished so the caller
+reads again and sees EOF, and accepted sockets inherit the setting from
+the listener. No cmsg is sent when the transport cannot report the queue
+length.
+
+SOCK_SEQPACKET is refused, as on AF_UNIX: its transport callback counts
+messages, not bytes.
 
 Signed-off-by: David Carlier <devnexen@gmail.com>
 ---
- tools/testing/vsock/vsock_test.c | 279 +++++++++++++++++++++++++++++++
- 1 file changed, 279 insertions(+)
+ include/net/af_vsock.h   |   1 +
+ net/vmw_vsock/af_vsock.c | 111 +++++++++++++++++++++++++++++----------
+ 2 files changed, 84 insertions(+), 28 deletions(-)
 
-diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
-index b4ff9f946565..10b9074fb87f 100644
---- a/tools/testing/vsock/vsock_test.c
-+++ b/tools/testing/vsock/vsock_test.c
-@@ -2429,6 +2429,271 @@ static void test_stream_collapse_server(const struct test_opts *opts)
- 	close(fd);
+diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+index 5549298c1ec6..e8481f12312e 100644
+--- a/include/net/af_vsock.h
++++ b/include/net/af_vsock.h
+@@ -68,6 +68,7 @@ struct vsock_sock {
+ 	u64 buffer_size;
+ 	u64 buffer_min_size;
+ 	u64 buffer_max_size;
++	bool recvmsg_inq;
+ 
+ 	/* Private to transport. */
+ 	void *trans;
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 1c2d1cea67f4..186ed57fd797 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -984,6 +984,7 @@ static struct sock *__vsock_create(struct net *net,
+ 		vsk->buffer_size = psk->buffer_size;
+ 		vsk->buffer_min_size = psk->buffer_min_size;
+ 		vsk->buffer_max_size = psk->buffer_max_size;
++		vsk->recvmsg_inq = psk->recvmsg_inq;
+ 		security_sk_clone(parent, sk);
+ 	} else {
+ 		vsk->trusted = ns_capable_noaudit(&init_user_ns, CAP_NET_ADMIN);
+@@ -2014,6 +2015,66 @@ static void vsock_update_buffer_size(struct vsock_sock *vsk,
+ 	vsk->buffer_size = val;
  }
  
-+#define SO_INQ_BUF_LEN 64
-+#define SO_INQ_CHUNK_LEN 16
-+
-+static int so_inq_set(int fd, int val)
++static bool vsock_custom_sockopt(int optname)
 +{
-+	return setsockopt(fd, SOL_SOCKET, SO_INQ, &val, sizeof(val));
++	switch (optname) {
++	case SO_ZEROCOPY:
++	case SO_INQ:
++		return true;
++	default:
++		return false;
++	}
 +}
 +
-+/* Receive @len bytes and return the SCM_INQ value, or -1 if the kernel did
-+ * not attach one.
-+ */
-+static int so_inq_recv(int fd, size_t len, int expected_ret)
++static int vsock_sol_socket_setsockopt(struct sock *sk, int optname,
++				       sockptr_t optval, unsigned int optlen)
 +{
-+	char control[CMSG_SPACE(sizeof(int))] = { 0 };
-+	unsigned char buf[SO_INQ_BUF_LEN];
-+	struct iovec iov = {
-+		.iov_base = buf,
-+		.iov_len = len,
-+	};
-+	struct msghdr msg = {
-+		.msg_iov = &iov,
-+		.msg_iovlen = 1,
-+		.msg_control = control,
-+		.msg_controllen = sizeof(control),
-+	};
-+	struct cmsghdr *cmsg;
-+	ssize_t ret;
-+	int inq;
++	struct vsock_sock *vsk = vsock_sk(sk);
++	int err = 0;
++	int val;
 +
-+	ret = recvmsg(fd, &msg, 0);
-+	if (ret < 0) {
-+		perror("recvmsg");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	expect_res(ret, expected_ret, "recvmsg");
-+
-+	if (msg.msg_flags & MSG_CTRUNC) {
-+		fprintf(stderr, "SCM_INQ control message truncated\n");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	for (cmsg = CMSG_FIRSTHDR(&msg); cmsg; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
-+		if (cmsg->cmsg_level != SOL_SOCKET ||
-+		    cmsg->cmsg_type != SCM_INQ)
-+			continue;
-+
-+		if (cmsg->cmsg_len != CMSG_LEN(sizeof(inq))) {
-+			fprintf(stderr, "unexpected SCM_INQ length %zu\n",
-+				(size_t)cmsg->cmsg_len);
-+			exit(EXIT_FAILURE);
-+		}
-+
-+		memcpy(&inq, CMSG_DATA(cmsg), sizeof(inq));
-+		return inq;
-+	}
-+
-+	return -1;
-+}
-+
-+static void test_stream_so_inq_client(const struct test_opts *opts)
-+{
-+	int fd;
-+
-+	fd = vsock_stream_connect(opts->peer_cid, opts->peer_port);
-+	if (fd < 0) {
-+		perror("connect");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	control_expectln("SENT");
-+
-+	/* Wait for the whole payload to be queued, so the values below do not
-+	 * depend on how the transport delivers it.
++	/* Use 'int' type here, because variable to
++	 * set these options usually has this type.
 +	 */
-+	if (!vsock_ioctl_int(fd, SIOCINQ, SO_INQ_BUF_LEN)) {
-+		fprintf(stderr, "Test skipped, SIOCINQ not supported.\n");
-+		goto out;
-+	}
++	if (optlen < sizeof(val))
++		return -EINVAL;
 +
-+	/* No ancillary data unless the option is enabled. */
-+	expect_res(so_inq_recv(fd, SO_INQ_CHUNK_LEN, SO_INQ_CHUNK_LEN), -1,
-+		   "SCM_INQ with SO_INQ disabled");
++	if (copy_from_sockptr(&val, optval, sizeof(val)))
++		return -EFAULT;
 +
-+	if (so_inq_set(fd, 1)) {
-+		if (errno != ENOPROTOOPT) {
-+			perror("setsockopt(SO_INQ)");
-+			exit(EXIT_FAILURE);
++	if (val < 0 || val > 1)
++		return -EINVAL;
++
++	lock_sock(sk);
++
++	switch (optname) {
++	case SO_ZEROCOPY:
++		if (vsk->transport && !vsock_msgzerocopy_allow(vsk->transport)) {
++			err = -EOPNOTSUPP;
++			break;
 +		}
 +
-+		fprintf(stderr, "Test skipped, SO_INQ not supported.\n");
-+		goto out;
-+	}
++		sock_valbool_flag(sk, SOCK_ZEROCOPY, val);
++		break;
 +
-+	/* Partial read: the rest of the payload is still queued. */
-+	expect_res(so_inq_recv(fd, SO_INQ_CHUNK_LEN, SO_INQ_CHUNK_LEN),
-+		   SO_INQ_BUF_LEN - 2 * SO_INQ_CHUNK_LEN,
-+		   "SCM_INQ after partial receive");
-+
-+	/* Draining read while the peer stays connected. */
-+	expect_res(so_inq_recv(fd, SO_INQ_BUF_LEN - 2 * SO_INQ_CHUNK_LEN,
-+			       SO_INQ_BUF_LEN - 2 * SO_INQ_CHUNK_LEN), 0,
-+		   "SCM_INQ after draining receive");
-+
-+	control_writeln("DRAINED");
-+	vsock_wait_remote_close(fd);
-+
-+	/* Nothing is queued once the peer is gone, but 1 is reported so the
-+	 * caller keeps reading until it observes EOF, as TCP_INQ does.
-+	 */
-+	expect_res(so_inq_recv(fd, SO_INQ_CHUNK_LEN, 0), 1, "SCM_INQ at EOF");
-+
-+	if (so_inq_set(fd, 0)) {
-+		perror("setsockopt(SO_INQ)");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	expect_res(so_inq_recv(fd, SO_INQ_CHUNK_LEN, 0), -1,
-+		   "SCM_INQ after disabling SO_INQ");
-+
-+	close(fd);
-+	return;
-+
-+out:
-+	control_writeln("DRAINED");
-+	close(fd);
-+}
-+
-+static void test_stream_so_inq_server(const struct test_opts *opts)
-+{
-+	unsigned char buf[SO_INQ_BUF_LEN];
-+	int fd;
-+
-+	fd = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
-+	if (fd < 0) {
-+		perror("accept");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	memset(buf, 'A', sizeof(buf));
-+	send_buf(fd, buf, sizeof(buf), 0, sizeof(buf));
-+	control_writeln("SENT");
-+
-+	/* Keep the connection open until the peer has drained the queue: an
-+	 * early close would turn its last SCM_INQ value into the EOF one.
-+	 */
-+	control_expectln("DRAINED");
-+	close(fd);
-+}
-+
-+static void test_stream_so_inq_inherit_client(const struct test_opts *opts)
-+{
-+	unsigned char buf[SO_INQ_BUF_LEN];
-+	int fd;
-+
-+	fd = vsock_stream_connect(opts->peer_cid, opts->peer_port);
-+	if (fd < 0) {
-+		perror("connect");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	memset(buf, 'A', sizeof(buf));
-+	send_buf(fd, buf, sizeof(buf), 0, sizeof(buf));
-+	control_writeln("SENT");
-+
-+	control_expectln("DONE");
-+	close(fd);
-+}
-+
-+static void test_stream_so_inq_inherit_server(const struct test_opts *opts)
-+{
-+	bool supported = true;
-+	int listen_fd, fd;
-+
-+	listen_fd = vsock_stream_listen(VMADDR_CID_ANY, opts->peer_port);
-+
-+	/* Enable the option on the listener only. */
-+	if (so_inq_set(listen_fd, 1)) {
-+		if (errno != ENOPROTOOPT) {
-+			perror("setsockopt(SO_INQ)");
-+			exit(EXIT_FAILURE);
++	case SO_INQ:
++		if (sk->sk_type != SOCK_STREAM) {
++			err = -ENOPROTOOPT;
++			break;
 +		}
 +
-+		fprintf(stderr, "Test skipped, SO_INQ not supported.\n");
-+		supported = false;
++		vsk->recvmsg_inq = val;
++		break;
++
++	default:
++		err = -ENOPROTOOPT;
++		break;
 +	}
 +
-+	control_writeln("LISTENING");
-+
-+	timeout_begin(TIMEOUT);
-+	do {
-+		fd = accept(listen_fd, NULL, NULL);
-+		timeout_check("accept");
-+	} while (fd < 0 && errno == EINTR);
-+	timeout_end();
-+
-+	if (fd < 0) {
-+		perror("accept");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	close(listen_fd);
-+	control_expectln("SENT");
-+
-+	if (!supported)
-+		goto out;
-+
-+	if (!vsock_ioctl_int(fd, SIOCINQ, SO_INQ_BUF_LEN)) {
-+		fprintf(stderr, "Test skipped, SIOCINQ not supported.\n");
-+		goto out;
-+	}
-+
-+	/* The accepted socket reports SCM_INQ without its own setsockopt(). */
-+	expect_res(so_inq_recv(fd, SO_INQ_CHUNK_LEN, SO_INQ_CHUNK_LEN),
-+		   SO_INQ_BUF_LEN - SO_INQ_CHUNK_LEN,
-+		   "SCM_INQ inherited from the listener");
-+
-+out:
-+	control_writeln("DONE");
-+	close(fd);
++	release_sock(sk);
++	return err;
 +}
 +
-+static void test_so_inq_validation_client(const struct test_opts *opts)
-+{
-+	int fd;
-+
-+	fd = socket(AF_VSOCK, SOCK_STREAM, 0);
-+	if (fd < 0) {
-+		perror("socket");
-+		exit(EXIT_FAILURE);
+ static int vsock_connectible_setsockopt(struct socket *sock,
+ 					int level,
+ 					int optname,
+@@ -2045,36 +2106,16 @@ static int vsock_connectible_setsockopt(struct socket *sock,
+ 	sk = sock->sk;
+ 	vsk = vsock_sk(sk);
+ 
+-	lock_sock(sk);
+-
+-	transport = vsk->transport;
+-
+ 	if (level == SOL_SOCKET) {
+-		int zerocopy;
+-
+-		if (optname != SO_ZEROCOPY) {
+-			release_sock(sk);
++		if (!vsock_custom_sockopt(optname))
+ 			return sock_setsockopt(sock, level, optname, optval, optlen);
+-		}
+-
+-		/* Use 'int' type here, because variable to
+-		 * set this option usually has this type.
+-		 */
+-		COPY_IN(zerocopy);
+ 
+-		if (zerocopy < 0 || zerocopy > 1) {
+-			err = -EINVAL;
+-			goto exit;
+-		}
++		return vsock_sol_socket_setsockopt(sk, optname, optval, optlen);
++	}
+ 
+-		if (transport && !vsock_msgzerocopy_allow(transport)) {
+-			err = -EOPNOTSUPP;
+-			goto exit;
+-		}
++	lock_sock(sk);
+ 
+-		sock_valbool_flag(sk, SOCK_ZEROCOPY, zerocopy);
+-		goto exit;
+-	}
++	transport = vsk->transport;
+ 
+ 	switch (optname) {
+ 	case SO_VM_SOCKETS_BUFFER_SIZE:
+@@ -2581,6 +2622,7 @@ __vsock_connectible_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+ 	struct sock *sk;
+ 	struct vsock_sock *vsk;
+ 	const struct vsock_transport *transport;
++	bool do_cmsg = false;
+ 	int err;
+ 
+ 	sk = sock->sk;
+@@ -2637,13 +2679,26 @@ __vsock_connectible_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+ 		err = __vsock_seqpacket_recvmsg(sk, msg, len, flags);
+ 
+ out:
+-	/* Seqpacket has_data counts messages, while io_uring treats msg_inq as
+-	 * a byte length when sizing retries, so only streams report a hint.
++	/* Seqpacket has_data counts messages, while SCM_INQ reports bytes and
++	 * io_uring treats msg_inq as a byte length when sizing retries, so
++	 * only streams report it.
+ 	 */
+-	if (msg->msg_get_inq && err >= 0 && sk->sk_type == SOCK_STREAM)
++	if ((vsk->recvmsg_inq || msg->msg_get_inq) && err >= 0 &&
++	    sk->sk_type == SOCK_STREAM) {
+ 		msg->msg_inq = vsock_stream_inq_hint(sk);
+ 
++		/* A negative hint means the transport could not tell. SCM_INQ
++		 * has no encoding for that, so report nothing.
++		 */
++		do_cmsg = vsk->recvmsg_inq && msg->msg_inq >= 0;
 +	}
 +
-+	if (so_inq_set(fd, 1)) {
-+		if (errno != ENOPROTOOPT) {
-+			perror("setsockopt(SO_INQ)");
-+			exit(EXIT_FAILURE);
-+		}
+ 	release_sock(sk);
 +
-+		fprintf(stderr, "Test skipped, SO_INQ not supported.\n");
-+		close(fd);
-+		return;
-+	}
++	if (do_cmsg)
++		put_cmsg(msg, SOL_SOCKET, SCM_INQ, sizeof(msg->msg_inq),
++			 &msg->msg_inq);
 +
-+	if (!so_inq_set(fd, 2) || errno != EINVAL) {
-+		fprintf(stderr, "SO_INQ accepted an out of range value\n");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	close(fd);
-+
-+	/* SCM_INQ counts bytes, which a message based socket cannot report. */
-+	fd = socket(AF_VSOCK, SOCK_SEQPACKET, 0);
-+	if (fd < 0) {
-+		perror("socket");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	if (!so_inq_set(fd, 1) || errno != ENOPROTOOPT) {
-+		fprintf(stderr, "SO_INQ not rejected on SOCK_SEQPACKET\n");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	close(fd);
-+}
-+
- static struct test_case test_cases[] = {
- 	{
- 		.name = "SOCK_STREAM connection reset",
-@@ -2633,6 +2898,20 @@ static struct test_case test_cases[] = {
- 		.run_client = test_stream_collapse_client,
- 		.run_server = test_stream_collapse_server,
- 	},
-+	{
-+		.name = "SOCK_STREAM SO_INQ functionality",
-+		.run_client = test_stream_so_inq_client,
-+		.run_server = test_stream_so_inq_server,
-+	},
-+	{
-+		.name = "SOCK_STREAM SO_INQ inherited by accepted socket",
-+		.run_client = test_stream_so_inq_inherit_client,
-+		.run_server = test_stream_so_inq_inherit_server,
-+	},
-+	{
-+		.name = "SO_INQ option validation",
-+		.run_client = test_so_inq_validation_client,
-+	},
- 	{},
- };
+ 	return err;
+ }
  
 -- 
 2.55.0
