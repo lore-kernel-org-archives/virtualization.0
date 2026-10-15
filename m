@@ -1,74 +1,65 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A83B4A8432;
-	Thu, 15 Oct 2026 07:49:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C7DD3EDACD
+	for <virtualization@lists.linux.dev>; Thu, 15 Oct 2026 07:51:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792050585; cv=none; b=bY6lM0h6Ls9guPwt5xTJhSwBqJq1S/ra+NyynvLOxpdIZZJa/Hr20jmvRvP1qrOD5s1ozny5LizsuBBPsGq6DCfdK/9VIbXlDDF0xeKYit4ESR8iWRCm0l2sEGHF4IqQwkCzM+MNT1/ybuTCVyp6lsc/UUIGWq+vy5xIoZtaMQI=
+	t=1792050690; cv=none; b=ccvC/E6Ktcv/HTz4W2QLI37G/V2C2QPEH1lXagdeE+daEICIvAsBFwgxGrLop7ZdckXfYFyv7bE3FJQUg2th1PM5/BlGGGmKeKVXcXmpUe/qdaoj5ZMVKepeslvnNApdI/vhPymtqQT35gM2kBqX5GGiSVQN8qVRDtF+0qfT2K4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792050585; c=relaxed/simple;
-	bh=x8GQ9TqAFu5driuvo38kqzYt3n324pebOlaNmEELI+s=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=NhrdSZ+grAl8i0DEti8HmIjMGsD57u6+M0aRu31S5CH7WgPt+slPa735vFbs7oTCz0hbTGbaxomQxpF8tqdHVzClKuL62PJhVOF6aRs9nrqJPgca0XYpgXXFyr6DZEGTpX0OQKt1ZYCoD7zwSCiw323BNtcgQI2fl/YAoGEpbBo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HS+TGUBQ; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1792050690; c=relaxed/simple;
+	bh=HIqwnY3nTL3Cd1I0HsGxndf5y0apu4DDF5jZ467L4pA=;
+	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
+	 Date; b=UDaiFZAfdw1nWHu+COAL4W1hjoQQUl8UlBvFrX2pjldd/SQMmXUDYA8lmGkWxQDOwkZnj1XpnNmrFb8UmXVmrblJXpOU/lDq0lzP95/nzGF6srovugKLwT1P6cPiIvgllbHpy3V6/XwOjIFCrUmydnZb5kiULpWd5oOfGNOHzAU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZUqjf02z; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HS+TGUBQ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB6F01F000C4;
-	Thu, 15 Oct 2026 07:49:41 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZUqjf02z"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA7EF1F000C4;
+	Thu, 15 Oct 2026 07:51:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792050583;
-	bh=PJRu7W6/Or1we5Gv3BgoLEtby0D0Y0UGgfjBHfRc5+k=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=HS+TGUBQm1vrVs0Ax8ZqhzrTZVO/5ZWp37Ddp2bPRo5Kbo72zVS6iUQqkBqXSiEs4
-	 9QTLOvcgLz/v5nMtu8a3ouaFeyzd+olvu74Kc1eDhbkhEo3Xa1WOzfLUR3ZP50jSsJ
-	 X0InUXuE5+cawESxicvMVz7tgbL9iQXpdJDlCQmTWWrLGoQlWLdUwlFoGQqnXxZ+dU
-	 lWutYlw6ogCgIBV5z6jdp/X9bFHKwz7R6cL4Cez5lA+O/QCuPynT6ySQifLzjnYcsp
-	 BRCi9JwcNeDqpflixEFHKhMQwRvV9QKhz+4USosYPzz0u2WMkbDlGG+RgA+OJ4oWXB
-	 /IzcWcJsYsecw==
-From: netdev-bot+sinfo@kernel.org
-To: Zihan Xi <zihanx@nebusec.ai>
-Cc: netfilter-devel@vger.kernel.org, virtualization@lists.linux.dev,
- intel-wired-lan@lists.osuosl.org, bpf@vger.kernel.org, pablo@netfilter.org,
- fw@strlen.de, phil@nwl.cc, davem@davemloft.net, edumazet@kernel.org,
- pabeni@redhat.com, horms@kernel.org, kaber@trash.net, jengelh@medozas.de,
- andrew+netdev@lunn.ch, mst@redhat.com, jasowangio@gmail.com,
- eperezma@redhat.com, xuanzhuo@linux.alibaba.com, aleksander.lobakin@intel.com,
- ast@kernel.org, daniel@iogearbox.net, hawk@kernel.org,
- john.fastabend@gmail.com, sdf@fomichev.me, magnus.karlsson@intel.com,
- maciej.fijalkowski@intel.com, willemb@google.com, alice.kernel@fastmail.im,
- eilaimemedsnaimel@gmail.com, imv4bel@gmail.com, shiming.cheng@mediatek.com,
- sd@queasysnail.net, vega@nebusec.ai, root@tr0jan.top
-Subject: 
- Re: [PATCH nf v8 0/3] netfilter: bound asynchronous packet duplication
-Date: Thu, 15 Oct 2026 07:49:41 +0000
-Message-ID: <179205058144.408196.393758576070980065@kernel.org>
-In-Reply-To: <cover.1792048855.git.zihanx@nebusec.ai>
+	s=k20260515; t=1792050689;
+	bh=HIqwnY3nTL3Cd1I0HsGxndf5y0apu4DDF5jZ467L4pA=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=ZUqjf02zhF2o72efmFuNPDlei2cCl5uKkO1H2EU2r4Ufp89dJarP0pMGDgWMp8W3L
+	 x1k5QGoAlbQFNnc4O96p/5HIPd4NEtS6yjQ5ncaikc9rRPEbJT/VCgD0gjmejRul0y
+	 mo6PMBOwQlhNPjiCtRzNLI4N7Fau8sqpsg8HqxSNts1iYvSHlQ81GQILbsG8v1ytrZ
+	 JexTwKm4hDBBleQeXuaD+/fBzg3XTAmHLVIKbjevAgCSr5g6MEwG2GG32BSchJjRvA
+	 vaR40dooJS8a0Ptbe8cqjCE/ghIyd/Hgvv1iEJU7cHZYEPKVPhYND5rJh1thQbDX7q
+	 N5dYI0rG1JKCw==
+Message-ID: <sashiko-outbox-172436@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH nf v8 3/3] netfilter: nf_dup: prevent TTL and hop-limit
+ underflow
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Zihan Xi" <zihanx@nebusec.ai>, virtualization@lists.linux.dev
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>
+In-Reply-To: <3db2db978957de74be13ba48cc16c5e0829003e3.1792048855.git.zihanx@nebusec.ai>
 References: <cover.1792048855.git.zihanx@nebusec.ai>
-Auto-Submitted: auto-generated
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+ <3db2db978957de74be13ba48cc16c5e0829003e3.1792048855.git.zihanx@nebusec.ai>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 15 Oct 2026 07:51:28 +0000
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
 
-Hi!
+> The IPv4 and IPv6 duplication helpers decrement TTL or hop limit for
+> copies processed at PRE_ROUTING or LOCAL_IN. Stop duplicating when the
+> value is at or below one, before a subsequent decrement can wrap.
+>=20
+> Fixes: e281b19897dc ("netfilter: xtables: inclusion of xt_TEE")
+> Cc: stable@vger.kernel.org
+> Reported-by: Vega <vega@nebusec.ai>
+> Assisted-by: LLM
+> Co-developed-by: Luxing Yin <root@tr0jan.top>
+> Signed-off-by: Luxing Yin <root@tr0jan.top>
+> Signed-off-by: Zihan Xi <zihanx@nebusec.ai>
 
-This is an automated message. This series looks like a fix, but its
-commit messages seem to be missing some information:
+Sashiko has reviewed this patch and found no issues. It looks great!
 
- - How the issue was discovered, e.g. hit in production, hit during
-   development, syzbot report, manual code inspection, LLM or static
-   analysis tool scan.
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/cover.1792048855.gi=
+t.zihanx@nebusec.ai?part=3D3
 
-Please do not repost the series just to address the above. Instead,
-reply to this email with the missing information, so that reviewers
-can take it into account. If the series needs another revision for
-other reasons, please include the information in the commit messages
-then.
-
-The evaluation is done by an LLM so it may be wrong, if you think
-that is the case please reply and explain.
