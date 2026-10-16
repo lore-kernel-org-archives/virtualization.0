@@ -1,180 +1,218 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vk1-f170.google.com (mail-vk1-f170.google.com [209.85.221.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F5ED4D2EDF;
-	Fri, 16 Oct 2026 15:12:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2187E4EBAE1
+	for <virtualization@lists.linux.dev>; Fri, 16 Oct 2026 15:30:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792163562; cv=none; b=QzWePHxITPuaQT2UqB5Az6EXWxzIf7bMHl3Ll22mBKUFgDQ3Z2TVUpUpUthG+D9hjXvXmxJ41KoJK6hiLhTSZdmJLbjZQZpAIXYmljjKQXZmMRcqQHoc7bHoMCRze3lTAZOdZ2TadiWdo1M2L3zcEyh6k9G/DXj6dYRBiGqDPjw=
+	t=1792164621; cv=none; b=AEAWMiI4N23sXgsiriRiRwdwWdt0k8btYUA7ZCzyvmUKBmcva5qf/l91RbZvx4upZUxRP3uJNoWAiPUNf28aJaew7JPReqRkKyV7p8Mh+LXM76lWqQ0qzavMKe8iGoyqszg090jFMNTQPJzZkqOLrXkZhFAwLkogjfMveEV1NBo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792163562; c=relaxed/simple;
-	bh=wArVxH9jZInnASIQLwCgvMc3lzkEDaLjNnutL2oFwVA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=EWkofqE05R6o0DFiTVm5+qXn4e9jvSpvs/e79Jf3Gxu44nQhNbXZL1Ndg7LvkYj40qU0bL/EVDypcE/twaEwBbaJGSDVaJ46a5l6Up8ItTindUMg93h7qsHvdJshBJktGlhGEkUJUD5ec+OoZwagCYj603S8yHQhRg4mI7XlPiI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HeXH2eNd; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1792164621; c=relaxed/simple;
+	bh=IMgRqh7P9bFjG3FfvNoeXAv6Y2588Kxr8DTOqxdoKgw=;
+	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
+	 MIME-Version:Content-Type; b=nlpIGCo0sndsCzLawH3ma61/NBIzxPW5MMOAXy13TEAmEVDekAjmU4teT3IBD/paPkYAnukPXTM/7iu9SJRRe4vNs8mz6YlaxYkWhJyJTcspDm0rrt4hVkm24zvtzvusp57W+SmDNpAd+uceV8qKXbsWX0uvmDe1CDH5d195Rh0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=sXZcCt8s; arc=none smtp.client-ip=209.85.221.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HeXH2eNd"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2F291F000C4;
-	Fri, 16 Oct 2026 15:12:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792163561;
-	bh=zExOvzSfNAOGhWyHayoCJYIMW12XGItswYYl/21/DBA=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=HeXH2eNd0qTi1KJWMDpX2qurIIHfELGudDOFsBVj38SK5hgtwRmtRu++Y/B5kYqqd
-	 A4blc5Fp2xS9ugu94PJEByj6vIlDtKLwiWnVuaMsxRz0Ir4yLDMdWRBi4NsEDJfgYI
-	 dTCWHHQPHA4O4L72QOauM8WSJ4JjVCneqoIAwA1rVTR79Lh6W41DTt4LcokcrG/DS7
-	 QghFRktl0qmqBt0Q2454sV5etB2cRZSEkJVEe4jVB1iPvoqhJu/FGnl3nmWT7TfuCi
-	 kYiPGdYgWB0PP3fl0nc6yx6ZWW1MUxK7rfa2DXZnz9GRXCns4+n+2ph4Izy2R1nkwe
-	 CPOLN30xIOzMQ==
-From: Maxime Ripard <mripard@kernel.org>
-To: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	David Airlie <airlied@gmail.com>,
-	Simona Vetter <simona@ffwll.ch>,
-	Maxime Ripard <mripard@kernel.org>
-Cc: dri-devel@lists.freedesktop.org,
-	Aun-Ali Zaidi <admin@kodeit.net>,
-	=?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-	Alex Deucher <alexander.deucher@amd.com>,
-	amd-gfx@lists.freedesktop.org,
-	Harry Wentland <harry.wentland@amd.com>,
-	Leo Li <sunpeng.li@amd.com>,
-	Rodrigo Siqueira <siqueira@igalia.com>,
-	Liviu Dudau <liviu.dudau@arm.com>,
-	Andrew Jeffery <andrew@codeconstruct.com.au>,
-	Joel Stanley <joel@jms.id.au>,
-	Dave Airlie <airlied@redhat.com>,
-	Jocelyn Falempe <jfalempe@redhat.com>,
-	Francesco Dolcini <francesco@dolcini.it>,
-	Ian Ray <ian.ray@gehealthcare.com>,
-	Martyn Welch <martyn.welch@collabora.co.uk>,
-	Peter Senna Tschudin <peter.senna@gmail.com>,
-	Russell King <linux@armlinux.org.uk>,
-	Alim Akhtar <alim.akhtar@samsung.com>,
-	Inki Dae <inki.dae@samsung.com>,
-	Krzysztof Kozlowski <krzk@kernel.org>,
-	Kyungmin Park <kyungmin.park@samsung.com>,
-	Peter Griffin <peter.griffin@linaro.org>,
-	Seung-Woo Kim <sw0312.kim@samsung.com>,
-	linux-samsung-soc@vger.kernel.org,
-	Alison Wang <alison.wang@nxp.com>,
-	Stefan Agner <stefan@agner.ch>,
-	Tian Tao <tiantao6@hisilicon.com>,
-	Xinwei Kong <kong.kongxinwei@hisilicon.com>,
-	Yongbang Shi <shiyongbang@huawei.com>,
-	Dexuan Cui <decui@microsoft.com>,
-	Long Li <longli@microsoft.com>,
-	Saurabh Sengar <ssengar@linux.microsoft.com>,
-	linux-hyperv@vger.kernel.org,
-	Fabio Estevam <festevam@gmail.com>,
-	Frank Li <Frank.Li@nxp.com>,
-	Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Philipp Zabel <p.zabel@pengutronix.de>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	imx@lists.linux.dev,
-	Paul Kocialkowski <paulk@sys-base.io>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	Icenowy Zheng <zhengxingda@iscas.ac.cn>,
-	Jianmin Lv <lvjianmin@loongson.cn>,
-	Mingcong Bai <jeffbai@aosc.io>,
-	Qianhai Wu <wuqianhai@loongson.cn>,
-	Xi Ruoyao <xry111@xry111.site>,
-	Abhinav Kumar <abhinav.kumar@linux.dev>,
-	Dmitry Baryshkov <lumag@kernel.org>,
-	Jessica Zhang <jesszhan0024@gmail.com>,
-	Marijn Suijten <marijn.suijten@somainline.org>,
-	Rob Clark <robin.clark@oss.qualcomm.com>,
-	Sean Paul <sean@poorly.run>,
-	freedreno@lists.freedesktop.org,
-	linux-arm-msm@vger.kernel.org,
-	Gerd Hoffmann <kraxel@redhat.com>,
-	spice-devel@lists.freedesktop.org,
-	virtualization@lists.linux.dev,
-	Geert Uytterhoeven <geert+renesas@glider.be>,
-	linux-renesas-soc@vger.kernel.org,
-	Marcus Folkesson <marcus.folkesson@gmail.com>,
-	Iker Pedrosa <ikerpedrosam@gmail.com>,
-	Javier Martinez Canillas <javierm@redhat.com>,
-	Alain Volmat <alain.volmat@foss.st.com>,
-	Raphael Gallais-Pou <rgallaispou@gmail.com>,
-	Alexandre Torgue <alexandre.torgue@foss.st.com>,
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Philippe Cornu <philippe.cornu@foss.st.com>,
-	Raphael Gallais-Pou <raphael.gallais-pou@foss.st.com>,
-	Yannick Fertre <yannick.fertre@foss.st.com>,
-	Chen-Yu Tsai <wens@kernel.org>,
-	Samuel Holland <samuel@sholland.org>,
-	linux-sunxi@lists.linux.dev,
-	Jonathan Hunter <jonathanh@nvidia.com>,
-	Mikko Perttunen <mperttunen@nvidia.com>,
-	Thierry Reding <thierry.reding@kernel.org>,
-	linux-tegra@vger.kernel.org,
-	Alexey Brodkin <abrodkin@synopsys.com>,
-	Hans de Goede <hansg@kernel.org>,
-	LiangCheng Wang <zaq14760@gmail.com>,
-	Alex Lanzano <lanzano.alex@gmail.com>,
-	=?UTF-8?q?Ma=C3=ADra=20Canal?= <mcanal@igalia.com>,
-	Dave Stevenson <dave.stevenson@raspberrypi.com>,
-	Raspberry Pi Kernel Maintenance <kernel-list@raspberrypi.com>,
-	Chia-I Wu <olvaffe@gmail.com>,
-	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-	Gurchetan Singh <gurchetansingh@chromium.org>,
-	Haneen Mohammed <hamohammed.sa@gmail.com>,
-	Louis Chauvet <louis.chauvet@bootlin.com>,
-	Melissa Wen <melissa.srw@gmail.com>,
-	Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>,
-	Ruben Wauters <rubenru09@aol.com>,
-	Jerome Brunet <jbrunet@baylibre.com>,
-	Kevin Hilman <khilman@baylibre.com>,
-	Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-	linux-amlogic@lists.infradead.org,
-	Jani Nikula <jani.nikula@linux.intel.com>,
-	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Tvrtko Ursulin <tursulin@ursulin.net>,
-	intel-gfx@lists.freedesktop.org,
-	intel-xe@lists.freedesktop.org,
-	Danilo Krummrich <dakr@kernel.org>,
-	Lyude Paul <lyude@redhat.com>,
-	nouveau@lists.freedesktop.org,
-	Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
-	Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
-	Magnus Damm <magnus.damm@gmail.com>,
-	Tomi Valkeinen <tomi.valkeinen+renesas@ideasonboard.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Zack Rusin <zack.rusin@broadcom.com>,
-	Aditya Garg <aditya.garg@linux.dev>
-Subject: Re: (subset) [PATCH 00/75] drm/connector: Convert all drivers to atomic_create_state and remove reset
-Date: Fri, 16 Oct 2026 17:12:34 +0200
-Message-ID: <179216354629.2387589.2597043397406887835.b4-ty@kernel.org>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20261014-drm-no-more-connector-reset-v1-0-586c9c026823@kernel.org>
-References: <20261014-drm-no-more-connector-reset-v1-0-586c9c026823@kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sXZcCt8s"
+Received: by mail-vk1-f170.google.com with SMTP id 71dfb90a1353d-5e9528732b4so27595e0c.0
+        for <virtualization@lists.linux.dev>; Fri, 16 Oct 2026 08:30:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1792164619; x=1792769419; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:mime-version:subject
+         :references:in-reply-to:message-id:cc:to:from:date:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=EzgDhar5zkz19hBJENwPklhUs01SGYbuNfu08NDtMCg=;
+        b=sXZcCt8s+tQ/QDkgaBD4dPTfJxqzkkVoz8oAodUx9oLbQ3oEN0kSM1ZeS8pTRb8776
+         vCFHtHflm8MDLQqzVbfIHT9ht79GKROwoo0qAoTWLnjgYqIOQTeOhTpIvCxKpvM6qw44
+         Mnpr1vjY9U8LCQVIAAFdSNwFN0IsgpeRtmz+ba5HZZkegMgXL55+cSTqZMejPhU0YH41
+         BLpgxPgE5kl8QGIkd3HEp8yzzlROCbUuUpEOvB5ROHSVuRiOJtQFg4/XaHFkhQ03AG6p
+         u4Lm5VwjsFAPFHkm3/Dg99GT8djN7m4558eicHtlNwmtqF918H+/YNEXmXvtUKWBfDGK
+         ANdw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792164619; x=1792769419;
+        h=content-transfer-encoding:content-type:mime-version:subject
+         :references:in-reply-to:message-id:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=EzgDhar5zkz19hBJENwPklhUs01SGYbuNfu08NDtMCg=;
+        b=VDIasKHee7gedcdOBF/SFogNux3JnJv5XVuYu3nBQt7NZwxYnzFu2iHuTGJ8AraI/j
+         RsitJl1WI/Ii9IlRnZV7kbFOmm3I7mw/0NhLPhPcGjbzQaNKrbfrmz7xRxJV0KM58LgY
+         i7Nf7uYQk9tDkJBOkCUr72t2ctG//kIrnTvJo3r+/XFvxzZNPmxcjJjSxdt5f+ziU+oy
+         ZFo4SFqis5AXDOx7uadjzQOtScmEUu4ui14VoQYQRO7JhqyTWjKEpdJfukqaHoRKkwcE
+         0r7anYHXyOOl1c72Btrr/tNWVO7pSTON9EKsImUoF9xQgVzKogsmMf6v8eb5h93ZgV+g
+         FgRg==
+X-Forwarded-Encrypted: i=1; AKwUvBxUH0hgtWm6YKaa/2tQJC2q9X7yCFr7S4OYa7GI9RLqBqIr2YoU2PdDdjOexrJGo2+iN9Ado/DF0fmj73+JhA==@lists.linux.dev
+X-Gm-Message-State: AFq9FYJoikH5MARaNsYdXKlp/rOEdWW8FP7rmU4/A9zEmHGlcWd/IP7z
+	tliLnxMtyN7zS7uAIk4DD/PHMg6H4tvs4WBu1G+VzOoqpqEvF5iNjNNo
+X-Gm-Gg: AYBFou2c/9N2xxQtH3U2qmILdK5nJLZ7dj1TVsCeFVv3IrZOVQ6mM4xmPWbXhxm4h/B
+	yw985GSewzES6qN8EXxaZzPAZmRwn38/U26sXZ+vgdE5MXe7WXi4ApFJhzQjaRp9Agie/SVuPa8
+	L3xg2qd+ki4W4N8RXfDvWyl2XvXbpYeM9i/Q/gmExE7t9ghEH90ylgwwhp3Mo+KASEOOCpRsj7w
+	TlLrenjue5n5/2o1K3jtZ7brhQ751l1EVZoUhCMlbeBvAK9yCh6rUJmG/Izff2Majmf+HBVudY8
+	KYWCAzqK6QMfgAHvrFFPXgP5A/iUO6z1AZALIg4eV8oAxtabar8LlBlbcLS2w72/0W7UUuHTUol
+	6eCaE29SVpDk54qykZjSkuJofgx43zKOb1CgE58fuStqMVSguGzR+AJryuWkKuAFtmASw+NScwP
+	/0v3iC8oQ3Xz2YlIHhgY9lXvBSxO01umv0vgXFvlwfuNKNbq9Cu6ndwlie6b/TdzaKyCJXcXJ06
+	crgmb0yVfwkz7VC4+6KOAsjM9r40rfjY7Xen5GLMbCygn/KpG/Ft7tt9XR9zm6kqR+B3eSOl7Yx
+	bBGpNr1adbt/vRBpo66zbtl6R4fU6bUPbcocPQ==
+X-Received: by 2002:a05:6102:94a:b0:7cc:1ace:fd14 with SMTP id ada2fe7eead31-7cc1acf084bmr1323389137.33.1792164618748;
+        Fri, 16 Oct 2026 08:30:18 -0700 (PDT)
+Received: from gmail.com (111.46.245.35.bc.googleusercontent.com. [35.245.46.111])
+        by smtp.gmail.com with ESMTPSA id a1e0cc1a2514c-990833c2c2dsm1836983241.2.2026.10.16.08.30.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 16 Oct 2026 08:30:17 -0700 (PDT)
+Date: Fri, 16 Oct 2026 11:30:17 -0400
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, 
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: linux-kernel@vger.kernel.org, 
+ Jason Wang <jasowangio@gmail.com>, 
+ =?UTF-8?B?RXVnZW5pbyBQw6lyZXo=?= <eperezma@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+ Andrew Lunn <andrew+netdev@lunn.ch>, 
+ "David S. Miller" <davem@davemloft.net>, 
+ Eric Dumazet <edumazet@kernel.org>, 
+ Jakub Kicinski <kuba@kernel.org>, 
+ Paolo Abeni <pabeni@redhat.com>, 
+ netdev@vger.kernel.org, 
+ virtualization@lists.linux.dev, 
+ Rusty Russell <rusty@rustcorp.com.au>, 
+ Max Krasnyansky <maxk@qualcomm.com>, 
+ Jonathan Corbet <corbet@lwn.net>, 
+ Shuah Khan <skhan@linuxfoundation.org>, 
+ Randy Dunlap <rdunlap@infradead.org>, 
+ Simon Horman <horms@kernel.org>, 
+ linux-doc@vger.kernel.org
+Message-ID: <willemdebruijn.kernel.1d7ce6b64753a@gmail.com>
+In-Reply-To: <20261016051827-mutt-send-email-mst@kernel.org>
+References: <cover.1792067836.git.mst@redhat.com>
+ <ad05a40681719a579691a1da6413f0dd7064f2a0.1792067836.git.mst@redhat.com>
+ <willemdebruijn.kernel.3a7d04e1c306e@gmail.com>
+ <20261016051827-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH net-next v2 5/7] net: add a sysctl to opt out of virtio
+ net hdr checksum validation
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: 7bit
 
-On Wed, 14 Oct 2026 19:26:23 +0200, Maxime Ripard wrote:
-> This is a follow-up to the plane and CRTC reset removal series, and
-> part of a larger effort to remove the reset hook from all KMS objects.
+Michael S. Tsirkin wrote:
+> On Thu, Oct 15, 2026 at 01:50:54PM -0400, Willem de Bruijn wrote:
+> > Michael S. Tsirkin wrote:
+> > > The ingress validation as implemented by the previous
+> > > patch is stricter than what it replaced: GSO
+> > > packets whose checksum metadata matches no transport header are
+> > > dropped, and non-GSO ones get their checksum completed in place.
+> > > Such packets used to pass with the metadata unvalidated,
+> > > and with no overhead.
+> > > 
+> > > I judge that this should not affect any deployments, but there is still
+> > > some risk that it does.  In case a deployment depends on them anyway,
+> > > provide a per-netns switch to get the old behavior back:
+> > > 
+> > > echo 0 > /proc/sys/net/core/virtio_net_hdr_csum_check
+> > > 
+> > > The default is validating.
+> > > 
+> > > Assisted-by: LLM
+> > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > > ---
+> > >  Documentation/admin-guide/sysctl/net.rst | 15 +++++++
+> > >  include/linux/virtio_net.h               | 23 ++++++++++
+> > >  include/net/netns/core.h                 |  1 +
+> > >  net/core/dev.c                           |  6 +++
+> > >  net/core/net_namespace.c                 |  1 +
+> > >  net/core/sysctl_net_core.c               | 54 ++++++++++++++++++++++++
+> > >  6 files changed, 100 insertions(+)
+> > > 
+> > > diff --git a/Documentation/admin-guide/sysctl/net.rst b/Documentation/admin-guide/sysctl/net.rst
+> > > index e586e17fc7a5..7f230929c37e 100644
+> > > --- a/Documentation/admin-guide/sysctl/net.rst
+> > > +++ b/Documentation/admin-guide/sysctl/net.rst
+> > > @@ -246,6 +246,21 @@ processes are dropped unless socket option SOF_TIMESTAMPING_OPT_TSONLY is set.
+> > >  Default: 1 (on)
+> > >  
+> > >  
+> > > +virtio_net_hdr_csum_check
+> > > +-------------------------
+> > 
+> > Make more generic, virtio_net_hdr_validate?
+> > 
+> > In case we add more validation in the future (as we have in the past),
+> > without having to introduce multiple such knobs.
 > 
-> The connector reset hook is overloaded: it is called both at probe
-> time to create the initial software state and during suspend/resume to
-> reset hardware and software state. These two roles have different
-> requirements, and the reset hook is not fallible, making error
-> handling difficult for the initial state allocation path.
+> But it's uapi, are you sure we'll be able to change the meaning
+> of an existing knob, even if we keep the name vague?
 > 
-> [...]
+> > > +
+> > > +When processing packets with a virtio net header (through tun, tap, a
+> > > +packet socket or a virtio network device) that request checksum offload
+> > > +(VIRTIO_NET_HDR_F_NEEDS_CSUM), validate the packet: complete the checksum
+> > > +in software, or drop the packet where the header does not match it.
+> > > +
+> > > +When disabled, the header is trusted not to corrupt the packet, and the
+> > > +checksum is offloaded to hardware (or not verified if it never reaches
+> > > +hardware). This is only safe if no protocol is processing the packets.
+> > > +
+> > > +Default: 1 (on)
+> > > +
+> > > +
+> > >  wmem_default
+> > >  ------------
+> > >  
+> > > diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+> > > index 357115ff0ec2..aa2f8ac4657c 100644
+> > > --- a/include/linux/virtio_net.h
+> > > +++ b/include/linux/virtio_net.h
+> > > @@ -5,6 +5,7 @@
+> > >  #include <linux/if_vlan.h>
+> > >  #include <linux/ip.h>
+> > >  #include <linux/ipv6.h>
+> > > +#include <linux/jump_label.h>
+> > >  #include <linux/netdevice.h>
+> > >  #include <linux/udp.h>
+> > >  #include <net/gso.h>
+> > > @@ -78,6 +79,19 @@ static inline struct iphdr *virtio_net_ip4_parse(struct sk_buff *skb,
+> > >  	*thoff = nhoff + iph->ihl * sizeof(u32);
+> > >  	return iph;
+> > >  }
+> > > +/* Defined in net/core/dev.c, enabled while any network namespace
+> > > + * has net.core.virtio_net_hdr_csum_check set to 0.
+> > > + */
+> > 
+> > Should this be a global sysctl, rather than per netns?
+> 
+> 
+> For customers I work with, it would be much less useful.
 
-Applied to misc/kernel.git (drm-misc-next)
+Third option: make it an integer rather than a boolean.
 
-[02/75] drm/adp: Switch to drm_atomic_helper_connector_create_state
-        commit: db1de27aca30ebaad04aea74ac21e4c4fb531a37
+0: no validation
+1: current level of validation
+2 and beyond: if we have to extend it later
 
-Thanks!
-Maxime
+Not pretty, I'll admit. So fine to keep as is too if you prefer.
+But I do foresee more changes in this area, if history is a guide.
+ 
+> 
+> > Even if per-netns, most likely do not want it writable by netns root
+> > with user namespaces.
+> >
+> > That is the equivalent of ns_capable(CAP_NET_RAW), which is the cause
+> > of many crashes due to bad packets ingested by, e.g., a packet socket.
+> 
+> Hmm, yes i get that. Two knobs? a. verify b. the per netns value ro? Both
+> on by default?
+
+A single system wide field is simplest.
+
+Is there a benefit to making this configurable on a per netns basis?
+
+If so, that's fine too. As long as root-in-namespace cannot modify it,
+so readonly indeed.
+
