@@ -1,69 +1,69 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F2E1582BAD
-	for <virtualization@lists.linux.dev>; Fri, 16 Oct 2026 17:51:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FC7859B687
+	for <virtualization@lists.linux.dev>; Fri, 16 Oct 2026 17:55:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792173093; cv=none; b=ia52TaUsN8dH9K0VYDatk3XhsrMf8ImkcliLAoURAKxDvbgpyAJEpS+HkyVmjd1M0d4yF5vBlwPQHIyASIBRuoAbTdEvgYsuKnNF+/neIWmwyJ/xCOmMzvv3LpPp9WvoPjL6rZjydNEik3oLgkHkKjucSJ6NPlbg9ckOlI2BBc0=
+	t=1792173348; cv=none; b=u1mvIblRWntohBL1O4ng/rE3qwPtK9V94AMtTNhX0Meq1Pyb5lEFgDBRIYSrl0sraYMZg8GIawAqkFPEIZGZqB6/7RjWYfMotz0E6mC6pX7Hf5iyose+05sUI10mQFZpKDSnBQV9Vp8Bdbs02e/VDB3LpGAsEzaINFgfVlYEnOg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792173093; c=relaxed/simple;
-	bh=mcjHbTCaVayfmlcAGqrGUKY2cLvBM1brbv0Ml34HCNY=;
+	s=arc-20240116; t=1792173348; c=relaxed/simple;
+	bh=5DybD1Tbpk1GikeDoJ8i2R2iG8V80RyWmQDskHZlcnw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=uMRvCBEzQWUxHjnG2jk84K0jJTEkJTevn8PePgCxdrVdKvTqh73RiINIbv8OuoyxNVqySEKlAhQuYtkcrCgZsFKsmf4cU4i2zSmwim1YRhEdiHuYqAh24/BmzPOToANvY//tl/Y4pOZ7R/IrQ+/oDEauUkeR0OU3TrhVmENG83Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=URkt+nKM; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=fFqgkuNyLVon7f46kvS8WLlpR0PSRsPtCwwAQEiM25DmKxort86kFk4CbnjT3IO0KSJQ2L7r7BJzMPwgixBAuHpL4oGk47qVuC+g7PIA3evyBoDzMblIK2BfcmHYKKnCat8fzFD2GB5VNxBlHKGu2F7mQX8hEpozI3VEbI4yK+4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MWI9mIVh; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="URkt+nKM"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MWI9mIVh"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1792173090;
+	s=mimecast20190719; t=1792173345;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=W74nlXHsz1uD6EVItToAyocJ9byMIagIgs9+oTaSxM0=;
-	b=URkt+nKMg4bQJ8PyQICVZF3Mmnbjp3FnerYtIIrbaZ5IAAYI+DkkT2bxbvRvIoRNGxZkPH
-	B3i7hoDybQYYpn9nq91Zlb2tdIDRd1bL+s+aOxTDOWasY1RGvxFKrZZV2n0it7XDsjWKiC
-	W/mNrlEvFbJ9ZHfBTgK3TLOSdsRAS1M=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=lHt5KpPRaIkz6Iofzx7O/ncMQH6iA1GowXt5Lm3sQMQ=;
+	b=MWI9mIVhq7GNF6/BB0g+dCmt6YoJ9eKHUfX8MdQaRS6NBeNsU06VHakBdl5azrBBZWmxoO
+	WKaKiktjqjr3x+mddgFWYFnVJETuTdv0JC0I80NpJvJ4tVbm//3lHQBPPS5b4pWTH/qaqN
+	cQAQDA7FyRnY2yTsIe0T3Q3dQAoMAF8=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-265-Dm_uSsB8NNC-QTOaNFzCqQ-1; Fri, 16 Oct 2026 17:51:29 +0000
-X-MC-Unique: Dm_uSsB8NNC-QTOaNFzCqQ-1
-X-Mimecast-MFC-AGG-ID: Dm_uSsB8NNC-QTOaNFzCqQ_1792173088
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-48c4f6f66dfso34678f8f.3
-        for <virtualization@lists.linux.dev>; Fri, 16 Oct 2026 10:51:29 -0700 (PDT)
+ us-mta-711-swtgE_tdP-SzhCeiE-I50A-1; Fri, 16 Oct 2026 17:55:43 +0000
+X-MC-Unique: swtgE_tdP-SzhCeiE-I50A-1
+X-Mimecast-MFC-AGG-ID: swtgE_tdP-SzhCeiE-I50A_1792173343
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4a1d7663a4dso1584405e9.2
+        for <virtualization@lists.linux.dev>; Fri, 16 Oct 2026 10:55:43 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792173088; x=1792777888;
+        d=1e100.net; s=20260707; t=1792173342; x=1792778142;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=W74nlXHsz1uD6EVItToAyocJ9byMIagIgs9+oTaSxM0=;
-        b=dKWH7dlkeXZ4nk2Ovn5W9zvznn2d9VsN2DUZEq5UBaO09o1oQIssUY9FJw8+g8lEuF
-         fuGxTsCkORi3i+Kae99ESf5IaKgGet7+6uHUtMiwuZMCNBGDTAEWwExLu7wWMxert5UX
-         vN3p8f6TXrulDsMYQiYuQ2dzhUrEDPV9Ab7UdCrrZrWTf2Zb9NgKY7R1Kgz/iyKCKkcL
-         OpUTmcbOLUwJo8SewfLh7WTjefgfahohuyyjtngfaPvZlP4q2bouURooCEWy4SoZb6OK
-         YN3bgw3YgVZ1W7JEeuQPN67jBZne4g0N19HMVpXH/W5x6ELcerU7PNxw3YSSK0clAmY1
-         2ohA==
-X-Forwarded-Encrypted: i=1; AKwUvByy624EnjscE75Sdlie2fTgwEsQCeOFOsC+vc8w3Uesaid6hqs6L1poxZZuuNmrKd5wgXeC0MEiZOf12VIP3w==@lists.linux.dev
-X-Gm-Message-State: AFq9FYL1PZr9x+x0ZBi6X+7esd8J1HECLnzexgz5J76wkNck3WKsCbkb
-	FIrP0m62JYseTolcTE4+dsCZGOlq++N6lzX/G597nZeatjwcCBvjNQnU0SfZfIZQ9JxT5fEFhgA
-	K97aqeDJCuStZpdD2I53YlczBDlUMtxGZ1wyRkFXMwN21bzs7r1rZdWvS40lGSPKSGS+A
-X-Gm-Gg: AYBFou2MoggnvfcFFDVfK2P40SNMVYfQUw5LSWvdwrchbJ++m62wadzrZZKJ0FSKAl/
-	pkvr08jn2oG4BJ+EI1gzAMiiu2t3xsqGo9+TDpC51kYL2Z3BqiUymb0CVy5IwoWszKrF6PILotY
-	lqBprJCNtBeHTtQdpFwt0qYp9EFv5zKYc6lVwPH+18B+cMqS3QUocBqcL1LAnwL8buFBIBcTeHI
-	oTmVt24LoVNfyafyMZfl5Z+46B3Q/t4POgKGlqBu/RVneuEVWA0+tvlhQA9RdB94Dmk9+gWhiCy
-	41bh/T2rTd6zjVi/MMgFxWNFF+xxakg+4dNdaA5zmZK7sfYuWrDZAKRAtM6pflWsy3SZH+8=
-X-Received: by 2002:a05:6000:40e1:b0:48b:1c:d6e1 with SMTP id ffacd0b85a97d-48e07f9ebc9mr605350f8f.43.1792173087861;
-        Fri, 16 Oct 2026 10:51:27 -0700 (PDT)
-X-Received: by 2002:a05:6000:40e1:b0:48b:1c:d6e1 with SMTP id ffacd0b85a97d-48e07f9ebc9mr605297f8f.43.1792173087273;
-        Fri, 16 Oct 2026 10:51:27 -0700 (PDT)
+        bh=lHt5KpPRaIkz6Iofzx7O/ncMQH6iA1GowXt5Lm3sQMQ=;
+        b=EmwjbaXlUjg7yvIBgVWuinpJkbk+2uxce68RgFpTpL6/rI3vzsvytrDUy6mPOFXxVn
+         kpEFQstO2ASYmcL/f8PEGosncslvrZCRTww1UJliaKwXcu2yKaKndt3KCwyhpbOMccuo
+         C0FazVyEzvP9GbCbHzof5Hee5KlGeq+UJjG1uhYVh5zaDubg5Oh957JUc/4+LqmhnW94
+         nqwSAkR973mycOQhr79/aN1L418JOS5AS+30azDjJ8h/sxCL9lJJ8+S8pgB5R2BfAAMI
+         Nf6hbUciFTtNmseZ3bWJfzRyMJ4/9uR9QLsh315DgiKDxYk0iVdWSrb0Y7iA1QqRbewJ
+         EFnA==
+X-Forwarded-Encrypted: i=1; AKwUvByv0Rgzx6Wsh9nlpJBzBrOV9r4jyAcFF/HpeckHS7aPUyChlS5W4LSyHvdIaLDG+a7fdDAapES4BOgnLYGXnA==@lists.linux.dev
+X-Gm-Message-State: AFq9FYIQlpWTGe8fWa77A3GQMcd+NBoG/Uio/LH4B+/2QILvkSVjNXsg
+	o6PnrbPNGkdhwPjOw9YhN2/R1cmhr73AxBkLSvUFPDGc0nfuCkoqqwi/LE6IR9IgMJjCd80cipQ
+	1Zls0xKMcP8oTTN4H9gxulGKVluaqNKBaWlvLRUs4w58hxQbm4zehKMQjgai1tBkf8nut
+X-Gm-Gg: AYBFou03mo+Q1EvMsKvCEQv18HcV+bSbw/x9YSd5QVzI9Z6db1LLxHQn6uY0J13a9m9
+	4RuiPUPfEW20DH6j8q2pyjHmEXLPM0odXBo6zS5vIcGT5bzkYNSq0GYjGgSkzR6W1uP6A1DY8FB
+	uCRSj3QYRxePJ/Nv4Xifv9La5nYWtYe0E/Wx8juqh28WoGAiBpXbsOeKsqToEZ4jYpAiQu5gvwq
+	2RRnY2okr2voEIO0HZM1Ard6/0rtowSXFGytWQWMUpregqngXd6xAGuJvh0G2k90MGcMGWEJM8g
+	32EcwIm8zBLmRNITt8it8vEjwJ0iVndNS68EYIoASHEQERylF0nV1KNPdo8BD6MmjYi4LiM=
+X-Received: by 2002:a05:600c:19cd:b0:4a1:96cd:2f67 with SMTP id 5b1f17b1804b1-4a1d75ce2damr12964265e9.4.1792173342595;
+        Fri, 16 Oct 2026 10:55:42 -0700 (PDT)
+X-Received: by 2002:a05:600c:19cd:b0:4a1:96cd:2f67 with SMTP id 5b1f17b1804b1-4a1d75ce2damr12963785e9.4.1792173342046;
+        Fri, 16 Oct 2026 10:55:42 -0700 (PDT)
 Received: from redhat.com ([2a06:c701:73fb:d100:601d:d7d4:d03f:527b])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48dfe4d2321sm6861579f8f.19.2026.10.16.10.51.24
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48dfd4ecac3sm7072454f8f.27.2026.10.16.10.55.39
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 16 Oct 2026 10:51:26 -0700 (PDT)
-Date: Fri, 16 Oct 2026 13:51:21 -0400
+        Fri, 16 Oct 2026 10:55:41 -0700 (PDT)
+Date: Fri, 16 Oct 2026 13:55:36 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
 Cc: linux-kernel@vger.kernel.org, Jason Wang <jasowangio@gmail.com>,
@@ -82,7 +82,7 @@ Cc: linux-kernel@vger.kernel.org, Jason Wang <jasowangio@gmail.com>,
 	Simon Horman <horms@kernel.org>, linux-doc@vger.kernel.org
 Subject: Re: [PATCH net-next v2 5/7] net: add a sysctl to opt out of virtio
  net hdr checksum validation
-Message-ID: <20261016134823-mutt-send-email-mst@kernel.org>
+Message-ID: <20261016135328-mutt-send-email-mst@kernel.org>
 References: <cover.1792067836.git.mst@redhat.com>
  <ad05a40681719a579691a1da6413f0dd7064f2a0.1792067836.git.mst@redhat.com>
  <willemdebruijn.kernel.3a7d04e1c306e@gmail.com>
@@ -96,7 +96,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 In-Reply-To: <willemdebruijn.kernel.1d7ce6b64753a@gmail.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: ffY0_dzIWxqdB04bxS2yhlE5_aYOhcyaldUAE8_e6yc_1792173088
+X-Mimecast-MFC-PROC-ID: 18ON6tSBezMEoypozI6CQIimn9HZClDYugZxc1CndxY_1792173343
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -196,7 +196,13 @@ On Fri, Oct 16, 2026 at 11:30:17AM -0400, Willem de Bruijn wrote:
 > 0: no validation
 > 1: current level of validation
 > 2 and beyond: if we have to extend it later
-> 
+
+
+Oh that's an interesting idea. Issue: userspace learns about 1, then
+someone sets it to 1 thinking this is the highest level and in fact
+disables some security.
+
+
 > Not pretty, I'll admit. So fine to keep as is too if you prefer.
 > But I do foresee more changes in this area, if history is a guide.
 >  
@@ -213,24 +219,7 @@ On Fri, Oct 16, 2026 at 11:30:17AM -0400, Willem de Bruijn wrote:
 > A single system wide field is simplest.
 > 
 > Is there a benefit to making this configurable on a per netns basis?
-
-As I tried to explain: a specific container breaks, you decide to trust it,
-you do not need to trust all.
-
+> 
 > If so, that's fine too. As long as root-in-namespace cannot modify it,
 > so readonly indeed.
-
-
-Right. So I envision along the lines of:
-
-net.core.virtio_net_hdr_validate_all - validate packets from any netns,
-netns root can not change it, only host root
-
-net.core.virtio_net_hdr_validate - per netns
-
-
-both set by default, validation runs if either is set.
-
--- 
-MST
 
