@@ -1,150 +1,77 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55CE9595726;
-	Thu, 15 Oct 2026 20:26:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A427E3932C3;
+	Fri, 16 Oct 2026 02:10:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792096012; cv=none; b=B2GrSxkXGKhH15LJzx3WOem3nDiiNB4/Zmobc4Fl8itpUAwRjB6OzktH6Hf0GH8trYaG5gU0CKqHc11BpfiPllTKqpl5UICJewcVjsuUAQRjq8GmrIE+FDuMZBrDAUc9NH9omJ6KC4nCB351OLj6keFRTe3kV+YvBXy6cGouwrE=
+	t=1792116610; cv=none; b=ZX3OUsXFXMQWp+wjKnqTj9KpCxuUa2JT3mXvgvCpqDzlLbdR9wW3pgSuBmvfAFD3db4RRuxTkRyxqxz+ffQtU7cVUjrZKi0E/TXGt6T+iDoyvXLy6eCmbzwsrLHXGoE3gwJJPfoYEi9xekvfIZkGAPbeZH+LLyaWqIZJ7tsqt9k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792096012; c=relaxed/simple;
-	bh=E7Fv6ywQrgDjUslqsRvtfwPAj5PC8aBG+CjXR5SO+3o=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=VSwZbjux8kKFg3Era8K7mA8D9Y1d6nMQOeWPBwIvhQggKkupPmZPnyGcqzTM8EjhrbN/4AI1nC6/0+LYw4aHGkPvii+yLoA010b5/3w4PFWf8tK+NERfqKR9dmVh5jgP8OFtR9gdEavdbZtCPFLaZn8hBtOMybLBaiYJziZl8uM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=N+HLQ7e1; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1792116610; c=relaxed/simple;
+	bh=fA/o53KYLGOvle9N618z1weHZaWaXTsHzIs1Es+mMMg=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=aAh9ZszOmLEvc2qb/sxU/pBSuEI5onkXeBwzhQ16gd3meD4kG8sqKnJcf8HHHyk99YCQ4ofBWTbTbkHOMhLUJ+t5nk/Q1Tx4MIr4WtTBoObMrPTOtMaiXTBFltkqY5SIte+NqoIJgIGl5fBzGbgXeNfd4XkyT0/R9r/a9xC8D3s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bdZ9LgV6; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="N+HLQ7e1"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C18A1F000C5;
-	Thu, 15 Oct 2026 20:26:46 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bdZ9LgV6"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 827011F000C5;
+	Fri, 16 Oct 2026 02:10:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792096006;
-	bh=0krRJ91DC1JqaPy8p2BdLjkFZFB7uv6gz8otZz1lamA=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=N+HLQ7e1/GmU6TH/sE5snhDqVs0LO1RDZRPntxffBQMKi04UqKufzmuLAlkNPh72J
-	 OAruwhzav97R+HmhSGt3eVBMD7LK8UohREB88Awf7tXwUqiWzSh2P+ohmzYQTW3XBS
-	 k17ihrL+LD8u1Ny2SoWsuX7mtYGNIK4HAdPLaMhohFrjZjAg056/nQxZ8mDZrXbR0q
-	 kDfmv04b4VZlHe5/KhwnwCYHqpmMyaMa0i4F3pPxFQMQ7KHipk1wnHQDuTnjJjy/65
-	 UcFRaRMdXvCBSNhKGeA0/RF7yEkTc/heJJdwdaxn98ekWuPDlivbjWEDPgNgtCBGgR
-	 5M1crv539nYqA==
-Date: Thu, 15 Oct 2026 20:26:44 +0000
-From: Eric Biggers <ebiggers@kernel.org>
-To: Linlin Zhang <linlin.zhang@oss.qualcomm.com>
-Cc: mst@redhat.com, jasowangio@gmail.com, axboe@kernel.dk,
-	stefanha@redhat.com, pbonzini@redhat.com, eperezma@redhat.com,
-	xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev,
-	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v4 2/2] virtio_blk: add inline encryption support
-Message-ID: <20261015202644.GA2317081@google.com>
-References: <20261009041727.3170811-1-linlin.zhang@oss.qualcomm.com>
- <20261009041727.3170811-3-linlin.zhang@oss.qualcomm.com>
+	s=k20260515; t=1792116609;
+	bh=b8G3sVwNZ2QwLUMQDu2Zjc5gj35BMegihtMvY0bgkOc=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc;
+	b=bdZ9LgV6msXdENuFpA+QItIeFYwtbSwsKZyvsWL61E1f5XjVTXMw+9JODAw/yOhhz
+	 pFcLrg9AqAUWK/vEJiM2OcjwYzs+KWzxFz70VBjL0iCUJRbDVTJl2RtZuHdt5kvFwu
+	 uYMOzNT8/RCBKGd7YD7YToFXNoGudsLIuqcSGwO7bBoDC9y1wcpHeC/URgRu58PuSp
+	 QKo6EO6x+iQpiEX9A8WfGQC/kSVA+cIKR34pZMOy55110SG7fABK+oVnrI0DrjjCkR
+	 Y6hGEGdJSA6SQ0C3yxzS6Ra1Ear+wYZqRcbjOQXtN3jqO8WD5OC7+uD838MCh8U8Lf
+	 NL6RUCUxN8NVA==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 774663808209;
+	Fri, 16 Oct 2026 02:10:09 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261009041727.3170811-3-linlin.zhang@oss.qualcomm.com>
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net] MAINTAINERS: add Bobby Eshleman as vsock reviewer
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <179211660802.15365.12535976672551564151.git-patchwork-notify@kernel.org>
+Date: Fri, 16 Oct 2026 02:10:08 +0000
+References: <20261012-add-maintainers-v1-1-ef0488f460db@meta.com>
+In-Reply-To: <20261012-add-maintainers-v1-1-ef0488f460db@meta.com>
+To: Bobby Eshleman <bobbyeshleman@meta.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev,
+ kvm@vger.kernel.org, pabeni@redhat.com, edumazet@kernel.org,
+ sgarzare@redhat.com, kuba@kernel.org, stefanha@redhat.com, mst@redhat.com,
+ linux-kernel@vger.kernel.org, bobbyeshleman@gmail.com
 
-On Thu, Oct 08, 2026 at 09:17:14PM -0700, Linlin Zhang wrote:
-> +config VIRTIO_BLK_INLINE_ENCRYPTION
-> +	tristate "Virtio block inline encryption support"
-> +	depends on VIRTIO_BLK && BLK_INLINE_ENCRYPTION
-> +	help
-> +	  Say 'Y or M' here will allow the virtio block driver to route crypto
-> +	  requests to a different operating system in a virtualized
-> +	  environment. This is useful to encrypt the data stored in the storage
-> +	  by using storage inline crypto engine. The control queue feature bit
-> +	  must be negotiated to enable this functionality.
-> +
-> +	  If unsure, say N.
+Hello:
 
-This should be a bool, not a tristate.  (Since it controls the inclusion
-of a feature in a module, rather than the inclusion of a module.)
+This patch was applied to netdev/net.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
 
-> +#if IS_ENABLED(CONFIG_VIRTIO_BLK_INLINE_ENCRYPTION)
-> +static int virtblk_get_crypto_modes(struct virtio_blk *vblk,
-> +				    unsigned int *crypto_modes_supported)
-> +{
-> +	unsigned int nr_modes = VIRTIO_BLK_CRYPTO_MODE_MAX + 1;
-> +	struct scatterlist type_sg, resp_sg, status_sg, *sgs[3];
-> +	struct virtblk_ctrl_request *creq;
-> +	unsigned int i;
-> +	int err;
-> +
-> +	creq = kzalloc_obj(*creq, GFP_KERNEL);
-> +	if (!creq)
-> +		return -ENOMEM;
-> +
-> +	creq->type = cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_GET_CRYPTO_MODES);
-> +
-> +	sg_init_one(&type_sg, &creq->type, sizeof(creq->type));
-> +	sg_init_one(&resp_sg, &creq->in_resp.modes, sizeof(creq->in_resp.modes));
-> +	sg_init_one(&status_sg, &creq->status, sizeof(creq->status));
-> +	sgs[0] = &type_sg;
-> +	sgs[1] = &resp_sg;
-> +	sgs[2] = &status_sg;
-> +
-> +	err = virtblk_ctrl_vq_request(vblk, creq, sgs, 1, 2);
+On Mon, 12 Oct 2026 12:58:08 -0700 you wrote:
+> I've been reviewing vsock via lore+lei for a while now.
+> 
+> Finally adding myself as a formal reviewer, since vsock will continue
+> being stuck with me for the foreseeable future.
+> 
+> Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
+> 
+> [...]
 
-What happens if the host follows a future version of the spec and wants
-to return more than VIRTIO_BLK_CRYPTO_MODE_MAX modes?
+Here is the summary with links:
+  - [net] MAINTAINERS: add Bobby Eshleman as vsock reviewer
+    https://git.kernel.org/netdev/net/c/191aa41548b2
 
-> +static int virtblk_crypto_keyslot_program(struct blk_crypto_profile *profile,
-> +					   const struct blk_crypto_key *key,
-> +					   unsigned int slot)
-> +{
-> +	struct virtio_blk *vblk = virtblk_from_profile(profile);
-> +	struct scatterlist type_sg, out_req_sg, status_sg, *sgs[3];
-> +	struct virtblk_ctrl_request *creq;
-> +	int err;
-> +
-> +	mutex_lock(&vblk->vdev_mutex);
-> +	if (!vblk->vdev) {
-> +		err = -ENXIO;
-> +		goto out_unlock;
-> +	}
-> +
-> +	/*
-> +	 * GFP_NOIO: this callback runs on the bio-submission path, which
-> +	 * memory reclaim can reach while writing back dirty pages to this
-> +	 * same device; GFP_KERNEL here could recurse into that same reclaim
-> +	 * and self-deadlock.
-> +	 */
-> +	creq = kzalloc_obj(*creq, GFP_NOIO);
-> +	if (!creq) {
-> +		err = -ENOMEM;
-> +		goto out_unlock;
-> +	}
-> +
-> +	creq->type = cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_CRYPTO_KEYSLOT_PROGRAM);
-> +
-> +	err = set_virtblk_crypto_key_desc(vblk->vdev, creq, key, slot);
-> +	if (err)
-> +		goto out_free;
-> +
-> +	sg_init_one(&type_sg, &creq->type, sizeof(creq->type));
-> +	sg_init_one(&out_req_sg, &creq->out_req.key_desc, sizeof(creq->out_req.key_desc));
-> +	sg_init_one(&status_sg, &creq->status, sizeof(creq->status));
-> +	sgs[0] = &type_sg;
-> +	sgs[1] = &out_req_sg;
-> +	sgs[2] = &status_sg;
-> +
-> +	err = virtblk_ctrl_vq_request(vblk, creq, sgs, 2, 1);
-> +	if (err == -ETIMEDOUT)
-> +		goto out_unlock;
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-Is the -ETIMEDOUT handling really correct?  This basically turns this
-into an asynchronous operation; the host might still complete it later.
 
-> +/* Must be >= BLK_CRYPTO_MAX_HW_WRAPPED_KEY_SIZE in include/linux/blk-crypto.h */
-> +#define VIRTIO_BLK_CRYPTO_MAX_KEY_SIZE		128
-
-Does this value really need to be exposed in a UAPI header?  As
-documented in the comment above BLK_CRYPTO_MAX_HW_WRAPPED_KEY_SIZE, it's
-supposed to be possible to increase it if ever needed.  This change
-takes away that flexibility by making the current (somewhat arbitrarily
-chosen) value part of the UAPI.
-
-- Eric
