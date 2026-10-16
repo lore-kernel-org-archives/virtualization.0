@@ -1,266 +1,283 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 686C937B010
-	for <virtualization@lists.linux.dev>; Fri, 16 Oct 2026 14:42:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792161779; cv=none; b=g3uIlQBF9OtnDuRUT2XiSgn04I9hDw8HuX0cHSuP0SoS3HYdaMahMDo1WeADjHr80ajY/xckWJQrsr8Ktf8DoDaF070bVsTUxwEjZ8YzNW/yd2aDwqbX33jF7wBkBpDBS2KWpjTEBTIz2m22gEB0CCfao9MwImHdoOQ3FDYVXuU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792161779; c=relaxed/simple;
-	bh=6nU0p7akGtqHdSMO8WKU+bNNm8kXt03xfgcKKZOrDGg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=JWThHp+utNC62u/f9QBI3T/IGQUC3zI5ZM5oxe8Dw4Vckxda87bh62aaAdhHxRrR4xqfh/LXtk2zNx+IeBWUPDBC6KoAvLAcLEUgYRCR36t0g0wO59QITWNmMw9vIUvVFZnhB7PgswonhR0I7kV5+4k09ZpNYX+UIgftKcpGd50=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HHciLtqm; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C97238A72C
+	for <virtualization@lists.linux.dev>; Fri, 16 Oct 2026 14:55:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=192.198.163.13
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1792162514; cv=fail; b=tQR/U3n6FzQxCyUN5YzdRmGazg0GbPH52INxWV6SuoWqQQvOak/140ES2DnH+S0aipVa9m9WSavR0I0a32KJsqu8RAhoJKir6admkW8o2UMOBj6PznIeZG7zkOuCblqF+lLpLrfu2GbVEt/8XwhN/pnS0vXBP6vEb23GiqpFmiQ=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1792162514; c=relaxed/simple;
+	bh=PP84QFxmxAezp6Ng2TRyStYqcvYhso67aBuL312Upng=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=dHUw5ZBwf68Tj2n89dIsuqilWKGlUzMReKY8yiSQYnIAF7uYyBTaQ9Cg3ztxEg5VGRUAqQuMzVlziCXoUDrGL4irC//81IL8QH434o9WG12B7j4GmmIL2LLEADnwO8Eg9YIi+Tqu23GRxUlrRIoVzziVXRrnTsD4H51VIeCzrN8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=JHcAj0dg; arc=fail smtp.client-ip=192.198.163.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HHciLtqm"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1792161777;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ad1yI/+jctmjqADu5rjo+cKNGx7OsfvQXcHn8HUJncA=;
-	b=HHciLtqmTO/ELZWzIXynGhD9uLQCyY9pczGPy8Q4v2LekvKIa57k6Ip3k/ddH0AkRK7ZSw
-	n05U3sXVkkL+dtZIMz2KcrT07k+Do72J17+bvj3j+80XsEnFi7VeuiY/QXZS6jHynT2fQL
-	OdxaEimSenepOc1ryPsngodfowaYjlY=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-223-A6_ZjTRXMt6itf7ggOI1zQ-1; Fri, 16 Oct 2026 14:42:54 +0000
-X-MC-Unique: A6_ZjTRXMt6itf7ggOI1zQ-1
-X-Mimecast-MFC-AGG-ID: A6_ZjTRXMt6itf7ggOI1zQ_1792161773
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-48e0389d6f9so204169f8f.1
-        for <virtualization@lists.linux.dev>; Fri, 16 Oct 2026 07:42:54 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792161773; x=1792766573;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=ad1yI/+jctmjqADu5rjo+cKNGx7OsfvQXcHn8HUJncA=;
-        b=nwfqJVutFV0ollEZkD340pBbRTkj8z+ondWRs2R2d65PwPVOWoI4S7rTXaCeEgtFLe
-         zcb/vOIt4i8fco7jUe6AkLBgRmfzFEs3wCdSJQzeypoA46PfhhHg5d4g3g9AAoZhi3el
-         dwdlSwDDnKao9cxB/mDHYLKHB/UgjAEFjOem92jLyDf6HmqPVINH2JFAQlxI+B76w2rH
-         VIhiuH6gHxst5pleIObD9vTBfBm0x24MYJL37BOKMTA58xIfjJ4fe7KoUMHiw37/K0sk
-         oHvSRglgtu83YOUluOfnMGUDo89XeBSdkW2F6+l8R+HyQnm1Li6CG4k9H0YdhaxVcTD/
-         bbdQ==
-X-Forwarded-Encrypted: i=1; AKwUvBw+5UdWH96DkMTMhVUPWdhDRPQsAbwAKnyhBHyMTt+mPKPPeAAZVs988lRqaAWUwuuW+no+LvPtkD0DW9IsqA==@lists.linux.dev
-X-Gm-Message-State: AFq9FYL+ope/owJCfYE5ke8RAbrhW3XeNNjP8BequUniwwCF4RZlUeFn
-	AqhySyBDJnee5paS8uGVhnzfKc8/CcuminsS1kBTCP4RGngRh9m/MPj+h3FpY2JIBPF0nyyPr+G
-	gpGU0Qvvnz4IsB4qZjvLequD4JNytzMhOSDEVwFaeg23ZmzYCd6QgH0wUNz5ACrdcf4PT
-X-Gm-Gg: AYBFou3dCc+9MV98SG0aOARlIwuWYgzxktxREtfqkkLx2+7gYgNqIXOZgGDnHq4zgOF
-	QXUgv+t+YtEdv4QDDVohHyC2L3i50iSUW/s9ArJxv6fSgtitQodxsy9II24h4DRN4fr3NCkDj6g
-	1ddOJ89ip3l3Vg4TuvFLoa4ipQbq4qHo2IU2YLyJgBG1PXd72J39zjeQjjsbZ6yw7gZ41RVIda5
-	bmlmwNe24OQz7RlTXCdgJJu5KXBLOttf+xIQdqKwTXE7HluhF6SmMR/Fz3Rc4RiemfW3w16v+E7
-	MNOCxqBcMDK+BPXONRwigFeMPP8T5LwiMdrjQ/Xdk3TkTNFW+zpFUwFiPoOFHbFT/Yrl8/qv63f
-	qtuzy
-X-Received: by 2002:a5d:55c8:0:b0:48c:7d67:8ee5 with SMTP id ffacd0b85a97d-48dbaae35c2mr34270738f8f.43.1792161773058;
-        Fri, 16 Oct 2026 07:42:53 -0700 (PDT)
-X-Received: by 2002:a5d:55c8:0:b0:48c:7d67:8ee5 with SMTP id ffacd0b85a97d-48dbaae35c2mr34270691f8f.43.1792161772592;
-        Fri, 16 Oct 2026 07:42:52 -0700 (PDT)
-Received: from sgarzare-redhat ([80.116.137.133])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48dfd50d1bcsm5554362f8f.54.2026.10.16.07.42.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 16 Oct 2026 07:42:51 -0700 (PDT)
-Date: Fri, 16 Oct 2026 16:42:49 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Jia Jia <physicalmtea@gmail.com>
-Cc: stefanha@redhat.com, mst@redhat.com, jasowangio@gmail.com, 
-	eperezma@redhat.com, xuanzhuo@linux.alibaba.com, davem@davemloft.net, 
-	edumazet@kernel.org, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, 
-	virtualization@lists.linux.dev, kvm@vger.kernel.org, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, bobbyeshleman@gmail.com
-Subject: Re: [PATCH net-next v4 4/4] vsock/virtio: defer RX notifications
- until batch unlock
-Message-ID: <atI3neoHXhgiEpYJ@sgarzare-redhat>
-References: <20261014115640.184286-1-physicalmtea@gmail.com>
- <20261014115640.184286-5-physicalmtea@gmail.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="JHcAj0dg"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1792162513; x=1823698513;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=PP84QFxmxAezp6Ng2TRyStYqcvYhso67aBuL312Upng=;
+  b=JHcAj0dg0INHtfgy3IZgvopYyk4c5FJsVhK9qUWQWGJza//ppbFsRvdc
+   b4VXZgdOtkdfvPKc4IrlYLa/9Ra/uk1dmzejW3wEU/ntIfxYLOLQqHRLa
+   odOTHLnzajV7Uph9czFVmt/modhtAGCr4kTgAOOKCahsbcOLlIVA8PbgC
+   lZQRFK0EoDYjrUFylHqlxxRNC4TozOqgpBh4SQlfq/2b/a6yEsJkqbnz8
+   HDnIt3h4nxVdohu31Gxc2d5gDO0KK9dOKrR2iJKMrt3MsZS9wHY+xOiK7
+   j141i5TRGsEVBTATyMUxHJtkyuXxx7J1Mp8koX+Zo1sS2ntpvaRJScq9E
+   Q==;
+X-CSE-ConnectionGUID: J/fe52j0RaOyPdRRCDwpVg==
+X-CSE-MsgGUID: udJspcRHQS2f97wyA1Nz6w==
+X-IronPort-AV: E=McAfee;i="6800,10657,11936"; a="930194"
+X-IronPort-AV: E=Sophos;i="6.27,161,1787036400"; 
+   d="scan'208";a="930194"
+Received: from orviesa003.jf.intel.com ([10.64.159.143])
+  by fmvoesa107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Oct 2026 07:55:12 -0700
+X-CSE-ConnectionGUID: FP1TXN7SQf2tvZJ8xi+xFg==
+X-CSE-MsgGUID: Q0RZsOFDRc2by275OpA2pg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,161,1787036400"; 
+   d="scan'208";a="1939813"
+Received: from orsmsx901.amr.corp.intel.com ([10.22.229.23])
+  by orviesa003.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Oct 2026 07:55:11 -0700
+Received: from ORSMSX902.amr.corp.intel.com (10.22.229.24) by
+ ORSMSX901.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.49; Fri, 16 Oct 2026 07:55:11 -0700
+Received: from ORSEDG901.ED.cps.intel.com (10.7.248.11) by
+ ORSMSX902.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.49 via Frontend Transport; Fri, 16 Oct 2026 07:55:11 -0700
+Received: from CH1PR05CU001.outbound.protection.outlook.com (52.101.193.51) by
+ edgegateway.intel.com (134.134.137.111) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.49; Fri, 16 Oct 2026 07:55:10 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=C/ieIR9nIIJcQxCTM/CI8pI4kgYXfbUKGAJt4MRbyV+MoOjeD8cjBiPbGwP5V7xoAWnR3zVfgrNqotXgJFNlDWoH2Aq8h1hUbw5slyCbaXm9y9rv83BQ2/5A0B9FpWoaBGySpct4cnpQAJXIwVZobOGl2sYp0syXb0vYaLEiFM5W0QVNixNzldKlGc4s4y3UTwBvRZoh7YWi11fWClpP5punuge3ExG0KM9xzaXIwjBuRAkJHZkwQRUeLsRJ9XFFjrJATRrMQIFcxAN+Y4cbZ0klMrxGi6NzQi3sl33AuBwnc6slPn2cR+4rTi4ddZp3tppyOpGidFpZzK/Qoyi+Yg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=+IkQs+TyzLkUWZ0hh0yFmm02Frs1t2BjbpQXeOXplVk=;
+ b=qBY8alQn1GLHslXCZNy/mN0/ahHb0rubSBj8SfOeJBBDJ95TEZ2lzkxh3B+pDoHnkvlxRW21GM5d/FjcnjkoZArPGn0xU8VgN3KllQ16mvRYXFcfgtYl2WTKGbReb/Y7zQ8CneF98pz53/ofChhZ9ije0ffGFQSBUFfu/Nyj8+MGI+lxk4LrSGPnwn2X/9mOEulta0e+tFswdEcd0Ym31wNerigj6cKg+WX26z6xxevVVOF77Crn+T2AmokHo/VuPiYq7TWpqHSTxdOxVYVlZ2vpyrswf4+8vNNvDb0Lwr7DReT8rNQSOOgnGiX8SU20umi/gWSQv5Pj7IsakEQMuw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from LV2PR11MB6070.namprd11.prod.outlook.com (2603:10b6:408:179::22)
+ by DSVPR11MB9695.namprd11.prod.outlook.com (2603:10b6:8:351::5) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.496.23; Fri, 16 Oct
+ 2026 14:55:08 +0000
+Received: from LV2PR11MB6070.namprd11.prod.outlook.com
+ ([fe80::4c84:af62:dc60:fd9]) by LV2PR11MB6070.namprd11.prod.outlook.com
+ ([fe80::4c84:af62:dc60:fd9%5]) with mapi id 15.21.0522.013; Fri, 16 Oct 2026
+ 14:55:08 +0000
+From: "Popov, Pavel E" <pavel.e.popov@intel.com>
+To: Bjorn Helgaas <helgaas@kernel.org>, Logan Gunthorpe <logang@deltatee.com>
+CC: Jim Chow <jim.chow@broadcom.com>, Bjorn Helgaas <bhelgaas@google.com>,
+	Radu Rugina <radu.rugina@broadcom.com>, Alexey Makhalov
+	<alexey.makhalov@broadcom.com>, Wei Liu <wei.liu@kernel.org>, Michael Kelley
+	<mhklinux@outlook.com>, Leon Romanovsky <leon@kernel.org>, Lukas Wunner
+	<lukas@wunner.de>, "Rafael J. Wysocki" <rafael@kernel.org>, Nathan Ciobanu
+	<nathan.d.ciobanu@linux.intel.com>, "bcm-kernel-feedback-list@broadcom.com"
+	<bcm-kernel-feedback-list@broadcom.com>, "virtualization@lists.linux.dev"
+	<virtualization@lists.linux.dev>, "linux-hyperv@vger.kernel.org"
+	<linux-hyperv@vger.kernel.org>, "linux-pci@vger.kernel.org"
+	<linux-pci@vger.kernel.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH 0/2] PCI/P2PDMA: Allow P2PDMA in VMware and Hyper-V guests
+ on Intel hosts
+Thread-Topic: [PATCH 0/2] PCI/P2PDMA: Allow P2PDMA in VMware and Hyper-V
+ guests on Intel hosts
+Thread-Index: AQHdWASZkl/0se0hWEKzOo9DW5a5oLb1bsyAgAATn4CAAAJWMIAACQKAgAAB5iCAAkgrAIACGMTQgAArlwCAAACJAIAAIDMAgAAQuKCAARyrAIAE4THw
+Date: Fri, 16 Oct 2026 14:55:07 +0000
+Message-ID: <LV2PR11MB60704D89055FBC471FF81B31B29B2@LV2PR11MB6070.namprd11.prod.outlook.com>
+References: <20261009180847.GD11438@unreal>
+ <LV2PR11MB6070D3FCBC3EAED4FA0191EFB2922@LV2PR11MB6070.namprd11.prod.outlook.com>
+ <20261009184923.GE11438@unreal>
+ <LV2PR11MB60707DAD12BFBEAB681463B7B2922@LV2PR11MB6070.namprd11.prod.outlook.com>
+ <20261011054700.GF11438@unreal>
+ <LV2PR11MB60708F76EB7D6E5A40E82853B29F2@LV2PR11MB6070.namprd11.prod.outlook.com>
+ <20261012162410.GH219304@unreal>
+ <DS7PR11MB6064DA61339B9AB0F52EBED4B29F2@DS7PR11MB6064.namprd11.prod.outlook.com>
+ <20261012182120.GJ219304@unreal>
+ <DS7PR11MB60647FA80C6BE1029982222DB29F2@DS7PR11MB6064.namprd11.prod.outlook.com>
+ <20261013122002.GN219304@unreal>
+In-Reply-To: <20261013122002.GN219304@unreal>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: mx.microsoft.com 1; dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: LV2PR11MB6070:EE_|DSVPR11MB9695:EE_
+x-ms-office365-filtering-correlation-id: d3ce050d-ca08-45a7-57a0-08df2b957871
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230040|376014|7416014|1800799024|366016|23010399003|11063799006|5023799004|4143699003|22082099003|56012099006|18002099003|6133799003|38070700021|10067099003;
+x-microsoft-antispam-message-info: 7+K+Jh91aweKx2u33CKu4pGo4p3QhEZLEXXTnser6LFB8YZO7ck00fOz51QFb2+Q5v3xX35Glw3s7a5q/KyXKyV+IMZDkNHp0YbFSV6bioWksnoLGVjO9kMiwa8Xh6/UnturXX7n9zWsmP789g4Ali0Xwe1fXGC5geeKx8jN6PlQ39P4+aCOQ1rVpgA4JzrRl0hxFCW7VK4oDV+loxOZToodqNPvegUdOajbYt+2dRHs9MY3nXbOYQVkWeNmk6lhlY6b7NOCyMfWaZIMwuXx6Q04q8WaHMhSNzIsZS9VnXQVoGGq6mXKCAXIU9oJNVN+BUC7zVSBkRdNjg2P7ygsga1VrOtTzzFAfw68Tn9qZid8EEaHMkAef75/MY4Eabs6jrZKb8ulizFIOp5Vn8ePXz7EmC2WXDBAuEC96Sn10CpNkvDiM4+fv2EFZIqGPa3cIFnI0OkHqwFfdkwiKTbzzPgAm+XgAEnSk7v6zQhmj3K/Mh3E+yjW8Q53zCJRFNXFxMhpRG81tvxjzN0yrtGyNGzKNk6Iq2hJ3xBGtkvz/ipR8AgG0BM+SQQzG0eCCDkYNxl9AaZhqav8w1F8f9D6EFv22smMRDdmxeg6YKwFOusDOipibHBvKtKR73fgbO5jL3EVGXPcLst4WfISQPhrxOSZNMgVbKFBOhbKt8rqOC5/nNH3OuvEYe3ZBjIKl36shAJQpo0ik3OFEmZ+Za+IC+Q7vO0LzmPvRjWtttS3AWU=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR11MB6070.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(1800799024)(366016)(23010399003)(11063799006)(5023799004)(4143699003)(22082099003)(56012099006)(18002099003)(6133799003)(38070700021)(10067099003);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?PrlFHFLe1f+0ZKclQGoVnRaDPEZ0cJUAr4MLlTTcALwjuHJKJhZWBbytv1ct?=
+ =?us-ascii?Q?BY/QoxzykqbOTlnW9CJrxnWpmHxrWvsLVkylwFHs27V2Ztk7KPp6pknNJL85?=
+ =?us-ascii?Q?4e7JkF5UeYHw4eZRTRChN3D2LBeQBqofXVHDzgOoEKWeGsCp489pZ7T79O1W?=
+ =?us-ascii?Q?BAqRPVtU3eIeEcIZ2HCIfVc5EcXZX4cYvjfqn6YbZaO6J9DK8LiC2I/21PJe?=
+ =?us-ascii?Q?O1IKTf9xATm+xNDrIx936Qh7+Bok4TO3Op/637NrcKiEpfJOSn1f2YZq9uLA?=
+ =?us-ascii?Q?mYQ0YDEAtyNVTDHKsQ5GrNRuo8thYiWnCDTfSh3s+DTOCRrC5+mmjFjTdAFE?=
+ =?us-ascii?Q?w0tCN+dIdDacbvEVLnx+e77MW5W/f2SEmevTLxLKV00uE0oXptySJUCA8i0M?=
+ =?us-ascii?Q?FKiSWF/oJQ0Tv/JCKN7xWId7QueSuPZtHYH1+o4dopbZkT5ta74sz0KoRi98?=
+ =?us-ascii?Q?XOg027tnX4XXZjusonDKTLGasfY/zAIqtFAPp3Cj+hIVd8jOlXUjkNONWQ9s?=
+ =?us-ascii?Q?U7C28XS+UikAqlYEDz/YSRBQlqqCUn9BTUQVwFJEMYb3+OcbZlcXExDTwsBc?=
+ =?us-ascii?Q?mvXgPFgOaO5d1ozy5X89YTSSSNJqusAy9AkbOTPKzK319e6sKk6FH3IvrrL/?=
+ =?us-ascii?Q?mGP7UkDO9jykb9JZomvayjiHl+QjbJLnBr+s+FUFGiHgcR2B+wo5CGXVUxbJ?=
+ =?us-ascii?Q?W/sKelDBbEst0vHUA870m5qYrIQgarbnKYKM1sHaLjAjh4as3Xaqvs4LtnLL?=
+ =?us-ascii?Q?IwHCV7wDTGo08XyldvY6kxcijQ5TemlyMh3+Rmjuq0EMnUfutG+K42VDPgOj?=
+ =?us-ascii?Q?a64+frKrv3BlmGIrSzJAXUeuk1s8M4H7dwCbo7zKIbQeZlrBwawYsfNYwarW?=
+ =?us-ascii?Q?vONPvD/jzxtkc9Pq+Suqjt8qCSPC8lKDxvEhhPWNGK21edYKt3x9U7UlmkLK?=
+ =?us-ascii?Q?8ZJj+mDtTRebOCta1vr95cWF4dYdsZ1hzwZzFtfrlfRYkwetuGU4RsvTnQJQ?=
+ =?us-ascii?Q?AFrBGPiQ0Bm5XgF1mLSHXShAK2mIZWXSv2lIlb3L9ngYtEzyv0xSm0FaqGjb?=
+ =?us-ascii?Q?sRg/IXm4E9LRZAmsTeJDgxa6c6v1Ra997JTL7qe4oWxpghvSdmFUNWJAQlg8?=
+ =?us-ascii?Q?LjOG3bjCCGs9yHy8YhZnMbgGWltNfYP/QLg8XPQKsCJWQwUkj63XA9ZBT1QG?=
+ =?us-ascii?Q?GfjHlMmc/6C52jPDDOyTIESR5OGQnqjWLsI/fHra4q7GeT8qJSYWkDgxaOiE?=
+ =?us-ascii?Q?hlGh+AlZHWyuWVUt8z78NrF/BAUgml0Aay7i1Aw62XUV803ZkpShrEvX/dlq?=
+ =?us-ascii?Q?qJXMnH40RW5V73pBvBphRpJ1TDO4SuEZFwqIYd4a7POzj5xuv74ogtVnfkwz?=
+ =?us-ascii?Q?Cg+mFbLUjKgJFIO40/d/kGT5/PiUAyfNlgSvVaU0xBHUWv3iyiKwmk/6mbRo?=
+ =?us-ascii?Q?4v/II/GwMYllxmDDxyabVlV686uK1G4AQUP58KaMtGQDMINkX3dtIiAMV74L?=
+ =?us-ascii?Q?5irwwfpKrbKnxRFJ7TaHFwlKCWzYWI25Tp9ZIfQay5CfNmZzkKctRjfUJVr6?=
+ =?us-ascii?Q?I5ZnPL7jruCiZfDx+kIwmZ1j6/+NoLQLQ51t2Dr+c3tWbRQQ22Ta2+IzFNxA?=
+ =?us-ascii?Q?X0q8Jl8qiBiOwQgd179XcI44M7PtPERSFVW9jN0AYuBJmDLMBjHPeaTJRUlu?=
+ =?us-ascii?Q?vcTrqsI4u5Wc6QDU+7MDNiiVzHqtIFCwtTElw7W7RO34ZmQOxx0Vj2UaIK+Y?=
+ =?us-ascii?Q?k9pOdInkZA=3D=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20261014115640.184286-5-physicalmtea@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Fg8YJvbzaaIwlYAzNkYnZYmSLG7mzdjt5R4_1m1_zYc_1792161773
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+X-Exchange-RoutingPolicyChecked: qHERCpkdTuLAjIg48NN5Q9J8OtVPUkg8VNYO8jReH8mBHoj0ASmJAfMWgWZa5B/bfxjRy/IzwXzNuwvwNX1ZrT1M/MJjMZsdPrALOXfyn8/MVx0tjnjXkkjIIqH2VCRC4eREOHM9K8D8si81zDB4cCEZrCcDo0jpXxk8VTWwx6CHvRCWPxqXTudw7aPwVECppV5IOW8hCDjKOqH2ScmNE7rE95LT+CbH2KZAleYqixY/suYo3pLCNtgoRMKKdVAeZVzS8Nad5CSd3t/tGQ60ZbqyOkhgP/sPsXQXYKCaMjpMXDZ9Ku/vWE666YxrK7zbww+Hyfz8CuGzVp9nUujWiQ==
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR11MB6070.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: d3ce050d-ca08-45a7-57a0-08df2b957871
+X-MS-Exchange-CrossTenant-originalarrivaltime: 16 Oct 2026 14:55:08.0212
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: fagNfIsy3XkdBZ/X/P3m3jXQZ400IlSCcAxWjeZwncqWOJCy8Qa1JVvBuOVGzVE1kUX/hlbREGaLUu/ZrRvoGA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DSVPR11MB9695
+X-OriginatorOrg: intel.com
 
-On Wed, Oct 14, 2026 at 07:56:40PM +0800, Jia Jia wrote:
->An RX batch can make a socket readable while the worker still holds its
->socket lock. Waking a blocking reader then only moves it to waiting for
->the same lock.
->
->Record the existing low-watermark condition and notify once after
->release_sock(). Move the coalesced write-space notification after the
->unlock as well, since both callbacks wake sk_sleep(sk). Deliver
->write-space before data-ready and keep the lookup reference until both
->callbacks complete.
->
->As with write-space, save the initial sk_data_ready callback and batch only
->while both saved callbacks remain installed. Sockets with replaced
->callbacks retain their per-packet behavior.
->
->The existing psock-marker check also covers a concurrent sockmap attach:
->at most the already admitted packet completes on the native path, and the
->next packet ends the batch.
->
->Signed-off-by: Jia Jia <physicalmtea@gmail.com>
->---
-> include/linux/virtio_vsock.h            |  1 +
-> include/net/af_vsock.h                  |  5 ++--
-> net/vmw_vsock/af_vsock.c                |  1 +
-> net/vmw_vsock/virtio_transport_common.c | 35 ++++++++++++++++++-------
-> 4 files changed, 31 insertions(+), 11 deletions(-)
->
->diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
->index bf077ee0ded88..f1396ca3ad9b5 100644
->--- a/include/linux/virtio_vsock.h
->+++ b/include/linux/virtio_vsock.h
->@@ -288,6 +288,7 @@ struct virtio_transport_rx_batch {
-> 	unsigned int pkts;
-> 	size_t bytes;
-> 	bool write_space_pending;
->+	bool data_ready_pending;
-> };
->
-> void virtio_transport_recv_pkt_batch(struct virtio_transport *t,
->diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
->index 9a40960d10cbe..78bab5820f528 100644
->--- a/include/net/af_vsock.h
->+++ b/include/net/af_vsock.h
->@@ -64,9 +64,10 @@ struct vsock_sock {
-> 	bool sent_request;
-> 	bool ignore_connecting_rst;
-> 	/*
->-	 * Initial callback, used to identify replacements and deliver deferred
->-	 * write-space notifications.
->+	 * Initial callbacks, used to identify replacements and deliver deferred
->+	 * notifications.
-> 	 */
->+	void (*default_data_ready)(struct sock *sk);
-> 	void (*default_write_space)(struct sock *sk);
->
-> 	/* Protected by lock_sock(sk) */
->diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
->index fe7f49da6c4bc..f40659ec29df0 100644
->--- a/net/vmw_vsock/af_vsock.c
->+++ b/net/vmw_vsock/af_vsock.c
->@@ -958,6 +958,7 @@ static struct sock *__vsock_create(struct net *net,
-> 		sk->sk_type = type;
->
-> 	vsk = vsock_sk(sk);
->+	vsk->default_data_ready = sk->sk_data_ready;
-> 	vsk->default_write_space = sk->sk_write_space;
-> 	vsock_addr_init(&vsk->local_addr, VMADDR_CID_ANY, VMADDR_PORT_ANY);
-> 	vsock_addr_init(&vsk->remote_addr, VMADDR_CID_ANY, VMADDR_PORT_ANY);
->diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->index f4b5f0230493e..8b62b789b71c5 100644
->--- a/net/vmw_vsock/virtio_transport_common.c
->+++ b/net/vmw_vsock/virtio_transport_common.c
->@@ -1588,7 +1588,8 @@ virtio_transport_recv_enqueue(struct vsock_sock *vsk,
->
-> static int
-> virtio_transport_recv_connected(struct sock *sk,
->-				struct sk_buff *skb)
->+				struct sk_buff *skb,
->+				bool *data_ready_pending)
-> {
-> 	struct virtio_vsock_hdr *hdr = virtio_vsock_hdr(skb);
-> 	struct vsock_sock *vsk = vsock_sk(sk);
->@@ -1607,7 +1608,13 @@ virtio_transport_recv_connected(struct sock *sk,
-> 			vsock_remove_sock(vsk);
-> 			break;
-> 		}
->-		vsock_data_ready(sk);
->+		if (!data_ready_pending) {
->+			vsock_data_ready(sk);
->+		} else if (!*data_ready_pending &&
->+			   (vsock_stream_has_data(vsk) >= sk->sk_rcvlowat ||
->+			    sock_flag(sk, SOCK_DONE))) {
->+			*data_ready_pending = true;
->+		}
-> 		return err;
-> 	case VIRTIO_VSOCK_OP_CREDIT_REQUEST:
-> 		virtio_transport_send_credit_update(vsk);
->@@ -1820,6 +1827,7 @@ virtio_transport_recv_pkt_batchable(struct virtio_transport *t,
-> 	return sk->sk_state == TCP_ESTABLISHED &&
-> 	       sk->sk_type == SOCK_STREAM &&
-> 	       READ_ONCE(sk->sk_prot) == sk->sk_prot_creator &&
->+	       READ_ONCE(sk->sk_data_ready) == vsk->default_data_ready &&
-> 	       READ_ONCE(sk->sk_write_space) == vsk->default_write_space &&
-> 	       !sock_flag(sk, SOCK_DONE) &&
-> 	       vsk->transport == &t->transport &&
->@@ -1830,8 +1838,9 @@ virtio_transport_recv_pkt_batchable(struct virtio_transport *t,
-> /*
->  * The caller holds sk's socket lock.  Set @batchable if the socket can remain
->  * locked for another ordinary STREAM/RW packet.  When @batch is non-NULL,
->- * record a default write-space notification for batch finish instead of
->- * delivering it immediately.  Return true if the caller must free @skb.
->+ * record default write-space and data-ready notifications for batch finish
->+ * instead of delivering them immediately.  Return true if the caller must
->+ * free @skb.
->  */
-> static bool
-> virtio_transport_recv_pkt_locked(struct virtio_transport *t,
->@@ -1883,7 +1892,9 @@ virtio_transport_recv_pkt_locked(struct virtio_transport *t,
-> 		kfree_skb(skb);
-> 		break;
-> 	case TCP_ESTABLISHED:
->-		virtio_transport_recv_connected(sk, skb);
->+		virtio_transport_recv_connected(sk, skb,
->+						batch ?
->+						&batch->data_ready_pending : NULL);
-> 		break;
-> 	case TCP_CLOSING:
-> 		virtio_transport_recv_disconnecting(sk, skb);
->@@ -1957,27 +1968,33 @@ EXPORT_SYMBOL_GPL(virtio_transport_recv_pkt);
-> /*
->  * Finish the RX batch.
->  * For a non-empty batch, the caller holds the socket lock acquired with
->- * lock_sock(). Deliver any deferred write-space notification while the lock
->- * is held, then release the lock and the batch's lookup reference.
->- * An empty batch is a no-op.
->+ * lock_sock(). Release the lock, deliver any deferred write-space and
->+ * data-ready notifications in that order, then drop the batch's lookup
->+ * reference. An empty batch is a no-op.
->  */
-> void virtio_transport_rx_batch_finish(struct virtio_transport_rx_batch *batch)
-> {
-> 	bool write_space_pending = batch->write_space_pending;
->+	bool data_ready_pending = batch->data_ready_pending;
-> 	struct sock *sk = batch->sk;
->
-> 	batch->sk = NULL;
-> 	batch->pkts = 0;
-> 	batch->bytes = 0;
-> 	batch->write_space_pending = false;
->+	batch->data_ready_pending = false;
->
-> 	if (!sk)
-> 		return;
->
->+	release_sock(sk);
->+
+Bjorn, Logan,
 
-Why in the previous patch we release the socket after calling 
-default_write_space() and now we are moving before?
+Could you consider taking this series despite the NAK, for two reasons:
 
-> 	if (write_space_pending)
-> 		vsock_sk(sk)->default_write_space(sk);
->
->-	release_sock(sk);
->+	if (data_ready_pending)
->+		vsock_sk(sk)->default_data_ready(sk);
->+
-> 	sock_put(sk);
-> }
-> EXPORT_SYMBOL_GPL(virtio_transport_rx_batch_finish);
->-- 
->2.53.0
->
+- Parity: Linux gives AMD guests preferential treatment
+- No alternative: the HMAT solution doesn't exist in Linux yet
 
+Thanks,
+Pavel
+
+> -----Original Message-----
+> From: Leon Romanovsky <leon@kernel.org>
+> Sent: Tuesday, October 13, 2026 5:20 AM
+> To: Popov, Pavel E <pavel.e.popov@intel.com>
+> Cc: Bjorn Helgaas <helgaas@kernel.org>; Jim Chow <jim.chow@broadcom.com>;
+> Bjorn Helgaas <bhelgaas@google.com>; Logan Gunthorpe
+> <logang@deltatee.com>; Radu Rugina <radu.rugina@broadcom.com>; Alexey
+> Makhalov <alexey.makhalov@broadcom.com>; Wei Liu <wei.liu@kernel.org>;
+> Michael Kelley <mhklinux@outlook.com>; Lukas Wunner <lukas@wunner.de>;
+> Nathan Ciobanu <nathan.d.ciobanu@linux.intel.com>; bcm-kernel-feedback-
+> list@broadcom.com; virtualization@lists.linux.dev; linux-hyperv@vger.kern=
+el.org;
+> linux-pci@vger.kernel.org; linux-kernel@vger.kernel.org
+> Subject: Re: [PATCH 0/2] PCI/P2PDMA: Allow P2PDMA in VMware and Hyper-V
+> guests on Intel hosts
+>=20
+> On Mon, Oct 12, 2026 at 08:01:40PM +0000, Popov, Pavel E wrote:
+> > > Please read all of my responses. I was explicit about why the check
+> > > inside the guest VM produces random results. However, your responses
+> > > continue to focus on the guest, which is not the problem.
+> >
+> > Fair, my earlier replies were about the guest. Taking the host-side
+> > points in turn:
+> >
+> > 1. Host topology decides P2P, the guest cannot see it, and the patch
+> >    says "yes" for every pair regardless.
+> >
+> >    The topology is accounted for where the knowledge is: on the host.
+> >    Which devices land in one VM is decided by the admin, from devices
+> >    VMware has certified for passthrough in the Compatibility Guide,
+> >    and on vSphere 8+ by Device Groups, which hands devices sharing a
+> >    switch or interconnect to a VM as a topology-aware group. Hyper-V
+> >    has no equivalent grouping; DDA is plain passthrough, each device
+> >    assigned to the VM explicitly by the admin.
+> >
+> >    The blanket "yes" is not new either. On bare metal the flags =3D 0
+> >    whitelist entries say "yes" for any pair of Xeon Scalable root
+> >    buses, across sockets, with no knowledge of BIOS P2P settings. And
+> >    cpu_supports_p2pdma() already bypasses the host bridge check for
+> >    AMD Zen on CPUID alone, in guests included. This series gives Intel
+> >    hosts what the tree already does for AMD; if that is unacceptable
+> >    in principle, it is unacceptable for AMD guests today.
+>=20
+> If you had simply added Intel CPUs to the list of supported P2P devices, =
+I might
+> have been willing to accept that. However, you added these two lines:
+>=20
+> +	    (hypervisor_is_type(X86_HYPER_VMWARE) ||
+> +	     hypervisor_is_type(X86_HYPER_MS_HYPERV)))
+>=20
+> This makes your case quite different from AMD's. Their check was for hype=
+rvisor,
+> which leaked to VMs. And, yes, AMD does not work reliably in guest VMs ei=
+ther.
+> For our internal testing, we have carefully curated hypervisor configurat=
+ions and
+> test VMs, along with custom patches, to test P2P reliably.
+>=20
+> >
+> > 2. Regression: consumers that work today via a system-memory fallback
+> >    will take the P2P path and break on hosts that cannot route it.
+> >
+> >    A wrong "yes" fails safely: without host-side P2P the request is
+> >    stopped at the host IOMMU, nothing is corrupted, the same exposure
+> >    an AMD guest has today. An unconditional "no" is worse: it blocks
+> >    P2P on every host that does route it, and the guest's answer
+> >    changes nothing about whether the host routes it.
+> >
+> >    Xeon Scalable routes P2P between any two root ports, which the
+> >    whitelist already encodes. The only hypervisor-side requirement is
+> >    mapping the peer's MMIO into the VM's IOMMU domain, and that is
+> >    what passthrough P2P support means: on ESXi it was an explicit
+> >    per-VM setting for years and is the default since 9.0; Hyper-V does
+> >    it for devices assigned to the same VM, as tested on Windows Server
+> >    2025. The decision is made on the host; the guest only has to stop
+> >    vetoing it.
+> >
+> > 3. The hypervisor must describe it, HMAT is the way, NAK to anything
+> >    that does not fix the hypervisor first.
+> >
+> >    Agreed HMAT is the right source and should take precedence: consult
+> >    it first, this check only where no HMAT exists. The disagreement is
+> >    on "first". Guests on already shipped ESXi and Hyper-V releases
+> >    will never get HMAT, and those stay in production for years; the
+> >    cover letter's note on the adoption timeline was written with
+> >    VMware's input, and Jim can speak to it. Until a hypervisor emits
+> >    HMAT, this fallback is the only path that works.
+>=20
+> This is VMware's problem, not the upstream kernel community's. If VMware
+> considers P2P important and its customers agree, VMware can upgrade.
+>=20
+> It is no different from any other kernel feature.
+>=20
+> Thanks
+>=20
+> >
+> > Thanks,
+> > Pavel
+> >
