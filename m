@@ -1,218 +1,186 @@
-Received: from mail-vk1-f170.google.com (mail-vk1-f170.google.com [209.85.221.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2187E4EBAE1
-	for <virtualization@lists.linux.dev>; Fri, 16 Oct 2026 15:30:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AEAC4BFE9E;
+	Fri, 16 Oct 2026 15:31:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792164621; cv=none; b=AEAWMiI4N23sXgsiriRiRwdwWdt0k8btYUA7ZCzyvmUKBmcva5qf/l91RbZvx4upZUxRP3uJNoWAiPUNf28aJaew7JPReqRkKyV7p8Mh+LXM76lWqQ0qzavMKe8iGoyqszg090jFMNTQPJzZkqOLrXkZhFAwLkogjfMveEV1NBo=
+	t=1792164713; cv=none; b=KABo8M5MaO2y0+h61oiQH1FjTGyqnhvM6zSWOEdIeoMXwZ9DX+zNCDWSDNk2wa4PSLdMWRvkiBYMR3ZBQDMj9B+ZtlihdtNnw0ALQ27Egadq5vvBat2qkofBi7OAkVs8YDKCZieD9ZbCsZDdlBJWdWnb7GWBS3uvx90nERSA5Bg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792164621; c=relaxed/simple;
-	bh=IMgRqh7P9bFjG3FfvNoeXAv6Y2588Kxr8DTOqxdoKgw=;
-	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
-	 MIME-Version:Content-Type; b=nlpIGCo0sndsCzLawH3ma61/NBIzxPW5MMOAXy13TEAmEVDekAjmU4teT3IBD/paPkYAnukPXTM/7iu9SJRRe4vNs8mz6YlaxYkWhJyJTcspDm0rrt4hVkm24zvtzvusp57W+SmDNpAd+uceV8qKXbsWX0uvmDe1CDH5d195Rh0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=sXZcCt8s; arc=none smtp.client-ip=209.85.221.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1792164713; c=relaxed/simple;
+	bh=WIg4HHnEjUHVsNSP6Ww9skvAZqJEB3it+BKgjcJjFnQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=AQgWvYZPt8Cz/y0XeLY2uWc891at9j3gF6Y0OuTdEDTUmyALviTV723ZyiLuPPwCbC3t05zG5R2LKZPJ8kh85A6SKbSJW337KMTFbuc4RP1TyF61imE33aINdt51kwX8gJbawe31HgiCU11z4QfG1OIi0xORLvcM3YxfTp2v54I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RAJMcmMZ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sXZcCt8s"
-Received: by mail-vk1-f170.google.com with SMTP id 71dfb90a1353d-5e9528732b4so27595e0c.0
-        for <virtualization@lists.linux.dev>; Fri, 16 Oct 2026 08:30:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792164619; x=1792769419; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:mime-version:subject
-         :references:in-reply-to:message-id:cc:to:from:date:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=EzgDhar5zkz19hBJENwPklhUs01SGYbuNfu08NDtMCg=;
-        b=sXZcCt8s+tQ/QDkgaBD4dPTfJxqzkkVoz8oAodUx9oLbQ3oEN0kSM1ZeS8pTRb8776
-         vCFHtHflm8MDLQqzVbfIHT9ht79GKROwoo0qAoTWLnjgYqIOQTeOhTpIvCxKpvM6qw44
-         Mnpr1vjY9U8LCQVIAAFdSNwFN0IsgpeRtmz+ba5HZZkegMgXL55+cSTqZMejPhU0YH41
-         BLpgxPgE5kl8QGIkd3HEp8yzzlROCbUuUpEOvB5ROHSVuRiOJtQFg4/XaHFkhQ03AG6p
-         u4Lm5VwjsFAPFHkm3/Dg99GT8djN7m4558eicHtlNwmtqF918H+/YNEXmXvtUKWBfDGK
-         ANdw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792164619; x=1792769419;
-        h=content-transfer-encoding:content-type:mime-version:subject
-         :references:in-reply-to:message-id:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=EzgDhar5zkz19hBJENwPklhUs01SGYbuNfu08NDtMCg=;
-        b=VDIasKHee7gedcdOBF/SFogNux3JnJv5XVuYu3nBQt7NZwxYnzFu2iHuTGJ8AraI/j
-         RsitJl1WI/Ii9IlRnZV7kbFOmm3I7mw/0NhLPhPcGjbzQaNKrbfrmz7xRxJV0KM58LgY
-         i7Nf7uYQk9tDkJBOkCUr72t2ctG//kIrnTvJo3r+/XFvxzZNPmxcjJjSxdt5f+ziU+oy
-         ZFo4SFqis5AXDOx7uadjzQOtScmEUu4ui14VoQYQRO7JhqyTWjKEpdJfukqaHoRKkwcE
-         0r7anYHXyOOl1c72Btrr/tNWVO7pSTON9EKsImUoF9xQgVzKogsmMf6v8eb5h93ZgV+g
-         FgRg==
-X-Forwarded-Encrypted: i=1; AKwUvBxUH0hgtWm6YKaa/2tQJC2q9X7yCFr7S4OYa7GI9RLqBqIr2YoU2PdDdjOexrJGo2+iN9Ado/DF0fmj73+JhA==@lists.linux.dev
-X-Gm-Message-State: AFq9FYJoikH5MARaNsYdXKlp/rOEdWW8FP7rmU4/A9zEmHGlcWd/IP7z
-	tliLnxMtyN7zS7uAIk4DD/PHMg6H4tvs4WBu1G+VzOoqpqEvF5iNjNNo
-X-Gm-Gg: AYBFou2c/9N2xxQtH3U2qmILdK5nJLZ7dj1TVsCeFVv3IrZOVQ6mM4xmPWbXhxm4h/B
-	yw985GSewzES6qN8EXxaZzPAZmRwn38/U26sXZ+vgdE5MXe7WXi4ApFJhzQjaRp9Agie/SVuPa8
-	L3xg2qd+ki4W4N8RXfDvWyl2XvXbpYeM9i/Q/gmExE7t9ghEH90ylgwwhp3Mo+KASEOOCpRsj7w
-	TlLrenjue5n5/2o1K3jtZ7brhQ751l1EVZoUhCMlbeBvAK9yCh6rUJmG/Izff2Majmf+HBVudY8
-	KYWCAzqK6QMfgAHvrFFPXgP5A/iUO6z1AZALIg4eV8oAxtabar8LlBlbcLS2w72/0W7UUuHTUol
-	6eCaE29SVpDk54qykZjSkuJofgx43zKOb1CgE58fuStqMVSguGzR+AJryuWkKuAFtmASw+NScwP
-	/0v3iC8oQ3Xz2YlIHhgY9lXvBSxO01umv0vgXFvlwfuNKNbq9Cu6ndwlie6b/TdzaKyCJXcXJ06
-	crgmb0yVfwkz7VC4+6KOAsjM9r40rfjY7Xen5GLMbCygn/KpG/Ft7tt9XR9zm6kqR+B3eSOl7Yx
-	bBGpNr1adbt/vRBpo66zbtl6R4fU6bUPbcocPQ==
-X-Received: by 2002:a05:6102:94a:b0:7cc:1ace:fd14 with SMTP id ada2fe7eead31-7cc1acf084bmr1323389137.33.1792164618748;
-        Fri, 16 Oct 2026 08:30:18 -0700 (PDT)
-Received: from gmail.com (111.46.245.35.bc.googleusercontent.com. [35.245.46.111])
-        by smtp.gmail.com with ESMTPSA id a1e0cc1a2514c-990833c2c2dsm1836983241.2.2026.10.16.08.30.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 16 Oct 2026 08:30:17 -0700 (PDT)
-Date: Fri, 16 Oct 2026 11:30:17 -0400
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>, 
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Cc: linux-kernel@vger.kernel.org, 
- Jason Wang <jasowangio@gmail.com>, 
- =?UTF-8?B?RXVnZW5pbyBQw6lyZXo=?= <eperezma@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- Andrew Lunn <andrew+netdev@lunn.ch>, 
- "David S. Miller" <davem@davemloft.net>, 
- Eric Dumazet <edumazet@kernel.org>, 
- Jakub Kicinski <kuba@kernel.org>, 
- Paolo Abeni <pabeni@redhat.com>, 
- netdev@vger.kernel.org, 
- virtualization@lists.linux.dev, 
- Rusty Russell <rusty@rustcorp.com.au>, 
- Max Krasnyansky <maxk@qualcomm.com>, 
- Jonathan Corbet <corbet@lwn.net>, 
- Shuah Khan <skhan@linuxfoundation.org>, 
- Randy Dunlap <rdunlap@infradead.org>, 
- Simon Horman <horms@kernel.org>, 
- linux-doc@vger.kernel.org
-Message-ID: <willemdebruijn.kernel.1d7ce6b64753a@gmail.com>
-In-Reply-To: <20261016051827-mutt-send-email-mst@kernel.org>
-References: <cover.1792067836.git.mst@redhat.com>
- <ad05a40681719a579691a1da6413f0dd7064f2a0.1792067836.git.mst@redhat.com>
- <willemdebruijn.kernel.3a7d04e1c306e@gmail.com>
- <20261016051827-mutt-send-email-mst@kernel.org>
-Subject: Re: [PATCH net-next v2 5/7] net: add a sysctl to opt out of virtio
- net hdr checksum validation
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RAJMcmMZ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5CA71F000C5;
+	Fri, 16 Oct 2026 15:31:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792164712;
+	bh=O++lRaIEQRbUIBBM+fguL1DG4G6XujE0EDIskOJl7YE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=RAJMcmMZB6D2PSQdNyM5K5a5nMW8gl6tEqgi1bPg+2E4Pc8MGPvf3QvuR/dbPAXIS
+	 mfpsKDzu0446eQsVk6Gqbln9NU1ogluBiOkRLb/Cnh2om9xSJoQ3C7d9Y9sJKuak7t
+	 A7UbaBFXB85c3uXYCTxTJaUNrfnRvsJY/YROoV10iKhcn6Z4iaCPIPglaVXF+JBz6c
+	 XNnsrqhgHrz+/miK661jCnkQUJdp9uPFXtl1ghA1kxjD5+/rubJrLX38PuFwyGiL5w
+	 9N/e4iYF6f/po9fzaFpkjzk+/v7C9H/8bKYseu0/Gfib7Pv/11lNGEdAfgbbyWpbHt
+	 ZGHS/7994etIQ==
+Date: Fri, 16 Oct 2026 18:31:47 +0300
+From: Leon Romanovsky <leon@kernel.org>
+To: "Popov, Pavel E" <pavel.e.popov@intel.com>
+Cc: Bjorn Helgaas <helgaas@kernel.org>,
+	Logan Gunthorpe <logang@deltatee.com>,
+	Jim Chow <jim.chow@broadcom.com>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Radu Rugina <radu.rugina@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>,
+	Wei Liu <wei.liu@kernel.org>, Michael Kelley <mhklinux@outlook.com>,
+	Lukas Wunner <lukas@wunner.de>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Nathan Ciobanu <nathan.d.ciobanu@linux.intel.com>,
+	"bcm-kernel-feedback-list@broadcom.com" <bcm-kernel-feedback-list@broadcom.com>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
+	"linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 0/2] PCI/P2PDMA: Allow P2PDMA in VMware and Hyper-V
+ guests on Intel hosts
+Message-ID: <20261016153147.GC219304@unreal>
+References: <20261009184923.GE11438@unreal>
+ <LV2PR11MB60707DAD12BFBEAB681463B7B2922@LV2PR11MB6070.namprd11.prod.outlook.com>
+ <20261011054700.GF11438@unreal>
+ <LV2PR11MB60708F76EB7D6E5A40E82853B29F2@LV2PR11MB6070.namprd11.prod.outlook.com>
+ <20261012162410.GH219304@unreal>
+ <DS7PR11MB6064DA61339B9AB0F52EBED4B29F2@DS7PR11MB6064.namprd11.prod.outlook.com>
+ <20261012182120.GJ219304@unreal>
+ <DS7PR11MB60647FA80C6BE1029982222DB29F2@DS7PR11MB6064.namprd11.prod.outlook.com>
+ <20261013122002.GN219304@unreal>
+ <LV2PR11MB60704D89055FBC471FF81B31B29B2@LV2PR11MB6070.namprd11.prod.outlook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <LV2PR11MB60704D89055FBC471FF81B31B29B2@LV2PR11MB6070.namprd11.prod.outlook.com>
 
-Michael S. Tsirkin wrote:
-> On Thu, Oct 15, 2026 at 01:50:54PM -0400, Willem de Bruijn wrote:
-> > Michael S. Tsirkin wrote:
-> > > The ingress validation as implemented by the previous
-> > > patch is stricter than what it replaced: GSO
-> > > packets whose checksum metadata matches no transport header are
-> > > dropped, and non-GSO ones get their checksum completed in place.
-> > > Such packets used to pass with the metadata unvalidated,
-> > > and with no overhead.
-> > > 
-> > > I judge that this should not affect any deployments, but there is still
-> > > some risk that it does.  In case a deployment depends on them anyway,
-> > > provide a per-netns switch to get the old behavior back:
-> > > 
-> > > echo 0 > /proc/sys/net/core/virtio_net_hdr_csum_check
-> > > 
-> > > The default is validating.
-> > > 
-> > > Assisted-by: LLM
-> > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > > ---
-> > >  Documentation/admin-guide/sysctl/net.rst | 15 +++++++
-> > >  include/linux/virtio_net.h               | 23 ++++++++++
-> > >  include/net/netns/core.h                 |  1 +
-> > >  net/core/dev.c                           |  6 +++
-> > >  net/core/net_namespace.c                 |  1 +
-> > >  net/core/sysctl_net_core.c               | 54 ++++++++++++++++++++++++
-> > >  6 files changed, 100 insertions(+)
-> > > 
-> > > diff --git a/Documentation/admin-guide/sysctl/net.rst b/Documentation/admin-guide/sysctl/net.rst
-> > > index e586e17fc7a5..7f230929c37e 100644
-> > > --- a/Documentation/admin-guide/sysctl/net.rst
-> > > +++ b/Documentation/admin-guide/sysctl/net.rst
-> > > @@ -246,6 +246,21 @@ processes are dropped unless socket option SOF_TIMESTAMPING_OPT_TSONLY is set.
-> > >  Default: 1 (on)
-> > >  
-> > >  
-> > > +virtio_net_hdr_csum_check
-> > > +-------------------------
+On Fri, Oct 16, 2026 at 02:55:07PM +0000, Popov, Pavel E wrote:
+> Bjorn, Logan,
+> 
+> Could you consider taking this series despite the NAK, for two reasons:
+> 
+> - Parity: Linux gives AMD guests preferential treatment
+
+This is misleading. You did not propose adding Intel processors to a whitelist,
+for example in `cpu_supports_p2pdma()`. Instead, you explicitly added a check
+for whether the system is running in a VM.
+
+> - No alternative: the HMAT solution doesn't exist in Linux yet
+
+This is not how open-source development works. Let's work together to find a
+solution that works for everyone.
+
+Thanks
+
+> 
+> Thanks,
+> Pavel
+> 
+> > -----Original Message-----
+> > From: Leon Romanovsky <leon@kernel.org>
+> > Sent: Tuesday, October 13, 2026 5:20 AM
+> > To: Popov, Pavel E <pavel.e.popov@intel.com>
+> > Cc: Bjorn Helgaas <helgaas@kernel.org>; Jim Chow <jim.chow@broadcom.com>;
+> > Bjorn Helgaas <bhelgaas@google.com>; Logan Gunthorpe
+> > <logang@deltatee.com>; Radu Rugina <radu.rugina@broadcom.com>; Alexey
+> > Makhalov <alexey.makhalov@broadcom.com>; Wei Liu <wei.liu@kernel.org>;
+> > Michael Kelley <mhklinux@outlook.com>; Lukas Wunner <lukas@wunner.de>;
+> > Nathan Ciobanu <nathan.d.ciobanu@linux.intel.com>; bcm-kernel-feedback-
+> > list@broadcom.com; virtualization@lists.linux.dev; linux-hyperv@vger.kernel.org;
+> > linux-pci@vger.kernel.org; linux-kernel@vger.kernel.org
+> > Subject: Re: [PATCH 0/2] PCI/P2PDMA: Allow P2PDMA in VMware and Hyper-V
+> > guests on Intel hosts
 > > 
-> > Make more generic, virtio_net_hdr_validate?
+> > On Mon, Oct 12, 2026 at 08:01:40PM +0000, Popov, Pavel E wrote:
+> > > > Please read all of my responses. I was explicit about why the check
+> > > > inside the guest VM produces random results. However, your responses
+> > > > continue to focus on the guest, which is not the problem.
+> > >
+> > > Fair, my earlier replies were about the guest. Taking the host-side
+> > > points in turn:
+> > >
+> > > 1. Host topology decides P2P, the guest cannot see it, and the patch
+> > >    says "yes" for every pair regardless.
+> > >
+> > >    The topology is accounted for where the knowledge is: on the host.
+> > >    Which devices land in one VM is decided by the admin, from devices
+> > >    VMware has certified for passthrough in the Compatibility Guide,
+> > >    and on vSphere 8+ by Device Groups, which hands devices sharing a
+> > >    switch or interconnect to a VM as a topology-aware group. Hyper-V
+> > >    has no equivalent grouping; DDA is plain passthrough, each device
+> > >    assigned to the VM explicitly by the admin.
+> > >
+> > >    The blanket "yes" is not new either. On bare metal the flags = 0
+> > >    whitelist entries say "yes" for any pair of Xeon Scalable root
+> > >    buses, across sockets, with no knowledge of BIOS P2P settings. And
+> > >    cpu_supports_p2pdma() already bypasses the host bridge check for
+> > >    AMD Zen on CPUID alone, in guests included. This series gives Intel
+> > >    hosts what the tree already does for AMD; if that is unacceptable
+> > >    in principle, it is unacceptable for AMD guests today.
 > > 
-> > In case we add more validation in the future (as we have in the past),
-> > without having to introduce multiple such knobs.
-> 
-> But it's uapi, are you sure we'll be able to change the meaning
-> of an existing knob, even if we keep the name vague?
-> 
-> > > +
-> > > +When processing packets with a virtio net header (through tun, tap, a
-> > > +packet socket or a virtio network device) that request checksum offload
-> > > +(VIRTIO_NET_HDR_F_NEEDS_CSUM), validate the packet: complete the checksum
-> > > +in software, or drop the packet where the header does not match it.
-> > > +
-> > > +When disabled, the header is trusted not to corrupt the packet, and the
-> > > +checksum is offloaded to hardware (or not verified if it never reaches
-> > > +hardware). This is only safe if no protocol is processing the packets.
-> > > +
-> > > +Default: 1 (on)
-> > > +
-> > > +
-> > >  wmem_default
-> > >  ------------
-> > >  
-> > > diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-> > > index 357115ff0ec2..aa2f8ac4657c 100644
-> > > --- a/include/linux/virtio_net.h
-> > > +++ b/include/linux/virtio_net.h
-> > > @@ -5,6 +5,7 @@
-> > >  #include <linux/if_vlan.h>
-> > >  #include <linux/ip.h>
-> > >  #include <linux/ipv6.h>
-> > > +#include <linux/jump_label.h>
-> > >  #include <linux/netdevice.h>
-> > >  #include <linux/udp.h>
-> > >  #include <net/gso.h>
-> > > @@ -78,6 +79,19 @@ static inline struct iphdr *virtio_net_ip4_parse(struct sk_buff *skb,
-> > >  	*thoff = nhoff + iph->ihl * sizeof(u32);
-> > >  	return iph;
-> > >  }
-> > > +/* Defined in net/core/dev.c, enabled while any network namespace
-> > > + * has net.core.virtio_net_hdr_csum_check set to 0.
-> > > + */
+> > If you had simply added Intel CPUs to the list of supported P2P devices, I might
+> > have been willing to accept that. However, you added these two lines:
 > > 
-> > Should this be a global sysctl, rather than per netns?
+> > +	    (hypervisor_is_type(X86_HYPER_VMWARE) ||
+> > +	     hypervisor_is_type(X86_HYPER_MS_HYPERV)))
+> > 
+> > This makes your case quite different from AMD's. Their check was for hypervisor,
+> > which leaked to VMs. And, yes, AMD does not work reliably in guest VMs either.
+> > For our internal testing, we have carefully curated hypervisor configurations and
+> > test VMs, along with custom patches, to test P2P reliably.
+> > 
+> > >
+> > > 2. Regression: consumers that work today via a system-memory fallback
+> > >    will take the P2P path and break on hosts that cannot route it.
+> > >
+> > >    A wrong "yes" fails safely: without host-side P2P the request is
+> > >    stopped at the host IOMMU, nothing is corrupted, the same exposure
+> > >    an AMD guest has today. An unconditional "no" is worse: it blocks
+> > >    P2P on every host that does route it, and the guest's answer
+> > >    changes nothing about whether the host routes it.
+> > >
+> > >    Xeon Scalable routes P2P between any two root ports, which the
+> > >    whitelist already encodes. The only hypervisor-side requirement is
+> > >    mapping the peer's MMIO into the VM's IOMMU domain, and that is
+> > >    what passthrough P2P support means: on ESXi it was an explicit
+> > >    per-VM setting for years and is the default since 9.0; Hyper-V does
+> > >    it for devices assigned to the same VM, as tested on Windows Server
+> > >    2025. The decision is made on the host; the guest only has to stop
+> > >    vetoing it.
+> > >
+> > > 3. The hypervisor must describe it, HMAT is the way, NAK to anything
+> > >    that does not fix the hypervisor first.
+> > >
+> > >    Agreed HMAT is the right source and should take precedence: consult
+> > >    it first, this check only where no HMAT exists. The disagreement is
+> > >    on "first". Guests on already shipped ESXi and Hyper-V releases
+> > >    will never get HMAT, and those stay in production for years; the
+> > >    cover letter's note on the adoption timeline was written with
+> > >    VMware's input, and Jim can speak to it. Until a hypervisor emits
+> > >    HMAT, this fallback is the only path that works.
+> > 
+> > This is VMware's problem, not the upstream kernel community's. If VMware
+> > considers P2P important and its customers agree, VMware can upgrade.
+> > 
+> > It is no different from any other kernel feature.
+> > 
+> > Thanks
+> > 
+> > >
+> > > Thanks,
+> > > Pavel
+> > >
 > 
-> 
-> For customers I work with, it would be much less useful.
-
-Third option: make it an integer rather than a boolean.
-
-0: no validation
-1: current level of validation
-2 and beyond: if we have to extend it later
-
-Not pretty, I'll admit. So fine to keep as is too if you prefer.
-But I do foresee more changes in this area, if history is a guide.
- 
-> 
-> > Even if per-netns, most likely do not want it writable by netns root
-> > with user namespaces.
-> >
-> > That is the equivalent of ns_capable(CAP_NET_RAW), which is the cause
-> > of many crashes due to bad packets ingested by, e.g., a packet socket.
-> 
-> Hmm, yes i get that. Two knobs? a. verify b. the per netns value ro? Both
-> on by default?
-
-A single system wide field is simplest.
-
-Is there a benefit to making this configurable on a per netns basis?
-
-If so, that's fine too. As long as root-in-namespace cannot modify it,
-so readonly indeed.
-
