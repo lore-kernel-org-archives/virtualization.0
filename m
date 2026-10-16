@@ -1,71 +1,100 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from ale.deltatee.com (ale.deltatee.com [204.191.154.188])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF23A1EB1AA;
-	Fri, 16 Oct 2026 22:38:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B1EE390CB7;
+	Fri, 16 Oct 2026 22:55:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=204.191.154.188
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792190297; cv=none; b=oEvO0Eh29zQY41XBDXx6y2gvTxiB44Mu/0qf0HP8ojPenEKhLRzlbmQhtfPCvZjQXTak1wzkG1eBXaMZ21ssCqtX8J8+9adaPc+hL6U7wisWmb80yKhUHDNyG0H8E7VPi/zdgJBj4xhQEocWjqAa6JUtJ/rhdPx/XDzXUsoPwlI=
+	t=1792191327; cv=none; b=bhN6nPKT+8J42sR9VsNXdD2CjKjHsJi2B0zV2DdxIOpizhOv9n6UUlQ8+5RXkIs0Cz04xnTBMmzwsuT/KqjeTbEVzLyqJFPFMj/+e7Zj62b4/hHGERNosg1WW2QvlFUVGHajWBdV9hjFqJyVymI+uTGWNTDs1HbMUz2Yjp83STc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792190297; c=relaxed/simple;
-	bh=n5lHVCc5c4ufCyPkWGEBoNS/TH5ZYTjzchZc1CNvmJ8=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=VfU7l3AujqBMUaEETKatxTyTswEwWQ6+Ji1Oq1rIIVrgHAW5R/k3+DlKm+oweIfJNKtRvqVHGy7FM92lZ1BMzuWB3PrIV6ALCTQPjaGKuXyC+9vIfJ6/BlbLQJNoBNJM3kaN7ZodGcOgnPcVzSCUiMt7fJ47OV6Nl5+hrq9pZ4M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CqaIw04F; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1792191327; c=relaxed/simple;
+	bh=eLcXstUGQpu+xrOJ8PeHGrIktdadao5yyHaVL34ACQ0=;
+	h=Message-ID:Date:MIME-Version:To:Cc:References:From:In-Reply-To:
+	 Content-Type:Subject; b=fe8CAX4XRU2RJRk2BEX6Q+ktYlPWWdh1WwYsUZgbDgL1KCHMWDCh25Rr09FcuYfzVje7sKJFmMs8cLV1ctz4XDRVG2FIAu0spHbfazE0XVu33BNQs++NhigetjSBNdHOUfUOkHITmyHlCAOi61GzyZDLLadyX1OG59lapit0dig=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=deltatee.com; spf=pass smtp.mailfrom=deltatee.com; dkim=pass (2048-bit key) header.d=deltatee.com header.i=@deltatee.com header.b=MrxFxZ1e; arc=none smtp.client-ip=204.191.154.188
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=deltatee.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=deltatee.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CqaIw04F"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5252A1F000C4;
-	Fri, 16 Oct 2026 22:38:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792190296;
-	bh=n5lHVCc5c4ufCyPkWGEBoNS/TH5ZYTjzchZc1CNvmJ8=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=CqaIw04FYV6W9/GmGaHLBwYKJsC7tHK59Gvh7pm3KIMU/IvuwfkPDU+7SrVcvIGBm
-	 ZPRs6a1KdxIYx9Ug3v3JKzDIrfbsRIv3hUMkYi/QeoSQiBYT1+OYFXn6TGjW2arF7F
-	 bWRH94OCUAewUmgpFd3ay+sh0NrRWXrAVi6wn7+HriTCgyzH7Yl6rr81ies7VAiZVG
-	 sLhyPcVPzK8QOj5/f9PHfde+DLjvYEFVYOiC5XhYu08eeaxFv/FPKpBfYRZgktai3R
-	 oMqNE0qrcIi/0g4VZMm60Q/PpKer1jfyjdtD+DzzcQWRdq9vB0CpyW17SoTuGXE9J5
-	 i0zW64ckrQohg==
-Message-ID: <sashiko-outbox-175023@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 2/2] PCI/P2PDMA: Allow P2PDMA in Hyper-V guests on
- Intel hosts
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Pavel Popov" <pavel.e.popov@intel.com>
-Cc: virtualization@lists.linux.dev, linux-pci@vger.kernel.org, "Michael S.
- Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>
-In-Reply-To: <20261016223402.19991-3-pavel.e.popov@intel.com>
-References: <20261016223402.19991-1-pavel.e.popov@intel.com>
- <20261016223402.19991-3-pavel.e.popov@intel.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 16 Oct 2026 22:38:15 +0000
+	dkim=pass (2048-bit key) header.d=deltatee.com header.i=@deltatee.com header.b="MrxFxZ1e"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=deltatee.com; s=20200525; h=Subject:In-Reply-To:From:References:Cc:To:
+	MIME-Version:Date:Message-ID:content-disposition;
+	bh=pkithiv798uVgMzxb5UwY/p9qnpe6saIvaiV4xnnvbM=; b=MrxFxZ1eCmPPTVkoO/7d402aFx
+	54n2ufNyF/N+ngkBlIuLiqbXr4QQbmPebkPoK+pbYNWVLdb6hxK6hgrv5fnv7pYBx/w3a/eslHbfG
+	qzp+xinSmAOEQkpFBse7CspNBt+Sp0bU5ssyL6kXNuDvGZLdo4MqbrFIDYnexNykjMm/aueV86NJC
+	uYuR178SBkOGSSzNliyes3CyvhEovU/0/xxg2dsiu0cxZPR5LJOOP8469PK4+YBp0LkhIO0N6e48c
+	Ciy4dq6hDVYn+/DoR9fs8BZt+U4CTd+bRanjKun1J4UEAv7rJ/5eqdHBJ80v/m5b3mBkVrNYWg5iS
+	VWLi5w5A==;
+Received: from guinness.priv.deltatee.com ([172.16.1.162])
+	by ale.deltatee.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	(Exim 4.98.2)
+	(envelope-from <logang@deltatee.com>)
+	id 1xHqpf-00000007pyk-0pWS;
+	Fri, 16 Oct 2026 16:55:24 -0600
+Message-ID: <8b01d643-f62d-4118-a700-8874341d953b@deltatee.com>
+Date: Fri, 16 Oct 2026 16:55:20 -0600
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+To: Pavel Popov <pavel.e.popov@intel.com>, Bjorn Helgaas <bhelgaas@google.com>
+Cc: Jim Chow <jim.chow@broadcom.com>, Radu Rugina <radu.rugina@broadcom.com>,
+ Alexey Makhalov <alexey.makhalov@broadcom.com>, Wei Liu
+ <wei.liu@kernel.org>, Michael Kelley <mhklinux@outlook.com>,
+ Lukas Wunner <lukas@wunner.de>, Leon Romanovsky <leonro@nvidia.com>,
+ Nathan Ciobanu <nathan.d.ciobanu@linux.intel.com>,
+ bcm-kernel-feedback-list@broadcom.com, virtualization@lists.linux.dev,
+ linux-hyperv@vger.kernel.org, linux-pci@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20261016223402.19991-1-pavel.e.popov@intel.com>
+ <20261016223402.19991-2-pavel.e.popov@intel.com>
+Content-Language: en-CA
+From: Logan Gunthorpe <logang@deltatee.com>
+In-Reply-To: <20261016223402.19991-2-pavel.e.popov@intel.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Connect-IP: 172.16.1.162
+X-SA-Exim-Rcpt-To: pavel.e.popov@intel.com, bhelgaas@google.com, jim.chow@broadcom.com, radu.rugina@broadcom.com, alexey.makhalov@broadcom.com, wei.liu@kernel.org, mhklinux@outlook.com, lukas@wunner.de, leonro@nvidia.com, nathan.d.ciobanu@linux.intel.com, bcm-kernel-feedback-list@broadcom.com, virtualization@lists.linux.dev, linux-hyperv@vger.kernel.org, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org
+X-SA-Exim-Mail-From: logang@deltatee.com
+X-Spam-Level: 
+Subject: Re: [PATCH v2 1/2] PCI/P2PDMA: Allow P2PDMA in VMware guests on Intel
+ hosts
+X-SA-Exim-Version: 4.2.1 (built Sun, 23 Feb 2025 07:57:16 +0000)
+X-SA-Exim-Scanned: Yes (on ale.deltatee.com)
 
-> Peer-to-Peer DMA (P2PDMA) between two devices requires either a shared
-> upstream bridge or a host bridge matching pci_p2pdma_whitelist[]. In
-> Hyper-V guests, each passthrough device appears in a PCI domain of its
-> own without a host bridge device. Consequently, P2PDMA checks evaluate
-> endpoint Device IDs against the host bridge whitelist, causing P2PDMA
-> requests to fail regardless of host support.
->=20
-> This affects discrete devices such as GPUs, NICs and NVMe drives.
->=20
-> The P2PDMA host bridge check does not work in a Hyper-V guest. Apply
-> the same bypass as for VMware, on the same Intel Xeon generations.
->=20
-> Tested with the Intel Level Zero P2P benchmark (ze_peer) on Arc Pro B60
-> cards in a Linux guest on Windows Server 2025 (Emerald Rapids host).
->=20
-> Signed-off-by: Pavel Popov <pavel.e.popov@intel.com>
 
-Sashiko has reviewed this patch and found no issues.
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261016223402.1999=
-1-1-pavel.e.popov@intel.com?part=3D2
+On 2026-10-16 16:34, Pavel Popov wrote:
+> +#ifdef CONFIG_X86
+> +/* CPUs whose host bridges support p2pdma, see pci_p2pdma_whitelist[] */
+> +static const struct x86_cpu_id hypervisor_p2pdma_cpu_ids[] = {
+> +	X86_MATCH_VFM(INTEL_SKYLAKE_X, NULL),
+> +	X86_MATCH_VFM(INTEL_ICELAKE_X, NULL),
+> +	X86_MATCH_VFM(INTEL_ICELAKE_D, NULL),
+> +	X86_MATCH_VFM(INTEL_SAPPHIRERAPIDS_X, NULL),
+> +	X86_MATCH_VFM(INTEL_EMERALDRAPIDS_X, NULL),
+> +	X86_MATCH_VFM(INTEL_GRANITERAPIDS_X, NULL),
+> +	X86_MATCH_VFM(INTEL_GRANITERAPIDS_D, NULL),
+> +	X86_MATCH_VFM(INTEL_ATOM_CRESTMONT_X, NULL),
+> +	X86_MATCH_VFM(INTEL_ATOM_DARKMONT_X, NULL),
+> +	X86_MATCH_VFM(INTEL_DIAMONDRAPIDS_X, NULL),
+> +	{}
+> +};
+> +
+> +static bool hypervisor_supports_p2pdma(void)
+> +{
+> +	/* Hypervisor hides host topology, allow p2pdma on whitelisted CPUs */
+> +	if (hypervisor_is_type(X86_HYPER_VMWARE))
+> +		return x86_match_cpu(hypervisor_p2pdma_cpu_ids);
+> +
+> +	return false;
+> +}
+One quick thought, after a very quick pass at this:
 
+Why does this now need to be related to the hypervisor? Wouldn't it make
+sense to do this check regardless of whether VMWare is involved?
+
+Logan
