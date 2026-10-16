@@ -1,73 +1,161 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24A003033EC
-	for <virtualization@lists.linux.dev>; Fri, 16 Oct 2026 02:45:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+Received: from cmccmta4.chinamobile.com (cmccmta4.chinamobile.com [111.22.67.137])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id E6BC334D38B
+	for <virtualization@lists.linux.dev>; Fri, 16 Oct 2026 02:54:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=111.22.67.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792118733; cv=none; b=uXJt2O7f3EfqnvL1XVUhDlL77OUBF5jSV79MyYXIBxrrWNq/9DsNT1brplU8vPcUNv7RDAF2jyTH86ShxfVCh1GsNGV7Lp6tGVMqlSDEhRn5mnLEAmBhIu5KfxzK9JfRPaTPC0DlKbryILMsDQ4oWMKvM3xi2An2BpZant1cZcY=
+	t=1792119288; cv=none; b=mf9c8y5TaS4VD1MdFXFygIbYVtqhxJOIYusokMgmPnY/i6s14+80OmbNZovOaZMlIFHxGPD2L8h35lNOs7W7IdShRi71/MH/23MCfEd5ToqIfuEbLfNMpD2yhFCrtsQVC9Z2XkWhpGIRosmekBs5gSh2RDp0V8PVSPrVKLNy5zI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792118733; c=relaxed/simple;
-	bh=TQiRn6Ud79vAlC6vPCWceV836d64lyGk6PcfS7ybMWY=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=NQZl92T1Yg2iYGdPeyhWsdtv5qbI5/hUFO2uue0vW5TPimZFz6Kv4hUKZljSc9Z3KX2f01grkm3xnbY9K4JYqEVCBm6W5Ai+UWsHLNx4cvmhpxXPEoIuUPVsOvmCoNXwDgQASwIp2y7aSFUhCWw0iRqVJDe9+N4y44iFTz+txgs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UcJk4p/K; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1792119288; c=relaxed/simple;
+	bh=eeYDAFiTC661dVfbpUfTb+78ScWy+CrORlGiCnRdYAU=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=dypPGTvnskhtuIQ29c0ukwh9sMQ8pIl/uGYtUPyXV333H/3gt96qLTUoObp64RaZF41PdFcIHdjwAl4WJ8TclTv/pX31nvRhWAvpuaJwGXOvzVM2mzX395u8X3SF9Zlj1ed8R/Uqku3sVcnBJkOPJClQE2jReWZz05RQuhLmpuw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cmss.chinamobile.com; spf=pass smtp.mailfrom=cmss.chinamobile.com; dkim=pass (1024-bit key) header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.b=T0WCOseV; arc=none smtp.client-ip=111.22.67.137
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cmss.chinamobile.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cmss.chinamobile.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UcJk4p/K"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84CEB1F000C4;
-	Fri, 16 Oct 2026 02:45:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792118731;
-	bh=18VoGvoj0FD5jz/k5jdnASUV9uFLwiSIEtJRZKXlwB4=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=UcJk4p/K7t58ez2eTL7TjNTPClROBjJrVPDDNM66RI1b6BpKurbY+v129Ol4q6xH/
-	 pKMiviHUgrDpJIuuazKmxwtu6WAoBXPrZyRcwKfiRHyIguzxPssuP6k6JRWxXl2KiQ
-	 H4vaJkiag+ejKIRBALIsfXhOmHskPjhmOmz/SklF/0UoXKrvMGGW86SUcKhOVY9G+d
-	 LTJ+Jsi9zoB/9yzCdIh50DeeivjUPTlU26aytLIF0ddYPxqnO1oTajWBRKhqJc4ju+
-	 b1lFH0+llGvYIEsbOCUV1QL3uHG6iKXmcUrd2Ar25o7j/f3w6TBJAEEjMOtBn/rSLN
-	 FwGMd9IuiGrIQ==
-Message-ID: <sashiko-outbox-173638@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v1] virtio-mem: only mark the device ready in kdump mode
- with vmcore support
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Yuho Choi" <oss.patchbox@gmail.com>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <20261016023521.747447-1-oss.patchbox@gmail.com>
-References: <20261016023521.747447-1-oss.patchbox@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 16 Oct 2026 02:45:31 +0000
+	dkim=pass (1024-bit key) header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.b="T0WCOseV"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cmss.chinamobile.com; s=default; l=0;
+	h=from:subject:message-id:to:cc:mime-version;
+	bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
+	b=T0WCOseVbmNTjcNzCoPYlN8RSJ9Idm/ZioIEQHPzfFSSvMK/CF7beP/27Ua8uQbSDSVC5if/YMtfA
+	 hvjj2UiqVjHlwpABWxnhXwshJ3G1vKBfpZbqhohf3ngdQZ7jkhGrNuUad0g8lSfUUIbj6ksdxVwew2
+	 njC2ZDA/zRyN39fg=
+X-RM-TagInfo: emlType=0                                       
+X-RM-SPAM-FLAG:00000000
+Received:from spf.mail.chinamobile.com (unknown[10.188.0.87])
+	by rmmx-syy-dmz-app04-12004 (RichMail) with SMTP id 2ee46ad191eade3-9893d;
+	Fri, 16 Oct 2026 10:54:35 +0800 (CST)
+X-RM-TRANSID:2ee46ad191eade3-9893d
+X-RM-TagInfo: emlType=0                                       
+X-RM-SPAM-FLAG:00000000
+Received:from desktop-c950f82eaac8410e-20260515094303939 (unknown[10.55.1.71])
+	by rmsmtp-syy-appsvr08-12008 (RichMail) with SMTP id 2ee86ad191e9bbb-1ed0b;
+	Fri, 16 Oct 2026 10:54:35 +0800 (CST)
+X-RM-TRANSID:2ee86ad191e9bbb-1ed0b
+From: Mingbing Zhai <zhaimingbing@cmss.chinamobile.com>
+To: mst@redhat.com,
+	david@kernel.org
+Cc: jasowangio@gmail.com,
+	eperezma@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	syzbot+13df72e0dc4be5c62215@syzkaller.appspotmail.com,
+	syzkaller-bugs@googlegroups.com,
+	stable@vger.kernel.org,
+	Mingbing Zhai <zhaimingbing@cmss.chinamobile.com>
+Subject: [PATCH] virtio_balloon: initialize wakeup_lock before virtqueues are set up
+Date: Fri, 16 Oct 2026 10:54:29 +0800
+Message-ID: <20261016025429.901-1-zhaimingbing@cmss.chinamobile.com>
+X-Mailer: git-send-email 2.53.0.windows.1
+In-Reply-To: <0e69abdc-0127-45dc-9bc1-bf48772cc7ea@kernel.org>
+References: <0e69abdc-0127-45dc-9bc1-bf48772cc7ea@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-> virtio_mem_init_kdump() marks the device DRIVER_OK before it checks for
-> CONFIG_PROC_VMCORE.  Without vmcore support it then fails with -EBUSY,
-> and virtio_mem_probe() deletes the virtqueue on that error path without
-> resetting the device first, so the device is left believing the driver
-> is ready while its queue points at memory that has been freed.
->=20
-> Before commit a9403425b3cf ("virtio-mem: mark device ready before
-> registering callbacks in kdump mode"), virtio_mem_probe() called
-> virtio_device_ready() only after virtio_mem_init() had succeeded, so this
-> path never exposed a ready device.
->=20
-> Move virtio_device_ready() into the CONFIG_PROC_VMCORE branch, right
-> before the vmcore callbacks that need it are registered, so the -EBUSY
-> path never sets DRIVER_OK.
->=20
-> Fixes: a9403425b3cf ("virtio-mem: mark device ready before registering ca=
-llbacks in kdump mode")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Yuho Choi <oss.patchbox@gmail.com>
+Since c578123e63da ("virtio_balloon: Treat stats requests as wakeup
+events") the stats_request() virtqueue callback takes vb->wakeup_lock
+via start_wakeup_event().  init_vqs() registers that callback and even
+primes and kicks the stats queue, so the lock is reachable from irq
+context as soon as init_vqs() returns, long before the driver sets
+DRIVER_OK: vring_interrupt() dispatches to the callback without any
+DRIVER_OK check unless CONFIG_VIRTIO_HARDEN_NOTIFICATION is set, and
+that option depends on BROKEN.  syzbot hit it from a threaded irq:
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+  INFO: trying to register non-static key in stats_request
+  ...
+  assign_lock_key
+  register_lock_class
+  lock_acquire
+  rt_spin_lock
+  start_wakeup_event drivers/virtio/virtio_balloon.c:150 [inline]
+  stats_request drivers/virtio/virtio_balloon.c:435
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261016023521.7474=
-47-1-oss.patchbox@gmail.com?part=3D1
+The lock is only initialized near the end of virtballoon_probe(),
+after init_vqs() and several steps that can still fail and unwind
+through del_vqs(), where a racing interrupt still finds the callback
+registered.  Until then it is whatever kzalloc() left in vb: lockdep
+complains about the unregistered lock class, and wakeup_signal_mask
+and processing_wakeup_event get updated from irq context while probe
+is still running.
+
+The rt_spin_lock() in the report is just spin_lock() on PREEMPT_RT;
+any PROVE_LOCKING build takes the same path.
+
+stop_update_lock(), which the same callback also acquires, is already
+initialized before init_vqs(); do the same for wakeup_lock.
+
+Fixes: c578123e63da ("virtio_balloon: Treat stats requests as wakeup events")
+Reported-by: syzbot+13df72e0dc4be5c62215@syzkaller.appspotmail.com
+Closes: https://syzkaller.appspot.com/bug?extid=13df72e0dc4be5c62215
+Signed-off-by: Mingbing Zhai <zhaimingbing@cmss.chinamobile.com>
+---
+
+Hi David,
+
+On 24.08.26 14:57, David Hildenbrand (Arm) wrote:
+> I don't really understand what's happening here, Is the
+> register_lock_class() trying to reguster a non-static key?
+
+It is: the wakeup_lock that stats_request() ends up taking at that
+point hasn't been run through spin_lock_init() yet.
+
+> I don't immediately see how virtio-balloon is doing something odd
+> here, all it does is a spin_lock_irqsave(&vb->wakeup_lock, flags),
+> that was earlier initialized with spin_lock_init(&vb->wakeup_lock),
+> before the device was ready.
+
+Right, the lock is initialized before virtio_device_ready().  But if
+I follow correctly, stats_request() can already fire once init_vqs()
+registers it as the stats virtqueue callback, some 100 lines before
+the spin_lock_init().  I also don't see anything on the guest side
+gating the IRQ: vring_interrupt() calls the callback without any
+DRIVER_OK check unless CONFIG_VIRTIO_HARDEN_NOTIFICATION (which
+depends on BROKEN).  So a device raising the interrupt while probe is
+still running would take the zero-initialized lock.
+
+> virtio-balloon in an RT kernel/environment, unlikely in pactice ... :)
+
+I don't think it is RT-specific, though: rt_spin_lock() is just what
+spin_lock() compiles to on PREEMPT_RT, so any PROVE_LOCKING build
+should hit the same register_lock_class() path on that lock.
+
+stop_update_lock(), which the same callback takes first, is already
+initialized before init_vqs(); the patch below does the same for
+wakeup_lock.  Does that look reasonable?
+
+ drivers/virtio/virtio_balloon.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index ab3e3d887e..8c1b47ec17 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -942,6 +942,7 @@ static int virtballoon_probe(struct virtio_device *vdev)
+ 	INIT_WORK(&vb->update_balloon_stats_work, update_balloon_stats_func);
+ 	INIT_WORK(&vb->update_balloon_size_work, update_balloon_size_func);
+ 	spin_lock_init(&vb->stop_update_lock);
++	spin_lock_init(&vb->wakeup_lock);
+ 	mutex_init(&vb->balloon_lock);
+ 	init_waitqueue_head(&vb->acked);
+ 	vb->vdev = vdev;
+@@ -1049,8 +1050,6 @@ static int virtballoon_probe(struct virtio_device *vdev)
+ 			goto out_unregister_oom;
+ 	}
+ 
+-	spin_lock_init(&vb->wakeup_lock);
+-
+ 	/*
+ 	 * The virtio balloon itself can't wake up the device, but it is
+ 	 * responsible for processing wakeup events passed up from the transport
+-- 
+2.53.0.windows.1
+
+
 
