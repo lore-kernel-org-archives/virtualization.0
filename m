@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E20F54772B2;
-	Fri, 16 Oct 2026 11:52:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 682CA2367B8;
+	Fri, 16 Oct 2026 11:56:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792151556; cv=none; b=dtk64DJbhlvo6QQaoau8OOfLh7pDOwGfnRqcKKn2It+Tm2Az44N3t9zyrce4zowYRi8nQ2n7yWhRi+TggGBy2qhj1oLxzRHdAmBo2a0R8kXqNr+IN/jbG2wtOXifNRTJMLTyuW1UqEU1gM/gl6vBv3TSRmqmFa4BoRgpdWe0PHA=
+	t=1792151776; cv=none; b=eAyZ17W8/Ftvh2fIGqq4Gb/eQYDwTMubLOnjgwbtnL1hK1x7QH0t1GxoH7QVsTPc5dWF8n7Z9e0jpI+AhBemibw18+08esuSBOHtwjw5CYX6lSs9drtifRVr1PPmhmcDwoZAcY00QpIiVAUMN283JvnqDA86mNqndSy1G/t1Rio=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792151556; c=relaxed/simple;
-	bh=oa9f/2v1sR+ykNNWDoUx6e84AN0mDVBk+4Ba+4On3u8=;
+	s=arc-20240116; t=1792151776; c=relaxed/simple;
+	bh=HyzdCibjmBuu+Mz4LlCW22CV/VlkMRvQdGIUrWUb808=;
 	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=onVqcCxbujfTANCQDt7nzSj/3XyV7mYp5AWx4u7kKf/cmF75In7WPKd/XnrxaRROr2mdZtcdO2yZ/CdG3CTfl7k3CCmk/VLg3b4LsA1x0cFVBnI9D/pa8VrwKvSap5riy5oPxpa/48DPuuwqWmzpOzmOwky30oBIAzTVcoCMMwA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bXJhVJuS; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=Fvkkkbk1gZjiOtANUxkEUTV3v2gByYmvPu0WUWiqb+L4pgpXV4wVdu+67zebqVud0d+TaOn95vm12To8Ap87sNRaLHNDqsUjp7DWHfqMwRafuYlK1TkrycofcxZ0+Ql15ede8OH+d56bsAPttK6zhzj3exw6MkSJwi29Zq9UxYo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=D8d8CjKV; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bXJhVJuS"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1909B1F000C7;
-	Fri, 16 Oct 2026 11:52:34 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="D8d8CjKV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B6E11F000C4;
+	Fri, 16 Oct 2026 11:56:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792151555;
-	bh=oa9f/2v1sR+ykNNWDoUx6e84AN0mDVBk+4Ba+4On3u8=;
+	s=k20260515; t=1792151775;
+	bh=HyzdCibjmBuu+Mz4LlCW22CV/VlkMRvQdGIUrWUb808=;
 	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=bXJhVJuSfGPszEBsc3oqDZOybZVKfDR9jVQN1GTbPnAd9DP2MhsdFsiIoJTSSDYoJ
-	 UipWIA9XIKKucazhfzv+s9BqfJ1G97JiwAIh3eQH8DLE/rUaNhYbxLOnMwnfjajVcD
-	 ySDMFZPvrPz7Dk9OD4iTkL74dBIquAfU//8hYPmEMaOWbAhY3hi+ZMwIgH+u+zEUZZ
-	 xk7DfOVXGcUGKyWMGAi/6pAfUPFwgTstII7aci7tRRddgqlvg4+aIfmnzmUJXOBiFz
-	 C1q0iO6o/TlT6rW3X71i1AR85y10Tm2mDJLqNf6FvyDFe3UrC97VfHyEtC94LzrShs
-	 3ryCddCgAXZTg==
+	b=D8d8CjKVNhFOL0ZW1vZLe5n6wQ26trtMwAg7EsG7zapwri+Lvwj4ZOE4hvFVMQmae
+	 uMoWfwfoupMlrD2ucAt7Sb9Ir/vw8aWgvP9YS9YaZdfUrcuWVi2spo7Yv4Z3jUa+ww
+	 Q14d6WGAlfruoisaThHdRqgl7y/bIm2dnYy4kmUwrNwmS0R97jLrjB6HOio6fLFOlb
+	 9NQvrHi8gKQWFpGPU/anFZRUBWpwyBLvRX/5w37LnJ/+W7Tm0yt9ZeMNxI/YxrGx0O
+	 FOnNVlLlIVBEP+gJyGCU3i3dDiY35OtyGMC7McI+O/NZBteKjHyNdeW+BxOgW2d1zT
+	 tPHSuBr9nTxZA==
 From: =?utf-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>
 To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
 Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>, Jason Wang
@@ -35,13 +35,18 @@ Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>, Jason Wang
  S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>,
  Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
  netdev@vger.kernel.org, virtualization@lists.linux.dev, Rusty Russell
- <rusty@rustcorp.com.au>, Max Krasnyansky <maxk@qualcomm.com>
-Subject: Re: [PATCH net-next v2 7/7] virtio_net: cleanup protocol calculation
-In-Reply-To: <3c828204754ba2218e419f8d0a20bede7d8dffe1.1792067836.git.mst@redhat.com>
+ <rusty@rustcorp.com.au>, Max Krasnyansky <maxk@qualcomm.com>, Pablo Neira
+ Ayuso <pablo@netfilter.org>, Florian Westphal <fw@strlen.de>, Phil Sutter
+ <phil@nwl.cc>, Nikolay Aleksandrov <razor@blackwall.org>, Ido Schimmel
+ <idosch@nvidia.com>, Simon Horman <horms@kernel.org>, David Ahern
+ <dsahern@kernel.org>, netfilter-devel@vger.kernel.org,
+ coreteam@netfilter.org, bridge@lists.linux.dev
+Subject: Re: [PATCH net-next v2 6/7] net: add ip4_parse()
+In-Reply-To: <2645c102b2f73292d1973b82c95def24e48064e1.1792067836.git.mst@redhat.com>
 References: <cover.1792067836.git.mst@redhat.com>
- <3c828204754ba2218e419f8d0a20bede7d8dffe1.1792067836.git.mst@redhat.com>
-Date: Fri, 16 Oct 2026 13:52:32 +0200
-Message-ID: <87mrsd50cf.fsf@all.your.base.are.belong.to.us>
+ <2645c102b2f73292d1973b82c95def24e48064e1.1792067836.git.mst@redhat.com>
+Date: Fri, 16 Oct 2026 13:56:12 +0200
+Message-ID: <87h5il506b.fsf@all.your.base.are.belong.to.us>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -53,8 +58,15 @@ Content-Transfer-Encoding: quoted-printable
 
 "Michael S. Tsirkin" <mst@redhat.com> writes:
 
-> A trivial cleanup removing a duplicated code line.
+> Multiple places in the net stack open-code the same minimal IPv4 header
+> validation: pull the fixed header, check version 4 and IHL >=3D 5 (where 5
+> is the fixed header size in 32-bit units) - and locate the transport
+> header at IHL * 4 past the network header.
+>
+> Add a helper for doing that: it returns the validated header and
+> the transport header offset, or NULL if truncated or malformed.
 >
 > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Assisted-by: LLM
 
 Reviewed-by: Bj=C3=B6rn T=C3=B6pel <bjorn@kernel.org>
