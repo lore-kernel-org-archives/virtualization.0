@@ -1,188 +1,122 @@
-Received: from mail-vk1-f171.google.com (mail-vk1-f171.google.com [209.85.221.171])
+Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03A4B29408
-	for <virtualization@lists.linux.dev>; Sat, 17 Oct 2026 01:09:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A3773B1022
+	for <virtualization@lists.linux.dev>; Sat, 17 Oct 2026 05:15:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792199371; cv=none; b=F/jghPVYZwmX2Yz3p7vNJAt3JlO4X2D9UFarLqVm8VB2Yyojg7TvjjCTqmGks1yuhz6hRMxmjUkfQRD/PWXat6mNHcNBth/XL3tXrpefOMcSZ6jcI8gYrICofjjsYQARxDaqwe0RhmQl7EiNPI1yQZQpjspvudDMI+J3KwiLpVQ=
+	t=1792214134; cv=none; b=Fnz01Kqnu3KUZT803xohtUMvMUdjiIzMGsuO2GXYXvSZNeEnWCxfncEVViMf1vTOUVWNxAnvtOPqQra7kI3v9FrHk59FrKp2zcJVF/Aeb+jKhUUFim9e/NuS4fYgP1HBi9ymf4NhOYZo7V6Y/oC4fZSVvfkXMzXPtndBbmARjlQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792199371; c=relaxed/simple;
-	bh=XVP7VgwmFS1l8OgeV7xL1TtOBdkcTzkbgWgi4SDvNdM=;
-	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
-	 MIME-Version:Content-Type; b=qJLj6Qa8wuxUNV2uc50m/tl4DZfDPLYUjh1/ErqIElCuwNuL3LCQRsiaORDT0URWIi5AAOnB4cCPY4jkau5J1qkUfxLKy4r/rHrmZ3EKfESv3ezdGRCqYrJmXPbeHdQxqHkzezg9LNJeFznk4vR4zip6RglA5fpmYXb5Yh/zn/s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZG7+nkOy; arc=none smtp.client-ip=209.85.221.171
+	s=arc-20240116; t=1792214134; c=relaxed/simple;
+	bh=95SdnSdg3U+zWWAokMZ2g2KRRVCLQeq73KICUEfOvb8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=q2439V7IkflMl8O/0SmTWu17qbdb4dHT8TZ8+0WzvQ51/ooIGMK4yiwkceMe/c3fIrrP6kb5ICKuIPTRDXyMR+aZYh0ZfM5H83uZyHWi4+Is8RWfg796Sqx/Ti0LLBi2NOVKs33DroZLsR0QVT5ZmQCQtEADyxE7MYwX2gCqqSs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cNtrR7Gd; arc=none smtp.client-ip=209.85.214.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZG7+nkOy"
-Received: by mail-vk1-f171.google.com with SMTP id 71dfb90a1353d-5da7a39e584so180338e0c.2
-        for <virtualization@lists.linux.dev>; Fri, 16 Oct 2026 18:09:29 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cNtrR7Gd"
+Received: by mail-pl1-f172.google.com with SMTP id d9443c01a7336-2e987a2ba0cso4010795ad.3
+        for <virtualization@lists.linux.dev>; Fri, 16 Oct 2026 22:15:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792199369; x=1792804169; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:mime-version:subject
-         :references:in-reply-to:message-id:cc:to:from:date:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=XeNbXablXhJqiCV04B7oY6//U0VnicAkT7qj9GdtyP4=;
-        b=ZG7+nkOyQvOwZkWpLZE5XlaTCAQtvnLABtvCbqcELbPw8XAgy0j0UimqVo/PvTjfzM
-         XfNKlTWswiR9f/MovDp+cg/1XZ9f58nnsoifseKghNP7dNS5euz8UtAaSt7aBxGKNjr3
-         2jONyb+ZGfze3/jgwZP2h3I8jG3LEfx2wYoixQVPhkJixVOvty+Oy06GyAiqXdN6aDcy
-         +WPQf8CKmKTQv/3KQLQ44mfU15oxC59Sn2HW5fDIIDu73OO4gHg0j57PVwfQ/ilxyN0K
-         PqMSs4UtXv0ZTXy5J8SGKtkKTOVc3fXqDQtF+T/xxEHhqZqGmpfF0k5y0+OrzoPtZ2DH
-         /dEg==
+        d=gmail.com; s=20251104; t=1792214131; x=1792818931; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=J8NkLjAJdUFmj5MLQvoJkW4xVPLRTNUGffFYw5vC+68=;
+        b=cNtrR7GdQJXUylZZBWhdwmkgog1bOxmlDlam39BN0+PEPYXSkGXh0ITH50iYtgT/lw
+         4Plev+5wpx173anmZ33QomdqeRuiSojF3A/L09cyexQZZfan6OjZ1PBaZHly1YSLSiCm
+         fCQwsZO62isaArCgvwve+AE4PUmC85pKe+c0ewQ7pMxh15+3PpyLz54QEec/B8GnSTJg
+         V6DIo5v7f6wqrgoRBMsK2kiB5eTtmjh+KXpN/62R9PHET1Dk8Sh+44PjeXgZNMzkB7dV
+         Sg8PB9Xmf2PfGHVxybZWMJaGGhZeWSbiuzM+DZQz7ms6JlINIhnzAFZR0MhALwPioMnf
+         J+uw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792199369; x=1792804169;
-        h=content-transfer-encoding:content-type:mime-version:subject
-         :references:in-reply-to:message-id:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=XeNbXablXhJqiCV04B7oY6//U0VnicAkT7qj9GdtyP4=;
-        b=Mhhc8zZUIACzxMeoPyDk28I29XC1z5+/4gLjTI42A8THL0iYRbGbmbbn7AUXIwcvEy
-         L+H6aDg3TMstWX+8+RMO7H4ZH2umcgKAhuLsGN1v1DTCk1tr9KLNUNg1x8/xWt1QQwut
-         q7ENlH0HTI18mT68GFDQ58M68hzNEm9u/bYBKhqc7jGfC3mqQICIHDPtb9d3Vf4sSaLm
-         UKqil8oeNLnVG9FLTXPnldScN7JDmAAGYjvXNesNTmBKtnCa6BIjDo043TNE/NpF6H0J
-         1P8FBEEZU+ArA/Qck5MLe3UgJ5Fp7ykw9xcFM6Ik7yYp43lWySe/+C2bMbKKcMtTcJRl
-         I7tg==
-X-Forwarded-Encrypted: i=1; AKwUvBxh+1wEbJlRvXhq2moZuqB2KLLQvZqfaLF9EDFqz0qmyGh6xWkHsI7uEAeqZ5XRb6I50exN1A0HVcO9jExMMg==@lists.linux.dev
-X-Gm-Message-State: AFq9FYJni/SLQYARB23gcxY5I8skrKuU/1cJJ7FUqim7gfeGSft1CFP2
-	+BDGHjVSy5UK8tyz50jlv9rA/WAL+sGvdlUm1KMcci5C37QQ/K8HC/LR
-X-Gm-Gg: AYBFou1Y3PHi+97COw3bc5x0R0MUFKVFwgxr8zVcJm73ALAcvo9AG3KQA9ETboyhjqS
-	meusaWtcUOhsxdCcH/IusVjyLIY9THjNtMQvMhAf3Wvr/B57t+qi67+r7AGvYhT0G/xPVm+4YGJ
-	N9F/7dH0DGmUYhPy76yJUluVs4TsqhmQKTcf8rtjnsCvOXK7oAtSB4mkGiBBU0ADbnLcNC/p8sZ
-	9HSRWJZZ4fFk9qXh6enDL+Jy4gKXnje6Fl/Ty4a37hcWFmIOlwlp+YhTrdBhEPHAbvc5TcqvwZG
-	bWZVOCHFw7HwrkTTvE3AR+LJlfD1/SS1+qTZyfWJtQQ4PpC9EQgU5PquEWA8Fmwfdw0ZBD++SOF
-	vvhE/88MYk/CzbI3qHH+wMjg7zRcoQymBTRqtgVY72vD94fV3RmjX/eIT+A23uKTgjTczYyO3tL
-	c+YX7xQfHLvQNaVmAJYA6FUV+fdbTMl15eug5D/kS4lOq3HKXsQ56ezIDNkrZzytErrdeWltCGp
-	lszUUmNcsrWjdTvssp11Z1P8knROHgwFruAOmMoNyc+AVfCf6N69nv1n4SGpzro/IansDFbmjQB
-	AC4RUPWHSe6mThwkuCBKOuXjAwSOj6r1gPH5iFM=
-X-Received: by 2002:a05:6102:6d0:b0:7cc:285d:4df7 with SMTP id ada2fe7eead31-7cc3699ca12mr344286137.16.1792199368918;
-        Fri, 16 Oct 2026 18:09:28 -0700 (PDT)
-Received: from gmail.com (111.46.245.35.bc.googleusercontent.com. [35.245.46.111])
-        by smtp.gmail.com with ESMTPSA id ada2fe7eead31-7cc1987c95csm3579604137.11.2026.10.16.18.09.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 16 Oct 2026 18:09:28 -0700 (PDT)
-Date: Fri, 16 Oct 2026 21:09:27 -0400
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>, 
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Cc: linux-kernel@vger.kernel.org, 
- Jason Wang <jasowangio@gmail.com>, 
- =?UTF-8?B?RXVnZW5pbyBQw6lyZXo=?= <eperezma@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- Andrew Lunn <andrew+netdev@lunn.ch>, 
- "David S. Miller" <davem@davemloft.net>, 
- Eric Dumazet <edumazet@kernel.org>, 
- Jakub Kicinski <kuba@kernel.org>, 
- Paolo Abeni <pabeni@redhat.com>, 
- netdev@vger.kernel.org, 
- virtualization@lists.linux.dev, 
- Rusty Russell <rusty@rustcorp.com.au>, 
- Max Krasnyansky <maxk@qualcomm.com>, 
- Jonathan Corbet <corbet@lwn.net>, 
- Shuah Khan <skhan@linuxfoundation.org>, 
- Randy Dunlap <rdunlap@infradead.org>, 
- Simon Horman <horms@kernel.org>, 
- linux-doc@vger.kernel.org
-Message-ID: <willemdebruijn.kernel.32f6b1ecd121a@gmail.com>
-In-Reply-To: <20261016143944-mutt-send-email-mst@kernel.org>
-References: <cover.1792067836.git.mst@redhat.com>
- <ad05a40681719a579691a1da6413f0dd7064f2a0.1792067836.git.mst@redhat.com>
- <willemdebruijn.kernel.3a7d04e1c306e@gmail.com>
- <20261016051827-mutt-send-email-mst@kernel.org>
- <willemdebruijn.kernel.1d7ce6b64753a@gmail.com>
- <20261016134823-mutt-send-email-mst@kernel.org>
- <willemdebruijn.kernel.2deaddfb31bd9@gmail.com>
- <20261016143944-mutt-send-email-mst@kernel.org>
-Subject: Re: [PATCH net-next v2 5/7] net: add a sysctl to opt out of virtio
- net hdr checksum validation
+        d=1e100.net; s=20260707; t=1792214131; x=1792818931;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=J8NkLjAJdUFmj5MLQvoJkW4xVPLRTNUGffFYw5vC+68=;
+        b=Z3hhTJ7bPuWTHGqkthCsa5EnDedC93F2Rvi8LbbC5PV/vVsqhcZLQgB63XzNZVNPs7
+         upSsSXBatNKISAdmiw1u+gwSL5HscBccXAcmqqyCelRPjlaCZVEQIAOYSH76aH4SVKr1
+         qHzAER+7sxhAOzqsAOvu9hzSYE+tV7TTTxQCSJ8ooLme1dbLVK8fqT9LqGnYbKwzRtmm
+         fyA1SRpQoUdLaG/4E/HNwVjN9Pf6mrm17LYCZAl1eIZ9W6tBFByW/B7pp7FuL/WJ9a7g
+         OKno+c5gKEjdsGOv1ycv2ikN7GIOYDcVpAEsY8HHo4+ICi84MWyYz/kwFmhbEftjmbkb
+         p4jg==
+X-Forwarded-Encrypted: i=1; AKwUvBwVDd0LslbBKZHJsEK5E4wrYJYxOHvEAuux+jd2lrdGNRNlzb4eNbn8ZHd76cMETkWWvHKZnaoVPIEUvrm+Fw==@lists.linux.dev
+X-Gm-Message-State: AFq9FYK9SjjLnBWWiAXu5lCuK43q3w5ri1cuFU+HOrFUHAiuPAD8mIc7
+	i2fMgbjU8rhvwo3RNlDGz4ZBgBSYwW+pb2yWNTeBpsSpM5lLvKrvjEnF
+X-Gm-Gg: AYBFou0DqrNp6dc7VKq5RjNVSqGQLZ0Ocnr7WDJslWcHgEU3RBoBGROBu4xxJxCoZ4n
+	dzuOMOgYed+Aje+dNbEGwWJNpX2o3fsvgGOFTRH7lFy9Uwk3Xp176ZVQYJVWZ1em7tQa5ZH3e3d
+	QI8pJCNOCi/rkKAi90aTguMrfdN7Q7K+1oErdiQzofwxkq0WTNdJHFkD5ZsCvHOTvcUWtLNMKrz
+	/5kuho9+T7F2Fi4iCxKGQ6NEKnAAITOXRlBFBL5ISh1pupka+MeKAnmXHKBcIxEBqlDGby1HxjM
+	dMM/Y7UFwX92TTwZyiIk7oGsAyvT52hsqW959bKOwjJQmmTtjAOKVGjZ5TDKGIf12CqIh6vg4Zx
+	98gzpb9nWVQXLDtlMLbotmAdFInoxkseFvDCHFyKlWQyPDFX64qBeWcKGIOcZVSQaJdzYdS2o2E
+	WpD2qvoZSBvgW/WZSh5dah84Woxqt43eoiwMCzKkotDzNdwFqF722b4kufQeDc9jYlEBz8IobtB
+	IGd4WxB5IZMjCd37M4kCR8qU11Lo0Xkdc29CF2SP0l00/JuUfGN4MOJmJii99ub1mSBQwMvfUvz
+	M1FMVZMu+0E/OabarFdkS8T5
+X-Received: by 2002:a17:90b:5623:b0:3ac:9a54:e3ce with SMTP id 98e67ed59e1d1-3acef6391ecmr1619670a91.63.1792214131334;
+        Fri, 16 Oct 2026 22:15:31 -0700 (PDT)
+Received: from localhost.localdomain ([180.182.24.11])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3acc38b457esm7443575a91.0.2026.10.16.22.15.29
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Fri, 16 Oct 2026 22:15:30 -0700 (PDT)
+From: Joonho Lee <mynameisjune111@gmail.com>
+To: Anton Yakovlev <anton.yakovlev@opensynergy.com>,
+	Takashi Iwai <tiwai@suse.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>,
+	Jaroslav Kysela <perex@perex.cz>,
+	virtualization@lists.linux.dev,
+	linux-sound@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [RFC PATCH 0/1] ALSA: virtio: trace control message lifecycles
+Date: Sat, 17 Oct 2026 14:15:26 +0900
+Message-ID: <rfc-virtio-snd-control-trace-0.208f05ae8ea44e77@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-> > > > > > Should this be a global sysctl, rather than per netns?
-> > > > > 
-> > > > > 
-> > > > > For customers I work with, it would be much less useful.
-> > > > 
-> > > > Third option: make it an integer rather than a boolean.
-> > > > 
-> > > > 0: no validation
-> > > > 1: current level of validation
-> > > > 2 and beyond: if we have to extend it later
-> > > > 
-> > > > Not pretty, I'll admit. So fine to keep as is too if you prefer.
-> > > > But I do foresee more changes in this area, if history is a guide.
-> > > >  
-> > > > > 
-> > > > > > Even if per-netns, most likely do not want it writable by netns root
-> > > > > > with user namespaces.
-> > > > > >
-> > > > > > That is the equivalent of ns_capable(CAP_NET_RAW), which is the cause
-> > > > > > of many crashes due to bad packets ingested by, e.g., a packet socket.
-> > > > > 
-> > > > > Hmm, yes i get that. Two knobs? a. verify b. the per netns value ro? Both
-> > > > > on by default?
-> > > > 
-> > > > A single system wide field is simplest.
-> > > > 
-> > > > Is there a benefit to making this configurable on a per netns basis?
-> > > 
-> > > As I tried to explain: a specific container breaks, you decide to trust it,
-> > > you do not need to trust all.
-> > 
-> > Ok
-> > 
-> > > > If so, that's fine too. As long as root-in-namespace cannot modify it,
-> > > > so readonly indeed.
-> > > 
-> > > 
-> > > Right. So I envision along the lines of:
-> > > 
-> > > net.core.virtio_net_hdr_validate_all - validate packets from any netns,
-> > > netns root can not change it, only host root
-> > > 
-> > > net.core.virtio_net_hdr_validate - per netns
-> > 
-> > Then skip the global option, as it's just a convenience: the same can be
-> > achieved by iterating over all the per-netns settings.
-> > 
-> > Per netns validation, but only settable by root, not by root-in-namespace.
-> 
-> Hmm I don't know how to achieve that. Are there examples of such
-> options?
+Hi,
 
-Two examples, both basically make the sysctl writable by root-in-ns,
-but then add an extra capable() check in the write handler.
+While investigating capture stalls, I needed to tell whether a control request had timed out, completed later, or been canceled during teardown. The existing timeout log gives the raw opcode, but repeated requests need an identifier to follow their lifetimes (or cycles).
 
-ipvs max_conn: in proc_do_conn_max()
+This RFC adds one trace event to sound/virtio. Its enqueue, response, cancel and wait records share a per-send ID. Wait records describe the sender's outcome, response and cancel records describe queue completion. Therefore a timed-out wait can be followed by a response with the same identifier.
 
-        if (write && !rc && val != unset) {
-                struct netns_ipvs *ipvs = table->extra2;
-                bool priv = capable(CAP_NET_ADMIN);
-                int max;
+The patch applies directly to the mainline base listed below. PCM capture staging, split-ACK accounting, workqueue priority and application recovery changes are outside this RFC.
 
-                mutex_lock(&ipvs->service_mutex);
-                /* Unprivileged admins can not go above the hard limit */
-                max = priv ? IP_VS_CONN_MAX : ipvs->conn_max_limit;
-                if (val < 0 || val > max) {
-                        rc = -EINVAL;
+Validation of the exact source diff:
+- ARM64 W=1 kernel/module builds with KASAN and lockdep; additional object builds with BPF events enabled and with event tracing disabled.
+- Six QEMU cases compare baseline, trace-off and trace-on for a delayed PREPARE response and cancellation during unbind/rebind. Each checks subsequent capture and playback. No KASAN/lockdep diagnostics or trace loss were recorded. These tests use a patched synthetic QEMU backend.
+- Eighteen QEMU performance trials, 9,000 timed open/start/drop/close cycles, use a 4,096-frame buffer. Enabled trials produce the expected enqueue/response/wait counts. Steady capture produces no control events.
 
-ns_last_pid, which in its original commit b8f566b04d3c ("sysctl: add
-the kernel.ns_last_pid control")had a direct capable check (it was
-later relaxed):
+The added message fields cost 24 bytes per request on the tested ARM64 configurations, even with tracing off. Module sections grew by 11,160 bytes in the debug build. Actual allocation depends on slab/page layout.
 
-        static int pid_ns_ctl_handler(struct ctl_table *table, int write,
-                       void __user *buffer, size_t *lenp, loff_t *ppos)
-        {
-               struct ctl_table tmp = *table;
-        
-               if (write && !capable(CAP_SYS_ADMIN))
-                       return -EPERM;
+A further non-debug comparison used this exact candidate with QEMU 11.1.2 and HVF, sharing the same Image/config and differing only in virtio_snd.ko. Six balanced orders exercised 90,000 timed lifecycle cycles at 4,096 frames, followed by three 30-second synthetic captures. All functional checks passed, as each capture read 1,440,000 frames, with zero XRUNs or read errors. Each trace-on lifecycle trial recorded 90,000 events without loss. Steady capture recorded no control events.
 
+Observed medians of six per-trial p95/p99 lifecycle times, in microseconds, were 201.105/349.729 for baseline, 254.146/334.416 for trace off, and 291.667/413.083 for trace on. Median process CPU time per lifecycle was 70.437, 70.532 and 77.300 microseconds, respectively. These measure the open/configure/prepare/start/drop/close sequence, rather than audio delivery latency.
 
+Native VZ with the unpatched baseline and internal microphone completed 100 lifecycle cycles, but a 30-second capture returned EIO after 1,131,472 frames (23.57 seconds of audio). Native VZ steady-capture performance remains unverified. Earlier VZ integration results included experimental capture changes and a different port of the trace implementation, as they do not establish performance of this exact candidate.
+
+Additional ARM64 QEMU fault injection exercises the real send and completion paths through a separate test-only caller. The backend returns status `0xdeadbeef` and used lengths 0, 3 and 37 for a 36-byte response capacity. Blocking queue consumption fills 64 entries; the 65th send returns -ENOSPC. A held asynchronous request returns before its response, while SIGUSR1 interrupts a synchronous wait with kernel -ERESTARTSYS and userspace EINTR. Both requests complete later without another sender wait. Each fault is followed by a successful query, then the suite checks an additional-SG query, capture and capture reopen at 4,096 frames, plus playback.
+
+The length faults deliberately write a complete response within the writable buffers and alter only the reported used length. Baseline and instrumented senders still return success in those cases. The event records the raw length with status_valid=0 and status=0; this patch does not change protocol validation. An unknown status with a valid length is recorded verbatim, with the existing sender path returning -EINVAL. Here status_valid describes coverage of the response header word. The raw used length remains available for opcode-specific payload checks.
+
+Two fresh boots each of baseline, feature trace-off and feature trace-on passed all 42 fault scenarios with identical sender results. Each trace-on run contained 280 events with no trace loss. The original, unmodified production modules also passed six repeated timeout/reset regressions. Seven deliberately corrupted evidence sets were rejected by the oracle.
+
+The fault caller and QEMU changes are local test fixtures, excluded from this patch. The production control implementation remains byte-for-byte the candidate tested above. The fixture modules were rebuilt with W=1; KASAN and lockdep remain enabled. These synthetic tests do not exercise physical microphone input or establish additional VZ compatibility.
+
+Thanks,
+Joonho
+
+Joonho Lee (1):
+  ALSA: virtio: trace control message lifecycles
+
+ sound/virtio/Makefile               |   2 +
+ sound/virtio/virtio_ctl_msg.c       | 156 +++++++++++++++++++++++++++-
+ sound/virtio/virtio_ctl_msg_trace.h | 107 +++++++++++++++++++
+ 3 files changed, 264 insertions(+), 1 deletion(-)
+ create mode 100644 sound/virtio/virtio_ctl_msg_trace.h
+
+ base-commit: 2f2f7eeef8b0a1a9b9ca998231419873ccae8d4e
