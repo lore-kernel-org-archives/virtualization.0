@@ -1,328 +1,233 @@
-Received: from mail-qv1-f49.google.com (mail-qv1-f49.google.com [209.85.219.49])
+Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 331A640B0E2
-	for <virtualization@lists.linux.dev>; Sat, 17 Oct 2026 06:00:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.219.49
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792216816; cv=pass; b=BOYMgqcpQnVwSZUu8SEGWB+l+SVLXNjtool39P82E5arOBWIzDHwE1sXYWAMR/S5OzIfHR8dh/dMeiEJzmUiSLcXX5A1RScy/N2MECNnEiLf6JPuG9qL1NWxKWDzfUxIl0JjgxyV+Z/wmmv4CMO3urHpgFCoYQ5x4wZjJjudXf0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792216816; c=relaxed/simple;
-	bh=bkvh1i5FG37o5A9ttSAH20Uqm6CK5XS7/r4HenKlm/A=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=ZEdjGPAVFc9HmQCtOHJ0Xq5x+22JRR3ZBbbvOWw5wqYmBY2DvOcMLPhhizHBCrlD7xP/oq7EEoCjWv9baXv7pW4GnUP1dcMvT0u1Gx8fd2D9lC2yuuaUgmMiRhKin/KVHr8IwgiYMcRieBlwbMSKHM84f9dXRTOwG4jk1LMXqJY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oMldbcRX; arc=pass smtp.client-ip=209.85.219.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 830B93E0250
+	for <virtualization@lists.linux.dev>; Sat, 17 Oct 2026 06:00:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1792216825; cv=none; b=IgFFIfebm2prwYFzLx5HvoOFCFjnf70xpe11vmPvjRcMPP8QSgCn0Tcp0hAXfGwnPDVl8XSAh4BKcXQHQ2PoskD5F0J8smaVkm5IWUWGaGSr7Z/0CnkUvhSMk7xNJ0/kF4cwND+kbOVbMGoeW8tdB3KWIEWNIe605z2X2Lh/OVo=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1792216825; c=relaxed/simple;
+	bh=lq8OWJxtvFNdz454e1SVHMr8naj0Ut+ma6XM69TxQRQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Y8LFwJwKtsulO0VKmoAe9C1ezfSwIQyuyc0hHuMbhW1UL57xKhaiPc+Qkc99cADQ580OI2GlX78lGousfluNX8T64hvYfVCkEmgqn4Ig1wyNEG57dHcQhhJyf7XOz+SR2qhSO50PGvzIn6Hymk8rid29BcoRv7qcpRqNLmGaaaw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jvKbF0f4; arc=none smtp.client-ip=209.85.214.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oMldbcRX"
-Received: by mail-qv1-f49.google.com with SMTP id 6a1803df08f44-91bb5795792so24976d6.2
-        for <virtualization@lists.linux.dev>; Fri, 16 Oct 2026 23:00:15 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1792216814; cv=none;
-        d=google.com; s=arc-20260327;
-        b=YWHLqBNksdj4Or1fiGOREcL5yrPTOPeR+i7frT/oYYJiaDlvno9aLwevtLxSTfe90p
-         TBa7uq4q0I33BiCbhBLuiFZExdiuwl18w0PeyHwrxbbNxpl449P8tswFUOoj6U9Y4lWZ
-         kzPRsuuu52vca8gpXvGpfKGb8QaDF9X88Vmx81JmaQAD6q7KYOEcKG9YSVHo71CQavqA
-         FpxbVy9W+A1EKsHtJzC3FwWNYW6Og3hv1ajPRKMcm7je7rvS8ALMJ4PdzBv4LA1AGn47
-         3FjWkckalY45YEgc0uOVFjS4EhF1rh6dZ8GCSML6YrE1DhlMUJ2UpYfWiIyHrlQoRD8V
-         K+XA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:mime-version:dkim-signature;
-        bh=63A2I3xSyjrdJxbGENFhY9IuJPK1dZ8nnNSKYaZbcvw=;
-        fh=Z+8/Zl8g/M36YO5NW549+GlAOx/gR1RoYNE6l0mC7QM=;
-        b=haoKeKWMPigNte2d+H0zKu8SDMeesIyoqSvdQe1HXAIvFsxOsg/ojBAEB8OcMUsmJ/
-         OMQaw65jB7jx64yKyoNOYe0TkuN9+JiPrgZtycC6LNiV59UNONXk95JoxuYkL0+nUnyE
-         xc4TWp4DHXrWPH3qzqK+KsfKUy0rTpVyY+ESH33z6TjACqbiSBY8GR83p9HMe2lLdMdx
-         wEKPv8/b/HvbSdejpHQlxW9xSsfNjs7rkySJpufb33k7AdXuPjSgrSzZpRz7ugN0dxOs
-         dSJn/Gnezw5W8Qj/rgqHmvR+EpCk9n9AL9dFZO5ZQYYVanJdF/vH/NBNl51ro+NSCKPU
-         eMoA==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jvKbF0f4"
+Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2d6d28aa26cso1853555ad.2
+        for <virtualization@lists.linux.dev>; Fri, 16 Oct 2026 23:00:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792216814; x=1792821614; darn=lists.linux.dev;
-        h=content-type:cc:to:subject:message-id:date:from:mime-version:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=63A2I3xSyjrdJxbGENFhY9IuJPK1dZ8nnNSKYaZbcvw=;
-        b=oMldbcRXIh5/yVDSOqu40SUwu+TCk4Dtvc2Wup0SKLr9ZVUMDAlcDJVcPt0veB/E/v
-         uIGr8kJVqPcFEO29XtAdNRHKtthxVWNvdiJxYPhk0a0Lh46st3J1Wf7h/ICuk69uZYym
-         o5AISOXG1WO7XP/LwchEiWo8nlOEUjGydAZkUCjVCGN+rAjau+G+kE/ADfjPAltBmHl0
-         CeQ78FynRA3nktrT3FJ48CsvreIUR5r7OIRm3b7WrIzWimfh9Q0cgAN6xtiI86th6GEf
-         iPBloMsEYBpDT63NL0TDtfS4Sav2+SXMqYHfoJb4ch/IzvlSJJMipII60CqREopi5awW
-         awaA==
+        d=gmail.com; s=20251104; t=1792216824; x=1792821624; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=6t3JxNwq87GdMMoHD48Yg+y/3JiCN4qGqQmO7+PdZ3o=;
+        b=jvKbF0f45ZRVKasPWveBb1x5q+fy8/eSIMdN03Lg9xta8S3BnLU5XADsF8kwe2mbty
+         H6ZWnLYIi2Z5gO5897uZAvY1sKZoPTcuy1wip0aO622SRzmfhst2w370CRAnMmOn4iu6
+         R/SoZkT2tqcFkb+Oal3f4f8j0cmNrmqNMDqXdAR+tu3beOHrcT1LudRoMvF6pY8WWB4b
+         2ydTCoEsATLPdvj9aKhkagY/ovGyaj9SaMDt/Onk8qFmbzq3Bwar4H6rt+gECXFgE1VH
+         8odNKO9Vv1CBMxnucQ6yT2L0i0YQ6nZD5QAyOOahEnVUI/Ltle2O1FD1R+7LCUxpaMWm
+         K3uQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792216814; x=1792821614;
-        h=content-type:cc:to:subject:message-id:date:from:mime-version
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=63A2I3xSyjrdJxbGENFhY9IuJPK1dZ8nnNSKYaZbcvw=;
-        b=G4Op1fbL7646ijgZi3mKjh6XQSnp0uJkWnUkdaK+mIJReDguzjn3vBXDk7SNLh2KBP
-         vlk+WZ5/07XGh61RMsa3La8SftGuq6wDPlwPfWRQn/ULSEhjmKZlVTRSRUMqILz1v5J7
-         FyZFlTxXZJgykAa/6s3w0VEiOjonBZ4u7EDXfdcTIxd6RiqY/Ul9D8+FWx4GfJqHJ9JN
-         KhLrFUqJXn1vn73tdqZJcX48TmsyX5adAlNssaSeGyKMs9jxzycnlocTWS+tlPhfa8zd
-         Cyh212ehpGdxq+yp0F8hXsWZesBYiwgBTo0Ue1B5I9aoeeho/BFrSulQvMYEjT0Hh7f8
-         Fe/Q==
-X-Forwarded-Encrypted: i=1; AKwUvBwF0rr1csu9rAZDZSHz7YcDmIdRtDttU32Yc0xXoC4vXNluB2ndgjTlYMFia4AY+535C3reIWRXPqDjNXa8Tw==@lists.linux.dev
-X-Gm-Message-State: AFq9FYJRHFqA4Ig7Ug+qIqNv5br8Z/fx0SSi/JL7bPM6aazxyZlRnaoE
-	gg2+FZOy5VWnAOQ8W7CFVEu+1aXnXObRC7aEuMrQZdelt9Tu0kUhZ6V0AAjaJrzP4Hu2FzTXgGe
-	9O3t5XJp/xPyra+SdqwCsrv/+VFTZxW0=
-X-Gm-Gg: AYBFou3s5v4gwFhMV9suT1VQy56hcc8nax0Wyp6vkpyT01pyT8GT8HU6OoEowgPqTyx
-	5Mum60YM3SKubGFIfZqy2kBoNmJZlLInNjUQJk0wPrBE0E1yp2NEaGchg8Jyflgw4/HfylQU2l9
-	sO/EcjVqD7W3+EiuRf1y2SPsJ5gEDe+nnQBWloTy3vllDE4woj4YeNTtztUtephBailpM8PHwXj
-	8qn5EQyrawkJPa2Xeby3xCXqEQOSw4/jQMTSRSvqdJlsb2E9bJiXR4Eip+IYwh4ajnwEET57RMi
-	mdmBSLN8u/RkX89UHEc9izgQxAjAbPpXifgpcR42vIt+TnWujAKnd3iNMqt4rIkx0vWX4emxI4p
-	0A42ZZTHwwsVDt4FOd3YJAV5FCaXfLUa8dVm6BY145QN5EqZKN0FTwAjqyRSp4myAX0d3qkD4Ql
-	bSWllgSAoUUdozvBlBhmiqeFb1JVhf4m5nkC2u5DjQTsKks+IjUEpj2YZp5URrRFo45z7WPaae2
-	ZxManGryrvZM++Fo7W1fduj
-X-Received: by 2002:a05:6214:b69:b0:91b:d948:c415 with SMTP id
- 6a1803df08f44-91bdf17d414mr36514556d6.44.1792216813780; Fri, 16 Oct 2026
- 23:00:13 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1792216824; x=1792821624;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=6t3JxNwq87GdMMoHD48Yg+y/3JiCN4qGqQmO7+PdZ3o=;
+        b=rJbJboRsK/PGv0lrq9GpR4AI7ILwfTqGYW/b6fNOuNj4CsBMgut0yR72K9khcQOVyM
+         CTRuqDJGl94dseDFNIcVQz+yjDMjBW/f1oXlzNtbpA/7xmgozjrc62mTLyG8jpIfMsWY
+         3QCsj+elJ71zeKyhxn8/cnO1uLc3UJulVB8tNxTnL01B+Gr2Wa1RTBLudQT5zjk9+yfq
+         NoZpRnEqZNCWdOSmmyMHOyxNgoJq0ib/kdhFjN0en8udbSwc7HfL71AI2OiL0U9RxMTJ
+         8VD27f2dyH2u3fmq+S/knLDmjitu2HgifdNraVqybDNj8EDG8QZM1LhnjXWDaFFACWe0
+         7Ksg==
+X-Forwarded-Encrypted: i=1; AKwUvBzOAY5jlcAPfj05Fc+FcNvUDLbRl4dcTOyX3nM0Q16/vAE8dDJtJMIu0hNu+EU/oNpjIHc2BIs9tLvQjNvKcA==@lists.linux.dev
+X-Gm-Message-State: AFq9FYIqqPgSwfMz0NZEvXcKid/we8bJcU3WZQl9OSxTHGbn8wR0wYb/
+	jue8fmDB2zdPloAWA0j5Ve/T1II+OQaueIoGVDdHipV4lFk2MA0QFTqI
+X-Gm-Gg: AYBFou1lc9hAOEkYdzVx70fGgh+AllwcFCoqT9bWMdUhm3xpcMFR5LF3KW7n8zxdz9N
+	CdlONs3MnPuupLs1sb4zlD5h+S3s93otM9I/EKEEbi6G2Zqrr3SQWJ9zjGLw3hTtFFMMxxFumPF
+	r/1dM3yIvrgUD+9mkEXHbXh1zBK6MOVIlrIIkSe+d3y1Oz3w7RBu8tEZd6JcIRNUgOByazAO1ZC
+	iu283dDGnCwzk48Jcdud2LHwt7lrF+ly4U7mc/JDnzaxuajELdJ2kTb3sBKWtNbFuTEpPgtRoIu
+	MEb4hqhc4IJUMclcvxvEUx+JWuoLUa7yQaGqgg/X0xWqKstjoB6CFnGVyQOTsjKxlECRnc31Mkn
+	aCFmv8k2eB6rQcKv2kEk9MkxePr67dpARN0hH4wAIdjz99rD+s5yg52sWDb4xH9XRpjxNwBGOVW
+	SB1fuz+/uW5FlNl10PhMQLLy7jg6C2uLYq1xFkZVd074BQofuAC2DVtSSI/1kE3YDQ/9aQzoWiA
+	Zns7dgAur7MfxCKH/lhfmovPJPIODvGJREGCstCMI6HXhjaR6lNF++sgcRb/4+5zYtFG/4rnPZR
+	47j+cBTcebG/+rk=
+X-Received: by 2002:a17:902:f543:b0:2e9:5ec6:bfc9 with SMTP id d9443c01a7336-2e9a69f74b5mr16402635ad.9.1792216823244;
+        Fri, 16 Oct 2026 23:00:23 -0700 (PDT)
+Received: from localhost.localdomain ([180.182.24.11])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2e97e835a19sm18834465ad.45.2026.10.16.23.00.21
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Fri, 16 Oct 2026 23:00:22 -0700 (PDT)
+From: Joonho Lee <mynameisjune111@gmail.com>
+To: Anton Yakovlev <anton.yakovlev@opensynergy.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Takashi Iwai <tiwai@suse.com>
+Cc: Jaroslav Kysela <perex@perex.cz>,
+	linux-sound@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: [RFC PATCH 0/2] ALSA: virtio: fix staged capture ACK ordering and period scheduling
+Date: Sat, 17 Oct 2026 15:00:19 +0900
+Message-ID: <rfc-virtio-snd-capture-followups-0.f2737c95c12e45b4@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-From: Megane Hebo <hebomegane@gmail.com>
-Date: Sat, 17 Oct 2026 15:00:02 +0900
-X-Gm-Features: AclHuK_sX1uqxVMBR6hp7esLRZ_VlhANEBWvmp_0y_cBfyPLvu2acqyIrbaKGgs
-Message-ID: <CAJPVW+=XcHDV4aoXt5oAHYh49kX7m5wUxf7TucrcBy+q6MdXFA@mail.gmail.com>
-Subject: [RFC PATCH net-next] selftests: net: exercise virtio checksum ingress outcomes
-To: netdev@vger.kernel.org
-Cc: linux-kselftest@vger.kernel.org, davem@davemloft.net, edumazet@kernel.org, 
-	kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, shuah@kernel.org, 
-	mst@redhat.com, virtualization@lists.linux.dev, 
-	willemdebruijn.kernel@gmail.com, habte.yibelo@gmail.com, jasowangio@gmail.com, 
-	eperezma@redhat.com, xuanzhuo@linux.alibaba.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
-The virtio checksum hardening series gives virtio_net_hdr_to_skb()
-three outcomes for VIRTIO_NET_HDR_F_NEEDS_CSUM: known-good partial
-checksum metadata is retained, uncommon non-GSO metadata is resolved
-in software at ingress, and GSO metadata that cannot be resolved safely
-is rejected.
+Hi,
 
-Add focused TUN tests for these three outcomes. Keep the packet shape
-otherwise identical (IPv4/UDP, no encapsulation), so each test changes
-only the metadata needed to select a different branch.
+These two follow-ups address separate failure paths in the staged
+capture support from the VZ RFC v2. Patch 1 fixes ACK accounting under
+concurrent RX completion. Patch 2 changes scheduling of staged capture
+period work. Keeping them separate lets the accounting fix and
+scheduling policy be reviewed and tested independently.
 
-For the software-resolution case, verify the rx_csum_sw ethtool counter
-added by the hardening series. A recognized partial checksum must not
-increment it. An uncommon non-GSO checksum must increment it once. A
-GSO/protocol mismatch must be rejected without incrementing it.
+Patch 1 commits consumed bytes under the substream lock before waiting
+for the RX queue lock. It then refills with queue -> substream lock
+ordering. After consumption has been committed, refill failure latches
+XRUN and ACK returns success. Returning an error would roll ALSA
+appl_ptr back while the driver's consumption counters remained advanced.
+Pre-commit errors still propagate. Ring-capacity checks continue to
+reject unread overflow.
 
-These are contract tests for ingress normalization: packet semantics
-must be made consistent before later protocol processing observes the
-packet.
+Patch 2 routes staged capture period work to system_highpri_wq at all
+ten producers, including self-requeue and the ACK error paths. Playback
+and non-staged streams retain normal scheduling. Work cancellation and
+initialization, buffer sizes, sample accounting and module parameter
+defaults remain unchanged. Enabling staged capture changes scheduling;
+this patch does not provide real-time guarantees.
 
-This is intended as a follow-up to [PATCH net-next v2 0/7]
-"more virtio-net csum hardening".
+Base and prerequisites
 
-Signed-off-by: Kiyotaka Tonegawa <hebomegane@gmail.com>
----
-Testing:
-- applied on current upstream master after Michael's v2 0/7 series
-- built tools/testing/selftests/net/tun with the normal YNL dependencies
-- runtime against a kernel containing v2: not run
+The tested base is sound.git 5618f6837ef3314e2c581d4c05ec13b7ed975cb4.
+It contains core capture-drain commits 1f21537b1186 and d9f52113f2634.
+Those commits supply the core dependency for this series and supersede
+the older core RFC v3 dependency named by the VZ RFC v2 cover letter.
 
- tools/testing/selftests/net/tun.c | 160 ++++++++++++++++++++++++++++++
- 1 file changed, 160 insertions(+)
+Apply these public prerequisites in order, then patches 1 and 2:
 
-diff --git a/tools/testing/selftests/net/tun.c
-b/tools/testing/selftests/net/tun.c
-index afaa81c..8775315 100644
---- a/tools/testing/selftests/net/tun.c
-+++ b/tools/testing/selftests/net/tun.c
-@@ -8,7 +8,9 @@
- #include <stdlib.h>
- #include <string.h>
- #include <unistd.h>
-+#include <linux/ethtool.h>
- #include <linux/if_tun.h>
-+#include <linux/sockios.h>
- #include <netinet/tcp.h>
- #include <sys/ioctl.h>
- #include <sys/socket.h>
-@@ -543,6 +545,76 @@ TEST_F(tun, reattach_close_delete)
-        EXPECT_EQ(tun_delete(self->ifname), 0);
- }
+1. Five virtio-snd lifetime/error-recovery v3 patches:
+   https://lore.kernel.org/all/cover.1791881787.git.mynameisjune111@gmail.com/
+2. The generic teardown-wait RFC v2 patch:
+   https://lore.kernel.org/all/rfc-v2-generic-control-wait-0.2eddd58a796e497f@gmail.com/
+3. The VZ capture RFC v2 patch:
+   https://lore.kernel.org/all/rfc-v2-vz-capture-compat-1.b9ab4c1540dc4691@gmail.com/
 
-+static int tun_get_stat(const char *ifname, const char *name, uint64_t *value)
-+{
-+       struct ethtool_drvinfo drvinfo = { .cmd = ETHTOOL_GDRVINFO };
-+       struct ethtool_gstrings *strings = NULL;
-+       struct ethtool_stats *stats = NULL;
-+       struct ifreq ifr = {};
-+       unsigned int i;
-+       int fd, ret;
-+
-+       fd = socket(AF_INET, SOCK_DGRAM, 0);
-+       if (fd < 0)
-+               return -errno;
-+
-+       strncpy(ifr.ifr_name, ifname, IFNAMSIZ - 1);
-+       ifr.ifr_data = (void *)&drvinfo;
-+       if (ioctl(fd, SIOCETHTOOL, &ifr) < 0) {
-+               ret = -errno;
-+               goto out;
-+       }
-+
-+       if (!drvinfo.n_stats) {
-+               ret = -ENOENT;
-+               goto out;
-+       }
-+
-+       strings = calloc(1, sizeof(*strings) +
-+                        drvinfo.n_stats * ETH_GSTRING_LEN);
-+       stats = calloc(1, sizeof(*stats) +
-+                      drvinfo.n_stats * sizeof(stats->data[0]));
-+       if (!strings || !stats) {
-+               ret = -ENOMEM;
-+               goto out;
-+       }
-+
-+       strings->cmd = ETHTOOL_GSTRINGS;
-+       strings->string_set = ETH_SS_STATS;
-+       strings->len = drvinfo.n_stats;
-+       ifr.ifr_data = (void *)strings;
-+       if (ioctl(fd, SIOCETHTOOL, &ifr) < 0) {
-+               ret = -errno;
-+               goto out;
-+       }
-+
-+       stats->cmd = ETHTOOL_GSTATS;
-+       stats->n_stats = drvinfo.n_stats;
-+       ifr.ifr_data = (void *)stats;
-+       if (ioctl(fd, SIOCETHTOOL, &ifr) < 0) {
-+               ret = -errno;
-+               goto out;
-+       }
-+
-+       ret = -ENOENT;
-+       for (i = 0; i < drvinfo.n_stats; i++) {
-+               const char *stat_name =
-+                       (const char *)&strings->data[i * ETH_GSTRING_LEN];
-+
-+               if (!strncmp(stat_name, name, ETH_GSTRING_LEN)) {
-+                       *value = stats->data[i];
-+                       ret = 0;
-+                       break;
-+               }
-+       }
-+
-+out:
-+       free(stats);
-+       free(strings);
-+       close(fd);
-+       return ret;
-+}
-+
- FIXTURE(tun_vnet_gso)
- {
-        char ifname[IFNAMSIZ];
-@@ -611,6 +683,35 @@ static int build_vlan_tcpv4_gso_packet(uint8_t
-*buf, int payload_len)
-        return cur - buf;
- }
+The seven stable prerequisite patch IDs are listed below. These
+follow-ups need the pending staged-capture implementation; its
+introducing patch has no upstream commit ID for a Fixes tag yet. The two
+changes do not include the separate control tracepoints or input-route
+recovery work.
 
-+static int build_ipv4_udp_partial_packet(uint8_t *buf, int payload_len,
-+                                        uint8_t gso_type,
-+                                        uint16_t csum_offset)
-+{
-+       uint8_t *cur = buf + sizeof(struct virtio_net_hdr);
-+       struct virtio_net_hdr vh = { 0 };
-+
-+       cur += build_eth(cur, ETH_P_IP, param_hwaddr_outer_src,
-+                        param_hwaddr_outer_dst);
-+       cur += build_ipv4_header(cur, IPPROTO_UDP,
-+                                sizeof(struct udphdr) + payload_len,
-+                                &param_ipaddr4_outer_src,
-+                                &param_ipaddr4_outer_dst);
-+       cur += build_udp_packet(cur, UDP_SRC_PORT, UDP_DST_PORT,
-+                               payload_len, AF_INET, true);
-+
-+       vh.flags = VIRTIO_NET_HDR_F_NEEDS_CSUM;
-+       vh.hdr_len = ETH_HLEN + sizeof(struct iphdr) + sizeof(struct udphdr);
-+       vh.csum_start = ETH_HLEN + sizeof(struct iphdr);
-+       vh.csum_offset = csum_offset;
-+       vh.gso_type = gso_type;
-+       if (gso_type != VIRTIO_NET_HDR_GSO_NONE)
-+               vh.gso_size = 64;
-+
-+       memcpy(buf, &vh, sizeof(vh));
-+
-+       return cur - buf;
-+}
-+
- TEST_F(tun_vnet_gso, vlan_tcpv4_gso_no_csum)
- {
-        struct virtio_net_hdr vh;
-@@ -678,6 +779,65 @@ TEST_F(tun_vnet_gso, vlan_tcpv4_gso_no_csum_64k)
-        ASSERT_EQ(ret, len);
- }
+Validation
 
-+TEST_F(tun_vnet_gso, csum_partial_known_good)
-+{
-+       uint8_t pkt[512] = { 0 };
-+       uint64_t before, after;
-+       int len, ret;
-+
-+       ASSERT_EQ(tun_get_stat(self->ifname, "rx_csum_sw", &before), 0);
-+
-+       len = build_ipv4_udp_partial_packet(pkt, 128,
-+                                           VIRTIO_NET_HDR_GSO_NONE,
-+                                           __builtin_offsetof(struct
-udphdr, check));
-+       ret = write(self->fd, pkt, len);
-+       ASSERT_EQ(ret, len);
-+
-+       ASSERT_EQ(tun_get_stat(self->ifname, "rx_csum_sw", &after), 0);
-+       EXPECT_EQ(after, before);
-+}
-+
-+TEST_F(tun_vnet_gso, csum_partial_uncommon_resolved)
-+{
-+       uint8_t pkt[512] = { 0 };
-+       uint64_t before, after;
-+       int len, ret;
-+
-+       ASSERT_EQ(tun_get_stat(self->ifname, "rx_csum_sw", &before), 0);
-+
-+       len = build_ipv4_udp_partial_packet(pkt, 128,
-+                                           VIRTIO_NET_HDR_GSO_NONE,
-+                                           __builtin_offsetof(struct
-udphdr, source));
-+       ret = write(self->fd, pkt, len);
-+       ASSERT_EQ(ret, len);
-+
-+       ASSERT_EQ(tun_get_stat(self->ifname, "rx_csum_sw", &after), 0);
-+       EXPECT_EQ(after, before + 1);
-+}
-+
-+TEST_F(tun_vnet_gso, csum_partial_gso_protocol_mismatch_rejected)
-+{
-+       uint8_t pkt[512] = { 0 };
-+       uint64_t before, after;
-+       int len, ret;
-+
-+       ASSERT_EQ(tun_get_stat(self->ifname, "rx_csum_sw", &before), 0);
-+
-+       /* The checksum field is a valid UDP checksum field, but the
-+        * virtio header claims TCPv4 GSO. GSO cannot be resolved as an
-+        * arbitrary checksum write, so the ingress contract rejects it.
-+        */
-+       len = build_ipv4_udp_partial_packet(pkt, 256,
-+                                           VIRTIO_NET_HDR_GSO_TCPV4,
-+                                           __builtin_offsetof(struct
-udphdr, check));
-+       ret = write(self->fd, pkt, len);
-+       ASSERT_EQ(ret, -1);
-+       ASSERT_EQ(errno, EINVAL);
-+
-+       ASSERT_EQ(tun_get_stat(self->ifname, "rx_csum_sw", &after), 0);
-+       EXPECT_EQ(after, before);
-+}
-+
- FIXTURE(tun_vnet_udptnl)
- {
-        char ifname[IFNAMSIZ];
---
-2.53.0
+For patch 1, source-extracted host fixtures under ASan/UBSan reproduce
+the baseline ACK race and post-commit pointer rollback. The candidate
+preserves wrapped data and accounting, including failed refill. Two
+ARM64 QEMU boots exercise the extracted logic with real spinlocks, KASAN
+and lockdep. A full-driver baseline/candidate matrix passed 20 lifecycle
+scenarios, covering packed tails, delayed PREPARE/START/STOP/RELEASE,
+pending RX, reset cancellation and playback/capture recovery.
+
+For patch 2, the unchanged candidate also passed ten full-driver QEMU
+scenarios with KASAN and lockdep. The ARM64 build emitted the known 517
+-Woverride-init warnings outside sound/, with no sound-source warnings.
+The fixtures use test glue and a modified QEMU backend for fault
+injection.
+
+The physical comparison used the built-in MacBook Pro microphone through
+VZ, a two-vCPU/2048 MiB guest, mono S16_LE at 48 kHz, a 1024-frame
+period and a 4096-frame buffer. Six fresh boots compared ACK-only with
+ACK plus patch 2, in A/B, B/A, A/B order. Each boot ran quiet capture
+for six seconds, then a 70-second target with 16 nice-0 CPU workers,
+then a six-second reopen. The reader also used nice 0 in both arms.
+
+  Run  ACK-only received before EPIPE     ACK + patch 2
+  1       563520 frames (11.74 seconds)   3360000 frames (70 seconds)
+  2      1476752 frames (30.77 seconds)   3360000 frames (70 seconds)
+  3      1455840 frames (30.33 seconds)   3360000 frames (70 seconds)
+
+All three failures logged ring_capacity. All candidate captures had zero
+read errors and nonzero signal; all six immediate reopens passed.
+Routes, worker priorities, worker cleanup and guest shutdown were
+checked. Trace loss was zero. The initrd contents differed only in
+virtio_snd.ko and its expected-hash file; the kernel and capture
+executable were equal.
+
+The first baseline failure included a 108.112 ms period-work dispatch
+delay and a 255.821 ms runnable wait for the reader. The other two
+failures left pending work without matching execution, so their
+matched-only latency maxima understate outstanding work. Candidate
+maximum dispatch delays were 13.029, 12.355 and 20.366 ms across the
+three runs.
+
+In a separate pair with the reader at nice -10 in both arms, both
+versions completed 70 seconds and reopened successfully. Host load was
+lower during that control. It is an exploratory result, not an isolated
+priority effect. Host load varied throughout the comparisons and tracing
+adds overhead. The evidence supports this change for the tested
+workload, with contention affecting both kernel work and userspace
+scheduling. It does not establish an exclusive kernel-only cause or
+lossless capture under arbitrary load.
+
+One initial run failed before valid capture because of a harness
+identity check. Another had a result-parser delimiter error; its
+original trace was preserved and independently reparsed. Four preflight
+attempts refused an unexpected input device before launching a VM. These
+are excluded from clean-capture counts. The eight accepted boots contain
+24 capture phases: three reproduced baseline failures and 21 completed
+captures.
+
+Remaining coverage and review questions
+
+The physical result covers this built-in mono input and this guest
+setup. Input switching, sleep/wake, other interfaces, other VMMs and
+physical non-coherent DMA remain outside this comparison. Guest poweroff
+was used for cleanup; graceful ACPI shutdown was not tested by this
+matrix. The fresh regressions described above predate this packaging
+step. The committed source matches the tested source byte for byte.
+
+The new fixtures, harness and raw logs are currently local. An immutable
+public reproducer snapshot still needs to be prepared before submission.
+
+Is system_highpri_wq appropriate for the opt-in staged capture path, or
+would a driver-owned queue be preferable? Is returning success after the
+ACK accounting commit, with XRUN latched on refill failure, the right
+way to preserve ALSA pointer consistency? I would also appreciate
+guidance on whether these follow-ups should be folded into the pending
+VZ revision.
+
+Codex (GPT-6 Astra) assisted with test harnesses, trace review and this
+text. The work was directed at isolating the ACK race, preserving
+accounting on errors, and comparing unchanged baseline/candidate
+artifacts under the same explicit guest workload. The patches carry
+Assisted-by attribution.
+
+Thanks,
+Joonho
+
+Joonho Lee (2):
+  ALSA: virtio: account staged capture reads before RX refill
+  ALSA: virtio: prioritize staged capture period work
+
+ sound/virtio/virtio_pcm.c     |   4 +-
+ sound/virtio/virtio_pcm.h     |  12 ++++
+ sound/virtio/virtio_pcm_msg.c |   6 +-
+ sound/virtio/virtio_pcm_ops.c | 132 ++++++++++++++++++++--------------
+ 4 files changed, 96 insertions(+), 58 deletions(-)
+
+
+base-commit: 5618f6837ef3314e2c581d4c05ec13b7ed975cb4
+prerequisite-patch-id: 39fb327a004c966ab90f66a34a64bbdbb3ffb475
+prerequisite-patch-id: 7c6bc344656fd839ae0d697ba18d66ac0b47827a
+prerequisite-patch-id: 9dd290ac3147fa7b49a475d7df8a6172778f2860
+prerequisite-patch-id: f4c24a5e441343a690f4ac2437f181c815bc23d0
+prerequisite-patch-id: ab4a5b770247a65272ab7af18a75a147daf81287
+prerequisite-patch-id: cfe3e7000e695a2fda27993f4d9acf0a637cf24e
+prerequisite-patch-id: 771e8815f2b874d98376f309dc60bc90244f378c
+prerequisite-message-id: cover.1791881787.git.mynameisjune111@gmail.com
+prerequisite-message-id: rfc-v2-generic-control-wait-0.2eddd58a796e497f@gmail.com
+prerequisite-message-id: rfc-v2-vz-capture-compat-0.b9ab4c1540dc4691@gmail.com
