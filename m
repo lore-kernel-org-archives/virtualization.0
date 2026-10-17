@@ -1,337 +1,222 @@
-Received: from mx0a-00082601.pphosted.com (mx0b-00082601.pphosted.com [67.231.153.30])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.15])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56D5A2D73A6
-	for <virtualization@lists.linux.dev>; Sat, 17 Oct 2026 00:31:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.153.30
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792197096; cv=none; b=ICct54LzVosFvHGAZD7A9u5xftuUlQ5FrkjKRfY6B2FJIntOKSRtTEwBeoKfd/k1DfPG/g7B7dxyJA3hAnYQXiaDQPA22b8QRsS48vEoW6RthxthuIOxDvGqjCAjIdczCssmhHngxZcc7sNpCwZFAEzk4XkzT7P1hE9d0K5whGI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792197096; c=relaxed/simple;
-	bh=xHmRw2cRQagCKkS8PJSihbgYajdbuGTI060lbUJ2Oyk=;
-	h=Date:From:To:CC:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=lw2JvFpL0GVP/AAjmtlAVC3FWb2gNofqaCT99PdeBMfKt6omTQ5w7LJXUjo5FZNB8TXmevOa/zRBptfn3JNdxqXMVhCIcsaIQ4y/pgM8wxXoPC03hcvGgbtZJ9EL3n2U1fkXaT9rmbumiz0NQGXMbfS374hlO0c99gFcJ5k/XCM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com; spf=pass smtp.mailfrom=meta.com; dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b=VyCBASqu; arc=none smtp.client-ip=67.231.153.30
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1630F299929
+	for <virtualization@lists.linux.dev>; Sat, 17 Oct 2026 00:32:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=192.198.163.15
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1792197122; cv=fail; b=cPCL0mNCZIKSAYC2gceX7MNT7DbkFgIWqDhnJD3wTBEIJiaZYs2QibbAHdlDW6E4J2Fh6T81feZWGjLjPcod6sdn5kQoHikf7JC9RcD5cYZrBr9G2fQGeowEdTL++NX4auO/EOulw6YdmgWoroZuyx4OngP+4dgkEII7xuNGasM=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1792197122; c=relaxed/simple;
+	bh=acTQkJrYn1u9ukKtuGDQYLzzSm8p7pBLt+TBwgm/4DQ=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=V+lhSIcY3OD0Ue04kJf2B+FlZuBommgPMmq2DYtTlUD/j4wc5gMQtuzuuo+h0YGj+b3KoSS+DJQcAKHFKfO9r6dzCvyYOCovgWupbkaH/6e5O1Y7g8+YYYHSYS0Ga4ItxYUofBMb5ADn8G/IZuLZ8N4/apo+zUXhsHbS1mfY3WM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=UTAv/9hp; arc=fail smtp.client-ip=192.198.163.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b="VyCBASqu"
-Received: from pps.filterd (m0089730.ppops.net [127.0.0.1])
-	by m0089730.ppops.net (8.18.1.11/8.18.1.11) with ESMTP id 69GNFjUY611926;
-	Fri, 16 Oct 2026 17:31:14 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=
-	pps82601-s2048-2026-q3; bh=zby02wAL5TpiWDd6bifHL/lm8nLGoWYVqnELw
-	eQC2EM=; b=VyCBASquBzYKAzjY1W+65UoYOmwFqsxOYxfxIAN8L1KsSHDC2YgK4
-	D+v0gY+gDeGF21MY4LW/PHxo/9W7FEnIf5qFQdEvvc4xLhdh/yQ15eAlga/AK4Ak
-	bnxXyFPAXOl8e+JKAyFVl3wAj4e418pg2LrfyIDlMcrlOP6rGohIDyMumo7iYB9I
-	XqE47CR2YXmQz8/jG+JopknlSqORe1L8ghhfsdm8Y7bUIamWtn2OFkuGGaV2VvOd
-	Sa9tXXKIfgNMOM1rST0Tu7ayMPUw79qmpStrw0rcfkKEj4VdCzl0h9R/8g0LG1vO
-	3aXCmAKC8nkYAIgCO1l28nLfqSddXLrJQ==
-Received: from maileast.thefacebook.com ([163.114.135.16])
-	by m0089730.ppops.net (PPS) with ESMTPS id 4hb52n271a-2
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
-	Fri, 16 Oct 2026 17:31:14 -0700 (PDT)
-Received: from localhost (2620:10d:c0a8:fe::f072) by mail.thefacebook.com
- (2620:10d:c0a9:6f::237c) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.49; Sat, 17 Oct
- 2026 00:31:12 +0000
-Date: Fri, 16 Oct 2026 17:31:11 -0700
-From: Bobby Eshleman <bobbyeshleman@meta.com>
-To: <netdev-bot+sashiko@kernel.org>
-CC: <sgarzare@redhat.com>, <davem@davemloft.net>, <kuba@kernel.org>,
-        <pabeni@redhat.com>, <horms@kernel.org>, <corbet@lwn.net>,
-        <skhan@linuxfoundation.org>, <stefanha@redhat.com>, <mst@redhat.com>,
-        <jasowangio@gmail.com>, <xuanzhuo@linux.alibaba.com>,
-        <eperezma@redhat.com>, <shuah@kernel.org>, <rdunlap@infradead.org>,
-        <donald.hunter@gmail.com>, <edumazet@kernel.org>,
-        <virtualization@lists.linux.dev>, <netdev@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <linux-doc@vger.kernel.org>,
-        <kvm@vger.kernel.org>, <linux-kselftest@vger.kernel.org>,
-        <sargun@sargun.me>, <jlinbox@meta.com>
-Subject: Re: [PATCH net-next v3 4/7] vsock: add a netlink command to assign
- the g2h device to a netns
-Message-ID: <atLBzxk7MKIfjcOV@devvm29614.prn0.facebook.com>
-References: <20261012-vsock-guest-ns-v3-4-b32447c66b23@meta.com>
- <179193191574.434549.17107426250790354528@kernel.org>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="UTAv/9hp"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1792197121; x=1823733121;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=acTQkJrYn1u9ukKtuGDQYLzzSm8p7pBLt+TBwgm/4DQ=;
+  b=UTAv/9hpWJE5XUIog4ZKjqa0DZEYRXRCa8xVQOK/deE3zy2X/OhKJaam
+   7mOiIUF9yXbnLfkk3mLv/15T8kVZnwOaVe204HlSvYu6vpScqQeAmbVZS
+   cg219L3EyPEz7rGPN5ugE09aWNXAlE3cpzCteSWmbzpRe3cIT2bYO45Au
+   I1rGb4AZwhliuEysRGXqUkj9Ck8szFOf6a4Ag7diW53gfp9LehKoaCLx+
+   fbxYsD5k0Dyn5h6NOOOxV9yzQWSdvUo7Wc0Hd6Fohox7dEx/cITwR1M8G
+   mimcrsbUfRGVIFlKwK9MfSsS8sdsuBC5z2mShcv02C3e0kZEp/pbT0wWw
+   g==;
+X-CSE-ConnectionGUID: DizTMktsSiuOVasgEBZWnA==
+X-CSE-MsgGUID: ukVvFFjVS6eCgGCNtdx2gQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11937"; a="996105"
+X-IronPort-AV: E=Sophos;i="6.27,162,1787036400"; 
+   d="scan'208";a="996105"
+Received: from orviesa007.jf.intel.com ([10.64.159.147])
+  by fmvoesa109.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Oct 2026 17:32:00 -0700
+X-CSE-ConnectionGUID: BqxY1RyMTiGEt3IfaRZy5A==
+X-CSE-MsgGUID: B9+iyMkKTpCOMB5xdXtRCA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,162,1787036400"; 
+   d="scan'208";a="1949843"
+Received: from orsmsx902.amr.corp.intel.com ([10.22.229.24])
+  by orviesa007.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Oct 2026 17:32:01 -0700
+Received: from ORSMSX902.amr.corp.intel.com (10.22.229.24) by
+ ORSMSX902.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.49; Fri, 16 Oct 2026 17:31:59 -0700
+Received: from ORSEDG901.ED.cps.intel.com (10.7.248.11) by
+ ORSMSX902.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.49 via Frontend Transport; Fri, 16 Oct 2026 17:31:59 -0700
+Received: from CY7PR03CU001.outbound.protection.outlook.com (40.93.198.17) by
+ edgegateway.intel.com (134.134.137.111) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.49; Fri, 16 Oct 2026 17:31:59 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=aIblRw2BN7zr0F3veTApBLCI6Qtbwh0OFZcQYV694e8ZqMBUPR/HgHr0+JEDoB0kayyE/DuTDwrpMj/0qgPhDBqmSuMJ+6iJ5nP4YDM5PQHxkUlUVwsuNzKH1WRhhiM75JQlRaUr4ax+b5YLe/ML77Mv8wTH0b6NR3I0hE+F4UTBbkPtvafnuOdbAwImwYBBdtKlDDp2fXwWxrhKwf4n0T/3w5dZ4lJ4ljcCFxK7dBfrSOQTKcLKJoUEFVOpQmq8gAxveyX5QvnWc2ooaTIO2I6VIIZz5ASWPvSdcG8qvE0PdVDhO81wjBWM0S8yTt2YYPGGf8Sh83x3vzhOJjIhNw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=acTQkJrYn1u9ukKtuGDQYLzzSm8p7pBLt+TBwgm/4DQ=;
+ b=wG/KH8XxZ5RofdFLo2L9H2Rb+ee582jToVJKFSKnxUBxb5wECnZxAaCrg79MSklyMVpJ1ITJPd5H7iyeNoCj93mg3t+yrGdiYNZiSBY4rcqx7jZ/ZuopNYJ4eiqATOZDNy6TkkE3qcDkdEuFSeHrAEaFHeOSfAjGDC1Jg7u4ZDPDH3Ivwciz5tNegn10Go7gegLswIZTcrtrxgAVM49Bq3Luoy8Ixhp4mdgaK5qfaOTLhsYH5CvDjwguI2cT1+g7c6mWNk5MR61PqqZwbS6lUZNU64BhQ8w095vTtt3Z355OAyFOk3eoRUWu9tVEkdzFW8TC85YCyNsxcBZT4Wbu5g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from LV2PR11MB6070.namprd11.prod.outlook.com (2603:10b6:408:179::22)
+ by PH3PPF67C992ECC.namprd11.prod.outlook.com (2603:10b6:518:1::d28) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.522.13; Sat, 17 Oct
+ 2026 00:31:49 +0000
+Received: from LV2PR11MB6070.namprd11.prod.outlook.com
+ ([fe80::4c84:af62:dc60:fd9]) by LV2PR11MB6070.namprd11.prod.outlook.com
+ ([fe80::4c84:af62:dc60:fd9%5]) with mapi id 15.21.0522.016; Sat, 17 Oct 2026
+ 00:31:49 +0000
+From: "Popov, Pavel E" <pavel.e.popov@intel.com>
+To: Logan Gunthorpe <logang@deltatee.com>, Bjorn Helgaas <bhelgaas@google.com>
+CC: Jim Chow <jim.chow@broadcom.com>, Radu Rugina <radu.rugina@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>, Wei Liu <wei.liu@kernel.org>,
+	Michael Kelley <mhklinux@outlook.com>, Lukas Wunner <lukas@wunner.de>, "Leon
+ Romanovsky" <leonro@nvidia.com>, Nathan Ciobanu
+	<nathan.d.ciobanu@linux.intel.com>, "bcm-kernel-feedback-list@broadcom.com"
+	<bcm-kernel-feedback-list@broadcom.com>, "virtualization@lists.linux.dev"
+	<virtualization@lists.linux.dev>, "linux-hyperv@vger.kernel.org"
+	<linux-hyperv@vger.kernel.org>, "linux-pci@vger.kernel.org"
+	<linux-pci@vger.kernel.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH v2 1/2] PCI/P2PDMA: Allow P2PDMA in VMware guests on Intel
+ hosts
+Thread-Topic: [PATCH v2 1/2] PCI/P2PDMA: Allow P2PDMA in VMware guests on
+ Intel hosts
+Thread-Index: AQHdXb56kLC8GFOklEy8u/njCKgpc7cAx1kAgAAZpWA=
+Date: Sat, 17 Oct 2026 00:31:49 +0000
+Message-ID: <LV2PR11MB6070CE9CCA125C290C0F8209B29A2@LV2PR11MB6070.namprd11.prod.outlook.com>
+References: <20261016223402.19991-1-pavel.e.popov@intel.com>
+ <20261016223402.19991-2-pavel.e.popov@intel.com>
+ <8b01d643-f62d-4118-a700-8874341d953b@deltatee.com>
+In-Reply-To: <8b01d643-f62d-4118-a700-8874341d953b@deltatee.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: mx.microsoft.com 1; dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: LV2PR11MB6070:EE_|PH3PPF67C992ECC:EE_
+x-ms-office365-filtering-correlation-id: 02866a40-208e-4f03-9597-08df2be60883
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230040|7416014|23010399003|1800799024|376014|366016|38070700021|56012099006|11063799006|4143699003|10067099003|261009223027099003|22082099003|18002099003|3023799007;
+x-microsoft-antispam-message-info: UE/AOKv1L5nxMsRRDigz/W4ZnqsSy+ExqY30D4eHkeHP12u9/6anDWXI9oP59G0TskOLXb5zRntnfkdX54QWgozJ+LJJmY6A9UCI3xOyXRCz9rMGYhfUOH66MCPFf+sFJeYuCxlF09Zt9h5gGwmpZDYl6QtzI1QQ621nfTMsxzAYGNvsVfCNXmR3jjZ9Bzyh/hZ+a51eUdOJi7d7LsykZn6JC+HYAIrH7hh9jlzg5l4RTxRMxZ7MkKHYXsVYn6URFTWlIp6FtZui4myZQhI3l3k7doqEEZlXZsrjRfdClVcNOQSAZrRCLwA66DQZ1HRhv7bzWWlqpUhL8KKva/68Jx5AZ+eWf3xcXT9Ig6exy3UX+KEXUtVBWBo2Edi+X8oXAkXpLlt2+lzUXL1K0ochgTD/llSTi35Q/SRJ+VobU7YkuMrlR37rWqDN4RWbpFAzEChlWI6mCmXYxCWSPPxOjtX4xur8Lsw5q6t+2TjZm0sNwkEM3hd9cePKI222y/DqT6oTv4Mf1xNXL82X5P5w3nxJxtq2pn/3PCrk6s06A/w+ejm1vsPLOqUUEJYEHKXY2pb88OccaPV/q66jAqmLobP7/GBtOHIiSZZobHWyu0V85lVijXfQjuP6wMHd6JQR/IyXmfu2gg4eIpSz7sfkZlJJRI+FkRlonLlAiHHU8kMHYFpH8DkjKYp+hKdV25N7kbpHIwAIEdqaXC9xGonQRES5kGukH8V61LxOmBXawzM=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR11MB6070.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(23010399003)(1800799024)(376014)(366016)(38070700021)(56012099006)(11063799006)(4143699003)(10067099003)(261009223027099003)(22082099003)(18002099003)(3023799007);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?utf-8?B?WVJtU3B1Q0JvcWY1dWppZUREdlE3VURiQ0NCTWNYb2MzNmtmaWpId0ZvQzE4?=
+ =?utf-8?B?eURENVorbi96NlpaTWF5TEx5K3lZM2ZYeUI4SmNwMWI1em1EV1pLWXYwT0Uz?=
+ =?utf-8?B?WGZQc2hWZ1hkeWxjNTk3T1gvcVlqU0o1RGlGdlBRblBneHdRaDdsajFEb3lM?=
+ =?utf-8?B?NlZSeGpETUdJc09WR2duWmJraE5DTzNDRDQ3U0ovbktYdTVITWIrSUV6UVgy?=
+ =?utf-8?B?OFlzMUtzSG5TUE5LRGF3NDQ1MzJkVXpNbjBnSmFyUGhSZnUrMCsxWVhBRFF3?=
+ =?utf-8?B?UGFURkdQN0NvbnVnQWpCUjRoSUtWRkNCbkJLVytFWFJ6Nit5Y0F2MmkzVG5z?=
+ =?utf-8?B?WWRHK1cwS3g2QnRRNkp4bmJreUY1TVc5Vy9od0gwSE9BQTd2WWJYN3NwcFRJ?=
+ =?utf-8?B?SkJLNi9TaHZ2S0dkaENZRTVtMjYxYnBMUUpVc01wVkdQY3d6Y2t6dG04WDhv?=
+ =?utf-8?B?a3NlWWR1dU4yRk5BQUwvYUxobWRwbEVsMDVRWFZMRFdzVi9MdjB6WkR5bHQr?=
+ =?utf-8?B?eUg2MUM3YjZRVjUrbFJvTGhYUm5mbXhsRGxTT2ppSkhoaHRaKzR5SFgvcXJJ?=
+ =?utf-8?B?UVIwbGtNSkE0S1htaEE3V0xsaUdSb25xa1JIQnBVakg2MXNjdWpwdTBVMGpj?=
+ =?utf-8?B?NGh5T1lsRmVIeFhmcXZEY08xVTFoN3N1a1h1RUdUUXR1QmcwUGdZVjlVRCtW?=
+ =?utf-8?B?Z211SVNjTEdXVHFFQ2U1Y25UNGVibnFiWmlRM3VvbFJ4a3QwbWJ5eVI4VFFa?=
+ =?utf-8?B?UnM4MUJEaVJ6ZXpnaFQraloxamdaOGxrNUVyTkN5Ni9kZEdLU3RLMmRiWjFL?=
+ =?utf-8?B?WXNrL1BLTlRRcHVoUUVwTEZzWVdPWjJFNExjSVNoS2RML2xhd0M3U2JVb0hw?=
+ =?utf-8?B?VGRNbzZuR2tGYkJ3cWxkWDZNYTFyaGJxMzVlcVNFOVBSSXlTQVdFYVV2dTRy?=
+ =?utf-8?B?MHVRTG1jamJhdDF4OGNzaThQZGFzUU5xN3JBN1BEbEJPT0FzNGV5d1JhRGFU?=
+ =?utf-8?B?WWh6L0RnamtaWFh1V0N1N2Vod3h2ZkdoREM3MDFndWQ1UjRYRzZlY1dxdmZX?=
+ =?utf-8?B?UU5NSjNnUjcrVVMzVG12dFU3SjZOQmJabzFVWHFoSW80UjZLYktYVndNalc3?=
+ =?utf-8?B?L1J4OUh0Z096c29SR2FiNUpLQS9JZ3lFNmxEQlZJYVg1cC9BTnBPK3V3bEI5?=
+ =?utf-8?B?MkRXaEVNWWc4VnVPRkkwR3p4d1hxSFZ5c1pSbHhVQmxPS0lDWXRON05sQmk1?=
+ =?utf-8?B?ejkrL09QNE9CRmdJRS8xeG1aYis3Kyt4R0xsL1FGUW5QMlZ4SThPVjJVc1lu?=
+ =?utf-8?B?dlBQTHdUTStDVkFYWnRtNGhqWDNaVGxXYytJQXhPN0JzUjJqcXd5TmFMckZE?=
+ =?utf-8?B?UE05cUNITlhQTWo5SEtjK09QemRXSTdITUVoelhpdHlMSHAzQlV5Mk56cXha?=
+ =?utf-8?B?d3RqVDRMczhoaVhVaDJHeEI0UEUrajZ2UlM0ZS9GdFdpcjRsSE5ZSVJoN0Y2?=
+ =?utf-8?B?cHNjcW1XSW82SHhienhpVGtINitPSDZrTFF5MElLMURUNitTdDQvL05taEg3?=
+ =?utf-8?B?ZTlBTGx0Y2xRQTArUXpRVkJCTlY1bHBMMjFTWkhHL3NOeE9GQStZakt4TE5N?=
+ =?utf-8?B?aVRZUXMwMHhoWENiOUl6dmJIcm1sZ0xJTEpOQXU0bEhKLy9ISnRMOGVneTFY?=
+ =?utf-8?B?VG5vaTlPeThEZ2RIZXgvaGJlWW00SW50Zm1Pd1RqcFlaMTYxWitYSUxCQU5M?=
+ =?utf-8?B?UzRIdTlMcE82QkdLK1JCck1aZlVxNzVPUU1UQU93c0wvMHpPNW5meFozUkNC?=
+ =?utf-8?B?a21XL000ajliQS9rMU43V2VIT1hyVkZXNGkvSmxTdS9xNStud09EQVNvbFJi?=
+ =?utf-8?B?UkludUFveUgxT0ZteXo2MTI3VTQ0dFJNUVZoaFNrZEdyYktTUEF0WW01MHZr?=
+ =?utf-8?B?SjFOMkdKamwzdVppT0ZRbTllWHVHR1JRRERwMmpOWjBGNGVhWUJ6eTNjM3VH?=
+ =?utf-8?B?K2JmdzdLK1F2ZUtWcks0OEozUXJyS0Y2OWJwWHRvNGtsODJrTXFiWU1lakVP?=
+ =?utf-8?B?NE42SWNIdGhGT2RHTFA5dWNEemEwajlaT2tSSk1nSms2ZWVGRGJZcENPRkZ2?=
+ =?utf-8?B?MUJjdzY2SVVCOCt1V1ZYZlpYd3p3d3piYWo1eXplOXFNSSs2a2dwMjYyZEdT?=
+ =?utf-8?B?NDVKaExvQjVHZURmbGVyNkVBcmR3ZWd6LzVyUDR3K21IeXpkSlNoSDBXU0tp?=
+ =?utf-8?B?aExnYTV6V0pGTml3TzFBVkl6ZlF0cGdjRmlDOFA0SlNHSHdvRVh1R25CWFln?=
+ =?utf-8?B?TzE4MS9Yc3YxUFEvcXdSMG5yNFQxNWZWdVlkVVhzTlVVZVJKU1o1QT09?=
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <179193191574.434549.17107426250790354528@kernel.org>
-X-Proofpoint-GUID: rYRV4izQldbowqQDpsQbkvqZ4Wxxf07w
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDE3MDAwMSBTYWx0ZWRfX1H+Z4ndQMHwb
- K3Oc9Y4lMwR1a2odi/8d/9MrN6pu09uo9sJ+Y99BsJHcP3olrukV8IlS/dn8oNfEabf2OuU/8hX
- EYErk/hpIfRhqwJpqr9B3S6ZYOjhHRyKHcvFbigPUH31YE08LqHARDGL8dQHHlPosnUSN6aOGR0
- F/SQDaIhzJqY2fzyLuYPTFhwFpiYO/xMGjPeKpCxvGmIoYOBW+K60l2x3Up+gf7Bn0rX5Dqhy4r
- da4bQLUeOPNoO76SB/x3kwUbs01zAl/9LFDtUiB/fVH2IzpoQQ63Zp5nwxu3FTFEBXSIJ1OFeh1
- QSOzr/ulGng1KM9F359UaJpe4Na5TrQyOcZMDrvx9zzgu1dcgp+4cGlAwK1fRuCSjRWEmNHz6X7
- +n9/YNAMOlmKqu6v9aRwANa4crIIrb/uboxNYRj7TauEQOsAHMSPS5WUQLJnaljoAqRviEx1hrQ
- vG6PSvdm4VtVbvsh2eQ==
-X-Authority-Analysis: v=2.4 cv=KNrPn1Fo c=1 sm=1 tr=0 ts=6ad2c1d2 cx=c_pps
- a=MfjaFnPeirRr97d5FC5oHw==:117 a=MfjaFnPeirRr97d5FC5oHw==:17
- a=8nJEP1OIZ-IA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=7x6HtfJdh03M6CCDgxCd:22 a=855S8uPTkML1Oy45N9_h:22 a=VwQbUJbxAAAA:8
- a=9R54UkLUAAAA:8 a=VabnemYjAAAA:8 a=zjU2S2RF1nsdpTlKO_gA:9 a=3ZKOabzyN94A:10
- a=wPNLvfGTeEIA:10 a=YTcpBFlVQWkNscrzJ_Dz:22 a=gKebqoRLp9LExxC7YDUY:22
-X-Proofpoint-ORIG-GUID: rYRV4izQldbowqQDpsQbkvqZ4Wxxf07w
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDE3MDAwMSBTYWx0ZWRfXzTs+hVolHVn8
- a0qQgW5jauiNKbTZAa2LoUcTsLH2vk6afuzGrJ8JYWqUUa5vG0V3UrKArMwXeZHtXFqzcuE4CgD
- cp2vD48U1/u2le2l7Zh4jUI8uO0kpA8=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-10-16_04,2026-10-14_01,2025-10-01_01
+X-Exchange-RoutingPolicyChecked: QG57dx8gFORS5afjsKyAFyQeTws5TGL1uWeT1QBqUKmJOH1po1WT67v6bAtJvui+iQK6myR2diV6W3MnniMGEQP85DWcaGEcRxlEqtjAoTyizs+SJLK5btroGNWkuFdS3rRP9V85EKjFW3kj7ksl8gzQyftyFJa8go5rXQ4spbA0pVtHt4fqDq9PCSwvW43A8r18R2gDn+9wJx93ZmGBwSOuHi4EDpcb+xei43F2jtbIPAPEGTmPstavHwsyNL2JIOOOE+AyO68rzv+qZ3BVnimWxBr5uv+eQhTxO4VnfgYRYdQupIAe4A+ZziO2OHwwMV72x7ZSxAlFIfCAmQBGag==
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR11MB6070.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 02866a40-208e-4f03-9597-08df2be60883
+X-MS-Exchange-CrossTenant-originalarrivaltime: 17 Oct 2026 00:31:49.5164
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: uy0GvUAsKJXDWaiR3mtQZBoPoFe3CKz0VXI7+czWYRvH04AV9V5fElaTCXkIgeCt8B6/VUDKZCVVExx6WVt40Q==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH3PPF67C992ECC
+X-OriginatorOrg: intel.com
 
-On Tue, Oct 13, 2026 at 10:51:55PM +0000, netdev-bot+sashiko@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 4 potential
-> issue(s) to consider.
-> 
-> Critical: 0 � High: 0 � Medium: 2 � Low: 2
-> 
-> If you believe none of the issues are legitimate, please reply to each
-> issue of Medium severity or higher and explain why the AI is wrong.
-> If any of them are legitimate and you plan to respin, please let patchwork
-> know by including "pw-bot: cr" as a separate line at the end of your reply
-> (one such reply per series is enough).
-> 
-> - [Medium] Take a namespace that cannot reach the assigned G2H device, on
->   a system with vhost-vsock (H2G) and vsock_loopback loaded.
-> - [Medium] `vsock_g2h_reset_unreachable()` in net/vmw_vsock/af_vsock.c
->   resets sockets without lock_sock() while the device stays live.
-> - [Low] No in-tree transport sets the new capability at this commit.
-> - [Low] `vsock_g2h_net_assign()` in net/vmw_vsock/af_vsock.c sends the
->   success reply before it commits the assignment.
-
-pw-bot: cr
-
-> 
-> --
-> 
-> vsock: add a netlink command to assign the g2h device to a netns
-> 
-> This patch adds a vsock generic netlink family with two commands.
-> VSOCK_CMD_DEV_NETNS_SET moves the guest's G2H vsock device into the
-> caller's network namespace, and VSOCK_CMD_DEV_NETNS_GET reports where the
-> device is. After a move, connected sockets that can no longer reach the
-> device are closed with ECONNRESET, and the assignment holds a reference on
-> the target namespace.
-> 
-> Link: https://lore.kernel.org/all/20200427142518.uwssa6dtasrp3bfc@steredhat/
-> 
-> > diff --git a/Documentation/admin-guide/sysctl/net.rst b/Documentation/admin-guide/sysctl/net.rst
-> > index fe43e85959583..9276479004c0f 100644
-> > --- a/Documentation/admin-guide/sysctl/net.rst
-> > +++ b/Documentation/admin-guide/sysctl/net.rst
-> > @@ -529,6 +529,43 @@ their hosts. The behavior of VSOCK sockets in a network namespace is determined
-> 
-> [ ... ]
-> 
-> > +Support is transport dependent. A G2H transport that does not implement the
-> > +move refuses the command with ``EOPNOTSUPP``. Of the in-tree guest transports,
-> > +only virtio-vsock implements it.
-> 
-> [Severity: Low]
-> This is a minor point. Is this sentence accurate at this commit?
-> 
-> No in-tree transport sets netns_assign_allow yet, so this check in
-> vsock_g2h_net_assign() always fails:
-> 
-> 	if (!vsock_net_assignable(transport_g2h)) {
-> 
-> As a result, VSOCK_CMD_DEV_NETNS_SET returns -EOPNOTSUPP (or -ENODEV) for
-> every G2H transport. The new exports vsock_g2h_net_get(), vsock_g2h_net_eq()
-> and vsock_maybe_set_connected() also have no callers yet.
-> 
-> The next patch in the series, "vsock/virtio: support guest device network
-> namespace", adds .netns_assign_allow = true to virtio_transport and calls
-> those helpers. So the mismatch only exists at bisect points between the two
-> patches. Could this sentence move into that patch?
-> 
-> > diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> > index 8f34bf68f9164..e663be3bbfa0b 100644
-> > --- a/net/vmw_vsock/af_vsock.c
-> > +++ b/net/vmw_vsock/af_vsock.c
-> 
-> [ ... ]
-> 
-> > @@ -564,7 +632,12 @@ static bool vsock_use_local_transport(unsigned int remote_cid)
-> >  		return true;
-> >  
-> >  	if (transport_g2h) {
-> > -		return remote_cid == transport_g2h->get_local_cid();
-> > +		u32 cid = __vsock_registered_transport_cid(&transport_g2h, net);
-> > +
-> > +		/* The device may be unreachable from @net, in which case
-> > +		 * @remote_cid is not the local CID.
-> > +		 */
-> > +		return cid != VMADDR_CID_ANY && remote_cid == cid;
-> >  	} else {
-> >  		return remote_cid == VMADDR_CID_HOST;
-> >  	}
-> 
-> [Severity: Medium]
-> Suppose the G2H device has been assigned to a local mode namespace, and
-> vhost-vsock and vsock_loopback are also loaded. What happens in a namespace
-> that can no longer reach the device?
-> 
-> In that namespace, IOCTL_VM_SOCKETS_GET_LOCAL_CID in vsock_dev_do_ioctl()
-> gets VMADDR_CID_ANY from transport_g2h and falls back to transport_h2g:
-> 
-> 	cid = vsock_registered_transport_cid(&transport_g2h, net);
-> 	if (cid == VMADDR_CID_ANY)
-> 		cid = vsock_registered_transport_cid(&transport_h2g,
-> 						     net);
-> 
-> vhost_transport_get_local_cid() returns VHOST_VSOCK_DEFAULT_HOST_CID, so the
-> namespace is told its local CID is 2. __vsock_find_cid(net, 2) is also true
-> through the transport_h2g && cid == VMADDR_CID_HOST check, so bind() to
-> CID 2 succeeds.
-> 
-> A connect() to CID 2 then enters the transport_g2h branch above, because the
-> pointer is non-NULL. It returns false because cid is VMADDR_CID_ANY, so the
-> remote_cid == VMADDR_CID_HOST loopback fallback in the else branch is never
-> reached.
-> 
-> vsock_assign_transport() then picks transport_g2h for
-> remote_cid <= VMADDR_CID_HOST and fails at the new check:
-> 
-> 	if (vsock_g2h_unreachable(new_transport, sock_net(sk))) {
-> 		ret = -ENETUNREACH;
-> 
-> Should an unreachable G2H transport be treated the same as an absent one
-> here, so that connecting to the namespace's own reported CID uses loopback?
-> The later virtio patch in the series makes this path reachable and does not
-> change this logic.
-> 
-> [ ... ]
-> 
-> > @@ -742,8 +823,267 @@ bool vsock_find_cid(unsigned int cid)
-> 
-> [ ... ]
-> 
-> > +/* Close every connected socket of @t that can no longer reach the g2h device.
-> > + */
-> > +static void vsock_g2h_reset_unreachable(const struct vsock_transport *t)
-> > +{
-> > +	struct vsock_sock *vsk, *tmp;
-> > +	struct sock *sk;
-> > +	int i;
-> > +
-> > +	lockdep_assert_held(&vsock_register_mutex);
-> > +
-> > +	spin_lock_bh(&vsock_table_lock);
-> > +
-> > +	for (i = 0; i < ARRAY_SIZE(vsock_connected_table); i++) {
-> > +		list_for_each_entry_safe(vsk, tmp, &vsock_connected_table[i],
-> > +					 connected_table) {
-> > +			sk = sk_vsock(vsk);
-> > +
-> > +			if (vsk->transport != t ||
-> > +			    sk->sk_state == TCP_CLOSE ||
-> > +			    vsock_g2h_reachable_sk(vsk))
-> > +				continue;
-> > +
-> > +			/* If close has already been scheduled for this socket,
-> > +			 * we can skip.
-> > +			 */
-> > +			if (vsk->close_work_scheduled)
-> > +				continue;
-> > +
-> > +			sk->sk_state = TCP_CLOSE;
-> > +			sk->sk_err = ECONNRESET;
-> > +			sk_error_report(sk);
-> > +
-> > +			__vsock_remove_connected(vsk);
-> 
-> [Severity: Medium]
-> Can these writes race with the socket's own state machine?
-> 
-> Only vsock_register_mutex and vsock_table_lock are held here, and neither
-> one excludes lock_sock() holders. close_work_scheduled is read the same way.
-> 
-> The existing lockless resets, virtio_vsock_reset_sock() and
-> vhost_vsock_reset_orphans(), only run when the device is going away. Here
-> the device keeps running, so its RX path can work on the same socket at the
-> same time.
-> 
-> With the later virtio patch, virtio_transport_rx_work() checks
-> vsock_g2h_net_eq(net) for each packet but does not synchronize with the
-> swap. That patch's commit message also notes that an assign can land while
-> rx_work is draining a batch:
-> 
-> CPU1 (assign)                      CPU2 (rx_work)
->                                    vsock_g2h_net_eq(net) returns true
-> vsock_g2h_net_swap()
->                                    virtio_transport_recv_pkt()
->                                      lock_sock(sk)
->                                      sk_state is TCP_ESTABLISHED
-> vsock_g2h_reset_unreachable()
->   sk->sk_state = TCP_CLOSE
->   sk->sk_err = ECONNRESET
->   __vsock_remove_connected(vsk)
->                                      virtio_transport_recv_connected()
->                                        virtio_transport_do_close()
->                                          sk->sk_state = TCP_CLOSING
-> 
-> If an incoming SHUTDOWN or RST arrives at that point, doesn't the socket end
-> up in TCP_CLOSING with ECONNRESET set and outside the connected table?
-> 
-> There is a similar window on the send side. vsock_connectible_sendmsg() may
-> already have passed its sk_err check and could enqueue one more chunk
-> through the device after the sweep. KCSAN would also likely report these
-> unannotated stores against the locked writers.
-> 
-> Refcounting looks balanced, because vsock_remove_connected() re-checks table
-> membership. So the effect appears to be limited to inconsistent socket
-> state.
-> 
-> [ ... ]
-> 
-> > +static int vsock_g2h_net_assign(struct net *net, struct sk_buff *msg,
-> > +				struct genl_info *info)
-> > +{
-> 
-> [ ... ]
-> 
-> > +	ret = -EMSGSIZE;
-> > +	hdr = genlmsg_iput(msg, info);
-> > +	if (!hdr)
-> > +		goto unlock;
-> > +	genlmsg_end(msg, hdr);
-> > +
-> > +	ret = genlmsg_reply(msg, info);
-> > +	msg = NULL;
-> > +	if (ret)
-> > +		goto unlock;
-> > +
-> > +	old = vsock_g2h_net_swap(net, &old_tracker);
-> > +
-> > +	/* See vsock_maybe_set_connected() comment about synchronizing with
-> > +	 * connecting sockets.
-> > +	 */
-> > +	vsock_g2h_reset_unreachable(transport_g2h);
-> 
-> [Severity: Low]
-> Is this ordering intended? The success reply goes out before
-> vsock_g2h_net_swap() and vsock_g2h_reset_unreachable() run.
-> 
-> This means userspace can see VSOCK_CMD_DEV_NETNS_SET succeed while
-> vsock_g2h_net still points at the old namespace and the established sockets
-> there are still open. Those sockets' send and receive paths take lock_sock(),
-> not vsock_register_mutex, so the mutex does not hold them off.
-> 
-> The move also depends on the reply being delivered. genlmsg_reply() does a
-> MSG_DONTWAIT unicast, so if the requester's receive buffer is full it
-> returns -EAGAIN and the swap is skipped. Neither the commit message nor the
-> docs mention this failure mode.
-> 
-> Could the swap and the sweep run first, with the reply sent after them?
-> 
-> -- 
-> Sashiko AI review � https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261012-vsock-guest-ns-v3-0-b32447c66b23%40meta.com
+TG9nYW4sDQoNCj4gV2h5IGRvZXMgdGhpcyBub3cgbmVlZCB0byBiZSByZWxhdGVkIHRvIHRoZSBo
+eXBlcnZpc29yPyBXb3VsZG4ndCBpdA0KPiBtYWtlIHNlbnNlIHRvIGRvIHRoaXMgY2hlY2sgcmVn
+YXJkbGVzcyBvZiB3aGV0aGVyIFZNd2FyZSBpcyBpbnZvbHZlZD8NCg0KVGhlIHdoaXRlbGlzdCBk
+ZWNpZGVzIHBlciBob3N0IGJyaWRnZSwgYW5kIGEgZ2xvYmFsIENQVSBjaGVjayB3b3VsZA0Kb3Zl
+cnJpZGUgaXQgb24gdGhlc2UgQ1BVcywgZm9yIGV4YW1wbGU6DQoNCi0gSXQgYWxsb3dzIFZNRCBk
+b21haW5zLCBDWEwgMS4xIGRldmljZXMgYW5kIG90aGVyIFJDaUVQcywgd2hpY2ggYXJlDQogIG5v
+dCB3aGl0ZWxpc3RlZC4NCi0gSXQgb3ZlcnJpZGVzIHRoZSBlbXVsYXRlZCB0b3BvbG9neSBpbiBL
+Vk0vUUVNVSBndWVzdHMsIHdoaWNoIGFscmVhZHkNCiAgZGVjaWRlcyBQMlAgdGhlcmUuDQotIEl0
+IG1ha2VzIHRoZSBleGlzdGluZyBRQVQsIERTQSBhbmQgSUFBIHdoaXRlbGlzdCBlbnRyaWVzIHBv
+aW50bGVzcywNCiAgc2luY2UgYW55IFJDaUVQIHdvdWxkIGJlIGFsbG93ZWQuDQoNCkxpbWl0aW5n
+IGl0IHRvIHRoZSBoeXBlcnZpc29yIGtlZXBzIHRoZSB3aGl0ZWxpc3QgbG9naWMgdW5jaGFuZ2Vk
+IG9uDQpiYXJlIG1ldGFsIGFuZCBpbiBvdGhlciBndWVzdHMuDQoNClRoYW5rcywNClBhdmVsDQoN
+Cj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogTG9nYW4gR3VudGhvcnBlIDxs
+b2dhbmdAZGVsdGF0ZWUuY29tPg0KPiBTZW50OiBGcmlkYXksIE9jdG9iZXIgMTYsIDIwMjYgMzo1
+NSBQTQ0KPiBUbzogUG9wb3YsIFBhdmVsIEUgPHBhdmVsLmUucG9wb3ZAaW50ZWwuY29tPjsgQmpv
+cm4gSGVsZ2Fhcw0KPiA8YmhlbGdhYXNAZ29vZ2xlLmNvbT4NCj4gQ2M6IEppbSBDaG93IDxqaW0u
+Y2hvd0Bicm9hZGNvbS5jb20+OyBSYWR1IFJ1Z2luYQ0KPiA8cmFkdS5ydWdpbmFAYnJvYWRjb20u
+Y29tPjsgQWxleGV5IE1ha2hhbG92DQo+IDxhbGV4ZXkubWFraGFsb3ZAYnJvYWRjb20uY29tPjsg
+V2VpIExpdSA8d2VpLmxpdUBrZXJuZWwub3JnPjsgTWljaGFlbA0KPiBLZWxsZXkgPG1oa2xpbnV4
+QG91dGxvb2suY29tPjsgTHVrYXMgV3VubmVyIDxsdWthc0B3dW5uZXIuZGU+OyBMZW9uDQo+IFJv
+bWFub3Zza3kgPGxlb25yb0BudmlkaWEuY29tPjsgTmF0aGFuIENpb2JhbnUNCj4gPG5hdGhhbi5k
+LmNpb2JhbnVAbGludXguaW50ZWwuY29tPjsgYmNtLWtlcm5lbC1mZWVkYmFjay0NCj4gbGlzdEBi
+cm9hZGNvbS5jb207IHZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LmRldjsgbGludXgtDQo+IGh5
+cGVydkB2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LXBjaUB2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LQ0K
+PiBrZXJuZWxAdmdlci5rZXJuZWwub3JnDQo+IFN1YmplY3Q6IFJlOiBbUEFUQ0ggdjIgMS8yXSBQ
+Q0kvUDJQRE1BOiBBbGxvdyBQMlBETUEgaW4gVk13YXJlIGd1ZXN0cw0KPiBvbiBJbnRlbCBob3N0
+cw0KPiANCj4gDQo+IA0KPiBPbiAyMDI2LTEwLTE2IDE2OjM0LCBQYXZlbCBQb3BvdiB3cm90ZToN
+Cj4gPiArI2lmZGVmIENPTkZJR19YODYNCj4gPiArLyogQ1BVcyB3aG9zZSBob3N0IGJyaWRnZXMg
+c3VwcG9ydCBwMnBkbWEsIHNlZSBwY2lfcDJwZG1hX3doaXRlbGlzdFtdDQo+ID4gKyovIHN0YXRp
+YyBjb25zdCBzdHJ1Y3QgeDg2X2NwdV9pZCBoeXBlcnZpc29yX3AycGRtYV9jcHVfaWRzW10gPSB7
+DQo+ID4gKwlYODZfTUFUQ0hfVkZNKElOVEVMX1NLWUxBS0VfWCwgTlVMTCksDQo+ID4gKwlYODZf
+TUFUQ0hfVkZNKElOVEVMX0lDRUxBS0VfWCwgTlVMTCksDQo+ID4gKwlYODZfTUFUQ0hfVkZNKElO
+VEVMX0lDRUxBS0VfRCwgTlVMTCksDQo+ID4gKwlYODZfTUFUQ0hfVkZNKElOVEVMX1NBUFBISVJF
+UkFQSURTX1gsIE5VTEwpLA0KPiA+ICsJWDg2X01BVENIX1ZGTShJTlRFTF9FTUVSQUxEUkFQSURT
+X1gsIE5VTEwpLA0KPiA+ICsJWDg2X01BVENIX1ZGTShJTlRFTF9HUkFOSVRFUkFQSURTX1gsIE5V
+TEwpLA0KPiA+ICsJWDg2X01BVENIX1ZGTShJTlRFTF9HUkFOSVRFUkFQSURTX0QsIE5VTEwpLA0K
+PiA+ICsJWDg2X01BVENIX1ZGTShJTlRFTF9BVE9NX0NSRVNUTU9OVF9YLCBOVUxMKSwNCj4gPiAr
+CVg4Nl9NQVRDSF9WRk0oSU5URUxfQVRPTV9EQVJLTU9OVF9YLCBOVUxMKSwNCj4gPiArCVg4Nl9N
+QVRDSF9WRk0oSU5URUxfRElBTU9ORFJBUElEU19YLCBOVUxMKSwNCj4gPiArCXt9DQo+ID4gK307
+DQo+ID4gKw0KPiA+ICtzdGF0aWMgYm9vbCBoeXBlcnZpc29yX3N1cHBvcnRzX3AycGRtYSh2b2lk
+KSB7DQo+ID4gKwkvKiBIeXBlcnZpc29yIGhpZGVzIGhvc3QgdG9wb2xvZ3ksIGFsbG93IHAycGRt
+YSBvbiB3aGl0ZWxpc3RlZCBDUFVzDQo+ICovDQo+ID4gKwlpZiAoaHlwZXJ2aXNvcl9pc190eXBl
+KFg4Nl9IWVBFUl9WTVdBUkUpKQ0KPiA+ICsJCXJldHVybiB4ODZfbWF0Y2hfY3B1KGh5cGVydmlz
+b3JfcDJwZG1hX2NwdV9pZHMpOw0KPiA+ICsNCj4gPiArCXJldHVybiBmYWxzZTsNCj4gPiArfQ0K
+PiBPbmUgcXVpY2sgdGhvdWdodCwgYWZ0ZXIgYSB2ZXJ5IHF1aWNrIHBhc3MgYXQgdGhpczoNCj4g
+DQo+IFdoeSBkb2VzIHRoaXMgbm93IG5lZWQgdG8gYmUgcmVsYXRlZCB0byB0aGUgaHlwZXJ2aXNv
+cj8gV291bGRuJ3QgaXQgbWFrZQ0KPiBzZW5zZSB0byBkbyB0aGlzIGNoZWNrIHJlZ2FyZGxlc3Mg
+b2Ygd2hldGhlciBWTVdhcmUgaXMgaW52b2x2ZWQ/DQo+IA0KPiBMb2dhbg0K
