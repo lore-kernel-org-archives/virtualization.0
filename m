@@ -1,135 +1,116 @@
-Received: from mail-qt1-f174.google.com (mail-qt1-f174.google.com [209.85.160.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC2F43A6B67
-	for <virtualization@lists.linux.dev>; Sat, 17 Oct 2026 16:35:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.174
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792254957; cv=pass; b=C237rUUFp0FPqOmPdByzG7nNFNMbv10yceR7Wo2M9l0VxOcv2FOpaGD5wBUbAOepmkdNjc5VZbbCLbDS7O0PLWo3tlEPvJa8dwIHu8JGf7lHlYgRnGXtpNUPHlnk6dzH3J/H4U3+LH8E+h5d8iyi9G2P0xOrALOyXBB+jktSllU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792254957; c=relaxed/simple;
-	bh=K575d+X/T8zxf8IPb1Vxi4/BMBu6K4J9uKB9yZoQ32A=;
-	h=In-Reply-To:References:MIME-Version:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=RzDRzWTZgla2OEYNic0FuegVqcrMs1APFcqa8PNw7tEkyOF9zNb1TJ9NORsHsO1oTQyYfBU1xnWEppmS2bH2Ui5qCtlhTQxu1PwebACSVSPSiPHg5YT/3XwzvI2pYHWJBzK28crw+BnKYJkAF3nFhUfOwWsr3QywcCU3Bq5y9sc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AKuSn6Je; arc=pass smtp.client-ip=209.85.160.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7588B3C6A5C;
+	Sat, 17 Oct 2026 17:40:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1792258819; cv=none; b=YcqvqrH75b7dlEPCS4yjJuJpAOQiQ6mNZIf2y/9rmCWEpFx8455H6VnKkv8DXc5TxYur2oYMmumNcya7yc6P52V0ZLAtwRXGIIwaRyWnvzrBWaCn+a/WuEbsPAqu6J22xsASBAKDPexWQ0Uz4qusplJdsYxzKxg2yYhwuoPz9UU=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1792258819; c=relaxed/simple;
+	bh=9DVOCBwYc9jvQWLwcAGx2N/X2wX2h5HmwykolNHRhyw=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=M7Uu75tHHbvYECPtPUY15l7wl5DcaBwmCzJ98RNI3UiVp0iDGxEFboWC8QTbxP8dTZdgRZbO7/jMOCljovdtnMhd9nXhe79rjNzFtYFWXrV5+DOj+TIKMIoddc756kG+o1V/8F8Vf+eILWew/NjXFJcwjlnSpDHohSFeiAP86W4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=tR7e7spD; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AKuSn6Je"
-Received: by mail-qt1-f174.google.com with SMTP id d75a77b69052e-53381e53b80so10794271cf.1
-        for <virtualization@lists.linux.dev>; Sat, 17 Oct 2026 09:35:55 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1792254955; cv=none;
-        d=google.com; s=arc-20260327;
-        b=avkmjVLmTPXpl9f5J4qnNJg+LBHeKjevEItuu7Ks+xxSIQqD7Tn0qYo7+8wM55tWx9
-         cgT/2XUfwi6hqD1cXiqDvo3OkDa/NfAszpvfu1mwMG1Oo/9QNIE7D4SmvZxg8b1ExeY5
-         QQagKfkxkIWf5Cge022NIaS6/zurRatiCjxQNPuYHDGFVZr5mCf/LJHIRvqM2b+dq0z4
-         Hs6/TdQB3ivMx31m7N82YL0kUl0PBaXeuoDtwy/gsdAl1qL+6Es75UxrAbI+IjB0RZq6
-         rTZ/q85BrBoZwnKUZhOy1Qw1fbKcGrkaOFh4+KvzyZo2igDhm2WVUfxOTIPDsZ6XxKeu
-         pVMw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:mime-version:references
-         :in-reply-to:dkim-signature;
-        bh=K575d+X/T8zxf8IPb1Vxi4/BMBu6K4J9uKB9yZoQ32A=;
-        fh=DXXx3JUtKXYIbBgzVJqpGDM77w2AKJPVhtwda2jdFtM=;
-        b=nK1uJ5oJ/hK1tYJVCWMy2Wn+RH8vAMHOBciNoPmCbEKOX4u85qMZuGs7S/RMoR93eT
-         My6zb38KmSHDHvvnstWmKvEPeSTGC7jEJk5k3z8SDe02HqyzEsRvo0Og2VMP7kGzLCOf
-         MrYUFNNY3WvddMxmnZJNF6GWF/0elHB38ierd2eqQ8V+uPPoP1sm5jHCQrYEa8q2dHzj
-         TG1hc8XFfHyUNGOcbKO/6g9dB7rGCxk04U23tKNAMvTqOH1ekTntWP16xI+14CiC1qlb
-         jcZEOhnBrH1cAe6fF4KXjR4ikz0x1wgErC8vKHSn2gpPIg8cz93rcc/LiPXLK7SLHSmX
-         hFNQ==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792254955; x=1792859755; darn=lists.linux.dev;
-        h=content-type:cc:to:subject:message-id:date:from:mime-version
-         :references:in-reply-to:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=K575d+X/T8zxf8IPb1Vxi4/BMBu6K4J9uKB9yZoQ32A=;
-        b=AKuSn6Je4USCdbilgmQpIgIz2bXi9OxHko7P2n/OeS2RIoCBUKCz82bKN4IDgD9/FQ
-         WnQLIvS5V7QS5CPNLQPRLZONTOSIy5EdGsRWZoSKLnxsgE0UocJFCBAhFdmfpkGe29AK
-         /2zTHqCXnue0hfHf7GtvVUFXSoHM0MZHneqMf5BLT0DnsknKAAYABDcfCYSHOPKiuPdg
-         rpYiHyJSoGTD5Pif2WdZQ/kN2Y4HdVTAkMampEz8uzeMDok12c+Ax8MP09XpP22Qjcfa
-         2+mAfaN6mzwpQ8WSrlFhhsmdhY1IR64mMAyof41tF1BHv7svBRAgKBpx80imP4Wnwnsc
-         WNEw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792254955; x=1792859755;
-        h=content-type:cc:to:subject:message-id:date:from:mime-version
-         :references:in-reply-to:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=K575d+X/T8zxf8IPb1Vxi4/BMBu6K4J9uKB9yZoQ32A=;
-        b=ilE4J9Zpos36yWvyEWoPjgDCuQ2xxyuQTu1JZIp9F2/Lzdc7AoXiqqimT/VmlnWRuH
-         2/A4slepfA4WNGhEcHTZKAxorYOFbYPy0SCOi6bZjRxC9l4zsLgEeBNIChECbFsokTrY
-         CsTWSDuIlcl/HFlOBf6of3+tMlM9Aguxb/dIS4FwPJ1ZeWF4kLq9r5OKEmtgLEuMJiz8
-         u01p9YRDXRPa03NO6C3v4sDo0m3OgkeKA5kRQIyoyPT9hLv1UWzf8eakbLTE+ji4+a/b
-         BVdMQEP33GE/EJ1+pxIFnoNDiHJwwEuYfqVbLWXvvAE3zd/rULC0fexI64TlAuaU282I
-         Og8g==
-X-Forwarded-Encrypted: i=1; AKwUvByccfP4fOBbzsRkMiT/zlVdIu0O+8dZKiDpIXcOY8/HCJhywHhUhnlSJXZOEufxyO6lUrCBqtBp56XUDmAtCw==@lists.linux.dev
-X-Gm-Message-State: AFq9FYKnXI3zlbTLv+n3B/VJOZDgxR11KPtBKAOnxz3YGPZeX+lrkXIQ
-	V2Guk21/bi6rlAsbFGl3LeXdQyShLW+xzSIw4AsUiHdc/3UK/Th2OdYA1Vod9D6zSd7fzWDD5G4
-	hezsiePIm+lHbwXOHqToVrJLvgaoBROE=
-X-Gm-Gg: AYBFou0Mug26pWxelw1nQtGpjDUhSp3AZqj9J6PXwgncBNyaCcbR2y0kZ1Q8QoYzXN2
-	FNvga/tUXqNE+Lyw7lPcX4vrRg0NF9wLFdg572jUDWzbrJZmAxGOu6VBncnZ1wH7r2wPVYO5CyL
-	6jdcMLZgerHEjm3wUNVW1bUYTVRCaZNmS32KuWasxivUiCrvjTt1XJxW3/3P9qZJcHp6T7QtzKO
-	zQ8t9Z2y2XD5o0JQbp0QgTTkqdv46DabFjv4nb9Ld9wBoa+KHlCEDeJa0rWEHtY8yGceJu9vrJF
-	F+8xiseEtM48g/0K6DBxw4LEA6qOOUdxLAJEZt7lTKRf6xqApqZIbTF+si5wSRxK33BhxA+cKY+
-	xWUpgFlr9ktHc1JhBhGwwepWWs8g8bc1dhNaH1uhy6uK3UohHspU/OWR8M+bZlFr8+N+W607s9M
-	DS16jB9RKrfJADLFTHcYYDeHKUfOhZGUpq9Mf1JehFikWuISCGhjjK2Rrbe41FToy/Fm/CsT1rv
-	LsHF5J5y2QiE/eUo6hu61Zx
-X-Received: by 2002:a05:622a:1244:b0:536:4482:2c5d with SMTP id
- d75a77b69052e-53645e074dfmr47949901cf.19.1792254954694; Sat, 17 Oct 2026
- 09:35:54 -0700 (PDT)
-Received: from 77377267392 named unknown by gmailapi.google.com with HTTPREST;
- Sat, 17 Oct 2026 11:35:54 -0500
-Received: from 77377267392 named unknown by gmailapi.google.com with HTTPREST;
- Sat, 17 Oct 2026 11:35:54 -0500
-In-Reply-To: <willemdebruijn.kernel.eb0f6ff37e8f@gmail.com>
-References: <CAJPVW+=XcHDV4aoXt5oAHYh49kX7m5wUxf7TucrcBy+q6MdXFA@mail.gmail.com>
- <CAJPVW+nstfbagm9GxQ=i-5J6Xi_aZ52-YiQZeYrzmPD3OmDNiw@mail.gmail.com> <willemdebruijn.kernel.eb0f6ff37e8f@gmail.com>
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="tR7e7spD"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAC9D1F000C4;
+	Sat, 17 Oct 2026 17:40:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxfoundation.org;
+	s=korg; t=1792258818;
+	bh=WnGNOOzELhTWmpwEIbD32F3gkSstH3IAkNJ/YCAzH9Q=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=tR7e7spDJlOGQXmpGxy0AWWwPYtjK3Pf8SbkogtFqFTYYlSpaptxUOSlCzL+y/mmZ
+	 GJz9XHL0BepXiW0x6MONVu8o/GvR2/uwNJRicHQo2d2nDoK2C5z7RJtkCTvrkoQ5VQ
+	 RVNVBejKSFS3KtaTmeJ75gO5qn6dWUPTSC1gMPYw=
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: stable@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	patches@lists.linux.dev,
+	Eric Dumazet <edumazet@google.com>,
+	Arseniy Krasnov <AVKrasnov@sberdevices.ru>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	virtualization@lists.linux.dev,
+	Jakub Kicinski <kuba@kernel.org>,
+	Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.6 1008/1674] vsock/virtio: fix potential unbounded skb queue
+Date: Sat, 17 Oct 2026 17:54:40 +0200
+Message-ID: <20261017160457.007728876@linuxfoundation.org>
+X-Mailer: git-send-email 2.56.0
+In-Reply-To: <20261017160431.119607952@linuxfoundation.org>
+References: <20261017160431.119607952@linuxfoundation.org>
+User-Agent: quilt/0.69
+X-stable: review
+X-Patchwork-Hint: ignore
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-From: Megane Hebo <hebomegane@gmail.com>
-Date: Sat, 17 Oct 2026 11:35:54 -0500
-X-Gm-Features: AclHuK-g419mItqEZ0pdzSa8CH0A7yGLpafb0QAT-ug0oTfrYzft6MBGpXjOWuA
-Message-ID: <CAJPVW+mYavbi3q8eacV4=V8Be0-_5RV8MnksXPhiEvin8XfGrg@mail.gmail.com>
-Subject: Re: [RFC PATCH net-next] selftests: net: exercise virtio checksum
- ingress outcomes
-To: willemdebruijn.kernel@gmail.com, netdev@vger.kernel.org
-Cc: linux-kselftest@vger.kernel.org, davem@davemloft.net, edumazet@kernel.org, 
-	kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, shuah@kernel.org, 
-	mst@redhat.com, virtualization@lists.linux.dev, habte.yibelo@gmail.com, 
-	jasowangio@gmail.com, eperezma@redhat.com, xuanzhuo@linux.alibaba.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Thanks, understood.
+6.6-stable review patch.  If anyone has any objections, please let me know.
 
-I was optimizing for preserving the semantic contract, but I
-underweighted the permanent upstream maintenance cost. I'll keep these
-cases local unless a future regression shows they earn their place
-upstream.
+------------------
 
-I'll use git send-email next time.
+From: Eric Dumazet <edumazet@google.com>
 
-On Sat, 17 Oct 2026 11:55:26 -0400, Willem de Bruijn
-<willemdebruijn.kernel@gmail.com> wrote:
-> Megane Hebo wrote:
-> > Correction: Gmail Web rewrote tabs and wrapped some long lines in the
-> > inline diff I just sent, so that copy is not suitable for applying.
-> >
-> > The attached format-patch file is the authoritative byte-exact patch.
-> > Sorry for the transport noise.
-> >
-> > SHA256: cd11c3970f0a23ac039cdfcdc6338c20c79dbff3db8fdc93ea53b4b8996437b8
->
-> This is not the way to send patches
->
-> https://docs.kernel.org/process/submitting-patches.html
->
-> More in-depth: with AI it is easy to generate testcases. We now have
-> to consider which ones are important enough to submit. I think we all
-> have reproducers for these specific fixes offline. If we had thought
-> it worthwhile they would have been included in the feature series
-> itself.
+[ Upstream commit 059b7dbd20a6f0c539a45ddff1573cb8946685b5 ]
+
+virtio_transport_inc_rx_pkt() checks vvs->rx_bytes + len > vvs->buf_alloc.
+
+virtio_transport_recv_enqueue() skips coalescing for packets
+with VIRTIO_VSOCK_SEQ_EOM.
+
+If fed with packets with len == 0 and VIRTIO_VSOCK_SEQ_EOM,
+a very large number of packets can be queued
+because vvs->rx_bytes stays at 0.
+
+Fix this by estimating the skb metadata size:
+
+	(Number of skbs in the queue) * SKB_TRUESIZE(0)
+
+Fixes: 077706165717 ("virtio/vsock: don't use skbuff state to account credit")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>
+Cc: Stefano Garzarella <sgarzare@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: "Eugenio Pérez" <eperezma@redhat.com>
+Cc: virtualization@lists.linux.dev
+Link: https://patch.msgid.link/20260430122653.554058-1-edumazet@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ net/vmw_vsock/virtio_transport_common.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+index e2a5803c0bbb7..24aa9194e6862 100644
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -283,7 +283,9 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+ static bool virtio_transport_inc_rx_pkt(struct virtio_vsock_sock *vvs,
+ 					u32 len)
+ {
+-	if (vvs->buf_used + len > vvs->buf_alloc)
++	u64 skb_overhead = (skb_queue_len(&vvs->rx_queue) + 1) * SKB_TRUESIZE(0);
++
++	if (skb_overhead + vvs->buf_used + len > vvs->buf_alloc)
+ 		return false;
+ 
+ 	vvs->rx_bytes += len;
+-- 
+2.53.0
+
+
+
