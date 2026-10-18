@@ -1,162 +1,134 @@
-Received: from mail-ej1-f47.google.com (mail-ej1-f47.google.com [209.85.218.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD9E43F106D
-	for <virtualization@lists.linux.dev>; Sun, 18 Oct 2026 17:00:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.47
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792342822; cv=pass; b=nBryDYCpeycyqeAZ3ElxtO17hG1XLs9WxeSZ/uJq8VhM+AMFlkb4swkXkcuKuMxgTT/00Z49F5KHoPmfwlamGaMLWbVlxFcsK1rz5amjpRjOS2ddTOoSY/q15ceIic6ePpvQAZMBxlLFHBx9HGst5bXTVv4ZAzIcrc4Dpenu4WY=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792342822; c=relaxed/simple;
-	bh=g/JGIrVbzY2CScB/KpNY8unmxw00ClvPmppC33lSWpg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ivzLy/llhxl3NDP34NmJdV+swd7fwn2pU8eEx9otsS3DxUMoFW1w/uAfYZdvsuH84Aoe9oFkEAc5FyqFyjCtjdbkBFJhV58qoQpsYZs+O6ZjgmfxJNqnGeZFFTywrHCXB0YX3/DSkSI8lFIf6WrWq8sAeXnNEvdkL6Y0UoES1nk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fXhe3vwj; arc=pass smtp.client-ip=209.85.218.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD7CE41CB5C
+	for <virtualization@lists.linux.dev>; Sun, 18 Oct 2026 19:24:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1792351490; cv=none; b=drfZ+P5Vn3aAXr1SQmquROesV+rrEgj0xJrfzz6KYXeN9i4K2PGFmMUkG+uEfollfvUEGkBtvw+g0kghPm+S0mhIerlg6n8VFxQNH2OEmgIlwGONkBNOljdQDJCV+70y7feT17H/4LK2Jwzwv2xw+uO8b+Ko7867S5xswJxnvs4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1792351490; c=relaxed/simple;
+	bh=YuTSyzPwXKhPhZHoKxzOloJV3Vz1FrQSyVr0HWn8gug=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=fxxGBQVWXMGJVSPW5HtV2LDp/GJS3u6YMHapqhRB+Hj0Y1knoFcvlWxdZak8iav2NqZzJBMUXemmroMO2anAraJMwJ4NyM50XRdCOxZpHmFYTnZq47Ju8esBFSlG9B6Xu2Hc0EkVnLZ4ASe8rftkmVkyJFC+3F7mshCp7d3hhDY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZvTmoXMY; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fXhe3vwj"
-Received: by mail-ej1-f47.google.com with SMTP id a640c23a62f3a-c40f29667e6so34830266b.0
-        for <virtualization@lists.linux.dev>; Sun, 18 Oct 2026 10:00:20 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1792342819; cv=none;
-        d=google.com; s=arc-20260327;
-        b=nSxulYpwifR/xc4AsNTzOaGpcAbHH44RzsLu0a2TeOQN5sQpX7NbZKnUU5M3z+p6XA
-         Ju4JWuCwOcRVnKOEo7JaB34NbN91GkQiTByVLIV1I50QZS3bAnw5trP6rNpmu3Ub5807
-         Di1Y4AM5G48kkp2c+6J8SMzuTVfqS28U1clXPOYaGAMrHo/FIJppN/LozYdbYWosaVyU
-         nT9l/Oe0OC6qlSJJl+fnCR5Lja+Vvg8IOAAOHj3XaJbdOdc54sLn7CAQh5heatFReDO2
-         0MxZrYJvq+daeTrVaz7yzSZ1H9rcsdcz3yQiT0QCM5SkpEGzPrQT1HnJ6mtkw6bq8h9g
-         2WHw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=2/1Y5ghSBlEp/00kqDwKjo69e3DTVuqhYG4tCNcmd4Y=;
-        fh=9sSJx5eGKOc9DGsT52egNF+Sg3FzJcPq5+sxbZSRMVM=;
-        b=RRkKm7nyFX50MHA456Wkg2nptOGGcBw0CfQgF0doAFSv7ePZAXUTZ+zxhqyzI9LDVe
-         i9GNmzfXIDEozbCQiW8TLxq+wUiXGjWfpEMsU95HZY3aA7QJia4zIcNyN6HZ23qB4A8h
-         POARYfvWacoc57Sm57XakCM/DJeUIOOIh6nggFxI31ze46Kgx9lHg3wVuILFpjf8py20
-         /AJEJZTrelxj+y3lGuizciJRLKeDYphmIUoquCUk+K1+6m5tuN6YehirG8Fytb6s9kTt
-         N4iBu4QWulRCCkDTSrmBRtBaGA9xsqD7op2JQdcvN8QQkVjpLdI/bM3/qiSDhxSnSQ6F
-         2kwQ==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792342819; x=1792947619; darn=lists.linux.dev;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=2/1Y5ghSBlEp/00kqDwKjo69e3DTVuqhYG4tCNcmd4Y=;
-        b=fXhe3vwjm8Wav1qBK+qyxgA+JeulNxJczfmV0pnqcUGyIt1ofIPH+ROJOdRfl9eiYS
-         C6FXOXoG7fFBYjuYEivPAJMpie3tH3DtYYU8wxPU2cFZdDInCsoE0KMIiNDfnNY713nF
-         yrcbmyU3OTRFLWIlPyr/9vnMNARYg3UY6TSvMF6v5s3xjqbxuo/dtb46k/sBwLxlKfTy
-         1iRO/lU5J1rnJSTA2ototSrvZHM+sHUFIn4NCu9tAN5R1Z/dlXbUkYgT9KTdTMPUYNzB
-         /MbLtnP/OILMUGfSq6iSLwX8wPPCUK4pIFHlwt+4Gmg3cxseYLyY0rO484PbT73NDbzq
-         MWHg==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZvTmoXMY"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1792351487;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=kZevltrwKAvYM+Logu2umHQbFiDiJJvS6eiPwGpSCUY=;
+	b=ZvTmoXMYUpvEjlH1oWzYkHmdsF5OqgAYyqyE+suXUaKHJXlCBSnJKzZJNh5tSghwjm2JA0
+	CaE3y+hWJlNPn8DLq49wV2d/swujG+m/YM/LB1ndDuzDZUkPy4NqeSHgwBABQbp71nkfLM
+	yNbH8atUBAhSW/kJd3NJSOIGyJXMKPQ=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-191-x0l6Ld6TNFaxM_Gg28jF-g-1; Sun, 18 Oct 2026 19:24:46 +0000
+X-MC-Unique: x0l6Ld6TNFaxM_Gg28jF-g-1
+X-Mimecast-MFC-AGG-ID: x0l6Ld6TNFaxM_Gg28jF-g_1792351485
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4a1e295b702so5922125e9.2
+        for <virtualization@lists.linux.dev>; Sun, 18 Oct 2026 12:24:46 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792342819; x=1792947619;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=2/1Y5ghSBlEp/00kqDwKjo69e3DTVuqhYG4tCNcmd4Y=;
-        b=bP0v+PKWSK5vXfgq7XFSGf4rq44lL2gk9rgxeeQubWhWCRPGcyBcPdj5hc61vlIRil
-         aSgcIgf3h3UAQllgitlYz+mpTJmBv0JNo+QnF7ApxJDvZHr1WI0qk/F50qzhWysZ2tLY
-         l0cD8w0bf+7uQ85x+cOjwwB+N3JjVgmMsE4K+ybtQPm3d6n4Y4ouChWg+vlCaZw0bTOZ
-         bXIrC1qLxnCgokciUz/QP2MHI0g8YWPefn8MYNJneyPDxEh+/eWOgbqudKqCVyALTGja
-         Q21bps8dZ7h3USX5rbKrCbW+4cN6HYp8oLoHJraP8KyLTNxY1O1W85GweCAForknvCN6
-         UrYQ==
-X-Forwarded-Encrypted: i=1; AKwUvBz0RndSFFOU9QGdrsgxRhMwycFMO+/e6dnaUpbzc2pS9Hqbkrm5Q0hZfpFmT4wneNUzDsU27qE8emGrh0AUvw==@lists.linux.dev
-X-Gm-Message-State: AFq9FYJGYTLicyxKc3gaKmIBcSVnc7cyFIayvUBqsupqdLmqoBILEaGf
-	mOtn5EvfPNfe9XelQMlVEGKbpNqPgAexIyD1ldNYKLAtQfIxKwErX20fpR36DPER9Yze1p/aQ3r
-	sWEqg0O5IcsRAunP3PsSykVrv/TN6zKM=
-X-Gm-Gg: AYBFou1rYjy336rGYZLgPz7WmhCGaL19NToIL5JJAMEUDuLQv5eBjqvEIMTsBMiTC8b
-	t2HT57tgAzVPabfwebCN1bMGg2hwfN/HKzhGEuZ4q95QktDTk5oXovbftR/YkiUzp3NSB1m1UzT
-	t5FniheyKAjOa52J/CW59NjnH8wPRHjjNG2J8m9Mj/u6oMocrHs32ioROuHM4uZxZJYzBR5mXl6
-	gRudwQ5NHEr2lL3AcylTXAMEZijzJBbrOfea0SxZbo1UtTpfOMITPQaHh22mK1876b9Y4BAwmLL
-	48FYFSpZTK5qpcT1KQgTdYu5XZOdNI8LAQQjHDlXJQ4PG5vQE8ZWIjC+rnGNa45HKqGJUggqyG1
-	MzdftT5TCqTReLqVKsCDA5SXHrUzWPFdRiA==
-X-Received: by 2002:a17:906:f597:b0:c41:55b4:d88b with SMTP id
- a640c23a62f3a-c41a00f1a94mr354678866b.43.1792342818130; Sun, 18 Oct 2026
- 10:00:18 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1792351485; x=1792956285;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=kZevltrwKAvYM+Logu2umHQbFiDiJJvS6eiPwGpSCUY=;
+        b=YUr83Mvkst3i4hf2y9EXf2+xY6D83/afiZu611/NwcSiCThNK8Jv4ytGX2f9v3U2Mq
+         NWS8OjEhJa4R/voU91IFaEpG0EQr963jMAANKu5rPXEBf2JAueDEOgsYN/kEuBmnTlBN
+         t2JIBz8+QuXUecyV9CaFajULJH1lEE36Lwd7wjBvrxLK+nVzYKQOOLXLrXOrmHONbin1
+         IvhuAiRmk7OstZzIXCFCV6AeUQv98eKgkP86S8lLnmt6I1OunFLqThj6fuGrkYfuAaZc
+         Sdj5gWX2yNZjJaZjMw4PZkcqXGHbSyT8yGX53124KJY/+LuuENV3m/UW/C6h+Rnu822Y
+         GfXw==
+X-Forwarded-Encrypted: i=1; AKwUvBy7gNimYvwlBql/IIgNvONbOwn9STFNppc4QlYpZtUhJHrLqbdSGM6ajKuTvTFGqV52MbqxhgqoZrfS4GiDxQ==@lists.linux.dev
+X-Gm-Message-State: AFq9FYI+xqcdPvzrZ8CQp0ki4f9Bxu8fuLKleFCXxAEVw4akqm/k23ng
+	b/WQ6EZx/JBgtabWKENlWewlcAe77lzhHWCtRNxopj9ZmiXqIxXppmTTp3ZXy/LfcLuBovl8GaO
+	5UwXGcHqVeQXZRoKnxj7hFOK8g2VA+j/+Z6tHiL59gRZQA4Dvp2HfHRUAzSxUjvOaFmh8
+X-Gm-Gg: AYBFou1Vu67NLKpCSew3l6un3yzhH/eaUetXqaZ1LB5kN362jJXmyHw23wmD4JOrgXm
+	4YX2LeCyosraxQEYMkXfhIrVJbAORTFRfOt1ubdLfgYcnOzkOMA8lUwDTQKEAsBwU5lN0jXa70u
+	ew+K/1d13IR/bJleBZ3Rv1mIo4kIMv3uyiOZBpqyT7JMdJrNQp3kc0YAHEHx+as2lRNorvInf7w
+	hff3bIOuGb7CNwzm6v+Q/KiX9SdpMYN7zAb7imupHNI/z6SfKSdOPQ99n2HTl35V2RtjdKt8d97
+	REAjU/jtyL9dvIWh/Nx4k7dySklmKZ4B4FogBH0AO1RYrbM7MHMOOdCYYlrywYmrehsm2w==
+X-Received: by 2002:a05:600c:859a:b0:4a1:d8c5:b23f with SMTP id 5b1f17b1804b1-4a1d8c5bb82mr91473575e9.24.1792351485142;
+        Sun, 18 Oct 2026 12:24:45 -0700 (PDT)
+X-Received: by 2002:a05:600c:859a:b0:4a1:d8c5:b23f with SMTP id 5b1f17b1804b1-4a1d8c5bb82mr91473295e9.24.1792351484626;
+        Sun, 18 Oct 2026 12:24:44 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc0:3fd7:5300:3d6b:52a4:a23f:9d0b])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a1d30d778bsm207005645e9.9.2026.10.18.12.24.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 18 Oct 2026 12:24:43 -0700 (PDT)
+Date: Sun, 18 Oct 2026 15:24:41 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Haoran Wang <haoranwangsec@gmail.com>
+Cc: jasowangio@gmail.com, kvm@vger.kernel.org,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	eperezma@redhat.com, linux-kernel@vger.kernel.org,
+	security@kernel.org
+Subject: Re: [BUG] vhost/vringh: __get_user without access_ok leaks kernel
+ memory via vDPA passthrough
+Message-ID: <20261018152358-mutt-send-email-mst@kernel.org>
+References: <6ad07f8a.a0c71a5e.2d2efd.977a@mx.google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20261016103640.4989-2-blum@kernel.org>
-In-Reply-To: <20261016103640.4989-2-blum@kernel.org>
-From: PrasannaKumar Muralidharan <prasannatsmkumar@gmail.com>
-Date: Sun, 18 Oct 2026 22:30:08 +0530
-X-Gm-Features: AclHuK-nQ7ZtqX-oks4iRGuLf-PLYl2NcnCVNUFe0eh8h6uUfoXPMhFqyj8drsU
-Message-ID: <CANc+2y7ruqmfO+D_nfdc9rnBE0uSSnZR9UJY2Dvc5Nez9U-61Q@mail.gmail.com>
-Subject: Re: [PATCH] hwrng: virtio - prevent use-after-free after a failed restore
-To: Thorsten Blum <blum@kernel.org>
-Cc: Laurent Vivier <lvivier@redhat.com>, Olivia Mackall <olivia@selenic.com>, 
-	Herbert Xu <herbert@gondor.apana.org.au>, Rusty Russell <rusty@rustcorp.com.au>, 
-	Amos Kong <akong@redhat.com>, virtualization@lists.linux.dev, 
-	linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <6ad07f8a.a0c71a5e.2d2efd.977a@mx.google.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: WYb32pzo42WA3w9usExSmz3CEBrMVsMxwLrpdszNRRo_1792351485
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Hi Thorsten,
+On Thu, Oct 15, 2026 at 03:23:45PM +0800, Haoran Wang wrote:
+> I'd like to report an issue in drivers/vhost/vringh.c:1216 (function
+> getu16_iotlb), found via static analysis of Linux 7.0.11 and verified
+> against the 7.2.10 source tree. I have reproduced the leak on an
+> unmodified 7.2.10 kernel.
 
-On Fri, 16 Oct 2026 at 16:16, Thorsten Blum <blum@kernel.org> wrote:
->
-> remove_common() frees the driver data during freeze, but does not clear
-> vdev->priv, which points to freed memory. If probe_common() then fails
-> during restore, a later remove or freeze can dereference the dangling
-> pointer.
->
-> Clear vdev->priv on the probe_common() error cleanup path and before
-> freeing the driver data in remove_common(). Also reset the device and
-> return early from remove_common() if vdev->priv is already NULL for a
-> safe teardown after a failed restore.
->
-> Fixes: 08e53fbdb85c ("virtio-rng: support multiple virtio-rng devices")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Thorsten Blum <blum@kernel.org>
-> ---
->  drivers/char/hw_random/virtio-rng.c | 7 +++++++
->  1 file changed, 7 insertions(+)
->
-> diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
-> index 5e83ffa105e4..a9ff520975a7 100644
-> --- a/drivers/char/hw_random/virtio-rng.c
-> +++ b/drivers/char/hw_random/virtio-rng.c
-> @@ -190,6 +190,7 @@ static int probe_common(struct virtio_device *vdev)
->  err_find:
->         ida_free(&rng_index_ida, index);
->  err_ida:
-> +       vdev->priv = NULL;
->         kfree(vi);
->         return err;
->  }
-> @@ -198,6 +199,11 @@ static void remove_common(struct virtio_device *vdev)
->  {
->         struct virtrng_info *vi = vdev->priv;
->
-> +       if (!vi) {
-> +               virtio_reset_device(vdev);
-> +               return;
-> +       }
-> +
 
-The virtio_reset_device() is always called before setting vdev->priv
-to NULL. So the virtio device is already quiesced, no need to do early
-return. Isn't it?
+This should fix it I think? Can you confirm pls?
 
->         vi->hwrng_removed = true;
->         vi->data_avail = 0;
->         vi->data_idx = 0;
-> @@ -207,6 +213,7 @@ static void remove_common(struct virtio_device *vdev)
->         virtio_reset_device(vdev);
->         vdev->config->del_vqs(vdev);
->         ida_free(&rng_index_ida, vi->index);
-> +       vdev->priv = NULL;
->         kfree(vi);
->  }
->
->
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/vhost/vringh.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-The rest of the hunks are fine.
+diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
+index 9066f9f12ba1..4b097170bd36 100644
+--- a/drivers/vhost/vringh.c
++++ b/drivers/vhost/vringh.c
+@@ -1213,7 +1213,11 @@ static inline int getu16_iotlb(const struct vringh *vrh,
+ 		return ret;
+ 
+ 	if (vrh->use_va) {
+-		ret = __get_user(tmp, (__virtio16 __user *)ivec.iov.iovec[0].iov_base);
++		__virtio16 __user *uaddr = ivec.iov.iovec[0].iov_base;
++
++		if (!access_ok(uaddr, sizeof(*p)))
++			return -EFAULT;
++		ret = __get_user(tmp, uaddr);
+ 		if (ret)
+ 			return ret;
+ 	} else {
+@@ -1251,7 +1255,11 @@ static inline int putu16_iotlb(const struct vringh *vrh,
+ 	tmp = cpu_to_vringh16(vrh, val);
+ 
+ 	if (vrh->use_va) {
+-		ret = __put_user(tmp, (__virtio16 __user *)ivec.iov.iovec[0].iov_base);
++		__virtio16 __user *uaddr = ivec.iov.iovec[0].iov_base;
++
++		if (!access_ok(uaddr, sizeof(*p)))
++			return -EFAULT;
++		ret = __put_user(tmp, uaddr);
+ 		if (ret)
+ 			return ret;
+ 	} else {
 
-Thanks,
-PrasannaKumar
