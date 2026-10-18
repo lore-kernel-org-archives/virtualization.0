@@ -1,119 +1,63 @@
-Received: from mail.noirlang.tr (mail.noirlang.tr [217.18.210.29])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC7A845D5C9
-	for <virtualization@lists.linux.dev>; Sun, 18 Oct 2026 11:28:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.18.210.29
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1174481A91
+	for <virtualization@lists.linux.dev>; Sun, 18 Oct 2026 11:31:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792322930; cv=none; b=kt5B7iC36VLJBa8ZpVdNK+w6kRmIupHGr4nIml7CJKmM/sk6yJt6VW5CZvdf8BiIVdDM7hQfh1ZU9MAJAvMx0wQjMpBXGDN+T0l1Hu+OZHNz9wDy83v4/YYG6swKOZONysPtvNy00Y333cxJslq1Amiwbqakzusnf6OCYa+cLo4=
+	t=1792323110; cv=none; b=onfft+wfh6x++Neh3tox78YfaPDYa2NddcfS6faUfvMgGliUDpW9q/VTUNobPZpWuoV5MAqZ4t3gNklCMcu1KL78yb0cLsVVzaJ7LSQnOwMJ/l01u3oursUB5cZnmAHoHmsVtUbPHZx162q3dUpF8rRipYYTN9eM3sZRAn6giSA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792322930; c=relaxed/simple;
-	bh=uYAXWKh3pVi83U2Vt4WZSW9U0O1j5A3aF4lZLVxVC4U=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=XENuM+iHvzk+GWJQP2SWDe5MkdCglpQu/y3eDZgb52gsABJMtI+rpz+cRBHhNGZzqIZPSK/29QyRCZYfG86DbuulGnIe3cPrSQ+BmiOBQGmBHFuU7oaunLwpgViw4iyZ/yDgVDQldtHNogYdJYTD0tMa4y5VXtmTr1fgpeQAGk4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=noirlang.tr; spf=pass smtp.mailfrom=noirlang.tr; dkim=pass (2048-bit key) header.d=noirlang.tr header.i=@noirlang.tr header.b=aUbD5ycH; arc=none smtp.client-ip=217.18.210.29
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=noirlang.tr
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=noirlang.tr
+	s=arc-20240116; t=1792323110; c=relaxed/simple;
+	bh=OuBnvuol1W70cS77NGkbtzwjSP4+Q5XdkRIfKqdEONI=;
+	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
+	 Date; b=RkJXfT8iodzJ0tYKAwzJdlkiUkS/ISudIX8mJSs4n4l5Nd8B+jk0VGFMVx2zjUp2G0xtUtppVDBWn5d2UtN8Cp0WAPX06U7UAtKIGkx4rSYTYGpoSt6iusfsy+elXqJCMx6Sdc6DNM4GBy6xfdK5AEFyouaJPsl3/I1dtd8tfHw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dxXAozwy; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=noirlang.tr header.i=@noirlang.tr header.b="aUbD5ycH"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=noirlang.tr; s=mail;
-	t=1792322926; bh=uYAXWKh3pVi83U2Vt4WZSW9U0O1j5A3aF4lZLVxVC4U=;
-	h=From:To:Cc:Subject:Date:From;
-	b=aUbD5ycH/a39AdXOVqbwiXaPwJ5BDksrSofak7odt2OPY5lFA8P8OC0pNn5NUG9/u
-	 CHNccu6fOJORy39RdFiUZB2U8r93mjrziejkbqkQ8grok4NcL0AxFg8bQGaDVKopwY
-	 m9w1i2yNaWfsNyXx9+7RkD5YgXyJHtSYBH+NBtjp1qJh850pEZBLdwxgoyTqW3PTsc
-	 VEDfO4ieAwN6CuFmJdx7HJwcXCWDmY2ZLSwkpTZAxQ5ZMaS5PC+Luyupj2a0jQHMb/
-	 5x8jDv7osNxA7120lP1dJrWZNmIb4YOSzmluCRCDizpfQhM+1SG8ZjLXhZdT+jTJMF
-	 qSN2UTLlpj0Tw==
-From: Melih Emik <melihemik@noirlang.tr>
-To: airlied@redhat.com,
-	kraxel@redhat.com,
-	dmitry.osipenko@collabora.com
-Cc: gurchetansingh@chromium.org,
-	olvaffe@gmail.com,
-	maarten.lankhorst@linux.intel.com,
-	mripard@kernel.org,
-	tzimmermann@suse.de,
-	simona@ffwll.ch,
-	dri-devel@lists.freedesktop.org,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] drm/virtio: inline drm_simple_encoder_init()
-Date: Sun, 18 Oct 2026 14:28:44 +0300
-Message-ID: <20261018112844.360262-1-melihemik@noirlang.tr>
-X-Mailer: git-send-email 2.56.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dxXAozwy"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60C5B1F000C4;
+	Sun, 18 Oct 2026 11:31:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792323109;
+	bh=OuBnvuol1W70cS77NGkbtzwjSP4+Q5XdkRIfKqdEONI=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=dxXAozwyjotP+vLeoCsdhCI4V0yyE/jkOcg08iokjR4GHvxWigE3q8ExCKUM0b+NG
+	 v58rtNJYxFLj344K1S3KgTukSf5Nze74GO5A+LrJ6KkBhWZCTsEvhM/1JCVZHIQbmt
+	 KYEGTltxya7air832D0H8S2Fft7uFZy1wWRs63nkQRip8893oCX1pFVbbR+IHWsZxv
+	 JgDvh+t7nmJCXB//Jm9srOcKco33QNo9SX5a/XFNNLwj6dPYqjX+ir66QhHCTl3+kn
+	 GT2EZHKnUaOttgEXZhMgPKm/O93mn6dFvMn2SWumGdnADUlhDwtIaSiTStlIqzPEbq
+	 XhppMmDroeRTw==
+Message-ID: <sashiko-outbox-176081@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] drm/virtio: inline drm_simple_encoder_init()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Melih Emik" <melihemik@noirlang.tr>
+Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
+ Perez" <eperezma@redhat.com>
+In-Reply-To: <20261018112844.360262-1-melihemik@noirlang.tr>
+References: <20261018112844.360262-1-melihemik@noirlang.tr>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sun, 18 Oct 2026 11:31:48 +0000
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-The helper drm_simple_encoder_init() is deprecated because it adds an
-unnecessary intermediate layer between atomic modesetting and DRM drivers,
-as documented in Documentation/gpu/todo.rst.
+> The helper drm_simple_encoder_init() is deprecated because it adds an
+> unnecessary intermediate layer between atomic modesetting and DRM drivers,
+> as documented in Documentation/gpu/todo.rst.
+>=20
+> Inline the functionality by calling drm_encoder_init() directly with a
+> local instance of struct drm_encoder_funcs. This allows removing the
+> dependency on <drm/drm_simple_kms_helper.h> in favor of
+> <drm/drm_encoder.h>.
+>=20
+> Signed-off-by: Melih Emik <melihemik@noirlang.tr>
 
-Inline the functionality by calling drm_encoder_init() directly with a
-local instance of struct drm_encoder_funcs. This allows removing the
-dependency on <drm/drm_simple_kms_helper.h> in favor of
-<drm/drm_encoder.h>.
+Sashiko has reviewed this patch and found no issues.
 
-Signed-off-by: Melih Emik <melihemik@noirlang.tr>
----
-Tested:
-- Compiled with W=1 on x86_64 with zero warnings or errors.
-- Verified with lockdep and debug mutexes enabled
-  (CONFIG_PROVE_LOCKING=y, CONFIG_DEBUG_MUTEXES=y).
-- Boot-tested full bzImage in QEMU with -device virtio-gpu-pci and
-  initcall_debug, confirming successful probe and initialization
-  (probe of virtio0 with driver virtio_gpu returned 0) and zero
-  lockdep/kernel warnings.
-- Verified with scripts/checkpatch.pl (0 errors, 0 warnings).
-
- drivers/gpu/drm/virtio/virtgpu_display.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-index a1a875a0c706..1bdbf452d111 100644
---- a/drivers/gpu/drm/virtio/virtgpu_display.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-@@ -28,11 +28,11 @@
- #include <drm/drm_atomic_helper.h>
- #include <drm/drm_damage_helper.h>
- #include <drm/drm_edid.h>
-+#include <drm/drm_encoder.h>
- #include <drm/drm_fourcc.h>
- #include <drm/drm_gem_framebuffer_helper.h>
- #include <drm/drm_print.h>
- #include <drm/drm_probe_helper.h>
--#include <drm/drm_simple_kms_helper.h>
- #include <drm/drm_vblank.h>
- #include <drm/drm_vblank_helper.h>
- 
-@@ -232,6 +232,10 @@ static enum drm_mode_status virtio_gpu_conn_mode_valid(struct drm_connector *con
- 	return MODE_BAD;
- }
- 
-+static const struct drm_encoder_funcs virtio_gpu_encoder_funcs = {
-+	.destroy = drm_encoder_cleanup,
-+};
-+
- static const struct drm_encoder_helper_funcs virtio_gpu_enc_helper_funcs = {
- 	.mode_set   = virtio_gpu_enc_mode_set,
- 	.enable     = virtio_gpu_enc_enable,
-@@ -306,7 +310,10 @@ static int vgdev_output_init(struct virtio_gpu_device *vgdev, int index)
- 	if (vgdev->has_edid)
- 		drm_connector_attach_edid_property(connector);
- 
--	drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_VIRTUAL);
-+	ret = drm_encoder_init(dev, encoder, &virtio_gpu_encoder_funcs,
-+			       DRM_MODE_ENCODER_VIRTUAL, NULL);
-+	if (ret)
-+		return ret;
- 	drm_encoder_helper_add(encoder, &virtio_gpu_enc_helper_funcs);
- 	encoder->possible_crtcs = 1 << index;
- 
--- 
-2.56.0
-
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261018112844.3602=
+62-1-melihemik@noirlang.tr?part=3D1
 
