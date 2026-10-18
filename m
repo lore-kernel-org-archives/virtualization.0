@@ -1,162 +1,162 @@
-Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
+Received: from mail-ej1-f47.google.com (mail-ej1-f47.google.com [209.85.218.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53D5A3AE6EB
-	for <virtualization@lists.linux.dev>; Sun, 18 Oct 2026 16:17:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792340263; cv=none; b=D6VE7tbMwEK/pOJNA2TS46XMgd7RSHNnYCm1jQBhB7/iBpHJgm5vE0/kuQnCrmCfsINd+RC6uuExohYAcb8LvfE4LpSmFHNqFarApPT0il8i8WH3+FLEkavsrUEHxeMZLQS8LiFlTx53dIp0wKQuOTCF1mmdsUXFQXxMMc1Ef+o=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792340263; c=relaxed/simple;
-	bh=TOGRDFbFCs4Kw4XD0aiILNVJEpyYivpLcrVbrqcEghk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ltYcRXP0jJxZ2pQY7L2+JOdexS/xF47yDOFJXLiHLCNw0ZjKl2oPFhf6Eb4DsM5jMK6EPIDRjYbmmTulxb5x+oMLX1FvAwVSRQOGvmaGOBsmis77FlcnbD/E2LDqIm833e5WyD/XWy1RsTKvrmmqC2sve6NXnczyY2D/xel6XiI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=q16H8HD0; arc=none smtp.client-ip=209.85.128.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD9E43F106D
+	for <virtualization@lists.linux.dev>; Sun, 18 Oct 2026 17:00:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.47
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1792342822; cv=pass; b=nBryDYCpeycyqeAZ3ElxtO17hG1XLs9WxeSZ/uJq8VhM+AMFlkb4swkXkcuKuMxgTT/00Z49F5KHoPmfwlamGaMLWbVlxFcsK1rz5amjpRjOS2ddTOoSY/q15ceIic6ePpvQAZMBxlLFHBx9HGst5bXTVv4ZAzIcrc4Dpenu4WY=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1792342822; c=relaxed/simple;
+	bh=g/JGIrVbzY2CScB/KpNY8unmxw00ClvPmppC33lSWpg=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ivzLy/llhxl3NDP34NmJdV+swd7fwn2pU8eEx9otsS3DxUMoFW1w/uAfYZdvsuH84Aoe9oFkEAc5FyqFyjCtjdbkBFJhV58qoQpsYZs+O6ZjgmfxJNqnGeZFFTywrHCXB0YX3/DSkSI8lFIf6WrWq8sAeXnNEvdkL6Y0UoES1nk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fXhe3vwj; arc=pass smtp.client-ip=209.85.218.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="q16H8HD0"
-Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-49d05d51553so8714265e9.2
-        for <virtualization@lists.linux.dev>; Sun, 18 Oct 2026 09:17:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fXhe3vwj"
+Received: by mail-ej1-f47.google.com with SMTP id a640c23a62f3a-c40f29667e6so34830266b.0
+        for <virtualization@lists.linux.dev>; Sun, 18 Oct 2026 10:00:20 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1792342819; cv=none;
+        d=google.com; s=arc-20260327;
+        b=nSxulYpwifR/xc4AsNTzOaGpcAbHH44RzsLu0a2TeOQN5sQpX7NbZKnUU5M3z+p6XA
+         Ju4JWuCwOcRVnKOEo7JaB34NbN91GkQiTByVLIV1I50QZS3bAnw5trP6rNpmu3Ub5807
+         Di1Y4AM5G48kkp2c+6J8SMzuTVfqS28U1clXPOYaGAMrHo/FIJppN/LozYdbYWosaVyU
+         nT9l/Oe0OC6qlSJJl+fnCR5Lja+Vvg8IOAAOHj3XaJbdOdc54sLn7CAQh5heatFReDO2
+         0MxZrYJvq+daeTrVaz7yzSZ1H9rcsdcz3yQiT0QCM5SkpEGzPrQT1HnJ6mtkw6bq8h9g
+         2WHw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=2/1Y5ghSBlEp/00kqDwKjo69e3DTVuqhYG4tCNcmd4Y=;
+        fh=9sSJx5eGKOc9DGsT52egNF+Sg3FzJcPq5+sxbZSRMVM=;
+        b=RRkKm7nyFX50MHA456Wkg2nptOGGcBw0CfQgF0doAFSv7ePZAXUTZ+zxhqyzI9LDVe
+         i9GNmzfXIDEozbCQiW8TLxq+wUiXGjWfpEMsU95HZY3aA7QJia4zIcNyN6HZ23qB4A8h
+         POARYfvWacoc57Sm57XakCM/DJeUIOOIh6nggFxI31ze46Kgx9lHg3wVuILFpjf8py20
+         /AJEJZTrelxj+y3lGuizciJRLKeDYphmIUoquCUk+K1+6m5tuN6YehirG8Fytb6s9kTt
+         N4iBu4QWulRCCkDTSrmBRtBaGA9xsqD7op2JQdcvN8QQkVjpLdI/bM3/qiSDhxSnSQ6F
+         2kwQ==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792340260; x=1792945060; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=ZTfsVeABUBSFy3HVBXCMegGi7+UD9ADpc6dIspx0V50=;
-        b=q16H8HD06yseOOaKmZatUoxVGaei95APGpojVHY1N5rSzi25Z1l5qrJ8fVDNMWgQLX
-         tgOw3eb9pyUPGs3ArwLhefdMXVxi3H5c7zm1UnPQoB1vwjJmiwNiThU+QSXAZrVveWpo
-         Bj0HZ50752ERoLDlCSDx2e11J3jTCX72D9VsNxZs1gTTnRSud0QJ+kwekaqOI+Eqgg2D
-         UeIWmEoCf1peib7CK+pWXungFAYO+vwOegEvxxucRYlbT8dnMTs1UZdvLPv6Gbb1sKwd
-         xcGzHWC8872Kobv89sGC2ijh8h3q7If6T/VjPs/GAgkivzL7D13VA9JjZWF3e+LnpBWy
-         Vs4Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792340260; x=1792945060;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+        d=gmail.com; s=20251104; t=1792342819; x=1792947619; darn=lists.linux.dev;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=ZTfsVeABUBSFy3HVBXCMegGi7+UD9ADpc6dIspx0V50=;
-        b=Yoa/tAo6GPiyCDxVRCCzLTTDlo4HzLBKhehkWoevV+Bay9ZWJcFdv9q0rVPlJ9l3h/
-         EBwmDpQzlQhajSBmsdDdx1SSsdmsjA+ji8r9+exPkrcCEpxzVEr5TsW3G0koubB5qNPs
-         uDgXSjbdbn17RHqf0z4ySfKfXK5IhYOuSh6gjk5b7QYY5Srs72TtQYOQA+K/lfxg3NbB
-         QAVSDnjTPTB0HKVxQv/IlUO8D6rJpdolOW+07bazUgjYQ1mGnCNicrN6yGyFwmtekDeI
-         KEXZhobBdjY2m6PaduEn6jzkhY3fyyq5Gawi4gDYhhY6PkVPngue4c7+Y5jHGOMR/AeD
-         1D6w==
-X-Forwarded-Encrypted: i=1; AKwUvBwfhAdlhKf/u3rjuFbO9hxNWJgfUe7k3JgeXZqc4ZPlenbwUiNP+hsfJGNtip5skHB4lAGrn6WVyXhx9Pm2SQ==@lists.linux.dev
-X-Gm-Message-State: AFq9FYLrXoEFjEfREg5TT1ZMHE+dRTc5u0/noD4JoAdDMtQ54pkRJdTf
-	uMazqZQim3Ct6ozAxUXjjAEmMffpZDdbE14TU4yB8h3q766fdX6DPjBI
-X-Gm-Gg: AYBFou0rhjuzwC1xK4m8hb7wjmNyJDlFeq/y1g7hSuM8XhId3QGy/tIuNQEEDb8LNNJ
-	ZfYvUWNrtEdGjGB3AG0g2Guy7UlCEPPUwHoY1s5J8Lm401br39d2cauLGaBsGrELhEz4ftTiYiV
-	bn/bycHEDdVPvFMrKjjEpmssESyy7NCDVc2zTR2+UaSGTkl1KT65fwnU4UlWpI/VCEAXuV0YwGY
-	2yy8P29crBgUVTxqhNoOeHxmNiKjQpGaLsoH9Cy5ANZVfPtN4g+cbd1IM6yqE5mIhTCzIv/Qwbi
-	hkXpAy3Ev7BvsOcTMdJJy0lkX/eAJevQLkw6wfmkGAjwNGdlAJ+0Oc7jXXwAAg2gzB9nMP5n9ZV
-	bjMQg3NvQVWErdPKmiqfdl5440SAwxbpt3hbwKMEJhXn8NEik2YZvoFwzcgVrJ9xUvAQcghV570
-	ED7f7jvlAklrPJsrIFznXpMVG9zbesOAROoS41HoH3dKzvmTBhXR8rzbVqOhBXPR+ff3V+t0qPn
-	OPZT4bYwFDzdR7Fs5p09wNsTwHyk3lRfTa7RpmGL7cwc/bop1F7eIqIY4fka0U=
-X-Received: by 2002:a05:600c:1f86:b0:4a1:93fd:8f8 with SMTP id 5b1f17b1804b1-4a1d75ab363mr119735965e9.4.1792340260358;
-        Sun, 18 Oct 2026 09:17:40 -0700 (PDT)
-Received: from home-desktop (dynamic-002-214-000-206.2.214.pool.telefonica.de. [2.214.0.206])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a1df164777sm119463445e9.5.2026.10.18.09.17.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 18 Oct 2026 09:17:39 -0700 (PDT)
-Date: Sun, 18 Oct 2026 18:17:37 +0200
-From: Abhin Parekadan Jose <abhinjoses@gmail.com>
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Cc: Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@redhat.com>,
-	Gurchetan Singh <gurchetansingh@chromium.org>,
-	Chia-I Wu <olvaffe@gmail.com>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Simona Vetter <simona@ffwll.ch>,
-	Dongwon Kim <dongwon.kim@intel.com>,
-	dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	syzbot+3590d97d8a586fa955c2@syzkaller.appspotmail.com
-Subject: Re: [PATCH] drm/virtio: Destroy obj_restore_lock on the final
- drm_dev_put()
-Message-ID: <atTxIeLq1VspA70F@home-desktop>
-References: <20260929070714.169412-1-abhinjoses@gmail.com>
- <asxz0Xvv5jO9gAol@home-desktop>
- <537679fc-8aea-472f-a7af-b15bd3cf27fd@collabora.com>
- <as_drl4kYXmgOfRn@home-desktop>
- <8e193dd9-4ceb-4bd0-a28f-f4af084b73e8@collabora.com>
+        bh=2/1Y5ghSBlEp/00kqDwKjo69e3DTVuqhYG4tCNcmd4Y=;
+        b=fXhe3vwjm8Wav1qBK+qyxgA+JeulNxJczfmV0pnqcUGyIt1ofIPH+ROJOdRfl9eiYS
+         C6FXOXoG7fFBYjuYEivPAJMpie3tH3DtYYU8wxPU2cFZdDInCsoE0KMIiNDfnNY713nF
+         yrcbmyU3OTRFLWIlPyr/9vnMNARYg3UY6TSvMF6v5s3xjqbxuo/dtb46k/sBwLxlKfTy
+         1iRO/lU5J1rnJSTA2ototSrvZHM+sHUFIn4NCu9tAN5R1Z/dlXbUkYgT9KTdTMPUYNzB
+         /MbLtnP/OILMUGfSq6iSLwX8wPPCUK4pIFHlwt+4Gmg3cxseYLyY0rO484PbT73NDbzq
+         MWHg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792342819; x=1792947619;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=2/1Y5ghSBlEp/00kqDwKjo69e3DTVuqhYG4tCNcmd4Y=;
+        b=bP0v+PKWSK5vXfgq7XFSGf4rq44lL2gk9rgxeeQubWhWCRPGcyBcPdj5hc61vlIRil
+         aSgcIgf3h3UAQllgitlYz+mpTJmBv0JNo+QnF7ApxJDvZHr1WI0qk/F50qzhWysZ2tLY
+         l0cD8w0bf+7uQ85x+cOjwwB+N3JjVgmMsE4K+ybtQPm3d6n4Y4ouChWg+vlCaZw0bTOZ
+         bXIrC1qLxnCgokciUz/QP2MHI0g8YWPefn8MYNJneyPDxEh+/eWOgbqudKqCVyALTGja
+         Q21bps8dZ7h3USX5rbKrCbW+4cN6HYp8oLoHJraP8KyLTNxY1O1W85GweCAForknvCN6
+         UrYQ==
+X-Forwarded-Encrypted: i=1; AKwUvBz0RndSFFOU9QGdrsgxRhMwycFMO+/e6dnaUpbzc2pS9Hqbkrm5Q0hZfpFmT4wneNUzDsU27qE8emGrh0AUvw==@lists.linux.dev
+X-Gm-Message-State: AFq9FYJGYTLicyxKc3gaKmIBcSVnc7cyFIayvUBqsupqdLmqoBILEaGf
+	mOtn5EvfPNfe9XelQMlVEGKbpNqPgAexIyD1ldNYKLAtQfIxKwErX20fpR36DPER9Yze1p/aQ3r
+	sWEqg0O5IcsRAunP3PsSykVrv/TN6zKM=
+X-Gm-Gg: AYBFou1rYjy336rGYZLgPz7WmhCGaL19NToIL5JJAMEUDuLQv5eBjqvEIMTsBMiTC8b
+	t2HT57tgAzVPabfwebCN1bMGg2hwfN/HKzhGEuZ4q95QktDTk5oXovbftR/YkiUzp3NSB1m1UzT
+	t5FniheyKAjOa52J/CW59NjnH8wPRHjjNG2J8m9Mj/u6oMocrHs32ioROuHM4uZxZJYzBR5mXl6
+	gRudwQ5NHEr2lL3AcylTXAMEZijzJBbrOfea0SxZbo1UtTpfOMITPQaHh22mK1876b9Y4BAwmLL
+	48FYFSpZTK5qpcT1KQgTdYu5XZOdNI8LAQQjHDlXJQ4PG5vQE8ZWIjC+rnGNa45HKqGJUggqyG1
+	MzdftT5TCqTReLqVKsCDA5SXHrUzWPFdRiA==
+X-Received: by 2002:a17:906:f597:b0:c41:55b4:d88b with SMTP id
+ a640c23a62f3a-c41a00f1a94mr354678866b.43.1792342818130; Sun, 18 Oct 2026
+ 10:00:18 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <8e193dd9-4ceb-4bd0-a28f-f4af084b73e8@collabora.com>
+References: <20261016103640.4989-2-blum@kernel.org>
+In-Reply-To: <20261016103640.4989-2-blum@kernel.org>
+From: PrasannaKumar Muralidharan <prasannatsmkumar@gmail.com>
+Date: Sun, 18 Oct 2026 22:30:08 +0530
+X-Gm-Features: AclHuK-nQ7ZtqX-oks4iRGuLf-PLYl2NcnCVNUFe0eh8h6uUfoXPMhFqyj8drsU
+Message-ID: <CANc+2y7ruqmfO+D_nfdc9rnBE0uSSnZR9UJY2Dvc5Nez9U-61Q@mail.gmail.com>
+Subject: Re: [PATCH] hwrng: virtio - prevent use-after-free after a failed restore
+To: Thorsten Blum <blum@kernel.org>
+Cc: Laurent Vivier <lvivier@redhat.com>, Olivia Mackall <olivia@selenic.com>, 
+	Herbert Xu <herbert@gondor.apana.org.au>, Rusty Russell <rusty@rustcorp.com.au>, 
+	Amos Kong <akong@redhat.com>, virtualization@lists.linux.dev, 
+	linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On Thu, Oct 15, 2026 at 12:03:32AM +0300, Dmitry Osipenko wrote:
-> On 10/14/26 22:53, Abhin Parekadan Jose wrote:
-> > On Wed, Oct 14, 2026 at 01:16:57AM +0300, Dmitry Osipenko wrote:
-> >> On 10/12/26 08:44, Abhin Parekadan Jose wrote:
-> >>> Gentle ping on this fix for the syzbot report.
-> >>>
-> >>> Dmitry, Gerd, do you have a preference between moving mutex_destroy()
-> >>> to virtio_gpu_release() (this patch) and using drmm_mutex_init()? I can
-> >>> send a v2 with the other option if you prefer it.
-> >>>
-> >>> Thanks,
-> >>> Abhin
-> >>>
-> >>> On Tue, Sep 29, 2026 at 07:07:14AM +0000, Abhin Parekadan Jose wrote:
-> >> Calling virtio_gpu_deinit() from virtio_gpu_release() might be a better
-> >> option
-> > 
-> > Wouldn't that end up freeing the virtqueues twice, or using them after
-> > they are freed? virtio_gpu_deinit() would then run from both the
-> > virtio_gpu_remove() path and the virtio_gpu_release() path.
-> > or do you mean removing it from virtio_gpu_remove() and calling it only
-> > from virtio_gpu_release()?
-> > This is only from a high-level look so far. I'll look into it more
-> > closely and get back to you.
-> 
-> Remove from virtio_gpu_remove() and call only from virtio_gpu_release().
+Hi Thorsten,
 
-I tried this out and here are my findings.
+On Fri, 16 Oct 2026 at 16:16, Thorsten Blum <blum@kernel.org> wrote:
+>
+> remove_common() frees the driver data during freeze, but does not clear
+> vdev->priv, which points to freed memory. If probe_common() then fails
+> during restore, a later remove or freeze can dereference the dangling
+> pointer.
+>
+> Clear vdev->priv on the probe_common() error cleanup path and before
+> freeing the driver data in remove_common(). Also reset the device and
+> return early from remove_common() if vdev->priv is already NULL for a
+> safe teardown after a failed restore.
+>
+> Fixes: 08e53fbdb85c ("virtio-rng: support multiple virtio-rng devices")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Thorsten Blum <blum@kernel.org>
+> ---
+>  drivers/char/hw_random/virtio-rng.c | 7 +++++++
+>  1 file changed, 7 insertions(+)
+>
+> diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
+> index 5e83ffa105e4..a9ff520975a7 100644
+> --- a/drivers/char/hw_random/virtio-rng.c
+> +++ b/drivers/char/hw_random/virtio-rng.c
+> @@ -190,6 +190,7 @@ static int probe_common(struct virtio_device *vdev)
+>  err_find:
+>         ida_free(&rng_index_ida, index);
+>  err_ida:
+> +       vdev->priv = NULL;
+>         kfree(vi);
+>         return err;
+>  }
+> @@ -198,6 +199,11 @@ static void remove_common(struct virtio_device *vdev)
+>  {
+>         struct virtrng_info *vi = vdev->priv;
+>
+> +       if (!vi) {
+> +               virtio_reset_device(vdev);
+> +               return;
+> +       }
+> +
 
-That would undo b1df3a2b24a9 ("drm/virtio: add drm_driver.release
-callback."), which split virtio_gpu_deinit() on purpose: "move the drm
-shutdown and release to virtio_gpu_release() ... use
-drm_dev_{enter,exit,unplug} to avoid touching hardware after device
-removal". That matches what the documentation asks for. drm_dev_unplug()
-exists so the device can be unplugged "while there are still open users
-of @dev", and Documentation/gpu/drm-uapi.rst (Device Hot-Unplug) says
-the DRM instance is torn down only after userspace has closed all
-descriptors and mmaps. Meanwhile the virtio side has to be gone when
-->remove() returns: the example in
-Documentation/driver-api/virtio/writing_virtio_drivers.rst resets the
-device and deletes the vqs in remove(), and virtio_dev_remove() warns
-("Driver should have reset device") if the driver did not.
+The virtio_reset_device() is always called before setting vdev->priv
+to NULL. So the virtio device is already quiesced, no need to do early
+return. Isn't it?
 
-So the virtio teardown (reset, flushing the vq workers, del_vqs) has to
-stay in remove(), and everything that open files and GEM objects can
-still reach has to wait for release(). I tried moving the deinit call
-into release() to be sure: the virtio core warns that the device was
-not reset and that the vq MSI vectors are still allocated at PCI
-removal, and the deferred reset then runs on a virtio_device that
-virtio_pci_remove() already freed (KASAN use-after-free in
-virtio_reset_device()). It only makes things more complicated.
+>         vi->hwrng_removed = true;
+>         vi->data_avail = 0;
+>         vi->data_idx = 0;
+> @@ -207,6 +213,7 @@ static void remove_common(struct virtio_device *vdev)
+>         virtio_reset_device(vdev);
+>         vdev->config->del_vqs(vdev);
+>         ida_free(&rng_index_ida, vi->index);
+> +       vdev->priv = NULL;
+>         kfree(vi);
+>  }
+>
+>
 
-obj_restore_lock is on the wrong side of that split. It is only used
-from GEM paths (the ->free callbacks via
-virtio_gpu_remove_from_restore_list(), object creation, and the PM
-freeze/restore ops), and the free callbacks can run after unplug, like
-the vbuf cache and host_visible_mm that release() already handles. So
-the mutex belongs in virtio_gpu_release(), which is what this patch
-does.
+The rest of the hunks are fine.
 
-It only looks like the mutex_destroy(...) landed in the wrong function
-virtio_gpu_deinit() instead of virtio_gpu_release() in 54a970048296.
-
-Is there something I am missing in the framework, or have I understood
-it wrong?
-
-Regards,
-Abhin
+Thanks,
+PrasannaKumar
