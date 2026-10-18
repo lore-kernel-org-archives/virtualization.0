@@ -1,130 +1,118 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f42.google.com (mail-ej1-f42.google.com [209.85.218.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB24B3E5A20
-	for <virtualization@lists.linux.dev>; Sun, 18 Oct 2026 22:13:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1BD13DD508
+	for <virtualization@lists.linux.dev>; Sun, 18 Oct 2026 23:12:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792361616; cv=none; b=Owl91gcDfJpba3t5MiuLaRIMi+KYbEkwV//Er/IPVXB4xmTJc8RB1F28BTjzxFYiMFRSGHBzzDxnpdWuk0YM41ia9+erGW12ro3igejQjF+zn79JcMVYGsKlZrsvLYk6zOtn1w+JUSmQSf9sThzVudjBJjfP7W4Qgr75YynVDFQ=
+	t=1792365146; cv=none; b=jERZBwe1uzzagDfAxp/hEj9fxyJ2LHeV1enIrEhKWSvq3uLkPlQ6Y8roAh5iMqbyNlInJQy6NvK0xddtdqXuxnFX0r/tiEW5ZaiBBrpO+dAJ2COGpwfVUPKsCIqM51c1GkDz0KLa6oMUTZGLIjlxaf6c1fGTqN/q1qfmHsP/E00=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792361616; c=relaxed/simple;
-	bh=JBnh6g8/khXfo/xjv3nRYstO4SCCAW5vzbTZ2OoUIp4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=PFrqMIYWMySwa2ECwYoGKc985Rdjoq/ik2HxuhPW8hZhxraTCXOtLcP15FoiG0/Llc+R1tjaHZ1vO8M2Mu8KtIalryPqa/2xZxoDwEtZPsoBuV3zCR4IjaSrvcBiMGtJ6MOjEXJ9z6cIr0YPI0W8tuvXl9Nk30i/PV8XwNjIe2c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gsLpHUv6; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1792365146; c=relaxed/simple;
+	bh=FmRZBhpqLPyc1UGxxy4qJoUHxNedPgUqXqvk3ujJM1A=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=L7m5h5A9yJckOBvpceCPtiJoUOjZjaToHalznFWG+TgPsdv3/Ui3D15aBAXWg+O/UfbijZ5H+7CPVic+6LJVmcU2z9Lqw+JNsFTOZUhiPZ7IJtgn3Yg+po3l3tVjCK/ww4Y86AN/GYM+MThGm+vZP8AdECMMunKPurNE+jvnkTE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linuxfoundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=Ek9P7io0; arc=none smtp.client-ip=209.85.218.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linuxfoundation.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gsLpHUv6"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1792361614;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=D2nWTmEzSlPTSS6/bv2DXBvJ1IMAaQG+TiNBhHr6z6k=;
-	b=gsLpHUv6XRn7KQb2DbuEhMEV3nhOb/rQk+DoA4pjYS0Iw5sVuo16T4nEk0HZIBNtIUaYbj
-	E2J47yTC4/R+IlflrVA9rrGeO86tUOsyF8trKct0jn7dd8sVH2V+sJv8aMmH5uF+Zo5BFz
-	Qj4jLTJyXwF53IqbiQwPVLcFXgRg6Co=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-421-YDT_r1LkPE2nAGU2B1j0Ew-1; Sun, 18 Oct 2026 22:13:33 +0000
-X-MC-Unique: YDT_r1LkPE2nAGU2B1j0Ew-1
-X-Mimecast-MFC-AGG-ID: YDT_r1LkPE2nAGU2B1j0Ew_1792361612
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-48dfdc0f491so725523f8f.1
-        for <virtualization@lists.linux.dev>; Sun, 18 Oct 2026 15:13:32 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="Ek9P7io0"
+Received: by mail-ej1-f42.google.com with SMTP id a640c23a62f3a-c315869241fso150109666b.0
+        for <virtualization@lists.linux.dev>; Sun, 18 Oct 2026 16:12:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxfoundation.org; s=google; t=1792365143; x=1792969943; darn=lists.linux.dev;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=ppuPp4Of6QB0MqdJw5vbPQTFdSm51NtQw86VD0/q+5E=;
+        b=Ek9P7io0XQuBmImrw5G4oF6/3SteAtbZpRkTZsXCVvP8bPmyEWIfkTfK1pIx1TeBDP
+         s9YVjVyVcjZXNl28O0ldIvlMd+VElg8BLxBQIKoEwCkweCzx4aDYQEUirih4Pll4lno5
+         +55w/TBwPH6Mqn0ZzSmkyDL4XHJeHpajOtujk=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792361612; x=1792966412;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=D2nWTmEzSlPTSS6/bv2DXBvJ1IMAaQG+TiNBhHr6z6k=;
-        b=Lo5BE4yz8Jco3vaKjmyiKFILUM7TeLAc5pEe1DmahgEgi0Z9h89zHlouup4neWQLms
-         7hiyawgkBN6c4srMeXOFM71MS08kBmXgTl2bYJu1NFVHa/VKDDivye697rm/dLRk3WBt
-         INGkY0pMpOuc14K4OIBaZP7RvsgpyXpvsyRWtM4bgMYwee2EvZcKqaf3AHP5D0yWAOKT
-         LRs9Q65d5o8rYgtAMqEUE6w7bL7xl0iSXi2nfqh4YsrzR9vBUIbxFkGbP1ACfXUK1kcA
-         6/P2L6u4loOYmNE1XZh98caYGSm0uboif6pLYfty4Z9RXJFUo/Khz8sLhdNPmG0ak0Jd
-         JHUQ==
-X-Forwarded-Encrypted: i=1; AKwUvBya97akJSCNS0KNXFyNWyT4a9sT6ri5lnC7x5J94+hGbAbPIh+IQ2TeYwH+6uGowBfGHUSeCc/WMz/yCccxSA==@lists.linux.dev
-X-Gm-Message-State: AFq9FYIF32ldBBK+6uUWfmCa9coRhP29rorTYAwpt4E7YfKw+edWNI0S
-	GtsctAK10/KGxHP4XTrbjrShRF+2fwz2bujJd3ooNKnzlK/+OGA2R7bhxuZV4ZY/bTDRQFc7giJ
-	FPXS6lv7dnppHKrYCdH41S+MK0/9BWN7no4DfoHdesWpvJVqHU/SdHdw9FUEbDu7Xkw/1
-X-Gm-Gg: AYBFou1T9cBptExTwdAGWIyh7k+mDHA/18UWmifCmHgQqkAcQeU85JBacFKt0oOZ+ER
-	ZY7gU242E6Etjq+b4YB3+N+lkLVFCvPnY/VMoGb+llxlGzphsxRuH/MOsK2oIz6YEVndYVT4/u1
-	HgFZLf7QrOjZxhSGZ2ILKvlz3FLdY0RG9rz2+XtqkqRIor/4k4tNTp234WTU801PDD1c6MNHlka
-	DDJpfmxjdUVCoEGmQkFT2zCG2AuTHl+b5DaDkrA2jqANDvbRJEVlfVv1lPpdH5fhcW9QOkIW8kT
-	LWu6Onq7YzOV64KWlF/jgA4duw7XDcICFqz0UQhdpwUo1GgsWvQ/C2eFdCDMXnsT6b43xg==
-X-Received: by 2002:a05:600c:548d:b0:4a1:e250:b191 with SMTP id 5b1f17b1804b1-4a1e250b1c7mr52451165e9.17.1792361611683;
-        Sun, 18 Oct 2026 15:13:31 -0700 (PDT)
-X-Received: by 2002:a05:600c:548d:b0:4a1:e250:b191 with SMTP id 5b1f17b1804b1-4a1e250b1c7mr52450995e9.17.1792361611317;
-        Sun, 18 Oct 2026 15:13:31 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:3fd7:5300:3d6b:52a4:a23f:9d0b])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48dfd471a72sm20914904f8f.4.2026.10.18.15.13.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 18 Oct 2026 15:13:29 -0700 (PDT)
-Date: Sun, 18 Oct 2026 18:13:26 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Linus Torvalds <torvalds@linuxfoundation.org>
-Cc: David Laight <david.laight.linux@gmail.com>,
-	Haoran Wang <haoranwangsec@gmail.com>, jasowangio@gmail.com,
-	KVM list <kvm@vger.kernel.org>, virtualization@lists.linux.dev,
-	Netdev <netdev@vger.kernel.org>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Security Officers <security@kernel.org>
-Subject: Re: [BUG] vhost/vringh: __get_user without access_ok leaks kernel
- memory via vDPA passthrough
-Message-ID: <20261018181202-mutt-send-email-mst@kernel.org>
-References: <6ad07f8a.a0c71a5e.2d2efd.977a@mx.google.com>
- <20261018152358-mutt-send-email-mst@kernel.org>
- <20261018204838.4080b238@pumpkin>
- <20261018175347-mutt-send-email-mst@kernel.org>
- <CAHk-=wjneFJ7XmZ6ux-LsHq4apDgANcKfERztmAG9sGVY_TxAg@mail.gmail.com>
+        d=1e100.net; s=20260707; t=1792365143; x=1792969943;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=ppuPp4Of6QB0MqdJw5vbPQTFdSm51NtQw86VD0/q+5E=;
+        b=cMiK4yS8kW+fW/OWPvGbO3tlLODo73ZhA6CJ4VYftQ4f5JXOuNLvmQETZnLrlGx71W
+         mOerZuOroPTCYA+jFUpLHXOrc7JfotBBBDZTEI3d4iJX+B4mOWAm7URxa5Fq97Re1YD8
+         9ms3Kd9dVb8uEIXvN7skNUoUPXhnAqXIpM5ZrcIzcTJosqhr/78a4IvhAwLEWMfGS8T5
+         yUoLYtoI4KJdp9XG7JM7MfMu0T7RyB8xxR8zJXKJnoNCEz8x2K82xND8Lt/U3UUdn5n7
+         n6E/xJ1pA8QwFyxNuwrq0NbuITdOAl73N0X5e+cNwA3DK7pK6Ldhbwvzb1/nzuPip0e6
+         Ci6g==
+X-Forwarded-Encrypted: i=1; AKwUvBzWtlBPovUyUHUYDjZoON45KcDsqmnysv0gvwkyKbuFiHCyZ9ipPmKAHBuO87rztl2Ndo1GGpVq03pcdgtfig==@lists.linux.dev
+X-Gm-Message-State: AFq9FYKY5+R6uEJOS7F787RJ7jT/pAyeIIvzRuRi4FQag5HNMgyw71tf
+	XXR9Vq2wBS6mjz0+XwwLq76xZO7pOBFNGCLi4jvX5CWXQj5sX4GcaVKb4uXOCVfPEljDp8W3wi6
+	J5p39+uY=
+X-Gm-Gg: AYBFou3NDoy7DC/0f9ObTsw5HG5tGqrFKlS/QBG9FfX/CSCzmKRBtSMauEUiUKXikh8
+	SnDL2ifz4Pc722gfgKtVMc/hSFjF7La2HIqJ5W6huJkbHLQRuDmrq3O5gazF1lRiBuL6JSaFGIj
+	bef1uBqc0vUzI88GEXMP3RMYV+laFALZ4kOW+hmBqKK2BTLMonvZ7dEVy0ldRb/71rq5/jFL2Lp
+	DFpCwX7s/zk+tkS14QewBJtmMX3sLsAP4fuEU/4vdlviHLgVOZUa5xBIkjMlNUGTwLF0qoIZ4zI
+	wK52YJex5m/C9D41sNxVvajlds5uyRwEy/JfdmcHHhMmXdved2dXrIKCTBBOISa9k2SVZIUCn6V
+	RTPh4IKKlBnbqLJU/Og1Y44H2E8t76JoH0+mgP9xxdykSTAMicP9H6ZAOU9QbzoTnZnuYs04yXj
+	CDwwKHKP9OXW68Sfs4xH+tYRyErdnDOuT2zrCTxoyhDvmDbkrlJDb1erOoyFP4EF1VUHx4KZ/vE
+	VV2j5zoxbJyVm7KdidUrHrByfqvNa5i1oMox32on4MwL6Km6MmIXT+lfg==
+X-Received: by 2002:a17:907:e104:b0:c42:34c1:1e5b with SMTP id a640c23a62f3a-c4234c121eemr171804466b.10.1792365143305;
+        Sun, 18 Oct 2026 16:12:23 -0700 (PDT)
+Received: from mail-ej1-f46.google.com (mail-ej1-f46.google.com. [209.85.218.46])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c408e32875fsm302336666b.8.2026.10.18.16.12.22
+        for <virtualization@lists.linux.dev>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 18 Oct 2026 16:12:23 -0700 (PDT)
+Received: by mail-ej1-f46.google.com with SMTP id a640c23a62f3a-c2a4e013a44so176101066b.2
+        for <virtualization@lists.linux.dev>; Sun, 18 Oct 2026 16:12:22 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AKwUvBzdCQx2GFr3f0PScpPMe+vt2Dlx3fzdiBBwUOJFFcwYpLiehvAy6nqJ7z9/uP3enNP4U5INEedqnlHQmkPjWg==@lists.linux.dev
+X-Received: by 2002:a17:907:9494:b0:c3f:7270:1093 with SMTP id
+ a640c23a62f3a-c419f706c4cmr443663566b.26.1792365142168; Sun, 18 Oct 2026
+ 16:12:22 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+References: <6ad07f8a.a0c71a5e.2d2efd.977a@mx.google.com> <20261018152358-mutt-send-email-mst@kernel.org>
+ <20261018204838.4080b238@pumpkin> <20261018175347-mutt-send-email-mst@kernel.org>
+ <CAHk-=wjneFJ7XmZ6ux-LsHq4apDgANcKfERztmAG9sGVY_TxAg@mail.gmail.com>
 In-Reply-To: <CAHk-=wjneFJ7XmZ6ux-LsHq4apDgANcKfERztmAG9sGVY_TxAg@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 2oa9PIlPRtRinm9OWJCEcGa57A_YQuWa3I24zKTxk2U_1792361612
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+From: Linus Torvalds <torvalds@linuxfoundation.org>
+Date: Sun, 18 Oct 2026 13:12:05 -1000
+X-Gmail-Original-Message-ID: <CAHk-=wjZiwN8=PGEVm19QO2SiO29aA1E459+5mVQ0nmNoqOpjA@mail.gmail.com>
+X-Gm-Features: AclHuK8ibgIQ7ZzCJT6T1XNCTCPJUVy2j1kAdMYMCDJTCT4gsOXcLC7aX43RNik
+Message-ID: <CAHk-=wjZiwN8=PGEVm19QO2SiO29aA1E459+5mVQ0nmNoqOpjA@mail.gmail.com>
+Subject: Re: [BUG] vhost/vringh: __get_user without access_ok leaks kernel
+ memory via vDPA passthrough
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: David Laight <david.laight.linux@gmail.com>, Haoran Wang <haoranwangsec@gmail.com>, 
+	jasowangio@gmail.com, KVM list <kvm@vger.kernel.org>, virtualization@lists.linux.dev, 
+	Netdev <netdev@vger.kernel.org>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Security Officers <security@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 
-On Sun, Oct 18, 2026 at 12:06:36PM -1000, Linus Torvalds wrote:
-> >     > > +
-> >     > > +           if (!access_ok(uaddr, sizeof(*p)))
-> >     > > +                   return -EFAULT;
-> >     > > +           ret = __get_user(tmp, uaddr);
-> >     >
-> >     > Can't that be a normal get_user() call?
-> >     >
-> >     > David
-> 
-> 
-> >     Ugh, actually no. This is called under local_bh_disable.
-> > 
-> >     get_user would splat on might_sleep.
+On Sun, 18 Oct 2026 at 12:06, Linus Torvalds
+<torvalds@linuxfoundation.org> wrote:
+>
+> That's a separate bug, and you really shouldn't use __get_user to work around it just because it doesn't check.
+>
+> You should use pagefault_disable() around the access. And if there is still a sleep_on() complaint, that should be fixed.
 
+Ok, no longer driving around and checked: using pagefault_disable()
+around the get_user() should indeed fix the warning, because
+get_user() uses 'might_fault()', which doesn't complain if
+pagefault_disabled() is set.
 
-> I[ sorry for html - driving around ]
-> 
-> That's a separate bug, and you really shouldn't use __get_user to work around
-> it just because it doesn't check. 
-> 
-> You should use pagefault_disable() around the access. And if there is still a
-> sleep_on() complaint, that should be fixed. 
-> 
->         Linus
+Admittedly the actual fault handler uses a different check: it uses
+faulthandler_disabled(), which also checks for "in_atomic()", which is
+why that __get_user() case just silently happened to work (badly).
 
+But that check is historical - but actively wrong - the added
+in_atomic() check in faulthandler_disabled() also checks for disabled
+preemption, which is one of those "it's not reliable" things (because
+the preemption count depends on whether preemption is enabled at
+all!).
 
-Thanks Linus, will look into this.
+So no. There are exactly _zero_ valid reasons to use __get_user() and
+friends. We really need to just get rid of that broken garbage. All it
+does now is open up potential security holes and allow people to avoid
+warnings for actively buggy code.
 
--- 
-MST
-
+               Linus
