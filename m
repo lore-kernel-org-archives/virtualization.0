@@ -1,191 +1,223 @@
-Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1ABDD4D17A0
-	for <virtualization@lists.linux.dev>; Sun, 18 Oct 2026 21:12:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0EEE94DD3D5
+	for <virtualization@lists.linux.dev>; Sun, 18 Oct 2026 21:41:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792357927; cv=none; b=AAYL3pW+MBgSBIXJja2XC8KDb3akaCDdJH9pShOuK/X38jnqrIwS3EOBoByQRyCiqXjWkI+Ai0zD/Il7MK2qKYylLDo4z7UkEVZqNQQbeRr8pWVf3wLIWfd/K9FluEy3vZ1WVglurc8Hqr1m9BflQI0ZIcRBD7fm2MoO4u5GZqI=
+	t=1792359705; cv=none; b=sQSUpBXqE50/BaLgEwXIm75r3MwpIKAf8CLelL1IhiU09UBT8gVIVF64WJWffd5/M3NQlOh0Xrm1svEGKVlFJWfbXzsAThmF4Chf+UrxelCsEJuKNfsre2uBSxQE3dMVfuUhG0nr/RxLsk8lCIn6GtJmPFVr3h45tQkmnF/FTVI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792357927; c=relaxed/simple;
-	bh=+AhBVTr7AVwgOwcBqSG3YDlgmZAw3nrSuWm0g675vUE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Sra1JIC+F31cjfcgo5GsXggBXCiAxbj40S/2bC+JWlGJkk11VOA9HfgYRcuI/NS1uGrwKZZjLniC6g51Jih3/qiALUHjjUrYsAbSQtAOQr1wiasw/IJceWuYGbJG77EJpfHWmJSEVLjgs0yPoGz77bNalF+LYcUcLktY/fgdsmM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linuxfoundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=MUamrw5P; arc=none smtp.client-ip=209.85.218.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linuxfoundation.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
+	s=arc-20240116; t=1792359705; c=relaxed/simple;
+	bh=QpgY1mHMPAh+BF52MMdR/jItFN7LZuBUhKsHUTs7ZxY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=ZVn9y7wvI0G/h/Xh8MFN1X2u/4eJ0wYQDVCKUBXtcfpxYPaTjSVrcuTCRd86iVkNi/MzmaOEVEarAF46aSLFq/VNtrVyrTNLaSJaSw8ZNIOlkAFZ9OQgTWPlqpVACzm97PHWBUvxrOZPvy8Ac7HoExStIpIsFul2NM6fdAcdc1c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Xb+ZqxPh; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="MUamrw5P"
-Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-c2dcbcc546fso154175866b.3
-        for <virtualization@lists.linux.dev>; Sun, 18 Oct 2026 14:12:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google; t=1792357924; x=1792962724; darn=lists.linux.dev;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=FhrOh9ObXddFM4Jcmg5gPf4RqgcAG0wBDdYKHUigitI=;
-        b=MUamrw5PvghHXPCkErxdLp2VSFZ56u1obCc5wK0DI9W6OFk3+DgXoPPW5QGnXfcqN3
-         GcBx5kq847rfeS4R20FIa5CW5Qve7iA8168PIdDxvHMSX/aiUHv16odrpQsHPkvLUnz/
-         jqLun2tCIzCLdPiG2M4aN2SHaiL2Mki+SXFvg=
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Xb+ZqxPh"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1792359703;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=R2sM3UmHiQ62epsC/FE3R8schNmhPjjNgAmVVqxJiF8=;
+	b=Xb+ZqxPhr/usk1toAvehLv1gZZASTxtNAqvHzCZVvZwXDAIWXru1KzpJgRiYETgae8Vv8S
+	EewowuQQ/Dodds+DgMcNh0UHeOVHq42QToP4kCxxm0VKBfm8mgejm4XyJ+ISeUVVlCVsv3
+	15/DCaYTZ1a0m3H8jSewCwZVN1t9yWs=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-451-NTP4U66lPr-tYhURKA1PRA-1; Sun, 18 Oct 2026 21:41:39 +0000
+X-MC-Unique: NTP4U66lPr-tYhURKA1PRA-1
+X-Mimecast-MFC-AGG-ID: NTP4U66lPr-tYhURKA1PRA_1792359698
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4a1df6c2937so10214075e9.0
+        for <virtualization@lists.linux.dev>; Sun, 18 Oct 2026 14:41:39 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792357924; x=1792962724;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=FhrOh9ObXddFM4Jcmg5gPf4RqgcAG0wBDdYKHUigitI=;
-        b=ZjtNt1zyYVZ1BJV0Raw3HCuprBaLsz8GshOuDq2m7ZZodpUE/WHn8MR9rYaBLL6Iwp
-         ixGbJRo7J369zdToGFB82b/I9ttVVMlBPIePu9dGPNSc9YEpu/UJCz2bGHmp2Imjhfr0
-         v/a13OAgJ3ze/OjnH2/TBJLep0PjlBg0HjvmvTvILtE0rHL4EPIFnfmR9St1ppETy6ad
-         dX8ZTtASpcX8xbLobH7t+CdYfpMxR5o9XFT3jsvjf6ZVw/gqTrtNrXpCdmT2rRI629SM
-         eU4cEhJCy27g7QPQyEiMnLq3bmapTpaIss2gruzSfKIYOlcx9o55gftatOkXS0BHOQ3X
-         YKhQ==
-X-Forwarded-Encrypted: i=1; AKwUvBxYmhbpzc4XGJaltwLeROEQBYI2NRzyig1kE0EsS7RZiNQT6Igk63OPxXhrlD4IqHMQFFTianssNQn4Edc9YA==@lists.linux.dev
-X-Gm-Message-State: AFq9FYLHibauWIYo1WqV6U9cgy0xJyPQ6ZFD6Ea8Jdvmpt0IAZ3vIOOP
-	NmG87Nq0gEQtKKP8n4yXb6mM/0WYCqMdss5Ih1OJEgkLCIKPIfSkoB6OzfVT9gLrptgLbzznGVk
-	qrp6l89g=
-X-Gm-Gg: AYBFou0myGWc4i8e6hsDj6LslKi5yTQ67+Sa+/M37ogBw3C6h+RtI8FyUpwFsoavpnc
-	QjcRTrOoEJ3tj6te5P9b/gDt3OyJPdBiQ+TUUfm9smicp4kW/TPzrEchkTI3gyD+hUp6zXZuapn
-	/EHiBVt9g3/1wZO5XnDDQwjiEOjG7qDW1eHz3dUhjG7yqfbatU46Jsngvh+N4hv99KsFlXaoFKm
-	eql5qTOlV7t1R4NIK99kIGquxtGB6B/TnuuZwBGc4CTqB0w+Lx1hnSr3eKjdwKyNr/XATYVHxjo
-	hCx6fpzsm2RoaIydNDxXVMlcj8WT9Mv/70XUra+wtdl944fDcmkOoe6KTCumaZwBM6VRwwKUbj1
-	/F6ZGptg2Pgu4/PBfLaiREikXGI4FBzVew3iTotBfOzpdeyjTXApbUeJvfi+r5VQESpkOw2UC1i
-	0X76MOnyTG3LlrAG6H1ptPIOHlRsfOXk+0jruQEzCJNu3HLqsugyU1XYgBVe0cQtFJl86YG6Zql
-	CmSrw9a8vdsiBAKxg8It4HHbVDaRakkAlD7O1VZiZF9xbM=
-X-Received: by 2002:a17:907:6d26:b0:c41:731c:534 with SMTP id a640c23a62f3a-c419e43f9c6mr395717166b.24.1792357924405;
-        Sun, 18 Oct 2026 14:12:04 -0700 (PDT)
-Received: from mail-ed1-f52.google.com (mail-ed1-f52.google.com. [209.85.208.52])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c4091eb1835sm292728466b.79.2026.10.18.14.12.02
-        for <virtualization@lists.linux.dev>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 18 Oct 2026 14:12:03 -0700 (PDT)
-Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-6b21cf1a580so1544341a12.1
-        for <virtualization@lists.linux.dev>; Sun, 18 Oct 2026 14:12:02 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AKwUvBz+Y0tyS6A/a3w1Gw2SgsPBjMcNG/ykYmIpySA4LcrUADMzatxVHOklOEF3kA5G3JK9FRWiCF6hWHjYDb68Kw==@lists.linux.dev
-X-Received: by 2002:a17:907:86aa:b0:c31:e958:408c with SMTP id
- a640c23a62f3a-c419f803714mr362945266b.38.1792357922492; Sun, 18 Oct 2026
- 14:12:02 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1792359698; x=1792964498;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=R2sM3UmHiQ62epsC/FE3R8schNmhPjjNgAmVVqxJiF8=;
+        b=FEMplGF4pVcfYeWRSb9OCb3iebduHljRfjfOtvVor//Nv/hkuIIcqHsvOqy4i30pzu
+         rA1Jsynhl/1JnD2fT/8IMPfCxVe87slwr2cL8/oI6KYXycbkeOVZQGPVm6pm4qaa53/8
+         htXOmE9Ptocsf8I71niTO8d5SkW5FWZr6uXQ+OWrLzI4bQHo6fkSTEzNzh3HZu64m6Y7
+         9xqAWs3boG3UUoO710ZVZ4ik0PWRXufTl0fTZXnc3rfmrVGORfFgagm0tkP9fPqWDPqt
+         shubL2s46CLXOrZcxrZTdRXjXo1Oggx+7TKUCXHBA3zRMJ5MB0sZQ1sSPC8mbfsb1mFv
+         JFTw==
+X-Forwarded-Encrypted: i=1; AKwUvByg1fZG5PPqGJZKdqso16dI5ALKu9cqbok2FmdsujnN7n2b2hz5xRyDeuOquytoz0qlVivngy1pXneraq82tg==@lists.linux.dev
+X-Gm-Message-State: AFq9FYId5A/qgYT8KHUbfq9+OhsZTkvzGeloO7+/4kU+160qdcO7/ZZ+
+	N4t5nqO/kR0XFO6KZ0pPYaDPPoT2dpyc2bX3TRnN/s1C0L205sso5BUKKiYSGKO1wQRc02sfFAB
+	Yo7nQIWqfXIbBJbT2o/75zxBYqpxm7o12H6tIJ2+RGk9ZMAcdbEjNXj6bo8xV8dBbeyVr
+X-Gm-Gg: AYBFou15CSnG0oTK3LUUA8mjoymIDZXiFxexxxGtkNxkZE0GtcVBs2eDnWprfTjRFUx
+	8/i9GGbLdyAjJgG6y5zgPP/gZVLofWgR6yxJmXo9cbXTOI+wm8j8SRktR8nsrse6ONUhSbnrfwy
+	VIgc8T0SHjo3PBmxic0FiZbCL7f9hDj+wf9nbwO4mm0x1ejBM1RZWC7eCGjWrx08dgxyfFO4Iw4
+	czgzFjkf89xk3eNsaBf0A/BEu9sMwwrHyui5dhCOOlK2OTJLbtMfwBvNuEPRzr/OGizt4OC8L9u
+	PUTe58/wINAKtWH8+XKXYQ85DRFTbqU3V7Bgpp/RSoSKBglwEATkl+0u+h/18RCBtamNlw==
+X-Received: by 2002:a05:600c:8709:b0:4a1:88df:8a2a with SMTP id 5b1f17b1804b1-4a1d760536cmr116501155e9.13.1792359698230;
+        Sun, 18 Oct 2026 14:41:38 -0700 (PDT)
+X-Received: by 2002:a05:600c:8709:b0:4a1:88df:8a2a with SMTP id 5b1f17b1804b1-4a1d760536cmr116500815e9.13.1792359697712;
+        Sun, 18 Oct 2026 14:41:37 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc0:3fd7:5300:3d6b:52a4:a23f:9d0b])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a1e9423f20sm12734705e9.7.2026.10.18.14.41.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 18 Oct 2026 14:41:37 -0700 (PDT)
+Date: Sun, 18 Oct 2026 17:41:34 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Linus Torvalds <torvalds@linuxfoundation.org>
+Cc: Haoran Wang <haoranwangsec@gmail.com>, jasowangio@gmail.com,
+	kvm@vger.kernel.org, virtualization@lists.linux.dev,
+	netdev@vger.kernel.org, eperezma@redhat.com,
+	linux-kernel@vger.kernel.org, security@kernel.org
+Subject: Re: [BUG] vhost/vringh: __get_user without access_ok leaks kernel
+ memory via vDPA passthrough
+Message-ID: <20261018174010-mutt-send-email-mst@kernel.org>
+References: <6ad07f8a.a0c71a5e.2d2efd.977a@mx.google.com>
+ <20261018152358-mutt-send-email-mst@kernel.org>
+ <CAHk-=wiUn9EbV4TJ4J7OPY0fVc3UC+xb-pp=+rg3hRc4jQqihg@mail.gmail.com>
+ <CAHk-=wjxOy24XQnSSGimnHbp9mVjUETBE5HrS+W9E8mRrtxBLw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <6ad07f8a.a0c71a5e.2d2efd.977a@mx.google.com> <20261018152358-mutt-send-email-mst@kernel.org>
- <CAHk-=wiUn9EbV4TJ4J7OPY0fVc3UC+xb-pp=+rg3hRc4jQqihg@mail.gmail.com>
-In-Reply-To: <CAHk-=wiUn9EbV4TJ4J7OPY0fVc3UC+xb-pp=+rg3hRc4jQqihg@mail.gmail.com>
-From: Linus Torvalds <torvalds@linuxfoundation.org>
-Date: Sun, 18 Oct 2026 11:11:44 -1000
-X-Gmail-Original-Message-ID: <CAHk-=wjxOy24XQnSSGimnHbp9mVjUETBE5HrS+W9E8mRrtxBLw@mail.gmail.com>
-X-Gm-Features: AclHuK-BuQ_t8DyWOTykYSUp3UkUFx2INkZ9fVII4LHbFyz6TFQuNw2DbQZKHk4
-Message-ID: <CAHk-=wjxOy24XQnSSGimnHbp9mVjUETBE5HrS+W9E8mRrtxBLw@mail.gmail.com>
-Subject: Re: [BUG] vhost/vringh: __get_user without access_ok leaks kernel
- memory via vDPA passthrough
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Haoran Wang <haoranwangsec@gmail.com>, jasowangio@gmail.com, kvm@vger.kernel.org, 
-	virtualization@lists.linux.dev, netdev@vger.kernel.org, eperezma@redhat.com, 
-	linux-kernel@vger.kernel.org, security@kernel.org
-Content-Type: multipart/mixed; boundary="000000000000482e69065e23d9f5"
+In-Reply-To: <CAHk-=wjxOy24XQnSSGimnHbp9mVjUETBE5HrS+W9E8mRrtxBLw@mail.gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: wNryWI3BTdyPrL_i_S7C1ynNgWsvSrIpo8FIrvx4Zoo_1792359698
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
---000000000000482e69065e23d9f5
-Content-Type: text/plain; charset="UTF-8"
+On Sun, Oct 18, 2026 at 11:11:44AM -1000, Linus Torvalds wrote:
+> On Sun, 18 Oct 2026 at 10:34, Linus Torvalds
+> <torvalds@linuxfoundation.org> wrote:
+> >
+> > And __get_user() together with access_ok() is actively wrong and
+> > stupid. It's slower, bigger, and more bug-prone than just using
+> > "get_user()".
+> 
+> Btw, if you have *multiple* accesses to the same structure, that was a
+> historical reason to use access_ok() with multiple __get_user() calls.
+> 
+> But it's not a useful pattern today - and hasn't been for years -
+> because the real cost is not the access_ok(), but the stac/clac that
+> surrounds __get_user() on modern hardware.
+> 
+> If performance is really crticial, the new "unsafe_get_user()" model
+> is the way to go.
 
-On Sun, 18 Oct 2026 at 10:34, Linus Torvalds
-<torvalds@linuxfoundation.org> wrote:
->
-> And __get_user() together with access_ok() is actively wrong and
-> stupid. It's slower, bigger, and more bug-prone than just using
-> "get_user()".
+Thanks! I'll try to find the time to look into converting vhost to that.
+The flood of ai found bugs I am dealing with will abate any day now.
+Any... day... now...
 
-Btw, if you have *multiple* accesses to the same structure, that was a
-historical reason to use access_ok() with multiple __get_user() calls.
+> Here's an UNTESTED example patch of how to do a conversion. It
+> generates much better code than __get_user() ever did. That patch
+> looks good to me, but again: I didn't actually *test* it (and the
+> reason this signal.c code has never been updated to the modern pattern
+> is that it really doesn't matter for performance - I decided to use it
+> as an example not because it matters, but because it's a good example
+> code-sequence for the legacy model conversion).
+> 
+> Somebody should test it.
+> 
+>                      Linus
 
-But it's not a useful pattern today - and hasn't been for years -
-because the real cost is not the access_ok(), but the stac/clac that
-surrounds __get_user() on modern hardware.
+>  kernel/signal.c | 56 ++++++++++++++++++++++++++++++--------------------------
+>  1 file changed, 30 insertions(+), 26 deletions(-)
+> 
+> diff --git a/kernel/signal.c b/kernel/signal.c
+> index d31ebcb6ed4d..0fd1296e912b 100644
+> --- a/kernel/signal.c
+> +++ b/kernel/signal.c
+> @@ -4776,12 +4776,12 @@ SYSCALL_DEFINE3(sigaction, int, sig,
+>  
+>  	if (act) {
+>  		old_sigset_t mask;
+> -		if (!access_ok(act, sizeof(*act)) ||
+> -		    __get_user(new_ka.sa.sa_handler, &act->sa_handler) ||
+> -		    __get_user(new_ka.sa.sa_restorer, &act->sa_restorer) ||
+> -		    __get_user(new_ka.sa.sa_flags, &act->sa_flags) ||
+> -		    __get_user(mask, &act->sa_mask))
+> -			return -EFAULT;
+> +		scoped_user_read_access(act, Efault) {
+> +			unsafe_get_user(new_ka.sa.sa_handler, &act->sa_handler, Efault);
+> +			unsafe_get_user(new_ka.sa.sa_restorer, &act->sa_restorer, Efault);
+> +			unsafe_get_user(new_ka.sa.sa_flags, &act->sa_flags, Efault);
+> +			unsafe_get_user(mask, &act->sa_mask, Efault);
+> +		}
+>  #ifdef __ARCH_HAS_KA_RESTORER
+>  		new_ka.ka_restorer = NULL;
+>  #endif
+> @@ -4791,15 +4791,18 @@ SYSCALL_DEFINE3(sigaction, int, sig,
+>  	ret = do_sigaction(sig, act ? &new_ka : NULL, oact ? &old_ka : NULL);
+>  
+>  	if (!ret && oact) {
+> -		if (!access_ok(oact, sizeof(*oact)) ||
+> -		    __put_user(old_ka.sa.sa_handler, &oact->sa_handler) ||
+> -		    __put_user(old_ka.sa.sa_restorer, &oact->sa_restorer) ||
+> -		    __put_user(old_ka.sa.sa_flags, &oact->sa_flags) ||
+> -		    __put_user(old_ka.sa.sa_mask.sig[0], &oact->sa_mask))
+> -			return -EFAULT;
+> +		scoped_user_write_access(act, Efault) {
+> +			unsafe_put_user(old_ka.sa.sa_handler, &oact->sa_handler, Efault);
+> +			unsafe_put_user(old_ka.sa.sa_restorer, &oact->sa_restorer, Efault);
+> +			unsafe_put_user(old_ka.sa.sa_flags, &oact->sa_flags, Efault);
+> +			unsafe_put_user(old_ka.sa.sa_mask.sig[0], &oact->sa_mask, Efault);
+> +		}
+>  	}
+>  
+>  	return ret;
+> +
+> +Efault:
+> +	return -EFAULT;
+>  }
+>  #endif
+>  #ifdef CONFIG_COMPAT_OLD_SIGACTION
+> @@ -4813,12 +4816,12 @@ COMPAT_SYSCALL_DEFINE3(sigaction, int, sig,
+>  	compat_uptr_t handler, restorer;
+>  
+>  	if (act) {
+> -		if (!access_ok(act, sizeof(*act)) ||
+> -		    __get_user(handler, &act->sa_handler) ||
+> -		    __get_user(restorer, &act->sa_restorer) ||
+> -		    __get_user(new_ka.sa.sa_flags, &act->sa_flags) ||
+> -		    __get_user(mask, &act->sa_mask))
+> -			return -EFAULT;
+> +		scoped_user_read_access(act, Efault) {
+> +			unsafe_get_user(handler, &act->sa_handler, Efault);
+> +			unsafe_get_user(restorer, &act->sa_restorer, Efault);
+> +			unsafe_get_user(new_ka.sa.sa_flags, &act->sa_flags, Efault);
+> +			unsafe_get_user(mask, &act->sa_mask, Efault);
+> +		}
+>  
+>  #ifdef __ARCH_HAS_KA_RESTORER
+>  		new_ka.ka_restorer = NULL;
+> @@ -4831,16 +4834,17 @@ COMPAT_SYSCALL_DEFINE3(sigaction, int, sig,
+>  	ret = do_sigaction(sig, act ? &new_ka : NULL, oact ? &old_ka : NULL);
+>  
+>  	if (!ret && oact) {
+> -		if (!access_ok(oact, sizeof(*oact)) ||
+> -		    __put_user(ptr_to_compat(old_ka.sa.sa_handler),
+> -			       &oact->sa_handler) ||
+> -		    __put_user(ptr_to_compat(old_ka.sa.sa_restorer),
+> -			       &oact->sa_restorer) ||
+> -		    __put_user(old_ka.sa.sa_flags, &oact->sa_flags) ||
+> -		    __put_user(old_ka.sa.sa_mask.sig[0], &oact->sa_mask))
+> -			return -EFAULT;
+> +		scoped_user_write_access(act, Efault) {
+> +			unsafe_put_user(ptr_to_compat(old_ka.sa.sa_handler), &oact->sa_handler, Efault);
+> +			unsafe_put_user(ptr_to_compat(old_ka.sa.sa_restorer), &oact->sa_restorer, Efault);
+> +			unsafe_put_user(old_ka.sa.sa_flags, &oact->sa_flags, Efault);
+> +			unsafe_put_user(old_ka.sa.sa_mask.sig[0], &oact->sa_mask, Efault);
+> +		}
+>  	}
+>  	return ret;
+> +
+> +Efault:
+> +	return -EFAULT;
+>  }
+>  #endif
+>  
 
-If performance is really crticial, the new "unsafe_get_user()" model
-is the way to go.
-
-Here's an UNTESTED example patch of how to do a conversion. It
-generates much better code than __get_user() ever did. That patch
-looks good to me, but again: I didn't actually *test* it (and the
-reason this signal.c code has never been updated to the modern pattern
-is that it really doesn't matter for performance - I decided to use it
-as an example not because it matters, but because it's a good example
-code-sequence for the legacy model conversion).
-
-Somebody should test it.
-
-                     Linus
-
---000000000000482e69065e23d9f5
-Content-Type: text/x-patch; charset="US-ASCII"; name="patch.diff"
-Content-Disposition: attachment; filename="patch.diff"
-Content-Transfer-Encoding: base64
-Content-ID: <f_mveblmwl0>
-X-Attachment-Id: f_mveblmwl0
-
-IGtlcm5lbC9zaWduYWwuYyB8IDU2ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tCiAxIGZpbGUgY2hhbmdlZCwgMzAgaW5zZXJ0aW9ucygrKSwg
-MjYgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEva2VybmVsL3NpZ25hbC5jIGIva2VybmVsL3Np
-Z25hbC5jCmluZGV4IGQzMWViY2I2ZWQ0ZC4uMGZkMTI5NmU5MTJiIDEwMDY0NAotLS0gYS9rZXJu
-ZWwvc2lnbmFsLmMKKysrIGIva2VybmVsL3NpZ25hbC5jCkBAIC00Nzc2LDEyICs0Nzc2LDEyIEBA
-IFNZU0NBTExfREVGSU5FMyhzaWdhY3Rpb24sIGludCwgc2lnLAogCiAJaWYgKGFjdCkgewogCQlv
-bGRfc2lnc2V0X3QgbWFzazsKLQkJaWYgKCFhY2Nlc3Nfb2soYWN0LCBzaXplb2YoKmFjdCkpIHx8
-Ci0JCSAgICBfX2dldF91c2VyKG5ld19rYS5zYS5zYV9oYW5kbGVyLCAmYWN0LT5zYV9oYW5kbGVy
-KSB8fAotCQkgICAgX19nZXRfdXNlcihuZXdfa2Euc2Euc2FfcmVzdG9yZXIsICZhY3QtPnNhX3Jl
-c3RvcmVyKSB8fAotCQkgICAgX19nZXRfdXNlcihuZXdfa2Euc2Euc2FfZmxhZ3MsICZhY3QtPnNh
-X2ZsYWdzKSB8fAotCQkgICAgX19nZXRfdXNlcihtYXNrLCAmYWN0LT5zYV9tYXNrKSkKLQkJCXJl
-dHVybiAtRUZBVUxUOworCQlzY29wZWRfdXNlcl9yZWFkX2FjY2VzcyhhY3QsIEVmYXVsdCkgewor
-CQkJdW5zYWZlX2dldF91c2VyKG5ld19rYS5zYS5zYV9oYW5kbGVyLCAmYWN0LT5zYV9oYW5kbGVy
-LCBFZmF1bHQpOworCQkJdW5zYWZlX2dldF91c2VyKG5ld19rYS5zYS5zYV9yZXN0b3JlciwgJmFj
-dC0+c2FfcmVzdG9yZXIsIEVmYXVsdCk7CisJCQl1bnNhZmVfZ2V0X3VzZXIobmV3X2thLnNhLnNh
-X2ZsYWdzLCAmYWN0LT5zYV9mbGFncywgRWZhdWx0KTsKKwkJCXVuc2FmZV9nZXRfdXNlcihtYXNr
-LCAmYWN0LT5zYV9tYXNrLCBFZmF1bHQpOworCQl9CiAjaWZkZWYgX19BUkNIX0hBU19LQV9SRVNU
-T1JFUgogCQluZXdfa2Eua2FfcmVzdG9yZXIgPSBOVUxMOwogI2VuZGlmCkBAIC00NzkxLDE1ICs0
-NzkxLDE4IEBAIFNZU0NBTExfREVGSU5FMyhzaWdhY3Rpb24sIGludCwgc2lnLAogCXJldCA9IGRv
-X3NpZ2FjdGlvbihzaWcsIGFjdCA/ICZuZXdfa2EgOiBOVUxMLCBvYWN0ID8gJm9sZF9rYSA6IE5V
-TEwpOwogCiAJaWYgKCFyZXQgJiYgb2FjdCkgewotCQlpZiAoIWFjY2Vzc19vayhvYWN0LCBzaXpl
-b2YoKm9hY3QpKSB8fAotCQkgICAgX19wdXRfdXNlcihvbGRfa2Euc2Euc2FfaGFuZGxlciwgJm9h
-Y3QtPnNhX2hhbmRsZXIpIHx8Ci0JCSAgICBfX3B1dF91c2VyKG9sZF9rYS5zYS5zYV9yZXN0b3Jl
-ciwgJm9hY3QtPnNhX3Jlc3RvcmVyKSB8fAotCQkgICAgX19wdXRfdXNlcihvbGRfa2Euc2Euc2Ff
-ZmxhZ3MsICZvYWN0LT5zYV9mbGFncykgfHwKLQkJICAgIF9fcHV0X3VzZXIob2xkX2thLnNhLnNh
-X21hc2suc2lnWzBdLCAmb2FjdC0+c2FfbWFzaykpCi0JCQlyZXR1cm4gLUVGQVVMVDsKKwkJc2Nv
-cGVkX3VzZXJfd3JpdGVfYWNjZXNzKGFjdCwgRWZhdWx0KSB7CisJCQl1bnNhZmVfcHV0X3VzZXIo
-b2xkX2thLnNhLnNhX2hhbmRsZXIsICZvYWN0LT5zYV9oYW5kbGVyLCBFZmF1bHQpOworCQkJdW5z
-YWZlX3B1dF91c2VyKG9sZF9rYS5zYS5zYV9yZXN0b3JlciwgJm9hY3QtPnNhX3Jlc3RvcmVyLCBF
-ZmF1bHQpOworCQkJdW5zYWZlX3B1dF91c2VyKG9sZF9rYS5zYS5zYV9mbGFncywgJm9hY3QtPnNh
-X2ZsYWdzLCBFZmF1bHQpOworCQkJdW5zYWZlX3B1dF91c2VyKG9sZF9rYS5zYS5zYV9tYXNrLnNp
-Z1swXSwgJm9hY3QtPnNhX21hc2ssIEVmYXVsdCk7CisJCX0KIAl9CiAKIAlyZXR1cm4gcmV0Owor
-CitFZmF1bHQ6CisJcmV0dXJuIC1FRkFVTFQ7CiB9CiAjZW5kaWYKICNpZmRlZiBDT05GSUdfQ09N
-UEFUX09MRF9TSUdBQ1RJT04KQEAgLTQ4MTMsMTIgKzQ4MTYsMTIgQEAgQ09NUEFUX1NZU0NBTExf
-REVGSU5FMyhzaWdhY3Rpb24sIGludCwgc2lnLAogCWNvbXBhdF91cHRyX3QgaGFuZGxlciwgcmVz
-dG9yZXI7CiAKIAlpZiAoYWN0KSB7Ci0JCWlmICghYWNjZXNzX29rKGFjdCwgc2l6ZW9mKCphY3Qp
-KSB8fAotCQkgICAgX19nZXRfdXNlcihoYW5kbGVyLCAmYWN0LT5zYV9oYW5kbGVyKSB8fAotCQkg
-ICAgX19nZXRfdXNlcihyZXN0b3JlciwgJmFjdC0+c2FfcmVzdG9yZXIpIHx8Ci0JCSAgICBfX2dl
-dF91c2VyKG5ld19rYS5zYS5zYV9mbGFncywgJmFjdC0+c2FfZmxhZ3MpIHx8Ci0JCSAgICBfX2dl
-dF91c2VyKG1hc2ssICZhY3QtPnNhX21hc2spKQotCQkJcmV0dXJuIC1FRkFVTFQ7CisJCXNjb3Bl
-ZF91c2VyX3JlYWRfYWNjZXNzKGFjdCwgRWZhdWx0KSB7CisJCQl1bnNhZmVfZ2V0X3VzZXIoaGFu
-ZGxlciwgJmFjdC0+c2FfaGFuZGxlciwgRWZhdWx0KTsKKwkJCXVuc2FmZV9nZXRfdXNlcihyZXN0
-b3JlciwgJmFjdC0+c2FfcmVzdG9yZXIsIEVmYXVsdCk7CisJCQl1bnNhZmVfZ2V0X3VzZXIobmV3
-X2thLnNhLnNhX2ZsYWdzLCAmYWN0LT5zYV9mbGFncywgRWZhdWx0KTsKKwkJCXVuc2FmZV9nZXRf
-dXNlcihtYXNrLCAmYWN0LT5zYV9tYXNrLCBFZmF1bHQpOworCQl9CiAKICNpZmRlZiBfX0FSQ0hf
-SEFTX0tBX1JFU1RPUkVSCiAJCW5ld19rYS5rYV9yZXN0b3JlciA9IE5VTEw7CkBAIC00ODMxLDE2
-ICs0ODM0LDE3IEBAIENPTVBBVF9TWVNDQUxMX0RFRklORTMoc2lnYWN0aW9uLCBpbnQsIHNpZywK
-IAlyZXQgPSBkb19zaWdhY3Rpb24oc2lnLCBhY3QgPyAmbmV3X2thIDogTlVMTCwgb2FjdCA/ICZv
-bGRfa2EgOiBOVUxMKTsKIAogCWlmICghcmV0ICYmIG9hY3QpIHsKLQkJaWYgKCFhY2Nlc3Nfb2so
-b2FjdCwgc2l6ZW9mKCpvYWN0KSkgfHwKLQkJICAgIF9fcHV0X3VzZXIocHRyX3RvX2NvbXBhdChv
-bGRfa2Euc2Euc2FfaGFuZGxlciksCi0JCQkgICAgICAgJm9hY3QtPnNhX2hhbmRsZXIpIHx8Ci0J
-CSAgICBfX3B1dF91c2VyKHB0cl90b19jb21wYXQob2xkX2thLnNhLnNhX3Jlc3RvcmVyKSwKLQkJ
-CSAgICAgICAmb2FjdC0+c2FfcmVzdG9yZXIpIHx8Ci0JCSAgICBfX3B1dF91c2VyKG9sZF9rYS5z
-YS5zYV9mbGFncywgJm9hY3QtPnNhX2ZsYWdzKSB8fAotCQkgICAgX19wdXRfdXNlcihvbGRfa2Eu
-c2Euc2FfbWFzay5zaWdbMF0sICZvYWN0LT5zYV9tYXNrKSkKLQkJCXJldHVybiAtRUZBVUxUOwor
-CQlzY29wZWRfdXNlcl93cml0ZV9hY2Nlc3MoYWN0LCBFZmF1bHQpIHsKKwkJCXVuc2FmZV9wdXRf
-dXNlcihwdHJfdG9fY29tcGF0KG9sZF9rYS5zYS5zYV9oYW5kbGVyKSwgJm9hY3QtPnNhX2hhbmRs
-ZXIsIEVmYXVsdCk7CisJCQl1bnNhZmVfcHV0X3VzZXIocHRyX3RvX2NvbXBhdChvbGRfa2Euc2Eu
-c2FfcmVzdG9yZXIpLCAmb2FjdC0+c2FfcmVzdG9yZXIsIEVmYXVsdCk7CisJCQl1bnNhZmVfcHV0
-X3VzZXIob2xkX2thLnNhLnNhX2ZsYWdzLCAmb2FjdC0+c2FfZmxhZ3MsIEVmYXVsdCk7CisJCQl1
-bnNhZmVfcHV0X3VzZXIob2xkX2thLnNhLnNhX21hc2suc2lnWzBdLCAmb2FjdC0+c2FfbWFzaywg
-RWZhdWx0KTsKKwkJfQogCX0KIAlyZXR1cm4gcmV0OworCitFZmF1bHQ6CisJcmV0dXJuIC1FRkFV
-TFQ7CiB9CiAjZW5kaWYKIAo=
---000000000000482e69065e23d9f5--
