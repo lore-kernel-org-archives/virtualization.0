@@ -1,123 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792424836;
-	b=HSHpDAZAaJAN1NMKPy+nkgSXZLbBnCa1cuOtWZ5ABzwThvfx1nbHFrWuyb7T1qeJhSRS
-	 oKHJf0ofbema5/g9XYsClNNfhgsaumcUrDk6Ff0gbErdpdpdGtC+xPqd+VAlYvKWvYVq1
-	 y3lgyqJzhsJHTFQFri7marW6US+5zQnAU4GNtgRwgNJ4I2qiTHBYF66nvlYtUo4nCf7mp
-	 xhdYjv/rosg/feDzRkD5T/bY4jTIlaja2c1lftEhYV8Nmo6XqbwJsedyBS7z8N34HX/ZQ
-	 Z9skyHKXuhRZeCp9uB9JYWqJntSeTR3Ho1qnxg/VzVHB79iTSsyms71iKoTfujZHhDg==
+	t=1792426048;
+	b=zoGUpSoFWz7vGhVWWrJq7TyiWOrpwlhEqmZV0taarTN7PeQHWGXkeKiWvGoUlT2fbzMm
+	 lkhoa6NxZthhu0i25vmhu8Q8VlE0fLlA7G2yhYrCbhvz8SnlyNxqqMAyPlIscgGqSzvyY
+	 bHWhePQ9BxpZU9blV0rLe0xS6ZyLtvfS77q9t1vbtiM9RysK6gyAfuOkP5JIqQCtQIduv
+	 r1ioOcsvxm1LQY1GXdG2tFVTzGl5Yge8hWCNtEbcTXkFQc7FGs7woZCmWN/2k7HGCa/ff
+	 jO5kRORdiR9VvT6HMTk1oO7ayTY9Kx8FGfYQ4vsDN7PQftS4JDSs0l2qryntM3rC5Jg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792424836;
-	h=DMARC-Filter:Received:DKIM-Signature:DKIM-Signature:DKIM-Signature:
-	 DKIM-Signature:Received:Received:From:To:Cc:Subject:Date:Message-ID:
-	 X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding:X-Spam-Flag:X-Spam-Score:X-Spam-Level:
-	 X-Spamd-Result;
-	bh=ACxUqLchSDqFg79x5G7fXNVlcAc+CFu7MScJYvXaE5o=;
-	b=b8DLxQscr5OKdx7kzhO4Nj89/serTMkz9x3Fv7TPpS795C9SpqFdEr1uO+gG1FD49jZW
-	 1rwe0lbmAXLt9FHYN0FCGqyNLxU/uia4SQAxYPlafPcb/pVyKaWZpD1qyRwN7zDVnwIgX
-	 31tE4U4tUybcyskGpDKxnL/ZT7fTPSG7jNJjSo1uPhWWvExHrfdW0Qz+5PXInKVBdtVhV
-	 u5dWnH88O7XyBo0NJjYSlRRZQaMyJkjhMJWOLHu9rj0vh7cmUMeXdE4qxqMqW82+JULZA
-	 fzeJe01GF+zBC5os2wxlTncOebmAyLKmdXGRkOU/K4Q5qxxofBBNgh/QkN14LB+2M2A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792426048;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=ryEx9gSfQbaA+k654eOX3nHYjYvo/h0lxiDtSNicm8A=;
+	b=HINkUXSXAfOnpIN0Kapk247go95FHn9kzhWi2sWmNb8nktFD4f5GBzwIdW7cW4K2K3BO
+	 X1OQhYK0MSREBply0u5T+yf75Ia67XCmnuVGqYLvd6EdDIVOyRo4thXEh/HXtgC4Py5qZ
+	 okZAwE/fsXZje3LEd4XdLOIG5TruMJLnd7+RYwoIgpQRu4W3HjE3KfJUE62ET2G1LkrAV
+	 T3j1mYZVWTfZTDRBAdFnuY8stmatu3YqpxjIZPimOsm7BZh2oq+a7uTEedYKu2caLkstw
+	 PZg42DVUWEj2r6SOwMjd5ZaB10bo2S5WDoVdhKsHua1X4f7TtJ16n+Gt4WcVN8kXXxw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=suse.de;
-	spf=pass smtp.mailfrom=suse.de;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=2XU3x6L6;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=4NvBHrrM;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=2XU3x6L6;
-	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=4NvBHrrM;
-	arc=none smtp.remote-ip=195.135.223.130
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=D5lr9eg6;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79F06606AF83
-	for <virtualization@lists.linux.dev>; Mon, 19 Oct 2026 15:47:15 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 79F06606AF83
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9CCAB606C935
+	for <virtualization@lists.linux.dev>; Mon, 19 Oct 2026 16:07:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=2XU3x6L6;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=4NvBHrrM;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=2XU3x6L6;
-	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=4NvBHrrM
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 5E3CA21CE8;
-	Mon, 19 Oct 2026 15:46:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1792424779; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ACxUqLchSDqFg79x5G7fXNVlcAc+CFu7MScJYvXaE5o=;
-	b=2XU3x6L6wBsU9NTbPA20qzM4oAIcmU1jEnkXXLxlw4eGwebjQAmogVJ3ddUNm73wyt+rks
-	h3AxFHBGJLiXdCnCqm78+eITs8Y3N/WaNa1ZNDuE/fGgXmVRMo9unazeLPWLE5OKFt2gY3
-	i8YTNDN8SdRqVVNmYrC0VYpYepfKX8c=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1792424779;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ACxUqLchSDqFg79x5G7fXNVlcAc+CFu7MScJYvXaE5o=;
-	b=4NvBHrrMFq6p1xAns53IfLiWRU4tZ0BqyrsNX1ZJfrmAOkcHHKHkBDktCj2h/38qqdziLv
-	l7vtaRVWuMNQIrBg==
-Authentication-Results: smtp-out1.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1792424779; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ACxUqLchSDqFg79x5G7fXNVlcAc+CFu7MScJYvXaE5o=;
-	b=2XU3x6L6wBsU9NTbPA20qzM4oAIcmU1jEnkXXLxlw4eGwebjQAmogVJ3ddUNm73wyt+rks
-	h3AxFHBGJLiXdCnCqm78+eITs8Y3N/WaNa1ZNDuE/fGgXmVRMo9unazeLPWLE5OKFt2gY3
-	i8YTNDN8SdRqVVNmYrC0VYpYepfKX8c=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1792424779;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ACxUqLchSDqFg79x5G7fXNVlcAc+CFu7MScJYvXaE5o=;
-	b=4NvBHrrMFq6p1xAns53IfLiWRU4tZ0BqyrsNX1ZJfrmAOkcHHKHkBDktCj2h/38qqdziLv
-	l7vtaRVWuMNQIrBg==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id DBDAA137D4;
-	Mon, 19 Oct 2026 15:46:18 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id gYPgBkk71mrrPAAAD6G6ig:T5
-	(envelope-from <tzimmermann@suse.de>); Mon, 19 Oct 2026 15:46:18 +0000
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: jfalempe@redhat.com,
-	maarten.lankhorst@linux.intel.com,
-	mripard@kernel.org,
-	airlied@gmail.com,
-	simona@ffwll.ch
-Cc: dri-devel@lists.freedesktop.org,
-	amd-gfx@lists.freedesktop.org,
-	linux-hyperv@vger.kernel.org,
-	intel-gfx@lists.freedesktop.org,
-	imx@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	nouveau@lists.freedesktop.org,
-	linux-renesas-soc@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	sashiko-reviews@lists.linux.dev,
-	Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 4/4] drm/pixel: Link draw helpers into drm_pixel_helper.ko
-Date: Mon, 19 Oct 2026 17:32:45 +0200
-Message-ID: <20261019154612.777074-5-tzimmermann@suse.de>
-X-Mailer: git-send-email 2.56.0
-In-Reply-To: <20261019154612.777074-1-tzimmermann@suse.de>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=D5lr9eg6
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E94631F000C6;
+	Mon, 19 Oct 2026 16:07:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792426048;
+	bh=ryEx9gSfQbaA+k654eOX3nHYjYvo/h0lxiDtSNicm8A=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=D5lr9eg6IlFJwUFloeotgbqS2Pto6Kr6zqiECMHEa9DaRhIkPQ0Abk5no5HjhjHWh
+	 hMdtYWuAR6Zw9rggwqU9zzFJJVgh8nJRZjFBr3c6qFnHybAI0XGwwpkBvUpHv2lPUP
+	 Ru3PJPjN3BF2JlEzuMx/cYsNuOBUWubmasd9+N0HZyXBeBEBGmRXmvJqQgfECA8yy1
+	 AUPxtE657nD/VQSwCcRCB+rlHXBz5h/YevPymwPijbZOIM3aMsEJDHUZ6keJo1NooE
+	 JDw2rCI2XUSn8cn3mgzrfHwhVqqr330JM2lzsqEeU5DQquUODk9PxfDN0cBAnNEpDV
+	 voJHB1bWr+zCg==
+Message-ID: <sashiko-outbox-177805@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 1/4] drm: Add helper module for working with pixel data
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Thomas Zimmermann" <tzimmermann@suse.de>
+Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
+ Perez" <eperezma@redhat.com>
+In-Reply-To: <20261019154612.777074-2-tzimmermann@suse.de>
 References: <20261019154612.777074-1-tzimmermann@suse.de>
+ <20261019154612.777074-2-tzimmermann@suse.de>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 19 Oct 2026 16:07:27 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -126,121 +60,16 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Flag: NO
-X-Spam-Score: -6.80
-X-Spam-Level: 
-X-Spamd-Result: default: False [-6.80 / 50.00];
-	REPLY(-4.00)[];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MID_CONTAINS_FROM(1.00)[];
-	R_MISSING_CHARSET(0.50)[];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	RCVD_COUNT_TWO(0.00)[2];
-	FROM_HAS_DN(0.00)[];
-	ARC_NA(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	TO_DN_SOME(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[16];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	FREEMAIL_TO(0.00)[redhat.com,linux.intel.com,kernel.org,gmail.com,ffwll.ch];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:email,imap1.dmz-prg2.suse.org:helo];
-	FROM_EQ_ENVFROM(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	RCVD_TLS_ALL(0.00)[];
-	R_RATELIMIT(0.00)[to_ip_from(RLqirfcw6gnbcr9a9yhi49fhi6)];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com]
 
-Move drm_draw.o from the DRM core to drm_pixel_helper.ko. Remove the
-Kconfig option DRM_DRAW and provide the draw helpers unconditionally.
+> Add drm_pixel_helper.ko. This module will contain helpers that copy
+> and process pixel data, such as framebuffers. Drivers that want to
+> use the helpers should select DRM_PIXEL_HELPER.
+>=20
+> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 
-Having draw code in the DRM core is a left-over fro when panic handling
-was entirely located in the DRM core as well. With all the panic drawing
-in drm_pixel_helper.ko, the drawing helpers can go there as well. DRM's
-log clients also uses the drawing helpers for output. Update the Kconfig
-rules to select DRM_PIXEL_HELPER instead of DRM_DRAW for this client.
+Sashiko has reviewed this patch and found no issues.
 
-The format and the draw helpers share the per-pixel color-format code
-from drm_format_internal. Putting it all into one place will hopefully
-help with sharing more code in the future.
-
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
----
- drivers/gpu/drm/Kconfig                           | 5 -----
- drivers/gpu/drm/Makefile                          | 2 +-
- drivers/gpu/drm/clients/Kconfig                   | 2 +-
- drivers/gpu/drm/{drm_draw.c => drm_draw_helper.c} | 0
- 4 files changed, 2 insertions(+), 7 deletions(-)
- rename drivers/gpu/drm/{drm_draw.c => drm_draw_helper.c} (100%)
-
-diff --git a/drivers/gpu/drm/Kconfig b/drivers/gpu/drm/Kconfig
-index bf7c59944340..1b16e6101a53 100644
---- a/drivers/gpu/drm/Kconfig
-+++ b/drivers/gpu/drm/Kconfig
-@@ -52,15 +52,10 @@ config DRM_KMS_HELPER
- config DRM_PIXEL_HELPER
- 	tristate
- 	depends on DRM
--	select DRM_DRAW if DRM_PANIC
- 	select FONT_SUPPORT if DRM_PANIC
- 	help
- 	  Helpers for working with pixel data in DRM.
- 
--config DRM_DRAW
--	bool
--	depends on DRM
--
- config DRM_PANIC
- 	bool "Display a user-friendly message when a kernel panic occurs"
- 	depends on DRM && PRINTK
-diff --git a/drivers/gpu/drm/Makefile b/drivers/gpu/drm/Makefile
-index 18a5a5baf029..ab9eb4c21264 100644
---- a/drivers/gpu/drm/Makefile
-+++ b/drivers/gpu/drm/Makefile
-@@ -91,7 +91,6 @@ drm-$(CONFIG_DRM_PRIVACY_SCREEN) += \
- 	drm_privacy_screen_x86.o
- drm-$(CONFIG_DRM_ACCEL) += ../../accel/drm_accel.o
- drm-$(CONFIG_DRM_PANIC) += drm_panic.o
--drm-$(CONFIG_DRM_DRAW) += drm_draw.o
- drm-$(CONFIG_DRM_RAS) += drm_ras.o drm_ras_nl.o drm_ras_genl_family.o
- obj-$(CONFIG_DRM)	+= drm.o
- 
-@@ -100,6 +99,7 @@ obj-$(CONFIG_DRM_PANEL_ORIENTATION_QUIRKS) += drm_panel_orientation_quirks.o
- obj-$(CONFIG_DRM_PANEL_BACKLIGHT_QUIRKS) += drm_panel_backlight_quirks.o
- 
- drm_pixel_helper-y := \
-+	drm_draw_helper.o \
- 	drm_format_helper.o \
- 	drm_pixel_helper_common.o
- drm_pixel_helper-$(CONFIG_DRM_PANIC) += drm_panic_helper.o
-diff --git a/drivers/gpu/drm/clients/Kconfig b/drivers/gpu/drm/clients/Kconfig
-index 6096c623d9d5..8d21edc4cc5b 100644
---- a/drivers/gpu/drm/clients/Kconfig
-+++ b/drivers/gpu/drm/clients/Kconfig
-@@ -3,6 +3,7 @@
- config DRM_CLIENT_LIB
- 	tristate
- 	depends on DRM
-+	select DRM_PIXEL_HELPER if DRM_CLIENT_LOG
- 	select DRM_KMS_HELPER if DRM_FBDEV_EMULATION
- 	select FB_CORE if DRM_FBDEV_EMULATION
- 	help
-@@ -76,7 +77,6 @@ config DRM_CLIENT_LOG
- 	depends on DRM_CLIENT_SELECTION
- 	select DRM_CLIENT
- 	select DRM_CLIENT_SETUP
--	select DRM_DRAW
- 	select FONT_SUPPORT
- 	help
- 	  This enable a drm logger, that will print the kernel messages to the
-diff --git a/drivers/gpu/drm/drm_draw.c b/drivers/gpu/drm/drm_draw_helper.c
-similarity index 100%
-rename from drivers/gpu/drm/drm_draw.c
-rename to drivers/gpu/drm/drm_draw_helper.c
--- 
-2.56.0
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261019154612.7770=
+74-1-tzimmermann@suse.de?part=3D1
 
