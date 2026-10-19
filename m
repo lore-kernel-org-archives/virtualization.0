@@ -1,43 +1,49 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2E89532F12;
-	Mon, 19 Oct 2026 14:03:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EDA7462042F;
+	Mon, 19 Oct 2026 14:04:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792418639; cv=none; b=oHpyYQsDoid2voqOHl/P4eFhHQnurg5cL9N28rwG/kMRytDDXdEFmN8ftPxia1TZ/oG5FalyooMZ/aQFO0pac0pqwl11YwKL8zS0CGlIlWgtDibDUSpFl3YjQWNyxmNEGv9K2C1WEnpvjXh4h9jNfv75CEjasBVePNBqsunAlvI=
+	t=1792418678; cv=none; b=AedBxPSGUQ7xbC83BuUZFvzm32MeyHEI3e5ExqZutwQ3ADtufWk81+p7DM7cv6VjgkuimlOSoajsnA4ddS7KqrGwvAdwdh2emVJaWPQ6ZXXoVxnPpiooAbtVe83fiTi17tyK5hdQnCMMGWuYTTt4G0uBjkvT4xugQbUBK1+MJ0g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792418639; c=relaxed/simple;
-	bh=4V3nOQOXWlVxyxk11nYbD3SCH6YOMOfTBPWMP77+06w=;
+	s=arc-20240116; t=1792418678; c=relaxed/simple;
+	bh=01jQsl5s5NGCioH9ktkgP9GYyuhLfYerO70GNx0KSPc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=tvtmOdgFXpsf1usd7FxCzHTtJPufWLqaXkALasLkRxgXaX4GKXkfZ1Y0jRaDFCdeZarBZ0BI71/Q2ZPlovwFQw8pFGFU/BaK8bcHDWSOxzlLS2lJ7e2qCZH07Kgptts+18KTEOsWk3HUujUim8lpdraJ5E33TOU/LZUrI36t+4A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cZlNEzZv; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=r0brwSB/NQayk8GwX1nS65QeBC4sKKTldqiap6jn8etti9h2v6cJC+URia/WjMlkqXVZisI3jdB9KC5icjysTb+d1nofn41HN9Snab/ruRQWJBJCdZWKlpO6SAHTnXYp20G+W1CbhGVwUTTvSnhZkxFa6a2DDWLW70PY58+fVF0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LNElqLUk; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cZlNEzZv"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E05F91F000C7;
-	Mon, 19 Oct 2026 14:03:55 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LNElqLUk"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 394531F000C7;
+	Mon, 19 Oct 2026 14:04:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792418636;
-	bh=W8JiklxcW1Ss0lfHOVeHQrJF8qC15gIV2j7l7hoO4mE=;
+	s=k20260515; t=1792418675;
+	bh=mQFR6VNpPVMG9Bl1oVKSuT55S8cITyDq9+C87dkVlDE=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=cZlNEzZv45ZI5fGxqO3FT+TRQ7CA2/UTcmQjtscXH1RZ8BLdUe4EiA4P7I8LjHCFC
-	 pWmTCcB+FSV3RJygEsRjFpGwJm46eykspMRGYyM6CH4RKIdEzyeC4e83DMws/K3WLi
-	 4sgrrB2I52Dl9Njn/2DT8cIulH13z0YaNPIeciRlCxqU/d1qTWvIhGeCkvNbQcmsoz
-	 fP4f7lzokWQnigOil4Cb/Y00cuVRC8NqGnG9V7gS2mXQ7Gs2cmytQyTJt2M9+dI8A/
-	 HWIkhU/fnFnslFT5V6sTPeV92V7Dqbj9BLjyZ/7t7YF2hVtZqhYgaZ/JWDLJL7bZcO
-	 eo/rlRBflDssw==
+	b=LNElqLUkPV5pc6WT/iRnEAzxQq9j2CVrZ4SNBHyMim9L8ZMMCm6HoaQiRUKF8AzES
+	 9SuAL0EX0mzbgAZfPjlnA5+6Tk1kGxVpeO5m8YMGsKQ+2ML31wXb/FZQ/WBkKVhvBs
+	 PkcT01zrCr1M7iDXeCiEnn7lyiGb3CXbXtpvbYkrHV2uAiFNGKWZv1YcC9M6LiyqkU
+	 FRPbRilT1qZMz038PflHtDXEpdS0xfxfNyq5JVVHdHUr3Q014/axKYuR7LbdnOkckK
+	 /8FK3x8HwpKaOpUo7vQV/hnAqluyFZRdAQ8c+N7H0O0zjklkIsjhHzKRKhxz6aMOO0
+	 oAaUeDFKgy8Aw==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Cc: Sungho Bae <baver.bae@lge.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+Cc: Ryosuke Yasuoka <ryasuoka@redhat.com>,
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
 	Sasha Levin <sashal@kernel.org>,
-	amit@kernel.org,
+	airlied@redhat.com,
+	kraxel@redhat.com,
+	maarten.lankhorst@linux.intel.com,
+	mripard@kernel.org,
+	tzimmermann@suse.de,
+	simona@ffwll.ch,
+	dri-devel@lists.freedesktop.org,
 	virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.18-5.10] virtio_console: fix control queue race during restore
-Date: Mon, 19 Oct 2026 09:51:21 -0400
-Message-ID: <20261019135441.1420968-390-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.18] drm/virtio: abort virtqueue wait on device removal to avoid hung task
+Date: Mon, 19 Oct 2026 09:51:48 -0400
+Message-ID: <20261019135441.1420968-417-sashal@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261019135441.1420968-1-sashal@kernel.org>
 References: <20261019135441.1420968-1-sashal@kernel.org>
@@ -53,529 +59,511 @@ X-stable-base: Linux 6.18.57
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Sungho Bae <baver.bae@lge.com>
+From: Ryosuke Yasuoka <ryasuoka@redhat.com>
 
-[ Upstream commit 952261953cf79820aa4350679882db0d4f71f493 ]
+[ Upstream commit a46991b334f663fa0e0e9c051e50587ef977ac8b ]
 
-In virtcons_restore(), after virtio_device_ready() sets DRIVER_OK, the
-device becomes active. If the control receive queue (c_ivq) is populated
-immediately, the host can instantly deliver pending control messages
-(e.g., VIRTIO_CONSOLE_PORT_REMOVE).
+virtio_gpu_queue_ctrl_sgs() and virtio_gpu_queue_cursor() use
+wait_event() without any abort condition when waiting for virtqueue
+space. If the host device stops processing commands, these waits block
+indefinitely inside a drm_dev_enter/exit() critical section. Since
+drm_dev_unplug(), which is called in device removal and system shutdown
+call path, blocks on synchronize_srcu() until all critical sections
+complete, device removal and system shutdown also hang.
 
-This triggers the control_work_handler(), which can modify the
-portdev->ports list concurrently with the unprotected list_for_each_entry
-loop in virtcons_restore(), leading to list corruption or Use-After-Free.
+Add a vqs_released flag to virtio_gpu_device and include it in the
+wait_event() condition. Set the flag and wake up both queues in a new
+virtio_gpu_release_vqs() helper, called before drm_dev_unplug() in both
+virtio_gpu_remove() and virtio_gpu_shutdown(). When the flag is set, the
+wait returns immediately and the command is aborted, following the same
+cleanup path as drm_dev_enter() failure.
 
-Fix this by deferring the population of the control receive queue
-(fill_queue for c_ivq) until after the list iteration is complete. This
-ensures the host cannot inject control messages during the vulnerable
-window.
-
-Signed-off-by: Sungho Bae <baver.bae@lge.com>
-Link: https://patch.msgid.link/20260603183757.21587-4-baver.bae@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Ryosuke Yasuoka <ryasuoka@redhat.com>
+Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Link: https://patch.msgid.link/20260601-virtio-gpu_wait_event-v3-1-89530517a98a@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
 
 LLM Generated explanations, may be completely bogus:
 
-The local tree is **6.6.157** (`pending-6.6`). The buggy restore path is
-present, the patch applies cleanly, and it is a self-contained UAF/list-
-corruption fix.
+## Phase 1: Commit message forensics
 
-===============================================================
-PHASE 1: COMMIT MESSAGE FORENSICS
-===============================================================
+**Step 1.1 — Subject**
+Record: `[drm/virtio] [abort] abort virtqueue wait on device removal to
+avoid hung task`
 
-**Step 1.1: PARSE THE SUBJECT LINE**
-
-Record: **[virtio_console] [fix] [control queue race during restore]**
-- Subsystem: `virtio_console` (guest virtio-serial/console driver)
-- Action verb: **fix** — explicit bug fix
-- Claimed intent: close a restore-time race between filling the control
-  receive queue and iterating `portdev->ports`
-
-**Step 1.2: PARSE ALL COMMIT MESSAGE TAGS**
-
+**Step 1.2 — Tags**
 Record:
-- **Fixes:** none (expected for this review pipeline)
-- **Reported-by:** none
-- **Tested-by:** none on the commit itself; the v3 cover letter says it
-  was runtime-tested on arm64 S4 with `no_console_suspend`
-- **Reviewed-by / Acked-by:** none
-- **Link:**
-  `https://patch.msgid.link/20260603183757.21587-4-baver.bae@gmail.com`
-  (v3 3/4 of a 4-patch series)
-- **Cc: stable:** none (expected; not a negative)
-- **Signed-off-by:** Sungho Bae `<baver.bae@lge.com>` (author); Greg
-  Kroah-Hartman (char-misc maintainer). Ignore any Sasha Levin SOB from
-  candidate prep.
-- Mainline SHA (from `fixes-next`, not from candidate markers):
-  `952261953cf79820aa4350679882db0d4f71f493`
-- AuthorDate: 2026-06-04; CommitDate: 2026-07-31
+- `Signed-off-by: Ryosuke Yasuoka <ryasuoka@redhat.com>` (author)
+- `Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>`
+  (virtio-gpu maintainer)
+- `Link: https://patch.msgid.link/20260601-virtio-
+  gpu_wait_event-v3-1-89530517a98a@redhat.com`
+- No `Fixes:`, `Reported-by:`, `Cc: stable` on the committed v3 (absence
+  is expected here)
 
-**Step 1.3: ANALYZE THE COMMIT BODY TEXT**
+v2 originally had two syzbot `Reported-by`/`Closes` tags. v3 changelog:
+*“Remove Reported-by and Closes tag from commit msg because they are not
+related to this fix.”* Those syzbot hung-task reports are a different
+probe-time deadlock, already fixed in this tree by `89890a5fcefad`.
 
+**Step 1.3 — Body**
 Record:
-- **Bug:** After `virtio_device_ready()` sets `DRIVER_OK`, immediately
-  `fill_queue(c_ivq)` lets the host deliver control packets (e.g.
-  `VIRTIO_CONSOLE_PORT_REMOVE`) while `virtcons_restore()` is still
-  walking `portdev->ports` with unlocked `list_for_each_entry`.
-- **Symptom / failure mode:** `control_work_handler()` →
-  `handle_control_message()` → `unplug_port()` does `list_del` +
-  `kref_put` concurrently with that walk → **list corruption or use-
-  after-free**.
-- **Version info:** none in the message. The restore path dates to 2011;
-  `virtio_device_ready()` before queue use dates to 2014 (see Phase 3).
-- **Root cause (author):** host can inject control messages as soon as
-  `c_ivq` has buffers after `DRIVER_OK`.
-- **Fix:** move `fill_queue(portdev->c_ivq)` until after the list walk.
+- **Bug:** `wait_event()` on ctrl/cursor virtqueue space has no abort.
+  If the host stops processing commands, the waiter stays in D-state
+  inside `drm_dev_enter()`/`drm_dev_exit()`.
+- **Symptom:** `drm_dev_unplug()` (remove and shutdown) blocks forever
+  on `synchronize_srcu()`, so device removal and system shutdown hang
+  (`INFO: task hung`).
+- **Root cause:** uninterruptible wait holds an SRCU critical section
+  that unplug must drain.
+- **Fix:** `vqs_released` flag + `wake_up_all()` before unplug; abort
+  with the same cleanup as `drm_dev_enter()` failure (`-ENODEV` / free
+  vbuf).
+- **Versions:** none named in the message. The wait + `drm_dev_enter`
+  wrapping has been in this driver since 2020.
 
-**Step 1.4: DETECT HIDDEN BUG FIXES**
+**Step 1.4 — Hidden bug fix?**
+Record: Not hidden. Subject and body describe a hang/deadlock. It is a
+real teardown hang, not cleanup-as-style.
 
-Record: Not hidden. Subject and body describe a UAF/list-corruption
-race. The extra comment is documentation of that race, not a cleanup
-disguised as a fix.
+---
 
-===============================================================
-PHASE 2: DIFF ANALYSIS - LINE BY LINE
-===============================================================
+## Phase 2: Diff analysis
 
-**Step 2.1: INVENTORY THE CHANGES**
-
+**Step 2.1 — Inventory**
 Record:
-- File: `drivers/char/virtio_console.c` only
-- Scope: **+12 / −3** (net +9, one function)
-- Function: `virtcons_restore()`
-- Classification: **single-file surgical fix**
+- `virtgpu_drv.c`: +15 — new `virtio_gpu_release_vqs()`, called from
+  `virtio_gpu_remove()` and `virtio_gpu_shutdown()`
+- `virtgpu_drv.h`: +1 — `bool vqs_released` on `struct
+  virtio_gpu_device`
+- `virtgpu_vq.c`: +21/−2 — abort conditions in
+  `virtio_gpu_queue_ctrl_sgs()` and `virtio_gpu_queue_cursor()`
+- Scope: ~37 insertions, 2 deletions, three files, one driver. Surgical.
 
-**Step 2.2: UNDERSTAND THE CODE FLOW CHANGE**
-
-Record: **Before** (this tree, `virtcons_restore` at lines 2201–2235):
-
-1. `init_vqs(portdev)`
-2. `virtio_device_ready()` → `DRIVER_OK`, notifications enabled
-3. `fill_queue(c_ivq)` if multiport → host can write control packets
-4. Unlocked `list_for_each_entry` over `portdev->ports`: rebind vqs,
-   `fill_queue(in_vq)`, `PORT_READY` / `PORT_OPEN`
-
-**After:** steps 3 and 4 swap. Control IN buffers are added only after
-the walk finishes.
-
-Affected path: **PM restore** (`CONFIG_PM_SLEEP`), not probe. Probe
-already fills `c_ivq` before ports exist, so it does not have this walk.
-
-**Step 2.3: IDENTIFY THE BUG MECHANISM**
-
-Record: **[Race / UAF / list corruption]**
-
-Verified chain in this tree:
-- `control_intr()` (`drivers/char/virtio_console.c:1792`) →
-  `schedule_work(&portdev->control_work)`
-- `control_work_handler()` (`:1696`) → `handle_control_message()`
-- `VIRTIO_CONSOLE_PORT_REMOVE` (`:1597`) → `unplug_port()`
-- `unplug_port()` (`:1507`) takes `ports_lock`, `list_del(&port->list)`,
-  later `kref_put`
-- `PORT_ADD` (`:1580`) can `add_port()` → `list_add_tail` under
-  `ports_lock` (`:1445`)
-- `virtcons_restore()` walks the same list **without** `ports_lock`
-  (`:2218`)
-
-Other walkers (`find_port_by_id`, `find_port_by_devt_in_portdev`) do
-take `ports_lock`. Restore is the unprotected one.
-
-Without `c_ivq` buffers, the host cannot complete used descriptors on
-the control IN queue, so `control_intr` cannot fire. Deferring
-`fill_queue(c_ivq)` closes the window. `send_control_msg()` uses `c_ovq`
-only (`__send_control_msg` at `:541`), so PORT_READY/OPEN still go out
-during the loop; host replies wait until IN buffers exist.
-
-**Step 2.4: ASSESS THE FIX QUALITY**
-
+**Step 2.2 — Flow**
 Record:
-- **Obviously correct:** same two calls, safer order. Matches how virtio
-  queues work (no IN buffers ⇒ no host-to-guest control).
-- **Minimal:** no API, no new fields, no locking change.
-- **Regression risk:** low. Host replies to PORT_READY are delayed until
-  `c_ivq` is filled; that is normal virtio backpressure. Probe already
-  sends DEVICE_READY only after `fill_queue(c_ivq)` (`:2089–2118`);
-  restore now fills `c_ivq` after PORT_READY, which is slightly
-  different timing but still valid.
-- Residual: the restore walk still does not take `ports_lock`. After
-  this patch the only concurrent list mutator on this path is host
-  control, which cannot run until `c_ivq` is filled. Device remove is
-  serialized with PM restore via the driver/device lock. That is enough
-  for this bug.
-- Patch 4 of the same series (`pm_freezing`) is a **different**
-  freeze/TX race and is not required for this reorder.
+- **Before:** if `vq->num_free` is short, unlock, notify host,
+  `wait_event(ack_queue, num_free >= needed)` with no timeout/abort,
+  still inside `drm_dev_enter()`.
+- **After:** wait also succeeds when `vqs_released`. Then unlock resv if
+  needed, `free_vbuf()`, `drm_dev_exit()`, return `-ENODEV` (ctrl) or
+  return (cursor). Same path as `drm_dev_enter()` failure.
+- **Teardown:** set flag, wake both ack queues, *then*
+  `drm_dev_unplug()`.
+- Path affected: virtqueue-full wait during remove/shutdown, not the
+  happy path.
 
-===============================================================
-PHASE 3: GIT HISTORY INVESTIGATION
-===============================================================
+**Step 2.3 — Bug mechanism**
+Record: **Deadlock / hung-task (uninterruptible wait blocking SRCU
+unplug).** `wait_event()` is `TASK_UNINTERRUPTIBLE`. `drm_dev_unplug()`
+→ `drm_dev_synchronize_unplug()` → `synchronize_srcu(&drm_unplug_srcu)`
+cannot finish while that section is held. Flag + `wake_up_all()` is a
+standard abort.
 
-**Step 3.1: BLAME THE CHANGED LINES**
+**Step 2.4 — Fix quality**
+Record: Obviously correct and minimal. Abort cleanup matches existing
+`drm_dev_enter()` failure. Fence emit happens *after* the wait, so abort
+does not leak an emitted fence. `vgdev` is `drmm_kzalloc()`’d so
+`vqs_released` starts false. Flag is set only on remove/shutdown.
+Regression risk is low: happy-path wait is unchanged; abort only when
+tearing down. Remaining `wait_event(resp_wq)` in prime/vram is a
+separate issue (author and maintainer agreed to leave it).
 
+---
+
+## Phase 3: Git history
+
+**Step 3.1 — Blame (v6.18.53)**
 Record:
-- Unlocked restore loop and `fill_queue(c_ivq)` before it:
-  **`2b8f41d846990c`** (Amit Shah, 2011-12-22) “Add freeze and restore
-  handlers to support S4”. Present in this tree (`git merge-base --is-
-  ancestor` succeeded).
-- `virtio_device_ready()` immediately before `fill_queue(c_ivq)`:
-  **`401bbdc901b268`** (Michael S. Tsirkin, 2014-10-15) “enable VQs
-  early on restore”. Also an ancestor of HEAD. That is when the host can
-  legally deliver as soon as buffers are posted.
-- Race has existed in this form since ~2014; this is old code, not a
-  recent-mainline-only bug.
+- Ctrl `wait_event`: `6ebe8661ebf27a` (2020, Gerd/Chia-I) — `drm/virtio:
+  move locking into virtio_gpu_queue_ctrl_sgs`
+- Wrapped in `drm_dev_enter`: `b1df3a2b24a917` (2020) — `drm/virtio: add
+  drm_driver.release callback`
+- Cursor `wait_event`: `d02d270014f70d` (2018) / original queue from
+  `dc5698e80cf724` (2013)
+- Bug has been in this driver for years; it is in 6.18.y.
 
-**Step 3.2: FOLLOW THE FIXES: TAG**
+**Step 3.2 — Fixes: tag**
+Record: None. Introducing commits above exist in this tree.
 
-Record: No `Fixes:` tag. The enabling commit is `401bbdc901b268`, which
-is in this tree. No intermediate fix of this same race on
-`drivers/char/virtio_console.c` in this checkout (`git log
---grep="control queue race"` empty on HEAD).
+**Step 3.3 — File history**
+Record: Related in-tree: `89890a5fcefad` (probe deadlock / syzbot hung
+task — different bug, already in v6.18.53). `2507789a724d6` implements
+`virtio_gpu_shutdown` (in v6.18.53). Later candidate `3cdc509eb471e`
+reclaims leftover vbufs on teardown — complementary, not a prerequisite
+for this abort.
 
-**Step 3.3: CHECK FILE HISTORY FOR RELATED CHANGES**
+**Step 3.4 — Author**
+Record: Ryosuke Yasuoka is a regular virtio-gpu contributor
+(`drm_panic`, the display_info deadlock fix). Signed off by maintainer
+Dmitry Osipenko.
 
-Record: Recent local history (`git log --oneline -20 --
-drivers/char/virtio_console.c`) is unrelated (control-out free,
-endian/cols-rows, probe bugs). This commit is **not** in HEAD (`git
-merge-base --is-ancestor 952261953cf79 HEAD` failed).
+**Step 3.5 — Dependencies**
+Record: Standalone. Needs `drm_dev_enter` around queueing,
+`virtio_gpu_remove`/`virtio_gpu_shutdown` calling `drm_dev_unplug`, and
+`ctrlq`/`cursorq` ack waitqueues — all present at v6.18.53. No new APIs.
 
-On `fixes-next` the series is:
-1. `fc220d6be3c7e` refactor `__send_to_port()` buffer ownership
-2. `a616ad344d9f7` hot-unplug races in TX paths
-3. **`952261953cf79` this commit**
-4. `b187532ac6dba` hvc `put_chars` vs freeze teardown (`pm_freezing`)
+---
 
-Patches 1–2 do not touch `virtcons_restore`. Patch 4 adds `pm_freezing`
-clear after the moved `fill_queue`; it does not change this race fix.
-**Standalone.**
+## Phase 4: Mailing list / external
 
-**Step 3.4: CHECK THE AUTHOR'S OTHER COMMITS**
-
-Record: Sungho Bae has no commits on this file in the 6.6 tree. On
-`fixes-next` he authored this 4-patch virtio_console PM/hot-unplug set.
-Maintainer of record is Amit Shah; the patch was To: amit@kernel.org,
-arnd, gregkh and applied by Greg.
-
-**Step 3.5: CHECK FOR DEPENDENT/PREREQUISITE COMMITS**
-
-Record: Diff uses only `virtio_device_ready`, `use_multiport`,
-`fill_queue`, `c_ivq` / `c_ivq_lock`, all present. `git show
-952261953cf79 | git apply --check` **applies cleanly**. No prerequisite.
-
-===============================================================
-PHASE 4: MAILING LIST AND EXTERNAL RESEARCH
-===============================================================
-
-**Step 4.1: FIND THE ORIGINAL PATCH DISCUSSION**
-
+**Step 4.1 — b4 dig**
 Record:
-- `b4 dig -c 952261953cf79`: match at
-  https://patch.msgid.link/20260603183757.21587-4-baver.bae@gmail.com
-- `b4 dig -a`: only **v3** of `[PATCH v3 0/4] virtio_console: fix
-  suspend/resume and hot-unplug races`
-- v3 change note: split a monolithic patch for grouping/bisectability
-- v1
-  (https://patchew.org/linux/20260515225259.1054-1-baver.bae@gmail.com/)
-  was only the freeze/`pm_freezing` fix; **this restore reorder is new
-  in the split v3**
-- Saved mbox: five messages (0/4–4/4), **no replies, no NAK, no Cc:
-  stable**
-- Greg applied it 2026-07-31
+- v2: https://patch.msgid.link/20260521-virtio-
+  gpu_wait_event-v2-1-5796b3a71d03@redhat.com
+- v3 (applied): https://patch.msgid.link/20260601-virtio-
+  gpu_wait_event-v3-1-89530517a98a@redhat.com
+- v1 used `wait_event_timeout()` (5s). v2/v3 switched to an explicit
+  `vqs_released` flag (no arbitrary timeout). Applied version is v3.
 
-**Step 4.2: CHECK WHO REVIEWED THE PATCH**
+**Step 4.2 — Recipients (`b4 dig -w`)**
+Record: David Airlie, Gerd Hoffmann, Dmitry Osipenko, Gurchetan Singh,
+Chia-I Wu, drm-misc maintainers, `dri-devel`,
+`virtualization@lists.linux.dev`. Right people.
 
-Record (`b4 dig -w`): To/Cc Amit Shah, Arnd Bergmann, Greg Kroah-
-Hartman, `virtualization@lists.linux.dev`, `linux-kernel`. Appropriate
-lists/maintainers. No public Reviewed-by; Greg’s SOB is the merge.
+**Step 4.3 — Review**
+Record (from saved v2 mbox):
+- Dmitry: “What about other `wait_event`?” Author: those are `resp_wq`,
+  not inside `drm_dev_enter`, different bug. Dmitry: leave for later.
+- Dmitry could not reproduce on normal systemd shutdown and noted the
+  syzbot stacks were not remove/shutdown. Later: *“the patch looks okay,
+  but I'm not convinced that it fixes the reported issue.”*
+- Author agreed syzbot was a probe deadlock (`clientlist_mutex` vs
+  dequeue worker), dropped those tags, and described the real trigger:
+  host stops processing → guest waits in D-state inside `drm_dev_enter`
+  → unplug’s `synchronize_srcu` never completes. systemd cannot kill
+  D-state tasks.
+- v3 dropped the unrelated tags; Dmitry still signed off.
 
-**Step 4.3: SEARCH FOR THE BUG REPORT**
+**Step 4.4 — Series**
+Record: Single-patch series. `resp_wq` abort and interruptible waits
+were explicitly deferred.
 
-Record: No syzbot, bugzilla, or user crash report. Cover letter: found
-while investigating the freeze/`put_chars` race; runtime-tested on arm64
-S4 with `no_console_suspend`. Mechanism is verified in code (Phase 2/5),
-not only asserted.
+**Step 4.5 — stable@**
+Record: lore.kernel.org/stable returned HTTP 403. UNVERIFIED whether it
+was already discussed on stable@.
 
-**Step 4.4: CHECK FOR RELATED PATCHES AND SERIES**
+Syzbot URLs from v2: hung in `virtio_gpu_queue_fenced_ctrl_buffer`
+during **probe** (`virtio_gpu_probe` → fbcon), not removal. Those are
+the deadlock already closed by `89890a5fcefad` in this tree. They do
+**not** prove this particular hang, and they are not used as a YES
+signal for this commit.
 
-Record: Series of 4; this is 3/4 and is self-contained. Patch 4 is a
-separate freeze BUG_ON and does not need to ride along. Later `fixes-
-next` commits (`allocate the port_buffer with the caller's gfp`, `do not
-free control-out buffers on remove`) do not revert this reorder.
-`virtcons_restore` on `fixes-next` still has fill-`c_ivq`-after-loop.
+---
 
-**Step 4.5: CHECK STABLE MAILING LIST HISTORY**
+## Phase 5: Semantic / call graph
 
-Record: `lore.kernel.org/stable/` fetch returned 403. No stable-thread
-evidence in the v3 mbox. **UNVERIFIED** whether anyone already asked for
-or rejected this on stable@. Absence of that discussion is not a reason
-to skip a UAF fix that applies here.
+**Step 5.1 — Functions**
+Record: `virtio_gpu_release_vqs` (new), `virtio_gpu_remove`,
+`virtio_gpu_shutdown`, `virtio_gpu_queue_ctrl_sgs`,
+`virtio_gpu_queue_cursor`.
 
-===============================================================
-PHASE 5: CODE SEMANTIC ANALYSIS
-===============================================================
-
-**Step 5.1: IDENTIFY KEY FUNCTIONS IN THE DIFF**
-
-Record: `virtcons_restore()` only. Related callees: `fill_queue`,
-`use_multiport`, `send_control_msg`, `virtio_device_ready`. Related
-concurrent path: `control_work_handler` / `unplug_port` / `add_port`.
-
-**Step 5.2: TRACE CALLERS**
-
-Record: `virtcons_restore` is `.restore` of `struct virtio_driver
-virtio_console` (`:2247–2249`), compiled under `CONFIG_PM_SLEEP`.
-Invoked from virtio PM restore (guest S3/S4 / hibernation restore of the
-virtio-console device). Not a syscall hot path; **reachable on any guest
-that suspends/hibernates with this driver**.
-
-**Step 5.3: TRACE CALLEES**
-
+**Step 5.2 — Callers**
 Record:
-- `init_vqs` registers `control_intr` for the control IN vq (`:1876`)
-- `virtio_device_ready` sets `VIRTIO_CONFIG_S_DRIVER_OK`
-  (`include/linux/virtio_config.h:270–297`)
-- `fill_queue` allocates PAGE_SIZE IN buffers and `add_inbuf` under the
-  given lock (`:1323`)
-- `send_control_msg` → `__send_control_msg` kicks **c_ovq** only
+- `virtio_gpu_queue_ctrl_sgs` ← `virtio_gpu_queue_fenced_ctrl_buffer` ←
+  nearly every `virtio_gpu_cmd_*` (ioctls, plane update/flush, GEM,
+  etc.). Userspace and KMS both reach it.
+- `virtio_gpu_queue_cursor` ← cursor plane updates.
+- `virtio_gpu_remove` / `virtio_gpu_shutdown` are virtio `.remove` /
+  `.shutdown`.
 
-**Step 5.4: FOLLOW THE CALL CHAIN**
+**Step 5.3 — Callees**
+Record: `drm_dev_enter`/`exit`, `wait_event`, `wake_up_all`,
+`free_vbuf`, `virtio_gpu_array_unlock_resv`, `virtio_gpu_notify`. No new
+helpers outside this driver.
 
-Record: Guest suspend/resume or hibernation of a VM using multiport
-virtio-console/serial. Host can have pending PORT_REMOVE (port gone
-while guest was down) or reply to PORT_READY with PORT_ADD/REMOVE/NAME.
-Userspace in the guest does not need to issue a special syscall; PM
-restore plus host control is enough. Unprivileged guest users do not
-directly trigger it; the **hypervisor/host** does. Severity is still
-guest kernel UAF.
+**Step 5.4 — Reachability**
+Record: Yes. Any guest GPU submit that fills the virtqueue waits here.
+Unplug/shutdown is virtio remove or poweroff. Host-side virtio-gpu/virgl
+stall is the trigger.
 
-**Step 5.5: SEARCH FOR SIMILAR PATTERNS**
+**Step 5.5 — Similar patterns**
+Record: `wait_event(vgdev->resp_wq)` in `virtgpu_prime.c` and
+`virtgpu_vram.c` still unbounded; not inside `drm_dev_enter`, so they do
+not block unplug. Same author deferred that.
 
-Record: `virtcons_freeze()` also walks `portdev->ports` unlocked
-(`:2186`), but first `virtio_reset_device` +
-`virtqueue_disable_cb(c_ivq)` + `cancel_work_sync(&control_work)`
-(`:2173–2184`), so control work cannot run. Probe fills `c_ivq` before
-any ports are on the list. Restore was the inconsistent path.
+---
 
-===============================================================
-PHASE 6: CROSS-REFERENCING AGAINST THE LOCAL TREE
-===============================================================
+## Phase 6: This tree (6.18.y)
 
-**Step 6.1: DOES THE BUGGY CODE EXIST IN THIS TREE?**
+**Step 6.1 — Buggy code present?**
+Record: **Yes at v6.18.53.**
+```
+v6.18.53:virtgpu_vq.c:398: wait_event(vgdev->ctrlq.ack_queue,
+vq->num_free >= elemcnt);
+v6.18.53:virtgpu_vq.c:568: wait_event(vgdev->cursorq.ack_queue,
+vq->num_free >= outcnt);
+```
+`vqs_released` is **not** in v6.18.53. `virtio_gpu_remove`/`shutdown`
+call `drm_dev_unplug()` with no prior wake.
+`drm_dev_synchronize_unplug()` does `synchronize_srcu`. Bug introduced
+~2020; 6.18 branched 2025-11-30.
 
-Record: **Yes.** `drivers/char/virtio_console.c:2213–2234` still does
-`virtio_device_ready` → `fill_queue(c_ivq)` → unlocked
-`list_for_each_entry`. Tree: `pending-6.6`, `make kernelversion`
-**6.6.157**, `git describe` `p-6.6-4-gaf85e5fc2f380`. Bug introduced
-~2014 (`401bbdc901b268`), long before 6.6.
+Local tree: `git describe HEAD` → `v6.18.53-5049-g0f0bdc2b0dffb`;
+Makefile `6.18.53`. Verdict is for **this 6.18.y tree only**.
 
-**Step 6.2: CHECK FOR BACKPORT COMPLICATIONS**
+**Step 6.2 — Backport difficulty**
+Record: `git apply --check` of this patch onto v6.18.53 virtio files:
+**clean apply**. Context differs slightly (`DRIVER_ATOMIC` guard around
+`drm_atomic_helper_shutdown` from `19a6a00ff50c2`, already in v6.18.53);
+insertion is still immediately before `drm_dev_unplug()`.
 
-Record: **Clean apply** (`git apply --check` on `952261953cf79`
-succeeded). Surrounding `virtcons_restore` matches the pre-image. No
-refactor gap.
+**Step 6.3 — Related fix already here?**
+Record: Probe deadlock `89890a5fcefad` is in v6.18.53 and does **not**
+abort virtqueue waits on removal. No equivalent abort exists. This is
+not a duplicate.
 
-**Step 6.3: CHECK IF RELATED FIXES ARE ALREADY HERE**
+---
 
-Record: This SHA is not an ancestor of HEAD. No other “control queue
-race” commit on this file in this tree. Freeze-path callback disable is
-present and unrelated.
+## Phase 7: Subsystem
 
-===============================================================
-PHASE 7: SUBSYSTEM AND MAINTAINER CONTEXT
-===============================================================
+**Step 7.1**
+Record: `drivers/gpu/drm/virtio` — virtio-gpu DRM. **IMPORTANT** for VMs
+(QEMU/KVM, cloud, CrosVM), not core mm/VFS.
 
-**Step 7.1: IDENTIFY THE SUBSYSTEM AND ITS CRITICALITY**
+**Step 7.2**
+Record: Mature driver, still getting targeted fixes. Not staging.
 
-Record: **virtio_console** (`drivers/char/virtio_console.c`,
-`CONFIG_VIRTIO_CONSOLE`). **IMPORTANT** for KVM/QEMU/cloud/embedded
-guests (virtio-serial, guest console). Not mm/core, but not
-staging/obscure. Maintainers: Amit Shah; virtio core: MST / Jason Wang.
+---
 
-**Step 7.2: ASSESS SUBSYSTEM ACTIVITY**
+## Phase 8: Impact and risk
 
-Record: Mature. Freeze/restore since 2011; little churn on this function
-in 6.6. Long-lived bug, not a new-subsystem mismatch.
+**Step 8.1 — Who**
+Record: virtio-gpu guests (`CONFIG_DRM_VIRTIO_GPU`). Common in VMs, not
+every bare-metal box.
 
-===============================================================
-PHASE 8: IMPACT AND RISK ASSESSMENT
-===============================================================
+**Step 8.2 — Trigger**
+Record: Host stops completing virtqueue commands (host renderer crash,
+hung device, hypervisor bug) **and** a guest command waits for ring
+space **and** then remove/shutdown. Not every boot. Cannot be signal-
+killed (`TASK_UNINTERRUPTIBLE`). Module unload, virtio reset, and
+poweroff all hit `drm_dev_unplug()`.
 
-**Step 8.1: DETERMINE WHO IS AFFECTED**
+**Step 8.3 — Failure mode**
+Record: **Hung task / shutdown or unplug deadlock.** Severity: **HIGH**
+(system cannot finish shutdown/remove; D-state). Not a UAF or silent
+corruption.
 
-Record: **Driver-specific + config-specific:** `CONFIG_VIRTIO_CONSOLE` +
-`CONFIG_PM_SLEEP` + multiport (`VIRTIO_CONSOLE_F_MULTIPORT`, normal for
-virtio-serial). Guest suspend/hibernate/restore users.
-
-**Step 8.2: DETERMINE THE TRIGGER CONDITIONS**
-
-Record: Guest PM restore while host delivers control messages (pending
-PORT_REMOVE, or replies to PORT_READY). Window includes
-`fill_queue(c_ivq)` (many PAGE_SIZE allocations) plus the port loop. Not
-every boot; **realistic on S3/S4 of VMs with virtio-serial**. Guest
-userspace need not be malicious; the host is the other party (trusted in
-the virtio model, but still a crash in the guest).
-
-**Step 8.3: DETERMINE THE FAILURE MODE SEVERITY**
-
-Record: **Use-after-free and list corruption** → oops/panic, possible
-memory corruption. **Severity: HIGH** (CRITICAL if the UAF is hit). Not
-a WARN-only issue.
-
-**Step 8.4: CALCULATE RISK-BENEFIT RATIO**
-
+**Step 8.4 — Risk vs benefit**
 Record:
-- **Benefit:** HIGH — prevents UAF/list corruption on a common VM driver
-  during restore; code has been wrong for years in this tree.
-- **Risk:** VERY LOW — 9-line reorder, same helpers, applies cleanly, no
-  new API/locking.
-- **Ratio:** strongly favors backport.
+- Benefit: HIGH for virtio-gpu VMs that lose the host GPU and then
+  reboot/unplug.
+- Risk: LOW — ~35 lines, teardown-only flag, abort path copies existing
+  `-ENODEV` cleanup.
+- Ratio: favorable.
 
-===============================================================
-PHASE 9: FINAL SYNTHESIS
-===============================================================
+---
 
-**Step 9.1: COMPILE THE EVIDENCE**
+## Phase 9: Synthesis
 
-**FOR:**
-- Real race: unlocked list walk vs `unplug_port`/`add_port` from control
-  work
-- Failure is UAF / list corruption (stable-class bug)
-- Buggy code is in this 6.6 tree and has been since ~2014
-- Fix is a 9-line reorder; `git apply --check` clean
-- No dependency on series patches 1/2/4
-- Applied by Greg to char-misc; later `fixes-next` still has this order
-- Author tested related PM paths on arm64 S4
+**Step 9.1 — Evidence**
 
-**AGAINST:**
-- No `Reported-by` / syzbot; found during investigation
-- Restore-only (S3/S4), not every boot
-- No public review comments in the v3 mbox
-- Part of a 4-patch series (but this hunk is independent)
+**For:**
+- Real hang: uninterruptible wait inside `drm_dev_enter` blocks
+  `drm_dev_unplug()`/`synchronize_srcu`.
+- Confirmed in v6.18.53 source (`wait_event` without abort; unplug with
+  no wake).
+- Small, contained, no new API.
+- Abort cleanup matches existing `drm_dev_enter()` failure.
+- Maintainer signed off after review (v1 timeout → v3 flag).
+- Applies cleanly to this tree’s virtio files.
+- virtio-gpu is widely used; host GPU process failure is a realistic VM
+  event.
 
-**UNRESOLVED:**
-- Stable@ discussion (lore/stable 403)
-- No independent crash log attached to this specific UAF (mechanism
-  still verified in tree)
+**Against:**
+- Trigger needs a stuck host plus a full virtqueue plus teardown — not a
+  hot path.
+- Syzbot tags were wrongly attached in v2 and correctly dropped; do not
+  treat this as a syzbot backport.
+- Incomplete vs all `wait_event`s; `resp_wq` still unbounded
+  (intentionally separate).
+- Maintainer initially could not reproduce on a normal systemd shutdown.
 
-**Step 9.2: APPLY THE STABLE RULES CHECKLIST**
+**Unresolved:** stable@ archive 403; whether this hang has a public user
+report besides the author’s analysis.
 
-1. Obviously correct and tested? **PASS** — reorder is locally
-   checkable; series was S4-tested; merged by Greg
-2. Fixes a real bug that affects users? **PASS** — restore + multiport
-   virtio-console is a real guest path
-3. Important issue? **PASS** — UAF / list corruption, HIGH
-4. Small and contained? **PASS** — one function, +12/−3
-5. No new features or APIs? **PASS**
-6. Can apply to the local tree? **PASS** — clean apply; all symbols
-   exist
+**Step 9.2 — Stable rules**
+1. Obviously correct and tested — **PASS** (standard wait/wake abort;
+   maintainer SOB; v3 after review).
+2. Real user-visible bug — **PASS** (remove/shutdown hang when host
+   stops the vq).
+3. Important (hang/deadlock) — **PASS** (HIGH: D-state blocks
+   unplug/shutdown).
+4. Small and contained — **PASS** (~37 lines, one driver).
+5. No new features/APIs — **PASS**.
+6. Applies to this tree — **PASS** (clean apply to v6.18.53 virtio
+   files; all helpers present).
 
-**Step 9.3: CHECK FOR EXCEPTION CATEGORIES**
+**Step 9.3 — Exceptions**
+Record: None (not a device ID/quirk/DT/build/doc exception). Qualifies
+as a normal hang fix.
 
-Record: Not a device-ID/quirk/DT/build/docs exception. It qualifies as a
-normal **small race/UAF fix**.
+**Step 9.4 — Decision**
+This belongs on 6.18.y. The bug is in this tree, the fix is surgical,
+and a stuck virtqueue otherwise makes guest unplug/shutdown hang
+forever.
 
-**Step 9.4: MAKE YOUR DECISION**
+---
 
-This should be backported to **this** 6.6 tree. The bug exists here, the
-fix is surgical and independent of the rest of the series, and the
-downside is a mild delay of host control replies until after ports are
-rebound — which is the intended barrier.
+## What the commit solves for this tree
 
-------------------------------------------------
-What it solves for stable users
-------------------------------------------------
-On guest suspend/resume or hibernation restore, `virtcons_restore()`
-currently posts control IN buffers while still walking `portdev->ports`
-without `ports_lock`. A host `PORT_REMOVE`/`PORT_ADD` can then free or
-insert list nodes under that walk. 6.6 guests using virtio-serial (the
-usual QEMU multiport setup) can oops or corrupt kernel memory. Moving
-`fill_queue(c_ivq)` after the loop removes that window without changing
-APIs.
+On 6.18.y, virtio-gpu waits for virtqueue space with `wait_event()`
+inside `drm_dev_enter()`. If the host stops processing, that wait never
+ends, `drm_dev_unplug()` never gets past `synchronize_srcu()`, and
+remove/shutdown hang in D-state. The patch sets `vqs_released`, wakes
+both queues before unplug, and aborts the command like a failed
+`drm_dev_enter()`.
 
-Risk vs benefit: benefit is avoiding a restore-time UAF; risk is a
-small, obviously correct reorder that already applies.
+That is a real hang, not a feature. Risk is low; the only extra behavior
+is on teardown.
 
-------------------------------------------------
-Verification
-------------------------------------------------
-- [Phase 1] Parsed subject/tags: fix, Link msgid
-  `20260603183757.21587-4`, SOB Sungho Bae + Greg; no Fixes/Reported-
-  by/stable Cc
-- [Phase 1] Mainline SHA from `fixes-next`:
-  `952261953cf79820aa4350679882db0d4f71f493` (not treated as “already
-  selected”)
-- [Phase 2] Diff: only `virtcons_restore()`; move `fill_queue(c_ivq)`
-  after unlocked `list_for_each_entry`
-- [Phase 2] `control_intr` → `control_work_handler` → `PORT_REMOVE` →
-  `unplug_port` `list_del`; restore walk has no `ports_lock` (lines
-  1507–1511, 1597–1598, 2218)
-- [Phase 2] `__send_control_msg` uses `c_ovq` only (line 551)
-- [Phase 3] Blame: loop/`fill_queue` from `2b8f41d846990c` (2011);
-  `virtio_device_ready` from `401bbdc901b268` (2014); both ancestors of
-  HEAD
-- [Phase 3] `git merge-base --is-ancestor 952261953cf79 HEAD` → NOT in
-  this tree
-- [Phase 3] Series 1–2 do not touch `virtcons_restore`; patch 4 is a
-  separate `pm_freezing` freeze race
-- [Phase 4] `b4 dig -c 952261953cf79` → v3 3/4 lore URL; `-a` only v3;
-  `-w` amit/arnd/gregkh/virtualization; mbox has no replies
-- [Phase 4] v1 patchew: freeze-only; this reorder appeared in v3
-- [Phase 4] UNVERIFIED: stable@ archives (HTTP 403)
-- [Phase 5] `virtio_device_ready` sets `DRIVER_OK`
-  (`include/linux/virtio_config.h:297`); `init_vqs` registers
-  `control_intr`
-- [Phase 6] `git describe HEAD` `p-6.6-4-gaf85e5fc2f380`; `make
-  kernelversion` 6.6.157; buggy order at lines 2213–2234
-- [Phase 6] `git show 952261953cf79 | git apply --check` → APPLIES
-  CLEANLY
-- [Phase 8] Failure mode: UAF/list corruption on PM restore; severity
-  HIGH
-- UNVERIFIED: no captured crash log for this exact UAF (code path still
-  verified)
+---
 
-The patch is small, surgical, and meets the stable criteria for this
-tree.
+## Verification
+- **[Phase 1]** Parsed v3 message/tags; no Fixes/Reported-by on
+  committed v3; v3 changelog documents dropping unrelated syzbot tags.
+- **[Phase 2]** Diff: +37/−2 across three virtio-gpu files; abort copies
+  `drm_dev_enter()` failure cleanup; fence emit is after the wait.
+- **[Phase 3]** `git blame` on v6.18.53: wait from `6ebe8661ebf27a`
+  (2020) / cursor from 2013–2018; `drm_dev_enter` from `b1df3a2b24a917`
+  (2020).
+- **[Phase 3]** `git merge-base --is-ancestor 0ffdc5889ef64 v6.18.53` →
+  **not** in v6.18.53; buggy wait **is** in v6.18.53.
+- **[Phase 3]** Probe deadlock `89890a5fcefad` **is** in v6.18.53 and
+  closes the syzbot hung-task IDs; it does not abort vq waits on
+  removal.
+- **[Phase 3]** `virtio_gpu_shutdown` (`2507789a724d6`) **is** in
+  v6.18.53.
+- **[Phase 3]** `vgdev` allocated with `drmm_kzalloc` in `virtgpu_kms.c`
+  — `vqs_released` starts false.
+- **[Phase 4]** `b4 dig -c a46991b334f663fa0e0e9c051e50587ef977ac8b`
+  matched v2/v3 lore; `b4 dig -a` showed v2 then v3; `b4 dig -w` listed
+  virtio-gpu maintainers.
+- **[Phase 4]** Mbox: Dmitry review; author explained syzbot mismatch
+  and the real remove/shutdown hang; v3 dropped tags; Dmitry SOB on the
+  commit.
+- **[Phase 4]** WebFetch syzbot bugs `d6dd6f86…` / `908bd910…`: hung
+  during **probe/fbcon**, not unplug — not this bug.
+- **[Phase 4]** lore.kernel.org and lore.kernel.org/stable: HTTP 403.
+  UNVERIFIED for stable@ discussion. Used gitlab.freedesktop.org +
+  openwall + mbox instead.
+- **[Phase 5]** `git grep`: `virtio_gpu_queue_ctrl_sgs` is on
+  ioctl/plane/GEM paths; dequeue `wake_up(&ctrlq.ack_queue)` only after
+  host responses — if host is dead, waiters never wake without this
+  patch.
+- **[Phase 6]** `git describe HEAD` / Makefile: **6.18.53**. `git apply
+  --check` of this patch onto archived v6.18.53 virtio files: **APPLY
+  CLEAN**.
+- **[Phase 6]** `drm_dev_unplug` at v6.18.53 calls
+  `drm_dev_synchronize_unplug()` → `synchronize_srcu`.
+- **[Phase 6]** `wait_event()` in `include/linux/wait.h` uses
+  `TASK_UNINTERRUPTIBLE`.
+- **[Phase 8]** Failure mode from code + commit: hung unplug/shutdown,
+  severity HIGH.
+- **UNVERIFIED:** public non-syzbot user report of this exact remove
+  hang; stable@ archive (403).
+
+The hang is in this 6.18.y tree, the patch is small and correct, and it
+should be backported.
 
 **YES**
 
- drivers/char/virtio_console.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_drv.c | 15 +++++++++++++++
+ drivers/gpu/drm/virtio/virtgpu_drv.h |  1 +
+ drivers/gpu/drm/virtio/virtgpu_vq.c  | 23 +++++++++++++++++++++--
+ 3 files changed, 37 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 750c15966d00e..cfda31d5e86ec 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -2172,9 +2172,6 @@ static int virtcons_restore(struct virtio_device *vdev)
- 
- 	virtio_device_ready(portdev->vdev);
- 
--	if (use_multiport(portdev))
--		fill_queue(portdev->c_ivq, &portdev->c_ivq_lock);
--
- 	list_for_each_entry(port, &portdev->ports, list) {
- 		port->in_vq = portdev->in_vqs[port->id];
- 		port->out_vq = portdev->out_vqs[port->id];
-@@ -2191,6 +2188,18 @@ static int virtcons_restore(struct virtio_device *vdev)
- 		if (port->guest_connected)
- 			send_control_msg(port, VIRTIO_CONSOLE_PORT_OPEN, 1);
- 	}
-+
-+	/*
-+	 * Populate the control receive queue only after the list iteration
-+	 * is complete. If we fill this queue before iterating, the host could
-+	 * immediately deliver a VIRTIO_CONSOLE_PORT_REMOVE message.
-+	 * This would trigger the control workqueue, which modifies the
-+	 * portdev->ports list concurrently with the unprotected loop above,
-+	 * leading to a Use-After-Free and list corruption.
-+	 */
-+	if (use_multiport(portdev))
-+		fill_queue(portdev->c_ivq, &portdev->c_ivq_lock);
-+
- 	return 0;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
+index d9556e1b67b10..78cc388b434d9 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.c
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+@@ -118,10 +118,24 @@ static int virtio_gpu_probe(struct virtio_device *vdev)
+ 	return ret;
  }
- #endif
+ 
++/*
++ * Release pending virtqueue waits so the drm_dev_enter/exit() critical
++ * sections complete before drm_dev_unplug() blocks on synchronize_srcu().
++ */
++static void virtio_gpu_release_vqs(struct drm_device *dev)
++{
++	struct virtio_gpu_device *vgdev = dev->dev_private;
++
++	vgdev->vqs_released = true;
++	wake_up_all(&vgdev->ctrlq.ack_queue);
++	wake_up_all(&vgdev->cursorq.ack_queue);
++}
++
+ static void virtio_gpu_remove(struct virtio_device *vdev)
+ {
+ 	struct drm_device *dev = vdev->priv;
+ 
++	virtio_gpu_release_vqs(dev);
+ 	drm_dev_unplug(dev);
+ 
+ 	if (drm_core_check_feature(dev, DRIVER_ATOMIC))
+@@ -135,6 +149,7 @@ static void virtio_gpu_shutdown(struct virtio_device *vdev)
+ {
+ 	struct drm_device *dev = vdev->priv;
+ 
++	virtio_gpu_release_vqs(dev);
+ 	/* stop talking to the device */
+ 	drm_dev_unplug(dev);
+ }
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index 8575c7787fc36..51b78f8a8aa2e 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -260,6 +260,7 @@ struct virtio_gpu_device {
+ 
+ 	struct virtio_gpu_queue ctrlq;
+ 	struct virtio_gpu_queue cursorq;
++	bool vqs_released;
+ 	struct kmem_cache *vbufs;
+ 
+ 	atomic_t pending_commands;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index 592ad4f9b100d..244a791ab915e 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -422,7 +422,19 @@ static int virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
+ 	if (vq->num_free < elemcnt) {
+ 		spin_unlock(&vgdev->ctrlq.qlock);
+ 		virtio_gpu_notify(vgdev);
+-		wait_event(vgdev->ctrlq.ack_queue, vq->num_free >= elemcnt);
++		wait_event(vgdev->ctrlq.ack_queue,
++			   vq->num_free >= elemcnt || vgdev->vqs_released);
++		/*
++		 * Set by virtio_gpu_release_vqs() to unblock
++		 * synchronize_srcu() wait in drm_dev_unplug().
++		 */
++		if (vgdev->vqs_released) {
++			if (fence && vbuf->objs)
++				virtio_gpu_array_unlock_resv(vbuf->objs);
++			free_vbuf(vgdev, vbuf);
++			drm_dev_exit(idx);
++			return -ENODEV;
++		}
+ 		goto again;
+ 	}
+ 
+@@ -592,7 +604,14 @@ static void virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
+ 	ret = virtqueue_add_sgs(vq, sgs, outcnt, 0, vbuf, GFP_ATOMIC);
+ 	if (ret == -ENOSPC) {
+ 		spin_unlock(&vgdev->cursorq.qlock);
+-		wait_event(vgdev->cursorq.ack_queue, vq->num_free >= outcnt);
++		wait_event(vgdev->cursorq.ack_queue,
++			   vq->num_free >= outcnt || vgdev->vqs_released);
++		/* See comment in virtio_gpu_queue_ctrl_sgs(). */
++		if (vgdev->vqs_released) {
++			free_vbuf(vgdev, vbuf);
++			drm_dev_exit(idx);
++			return;
++		}
+ 		spin_lock(&vgdev->cursorq.qlock);
+ 		goto retry;
+ 	} else {
 -- 
 2.53.0
 
