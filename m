@@ -1,53 +1,98 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=213.97.179.56
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792447702;
-	b=Fk26rdFaca/Ntff7DddzTyOEgp3GY/904W/P75hOn8XzueB2uNqGdJhnGluyw7eVmWMg
-	 t0oK9pcjCMRhAVRVH1VhXOcw8MIcFGxfb+2Ie36I9+mTXdWRDKbD7yfGREc4mulBK2zhP
-	 pHZQcVeWAm5k69DPkQV75nmZ3J36+F+0y3FpGIwD92q1kI/qMVSzUpPvhPcSUx2RzmOKo
-	 qPDxze0venAsD5CaXYLHTwts/hetex01p7Ps1UMmAnMk/k5DT7sEON45322QvrP8nujhi
-	 p6jm1NVbGOAXI8h7WSQr6wFr0Vx65BK9b7MSBrmcojq+Gjd5OfpbT5fn3RN+oNWGjGA==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792447702;
-	h=DMARC-Filter:DKIM-Signature:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:Content-Language:To:Cc:References:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=quSCbZZ7Mq3acy8cy5BNYZd6wRzHmwo845Fz4abnb/A=;
-	b=5rTSFR0TmMufi7ARe5GSTfXED5r5TM81/FxolwrSVHjz7CjCoYq9hDRMYwX4V6jXrftu
-	 Gj+9LLhd2s8495cMZRyZljgBPwg4zpYswseibOfuO2Pf5oGk/oq1h3cVKhZvOSAyjYlnb
-	 1HHK6Cv2we7DUGQxwEXjuAmCqa69oZiOwLfUxXcaXj51M/buMa32qwVHfen0NTKAlsLHQ
-	 P+3JEmHj6yBPrgdy2nETcbD+1ArglMUZLoqXcnCptK5j7ulCpHRSaGVfh+9TBKqFlyrkn
-	 NH/003ZNE3GM2OtBCFclF+a8OuOq5itQM0BG9Yyr6oezY46k8bd7Ya1KhIzHgCfpgIA==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=igalia.com;
-	spf=pass smtp.mailfrom=igalia.com;
-	dkim=pass header.d=igalia.com header.i=@igalia.com header.a=rsa-sha256 header.s=20170329 header.b="AB7itP/F";
-	arc=none smtp.remote-ip=213.97.179.56
-Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.180
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1792453624;
+	b=wUUJC/fbKN9664QVHpwv0/rAa758krm/xeaHxsAqKpY3WrH7ZrdHIEiK2KGJ/2UANOuH
+	 25pG2oGEP/Snz7nk3D9xuhJuN8gqBxaf8L/GVFW3Yi7V3/CXHxXtOZ0SfSBh8R3NSzI38
+	 h6GQCeRXVj8zva8Z2GHUIEScIeOLXfkxOhfgAhluxaApL5uIF1f2STM+Jem1GtTm3Yyf3
+	 zl3puQ3zTCPEhB2J3f1HKrb5MQecNNc/1IEfQ2Hb6421iK/u+L6haMppgAjqRdlajeax0
+	 f7rt41e8T3tnZywURYeGaMoCh8Fw9AdRKI1HwmcZON+/tAXBx/AxCdnHNUd3VYdXCvw==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792453624;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type;
+	bh=ypCU1E5MKpp7DyfKc2E/egobrXvy2R64su9DcxdosVA=;
+	b=ZPlcWfSGUNc+t6BUHEAA8wYwPSEXZyeikHPKrR57iEsDCpM5q06K2c8HEHzO5MTWKZMO
+	 T0HWaKViWrZqua+wpa7GTK6FLWBX7v5ubR/Dx1J3ZjcuF2TIoC3KqslPC9lz1Dzunbw9Q
+	 ultKsKgkEflSpdK1beLa8ElevZ1pqozhk44sb0C/wP8IT0A9OmRVNDWFc7c9cVmnqbix3
+	 Bdl+YO6q+zDDZbiIclS1yqMqpnXBc/guAr9fpjq/q4ACxfeCiRJ9R3kKPHYTYefAKrPdq
+	 8Td2crlcZd0kWTcFDET8jcdJvL0x5+NKGj2QsO9mgUMxD1djJjETMp9edlmO2ClieVQ==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=IpCAD0tC;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.180
+Received: from mail-lj1-f180.google.com (mail-lj1-f180.google.com [209.85.208.180])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32C1E606A324;
-	Mon, 19 Oct 2026 22:08:20 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 32C1E606A324
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igalia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E90CF606A319
+	for <virtualization@lists.linux.dev>; Mon, 19 Oct 2026 23:47:03 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E90CF606A319
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=igalia.com header.i=@igalia.com header.a=rsa-sha256 header.s=20170329 header.b=AB7itP/F
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
-	s=20170329; h=Content-Transfer-Encoding:Content-Type:From:Cc:To:Subject:
-	MIME-Version:Date:Message-ID:From:Reply-To;
-	bh=quSCbZZ7Mq3acy8cy5BNYZd6wRzHmwo845Fz4abnb/A=; b=AB7itP/Fnc1oPYnH5pd4YSH42o
-	2OY2m5EgkaQnfXK0/3PmNPIU1DjOHBAryL3MUewZ5eykRJ74om7LFh0usOxBn8u6osDqFIavDj7CQ
-	gx6WCXTpe6bnGYQ7zn6VVbcbGLvQC/BumAliiMSGK5a7baOU7JR13kmW2s/CyZej4JkN9LgFzL0ig
-	k0yoWzQcahjgjPUW76eQs8ofehz8dtgF8QC7mWzfdGwIPz4+tT+r1UcignhPisvESnru+Z2+izyVz
-	j6UNVO8oMNmimLr3j74WHCsE799kWxWjmKmxEz1rycK/5Sm+xDxAH1O/PDx5zXL8tfb33LoT/fHtc
-	C0M4XrmA==;
-Received: from [177.189.74.83] (helo=[192.168.15.93])
-	by fanzine2.igalia.com with esmtpsa 
-	(Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128) (Exim)
-	id 1xIvWX-003vJs-Sr; Tue, 20 Oct 2026 00:08:06 +0200
-Message-ID: <609273bd-83d2-7a58-7c88-7e4e01461c1a@igalia.com>
-Date: Mon, 19 Oct 2026 19:07:56 -0300
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=IpCAD0tC
+Received: by mail-lj1-f180.google.com with SMTP id 38308e7fff4ca-3ab46699a09so8281271fa.0
+        for <virtualization@lists.linux.dev>; Mon, 19 Oct 2026 16:47:03 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1792453622; cv=none;
+        d=google.com; s=arc-20260327;
+        b=haSC+neoTEL4DoikOO1IkyAAF6lWXRpv5Ryh3hBtn0GO7+SJ94r94g3DHMf8/3O+s7
+         Kte6UPh5EzmFBMrsxMN3Tppv+6MStsNMP89iZOL6BR6h7jjdGVo0M2uiKUFZ6gtAamEO
+         M4L+zERBLuE3LsKD2Yha07jFFLbUS7AOuC6hI4AXCy+fATMCBAMLDk3EJt6X+52l7aAX
+         xNWjSVVJW8N8OUkpnDeJUM3n/Ga+i0ACm8f/htpPfT9UCNNBEeA3em743UHDz2tjQ3ZY
+         ryAcdvjbN7DT7XI2eB3MSAkbIUumrs2cAapwqefu1V9bKWb8+pwPuk2ApW+ku9XlxjyK
+         lQQg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=ypCU1E5MKpp7DyfKc2E/egobrXvy2R64su9DcxdosVA=;
+        fh=xD6SFKOGkW0gPY8GvBGYuZCFStgBo/hHpIoSnWmZBno=;
+        b=ITqE9lTqulTRRT2skuAxvBscD3ta6ovyWmbr+KpaFzCWyrTh4gMksFixpwG86xocGU
+         +6QDTDSy0i6g+0+lEHdEqYzFiG4gC9X8sa9kI+THvoXYpqJcLW5HQCFllZWp0FFRbK7b
+         +T6KfCW6jrSXn3wzM1Qh8g/dvk1yU9eDuBcjJNV+DW9+ERs9SLAuBpgFEevbtBTh0U8v
+         VnMNKsOJw9ZA7PTXiJyNlGPNLfNToMohyjwhNHLBu4eLz4mnYRwJm+b4TATJRanz+C30
+         DHKpR42lWyN6qihrY5JiLBMSN1YqUAyfbeSUFmhhJEGUM+BlO2185KARnBkL79xgCQMo
+         CCLA==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1792453622; x=1793058422; darn=lists.linux.dev;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=ypCU1E5MKpp7DyfKc2E/egobrXvy2R64su9DcxdosVA=;
+        b=IpCAD0tCZz+6wJYSVqiCyWQ50QJY3K4V9T/0OXQSHDjVGwgq+9hdRQ+00gK1znJ7CY
+         ZXil4kGEI4YE0Cg3gTe82Ffkl9+ntfJDMbsQzTkb77ovjtArqthccfvsyJ+62i/7yJFQ
+         0DReVtyF/dgTBUmP2i3Be1RYU2JQwLYJARor6T+5LsJkeeRTNZJSehfRws04yvMmskJh
+         H9n3w1vKExp8M6nrzWfepxc5wEV1AcTk06qLx/0Z0x9LkFX4b4TY1p04DxknfZpNjuB0
+         SDIOB/o8t75qiM0X7cc2QqNg3edKoim/KLUMryQkzp3Xxb+hA5JQiyGjeeWH1slhCjJg
+         73FA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792453622; x=1793058422;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=ypCU1E5MKpp7DyfKc2E/egobrXvy2R64su9DcxdosVA=;
+        b=I1uXyaqhNidAik7VD5t8cGiidGXWzyaSenEiEHmM2DpecCC05wlbV2eCbHYq/glB9w
+         9zYnWVh1HDqcK0X292m7dEq6oEW0qShAtu575+G2UMK6Iwtb4xHrEUTuH+QDLNzf8b7q
+         w6/b3smyu2pGKfs1ih4Yi2B06ctmPXxDHAorN4T09go55FsNk+ssl+gh5EqVLuS3QVsd
+         7+gOeaBdcOLHKzt/uYEJZd3bupijxss7jYS8/oi0oADFOA16y9XCMPAcPHn6/ub9xfYu
+         oCKE7YqEeed8USc8goqZYYcgCVTM/UDkXAj7uh3p7knr7cy2UBQ7TX3o2g2foe1aCBrt
+         UOXg==
+X-Forwarded-Encrypted: i=1; AKwUvBz9wi44f5GZgZEH+ajVbAraxslEOquE/it7dHAuQBQib7+DfJvvHqlfULWe3yIr85zOKyrylo1xg+oSXIVItQ==@lists.linux.dev
+X-Gm-Message-State: AFq9FYJDMmJpEffY9CU/nTdipAJoJiul9k18ZFv50dNk9lYag8sbMQ/2
+	uJLAmGNgJZZHAnLlbbzT2GrqKo9UEZnNe5fHaYipopH4xloZY6FJax34vIBi5mv/2SneJheUl2p
+	Ol4rPXYBERX2YHgwxt1OmyQ/vpJO47gI=
+X-Gm-Gg: AYBFou2qW9ZDqUeLR5LQLkgImzhXhKzbqXFX77ZHuIq8YBwYqFo5opagDQRdKMjyB6U
+	QC76uF3ZuwhRH9vqaITOnJ3NPx2zCgtJsdvL7Nel6yM5hxsfHMHHmVK3JNTW1ry5f6xUHpPhrVU
+	avjQGJmdIVp/c5vOFDWnZvPvjSPL77y2+5Kb7PyR/OG/+ALegLbx8wYlVyXEkXFUfDu4T22YwzY
+	yfHBToti/+U2T6Fl5hPUqltWv+UJo6BVsUxOXA/q7DoFqc9sMpkRm2LGuV0lLeOApwWLK+RveHT
+	5TU2xSM+ffis3gYjwyhmU7UpR2WLJRSnuQYu4thKGzDn2MJAhnvszg==
+X-Received: by 2002:a05:651c:510:b0:3ab:2d74:71e with SMTP id
+ 38308e7fff4ca-3ab2d742b84mr17797071fa.10.1792453621900; Mon, 19 Oct 2026
+ 16:47:01 -0700 (PDT)
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -57,66 +102,33 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.15.1
-Subject: Re: [PATCH v2 3/6] panic: Allow postponing pre-kdump notifiers
-Content-Language: en-US
-To: Zack Rusin <zack.rusin@broadcom.com>
-Cc: Borislav Petkov <bp@alien8.de>, Ajay Kaher <ajay.kaher@broadcom.com>,
- Alexey Makhalov <alexey.makhalov@broadcom.com>, x86@kernel.org,
- Joel Granados <joel.granados@kernel.org>, Thomas Gleixner <tglx@kernel.org>,
- Ingo Molnar <mingo@redhat.com>, Pasha Tatashin <pasha.tatashin@soleen.com>,
- Baoquan He <baoquan.he@linux.dev>, Andrew Morton
- <akpm@linux-foundation.org>, Dave Hansen <dave.hansen@linux.intel.com>,
- "H. Peter Anvin" <hpa@zytor.com>, Dave Young <ruirui.yang@linux.dev>,
- Pratyush Yadav <pratyush@kernel.org>, virtualization@lists.linux.dev,
- bcm-kernel-feedback-list@broadcom.com, Mike Rapoport <rppt@kernel.org>,
- linux-kernel@vger.kernel.org, John Ogness <john.ogness@linutronix.de>,
- Steven Rostedt <rostedt@goodmis.org>,
- Sergey Senozhatsky <senozhatsky@chromium.org>, Kees Cook <kees@kernel.org>,
- Jonathan Corbet <corbet@lwn.net>, Bo Gan <bo.gan@broadcom.com>,
- Brennan Lamoreaux <brennan.lamoreaux@broadcom.com>,
- kexec@lists.infradead.org, linux-doc@vger.kernel.org,
- Maaz Mombasawala <maaz.mombasawala@broadcom.com>,
- Shuah Khan <skhan@linuxfoundation.org>, Randy Dunlap
- <rdunlap@infradead.org>, Stephen Brennan <stephen.s.brennan@oracle.com>,
- Michael Kelley <mhklinux@outlook.com>, Ian Forbes <ian.forbes@broadcom.com>,
- Petr Mladek <pmladek@suse.com>
-References: <cover.1790014793.git.zack.rusin@broadcom.com>
- <52183acf25209275a9a57fe5d746f82d3b7efc3c.1790014793.git.zack.rusin@broadcom.com>
-From: "Guilherme G. Piccoli" <gpiccoli@igalia.com>
-In-Reply-To: <52183acf25209275a9a57fe5d746f82d3b7efc3c.1790014793.git.zack.rusin@broadcom.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+References: <20261016023521.747447-1-oss.patchbox@gmail.com> <25a35fa8-9540-4892-8375-1788e6795dfb@kernel.org>
+In-Reply-To: <25a35fa8-9540-4892-8375-1788e6795dfb@kernel.org>
+From: Yuho Choi <oss.patchbox@gmail.com>
+Date: Mon, 19 Oct 2026 19:46:50 -0400
+X-Gm-Features: AclHuK-d2lDGIbO0nMDnG4pSmt2gfW-rFmLHGdUc2vgLpFp-z405iCYiTrPxDos
+Message-ID: <CAGG=RgDUFpDqtbws4YO4T8A3pS4Dr9twVqP9hSD3J_zP5Dc_mQ@mail.gmail.com>
+Subject: Re: [PATCH v1] virtio-mem: only mark the device ready in kdump mode
+ with vmcore support
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev, 
+	linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On 28/09/2026 14:55, Zack Rusin wrote:
-> Provide an escape hatch for debugging kdump failures that may involve
-> pre-kdump callbacks. Add panic_pre_kdump_postpone to skip their early
-> invocation in crash core without consuming the once-only guard.
-> 
-> When enabled, the chain runs before kdump only when
-> crash_kexec_post_notifiers is also enabled. Leave the late panic call
-> unchanged so callbacks remain eligible if that path is reached.
-> Skipping the callbacks may prevent hypervisor crash handling.
-> 
-> Suggested-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
-> Link: https://lore.kernel.org/r/bc0bdd14-5e6a-0676-cd04-14fb0bb93cd5@igalia.com
-> Signed-off-by: Zack Rusin <zack.rusin@broadcom.com>
-> ---
-> New in v2: optional postponement policy suggested by Guilherme.
-> 
->  Documentation/admin-guide/kernel-parameters.txt | 14 ++++++++++++++
->  include/linux/panic_notifier.h                  |  1 +
->  kernel/crash_core.c                             |  3 ++-
->  kernel/panic.c                                  |  2 ++
->  4 files changed, 19 insertions(+), 1 deletion(-)
-> 
+On Mon, 19 Oct 2026 at 09:05, David Hildenbrand (Arm) <david@kernel.org> wrote:
+>
+> Which kdump kernel exists that does not enable CONFIG_PROC_VMCORE?
+>
+> IOW, why should this be stable material?
 
-Thanks for implementing this! It makes sense to me...though I have some
-"conflicting" comments in patch #2 heh
+I tagged it because a9403425b3cf has been in releases since v6.14 and
+PROC_VMCORE can still be turned off with CRASH_DUMP enabled, so the
+-EBUSY path is reachable in a valid configuration. But as no practical
+kdump kernel disables it, I'll drop the Cc: stable in v2.
 
-Cheers,
+> LGTM, but I am pretty sure it does not make any difference in practice?
 
-
-Guilherme
-
+Right, nothing is queued on that path, so the device has nothing to
+access.
