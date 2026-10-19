@@ -1,59 +1,53 @@
-Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.3])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75C9F49B44E
-	for <virtualization@lists.linux.dev>; Mon, 19 Oct 2026 08:43:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.3
+Received: from cmccmta8.chinamobile.com (cmccmta8.chinamobile.com [111.22.67.151])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 607B6495050
+	for <virtualization@lists.linux.dev>; Mon, 19 Oct 2026 08:44:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=111.22.67.151
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792399396; cv=none; b=ogTwDeoGFNhD4/qMp7ZmhAZnAuQaBKTs5XhbQ5sgsdLaWwqyYcgOpaaCQpZffLe7BnnAajNSv61alijsmGsum2EhEVRO9HpI6TqybA+NTdzsUBvnFkyMO0oRKBBpfI5OPv2fYwLFDV1oEJPWDN+42keulOr2otu7f7bhdpSUd/o=
+	t=1792399471; cv=none; b=POu0Uh3FOd1MDFyZ6kntvpa86KqpOTq/qASLuDJGAIR1pavYiTc79JxdEYLZ6IL377kmuokHmwJCZAdhPf6lav2RAlLYdrkKDWkUGh9Qq2NCHut9vQCV0fSF/0JhDxgqDiYa1WRJq6npqfAunYLxJrLMimNtk9dbX+j3AidoMmE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792399396; c=relaxed/simple;
-	bh=wXweUhgcBOLBorS8EuIE1GKRjd1xEwrZr0imlei1aiQ=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=E/TPlOPIHEPnSG//+l5F0l45C4CGUoOXQFt1arbum2LQ+Vb+Uq/rT1T6OSX+LXXNu4cadauKN7pgLk1PU7mqKlrbJBbWeTJQOrtFRvNbupnatf7tgYBpJsKEbJRzDqupOlC2JQ+01CTB69Ed9bJM1s4re0briH/bn6YPMXc/yr8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=AzdtfAe5; arc=none smtp.client-ip=117.135.210.3
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1792399471; c=relaxed/simple;
+	bh=EA76ET62JnenE/RKX7QB/vXJdC4AruFANCBQI5IiN2M=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=VDMlbbD+udfVq9FrWLOefoOKgCYR9aOuwe2AVNQGg3oK5mE0WB2US9gMJjEYwkva8ul9+BpKd+CJGItPDsIuI57JwZ9IQusX6QqlSv+ar3vzg89sDBFQYqCZY6i/ri9c2qrxSRAeEUaMu3x7vbqpToOiv083JILCEkyVyA2DbnM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cmss.chinamobile.com; spf=pass smtp.mailfrom=cmss.chinamobile.com; dkim=pass (1024-bit key) header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.b=cRb5QN4k; arc=none smtp.client-ip=111.22.67.151
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cmss.chinamobile.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cmss.chinamobile.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="AzdtfAe5"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=ig
-	E/kEh0g7gFKv5PAwWV/CKHlROUnBFZYW4mh6vr2N4=; b=AzdtfAe5zCDyzRWfoy
-	A8T89jA2HQr8wbyEZdpPqe/doMfmtb9xr4UUbuMykAvVfcCXOEvfuLObr+ILhobp
-	Zk9lujS6CP6KKg9YJeEC9+/DkFLfwCNo35LZ4C+rU2LMSgHi93QP73mb3EnU+Q0I
-	PChWPOT8P+Ax5fzR8RSis8rNA=
-Received: from pc.localdomain (unknown [])
-	by gzga-smtp-mtada-g1-4 (Coremail) with SMTP id _____wDnt9ng19VqcQOlAw--.9091S2;
-	Mon, 19 Oct 2026 16:42:10 +0800 (CST)
-From: Jiale Yao <yaojiale02@163.com>
-To: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	David Airlie <airlied@gmail.com>,
-	Simona Vetter <simona@ffwll.ch>,
-	Lyude Paul <lyude@redhat.com>,
-	Danilo Krummrich <dakr@kernel.org>,
-	Dave Airlie <airlied@redhat.com>,
-	Gerd Hoffmann <kraxel@redhat.com>,
-	Alex Deucher <alexander.deucher@amd.com>,
-	=?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-	Huang Rui <ray.huang@amd.com>,
-	Matthew Auld <matthew.auld@intel.com>,
-	Matthew Brost <matthew.brost@intel.com>,
-	Zack Rusin <zack.rusin@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Ben Skeggs <bskeggs@redhat.com>,
-	David Rheinsberg <david@readahead.eu>,
-	dri-devel@lists.freedesktop.org,
-	linux-kernel@vger.kernel.org,
-	nouveau@lists.freedesktop.org,
+	dkim=pass (1024-bit key) header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.b="cRb5QN4k"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cmss.chinamobile.com; s=default; l=0;
+	h=from:subject:message-id:to:cc:mime-version;
+	bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
+	b=cRb5QN4kU5i/PAQHSrM7ZmaFbyZjrV92bqt8wAo8yqreQtaz59dDrctKvRoEGIT4k3/P9VsnodNIT
+	 LfY43ypiNBX2tGWyz3dbvP5B8U2YoFhPDAi1vXyDQhm/oo7n8cn8Ac8k+bLfMNrlpQ9FyyLK6c/WBX
+	 BdUcYhCOMHcYMQC4=
+X-RM-TagInfo: emlType=0                                       
+X-RM-SPAM-FLAG:00000000
+Received:from spf.mail.chinamobile.com (unknown[10.188.0.87])
+	by rmmx-syy-dmz-app06-12006 (RichMail) with SMTP id 2ee66ad5d85f07d-ddbc5;
+	Mon, 19 Oct 2026 16:44:18 +0800 (CST)
+X-RM-TRANSID:2ee66ad5d85f07d-ddbc5
+X-RM-TagInfo: emlType=0                                       
+X-RM-SPAM-FLAG:00000000
+Received:from desktop-c950f82eaac8410e-20260515094303939 (unknown[10.55.1.71])
+	by rmsmtp-syy-appsvr10-12010 (RichMail) with SMTP id 2eea6ad5d85e1b6-9fbc7;
+	Mon, 19 Oct 2026 16:44:18 +0800 (CST)
+X-RM-TRANSID:2eea6ad5d85e1b6-9fbc7
+From: Mingbing Zhai <zhaimingbing@cmss.chinamobile.com>
+To: mst@redhat.com,
+	david@kernel.org
+Cc: jasowangio@gmail.com,
+	eperezma@redhat.com,
+	xuanzhuo@linux.alibaba.com,
 	virtualization@lists.linux.dev,
-	spice-devel@lists.freedesktop.org,
-	amd-gfx@lists.freedesktop.org
-Cc: Jiale Yao <yaojiale02@163.com>
-Subject: [PATCH 0/6] drm: reject empty TTM range manager sizes
-Date: Mon, 19 Oct 2026 16:41:32 +0800
-Message-Id: <20261019084138.1821477-1-yaojiale02@163.com>
-X-Mailer: git-send-email 2.34.1
+	linux-kernel@vger.kernel.org,
+	syzbot+0f659760bac1ecb01812@syzkaller.appspotmail.com,
+	syzkaller-bugs@googlegroups.com,
+	stable@vger.kernel.org,
+	Mingbing Zhai <zhaimingbing@cmss.chinamobile.com>
+Subject: [PATCH] virtio_balloon: drain update works on probe error paths
+Date: Mon, 19 Oct 2026 16:44:06 +0800
+Message-ID: <20261019084406.162-1-zhaimingbing@cmss.chinamobile.com>
+X-Mailer: git-send-email 2.53.0.windows.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -61,40 +55,77 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:_____wDnt9ng19VqcQOlAw--.9091S2
-X-Coremail-Antispam: 1Uf129KBjvdXoW7GrWkAFWUGFW8GFyfAw4rGrg_yoWkArb_u3
-	40vas7Wr1UGrnxXF4Iyr47Ar12ka1UuayDZwnFv3y3Ary3Xr1UX348Gr93Ww18C3Z8KFn0
-	krnYqw1YyrnIkjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-	9fnUUvcSsGvfC2KfnxnUUI43ZEXa7sRt9a97UUUUU==
-X-CM-SenderInfo: x1dryxhdohiji6rwjhhfrp/xtbC7wM+eGrV1+M2UQAA3G
 
-drm_mm_init() rejects a zero-length allocation range with a BUG check.
-Several DRM TTM users can derive a zero page count from device-provided
-VRAM metadata and pass it to the range manager.
+init_vqs() arms the stats virtqueue callback, so an update work can
+already be queued on the system freezable workqueue while
+virtballoon_probe() is still running.  If a later probe step fails, the
+error unwind deletes the virtqueues and frees vb without stopping the
+works, and the queued work runs after the balloon struct is gone:
 
-This series rejects empty ranges at the affected callers and adds a
-defensive check in the common range manager. Patches 1 through 4 and
-6 validate the individual driver inputs. Patch 5 protects the shared
-range-manager API against any remaining zero-page caller.
+  BUG: KFENCE: use-after-free read in virtqueue_get_buf_ctx
+   update_balloon_stats_func+0x121/0x300
+   Workqueue: events_freezable update_balloon_stats_func
 
-The series was checked with scripts/checkpatch.pl for every code patch.
+remove() already handles this via virtballoon_quiesce().  Factor the
+stopping of the update works out of it and run it on the probe error
+path as well, before the queues and vb go away.
 
-Jiale Yao (6):
-  drm/vram-helper: reject empty VRAM ranges
-  drm/nouveau: reject empty VRAM ranges
-  drm/qxl: reject empty TTM memory ranges
-  drm/radeon: reject empty VRAM ranges
-  drm/ttm: reject empty range manager sizes
-  drm/vmwgfx: reject empty VRAM ranges
+Fixes: 1f34c71afe51 ("virtio: Fix scheduling while atomic in virtio_balloon stats")
+Reported-by: syzbot+0f659760bac1ecb01812@syzkaller.appspotmail.com
+Closes: https://syzkaller.appspot.com/bug?extid=0f659760bac1ecb01812
+Signed-off-by: Mingbing Zhai <zhaimingbing@cmss.chinamobile.com>
+---
+ drivers/virtio/virtio_balloon.c | 17 ++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
- drivers/gpu/drm/drm_gem_vram_helper.c   | 3 +++
- drivers/gpu/drm/nouveau/nouveau_ttm.c   | 3 +++
- drivers/gpu/drm/qxl/qxl_ttm.c           | 3 +++
- drivers/gpu/drm/radeon/radeon_ttm.c     | 3 +++
- drivers/gpu/drm/ttm/ttm_range_manager.c | 3 +++
- drivers/gpu/drm/vmwgfx/vmwgfx_drv.c     | 4 ++++
- 6 files changed, 19 insertions(+)
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -554,6 +554,17 @@ static void update_balloon_stats_func(struct work_struct *work)
+ 	finish_wakeup_event(vb);
+ }
 
--- 
-2.34.1
++/* Stop queueing of and drain any pending balloon update works. */
++static void virtballoon_stop_updates(struct virtio_balloon *vb)
++{
++	spin_lock_irq(&vb->stop_update_lock);
++	vb->stop_update = true;
++	spin_unlock_irq(&vb->stop_update_lock);
++
++	cancel_work_sync(&vb->update_balloon_size_work);
++	cancel_work_sync(&vb->update_balloon_stats_work);
++}
++
+ static void update_balloon_size_func(struct work_struct *work)
+ {
+ 	struct virtio_balloon *vb;
+@@ -1076,6 +1087,12 @@ static int virtballoon_probe(struct virtio_device *vdev)
+ 	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
+ 		destroy_workqueue(vb->balloon_wq);
+ out_del_vqs:
++	/*
++	 * init_vqs() arms the stats virtqueue callback and primes the
++	 * queue, so an update work may already be pending: stop queueing
++	 * and drain it before the virtqueues and vb go away.
++	 */
++	virtballoon_stop_updates(vb);
+ 	vdev->config->del_vqs(vdev);
+ out_free_vb:
+ 	mutex_destroy(&vb->balloon_lock);
+@@ -1116,11 +1133,7 @@ static void virtballoon_quiesce(struct virtio_balloon *vb)
+ 	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
+ 		virtio_balloon_unregister_shrinker(vb);
+
+-	spin_lock_irq(&vb->stop_update_lock);
+-	vb->stop_update = true;
+-	spin_unlock_irq(&vb->stop_update_lock);
+-	cancel_work_sync(&vb->update_balloon_size_work);
+-	cancel_work_sync(&vb->update_balloon_stats_work);
++	virtballoon_stop_updates(vb);
+
+ 	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
+ 		cancel_work_sync(&vb->report_free_page_work);
+--
+2.47.0
+
 
