@@ -1,44 +1,50 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6000657DF37;
-	Mon, 19 Oct 2026 13:58:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A64DE5960B2;
+	Mon, 19 Oct 2026 13:59:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792418316; cv=none; b=I8fVJR76ygQRFzyfo53MOo4TyxCUezXj3q1RgguzALz8L2ra6gYWTeB13YVFrMv3gzKbtg8zq4rP/wUyQ16ATV3PwQ1n5wGbGLUXvcrVXPaRFQ+xkRrLQjNPk9fNdEVsQZKvj5/AvVEPy3po8d/BoFHZC7OlQoXncOrk8mwJz/o=
+	t=1792418344; cv=none; b=gCHr7kDAA+cIWwsdsYPgA3isXxk+Z6jrqRnwNSyfpZmXc756UwJhEy0S6V8pqUMiEsprJ97W1gLvPESHFHQoSg+AcCo86xbVsN93e20suVYo0T49z32/HtxCQm92KW6seYYopyEg++p+AS0NaQ9P9b3JFW4RAmozgKibIM80b8E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792418316; c=relaxed/simple;
-	bh=3x91CE8kXBoAW2q2NqNwulyU8jH32SmJ80oWoUgPHdY=;
+	s=arc-20240116; t=1792418344; c=relaxed/simple;
+	bh=Em+p1aCLuTydphUsb895XKAldfpdFX15ZxcAfUunYFY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=H38UW04owc3s43t6teDJSccScIYm0/cde64qQ1c9gsDM77QN+nmHv0uMa33+LCzbMx3Ym36VhPGjsfjmUSR7Zo4hGIaL/7Xtv1rjIZ1l+eM9+b8Srw7C9Ypld5IUEJ+vLc/1nZ/dxiDgb4sZ5nQZdHcKM/nh+zdBBt3+xvglly0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aWYUOgmR; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=t7jcULnu2OYoKijfFOf6ZxocWiV/DS5tNHU/aK9CuWDU51c9V3mi8WXvB1OybKralex7R58xzTmxqXphgCW5DuRfGTNFfjPbXPsZPAhA5OEZuHT4quBDOYp1ziCec2E542hzuxLXmgctFC7iLEUucLPY+3tzqw1JZSN8vlyMVGA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LOln+WWR; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aWYUOgmR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A9F81F000C9;
-	Mon, 19 Oct 2026 13:58:32 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LOln+WWR"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F1AE1F000C4;
+	Mon, 19 Oct 2026 13:59:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792418313;
-	bh=IFJLhZd7yDmRR51EKDyr6ZIn8xIWLMqCxDkGS5Xyc/A=;
+	s=k20260515; t=1792418342;
+	bh=sumvp7u+FhaLjUIiSX0AB5EXKDXdwxL7Gk14bIE++bg=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=aWYUOgmRP3ZqP6m+mSdcOdJ2RA9bRCGJ1ZASfhfoUz5PI6/n40cb9QXwIdv58/SPX
-	 Sfs8924HMkY4YT+dpFxXjWGwiYrrc4o4Z8KWN+N6KC0nI9e4uWzM6HmnOcF8vq7OUy
-	 yMj0ybmZoTuv7JVBPUKbk6SSiWwUGIT1/8ZguDyx7a/UFcqr1K9o3NddrUMIsFypK8
-	 o+DAeZLhCiQ4+BjyaCg51698rF26vzmujGIOmNalEN4LLhddiCTQWhZOXeyV3HFjMR
-	 y5UJVbgW9glmz4DNMctC/oKdqeI3KgBcwZNPJ0LXESOm25oUEU+1vfjpwJjzF3gDXH
-	 JCLEQcUOD7xTw==
+	b=LOln+WWRaMfbvHmBkqe5kUc1zQz28ZiFDQofkNoPBCMrVQCmA5jXTxcYv1J4nTeHb
+	 yEv6MjPSgfmTKDGOYXjSe0H+q2+21l9uJKpjvbwxblRpSC+OLyii0QneY92F+sVNCv
+	 bgkCIooFK1AkOO4IHmvGG8nvbcLRGDlyBD+TK0CBF4xiCtO/mNBhrmwto6E9MQXR4n
+	 Hb9kuML5VhRAkXkOw8i1xbnC4NYbUeIoPV295DCmsZtKTYickiRmFqnBKDmt6VpRPF
+	 nMmDrYl9jTNO1PQrL5OxtDrjBAVvbOnb+5D5Ikr5ddkN21fuGVOn9eQROwmoG0HRR1
+	 CwyZlHW4UxqOg==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Cc: Xiong Weimin <xiongweimin@kylinos.cn>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
+Cc: Anuj Bolewar <bolewara@gmail.com>,
+	syzbot+06f9b2a53ba4a5a47644@syzkaller.appspotmail.com,
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
 	Sasha Levin <sashal@kernel.org>,
-	jasowangio@gmail.com,
-	eperezma@redhat.com,
+	airlied@redhat.com,
+	kraxel@redhat.com,
+	maarten.lankhorst@linux.intel.com,
+	mripard@kernel.org,
+	tzimmermann@suse.de,
+	simona@ffwll.ch,
+	dri-devel@lists.freedesktop.org,
 	virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.18-6.6] vdpa_sim: hold iommu_lock across dma_unmap passthrough transition
-Date: Mon, 19 Oct 2026 09:47:30 -0400
-Message-ID: <20261019135441.1420968-159-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.18-6.1] drm/virtio: reclaim pending vbufs before tearing down vqs
+Date: Mon, 19 Oct 2026 09:47:50 -0400
+Message-ID: <20261019135441.1420968-179-sashal@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261019135441.1420968-1-sashal@kernel.org>
 References: <20261019135441.1420968-1-sashal@kernel.org>
@@ -54,36 +60,43 @@ X-stable-base: Linux 6.18.57
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Xiong Weimin <xiongweimin@kylinos.cn>
+From: Anuj Bolewar <bolewara@gmail.com>
 
-[ Upstream commit 7b411448c668bfab0d0e572cee5a592cea396ce7 ]
+[ Upstream commit 61d85f99b5a55d4f717c4bb2f4c4acabf22ee3fc ]
 
-vdpasim_dma_map() updates the IOTLB and the passthrough (iommu_pt)
-state under iommu_lock.  vdpasim_dma_unmap() clears iommu_pt and
-resets the IOTLB before taking iommu_lock, then deletes the mapping
-while holding the lock.
+virtio_gpu_free_vbufs() destroys the vbufs kmem_cache after the virtqueues
+have already been released. Commands that were queued but never completed
+by the device leave their vbuffers stranded in the virtqueue, so the cache
+still holds live objects when virtio_gpu_deinit() tears everything down.
+This triggers a WARNING in virtio_gpu_free_vbufs:
 
-A concurrent dma_map(), dma_unmap(), or reset path that also touches
-the same address space can therefore observe or modify the IOTLB and
-iommu_pt state without consistent locking.
+    BUG virtio-gpu-vbufs (Not tainted): Objects remaining in cache
+    on __kmem_cache_shutdown()
 
-Perform the passthrough transition and range deletion under the same
-iommu_lock scope, matching dma_map().
+Drain any buffers still sitting in the control and cursor virtqueues in
+virtio_gpu_deinit() after the device has been reset and before the
+virtqueues are deleted, following the same pattern used by virtio_console's
+remove_vqs(). Each reclaimed buffer is released with free_vbuf(), dropping
+the reference on any GEM objects it holds. Pending RESOURCE_UNREF
+commands are handled as well: their resp_cb_data still references a GEM
+object, so it is cleaned up with virtio_gpu_cleanup_object() to avoid
+leaking it on teardown.
 
-Tested-on: openEuler VM (6.16.8, /usr/src/linux-6.16.8)
-Tested-by: Xiong Weimin <xiongweimin@kylinos.cn>
-
-Signed-off-by: Xiong Weimin <xiongweimin@kylinos.cn>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Message-ID: <20260626020545.607600-3-15927021679@163.com>
+Reported-by: syzbot+06f9b2a53ba4a5a47644@syzkaller.appspotmail.com
+Closes: https://syzkaller.appspot.com/bug?extid=06f9b2a53ba4a5a47644
+Signed-off-by: Anuj Bolewar <bolewara@gmail.com>
+Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Link: https://patch.msgid.link/20260802-virtio-gpu-reclaim-vbufs-v2-1-5767fb860691@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
 
 LLM Generated explanations, may be completely bogus:
 
-I have enough to judge this for 6.12: the buggy unlocked `dma_unmap`
-path is present, the race with the simulator datapath is real, and the
-fix is a one-lock-move. Compiling the nine-phase analysis next.
+# Stable backport analysis: `drm/virtio: reclaim pending vbufs before
+tearing down vqs`
+
+Local tree: **6.12.111** (`p-6.12-3-gc504cf0baa3d8`). Verdict is for
+this checkout only.
 
 ---
 
@@ -91,136 +104,99 @@ fix is a one-lock-move. Compiling the nine-phase analysis next.
 
 **Step 1.1: PARSE THE SUBJECT LINE**
 
-Record: **[vdpa_sim] [hold] [take `iommu_lock` for the full `dma_unmap`
-passthrough-to-custom IOTLB transition]**
-
-- Subsystem: `vdpa_sim` (vDPA device simulator)
-- Verb: “hold” — locking/correctness, not a feature
-- Intent: make `vdpasim_dma_unmap()` lock the same way
-  `vdpasim_dma_map()` already does
+Record: `[drm/virtio] [reclaim] [drain leftover virtqueue buffers before
+destroying vbufs cache]`
 
 **Step 1.2: PARSE ALL COMMIT MESSAGE TAGS**
 
 Record:
-- **Tested-on:** openEuler VM (6.16.8, `/usr/src/linux-6.16.8`)
-- **Tested-by:** Xiong Weimin `<xiongweimin@kylinos.cn>` (author; not
-  independent)
-- **Signed-off-by:** Xiong Weimin `<xiongweimin@kylinos.cn>` (author)
-- **Signed-off-by:** Michael S. Tsirkin `<mst@redhat.com>` (vhost/vdpa
-  maintainer; applied the patch)
-- **Message-ID:** `<20260626020545.607600-3-15927021679@163.com>`
-
-Absent (expected for this review pipeline, not a negative):
-- No `Fixes:`
-- No `Cc: stable@vger.kernel.org`
-- No `Reported-by:` / syzbot
-- No `Reviewed-by:` / `Acked-by:`
-- No `Link:`
-
-Ignored per instructions: any `[Upstream commit …]` / `Signed-off-by:
-Sasha Levin` pipeline markers.
+- `Reported-by: syzbot+06f9b2a53ba4a5a47644@syzkaller.appspotmail.com` —
+  fuzzer-found, reproducible
+- `Closes: https://syzkaller.appspot.com/bug?extid=06f9b2a53ba4a5a47644`
+- `Signed-off-by: Anuj Bolewar <bolewara@gmail.com>` (author)
+- `Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>`
+  (virtio-gpu maintainer)
+- `Link: https://patch.msgid.link/20260802-virtio-gpu-reclaim-
+  vbufs-v2-1-5767fb860691@gmail.com`
+- No `Fixes:` tag (expected for this review pipeline)
+- Ignore pipeline `Signed-off-by: Sasha Levin` / `[Upstream commit ...]`
+  if present
 
 **Step 1.3: ANALYZE THE COMMIT BODY TEXT**
 
 Record:
-- **Bug:** `vdpasim_dma_map()` updates IOTLB + `iommu_pt` under
-  `iommu_lock`. `vdpasim_dma_unmap()` clears `iommu_pt` and calls
-  `vhost_iotlb_reset()` *before* taking the lock, then deletes the range
-  under the lock.
-- **Symptom / failure mode:** concurrent `dma_map` / `dma_unmap` / reset
-  can observe or mutate IOTLB and `iommu_pt` without consistent locking.
-  That is interval-tree mutation vs walk → corruption / UAF / crash, not
-  a log-only issue.
-- **Version info:** tested on 6.16.8; no “introduced in vX” text. The
-  buggy passthrough logic is from v6.3 (see Phase 3).
-- **Root cause (author):** passthrough-exit in `dma_unmap` is outside
-  the lock that `dma_map` already uses.
+- **Bug:** `virtio_gpu_free_vbufs()` calls `kmem_cache_destroy()` after
+  VQs are already deleted. In-flight commands stay attached to the
+  virtqueue, so the `virtio-gpu-vbufs` cache still has live objects.
+- **Symptom:** SLUB `BUG virtio-gpu-vbufs: Objects remaining on
+  __kmem_cache_shutdown()` plus `WARNING` in `virtio_gpu_free_vbufs` /
+  `kmem_cache_destroy`, on device removal.
+- **Root cause:** `virtio_gpu_deinit()` does `virtio_reset_device()`
+  then `del_vqs()` without draining unused buffers.
+- **Fix:** After reset, before `del_vqs()`, detach leftover buffers
+  (same idea as `virtio_console` `remove_vqs()`), `free_vbuf()` them,
+  drop GEM arrays, and `virtio_gpu_cleanup_object()` pending
+  `RESOURCE_UNREF` GEM objects.
+- **Version info:** none in the message; code has been this way for
+  years.
 
 **Step 1.4: DETECT HIDDEN BUG FIXES**
 
-Record: **Not disguised.** This is an explicit locking/race fix. Subject
-uses “hold … across”, body describes a concurrent IOTLB/`iommu_pt`
-inconsistency. Hidden-fix heuristics are N/A.
+Record: Not hidden. Explicit leak/WARNING fix on teardown. v2 also
+closes a GEM leak for stranded `RESOURCE_UNREF` commands.
 
 ---
 
-## PHASE 2: DIFF ANALYSIS - LINE BY LINE
+## PHASE 2: DIFF ANALYSIS
 
 **Step 2.1: INVENTORY THE CHANGES**
 
 Record:
-- **File:** `drivers/vdpa/vdpa_sim/vdpa_sim.c` only
-- **Scope:** ~1 insertion, ~2 deletions (move `spin_lock` up, drop a
-  blank line)
-- **Function:** `vdpasim_dma_unmap()`
-- **Classification:** single-file surgical locking fix
+- `drivers/gpu/drm/virtio/virtgpu_drv.h`: +1 declaration
+- `drivers/gpu/drm/virtio/virtgpu_kms.c`: +1 call in
+  `virtio_gpu_deinit()`
+- `drivers/gpu/drm/virtio/virtgpu_vq.c`: +15, new
+  `virtio_gpu_reclaim_vbufs()`
+- **Total: +17 / −0.** Single-subsystem surgical fix.
 
 **Step 2.2: UNDERSTAND THE CODE FLOW CHANGE**
 
-Record — this tree today (`vdpasim_dma_unmap`):
-
-```725:743:drivers/vdpa/vdpa_sim/vdpa_sim.c
-static int vdpasim_dma_unmap(struct vdpa_device *vdpa, unsigned int
-asid,
-                             u64 iova, u64 size)
-{
-        struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
-
-        if (asid >= vdpasim->dev_attr.nas)
-                return -EINVAL;
-
-        if (vdpasim->iommu_pt[asid]) {
-                vhost_iotlb_reset(&vdpasim->iommu[asid]);
-                vdpasim->iommu_pt[asid] = false;
-        }
-
-        spin_lock(&vdpasim->iommu_lock);
-        vhost_iotlb_del_range(&vdpasim->iommu[asid], iova, iova + size -
-1);
-        spin_unlock(&vdpasim->iommu_lock);
-
-        return 0;
-}
-```
-
-- **Before:** if still in passthrough (`iommu_pt[asid]`), reset the
-  whole IOTLB interval tree and clear `iommu_pt` with **no lock**; then
-  take `iommu_lock` only for `vhost_iotlb_del_range()`.
-- **After:** one `spin_lock` covers passthrough-exit
-  (`vhost_iotlb_reset` + `iommu_pt = false`) **and**
-  `vhost_iotlb_del_range()`, then unlock. Same shape as
-  `vdpasim_dma_map()`.
-- **Path:** vhost-vdpa IOTLB invalidate / AS teardown
-  (`ops->dma_unmap`), not probe init.
+Record:
+- **Before:** `virtio_gpu_deinit()` flushes work, resets the device,
+  deletes VQs. Later `virtio_gpu_release()` → `virtio_gpu_free_vbufs()`
+  → `kmem_cache_destroy(vgdev->vbufs)` with any still-queued `vbuffer`s
+  live.
+- **After:** Same sequence, plus `virtio_gpu_reclaim_vbufs()` between
+  reset and `del_vqs()`. Control queue: detach unused bufs, put GEM
+  arrays, cleanup `resp_cb_data`, `free_vbuf()`. Cursor queue: detach
+  and `free_vbuf()`.
+- Path: device removal / unbind / probe-fail after successful
+  `virtio_gpu_init()`.
 
 **Step 2.3: IDENTIFY THE BUG MECHANISM**
 
-Record: **[Synchronization / race] [IOTLB interval tree and `iommu_pt`
-mutated without `iommu_lock`]**
-
-`vhost_iotlb_reset()` is `vhost_iotlb_del_range(iotlb, 0, ~0ULL)` — it
-walks and frees the rbtree (`drivers/vhost/iotlb.c`). The datapath walks
-that tree under `iommu_lock` via `iotlb_translate()` in
-`drivers/vhost/vringh.c` (`spin_lock(vrh->iotlb_lock)` then
-`vhost_iotlb_itree_first()`).
-
-Unlocked reset vs locked walk is concurrent rbtree mutation → UAF /
-corruption / oops.
-
-Same lock is used by `vdpasim_dma_map()`, `vdpasim_set_map()`,
-`vdpasim_reset_map()`, and `vdpasim_do_reset()`.
+Record:
+- **Category:** resource leak + teardown WARNING (stranded slab objects;
+  GEM refs left held).
+- **Mechanism:** `virtqueue_detach_unused_buf()` after reset, then
+  existing `free_vbuf()` / `virtio_gpu_array_put_free()` /
+  `virtio_gpu_cleanup_object()`.
+- In this tree `resp_cb_data` is only set in
+  `virtio_gpu_cmd_unref_resource()` to a `struct virtio_gpu_object *`,
+  so the extra cleanup is specific and correct here.
 
 **Step 2.4: ASSESS THE FIX QUALITY**
 
 Record:
-- **Quality:** obviously correct. It only moves an existing `spin_lock`
-  so the passthrough block matches `dma_map`. No new APIs, no new state.
-- **Regression risk:** very low. Same lock already used on the sibling
-  path; no lock-order change vs `vdpasim->mutex` (unmap still does not
-  take that mutex). No new sleep under spinlock
-  (`vhost_iotlb_reset`/`del_range` are tree ops).
-- **Red flags:** none. Independent of series patch 1/2 (`pending_kick`);
-  cover letter calls them independent.
+- Obviously correct: documented virtio shutdown helper; same pattern as
+  `virtio_console`.
+- Minimal; no API/feature additions.
+- Regression risk is low. After `drm_dev_unplug()`, `drm_dev_enter()`
+  fails, so `array_put_free()` → last GEM put →
+  `virtio_gpu_cmd_unref_resource()` takes the existing `-ENODEV` path
+  (`free_vbuf` + `virtio_gpu_cleanup_object`) instead of re-queuing.
+  Both VQs are always created in `virtio_gpu_init()`
+  (`vqs[0]`/`vqs[1]`), so no NULL `cursorq.vq` on the deinit path.
 
 ---
 
@@ -229,46 +205,35 @@ Record:
 **Step 3.1: BLAME THE CHANGED LINES**
 
 Record:
-- Unlocked `iommu_pt` / `vhost_iotlb_reset` in `dma_unmap`:
-  **`6c3d329e6486dd`** — `vdpa_sim: get rid of DMA ops` (Jason Wang,
-  committed 2023-02-20).
-- First in **v6.3-rc1** (`git describe --contains` →
-  `v6.3-rc1~84^2~23`).
-- `spin_lock` around `del_range`: **`0ea9ee430e74b1`** (Max Gurtovoy,
-  2020).
-- Present in this 6.12 tree for the whole lifetime of 6.12.y.
+- `virtio_gpu_free_vbufs()` / `kmem_cache_destroy`: `f5985bf9cadd4e`
+  (Gerd Hoffmann, 2017-03-01, “drm: virtio: use kmem_cache”) — ancestor
+  of this HEAD.
+- `virtio_gpu_deinit()` body: `dc5698e80cf724` (Dave Airlie, 2013) plus
+  later `virtio_reset_device()` (`d9679d0013a668`, 2021).
+- Bug is old; present throughout 6.12.y.
 
 **Step 3.2: FOLLOW THE FIXES: TAG**
 
-Record: **No `Fixes:` tag.** The introducing change is still
-**`6c3d329e6486dd`**, and `git merge-base --is-ancestor 6c3d329e6486dd
-HEAD` succeeded. No later fix of this lock split was found on this file.
+Record: No `Fixes:` tag. Not applicable. Buggy teardown is in this tree.
 
 **Step 3.3: CHECK FILE HISTORY FOR RELATED CHANGES**
 
-Record (recent `drivers/vdpa/vdpa_sim/vdpa_sim.c`):
-- `05ddc94afb69e` vdpa_sim: fix cleanup after worker creation failure
-- `9588e7fc511f9` vdpa_sim: reset must not run
-- `86f6c224c9791` vdpa_sim: implement `.reset_map` support
-- `6c3d329e6486d` vdpa_sim: get rid of DMA ops (introducer)
-
-This commit is **standalone**. Cover letter: “[PATCH 0/2] vdpa_sim: fix
-suspend/reset and dma_unmap locking” — two independent bugs. Sibling
-`clear pending_kick on device reset` is **not** a prerequisite and is
-**not** in this tree.
+Record: Recent virtio GPU work here is unrelated (EDID bounds, deadlock,
+fence, KMS removal). No reclaim helper already present. `cec7f1774605a`
+is a different probe double-free. Standalone patch, not “X/Y” of a
+larger series (cover said “Patch 1” of a 1-patch series).
 
 **Step 3.4: CHECK THE AUTHOR'S OTHER COMMITS**
 
-Record: **Xiong Weimin** has no other `vdpa_sim` commits in this tree.
-Maintainer of record is **Michael S. Tsirkin** (SOB on apply) /
-historical authors Jason Wang, Eugenio Pérez, Si-Wei Liu. Author is a
-contributor, not the subsystem maintainer; MST still took the patch.
+Record: Anuj Bolewar has no virtio GPU commits in this tree. Dmitry
+Osipenko is the virtio-gpu maintainer (SOB + “Applied to drm-misc-
+fixes”).
 
 **Step 3.5: CHECK FOR DEPENDENT/PREREQUISITE COMMITS**
 
-Record: **None.** Needs only `iommu_lock`, `iommu_pt`,
-`vhost_iotlb_reset`, `vhost_iotlb_del_range` — all present. Applies as a
-lock-line move. **Can apply standalone.**
+Record: Uses `virtqueue_detach_unused_buf`, `free_vbuf`,
+`virtio_gpu_array_put_free`, `virtio_gpu_cleanup_object` — all present.
+No panic-path helpers required. Can apply standalone.
 
 ---
 
@@ -277,98 +242,82 @@ lock-line move. **Can apply standalone.**
 **Step 4.1: FIND THE ORIGINAL PATCH DISCUSSION**
 
 Record:
-- `b4 mbox` for `20260626020545.607600-3-15927021679@163.com` saved the
-  thread (3 messages).
-- Cover: `[PATCH 0/2] vdpa_sim: fix suspend/reset and dma_unmap locking`
-- This patch is **2/2** (`-3` is cover+two patches).
-- **No replies in the thread** (no NAK, no `Cc: stable` from reviewers,
-  no v2).
-- Committed Message-ID matches this v1 2/2; applied version is the
-  submitted version.
-- Lore HTML via WebFetch/curl: **403** — could not read lore web UI;
-  thread content came from `b4 mbox`.
+- `b4 dig -c <sha>` cannot match: commit is not in this tree (candidate
+  only).
+- Lore search via lore.kernel.org returned 403.
+- Recovered from Openwall/LKML:
+  - v1: drain only (`objs` + `free_vbuf`)
+  - v2: also `virtio_gpu_cleanup_object(resp_cb_data)`
+  - Applied version is v2
+- Dmitry Osipenko, 2026-08-14: **“Applied to drm-misc-fixes, thanks!”**
+  — no NAK.
 
 **Step 4.2: CHECK WHO REVIEWED THE PATCH**
 
-Record: Thread is author-only. **Michael S. Tsirkin** SOBed on merge
-(vhost/vdpa maintainer). No `Reviewed-by` on the list copy. Recipients
-of the original mail were not dumped (`b4 dig -w` needs a local commit
-SHA; this SHA is not in this tree).
+Record: Recipients included Airlie, Hoffmann, Osipenko, Gurchetan Singh,
+Chia-I Wu, dri-devel, virtualization, syzkaller-bugs. Maintainer applied
+it. No NAK found.
 
 **Step 4.3: SEARCH FOR THE BUG REPORT**
 
-Record: **No external bug report.** No syzbot, bugzilla, or `Reported-
-by`. Evidence is code inspection plus author test that the module still
-loads on 6.16.8 — that does **not** prove the race was reproduced.
+Record (syzkaller, extid `06f9b2a53ba4a5a47644`):
+- Title: `WARNING in virtio_gpu_free_vbufs`
+- Labels: `prio:high`
+- Assessment: DenialOfService exploitable; VM guest and host trigger;
+  not unprivileged
+- Stack: `kmem_cache_destroy` → `virtio_gpu_free_vbufs` →
+  `virtio_gpu_release` → `drm_dev_put` → `virtio_dev_remove` → PCI
+  `remove_store`
+- 13 crashes; first ~2026-07-29
+- Syzbot lists upstream fix `61d85f99b5a5` (that SHA is not in this
+  tree; `git merge-base --is-ancestor` was not used on an unknown remote
+  SHA)
 
 **Step 4.4: CHECK FOR RELATED PATCHES AND SERIES**
 
-Record: Two-patch series, independent. Patch 1/2 (`pending_kick`) is a
-different bug and is not required. No other series members needed.
+Record: 1-patch series. v2 is the applied leak-complete version.
 
 **Step 4.5: CHECK STABLE MAILING LIST HISTORY**
 
-Record: `curl` to `lore.kernel.org/stable/?q=vdpa_sim+iommu_lock`
-returned **403**. **UNVERIFIED:** whether stable@ already discussed
-this. No local `git log --grep` hit for this subject on this file.
+Record: lore.kernel.org/stable search 403. **UNVERIFIED** whether
+stable@ already discussed it. Not used as a NO reason.
 
 ---
 
 ## PHASE 5: CODE SEMANTIC ANALYSIS
 
-**Step 5.1: IDENTIFY KEY FUNCTIONS IN THE DIFF**
+**Step 5.1: IDENTIFY KEY FUNCTIONS**
 
-Record: **`vdpasim_dma_unmap()`** only. Registered as `.dma_unmap` in
-`vdpasim_config_ops` / `vdpasim_batch_config_ops`.
+Record: `virtio_gpu_reclaim_vbufs` (new), `virtio_gpu_deinit` (call
+site), `free_vbuf`, `virtio_gpu_array_put_free`,
+`virtio_gpu_cleanup_object`.
 
 **Step 5.2: TRACE CALLERS**
 
 Record:
-- `vhost_vdpa_general_unmap()` → `ops->dma_unmap()`
-  (`drivers/vhost/vdpa.c`)
-- Called from `vhost_vdpa_pa_unmap()` / `vhost_vdpa_va_unmap()` →
-  `vhost_vdpa_iotlb_unmap()` → `vhost_vdpa_unmap()`
-- Userspace: `vhost_vdpa_process_iotlb_msg()` `VHOST_IOTLB_INVALIDATE`
-  under `dev->mutex`
-- Teardown: `vhost_vdpa_remove_as()` → `vhost_vdpa_iotlb_unmap()`
-  (release/cleanup, also under `dev->mutex`)
-
-No other `ops->dma_unmap` users for this simulator in-tree.
+- `virtio_gpu_deinit()` from `virtio_gpu_probe` error path after
+  `virtio_gpu_init()` (`err_deinit`) and from `virtio_gpu_remove()`
+  after `drm_dev_unplug()`.
+- Teardown/unbind, not a hot path.
 
 **Step 5.3: TRACE CALLEES**
 
-Record: `vhost_iotlb_reset()` → `vhost_iotlb_del_range()` → interval-
-tree delete/free; `spin_lock`/`unlock` on `iommu_lock`.
+Record: `virtqueue_detach_unused_buf` (documented for shutdown/reset),
+GEM put, object cleanup, `kmem_cache_free`.
 
 **Step 5.4: FOLLOW THE CALL CHAIN**
 
-Record:
-- Reachable from **vhost-vdpa character-device IOTLB messages**
-  (privileged userspace: QEMU/DPDK with vhost-vdpa).
-- Simulator datapath: `vdpasim_kick_vq()` → kthread `vdpasim_work_fn()`
-  → `vdpa_sim_net`/`blk` `vringh_getdesc_iotlb()` /
-  `vringh_iov_{pull,push}_iotlb()` → `iotlb_translate()` under
-  `iommu_lock`.
-- **Yes, userspace can trigger both sides:** IOTLB invalidate vs running
-  virtqueue processing.
-
-**Nuance (verified):** vhost serializes `dma_map`, `dma_unmap`, and
-`vdpa_reset` with `vdev.mutex`. So **map vs unmap vs reset from vhost
-ioctls do not run together**. The commit text overstates that pair. The
-**verified** concurrent party is the **simulator worker**, which does
-**not** take `vdev.mutex` and walks the IOTLB under `iommu_lock` only.
-
-This tree also advertises `VHOST_BACKEND_F_ENABLE_AFTER_DRIVER_OK`
-(`vdpasim` getter at line 436), so DRIVER_OK / kicks can happen while
-still in passthrough (`iommu_pt == true`). First `dma_unmap` then takes
-the unlocked reset path while the worker may be in `iotlb_translate()`.
+Record: Userspace/sysfs PCI remove (privileged) or guest virtio-gpu
+unplug. Syzbot hit it from `remove_store`. Reachable on any system that
+unbinds/unplugs virtio-gpu with commands still in the VQ (unresponsive
+device, hot-unplug, fuzz).
 
 **Step 5.5: SEARCH FOR SIMILAR PATTERNS**
 
-Record: `dma_map`, `set_map`, `reset_map`, and `do_reset` already take
-`iommu_lock` around `iommu_pt` and IOTLB updates. **`dma_unmap` is the
-only passthrough-exit that does not.** No sibling driver has this exact
-split; mlx5 has a different `iommu_lock`.
+Record: Same drain exists in `virtio_console.c` `remove_vqs()`,
+`virtio_net`, `virtio_crypto`, vsock, etc. virtio-gpu was missing it.
+
+semcode: not available; used `git grep` / file reads.
 
 ---
 
@@ -376,250 +325,243 @@ split; mlx5 has a different `iommu_lock`.
 
 **Step 6.1: DOES THE BUGGY CODE EXIST IN THIS TREE?**
 
-Record:
-- Tree: **Linux 6.12.111** (`Makefile` VERSION=6 PATCHLEVEL=12
-  SUBLEVEL=111; `git describe HEAD` → `p-6.12-3-gc504cf0baa3d8`; branch
-  `pending-6.12`).
-- Buggy code is in `vdpasim_dma_unmap()` as cited above.
-- Introduced **v6.3**, so **before** 6.12 branched. Bug **does** exist
-  here.
-- This exact fix is **not** already applied (`git log --grep` empty for
-  this subject).
+Record: **Yes.**
+
+```283:293:drivers/gpu/drm/virtio/virtgpu_kms.c
+void virtio_gpu_deinit(struct drm_device *dev)
+{
+        ...
+        virtio_reset_device(vgdev->vdev);
+        vgdev->vdev->config->del_vqs(vgdev->vdev);
+}
+```
+
+```83:87:drivers/gpu/drm/virtio/virtgpu_vq.c
+void virtio_gpu_free_vbufs(struct virtio_gpu_device *vgdev)
+{
+        kmem_cache_destroy(vgdev->vbufs);
+        vgdev->vbufs = NULL;
+}
+```
+
+`virtio_gpu_reclaim_vbufs` is **not** in this tree. `git log
+--grep='reclaim pending vbufs'` on those files: empty.
 
 **Step 6.2: CHECK FOR BACKPORT COMPLICATIONS**
 
-Record: **Clean apply.** Surrounding function matches the hunk exactly.
-No refactor of this path after 6.12. Expected difficulty: **clean
-apply**.
+Record: **Clean apply expected.** Actual v2 context matches 6.12 (no
+panic helpers required). Line numbers differ slightly; 3-line context
+around reset/`del_vqs` and `free_vbuf`/`reclaim_vbufs` is the same.
 
 **Step 6.3: CHECK IF RELATED FIXES ARE ALREADY HERE**
 
-Record: Other `vdpa_sim` bugfixes are in this pending tree (worker-
-creation cleanup, sim_blk sector check, sim_net TX-pull check).
-**Nothing already fixes this lock split.** Sibling `pending_kick` fix is
-not here and is not required.
+Record: No equivalent drain. KMS-disabled removal fix `38a5f891cda6d` is
+unrelated (atomic shutdown).
 
 ---
 
 ## PHASE 7: SUBSYSTEM AND MAINTAINER CONTEXT
 
-**Step 7.1: IDENTIFY THE SUBSYSTEM AND ITS CRITICALITY**
+**Step 7.1: SUBSYSTEM AND CRITICALITY**
 
-Record:
-- **Subsystem:** `drivers/vdpa/vdpa_sim` — vDPA **simulator** (net/blk
-  loopback for testing).
-- **Kconfig:** `CONFIG_VDPA_SIM` “vDPA device simulator core”,
-  **`depends on RUNTIME_TESTING_MENU`**, help text: “testing,
-  prototyping and development of vDPA”.
-- **Criticality:** **PERIPHERAL** (not mm/VFS/net core). Not a
-  production NIC/block driver. Still in-tree and used with vhost-vdpa in
-  labs/CI (author: openEuler).
+Record: `drivers/gpu/drm/virtio` — **IMPORTANT** for VMs/QEMU guests
+(common virtio-gpu), not core mm/VFS. Not staging.
 
-**Step 7.2: ASSESS SUBSYSTEM ACTIVITY**
+**Step 7.2: SUBSYSTEM ACTIVITY**
 
-Record: Mature-but-active. Core simulator from ~2020; 6.12 still
-receives sim bugfixes (including 2026 worker-cleanup). Not a dead file.
+Record: Mature driver (2013+), still receiving 6.12 stable fixes. Bug is
+long-standing, not a brand-new subsystem.
 
 ---
 
 ## PHASE 8: IMPACT AND RISK ASSESSMENT
 
-**Step 8.1: DETERMINE WHO IS AFFECTED**
+**Step 8.1: WHO IS AFFECTED**
 
-Record: **config-specific / driver-specific.** Only `CONFIG_VDPA_SIM`
-(and `_NET`/`_BLOCK`) plus vhost-vdpa IOTLB programming. Not universal.
-Production kernels often leave the module off; anyone who loads it (QEMU
-vDPA sim, distro debug kernels) can hit it.
+Record: virtio-gpu users (`CONFIG_DRM_VIRTIO_GPU`) — QEMU/KVM/cloud VMs,
+driver unbind, PCI remove, module unload.
 
-**Step 8.2: DETERMINE THE TRIGGER CONDITIONS**
+**Step 8.2: TRIGGER CONDITIONS**
 
-Record:
-- **Trigger:** IOTLB invalidate / unmap while `iommu_pt[asid]` is true,
-  overlapping simulator worker IOTLB walk.
-- **Likelihood:** not every boot; realistic with
-  `ENABLE_AFTER_DRIVER_OK` and live IOTLB updates while VQs run. Hard to
-  hit, timing-dependent.
-- **Privilege:** vhost-vdpa + creating a sim device is typically
-  **root**, not an unprivileged syscall primitive. Not a generic
-  syzbot/LPE story.
+Record: Device teardown with commands still on the control/cursor VQ.
+Syzbot: PCI `remove`. Privileged on the host; a VM guest can trigger it.
+Not every boot, but a realistic hot-unplug/reset path.
 
-**Step 8.3: DETERMINE THE FAILURE MODE SEVERITY**
+**Step 8.3: FAILURE MODE SEVERITY**
 
 Record:
-- **Failure mode:** concurrent interval-tree reset vs walk → use-after-
-  free / memory corruption / oops.
-- **Severity:** **HIGH** (crash/UAF) on that config path; not a
-  production-wide panic.
-- Unlocked `iommu_pt` store vs locked readers is also a data race; the
-  tree walk is the severe part.
+- `kmem_cache_destroy()` **always** `WARN`s if objects remain
+  (`mm/slab_common.c` ~547), not only `CONFIG_SLUB_DEBUG`.
+- With SLUB_DEBUG, additional `slab_bug` / `__slab_err`.
+- If shutdown fails, the cache is **not** released (`if (err) return`) →
+  cache leak plus leaked vbufs/GEM.
+- Syzbot: DoS, `prio:high`.
+- Severity: **HIGH** (kernel WARNING/taint, resource leak on remove;
+  panic if `panic_on_warn`).
 
-**Step 8.4: CALCULATE RISK-BENEFIT RATIO**
+**Step 8.4: RISK-BENEFIT RATIO**
 
-Record:
-- **Benefit:** medium for sim users (prevents crash/UAF); low for
-  generic 6.12 fleet that never loads `vdpa_sim`.
-- **Risk:** **very low** (1–2 line lock move, matches existing `dma_map`
-  protocol).
-- **Ratio:** benefit exceeds risk. A no-op on systems without the
-  module; cannot change unrelated drivers.
+Record: **Benefit high** (stops WARNING + leak on a common VM GPU
+driver). **Risk low** (17 lines, existing helpers, maintainer-acked).
+Ratio favors backport.
 
 ---
 
 ## PHASE 9: FINAL SYNTHESIS
 
-**Step 9.1: COMPILE THE EVIDENCE**
+**Step 9.1: EVIDENCE**
 
-**FOR backporting:**
-- Real locking bug: IOTLB rbtree reset without the lock the walker uses
-- Crash/UAF-class, not style
-- Tiny, obviously correct, matches `dma_map`
-- Buggy code present since v6.3; in this 6.12 tree
-- Applies cleanly; no prerequisites
-- Maintainer (MST) applied it in mainline
-- This pending-6.12 tree already takes other `vdpa_sim` correctness
-  fixes
-- Race window is real against the kthread datapath (verified call chain)
+**FOR:**
+- Real, syzbot-reproduced teardown bug
+- Unconditional `WARN` + slab/GEM leak
+- virtio-gpu is widely used in VMs on 6.12 LTS
+- Small, obviously correct drain matching other virtio drivers
+- All callees exist here; bug exists here
+- Maintainer applied v2 to drm-misc-fixes
 
 **AGAINST:**
-- Simulator behind `RUNTIME_TESTING_MENU`, not production hardware
-- No syzbot / third-party crash report; `Tested-by` is the author
-- No list review beyond maintainer SOB
-- Commit’s “concurrent dma_map/dma_unmap/reset” is **overstated** given
-  vhost `dev->mutex`
-- Peripheral impact population
+- Trigger is device removal, not a hot path
+- Needs privilege / VM unplug (not a local unprivileged syscall crash)
+- No `Fixes:` / stable Cc in the original (not a negative under these
+  rules)
 
 **UNRESOLVED:**
-- Lore/stable HTML 403; no public stable@ discussion found
-- Whether the author actually reproduced the race vs only smoke-tested
-  module load
-- `b4 dig -w` recipients (no local mainline SHA)
+- lore.kernel.org 403; stable@ discussion not fetched
+- `b4 dig` could not resolve a SHA that is not in this tree
 
-**Step 9.2: APPLY THE STABLE RULES CHECKLIST**
+**Step 9.2: STABLE RULES CHECKLIST**
 
-1. Obviously correct and tested? **PASS** — lock move mirrors `dma_map`;
-   author + maintainer SOB. Testing is light but the change is
-   reviewable by inspection.
-2. Fixes a real bug that affects users? **PASS** — unlocked IOTLB reset
-   vs datapath walk. Affects `vdpa_sim` + vhost-vdpa users, which this
-   tree already treats as in-scope.
-3. Important issue (crash, security, corruption, deadlock)? **PASS** —
-   UAF/oops on IOTLB tree; severity HIGH on that path.
-4. Small and contained? **PASS** — ~2 lines, one function.
-5. No new features or APIs? **PASS**
-6. Can apply to the local tree? **PASS** — context identical in 6.12.111
+1. Obviously correct and tested? **PASS** — v2, syzbot, maintainer
+   applied
+2. Real user-visible bug? **PASS** — WARNING + leak on virtio-gpu remove
+3. Important (crash/leak/DoS)? **PASS** — HIGH; syzbot prio:high / DoS
+4. Small and contained? **PASS** — +17 lines, 3 files, one driver
+5. No new features/APIs? **PASS** — internal helper only
+6. Applies to local tree? **PASS** — buggy code present; helpers present
 
-**Step 9.3: CHECK FOR EXCEPTION CATEGORIES**
+**Step 9.3: EXCEPTION CATEGORIES**
 
-Record: **None** (not a device ID, quirk, DT, build, or doc-only
-change). It qualifies as a normal small race/crash fix.
+Record: Not ID/quirk/DT/docs. Ordinary important bugfix.
 
-**Step 9.4: MAKE YOUR DECISION**
+**Step 9.4: DECISION**
 
-This should be backported to **this** 6.12 tree. The bug is in this
-checkout, the fix is surgical, and the failure mode is memory-safety on
-a path this tree already ships. Simulator-only scope lowers fleet-wide
-benefit but does not make a 2-line IOTLB UAF fix inappropriate for
-stable, especially with near-zero regression risk.
+This tree has the bug and the dependencies. The fix is small, matches
+established virtio teardown, and stops a syzbot-confirmed WARNING plus
+object leak on virtio-gpu teardown. It should be backported to this 6.12
+tree.
 
 ---
 
-### What the commit solves (for this tree)
+## What the commit solves for stable users
 
-`vdpasim_dma_unmap()` drops the whole passthrough IOTLB
-(`vhost_iotlb_reset`) and clears `iommu_pt` without `iommu_lock`, while
-`dma_map` and the vringh translator use that lock. A vhost-vdpa IOTLB
-unmap can therefore tear down the interval tree while the simulator
-worker is in `iotlb_translate()`. That is a kernel oops/UAF, not a
-benign inconsistency. Holding `iommu_lock` across that transition closes
-the hole.
+On virtio-gpu unbind/unplug, in-flight command buffers stay in the
+virtqueues. Destroying the `virtio-gpu-vbufs` cache then WARNs and leaks
+those buffers and any GEM objects they hold (including pending
+`RESOURCE_UNREF`). 6.12 guests using virtio-gpu hit this on device
+removal.
 
-### Stable rules / risk vs benefit
+## Risk vs benefit
 
-Meets the rules: real bug, small, no new API, applies here. Benefit is
-crash prevention for `CONFIG_VDPA_SIM`; risk is negligible. The missing
-`Fixes:`/`Cc: stable` tags are irrelevant to this pipeline.
+Benefit: no WARN/taint and no leaked GEM/vbufs on a common VM driver.
+Risk: low; one drain after reset, before `del_vqs()`, using APIs already
+in 6.12.
 
-### Concerns
+## Concerns
 
-- No independent repro; vhost mutex means map/unmap/reset do not race
-  with each other — the datapath race is the one that matters and is
-  verified.
-- Patch 1/2 of the series is unrelated and must not be treated as a
-  dependency.
-- Peripheral testing driver; still in this tree and already receiving
-  similar backports.
+None that block backport. Header context in some expanded diffs mentions
+later panic helpers; the real v2 hunk does not need them. Apply as the
+17-line v2.
 
 ---
 
-### Verification
+## Verification
 
-- **[Phase 1]** Parsed subject/body/tags from the provided message and
-  from `b4 mbox` (cover + 2/2). Tags: Tested-on/Tested-by/SOB author,
-  SOB MST, Message-ID. No Fixes/Cc stable/Reported-by/Reviewed-by.
-- **[Phase 2]** Read `vdpasim_dma_unmap`/`vdpasim_dma_map` in this tree;
-  compared to the diff. Confirmed unlocked reset vs locked `dma_map`.
-- **[Phase 2]** Read `vhost_iotlb_reset`/`vhost_iotlb_del_range` in
-  `drivers/vhost/iotlb.c` (interval tree free).
-- **[Phase 3]** `git blame -L 725,743` → introducer `6c3d329e6486dd`
-  (Jason Wang, v6.3-rc1).
-- **[Phase 3]** `git merge-base --is-ancestor 6c3d329e6486dd HEAD` →
-  yes. `git describe --contains` → `v6.3-rc1~84^2~23`.
-- **[Phase 3]** `git show 6c3d329e6486dd` — “get rid of DMA ops” added
-  `iommu_pt` passthrough; unmap’s reset was left outside the lock.
-- **[Phase 3]** `git log --oneline -20 --
-  drivers/vdpa/vdpa_sim/vdpa_sim.c`; `--grep` for this subject /
-  `pending_kick` → fix not present; sibling not present.
-- **[Phase 3]** `git log --author="Xiong Weimin" -- drivers/vdpa/` — no
-  vdpa_sim commits in this tree.
-- **[Phase 4]** `b4 mbox` Message-ID → 3-message v1 series; no review
-  replies; cover says issues are independent.
-- **[Phase 4]** WebFetch/curl lore.kernel.org → 403. UNVERIFIED: stable@
-  archives and HTML lore UI.
-- **[Phase 5]** Callers: `ops->dma_unmap` only from
-  `drivers/vhost/vdpa.c`. Datapath: `vdpa_sim_net.c`/`vdpa_sim_blk.c`
-  `vringh_*_iotlb` → `iotlb_translate` + `iommu_lock`.
-- **[Phase 5]** `vhost_vdpa_process_iotlb_msg` holds `dev->mutex` —
-  map/unmap/reset from vhost do not interleave (commit text overstated;
-  datapath race still real).
-- **[Phase 5]** `VHOST_BACKEND_F_ENABLE_AFTER_DRIVER_OK` offered in this
-  file (line 436).
-- **[Phase 6]** `head Makefile` / `git describe HEAD` / `make
-  kernelversion` → **6.12.111**, branch `pending-6.12`.
-- **[Phase 6]** File context matches the hunk; fix not in tree.
-- **[Phase 7]** `drivers/vdpa/Kconfig`: `VDPA_SIM` depends on
-  `RUNTIME_TESTING_MENU`; testing/prototyping help text.
-- **[Phase 8]** Failure mode: IOTLB rbtree UAF/oops, HIGH on that
-  config; trigger: IOTLB unmap in passthrough vs worker.
-- **UNVERIFIED:** lore web discussion beyond b4 mbox; whether author
-  reproduced the race vs module-load smoke test; `b4 dig -w` recipient
-  list.
-
-The fix is small, correct, already matched by `dma_map` in this 6.12
-tree, and prevents a real IOTLB UAF race on a driver this tree ships.
+- **[Phase 1]** Tags: syzbot Reported-by, Closes syzkaller URL, Osipenko
+  SOB
+- **[Phase 2]** Diff: +17 across 3 virtio GPU files; drain after reset
+- **[Phase 2]** `resp_cb_data` only assigned in
+  `virtio_gpu_cmd_unref_resource()` in this tree
+- **[Phase 3]** `git describe HEAD` / Makefile: 6.12.111;
+  `p-6.12-3-gc504cf0baa3d8`
+- **[Phase 3]** blame: `kmem_cache_destroy` in `virtio_gpu_free_vbufs`
+  since `f5985bf9cadd4e` (2017); deinit without drain since original
+  driver
+- **[Phase 3]** `git log --grep='reclaim pending vbufs' --
+  drivers/gpu/drm/virtio/`: not present
+- **[Phase 4]** Openwall v2 + LKML: Osipenko “Applied to drm-misc-fixes”
+- **[Phase 4]** syzbot: WARNING in `virtio_gpu_free_vbufs`, prio:high,
+  PCI remove stack, 13 crashes
+- **[Phase 4]** lore.kernel.org 403; `b4 dig` no local commit —
+  UNVERIFIED beyond Openwall/LKML/syzbot
+- **[Phase 5]** Callers: `virtio_gpu_drv.c` probe fail +
+  `virtio_gpu_remove`
+- **[Phase 5]** Both VQs assigned in `virtio_gpu_init()` lines 217–218
+- **[Phase 6]** Local `virtio_gpu_deinit` / `virtio_gpu_free_vbufs`
+  match the buggy sequence
+- **[Phase 6]** `virtqueue_detach_unused_buf`,
+  `virtio_gpu_array_put_free`, `virtio_gpu_cleanup_object` exist
+- **[Phase 8]** `kmem_cache_destroy` WARNs if `__kmem_cache_shutdown`
+  returns nonzero (`mm/slab_common.c`); cache not released on error
+- **UNVERIFIED:** whether this SHA is already in some other stable
+  series (irrelevant; not in this tree)
 
 **YES**
 
- drivers/vdpa/vdpa_sim/vdpa_sim.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_drv.h |  1 +
+ drivers/gpu/drm/virtio/virtgpu_kms.c |  1 +
+ drivers/gpu/drm/virtio/virtgpu_vq.c  | 15 +++++++++++++++
+ 3 files changed, 17 insertions(+)
 
-diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-index 9df300c467452..44055778b6940 100644
---- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
-+++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-@@ -736,12 +736,11 @@ static int vdpasim_dma_unmap(struct vdpa_device *vdpa, unsigned int asid,
- 	if (asid >= vdpasim->dev_attr.nas)
- 		return -EINVAL;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index 51b78f8a8aa2e..d52f35a09a1b0 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -355,6 +355,7 @@ void virtio_gpu_array_put_free_work(struct work_struct *work);
+ /* virtgpu_vq.c */
+ int virtio_gpu_alloc_vbufs(struct virtio_gpu_device *vgdev);
+ void virtio_gpu_free_vbufs(struct virtio_gpu_device *vgdev);
++void virtio_gpu_reclaim_vbufs(struct virtio_gpu_device *vgdev);
+ void virtio_gpu_cmd_create_resource(struct virtio_gpu_device *vgdev,
+ 				    struct virtio_gpu_object *bo,
+ 				    struct virtio_gpu_object_params *params,
+diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+index 4a25347734fda..01ea5cd5ea7f1 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_kms.c
++++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+@@ -289,6 +289,7 @@ void virtio_gpu_deinit(struct drm_device *dev)
+ 	flush_work(&vgdev->cursorq.dequeue_work);
+ 	flush_work(&vgdev->config_changed_work);
+ 	virtio_reset_device(vgdev->vdev);
++	virtio_gpu_reclaim_vbufs(vgdev);
+ 	vgdev->vdev->config->del_vqs(vgdev->vdev);
+ }
  
-+	spin_lock(&vdpasim->iommu_lock);
- 	if (vdpasim->iommu_pt[asid]) {
- 		vhost_iotlb_reset(&vdpasim->iommu[asid]);
- 		vdpasim->iommu_pt[asid] = false;
- 	}
--
--	spin_lock(&vdpasim->iommu_lock);
- 	vhost_iotlb_del_range(&vdpasim->iommu[asid], iova, iova + size - 1);
- 	spin_unlock(&vdpasim->iommu_lock);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index 244a791ab915e..f7e7d212fc67c 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -207,6 +207,21 @@ static void free_vbuf(struct virtio_gpu_device *vgdev,
+ 	kmem_cache_free(vgdev->vbufs, vbuf);
+ }
  
++void virtio_gpu_reclaim_vbufs(struct virtio_gpu_device *vgdev)
++{
++	struct virtio_gpu_vbuffer *vbuf;
++
++	while ((vbuf = virtqueue_detach_unused_buf(vgdev->ctrlq.vq))) {
++		if (vbuf->objs)
++			virtio_gpu_array_put_free(vbuf->objs);
++		if (vbuf->resp_cb_data)
++			virtio_gpu_cleanup_object(vbuf->resp_cb_data);
++		free_vbuf(vgdev, vbuf);
++	}
++	while ((vbuf = virtqueue_detach_unused_buf(vgdev->cursorq.vq)))
++		free_vbuf(vgdev, vbuf);
++}
++
+ static void reclaim_vbufs(struct virtqueue *vq, struct list_head *reclaim_list)
+ {
+ 	struct virtio_gpu_vbuffer *vbuf;
 -- 
 2.53.0
 
