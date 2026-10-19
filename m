@@ -1,49 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EDA7462042F;
-	Mon, 19 Oct 2026 14:04:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 096A553BBAF;
+	Mon, 19 Oct 2026 14:05:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792418678; cv=none; b=AedBxPSGUQ7xbC83BuUZFvzm32MeyHEI3e5ExqZutwQ3ADtufWk81+p7DM7cv6VjgkuimlOSoajsnA4ddS7KqrGwvAdwdh2emVJaWPQ6ZXXoVxnPpiooAbtVe83fiTi17tyK5hdQnCMMGWuYTTt4G0uBjkvT4xugQbUBK1+MJ0g=
+	t=1792418715; cv=none; b=FEgaZSWquNP86hWr8gwWmQyfYYELWwetpULTd349ZfiBhkZGnYN7nWBuq/aIoH6GaKJ3RA50GHfFcgP7GWXQ53G70LjyyurtHQj4H2I5L+Pd6uzAHVNF0smpqdvWnhPEskzAk2S3RJKvCuEK8iu18qB1dRpsZZSI7v5xNvhQW80=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792418678; c=relaxed/simple;
-	bh=01jQsl5s5NGCioH9ktkgP9GYyuhLfYerO70GNx0KSPc=;
+	s=arc-20240116; t=1792418715; c=relaxed/simple;
+	bh=g+veDCmlhCAqMBdGLPALcJ3IuOIMVViwoioxncymKNQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=r0brwSB/NQayk8GwX1nS65QeBC4sKKTldqiap6jn8etti9h2v6cJC+URia/WjMlkqXVZisI3jdB9KC5icjysTb+d1nofn41HN9Snab/ruRQWJBJCdZWKlpO6SAHTnXYp20G+W1CbhGVwUTTvSnhZkxFa6a2DDWLW70PY58+fVF0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LNElqLUk; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=Nbxa9TDhzxERz6qdCSJfpV48WhfoRw8AVSqOZGMRUQNwe3KaGnmAiZYGT4oACT6p2NyQisYK/GeFEoApQ+wEi4G29Zn9qa1ABGd5O6NjZz5zJZCxiQUBrEAE5UMt4dFBWaOEb8iBj8x+DY6J+wmltONso9g7P/0Hm2hwObmfKE8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Mn+M2xg5; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LNElqLUk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 394531F000C7;
-	Mon, 19 Oct 2026 14:04:34 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Mn+M2xg5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1D8C1F000C7;
+	Mon, 19 Oct 2026 14:05:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792418675;
-	bh=mQFR6VNpPVMG9Bl1oVKSuT55S8cITyDq9+C87dkVlDE=;
+	s=k20260515; t=1792418711;
+	bh=CM2WAE2HkP0FdbYvaMOjqRvZj/7tVd7+xmKcg/KyjcU=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=LNElqLUkPV5pc6WT/iRnEAzxQq9j2CVrZ4SNBHyMim9L8ZMMCm6HoaQiRUKF8AzES
-	 9SuAL0EX0mzbgAZfPjlnA5+6Tk1kGxVpeO5m8YMGsKQ+2ML31wXb/FZQ/WBkKVhvBs
-	 PkcT01zrCr1M7iDXeCiEnn7lyiGb3CXbXtpvbYkrHV2uAiFNGKWZv1YcC9M6LiyqkU
-	 FRPbRilT1qZMz038PflHtDXEpdS0xfxfNyq5JVVHdHUr3Q014/axKYuR7LbdnOkckK
-	 /8FK3x8HwpKaOpUo7vQV/hnAqluyFZRdAQ8c+N7H0O0zjklkIsjhHzKRKhxz6aMOO0
-	 oAaUeDFKgy8Aw==
+	b=Mn+M2xg5dJ6MTHExbbG+b450kblSLnAZM9hVmnrEgdoHSa9O6Y5h8aZq8hRFVe1dK
+	 NjGjNgRKKoYSw6wKijfuWoQoz5+PoEUY7EXG/ki+6UzbcvGOrfUrZKGrYF4fReV2k2
+	 hkGKV3wJzMKtComXJdKTblvIHc0FEe+Lz45wZK+NjZWjCFpfADG5Ot4IAedT9+/kDc
+	 nQWZUmjuyPTgUORnLhH9qQ2VXRlqRtpMT+zcQLcPdrzRcH4dLQ0bk300wqt6kncokx
+	 XLGQ5JyMUsCvOxepTKRWagVW5vv8TSeDoZKwZ2CECCbF3VtL3Gtj/0k6blgx4CSlND
+	 q9jw1ngtv9ZDw==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Cc: Ryosuke Yasuoka <ryasuoka@redhat.com>,
-	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+Cc: Weimin Xiong <xiongwm2026@163.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
 	Sasha Levin <sashal@kernel.org>,
-	airlied@redhat.com,
-	kraxel@redhat.com,
-	maarten.lankhorst@linux.intel.com,
-	mripard@kernel.org,
-	tzimmermann@suse.de,
-	simona@ffwll.ch,
-	dri-devel@lists.freedesktop.org,
+	dtatulea@nvidia.com,
+	jasowangio@gmail.com,
+	eperezma@redhat.com,
 	virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.18] drm/virtio: abort virtqueue wait on device removal to avoid hung task
-Date: Mon, 19 Oct 2026 09:51:48 -0400
-Message-ID: <20261019135441.1420968-417-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.18-6.12] vdpa/mlx5: roll back MR update after VQ setup failure
+Date: Mon, 19 Oct 2026 09:52:13 -0400
+Message-ID: <20261019135441.1420968-442-sashal@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261019135441.1420968-1-sashal@kernel.org>
 References: <20261019135441.1420968-1-sashal@kernel.org>
@@ -59,511 +55,490 @@ X-stable-base: Linux 6.18.57
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Ryosuke Yasuoka <ryasuoka@redhat.com>
+From: Weimin Xiong <xiongwm2026@163.com>
 
-[ Upstream commit a46991b334f663fa0e0e9c051e50587ef977ac8b ]
+[ Upstream commit 11f79e2780043ad94424a8db02a7a9022ba93252 ]
 
-virtio_gpu_queue_ctrl_sgs() and virtio_gpu_queue_cursor() use
-wait_event() without any abort condition when waiting for virtqueue
-space. If the host device stops processing commands, these waits block
-indefinitely inside a drm_dev_enter/exit() critical section. Since
-drm_dev_unplug(), which is called in device removal and system shutdown
-call path, blocks on synchronize_srcu() until all critical sections
-complete, device removal and system shutdown also hang.
+mlx5_vdpa_change_map() must install the new MR before rebuilding or
+resuming virtqueues, because both paths read the MR keys from
+mvdev->mres.mr[].
 
-Add a vqs_released flag to virtio_gpu_device and include it in the
-wait_event() condition. Set the flag and wake up both queues in a new
-virtio_gpu_release_vqs() helper, called before drm_dev_unplug() in both
-virtio_gpu_remove() and virtio_gpu_shutdown(). When the flag is set, the
-wait returns immediately and the command is aborted, following the same
-cleanup path as drm_dev_enter() failure.
+If rebuilding the virtqueue resources fails, the new MR must not remain
+installed after its reference is released. Keep an extra reference to
+the old MR before replacing it. On setup failure, restore the old MR;
+the saved reference then becomes the map reference, while replacing the
+new MR drops its map reference.
 
-Signed-off-by: Ryosuke Yasuoka <ryasuoka@redhat.com>
-Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Link: https://patch.msgid.link/20260601-virtio-gpu_wait_event-v3-1-89530517a98a@redhat.com
+Make mlx5_vdpa_change_map() consume new_mr on all error paths so that
+set_map_data() does not release an MR already released during rollback.
+
+v2:
+- Keep the new MR installed while virtqueues are rebuilt.
+- Restore the old MR only after setup_vq_resources() fails.
+
+Signed-off-by: Weimin Xiong <xiongwm2026@163.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+Message-ID: <20260716054353.155805-1-xiongwm2026@163.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
 
 LLM Generated explanations, may be completely bogus:
 
-## Phase 1: Commit message forensics
+Local tree is **6.12.111** (`pending-6.12`). The buggy
+`mlx5_vdpa_change_map()` path is present, the patch applies cleanly, and
+this is a real use-after-free on the map-update error path.
 
-**Step 1.1 — Subject**
-Record: `[drm/virtio] [abort] abort virtqueue wait on device removal to
-avoid hung task`
+===============================================================
+PHASE 1: COMMIT MESSAGE FORENSICS
+===============================================================
 
-**Step 1.2 — Tags**
+**Step 1.1: PARSE THE SUBJECT LINE**
+Record: **[vdpa/mlx5] [roll back] [restore the previous memory region if
+virtqueue rebuild fails after installing a new MR]**
+
+**Step 1.2: PARSE ALL COMMIT MESSAGE TAGS**
 Record:
-- `Signed-off-by: Ryosuke Yasuoka <ryasuoka@redhat.com>` (author)
-- `Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>`
-  (virtio-gpu maintainer)
-- `Link: https://patch.msgid.link/20260601-virtio-
-  gpu_wait_event-v3-1-89530517a98a@redhat.com`
-- No `Fixes:`, `Reported-by:`, `Cc: stable` on the committed v3 (absence
-  is expected here)
+- **Fixes:** none (expected for this review)
+- **Reported-by / Tested-by / Reviewed-by / Acked-by:** none
+- **Link:** none in the commit; Message-ID
+  `20260716054353.155805-1-xiongwm2026@163.com`
+- **Cc: stable:** none (expected)
+- **Signed-off-by:** Weimin Xiong (author); Michael S. Tsirkin (vhost
+  maintainer, applied the patch)
+- Ignore any pipeline SOBs.
 
-v2 originally had two syzbot `Reported-by`/`Closes` tags. v3 changelog:
-*“Remove Reported-by and Closes tag from commit msg because they are not
-related to this fix.”* Those syzbot hung-task reports are a different
-probe-time deadlock, already fixed in this tree by `89890a5fcefad`.
+Notable: standalone v2 patch, not `N/M`. Maintainer SOB is present; no
+syzbot tag.
 
-**Step 1.3 — Body**
+**Step 1.3: ANALYZE THE COMMIT BODY TEXT**
 Record:
-- **Bug:** `wait_event()` on ctrl/cursor virtqueue space has no abort.
-  If the host stops processing commands, the waiter stays in D-state
-  inside `drm_dev_enter()`/`drm_dev_exit()`.
-- **Symptom:** `drm_dev_unplug()` (remove and shutdown) blocks forever
-  on `synchronize_srcu()`, so device removal and system shutdown hang
-  (`INFO: task hung`).
-- **Root cause:** uninterruptible wait holds an SRCU critical section
-  that unplug must drain.
-- **Fix:** `vqs_released` flag + `wake_up_all()` before unplug; abort
-  with the same cleanup as `drm_dev_enter()` failure (`-ENODEV` / free
-  vbuf).
-- **Versions:** none named in the message. The wait + `drm_dev_enter`
-  wrapping has been in this driver since 2020.
+- **Bug:** `mlx5_vdpa_change_map()` installs `new_mr` into
+  `mvdev->mres.mr[]` before rebuilding virtqueues. If
+  `setup_vq_resources()` fails, the caller still drops `new_mr` while
+  that pointer remains installed.
+- **Symptom:** dangling MR pointer / use-after-free after a failed live
+  map update. GC can free the MR ~2s later (`MLX5_VDPA_MR_GC_TRIGGER_MS`
+  is 2000).
+- **Version info:** none in the message. Introduced by the v6.7 MR-
+  update flow, present in this 6.12 tree.
+- **Root cause:** missing rollback of the map slot and split ownership
+  of `new_mr` between `change_map()` and `set_map_data()`.
 
-**Step 1.4 — Hidden bug fix?**
-Record: Not hidden. Subject and body describe a hang/deadlock. It is a
-real teardown hang, not cleanup-as-style.
+**Step 1.4: DETECT HIDDEN BUG FIXES**
+Record: **Not a disguised cleanup.** This is an explicit error-path
+refcount/UAF fix. v1 wrongly deferred the MR install until after VQ
+setup; v2 keeps the new MR installed during rebuild and rolls back only
+on failure.
 
----
+===============================================================
+PHASE 2: DIFF ANALYSIS - LINE BY LINE
+===============================================================
 
-## Phase 2: Diff analysis
-
-**Step 2.1 — Inventory**
+**Step 2.1: INVENTORY THE CHANGES**
 Record:
-- `virtgpu_drv.c`: +15 — new `virtio_gpu_release_vqs()`, called from
-  `virtio_gpu_remove()` and `virtio_gpu_shutdown()`
-- `virtgpu_drv.h`: +1 — `bool vqs_released` on `struct
-  virtio_gpu_device`
-- `virtgpu_vq.c`: +21/−2 — abort conditions in
-  `virtio_gpu_queue_ctrl_sgs()` and `virtio_gpu_queue_cursor()`
-- Scope: ~37 insertions, 2 deletions, three files, one driver. Surgical.
+- File: `drivers/vdpa/mlx5/net/mlx5_vnet.c` — **+15 / -8** (23 lines)
+- Functions: `mlx5_vdpa_change_map()`, `set_map_data()`
+- Scope: **single-file surgical error-path fix**
 
-**Step 2.2 — Flow**
+**Step 2.2: UNDERSTAND THE CODE FLOW CHANGE**
 Record:
-- **Before:** if `vq->num_free` is short, unlock, notify host,
-  `wait_event(ack_queue, num_free >= needed)` with no timeout/abort,
-  still inside `drm_dev_enter()`.
-- **After:** wait also succeeds when `vqs_released`. Then unlock resv if
-  needed, `free_vbuf()`, `drm_dev_exit()`, return `-ENODEV` (ctrl) or
-  return (cursor). Same path as `drm_dev_enter()` failure.
-- **Teardown:** set flag, wake both ack queues, *then*
-  `drm_dev_unplug()`.
-- Path affected: virtqueue-full wait during remove/shutdown, not the
-  happy path.
+1. `save_channels_info()` failure: now `mlx5_vdpa_put_mr(new_mr)` inside
+   `change_map()` (caller no longer puts it).
+2. Before `mlx5_vdpa_update_mr()`: extra `get` on `old_mr` so it is not
+   GC'd after the map slot is replaced.
+3. `setup_vq_resources()` failure: `mlx5_vdpa_update_mr(old_mr)`
+   restores the old map; extra get becomes the map ref; installing
+   `old_mr` drops `new_mr`'s map ref.
+4. Success / early `!DRIVER_OK` / suspended: `goto out` and drop the
+   extra old-MR ref.
+5. `set_map_data()`: remove `out_err` put of `new_mr` so rollback cannot
+   double-free.
 
-**Step 2.3 — Bug mechanism**
-Record: **Deadlock / hung-task (uninterruptible wait blocking SRCU
-unplug).** `wait_event()` is `TASK_UNINTERRUPTIBLE`. `drm_dev_unplug()`
-→ `drm_dev_synchronize_unplug()` → `synchronize_srcu(&drm_unplug_srcu)`
-cannot finish while that section is held. Flag + `wake_up_all()` is a
-standard abort.
+**Step 2.3: IDENTIFY THE BUG MECHANISM**
+Record: **[UAF / dangling pointer + refcount] [map slot updated, then
+`new_mr` released on error while `mres.mr[asid]` still points at it]**
 
-**Step 2.4 — Fix quality**
-Record: Obviously correct and minimal. Abort cleanup matches existing
-`drm_dev_enter()` failure. Fence emit happens *after* the wait, so abort
-does not leak an emitted fence. `vgdev` is `drmm_kzalloc()`’d so
-`vqs_released` starts false. Flag is set only on remove/shutdown.
-Regression risk is low: happy-path wait is unchanged; abort only when
-tearing down. Remaining `wait_event(resp_wq)` in prime/vram is a
-separate issue (author and maintainer agreed to leave it).
+Verified in this tree:
 
----
-
-## Phase 3: Git history
-
-**Step 3.1 — Blame (v6.18.53)**
-Record:
-- Ctrl `wait_event`: `6ebe8661ebf27a` (2020, Gerd/Chia-I) — `drm/virtio:
-  move locking into virtio_gpu_queue_ctrl_sgs`
-- Wrapped in `drm_dev_enter`: `b1df3a2b24a917` (2020) — `drm/virtio: add
-  drm_driver.release callback`
-- Cursor `wait_event`: `d02d270014f70d` (2018) / original queue from
-  `dc5698e80cf724` (2013)
-- Bug has been in this driver for years; it is in 6.18.y.
-
-**Step 3.2 — Fixes: tag**
-Record: None. Introducing commits above exist in this tree.
-
-**Step 3.3 — File history**
-Record: Related in-tree: `89890a5fcefad` (probe deadlock / syzbot hung
-task — different bug, already in v6.18.53). `2507789a724d6` implements
-`virtio_gpu_shutdown` (in v6.18.53). Later candidate `3cdc509eb471e`
-reclaims leftover vbufs on teardown — complementary, not a prerequisite
-for this abort.
-
-**Step 3.4 — Author**
-Record: Ryosuke Yasuoka is a regular virtio-gpu contributor
-(`drm_panic`, the display_info deadlock fix). Signed off by maintainer
-Dmitry Osipenko.
-
-**Step 3.5 — Dependencies**
-Record: Standalone. Needs `drm_dev_enter` around queueing,
-`virtio_gpu_remove`/`virtio_gpu_shutdown` calling `drm_dev_unplug`, and
-`ctrlq`/`cursorq` ack waitqueues — all present at v6.18.53. No new APIs.
-
----
-
-## Phase 4: Mailing list / external
-
-**Step 4.1 — b4 dig**
-Record:
-- v2: https://patch.msgid.link/20260521-virtio-
-  gpu_wait_event-v2-1-5796b3a71d03@redhat.com
-- v3 (applied): https://patch.msgid.link/20260601-virtio-
-  gpu_wait_event-v3-1-89530517a98a@redhat.com
-- v1 used `wait_event_timeout()` (5s). v2/v3 switched to an explicit
-  `vqs_released` flag (no arbitrary timeout). Applied version is v3.
-
-**Step 4.2 — Recipients (`b4 dig -w`)**
-Record: David Airlie, Gerd Hoffmann, Dmitry Osipenko, Gurchetan Singh,
-Chia-I Wu, drm-misc maintainers, `dri-devel`,
-`virtualization@lists.linux.dev`. Right people.
-
-**Step 4.3 — Review**
-Record (from saved v2 mbox):
-- Dmitry: “What about other `wait_event`?” Author: those are `resp_wq`,
-  not inside `drm_dev_enter`, different bug. Dmitry: leave for later.
-- Dmitry could not reproduce on normal systemd shutdown and noted the
-  syzbot stacks were not remove/shutdown. Later: *“the patch looks okay,
-  but I'm not convinced that it fixes the reported issue.”*
-- Author agreed syzbot was a probe deadlock (`clientlist_mutex` vs
-  dequeue worker), dropped those tags, and described the real trigger:
-  host stops processing → guest waits in D-state inside `drm_dev_enter`
-  → unplug’s `synchronize_srcu` never completes. systemd cannot kill
-  D-state tasks.
-- v3 dropped the unrelated tags; Dmitry still signed off.
-
-**Step 4.4 — Series**
-Record: Single-patch series. `resp_wq` abort and interruptible waits
-were explicitly deferred.
-
-**Step 4.5 — stable@**
-Record: lore.kernel.org/stable returned HTTP 403. UNVERIFIED whether it
-was already discussed on stable@.
-
-Syzbot URLs from v2: hung in `virtio_gpu_queue_fenced_ctrl_buffer`
-during **probe** (`virtio_gpu_probe` → fbcon), not removal. Those are
-the deadlock already closed by `89890a5fcefad` in this tree. They do
-**not** prove this particular hang, and they are not used as a YES
-signal for this commit.
-
----
-
-## Phase 5: Semantic / call graph
-
-**Step 5.1 — Functions**
-Record: `virtio_gpu_release_vqs` (new), `virtio_gpu_remove`,
-`virtio_gpu_shutdown`, `virtio_gpu_queue_ctrl_sgs`,
-`virtio_gpu_queue_cursor`.
-
-**Step 5.2 — Callers**
-Record:
-- `virtio_gpu_queue_ctrl_sgs` ← `virtio_gpu_queue_fenced_ctrl_buffer` ←
-  nearly every `virtio_gpu_cmd_*` (ioctls, plane update/flush, GEM,
-  etc.). Userspace and KMS both reach it.
-- `virtio_gpu_queue_cursor` ← cursor plane updates.
-- `virtio_gpu_remove` / `virtio_gpu_shutdown` are virtio `.remove` /
-  `.shutdown`.
-
-**Step 5.3 — Callees**
-Record: `drm_dev_enter`/`exit`, `wait_event`, `wake_up_all`,
-`free_vbuf`, `virtio_gpu_array_unlock_resv`, `virtio_gpu_notify`. No new
-helpers outside this driver.
-
-**Step 5.4 — Reachability**
-Record: Yes. Any guest GPU submit that fills the virtqueue waits here.
-Unplug/shutdown is virtio remove or poweroff. Host-side virtio-gpu/virgl
-stall is the trigger.
-
-**Step 5.5 — Similar patterns**
-Record: `wait_event(vgdev->resp_wq)` in `virtgpu_prime.c` and
-`virtgpu_vram.c` still unbounded; not inside `drm_dev_enter`, so they do
-not block unplug. Same author deferred that.
-
----
-
-## Phase 6: This tree (6.18.y)
-
-**Step 6.1 — Buggy code present?**
-Record: **Yes at v6.18.53.**
+```731:743:drivers/vdpa/mlx5/core/mr.c
+void mlx5_vdpa_update_mr(struct mlx5_vdpa_dev *mvdev,
+                         struct mlx5_vdpa_mr *new_mr,
+                         unsigned int asid)
+{
+        struct mlx5_vdpa_mr *old_mr = mvdev->mres.mr[asid];
+        mutex_lock(&mvdev->mres.lock);
+        _mlx5_vdpa_put_mr(mvdev, old_mr);
+        mvdev->mres.mr[asid] = new_mr;
+        mutex_unlock(&mvdev->mres.lock);
+}
 ```
-v6.18.53:virtgpu_vq.c:398: wait_event(vgdev->ctrlq.ack_queue,
-vq->num_free >= elemcnt);
-v6.18.53:virtgpu_vq.c:568: wait_event(vgdev->cursorq.ack_queue,
-vq->num_free >= outcnt);
-```
-`vqs_released` is **not** in v6.18.53. `virtio_gpu_remove`/`shutdown`
-call `drm_dev_unplug()` with no prior wake.
-`drm_dev_synchronize_unplug()` does `synchronize_srcu`. Bug introduced
-~2020; 6.18 branched 2025-11-30.
 
-Local tree: `git describe HEAD` → `v6.18.53-5049-g0f0bdc2b0dffb`;
-Makefile `6.18.53`. Verdict is for **this 6.18.y tree only**.
+`create_virtqueue()` / `modify_virtqueue` read `mvdev->mres.mr[]` for
+mkeys, so the new MR **must** be installed before rebuild/resume. v1 was
+incorrect; v2 matches that constraint.
 
-**Step 6.2 — Backport difficulty**
-Record: `git apply --check` of this patch onto v6.18.53 virtio files:
-**clean apply**. Context differs slightly (`DRIVER_ATOMIC` guard around
-`drm_atomic_helper_shutdown` from `19a6a00ff50c2`, already in v6.18.53);
-insertion is still immediately before `drm_dev_unplug()`.
-
-**Step 6.3 — Related fix already here?**
-Record: Probe deadlock `89890a5fcefad` is in v6.18.53 and does **not**
-abort virtqueue waits on removal. No equivalent abort exists. This is
-not a duplicate.
-
----
-
-## Phase 7: Subsystem
-
-**Step 7.1**
-Record: `drivers/gpu/drm/virtio` — virtio-gpu DRM. **IMPORTANT** for VMs
-(QEMU/KVM, cloud, CrosVM), not core mm/VFS.
-
-**Step 7.2**
-Record: Mature driver, still getting targeted fixes. Not staging.
-
----
-
-## Phase 8: Impact and risk
-
-**Step 8.1 — Who**
-Record: virtio-gpu guests (`CONFIG_DRM_VIRTIO_GPU`). Common in VMs, not
-every bare-metal box.
-
-**Step 8.2 — Trigger**
-Record: Host stops completing virtqueue commands (host renderer crash,
-hung device, hypervisor bug) **and** a guest command waits for ring
-space **and** then remove/shutdown. Not every boot. Cannot be signal-
-killed (`TASK_UNINTERRUPTIBLE`). Module unload, virtio reset, and
-poweroff all hit `drm_dev_unplug()`.
-
-**Step 8.3 — Failure mode**
-Record: **Hung task / shutdown or unplug deadlock.** Severity: **HIGH**
-(system cannot finish shutdown/remove; D-state). Not a UAF or silent
-corruption.
-
-**Step 8.4 — Risk vs benefit**
+**Step 2.4: ASSESS THE FIX QUALITY**
 Record:
-- Benefit: HIGH for virtio-gpu VMs that lose the host GPU and then
-  reboot/unplug.
-- Risk: LOW — ~35 lines, teardown-only flag, abort path copies existing
-  `-ENODEV` cleanup.
-- Ratio: favorable.
+- **Quality:** refcount flow is consistent: extra get on `old_mr`;
+  failure converts it into the map ref; success drops it; `new_mr` is
+  consumed on every `change_map()` error path.
+- **Regression risk:** low. No new locks, APIs, or data structures.
+  `put_mr(NULL)` is a no-op. Residual issue: after a failed rebuild, VQs
+  stay torn down (pre-existing); this patch only keeps the MR pointer
+  valid.
 
----
+===============================================================
+PHASE 3: GIT HISTORY INVESTIGATION
+===============================================================
 
-## Phase 9: Synthesis
+**Step 3.1: BLAME THE CHANGED LINES**
+Record:
+- `mlx5_vdpa_update_mr()` before setup: **625e4b59a923d2** (“vdpa/mlx5:
+  Improve mr update flow”), **v6.7-rc1**.
+- Teardown/rebuild via `setup_vq_resources()`: **f756dd3e2a4c70**,
+  **v6.8-rc1**.
+- Caller `out_err` put: **625e4b59a923d2** / **a06bd11b18fdf2**.
+- Function itself dates to **1a86b377aa2147** (2020).
 
-**Step 9.1 — Evidence**
+The dangling-pointer pattern exists since the v6.7 MR-update refactor:
+setup failure returns without restoring the map, and the caller puts
+`new_mr`.
 
-**For:**
-- Real hang: uninterruptible wait inside `drm_dev_enter` blocks
-  `drm_dev_unplug()`/`synchronize_srcu`.
-- Confirmed in v6.18.53 source (`wait_event` without abort; unplug with
-  no wake).
-- Small, contained, no new API.
-- Abort cleanup matches existing `drm_dev_enter()` failure.
-- Maintainer signed off after review (v1 timeout → v3 flag).
-- Applies cleanly to this tree’s virtio files.
-- virtio-gpu is widely used; host GPU process failure is a realistic VM
-  event.
+**Step 3.2: FOLLOW THE FIXES: TAG**
+Record: **No Fixes: tag.** Buggy pattern is in this tree via 625e4b59 /
+f756dd3e. `git merge-base --is-ancestor 11f79e2780043 HEAD` is false —
+fix is **not** already here.
 
-**Against:**
-- Trigger needs a stuck host plus a full virtqueue plus teardown — not a
-  hot path.
-- Syzbot tags were wrongly attached in v2 and correctly dropped; do not
-  treat this as a syzbot backport.
-- Incomplete vs all `wait_event`s; `resp_wq` still unbounded
-  (intentionally separate).
-- Maintainer initially could not reproduce on a normal systemd shutdown.
+**Step 3.3: CHECK FILE HISTORY FOR RELATED CHANGES**
+Record:
+- Related: **62111654481d5** “Postpone MR deletion” (**v6.12-rc1**) —
+  delayed GC, so a dangling MR is freed ~2s later rather than
+  immediately.
+- No prior rollback of `change_map()` in this tree.
+- Standalone; not `N/M`.
 
-**Unresolved:** stable@ archive 403; whether this hang has a public user
-report besides the author’s analysis.
+**Step 3.4: CHECK THE AUTHOR'S OTHER COMMITS**
+Record: Weimin Xiong has **no other mlx5 vdpa commits in this tree**.
+Subsystem maintainer is Dragos Tatulea; the patch was applied by Michael
+Tsirkin. Recipients included Tatulea, Tsirkin, Jason Wang, Eugenio
+Perez.
 
-**Step 9.2 — Stable rules**
-1. Obviously correct and tested — **PASS** (standard wait/wake abort;
-   maintainer SOB; v3 after review).
-2. Real user-visible bug — **PASS** (remove/shutdown hang when host
-   stops the vq).
-3. Important (hang/deadlock) — **PASS** (HIGH: D-state blocks
-   unplug/shutdown).
-4. Small and contained — **PASS** (~37 lines, one driver).
-5. No new features/APIs — **PASS**.
-6. Applies to this tree — **PASS** (clean apply to v6.18.53 virtio
-   files; all helpers present).
+**Step 3.5: CHECK FOR DEPENDENT/PREREQUISITE COMMITS**
+Record: Uses existing `mlx5_vdpa_get_mr` / `put_mr` / `update_mr`. `git
+apply --check` of 11f79e27 against this tree: **clean**. **Standalone.**
 
-**Step 9.3 — Exceptions**
-Record: None (not a device ID/quirk/DT/build/doc exception). Qualifies
-as a normal hang fix.
+===============================================================
+PHASE 4: MAILING LIST AND EXTERNAL RESEARCH
+===============================================================
 
-**Step 9.4 — Decision**
-This belongs on 6.18.y. The bug is in this tree, the fix is surgical,
-and a stuck virtqueue otherwise makes guest unplug/shutdown hang
-forever.
+**Step 4.1: FIND THE ORIGINAL PATCH DISCUSSION**
+Record:
+- `b4 dig -c 11f79e2780043`:
+  https://patch.msgid.link/20260716054353.155805-1-xiongwm2026@163.com
+- `b4 dig -a`: **only v2** matched by patch-id
+- v1 existed with a different subject/diff: “fix MR state corruption on
+  setup_vq_resources failure” — it moved `update_mr` **after** setup,
+  which would program VQs with the **old** mkey. v2 changelog documents
+  that correction.
+- Saved mbox: **patch only, no public replies**. lore.kernel.org fetches
+  returned 403; no NAK found in the saved thread.
 
----
+**Step 4.2: CHECK WHO REVIEWED THE PATCH**
+Record (`b4 dig -w`): To/Cc Dragos Tatulea, Michael Tsirkin, Jason Wang,
+Xuan Zhuo, Eugenio Perez, virtualization@lists.linux.dev. Applied with
+Tsirkin SOB. No public Reviewed-by.
 
-## What the commit solves for this tree
+**Step 4.3: SEARCH FOR THE BUG REPORT**
+Record: **No syzbot, bugzilla, or user crash report.** Bug is from code
+inspection of the error path. Failure mode is still verified from the
+current sources.
 
-On 6.18.y, virtio-gpu waits for virtqueue space with `wait_event()`
-inside `drm_dev_enter()`. If the host stops processing, that wait never
-ends, `drm_dev_unplug()` never gets past `synchronize_srcu()`, and
-remove/shutdown hang in D-state. The patch sets `vqs_released`, wakes
-both queues before unplug, and aborts the command like a failed
-`drm_dev_enter()`.
+**Step 4.4: CHECK FOR RELATED PATCHES AND SERIES**
+Record: **Standalone v2.** No later `mlx5_vnet.c` commits on `all-next`
+after 11f79e27. No follow-up reverting or replacing this fix.
 
-That is a real hang, not a feature. Risk is low; the only extra behavior
-is on teardown.
+**Step 4.5: CHECK STABLE MAILING LIST HISTORY**
+Record: lore.kernel.org/stable search returned 403. **UNVERIFIED**
+whether stable@ already discussed this. That does not change the
+technical verdict.
 
----
+===============================================================
+PHASE 5: CODE SEMANTIC ANALYSIS
+===============================================================
 
-## Verification
-- **[Phase 1]** Parsed v3 message/tags; no Fixes/Reported-by on
-  committed v3; v3 changelog documents dropping unrelated syzbot tags.
-- **[Phase 2]** Diff: +37/−2 across three virtio-gpu files; abort copies
-  `drm_dev_enter()` failure cleanup; fence emit is after the wait.
-- **[Phase 3]** `git blame` on v6.18.53: wait from `6ebe8661ebf27a`
-  (2020) / cursor from 2013–2018; `drm_dev_enter` from `b1df3a2b24a917`
-  (2020).
-- **[Phase 3]** `git merge-base --is-ancestor 0ffdc5889ef64 v6.18.53` →
-  **not** in v6.18.53; buggy wait **is** in v6.18.53.
-- **[Phase 3]** Probe deadlock `89890a5fcefad` **is** in v6.18.53 and
-  closes the syzbot hung-task IDs; it does not abort vq waits on
-  removal.
-- **[Phase 3]** `virtio_gpu_shutdown` (`2507789a724d6`) **is** in
-  v6.18.53.
-- **[Phase 3]** `vgdev` allocated with `drmm_kzalloc` in `virtgpu_kms.c`
-  — `vqs_released` starts false.
-- **[Phase 4]** `b4 dig -c a46991b334f663fa0e0e9c051e50587ef977ac8b`
-  matched v2/v3 lore; `b4 dig -a` showed v2 then v3; `b4 dig -w` listed
-  virtio-gpu maintainers.
-- **[Phase 4]** Mbox: Dmitry review; author explained syzbot mismatch
-  and the real remove/shutdown hang; v3 dropped tags; Dmitry SOB on the
-  commit.
-- **[Phase 4]** WebFetch syzbot bugs `d6dd6f86…` / `908bd910…`: hung
-  during **probe/fbcon**, not unplug — not this bug.
-- **[Phase 4]** lore.kernel.org and lore.kernel.org/stable: HTTP 403.
-  UNVERIFIED for stable@ discussion. Used gitlab.freedesktop.org +
-  openwall + mbox instead.
-- **[Phase 5]** `git grep`: `virtio_gpu_queue_ctrl_sgs` is on
-  ioctl/plane/GEM paths; dequeue `wake_up(&ctrlq.ack_queue)` only after
-  host responses — if host is dead, waiters never wake without this
-  patch.
-- **[Phase 6]** `git describe HEAD` / Makefile: **6.18.53**. `git apply
-  --check` of this patch onto archived v6.18.53 virtio files: **APPLY
-  CLEAN**.
-- **[Phase 6]** `drm_dev_unplug` at v6.18.53 calls
-  `drm_dev_synchronize_unplug()` → `synchronize_srcu`.
-- **[Phase 6]** `wait_event()` in `include/linux/wait.h` uses
-  `TASK_UNINTERRUPTIBLE`.
-- **[Phase 8]** Failure mode from code + commit: hung unplug/shutdown,
-  severity HIGH.
-- **UNVERIFIED:** public non-syzbot user report of this exact remove
-  hang; stable@ archive (403).
+**Step 5.1: IDENTIFY KEY FUNCTIONS IN THE DIFF**
+Record: `mlx5_vdpa_change_map()`, `set_map_data()`
 
-The hang is in this 6.18.y tree, the patch is small and correct, and it
-should be backported.
+**Step 5.2: TRACE CALLERS**
+Record:
+- `set_map_data()` → `mlx5_vdpa_change_map()` when an ASID already has
+  an MR
+- `mlx5_vdpa_set_map()` (vdpa `.set_map`) → `set_map_data()` under
+  `reslock`
+- vhost-vdpa calls `.set_map` from `vhost_vdpa_map()` / unmap / batch
+  IOTLB updates (`drivers/vhost/vdpa.c`)
+
+**Step 5.3: TRACE CALLEES**
+Record: `suspend_vqs`, `save_channels_info`, `teardown_vq_resources`,
+`mlx5_vdpa_get_mr`/`update_mr`/`put_mr`, `setup_vq_resources`,
+`resume_vqs`. `setup_vq_resources()` can fail on umem, virtqueue create,
+RQT/TIR, steering (firmware/alloc errors). `_mlx5_vdpa_put_mr()` queues
+GC when refcount hits 0.
+
+**Step 5.4: FOLLOW THE CALL CHAIN**
+Record: Userspace/QEMU vhost-vdpa IOTLB updates → `VHOST_IOTLB_*` →
+`ops->set_map` → this path. **Reachable from VM memory map changes**
+(boot, live migration, hotplug, vIOMMU). The UAF arm additionally needs
+DRIVER_OK, non-resumable firmware (`freeze_to_rdy_supported` missing →
+`.resume = NULL` → teardown/rebuild), and `setup_vq_resources()`
+failure.
+
+**Step 5.5: SEARCH FOR SIMILAR PATTERNS**
+Record: Other `mlx5_vdpa_update_mr()` sites (`mlx5_vdpa_clean_mrs`,
+first-map in `set_map_data`, reset) do not rebuild VQs then drop the new
+MR while leaving it installed. This error path is unique to
+`change_map()`.
+
+===============================================================
+PHASE 6: CROSS-REFERENCING AGAINST THE LOCAL TREE
+===============================================================
+
+**Step 6.1: DOES THE BUGGY CODE EXIST IN THIS TREE?**
+Record: **Yes.** `mlx5_vdpa_change_map()` at
+`drivers/vdpa/mlx5/net/mlx5_vnet.c:3044` still updates the MR then
+returns on `setup_vq_resources()` failure; `set_map_data()` still `put`s
+`new_mr` on that error. Bug since **v6.7**; delayed GC since
+**v6.12-rc1**. Local: **6.12.111**.
+
+**Step 6.2: CHECK FOR BACKPORT COMPLICATIONS**
+Record: **Clean apply** (`git apply --check` exit 0). Surrounding code
+matches the diff hunks.
+
+**Step 6.3: CHECK IF RELATED FIXES ARE ALREADY HERE**
+Record: **No** rollback/`roll back MR` commit in this tree. 11f79e27 is
+not an ancestor of HEAD.
+
+===============================================================
+PHASE 7: SUBSYSTEM AND MAINTAINER CONTEXT
+===============================================================
+
+**Step 7.1: IDENTIFY THE SUBSYSTEM AND ITS CRITICALITY**
+Record: **[drivers/vdpa/mlx5] [IMPORTANT]** — ConnectX6+ virtio-net
+datapath offload (`CONFIG_MLX5_VDPA_NET`). Not core MM/VFS, but
+production virtualization (OpenStack/K8s HW-offloaded virtio).
+Maintainer: Dragos Tatulea.
+
+**Step 7.2: ASSESS SUBSYSTEM ACTIVITY**
+Record: Mature, still receiving error-path and MR-lifetime fixes
+(postpone MR deletion, probe error paths). Not staging.
+
+===============================================================
+PHASE 8: IMPACT AND RISK ASSESSMENT
+===============================================================
+
+**Step 8.1: DETERMINE WHO IS AFFECTED**
+Record: **driver-specific / config-specific** — `CONFIG_MLX5_VDPA_NET`
+users, mainly when firmware lacks `freeze_to_rdy_supported`
+(teardown/rebuild on every map change).
+
+**Step 8.2: DETERMINE THE TRIGGER CONDITIONS**
+Record: Live `.set_map` while DRIVER_OK, teardown path, then VQ resource
+setup fails. Not every boot; map updates are normal for vDPA VMs.
+Unprivileged guest does not call `.set_map` directly; the VMM/host
+process does. Still a host kernel UAF.
+
+**Step 8.3: DETERMINE THE FAILURE MODE SEVERITY**
+Record: **[dangling `mres.mr[]` + GC free → UAF] [HIGH]** — later VQ
+modify/create or another map op can dereference a freed MR. Crash or
+memory corruption in the host kernel.
+
+**Step 8.4: CALCULATE RISK-BENEFIT RATIO**
+Record:
+- **Benefit:** high for mlx5 vDPA — prevents UAF after a failed map
+  change.
+- **Risk:** low — ~15 lines, local refcount, applies cleanly.
+- **Ratio:** **favor backport.**
+
+===============================================================
+PHASE 9: FINAL SYNTHESIS
+===============================================================
+
+**Step 9.1: COMPILE THE EVIDENCE**
+
+FOR:
+- Real UAF: map slot holds `new_mr` after the caller drops its last map
+  ref.
+- Delayed GC in this 6.12 tree makes the free asynchronous and easier to
+  hit.
+- Small, contained, obviously correct refcount rollback.
+- Applies cleanly; no missing helpers.
+- v2 respects that VQ setup/resume must see the new MR keys.
+- Applied by the vhost maintainer.
+
+AGAINST:
+- Error-path only (setup failure after teardown).
+- mlx5 vDPA only, not all 6.12 users.
+- No syzbot/user report, no Fixes/Cc:stable (not a negative per the
+  review rules).
+- No public review comments in the saved mbox.
+
+UNRESOLVED:
+- Full lore/stable@ threads (HTTP 403).
+- No Tested-by from hardware.
+
+**Step 9.2: APPLY THE STABLE RULES CHECKLIST**
+1. Obviously correct and tested? **PASS** — refcount accounting is
+   consistent; maintainer-applied. Hardware Tested-by absent but the
+   logic is verifiable from the code.
+2. Fixes a real bug that affects users? **PASS** — dangling MR after
+   failed `.set_map`.
+3. Important issue? **PASS** — UAF / host crash, HIGH.
+4. Small and contained? **PASS** — one file, +15/-8.
+5. No new features or APIs? **PASS**
+6. Can apply to the local tree? **PASS** — buggy code present; clean
+   apply.
+
+**Step 9.3: CHECK FOR EXCEPTION CATEGORIES**
+Record: **Not an exception category** (not an ID/quirk/DT/build/doc
+add). It qualifies as a normal UAF/refcount bug fix.
+
+**Step 9.4: MAKE YOUR DECISION**
+This tree has the bug. The patch is a small, correct rollback that
+prevents a host UAF on a reachable vDPA map-update error path. Backport
+it.
+
+===============================================================
+What the commit solves, and why it matters here
+===============================================================
+
+On 6.12, a live mlx5 vDPA map change with non-resumable firmware tears
+down virtqueues, installs a new MR, then rebuilds queues. If rebuild
+fails, `set_map_data()` still `put`s that new MR while `mres.mr[asid]`
+points at it. The MR GC workqueue can free it two seconds later. Later
+mkey reads are a use-after-free in the host kernel.
+
+The fix keeps an extra ref on the old MR, installs the new one for the
+rebuild (required, because create/modify read `mres.mr[]`), and on setup
+failure restores the old MR so the extra ref becomes the map ref.
+`change_map()` owns `new_mr` on all error paths, so the caller does not
+double-put.
+
+Risk vs benefit: low risk, high severity. No prerequisites missing in
+6.12.111.
+
+===============================================================
+Verification
+===============================================================
+- [Phase 1] Parsed tags: SOB Weimin Xiong + Michael Tsirkin; Message-ID
+  present; no Fixes/Reported-by/Cc:stable
+- [Phase 2] Diff: +15/-8 in `mlx5_vnet.c`; extra get on old MR; rollback
+  via `update_mr`; move `new_mr` put into `change_map()`
+- [Phase 2] `mlx5_vdpa_update_mr()` puts old and assigns new without get
+  on new (mr.c:731)
+- [Phase 2] `mlx5_vdpa_create_mr()` starts refcount at 1 (mr.c:832)
+- [Phase 2] create_virtqueue reads `mvdev->mres.mr[]` for mkeys
+  (mlx5_vnet.c:944)
+- [Phase 3] blame: update-before-setup from 625e4b59 (v6.7-rc1);
+  teardown/rebuild from f756dd3e (v6.8-rc1)
+- [Phase 3] `git merge-base --is-ancestor 11f79e2780043 HEAD` → not in
+  this tree
+- [Phase 3] Postpone-MR-deletion 62111654481d5 is in this tree
+  (v6.12-rc1); GC delay 2000ms (mr.c:664)
+- [Phase 4] `b4 dig -c 11f79e27` →
+  patch.msgid.link/20260716054353.155805-1-xiongwm2026@163.com
+- [Phase 4] `b4 dig -a`: only v2; v1 was a different (incorrect) patch-
+  id
+- [Phase 4] `b4 dig -w`: Tatulea, Tsirkin, Wang, Perez CC'd
+- [Phase 4] mbox: submission only, no replies; lore HTTP 403
+- [Phase 5] callers: `mlx5_vdpa_set_map` ← vhost-vdpa `.set_map`
+- [Phase 5] teardown path when `.resume` is NULL
+  (`freeze_to_rdy_supported` missing, mlx5_vnet.c:4107)
+- [Phase 6] `git describe HEAD` → p-6.12-3-gc504cf0baa3d8; `make
+  kernelversion` → 6.12.111
+- [Phase 6] current `mlx5_vdpa_change_map()` matches the pre-patch code;
+  `git apply --check` clean
+- [Phase 8] Failure mode: dangling MR → GC → UAF, severity HIGH
+- UNVERIFIED: stable@ mailing-list discussion (lore 403); no hardware
+  Tested-by
 
 **YES**
 
- drivers/gpu/drm/virtio/virtgpu_drv.c | 15 +++++++++++++++
- drivers/gpu/drm/virtio/virtgpu_drv.h |  1 +
- drivers/gpu/drm/virtio/virtgpu_vq.c  | 23 +++++++++++++++++++++--
- 3 files changed, 37 insertions(+), 2 deletions(-)
+ drivers/vdpa/mlx5/net/mlx5_vnet.c | 23 +++++++++++++++--------
+ 1 file changed, 15 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
-index d9556e1b67b10..78cc388b434d9 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-@@ -118,10 +118,24 @@ static int virtio_gpu_probe(struct virtio_device *vdev)
- 	return ret;
- }
- 
-+/*
-+ * Release pending virtqueue waits so the drm_dev_enter/exit() critical
-+ * sections complete before drm_dev_unplug() blocks on synchronize_srcu().
-+ */
-+static void virtio_gpu_release_vqs(struct drm_device *dev)
-+{
-+	struct virtio_gpu_device *vgdev = dev->dev_private;
-+
-+	vgdev->vqs_released = true;
-+	wake_up_all(&vgdev->ctrlq.ack_queue);
-+	wake_up_all(&vgdev->cursorq.ack_queue);
-+}
-+
- static void virtio_gpu_remove(struct virtio_device *vdev)
+diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+index 44062e9d68f00..c49167d760a62 100644
+--- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
++++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+@@ -3044,18 +3044,24 @@ static int mlx5_vdpa_change_map(struct mlx5_vdpa_dev *mvdev,
+ 				unsigned int asid)
  {
- 	struct drm_device *dev = vdev->priv;
+ 	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
++	struct mlx5_vdpa_mr *old_mr;
+ 	bool teardown = !is_resumable(ndev);
+ 	int err;
  
-+	virtio_gpu_release_vqs(dev);
- 	drm_dev_unplug(dev);
- 
- 	if (drm_core_check_feature(dev, DRIVER_ATOMIC))
-@@ -135,6 +149,7 @@ static void virtio_gpu_shutdown(struct virtio_device *vdev)
- {
- 	struct drm_device *dev = vdev->priv;
- 
-+	virtio_gpu_release_vqs(dev);
- 	/* stop talking to the device */
- 	drm_dev_unplug(dev);
- }
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index 8575c7787fc36..51b78f8a8aa2e 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -260,6 +260,7 @@ struct virtio_gpu_device {
- 
- 	struct virtio_gpu_queue ctrlq;
- 	struct virtio_gpu_queue cursorq;
-+	bool vqs_released;
- 	struct kmem_cache *vbufs;
- 
- 	atomic_t pending_commands;
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index 592ad4f9b100d..244a791ab915e 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -422,7 +422,19 @@ static int virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
- 	if (vq->num_free < elemcnt) {
- 		spin_unlock(&vgdev->ctrlq.qlock);
- 		virtio_gpu_notify(vgdev);
--		wait_event(vgdev->ctrlq.ack_queue, vq->num_free >= elemcnt);
-+		wait_event(vgdev->ctrlq.ack_queue,
-+			   vq->num_free >= elemcnt || vgdev->vqs_released);
-+		/*
-+		 * Set by virtio_gpu_release_vqs() to unblock
-+		 * synchronize_srcu() wait in drm_dev_unplug().
-+		 */
-+		if (vgdev->vqs_released) {
-+			if (fence && vbuf->objs)
-+				virtio_gpu_array_unlock_resv(vbuf->objs);
-+			free_vbuf(vgdev, vbuf);
-+			drm_dev_exit(idx);
-+			return -ENODEV;
+ 	suspend_vqs(ndev, 0, ndev->cur_num_vqs);
+ 	if (teardown) {
+ 		err = save_channels_info(ndev);
+-		if (err)
++		if (err) {
++			mlx5_vdpa_put_mr(mvdev, new_mr);
+ 			return err;
 +		}
- 		goto again;
+ 
+ 		teardown_vq_resources(ndev);
  	}
  
-@@ -592,7 +604,14 @@ static void virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
- 	ret = virtqueue_add_sgs(vq, sgs, outcnt, 0, vbuf, GFP_ATOMIC);
- 	if (ret == -ENOSPC) {
- 		spin_unlock(&vgdev->cursorq.qlock);
--		wait_event(vgdev->cursorq.ack_queue, vq->num_free >= outcnt);
-+		wait_event(vgdev->cursorq.ack_queue,
-+			   vq->num_free >= outcnt || vgdev->vqs_released);
-+		/* See comment in virtio_gpu_queue_ctrl_sgs(). */
-+		if (vgdev->vqs_released) {
-+			free_vbuf(vgdev, vbuf);
-+			drm_dev_exit(idx);
-+			return;
++	/* Keep the old MR alive in case rebuilding the VQs fails. */
++	old_mr = mvdev->mres.mr[asid];
++	mlx5_vdpa_get_mr(mvdev, old_mr);
+ 	mlx5_vdpa_update_mr(mvdev, new_mr, asid);
+ 
+ 	for (int i = 0; i < mvdev->max_vqs; i++)
+@@ -3063,17 +3069,22 @@ static int mlx5_vdpa_change_map(struct mlx5_vdpa_dev *mvdev,
+ 						MLX5_VIRTQ_MODIFY_MASK_DESC_GROUP_MKEY;
+ 
+ 	if (!(mvdev->status & VIRTIO_CONFIG_S_DRIVER_OK) || mvdev->suspended)
+-		return 0;
++		goto out;
+ 
+ 	if (teardown) {
+ 		restore_channels_info(ndev);
+ 		err = setup_vq_resources(ndev, true);
+-		if (err)
++		if (err) {
++			/* The saved reference becomes the restored map reference. */
++			mlx5_vdpa_update_mr(mvdev, old_mr, asid);
+ 			return err;
 +		}
- 		spin_lock(&vgdev->cursorq.qlock);
- 		goto retry;
- 	} else {
+ 	}
+ 
+ 	resume_vqs(ndev, 0, ndev->cur_num_vqs);
+ 
++out:
++	mlx5_vdpa_put_mr(mvdev, old_mr);
+ 	return 0;
+ }
+ 
+@@ -3357,15 +3368,11 @@ static int set_map_data(struct mlx5_vdpa_dev *mvdev, struct vhost_iotlb *iotlb,
+ 		err = mlx5_vdpa_change_map(mvdev, new_mr, asid);
+ 		if (err) {
+ 			mlx5_vdpa_err(mvdev, "change map failed(%d)\n", err);
+-			goto out_err;
++			return err;
+ 		}
+ 	}
+ 
+ 	return mlx5_vdpa_update_cvq_iotlb(mvdev, iotlb, asid);
+-
+-out_err:
+-	mlx5_vdpa_put_mr(mvdev, new_mr);
+-	return err;
+ }
+ 
+ static int mlx5_vdpa_set_map(struct vdpa_device *vdev, unsigned int asid,
 -- 
 2.53.0
 
