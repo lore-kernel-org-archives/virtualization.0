@@ -1,90 +1,77 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.130
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792424789;
-	b=hn78Ua4SMlG5tZGQoJCIHVY/4y6YaYaI0hJd2IJ7JcLHFL3vAcwa4pwSZ2B2U8SBOot2
-	 nLViWFWtvod9U1NdvM9Ywhb2YW+LLsnLN5aH2UBnvdPuSMBzvITQaieNNOtOTsd2FODAM
-	 A/O5W6MKsjvPgOjFhBfpeJNt0fcnFdVWecg6bJ4yDh45yhO9g/7W/fqj3529L5wjo2Ied
-	 bOQgo1DsZ3uc4XXBQJ5UzcP2H1ODRZxTM2WeQWAlis9D2XFtlwk54S8EY4VP/5qMjWVRx
-	 jutTozznse0C6qUXpa6GQBxnaH3KkDgcwn9IuGIhMGwxp+R7kaLyKd7qzLS+tnMxFOg==
+	t=1792424794;
+	b=nKtQ8lbEH3N7rRuuWOqajwPKrp+DXx+0YaHh4vhNRVgkvV+EkW/caEPE6OS2Xb2QuU2y
+	 Im7sSpqQOqbsBd4J37/muycN46q2FPYn3Pp4f8PlszfHpQcjpG03soiRllp0kML8NSmhn
+	 mAZ56maPS/GoB4wvyOD0FNYQA09uiLhYFfkLAdQraZCY/cglsQCv2qtaIpMHA9ee57kIa
+	 yycu79oTtnh99Ch+CaS8BNcNIbZAJQgGNIvYR487ClSrowcVwKpk/w0UCmiK9c8BmI+0a
+	 85g0qyQLZuJt8F21FxjFollF6EnJk5l0a2JKMjvBSaoNtWjvCe4Uj/ooRu/Kvs7CVVw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792424789;
-	h=DMARC-Filter:Received:DKIM-Signature:DKIM-Signature:DKIM-Signature:
-	 DKIM-Signature:Received:Received:From:To:Cc:Subject:Date:Message-ID:
-	 X-Mailer:MIME-Version:Content-Transfer-Encoding:X-Spam-Flag:
-	 X-Spam-Score:X-Spam-Level:X-Spamd-Result;
-	bh=Q5jfLHdOgauf4TJGcojCjJicBompzHEBNJH4FQng/Qg=;
-	b=VoNo/wNQU2sGTjI1XL6CHLCHwqEF8crFH4IzsKnVxXdDyKfwigH61jka60GQ8ZlFbTDK
-	 +rd/WAYVSXxfJ8P+AI+pfYeWfsRmOs1wAWj6jlpyps6SC2IHN/+aU5ooMY4uLcIJldQVJ
-	 JPPI4w3+DXGidBT/PlmlD+i8dAEYaWaV6a1GgBanPYdkGlR2UoURHPfKw3DSiT7DX0oUf
-	 pZIx0gnekeyg34uA8mXnHj008s53NPtedeAJ7xX3DQacegd0vqMDT1QsDhgnhmcqTxDPD
-	 9tLRA+fFcHvcubT4+eqQrLMqbNqjo5S4Kr8WtReaQLtUSACMo/O+jb6My35pFheVwSg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792424794;
+	h=DMARC-Filter:Received:DKIM-Signature:DKIM-Signature:Received:
+	 Received:From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:
+	 References:MIME-Version:Content-Transfer-Encoding:X-Rspamd-Action:
+	 X-Spam-Flag:X-Spam-Score:X-Rspamd-Pre-Result:X-Spam-Level:
+	 X-Rspamd-Queue-Id:X-Spamd-Result:X-Rspamd-Server;
+	bh=Q42+1LT+/kIysWR1pP52zLF3q3QDlSMlW5TUG8Jhqvg=;
+	b=uTXfvSrwDVBBI8Yro3RGp3qyw/JAWMOOeMecxyPEV1Z9YVjaPTmi0tyzN7sJUpQkYdP4
+	 E4LHDKq40sGCkhLinrmsFW7AsAHEsXG6FGBYgMBlrLbEqjQ+VMZu+jzj2mzMFYbu1bG2s
+	 hGrWXft84xpJWCFsasqrn31z+kM7+QTRu4qsN1XFSaud0PCQHZoJyp2X9T3mfVeOiuDO1
+	 PHQ0giG7KyssQ/jg4W8oQ+AKFjovnc6I1Ah/+qzZESg6xI+X0IOPrHAdHPzt7cGZEFyMT
+	 U7mpGZvBe+7LmPvw8FhlBfB8lklRO/exJk3s7WHzHaIFx094EsOPavmbPKmPLVCGdlw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=suse.de;
 	spf=pass smtp.mailfrom=suse.de;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b="eLHhPEX/";
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=5khW4cqd;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=zNQS71yM;
-	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=ewW0O3Sh;
-	arc=none smtp.remote-ip=195.135.223.131
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=MsrOG3oY;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=dRTjBlue;
+	arc=none smtp.remote-ip=195.135.223.130
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E3DE606DA60
-	for <virtualization@lists.linux.dev>; Mon, 19 Oct 2026 15:46:28 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9E3DE606DA60
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7AEC9606AAD6
+	for <virtualization@lists.linux.dev>; Mon, 19 Oct 2026 15:46:33 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7AEC9606AAD6
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=eLHhPEX/;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=5khW4cqd;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=zNQS71yM;
-	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=ewW0O3Sh
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	dkim=pass (1024-bit key, unprotected) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=MsrOG3oY;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=dRTjBlue
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id C40E41F444;
-	Mon, 19 Oct 2026 15:46:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1792424779; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=Q5jfLHdOgauf4TJGcojCjJicBompzHEBNJH4FQng/Qg=;
-	b=eLHhPEX/3TCqJ/XmoqatvuqCQSdY3Pr+P5FtOt4Sv3QxwUJXgA10ALsxbhVld0eAe93ZZ4
-	d6Cek9M0r++AsQeKzSIm52qOdgSQlIZCuDesVxFP3/Ea5d45QzrOgqzaA4QW8MGCsovmQ+
-	jA4wv975YO/0ShG6BVHsrbXD7T6+42c=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1792424779;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=Q5jfLHdOgauf4TJGcojCjJicBompzHEBNJH4FQng/Qg=;
-	b=5khW4cqdC699nJ5v1ujyRTIiRqIwFIwiF6OPf+6TvSoUAYYU9p+lDn2ZB/iMfgzOctVZKY
-	cA1AHNoEvehaFOCA==
-Authentication-Results: smtp-out2.suse.de;
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 2EC4621CA9;
+	Mon, 19 Oct 2026 15:46:18 +0000 (UTC)
+Authentication-Results: smtp-out1.suse.de;
 	none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1792424777; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=Q5jfLHdOgauf4TJGcojCjJicBompzHEBNJH4FQng/Qg=;
-	b=zNQS71yM/kc2I8PjYNn19JU+kwk8G5rNHxyb/Q+1ufzMrLSOXAXbNkTdsQ1Vu6xRVVrGgs
-	sMbOalMqkrOYeuWe1LON6FlwdaEAZTwI7txzBCIhoUA2gnX0jxqU2Ui87s0ABFD89IXPwR
-	noquh1e0zE3+bnmhWYYumfZhud8nw2U=
+	t=1792424778; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Q42+1LT+/kIysWR1pP52zLF3q3QDlSMlW5TUG8Jhqvg=;
+	b=MsrOG3oYS78SNJ7/ae2AH0ESftfF09tqFOLo3hMOAUt3slapAB7RrKO6+HesSxlqe6m/ue
+	QEqoOB94tRzhOxv0a2MF0h3uFdFZhqo/bEk8CDVG0YF67dcqPz2qqkDbMdCoK9GGd82iS4
+	Hb00NNR9DlS/BmHreEXJsRVzOrUheGs=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1792424777;
+	s=susede2_ed25519; t=1792424778;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=Q5jfLHdOgauf4TJGcojCjJicBompzHEBNJH4FQng/Qg=;
-	b=ewW0O3ShwsL4XRU7kOgc1bRZz9WfEvSleKV+S+vmfs7Y8PT00P899HadfuKSo+f/7uoR7s
-	GvmYEw2bikL52cCA==
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Q42+1LT+/kIysWR1pP52zLF3q3QDlSMlW5TUG8Jhqvg=;
+	b=dRTjBlueuN5bJ8GI4kyce071TiXAh7MkIvbio8l6r7/gH0P6dezWLAj20I7JwoEJfK3dni
+	+4kEw2LgrA9qYSCg==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 43642134B3;
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id AA98A1376E;
 	Mon, 19 Oct 2026 15:46:17 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id gYPgBkk71mrrPAAAD6G6ig
+	id gYPgBkk71mrrPAAAD6G6ig:T2
 	(envelope-from <tzimmermann@suse.de>); Mon, 19 Oct 2026 15:46:17 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: jfalempe@redhat.com,
@@ -103,10 +90,12 @@ Cc: dri-devel@lists.freedesktop.org,
 	virtualization@lists.linux.dev,
 	sashiko-reviews@lists.linux.dev,
 	Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 0/4] drm: Move drawing to pixel-helper module
-Date: Mon, 19 Oct 2026 17:32:41 +0200
-Message-ID: <20261019154612.777074-1-tzimmermann@suse.de>
+Subject: [PATCH 1/4] drm: Add helper module for working with pixel data
+Date: Mon, 19 Oct 2026 17:32:42 +0200
+Message-ID: <20261019154612.777074-2-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.56.0
+In-Reply-To: <20261019154612.777074-1-tzimmermann@suse.de>
+References: <20261019154612.777074-1-tzimmermann@suse.de>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -117,89 +106,74 @@ List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Rspamd-Action: no action
 X-Spam-Flag: NO
-X-Spam-Score: -2.80
+X-Spam-Score: -4.00
+X-Rspamd-Pre-Result: action=no action;
+	module=replies;
+	Message is reply to one we originated
 X-Spam-Level: 
-X-Spamd-Result: default: False [-2.80 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MID_CONTAINS_FROM(1.00)[];
-	R_MISSING_CHARSET(0.50)[];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	FREEMAIL_TO(0.00)[redhat.com,linux.intel.com,kernel.org,gmail.com,ffwll.ch];
-	ARC_NA(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[16];
-	MIME_TRACE(0.00)[0:+];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo];
-	RCVD_COUNT_TWO(0.00)[2];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com]
+X-Rspamd-Queue-Id: 2EC4621CA9
+X-Spamd-Result: default: False [-4.00 / 50.00];
+	REPLY(-4.00)[]
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
 
-Add the new module drm_pixel_helper.ko and link existing shared code
-for drawing to it. This includes format helpers, panic helpers and
-drawing helpers. Update drivers. No functional changes.
+Add drm_pixel_helper.ko. This module will contain helpers that copy
+and process pixel data, such as framebuffers. Drivers that want to
+use the helpers should select DRM_PIXEL_HELPER.
 
-The existing helpers are currently part of KMS helpers or the DRM core.
-Neither is suitable for this. Adding drm_pixel_helper.ko resolves this.
-The new module only depends on the DRM core and common kernel functions.
-
-Future directions: putting pixel-related helpers into the same module
-opens up the possibility of sharing more code among them. There is even
-more drawing code in vkms and a few other drivers. Hopefully this could
-be integrated into pixel helpers at some point.
-
-Smoke-tested on qemu with vesadrm and bochs.
-
-Thomas Zimmermann (4):
-  drm: Add helper module for working with pixel data
-  drm/pixel: Link format helpers into drm_pixel_helper.ko
-  drm/pixel: Link panic helpers into drm_pixel_helper.ko
-  drm/pixel: Link draw helpers into drm_pixel_helper.ko
-
- drivers/gpu/drm/Kconfig                       | 15 ++++++--------
- drivers/gpu/drm/Kconfig.debug                 |  2 +-
- drivers/gpu/drm/Makefile                      | 12 +++++++----
- drivers/gpu/drm/amd/amdgpu/Kconfig            |  1 +
- drivers/gpu/drm/ast/Kconfig                   |  1 +
- drivers/gpu/drm/clients/Kconfig               |  2 +-
- .../gpu/drm/{drm_draw.c => drm_draw_helper.c} |  0
- drivers/gpu/drm/drm_kms_helper_common.c       | 13 ------------
- drivers/gpu/drm/drm_panic_helper.c            |  1 +
- drivers/gpu/drm/drm_panic_internal.h          | 14 -------------
- drivers/gpu/drm/drm_pixel_helper_common.c     | 20 +++++++++++++++++++
- drivers/gpu/drm/drm_pixel_helper_internal.h   | 20 +++++++++++++++++++
- drivers/gpu/drm/gud/Kconfig                   |  1 +
- drivers/gpu/drm/hisilicon/hibmc/Kconfig       |  1 +
- .../gpu/drm/hisilicon/hibmc/hibmc_drm_de.c    |  1 +
- drivers/gpu/drm/hyperv/Kconfig                |  1 +
- drivers/gpu/drm/i915/Kconfig                  |  1 +
- drivers/gpu/drm/imx/ipuv3/Kconfig             |  1 +
- drivers/gpu/drm/mgag200/Kconfig               |  1 +
- drivers/gpu/drm/nouveau/Kconfig               |  1 +
- drivers/gpu/drm/renesas/rcar-du/Kconfig       |  1 +
- drivers/gpu/drm/renesas/shmobile/Kconfig      |  1 +
- drivers/gpu/drm/sitronix/Kconfig              |  2 ++
- drivers/gpu/drm/solomon/Kconfig               |  1 +
- drivers/gpu/drm/sysfb/Kconfig                 |  1 +
- drivers/gpu/drm/sysfb/drm_sysfb_modeset.c     |  1 +
- drivers/gpu/drm/tidss/Kconfig                 |  1 +
- drivers/gpu/drm/tiny/Kconfig                  |  6 ++++++
- drivers/gpu/drm/tiny/bochs.c                  |  1 +
- drivers/gpu/drm/virtio/Kconfig                |  1 +
- 30 files changed, 83 insertions(+), 42 deletions(-)
- rename drivers/gpu/drm/{drm_draw.c => drm_draw_helper.c} (100%)
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+---
+ drivers/gpu/drm/Kconfig                   | 6 ++++++
+ drivers/gpu/drm/Makefile                  | 4 ++++
+ drivers/gpu/drm/drm_pixel_helper_common.c | 6 ++++++
+ 3 files changed, 16 insertions(+)
  create mode 100644 drivers/gpu/drm/drm_pixel_helper_common.c
- create mode 100644 drivers/gpu/drm/drm_pixel_helper_internal.h
 
-
-base-commit: 5b9ee97c47574138633a1cb70a32d118b6860a43
+diff --git a/drivers/gpu/drm/Kconfig b/drivers/gpu/drm/Kconfig
+index 61111d50b1c6..dce5e25671ee 100644
+--- a/drivers/gpu/drm/Kconfig
++++ b/drivers/gpu/drm/Kconfig
+@@ -49,6 +49,12 @@ config DRM_KMS_HELPER
+ 	help
+ 	  CRTC helpers for KMS drivers.
+ 
++config DRM_PIXEL_HELPER
++	tristate
++	depends on DRM
++	help
++	  Helpers for working with pixel data in DRM.
++
+ config DRM_DRAW
+ 	bool
+ 	depends on DRM
+diff --git a/drivers/gpu/drm/Makefile b/drivers/gpu/drm/Makefile
+index 2c6bc093a923..5f555a2c1a4c 100644
+--- a/drivers/gpu/drm/Makefile
++++ b/drivers/gpu/drm/Makefile
+@@ -99,6 +99,10 @@ obj-$(CONFIG_DRM_PANEL) += drm_panel.o
+ obj-$(CONFIG_DRM_PANEL_ORIENTATION_QUIRKS) += drm_panel_orientation_quirks.o
+ obj-$(CONFIG_DRM_PANEL_BACKLIGHT_QUIRKS) += drm_panel_backlight_quirks.o
+ 
++drm_pixel_helper-y := \
++	drm_pixel_helper_common.o
++obj-$(CONFIG_DRM_PIXEL_HELPER) += drm_pixel_helper.o
++
+ #
+ # Memory-management helpers
+ #
+diff --git a/drivers/gpu/drm/drm_pixel_helper_common.c b/drivers/gpu/drm/drm_pixel_helper_common.c
+new file mode 100644
+index 000000000000..743846e1e003
+--- /dev/null
++++ b/drivers/gpu/drm/drm_pixel_helper_common.c
+@@ -0,0 +1,6 @@
++// SPDX-License-Identifier: GPL-2.0 or MIT
++
++#include <linux/module.h>
++
++MODULE_DESCRIPTION("DRM pixel-data helpers");
++MODULE_LICENSE("GPL and additional rights");
 -- 
 2.56.0
 
