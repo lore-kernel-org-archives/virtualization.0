@@ -1,104 +1,103 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.160.49
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792427578;
-	b=rujyr08V4LkF/oxoN7/XRkhmID0u0QyWMmtfz9AnWIO0zSO5akIJV2RuZMgnMAYuPNfB
-	 PMN0R6sSlD2d1eSJAfdaKq6pxSavSEX00H55Us9Z9WwmxEWRWpoAemoX4qmq0l8jVZbpN
-	 ry/60mm630Ms2xUYPdAniejqwqJ9jzpRvYmBzRaEdVnC6kdfCaSeIQwIFtGjSsG17a82g
-	 dbosj2h6D7Kal/Jsp04POOsEOSyn/R6rm2Ku2iqei1b/R3yikDCTaGeXlxyN56/iS/nbV
-	 rctHjGWQvTdmuWQOaOpExnxFZDP44AWM0XayZAchPdDIah+BTMYjtLmH4fLQmjwraIw==
+	t=1792428713;
+	b=A/KC/qDDtLcoiqvQVutreYaPei5nECNglXF2nnufQnIhNCBt5Z5A+gH4JVtkl2lpaSJt
+	 lmVOO9Sudg/kAABMQ+KMQ4SHwxclqYv2OisheeIcXisMwQqzKdtWoAb1sRngSXuXXXT7+
+	 H49BwgMiStuzkhZkYy2ymATGU6D+GNYe0tW1ueg/plk+e8QWh463Wen6MTfOzl6rTLndf
+	 3yubA+YZaFyCip010OqJX/kZVIwINsfl9A/NlgYidt/oDIrhICdnsZkNwuSipZlHCAx+S
+	 x7SlERrZ+IcKHMn2HW2USofZSphLHp6v3Xux2TAZho0l4kd4KnngktG8EnquMDDC+AQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792427578;
-	h=DMARC-Filter:Received:DKIM-Signature:DKIM-Signature:DKIM-Signature:
-	 DKIM-Signature:Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:Autocrypt:
-	 In-Reply-To:Content-Type:Content-Transfer-Encoding:X-Rspamd-Server:
-	 X-Rspamd-Queue-Id:X-Rspamd-Action:X-Spam-Level:X-Spamd-Result:
-	 X-Spam-Flag:X-Spam-Score;
-	bh=oxmu7stfRu9F1nID7OH4tHkwJ+6MmriNypobbE12Aic=;
-	b=2SEjNWaVuWi8d+RjQmVp6PzNx2/oBUeXlbLWXZCbNHSORls190A8ZtUpH0Zkui2q5ZBV
-	 4FRJoL6HWORkL+I71Iw5gdQGqMnR4bbwvEYArNdlMkBa68QMPOB3OkP7w2Q7mGCGwEsR8
-	 ws5vhtNPROgeC07AwgPIFxnwBMiRUi0jDkwhUkq5lDnePQ/1Cc+JlncGctY6vAfE34QxU
-	 CP4UCJHEY3ZmiUa4V2wHs1htRkRXz8APXaf+GUYp3W63o61a5gA0ZtCYjvOFuGXkCil21
-	 +O4sWgCJFCsOM7dB5HnyPM56pJubPTpMd2mMIQV8Xwa1xygPIMtxmBYfyWhzvCIrWSg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792428713;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:Content-Transfer-Encoding:
+	 In-Reply-To;
+	bh=GGZr1o3aGctzMnwygsbHm91Fqbk3LTUuMaHfiMRf6n8=;
+	b=3LeHBxaA6Q5CgeJVtrUQCEphDyS5TAm/GBcv3CYXKIB8Tm4DN9FiTW1QIxtyVKdb8u/0
+	 fHgjgthHPvAG7V6T6ayzI6HFWkCAiAVkVsItGYSmpyIZixmeM3CoE7CKpcq9mGTUveS4f
+	 q40+mE/hKGjOcJ2okMr22/1Ag0Eyzhfd20BULsS2mdTFN0auf3Z9OmxSM7P0pmxCstx9D
+	 LJJUVpNgmY9yAazW16FgEmiSq0HvDuaOeSXT/LXvd/wFMjQjR6SnW3Xmn58dc8J8EgtNy
+	 78dF8M7AtDJvnyxoaj4bA0hFGZjvHKa7Mz5VvgexnDgiGHar71OgbIWYuR3SNn4dabQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=suse.de;
-	spf=pass smtp.mailfrom=suse.de;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=IEv18a17;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=NU20AtNF;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=IEv18a17;
-	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=NU20AtNF;
-	arc=none smtp.remote-ip=195.135.223.130
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=cloudflare.com;
+	spf=pass smtp.mailfrom=cloudflare.com;
+	dkim=pass header.d=cloudflare.com header.i=@cloudflare.com header.a=rsa-sha256 header.s=google09082023 header.b=CAOOROj6;
+	arc=none smtp.remote-ip=209.85.160.49
+Received: from mail-oa1-f49.google.com (mail-oa1-f49.google.com [209.85.160.49])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 147AB606A31E;
-	Mon, 19 Oct 2026 16:32:56 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 147AB606A31E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8767F606A31C
+	for <virtualization@lists.linux.dev>; Mon, 19 Oct 2026 16:51:52 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8767F606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cloudflare.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cloudflare.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=IEv18a17;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=NU20AtNF;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=IEv18a17;
-	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=NU20AtNF
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 5D74621C20;
-	Mon, 19 Oct 2026 16:32:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1792427575; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=oxmu7stfRu9F1nID7OH4tHkwJ+6MmriNypobbE12Aic=;
-	b=IEv18a17/3KJqDEtJ4FSngYTj3bf77WTh8T024FZIz0miCpeCU+wv57ptKwXXXzv+Xa2Qn
-	TtUOhpJlroYh8l0L7EsEKcIZ0F3ELqDVtiXZC645yTmY+15wxeN7pHgzXKsXAg+TPoKTHQ
-	qUs/dAnYDNCqL7W7OCMOtqd0gN2y6EY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1792427575;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=oxmu7stfRu9F1nID7OH4tHkwJ+6MmriNypobbE12Aic=;
-	b=NU20AtNFudFpqxSUTQa8t9OuCNcdTvtxiTDvY4aTGYQpH1p6G2pz7ZZfnnL/Q4FECZyCE/
-	FOoB0oqNSxbQHlBg==
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=IEv18a17;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=NU20AtNF
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1792427575; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=oxmu7stfRu9F1nID7OH4tHkwJ+6MmriNypobbE12Aic=;
-	b=IEv18a17/3KJqDEtJ4FSngYTj3bf77WTh8T024FZIz0miCpeCU+wv57ptKwXXXzv+Xa2Qn
-	TtUOhpJlroYh8l0L7EsEKcIZ0F3ELqDVtiXZC645yTmY+15wxeN7pHgzXKsXAg+TPoKTHQ
-	qUs/dAnYDNCqL7W7OCMOtqd0gN2y6EY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1792427575;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=oxmu7stfRu9F1nID7OH4tHkwJ+6MmriNypobbE12Aic=;
-	b=NU20AtNFudFpqxSUTQa8t9OuCNcdTvtxiTDvY4aTGYQpH1p6G2pz7ZZfnnL/Q4FECZyCE/
-	FOoB0oqNSxbQHlBg==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 0194E136CC;
-	Mon, 19 Oct 2026 16:32:54 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id VkahMjZG1morbQAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Mon, 19 Oct 2026 16:32:54 +0000
-Message-ID: <4deb710d-ef64-4592-833d-ad1b84d715be@suse.de>
-Date: Mon, 19 Oct 2026 18:32:54 +0200
+	dkim=pass (2048-bit key, unprotected) header.d=cloudflare.com header.i=@cloudflare.com header.a=rsa-sha256 header.s=google09082023 header.b=CAOOROj6
+Received: by mail-oa1-f49.google.com with SMTP id 586e51a60fabf-4877837890fso1132871fac.2
+        for <virtualization@lists.linux.dev>; Mon, 19 Oct 2026 09:51:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=cloudflare.com; s=google09082023; t=1792428711; x=1793033511; darn=lists.linux.dev;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=GGZr1o3aGctzMnwygsbHm91Fqbk3LTUuMaHfiMRf6n8=;
+        b=CAOOROj6KwPYxU1HNVqx01Rm+1GHe5qarE0nM+OxB4psSKfaeaiK3JxdaLqT91pq04
+         QDzM0kh3oWH4kjeGije6FoIGkqSbKzQajTl9ABUnsm8a2uRjXR2E3YVrp31mqsNYWDKn
+         eHbbhhgfxcoC1oerbqc7AItpM2kcXKB2v4VuB7ChUqd15U8B3e1s0j7r6aHAJj2Yt74g
+         t9V6xhRF9kngpKYZ/lvd+SOeqk8/SMGZQ+3F7OrnKlwueuqXvSuFs6HlmLjxYBNONovo
+         31f+0FedTlyrHTnZ2PayofSpdUvrUTB+V0Yi2ijWmVn+T2Y31dLn1bBrumTelJWI/L7s
+         U0UQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792428711; x=1793033511;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=GGZr1o3aGctzMnwygsbHm91Fqbk3LTUuMaHfiMRf6n8=;
+        b=T46wv628FcjWDtMDUhPiFNOPWQPYhrgozml3SYUlJd0MCP9JKihY6Shb+FP8mX5bZ1
+         MH3Yl60SqdOAVU5sYlGPLvUlAohBKMliCJDltBZK/ZGVGiRP0wHstyf726HQLp1NHk7l
+         uLdWOQwWv1AnaGMc63Q9qi+lpGLBecXaWh4rS/edVnc1iPs6upsHzd0ye4WUekntGZPB
+         mUZkuyitEhQPnksxo/MUJ4Vz1Lh25penfLmmDkrVkvOn033ZUHoLo852HM91JPpW/g3Y
+         4d9g6oGgwO9/kkqG+csSC/LoiGIspIYp2GrJloRFuU9cgOzIIOK8AMkEuHkIxRpTmRxg
+         KBCQ==
+X-Forwarded-Encrypted: i=1; AKwUvBzIgdjWtADFPcfLao4kbnqa04R6H9BBEcXSeJx4u2kjOlSlMK91kCkX0eoAOEANLmTPFG+TuJ/pDk1agIZSZw==@lists.linux.dev
+X-Gm-Message-State: AFq9FYIeOYBsRDnybsQgDRfn5GNbNMOGM6dFMlBbIxZoXkiBww25rNrJ
+	Nqt5rsSTbtca92YRQzah83toiR9Tcct7qGhdaBgrpqpULRLtQQxFjy7ZI2VdVrn+jJE=
+X-Gm-Gg: AYBFou3gbItmWOyjauu7qrh4LQSpCUGd9hSyrHMJRi1dVmaRBBAQZapSUQUjtlkcVPZ
+	UR/wKrbuiK39EESDIinArNm9zQizx3hK7NJM2z3VYFT3YPPkvI386Gx0yMUVbPo1nNbG/CBgVUQ
+	nTnHcLxyusPnvK9OvjzfXvl58AC8PBtXQAn4qsgBMliUHzwgg5V4nArLUuH8noQ5a0L59KQLOK5
+	avgRD4scqYGtDe+qTdwo7jxF2o+wHzR1dE8k8dXFebJqOCgR1CmjaCFtNPIz96djSDUcMd5vBvT
+	gRLcNONFzB2uM6vwnBxmE5US3136kMK+Sw/zfRn/TLElyfQ2qwVvQbKz0A4mibxjh/nEeKY8pCA
+	VnNig5npB3gZxi7qQ9y5vPbEsp5/kzG0bV74ZPVjkWMXD+kkUIU3VP1BuzB9mnx3JFFWXlgttgA
+	iOvhD25xaxotDHq82tDCoN0TIx1gt432eWnA5AKgxn1G4ALSY39MBDn9RyIBZ1ol8ygibVGa+5u
+	5BeKBUrATu2FhZAeZsirjgUZ5ASvXShi73x9Sk=
+X-Received: by 2002:a05:6870:3c13:b0:494:b8f4:9a22 with SMTP id 586e51a60fabf-4a757917efemr6305805fac.28.1792428710995;
+        Mon, 19 Oct 2026 09:51:50 -0700 (PDT)
+Received: from 20HS2G4 ([2a09:bac6:bf21:1c64::2d4:c2])
+        by smtp.gmail.com with ESMTPSA id 586e51a60fabf-4a73b640adesm8785424fac.10.2026.10.19.09.51.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 19 Oct 2026 09:51:49 -0700 (PDT)
+Date: Mon, 19 Oct 2026 11:51:46 -0500
+From: Chris Arges <carges@cloudflare.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org,
+	Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+	=?iso-8859-1?Q?Bj=F6rn_T=F6pel?= <bjorn@kernel.org>,
+	Phil Sutter <phil@nwl.cc>, Jason Wang <jasowangio@gmail.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@kernel.org>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	netdev@vger.kernel.org, virtualization@lists.linux.dev,
+	Max Krasnyansky <maxk@qualcomm.com>,
+	Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH net v3 0/8] more virtio-net csum hardening
+Message-ID: <atZKogiEAkStdgQ2@20HS2G4>
+References: <cover.1792411304.git.mst@redhat.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -108,218 +107,133 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 3/4] drm/pixel: Link panic helpers into
- drm_pixel_helper.ko
-To: sashiko-reviews@lists.linux.dev
-Cc: dri-devel@lists.freedesktop.org, linux-hyperv@vger.kernel.org,
- intel-gfx@lists.freedesktop.org, imx@lists.linux.dev,
- virtualization@lists.linux.dev, Frank.Li@kernel.org,
- wsa+renesas@sang-engineering.com, "Michael S. Tsirkin" <mst@redhat.com>,
- Eugenio Perez <eperezma@redhat.com>
-References: <20261019154612.777074-1-tzimmermann@suse.de>
- <20261019154612.777074-4-tzimmermann@suse.de>
- <sashiko-outbox-177862@kernel.org>
-Content-Language: en-US
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <sashiko-outbox-177862@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Rspamd-Queue-Id: 5D74621C20
-X-Rspamd-Action: no action
-X-Spam-Level: 
-X-Spamd-Result: default: False [-3.00 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	XM_UA_NO_VERSION(0.01)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	ARC_NA(0.00)[];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	MIME_TRACE(0.00)[0:+];
-	FROM_HAS_DN(0.00)[];
-	DKIM_TRACE(0.00)[suse.de:+];
-	TO_DN_SOME(0.00)[];
-	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	RCVD_COUNT_TWO(0.00)[2];
-	FROM_EQ_ENVFROM(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	MID_RHS_MATCH_FROM(0.00)[];
-	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	RCPT_COUNT_SEVEN(0.00)[10];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	TAGGED_RCPT(0.00)[renesas];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:url,suse.de:email,suse.de:dkim,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns]
-X-Spam-Flag: NO
-X-Spam-Score: -3.00
+In-Reply-To: <cover.1792411304.git.mst@redhat.com>
 
-
-
-Am 19.10.26 um 18:19 schrieb sashiko-bot@kernel.org:
-> Thank you for your contribution! Sashiko AI review found 3 potential issue(s) to consider:
-> - [Low] drm: missing DRM_PIXEL_HELPER select in DRM_KMS_HELPER for drm_crtc_init()
-
-I see this is still an issue. The fix here is to move drm_crtc_init() 
-into drivers. The only remaining callers of drm_crtc_init() are in 
-radeon and amdgpu. There was recently a patch to move the helper there, 
-[1] but the effort appears to have stalled.
-
-[1] 
-https://lore.kernel.org/dri-devel/20260903071409.427010-1-oushixiong1025@163.com/
-
-I'll do this before continuing with the pixel helpers.
-
-
-> - [Low] drm/tests: link failure in drm_panic_helper_test when CONFIG_DRM_PANIC=n
-> - [Low] drm/xe: missing DRM_PIXEL_HELPER dependency when DRM_PANIC=y
-> --
->
-> commit d010f0f67d242682650aa0651dfd5a1e57612943
-> Author: Thomas Zimmermann <tzimmermann@suse.de>
->
-> drm/pixel: Link panic helpers into drm_pixel_helper.ko
->
-> This commit moves the DRM panic helpers from drm_kms_helper into
-> drm_pixel_helper.ko, drops the DRM_PANIC_HELPER Kconfig option, and
-> selects DRM_PIXEL_HELPER in drivers using the panic helpers.
->
->> diff --git a/drivers/gpu/drm/Kconfig b/drivers/gpu/drm/Kconfig
->> index 8e4a588e9111d..bf7c599443403 100644
->> --- a/drivers/gpu/drm/Kconfig
->> +++ b/drivers/gpu/drm/Kconfig
->> @@ -46,13 +46,14 @@ config DRM_MIPI_DSI
->>   config DRM_KMS_HELPER
->>   	tristate
->>   	depends on DRM
->> -	select DRM_PANIC_HELPER if DRM_PANIC
->>   	help
->>   	  CRTC helpers for KMS drivers.
-> [Severity: Low]
-> Does DRM_KMS_HELPER also need to select DRM_PIXEL_HELPER if DRM_PANIC?
->
-> drivers/gpu/drm/drm_modeset_helper.c is unconditionally compiled into
-> drm_kms_helper, and its primary_plane_funcs structure (used by
-> drm_crtc_init()) includes DRM_PANIC_PLANE_FUNCS:
->
-> drivers/gpu/drm/drm_modeset_helper.c:
->      static const struct drm_plane_funcs primary_plane_funcs = {
->              DRM_PLANE_NON_ATOMIC_FUNCS,
->              DRM_PANIC_PLANE_FUNCS,
->      };
->
-> When CONFIG_DRM_PANIC is enabled, DRM_PANIC_PLANE_FUNCS expands in
-> include/drm/drm_panic_helper.h to reference
-> drm_plane_helper_display_panic_screen, which is now built into
-> drm_pixel_helper. If CONFIG_DRM_PANIC=y and DRM_KMS_HELPER is enabled
-> without a matching built-in or modular DRM_PIXEL_HELPER, linking fails
-> with an undefined reference to drm_plane_helper_display_panic_screen.
->
-> [ ... ]
->
->> diff --git a/drivers/gpu/drm/Kconfig.debug b/drivers/gpu/drm/Kconfig.debug
->> index 1afb9cad850f6..4573cad368a28 100644
->> --- a/drivers/gpu/drm/Kconfig.debug
->> +++ b/drivers/gpu/drm/Kconfig.debug
->> @@ -69,7 +69,6 @@ config DRM_KUNIT_TEST
->>   	select DRM_EXPORT_FOR_TESTS if m
->>   	select DRM_GEM_SHMEM_HELPER
->>   	select DRM_KUNIT_TEST_HELPERS
->> -	select DRM_PANIC_HELPER
->>   	select DRM_PIXEL_HELPER
->>   	select DRM_SYSFB_HELPER
->>   	select PRIME_NUMBERS
-> [Severity: Low]
-> Can removing select DRM_PANIC_HELPER from DRM_KUNIT_TEST cause a link
-> failure when CONFIG_DRM_PANIC is disabled?
->
-> With this change, drm_panic_helper.o is only built into drm_pixel_helper
-> when CONFIG_DRM_PANIC is enabled:
->
-> drivers/gpu/drm/Makefile:
->      drm_pixel_helper-$(CONFIG_DRM_PANIC) += drm_panic_helper.o
->
-> However, drivers/gpu/drm/tests/Makefile still builds
-> drm_panic_helper_test.o unconditionally under obj-$(CONFIG_DRM_KUNIT_TEST),
-> and functions such as drm_panic_helper_draw_screen_user_default() in
-> drivers/gpu/drm/tests/drm_panic_helper_test.c call
-> drm_panic_helper_draw_screen_user(), drm_panic_helper_draw_screen_kmsg(),
-> drm_panic_helper_set_description(), and
-> drm_panic_helper_clear_description(). When CONFIG_DRM_KUNIT_TEST is enabled
-> and CONFIG_DRM_PANIC=n, linking fails with undefined references to those
-> symbols.
->
-> [ ... ]
->
->> diff --git a/drivers/gpu/drm/i915/Kconfig b/drivers/gpu/drm/i915/Kconfig
->> index 71426b9c91f00..f698d3c8daa9e 100644
->> --- a/drivers/gpu/drm/i915/Kconfig
->> +++ b/drivers/gpu/drm/i915/Kconfig
->> @@ -19,6 +19,7 @@ config DRM_I915
->>   	select DRM_KMS_HELPER
->>   	select DRM_PANEL
->>   	select DRM_MIPI_DSI
->> +	select DRM_PIXEL_HELPER if DRM_PANIC
->>   	select FB_IOMEM_HELPERS if DRM_FBDEV_EMULATION
->>   	select RELAY
->>   	select I2C
-> [Severity: Low]
-> Should DRM_XE or DRM_XE_DISPLAY in drivers/gpu/drm/xe/Kconfig also select
-> DRM_PIXEL_HELPER if DRM_PANIC?
->
-> When CONFIG_DRM_XE_DISPLAY=y, drivers/gpu/drm/xe/Makefile compiles
-> drivers/gpu/drm/i915/display/skl_universal_plane.c into xe.ko, where
-> skl_plane_funcs, icl_plane_funcs, and tgl_plane_funcs use
-> DRM_PANIC_PLANE_FUNCS:
->
-> drivers/gpu/drm/i915/display/skl_universal_plane.c:
->      static const struct drm_plane_funcs skl_plane_funcs = {
->              ...
->              DRM_PANIC_PLANE_FUNCS,
->      };
->
-> If CONFIG_DRM_XE=m, CONFIG_DRM_XE_DISPLAY=y, and CONFIG_DRM_PANIC=y are
-> enabled while CONFIG_DRM_PIXEL_HELPER=n, modpost fails with an undefined
-> reference to drm_plane_helper_display_panic_screen in xe.ko.
->
-> [ ... ]
+On 2026-10-19 08:03:00, Michael S. Tsirkin wrote:
+> 
+> As reported first by Paulos Yibelo <habte.yibelo@gmail.com> (after which
+> others, credited below, found more ways the bug can affect users):
+> 
+> allowing untrusted hardware to specify csum start/offset for
+> CHECKSUM_PARTIAL was not a good idea, because, if it edits the packet
+> outside the actual checksum, and depending on the setup, the networking
+> stack could be looking at the packet both before and after the edit, and
+> seeing different results.
+> 
+> Previously, commit 6785011f8b16 ("ipv4: validate checksum_start before
+> completing checksum") validated all known instances where this
+> causes the most grief, but the real fix is to make sure
+> that either only actual checksum fields are ever edited,
+> or the checksum is completed before the net stack looks at it,
+> so it is always consistent.
+> 
+> 
+> This basically goes back to
+> what we did before f43798c27684 ("tun: Allow GSO using virtio_net_hdr"),
+> except in a narrow list of specified known good cases.
+> 
+> 
+> Summary of the patchset:
+> 
+> These are definitely net material (and seem to be too big for stable,
+> or I would recommend backporting there, too):
+> 
+>   net: account for ingress-resolved virtio net hdr state
+> 	- accounting, not the fix itself, dependency of the next one
+>   net: resolve uncommon partial checksums at ingress
+> 	- fix itself
+>   net: add a sysctl to opt out of virtio net hdr checksum validation
+> 	- reducing risk of the fix by adding a sysctl to disable it
+> 
+> These are cleanups, can be deferred to net-next, too:
+> 
+>   net: add ip4_parse()
+>   virtio_net: cleanup protocol calculation
+> 	- cleanup resulting code duplication
+> 	 (kept separate to simplify backporting)
+> 
+> Fixes: f43798c27684 ("tun: Allow GSO using virtio_net_hdr")
+> 
+> Changes since v1:
+> 	- reorder patches to fix bisectability, addressing
+> 	  a comment by Björn Töpel.
+> 	- code refactoring, different patch splitup,
+> 	  a sysctl knob to disable as suggested by Willem de Bruijn.
+> 	- fix a bunch of minor issues spotted by LLMs
+> 
+> 
+> Changes since v2:
+> 
+> virtio_net: parse tunnel csum_start little-endian
+>   - new patch. correctly parsing the header is a dependency
+>     of validating it, otherwise i do not know what to validate
+> 
+> net: account for ingress-resolved virtio net hdr state
+>   - make rx_csum_sw counter 64 bit so it won't wrap
+>     (spotted by LLM review)
+> 
+> net: resolve uncommon partial checksums at ingress
+>   - tunnel fixes to bugs noticed by Willem de Bruijn and
+>     Chris Arges
+>   - restore the csum_offset checks as suggested by Willem
+>   - parse csum_start in the tunnel header little-endian like
+>     the rest of it (spotted by LLM review)
+> 
+> net: add a sysctl to opt out of virtio net hdr checksum validation
+>   - the knob is no longer writable by root inside a user
+>     namespace: changing it now requires capable(CAP_NET_ADMIN)
+>     suggested by Willem de Bruijn
+> 
+> net: add ip4_parse()
+>   - comment converted to kernel-doc format (Willem de Bruijn)
+> 
+> um: vector: honor virtio net hdr conversion failures
+>   - commit log tweaks
+> 
+> New patch:
+>   um: vector: trim skbs before verifying the header
+> 	found by code review
+> 
+> Somewhat tested, tunnel also tested now, um part compiled only
 >
 
--- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstr. 146, 90461 NÃ¼rnberg, Germany, www.suse.com
-GF: Stefan Gaiser, Jochen Jaser, Abhinav Puri, (HRB 36809, AG NÃ¼rnberg)
+I was able to run my tests and can confirm no more KASAN errors. I did
+not test the um patches.
 
+Tested-by: Chris Arges <carges@cloudflare.com>
 
+> 
+> Michael S. Tsirkin (8):
+>   net: account for ingress-resolved virtio net hdr state
+>   um: vector: honor virtio net hdr conversion failures
+>   um: vector: trim skbs before verifying the header
+>   virtio_net: parse tunnel csum_start little-endian
+>   net: resolve uncommon partial checksums at ingress
+>   net: add a sysctl to opt out of virtio net hdr checksum validation
+>   net: add ip4_parse()
+>   virtio_net: cleanup protocol calculation
+> 
+>  Documentation/admin-guide/sysctl/net.rst |  19 ++
+>  arch/um/drivers/vector_kern.c            |   6 +-
+>  arch/um/drivers/vector_transports.c      |   4 +-
+>  drivers/net/tap.c                        |   4 +-
+>  drivers/net/tun.c                        |  41 +++-
+>  drivers/net/virtio_net.c                 |   2 +-
+>  include/linux/ip.h                       |  27 +++
+>  include/linux/virtio_net.h               | 272 ++++++++++++++++++++++-
+>  include/net/netns/core.h                 |   1 +
+>  net/bridge/br_netfilter_hooks.c          |  15 +-
+>  net/core/dev.c                           |   6 +
+>  net/core/net_namespace.c                 |   1 +
+>  net/core/sysctl_net_core.c               |  60 +++++
+>  net/ipv4/ip_input.c                      |  13 +-
+>  net/ipv4/netfilter/nf_reject_ipv4.c      |  13 +-
+>  net/packet/af_packet.c                   |   4 +-
+>  16 files changed, 445 insertions(+), 43 deletions(-)
+> 
+> -- 
+> MST
+> 
