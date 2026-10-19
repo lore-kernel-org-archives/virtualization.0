@@ -1,113 +1,178 @@
-Received: from mail-lj1-f180.google.com (mail-lj1-f180.google.com [209.85.208.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0D2B369D72
-	for <virtualization@lists.linux.dev>; Mon, 19 Oct 2026 02:56:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.180
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792378606; cv=pass; b=KW3aLTlNes/kISym44co6JeMPHst1Is9j/ylCKBOb9Bicazk/TMsJPUs+oogCRPlq5372Z95ygHGK2mN/0YCD5/1fD7ck5tFxUIWiPj8zJFOIBqZLqY3f2HetQeCzgQN3sJ9K7e7I+z8eN2ESnrY7O4UFnRfe5XIiDMBxcOygVU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792378606; c=relaxed/simple;
-	bh=10plZnvJMhdXNsmI90PPzAB9gg2/WU+vKhsLPvgRwP0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=TomoIGD9UATWOw7Vi/qJTKxgjG/djJ6VuqUFAjuvRKAgG5yeh9EEN8dzasNcvWq8haWKrpXyVjb0KzfoAbn7sanMVTJfflYQyDXEXpCyCjsiJwoH98WeaGYDmkj+J6J9fpsafv52r4MhOKROGc0nvbeKyKj7QpNLjhuCJJjW0Qw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eWJfspA3; arc=pass smtp.client-ip=209.85.208.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F9C448592C;
+	Mon, 19 Oct 2026 06:44:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1792392242; cv=none; b=JvTS9RamZsZDKW+wJzLzDdIdcOdEOYKxmbXhy8l6X/2WHJYLGWpUQymiaZIDvxfsz0oOpOG0/99ZvwSU331WMBoAjILt8fOt/TOFGtsRlA4OM7mehHHx8xAeIuM8AGlUa4l1o/6YhiT5gj2o9Q19Oo3rGAIxNR6FKEl1JTubjS8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1792392242; c=relaxed/simple;
+	bh=AG8uLDY1S6wAwAA61tjppNxLsAgbrZPU3u1MoI0wUnk=;
+	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=go34865mpGN3BtdikYTOWxfRNQEkkoReCjQx8KL286AjRfAnS1B++sABpzg5580btgKdFbUz+9XiTBpl8DqKNaG23fHGb5CbpXfJpfVYVwq6G/KXxNpxtQMEaRJPEWqKgNWV3oHCc9wuG0b5BJk3ot5dCT9qkwsCXuOZ3PH9laE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=X7muDs8q; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eWJfspA3"
-Received: by mail-lj1-f180.google.com with SMTP id 38308e7fff4ca-3ab01c46697so11057081fa.1
-        for <virtualization@lists.linux.dev>; Sun, 18 Oct 2026 19:56:44 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1792378603; cv=none;
-        d=google.com; s=arc-20260327;
-        b=UP7RnNzC094uXh4y9Yoqw3cbPu88ftD4T6oIkJoiZ5VVOJn471tZsVKGr0e0Cficzu
-         qk9WdbU5EtW93KehnjPuE2MX2dYsp12z2+spWCG97s4w9mLkeDqKiOcjEoe62N9gMsE1
-         QLD+NFdU1NWLhrNX07K6uPCSoAHmFgUANH6H2hb6aTdjF9pITlLzmAmP4hZAK0WblzCk
-         T6sCxa8YJOB3rhD682i7Swn8POiXVDhWChs5dzP7xvCfhsojIeWIYag/EBxIonTYd9Go
-         cm5oOcVybsGKbQRrg+h7R6hvO9+Q2y2H8I1PtmmKBr9YO+Egoa9HKxEAXwTVSAeCIn2N
-         ZLJQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=rEXy3zJHTBuMv4/u8qe2uCzOwS6GppmHMS1cvnhJedQ=;
-        fh=tfvODTJoP18ITTbVzDSvOEUYewnp3/9RsLDyBxPkIaY=;
-        b=rkvQWcAdSVasrMZuw0KBWWd20qToUtZcK5UwvIJdwNxyG15Jr7A0mYahRgiLJMuawa
-         j7gjtIEnIIGTOBvS6IqpkUXDH3cIN2ZXM/GbqpE+GD4xzcEwMA+QL3D5nRcXJ/OVFV/p
-         /bk5gMCc2VKeCdPRlA3R81SFIDo5IuX9YUIYkbtqQlCdsj8jnyicA1yk7MTT1SeimJAL
-         zbeRhQyD5T9EEsme4wuDp1gur/BJnAI654WQjaMMNX5pjB4MGqwiiUG/ABJiksztem1K
-         HYj8HIwDyEytKmdGLaWmWELU7qjx2ypdwIxtZh/SRVi7jdCjgGAS2sylszO97/9pirGu
-         rrhw==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792378603; x=1792983403; darn=lists.linux.dev;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=rEXy3zJHTBuMv4/u8qe2uCzOwS6GppmHMS1cvnhJedQ=;
-        b=eWJfspA3Arkwdefy3hQ8SlHMPZf0XjzKqIGcx1S5Zq7SDAanxoJ/zd37J8RMRf2h32
-         vwWUkDYQH5kO6j45ZMH3oocC71WBbDqVQrAwqD3OvP/G3jwCFYGOH33mIBf7E8EDHrsY
-         hjMaIDGOdfVnFQmH96uuIKsBZM8qtOUYbTI9FjC5CmP2KMpEnBNixRcnyEWeczLfbJeu
-         R/fQM7eZ9dYfnfNrgXAX6MdRvDrqVLVBWuVKiXPIENquSe9ZjKHKqyeaPNpdxcXyszda
-         oFl025N5lGuo7ubJXJKPESBpoIvMSU+FIMw37H6OTHd6J2rTdHEo1OnM6AtLVuWTbE3Z
-         +y/w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792378603; x=1792983403;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=rEXy3zJHTBuMv4/u8qe2uCzOwS6GppmHMS1cvnhJedQ=;
-        b=bhay+uwzlV29qeZp7aE8LYnpgDZ/Falu7KlQkf7rN0596ZxM+xoAMpmSpIah/5M+wu
-         37dnXEy6L7FJpi3JYo//shuvU+l+R3H22mJvUViu/SshEHqtWYMAwZAUR9sHBd27/bI8
-         lT1c/B/1RRLM70hrcappaj9bYQ4L20u1drnbfSn2BA8e8su9dk/XWGr2VcyFjcRjRl1I
-         6hz35WEyW+bx+B/SYX2UEIIF42UXfTHAYSyprXE6Mc+vUXOuXtSirkYHX6YGUmDDi6ca
-         3x1By6/T86r3lBrOR3fatTeUkeypeMPAH0U4OctdNvR4wR5nl1DH5AzzLpY+47lfMI7h
-         Vmag==
-X-Forwarded-Encrypted: i=1; AKwUvBzm9lkpExUfj36J+nNhm0+BXhzL4d1xMzWRrU/xlK0sU9kz9SC2SWA8JTecSmsltp4pPoOQP2mJAwuANpwIZg==@lists.linux.dev
-X-Gm-Message-State: AFq9FYK9AwvLXFLd8L1XAWU/LrL77Cn8CevF9o/0HUQbaFqFiiMzYXGG
-	34dpnfEctFmKBmspx8OSbn9F9E6HWIAIbVUDXjBXemaYb4ZfGY3fY8m3NoOTmxcwDxoIojvnPCr
-	/kpge3n52XoXhkdkOsBNcJW7AgjTu7zo=
-X-Gm-Gg: AYBFou1HSiYd97pP6tPf++VMPEfyzcZqyeEIf3V3baYbWqiweJPJoK5K0/ffNMpk1IE
-	bRmDOAm1wR7g149CHYWRQxA0duQf2fpP5hT8HOh9Cnc3NnFZEXLhUKTGilfmUb8zKRtYsZPKApX
-	J9QGo9+e+HyIJ38JdzJ4eRrb1zIu3JQsiJfd0ds1NT5GpKZOs4vdKGr2hJYg0ikvTSYlcsO97B4
-	Lo/1JV/igP45CZBy2tLS+3QCUP2Ey/TnXRZdY65SPCeU7BMSqLbsfhk0iYzQgIQJ/XWa3/llXi3
-	tgl2aG44jI8U9JIapPpHZ1V+ScEt5yk92OqSHD6JIJZaxbdoL1OGA/w=
-X-Received: by 2002:a05:651c:19a4:b0:3a1:476:74b3 with SMTP id
- 38308e7fff4ca-3ab29121df4mr16100801fa.9.1792378602626; Sun, 18 Oct 2026
- 19:56:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="X7muDs8q"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B57361F000C4;
+	Mon, 19 Oct 2026 06:43:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792392240;
+	bh=3LzAVenLs17+neRI0Kjg60FfMYZTYlgEe17qszI4504=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References;
+	b=X7muDs8qevBAaUUal+neKz8U1C+bfqsr/ySqQClmzwvvq/G6jw+BNCR6EWia3HujI
+	 CSX1N/VyCHAMxt0xpsle2iBCN4r8AYcN54fFuAayBL/KxdtJWA50hW4TeTdbU+Bvcu
+	 Xo4H/FhAI/XVxuOZML7Y+eqZxPkOXzWFEQpUssHmeJHQsSK5+7+6e31iIy8uEXbAoU
+	 UUMr/cyLR5OtEXqBc6u1JV+hlpvbRkqu79USScve5o0MVH6qNnpSKbzKtsnlpq6dFM
+	 rblyboOVD8xvOxKIm6LO9Ow2sGsAyTGXpSF2CWRu6fJBkljEZIXVfnpEuqD4R+9A06
+	 05EonGe9NMGWg==
+Subject: Re: [PATCH net-next v2 1/2] vsock: support SO_INQ on stream sockets
+From: netdev-bot+sashiko@kernel.org
+To: devnexen@gmail.com
+Cc: netdev@vger.kernel.org, sgarzare@redhat.com, bobbyeshleman@gmail.com,
+ davem@davemloft.net, edumazet@kernel.org, kuba@kernel.org, pabeni@redhat.com,
+ horms@kernel.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org
+Date: Mon, 19 Oct 2026 06:43:59 +0000
+Message-ID: <179239223925.3135.8476932493136974317@kernel.org>
+In-Reply-To: <20261015154334.3217358-2-devnexen@gmail.com>
+References: <20261015154334.3217358-2-devnexen@gmail.com>
+X-sashiko-severity: Medium
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20261016035851.771496-1-oss.patchbox@gmail.com> <a7ed450b-5dce-4485-b4a0-9349e75e4c52@nvidia.com>
-In-Reply-To: <a7ed450b-5dce-4485-b4a0-9349e75e4c52@nvidia.com>
-From: Yuho Choi <oss.patchbox@gmail.com>
-Date: Sun, 18 Oct 2026 22:56:31 -0400
-X-Gm-Features: AclHuK-33whnZxqMRpG7_qtTL-IVLp_9OZjQHscnm4NOXyKbUUtioZXEGPyA0lc
-Message-ID: <CAGG=RgB2NYmjugQrVOiKyfPF=_aU47CY_JXGmCLQ-kOe4Cxp0A@mail.gmail.com>
-Subject: Re: [PATCH v1 RESEND] vdpa/mlx5: Don't free QP buffers if destroying
- the QP fails
-To: Dragos Tatulea <dtatulea@nvidia.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>, 
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
 
-On Fri, 16 Oct 2026 at 12:01, Dragos Tatulea <dtatulea@nvidia.com> wrote:
-> This commit message is long and hard to read. Could you make it
-> shorter and more readable please?
->
-> > Fixes: 1a86b377aa21 ("vdpa/mlx5: Add VDPA driver for supported mlx5 devices")
-> > Cc: stable@vger.kernel.org
-> Nothing against the change. But it does not deserve a fixes tag.
->
-> > +             /* The QP still owns its buffers */
-> >               mlx5_vdpa_warn(&ndev->mvdev, "destroy qp 0x%x\n", vqp->mqp.qpn);
-> While here, could you improve the error message please?
-> mlx5_vdpa_warn(..., "destroy %s qp 0x%x failed %s\n", vqp->fw ? "fw" : "sw");
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue(s) to consider.
 
-Thanks for the review, Dragos. I'll send a v2 with a shorter commit
-message, the improved warning, and without the Fixes and stable tags.
+Critical: 0 · High: 0 · Medium: 1 · Low: 0
+
+If you believe none of the issues are legitimate, please reply to each
+issue of Medium severity or higher and explain why the AI is wrong.
+If any of them are legitimate and you plan to respin, please let patchwork
+know by including "pw-bot: cr" as a separate line at the end of your reply
+(one such reply per series is enough).
+
+- [Medium] The patch puts a different meaning into the generic
+  SOL_SOCKET/SCM_INQ cmsg than the one already in the tree.
+
+--
+
+vsock: support SO_INQ on stream sockets
+
+This adds SO_INQ support to AF_VSOCK SOCK_STREAM sockets. recvmsg() then
+returns an SCM_INQ cmsg filled from vsock_stream_inq_hint(). Accepted
+sockets inherit the setting from the listener, and SOCK_SEQPACKET rejects
+the option with ENOPROTOOPT.
+
+> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+> index 1c2d1cea67f4c..186ed57fd7978 100644
+> --- a/net/vmw_vsock/af_vsock.c
+> +++ b/net/vmw_vsock/af_vsock.c
+
+[ ... ]
+
+> @@ -2637,13 +2679,26 @@ __vsock_connectible_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+>  		err = __vsock_seqpacket_recvmsg(sk, msg, len, flags);
+>  
+>  out:
+> -	/* Seqpacket has_data counts messages, while io_uring treats msg_inq as
+> -	 * a byte length when sizing retries, so only streams report a hint.
+> +	/* Seqpacket has_data counts messages, while SCM_INQ reports bytes and
+> +	 * io_uring treats msg_inq as a byte length when sizing retries, so
+> +	 * only streams report it.
+>  	 */
+> -	if (msg->msg_get_inq && err >= 0 && sk->sk_type == SOCK_STREAM)
+> +	if ((vsk->recvmsg_inq || msg->msg_get_inq) && err >= 0 &&
+> +	    sk->sk_type == SOCK_STREAM) {
+>  		msg->msg_inq = vsock_stream_inq_hint(sk);
+>  
+> +		/* A negative hint means the transport could not tell. SCM_INQ
+> +		 * has no encoding for that, so report nothing.
+> +		 */
+> +		do_cmsg = vsk->recvmsg_inq && msg->msg_inq >= 0;
+> +	}
+> +
+>  	release_sock(sk);
+> +
+> +	if (do_cmsg)
+> +		put_cmsg(msg, SOL_SOCKET, SCM_INQ, sizeof(msg->msg_inq),
+> +			 &msg->msg_inq);
+
+[Severity: Medium]
+
+Does this give SOL_SOCKET/SCM_INQ a different meaning on vsock than it has
+on AF_UNIX?
+
+SO_INQ/SCM_INQ was added in commit df30285b3670 ("af_unix: Introduce
+SO_INQ.") as the generic version of TCP_INQ. That commit says the cmsg
+holds the exact value of ioctl(SIOCINQ). AF_UNIX follows this:
+
+net/unix/af_unix.c:unix_stream_read_generic() {
+    ...
+			msg->msg_inq = READ_ONCE(u->inq_len);
+			if (do_cmsg)
+				put_cmsg(msg, SOL_SOCKET, SCM_INQ,
+					 sizeof(msg->msg_inq), &msg->msg_inq);
+    ...
+}
+
+tools/testing/selftests/net/af_unix/scm_inq.c also checks that the cmsg
+payload equals the SIOCINQ result.
+
+Here the value comes from vsock_stream_inq_hint(). In several states it
+returns 1 instead of a byte count:
+
+net/vmw_vsock/af_vsock.c:vsock_stream_inq_hint() {
+	if ((sk->sk_shutdown & RCV_SHUTDOWN) || !vsk->transport ||
+	    (sock_flag(sk, SOCK_DONE) && sk->sk_state != TCP_ESTABLISHED))
+		return 1;
+    ...
+	if (sock_flag(sk, SOCK_DONE) ||
+	    (READ_ONCE(vsk->peer_shutdown) & SEND_SHUTDOWN))
+		return 1;
+    ...
+}
+
+The first branch returns 1 even when bytes are still queued. SIOCINQ in
+vsock_do_ioctl() still returns the raw vsock_stream_has_data() value,
+which is 0 at EOF:
+
+net/vmw_vsock/af_vsock.c:vsock_do_ioctl() {
+    ...
+		n_bytes = vsock_stream_has_data(vsk);
+		if (n_bytes < 0) {
+			ret = n_bytes;
+			break;
+		}
+		ret = put_user(n_bytes, arg);
+    ...
+}
+
+After the peer closes or shuts down, SCM_INQ reports 1 while SIOCINQ
+reports 0. After SHUT_RD, SCM_INQ reports 1 no matter how many bytes are
+queued.
+
+The commit message says "As with TCP_INQ, 1 is reported once the stream
+is finished". TCP_CM_INQ is a separate SOL_TCP cmsg, though. Suppose a
+portable program treats SCM_INQ as an exact byte count. Would it see a
+byte on vsock that isn't there?
+
+The vsock selftest in the same series ("vsock/test: cover SO_INQ")
+expects 1 at EOF. Once this is merged, that per-family meaning becomes
+part of the uAPI.
+
+The updated comment above gives "SCM_INQ reports bytes" as the reason to
+refuse SEQPACKET, but the stream path does not report bytes at EOF.
+Should the comment or the reported value change so they match?
+
+>  	return err;
+>  }
+
+-- 
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261015154334.3217358-1-devnexen%40gmail.com
