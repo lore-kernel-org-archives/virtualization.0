@@ -1,50 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A64DE5960B2;
-	Mon, 19 Oct 2026 13:59:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58B545B79A5;
+	Mon, 19 Oct 2026 14:00:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792418344; cv=none; b=gCHr7kDAA+cIWwsdsYPgA3isXxk+Z6jrqRnwNSyfpZmXc756UwJhEy0S6V8pqUMiEsprJ97W1gLvPESHFHQoSg+AcCo86xbVsN93e20suVYo0T49z32/HtxCQm92KW6seYYopyEg++p+AS0NaQ9P9b3JFW4RAmozgKibIM80b8E=
+	t=1792418446; cv=none; b=MW3zXAK4j2948xJi1wHUY1SXyPllM+Nq3IugtEcepQj6G9gTjECvcIrNlVX++bbsfp4IQ7uzCN7e8t1asF4C/ybweCn0ThASQS3DwxNrlIh/D+l5uhTROLemf1hmODYWX1UszAfK38D45N4vi3ZYpvPxYU/OoTfh+8e2GSWYmRU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792418344; c=relaxed/simple;
-	bh=Em+p1aCLuTydphUsb895XKAldfpdFX15ZxcAfUunYFY=;
+	s=arc-20240116; t=1792418446; c=relaxed/simple;
+	bh=ZUHMONK+uqOvaTNGBGkHS4RNvg6YiKVzJZK+BpVJy14=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=t7jcULnu2OYoKijfFOf6ZxocWiV/DS5tNHU/aK9CuWDU51c9V3mi8WXvB1OybKralex7R58xzTmxqXphgCW5DuRfGTNFfjPbXPsZPAhA5OEZuHT4quBDOYp1ziCec2E542hzuxLXmgctFC7iLEUucLPY+3tzqw1JZSN8vlyMVGA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LOln+WWR; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=edDpTU+ye/ifzkL8dakxUFOhhzx2YjdLl3xoJlqW7CktPNuDqLaWN3fIHtfdG9/6BSlCEpnDEjw/pQMuCOiRtHaIROMiBZSjUO6zqgQu9GZ7UGmgUB0nV1MDhJCrDfH/JqtoDnu9O+g0J8OR/mublBXrXDansTwxWDsV3i/u4Mo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=N1joZ6bx; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LOln+WWR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F1AE1F000C4;
-	Mon, 19 Oct 2026 13:59:01 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="N1joZ6bx"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54E911F000C9;
+	Mon, 19 Oct 2026 14:00:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792418342;
-	bh=sumvp7u+FhaLjUIiSX0AB5EXKDXdwxL7Gk14bIE++bg=;
+	s=k20260515; t=1792418444;
+	bh=woDQFJcQQTqvpSJjN0218Yk/zCb6MZjy1tq5Gy92XUY=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=LOln+WWRaMfbvHmBkqe5kUc1zQz28ZiFDQofkNoPBCMrVQCmA5jXTxcYv1J4nTeHb
-	 yEv6MjPSgfmTKDGOYXjSe0H+q2+21l9uJKpjvbwxblRpSC+OLyii0QneY92F+sVNCv
-	 bgkCIooFK1AkOO4IHmvGG8nvbcLRGDlyBD+TK0CBF4xiCtO/mNBhrmwto6E9MQXR4n
-	 Hb9kuML5VhRAkXkOw8i1xbnC4NYbUeIoPV295DCmsZtKTYickiRmFqnBKDmt6VpRPF
-	 nMmDrYl9jTNO1PQrL5OxtDrjBAVvbOnb+5D5Ikr5ddkN21fuGVOn9eQROwmoG0HRR1
-	 CwyZlHW4UxqOg==
+	b=N1joZ6bxi0uo4YHfc1m4bLFR2bZZf/Hs6W3J3sogV9OWXzbYCibD5P04Y4CREyJvr
+	 GNX0irBjDKd0ITF0E06PeMoyQ58h4Eld1J8r2oVmTf+tyMe9U6VfGonnB7Q+tTwWb8
+	 yDlxWU1MbTW0ojoxK9M/5KOayBK3ExwuazYiTixohlgb22bDstPQ9gSfIPg6Oi5OdN
+	 dYwJ3Mcdj77pQvDD6ZFAxSB/JXaUB8wP/m0aXKBhWFcPAwb04JOB6yyJHevXnbt66C
+	 AQXeF+BkaGSJv+00nNgIr6HOMx/Dk+NraZ8nFtX2R/QBe9o0yzuJEUWEP+7YcBog8T
+	 tmxytSV9L7FpQ==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Cc: Anuj Bolewar <bolewara@gmail.com>,
-	syzbot+06f9b2a53ba4a5a47644@syzkaller.appspotmail.com,
-	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+Cc: Pengpeng Hou <pengpeng@iscas.ac.cn>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
 	Sasha Levin <sashal@kernel.org>,
-	airlied@redhat.com,
-	kraxel@redhat.com,
-	maarten.lankhorst@linux.intel.com,
-	mripard@kernel.org,
-	tzimmermann@suse.de,
-	simona@ffwll.ch,
-	dri-devel@lists.freedesktop.org,
+	jasowangio@gmail.com,
+	eperezma@redhat.com,
 	virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.18-6.1] drm/virtio: reclaim pending vbufs before tearing down vqs
-Date: Mon, 19 Oct 2026 09:47:50 -0400
-Message-ID: <20261019135441.1420968-179-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.18-6.1] vdpa: alibaba: add missing MODULE_DEVICE_TABLE()
+Date: Mon, 19 Oct 2026 09:49:04 -0400
+Message-ID: <20261019135441.1420968-253-sashal@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261019135441.1420968-1-sashal@kernel.org>
 References: <20261019135441.1420968-1-sashal@kernel.org>
@@ -60,90 +54,69 @@ X-stable-base: Linux 6.18.57
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Anuj Bolewar <bolewara@gmail.com>
+From: Pengpeng Hou <pengpeng@iscas.ac.cn>
 
-[ Upstream commit 61d85f99b5a55d4f717c4bb2f4c4acabf22ee3fc ]
+[ Upstream commit 7eeda5e2487276ed87960655fdae1c97d9779a0e ]
 
-virtio_gpu_free_vbufs() destroys the vbufs kmem_cache after the virtqueues
-have already been released. Commands that were queued but never completed
-by the device leave their vbuffers stranded in the virtqueue, so the cache
-still holds live objects when virtio_gpu_deinit() tears everything down.
-This triggers a WARNING in virtio_gpu_free_vbufs:
+The driver has a match table for the pci bus wired into its driver
+structure, but the table is not exported with MODULE_DEVICE_TABLE().
 
-    BUG virtio-gpu-vbufs (Not tainted): Objects remaining in cache
-    on __kmem_cache_shutdown()
+Add the missing MODULE_DEVICE_TABLE() entry so module alias information
+is generated for automatic module loading.
 
-Drain any buffers still sitting in the control and cursor virtqueues in
-virtio_gpu_deinit() after the device has been reset and before the
-virtqueues are deleted, following the same pattern used by virtio_console's
-remove_vqs(). Each reclaimed buffer is released with free_vbuf(), dropping
-the reference on any GEM objects it holds. Pending RESOURCE_UNREF
-commands are handled as well: their resp_cb_data still references a GEM
-object, so it is cleaned up with virtio_gpu_cleanup_object() to avoid
-leaking it on teardown.
+This is a source-level fix.  It does not claim dynamic hardware
+reproduction; the evidence is the driver-owned match table, its use by
+the driver registration structure, and the missing module alias
+publication.
 
-Reported-by: syzbot+06f9b2a53ba4a5a47644@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=06f9b2a53ba4a5a47644
-Signed-off-by: Anuj Bolewar <bolewara@gmail.com>
-Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Link: https://patch.msgid.link/20260802-virtio-gpu-reclaim-vbufs-v2-1-5767fb860691@gmail.com
+Signed-off-by: Pengpeng Hou <pengpeng@iscas.ac.cn>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Message-ID: <20260704152732.55338-1-pengpeng@iscas.ac.cn>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
 
 LLM Generated explanations, may be completely bogus:
 
-# Stable backport analysis: `drm/virtio: reclaim pending vbufs before
-tearing down vqs`
-
-Local tree: **6.12.111** (`p-6.12-3-gc504cf0baa3d8`). Verdict is for
-this checkout only.
-
----
-
 ## PHASE 1: COMMIT MESSAGE FORENSICS
 
 **Step 1.1: PARSE THE SUBJECT LINE**
 
-Record: `[drm/virtio] [reclaim] [drain leftover virtqueue buffers before
-destroying vbufs cache]`
+Record: `[vdpa: alibaba:] [add] [missing MODULE_DEVICE_TABLE() so PCI
+aliases are generated for autoload]`
 
 **Step 1.2: PARSE ALL COMMIT MESSAGE TAGS**
 
-Record:
-- `Reported-by: syzbot+06f9b2a53ba4a5a47644@syzkaller.appspotmail.com` —
-  fuzzer-found, reproducible
-- `Closes: https://syzkaller.appspot.com/bug?extid=06f9b2a53ba4a5a47644`
-- `Signed-off-by: Anuj Bolewar <bolewara@gmail.com>` (author)
-- `Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>`
-  (virtio-gpu maintainer)
-- `Link: https://patch.msgid.link/20260802-virtio-gpu-reclaim-
-  vbufs-v2-1-5767fb860691@gmail.com`
-- No `Fixes:` tag (expected for this review pipeline)
-- Ignore pipeline `Signed-off-by: Sasha Levin` / `[Upstream commit ...]`
-  if present
+From upstream commit `7eeda5e2487276ed87960655fdae1c97d9779a0e`
+(verified with `git show`):
+
+- `Signed-off-by: Pengpeng Hou <pengpeng@iscas.ac.cn>` (author)
+- `Signed-off-by: Michael S. Tsirkin <mst@redhat.com>` (virtio/vDPA
+  maintainer)
+- `Message-ID: <20260704152732.55338-1-pengpeng@iscas.ac.cn>`
+
+No `Fixes:`, no `Reported-by:`, no `Tested-by:`, no `Reviewed-by:`, no
+`Acked-by:`, no `Cc: stable`, no `Link:` (besides Message-ID). Absence
+of `Fixes:`/`Cc: stable` is expected for this review pipeline.
 
 **Step 1.3: ANALYZE THE COMMIT BODY TEXT**
 
 Record:
-- **Bug:** `virtio_gpu_free_vbufs()` calls `kmem_cache_destroy()` after
-  VQs are already deleted. In-flight commands stay attached to the
-  virtqueue, so the `virtio-gpu-vbufs` cache still has live objects.
-- **Symptom:** SLUB `BUG virtio-gpu-vbufs: Objects remaining on
-  __kmem_cache_shutdown()` plus `WARNING` in `virtio_gpu_free_vbufs` /
-  `kmem_cache_destroy`, on device removal.
-- **Root cause:** `virtio_gpu_deinit()` does `virtio_reset_device()`
-  then `del_vqs()` without draining unused buffers.
-- **Fix:** After reset, before `del_vqs()`, detach leftover buffers
-  (same idea as `virtio_console` `remove_vqs()`), `free_vbuf()` them,
-  drop GEM arrays, and `virtio_gpu_cleanup_object()` pending
-  `RESOURCE_UNREF` GEM objects.
-- **Version info:** none in the message; code has been this way for
-  years.
+
+- Bug: `eni_pci_ids[]` is wired into `eni_vdpa_driver.id_table` but
+  never exported via `MODULE_DEVICE_TABLE()`.
+- Symptom: `modpost`/`file2alias` never emits `pci:v...d...` aliases, so
+  depmod/udev will not autoload `alibaba-eni-vdpa` when the PCI device
+  appears.
+- Version info: none in the message. Driver itself dates to v5.16-rc1.
+- Root cause: missing alias publication, not a runtime logic error.
+  Author explicitly calls it a source-level fix (build-time module
+  metadata).
 
 **Step 1.4: DETECT HIDDEN BUG FIXES**
 
-Record: Not hidden. Explicit leak/WARNING fix on teardown. v2 also
-closes a GEM leak for stranded `RESOURCE_UNREF` commands.
+Record: Not a disguised cleanup. It is an autoload/hardware-enablement
+bug: the match table exists and is used for probe matching, but is not
+published for module loading. Same pattern as device-ID publication.
 
 ---
 
@@ -152,51 +125,35 @@ closes a GEM leak for stranded `RESOURCE_UNREF` commands.
 **Step 2.1: INVENTORY THE CHANGES**
 
 Record:
-- `drivers/gpu/drm/virtio/virtgpu_drv.h`: +1 declaration
-- `drivers/gpu/drm/virtio/virtgpu_kms.c`: +1 call in
-  `virtio_gpu_deinit()`
-- `drivers/gpu/drm/virtio/virtgpu_vq.c`: +15, new
-  `virtio_gpu_reclaim_vbufs()`
-- **Total: +17 / −0.** Single-subsystem surgical fix.
+
+- File: `drivers/vdpa/alibaba/eni_vdpa.c` (`+1` / `-0`)
+- Function: none. Insert after `eni_pci_ids[]`, before
+  `eni_vdpa_driver`.
+- Scope: single-file, one-line surgical change.
 
 **Step 2.2: UNDERSTAND THE CODE FLOW CHANGE**
 
-Record:
-- **Before:** `virtio_gpu_deinit()` flushes work, resets the device,
-  deletes VQs. Later `virtio_gpu_release()` → `virtio_gpu_free_vbufs()`
-  → `kmem_cache_destroy(vgdev->vbufs)` with any still-queued `vbuffer`s
-  live.
-- **After:** Same sequence, plus `virtio_gpu_reclaim_vbufs()` between
-  reset and `del_vqs()`. Control queue: detach unused bufs, put GEM
-  arrays, cleanup `resp_cb_data`, `free_vbuf()`. Cursor queue: detach
-  and `free_vbuf()`.
-- Path: device removal / unbind / probe-fail after successful
-  `virtio_gpu_init()`.
+Record: Before, `eni_pci_ids` is only referenced by `.id_table` (in-
+kernel PCI matching after the module is already loaded). After,
+`MODULE_DEVICE_TABLE(pci, eni_pci_ids)` also creates
+`__mod_pci__eni_pci_ids_device_table`, which `scripts/mod/file2alias.c`
+(`do_pci_entry`) turns into PCI aliases. No probe/remove/runtime path
+changes. Built-in (`!MODULE`) the macro is a no-op
+(`include/linux/module.h`).
 
 **Step 2.3: IDENTIFY THE BUG MECHANISM**
 
-Record:
-- **Category:** resource leak + teardown WARNING (stranded slab objects;
-  GEM refs left held).
-- **Mechanism:** `virtqueue_detach_unused_buf()` after reset, then
-  existing `free_vbuf()` / `virtio_gpu_array_put_free()` /
-  `virtio_gpu_cleanup_object()`.
-- In this tree `resp_cb_data` is only set in
-  `virtio_gpu_cmd_unref_resource()` to a `struct virtio_gpu_object *`,
-  so the extra cleanup is specific and correct here.
+Record: Category **(h) hardware enablement / missing device-ID
+publication**. Mechanism: without `MODULE_DEVICE_TABLE`, udev never
+loads the module on device discovery. Sibling PCI vDPA drivers (`ifcvf`,
+`snet`) already export their tables.
 
 **Step 2.4: ASSESS THE FIX QUALITY**
 
-Record:
-- Obviously correct: documented virtio shutdown helper; same pattern as
-  `virtio_console`.
-- Minimal; no API/feature additions.
-- Regression risk is low. After `drm_dev_unplug()`, `drm_dev_enter()`
-  fails, so `array_put_free()` → last GEM put →
-  `virtio_gpu_cmd_unref_resource()` takes the existing `-ENODEV` path
-  (`free_vbuf` + `virtio_gpu_cleanup_object`) instead of re-queuing.
-  Both VQs are always created in `virtio_gpu_init()`
-  (`vqs[0]`/`vqs[1]`), so no NULL `cursorq.vq` on the deinit path.
+Record: Obviously correct; matches the established PCI-driver pattern.
+Minimal. Regression risk is negligible: no locks, no APIs, no data-
+structure changes, no runtime control-flow change. `linux/module.h` is
+already included (line 12).
 
 ---
 
@@ -204,36 +161,38 @@ Record:
 
 **Step 3.1: BLAME THE CHANGED LINES**
 
-Record:
-- `virtio_gpu_free_vbufs()` / `kmem_cache_destroy`: `f5985bf9cadd4e`
-  (Gerd Hoffmann, 2017-03-01, “drm: virtio: use kmem_cache”) — ancestor
-  of this HEAD.
-- `virtio_gpu_deinit()` body: `dc5698e80cf724` (Dave Airlie, 2013) plus
-  later `virtio_reset_device()` (`d9679d0013a668`, 2021).
-- Bug is old; present throughout 6.12.y.
+Record: `git blame -L 540,560` shows the ID table and `pci_driver` come
+entirely from `e85087beedcae` (“eni_vdpa: add vDPA driver for Alibaba
+ENI”, Wu Zongyong, 2021-10-29). Contained in `v5.16-rc1`. Present and
+unchanged in this tree. Bug has existed for the entire life of the
+driver.
 
 **Step 3.2: FOLLOW THE FIXES: TAG**
 
-Record: No `Fixes:` tag. Not applicable. Buggy teardown is in this tree.
+Record: No `Fixes:` tag. The introducing commit is `e85087beedcae`. `git
+merge-base --is-ancestor e85087beedcae HEAD` succeeded. No later commit
+in this tree added `MODULE_DEVICE_TABLE` for this driver.
 
 **Step 3.3: CHECK FILE HISTORY FOR RELATED CHANGES**
 
-Record: Recent virtio GPU work here is unrelated (EDID bounds, deadlock,
-fence, KMS removal). No reclaim helper already present. `cec7f1774605a`
-is a different probe double-free. Standalone patch, not “X/Y” of a
-larger series (cover said “Patch 1” of a 1-patch series).
+Record: Recent history is `e85087beedcae` → probe simplify → vDPA API
+updates → probe error-path fix → `get_vq_size`. None of those touch the
+PCI ID table. Standalone; not patch X/Y.
 
 **Step 3.4: CHECK THE AUTHOR'S OTHER COMMITS**
 
-Record: Anuj Bolewar has no virtio GPU commits in this tree. Dmitry
-Osipenko is the virtio-gpu maintainer (SOB + “Applied to drm-misc-
-fixes”).
+Record: Pengpeng Hou is not the vDPA maintainer. Same day they sent an
+identical `MODULE_DEVICE_TABLE` fix for `can: ctucanfd`, which **is
+already in this 6.12 tree** as `877e99535dfb9` (`Cc: stable@kernel.org`,
+`Fixes:`, Greg KH). Maintainer of this driver is Michael S. Tsirkin, who
+applied the vDPA patch.
 
 **Step 3.5: CHECK FOR DEPENDENT/PREREQUISITE COMMITS**
 
-Record: Uses `virtqueue_detach_unused_buf`, `free_vbuf`,
-`virtio_gpu_array_put_free`, `virtio_gpu_cleanup_object` — all present.
-No panic-path helpers required. Can apply standalone.
+Record: No new helpers or structs. `MODULE_DEVICE_TABLE` has existed for
+decades. Applies standalone. `git show
+7eeda5e2487276ed87960655fdae1c97d9779a0e | git apply --check` succeeded
+(exit 0).
 
 ---
 
@@ -242,82 +201,79 @@ No panic-path helpers required. Can apply standalone.
 **Step 4.1: FIND THE ORIGINAL PATCH DISCUSSION**
 
 Record:
-- `b4 dig -c <sha>` cannot match: commit is not in this tree (candidate
-  only).
-- Lore search via lore.kernel.org returned 403.
-- Recovered from Openwall/LKML:
-  - v1: drain only (`objs` + `free_vbuf`)
-  - v2: also `virtio_gpu_cleanup_object(resp_cb_data)`
-  - Applied version is v2
-- Dmitry Osipenko, 2026-08-14: **“Applied to drm-misc-fixes, thanks!”**
-  — no NAK.
+
+- `b4 dig -c 7eeda5e2487276ed87960655fdae1c97d9779a0e` →
+  https://patch.msgid.link/20260704152732.55338-1-pengpeng@iscas.ac.cn
+- `b4 dig -a`: single revision (v1 only).
+- Thread (saved mbox): MST replied the same day asking what the “source-
+  level fix” boilerplate paragraph meant. No NAK, no requested code
+  change. He later SOB’d and applied it (CommitDate 2026-08-19). No
+  reviewer asked for `Cc: stable`.
 
 **Step 4.2: CHECK WHO REVIEWED THE PATCH**
 
-Record: Recipients included Airlie, Hoffmann, Osipenko, Gurchetan Singh,
-Chia-I Wu, dri-devel, virtualization, syzkaller-bugs. Maintainer applied
-it. No NAK found.
+Record (`b4 dig -w`): To/Cc were Michael S. Tsirkin, Jason Wang, Xuan
+Zhuo, Eugenio Pérez, `virtualization@lists.linux.dev`, `linux-
+kernel@vger.kernel.org`. Right maintainers. Only MST replied.
 
 **Step 4.3: SEARCH FOR THE BUG REPORT**
 
-Record (syzkaller, extid `06f9b2a53ba4a5a47644`):
-- Title: `WARNING in virtio_gpu_free_vbufs`
-- Labels: `prio:high`
-- Assessment: DenialOfService exploitable; VM guest and host trigger;
-  not unprivileged
-- Stack: `kmem_cache_destroy` → `virtio_gpu_free_vbufs` →
-  `virtio_gpu_release` → `drm_dev_put` → `virtio_dev_remove` → PCI
-  `remove_store`
-- 13 crashes; first ~2026-07-29
-- Syzbot lists upstream fix `61d85f99b5a5` (that SHA is not in this
-  tree; `git merge-base --is-ancestor` was not used on an unknown remote
-  SHA)
+Record: No `Reported-by`, no bugzilla/syzbot. Author found it by
+inspecting the driver-owned match table vs missing alias export. No
+evidence of a live user report.
 
 **Step 4.4: CHECK FOR RELATED PATCHES AND SERIES**
 
-Record: 1-patch series. v2 is the applied leak-complete version.
+Record: Same-day batch of missing-`MODULE_DEVICE_TABLE` patches
+(ctucanfd, octeon_ep vDPA, cadence PCI, this one). ctucanfd already
+landed in this stable tree. octeon_ep in *this* checkout also still
+lacks `MODULE_DEVICE_TABLE` (`octep_pci_vdpa_map` at
+`drivers/vdpa/octeon_ep/octep_vdpa_main.c`); that is a separate
+candidate and is not a dependency of this patch.
 
 **Step 4.5: CHECK STABLE MAILING LIST HISTORY**
 
-Record: lore.kernel.org/stable search 403. **UNVERIFIED** whether
-stable@ already discussed it. Not used as a NO reason.
+Record: lore.kernel.org/stable searches returned 403; web search found
+no stable-list discussion of this specific Alibaba patch. The related
+ctucanfd patch *was* sent to stable and is in this tree. UNVERIFIED: no
+positive evidence this exact SHA was discussed on stable@; no evidence
+it was rejected either.
 
 ---
 
 ## PHASE 5: CODE SEMANTIC ANALYSIS
 
-**Step 5.1: IDENTIFY KEY FUNCTIONS**
+**Step 5.1: IDENTIFY KEY FUNCTIONS IN THE DIFF**
 
-Record: `virtio_gpu_reclaim_vbufs` (new), `virtio_gpu_deinit` (call
-site), `free_vbuf`, `virtio_gpu_array_put_free`,
-`virtio_gpu_cleanup_object`.
+Record: No functions modified. Added `MODULE_DEVICE_TABLE(pci,
+eni_pci_ids)` next to `eni_pci_ids[]` / `eni_vdpa_driver`.
 
 **Step 5.2: TRACE CALLERS**
 
-Record:
-- `virtio_gpu_deinit()` from `virtio_gpu_probe` error path after
-  `virtio_gpu_init()` (`err_deinit`) and from `virtio_gpu_remove()`
-  after `drm_dev_unplug()`.
-- Teardown/unbind, not a hot path.
+Record: `eni_pci_ids` is used as `.id_table` of `eni_vdpa_driver`,
+registered via `module_pci_driver()`. PCI core matches on
+enumeration/hotplug. The new alias is consumed at module-install time by
+depmod, then at runtime by udev/systemd-udevd. Not an interrupt or
+syscall path.
 
 **Step 5.3: TRACE CALLEES**
 
-Record: `virtqueue_detach_unused_buf` (documented for shutdown/reset),
-GEM put, object cleanup, `kmem_cache_free`.
+Record: Macro only. Expands to an alias symbol for `file2alias.c`. No
+allocations, locks, or I/O.
 
 **Step 5.4: FOLLOW THE CALL CHAIN**
 
-Record: Userspace/sysfs PCI remove (privileged) or guest virtio-gpu
-unplug. Syzbot hit it from `remove_store`. Reachable on any system that
-unbinds/unplugs virtio-gpu with commands still in the VQ (unresponsive
-device, hot-unplug, fuzz).
+Record: Reachable when `CONFIG_ALIBABA_ENI_VDPA=m` and a matching PCI
+device appears (Red Hat Qumranet vendor `0x1af4`, transitional virtio-
+net `VIRTIO_TRANS_ID_NET`, subsystem virtio-net). Userspace does not
+need a special syscall; PCI discovery is enough. Built-in builds are
+unaffected (macro is empty).
 
 **Step 5.5: SEARCH FOR SIMILAR PATTERNS**
 
-Record: Same drain exists in `virtio_console.c` `remove_vqs()`,
-`virtio_net`, `virtio_crypto`, vsock, etc. virtio-gpu was missing it.
-
-semcode: not available; used `git grep` / file reads.
+Record: In-tree vDPA PCI drivers `ifcvf` and `snet` already have
+`MODULE_DEVICE_TABLE(pci, ...)`. `eni_vdpa` and `octeon_ep` do not.
+Systematic omission, not unique to Alibaba.
 
 ---
 
@@ -325,243 +281,223 @@ semcode: not available; used `git grep` / file reads.
 
 **Step 6.1: DOES THE BUGGY CODE EXIST IN THIS TREE?**
 
-Record: **Yes.**
-
-```283:293:drivers/gpu/drm/virtio/virtgpu_kms.c
-void virtio_gpu_deinit(struct drm_device *dev)
-{
-        ...
-        virtio_reset_device(vgdev->vdev);
-        vgdev->vdev->config->del_vqs(vgdev->vdev);
-}
-```
-
-```83:87:drivers/gpu/drm/virtio/virtgpu_vq.c
-void virtio_gpu_free_vbufs(struct virtio_gpu_device *vgdev)
-{
-        kmem_cache_destroy(vgdev->vbufs);
-        vgdev->vbufs = NULL;
-}
-```
-
-`virtio_gpu_reclaim_vbufs` is **not** in this tree. `git log
---grep='reclaim pending vbufs'` on those files: empty.
+Record: Yes. Local tree is **6.12.111** (`git describe HEAD` →
+`p-6.12-3-gc504cf0baa3d8`; `VERSION=6 PATCHLEVEL=12 SUBLEVEL=111`).
+Current `eni_vdpa.c` has `eni_pci_ids` and `.id_table = eni_pci_ids`
+with **no** `MODULE_DEVICE_TABLE`. `git merge-base --is-ancestor
+7eeda5e2487276ed87960655fdae1c97d9779a0e HEAD` failed (fix not in this
+tree). Bug introduced in `e85087beedcae` (v5.16-rc1), well before 6.12.
 
 **Step 6.2: CHECK FOR BACKPORT COMPLICATIONS**
 
-Record: **Clean apply expected.** Actual v2 context matches 6.12 (no
-panic helpers required). Line numbers differ slightly; 3-line context
-around reset/`del_vqs` and `free_vbuf`/`reclaim_vbufs` is the same.
+Record: Surrounding lines match the upstream hunk exactly. `git apply
+--check` clean. Expected difficulty: **clean apply**.
 
 **Step 6.3: CHECK IF RELATED FIXES ARE ALREADY HERE**
 
-Record: No equivalent drain. KMS-disabled removal fix `38a5f891cda6d` is
-unrelated (atomic shutdown).
+Record: `git log --grep='alibaba: add missing MODULE_DEVICE_TABLE'` on
+this file is empty. No alternate autoload fix. ctucanfd’s analogous fix
+is already here, which shows this class is accepted on 6.12.y.
 
 ---
 
 ## PHASE 7: SUBSYSTEM AND MAINTAINER CONTEXT
 
-**Step 7.1: SUBSYSTEM AND CRITICALITY**
+**Step 7.1: IDENTIFY THE SUBSYSTEM AND ITS CRITICALITY**
 
-Record: `drivers/gpu/drm/virtio` — **IMPORTANT** for VMs/QEMU guests
-(common virtio-gpu), not core mm/VFS. Not staging.
+Record: `drivers/vdpa/alibaba/` — vDPA PCI driver for Alibaba ENI.
+**PERIPHERAL** (cloud-specific, `depends on PCI_MSI && X86`). Not core
+mm/net, but a real distro-shipped driver.
 
-**Step 7.2: SUBSYSTEM ACTIVITY**
+**Step 7.2: ASSESS SUBSYSTEM ACTIVITY**
 
-Record: Mature driver (2013+), still receiving 6.12 stable fixes. Bug is
-long-standing, not a brand-new subsystem.
+Record: vDPA is actively maintained (recent ifcvf/mlx5/octeon_ep/vduse
+fixes). The Alibaba file itself is mature; last functional commits are
+API follow-ups plus a probe error-path fix. This is a long-standing
+omission, not churn from new code.
 
 ---
 
 ## PHASE 8: IMPACT AND RISK ASSESSMENT
 
-**Step 8.1: WHO IS AFFECTED**
+**Step 8.1: DETERMINE WHO IS AFFECTED**
 
-Record: virtio-gpu users (`CONFIG_DRM_VIRTIO_GPU`) — QEMU/KVM/cloud VMs,
-driver unbind, PCI remove, module unload.
+Record: Config- and driver-specific: `CONFIG_ALIBABA_ENI_VDPA=m` on x86
+with Alibaba ENI (legacy virtio 0.9.5 transitional net PCI IDs). Built-
+in (`=y`) already probes via the in-kernel `id_table`.
 
-**Step 8.2: TRIGGER CONDITIONS**
+**Step 8.2: DETERMINE THE TRIGGER CONDITIONS**
 
-Record: Device teardown with commands still on the control/cursor VQ.
-Syzbot: PCI `remove`. Privileged on the host; a VM guest can trigger it.
-Not every boot, but a realistic hot-unplug/reset path.
+Record: Trigger is ordinary PCI enumeration with the module not
+preloaded. Common for distro modular kernels. Unprivileged users cannot
+exploit it; the failure is “device never binds until someone
+`modprobe`s”.
 
-**Step 8.3: FAILURE MODE SEVERITY**
+**Step 8.3: DETERMINE THE FAILURE MODE SEVERITY**
+
+Record: Failure mode: driver never autoloads → vDPA/ENI NIC does not
+come up. Not a panic, UAF, or corruption. Severity **MEDIUM** for
+affected hardware (device non-functional until manual load). Matches the
+device-ID/quirk exception, not a crash-class bug.
+
+**Step 8.4: CALCULATE RISK-BENEFIT RATIO**
 
 Record:
-- `kmem_cache_destroy()` **always** `WARN`s if objects remain
-  (`mm/slab_common.c` ~547), not only `CONFIG_SLUB_DEBUG`.
-- With SLUB_DEBUG, additional `slab_bug` / `__slab_err`.
-- If shutdown fails, the cache is **not** released (`if (err) return`) →
-  cache leak plus leaked vbufs/GEM.
-- Syzbot: DoS, `prio:high`.
-- Severity: **HIGH** (kernel WARNING/taint, resource leak on remove;
-  panic if `panic_on_warn`).
 
-**Step 8.4: RISK-BENEFIT RATIO**
-
-Record: **Benefit high** (stops WARNING + leak on a common VM GPU
-driver). **Risk low** (17 lines, existing helpers, maintainer-acked).
-Ratio favors backport.
+- Benefit: restores autoload for a driver that already exists in 6.12;
+  hardware that distros already ship a module for actually binds.
+- Risk: **very low** (one line, build-time metadata only).
+- Ratio: strongly favorable. Same class already taken into this tree
+  (`877e99535dfb9`).
 
 ---
 
 ## PHASE 9: FINAL SYNTHESIS
 
-**Step 9.1: EVIDENCE**
+**Step 9.1: COMPILE THE EVIDENCE**
 
-**FOR:**
-- Real, syzbot-reproduced teardown bug
-- Unconditional `WARN` + slab/GEM leak
-- virtio-gpu is widely used in VMs on 6.12 LTS
-- Small, obviously correct drain matching other virtio drivers
-- All callees exist here; bug exists here
-- Maintainer applied v2 to drm-misc-fixes
+FOR:
 
-**AGAINST:**
-- Trigger is device removal, not a hot path
-- Needs privilege / VM unplug (not a local unprivileged syscall crash)
-- No `Fixes:` / stable Cc in the original (not a negative under these
-  rules)
+- Real functional bug: PCI match table present, aliases unpublished.
+- One-line, obviously correct, applies cleanly to this 6.12 tree.
+- Buggy code has been here since the driver was added (v5.16); the
+  upstream fix is not an ancestor of HEAD.
+- Device-ID / autoload publication is an established stable exception.
+- Identical pattern from the same author already backported here
+  (ctucanfd).
+- Sibling vDPA PCI drivers already export `MODULE_DEVICE_TABLE`.
+- Applied by the vDPA maintainer (MST) after seeing the patch.
+- Zero runtime regression surface.
 
-**UNRESOLVED:**
-- lore.kernel.org 403; stable@ discussion not fetched
-- `b4 dig` could not resolve a SHA that is not in this tree
+AGAINST:
 
-**Step 9.2: STABLE RULES CHECKLIST**
+- Not a crash, UAF, deadlock, or security issue.
+- Niche (Alibaba ENI, x86, modular builds only).
+- No user `Reported-by`.
+- Author did not `Cc: stable` (expected for this review set; not a
+  negative).
+- MST questioned the boilerplate wording, not the code.
 
-1. Obviously correct and tested? **PASS** — v2, syzbot, maintainer
-   applied
-2. Real user-visible bug? **PASS** — WARNING + leak on virtio-gpu remove
-3. Important (crash/leak/DoS)? **PASS** — HIGH; syzbot prio:high / DoS
-4. Small and contained? **PASS** — +17 lines, 3 files, one driver
-5. No new features/APIs? **PASS** — internal helper only
-6. Applies to local tree? **PASS** — buggy code present; helpers present
+UNRESOLVED:
 
-**Step 9.3: EXCEPTION CATEGORIES**
+- Could not fetch lore.kernel.org/stable HTML (403). No evidence of
+  rejection.
 
-Record: Not ID/quirk/DT/docs. Ordinary important bugfix.
+**Step 9.2: APPLY THE STABLE RULES CHECKLIST**
+
+1. Obviously correct and tested? **PASS** — one-line standard pattern;
+   maintainer applied it.
+2. Fixes a real bug that affects users? **PASS** — modular autoload
+   fails for matching PCI devices.
+3. Important issue? **PASS** under the device-ID / hardware-enablement
+   exception (severity MEDIUM, not crash-class).
+4. Small and contained? **PASS** — +1 line, one file.
+5. No new features or APIs? **PASS** — publishes IDs the driver already
+   matches on.
+6. Can apply to the local tree? **PASS** — buggy code present; `git
+   apply --check` clean.
+
+**Step 9.3: CHECK FOR EXCEPTION CATEGORIES**
+
+Record: **Device ID / module alias publication for an existing driver.**
+Equivalent to adding PCI IDs so hardware actually binds when built as a
+module.
 
 **Step 9.4: DECISION**
 
-This tree has the bug and the dependencies. The fix is small, matches
-established virtio teardown, and stops a syzbot-confirmed WARNING plus
-object leak on virtio-gpu teardown. It should be backported to this 6.12
-tree.
+This should be backported to this 6.12 tree. The driver is already here,
+the omission is real, the fix is trivial and has no runtime risk, and
+this tree already accepted the same class of fix.
 
 ---
 
-## What the commit solves for stable users
+### What the commit solves and why it matters here
 
-On virtio-gpu unbind/unplug, in-flight command buffers stay in the
-virtqueues. Destroying the `virtio-gpu-vbufs` cache then WARNs and leaks
-those buffers and any GEM objects they hold (including pending
-`RESOURCE_UNREF`). 6.12 guests using virtio-gpu hit this on device
-removal.
+Without `MODULE_DEVICE_TABLE(pci, eni_pci_ids)`, `file2alias` never
+emits PCI aliases for `alibaba-eni-vdpa`. On 6.12 systems that build
+`CONFIG_ALIBABA_ENI_VDPA=m`, udev will not load the module when the ENI
+virtio-net PCI device appears, so the vDPA device never probes unless
+something else loads the module. The in-kernel `id_table` still works
+after a manual `modprobe`; autoload is what is broken.
 
-## Risk vs benefit
+### Stable rules and risk
 
-Benefit: no WARN/taint and no leaked GEM/vbufs on a common VM driver.
-Risk: low; one drain after reset, before `del_vqs()`, using APIs already
-in 6.12.
+The change is one line, matches the PCI driver idiom used by
+`ifcvf`/`snet`, and does not alter probe/remove. Risk is essentially
+zero. Benefit is limited to Alibaba ENI modular users, but that is the
+same justification used for PCI ID additions and for the ctucanfd
+autoload fix already on this branch.
 
-## Concerns
+### Concerns
 
-None that block backport. Header context in some expanded diffs mentions
-later panic helpers; the real v2 hunk does not need them. Apply as the
-17-line v2.
+None material for this tree. No prerequisites. No backport rewrite
+needed. octeon_ep has the same omission locally; that is independent.
 
 ---
 
-## Verification
+Verification:
+- [Phase 1] Parsed tags from `git show
+  7eeda5e2487276ed87960655fdae1c97d9779a0e`: SOB Hou, SOB Tsirkin,
+  Message-ID; no Fixes/Reported-by/Cc:stable
+- [Phase 2] Diff: +1 line `MODULE_DEVICE_TABLE(pci, eni_pci_ids)` in
+  `eni_vdpa.c`; no function body change
+- [Phase 2] Confirmed `MODULE_DEVICE_TABLE` expansion in
+  `include/linux/module.h` (alias for modules, empty if built-in)
+- [Phase 2] Confirmed `do_pci_entry()` in `scripts/mod/file2alias.c`
+  generates `pci:` aliases from exported tables
+- [Phase 3] `git blame -L 540,560`: ID table from `e85087beedcae`
+  (v5.16-rc1)
+- [Phase 3] `git merge-base --is-ancestor e85087beedcae HEAD`: yes (bug
+  present)
+- [Phase 3] `git merge-base --is-ancestor
+  7eeda5e2487276ed87960655fdae1c97d9779a0e HEAD`: no (fix absent)
+- [Phase 3] Same-author ctucanfd fix `877e99535dfb9` already in this
+  tree
+- [Phase 4] `b4 dig -c 7eeda5e…`:
+  https://patch.msgid.link/20260704152732.55338-1-pengpeng@iscas.ac.cn
+- [Phase 4] `b4 dig -a`: v1 only
+- [Phase 4] `b4 dig -w`: MST, Jason Wang, Xuan Zhuo, Eugenio Pérez,
+  virtualization@, lkml
+- [Phase 4] mbox: MST asked about boilerplate wording; no NAK; later
+  applied
+- [Phase 4] lore.kernel.org HTML fetches returned 403; used b4 mbox +
+  openwall copy instead
+- [Phase 5] Callers: `module_pci_driver` → PCI probe; aliases consumed
+  by depmod/udev
+- [Phase 5] Sibling drivers `ifcvf`/`snet` already have
+  `MODULE_DEVICE_TABLE`; `octeon_ep` still missing (independent)
+- [Phase 6] `git describe HEAD` / `make kernelversion`: 6.12.111
+  (`p-6.12-3-gc504cf0baa3d8`)
+- [Phase 6] Current `eni_vdpa.c` lines 540–559: table present,
+  `MODULE_DEVICE_TABLE` absent
+- [Phase 6] `git apply --check` of the commit: success
+- [Phase 7] Kconfig: `ALIBABA_ENI_VDPA` tristate, `depends on PCI_MSI &&
+  X86`
+- [Phase 8] Failure mode: module autoload skip → device does not bind;
+  severity MEDIUM; risk very low
+- UNVERIFIED: no stable@ thread found (lore/stable HTTP 403); did not
+  drive the decision
 
-- **[Phase 1]** Tags: syzbot Reported-by, Closes syzkaller URL, Osipenko
-  SOB
-- **[Phase 2]** Diff: +17 across 3 virtio GPU files; drain after reset
-- **[Phase 2]** `resp_cb_data` only assigned in
-  `virtio_gpu_cmd_unref_resource()` in this tree
-- **[Phase 3]** `git describe HEAD` / Makefile: 6.12.111;
-  `p-6.12-3-gc504cf0baa3d8`
-- **[Phase 3]** blame: `kmem_cache_destroy` in `virtio_gpu_free_vbufs`
-  since `f5985bf9cadd4e` (2017); deinit without drain since original
-  driver
-- **[Phase 3]** `git log --grep='reclaim pending vbufs' --
-  drivers/gpu/drm/virtio/`: not present
-- **[Phase 4]** Openwall v2 + LKML: Osipenko “Applied to drm-misc-fixes”
-- **[Phase 4]** syzbot: WARNING in `virtio_gpu_free_vbufs`, prio:high,
-  PCI remove stack, 13 crashes
-- **[Phase 4]** lore.kernel.org 403; `b4 dig` no local commit —
-  UNVERIFIED beyond Openwall/LKML/syzbot
-- **[Phase 5]** Callers: `virtio_gpu_drv.c` probe fail +
-  `virtio_gpu_remove`
-- **[Phase 5]** Both VQs assigned in `virtio_gpu_init()` lines 217–218
-- **[Phase 6]** Local `virtio_gpu_deinit` / `virtio_gpu_free_vbufs`
-  match the buggy sequence
-- **[Phase 6]** `virtqueue_detach_unused_buf`,
-  `virtio_gpu_array_put_free`, `virtio_gpu_cleanup_object` exist
-- **[Phase 8]** `kmem_cache_destroy` WARNs if `__kmem_cache_shutdown`
-  returns nonzero (`mm/slab_common.c`); cache not released on error
-- **UNVERIFIED:** whether this SHA is already in some other stable
-  series (irrelevant; not in this tree)
+The fix is small, surgical, present as a real autoload bug in this 6.12
+tree, and meets the device-ID/hardware-enablement exception.
 
 **YES**
 
- drivers/gpu/drm/virtio/virtgpu_drv.h |  1 +
- drivers/gpu/drm/virtio/virtgpu_kms.c |  1 +
- drivers/gpu/drm/virtio/virtgpu_vq.c  | 15 +++++++++++++++
- 3 files changed, 17 insertions(+)
+ drivers/vdpa/alibaba/eni_vdpa.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index 51b78f8a8aa2e..d52f35a09a1b0 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -355,6 +355,7 @@ void virtio_gpu_array_put_free_work(struct work_struct *work);
- /* virtgpu_vq.c */
- int virtio_gpu_alloc_vbufs(struct virtio_gpu_device *vgdev);
- void virtio_gpu_free_vbufs(struct virtio_gpu_device *vgdev);
-+void virtio_gpu_reclaim_vbufs(struct virtio_gpu_device *vgdev);
- void virtio_gpu_cmd_create_resource(struct virtio_gpu_device *vgdev,
- 				    struct virtio_gpu_object *bo,
- 				    struct virtio_gpu_object_params *params,
-diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-index 4a25347734fda..01ea5cd5ea7f1 100644
---- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-@@ -289,6 +289,7 @@ void virtio_gpu_deinit(struct drm_device *dev)
- 	flush_work(&vgdev->cursorq.dequeue_work);
- 	flush_work(&vgdev->config_changed_work);
- 	virtio_reset_device(vgdev->vdev);
-+	virtio_gpu_reclaim_vbufs(vgdev);
- 	vgdev->vdev->config->del_vqs(vgdev->vdev);
- }
+diff --git a/drivers/vdpa/alibaba/eni_vdpa.c b/drivers/vdpa/alibaba/eni_vdpa.c
+index e476504db0c82..fd6fdba460945 100644
+--- a/drivers/vdpa/alibaba/eni_vdpa.c
++++ b/drivers/vdpa/alibaba/eni_vdpa.c
+@@ -545,6 +545,7 @@ static struct pci_device_id eni_pci_ids[] = {
+ 			 VIRTIO_ID_NET) },
+ 	{ 0 },
+ };
++MODULE_DEVICE_TABLE(pci, eni_pci_ids);
  
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index 244a791ab915e..f7e7d212fc67c 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -207,6 +207,21 @@ static void free_vbuf(struct virtio_gpu_device *vgdev,
- 	kmem_cache_free(vgdev->vbufs, vbuf);
- }
- 
-+void virtio_gpu_reclaim_vbufs(struct virtio_gpu_device *vgdev)
-+{
-+	struct virtio_gpu_vbuffer *vbuf;
-+
-+	while ((vbuf = virtqueue_detach_unused_buf(vgdev->ctrlq.vq))) {
-+		if (vbuf->objs)
-+			virtio_gpu_array_put_free(vbuf->objs);
-+		if (vbuf->resp_cb_data)
-+			virtio_gpu_cleanup_object(vbuf->resp_cb_data);
-+		free_vbuf(vgdev, vbuf);
-+	}
-+	while ((vbuf = virtqueue_detach_unused_buf(vgdev->cursorq.vq)))
-+		free_vbuf(vgdev, vbuf);
-+}
-+
- static void reclaim_vbufs(struct virtqueue *vq, struct list_head *reclaim_list)
- {
- 	struct virtio_gpu_vbuffer *vbuf;
+ static struct pci_driver eni_vdpa_driver = {
+ 	.name		= "alibaba-eni-vdpa",
 -- 
 2.53.0
 
