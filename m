@@ -1,43 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E875470843;
-	Mon, 19 Oct 2026 14:02:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4B8F60404E;
+	Mon, 19 Oct 2026 14:03:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792418540; cv=none; b=ZUwWQsJy5lQGhWvc6Ofd1N5qX+JXXCsrkDFb+jG0zJM3vgUpEpDuxsEnYuwJ4GHbt2sWTw66KsW2ewEI/83/FH46td+GANniYa1mY3pIrBlecWM1ddAW27ZQsoaKKKZ6i2F/6SDFdUKB8O7LhKueEgh6ZH0pzqR8zJAkZgtl3cg=
+	t=1792418593; cv=none; b=mUTzIv6ndMwGHWzZoV90z7lwl2IP7OJ3E7tUWa5IpWOAZzz0GOiH/4tK3drQput/WZs0fRsZNJJkqBzvoHWSFFqjwfFW8/avXYleyWxvrye/rnJONU6v4bmSa7nmnMkr9K8qwiAamTY+xjJ6PSppLxJw4mt5Y4T2wpRN8aRymko=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792418540; c=relaxed/simple;
-	bh=D/Jr8V1Uxrh3hH2U8FbxMScWi9iLcno6wckYdj66BFU=;
+	s=arc-20240116; t=1792418593; c=relaxed/simple;
+	bh=7RRkTTBUoUaZD5ACbr4rifyzrB80AkCSWWYmajZR/qc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=S727vX3HfI2SEuYEMNBQl0WK6/CgyTrHzk5C/xeGYpnnBlOJ+pjjGFxU7SBeugsC9lX6qHZzU+kxShJVGn9b5gGq9+eGuYPLBwO9YOd+rRTk2TcopY4QPL8m78I9hWxNQYQavjLSARd5wrzCaoBPWJ1b4TK42obBezelBtPZ8IM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nf52wgUO; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=fyW3N2ch7Z0+JlpvLf74FhOl1wEt6JyevnrDBfuO8/FqMQ9L67F2daoHkW5Pz5tRmIaihfioFIC6gItsXK3kUAY9b91hmN2/BhA0o35t7LR+Zb+6LkhrNhV/Z/5j971CjBBlnzl0XfuBgIb3HWJ4cgoQtA8dFYVw2y1FmAchGlY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EPJeAcpJ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nf52wgUO"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F10F1F000CE;
-	Mon, 19 Oct 2026 14:02:17 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EPJeAcpJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B19C31F000C7;
+	Mon, 19 Oct 2026 14:03:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792418538;
-	bh=Hto6nE9KVYk77CkOPfGOvroggMqY6F6H5MYcWUQu+u4=;
+	s=k20260515; t=1792418590;
+	bh=veXsoZLcTeYeaBs5kTWoyEnKoyG321VaA3pDN71aTdI=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=nf52wgUOrYXPfWrMnTSiznGm2w0RKdDDkTBJhnt88DWiuYb+CQ7QdnwZl5GJ6UaRM
-	 W/0xhnTeZg9MsppSZeDcWNDIJdSvMuu29WAUqCbv5fu30yYVcFvYlpqVOFS5X0vZFL
-	 DfR6+DXBQme2u1XmNtMAyJ5H5Nk2wRJtQJcEDSzh0YrCj8PlDZtAvOey10c4d/UaSw
-	 Gkvk+cQsWVNY3w905i2BxvbbCbaaEqyj1+8w/SZFjosNKtNhp5mXNHMJVfgJfANAA5
-	 dGyfYpZ+SjquDEE8hSZ+cqi/IhlgYbBVd0pNK4oPLT4CY4oapdUgP4B8mLpH5llJ65
-	 2GcrcKCnxYS9Q==
+	b=EPJeAcpJt/OL8+bAYTxUCJjDGEbCludHpLsdcW/ia640C1+4mgrxb8Y3khZrnA80J
+	 5zWtCcv89WTD7Ys8VEt7/FGI/NLAdKNQAvgX5a7W+b9nIjNx6Ry0gFJB6hV/VDH0Po
+	 gIyZ9Vj+Kc+Cf5lH9QW+9eVMdPop1Kbw4CwoLPoNr7u+iAEtXcDXE2a7pAUlO6Qm6I
+	 ETTVGGHodsusXW5sZAq95KUkunE7GhctSQIFfX16rZ9+yV67ap/EipZLMgNHrg5xcx
+	 3TaV29f56yiU9be4RkF4uGkkMbfZlbpj6yHEc5x1NnEnwZWS3ye4i3mBvZsXKvIUT+
+	 ZKuumjjt81oqQ==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Cc: Hari Mishal <harimishal1@gmail.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+Cc: "Denis V. Lunev" <den@openvz.org>,
+	David Hildenbrand <david@kernel.org>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
 	Sasha Levin <sashal@kernel.org>,
-	amit@kernel.org,
+	jasowangio@gmail.com,
+	eperezma@redhat.com,
 	virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.18-5.10] virtio_console: take a kref in find_port_by_vq() to fix port UAF
-Date: Mon, 19 Oct 2026 09:50:10 -0400
-Message-ID: <20261019135441.1420968-319-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.18-5.10] virtio_balloon: warn on failed buffer add in tell_host()
+Date: Mon, 19 Oct 2026 09:50:47 -0400
+Message-ID: <20261019135441.1420968-356-sashal@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261019135441.1420968-1-sashal@kernel.org>
 References: <20261019135441.1420968-1-sashal@kernel.org>
@@ -53,491 +55,433 @@ X-stable-base: Linux 6.18.57
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Hari Mishal <harimishal1@gmail.com>
+From: "Denis V. Lunev" <den@openvz.org>
 
-[ Upstream commit 18dd0b4e489e4f0e3b748cf36ccb909c75a3efab ]
+[ Upstream commit 198eda395067b56ee605de076f0519620f4e5d90 ]
 
-find_port_by_vq() returns a raw struct port pointer without taking a
-reference on it, unlike find_port_by_devt_in_portdev() which does.
-find_port_by_vq()'s only two callers, in_intr() and out_intr(), run as
-virtqueue interrupt callbacks, entirely independent of and possibly
-concurrently with unplug_port(), which itself runs from a workqueue when
-the host sends a VIRTIO_CONSOLE_PORT_REMOVE control message.
+tell_host() ignores the return value of virtqueue_add_outbuf() and goes
+on to kick the queue and wait_event() for the host's ack. The comment
+claims "We should always be able to add one buffer to an empty queue",
+but that does not hold once the virtqueue has been broken (e.g. on
+device shutdown): the add then fails with -EIO and the following
+wait_event() would block forever on a buffer the host can never return.
 
-unplug_port() removes the port from portdev->ports under ports_lock,
-then later drops its last reference with kref_put(), freeing it via
-remove_port(). find_port_by_vq() also walks portdev->ports under
-ports_lock, so if it finds the port still on the list, the list removal,
-and therefore the eventual kref_put(), has not happened yet, and taking
-a reference at that point is always safe. Without doing so,
-in_intr()/out_intr() can be left holding a pointer to a port that
-unplug_port() frees on another core before they are done using it.
+Warn and bail out on failure, mirroring virtballoon_free_page_report().
 
-Both triggers are host-controlled as the host decides when to send the
-PORT_REMOVE control message and when to kick the port's data vq. So a
-malicious backend could race the two on purpose, without any guest side
-cooperation. The freed object is a generic kmalloc allocation containing
-a wait_queue_head_t, which in_intr()/out_intr() pass to
-wake_up_interruptible() after touching the stale pointer.
-wake_up_interruptible() invokes a function pointer read out of the wait
-queue's entries. If the freed slab slot is reclaimed with attacker
-influenced content before that call, then this is an arbitrary function
-call primitive rather than just undefined behaviour.
-
-Take a reference in find_port_by_vq() while still holding ports_lock,
-matching find_port_by_devt_in_portdev(), and release it in in_intr() and
-out_intr() once they are done with the port.
-
-Signed-off-by: Hari Mishal <harimishal1@gmail.com>
-Link: https://patch.msgid.link/20260717150622.23636-1-harimishal1@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Suggested-by: David Hildenbrand <david@kernel.org>
+Signed-off-by: Denis V. Lunev <den@openvz.org>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Message-ID: <20260624140846.2616797-5-den@openvz.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
 
 LLM Generated explanations, may be completely bogus:
 
-The local tree is **6.6.157** (`pending-6.6`). The virtio_console UAF is
-in this tree, and the kref get/put fix is a small, self-contained match
-for the existing `find_port_by_devt_in_portdev()` pattern.
+This tree is **6.12.111** (`pending-6.12`, `git describe`
+`p-6.12-3-gc504cf0baa3d8`). The verdict is only for this checkout.
 
-===============================================================
-PHASE 1: COMMIT MESSAGE FORENSICS
-===============================================================
+The candidate is `198eda395067b` (`virtio_balloon: warn on failed buffer
+add in tell_host()`). It is **not** an ancestor of `HEAD`. The buggy
+`tell_host()` is present and the patch applies cleanly.
 
-**Step 1.1: PARSE THE SUBJECT LINE**
-Record: **[virtio_console] [take / fix] take a kref in
-`find_port_by_vq()` to fix port UAF.** Subsystem is the virtio console
-character driver. The subject names a use-after-free and the exact
-missing refcount.
+---
 
-**Step 1.2: PARSE ALL COMMIT MESSAGE TAGS**
+## Phase 1: Commit message forensics
+
+**Step 1.1 — Subject**
+Record: **[virtio_balloon] [warn] Check `virtqueue_add_outbuf()` in
+`tell_host()` and return instead of waiting forever**
+
+**Step 1.2 — Tags**
 Record:
-- **Signed-off-by:** Hari Mishal \<harimishal1@gmail.com\> (author)
-- **Link:**
-  https://patch.msgid.link/20260717150622.23636-1-harimishal1@gmail.com
-- **Signed-off-by:** Greg Kroah-Hartman \<gregkh@linuxfoundation.org\>
-  (char-misc application)
-- **No Fixes:** tag (expected for this review)
-- **No Cc: stable** (expected; ignored as a negative)
-- **No Reported-by / Tested-by / Reviewed-by / Acked-by**
-- Ignore pipeline **Signed-off-by: Sasha Levin** / **[Upstream commit
-  ...]** if present
+- Suggested-by: David Hildenbrand `<david@kernel.org>`
+- Signed-off-by: Denis V. Lunev `<den@openvz.org>` (author)
+- Signed-off-by: Michael S. Tsirkin `<mst@redhat.com>` (virtio
+  maintainer)
+- Message-ID: `<20260624140846.2616797-5-den@openvz.org>` (v2 4/4)
+- No Fixes:, Reported-by:, Tested-by:, Reviewed-by:, Cc: stable, or
+  Link: on the committed message (absence is expected)
 
-**Step 1.3: ANALYZE THE COMMIT BODY TEXT**
+**Step 1.3 — Body**
 Record:
-- **Bug:** `find_port_by_vq()` returns a raw `struct port *` with no
-  `kref_get()`, unlike `find_port_by_devt_in_portdev()`.
-- **Race:** `in_intr()` / `out_intr()` (virtqueue callbacks) vs
-  `unplug_port()` (workqueue, `VIRTIO_CONSOLE_PORT_REMOVE`).
-- **Mechanism:** both walk `portdev->ports` under `ports_lock`. Lookup
-  can succeed, drop the lock, then unplug `list_del()`s and later
-  `kref_put()` → `remove_port()` → `kfree(port)` while the IRQ path
-  still uses the pointer.
-- **Symptom:** use-after-free of a kmalloc object that contains a
-  `wait_queue_head_t`. `wake_up_interruptible()` follows a function
-  pointer from wait-queue entries. If the slab is recycled with
-  attacker-controlled content, that is an **arbitrary function call**,
-  not just a crash.
-- **Trigger:** host-controlled (PORT_REMOVE + data vq kick). A malicious
-  virtio backend can race this without guest help.
-- **Fix:** `kref_get()` under `ports_lock` in `find_port_by_vq()`;
-  `kref_put(..., remove_port)` at the end of `in_intr()` / `out_intr()`.
-- **Version info in message:** none.
+- **Bug:** `tell_host()` ignores `virtqueue_add_outbuf()`. The comment
+  assumes an empty queue can always take one buffer.
+- **Symptom:** After a broken virtqueue (`-EIO` on device shutdown /
+  already-broken vq), `wait_event(vb->acked, virtqueue_get_buf(...))`
+  waits forever because the host will never return a buffer that was
+  never queued.
+- **Root cause:** Broken-queue add failure is not treated as fatal; kick
+  + wait still run.
+- **Fix:** `WARN_ON_ONCE(err)` and return, same as
+  `virtballoon_free_page_report()`.
+- **Version note:** Message cites “device shutdown”. That specific
+  trigger is `8bd2fa086a04` (2025-02-24), which is **not** in this 6.12
+  tree. Other broken-queue triggers **are** in this tree (below).
 
-**Step 1.4: DETECT HIDDEN BUG FIXES**
-Record: **Not hidden.** This is an explicit UAF/refcount fix, not
-cleanup disguised as a fix.
+**Step 1.4 — Hidden bug fix?**
+Record: Not hidden. It is an explicit hang fix. It also finishes the
+2014 change that removed `BUG()` on add failure but left the wait.
 
-===============================================================
-PHASE 2: DIFF ANALYSIS - LINE BY LINE
-===============================================================
+---
 
-**Step 2.1: INVENTORY THE CHANGES**
+## Phase 2: Diff analysis
+
+**Step 2.1 — Inventory**
 Record:
-- **File:** `drivers/char/virtio_console.c` only
-- **Scope:** ~14 insertions, 1 deletion (comment + `kref_get` + two
-  `kref_put`s)
-- **Functions:** `find_port_by_vq()`, `out_intr()`, `in_intr()`
-- **Classification:** single-file surgical refcount fix
+- File: `drivers/virtio/virtio_balloon.c` only (~+4 / −2)
+- Function: `tell_host()`
+- Scope: single-function surgical check
 
-**Step 2.2: UNDERSTAND THE CODE FLOW CHANGE**
+**Step 2.2 — Flow**
 Record:
-- **`find_port_by_vq()`:** before, returned a list pointer after
-  dropping `ports_lock`. After, `kref_get(&port->kref)` while still on
-  the list and holding the lock; callers must put.
-- **`out_intr()`:** still looks up, flushes if missing, then
-  `wake_up_interruptible(&port->waitqueue)`; now `kref_put()` after the
-  wake.
-- **`in_intr()`:** same lookup/inbuf/sigio/wake/hvc path; now
-  `kref_put()` after the last use of `port`.
-- **Early `if (!port)` returns:** no get was taken, so no put (correct).
-- **Path:** virtqueue interrupt/callback vs hot-unplug workqueue.
+- **Before:** `virtqueue_add_outbuf()`; ignore result;
+  `virtqueue_kick()`; `wait_event` until `virtqueue_get_buf()` is non-
+  NULL.
+- **After:** same, but if add returns non-zero, warn once and return (no
+  kick, no wait).
+- Path: inflate/deflate notify to host (normal and remove/leak paths).
 
-**Step 2.3: IDENTIFY THE BUG MECHANISM**
+**Step 2.3 — Mechanism**
 Record:
-- **Category:** **use-after-free / reference counting** (UAF of `struct
-  port`).
-- **What was broken:** lookup did not pin the object; unplug could free
-  it before IRQ handlers finished (waitqueue wake, inbuf,
-  `is_rproc_serial(port->portdev->vdev)`, `hvc_poll`).
-- **How the fix works:** same lock-held get as
-  `find_port_by_devt_in_portdev()`. If the port is still on
-  `portdev->ports`, `unplug_port()` has not yet `list_del()`d, so it has
-  not yet done the matching `kref_put()`. `kref_get()` is therefore on a
-  live ref.
+- **Category:** logic / correctness — ignored error leading to infinite
+  wait
+- **Broken:** add on `vq->broken` returns `-EIO` (`virtqueue_add` in
+  `virtio_ring.c`). `virtqueue_get_buf_*` returns NULL on broken.
+  `wait_event` never completes.
+- **Fix:** abort when add fails.
 
-**Step 2.4: ASSESS THE FIX QUALITY**
+**Step 2.4 — Quality**
 Record:
-- **Obviously correct:** matches the 2013 open/close unplug fix
-  (`057b82be3ca3d0`) and the existing finder that already takes a kref.
-- **Minimal:** no API, no structural change.
-- **Regression risk:** low. `remove_port()` in this tree is only
-  `kfree(port)`, which is IRQ-safe, so a last `kref_put()` from
-  `in_intr()`/`out_intr()` is safe. Puts are at the end of both
-  handlers; 6.6 has no extra early return after a successful lookup, so
-  get/put is balanced.
-- **Residual (not a reason to reject this patch):** `in_intr()` still
-  does `is_rproc_serial(port->portdev->vdev)` without a NULL `portdev`
-  check. That is a separate NPD if unplug already cleared `portdev`. It
-  already exists when a file holds a kref. Sibling series patch 3/4
-  addresses it; it is **not** required for kref accounting on this tree.
+- Obviously correct; same pattern already in
+  `virtballoon_free_page_report()` in this file.
+- Regression risk is low. Early return from `fill_balloon()` can leave
+  pages ballooned without a host ack if add failed for a reason other
+  than a dead device; on a broken vq that is the intended abort.
+  `leak_balloon()` still runs `release_pages_balloon()` after
+  `tell_host()`, so surprise-remove still returns pages.
+- `WARN_ON_ONCE` + `panic_on_warn` could panic instead of hang. That is
+  the existing reporting-path policy. In **this** tree, shutdown does
+  not break virtio devices, so this does not add reboot-time WARNs.
 
-===============================================================
-PHASE 3: GIT HISTORY INVESTIGATION
-===============================================================
+---
 
-**Step 3.1: BLAME THE CHANGED LINES**
+## Phase 3: Git history investigation
+
+**Step 3.1 — Blame**
 Record:
-- `find_port_by_vq()` introduced in **`203baab8ba3195`** (“virtio:
-  console: Introduce function to hand off data from host to readers”,
-  2010-02-24), first in **v2.6.34-rc1**. Present in this 6.6 tree (`git
-  merge-base --is-ancestor` succeeded).
-- `in_intr()` from **`17634ba25544d6`** (2009). `out_intr()` from
-  **`2770c5ea501be6`** (2011).
-- **`kref_get` in `find_port_by_devt_in_portdev()`** from
-  **`057b82be3ca3d0`** (2013): “fix race with port unplug and
-  open/close”, **CC: stable**. Same bug class, same fix pattern, already
-  backported historically.
+- `tell_host()`: `6b35e40767c6c1` (2008, original balloon driver)
+- Ignored add return: `4951cc90831470` (2014, Rusty Russell, “don't
+  crash if virtqueue is broken”) — replaced `if (add < 0) BUG()` with an
+  unchecked add. That avoided a crash and left a hang.
+- Reporting-path WARN: `b0c504f1547189` (2020)
 
-**Step 3.2: FOLLOW THE FIXES: TAG**
-Record: **No Fixes: tag.** The missing get was never added for this
-finder; the bug is as old as `find_port_by_vq()` / unplug concurrency.
+**Step 3.2 — Fixes: tag**
+Record: None. Natural parent is `4951cc90831470` (present in this tree).
 
-**Step 3.3: CHECK FILE HISTORY FOR RELATED CHANGES**
-Record: Recent 6.6 virtio_console commits are unrelated (control-out
-buffers, cols/rows, probe). **This UAF fix is not in HEAD**
-(`find_port_by_vq()` still has no `kref_get`). Standalone relative to
-this tree’s `in_intr()` (no `if (!port->portdev)` early return).
+**Step 3.3 — File history**
+Record: Recent balloon work here is stats/wakeup/indirect-desc, not
+`tell_host()`. No competing fix for this hang. Not already applied.
 
-**Step 3.4: CHECK THE AUTHOR'S OTHER COMMITS**
-Record: Hari Mishal is not the virtio-console maintainer (MAINTAINERS:
-Amit Shah). Greg Kroah-Hartman applied the patch. Related series patches
-1–2 touch virtio-mem/virtio_input, not this file.
+**Step 3.4 — Author**
+Record: Denis V. Lunev is a long-time balloon contributor
+(`997e120843e82`, etc.). Applied by MST. Suggested by David Hildenbrand.
 
-**Step 3.5: CHECK FOR DEPENDENT/PREREQUISITE COMMITS**
-Record: Originally **patch 4/4** in “virtio: validate device-reported
-values across drivers”. Patch 3/4 adds `if (!port->portdev)` in
-`in_intr()`; lore diffs of 4/4 therefore had an extra `kref_put` on that
-return. **This tree does not have that check** (`if (!port->portdev)`
-only in `discard_port_data()` / `reclaim_consumed_buffers()`). The
-candidate under review is the form without that hunk, which matches 6.6.
-**Can apply standalone.** Patch 3 is complementary, not a build/semantic
-prerequisite for this kref change here.
+**Step 3.5 — Dependencies**
+Record: Standalone. v2 series is 4/4:
+1. `virtio_device_shutdown()` helper — needs `virtio_dev_shutdown()`
+   from `8bd2fa086a04` (not here)
+2. `virtballoon_quiesce()` factor-out
+3. `.shutdown` quiesce (Fixes: `8bd2fa086a04`)
+4. **This patch** — no new helpers, applies to current `tell_host()`
 
-===============================================================
-PHASE 4: MAILING LIST AND EXTERNAL RESEARCH
-===============================================================
+This commit does not need 1–3.
 
-**Step 4.1: FIND THE ORIGINAL PATCH DISCUSSION**
+---
+
+## Phase 4: Mailing list and external research
+
+**Step 4.1 — Original thread**
 Record:
-- **Lore / msgid:** `20260717150622.23636-1-harimishal1@gmail.com`
-  (standalone 2026-07-17 resubmit). Earlier: `[PATCH 4/4]` / `[PATCH v2
-  4/4]` 2026-07-15.
-- **`b4 mbox` on that msgid:** **1 message in the thread** (no replies).
-- **`b4 dig -c <sha>`:** not usable; this SHA is not in the 6.6
-  checkout.
-- **WebFetch lore.kernel.org:** **403** (could not read lore HTML
-  directly).
-- Openwall/LKML/Patchew confirm v1 → v2 (comment wording only) →
-  standalone resubmit. No NAK found in those archives.
-- **UNVERIFIED:** full lore review thread beyond “no replies” from b4.
+- Lore: https://patch.msgid.link/20260624140846.2616797-5-den@openvz.org
+- Cover: `[PATCH v2 0/4] virtio_balloon: quiesce balloon work on device
+  shutdown`
+- Cover URL: https://lore-
+  kernel.gnuweeb.org/lkml/20260624140846.2616797-1-den@openvz.org/
+- v1 (2026-06-22) was 2 patches (quiesce only). v2 added this tell_host
+  check (Hildenbrand) and kept it separate (Tsirkin).
+- Field report in the cover: kexec/cluster upgrade + `panic_on_warn` on
+  the **reporting** WARN after `8bd2fa086a04`. That trigger is **not**
+  in 6.12. Cover also states inflate/deflate `wait_event` would block
+  forever on a broken queue.
 
-**Step 4.2: CHECK WHO REVIEWED THE PATCH**
-Record: Recipients included Amit Shah, Arnd Bergmann, Greg Kroah-
-Hartman, virtualization@, linux-kernel@. No public Reviewed-by. **Greg’s
-SOB** is on the applied commit. Series v1 patches 1 and 3 carried
-`Assisted-by: gkh_clanker:t1000`.
+**Step 4.2 — Recipients (b4 dig -w)**
+Record: `mst@redhat.com`, `david@kernel.org`,
+`virtualization@lists.linux.dev`, `linux-kernel@vger.kernel.org`. Right
+maintainers.
 
-**Step 4.3: SEARCH FOR THE BUG REPORT**
-Record: **No syzbot/bugzilla/CVE found.** Analysis is code-level: host-
-controlled race, waitqueue function-pointer UAF. Severity from the
-author is crash / possible arbitrary call.
+**Step 4.3 — Review**
+Record: David Hildenbrand asked about `stats_handle_request()` (no
+`wait_event`; sibling `d62fb5cc8a432`, not required). No NAK. No
+reviewer `Cc: stable`.
 
-**Step 4.4: CHECK FOR RELATED PATCHES AND SERIES**
+**Step 4.4 — Series**
+Record: This hunk is independent. 1–3 fix post-6.12 shutdown-break. They
+cannot and need not go in with this one.
+
+**Step 4.5 — Stable list**
+Record: gnuweeb search for `virtio_balloon tell_host stable` found old
+balloon stable backports, not this patch. lore.kernel.org/stable
+returned 403.
+
+---
+
+## Phase 5: Code semantic analysis
+
+**Step 5.1 — Functions**
+Record: `tell_host()` only.
+
+**Step 5.2 — Callers (this tree)**
 Record:
-- **3/4** `virtio_console: avoid NULL portdev dereference in in_intr()`
-  — NPD on `port->portdev->vdev` after unplug. **Not in this tree.**
-  Related, not required for this patch’s get/put balance on 6.6.
-- **1/4, 2/4** — virtio-mem / virtio_input validation; independent.
+- `fill_balloon()` → `update_balloon_size_func()` work; inflate
+- `leak_balloon()` → size work, `virtio_balloon_oom_notify()`,
+  **`remove_common()`**
+- `virtballoon_migratepage()` (compaction)
+- `remove_common()` ← `virtballoon_remove()`, `virtballoon_freeze()`
 
-**Step 4.5: CHECK STABLE MAILING LIST HISTORY**
-Record: Web search of lore stable for this subject did **not** find a
-prior stable accept/reject. No evidence it was already rejected for
-stable.
+**Step 5.3 — Callees**
+Record: `sg_init_one`, `virtqueue_add_outbuf` → `-EIO` if `vq->broken`,
+`virtqueue_kick`, `wait_event` + `virtqueue_get_buf` (NULL if broken).
 
-===============================================================
-PHASE 5: CODE SEMANTIC ANALYSIS
-===============================================================
+**Step 5.4 — Reachability**
+Record: Userspace/hypervisor: balloon size change, OOM deflate,
+compaction, unplug/freeze. Host/PCI/CCW can mark the device broken
+**before** `remove_common()`:
 
-(semcode MCP not available; used grep + file reads.)
+```754:759:drivers/virtio/virtio_pci_common.c
+  - Device is marked broken on surprise removal so that virtio upper
+  - layers can abort any ongoing operation.
+         */
+        if (!pci_device_is_present(pci_dev))
+                virtio_break_device(&vp_dev->vdev);
+```
 
-**Step 5.1: KEY FUNCTIONS**
-Record: `find_port_by_vq`, `in_intr`, `out_intr`; callees `remove_port`,
-`unplug_port`, `handle_control_message`.
+Same idea on s390: `virtio_ccw_remove` / `virtio_ccw_offline` call
+`virtio_break_device()` when `device_lost` before
+`unregister_virtio_device()`.
 
-**Step 5.2: TRACE CALLERS**
+Then `remove_common()` → `leak_balloon()` → `tell_host()` on a broken
+deflate vq → infinite wait without this patch.
+
+**Step 5.5 — Similar patterns**
+Record: `virtballoon_free_page_report()` already WARNs and returns.
+`stats_handle_request()` still ignores add (no hang). 2014 commit
+removed `BUG()` in both `tell_host` and stats.
+
+---
+
+## Phase 6: Cross-referencing this tree
+
+**Step 6.1 — Buggy code here?**
+Record: Yes. `tell_host()` at `drivers/virtio/virtio_balloon.c:184-198`
+still ignores add and waits. Bug since 2008/2014. `8bd2fa086a04` is
+**not** an ancestor of `HEAD` (`git merge-base --is-ancestor` = no).
+`virtio_dev_shutdown` / `virtballoon_quiesce` are absent. Surprise-break
+(`43bb40c5b92659`, 2021) **is** here.
+
+**Step 6.2 — Backport difficulty**
+Record: Clean apply. `tell_host()` matches the hunk.
+`finish_wakeup_event` is already adjacent context.
+
+**Step 6.3 — Related fixes already here?**
+Record: No tell_host add-check. Reporting path already has the WARN. No
+duplicate.
+
+---
+
+## Phase 7: Subsystem and maintainer context
+
+**Step 7.1**
+Record: **virtio balloon** (`drivers/virtio/`). **IMPORTANT** for VMs
+(KVM/QEMU, s390 ccw), not core mm/vfs.
+
+**Step 7.2**
+Record: Mature driver; balloon core is old. Recent 6.12 backports are
+stats/wakeup/indirect-desc, not a rewrite of `tell_host()`.
+
+---
+
+## Phase 8: Impact and risk
+
+**Step 8.1 — Who**
+Record: Guests with `CONFIG_VIRTIO_BALLOON` (very common). Triggered
+when the vq is already broken, then inflate/deflate/`remove_common`
+runs.
+
+**Step 8.2 — Trigger**
 Record:
-- `find_port_by_vq()`: **only** `in_intr()` and `out_intr()` (verified
-  by grep).
-- Those are vq callbacks registered in `init_vqs()` (`io_callbacks[j] =
-  in_intr` / `out_intr`).
-- `unplug_port()`: `handle_control_message()` on
-  `VIRTIO_CONSOLE_PORT_REMOVE`, and `virtcons_remove()`.
+- **In this 6.12 tree:** surprise PCI remove (`!pci_device_is_present`)
+  or ccw `device_lost` → break → `leak_balloon`/`tell_host` hang. Also
+  any prior `virtio_break_device()` / `vq->broken` before the next
+  `tell_host()`.
+- **Not in this tree:** `device_shutdown()` break/reset (`8bd2fa086a04`)
+  — the series’ kexec/`panic_on_warn` story.
+- Not a normal unprivileged syscall. Host/device loss or hot-unplug.
 
-**Step 5.3: TRACE CALLEES**
-Record: `in_intr` uses `get_inbuf`, `discard_port_data`,
-`send_sigio_to_port`, `wake_up_interruptible`, `hvc_poll`/`hvc_kick`.
-`unplug_port` does `list_del` under `ports_lock`, then inbuf/hvc/sysfs
-teardown, then `kref_put`. `remove_port` is `kfree(port)` only.
+**Step 8.3 — Failure mode**
+Record: Uninterruptible `wait_event` in balloon work or `remove_common`.
+Device unbind / `unregister_virtio_device` / `cancel_work_sync` can
+stick. **Severity: HIGH** (hang), not a UAF/corruption.
 
-**Step 5.4: FOLLOW THE CALL CHAIN**
-Record: Guest-visible: virtio-console `/dev/vport*` and hvc console.
-Unplug is host-driven (control message). **Reachable** on any VM with
-virtio-console and port hot-unplug, and **forcibly racable** by an
-untrusted backend. Not a dead config path. `CONFIG_VIRTIO_CONSOLE` is a
-normal guest option.
+This patch does **not** unstick a wait that already started after a
+successful add (notify then fail / break while waiting). It stops the
+**next** `tell_host()` after the vq is already broken — the remove/leak
+path after surprise-break.
 
-**Step 5.5: SEARCH FOR SIMILAR PATTERNS**
-Record: `find_port_by_devt_in_portdev()` already `kref_get()`s under
-`ports_lock`. `find_port_by_id()` does not; it is used from the control
-work path that also calls `unplug_port()` (same workqueue for
-PORT_REMOVE). Different concurrency than vq IRQs.
-
-===============================================================
-PHASE 6: CROSS-REFERENCING AGAINST THE LOCAL TREE
-===============================================================
-
-**Step 6.1: DOES THE BUGGY CODE EXIST IN THIS TREE?**
-Record: **Yes.** `drivers/char/virtio_console.c`: `find_port_by_vq()` at
-309–323 has no `kref_get`; `out_intr` 1734–1745 and `in_intr` 1747–1790
-use the raw pointer. Introduced ~v2.6.34. Local tree: **6.6.157**.
-
-**Step 6.2: CHECK FOR BACKPORT COMPLICATIONS**
-Record: **Clean apply expected.** 6.6 `in_intr()` matches the candidate
-(no `if (!port->portdev)`). Lore 4/4 needed that extra put; the
-candidate already dropped it. Same kref API
-(`kref_get`/`kref_put`/`remove_port`).
-
-**Step 6.3: CHECK IF RELATED FIXES ARE ALREADY HERE**
-Record: 2013 open/close kref fix is present. **This vq-interrupt UAF fix
-is not.** Patch 3/4 NPD guard is not present in `in_intr()`.
-
-===============================================================
-PHASE 7: SUBSYSTEM AND MAINTAINER CONTEXT
-===============================================================
-
-**Step 7.1: IDENTIFY THE SUBSYSTEM AND ITS CRITICALITY**
-Record: **virtio console** (`drivers/char/virtio_console.c`).
-**IMPORTANT:** standard VM guest console/serial (`/dev/hvc`,
-`/dev/vport*`), QEMU/KVM, clouds, rproc-serial. Not mm/core, but widely
-deployed.
-
-**Step 7.2: ASSESS SUBSYSTEM ACTIVITY**
-Record: Mature driver (2009–); modest recent churn. Long-lived bug, not
-a new-subsystem issue.
-
-===============================================================
-PHASE 8: IMPACT AND RISK ASSESSMENT
-===============================================================
-
-**Step 8.1: DETERMINE WHO IS AFFECTED**
-Record: **Driver-specific / config-specific:** `CONFIG_VIRTIO_CONSOLE`
-guests and rproc serial. Large population of VMs.
-
-**Step 8.2: DETERMINE THE TRIGGER CONDITIONS**
-Record: Concurrent **PORT_REMOVE** (or device remove → `unplug_port`)
-and **data vq kick**. Legitimate hot-unplug can hit it; a malicious
-backend can force it. Guest userspace is not required.
-Interrupt/callback vs workqueue.
-
-**Step 8.3: DETERMINE THE FAILURE MODE SEVERITY**
-Record: **UAF** of `struct port`; `wake_up_interruptible()` on a freed
-waitqueue. **Severity: HIGH / security-relevant CRITICAL** (crash, or
-arbitrary call if the slab is recycled). Host-triggered, so in a fully
-trusted-hypervisor model the host is already privileged; it is still a
-real guest kernel memory-safety bug and matters for untrusted/vhost-user
-backends.
-
-**Step 8.4: CALCULATE RISK-BENEFIT RATIO**
+**Step 8.4 — Risk vs benefit**
 Record:
-- **Benefit: high** — pins the port for the IRQ path; closes a long-
-  standing UAF on a common VM driver.
-- **Risk: very low** — ~3 executable lines, existing kref pattern,
-  `remove_port` is `kfree`.
-- **Ratio:** strongly favors backport.
+- Benefit: high for the hang path; medium overall (surprise-loss is less
+  common than the post-6.13 shutdown path, but the hang is real and the
+  driver is supposed to abort).
+- Risk: very low (4 lines, established pattern).
+- Ratio: favor backport.
 
-===============================================================
-PHASE 9: FINAL SYNTHESIS
-===============================================================
+---
 
-**Step 9.1: COMPILE THE EVIDENCE**
+## Phase 9: Final synthesis
 
-**FOR:**
-- Real UAF: vq IRQ vs `unplug_port()`, pointer used after possible
-  `kfree`.
-- Security-relevant (waitqueue function pointer; host-controlled race).
-- Same pattern as `057b82be3ca3d0`, which was **CC: stable**.
-- Buggy code present since ~2010; definitely in 6.6.157.
-- Small, obviously correct, get/put balanced on this tree.
-- virtio-console is a common guest driver.
+**Step 9.1 — Evidence**
 
-**AGAINST:**
-- No Fixes/Cc-stable/Reported-by/syzbot (not a negative per review
-  rules).
-- No public review replies on the 2026-07-17 thread.
-- Sibling NPD fix (series 3/4) not included; remaining `portdev` NULL
-  deref possible. **Does not make this patch wrong.**
+For:
+- Real infinite `wait_event` if add fails (verified: add `-EIO`, get_buf
+  NULL on broken).
+- `remove_common()` always leaks remaining pages via `tell_host()` after
+  surprise-break in this tree.
+- Completes 2014 “don’t BUG” change that left a hang.
+- Tiny, obviously correct, same as existing reporting helper.
+- Applies cleanly; no series 1–3 needed.
+- Maintainer-applied; suggested by balloon reviewer.
 
-**UNRESOLVED:**
-- lore.kernel.org HTML 403; b4 showed a 1-message thread only.
-- No CVE id found.
+Against:
+- Main series story (`8bd2fa086a04` kexec/`panic_on_warn`) is not in
+  6.12.
+- No Fixes:/Cc: stable (not a negative per rules).
+- Surprise-remove is less common than graceful unplug.
+- `WARN_ON_ONCE` + `panic_on_warn` trades hang for panic if add fails;
+  same as reporting path; shutdown in 6.12 does not break vqs, so no new
+  reboot WARNs.
 
-**Step 9.2: APPLY THE STABLE RULES CHECKLIST**
-1. Obviously correct and tested? **PASS** — matches existing kref
-   finder; Greg applied it. No extra Tested-by, but the change is
-   locally verifiable.
-2. Fixes a real bug that affects users? **PASS** — UAF on port unplug vs
-   data vq.
-3. Important issue? **PASS** — UAF / possible arbitrary call;
-   HIGH/CRITICAL.
-4. Small and contained? **PASS** — one file, ~14 lines.
-5. No new features or APIs? **PASS**.
-6. Can apply to the local tree? **PASS** — 6.6 has the buggy functions;
-   candidate already matches this `in_intr()`.
+Unresolved: lore.kernel.org/stable HTTP 403. gnuweeb search did not show
+a prior rejection of this patch.
 
-**Step 9.3: CHECK FOR EXCEPTION CATEGORIES**
-Record: **Not an exception category.** Ordinary memory-safety bug fix
-(the primary stable class).
+**Step 9.2 — Stable rules**
+1. Obviously correct and tested? **PASS** — 4-line check; reviewed; MST
+   applied; series tested for the later shutdown bug.
+2. Real user-visible bug? **PASS** — hang on broken vq / surprise
+   remove.
+3. Important (hang/deadlock)? **PASS** — unbounded wait in
+   remove/inflate/deflate.
+4. Small and contained? **PASS**
+5. No new features/APIs? **PASS**
+6. Applies to this tree? **PASS**
 
-**Step 9.4: MAKE YOUR DECISION**
-Backport to this 6.6.157 tree. It fixes a real, old, host-racable port
-UAF with a three-line kref pin that this driver already uses for the
-open path.
+**Step 9.3 — Exception category**
+Record: None (not an ID/quirk/DT/build/doc exception). Qualifies as a
+hang fix.
 
-===============================================================
-What this solves for stable users
-===============================================================
+**Step 9.4 — Decision**
+The missing `8bd2fa086a04` path does not make this a no-op here. The
+unchecked add + `wait_event` is in this tree, and surprise PCI/CCW
+break-then-remove is the designed “upper layer must abort” path.
+Backporting this patch alone does not require the quiesce series and
+does not introduce shutdown WARNs on 6.12.
 
-On 6.6, `find_port_by_vq()` still hands `in_intr()`/`out_intr()` an
-unpinned `struct port`. `unplug_port()` can remove it from the list and
-drop the last kref (`remove_port()` → `kfree`) while those callbacks
-still wake `port->waitqueue`. That is a use-after-free. In VMs that hot-
-unplug virtio-console ports, or against a hostile virtio backend, the
-guest kernel can oops or worse.
+---
 
-The patch takes a kref under `ports_lock` (safe: still on the list ⇒
-unplug has not put yet) and drops it after the last use. That is the
-same design as the 2013 stable-bound open/close fix. It does not add
-APIs. Residual `portdev == NULL` NPD in `in_intr()` is a separate, older
-hole (open ports already hit it); series patch 3/4 would close it later
-and is not required for this get/put to be correct here.
+## What it solves for 6.12 users
 
-Risk is low: `remove_port()` is only `kfree`, so a final put from the vq
-callback is fine.
+On a broken balloon virtqueue, `tell_host()` currently kicks and waits
+for an ack that cannot arrive. After surprise PCI/CCW removal this tree
+already marks the device broken, then `remove_common()` →
+`leak_balloon()` → `tell_host()`, so unbind/remove can hang. The patch
+warns and returns, matching the reporting helper.
 
-===============================================================
-Verification
-===============================================================
-- **[Phase 1]** Parsed subject/tags/body: UAF + kref; SOB Hari Mishal +
-  Greg KH; Link msgid `20260717150622.23636-1-harimishal1@gmail.com`; no
-  Fixes/Reported-by.
-- **[Phase 2]** Diff: `kref_get` in `find_port_by_vq`; `kref_put` at end
-  of `in_intr`/`out_intr`; comment only otherwise.
-- **[Phase 2]** Read 6.6 `in_intr`/`out_intr`/`unplug_port`/`remove_port
-  `/`handle_control_message`: race and `kfree`-only release confirmed.
-- **[Phase 3]** `git describe HEAD` / Makefile: **6.6.157**, HEAD
-  `af85e5fc2f380`.
-- **[Phase 3]** `git blame` `find_port_by_vq`: `203baab8ba3195`
-  (v2.6.34-rc1); `git merge-base --is-ancestor` true.
-- **[Phase 3]** `git show 057b82be3ca3d0`: same unplug/kref pattern,
-  **CC: stable**.
-- **[Phase 3]** grep: no `kref_get` in `find_port_by_vq` on HEAD; only
-  two callers.
-- **[Phase 4]** Patchew/Openwall/LKML: series 0–4/4, v2 comment-only,
-  standalone 17 Jul 2026.
-- **[Phase 4]** `b4 mbox` msgid: **1 message**, no replies.
-- **[Phase 4]** WebFetch lore: **403**.
-- **[Phase 5]** grep callers; `init_vqs` registers `in_intr`/`out_intr`;
-  PORT_REMOVE → `unplug_port`.
-- **[Phase 6]** 6.6 `in_intr` has no `!port->portdev` early return;
-  candidate matches; complementary 3/4 not present.
-- **[Phase 7]** Kconfig `VIRTIO_CONSOLE`; MAINTAINERS Amit Shah /
-  virtualization list.
-- **[Phase 8]** Failure mode: port UAF via waitqueue; HIGH/CRITICAL.
-- **UNVERIFIED:** complete lore review beyond b4’s empty thread; CVE
-  assignment.
+It meets stable rules: real hang, small, no new API, clean apply, no
+missing prerequisites in this tree.
+
+Risk is low versus an unbounded wait.
+
+---
+
+## Verification
+
+- **[Phase 1]** Parsed message/tags from the supplied commit and `git
+  log -1` of `198eda395067b` on `all-next`.
+- **[Phase 1]** Cover letter: kexec/`panic_on_warn` after
+  `8bd2fa086a04`; also documents inflate/deflate `wait_event` hang.
+- **[Phase 2]** Diff: 4 lines in `tell_host()` only; local file matches.
+- **[Phase 2]** `virtqueue_add` returns `-EIO` if `vq->broken`
+  (`virtio_ring.c:565-568`). `virtqueue_get_buf_*` returns NULL if
+  broken (`834-836`, `1684-1686`).
+- **[Phase 3]** Blame: `tell_host` `6b35e40767c6c1` (2008); unchecked
+  add `4951cc90831470` (2014, removed `BUG()`).
+- **[Phase 3]** `git show 4951cc90831470`: confirmed BUG → ignore.
+- **[Phase 3]** `git merge-base --is-ancestor 8bd2fa086a04 HEAD` →
+  **NO**. `198eda395067b` → **NO**.
+- **[Phase 3]** `virtio_device_shutdown` / `virtballoon_quiesce` not in
+  this tree.
+- **[Phase 4]** `b4 dig -c 198eda395067b`: msgid
+  `20260624140846.2616797-5-den@openvz.org`.
+- **[Phase 4]** `b4 dig -a`: v1 quiesce-only; v2 added this patch.
+- **[Phase 4]** `b4 dig -w`: MST + Hildenbrand + virtualization list.
+- **[Phase 4]** Hildenbrand reply: asked about stats path; no NAK.
+- **[Phase 4]** lore.kernel.org/stable: 403. gnuweeb: no discussion of
+  this patch for stable.
+- **[Phase 5]** Callers: `fill_balloon`, `leak_balloon`, migratepage;
+  `remove_common` from remove/freeze.
+- **[Phase 5]** `virtio_pci_remove` surprise-break: `43bb40c5b92659`
+  (2021), present. `virtio_ccw` break on `device_lost`, present.
+- **[Phase 6]** `git describe HEAD` → `p-6.12-3-gc504cf0baa3d8`; `make
+  kernelversion` → 6.12.111.
+- **[Phase 6]** Local `tell_host()` still unchecked; patch context
+  present; not already patched.
+- **[Phase 8]** Failure mode: infinite `wait_event` / stuck remove.
+  Severity HIGH.
+- **UNVERIFIED:** Whether any 6.12.y discussion already rejected this
+  (stable list fetch failed). Not used to decide.
+
+The hang is real in this tree, the fix is small and self-contained, and
+it should be backported.
 
 **YES**
 
- drivers/char/virtio_console.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/virtio/virtio_balloon.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 76f934b5d84be..750c15966d00e 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -304,6 +304,12 @@ static struct port *find_port_by_id(struct ports_device *portdev, u32 id)
- 	return port;
- }
- 
-+/*
-+ * Finds a port by the virtqueue and returns a pointer to struct port
-+ * with the reference count incremented.
-+ *
-+ * Callers MUST decrement it when finished.
-+ */
- static struct port *find_port_by_vq(struct ports_device *portdev,
- 				    struct virtqueue *vq)
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index a3995e77a652c..0386e7b459bb1 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -185,16 +185,18 @@ static void tell_host(struct virtio_balloon *vb, struct virtqueue *vq)
  {
-@@ -312,8 +318,10 @@ static struct port *find_port_by_vq(struct ports_device *portdev,
+ 	struct scatterlist sg;
+ 	unsigned int len;
++	int err;
  
- 	spin_lock_irqsave(&portdev->ports_lock, flags);
- 	list_for_each_entry(port, &portdev->ports, list)
--		if (port->in_vq == vq || port->out_vq == vq)
-+		if (port->in_vq == vq || port->out_vq == vq) {
-+			kref_get(&port->kref);
- 			goto out;
-+		}
- 	port = NULL;
- out:
- 	spin_unlock_irqrestore(&portdev->ports_lock, flags);
-@@ -1706,6 +1714,7 @@ static void out_intr(struct virtqueue *vq)
- 	}
+ 	sg_init_one(&sg, vb->pfns, sizeof(vb->pfns[0]) * vb->num_pfns);
  
- 	wake_up_interruptible(&port->waitqueue);
-+	kref_put(&port->kref, remove_port);
+ 	/* We should always be able to add one buffer to an empty queue. */
+-	virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
++	err = virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
++	if (WARN_ON_ONCE(err))
++		return;
+ 	virtqueue_kick(vq);
+ 
+ 	/* When host has read buffer, this completes via balloon_ack */
+ 	wait_event(vb->acked, virtqueue_get_buf(vq, &len));
+-
  }
  
- static void in_intr(struct virtqueue *vq)
-@@ -1751,6 +1760,8 @@ static void in_intr(struct virtqueue *vq)
- 
- 	if (is_console_port(port) && hvc_poll(port->cons.hvc))
- 		hvc_kick();
-+
-+	kref_put(&port->kref, remove_port);
- }
- 
- static void control_intr(struct virtqueue *vq)
+ static int virtballoon_free_page_report(struct page_reporting_dev_info *pr_dev_info,
 -- 
 2.53.0
 
