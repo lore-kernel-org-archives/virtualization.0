@@ -1,58 +1,112 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.131
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792423495;
-	b=I2jyre/PMx+jyolFHLVG6g2+sLUDEw1Qjf6EGLBuwG2bsn8sybWDUOWeNZpNHrj2sJF3
-	 6ESSj277hlg9AMJkaj2vMpPhHrN3/NrpZgIjaSSVxpVNTzh2J5A4q5EJKFBRhR08CrRNv
-	 2N45FlZteshArEK1k9e+XPRf9DQWiXzTXmz/NckWRafO1rMyu/GnM4XD/Pnvat07mhSVG
-	 IpiQtQvQ9eBjsMtOSjqmJ7TJDPJ2Dz6oz1RY+YK+UCfjykFBqnS2OuL70fzCLCWvfJsnR
-	 3F7jpSwPfuL1r2Yhpv06OAHIMyIsaknNc3ogvqF2NQGt3ZaQx89TuBbjHLBFfMRQjKA==
+	t=1792424789;
+	b=hn78Ua4SMlG5tZGQoJCIHVY/4y6YaYaI0hJd2IJ7JcLHFL3vAcwa4pwSZ2B2U8SBOot2
+	 nLViWFWtvod9U1NdvM9Ywhb2YW+LLsnLN5aH2UBnvdPuSMBzvITQaieNNOtOTsd2FODAM
+	 A/O5W6MKsjvPgOjFhBfpeJNt0fcnFdVWecg6bJ4yDh45yhO9g/7W/fqj3529L5wjo2Ied
+	 bOQgo1DsZ3uc4XXBQJ5UzcP2H1ODRZxTM2WeQWAlis9D2XFtlwk54S8EY4VP/5qMjWVRx
+	 jutTozznse0C6qUXpa6GQBxnaH3KkDgcwn9IuGIhMGwxp+R7kaLyKd7qzLS+tnMxFOg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792423495;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=X905O/sVCuXAq8YUKXHLGTHNISrV2dMn60BYlnfftOU=;
-	b=VNAY6CIIxIVVRGCelHMuxE2s6wGIpkF2ZeBLSRbhBFV1+g+chEVMzdqVyLcDjL758Xip
-	 224XA3BGx5s+KT8+2OE0+P6wu38Vq8/0GAHoT0Xyxi1KPhQREqULYTzPZFOGEOKBugT/p
-	 4/pyDULfsRdUhzm7WKcxIo7vo4JA3Tm4qOua8nuk2gySiDK8ClaXY05kxSlIeTPIWsNhp
-	 RMq7FrxoJaiS8BEMHz3Z0EdKgvgaqw2uYQHKWXFFbyp0y4YxsNkjR1hfquI3moNx2E2GV
-	 a6TkaZKR3/UqbqaonZUJtPZtN6WFgYSsaWxWgrK7n8eCLjkNN2A4Nc+wacTr7OSkOQw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792424789;
+	h=DMARC-Filter:Received:DKIM-Signature:DKIM-Signature:DKIM-Signature:
+	 DKIM-Signature:Received:Received:From:To:Cc:Subject:Date:Message-ID:
+	 X-Mailer:MIME-Version:Content-Transfer-Encoding:X-Spam-Flag:
+	 X-Spam-Score:X-Spam-Level:X-Spamd-Result;
+	bh=Q5jfLHdOgauf4TJGcojCjJicBompzHEBNJH4FQng/Qg=;
+	b=VoNo/wNQU2sGTjI1XL6CHLCHwqEF8crFH4IzsKnVxXdDyKfwigH61jka60GQ8ZlFbTDK
+	 +rd/WAYVSXxfJ8P+AI+pfYeWfsRmOs1wAWj6jlpyps6SC2IHN/+aU5ooMY4uLcIJldQVJ
+	 JPPI4w3+DXGidBT/PlmlD+i8dAEYaWaV6a1GgBanPYdkGlR2UoURHPfKw3DSiT7DX0oUf
+	 pZIx0gnekeyg34uA8mXnHj008s53NPtedeAJ7xX3DQacegd0vqMDT1QsDhgnhmcqTxDPD
+	 9tLRA+fFcHvcubT4+eqQrLMqbNqjo5S4Kr8WtReaQLtUSACMo/O+jb6My35pFheVwSg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="Pq/+p+Zo";
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=suse.de;
+	spf=pass smtp.mailfrom=suse.de;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b="eLHhPEX/";
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=5khW4cqd;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=zNQS71yM;
+	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=ewW0O3Sh;
+	arc=none smtp.remote-ip=195.135.223.131
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EB1460AF799
-	for <virtualization@lists.linux.dev>; Mon, 19 Oct 2026 15:24:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E3DE606DA60
+	for <virtualization@lists.linux.dev>; Mon, 19 Oct 2026 15:46:28 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9E3DE606DA60
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Pq/+p+Zo
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA6261F000C4;
-	Mon, 19 Oct 2026 15:24:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792423495;
-	bh=X905O/sVCuXAq8YUKXHLGTHNISrV2dMn60BYlnfftOU=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Pq/+p+ZoHtVY6nX5mtDvjZ+6vwwSo9kP1Nq50S/x2YfA5Au+aj0fgbXW5rUJkC/Um
-	 VP7eAQAQSpcMR7uVn4zJmrB6XrIo9h3Mdvzjqi262lS/AjecL57xkoeGedDvyLKOT5
-	 qubBLQQMeO4uczcRUqHb/8Zr9y+040jiSnGHwGBlVwKXPqjATT/KQks4s1qftDZioM
-	 Ujxc7du/q4kCxvcTj4DJRHigCYla/oz7Ka4gWlDE6u2g7SAjCRh2GwhbT5Ax0y0r1K
-	 rQhY2yadoyWPno1IFYGy93/GZ6N7dV5ANxEgnfWHlaKgvIIQGTO9WWB7NTkEmaizEm
-	 o7x2yvKd70lPA==
-Message-ID: <sashiko-outbox-177715@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH AUTOSEL 6.18] drm/virtio: abort virtqueue wait on device
- removal to avoid hung task
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Sasha Levin" <sashal@kernel.org>
-Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev, "Michael
- S. Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>
-In-Reply-To: <20261019135441.1420968-417-sashal@kernel.org>
-References: <20261019135441.1420968-1-sashal@kernel.org>
- <20261019135441.1420968-417-sashal@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 19 Oct 2026 15:24:54 +0000
+	dkim=pass (1024-bit key, unprotected) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=eLHhPEX/;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=5khW4cqd;
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=zNQS71yM;
+	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=ewW0O3Sh
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id C40E41F444;
+	Mon, 19 Oct 2026 15:46:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1792424779; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=Q5jfLHdOgauf4TJGcojCjJicBompzHEBNJH4FQng/Qg=;
+	b=eLHhPEX/3TCqJ/XmoqatvuqCQSdY3Pr+P5FtOt4Sv3QxwUJXgA10ALsxbhVld0eAe93ZZ4
+	d6Cek9M0r++AsQeKzSIm52qOdgSQlIZCuDesVxFP3/Ea5d45QzrOgqzaA4QW8MGCsovmQ+
+	jA4wv975YO/0ShG6BVHsrbXD7T6+42c=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1792424779;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=Q5jfLHdOgauf4TJGcojCjJicBompzHEBNJH4FQng/Qg=;
+	b=5khW4cqdC699nJ5v1ujyRTIiRqIwFIwiF6OPf+6TvSoUAYYU9p+lDn2ZB/iMfgzOctVZKY
+	cA1AHNoEvehaFOCA==
+Authentication-Results: smtp-out2.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1792424777; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=Q5jfLHdOgauf4TJGcojCjJicBompzHEBNJH4FQng/Qg=;
+	b=zNQS71yM/kc2I8PjYNn19JU+kwk8G5rNHxyb/Q+1ufzMrLSOXAXbNkTdsQ1Vu6xRVVrGgs
+	sMbOalMqkrOYeuWe1LON6FlwdaEAZTwI7txzBCIhoUA2gnX0jxqU2Ui87s0ABFD89IXPwR
+	noquh1e0zE3+bnmhWYYumfZhud8nw2U=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1792424777;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=Q5jfLHdOgauf4TJGcojCjJicBompzHEBNJH4FQng/Qg=;
+	b=ewW0O3ShwsL4XRU7kOgc1bRZz9WfEvSleKV+S+vmfs7Y8PT00P899HadfuKSo+f/7uoR7s
+	GvmYEw2bikL52cCA==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 43642134B3;
+	Mon, 19 Oct 2026 15:46:17 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id gYPgBkk71mrrPAAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Mon, 19 Oct 2026 15:46:17 +0000
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: jfalempe@redhat.com,
+	maarten.lankhorst@linux.intel.com,
+	mripard@kernel.org,
+	airlied@gmail.com,
+	simona@ffwll.ch
+Cc: dri-devel@lists.freedesktop.org,
+	amd-gfx@lists.freedesktop.org,
+	linux-hyperv@vger.kernel.org,
+	intel-gfx@lists.freedesktop.org,
+	imx@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	nouveau@lists.freedesktop.org,
+	linux-renesas-soc@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	sashiko-reviews@lists.linux.dev,
+	Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH 0/4] drm: Move drawing to pixel-helper module
+Date: Mon, 19 Oct 2026 17:32:41 +0200
+Message-ID: <20261019154612.777074-1-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.56.0
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -61,232 +115,91 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Spam-Flag: NO
+X-Spam-Score: -2.80
+X-Spam-Level: 
+X-Spamd-Result: default: False [-2.80 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MID_CONTAINS_FROM(1.00)[];
+	R_MISSING_CHARSET(0.50)[];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	FREEMAIL_TO(0.00)[redhat.com,linux.intel.com,kernel.org,gmail.com,ffwll.ch];
+	ARC_NA(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[16];
+	MIME_TRACE(0.00)[0:+];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo];
+	RCVD_COUNT_TWO(0.00)[2];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com]
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
-- [High] drm/virtio: un-emitted fence on abort in virtio_gpu_queue_ctrl_sgs=
-()
-- [Medium] drm/virtio: leak of vbuf->objs on abort in virtio_gpu_queue_ctrl=
-_sgs()
-- [Medium] drm/virtio: unreclaimed vbufs in virtio_gpu_deinit() on device r=
-emoval
---
+Add the new module drm_pixel_helper.ko and link existing shared code
+for drawing to it. This includes format helpers, panic helpers and
+drawing helpers. Update drivers. No functional changes.
 
-commit 81841bb63e995940f01c6fe877305de441ff0e80
-Author: Ryosuke Yasuoka <ryasuoka@redhat.com>
+The existing helpers are currently part of KMS helpers or the DRM core.
+Neither is suitable for this. Adding drm_pixel_helper.ko resolves this.
+The new module only depends on the DRM core and common kernel functions.
 
-drm/virtio: abort virtqueue wait on device removal to avoid hung task
+Future directions: putting pixel-related helpers into the same module
+opens up the possibility of sharing more code among them. There is even
+more drawing code in vkms and a few other drivers. Hopefully this could
+be integrated into pixel helpers at some point.
 
-This commit adds a vqs_released flag to struct virtio_gpu_device and wakes
-up the control and cursor virtqueue wait queues during virtio_gpu_remove()
-and virtio_gpu_shutdown() so that threads waiting for virtqueue space exit
-their drm_dev_enter() critical sections and unblock drm_dev_unplug().
+Smoke-tested on qemu with vesadrm and bochs.
 
-Link: https://patch.msgid.link/20260601-virtio-gpu_wait_event-v3-1-89530517=
-a98a@redhat.com
+Thomas Zimmermann (4):
+  drm: Add helper module for working with pixel data
+  drm/pixel: Link format helpers into drm_pixel_helper.ko
+  drm/pixel: Link panic helpers into drm_pixel_helper.ko
+  drm/pixel: Link draw helpers into drm_pixel_helper.ko
 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virti=
-o/virtgpu_drv.c
-> index d9556e1b67b10..78cc388b434d9 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-> @@ -118,10 +118,24 @@ static int virtio_gpu_probe(struct virtio_device *v=
-dev)
->  	return ret;
->  }
-> =20
-> +/*
-> + * Release pending virtqueue waits so the drm_dev_enter/exit() critical
-> + * sections complete before drm_dev_unplug() blocks on synchronize_srcu(=
-).
-> + */
-> +static void virtio_gpu_release_vqs(struct drm_device *dev)
-> +{
-> +	struct virtio_gpu_device *vgdev =3D dev->dev_private;
-> +
-> +	vgdev->vqs_released =3D true;
-> +	wake_up_all(&vgdev->ctrlq.ack_queue);
-> +	wake_up_all(&vgdev->cursorq.ack_queue);
-> +}
-> +
->  static void virtio_gpu_remove(struct virtio_device *vdev)
->  {
->  	struct drm_device *dev =3D vdev->priv;
-> =20
-> +	virtio_gpu_release_vqs(dev);
->  	drm_dev_unplug(dev);
-> =20
->  	if (drm_core_check_feature(dev, DRIVER_ATOMIC))
+ drivers/gpu/drm/Kconfig                       | 15 ++++++--------
+ drivers/gpu/drm/Kconfig.debug                 |  2 +-
+ drivers/gpu/drm/Makefile                      | 12 +++++++----
+ drivers/gpu/drm/amd/amdgpu/Kconfig            |  1 +
+ drivers/gpu/drm/ast/Kconfig                   |  1 +
+ drivers/gpu/drm/clients/Kconfig               |  2 +-
+ .../gpu/drm/{drm_draw.c => drm_draw_helper.c} |  0
+ drivers/gpu/drm/drm_kms_helper_common.c       | 13 ------------
+ drivers/gpu/drm/drm_panic_helper.c            |  1 +
+ drivers/gpu/drm/drm_panic_internal.h          | 14 -------------
+ drivers/gpu/drm/drm_pixel_helper_common.c     | 20 +++++++++++++++++++
+ drivers/gpu/drm/drm_pixel_helper_internal.h   | 20 +++++++++++++++++++
+ drivers/gpu/drm/gud/Kconfig                   |  1 +
+ drivers/gpu/drm/hisilicon/hibmc/Kconfig       |  1 +
+ .../gpu/drm/hisilicon/hibmc/hibmc_drm_de.c    |  1 +
+ drivers/gpu/drm/hyperv/Kconfig                |  1 +
+ drivers/gpu/drm/i915/Kconfig                  |  1 +
+ drivers/gpu/drm/imx/ipuv3/Kconfig             |  1 +
+ drivers/gpu/drm/mgag200/Kconfig               |  1 +
+ drivers/gpu/drm/nouveau/Kconfig               |  1 +
+ drivers/gpu/drm/renesas/rcar-du/Kconfig       |  1 +
+ drivers/gpu/drm/renesas/shmobile/Kconfig      |  1 +
+ drivers/gpu/drm/sitronix/Kconfig              |  2 ++
+ drivers/gpu/drm/solomon/Kconfig               |  1 +
+ drivers/gpu/drm/sysfb/Kconfig                 |  1 +
+ drivers/gpu/drm/sysfb/drm_sysfb_modeset.c     |  1 +
+ drivers/gpu/drm/tidss/Kconfig                 |  1 +
+ drivers/gpu/drm/tiny/Kconfig                  |  6 ++++++
+ drivers/gpu/drm/tiny/bochs.c                  |  1 +
+ drivers/gpu/drm/virtio/Kconfig                |  1 +
+ 30 files changed, 83 insertions(+), 42 deletions(-)
+ rename drivers/gpu/drm/{drm_draw.c => drm_draw_helper.c} (100%)
+ create mode 100644 drivers/gpu/drm/drm_pixel_helper_common.c
+ create mode 100644 drivers/gpu/drm/drm_pixel_helper_internal.h
 
-[Severity: Medium]
-When virtio_gpu_release_vqs() wakes a thread blocked on a full virtqueue,
-the virtqueue itself still contains all of the previously queued
-struct virtio_gpu_vbuffer entries that the host stopped processing.
 
-Once drm_dev_unplug() unblocks, virtio_gpu_remove() proceeds to
-virtio_gpu_deinit() and drm_dev_put() -> virtio_gpu_release():
+base-commit: 5b9ee97c47574138633a1cb70a32d118b6860a43
+-- 
+2.56.0
 
-drivers/gpu/drm/virtio/virtgpu_kms.c:virtio_gpu_deinit() {
-	flush_work(&vgdev->obj_free_work);
-	flush_work(&vgdev->ctrlq.dequeue_work);
-	flush_work(&vgdev->cursorq.dequeue_work);
-	flush_work(&vgdev->config_changed_work);
-	virtio_reset_device(vgdev->vdev);
-	vgdev->vdev->config->del_vqs(vgdev->vdev);
-}
-
-drivers/gpu/drm/virtio/virtgpu_kms.c:virtio_gpu_release() {
-	...
-	virtio_gpu_modeset_fini(vgdev);
-	virtio_gpu_free_vbufs(vgdev);
-	...
-}
-
-Because flush_work() on dequeue_work only reclaims buffers that the host
-placed into the used ring via virtqueue_get_buf(), the unconsumed vbufs
-left in ctrlq.vq and cursorq.vq are never detached via
-virtqueue_detach_unused_buf() and freed before del_vqs() and
-virtio_gpu_free_vbufs() -> kmem_cache_destroy(vgdev->vbufs).
-
-Will this leak those in-flight vbufs (along with their resp_buf, data_buf,
-and vbuf->objs references) and trigger a "Objects remaining on
-__kmem_cache_shutdown()" warning in kmem_cache_destroy()?
-
-[ ... ]
-
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio=
-/virtgpu_vq.c
-> index 592ad4f9b100d..244a791ab915e 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-> @@ -422,7 +422,19 @@ static int virtio_gpu_queue_ctrl_sgs(struct virtio_g=
-pu_device *vgdev,
->  	if (vq->num_free < elemcnt) {
->  		spin_unlock(&vgdev->ctrlq.qlock);
->  		virtio_gpu_notify(vgdev);
-> -		wait_event(vgdev->ctrlq.ack_queue, vq->num_free >=3D elemcnt);
-> +		wait_event(vgdev->ctrlq.ack_queue,
-> +			   vq->num_free >=3D elemcnt || vgdev->vqs_released);
-> +		/*
-> +		 * Set by virtio_gpu_release_vqs() to unblock
-> +		 * synchronize_srcu() wait in drm_dev_unplug().
-> +		 */
-> +		if (vgdev->vqs_released) {
-> +			if (fence && vbuf->objs)
-> +				virtio_gpu_array_unlock_resv(vbuf->objs);
-> +			free_vbuf(vgdev, vbuf);
-> +			drm_dev_exit(idx);
-> +			return -ENODEV;
-> +		}
->  		goto again;
->  	}
-
-[Severity: Medium]
-Does this abort path leak vbuf->objs and the GEM object references it
-holds?
-
-Callers that attach a struct virtio_gpu_object_array to vbuf->objs (such
-as virtio_gpu_cmd_submit(), virtio_gpu_cmd_transfer_to_host_2d(),
-virtio_gpu_cmd_transfer_to_host_3d(), virtio_gpu_cmd_resource_flush(), and
-virtio_gpu_cmd_create_resource()) transfer ownership of objs to the vbuf
-and ignore the return value of virtio_gpu_queue_fenced_ctrl_buffer() and
-virtio_gpu_queue_ctrl_buffer().
-
-On normal completion in virtio_gpu_dequeue_ctrl_func(), vbuf->objs is
-released before free_vbuf():
-
-drivers/gpu/drm/virtio/virtgpu_vq.c:virtio_gpu_dequeue_ctrl_func() {
-	...
-	list_for_each_entry_safe(entry, tmp, &reclaim_list, list) {
-		if (entry->objs)
-			virtio_gpu_array_put_free_delayed(vgdev, entry->objs);
-		list_del(&entry->list);
-		free_vbuf(vgdev, entry);
-	}
-	...
-}
-
-However, free_vbuf() only frees vbuf->resp_buf, vbuf->data_buf, and vbuf:
-
-drivers/gpu/drm/virtio/virtgpu_vq.c:free_vbuf() {
-	if (vbuf->resp_size > MAX_INLINE_RESP_SIZE)
-		kfree(vbuf->resp_buf);
-	kvfree(vbuf->data_buf);
-	kmem_cache_free(vgdev->vbufs, vbuf);
-}
-
-When vgdev->vqs_released is true, virtio_gpu_queue_ctrl_sgs() unlocks the
-reservations on vbuf->objs when fenced, but never calls
-virtio_gpu_array_put_free() or virtio_gpu_array_put_free_delayed() on
-vbuf->objs.
-
-[Severity: High]
-What happens to callers that pass a non-NULL fence when
-virtio_gpu_queue_ctrl_sgs() aborts here before calling
-virtio_gpu_fence_emit()?
-
-Because virtio_gpu_queue_fenced_ctrl_buffer() and its callers (such as
-virtio_gpu_cmd_resource_detach_backing(),
-virtio_gpu_cmd_transfer_to_host_2d(), and virtio_gpu_cmd_submit()) have
-void return types and drop the -ENODEV error, the caller is not aware that
-virtio_gpu_fence_emit() was skipped, leaving fence->f.seqno =3D=3D 0 and the
-fence unqueued in vgdev->fence_drv.fences.
-
-In virtio_gpu_detach_object_fenced(), the caller immediately waits
-uninterruptibly on the fence:
-
-drivers/gpu/drm/virtio/virtgpu_object.c:virtio_gpu_detach_object_fenced() {
-	...
-	virtio_gpu_object_detach(vgdev, bo, fence);
-	virtio_gpu_notify(vgdev);
-
-	dma_fence_wait(&fence->f, false);
-	dma_fence_put(&fence->f);
-}
-
-Similarly, virtio_gpu_cursor_plane_update() calls
-dma_fence_wait(&vgplane_st->fence->f, true) right after
-virtio_gpu_cmd_transfer_to_host_2d(). Since the fence was never emitted
-and will never be signaled, won't dma_fence_wait() in
-virtio_gpu_detach_object_fenced() sleep forever in TASK_UNINTERRUPTIBLE
-and cause another hung task?
-
-In addition, in virtio_gpu_execbuffer_ioctl():
-
-drivers/gpu/drm/virtio/virtgpu_submit.c:virtio_gpu_execbuffer_ioctl() {
-	...
-	virtio_gpu_submit(&submit);
-
-	virtio_gpu_install_out_fence_fd(&submit);
-	virtio_gpu_process_post_deps(&submit);
-	virtio_gpu_complete_submit(&submit);
-cleanup:
-	if (ret && submit.out_fence && submit.out_fence->e) {
-		drm_event_cancel_free(dev, &submit.out_fence->e->base);
-		submit.out_fence->e =3D NULL;
-	}
-
-	virtio_gpu_cleanup_submit(&submit);
-	return ret;
-}
-
-Because virtio_gpu_submit() does not propagate the abort error to ret:
-1. submit.out_fence (with f.seqno =3D=3D 0) is exported to userspace sync_f=
-ile
-   or syncobjs, which triggers WARN_ON_ONCE(f->seqno =3D=3D 0) in
-   virtio_gpu_fence_signaled() when queried.
-2. drm_event_cancel_free() at cleanup is skipped because ret is 0, and
-   because submit.out_fence is not in vgdev->fence_drv.fences,
-   submit.out_fence->e is never sent or freed.
-3. virtio_gpu_complete_submit() clears submit.buflist =3D NULL, so
-   virtio_gpu_cleanup_submit() skips freeing submit.buflist (vbuf->objs).
-
-[ ... ]
-
->
->
->
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261019135441.1420=
-968-417-sashal@kernel.org?part=3D1
