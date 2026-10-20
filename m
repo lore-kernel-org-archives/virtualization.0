@@ -1,84 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.41
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.43
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792498234;
-	b=Fvs0YmL4TD9AUZGEg40rZk3PMIe2DeU0YRbZgt/wlc1og0Rz8qsHChHgse4b8peJz25v
-	 8sGHrY6n0khn+aYP6MPQP/EnGG8NtAPmO/yc4sAyfxpYy3i1UG6AUrmgi5IX3Dh5wFmuJ
-	 q5gzdqvSjlgMp0OfPK+ZMTzbUs0TbQrtIqARzb4W0zxbW9lhtoX4ZckgbkxRPuGWpuRKj
-	 8DAD9jgdweP0nit3zQBPkxpX4kWKoe25whDHj7ZmgLptPFCcCOg5Jkaa8Z0F5ADDkB6sc
-	 Db78WW2BpK0j7SGWdO10BF7ZbwFk/6n1KMbM1kyvHSD16lWtJFpUb7SfpS0kGjMBppQ==
+	t=1792499340;
+	b=4U/iLTThlDFptt7ExSku3mDS7zkZ+0/sn/D/HZfUd9pxemRDVWF1EQesj6dDASUs8Nbe
+	 4qHa9JYRxMfUCEum3KzaNmDP8rbCxpPa28t2uUdTb23cIF96uCdq6q1i5LK+WhhgANLac
+	 OJa3O6f70r2sWJ9aJNhJwDY5oXgmzN/DntxqoxynCUe75OINCrj5LmXQUVoxZMTSU8Ybs
+	 j2as/8qNTecH6dZf16r0ig2l4t405Om1nuLW2Ag9WGvR1/sK3Q7MHbqfOIGs3T+0uFajo
+	 a2uQNhVF1JT5QI74gTFitpIwRhmDxzEsaCeQfptQYPHOjJkQf3AaDXjlDQr0F9wSLqA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792498234;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792499340;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
 	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=TP3lHd7ZCrOKSupriqyX6PtdNuECuFfGjiY9AbgLC+E=;
-	b=PXEzgLk0JZVJC14yWEv8JoBaTSg+uXAKm56DtNFPRb+emptkLUkr1hrnYBdt3gFs2ZvW
-	 QZWwoiS4hIzo+sp/EA0+myRpS0QIwws4wh3x5ivk6jEt6HDtINmx+6D69i6ohYAsx37kz
-	 eFnQCRNpmR/sk2HQd9sZHBwTcHTnj7M4CsNf4bY9F7MmjocM6dAzT9yFTGG9vj6s54ZmI
-	 89Yq3aZEvmMkPE+1V1k+I/D87KSlLyvdjl03pKVyup6WBunxGF+YZDx0Zg4xFjD9g3tyx
-	 ia7XBF9a7lBxMJMGPzRg0SGIFns4MaYQCPV6lZ58qF9HCLY964rfjaCjyvAcWOPE+8g==
+	bh=lfZbqFmLr8Q6MECdNX562ifwqH83lxZBW8nCUfGoGTs=;
+	b=SbGZFCJYdksUqapdtj7rMctuc0pnDvm3iI8HMhYUgGplyM+9q0TWreyK6sW2aEPN9VIJ
+	 Rri+2vUAGJaeDzEgyoQt+4mq7RwH8eIp6Uzgg/hXV4lIiqEZT8PHWYaQf60Mg29DWZ7tE
+	 c2jwC6z6sRFSIUQvK7F5yVy8R43239vageKTqNZC4GZQVSMl0RM25heSrDwNNpuiM2hn8
+	 ilbsib3fJ+a3AfXc5rM5tagR42g0o/0/qdn5CmoNkNPQhXGuKBCCCN8KCYZjO1o124L9Q
+	 HdedPpygD9agweTzEy0b32uow37zfu7jg00DITxdzG3Entfw0aLj+VNC0HMwb7AG6Aw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=suse.com;
 	spf=pass smtp.mailfrom=suse.com;
-	dkim=pass header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=google header.b=BKofgEhD;
-	arc=none smtp.remote-ip=209.85.221.41
-Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
+	dkim=pass header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=google header.b=WHQn4ari;
+	arc=none smtp.remote-ip=209.85.221.43
+Received: from mail-wr1-f43.google.com (mail-wr1-f43.google.com [209.85.221.43])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41CD1606A320
-	for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 12:10:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 41CD1606A320
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83D70606A320
+	for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 12:28:59 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 83D70606A320
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=google header.b=BKofgEhD
-Received: by mail-wr1-f41.google.com with SMTP id ffacd0b85a97d-48dc202a60eso865356f8f.3
-        for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 05:10:34 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=google header.b=WHQn4ari
+Received: by mail-wr1-f43.google.com with SMTP id ffacd0b85a97d-48e20ed3b9dso501613f8f.2
+        for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 05:28:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1792498233; x=1793103033; darn=lists.linux.dev;
+        d=suse.com; s=google; t=1792499338; x=1793104138; darn=lists.linux.dev;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=TP3lHd7ZCrOKSupriqyX6PtdNuECuFfGjiY9AbgLC+E=;
-        b=BKofgEhD4fBPtC5Lg5sZfijj1VblSsyKRS8fByqQSSfSH7dYJ+nVMSBVw0MvLJxi7m
-         WCGuNCnZKQcEA6/SlRrrP/UH46a3X78uoVCbdz4EShVVsomv7mOqdVeUNyPp5X4cm26k
-         E6+pISUUNzigU+j8rodLm1wa9T2yemvncpFD0So+FJGgHrIChf7nKZLA/GpYHU6py5q4
-         PeYGkAxwsG8mbB/l6cxxscVLBkrLrtJyjg/khWqoJC9XSdi/LWEXFGi+ntDK66sPItE/
-         W6ebM7RiJcp3Bs/udnMQ/dEThMJMeODc0wz2zBUrh5zkdWbKRZ2vdoGzAbIXnOm1lBAP
-         vzBA==
+        bh=lfZbqFmLr8Q6MECdNX562ifwqH83lxZBW8nCUfGoGTs=;
+        b=WHQn4ari59bAFIEk+esWLdifXZw8tT78Pg7ft/Y1S3RgsyQsDvnFZBAWXQ9N3vfvSS
+         64N9O9pCslGSz6NyOKTHL4mbq2Rosc6aa05940xH4l3CjAN8DXoujPniLRtV2N6Iz7yB
+         TeTIcJ7iPq8XA901niXtcwDdNeKe8BOrrxNhtAX4aPpWStruof99/fmw83Cl6OwJbwHB
+         S+d+zSXcFCsOuVMQAd8Hvb6OQ8ATJVFw6QgaynL+A55QPacOd6Vr2HVdeH/OrD5sEJkU
+         KZPqhS9DRJUW+hdKg7IfTT2y5kbDO5nEeg6+xXnZQ+d8DyYOYpYctHEWboxaZ/7JTgea
+         F7Ug==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792498233; x=1793103033;
+        d=1e100.net; s=20260707; t=1792499338; x=1793104138;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=TP3lHd7ZCrOKSupriqyX6PtdNuECuFfGjiY9AbgLC+E=;
-        b=A7SENRzrxRdQFhJ3QElwUym6SSqmTjMovpSPdnF1Tlkw0X0A8K/MYlWzSWRe8YhS1T
-         wKbammh0qSnw+XG1GFxeZUeUe5yLbDhcMxKZMN74pWwmlQPiojWJlAYhsRzBXEaMVB2+
-         tPO6shnma/A1aHzcirqxCTPKMo8GAMFCLWIkM1W/TPJEMtKAHgUNb7KgePf+Gy0QVJvo
-         ZO8ACTtOei27OyCFMY9QDD/1tRo7eH5NMekAHnYJbXoR/s/0IB73Xt0JDfEspBo0gqhm
-         uG+DHZIzb5NpR8p8ECDNs0st3RDZNcHz0eKCFmUILGSlP+jqxojKKnpT7SGMnWg5PLuz
-         +lBQ==
-X-Forwarded-Encrypted: i=1; AKwUvByAlYaOofHRaI3ebzLEYxSEWIoG+E2IrzAbBrGvCXNQT6rsONskqDwbdM4pP4yNZ6ugHEWd+s/8wdj/HWmh2w==@lists.linux.dev
-X-Gm-Message-State: AFq9FYJGYPBtcGzEbKFTTaD1y7mTki7IGTEwQJ88l7NgwRcenwYw5VUZ
-	9wJQFB/hTCl4GaEvdjeU2gW87qktzt6bNRMhPoTRe2bQzIwWgVVAOoWDqYd/pwNsZ3k=
-X-Gm-Gg: AYBFou238YIzjBwbtB8cG4i59UZklbNmQKqCsLeswMB/L7tVV22vwwKhJua9Ysi/YpH
-	z9344xhnn9rUhzOfMFiDaqxUZ81UyFEgFMK8SZjL2g9+fOiVs8H2Z4Q8E00BfGw3fHU8M7PTtkT
-	XOCYG8enj60UrTKQBJQw3xwDWhYBexzzxd1ZvePgDRmUx/SkOf1Z3L7D39Jl8FMABqvk/IobONe
-	rBvECmgQUSakhhb21+3jmRpk81yUG2CRdpRm02uC6YjAybqsyC0oUc6fy6BuoBNvuaf3m3gt3eA
-	OknM1sdYnAduIjobeEk95XxBMAU5gwKCKAV0PCVjEm3xfajdMPREEsEIjh77HSVXZ8yukhOoeGU
-	SK1ujvEb5h6pkSnyk4jLlv0nLGowqQvNV8nQqVQvnIz5TvNZ0aK45CGb8EwKmVsBNn2O7co3iDq
-	o6kzmlZOF7oCeQTZvPcfKyqk+/t48ZIE8c3Se5Y01DHtYLSQgdma84z39IK428CZd6WuSHiz9kn
-	FwNY1AmToo=
-X-Received: by 2002:a5d:5f51:0:b0:48e:412:3813 with SMTP id ffacd0b85a97d-48e07bb2fc7mr21324149f8f.20.1792498232549;
-        Tue, 20 Oct 2026 05:10:32 -0700 (PDT)
+        bh=lfZbqFmLr8Q6MECdNX562ifwqH83lxZBW8nCUfGoGTs=;
+        b=Zfc9CmQCqb28xlTT0ZvLBou0y0sJ4GfL9J7ea35e3rBNzb0IuJ2TWdI5kMZRoPMJYe
+         ae8VWj4wT3J0ouHY2tKHlBfa8B/+ftqCAzqxxshcn8X/Nuo3TCh1HeIOua7VUwTTXRwf
+         +qX8uTtbj/Rn+kPuVRrphMPOyAWvftPEinIdTPNYWSBHZ7/qJFFM2cFAsFJB5Qc29bTA
+         jD9pHs85S4Y2Lk57o+f5inOC6PX6yswF5LIfo6TlcrS/zraP6e3aXm3BzK4NUTMaTEZ3
+         oO0ZgLgyaHLXh1MJUvINqBV2iQZnARV1pszBD0rmI5H6ruCT87PlnD5+POpHt2OiVtMV
+         NtMQ==
+X-Forwarded-Encrypted: i=1; AKwUvBxJD6MaVWEyT0W2oeZpxq/QbfXH12m+m3Rq6gNu17Ims5bnmapo0hyRiaPWq6uSYEAEC6XdXPMkq06aoAQt1A==@lists.linux.dev
+X-Gm-Message-State: AFq9FYKtOfodgfjBob46ZhJD2QbHFJvWgjQtztRbiwg2uDwA9iUnz2et
+	qWfqdvEA+VPf8S+Sc9k3+oJvmEJE07E+JgPmR+xsmN6yaQugdURiR1Ozndi/FRrZqUw=
+X-Gm-Gg: AYBFou1NmyzDCC2skd8Wdj44/drNOdKDvvoycwJx/YQVEq2Rq+f0RM87MAIpiqNRMG2
+	UJXRAdxpo8E3cXrpvG3sZrHFwAYX9X+lyH0F6ifFyujaTCqYmMfxAKObb6UQlsnFnN7/5ZyGN/0
+	vhW0nz7aJ1PnRKSEE104U5vXELJ99BQ9kg3VUhKStnKLSpbXw2Fb4NeSUxjPHdCjJwVPNJddWCj
+	Gn/SGeHwDmNQXOmavoyKi1+FSw3WiAmmlAIt9zq7BagjvxtyVIpwm4ruB/dkkAmz9KcyzdQR17i
+	8FDdafjtoH2smh6oP77WmwhvkzoysiZ/PjunycqBBgN/tu1uRZT658JliUt5p2tAMNNRUD47AJC
+	JgIGHmIKICygqc2yQwUE4vaX2aLmfDEonGgzVUw7iSOcy4TJc38EyTaIM1ZOcuXg3Iu5op70CB4
+	fiMYxtK5DZmHZhDpyYXv1yWwWJwyPcyfbquw/5u5NtGg/5UMOc03ltQv8Z/H6s0BD60fX+YvAEZ
+	ZiKLlahq2o=
+X-Received: by 2002:a05:6000:4694:b0:48c:414f:cc12 with SMTP id ffacd0b85a97d-48e07f9c387mr16153415f8f.40.1792499337854;
+        Tue, 20 Oct 2026 05:28:57 -0700 (PDT)
 Received: from pathway.suse.cz ([176.114.240.130])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48e1d823cfcsm5747053f8f.39.2026.10.20.05.10.31
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48e1d6dbd33sm5588977f8f.8.2026.10.20.05.28.55
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Oct 2026 05:10:32 -0700 (PDT)
-Date: Tue, 20 Oct 2026 14:10:29 +0200
+        Tue, 20 Oct 2026 05:28:56 -0700 (PDT)
+Date: Tue, 20 Oct 2026 14:28:43 +0200
 From: Petr Mladek <pmladek@suse.com>
 To: Zack Rusin <zack.rusin@broadcom.com>
 Cc: Andrew Morton <akpm@linux-foundation.org>,
@@ -107,11 +107,10 @@ Cc: Andrew Morton <akpm@linux-foundation.org>,
 	Stephen Brennan <stephen.s.brennan@oracle.com>,
 	Michael Kelley <mhklinux@outlook.com>,
 	Ian Forbes <ian.forbes@broadcom.com>
-Subject: Re: [PATCH v2 2/6] crash: Notify pre-kdump callbacks before
- switching kernels
-Message-ID: <atdaNQts1frMB8Kq@pathway.suse.cz>
+Subject: Re: [PATCH v2 3/6] panic: Allow postponing pre-kdump notifiers
+Message-ID: <atdee9q7DExYLGPE@pathway.suse.cz>
 References: <cover.1790014793.git.zack.rusin@broadcom.com>
- <9ef573cdbbf5e659eea16fa23afeaf2488049198.1790014793.git.zack.rusin@broadcom.com>
+ <52183acf25209275a9a57fe5d746f82d3b7efc3c.1790014793.git.zack.rusin@broadcom.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -123,61 +122,118 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <9ef573cdbbf5e659eea16fa23afeaf2488049198.1790014793.git.zack.rusin@broadcom.com>
+In-Reply-To: <52183acf25209275a9a57fe5d746f82d3b7efc3c.1790014793.git.zack.rusin@broadcom.com>
 
-On Mon 2026-09-28 13:55:36, Zack Rusin wrote:
-> Fatal x86 oopses can call crash_kexec() without reaching panic(). Run the
-> pre-kdump chain from __crash_kexec() as well, after finding a loaded image
-> under the kexec lock and capturing the original registers.
+On Mon 2026-09-28 13:55:37, Zack Rusin wrote:
+> Provide an escape hatch for debugging kdump failures that may involve
+> pre-kdump callbacks. Add panic_pre_kdump_postpone to skip their early
+> invocation in crash core without consuming the once-only guard.
 > 
-> This covers direct crash entry without moving all panic notifiers ahead
-> of kdump. A missing image or failed trylock leaves callbacks uncalled;
-> the shared guard skips callbacks already invoked by panic().
+> When enabled, the chain runs before kdump only when
+> crash_kexec_post_notifiers is also enabled. Leave the late panic call
+> unchanged so callbacks remain eligible if that path is reached.
+> Skipping the callbacks may prevent hypervisor crash handling.
 > 
-> Link: https://lore.kernel.org/r/aquttpMVKX8e6zGB@pathway.suse.cz
+> Suggested-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
+> Link: https://lore.kernel.org/r/bc0bdd14-5e6a-0676-cd04-14fb0bb93cd5@igalia.com
 > Signed-off-by: Zack Rusin <zack.rusin@broadcom.com>
 > ---
-> New in v2: cover direct crash-kexec entry in a separate core patch.
+> New in v2: optional postponement policy suggested by Guilherme.
 > 
->  kernel/crash_core.c | 2 ++
->  1 file changed, 2 insertions(+)
+>  Documentation/admin-guide/kernel-parameters.txt | 14 ++++++++++++++
+>  include/linux/panic_notifier.h                  |  1 +
+>  kernel/crash_core.c                             |  3 ++-
+>  kernel/panic.c                                  |  2 ++
+>  4 files changed, 19 insertions(+), 1 deletion(-)
 > 
+> diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+> index 33cd30996e47..3d722df30838 100644
+> --- a/Documentation/admin-guide/kernel-parameters.txt
+> +++ b/Documentation/admin-guide/kernel-parameters.txt
+> @@ -4904,6 +4904,20 @@ Kernel parameters
+>  			This option should only be used for systems with the above
+>  			constraints as it might cause the panic operation to be less reliable.
+>  
+> +	panic_pre_kdump_postpone=
+> +			[KNL] Defer pre-kdump notifiers to the late panic path.
+> +			They run before kdump only when
+> +			crash_kexec_post_notifiers is also enabled. If panic
+> +			reaches the late path without entering kdump, they
+> +			can still run there.
+> +			Intended for debugging kexec/crash-dump failures.
+> +			Skipping these callbacks may prevent correct crash
+> +			handling by the hypervisor.
+> +			Format: <bool>
+> +			Default: 0
+> +			Writable at runtime via
+> +			/sys/module/kernel/parameters/panic_pre_kdump_postpone.
+> +
+>  	panic_print=	Bitmask for printing system info when panic happens.
+>  			User can chose combination of the following bits:
+>  
+> diff --git a/include/linux/panic_notifier.h b/include/linux/panic_notifier.h
+> index 3ad390764a41..655ee5c77181 100644
+> --- a/include/linux/panic_notifier.h
+> +++ b/include/linux/panic_notifier.h
+> @@ -11,5 +11,6 @@ extern struct atomic_notifier_head panic_pre_kdump_list;
+>  void panic_notify_pre_kdump(char *msg);
+>  
+>  extern bool crash_kexec_post_notifiers;
+> +extern bool panic_pre_kdump_postpone;
+>  
+>  #endif	/* _LINUX_PANIC_NOTIFIERS_H */
 > diff --git a/kernel/crash_core.c b/kernel/crash_core.c
-> index 2b36aa9fade0..5d9fe9e00f39 100644
+> index 5d9fe9e00f39..d6b2293dd0fe 100644
 > --- a/kernel/crash_core.c
 > +++ b/kernel/crash_core.c
-> @@ -23,6 +23,7 @@
->  #include <linux/objtool.h>
->  #include <linux/delay.h>
->  #include <linux/panic.h>
-> +#include <linux/panic_notifier.h>
->  
->  #include <asm/page.h>
->  #include <asm/sections.h>
-> @@ -139,6 +140,7 @@ void __noclone __crash_kexec(struct pt_regs *regs)
+> @@ -140,7 +140,8 @@ void __noclone __crash_kexec(struct pt_regs *regs)
 >  			struct pt_regs fixed_regs;
 >  
 >  			crash_setup_regs(&fixed_regs, regs);
-> +			panic_notify_pre_kdump(NULL);
+> -			panic_notify_pre_kdump(NULL);
+> +			if (!READ_ONCE(panic_pre_kdump_postpone))
+> +				panic_notify_pre_kdump(NULL);
 
-I understand why you did this. But it makes the code really hard to
-follow: 
+Honestly, it looks a bit confusing to me.
 
-  + This code path will be called also by the 1st __crash_kexec() in
-    vpanic() when "_crash_kexec_post_notifiers == false". It is the
-    default.
+The name "postpone" suggests that they will be called later.
+But they likely will never be called because the crash kernel
+will take over the control and eventually reboot the system.
+The panic() path will never run.
 
-  + The panic_notify_pre_kdump(buf) in vpanic(), added by 1st patch,
-    is called when "_crash_kexec_post_notifiers == true" or when
-    __crash_kexec() returns from some reason.
+Also there is:
 
-None of this is obvious.
+void oops_end(unsigned long flags, struct pt_regs *regs, int signr)
+{
+	if (regs && kexec_should_crash(current))
+		crash_kexec(regs);
 
-I am going to think more about it.
+where
+
+int kexec_should_crash(struct task_struct *p)
+{
+	/*
+	 * If crash_kexec_post_notifiers is enabled, don't run
+	 * crash_kexec() here yet, which must be run after panic
+	 * notifiers in panic().
+	 */
+	if (crash_kexec_post_notifiers)
+		return 0;
+
+So, when: "crash_kexec_post_notifiers == true" then
+kexec_should_crash() returns "0" then
+crash_exec() is not called. The system might still
+call panic() but remember "crash_kexec_post_notifiers == true"
+so the notifiers are called before __crash_kexec().
+So panic_notify_pre_kdump() will still get called
+before __crash_exec().
+
+Is this intended, please?
+What is use case, please?
+
+Maybe, it would make sense to add "panic_pre_kdump_disable"
+which would completely disable the notifiers when they cause
+problems.
 
 Best Regards,
 Petr
-
->  			crash_save_vmcoreinfo();
->  			machine_crash_shutdown(&fixed_regs);
->  			crash_cma_clear_pending_dma();
