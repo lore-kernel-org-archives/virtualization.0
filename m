@@ -1,181 +1,110 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=192.198.163.19
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1792525059;
-	b=Jm0fiONmzzCeR8I0Zh+IOWO3ej+aMdDuuhT0TBUE1JG2gOKouJNUtRacdyKCIuR5ebqw
-	 zALoqtloi6C8EcW5NJF4RP2xm31GRVuEVvOl1+6Hr/UtrGX+8GRk8raIk8GoU/vopXei2
-	 5SAnD9/+2HbmBrT0/fZCBL+/gpAGCJ5YULXo6jCB7EYVvZ2trl7GcfC1Q/YQMz3OLQTv3
-	 W9YEGpeGwwVNKGLdXdE8MaxPCa0yfKObVaHomKK+9alWnDwCNj3X84RlpLTKLPaGwzXqG
-	 li+MgmuXwWAKsM56Jh2OLUreHavjPLkTKmeY++sEz2qAvHG0y/TrmB/2JD4vLk9soOg==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792525059;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Received:Received:
-	 Received:Received:Received:From:To:CC:Subject:Thread-Topic:
-	 Thread-Index:Date:Message-ID:References:In-Reply-To:Accept-Language:
-	 Content-Language:X-MS-Has-Attach:X-MS-TNEF-Correlator:
-	 x-ms-publictraffictype:x-ms-traffictypediagnostic:
-	 x-ms-office365-filtering-correlation-id:x-ms-exchange-senderadcheck:
-	 x-ms-exchange-antispam-relay:x-microsoft-antispam:
-	 x-microsoft-antispam-message-info:x-forefront-antispam-report:
-	 x-ms-exchange-antispam-messagedata-chunkcount:
-	 x-ms-exchange-antispam-messagedata-0:Content-Type:
-	 Content-Transfer-Encoding:MIME-Version:
-	 X-Exchange-RoutingPolicyChecked:X-MS-Exchange-CrossTenant-AuthAs:
-	 X-MS-Exchange-CrossTenant-AuthSource:
-	 X-MS-Exchange-CrossTenant-Network-Message-Id:
-	 X-MS-Exchange-CrossTenant-originalarrivaltime:
-	 X-MS-Exchange-CrossTenant-fromentityheader:
-	 X-MS-Exchange-CrossTenant-id:X-MS-Exchange-CrossTenant-mailboxtype:
-	 X-MS-Exchange-CrossTenant-userprincipalname:
-	 X-MS-Exchange-Transport-CrossTenantHeadersStamped:X-OriginatorOrg;
-	bh=xF2bTCNOWyRHCTeizHdWdN/Y3rWAt33qthuE69XMTV4=;
-	b=WEgltdDeJIUkBVawatFehNjjW5fyv12flIobS1r7IzBZ/ywguOVXPJxBErgJfXLhs9Pl
-	 hGlDT9DrO3h0QHtVRjsIKZIq8AwbPKdDBVlZ9fnAXjMToFYpRxIL/vjBvqbIMLVRxu/Ou
-	 Xs7QNo/QAcQ1fXnocEx9vDtw1ewCFTCqckrDbB8GoBL30bcFLrXB0TEk4/eBkBAVTSMwi
-	 M34BU0QdngV781tXp7qFCl37yrLgSVejQo+w3lCf8A++7Jn01JfEJebmNC42H3LyvUFny
-	 hNZcNH+es7ugszGy9RyGbXUBKAqauKS3+RUIiTEA0W3CyMGumAslxIoVidKys3U/LZw==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=intel.com;
-	spf=pass smtp.mailfrom=intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=Iz8x8JxH;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=192.198.163.19
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1792525147;
+	b=ubbSyJ9YDjuupRWfhDx0M18cU/yCvuj21LAoWf6o76aY4gKYCNCsijw0v+l7Iv2JL5Cu
+	 KlfO7YCGX0KFuuRpqJZIK3AnM+SRkHgtBDXspMJcdzxg6Tf/uWjeqYc4Ghghkw45jpXYD
+	 52hiOlwFuV6AaRkYU+cSCtp1mITGVRB4yFrd0L4gFHY94tXKtjIYt0V34Hhp8hwKXeID3
+	 E7FJ9faeXWg3pjX5ht69uvgmghMaKdOYHDBDTiqzDFAeDr51H6RWFkghonqhf9M4QpG5A
+	 KweHB8ixycEQqfP3WPQW8L4BhLM8pdER85OHGlT5Zr1OiFHgkx2bL20qZpqX1m8LPvw==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792525147;
+	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
+	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
+	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
+	 X-Mimecast-Originator:Content-Type:Content-Disposition;
+	bh=JkjH/Sgg5VxVUFVBkqKACHe5NY0hXmzsOqepQjU71sU=;
+	b=TYoGR/7nXsAl19Vtl+WGqHJiAbWL1IPUGRlHam8IUI+BEOaJgiTSvyn8lryEMcb7SwpF
+	 r1fZxONGt8WsLzHJud7yC457puSkc5lT8G/4tWGwTU9La6yfu3TXwFQXYcpI1yC2pDOOv
+	 kEElTNfbps7r2xICgKph6pQ30pLKq19l/r24XgyDIKyKqL9e+TQu/OT8QtBwmsAN7OxsP
+	 PjV6v3Ne7sfznZUhEP85sWV2oa+DV5sdNZa9yOaQEbAiqoTPgnWP3q5XY9SRDvzVu44vd
+	 4U3UvFf0/ye4zDl+ztXfiYI5Uomd1bbMD9cQZxhhUsRfrOtt50bIMCRXjQA+FzdvubQ==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=redhat.com;
+	spf=pass smtp.mailfrom=redhat.com;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=dIYizZlX;
+	arc=none smtp.remote-ip=170.10.129.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64F97606A31B
-	for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 19:37:38 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 64F97606A31B
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90A2F606A31A
+	for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 19:39:06 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 90A2F606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=Iz8x8JxH
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1792525058; x=1824061058;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=y+gBAuHDIHWKdv8wm5XcIcYZAZsU2GmYrGj2uf3yV+k=;
-  b=Iz8x8JxH5mx1FfrCaOLkMxtxWUSMJZjiglOzyQnO1okWXAUdoqpbD+ae
-   59N0CjEAHRU/IxqJjV10D18N0EwnXxBb1HV6F1CiTO6BqDWlr3lqR/AeV
-   GjQou7l6pLbYL/EEY1FmXRAYfKs7whAnldG6Ie+G3QhHMjOaAXxLE7cFS
-   EBM6EKlyXToRMXDn4I/LftrbVGHOZAyJwg2QI2WZGsEhH75j554AJEryY
-   Y43EeFpD3r8XO3/nsedG/iz9lcjVU4DH3Sh4VV1Bvx49ednydNJ2u+1ww
-   k9/QNPoIrPfp2+0yS6RKKftf/hAJ9/eCz//7gG/LETZFXOjd8mbA4xGMk
-   Q==;
-X-CSE-ConnectionGUID: 79udbhi6S9eP9KO2Dxwq0Q==
-X-CSE-MsgGUID: zSoz+0JQRYOMtapS3a12/w==
-X-IronPort-AV: E=McAfee;i="6800,10657,11941"; a="1343443"
-X-IronPort-AV: E=Sophos;i="6.27,168,1787036400"; 
-   d="scan'208";a="1343443"
-Received: from fmviesa009.fm.intel.com ([10.60.135.149])
-  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Oct 2026 12:37:37 -0700
-X-CSE-ConnectionGUID: sZEQjHNTTB2j1i0Ts7oXvA==
-X-CSE-MsgGUID: bogf4KVRSja0qBGOnwD1gQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,168,1787036400"; 
-   d="scan'208";a="3259784"
-Received: from fmsmsx902.amr.corp.intel.com ([10.18.126.91])
-  by fmviesa009.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Oct 2026 12:37:38 -0700
-Received: from FMSMSX903.amr.corp.intel.com (10.18.126.92) by
- fmsmsx902.amr.corp.intel.com (10.18.126.91) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.49; Tue, 20 Oct 2026 12:37:37 -0700
-Received: from fmsedg901.ED.cps.intel.com (10.1.192.143) by
- FMSMSX903.amr.corp.intel.com (10.18.126.92) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.49 via Frontend Transport; Tue, 20 Oct 2026 12:37:37 -0700
-Received: from CY7PR03CU001.outbound.protection.outlook.com (40.93.198.56) by
- edgegateway.intel.com (192.55.55.81) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.49; Tue, 20 Oct 2026 12:37:37 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=AoYF2Ux02wRRnYYUfNpqufE8Bm02PcVsNIRcHTU/HMUfpeRv1QH9FKnn/qhB0yp9KmCfKq0B2YVWL3RgfBjo7YAUGPKj5PzmccUgHGAB61x9WWqT9ask7lPqF/ICib2lf50JPjSL/ZNJ7nJOCN+cS033N/mbYFLG3ZRVJ1EdkIyoP9jb5k2jeVeWpc0+jO28sLVDvIwKhoJ1dR2nLoaKc8gVXiBY0BCyTCOVmDcNXSs7YBknUtV4GoNEwwGO8qkmF79FlJupdAzOjWyWAMlXh5CuvpHy+q7PaUP+LJDAgvoXulb7Ixgkv0hnKPwhcbkhSirCI23aoI2xmqkTDgMe/Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=xF2bTCNOWyRHCTeizHdWdN/Y3rWAt33qthuE69XMTV4=;
- b=HwT2898JKj+iEf0AwQ4Q+STXz2yaaddARXHQFBo41TDdiYiqCoxwhuOEKm8CE7ktrDJMv21CTQpfVkv1pulCEsCefnsSiESCSkqIRVbIqdFrqIh+mc68eYMv5P5Ovi8/uIw3cMFn7C4eg702EmtjIBYcd1XJeQn9ldWcUtyZfgrPbwDbY9IzWNjtyXt941Z4rMiOcDlqUlJ9k4ED331A11GEJtD3hDXiVW27Gvok0ZLVnEp/87Tdm+Kbb3hnhnlsllah9dovnYgU4rvtOPdlxm2OlBIIYRK39kqZxDHwIdiKy3Xm7mpB3Ni1Z2pX/3ov9e+WgbuN+yq1/6DNViybyQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from LV2PR11MB6070.namprd11.prod.outlook.com (2603:10b6:408:179::22)
- by DS7PR11MB6224.namprd11.prod.outlook.com (2603:10b6:8:97::7) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.496.23; Tue, 20 Oct 2026 19:37:32 +0000
-Received: from LV2PR11MB6070.namprd11.prod.outlook.com
- ([fe80::4c84:af62:dc60:fd9]) by LV2PR11MB6070.namprd11.prod.outlook.com
- ([fe80::4c84:af62:dc60:fd9%5]) with mapi id 15.21.0546.012; Tue, 20 Oct 2026
- 19:37:32 +0000
-From: "Popov, Pavel E" <pavel.e.popov@intel.com>
-To: Leon Romanovsky <leon@kernel.org>
-CC: Bjorn Helgaas <bhelgaas@google.com>, Logan Gunthorpe
-	<logang@deltatee.com>, Lukas Wunner <lukas@wunner.de>, Jim Chow
-	<jim.chow@broadcom.com>, Radu Rugina <radu.rugina@broadcom.com>, "Alexey
- Makhalov" <alexey.makhalov@broadcom.com>, Wei Liu <wei.liu@kernel.org>,
-	Michael Kelley <mhklinux@outlook.com>, Nathan Ciobanu
-	<nathan.d.ciobanu@linux.intel.com>, "bcm-kernel-feedback-list@broadcom.com"
-	<bcm-kernel-feedback-list@broadcom.com>, "virtualization@lists.linux.dev"
-	<virtualization@lists.linux.dev>, "linux-hyperv@vger.kernel.org"
-	<linux-hyperv@vger.kernel.org>, "linux-pci@vger.kernel.org"
-	<linux-pci@vger.kernel.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH v4 0/2] PCI/P2PDMA: Allow P2PDMA on Intel Xeon server CPUs
-Thread-Topic: [PATCH v4 0/2] PCI/P2PDMA: Allow P2PDMA on Intel Xeon server
- CPUs
-Thread-Index: AQHdYLm3Eu3+F6ITg0+VFiHnE2F7qrcGw2EAgAAN8iA=
-Date: Tue, 20 Oct 2026 19:37:32 +0000
-Message-ID: <LV2PR11MB6070E19D3A0CCA50943D7499B2672@LV2PR11MB6070.namprd11.prod.outlook.com>
-References: <20261020173736.81755-1-pavel.e.popov@intel.com>
- <20261020184002.GO64621@unreal>
-In-Reply-To: <20261020184002.GO64621@unreal>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: mx.microsoft.com 1; dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: LV2PR11MB6070:EE_|DS7PR11MB6224:EE_
-x-ms-office365-filtering-correlation-id: 0c12b0d1-28fc-4aef-7640-08df2ee195a2
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|7416014|23010399003|376014|1800799024|366016|4143699003|38070700021|56012099006|11063799006|261009221227099003|261009223327099003|261009223027099003|261009221727099003|261009220027099003|22082099003|18002099003|10067099003|6133799003;
-x-microsoft-antispam-message-info: 3FZo20mXabnfZU1wkNNhNRUsBKP/oqS6Ow8f7qqDRc5HJJNYI9XYi8GlGLVswDYegQS6gGpHdgBO0H9m6vLGrirUoxhIkBAOmEC2tfhRgISXI9rakaJk5NxSSSwev+yFkpmqvsbRx8/pU5wRssPnfI387iEQgsmQ4oxMiBylHL3hvamYPiD5x2KVhYShF2WYv8N3vjJhcVKsMQ0comKJXnP2Tktx1L4pNd3m7qToIYGV0m5sPIbpOXrIUyRj1CyWBi0zVOjhJ2M6XruRAyzvNUqbRBqjgrqm8E0rPOi3MkMKU2oodlY5aJGwZfIgveOAEqoi30I90wnmdqgQGVsnuQU6Dm9Z7X6Y/4Rsxrfjb45OfiYFo0sSKGFGsCKvYI/HyBNWw7YauCtbA/5Te/ztR8RwefihMNw/pU8m1RXVlKJSrK3Rt9FGvNx2rJG6OezkZWRnoIJ7KUxIwwU2d+IIaV6G7/nwiIEIoLBSI7so2tdnAzb/8wDsVZxLw9UILFrXVdMOIuWhk1o4SfSHHBebyLgBWpDbkdcLlIffi6hEjmHu4RDBO9SQBbVOSlGZOOL5cXaPnMinc2LDP9OHcvZ/GJbea5tRJxtSydae8aqqnrgV5+6xDoM7JuZx/NylySFvg49EDq32Vfq8J55WvNXOZNc0VAtENjrP0wYgYO5x+AQ=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR11MB6070.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(23010399003)(376014)(1800799024)(366016)(4143699003)(38070700021)(56012099006)(11063799006)(261009221227099003)(261009223327099003)(261009223027099003)(261009221727099003)(261009220027099003)(22082099003)(18002099003)(10067099003)(6133799003);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?QI030bvzDBsD8iRPnYgtlsvrS9AIlfGRRQji1MqzrA0Bh9CUuU5YD4PZ54b+?=
- =?us-ascii?Q?22GesLGeXB5Ok8nKWa9Sy4uxPNychfx8xsFeluWdtIEGrYdxNvLIL2hPgWGv?=
- =?us-ascii?Q?a2L47GcTAZkzLrnqztloaZLIImzZrtsfI0VRiP0hqbvepB2+2QXR0kuVQh/V?=
- =?us-ascii?Q?8Xs/oFkpyH4w/sM3t1YJCaIuKkUYYB8OSAam2/ulIRrgTUWmFCQMdGokXZq+?=
- =?us-ascii?Q?lZercdX9bysLeSCvZMfbCT4l8wrACgdf0tgxnfxhRzrLGdicwLeh823/th6V?=
- =?us-ascii?Q?19IosjldEQK1g5BTEttnBbQ9YXxNYuJe63ylOSpiev3yXmr5q8G6DiBmshCl?=
- =?us-ascii?Q?K0CTI7j95u4L9ZdZjKn06G147ZjPNNoh/Ji3HqIT0j8F16wAc2nC6YgKJcbI?=
- =?us-ascii?Q?SzfqaWH26iDwXCIH0hdJXfYujXdNhJA+iPd3xbphbqysw/WWbOTu1DXWMnn4?=
- =?us-ascii?Q?KvC2s0fhlrNpBErswEtfA5hAIAb+fqaH0fBK/uEBTZidoIhYTB2uWW/w+ZSb?=
- =?us-ascii?Q?e+1XH91/791KePvCjfr/N7zvdI4YaCDJBBqS53d+yylCeuJPS2LUueUhRxPp?=
- =?us-ascii?Q?gW5rENw9tpemBPZrG+Ur0FYZ2bAz9LwyD9+i/2oS5noo0d+bliCqi2WvRTvD?=
- =?us-ascii?Q?B0QUCaX1cLYsmYuv+sSnn9ifKTKuiExGuSuhsSzLaVZFLdHj5WkP5pi4Ddre?=
- =?us-ascii?Q?dKDm54X1XAWDokRYCQMXhHFdcBHyqnNStNb35Yv49Ymw9b8VPyoJXYV3qsfD?=
- =?us-ascii?Q?lANIpYar8yXNk40qBFjmEDyA8WnOfyckGKuhIdVanxHqznNRndoWUR7OwDjd?=
- =?us-ascii?Q?UcgV2jI5DFPXuI8/UFw9B6ZWxva1i8rfkGiLan6yyvNIAmezLzk7s8izbv9S?=
- =?us-ascii?Q?8nEc5nuP+P2wU6/6cRp1L+ZZU3r4YQJymdeYfTC42PSOYxdTmPvlzBZgsYFi?=
- =?us-ascii?Q?FIrNCnzuJvB7+nAg/YlBnS2d1bv/uuXGwuROXA3sHdy+2IElgA3vM0EMaGXE?=
- =?us-ascii?Q?kaFhKc6cAPduQfpzjsv2iF8tTPXDEO7UKZ0cF5VP9SlmPh8azjeXHCBpDOX8?=
- =?us-ascii?Q?BFKvpzpDwq7+cjXA4j92a53yfD4kJOi23LgzSraM/BcpmOgrvXzmP8338S/n?=
- =?us-ascii?Q?lato34toFdk3xWSTv95aG0yR5KReP+ujlH9jrHoqXAaZ05v5cnk/TIYrNNSh?=
- =?us-ascii?Q?DJpMjBJcPzeQG658QRBt+U5MsciY26ZM904YA8yLl/JlVESVXr8d9FBykuh6?=
- =?us-ascii?Q?KBk0gVAZrQ0qZ2Gl0W8m38Oa4dfOUlc8h1s8HaYxLqx5CR4xbAIAlCz27HPM?=
- =?us-ascii?Q?kjsBNEM6/Aur7nS7Chs3WUiNfDydO+f/eTjh9PgrvYrGgWS/nLqwJ01vH7vn?=
- =?us-ascii?Q?h+gem19b9f0yR8FmSXIjq731Im4ZWNnelD/YL2yJi4WtoIoMg7JsjtQmOE+Y?=
- =?us-ascii?Q?aCKMMsp43f1o8thLTS/xMaP5fp4jj5gzsi7b9Yk+JPT7OY7zLoNtyamAejvD?=
- =?us-ascii?Q?sactb27c9aEuXIeUEfgPujRHGRuTfIJEjVpB2eHn1Rx3iJ9rd4dzrziv+/yz?=
- =?us-ascii?Q?5F+YoE2RyGOIwKYUQMgQY2uAmfi7OhbdC1WKc4R/vRKGVGJAAyv/NEMDGwju?=
- =?us-ascii?Q?5dfVdg6uRN/WGTL+JoeaPUXAtU95hTzpsC+TtDAsXu0UjQqIqAcYvOpfKWLK?=
- =?us-ascii?Q?bp9l+sJTKoVLfbslmb2LcZYAyETGK9+RXXDY0DIgjuhcgiplwdiBK9/gxyGp?=
- =?us-ascii?Q?AfsYp3QXfA=3D=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=dIYizZlX
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1792525145;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=JkjH/Sgg5VxVUFVBkqKACHe5NY0hXmzsOqepQjU71sU=;
+	b=dIYizZlXXBBOBO5oL4UV2RssAuji1OZ5PEslvz+25QZKtuJfbXCU2QyHzo27zuWdeBWReL
+	6QD2nd0dfyw726LXqrgNHE85mbpLzUtmx/sIVadq/6WRxQ1as71jvBMkzr2tXI2onoaBU9
+	9zfy90LQ96NFlBYAjZ2Hl1Ea2nKLMM8=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-121-GE-JU1PINFSbK0IoWCQ9XA-1; Tue, 20 Oct 2026 15:38:59 -0400
+X-MC-Unique: GE-JU1PINFSbK0IoWCQ9XA-1
+X-Mimecast-MFC-AGG-ID: GE-JU1PINFSbK0IoWCQ9XA_1792525138
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-48e1d839ddaso984463f8f.3
+        for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 12:38:59 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792525138; x=1793129938;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=JkjH/Sgg5VxVUFVBkqKACHe5NY0hXmzsOqepQjU71sU=;
+        b=IGELl090iXQvF5QEk/cny5DN5m+5rdOzHeagQAEPq0q4wXSbFdA/dVvGiaSiTO78+c
+         W+BJBJpTwpQuuL63mp2gGLZ99aCq5NWR44N08/rH1csiaZOnS0uXv849tzppf01ErDUd
+         CviQb/G+fHXCEiXDd9vYFftfagva80rBkbI5otsPpEshlK3lc7A1D9nf0Wopx6ZfwxXD
+         7pv4zSBAsyuh5gl3RQW02YFJ9LB8XdAYeO+I4IL3mjp43uG3kASOp++jyhBvBK3ojpAG
+         VIcR+yQdVngUqJAu1HnBz+0ppWWfBJbDJK4ctpTl7DryfLbYy7SV0AN/Kiq/Y68nNq3N
+         4WkQ==
+X-Forwarded-Encrypted: i=1; AKwUvBxoDPywitM/6LqF4g19FFf264BFx3eKQwxoPEyuMRvCCAq+Su4FT6O4h8KXWujwTjzGIBbLM95JAwLN6Ror8Q==@lists.linux.dev
+X-Gm-Message-State: AFq9FYJ56kNiyaTH3snN3AJPoZQOlKZqG/jPA1ddG+mLi0wCZZ8VGQex
+	WsK0qWadtaHTUIGUpg6BJ8q7tLae5TIltLKI0It5Hi5ZmIF6zgamEOLaI1utLb5RK1ZC7aGOc5Q
+	7pEKl1wL2pPBGwxkcflzDO7n1X6uSOffGQGXlIdCw0dP5uFyNH6B4tG4CfiXnSRPGuAGQ
+X-Gm-Gg: AYBFou0b6ESskNcjdXDSoUmYfTpkngxX77ef+AG6x8rLFdGh8MHgEGjMuUe01mCK7Nh
+	h8eOnF6EqoMUtHsdW0g739n9HfOFbaRyrHuHAv475rD1jrsPttyqr9DFYz9CQZKg4yw2nGdFE+o
+	SUVKCJwy88TFcuasoD1b5nktTQDyre1Abx1tQDDc3UJvTBjNfW69zSIotp+ioSWCX3G/mh40MsX
+	64wFPHHNnCrBeXhO+21Ew1yKjJnQhZCU6Ka13vmUkrkrfu1QxTxjHKRxZj/gsoj5XF507q1FQKP
+	jWS0PYe0zyNfx8MAYJ1ZyKEvRXesHt0p08OWjxaE2mQnM7DaM+qu3o7wfHXSw/Mn2nl32A==
+X-Received: by 2002:a05:6000:1b8f:b0:487:72f:fb41 with SMTP id ffacd0b85a97d-48e07fa0e82mr18492827f8f.39.1792525138249;
+        Tue, 20 Oct 2026 12:38:58 -0700 (PDT)
+X-Received: by 2002:a05:6000:1b8f:b0:487:72f:fb41 with SMTP id ffacd0b85a97d-48e07fa0e82mr18492786f8f.39.1792525137659;
+        Tue, 20 Oct 2026 12:38:57 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc0:3fd7:5300:3d6b:52a4:a23f:9d0b])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48e25828cbfsm425597f8f.23.2026.10.20.12.38.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 20 Oct 2026 12:38:56 -0700 (PDT)
+Date: Tue, 20 Oct 2026 15:38:53 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Chris Arges <carges@cloudflare.com>,
+	=?iso-8859-1?Q?Bj=F6rn_T=F6pel?= <bjorn@kernel.org>,
+	Phil Sutter <phil@nwl.cc>, Jason Wang <jasowangio@gmail.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@kernel.org>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	netdev@vger.kernel.org, virtualization@lists.linux.dev,
+	Max Krasnyansky <maxk@qualcomm.com>,
+	Rusty Russell <rusty@rustcorp.com.au>,
+	Simon Horman <horms@kernel.org>
+Subject: Re: [PATCH net v3 1/8] net: account for ingress-resolved virtio net
+ hdr state
+Message-ID: <20261020153650-mutt-send-email-mst@kernel.org>
+References: <cover.1792411304.git.mst@redhat.com>
+ <b1dce3e055b973bd87bdbdc9e9729971fa383326.1792411304.git.mst@redhat.com>
+ <willemdebruijn.kernel.26f697d5a674b@gmail.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -185,70 +114,205 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-X-Exchange-RoutingPolicyChecked: vrK8EZ+ldr0gm78iKxmYO9hBIfq7vfw/djmanfcdWtJTs0ZJi4JqySCA01IboJrQ6ZWYB0iVEVTqBpLXSLZecp1nI/DAR+MjG55MaNQAN+7vynEIaRmB7IX0fyc0PusThgG+VdNnR9frwBNcehJDPzk0aN6Ajzk3oYzE7fPUfnv6AJ08JtlIj0PTdeq4RpOe/YbqugxJDbxj0iIHcy2wB7YgRyjEtdsISbXlRFNjA44tcssG82au4uBlmzqxM17nYWCUS8gnQfJENZbU9EBQD7qQGBIy/Jdz7dC8/3c+a9JllZkKXL7hmm3b1LFZXwbP4wwIfG02Z5No4fphNprpsw==
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR11MB6070.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0c12b0d1-28fc-4aef-7640-08df2ee195a2
-X-MS-Exchange-CrossTenant-originalarrivaltime: 20 Oct 2026 19:37:32.2610
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: //C6gSL9iBQhgCQ9cZl8e5YAYW5SOZGZZDIe9SHKbwgBxQtqRsZf3GHWYyOwkF9gLrJlNq5OPkGYMaC44drQog==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR11MB6224
-X-OriginatorOrg: intel.com
+In-Reply-To: <willemdebruijn.kernel.26f697d5a674b@gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: veOfQM9SNP3UXWv3j_k5lsLL9Fq9YnPVrldcudO6_h0_1792525138
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Leon,
+On Tue, Oct 20, 2026 at 03:27:46PM -0400, Willem de Bruijn wrote:
+> Michael S. Tsirkin wrote:
+> > The following patch will add ingress resolution of uncommon virtio net
+> > hdr checksum metadata (software checksum completion at ingress) which
+> > adds performance overhead to the packet processing.
+> > 
+> > We should make it visible, so a hypothetical workload relying on
+> > uncommon metadata can be distinguished from none at all. This way issues
+> > in the parsing will be reported and not quietly pay the host-CPU
+> > checksum overhead instead of offload.
+> > 
+> > Flip every call to virtio_net_hdr_to_skb to test for negative errno
+> > only, and have tun count these events per device as rx_csum_sw, exposed
+> > via ethtool -S.
+> > 
+> > Assisted-by: LLM
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > ---
+> >  drivers/net/tap.c        |  4 ++--
+> >  drivers/net/tun.c        | 41 ++++++++++++++++++++++++++++++++++++++--
+> >  drivers/net/virtio_net.c |  2 +-
+> >  net/packet/af_packet.c   |  4 ++--
+> >  4 files changed, 44 insertions(+), 7 deletions(-)
+> > 
+> > diff --git a/drivers/net/tap.c b/drivers/net/tap.c
+> > index ff67d99deb39..73e883394446 100644
+> > --- a/drivers/net/tap.c
+> > +++ b/drivers/net/tap.c
+> > @@ -649,7 +649,7 @@ static ssize_t tap_get_user(struct tap_queue *q, void *msg_control,
+> >  
+> >  	if (vnet_hdr_len) {
+> >  		err = tun_vnet_hdr_to_skb(q->flags, skb, &vnet_hdr);
+> > -		if (err) {
+> > +		if (err < 0) {
+> >  			rcu_read_unlock();
+> >  			drop_reason = SKB_DROP_REASON_DEV_HDR;
+> >  			goto err_kfree;
+> > @@ -1084,7 +1084,7 @@ static int tap_get_user_xdp(struct tap_queue *q, struct xdp_buff *xdp)
+> >  
+> >  	if (vnet_hdr_len) {
+> >  		err = tun_vnet_hdr_to_skb(q->flags, skb, gso);
+> > -		if (err) {
+> > +		if (err < 0) {
+> >  			rcu_read_unlock();
+> >  			goto err_kfree;
+> >  		}
+> 
+> similar to tun, should tap count this event?
+> 
+> > diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+> > index 242899f7fd07..19cb443c89b0 100644
+> > --- a/drivers/net/tun.c
+> > +++ b/drivers/net/tun.c
+> > @@ -210,6 +210,7 @@ struct tun_struct {
+> >  	u32 flow_count;
+> >  	u32 rx_batched;
+> >  	atomic_long_t rx_frame_errors;
+> > +	atomic64_t rx_csum_sw;
+> 
+> is a normal (and cheaper on 32b platforms) atomic_t or atomic_long_t sufficient?
 
-The #ifdef CONFIG_X86 in cpu_supports_p2pdma() came with the AMD check.
+well it can overflow easily. i don't know that we care that a slow
+path will be even a bit slower on these ancient platforms. correct
+reporting seems more important.
 
-Would it work for you if I move the includes into that single #ifdef
-block, next to the CPU check? Some multi-arch code does the same:
+> >  	struct bpf_prog __rcu *xdp_prog;
+> >  	struct tun_prog __rcu *steering_prog;
+> >  	struct tun_prog __rcu *filter_prog;
+> > @@ -1935,11 +1936,16 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
+> >  		break;
+> >  	}
+> >  
+> > -	if (tun_vnet_hdr_tnl_to_skb(tun->flags, features, skb, &hdr)) {
+> > +	err = tun_vnet_hdr_tnl_to_skb(tun->flags, features, skb, &hdr);
+> > +	if (err < 0) {
+> >  		atomic_long_inc(&tun->rx_frame_errors);
+> >  		err = -EINVAL;
+> >  		goto free_skb;
+> >  	}
+> > +	if (err > 0) {
+> 
+> } else if (err > 0) {
+> 
+> > +		atomic64_inc(&tun->rx_csum_sw);
+> > +		err = 0;
+> > +	}
+> >  
+> >  	if ((tun->flags & TUN_TYPE_MASK) == IFF_TAP)
+> >  		skb->protocol = eth_type_trans(skb, tun->dev);
+> > @@ -2605,12 +2611,15 @@ static int tun_xdp_one(struct tun_struct *tun,
+> >  	tnl_hdr = (struct virtio_net_hdr_v1_hash_tunnel *)gso;
+> >  	skb->dev = tun->dev;
+> >  	skb_set_network_header(skb, ETH_HLEN);
+> > -	if (tun_vnet_hdr_tnl_to_skb(tun->flags, features, skb, tnl_hdr)) {
+> > +	ret = tun_vnet_hdr_tnl_to_skb(tun->flags, features, skb, tnl_hdr);
+> > +	if (ret < 0) {
+> >  		atomic_long_inc(&tun->rx_frame_errors);
+> >  		kfree_skb(skb);
+> >  		ret = -EINVAL;
+> >  		goto out;
+> >  	}
+> > +	if (ret > 0)
+> 
+> same
+> 
+> > +		atomic64_inc(&tun->rx_csum_sw);
+> 
+> maybe reset ret = 0 in all these branches
+> 
+> >  
+> >  	skb->protocol = eth_type_trans(skb, tun->dev);
+> >  	skb_reset_network_header(skb);
+> > @@ -3739,7 +3748,35 @@ static void tun_get_channels(struct net_device *dev,
+> >  	channels->max_combined = tun->flags & IFF_MULTI_QUEUE ? MAX_TAP_QUEUES : 1;
+> >  }
+> >  
+> > +#define TUN_STATS_LEN	1
+> > +static const char tun_ethtool_strings[TUN_STATS_LEN][ETH_GSTRING_LEN] = {
+> > +	"rx_csum_sw",
+> > +};
+> > +
+> > +static int tun_get_sset_count(struct net_device *dev, int sset)
+> > +{
+> > +	return sset == ETH_SS_STATS ? TUN_STATS_LEN : -EOPNOTSUPP;
+> > +}
+> > +
+> > +static void tun_get_strings(struct net_device *dev, u32 stringset, u8 *data)
+> > +{
+> > +	if (stringset == ETH_SS_STATS)
+> > +		memcpy(data, tun_ethtool_strings,
+> > +		       sizeof(tun_ethtool_strings));
+> > +}
+> > +
+> > +static void tun_get_ethtool_stats(struct net_device *dev,
+> > +				  struct ethtool_stats *stats, u64 *data)
+> > +{
+> > +	struct tun_struct *tun = netdev_priv(dev);
+> > +
+> > +	data[0] = atomic64_read(&tun->rx_csum_sw);
+> > +}
+> > +
+> >  static const struct ethtool_ops tun_ethtool_ops = {
+> > +	.get_sset_count		= tun_get_sset_count,
+> > +	.get_strings		= tun_get_strings,
+> > +	.get_ethtool_stats	= tun_get_ethtool_stats,
+> >  	.supported_coalesce_params = ETHTOOL_COALESCE_RX_MAX_FRAMES,
+> >  	.get_drvinfo	= tun_get_drvinfo,
+> >  	.get_msglevel	= tun_get_msglevel,
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > index daab43ac92ce..2e6fd81df9c4 100644
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+> > @@ -2519,7 +2519,7 @@ static void virtnet_receive_done(struct virtnet_info *vi, struct receive_queue *
+> >  	skb_set_network_header(skb, ETH_HLEN);
+> >  	if (virtio_net_hdr_tnl_to_skb(skb, &hdr->tnl_hdr, vi->rx_tnl,
+> >  				      vi->rx_tnl_csum,
+> > -				      virtio_is_little_endian(vi->vdev))) {
+> > +				      virtio_is_little_endian(vi->vdev)) < 0) {
+> >  		net_warn_ratelimited("%s: bad gso: type: %x, size: %u, flags %x tunnel %d tnl csum %d\n",
+> >  				     dev->name, hdr->hdr.gso_type,
+> >  				     hdr->hdr.gso_size, hdr->hdr.flags,
+> 
+> should virtio_net count these too? Or do we assume that devices are
+> more trustworthy, so unlikely to cause this issue?
 
-  https://git.kernel.org/torvalds/c/c7be64355fcc (drivers/acpi/mipi-disco-i=
-mg.c)
-  https://git.kernel.org/torvalds/c/7f3cfb7943d2 (drivers/cpufreq/cpufreq_o=
-ndemand.h)
+With memory encryption, from an untrusted host?
+i can add that.
 
-Thanks,
-Pavel
+> > diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
+> > index 52ae3d875e97..e6aec9ecfa99 100644
+> > --- a/net/packet/af_packet.c
+> > +++ b/net/packet/af_packet.c
+> > @@ -2913,7 +2913,7 @@ static int tpacket_snd(struct packet_sock *po, struct msghdr *msg)
+> >  		}
+> >  
+> >  		if (has_vnet_hdr) {
+> > -			if (virtio_net_hdr_to_skb(skb, &vnet_hdr, vio_le())) {
+> > +			if (virtio_net_hdr_to_skb(skb, &vnet_hdr, vio_le()) < 0) {
+> >  				tp_len = -EINVAL;
+> >  				goto tpacket_error;
+> >  			}
+> > @@ -3136,7 +3136,7 @@ static int packet_snd(struct socket *sock, struct msghdr *msg, size_t len)
+> >  
+> >  	if (vnet_hdr_sz) {
+> >  		err = virtio_net_hdr_to_skb(skb, &vnet_hdr, vio_le());
+> > -		if (err)
+> > +		if (err < 0)
+> >  			goto out_free;
+> >  		len += vnet_hdr_sz;
+> >  	}
+> > -- 
+> > MST
+> > 
+> 
 
-> -----Original Message-----
-> From: Leon Romanovsky <leon@kernel.org>
-> Sent: Tuesday, October 20, 2026 11:40 AM
-> To: Popov, Pavel E <pavel.e.popov@intel.com>
-> Cc: Bjorn Helgaas <bhelgaas@google.com>; Logan Gunthorpe
-> <logang@deltatee.com>; Lukas Wunner <lukas@wunner.de>; Jim Chow
-> <jim.chow@broadcom.com>; Radu Rugina <radu.rugina@broadcom.com>;
-> Alexey Makhalov <alexey.makhalov@broadcom.com>; Wei Liu
-> <wei.liu@kernel.org>; Michael Kelley <mhklinux@outlook.com>; Nathan
-> Ciobanu <nathan.d.ciobanu@linux.intel.com>; bcm-kernel-feedback-
-> list@broadcom.com; virtualization@lists.linux.dev; linux-
-> hyperv@vger.kernel.org; linux-pci@vger.kernel.org; linux-
-> kernel@vger.kernel.org
-> Subject: Re: [PATCH v4 0/2] PCI/P2PDMA: Allow P2PDMA on Intel Xeon
-> server CPUs
->=20
-> On Tue, Oct 20, 2026 at 10:37:34AM -0700, Pavel Popov wrote:
-> > VMware and Hyper-V expose passthrough devices to guest VMs without an
-> > explicit host bridge device. Consequently, host_bridge_whitelist()
-> > cannot automatically identify the underlying host bridge structure,
-> > causing Peer-to-Peer DMA (P2PDMA) requests to be rejected unless the
-> > device IDs are explicitly listed in pci_p2pdma_whitelist[]. To enable
-> > P2PDMA on Intel hosts, this series extends cpu_supports_p2pdma(),
-> > which so far covers AMD Zen and newer, with an explicit list of Intel
-> > Xeon server generations.
-> >
-> > Patch 1 moves the CONFIG_X86 #ifdef out of cpu_supports_p2pdma().
-> > Patch 2 is the v3 patch rebased on it, with Logan's Reviewed-by
-> > carried over; the Xeon list and the check are unchanged.
-> >
-> > Changes in v4:
-> > - Add 1/2, moving the CONFIG_X86 #ifdef out of cpu_supports_p2pdma()
-> >   (Logan Gunthorpe, Leon Romanovsky)
-> > - Keep the #ifdef around the asm/ includes, as these headers exist
-> >   only on x86 (Bjorn Helgaas)
->=20
-> I'm confident that this is wrong usage of asm headers.
->=20
-> Thanks
