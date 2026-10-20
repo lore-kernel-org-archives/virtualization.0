@@ -1,101 +1,87 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.44
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792488098;
-	b=3tUe9/SXUQXWWoFfh6Y5KlewSrD5ydZ9xlkGr/vLMhTqmLoDF8hHOpYTcRoTns5k9re9
-	 lqfZadDeHUnj7oJhDmLl61S5AFKevJDhgS2qsOWEnql8Srd1wYNWViJZO7Vr3gstCjQKQ
-	 9GXX9QF7V3y7oesVUqZ2o49H3EjVTgD8+3/J8x0/Q4h4hD+HTcTcUTPeS7Q1wcXsUY4yG
-	 64cvL0wb/jIpVYin79B0Yx6PzwjDZeJUZ8NqiilJikgvGLkKSOOaXllMmBOdGcxSAp24f
-	 e0d7wDU4fwaxCmZqHzILkbZvDiLq+PCCw3K2Txtbbpp3nQ9qaAZGc+aPHkZNNFs/gcg==
+	t=1792488219;
+	b=pBNMAQkS6CX3TPZqA1rhtmYODQ5Yv8HUv75Ci+cPFX9Ym59yDTIHDHPmOAU52a7qB19b
+	 8ZVYP18adGdhBmtUSXzOH4tdRCHkPPFV2vDOSofdcna8aoP9qr5gcnoqEAjc6+sPAAUAx
+	 2WlDgIOs+PNqDA/Qh04yCxixefpK2dfJGmZp8stExDYdekHLE3VgabIRRmdZbJvfMwC9u
+	 PLCR2Qqhg4U54tUFaI6/L0dwc83dbfjuVZaUNwW9di06OoyQ95rdcsa+eVQUSnwu8RKTc
+	 tykHeA2L0ScmejE0m+GsYUJQ752mCtA8XuMfrFs+tuhKMwlWxtR3slmuPf5fnH0fzjQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792488098;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:X-Mailer:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding;
-	bh=oK/+sZCg2jpdsH2ljNfSqzCUTPMd7ZlHvWodhd0LpQk=;
-	b=ZWwNktYQBUvCZp0sXSRtwA8p79fRkllK/IcSJAaQPCaNgi3NMDmoz/2f5TvJIzUk5NaH
-	 sdu+9HrvLtujO+42lCd2SJamj7XN0NesTeQ8KDEVee2ZG2itBIHCNruiMYVlFoCEOeLQ5
-	 RyfbjOcXriCZbHdGhE+CGGHuvxBL6yympjD+DX1r329tXAN2Sunwumjpv7DgR2Gk4SbAb
-	 P2lrmYsYYs/ToV6RHJstnat+UdfF//zK2IuOjxCguyTZ4g3EpRb+JCly+ia4j9mrk3rxn
-	 Oh392lIOHgQ8E0Eonwg9+mQGBF1YLtnxRwcqFIIGf52CXnc4R8uMU3w55HQuiPRZbsw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792488219;
+	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
+	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 X-Received:MIME-Version:References:In-Reply-To:From:Date:
+	 X-Gm-Features:Message-ID:Subject:To:Cc:X-Mimecast-Spam-Score:
+	 X-Mimecast-MFC-PROC-ID:X-Mimecast-Originator:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=SHMt9246WTDFLEZePkrRxUyIIpSwpuVsNNwsVJXluYs=;
+	b=brIw1ojs5Q5JcYmDu1K9pJVHq4ux82Y84IPYfgd2MW0lCR4uxEeX0KL0d+dRJNltsOXR
+	 r0JpspE8qyXnB3G4he0UL0VWOwHXpfcJ+NRXGidnF204/FDrbECnH302CpCine9hLu+R5
+	 tPaZt7x9haoHADN55n/IfEX+vTcreXLINmBzFj/k9xJeFMcREMuf0sJEi2ax8t+eYjK0t
+	 bFHVyaKXGLPZN+WeS3epZYRypoKzXrcSQqV2Xn8eGFpax4ChGa5OpyfPE1HkUG8Zu7UC2
+	 kIJ/zfJhXYcnzd8089757Q8+OkvgqAeSs4fU8AcCzkeq/D/aJ/egmZ73aTPG65NU3/Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=cc7au2Pi;
-	arc=none smtp.remote-ip=209.85.221.44
-Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com [209.85.221.44])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=redhat.com;
+	spf=pass smtp.mailfrom=redhat.com;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NfypJeRK;
+	arc=none smtp.remote-ip=170.10.133.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 817CF606A31A
-	for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 09:21:38 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 817CF606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FC6B606A31A
+	for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 09:23:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4FC6B606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=cc7au2Pi
-Received: by mail-wr1-f44.google.com with SMTP id ffacd0b85a97d-48c4d99c32bso2472460f8f.1
-        for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 02:21:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792488097; x=1793092897; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=oK/+sZCg2jpdsH2ljNfSqzCUTPMd7ZlHvWodhd0LpQk=;
-        b=cc7au2PiKmE+BnglYXzpWZ6V7dNVhnsC1iJEttOcoEiNWuBRrzSD2Ro+RQc6z35lF2
-         CQg7GUDtM5oD8+Z7lUfNPou9Fxom9d34l2PCTs2H90kIcn5DhOlz3bnLuRO9o9MN3Bda
-         jo9NuemcebVIlNPeLBjRjgo6h3nPySqn9EC72uP9ykKpO5+/G/bhIys56hPBHQwNqpVX
-         CZ4X12/i9IyFGB95mU4an3weiRFiCteBoVUGymV5aUvnLYU1tE9j3EDWZfuFDPr+vNeW
-         2wi0mEhArhX6pObA80PC1W5OBFlFmejvZTtjdu/Q/wY0i+llEG2nr3/i/FWFG+4W5a0h
-         FfGg==
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NfypJeRK
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1792488218;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=SHMt9246WTDFLEZePkrRxUyIIpSwpuVsNNwsVJXluYs=;
+	b=NfypJeRKRqwFquvhsEq68Ko04X10FJe9akXqv9Cw/6TVq8Os91UDZc0hjOHkQ9pctkfk4j
+	Gip1o/G3nuaifXgBFIHG0dCERaCSCtu168weusAWOT4RzHwPlLnIjg10usOqq8IbOEGMYB
+	91uKhEY4Z2moI60gkOmmaWWwqDyyFnc=
+Received: from mail-yw1-f197.google.com (mail-yw1-f197.google.com
+ [209.85.128.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-84-Lfknp58ROS2rJuZdPirxTQ-1; Tue, 20 Oct 2026 05:23:37 -0400
+X-MC-Unique: Lfknp58ROS2rJuZdPirxTQ-1
+X-Mimecast-MFC-AGG-ID: Lfknp58ROS2rJuZdPirxTQ_1792488216
+Received: by mail-yw1-f197.google.com with SMTP id 00721157ae682-8b0da010661so36983187b3.3
+        for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 02:23:37 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792488097; x=1793092897;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-gg
+        d=1e100.net; s=20260707; t=1792488216; x=1793093016;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=oK/+sZCg2jpdsH2ljNfSqzCUTPMd7ZlHvWodhd0LpQk=;
-        b=ZK612wDDvYPOl/lig4YNgpKCnYVq0Jny4CRMaK4Ny+fu6Fic5EjTe5RMyUPC4j9w9o
-         P99sMF6BD6TDC3frRZJ6ddZlZTYoK/sr2UFWfrjs74dyAdUWg7DQLXsZmNuAT+7Kirmn
-         ZTfF+ZmGfuUmY/IoC8bbCf6Rj9mt9734DXs5152pcem8ZR8TE4o+SEGVCuumC9t2D8Qy
-         0P3iWmcQqz7HoAMAR2JR2Xr01vXnrD9c+IQWuBFBGfwff5aGbsHTNOF2B9+atvbRLSLN
-         aNfct36DPIPZ7gEhY0ft3mPSIDumZPn7S/pmSAL8AJc7aDixW9zNQj9svMtua2LRxWB9
-         Muvw==
-X-Forwarded-Encrypted: i=1; AKwUvBxU4Mioy5PO6akWj+1jmRYSr6fpYp8wUBK2YcV/ICNnATLsxAzx3LlSH+jAwRViOzkpBgpuZRhoK7RnyDlQbg==@lists.linux.dev
-X-Gm-Message-State: AFq9FYKZ/x2/0U+bk8AMG6o6GbidmiL1KdUNwFPHpu3U0/lLs4PV/RoN
-	e6zxI1mBmxuF1mlWfpIB54XUL6vuFonSJepUTM7iNkJD2AGKZbls/VzY
-X-Gm-Gg: AYBFou2Vt4VJW+CFEhYKjVU2+UnZY6mf0SN6CmMnKQvxSC1bm8UARG8PVB2tws1BI1k
-	f48TEvjp1tSKi5Nz7vkXDY4GRlo6mOlG/CXILTsFwZiY0yIptpAHFiHelT78HA5KAGqy8LxHXhO
-	HSuCE8yS7s+pL0KC5CL+5JPpvjCuOYRk4jZSHxfIGWjqRf1ANEtjak5Pu5IpcyIfbKzj6p6nusz
-	dBwforgWQN6fpNNS/2PVEuLvddxKLK9EEmWGVzqhF9cIhAl2Ag2dKjkh5/HLZAAMloGcNs4dRuO
-	HRJ33kBumVsCESc6sBJ/sS1kmdEXUHQ6bVYQop9wNuBLXm9gzDbV3c2qUaWN2DW/23LKtsGfccu
-	1qXT41XpNH0dTtP4aQTBdv9QV34GmOiJAlmmQoGGJVYEhlFvIo1d4UBhu6Ugc70XzfWKbIDEqC2
-	gISVj92SCdxgl7YFzgeaKtumQdTGJr5TlPqdmjJHXLCjpYQPqgjwm80Bwi31e/soUqUKvfevJFy
-	tUn8qyWJLcs52rcP95ZiT3XNr1odQUauJw=
-X-Received: by 2002:adf:fd4c:0:b0:487:27f9:841 with SMTP id ffacd0b85a97d-48e07fbdfe2mr15044578f8f.54.1792488096337;
-        Tue, 20 Oct 2026 02:21:36 -0700 (PDT)
-Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48e1d80f9b3sm4629943f8f.20.2026.10.20.02.21.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Oct 2026 02:21:35 -0700 (PDT)
-Date: Tue, 20 Oct 2026 10:21:34 +0100
-From: David Laight <david.laight.linux@gmail.com>
-To: Linus Torvalds <torvalds@linuxfoundation.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Wang Haoran
- <haoranwangsec@gmail.com>, jasowangio@gmail.com, kvm@vger.kernel.org,
- virtualization@lists.linux.dev, netdev@vger.kernel.org, eperezma@redhat.com
-Subject: Re: [BUG] vhost/vringh: __get_user without access_ok leaks kernel
- memory via vDPA passthrough
-Message-ID: <20261020102134.745ff48a@pumpkin>
-In-Reply-To: <CAHk-=wjxtzD1TXZr5iWu0p1+Hu0YZP7jbNSwFkp7AJYmhzhVCA@mail.gmail.com>
-References: <6ad07f8a.a0c71a5e.2d2efd.977a@mx.google.com>
-	<20261018152358-mutt-send-email-mst@kernel.org>
-	<CAHk-=wiUn9EbV4TJ4J7OPY0fVc3UC+xb-pp=+rg3hRc4jQqihg@mail.gmail.com>
-	<20261018174250-mutt-send-email-mst@kernel.org>
-	<376ef9d0-b03f-4f85-aee5-46cf20eb00ae@gmail.com>
-	<20261020021924-mutt-send-email-mst@kernel.org>
-	<CAHk-=wjxtzD1TXZr5iWu0p1+Hu0YZP7jbNSwFkp7AJYmhzhVCA@mail.gmail.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
+        bh=SHMt9246WTDFLEZePkrRxUyIIpSwpuVsNNwsVJXluYs=;
+        b=WE0xIkiZihOdJsc1VRRfTf3Vzde3ovSOvW8bpPGM//U06IuoTyokYVwgHW/QHjiwWt
+         rIZ7jgKMPZ3AuhBMoxpKsH7ZoWddxkVx+xPzf+55D+t26lU+qibqza2TAfD0KhS8/aCI
+         +hb7vHlBtOYaQW/LfSH6VYjzh3zNIv3WMg6Sm8F1nyEHXkjh5rTyHQssgUITQOs//JcQ
+         eqeMVdsAaFDL/+J5f+SIO5d+VVBkU2neeQj+9ukkwUr76tqeRWKsr6QLLB076dkUj8xT
+         BG0xymvMy0dHs+Rx4ep1rt+JWrLh/caomfgIuqdyIsdFwdiQ5/hNuQT8IISB3o53VZgU
+         AhFg==
+X-Forwarded-Encrypted: i=1; AKwUvByXtbOolDharoY5hhdp5Nw67GJxi/3xjzRtTy5R21fnOI3M+R4djIsJEVj36/nC+P0yxBdIm/SYKpH5K8XN3w==@lists.linux.dev
+X-Gm-Message-State: AFq9FYJvsAb9vxRn1z/HRtB4HkyYPPbF7YYAKG2eIohv/Z/r3wTugvYe
+	NsV+rPj7e154UkA5OskE2vOm4cSt1aHeG3QokKv6eyR6jy/KIsFsW4EIhx5Pr7X/dKEcDIBJfNA
+	OGoKJkdhvPnZlm+y+F2EmPU+PNEGp/91ajpFCPFmaJx4wNrqjJLd/bjO3dxxEFhAJrzr51fO2H1
+	MsdQVLGR6THPxIZ6kPgsnyEjW6PxauonVnS4tcLAyNrCY=
+X-Gm-Gg: AYBFou0sBcXtxEnnbttyfzqdIELcqUBASk/VLFYltH1Uc5nwn3AeMbjGWhDojL7xGu6
+	hQ3Tvynd8LNZWEdd3J27QA6xPGCmyzgd9nV8CGp2SUDYSPcYrl1PhR6XCc4GyAwMU/ymgYJ5kvf
+	PnVoKHKsqjpmwySjXU4sYz4fMgBncHg9igODxYaCMkaSxZuX1IITcfjwcRoZFZ7S7y0xD1c/56W
+	HB///kjPWJcaWFvphrANsFu56fi8KOB5Z0SWBq950UJ83ct+RNvSEDGILw=
+X-Received: by 2002:a05:690c:7107:b0:8ab:41ed:c08a with SMTP id 00721157ae682-8b0f1f1a888mr37599687b3.0.1792488216202;
+        Tue, 20 Oct 2026 02:23:36 -0700 (PDT)
+X-Received: by 2002:a05:690c:7107:b0:8ab:41ed:c08a with SMTP id
+ 00721157ae682-8b0f1f1a888mr37599617b3.0.1792488215700; Tue, 20 Oct 2026
+ 02:23:35 -0700 (PDT)
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -105,35 +91,136 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+References: <6ad07f8a.a0c71a5e.2d2efd.977a@mx.google.com> <20261018152358-mutt-send-email-mst@kernel.org>
+ <CAHk-=wiUn9EbV4TJ4J7OPY0fVc3UC+xb-pp=+rg3hRc4jQqihg@mail.gmail.com>
+ <20261018174250-mutt-send-email-mst@kernel.org> <376ef9d0-b03f-4f85-aee5-46cf20eb00ae@gmail.com>
+ <20261020021924-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20261020021924-mutt-send-email-mst@kernel.org>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Tue, 20 Oct 2026 11:22:59 +0200
+X-Gm-Features: AclHuK9FUCG_bUrdJCcSR0YUoQOz7ayN0KKtj2bVgQH1ECGQzQu04PmOJxsZwI8
+Message-ID: <CAJaqyWfcg_K33c5hzSh83vgTvujn_M_8odcxFSTVzkcv6jQu9g@mail.gmail.com>
+Subject: Re: [BUG] vhost/vringh: __get_user without access_ok leaks kernel
+ memory via vDPA passthrough
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Wang Haoran <haoranwangsec@gmail.com>, torvalds@linuxfoundation.org, 
+	jasowangio@gmail.com, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
+	netdev@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: XAKedPXS74FWWjcrRPuF42xrJEtO0DsZtglMS6WlpVs_1792488216
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, 19 Oct 2026 20:51:43 -1000
-Linus Torvalds <torvalds@linuxfoundation.org> wrote:
+On Tue, Oct 20, 2026 at 8:31=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com>=
+ wrote:
+>
+> On Mon, Oct 19, 2026 at 03:14:46PM +0800, Wang Haoran wrote:
+> > Eugenio previously offered some additional suggestions in reply to
+> > my patch email. Should these also be addressed?
+>
+> The following seems to work for me. Testing would be appreciated.
+>
+> From: Michael S. Tsirkin <mst@redhat.com>
+> Subject: [PATCH v2] vringh: use get_user/put_user in the use_va path
+>
+> getu16_iotlb()/putu16_iotlb() pass the address produced by
+> iotlb_translate() straight to __get_user()/__put_user(),
+> without access_ok checked anywhere. Not good.
+>
+> Switch to get_user()/put_user(), which are always
+> correct, and safer.
+>
+> But the fact is that accessing user memory like this
+> will sometimes (rarely) race with page being swapped
+> out, trigger EFAULT, and it should be retried
+> from a worker, and vdpa_sim currently does not do this.
+>
+> Fixes: 42823a871fd4 ("vringh: support VA with iotlb")
+> Cc: Stefano Garzarella <sgarzare@redhat.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>
+> ---
+>
+> Notes (changelog):
+> v1->v2:
+>     Use get_user()/put_user() wrapped in pagefault_disable() instead of
+>     access_ok() followed by __get_user()/__put_user(); the helpers are
+>     reached from BH-disabled sections, and __get_user() is not a valid
+>     way around that (David Laight, Linus Torvalds)
+>
+>  drivers/vdpa/vdpa_sim/vdpa_sim_blk.c | 2 ++
+>  drivers/vdpa/vdpa_sim/vdpa_sim_net.c | 2 ++
+>  drivers/vhost/vringh.c               | 4 ++--
+>  3 files changed, 6 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c b/drivers/vdpa/vdpa_sim=
+/vdpa_sim_blk.c
+> index 76dd5b0828d7..325ec8f0ab85 100644
+> --- a/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
+> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
+> @@ -347,8 +347,10 @@ static void vdpasim_blk_work(struct vdpasim *vdpasim=
+)
+>                         smp_wmb();
+>
+>                         local_bh_disable();
+> +                       pagefault_disable();
+>                         if (vringh_need_notify_iotlb(&vq->vring) > 0)
+>                                 vringh_notify(&vq->vring);
+> +                       pagefault_enable();
+>                         local_bh_enable();
+>
+>                         if (++reqs > 4) {
+> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c b/drivers/vdpa/vdpa_sim=
+/vdpa_sim_net.c
+> index a6514b5ccd86..964cdf422467 100644
+> --- a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
+> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
+> @@ -77,8 +77,10 @@ static void vdpasim_net_complete(struct vdpasim_virtqu=
+eue *vq, size_t len)
+>         smp_wmb();
+>
+>         local_bh_disable();
+> +       pagefault_disable();
+>         if (vringh_need_notify_iotlb(&vq->vring) > 0)
+>                 vringh_notify(&vq->vring);
+> +       pagefault_enable();
+>         local_bh_enable();
+>  }
+>
 
-> On Mon, 19 Oct 2026 at 20:31, Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > The following seems to work for me. Testing would be appreciated.  
-> 
-> I have a whole branch that removes __get_user() and __put_user() entirely.
+Why not move the pagefault disable_enable to wrap just the accesses?
+Future vdpa drivers could use va and we might miss the call. Also, the
+reverse is also true, vdpa_sim could be configured to not use it, even
+if it is not a big waste.
 
-There should also be very few (if any) access_ok() calls outside of the code
-that implements user copies.
-
-David
-
-> 
-> Somebody should check that I did it right. But I didn't want to do the
-> pagefault_disable() around the vringh_notify() part, so it's not quite
-> the same as yours.
-> 
-> Let me just push it out. I was going to let it simmer, but your email
-> made me go "I should just let more people look at it".
-> 
-> Mind taking a look at the 'uaccess-cleanups' branch?
-> 
-> It builds for me. That's all the testing it has gotten so far. Blush.
-> 
->                    Linus
-> 
+> diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
+> index 9066f9f12ba1..74836eb60c7a 100644
+> --- a/drivers/vhost/vringh.c
+> +++ b/drivers/vhost/vringh.c
+> @@ -1213,7 +1213,7 @@ static inline int getu16_iotlb(const struct vringh =
+*vrh,
+>                 return ret;
+>
+>         if (vrh->use_va) {
+> -               ret =3D __get_user(tmp, (__virtio16 __user *)ivec.iov.iov=
+ec[0].iov_base);
+> +               ret =3D get_user(tmp, (__virtio16 __user *)ivec.iov.iovec=
+[0].iov_base);
+>                 if (ret)
+>                         return ret;
+>         } else {
+> @@ -1251,7 +1251,7 @@ static inline int putu16_iotlb(const struct vringh =
+*vrh,
+>         tmp =3D cpu_to_vringh16(vrh, val);
+>
+>         if (vrh->use_va) {
+> -               ret =3D __put_user(tmp, (__virtio16 __user *)ivec.iov.iov=
+ec[0].iov_base);
+> +               ret =3D put_user(tmp, (__virtio16 __user *)ivec.iov.iovec=
+[0].iov_base);
+>                 if (ret)
+>                         return ret;
+>         } else {
+>
 
