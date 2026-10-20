@@ -1,73 +1,71 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=111.22.67.135
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792468680;
-	b=ypYr/88S6bLIocqdSwWHX/vM6xB+8YH4chiYY7Rl09+Dm53k+pV2dHl2+9lHJ4e/7zYU
-	 gObYS3EndO18eXbS6Pun5MCnzZkQ8kCzKFC+q0cJzqa1u+EQrlq2r5baqZxFDQ8rRPnmK
-	 cHrPEVINmRPjaWp90ZCWFyQ0Al5FjkxDEFfY8gNPek875pMczciDUakwjb61PVMQ1BCvx
-	 diqgJIMl6H3bBtIt9SXdThbfkZSihg5dCZHPxZGU3rn6V1vNFWatUL7BLhnku37s4T39u
-	 sQqFzXYt+ux3wJ/1CzFEJpyN9+PWUGBTRRdgcrVmxpELU7irgFMfjHrtd0NYlNzB8bA==
+	t=1792473736;
+	b=1UcGLFskRt4NOY/eAy7XohO5oZbM6XF1hEzP1DJL9oUH63thEoYzE2GhnbDurBAcNQcb
+	 4HWSOiz9DkIXv30PzKZjtSbN+l0ovJtIxHHZmTKzb6vgVy6Nc18X7qWLPEgnqx0+jzoCP
+	 YLnGuj7oFKq1ryWbewnuhAZ00ruXepcn7gAG/hBiQ/JUa2jKeIkvjmCan/o+UFm2bc8k2
+	 uqQYWA2lVuECF07I9aN2kWD53QDOH1sZwXw3MIkmwW9rS1NFeFJ6UYn4q0u11P68tmnEl
+	 OnwIZ08eLgkVsR9Pc9mRU5mGunqzHcxQPU3mkixboMivnvUqBoDWROQmNIzcwuHwekA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792468680;
-	h=DMARC-Filter:DKIM-Signature:X-RM-TagInfo:X-RM-SPAM-FLAG:Received:
-	 X-RM-TRANSID:X-RM-TagInfo:X-RM-SPAM-FLAG:Received:X-RM-TRANSID:From:
-	 To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=tw36DOY+NKJEc0tW3hOU3drFnK2hugBKcc7rXv1MyG8=;
-	b=tKLuTLQm9N8kRxHayg8V6xJuzfib7nBmMwZPdcbJU1ywdpuLpciPnQjczJ2JvMETrKtZ
-	 JjBOMozyjJB3FFbYaSUfFBIQpJG29ifK3YpXWR6BmyAQi7OUtsc76iCmbdxa3mkD6Eq7a
-	 z2uTOqiEb4VlseYMPSUoF7E2STDtwbNoZjpUAXWDjR5YXe1bILMASC60GhYcq2qqonv5L
-	 5bzeoGHCmtaNbTdKEUhvNHZNf0c5SaOkZ6dKAODfDhYW9hKfJxz0wkYkEI+WL3dz1Uodw
-	 +9HHzBmjlPvZc3N0rAgjtEfydCbMLfmer7jOOXZVUBK5NDIOZp2s7gWBcdT6dNI5Fng==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792473736;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=XqdedUL9j1kYoCsVgoGHr/AMA1g1btCDEN8xHec8Krs=;
+	b=ebVJGHea443rBHjrm8ymZkvxYUkWK7J4OqIR7fNeuEYWG0Z3beBTFVAZy9d75/OAd7jg
+	 zgy3HPW0oZaXNDxIVt7pmgxmlkIxnFFoU2HW42CxzH0gaqXxr4FrMMwsT/T6oBHIFw1cz
+	 Wh7QkEUJwVdFeTXMH+DIg08ZYJTyzUFwBJSaUDlgV+uuc7Cv5uLsHE+Xd5KfmSilqwh98
+	 y9Nb+0mmmeaqq/pRm6wjR9gPqK4e9shC6vDc+olP9tSWb4E+6f31JhnedQWD6pW5t8tJs
+	 CncegyMPIefm/xyX5ByK6v7UUGR0vVco0SHp05sTHqCaNxjii2r2rFrsIvf/KFIT6hQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=cmss.chinamobile.com;
-	spf=pass smtp.mailfrom=cmss.chinamobile.com;
-	dkim=pass header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.a=rsa-sha256 header.s=default header.b=SjvJ10Z9;
-	arc=none smtp.remote-ip=111.22.67.135
-Received: from cmccmta2.chinamobile.com (cmccmta2.chinamobile.com [111.22.67.135])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id C762B606A319
-	for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 03:57:57 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C762B606A319
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cmss.chinamobile.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cmss.chinamobile.com
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=atnR+WAo;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 749A8606A319;
+	Tue, 20 Oct 2026 05:22:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.a=rsa-sha256 header.s=default header.b=SjvJ10Z9
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cmss.chinamobile.com; s=default; l=0;
-	h=from:subject:message-id:to:cc:mime-version;
-	bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
-	b=SjvJ10Z9TRJuxyjxnxI9tShev4l58jQEhpLWfibiT56CdUf2f5Szw3nt6x3hj9Xm+Z7+fTLD97AOn
-	 5E9hOwy1Ji7vSS87sEBQgRbNhEeWl+tIt7HcybUv3rFGWiEXzL0oUvQA75af3NbPsZa387JSni/0+b
-	 nLBc6U/u6Do7HqZ8=
-X-RM-TagInfo: emlType=0                                       
-X-RM-SPAM-FLAG:00000000
-Received:from spf.mail.chinamobile.com (unknown[10.188.0.87])
-	by rmmx-syy-dmz-app07-12007 (RichMail) with SMTP id 2ee76ad6e6bba4d-19330;
-	Tue, 20 Oct 2026 11:57:49 +0800 (CST)
-X-RM-TRANSID:2ee76ad6e6bba4d-19330
-X-RM-TagInfo: emlType=0                                       
-X-RM-SPAM-FLAG:00000000
-Received:from desktop-c950f82eaac8410e-20260515094303939 (unknown[10.55.1.71])
-	by rmsmtp-syy-appsvr02-12002 (RichMail) with SMTP id 2ee26ad6e6ba206-bef8f;
-	Tue, 20 Oct 2026 11:57:49 +0800 (CST)
-X-RM-TRANSID:2ee26ad6e6ba206-bef8f
-From: Mingbing Zhai <zhaimingbing@cmss.chinamobile.com>
-To: mst@redhat.com,
-	david@kernel.org
-Cc: jasowangio@gmail.com,
-	eperezma@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	syzbot+0f659760bac1ecb01812@syzkaller.appspotmail.com,
-	syzkaller-bugs@googlegroups.com,
-	stable@vger.kernel.org,
-	Mingbing Zhai <zhaimingbing@cmss.chinamobile.com>
-Subject: [PATCH v2] virtio_balloon: drain update works on probe error paths
-Date: Tue, 20 Oct 2026 11:57:44 +0800
-Message-ID: <20261020035744.1131-1-zhaimingbing@cmss.chinamobile.com>
-X-Mailer: git-send-email 2.53.0.windows.1
-In-Reply-To: <20261019084406.162-1-zhaimingbing@cmss.chinamobile.com>
-References: <20261019084406.162-1-zhaimingbing@cmss.chinamobile.com>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=atnR+WAo
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 797861F000C4;
+	Tue, 20 Oct 2026 05:22:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792473736;
+	bh=XqdedUL9j1kYoCsVgoGHr/AMA1g1btCDEN8xHec8Krs=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=atnR+WAoKxIzMdNNh8969UQH9W/45n1AXtUjCFyka03176J4zi9OzLj5bFc+1AsU2
+	 sEfS3EwqWvPNIM7zjbYiM9LsvIITj2a6aGz30Fef1JTUMraetGY9xG/9DhK+P1JgGa
+	 H9HoBTWHssuBVriaJ6gmk5pLX/Q0XpV8cSocP2Fss5pDXlenGqKMPtcH1H0xFkN0gx
+	 xS5YGBKzZQXkwLct+MlHqJDBh5o2AxGmHv0w8zwj07gKYQ/gGeWKeDr3LFP8egDwWP
+	 EKIwYFsLpQ5GGPb69D/mvRXDuh9gGtR9IXRJ/njbVUbe2vIcVxwvVQhFuhm82GLwV8
+	 9uIjCDXsf0CRw==
+Date: Tue, 20 Oct 2026 08:22:11 +0300
+From: Leon Romanovsky <leon@kernel.org>
+To: Logan Gunthorpe <logang@deltatee.com>
+Cc: "Popov, Pavel E" <pavel.e.popov@intel.com>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Jim Chow <jim.chow@broadcom.com>,
+	Radu Rugina <radu.rugina@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>,
+	Wei Liu <wei.liu@kernel.org>, Michael Kelley <mhklinux@outlook.com>,
+	Lukas Wunner <lukas@wunner.de>,
+	Nathan Ciobanu <nathan.d.ciobanu@linux.intel.com>,
+	"bcm-kernel-feedback-list@broadcom.com" <bcm-kernel-feedback-list@broadcom.com>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
+	"linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v2 1/2] PCI/P2PDMA: Allow P2PDMA in VMware guests on
+ Intel hosts
+Message-ID: <20261020052211.GJ64621@unreal>
+References: <20261016223402.19991-1-pavel.e.popov@intel.com>
+ <20261016223402.19991-2-pavel.e.popov@intel.com>
+ <8b01d643-f62d-4118-a700-8874341d953b@deltatee.com>
+ <LV2PR11MB6070CE9CCA125C290C0F8209B29A2@LV2PR11MB6070.namprd11.prod.outlook.com>
+ <20261017074820.GD219304@unreal>
+ <LV2PR11MB6070ABD61B46E9590C9B28ACB29A2@LV2PR11MB6070.namprd11.prod.outlook.com>
+ <LV2PR11MB607077BABF5643BD4FAF470FB2982@LV2PR11MB6070.namprd11.prod.outlook.com>
+ <fca6d815-519a-449d-a5b7-36bd3ad0c19f@deltatee.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -77,113 +75,34 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <fca6d815-519a-449d-a5b7-36bd3ad0c19f@deltatee.com>
 
-init_vqs() arms the stats virtqueue callback, so an update work can
-already be queued on the system freezable workqueue while
-virtballoon_probe() is still running.  If a later probe step fails, the
-error unwind deletes the virtqueues and frees vb without stopping the
-works, and the queued work runs after the balloon struct is gone:
+On Mon, Oct 19, 2026 at 03:14:38PM -0600, Logan Gunthorpe wrote:
+> 
+> 
+> On 2026-10-19 13:48, Popov, Pavel E wrote:
+> > Logan, Leon,
+> > 
+> > I kept the hypervisor check to avoid changing what the host bridge
+> > whitelist refuses on bare metal. Looking at those cases again, on the
+> > listed Xeon CPUs this is a limitation of the whitelist itself, not a
+> > known hardware limit, and it is why Intel QAT/DSA/IAA had to be added
+> > by ID. So I'd drop the hypervisor check.
+> > 
+> > Would a v3 that moves the Xeon list into cpu_supports_p2pdma(), the
+> > same way as the AMD check, be acceptable to you both?
+> 
+> Yes, that's essentially what I was suggesting before. That would be
+> acceptable to me.
 
-  BUG: KFENCE: use-after-free read in virtqueue_get_buf_ctx
-   update_balloon_stats_func+0x121/0x300
-   Workqueue: events_freezable update_balloon_stats_func
+Right, I also wrote the same thing in my summary "We agreed ...".
 
-remove() already handles this via virtballoon_quiesce().  Factor the
-stopping of the update works out of it and run it on the probe error
-path as well, before the queues and vb go away.
+Thanks
 
-The same hole exists when init_vqs() itself fails after
-virtio_find_vqs() succeeded: the stats priming can fail with the queues
-up and the callback armed, yet probe jumps straight to out_free_vb and
-leaks the virtqueues while the queued work still references vb.  Unwind
-inside init_vqs() in that case, stopping the works before the queues
-are deleted.
-
-The drained work takes vb->wakeup_lock in process_wakeup_event() and
-finish_wakeup_event(), so this depends on "virtio_balloon: initialize
-wakeup_lock before virtqueues are set up", which moves that
-spin_lock_init() to the top of probe.
-
-Fixes: 1f34c71afe51 ("virtio: Fix scheduling while atomic in virtio_balloon stats")
-Reported-by: syzbot+0f659760bac1ecb01812@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=0f659760bac1ecb01812
-Signed-off-by: Mingbing Zhai <zhaimingbing@cmss.chinamobile.com>
----
-
-Changes in v2 (from sashiko review):
-- unwind inside init_vqs() when the stats priming fails after
-  virtio_find_vqs() succeeded, instead of leaking the virtqueues on the
-  out_free_vb path with the callback still armed.
-- spell out the dependency on the wakeup_lock initialization patch:
-  the drained work takes that lock.
-
- drivers/virtio/virtio_balloon.c | 29 ++++++++++++++++++++++++-----
- 1 file changed, 24 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 8c1b47ec1..dd2056882 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -554,6 +554,17 @@ static void update_balloon_stats_func(struct work_struct *work)
- 	finish_wakeup_event(vb);
- }
- 
-+/* Stop queueing of and drain any pending balloon update works. */
-+static void virtballoon_stop_updates(struct virtio_balloon *vb)
-+{
-+	spin_lock_irq(&vb->stop_update_lock);
-+	vb->stop_update = true;
-+	spin_unlock_irq(&vb->stop_update_lock);
-+
-+	cancel_work_sync(&vb->update_balloon_size_work);
-+	cancel_work_sync(&vb->update_balloon_stats_work);
-+}
-+
- static void update_balloon_size_func(struct work_struct *work)
- {
- 	struct virtio_balloon *vb;
-@@ -633,6 +644,12 @@ static int init_vqs(struct virtio_balloon *vb)
- 		if (err) {
- 			dev_warn(&vb->vdev->dev, "%s: add stat_vq failed\n",
- 				 __func__);
-+			/*
-+			 * The virtqueues are up and the stats callback is
-+			 * armed: stop the works and unwind the queues.
-+			 */
-+			virtballoon_stop_updates(vb);
-+			vb->vdev->config->del_vqs(vb->vdev);
- 			return err;
- 		}
- 		virtqueue_kick(vb->stats_vq);
-@@ -1075,6 +1092,12 @@ static int virtballoon_probe(struct virtio_device *vdev)
- 	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
- 		destroy_workqueue(vb->balloon_wq);
- out_del_vqs:
-+	/*
-+	 * init_vqs() arms the stats virtqueue callback and primes the
-+	 * queue, so an update work may already be pending: stop queueing
-+	 * and drain it before the virtqueues and vb go away.
-+	 */
-+	virtballoon_stop_updates(vb);
- 	vdev->config->del_vqs(vdev);
- out_free_vb:
- 	mutex_destroy(&vb->balloon_lock);
-@@ -1115,11 +1138,7 @@ static void virtballoon_quiesce(struct virtio_balloon *vb)
- 	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
- 		virtio_balloon_unregister_shrinker(vb);
- 
--	spin_lock_irq(&vb->stop_update_lock);
--	vb->stop_update = true;
--	spin_unlock_irq(&vb->stop_update_lock);
--	cancel_work_sync(&vb->update_balloon_size_work);
--	cancel_work_sync(&vb->update_balloon_stats_work);
-+	virtballoon_stop_updates(vb);
- 
- 	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
- 		cancel_work_sync(&vb->report_free_page_work);
--- 
-2.43.0
-
-
-
+> 
+> Thanks,
+> 
+> Logan
+> 
