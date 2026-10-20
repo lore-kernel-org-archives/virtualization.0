@@ -1,104 +1,96 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.216.43
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792504298;
-	b=MtdESPIBQxqNOUcgHKD6N99Mct27mxoeX8EK52U0MDOMF3TuydOYgJrXomrk5foz9M+u
-	 D7c2j6sQEBrLItNtwfs93H+0FMB9V+oqnzdlPKAwY1TK53NUtGpVlJMGqR2Q6jaztYTj4
-	 rwjVCkyCg0Zf7c0aXfNg9RBbFzQzFJrCkbehCqz4iG1usJNduVkFhf+RRono8K8ZB9RW7
-	 hXuC31QFgr56WqbssNhSJAuTwdQImVXAAKql4KDRVZbSgsRCvB+5bZGt+zv/S7fjzheJQ
-	 HEWqiKDco5aF2gop/q74kvHXKfx4Afrek1gGeQlYq70mcSIWbGSvi60TXbdPf8Y1vwQ==
+	t=1792504441;
+	b=wR+T+oAvPrSmRG2gKvWZe4S0Vl94j5mxc2j8aPK32yIhm+CIG8w9q1D0SXQ/jMWBwbi5
+	 JCls3gpT6tTdPv3PLh97Z08/GOKwK2LdeydMeNag8pOHTu6dT9xsIhG9v951CxeZvW3u8
+	 eUeJxuqD6KvuRgTDQtwdlzHPW5+1rs5mnZYgK2pw8ipKxwP2GMQZQcjF2sIBVsM3O4euT
+	 ADY7Le6+JZE++pFmxhAn+hQ2jx6mYO6mMuv9Jt7ldwiqbXPVxFzCCMsf4xpxCd0PjSWy8
+	 IQ7JKSc0QNQ84ID+bEB8a/OqZLkseD3nhycMno4d8M39YyaVjOEQIcLBrCWk16TDHpg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792504298;
-	h=DMARC-Filter:Received:DKIM-Signature:DKIM-Signature:DKIM-Signature:
-	 DKIM-Signature:Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:Autocrypt:
-	 In-Reply-To:Content-Type:Content-Transfer-Encoding:X-Rspamd-Action:
-	 X-Spam-Score:X-Spam-Flag:X-Spamd-Result:X-Spam-Level:
-	 X-Rspamd-Queue-Id:X-Rspamd-Server;
-	bh=ScwDgQH74XYS+XXQiCsnBNvfbpmIou6nG5PTW1NK1wg=;
-	b=jEz1AIA1bLfARK6rvHk6lyfygyfQYnvCWP7DFyYQKrXnj5WjyCquwWNbb9lui42BwfVv
-	 jppCDlvCDD5nlgltYFjU2Gj1ymBp1cugbmQEYNy0SX+ZCxQnw16YzBYRmAbqzgbFcgyot
-	 BiCti1xnrohdgcyJ8CYUDewYWYea2oThCiFyOxh5QubcJ+Wiw4vDg874xpN7DLqXl5B/h
-	 Vzw8I+aA5m6RjUgfkjp2FErNr+ByhMzPAaXQ/9hdsKovQ16e3wS20HKa+slXEHNTqfaEf
-	 RINT9qi4zk3WMzjPanQRWsfOH32GqsyvLWIufmhniTqW85h5AWZfTfGupyalwf5kKxg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792504441;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=eR7IAX7DYO3kX2lnFG0GVUYwCYi3YyU/eHHmvSkslxA=;
+	b=jbYUfKKWEGdTd+M01YhFSCp4OSCZ9+ART/rKSkO1F2FzR5KWH+peHIyI7Bu47McNqmiZ
+	 B6NLxfBBXz/9XyJ1TnoXuj3h25ZGJSD9LJ3d6eUtyKoY/a9bOHTO7SEI3k6uA+7P945CW
+	 6gYToNZh2XsLI0wv1J2T7qh809IwLdfJ9AMYnEwrEpgvKO38YuhOcWLt66EfT2b6GsjOt
+	 S7y51N7DP7zW8BS5uwaDBrFptDSu1RhrJJUsDKxcrmyLPE1G6ZoscDT22PL/I3P4gnTAo
+	 ndbqzEjIMDCmf0Q/AN4yyquQuBvFmxX/8DUwdDxKnU5aoL59K+WH90V6TO7XxullUwg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=suse.de;
-	spf=pass smtp.mailfrom=suse.de;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=0GhyW6Mh;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=dNqynlDE;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=0GhyW6Mh;
-	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=dNqynlDE;
-	arc=none smtp.remote-ip=195.135.223.131
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=XH7UcQPb;
+	arc=none smtp.remote-ip=209.85.216.43
+Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 472F9606A31D
-	for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 13:51:38 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 472F9606A31D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41FA6606A31D
+	for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 13:54:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 41FA6606A31D
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=0GhyW6Mh;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=dNqynlDE;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=0GhyW6Mh;
-	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=dNqynlDE
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 7F33E1F7BD;
-	Tue, 20 Oct 2026 13:51:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1792504295; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=ScwDgQH74XYS+XXQiCsnBNvfbpmIou6nG5PTW1NK1wg=;
-	b=0GhyW6MhqmqWxRFFo+tBS6H5Wvnf+kbBnZOsXl3U2IIepEv9e4FNov3UWF8GMCq59eJ0uZ
-	easV/Q1QIZj9NDyAu8hP6xG/fDosV8lS+4GY2SktanczGIWW9YdYB+aoeMV8GDJgAZMnIM
-	YkBkLYPUazLGTD3VYirXIzMl6z0cr30=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1792504295;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=ScwDgQH74XYS+XXQiCsnBNvfbpmIou6nG5PTW1NK1wg=;
-	b=dNqynlDEz21LyWu5FUTunUXk90Kp+ct9n61LmLc3JpMbglLuFpex9z0iA9Bl9GNnEWtyBC
-	We3mGGR1ISo6pABQ==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=0GhyW6Mh;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=dNqynlDE
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1792504295; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=ScwDgQH74XYS+XXQiCsnBNvfbpmIou6nG5PTW1NK1wg=;
-	b=0GhyW6MhqmqWxRFFo+tBS6H5Wvnf+kbBnZOsXl3U2IIepEv9e4FNov3UWF8GMCq59eJ0uZ
-	easV/Q1QIZj9NDyAu8hP6xG/fDosV8lS+4GY2SktanczGIWW9YdYB+aoeMV8GDJgAZMnIM
-	YkBkLYPUazLGTD3VYirXIzMl6z0cr30=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1792504295;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=ScwDgQH74XYS+XXQiCsnBNvfbpmIou6nG5PTW1NK1wg=;
-	b=dNqynlDEz21LyWu5FUTunUXk90Kp+ct9n61LmLc3JpMbglLuFpex9z0iA9Bl9GNnEWtyBC
-	We3mGGR1ISo6pABQ==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 2B046136C6;
-	Tue, 20 Oct 2026 13:51:34 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id ClKhMuZx12ppFwAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Tue, 20 Oct 2026 13:51:34 +0000
-Message-ID: <32fc4bcc-ac6b-4647-90eb-7016c3b08506@suse.de>
-Date: Tue, 20 Oct 2026 15:51:34 +0200
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=XH7UcQPb
+Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-3ac847f9d78so401587a91.1
+        for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 06:54:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1792504441; x=1793109241; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=eR7IAX7DYO3kX2lnFG0GVUYwCYi3YyU/eHHmvSkslxA=;
+        b=XH7UcQPb/4tXeAWoiinkZ3Y5x4+03KTpP//AnEu12t+irxE9zKuFvyPrdViABgEloU
+         i+8HuotWx+6f4pSdD+ECU98FoQa86Bb7i05mqNX+0++7gsImyqWCetnU6nWFSHT0grBv
+         RAVfWNnGDRvv3B8dNla4a5Dut+6csnIo168SiBW18aLhIrCC743oCQ3x9ahSfPq/pUmO
+         iMm1a3qCFW+Riour2BbKwIEUSLFGcc9/kZue5s+PsAU1uvqhdqmApTuET75VY/vxs6/X
+         6Fxbz/y9Wh+8Sio+QIqtc3Z+zdiTemv0tLOmSbBZk02tSx4eYFK8uYmk3cVswDErrrVN
+         TPlg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792504441; x=1793109241;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=eR7IAX7DYO3kX2lnFG0GVUYwCYi3YyU/eHHmvSkslxA=;
+        b=j9ymikJbYxUrvG+EeY7HirekvXwzBfJ5TK2M7p5BnIEYvGlWnKCtozJ765E0/mDtBp
+         2jjtSzvQrfzT3AfGJbJ0aegNmU7z9EwWkKl42jhd/R+qQE3rJgPw0PFnH1piSdWOdJCg
+         yCzbM2eUzvWxhowdbe3Be/6CZjuBrvKsO0Wo/0fwyV1J7OX94tfwcWa7lpUk3bbnBkiP
+         kInfSj3tlofX6y3COOpbyp6BGk7+JJSBOpwd88bWvinHvDO3RkSi775YVCH7In0BMTwR
+         +n+rOiTJCXlzy1jJ5wv/WfNsboHQDe6ywEIgCaWn3hLcmSinkq3XOHYj2WjCjjRS8OEM
+         c+Kg==
+X-Forwarded-Encrypted: i=1; AKwUvBxZHLySniLiV/SRJpdauSR55N8Lu1fOmr3zbfBFunyNTjCR0AW60lLvH50wrdSQEiBgSQcCIEIcRssktbhLFQ==@lists.linux.dev
+X-Gm-Message-State: AFq9FYLgVXqdjLK+95RIibF2TQLgdBvtsM8Qh4ZtjWR0uwzq6t4dtJDl
+	gtcANR3f1D3enT0YCVZAp1NlbrggNSyR/RiLuHMBJ/TUaute/h+RQIYR
+X-Gm-Gg: AYBFou0qNbH4CyM2pAGPZLp0+rn2CMs286TL4aASODdQQMaI+o5pi6WzwueZq5Tf9Zj
+	PHQ3Yh08DSXcQE1EMBxqCEmqy7tV7fpbaMkOXnyIOUvIGQEXvXztSbWdT+Aer2zpeaJX57QaDap
+	G5r8lpFh5nEkFGto1KOzQLsYugBIOSW7naYAAlMszp3H7tofV8IF72c7B2wnRmXCe5va5ozkuQ/
+	C8m6dvNLqg5T4uvOPhPsgM6EfLvRjE/3x21Gi6YKYbSmoSA+ohMCSJybbPugA0Ilzxa7EP9OiyA
+	w8jZlbqRCdFSQZLPYb/y8ivmn+Gtjszvf6xB+40D5Iqc0SLE75SlmghwjXs3YgINiTOarGTLSuw
+	wple2kURuR3+zuXNId+Nkht/XaTowUDW4uUhjo1v7Q/anxYdxZuH4quVvce8bT8yeRJ989YSx0e
+	NmtmVxFYBCzpXmR0xX6mb8H4UBWoHQDdGHoH80zGKtASXL47EwKT9uPeYE3BBuQBJgHoN136vLI
+	a//CI0BonluyYj3gM/5n2A6ideTLMoypG3UPoTHrO/wYi102UEz+VvBI4qz3m5hrkpSPs1qVRux
+X-Received: by 2002:a17:90b:1f8f:b0:3ac:a11a:7c88 with SMTP id 98e67ed59e1d1-3aceec4ba18mr14269919a91.3.1792504440611;
+        Tue, 20 Oct 2026 06:54:00 -0700 (PDT)
+Received: from 1.0.0.127.in-addr.arpa ([188.253.120.76])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3ad5d6df894sm3604548a91.10.2026.10.20.06.53.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 20 Oct 2026 06:54:00 -0700 (PDT)
+From: Qihang <q.h.hack.winter@gmail.com>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: German Maglione <gmaglione@redhat.com>,
+	Vivek Goyal <vgoyal@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	fuse-devel@lists.linux.dev,
+	virtualization@lists.linux.dev,
+	linux-fsdevel@vger.kernel.org,
+	stable@vger.kernel.org,
+	Qihang <q.h.hack.winter@gmail.com>
+Subject: [PATCH] fuse: virtio-fs: don't process completions of aborted requests
+Date: Tue, 20 Oct 2026 21:53:50 +0800
+Message-ID: <20261020135350.7751-1-q.h.hack.winter@gmail.com>
+X-Mailer: git-send-email 2.54.0
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -108,124 +100,132 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 44/75] drm/tiny: cirrus: Switch to
- drm_atomic_helper_connector_create_state
-To: Maxime Ripard <mripard@kernel.org>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>
-Cc: dri-devel@lists.freedesktop.org, Dave Airlie <airlied@redhat.com>,
- Gerd Hoffmann <kraxel@redhat.com>, virtualization@lists.linux.dev
-References: <20261014-drm-no-more-connector-reset-v1-0-586c9c026823@kernel.org>
- <20261014-drm-no-more-connector-reset-v1-44-586c9c026823@kernel.org>
-Content-Language: en-US
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <20261014-drm-no-more-connector-reset-v1-44-586c9c026823@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Rspamd-Action: no action
-X-Spam-Score: -4.50
-X-Spam-Flag: NO
-X-Spamd-Result: default: False [-4.50 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	XM_UA_NO_VERSION(0.01)[];
-	MX_GOOD(-0.01)[];
-	MIME_TRACE(0.00)[0:+];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	FREEMAIL_TO(0.00)[kernel.org,linux.intel.com,gmail.com,ffwll.ch];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	ARC_NA(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	DKIM_TRACE(0.00)[suse.de:+];
-	TO_DN_SOME(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	DNSWL_BLOCKED(0.00)[2a07:de40:b281:106:10:150:64:167:received,2a07:de40:b281:104:10:150:64:97:from];
-	RCPT_COUNT_SEVEN(0.00)[8];
-	MID_RHS_MATCH_FROM(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:email,suse.de:dkim,linux.dev:email,suse.com:url,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns]
-X-Spam-Level: 
-X-Rspamd-Queue-Id: 7F33E1F7BD
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
 
+fuse_chan_abort() ends every request on the processing lists with
+-ECONNABORTED, but virtio-fs keeps the request itself as the
+used-buffer token of the virtqueue.  When the host stalls a request
+until the request timeout aborts the connection and then completes the
+descriptor, virtio_fs_requests_done_work() gets the already freed
+request from virtqueue_get_buf() and moves its list node
+(list_move_tail()) and reads its arguments (copy_args_from_argbuf()),
+a use-after-free in the guest kernel.
 
+Let the transport know about the abort and skip completions of requests
+that the abort has already ended.  This is safe because any request
+still represented by a virtqueue token when the abort starts must have
+been queued before virtio_fs_abort() set aborted:
+virtio_fs_enqueue_req() checks connected, adds the request to the
+virtqueue, and puts it on the processing list while holding fsvq->lock.
+virtio_fs_abort() takes the same lock before setting connected = false
+and aborted = true, and fuse_chan_abort() only splices and ends the
+processing lists after the transport callback returned.  A racing
+enqueue therefore either completes before the abort and is subsequently
+ended by it, or observes connected == false and returns -ENOTCONN
+without creating a token.
 
-Am 14.10.26 um 19:27 schrieb Maxime Ripard:
-> The tiny: cirrus connector implementation uses the deprecated
-> drm_atomic_helper_connector_reset() as its reset hook.
->
-> Switch to drm_atomic_helper_connector_create_state() instead.
->
-> Signed-off-by: Maxime Ripard <mripard@kernel.org>
+in_flight is transport-owned accounting: it is incremented when a
+token is queued and must still be dropped when the virtqueue completion
+is consumed, even though the FUSE request itself has already been ended
+by the abort.
 
-Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
+Fixes: a62a8ef9d97d ("virtio-fs: add virtiofs filesystem")
+Cc: stable@vger.kernel.org
+Signed-off-by: Qihang <q.h.hack.winter@gmail.com>
+---
+ fs/fuse/dev.c        |  4 ++++
+ fs/fuse/fuse_dev_i.h |  5 +++++
+ fs/fuse/virtio_fs.c  | 26 ++++++++++++++++++++++++++
+ 3 files changed, 35 insertions(+)
 
-> ---
-> Cc: Dave Airlie <airlied@redhat.com>
-> Cc: Gerd Hoffmann <kraxel@redhat.com>
-> Cc: virtualization@lists.linux.dev
-> ---
->   drivers/gpu/drm/tiny/cirrus-qemu.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/gpu/drm/tiny/cirrus-qemu.c b/drivers/gpu/drm/tiny/cirrus-qemu.c
-> index 63c242e25662..9e3051b9c3f7 100644
-> --- a/drivers/gpu/drm/tiny/cirrus-qemu.c
-> +++ b/drivers/gpu/drm/tiny/cirrus-qemu.c
-> @@ -448,11 +448,11 @@ static const struct drm_connector_helper_funcs cirrus_connector_helper_funcs = {
->   };
->   
->   static const struct drm_connector_funcs cirrus_connector_funcs = {
->   	.fill_modes = drm_helper_probe_single_connector_modes,
->   	.destroy = drm_connector_cleanup,
-> -	.reset = drm_atomic_helper_connector_reset,
-> +	.atomic_create_state = drm_atomic_helper_connector_create_state,
->   	.atomic_duplicate_state = drm_atomic_helper_connector_duplicate_state,
->   	.atomic_destroy_state = drm_atomic_helper_connector_destroy_state,
->   };
->   
->   static int cirrus_pipe_init(struct cirrus_device *cirrus)
->
+diff --git a/fs/fuse/dev.c b/fs/fuse/dev.c
+index 4fec31fc0b84..90b30c5034c4 100644
+--- a/fs/fuse/dev.c
++++ b/fs/fuse/dev.c
+@@ -2178,6 +2178,10 @@ void fuse_chan_abort(struct fuse_chan *fch, bool abort_with_err)
+ 		spin_unlock(&fch->bg_lock);
+ 
+ 		fuse_chan_set_initialized(fch, NULL);
++
++		if (fiq->ops->abort)
++			fiq->ops->abort(fiq);
++
+ 		list_for_each_entry(fud, &fch->devices, entry) {
+ 			struct fuse_pqueue *fpq = &fud->pq;
+ 
+diff --git a/fs/fuse/fuse_dev_i.h b/fs/fuse/fuse_dev_i.h
+index 4b412a76225f..47697adf0eb6 100644
+--- a/fs/fuse/fuse_dev_i.h
++++ b/fs/fuse/fuse_dev_i.h
+@@ -148,6 +148,11 @@ struct fuse_iqueue_ops {
+ 	 */
+ 	void (*send_req)(struct fuse_iqueue *fiq, struct fuse_req *req);
+ 
++	/**
++	 * @abort: Abort transport-specific state
++	 */
++	void (*abort)(struct fuse_iqueue *fiq);
++
+ 	/**
+ 	 * @release: Clean up when fuse_iqueue is destroyed
+ 	 */
+diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+index f15e516ebcb5..2db5faf5d865 100644
+--- a/fs/fuse/virtio_fs.c
++++ b/fs/fuse/virtio_fs.c
+@@ -55,6 +55,7 @@ struct virtio_fs_vq {
+ 	struct work_struct dispatch_work;
+ 	struct fuse_dev *fud;
+ 	bool connected;
++	bool aborted;
+ 	long in_flight;
+ 	struct completion in_flight_zero; /* No inflight requests */
+ 	struct kobject *kobj;
+@@ -842,6 +843,15 @@ static void virtio_fs_requests_done_work(struct work_struct *work)
+ 		virtqueue_disable_cb(vq);
+ 
+ 		while ((req = virtqueue_get_buf(vq, &len)) != NULL) {
++			if (fsvq->aborted) {
++				/*
++				 * fuse_chan_abort() ended every request this
++				 * queue still owns; the token may already be
++				 * freed, do not touch it.
++				 */
++				dec_in_flight_req(fsvq);
++				continue;
++			}
+ 			if (!virtio_fs_verify_response(req, len)) {
+ 				req->out.h.error = -EIO;
+ 				req->out.h.len = sizeof(struct fuse_out_header);
+@@ -1541,10 +1551,26 @@ static void virtio_fs_send_req(struct fuse_iqueue *fiq, struct fuse_req *req)
+ 	}
+ }
+ 
++static void virtio_fs_abort(struct fuse_iqueue *fiq)
++{
++	struct virtio_fs *fs = fiq->priv;
++	int i;
++
++	for (i = 0; i < fs->nvqs; i++) {
++		struct virtio_fs_vq *fsvq = &fs->vqs[i];
++
++		spin_lock(&fsvq->lock);
++		fsvq->connected = false;
++		fsvq->aborted = true;
++		spin_unlock(&fsvq->lock);
++	}
++}
++
+ static const struct fuse_iqueue_ops virtio_fs_fiq_ops = {
+ 	.send_forget	= virtio_fs_send_forget,
+ 	.send_interrupt	= virtio_fs_send_interrupt,
+ 	.send_req	= virtio_fs_send_req,
++	.abort		= virtio_fs_abort,
+ 	.release	= virtio_fs_fiq_release,
+ };
+ 
 
+base-commit: ac86e1112a6a
 -- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
-GF: Stefan Gaiser, Jochen Jaser, Abhinav Puri, (HRB 36809, AG Nürnberg)
-
+2.51.0
 
