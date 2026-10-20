@@ -1,58 +1,101 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.44
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792485460;
-	b=0TOL4aCZiFEUIYYkXoV8KWpPTNi3FFRbQFitwDuvSYZ3vX1pKLWIiLZELfgnTMoIZw88
-	 y9T8z2xP3spTUMkacgx41yb8EN6Qbb4kgbchf7ZR5i6syUxC0D0JXGMMiejO2O6xpKlfP
-	 WGDNCw4piQhR7qcFDHY/h04tGJWyrFiv0Ggn0Y2so/ewgjrz0jOhejZdOJ25zUtyNmD3L
-	 AtNbMvlYQIOuxWBdFJbdpEHCiLLETcoO3ioVpdKV21sYiZWmtlUfGRkRIaOYcSCqLsM9J
-	 hqof31TDBISHzfyq5mHYmLlyI5WPZzWUYmr1S/Rp1lrNnS5E8ZOaNwdfonwAJ/57dDA==
+	t=1792488098;
+	b=3tUe9/SXUQXWWoFfh6Y5KlewSrD5ydZ9xlkGr/vLMhTqmLoDF8hHOpYTcRoTns5k9re9
+	 lqfZadDeHUnj7oJhDmLl61S5AFKevJDhgS2qsOWEnql8Srd1wYNWViJZO7Vr3gstCjQKQ
+	 9GXX9QF7V3y7oesVUqZ2o49H3EjVTgD8+3/J8x0/Q4h4hD+HTcTcUTPeS7Q1wcXsUY4yG
+	 64cvL0wb/jIpVYin79B0Yx6PzwjDZeJUZ8NqiilJikgvGLkKSOOaXllMmBOdGcxSAp24f
+	 e0d7wDU4fwaxCmZqHzILkbZvDiLq+PCCw3K2Txtbbpp3nQ9qaAZGc+aPHkZNNFs/gcg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792485460;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=Caijm9mw22Y9UoQBBtd0kFIDXijuY3rcbSVepzIoKdw=;
-	b=zdUWO54hyiQWilVQUA/627ft+nXJqmXdJLpXCtScpxfyvQh6S6Uq9+qBiv8rLzdJYLYl
-	 /IeqavcdNN82VTBCXnBzDzyMy7cW/TNyN8Ky+KdraBMPNFooGLl7nOUrIGmXLRRyuLZJa
-	 TLXyt8qWkcuKbPpqx90cneT48CrZkkeGdCJTHLzxSXQlcbjjrNHRQmf7e7zNVantCnvaS
-	 2iwsKAUUbN15ZqKquU8OyXILWx2aR2/Dql26BJi/rgdoIjuEoeG1UX3t0TZ6XscCbiYLM
-	 hszDm7xynPDnZCTxiKkihnwVAPawbgKAkdiYGBp7SYN1ea5UQGPXqsgitYjOxYZ4XeQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792488098;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:X-Mailer:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding;
+	bh=oK/+sZCg2jpdsH2ljNfSqzCUTPMd7ZlHvWodhd0LpQk=;
+	b=ZWwNktYQBUvCZp0sXSRtwA8p79fRkllK/IcSJAaQPCaNgi3NMDmoz/2f5TvJIzUk5NaH
+	 sdu+9HrvLtujO+42lCd2SJamj7XN0NesTeQ8KDEVee2ZG2itBIHCNruiMYVlFoCEOeLQ5
+	 RyfbjOcXriCZbHdGhE+CGGHuvxBL6yympjD+DX1r329tXAN2Sunwumjpv7DgR2Gk4SbAb
+	 P2lrmYsYYs/ToV6RHJstnat+UdfF//zK2IuOjxCguyTZ4g3EpRb+JCly+ia4j9mrk3rxn
+	 Oh392lIOHgQ8E0Eonwg9+mQGBF1YLtnxRwcqFIIGf52CXnc4R8uMU3w55HQuiPRZbsw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jm5QxUbO;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=cc7au2Pi;
+	arc=none smtp.remote-ip=209.85.221.44
+Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com [209.85.221.44])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49849606A319
-	for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 08:37:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 817CF606A31A
+	for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 09:21:38 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 817CF606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jm5QxUbO
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBCB01F000C4;
-	Tue, 20 Oct 2026 08:37:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792485460;
-	bh=Caijm9mw22Y9UoQBBtd0kFIDXijuY3rcbSVepzIoKdw=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=jm5QxUbOChi4kgdfsxKAXC096ZT/Jox00jqJcthKieeaBlxsP69eGZqjNr63EwSUM
-	 okjRwbtyAgI/CXmvbKWUepOlaZNfcB4tCsBSv/ECz7VLY2tNxhrU08VwH159nC6WB5
-	 01az6/7RjC38iussyfYaKpz9ydyQ4MCgRL9kbmX1NTbZ8hJyK2YEQ1Bu2FOhiiIlXn
-	 MYMSCtdsefnZ/2Tjgdh7wswSolQeB/itu5J/XNZvYdOjxnA11v4KbOmsYAxAvnb9kh
-	 jBgPR5APHRzsVKFtll5fMhforfVfj/wSjpcLHrx/WxvB6+fpMg735fC38/NWa3wHUi
-	 8H7JHSdZOTYRw==
-Message-ID: <sashiko-outbox-178584@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] virtio_balloon: drain update works on probe error
- paths
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Mingbing Zhai" <zhaimingbing@cmss.chinamobile.com>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <20261020035744.1131-1-zhaimingbing@cmss.chinamobile.com>
-References: <20261019084406.162-1-zhaimingbing@cmss.chinamobile.com>
- <20261020035744.1131-1-zhaimingbing@cmss.chinamobile.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 20 Oct 2026 08:37:39 +0000
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=cc7au2Pi
+Received: by mail-wr1-f44.google.com with SMTP id ffacd0b85a97d-48c4d99c32bso2472460f8f.1
+        for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 02:21:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1792488097; x=1793092897; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=oK/+sZCg2jpdsH2ljNfSqzCUTPMd7ZlHvWodhd0LpQk=;
+        b=cc7au2PiKmE+BnglYXzpWZ6V7dNVhnsC1iJEttOcoEiNWuBRrzSD2Ro+RQc6z35lF2
+         CQg7GUDtM5oD8+Z7lUfNPou9Fxom9d34l2PCTs2H90kIcn5DhOlz3bnLuRO9o9MN3Bda
+         jo9NuemcebVIlNPeLBjRjgo6h3nPySqn9EC72uP9ykKpO5+/G/bhIys56hPBHQwNqpVX
+         CZ4X12/i9IyFGB95mU4an3weiRFiCteBoVUGymV5aUvnLYU1tE9j3EDWZfuFDPr+vNeW
+         2wi0mEhArhX6pObA80PC1W5OBFlFmejvZTtjdu/Q/wY0i+llEG2nr3/i/FWFG+4W5a0h
+         FfGg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792488097; x=1793092897;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=oK/+sZCg2jpdsH2ljNfSqzCUTPMd7ZlHvWodhd0LpQk=;
+        b=ZK612wDDvYPOl/lig4YNgpKCnYVq0Jny4CRMaK4Ny+fu6Fic5EjTe5RMyUPC4j9w9o
+         P99sMF6BD6TDC3frRZJ6ddZlZTYoK/sr2UFWfrjs74dyAdUWg7DQLXsZmNuAT+7Kirmn
+         ZTfF+ZmGfuUmY/IoC8bbCf6Rj9mt9734DXs5152pcem8ZR8TE4o+SEGVCuumC9t2D8Qy
+         0P3iWmcQqz7HoAMAR2JR2Xr01vXnrD9c+IQWuBFBGfwff5aGbsHTNOF2B9+atvbRLSLN
+         aNfct36DPIPZ7gEhY0ft3mPSIDumZPn7S/pmSAL8AJc7aDixW9zNQj9svMtua2LRxWB9
+         Muvw==
+X-Forwarded-Encrypted: i=1; AKwUvBxU4Mioy5PO6akWj+1jmRYSr6fpYp8wUBK2YcV/ICNnATLsxAzx3LlSH+jAwRViOzkpBgpuZRhoK7RnyDlQbg==@lists.linux.dev
+X-Gm-Message-State: AFq9FYKZ/x2/0U+bk8AMG6o6GbidmiL1KdUNwFPHpu3U0/lLs4PV/RoN
+	e6zxI1mBmxuF1mlWfpIB54XUL6vuFonSJepUTM7iNkJD2AGKZbls/VzY
+X-Gm-Gg: AYBFou2Vt4VJW+CFEhYKjVU2+UnZY6mf0SN6CmMnKQvxSC1bm8UARG8PVB2tws1BI1k
+	f48TEvjp1tSKi5Nz7vkXDY4GRlo6mOlG/CXILTsFwZiY0yIptpAHFiHelT78HA5KAGqy8LxHXhO
+	HSuCE8yS7s+pL0KC5CL+5JPpvjCuOYRk4jZSHxfIGWjqRf1ANEtjak5Pu5IpcyIfbKzj6p6nusz
+	dBwforgWQN6fpNNS/2PVEuLvddxKLK9EEmWGVzqhF9cIhAl2Ag2dKjkh5/HLZAAMloGcNs4dRuO
+	HRJ33kBumVsCESc6sBJ/sS1kmdEXUHQ6bVYQop9wNuBLXm9gzDbV3c2qUaWN2DW/23LKtsGfccu
+	1qXT41XpNH0dTtP4aQTBdv9QV34GmOiJAlmmQoGGJVYEhlFvIo1d4UBhu6Ugc70XzfWKbIDEqC2
+	gISVj92SCdxgl7YFzgeaKtumQdTGJr5TlPqdmjJHXLCjpYQPqgjwm80Bwi31e/soUqUKvfevJFy
+	tUn8qyWJLcs52rcP95ZiT3XNr1odQUauJw=
+X-Received: by 2002:adf:fd4c:0:b0:487:27f9:841 with SMTP id ffacd0b85a97d-48e07fbdfe2mr15044578f8f.54.1792488096337;
+        Tue, 20 Oct 2026 02:21:36 -0700 (PDT)
+Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48e1d80f9b3sm4629943f8f.20.2026.10.20.02.21.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 20 Oct 2026 02:21:35 -0700 (PDT)
+Date: Tue, 20 Oct 2026 10:21:34 +0100
+From: David Laight <david.laight.linux@gmail.com>
+To: Linus Torvalds <torvalds@linuxfoundation.org>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Wang Haoran
+ <haoranwangsec@gmail.com>, jasowangio@gmail.com, kvm@vger.kernel.org,
+ virtualization@lists.linux.dev, netdev@vger.kernel.org, eperezma@redhat.com
+Subject: Re: [BUG] vhost/vringh: __get_user without access_ok leaks kernel
+ memory via vDPA passthrough
+Message-ID: <20261020102134.745ff48a@pumpkin>
+In-Reply-To: <CAHk-=wjxtzD1TXZr5iWu0p1+Hu0YZP7jbNSwFkp7AJYmhzhVCA@mail.gmail.com>
+References: <6ad07f8a.a0c71a5e.2d2efd.977a@mx.google.com>
+	<20261018152358-mutt-send-email-mst@kernel.org>
+	<CAHk-=wiUn9EbV4TJ4J7OPY0fVc3UC+xb-pp=+rg3hRc4jQqihg@mail.gmail.com>
+	<20261018174250-mutt-send-email-mst@kernel.org>
+	<376ef9d0-b03f-4f85-aee5-46cf20eb00ae@gmail.com>
+	<20261020021924-mutt-send-email-mst@kernel.org>
+	<CAHk-=wjxtzD1TXZr5iWu0p1+Hu0YZP7jbNSwFkp7AJYmhzhVCA@mail.gmail.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -61,228 +104,36 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
-- [High] virtio_balloon: uninitialized wakeup_lock used in virtballoon_stop=
-_updates()
-- [High] virtio_balloon: missing virtio_reset_device() before del_vqs() on =
-probe error
-- [High] virtio_balloon: race between init_vqs() and stats_handle_request()
---
+On Mon, 19 Oct 2026 20:51:43 -1000
+Linus Torvalds <torvalds@linuxfoundation.org> wrote:
 
-commit e212fced31f70fa27727822aaf449978f76f3a04
-Author: Mingbing Zhai <zhaimingbing@cmss.chinamobile.com>
+> On Mon, 19 Oct 2026 at 20:31, Michael S. Tsirkin <mst@redhat.com> wrote:
+> >
+> > The following seems to work for me. Testing would be appreciated.  
+> 
+> I have a whole branch that removes __get_user() and __put_user() entirely.
 
-virtio_balloon: drain update works on probe error paths
+There should also be very few (if any) access_ok() calls outside of the code
+that implements user copies.
 
-This commit factors out virtballoon_stop_updates() from virtballoon_quiesce=
-()
-and calls it on the virtballoon_probe() and init_vqs() error paths to stop
-and drain pending balloon update works before deleting virtqueues and freei=
-ng
-the virtio_balloon structure.
+David
 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_ball=
-oon.c
-> index ab3e3d887e00f..fe99ab0fea227 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -554,6 +554,17 @@ static void update_balloon_stats_func(struct work_st=
-ruct *work)
->  	finish_wakeup_event(vb);
->  }
-> =20
-> +/* Stop queueing of and drain any pending balloon update works. */
-> +static void virtballoon_stop_updates(struct virtio_balloon *vb)
-> +{
-> +	spin_lock_irq(&vb->stop_update_lock);
-> +	vb->stop_update =3D true;
-> +	spin_unlock_irq(&vb->stop_update_lock);
-> +
-> +	cancel_work_sync(&vb->update_balloon_size_work);
-> +	cancel_work_sync(&vb->update_balloon_stats_work);
-> +}
+> 
+> Somebody should check that I did it right. But I didn't want to do the
+> pagefault_disable() around the vringh_notify() part, so it's not quite
+> the same as yours.
+> 
+> Let me just push it out. I was going to let it simmer, but your email
+> made me go "I should just let more people look at it".
+> 
+> Mind taking a look at the 'uaccess-cleanups' branch?
+> 
+> It builds for me. That's all the testing it has gotten so far. Blush.
+> 
+>                    Linus
+> 
 
-[Severity: High]
-Does draining vb->update_balloon_stats_work via virtballoon_stop_updates()
-on the init_vqs() and virtballoon_probe() error paths acquire an
-uninitialized vb->wakeup_lock?
-
-In virtballoon_probe(), init_vqs(vb) is called near the beginning of probe,
-while spin_lock_init(&vb->wakeup_lock) is not called until near the end of
-virtballoon_probe(), after init_vqs() and after all error jumps to
-out_del_vqs, out_del_balloon_wq, out_unregister_shrinker, and
-out_unregister_oom:
-
-drivers/virtio/virtio_balloon.c:virtballoon_probe() {
-	...
-	err =3D init_vqs(vb);
-	if (err)
-		goto out_free_vb;
-	...
-		err =3D page_reporting_register(&vb->pr_dev_info);
-		if (err)
-			goto out_unregister_oom;
-	}
-
-	spin_lock_init(&vb->wakeup_lock);
-	...
-}
-
-Once init_vqs() calls virtio_find_vqs(), the stats_vq callback
-stats_request() is armed and calls start_wakeup_event(), which executes
-spin_lock_irqsave(&vb->wakeup_lock, flags) on the uninitialized lock. If
-init_vqs() fails at virtqueue_add_outbuf() or a later step in
-virtballoon_probe() fails and jumps to out_del_vqs,
-virtballoon_stop_updates(vb) drains update_balloon_stats_func(), which calls
-process_wakeup_event() and finish_wakeup_event() and executes
-spin_lock_irq(&vb->wakeup_lock) without spin_lock_init(&vb->wakeup_lock)
-ever having been called. Furthermore, if stats_request() fires during or
-after init_vqs() and probe succeeds, spin_lock_init(&vb->wakeup_lock) will
-re-initialize the lock while stats_request() or update_balloon_stats_func()
-may already be holding or contending on it.
-
-Although the commit message notes a dependency on "virtio_balloon:
-initialize wakeup_lock before virtqueues are set up", that change is not
-present in the tree or included in this commit. Should
-spin_lock_init(&vb->wakeup_lock) be moved before init_vqs(vb) here so that
-vb->wakeup_lock is initialized before the virtqueue callbacks are armed and
-before virtballoon_stop_updates() can drain the work?
-
-> =20
->  static void update_balloon_size_func(struct work_struct *work)
->  {
->  	struct virtio_balloon *vb;
-> @@ -633,6 +644,12 @@ static int init_vqs(struct virtio_balloon *vb)
->  		if (err) {
->  			dev_warn(&vb->vdev->dev, "%s: add stat_vq failed\n",
->  				 __func__);
-> +			/*
-> +			 * The virtqueues are up and the stats callback is
-> +			 * armed: stop the works and unwind the queues.
-> +			 */
-> +			virtballoon_stop_updates(vb);
-> +			vb->vdev->config->del_vqs(vb->vdev);
->  			return err;
->  		}
->  		virtqueue_kick(vb->stats_vq);
-
-[Severity: High]
-Can stats_request() and stats_handle_request() race with init_vqs() as soon
-as virtio_find_vqs() returns?
-
-In init_vqs(), virtio_find_vqs() sets up the virtqueues and arms the
-stats_vq callback stats_request() while vb->stop_update is false, before
-vb->stats_vq is assigned and before initial priming finishes:
-
-drivers/virtio/virtio_balloon.c:init_vqs() {
-	...
-	err =3D virtio_find_vqs(vb->vdev, VIRTIO_BALLOON_VQ_MAX, vqs,
-			      vqs_info, NULL);
-	if (err)
-		return err;
-
-	vb->inflate_vq =3D vqs[VIRTIO_BALLOON_VQ_INFLATE];
-	vb->deflate_vq =3D vqs[VIRTIO_BALLOON_VQ_DEFLATE];
-	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
-		struct scatterlist sg;
-		unsigned int num_stats;
-		vb->stats_vq =3D vqs[VIRTIO_BALLOON_VQ_STATS];
-
-		num_stats =3D update_balloon_stats(vb);
-
-		sg_init_one(&sg, vb->stats, sizeof(vb->stats[0]) * num_stats);
-		err =3D virtqueue_add_outbuf(vb->stats_vq, &sg, 1, vb,
-					   GFP_KERNEL);
-	...
-}
-
-If the device triggers stats_request() and update_balloon_stats_func() ->
-stats_handle_request() runs on another CPU before vb->stats_vq =3D
-vqs[VIRTIO_BALLOON_VQ_STATS] is assigned, stats_handle_request() will read
-vq =3D vb->stats_vq as NULL and pass it to virtqueue_get_buf(vq, &len):
-
-drivers/virtio/virtio_balloon.c:stats_handle_request() {
-	...
-	num_stats =3D update_balloon_stats(vb);
-
-	vq =3D vb->stats_vq;
-	if (!virtqueue_get_buf(vq, &len))
-		return;
-	sg_init_one(&sg, vb->stats, sizeof(vb->stats[0]) * num_stats);
-	err =3D virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
-	if (WARN_ON_ONCE(err))
-		return;
-	virtqueue_kick(vq);
-}
-
-Even after vb->stats_vq is assigned, if stats_handle_request() runs
-concurrently with the priming in init_vqs(), both paths will concurrently
-write to vb->stats[] in update_balloon_stats(vb) and invoke unserialized
-virtqueue operations (virtqueue_get_buf(), virtqueue_add_outbuf(),
-virtqueue_kick()) on vb->stats_vq without any lock.
-
-> @@ -1076,6 +1093,12 @@ static int virtballoon_probe(struct virtio_device =
-*vdev)
->  	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
->  		destroy_workqueue(vb->balloon_wq);
->  out_del_vqs:
-> +	/*
-> +	 * init_vqs() arms the stats virtqueue callback and primes the
-> +	 * queue, so an update work may already be pending: stop queueing
-> +	 * and drain it before the virtqueues and vb go away.
-> +	 */
-> +	virtballoon_stop_updates(vb);
->  	vdev->config->del_vqs(vdev);
->  out_free_vb:
->  	mutex_destroy(&vb->balloon_lock);
-
-[Severity: High]
-Should virtio_reset_device(vdev) be called before vdev->config->del_vqs(vde=
-v)
-here at out_del_vqs (and on the error path in init_vqs())?
-
-In init_vqs(), virtio_find_vqs() enables the virtqueues and arms IRQ
-callbacks, and when VIRTIO_BALLOON_F_STATS_VQ is negotiated, init_vqs()
-adds vb->stats as an outbuf to vb->stats_vq via virtqueue_add_outbuf() and
-kicks vb->stats_vq. In addition, if update_balloon_stats_func() was running
-when virtballoon_stop_updates(vb) drained it, stats_handle_request() will
-have re-added vb->stats to vb->stats_vq and kicked the queue again.
-
-Unlike remove_common(), which resets the device before deleting the
-virtqueues:
-
-drivers/virtio/virtio_balloon.c:remove_common() {
-	...
-	/* Now we reset the device so we can clean up the queues. */
-	virtio_reset_device(vb->vdev);
-
-	vb->vdev->config->del_vqs(vb->vdev);
-}
-
-neither out_del_vqs nor init_vqs() calls virtio_reset_device() before
-calling del_vqs() and kfree(vb) (and virtio_dev_probe() only sets
-VIRTIO_CONFIG_S_FAILED on error without resetting the device).
-
-Without virtio_reset_device(vdev), on modern virtio-pci (vp_modern_del_vqs(=
-))
-enabled queues are not disabled without a reset, leaving the device active
-with DMA mappings to the freed vring pages and to vb->stats after kfree(vb).
-On virtio-mmio (vm_del_vqs()), vring_del_virtqueue() deletes and frees each
-virtqueue from vdev->vqs before free_irq() is called, so without
-virtio_reset_device() to stop the device and synchronize callbacks,
-vm_interrupt() can concurrently iterate vdev->vqs and dereference freed
-virtqueue structures.
-
-[ ... ]
-
->
->
->
-
-[]
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261020035744.1131=
--1-zhaimingbing@cmss.chinamobile.com?part=3D1
