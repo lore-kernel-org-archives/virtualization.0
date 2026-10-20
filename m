@@ -1,118 +1,102 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.51
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.130
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792502410;
-	b=RxfI0iLiNQR0n41TEmadb6BnRGFyZnI1WVgoiZLy7sAPY7qiWR9iLsWve9gLlrvUc7D3
-	 aWOBb8nIy0iruhYiTW+0o9Su2Q+tBfMfe3Kv6UHUduNQk8KQGE71PvFd4nqs5LcpUgvr/
-	 jcUDaPFyEIzeuHxjVSnoPnn7BINRwJNXgMmG/OjOe1WhjIG+qzxRRsc4y1CFKojwT2UF0
-	 nhS2SZSuA6yxQoX1QOrkUZnDm77ZxvShWxocq5rInf5X+Nr/QOzNxMSTF/p62otsIFZT0
-	 iVdPStmloikDgbEPafbmJTWBo5iyIm5akbwvpgPBiFiNcaeCkp9YBYwLHsjU5zvc4yw==
+	t=1792504027;
+	b=lCO/29C31jztqkX9BcCBPFrCG+FDIACZKtpXI+iT7vOrkWA1tcPRgdYglU+3t7mU4s2g
+	 f/pbXcvZ2SeFYWTC9ibBgzJwFQUQjUgt2+tpD1H/zp6GD0amVMBwFSZIT2zPaY2sqBl4U
+	 4yx8VFmqA5YJGX3vanuPxt80dU0a0Nii8i1ppUUQWMMpXDkzfDGuKMhx72NrQ2Ijgy9K1
+	 zbBivS/8qxzDbP/yBTwL69KK2Gqr35AhhrLZkAyaD8eePVmfBCByNZv5t2YAuWrNRP8D1
+	 05vFBpHSTurYMHT2L13vdJVB4i95g9omAbHJ7P35iXAfzmXXXlKGwZ71Xz2ovHckRUA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792502410;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=t4p1f+D4ihXNqpiH1QSa2hiu1MulUajBwYpao7q44aQ=;
-	b=egjhOz3t2S6GmEBpUK6Fo0pVa/c9v8gp8vqsv4vmHU1GBs+ECmLXXAOcgsKZQ8JtLSi4
-	 42E8GnIseOANWPXXThy2kL2ErFpU9ofbz0nQbefqfCp1KcjmGqbNvXqeJ4vROqs12hnAn
-	 oZRgcvMXsp9dKeORTllEqyFUiUw/sA1wkMXjkhPEeyUPpyJKQkIgUvhA6nkIXysLeQ+Al
-	 V7jVckXKFWR1d7lJlMxsxJ05yY0+4ASU+fr5px/ncr2MR3Xy6Sy5J+gcAy4xfCZ5wP4Ob
-	 UJjsXeEorHx9G90I+jbQ1ukACzFsT9UHsyNWvWxRAJUZEQUGvB5g1wsSqOb+NY61gbg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792504027;
+	h=DMARC-Filter:Received:DKIM-Signature:DKIM-Signature:DKIM-Signature:
+	 DKIM-Signature:Received:Received:Message-ID:Date:MIME-Version:
+	 User-Agent:Subject:To:Cc:References:Content-Language:From:Autocrypt:
+	 In-Reply-To:Content-Type:Content-Transfer-Encoding:X-Spamd-Result:
+	 X-Spam-Score:X-Spam-Level:X-Spam-Flag;
+	bh=0cOVZ+yA4/tRjjXYIL8NhaCVyRA9T2RRyPydt2IRSvI=;
+	b=kIBlYNNT9qVHE6+O56CF2L5P8Z/W3fr+nlG6kgNbHBDDtL/qwmS5BRGl1AiX/rWyD5Ot
+	 J7f9Q+09r+YlVWOPmhF1BWmCjhYx0EgLXHINcXLfZ+XQWyN0Xzrluaz3qWKr4mHAGoaEa
+	 DQtI3Bt9z7fWgEJUb3WNedzCx4vX+w0lYz0UaILLzBtd5FF2kn7agdfoMwkdbX9DYn0bm
+	 gdnhEIPIYw6TIrphGH1cN2J5XtQ+So44o4kpTVqd1PbmErepCQ6xdPzfrzfIiPPWCi2G2
+	 Zpalp6zmcIPKjI1hlgbVSGGo3p7rWsMnxjnwcSfIkCcXw42alZlqPqril6oUNujqDhQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=suse.com;
-	spf=pass smtp.mailfrom=suse.com;
-	dkim=pass header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=google header.b=Oeu7t1ks;
-	arc=none smtp.remote-ip=209.85.221.51
-Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com [209.85.221.51])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=suse.de;
+	spf=pass smtp.mailfrom=suse.de;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b="CncqQ6g/";
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=3IIZmDJk;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=mfrTrSGf;
+	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=ivhE0+mr;
+	arc=none smtp.remote-ip=195.135.223.130
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77AF960A2600
-	for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 13:20:09 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 77AF960A2600
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3BE4606A33C
+	for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 13:47:06 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C3BE4606A33C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=google header.b=Oeu7t1ks
-Received: by mail-wr1-f51.google.com with SMTP id ffacd0b85a97d-48dfdd0678dso2184284f8f.0
-        for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 06:20:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1792502408; x=1793107208; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=t4p1f+D4ihXNqpiH1QSa2hiu1MulUajBwYpao7q44aQ=;
-        b=Oeu7t1ksO4+WnRR9OgYqd2cStVrgILkpb0ea6KmofVRyAJo4UBBk8zFkRdSpbp1hLG
-         MGH4srfmCi6yjLwdVoTeT77yu31JFTPAKJiJYy3vVxv7zjCZi4zGZIlkNLd9YIWqxSeT
-         Flym9AtBMuPRz4V84ZK7C0mxS+mU+PqARwIpGjcMNXLG4VrMlp29KXe5ARCIyVEOGiud
-         B0GQ9MmkGRtP88KLFeOMmZbXuDx5pwmpQgwKQ5vZhuc8YiP40YY6H7JRhpiX2S0vlPVH
-         0s72MFtXFLHxWb1QU2XeBSFv7iTStZyB6d2WyORdhTINu2f2uqNjSgREhEdM3c2f1YjP
-         Zyrg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792502408; x=1793107208;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=t4p1f+D4ihXNqpiH1QSa2hiu1MulUajBwYpao7q44aQ=;
-        b=aMdU/CTTPnXwWGu2B+OQ3Aw/wStR9EjF7qcpFatVr6oT7gxI/TrA8SquwL1hRN9cEe
-         Lqnj2uqBh/ktMUWbos6xjPm6czZYNCPQWzQBk6GcVomvKr2ew1S6iaRvM+zb03jTKy60
-         P3q9cgJAOl/syV+4PTsmPuBrD26gXnVBi6SS4bSvzIuoLNj7k20t2AxFsJMFNFypQpRR
-         AosaNdPObF+LG+ZexCrzaoiNfjfvQNKIZMh9uxFBDAlfswHSxZ2KZLHR55fH0sR9OlSY
-         Tw4ajDAIZ2INZ3/hnZkLkFAsDeRC00ERlNh/RdFazaTNTYJqfZQGfeocxG1+7faS5+GB
-         UTGg==
-X-Forwarded-Encrypted: i=1; AKwUvBy2NhjEbmWMIYJkyIFPU2DHu6EWYLuOx5wNx9O1caLikP/+wofK1PlGFqr5YAsOtrdlKD9oRKJerubchcyyFQ==@lists.linux.dev
-X-Gm-Message-State: AFq9FYLIK3d4NSfM+5os8RidgteJUWWB25ELy/7dMcDS8p8t2WHcOdYU
-	oQEFqrXyDGnT2wgRcPtrouAP4kjbyMFzyaoQGkRtpcwmhwGEwG6RQMKspiCPRSI8HJI=
-X-Gm-Gg: AYBFou1lo+kdKCPr9SW2cMokCFHpqBHJ8aajJl110sVm+60HgPpN+3GDl/D4ERBeEf4
-	V2ZsMj+6Txe4mZHGp6czk6xEaSZOPeE8TVO9wem4i+sQAyX+0n4kCL/3QlGBgx3gtTcV/gwj2ao
-	24Is/2KqLKIPEQoPbXItWOo+SJLlYEmUI1tEcVhaVPsuSSHYEsx335LmEx8Y1seenl9VJIdVSbM
-	RPCZgo4JMtM+drQ/ctXUxBgnYkeXXoIXQPloa2j+KbMoQLj0R0izW0bm6ERWyv02u1TQmccrsNm
-	xqySM5cBRfsppisIxEC3NnNAnotsWtewvTITiZ+EsPSfWRxYjkGDfxefjXuEV119ZcU+dvt2NXs
-	Ccc15Eur9UCxeHgeDXPsoCzSZfk9y33ZDHwcIyi+wG/T5Tcgmq25R0a3vEEqjv6NTzrNhqWt4UO
-	6PkNn+h9quEtVkuNOoG2yyTfS/8z0xpQxnoWwmxqXLa8xCXqhAkCdbP+gYuIxl6anGu+cMUDlmy
-	j4w7X0GJMPY
-X-Received: by 2002:adf:fcca:0:b0:48d:fbf4:8961 with SMTP id ffacd0b85a97d-48e07bc6c5fmr16247962f8f.23.1792502405199;
-        Tue, 20 Oct 2026 06:20:05 -0700 (PDT)
-Received: from pathway.suse.cz ([176.114.240.130])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48e1d8208b1sm6409645f8f.33.2026.10.20.06.20.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Oct 2026 06:20:04 -0700 (PDT)
-Date: Tue, 20 Oct 2026 15:20:01 +0200
-From: Petr Mladek <pmladek@suse.com>
-To: "Guilherme G. Piccoli" <gpiccoli@igalia.com>
-Cc: Zack Rusin <zack.rusin@broadcom.com>, Borislav Petkov <bp@alien8.de>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Baoquan He <baoquan.he@linux.dev>, Mike Rapoport <rppt@kernel.org>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Pasha Tatashin <pasha.tatashin@soleen.com>, x86@kernel.org,
-	Joel Granados <joel.granados@kernel.org>,
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"H. Peter Anvin" <hpa@zytor.com>, virtualization@lists.linux.dev,
-	Dave Young <ruirui.yang@linux.dev>,
-	bcm-kernel-feedback-list@broadcom.com, linux-kernel@vger.kernel.org,
-	John Ogness <john.ogness@linutronix.de>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Sergey Senozhatsky <senozhatsky@chromium.org>,
-	Pratyush Yadav <pratyush@kernel.org>, Kees Cook <kees@kernel.org>,
-	Jonathan Corbet <corbet@lwn.net>, Bo Gan <bo.gan@broadcom.com>,
-	Brennan Lamoreaux <brennan.lamoreaux@broadcom.com>,
-	kexec@lists.infradead.org, linux-doc@vger.kernel.org,
-	Maaz Mombasawala <maaz.mombasawala@broadcom.com>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Stephen Brennan <stephen.s.brennan@oracle.com>,
-	Michael Kelley <mhklinux@outlook.com>,
-	Ian Forbes <ian.forbes@broadcom.com>
-Subject: Re: [PATCH v2 1/6] panic: Add a notifier chain for pre-kdump
- callbacks
-Message-ID: <atdqgZQrGbp36_O_@pathway.suse.cz>
-References: <cover.1790014793.git.zack.rusin@broadcom.com>
- <81cb85568b36273a8e66215b3e6d671b8488d402.1790014793.git.zack.rusin@broadcom.com>
- <bc783856-9480-3944-67fb-675e4c11d8c2@igalia.com>
- <atdYIxwz8ksYNty6@pathway.suse.cz>
+	dkim=pass (1024-bit key, unprotected) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=CncqQ6g/;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=3IIZmDJk;
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=mfrTrSGf;
+	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=ivhE0+mr
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id CEF1121CEF;
+	Tue, 20 Oct 2026 13:47:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1792504025; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=0cOVZ+yA4/tRjjXYIL8NhaCVyRA9T2RRyPydt2IRSvI=;
+	b=CncqQ6g/tQThfLeq5yqQBKsJQ4ihcEXgczqBGQ49nDX0sFQe9W2Hnf3oCfp/g8Lh8pZ62D
+	PxJqJ7O5q2kWsdxGrrwjd3YCXF6JHS8IhlphfvFUcfn2qrFxTfRrdihZeebnKDFjNldHok
+	+pVJXA3QY7imLQdxbxcsMaYEIb9r8Zo=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1792504025;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=0cOVZ+yA4/tRjjXYIL8NhaCVyRA9T2RRyPydt2IRSvI=;
+	b=3IIZmDJk0FvYE8HNfRarjWzfA0kWoKs4zUW8dXBiKP70DWpTHrYNf26Rva9g1Zh1lJwmPr
+	9sXSOrpg28VPx8CQ==
+Authentication-Results: smtp-out1.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1792504024; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=0cOVZ+yA4/tRjjXYIL8NhaCVyRA9T2RRyPydt2IRSvI=;
+	b=mfrTrSGftgp5yk9cDNYfxkyqwAkpM06joqhHfQqa5e1qifIzJ1eNlaG04zZ6RbzdfRZyTC
+	hg2RplRGoRExRCRzel9XWq8KbVVZ0/vxpUz1pBaDb2E4L2vac/Er5hyAhTkgO0kAahe0c0
+	aSk2IavU+43XS2Vzx0yz7OMpAy1ioMA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1792504024;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=0cOVZ+yA4/tRjjXYIL8NhaCVyRA9T2RRyPydt2IRSvI=;
+	b=ivhE0+mrSCNzzhxNkHQMbV2ABfq6STQDsAxyAzzDYNwwckkeJwEPljXVB9KN/BiV7r+dGO
+	FuZAUBzGRNxDv5Dw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 69C25136C6;
+	Tue, 20 Oct 2026 13:47:04 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id SKmBBNhw12r7EgAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Tue, 20 Oct 2026 13:47:04 +0000
+Message-ID: <a59e9e58-90eb-4953-a78e-1f3b7571cb71@suse.de>
+Date: Tue, 20 Oct 2026 15:47:03 +0200
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -122,134 +106,117 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <atdYIxwz8ksYNty6@pathway.suse.cz>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 31/75] drm/qxl: Switch to
+ drm_atomic_helper_connector_create_state
+To: Maxime Ripard <mripard@kernel.org>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>
+Cc: dri-devel@lists.freedesktop.org, Dave Airlie <airlied@redhat.com>,
+ Gerd Hoffmann <kraxel@redhat.com>, spice-devel@lists.freedesktop.org,
+ virtualization@lists.linux.dev
+References: <20261014-drm-no-more-connector-reset-v1-0-586c9c026823@kernel.org>
+ <20261014-drm-no-more-connector-reset-v1-31-586c9c026823@kernel.org>
+Content-Language: en-US
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <20261014-drm-no-more-connector-reset-v1-31-586c9c026823@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spamd-Result: default: False [-4.29 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-0.999];
+	MIME_GOOD(-0.10)[text/plain];
+	XM_UA_NO_VERSION(0.01)[];
+	RCPT_COUNT_SEVEN(0.00)[9];
+	FREEMAIL_TO(0.00)[kernel.org,linux.intel.com,gmail.com,ffwll.ch];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	ARC_NA(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	MID_RHS_MATCH_FROM(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	RCVD_TLS_ALL(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:url,linux.dev:email,suse.de:email,imap1.dmz-prg2.suse.org:helo]
+X-Spam-Score: -4.29
+X-Spam-Level: 
+X-Spam-Flag: NO
 
-On Tue 2026-10-20 14:01:43, Petr Mladek wrote:
-> On Mon 2026-10-19 19:05:21, Guilherme G. Piccoli wrote:
-> > On 28/09/2026 14:55, Zack Rusin wrote:
-> > > Selected crash callbacks should not require running every panic notifier
-> > > before kdump. Add a separate atomic chain with an at-most-once dispatch
-> > > helper, and invoke it before panic reaches the kmsg dumpers.
-> > > 
-> > > The helper permits another call from the crash path without repeating
-> > > callbacks or recursing into them. Document that callbacks may run in NMI
-> > > context, with other CPUs running and the kexec lock held.
-> > > 
-> > > Link: https://lore.kernel.org/r/aquttpMVKX8e6zGB@pathway.suse.cz
-> > > Signed-off-by: Zack Rusin <zack.rusin@broadcom.com>
-> > > ---
-> > > New in v2: separate pre-kdump chain, with a set-once dispatch guard.
-> > > 
-> > >  include/linux/panic_notifier.h |  3 +++
-> > >  kernel/panic.c                 | 26 ++++++++++++++++++++++++++
-> > >  2 files changed, 29 insertions(+)
-> > > 
-> > > diff --git a/include/linux/panic_notifier.h b/include/linux/panic_notifier.h
-> > > index 41e32483d7a7..3ad390764a41 100644
-> > > --- a/include/linux/panic_notifier.h
-> > > +++ b/include/linux/panic_notifier.h
-> > > @@ -6,6 +6,9 @@
-> > >  #include <linux/types.h>
-> > >  
-> > >  extern struct atomic_notifier_head panic_notifier_list;
-> > > +extern struct atomic_notifier_head panic_pre_kdump_list;
-> > > +
-> > > +void panic_notify_pre_kdump(char *msg);
-> > >  
-> > >  extern bool crash_kexec_post_notifiers;
-> > >  
-> > > diff --git a/kernel/panic.c b/kernel/panic.c
-> > > index 213725b612aa..d78e90abb192 100644
-> > > --- a/kernel/panic.c
-> > > +++ b/kernel/panic.c
-> > > @@ -82,6 +82,10 @@ ATOMIC_NOTIFIER_HEAD(panic_notifier_list);
-> > >  
-> > >  EXPORT_SYMBOL(panic_notifier_list);
-> > >  
-> > > +struct atomic_notifier_head panic_pre_kdump_list =
-> > > +	ATOMIC_NOTIFIER_INIT(panic_pre_kdump_list);
-> > > +EXPORT_SYMBOL_GPL(panic_pre_kdump_list);
-> > > +
-> > >  static void panic_print_deprecated(void)
-> > >  {
-> > >  	pr_info_once("Kernel: The 'panic_print' parameter is now deprecated. Please use 'panic_sys_info' and 'panic_console_replay' instead.\n");
-> > > @@ -567,6 +571,27 @@ static void panic_other_cpus_shutdown(bool crash_kexec)
-> > >  		crash_smp_send_stop();
-> > >  }
-> > >  
-> > > +/**
-> > > + * panic_notify_pre_kdump - invoke selected callbacks before kdump
-> > > + * @msg: Panic message, or NULL for direct crash-kexec entry
-> > > + *
-> > > + * Dispatch at most once per boot, including recursive entry. Callbacks run
-> > > + * with interrupts disabled, possibly in NMI context, before other CPUs have
-> > > + * necessarily stopped. The kexec lock may be held. They must not sleep,
-> > > + * allocate, wait for other CPUs, or call into kexec management operations.
-> > > + * The message is read-only and may only be used during the callback.
-> > > + */
-> > > +void panic_notify_pre_kdump(char *msg)
-> > > +{
-> > > +	static atomic_t started = ATOMIC_INIT(0);
-> > > +	unsigned long flags;
-> > > +
-> > > +	local_irq_save(flags);
-> > > +	if (!atomic_xchg(&started, 1))
-> 
-> It is far from clear why this is needed. It would deserve a comment in
-> the code and explanation in the commit message.
-> 
-> Well, I am not even sure whether this synchronization is enough.
-> If __crash_exec() and vpanic() are running in parallel on two CPUS
-> then one path will skip the notifiers but it will not wait until
-> they are finished.
-> 
-> But I think that the problem is the explicitly called __crash_exec()
-> is not synchronized against vpanic() in the first place. IMHO,
-> it is an existing problem which probably should get fixed.
 
-It seems that __crash_exec() should be called only when panic_cpu
-is set. This is why crash_exec() does:
 
-__bpf_kfunc void crash_kexec(struct pt_regs *regs)
-{
-	if (panic_try_start()) {
-		/* This is the 1st CPU which comes here, so go ahead. */
-		__crash_kexec(regs);
+Am 14.10.26 um 19:26 schrieb Maxime Ripard:
+> The qxl connector implementation uses the deprecated
+> drm_atomic_helper_connector_reset() as its reset hook.
+>
+> Switch to drm_atomic_helper_connector_create_state() instead.
+>
+> Signed-off-by: Maxime Ripard <mripard@kernel.org>
 
-The only exception seems to be (found by gemini) in Hyper-V code:
+Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
 
-static void __noreturn hv_crash_handle(void)
-{
-	hv_crash_restore_tss();
-	hv_crash_clear_kernpt();
+> ---
+> Cc: Dave Airlie <airlied@redhat.com>
+> Cc: Gerd Hoffmann <kraxel@redhat.com>
+> Cc: spice-devel@lists.freedesktop.org
+> Cc: virtualization@lists.linux.dev
+> ---
+>   drivers/gpu/drm/qxl/qxl_display.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
+> index 63fc7c6a7f1a..204c47d61373 100644
+> --- a/drivers/gpu/drm/qxl/qxl_display.c
+> +++ b/drivers/gpu/drm/qxl/qxl_display.c
+> @@ -1139,11 +1139,11 @@ static void qxl_conn_destroy(struct drm_connector *connector)
+>   
+>   static const struct drm_connector_funcs qxl_connector_funcs = {
+>   	.detect = qxl_conn_detect,
+>   	.fill_modes = drm_helper_probe_single_connector_modes,
+>   	.destroy = qxl_conn_destroy,
+> -	.reset = drm_atomic_helper_connector_reset,
+> +	.atomic_create_state = drm_atomic_helper_connector_create_state,
+>   	.atomic_duplicate_state = drm_atomic_helper_connector_duplicate_state,
+>   	.atomic_destroy_state = drm_atomic_helper_connector_destroy_state,
+>   };
+>   
+>   static int qxl_mode_create_hotplug_mode_update_property(struct qxl_device *qdev)
+>
 
-	/* we are now fully in devirtualized normal kernel mode */
-	__crash_kexec(NULL);
+-- 
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
+GF: Stefan Gaiser, Jochen Jaser, Abhinav Puri, (HRB 36809, AG Nürnberg)
 
-	hv_panic_timeout_reboot();
-}
 
-I belive that it is a bug and it should do:
-
-	/* Only one CPU is allowed to process with kdump and panic. */
-	if (!panic_try_start())
-		return;
-
-But it is possible that it is serialized another way. Anyway, even
-Hyper-V must make sure that __crash_kexec() is called only on
-one CPU.
-
-Result: We should not need any extra synchronization for
-	the panic_notify_pre_kdump().
-
-	We might just need to prevent calling them twice if we
-	decide to call this function in __crash_exec() as well.
-	A simple bool variable should be enough. But I am still
-	not sure if it is a good design.
-
-Continue thinking...
-
-Best Regards,
-Petr
