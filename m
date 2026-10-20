@@ -1,104 +1,104 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.131
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792504275;
-	b=e56iXwaD9MDtOQQUMZDWxLBSszgtXX1JS4ByskUvzmsy0O/CcPPaaUFJpJaQqf/l1TAj
-	 y81Pyihhio1QSjCyuFLZo/wZ1ULM1DAtK4UhsIxXHtWjxXb2pBapm/3dsg1yMTAuF9phQ
-	 KLU05qQDM+/B+dpkuzlw5WVaKDGLO3GL64M6Pu4vQHbAqe821AWiiR7dTQp3DHi85odGZ
-	 z0lfHOVl5eyOuhgXWSn3j7gtHN0ux5VQoTy+WjZdalFxamz0/hXiR3Iaz/Um8kefwPBa9
-	 tVMFaXm2ug+YhqjRTyjGAX5Qufl8grlzJw+gIhCD/GrucyAcVDru+BDoNVLGIiqqQOA==
+	t=1792504298;
+	b=MtdESPIBQxqNOUcgHKD6N99Mct27mxoeX8EK52U0MDOMF3TuydOYgJrXomrk5foz9M+u
+	 D7c2j6sQEBrLItNtwfs93H+0FMB9V+oqnzdlPKAwY1TK53NUtGpVlJMGqR2Q6jaztYTj4
+	 rwjVCkyCg0Zf7c0aXfNg9RBbFzQzFJrCkbehCqz4iG1usJNduVkFhf+RRono8K8ZB9RW7
+	 hXuC31QFgr56WqbssNhSJAuTwdQImVXAAKql4KDRVZbSgsRCvB+5bZGt+zv/S7fjzheJQ
+	 HEWqiKDco5aF2gop/q74kvHXKfx4Afrek1gGeQlYq70mcSIWbGSvi60TXbdPf8Y1vwQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792504275;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792504298;
 	h=DMARC-Filter:Received:DKIM-Signature:DKIM-Signature:DKIM-Signature:
 	 DKIM-Signature:Received:Received:Message-ID:Date:MIME-Version:
 	 User-Agent:Subject:To:Cc:References:Content-Language:From:Autocrypt:
 	 In-Reply-To:Content-Type:Content-Transfer-Encoding:X-Rspamd-Action:
 	 X-Spam-Score:X-Spam-Flag:X-Spamd-Result:X-Spam-Level:
 	 X-Rspamd-Queue-Id:X-Rspamd-Server;
-	bh=jFzLWZPO72bSDBo1EOPo+9OHm6mBgy+ZE+5NB6NtUyg=;
-	b=y98/Els1EtdoQBj0/WBYij5XunDLhhLEER2oszpkIGUWtMiWCmkR0QyEbYWH23nVUBJM
-	 RH/qx6mwFIh4aAGfRwOPptTG6LQiGTuW4IHh+oCXy1n46DxbIkDNxWfTBlabmq2AH8u4S
-	 02QRQNG0F+cFn4tfBHE4k55SFO/fnOzbsJdKliIPX4N32i+PjXDnCDo8UnU0VogvMy6zk
-	 w0cKZHq5Hlkwc2qdtnft/JY3MJOT39cbbKbPO7YHoTNBljul70qAohM2zBqqRNAYCA1iZ
-	 UKhlLjNncQdF9hci4E0clB/dZazEUVOqppvqgAuj0v8vTdUWa56+v+kzvTTROqD4EEA==
+	bh=ScwDgQH74XYS+XXQiCsnBNvfbpmIou6nG5PTW1NK1wg=;
+	b=jEz1AIA1bLfARK6rvHk6lyfygyfQYnvCWP7DFyYQKrXnj5WjyCquwWNbb9lui42BwfVv
+	 jppCDlvCDD5nlgltYFjU2Gj1ymBp1cugbmQEYNy0SX+ZCxQnw16YzBYRmAbqzgbFcgyot
+	 BiCti1xnrohdgcyJ8CYUDewYWYea2oThCiFyOxh5QubcJ+Wiw4vDg874xpN7DLqXl5B/h
+	 Vzw8I+aA5m6RjUgfkjp2FErNr+ByhMzPAaXQ/9hdsKovQ16e3wS20HKa+slXEHNTqfaEf
+	 RINT9qi4zk3WMzjPanQRWsfOH32GqsyvLWIufmhniTqW85h5AWZfTfGupyalwf5kKxg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=suse.de;
 	spf=pass smtp.mailfrom=suse.de;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=K1vj826r;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=J7SkJvEo;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=K1vj826r;
-	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=J7SkJvEo;
-	arc=none smtp.remote-ip=195.135.223.130
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=0GhyW6Mh;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=dNqynlDE;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=0GhyW6Mh;
+	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=dNqynlDE;
+	arc=none smtp.remote-ip=195.135.223.131
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B230606A323
-	for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 13:51:14 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7B230606A323
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 472F9606A31D
+	for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 13:51:38 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 472F9606A31D
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=K1vj826r;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=J7SkJvEo;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=K1vj826r;
-	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=J7SkJvEo
+	dkim=pass (1024-bit key, unprotected) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=0GhyW6Mh;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=dNqynlDE;
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=0GhyW6Mh;
+	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=dNqynlDE
 Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 5A01821DDE;
-	Tue, 20 Oct 2026 13:51:12 +0000 (UTC)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 7F33E1F7BD;
+	Tue, 20 Oct 2026 13:51:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1792504272; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1792504295; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=jFzLWZPO72bSDBo1EOPo+9OHm6mBgy+ZE+5NB6NtUyg=;
-	b=K1vj826roTVD8dgpahIyNnIFYCconIT2hSbfqBMlx1X6awG1JFyr9H5m++5JfmPukEchji
-	ihXmCw1phLCf3Y5zY5uxLJTX13zdw1lB6uDuJ/963V1PIDfDO3CgM1fg3AMi96bD3lroup
-	BoIHo2H7RRmGEZFi2tAnZJ3DgI+b1Zc=
+	bh=ScwDgQH74XYS+XXQiCsnBNvfbpmIou6nG5PTW1NK1wg=;
+	b=0GhyW6MhqmqWxRFFo+tBS6H5Wvnf+kbBnZOsXl3U2IIepEv9e4FNov3UWF8GMCq59eJ0uZ
+	easV/Q1QIZj9NDyAu8hP6xG/fDosV8lS+4GY2SktanczGIWW9YdYB+aoeMV8GDJgAZMnIM
+	YkBkLYPUazLGTD3VYirXIzMl6z0cr30=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1792504272;
+	s=susede2_ed25519; t=1792504295;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=jFzLWZPO72bSDBo1EOPo+9OHm6mBgy+ZE+5NB6NtUyg=;
-	b=J7SkJvEoW8MFN4k8E03prXmMcaN4NCJZvbh6siVbbedeag3s2PtbHg2chf9wHxU1UY8QPX
-	/V8fElM4IWcZa6BA==
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=K1vj826r;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=J7SkJvEo
+	bh=ScwDgQH74XYS+XXQiCsnBNvfbpmIou6nG5PTW1NK1wg=;
+	b=dNqynlDEz21LyWu5FUTunUXk90Kp+ct9n61LmLc3JpMbglLuFpex9z0iA9Bl9GNnEWtyBC
+	We3mGGR1ISo6pABQ==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=0GhyW6Mh;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=dNqynlDE
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1792504272; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1792504295; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=jFzLWZPO72bSDBo1EOPo+9OHm6mBgy+ZE+5NB6NtUyg=;
-	b=K1vj826roTVD8dgpahIyNnIFYCconIT2hSbfqBMlx1X6awG1JFyr9H5m++5JfmPukEchji
-	ihXmCw1phLCf3Y5zY5uxLJTX13zdw1lB6uDuJ/963V1PIDfDO3CgM1fg3AMi96bD3lroup
-	BoIHo2H7RRmGEZFi2tAnZJ3DgI+b1Zc=
+	bh=ScwDgQH74XYS+XXQiCsnBNvfbpmIou6nG5PTW1NK1wg=;
+	b=0GhyW6MhqmqWxRFFo+tBS6H5Wvnf+kbBnZOsXl3U2IIepEv9e4FNov3UWF8GMCq59eJ0uZ
+	easV/Q1QIZj9NDyAu8hP6xG/fDosV8lS+4GY2SktanczGIWW9YdYB+aoeMV8GDJgAZMnIM
+	YkBkLYPUazLGTD3VYirXIzMl6z0cr30=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1792504272;
+	s=susede2_ed25519; t=1792504295;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=jFzLWZPO72bSDBo1EOPo+9OHm6mBgy+ZE+5NB6NtUyg=;
-	b=J7SkJvEoW8MFN4k8E03prXmMcaN4NCJZvbh6siVbbedeag3s2PtbHg2chf9wHxU1UY8QPX
-	/V8fElM4IWcZa6BA==
+	bh=ScwDgQH74XYS+XXQiCsnBNvfbpmIou6nG5PTW1NK1wg=;
+	b=dNqynlDEz21LyWu5FUTunUXk90Kp+ct9n61LmLc3JpMbglLuFpex9z0iA9Bl9GNnEWtyBC
+	We3mGGR1ISo6pABQ==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 0A251136C6;
-	Tue, 20 Oct 2026 13:51:11 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 2B046136C6;
+	Tue, 20 Oct 2026 13:51:34 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id +iBEJ89x12oJFwAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Tue, 20 Oct 2026 13:51:11 +0000
-Message-ID: <68b2352b-d032-44b1-95a9-27b9e140fd90@suse.de>
-Date: Tue, 20 Oct 2026 15:51:11 +0200
+	id ClKhMuZx12ppFwAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Tue, 20 Oct 2026 13:51:34 +0000
+Message-ID: <32fc4bcc-ac6b-4647-90eb-7016c3b08506@suse.de>
+Date: Tue, 20 Oct 2026 15:51:34 +0200
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -109,15 +109,15 @@ List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 43/75] drm/tiny: bochs: Switch to
+Subject: Re: [PATCH 44/75] drm/tiny: cirrus: Switch to
  drm_atomic_helper_connector_create_state
 To: Maxime Ripard <mripard@kernel.org>,
  Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
  David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>
-Cc: dri-devel@lists.freedesktop.org, Gerd Hoffmann <kraxel@redhat.com>,
- virtualization@lists.linux.dev
+Cc: dri-devel@lists.freedesktop.org, Dave Airlie <airlied@redhat.com>,
+ Gerd Hoffmann <kraxel@redhat.com>, virtualization@lists.linux.dev
 References: <20261014-drm-no-more-connector-reset-v1-0-586c9c026823@kernel.org>
- <20261014-drm-no-more-connector-reset-v1-43-586c9c026823@kernel.org>
+ <20261014-drm-no-more-connector-reset-v1-44-586c9c026823@kernel.org>
 Content-Language: en-US
 From: Thomas Zimmermann <tzimmermann@suse.de>
 Autocrypt: addr=tzimmermann@suse.de; keydata=
@@ -144,7 +144,7 @@ Autocrypt: addr=tzimmermann@suse.de; keydata=
  SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
  Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
  4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <20261014-drm-no-more-connector-reset-v1-43-586c9c026823@kernel.org>
+In-Reply-To: <20261014-drm-no-more-connector-reset-v1-44-586c9c026823@kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 X-Rspamd-Action: no action
@@ -172,19 +172,19 @@ X-Spamd-Result: default: False [-4.50 / 50.00];
 	FROM_HAS_DN(0.00)[];
 	RCVD_TLS_ALL(0.00)[];
 	DNSWL_BLOCKED(0.00)[2a07:de40:b281:106:10:150:64:167:received,2a07:de40:b281:104:10:150:64:97:from];
-	RCPT_COUNT_SEVEN(0.00)[7];
+	RCPT_COUNT_SEVEN(0.00)[8];
 	MID_RHS_MATCH_FROM(0.00)[];
 	RCVD_VIA_SMTP_AUTH(0.00)[];
 	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:email,suse.de:dkim,linux.dev:email,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.com:url]
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:email,suse.de:dkim,linux.dev:email,suse.com:url,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns]
 X-Spam-Level: 
-X-Rspamd-Queue-Id: 5A01821DDE
+X-Rspamd-Queue-Id: 7F33E1F7BD
 X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
 
 
 
 Am 14.10.26 um 19:27 schrieb Maxime Ripard:
-> The tiny: bochs connector implementation uses the deprecated
+> The tiny: cirrus connector implementation uses the deprecated
 > drm_atomic_helper_connector_reset() as its reset hook.
 >
 > Switch to drm_atomic_helper_connector_create_state() instead.
@@ -194,20 +194,21 @@ Am 14.10.26 um 19:27 schrieb Maxime Ripard:
 Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
 
 > ---
+> Cc: Dave Airlie <airlied@redhat.com>
 > Cc: Gerd Hoffmann <kraxel@redhat.com>
 > Cc: virtualization@lists.linux.dev
 > ---
->   drivers/gpu/drm/tiny/bochs.c | 2 +-
+>   drivers/gpu/drm/tiny/cirrus-qemu.c | 2 +-
 >   1 file changed, 1 insertion(+), 1 deletion(-)
 >
-> diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.c
-> index 8192decddbc1..771d59b92f67 100644
-> --- a/drivers/gpu/drm/tiny/bochs.c
-> +++ b/drivers/gpu/drm/tiny/bochs.c
-> @@ -590,11 +590,11 @@ static const struct drm_connector_helper_funcs bochs_connector_helper_funcs = {
+> diff --git a/drivers/gpu/drm/tiny/cirrus-qemu.c b/drivers/gpu/drm/tiny/cirrus-qemu.c
+> index 63c242e25662..9e3051b9c3f7 100644
+> --- a/drivers/gpu/drm/tiny/cirrus-qemu.c
+> +++ b/drivers/gpu/drm/tiny/cirrus-qemu.c
+> @@ -448,11 +448,11 @@ static const struct drm_connector_helper_funcs cirrus_connector_helper_funcs = {
 >   };
 >   
->   static const struct drm_connector_funcs bochs_connector_funcs = {
+>   static const struct drm_connector_funcs cirrus_connector_funcs = {
 >   	.fill_modes = drm_helper_probe_single_connector_modes,
 >   	.destroy = drm_connector_cleanup,
 > -	.reset = drm_atomic_helper_connector_reset,
@@ -216,7 +217,7 @@ Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
 >   	.atomic_destroy_state = drm_atomic_helper_connector_destroy_state,
 >   };
 >   
->   static enum drm_mode_status bochs_mode_config_mode_valid(struct drm_device *dev,
+>   static int cirrus_pipe_init(struct cirrus_device *cirrus)
 >
 
 -- 
