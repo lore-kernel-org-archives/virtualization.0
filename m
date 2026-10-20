@@ -1,56 +1,58 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=204.191.154.188
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792509406;
-	b=V6g+AkerB0NU+4fhfH7bzay5E/tO4RASE0Cfr73Ppww5od2aBO6qH9zGCJ0tY1e3tn9+
-	 41QJWfQCE3E8lmHWAv5wwe6Xgrcc2JJUaPTIqgJYUIctfpI71ykzWsN0yk8nlJR/VRxbe
-	 6Jq6X8IvaXCZGoG3UBFN0YyDyU+m0jlulQtE+UP3oabfPAp8l7NMv+RLqQI3LgHJke0NO
-	 FrC930J6nCpI47L3w8CPfsvyJL0DGcOwjy9R5tdy3gQxXhEn6HYSSmnSVSFYJWmy89w9E
-	 8P9RoqrIq7BX94Jq3/4NSQWuYse7Df9bA01Hfqe3DRyNc/TzrNRBdp77Snp08rQDnZQ==
+	t=1792512524;
+	b=M9s3DBmCkfu4U5pYeyQ/82TTqlURuZ9z+YxnAnwSAdj7J5R5vOQv5M3mfvR5IHew8do9
+	 rRAjpVbcq6ij4KxK5ayncLZNu3tUN1oMTb/ML1A/uPWmQ9Ui0qHVUiA8Zbswp2dszTezP
+	 DysdiBNhtgehkdvCxyPk/7akz8LbUC92gNkhLliBENyC5OZh4wDks8sHaSs1qEIwUxU3Q
+	 hCWgmAlqZpCnGkXaG8ZnDHcrBW5zESNhBGoXeTvoww4totKZ/g/I6SY9yh049ufQuGy3e
+	 lxG9f0VqxxovcEVfXAucPu+ZcPXUIHfC4RtrZobgtrFGASvibiqcHu46najoKz9JUpw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792509406;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=uh7XaHdHWi03OJCBDDcGtQ8EdbuvqWDDoMUQLrWc6VQ=;
-	b=YAeHrpuYvUCa/ne0Hn7TaDRvFF4CqExSjXtXHX0tv+huGfnaDk3tiR6bg8+dBXd/02Jx
-	 yCHBkuoRIQgSfaLuAn5Bf8/lAtP6Nrke/wjBL2jzIt3Zv4Yy6fFMEmTYnGaWmjPsv4WtO
-	 oOeEHQghuZ8KJImZYsdQKbMMmUjMRyh9hBadmrXBoQ51cK3GL+z5qevvb18rYynu4YSci
-	 3NDxIcMq5fUf3+jsOG9FI7uJS+MKsBmr+Ho1eu8Rp49aEah9iUV9HjAoyt0qjKiufWbpu
-	 dXNcXbqTF8xfJ+JG4d/mNO/jEKpCSgMFkhJ2UP5LXnyawRmeMwWo5xIzH8P/jWdUH4w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792512524;
+	h=DMARC-Filter:DKIM-Signature:Received:Message-ID:Date:MIME-Version:
+	 User-Agent:To:Cc:References:Content-Language:From:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding:X-SA-Exim-Connect-IP:
+	 X-SA-Exim-Rcpt-To:X-SA-Exim-Mail-From:X-Spam-Checker-Version:
+	 X-Spam-Level:X-Spam-Status:Subject:X-SA-Exim-Version:
+	 X-SA-Exim-Scanned;
+	bh=vSmY4qK6N+zSMZ80Cf1TxZDK1xNA32Q6d6vGxmq/3Bo=;
+	b=3pXZhzs9gJFCR+ZvBRrrfbSAS0LgZ4otvWB8NEXMuQyzHXj9JOJTcRxPiJsdvdzFoif3
+	 esHJitocV5/gAJBGz3ZMTEd5rRJyEgBMfdujzmC3Ne5ciyB1lRmVIeN18kBMSRPBZaggN
+	 YsVX+wv2OYPAb29DX3rxqPgqWjzrV43iSvQTUnSGpFWKxT+uGNkCW+oSp6h7F1UdLYkcI
+	 +gAC1UpupOCkp2J+xyK/B1SoRCjA0aK1KQ6Zjox+TVQBrNGcZhV9h1FhMGLzbM27nzeEv
+	 s7FDCn81CTH03jL9Scnw/AqZ34VfDIrJ51PzPX66wXsmO8vZIBSvW9MDLqUYMHHkV8w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Yzsm5ljW;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=deltatee.com;
+	spf=pass smtp.mailfrom=deltatee.com;
+	dkim=pass header.d=deltatee.com header.i=@deltatee.com header.a=rsa-sha256 header.s=20200525 header.b=tkEQj0Yq;
+	arc=none smtp.remote-ip=204.191.154.188
+Received: from ale.deltatee.com (ale.deltatee.com [204.191.154.188])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CAE8B606A31C;
-	Tue, 20 Oct 2026 15:16:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3EEC606A31B;
+	Tue, 20 Oct 2026 16:08:42 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E3EEC606A31B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=deltatee.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=deltatee.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Yzsm5ljW
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1117D1F000C5;
-	Tue, 20 Oct 2026 15:16:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792509405;
-	bh=uh7XaHdHWi03OJCBDDcGtQ8EdbuvqWDDoMUQLrWc6VQ=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Yzsm5ljWpkrGr+B/08AQ15cSgSn2XJE2Tpb+OimrnPq8sGkjOjBjHLHIGMjwgREHb
-	 p5VBrR2oJsJ0qje+dFEGacD1OcXmNdIqZu5oxLrOo3HKurDjeU2lj78GpQ1SWee6G9
-	 1NzMT5aQZtbyVjpuOWPjJA0ugwajZPwlmymJ0OHzXthY9ePYI4Jzmj85ryzppoMp+4
-	 C/xG97zD0DkXxA0xOd7CpYdu8xuz6u+drb2s7ejPVycl/bNo3ADtIDX9VWPMKO/7QI
-	 u0/yIq1qJyIGZo0fTGCda6eRTQ2wMsaezhiyp/9kkZh7sFTI6f05ddorGIfbjOThJ2
-	 ATl7vTWmFOylA==
-Message-ID: <sashiko-outbox-179233@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3] PCI/P2PDMA: Allow P2PDMA on Intel Xeon server CPUs
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Pavel Popov" <pavel.e.popov@intel.com>
-Cc: virtualization@lists.linux.dev, linux-pci@vger.kernel.org, "Michael S.
- Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>
-In-Reply-To: <20261020151305.65218-1-pavel.e.popov@intel.com>
-References: <20261020151305.65218-1-pavel.e.popov@intel.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 20 Oct 2026 15:16:15 +0000
+	dkim=pass (2048-bit key, unprotected) header.d=deltatee.com header.i=@deltatee.com header.a=rsa-sha256 header.s=20200525 header.b=tkEQj0Yq
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=deltatee.com; s=20200525; h=Subject:In-Reply-To:From:References:Cc:To:
+	MIME-Version:Date:Message-ID:content-disposition;
+	bh=vSmY4qK6N+zSMZ80Cf1TxZDK1xNA32Q6d6vGxmq/3Bo=; b=tkEQj0YqLNCzeuJ7e90by1/ejx
+	MPy9nsYQzQmcjFTIV+C6f6aBgtHgMgvIMS4GfHLd+Eaduuw7TOQHjvRkWgLKoiM1f/phLJ/NaZY00
+	XBKTCN7RcaBJp5ipa2Y7+GllvU5Teeq64N6B2zi+dOUoTJbM85SmKeozviqHjm8b1JDDxPcN16edE
+	TWF9A9oOzxjCNcgt7zJ9yXWR60PrhWLRK01ckX3i3OWlXmMqUrGmSkIgh10E7LTfMF+sgSe+c5J1h
+	qQ0XwXn6u7BX9Pveu/AQvM/Vhfx5zwZN5dOzDGVf69wMk8qlRcGSRvP0wnLbRU4XC/asPqnMO5Pyb
+	h9xs0RkQ==;
+Received: from guinness.priv.deltatee.com ([172.16.1.162])
+	by ale.deltatee.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	(Exim 4.98.2)
+	(envelope-from <logang@deltatee.com>)
+	id 1xJCOE-00000000yyj-0mXr;
+	Tue, 20 Oct 2026 10:08:38 -0600
+Message-ID: <e915bdd0-edd4-447d-8b87-6aadad6004bd@deltatee.com>
+Date: Tue, 20 Oct 2026 10:08:30 -0600
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -59,7 +61,34 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+To: Pavel Popov <pavel.e.popov@intel.com>, Bjorn Helgaas <bhelgaas@google.com>
+Cc: Leon Romanovsky <leon@kernel.org>, Lukas Wunner <lukas@wunner.de>,
+ Jim Chow <jim.chow@broadcom.com>, Radu Rugina <radu.rugina@broadcom.com>,
+ Alexey Makhalov <alexey.makhalov@broadcom.com>, Wei Liu
+ <wei.liu@kernel.org>, Michael Kelley <mhklinux@outlook.com>,
+ Nathan Ciobanu <nathan.d.ciobanu@linux.intel.com>,
+ bcm-kernel-feedback-list@broadcom.com, virtualization@lists.linux.dev,
+ linux-hyperv@vger.kernel.org, linux-pci@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20261020151305.65218-1-pavel.e.popov@intel.com>
+Content-Language: en-CA
+From: Logan Gunthorpe <logang@deltatee.com>
+In-Reply-To: <20261020151305.65218-1-pavel.e.popov@intel.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Connect-IP: 172.16.1.162
+X-SA-Exim-Rcpt-To: pavel.e.popov@intel.com, bhelgaas@google.com, leon@kernel.org, lukas@wunner.de, jim.chow@broadcom.com, radu.rugina@broadcom.com, alexey.makhalov@broadcom.com, wei.liu@kernel.org, mhklinux@outlook.com, nathan.d.ciobanu@linux.intel.com, bcm-kernel-feedback-list@broadcom.com, virtualization@lists.linux.dev, linux-hyperv@vger.kernel.org, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org
+X-SA-Exim-Mail-From: logang@deltatee.com
+X-Spam-Level: 
+Subject: Re: [PATCH v3] PCI/P2PDMA: Allow P2PDMA on Intel Xeon server CPUs
+X-SA-Exim-Version: 4.2.1 (built Sun, 23 Feb 2025 07:57:16 +0000)
+X-SA-Exim-Scanned: Yes (on ale.deltatee.com)
 
+
+
+On 2026-10-20 09:13, Pavel Popov wrote:
 > Peer-to-Peer DMA (P2PDMA) between two devices requires either a shared
 > upstream bridge or a host bridge matching pci_p2pdma_whitelist[]. In
 > VMware guests, passthrough devices appear directly on virtual root
@@ -68,23 +97,24 @@ Precedence: list
 > device. Consequently, P2PDMA checks evaluate endpoint Device IDs
 > against the host bridge whitelist, causing P2PDMA requests to fail
 > regardless of host support.
->=20
+> 
 > This affects discrete devices such as GPUs, NICs and NVMe drives.
->=20
+> 
 > Add an explicit list of the Intel Xeon server generations from
 > Skylake-SP to Diamond Rapids to cpu_supports_p2pdma(). These are the
 > CPUs whose host bridges are in pci_p2pdma_whitelist[] without
 > restrictions. AMD Zen and newer are already covered by
 > cpu_supports_p2pdma(), so only Intel entries are needed.
->=20
+> 
 > Tested with the Intel Level Zero P2P benchmark (ze_peer) on Arc Pro B60
 > cards in a Linux guest on VMware ESXi 9.0 (Emerald Rapids host).
->=20
+> 
 > Signed-off-by: Pavel Popov <pavel.e.popov@intel.com>
 
-Sashiko has reviewed this patch and found no issues.
+I can get behind this:
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261020151305.6521=
-8-1-pavel.e.popov@intel.com?part=3D1
+Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
 
+Thanks,
+
+Logan
