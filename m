@@ -1,138 +1,92 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=140.211.166.138
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1792492833;
-	b=c51uDMnFq+hqssdPIShfRCm947KnUfp1LEW5PkCe8wK3dn1iPRPYMHvtSNgQQ241jtr6
-	 vBybsU0cE5WU71Yq3Dn7oVNgmuaXWnm93bolMzsTaRpSIf0LbMucBAZt1Mz9/Lm2GU9Qh
-	 PAlw0MjpIy99ryNE0yGHLxWPeaBCjneTZ4cd3AzDfqf0XoOxbeKA5UO6zKB2cLi3chgjX
-	 eOL6904B459BC5dlu3Qs9nB0oo9WES3Ofrzf/AsYd5wxp4LqXsG/kSbFdwbEIdUnJIZj/
-	 6+T1A4+yRwcpjz5wBu1fM3UFhRwCazk9546FyiEgCA6XWX8Uu8qQh0WktIdB6EpToeg==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792492833;
-	h=Received:X-Virus-Scanned:X-Spam-Flag:X-Spam-Score:X-Spam-Level:
-	 X-Spam-Status:Received:ARC-Filter:Received-SPF:Received:
-	 DKIM-Signature:Received:X-MC-Unique:X-Mimecast-MFC-AGG-ID:Received:
-	 X-Google-DKIM-Signature:X-Forwarded-Encrypted:X-Gm-Message-State:
-	 X-Gm-Gg:X-Received:X-Received:Received:Date:From:To:Cc:Subject:
-	 Message-ID:MIME-Version:X-Mutt-Fcc:X-Mimecast-Spam-Score:
-	 X-Mimecast-MFC-PROC-ID:X-Mimecast-Originator:Content-Type:
-	 Content-Disposition;
-	bh=VIDP3nx+FxbnMIBjBfYFZNsQEwlHUezNmijwKASBZA4=;
-	b=0/xhkmtorXhYoM/k8+otXDc5JSD3KevYm2MfhRJ7moXK08jl3KO2AhpcJ3xu/9y6miHy
-	 6cznIrK6btWCnQ/ISoBksNgbaCiv1NPiplO4hN4Rbo413nXUVSk46k3vCP1hBVGsqynZJ
-	 sC3OE69H+ZjxoA6KTGAmT5DjaQ7E/XDNh4cz/G98u8BFjN3YCb4N6eNe2ugTwZRIl8CoC
-	 xVM7dqlso0iK9WV6FM2TVY9UUHSDYwZYSr5XCUVbAsfxS0Qp2Pf+diYG+P9o39/aV5cAM
-	 nmHouNaTVZ2CsNPN7L8IoPkETdvmaz7r60XteZrKHBSTKHtk9KGFeArrKO0LuxpVBKg==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RmdHq4N7;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=140.211.166.138
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.170
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1792493711;
+	b=q0B755iKKeGJ7BBnjh80InE2kfu8ehumFHYEpXGhQn7EX7vMECBLVMv5OW8zy+AC++Ny
+	 sZpT3B25GRgg0fbAQo96UqElnE0PxTM8lml2uT5ZbUszubWUeeo2oMQVeOnUWPXrJajeH
+	 QvOTh7MRAyp3lB53z7sA7LI3gi0HfCxq4EVZ2er5NQSWAYjCBq2uvM5vXWk1gYACkrgOt
+	 +aRjjrH9dliJGcWY5FdHLKFmPJc44yneASs5Kytv2MwoFleuyivrdRnnb3nzTnHasFuGk
+	 J0qkeTR/1q+CO+gHK230kzrM5ossW5XXt2RfPMzPKpIMoUdaQ/ew+rUNy1TmSkqLfcg==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792493711;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
+	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
+	bh=IstVKehuob5ZIhaaqjFytiIbVJXifuNQQEI4PdRRqKY=;
+	b=eFmibCEpEv8X9J1hK8kPx18r0e10/uL2uRjiaf3uZUuarGvIqq+2O4Gp5nmV2R5vBL6Y
+	 YFCSfms7b3eU2gmiltER7T0WNI08Uo7xnXa5VKFu92Pn80N5M5rwIBfX+0ffwlQyKn0i1
+	 X0zbqulGO1fTnv7lITfHl2p4RiWf27wkNjr4KSXHZaH37swTTzAsxd0bleISRW4IOXKlD
+	 ZCibrzSRB6V4QqF50AQixwH4DJu8BoXKbIFBIUY5LkKSqWI/Jva3IJ6UP8q2Db1YfSx5B
+	 pRdVPLlT0wr7+NoNoE20ZLOlYjl68FtpGo8xCQ1cEwcl5JZLMlcOeJ++Ej5bRvKkhmw==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=octane.security;
+	spf=pass smtp.mailfrom=octane.security;
+	dkim=pass header.d=octane.security header.i=@octane.security header.a=rsa-sha256 header.s=google header.b=OMDdE19j;
+	arc=none smtp.remote-ip=74.125.82.170
+Received: from mail-dy1-f170.google.com (mail-dy1-f170.google.com [74.125.82.170])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 215D8606A31F
-	for <virtualization@lists.linux-foundation.org>; Tue, 20 Oct 2026 10:40:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7EBB606A31D
+	for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 10:55:10 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B7EBB606A31D
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=octane.security
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=octane.security
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RmdHq4N7
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id CB20280DD2
-	for <virtualization@lists.linux-foundation.org>; Tue, 20 Oct 2026 10:40:32 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -0.693
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id jy9W1RUp9oGu for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Oct 2026 10:40:32 +0000 (UTC)
-ARC-Filter: OpenARC Filter v1.3.2 smtp1.osuosl.org 1F1E080C50
-Authentication-Results: smtp1.osuosl.org; arc=none smtp.remote-ip=170.10.129.124
-ARC-Seal: i=1; d=osuosl.org; s=arc; a=rsa-sha256; cv=none; t=1792492831;
-	b=hef5hwcnzHTLByKEQrcG7S8+eWhpIbEO+iW3wE0LOCRgPC60R5izA25028UY6oFWXbmu
-	 claZNzwWeulHIldmueoI5OxJE1g1iOA0EUL7+MDHNXVdzYYcJUyCh/1nHJsu//kA41thF
-	 rja1trXZliC8UmXR9x6KuX9KgHr8IyyVvoVC19neRFnTUUKCRbB1MNO6nE9HUuZCDnevz
-	 u3Epcas9Co4LfGi21UXAsUiWKB0P8CtA1RVWpBMn7Db1yA39mT25YlKJQUT5izYWsG4SU
-	 pfFr10ljlnxpZY6LiNtUh41NCJUMxBHxr6/gK96uyU0jcymHDfQloyHYcIK2nLnCx2g==
-ARC-Message-Signature: i=1; d=osuosl.org; s=arc; a=rsa-sha256;
-	c=relaxed/relaxed; t=1792492831;
-	h=Received-SPF:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:MIME-Version:
-	 X-Mutt-Fcc:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
-	 X-Mimecast-Originator:Content-Type:Content-Disposition;
-	bh=VIDP3nx+FxbnMIBjBfYFZNsQEwlHUezNmijwKASBZA4=;
-	b=DrTQZcJC5cnk2ZXMX03JjwiX5YZ+TFrO5r24kU5p4EGFjQbpYfuaSjvBO8NVBTP72EkZ
-	 z3aquSH7PyB4Aaey4iKJIxctwbEXeAKTPKhn00+Mw6x0x6n9JLcDTPjm/mkUf5LrcQNCo
-	 6oM1uABXUsalD3a9dLReQhMplGyUYDoonGUbgkkTa8uzdWQPdLuNNHpMEWlbOl4qj7VFa
-	 oIOvM71O/A0PB4itmbiOd9hyAyTpe6g5eFXUzQ6Bcxnei+gDNqhJobnJda5KbSq7FFYom
-	 ZpRrO2kLpebV5pHdhMFhxOqmJTg7m05wiFCj/xtsqX2uN/XNDJKOxQ+B17dfpfxCoOA==
-ARC-Authentication-Results: i=1; smtp1.osuosl.org; 
-	dmarc=pass header.from=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RmdHq4N7;
-	arc=none smtp.remote-ip=170.10.129.124
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RmdHq4N7
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 1F1E080C50
-	for <virtualization@lists.linux-foundation.org>; Tue, 20 Oct 2026 10:40:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1792492828;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-	bh=VIDP3nx+FxbnMIBjBfYFZNsQEwlHUezNmijwKASBZA4=;
-	b=RmdHq4N7uHME6HBybqJQuPI3oaUxpgLWAL0fiClnHcx6Fgu09FS8E1LXsuI76+3nWbcK++
-	Hpf0l2raqDdKuTwZvOEKmcfhngdxVqwUWpzVkwOjb1cGTRKBAbGrKc8WIm/3yAQrZZFcsF
-	Lbnp/7aEfhgIuF0E+gpPABJ5xlo84gc=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-173-tEqowQEmN9OFZFBEEmrxWQ-1; Tue, 20 Oct 2026 06:40:27 -0400
-X-MC-Unique: tEqowQEmN9OFZFBEEmrxWQ-1
-X-Mimecast-MFC-AGG-ID: tEqowQEmN9OFZFBEEmrxWQ_1792492826
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4a17741243eso18284295e9.0
-        for <virtualization@lists.linux-foundation.org>; Tue, 20 Oct 2026 03:40:26 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=octane.security header.i=@octane.security header.a=rsa-sha256 header.s=google header.b=OMDdE19j
+Received: by mail-dy1-f170.google.com with SMTP id 5a478bee46e88-3535bf8b3e0so6501754eec.0
+        for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 03:55:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=octane.security; s=google; t=1792493710; x=1793098510; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=IstVKehuob5ZIhaaqjFytiIbVJXifuNQQEI4PdRRqKY=;
+        b=OMDdE19jzXP7Rd/vnEXAz1Zm06g6xZIfJgHzZfxeg4cHO9SZ0Rwxhch8wPkeZGYFSz
+         o8A/SO6neNdL1CL+ZQs31ZxNye19iYqlJ4FpHUVSIFMDh8mr+J67hhy4UJSirKt9K2Oh
+         tC3QfmbKqJYvOZQT1PMgVWE0FkdElwG/nnegyV8EYm1riFH1vpWYYe+RKzoHq37EzVZj
+         JX2Qo1AeY8ZqPlHEmE8+2fqF977PgQG7bnSKsPMOqD+W5XxMStr1bEU4vw3oVrVATOAc
+         OqRK7bfOay0KTNTnkprPT19IqAqYQNOmYZ+z6dgKEXy6jFqfuj6WOfgMu8N9cHMOLLQe
+         jw8w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792492826; x=1793097626;
-        h=content-disposition:content-type:mime-version:message-id:subject:cc
-         :to:from:date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=1e100.net; s=20260707; t=1792493710; x=1793098510;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=VIDP3nx+FxbnMIBjBfYFZNsQEwlHUezNmijwKASBZA4=;
-        b=Wl/ofQ2JPe+igRDGNRdgLno0IXXC8Vbe5qJpTGOmaO9vH9HSiufz0wDkE8qJKZ6tPW
-         8NcfnpRdZ96/DqkeamI43x/Fc2lQpfY09HjC8EsL5IApNdWpb1hO1O5EEhgcHoirX4Uo
-         9ZSntqH01pgc7F3uEizjLIsdfRbOMHadK8zJH+m0iOTfD2uvcHad6KlBhsgZEQoMuWVM
-         VN3zhdUUTkLT9OemAAfdcxx4FtWGi8k+uMBZJdUyNgGgMhVizkymAGOpeDmqHOTLog0E
-         aqhSMIkV+WuxrraK1uCRgr8KAMGUdWDoAmtVROPXQkK0TiRykt7ZhAyesWZZjS8hfoBY
-         pXvw==
-X-Forwarded-Encrypted: i=1; AKwUvBw/jXrCm8nrblPjuC5bySkw2STKE+yntUNdx/h55dQVXtzNAo6Wy5zPMgtmKpjey5GmUiCPc+4k6huFmH554A==@lists.linux-foundation.org
-X-Gm-Message-State: AFq9FYLGNdaBxWvfBq7lcfaSVXFAwnfbSFmyT8fA2whylfmX+7RKxpwZ
-	YKN+OcWUBL0V/FUhinmglVWvc8oXVBsrAqA5OlQA/KR7a0QQcUTb/dVVra9lYRjFaNCo98IBD3m
-	zT+p2P1/H4zssQirxh2GiDlruZkxqWUyb+qSu+vSFrM9Z4w2Amsl6cJP2UMhdzLFhV67zJ7Km6r
-	VoOhRjS8c=
-X-Gm-Gg: AYBFou1dyu4hGltNm7roBXmDsh9VRiAsPjGM8DTQ1PhnpAS+SFqtZi6kH05DiZx6oId
-	EFg3vhUOcwzq4X4EIrBZ5PesD9eO9knlybYWLHAnQa3DFZy3ZxfEGq5upfNE6U8KwZFFO172iFP
-	Qxcy9WOW0MYEbTOXqTFVpPr/epq/4ddN361skunkzc0MbaBwERaSTvp+EDGaWBHSovzb34fo++K
-	QXQfhDjxZYz+JHMVJHZpPjhK3aLclQSopd90Titdq06OiGc0VPSLUt49w0Ua0ohQxYMB1WtyLzJ
-	bMcQtuZK2O3faclKkLxPqP5J6i6y3sBOxH171rMleFaVePWb+AZkwd/K2+QiaZ7XxeKh1g==
-X-Received: by 2002:a05:600c:1c19:b0:4a1:ec5b:dca with SMTP id 5b1f17b1804b1-4a1ec5b0fb6mr118201075e9.15.1792492825843;
-        Tue, 20 Oct 2026 03:40:25 -0700 (PDT)
-X-Received: by 2002:a05:600c:1c19:b0:4a1:ec5b:dca with SMTP id 5b1f17b1804b1-4a1ec5b0fb6mr118200305e9.15.1792492825235;
-        Tue, 20 Oct 2026 03:40:25 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:3fd7:5300:3d6b:52a4:a23f:9d0b])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48e1d6dbf12sm5345167f8f.1.2026.10.20.03.40.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Oct 2026 03:40:24 -0700 (PDT)
-Date: Tue, 20 Oct 2026 06:40:22 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-	andrey.drobyshev@virtuozzo.com, den@openvz.org, jiri@resnulli.us,
-	kmehltretter@gmail.com, mst@redhat.com, ptikhomirov@virtuozzo.com,
-	sashiko-bot@kernel.org, tanglongjun@kylinos.cn
-Subject: [GIT PULL] vhost,virtio: fixes, features, cleanups
-Message-ID: <20261020064022-mutt-send-email-mst@kernel.org>
+        bh=IstVKehuob5ZIhaaqjFytiIbVJXifuNQQEI4PdRRqKY=;
+        b=dfuCMgcFoWwZiZRnePiYO2cE9lXaYE9PiwRJx3e5xFXAYQfS9Snt2zME/+cibEdXAj
+         R6lgbqlr0ffL2h8G1tIPQwTromp83f7iuPTa1IBVbitehMXNDWtp1Ua6MWzajFvq27cj
+         p+zYP3SgQk135RloUssD7S5mmO5uV/mDzLUS9n2i7dcyDaBRH8y1fJzl/ueXmdVQShUC
+         aQ6oBai6F54x6i6HcDgaBV3xDmEaudm1gHjZ+ipCoXIpghEqxNUrdsH8FAw+4G7tTt5g
+         WfFnGnrsDY+ueTOnFa++IE1VeYLRFZAotSrS1ee4ZSDwfz1Z3W27SDwc0q3POKZfWN58
+         7s0A==
+X-Gm-Message-State: AFq9FYIkRGC9sQD2opyJopzon0BnlGdNw+CgcmLkXNBICwLlkQZH/qeo
+	fHSv4vMP55p46FzJRuxedEUlpfmRkgLXSKEZQMgrLaquEURSfbgwtRInTZppZTmHe4xf1OLln/o
+	Vzi3W
+X-Gm-Gg: AYBFou0kr89rHcNeIlI6kGXNdrehLTw6cCQ3oZrwElks+GBeNfo4WXwGJKm3oToQB2O
+	iHrT7eN3fbiwNYUfkEfv4U25K8G0aizdA0uGbUrV1/iM+NukfF9I/3r/4Ce5IOMEPxpkAyBR/bW
+	JdaivuJAlIF6zYj1o3YDRlj7gb+T/2CHmXv8uo7h8ZbJrxWFx0+v1Y+7u1+bbAR/MkXDxOK/CTM
+	PXxjvAGz4Qz2hS1IXOE0Ko45Sapat3Uf+wEmPrDOztUyZBiGInWw/j9tX1a5RkS2CcAlg7d1k9W
+	u/Fy9UxN97dfYww9NUjRpn4R4xxaIuNDKOjqWx1d3hJZ3B+4wc4OZhGyq8yH6xi9fFHRRFi0Fsx
+	CShgV1txTnJtUuXtWV0Un1le5ww1A27afnoAQq2g51gE88fTiUUz/5rr3fYUWgqHifcXmtQA45w
+	RjCMPET32kNSsVXLqXX9sOcX85Uz8V+AinAQNUbvYpriUyaFdp4BuVOm1d7NXDgIS49IKiaqDyR
+	ZibPrMvAb2MIw9QQ8oEeJCKbV4nENwVbt9LUUd69Js6iRHw5UJzIEaJ9P7hswZglRM9I469xqJS
+	ia8zISwCVuSUH/h+X+nMeItP398B9g==
+X-Received: by 2002:a05:701b:4550:10b0:150:1cea:31a8 with SMTP id a92af1059eb24-185125790a4mr14974157c88.19.1792493709497;
+        Tue, 20 Oct 2026 03:55:09 -0700 (PDT)
+Received: from localhost.localdomain ([103.207.175.177])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-360826875b3sm42255592eec.21.2026.10.20.03.55.06
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Tue, 20 Oct 2026 03:55:09 -0700 (PDT)
+From: Shubham Antil <shubham@octane.security>
+To: virtualization@lists.linux.dev
+Cc: "Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	Mike Christie <michael.christie@oracle.com>,
+	gio@octane.security,
+	stable@vger.kernel.org
+Subject: [PATCH v3] vhost-scsi: zero misaligned I/O bounce pages
+Date: Tue, 20 Oct 2026 16:25:03 +0530
+Message-ID: <20261020105503.75904-1-shubham@octane.security>
+X-Mailer: git-send-email 2.54.0
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -142,83 +96,55 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-X-Mutt-Fcc: =sent
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: vZ8NMo0RoLToclPg9bvd6d2_yjaft7E8Xg-_onRHxk4_1792492826
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-Hi Linus,
-I have a bunch more fixes under review, but let's get this off my plate
-first. Thanks!
+The misaligned I/O fallback copies the full bounce scatterlist to the
+request buffer during completion.  If a data-in command transfers less
+than requested, part of a newly allocated bounce page can remain unwritten.
 
-The following changes since commit 48a4ee65e677559776349128e6a81a6041986c99:
+Allocate bounce pages with __GFP_ZERO so all bytes copied during completion
+have a defined value.  This path is already the slow fallback for
+misaligned I/O, so the added initialization cost is acceptable.
 
-  vduse: return compat ioctl results directly (2026-09-08 03:58:27 -0400)
+Found during an LLM-assisted source audit and validated with a QEMU/KVM
+vhost-scsi target using misaligned data-in commands.
 
-are available in the Git repository at:
+Fixes: 5ced58bfa132 ("vhost-scsi: Fix alignment handling with windows")
+Cc: stable@vger.kernel.org
+Assisted-by: LLM (OpenAI Codex, gpt-5.6-sol)
+Signed-off-by: Shubham Antil <shubham@octane.security>
+---
+Changes in v3:
+- Restore allocation-time zeroing after review confirmed that this is an
+  already slow and uncommon bounce-buffer fallback.
+- Keep the change minimal and document why the zeroing is required.
+- Drop the transfer-length copy-back change from v2.
+- Add the discovery method and the requested Fixes, stable Cc, Assisted-by,
+  and Signed-off-by tags.
 
-  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+ drivers/vhost/scsi.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-for you to fetch changes up to c69023b5e16e5ffe9368603dca76d85bd544ee57:
+diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+index 885fac5ed042..8493a372de6c 100644
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -937,7 +937,12 @@ vhost_scsi_copy_iov_to_sgl(struct vhost_scsi_cmd *cmd, struct iov_iter *iter,
+ 	}
+ 
+ 	for_each_sgtable_sg(sg_table, sg, i) {
+-		page = alloc_page(GFP_KERNEL);
++		/*
++		 * Completion copies the full bounce buffer, including bytes the
++		 * target did not write. This is already the slow fallback for
++		 * misaligned I/O, so zeroing is acceptable here.
++		 */
++		page = alloc_page(GFP_KERNEL | __GFP_ZERO);
+ 		if (!page) {
+ 			ret = -ENOMEM;
+ 			goto err;
 
-  tools/virtio: add missing device-id/virtio.h wrapper header (2026-10-08 18:30:04 -0400)
-
-----------------------------------------------------------------
-vhost,virtio: fixes, features, cleanups
-
-This adds CPR support for vhost.
-
-Plus some fixes, notably for a host of races we had when callback fire
-around device reset.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Andrey Drobyshev (3):
-      vhost/vsock: suppress EHOSTUNREACH fast-fail during CPR pause
-      vhost/vsock: re-scan TX virtqueue on device start
-      vhost: synchronize with RCU readers when freeing workers
-
-Karl Mehltretter (6):
-      virtio_ccw: fix synchronize_cbs() after interrupt fallback
-      virtio_ccw: always take irq_lock in the classic interrupt handler
-      remoteproc: implement synchronize_cbs() for virtio devices
-      um: virtio_uml: implement synchronize_cbs()
-      platform/mellanox: mlxbf-tmfifo: implement synchronize_cbs()
-      virtio_vdpa: implement synchronize_cbs()
-
-Longjun Tang (1):
-      tools/virtio: add missing device-id/virtio.h wrapper header
-
-Michael S. Tsirkin (3):
-      virtio: synchronize callbacks after device reset
-      virtio_pci_modern: move avq cleanup from reset to del_vqs
-      virtio_pci: drop callback sync on reset
-
-Pavel Tikhomirov (2):
-      vhost/vsock: split out vhost_vsock_drop_backends helper
-      vhost/vsock: add VHOST_RESET_OWNER ioctl
-
- arch/um/drivers/virtio_uml.c             | 10 ++++
- drivers/platform/mellanox/mlxbf-tmfifo.c | 15 ++++++
- drivers/remoteproc/remoteproc_core.c     | 12 +++++
- drivers/remoteproc/remoteproc_virtio.c   | 39 +++++++++++---
- drivers/s390/virtio/virtio_ccw.c         |  6 +--
- drivers/vhost/net.c                      |  4 +-
- drivers/vhost/scsi.c                     |  2 +-
- drivers/vhost/test.c                     |  4 +-
- drivers/vhost/vdpa.c                     |  4 +-
- drivers/vhost/vhost.c                    | 26 ++++++++--
- drivers/vhost/vhost.h                    |  5 +-
- drivers/vhost/vsock.c                    | 89 +++++++++++++++++++++++++-------
- drivers/virtio/virtio.c                  |  2 +
- drivers/virtio/virtio_pci_legacy.c       |  2 -
- drivers/virtio/virtio_pci_modern.c       | 15 +++---
- drivers/virtio/virtio_vdpa.c             | 34 ++++++++++--
- include/linux/remoteproc.h               |  3 ++
- tools/virtio/linux/device-id/virtio.h    |  2 +
- 18 files changed, 215 insertions(+), 59 deletions(-)
- create mode 100644 tools/virtio/linux/device-id/virtio.h
+base-commit: c69023b5e16e5ffe9368603dca76d85bd544ee57
+-- 
+2.43.0
 
