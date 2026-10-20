@@ -1,88 +1,99 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.208.53
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.172
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792518658;
-	b=iARwK5gM5gdKGiULtJXRKwUkEH4qDM9Pu1Xm7G7Q0IcCCZSawQUUMU+XMYDxbwUWmBm6
-	 YgmTdliSk/ec5+T81aUKOwSGfAUOG8CyyACQyYJB8yn1YLJ6Er0/9oOmgFnRXcdlnTryy
-	 A/ScmBOKT/5oYcWPOjtv0L7LU30vGnbZRIhnts1WjTxLX7ATJkqESM+yXnJl12fWA1woA
-	 5fYa8nKFkMBU0s7MoSI5r13aVXjLGY5AfmnknvLiw1xuTXU1oNhszZ4CZKXJ1ux0Wfn9A
-	 RZrkoBmZdCY/MSBGyJD+OoTy7EvgGQ4CLXph5f8Gy1+GZD5dXmi6LNi8ffbQBfOoDxQ==
+	t=1792520813;
+	b=2OoO6Y/WoU8hGsvYJSNqOWVcKgVpAGRGT0MxO9qj8AzHOa2Vs+Y5e+kGESq8QOCATLE2
+	 NHilB8jYij5oaa3bet/qHNxBlUJU2O3p5cT7D8eiBJC9wsRP06+dw3l/1KD3BzmTDzap9
+	 Iq3wPhPdQZ4zk/tQLJtrySqBd6rxbcdL6/HbGuVRKMKBPfuywjZH8g4e9p0oABbHeZjQN
+	 gfVKTRCCth3TN3R7LsLwYYix8Zyky/oOVrAT2BWkozWgqX7/BA4yZ6lt21zDKQJCITXPL
+	 sAb8lVsYGTD6Dpa/g2nk1agGI3z/rp4MmNge6wdDx3GXx0IWfCsAJQvYU8psDrSargA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792518658;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792520813;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Received:X-Forwarded-Encrypted:X-Received:MIME-Version:References:
-	 In-Reply-To:From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type;
-	bh=pUauNVWehf9yJlxoCpgSpQ8hZTVkN4yj1GOVaT5sy9U=;
-	b=VKYjs3iSX6f14IVOZh4NFxi49vt+W8TMKwytG88rHu/OKjqOYZlsoQcX4ZHwUer/9dbm
-	 zhkbCnaAjmobrUxw2wPskpn1ECi9DvgDFiXV/Tg2L8ZroMteqmCfpHfqOtZGTq3H+hi6I
-	 dr6Rt6J4dZPe3ie5mgr1hBrl3GjpBt7Pcm0XvxjZ9hH08wbe73Ah9ZwdT/miCZr1NmJax
-	 VlIGqWEl8nbp7S0bYx0LNFnok5sa/cLE9AgWolesILkgcoewk/Evo9ZJUhYQEgJNaagZR
-	 +AKYZr2HZASSXD9DOlTteM5OTigvgJJ2pyLu+aOB606gPYUbLmtxpg7YGVKxVGfjPaA==
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=zzmCTlN2LKpQDlGX69irecctA25CCs8mwLmZ5GzVuOQ=;
+	b=GzrtscCXaDsyeHTdIdqST8gXq3V+nmiC46Q1+A9xO3Wiq043htCNYOcR6mel+SMYomOl
+	 euuiuYGeoLPdcYcJ93L6BsxODjJvdFjaYNYm/vrmx+whNFdRZIoKjSKe1lo/qhSNrq5yQ
+	 KGvtZFFJWKEiDSLRuKdJFJ6BGeF9oGnby8wB5PyhbmEjCuleFgS5WMiqv/Gf6XhoyhY2q
+	 GZfn7MKFIRmJ6aFNaVzs2FtBgODILoe3RaZLvwvMWQzXf3EJcmUZ/ep5mNDwFQAiXRZ9f
+	 OyHYMqGTH3NhCPsBNgDbTXZx1mdtMqFAOpjQj0SRJkQXkCdT0OM9WGvgySypjfrCeKQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linuxfoundation.org;
-	spf=pass smtp.mailfrom=linuxfoundation.org;
-	dkim=pass header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=google header.b=W0eSyNYS;
-	arc=none smtp.remote-ip=209.85.208.53
-Received: from mail-ed1-f53.google.com (mail-ed1-f53.google.com [209.85.208.53])
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=ViA+Ytq3;
+	arc=none smtp.remote-ip=74.125.82.172
+Received: from mail-dy1-f172.google.com (mail-dy1-f172.google.com [74.125.82.172])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01C6F606A32C
-	for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 17:50:56 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 01C6F606A32C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linuxfoundation.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4095E606A31B
+	for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 18:26:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4095E606A31B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=google header.b=W0eSyNYS
-Received: by mail-ed1-f53.google.com with SMTP id 4fb4d7f45d1cf-6afbc363efeso5432363a12.3
-        for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 10:50:56 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=ViA+Ytq3
+Received: by mail-dy1-f172.google.com with SMTP id 5a478bee46e88-3645f0f3fcdso5243392eec.0
+        for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 11:26:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google; t=1792518655; x=1793123455; darn=lists.linux.dev;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=pUauNVWehf9yJlxoCpgSpQ8hZTVkN4yj1GOVaT5sy9U=;
-        b=W0eSyNYSIZSvPM74xsibK8N2mNSX3RWYrCjGZ2wyQM8CHbLi6R3DAUKGLSgmmt+gBZ
-         n1pK5H/Lgw7FypfAYlsyWLYIN2a8dKsmzPdJ/8IJxPdGf439P8ku/MiksZR1Tbdn4djs
-         RWnf02YqDHwzdWTgI8/RkLQjQT7kmty/UzOwA=
+        d=gmail.com; s=20251104; t=1792520812; x=1793125612; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=zzmCTlN2LKpQDlGX69irecctA25CCs8mwLmZ5GzVuOQ=;
+        b=ViA+Ytq3XRdGUGsWUcaMEOZUk9G/nI1M8DNieY2GrYNWAfF9qcAo13TB3h/cbcnGeZ
+         hjqFbuSAHxuUj3FiqB62QCdNQDJRMk9eqxygPi9C8O4Pcyz9RwwbyCDTew2yZvDxNqqk
+         eUadKzH9UgSX4HgeY3AkJhz3a2sEZ+7pCaVe2Dloq3NEGvGhKOGKv8uLkQWtKyWSyAwk
+         LPqpzQ2rIw1kUl3V86BDe7kIdStEPlLlaFsHvMShZfUbPzFNvZNvi1mgDIkqT2aTcxh0
+         YcPyL9W5Tq78YZyWVSAWiGR+iCRjAVhsuVS8BYC6L+ggXYXjEbdbemKFpz9YUetFdxBo
+         77UQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792518655; x=1793123455;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=pUauNVWehf9yJlxoCpgSpQ8hZTVkN4yj1GOVaT5sy9U=;
-        b=oj4yfA6qTdQMF6dJg05+atqd3psbsyhdSe25t/ZJ4wRNPpcLcDnZD45mk3Q8kaOWIa
-         znUqtWFB3sSW+mQA2dKtuYjIzD1YhAYU0JTHAiAaFpKKH3z2bV92sVmUT0g64a22fs2z
-         HtMjlBZ1UcjllJAvZa4Xsz/0J58tDmnRl2WCMUh8cK6F6DyPdReFWWx8jBrVAuxQeR+z
-         dLwbrpCFn75wmNFkRi6PmoT3ZhJuxRMMKYy+EMou7pvbl5e2sUrvGhQYOJIWvP/paoOp
-         cG9DIccv7O0RLXJyz95WkA/PLvr4MLbUu2ELPwwQ8aVNf3bb8HQMUxQFEANLw/5YUpad
-         puFQ==
-X-Forwarded-Encrypted: i=1; AKwUvBxBCTeZVxwz0QseistuCw2Or8er+VnIb7SjEA+tsFws/GD5x6vg+Qry/7JFhmGy7n3M4DiXjUL/2eURSOLPPw==@lists.linux.dev
-X-Gm-Message-State: AFq9FYLrDocIUPoZicwGK7IHaLDQy2SnhmoLzFpCyRpWzOhAe5wGDN+l
-	XIQP7l0NdgSXUcoBupeeL4zaK7YjT7Jsy6Af5VQ4Ok8oSi2Eh62EMR2cvGKSEyVV8n2ZbsyAHDK
-	umYS1Lco=
-X-Gm-Gg: AYBFou0ldfr2P+HhOPeSvG7bJheaqemssDmKlgCfbD5pF88uid8TDGxSUTBN3QJQluw
-	OrIvMcpUp7TnCWY+nf/qU84ekECpNUPuQy5xBUA2ohy0nOpjBN0Ya6lEKF1KDEEZgVaI70dDwaW
-	KDh1Z2aqoJ9Q1Se6MPV267C9p1dmFmBHW2zSYQQ2Yzv10y3LkMBs5FAb9/OZyySaoL9XJBn1lWh
-	r8Ek9FAxBNu7vh/RqaMx/0GVYL7hzx5EAxJagNpUF9Cacv7dQmn57106q6Br5b9r95wtKiWrEPc
-	snx8/rom3DQ4/eNvt0FhGY3GwwU2DauDuEbqmaFCqiSvSOgVY9pSOs+jPo/8t7I8XqsOeThqAsq
-	2YcYw+X9bCUyo+uMfhi1ATfmN7t9kY78vhA5SJ9WzdDl10n7U3Yp9zSCiyYbBtKwK3cNBTmRqnK
-	y+MVtYkRCSqOKeJRr3EeXGprghmoSuTkkWo5p2wPDDUCaXzbIk0nByEPUP7f8CFJgSPQ2u6wspG
-	Ia0mL9IqFIGr4BYcLDEybJvEJeCF9KWIYunRXsVsBqlyx4=
-X-Received: by 2002:a05:6402:c514:10b0:6b4:203:a182 with SMTP id 4fb4d7f45d1cf-6b40203a58bmr245355a12.3.1792518655300;
-        Tue, 20 Oct 2026 10:50:55 -0700 (PDT)
-Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com. [209.85.218.45])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6b40297feb0sm39310a12.34.2026.10.20.10.50.54
-        for <virtualization@lists.linux.dev>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 20 Oct 2026 10:50:54 -0700 (PDT)
-Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-c2a4e013a44so476285366b.2
-        for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 10:50:54 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AKwUvByGg4VxHz5F1jCwErWuoqopka8q+QCaQbWNwKVDc5Higz/INVqOVa/2sNOCIfVT1bXu8rwad4Ouc8dptZCdKg==@lists.linux.dev
-X-Received: by 2002:a17:907:d2a:b0:c41:21ef:26ef with SMTP id
- a640c23a62f3a-c419ef2407fmr811663866b.20.1792518653997; Tue, 20 Oct 2026
- 10:50:53 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1792520812; x=1793125612;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=zzmCTlN2LKpQDlGX69irecctA25CCs8mwLmZ5GzVuOQ=;
+        b=Q6abmB9JPe4JfAUXkrCw2WMmPNmsduE1JBzO+bE5MOIhTh3QZM/Zu3XxmwAhBr2ccI
+         LN+mD354cb2EnffYkBVtf+u/hzKej5xKtUdFYlu+jhk2w7MdBfGWjjkMcO56Wi6tFE5V
+         602VmsdJwkq4VchhBSm1cSd6RfBzXRaxbJmYKIBqo7cXNaiIkZOBgwsDf6j7W7zYgKrB
+         AKQU6w335Ar9I12qHONZ6k2hgp9psMXxMqscmQuxzFdPv+lV8Ae7USHN6QktzZDVHcfm
+         C+3CAcVN7urPkCQr1WzBHBPeuaErM0aDPGhoE/ryhqT39AYn5nPmA4/D0N5cboNNFaQp
+         1InQ==
+X-Forwarded-Encrypted: i=1; AKwUvBwZg7MVAiCyfjRz/C80YEM0EaKNlpV0P/9zXjBxHM7qzbZ/afZIT9uhDgWHUTYrXeKCC0xDeiCZZ+zm8kzl6Q==@lists.linux.dev
+X-Gm-Message-State: AFq9FYK33zpzm7xbWdP1/BlOecydBsDHJ6P8/ySOuUA201YxGkW1Mmh9
+	kmJn7KWYhgK41KpSjKVW573VbG2NMGw6HJEOyOHh2ihFJV2tHjZL73gA
+X-Gm-Gg: AYBFou3lWTnayNtNO2xcqDzIWk6yLdUVNrW7bi4kEa//1rteWq2V9pVM1xAjc41/xfw
+	37II4WiIajhQ3fL68hX5WfmMrUlDEooWpASlIDqSAvk0SBANaZ59OhhTSY7WiGzV2b53EQrDka1
+	N7v8Lj6jLGfTTl8plnrn6bZBpKCvoqaC/XfsOhuuPA0X2p/w7ZHp0Ykg9BZqy9IZTB1Mza/v4j1
+	DYKKGzEDJMvqv99dFVY3GV0WGkuctxc99EzRuJ4zV1U4nCeUKRqvYn3exAaQd16T9YuqGpJxhJ3
+	aB4kj6nks+u1StefBcaQRbBDnBDVLlFYsj67ohlKDBzHHE2JKCijSCRt2lqn6kHQI/OM4now1u5
+	FvAn73Aval00UNpkvx08Sb3erIj8h9rZ63BsMz7pT7pgvWecy2VL0rm8jmY2tT2DKBkSo118Amj
+	wfA0r6sX0/LxoPZReGe2sMWs0v3S9j2ZPkeyJt6j5e+trztc0oi0VavW3BWED0CBNPtyq49hczX
+	3rtEa1oQuXvuffJSUGgzH5pE6TTQN64Zmm01b2LWVRlLj2ew7tH5NIhcPmP7ObOnsX0KnxY/WiS
+	L0+xJNXg6Of5Wl7cEfOka8OpaQMvisge0xaDjgAX
+X-Received: by 2002:a05:693c:87da:20b0:35e:9c54:d41b with SMTP id 5a478bee46e88-3674db4d065mr98253eec.21.1792520812113;
+        Tue, 20 Oct 2026 11:26:52 -0700 (PDT)
+Received: from LAPTOP-97G9G880.bbrouter ([106.51.148.253])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-367411bd2a6sm549302eec.18.2026.10.20.11.26.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 20 Oct 2026 11:26:51 -0700 (PDT)
+From: Karthikeyan KS <karthiproffesional@gmail.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	Mike Christie <michael.christie@oracle.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	virtualization@lists.linux.dev,
+	kvm@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	John Hubbard <jhubbard@nvidia.com>
+Cc: Karthikeyan KS <karthiproffesional@gmail.com>
+Subject: [PATCH RESEND] vhost-scsi: use FOLL_PIN for DMA page pinning
+Date: Tue, 20 Oct 2026 18:26:40 +0000
+Message-ID: <20261020182640.2048506-1-karthiproffesional@gmail.com>
+X-Mailer: git-send-email 2.43.0
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -92,40 +103,162 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-References: <6ad07f8a.a0c71a5e.2d2efd.977a@mx.google.com> <20261018152358-mutt-send-email-mst@kernel.org>
- <CAHk-=wiUn9EbV4TJ4J7OPY0fVc3UC+xb-pp=+rg3hRc4jQqihg@mail.gmail.com>
- <20261018174250-mutt-send-email-mst@kernel.org> <376ef9d0-b03f-4f85-aee5-46cf20eb00ae@gmail.com>
- <20261020021924-mutt-send-email-mst@kernel.org> <CAHk-=wjxtzD1TXZr5iWu0p1+Hu0YZP7jbNSwFkp7AJYmhzhVCA@mail.gmail.com>
- <20261020102134.745ff48a@pumpkin>
-In-Reply-To: <20261020102134.745ff48a@pumpkin>
-From: Linus Torvalds <torvalds@linuxfoundation.org>
-Date: Tue, 20 Oct 2026 07:50:36 -1000
-X-Gmail-Original-Message-ID: <CAHk-=wjUb=G+9gtaSO4bfUYKL+tVBVQq-Zfn_pGbCfxNWbz9AA@mail.gmail.com>
-X-Gm-Features: AclHuK9rATEm1NS_MFfAyhy60SuMBv6wKyZqfF_GIdeIDY7VES_ZxkiFI1mL3aE
-Message-ID: <CAHk-=wjUb=G+9gtaSO4bfUYKL+tVBVQq-Zfn_pGbCfxNWbz9AA@mail.gmail.com>
-Subject: Re: [BUG] vhost/vringh: __get_user without access_ok leaks kernel
- memory via vDPA passthrough
-To: David Laight <david.laight.linux@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Wang Haoran <haoranwangsec@gmail.com>, jasowangio@gmail.com, 
-	kvm@vger.kernel.org, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	eperezma@redhat.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
-On Mon, 19 Oct 2026 at 23:21, David Laight <david.laight.linux@gmail.com> wrote:
->
-> There should also be very few (if any) access_ok() calls outside of the code
-> that implements user copies.
+vhost_scsi_map_to_sgl() pins guest buffer pages via
+iov_iter_get_pages2() (FOLL_GET), which does not prevent
+copy-on-write or page migration while DMA is in flight. Switch to
+iov_iter_extract_pages() (FOLL_PIN), which does.
 
-Note that that branch only removes __get_user/__put_user - and only on x86.
+Cc: Jason Wang <jasowangio@gmail.com>
+Cc: Mike Christie <michael.christie@oracle.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: virtualization@lists.linux.dev
+Signed-off-by: Karthikeyan KS <karthiproffesional@gmail.com>
+---
+ drivers/vhost/scsi.c | 49 ++++++++++++++++++++++++++++++--------------
+ 1 file changed, 34 insertions(+), 15 deletions(-)
 
-So there's still a lot of valid access_ok() calls left. Some are
-around things like raw_copy_to/from_user() etc.
+diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+index 7a1f39a327da..e14b4da4ea9c 100644
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -115,6 +115,8 @@ struct vhost_scsi_cmd {
+ 	u32 tvc_sgl_count;
+ 	u32 tvc_prot_sgl_count;
+ 	u32 copied_iov:1;
++	u32 tvc_need_unpin:1;
++	u32 tvc_prot_need_unpin:1;
+ 	const void *read_iov;
+ 	struct iov_iter *read_iter;
+ 	struct scatterlist *sgl;
+@@ -433,8 +435,13 @@ static void vhost_scsi_release_cmd_res(struct se_cmd *se_cmd)
+ 
+ 			if (tv_cmd->copied_iov)
+ 				__free_page(page);
+-			else
+-				put_page(page);
++			else if (tv_cmd->tvc_need_unpin)
++				unpin_user_page(page);
++			/*
++			 * Else: iov_iter_extract_pages() took neither a ref
++			 * nor a pin on this page (ITER_KVEC/BVEC/etc), so
++			 * there is nothing to release here.
++			 */
+ 		}
+ 		kfree(tv_cmd->read_iter);
+ 		kfree(tv_cmd->read_iov);
+@@ -443,8 +450,8 @@ static void vhost_scsi_release_cmd_res(struct se_cmd *se_cmd)
+ 	if (tv_cmd->tvc_prot_sgl_count) {
+ 		for_each_sgtable_sg(&tv_cmd->prot_table, sg, i) {
+ 			page = sg_page(sg);
+-			if (page)
+-				put_page(page);
++			if (page && tv_cmd->tvc_prot_need_unpin)
++				unpin_user_page(page);
+ 		}
+ 		sg_free_table_chained(&tv_cmd->prot_table, vs->inline_sg_cnt);
+ 	}
+@@ -773,7 +780,8 @@ vhost_scsi_get_cmd(struct vhost_virtqueue *vq, u64 scsi_tag)
+ 
+ static void vhost_scsi_revert_map_iov_to_sgl(struct iov_iter *iter,
+ 					     struct scatterlist *curr,
+-					     struct scatterlist *end)
++					     struct scatterlist *end,
++					     bool need_unpin)
+ {
+ 	size_t revert_bytes = 0;
+ 	struct page *page;
+@@ -782,7 +790,8 @@ static void vhost_scsi_revert_map_iov_to_sgl(struct iov_iter *iter,
+ 		page = sg_page(curr);
+ 
+ 		if (page) {
+-			put_page(page);
++			if (need_unpin)
++				unpin_user_page(page);
+ 			revert_bytes += curr->length;
+ 		}
+ 		/* Clear so we can re-use it for the copy path */
+@@ -812,9 +821,9 @@ vhost_scsi_map_to_sgl(struct vhost_scsi_cmd *cmd,
+ 	size_t offset;
+ 	unsigned int n, npages = 0;
+ 
+-	bytes = iov_iter_get_pages2(iter, pages, LONG_MAX,
+-				VHOST_SCSI_PREALLOC_UPAGES, &offset);
+-	/* No pages were pinned */
++	bytes = iov_iter_extract_pages(iter, &pages, LONG_MAX,
++				VHOST_SCSI_PREALLOC_UPAGES, 0, &offset);
++	/* No pages were extracted */
+ 	if (bytes <= 0)
+ 		return bytes < 0 ? bytes : -EFAULT;
+ 
+@@ -837,7 +846,7 @@ vhost_scsi_map_to_sgl(struct vhost_scsi_cmd *cmd,
+ 		    cmd->tvc_sgl_count > BIO_MAX_VECS) {
+ 			WARN_ONCE(true,
+ 				  "vhost-scsi detected misaligned IO. Performance may be degraded.");
+-			goto revert_iter_get_pages;
++			goto revert_iter_extract_pages;
+ 		}
+ 
+ 		sg_set_page(sg, pages[npages++], n, offset);
+@@ -849,14 +858,17 @@ vhost_scsi_map_to_sgl(struct vhost_scsi_cmd *cmd,
+ 	*sgl = sg;
+ 	return npages;
+ 
+-revert_iter_get_pages:
+-	vhost_scsi_revert_map_iov_to_sgl(iter, *sgl, sg);
++revert_iter_extract_pages:
++	vhost_scsi_revert_map_iov_to_sgl(iter, *sgl, sg,
++			is_prot ? cmd->tvc_prot_need_unpin : cmd->tvc_need_unpin);
+ 
+ 	iov_iter_revert(iter, bytes);
+ 	while (bytes) {
+ 		n = min_t(unsigned int, PAGE_SIZE, bytes);
+ 
+-		put_page(pages[npages++]);
++		if (is_prot ? cmd->tvc_prot_need_unpin : cmd->tvc_need_unpin)
++			unpin_user_page(pages[npages]);
++		npages++;
+ 		bytes -= n;
+ 	}
+ 
+@@ -926,6 +938,7 @@ vhost_scsi_copy_iov_to_sgl(struct vhost_scsi_cmd *cmd, struct iov_iter *iter,
+ 	}
+ 
+ 	cmd->copied_iov = 1;
++	cmd->tvc_need_unpin = 0;
+ 	return 0;
+ 
+ err:
+@@ -950,11 +963,17 @@ vhost_scsi_map_iov_to_sgl(struct vhost_scsi_cmd *cmd, struct iov_iter *iter,
+ 	struct scatterlist *sg = sg_table->sgl;
+ 	int ret;
+ 
++	if (is_prot)
++		cmd->tvc_prot_need_unpin = iov_iter_extract_will_pin(iter);
++	else
++		cmd->tvc_need_unpin = iov_iter_extract_will_pin(iter);
++
+ 	while (iov_iter_count(iter)) {
+ 		ret = vhost_scsi_map_to_sgl(cmd, iter, sg_table, &sg, is_prot);
+ 		if (ret < 0) {
+ 			vhost_scsi_revert_map_iov_to_sgl(iter, sg_table->sgl,
+-							 sg);
++					sg, is_prot ? cmd->tvc_prot_need_unpin :
++						      cmd->tvc_need_unpin);
+ 			return ret;
+ 		}
+ 	}
+@@ -1392,7 +1411,7 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
+ 		/*
+ 		 * If T10_PI header + payload is present, setup prot_iter values
+ 		 * and recalculate data_iter for vhost_scsi_mapal() mapping to
+-		 * host scatterlists via get_user_pages_fast().
++		 * host scatterlists via iov_iter_extract_pages().
+ 		 */
+ 		if (t10_pi) {
+ 			if (v_req_pi.pi_bytesout) {
+-- 
+2.43.0
 
-But some are around things that just want to verify that it's a valid
-user address for other reasons. On example is in fork.c that just
-checks that the stack that is supplied is ok.
-
-But yes, the branch does remove a number of access_ok() calls. Fewer
-than you'd maybe think, though.
-
-                  Linus
