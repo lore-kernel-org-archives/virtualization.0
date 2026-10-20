@@ -1,112 +1,117 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.170
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792527005;
-	b=rTeAXPTxg/OIyXXcNKYyZP8Uxb1Dw9YsG3xJWI+BrsPD5xYGDZAc3JB1mZhTfHTzUe0D
-	 hZlv4DAeWK4b7ZPXGNbwd9AIerjzOiMaHlO/1wKA6YcXYhnAAC1ck2N3Pxq6NwWuckMzp
-	 o9dFbF2S+Hm29Cs64NirSRdO+Hp3OQzvualKT+MwZ9wUUpQJEHWHCtitxDcEMVjCauTsr
-	 PpRSCiq9tWEy9dIzNFdimpXw47+/kBsDm6URsWfS3miQSBUptJXnYPJuQGH/RQbCByIuC
-	 wXhyXKNJUPGtX9I7Rm5YGbLX339OXZy1r7cCS+VVHcjR5PMSl+Z3nkF5C5wkMPifz5w==
+	t=1792527583;
+	b=n1dAm3zs4TpGGoMBk3sOjetxMT9gdn2W6uA3mNDVmJbEIks+03+ZAiCmp1ZMOinL6mi6
+	 RtqmXolGaC/SvPaYV/eeNbb/ciLr0l1GjhXr+jhVWQxpEF/0xW4ri9p85ZZ7kt4SNZvh6
+	 3woKE+KCGBBigJ6G4qRb0HWy4fF24+jOJktQ3oWzx3zF8xWi7jdU1Qf/+h1NJBM5Q8i4o
+	 JSXXA96zYExFOVSJ2wQt3FiFXp2FgyeKTkkmeaUP38K3nB9ZHAa0HxEa5JmPgqe8jmH4s
+	 2/2NNb0IsCwBiOL0eetQ4v1M1FYJtbvpupEWtVgQhuQNHCpGMEpKeAu9nAqIuVtp9hQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792527005;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
-	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
-	 X-Mimecast-Originator:Content-Type:Content-Disposition;
-	bh=biyZRTLtYoa9JccTtADP7XVfeHu0cGOgCGXxzzSk5nY=;
-	b=agfbiswoUshmklB8vBiHgbWXS+QuEcBpfm++/iCPU6xkQjoGKC3ndrkCuniRO1iscQch
-	 7UbaQbQ7YlnsimtA8rkOYxSx2/r+1cKEmJjs/2zFVRxJ2r1LFNBm4UJXql0E6fYWwJYq8
-	 RxxRe4fFE7bJolE9I14eizHvLXG2thebXrr/8mLyeH1YdkF2ydMy9lvGqXEluB6x5OZ7j
-	 iFMyF5UnTIi1YGTqavHDPG4fZAfXLHoGXseZ4RJ9UGN/hv0sf9qp3jZCTQUNNkdFRjf9m
-	 4HaZpFXB9OvHtM9TY0tfkUHWQcH8QjP7kAKMla2hhrQ4jq5QTO1YTW9/EtfiBac212w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792527583;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding;
+	bh=mSISClxN0AquiYKdkApngEQlUAzth9oYRTtKq3bxFPE=;
+	b=Qpt+iCsO6bA05yY6x4JDV98m8TrM40UDBvjoXlQ9xUtmq3R63DB8pFd3+W/B3/PEpNvL
+	 WUYbyr2vD50zNI89ZLbYubVeBKu36C41hhwk0ZYI/gsZv2W5I8KSIxIbFBbgsg9avbaIL
+	 oG6gHMcdIww9dOqle20aTKevKL4njN3LiDJIEpdCFybDJKkApud/RcSf77adEwgsvxA1y
+	 p4jsbECwwlAyFGL5/S4AC8R92bzkgKPgvr6BIpV6WEz+bIn5BQU9RWV9RKEZI8IsJJ7TM
+	 FWnwzgbhAXtjGF1RUpassz2pA2SIanlmNT6Or4iIzskbeCIKV+KllhrREMcpm+kfPqA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ZUHlkudy;
-	arc=none smtp.remote-ip=170.10.129.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=TRApa3Xs;
+	arc=none smtp.remote-ip=209.85.221.170
+Received: from mail-vk1-f170.google.com (mail-vk1-f170.google.com [209.85.221.170])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 074D2606A31F
-	for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 20:10:04 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 074D2606A31F
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0979A606A31C
+	for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 20:19:42 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0979A606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ZUHlkudy
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1792527004;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=biyZRTLtYoa9JccTtADP7XVfeHu0cGOgCGXxzzSk5nY=;
-	b=ZUHlkudyzyiKHSdwgfsL6/mRONAwiENVBzCn+FGVD3R9qttD0VjQHOFx/6YbD8389lIql2
-	YZELH+QRTyCHSl1mKOUyGKWZsIT0QisHamVXQqi0NO8fZ4X9wIi+N0FxqTSX4J7qr8pxI6
-	T3hbObXaB7bwwqZ3JgCtZzJBgvegaco=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-167-5X0zdv-_P9G_CrGWnS-6hg-1; Tue, 20 Oct 2026 16:09:56 -0400
-X-MC-Unique: 5X0zdv-_P9G_CrGWnS-6hg-1
-X-Mimecast-MFC-AGG-ID: 5X0zdv-_P9G_CrGWnS-6hg_1792526995
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4a1d1f26a63so126515e9.1
-        for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 13:09:56 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=TRApa3Xs
+Received: by mail-vk1-f170.google.com with SMTP id 71dfb90a1353d-5eac9db5905so966009e0c.0
+        for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 13:19:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1792527582; x=1793132382; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:mime-version:subject
+         :references:in-reply-to:message-id:cc:to:from:date:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=mSISClxN0AquiYKdkApngEQlUAzth9oYRTtKq3bxFPE=;
+        b=TRApa3Xsjnywp4tUHkNj4sBKWFJ3tgAK82ZEJGdvCwao3u3H63Ws9Gl1mkxInKi6Uu
+         BE/AaaGC0YgukA1g69U1Tnx1rgp4NbEPCRYFMVzIe+GYdjAYlTt7BB/czAxsYsq+VPB4
+         5aj08rRKe1eKp0fm+A+Sv02AVaO7jV3P8Iy8PLVHQK3Dtiw3TFFRtFrPvOWRIdha7kWJ
+         7tnu+9LNcUTNioN1ACNhN8UNICOo3snqGSu/XgYVxtqCY/P3qNV138jq8sUD+PJRi7Zf
+         8bcyTh/KunQrR27zSpSsat6ALaw68lPFOa4tgsH4TKsr/VoVFMaBzKvgfjldzIp/X1hp
+         CV7A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792526995; x=1793131795;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
+        d=1e100.net; s=20260707; t=1792527582; x=1793132382;
+        h=content-transfer-encoding:content-type:mime-version:subject
+         :references:in-reply-to:message-id:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=biyZRTLtYoa9JccTtADP7XVfeHu0cGOgCGXxzzSk5nY=;
-        b=kS5YNiMhSRN3vVBNeHqmwrKCV8RCxX5nFEYd13Q++XwenuiQDq49khTeImo3k4Vzf2
-         sP9PrH5PuSDwGvh/fgkly6Uswq10pRRS/eQZEnxjtHivm1ddJj4NLX+ZWmxTVmQ2rr9v
-         KcmQqh/EvoD9xrkuVpjrMwWsOozX7Y5428mELXuqQzfMpFlbhdgUHWNu4CgC2b1rwhz1
-         l/2GYruxY27H6jYmVuFYxP+2+mnBO2dZVFrwdd4Ypc1ktAytRvHgPvkocU2CvJWhMoU7
-         bXVba5ZUIMDsp46hIPWnnYue9GNN+sNaNWBPgTmYhd/kxPbq9WGJI6sTXD1sfNR53aAh
-         7F4Q==
-X-Forwarded-Encrypted: i=1; AKwUvBz55SUgH6EjN1KXa6HH4KMLkXYIuaS9IOt8PdDG3WTo5HRswBXQAzeYNqYKrCtjk+Rt8UlbJDEOFfrR/WJkNg==@lists.linux.dev
-X-Gm-Message-State: AFq9FYInT13zpZmtgallNpWSqWTgo8VHQ+YjByrYKjudJFfPV0z0OiUc
-	gQY3pAD76RsRIzTNsoD/ohfKB1JucghgQNE8cKUwkXEkKCb+ig3UCA1jwg/UkKPLPLKPcUXaLVf
-	EbBHMPQGCP0xwgwwVVihQanewYgTBeJN5RfiQD0pIRpLlPIuDVN2yk8bwO39rfnVeL4D+
-X-Gm-Gg: AYBFou0Fu0ynGwhgYEmIzPPAUmhGjI94nllkdVFsm7sCVASLcX/wQi3sQR9WKQZ5Bir
-	1GX0LNnyg/dVzy0kJ/4AulQklpWAqhpHa4T2zESFejBL/Vlz/kn6t2x/yVAQvzW+hbHbP/JQPYQ
-	fV2cFFlRBISOCy8VQ3dHgz+LActOGVWqgIVjhon0pEGsbj9LyJYgSB1Y5EwD3u/HR39SGCVF6Q9
-	CF/VG33wcEsqAHfKh6foEJv1VN8IPPpJXbnjWSzXQBt1aP2H0gmLPgGcQrqeoZQ72gYx7Kks5pS
-	6h53TwgEM7fCcQkAJW1QNx79Z9MzdXzHGJEZisRJltGwFrLXtFhjNoEQM4dQQrFz4Mf/Pw==
-X-Received: by 2002:a05:600c:3b1c:b0:4a1:d248:25c4 with SMTP id 5b1f17b1804b1-4a1d76046dbmr262528875e9.13.1792526995048;
-        Tue, 20 Oct 2026 13:09:55 -0700 (PDT)
-X-Received: by 2002:a05:600c:3b1c:b0:4a1:d248:25c4 with SMTP id 5b1f17b1804b1-4a1d76046dbmr262528445e9.13.1792526994567;
-        Tue, 20 Oct 2026 13:09:54 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:3fd7:5300:3d6b:52a4:a23f:9d0b])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a1fc10de99sm10206805e9.1.2026.10.20.13.09.51
+        bh=mSISClxN0AquiYKdkApngEQlUAzth9oYRTtKq3bxFPE=;
+        b=K/YGLf9of1S3nQ4sK9EDEJ1ZCen024Nv0qJFZeSWfYBppuSyg8Ek4mZP2Bn1eCiDTM
+         7e/0nfmaSwGyNpD5nXwXvUkvt0ovFj9JFZkCyQXyGodtvXKEdE8Bs9LrTXV3I9ikgWq9
+         /3hQVwkjQtBRuRLgIm+U/KsihCb5EXB+Hpkve5wTLvR/rkpsFixJa+7dMEVMZguZzycE
+         a0XTBK4HXHzCoYnTQZFu3OkEhs4sYRU+lVTE6rK/N5uQEeyV/T81LSt3SF1AZzvbA9WS
+         ZENwcIZcHQTNoJlLY7OxAGORfJelbKAsnA2sK+R5mi1jgC8DjgEvPXkWuQEbXlqt1eA1
+         GoAA==
+X-Forwarded-Encrypted: i=1; AKwUvBxrBEGnRBICsISCv0UNeqyfxdI5osh+4hPQnzx8W/cPs4QGTCXF0nJNUfk58ggW12WpJV8Ex0N3cnznOzMPHw==@lists.linux.dev
+X-Gm-Message-State: AFq9FYLM1aHROqe+2CO+8vP23s0781b4IHf3bPe2mbAwmH+TMO4tjh5H
+	LasRSqTX0u1GDK1DD2EO5eOeAuMBxy/2HZ60oq4gzA7heUDE5IUI7Yjt
+X-Gm-Gg: AYBFou3RhfpRuUxpB7RmfyILI1dHsxn5E8WN5Jz1RSsgmo1juVMUElEIHCyAhFcDb7N
+	GbeZhaSNh+WjQ4NfJigsdiJjNc+Lq1TrlhZmZv8JQjdU1VrSZEVxiCy0Zx6493OzyZMz7ZINL+e
+	u+0EUeuL7vmeslvxw43pfIhnbDW0SJb/RCiLFTRgM18WBMV827apCW07x5QVCYt4edpd3vKdp/F
+	m76WQ+KeXTR3HmP2t5E6zQF47kpMIvIRmnPtDUl2EYU44qqjG9+qKkvadkoRThMbvDqQgZmkqs1
+	Ob5qjGt04wuGrUuGksFBMLbIIjo93H3FrO+u0tG0Qk2anBu2VVwM4TH5EA3pmVAq6IvfGTKM7Xc
+	fIFaUX1ITPeZVuplokDT4arXWNzE74+zFWNQVIZOSeKNQkiDibSlKmvPC2xY6Ukl2TExaPKDTJf
+	t767HvVnVObAPqj4/AWAL6kn9VnUYAVlLMXAwaZMqy2xQvXWPBsCwbY4VSN+6vZEp4H+XML+s7K
+	/D9ciShO0nuxYGttSHFK1NtLenCDkvLmt1paBX7qaQgobf5JQdDXxgQnyQqLbo09BkPz6rRPUtr
+	nxxG5sMlO4usnCBUv38FA+OjlC6lTZUAbuKM+Q==
+X-Received: by 2002:ac5:c00e:0:20b0:5ea:389c:520b with SMTP id 71dfb90a1353d-5eaaa3a4e95mr3071748e0c.8.1792527581939;
+        Tue, 20 Oct 2026 13:19:41 -0700 (PDT)
+Received: from gmail.com (111.46.245.35.bc.googleusercontent.com. [35.245.46.111])
+        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-5eae983efe8sm587906e0c.17.2026.10.20.13.19.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Oct 2026 13:09:53 -0700 (PDT)
-Date: Tue, 20 Oct 2026 16:09:50 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Chris Arges <carges@cloudflare.com>,
-	=?iso-8859-1?Q?Bj=F6rn_T=F6pel?= <bjorn@kernel.org>,
-	Phil Sutter <phil@nwl.cc>, Jason Wang <jasowangio@gmail.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@kernel.org>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	netdev@vger.kernel.org, virtualization@lists.linux.dev,
-	Max Krasnyansky <maxk@qualcomm.com>,
-	Rusty Russell <rusty@rustcorp.com.au>,
-	Simon Horman <horms@kernel.org>
-Subject: Re: [PATCH net v3 1/8] net: account for ingress-resolved virtio net
- hdr state
-Message-ID: <20261020160829-mutt-send-email-mst@kernel.org>
+        Tue, 20 Oct 2026 13:19:41 -0700 (PDT)
+Date: Tue, 20 Oct 2026 16:19:41 -0400
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, 
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: linux-kernel@vger.kernel.org, 
+ Chris Arges <carges@cloudflare.com>, 
+ =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>, 
+ Phil Sutter <phil@nwl.cc>, 
+ Jason Wang <jasowangio@gmail.com>, 
+ =?UTF-8?B?RXVnZW5pbyBQw6lyZXo=?= <eperezma@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+ Andrew Lunn <andrew+netdev@lunn.ch>, 
+ "David S. Miller" <davem@davemloft.net>, 
+ Eric Dumazet <edumazet@kernel.org>, 
+ Jakub Kicinski <kuba@kernel.org>, 
+ Paolo Abeni <pabeni@redhat.com>, 
+ netdev@vger.kernel.org, 
+ virtualization@lists.linux.dev, 
+ Max Krasnyansky <maxk@qualcomm.com>, 
+ Rusty Russell <rusty@rustcorp.com.au>, 
+ Jonathan Corbet <corbet@lwn.net>, 
+ Shuah Khan <skhan@linuxfoundation.org>, 
+ Randy Dunlap <rdunlap@infradead.org>, 
+ Simon Horman <horms@kernel.org>, 
+ linux-doc@vger.kernel.org
+Message-ID: <willemdebruijn.kernel.2c9decc16892@gmail.com>
+In-Reply-To: <20261020155917-mutt-send-email-mst@kernel.org>
 References: <cover.1792411304.git.mst@redhat.com>
- <b1dce3e055b973bd87bdbdc9e9729971fa383326.1792411304.git.mst@redhat.com>
- <willemdebruijn.kernel.26f697d5a674b@gmail.com>
- <20261020153650-mutt-send-email-mst@kernel.org>
- <willemdebruijn.kernel.57aa9aa58b62@gmail.com>
+ <6f23c55c6eba3e3ec6b2c7e3a80728a326ed58af.1792411304.git.mst@redhat.com>
+ <willemdebruijn.kernel.187d58ff2bce5@gmail.com>
+ <20261020155917-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH net v3 6/8] net: add a sysctl to opt out of virtio net hdr
+ checksum validation
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -116,219 +121,66 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-In-Reply-To: <willemdebruijn.kernel.57aa9aa58b62@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: mAjr-5u9dDP8m3rpJ8aVxdFlhcyP__cZpWSwt2L9RiQ_1792526995
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: 7bit
 
-On Tue, Oct 20, 2026 at 04:02:26PM -0400, Willem de Bruijn wrote:
-> Michael S. Tsirkin wrote:
-> > On Tue, Oct 20, 2026 at 03:27:46PM -0400, Willem de Bruijn wrote:
-> > > Michael S. Tsirkin wrote:
-> > > > The following patch will add ingress resolution of uncommon virtio net
-> > > > hdr checksum metadata (software checksum completion at ingress) which
-> > > > adds performance overhead to the packet processing.
-> > > > 
-> > > > We should make it visible, so a hypothetical workload relying on
-> > > > uncommon metadata can be distinguished from none at all. This way issues
-> > > > in the parsing will be reported and not quietly pay the host-CPU
-> > > > checksum overhead instead of offload.
-> > > > 
-> > > > Flip every call to virtio_net_hdr_to_skb to test for negative errno
-> > > > only, and have tun count these events per device as rx_csum_sw, exposed
-> > > > via ethtool -S.
-> > > > 
-> > > > Assisted-by: LLM
-> > > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > > > ---
-> > > >  drivers/net/tap.c        |  4 ++--
-> > > >  drivers/net/tun.c        | 41 ++++++++++++++++++++++++++++++++++++++--
-> > > >  drivers/net/virtio_net.c |  2 +-
-> > > >  net/packet/af_packet.c   |  4 ++--
-> > > >  4 files changed, 44 insertions(+), 7 deletions(-)
-> > > > 
-> > > > diff --git a/drivers/net/tap.c b/drivers/net/tap.c
-> > > > index ff67d99deb39..73e883394446 100644
-> > > > --- a/drivers/net/tap.c
-> > > > +++ b/drivers/net/tap.c
-> > > > @@ -649,7 +649,7 @@ static ssize_t tap_get_user(struct tap_queue *q, void *msg_control,
-> > > >  
-> > > >  	if (vnet_hdr_len) {
-> > > >  		err = tun_vnet_hdr_to_skb(q->flags, skb, &vnet_hdr);
-> > > > -		if (err) {
-> > > > +		if (err < 0) {
-> > > >  			rcu_read_unlock();
-> > > >  			drop_reason = SKB_DROP_REASON_DEV_HDR;
-> > > >  			goto err_kfree;
-> > > > @@ -1084,7 +1084,7 @@ static int tap_get_user_xdp(struct tap_queue *q, struct xdp_buff *xdp)
-> > > >  
-> > > >  	if (vnet_hdr_len) {
-> > > >  		err = tun_vnet_hdr_to_skb(q->flags, skb, gso);
-> > > > -		if (err) {
-> > > > +		if (err < 0) {
-> > > >  			rcu_read_unlock();
-> > > >  			goto err_kfree;
-> > > >  		}
+Michael S. Tsirkin wrote:
+> On Tue, Oct 20, 2026 at 03:54:23PM -0400, Willem de Bruijn wrote:
+> > Michael S. Tsirkin wrote:
+> > > The ingress validation as implemented by the previous
+> > > patch is stricter than what it replaced: GSO
+> > > packets whose checksum metadata matches no transport header are
+> > > dropped, and non-GSO ones get their checksum completed in place.
+> > > Such packets used to pass with the metadata unvalidated,
+> > > and with no overhead.
 > > > 
-> > > similar to tun, should tap count this event?
+> > > I judge that this should not affect any deployments, but there is still
+> > > some risk that it does.  In case a deployment depends on them anyway,
+> > > provide a per-netns switch to get the old behavior back:
 > > > 
-> > > > diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-> > > > index 242899f7fd07..19cb443c89b0 100644
-> > > > --- a/drivers/net/tun.c
-> > > > +++ b/drivers/net/tun.c
-> > > > @@ -210,6 +210,7 @@ struct tun_struct {
-> > > >  	u32 flow_count;
-> > > >  	u32 rx_batched;
-> > > >  	atomic_long_t rx_frame_errors;
-> > > > +	atomic64_t rx_csum_sw;
+> > > echo 0 > /proc/sys/net/core/virtio_net_hdr_csum_check
 > > > 
-> > > is a normal (and cheaper on 32b platforms) atomic_t or atomic_long_t sufficient?
+> > > The default is validating.
+> > > 
+> > > Assisted-by: LLM
+> > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > > ---
+> > >  Documentation/admin-guide/sysctl/net.rst | 19 ++++++++
+> > >  include/linux/virtio_net.h               | 23 +++++++++
+> > >  include/net/netns/core.h                 |  1 +
+> > >  net/core/dev.c                           |  6 +++
+> > >  net/core/net_namespace.c                 |  1 +
+> > >  net/core/sysctl_net_core.c               | 60 ++++++++++++++++++++++++
+> > >  6 files changed, 110 insertions(+)
+> > > 
+> > > diff --git a/Documentation/admin-guide/sysctl/net.rst b/Documentation/admin-guide/sysctl/net.rst
+> > > index e586e17fc7a5..b1a1c4714b22 100644
+> > > --- a/Documentation/admin-guide/sysctl/net.rst
+> > > +++ b/Documentation/admin-guide/sysctl/net.rst
+> > > @@ -246,6 +246,25 @@ processes are dropped unless socket option SOF_TIMESTAMPING_OPT_TSONLY is set.
+> > >  Default: 1 (on)
+> > >  
+> > >  
+> > > +virtio_net_hdr_csum_check
+> > > +-------------------------
 > > 
-> > well it can overflow easily. i don't know that we care that a slow
-> > path will be even a bit slower on these ancient platforms. correct
-> > reporting seems more important.
+> > virtio_net_hdr_validate? In case we do have to add more validation
+> > later.
 > 
-> Ok. I would hope that monitoring catches this before it hits 4B, but
-> agreed that as slow path it doesn't matter.
+> If you insist. My worry would be what if that validation is again
+> user-visible somehow and we need to distinguish users who want
+> to disable that future thing and users who want to disable
+> just this current thing.
 > 
-> > 
-> > > >  	struct bpf_prog __rcu *xdp_prog;
-> > > >  	struct tun_prog __rcu *steering_prog;
-> > > >  	struct tun_prog __rcu *filter_prog;
-> > > > @@ -1935,11 +1936,16 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
-> > > >  		break;
-> > > >  	}
-> > > >  
-> > > > -	if (tun_vnet_hdr_tnl_to_skb(tun->flags, features, skb, &hdr)) {
-> > > > +	err = tun_vnet_hdr_tnl_to_skb(tun->flags, features, skb, &hdr);
-> > > > +	if (err < 0) {
-> > > >  		atomic_long_inc(&tun->rx_frame_errors);
-> > > >  		err = -EINVAL;
-> > > >  		goto free_skb;
-> > > >  	}
-> > > > +	if (err > 0) {
-> > > 
-> > > } else if (err > 0) {
-> > > 
-> > > > +		atomic64_inc(&tun->rx_csum_sw);
-> > > > +		err = 0;
-> > > > +	}
-> > > >  
-> > > >  	if ((tun->flags & TUN_TYPE_MASK) == IFF_TAP)
-> > > >  		skb->protocol = eth_type_trans(skb, tun->dev);
-> > > > @@ -2605,12 +2611,15 @@ static int tun_xdp_one(struct tun_struct *tun,
-> > > >  	tnl_hdr = (struct virtio_net_hdr_v1_hash_tunnel *)gso;
-> > > >  	skb->dev = tun->dev;
-> > > >  	skb_set_network_header(skb, ETH_HLEN);
-> > > > -	if (tun_vnet_hdr_tnl_to_skb(tun->flags, features, skb, tnl_hdr)) {
-> > > > +	ret = tun_vnet_hdr_tnl_to_skb(tun->flags, features, skb, tnl_hdr);
-> > > > +	if (ret < 0) {
-> > > >  		atomic_long_inc(&tun->rx_frame_errors);
-> > > >  		kfree_skb(skb);
-> > > >  		ret = -EINVAL;
-> > > >  		goto out;
-> > > >  	}
-> > > > +	if (ret > 0)
-> > > 
-> > > same
-> > > 
-> > > > +		atomic64_inc(&tun->rx_csum_sw);
-> > > 
-> > > maybe reset ret = 0 in all these branches
-> > > 
-> > > >  
-> > > >  	skb->protocol = eth_type_trans(skb, tun->dev);
-> > > >  	skb_reset_network_header(skb);
-> > > > @@ -3739,7 +3748,35 @@ static void tun_get_channels(struct net_device *dev,
-> > > >  	channels->max_combined = tun->flags & IFF_MULTI_QUEUE ? MAX_TAP_QUEUES : 1;
-> > > >  }
-> > > >  
-> > > > +#define TUN_STATS_LEN	1
-> > > > +static const char tun_ethtool_strings[TUN_STATS_LEN][ETH_GSTRING_LEN] = {
-> > > > +	"rx_csum_sw",
-> > > > +};
-> > > > +
-> > > > +static int tun_get_sset_count(struct net_device *dev, int sset)
-> > > > +{
-> > > > +	return sset == ETH_SS_STATS ? TUN_STATS_LEN : -EOPNOTSUPP;
-> > > > +}
-> > > > +
-> > > > +static void tun_get_strings(struct net_device *dev, u32 stringset, u8 *data)
-> > > > +{
-> > > > +	if (stringset == ETH_SS_STATS)
-> > > > +		memcpy(data, tun_ethtool_strings,
-> > > > +		       sizeof(tun_ethtool_strings));
-> > > > +}
-> > > > +
-> > > > +static void tun_get_ethtool_stats(struct net_device *dev,
-> > > > +				  struct ethtool_stats *stats, u64 *data)
-> > > > +{
-> > > > +	struct tun_struct *tun = netdev_priv(dev);
-> > > > +
-> > > > +	data[0] = atomic64_read(&tun->rx_csum_sw);
-> > > > +}
-> > > > +
-> > > >  static const struct ethtool_ops tun_ethtool_ops = {
-> > > > +	.get_sset_count		= tun_get_sset_count,
-> > > > +	.get_strings		= tun_get_strings,
-> > > > +	.get_ethtool_stats	= tun_get_ethtool_stats,
-> > > >  	.supported_coalesce_params = ETHTOOL_COALESCE_RX_MAX_FRAMES,
-> > > >  	.get_drvinfo	= tun_get_drvinfo,
-> > > >  	.get_msglevel	= tun_get_msglevel,
-> > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > > > index daab43ac92ce..2e6fd81df9c4 100644
-> > > > --- a/drivers/net/virtio_net.c
-> > > > +++ b/drivers/net/virtio_net.c
-> > > > @@ -2519,7 +2519,7 @@ static void virtnet_receive_done(struct virtnet_info *vi, struct receive_queue *
-> > > >  	skb_set_network_header(skb, ETH_HLEN);
-> > > >  	if (virtio_net_hdr_tnl_to_skb(skb, &hdr->tnl_hdr, vi->rx_tnl,
-> > > >  				      vi->rx_tnl_csum,
-> > > > -				      virtio_is_little_endian(vi->vdev))) {
-> > > > +				      virtio_is_little_endian(vi->vdev)) < 0) {
-> > > >  		net_warn_ratelimited("%s: bad gso: type: %x, size: %u, flags %x tunnel %d tnl csum %d\n",
-> > > >  				     dev->name, hdr->hdr.gso_type,
-> > > >  				     hdr->hdr.gso_size, hdr->hdr.flags,
-> > > 
-> > > should virtio_net count these too? Or do we assume that devices are
-> > > more trustworthy, so unlikely to cause this issue?
-> > 
-> > With memory encryption, from an untrusted host?
-> > i can add that.
-> 
-> I honestly don't know if it's worth the effort. Just curious whether
-> you had purposely skipped this and tap.
+> Hard to predict the future. But I will go with your intuition.
 
-more like it slipped my mind.
+Thanks, but definitely feel free to ignore my suggestions.
 
-> > 
-> > > > diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
-> > > > index 52ae3d875e97..e6aec9ecfa99 100644
-> > > > --- a/net/packet/af_packet.c
-> > > > +++ b/net/packet/af_packet.c
-> > > > @@ -2913,7 +2913,7 @@ static int tpacket_snd(struct packet_sock *po, struct msghdr *msg)
-> > > >  		}
-> > > >  
-> > > >  		if (has_vnet_hdr) {
-> > > > -			if (virtio_net_hdr_to_skb(skb, &vnet_hdr, vio_le())) {
-> > > > +			if (virtio_net_hdr_to_skb(skb, &vnet_hdr, vio_le()) < 0) {
-> > > >  				tp_len = -EINVAL;
-> > > >  				goto tpacket_error;
-> > > >  			}
-> > > > @@ -3136,7 +3136,7 @@ static int packet_snd(struct socket *sock, struct msghdr *msg, size_t len)
-> > > >  
-> > > >  	if (vnet_hdr_sz) {
-> > > >  		err = virtio_net_hdr_to_skb(skb, &vnet_hdr, vio_le());
-> > > > -		if (err)
-> > > > +		if (err < 0)
-> > > >  			goto out_free;
-> > > >  		len += vnet_hdr_sz;
-> > > >  	}
-> > > > -- 
-> > > > MST
-> > > > 
-> > > 
-> > 
-> 
+My intuition would be to define as
+
+0: off
+1: everything one
+2+: sadly needed fudge values because we keep having to tighten,
+    but some crazy workloads need to opt-out to avoid breakage.
 
