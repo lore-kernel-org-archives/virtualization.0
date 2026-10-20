@@ -1,98 +1,53 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.180
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1792453624;
-	b=wUUJC/fbKN9664QVHpwv0/rAa758krm/xeaHxsAqKpY3WrH7ZrdHIEiK2KGJ/2UANOuH
-	 25pG2oGEP/Snz7nk3D9xuhJuN8gqBxaf8L/GVFW3Yi7V3/CXHxXtOZ0SfSBh8R3NSzI38
-	 h6GQCeRXVj8zva8Z2GHUIEScIeOLXfkxOhfgAhluxaApL5uIF1f2STM+Jem1GtTm3Yyf3
-	 zl3puQ3zTCPEhB2J3f1HKrb5MQecNNc/1IEfQ2Hb6421iK/u+L6haMppgAjqRdlajeax0
-	 f7rt41e8T3tnZywURYeGaMoCh8Fw9AdRKI1HwmcZON+/tAXBx/AxCdnHNUd3VYdXCvw==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792453624;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type;
-	bh=ypCU1E5MKpp7DyfKc2E/egobrXvy2R64su9DcxdosVA=;
-	b=ZPlcWfSGUNc+t6BUHEAA8wYwPSEXZyeikHPKrR57iEsDCpM5q06K2c8HEHzO5MTWKZMO
-	 T0HWaKViWrZqua+wpa7GTK6FLWBX7v5ubR/Dx1J3ZjcuF2TIoC3KqslPC9lz1Dzunbw9Q
-	 ultKsKgkEflSpdK1beLa8ElevZ1pqozhk44sb0C/wP8IT0A9OmRVNDWFc7c9cVmnqbix3
-	 Bdl+YO6q+zDDZbiIclS1yqMqpnXBc/guAr9fpjq/q4ACxfeCiRJ9R3kKPHYTYefAKrPdq
-	 8Td2crlcZd0kWTcFDET8jcdJvL0x5+NKGj2QsO9mgUMxD1djJjETMp9edlmO2ClieVQ==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=IpCAD0tC;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.180
-Received: from mail-lj1-f180.google.com (mail-lj1-f180.google.com [209.85.208.180])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=213.97.179.56
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1792460433;
+	b=eWWB1ZMZVrgWDZyUidPo1rLCT16QyWf63UC5pDU4Gg/peiv/QiJcs+iOfFGch3r8GJVN
+	 8urd2iGCjLcj6tfkD6R3YyHxDISgJcebf9+l/pTLiK16Xk2wV0EUTQsNZUlfdxk6zPnRA
+	 CkpyFPv5ETwvvbKJtZrsIKVuYSlS7n/rhcuSzCuJFEukISHeyTkqYrkjXarDhKfUXsHk5
+	 P/5G7xPS1UzSbS215v+najYP7wcN3CRlfjjpHFBMzik9xp+FPxgaSduBeAAfwID+oZnsw
+	 gr4g6d/jMN66RZ+Q3GkH2hMDw1A9PG/6eiDcQZiLJYSlgDCYAg1dSxMhDmm7C7o5AZw==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792460433;
+	h=DMARC-Filter:DKIM-Signature:Received:Message-ID:Date:MIME-Version:
+	 User-Agent:Subject:Content-Language:To:Cc:References:From:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=Y/v52Nt7wua3/Hqh2/eSRWr2zKr9agsfw3+QaI3Wh7o=;
+	b=d3MjsxEpDDcey3Xex7lc8FbBc7snLY8byNod9Lrx3++P4a5bs2jO8ZCuE5xEo0+j03s5
+	 eRbV85gpQbvmE14jus4s/J+bxuM0mESmxJGfpLsNi3bTE0vulpG6GkYqS9Xbdls+1bD/S
+	 2vw5lWC+JOK3P4fx1SsCH4atqEWcK76z/6xA1nlw3G7LlRrm+ExqEDm3scm5kBBfeBV67
+	 0A0W4RRP6WB7UpcvBLVZyNOOBPdxqjtvxI5gYslS4atWZqDmMsUYGtRqU+ff34GYh1Ug6
+	 4w7fHZT8+DzRC4xnrj7zCm10oBQCfqJAmRHjE6bCdYYJHXSIrckwedoNnNVW6T3yahw==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=igalia.com;
+	spf=pass smtp.mailfrom=igalia.com;
+	dkim=pass header.d=igalia.com header.i=@igalia.com header.a=rsa-sha256 header.s=20170329 header.b=gz3Y0cld;
+	arc=none smtp.remote-ip=213.97.179.56
+Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E90CF606A319
-	for <virtualization@lists.linux.dev>; Mon, 19 Oct 2026 23:47:03 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E90CF606A319
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DED9D606A31A;
+	Tue, 20 Oct 2026 01:40:31 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DED9D606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igalia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=IpCAD0tC
-Received: by mail-lj1-f180.google.com with SMTP id 38308e7fff4ca-3ab46699a09so8281271fa.0
-        for <virtualization@lists.linux.dev>; Mon, 19 Oct 2026 16:47:03 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1792453622; cv=none;
-        d=google.com; s=arc-20260327;
-        b=haSC+neoTEL4DoikOO1IkyAAF6lWXRpv5Ryh3hBtn0GO7+SJ94r94g3DHMf8/3O+s7
-         Kte6UPh5EzmFBMrsxMN3Tppv+6MStsNMP89iZOL6BR6h7jjdGVo0M2uiKUFZ6gtAamEO
-         M4L+zERBLuE3LsKD2Yha07jFFLbUS7AOuC6hI4AXCy+fATMCBAMLDk3EJt6X+52l7aAX
-         xNWjSVVJW8N8OUkpnDeJUM3n/Ga+i0ACm8f/htpPfT9UCNNBEeA3em743UHDz2tjQ3ZY
-         ryAcdvjbN7DT7XI2eB3MSAkbIUumrs2cAapwqefu1V9bKWb8+pwPuk2ApW+ku9XlxjyK
-         lQQg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=ypCU1E5MKpp7DyfKc2E/egobrXvy2R64su9DcxdosVA=;
-        fh=xD6SFKOGkW0gPY8GvBGYuZCFStgBo/hHpIoSnWmZBno=;
-        b=ITqE9lTqulTRRT2skuAxvBscD3ta6ovyWmbr+KpaFzCWyrTh4gMksFixpwG86xocGU
-         +6QDTDSy0i6g+0+lEHdEqYzFiG4gC9X8sa9kI+THvoXYpqJcLW5HQCFllZWp0FFRbK7b
-         +T6KfCW6jrSXn3wzM1Qh8g/dvk1yU9eDuBcjJNV+DW9+ERs9SLAuBpgFEevbtBTh0U8v
-         VnMNKsOJw9ZA7PTXiJyNlGPNLfNToMohyjwhNHLBu4eLz4mnYRwJm+b4TATJRanz+C30
-         DHKpR42lWyN6qihrY5JiLBMSN1YqUAyfbeSUFmhhJEGUM+BlO2185KARnBkL79xgCQMo
-         CCLA==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792453622; x=1793058422; darn=lists.linux.dev;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=ypCU1E5MKpp7DyfKc2E/egobrXvy2R64su9DcxdosVA=;
-        b=IpCAD0tCZz+6wJYSVqiCyWQ50QJY3K4V9T/0OXQSHDjVGwgq+9hdRQ+00gK1znJ7CY
-         ZXil4kGEI4YE0Cg3gTe82Ffkl9+ntfJDMbsQzTkb77ovjtArqthccfvsyJ+62i/7yJFQ
-         0DReVtyF/dgTBUmP2i3Be1RYU2JQwLYJARor6T+5LsJkeeRTNZJSehfRws04yvMmskJh
-         H9n3w1vKExp8M6nrzWfepxc5wEV1AcTk06qLx/0Z0x9LkFX4b4TY1p04DxknfZpNjuB0
-         SDIOB/o8t75qiM0X7cc2QqNg3edKoim/KLUMryQkzp3Xxb+hA5JQiyGjeeWH1slhCjJg
-         73FA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792453622; x=1793058422;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=ypCU1E5MKpp7DyfKc2E/egobrXvy2R64su9DcxdosVA=;
-        b=I1uXyaqhNidAik7VD5t8cGiidGXWzyaSenEiEHmM2DpecCC05wlbV2eCbHYq/glB9w
-         9zYnWVh1HDqcK0X292m7dEq6oEW0qShAtu575+G2UMK6Iwtb4xHrEUTuH+QDLNzf8b7q
-         w6/b3smyu2pGKfs1ih4Yi2B06ctmPXxDHAorN4T09go55FsNk+ssl+gh5EqVLuS3QVsd
-         7+gOeaBdcOLHKzt/uYEJZd3bupijxss7jYS8/oi0oADFOA16y9XCMPAcPHn6/ub9xfYu
-         oCKE7YqEeed8USc8goqZYYcgCVTM/UDkXAj7uh3p7knr7cy2UBQ7TX3o2g2foe1aCBrt
-         UOXg==
-X-Forwarded-Encrypted: i=1; AKwUvBz9wi44f5GZgZEH+ajVbAraxslEOquE/it7dHAuQBQib7+DfJvvHqlfULWe3yIr85zOKyrylo1xg+oSXIVItQ==@lists.linux.dev
-X-Gm-Message-State: AFq9FYJDMmJpEffY9CU/nTdipAJoJiul9k18ZFv50dNk9lYag8sbMQ/2
-	uJLAmGNgJZZHAnLlbbzT2GrqKo9UEZnNe5fHaYipopH4xloZY6FJax34vIBi5mv/2SneJheUl2p
-	Ol4rPXYBERX2YHgwxt1OmyQ/vpJO47gI=
-X-Gm-Gg: AYBFou2qW9ZDqUeLR5LQLkgImzhXhKzbqXFX77ZHuIq8YBwYqFo5opagDQRdKMjyB6U
-	QC76uF3ZuwhRH9vqaITOnJ3NPx2zCgtJsdvL7Nel6yM5hxsfHMHHmVK3JNTW1ry5f6xUHpPhrVU
-	avjQGJmdIVp/c5vOFDWnZvPvjSPL77y2+5Kb7PyR/OG/+ALegLbx8wYlVyXEkXFUfDu4T22YwzY
-	yfHBToti/+U2T6Fl5hPUqltWv+UJo6BVsUxOXA/q7DoFqc9sMpkRm2LGuV0lLeOApwWLK+RveHT
-	5TU2xSM+ffis3gYjwyhmU7UpR2WLJRSnuQYu4thKGzDn2MJAhnvszg==
-X-Received: by 2002:a05:651c:510:b0:3ab:2d74:71e with SMTP id
- 38308e7fff4ca-3ab2d742b84mr17797071fa.10.1792453621900; Mon, 19 Oct 2026
- 16:47:01 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=igalia.com header.i=@igalia.com header.a=rsa-sha256 header.s=20170329 header.b=gz3Y0cld
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
+	s=20170329; h=Content-Transfer-Encoding:Content-Type:From:Cc:To:Subject:
+	MIME-Version:Date:Message-ID:From:Reply-To;
+	bh=Y/v52Nt7wua3/Hqh2/eSRWr2zKr9agsfw3+QaI3Wh7o=; b=gz3Y0cldVWyCo401TUdb94v8wa
+	YoSB0h8baJhpIXaCi9PlSKT+G0Ap571CVXBDOFWQnrW1IXDQY2olHhBiDqAs8u0baPqzVYPzsAcDc
+	FzGtkjvYOjmHF6SUB8pFSNuwMObtBQOQd7Flb8gBocyw1DyA5fjgKE0qBfhyclWFTfwxTxjHTKv5p
+	zXjPNqwA+XUlZCu50sJcr3fyf0qN9IjtiBlZ8hU69wnf2hTYoaVQn9aQe4fd8X2miull6Un5xUhQq
+	QO9/s4noupNuak9u8vOqWLS3ze7ZAmWHZZCzpL9QYM5ooDl36WVwy2Ovx/qhD/4YMPnyiu6x62FFF
+	2EcCKf8g==;
+Received: from [177.189.74.83] (helo=[192.168.15.93])
+	by fanzine2.igalia.com with esmtpsa 
+	(Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128) (Exim)
+	id 1xIypa-0044FE-6B; Tue, 20 Oct 2026 03:39:58 +0200
+Message-ID: <83dffabb-c702-eec9-a992-ba5b9530a8cc@igalia.com>
+Date: Mon, 19 Oct 2026 22:39:49 -0300
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -102,33 +57,100 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-References: <20261016023521.747447-1-oss.patchbox@gmail.com> <25a35fa8-9540-4892-8375-1788e6795dfb@kernel.org>
-In-Reply-To: <25a35fa8-9540-4892-8375-1788e6795dfb@kernel.org>
-From: Yuho Choi <oss.patchbox@gmail.com>
-Date: Mon, 19 Oct 2026 19:46:50 -0400
-X-Gm-Features: AclHuK-d2lDGIbO0nMDnG4pSmt2gfW-rFmLHGdUc2vgLpFp-z405iCYiTrPxDos
-Message-ID: <CAGG=RgDUFpDqtbws4YO4T8A3pS4Dr9twVqP9hSD3J_zP5Dc_mQ@mail.gmail.com>
-Subject: Re: [PATCH v1] virtio-mem: only mark the device ready in kdump mode
- with vmcore support
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>, 
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.15.1
+Subject: Re: [PATCH v1 4/4] x86/vmware: Run panic diagnostics before kdump by
+ default
+Content-Language: en-US
+To: Stephen Brennan <stephen.s.brennan@oracle.com>,
+ Petr Mladek <pmladek@suse.com>, Zack Rusin <zack.rusin@broadcom.com>
+Cc: Borislav Petkov <bp@alien8.de>, Ajay Kaher <ajay.kaher@broadcom.com>,
+ Alexey Makhalov <alexey.makhalov@broadcom.com>, x86@kernel.org,
+ Joel Granados <joel.granados@kernel.org>, Baoquan He <baoquan.he@linux.dev>,
+ Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>, "H . Peter Anvin"
+ <hpa@zytor.com>, virtualization@lists.linux.dev,
+ bcm-kernel-feedback-list@broadcom.com, linux-kernel@vger.kernel.org,
+ John Ogness <john.ogness@linutronix.de>, Steven Rostedt
+ <rostedt@goodmis.org>, Sergey Senozhatsky <senozhatsky@chromium.org>,
+ Kees Cook <kees@kernel.org>, Andrew Morton <akpm@linux-foundation.org>,
+ Mike Rapoport <rppt@kernel.org>, Pasha Tatashin <pasha.tatashin@soleen.com>,
+ Pratyush Yadav <pratyush@kernel.org>, Dave Young <ruirui.yang@linux.dev>,
+ Jonathan Corbet <corbet@lwn.net>, Bo Gan <bo.gan@broadcom.com>,
+ Brennan Lamoreaux <brennan.lamoreaux@broadcom.com>,
+ kexec@lists.infradead.org, linux-doc@vger.kernel.org
+References: <cover.1788414671.git.zack.rusin@broadcom.com>
+ <7487011dfb95aadda9515b22a5852680df1982c5.1788414671.git.zack.rusin@broadcom.com>
+ <aquttpMVKX8e6zGB@pathway.suse.cz>
+ <CABQX2QPJVg-dZB9f4ydRU_5W7nyWwVCQtDoRGoe1+9cA7wyUDw@mail.gmail.com>
+ <bc0bdd14-5e6a-0676-cd04-14fb0bb93cd5@igalia.com> <87v77p9t4h.fsf@oracle.com>
+From: "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+In-Reply-To: <87v77p9t4h.fsf@oracle.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Mon, 19 Oct 2026 at 09:05, David Hildenbrand (Arm) <david@kernel.org> wrote:
->
-> Which kdump kernel exists that does not enable CONFIG_PROC_VMCORE?
->
-> IOW, why should this be stable material?
+On 28/09/2026 14:35, Stephen Brennan wrote:
+> [...]
+> Hi Guilherme, thanks for CCing me! You're right, I'm interested too :D
+> Your email arrived on the first day of my vacation, so I'm sorry for the
+> delayed response.
 
-I tagged it because a9403425b3cf has been in releases since v6.14 and
-PROC_VMCORE can still be turned off with CRASH_DUMP enabled, so the
--EBUSY path is reachable in a valid configuration. But as no practical
-kdump kernel disables it, I'll drop the Cc: stable in v2.
+Hi Stephen! Nice talking to you =)
+No worries at all, this is also conference season heh
 
-> LGTM, but I am pretty sure it does not make any difference in practice?
+> [...] 
+> I do think we're going to have trouble articulating exactly what are the
+> criteria for a "pre_kdump" notifier vs a "panic" notifier? Anyone
+> submitting a patch believes their notifier is important, so of course
+> they believe it belongs on the pre_kdump list! How will we draw the line
+> in the future?
+> 
+> - Is it safety? As in "the notifier doesn't take any locks"? I feel
+>   this should be part of the criteria. (Though I have never been
+>   successful in predicting what code would cause a kdump/panic failure)
+> - Is it urgency? As in "without this, the expected behavior of the
+>   system during a panic will not occur".
+> - Is it the fact that the notifier is communicating with the hypervisor?
+> 
+> From my perspective: informing the hypervisor of a panic is both safe
+> and urgent. If the hypervisor is configured to immediately halt and do
+> its own panic handling, great.
+> 
 
-Right, nothing is queued on that path, so the device has nothing to
-access.
+This is a very good point. What is the criteria? I honestly don't
+know...I think hypervisor-related things, that are safe (as you put)
+makes sense. Anything that might also make kdump work more reliably, and
+is safe as well...but everyone will judge their notifier important, in
+the end heh
+
+
+> Providing the last 4KB of logs seems less safe and less urgent (though
+> obviously still immensely helpful). The kernel provides a huge variety
+> of consoles through which the hypervisor could have already received
+> these logs. If the system is configured not to use them... it seems the
+> tradeoff to not be debuggable has already been made :P
+> To me, that logic belongs in a standard panic notifier.
+> 
+> Plenty of people will likely disagree with me on that, but that's why it
+> would be helpful to have clarity on what separates pre_kdump from
+> standard panic notifiers.
+> 
+
+But at the same time ... there's something else, the "self-contained"
+nature of hypervisor-related notifiers. This one is restricted for
+vmware only, so personally, I think it's not a super biggie to run it
+early. It is, in the end, a decision of vmware stakeholders. If that
+would be an arch notifier, something that all arm64 users would
+necessarily run, for example, I'd be way more skeptic on putting it early.
+
+Anyway, not sure if I helped or if I contributed nothing to the criteria
+discussion heheh
+
+But I hope to see this discussion happening, maybe should also gets
+documented as part of future Zach's patch iteration as well.
+Cheers,
+
+
+Guilherme
+
+
