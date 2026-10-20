@@ -1,94 +1,111 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.161.100
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.217.51
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792524215;
-	b=XS7/HlWfRW7ylhz7eJYRiqJ0fG329gJDDgrJlafmOeCUfi79Nv/oXomi7HdkCCS16GBt
-	 tNaM81osqSUVp27iaMD6mshoftKPOd1atjoDM/E0sieqmpHpr5dUUg8YnQ/+J2xuQ3XVs
-	 p2CNISyQ+8SBKwiQxRoqstft9PRSuiT1pM9dO9O98pM0+QzrzAtujyGB7gDfARp3YfHPY
-	 ZpUX9WL8UtC8p6QPXSZljRbvDozcLSr6aTKn6NTLXatiSnccdyBaxSJzjmvSmUNlJVcNi
-	 7WbAN93iYGCJ3l2TzbbjdOI1Nj23VYZzUqiBjTmYvGAj2NES35C/TFC7vDDXY8A2dOA==
+	t=1792524469;
+	b=vd5SWCpkandleA/zTDWWPKtyAkuufxXkRt52yfZG8yy/eIlR6u9NieMqbGxZOJoncjO7
+	 D5sPiKLzFh0IeQ1Z6O+OW05MLFn+IHv7yE8ux/gQLfl7MTx4ii73Ku1IWbAK/ybbPPsmL
+	 s2mzq3FDULj6w655LilDZLxKcdDS/x5xh/V6SUwaoqFv39PwmVWKGLRcaFPfPPjFz+ifz
+	 0BTp1JB0mx8YXs2szNAU5oGL2P2THBb4V2KGJ+IcXf3szcaVcimDi5emwkcRNs9WMARdm
+	 M1RFqv2CaP9AvYGSVWd6IIG/wq5QaNOPwjqsRCvb8VY+muH+RaVTSH+3wsltz0bSo2A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792524215;
-	h=DMARC-Filter:Received:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:X-Relaying-Domain:
-	 X-CFilter-Loop:Received:DKIM-Signature:X-Forwarded-Encrypted:
-	 X-Received:X-Received:MIME-Version:References:In-Reply-To:From:Date:
-	 X-Gm-Features:Message-ID:Subject:To:Cc:X-DetectorID-Processed:
-	 Content-Type;
-	bh=toEd0+/BC8CS9eO0qyu/yWx27eV1WIUAXnhJnuX/Kq0=;
-	b=hrQZw+x4sLm2rGI8WrhJBE1z5HgZnQCFdsda4h8Qt039UGKhBxlaVqu+OJr4/U5JrAUg
-	 GJx+W6SLK7yzH+bBEOBV3wFNjz1OUDyRxGoJywHrtLso+dQvrEWyKviJOYcWODTlengCt
-	 CTiyZTAvjJnmRyBz/xuQG/OkLLTwV0UE/GEGXj1X7RJlss4TPXZYTTqRn4r2qLZhgShpD
-	 y4l5oMphrqbtvQ1lj3yXeu/jKaFb78IcdsxIrf37Jq2o0YR1yChufqSFgBQk9eAGWC94M
-	 oUGWaOX6FM4PjOidsaiIW+zVjlErPrIepkXxnYDmtUo0aeqESCqqeb0gONTtiTaV+5Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792524469;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding;
+	bh=8d0QJtk8ZEIWYlaqlfK6d7NfnOjbhnoYPvBNLRwXsqc=;
+	b=kSlKULUDk0u0ouUJYm11fwylACLGPp5bTXxS1pNvuijDHcEl5UgdaJAUJB47YozTbJvF
+	 kcB6W4TrdmPTYFDdNZjqLKEbxqxG93Zs+PBkigD27k/3i39i3f8rgDlJNu1FOnAX+8eIf
+	 NToQFuxk892lCIOdXFVrTujADz6z1yoHFUl/mfjykggds8r5gaGpLv4LNuq2e+NiZSiwv
+	 AFId0mD0n3j9N7k8ymJ9SRoRfAJWTAIEEom325U5QVaiawkMIMXJb+3Nh/jiXzy9NR7+0
+	 6rJcNlWBJxs+s7SQxm02JhyZACzMtzaQC8HuqNPexhwZD6K6a9lROL3nHPIhRpZkYog==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=broadcom.com;
-	spf=fail smtp.mailfrom=broadcom.com;
-	dkim=pass header.d=broadcom.com header.i=@broadcom.com header.a=rsa-sha256 header.s=google header.b=hzPj3brt;
-	arc=none smtp.remote-ip=209.85.161.100
-Received: from mail-oo1-f100.google.com (mail-oo1-f100.google.com [209.85.161.100])
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b="HJD/eM7x";
+	arc=none smtp.remote-ip=209.85.217.51
+Received: from mail-vs1-f51.google.com (mail-vs1-f51.google.com [209.85.217.51])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0262606A31E
-	for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 19:23:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A0262606A31E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0F75606A32F
+	for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 19:27:48 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C0F75606A32F
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=broadcom.com header.i=@broadcom.com header.a=rsa-sha256 header.s=google header.b=hzPj3brt
-Received: by mail-oo1-f100.google.com with SMTP id 006d021491bc7-6f74f6b46abso1835966eaf.0
-        for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 12:23:34 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792524213; x=1793129013;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:dkim-signature:x-gm-gg:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=toEd0+/BC8CS9eO0qyu/yWx27eV1WIUAXnhJnuX/Kq0=;
-        b=KKexDpI7uVi9JzaZafoa3GqBZrQqGMNOxxgrZF4VEJXs49FrcrDoBlFBHF+NH7pYrF
-         DakK1lwHG2Sb8+38nkyHKq09tZrttAjZNaEIVMjPRtClaOxgjOW4DXjlw1QHafJ235Ov
-         FbJgaKY+1PzONGyR8oTxnP1wT2qsSmtfULM7nswx/nAozOQGq6etfUrZCdvaH8GOQmt8
-         xRCbb80ag40l9yVvMCS7ILArPbQqXymF2kK6cH14Ye1UMc5HXjBVFSWGAry9dajUWkOC
-         5vGYp6syYKtLrM+E2fWy9nnid/o1pqA1UlsAsDq9F8K/AHxzebiPoitgmdG7eClCHZuw
-         qe0Q==
-X-Forwarded-Encrypted: i=1; AKwUvBw8i1dhIaHcPbepen28hl6npkGM5Y02szksGpbrIAEHaMuhvyzbB5x696ORJj5KhSPUGHH+6FW5oWejQZIJ4Q==@lists.linux.dev
-X-Gm-Message-State: AFq9FYLxaCtuzCF4qh6lYNQEXRjVXGCSZUr3NrchtDoOqK3mYByF0GiQ
-	TmSYCAgJYODFmtVVQ9FfN3uDXQFVq+qorWRgqPSSAM7dKdRzsnOmRrJfaRjwbrNZnJpll7qeaWx
-	NvONY9NRGfQW1rVw1FESFj4neT1orYhvCisDmcDzxJND/z8Hbfg2VMmT0OiwrhUzaa4DtHIXTjJ
-	yHryUKM7SSxEdQWnmYntvgZBElErRBFbdxqKfx8GeeXdgT6XP5By9ygSuZLENB3OKKRTRJgR1RN
-	sgq101vxvFTTmJe2mQ=
-X-Gm-Gg: AYBFou1j8fdjMplbXgipodj74PS4odBmKPuQy6cOVmZJiLQTsW29hBvEJY93Jx9Z10R
-	7PluU49ZHXGr2LHHBgOnu/9kKfQxBypiRpDfAWc5uDFrWJvGL+tm+MDFGOENMSE9/1kKRHCelYX
-	W3b9eZQK03RmkTXBc4Nu2Dmd9qEBI+JdfeefC9u3r2i+J1lKrnrRXuThUSIvTXAqZEAKEvOzzqV
-	M9Q9mi9+YMN3Z102LVVXIRxSASJcw4jTNSQ4hzsNt4e+KF/uEDJbxYp6DUAUdbaHqEmGpBYSc4X
-	ba/db6D8TcW6tG8breql5/FffKqM7++X7tJCcW+yJoxYzhXxjJqPyA6xltB64vusiWEWH0UrhU5
-	2Or4i4dpbjLFNessN/M1F5UkBhAxKQNTjQbsvmotUdR3Dk0ENlfSZXDJ0vq+EpngFWPgFV7ZgGx
-	0wOss1wV/a1IgCnV4azKpeNXgQq/pZzlmT
-X-Received: by 2002:a05:6820:341a:10b0:6cd:3ffc:ad05 with SMTP id 006d021491bc7-70358193bdamr5731679eaf.85.1792524213271;
-        Tue, 20 Oct 2026 12:23:33 -0700 (PDT)
-Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-17.dlp.protect.broadcom.com. [144.49.247.17])
-        by smtp-relay.gmail.com with ESMTPS id 46e09a7af769-84cbcce0187sm3483a34.10.2026.10.20.12.23.31
-        for <virtualization@lists.linux.dev>
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 20 Oct 2026 12:23:33 -0700 (PDT)
-X-Relaying-Domain: broadcom.com
-X-CFilter-Loop: Reflected
-Received: by mail-lf1-f72.google.com with SMTP id 2adb3069b0e04-5ba4284e23eso2335175e87.2
-        for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 12:23:31 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=HJD/eM7x
+Received: by mail-vs1-f51.google.com with SMTP id ada2fe7eead31-77bf892b496so15799137.0
+        for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 12:27:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1792524210; x=1793129010; darn=lists.linux.dev;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
+        d=gmail.com; s=20251104; t=1792524468; x=1793129268; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:mime-version:subject
+         :references:in-reply-to:message-id:cc:to:from:date:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=8d0QJtk8ZEIWYlaqlfK6d7NfnOjbhnoYPvBNLRwXsqc=;
+        b=HJD/eM7xDFWbP9EMX6u55OsNf/1J6xhIV/saadiJrAMTJR+QkU6zGLOmjUclwUDIPy
+         kIrFHLRZ/9GyH0m6OgPGxehiLD0hRZG0LgmMX3wfxOFhs6nVMKfZ2itvwVsowFAjHqog
+         fWDoPYe7gZmXNgngfdhRMB3VXAhlqfPoHKVYJL6LnN3tq4km25LTDKiniz6wIsHQFKE9
+         J/Hf/pkonpVDQ56vQ0NdotU8ftPRvwbbx/tQm1x23gGtFUtQiy60RX+8rrEFr5mq8tZQ
+         9Haxn1bou8yE+P0i/oOF30vanCMZkXrjkhYfuiWgD1zC9VbKaiSJOJ6e9q84UVKe+QRg
+         1pIQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792524468; x=1793129268;
+        h=content-transfer-encoding:content-type:mime-version:subject
+         :references:in-reply-to:message-id:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=toEd0+/BC8CS9eO0qyu/yWx27eV1WIUAXnhJnuX/Kq0=;
-        b=hzPj3brtwJJ/JMOeSUTfKb9L4gekPgvFvbEt6TN4+PzEhnD6yV64UE39u4AVSrXZ8o
-         f55LCDjd5wgtUrWknhUYiNcKBf8s3sTxJnHPyytrp9azvnsc9vdrU2kajiZfbvMOg2Gn
-         MhCDLVrHHPJb9ZLZS9CzaMrwDxWaERggvI9Dk=
-X-Forwarded-Encrypted: i=1; AKwUvBy/5QHld52cXfzzt87nN8RWXE4m98AYa0ue+n2fLKqFRK5303gw1NqjDFr50gUXYzofstxAhcBPgo9Pd11Sjg==@lists.linux.dev
-X-Received: by 2002:a05:6512:a91:b0:5bc:d39d:b451 with SMTP id 2adb3069b0e04-5be509f6638mr4064203e87.9.1792524210044;
-        Tue, 20 Oct 2026 12:23:30 -0700 (PDT)
-X-Received: by 2002:a05:6512:a91:b0:5bc:d39d:b451 with SMTP id
- 2adb3069b0e04-5be509f6638mr4064176e87.9.1792524209462; Tue, 20 Oct 2026
- 12:23:29 -0700 (PDT)
+        bh=8d0QJtk8ZEIWYlaqlfK6d7NfnOjbhnoYPvBNLRwXsqc=;
+        b=tAv0xiUCZa1FB0P0IQwudXbQ17/ZeuYUJclGT5tfYmDgygTXmI4kAV5sy4Q89Txecb
+         HzXKLBkhtxwW5DCUXg1dIVzcRb5KCdvRTHriSKkI+UAWauKLbiR3tpt2xQzG6fKT7mnA
+         fsSwL4LkNvwkK2wexee0xMyG2Iq8ye2qRx6EE3zVjEkpeuJLT02ByQ1EmVG69Xdmzf2H
+         fJI3oDa+0vLdb7LQoPYPY0vRox02IuLdG9IOXx73cZDFzE6WvDDMhM/w/ZTWk2dSBaE9
+         2EyYpMWQCHADjrnuTdcFzDwFJZbuLqevrhI20qtlOQPyz67AAVVyoYZ90vP7Vnssu7RX
+         IY8Q==
+X-Forwarded-Encrypted: i=1; AKwUvBx/vraH+W+qALZMdi4deQ/554EpmqlkvrRYotJp1I/q4CgRwH0ahdodPh4fuZP1aerPEow1gBncDMgnSK9eSg==@lists.linux.dev
+X-Gm-Message-State: AFq9FYKLAVWiRbtIUPBFNt9nSQG5ODysYo5s3VrGupIlXh5KWHjMZkGV
+	1CQRlHQ4zaK4fKGKZiURBYz3QFoq6GZ37Z4u7AWaaJymbADVvGhbtRn8
+X-Gm-Gg: AYBFou1QnMBcof245Jd7Wd7g+QYBs9SY/zTqyAvUZ5SY7qtmoQCmsStKZvU1xpEmjhi
+	Aizgv8qSd62UYvNFPljTCm1ZE5tCYQxqOI1/KxahIB2/OTr6TJDaYW3homD+jo4Ld0keFKZ/emj
+	+SSKFFP2SgWxHi1UVhr1ouFuLvKpFBhaKJKWgmQEjXBWg7AJwO84oOr6lrYqKwCbW0MfXiJ5psM
+	xvebYAajCn6YfRskL33YcpmqqdhLEEdknOU6FyGvmxlb813e6pIqkw33KnxD2QNgnK+/olmfDEm
+	nqf92JVFhtr1GR7SBEXDQZAyF7W/kMJUsmu1+BH2Cl478O3KRsUfgooeCvwDlzhOZgx4J9MTroa
+	PzNpROMbuYm6tyiUXNIin89ALlnnQdtjtGjFfZrfDQNmjGAbSpA83ylHvetYRPExCs3xPk1kTpW
+	v31tefk0iDA6OdArj4cJAx9bYiqwDvzivo7GGnMN4kL9/u2Lb7IdcrCWXSa9ZvUuIYdtuz8LZ4h
+	kPh8dScUPp5cM87j1TXOY/ltD81ltvU7n85DnJCZJps6xB5Ge2EOCeHd+nltoRW8hK5IsT8GYxR
+	gkhbQz91PqezR/MC0DrHlc0KOOGag2mltT5uVw==
+X-Received: by 2002:a05:6102:688b:b0:7cc:892:f746 with SMTP id ada2fe7eead31-7cc9246601cmr60179137.1.1792524467589;
+        Tue, 20 Oct 2026 12:27:47 -0700 (PDT)
+Received: from gmail.com (111.46.245.35.bc.googleusercontent.com. [35.245.46.111])
+        by smtp.gmail.com with ESMTPSA id a1e0cc1a2514c-990d10439absm628407241.5.2026.10.20.12.27.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 20 Oct 2026 12:27:47 -0700 (PDT)
+Date: Tue, 20 Oct 2026 15:27:46 -0400
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, 
+ linux-kernel@vger.kernel.org
+Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
+ Chris Arges <carges@cloudflare.com>, 
+ =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>, 
+ Phil Sutter <phil@nwl.cc>, 
+ Jason Wang <jasowangio@gmail.com>, 
+ =?UTF-8?B?RXVnZW5pbyBQw6lyZXo=?= <eperezma@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+ Andrew Lunn <andrew+netdev@lunn.ch>, 
+ "David S. Miller" <davem@davemloft.net>, 
+ Eric Dumazet <edumazet@kernel.org>, 
+ Jakub Kicinski <kuba@kernel.org>, 
+ Paolo Abeni <pabeni@redhat.com>, 
+ netdev@vger.kernel.org, 
+ virtualization@lists.linux.dev, 
+ Max Krasnyansky <maxk@qualcomm.com>, 
+ Rusty Russell <rusty@rustcorp.com.au>, 
+ Simon Horman <horms@kernel.org>
+Message-ID: <willemdebruijn.kernel.26f697d5a674b@gmail.com>
+In-Reply-To: <b1dce3e055b973bd87bdbdc9e9729971fa383326.1792411304.git.mst@redhat.com>
+References: <cover.1792411304.git.mst@redhat.com>
+ <b1dce3e055b973bd87bdbdc9e9729971fa383326.1792411304.git.mst@redhat.com>
+Subject: Re: [PATCH net v3 1/8] net: account for ingress-resolved virtio net
+ hdr state
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -98,227 +115,193 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-References: <cover.1790014793.git.zack.rusin@broadcom.com> <81cb85568b36273a8e66215b3e6d671b8488d402.1790014793.git.zack.rusin@broadcom.com>
- <bc783856-9480-3944-67fb-675e4c11d8c2@igalia.com> <atdYIxwz8ksYNty6@pathway.suse.cz>
- <atd7GInNurGWLUha@pathway.suse.cz> <ateYxCu63pRY9EGq@pathway.suse.cz>
-In-Reply-To: <ateYxCu63pRY9EGq@pathway.suse.cz>
-From: Zack Rusin <zack.rusin@broadcom.com>
-Date: Tue, 20 Oct 2026 15:23:15 -0400
-X-Gm-Features: AclHuK9M32-EdHA1PszLB6Y1IscuEU7zjL5tmXKU0jHcFstdblGuIKRQsty0q34
-Message-ID: <CABQX2QOKCpoUY_ObhFif7xN7OF-NzcxEM0JABAXo9n9KaacO7A@mail.gmail.com>
-Subject: Re: [PATCH v2 1/6] panic: Add a notifier chain for pre-kdump callbacks
-To: Petr Mladek <pmladek@suse.com>
-Cc: "Guilherme G. Piccoli" <gpiccoli@igalia.com>, Borislav Petkov <bp@alien8.de>, 
-	Andrew Morton <akpm@linux-foundation.org>, Baoquan He <baoquan.he@linux.dev>, 
-	Mike Rapoport <rppt@kernel.org>, Ajay Kaher <ajay.kaher@broadcom.com>, 
-	Alexey Makhalov <alexey.makhalov@broadcom.com>, Pasha Tatashin <pasha.tatashin@soleen.com>, x86@kernel.org, 
-	Joel Granados <joel.granados@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
-	Ingo Molnar <mingo@redhat.com>, Dave Hansen <dave.hansen@linux.intel.com>, 
-	"H. Peter Anvin" <hpa@zytor.com>, virtualization@lists.linux.dev, 
-	Dave Young <ruirui.yang@linux.dev>, bcm-kernel-feedback-list@broadcom.com, 
-	linux-kernel@vger.kernel.org, John Ogness <john.ogness@linutronix.de>, 
-	Steven Rostedt <rostedt@goodmis.org>, Sergey Senozhatsky <senozhatsky@chromium.org>, 
-	Pratyush Yadav <pratyush@kernel.org>, Kees Cook <kees@kernel.org>, Jonathan Corbet <corbet@lwn.net>, 
-	Bo Gan <bo.gan@broadcom.com>, Brennan Lamoreaux <brennan.lamoreaux@broadcom.com>, 
-	kexec@lists.infradead.org, linux-doc@vger.kernel.org, 
-	Maaz Mombasawala <maaz.mombasawala@broadcom.com>, Shuah Khan <skhan@linuxfoundation.org>, 
-	Randy Dunlap <rdunlap@infradead.org>, Stephen Brennan <stephen.s.brennan@oracle.com>, 
-	Michael Kelley <mhklinux@outlook.com>, Ian Forbes <ian.forbes@broadcom.com>
-X-DetectorID-Processed: b00c1d49-9d2e-4205-b15f-d015386d3d5e
-Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha-256;
-	boundary="000000000000d46df0065e4a9050"
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: 7bit
 
---000000000000d46df0065e4a9050
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Michael S. Tsirkin wrote:
+> The following patch will add ingress resolution of uncommon virtio net
+> hdr checksum metadata (software checksum completion at ingress) which
+> adds performance overhead to the packet processing.
+> 
+> We should make it visible, so a hypothetical workload relying on
+> uncommon metadata can be distinguished from none at all. This way issues
+> in the parsing will be reported and not quietly pay the host-CPU
+> checksum overhead instead of offload.
+> 
+> Flip every call to virtio_net_hdr_to_skb to test for negative errno
+> only, and have tun count these events per device as rx_csum_sw, exposed
+> via ethtool -S.
+> 
+> Assisted-by: LLM
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  drivers/net/tap.c        |  4 ++--
+>  drivers/net/tun.c        | 41 ++++++++++++++++++++++++++++++++++++++--
+>  drivers/net/virtio_net.c |  2 +-
+>  net/packet/af_packet.c   |  4 ++--
+>  4 files changed, 44 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/net/tap.c b/drivers/net/tap.c
+> index ff67d99deb39..73e883394446 100644
+> --- a/drivers/net/tap.c
+> +++ b/drivers/net/tap.c
+> @@ -649,7 +649,7 @@ static ssize_t tap_get_user(struct tap_queue *q, void *msg_control,
+>  
+>  	if (vnet_hdr_len) {
+>  		err = tun_vnet_hdr_to_skb(q->flags, skb, &vnet_hdr);
+> -		if (err) {
+> +		if (err < 0) {
+>  			rcu_read_unlock();
+>  			drop_reason = SKB_DROP_REASON_DEV_HDR;
+>  			goto err_kfree;
+> @@ -1084,7 +1084,7 @@ static int tap_get_user_xdp(struct tap_queue *q, struct xdp_buff *xdp)
+>  
+>  	if (vnet_hdr_len) {
+>  		err = tun_vnet_hdr_to_skb(q->flags, skb, gso);
+> -		if (err) {
+> +		if (err < 0) {
+>  			rcu_read_unlock();
+>  			goto err_kfree;
+>  		}
 
-Hi, Petr.
+similar to tun, should tap count this event?
 
-First of all I really appreciate you going over this. Thanks!
+> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+> index 242899f7fd07..19cb443c89b0 100644
+> --- a/drivers/net/tun.c
+> +++ b/drivers/net/tun.c
+> @@ -210,6 +210,7 @@ struct tun_struct {
+>  	u32 flow_count;
+>  	u32 rx_batched;
+>  	atomic_long_t rx_frame_errors;
+> +	atomic64_t rx_csum_sw;
 
-On Tue, Oct 20, 2026 at 12:37=E2=80=AFPM Petr Mladek <pmladek@suse.com> wro=
-te:
-> Approach B: Three lists: platform, smp_safe, and smp_unsafe()
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
->
-> It is similar to approach A. We would just add an extra:
->
->      + panic_notifiers_platform_list
->      + disable_panic_notifiers_platform_list
->
-> This list would be used for smp-safe notifiers which are
-> required be some platform. It would be the notifiers which
-> are crucial. Which are currently the reason to set
-> "_crash_kexec_post_notifiers".
->
-> It might be called also when __crash_kexec() is called
-> outside panic().
-[...]
-> This patchset, adding vmware_log_notifier, might implement just
-> the panic_notifiers_platform_list. The rest might be
-> added by another volunteer.
->
-> How does this sounds, please?
+is a normal (and cheaper on 32b platforms) atomic_t or atomic_long_t sufficient?
+>  	struct bpf_prog __rcu *xdp_prog;
+>  	struct tun_prog __rcu *steering_prog;
+>  	struct tun_prog __rcu *filter_prog;
+> @@ -1935,11 +1936,16 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
+>  		break;
+>  	}
+>  
+> -	if (tun_vnet_hdr_tnl_to_skb(tun->flags, features, skb, &hdr)) {
+> +	err = tun_vnet_hdr_tnl_to_skb(tun->flags, features, skb, &hdr);
+> +	if (err < 0) {
+>  		atomic_long_inc(&tun->rx_frame_errors);
+>  		err = -EINVAL;
+>  		goto free_skb;
+>  	}
+> +	if (err > 0) {
 
-That sounds good to me. For v3 I'd do just the platform list:
+} else if (err > 0) {
 
-- One call in vpanic(), right after kgdb_panic() and before the first
-__crash_kexec(), whatever crash_kexec_post_notifiers is set to. The
-list runs before kdump and before the other CPUs are stopped.
-- One call in __crash_kexec(), after it has taken the kexec lock,
-found a crash image and saved the registers, for paths that enter
-kdump without panic(), like oops_end() or Hyper-V's hv_crash_handle().
-Once the early panic call has run the list, the guard makes this one a
-no-op. That removes the dependence on crash_kexec_post_notifiers you
-pointed out before.
-- A once-only guard shared by both, so the list also runs only once
-when a callback panics.
-- disable_panic_notifiers_platform_list as a boot and runtime switch,
-checked in the same helper, replacing panic_pre_kdump_postpone.
-- Kernel-doc with your definition: smp-safe callbacks a platform
-needs, which would otherwise be a reason to set
-crash_kexec_post_notifiers.
+> +		atomic64_inc(&tun->rx_csum_sw);
+> +		err = 0;
+> +	}
+>  
+>  	if ((tun->flags & TUN_TYPE_MASK) == IFF_TAP)
+>  		skb->protocol = eth_type_trans(skb, tun->dev);
+> @@ -2605,12 +2611,15 @@ static int tun_xdp_one(struct tun_struct *tun,
+>  	tnl_hdr = (struct virtio_net_hdr_v1_hash_tunnel *)gso;
+>  	skb->dev = tun->dev;
+>  	skb_set_network_header(skb, ETH_HLEN);
+> -	if (tun_vnet_hdr_tnl_to_skb(tun->flags, features, skb, tnl_hdr)) {
+> +	ret = tun_vnet_hdr_tnl_to_skb(tun->flags, features, skb, tnl_hdr);
+> +	if (ret < 0) {
+>  		atomic_long_inc(&tun->rx_frame_errors);
+>  		kfree_skb(skb);
+>  		ret = -EINVAL;
+>  		goto out;
+>  	}
+> +	if (ret > 0)
 
-Roughly:
-        kgdb_panic(buf);
+same
 
-        panic_notify_platform();
+> +		atomic64_inc(&tun->rx_csum_sw);
 
-        if (!_crash_kexec_post_notifiers)
-                __crash_kexec(NULL);
+maybe reset ret = 0 in all these branches
 
-and in __crash_kexec():
+>  
+>  	skb->protocol = eth_type_trans(skb, tun->dev);
+>  	skb_reset_network_header(skb);
+> @@ -3739,7 +3748,35 @@ static void tun_get_channels(struct net_device *dev,
+>  	channels->max_combined = tun->flags & IFF_MULTI_QUEUE ? MAX_TAP_QUEUES : 1;
+>  }
+>  
+> +#define TUN_STATS_LEN	1
+> +static const char tun_ethtool_strings[TUN_STATS_LEN][ETH_GSTRING_LEN] = {
+> +	"rx_csum_sw",
+> +};
+> +
+> +static int tun_get_sset_count(struct net_device *dev, int sset)
+> +{
+> +	return sset == ETH_SS_STATS ? TUN_STATS_LEN : -EOPNOTSUPP;
+> +}
+> +
+> +static void tun_get_strings(struct net_device *dev, u32 stringset, u8 *data)
+> +{
+> +	if (stringset == ETH_SS_STATS)
+> +		memcpy(data, tun_ethtool_strings,
+> +		       sizeof(tun_ethtool_strings));
+> +}
+> +
+> +static void tun_get_ethtool_stats(struct net_device *dev,
+> +				  struct ethtool_stats *stats, u64 *data)
+> +{
+> +	struct tun_struct *tun = netdev_priv(dev);
+> +
+> +	data[0] = atomic64_read(&tun->rx_csum_sw);
+> +}
+> +
+>  static const struct ethtool_ops tun_ethtool_ops = {
+> +	.get_sset_count		= tun_get_sset_count,
+> +	.get_strings		= tun_get_strings,
+> +	.get_ethtool_stats	= tun_get_ethtool_stats,
+>  	.supported_coalesce_params = ETHTOOL_COALESCE_RX_MAX_FRAMES,
+>  	.get_drvinfo	= tun_get_drvinfo,
+>  	.get_msglevel	= tun_get_msglevel,
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index daab43ac92ce..2e6fd81df9c4 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -2519,7 +2519,7 @@ static void virtnet_receive_done(struct virtnet_info *vi, struct receive_queue *
+>  	skb_set_network_header(skb, ETH_HLEN);
+>  	if (virtio_net_hdr_tnl_to_skb(skb, &hdr->tnl_hdr, vi->rx_tnl,
+>  				      vi->rx_tnl_csum,
+> -				      virtio_is_little_endian(vi->vdev))) {
+> +				      virtio_is_little_endian(vi->vdev)) < 0) {
+>  		net_warn_ratelimited("%s: bad gso: type: %x, size: %u, flags %x tunnel %d tnl csum %d\n",
+>  				     dev->name, hdr->hdr.gso_type,
+>  				     hdr->hdr.gso_size, hdr->hdr.flags,
 
-        crash_setup_regs(&fixed_regs, regs);
-        /* Direct entry outside panic() */
-        panic_notify_platform();
-        crash_save_vmcoreinfo();
+should virtio_net count these too? Or do we assume that devices are
+more trustworthy, so unlikely to cause this issue?
 
-I'd keep the second call in __crash_kexec() rather than crash_kexec(),
-because afaict crash_kexec() can return without a crash image, e.g.
-from the BPF kfunc, or from oops_end() before it panics. Calling the
-list there would use up the guard even when no kdump follows.
+> diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
+> index 52ae3d875e97..e6aec9ecfa99 100644
+> --- a/net/packet/af_packet.c
+> +++ b/net/packet/af_packet.c
+> @@ -2913,7 +2913,7 @@ static int tpacket_snd(struct packet_sock *po, struct msghdr *msg)
+>  		}
+>  
+>  		if (has_vnet_hdr) {
+> -			if (virtio_net_hdr_to_skb(skb, &vnet_hdr, vio_le())) {
+> +			if (virtio_net_hdr_to_skb(skb, &vnet_hdr, vio_le()) < 0) {
+>  				tp_len = -EINVAL;
+>  				goto tpacket_error;
+>  			}
+> @@ -3136,7 +3136,7 @@ static int packet_snd(struct socket *sock, struct msghdr *msg, size_t len)
+>  
+>  	if (vnet_hdr_sz) {
+>  		err = virtio_net_hdr_to_skb(skb, &vnet_hdr, vio_le());
+> -		if (err)
+> +		if (err < 0)
+>  			goto out_free;
+>  		len += vnet_hdr_sz;
+>  	}
+> -- 
+> MST
+> 
 
-crash_kexec_post_notifiers, the existing list and the kmsg dumpers
-stay as they are, and moving other platforms over can come later.
 
-The VMware log copy would be the only user, and it's still best-effort
-diagnostics: kdump and the reboot don't depend on it. It copies the
-log tail into an 8 KiB buffer. On panic() that happens after the panic
-message and any local backtrace; on direct entry from an oops, after
-the exception output. With the list enabled throughout, the copy
-precedes the later panic notifiers, sys_info() and the all-CPU
-backtrace step. The guest-crash report stays a late kmsg dumper that's
-skipped while a crash kernel is loaded, because the host can power off
-the VM inside that call.
-
-If that matches what you had in mind, I'll do it that way in v3.
-
-Guilherme, Stephen, Baoquan, does that work for you too?
-
-z
-
---000000000000d46df0065e4a9050
-Content-Type: application/pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
-
-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
-6U6qgI8F5eiKsQyE0HgYrQJx/sDs9LLVZlaNiA3U8M8CgEnb8VhuH3BN/yXphhEQdJXb1TyaJA60
-SmHcZdEQZbl4EjwUcs3UIowmI/Mhi7ADQB7VNsO/BaOVBEQk53xH+4djY/cg7jvqTTeliY05j2Yx
-uwwXcDC4mWjGzxAT5DVqC8fKQvon1uc2heorHb555+sLdwYxAgMBAAGjggHYMIIB1DAOBgNVHQ8B
-Af8EBAMCBaAwgZMGCCsGAQUFBwEBBIGGMIGDMEYGCCsGAQUFBzAChjpodHRwOi8vc2VjdXJlLmds
-b2JhbHNpZ24uY29tL2NhY2VydC9nc2djY3I2c21pbWVjYTIwMjMuY3J0MDkGCCsGAQUFBzABhi1o
-dHRwOi8vb2NzcC5nbG9iYWxzaWduLmNvbS9nc2djY3I2c21pbWVjYTIwMjMwZQYDVR0gBF4wXDAJ
-BgdngQwBBQMBMAsGCSsGAQQBoDIBKDBCBgorBgEEAaAyCgMCMDQwMgYIKwYBBQUHAgEWJmh0dHBz
-Oi8vd3d3Lmdsb2JhbHNpZ24uY29tL3JlcG9zaXRvcnkvMAkGA1UdEwQCMAAwQQYDVR0fBDowODA2
-oDSgMoYwaHR0cDovL2NybC5nbG9iYWxzaWduLmNvbS9nc2djY3I2c21pbWVjYTIwMjMuY3JsMCIG
-A1UdEQQbMBmBF3phY2sucnVzaW5AYnJvYWRjb20uY29tMBMGA1UdJQQMMAoGCCsGAQUFBwMEMB8G
-A1UdIwQYMBaAFAApNp5ceroPry1QLdugI4UYsKCSMB0GA1UdDgQWBBQNDn2m/OLuDx9YjEqPLCDB
-s/VKNTANBgkqhkiG9w0BAQsFAAOCAgEAF463syOLTQkWZmEyyR60W1sM3J1cbnMRrBFUBt3S2NTY
-SJ2NAvkTAxbPoOhK6IQdaTyrWi8xdg2tftr5FC1bOSUdxudY6dipq2txe7mEoUE6VlpJid/56Mo4
-QJRb6YiykQeIfoJiYMKsyuXWsTB1rhQxlxfnaFxi8Xy3+xKAeX68DcsHG3ZU0h1beBURA44tXcz6
-fFDNPQ2k6rWDFz+XNN2YOPqfse2wEm3DXpqNT79ycU7Uva7e51b8XdbmJ6XVzUFmWzhjXy5hvV8z
-iF+DvP+KT1/bjO6aNL2/3PWiy1u6xjnWvobHuAYVrXxQ5wzk8aPOnED9Q8pt2nqk/UIzw2f67Cn9
-3CxrVqXUKm93J+rupyKVTGgKO9T1ODVPo665aIbM72RxSI9Wsofatm2fo8DWOkrfs29pYfy6eECl
-91qfFMl+IzIVfDgIrEX6gSngJ2ZLaG6L+/iNrUxHxxsaUmyDwBbTfjYwr10H6NKES3JaxVRslnpF
-06HTTciJNx2wowbYF1c+BFY4r/19LHygijIVa+hZEgNuMrVLyAamaAKZ1AWxTdv8Q/eeNN3Myq61
-b1ykTSPCXjBq/03CMF/wT1wly16jYjLDXZ6II/HYyJt34QeqnBENU9zXTc9RopqcuHD2g+ROT7lI
-VLi5ffzC8rVliltTltbYPc7F0lAvGKAxggJXMIICUwIBATBiMFIxCzAJBgNVBAYTAkJFMRkwFwYD
-VQQKExBHbG9iYWxTaWduIG52LXNhMSgwJgYDVQQDEx9HbG9iYWxTaWduIEdDQyBSNiBTTUlNRSBD
-QSAyMDIzAgxhPxw+eieHWB40hPkwDQYJYIZIAWUDBAIBBQCggccwLwYJKoZIhvcNAQkEMSIEIJgn
-CNxVL33+iqpOJLjSQE+fI6/B7+bT9NdTrK/5e0egMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEw
-HAYJKoZIhvcNAQkFMQ8XDTI2MTAyMDE5MjMzMFowXAYJKoZIhvcNAQkPMU8wTTALBglghkgBZQME
-ASowCwYJYIZIAWUDBAEWMAsGCWCGSAFlAwQBAjAKBggqhkiG9w0DBzALBgkqhkiG9w0BAQcwCwYJ
-YIZIAWUDBAIBMA0GCSqGSIb3DQEBAQUABIIBABXeJ4Zi7Hx37m/4xuENMuaBIjI5g8sV098DSsuq
-GGOgFSRS+bPdWT+JQ5Th/CRo3u1z6eeXt3O18LZ2WHsM7+gUEGWy2LigXj16/Vkx7Wf6bIJ7OGyM
-gvgMvpksvF0e8Er257K13eJFI8y1wyIM9EjupE87WC0j6Qrso26z6FVa4oCd/WIQj6LmheoX6BiI
-4uqtLF21GGeLkrrv/qVwvyNXTsCZlii5gIifsGkS1Wu4/p1Q3YKmXStgF8+LfwpsBnWKCAoU59+U
-DzxSNhTpQDkXXuTb+stS9jFKvjaPK3Dks11VMG88eqDfHIw71W2iGOuYqt/iCDJAGZhokJecljo=
---000000000000d46df0065e4a9050--
