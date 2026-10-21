@@ -1,13 +1,13 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792569004;
-	b=H2AscJ8CDar8blxDmWPhc0UZh8merDFJaVKrhYC0wabsXwtX6PdwGyNdU+lLd4fatq03
-	 NZsNWRqiFJLFNFZtkKnwBDWY5Elw0lQC/Tl84ZySVbCjErl8pIBPLs39rLdX0IvJEPRk1
-	 ggYbvoulo89vzzBE8Y6vJCZqqqiCbrSGx/r0HVE9Qhix8FDPmQInfzR45jZVKa2t9nqAT
-	 ss7BuLt3SfDdRHPcP9exFg6NKKHfzDq5GJGttkYgUzVo8bqcfXMuKU7LII2AxgK5d2LJZ
-	 Bfi954YWyjSHSMsSrjzFxpvNlcY9sHr6jJVTTL5ATWZxbP7G6b6NdHKpZ/QvKzSAj7A==
+	t=1792569006;
+	b=PNV2XcSTCcFNMt2o4KDTJcYTDy+JbWq4ko60cDWxLAxLPEzsO3E2s4z7IqCw1FlKX+dT
+	 5VdPFzVOSBnoehk+rpC73nzEw1o7Wpna8LuNY2Mge07jj0AGplmSCfGHqsKqkrXyLVywI
+	 xwOvkMAjPeKE6j7KT3/wbNNG+iOTnO1LJDdLcghF0vd2AN8IItOCzplyPaAynQf8rBekL
+	 tCGhxLSjkJu/OprqRIAzavcfC4Qk/SOUY2ldZGus0HQrA7Q8/pni39CkE6CdAL2qVwm9Z
+	 fcxe9YNf2AJtqKTmY0dVoMMS/YOD9kWXWSWhN2bKETWT6D5LvfS1LjcJ7fyubfS0LdA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792569004;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792569006;
 	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
 	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
@@ -15,76 +15,76 @@ ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	 MIME-Version:In-Reply-To:X-Mailer:X-Mutt-Fcc:X-Mimecast-Spam-Score:
 	 X-Mimecast-MFC-PROC-ID:X-Mimecast-Originator:Content-Type:
 	 Content-Disposition;
-	bh=8bDfpp7sAel4FSdNGE9WjbJ8LMrLDJQ/k3zaoUEgNSo=;
-	b=IWch4k8hbV01fXcUP9NnvOJJhcRxXX/x6I55HvQ5bla5BTczdwRFgst7Vssk/2X9KlQ2
-	 I1LpnqD911DyvkgJczY6+cdcAN0fRrlBKtMWzqwZsRRBNiDixeN14Yb/oZFeIShhyvRWG
-	 /qywkxQ8a/GM/WrMqH5PO8CaL5gqxUEdIz+nSdQ6sFMcTZj7gMvY5cyE1YjaBRJQPTHo2
-	 8hLOow189ugy/LR3VzHt8cv1eqqsOCQpX9h5eOPl361OOHCkMXFVxgVtjSriWqcmVsijZ
-	 MWEA1oBBw1BybciZJeIbQfYVPog3PxS3/qjXNwWFxgpev4w0iaXdK3HZse9KhvGIEOg==
+	bh=VrgZwsKhKHkmEbVDierK3hRSfuUB2Tabjw1XdPoU1r8=;
+	b=ov1tMCra9L57zKXbtpXOjNOzQI6TRaheTy38C346+ZWyugAHUB8i0qb9lyXWfqTP9Bge
+	 HOSYF5HQUJ+7DSbmm1wzMGhuoLw6yszRPsuJlVpBqAkcQm12p02eLvsghOR9uGfKOyDRz
+	 yto9NUOae0mLuexrepC02RRRxnbO6cc0k7qkx7fRTTEfJHKnjzdgwDTnhUTFw+BcEaP2O
+	 SpjWr0bAGRhuk4jppqYqpkXg7lmy8o+9BYGcCZVlUHQHbGJPgAwyoHOsTbUvw8kRYuDKw
+	 OetldM68hrpGW2C6SGzIc9ZdQybCRwuTYb2ppcWcbgGxzaNlden/oGwHmAHSrBdYO+Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=redhat.com;
 	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=AG8eyZof;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=BeNOOFX7;
 	arc=none smtp.remote-ip=170.10.133.124
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9CD74606A324
-	for <virtualization@lists.linux.dev>; Wed, 21 Oct 2026 07:50:03 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9CD74606A324
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2523606A31D
+	for <virtualization@lists.linux.dev>; Wed, 21 Oct 2026 07:50:05 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A2523606A31D
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=AG8eyZof
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=BeNOOFX7
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1792569002;
+	s=mimecast20190719; t=1792569004;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=8bDfpp7sAel4FSdNGE9WjbJ8LMrLDJQ/k3zaoUEgNSo=;
-	b=AG8eyZofS9EVP/oREakFOFTFRHSoF9DDX9l0S2sGpgQtaG/UQpCpbrHHMzB4x2Bu5vSYVY
-	55/npnPA9pHwxyCwvo6FLqFSK9OJHLjfAm9BINUx7KTbK/iPljSM5NGQbWeCzDffPnEBwA
-	mkVScBnpfYSsVVeZQ9o725Q82qqgY/4=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=VrgZwsKhKHkmEbVDierK3hRSfuUB2Tabjw1XdPoU1r8=;
+	b=BeNOOFX7zY0CcblKh6fdU18JKp+yzx5ECQRwEKnV4FzUWRVwwh5etOFjJgLVg2wu1BrgBp
+	2ssZEBQyacWBusYTZczQhwX04Zm1Dc475RC1mSYYUYL3CIxw41oKoN5JlTfm7Sl6+l3ctm
+	yQXOiBsB9cBXAc0TQ0jSPZkOAZRqB4E=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-368-opmgA2AoOtS3xU3SNKJ00g-1; Wed, 21 Oct 2026 07:49:59 +0000
-X-MC-Unique: opmgA2AoOtS3xU3SNKJ00g-1
-X-Mimecast-MFC-AGG-ID: opmgA2AoOtS3xU3SNKJ00g_1792568998
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-48e00f3929bso1080092f8f.0
-        for <virtualization@lists.linux.dev>; Wed, 21 Oct 2026 00:49:59 -0700 (PDT)
+ us-mta-688-w8Fq2gIsM62E6AyDt762zw-1; Wed, 21 Oct 2026 07:50:03 +0000
+X-MC-Unique: w8Fq2gIsM62E6AyDt762zw-1
+X-Mimecast-MFC-AGG-ID: w8Fq2gIsM62E6AyDt762zw_1792569002
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-48dff112181so388423f8f.3
+        for <virtualization@lists.linux.dev>; Wed, 21 Oct 2026 00:50:03 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792568998; x=1793173798;
+        d=1e100.net; s=20260707; t=1792569002; x=1793173802;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=8bDfpp7sAel4FSdNGE9WjbJ8LMrLDJQ/k3zaoUEgNSo=;
-        b=wgPDc3OmqdRbMWby26fZDbVlF8nd81hHQWZxizUOK4Xp5EAI0GN+emY3tIvN0vYEXi
-         jf6yiRlbmI0G+QbOrb6FlMtvi9Bv7iQ+QYjgVlcVQz7W59uOdYxhDU/4gyU6TUDd4MtC
-         t/16FPG81LFXrhJ6l1mCj2+9s+2Yrh8VOfqXskdWifmxRspwvp1mLUjoREbkstS+Y5tu
-         nEYOu+ZhvDpXS5F5m227ldtgWHyXUDh9ygL0DP/VBhrbZgYRZw2eDklul6mz3NswtciZ
-         43/ihnTZYE7ZUT/vNBWl5vNXzka+UiUaGea2u9W0Aakd7FUqK5IABkY8yZtQ7KfTO18e
-         aJKw==
-X-Forwarded-Encrypted: i=1; AKwUvByj/4M2Q7NnKIVexwPcyyAkZf9tZOXOKK6PIFSYTrwH6lYuEPAi/Mh8KlUlUVE7XB2F/bzJvx6irFCO+Ff/rQ==@lists.linux.dev
-X-Gm-Message-State: AFq9FYKX4A06OBXAFrgL9VIDeRuKEb91JiTD1KnOKD/mlKD4/i2yRG8h
-	WZKJW6yF1fo3q9tGYvVNHCjzih8+bLG3tW3x5tdylQG2T4Fkrd1HlGMhYXnR+PF4UG9nFGQw4a3
-	FnJKtiaNploCUE5vw6KMKgCTMnKRvlne96sGYyOv2CTkLCx8M40fDNlo/0mQfZfUfL/6f
-X-Gm-Gg: AYBFou0p0r950i5ATbx+4YqLI3ECD1o6/zPjCmFGfkUqZj1xi53Sn5acvghyy70EN6s
-	kUDi+X56Q0WA577xzGx1GhsDe0lfzrUwDTMz+G4AjY0p55x713zO5w6xdxjB13gXvdxWT9rAyXd
-	PjC7oFQa+YJ74LeAYFOvVBs5oP6+u5uzrV4DOLsGbTxQJTUHexPvUY0rS7HQERUaz2QYDpi6aO5
-	MThNPBqTVNGQqp8D7hS+Wfr22TzHsVxdEN0K2DQLgoh31rSSpHX0UQwJ9Gosk2Yb/hKsOT0AMz0
-	FUI7zS9b/Q+az1sXHJ0lufqtw6uvJ8hwsl+tDvX1SrrMyEdNq/25MrjqkPRav4pSE0iEdw==
-X-Received: by 2002:a05:600c:3f0d:b0:4a0:34a:588c with SMTP id 5b1f17b1804b1-4a1fdd29c19mr24760575e9.14.1792568998287;
-        Wed, 21 Oct 2026 00:49:58 -0700 (PDT)
-X-Received: by 2002:a05:600c:3f0d:b0:4a0:34a:588c with SMTP id 5b1f17b1804b1-4a1fdd29c19mr24759945e9.14.1792568997732;
-        Wed, 21 Oct 2026 00:49:57 -0700 (PDT)
+        bh=VrgZwsKhKHkmEbVDierK3hRSfuUB2Tabjw1XdPoU1r8=;
+        b=COHOuKBtBupaz+MREi8n6pcsNUHymQ/Rderc+waBDQgn944uJc3aq2Jqv42TsWwD6j
+         ebE3plbMiWgtKzJDGgYXODiQNqmi2B/cNracCv3YnLKqyd5VnDX3PXtfjeI2CEDAxGBu
+         pph2XZyhHawkCP2uekzjBVe5lD4ia77cFuB2crJV2F+Up7Qh64sWq7buDVQnJpKGXzAq
+         dcmaGONgNAUhEqqGwg0F/Gnx40cJXS8JpuMVF07oxEY/tRLeV3pEFv9iy3cC/jCD3lPG
+         WqhSvb2DfAD4Dft9HogE+NrgOxEbMW8QZY87OI2F1dhtVfoH/HQCfpq++utesvl2lz2K
+         t9Fg==
+X-Forwarded-Encrypted: i=1; AKwUvBztO9P/nT5ljw6hmTRLci2qvsO4oDdwzzWhvucjkw3tDTdlV236mhJKrZ7PY90vRjtFSZnfFMnMI2wNRy2aog==@lists.linux.dev
+X-Gm-Message-State: AFq9FYLHRtI2g5jJO8gUCUWX2EHuuG4BpjeTTRYb38TWPmU5PpXrOfTu
+	XPlXbboK8LS89y1w4YkJbVI/kuLHOegqixLglPrjHi1goHs+NlCDw5RXlo2GUYqBk6/ExFg/Bj0
+	XF/4IXmXRUrhE0vH9hVhEx9K7K5GPNRQ5fSr1Q1zlSlmA6sZmPH0yRA7Rj8CgOMrhWsJw
+X-Gm-Gg: AYBFou1lle7fo7lO4e13R874UNShy7cSKyep/mBOecL7f4bANPM5xJDiCmuHBqLESs8
+	tNZqgTpxantf1isAmEzEombbcbgoAzZyUIZ4/rbZItJsfJWR5qTwaMJGCL33/wg0J7RGX5oIkwx
+	0cZf0B53hC+zgk2AHak15n4qX+NDoUG2UdBrbGrIkIihNVbjry6yFJ755SqVRf9uT6XoIhFmi/y
+	tCcvZua8w+jBJw62QXusaDUYMExzApbxj2KT0zdXLBtRuPsaR8RAq5hnluP2zTCrBiBpJ7hgyDc
+	g0Pt+SXe2TBmQpBh1y79VA1HlLsrWeMwUCG8mBY7GwO9OAB+T4YHs32aud8+M+wMEJ4nYg==
+X-Received: by 2002:a05:6000:400e:b0:48e:b62:d134 with SMTP id ffacd0b85a97d-48e2642cde6mr2376547f8f.6.1792569001841;
+        Wed, 21 Oct 2026 00:50:01 -0700 (PDT)
+X-Received: by 2002:a05:6000:400e:b0:48e:b62:d134 with SMTP id ffacd0b85a97d-48e2642cde6mr2376500f8f.6.1792569001336;
+        Wed, 21 Oct 2026 00:50:01 -0700 (PDT)
 Received: from redhat.com ([2a0d:6fc0:3fd7:5300:3d6b:52a4:a23f:9d0b])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a1fc1060f3sm34363505e9.1.2026.10.21.00.49.46
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48e25828e54sm3949620f8f.27.2026.10.21.00.49.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Oct 2026 00:49:49 -0700 (PDT)
-Date: Wed, 21 Oct 2026 03:49:45 -0400
+        Wed, 21 Oct 2026 00:50:00 -0700 (PDT)
+Date: Wed, 21 Oct 2026 03:49:57 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
@@ -99,13 +99,9 @@ Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
 	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
 	netdev@vger.kernel.org, virtualization@lists.linux.dev,
 	Max Krasnyansky <maxk@qualcomm.com>,
-	Rusty Russell <rusty@rustcorp.com.au>,
-	Richard Weinberger <richard@nod.at>,
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	linux-um@lists.infradead.org
-Subject: [PATCH net v4 2/7] um: vector: trim skbs before verifying the header
-Message-ID: <26741a9a64c28e8de6d13e04972d296d89e1c95d.1792565282.git.mst@redhat.com>
+	Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH net v4 3/7] virtio_net: parse tunnel csum_start little-endian
+Message-ID: <421e7ebb8173ab919c2b90b945aaed462145583d.1792565282.git.mst@redhat.com>
 References: <be251d104f881a309cfef150455efa128ebb101d.1792565282.git.mst@redhat.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -120,64 +116,49 @@ In-Reply-To: <be251d104f881a309cfef150455efa128ebb101d.1792565282.git.mst@redhat
 X-Mailer: git-send-email 2.51.2.2891.g4157995a80.dirty
 X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: HzEA6cxxDXDTUl-czYp075uC9QsWf4ST0jewfvS25AI_1792568998
+X-Mimecast-MFC-PROC-ID: IG_uecJHZcyzjd0QaTb8ZMHrJLHSl1rtZdsiDRN6gAU_1792569002
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-The vector receive path over-allocates the skb and only trims it
-to the received length after the transport header is verified.
+All tunnel related virtio features are > 32, so none of this
+functionality can be enabled on legacy mixed-endian device.
 
-A follow up patch will complete the packet checksum in software within
-virtio_net_hdr_to_skb so we need the packet trimmed (otherwise the
-checksum would be computed incorrectly over the unreceived tail of the
-buffer).
+Accordingly, all tunnel header fields, csum_start included, are
+little-endian.
 
-Trim first, so the import sees the packet as it was received.
+The nested virtio net header import parses csum_start that way, but the
+inner transport offset is parsed with the endianness specified by the
+interface.
 
+If tun is misconfigured to legacy big-endian mode while the tunnel
+features are enabled, the two parses of this field disagree, and the
+value stored in skb->inner_transport_header - which is only
+bounds-checked from below - can point past the end of the packet, where
+GSO segmentation later dereferences it.
+
+To fix, parse the field little-endian in both places.
+
+Fixes: a2fb4bc4e2a6 ("net: implement virtio helpers to handle UDP GSO tunneling.")
+Cc: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- arch/um/drivers/vector_kern.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ include/linux/virtio_net.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/um/drivers/vector_kern.c b/arch/um/drivers/vector_kern.c
-index 8a70b3a62553..1afbef78df72 100644
---- a/arch/um/drivers/vector_kern.c
-+++ b/arch/um/drivers/vector_kern.c
-@@ -865,6 +865,7 @@ static int vector_legacy_rx(struct vector_private *vp)
+diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+index d6466f96cdd0..013c6c7e2dea 100644
+--- a/include/linux/virtio_net.h
++++ b/include/linux/virtio_net.h
+@@ -324,7 +324,7 @@ virtio_net_hdr_tnl_to_skb(struct sk_buff *skb,
+ 	inner_l3min = virtio_l3min(inner_isv6);
+ 	outer_l3min = ETH_HLEN + virtio_l3min(outer_isv6);
  
- 	if (skb != NULL) {
- 		if (pkt_len > vp->header_size) {
-+			pskb_trim(skb, pkt_len - vp->rx_header_size);
- 			if (vp->header_size > 0) {
- 				header_check = vp->verify_header(
- 					vp->header_rxbuffer, skb, vp);
-@@ -879,7 +880,6 @@ static int vector_legacy_rx(struct vector_private *vp)
- 					skb->ip_summed = CHECKSUM_UNNECESSARY;
- 				}
- 			}
--			pskb_trim(skb, pkt_len - vp->rx_header_size);
- 			skb->protocol = eth_type_trans(skb, skb->dev);
- 			vp->dev->stats.rx_bytes += skb->len;
- 			vp->dev->stats.rx_packets++;
-@@ -981,6 +981,8 @@ static int vector_mmsg_rx(struct vector_private *vp, int budget)
- 	for (i = 0; i < packet_count; i++) {
- 		skb = (*skbuff_vector);
- 		if (mmsg_vector->msg_len > vp->header_size) {
-+			pskb_trim(skb,
-+				mmsg_vector->msg_len - vp->rx_header_size);
- 			if (vp->header_size > 0) {
- 				header_check = vp->verify_header(
- 					mmsg_vector->msg_hdr.msg_iov->iov_base,
-@@ -1005,8 +1007,6 @@ static int vector_mmsg_rx(struct vector_private *vp, int budget)
- 					skb->ip_summed = CHECKSUM_UNNECESSARY;
- 				}
- 			}
--			pskb_trim(skb,
--				mmsg_vector->msg_len - vp->rx_header_size);
- 			skb->protocol = eth_type_trans(skb, skb->dev);
- 			/*
- 			 * We do not need to lock on updating stats here
+-	inner_th = __virtio16_to_cpu(little_endian, hdr->csum_start);
++	inner_th = __virtio16_to_cpu(true, hdr->csum_start);
+ 	inner_nh = le16_to_cpu(vhdr->inner_nh_offset);
+ 	outer_th = le16_to_cpu(vhdr->outer_th_offset);
+ 	if (outer_th < outer_l3min ||
 -- 
 MST
 
