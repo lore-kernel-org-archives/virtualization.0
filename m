@@ -1,65 +1,66 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=67.231.153.30
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=67.231.145.42
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1792545336;
-	b=3j8vlWJqmBL+gCsIC2WYet5dANyD37+ZQ0fY2NGW3yLFt8JCGkyirX+R1AdyJtwMb7ge
-	 PpTXbEcugSVMaa+05Mz3jHddIz06/qQ96fKhPNIKd3lUbxCGN38OPdShE2N85TYdF+D6B
-	 iN0EVSrf8DgnGX6vha9VDKS6/Z2r4FKvU9kAiBJU06xU6IDagdZm47h8Nk9sO9mwidrkk
-	 STUJ7Y9+LnQY9zlRjd4x1PhIvg8uPifxkWMqmnJcW+hUlfWi7gMnmWbbQabHb96zQ97Rn
-	 aJeh7orAZWSX1L0xAWxqdqlt3Tf9k5GZdUY3v/iG5jg5JDfKR7b/kK2UQPRDl/QO0yw==
+	b=NMIHqTHGoaQsbcmfSMCxa+zLLo6/xZ6lPK9yseZ0rH+gl0qYg9lLnQR7P9y67corjcXh
+	 SFO7VtlbxywEn2N284JBnrYhmjeDZ+BVQ7en+VympPDLfwlcqAz1QKt5YY4n+Gnzd7kFO
+	 pOJqg5F0fBu7V26lV7yf4PNrVhUiGjb6HanOLpLGwQ33EMyXOVzHcHbg3uEALYrjKFNOg
+	 466IA0rlhc/dqR+0CHvmj6LYE3LsJs8DGhnPOs6ejl5RwI7wBD5MsxCW2DFBekUxV8Mxp
+	 B6ql3AtWqpuEJwYlBzj0iMKvxkJEu5ldotPHQqB8nFYTgLdbhg9zCvU09xpsJOO1Duw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1792545336;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:From:Date:
 	 Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
 	 Message-ID:References:In-Reply-To:To:CC:X-Mailer:X-Originating-IP:
-	 X-Proofpoint-ORIG-GUID:X-Authority-Analysis:X-Proofpoint-Spam-Info:
-	 X-Proofpoint-GUID:X-Proofpoint-Spam-Details-Enc:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-ORIG-GUID:
+	 X-Proofpoint-Spam-Info:X-Proofpoint-GUID:X-Authority-Analysis:
 	 X-Proofpoint-Virus-Version;
-	bh=w/sWIs8UfkKmHt3/JDcaudv9fV9VMQ092RWZIMJKb24=;
-	b=1953leadVLTpeoVDvzr3eS0FqvBVrIvAtfQXW0akFfKKgYIXKxC2eZ9GGFtctlSkj/IJ
-	 5qzMLgHjcGQWmbHh3pBptJffLKKfNopc+rB9jsF4du2vj4LlDNqqqGuu7de6WDPT1USCb
-	 KctN3vfLjeP6eyk9dIChf95GHyLKQWcT1SZiHOi5j/6eyWZtMdN1BhrTS2gQtv7gtTEFp
-	 /VTvvv4GapPiobJEUooN2stpykqY0fGXpF/VUjW53bWugKmoOknj00xM84+Wc+O4JRezD
-	 IVHjAIXQgVi6kT8Hibip7HNqe2n2qIbpZi8SMUYITMCdDNxFpS1RkHYOoLCJESYCYtA==
+	bh=eqVaVaagKgEs0jIkag12M2KWvIYEqugr9URWOwreLcI=;
+	b=2Kmqoznz369rJobzbUEvVcLv3VTqWFvivos8e0yq1FVjuKJmyiG0ZssEPMwB36BzUh8E
+	 g51RuRdLLi7kDw2n238kcgvW7YduY0xuvXAH4AVcaZZCs/riitD40dHkuKRFxldj66jcH
+	 NRpLLIAdbjdsTNjhCeC9Ce57/elJDhNCpnp2E0IKkMiUjTIOg6eEDWI3lvEsK7Yj6SFLv
+	 IR3nadP/QPHdxHX+mjPIf26M6znExyn1oAPsFZI8tP/Iuj7mpGZJGGYy+oYjC2RsfyEmx
+	 gYfWhLW51gNZfsbt5B0cmxxs24CbJAvj2hwEJYTINGu8mh+KBUq/P0UmFhm/cUR2PsA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=meta.com;
 	spf=pass smtp.mailfrom=meta.com;
-	dkim=pass header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=ETT54AgX;
-	arc=none smtp.remote-ip=67.231.153.30
-Received: from mx0b-00082601.pphosted.com (mx0b-00082601.pphosted.com [67.231.153.30])
+	dkim=pass header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=bn5KVOj8;
+	arc=none smtp.remote-ip=67.231.145.42
+Received: from mx0a-00082601.pphosted.com (mx0a-00082601.pphosted.com [67.231.145.42])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DB87606A31D
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B789606A31B
 	for <virtualization@lists.linux.dev>; Wed, 21 Oct 2026 01:15:35 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8DB87606A31D
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7B789606A31B
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=ETT54AgX
-Received: from pps.filterd (m0109332.ppops.net [127.0.0.1])
-	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69KNF5we675525;
-	Tue, 20 Oct 2026 18:15:18 -0700
+	dkim=pass (2048-bit key, unprotected) header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=bn5KVOj8
+Received: from pps.filterd (m0148461.ppops.net [127.0.0.1])
+	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69KNFmtG885087;
+	Tue, 20 Oct 2026 18:15:22 -0700
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
 	:message-id:mime-version:references:subject:to; s=
-	pps82601-s2048-2026-q3; bh=w/sWIs8UfkKmHt3/JDcaudv9fV9VMQ092RWZI
-	MJKb24=; b=ETT54AgXEzEQJjmnb0nAmMaTldKWGzXYYa+VBpnzMVw0hbZw2+kuM
-	7euO1T6VVYEz4s0XxlVMj34e6djf0Uq3zj+Nq2noD24i91jVfGjJBG+qOntvohk+
-	msG+MCLxAIui02YNtysbwtFFI5xtpBaC1nhb36jP4YSJVI4U2NVj1AaTfaqNTC8B
-	I3ApAfolSq7aZjNJw0LXvFjqnFkhOgekaH3wAHv9tE7E+erpgeYJ+tnhvsKmNx1f
-	/Y9DaC6fNpW32HP1q1DSxF9UwIR1VF6y0NlYGjQ1Xm77aJ4BGOSvDHJX1ZufQgfD
-	D03LIJe0Jhphw7Cd7mGCvVkhtZDGC1uKw==
-Received: from maileast.thefacebook.com ([163.114.135.16])
-	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4hdw50gqnx-2
+	pps82601-s2048-2026-q3; bh=eqVaVaagKgEs0jIkag12M2KWvIYEqugr9URWO
+	wreLcI=; b=bn5KVOj8PlXY6IhCEtcnm4jpV30I2Nfno56haB0raZkbsHjAIhw67
+	uw7gLE2SZNd5J+A4u9pteBkhQD7rAhsBM49h8UU2yvEossMLwlm4DaZlV1CxmyKL
+	mG9AmMWnA4EhiusmODeqyHNkZHJNAkJAfN2xtIHq4zS3teir4YdkHJ9lTIRnenXg
+	MNwexAFlB/7mzQXyTSsF1I83hSXTGkqeW2BsZ9XkgQaa4km+eTv1IsxCpbNz4BuO
+	el58Xfwmzqeuu3cHXvIr1O4SGR3msiGmjAQNJ+yF+Qo0gSQN8Jidcbl8AdEwReg3
+	+jLS6M5HHr8p6M8J+YMhn/N32ypgrOxCg==
+Received: from mail.thefacebook.com ([163.114.134.16])
+	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4hdw52r0mj-4
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
-	Tue, 20 Oct 2026 18:15:18 -0700 (PDT)
-Received: from localhost (2620:10d:c0a8:1b::30) by mail.thefacebook.com
- (2620:10d:c0a9:6f::8fd4) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.49; Wed, 21 Oct
- 2026 01:15:17 +0000
+	Tue, 20 Oct 2026 18:15:21 -0700 (PDT)
+Received: from localhost (2620:10d:c085:208::f) by mail.thefacebook.com
+ (2620:10d:c08b:78::2ac9) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.56; Wed, 21 Oct
+ 2026 01:15:20 +0000
 From: Bobby Eshleman <bobbyeshleman@meta.com>
-Date: Tue, 20 Oct 2026 18:15:05 -0700
-Subject: [PATCH net-next v4 2/7] vsock: rename the vsock pernet operations
+Date: Tue, 20 Oct 2026 18:15:08 -0700
+Subject: [PATCH net-next v4 5/7] vsock/virtio: support guest device network
+ namespace
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -71,7 +72,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-ID: <20261020-vsock-guest-ns-v4-2-047527cfccfc@meta.com>
+Message-ID: <20261020-vsock-guest-ns-v4-5-047527cfccfc@meta.com>
 References: <20261020-vsock-guest-ns-v4-0-047527cfccfc@meta.com>
 In-Reply-To: <20261020-vsock-guest-ns-v4-0-047527cfccfc@meta.com>
 To: Stefano Garzarella <sgarzare@redhat.com>,
@@ -104,93 +105,210 @@ CC: <virtualization@lists.linux.dev>, <netdev@vger.kernel.org>,
         Bobby Eshleman
 	<bobbyeshleman@meta.com>
 X-Mailer: b4 0.14.3
-X-Proofpoint-ORIG-GUID: uAWGrrmTl2KtKN_H49_v8iwHl4hbkK4h
-X-Authority-Analysis: v=2.4 cv=GaCCDgXL c=1 sm=1 tr=0 ts=6ad81226 cx=c_pps
- a=MfjaFnPeirRr97d5FC5oHw==:117 a=MfjaFnPeirRr97d5FC5oHw==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDIxMDAwNCBTYWx0ZWRfXzAWkgvOS96oy
+ dnW/q6CJrC+SNtNBgRDpHRqD2OZiMx0qkb3BUq/ouNXxstflONK3Mtj8wT0BV3BeekojrxnTqQy
+ AwzwhwaxJ4au7t1X86W4PBVj8kIHskykgdwb+ViuFefRvIJDam6pRsRnKZDjXo9BcdkBxBKQbAo
+ IabEUOu2E2/UT+0wQ1SN7IU7EPS7Pu4OjYAxp3Sz1UTE4AQ5ln9neeZULu7NkofIe9LCbnxwBp/
+ 6kZBI5VJga3fjgzf47wWma2+d2WLmYnlE4fll2Dj95ppRrhIith3mLmPikUfF40PCDkhxoxMINg
+ 1vcN9badd8l+lo+ZM+bRDRh6oQo7GPzWmzUKtRdzJPR0/pcs5LnqSEqZdLIzz5BjcjmF5UywP9q
+ UQOzEdnylBmMiSrCZ8LLYAElhzY5YM5BSEhBfUyGUDN1QBfuPSOPMS2cvlCw/wta/5GMA9fWbBf
+ 4sNgiUYyfTJDqewppHQ==
+X-Proofpoint-ORIG-GUID: 4mIzvfxxQ8hLZoBkn_JqXXhvJ5csCgEh
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDIxMDAwNCBTYWx0ZWRfX2EF29FPKPfCq
+ myhFuNttzlv5CJCLI+/PRrfHpLUSW2ll+XXRbVuvvuCijCX4PnreK2KJkpjQFw6AhJ8CeI9vUT2
+ /tSDT+NQGBZLPSEmVsbHzXfe0XB3uNY=
+X-Proofpoint-GUID: 4mIzvfxxQ8hLZoBkn_JqXXhvJ5csCgEh
+X-Authority-Analysis: v=2.4 cv=BqEIUoX5 c=1 sm=1 tr=0 ts=6ad81229 cx=c_pps
+ a=CB4LiSf2rd0gKozIdrpkBw==:117 a=CB4LiSf2rd0gKozIdrpkBw==:17
  a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=7x6HtfJdh03M6CCDgxCd:22 a=xtH7KyWI9dI7BmFOsl-x:22 a=VabnemYjAAAA:8
- a=-BBy4ptD6Xa2-Mryg3AA:9 a=QEXdDO2ut3YA:10 a=gKebqoRLp9LExxC7YDUY:22
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDIxMDAwNCBTYWx0ZWRfXwhmaw+rx2RYx
- UGHI9uDfw7CD6TF038BwzKrMJ//hM2S+FYERkAj9VwUYbAMFJPwM9+gI41NJM1foVdoi1RzKr3o
- HFIeD/wb3LvdJ6aFYMHcfbKKHGEXs8g=
-X-Proofpoint-GUID: uAWGrrmTl2KtKN_H49_v8iwHl4hbkK4h
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDIxMDAwNCBTYWx0ZWRfX6NodKB2OOCh7
- v/GMGLb965va5x1I6+Uvjy8m9Wbpcinfif4pxTLj254SAW/8P8uzm6y7fiustuA2r17oApS49z1
- xKhOqWlEtwUbRqkIHoJftFFEhxePngj2pof1TwdCgCmXQvMZ8Soq6N5gEyaY9rxWykzGw8CfxG7
- Z9F4Lber5sISsvN0zZmh2MSIMEr//XsuN9d7OrJMdyZx8+PySlHT4Cno/EfmvJ4ufs3PsCAmVxq
- a7iY636NOIdHmi6xIt5tyKC1fFc7hR5H6s5m7V7+N19IkdAPhi2YsD6aKCg+ceor9iA3RZgB/wp
- vd5WzdHXPHcIDwzNaENxYccnbIDAFz9rgd8Zcd1z0wnugX+vkUIwSrhaw5W6j5klYdeXhGqQ5Xz
- 1mvib/DdiX1watL3rm2jeAo7DXlLN98l768Y8QYZ52UQLxSe+QM6lASLI5J0m+HicZ2R7EMjSUT
- vrhCzlRX1wVT89E0q1w==
+ a=7x6HtfJdh03M6CCDgxCd:22 a=03ozwUkBphtHgyqjj1sw:22 a=VabnemYjAAAA:8
+ a=Q26mkz6o2AEWOQ6HvkAA:9 a=QEXdDO2ut3YA:10 a=gKebqoRLp9LExxC7YDUY:22
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-10-20_04,2026-10-19_02,2025-10-01_01
 
-vsock_sysctl_ops and its two callbacks are named for the sysctl tables
-they register, but the init callback already does more than that: it
-also initialises the per-namespace vsock state through vsock_net_init().
+virtio-vsock did not have namespace support (the device was always
+accessible to any global namespace).
 
-Rename them to vsock_pernet_ops, vsock_pernet_init and
-vsock_pernet_exit, so that later per-namespace work can be placed here
-too.
+Make the virtio-vsock device assignable to a namespace and initialize it
+to init_net. Because virtio-vsock and init_net are both hardcoded to
+global mode, nothing changes until the assign command is issued.
 
-No functional change.
+An assign can land while virtio_transport_rx_work() is draining a
+batch, so the assigned namespace is re-read per packet rather than once
+per batch. Matching the rest of the batch against the namespace the
+device has left would reset connections that belong to the new one.
+
+When a device is assigned to a namespace, every already established
+vsock socket that is no longer able to reach the device is forcibly
+closed. For that reason, adding new sockets to the connected table must
+be performed atomically with regards to namespace assignment. This
+ensures that when the socket is added to the connected table that it
+actually passes the new reachability conditions set by ns assignment. If
+it wins the race to the table and does NOT pass the reachability tests,
+then it will be reset. This is the purpose of the new helper
+'vsock_maybe_set_connected()'.
 
 Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
 ---
- net/vmw_vsock/af_vsock.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+Changes in v4:
+- Drop packets in virtio_transport_send_pkt() from a netns that cannot
+  reach the device, e.g. shutdown() or credit updates on a swept socket
+  (Sashiko)
 
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index 5a0ba068bfd1..aa4732c3599f 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -3037,7 +3037,7 @@ static void vsock_net_init(struct net *net)
- 	net->vsock.g2h_fallback = 1;
- }
- 
--static __net_init int vsock_sysctl_init_net(struct net *net)
-+static __net_init int vsock_pernet_init(struct net *net)
- {
- 	vsock_net_init(net);
- 
-@@ -3047,14 +3047,14 @@ static __net_init int vsock_sysctl_init_net(struct net *net)
- 	return 0;
- }
- 
--static __net_exit void vsock_sysctl_exit_net(struct net *net)
-+static __net_exit void vsock_pernet_exit(struct net *net)
- {
- 	vsock_sysctl_unregister(net);
- }
- 
--static struct pernet_operations vsock_sysctl_ops = {
--	.init = vsock_sysctl_init_net,
--	.exit = vsock_sysctl_exit_net,
-+static struct pernet_operations vsock_pernet_ops = {
-+	.init = vsock_pernet_init,
-+	.exit = vsock_pernet_exit,
- };
- 
- static int __init vsock_init(void)
-@@ -3084,7 +3084,7 @@ static int __init vsock_init(void)
- 		goto err_unregister_proto;
+Changes in v3:
+- Re-read the assigned netns per packet in virtio_transport_rx_work()
+  rather than once per batch, so a mid-batch assign cannot reset the new
+  namespace's connections (Sashiko)
+- Drop the NULL netns reset in virtio_transport_rx_work(), the assigned
+  netns is now pinned
+- Drop the .reset op and the virtio_transport_reset{,_no_sock}() exports,
+  the sweep no longer sends a RST (Sashiko)
+
+Changes in v2:
+- Export virtio_transport_reset(), wire it to the new .reset op (Stefano)
+- netns_assign_allow is now a bool (Stefano)
+- Pass NULL, not &init_net, in virtio_transport_rx_work(), and
+  comment why (Stefano)
+- Drop the if (net) guard around put_net() (Stefano)
+- Drop the comments at the vsock_maybe_set_connected() call sites,
+  the commit msg seems sufficient
+---
+ net/vmw_vsock/virtio_transport.c        | 32 +++++++++++++++++++++++++++-----
+ net/vmw_vsock/virtio_transport_common.c | 18 +++++++++++++-----
+ 2 files changed, 40 insertions(+), 10 deletions(-)
+
+diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+index eced6929405d..06df82b130cf 100644
+--- a/net/vmw_vsock/virtio_transport.c
++++ b/net/vmw_vsock/virtio_transport.c
+@@ -256,6 +256,15 @@ virtio_transport_send_pkt(struct sk_buff *skb, struct net *net)
+ 		goto out_rcu;
  	}
  
--	if (register_pernet_subsys(&vsock_sysctl_ops)) {
-+	if (register_pernet_subsys(&vsock_pernet_ops)) {
- 		err = -ENOMEM;
- 		goto err_unregister_sock;
- 	}
-@@ -3108,7 +3108,7 @@ static void __exit vsock_exit(void)
- 	misc_deregister(&vsock_device);
- 	sock_unregister(AF_VSOCK);
- 	proto_unregister(&vsock_proto);
--	unregister_pernet_subsys(&vsock_sysctl_ops);
-+	unregister_pernet_subsys(&vsock_pernet_ops);
++	/* A socket reset by an assign can still send credit updates from
++	 * recvmsg() and setsockopt(SO_RCVLOWAT).
++	 */
++	if (!vsock_g2h_net_reachable(net)) {
++		kfree_skb(skb);
++		len = -ENETUNREACH;
++		goto out_rcu;
++	}
++
+ 	/* If send_pkt_queue is empty, we can safely bypass this queue
+ 	 * because packet order is maintained and (try) to put the packet
+ 	 * on the virtqueue using virtio_transport_send_skb_fast_path.
+@@ -542,7 +551,7 @@ static bool virtio_transport_msgzerocopy_allow(void)
+ 
+ bool virtio_transport_stream_allow(struct vsock_sock *vsk, u32 cid, u32 port)
+ {
+-	return vsock_net_mode_global(vsk);
++	return vsock_g2h_net_reachable(sock_net(sk_vsock(vsk)));
  }
  
- const struct vsock_transport *vsock_core_get_transport(struct vsock_sock *vsk)
+ static bool virtio_transport_seqpacket_allow(struct vsock_sock *vsk,
+@@ -587,6 +596,7 @@ static struct virtio_transport virtio_transport = {
+ 		.seqpacket_has_data       = virtio_transport_seqpacket_has_data,
+ 
+ 		.msgzerocopy_allow        = virtio_transport_msgzerocopy_allow,
++		.netns_assign_allow       = true,
+ 
+ 		.notify_poll_in           = virtio_transport_notify_poll_in,
+ 		.notify_poll_out          = virtio_transport_notify_poll_out,
+@@ -616,7 +626,7 @@ virtio_transport_seqpacket_allow(struct vsock_sock *vsk, u32 remote_cid)
+ 	struct virtio_vsock *vsock;
+ 	bool seqpacket_allow;
+ 
+-	if (!vsock_net_mode_global(vsk))
++	if (!vsock_g2h_net_reachable(sock_net(sk_vsock(vsk))))
+ 		return false;
+ 
+ 	seqpacket_allow = false;
+@@ -633,7 +643,12 @@ static void virtio_transport_rx_work(struct work_struct *work)
+ {
+ 	struct virtio_vsock *vsock =
+ 		container_of(work, struct virtio_vsock, rx_work);
++	struct virtio_transport *t = &virtio_transport;
++	netns_tracker ns_tracker;
+ 	struct virtqueue *vq;
++	struct net *net;
++
++	net = vsock_g2h_net_get(&ns_tracker);
+ 
+ 	mutex_lock(&vsock->rx_lock);
+ 
+@@ -682,10 +697,15 @@ static void virtio_transport_rx_work(struct work_struct *work)
+ 
+ 			virtio_transport_deliver_tap_pkt(skb);
+ 
+-			/* Force virtio-transport into global mode since it
+-			 * does not yet support local-mode namespacing.
++			/* Only grab a reference if the net changes underneath
++			 * us.
+ 			 */
+-			virtio_transport_recv_pkt(&virtio_transport, skb, NULL);
++			if (unlikely(!vsock_g2h_net_eq(net))) {
++				put_net_track(net, &ns_tracker);
++				net = vsock_g2h_net_get(&ns_tracker);
++			}
++
++			virtio_transport_recv_pkt(t, skb, net);
+ 		}
+ 	} while (!virtqueue_enable_cb(vq));
+ 
+@@ -694,6 +714,8 @@ static void virtio_transport_rx_work(struct work_struct *work)
+ 		virtio_vsock_rx_fill(vsock);
+ out_nofill:
+ 	mutex_unlock(&vsock->rx_lock);
++
++	put_net_track(net, &ns_tracker);
+ }
+ 
+ static int virtio_vsock_vqs_init(struct virtio_vsock *vsock)
+diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+index 1e762a480df4..0c864db2bc65 100644
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -1478,9 +1478,13 @@ virtio_transport_recv_connecting(struct sock *sk,
+ 
+ 	switch (le16_to_cpu(hdr->op)) {
+ 	case VIRTIO_VSOCK_OP_RESPONSE:
+-		sk->sk_state = TCP_ESTABLISHED;
++		if (!vsock_maybe_set_connected(vsk)) {
++			skerr = ECONNRESET;
++			err = -ENETUNREACH;
++			goto destroy;
++		}
++
+ 		sk->sk_socket->state = SS_CONNECTED;
+-		vsock_insert_connected(vsk);
+ 		sk->sk_state_change(sk);
+ 		break;
+ 	case VIRTIO_VSOCK_OP_INVALID:
+@@ -1736,8 +1740,6 @@ virtio_transport_recv_listen(struct sock *sk, struct sk_buff *skb,
+ 
+ 	lock_sock_nested(child, SINGLE_DEPTH_NESTING);
+ 
+-	child->sk_state = TCP_ESTABLISHED;
+-
+ 	vchild = vsock_sk(child);
+ 	vsock_addr_init(&vchild->local_addr, le64_to_cpu(hdr->dst_cid),
+ 			le32_to_cpu(hdr->dst_port));
+@@ -1758,7 +1760,13 @@ virtio_transport_recv_listen(struct sock *sk, struct sk_buff *skb,
+ 	if (virtio_transport_space_update(child, skb))
+ 		child->sk_write_space(child);
+ 
+-	vsock_insert_connected(vchild);
++	if (!vsock_maybe_set_connected(vchild)) {
++		release_sock(child);
++		virtio_transport_reset_no_sock(t, skb, sock_net(sk));
++		sock_put(child);
++		return -ENETUNREACH;
++	}
++
+ 	vsock_enqueue_accept(sk, child);
+ 	virtio_transport_send_response(vchild, skb);
+ 
 
 -- 
 2.53.0-Meta
