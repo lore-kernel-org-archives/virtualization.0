@@ -1,94 +1,94 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.226
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.216.98
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792553681;
-	b=fDd+e3BUsLYfeYbZtzSpuRYy/wfcPrryD4SPB7Ig2/AF602gILg94zNTJ91eVUyF6gNV
-	 rsxtQDdpIRe9Xd8yYVfY5Cw1nlSXzoPlZaHnQZKWBg2b0WoYZ2c80iVxVinD/3+LbaOep
-	 7alQVGNUlLfXuzxMh1BapurD/WSsdPmhHxEA4FSeNTMSWXSrhzw6KKiCGcPpzQ4pWu80C
-	 c6A9pkFrf8jcyH9SiN7mJPhDV2E3OVkR2bRKBZUpb3XVnZp0tUWagXdQWda+ip0ox/Mm7
-	 biTzcJ8d1fjxxYk6JEKIVkRzupCBhM8yzVg9hzWmTJsbCtOVAIyVSqL6Wr3sNOFhZjA==
+	t=1792559443;
+	b=aJ+RBfRLfZzzSXtpqk2fhU/zIBFxyDjDCDS/kbFk0HVpx0tEppqpi08n6FzFAjfkSQ03
+	 eLuqpk0R4vpji+tZPzGuc6M1zm2jcOHqbfkVy1MzufigZuHgg7x3dJM6rC54l0HAIh40C
+	 4k5pf+3G3wo6ZpJHgdrc2x48HyeLLhbCEQznJkBwomAUPObs9+s0F9dJPK8AsaZYh5rFn
+	 F3ltx6C8xmx3ZhgrhrYg5ku7a4UknGVUYyT1o0U7jsZFbA5G4ZFKsI6EPW+ACyC1oRnWp
+	 ZZkVZ0Glrz+rmB2ag0VBW2XUKOUd6ytwz/yTtFyEvlFlYjDGUuDVpEUNk3Z6TqgFtJg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792553681;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792559443;
 	h=DMARC-Filter:Received:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:X-Relaying-Domain:
 	 X-CFilter-Loop:Received:DKIM-Signature:X-Forwarded-Encrypted:
 	 X-Received:X-Received:MIME-Version:References:In-Reply-To:From:Date:
 	 X-Gm-Features:Message-ID:Subject:To:Cc:X-DetectorID-Processed:
 	 Content-Type;
-	bh=TW/BbVMbFlcb5rUkwbNncNlF+KIBoi9iFK9eJaB+gV0=;
-	b=HyO98DonmWY0p7pY1lZXMY6612Ksu+1nMTYBioYEMmHkJ3kvvHRUGUwcLkaqCWLyb5F/
-	 aq+4s7RwwPdsihs9nJZ0l+tPDTfUKB17li5jTb0ShjbD6XneqFwKj576MscrQ3jbz9DSu
-	 tw9jcX7uNyZlo7G04GGISLn+JESuf2sVajZNPaR/ldfKO+A/8lHswQ06wnouYIAblOgwe
-	 yHxv7u/eQbZXYEd0hTR/EfcmUMFpdiYg2J4CL4ygjzoiHeLuJVRfsqkSknh4+xMpcq3cD
-	 O+uX+L9yjuET2sEFDoHGUmRGW8h/bmk92/2ool5xWwrgZD6X8hNeTdQsCgH+DYfrEjw==
+	bh=CTdnc5O/01FUEwPJP7HEyGtL12UA97WWNtXtIA4JrL4=;
+	b=XG98fl9hveeJKx2KZLJNlijMf7AsvHBrRA2yunE78TSgMNGiRpkMOWJEpRFO7EmCciPu
+	 ptjDndYd/EQw5ERrElKK4X9CWty6zlzNygOGwCnxgLeekRFMRD+2HHr8sg43/otmP0VnX
+	 gPb6jP2rAOJMt043MfPorW4Si911aklWBC9HKOEOP1i3UTXQE62y7E3NdNPU3TwIWFrm+
+	 CPca8xCwkJiq9MiwM5vbUCcFPwfrSgZLm+HU4MhbZIWQLU6sy3ZcazzFlk5Qb2o3U52uB
+	 UhSIfphiKJfnWLDqQe2BQSB+ijxCCKuYx3c9GTFLi4fHiJt8Y6JsuWkhNr0garV1Yrg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=broadcom.com;
 	spf=fail smtp.mailfrom=broadcom.com;
-	dkim=pass header.d=broadcom.com header.i=@broadcom.com header.a=rsa-sha256 header.s=google header.b=Ey+m5s2Z;
-	arc=none smtp.remote-ip=209.85.222.226
-Received: from mail-qk1-f226.google.com (mail-qk1-f226.google.com [209.85.222.226])
+	dkim=pass header.d=broadcom.com header.i=@broadcom.com header.a=rsa-sha256 header.s=google header.b=cDrU75EU;
+	arc=none smtp.remote-ip=209.85.216.98
+Received: from mail-pj1-f98.google.com (mail-pj1-f98.google.com [209.85.216.98])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 446A2606A31A
-	for <virtualization@lists.linux.dev>; Wed, 21 Oct 2026 03:34:41 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 446A2606A31A
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45AD0606A31A
+	for <virtualization@lists.linux.dev>; Wed, 21 Oct 2026 05:10:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 45AD0606A31A
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=broadcom.com header.i=@broadcom.com header.a=rsa-sha256 header.s=google header.b=Ey+m5s2Z
-Received: by mail-qk1-f226.google.com with SMTP id af79cd13be357-93f3c616c84so27100385a.1
-        for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 20:34:41 -0700 (PDT)
+	dkim=pass (1024-bit key, unprotected) header.d=broadcom.com header.i=@broadcom.com header.a=rsa-sha256 header.s=google header.b=cDrU75EU
+Received: by mail-pj1-f98.google.com with SMTP id 98e67ed59e1d1-3ad41b47541so293665a91.1
+        for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 22:10:43 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792553680; x=1793158480;
+        d=1e100.net; s=20260707; t=1792559443; x=1793164243;
         h=content-type:cc:to:subject:message-id:date:from:in-reply-to
          :references:mime-version:dkim-signature:x-gm-gg:x-gm-message-state
          :from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=TW/BbVMbFlcb5rUkwbNncNlF+KIBoi9iFK9eJaB+gV0=;
-        b=A4Ctf3xDjF2e+Ku1VxxIzrhXGFTBpyyr9slNkNSADNhmUO9jcJXqaAysNAENlPI351
-         Gx/kvZB7uAwQQJXGKeaJxzJWWEDCvEPDd1Zrydh54Wp9zDEJhl/sxeMYsqULLwqJ3xxn
-         MXDzOCoODCVY7oezztelywHP5Y+uVnEKKd4mmgV8FtDbLhGORRwGJiCgY92PGuBJn5Tp
-         jnBMCDd7kyzKgDzUXbVO1QOwiTnj0l6feV/n12Rtk3KIadfS7O/EP/4gAQ1pMtRsY73U
-         5sOAueG2CemRI7o7rOVq9NtU62IgPlp4ogu3cRVQDXQGHQrn1iCqnINMUinBdW+OIHl9
-         ynZQ==
-X-Forwarded-Encrypted: i=1; AKwUvBwxH6Gd557NKQthBLY1oR5g65ji/pse0ATJeub9Z4zK96AtPRhO9u7Wh6WbhgFeUiUhHBE/7cCW2lgtWUTVhg==@lists.linux.dev
-X-Gm-Message-State: AFq9FYII6UUkd7AV4P/4U2ouWJ100+ibqVzwB/9sBMKC58TDQNt9elW5
-	9MgWpC6NprueziwOzF9p5GpiJCdKv2XplGBFMyCPpgPpCvDPwVnmrNk/Fmyi+ZjaCT36mjQbOcJ
-	v9cC6pvkPx4xOwPxR5SfIyIdIrFekvNRlXlZnvvDWwDnstRp5T3dOlO4JBjRjEkGZtnmVmdnJxp
-	9Z3T1g9V4RU5byPPO8TI+OfWCx8qG+KL5a9jijXJKwvBYc2eeR0Zhpmqy4iPOe6+iSAKqhzDX0z
-	NjDQcVpSDu3C27EA44=
-X-Gm-Gg: AYBFou3jzhctFfnjPaF+SVrHYS7t5xHu14Am/hDnn4EBNuMx2Ge1f7T81f41hfFUuKv
-	Zdc2mPqh3Fcazl91wKY/8wdzU5LQxThrpsAaYyGddzT8RcCENSnYiP9L/Xr+zRcjr11r+x8Kyyi
-	Nj9SkvbVB+nhe6B2Kg4bIwczPo+4I1mSqCg6JX6b4c1HGfEGnb3u2Jj7khtOxDdaMOrITqmGlA6
-	eHoF61T4XfnHmiM1pNZFZg903qedKFjfEgmpaXuKSYBW1zr8RQ49xFbOFX59f045wskBWeyTZZC
-	gw+bWRmQSexd+M9DYIIOAg0D+QLwfKSTgiOW4jqumfGr3hWI4CikxjHB9T4cKOA6z+Cf/kTo6UP
-	3Jx/y4XxAPw5f4Tg1kQpNrH4piJ03c7HI7E2GSL7niNSQUDTHHU3XxoOeoWtd8CnU7UPf7oWEL7
-	D69zBPk0zPWlkGdlyM8Fci+72Ok7qVdbwyQs4=
-X-Received: by 2002:a05:620a:198d:b0:93f:184d:ac13 with SMTP id af79cd13be357-93f57f4684fmr224685185a.51.1792553680107;
-        Tue, 20 Oct 2026 20:34:40 -0700 (PDT)
+        bh=CTdnc5O/01FUEwPJP7HEyGtL12UA97WWNtXtIA4JrL4=;
+        b=yV8oU+f9r8AtRZ72vkgQVHw4aqCCXtUF25FcxlIXQoI37ZAnhpW+293xq+iHsZirUc
+         3D0Jz5yIyAWX3vlqGiI9q0yXOu3jDomofEn2QNpvgh2J2FIreMl/P+yijxTesyqyCqpX
+         0ILkKM5U6nglNCnS4yaDWQlwEJle+xXBx6IGW9xWS7KNPhzGxgwtZbwHIAY3HI7yd+Ml
+         i+wOqjyvQ8PxykFdUWyIxlENh3LNQfGryKZJM6wwGDoasyDJovXYhgfCN6I+K359TTZr
+         K4xK/2s+742ztJa1aoPtNAGaqmAi5lqzZ7nK8ee9LfekPc1dksdaqjabZz/fopdHPRvV
+         jiCA==
+X-Forwarded-Encrypted: i=1; AKwUvBxns6yszw4ps79Mgi+piRvK6Qnmw1ZL8KiUG9tY/03jAqLn71T2QcWdS4POpWkZ3O3w3EY+2mya2xn8y6UXLA==@lists.linux.dev
+X-Gm-Message-State: AFq9FYLv1CpTlmYBfiZE5Hvny5tpRYVJqqmEB9PUoOfy21wAp89QJFai
+	+s09OeFfQyuKMQfWKX8BT1dByuM24p5/hHSw0KDCLKlIofZQwdfVnWjkcdVBp3No1KeoHEQ5XsU
+	a6EFacXYS7rRd9SodZMaI1Zzw8hCtbmGRxVR8JFAR0nqada7KgF9XAu1I/OFig8EAUVBi9E5GPb
+	HWnhMXsGcbcprtl1CKfwTgQjKddu4ji21lhHm5tT3urFkcD/jyQ/EIocoUR6rLcZGhZjhG9C/TQ
+	SE+9/BOVAhAfeg3bWo=
+X-Gm-Gg: AYBFou1TbTd2KmlhGR3P19HGxiJVTLXx49XByEcSw+rRtHgwBHTy7vEaOfmT15aSI/g
+	sD6yVAqp0i+I0IPEvwejee/TTR+sY71norrRuSD/P3nT1aJrW0OncO49qIpY3jikCBH4SCTjU56
+	O9Q36LvBxlxvfqQb8ENN+5Su/vbBkHcFAm0xWwLGCIfAHzgYXK3ntphGxSbyOYNoUEm5s1FLWbT
+	TdXUIso15gGaUr02RoHuMIDQdQ+lv+GFT9zGYFVISu+NepwSp82MSCGCcbj+9lEcoZjsZ0LqHt2
+	g4SjSYRvWu4ZEO/g2Dy1OHYnwghoN9i71lR0nqa4DD/Ysx1spPhYD+Yyj1paqHZHIRqq2uPoP50
+	RvI8w2Be+1DCdwuzxSsqHYMrj89PMf9GQpTVJagNB7aCjiyAAjeHbpbn4/g0lZEqNGjZQeu/Fsl
+	hD42dIhIWG+tvuTOPwwWaNg35XM03NWSinnB4=
+X-Received: by 2002:a17:90b:17c5:b0:3a0:9c9d:eb18 with SMTP id 98e67ed59e1d1-3ad8707bd19mr983169a91.54.1792559442525;
+        Tue, 20 Oct 2026 22:10:42 -0700 (PDT)
 Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-120.dlp.protect.broadcom.com. [144.49.247.120])
-        by smtp-relay.gmail.com with ESMTPS id af79cd13be357-93f56e0591csm26678485a.16.2026.10.20.20.34.39
+        by smtp-relay.gmail.com with ESMTPS id 98e67ed59e1d1-3ad81c5e8e6sm1192970a91.5.2026.10.20.22.10.41
         for <virtualization@lists.linux.dev>
         (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 20 Oct 2026 20:34:40 -0700 (PDT)
+        Tue, 20 Oct 2026 22:10:42 -0700 (PDT)
 X-Relaying-Domain: broadcom.com
 X-CFilter-Loop: Reflected
-Received: by mail-lj1-f197.google.com with SMTP id 38308e7fff4ca-3ab32495d61so1280621fa.3
-        for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 20:34:39 -0700 (PDT)
+Received: by mail-lj1-f200.google.com with SMTP id 38308e7fff4ca-3ab117eba28so2026091fa.2
+        for <virtualization@lists.linux.dev>; Tue, 20 Oct 2026 22:10:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1792553678; x=1793158478; darn=lists.linux.dev;
+        d=broadcom.com; s=google; t=1792559440; x=1793164240; darn=lists.linux.dev;
         h=content-type:cc:to:subject:message-id:date:from:in-reply-to
          :references:mime-version:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=TW/BbVMbFlcb5rUkwbNncNlF+KIBoi9iFK9eJaB+gV0=;
-        b=Ey+m5s2ZCcz0zFWq22Ol1xGmxrP9aF6O8Hdf7itRV9z05lVjKNZyatLhe35jegz7fB
-         PVv9ARuAz4vizQhEsLYEWAhRrIInKrJ/MmNXA9EFP+XYekRWdz8r3N68qsmai3zI5i2G
-         3XWYrC93cdBDKxArkoF1eM0Y8ZSj7sCUbXy0A=
-X-Forwarded-Encrypted: i=1; AKwUvBxS8Qpd5up/zeKY4XXbNaHmMX2+U+8nGvq50rsoLEV293lPQqqOkNucS6Xbz+d5bUqfMwVYz/6UA2w4s+i0mg==@lists.linux.dev
-X-Received: by 2002:a05:651c:a0c8:10b0:3ab:3b73:4560 with SMTP id 38308e7fff4ca-3ac4416514amr1399531fa.11.1792553678359;
-        Tue, 20 Oct 2026 20:34:38 -0700 (PDT)
-X-Received: by 2002:a05:651c:a0c8:10b0:3ab:3b73:4560 with SMTP id
- 38308e7fff4ca-3ac4416514amr1399461fa.11.1792553677861; Tue, 20 Oct 2026
- 20:34:37 -0700 (PDT)
+        bh=CTdnc5O/01FUEwPJP7HEyGtL12UA97WWNtXtIA4JrL4=;
+        b=cDrU75EUzPPGcYHGZPgU/2BlpF5OgQeTe4PRo9tjHIoMzcKdZGStVLd2UISsiqqEGP
+         gSQ08OkSqIw5MmhMv1iWZz2YJTt93RRcqMPymjT8N8m71Awd+n7S+7LOV20Kvz2U0L3x
+         QaeFiZQPCeAxS//h6iWWPCw+SJVrePD0CT97I=
+X-Forwarded-Encrypted: i=1; AKwUvByVBXzkxx3GNeQlUeSmv3dwpfWYuj0CTueEreu7609hyYbIlAeqJbPxBHBs5E1UdgtOEy2UcQSbm+LOALX3xQ==@lists.linux.dev
+X-Received: by 2002:a05:651c:19a0:b0:3ab:483c:9149 with SMTP id 38308e7fff4ca-3ac4418fec5mr2462691fa.17.1792559440042;
+        Tue, 20 Oct 2026 22:10:40 -0700 (PDT)
+X-Received: by 2002:a05:651c:19a0:b0:3ab:483c:9149 with SMTP id
+ 38308e7fff4ca-3ac4418fec5mr2462651fa.17.1792559439547; Tue, 20 Oct 2026
+ 22:10:39 -0700 (PDT)
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -98,63 +98,216 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-References: <4ab10678a8f50053934b62b56af81f881c1d3798.1788414669.git.zack.rusin@broadcom.com>
-In-Reply-To: <4ab10678a8f50053934b62b56af81f881c1d3798.1788414669.git.zack.rusin@broadcom.com>
+References: <cover.1790014793.git.zack.rusin@broadcom.com> <81cb85568b36273a8e66215b3e6d671b8488d402.1790014793.git.zack.rusin@broadcom.com>
+ <bc783856-9480-3944-67fb-675e4c11d8c2@igalia.com> <atdYIxwz8ksYNty6@pathway.suse.cz>
+ <atd7GInNurGWLUha@pathway.suse.cz> <ateYxCu63pRY9EGq@pathway.suse.cz>
+ <CABQX2QOKCpoUY_ObhFif7xN7OF-NzcxEM0JABAXo9n9KaacO7A@mail.gmail.com> <atgdwrSbsZD5iWsX@fedora>
+In-Reply-To: <atgdwrSbsZD5iWsX@fedora>
 From: Zack Rusin <zack.rusin@broadcom.com>
-Date: Tue, 20 Oct 2026 23:34:23 -0400
-X-Gm-Features: AclHuK8ENfLisiIT_GEK1qalO15UCXsiYROrnCL-RUbBf_6CSo_GUxqkuPipUvI
-Message-ID: <CABQX2QMNetg9iYRRsQmeM3+1tnC94ccWM=450wMZL_sUbqAJtA@mail.gmail.com>
-Subject: Re: [PATCH v1] x86/vmware: Fix i386 high-bandwidth hypercall arguments
-To: Borislav Petkov <bp@alien8.de>, Ajay Kaher <ajay.kaher@broadcom.com>, 
-	Alexey Makhalov <alexey.makhalov@broadcom.com>, x86@kernel.org
-Cc: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, "H . Peter Anvin" <hpa@zytor.com>, 
-	virtualization@lists.linux.dev, bcm-kernel-feedback-list@broadcom.com, 
-	linux-kernel@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, 
-	Josh Poimboeuf <jpoimboe@kernel.org>, Nathan Chancellor <nathan@kernel.org>, llvm@lists.linux.dev
+Date: Wed, 21 Oct 2026 01:10:25 -0400
+X-Gm-Features: AclHuK-iY28m6pjHtDyV21Psf6QklV6qAb2sMO3JuJ86CJvhZdVHzSCgHwEVQLc
+Message-ID: <CABQX2QO6fwvKZwG34uOYDU_ae4M4_n2SMsYmqoLgOPnWkao02w@mail.gmail.com>
+Subject: Re: [PATCH v2 1/6] panic: Add a notifier chain for pre-kdump callbacks
+To: Baoquan He <baoquan.he@linux.dev>
+Cc: Petr Mladek <pmladek@suse.com>, "Guilherme G. Piccoli" <gpiccoli@igalia.com>, 
+	Borislav Petkov <bp@alien8.de>, Andrew Morton <akpm@linux-foundation.org>, 
+	Mike Rapoport <rppt@kernel.org>, Ajay Kaher <ajay.kaher@broadcom.com>, 
+	Alexey Makhalov <alexey.makhalov@broadcom.com>, Pasha Tatashin <pasha.tatashin@soleen.com>, x86@kernel.org, 
+	Joel Granados <joel.granados@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
+	Ingo Molnar <mingo@redhat.com>, Dave Hansen <dave.hansen@linux.intel.com>, 
+	"H. Peter Anvin" <hpa@zytor.com>, virtualization@lists.linux.dev, 
+	Dave Young <ruirui.yang@linux.dev>, bcm-kernel-feedback-list@broadcom.com, 
+	linux-kernel@vger.kernel.org, John Ogness <john.ogness@linutronix.de>, 
+	Steven Rostedt <rostedt@goodmis.org>, Sergey Senozhatsky <senozhatsky@chromium.org>, 
+	Pratyush Yadav <pratyush@kernel.org>, Kees Cook <kees@kernel.org>, Jonathan Corbet <corbet@lwn.net>, 
+	Bo Gan <bo.gan@broadcom.com>, Brennan Lamoreaux <brennan.lamoreaux@broadcom.com>, 
+	kexec@lists.infradead.org, linux-doc@vger.kernel.org, 
+	Maaz Mombasawala <maaz.mombasawala@broadcom.com>, Shuah Khan <skhan@linuxfoundation.org>, 
+	Randy Dunlap <rdunlap@infradead.org>, Stephen Brennan <stephen.s.brennan@oracle.com>, 
+	Michael Kelley <mhklinux@outlook.com>, Ian Forbes <ian.forbes@broadcom.com>
 X-DetectorID-Processed: b00c1d49-9d2e-4205-b15f-d015386d3d5e
 Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha-256;
-	boundary="00000000000041b6cd065e516d01"
+	boundary="000000000000af7981065e52c4d8"
 
---00000000000041b6cd065e516d01
+--000000000000af7981065e52c4d8
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Sep 3, 2026 at 12:07=E2=80=AFPM Zack Rusin <zack.rusin@broadcom.com=
-> wrote:
+On Tue, Oct 20, 2026 at 10:04=E2=80=AFPM Baoquan He <baoquan.he@linux.dev> =
+wrote:
 >
-> The high-bandwidth hypercall helpers push %ebp before loading the in6
-> operand into it. On i386 without frame pointers, both GCC and Clang can
-> address the memory-constrained operand relative to %esp. The push then
-> moves the stack and the helpers load the wrong value.
+> On 10/20/26 at 03:23pm, Zack Rusin wrote:
+> > Hi, Petr.
+> >
+> > First of all I really appreciate you going over this. Thanks!
+> >
+> > On Tue, Oct 20, 2026 at 12:37=E2=80=AFPM Petr Mladek <pmladek@suse.com>=
+ wrote:
+> > > Approach B: Three lists: platform, smp_safe, and smp_unsafe()
+> > > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> > >
+> > > It is similar to approach A. We would just add an extra:
+> > >
+> > >      + panic_notifiers_platform_list
+> > >      + disable_panic_notifiers_platform_list
+> > >
+> > > This list would be used for smp-safe notifiers which are
+> > > required be some platform. It would be the notifiers which
+> > > are crucial. Which are currently the reason to set
+> > > "_crash_kexec_post_notifiers".
+> > >
+> > > It might be called also when __crash_kexec() is called
+> > > outside panic().
+> > [...]
+> > > This patchset, adding vmware_log_notifier, might implement just
+> > > the panic_notifiers_platform_list. The rest might be
+> > > added by another volunteer.
+> > >
+> > > How does this sounds, please?
+> >
+> > That sounds good to me. For v3 I'd do just the platform list:
+> >
+> > - One call in vpanic(), right after kgdb_panic() and before the first
+> > __crash_kexec(), whatever crash_kexec_post_notifiers is set to. The
+> > list runs before kdump and before the other CPUs are stopped.
+> > - One call in __crash_kexec(), after it has taken the kexec lock,
+> > found a crash image and saved the registers, for paths that enter
+> > kdump without panic(), like oops_end() or Hyper-V's hv_crash_handle().
+> > Once the early panic call has run the list, the guard makes this one a
+> > no-op. That removes the dependence on crash_kexec_post_notifiers you
+> > pointed out before.
+> > - A once-only guard shared by both, so the list also runs only once
+> > when a callback panics.
+> > - disable_panic_notifiers_platform_list as a boot and runtime switch,
+> > checked in the same helper, replacing panic_pre_kdump_postpone.
+> > - Kernel-doc with your definition: smp-safe callbacks a platform
+> > needs, which would otherwise be a reason to set
+> > crash_kexec_post_notifiers.
+> >
+> > Roughly:
+> >         kgdb_panic(buf);
+> >
+> >         panic_notify_platform();
+> >
+> >         if (!_crash_kexec_post_notifiers)
+> >                 __crash_kexec(NULL);
+> >
+> > and in __crash_kexec():
+> >
+> >         crash_setup_regs(&fixed_regs, regs);
+> >         /* Direct entry outside panic() */
+> >         panic_notify_platform();
+> >         crash_save_vmcoreinfo();
+> >
+> > I'd keep the second call in __crash_kexec() rather than crash_kexec(),
+> > because afaict crash_kexec() can return without a crash image, e.g.
+> > from the BPF kfunc, or from oops_end() before it panics. Calling the
+> > list there would use up the guard even when no kdump follows.
+> >
+> > crash_kexec_post_notifiers, the existing list and the kmsg dumpers
+> > stay as they are, and moving other platforms over can come later.
+> >
+> > The VMware log copy would be the only user, and it's still best-effort
+> > diagnostics: kdump and the reboot don't depend on it. It copies the
+> > log tail into an 8 KiB buffer. On panic() that happens after the panic
+> > message and any local backtrace; on direct entry from an oops, after
+> > the exception output. With the list enabled throughout, the copy
+> > precedes the later panic notifiers, sys_info() and the all-CPU
+> > backtrace step. The guest-crash report stays a late kmsg dumper that's
+> > skipped while a crash kernel is loaded, because the host can power off
+> > the VM inside that call.
+> >
+> > If that matches what you had in mind, I'll do it that way in v3.
+> >
+> > Guilherme, Stephen, Baoquan, does that work for you too?
 >
-> Typical i386 configurations use the frame-pointer unwinder and happen to
-> address the operand through %ebp. However, UNWINDER_GUESS is available
-> with EXPERT and permits the affected frame-pointer-disabled configuration=
-.
-> vmwgfx is also available on i386 and calls both helpers.
+> Hi Zack,
 >
-> Stage in6 through %eax before changing either stack register, then save
-> %ebp and copy the staged value into it. Load the VMware magic immediately
-> before the string I/O instruction. Mark %eax early-clobber so it cannot
-> also provide in6 or an address register for it. Use the same sequence on
-> x86-64, where the full-width register preserves in6.
+> Sorry I didn't check this series before, just trying to catch up.
 >
-> Fixes: 34bf25e820ae ("x86/vmware: Introduce VMware hypercall API")
-> Cc: stable@vger.kernel.org # 6.11+
-> Signed-off-by: Zack Rusin <zack.rusin@broadcom.com>
+> I like the Approach B direction: one panic_notifiers_platform_list for
+> platform callbacks that must run before kdump. While I have one concern
+> about the long term.
+>
+> Today the list has only the VMware log sender. Later, more handlers may j=
+oin
+> (for example pvpanic, Hyper-V, Xen, gsmi, SNP). When the list grows, some=
+one
+> will want to run only their handler, or to skip some handlers. The easy
+> answer is "add a new list for my handler". I think this will be a problem=
+ too
+> in the future. Every new list adds a new global ordering rule and a new d=
+isable
+> switch. Petr already said we should keep the number of lists small.
+>
+> Currently, atomic_notifier_call_chain() runs all registered callbacks. Th=
+ere
+> is no per-handler enable/disable and no filter. NOTIFY_STOP_MASK can stop=
+ the
+> chain, but we must not use it here, because one handler could hide all th=
+e
+> later handlers. The list-level disable_panic_notifiers_platform_list can
+> only disable the whole list.
+>
+> I have some rough though, just for reference:
+>
+> 1. Keep one panic_notifiers_platform_list.
+>
+> 2. Give each handler a small wrapper with a name and an enabled flag:
+>
+>    struct panic_pre_kdump_notifier {
+>            struct notifier_block nb;
+>            const char *name;
+>            bool enabled;
+>    };
+>
+> 3. In the dispatch, skip a handler when enabled is false. Print the name
+>    before calling it. This also helps when a handler hangs and we want to
+>    know which one it was.
+>
+> 4. Add a boot parameter to disable handlers by name, for example:
+>
+>            panic_pre_kdump.disable=3Dvmware_log,hyperv_crash
+>
+>    Parse it early. At panic time we only read the flag. We do not parse
+>    strings in the panic path.
+>
+> 5. Keep the list-level disable_panic_notifiers_platform_list. It is still
+>    useful to disable the whole list for debugging.
+>
+> 6. If the list is still too broad later, we can add a reason/class argume=
+nt
+>    (for example PANIC, OOPS_DIRECT). A handler can then decide if it care=
+s.
+>    This is better than adding a new list.
 
-Hi, Boris.
+Thanks for looking at it. I agree we shouldn't add a separate list for
+each handler, and named handlers with their own switch on the one list
+sound like the right way to grow it.
 
-Gentle ping on this one. It's a stable fix for the i386 high-bandwidth
-hypercalls (vmwgfx uses them), Maaz reviewed it, and it still applies
-cleanly to v7.3. The hypercall cleanup series I'm about to post moves
-this assembly out of line and is based on it, so it would help to know
-whether it's queued or needs changes.
+For v3 I'd like to keep the series to the list itself. With VMware as
+the only callback, the list-wide boot switch already lets us disable
+platform logging. The sender also has its own sysctl,
+kernel.vmware_record_panic_msg. We can add per-handler selection with
+the next user, when there's an actual choice between handlers. I'm
+happy to help with that when it comes up.
+
+Two of your points do fit in v3 as documentation. I'll change the
+panic_notify_platform() kernel-doc to also say that:
+- callbacks must return NOTIFY_DONE, because NOTIFY_STOP would skip
+the callbacks after them
+- the notifier value is 0.
+
+The VMware callback ignores that value, which leaves room to add
+reason information later.
+
+Petr, does keeping v3 to that sound right to you?
 
 z
 
---00000000000041b6cd065e516d01
+--000000000000af7981065e52c4d8
 Content-Type: application/pkcs7-signature; name="smime.p7s"
 Content-Transfer-Encoding: base64
 Content-Disposition: attachment; filename="smime.p7s"
@@ -246,13 +399,13 @@ iF+DvP+KT1/bjO6aNL2/3PWiy1u6xjnWvobHuAYVrXxQ5wzk8aPOnED9Q8pt2nqk/UIzw2f67Cn9
 b1ykTSPCXjBq/03CMF/wT1wly16jYjLDXZ6II/HYyJt34QeqnBENU9zXTc9RopqcuHD2g+ROT7lI
 VLi5ffzC8rVliltTltbYPc7F0lAvGKAxggJXMIICUwIBATBiMFIxCzAJBgNVBAYTAkJFMRkwFwYD
 VQQKExBHbG9iYWxTaWduIG52LXNhMSgwJgYDVQQDEx9HbG9iYWxTaWduIEdDQyBSNiBTTUlNRSBD
-QSAyMDIzAgxhPxw+eieHWB40hPkwDQYJYIZIAWUDBAIBBQCggccwLwYJKoZIhvcNAQkEMSIEILp+
-YS8IS4ny6z8YupvsGjeu4GQJnu7XOoFoKwZuI4WxMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEw
-HAYJKoZIhvcNAQkFMQ8XDTI2MTAyMTAzMzQzOFowXAYJKoZIhvcNAQkPMU8wTTALBglghkgBZQME
+QSAyMDIzAgxhPxw+eieHWB40hPkwDQYJYIZIAWUDBAIBBQCggccwLwYJKoZIhvcNAQkEMSIEIMF6
+cfVTMB40S5IF5f7p2IPk3k2lmtUWWZilu1cE/8IdMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEw
+HAYJKoZIhvcNAQkFMQ8XDTI2MTAyMTA1MTA0MFowXAYJKoZIhvcNAQkPMU8wTTALBglghkgBZQME
 ASowCwYJYIZIAWUDBAEWMAsGCWCGSAFlAwQBAjAKBggqhkiG9w0DBzALBgkqhkiG9w0BAQcwCwYJ
-YIZIAWUDBAIBMA0GCSqGSIb3DQEBAQUABIIBAAQIOyY9umz0jGduAk7yJ7nOmFjrQb8Op/UZN/9r
-hgzl7KxRjd7M4hScN0XEoKJn4oJMfHdkGYc+07w9Io+UVVBkds18D4q7jOm/Ngym/BcKKjSgGv1z
-K1oIjZu1fcxIT2vJu17I5BYZcIXOMKL4bGs0EHAeAqdZPcciPq3vBD+2IpydG42u0n6sPD6mj8uH
-UMt6JbMLKivRZp/zEepKBPCripnp1ZGJwfsXG+8ya3/BgpzI7a1D6OEhtjklL0vAURHbNxwNCzGn
-Xro66AxXm5VK6KDDI+cegVCsd1foc2UYXb2Q5szyZtlnVaDG8vYy5oOVFzvMrYd4nASpHDkCwyE=
---00000000000041b6cd065e516d01--
+YIZIAWUDBAIBMA0GCSqGSIb3DQEBAQUABIIBAAdUZr8MFWVR5HNKyDuendc1piBPI4f63LMaOTdo
+YkFFhHduc7Dr2l9cuykqnyzZTkaLnqrnusWNrmriK1y1HlbIOVaiN1vBQi7Jj2buD2lYwU61KGZb
+ts5UNjWEjXk5QoOU7Z7gnVGvd3c2yTGAORla+Z2kxEh1Mq5KzsdW6YCMX3M9KaBIGzj7Nkdk/qsH
+x++Qfxq2yO1IEKVKfAqGkLVdzGLnq4qaxVWFHZmE6xIfLfl5oZWZI2C9peCazcTScJtjJAhDYSsK
+AdEQdcHear7WeyQWfvc7m/Aml4kXdh/QK1oTwQMT4gvTFjCLdaE6mfofNmzeOI/gI2zm1tH6FdM=
+--000000000000af7981065e52c4d8--
