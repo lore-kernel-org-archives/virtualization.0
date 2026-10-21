@@ -1,184 +1,116 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=198.175.65.17
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1792588128;
-	b=D2ua3xywsLPu79N+LLW3p4QMOVZig63Xo7Yuqk5e2pZhj+rD3A7duxwUXPRz7fihc9wz
-	 EcYUnY34xsM4FyxTKCIx1A/J2n6GmtXMIwv/u3Elp+V3OI9X64KYy/dzNUvKm45DKnen8
-	 pUwZ+RCEF+jylgYnpq2V1yWrx/6c9L/cdQj7UKqKANHmoCNOAthoFDr4avFGJ+/zOY5VY
-	 pamORPI4y//Mys4CyLpJuEjUlgk4R2wpAwuUQ6p2K7drqZ+Dhrk0rPB5sCo19Z5bwBbRQ
-	 lnUKh5mtOfGrJ9jBHF9i7Jc7EzyIrPdDGjQHu4XcQDcuUvrJqHc93tYJJTdjbMxuOdw==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792588128;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Received:Received:
-	 Received:Received:Received:From:To:CC:Subject:Thread-Topic:
-	 Thread-Index:Date:Message-ID:References:In-Reply-To:Accept-Language:
-	 Content-Language:X-MS-Has-Attach:X-MS-TNEF-Correlator:
-	 x-ms-publictraffictype:x-ms-traffictypediagnostic:
-	 x-ms-office365-filtering-correlation-id:x-ms-exchange-senderadcheck:
-	 x-ms-exchange-antispam-relay:x-microsoft-antispam:
-	 x-microsoft-antispam-message-info:x-forefront-antispam-report:
-	 x-ms-exchange-antispam-messagedata-chunkcount:
-	 x-ms-exchange-antispam-messagedata-0:Content-Type:
-	 Content-Transfer-Encoding:MIME-Version:
-	 X-Exchange-RoutingPolicyChecked:X-MS-Exchange-CrossTenant-AuthAs:
-	 X-MS-Exchange-CrossTenant-AuthSource:
-	 X-MS-Exchange-CrossTenant-Network-Message-Id:
-	 X-MS-Exchange-CrossTenant-originalarrivaltime:
-	 X-MS-Exchange-CrossTenant-fromentityheader:
-	 X-MS-Exchange-CrossTenant-id:X-MS-Exchange-CrossTenant-mailboxtype:
-	 X-MS-Exchange-CrossTenant-userprincipalname:
-	 X-MS-Exchange-Transport-CrossTenantHeadersStamped:X-OriginatorOrg;
-	bh=TK/aNdfcyF8NqgIqOzjG1Fjv3nvKXPnX3NEXFX9vopY=;
-	b=ESz7BPJSw+CUl2lC2MjGX/PplQ7E0fK4s9aaZ++XE15UoaHzPjI+Sl4yXFBqWsNPfFn7
-	 EH+352B+WNG0sljHHO71yIW7Ms6OXK207mGxh6dsElrANI4o5q6txQriQTjgKpfAHuJ7f
-	 sTq9rIXl3jen2QRuYuA5R4BmyPmit3J8hBe5FgZDpQYHDY91EcOgxh1tvPGM222W2KblO
-	 ce5H3yNqXj4mdu72sj4wF7QipnVZTSb5YMdIFI7NQqACrewct7AXcBsRBSMD2NQ4cnlkq
-	 KieH7LpJ7FTDozGKWSvPnneuQCDR2EKTXxdj/bQKjf2v3yHSiYaajYtXkt4RcfZkQ1Q==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=intel.com;
-	spf=pass smtp.mailfrom=intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=X6qbVrQT;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=198.175.65.17
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.17])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.175
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1792592231;
+	b=fr3nTGDzXxBKN9rQ0p9JNG2L0UlcqrF1ms9GXtnBtps6wZMwCniQe3fHK2p1qXTi/Lwu
+	 tI5lDhKxrTZ5Gtf9AEH/bOT6hW5U+prTke5rhCmO99Pc0GZJHIluFNxOn/+LOEGoAmPK5
+	 z8Rnm7YC37xqIgNM+j5aIKm25oA2TxAYywiAUxU41LeFINTw1VtB8q7dIppQoKlX1gnEJ
+	 fRrECLqrjfoinWdyTjrnpvUpl5JCCwerayywXByRj3vQXU2rzNlt6Rrkj57EOANraACkb
+	 9KyI4jVVqkj71KgXhFCAW665FMLsKblrbbMS2d9+vKFe3FPF98Gn/30VlnmH5eeGIVw==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792592231;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding;
+	bh=xux5QvP8YQiJThcV5md5s9PvW9xG2SSFmNPqLeHDz08=;
+	b=Fn3pLXEfHa2KqfwPBQ1Hoh/QD+seOsrvQDWdtXkPk8aM5f7d+ntu+bZ8PBJiWKqnUNhl
+	 y1/Dk+zV+Tf6Ly50GWy7DQFoupUCsUwCZpRsR3pfvpIuvjTdivLtgylmCR3dAijc+fc8C
+	 RkQ8GGqj0QMzViyb6ATCeA0tNgTZeAYXlyz7NUhoCtIiqQy4pdeA9Yz9Q71Xwje5IUgiN
+	 F3dBXjDQ4qhbsKyZWmAOI9DoCLH9Hw/aR2dJDHdJj8aWATKPiOTsoZ1msG+4iZnLOBN6M
+	 wOUhoSTsZ4tHEVRjJL+iHh9jyFfDrHGe0QfQZjOwFGyEfV4qnzAHurA0b9V62gcPTNw==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=B40QmB+G;
+	arc=none smtp.remote-ip=209.85.221.175
+Received: from mail-vk1-f175.google.com (mail-vk1-f175.google.com [209.85.221.175])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99F82606A31D
-	for <virtualization@lists.linux.dev>; Wed, 21 Oct 2026 13:08:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 99F82606A31D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93CC4606A320
+	for <virtualization@lists.linux.dev>; Wed, 21 Oct 2026 14:17:10 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 93CC4606A320
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=X6qbVrQT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1792588128; x=1824124128;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=4K4kE+ge50trDdHaj2GhRDCmsM7441memdjZcW8XaIk=;
-  b=X6qbVrQTUO6kbbBzOOi9nY8Em91mwxAc4VDBOC+daNp3OSdLI0J4TnV1
-   ROY3tjqCCl1Q7IWZDUxLlaKZdMnr0275rBTKMRsOJCk4sOt6HrQWvDVon
-   s/opmzRwU9zMlFk0izTWDDc2YH9O+2LYf4uB4s+H7xbIGGLGXPm7HI95K
-   fAfOe+MMDxYgYAdMcL/0pulg94hyaPE5LicnrBaqnBQJ+IFxA5LS2mexl
-   5PfGj144mRFWSh52916RfkShIysynrvnxZUTBPbC+J7CYsJYYdVQSLBrK
-   2e780snf/ScehwC5pbCkYAoVPcsZ46IX9tEmOVC6X8FFKCWZ5ojxMJ0VY
-   A==;
-X-CSE-ConnectionGUID: 9pF1jUwwQnelTRGlLJb74A==
-X-CSE-MsgGUID: id1mT8UWSz2rpk17CvES/w==
-X-IronPort-AV: E=McAfee;i="6800,10657,11941"; a="1329762"
-X-IronPort-AV: E=Sophos;i="6.27,170,1787036400"; 
-   d="scan'208";a="1329762"
-Received: from fmviesa009.fm.intel.com ([10.60.135.149])
-  by orvoesa109.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Oct 2026 06:07:48 -0700
-X-CSE-ConnectionGUID: rE9Vux/5SOmr/8YZLnpAfA==
-X-CSE-MsgGUID: pVMLDPcKQZ+htlzZFo82xw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,170,1787036400"; 
-   d="scan'208";a="3430248"
-Received: from fmsmsx902.amr.corp.intel.com ([10.18.126.91])
-  by fmviesa009.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Oct 2026 06:07:48 -0700
-Received: from FMSMSX901.amr.corp.intel.com (10.18.126.90) by
- fmsmsx902.amr.corp.intel.com (10.18.126.91) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.49; Wed, 21 Oct 2026 06:07:47 -0700
-Received: from fmsedg902.ED.cps.intel.com (10.1.192.144) by
- FMSMSX901.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.49 via Frontend Transport; Wed, 21 Oct 2026 06:07:47 -0700
-Received: from BYAPR05CU005.outbound.protection.outlook.com (52.101.85.17) by
- edgegateway.intel.com (192.55.55.82) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.49; Wed, 21 Oct 2026 06:07:44 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=pk/Ywd/kLEFp21tAg0tu7KeQHkO5gr8VNrVGI/WgYzcIvV695qplOEv/KgPm5281hKODxTuqEch1LPpSpPxazzvp3whZOAZ6GLnCsfSrwfayN+FvJZHjfUclwGLlThVvowhagQ+0yfHU4/asqlNOjhRsAWKgETrELhHdNRWsxfREADri2J0oqdlM4mw41nvkB2LsHhlEKqQitlZKx81ndSEQeAyT3J8OiUW41w1dEYVPfV5ed2LCdciOrhrLRgRhZ1vZjo/KDnldq0C+6yIQGImk4cPHePDiPK9tjkeWLjHrlXf5Kzdk6qiQrtFHIfhoXTBBRyYYEI3Bt0TDLRV7Qg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=TK/aNdfcyF8NqgIqOzjG1Fjv3nvKXPnX3NEXFX9vopY=;
- b=AJCJ5T+EDolfG+IrYvkDo5QIJXwe4XCAkxK+hJUoiurVm1/iYDYc24KtV9w1vdSkYeNL9F04pKO53nk4kG7EKnpWjFi0dhiclkkYM5Hf1/1EKak4KHWVQAoyLGEw0jzs3lJFcNpwqGFiiNplgkjSl8v5el6joC8QD6w3ZsJF+XJ0BwYFiCgf9+QiyMTzucf+XLY2HYx0QJqVOS2M4oEq8WadTUnBBNSHpRIMVFXprMhuvmGbjHoMIjjI0Q5Eew1PabwniXzRrcwp2ciWG1SoRV20CFmhC6K4b2jG2gDylRB/Juat4duCinJRoA+cvOenjqNmPY8ArR6OhLL5P7ACAg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from LV2PR11MB6070.namprd11.prod.outlook.com (2603:10b6:408:179::22)
- by IA1PR11MB6097.namprd11.prod.outlook.com (2603:10b6:208:3d7::17) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.522.19; Wed, 21 Oct
- 2026 13:07:38 +0000
-Received: from LV2PR11MB6070.namprd11.prod.outlook.com
- ([fe80::4c84:af62:dc60:fd9]) by LV2PR11MB6070.namprd11.prod.outlook.com
- ([fe80::4c84:af62:dc60:fd9%5]) with mapi id 15.21.0546.012; Wed, 21 Oct 2026
- 13:07:38 +0000
-From: "Popov, Pavel E" <pavel.e.popov@intel.com>
-To: Leon Romanovsky <leon@kernel.org>
-CC: Bjorn Helgaas <bhelgaas@google.com>, Logan Gunthorpe
-	<logang@deltatee.com>, Lukas Wunner <lukas@wunner.de>, Jim Chow
-	<jim.chow@broadcom.com>, Radu Rugina <radu.rugina@broadcom.com>, "Alexey
- Makhalov" <alexey.makhalov@broadcom.com>, Wei Liu <wei.liu@kernel.org>,
-	Michael Kelley <mhklinux@outlook.com>, Nathan Ciobanu
-	<nathan.d.ciobanu@linux.intel.com>, "bcm-kernel-feedback-list@broadcom.com"
-	<bcm-kernel-feedback-list@broadcom.com>, "virtualization@lists.linux.dev"
-	<virtualization@lists.linux.dev>, "linux-hyperv@vger.kernel.org"
-	<linux-hyperv@vger.kernel.org>, "linux-pci@vger.kernel.org"
-	<linux-pci@vger.kernel.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH v4 0/2] PCI/P2PDMA: Allow P2PDMA on Intel Xeon server CPUs
-Thread-Topic: [PATCH v4 0/2] PCI/P2PDMA: Allow P2PDMA on Intel Xeon server
- CPUs
-Thread-Index: AQHdYLm3Eu3+F6ITg0+VFiHnE2F7qrcGw2EAgAAN8iCAAMqAgIAAXNZg
-Date: Wed, 21 Oct 2026 13:07:37 +0000
-Message-ID: <LV2PR11MB6070DF223EAED1186B710017B2662@LV2PR11MB6070.namprd11.prod.outlook.com>
-References: <20261020173736.81755-1-pavel.e.popov@intel.com>
- <20261020184002.GO64621@unreal>
- <LV2PR11MB6070E19D3A0CCA50943D7499B2672@LV2PR11MB6070.namprd11.prod.outlook.com>
- <20261021073443.GP64621@unreal>
-In-Reply-To: <20261021073443.GP64621@unreal>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: mx.microsoft.com 1; dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: LV2PR11MB6070:EE_|IA1PR11MB6097:EE_
-x-ms-office365-filtering-correlation-id: 675dd3aa-b800-4daf-b320-08df2f7447fa
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|23010399003|1800799024|376014|366016|7416014|38070700021|4143699003|11063799006|56012099006|261009223327099003|261009221227099003|261009220027099003|261009221727099003|261009223027099003|10067099003|22082099003|18002099003|6133799003;
-x-microsoft-antispam-message-info: W1+X3B+u3aCWgJdZ8SlLDh9RwwkCOi73T70cH02O4YJPFaCPar5bY7Rt8Kh0p9YGH5hvF3oeGWYK4gmuCRN+OlSMwmb8EM7Jm3ThWwlyfUhklITYjYtyFmhBy6FioslTL/rAcd54APk0Hg/A6d8wGcSLaT+RuURPd42LqMCGijC/mkGr8WbhTUE+foUQUVh73Yl6Wm1qFk3KsPOIjVP++9u6KtyhnV9H9G1bnTwtalkjsPh1X/AxiJbcVX5XXhfQQroNTNsqqi+9KcVFBO/AaCkKd3DneSlNKQ/9GphXPLDO9R6dk317ZgfBNYD3L4fdYALSrqexeo+368eHDE853MEZc9/u9EmqWslXySB5n9nlrjJLsh76+rwO+XY2m+cQQHuscF2NwOT4JZKN2eQYvP9oD8VubItrt3jEoK8jw08KS9/PQfpJwZhWlxLbsTcAX6L+uiaRiApAL8SlKJymgHISPatibsziPsuHFPQx9g/CcjNg/czlt9zV1O5GrkkeVEvH29Xl9LJTHE1G81A1d0lw7D8n4GC8ruLt74ozhg7e41KLUuQwYnh9gSahnPThPAR+SwHzi4Kus3oinSU/cmhU5v9kZ53fkax2/CZIsS+LRzBi5Ha4kLk8Bebi9EDvAAWI3lh2Olu+zhf9dJEqtghEJBIB40jSHSXJe0MhdEXPyCswlO6sEsmzhd5Iizw/
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR11MB6070.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(1800799024)(376014)(366016)(7416014)(38070700021)(4143699003)(11063799006)(56012099006)(261009223327099003)(261009221227099003)(261009220027099003)(261009221727099003)(261009223027099003)(10067099003)(22082099003)(18002099003)(6133799003);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?PoyjfeP2AS7Z2zBQ5r0CPmZtRxGsUBajLhV3MLbxCB5PKMUumd+vZUIEeUE1?=
- =?us-ascii?Q?fRNpEEk0iKK6sF/mdocb3qQwe2MyJkRVyMWBFDiJP1MS+PNIXeMsblAgVLuu?=
- =?us-ascii?Q?bYoneu5FA5sL+nhKGv80Z8ZfGmRxavDBanIJffYGlroER1DBfizgztRVREiU?=
- =?us-ascii?Q?mKAJPsFeN1lSxC1EO+weovxjCSTTaC6wAeQ+Rrg1ijRNYiVFQmwK8mPQF2at?=
- =?us-ascii?Q?CYe+APASwGBSzZUzfZjMtrEC1jCSX5yzVr66ItdzxDtYZco97XuBiMhVQyES?=
- =?us-ascii?Q?GmXdiey/Uvt1oJPbQ1ut4whfqBgUlUDOkQnSRRI4G5kcn3oU+Pk9mT6bBkhe?=
- =?us-ascii?Q?3raCHfZcnh4ovPXCSKPivCeLJnO92f3axVmY7GqpDJQzMkO/pcDCkpE/USlC?=
- =?us-ascii?Q?6cBJie2604J5+diExX+AY6cXLv4PI460RiQ0uqRaXayJfwBu3q2TNl8KmswT?=
- =?us-ascii?Q?OEbzSQz5x0qGYqn56qOZIuGXzz13jQ8z0NgoqBQ3/0ecKbvsFZDiq01akX7c?=
- =?us-ascii?Q?bO6gBPrOXR8pNcKy1p47B/OQwOmphfIkQB1bBMsztL5sGflnS6yF7jL+kczK?=
- =?us-ascii?Q?TqtwXENoO9SH5ng9zlFk55iCoPleiohiW87luj/aFWmgL0whcLy9ra9PeMEx?=
- =?us-ascii?Q?3gSYbuhhhKkrTxW+nIrgFTe0HiMybFUPUxbbD09cEecfsZNQ6XATyXNfS86J?=
- =?us-ascii?Q?mR01Rqya9hbJ/zZWPfLojqfWZ0g2SRzqggAdsJvKAgcb46lljecfVJd+5YWz?=
- =?us-ascii?Q?mISVRRzt/U4kjy2Nv4GWUNYgIptZXv71LK2UgmZai4LHx1h9ZcpCVnjK6AXV?=
- =?us-ascii?Q?NKWpAvqwUOLJ1LtIhDNzB/8wxKC8c8oh1RiEwEwjoMiswBf8ylaAMJIpmmxS?=
- =?us-ascii?Q?eM4xoXzL7KUGzAUllhdIMly5yN8A18SGVEWk1oYu5zTnaLEcAu+3bk7OJrwX?=
- =?us-ascii?Q?tzbqS3oA3PQerrxNSUY1fweoz2fKur8lsfPhxnfKM2hcG/W33/B+uTopcE0V?=
- =?us-ascii?Q?6MXUP/P5UstDr+4qLe9t0do8SqUBMRQDKSA/NznuULl7oaYyRh0E68s9iSgE?=
- =?us-ascii?Q?z98TwbVtE2Ep6jHsbaf05dK0DRzJ4Z6WL9iF+AoqLmE+sa9wR2m+dyZ1AmBs?=
- =?us-ascii?Q?YhxBsTIiWeP8hAmD8N4e7adjerLLvBpzMYcaqCl08d8rKtafNiRV7mYDMsYD?=
- =?us-ascii?Q?KGoSw0rOnCEpbVSM4sizlcJaYNJDMeKMVrE4pb09FlNuPm/KZdDr1UWUFnUB?=
- =?us-ascii?Q?rWcSp7K/ZAaGAo94CPHbjGo5dHtfCGaZ67qKxTucU6quqNV6A/iBH3ZNx0OZ?=
- =?us-ascii?Q?P2nsQFqkl1FpJpDC+kMIZbfL5xmWQ0sDVA0mbUepInBStGaO8vXNFBfgxdGp?=
- =?us-ascii?Q?rX7PxTwyV87mnla/sOV7DoEa6mxhvYlH9kH+skImES7iPFMWjAH8H6q50Hjn?=
- =?us-ascii?Q?FyXuClCPogJi/KDsbnos57WSt1E4gPFWxxdAP/flwCoZbf7l2AwYWhOXPGmI?=
- =?us-ascii?Q?p5fpnkqDCBpef0kiV+ug5M57CLERjoD+fv4+BeSy4vee5SwNUuel3Qnz+mPS?=
- =?us-ascii?Q?GGTh/AirUcUfkKn6KrxxXXiMxCUr1hWXo/udSClaPHB31u2yk3m5yRz5plA4?=
- =?us-ascii?Q?hhJapvDZDtBqnrqhQyut1KjOVmM5CNge6JrGF36ax1UDzM62i5XMySCO/AP4?=
- =?us-ascii?Q?spN41uP/danG4uPArQUUezKS16AmgKN+2SjSH0mu2WoS6WtLH+VN7O2hq0h8?=
- =?us-ascii?Q?hIL7nYmy8g=3D=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=B40QmB+G
+Received: by mail-vk1-f175.google.com with SMTP id 71dfb90a1353d-5ead4026fe6so292267e0c.2
+        for <virtualization@lists.linux.dev>; Wed, 21 Oct 2026 07:17:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1792592229; x=1793197029; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:mime-version:subject
+         :references:in-reply-to:message-id:cc:to:from:date:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=xux5QvP8YQiJThcV5md5s9PvW9xG2SSFmNPqLeHDz08=;
+        b=B40QmB+Gycyao8+wubKt3AR2upjV4VgZgy5Gfy3+cSWN+I6OVRwo4MIBzGzw0A9ufV
+         ltPw4n423u2ZTr6o+aWfjCwmxZX8WzcrsTfoZzjjLwwNZbWsFM4pG8xy2EXLMP1mnbY1
+         6imDmBADX61lDD6ZrOer7WnrXFGY+t6YYA0fBBCJMe/i5Vzly4RQt8whmv6PPe4ahUy4
+         Y5kkQIOes/Rzz68sEUpNTu8xdq05v+TSSddvlT5+WFAxDgqZsrB+INEFvJnP4ZE7MfOa
+         gfrFdWC7WwMSy6ZTRggpXYPJbuhdeITlcV5P7l89nnUjgPEObYmvL2h4rm0SAdcvu2ay
+         JfPg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792592229; x=1793197029;
+        h=content-transfer-encoding:content-type:mime-version:subject
+         :references:in-reply-to:message-id:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=xux5QvP8YQiJThcV5md5s9PvW9xG2SSFmNPqLeHDz08=;
+        b=ySoNq5v6SSgPf3lVXmlzX/gd+XTUUPiy1kCdPXjGdaxGpxkpG9htn21vxw4exhJ3xV
+         d2s1rQY3Z7Ljc8yq9NYfsbGadX+l57I/mBWB9SBR3PTsCmiccbY5trxBmn87NHj/XHwt
+         TX1LkEk2vmtnnbPPJWhsIow/gV7UaDbEhj7qEzdW/iIGS0bd0ev38Vw0KRFSDNiGxwQO
+         ZXAUdjyI1ro+/ynj/OQo+RtfoFtyKCvgmuqxtvo5UCsBZZQ2sTcSD23vm5Wkuwxk+CYQ
+         7jrH8H0Zjx2JK1uDV1Wzunpe7X+IkffoJYvFr8CAHKzNu1mL9fGV1fQluVQJGTK8OwoT
+         K2GQ==
+X-Forwarded-Encrypted: i=1; AKwUvBxm85fE7FoVJXeY4Z+I0dmF6j56Rqlvzq5Ipg42BgM9307ocIppjIRu7x4Uz8iUdtxLNTmInrvsi8Nm9lF/RA==@lists.linux.dev
+X-Gm-Message-State: AFq9FYI51XmXLc60UVKCpcWrjIS2K978gOe6COUqUqKeEhB/8EZ+sy5r
+	GRfTRT07mXF5rTwrIqrr2qxELgw1jy6Z+Wum1T5NB9NyOcD5S4Goac0h
+X-Gm-Gg: AYBFou3zIEKlo0OTv8sNM19mpberZhNL9d/ogx5BTxzclzgm5EM1D+8o4TNsy5CiqLY
+	sIFvmhwzPQkpKjujwwZYDS+73BWXLkKZlSP4dJCmOCqkOBqP9lUp+b++SK8SVMR9Hfba5GT5axe
+	fwvaQjfWSHbtU7xtPBmjJlo/9lI/VQ+kpYgc/x6yuSio+2tvyChC36i4rxbGiGRl0u/jaLX+IPe
+	MqIJsl48mOMh90qkTi8Rp8b8dbTJOZ07j7eYbvtGtF31toM/H4pusBtuaUSjBZGVCJJzC52oZhC
+	qhEZHn+MfTzL+XKdXuu1Gz8HLeXfy+el8uoWDsg+yoJ2pGnKy2QDAsNJCa3F6ts3Vh+CChypNHR
+	jqdgXr7JW5uNZ8ctVmCPMU6Q4pX1e2Gh4B+dT2PO1/TMJb43iWmXl+qliZgMjS8MztuGlG8/dcO
+	ekUGJL1mkfMwdTCau4CoPlgu5eQskyS9Syje7XpoIlwdl0E8g9+UmbbSN1qE3IdCVhCk/Yt637b
+	m+5dkAkyouigKt4f6G7RHPFUTuMniRURv3Bde4hCgCpZHYeTp0sGIe8tPZscdGlpkkamAlXe+Bv
+	8VepxZNSD9hwxOGbjYyVaDpWTLKYKERDlg8vTmz+L+tJDWn+KduUcaiEcB8PvKju10Gl1Hc474K
+	9tY6R0cUiFxGHdYRuptA=
+X-Received: by 2002:a05:6122:e145:b0:5ea:e197:43ee with SMTP id 71dfb90a1353d-5eaebe9cb1emr809668e0c.19.1792592229260;
+        Wed, 21 Oct 2026 07:17:09 -0700 (PDT)
+Received: from gmail.com (111.46.245.35.bc.googleusercontent.com. [35.245.46.111])
+        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-5eae969803dsm3503712e0c.2.2026.10.21.07.17.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 Oct 2026 07:17:08 -0700 (PDT)
+Date: Wed, 21 Oct 2026 10:17:07 -0400
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, 
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: linux-kernel@vger.kernel.org, 
+ Chris Arges <carges@cloudflare.com>, 
+ =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>, 
+ Phil Sutter <phil@nwl.cc>, 
+ Jason Wang <jasowangio@gmail.com>, 
+ =?UTF-8?B?RXVnZW5pbyBQw6lyZXo=?= <eperezma@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+ Andrew Lunn <andrew+netdev@lunn.ch>, 
+ "David S. Miller" <davem@davemloft.net>, 
+ Eric Dumazet <edumazet@kernel.org>, 
+ Jakub Kicinski <kuba@kernel.org>, 
+ Paolo Abeni <pabeni@redhat.com>, 
+ netdev@vger.kernel.org, 
+ virtualization@lists.linux.dev, 
+ Max Krasnyansky <maxk@qualcomm.com>, 
+ Rusty Russell <rusty@rustcorp.com.au>, 
+ Paulos Yibelo <habte.yibelo@gmail.com>
+Message-ID: <willemdebruijn.kernel.37619d32a8f3c@gmail.com>
+In-Reply-To: <20261021035050-mutt-send-email-mst@kernel.org>
+References: <cover.1792411304.git.mst@redhat.com>
+ <9c08d12b3a7819ae03ded6a154e4f908276e93d4.1792411304.git.mst@redhat.com>
+ <willemdebruijn.kernel.2eb449439b094@gmail.com>
+ <20261020170908-mutt-send-email-mst@kernel.org>
+ <willemdebruijn.kernel.1da723f98c23a@gmail.com>
+ <20261021035050-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH net v3 5/8] net: resolve uncommon partial checksums at
+ ingress
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -188,111 +120,128 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-X-Exchange-RoutingPolicyChecked: 4xbi/Na5wE/RjgF3hqtKfrcHYEBCBvvDL8P4RMUJqDIoTHj5M5P67vzrAeVsaLcdBrXkIrvakMM/I6Ly8knxU9u0EVQfBBCrHS+MBZmHLMFy3dLoDnoP3vOcCNs5jWXsfxSMLkLtJCuEFWVUvo0NV/5pDNp/Xq2jKTf2ltXH7EZZTMh+2XIY2TIuyuHbKGTmDQk+EJCepF7CLyURM5IY/kDo4Q5B3ssVlkVPjHpVNTkbf2Loo+6ioqiJ60W7AoaMVkDEfZVb/CyMesnAqxE8jiOBDE6UhME55ToWH0dgp3VMYKhRSDLvpdJA7drp93hRUbe7pRfBlgLiQYkt6ZhWSA==
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR11MB6070.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 675dd3aa-b800-4daf-b320-08df2f7447fa
-X-MS-Exchange-CrossTenant-originalarrivaltime: 21 Oct 2026 13:07:38.0018
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: PW1YTT31znI9nJusKJYLnpEsibvzL6gZMNX+8eMqWjSSdzipQ6AlKvS34L2Cyn2a3qHQ037OSbxoXecXJYt9lg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR11MB6097
-X-OriginatorOrg: intel.com
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-> Once the header files are properly exposed, clean up these other areas
-> as well.
+Michael S. Tsirkin wrote:
+> On Tue, Oct 20, 2026 at 08:05:29PM -0400, Willem de Bruijn wrote:
+> > Michael S. Tsirkin wrote:
+> > > On Tue, Oct 20, 2026 at 03:44:35PM -0400, Willem de Bruijn wrote:
+> > > > > +/* Walk the L3 header at @nhoff: where does its transport head=
+er
+> > > > > + * start, and which protocol is it?  Returns false if the head=
+er
+> > > > > + * is truncated, malformed or fragmented.
+> > > > > + */
+> > > > > +static inline bool
+> > > > > +virtio_net_l4_start(struct sk_buff *skb, unsigned int nhoff, _=
+_be16 proto,
+> > > > > +		    unsigned int *thoff, int *ip_proto)
+> > > > > +{
+> > > > > +	if (proto =3D=3D htons(ETH_P_IP)) {
+> > > > > +		const struct iphdr *iph =3D virtio_net_ip4_parse(skb, nhoff,=
+ thoff);
+> > > > > +
+> > > > > +		if (!iph || ip_is_fragment(iph))
+> > > > > +			return false;
+> > > > > +		*ip_proto =3D iph->protocol;
+> > > > > +		return true;
+> > > > > +	}
+> > > > > +
+> > > > > +	if (proto =3D=3D htons(ETH_P_IPV6)) {
+> > > > > +		const struct ipv6hdr *iph;
+> > > > > +		int flags =3D 0;
+> > > > > +
+> > > > > +		if (!pskb_may_pull(skb, nhoff + sizeof(*iph)))
+> > > > > +			return false;
+> > > > > +		iph =3D (const void *)(skb->data + nhoff);
+> > > > > +		if (iph->version !=3D 6)
+> > > > > +			return false;
+> > > > > +		*thoff =3D nhoff + sizeof(*iph);
+> > > > > +		*ip_proto =3D iph->nexthdr;
+> > > > > +		if (*ip_proto !=3D IPPROTO_TCP && *ip_proto !=3D IPPROTO_UDP=
+) {
+> > > > > +			*thoff =3D nhoff;
+> > > > > +			*ip_proto =3D ipv6_find_hdr(skb, thoff, -1, NULL,
+> > > > > +						  &flags);
+> > > > > +			if (*ip_proto < 0 || flags & IP6_FH_F_FRAG)
+> > > > > +				return false;
+> > > > > +		}
+> > > > > +		return true;
+> > > > > +	}
+> > > > > +
+> > > > > +	return false;
+> > > > > +}
+> > > > =
 
-Agreed, that would be a separate change, for the x86 maintainers to
-decide.
+> > > > for all this parsing: could we use flow dissection, like the
+> > > > !VIRTIO_NET_HDR_F_NEEDS_CSUM case?
+> > > =
 
-Thanks
+> > > Hmm I don't see how.  That one trusts the caller's protocol and net=
+work
+> > > header. We could parse L2 ourselves and use the dissector for L3+. =
+But
+> > > it stops at whatever it does not know, and every miss would turn in=
+to a
+> > > drop or a software checksum for a packet the stack delivers fine.  =
+Our
+> > > parser deliberately covers everything the stack can deliver.
+> > =
 
-> -----Original Message-----
-> From: Leon Romanovsky <leon@kernel.org>
-> Sent: Wednesday, October 21, 2026 12:35 AM
-> To: Popov, Pavel E <pavel.e.popov@intel.com>
-> Cc: Bjorn Helgaas <bhelgaas@google.com>; Logan Gunthorpe
-> <logang@deltatee.com>; Lukas Wunner <lukas@wunner.de>; Jim Chow
-> <jim.chow@broadcom.com>; Radu Rugina <radu.rugina@broadcom.com>;
-> Alexey Makhalov <alexey.makhalov@broadcom.com>; Wei Liu
-> <wei.liu@kernel.org>; Michael Kelley <mhklinux@outlook.com>; Nathan
-> Ciobanu <nathan.d.ciobanu@linux.intel.com>; bcm-kernel-feedback-
-> list@broadcom.com; virtualization@lists.linux.dev; linux-
-> hyperv@vger.kernel.org; linux-pci@vger.kernel.org; linux-
-> kernel@vger.kernel.org
-> Subject: Re: [PATCH v4 0/2] PCI/P2PDMA: Allow P2PDMA on Intel Xeon
-> server CPUs
->=20
-> On Tue, Oct 20, 2026 at 07:37:32PM +0000, Popov, Pavel E wrote:
-> > Leon,
-> >
-> > The #ifdef CONFIG_X86 in cpu_supports_p2pdma() came with the AMD
-> check.
->=20
-> This is due to poking at `struct cpuinfo_x86`, which is not ideal but
-> understandable.
->=20
-> >
-> > Would it work for you if I move the includes into that single #ifdef
-> > block, next to the CPU check? Some multi-arch code does the same:
-> >
-> >   https://git.kernel.org/torvalds/c/c7be64355fcc (drivers/acpi/mipi-dis=
-co-
-> img.c)
-> >   https://git.kernel.org/torvalds/c/7f3cfb7943d2
-> > (drivers/cpufreq/cpufreq_ondemand.h)
->=20
-> Once the header files are properly exposed, clean up these other areas as=
- well.
->=20
-> Thanks
->=20
-> >
-> > Thanks,
-> > Pavel
-> >
-> > > -----Original Message-----
-> > > From: Leon Romanovsky <leon@kernel.org>
-> > > Sent: Tuesday, October 20, 2026 11:40 AM
-> > > To: Popov, Pavel E <pavel.e.popov@intel.com>
-> > > Cc: Bjorn Helgaas <bhelgaas@google.com>; Logan Gunthorpe
-> > > <logang@deltatee.com>; Lukas Wunner <lukas@wunner.de>; Jim Chow
-> > > <jim.chow@broadcom.com>; Radu Rugina
-> <radu.rugina@broadcom.com>;
-> > > Alexey Makhalov <alexey.makhalov@broadcom.com>; Wei Liu
-> > > <wei.liu@kernel.org>; Michael Kelley <mhklinux@outlook.com>; Nathan
-> > > Ciobanu <nathan.d.ciobanu@linux.intel.com>; bcm-kernel-feedback-
-> > > list@broadcom.com; virtualization@lists.linux.dev; linux-
-> > > hyperv@vger.kernel.org; linux-pci@vger.kernel.org; linux-
-> > > kernel@vger.kernel.org
-> > > Subject: Re: [PATCH v4 0/2] PCI/P2PDMA: Allow P2PDMA on Intel Xeon
-> > > server CPUs
-> > >
-> > > On Tue, Oct 20, 2026 at 10:37:34AM -0700, Pavel Popov wrote:
-> > > > VMware and Hyper-V expose passthrough devices to guest VMs without
-> > > > an explicit host bridge device. Consequently,
-> > > > host_bridge_whitelist() cannot automatically identify the
-> > > > underlying host bridge structure, causing Peer-to-Peer DMA
-> > > > (P2PDMA) requests to be rejected unless the device IDs are
-> > > > explicitly listed in pci_p2pdma_whitelist[]. To enable P2PDMA on
-> > > > Intel hosts, this series extends cpu_supports_p2pdma(), which so
-> > > > far covers AMD Zen and newer, with an explicit list of Intel Xeon s=
-erver
-> generations.
-> > > >
-> > > > Patch 1 moves the CONFIG_X86 #ifdef out of cpu_supports_p2pdma().
-> > > > Patch 2 is the v3 patch rebased on it, with Logan's Reviewed-by
-> > > > carried over; the Xeon list and the check are unchanged.
-> > > >
-> > > > Changes in v4:
-> > > > - Add 1/2, moving the CONFIG_X86 #ifdef out of
-> cpu_supports_p2pdma()
-> > > >   (Logan Gunthorpe, Leon Romanovsky)
-> > > > - Keep the #ifdef around the asm/ includes, as these headers exist
-> > > >   only on x86 (Bjorn Helgaas)
-> > >
-> > > I'm confident that this is wrong usage of asm headers.
-> > >
-> > > Thanks
+> > You're right, the protocol and network offset need to be parsed
+> > manually. After that it could be passed to the flow dissector.
+> =
+
+> I posted v4 with the custom parser, since i had it tested. Let's do
+> cleanups on top? I spent too much time on this, to be frank.
+
+Yes, as a matter of fact, on investigating this approach in more
+detail, I agree that flow dissection is a worse choice.
+
+> Hmm, an interesting trick, but I don't see how this works for tunnels?
+> We need to dissect at inner_nh, and on success we can not leave
+> network_header there - the packet continues to outer IP processing.
+> I fear making all this work will be more code than the parsing it
+> replaces.
+
+On the upsides, quoting an LLM:
+
+"
+  Using the flow dissector replaces all of virtio_net_ip4_parse(), virtio=
+_net_l3_start(), virtio_net_l4_start(), and
+  virtio_net_csum_partial_ok_at_offset() with two compact functions:
+
+   Function                                 |              Lines of Code =
+              | Description
+  ------------------------------------------|----------------------------=
+--------------|-----------------------------------------------------
+   virtio_net_setup_l3_input()              |                ~28 lines   =
+              | Anchors L2 framing (eth_header_ops vs raw L3)
+   virtio_net_csum_partial_ok()             |                ~42 lines   =
+              | Runs flow dissector and validates thoff/csum_offset
+   virtio_net_tnl_offsets_ok()              |                 ~8 lines   =
+              | Reuses outer dissection keys for tunnel validation
+   Total dedicated parsing code             |                ~78 lines   =
+              |
+  =E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80
+  ### Summary of Differences
+
+  =E2=80=A2 Net Code Reduction: ~103 fewer lines of C code added to virti=
+o_net.h (~57% reduction in new parsing code).
+  =E2=80=A2 Eliminated Series Dependencies: Patch 7/8 (net: add ip4_parse=
+()) is completely eliminated, reducing the patch series by an entire patc=
+h.
+  =E2=80=A2 Deduplication: The existing non-checksum GSO validation in __=
+virtio_net_hdr_to_skb() (lines 120=E2=80=93146, 27 lines) already calls
+  skb_flow_dissect_flow_keys_basic(); sharing virtio_net_setup_l3_input()=
+ consolidates both paths onto a single ingress dissection mechanism.
+"
+
+I particularly like that we use the same for NEEDS_CSUM and !NEEDS_CSUM.
+Also the lack of code duplication.
+
+But, the goal of this patch is to minimize overhead in the hot path of
+standard TCP/IP and UDP code. And flow dissection is significantly more
+expensive that open coding those specific checks.
