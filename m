@@ -1,108 +1,116 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.53
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.173
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792678452;
-	b=IZQ6I96DEH2l8fRaRSJkwmuBPPtxyrvZ8LSglqeHW9ZpWi9gpqjFU1amX2FwjbaPafbC
-	 koS4KY7I0PssG33bcdK61vjyz7z6fSlX1ZPBQyEqO2WHevU7vk+cQxxBuY166gq1tcVQc
-	 MzGOBd+90jDsC5G0jydvtfZPEJwATGsBpmPC4p1biP2fp2O2BOE+YywqRqbiQyRBS1unP
-	 ryhnFxN+uHDhhiJXOG/fQ0pPH7MsahwBb+XDF/e73UScU/L8cnfqt63lmEJFJ+Mw3oP85
-	 Vc/dEPYwPT+JoRwnSKoC/HolnCXWPRo7KEB1gNAI8qijqJA0APKiduvxieaOR3mFEMQ==
+	t=1792679872;
+	b=bw9PK3lohPaEFZxooNM8iYtT1z5df9CgReE8SbP7/8DfElyoWl5/KzajFf/I7+TorizE
+	 xCvEnKcR+mfCy6FyYWkD5uFg5aNnvvyrYxkGEc1BhUR6O6Gp5Z7gmgGZV/OLa+j6m6OKt
+	 tr4mEBuEsSQ2gpc1M55ZPAamajiy/RZHN+l01c/0M1j/ntg+gC8ca+Nyltj6LLo9GfrGQ
+	 E42DL4Z+jdgNqhLEtES9QtRxxXdm6AQ8pXiYYKjaTF8chP/K9jA0tByzM0+qrZpcUcg00
+	 qHeyn6TERwoWpX63M4qCtidFFxCNBTC2GVhwhKoziDgnTl9xaU7V5R9wMllvX8XAJ4w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792678452;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792679872;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
 	 MIME-Version:Content-Type:Content-Transfer-Encoding;
-	bh=ar1E8sP3jvEI9uhwbxm9hO7paRp/1SObcXepAZxmBtQ=;
-	b=ANUoy0vBwtGz8gX3z9A0z9Tu5HolLn6fSYY2nRnsr8uOghKgqSZOaS/0V+JUyDqx+Z6p
-	 mBaef3Y0+yXG/8+kXX8pynHiHDoKazTMADRNmaDKFFX0jra8Mvow3wTrycsxHonV49bbS
-	 dJQ9xfyRWn1U1gpgKCMfJBrBAIXF2qWmFDs4G3bn95LaXP2VXp+zq4M7S1ui9QstCKOWW
-	 XodEF1uQUr5nwPptiu8cy+NUDKZO6jqWwzDRbgY8LW7AWCUoHhbsSwPPf4ZyArgBSvvVg
-	 6iyRgNm1XmnlpqMrSzBRXHlKYQeAoFeFDdrjfmBGzTkADQGp38eSXPMqaW8F3+B1o8Q==
+	bh=wIEEgL0wnyCgnfYBD3fqLb39KxnaLSOeClNdZ/a2t8c=;
+	b=Qcc8E2W8r1r4ZD99ZV9D531iQ2IIVxGj34BV/ghuJ5wCO2jVsYbY+yLQsq7rmgaIqb6b
+	 OdmicqDeFHs+aVPuZ0IA70qFgpHjVQnQ2jE+XmYeFOldi1w5ZDVArf+zS7EUcGOvI1xjS
+	 stAcXT1XuRESKi/dI6yy62XxniLmUMbQKYlNqLnMk0MiXQ7jz6xUpJ8p+sKe45Sx5ci6D
+	 7PG/PxcDN+cXf41XqIJ0y6C2yOH+fD/wYkNji4n0hy5WupATpcECj70mgYhrLFN5oJU54
+	 +imr1znjFGWCYif7rPDlcaxXkg94Bhon9FpbNfWEjQdPVP1Rte3s57U+RhHGZwG3tHg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=Zv51UqSL;
-	arc=none smtp.remote-ip=209.85.222.53
-Received: from mail-ua1-f53.google.com (mail-ua1-f53.google.com [209.85.222.53])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=ObUqVekP;
+	arc=none smtp.remote-ip=209.85.221.173
+Received: from mail-vk1-f173.google.com (mail-vk1-f173.google.com [209.85.221.173])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 515C1606A31D
-	for <virtualization@lists.linux.dev>; Thu, 22 Oct 2026 14:14:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 515C1606A31D
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79BE1606A31B
+	for <virtualization@lists.linux.dev>; Thu, 22 Oct 2026 14:37:52 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 79BE1606A31B
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=Zv51UqSL
-Received: by mail-ua1-f53.google.com with SMTP id a1e0cc1a2514c-97ca72f2cd9so1277874241.2
-        for <virtualization@lists.linux.dev>; Thu, 22 Oct 2026 07:14:12 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=ObUqVekP
+Received: by mail-vk1-f173.google.com with SMTP id 71dfb90a1353d-5eac319a6c2so1789131e0c.0
+        for <virtualization@lists.linux.dev>; Thu, 22 Oct 2026 07:37:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792678451; x=1793283251; darn=lists.linux.dev;
+        d=gmail.com; s=20251104; t=1792679871; x=1793284671; darn=lists.linux.dev;
         h=content-transfer-encoding:content-type:mime-version:subject
          :references:in-reply-to:message-id:cc:to:from:date:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=ar1E8sP3jvEI9uhwbxm9hO7paRp/1SObcXepAZxmBtQ=;
-        b=Zv51UqSLN+eeyN4IjgID5j8BsnLP8O2OCAUA4w/OeQvEOQybxDubCSLrB1ya9Oti1z
-         Rp+huhbYIRsa6c1oQhaz88Nqnq37ii9aCdrpSGhBhsAhFiOx1p9stAK3G1kYyYF5KNPs
-         n0Gbon88MjmehxDN7rLagU9ulKz8yPzlpgSRLEVpE4t1KVjLPTYv42+q3hfNB/v4SuIa
-         QLrr2NCGvrNfvH9pEb+oJUEhLaEx4Y0Z/KJlNEd0twZyDRtqTg0DPi3BVTxy2SoiSzFq
-         AxXSyhx/6k3B3Ykt8h8YLIkVYpfsQmrcGMfs4wa2iWzrt4rFs2DjxBlCu9On7MeFmMJl
-         Sdxg==
+        bh=wIEEgL0wnyCgnfYBD3fqLb39KxnaLSOeClNdZ/a2t8c=;
+        b=ObUqVekP1GZ29AYZq8SKUeCSwYDVlSSqZka3VWdiF/07aYQLu1rRsjr8QO+79OLY2c
+         PZphSTupuQRElSOaSBTZE90P1xUKYGh5yKW/JWtrEhtlI/kM6AWXM6jH94urT0HbiPu2
+         atQwLEnVAlAnUGIvFpXK2vpCGOzAO3uqf81aqv2DEhG0AbP70liVz4l+WkCvb4IuWw7j
+         GMQyIMKaEG8FjHdXcf7qGyjh2SvSia8YJo23Gb1C3R03gPisk9FyumZTrfNYfaOf6o7Y
+         XAF3YMYZNQWnQ021kTIaEji7v3foQiM3AE32vKuNOTL5oJ38omBGAK9rEycJ3G2Rx3Ph
+         hpIg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792678451; x=1793283251;
+        d=1e100.net; s=20260707; t=1792679871; x=1793284671;
         h=content-transfer-encoding:content-type:mime-version:subject
          :references:in-reply-to:message-id:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=ar1E8sP3jvEI9uhwbxm9hO7paRp/1SObcXepAZxmBtQ=;
-        b=zq/EI4aJn8VuhAqvyqZDUHsFoCSRgvTADwa0fRuhllvX9RCcNEI1frTcOWnxnKGXPL
-         vtts1CaCbS+jpu/nDsh3GuM36U5R8tnhZERapxOnbf/2de6tLcwP3GNMQEeL9PaQW831
-         jgpJkkf5NcTCDYrniv4Rsk8JD+dUugoks6fOuJuRdyteVs+TqnupNWzVjt2s1+B0xAnV
-         2SnnRmJ2gT8nb2/qAD7sKFSTbBFLfXDH50p5yrdj8Abp30K/jgI+LwBMWvd02xSFBK2h
-         2LwWXGRJ0ObOqB/v9rrDGwAGgiVAj1Ixn6846aMSpnWVYv5oOgWbxNDVpD/T4g9BtsZQ
-         DX1g==
-X-Forwarded-Encrypted: i=1; AKwUvByZ0PhVpxAF2BgG7A1g1OiE77ViCO/2ubm1B5o6RbsHwFc8xUC34HrjSPxfs/C76OKUjo23g9BdH5d40PmAjQ==@lists.linux.dev
-X-Gm-Message-State: AFq9FYKJegUAwfnt9mpjFLkFzEyqbk8j1ZhF3A5jTp6IAH62p17O0Bpb
-	tfnEeZXD5r00lYNcn/lMdz1xFkR44r0n1NqLHJpQXmo+xBMSnFBSEHJl
-X-Gm-Gg: AYBFou1g7xMt+IxgHRl9CYxvkYIJbiIYYNvCzeGMwumyp3qCog8WGL1J9ZQC+59lW/p
-	AQFk4TnZQn1LxG+oKh7Gv0NI6IhcECngH9fGbs3T0Tg4HW5CIXeazXVGlnn27rXU8r7nUoqJSp/
-	lHjfMeWIEZseZ72+zVEZc5BLZm+NJAry4/viE82cYVU16rFG98WC4rpfF1tKSh5P7vEKNyImmTP
-	/Z400/hWF+JRukNx4+SCIp/2qgUdXxguh0jWe1CMWTES8cXNtN415Lkp0dLnyhDZ6DawAe8+6Cx
-	MFs10D0yibCFLyGVydaX5Q8oZIhH1CuI5lhcnh2nlCqHH6cPwf6etNh/MJDQQoOz5BPDgdaFg4k
-	lpKGl3A3BrgdsKJcy8HfPYTLHudFc7VJGcYZD4hiywrlv6ZZYHyITtF05yNIt8BhHJtBRjQ/qhv
-	5zifS6E18Op88W4kNWhlKwMn7o2u5V6WqCOjS/l2mFsnVS+qVcVIHHGCpfKfA7Ecf5aoy1KJkdo
-	o8flbH/ZHbm03F0fzNwsLz6J7Z0ElFKii1cafSdFERvVqUA9dyD3fxyvWzOFCAv1HE3tgZUFPns
-	ZRkf6bFLNOvBnwN8ggrIgvcm+CeybPVyG0xx+hjoPH1UOl84r+zUwMHadqUU2PA+UuemKU67yZ0
-	+rHIoZsTs+nphVwGH/T0=
-X-Received: by 2002:a05:6102:160e:b0:7c3:f07c:f49c with SMTP id ada2fe7eead31-7cc9264273fmr2170632137.11.1792678451117;
-        Thu, 22 Oct 2026 07:14:11 -0700 (PDT)
+        bh=wIEEgL0wnyCgnfYBD3fqLb39KxnaLSOeClNdZ/a2t8c=;
+        b=0IDUe4gbZSChv7cK1+oETRz5PRBwrcUNcyfKSmqvzTA8cg2n65WRK5+yA7orV4BMxT
+         +g8p60MCGYxuypNANuxhYmTmXXu+CxgQKVjh7aMKVLVoEI4AblQOQKrPSFNa+djfTX92
+         NKtupadeJxIDzmvFFtVPwgEO8TKVnsbfVltcMGv5oz02MgxkjJQzUHp65ianexD/ulaC
+         YclDtRazdLUkMzULKsSwTcjj04zGl93iAeBrpmskGRVg5LC5HfEsEP6oNArOaQLo8ixX
+         cGX5DhOzYOiV0HOigbYSHZ02VB8T2o7IhjRjU63e2G+5ECxt23TiwAtcDwvm+CJzlw0d
+         y/9Q==
+X-Forwarded-Encrypted: i=1; AKwUvByJ08GVlcdBRt5CT8tw23oJeO63J26nXv4I1kpu+gyG+Y8TvgVoHoMrLpSjfEhps7GSmlkdc5GH7o92JG9Rtg==@lists.linux.dev
+X-Gm-Message-State: AFq9FYKWQrZePIOQVakr6JCb+DObeqgMjGggJyNqGQ4XCBv6qJ3xkHo2
+	pqPPvuWWYyZioHr5wPHumk+/i29GCjfWDimtdZdfxpx2pwDl+ZtXsOPU
+X-Gm-Gg: AYBFou2ByHwAG1SxGzohpMr/qcwIGrDkYahLqIH4s7mjfuJ9+5S/uCBn8dtVDzTW7or
+	l75C8oM+R1TZwHlV7RWroomHRzbfMgefsF7AZIAqjFGi9mpIw6wsUnWO1m6yOSFah9hY7fjRvvQ
+	zqkcpy7sV5rqT9vv+w/oUwWpMDWjPde5M/gBZvxZRCgLQpAUac1v+4K5bKvShNPEBHxccLHgv29
+	v9U43kynTATmjQjXIwSTAVtUgohdalJfNlrkLgS8d29O1b+ZejMpYbV1QJcvbeyADhTL9lnR/gf
+	XlVqy6OjShyKOWomgV6A2HkDoDNT/jpwkwaCvNiZHzLz/FcmbMoIjCTK02h6qrzRTfsZZhEpAWT
+	6aJ4RrBS2F0LOEGMwVc9DG1OdJ/44NofeEgONuWOXjF7Mcj2utloZrKDf+5Npe2GJ+dOHEWhg6A
+	/+25BuPiBX2ZazJxhCOYgKzKUNfory90dsuXU5fAR+BOuB1Jk86xC8S/d9dOgF2jc6S3EEdZcKH
+	0pzhNAsuz0rrOTCoh9HYeuGD32JaT7Qq+FepSfI0KV5n6GanqhajZQkT3lijsy8/6ap/5Y+b4hi
+	a9oxFtsyNJ9MwbLMjK3Qb9QVqfaQ8edNKsHy24Huk7WMKmDBIo9s39JLoRMRBlRTM3LAOKU61Iv
+	u31m4djhi9AaqiS/9A80=
+X-Received: by 2002:a05:6122:2984:b0:5d0:1207:b693 with SMTP id 71dfb90a1353d-5eaebc25d1bmr2672346e0c.1.1792679871554;
+        Thu, 22 Oct 2026 07:37:51 -0700 (PDT)
 Received: from gmail.com (111.46.245.35.bc.googleusercontent.com. [35.245.46.111])
-        by smtp.gmail.com with ESMTPSA id ada2fe7eead31-7ccb8fd4dfbsm1074530137.10.2026.10.22.07.14.10
+        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-5eae97be251sm6978325e0c.8.2026.10.22.07.37.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Oct 2026 07:14:10 -0700 (PDT)
-Date: Thu, 22 Oct 2026 10:14:10 -0400
+        Thu, 22 Oct 2026 07:37:51 -0700 (PDT)
+Date: Thu, 22 Oct 2026 10:37:50 -0400
 From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-To: Paolo Abeni <pabeni@redhat.com>, 
- Cheng Yongkang <teel4res@gmail.com>, 
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
+To: "Michael S. Tsirkin" <mst@redhat.com>, 
+ linux-kernel@vger.kernel.org
+Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
+ Chris Arges <carges@cloudflare.com>, 
+ =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>, 
+ Phil Sutter <phil@nwl.cc>, 
  Jason Wang <jasowangio@gmail.com>, 
- "Michael S . Tsirkin" <mst@redhat.com>, 
- Eugenio Perez <eperezma@redhat.com>
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+ =?UTF-8?B?RXVnZW5pbyBQw6lyZXo=?= <eperezma@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
  Andrew Lunn <andrew+netdev@lunn.ch>, 
- "David S . Miller" <davem@davemloft.net>, 
+ "David S. Miller" <davem@davemloft.net>, 
  Eric Dumazet <edumazet@kernel.org>, 
  Jakub Kicinski <kuba@kernel.org>, 
+ Paolo Abeni <pabeni@redhat.com>, 
  netdev@vger.kernel.org, 
  virtualization@lists.linux.dev, 
- kvm@vger.kernel.org, 
- linux-kernel@vger.kernel.org
-Message-ID: <willemdebruijn.kernel.78222817ba37@gmail.com>
-In-Reply-To: <9756cf25-6951-4330-959b-3260f4760c3e@redhat.com>
-References: <20261022091847.3654028-1-teel4res@gmail.com>
- <9756cf25-6951-4330-959b-3260f4760c3e@redhat.com>
-Subject: Re: [BUG] net: tun: zero-copy path can expose uninitialized packet
- data
+ Max Krasnyansky <maxk@qualcomm.com>, 
+ Rusty Russell <rusty@rustcorp.com.au>, 
+ Richard Weinberger <richard@nod.at>, 
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
+ Johannes Berg <johannes@sipsolutions.net>, 
+ Simon Horman <horms@kernel.org>, 
+ linux-um@lists.infradead.org
+Message-ID: <willemdebruijn.kernel.27710620cf132@gmail.com>
+In-Reply-To: <94796ee3c32e50665ecf70e2b390db1bc2773be9.1792668082.git.mst@redhat.com>
+References: <cover.v5.git.mst@redhat.com>
+ <94796ee3c32e50665ecf70e2b390db1bc2773be9.1792668082.git.mst@redhat.com>
+Subject: Re: [PATCH net v5 1/7] net: account for ingress-resolved virtio net
+ hdr state
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -116,73 +124,24 @@ Content-Type: text/plain;
  charset=utf-8
 Content-Transfer-Encoding: 7bit
 
-Paolo Abeni wrote:
-> On 10/22/26 11:18, Cheng Yongkang wrote:
-> > The experimental vhost-net TX zero-copy path can hand TUN a user buffer
-> > whose effective vhost virtio header size is smaller than the TUN
-> > device's configured vnet_hdr_sz.  TUN computes an skb copylen that
-> > remains larger than the bytes actually available after stripping its
-> > configured header, publishes skb->len from that copylen, and
-> > zerocopy_sg_from_iter() initializes only the real payload.
-> > 
-> > The resulting frame contains an uninitialized tail.  The tail can be
-> > read by userspace from the TAP peer through normal forwarding.
-> > 
-> > Observed on Linux v7.3, commit
-> > 08ab31164c55f20c7a2653de3186ae333470e2c1, with:
-> > 
-> >    init_on_alloc=0
-> >    vhost_net.experimental_zcopytx=1
-> >    TAP vnet_hdr_sz=200
-> >    vhost TX total length=256
-> >    real payload length=56
-> >    TUN copylen / skb len=128
-> > 
-> > The exact control with vnet_hdr_sz=10 delivered the expected 246-byte
-> > frame.  The corrected trigger delivered 128 bytes after submitting only
-> > 56 payload bytes.
-> > 
-> > Sixteen of sixteen corrected triggers produced the overlong skb.
-> > Eleven of sixteen had nonzero bytes in the 72-byte uninitialized tail.
-> > Several contained recognizable stale kernel allocation content from
-> > previous skbuff_small_head users, including fragments of environment
-> > entries.  Those bytes were never supplied in the virtio TX buffer.
-> > 
-> > This is a userspace-observable kernel-memory disclosure on a
-> > network-forwarding path.  It is configuration-gated by experimental
-> > zero-copy and an enlarged TAP vnet header, but the overlong skb occurs
-> > regardless of init_on_alloc; init_on_alloc=0 is needed to observe the
-> > stale tail in this test build.
-> > 
-> > This is distinct from candidate BR-023/BR-025, which exercise
-> > IFF_NAPI_FRAGS.  This reproducer uses the non-frags tun_alloc_skb() /
-> > zerocopy_sg_from_iter() branch.
-> > 
-> > I found no direct upstream fix or CVE.
-> > 
-> > The vhost ring reproducer and complete program/console logs are
-> > available on request.
-> > 
-> > This was found with a multi-agent workflow; the
-> > information disclosure was reproduced in QEMU/KVM.
-> Please stop this AI-generated test-walls dump: it's not very helpful
-> except for other agents consumption.
+Michael S. Tsirkin wrote:
+> The following patch will add ingress resolution of uncommon virtio net
+> hdr checksum metadata (software checksum completion at ingress) which
+> adds performance overhead to the packet processing.
 > 
-> Really, please stop now.
+> We should make it visible, so a hypothetical workload relying on
+> uncommon metadata can be distinguished from none at all. This way issues
+> in the parsing will be reported and not quietly pay the host-CPU
+> checksum overhead instead of offload.
 > 
-> Please instead ask your LLMs to try to generated fixes for each of them,
-> manually review the generate code if you have the skills, and share
-> the patches on the ML, at a very limited rated (no more than a couple
-> of series in flight at any given time, with no more than an handful of
-> patches overall).
+> Flip every call to virtio_net_hdr_to_skb to test for negative errno
+> only.  The um vector raw transport even ignored the return value
+> altogether: rejected packets went on into the stack with their
+> metadata unvalidated, so check it there as well.
 > 
-> Please consider collaborating with other already in place projects
-> (i.e. nebusec) to make you finding available to the community in a
-> responsible way.
+> Have tun count these events per device as rx_csum_sw, exposed via
+> ethtool -S.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-+1, see the documentation on how to report and help address potential
-vulnerabilities at
-
-    https://docs.kernel.org/process/security-bugs.html 
-
-Do not just send reports of unfixed bugs to a public list.
+Reviewed-by: Willem de Bruijn <willemb@google.com>
