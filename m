@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792673028;
-	b=KdzxEThDbUNJpljJcno2BA8oF6naf31OGcaUSDcw7Y+U0+fguC17LZjnUp5UP49MZEXp
-	 FpEzgRXwDHdViUB17wgIeqqwehfyxGuflMD/doXqZjpjkC5vw5XDRoOj8pEqXpB1B3iq/
-	 NgFACl6Qy+Mq71jwcP5qgLAKkX6M/XEZ/Nq4qZs7Bx64LJdqMeQtVU1dRr1sD3dEDmfSG
-	 ILIQ3ZMqPtI12jZPNj4SK8gDtQcIJmrc9ZuMGV0rze32DSetQCj5As3Q7zAtPCKT/ZM08
-	 UNojQ0Lgwqc4XBp6aKoHRwIizlauWdNEHcvDcICIfOgQr6GX+qV443HEi2o/oN7Jtjw==
+	t=1792673074;
+	b=OWnZ0Y10BXbzFNDQDFQ8+FXBbf8S/iGIMPWSMuO9Gj/Tf0BpFoHp9EcFeGEL5LAYp6GS
+	 Pl3xjw8tu5aGrGoAugFLypAOvqV6gdy5IzNut5oRX8JzNAggGNAzkfXMbyjOPB7d1yBvV
+	 TcGetaO5UNWv9z2Eb+n/AUCmWtq3vfIE6UBQdd0Bck4iH1Bq/0NGj6JfB3DMDyX3RfeHb
+	 GLLHaoOR3RhZLUXWQQz0L7N/bR4+h+UYGqbk2n9WUUkJaOPlWCyhgbMso5Daq4K0cagtM
+	 jJZPrcXI22NskYEjQxJdPmv7niRSUHj2yaLpQhQGzemUbRaaGxJs0l7KnCv6DJ3Mxxg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792673028;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792673074;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=xRKE3FB4KmO9MSUmdcA/9U5hQPUY0UvGz8Pg1zWH0YA=;
-	b=fbV1Z8FVAI/gDRBaspZVQcLS9er0eLpEC/jVnLkv4VRs77Yvri+ppSKwClLKeSjINtXk
-	 vGEEjkIx0s0FrSNdgzA6QiPDQMFN5ZKZ6rDB0Trt3/CO283JZo/VTqDnH86F6mgPSdV9T
-	 HsRfPmgUhc0ZKzbPY/M013ZkCD0Ynz3nNPQIl1DChGWBwH27cZ2+iuyiasPFrV7Vf8684
-	 1Xui1Je57KU5d5EmiyuGs/LtnEMWsBbch+BE52lo+06dlWXfzuyi//AWyXpoS9o5ekSkU
-	 jmvOXI6/6sdQwDwCcTd25ShPFjMqvUS4OcluboEC47XcaczvUxKljye2/lyG8hL/gzQ==
+	bh=YYIQeR+KoRgaEjVak9B/mcH1L0DcYBY1ze+XY6rMydc=;
+	b=bDLrdvVPfXmHo9yK/ni5MEjiGytnFDiryVKDl1rqDRIEhfU6hrEfDuRrkSZLx3sNhf4g
+	 6MSmK1z6dMZ4yvDCXkSUD8Ax7fWjlSsdIOLdZc78H2+j9JCsJ6z3BdFPDcKxxdq/FzH9x
+	 I0INXOo/lwf9j8CFtf5vVpkmYgf+UxoEyBmZVrNI0/fmHsa2/2FJYXwcQAZ+NBupOCQIU
+	 VR8hGu67uwvMQGk0F9FyKN92dN5RXHh4+YAzyGXNJQ3SMRx60DD9yGs7zJMJzDN0SwnNZ
+	 6+A9y+GlIPK/00Z84vdFpX1lN1zMXNtBs/QPoWefj3VCPWEOh+Uz5vUQk0o3qyH2XPw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LZ+lbfdY;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SH8AOB3L;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0BA6606A319
-	for <virtualization@lists.linux.dev>; Thu, 22 Oct 2026 12:43:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7740A606A331
+	for <virtualization@lists.linux.dev>; Thu, 22 Oct 2026 12:44:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LZ+lbfdY
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDF5E1F000C1;
-	Thu, 22 Oct 2026 12:43:47 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SH8AOB3L
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB95B1F000C2;
+	Thu, 22 Oct 2026 12:44:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792673028;
-	bh=xRKE3FB4KmO9MSUmdcA/9U5hQPUY0UvGz8Pg1zWH0YA=;
+	s=k20260515; t=1792673074;
+	bh=YYIQeR+KoRgaEjVak9B/mcH1L0DcYBY1ze+XY6rMydc=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=LZ+lbfdY7LXHJSLjh1xvQO7fNsirvYAS6t8+TBVRonHSJU+PB+aqUPl9xNLSNXHW8
-	 nhz1bg/BKYcNHS8fk5TRPkws7yQ9SwjzQC+Q6KrrPDzhbVyt6oQPUhYoZNsrR0thaP
-	 8G/kiQdyYw6Pu74UhErKO5jdI51FUcL9ebzDywPzkrlJK8WyEMBuUDYFPPIqmBl5EI
-	 894A8JUi0ZITdvf6wtQ4+3CXxvPl0HxZbd+UhahBx52aK5SDQmn/Ti84FirrSuDZWG
-	 5tnXD2QxgqtkTl43yWF8Da19Mk0jBbE+Wa6Kv39Jp+iqjr6q9jueMH02RjmZ9fJqd+
-	 O+MJUaE8QTpVQ==
-Message-ID: <sashiko-outbox-181483@kernel.org>
+	b=SH8AOB3LB4kYHbJZFWRFT598t6zrR0ds/VEod6nMiJiSYt/np/A/Kr+2i7IIBnzT3
+	 AyJa+i1FULKWORk/NM5Ez/O9uDPWSiIH2JeeBGa+2kpOx5X0u5ouZY68SlXr4wMxum
+	 g8m2YfoOZaL8YaT+XrUI+144f0VLfF6Y16QQB9+aG/cFAZPbdxiC/hwfoJMwgKcfxj
+	 q6Vz/7YuF9F2+39rtGFYxMKpo4vZI3NU/N5aGDLAWNGjvHgpu/4BiGbgkhuMBOz/n/
+	 uTBzSl92hGE7TpuYoate/KoTqhRVCMS0ue2AEzsM0uA8+mr4WmQWCMhJ3ntIqxD2Vc
+	 q/F5vcUznVKDw==
+Message-ID: <sashiko-outbox-181489@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 34/59] drm/tiny: cirrus: Switch to
+Subject: Re: [PATCH v2 41/59] drm/virtio: Switch to
  drm_atomic_helper_connector_create_state
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Maxime Ripard" <mripard@kernel.org>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261022-drm-no-more-connector-reset-v2-34-0b7e4e85b1e8@kernel.org>
+In-Reply-To: <20261022-drm-no-more-connector-reset-v2-41-0b7e4e85b1e8@kernel.org>
 References: <20261022-drm-no-more-connector-reset-v2-0-0b7e4e85b1e8@kernel.org>
- <20261022-drm-no-more-connector-reset-v2-34-0b7e4e85b1e8@kernel.org>
+ <20261022-drm-no-more-connector-reset-v2-41-0b7e4e85b1e8@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 22 Oct 2026 12:43:47 +0000
+Date: Thu, 22 Oct 2026 12:44:33 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,17 +62,16 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> The tiny: cirrus connector implementation uses the deprecated
+> The virtio connector implementation uses the deprecated
 > drm_atomic_helper_connector_reset() as its reset hook.
 >=20
 > Switch to drm_atomic_helper_connector_create_state() instead.
 >=20
-> Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
 > Signed-off-by: Maxime Ripard <mripard@kernel.org>
 
 Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261022-drm-no-mor=
-e-connector-reset-v2-0-0b7e4e85b1e8@kernel.org?part=3D34
+e-connector-reset-v2-0-0b7e4e85b1e8@kernel.org?part=3D41
 
