@@ -1,98 +1,101 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.160.51
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792691678;
-	b=MLAQKb8T7i7qTYTq6JmLucBDvsx07iRqVflEvls5dDTdyJ1yOpyHPYfXtyTOlALmH2vr
-	 vpIKQ2eTFAoC5+DpT3eVWdheFJrRzRlD+tnj/ZdKVVJ+3egJqaflszO2LJLU5fQLyowoL
-	 7B1urUy1E/N4OPRlZQAd++eavJeh4Lp3A3d8Civ7ET5UIKzeh+3AbxnDkzq5M1IzybhkA
-	 Z8oaNFHHQ4IkBovnFkDSRhUSVrf6//fRKjs2SQ5FDq7cnUsIA+1eYZXRF9ZVYxUNSDJCF
-	 LfOUVSSNTl9zUmOJr76+bB7Lz6erqDdUesxWXeg78vqZqmpYNAnmXRrI8ed+2IJjlHQ==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792691678;
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.82.52
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1792691906;
+	b=n1OTeOArY1tK2uAa0KRtKnyC3JEOU+K0h6vzOOiklNqLjuy3JkrlfMphMNLHOVxvNtox
+	 EkAGhnqWLBF3rjDkMFV4Mf6bb7nbFkzxZcZZmdF5QnBLoefGYBU3bKNmV/wQdbfE+9N16
+	 YT0CK5l8UtgvB1XzNAdmG5Ha72BQdfnQmpDEQIJIS9b7k7Co/5M1/+Z52DMfgkBqwFCbx
+	 8RDq7DPNB89Nra6mmhIxPrjRyRb2ksxE3uL8cbf+OC6oTO6bfTHe9WqisjItQ28lbnlH9
+	 DkzbmPr2ociBN1hzgMdjCIdY5OGzUDtpL/TwYPiaBIIuhIhCritVBbVkv3D81/B+pdQ==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792691906;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:Content-Transfer-Encoding:
-	 In-Reply-To;
-	bh=e2YlE3a8sEe/lSSTI4eekpIROK5ojeg1ho/PymbBpoI=;
-	b=axo7SaTPLKrlbpdmEoEBbt2Ht0u5QgQfpJm/avun6Zyx3nZfhA7pdtUpAdqCVwVGM6rp
-	 S1toauDb1hWETm7QjzZNb3Lo4Qz7rIhjbDXRaeQiR5CiUNFv3DlnqRd2qkB+lm5RwfMeQ
-	 vfriE1xIaP6KpNwpyoWUnBgMg6O0wQfz8l4MQyO76xomm9Kqi2htTCNc8s4W9QrV4Rx3D
-	 ksGpnqdzrAXQbDJxAMvcV1X7KH+uKK/N1hPRvq1HeUc5MuR9NbDKR8NvMt3Gp3+sP8Qvl
-	 3RUH8GzsR4la2VkzhLjoPPNYCX4ZYsMlZC/rNe043fyp3DkT6wPkJXhsqPHfzLfvhHQ==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=cloudflare.com;
-	spf=pass smtp.mailfrom=cloudflare.com;
-	dkim=pass header.d=cloudflare.com header.i=@cloudflare.com header.a=rsa-sha256 header.s=google09082023 header.b=ene2gFlz;
-	arc=none smtp.remote-ip=209.85.160.51
-Received: from mail-oa1-f51.google.com (mail-oa1-f51.google.com [209.85.160.51])
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=gOxyJqweGrhnvnodtSAXe9yahnUU1PnlCf3PPg5Ekys=;
+	b=JMeGoctQSQ+j7GHDFZ0BxnGBwjly4bYmv+pvA2tjemfAUhBuOnJr8t4VYcDJGczviIQr
+	 O8DSW9LpNGC7ZMJIsTrP6KM2bLzMk8TcJyM7GKKRTnSJcD4ybomlhslbLpLsRJuqDuFZS
+	 Xiu/D6JZP3BuPTIjVfN2o6yaJOSqk/y78AUY9XUdX1F4MR2jnvngDYksQMBIm1XsSp70G
+	 Cv0Y7HxGwXVtTXVojPMfB5GSwUkMzv3/8dhpLUO+xMjWw8OswV8w9jwV9826WbtRspkF0
+	 NtMuvmO+D9d+KJCy+vsFiEfaQ6TFZg/SaeKIKAnZZ1XHG4Gju1mK0jxC9WQ22r60s5w==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=google.com;
+	spf=pass smtp.mailfrom=google.com;
+	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20251104 header.b=XUdEXCxi;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.82.52
+Received: from mail-dl1-f52.google.com (mail-dl1-f52.google.com [74.125.82.52])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92DDC606A32D
-	for <virtualization@lists.linux.dev>; Thu, 22 Oct 2026 17:54:37 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 92DDC606A32D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cloudflare.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cloudflare.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49DC3606A319
+	for <virtualization@lists.linux.dev>; Thu, 22 Oct 2026 17:58:26 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 49DC3606A319
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=cloudflare.com header.i=@cloudflare.com header.a=rsa-sha256 header.s=google09082023 header.b=ene2gFlz
-Received: by mail-oa1-f51.google.com with SMTP id 586e51a60fabf-48ed0b68895so55936fac.1
-        for <virtualization@lists.linux.dev>; Thu, 22 Oct 2026 10:54:37 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20251104 header.b=XUdEXCxi
+Received: by mail-dl1-f52.google.com with SMTP id a92af1059eb24-150ef97e790so970c88.1
+        for <virtualization@lists.linux.dev>; Thu, 22 Oct 2026 10:58:26 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1792691905; cv=none;
+        d=google.com; s=arc-20260327;
+        b=deZX6e5VYwfcXTrXPLIr8n3ZrHTEdgBgmPce7Kk8gQQoHccxu8oQNhmDlEFHXBmjwg
+         MIpiIJcQ+7X9RVhcnuOiSFo6USOGk4k3bUWGYRiK2Mr/7B9d4UhiglYQ4766HIGOGVTp
+         TyxiF4QSDe8bEOLS1Nih6sLFZWAxXsM8tjaFhQfpWcOI77uZj4WK/qALjvYYTpvyZ/1B
+         4/pjneaTjLLvSz7irCYcKWgb+aLDGsTl/ukuef3pu2kNXP2I6oE+C+dr9jcB6wvknpbV
+         ec7dUKcnObMw+VvG/4xbxBTXDHPcmMjliNq8mOuXres5vxESf4usHDwNBIE1skoR6lux
+         xMLA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=gOxyJqweGrhnvnodtSAXe9yahnUU1PnlCf3PPg5Ekys=;
+        fh=sTKw+b8iDsoQd9XFT1Ag8uQaQcXfRx8E6OvvbkX2jI0=;
+        b=Yyj4R09+ComO4Jm6qf8yCVeWy+l+AUZtb4w/sXGJHDN05gSdQwgq+gKIrdSpKq5Hgt
+         2pZeRyoHn32C/LDxyFKUzfL4BjqPX6cSujV3jK8XmNWRkuY2ZAJJJ2ogN/NgizH3vZf4
+         fM8gipQ/FJiG05INdfRawAKcONyTE/FXZzXsrfDVkZYcc5f3/4BMW436G88SCY+hI3T8
+         AQ0lfrRSuz8lizthGBA+zK2r8IOiVHbwholMvMN9qSTRhSy6jdLDXzthskXxkkrvbtrR
+         TcMM4Iqr2S8MHyDpWgMXh3+J/k7gSXnPqPnlRKIWc3exZWLFQpoIBRN+b6aXSBQ7ebE/
+         tN1Q==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cloudflare.com; s=google09082023; t=1792691676; x=1793296476; darn=lists.linux.dev;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=e2YlE3a8sEe/lSSTI4eekpIROK5ojeg1ho/PymbBpoI=;
-        b=ene2gFlz/XyvWv9PGjAjL7dMrnSvBMavWL268hdfoRkwhZR0vAg3myn8frfJ4ShhiZ
-         Hv5lQzs9MQ0Svtc517Wnf1NmYYbrNrjFrxw3hDMOA6anNZ9Jd15eLJ0k3nRgHa1e1u57
-         HZPYzH0xXn1mxggzAEpuhWavQ0wmIrcZeJsqei2e93HR7N6/op4InhgV42NmElamakYB
-         C7h+D8WVPCxIjn5GxksoV1+F99r21K3upAQ8S5++OI+nKAEsKyI9pMZUqQDbAPngbyfj
-         F1Qlvu1lTymVZknLpTS/i2Ej5m4N8o7/ci9XljST2QLDjVuu5JXgSrlhzriIUPGdpcs8
-         CtuQ==
+        d=google.com; s=20251104; t=1792691905; x=1793296705; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=gOxyJqweGrhnvnodtSAXe9yahnUU1PnlCf3PPg5Ekys=;
+        b=XUdEXCxiPGydrJNDZOASJ3Nc+TsqsvoNtIUr6+LG5q4cVvyxPLUWNmBzFxOVu+zoW6
+         /lssfCQM0654pOY/UuJJQ6hsTFNp+mFKAEibLhJS9WO6devQYX9nyy/RTYKUExJCI73f
+         wGARqisyApfTImQFOTTGj3rM1ECsg7K8PKxJZKD9fT6zzKZl3Ww9kt/LvJNrjwX204JK
+         i+dVWpF1U5lQET4inim+MNncQ+8Rnrd/gMDOc841Lg3alQW1FcYul0wCe43bcFDNDpxZ
+         2bJ0GFVP2wK6upX288Ntn7gx22JryEqlVPa5x7MqssMrTHiyzHF9944ifUlFjab0sjrs
+         ZV4w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792691676; x=1793296476;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=e2YlE3a8sEe/lSSTI4eekpIROK5ojeg1ho/PymbBpoI=;
-        b=ymZ0Y6qaAdXird/3f6AkKDnDLBJKhbMng9IR2R1H8wmPoAJ+LFXq22TUYOWvpadhq+
-         eDtJI6/VkM9sbqFrEbAeKJhktP4Ti7EnC0ahtUlrHON6e/YACUQ06Yca1ht+le9hP6fZ
-         Ia9fNmAz4yiXqtoI6cBMFBB+JNVZHngueT8PPxLDwlwwvSH2z8wub8L3Y8+Yq9jz+C3Z
-         Tjxg+t0TVzNByRD3sLYmFIEjt+bQLr8JqPefVwTNiucFNLB3RSmPd1xW784p5rXLgpV/
-         v9gxrArLtfCc+k/RXtYryW+3e6tCdPAO2x0iDQHYUHf61hPZpcnc7vjQdRPl1ogHTr1H
-         Adtg==
-X-Forwarded-Encrypted: i=1; AKwUvBw1WmBPCEu7sL3Jts4RJnHOMMkxWATHFelkTQIctW8FwSrn20MG52EYOgefhv6V+F59++A3sjhNxmWs+tFU3g==@lists.linux.dev
-X-Gm-Message-State: AFq9FYJ00DbOMheXyGpkkPFAfGc/q+fdKrP5ZZc6lfJphArtcry+wGNn
-	FrALGcbpLQslMI9KTnicPp2wfmqQ50YqugJaJTePUWBP7eUwpAXcjl0XZaKzILSgB4Q=
-X-Gm-Gg: AYBFou2ZIdz3w26vcKI3+56gj2ihjo/y378EwFDcBnmpGjDGHJDSI49NA4rJDh9SzDw
-	w8+gyNFhZy3KMqLmLmYf/WpeeTDXhzvqnqzMFRJEnXjqtKV1EqrQTZeXuzGc4PudUnOaKRF8E8W
-	xop5rEVcTHbFVefUOHDb9yX5yNyPrU11zyLiwWvZQfQtfhG+qwyWGZJUwZ7jZLScpn+dUyPxdYP
-	+i/bg5pH4QOdln5JaPk0sI6MNQi+CZ7ZPHV0GtPa9AEZC7rxn0/AaDI9zCggpIRCcJgsoqYsWIV
-	TBCwtysr6iwRysrK6X1it9Emg5ExWIGyrc/Jl/LZKyAJFBZLtQjjjXAjEzrbxNA/qKpShb5v+dp
-	7NEiK0BBwU4FFETuCY4oICTMv03Qe2NiP1eRFnG2e9v+SE/vN/VkTVx7EHo8fLiXHcVJObPgC8Z
-	v5CIN2jCiXGN6EgQdWZ/pJzGMPRMgKbi0Wzc0FV4os4tii1oovE87ls8UVU+VtA9BQVEp9wuOSt
-	cblcbE8NzmoCg7dHqx3yLiNvZ3paEFDh6rZpPo=
-X-Received: by 2002:a05:6870:8a29:b0:4a7:4730:affa with SMTP id 586e51a60fabf-4a7dc1d4bf8mr3955050fac.24.1792691676439;
-        Thu, 22 Oct 2026 10:54:36 -0700 (PDT)
-Received: from 20HS2G4 ([2a09:bac6:bf21:3737::580:4b])
-        by smtp.gmail.com with ESMTPSA id 586e51a60fabf-4a7d61dc6ddsm5070888fac.13.2026.10.22.10.54.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Oct 2026 10:54:35 -0700 (PDT)
-Date: Thu, 22 Oct 2026 12:54:33 -0500
-From: Chris Arges <carges@cloudflare.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, 
-	Willem de Bruijn <willemdebruijn.kernel@gmail.com>, =?utf-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>, 
-	Phil Sutter <phil@nwl.cc>, Jason Wang <jasowangio@gmail.com>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux.dev, 
-	Max Krasnyansky <maxk@qualcomm.com>, Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH net v5 0/7] more virtio-net csum hardening
-Message-ID: <atpNckkhSp0aq2Hw@20HS2G4>
-References: <cover.v5.git.mst@redhat.com>
+        d=1e100.net; s=20260707; t=1792691905; x=1793296705;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=gOxyJqweGrhnvnodtSAXe9yahnUU1PnlCf3PPg5Ekys=;
+        b=FRaZ50rAHxn/MxKfgmzhWTVmNd3EB/YNQHiPoRvMnQvTIKETnHvP6GW42lz3JlmQR7
+         GSOGVFeoZfOIk2h4sebUtI7KHrUicr7JuaTLFaW3VqWh16+4xL5dJi9qUVvz54hrQgxj
+         x4PyfFC4IYgKQrVvIMt2LmTnppzSTnUyqw96S/co2QSvNcFO8izK23I3AIudr82/uIk1
+         6Wn2DWVbjzvnqlr0HC0ocoye0b3gffIeV7v/JPH+MBPQp+riDO+WjVVgMpENvzvvfpY2
+         T+P9HTSFhNbHKDplV19gxTCr2s4SkCx5Eq8tErggoK6EE3QUuhVdwOFeggtHUwvYNQal
+         4HIQ==
+X-Forwarded-Encrypted: i=1; AKwUvBwvZU4PNrK9RNwg+PWiYRhieL/Gba/8EERyw/sOD1RBJBTTQzwXHOL7IOBx/UFw5v6reHWdPTvO3yJ8R7M4vg==@lists.linux.dev
+X-Gm-Message-State: AFq9FYLgkpwz2U9l+DfjWlFKr1h9SWB8n/RRRZSI+eTotRiPmhrcevEh
+	5UnR23D2gpBYl68Cib0jI/Whoo941eZOveZhVzmES3wVuE4sApK10vX66GFqUGVx6VaZkOFlv5g
+	6MWyxflCSgFz0Fp3hmo7SiSMoElLHi2wZ0i1nNwM=
+X-Gm-Gg: AYBFou0Q+XL6iCh9imdqnbwdPOrv2DlYEgfcGFYspOuUlJJk4Lr8DyhZettkOUS1Sh5
+	wV8shEWswMXoqxmS8LVZvNgSGiH/ueIx/O5ffBfit0M3UrWh+iPaS+huJK/Oxoq7VaI4mqzwJHT
+	ff+WwEEbZCihXFQuodfuCFZl8GijusCouEvO62ITbKLH4dv6R4AdsbBxLL+OpwasnH6OVnUMWaU
+	jmxZdUUkS6rpl+ejlU8ZUDtRXh9+L+jnV8SX4SnrByQlG97oJPdkqpuOrrWWKz2SHpWaYC75EbP
+	eRWUZPNhYSDiDij3+KgitrS1l1SnWAm0rXfPXVjFCly3/nXYNGjni4N7Jhx5gMUVEiDo5ZnKMmy
+	/IcrIJ6/fQpKl2gZE7iNRDLGenraNZ3tLikN7zY1pX8BZ5mbIsL3TINthiAbTMjyYj/Oqw9NfJC
+	mrjVYffRNHFisz6qKVil+unZY1mE+GF2lPFfLOaxyYG4yGY4yOvaCv
+X-Received: by 2002:a05:701b:2085:10b0:192:ce56:4982 with SMTP id
+ a92af1059eb24-195b384f21cmr17350c88.1.1792691893149; Thu, 22 Oct 2026
+ 10:58:13 -0700 (PDT)
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -102,211 +105,178 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <cover.v5.git.mst@redhat.com>
+References: <20261006154913.2689067-2-val@invisiblethingslab.com>
+ <8b0fbe1a-1410-42d7-8031-611795ae39d9@collabora.com> <4d86ec37-ce27-4556-966e-4b4e80ec0718@invisiblethingslab.com>
+ <f717bc84-57f4-4001-a15b-fcdca67bb9b4@collabora.com> <6c0f26af-e363-46b8-b3b9-8d3910297dc0@collabora.com>
+In-Reply-To: <6c0f26af-e363-46b8-b3b9-8d3910297dc0@collabora.com>
+From: Yiwei Zhang <zzyiwei@google.com>
+Date: Thu, 22 Oct 2026 10:58:01 -0700
+X-Gm-Features: AclHuK8zrBSyPW0ecQ4Wi5vbzBHjWnhi_xIgMiJLjDz9C3zXcHZS3t6jUqqUQ44
+Message-ID: <CAKT=dDmEf3McX50KYxmLDb-oeuYWMBSnkcGGSEfi_PO4pD6qjA@mail.gmail.com>
+Subject: Re: [PATCH v2] drm/virtio: do not enforce blob_alignment in
+ cross-domain contexts
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Cc: Val Packett <val@invisiblethingslab.com>, David Airlie <airlied@redhat.com>, 
+	Gerd Hoffmann <kraxel@redhat.com>, Gurchetan Singh <gurchetansingh@chromium.org>, 
+	Chia-I Wu <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+	Simona Vetter <simona@ffwll.ch>, Sergio Lopez <slp@redhat.com>, Yiwei Zhang <zzyiwei@chromium.org>, 
+	Ryan Neph <ryanneph@chromium.org>, dri-devel@lists.freedesktop.org, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 2026-10-22 08:57:54, Michael S. Tsirkin wrote:
-> Okay this seems to be converging.... But sashiko did find some issues I
-> thought are best fixed. Specifically I thought of a better way to handle
-> short gso in a tunnel - just clear tunnel gso! As a side effect we now
-> fix up the checksum for these dodgy packets like we did before, instead
-> of a drop. Good. And more false positives that prompted me to write a
-> bit more comments. So here goes.
-> 
-> Apologies for reposting so frequently, I know netdev bot will be unhappy
-> with that.  But Paulos's report made a lot of publicity, there is a lot
-> of people looking into this, so I feel there's value in defending
-> against all this class of issues sooner rather than later.
-> 
-> The issues were mostly found by code inspection, but all reproduced by
-> me in a VM.
+On Wed, Oct 14, 2026 at 2:02=E2=80=AFPM Dmitry Osipenko
+<dmitry.osipenko@collabora.com> wrote:
 >
+> On 10/10/26 22:40, Dmitry Osipenko wrote:
+> > On 10/8/26 23:59, Val Packett wrote:
+> >>
+> >> On 10/8/26 4:33 AM, Dmitry Osipenko wrote:
+> >>> On 10/6/26 18:42, Val Packett wrote:
+> >>>> VIRTIO_GPU_F_BLOB_ALIGNMENT is designed for GPU rendering context ty=
+pes,
+> >>>> however VIRTIO_GPU_CAPSET_CROSS_DOMAIN is not one of those. Resource=
+s
+> >>>> created under cross-domain contexts are arbitrary shared system memo=
+ry
+> >>>> files, which includes unusual things like Wayland keymaps received
+> >>>> from the host compositor. Do not enforce alignment requirements ther=
+e.
+> >>>>
+> >>>> Fixes: 47248e0d8264 ("drm/virtio: honor blob_alignment requirements"=
+)
+> >>>> Signed-off-by: Val Packett <val@invisiblethingslab.com>
+> >>>> ---
+> >>>>
+> >>>> v2: also check has_virgl_3d to prevent dereferencing NULL vfpriv
+> >>>> v1: https://lore.kernel.org/all/20261006004044.2242154-1-
+> >>>> val@invisiblethingslab.com/
+> >>>>
+> >>>> ~val
+> >>>>
+> >>>> ---
+> >>>>   drivers/gpu/drm/virtio/virtgpu_ioctl.c | 4 +++-
+> >>>>   1 file changed, 3 insertions(+), 1 deletion(-)
+> >>>>
+> >>>> diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/
+> >>>> drm/virtio/virtgpu_ioctl.c
+> >>>> index 3ddd5481d6bc..4d5ae062834d 100644
+> >>>> --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+> >>>> +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+> >>>> @@ -551,7 +551,9 @@ static int verify_blob(struct virtio_gpu_device
+> >>>> *vgdev,
+> >>>>       params->blob_flags =3D rc_blob->blob_flags;
+> >>>>       params->blob_hints =3D rc_blob->blob_hints;
+> >>>>   -    if (vgdev->has_blob_alignment &&
+> >>>> +    if (vgdev->has_blob_alignment && vgdev->has_virgl_3d &&
+> >>>> +        (vfpriv->context_init &
+> >>>> VIRTIO_GPU_CONTEXT_INIT_CAPSET_ID_MASK) !=3D
+> >>>> +        VIRTIO_GPU_CAPSET_CROSS_DOMAIN &&
+> >>>>           !IS_ALIGNED(params->size, vgdev->blob_alignment))
+> >>>>           return -EINVAL;
+> >>>>
+> >>> What userspace has this problem and why it re-purposes virtio-gpu to =
+act
+> >>> as udmabuf for arbitrary data that never reaches host?
+> >>
+> >> Sorry, what do you mean by that?
+> >>
+> >> This is not related to data that "never reaches host" at all! The erro=
+r
+> >> I referred to in the patch message literally says "received *from* the
+> >> host"=E2=80=A6??
+> >>
+> >> Guest userspace is any of the cross-domain proxies:
+> >>
+> >> * https://codeberg.org/drakulix/wl-cross-domain-proxy
+> >> * https://github.com/talex5/wayland-proxy-virtwl
+> >> * https://github.com/google/sommelier-rs (or old C++ version)
+> >>
+> >> VIRTIO_GPU_CAPSET_CROSS_DOMAIN "repurposes virtio-gpu" to act as a
+> >> cross-VM UNIX socket transport that supports fd passing. By referring =
+to
+> >> virtio-gpu resources in the send command the guest can make the device
+> >> send the resources' corresponding host fds to the host Wayland
+> >> compositor. It can refer to resources from other contexts, in order to
+> >> present drm/venus/etc rendered buffers on Wayland surfaces. (i.e. the
+> >> host would send the actual dma-buf from virglrenderer) But the resourc=
+es
+> >> created on the cross-domain context itself are system memory buffers,
+> >> generally used for software rendering and miscellaneous Wayland "stuff=
+"
+> >> like keymaps which are sent *from* the host, and exposed to Wayland
+> >> clients in the guest. Socket receive handling in rutabaga-gfx stores
+> >> incoming fds and returns their IDs to the guest, then the guest does a
+> >> CREATE_BLOB with matching blob_id, which creates a virtio-gpu resource
+> >> from the incoming buffer, so the guest can just MAP_BLOB it. These are
+> >> the blobs that are not aligned to anything because they're just
+> >> arbitrary memfds on the host.
+> >
+> > RE "These are the blobs that are not aligned to anything because they'r=
+e
+> > just arbitrary memfds on the host." I'll appreciate confirmation from
+> > people more familiar with Sommelier internals like Gurchetan, Yiwei or =
+Ryan.
 
-Tested this series again (minus UM) and it fixes my original test cases. Added
-one comment after digging a bit deeper into the code. Again thank you for the
-work here.
+Technically there's no need to enforce alignment on keymaps backed by
+memfds, meanwhile those consumed by GPU have the proper alignment told
+by CROSS_DOMAIN_CMD_GET_IMAGE_REQUIREMENTS (unless it fails to do the
+right thing).
 
-Tested-by: Chris Arges <carges@cloudflare.com>
+> >
+> > In a case it is a correct claim, might be better to remove the
+> > blob_alignment check entirely and let blob sharing fail naturally if
+> > alignment is wrong.
+> >
+>
+> Reproduced the bug with Sommelier.
+>
+> Driver always implicitly rounds up BO size up to PAGE_SIZE for both
+> guest and host blobs [1][2], hence need to retain this old behavior to
+> fix the problem properly.
+>
+> Please send v2
+>
+> [1]
+> https://elixir.bootlin.com/linux/v7.2.10/source/drivers/gpu/drm/virtio/vi=
+rtgpu_object.c#L217
+> [2]
+> https://elixir.bootlin.com/linux/v7.2.10/source/drivers/gpu/drm/virtio/vi=
+rtgpu_vram.c#L210
+>
+> --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+> @@ -539,9 +539,15 @@ static int verify_blob(struct virtio_gpu_device *vgd=
+ev,
+>         params->blob_flags =3D rc_blob->blob_flags;
+>         params->blob_hints =3D rc_blob->blob_hints;
+>
+> -       if (vgdev->has_blob_alignment &&
+> -           !IS_ALIGNED(params->size, vgdev->blob_alignment))
+> -               return -EINVAL;
+> +       /*
+> +        * Blob sizes always implicitly rounded up to PAGE_SIZE by the
+> +        * driver, userspace may be unaware of the host's alignment.
+> +        * Round up to the larger of the host and guest page sizes.
+> +        */
+> +       if (vgdev->has_blob_alignment)
+> +               params->size =3D ALIGN(params->size,
+> +                                    max_t(u32, vgdev->blob_alignment,
+> PAGE_SIZE));
+>
+>         return 0;
+>  }
+>
+>
+>
+> --
+> Best regards,
+> Dmitry
 
- 
-> ------
-> 
-> As reported first by Paulos Yibelo <habte.yibelo@gmail.com> (after which
-> others, credited below, found more ways the bug can affect users):
-> 
-> allowing untrusted hardware to specify csum start/offset for
-> CHECKSUM_PARTIAL was not a good idea, because, if it edits the packet
-> outside the actual checksum, and depending on the setup, the networking
-> stack could be looking at the packet both before and after the edit, and
-> seeing different results.
-> 
-> Previously, commit 6785011f8b16 ("ipv4: validate checksum_start before
-> completing checksum") validated all known instances where this
-> causes the most grief, but the real fix is to make sure
-> that either only actual checksum fields are ever edited,
-> or the checksum is completed before the net stack looks at it,
-> so it is always consistent.
-> 
-> 
-> This basically goes back to
-> what we did before f43798c27684 ("tun: Allow GSO using virtio_net_hdr"),
-> except in a narrow list of specified known good cases.
-> 
-> 
-> Summary of the patchset:
-> 
-> These are probabably net material (and seem to be too big for stable,
-> or I would recommend backporting there, too):
-> 
->   net: account for ingress-resolved virtio net hdr state
-> 	- accounting, not the fix itself, dependency of the fix
->   um: vector: trim skbs before verifying the header
-> 	- fixes the um receive path: without it the checksum would be
-> 	  completed over the unreceived tail of the buffer
->   virtio_net: parse tunnel csum_start little-endian
-> 	- bugfix, a dependency of validating the header
->   net: resolve uncommon partial checksums at ingress
-> 	- fix itself
->   net: add a sysctl to opt out of virtio net hdr checksum validation
-> 	- reducing risk of the fix by adding a sysctl to disable it
-> 
-> These are cleanups, can be deferred to net-next, too:
-> 
->   net: add ip4_parse()
->   virtio_net: cleanup protocol calculation
-> 	- cleanup resulting code duplication
-> 	 (kept separate to simplify backporting)
-> 
-> Fixes: f43798c27684 ("tun: Allow GSO using virtio_net_hdr")
-> 
-> Changes since v1:
-> 	- reorder patches to fix bisectability, addressing
-> 	  a comment by Björn Töpel.
-> 	- code refactoring, different patch splitup,
-> 	  a sysctl knob to disable as suggested by Willem de Bruijn.
-> 	- fix a bunch of minor issues spotted by LLMs
-> 
-> 
-> Changes since v2:
-> 
-> virtio_net: parse tunnel csum_start little-endian
->   - new patch. correctly parsing the header is a dependency
->     of validating it, otherwise i do not know what to validate
-> 
-> net: account for ingress-resolved virtio net hdr state
->   - make rx_csum_sw counter 64 bit so it won't wrap
->     (spotted by LLM review)
-> 
-> net: resolve uncommon partial checksums at ingress
->   - tunnel fixes to bugs noticed by Willem de Bruijn and
->     Chris Arges
->   - restore the csum_offset checks as suggested by Willem
-> 
-> net: add a sysctl to opt out of virtio net hdr checksum validation
->   - the knob is no longer writable by root inside a user
->     namespace: changing it now requires capable(CAP_NET_ADMIN)
->     suggested by Willem de Bruijn
-> 
-> net: add ip4_parse()
->   - comment converted to kernel-doc format (Willem de Bruijn)
-> 
-> um: vector: trim skbs before verifying the header
->   - new patch, found by code review
-> 
-> 
-> Changes since v3:
-> 
-> net: account for ingress-resolved virtio net hdr state
->   - um: vector: honor virtio net hdr conversion failures
->     folded in (Björn Töpel)
->   - count on tap and virtio_net, too (Willem de Bruijn)
-> 
-> net: resolve uncommon partial checksums at ingress
->   - walk the frame on loopback, too: loopback_xmit() runs
->     eth_type_trans() on it (Willem de Bruijn)
->   - return the mismatch handling directly, GSO is implied in
->     the tunnel path so drop there outright, and fold the helper
->     into its one remaining caller (Willem de Bruijn)
->   - read the IP version through struct iphdr (Willem de Bruijn)
->   - document the ipv6_find_hdr() flags choice
-> 
-> net: add a sysctl to opt out of virtio net hdr checksum validation
->   - renamed to virtio_net_hdr_validate, in case more validation
->     is gated by the same knob later (Willem de Bruijn)
->   - point .data at the value like the neighboring entries,
->     the per-netns registration rebases it, and the handler reads
->     the value directly - no ctl_table copy (Björn Töpel,
->     Willem de Bruijn)
->   - check the opt-out before parsing: with the knob off, packets
->     the parser cannot handle were still dropped (Willem de Bruijn)
->   - include virtio_net.h in net/core/dev.c so the static key
->     definition sees its declaration (build warning reported by
->     Jakub Kicinski)
-> 
-> net: add ip4_parse()
->   - add the missing kernel-doc Return: section
->     (Jakub Kicinski)
-> 
-> 
-> Changes since v4:
-> 
-> net: account for ingress-resolved virtio net hdr state
->   - count on tun only: dropped the tap, macvtap, ipvtap and
->     virtio_net counters (Willem de Bruijn)
->   - the driver side branches are in their final form here now,
->     moved from "net: resolve uncommon partial checksums at
->     ingress" (Willem de Bruijn)
-> 
-> net: resolve uncommon partial checksums at ingress
->   - no longer touches the drivers (Willem de Bruijn)
->   - a packet too small to be GSO: ignore the tunnel GSO request,
->     same as plain GSO ones, and complete wild metadata in place
->     (sashiko)
->   - document the zero copy interaction (sashiko)
->   - honor a preset skb->protocol on ethernet: the stack uses it,
->     except on loopback which re-parses the frame (sashiko)
-> 
-> net: add a sysctl to opt out of virtio net hdr checksum validation
->   - document the netns lifetime requirement (sashiko)
-> 
-> net: add ip4_parse()
->   - pull the whole header, options included, so that the
->     transport header offset is within the linear data
->     (Willem de Bruijn)
-> 
-> Tested: full suite on the final tree, tunnel included.
-> um part compiled only.
-> 
-> 
-> Michael S. Tsirkin (7):
->   net: account for ingress-resolved virtio net hdr state
->   um: vector: trim skbs before verifying the header
->   virtio_net: parse tunnel csum_start little-endian
->   net: resolve uncommon partial checksums at ingress
->   net: add a sysctl to opt out of virtio net hdr checksum validation
->   net: add ip4_parse()
->   virtio_net: cleanup protocol calculation
-> 
->  Documentation/admin-guide/sysctl/net.rst |  19 ++
->  arch/um/drivers/vector_kern.c            |   6 +-
->  arch/um/drivers/vector_transports.c      |   4 +-
->  drivers/net/tap.c                        |   4 +-
->  drivers/net/tun.c                        |  41 +++-
->  drivers/net/virtio_net.c                 |   2 +-
->  include/linux/ip.h                       |  37 +++
->  include/linux/virtio_net.h               | 287 ++++++++++++++++++++++-
->  include/net/netns/core.h                 |   1 +
->  net/bridge/br_netfilter_hooks.c          |  15 +-
->  net/core/dev.c                           |   7 +
->  net/core/net_namespace.c                 |   1 +
->  net/core/sysctl_net_core.c               |  50 ++++
->  net/ipv4/ip_input.c                      |  13 +-
->  net/ipv4/netfilter/nf_reject_ipv4.c      |  13 +-
->  net/packet/af_packet.c                   |   4 +-
->  16 files changed, 461 insertions(+), 43 deletions(-)
-> 
-> -- 
-> MST
-> 
+I like Dmitry's latest proposal much better. Keeping the alignment
+agnostic to the guest userspace is more seamless, which also covers
+the implicit 4k alignment case without forcing userspace to adapt.
+
+Best,
+Yiwei
