@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792631779;
-	b=ARTJkJb9fgMBMSI8ltGgQ3MnmtExaEFw5ukTj5zByXHzmp99QcRtVNd2/wBK94ShZFqm
-	 GcIkPf2gjmi9b3BzgzBg8DO4i36BA/eCB0DeboYXfHX+mOuwY4ac2dUFIluGzBYhE0P+4
-	 mPtLjvatqbzWpkVHmtrtk5tirjnT+gOj7U6vx95NUAGmd4fuY7toHIe2QlTE/JoKQl6Ne
-	 2yOYBS8vghIssowbYty9D0ARWH2/57X/ben+97BtuyZSlYu1mnNgkfb38Oy51OPpeSnON
-	 pCIKpMZEBbgXTJRvT02AquCAlYC5zrrjDVoX+XBiAQmJ9RmvHLbYNAL/GjuLpC8OSsA==
+	t=1792631780;
+	b=iVKHA/g4S/1lWCPV9UPKHkD+dvqL+AnKqC1Tc7IXgi82cdLrjik2vr7MwxS18cyKfKIz
+	 ywbcInwAS2HEjeC93zutPDwJq1I3G4YqIGNNCZSBIi/AQ9a3TAp55wgHjIjBBwvuLM0oy
+	 mPa9pzyW+VdKTMF1zIqqbASSwrmWSS8T1w2szrUevBS0g59yoNYARWS1FJQ6HyXijB+Py
+	 XyrdhNcCngSSDieVs2g7w1Hu6CIPrzp31zb9JOzPyGyO+tMB6YhfL4Hnun2JHVNXsJhd9
+	 d1n3D0F1Xk7SKd1cZVilc1gsK5kR4dp5jpQ8EGwHEclZ0KxjDOiUgiLNdgjNDX+swYg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792631779;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792631780;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=SdVJw9iOwBGVI63XUD09SC3zWe+ik1tQJKtt0TDGir0=;
-	b=O43WHMIWlESVyXtD8ioyV9dspclqkXZedW34XxeTqhh6gnW4G4FqaF/7/gIOOfuR9MmX
-	 JnbhuHrZE+LXgVHlC5aqByCKR0rolBDne65jZRl78P/7bVncwtCuLOoOzdaNTOzr+8l63
-	 aqhPmG66go73iqJdvr5fhfJa2gc3Lk0wSHVzi7p0I7ryjv5/+ltyLlUgYDJIp23T7Jl+v
-	 QZjgd3XX24cYGJiMUkelMCxiamgRFEkmN6D9vTdkOW4wV5lotYwRXfohKFaOPzGpRA77G
-	 sYIBg6tl7OWiXZS2RYYnz8d4LO2JguXOvYQ5ZFcxNkB4IeYbi0Rmjha2SAxcWcXhg7Q==
+	bh=B2sWjT9cL8bI653zgKgi+ymBJCjJfFJqBXHIuOWQ2o8=;
+	b=nbAOkwn0lVjFoew2a4mkH5kL/D6OCEKzpXHMQnNc1wbEZH204JjrnuAeYlAsBWNLN4+K
+	 QiHv+aKKuabocmD546+o1t3GeFBfrvGcDbMhkMG9tVfgAl+yqjE6UZo9WO8EaWFo4Q69/
+	 C8V3Qvq6Kw/xJSZ3b0zdwr4PRuawlJmIe9Jl567yPUYGQ9VMEA9WY0dE8lW9Zt4TPiRfT
+	 e7jkXbab2dgW2r9qrgspfeE40kitopMFPzcl1YGkga9epMNHjsLVZGSbo3fRvuCzHZMLM
+	 VrpyNRpBkAn9NOfZPCIcx9WV7kjqVyRwicH/54JtxJgT2PpfkfY5kiyU3+wOLH0rtqg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DaTEU5wh;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AeB2sTdg;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7387606A319
-	for <virtualization@lists.linux.dev>; Thu, 22 Oct 2026 01:16:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82725606A319
+	for <virtualization@lists.linux.dev>; Thu, 22 Oct 2026 01:16:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DaTEU5wh
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB4841F000C1;
-	Thu, 22 Oct 2026 01:16:18 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AeB2sTdg
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC1201F000C2;
+	Thu, 22 Oct 2026 01:16:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792631779;
-	bh=SdVJw9iOwBGVI63XUD09SC3zWe+ik1tQJKtt0TDGir0=;
+	s=k20260515; t=1792631780;
+	bh=B2sWjT9cL8bI653zgKgi+ymBJCjJfFJqBXHIuOWQ2o8=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=DaTEU5whBdxz7HQkdxbLnWGnf9ZzONMkaOesprGjWwDr8QT0P8mhOOPynoaDFyEzl
-	 2CAb4hhq8WU2cvixA1nBop2BtPn9bL1mWxOJjEjcH43Bb/RNPhk1g0xpQn2M1/cAcx
-	 RaRO8GFGd48Pa4uWxbK2maQkPTFlcqqeAArwJD1XBFg0f9If/5RrgYlO85LycYPn+D
-	 k+vlUL1nl6GN+THswnbaUcElxxt61mkRkuXLVFFCauVr4Oji+HPfcZlDVSDwtcwH2w
-	 ffpxC5P9kjaPC9lsTXvCb6tY/8yx5Sw7Veo4MxdiAP2Zc/rj8z2j4l/mIvaVYuYgd3
-	 LaljXl22cDn6A==
-Message-ID: <sashiko-outbox-180838@kernel.org>
+	b=AeB2sTdgZS8ZDz0AO7sPM9+6Ve9IR04wVzpKLNPfEhBpQXvzggLNRXbjynKKzkObi
+	 xtnhT/8P5bFsqsYYtsDnSCNUvrwme+N7/9nxz7C22muAj/ynism6jbnOR1Bl/yWax7
+	 nzcHISO9FsBIqB8xYaD84t8fr5VMv5L+wdeaxa0bj/1ZW5BamM3/NO4LaMkFZy9Wdc
+	 HGPKuoMFBDOZDBKXot+lU/IJTNB8FKINTMGC6DW1BTgDnNCnAjGYDp1y0sV80xGmqg
+	 7K42tOfZdT9CORRDj0fwdfEHGHi9rMdG1JpkSTWRXJsdZU/TC2pVsTuKnQ947Au5+k
+	 VfmgEgl5wwlTw==
+Message-ID: <sashiko-outbox-180839@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net-next v4 1/7] vsock: constify the transport in
- vsock_for_each_connected_socket()
+Subject: Re: [PATCH net-next v4 2/7] vsock: rename the vsock pernet
+ operations
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Bobby Eshleman" <bobbyeshleman@meta.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261020-vsock-guest-ns-v4-1-047527cfccfc@meta.com>
+In-Reply-To: <20261020-vsock-guest-ns-v4-2-047527cfccfc@meta.com>
 References: <20261020-vsock-guest-ns-v4-0-047527cfccfc@meta.com>
- <20261020-vsock-guest-ns-v4-1-047527cfccfc@meta.com>
+ <20261020-vsock-guest-ns-v4-2-047527cfccfc@meta.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 22 Oct 2026 01:16:18 +0000
+Date: Thu, 22 Oct 2026 01:16:19 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,18 +62,21 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> Allow const transports to be passed too. The function only compares the
-> pointer against vsk->transport, which is itself const, and never writes
-> through it.
+> vsock_sysctl_ops and its two callbacks are named for the sysctl tables
+> they register, but the init callback already does more than that: it
+> also initialises the per-namespace vsock state through vsock_net_init().
+>=20
+> Rename them to vsock_pernet_ops, vsock_pernet_init and
+> vsock_pernet_exit, so that later per-namespace work can be placed here
+> too.
 >=20
 > No functional change.
 >=20
-> Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 > Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
 
 Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261020-vsock-gues=
-t-ns-v4-0-047527cfccfc@meta.com?part=3D1
+t-ns-v4-0-047527cfccfc@meta.com?part=3D2
 
