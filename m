@@ -1,109 +1,108 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.53
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792673928;
-	b=Ai5p0D7Tu21VQ7k2XBJpaiNlE01yhssFWkyKkMdE+ZoXW4BteJ+maIrVQOqoWeVKuLP3
-	 LsrfTAtA14zpuc9SM3niE7C09CiccK84Cu/Z50jgoIPv5K5vYAct2UuZ2HK3/7e9ZeSOo
-	 V/tHYtCqyqoGLeriPtq4l3TEqkEl4knOKn+KWJqfvGt05/xyENsNYz9w7e37B3SelxuC7
-	 FajaFGcrbK9Jz2zjVPP+XZFl8gUlVmLt/NM3tDoYRolxWwTKfRicnw7LRLd1nuPI9C2jP
-	 zh145lz0m+ORk47PP/SefiNVHIYr8rPJcf4UFr+Rfkv0oq3/cJc2kfKQm/Jues28Bvw==
+	t=1792678452;
+	b=IZQ6I96DEH2l8fRaRSJkwmuBPPtxyrvZ8LSglqeHW9ZpWi9gpqjFU1amX2FwjbaPafbC
+	 koS4KY7I0PssG33bcdK61vjyz7z6fSlX1ZPBQyEqO2WHevU7vk+cQxxBuY166gq1tcVQc
+	 MzGOBd+90jDsC5G0jydvtfZPEJwATGsBpmPC4p1biP2fp2O2BOE+YywqRqbiQyRBS1unP
+	 ryhnFxN+uHDhhiJXOG/fQ0pPH7MsahwBb+XDF/e73UScU/L8cnfqt63lmEJFJ+Mw3oP85
+	 Vc/dEPYwPT+JoRwnSKoC/HolnCXWPRo7KEB1gNAI8qijqJA0APKiduvxieaOR3mFEMQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792673928;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
-	 MIME-Version:In-Reply-To:X-Mailer:X-Mutt-Fcc:X-Mimecast-Spam-Score:
-	 X-Mimecast-MFC-PROC-ID:X-Mimecast-Originator:Content-Type:
-	 Content-Disposition:Content-Transfer-Encoding;
-	bh=Wm2lsA+w7xm6rhMTdU3cXhV3KJ+IpR+CE+ng3KKGWSc=;
-	b=XydGqIIpustJh8/1dHCynQSeNnuB1D/VA+BJ3b/CRhIlYqForb/APSaPwV6tem9jjO+8
-	 CwtEuvXdpIenYRTOhLks00a9uk8UPZPaUx6CqgbkJdMtVWnyOeoUTagy9pvMGD9qcLZIj
-	 mRfyTmp38m8VEJ1RWA/lN69dLbxW6TVTKwRjXeTZJ8e4MFzGx26En8pWpmmNYz3QlJQqi
-	 AHpZVqCQuH3lzv3t4Fmss8QssVf+T1TAzFTwqKzSW6jvtd2leuNNpiHHo6Svdf0rmH96R
-	 LbL65e7A3XpjXGLVR16EoFZxAtyd0Qm50XsHeh7s6jRy63bnzOkaqo30Rc/ljo9il+Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792678452;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding;
+	bh=ar1E8sP3jvEI9uhwbxm9hO7paRp/1SObcXepAZxmBtQ=;
+	b=ANUoy0vBwtGz8gX3z9A0z9Tu5HolLn6fSYY2nRnsr8uOghKgqSZOaS/0V+JUyDqx+Z6p
+	 mBaef3Y0+yXG/8+kXX8pynHiHDoKazTMADRNmaDKFFX0jra8Mvow3wTrycsxHonV49bbS
+	 dJQ9xfyRWn1U1gpgKCMfJBrBAIXF2qWmFDs4G3bn95LaXP2VXp+zq4M7S1ui9QstCKOWW
+	 XodEF1uQUr5nwPptiu8cy+NUDKZO6jqWwzDRbgY8LW7AWCUoHhbsSwPPf4ZyArgBSvvVg
+	 6iyRgNm1XmnlpqMrSzBRXHlKYQeAoFeFDdrjfmBGzTkADQGp38eSXPMqaW8F3+B1o8Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Gzhv5qCV;
-	arc=none smtp.remote-ip=170.10.129.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=Zv51UqSL;
+	arc=none smtp.remote-ip=209.85.222.53
+Received: from mail-ua1-f53.google.com (mail-ua1-f53.google.com [209.85.222.53])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99604606A33D
-	for <virtualization@lists.linux.dev>; Thu, 22 Oct 2026 12:58:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 99604606A33D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 515C1606A31D
+	for <virtualization@lists.linux.dev>; Thu, 22 Oct 2026 14:14:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 515C1606A31D
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Gzhv5qCV
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1792673926;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Wm2lsA+w7xm6rhMTdU3cXhV3KJ+IpR+CE+ng3KKGWSc=;
-	b=Gzhv5qCVHqQkKUuIjmhNIU1MsWsdI5rN4tfJGf9xoddiKevPgTq6iVD0s13JWaOqTVU0lb
-	aY+5qrtdwZpMo6Q7eUFXygVc/oqv4MdTX/vXoOkXL01BNgGGTXiURFCtnfKFlkjS6yoHpv
-	cr1aOI7UUEDzqS1tu6A9FdCdGTYmrZg=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-81-VnfL9NdVPNStTovnawHswQ-1; Thu, 22 Oct 2026 08:58:43 -0400
-X-MC-Unique: VnfL9NdVPNStTovnawHswQ-1
-X-Mimecast-MFC-AGG-ID: VnfL9NdVPNStTovnawHswQ_1792673922
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4a2063be141so6527125e9.1
-        for <virtualization@lists.linux.dev>; Thu, 22 Oct 2026 05:58:42 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=Zv51UqSL
+Received: by mail-ua1-f53.google.com with SMTP id a1e0cc1a2514c-97ca72f2cd9so1277874241.2
+        for <virtualization@lists.linux.dev>; Thu, 22 Oct 2026 07:14:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1792678451; x=1793283251; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:mime-version:subject
+         :references:in-reply-to:message-id:cc:to:from:date:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=ar1E8sP3jvEI9uhwbxm9hO7paRp/1SObcXepAZxmBtQ=;
+        b=Zv51UqSLN+eeyN4IjgID5j8BsnLP8O2OCAUA4w/OeQvEOQybxDubCSLrB1ya9Oti1z
+         Rp+huhbYIRsa6c1oQhaz88Nqnq37ii9aCdrpSGhBhsAhFiOx1p9stAK3G1kYyYF5KNPs
+         n0Gbon88MjmehxDN7rLagU9ulKz8yPzlpgSRLEVpE4t1KVjLPTYv42+q3hfNB/v4SuIa
+         QLrr2NCGvrNfvH9pEb+oJUEhLaEx4Y0Z/KJlNEd0twZyDRtqTg0DPi3BVTxy2SoiSzFq
+         AxXSyhx/6k3B3Ykt8h8YLIkVYpfsQmrcGMfs4wa2iWzrt4rFs2DjxBlCu9On7MeFmMJl
+         Sdxg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792673922; x=1793278722;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=Wm2lsA+w7xm6rhMTdU3cXhV3KJ+IpR+CE+ng3KKGWSc=;
-        b=ZQDKPF9Wnm95m5xoUrDLUQqijHtjiot8Z5NQ76lbPLEJy0Ff/N2zLZ/3rTbgbWzbjR
-         UaFUgH7YsID8npeEw4Eigjs+Ue6/QgdxwdqCjje7U923wevsn5w+LmsYLMqrP00Dh1oJ
-         luxjEIdcJjaXB6DF5rIi6kWMG1WAbXLpg+VRr8AOerSANO6NwWzEnvG7317AyOoA2eXo
-         MSzcXnrI4DFf7O4uLd6y3I7JjNyi1P1ewDIEgSsh2NRPNeHlx277MkdqxSCoNCNwndPP
-         IEAOWet49bv9snIzJk9FW4Q9Wxa9k5j1H78lsp0L++svqwyxFY8eyvH8vMLCm6fhrpSZ
-         bBwg==
-X-Forwarded-Encrypted: i=1; AKwUvBxvyxe6ta5VkyytTdnXCtjAdgJbjT9A4sCMsHbXVhbLeIOC0f0u3otBayglligSO35fTKJaY6JF6KcPo1T4/A==@lists.linux.dev
-X-Gm-Message-State: AFq9FYJQXfRqIFWai4bOloDAB2/CzE4hX1SDzA4KUHRWy4BPG3DtOn8X
-	TBT821WbF2R73WmAGaIKuC1pXe7wDhwMwoVJzjv41UGCC9lmfnGQAl09mKuTSrpzx+FnWvJfMCd
-	S/kG04rBzmAkJy3CuYyHktBIdjt6dwydX6myEilQC4JJy5a6gx7WVOKgUYhwX7P7uGfDw
-X-Gm-Gg: AYBFou3CgK7rtv780Xyb3qoBzB7pVq9GUjqX+hbLQKSllX6zvLI4rJS18BR0dZs2vJv
-	qYZWKf/6OfIHjCKTt8nIokC5DAboj5AzMtJd4KeHF83fWNBOmJeWBwLjozOS/Dfy35huipytUwF
-	dzq8Qnpy02y3jUTQmaP7z23NDqfZMvrS/GHMxzBklBSMSZ4iCWenHDZQkJ6BHp0O6fkqWNT0T+w
-	gBJbsXsTxibY3VBu0ocNJTy++pvXpbMAKvvUf4tbo28KXgrv7oudiMqlkpI+V9LfaGL1j4/fguD
-	vcZkJfVc2ZYNLuja5SEpT9aV17qCWLoAIqONjEpW1AWlzkuVS2rlB4qW8zXt+1r+wH8=
-X-Received: by 2002:a7b:cbd0:0:b0:4a1:f9e6:f418 with SMTP id 5b1f17b1804b1-4a1fdd22fb0mr76175245e9.34.1792673921685;
-        Thu, 22 Oct 2026 05:58:41 -0700 (PDT)
-X-Received: by 2002:a7b:cbd0:0:b0:4a1:f9e6:f418 with SMTP id 5b1f17b1804b1-4a1fdd22fb0mr76174745e9.34.1792673921125;
-        Thu, 22 Oct 2026 05:58:41 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1536:fc00:b838:383:1c7:6e81])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a203a62aaasm69570865e9.15.2026.10.22.05.58.37
+        d=1e100.net; s=20260707; t=1792678451; x=1793283251;
+        h=content-transfer-encoding:content-type:mime-version:subject
+         :references:in-reply-to:message-id:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=ar1E8sP3jvEI9uhwbxm9hO7paRp/1SObcXepAZxmBtQ=;
+        b=zq/EI4aJn8VuhAqvyqZDUHsFoCSRgvTADwa0fRuhllvX9RCcNEI1frTcOWnxnKGXPL
+         vtts1CaCbS+jpu/nDsh3GuM36U5R8tnhZERapxOnbf/2de6tLcwP3GNMQEeL9PaQW831
+         jgpJkkf5NcTCDYrniv4Rsk8JD+dUugoks6fOuJuRdyteVs+TqnupNWzVjt2s1+B0xAnV
+         2SnnRmJ2gT8nb2/qAD7sKFSTbBFLfXDH50p5yrdj8Abp30K/jgI+LwBMWvd02xSFBK2h
+         2LwWXGRJ0ObOqB/v9rrDGwAGgiVAj1Ixn6846aMSpnWVYv5oOgWbxNDVpD/T4g9BtsZQ
+         DX1g==
+X-Forwarded-Encrypted: i=1; AKwUvByZ0PhVpxAF2BgG7A1g1OiE77ViCO/2ubm1B5o6RbsHwFc8xUC34HrjSPxfs/C76OKUjo23g9BdH5d40PmAjQ==@lists.linux.dev
+X-Gm-Message-State: AFq9FYKJegUAwfnt9mpjFLkFzEyqbk8j1ZhF3A5jTp6IAH62p17O0Bpb
+	tfnEeZXD5r00lYNcn/lMdz1xFkR44r0n1NqLHJpQXmo+xBMSnFBSEHJl
+X-Gm-Gg: AYBFou1g7xMt+IxgHRl9CYxvkYIJbiIYYNvCzeGMwumyp3qCog8WGL1J9ZQC+59lW/p
+	AQFk4TnZQn1LxG+oKh7Gv0NI6IhcECngH9fGbs3T0Tg4HW5CIXeazXVGlnn27rXU8r7nUoqJSp/
+	lHjfMeWIEZseZ72+zVEZc5BLZm+NJAry4/viE82cYVU16rFG98WC4rpfF1tKSh5P7vEKNyImmTP
+	/Z400/hWF+JRukNx4+SCIp/2qgUdXxguh0jWe1CMWTES8cXNtN415Lkp0dLnyhDZ6DawAe8+6Cx
+	MFs10D0yibCFLyGVydaX5Q8oZIhH1CuI5lhcnh2nlCqHH6cPwf6etNh/MJDQQoOz5BPDgdaFg4k
+	lpKGl3A3BrgdsKJcy8HfPYTLHudFc7VJGcYZD4hiywrlv6ZZYHyITtF05yNIt8BhHJtBRjQ/qhv
+	5zifS6E18Op88W4kNWhlKwMn7o2u5V6WqCOjS/l2mFsnVS+qVcVIHHGCpfKfA7Ecf5aoy1KJkdo
+	o8flbH/ZHbm03F0fzNwsLz6J7Z0ElFKii1cafSdFERvVqUA9dyD3fxyvWzOFCAv1HE3tgZUFPns
+	ZRkf6bFLNOvBnwN8ggrIgvcm+CeybPVyG0xx+hjoPH1UOl84r+zUwMHadqUU2PA+UuemKU67yZ0
+	+rHIoZsTs+nphVwGH/T0=
+X-Received: by 2002:a05:6102:160e:b0:7c3:f07c:f49c with SMTP id ada2fe7eead31-7cc9264273fmr2170632137.11.1792678451117;
+        Thu, 22 Oct 2026 07:14:11 -0700 (PDT)
+Received: from gmail.com (111.46.245.35.bc.googleusercontent.com. [35.245.46.111])
+        by smtp.gmail.com with ESMTPSA id ada2fe7eead31-7ccb8fd4dfbsm1074530137.10.2026.10.22.07.14.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Oct 2026 05:58:38 -0700 (PDT)
-Date: Thu, 22 Oct 2026 08:58:36 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
-	Chris Arges <carges@cloudflare.com>,
-	=?utf-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>,
-	Phil Sutter <phil@nwl.cc>, Jason Wang <jasowangio@gmail.com>,
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@kernel.org>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	netdev@vger.kernel.org, virtualization@lists.linux.dev,
-	Max Krasnyansky <maxk@qualcomm.com>,
-	Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH net v5 7/7] virtio_net: cleanup protocol calculation
-Message-ID: <f8621d16cf0c67335641d07c1555ec1e43f17628.1792668082.git.mst@redhat.com>
-References: <cover.v5.git.mst@redhat.com>
+        Thu, 22 Oct 2026 07:14:10 -0700 (PDT)
+Date: Thu, 22 Oct 2026 10:14:10 -0400
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+To: Paolo Abeni <pabeni@redhat.com>, 
+ Cheng Yongkang <teel4res@gmail.com>, 
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
+ Jason Wang <jasowangio@gmail.com>, 
+ "Michael S . Tsirkin" <mst@redhat.com>, 
+ Eugenio Perez <eperezma@redhat.com>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+ Andrew Lunn <andrew+netdev@lunn.ch>, 
+ "David S . Miller" <davem@davemloft.net>, 
+ Eric Dumazet <edumazet@kernel.org>, 
+ Jakub Kicinski <kuba@kernel.org>, 
+ netdev@vger.kernel.org, 
+ virtualization@lists.linux.dev, 
+ kvm@vger.kernel.org, 
+ linux-kernel@vger.kernel.org
+Message-ID: <willemdebruijn.kernel.78222817ba37@gmail.com>
+In-Reply-To: <9756cf25-6951-4330-959b-3260f4760c3e@redhat.com>
+References: <20261022091847.3654028-1-teel4res@gmail.com>
+ <9756cf25-6951-4330-959b-3260f4760c3e@redhat.com>
+Subject: Re: [BUG] net: tun: zero-copy path can expose uninitialized packet
+ data
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -113,47 +112,77 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-In-Reply-To: <cover.v5.git.mst@redhat.com>
-X-Mailer: git-send-email 2.51.2.2891.g4157995a80.dirty
-X-Mutt-Fcc: =sent
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 92qfGZAOkz8dYsSHbcCQr2j491rwJTz3W3OGAmTlSq0_1792673922
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: 7bit
 
-A trivial cleanup removing a duplicated code line.
+Paolo Abeni wrote:
+> On 10/22/26 11:18, Cheng Yongkang wrote:
+> > The experimental vhost-net TX zero-copy path can hand TUN a user buffer
+> > whose effective vhost virtio header size is smaller than the TUN
+> > device's configured vnet_hdr_sz.  TUN computes an skb copylen that
+> > remains larger than the bytes actually available after stripping its
+> > configured header, publishes skb->len from that copylen, and
+> > zerocopy_sg_from_iter() initializes only the real payload.
+> > 
+> > The resulting frame contains an uninitialized tail.  The tail can be
+> > read by userspace from the TAP peer through normal forwarding.
+> > 
+> > Observed on Linux v7.3, commit
+> > 08ab31164c55f20c7a2653de3186ae333470e2c1, with:
+> > 
+> >    init_on_alloc=0
+> >    vhost_net.experimental_zcopytx=1
+> >    TAP vnet_hdr_sz=200
+> >    vhost TX total length=256
+> >    real payload length=56
+> >    TUN copylen / skb len=128
+> > 
+> > The exact control with vnet_hdr_sz=10 delivered the expected 246-byte
+> > frame.  The corrected trigger delivered 128 bytes after submitting only
+> > 56 payload bytes.
+> > 
+> > Sixteen of sixteen corrected triggers produced the overlong skb.
+> > Eleven of sixteen had nonzero bytes in the 72-byte uninitialized tail.
+> > Several contained recognizable stale kernel allocation content from
+> > previous skbuff_small_head users, including fragments of environment
+> > entries.  Those bytes were never supplied in the virtio TX buffer.
+> > 
+> > This is a userspace-observable kernel-memory disclosure on a
+> > network-forwarding path.  It is configuration-gated by experimental
+> > zero-copy and an enlarged TAP vnet header, but the overlong skb occurs
+> > regardless of init_on_alloc; init_on_alloc=0 is needed to observe the
+> > stale tail in this test build.
+> > 
+> > This is distinct from candidate BR-023/BR-025, which exercise
+> > IFF_NAPI_FRAGS.  This reproducer uses the non-frags tun_alloc_skb() /
+> > zerocopy_sg_from_iter() branch.
+> > 
+> > I found no direct upstream fix or CVE.
+> > 
+> > The vhost ring reproducer and complete program/console logs are
+> > available on request.
+> > 
+> > This was found with a multi-agent workflow; the
+> > information disclosure was reproduced in QEMU/KVM.
+> Please stop this AI-generated test-walls dump: it's not very helpful
+> except for other agents consumption.
+> 
+> Really, please stop now.
+> 
+> Please instead ask your LLMs to try to generated fixes for each of them,
+> manually review the generate code if you have the skills, and share
+> the patches on the ML, at a very limited rated (no more than a couple
+> of series in flight at any given time, with no more than an handful of
+> patches overall).
+> 
+> Please consider collaborating with other already in place projects
+> (i.e. nebusec) to make you finding available to the community in a
+> responsible way.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Björn Töpel <bjorn@kernel.org>
----
- include/linux/virtio_net.h | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
++1, see the documentation on how to report and help address potential
+vulnerabilities at
 
-diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-index 063cc116e51a..e984e446ba44 100644
---- a/include/linux/virtio_net.h
-+++ b/include/linux/virtio_net.h
-@@ -613,8 +613,8 @@ virtio_net_hdr_tnl_to_skb(struct sk_buff *skb,
- 			return -EINVAL;
- 	}
- 
--	skb_set_inner_protocol(skb, inner_isv6 ? htons(ETH_P_IPV6) :
--			    htons(ETH_P_IP));
-+	inner_proto = inner_isv6 ? htons(ETH_P_IPV6) : htons(ETH_P_IP);
-+	skb_set_inner_protocol(skb, inner_proto);
- 	if (hdr->flags & VIRTIO_NET_HDR_F_UDP_TUNNEL_CSUM) {
- 		if (!tnl_csum_negotiated)
- 			return -EINVAL;
-@@ -638,7 +638,6 @@ virtio_net_hdr_tnl_to_skb(struct sk_buff *skb,
- 	 * We know VIRTIO_NET_HDR_F_NEEDS_CSUM was set so __virtio_net_hdr_to_skb
- 	 * set CHECKSUM_PARTIAL.
- 	 */
--	inner_proto = inner_isv6 ? htons(ETH_P_IPV6) : htons(ETH_P_IP);
- 	if (virtio_net_csum_partial_ok_at_offset(skb, gso_inner_type, inner_nh,
- 						 inner_proto))
- 		return 0;
--- 
-MST
+    https://docs.kernel.org/process/security-bugs.html 
 
+Do not just send reports of unfixed bugs to a public list.
