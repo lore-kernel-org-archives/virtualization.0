@@ -1,101 +1,102 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.82.52
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1792691906;
-	b=n1OTeOArY1tK2uAa0KRtKnyC3JEOU+K0h6vzOOiklNqLjuy3JkrlfMphMNLHOVxvNtox
-	 EkAGhnqWLBF3rjDkMFV4Mf6bb7nbFkzxZcZZmdF5QnBLoefGYBU3bKNmV/wQdbfE+9N16
-	 YT0CK5l8UtgvB1XzNAdmG5Ha72BQdfnQmpDEQIJIS9b7k7Co/5M1/+Z52DMfgkBqwFCbx
-	 8RDq7DPNB89Nra6mmhIxPrjRyRb2ksxE3uL8cbf+OC6oTO6bfTHe9WqisjItQ28lbnlH9
-	 DkzbmPr2ociBN1hzgMdjCIdY5OGzUDtpL/TwYPiaBIIuhIhCritVBbVkv3D81/B+pdQ==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792691906;
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.227.131
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1792693727;
+	b=tH8z/XdC9+TBhMkeA4FlQRNas7Awt6O+gQg0iDvwGDmL9GOKaJPusfkh4ioePIMsCN01
+	 OxD5Qg42aee7HlhwkLbCw2lWuEloMw2pev38OTCJYXPXAUB3qECi8d3Hh+5z8lzzKqzHb
+	 pF2i0ahLzauwu3LCDlpk0u7L9uvT/kcmC+wsM95EJbhFh+g/SixHgpIKNusJTvNhlE6tb
+	 7nKz5eG983r4Fs9KmHO1Hog71rgbE8r9JlUTQ8Vh559CiU9k0MescpR1hwDbkzemDVayQ
+	 WlWBJ4fCVVm5H3b02SQguQ4BXi/KPpq7LKO/GglqZlWPaq+wzgfNc0uR6NaQqFOKvoA==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792693727;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=gOxyJqweGrhnvnodtSAXe9yahnUU1PnlCf3PPg5Ekys=;
-	b=JMeGoctQSQ+j7GHDFZ0BxnGBwjly4bYmv+pvA2tjemfAUhBuOnJr8t4VYcDJGczviIQr
-	 O8DSW9LpNGC7ZMJIsTrP6KM2bLzMk8TcJyM7GKKRTnSJcD4ybomlhslbLpLsRJuqDuFZS
-	 Xiu/D6JZP3BuPTIjVfN2o6yaJOSqk/y78AUY9XUdX1F4MR2jnvngDYksQMBIm1XsSp70G
-	 Cv0Y7HxGwXVtTXVojPMfB5GSwUkMzv3/8dhpLUO+xMjWw8OswV8w9jwV9826WbtRspkF0
-	 NtMuvmO+D9d+KJCy+vsFiEfaQ6TFZg/SaeKIKAnZZ1XHG4Gju1mK0jxC9WQ22r60s5w==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=google.com;
-	spf=pass smtp.mailfrom=google.com;
-	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20251104 header.b=XUdEXCxi;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.82.52
-Received: from mail-dl1-f52.google.com (mail-dl1-f52.google.com [74.125.82.52])
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=8G9f2sj7l3e7G5lnQu4Rk/LClqYHjpBN2zxkfvmpRHA=;
+	b=Obnpd8KPEX2t16GM4YG4xNKTHo12Vo/AEPV+RAad7uHZHV5zd24aNeQD1gsRv0XkqYfd
+	 fV2JaB+ngw/RCLDvaQ66oeCsUi04tuac4q5VoAX5qltYpWE5frD2rcXeKDkoJZ9GpOz4s
+	 1CyoLOIk5Gjm7qIUsWsOAjNJpxJscTvLo6cCXkFWaCAk4XVT+oFcUoAhxtsBCUWcohgWu
+	 iv0jomlIHyGjspde9luELuzmvSSU+Hv7VJz4IVsUekN2Sq5DiaeZ6YZze1BvvzTY/gGvb
+	 /9gSLNWRMniPj4jbipr6mAnkBHNEIfXKGLQIvWADxqNsPa1gC7kX7iBqinDyrMzxDDA==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b="Ew457/RX";
+	arc=none smtp.remote-ip=74.125.227.131
+Received: from mail-pj2-f3.google.com (mail-pj2-f3.google.com [74.125.227.131])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49DC3606A319
-	for <virtualization@lists.linux.dev>; Thu, 22 Oct 2026 17:58:26 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 49DC3606A319
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85431606A31B
+	for <virtualization@lists.linux.dev>; Thu, 22 Oct 2026 18:28:46 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 85431606A31B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20251104 header.b=XUdEXCxi
-Received: by mail-dl1-f52.google.com with SMTP id a92af1059eb24-150ef97e790so970c88.1
-        for <virtualization@lists.linux.dev>; Thu, 22 Oct 2026 10:58:26 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1792691905; cv=none;
-        d=google.com; s=arc-20260327;
-        b=deZX6e5VYwfcXTrXPLIr8n3ZrHTEdgBgmPce7Kk8gQQoHccxu8oQNhmDlEFHXBmjwg
-         MIpiIJcQ+7X9RVhcnuOiSFo6USOGk4k3bUWGYRiK2Mr/7B9d4UhiglYQ4766HIGOGVTp
-         TyxiF4QSDe8bEOLS1Nih6sLFZWAxXsM8tjaFhQfpWcOI77uZj4WK/qALjvYYTpvyZ/1B
-         4/pjneaTjLLvSz7irCYcKWgb+aLDGsTl/ukuef3pu2kNXP2I6oE+C+dr9jcB6wvknpbV
-         ec7dUKcnObMw+VvG/4xbxBTXDHPcmMjliNq8mOuXres5vxESf4usHDwNBIE1skoR6lux
-         xMLA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=gOxyJqweGrhnvnodtSAXe9yahnUU1PnlCf3PPg5Ekys=;
-        fh=sTKw+b8iDsoQd9XFT1Ag8uQaQcXfRx8E6OvvbkX2jI0=;
-        b=Yyj4R09+ComO4Jm6qf8yCVeWy+l+AUZtb4w/sXGJHDN05gSdQwgq+gKIrdSpKq5Hgt
-         2pZeRyoHn32C/LDxyFKUzfL4BjqPX6cSujV3jK8XmNWRkuY2ZAJJJ2ogN/NgizH3vZf4
-         fM8gipQ/FJiG05INdfRawAKcONyTE/FXZzXsrfDVkZYcc5f3/4BMW436G88SCY+hI3T8
-         AQ0lfrRSuz8lizthGBA+zK2r8IOiVHbwholMvMN9qSTRhSy6jdLDXzthskXxkkrvbtrR
-         TcMM4Iqr2S8MHyDpWgMXh3+J/k7gSXnPqPnlRKIWc3exZWLFQpoIBRN+b6aXSBQ7ebE/
-         tN1Q==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=Ew457/RX
+Received: by mail-pj2-f3.google.com with SMTP id 98e67ed59e1d1-3ada2f39f30so31625a91.0
+        for <virtualization@lists.linux.dev>; Thu, 22 Oct 2026 11:28:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1792691905; x=1793296705; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=gOxyJqweGrhnvnodtSAXe9yahnUU1PnlCf3PPg5Ekys=;
-        b=XUdEXCxiPGydrJNDZOASJ3Nc+TsqsvoNtIUr6+LG5q4cVvyxPLUWNmBzFxOVu+zoW6
-         /lssfCQM0654pOY/UuJJQ6hsTFNp+mFKAEibLhJS9WO6devQYX9nyy/RTYKUExJCI73f
-         wGARqisyApfTImQFOTTGj3rM1ECsg7K8PKxJZKD9fT6zzKZl3Ww9kt/LvJNrjwX204JK
-         i+dVWpF1U5lQET4inim+MNncQ+8Rnrd/gMDOc841Lg3alQW1FcYul0wCe43bcFDNDpxZ
-         2bJ0GFVP2wK6upX288Ntn7gx22JryEqlVPa5x7MqssMrTHiyzHF9944ifUlFjab0sjrs
-         ZV4w==
+        d=gmail.com; s=20251104; t=1792693726; x=1793298526; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=8G9f2sj7l3e7G5lnQu4Rk/LClqYHjpBN2zxkfvmpRHA=;
+        b=Ew457/RX6fj3Z60ms1yn9taAkHvgy109xMvDq+NUuPvgtomsaUuSuHctKdrWhFEqQG
+         g+3nIQpYxgoiA1iBsTCdCyngzCPqg+XQ4nuJk7EptU5kB/fpgYMrIcR+nDLqqa+3duQu
+         bgeIYSS+w3D9v9DG0wUXU2AxPcbxYRsDYvOSICvBYC8eUXxVNs4xDTsN9rSBpRnRKKsE
+         zkYxR8tDNgxs1+tsZ6QHNciak2xfF6SE5Xi5t0upWWChTpnEMIq2gPHFtBouUuE6ORki
+         AfkVe77S0pZdY+tI+NCutNt9FnQh04bzZyqQ89IQtx3x73hNszHxDFBkKVizqWaifnbS
+         sPAg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792691905; x=1793296705;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=gOxyJqweGrhnvnodtSAXe9yahnUU1PnlCf3PPg5Ekys=;
-        b=FRaZ50rAHxn/MxKfgmzhWTVmNd3EB/YNQHiPoRvMnQvTIKETnHvP6GW42lz3JlmQR7
-         GSOGVFeoZfOIk2h4sebUtI7KHrUicr7JuaTLFaW3VqWh16+4xL5dJi9qUVvz54hrQgxj
-         x4PyfFC4IYgKQrVvIMt2LmTnppzSTnUyqw96S/co2QSvNcFO8izK23I3AIudr82/uIk1
-         6Wn2DWVbjzvnqlr0HC0ocoye0b3gffIeV7v/JPH+MBPQp+riDO+WjVVgMpENvzvvfpY2
-         T+P9HTSFhNbHKDplV19gxTCr2s4SkCx5Eq8tErggoK6EE3QUuhVdwOFeggtHUwvYNQal
-         4HIQ==
-X-Forwarded-Encrypted: i=1; AKwUvBwvZU4PNrK9RNwg+PWiYRhieL/Gba/8EERyw/sOD1RBJBTTQzwXHOL7IOBx/UFw5v6reHWdPTvO3yJ8R7M4vg==@lists.linux.dev
-X-Gm-Message-State: AFq9FYLgkpwz2U9l+DfjWlFKr1h9SWB8n/RRRZSI+eTotRiPmhrcevEh
-	5UnR23D2gpBYl68Cib0jI/Whoo941eZOveZhVzmES3wVuE4sApK10vX66GFqUGVx6VaZkOFlv5g
-	6MWyxflCSgFz0Fp3hmo7SiSMoElLHi2wZ0i1nNwM=
-X-Gm-Gg: AYBFou0Q+XL6iCh9imdqnbwdPOrv2DlYEgfcGFYspOuUlJJk4Lr8DyhZettkOUS1Sh5
-	wV8shEWswMXoqxmS8LVZvNgSGiH/ueIx/O5ffBfit0M3UrWh+iPaS+huJK/Oxoq7VaI4mqzwJHT
-	ff+WwEEbZCihXFQuodfuCFZl8GijusCouEvO62ITbKLH4dv6R4AdsbBxLL+OpwasnH6OVnUMWaU
-	jmxZdUUkS6rpl+ejlU8ZUDtRXh9+L+jnV8SX4SnrByQlG97oJPdkqpuOrrWWKz2SHpWaYC75EbP
-	eRWUZPNhYSDiDij3+KgitrS1l1SnWAm0rXfPXVjFCly3/nXYNGjni4N7Jhx5gMUVEiDo5ZnKMmy
-	/IcrIJ6/fQpKl2gZE7iNRDLGenraNZ3tLikN7zY1pX8BZ5mbIsL3TINthiAbTMjyYj/Oqw9NfJC
-	mrjVYffRNHFisz6qKVil+unZY1mE+GF2lPFfLOaxyYG4yGY4yOvaCv
-X-Received: by 2002:a05:701b:2085:10b0:192:ce56:4982 with SMTP id
- a92af1059eb24-195b384f21cmr17350c88.1.1792691893149; Thu, 22 Oct 2026
- 10:58:13 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1792693726; x=1793298526;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=8G9f2sj7l3e7G5lnQu4Rk/LClqYHjpBN2zxkfvmpRHA=;
+        b=YcmxwA3ncwESpK8RHCfoBFh8lyiNSoe9aoMdNL2hxqIcW6rW8McJXHnwTrJ36AGbTv
+         gHhCDgV+vZELO5tvf0JVUryUl8MpTo0KOTbr+mOEwZkEaNf6i6ukfny8mBoiCNhv2eQu
+         JXAs74RFPMN8Hd7w20AeV2qOf3W3uJyYur0vK5wCTSvFD6e157mi7unN0KKc7VD3Wil7
+         7EkfzXuX8XaIEyyOmc8PiIqG8Gj2Lack9UBuRvWj9WxMrh1paA7AJRhp4DKZTO+nPoPa
+         vjU+8vHcMSM+0WtEFdibdwu9Ba/dPV7g3YbDirkr0X9GAgxtjtf2oS+L+9rxjZBGEi92
+         6OaQ==
+X-Forwarded-Encrypted: i=1; AKwUvBw34tX8fEofTorZEtuT08XoOrcjlUl9tOVJ2SvoDEF6UVPqvFWcqD8INywp7xsawbVBetALzkhDKMrR5eteQg==@lists.linux.dev
+X-Gm-Message-State: AFq9FYLpasQf4VoqCvDSuR7dANUMqMfZADxvVsE0Xq7+FDX1HC5lOQb7
+	EYLDPG+iF/l5W/p+s2n9kPc5IGHB6pvfmHYvoz6tIbNaPTQ/O1TYHns6
+X-Gm-Gg: AYBFou08KshIjZ7WxqGBi6p4DGheE2lu8LqU766Df+vZgaLMZdoaV4IMro3XhT4queT
+	3cTr2ZOvLe4ouCEoyLnEu3ETH1zh5yHbnaz5LxapT8WFHW2pnQCStqprtYlQv2Qv9Tz2JVcfcJg
+	dOviN3epTDTppFXG3FTLZ/+T3VQEcGj6YDJHCjbzQktkYMR//XdJcBQfiiIMiSSeU5lKc54ctyn
+	Drtvn6qPgPGjZplzOw76P3r/R+E1o0jgIRiMJhhiBxkOHTscsq+DafLiCdfgg33Sm/94/gAYKp/
+	OLfs0vDTDwNa58CmvD3z4wyghlhmnDEgO34nC490QZZHKVjAG/kK5/BbyOpu1GIe0CKakkv1K8b
+	nCt301xTvH0AkiWhdBAX396O/BT0+nACRax/rc2EWcsrDydwy5vmgwJGRbfOUITRA2AoeMtwU0E
+	nZXthE1/0vdBgBd3qE8SfbkFl1CYsYIDmQqJF/Hp7C6fz87+ZgSXZw1aCWJ1b5ZjeYbX9wJ4eH1
+	X6eVyOSmywJ7suqvstXe9QV5OukM9GuqJ2IwRenTR1Ok1bhhgBiucBejmKFxM4poaBDNfDrNIYq
+	Gzr4R6aqnwPO/EvByT6VLh2jsuhmJKRwc8KgjZERni+uI6zOvrJBPGzfMorUVQqiLxzRmFfQbgr
+	wQFmhimABZndMvrbioStOvuK8FB8kMyzWyfKPmvLPpqDQX6HuhWNiRq2Baw==
+X-Received: by 2002:a17:90b:164c:b0:3ab:b39f:41cd with SMTP id 98e67ed59e1d1-3ad86cc64d2mr5437501a91.60.1792693725903;
+        Thu, 22 Oct 2026 11:28:45 -0700 (PDT)
+Received: from wang0.shina-lab.internal ([133.11.33.33])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3ada490d4bfsm6115262a91.10.2026.10.22.11.28.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 22 Oct 2026 11:28:45 -0700 (PDT)
+From: Lianjie Wang <karin0.zst@gmail.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@kernel.org>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>
+Cc: Lianjie Wang <karin0.zst@gmail.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	netdev@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH net] virtio_net: reject stats replies for queues outside the request
+Date: Fri, 23 Oct 2026 03:26:58 +0900
+Message-ID: <20261022182710.2055771-1-karin0.zst@gmail.com>
+X-Mailer: git-send-email 2.56.0
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -105,178 +106,81 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-References: <20261006154913.2689067-2-val@invisiblethingslab.com>
- <8b0fbe1a-1410-42d7-8031-611795ae39d9@collabora.com> <4d86ec37-ce27-4556-966e-4b4e80ec0718@invisiblethingslab.com>
- <f717bc84-57f4-4001-a15b-fcdca67bb9b4@collabora.com> <6c0f26af-e363-46b8-b3b9-8d3910297dc0@collabora.com>
-In-Reply-To: <6c0f26af-e363-46b8-b3b9-8d3910297dc0@collabora.com>
-From: Yiwei Zhang <zzyiwei@google.com>
-Date: Thu, 22 Oct 2026 10:58:01 -0700
-X-Gm-Features: AclHuK8zrBSyPW0ecQ4Wi5vbzBHjWnhi_xIgMiJLjDz9C3zXcHZS3t6jUqqUQ44
-Message-ID: <CAKT=dDmEf3McX50KYxmLDb-oeuYWMBSnkcGGSEfi_PO4pD6qjA@mail.gmail.com>
-Subject: Re: [PATCH v2] drm/virtio: do not enforce blob_alignment in
- cross-domain contexts
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Cc: Val Packett <val@invisiblethingslab.com>, David Airlie <airlied@redhat.com>, 
-	Gerd Hoffmann <kraxel@redhat.com>, Gurchetan Singh <gurchetansingh@chromium.org>, 
-	Chia-I Wu <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
-	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
-	Simona Vetter <simona@ffwll.ch>, Sergio Lopez <slp@redhat.com>, Yiwei Zhang <zzyiwei@chromium.org>, 
-	Ryan Neph <ryanneph@chromium.org>, dri-devel@lists.freedesktop.org, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Wed, Oct 14, 2026 at 2:02=E2=80=AFPM Dmitry Osipenko
-<dmitry.osipenko@collabora.com> wrote:
->
-> On 10/10/26 22:40, Dmitry Osipenko wrote:
-> > On 10/8/26 23:59, Val Packett wrote:
-> >>
-> >> On 10/8/26 4:33 AM, Dmitry Osipenko wrote:
-> >>> On 10/6/26 18:42, Val Packett wrote:
-> >>>> VIRTIO_GPU_F_BLOB_ALIGNMENT is designed for GPU rendering context ty=
-pes,
-> >>>> however VIRTIO_GPU_CAPSET_CROSS_DOMAIN is not one of those. Resource=
-s
-> >>>> created under cross-domain contexts are arbitrary shared system memo=
-ry
-> >>>> files, which includes unusual things like Wayland keymaps received
-> >>>> from the host compositor. Do not enforce alignment requirements ther=
-e.
-> >>>>
-> >>>> Fixes: 47248e0d8264 ("drm/virtio: honor blob_alignment requirements"=
-)
-> >>>> Signed-off-by: Val Packett <val@invisiblethingslab.com>
-> >>>> ---
-> >>>>
-> >>>> v2: also check has_virgl_3d to prevent dereferencing NULL vfpriv
-> >>>> v1: https://lore.kernel.org/all/20261006004044.2242154-1-
-> >>>> val@invisiblethingslab.com/
-> >>>>
-> >>>> ~val
-> >>>>
-> >>>> ---
-> >>>>   drivers/gpu/drm/virtio/virtgpu_ioctl.c | 4 +++-
-> >>>>   1 file changed, 3 insertions(+), 1 deletion(-)
-> >>>>
-> >>>> diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/
-> >>>> drm/virtio/virtgpu_ioctl.c
-> >>>> index 3ddd5481d6bc..4d5ae062834d 100644
-> >>>> --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> >>>> +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> >>>> @@ -551,7 +551,9 @@ static int verify_blob(struct virtio_gpu_device
-> >>>> *vgdev,
-> >>>>       params->blob_flags =3D rc_blob->blob_flags;
-> >>>>       params->blob_hints =3D rc_blob->blob_hints;
-> >>>>   -    if (vgdev->has_blob_alignment &&
-> >>>> +    if (vgdev->has_blob_alignment && vgdev->has_virgl_3d &&
-> >>>> +        (vfpriv->context_init &
-> >>>> VIRTIO_GPU_CONTEXT_INIT_CAPSET_ID_MASK) !=3D
-> >>>> +        VIRTIO_GPU_CAPSET_CROSS_DOMAIN &&
-> >>>>           !IS_ALIGNED(params->size, vgdev->blob_alignment))
-> >>>>           return -EINVAL;
-> >>>>
-> >>> What userspace has this problem and why it re-purposes virtio-gpu to =
-act
-> >>> as udmabuf for arbitrary data that never reaches host?
-> >>
-> >> Sorry, what do you mean by that?
-> >>
-> >> This is not related to data that "never reaches host" at all! The erro=
-r
-> >> I referred to in the patch message literally says "received *from* the
-> >> host"=E2=80=A6??
-> >>
-> >> Guest userspace is any of the cross-domain proxies:
-> >>
-> >> * https://codeberg.org/drakulix/wl-cross-domain-proxy
-> >> * https://github.com/talex5/wayland-proxy-virtwl
-> >> * https://github.com/google/sommelier-rs (or old C++ version)
-> >>
-> >> VIRTIO_GPU_CAPSET_CROSS_DOMAIN "repurposes virtio-gpu" to act as a
-> >> cross-VM UNIX socket transport that supports fd passing. By referring =
-to
-> >> virtio-gpu resources in the send command the guest can make the device
-> >> send the resources' corresponding host fds to the host Wayland
-> >> compositor. It can refer to resources from other contexts, in order to
-> >> present drm/venus/etc rendered buffers on Wayland surfaces. (i.e. the
-> >> host would send the actual dma-buf from virglrenderer) But the resourc=
-es
-> >> created on the cross-domain context itself are system memory buffers,
-> >> generally used for software rendering and miscellaneous Wayland "stuff=
-"
-> >> like keymaps which are sent *from* the host, and exposed to Wayland
-> >> clients in the guest. Socket receive handling in rutabaga-gfx stores
-> >> incoming fds and returns their IDs to the guest, then the guest does a
-> >> CREATE_BLOB with matching blob_id, which creates a virtio-gpu resource
-> >> from the incoming buffer, so the guest can just MAP_BLOB it. These are
-> >> the blobs that are not aligned to anything because they're just
-> >> arbitrary memfds on the host.
-> >
-> > RE "These are the blobs that are not aligned to anything because they'r=
-e
-> > just arbitrary memfds on the host." I'll appreciate confirmation from
-> > people more familiar with Sommelier internals like Gurchetan, Yiwei or =
-Ryan.
+__virtnet_get_hw_stats() passes the vq_index of each record in the
+device's statistics reply to virtnet_fill_stats() without checking it,
+so the device decides where the driver writes the counters.
 
-Technically there's no need to enforce alignment on keymaps backed by
-memfds, meanwhile those consumed by GPU have the proper alignment told
-by CROSS_DOMAIN_CMD_GET_IMAGE_REQUIREMENTS (unless it fails to do the
-right thing).
+For ethtool -S, virtnet_fill_stats() uses vq_index as an offset into the
+output array, which the ethtool core sized for curr_queue_pairs. A
+record with the vq_index of a higher queue makes the driver write past
+the end of the array.
 
-> >
-> > In a case it is a correct claim, might be better to remove the
-> > blob_alignment check entirely and let blob sharing fail naturally if
-> > alignment is wrong.
-> >
->
-> Reproduced the bug with Sommelier.
->
-> Driver always implicitly rounds up BO size up to PAGE_SIZE for both
-> guest and host blobs [1][2], hence need to retain this old behavior to
-> fix the problem properly.
->
-> Please send v2
->
-> [1]
-> https://elixir.bootlin.com/linux/v7.2.10/source/drivers/gpu/drm/virtio/vi=
-rtgpu_object.c#L217
-> [2]
-> https://elixir.bootlin.com/linux/v7.2.10/source/drivers/gpu/drm/virtio/vi=
-rtgpu_vram.c#L210
->
-> --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> @@ -539,9 +539,15 @@ static int verify_blob(struct virtio_gpu_device *vgd=
-ev,
->         params->blob_flags =3D rc_blob->blob_flags;
->         params->blob_hints =3D rc_blob->blob_hints;
->
-> -       if (vgdev->has_blob_alignment &&
-> -           !IS_ALIGNED(params->size, vgdev->blob_alignment))
-> -               return -EINVAL;
-> +       /*
-> +        * Blob sizes always implicitly rounded up to PAGE_SIZE by the
-> +        * driver, userspace may be unaware of the host's alignment.
-> +        * Round up to the larger of the host and guest page sizes.
-> +        */
-> +       if (vgdev->has_blob_alignment)
-> +               params->size =3D ALIGN(params->size,
-> +                                    max_t(u32, vgdev->blob_alignment,
-> PAGE_SIZE));
->
->         return 0;
->  }
->
->
->
-> --
-> Best regards,
-> Dmitry
+For the per-queue netlink stats, the queue type also comes from
+vq_index. A receive record in reply to a request for a transmit queue
+makes the driver fill the struct netdev_queue_stats_tx on the stack as
+if it were a struct netdev_queue_stats_rx. If the device offers
+VIRTIO_NET_STATS_TYPE_RX_SPEED, this writes one counter to the eight
+bytes after the tx struct.
 
-I like Dmitry's latest proposal much better. Keeping the alignment
-agnostic to the guest userspace is more seamless, which also covers
-the implicit 4k alignment case without forcing userspace to adapt.
+Fix this by rejecting the reply when the vq_index of a record lies
+outside the range of queues the request asked about.
 
-Best,
-Yiwei
+Claude Opus 5.5 was used to review the driver code and draft this patch.
+To reproduce, the virtio-net device in QEMU was modified to answer an
+ethtool -S request on a one-pair device with a record for a receive
+queue the device does not have. On an unmodified kernel, KASAN then
+reports a write past the ethtool -S output array. With this patch, the
+driver rejects the same reply with "Failed to get hw stats.", a
+well-formed reply fills the statistics as before, and the
+drivers/net/stats.py selftest passes.
+
+Fixes: 941168f8b40e ("virtio_net: support device stats")
+Fixes: d888f04c09bb ("virtio-net: support queue stat")
+Cc: stable@vger.kernel.org
+Signed-off-by: Lianjie Wang <karin0.zst@gmail.com>
+---
+ drivers/net/virtio_net.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index daab43ac92ce4..0473fa9947858 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -4955,7 +4955,8 @@ static void virtnet_fill_stats(struct virtnet_info *vi, u32 qid,
+ static int __virtnet_get_hw_stats(struct virtnet_info *vi,
+ 				  struct virtnet_stats_ctx *ctx,
+ 				  struct virtio_net_ctrl_queue_stats *req,
+-				  int req_size, void *reply, int res_size)
++				  int req_size, void *reply, int res_size,
++				  int first_vq, int last_vq, bool enable_cvq)
+ {
+ 	struct virtio_net_stats_reply_hdr *hdr;
+ 	struct scatterlist sgs_in, sgs_out;
+@@ -4976,6 +4977,10 @@ static int __virtnet_get_hw_stats(struct virtnet_info *vi,
+ 	for (p = reply; p - reply < res_size; p += le16_to_cpu(hdr->size)) {
+ 		hdr = p;
+ 		qid = le16_to_cpu(hdr->vq_index);
++		if ((qid < first_vq || qid > last_vq) &&
++		    !(enable_cvq && qid == vi->max_queue_pairs * 2))
++			return -EINVAL;
++
+ 		virtnet_fill_stats(vi, qid, ctx, p, false, hdr->type);
+ 	}
+ 
+@@ -5055,7 +5060,8 @@ static int virtnet_get_hw_stats(struct virtnet_info *vi,
+ 	if (enable_cvq)
+ 		virtnet_make_stat_req(vi, ctx, req, vi->max_queue_pairs * 2, &j);
+ 
+-	ok = __virtnet_get_hw_stats(vi, ctx, req, sizeof(*req) * j, reply, res_size);
++	ok = __virtnet_get_hw_stats(vi, ctx, req, sizeof(*req) * j, reply, res_size,
++				    first_vq, last_vq, enable_cvq);
+ 
+ 	kfree(req);
+ 	kfree(reply);
+
+base-commit: 7be4bc52fd9e0e55dc9a2e0232b89427d2c4b614
+-- 
+2.56.0
+
