@@ -1,103 +1,73 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.210.41
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=111.22.67.137
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792719488;
-	b=VDA7v9hnoVc/9ppqnxRRkGp1wD78C/BDo6LcVh9QHLCHpVH2N3oyIBlMnfG9zg0Z6wGT
-	 r9zlD3SUuGU+EOdaLRpWTmT2d+EyNc40PdNEcMJ/Ze383JlgwYi+YIatCw/wkR9ADod3r
-	 oB6PpX3qVcYEsSerxe3TkE1lat1EFp9eGWq4aFCQXGI27lAQm8eAIqedm03BdcRGuT9Ce
-	 BWCqLZzVC7+BC0M9tkbOWDyvARGnO5szyGBgRBzgPiTvQbMvQSnXwajtD1A8E/PtQrhaF
-	 pmLdSJXDuuOw/Q+Usg6jO+oMLmEEgpu8Exf9oTfz7i08oA6rNRypQbO/5DUNO/BmiJg==
+	t=1792722206;
+	b=hLjn6Jjb3khsW3Xz8NNSOe8ofKBGFf6MIQYhCwfsSw/CydXqDwX6Tjs8xIv/gw+KNALO
+	 W+O8VanR1NknopxDAp8NmuUflDXD2HIt9rTdgrzon+OOGrv00BCkVatJUT5THKvJ0i7m2
+	 KJ9vramfwprtxMY8JzK4BvLXXNNzWPXJpMfKBQjuL4rcHYkL+bXFXHk7tIJ710gW4OYu0
+	 DJdUdjFA18RZNnlwJwkH+4kalRrvBMQFYjRsHC/nGbjnc7eG1WdxtNzyC6VwBlN2b/E9T
+	 rgW4mUwC4nIo2XraSRjNB2PPuQZdCAtmCrm6bxw2iY181gNVbTVJ3uI6cmwO0eFd3ow==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792719488;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=VyS6G3Kx6WPq1nBIZXm3hw0RmZ6T3d+8BhWqtGP+Tt4=;
-	b=fmig6H3v21I01FGbWajjIVA9UEGxByOSksCHG3LFxRwbx5pxvSqDjq2xLfQjPYVeG1sc
-	 DeobmBslk0Jt8GkgwDDjbi/CCCMYhTzxbtsC4x+IGYwzZwe3na5R6PLw0LNEt6MM5SFHL
-	 wTUAy+V/VyR1z1p436cxionOFioLDg48/Tzh4rsW/Ll6jwvH34rYtHf9mlj/pTq9Mum4z
-	 IV2oEy7kBJL5X6k21CeDLzGOKllrAXHQEthEXA48eomkwKI/Up4dlJ9M9yT6jpcP4/ZWS
-	 Yc3NI2ZiS+paj/Z1fx517KqyLSVc14LFtLG+rcGRI776Vw5sDXl6VuZvjRfaQQri6gQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792722206;
+	h=DMARC-Filter:DKIM-Signature:X-RM-TagInfo:X-RM-SPAM-FLAG:Received:
+	 X-RM-TRANSID:X-RM-TagInfo:X-RM-SPAM-FLAG:Received:X-RM-TRANSID:From:
+	 To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
+	 MIME-Version:Content-Transfer-Encoding;
+	bh=8aR471eyUThLQZ47HPLYqJ5jhcDVu3gnhYgQS0O/yDk=;
+	b=Vzp1DaeryD8yZLjfgwtI6T0lIV44P3eW7zd7mlxm7XPvBOkIg5fTp/fUmH9LA59/2KY3
+	 TK4CIUTvdVQiqfGDdlhiIMoW1P5iDTM7JAQBK4KhQdtIYi3HBKXlxYEKXfrPwSGg+AAgb
+	 qVJlvSxk29pMGMVMVriNn1+3NV0Fn4HWGDoZN6Q7vP7S2pMSxqxGjR0q0ClL5ZHkZlAbs
+	 Zj9fmzNUx5giO4E2ftOEYyXyIoUvOVdUdX9laY0p9NCDkBhkKg1sGyhz71Mcz5sa62Y9C
+	 CeywV5/kU8jB6lQ6HdQBbM9UHibxtajt4/bO0HMhXLoh8i21uEjpvetLaSpnDWbtmlQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=cloudflare.com;
-	spf=pass smtp.mailfrom=cloudflare.com;
-	dkim=pass header.d=cloudflare.com header.i=@cloudflare.com header.a=rsa-sha256 header.s=google09082023 header.b=P0xLBtpP;
-	arc=none smtp.remote-ip=209.85.210.41
-Received: from mail-ot1-f41.google.com (mail-ot1-f41.google.com [209.85.210.41])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E11D606A31A
-	for <virtualization@lists.linux.dev>; Fri, 23 Oct 2026 01:38:08 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5E11D606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cloudflare.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cloudflare.com
+	dmarc=pass header.from=cmss.chinamobile.com;
+	spf=pass smtp.mailfrom=cmss.chinamobile.com;
+	dkim=pass header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.a=rsa-sha256 header.s=default header.b=byDcUQ8b;
+	arc=none smtp.remote-ip=111.22.67.137
+Received: from cmccmta4.chinamobile.com (cmccmta4.chinamobile.com [111.22.67.137])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id B37EB606A326
+	for <virtualization@lists.linux.dev>; Fri, 23 Oct 2026 02:23:24 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B37EB606A326
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cmss.chinamobile.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cmss.chinamobile.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=cloudflare.com header.i=@cloudflare.com header.a=rsa-sha256 header.s=google09082023 header.b=P0xLBtpP
-Received: by mail-ot1-f41.google.com with SMTP id 46e09a7af769-825b40f8a26so180592a34.1
-        for <virtualization@lists.linux.dev>; Thu, 22 Oct 2026 18:38:08 -0700 (PDT)
+	dkim=pass (1024-bit key, unprotected) header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.a=rsa-sha256 header.s=default header.b=byDcUQ8b
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cloudflare.com; s=google09082023; t=1792719487; x=1793324287; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=VyS6G3Kx6WPq1nBIZXm3hw0RmZ6T3d+8BhWqtGP+Tt4=;
-        b=P0xLBtpPR1qX6V+gUkYfdIEwMro9TjMfiamfI8sKs/p7Zl2FvaQqz89ej4w96MOZQU
-         ZVpra5lybbN48MPwcAnxGnQ3bGSqIEzacdt7er1LwjmtA1Q0jOM+D+6pl5vgOe3od7G8
-         bTwIR4KwL2xSE9emEUtL8epBSd7GhjSgfirCukJzf4AmYy65XclJJlkjTJcLKGw7U107
-         jSn0ozcfppYuiI7CZ1pYUOm/VWxJJKGYq416uTWOKlHvaKzYWlSPeNLy2U2Xbyv4pu7u
-         do0y7cG6ld4pMwM2D4Enof2Pd+MC6r60QLiyHa6w64599aOtE8h1QTJ1Wr2gPT6LQdB6
-         AfSg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792719487; x=1793324287;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=VyS6G3Kx6WPq1nBIZXm3hw0RmZ6T3d+8BhWqtGP+Tt4=;
-        b=xG7L5wfc+5Ce5orHTH5pcMAfGDM4NW1K5nRM2tpp5qvEo3fWWWe93CpgALdIuhml9o
-         HmdnMGDn6k3qXrmQ5IbWLAq/hvEdgp6R9cORYoNXZ6wLXClMHA/hPHfffWzjAcWcbnAN
-         hMuUolXMGycV65wq0jxKQ7lKdQ5fioTOaJvNSVOpa58EFN81nfdugwy+eSUTVE/CgbTJ
-         wECtwdguQAkK1RT/Dr5YLnEtX4vaQ+MSpHzA5dtKXnMO17MrR3t4SYP3TdizBkAuMHg5
-         Kp548RVed1fHA52z4VlH5zSiWO7bFhNk5ErEKrAOy102tn6QC9FTi303Z8zK+3ef32CD
-         yWcw==
-X-Forwarded-Encrypted: i=1; AKwUvBzrG+8rjExvy5camvdJ5ak/6EFFwEWeRaYscMxXe1gxxHUvjedYi6Oy97ZuE1T6yC7ribMgxJvrBt60msBcHA==@lists.linux.dev
-X-Gm-Message-State: AFq9FYKtPgZaf2S+hApQiedpHpwtZwVpEg6R/iZ+mZOPG68RQoByUfi1
-	3rDMdc9qJ3WpeDK6Si1rqcAvNSRT86uo3yRklgFlnlUHY00tyNtOV75chAGsFrdbW2w=
-X-Gm-Gg: AYBFou1JnfYyRTp48XmwL4xDOyf3QNMn6SvW0T1EMt8esaN+D53K37MieR+rVVOrDC8
-	0zwHRVduq78QedYDCoTVD3Ace538358XbQh1NJpp6le+08y4r4PVWbY71hb+C5VY+uDK5js7HDY
-	Bo9iP6YRTypKoAXzDH2rRqz2j3f5lIOX3VbPM3I37yjkcpWeDBRCnQZGEzDnKEA8EZewBNRQNXd
-	UVJNXE+YagUmNIYXnM8/7pV6cqjee1BwtrvWwuwrO5ao56AGTzhD96OVQrTQvHJdje6RWepJESt
-	Z/rpzpY2pPu1Qr77d0vB2h14oY2Uvgrv0h4mQY8kbTi30cHqYKDHuVq9+nfPP7Wx1y/qausKKjC
-	JiERgPow2BpvFZ7jklyZySntfMO6FVbH+HkWSu1TB43vhIGtBfpOFYYXXG0+nWrlZsqT9LuQANv
-	pL/jujwRifS44GdY+HCdevW+F56lcdlyeThjfLtd4d4NKXU64WZDDzn/peybsHpzjSbGdV+DjcZ
-	pdikaYU3PzIhlL290xIOfFjoEwe/hP1cGE=
-X-Received: by 2002:a05:6830:4412:b0:7eb:9464:ac2e with SMTP id 46e09a7af769-84fb0d542femr668994a34.11.1792719487276;
-        Thu, 22 Oct 2026 18:38:07 -0700 (PDT)
-Received: from 20HS2G4 ([2a09:bac6:bf21:96::f:3b8])
-        by smtp.gmail.com with ESMTPSA id 46e09a7af769-84fbdf59d82sm770666a34.15.2026.10.22.18.38.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Oct 2026 18:38:05 -0700 (PDT)
-Date: Thu, 22 Oct 2026 20:38:03 -0500
-From: Chris Arges <carges@cloudflare.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
-	linux-kernel@vger.kernel.org, =?utf-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>, 
-	Phil Sutter <phil@nwl.cc>, Jason Wang <jasowangio@gmail.com>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux.dev, 
-	Max Krasnyansky <maxk@qualcomm.com>, Rusty Russell <rusty@rustcorp.com.au>, 
-	Paulos Yibelo <habte.yibelo@gmail.com>
-Subject: Re: [PATCH net v5 4/7] net: resolve uncommon partial checksums at
- ingress
-Message-ID: <atq3hiJcsVi_1v0u@20HS2G4>
-References: <cover.v5.git.mst@redhat.com>
- <342bf5331e12b2e5b940510293233bb8bce46127.1792668082.git.mst@redhat.com>
- <willemdebruijn.kernel.2987fc5710162@gmail.com>
- <atpIiwcUlH5ttBb6@20HS2G4>
- <20261022193052-mutt-send-email-mst@kernel.org>
+	d=cmss.chinamobile.com; s=default; l=0;
+	h=from:subject:message-id:to:cc:mime-version;
+	bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
+	b=byDcUQ8bLcaFJkqjv81W1xI6HfPUk7fwZQKn0w14fcvJ5TsoBkD5glTqZM+MXn0U689Vuzt6NoCMX
+	 btgxb4L+JOOALbbdjk5nrGrVhI9D2ZdaJuFOuAJWVcYh9t+29bsxHaOsMTWPgA6fHBrG7tkcjvCnSe
+	 SHOrWZ7ztgTQS8ng=
+X-RM-TagInfo: emlType=0                                       
+X-RM-SPAM-FLAG:00000000
+Received:from spf.mail.chinamobile.com (unknown[10.188.0.87])
+	by rmmx-syy-dmz-app08-12008 (RichMail) with SMTP id 2ee86adac5136fa-d39e6;
+	Fri, 23 Oct 2026 10:23:16 +0800 (CST)
+X-RM-TRANSID:2ee86adac5136fa-d39e6
+X-RM-TagInfo: emlType=0                                       
+X-RM-SPAM-FLAG:00000000
+Received:from desktop-c950f82eaac8410e-20260515094303939 (unknown[10.55.1.71])
+	by rmsmtp-syy-appsvr01-12001 (RichMail) with SMTP id 2ee16adac511d3b-3046d;
+	Fri, 23 Oct 2026 10:23:16 +0800 (CST)
+X-RM-TRANSID:2ee16adac511d3b-3046d
+From: Mingbing Zhai <zhaimingbing@cmss.chinamobile.com>
+To: mst@redhat.com,
+	david@kernel.org
+Cc: jasowangio@gmail.com,
+	eperezma@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	syzbot+0f659760bac1ecb01812@syzkaller.appspotmail.com,
+	syzkaller-bugs@googlegroups.com,
+	stable@vger.kernel.org,
+	Mingbing Zhai <zhaimingbing@cmss.chinamobile.com>
+Subject: [PATCH v3] virtio_balloon: drain update works on probe error paths
+Date: Fri, 23 Oct 2026 10:23:10 +0800
+Message-ID: <20261023022311.1577-1-zhaimingbing@cmss.chinamobile.com>
+X-Mailer: git-send-email 2.53.0.windows.1
+In-Reply-To: <8f914911-8453-4f8f-b02f-384114f9d4ef@kernel.org>
+References: <8f914911-8453-4f8f-b02f-384114f9d4ef@kernel.org>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -107,114 +77,125 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261022193052-mutt-send-email-mst@kernel.org>
+Content-Transfer-Encoding: 8bit
 
-On 2026-10-22 19:38:53, Michael S. Tsirkin wrote:
-> On Thu, Oct 22, 2026 at 12:52:36PM -0500, Chris Arges wrote:
-> > > > @@ -335,9 +592,12 @@ virtio_net_hdr_tnl_to_skb(struct sk_buff *skb,
-> > > >  	/* Let the basic parsing deal with plain GSO features. */
-> > > >  	ret = __virtio_net_hdr_to_skb(skb, hdr, true,
-> > > >  				      hdr->gso_type & ~gso_tunnel_type);
-> > > > -	if (ret)
-> > > > +	if (ret < 0)
-> > > >  		return ret;
-> > > >  
-> > 
-> > One other case I found in testing is that a producer can set gso_size
-> > larger than the remaining packet data. __virtio_net_hdr_to_skb() then
-> > succeeds, but intentionally does not install GSO state because the packet
-> > is too small to segment. NEEDS_CSUM has still left the skb with
-> > CHECKSUM_PARTIAL.
-> 
-> So why is this a problem? If checksum offset is correct we leave
-> packet as CHECKSUM_PARTIAL. That's intentional.
-> What does your test do that makes this a problem?
+init_vqs() arms the stats virtqueue callback, so an update work can
+already be queued on the system freezable workqueue while
+virtballoon_probe() is still running.  If a later probe step fails, the
+error unwind deletes the virtqueues and frees vb without stopping the
+works, and the queued work runs after the balloon struct is gone:
 
-The problem I saw used this case and setting inner_nh_offset incorrectly.
-I'll dig more into this, and follow-up separately if this indeed is a
-real problem.
+  BUG: KFENCE: use-after-free read in virtqueue_get_buf_ctx
+   update_balloon_stats_func+0x121/0x300
+   Workqueue: events_freezable update_balloon_stats_func
 
-> 
-> > The following check fixes my test case:
-> > 
-> > 	if (!virtio_net_hdr_validate_disabled(skb) &&
-> > 	    !skb_is_gso(skb))
-> > 		return -EINVAL;
-> > 
-> > A concern I have is this may reject valid packets, so maybe there's a better
-> > place for this.
-> 
-> 
-> Indeed, it's not uncommon to have small packets with !gso.
-> 
-> See also:
-> commit 7c6d2ecbda83150b2036a2b36b21381ad4667762
->     net: be more gentle about silly gso requests coming from user
->     
+remove() already handles this via virtballoon_quiesce().  Factor the
+stopping of the update works out of it and run it on the probe error
+path as well, before the queues and vb go away.
 
-Ok this is helpful, I can see why that doesn't work.
-Thanks
+The same hole exists when init_vqs() itself fails after
+virtio_find_vqs() succeeded: the stats priming can fail with the queues
+up and the callback armed, yet probe jumps straight to out_free_vb and
+leaks the virtqueues while the queued work still references vb.  Unwind
+inside init_vqs() in that case, stopping the works before the queues
+are deleted.
 
-> 
-> 
-> > 
-> > > > +	if (!virtio_net_tnl_offsets_ok(skb, outer_isv6, outer_th))
-> > > > +		return -EINVAL;
-> > > > +
-> > > >  	/* In case of USO, the inner protocol is still unknown and
-> > > >  	 * `inner_isv6` is just a guess, additional parsing is needed.
-> > > >  	 * The previous validation ensures that accessing an ipv4 inner
-> > > > @@ -353,7 +613,7 @@ virtio_net_hdr_tnl_to_skb(struct sk_buff *skb,
-> > > >  	}
-> > > >  
-> > > >  	skb_set_inner_protocol(skb, inner_isv6 ? htons(ETH_P_IPV6) :
-> > > > -						 htons(ETH_P_IP));
-> > > > +			    htons(ETH_P_IP));
-> > > >  	if (hdr->flags & VIRTIO_NET_HDR_F_UDP_TUNNEL_CSUM) {
-> > > >  		if (!tnl_csum_negotiated)
-> > > >  			return -EINVAL;
-> > > > @@ -368,7 +628,22 @@ virtio_net_hdr_tnl_to_skb(struct sk_buff *skb,
-> > > >  	skb->inner_mac_header = inner_nh + skb_headroom(skb);
-> > > >  	skb->transport_header = outer_th + skb_headroom(skb);
-> > > >  	skb->encapsulation = 1;
-> > > > -	return 0;
-> > > > +
-> > > > +	if (!skb_is_gso(skb))
-> > > > +		skb_shinfo(skb)->gso_type &= ~(SKB_GSO_UDP_TUNNEL_CSUM |
-> > > > +					       SKB_GSO_UDP_TUNNEL);
-> > > > +
-> > > > +	/*
-> > > > +	 * We know VIRTIO_NET_HDR_F_NEEDS_CSUM was set so __virtio_net_hdr_to_skb
-> > > > +	 * set CHECKSUM_PARTIAL.
-> > > > +	 */
-> > > > +	inner_proto = inner_isv6 ? htons(ETH_P_IPV6) : htons(ETH_P_IP);
-> > > 
-> > > on second thought, if having to respin, might as well fold the trivial
-> > > fix in patch 7 in here from the start.
-> > > 
-> > > > +	if (virtio_net_csum_partial_ok_at_offset(skb, gso_inner_type, inner_nh,
-> > > > +						 inner_proto))
-> > > > +		return 0;
-> > > > +
-> > > > +	/* A tunnel header implies GSO, so drop. */
-> > > 
-> > > no longer true for the above !skb_is_gso(skb) case
-> > >
-> > 
-> > virtio_net_csum_partial_ok_at_offset()
-> 
-> Sorry I don't get what you are saying.
-> 
-> >  
-> > > > +	return __virtio_net_resolve_csum_partial_mismatch(skb);
-> > > >  }
-> > > >  
-> > > >  /* Checksum-related fields validation for the driver */
-> > > > -- 
-> > > > MST
-> > > > 
-> > > 
-> > > 
-> 
+The drained work takes vb->wakeup_lock in process_wakeup_event() and
+finish_wakeup_event(), so this depends on "virtio_balloon: initialize
+wakeup_lock before virtqueues are set up", which moves that
+spin_lock_init() to the top of probe.
+
+Fixes: 1f34c71afe51 ("virtio: Fix scheduling while atomic in virtio_balloon stats")
+Reported-by: syzbot+0f659760bac1ecb01812@syzkaller.appspotmail.com
+Closes: https://syzkaller.appspot.com/bug?extid=0f659760bac1ecb01812
+Signed-off-by: Mingbing Zhai <zhaimingbing@cmss.chinamobile.com>
+---
+
+Hi David,
+
+> Did you manage to reproduce this? How? (forcing the probe to fail?)
+
+Yes -- KASAN, injection right after init_vqs(): queue both works,
+mdelay() to hold the window open, then err = -ENOMEM; goto
+out_del_vqs, driven by bind/unbind loops. Unpatched: KASAN
+use-after-free with both stacks in virtballoon_probe().
+
+> Does this require the device to trigger us even before
+> virtio_device_ready(vdev)?
+
+Yes -- the callback is armed and the stats buffer primed/kicked in
+init_vqs(), and ready() is only reached at the end of a successful
+probe.
+
+> I guess this path is very hard to trigger.
+
+Agreed. That one came from the sashiko bot's review of v1 for the vq
+leak -- it does look at least theoretically reachable, though.
+
+> Do we really need this comment?
+
+Dropped both in v3.
+
+Thanks,
+Mingbing Zhai <zhaimingbing@cmss.chinamobile.com>
+
+ drivers/virtio/virtio_balloon.c | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 8c1b47ec1..cb53acdf7 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -554,6 +554,17 @@ static void update_balloon_stats_func(struct work_struct *work)
+ 	finish_wakeup_event(vb);
+ }
+ 
++/* Stop queueing of and drain any pending balloon update works. */
++static void virtballoon_stop_updates(struct virtio_balloon *vb)
++{
++	spin_lock_irq(&vb->stop_update_lock);
++	vb->stop_update = true;
++	spin_unlock_irq(&vb->stop_update_lock);
++
++	cancel_work_sync(&vb->update_balloon_size_work);
++	cancel_work_sync(&vb->update_balloon_stats_work);
++}
++
+ static void update_balloon_size_func(struct work_struct *work)
+ {
+ 	struct virtio_balloon *vb;
+@@ -633,6 +644,8 @@ static int init_vqs(struct virtio_balloon *vb)
+ 		if (err) {
+ 			dev_warn(&vb->vdev->dev, "%s: add stat_vq failed\n",
+ 				 __func__);
++			virtballoon_stop_updates(vb);
++			vb->vdev->config->del_vqs(vb->vdev);
+ 			return err;
+ 		}
+ 		virtqueue_kick(vb->stats_vq);
+@@ -1075,6 +1088,7 @@ static int virtballoon_probe(struct virtio_device *vdev)
+ 	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
+ 		destroy_workqueue(vb->balloon_wq);
+ out_del_vqs:
++	virtballoon_stop_updates(vb);
+ 	vdev->config->del_vqs(vdev);
+ out_free_vb:
+ 	mutex_destroy(&vb->balloon_lock);
+@@ -1115,11 +1129,7 @@ static void virtballoon_quiesce(struct virtio_balloon *vb)
+ 	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
+ 		virtio_balloon_unregister_shrinker(vb);
+ 
+-	spin_lock_irq(&vb->stop_update_lock);
+-	vb->stop_update = true;
+-	spin_unlock_irq(&vb->stop_update_lock);
+-	cancel_work_sync(&vb->update_balloon_size_work);
+-	cancel_work_sync(&vb->update_balloon_stats_work);
++	virtballoon_stop_updates(vb);
+ 
+ 	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
+ 		cancel_work_sync(&vb->report_free_page_work);
+-- 
+2.43.0
+
+
+
