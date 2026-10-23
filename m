@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792760346;
-	b=5XH99zPfuQDzMWjZE882Vc7ZbX095LvsoXzH9Pw+hI29zjJgm6hjvP1NEeIntesfQQdU
-	 oj7Yt0/rNxNXnMYfEmhY1uJDJ/D79pG4Em8cn5y9gr+ZVQ5uSBOVPNfLfISqRMulCehN2
-	 leJlbhBa1GbDPIV7DnC8fqeXXa/ikEiOz3hq01PJ6mnwQKMU0LfMiJ1T/H4unzZHZ64gF
-	 hxjDZvP8OfNJaPDT2LTQ5za0s2BVLP2r19TZe1J2vIxENLUIMvt0nsHQPnusMhoViNamf
-	 6HIGqzO8cXCwda0IunOzC2C7Gr66MedYhg+0r+NTd7yt1kSIypONANVi3gicsxCimHw==
+	t=1792760347;
+	b=jeSsfgOWa/514yr7Zz9sKdAmq7ITR+1AbT4pyDwXpMTPzeHXJnvssqBz7SALlnrxzsIJ
+	 U+9n+MkWiAs63hcfQ0cq3AB1c1F5Azg7AsuSPJSD4Dv0lBDaY2Yw/bO9+BmzvXLjXWR3k
+	 3yXf2QTL+r0DsYdeXkIHfsU3Aq/cAwfGa497kCfgl9qoFiSke5B/ApfgvcixWeDPuKzd9
+	 axyk+cad3E8lx/f2p42D0tpJ/LIp4rCnzucKFW5JS6lK14s//xgv2kDAvqix60zasxUZ7
+	 fJtRWDV6t7KXroUP2ulIseluAF+4ZtNZFgsnmRlTdd6dX3BhoxN03/5Y9E2ZgmH6KdA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792760346;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792760347;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=qw6CFVXL2TgWCrbQ3LF2URCrh9pIcRC1caMrO4uk97M=;
-	b=n5z8H2pqOce9vOOIXmisdRFjZmtyrfDciNw/CqsgUtnAdOqp7QegtNqMxyeG8/YH5jrR
-	 KHi8ZAzOAcbX5dyw/8od+wv7bxLlwKvhW0aHckdg/hVhD1ESitfWvJnPbVuYdAW1BxrxT
-	 p1/pC5AnPZtND74nO38iXXmtOYESqT4bnQ9B5PoG+IpcSylHkx8GbF9/MaHUzTzJYmyy/
-	 J/AI0zt/G8EfUa6dmBg+Wqaxo+6+VD2Cv0SxshgFe8lNpTjBGIRJDhmorzD12O/ElPSzQ
-	 MzuObjpAPzy7iYNojkIoWcdIDT1KH7Rf1Rg/WwTATuNs7bgzqyRMpa+PashaAQNlcEg==
+	bh=mjy2cxoofy45BOE/JehXYlDV4tE/A7rdI5PsaDMdcYc=;
+	b=Yud+7xu/2oOP2dNt6u6wsYZo60uFYMQo8J1zg891ShKXTWEGHEHBLwvrqzplTIxr0Aa2
+	 f28IZS+sUxiyV1p0E+5HP/hhz3Dbm1NyzLEble7RMGK3ROh4+EtYc0JuWE1PTYxltpjkV
+	 KaB0giqXuTvXGMyfPOJH/Ag5pZ5xw/CDAlfXkrGC5hd9keRzsxHuZP6MtlRrjCXg4OMfe
+	 W9H4XPNGGBzXOLc9di4sIPu1bMKnp0IIOOOiFhXW8aKBubKyP+qXqrnJeAP0+u9Mav8J1
+	 g1tZC/cybLgkBqmXMJT86f7+E23IuqGFKFX/lhmYuRCHGpWmR6JWUkv0BKcq9/AFZ9A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dK0jCOZE;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jkkjoqBm;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56456606A329
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1457A606A31D
 	for <virtualization@lists.linux.dev>; Fri, 23 Oct 2026 12:59:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dK0jCOZE
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02BA31F01829;
-	Fri, 23 Oct 2026 12:59:05 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jkkjoqBm
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5DFF1F031E1;
+	Fri, 23 Oct 2026 12:59:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
 	s=k20260515; t=1792760346;
-	bh=qw6CFVXL2TgWCrbQ3LF2URCrh9pIcRC1caMrO4uk97M=;
+	bh=mjy2cxoofy45BOE/JehXYlDV4tE/A7rdI5PsaDMdcYc=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=dK0jCOZEOzBc9Hx1WSfYVrA/A9v9HDHV0Vyvr3ePJ16R7db8Ubw6gkQAvMOgNIJIi
-	 nOW6l13yiH1Q4qHEs9lzuCZmYMM/qIBGP+yjz9LSqbaWWJ+UAbKs1SYdvcf1cx1nC1
-	 lcwTFVGwC2ooNY8Z+Sc769K8cTpTGpdDqwsX0BuZWDsODcx/ypfupoRWFhOMLp/AY0
-	 u+GNHU08kAv0UnwBccKbnl+aQogbERkks49FMk9+dE3PWbgj1rCNewxAwctXMz0rXj
-	 0imTrOk0zCNd1KhhLde4kku74YIGMxYkmaTwVmdAuWZVZKNKcka8wlcVa4sagfhHvd
-	 Wl0JTCq+pRERQ==
-Message-ID: <sashiko-outbox-182801@kernel.org>
+	b=jkkjoqBmJ5dZzleJ3CMh9r8VTDdCdNxi6LXbtkVNuNxNkJHBadzU8cAXHXyV9tcNg
+	 5Z3sXiMzLjr2dZ/t/GQgzY+jwyo5u1Ch8f+nQ+GW5NZbxpwQ1CRrP6xGXHU3rGN6As
+	 JwdyIM/Sf6KKaRjRLqtduIvLjr6hN4Zp4//A5x/KIiBAgcEQAUXIi8ywONzsoh5Iur
+	 MYm6mDSe04WPebBmza2dMGyW18HjLGvnMTvxM5/JNNbwkQegp+4XTK6UsLV6ujQUx9
+	 X3XKuWZNB7IKnrzpoS+cOB5bK2/1j+WVaLUFmKZ0fiNOHBlcYTGZrjoPGnQ4Qsxjfd
+	 BzNyjUAakvjhA==
+Message-ID: <sashiko-outbox-182802@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net v5 2/7] um: vector: trim skbs before verifying the
- header
+Subject: Re: [PATCH net v5 3/7] virtio_net: parse tunnel csum_start
+ little-endian
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: virtualization@lists.linux.dev, "Eugenio Perez" <eperezma@redhat.com>
-In-Reply-To: <1b2a0697662501fd4fe896a7dc2bba2d97885101.1792668082.git.mst@redhat.com>
+In-Reply-To: <dfcede18b8d54519bf586b8e5099e89ec63bf014.1792668082.git.mst@redhat.com>
 References: <cover.v5.git.mst@redhat.com>
- <1b2a0697662501fd4fe896a7dc2bba2d97885101.1792668082.git.mst@redhat.com>
+ <dfcede18b8d54519bf586b8e5099e89ec63bf014.1792668082.git.mst@redhat.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 23 Oct 2026 12:59:05 +0000
+Date: Fri, 23 Oct 2026 12:59:06 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -61,95 +61,32 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] um: vector: NULL pointer dereference in vector_mmsg_rx() via pskb_=
-trim()
---
+> All tunnel related virtio features are > 32, so none of this
+> functionality can be enabled on legacy mixed-endian device.
+>=20
+> Accordingly, all tunnel header fields, csum_start included, are
+> little-endian.
+>=20
+> The nested virtio net header import parses csum_start that way, but the
+> inner transport offset is parsed with the endianness specified by the
+> interface.
+>=20
+> If tun is misconfigured to legacy big-endian mode while the tunnel
+> features are enabled, the two parses of this field disagree, and the
+> value stored in skb->inner_transport_header - which is only
+> bounds-checked from below - can point past the end of the packet, where
+> GSO segmentation later dereferences it.
+>=20
+> To fix, parse the field little-endian in both places.
+>=20
+> Fixes: a2fb4bc4e2a6 ("net: implement virtio helpers to handle UDP GSO tun=
+neling.")
+> Cc: Paolo Abeni <pabeni@redhat.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-commit 869705112c565c7836b0dd95f8fcf315b6c19398
-Author: Michael S. Tsirkin <mst@redhat.com>
-
-um: vector: trim skbs before verifying the header
-
-This commit moves the pskb_trim() call in vector_legacy_rx() and
-vector_mmsg_rx() ahead of vp->verify_header() so that the skb is trimmed to
-the received packet length before header verification.
-
-> diff --git a/arch/um/drivers/vector_kern.c b/arch/um/drivers/vector_kern.c
-> index 8a70b3a625537..1afbef78df725 100644
-> --- a/arch/um/drivers/vector_kern.c
-> +++ b/arch/um/drivers/vector_kern.c
-
-[ ... ]
-
-> @@ -981,6 +981,8 @@ static int vector_mmsg_rx(struct vector_private *vp, =
-int budget)
->  	for (i =3D 0; i < packet_count; i++) {
->  		skb =3D (*skbuff_vector);
->  		if (mmsg_vector->msg_len > vp->header_size) {
-> +			pskb_trim(skb,
-> +				mmsg_vector->msg_len - vp->rx_header_size);
-
-[Severity: High]
-Can skb be null here when pskb_trim() is called in vector_mmsg_rx() in
-arch/um/drivers/vector_kern.c?
-
-During vector_poll() -> vector_mmsg_rx() -> prep_queue_for_rx() -> prep_skb=
-(),
-if alloc_skb_with_frags() fails under memory pressure, prep_skb() leaves the
-header iov[0] active with msg->msg_iovlen =3D 1 and stores a null skb point=
-er in
-skbuff_vector:
-
-arch/um/drivers/vector_kern.c:prep_skb() {
-	...
-	if (vp->header_size > 0)
-		iov_index++;
-	if (result =3D=3D NULL) {
-		iov[iov_index].iov_base =3D NULL;
-		iov[iov_index].iov_len =3D 0;
-		goto done;
-	}
-	...
-done:
-	msg->msg_iovlen =3D iov_index;
-	return result;
-}
-
-On IPv4 gre or IPv4 raw l2tpv3 interfaces, build_gre_transport_data() and
-build_l2tpv3_transport_data() add sizeof(struct iphdr) to vp->rx_header_siz=
-e,
-and vector_net_open() initializes the rx queue with iov[0].iov_len set to
-vp->rx_header_size.
-
-When uml_vector_recvmmsg() receives a packet larger than vp->header_size in=
-to
-iov[0] for a slot where skb allocation failed, mmsg_vector->msg_len is grea=
-ter
-than vp->header_size while skb is null:
-
-arch/um/drivers/vector_kern.c:vector_mmsg_rx() {
-	...
-		} else {
-			/* Overlay header too short to do anything - discard.
-			 * We can actually keep this skb and reuse it,
-			 * but that will make the prep logic too complex.
-			 */
-			if (skb !=3D NULL)
-				dev_kfree_skb_irq(skb);
-		}
-}
-
-Previously, invalid tunnel packets that failed vp->verify_header() were
-discarded via dev_kfree_skb_irq(skb) without dereferencing skb. With
-pskb_trim(skb, ...) moved before vp->verify_header(), wouldn't this
-immediately dereference a null skb, and shouldn't vector_mmsg_rx() check fo=
-r a
-null skb first like vector_legacy_rx() and the else branch do?
-
-[ ... ]
+Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/cover.v5.git.mst@re=
-dhat.com?part=3D2
+dhat.com?part=3D3
+
