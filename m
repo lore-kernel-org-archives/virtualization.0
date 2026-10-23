@@ -1,102 +1,96 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.215.182
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792749884;
-	b=kmJpGFtwRdkgy2Kmp0hXQ6oeZW5hKnBAZaOi64Va6+OGeiKlJp7Tl/3kMe1OwYXKk5a+
-	 uAv813oknebCPEtYaVRDY+50DfcNX5nuvry732kiq85J9xMe7FkokAYcUblDoYQcW+t6d
-	 CJQ2wpVCQXbWhpyS8JZ9H9IBu/KT5/ks45GGebC5foT120Oq6rtfqO2cmxaP3sUhI887E
-	 7aucUiodq8Rb6TaoPAnbg4q49NJV6/FrIIBSGd6hAIMARdHOgBUGxw1M1fcHaaqcxJCoE
-	 XutrWwIHK+IiUfScqrFsjNS9cRjBXwJQlDIaM8fzTnZ8pySNLHHwmE/Vom5Fka1yyHg==
+	t=1792752043;
+	b=EndUbR7u71+wRHRCT7kIhpB2DfxpgG97anarBVq52cGrpA+byrdKSMe3vzX/JHSaWbZE
+	 iVSzcj9EnmZkUIvGC70GxruQx6324fd5410kaqDkEpTYk/VuKj/9IxMb/DBmMCSty3GoZ
+	 gvn/ulm6hQ2q4+HpU1X55QyzD98900/sbvFCFzcd4afgUTMKbkXn9d0cG2sAnSUJ3HA2P
+	 CF6JHPN0gRaZ9zZZgWWX6ub5nxZvAYcqwyAjAzoXgjDIheoHaE3amEOZnEmfRcM8cawa7
+	 YoNPiD95+oTT6WtsL2dcANgE3sf8oSsSS1buBfbVNp5FnNiummAIgyfxd8kvmljGC2Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792749884;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
-	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
-	 X-Mimecast-Originator:Content-Type:Content-Disposition;
-	bh=hYkBoQ6y82oxG++SCIxFzQ7YeSOVHLZCi1q8tJnSOY8=;
-	b=JlNqjSIEKgqjXqOlyEKWXTdAsKz1+bu9a8mJSBfdyz9dxaAyLztcctBO9bcOc/sGMa+B
-	 py4DIxoXWTKippR4H6PsSfXPR3hvNf8XEY9ScqIiyQx+JgJeLkgnzWKoG0evrsNw3Ijxx
-	 Ez8q+LQzmT5Wt/bN0ZRTRJqBcTyg5pv36nTZOiqk3pNuVqLiDSl1k/K6bNHzuenKhDmbE
-	 4tvpXDjok4d97APTDWvUjdcYd/5ijVgeVA5PzuWwHNEpbiv3MvpncKuW/4FEf8CQjN5X5
-	 WNdHlSQLAP3KBqO6uV4o1AqKNRLzDCsbqGLW+oN85BioviglR5lpdvT40K7e5jty/Bg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792752043;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=3fn/qeSOMh17ArAGKi+SkWfmCErKg3ju5QLNHCwzqmI=;
+	b=l2ejreKNV+RGp0txMaGn9TbmU8zhAHb4Mjb0oNRQiYZunp4+rX4R/JfbznBygKmyT3b6
+	 0UZqOZNpsHWgxoyWvvtzeAvrd84Ea02xgJJ40XYdV8CyZGGqTS/LDEWDKyQ6p/14WhEDN
+	 /wvANwn28jAQSFP3u2oezTFzEwL0Vul87/bGnEcDiOHIVqIXb+l53CIYrXSxd4zf0qrJJ
+	 R+LhnWkjF1VXzHLJa/zZRNwaMS4GV52DjA37sMlXfYmhn8Eo8JRZVNUQ61HHC6oqs8nX7
+	 2XpGGHG43vvNVv7bY78Cxd9S16VR/piNEwyhmJwDVAIINyFjqqKMhkKKuwrTtnKAcwg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=bA8K2cPz;
-	arc=none smtp.remote-ip=170.10.133.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=Sp+vwKRN;
+	arc=none smtp.remote-ip=209.85.215.182
+Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FD8D606A323
-	for <virtualization@lists.linux.dev>; Fri, 23 Oct 2026 10:04:43 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9FD8D606A323
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0347606A31D
+	for <virtualization@lists.linux.dev>; Fri, 23 Oct 2026 10:40:42 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D0347606A31D
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=bA8K2cPz
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1792749882;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=hYkBoQ6y82oxG++SCIxFzQ7YeSOVHLZCi1q8tJnSOY8=;
-	b=bA8K2cPzJqAeRfM4uNhNlbOlrKzvqeJn27HqAwl5T1qBl3nz4FeBuDsRuGhyk0fQay/XHB
-	JjE9bkl2kkvjT5XFymPVBDEzfdhvF0leoMqDXkvO5AMNZVElng0gXMhUingT0pFk8AT9Kl
-	5l+UHAouoyOhsRB3uB9cgRxI969a6KQ=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-614-2X2F9xJ-OUqyI2-Lm5PdYg-1; Fri, 23 Oct 2026 06:04:41 -0400
-X-MC-Unique: 2X2F9xJ-OUqyI2-Lm5PdYg-1
-X-Mimecast-MFC-AGG-ID: 2X2F9xJ-OUqyI2-Lm5PdYg_1792749880
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-48e1d839ddaso431244f8f.3
-        for <virtualization@lists.linux.dev>; Fri, 23 Oct 2026 03:04:41 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=Sp+vwKRN
+Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-cc4be0e5351so294179a12.0
+        for <virtualization@lists.linux.dev>; Fri, 23 Oct 2026 03:40:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1792752042; x=1793356842; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=3fn/qeSOMh17ArAGKi+SkWfmCErKg3ju5QLNHCwzqmI=;
+        b=Sp+vwKRN55Lrw80uMyS2PmozCJXQjWUjajxWZv5niOcgfKPIIbmWn+4b1UjaFhf3O/
+         4PTWP2jdEHUOpy6kOe1UUiZ5OyLdQohY81Y3Amf/5LXygnWfDz6ykojK3wcm55LNgwkg
+         HTXaKGJz7XZiU4FIhtgU9C7G3EeNvlcx1k0MYlSf8jYMavF4f0i8ZWFoV1lXvi4T4Wjt
+         sxtWL2B615siOny2CAe0m75NjE8p/3xmtJ/c0Cu9saVm4B8MQoKXoioOFMWZk3+46Pc7
+         k+2Ckv0qWTTC0B7k7aNWlDwE8B1BuJ2F2yAjrVYF1BNY0YnufoLnjvnBJWFsbVfL8gIF
+         BTQQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792749880; x=1793354680;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=hYkBoQ6y82oxG++SCIxFzQ7YeSOVHLZCi1q8tJnSOY8=;
-        b=XlgASG+vtGf/zDzxGO3hkCeAHX2tb1N7kZXxG4mRmoA5mCaEp13pZbsAD0uNhSThzL
-         I3edetsxpdP5UjByaPvXhCMUBaCwbic2tocE/S0vMt9oy48zTnNHchpdAE+A3GUgGyjn
-         ymCi+QBGRv3Y50+i7IXkqtVs87EhN87W2l4k4vugH8GJD/A+ROr92VOye7IfqIV2o6ly
-         jbNs3AaVs/VejCFKsXcpB6JISEv3sPIc9Ia/ljYJRhAZ5G9/b/saoOYNqtnojXhV9rop
-         49uyj+YnhlmwgeMZJ12vKNwuv0A6GrgmDTyPuPjT6LverkupwjWoOl14EhaejnlSX2u1
-         uGSg==
-X-Forwarded-Encrypted: i=1; AKwUvBxCYeuCIlh+pJWRBltQKJVd0hLX6LlBaSFrA8B7WyCJ1k9ATKF6gMZkNPi9YYCqaHLcuC6+j9C7v9Zs1olYTQ==@lists.linux.dev
-X-Gm-Message-State: AFq9FYLStaHlT9+PxQjWIgLhSQKAFB9qoHZFkTqbC+gAjuMvOvVeAPGA
-	qI1qB0bSsqQVo9s0b2kQy04TKVNQcXLnAVT3SPLoEqH4MytAfPZr2Bfft9S54pd30U8NMfpay2p
-	DZhYuuYZGaT/UXHPv07JqlggH4v/xZkPS6CuLGhtUxSvXWSDfmJbKtfdPWyL6K2Zm9/7a
-X-Gm-Gg: AYBFou3BdCTIWk2lbPOyPoKSvSIy6eyI2H4VMuEO/lmdWPPGtoUILUD524qfW+JE5YG
-	2ws14RQEAfq9DZ9BXHhAu4vTRUDtVuaoEqVG29CHWrQi3JyFubMl2v6XxfN7eHIC/8GrGwTzo/S
-	e/WXVv+Glxbv0qm6DYTAT+Nia07El5NCcUQaC3hypviKckNwUqRMk04iyCozOkDbcNTtTswRIOy
-	DDHtUoIfjz1mf2ReaP2CAxhLARmNvOWbD1jbZoDevk+0b0xsRk29CdV9BqNG9Vpmpia0Plh2kup
-	xRcwVoMUXzofNP75VwEpDeprT8x0fHwic1e2Rp2D5hZt0YCTQSu13hL+yFU4h2kc6NDbQOE=
-X-Received: by 2002:a05:6000:2610:b0:48d:f14a:917f with SMTP id ffacd0b85a97d-48e38594e07mr2598907f8f.2.1792749878646;
-        Fri, 23 Oct 2026 03:04:38 -0700 (PDT)
-X-Received: by 2002:a05:6000:2610:b0:48d:f14a:917f with SMTP id ffacd0b85a97d-48e38594e07mr2598849f8f.2.1792749877952;
-        Fri, 23 Oct 2026 03:04:37 -0700 (PDT)
-Received: from redhat.com ([2a06:c701:73f6:2400:30a8:9e33:7d82:c035])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48e37edd26dsm4700642f8f.2.2026.10.23.03.04.36
+        d=1e100.net; s=20260707; t=1792752042; x=1793356842;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=3fn/qeSOMh17ArAGKi+SkWfmCErKg3ju5QLNHCwzqmI=;
+        b=D64NmJ444i5ow9cFYUSQuQ83fDR/nkAb6B/8EOKOWIYOxrP6NOdfMhn6TOZBBqQfkO
+         na4G+OOlVmjKsrOxWxT+zvTNL7GOPJ2fdTpWVyWh12CbE6ligeH8Kjgz4/R/8g9/JaK7
+         V0Lz5IZsfe4PhGrgGA85igu9y33WGi4n1itxcEyEXhWGzjCzVAIiA86JsSy1kGBUFLm7
+         JNRANewl7W8SIg2Mw6FZ3J6U8tzutv9KzLMGzhalta343NZ6PdmpeH9MyYy3kqlIqVU+
+         rZRs9YqiKl/rvc7NsQKWsSavUp8qmU8AD8FLfJ4wIgdVZJt2nYRKxZVEfe4rzqzYhKF+
+         7lRA==
+X-Forwarded-Encrypted: i=1; AKwUvBxwBcUY9vkwYGqAMJRdyw6EEcImz0gPjJnQN50ncoiOWtpkHlqo1+ZNrtH5d1DRix/FpD2ArSQvDB+rUHW35g==@lists.linux.dev
+X-Gm-Message-State: AFq9FYLnuEOuwdlEz5Cj89e5nxtw4No5hHJvTGGKp0IpZgb/swj/CD6t
+	FawZ+vcIYxlmXYI2sjxygdKzCsP0jM6ttcdiKMy3SbLkfWFIDVCvxcvd23VFA2Ma
+X-Gm-Gg: AYBFou0q47DohcM3aE2FJkws6PvQnkVAK5YT7a7D36rW6QSb0M851FT26FKY6pTrcgw
+	KMPWxyMcii/MFwB7TZcDBFarsFow1+TRDuetzItyeuVXWg3SD4fqNUwDGlnTUVNVtf/qA1T+ln+
+	UQvUNEWdgrbA8XIEu/QAAhO27NDUO4mdwMDY/g0iAXqGJOErQt4eRAUd2Z4PrXv9jqxwNuzNF4J
+	0Xr3C20ZEE1nRhF+Q9iPXSzaCr1XP4PCPIbE3UBl7UDHTezoIvqovlhXj19vO9b7ZYQFZ7rfp+S
+	liagVEiWnyiO0GmplAe9ljxXGmeUqe5ArW53chK8TotNeGEZGpGpYhmc3nYROjEJ35WqCCwXy8l
+	OqBVNkBmOO2HLk3w30ewY75cvounNJOjhFVpy/yuJPv7Uits57iCEYCvJB40e4Tmh3PcAsB/5L7
+	6qwK7R4E/SRsCm0PXlu78ycQ8lgEfLNH+Qnvn7FFHitmRZp01UK7UgIO1yCLEYzQ1T4UeUUXXY1
+	XMdbmckaN79qNsnzCcHNJFLGbhIOoYWB9JYPh/IQXUjO7ildPbcPjWIcQ==
+X-Received: by 2002:a17:90b:2543:b0:3ac:b08a:ed2c with SMTP id 98e67ed59e1d1-3adce08327fmr1475446a91.40.1792752041791;
+        Fri, 23 Oct 2026 03:40:41 -0700 (PDT)
+Received: from gmail.com ([185.220.236.117])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3adcb1b133dsm3300636a91.7.2026.10.23.03.40.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 23 Oct 2026 03:04:37 -0700 (PDT)
-Date: Fri, 23 Oct 2026 06:04:33 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Ruben Hakobyan <hruben@meta.com>
-Cc: David Hildenbrand <david@kernel.org>, Breno Leitao <leitao@debian.org>,
-	Atish Patra <atishp@meta.com>, Jason Wang <jasowangio@gmail.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Alexander Duyck <alexander.h.duyck@linux.intel.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] virtio_balloon: batch large descriptor chains for page
- reporting
-Message-ID: <20261023042737-mutt-send-email-mst@kernel.org>
-References: <20261023081923.164950-1-hruben@meta.com>
+        Fri, 23 Oct 2026 03:40:41 -0700 (PDT)
+From: Jia Jia <physicalmtea@gmail.com>
+To: Mike Christie <michael.christie@oracle.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	virtualization@lists.linux.dev,
+	kvm@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v2] vhost-scsi: fix page reference leak in misaligned I/O fallback
+Date: Fri, 23 Oct 2026 18:40:35 +0800
+Message-Id: <20261023104035.6686-1-physicalmtea@gmail.com>
+X-Mailer: git-send-email 2.34.1
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -106,166 +100,58 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-In-Reply-To: <20261023081923.164950-1-hruben@meta.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: o_SV2diPVE8cm9z0cXqcSIHnmbC0Ni3E18VYiCQ5-as_1792749880
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-Great patch, thanks!
+iov_iter_get_pages2() returns a byte count that excludes the offset into
+the first page, but also returns a reference to that page in pages[].
 
-On Fri, Oct 23, 2026 at 01:19:19AM -0700, Ruben Hakobyan wrote:
-> The virtio_balloon driver reports a scatter-gather list of free pages
-> to the VMM so it may discard unused pages.
-> 
-> For an arm64 kernel with 64 KiB pages, the default reporting and
-> allocation orders allow entries ranging from 2 MiB to 512 MiB. If the
-> report contains a sufficient number of large entries, we will end up
-> with a descriptor chain that represents over 4 GiB of memory. This
-> violates virtio spec section 2.7.5.2, which requires that the total
-> buffer length of a descriptor chain be at most 4 GiB [1]. A VMM that
-> faithfully follows the spec may stop processing the descriptor chain
-> when it exceeds 4 GiB, and discard less memory than it could. For
-> example, this is the case for the virtio-queue in Rust-VMM [2].
-> 
-> Batch the requests into descriptor chains of at most U32_MAX bytes
-> (4 GiB - 1 byte). We use U32_MAX here so we can conveniently represent
-> the batch length in a u32.
+On the misaligned-I/O fallback, vhost_scsi_revert_map_iov_to_sgl() puts
+pages already added to the SG list. The cleanup loop starts at
+pages[npages], but accounts for its first page as PAGE_SIZE bytes
+rather than PAGE_SIZE - offset. If the remaining data starts at a
+non-zero offset, it can finish one page early and leave a page reference
+behind.
 
-It's not just a question of convenient, is it?
-Rust is buggy wrt to spec as it allows only U32_MAX.
-So it is also to make it work.
-So should we maybe fix Rust to be spec compliant and allow 2^32 too?
+Use PAGE_SIZE - offset for the first remaining page and clear offset for
+later pages, as in the mapping loop. Without this, each affected request
+leaks one page reference.
 
-I think we should definitely recommend U32_MAX in the spec
-because otherwise it can not fit in the used length.
+Fixes: bca939d5bcd0 ("vhost-scsi: Dynamically allocate scatterlists")
+Reviewed-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Jia Jia <physicalmtea@gmail.com>
+---
+Testing:
 
+- Four fileio vhost-scsi test instances repeatedly issued affected writes
+  using recycled backing pages. After about 1.33 million requests,
+  MemAvailable fell from 5.3 GB to 13 MB and swap was nearly exhausted.
 
-> 
-> [1] https://docs.oasis-open.org/virtio/virtio/v1.4/virtio-v1.4.html
-> [2]
-> https://github.com/rust-vmm/rust-vmm/blob/9f7250b1555ebe022ea4133fda676e6311040738/vm-virtio/virtio-queue/src/chain.rs#L183-L190
-> 
-> Fixes: b0c504f15471 ("virtio-balloon: add support for providing free page reports to host")
-> Signed-off-by: Ruben Hakobyan <hruben@meta.com>
-> ---
-> The wording in the spec is a bit ambiguous because it uses "chain
-> length" for both descriptor counts and the total size of the memory
-> ranges referenced by the descriptors. My read is that the byte limit
-> applies to the sum of descriptor lengths, which is also what rust-vmm
-> checks.
+The affected fallback is reachable from guest-issued virtio-scsi I/O.
 
+ drivers/vhost/scsi.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-quote what you are referring to please, also in the commit log
-not after ---.
-
-I would also CC virtio-comment@lists.linux.dev - spec should recommend
-U32_MAX.
-
-> 
-> Another option I considered was to limit reporting capacity based
-> on the largest possible block. E.g. for 64 KiB pages, the largest
-> block is 512 MiB, so limit the reporting capacity to 7 to stay
-> below 4GiB. Although simpler, I found that the time to reclaim
-> was quite a bit longer.
-
-
-
-So I was going to apply this actually:
-
-https://lore.kernel.org/all/b541ff170218bd5d45b551b5132e7cf2c490d761.1780906288.git.mst@redhat.com/
-
-which makes the question completely moot.
-
-Does this have any effect on performance?
-
-Thanks!
-
-
-> 
-> I tested this patch on Cloud Hypervisor (which uses Rust-VMM)
-> and QEMU (which doesn't enforce this limit).
-> 
->  drivers/virtio/virtio_balloon.c | 47 ++++++++++++++++++++++++---------
->  1 file changed, 35 insertions(+), 12 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index ab3e3d887e00..68ce627c8e04 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -15,6 +15,7 @@
->  #include <linux/slab.h>
->  #include <linux/module.h>
->  #include <linux/balloon.h>
-> +#include <linux/limits.h>
->  #include <linux/oom.h>
->  #include <linux/wait.h>
->  #include <linux/mm.h>
-> @@ -207,21 +208,43 @@ static int virtballoon_free_page_report(struct page_reporting_dev_info *pr_dev_i
->  	struct virtqueue *vq = vb->reporting_vq;
->  	unsigned int unused, err;
->  
-> -	/* We should always be able to add these buffers to an empty queue. */
-> -	err = virtqueue_add_inbuf(vq, sg, nents, vb, GFP_NOWAIT);
-> +	while (nents) {
-> +		bool unmark_end;
-> +		struct scatterlist *sg_batch_start = sg;
-> +		u32 batch_len = 0;
-> +		unsigned int batch_nents = 0;
->  
-> -	/*
-> -	 * In the extremely unlikely case that something has occurred and we
-> -	 * are able to trigger an error we will simply display a warning
-> -	 * and exit without actually processing the pages.
-> -	 */
-> -	if (WARN_ON_ONCE(err))
-> -		return err;
-> +		/*
-> +		 * Virtio spec 2.7.5.2
-
-Please add spec version and chapter title, and quote the
-spec text in question verbatim.
-
-> limits the total buffer length of a
-> +		 * descriptor chain to 2^32 bytes (4 GiB), so split larger
-> +		 * reports into batches no bigger than that size.
-> +		 */
-> +		while (batch_nents < nents &&
-> +		       sg->length <= U32_MAX - batch_len) {
-
-here you actually limit to U32_MAX which is 2^32 - 1 as commit log says.
-
-> +			batch_len += sg->length;
-> +			batch_nents += 1;
-> +			sg = sg_next(sg);
-> +		}
-> +		unmark_end = !sg_is_last(&sg_batch_start[batch_nents - 1]);
->  
-> -	virtqueue_kick(vq);
-> +		if (unmark_end)
-> +			sg_mark_end(&sg_batch_start[batch_nents - 1]);
->  
-> -	/* When host has read buffer, this completes via balloon_ack */
-> -	wait_event(vb->acked, virtqueue_get_buf(vq, &unused));
-> +		err = virtqueue_add_inbuf(vq, sg_batch_start, batch_nents, vb,
-> +					  GFP_NOWAIT);
-> +
-> +		if (unmark_end)
-> +			sg_unmark_end(&sg_batch_start[batch_nents - 1]);
-> +
-> +		if (WARN_ON_ONCE(err))
-> +			return err;
-> +
-> +		virtqueue_kick(vq);
-> +
-> +		/* When host has read buffer, this completes via balloon_ack */
-> +		wait_event(vb->acked, virtqueue_get_buf(vq, &unused));
-> +		nents -= batch_nents;
-> +	}
->  
->  	return 0;
->  }
-> -- 
-> 2.53.0-Meta
-
+diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+index 4f8c0260bc9e..b0a536fbc69a 100644
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -883,11 +883,16 @@ vhost_scsi_map_to_sgl(struct vhost_scsi_cmd *cmd,
+ 	vhost_scsi_revert_map_iov_to_sgl(iter, *sgl, sg);
+ 
+ 	iov_iter_revert(iter, bytes);
++	/*
++	 * pages[npages] is the first page not added to the SG list.
++	 * The remaining data starts at offset in that page.
++	 */
+ 	while (bytes) {
+-		n = min_t(unsigned int, PAGE_SIZE, bytes);
++		n = min_t(unsigned int, PAGE_SIZE - offset, bytes);
+ 
+ 		put_page(pages[npages++]);
+ 		bytes -= n;
++		offset = 0;
+ 	}
+ 
+ 	return -EINVAL;
+-- 
+2.34.1
