@@ -1,53 +1,53 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792760349;
-	b=SXVYskwxAWEbxaMngvwL3i1uhntih/YwrRSg6yykhePpDQKCVjP40RBdAbRl9yyv9VbP
-	 MsEobWqgHMX2NPPXK8qPxFxIz4eqRqYLq9jafFX4Hvz/SQsziqPBZAXV0zePKQK0mrXM3
-	 kgleUd08arEsnYyDvEQi2nhO+/11p/Yt8AZlp7Ney79iqP/aO0wijfLe0v/TZMIPUBPSL
-	 HpdEyD7dSZjjmLRVJKgwquFJzUGwvpbeXGWWW3wkSYPgmTRWbzXZAx6hCJGMeDkom8mVi
-	 zbkIF3/ItCankbP0+AHFS6w96Afta6Pg+2deCUwD71I4jl6jK3kMo8EIBy+tp/XL64w==
+	t=1792760350;
+	b=J7V6Ybr+Uhpkc4I5em4tGSVawcs3prl5DMitQp+Ye+tsZe/qpnxBH68N8yjXSQyuxjCB
+	 fwdqqdTKyhoNXu6XSujrjnb+p9zxrVEdNFhW4+0p8uQEdZ84RG3CSVot9W5zRg266md/u
+	 vaXWKVo89jDNH7AC+dvB0p+2K2beN3taMEl98zbiDI07RZLWGj2yVOQLYDlPrLdEqScMn
+	 sBayqk9e0C+S9jZr6yYHu1X1TW6QaxVRe8dFpwwvD2hvoVvuIAsNIJv5cKLw8KoFIfE6T
+	 6j5zyt7/Uf6z3qKA7H71iTqM9PmD/8P2ee6KOmEh39Q3sh4UrHG1asE5HJ5wx0zXNMg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792760349;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792760350;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=cBC+shEKAh6fnx4DLc51NsNyomNOLmcjHuReAIR5ZNM=;
-	b=Nw2kfzNf+DhzamWsqsd1xznqkDbGorFZxSMAHCui34WFhKIjTH+WLMDj5JVeDLATJeY8
-	 pWPGN3Rl3TViZs1D1XlSI7k23+TyJKwIeyFxyB4OKUgt4tQ7Cf/6XmeXP29MZvYVtuQIm
-	 Z7yktyDtmCYpdSaMv6z7bBJJjzXYQRkPq0Zfm7SS4nKKAMZ1bEmMXiqYklelaE6isD1dW
-	 G/5vFWvANSQYtMXrT6ZaAYCQLGhWkOhnWB0WRshMaqgvQaQxW+phm47qScRaF+oWANguM
-	 r92Narz0FwqlDmo+KrfEMSYtxRyp0lS3vBU0192chYlsOJGOKELFA2rdOkLdCmSo5xw==
+	bh=mk2tCxkYtM32zp5NxRVSmm3VqSq8Gz+JsrKNRTr6FRU=;
+	b=h7+JgyvMdnrR0U6kei9A6XhN3bk9ITUIdR/0VOKgU9UFWNE0yyHJMfhXpFkFj2aSqI7o
+	 I/iIa+T3v0BSoQYz89ms+JRvqXGndIZuOKD19tTX/fWJWm0X/yLez2zldaNYFplCFC8UC
+	 xhGuxurjCBEvAEBVC+YqSsGzAWsys8hTSt8drPEoNkfyURza8Kum9+B0z4mxxeOsqSFYe
+	 LoC4cxQ9WucXhAZg1Iu5o9UElz2ZxCDUGpEuNhaDm+SCvU5DnmsloV2Guj4qE7IdKKktq
+	 BSCjccw67DYZ/NvjiaRPeGxuo/9SrZgj0/Iv5mu3gTdg//q5FBlDha8R1AKQeGppuIg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="SZl/qGFy";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=g8WNxVen;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E18C0606A31E
-	for <virtualization@lists.linux.dev>; Fri, 23 Oct 2026 12:59:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBA56606A31E
+	for <virtualization@lists.linux.dev>; Fri, 23 Oct 2026 12:59:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SZl/qGFy
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D0851F01825;
-	Fri, 23 Oct 2026 12:59:08 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=g8WNxVen
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3ACF71F01828;
+	Fri, 23 Oct 2026 12:59:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792760348;
-	bh=cBC+shEKAh6fnx4DLc51NsNyomNOLmcjHuReAIR5ZNM=;
+	s=k20260515; t=1792760349;
+	bh=mk2tCxkYtM32zp5NxRVSmm3VqSq8Gz+JsrKNRTr6FRU=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=SZl/qGFyAcI3/XxVnWAWn09uhiUcPFdoqVbC3XkZVZ8kuPxU4OMrW8t7s4rcw6Kib
-	 v/HRk47NK68bkMjKdzcB8BmQiJR5elwgYZphFDJtXg2Ak8qEFfphu+HBvKik3D7o7I
-	 ga7NmXAPfPHzI/hTg+4s7wcIWNVCYGFQ9g3PNJEPFoinqwIcjP6EGAI6vMvkmf2KGZ
-	 A93x4aDn02K8JrNg36tVx7xkcgA58jaQKRxIq/3jFMQZQoESypRqo3WRb3utrQ4acr
-	 K8IOKooTegjZhvDBpoGu8jIDzmZPdArVahVSxHcc4pLRfwEvR3KsZVhxj6gugFqZgZ
-	 X4Y2goij3sZ5g==
-Message-ID: <sashiko-outbox-182807@kernel.org>
+	b=g8WNxVenFv4VLG70w7ylX6tglePhpfbHkW5s5l2LwOV4Zfhz8GuPv8oLTnwmwStij
+	 /V53boDDOMzU4U7x/swSqF5yxy7tHNrcD3G/oKmTExz2Zfl6wXkeL7+Ec7mVzMam3K
+	 SM/GBzw1Lb9NMg8VUq6RoIrmFjOgKVbS0eTqiAXkE/DwtxfFKo1m8YFm6Gjg0OT4Fa
+	 ogqIjH3xrgML3OAggtRV961rtZtWj6kSsmvUmErsFDq35Yls8UFUKVHMAxzFyBERk8
+	 w0Bkr6E55SBlEdqMY1c95mvUDycYlAJr2xgaJQCXgdMjjEZ2NucTE0knUb50ijvZq8
+	 Hlrhob0Ljpf2A==
+Message-ID: <sashiko-outbox-182808@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net v5 6/7] net: add ip4_parse()
+Subject: Re: [PATCH net v5 7/7] virtio_net: cleanup protocol calculation
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: virtualization@lists.linux.dev, "Eugenio Perez" <eperezma@redhat.com>
-In-Reply-To: <65a4d0ba37073c48d75251039882161efe5a4025.1792668082.git.mst@redhat.com>
+In-Reply-To: <f8621d16cf0c67335641d07c1555ec1e43f17628.1792668082.git.mst@redhat.com>
 References: <cover.v5.git.mst@redhat.com>
- <65a4d0ba37073c48d75251039882161efe5a4025.1792668082.git.mst@redhat.com>
+ <f8621d16cf0c67335641d07c1555ec1e43f17628.1792668082.git.mst@redhat.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 Date: Fri, 23 Oct 2026 12:59:08 +0000
@@ -60,97 +60,144 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [Critical] net: use-after-free of iph in ip4_parse() after pskb_may_pull()
+- [High] net: use-after-free read of iph->ihl after pskb_may_pull() in ip4_=
+parse()
+- [High] virtio_net: failed drop of invalid non-GSO tunnel packets in virti=
+o_net_hdr_tnl_to_skb()
 --
 
-commit f0109d51e8b0adc3b479c25e0e4799b7ae07962f
+commit 932b3459605ba3055ae9042b1894bc6eb02c03c4
 Author: Michael S. Tsirkin <mst@redhat.com>
 
-net: add ip4_parse()
+virtio_net: cleanup protocol calculation
 
-This commit introduces the ip4_parse() helper in include/linux/ip.h to
-pull and minimally validate an IPv4 header and its options, converting
-several callers in virtio_net, bridge netfilter, ipv4 input, and
-netfilter ipv4 reject.
+This commit removes a duplicate assignment of inner_proto in
+virtio_net_hdr_tnl_to_skb() by computing it once before calling
+skb_set_inner_protocol().
 
-> diff --git a/include/linux/ip.h b/include/linux/ip.h
-> index d11c25f5030a0..7e047d18a61c9 100644
-> --- a/include/linux/ip.h
-> +++ b/include/linux/ip.h
-> @@ -56,4 +56,41 @@ static inline void iph_set_totlen(struct iphdr *iph, u=
-nsigned int len)
->  {
->  	iph->tot_len =3D len <=3D IP_MAX_MTU ? htons(len) : 0;
->  }
-> +
-> +/**
-> + * ip4_parse - pull and minimally validate an IPv4 header
-> + * @skb: buffer to parse
-> + * @nhoff: offset of the IPv4 header within the linear data
-> + * @thoff: returns the transport header offset
-> + *
-> + * The whole header, options included, is guaranteed linear on
-> + * return, so the transport header offset is within the linear
-> + * data.  Callers that need to read the transport header must
-> + * pull further.
-> + *
-> + * Return: the validated IPv4 header, or NULL if truncated or
-> + * malformed.
-> + */
-> +static inline struct iphdr *ip4_parse(struct sk_buff *skb,
-> +				      unsigned int nhoff,
-> +				      unsigned int *thoff)
-> +{
-> +	struct iphdr *iph;
-> +
-> +	if (!pskb_may_pull(skb, nhoff + sizeof(struct iphdr)))
-> +		return NULL;
-> +
-> +	iph =3D (struct iphdr *)(skb->data + nhoff);
-> +	if (iph->version !=3D 4 || iph->ihl < sizeof(struct iphdr) / sizeof(u32=
-))
-> +		return NULL;
-> +
-> +	/* Pull the options as well: the transport header offset
-> +	 * returned below must be within the linear data.
-> +	 */
-> +	if (!pskb_may_pull(skb, nhoff + iph->ihl * sizeof(u32)))
-> +		return NULL;
-> +
-> +	*thoff =3D nhoff + iph->ihl * sizeof(u32);
+> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+> index 063cc116e51a1..e984e446ba44a 100644
+> --- a/include/linux/virtio_net.h
+> +++ b/include/linux/virtio_net.h
+> @@ -613,8 +613,8 @@ virtio_net_hdr_tnl_to_skb(struct sk_buff *skb,
+>  			return -EINVAL;
+>  	}
+> =20
+> -	skb_set_inner_protocol(skb, inner_isv6 ? htons(ETH_P_IPV6) :
+> -			    htons(ETH_P_IP));
+> +	inner_proto =3D inner_isv6 ? htons(ETH_P_IPV6) : htons(ETH_P_IP);
+> +	skb_set_inner_protocol(skb, inner_proto);
+>  	if (hdr->flags & VIRTIO_NET_HDR_F_UDP_TUNNEL_CSUM) {
+>  		if (!tnl_csum_negotiated)
+>  			return -EINVAL;
+> @@ -638,7 +638,6 @@ virtio_net_hdr_tnl_to_skb(struct sk_buff *skb,
+>  	 * We know VIRTIO_NET_HDR_F_NEEDS_CSUM was set so __virtio_net_hdr_to_s=
+kb
+>  	 * set CHECKSUM_PARTIAL.
+>  	 */
+> -	inner_proto =3D inner_isv6 ? htons(ETH_P_IPV6) : htons(ETH_P_IP);
+>  	if (virtio_net_csum_partial_ok_at_offset(skb, gso_inner_type, inner_nh,
+>  						 inner_proto))
+>  		return 0;
 
-[Severity: Critical]
-Can this dereference of iph->ihl after the second pskb_may_pull() cause a
-use-after-free?
+[Severity: High]
+When virtio_net_csum_partial_ok_at_offset() validates an IPv4 header via
+virtio_net_l4_start() -> ip4_parse() (introduced earlier in this series in
+commit f0109d51e8b0 ("net: add ip4_parse()")), can ip4_parse() in
+include/linux/ip.h perform a use-after-free read of iph->ihl?
 
-In include/linux/ip.h:ip4_parse(), iph is initialized to point into
-skb->data before the second pskb_may_pull() call pulls the IPv4 options.
+In include/linux/ip.h:ip4_parse():
 
-When IPv4 options (ihl > 5) reside in non-linear skb data and either
-skb_cloned(skb) is true or skb->head lacks tailroom (or when
-skb_might_realloc() triggers), the call chain:
+	if (!pskb_may_pull(skb, nhoff + sizeof(struct iphdr)))
+		return NULL;
 
-  pskb_may_pull()
-    pskb_may_pull_reason()
-      __pskb_pull_tail()
-        pskb_expand_head()
+	iph =3D (struct iphdr *)(skb->data + nhoff);
+	if (iph->version !=3D 4 || iph->ihl < sizeof(struct iphdr) / sizeof(u32))
+		return NULL;
 
-allocates a new skb->head buffer, updates skb->data, and frees the old
-buffer that iph points into. Reading iph->ihl again afterward to compute
-*thoff accesses freed memory before skb->data + nhoff is recomputed for
-the return value.
+	/* Pull the options as well: the transport header offset
+	 * returned below must be within the linear data.
+	 */
+	if (!pskb_may_pull(skb, nhoff + iph->ihl * sizeof(u32)))
+		return NULL;
 
-Would computing *thoff =3D nhoff + iph->ihl * sizeof(u32) before calling
-pskb_may_pull(skb, *thoff) avoid dereferencing the stale iph pointer?
+	*thoff =3D nhoff + iph->ihl * sizeof(u32);
+	return (struct iphdr *)(skb->data + nhoff);
 
-> +	return (struct iphdr *)(skb->data + nhoff);
-> +}
->  #endif	/* _LINUX_IP_H */
+When an IPv4 packet has options (iph->ihl > 5) that reside in nonlinear
+paged data (so nhoff + iph->ihl * sizeof(u32) > skb_headlen(skb)), or when
+the skb is cloned, the second pskb_may_pull() call invokes
+__pskb_pull_tail() -> pskb_expand_head(), which allocates a new skb->head
+buffer and frees the old buffer still pointed to by iph.
 
-[ ... ]
+Dereferencing iph->ihl to compute *thoff after the second pskb_may_pull()
+then reads from the freed buffer before iph is reloaded from
+skb->data + nhoff. This affects all callers of ip4_parse(), including
+ip_rcv_core(), virtio_net_l4_start(), br_validate_ipv4(), and
+nf_reject_iphdr_validate().
+
+Should ip4_parse() cache iph->ihl * sizeof(u32) in a local variable before
+the second pskb_may_pull() call, or reload iph from skb->data + nhoff first?
+
+[Severity: High]
+Also in include/linux/virtio_net.h:virtio_net_hdr_tnl_to_skb(), what happens
+when virtio_net_csum_partial_ok_at_offset() returns false for a non-gso
+packet with a tunnel header?
+
+Earlier in virtio_net_hdr_tnl_to_skb(), __virtio_net_hdr_to_skb() only sets
+shinfo->gso_size and shinfo->gso_type when skb->len - nh_off > gso_size. If
+a caller provides gso_size >=3D skb->len - nh_off, skb_is_gso(skb) remains
+false, which virtio_net_hdr_tnl_to_skb() explicitly accounts for after
+setting the inner header offsets and skb->encapsulation:
+
+	skb->inner_transport_header =3D inner_th + skb_headroom(skb);
+	skb->inner_network_header =3D inner_nh + skb_headroom(skb);
+	skb->inner_mac_header =3D inner_nh + skb_headroom(skb);
+	skb->transport_header =3D outer_th + skb_headroom(skb);
+	skb->encapsulation =3D 1;
+
+	if (!skb_is_gso(skb))
+		skb_shinfo(skb)->gso_type &=3D ~(SKB_GSO_UDP_TUNNEL_CSUM |
+					       SKB_GSO_UDP_TUNNEL);
+
+	/*
+	 * We know VIRTIO_NET_HDR_F_NEEDS_CSUM was set so __virtio_net_hdr_to_skb
+	 * set CHECKSUM_PARTIAL.
+	 */
+	if (virtio_net_csum_partial_ok_at_offset(skb, gso_inner_type, inner_nh,
+						 inner_proto))
+		return 0;
+
+	/* A tunnel header implies GSO, so drop. */
+	return __virtio_net_resolve_csum_partial_mismatch(skb);
+
+However, in include/linux/virtio_net.h:__virtio_net_resolve_csum_partial_mi=
+smatch():
+
+static inline int __virtio_net_resolve_csum_partial_mismatch(struct sk_buff=
+ *skb)
+{
+	if (skb_is_gso(skb))
+		return -EINVAL;
+
+	return skb_checksum_help(skb) ?: 1;
+}
+
+When !skb_is_gso(skb) and virtio_net_csum_partial_ok_at_offset() fails
+because the inner headers are malformed or do not match inner_th,
+__virtio_net_resolve_csum_partial_mismatch(skb) does not drop the packet.
+Instead, it completes the inner checksum via skb_checksum_help(skb) and
+returns 1, which callers treat as success.
+
+Does this allow a non-gso tunnel packet with invalid inner headers to enter
+the networking stack with skb->encapsulation =3D 1, unvalidated inner header
+offsets, and any requested outer tunnel checksum
+(VIRTIO_NET_HDR_F_UDP_TUNNEL_CSUM) lost when skb_checksum_help() sets
+ip_summed to CHECKSUM_NONE? Should virtio_net_hdr_tnl_to_skb() return
+-EINVAL directly when virtio_net_csum_partial_ok_at_offset() returns false?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/cover.v5.git.mst@re=
-dhat.com?part=3D6
+dhat.com?part=3D7
