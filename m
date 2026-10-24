@@ -1,74 +1,71 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=162.62.57.137
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=43.163.128.43
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792827209;
-	b=Ec4YZzrnLv3pzITxdqxCyIYzEeRvZmusq4ugbvY/2NGtF2KJQDBTZsBpnQ/kiKAJqk4/
-	 nsEJBH/MX9DQLinYKFAobjVqjfshpI+jamDTTPOgwnABrrClvzaKXQFU5WhWd2/9wvPFg
-	 rUnne0h5kvY9CDKuZkuv0RHCPJ022dbEkd1mSXi2H0QLUxTlckZZHjavrrkgA8t4J6g7w
-	 Bxn8XZLdc+TdNbJry+b5UbjBS1WH+5JAbsw5D70QZk2/CCpg8yFJVccTKGNRqG/7Kp70b
-	 pTYq4M6NLBtSiBVnm4P40+NN3vNHaJc/cKb+h6riQ6IAbmuC2Vr3eN2DjqLA9yZJKLA==
+	t=1792830963;
+	b=RmqDubx83qvOrfw6MR6bJo0nbe0/HtFNyjxZbvazxfG6YJSqQ/Cj+Qi8HnElUtsWDUcX
+	 lgjS0Fch0io/Piwv4UAdINNPZqt7dy5ZjCKK2HQXag31WS7wHBVek5+tAP4VhAdJbYWvF
+	 g5m5Xmv3dUkDXwUS5HICW/q/hiANWOvuXjwPyh5+fNwUeBRxP6sRBNku3cAFzbCDUs2Wa
+	 bop+OWQJEEeV8V7ACJE/UnuR6Q4Sc5egJq7AXCOCrsQ7epTclc6n5AihFhahIbqX0+Mg1
+	 KMPcRL8mPwMGw3wyuNkBahZga6fEQyW4Dwg4NjfbCfAz+o1wpRD0+UpUqcAJz9753wQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792827209;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792830963;
 	h=DMARC-Filter:DKIM-Signature:Received:X-QQ-mid:Message-ID:
 	 X-QQ-XMAILINFO:X-QQ-XMRINFO:From:To:Cc:Subject:Date:X-OQ-MSGID:
-	 In-Reply-To:References:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=Ok3pjg22edXzQhuK8h6FzdRDjegD24d8xy6xP3Un7Og=;
-	b=UfIQJcURWxJm84RQvyjJ10oxYouZlEhhKrNgZkuTCWfB+IMargUvxm8AqY0A80WMwlMx
-	 RCFi6d3TPJ2SyD2LOfMNb10fc0tesWrvuKy1zo/Qf5vkfusleRopDuB9ahRWEMKpPoKdU
-	 xtSS24ad6EGSK2MuLphNOvvWHPKHTn39CPaHvY5hK8O+0sQKKv2WHtZz147IEVe5WwNfA
-	 FBPYv9RMyNovxfa2oUWuTvSHTnWuZUSZCWG5uJ5rAXEYgUPuk9kngXrQtlTeNRN600jvn
-	 DCtFHK8c7uTXBCUKKb6FxQ9lOptaplwtRkLLUGbA7DaQEysH6r6pKECQtEhDyhpG0QA==
+	 MIME-Version:Content-Type:Content-Transfer-Encoding;
+	bh=CSCL5CWSQw3qoFOn0Dd294AF8Lzi0nwEBXNidP0LLUw=;
+	b=NdzVNlYJYJOzlpC/qr4O9K4R1wtY8q8YiLr/3vMPGWvIXsO5nB+KxuzNe0gTLrDCvfgv
+	 DffxCqx0kZV9Vgfu1XP+vss3Si4HjC0ASRq/3RF91DQ/JhfvP0uoEEhxDpvL/pFsLhLHQ
+	 wNEWwskm6q5zwaOOcCqHaZQYTrncekvYFdAcTQmBLYHsCPJDQtusHoW9Z5+fI1laZOMIs
+	 ByKfAJxz3kb6ImrhWIru8P/72FavXv79dmsnTrncBTFcxQ3oxBJI1mfhlfoF93aW2TSNB
+	 QY8xY3McVMm1o2E08ebZFT7Nc9WIEvSaSKv/2nMWzs2Yt6o6OHUvioWDgJkSTxKzaZQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=qq.com;
 	spf=pass smtp.mailfrom=qq.com;
-	dkim=pass header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b=fzdllpE6;
-	arc=none smtp.remote-ip=162.62.57.137
-Received: from out162-62-57-137.mail.qq.com (out162-62-57-137.mail.qq.com [162.62.57.137])
+	dkim=pass header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b="SPlRTOW/";
+	arc=none smtp.remote-ip=43.163.128.43
+Received: from xmbghk7.mail.qq.com (xmbghk7.mail.qq.com [43.163.128.43])
 	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F31DD606A31B
-	for <virtualization@lists.linux.dev>; Sat, 24 Oct 2026 07:33:27 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org F31DD606A31B
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B1FD606A31A
+	for <virtualization@lists.linux.dev>; Sat, 24 Oct 2026 08:36:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5B1FD606A31A
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b=fzdllpE6
+	dkim=pass (1024-bit key, unprotected) header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b=SPlRTOW/
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
-	t=1792827203; bh=Ok3pjg22edXzQhuK8h6FzdRDjegD24d8xy6xP3Un7Og=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=fzdllpE6O5GmIISEiixKEHXvpzrpblzndNtULG9lk+boRG5QVvg6kYzt38scv8siQ
-	 x/72E1EbEy3WJe790wUVUz4/YSgUDCQH372K9wOMP8S4pxOlEMdQAIb3M69auBrmKn
-	 4ycwP1iB0mEtYDnGkbI9wCgT+bq4Z+kIX24tM/F0=
+	t=1792830959; bh=CSCL5CWSQw3qoFOn0Dd294AF8Lzi0nwEBXNidP0LLUw=;
+	h=From:To:Cc:Subject:Date;
+	b=SPlRTOW/glXR5YWrzSEYc1IcsUta9O+WZDtwsI8DKVUX2ZdVkPCMdQ/9LA2Yl4HBs
+	 CgRieQ5SCedI4ED+QNw5tb0nOH5m1dJ6VHHOPqFbFlEQ9ibXqVw0BjgeB+yM9LCHs+
+	 4d4wzsLid6eeDOcTE9b45F7mzEC+CXNz4uMoGWxg=
 Received: from [172.18.4.77] ([111.31.227.58])
-	by newxmesmtplogicsvrsza53-0.qq.com (NewEsmtp) with SMTP
-	id 855128F4; Sat, 24 Oct 2026 15:33:21 +0800
-X-QQ-mid: xmsmtpt1792827201t5bz1fjn2
-Message-ID: <tencent_4528029FEDA8E7D49AEFE291032742538F07@qq.com>
-X-QQ-XMAILINFO: M1rD3f8svNznoVYgx84LsIAP5h2YIyC95fLBj1+igaesL7k2a3y8AV0oqlqnGK
-	 btgd/OgvLzUpyxM0HB9VguSu56OjljM2QW4Wu/w7OqtIbX34vVMB3He83DkZecQKvX49yOOBrB44
-	 2FTsbOzykZZ8vzXIH1Ye2nEE95688cK4Uc8OyEzAWIczuLGbm3VOL/zX2pddpXtZ7lAwUDLbSXDS
-	 d/7nQrXZH91K6eXxhd0gjSOrBXB/MXC0AatQkDjUl1ImEWkT8T82jkG0791+DqD8LY+la6w60I9k
-	 LLPpbmdAM2laYP43dBS5MalHr8PtL/DW7FOps5oh9PTDK6DMn2sEDO4ssJJsZBztSTVnVL2Jetc8
-	 NFErxvRoTc/0moD9/fH2GSFjHWp/rvQ1YYMPGLdNW2I7NBnpc45pJvEfkF66Kfzz4METLDmP621K
-	 qVOSaPlPYWq0mjgWTZosT+TbZ8qUC3JwKpeOqfMWUtAfjCWj+wwY+x48MUfKJmCRMi+wkm48mInG
-	 PhWdvrkVfAOuE2dUTL+KRVa3o9cRnoFBwalRX29Ps8xtk5VL4fRBEvcFV41sP0jjw25R+OTORkHB
-	 1AS9wa3P4X1HGdHDOvsME337oNwzzfCNi6BY2l0b5nDb2w1RHMt9ZArSlnUW1fJN8oh2eoVWdyxP
-	 Zk8AqZmtaSKI+heHUl4X/QvfjkTSdhcdqGAHcbzNwSums+0twgyOe52JTQqgRvU45QMqIRKe/iHj
-	 gkfXHkrQ4ExzBwdswyn0KkPxCnchttF2isjJNM93q1xP3e6NTGB3+eWv+IEjcj3ZPLS92UPzSU9s
-	 L1D2CxtQ2YvA0KONXcnDUfjlByj5exhl9VCwVHlKp5YKQkafVDm5pkkbACHoAbKOBfIXjs0FnTJ+
-	 jNqSvFvgZY3k5kXROAq3PP3bQd7g/SRtqzt0VJ8FPmjX3+Dsy+HJBg7IPUsC3iDCGaWmP1gIaSD8
-	 J9MDT2Qv1tZYmOtpqxLLufx7UpnqGeQbsbZ7WK85F1FhZTDSNWoqJU6OZkffvvVP3O8NrJeGeXU1
-	 buyOLnoKzom+B9pZ3vh9EfNSf5gFE7gGqaLFao0dxclUxhefDvXLuu8rLcO9L/H8+BeD/nCLMux+
-	 gylTKh7JM24jBQjGo=
-X-QQ-XMRINFO: NyFYKkN4Ny6FuXrnB5Ye7Aabb3ujjtK+gg==
+	by newxmesmtplogicsvrsza63-0.qq.com (NewEsmtp) with SMTP
+	id 8F902A78; Sat, 24 Oct 2026 16:35:57 +0800
+X-QQ-mid: xmsmtpt1792830957ta3kbunfk
+Message-ID: <tencent_78459DA7B67FAB8F9039619AAE4699FB680A@qq.com>
+X-QQ-XMAILINFO: NtksVjXir1Sbkmt9IMA0eZy7A3neQp/Xox36KtFUWJOi6spmDTCxEHm7jly9/s
+	 JwcMAlkuUN+Q+TJAxVTpvFHM/izodEgZqgV5WZkbwMIlzagJxgt7KT21Y5mFGhdX4sBvGcSzrERV
+	 Wa/86+3MJVgSYpepWyn8k3seayboC1gb8UXB3dFQHfUjiEBsRJApw4NYhc5T8svbFwuuFq5GK1gG
+	 CedWQMYI5ggYA37LRjD8AURs/xDg8WkfDDiPvVSov2FIyWkBICN51mq+a3zFZGXn/Zm9RsGjjEj8
+	 7jXqUcUtqBJLE6O5WgbgovawuvNPxMb3papUyGCjsypRhaZYsXL1c7pCFbWo0cp00MWYyL8NegWq
+	 PepR7sr8zraLFEvo9WcBChbGNsY+0s2rYTzcBhq4jOVJ6chLoUEsM3jzpi33dMj6nIeRSWEPE2OX
+	 PUvRDWGxe9z+mc0TY3OeTOclRbKrFuC1emVQktiUuiWHGS9fNCLFXbXQu57jiIAhHl4REzUkqY+c
+	 Oq+SEJ9hxyOoAEDwHi/rWHp5d4Xw6PBh8e/EI8HKQE3gCFY/cd2SNotuTwINKA50stACuWtsmgk/
+	 4OO3efHY8alCl3fzfGxTI++ns7e8CA6fBJ7Os/l+2f+zucYsB/JLlyM7MNn9dsN4ghj7xf4pLblP
+	 TT1JnfL9dg+L1CBGIitnkPOfIB+Z/nf64vYwu6SEAnkRFV+JMC3k1qScEiBJckAmqP/eGYfxe+48
+	 O/uOJUHaQUKqQuws2BcmbnYnvhAwhl6DG5dXzWuzUhBeT1JsjvPqGv7XpcfVbvKDKjqQ563/4pge
+	 FW0V5NwLGXSAhQPwnmPuoTqLz0o9R3Lrb8dN4HcLKqrc6zueHtyjH3SPcZWvuOSr8ijOw59dphAC
+	 jtDE3B3neu/Fevoos1CPxZIN47F8GNAqxt9s98W62CibeSHMkWwaavnrUhR2oTvQ5DmpULQ9V1zI
+	 nmozkXCiz7BBXWD0K4I7cczIROm0LJGhyivgFONGoA279Lx9U7AkyMKylM7siK7F2pnt8+pqswng
+	 dPfLwRRi6wGCuwEDnCRsG5P51amDa2DU8E9uJCInQ2VUdGFb9rhteOot6PeuuUAus31dMBOjkJ2U
+	 oOOjzH
+X-QQ-XMRINFO: Nq+8W0+stu50tPAe92KXseR0ZZmBTk3gLg==
 From: Guikun Yang <yangguikun19@qq.com>
-To: Michael S. Tsirkin <mst@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux.dev, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] vhost/net: initialize the whole negotiated RX vnet header
-Date: Sat, 24 Oct 2026 15:33:19 +0800
-X-OQ-MSGID: <20261024153319.61076-vhost-yangguikun19@qq.com>
-In-Reply-To: <20261024150815.36216-vhost-yangguikun19@qq.com>
-References: <tencent_803981983647D9F9444561A4227F138C600A@qq.com> <20261023080824-mutt-send-email-mst@kernel.org> <20261024101101.71420-vhost-yangguikun19@qq.com> <20261024150815.36216-vhost-yangguikun19@qq.com>
+To: Amit Shah <amit@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: [BUG] virtio_console: port_fops_write() dereferences port->portdev without any lock
+Date: Sat, 24 Oct 2026 16:35:55 +0800
+X-OQ-MSGID: <20261024163555.70576-virtio-console-yangguikun19@qq.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -81,87 +78,109 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 
-First, a correction to my previous message: the AF_PACKET injection in
-that run never actually worked.  I took the "ifindex" from the ifreq
-returned by TUNSETIFF, but TUNSETIFF fills in ifr_flags there (the
-values 4098/20482 I printed were BROADCAST|MULTICAST|VNET_HDR flag
-bits), so every sendto failed with ENODEV and no packet was ever
-injected.  The all-0xAA buffer in that run only shows that no packet
-was processed at all, and the "payload starts at offset 24" claim was
-wrong.  Sorry for the noise.
+Hi Amit,
 
-I fixed the injection (SIOCGIFINDEX by name) and re-ran both
-configurations on 7.3.0-rc7 with a 64-byte broadcast frame injected on
-the tap.  With IFF_VNET_HDR enabled (plus TUNSETVNETHDRSZ(24)) the
-result is worse than stale bytes: the packet is consumed from the tun
-queue and then silently discarded, so the guest sees nothing at all:
+port_fops_write() dereferences port->portdev->vdev to allocate the
+output buffer, but by the time that line runs the port can already have
+been hot-unplugged, which sets port->portdev to NULL.  The result is a
+NULL pointer dereference on a plain write() to a virtio console port
+whose device was removed concurrently.
 
-  tunnel mode (no IFF_VNET_HDR), sendto 64 bytes ok:
-	hdr: 00 00 00 00 00 00 00 00 00 00 01 00
-	     aa aa aa aa aa aa aa aa aa aa aa aa   <- stale 12..23
-	     ff ff ff ff ff ff 02 02 ...           <- our frame at 24
+The write path:
 
-  tunnel-vnet-hdr mode (IFF_VNET_HDR | TUNSETVNETHDRSZ(24)),
-  same 64-byte sendto ok:
-	hdr: aa aa aa aa ... (all 32 bytes untouched)
+	port = filp->private_data;
 
-The guest buffer is never touched in the second run.  The packet was
-read out of the tun queue and then dropped.
+	nonblock = filp->f_flags & O_NONBLOCK;
 
-The reason is a peek/read size disagreement:
+	ret = wait_port_writable(port, nonblock);
+	if (ret < 0)
+		return ret;
 
-  - peek_head_len() returns head->len, i.e. the raw skb->len.  The tun
-    vnet header is not in the skb; tun_put_user() adds vnet_hdr_sz
-    bytes at read time.
-  - With VHOST_NET_F_VIRTIO_NET_HDR negotiated, sock_hlen = 0, so
-    handle_rx() computes sock_len = peek = skb->len (64) and calls
-    recvmsg(sock, &msg, 64, ...) with a msg_iter sized for
-    vhost_len = 64 + vhost_hlen(24) = 88.
-  - tun_do_read() delivers skb->len + vnet_hdr_sz = 64 + 24 = 88 bytes
-    and returns 88.
-  - handle_rx() then sees err (88) != sock_len (64) and takes the
-    "Discarded rx packet" path: vhost_discard_vq_desc() rolls back the
-    descriptor, but the skb has already been dequeued from the tun
-    receive queue.  The frame is gone.
+	count = min((size_t)(32 * 1024), count);
 
-So for a tun backend, the three combinations are:
+	buf = alloc_buf(port->portdev->vdev, count, 0, GFP_KERNEL);
 
-  VHOST_NET_F_VIRTIO_NET_HDR | IFF_VNET_HDR | result
-  ---------------------------+--------------+--------------------------
-  off                        | on           | ok (classic: tun header
-                             |              | passed through)
-  on                         | off          | header written by vhost,
-                             |              | bytes 12..23 stale (the
-                             |              | patch under discussion)
-  on                         | on           | every packet consumed and
-                             |              | dropped, guest RX blackout
+wait_port_writable() ends with:
 
-VHOST_NET_F_VIRTIO_NET_HDR means "vhost supplies the header, the socket
-data has none", so it is only consistent with a backend whose
-vnet_hdr_sz is 0.  When the backend has vnet_hdr_sz > 0 the peek and
-the read disagree and handle_rx() eats every frame.
+	/* Port got hot-unplugged. */
+	if (!port->guest_connected)
+		return -ENODEV;
 
-Given that, I don't think disabling "vhost + !IFF_VNET_HDR" is the
-right fix: that is exactly the combination VHOST_NET_F_VIRTIO_NET_HDR
-is for, and it works apart from the 12 stale bytes my patch addresses.
-The combination that is plainly broken is "vhost supplies the header"
-together with a backend that supplies one (IFF_VNET_HDR set), which
-today results in a silent total RX blackout.
+That check reads guest_connected without any lock, and the code after
+it (including the alloc_buf() argument evaluation) runs without a lock
+either.
 
-So I'd suggest one of:
+The unplug path (unplug_port(), running from the control workqueue on
+VIRTIO_CONSOLE_PORT_REMOVE):
 
-  1. Reject VHOST_NET_F_VIRTIO_NET_HDR (or refuse the backend attach)
-     when the backend's vnet_hdr_sz is nonzero, so both broken
-     combinations become impossible; keep my patch for the stale bytes
-     in the remaining valid combination.  The backend header size could
-     be queried at attach time the same way TUNSETIFF-derived sockets
-     are handled today.
+	spin_lock_irq(&port->inbuf_lock);
+	if (port->guest_connected) {
+		send_sigio_to_port(port);
+		port->guest_connected = false;
+		port->host_connected = false;
+		wake_up_interruptible(&port->waitqueue);
+	}
+	spin_unlock_irq(&port->inbuf_lock);
+	...
+	spin_lock_irq(&port->outvq_lock);
+	port->portdev = NULL;
+	spin_unlock_irq(&port->outvq_lock);
 
-  2. Keep all combinations and fix both symptoms: my patch for the
-     stale bytes, plus making the peek path account for the backend
-     header so peek and read agree.
+	guest_connected is cleared under inbuf_lock, and portdev is cleared
+under outvq_lock afterwards.  A writer that passed the guest_connected
+check in wait_port_writable() can then reach alloc_buf() after the
+unplug has cleared portdev, and port->portdev->vdev dereferences NULL.
 
-Happy to test whichever you prefer.
+The code itself shows the authors were aware of this hazard:
+__send_to_port() checks portdev under outvq_lock and bails out when
+NULL ("Null out portdev under outvq_lock so that __send_to_port()
+cannot race").  port_fops_write() and the other file-operations paths
+that read port->portdev outside that lock were left unprotected.  The
+unprotected dereferences are:
+
+	line 860: port_fops_write():
+		buf = alloc_buf(port->portdev->vdev, count, 0, GFP_KERNEL);
+	line 968: port_fops_splice_write():
+		buf = alloc_buf(port->portdev->vdev, 0, occupancy, GFP_KERNEL);
+
+Both run after wait_port_writable() with no lock held; a concurrent
+unplug clears portdev in between and the next statement dereferences
+NULL.  port_fops_splice_write() additionally reads port->out_vq->vdev
+at its start (line 955) with no lock either.
+
+Note on lifetime: this is a NULL dereference, not a use-after-free of
+the port itself.  The fd holds a reference on the port, so the port
+object survives; only port->portdev is nulled by the unplug.  cdev_del()
+in unplug_port() only prevents new opens; already-open fds keep
+returning data from the stale port structure.
+
+Trigger: any KVM/kata-style guest with a virtio console port opened by
+userspace while the host (or the virtio device) removes the port.
+Hot-unplug of console ports is a normal operation, so the window does
+not require a malicious setup, only timing.
+
+I checked linux-next (2026-10-24, drivers/char/virtio_console.c as of
+today): port_fops_write() still reads port->portdev->vdev unprotected,
+and so does the read path at line 968.
+
+Related work: Hari Mishal's series earlier this year added a kref to
+find_port_by_vq() (upstream commit 18dd0b4e489e, now in stable), which
+fixed the in_intr()/out_intr() use-after-free of the port object.  That
+fix addresses a different lifetime problem (the interrupt paths racing
+the kref_put in unplug_port()); this report is about the userspace
+write/read paths dereferencing port->portdev, which that series did not
+touch.
+
+Suggested fix direction: read portdev once with READ_ONCE() after
+wait_port_writable() and bail with -ENODEV when NULL, or take
+outvq_lock around the alloc for consistency with __send_to_port()'s
+existing convention.  port_fops_splice_write() needs the same
+treatment (and its out_vq read at line 955 needs a look as well).
+
+I do not have a reproducer program for this one; the race is the same
+shape as the unplugged-port races already fixed in this file, and the
+window is the gap between the unlocked guest_connected check and the
+alloc_buf() call.
 
 Best,
 Guikun Yang
