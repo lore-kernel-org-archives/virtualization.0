@@ -1,110 +1,108 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.178
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792858138;
-	b=XV696zk26PI5DFbRXAErYNLmdwD8ZrUuwgQkoCvii2AbVWOTl/PEMpt/dkiIShzdXU3M
-	 DK/t+H52Y8AGXuQEGPObo/0s5QO3aSiN5lROc6vs0HPAyjG9ulXWC7JeWponyHkmLDviM
-	 MGP6SrHhuQPGPwu183nvaDG80FWJ1AIOTXjri7G+sGGOsm66Smn+NR+wi+4pK49C4Fjhr
-	 nc1Mwn8v1KEJYHFTKil5Fie5IWAzLUy9FLw9vsDOMxKHiE4rGOzwUJ0qcWky/VEndOz56
-	 RIg3TWi4AhcNIAc4zm53wOgJbJvMcnVU0YmhCIoIhev7dumjN6DIJSwthNtUvtBd41A==
+	t=1792858819;
+	b=XSlhOw45ypDNLVo5YFX48j7ocnaW3k8hVGYWrii3nkqM3AVmEWOPOy7rZ/4xQFI78zbY
+	 C67O5kHWeXq2/KRlNXu0a3xoyhRIaMGKFoCL1WC06L+lMlVWJggF5J7gB+fIA10rfbKXf
+	 yCrFIp63wS8rBmF3Doc9Pr2ug637aT7nxixofewFSfL8zI5dpJjMmM9SorCB0kkWieD03
+	 qnGMV3CI7K0ntqFHTMws4z/qBdtBr4ohhjWMxXqeJ8DmJHEcHb/WNCVKCeyl/LOLtUxhZ
+	 RzrsCJDRYAPw/j++2VaCyJ98nIrQkROLoG1iExXLhaixVgElJySGVslwgkJWmpAZmGA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792858138;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding;
-	bh=jqgo1XywgsdgGPVlo0B4zN6yPIeNTL0VXgREkra6lSU=;
-	b=r65lBZVPqBZ6cz71E7L1O/85v9nzJb18tmCj7B2Brtyxt4fGkqCuCDYGeKrjhgBVIb5l
-	 Rsu+5P5TXQOp/CSTZcQuYAZEu9qjUnVtwA9t6cUdntvrz0yl6/6vTyBGxhqM5yFBpNlTO
-	 HpnBav4/4wwFJQRTdyo02XEvYpZUNAiTS0/BFVXyUHsbMI1rSA2ceHntXdJfN0pfthWZT
-	 OoRYbImh4c/DlSwLBBMmxJeey11Cx8LRC3VveQIT2cqYsKp1tNMcuPYb8P08xbgrM0SpQ
-	 VFRZP2bfyRHczzmVFmcE9ewCUrMlyfXKWMAu3BTX16/i82aUL7m4L244k2UXVxteQ3g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792858819;
+	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
+	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
+	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
+	 X-Mimecast-Originator:Content-Type:Content-Disposition;
+	bh=JnidHUsBQArt33vLjV0kqnv/bWxmzPm4EkJn55+rvF0=;
+	b=zrtiAeO1HRa7RJqqYMFeew9O0rqnnTRegeYp24+qwd++vWr92iLdRpldJbSbaPJdxLrm
+	 wU3o/DSNuzqXZlsrJI6x5nKad0NE1AnFclhVLdDPjZKo1j102lcqxwftidFwxq4ytcl+t
+	 mc+CWHYYvmvtq1DrrYBjcZF8LSNHLP2x8V428BA6kDre8S/skFrxpIVYKM/xXLczC5c9N
+	 cRps/WTA1Yw9KHmMjq73R7b4rdF2oK3jV+QgIDCGRzzheXO1/xR770DwU8GLnbVHNBXM3
+	 g3NW783K2nLgVtBYh+9h2W+Tcc7g2xZIph5MUBOAlVL83lDRTNpsZJfjy3OB/Q/mEkw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=s4JG3Agl;
-	arc=none smtp.remote-ip=209.85.221.178
-Received: from mail-vk1-f178.google.com (mail-vk1-f178.google.com [209.85.221.178])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=redhat.com;
+	spf=pass smtp.mailfrom=redhat.com;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=LYjbY+Ni;
+	arc=none smtp.remote-ip=170.10.129.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDD77606A31A
-	for <virtualization@lists.linux.dev>; Sat, 24 Oct 2026 16:08:57 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DDD77606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8592D606A31D
+	for <virtualization@lists.linux.dev>; Sat, 24 Oct 2026 16:20:18 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8592D606A31D
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=s4JG3Agl
-Received: by mail-vk1-f178.google.com with SMTP id 71dfb90a1353d-5eac9db5905so639350e0c.0
-        for <virtualization@lists.linux.dev>; Sat, 24 Oct 2026 09:08:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792858137; x=1793462937; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:mime-version:subject
-         :references:in-reply-to:message-id:cc:to:from:date:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=jqgo1XywgsdgGPVlo0B4zN6yPIeNTL0VXgREkra6lSU=;
-        b=s4JG3AglIKSQT5QblxR1lsbH3WMWu3I4Yat6zc0iWTPR+Ez23QFl4XYsaLywGDMTDS
-         Ohh8DEjjiSslbMF5ey7xxyWAVXRkEiClF1aluUu/jVYlJS7x/E3wAjkNh1Td2CBNoSBU
-         e8gmPLIhPm5qOmqPoBPKVXIHmuQVIPEHl+fkhVOm83fCc8+0fQzy4yhK/h84l5EenDXZ
-         O7HD+olA4Sv6Tt0jy2IGKg/F9fLYsjR/C4/zumiDEMWanUtbzJsVK5NfMeUz5YMziB3Y
-         ikXlBbcOz3VNMNRZg1jx82pGmmFCEn6RNK8g+8hixljvt5tmEu//zRKTgO9IwfYQM3On
-         gGqg==
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=LYjbY+Ni
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1792858817;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=JnidHUsBQArt33vLjV0kqnv/bWxmzPm4EkJn55+rvF0=;
+	b=LYjbY+NiuAzlv1S0TktrcP/XaFUeM7qeCFX6aOm0YNJMr00LCp7a8SxFM9dLxDs4XOc4lI
+	4DuvNn0Gp+0vKZkIadnmEtlUNXRXPkdNbb4spTumNa1dsCL8QcOeN+FfyEiTX5jSGVepSy
+	npmCeYTjczzO0S2TagjkCbN4SvT5IbA=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-475-2Bc0Y7mbM6mojK5WU69q9g-1; Sat, 24 Oct 2026 12:20:16 -0400
+X-MC-Unique: 2Bc0Y7mbM6mojK5WU69q9g-1
+X-Mimecast-MFC-AGG-ID: 2Bc0Y7mbM6mojK5WU69q9g_1792858815
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-48e0ef019a4so1534458f8f.3
+        for <virtualization@lists.linux.dev>; Sat, 24 Oct 2026 09:20:16 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792858137; x=1793462937;
-        h=content-transfer-encoding:content-type:mime-version:subject
-         :references:in-reply-to:message-id:cc:to:from:date:x-gm-gg
+        d=1e100.net; s=20260707; t=1792858815; x=1793463615;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=jqgo1XywgsdgGPVlo0B4zN6yPIeNTL0VXgREkra6lSU=;
-        b=aY2hBqRV/O7sjjMzj8+kBatG4/rUvkzrdcBRtnnyZhJ1XgCgdaaffMkxKhcRqQyaLl
-         hlB6oKt9SDFvqu8hwJwoAYcE1MwZBz/LBvYmQZvXyHccsrBlA5vKiM/3YiBFt+BDV7Sn
-         6S+7KkishkIO1lYx4B8QBRK12JaqjMcuXP3fV3lMzT1B23rtBXEGe6n+G5twpaqXcIdF
-         nTnpvkvCb/iDdE+aLLqdZeKfKGmf1HfmbJBjoMeEhD8xBz7UKevUqdhMGHLpGHhNsIPW
-         PdyhrhKPzfHNKHGgaz2SynUb1wIqd5SZ2XKnA1lbGSaij0BNLrXdRvpuNSECDTiGZ/C8
-         sp6w==
-X-Forwarded-Encrypted: i=1; AKwUvBwyRZybg2rmO96sT3SZZO70ZC4GkbyDyj05BvvkrTBkmRd+X0rJi+dQQ/qKFn8SB6xEQvxEpMHOMGKiS6AGeA==@lists.linux.dev
-X-Gm-Message-State: AFq9FYKfzEi3ZQHMlPlHCRp4nhYx9YG4NJ5ZJvYeNOuVEP6K/gJrJZJJ
-	QvnBiMoEZ8mRNgCkx3kjfuB7rMiWnGBOx2+jW1d6H0/oCpKmYksKj9Yu
-X-Gm-Gg: AYBFou2Gignbgn/0K10JWx0QfkMbCL0hbj2keaMFKonl4B5JubX44VhrqkaWalm1b5o
-	YPgs62hb3mZ/GZwaJ9Dyz1G3sPLXKvz7K0QoEmiXIvICnNFzcPnab9PekkVWQ2aw/bZMCFpyLvP
-	tk545UZkqmw8ycrdytOp2sLLO28UG4OVNMHP0Lnsjo0jt1bvfYtV8POb9dqoMG/bf6NAiZSxkqR
-	YAvxv1L8ufnWaUQi54tj1jU1kKUuEnKOuHQYKNP93eKsI9NFg1QfsDGZ8PRReqpMV4CgZcmrHj1
-	pO+gm0yjO9IFtcCw/jxCLR2lzXsRgVqg1r41Q/OTUzhUTRqcrpd7JWtdRcxGt+cwm7S51IQOVaC
-	2HpT8vhhOa59vPC3qlxedY3KWxaWE8P7rwpHHkUCX0e0j5UmsidIAAtybsGaNbv2+CyoIcOYRx1
-	2rT+3VMrXcN0vfTJizSyS/Ghw+HHK8kAUsZAx+39mM1lPd6LPNXwgTICwc6EExjQoHH5AZYSBa7
-	G+6lwq2e9iste7RURjUReVRJzaOP1SiXhwS5Lh0KdEzKu5l7VKXoZwClTYqXtpqHfDsigg2rGvB
-	k726g/i5lQVV4S6ig9/2uAerI7z+9zbjIiVFiQCtRG312XHUS2pSP0l30LiXWcm8Qh06RA/vOA9
-	8gpMSuobL+zcm0O+kmlb8IHOWBlmue+MAKFT3pVsY
-X-Received: by 2002:a05:6122:1c07:b0:5ea:a1ad:6376 with SMTP id 71dfb90a1353d-5ec230a26b8mr706060e0c.1.1792858136874;
-        Sat, 24 Oct 2026 09:08:56 -0700 (PDT)
-Received: from gmail.com (111.46.245.35.bc.googleusercontent.com. [35.245.46.111])
-        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-5ec234277b8sm2521988e0c.8.2026.10.24.09.08.56
+        bh=JnidHUsBQArt33vLjV0kqnv/bWxmzPm4EkJn55+rvF0=;
+        b=TymtKqXybpN1Pc8/AMfqeDi9MY6bl8NDlcjrqzLot56aD1W0yI1GQgZlSPSiAEGStQ
+         9HWMEAAvCD8nL8W2R+jVZqsqH/8M+Wf0mnU/776VgyBoW4nIJd6o2tHJ77NiX1MoarG1
+         VtsUM3HDUp69Am50IHs6rAtjhN6A4rpD9mcdJH0WosDZnoWXIP8j/Pw6W47fWnI/v4fa
+         eGfKrxo7qX/IxDsgY9V23Pt1+h2Wxt/ICjLqko1AW8KAK6kYvwkjreyZpnqpZsXToMoX
+         8C8WQ7okpEuaxAWmG5tBeMaC6dVJK6Rf8apQks0JPqFwlGFYC1jzoz0/S7dZ33mlMzOO
+         o/Cg==
+X-Forwarded-Encrypted: i=1; AKwUvBzSQmDWUXTiB0T30IH53nWi1zBchIuyYfGnZCtBT/KYbnlTVG5lkTcgJvDTwnLDxAU5AbORBg07e9/MJBLCJQ==@lists.linux.dev
+X-Gm-Message-State: AFq9FYJAnrgAjSrOFW+nbc+pGyJ2vzhCWWPs1DMhatu/qyAqhELRvTp/
+	HSS6dwR9u9UeRRS2x/TTqqqxl5n/ka/W1PSelklC1WXWWz3dxkYi2SwPwqFYhzjk2xssKwoDo5e
+	ApJNu+9Q/PLT9E3vPXJsEEwLK9xQhSoAoFxjWYRYuRcXJ6EEGDL4AEers0U3OZosSrRZn
+X-Gm-Gg: AYBFou3RJrHd6uN/YGBe4smMuztWWWIDij2ZKWPebZ765gXhzjbRoI7tfysDPQqO0oM
+	Ekqx3pqZlwvpjUCIqChzFLM4B0OXm3S6PFfhVSDYQG1E8nxvqwf0pg6chUKYDuDju0zdvTm2CzK
+	dSktRdDoH7iOgrwRdCoc98PD4eSHSlB0hCW/Awan/KZiAntNl1nP+l1k670LLCIxQGXhICYWCVB
+	R/yO7Hg6u/lKbNw0d5dhEsqx7Ec3sefxYAhdIC02P6mAoIVoFZaM1e6KLyIO0OP3X+aXOxXBOSh
+	B5YKKbh+xKklX8JhRRQ3FBl4p9b+VYahqCg71FmQ5A/5TKUriAe/mfci4JJrUSrJvKI9YwM=
+X-Received: by 2002:a05:6000:4b1e:b0:48d:df08:307c with SMTP id ffacd0b85a97d-48e3eb94526mr3420686f8f.44.1792858814508;
+        Sat, 24 Oct 2026 09:20:14 -0700 (PDT)
+X-Received: by 2002:a05:6000:4b1e:b0:48d:df08:307c with SMTP id ffacd0b85a97d-48e3eb94526mr3420647f8f.44.1792858813925;
+        Sat, 24 Oct 2026 09:20:13 -0700 (PDT)
+Received: from redhat.com ([2a06:c701:73f6:2400:30a8:9e33:7d82:c035])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48e3ece5e4asm4812439f8f.59.2026.10.24.09.20.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 24 Oct 2026 09:08:56 -0700 (PDT)
-Date: Sat, 24 Oct 2026 12:08:55 -0400
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>, 
- linux-kernel@vger.kernel.org
-Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
- Chris Arges <carges@cloudflare.com>, 
- =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>, 
- Phil Sutter <phil@nwl.cc>, 
- Jason Wang <jasowangio@gmail.com>, 
- =?UTF-8?B?RXVnZW5pbyBQw6lyZXo=?= <eperezma@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- Andrew Lunn <andrew+netdev@lunn.ch>, 
- "David S. Miller" <davem@davemloft.net>, 
- Eric Dumazet <edumazet@kernel.org>, 
- Jakub Kicinski <kuba@kernel.org>, 
- Paolo Abeni <pabeni@redhat.com>, 
- netdev@vger.kernel.org, 
- virtualization@lists.linux.dev, 
- Max Krasnyansky <maxk@qualcomm.com>, 
- Rusty Russell <rusty@rustcorp.com.au>
-Message-ID: <willemdebruijn.kernel.288f04be304a@gmail.com>
-In-Reply-To: <20261024113809-mutt-send-email-mst@kernel.org>
+        Sat, 24 Oct 2026 09:20:12 -0700 (PDT)
+Date: Sat, 24 Oct 2026 12:20:09 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Chris Arges <carges@cloudflare.com>,
+	=?iso-8859-1?Q?Bj=F6rn_T=F6pel?= <bjorn@kernel.org>,
+	Phil Sutter <phil@nwl.cc>, Jason Wang <jasowangio@gmail.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@kernel.org>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	netdev@vger.kernel.org, virtualization@lists.linux.dev,
+	Max Krasnyansky <maxk@qualcomm.com>,
+	Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH net v6 0/5] more virtio-net csum hardening
+Message-ID: <20261024121852-mutt-send-email-mst@kernel.org>
 References: <cover.1792768096.git.mst@redhat.com>
  <20261024113809-mutt-send-email-mst@kernel.org>
-Subject: Re: [PATCH net v6 0/5] more virtio-net csum hardening
+ <willemdebruijn.kernel.288f04be304a@gmail.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -114,40 +112,52 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <willemdebruijn.kernel.288f04be304a@gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: l-fmylGMLv61gJJkJVmcD7sYmFMER62FBBgUr4UZhfo_1792858815
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Michael S. Tsirkin wrote:
-> On Fri, Oct 23, 2026 at 11:09:17AM -0400, Michael S. Tsirkin wrote:
+On Sat, Oct 24, 2026 at 12:08:55PM -0400, Willem de Bruijn wrote:
+> Michael S. Tsirkin wrote:
+> > On Fri, Oct 23, 2026 at 11:09:17AM -0400, Michael S. Tsirkin wrote:
+> > > 
+> > > Okay this seems to be converging.... But sashiko did find some issues I
+> > > thought are best fixed. Specifically I thought of a better way to handle
+> > > short gso in a tunnel - just clear tunnel gso! As a side effect we now
+> > > fix up the checksum for these dodgy packets like we did before, instead
+> > > of a drop. Good. And more false positives that prompted me to write a
+> > > bit more comments. So here goes.
+> > > 
+> > > Apologies for reposting so frequently, I know netdev bot will be unhappy
+> > > with that.  But Paulos's report made a lot of publicity, there is a lot
+> > > of people looking into this, so I feel there's value in defending
+> > > against all this class of issues sooner rather than later.
+> > > 
+> > > The issues were mostly found by code inspection, but all reproduced by
+> > > me in a VM.
 > > 
-> > Okay this seems to be converging.... But sashiko did find some issues I
-> > thought are best fixed. Specifically I thought of a better way to handle
-> > short gso in a tunnel - just clear tunnel gso! As a side effect we now
-> > fix up the checksum for these dodgy packets like we did before, instead
-> > of a drop. Good. And more false positives that prompted me to write a
-> > bit more comments. So here goes.
+> > Ugh. I found another wrinkle( Firewalls that shape the payload.
+> > They are currently seem to simply be hoping most traffic is CHECKSUM_PARTIAL and
+> > only looking at that, and that will break.
 > > 
-> > Apologies for reposting so frequently, I know netdev bot will be unhappy
-> > with that.  But Paulos's report made a lot of publicity, there is a lot
-> > of people looking into this, so I feel there's value in defending
-> > against all this class of issues sooner rather than later.
-> > 
-> > The issues were mostly found by code inspection, but all reproduced by
-> > me in a VM.
+> > I am not sure what to do yet. Extending the sysctl knob to control what
+> > happens if validation fails: pass/drop/complete - is the best I could
+> > come up with. Or ignore the issue. Or just forget the complete at input hack
+> > and drop if we can't figure it out.
 > 
-> Ugh. I found another wrinkle( Firewalls that shape the payload.
-> They are currently seem to simply be hoping most traffic is CHECKSUM_PARTIAL and
-> only looking at that, and that will break.
+> Sounds like such users will just have to disable the sysctl for now: pass.
 > 
-> I am not sure what to do yet. Extending the sysctl knob to control what
-> happens if validation fails: pass/drop/complete - is the best I could
-> come up with. Or ignore the issue. Or just forget the complete at input hack
-> and drop if we can't figure it out.
+> And update their firewall, then reenable the sysctl?
+> 
+> Does adding a third drop option help in any way? The sysctl is the safety
+> valve to go back to old behavior.
 
-Sounds like such users will just have to disable the sysctl for now: pass.
+Yes, maybe that's enough. I was just hopeful there's no known broken
+valid setup, now not only we found it, is is actually unfixable (
+Still trying to decide what to do.
 
-And update their firewall, then reenable the sysctl?
+-- 
+MST
 
-Does adding a third drop option help in any way? The sysctl is the safety
-valve to go back to old behavior.
