@@ -1,47 +1,46 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792906263;
-	b=1DCR3eWJHPPiBgKogMj4A+kYJNQnttFIUAk3Nh0QEMcafiUtphQZAfsTjkJcyh/lNVzK
-	 w09N6OJZ2FPXNHzpKAqyOQhGupBxsYRDyQb3CN1vyE6+fX/xODHMeQg8rFub06a0Lujsi
-	 NPk4sX8D2Inn7pQjnSXbMebQuGchJvQNb8mQHOG2/NRzTPyFYBp75Etid+w91MSBabxEA
-	 CEBwXvVWV5wUrQsQCSEMj9glF0ynkken1BskL0f/zT6HPbMOMT4ZhZgUsHjOCP3NyDmJr
-	 0IhlpGdcJyXZEP/WQhgYxdjc4jfjMa8saTQaqG1wf9nmoMb9sNwix++MkGbYeu5Baxg==
+	t=1792906268;
+	b=3JvH/+wO3wAa4TRHwkfufpekA0ykzwXZBzOd98Au/SOl6lmIN7KzT5PuhFNnN8vWEsJo
+	 JcdMdbDms6T35XOcMA0hXAGXihuOG9c0nDjFCOMqWo04nfPYggCxm1C4RiVcng/wwbcoJ
+	 JNb94YqPjNqgurKzcW8jVeUlbakLiWFkt/05W7jYvlJbpiGnuM8P4XFmRpGI7m1LQD8U9
+	 dEyPzQ8KTuWz5w1d9PLTtpytMWGNOaxYTHApP+wfXSzueucYAiYGbUMCMc+fORgKPVVP0
+	 J2M/D4ZrIuP08IfI5XLHUbvhmrGGRbehnkUJGzV+N6Htg4xFEAETzoESsGV8628ZGNQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792906263;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792906268;
 	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
 	 In-Reply-To:References:X-sashiko-severity:Content-Type:
 	 Content-Transfer-Encoding:MIME-Version;
-	bh=evp3RhZwPL7WcN3Ln8Vx2PJENKtYSS4z9lIGj4Rbwio=;
-	b=Rk3lqNp8pQ5XpwWgTH9Ic2m+3Jn+yld+UHDhIuZVPdP8LsgRuGQRpqPifbSU13RcsLTc
-	 AoXr5f5Q0sGtzIz/vHJclpwNNOyrLOHaeo+0Kjs/ugodeRTAoJcwsuRjcPSc5ppaFiwFx
-	 sfQZqZfINaXuommF6dR9mBkcc/WdSFrxBEX3Gbz/ioCmwhGCjJo/WoykbRdx5bLHk8yH9
-	 7QqlVGVhTOTrcwq9ud4QSYC35U896b/V6mnSeNvm6t1GCNtOGCAwiQUfvDOLldZKp62ph
-	 eO6jfM0aC2YshdSJGSdmzhLLKcgB2/JD7rwYtm3cixZcp5XSuMmP+UKJ1EhsIcSTjRw==
+	bh=EmGIJEeTF2IoA6PLnnXO2EtBG7lvQbnG1ggSXKw1uJY=;
+	b=0SZIK3ODMQHvgXhQWQWZKlw2BfkyPVeGXEROhDqr1ErUzaCQ7wSMFa2QApsVq1pdo6hk
+	 xN/9pquH+ubtmUYX7n5CQEwqzVaRpw3XLOKfXp1vSHnbqR1JVFs2foKPyZbpZNbeKZ9GV
+	 DNaFXz6dJzHJbvXjclYTMmEYqY5d+yPvQdV+yz7M2MJvaBxJ3d6bqHRjuajNuseKahG2J
+	 eFniF0SWs0loA6tB3p1KZq9feQIuSi1WfM/tH6TecZAq7rBfoMMifQy2QccDEI1LExPq7
+	 IORz8o9drQnoy8qpCWhsHlFAbZOB52NCSSEVhRuMQc0tiBPSaK9EEGUcc09VEk7cU2g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fYzRG6Wb;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mDwltRpe;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C042606A31F;
-	Sun, 25 Oct 2026 05:31:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12DB060A2602;
+	Sun, 25 Oct 2026 05:31:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fYzRG6Wb
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D43971F01828;
-	Sun, 25 Oct 2026 05:31:01 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mDwltRpe
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B7441F01825;
+	Sun, 25 Oct 2026 05:31:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792906262;
-	bh=evp3RhZwPL7WcN3Ln8Vx2PJENKtYSS4z9lIGj4Rbwio=;
+	s=k20260515; t=1792906267;
+	bh=EmGIJEeTF2IoA6PLnnXO2EtBG7lvQbnG1ggSXKw1uJY=;
 	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=fYzRG6WbDirCMf7U0+YQav+n36FYB3szMBj8LOXoHXviBpuW1nbhbZ8xp5WSjiurM
-	 ch2gvspFttyirAgatJf6PWviRt93jZKPpOLAgBuZkAxKNh3NLfTOgj0VqrLLjn7nW1
-	 eL230NbJM9CwWJwCncCyb+OzIb5AAuu4v+ZIvHX5ar44ZcGEyMT3jXYGesX0KHsipI
-	 hH1mdU8oMvoS+VhjiGM3kXUQtGrpt96oB2WB5zkmRKV1+ZmhfuMk1+mU8MvVVZR0hU
-	 LuO+MtgB0qx5op8D18w4BIPkzwGO1ZbRu1tp2UirCLiKKeGfo4Rwxf8eA5BXp4dCKO
-	 ul/FMbnG+lXdw==
-Subject:
- Re: [PATCH net v5 2/7] um: vector: trim skbs before verifying the header
+	b=mDwltRpe22VDhRHOnpLAnj+aUl6UByT0IOMD+T4h5FGPcaxiG7JbnvtoBjENpkGja
+	 v1BSOtCsIhAy0TZUlBmzkh+kDBvzonPKKF6Jhq88PQwSl7M7Mc2/nFwrf1kRzmGZ9b
+	 ZutkHSgEpt/2fUoD/foStTfFrt9HoCa99q0QqV6VvGuWlItUOGqY0Gt3YzvEtZTuev
+	 xk1IZp9rdM/3dc3S48SgcfBvovdKqWecGNKrzPv6qODRuUNyTElNtmH8TCSJtGigWJ
+	 Ttjq6vGImVXQbsqvkCjw87aOREFaa4FIJF2aVxO8XVKLSR8xbYzXfS0GGxwO8fs6MM
+	 qHQ8QLQocz3Dg==
+Subject: Re: [PATCH net v5 6/7] net: add ip4_parse()
 From: netdev-bot+sashiko@kernel.org
 To: mst@redhat.com
 Cc: linux-kernel@vger.kernel.org, willemdebruijn.kernel@gmail.com,
@@ -50,12 +49,12 @@ Cc: linux-kernel@vger.kernel.org, willemdebruijn.kernel@gmail.com,
  davem@davemloft.net, edumazet@kernel.org, kuba@kernel.org, pabeni@redhat.com,
  netdev@vger.kernel.org, virtualization@lists.linux.dev, maxk@qualcomm.com,
  rusty@rustcorp.com.au
-Date: Sun, 25 Oct 2026 05:31:01 +0000
-Message-ID: <179290626141.3134.1246964108369704124@kernel.org>
+Date: Sun, 25 Oct 2026 05:31:06 +0000
+Message-ID: <179290626608.3134.7140571049863955668@kernel.org>
 In-Reply-To:
- <1b2a0697662501fd4fe896a7dc2bba2d97885101.1792668082.git.mst@redhat.com>
+ <65a4d0ba37073c48d75251039882161efe5a4025.1792668082.git.mst@redhat.com>
 References:
- <1b2a0697662501fd4fe896a7dc2bba2d97885101.1792668082.git.mst@redhat.com>
+ <65a4d0ba37073c48d75251039882161efe5a4025.1792668082.git.mst@redhat.com>
 X-sashiko-severity: High
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
@@ -69,10 +68,10 @@ List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
 
-Thank you for your contribution! Sashiko AI review found 2 potential
+Thank you for your contribution! Sashiko AI review found 3 potential
 issue(s) to consider.
 
-Critical: 0 · High: 1 (1) · Medium: 0 (1) · Low: 1 (1)
+Critical: 0 · High: 1 · Medium: 0 · Low: 2
 
 If you believe none of the issues are legitimate, please reply to each
 issue of Medium severity or higher and explain why the AI is wrong.
@@ -80,204 +79,218 @@ If any of them are legitimate and you plan to respin, please let patchwork
 know by including "pw-bot: cr" as a separate line at the end of your reply
 (one such reply per series is enough).
 
-- [High] In vector_mmsg_rx() (arch/um/drivers/vector_kern.c),
-  pskb_trim(skb, ...) now runs before verify_header(), and the skb is…
-- [Low] The commit message presents the reorder only as groundwork for
-  the later commit "net: resolve uncommon partial checksums at ingress".
-
-Pre-existing issues:
-- [High] This problem wasn't introduced by this patch, but the patch
-  touches these exact lines.
-- [Medium] This problem wasn't introduced by this patch, but
-  vector_legacy_rx() sets the receive header iovec to vp->header_size…
-- [Low] This problem wasn't introduced by this patch, but
-  vector_legacy_rx() leaks the skb that prep_skb() allocated when…
+- [High] Use-after-free read in the new ip4_parse() helper
+  (include/linux/ip.h).
+- [Low] The commit message presents the patch as adding a new helper for
+  open-coded checks.
+- [Low] The kernel-doc for ip4_parse() says "The whole header, options
+  included, is guaranteed linear on return", and the helper does…
 
 --
 
-um: vector: trim skbs before verifying the header
+net: add ip4_parse()
 
-This patch moves the pskb_trim() call in vector_legacy_rx() and
-vector_mmsg_rx() so that it runs before verify_header(). It prepares for a
-follow-up change, in which virtio_net_hdr_to_skb() will complete the
-checksum in software and will need the skb trimmed to the received length.
+This commit adds an ip4_parse() helper to include/linux/ip.h. The helper
+pulls the IPv4 header including options, checks the version and IHL, and
+returns the transport header offset. It replaces virtio_net_ip4_parse() and
+converts ip_rcv_core(), br_validate_ipv4() and nf_reject_iphdr_validate()
+to use it.
 
-> Trim first, so the import sees the packet as it was received.
+> diff --git a/include/linux/ip.h b/include/linux/ip.h
+> index d11c25f5030a0..7e047d18a61c9 100644
+> --- a/include/linux/ip.h
+> +++ b/include/linux/ip.h
+> @@ -56,4 +56,41 @@ static inline void iph_set_totlen(struct iphdr *iph, unsigned int len)
+>  {
+>  	iph->tot_len = len <= IP_MAX_MTU ? htons(len) : 0;
+>  }
+> +
+> +/**
+> + * ip4_parse - pull and minimally validate an IPv4 header
+> + * @skb: buffer to parse
+> + * @nhoff: offset of the IPv4 header within the linear data
+> + * @thoff: returns the transport header offset
+> + *
+> + * The whole header, options included, is guaranteed linear on
+> + * return, so the transport header offset is within the linear
+> + * data.  Callers that need to read the transport header must
+> + * pull further.
+> + *
+> + * Return: the validated IPv4 header, or NULL if truncated or
+> + * malformed.
+> + */
+> +static inline struct iphdr *ip4_parse(struct sk_buff *skb,
+> +				      unsigned int nhoff,
+> +				      unsigned int *thoff)
+> +{
+> +	struct iphdr *iph;
+> +
+> +	if (!pskb_may_pull(skb, nhoff + sizeof(struct iphdr)))
+> +		return NULL;
+> +
+> +	iph = (struct iphdr *)(skb->data + nhoff);
+> +	if (iph->version != 4 || iph->ihl < sizeof(struct iphdr) / sizeof(u32))
+> +		return NULL;
+> +
+> +	/* Pull the options as well: the transport header offset
+> +	 * returned below must be within the linear data.
+> +	 */
+> +	if (!pskb_may_pull(skb, nhoff + iph->ihl * sizeof(u32)))
+> +		return NULL;
+> +
+> +	*thoff = nhoff + iph->ihl * sizeof(u32);
 
-[Severity: Low]
-Should the commit message say that this reorder also changes current
-validation behaviour, and not only prepare for the follow-up?
+[Severity: High]
+Can this read iph->ihl from a freed skb head?
 
-raw_verify_header() calls virtio_net_hdr_to_skb(). Today,
-__virtio_net_hdr_to_skb() already checks lengths against skb->len and
-skb_headlen() in several places:
+iph is computed from skb->data after the first pskb_may_pull(). If the
+options are not linear yet, the second pskb_may_pull() can go through
+__pskb_pull_tail() -> pskb_expand_head(), which reallocates the head:
 
-  skb_partial_csum_set()
-  pskb_may_pull(skb, p_off)
-  the UDP_L4 bound against gso_size * UDP_MAX_SEGMENTS
-  the skb->len - nh_off > gso_size test that decides whether gso_size
-  and SKB_GSO_DODGY get set
+net/core/skbuff.c:__pskb_pull_tail() {
+    ...
+	if (eat > 0 || skb_cloned(skb)) {
+		if (pskb_expand_head(skb, 0, eat > 0 ? eat + 128 : 0,
+				     GFP_ATOMIC))
+    ...
+}
 
-Before this patch, those checks ran against the untrimmed prep_skb()
-buffer (max_packet plus frags). A vnet header whose csum_start/csum_offset
-pointed past the received data, but still inside the buffer, used to pass.
-The later trim then left a CHECKSUM_PARTIAL skb whose checksum location
-was beyond skb->len.
+When the head is not shared, pskb_expand_head() calls skb_free_head() on
+the old buffer. When the skb is cloned, it drops the dataref instead.
 
-With the reorder, such headers are rejected and counted in
-rx_encaps_errors. Could the changelog describe this? There is also no
-Fixes: tag.
+pskb_may_pull_reason() also calls skb_might_realloc(). With
+CONFIG_FAIL_SKB_REALLOC the head is therefore reallocated on every call,
+and KASAN should catch the stale read.
 
-> diff --git a/arch/um/drivers/vector_kern.c b/arch/um/drivers/vector_kern.c
-> index 8a70b3a625537..1afbef78df725 100644
-> --- a/arch/um/drivers/vector_kern.c
-> +++ b/arch/um/drivers/vector_kern.c
-> @@ -865,6 +865,7 @@ static int vector_legacy_rx(struct vector_private *vp)
->  
->  	if (skb != NULL) {
+The __pskb_pull_tail() kernel-doc says: "All the pointers pointing into skb
+header may change and must be reloaded after call to this function."
 
-[Severity: Low]
-This is a pre-existing issue and was not introduced by this patch. Does
-vector_legacy_rx() leak the skb from prep_skb() when uml_vector_recvmsg()
-fails?
+Only the return value is rebuilt from skb->data. The *thoff calculation
+above still reads through the old iph.
 
-Just above this hunk:
+The stale thoff is then used in several places:
 
-	pkt_len = uml_vector_recvmsg(vp->fds->rx_fd, &hdr, 0);
-	if (pkt_len < 0) {
-		vp->in_error = true;
-		return pkt_len;
-	}
+- the len < thoff checks in ip_rcv_core(), br_validate_ipv4() and
+  nf_reject_iphdr_validate()
+- the csum_start comparison in
+  virtio_net_l4_start()->virtio_net_csum_partial_ok_at_offset()
 
-uml_vector_recvmsg() returns -errno for any readv() failure other than
-EAGAIN. This path then returns without calling dev_kfree_skb_irq(skb).
-Nothing else holds a reference, so the skb and its frags are lost.
+Suppose the freed byte has changed, for example because of init_on_free,
+and thoff comes out as nhoff. Could a packet with ihl=15 and tot_len=20
+then pass the len < thoff check? It would be trimmed below its header
+length, and skb->transport_header would end up past the tail.
 
->  		if (pkt_len > vp->header_size) {
-> +			pskb_trim(skb, pkt_len - vp->rx_header_size);
->  			if (vp->header_size > 0) {
->  				header_check = vp->verify_header(
->  					vp->header_rxbuffer, skb, vp);
+In the virtio path, could csum_start == nhoff with a TCP csum_offset then
+pass validation? That would defeat the check added by "net: resolve
+uncommon partial checksums at ingress".
 
-[Severity: Medium]
-This isn't a bug introduced by this patch, but is the header iovec in
-vector_legacy_rx() the right size for IPv4 GRE and raw IPv4 L2TPv3?
+The old virtio_net_ip4_parse() did only one pull. This seems to come from
+the v5 change that also pulls the options.
 
-Earlier in vector_legacy_rx():
+The last patch in the series ("virtio_net: cleanup protocol calculation")
+doesn't change ip4_parse(), so the problem appears to still be there at
+the end of the series.
 
-	if (vp->header_size > 0) {
-		iov[0].iov_base = vp->header_rxbuffer;
-		iov[0].iov_len = vp->header_size;
-	}
+Would it work to compute the header length before the second pull, and to
+use only the pointer rebuilt from skb->data after it? For example:
 
-build_gre_transport_data() sets:
+	hlen = iph->ihl * sizeof(u32);
+	if (!pskb_may_pull(skb, nhoff + hlen))
+		return NULL;
 
-	vp->rx_header_size = vp->header_size;
-	if (!td->ipv6)
-		vp->rx_header_size += sizeof(struct iphdr);
+	*thoff = nhoff + hlen;
+	return (struct iphdr *)(skb->data + nhoff);
 
-build_l2tpv3_transport_data() does the same when
-(!td->ipv6) && (!td->udp).
-
-gre_verify_header() skips sizeof(struct iphdr) into header_rxbuffer
-before it compares. With vec=0, readv() only puts header_size bytes (the
-start of the IPv4 header) into header_rxbuffer. The verifier then reads
-uninitialized kmalloc memory, so nearly all packets get dropped.
-
-For any packet that does pass, the rest of the IP and encapsulation
-header stays at the front of the skb. The trim by rx_header_size then
-removes 20 bytes of real payload from the tail.
+> +	return (struct iphdr *)(skb->data + nhoff);
+> +}
+>  #endif	/* _LINUX_IP_H */
 
 [ ... ]
 
-> @@ -981,6 +981,8 @@ static int vector_mmsg_rx(struct vector_private *vp, int budget)
->  	for (i = 0; i < packet_count; i++) {
->  		skb = (*skbuff_vector);
->  		if (mmsg_vector->msg_len > vp->header_size) {
-> +			pskb_trim(skb,
-> +				mmsg_vector->msg_len - vp->rx_header_size);
+> diff --git a/net/ipv4/ip_input.c b/net/ipv4/ip_input.c
+> index 9860178752b8c..5adf01763e857 100644
+> --- a/net/ipv4/ip_input.c
+> +++ b/net/ipv4/ip_input.c
 
-[Severity: High]
-Can skb be NULL here?
+[ ... ]
 
-If the GFP_ATOMIC alloc_skb_with_frags() in prep_skb() fails, the
-skbuff_vector slot stays NULL, but the header iovec is still active:
+> @@ -520,10 +520,6 @@ static struct sk_buff *ip_rcv_core(struct sk_buff *skb, struct net *net)
+>  	}
+>  
+>  	drop_reason = SKB_DROP_REASON_NOT_SPECIFIED;
+> -	if (!pskb_may_pull(skb, sizeof(struct iphdr)))
+> -		goto inhdr_error;
+> -
+> -	iph = ip_hdr(skb);
+>  
+>  	/*
+>  	 *	RFC1122: 3.2.1.2 MUST silently discard any IP frame that fails the checksum.
+> @@ -536,7 +532,8 @@ static struct sk_buff *ip_rcv_core(struct sk_buff *skb, struct net *net)
+>  	 *	4.	Doesn't have a bogus length
+>  	 */
+>  
+> -	if (iph->ihl < 5 || iph->version != 4)
+> +	iph = ip4_parse(skb, 0, &thoff);
+> +	if (!iph)
+>  		goto inhdr_error;
+>  
+>  	BUILD_BUG_ON(IPSTATS_MIB_ECT1PKTS != IPSTATS_MIB_NOECTPKTS + INET_ECN_ECT_1);
 
-	if (vp->header_size > 0)
-		iov_index++;
-	if (result == NULL) {
-		iov[iov_index].iov_base = NULL;
-		iov[iov_index].iov_len = 0;
-		goto done;
-	}
-	...
-done:
-	msg->msg_iovlen = iov_index;
+[Severity: Low]
+The ihl * 4 pull now happens inside ip4_parse(), which runs before the ECN
+accounting a few lines below:
 
-vector_net_open() sizes the rx queue header buffers with
-vp->rx_header_size through create_queue(). For IPv4 GRE and non-UDP IPv4
-L2TPv3, rx_header_size is header_size + sizeof(struct iphdr). A packet
-that fills only the header iovec therefore gives
-msg_len == rx_header_size > header_size.
+	__IP_ADD_STATS(net,
+		       IPSTATS_MIB_NOECTPKTS + (iph->tos & INET_ECN_MASK),
+		       max_t(unsigned short, 1, skb_shinfo(skb)->gso_segs));
 
-That packet enters this branch and calls pskb_trim(NULL, 0), which
-dereferences skb->len.
+Before this patch, only the fixed 20 byte header was pulled before the
+stats update, and the ihl * 4 pull came after it.
 
-Before this patch, gre_verify_header() or l2tpv3_verify_header() ran
-first. Neither touches the skb. A packet that failed them went to
-dev_kfree_skb_irq(NULL), which returns early. Only packets with a valid
-header reached the old pskb_trim() on a NULL skb.
+Is it intended that an IPv4 packet with ihl > 5 and truncated options, or
+one whose pull fails to allocate, is no longer counted in the Ip ECN
+counters? It is still counted in InHdrErrors.
 
-Now a packet with the wrong GRE key or the wrong L2TPv3 session/cookie
-can also hit the NULL dereference whenever an rx skb allocation has
-failed. The GRE and L2TPv3 raw sockets are bound but not connected, so
-any remote host can send such packets.
+The commit message also says:
 
-The else branch already checks skb != NULL. Is a similar check needed
-before this pskb_trim()?
+  "Add a helper for doing that: it returns the validated header and
+  the transport header offset, or NULL if truncated or malformed."
 
-[Severity: High]
-This is a pre-existing issue and was not introduced by this patch, but
-the patch touches these lines. Is this guard strict enough for the trim
-length?
+It doesn't mention that virtio_net_ip4_parse() is removed from
+include/linux/virtio_net.h and renamed. It also doesn't mention that the
+contract changes from "Only the fixed header is guaranteed linear" to
+pulling the options as well.
 
-The guard checks msg_len > vp->header_size, but the trim subtracts
-vp->rx_header_size. Two configurations have rx_header_size larger than
-header_size:
+Only the v4->v5 note below the cut mentions this, and that note won't be
+kept in git history. Could the commit message describe these changes?
 
-  IPv4 GRE: header_size 4 and rx_header_size 24 without a key, or 8 and
-  28 with a key
-  raw IPv4 L2TPv3
+[ ... ]
 
-In these cases, a msg_len between header_size and rx_header_size makes
-the difference negative. pskb_trim() takes it as a very large unsigned
-int:
+> @@ -546,7 +543,7 @@ static struct sk_buff *ip_rcv_core(struct sk_buff *skb, struct net *net)
+>  		       IPSTATS_MIB_NOECTPKTS + (iph->tos & INET_ECN_MASK),
+>  		       max_t(unsigned short, 1, skb_shinfo(skb)->gso_segs));
+>  
+> -	if (!pskb_may_pull(skb, iph->ihl*4))
+> +	if (!pskb_may_pull(skb, thoff))
+>  		goto inhdr_error;
+>  
+>  	iph = ip_hdr(skb);
 
-	return (len < skb->len) ? __pskb_trim(skb, len) : 0;
+[Severity: Low]
+This isn't a bug, but ip4_parse() has already done
+pskb_may_pull(skb, nhoff + iph->ihl * sizeof(u32)) with nhoff = 0, which is
+exactly thoff. Its kernel-doc also says the options are guaranteed linear
+on return.
 
-and returns 0 without trimming. recvmmsg() only wrote into the header
-iovec, so the skb keeps its full prep_skb() length of unwritten
-alloc_skb_with_frags() memory. That memory goes through eth_type_trans()
-and napi_gro_receive() into the guest stack.
+Doesn't that mean this pull can never fail, so the goto inhdr_error branch
+is dead code?
 
-gre_verify_header() and l2tpv3_verify_header() also read bytes past
-msg_len in the per-slot header buffer. Those bytes can still hold an
-earlier packet's header.
+br_validate_ipv4() and nf_reject_iphdr_validate() have the same redundant
+pskb_may_pull(skb, thoff).
 
-For example, a keyed GRE packet with msg_len 24 supplies only the 4 GRE
-flag bytes. The key at offsets 24..27 is left over from the last valid
-packet, so the key check passes without the sender knowing the key.
-
-When msg_len == rx_header_size, the skb is trimmed to 0 bytes and
-eth_type_trans() parses uninitialized head data.
-
-vector_legacy_rx() has the same mismatch:
-
-	if (pkt_len > vp->header_size) {
-		pskb_trim(skb, pkt_len - vp->rx_header_size);
-
-Should both paths require the received length to be larger than
-rx_header_size (plus ETH_HLEN) before trimming?
+The iph = ip_hdr(skb) reloads after the pull in ip_rcv_core() and
+br_validate_ipv4() also look unnecessary, because ip4_parse() already
+returns a pointer rebuilt from skb->data.
 
 [ ... ]
 
