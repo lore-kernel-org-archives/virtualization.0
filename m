@@ -1,47 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792906265;
-	b=bFW8Y9onEkM1iBE9IeT5qb9GkVAXzGJrgrL0sT0B1m1RLz23nzZ68iuRarln9OlDpaeK
-	 dH0bhXDA14N0bQtPoJC/vNNFhLBRccoKDbaVZawr7Jw2nnNtq7oHRZIuxtc1x7y0tVy+m
-	 Y7za4inesv/z/gY9ckt3acFqqW7jMLSPv2sEY02CTJTUvAh0UklqL8UpgMyXmbnk/tM/p
-	 K09ejfYbhN9lTL1YU8FHOXvdQUzPJ0RP2zvzBiC1+WXukrdICATWO7TgCVUknUGZsjmN2
-	 A38wPCIae6sM03xw0IbczrzJkf0Yeng83uHm41TPYBhOtPmRbJR0/AcDUQHPNqLX7lQ==
+	t=1792906263;
+	b=1DCR3eWJHPPiBgKogMj4A+kYJNQnttFIUAk3Nh0QEMcafiUtphQZAfsTjkJcyh/lNVzK
+	 w09N6OJZ2FPXNHzpKAqyOQhGupBxsYRDyQb3CN1vyE6+fX/xODHMeQg8rFub06a0Lujsi
+	 NPk4sX8D2Inn7pQjnSXbMebQuGchJvQNb8mQHOG2/NRzTPyFYBp75Etid+w91MSBabxEA
+	 CEBwXvVWV5wUrQsQCSEMj9glF0ynkken1BskL0f/zT6HPbMOMT4ZhZgUsHjOCP3NyDmJr
+	 0IhlpGdcJyXZEP/WQhgYxdjc4jfjMa8saTQaqG1wf9nmoMb9sNwix++MkGbYeu5Baxg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792906265;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792906263;
 	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
 	 In-Reply-To:References:X-sashiko-severity:Content-Type:
 	 Content-Transfer-Encoding:MIME-Version;
-	bh=RyF0+g+MIcLYl23LObaWXZ6QZwCzAZtUmcOQoE25osI=;
-	b=0n75KJK6yET4u0HBAkYeCZsd7JhpkoVzQrROUv2IkVNRuFy+WQ8mmd38ACiw6vCjwOLF
-	 G6HpyRdxWwj+RQFwPMBb2XWGs9KnN7aqgecYt+RTC/zfp0io4K0GgIlNnNigPpWSr1j+d
-	 K3DuAfn0XxCuk1ccRnhr1Z07MW6gGBdyPb396BzR0lG8d1K83WJnokfaMrDVaz/qUpmIi
-	 cis71eTkSF0QRlh/hax15JLekd4aXOfGmPcvvkLQ6OShGyAYA2gni9yB1L2zqQ6jifihk
-	 Cd3yKrvAO4WC2SBwY/r6fLpeQMHJ/YiQWZ3ikVa3ubB7+oO2bzagz7DJoTkrhaF1dFw==
+	bh=evp3RhZwPL7WcN3Ln8Vx2PJENKtYSS4z9lIGj4Rbwio=;
+	b=Rk3lqNp8pQ5XpwWgTH9Ic2m+3Jn+yld+UHDhIuZVPdP8LsgRuGQRpqPifbSU13RcsLTc
+	 AoXr5f5Q0sGtzIz/vHJclpwNNOyrLOHaeo+0Kjs/ugodeRTAoJcwsuRjcPSc5ppaFiwFx
+	 sfQZqZfINaXuommF6dR9mBkcc/WdSFrxBEX3Gbz/ioCmwhGCjJo/WoykbRdx5bLHk8yH9
+	 7QqlVGVhTOTrcwq9ud4QSYC35U896b/V6mnSeNvm6t1GCNtOGCAwiQUfvDOLldZKp62ph
+	 eO6jfM0aC2YshdSJGSdmzhLLKcgB2/JD7rwYtm3cixZcp5XSuMmP+UKJ1EhsIcSTjRw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZMZSEISa;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fYzRG6Wb;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCFAC606A32E;
-	Sun, 25 Oct 2026 05:31:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C042606A31F;
+	Sun, 25 Oct 2026 05:31:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZMZSEISa
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D14B1F01825;
-	Sun, 25 Oct 2026 05:31:03 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fYzRG6Wb
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D43971F01828;
+	Sun, 25 Oct 2026 05:31:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792906264;
-	bh=RyF0+g+MIcLYl23LObaWXZ6QZwCzAZtUmcOQoE25osI=;
+	s=k20260515; t=1792906262;
+	bh=evp3RhZwPL7WcN3Ln8Vx2PJENKtYSS4z9lIGj4Rbwio=;
 	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=ZMZSEISauSLlXEcx0HIsXfpN6o8hr6HwTPIY4yJR1pCkTvNeOF/a/GH0+VZlS/Kkw
-	 0a8nzvTAFq3UjFCkV2GM3ntXJJcS3Qxg+xrzYWf8XsuGgNgVHxmxF2rT5IUKvK2uFQ
-	 usjf1ib4jh+Lq2X4Ls55JsjbblcGcIk/ywXvLC2/QZa6MxZMg5FTWNQbkGDI7wu6xx
-	 YW3XlhnC4J+mCCfNSh5ztSMDrWTObdQPp2JCX5MfOiPjkiFtR+3x6u55kEoiWwwTaT
-	 1jV/aiw/qYUblhi2EvaP8DwFfylAg99EagyqW6mvq9ARcfsQ8QZJmLrhID3yBmCJf4
-	 WaGE/zpXfTpLw==
+	b=fYzRG6WbDirCMf7U0+YQav+n36FYB3szMBj8LOXoHXviBpuW1nbhbZ8xp5WSjiurM
+	 ch2gvspFttyirAgatJf6PWviRt93jZKPpOLAgBuZkAxKNh3NLfTOgj0VqrLLjn7nW1
+	 eL230NbJM9CwWJwCncCyb+OzIb5AAuu4v+ZIvHX5ar44ZcGEyMT3jXYGesX0KHsipI
+	 hH1mdU8oMvoS+VhjiGM3kXUQtGrpt96oB2WB5zkmRKV1+ZmhfuMk1+mU8MvVVZR0hU
+	 LuO+MtgB0qx5op8D18w4BIPkzwGO1ZbRu1tp2UirCLiKKeGfo4Rwxf8eA5BXp4dCKO
+	 ul/FMbnG+lXdw==
 Subject:
- Re: [PATCH net v5 4/7] net: resolve uncommon partial checksums at ingress
+ Re: [PATCH net v5 2/7] um: vector: trim skbs before verifying the header
 From: netdev-bot+sashiko@kernel.org
 To: mst@redhat.com
 Cc: linux-kernel@vger.kernel.org, willemdebruijn.kernel@gmail.com,
@@ -50,12 +50,12 @@ Cc: linux-kernel@vger.kernel.org, willemdebruijn.kernel@gmail.com,
  davem@davemloft.net, edumazet@kernel.org, kuba@kernel.org, pabeni@redhat.com,
  netdev@vger.kernel.org, virtualization@lists.linux.dev, maxk@qualcomm.com,
  rusty@rustcorp.com.au
-Date: Sun, 25 Oct 2026 05:31:02 +0000
-Message-ID: <179290626299.3134.10593582137457515812@kernel.org>
+Date: Sun, 25 Oct 2026 05:31:01 +0000
+Message-ID: <179290626141.3134.1246964108369704124@kernel.org>
 In-Reply-To:
- <342bf5331e12b2e5b940510293233bb8bce46127.1792668082.git.mst@redhat.com>
+ <1b2a0697662501fd4fe896a7dc2bba2d97885101.1792668082.git.mst@redhat.com>
 References:
- <342bf5331e12b2e5b940510293233bb8bce46127.1792668082.git.mst@redhat.com>
+ <1b2a0697662501fd4fe896a7dc2bba2d97885101.1792668082.git.mst@redhat.com>
 X-sashiko-severity: High
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
@@ -69,10 +69,10 @@ List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
 
-Thank you for your contribution! Sashiko AI review found 7 potential
+Thank you for your contribution! Sashiko AI review found 2 potential
 issue(s) to consider.
 
-Critical: 0 · High: 2 · Medium: 3 · Low: 2
+Critical: 0 · High: 1 (1) · Medium: 0 (1) · Low: 1 (1)
 
 If you believe none of the issues are legitimate, please reply to each
 issue of Medium severity or higher and explain why the AI is wrong.
@@ -80,353 +80,206 @@ If any of them are legitimate and you plan to respin, please let patchwork
 know by including "pw-bot: cr" as a separate line at the end of your reply
 (one such reply per series is enough).
 
-- [High] In virtio_net_l3_start() (include/linux/virtio_net.h), a preset
-  skb->protocol on ARPHRD_ETHER devices takes priority over the frame's…
-- [High] On the tunnel path, the inner checksum validation is anchored at
-  the sender-supplied inner_nh_offset.
-- [Medium] This patch changes the return contract of
-  virtio_net_hdr_to_skb() and virtio_net_hdr_tnl_to_skb(): >0 now means…
-- [Medium] The new virtio_net_tnl_offsets_ok() parses through VLAN
-  headers and requires outer_th_offset to equal the actual UDP offset in…
-- [Medium] virtio_net_hdr_tnl_from_skb() sets
-  VIRTIO_NET_HDR_GSO_UDP_TUNNEL_IPV6 only when skb->protocol ==…
-- [Low] virtio_net_hdr_tnl_to_skb() now returns -EINVAL whenever
-  virtio_net_tnl_offsets_ok() fails.
-- [Low] The comment '/* A tunnel header implies GSO, so drop.
+- [High] In vector_mmsg_rx() (arch/um/drivers/vector_kern.c),
+  pskb_trim(skb, ...) now runs before verify_header(), and the skb is…
+- [Low] The commit message presents the reorder only as groundwork for
+  the later commit "net: resolve uncommon partial checksums at ingress".
+
+Pre-existing issues:
+- [High] This problem wasn't introduced by this patch, but the patch
+  touches these exact lines.
+- [Medium] This problem wasn't introduced by this patch, but
+  vector_legacy_rx() sets the receive header iovec to vp->header_size…
+- [Low] This problem wasn't introduced by this patch, but
+  vector_legacy_rx() leaks the skb that prep_skb() allocated when…
 
 --
 
-net: resolve uncommon partial checksums at ingress
+um: vector: trim skbs before verifying the header
 
-This patch validates the virtio net header csum_start and csum_offset at
-ingress. CHECKSUM_PARTIAL is kept only when they match a parsed TCP or UDP
-header. Otherwise, non-GSO packets get their checksum completed in software
-and GSO packets are dropped. UDP tunnel headers get the same treatment on
-the inner header.
+This patch moves the pskb_trim() call in vector_legacy_rx() and
+vector_mmsg_rx() so that it runs before verify_header(). It prepares for a
+follow-up change, in which virtio_net_hdr_to_skb() will complete the
+checksum in software and will need the skb trimmed to the received length.
 
-> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-> index 013c6c7e2dea0..52852a33a2db7 100644
-> --- a/include/linux/virtio_net.h
-> +++ b/include/linux/virtio_net.h
-
-[ ... ]
-
-> @@ -48,6 +52,205 @@ static inline int virtio_net_hdr_set_proto(struct sk_buff *skb,
-
-[ ... ]
-
-> +static inline bool
-> +virtio_net_l3_start(struct sk_buff *skb, int *nhoff, __be16 *proto)
-> +{
-
-[ ... ]
-
-> +	/* A preset protocol is what the stack will use, except on
-> +	 * loopback which re-parses the frame: loopback_xmit() calls
-> +	 * eth_type_trans() on it.
-> +	 */
-> +	if (skb->dev->type == ARPHRD_ETHER ||
-> +	    skb->dev->type == ARPHRD_LOOPBACK) {
-> +		if (!pskb_may_pull(skb, ETH_HLEN))
-> +			return false;
-> +		*nhoff = ETH_HLEN;
-> +		*proto = skb->protocol;
-> +		if (!*proto || skb->dev->type == ARPHRD_LOOPBACK)
-> +			*proto = eth_hdr(skb)->h_proto;
-
-[Severity: High]
-Is loopback really the only ARPHRD_ETHER device that re-parses the frame?
-veth and the other dev_forward_skb() users also run eth_type_trans() on it:
-
-veth_xmit()
-  veth_forward_skb()
-    __dev_forward_skb()
-      __dev_forward_skb2()
-        skb->protocol = eth_type_trans(skb, dev);
-
-Along that path, ____dev_forward_skb() and skb_scrub_packet() leave
-CHECKSUM_PARTIAL in place.
-
-On the sending side, packet_snd() installs the protocol the sender chose
-before it calls virtio_net_hdr_to_skb():
-
-net/packet/af_packet.c:packet_snd() {
-    ...
-	if (proto != htons(ETH_P_ALL))
-		skb->protocol = proto;
-    ...
-}
-
-packet_parse_headers() only re-derives the protocol when it is zero.
-
-So an AF_PACKET sender using PACKET_VNET_HDR on a veth could make this
-validator parse a different L3 layout from the one the peer stack uses.
-CAP_NET_RAW in a user namespace is enough. Two examples:
-
-- preset ETH_P_IP on an 802.1Q-tagged frame: the IPv4 header is parsed
-  at offset 14, on top of the TCI
-
-- preset ETH_P_8021Q on an untagged frame: __vlan_get_protocol() reads
-  the real tot_len as the encapsulated protocol, and an IPv4 header is
-  parsed at offset 18
-
-The fake header only needs version == 4, ihl >= 5, no fragment bits, and
-protocol TCP or UDP. A csum_start of nhoff + ihl * 4 with the matching
-csum_offset is then accepted.
-
-In the second example, a fake ihl of 5 over a real ihl of 7, with a fake
-protocol of UDP, puts the checksum write at packet offset 44. That is the
-real TCP destination port.
-
-CHECKSUM_PARTIAL is kept in that case. Netfilter or tc may already have
-acted on the packet when a later skb_checksum_help() runs, for example on
-egress to a device without checksum offload. That call would then write
-into the real TCP header. Isn't that the same post-decision modification
-the commit message says this patch closes?
-
-Would it be safer to check eth_hdr(skb)->h_proto against a preset
-skb->protocol, or always parse the frame, on every ARPHRD_ETHER device
-instead of special-casing loopback?
-
-[ ... ]
-
-> @@ -194,11 +397,35 @@ static inline int __virtio_net_hdr_to_skb(struct sk_buff *skb,
->  	return 0;
->  }
->  
-> +/*
-> + * Return value:
-> + * 0 - success
-> + * >0 - checksum was completed in software (slow path)
-> + * <0 - failure
-> + */
->  static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
->  					const struct virtio_net_hdr *hdr,
->  					bool little_endian)
->  {
-> -	return __virtio_net_hdr_to_skb(skb, hdr, little_endian, hdr->gso_type);
-> +	typeof(skb->transport_header) old_transport = skb->transport_header;
-> +	int ret = __virtio_net_hdr_to_skb(skb, hdr, little_endian,
-> +					  hdr->gso_type);
-
-[ ... ]
-
-> +	skb->transport_header = old_transport;
-> +
-> +	return __virtio_net_resolve_csum_partial_mismatch(skb);
->  }
-
-[Severity: Medium]
-This changes the return contract of virtio_net_hdr_to_skb() and
-virtio_net_hdr_tnl_to_skb(): a positive value now means the checksum was
-completed in software.
-
-The patch has a Fixes: tag for f43798c27684 ("tun: Allow GSO using
-virtio_net_hdr"), so stable is likely to pick it up. The callers are only
-updated by earlier patches in the series, "net: account for
-ingress-resolved virtio net hdr state" and "um: vector: trim skbs before
-verifying the header". Neither has a Fixes: or stable tag, and the commit
-message does not mention them.
-
-At the baseline, every caller treats any nonzero return as failure, for
-example:
-
-drivers/net/tun.c:tun_get_user() {
-    ...
-	if (tun_vnet_hdr_tnl_to_skb(tun->flags, features, skb, &hdr)) {
-    ...
-}
-
-tun_xdp_one(), tap ("if (err)"), tpacket_snd() and packet_snd()
-("if (err) goto out_free") do the same.
-
-If this patch is backported alone, would tun, tap and virtio_net drop
-every packet whose checksum was completed in software as a frame error?
-Would packet_snd() return 1 from sendmsg()? And without the um vector
-change, would skb_checksum_help() also checksum the untrimmed buffer tail?
-
-Could the prerequisites get stable tags too, or could the dependency be
-noted in the commit message?
-
-> @@ -282,6 +509,35 @@ static inline unsigned int virtio_l3min(bool is_ipv6)
->  	return is_ipv6 ? sizeof(struct ipv6hdr) : sizeof(struct iphdr);
->  }
->  
-> +/* Do the tunnel offsets match the outer headers in the frame?
-> + * The L3 header the tunnel claims must be the one the frame
-> + * carries, with UDP following it at @outer_th.
-> + */
-> +static inline bool
-> +virtio_net_tnl_offsets_ok(struct sk_buff *skb, bool outer_isv6,
-> +			  unsigned int outer_th)
-> +{
-> +	int nhoff;
-> +	__be16 proto;
-> +	unsigned int thoff;
-> +	int ip_proto;
-> +
-> +	if (!virtio_net_l3_start(skb, &nhoff, &proto))
-> +		return false;
-> +	if (outer_isv6 != (proto == htons(ETH_P_IPV6)))
-> +		return false;
-
-[Severity: Medium]
-Can this reject IPv6-outer tunnel packets from the in-tree encoder when
-they carry an in-band VLAN tag? virtio_net_hdr_tnl_from_skb() picks the
-tunnel family from skb->protocol alone:
-
-	if (skb->protocol == htons(ETH_P_IPV6))
-		hdr->gso_type |= VIRTIO_NET_HDR_GSO_UDP_TUNNEL_IPV6;
-	else
-		hdr->gso_type |= VIRTIO_NET_HDR_GSO_UDP_TUNNEL_IPV4;
-
-If skb->protocol is ETH_P_8021Q or ETH_P_8021AD with an in-band tag, an
-IPv6 outer header is advertised as IPV4. Such skbs can come from a VLAN
-device with REORDER_HDR off, where vlan_dev_hard_header() sets
-skb->protocol to vlan->vlan_proto, or from QinQ. tap's
-passthru_features_check keeps the GSO features for them.
-
-virtio_net_l3_start() parses through the VLAN header and returns the real
-family. The receiver (a guest's virtio_net, or tun ingress) now returns
--EINVAL for packets it used to accept. The encoder's classification is
-older, but the drop comes from this new check.
-
-> +	if (!virtio_net_l4_start(skb, nhoff, proto, &thoff, &ip_proto))
-> +		return false;
-> +
-> +	return ip_proto == IPPROTO_UDP && outer_th == thoff;
-> +}
-
-[Severity: Medium]
-Does this exact match fail for VLAN-tagged UDP tunnel GSO traffic sent by
-tun?
-
-For hwaccel tags, tun_vnet_hdr_tnl_from_skb() passes vlan_hlen =
-VLAN_HLEN, and tun_put_user() inserts the tag into the exported frame.
-virtio_net_hdr_tnl_from_skb() adds vlan_hlen to csum_start but not to
-the tunnel offsets:
-
-	inner_nh = skb->inner_network_header - skb_headroom(skb);
-	outer_th = skb->transport_header - skb_headroom(skb);
-	vhdr->inner_nh_offset = cpu_to_le16(inner_nh);
-	vhdr->outer_th_offset = cpu_to_le16(outer_th);
-
-tun's vlan_features include NETIF_F_GSO_UDP_TUNNEL. A UDP tunnel GSO skb
-with an hwaccel VLAN tag can therefore reach tun_put_user() unsegmented,
-for example VXLAN between VMs across a VLAN-filtering bridge with tagged
-tap egress.
-
-The receiving guest's virtnet_receive_done()->virtio_net_hdr_tnl_to_skb()
-used to accept these offsets. Now virtio_net_l3_start() parses the 802.1Q
-header (nhoff = 18), so thoff ends up 4 bytes past outer_th and the packet
-is dropped as a frame error. The inner check at the 4-byte-short inner_nh
-would fail as well.
-
-The encoder's omission is older, but isn't this drop new with this
-validator?
-
-[ ... ]
-
-> @@ -335,9 +592,12 @@ virtio_net_hdr_tnl_to_skb(struct sk_buff *skb,
->  	/* Let the basic parsing deal with plain GSO features. */
->  	ret = __virtio_net_hdr_to_skb(skb, hdr, true,
->  				      hdr->gso_type & ~gso_tunnel_type);
-> -	if (ret)
-> +	if (ret < 0)
->  		return ret;
->  
-> +	if (!virtio_net_tnl_offsets_ok(skb, outer_isv6, outer_th))
-> +		return -EINVAL;
-> +
+> Trim first, so the import sees the packet as it was received.
 
 [Severity: Low]
-This drop happens before any GSO or non-GSO distinction. Tunnel packets
-too small to be GSO are also dropped when their outer L3/UDP offsets do
-not match the frame.
+Should the commit message say that this reorder also changes current
+validation behaviour, and not only prepare for the follow-up?
 
-The commit message only describes checksum handling ("UDP tunnel headers
-get the same handling on the inner header", "Complete other non-GSO
-checksums immediately"). The v5 changelog note ("a packet too small to be
-GSO: ignore the tunnel GSO request, complete wild metadata in place")
-suggests such packets are completed rather than dropped.
+raw_verify_header() calls virtio_net_hdr_to_skb(). Today,
+__virtio_net_hdr_to_skb() already checks lengths against skb->len and
+skb_headlen() in several places:
 
-Further down, the patch also clears SKB_GSO_UDP_TUNNEL and
-SKB_GSO_UDP_TUNNEL_CSUM for non-GSO skbs without mentioning it.
+  skb_partial_csum_set()
+  pskb_may_pull(skb, p_off)
+  the UDP_L4 bound against gso_size * UDP_MAX_SEGMENTS
+  the skb->len - nh_off > gso_size test that decides whether gso_size
+  and SKB_GSO_DODGY get set
 
-Could the commit message describe both of these behaviour changes?
+Before this patch, those checks ran against the untrimmed prep_skb()
+buffer (max_packet plus frags). A vnet header whose csum_start/csum_offset
+pointed past the received data, but still inside the buffer, used to pass.
+The later trim then left a CHECKSUM_PARTIAL skb whose checksum location
+was beyond skb->len.
+
+With the reorder, such headers are rejected and counted in
+rx_encaps_errors. Could the changelog describe this? There is also no
+Fixes: tag.
+
+> diff --git a/arch/um/drivers/vector_kern.c b/arch/um/drivers/vector_kern.c
+> index 8a70b3a625537..1afbef78df725 100644
+> --- a/arch/um/drivers/vector_kern.c
+> +++ b/arch/um/drivers/vector_kern.c
+> @@ -865,6 +865,7 @@ static int vector_legacy_rx(struct vector_private *vp)
+>  
+>  	if (skb != NULL) {
+
+[Severity: Low]
+This is a pre-existing issue and was not introduced by this patch. Does
+vector_legacy_rx() leak the skb from prep_skb() when uml_vector_recvmsg()
+fails?
+
+Just above this hunk:
+
+	pkt_len = uml_vector_recvmsg(vp->fds->rx_fd, &hdr, 0);
+	if (pkt_len < 0) {
+		vp->in_error = true;
+		return pkt_len;
+	}
+
+uml_vector_recvmsg() returns -errno for any readv() failure other than
+EAGAIN. This path then returns without calling dev_kfree_skb_irq(skb).
+Nothing else holds a reference, so the skb and its frags are lost.
+
+>  		if (pkt_len > vp->header_size) {
+> +			pskb_trim(skb, pkt_len - vp->rx_header_size);
+>  			if (vp->header_size > 0) {
+>  				header_check = vp->verify_header(
+>  					vp->header_rxbuffer, skb, vp);
+
+[Severity: Medium]
+This isn't a bug introduced by this patch, but is the header iovec in
+vector_legacy_rx() the right size for IPv4 GRE and raw IPv4 L2TPv3?
+
+Earlier in vector_legacy_rx():
+
+	if (vp->header_size > 0) {
+		iov[0].iov_base = vp->header_rxbuffer;
+		iov[0].iov_len = vp->header_size;
+	}
+
+build_gre_transport_data() sets:
+
+	vp->rx_header_size = vp->header_size;
+	if (!td->ipv6)
+		vp->rx_header_size += sizeof(struct iphdr);
+
+build_l2tpv3_transport_data() does the same when
+(!td->ipv6) && (!td->udp).
+
+gre_verify_header() skips sizeof(struct iphdr) into header_rxbuffer
+before it compares. With vec=0, readv() only puts header_size bytes (the
+start of the IPv4 header) into header_rxbuffer. The verifier then reads
+uninitialized kmalloc memory, so nearly all packets get dropped.
+
+For any packet that does pass, the rest of the IP and encapsulation
+header stays at the front of the skb. The trim by rx_header_size then
+removes 20 bytes of real payload from the tail.
 
 [ ... ]
 
-> @@ -368,7 +628,22 @@ virtio_net_hdr_tnl_to_skb(struct sk_buff *skb,
->  	skb->inner_mac_header = inner_nh + skb_headroom(skb);
->  	skb->transport_header = outer_th + skb_headroom(skb);
->  	skb->encapsulation = 1;
-> -	return 0;
-> +
-> +	if (!skb_is_gso(skb))
-> +		skb_shinfo(skb)->gso_type &= ~(SKB_GSO_UDP_TUNNEL_CSUM |
-> +					       SKB_GSO_UDP_TUNNEL);
-> +
-> +	/*
-> +	 * We know VIRTIO_NET_HDR_F_NEEDS_CSUM was set so __virtio_net_hdr_to_skb
-> +	 * set CHECKSUM_PARTIAL.
-> +	 */
-> +	inner_proto = inner_isv6 ? htons(ETH_P_IPV6) : htons(ETH_P_IP);
-> +	if (virtio_net_csum_partial_ok_at_offset(skb, gso_inner_type, inner_nh,
-> +						 inner_proto))
-> +		return 0;
+> @@ -981,6 +981,8 @@ static int vector_mmsg_rx(struct vector_private *vp, int budget)
+>  	for (i = 0; i < packet_count; i++) {
+>  		skb = (*skbuff_vector);
+>  		if (mmsg_vector->msg_len > vp->header_size) {
+> +			pskb_trim(skb,
+> +				mmsg_vector->msg_len - vp->rx_header_size);
 
 [Severity: High]
-The inner_nh anchor used here comes from the sender's inner_nh_offset.
-Earlier in virtio_net_hdr_tnl_to_skb() it is only checked for ordering:
+Can skb be NULL here?
 
-	if (outer_th < outer_l3min ||
-	    inner_nh < outer_th + sizeof(struct udphdr) ||
-	    inner_th < inner_nh + inner_l3min)
-		return -EINVAL;
+If the GFP_ATOMIC alloc_skb_with_frags() in prep_skb() fails, the
+skbuff_vector slot stays NULL, but the header iovec is still active:
 
-Nothing ties it to the real encapsulated header. Can a forged IP-looking
-header at inner_nh pass this check while csum_start and csum_offset point
-into a different field of the real inner packet?
+	if (vp->header_size > 0)
+		iov_index++;
+	if (result == NULL) {
+		iov[iov_index].iov_base = NULL;
+		iov[iov_index].iov_len = 0;
+		goto done;
+	}
+	...
+done:
+	msg->msg_iovlen = iov_index;
 
-Take Eth/IPv4/UDP/VXLAN/Eth/IPv4/TCP, with the real inner IP header at 64
-and the inner TCP header at 84:
+vector_net_open() sizes the rx queue header buffers with
+vp->rx_header_size through create_queue(). For IPv4 GRE and non-UDP IPv4
+L2TPv3, rx_header_size is header_size + sizeof(struct iphdr). A packet
+that fills only the header iovec therefore gives
+msg_len == rx_header_size > header_size.
 
-- inner_nh_offset = 52, with the inner MAC bytes chosen so byte 52 is
-  0x47 (version 4, ihl 7, so thoff is 80)
-- the fake frag_off (src MAC bytes 2-3) is 0
-- the fake protocol (src MAC byte 5) is 17
-- gso_type is UDP_L4, csum_start = 80, csum_offset = 6
+That packet enters this branch and calls pskb_trim(NULL, 0), which
+dereferences skb->len.
 
-The checksum then lands at offset 86, which is the real inner TCP
-destination port.
+Before this patch, gre_verify_header() or l2tpv3_verify_header() ran
+first. Neither touches the skb. A packet that failed them went to
+dev_kfree_skb_irq(NULL), which returns early. Only packets with a valid
+header reached the old pskb_trim() on a NULL skb.
 
-If gso_size is larger than the payload, the skb is not GSO. The tunnel
-GSO bits are cleared, CHECKSUM_PARTIAL stays, and 0 is returned.
+Now a packet with the wrong GRE key or the wrong L2TPv3 session/cookie
+can also hit the NULL dereference whenever an rx skb allocation has
+failed. The GRE and L2TPv3 raw sockets are bound but not connected, so
+any remote host can send such packets.
 
-After VXLAN decap through iptunnel_pull_header(), the inner stack and
-netfilter see the original dport. A later skb_checksum_help() would then
-overwrite it with a value the sender controls.
+The else branch already checks skb != NULL. Is a similar check needed
+before this pskb_trim()?
 
-In the GSO case, the same forged offsets become inner_transport_header
-and send segmentation writes to the wrong fields.
+[Severity: High]
+This is a pre-existing issue and was not introduced by this patch, but
+the patch touches these lines. Is this guard strict enough for the trim
+length?
 
-Should inner_nh be bound to the real encapsulation, with the checksum
-completed or the packet rejected when that cannot be established?
+The guard checks msg_len > vp->header_size, but the trim subtracts
+vp->rx_header_size. Two configurations have rx_header_size larger than
+header_size:
 
-> +
-> +	/* A tunnel header implies GSO, so drop. */
-> +	return __virtio_net_resolve_csum_partial_mismatch(skb);
->  }
+  IPv4 GRE: header_size 4 and rx_header_size 24 without a key, or 8 and
+  28 with a key
+  raw IPv4 L2TPv3
 
-[Severity: Low]
-This isn't a bug, but the comment does not match the code.
-__virtio_net_resolve_csum_partial_mismatch() returns -EINVAL only when
-skb_is_gso(skb). Otherwise it runs skb_checksum_help(), returns 1, and the
-packet is delivered. The non-GSO tunnel case is also handled just above,
-where the tunnel gso_type bits are cleared.
+In these cases, a msg_len between header_size and rx_header_size makes
+the difference negative. pskb_trim() takes it as a very large unsigned
+int:
 
-Could the comment say that non-GSO packets are completed in software?
+	return (len < skb->len) ? __pskb_trim(skb, len) : 0;
+
+and returns 0 without trimming. recvmmsg() only wrote into the header
+iovec, so the skb keeps its full prep_skb() length of unwritten
+alloc_skb_with_frags() memory. That memory goes through eth_type_trans()
+and napi_gro_receive() into the guest stack.
+
+gre_verify_header() and l2tpv3_verify_header() also read bytes past
+msg_len in the per-slot header buffer. Those bytes can still hold an
+earlier packet's header.
+
+For example, a keyed GRE packet with msg_len 24 supplies only the 4 GRE
+flag bytes. The key at offsets 24..27 is left over from the last valid
+packet, so the key check passes without the sender knowing the key.
+
+When msg_len == rx_header_size, the skb is trimmed to 0 bytes and
+eth_type_trans() parses uninitialized head data.
+
+vector_legacy_rx() has the same mismatch:
+
+	if (pkt_len > vp->header_size) {
+		pskb_trim(skb, pkt_len - vp->rx_header_size);
+
+Should both paths require the received length to be larger than
+rx_header_size (plus ETH_HLEN) before trimming?
+
+[ ... ]
 
 -- 
 Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/cover.v5.git.mst%40redhat.com
