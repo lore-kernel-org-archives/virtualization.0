@@ -1,47 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792906262;
-	b=cI31XP9sxKnuGiQfBJLQ/tMLHRbB6X5H0izF2LLp2KbMvg1PNOgv5D/BYM4eFOApFvPZ
-	 uS8ZlLdm7zF+n/WgroRhnr/dnCNEoKXmr5gMrYJqJ6USVZlXXUlsuGb1Rn6iwl9tTETFX
-	 GWTNl6Xry+I3PK9ca/5V4lCLL1ho2JWrjLJ3TMzgFUJ0hvckqqeMNXkVc5+rG0S23Vl2p
-	 3dcCb3VDPF0T7PdPxyyfpN/nfT3S+EQdil89hu2qBaYAgdbQUb3NJ65iIKC5fuKGT0xur
-	 OEbvZNNL5fR3zHp4Tbz/Y7Y1zQjKmngSokazZLWn4q+jF+CUQOsOvrdWu+ILlCQE5rg==
+	t=1792906266;
+	b=ukbPaBgr4/gqmFZM7Dtijn0pF6QTwWcawmv9i6USfZXbWFgaZEqv0IXOfs0zAdwI2UVn
+	 1EeUEBnpfxrdTkjL8gKKcb0zjNGTs+dchkDQ1+DF12dj3MzUGJpl4Jnn/Xjo9iKWYN53/
+	 zGYONd00JUTvZqp73mOyKznKwWbas91kBgkqSOqVmMfcZ59s31k2winS9KkloQv0+SR+B
+	 0qI9iwnqvJ/LgKZLPl2eSr/Gs3LuWd1tYClu8h9yyNsfuujBaggqqp9lNt0AXX5IdKYO8
+	 yp2l6lKdN3oolw04sWi9vVi9fBjd4OXO5YnkPiaBFObBug4HLtR8Tvm90MStEql7zQg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792906262;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792906266;
 	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
 	 In-Reply-To:References:X-sashiko-severity:Content-Type:
 	 Content-Transfer-Encoding:MIME-Version;
-	bh=ZzKajPNZhJBaeiX7KrF0L4LRhebWXvs6tMtkK6E+pA4=;
-	b=zCV8CX4B+mV3BeHNwdhYfMdMueUTh5EV92hBL4xSWjaH6WOfE3yisoSLI5ykNku42tkk
-	 83sRmWD/7Mf0umpUM3ek4zl5vUm8w1nmaAIJhic9deimTlZKqk25boZYOGWKFA5LTrObr
-	 wp6hyASZICxkUJgTcSUx6RK+raWJ5frM7gUfVy2Hy2KvRbf7rHb9/c7eVUBARMICG9Y0t
-	 HbFIlw7xfssUktI5MOznDQbXIu2flNxoLjsE+ACZfaaKz3h+eXHR2mdND3Wj1+cJJKpS8
-	 hLXGOLZYYOUg+t2sAzINBnlRtFbzEQR6a8U+3yvYcze2dRpR7LJ+kR5lyiVbupALwbg==
+	bh=gMQhvSd2iPBWErQGGLe8rTomz1iYiodhFjO262Nxpo8=;
+	b=QVpKJcYs6YnE9YDHHZ8yJ8H7S86bLVfNS7FYPW/TIit+em9+jz8gO+KwxDjHZFNO7Bg8
+	 5v+q1bfeOe2n2oQTumfGB9kIQjaj7UdJ96wW9vKki3CZs+ImSCf6rsZUob1T0sap7f7TV
+	 USJAvOMCR8QFnpxFZaxdAxnlpNRAXY37rYrY9Byz1VAxC5LYs5ezgU2pxTPS3cOQWqTlc
+	 1gBtxvP/MRmUVIRuDNWjVYZMzUgPd60aluEzlPI3rWlQuNWnLsA7fzXYSw7+kYQRMHjRe
+	 lauxfbiTrbjn4vchn0Bh8BjPiAAUGfwuoTevrSeRPXmWK/Ofu64IQ2NOQmdNj1UH1MQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XIQDBQGY;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="nCY/YaKj";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A63EA606A31A;
-	Sun, 25 Oct 2026 05:31:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6101D606A32A;
+	Sun, 25 Oct 2026 05:31:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XIQDBQGY
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 584C41F01825;
-	Sun, 25 Oct 2026 05:31:00 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nCY/YaKj
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C5671F01829;
+	Sun, 25 Oct 2026 05:31:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792906261;
-	bh=ZzKajPNZhJBaeiX7KrF0L4LRhebWXvs6tMtkK6E+pA4=;
+	s=k20260515; t=1792906265;
+	bh=gMQhvSd2iPBWErQGGLe8rTomz1iYiodhFjO262Nxpo8=;
 	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=XIQDBQGYo0HizMSKxpCpMD164TC/u5LTwuqveTngIR6NYP8e2MI8LnG/XMqXFTSeI
-	 waYdtcOz2Qy2KpLbYJZG2dQl/3HRqD4+xe03eeV1Jdv8VU5nw38rmkmzdCQlGuo1+g
-	 tI4ZUNYIEtF2QUyqgP+VP9x08/Kt6HgFEeG3klxNDSvYt0GMqMHMmpdKzQw4LL96+B
-	 Bl1FRSsrqLVA585hNWKi1q6TCg+gHKvMnjxJfpdCCerx3K2pZJwAKqrLvn686uWXEF
-	 vmZSOz2Bky5GVtozBZiitNz9ZbmLX8rn5gWfFfEe6K9UC9bUFpsX1E0WCbhUcJpxOT
-	 Mi1XAXXXCUa/g==
-Subject:
- Re: [PATCH net v5 1/7] net: account for ingress-resolved virtio net hdr state
+	b=nCY/YaKjdjX0OFYSJrJ14LPouFw76wJy3tzwjRrde+XbOOT03Egi2EGQQv/wsyS1T
+	 B84fZRix4Fq4njlx7C8H/8U0pOPXfUFaxXAW7p/4NRgD03zXBENtLA8BjlxYLHTgJq
+	 ybUmWq9hszt1feKSZiCCpSstI5xdABoH2fyIoAChJXDDjNPWO3FCT7OPkbfxf381Zn
+	 zWTLwLVoGXMC0iB4HmfriULKG77vhc+jpIYVawKLkd7wPMYuxMiIahCBhrU2Pj0DJI
+	 V4FHzfoY56hXIOaU/klRp/rLAkBOk9aLzJCOHkheQBKuGwR2AgnDyeCZDzBiOVNcKE
+	 MmoFR9C2c0NDA==
+Subject: Re: [PATCH net v5 5/7] net: add a sysctl to opt out of virtio net hdr
+ checksum validation
 From: netdev-bot+sashiko@kernel.org
 To: mst@redhat.com
 Cc: linux-kernel@vger.kernel.org, willemdebruijn.kernel@gmail.com,
@@ -50,12 +50,12 @@ Cc: linux-kernel@vger.kernel.org, willemdebruijn.kernel@gmail.com,
  davem@davemloft.net, edumazet@kernel.org, kuba@kernel.org, pabeni@redhat.com,
  netdev@vger.kernel.org, virtualization@lists.linux.dev, maxk@qualcomm.com,
  rusty@rustcorp.com.au
-Date: Sun, 25 Oct 2026 05:30:59 +0000
-Message-ID: <179290625983.3134.1093878831391467849@kernel.org>
+Date: Sun, 25 Oct 2026 05:31:04 +0000
+Message-ID: <179290626462.3134.18093593044848809481@kernel.org>
 In-Reply-To:
- <94796ee3c32e50665ecf70e2b390db1bc2773be9.1792668082.git.mst@redhat.com>
+ <2beba4c8b84c811120b6100bcccd8b90e7458787.1792668082.git.mst@redhat.com>
 References:
- <94796ee3c32e50665ecf70e2b390db1bc2773be9.1792668082.git.mst@redhat.com>
+ <2beba4c8b84c811120b6100bcccd8b90e7458787.1792668082.git.mst@redhat.com>
 X-sashiko-severity: Medium
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
@@ -69,10 +69,10 @@ List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
 
-Thank you for your contribution! Sashiko AI review found 3 potential
+Thank you for your contribution! Sashiko AI review found 1 potential
 issue(s) to consider.
 
-Critical: 0 · High: 0 · Medium: 1 · Low: 2
+Critical: 0 · High: 0 · Medium: 1 · Low: 0
 
 If you believe none of the issues are legitimate, please reply to each
 issue of Medium severity or higher and explain why the AI is wrong.
@@ -80,144 +80,95 @@ If any of them are legitimate and you plan to respin, please let patchwork
 know by including "pw-bot: cr" as a separate line at the end of your reply
 (one such reply per series is enough).
 
-- [Medium] The concern: the newly checked virtio_net_hdr_to_skb() call in
-  raw_verify_header() (arch/um/drivers/vector_transports.c:213) runs on…
-- [Low] This patch quietly includes a real behaviour fix for the UML
-  vector raw transport.
-- [Low] The concern: at this commit, virtio_net_hdr_to_skb(),
-  __virtio_net_hdr_to_skb() and virtio_net_hdr_tnl_to_skb() in…
+- [Medium] virtio_net_hdr_validate_disabled() reads
+  dev_net(skb->dev)->core.sysctl_virtio_net_hdr_validate with no RCU…
 
 --
 
-net: account for ingress-resolved virtio net hdr state
+net: add a sysctl to opt out of virtio net hdr checksum validation
 
-This commit changes callers of virtio_net_hdr_to_skb() and
-virtio_net_hdr_tnl_to_skb() to treat only negative return values as errors.
-It prepares for a later patch that returns a positive value when the
-checksum is completed in software. It also makes the UML vector raw
-transport check the return value, and adds a tun ethtool -S counter,
-rx_csum_sw, for the positive case.
+This adds a per-netns sysctl, net.core.virtio_net_hdr_validate. Host root
+can use it to turn off the virtio net header checksum validation added by
+the previous patch. A static key gates a lockless read of the per-netns
+value in virtio_net_hdr_validate_disabled(), and that helper is checked
+at the start of the csum and tunnel offset validators.
 
-> diff --git a/arch/um/drivers/vector_transports.c b/arch/um/drivers/vector_transports.c
-> index e1fb2a76fdff5..8b75484586635 100644
-> --- a/arch/um/drivers/vector_transports.c
-> +++ b/arch/um/drivers/vector_transports.c
-> @@ -210,7 +210,9 @@ static int raw_verify_header(
->  		return 1;
->  
->  	skb_set_network_header(skb, ETH_HLEN);
-> -	virtio_net_hdr_to_skb(skb, vheader, virtio_legacy_is_little_endian());
-> +	if (virtio_net_hdr_to_skb(skb, vheader,
-> +			virtio_legacy_is_little_endian()) < 0)
-> +		return -1;
->  	return 0;
->  }
-
-[Severity: Medium]
-Can this drop valid frames at this point in the series? The skb passed in
-here has not been trimmed to the received length yet. prep_skb() sizes it
-to the whole receive buffer:
-
-arch/um/drivers/vector_kern.c:prep_skb() {
-    ...
-	skb_put(result, vp->max_packet);
-	result->data_len = len - vp->max_packet;
-	result->len += len - vp->max_packet;
-    ...
-}
-
-Both vector_legacy_rx() and vector_mmsg_rx() call verify_header() before
-pskb_trim():
-
-arch/um/drivers/vector_kern.c:vector_legacy_rx() {
-    ...
-				header_check = vp->verify_header(
-					vp->header_rxbuffer, skb, vp);
-				if (header_check < 0) {
-    ...
-			pskb_trim(skb, pkt_len - vp->rx_header_size);
-    ...
-}
-
-That means the length checks in __virtio_net_hdr_to_skb() compare against
-the buffer size (65536 with GSO), not the packet length. Take the USO check:
-
-	if (skb->len - p_off > gso_size * UDP_MAX_SEGMENTS)
-		return -EINVAL;
-
-With a 64K buffer, this rejects a valid USO frame whose gso_size is below
-about 511. Before this patch the error was ignored. Now raw_verify_header()
-returns -1, and the caller frees the skb and increments rx_encaps_errors.
-
-The same ordering also lets csum_start/csum_offset values that point past
-the real packet, but still inside the buffer, pass validation.
-
-The next patch in the series, "um: vector: trim skbs before verifying the
-header", moves pskb_trim() ahead of verify_header() in both RX paths. That
-fixes this, so only intermediate bisect points are affected. Could the trim
-come before this change, or be folded into it?
-
-[Severity: Low]
-This hunk looks like a real behaviour fix for the UML raw transport, not
-accounting preparation. The commit message says:
-
-    The um vector raw transport even ignored the return value
-    altogether: rejected packets went on into the stack with their
-    metadata unvalidated, so check it there as well.
-
-The return value has been ignored since commit 49da7e64f33e ("High
-Performance UML Vector Network Driver").
-
-For example, __virtio_net_hdr_to_skb() can call skb_partial_csum_set(),
-which sets CHECKSUM_PARTIAL along with csum_start/csum_offset, and then
-return -EINVAL from a later check. The old code still delivered that skb.
-
-Should this be a separate UML patch, ordered together with the trim fix
-from "um: vector: trim skbs before verifying the header", and carrying:
-
-Fixes: 49da7e64f33e ("High Performance UML Vector Network Driver")
-
-Right now the fix sits in a patch whose subject reads as accounting-only
-and which also adds a new tun ethtool string. That makes it hard to pick
-up cleanly for stable.
-
-> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-> index 7cca1a6f72ff4..133923317eae8 100644
-> --- a/drivers/net/tun.c
-> +++ b/drivers/net/tun.c
+> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+> index 52852a33a2db7..cea70ccf0ed4b 100644
+> --- a/include/linux/virtio_net.h
+> +++ b/include/linux/virtio_net.h
 
 [ ... ]
 
-> @@ -1939,10 +1940,14 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
->  		break;
->  	}
+> @@ -78,6 +79,20 @@ static inline struct iphdr *virtio_net_ip4_parse(struct sk_buff *skb,
+>  	*thoff = nhoff + iph->ihl * sizeof(u32);
+>  	return iph;
+>  }
+> +/* Defined in net/core/dev.c, enabled while any network namespace
+> + * has net.core.virtio_net_hdr_validate set to 0.
+> + */
+> +DECLARE_STATIC_KEY_FALSE(virtio_net_hdr_validate_disabled_key);
+> +
+> +/* Failsafe: a namespace can disable the check with
+> + * net.core.virtio_net_hdr_validate.
+> + * The caller must keep the netns of skb->dev alive.
+> + */
+> +static inline bool virtio_net_hdr_validate_disabled(struct sk_buff *skb)
+> +{
+> +	return static_branch_unlikely(&virtio_net_hdr_validate_disabled_key) &&
+> +	       !READ_ONCE(dev_net(skb->dev)->core.sysctl_virtio_net_hdr_validate);
+
+[Severity: Medium]
+
+Can this read hit a freed struct net? There is no rcu_read_lock() here
+and no reference on the netns.
+
+dev_net() is read_pnet(), which is just a plain load of dev->nd_net. The
+comment asks the caller to keep the netns of skb->dev alive, but the
+callers don't appear to do that.
+
+For example, tun_get_user() gets here from preemptible process context,
+before either of its rcu_read_lock() sections. The only thing it holds is
+the device reference taken by tun_get():
+
+tun_get_user()
+  tun_vnet_hdr_tnl_to_skb()
+    ...
+      virtio_net_hdr_validate_disabled()
+
+packet_snd() and tpacket_snd() reach virtio_net_hdr_to_skb() the same
+way, also holding only a device reference.
+
+Here is one possible sequence:
+
+  - The writer loads dev->nd_net (net_B) and is preempted.
+  - The device is moved from net_B to net_C. tun does not set
+    netns_local, and dev_change_net_namespace() does not wait for
+    device references.
+  - The last reference to net_B is dropped and cleanup_net() runs.
+    This reader is not in an RCU read-side section, so the
+    synchronize_rcu() there does not wait for it, and net_B is freed.
+  - The writer resumes and reads sysctl_virtio_net_hdr_validate from
+    the freed net_B.
+
+The window is small. It needs the static key enabled (some netns has
+the sysctl set to 0) and a privileged netns move with teardown.
+
+Would it be better to do the read under rcu_read_lock() and use
+dev_net_rcu(), something like this?
+
+	bool disabled;
+
+	rcu_read_lock();
+	disabled = !READ_ONCE(dev_net_rcu(skb->dev)->core.sysctl_virtio_net_hdr_validate);
+	rcu_read_unlock();
+
+> +}
 >  
-> -	if (tun_vnet_hdr_tnl_to_skb(tun->flags, features, skb, &hdr)) {
-> +	err = tun_vnet_hdr_tnl_to_skb(tun->flags, features, skb, &hdr);
-> +	if (err < 0) {
->  		atomic_long_inc(&tun->rx_frame_errors);
->  		err = -EINVAL;
->  		goto free_skb;
-> +	} else if (err > 0) {
-> +		atomic64_inc(&tun->rx_csum_sw);
-> +		err = 0;
->  	}
+>  /* Where does the L3 header start, and what protocol is it?
+>   * Handles Ethernet and VLAN headers; other devices use the
 
-[Severity: Low]
-Can err be positive here at this commit? At this revision,
-virtio_net_hdr_to_skb(), __virtio_net_hdr_to_skb() and
-virtio_net_hdr_tnl_to_skb() in include/linux/virtio_net.h appear to return
-only 0 or -EINVAL.
-
-If so, this branch and the matching ret > 0 branch in tun_xdp_one() can't
-be reached. The new rx_csum_sw value reported by tun_get_ethtool_stats()
-would always read 0.
-
-The later patch "net: resolve uncommon partial checksums at ingress"
-documents the tri-state return and adds
-__virtio_net_resolve_csum_partial_mismatch(), which returns
-skb_checksum_help(skb) ?: 1. That makes these branches live at the end of
-the series, so this only affects intermediate bisect points.
+[ ... ]
 
 -- 
 Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/cover.v5.git.mst%40redhat.com
