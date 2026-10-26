@@ -1,57 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793013193;
-	b=08hmmdusuKV4eeLXK4LyHth0NSx11fw5xJlexUhCgI3iQmLqabJ7AkFfoiOyj/ts6wDr
-	 2YI9WIqnZyLsqFo3NpGTxLQCFTZNRlEi/6HM1CbKZuYH7fen3AtZ1fKfN/JdLD+0w0TAY
-	 MJQPc2F/7HrnIPduB5x7xs8H7jwK4DUP1lXMV47bkFe0zq4Ov8dIefgfsSrs8mdxUB2L/
-	 LzwHy9eBYI47CXZ/Klh/FSHsiIbvhy9nfRXTlasDW8EePdLCP6iTl87EHt2ciaE4vQ481
-	 ZO3MJkEwMLgoObU3W9bE7KNELIDcVxOZmJk7kPEdqK5QkCvq0zqapoKTEDDB5udJ0+w==
+	t=1793014431;
+	b=uzOSpiZKNxEJhiD9AXptZVQtni5fTQjVF06I2rEOMM1bUtSUoimScQp0qDIhYEMp53Ei
+	 0fhKHxnEcHfiBS4vH62hNuAKI/1ibHjUYMBeFVQddYnBlrZLokoLFbKrAPI0fr5lwC381
+	 mMTk+bSHsI5B2xR/G7Oj/qWbXvneeedxZp6MoPTCOSDDk1sWnq3OcAdRzwWPs3pb/RAby
+	 NXV5d32777H+u+CNcQO0hcggClR/cVOZoH9vaTzJ3qAHrwHG3MsYISZ1iTeezvqpUShnW
+	 bfX29L+iE5iykkDcWMVal3mkkxbLi2CzzCj6sZ+FAhfOJjJxOJcS38Av5BlOqNwI/xg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793013193;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793014431;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=Vzrq5dwCotIg0S8fxReszMlgFK+WzgY8xlv4kDTBw7I=;
-	b=1JaIYGZnOaB/pxpfuLhLObVFbK5pMjUSohZATHve9cp2Z6quUH4/Z1w58/glIdflLZYK
-	 6wXbeC5fZDfLDAE9H2qca3ts6k/WaPwoNZbnyAHEu3iAVs6J3A1Sq3TcxygOtcKJXYRv0
-	 5idPzmPHRxBESX3x5msRWnQ9M/I52jRF4GWFGHDdtjkXwFV/g8O4eILgiWFA5OI+9jMi5
-	 LYhel3Oxt5v9IM/bLJXpwC1K0tLjPWKDLoHjZHcjc+bF63aJ3i/JSEOoiqvPxM10J+EF3
-	 gqGBkeQYChsgPrFZM1s7Z0r1gdzPoEospcMV14b6XyThbS8GKRQ9Si5qGGY/CgKV77Q==
+	bh=wuODrShRFRKxE4qRcJuOdvbwKSKRK7himmv01HDbqgY=;
+	b=H7XbYXWjio7cvmklk7Jdceg88Jtz48coaYT8AGRObmsDXRcykR4itMyc+qf262ej6i3O
+	 2xzNj8bA2vaEiv9A3gtvgMAJkaAXpxz5XE5XREWaXjLRieBxGMzG9FVWEnG4XR3kI14tH
+	 /BTWuAcoIKlWK4conUsSmg1ayRmyABSbBDylMdVMEGsTcyR1NWCNKFMFXp6NuwyJ1h0vZ
+	 gG/Ko8yXRUxSHU4lSyYnoQGgJGyTyWLQGL703ObZxDQhjpLl+K7FcHS0SiJq6jN6Fi1HU
+	 FhPV1TGiSJ3h1bZz3HGamuZd4JcnbKAOBGkuRgcWx6IBCNHcyYGyfyRotC3CfJIC1VA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KGzJGlfq;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kvuTIgER;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4D46606A31A;
-	Mon, 26 Oct 2026 11:13:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2A14606A31B;
+	Mon, 26 Oct 2026 11:33:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KGzJGlfq
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 045E51F01825;
-	Mon, 26 Oct 2026 11:13:11 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kvuTIgER
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 146BB1F01825;
+	Mon, 26 Oct 2026 11:33:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793013192;
-	bh=Vzrq5dwCotIg0S8fxReszMlgFK+WzgY8xlv4kDTBw7I=;
+	s=k20260515; t=1793014430;
+	bh=wuODrShRFRKxE4qRcJuOdvbwKSKRK7himmv01HDbqgY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=KGzJGlfqKqjRV/xFypH7j18ghslIGVAt5aOAXqd9rApoAGQ/WemR5HPLNauQIAnNP
-	 GnrlwC4iEwLg7Bu6EI7cNPAbrBieCakl26UPxY/3Tp5H2FWSzQAFjT4R534iCw9TVE
-	 QY8jcGfxZ1pa2l/lk0euVDdEorKL6R0qRJeWxz7J8JabYgglHu5GyW370liQLCSvS7
-	 Sj/mcnEqRUcttxnGPIcN3YicK8IRrRJyOPjwYhQt6cmrihpZZ/zwql+PY7TJyXDGvj
-	 BFqXZPVyQEPJmdw3U71lQkJw6ku7gwIFpsLDYz24hK+CW4ksxon+V0JJ64CViITV5d
-	 MSz5g0/oEwAvA==
-Message-ID: <sashiko-outbox-185075@kernel.org>
+	b=kvuTIgERYRQJuGm1VdNWnqef7hhs6koa/Yqoy4qnXq3Lz+gM2wWovCJgdCJAHu70E
+	 nK0wPjF7qGOw0sFsPDC6t9xN0D8S4FlHly3PgANikYcQYgF/YdLhEoOrNoxwW8wK+0
+	 uSUR5OxJ3i/x21NDR6wkIm79JJm3/fg5e2N2hWt28r4ZbR20sK7rnBPjI1relgY0B6
+	 k3LaO4uQkoAzvG4lXoEQ4+QLeA3hvIO5aB6rTx7jK/Ybc4kATXZgywkE3ghPXS1knK
+	 gvaLgvCXoomc8jGd9KReWEku0PeQVdds0B/g6TNpiAFRx3/d8zFz+EgxSymNlga7ZI
+	 flQAO0SGS4c8g==
+Message-ID: <sashiko-outbox-185108@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 10/23] drm/msm/dcp: Add HFI DSI and panel commands
+Subject: Re: [PATCH v2 11/23] drm/msm/dcp: Add DCP CRTCs and shared plane
+ state
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Jayant Shekhar" <jayant.shekhar@oss.qualcomm.com>
 Cc: virtualization@lists.linux.dev, dri-devel@lists.freedesktop.org, devicetree@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, media-ci@linuxtv.org, "Michael
  S. Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>
-In-Reply-To: <20261026-jshekhar-dcp-hlos-v2-10-7cf014efdee1@oss.qualcomm.com>
+In-Reply-To: <20261026-jshekhar-dcp-hlos-v2-11-7cf014efdee1@oss.qualcomm.com>
 References: <20261026-jshekhar-dcp-hlos-v2-0-7cf014efdee1@oss.qualcomm.com>
- <20261026-jshekhar-dcp-hlos-v2-10-7cf014efdee1@oss.qualcomm.com>
+ <20261026-jshekhar-dcp-hlos-v2-11-7cf014efdee1@oss.qualcomm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 26 Oct 2026 11:13:11 +0000
+Date: Mon, 26 Oct 2026 11:33:49 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -61,182 +62,381 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 7 potential issue(=
 s) to consider:
-- [Critical] drm/msm/dcp: stack use-after-free on timeout in dcp_hfi_panel_=
-wait()
-- [High] drm/msm/dcp: dcp_hfi_dcs_transfer() returns tx_len instead of rx_l=
-en on read
-- [Medium] drm/msm/dcp: unsigned bpp in dcp_hfi_panel_init() makes error ch=
-eck dead
+- [High] drm/msm/dcp: unconsumed crtc event on disable in dcp_crtc_atomic_f=
+lush()
+- [High] drm/msm/dcp: software vblank count returned in dcp_crtc_get_vblank=
+_counter()
+- [Medium] drm/msm/dcp: signed crtc_x promotion in dcp_crtc_setup_mixer_roi=
+s()
+- [Medium] drm/msm/dcp: pending_kickoff_cnt underflow in dcp_crtc_commit_ki=
+ckoff()
+- [Medium] drm/msm/dcp: skipped drm_crtc_vblank_on() in dcp_crtc_atomic_ena=
+ble()
+- [Medium] drm/msm/dcp: stale bandwidth vote when planes hide in dcp_crtc_a=
+tomic_begin()
+- [Medium] drm/msm/dcp: vblank_enabled race and stale state in dcp_crtc_vbl=
+ank()
 --
 
-commit 7a46a036c27a241a8f787ac3f2ae566d027d7a46
+commit 5e8f3961384fe1603b59d4d7ed8e2050307e4116
 Author: Jayant Shekhar <jayant.shekhar@oss.qualcomm.com>
 
-drm/msm/dcp: Add HFI DSI and panel commands
+drm/msm/dcp: Add DCP CRTCs and shared plane state
 
-This commit translates DSI host and panel operations into HFI commands,
-implementing DSI mode validation, display session and power management,
-panel initialization, and DCS transfer helpers.
+This commit adds DRM CRTC objects, session tracking, bandwidth aggregation,
+and shared plane state definitions for the firmware-owned DCP display
+pipeline in MSM DRM.
 
-> diff --git a/drivers/gpu/drm/msm/dcp/dcp_hfi_dsi_panel.c b/drivers/gpu/dr=
-m/msm/dcp/dcp_hfi_dsi_panel.c
+> diff --git a/drivers/gpu/drm/msm/dcp/dcp_crtc.c b/drivers/gpu/drm/msm/dcp=
+/dcp_crtc.c
 > new file mode 100644
-> index 0000000000000..b27fa8fa31609
+> index 0000000000000..ec4f74c2920f8
 > --- /dev/null
-> +++ b/drivers/gpu/drm/msm/dcp/dcp_hfi_dsi_panel.c
-
+> +++ b/drivers/gpu/drm/msm/dcp/dcp_crtc.c
 [ ... ]
-
-> +static bool dcp_hfi_panel_wait(struct dcp_hfi *hfi,
-> +			       struct dcp_hfi_completion *comp)
+> +static void dcp_crtc_atomic_begin(struct drm_crtc *crtc,
+> +				  struct drm_atomic_commit *state)
 > +{
-> +	unsigned long flags;
-> +
-> +	if (wait_for_completion_timeout(&comp->done,
-> +					msecs_to_jiffies(DCP_HFI_TIMEOUT_DISPLAY_MS)))
-> +		return false;
-> +
-> +	/* Serialize removal with response dispatch before the stack object die=
-s. */
-> +	spin_lock_irqsave(&hfi->resp_drain_lock, flags);
-> +	dcp_hfi_pending_find(hfi, comp->packet_id);
-> +	spin_unlock_irqrestore(&hfi->resp_drain_lock, flags);
-> +	return true;
-> +}
-
-[Severity: Critical]
-Can dcp_hfi_panel_wait() in drivers/gpu/drm/msm/dcp/dcp_hfi_dsi_panel.c
-cause a stack use-after-free when a timeout races with response completion?
-
-In dcp_hfi_panel_init(), comp1, comp2, and comp3 are allocated on the stack
-and waited on via dcp_hfi_panel_wait(), which returns -ETIMEDOUT and unwinds
-the stack frame as soon as dcp_hfi_panel_wait() returns true.
-
-However, in drivers/gpu/drm/msm/dcp/dcp_hfi_core.c, dcp_hfi_resp_callback()
-drops hfi->resp_drain_lock before unpacking packets and calling
-dcp_hfi_complete_pending():
-
-drivers/gpu/drm/msm/dcp/dcp_hfi_core.c:dcp_hfi_resp_callback() {
-    ...
-    spin_unlock_irqrestore(&hfi->resp_drain_lock, drain_flags);
-    ...
-    dcp_hfi_complete_pending(hfi, &pkt_info, status);
-}
-
-And dcp_hfi_complete_pending() erases comp from hfi->pending_xa under
-hfi->pending_lock, drops the lock, and then writes comp->status and calls
-complete(&comp->done) without holding either resp_drain_lock or
-pending_lock:
-
-drivers/gpu/drm/msm/dcp/dcp_hfi_core.c:dcp_hfi_complete_pending() {
-    comp =3D dcp_hfi_pending_find(hfi, pkt_info->packet_id);
-    if (!comp) {
-        ...
-        return;
-    }
-    ...
-    comp->status =3D status;
-    complete(&comp->done);
-}
-
-If dcp_hfi_complete_pending() erases comp from pending_xa right as
-wait_for_completion_timeout() expires, dcp_hfi_panel_wait() will acquire the
-unheld resp_drain_lock, ignore the NULL return from dcp_hfi_pending_find(),
-and allow dcp_hfi_panel_init() to return while dcp_hfi_complete_pending() is
-still writing to comp->status and calling complete(&comp->done) on the
-unwound stack.
-
-If dcp_hfi_pending_find() returns NULL on timeout, should
-dcp_hfi_panel_wait() call wait_for_completion(&comp->done) to wait for the
-in-flight completion to finish before returning?
-
-> +
-> +int dcp_hfi_panel_init(struct dcp_hfi *hfi, u32 intf_idx,
-> +		       const struct drm_display_mode *mode,
-> +		       const struct mipi_dsi_device *dsi,
-> +		       const struct dcp_dsi_hfi_panel_config *cfg)
-> +{
-> +	u32 num_lanes;
-> +	u32 bpp;
-> +	bool is_cmd_mode;
-
-[ ... ]
-
-> +	num_lanes =3D dsi->lanes;
-> +	bpp =3D mipi_dsi_pixel_format_to_bpp(dsi->format);
-> +	if (bpp < 0)
-> +		return -EINVAL;
-> +	is_cmd_mode =3D !(dsi->mode_flags & MIPI_DSI_MODE_VIDEO);
-> +	traffic_mode =3D dcp_dsi_traffic_mode(dsi);
-> +	link_bpp_x16 =3D bpp << 4;
-
-[Severity: Medium]
-In dcp_hfi_panel_init() in drivers/gpu/drm/msm/dcp/dcp_hfi_dsi_panel.c, bpp
-is declared as u32, whereas mipi_dsi_pixel_format_to_bpp() returns a signed
-int that can be -EINVAL on an unrecognized pixel format.
-
-Because bpp is unsigned, is the check (bpp < 0) always false? If
-mipi_dsi_pixel_format_to_bpp() returns -EINVAL, bpp becomes 0xffffffeaU,
-bypassing the error return, defaulting to HFI_PANEL_BPP_24 in
-dcp_bpp_to_hfi(), and corrupting link_bpp_x16 and clk_hz. Should bpp be
-declared as int instead of u32?
-
-[ ... ]
-
-> +ssize_t dcp_hfi_dcs_transfer(struct dcp_hfi *hfi, u32 session_id,
-> +			     const struct mipi_dsi_msg *msg,
-> +			     void *tx_buf, dma_addr_t tx_iova,
-> +			     void *rx_buf, dma_addr_t rx_iova,
-> +			     u32 post_wait_ms, u32 ctrl_idx)
-> +{
-> +	struct hfi_dsi_cmd_desc cmd_desc =3D {};
-> +	static atomic_t seq_no =3D ATOMIC_INIT(0);
+> +	struct dcp_crtc *dcp_crtc =3D to_dcp_crtc(crtc);
+> +	struct dcp_crtc_state *cstate =3D to_dcp_crtc_state(crtc->state);
+> +	struct dcp_dpu_kms *dcp_kms =3D dcp_crtc_get_kms(crtc);
+> +	u32 mixer_count;
+> +	u32 session_id;
+> +	u32 i;
 > +	int ret;
 > +
-> +	if (!msg || !msg->tx_buf || !msg->tx_len)
-> +		return -EINVAL;
-> +
-> +	if (msg->rx_len && (!msg->rx_buf || !rx_buf))
-> +		return -EINVAL;
-> +
-> +	if (msg->tx_len > DCP_DSI_DCS_TX_BUF_SIZE) {
-> +		dev_err(hfi->dev, "DCS TX too large: %zu > %u\n",
-> +			msg->tx_len, DCP_DSI_DCS_TX_BUF_SIZE);
-> +		return -EINVAL;
+> +	if (!crtc->state->active)
+> +		return;
+> +	if (!dcp_kms->commit_pm_active) {
+> +		cstate->hfi_error =3D -EIO;
+> +		return;
 > +	}
 > +
-> +	memcpy(tx_buf, msg->tx_buf, msg->tx_len);
+> +	if (!dcp_crtc_get_session(crtc, &session_id)) {
+> +		cstate->hfi_error =3D -ENODEV;
+> +		return;
+> +	}
+> +
+> +	if (cstate->core_clk > 0 || cstate->dram_ib > 0) {
+> +		ret =3D dcp_hfi_crtc_set_bw(dcp_kms->hfi, session_id,
+> +					  cstate->dram_ib,  cstate->dram_ab,
+> +					  cstate->llcc_ib,  cstate->llcc_ab,
+> +					  cstate->core_clk);
+> +		if (ret) {
+> +			cstate->hfi_error =3D ret;
+> +			return;
+> +		}
+> +	}
+
+[Severity: Medium]
+What happens in dcp_crtc_atomic_begin() when an active CRTC that previously
+had visible planes is updated so that all planes are disabled or clipped
+off-screen while the CRTC remains active?
+
+In dcp_crtc_atomic_check(), dcp_crtc_aggregate_bw() resets dram_ib, dram_ab,
+llcc_ib, llcc_ab, and core_clk to 0. Because dcp_crtc_atomic_begin() guards
+the call to dcp_hfi_crtc_set_bw() with (cstate->core_clk > 0 ||
+cstate->dram_ib > 0), the zeroed bandwidth values are skipped and the
+previous non-zero DRAM/LLCC bandwidth and core clock votes remain pinned in
+firmware.
+
+Should dcp_hfi_crtc_set_bw() also be called when the aggregated bandwidth
+drops to zero on an active CRTC?
 
 [ ... ]
-
-> +	if (msg->rx_len > 0)
-> +		memcpy(msg->rx_buf, rx_buf, msg->rx_len);
+> +static void dcp_crtc_atomic_flush(struct drm_crtc *crtc,
+> +				  struct drm_atomic_commit *state)
+> +{
+> +	struct dcp_crtc *dcp_crtc =3D to_dcp_crtc(crtc);
+> +	struct dcp_crtc_state *cstate =3D to_dcp_crtc_state(crtc->state);
+> +	struct dcp_dpu_kms *dcp_kms =3D dcp_crtc_get_kms(crtc);
+> +	unsigned long flags;
+> +	u32 session_id;
+> +	int ret;
 > +
-> +	return msg->tx_len;
+> +	if (!crtc->state->enable)
+> +		return;
+[ ... ]
+> +flush_done:
+> +	spin_lock_irqsave(&crtc->dev->event_lock, flags);
+> +	dcp_crtc->event =3D crtc->state->event;
+> +	crtc->state->event =3D NULL;
+> +	spin_unlock_irqrestore(&crtc->dev->event_lock, flags);
 > +}
 
 [Severity: High]
-Should dcp_hfi_dcs_transfer() in
-drivers/gpu/drm/msm/dcp/dcp_hfi_dsi_panel.c return msg->rx_len instead of
-msg->tx_len when msg->rx_len > 0?
+Does disabling an active CRTC leave crtc->state->event unconsumed?
 
-Under the struct mipi_dsi_host_ops.transfer contract in
-include/drm/drm_mipi_dsi.h, the return value must be the number of bytes
-transmitted for write packets or the number of bytes received for read
-packets. Returning msg->tx_len on read transfers causes multi-byte reads
-through mipi_dsi_dcs_read() or mipi_dsi_generic_read() (where msg->tx_len !=
-=3D
-msg->rx_len) to appear as short reads to callers checking the received byte
-count.
+In drm_atomic_helper_setup_commit(), whenever old_crtc_state->active is true
+(including when disabling an active CRTC with new_crtc_state->enable =3D=3D=
+ false
+and new_crtc_state->active =3D=3D false), DRM core populates new_crtc_state=
+->event
+to signal commit->flip_done and takes a commit reference via
+drm_crtc_commit_get().
 
-Also, at the entry of dcp_hfi_dcs_transfer(), the check (!msg ||
-!msg->tx_buf || !msg->tx_len) rejects 0-parameter generic transfers where
-msg->tx_len =3D=3D 0, while hfi and tx_buf are dereferenced without a NULL
-check. Should this validate hfi and tx_buf and allow 0-length tx when
-appropriate?
+During msm_atomic_commit_tail():
+
+  drm_atomic_helper_commit_modeset_disables()
+    -> dcp_crtc_atomic_disable()
+  drm_atomic_helper_commit_planes()
+    -> dcp_crtc_atomic_flush()
+  dcp_dpu_kms_complete_commit()
+    -> dcp_crtc_complete_commit()
+  drm_atomic_helper_commit_hw_done()
+
+Unlike dpu_crtc_disable(), mdp5_crtc_atomic_disable(), and
+mdp4_crtc_atomic_disable(), dcp_crtc_atomic_disable() does not send and cle=
+ar
+crtc->state->event. Then dcp_crtc_atomic_flush() returns early when
+!crtc->state->enable before transferring crtc->state->event to
+dcp_crtc->event, so dcp_crtc_complete_commit() sees dcp_crtc->event =3D=3D =
+NULL.
+
+Wouldn't this trigger WARN_ON(new_crtc_state->event) in
+drm_atomic_helper_commit_hw_done(), leave commit->flip_done unsignaled (sta=
+lling
+subsequent commits in drm_atomic_helper_wait_for_dependencies()), and leak =
+the
+drm_pending_vblank_event and drm_crtc_commit reference? Also, if an earlier
+event was still in dcp_crtc->event during dcp_crtc_atomic_flush(), could
+unconditionally assigning dcp_crtc->event =3D crtc->state->event overwrite =
+it?
+
+[ ... ]
+> +void dcp_crtc_commit_kickoff(struct drm_crtc *crtc)
+> +{
+> +	struct dcp_crtc *dcp_crtc =3D to_dcp_crtc(crtc);
+> +	struct dcp_dpu_kms *dcp_kms =3D dcp_crtc_get_kms(crtc);
+> +	struct dcp_crtc_state *cstate =3D to_dcp_crtc_state(crtc->state);
+> +	u32 session_id;
+> +	int ret;
+> +
+[ ... ]
+> +	/* MSM serializes commits, so only one frame completion may be pending.=
+ */
+> +	if (atomic_cmpxchg(&dcp_crtc->pending_kickoff_cnt, 0, 1)) {
+> +		drm_err(crtc->dev,
+> +			"CRTC%u: frame completion already pending\n",
+> +			dcp_crtc->display_id);
+> +		cstate->hfi_error =3D -EBUSY;
+> +		return;
+> +	}
+> +	dcp_crtc->pending_seq_id =3D dcp_crtc->commit_seq_id;
+> +
+> +	ret =3D dcp_hfi_display_commit(dcp_kms->hfi, session_id);
+> +	if (ret) {
+> +		drm_err(crtc->dev,
+> +			"HFI commit failed for CRTC%u (session=3D%u): %d\n",
+> +			dcp_crtc->display_id, session_id, ret);
+> +		atomic_dec(&dcp_crtc->pending_kickoff_cnt);
+> +		wake_up(&dcp_crtc->frame_done_wq);
+> +	}
+> +}
+
+[Severity: Medium]
+Can dcp_crtc->pending_kickoff_cnt underflow to -1 if
+dcp_crtc_hfi_frame_done_cb() races with dcp_crtc_commit_kickoff()?
+
+In dcp_crtc_commit_kickoff(), pending_kickoff_cnt is set to 1 via
+atomic_cmpxchg() before dcp_crtc->pending_seq_id is updated, and then
+dcp_hfi_display_commit() waits synchronously for the HFI response.
+
+If a late HFI_COMMAND_DISPLAY_EVENT_FRAME_SCAN_COMPLETE from a prior timed-=
+out
+commit arrives before pending_seq_id is written, or if the frame scan
+complete event for the current commit arrives and runs
+dcp_crtc_frame_done_callback() (decrementing pending_kickoff_cnt from 1 to 0
+via atomic_add_unless(&dcp_crtc->pending_kickoff_cnt, -1, 0)) before
+dcp_hfi_display_commit() returns an error, the error path executes
+atomic_dec(&dcp_crtc->pending_kickoff_cnt) and drives pending_kickoff_cnt to
+-1.
+
+Once pending_kickoff_cnt is -1, dcp_crtc_wait_for_commit_done() will wait f=
+or
+pending_kickoff_cnt =3D=3D 0 until the 500ms timeout expires, and any furth=
+er
+dcp_crtc_frame_done_callback() calls will continue decrementing the negative
+counter because atomic_add_unless(..., -1, 0) only stops at 0.
+
+Should dcp_crtc->pending_seq_id be written before setting
+pending_kickoff_cnt, and should the error path use atomic_set(..., 0) or
+atomic_add_unless(..., -1, 0) instead of atomic_dec()?
+
+[ ... ]
+> +int dcp_crtc_vblank(struct drm_crtc *crtc, bool enable)
+> +{
+> +	struct dcp_crtc *dcp_crtc =3D to_dcp_crtc(crtc);
+> +	struct dcp_dpu_kms *dcp_kms =3D dcp_crtc_get_kms(crtc);
+> +	u32 session_id;
+> +	int ret;
+> +
+> +	if (!dcp_kms->hfi || !dcp_crtc_get_session(crtc, &session_id))
+> +		return -ENODEV;
+> +
+> +	if (enable)
+> +		ret =3D dcp_hfi_display_event_register_async(dcp_kms->hfi,
+> +							   session_id, HFI_EVENT_VSYNC);
+> +	else
+> +		ret =3D dcp_hfi_display_event_deregister_async(dcp_kms->hfi,
+> +							     session_id, HFI_EVENT_VSYNC);
+> +	if (ret)
+> +		return ret;
+> +
+> +	WRITE_ONCE(dcp_crtc->vblank_enabled, enable);
+> +	return 0;
+> +}
+> +
+> +void dcp_crtc_vblank_callback(struct drm_crtc *crtc)
+> +{
+> +	struct dcp_crtc *dcp_crtc =3D to_dcp_crtc(crtc);
+> +
+> +	if (!READ_ONCE(dcp_crtc->vblank_enabled))
+> +		return;
+
+[Severity: Medium]
+Could updating dcp_crtc->vblank_enabled at the end of dcp_crtc_vblank() drop
+initial VSYNC events or leave vblank_enabled stuck at true after disable?
+
+When enable is true, dcp_hfi_display_event_register_async() queues and kicks
+the HFI command before WRITE_ONCE(dcp_crtc->vblank_enabled, true) runs. If a
+VSYNC event arrives on the response virtqueue before WRITE_ONCE() executes,
+dcp_crtc_vblank_callback() sees vblank_enabled =3D=3D false and drops it.
+
+Conversely, when enable is false, msm_crtc_disable_vblank() runs
+vblank_ctrl_worker asynchronously. If the CRTC session has already been
+cleared via dcp_crtc_clear_session() by the time dcp_crtc_vblank(crtc, fals=
+e)
+runs (or if dcp_hfi_display_event_deregister_async() fails), dcp_crtc_vblan=
+k()
+returns early without clearing dcp_crtc->vblank_enabled.
+
+[ ... ]
+> +static int dcp_crtc_setup_mixer_rois(struct drm_crtc *crtc,
+> +				     struct drm_crtc_state *crtc_state,
+> +				     struct dcp_crtc_state *cstate)
+> +{
+[ ... ]
+> +	drm_atomic_crtc_state_for_each_plane_state(plane, pstate, crtc_state) {
+> +		bool fullscreen;
+> +		bool assigned =3D false;
+> +		u32 mixer_idx;
+> +
+> +		if (!pstate || !pstate->visible || !pstate->fb)
+> +			continue;
+> +
+> +		for (mixer_idx =3D 0; mixer_idx < mixer_count; mixer_idx++) {
+> +			struct dcp_mixer_roi *mixer =3D &cstate->mixer_roi[mixer_idx];
+> +
+> +			if (pstate->crtc_x >=3D mixer->x &&
+> +			    pstate->crtc_x + pstate->crtc_w <=3D mixer->x + mixer->w) {
+> +				assigned =3D true;
+> +				break;
+> +			}
+> +		}
+
+[Severity: Medium]
+In dcp_crtc_setup_mixer_rois(), pstate->crtc_x is a signed int32_t while
+mixer->x, mixer->w, and pstate->crtc_w are unsigned u32. What happens when a
+visible plane has a negative crtc_x?
+
+Because C integer promotion converts pstate->crtc_x to u32 in both
+comparisons:
+
+  pstate->crtc_x >=3D mixer->x
+  pstate->crtc_x + pstate->crtc_w <=3D mixer->x + mixer->w
+
+a negative pstate->crtc_x becomes a large unsigned value (>=3D 0x80000000) =
+that
+is always >=3D mixer->x, while (u32)pstate->crtc_x + pstate->crtc_w wraps
+around to the plane's positive right edge. On a multi-mixer topology
+(mixer_count > 1), a plane starting at crtc_x < 0 and extending across the
+mixer boundary into mixer 1 will satisfy both checks for mixer 1 and set
+assigned =3D true instead of returning -EOPNOTSUPP.
+
+In addition, should this check use the clipped destination rectangle
+(pstate->dst.x1 and pstate->dst.x2) rather than unclipped pstate->crtc_x and
+pstate->crtc_w so that planes partially clipped at the display edges are
+validated against the active mixer ROIs?
+
+[ ... ]
+> +static u32 dcp_crtc_get_vblank_counter(struct drm_crtc *crtc)
+> +{
+> +	return drm_crtc_vblank_count(crtc);
+> +}
+
+[Severity: High]
+Is it valid for dcp_crtc_get_vblank_counter() to return
+drm_crtc_vblank_count(crtc) as the drm_crtc_funcs.get_vblank_counter callba=
+ck?
+
+drm_crtc_funcs.get_vblank_counter is called by __get_vblank_counter() in
+drivers/gpu/drm/drm_vblank.c to read a raw hardware frame counter, whereas
+drm_crtc_vblank_count() returns DRM core's own cooked software counter
+(vblank->count).
+
+During drm_crtc_vblank_on() -> drm_reset_vblank_timestamp() (and during
+drm_crtc_handle_vblank()), store_vblank() sets vblank->last to cur_vblank (=
+N)
+and increments vblank->count to N + 1. On the next non-IRQ call to
+drm_update_vblank_count(dev, pipe, false) (such as drm_vblank_enable() in
+drm_crtc_vblank_get() or drm_vblank_disable_and_save() in
+drm_crtc_vblank_off()), __get_vblank_counter() returns N + 1 while
+vblank->last is N:
+
+  if (max_vblank_count =3D=3D 0)
+      drm_WARN_ON_ONCE(dev, cur_vblank !=3D vblank->last);
+
+When max_vblank_count is 0, this immediately triggers drm_WARN_ON_ONCE();
+when max_vblank_count is non-zero, it spuriously increments the software
+vblank counter on every vblank enable and disable.
+
+If DCP does not expose a hardware frame counter register, shouldn't
+get_vblank_counter be omitted (left NULL in dcp_crtc_funcs)?
+
+> +
+> +static void dcp_crtc_atomic_enable(struct drm_crtc *crtc,
+> +				   struct drm_atomic_commit *state)
+> +{
+> +	struct dcp_dpu_kms *dcp_kms =3D dcp_crtc_get_kms(crtc);
+> +	struct dcp_crtc_state *cstate =3D to_dcp_crtc_state(crtc->state);
+> +	u32 session_id;
+> +	int ret;
+> +
+> +	if (!dcp_crtc_get_session(crtc, &session_id))
+> +		return;
+> +
+> +	ret =3D dcp_hfi_crtc_set_power_mode(dcp_kms->hfi, session_id,
+> +					  HFI_MODE_DPMS_ON);
+> +	if (ret) {
+> +		drm_err(crtc->dev, "CRTC%u: DPMS ON failed: %d\n",
+> +			to_dcp_crtc(crtc)->display_id, ret);
+> +		cstate->hfi_error =3D ret;
+> +	}
+> +
+> +	drm_crtc_vblank_on(crtc);
+> +}
+
+[Severity: Medium]
+If dcp_crtc_get_session() returns false in dcp_crtc_atomic_enable(), does
+returning early before drm_crtc_vblank_on(crtc) unbalance the vblank refcou=
+nt?
+
+When a CRTC is initialized or disabled via drm_crtc_vblank_off(),
+vblank->inmodeset is 1 and vblank->refcount is 1. Later in
+msm_atomic_commit_tail(), vblank_get() checks crtc->state->active (which is
+true) and calls drm_crtc_vblank_get(crtc); because drm_crtc_vblank_on() was
+skipped, vblank->inmodeset is still 1, so drm_crtc_vblank_get() fails with
+-EINVAL without incrementing refcount, and then vblank_put() unconditionally
+calls drm_crtc_vblank_put(crtc), decrementing vblank->refcount from 1 to 0.
+In addition, dcp_crtc_atomic_disable() unconditionally calls
+drm_crtc_vblank_off(crtc) regardless of whether a session is present.
+
+Should drm_crtc_vblank_on(crtc) always be called in dcp_crtc_atomic_enable()
+even if dcp_crtc_get_session() fails?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261026-jshekhar-d=
-cp-hlos-v2-0-7cf014efdee1@oss.qualcomm.com?part=3D10
+cp-hlos-v2-0-7cf014efdee1@oss.qualcomm.com?part=3D11
