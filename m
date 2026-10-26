@@ -1,81 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=67.231.153.30
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793016405;
-	b=y/nlRmuzKK5JqxGMIs0gSE0Ne0Fg6f/mtA9r99sM4C+fSBOVbEu6NBu8i9qaAimuZU6r
-	 YTh1ayNcnHGF5JtvgWTkSgb/VnH+MLlpTavltfB431PuspiTqEn1tpy2mgddFxB0X6sLB
-	 UksJUalGr4qMHKIP1Y3BHvpBoaD+pcX7omOtf3ZPwpPkNd0DUbXE+PAcqtWh1VWeuru4W
-	 IZ50C/4m2wXq+8KGPegxOHBfqyWe3StrXnk6HPMM35Z9LJAPRcVD2G1HumpQH+7KomYpF
-	 cp48JkBovELHm8+9YsCX2/VDXmMJKXe42B6jiCcYRyKtkWraz2h6V1bpGkVSL4k8I5w==
+	t=1793016534;
+	b=DG3uqZOJIt4uR4qAFqG4qgl9VieRhZ+GkYkH2Loboz8A3Aa7XNZs0GEYT3jlVpxVijXK
+	 GfeCBCnXT4aGI9rgAdQx3DAppYqRHrsExuQgbzudO4T52TAxERLJnelIBlHcK4HMVLnXO
+	 3hM9SBPQDRI4FFOHoE8V+yaFgiCwuGz+hnseEejBTx/+jA2/xdqNtSqY3OwJ+6HYrLa93
+	 kbm1L2kQqXzOTlAax7SmIAJ758VvNw1V7Xr3FcvaQFOOMNMpOg9fOTlHzOjaPVkb9BDzP
+	 M+1XKDTZGCHKcDt+OuSyrFLL8w1da136X8D7OYkFU63ptHyq633+woD3mSrMJOZlZiw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793016405;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:From:To:CC:
-	 Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding:Content-Type:X-Originating-IP:
-	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Info:X-Proofpoint-GUID:
-	 X-Authority-Analysis:X-Proofpoint-Spam-Details-Enc:
-	 X-Proofpoint-Virus-Version;
-	bh=ZKEBvOXVh7AS8mAEx/W2jzI2z85/QDl4JNzyPDn0jSY=;
-	b=LWNz3Ggjq1Jdym5fsfpJLEuaD+v+rdSTgWYgvNt12P8nfOcVrx8WDjPoPl+RNIWICXsI
-	 v9IieWTm4fQY+OXqnz4BUI6N/QjR1qYVVmrmh4JrqE1VaYakeK+Qys0u6e2tmcPXykdpt
-	 k3VsNGvw0NqlQowxbRsfF+IBlBrPkExO3HTiZm7BL6EBW22yb84CAYbZD0EZsgnz6RdrH
-	 Z7rvM0hYcu675aRCi+Oaqabx/VvLkGdf7Y0YCpj6n3rBzoPeO3TvJ14QSPYBMMkCYJirw
-	 fDIsVLQwRmawtPTfq6DkeImlvrOjdudeFUb/XULkbsjgI6it79oUN3Csx4bivuJH+2g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793016534;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=PVrArIqPHEcxOvnEp/glTCqEMsmJUryy06DXyxH7+N8=;
+	b=NdJgY5HpCvEWGPCEFRF8Ca/srSajPnYGCo8A6mWRpa1fViTs+uSlYdJCCP7velRApG68
+	 UsTK4kajDizvgpyXTFb4n0EjXu+zsuuaYJJguc65KW0zArMdm8Ta+sFoBo1B+foLuxHMz
+	 qswQj9dwqVtZ/5dtV6M38kR9wkLzNpwzLBffB1jqpv9DT11rDNz+JesdO5bONCiNoL3RR
+	 TFEFgrkIS1qFPTw1HQWhLlRPB8OOv7e+JwPCeDyqTkzW8sCs7+2dJWV/HBA5h6j2a9zHV
+	 dJAxzIZGpVdDMo/FOFpMRJHqllP8uEzHEggSqzS4S8M3YX+biEcevmklzr/Q87OCDhQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=meta.com;
-	spf=pass smtp.mailfrom=meta.com;
-	dkim=pass header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=Muuf7vEK;
-	arc=none smtp.remote-ip=67.231.153.30
-Received: from mx0a-00082601.pphosted.com (mx0b-00082601.pphosted.com [67.231.153.30])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JEwtPF3y;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BAD3606A31E;
-	Mon, 26 Oct 2026 12:06:44 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2BAD3606A31E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13F96606A31A;
+	Mon, 26 Oct 2026 12:08:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=Muuf7vEK
-Received: from pps.filterd (m0089730.ppops.net [127.0.0.1])
-	by m0089730.ppops.net (8.18.1.11/8.18.1.11) with ESMTP id 69QAsDTT2264943;
-	Mon, 26 Oct 2026 05:06:29 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=
-	pps82601-s2048-2026-q3; bh=ZKEBvOXVh7AS8mAEx/W2jzI2z85/QDl4JNzyP
-	Dn0jSY=; b=Muuf7vEK6dtGqnrK2F1cHXnVUvgXIVHkGRJo758LN9dWz2930bdf4
-	BL/iRB1UqOnsIA1ATv7rtNtrE1JCAV9lQe7mMgI44xuntM3k17ieyZdFcAnreJ5x
-	Ed/FzU1uPxqmEw7bPUkpunwcqbtrhXKJ+gTGUivla6dgHjxONbjY7LL5GX+YqHJP
-	9SAiNgw5ry0ykHGNtX/+o0/5bc4OFPtzbiHt5yHfAkRuUF8KcY6vGJHhBOVxBBZB
-	11CyN2WmOKyZX0s9jG4+fezldXlr9iW6AvZACiKvhHv825O2FEDG9HQ7uI2ReuAx
-	YFC2PeMb7jEREH1Tw8/3sN1X87brGQ7+Q==
-Received: from mail.thefacebook.com ([163.114.134.16])
-	by m0089730.ppops.net (PPS) with ESMTPS id 4hgr5n10yd-2
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
-	Mon, 26 Oct 2026 05:06:28 -0700 (PDT)
-Received: from localhost (2620:10d:c085:208::f) by mail.thefacebook.com
- (2620:10d:c08b:78::c78f) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.56; Mon, 26 Oct
- 2026 12:06:27 +0000
-From: Ruben Hakobyan <hruben@meta.com>
-To: "Michael S . Tsirkin" <mst@redhat.com>
-CC: David Hildenbrand <david@kernel.org>, Breno Leitao <leitao@debian.org>,
-        Atish Patra <atishp@meta.com>, Jason Wang <jasowangio@gmail.com>,
-        =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-        Xuan Zhuo
-	<xuanzhuo@linux.alibaba.com>,
-        Alexander Duyck
-	<alexander.h.duyck@linux.intel.com>,
-        Andrew Morton
-	<akpm@linux-foundation.org>,
-        <virtualization@lists.linux.dev>, <linux-kernel@vger.kernel.org>,
-        <virtio-comment@lists.linux.dev>
-Subject: Re: [PATCH] virtio_balloon: batch large descriptor chains for page reporting
-Date: Mon, 26 Oct 2026 05:06:12 -0700
-Message-ID: <20261026120612.4126524-1-hruben@meta.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20261023042737-mutt-send-email-mst@kernel.org>
-References: <20261023042737-mutt-send-email-mst@kernel.org>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JEwtPF3y
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D5791F01825;
+	Mon, 26 Oct 2026 12:08:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793016533;
+	bh=PVrArIqPHEcxOvnEp/glTCqEMsmJUryy06DXyxH7+N8=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=JEwtPF3yXEQHvNrvwyAgfSqt85qlH91/noZCtusd7scOJ4Al5tylcfh7oxGO0hBrK
+	 uz0zWrSsVITUPkQi1VEekAyH8qn/LevUfwDFrUM/nT7bq64rqIpF3J5c8UExHenWKn
+	 8dMJj4+SNqI2M8fo+yQpa5HJhC88tcxz7uVCIyFi9v6Wpw1BiMu5E3j7MtuGQu9/5K
+	 14FHCreEExk1rQFU2bGkl5+R+K4JNKFL823dlZ3yq/e5gdSUOyswjPmIlxSWVjZThD
+	 I9WQ+AvyikucIv7VJXntCGBCbTc19K1fsZ49yFMnpCMVXE8aqSy9+rVy2wmwEZICT1
+	 tA9ItSAotjG3g==
+Message-ID: <sashiko-outbox-185169@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 13/23] drm/msm/dcp: Route HFI display events
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Jayant Shekhar" <jayant.shekhar@oss.qualcomm.com>
+Cc: virtualization@lists.linux.dev, dri-devel@lists.freedesktop.org, devicetree@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, media-ci@linuxtv.org, "Michael
+ S. Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>
+In-Reply-To: <20261026-jshekhar-dcp-hlos-v2-13-7cf014efdee1@oss.qualcomm.com>
+References: <20261026-jshekhar-dcp-hlos-v2-0-7cf014efdee1@oss.qualcomm.com>
+ <20261026-jshekhar-dcp-hlos-v2-13-7cf014efdee1@oss.qualcomm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 26 Oct 2026 12:08:52 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -84,133 +60,187 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Proofpoint-ORIG-GUID: CKr2CO7Ct-8iBzo5ZDhGcYYyx3nrLWZn
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDI2MDA0NyBTYWx0ZWRfX2V2W9RlSFim8
- 87qVvk+d2/78Ve/EB0NSMLCqDEYJHsbFatN8timI2Fs1AkHr2tL/0yj1JRHocJZOVkLx9XbKlS4
- jZqxuMLK3znTJPUAX2YQ1ZzKJHJKaXc=
-X-Proofpoint-GUID: CKr2CO7Ct-8iBzo5ZDhGcYYyx3nrLWZn
-X-Authority-Analysis: v=2.4 cv=Vr62kO2n c=1 sm=1 tr=0 ts=6adf4244 cx=c_pps
- a=CB4LiSf2rd0gKozIdrpkBw==:117 a=CB4LiSf2rd0gKozIdrpkBw==:17
- a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=7x6HtfJdh03M6CCDgxCd:22
- a=855S8uPTkML1Oy45N9_h:22 a=VwQbUJbxAAAA:8 a=20KFwNOVAAAA:8
- a=SjX2uGVl9HjTzPjVSL0A:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDI2MDA0NyBTYWx0ZWRfX9jsMVaPSN+1p
- 1MmEuWxVJ9OxP1wT4Ds1crDe/G2Okig51XQYnJAwrUohVqIAdfIotZAsQzPWuaWJAcjAUpKXYBl
- SFxPW0/CkI6VDnRFimrUzZ91SWseY2a1zaGjCb6J0acgwQePZKjuBC72D+0hFw/VDva9CPf6+bH
- Yjl42ZMNEmODtcOb7Pq9FEwEdNj+phY66BVd4xhr51KcjBsp+0BnB/PcypqIepRkLEwSLri/6f3
- PTpOvGuE4A27tiMNwewhCekPSIXHB37X695ogryJtvRgUV5XdjysIGJNIAXqXXRfFdgLbYCPHsw
- non6Isi2HW+weqV8/Kdz/rZr3fRzox2cUkwlnKBzwpD9aEKD34Ngw8vNazY7DjNmjYZkQheQb6k
- H8C0uV5Srs9M4V4oPZjQMJcLz50t1T8BxHIrxggx1njac17EBIIe/Es7+klTM+xHGE8Pu+tGGW4
- siQq7SeCAwFAdILTY0A==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-10-26_02,2026-10-21_02,2025-10-01_01
 
-On Mon, Oct 26, 2026 at 12:19 AM Michael S. Tsirkin <mst@redhat.com> wrote:
-> On Sun, Oct 25, 2026 at 04:56:41PM -0700, Ruben Hakobyan wrote:
-> > On Fri, Oct 23, 2026 at 11:04 AM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > >
-> > > Great patch, thanks!
-> > >
-> > > On Fri, Oct 23, 2026 at 01:19:19AM -0700, Ruben Hakobyan wrote:
-> > > > The virtio_balloon driver reports a scatter-gather list of free pages
-> > > > to the VMM so it may discard unused pages.
-> > ...
-> > >
-> > > It's not just a question of convenient, is it?
-> > > Rust is buggy wrt to spec as it allows only U32_MAX.
-> > > So it is also to make it work.
-> > > So should we maybe fix Rust to be spec compliant and allow 2^32 too?
-> > >
-> > > I think we should definitely recommend U32_MAX in the spec
-> > > because otherwise it can not fit in the used length.
-> > >
-> >
-> > Thanks for the review!
-> >
-> > Sounds good to me, I will CC virtio-comment@lists.linux.dev as
-> > per your recommendation.
-> >
-> > Agreed that Rust-VMM should also be fixed in case 2^32 needs to
-> > stay the hard limit. I think here for the driver, we can be more
-> > conservative as long as we stay below 2^32.
-> >
-> > ...
-> >
-> > > > ---
-> > > > The wording in the spec is a bit ambiguous because it uses "chain
-> > > > length" for both descriptor counts and the total size of the memory
-> > > > ranges referenced by the descriptors. My read is that the byte limit
-> > > > applies to the sum of descriptor lengths, which is also what rust-vmm
-> > > > checks.
-> > >
-> > >
-> > > quote what you are referring to please, also in the commit log
-> > > not after ---.
-> >
-> > I will update with quotes in v2, thanks.
-> >
-> > >
-> > > I would also CC virtio-comment@lists.linux.dev - spec should recommend
-> > > U32_MAX.
-> > >
-> > > >
-> > > > Another option I considered was to limit reporting capacity based
-> > > > on the largest possible block. E.g. for 64 KiB pages, the largest
-> > > > block is 512 MiB, so limit the reporting capacity to 7 to stay
-> > > > below 4GiB. Although simpler, I found that the time to reclaim
-> > > > was quite a bit longer.
-> > >
-> > >
-> > >
-> > > So I was going to apply this actually:
-> > >
-> > > https://lore.kernel.org/all/b541ff170218bd5d45b551b5132e7cf2c490d761.1780906288.git.mst@redhat.com/
-> > >
-> > > which makes the question completely moot.
-> > >
-> > > Does this have any effect on performance?
-> > >
-> > > Thanks!
-> >
-> > Thanks for sharing this. Yes, this would also make sure we stay below
-> > the limit. Regarding performance, I tested this on QEMU and it calls
-> > virtio_notify() after each completion.
->
-> Who, QEMU does?
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [High] drm/msm/dcp: unsynchronized frame done state in dcp_crtc_hfi_frame=
+_done_cb()
+- [Medium] drm/msm/dcp: missing payload validation in dcp_hfi_dispatch_fram=
+e_done()
+--
 
-Yes QEMU, sorry for the ambiguous wording.
+commit 7606ba3e12102c6ab2bc26f57c18f121dc3e91f7
+Author: Jayant Shekhar <jayant.shekhar@oss.qualcomm.com>
 
->
-> > Using one chain per entry
-> > creates more chains, so QEMU can use more CPU time to reclaim the same
-> > amount of memory.
-> >
-> > If we go with this, I think a QEMU patch to batch notifications
-> > could reduce the overhead. Alternatively, I think we could create
-> > larger chains here but make sure they stay within the 2^32 limit,
-> > and keeping your approach of queuing them all before kicking.
-> >
-> > I am happy to share a patch with my thinking here.
-> >
-> > ...
->
-> Oh. It's just the driver being silly and never disabling
-> callbacks.
->
-> pls just add virtqueue_enable_cb_delayed and this will fix it.
->
+drm/msm/dcp: Route HFI display events
 
-Ah great, I tried with virtqueue_enable_cb_delayed() and yeah it
-largely fixed it.
+This commit routes asynchronous HFI VSYNC and frame-scan completion display
+events from DCP firmware to the corresponding DRM CRTC callbacks, and adds a
+NULL check for dma_dev in dcp_hfi_init().
 
-So regarding the patch in
-https://lore.kernel.org/all/b541ff170218bd5d45b551b5132e7cf2c490d761.1780906288.git.mst@redhat.com/
+> diff --git a/drivers/gpu/drm/msm/dcp/dcp_hfi_core.c b/drivers/gpu/drm/msm=
+/dcp/dcp_hfi_core.c
+> index 774a5afac0f0a..e54ccfafdae0f 100644
+> --- a/drivers/gpu/drm/msm/dcp/dcp_hfi_core.c
+> +++ b/drivers/gpu/drm/msm/dcp/dcp_hfi_core.c
+> @@ -19,6 +19,7 @@
+>  #include "dcp_hfi.h"
+>  #include "dcp_hfi_priv.h"
+>  #include "dcp_drv.h"
+> +#include "dcp_crtc.h"
+>  #include "hfi/hfi_packet.h"
+>  #include "hfi/hfi_packer.h"
+>  #include "hfi/hfi_unpacker.h"
+> @@ -260,18 +261,35 @@ static void dcp_hfi_store_caps_payload(struct dcp_h=
+fi *hfi,
+>  	dev_dbg(hfi->dev, "%s: stored %u bytes\n", name, n);
+>  }
+> =20
+> +static void dcp_hfi_dispatch_frame_done(struct dcp_hfi *hfi,
+> +					const struct hfi_packet_info *pkt_info)
+> +{
+> +	const struct hfi_display_frame_event_data *frame =3D NULL;
+> +	u32 sequence_id =3D 0;
+> +
+> +	if (pkt_info->payload_ptr &&
+> +	    pkt_info->payload_size >=3D sizeof(*frame)) {
+> +		frame =3D pkt_info->payload_ptr;
+> +		sequence_id =3D frame->bufferflip_index;
+> +	}
+> +	dcp_crtc_hfi_frame_done_cb(hfi->drv, pkt_info->id & 0xFFFF,
+> +				   sequence_id);
+> +}
 
-I see it's in a larger series, so just wanted to check if you're
-planning to send this patch separately? Or let me know if you'd
-like me to do it. Thanks!
+[Severity: Medium]
+Should dcp_hfi_dispatch_frame_done() drop the packet and return early when
+pkt_info->payload_ptr is NULL or pkt_info->payload_size is smaller than
+sizeof(*frame)?
 
+As written, a truncated or empty HFI_COMMAND_DISPLAY_EVENT_FRAME_SCAN_COMPL=
+ETE
+packet falls through and invokes dcp_crtc_hfi_frame_done_cb() with a
+fabricated sequence_id of 0:
+
+drivers/gpu/drm/msm/dcp/dcp_crtc.c:dcp_crtc_hfi_frame_done_cb() {
+	...
+	if (crtc) {
+		struct dcp_crtc *dcp_crtc =3D to_dcp_crtc(crtc);
+
+		/* A single pending commit makes equality valid across sequence wrap. */
+		if (sequence_id !=3D dcp_crtc->pending_seq_id) {
+			drm_warn(crtc->dev,
+				 "CRTC%u: ignoring stale FRAME_SCAN_COMPLETE seq=3D%u expected=3D%u\n",
+				 dcp_crtc->display_id, sequence_id,
+				 dcp_crtc->pending_seq_id);
+			return;
+		}
+		dcp_crtc_frame_done_callback(crtc);
+	}
+	...
+}
+
+If dcp_crtc->pending_seq_id happens to be 0 (such as before the first commit
+sequence is latched or when the 32-bit commit_seq_id counter wraps around to
+0), this will falsely match pending_seq_id and prematurely complete the fra=
+me.
+When pending_seq_id is non-zero, it logs an unratelimited warning for a bog=
+us
+sequence 0 event.
+
+> +
+>  /* Route asynchronous events and capability packets before flag handling=
+. */
+>  static bool dcp_hfi_dispatch_event(struct dcp_hfi *hfi,
+>  				   const struct hfi_packet_info *pkt_info)
+>  {
+>  	switch (pkt_info->cmd) {
+>  	case HFI_COMMAND_DISPLAY_EVENT_VSYNC:
+> +		dcp_crtc_hfi_vblank_cb(hfi->drv, pkt_info->id & 0xFFFF);
+>  		return true;
+> =20
+>  	case HFI_COMMAND_DISPLAY_EVENT_FRAME_SCAN_START:
+>  		return true;
+> =20
+>  	case HFI_COMMAND_DISPLAY_EVENT_FRAME_SCAN_COMPLETE:
+> +		dcp_hfi_dispatch_frame_done(hfi, pkt_info);
+>  		return true;
+
+[Severity: High]
+With HFI_COMMAND_DISPLAY_EVENT_FRAME_SCAN_COMPLETE now routed from the
+asynchronous VirtIO response callback (dcp_hfi_resp_callback() ->
+dcp_hfi_dispatch_event() -> dcp_hfi_dispatch_frame_done()) into
+dcp_crtc_hfi_frame_done_cb(), can concurrent access to dcp_crtc->pending_se=
+q_id
+and dcp_crtc->pending_kickoff_cnt race with the commit path?
+
+In drivers/gpu/drm/msm/dcp/dcp_crtc.c, dcp_crtc_commit_kickoff() updates
+pending_kickoff_cnt and pending_seq_id without lock synchronization against
+dcp_crtc_hfi_frame_done_cb():
+
+	if (atomic_cmpxchg(&dcp_crtc->pending_kickoff_cnt, 0, 1)) {
+		drm_err(crtc->dev,
+			"CRTC%u: frame completion already pending\n",
+			dcp_crtc->display_id);
+		cstate->hfi_error =3D -EBUSY;
+		return;
+	}
+	dcp_crtc->pending_seq_id =3D dcp_crtc->commit_seq_id;
+
+	ret =3D dcp_hfi_display_commit(dcp_kms->hfi, session_id);
+	if (ret) {
+		drm_err(crtc->dev,
+			"HFI commit failed for CRTC%u (session=3D%u): %d\n",
+			dcp_crtc->display_id, session_id, ret);
+		atomic_dec(&dcp_crtc->pending_kickoff_cnt);
+		wake_up(&dcp_crtc->frame_done_wq);
+	}
+
+This appears to allow several races when asynchronous frame-done events arr=
+ive:
+
+1. pending_kickoff_cnt is set to 1 before dcp_crtc->pending_seq_id is updat=
+ed
+to dcp_crtc->commit_seq_id. If a FRAME_SCAN_COMPLETE event carrying the
+previous sequence ID arrives in that window (for example after a prior comm=
+it
+timeout in dcp_crtc_wait_for_commit_done() reset pending_kickoff_cnt to 0 w=
+hile
+leaving pending_seq_id at the old value, or from periodic scanout),
+dcp_crtc_hfi_frame_done_cb() sees sequence_id =3D=3D dcp_crtc->pending_seq_=
+id and
+calls dcp_crtc_frame_done_callback(), decrementing pending_kickoff_cnt back=
+ to
+0 before dcp_hfi_display_commit() even runs.
+
+2. If dcp_crtc_frame_done_callback() decrements pending_kickoff_cnt from 1 =
+to
+0 (either via the window above or because firmware sent FRAME_SCAN_COMPLETE
+while dcp_hfi_display_commit() timed out waiting for the command response) =
+and
+dcp_hfi_display_commit() returns an error, the error path unconditionally r=
+uns
+atomic_dec(&dcp_crtc->pending_kickoff_cnt), underflowing pending_kickoff_cn=
+t to
+-1. Because dcp_crtc_frame_done_callback() uses
+atomic_add_unless(&dcp_crtc->pending_kickoff_cnt, -1, 0), subsequent frame-=
+done
+events will decrement it further (-2, -3, ...) and cause future commits to
+stall until DCP_FRAME_DONE_TIMEOUT_MS expires.
+
+3. In dcp_crtc_atomic_flush(), ++dcp_crtc->commit_seq_id is sent to firmware
+via dcp_hfi_crtc_set_scan_sequence_id() and autorefresh is enabled via
+dcp_hfi_crtc_set_autorefresh() before dcp_crtc_commit_kickoff() sets
+pending_seq_id and pending_kickoff_cnt. If firmware emits a FRAME_SCAN_COMP=
+LETE
+event for the new sequence ID before dcp_crtc_commit_kickoff() updates
+pending_seq_id, dcp_crtc_hfi_frame_done_cb() will drop it as a stale sequen=
+ce
+mismatch.
+
+Should pending_seq_id and pending_kickoff_cnt updates and checks be
+synchronized under a spinlock across the flush, kickoff, and HFI callback
+paths?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261026-jshekhar-d=
+cp-hlos-v2-0-7cf014efdee1@oss.qualcomm.com?part=3D13
