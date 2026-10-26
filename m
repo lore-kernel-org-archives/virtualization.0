@@ -1,111 +1,78 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=205.220.168.131
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792995947;
-	b=SF1jntWMXEjzeRA1+WPQfeG+ijMN56jjGdDuafmloqA2vGmzjvNS5CxJbmpRvAbGkHwE
-	 9ZtexT0MkBT0+JL5LlimCWtEj5rwsKMC46wbnYo0RM6NDHFcfwWz91SsQwqhXec4s2/Qa
-	 2a+G+ZIYdf4PrCGHkT6f1FryfdgStd8KUxhR5yAA/ZIorWA6+FbnEYxaVLBqYjyKz4w4o
-	 ssgRhpnNZgoKhzXJSjklmZLCx8JlAbDYFdTxZmQSznYIHX1YqY9x2KpgzcJjaZ6ABd49Y
-	 CU6uHbhB4vDlsbAbeW0ptVhbhU//QOC2PELB9HB9uoz4zCFB26JKgcIEfIkm7nROgYw==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792995947;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:
-	 DKIM-Signature:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:X-Received:Received:From:Date:
-	 Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
-	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Proofpoint-ORIG-GUID:
-	 X-Proofpoint-GUID:X-Authority-Analysis:X-Proofpoint-Spam-Info:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Virus-Version:
-	 X-Proofpoint-Spam-Details;
-	bh=FCnvFyOtoxqBwa/Gstd7a10Uc74nGWW4NE9dwrU5Y1I=;
-	b=oLoEfzlvqPfeb3cpMSwyjTQMcKt110uzAYdmJ+RfE8DhuQ8H4xk4DYP1muFzl8P4H7XB
-	 N10r9nsZ0UD8dmo7wmBtRJ+l/9yEY31Ryps1U/HxBLe+rYN4iVr0h/khrxblCfjMOldxk
-	 clug6emLGQ6dl+6JazdXtmHMJ3T1YEXz0etF+xL7PiJsnc5NIVh1adBkcQXRC7RLFci+H
-	 a70GoVesxjPCnSZKni+qkso+U1d5b9CnQoWxWC1Q/i2/LbEQuIRtqO6jE0yCNxzY68gSC
-	 WJVdPFhKdjDgCdDuL684j4q5NtCFuah5Mzek2HD1tSHvAubQJmEQdcOpQ/fjLL6rA+w==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=oss.qualcomm.com;
-	spf=pass smtp.mailfrom=oss.qualcomm.com;
-	dkim=pass header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=AF2QO09t;
-	dkim=pass header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=XA3SuI56;
-	arc=none smtp.remote-ip=205.220.168.131
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=185.203.200.13
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1793003366;
+	b=BzJQp5hldfnOJCJHn49n4cDloP49VFOQL5D9RY3yfdkBDzUSfVtCCkGAiiM0JRcXpyX9
+	 b93m1o3ZhUcXwiUVTWM9re6cWJJOjogqRAKp1b0x8D+kH2ZbMdwrbiYZQFu92awkp1jny
+	 fwv5Rn2IiVytdUTeof7lFxXcANQNIo26Y3WHwsAQ67PR/QjfvGEGqyQM6b7FqnMWoRD9Y
+	 25893+N7f+oY+3k3kdzH2CZLRkuDAwPf2B7HDqELvKZT1AiYiuuiOfA6lJWqMlVDAiRLZ
+	 2jpcXbFoU/gH4KKSi3N4Xq+DbEipRf989HBCUK9gYu+81ycF+8pE/p2egD5gAPJ+MGw==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793003366;
+	h=DMARC-Filter:Received:DKIM-Signature:From:Subject:Date:Message-Id:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding:X-B4-Tracking:
+	 X-Change-ID:To:Cc:X-Mailer:X-Developer-Signature:X-Developer-Key;
+	bh=GiVdaEvIgA4WM/m7Nl7cDS3bF7MBeLPYnXCf5VwLEvA=;
+	b=hRH8B1+QCzrwQZ/HClTqRhPlvWsuXyVYRC7wGwNWG0TJF82ebstUNdvUfX6rsczISow9
+	 RUBDSa4DE8TnJwXLOJhNS1He1qy7oKtD2ZwyLuCXYCc14rcmzjSpKfuFLgeUifLIJY0D2
+	 GatRIeYammgNzrPFd1dSfJgF3F1yajo5/yrDgA4tz2fkT+8s1yt9MjroSu7sDQIHga0lU
+	 eWbh5ZC2N/EEba76Tu7fRd6yzdsXj7U0KA26EdTr2GGJsm0sZKz6qFqBuk2WSr5dxskNL
+	 OseR6YQs40yQu+LYtNIWI53SWq8enCn8HYQM2kX/672C2p1yrMz4scrUvQ5vuahB7Bw==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=none header.from=pengutronix.de;
+	spf=pass smtp.mailfrom=pengutronix.de;
+	dkim=pass header.d=pengutronix.de header.i=@pengutronix.de header.a=rsa-sha256 header.s=20260414 header.b=MQYrRpC3;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=185.203.200.13
+Received: from mx1.white.stw.pengutronix.de (mx1.white.stw.pengutronix.de [185.203.200.13])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 272AB606A325
-	for <virtualization@lists.linux.dev>; Mon, 26 Oct 2026 06:25:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 272AB606A325
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB1AE606A321
+	for <virtualization@lists.linux.dev>; Mon, 26 Oct 2026 08:29:24 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CB1AE606A321
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=AF2QO09t;
-	dkim=pass (2048-bit key, unprotected) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=XA3SuI56
-Received: from pps.filterd (m0279862.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69Q4aTKO1708665
-	for <virtualization@lists.linux.dev>; Mon, 26 Oct 2026 06:25:46 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	FCnvFyOtoxqBwa/Gstd7a10Uc74nGWW4NE9dwrU5Y1I=; b=AF2QO09tuvUM3jqZ
-	pSCUqmKrO4lnRGeBAuqNE4HoMghuuf9ANxMv2q8JOwcryBTLC9Rdf8xBqaJnQuD2
-	GxzGJdBANbr4UO/monIXFFvfVL5AHC24jI1aFWk3VW46rDw58JNfR0rcj+EPlXRN
-	eX+D/VAva651BTctxF+S3TAoiKqqevZaHryYBOLUUf2PMNqNVG2/MT9wGVifnsu5
-	bAsE/AWM9z4BFjOP+UMzwbjTUK1qAIsVCcAkxym3FK2GwsDnT9h5QPpfgYR9vkK4
-	YTl0r4uPspz5zb/WFIrbwBjxUNx2BBnbNRoQv9anEe7IewLpX16fg4kor6aj+mVp
-	VEMIMg==
-Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com [209.85.214.200])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4hhsjd94gt-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <virtualization@lists.linux.dev>; Mon, 26 Oct 2026 06:25:46 +0000 (GMT)
-Received: by mail-pl1-f200.google.com with SMTP id d9443c01a7336-2eabb908860so8327735ad.0
-        for <virtualization@lists.linux.dev>; Sun, 25 Oct 2026 23:25:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1792995946; x=1793600746; darn=lists.linux.dev;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :content-type:mime-version:subject:date:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=FCnvFyOtoxqBwa/Gstd7a10Uc74nGWW4NE9dwrU5Y1I=;
-        b=XA3SuI56iUJsSgMizzk/5QaEakmEjFuncgNekPg/An3scDjeTmj73J7r5gWTl4M475
-         F3ipomFmaTIkE2jKg0DkpNF7RFFodWTRhWNnp0Jo3uvvgnNJnSFHaP37x469GQN/5/P6
-         CZ2KPsLp6n3s8ZSrq39JhYkr3jK2/cHq6HhGFsyVdVAAvgl47+NbO2gfR9Ffd93OLBLX
-         dtz6WB/VB0XlnLlllWykZiK4EnzLAB/QCdl5uLCZv81XVe/ErtEXfxu98g+/Y56TT+8b
-         e6VFgVKZrTzeoHGKiYSEfYhUHGEihX6L4ix1d/APhrQKdQ/Ww10RYGrb0cAcCgelfnMM
-         7IHQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792995946; x=1793600746;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :content-type:mime-version:subject:date:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=FCnvFyOtoxqBwa/Gstd7a10Uc74nGWW4NE9dwrU5Y1I=;
-        b=NQnUx5NIXF4BczgN4JyYQ2FF+hwkRXOzd9n1SglX5aTl0v5GXDIXS7gVGdhe2IwDL0
-         YqEpGYpN2meKTcN15stakpEBHpSwj118VdXhNDuTm3iC8UgwB+E7yGQGKNOg+nXo4QN2
-         1MRpxMw/wwMYxq+oJdaQqA4liPgThWpu2z6ObckxbHXX6cKew2KIr8CrepgyMpzt4H2T
-         QRzKDTBywK8zhF8iBayQ4XruZSzus9cthHiAz/lJzT9GS1VF4aNtK5/l0J8KOLR5wdcq
-         YF19y3kDh0r5ky+WhFfN9U2UE4RFX8zxQUeqOKIMn7J/RWP336H9pFrhnJsUhcisaQJk
-         q6Fw==
-X-Forwarded-Encrypted: i=1; AKwUvBwPY67WjH1GQD/AfAm89fhhAusYvqKMF1bt2PbZkj5hbJDaNvcpbFyp3CDFvamd0DAkkKyV3d/6ShHPNHFjwg==@lists.linux.dev
-X-Gm-Message-State: AFq9FYJozvlVsZLxMrChMjgG+WmPiTpz/UsVA8S8v96d5YQUPDK7PlUF
-	K+DmcxAA5Ez7MpEqqGc4BzpmPjFqogQhQLkcZMyoEQ9iz/9vH9vvEqKko0acTCJh1aLRmjwWOs5
-	OHcUXfS5HewnmqnWIyvrjNRk154SZ3HYK4lJ590AnkIAdJVjm2LsVJpTihu5LQJyy4efdEQ==
-X-Gm-Gg: AYBFou2IeW+d9APjIMkVRik38r4qRZVk3JILVo0fZEZ+W4bDC3y55UcN4SxIlHKS0lj
-	2jG8naNoYkY+8SjaDypFOfdJBf8lOt7kK0OiUZxQpExwYFts2TqTBv096GgTdwlX6HbXyhRsOIk
-	8yMlK7nWh93Qn+d8tfqIbnLevO7vU9Ou4Dfj2LcndxG9DSqZxmziDkT//ydeI1Mm9ZnJz1w+Myw
-	ZYaTzPuQ9kRpl2WIz4IykmDAdHALKfeYrFpJPr6KQ5I8hU29Uu5tx03lzxwjk84z/t3yZJ1f3On
-	908QrgT7nRcDGpv0wWoWbY99tG0UNBazvRKspVEl44tguPvfu91vQsZHqkqOsJjF1vGUmULcriI
-	Zg0cR+Og2bEGnEm6ktQmEWnlHBEyh6C3FVQ==
-X-Received: by 2002:a17:902:cf12:b0:2e9:73db:3c78 with SMTP id d9443c01a7336-2ea9c63efcamr48839215ad.17.1792995945670;
-        Sun, 25 Oct 2026 23:25:45 -0700 (PDT)
-X-Received: by 2002:a17:902:cf12:b0:2e9:73db:3c78 with SMTP id d9443c01a7336-2ea9c63efcamr48838845ad.17.1792995945230;
-        Sun, 25 Oct 2026 23:25:45 -0700 (PDT)
-Received: from hu-jshekhar-hyd.qualcomm.com ([202.46.22.19])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2ea9b1a1c56sm12633415ad.44.2026.10.25.23.25.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 25 Oct 2026 23:25:44 -0700 (PDT)
-From: Jayant Shekhar <jayant.shekhar@oss.qualcomm.com>
-Date: Mon, 26 Oct 2026 11:51:33 +0530
-Subject: [PATCH v2 23/23] arm64: dts: qcom: hawi: Add DCP support
+	dkim=pass (2048-bit key, unprotected) header.d=pengutronix.de header.i=@pengutronix.de header.a=rsa-sha256 header.s=20260414 header.b=MQYrRpC3
+Received: from ratatoskr.trumtrar.info (unknown [IPv6:2a00:1f:f805:2b01:a03:2f4:308a:7b52])
+	(Authenticated sender: str@pengutronix.de)
+	by mx1.white.stw.pengutronix.de (Postfix) with ESMTPSA id 5BD1C200BB9;
+	Mon, 26 Oct 2026 09:29:22 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pengutronix.de;
+	s=20260414; t=1793003362;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=GiVdaEvIgA4WM/m7Nl7cDS3bF7MBeLPYnXCf5VwLEvA=;
+	b=MQYrRpC3roMLni+e6ckN0JwD4PnhAyHRwJks8+h6UHgGG5M5QAHa/aVXZNOT2RjuIgZ20H
+	+R4x+F+FmBa3Ee5UiGl3/2OONUND3XMnYpOoLW9NuzjLAR9EkdxLuk4CPl7DMT3bd+Rbks
+	E1yTyph6WQ9VrOmYeajEMF7acXpfXplCV4KdXWsL3fSAHpVKgOP9Ay1z0xRWOnpNpFMq6P
+	dP4mlBjJxpgEY3ej1BGQN+yYQ6VtS9YJ/7f0nQO5/GAIbVavkYB+h8U7rcJ5M4e+/4/eHZ
+	J+/SshFbnZPLMksYWrZvY/eiPM8wamwHjLz6qWPT4nsABxUb/fmL7vJW4UL2/w==
+ARC-Seal: i=1; s=20260414; d=pengutronix.de; t=1793003362; a=rsa-sha256;
+	cv=none;
+	b=gcVmUu0Yn6K9BAItJilndmQxA37gmxD13lGuzz1sV6BWzZAIIsa4dwcX2kIz/bycN2aLKN
+	G8ndH8oK2TJux46CsANRo56uE3oQdkzZ7Xpmtbx6yZfi42mLHbE1rSMrqTqPzzVZNsxNn8
+	BfHCvYzhrRwqSwxgWVvWcue6mzJ5Emd4EL24KQGBlhQcg5QTtgfYcQ4L2MbgpiDalYIQyN
+	PunnKoCSPyMNCOhRWwHZPQ2m3rALD08Dj7kjApjIiME2yj02pBjO25jjs2rhk67Uc/z9lW
+	XD2a1+8pouaxxaA753QthS+91lg53kzu2cjEE8+nX4EmQjXw+Sc1dJ1mpNE+7g==
+ARC-Authentication-Results: i=1;
+	ORIGINATING;
+	auth=pass smtp.auth=str@pengutronix.de smtp.mailfrom=s.trumtrar@pengutronix.de
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=pengutronix.de;
+	s=20260414; t=1793003362;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=GiVdaEvIgA4WM/m7Nl7cDS3bF7MBeLPYnXCf5VwLEvA=;
+	b=WL2ByiQ+Mi1ziqMKYqZRg3wNuYyjwsJ7Aw0pHVZa+PFBO6CQJ+FKITMcqsW2XA0eQB+67n
+	jqFbFWC+4qXUQvTVd/EV3/PknoJxzB/nGixyU+LdijN8IFgXr6qXDjoAzV4nLNdUwhdBMn
+	wVvnLK67o4ZFb2o8WHPdrYChlLTut5fsAVfGoE/qhz5lUd4UCqRQbg1QkL+m1oFFLMe1Nn
+	gurBM/P/QyH0nyWJPfpIM8h0wsaGTPSAWeDOiMTYFw8eZm/3WUvZso8ECEmjvf6C1vbsDG
+	ICzAs/ZXCB7TcziOpf2SUEUK18oIYUXn9gUrT9OEpAeyo391ZxWti0FFIeMh1w==
+From: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+Subject: [PATCH RFC v4 0/6] virtio-net: add receive timestamp support
+Date: Mon, 26 Oct 2026 09:29:00 +0100
+Message-Id: <20261026-v6-7-topic-virtio-net-ptp-v4-0-008af03cd43b@pengutronix.de>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -116,295 +83,147 @@ List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261026-jshekhar-dcp-hlos-v2-23-7cf014efdee1@oss.qualcomm.com>
-References: <20261026-jshekhar-dcp-hlos-v2-0-7cf014efdee1@oss.qualcomm.com>
-In-Reply-To: <20261026-jshekhar-dcp-hlos-v2-0-7cf014efdee1@oss.qualcomm.com>
-To: Rob Clark <robin.clark@oss.qualcomm.com>,
-        Dmitry Baryshkov <lumag@kernel.org>,
-        Abhinav Kumar <abhinav.kumar@linux.dev>,
-        Jessica Zhang <jesszhan0024@gmail.com>, Sean Paul <sean@poorly.run>,
-        Marijn Suijten <marijn.suijten@somainline.org>,
-        David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>, Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowangio@gmail.com>,
-        =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Sumit Semwal <sumit.semwal@linaro.org>,
-        =?utf-8?q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
-        Philipp Stanner <phasta@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konradybcio@kernel.org>,
-        Abel Vesa <abelvesa@kernel.org>,
-        "Joerg Roedel (AMD)" <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Flemin Jose <flemin.jose@oss.qualcomm.com>,
-        Mahadevan P <mahap@oss.qualcomm.com>
-Cc: Jayant Shekhar <jayant.shekhar@oss.qualcomm.com>,
-        virtualization@lists.linux.dev, linux-arm-msm@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-media@vger.kernel.org, linaro-mm-sig@lists.linaro.org,
-        iommu@lists.linux.dev
-X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1792995687; l=5616;
- i=jayant.shekhar@oss.qualcomm.com; s=20260925; h=from:subject:message-id;
- bh=JWax6SHxXqnSdz0sR52ZG2fr/5xHogt+xoHHZShHbR4=;
- b=3phvyPAWLpPk42PFcsZstSJQNZG3MKuNnHg2gCbX6SuTSkcshSlrsuGkDS29WnsFK2MrUgree
- GAjJ2fJdmXzC8b2UQG8TZFR1oKZzbT3VTflheMwfWxfPdFCg0+kVtOU
-X-Developer-Key: i=jayant.shekhar@oss.qualcomm.com; a=ed25519;
- pk=saYTwtCCpug4b0Hz0jHFoATgDtdhFVicwMzDJo2z5ZE=
-X-Proofpoint-ORIG-GUID: k_iLDan131It3_dSu8TL7F_TwPaEvIT0
-X-Proofpoint-GUID: k_iLDan131It3_dSu8TL7F_TwPaEvIT0
-X-Authority-Analysis: v=2.4 cv=a4elZkSF c=1 sm=1 tr=0 ts=6adef26a cx=c_pps
- a=IZJwPbhc+fLeJZngyXXI0A==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
- a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=_K5XuSEh1TEqbUxoQ0s3:22
- a=EUspDBNiAAAA:8 a=cp69EZODLtjo7xmYzNYA:9 a=QEXdDO2ut3YA:10
- a=uG9DUKGECoFWVXl0Dc02:22
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDI2MDAyNSBTYWx0ZWRfXwwkFsHV7lMyd
- 0uykE5My79ghVWYmJqpxzdi/8WjVx2qGpa8QbRjPMBw137d9xadt7ceB4C17E1Z4jfV5ydj2W5F
- xCCcfMXs0ynsTHTn6O3MFkMwxWCYV0A=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDI2MDAyNSBTYWx0ZWRfXykOgNTptJ1FH
- u63AQiVSuhh+ImfvQLX1XjI7cQrc4oGzMqHiCW3YNQEJ2Na1OGfGMA+jLlzlqVmd9ZiZs2zGmmp
- Jbahb8hpORuc9Pz01A/l8z/KlASzjBBg45Myl+GJ5bb9Dz0NHbGa6aoiOcdn4QShJUNAQ3ouUb0
- THZfud7NK8+fkQJp8GPcSDmHiopvjQ/UNvBME3+L7e3oYgy7mkAv6IbbfxyyeJlByLWl00KibRe
- rifny63q0qUfG/f7fq/qRBV1Hsjk1zb46Rl+iL2mjfipGeQY3571czKGQFWN5UdN2iAeqFqId8q
- fsIWzvYFp6jXhcDcQH1w2tGrgeDRGPlyv/apTwnDLGI6Ut9KorQJGPA3DRm4V94a+81dwhlBzcd
- IrdkYAR9QowPjTW9olziBUHVXErg0Ejx0Hf3ZfOG3l8ahZno76Zg53jl6shTCQgT0Hpnu+ik7fG
- S/9raPPVMVogzznRQ0A==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-10-26_01,2026-10-21_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 malwarescore=0 adultscore=0 lowpriorityscore=0 bulkscore=0
- priorityscore=1501 impostorscore=0 spamscore=0 clxscore=1015 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2610190000 definitions=main-2610260025
+Content-Transfer-Encoding: 8bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/43OvQ7CIBAH8FdpmD1ToK3oZGLiA7gahxZoewsQQ
+ FLT9N0lJE4mxvF/H7+7lQTtUQdyqlbidcKA1uTQ7Coi595MGlDlTFjNOGVUQOrgANE6lJDQR7R
+ gdAQXHXA15qFBNmOjSN53Xo+4FPtObtcLeeTijCFa/yr3Ei2tP+hEoQbZyyMbmBItZ2enzfSM3
+ hpc9koXOvEP19VHRn9xPHOct7VoaX5XiC9u27Y3J4GLABsBAAA=
+X-Change-ID: 20231218-v6-7-topic-virtio-net-ptp-3df023bc4f4d
+To: "Michael S. Tsirkin" <mst@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+ "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, 
+ Paolo Abeni <pabeni@redhat.com>, Richard Cochran <richardcochran@gmail.com>, 
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
+ Andrew Lunn <andrew+netdev@lunn.ch>, 
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+ Jason Wang <jasowangio@gmail.com>, Alexei Starovoitov <ast@kernel.org>, 
+ Daniel Borkmann <daniel@iogearbox.net>, 
+ Jesper Dangaard Brouer <hawk@kernel.org>, 
+ John Fastabend <john.fastabend@gmail.com>, 
+ Stanislav Fomichev <sdf@fomichev.me>, Eric Dumazet <edumazet@kernel.org>
+Cc: Steffen Trumtrar <s.trumtrar@pengutronix.de>, 
+ virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, bpf@vger.kernel.org, kvm@vger.kernel.org
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=5137;
+ i=s.trumtrar@pengutronix.de; h=from:subject:message-id;
+ bh=JCkSwnWyfhmF4oek774qkyutXPcBdAVymbPc24mcOqQ=;
+ b=owGbwMvMwCUmtVehiCsuTInxtFoSQ9Z9/gSZs8JSHa2pxoER80WVM0NnOfO+kPO4/nGxPKdco
+ 5joyZiOUhYGMS4GWTFFFpWFFXyiHh88I6eJcMHMYWUCGcLAxSkAE/F+wvA/aO3xzQxP5k181RUa
+ +XHvsTezUxWenyu/8vHqx48teTnvljP8T5i+K1Z+pdey2Tx6N5pfbKnZHil+4qbpItMFk/cIxpm
+ I8gAA
+X-Developer-Key: i=s.trumtrar@pengutronix.de; a=openpgp;
+ fpr=24A1780E1548F0495996140A1ABD20720A5E5622
 
-Hawi display hardware is owned by DCP firmware, so the platform device tree
-must describe the Qualcomm transport wrapper, firmware display subsystem,
-power-notify channel, IOMMU contexts, and display graph used by the MSM DRM
-driver.
+This series picks up Willem de Bruijn's work on a virtio-net receive
+timestamp. The device puts the time of arrival (TAI, ns) into the
+virtio-net header so the guest can use it for PTP and RTT estimation
+without taking the timestamp itself after the host-to-guest latency.
 
-Describe the Qualcomm DCP transport and its VirtIO-MMIO child,
-the IPCC power-notify channel, IOMMU assignments, firmware-visible IOVA
-range, and DSI display endpoints on Hawi. Enable the DCP display device on
-the Hawi MTP platform.
+The series is an RFC. I am mostly interested in feedback on the
+approach and on the wire format:
 
-Assisted-by: LLM
-Signed-off-by: Jayant Shekhar <jayant.shekhar@oss.qualcomm.com>
+ - The timestamp is a new field at the end of virtio_net_common_hdr
+   after outer_nh_offset and ipsec, offset 32 (see virtio spec),
+   negotiated with VIRTIO_NET_F_RX_TSTAMP (bit 49). Header size now 40
+   bytes.
+   Willem noted on v3 that virtio_net_common_hdr was not meant to be
+   extended this way; I kept it as the simplest approach, but a
+   separate struct for the timestamp header is an option.
+ - Timestamping is enabled at runtime with SIOCSHWTSTAMP; all
+   supported rx filters behave the same for now.
+ - XDP programs can read the timestamp with
+   bpf_xdp_metadata_rx_timestamp().
+ - vhost-net passes the feature through; the timestamp itself is
+   written by tun. The tun patch is only meant as a reference
+   implementation for the device side.
+ - The timestamp is in TAI. The driver reports it as
+   SOF_TIMESTAMPING_RAW_HARDWARE without a PTP clock (phc_index -1),
+   so userspace cannot tell which clock it refers to and may compare
+   it against CLOCK_REALTIME (currently off by 37s). Options I see:
+   convert to the guest's system time in the driver (correct only if
+   host and guest agree on the TAI offset), expose a PHC so the
+   time base is explicit, or keep the raw TAI value and leave the
+   conversion to userspace. Which one is preferred?
+ - Like the existing rx_hash, the XDP timestamp callback locates the
+   header relative to xdp->data, so it must be called before
+   bpf_xdp_adjust_head().
+
+A virtio spec change is needed as well and not yet proposed.
+
+Testing: the feature needs a QEMU that knows VIRTIO_NET_F_RX_TSTAMP and
+sets the matching vnet header size; see
+https://github.com/strumtrar/qemu/tree/v11.0.1/virtio-rx-stamps
+
+Performance: I measured the receive rate with 64 byte UDP packets in
+a nested QEMU/KVM setup with vhost-net. The variance between runs is
+larger than any difference between the variants (without the series,
+series without the feature, feature negotiated, feature enabled), so
+I cannot show a measurable cost or the absence of one. Numbers from
+bare metal will follow with a non-RFC version.
+
+Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
 ---
- arch/arm64/boot/dts/qcom/hawi-mtp.dts | 129 ++++++++++++++++++++++++++++++++++
- arch/arm64/boot/dts/qcom/hawi.dtsi    |  40 +++++++++++
- 2 files changed, 169 insertions(+)
+Changes in v4:
+- zero the header beyond the known fields on tx and in vhost
+- grow padded_vnet_hdr for the 40 byte header (big packets)
+- install xdp_metadata_ops if only RX_TSTAMP is negotiated
+- rename VIRTIO_NET_F_TSTAMP to VIRTIO_NET_F_RX_TSTAMP
+- move tstamp to offset 32 (header size 40) to match virtio spec layout
+- drop XDP restriction for SIOCSHWTSTAMP, add xmo_rx_timestamp
+- add static_asserts for header sizes
+- add support in vhost
+- move virtio_net_common_hdr to virtio_net.h
+- Link to v3: https://patch.msgid.link/20260921-v6-7-topic-virtio-net-ptp-v3-0-3350851c4f88@pengutronix.de
+Changes in v3:
+- rework to use virtio_net_common_hdr instead of adding new struct
+Changes in v2:
+- rework patches to use flow filter instead of feature flag
+- Link to v1: https://lore.kernel.org/r/20231218-v6-7-topic-virtio-net-ptp-v1-0-cac92b2d8532@pengutronix.de
 
-diff --git a/arch/arm64/boot/dts/qcom/hawi-mtp.dts b/arch/arm64/boot/dts/qcom/hawi-mtp.dts
-index c38e5fab7a2c..a27003f69d02 100644
---- a/arch/arm64/boot/dts/qcom/hawi-mtp.dts
-+++ b/arch/arm64/boot/dts/qcom/hawi-mtp.dts
-@@ -34,6 +34,18 @@ chosen {
- 		stdout-path = "serial0:115200n8";
- 	};
- 
-+	display_panel_vdd: regulator-display-panel-vdd {
-+		compatible = "regulator-fixed";
-+		regulator-name = "display-panel-vdd";
-+		regulator-min-microvolt = <1100000>;
-+		regulator-max-microvolt = <1100000>;
-+		gpio = <&pmd8028_e1_gpios 2 GPIO_ACTIVE_HIGH>;
-+		enable-active-high;
-+		regulator-boot-on;
-+		pinctrl-0 = <&sde_disp0_vdd_active>;
-+		pinctrl-names = "default";
-+	};
-+
- 	clocks {
- 		bi_tcxo_ao_div2: bi-tcxo-ao-div2-clk {
- 			compatible = "fixed-factor-clock";
-@@ -142,6 +154,7 @@ sdcard_vdd_3p0: sdcard-vdd-3p0 {
- 
- 		vin-supply = <&vreg_bob1>;
- 	};
-+
- };
- 
- &apps_rsc {
-@@ -995,3 +1008,119 @@ &usb_dp_qmpphy {
- &usb_dp_qmpphy_out {
- 	remote-endpoint = <&pmic_glink_ss_in>;
- };
-+
-+&dcp_dsi0 {
-+	panel@0 {
-+		compatible = "novatek,nt37801";
-+		reg = <0>;
-+
-+		pinctrl-0 = <&sde_dsi_active &sde_te_active &sde_esync0_suspend
-+			     &sde_mdp_vsync_p_1p2_active &sde_mdp_vsync_p_1p8_active
-+			     &sde_disp0_rst_1p2_active &sde_disp0_rst_1p8_active>;
-+		pinctrl-1 = <&sde_dsi_suspend &sde_te_suspend &sde_esync0_suspend
-+			     &sde_mdp_vsync_p_1p2_active &sde_mdp_vsync_p_1p8_active
-+			     &sde_disp0_rst_1p2_active &sde_disp0_rst_1p8_active>;
-+		pinctrl-names = "default", "sleep";
-+
-+		vddio-supply = <&vreg_l12b_1p8>;
-+		vci-supply = <&vreg_l13b_3p0>;
-+		vdd-supply = <&display_panel_vdd>;
-+
-+		reset-gpios = <&tlmm 210 GPIO_ACTIVE_LOW>;
-+
-+		port {
-+			panel_dcp_in: endpoint {
-+				remote-endpoint = <&dcp_intf0_out>;
-+			};
-+		};
-+	};
-+};
-+
-+&dcp_intf0_out {
-+	remote-endpoint = <&panel_dcp_in>;
-+};
-+
-+&pmd8028_e1_gpios {
-+	sde_disp0_vdd_active: sde_disp0_vdd_active {
-+		pins = "gpio2";
-+		function = "normal";
-+		input-disable;
-+		output-enable;
-+		bias-disable;
-+		power-source = <2>;
-+		qcom,drive-strength = <2>;
-+	};
-+};
-+
-+&pmh0110_d_e0_gpios {
-+	sde_mdp_vsync_p_1p2_active: sde-mdp-vsync-p-1p2-active-state {
-+		pins = "gpio9";
-+		function = "paired";
-+		input-disable;
-+		output-enable;
-+		power-source = <2>; /* 1.2v */
-+	};
-+
-+	sde_mdp_vsync_p_1p8_active: sde-mdp-vsync-p-1p8-active-state {
-+		pins = "gpio10";
-+		function = "paired";
-+		input-enable;
-+		output-disable;
-+		power-source = <1>; /* 1.8v */
-+	};
-+};
-+
-+&pmh0110_f_e0_gpios {
-+	sde_disp0_rst_1p2_active: sde-disp0-rst-1p2-active-state {
-+		pins = "gpio9";
-+		function = "paired";
-+		input-enable;
-+		output-disable;
-+		power-source = <2>; /* 1.2v */
-+	};
-+
-+	sde_disp0_rst_1p8_active: sde-disp0-rst-1p8-active-state {
-+		pins = "gpio10";
-+		function = "paired";
-+		input-disable;
-+		output-enable;
-+		power-source = <1>; /* 1.8v */
-+	};
-+};
-+
-+&tlmm {
-+	sde_te_active: sde-te-active-state {
-+		pins = "gpio86";
-+		function = "mdp_vsync";
-+		drive-strength = <2>;
-+		bias-pull-down;
-+	};
-+
-+	sde_te_suspend: sde-te-suspend-state {
-+		pins = "gpio86";
-+		function = "mdp_vsync";
-+		drive-strength = <2>;
-+		bias-pull-down;
-+	};
-+
-+	sde_esync0_suspend: sde-esync0-suspend-state {
-+		pins = "gpio88";
-+		function = "mdp_esync0";
-+		drive-strength = <2>;
-+		bias-pull-down;
-+	};
-+
-+	sde_dsi_active: sde-dsi-active-state {
-+		pins = "gpio211";
-+		function = "gpio";
-+		drive-strength = <8>;
-+		bias-disable;
-+	};
-+
-+	sde_dsi_suspend: sde-dsi-suspend-state {
-+		pins = "gpio211";
-+		function = "gpio";
-+		drive-strength = <2>;
-+		bias-pull-down;
-+	};
-+};
-diff --git a/arch/arm64/boot/dts/qcom/hawi.dtsi b/arch/arm64/boot/dts/qcom/hawi.dtsi
-index 6b0a0ff0faa4..836970cdef71 100644
---- a/arch/arm64/boot/dts/qcom/hawi.dtsi
-+++ b/arch/arm64/boot/dts/qcom/hawi.dtsi
-@@ -6841,4 +6841,44 @@ timer {
- 			     <GIC_PPI 11 IRQ_TYPE_LEVEL_LOW>,
- 			     <GIC_PPI 10 IRQ_TYPE_LEVEL_LOW>;
- 	};
-+
-+	dcp: virtio@9be8000 {
-+		compatible = "qcom,dcp-virtio";
-+		reg = <0x0 0x09be8000 0x0 0x1000>;
-+		interrupts-extended = <&intc GIC_ESPI 956 IRQ_TYPE_LEVEL_HIGH>,
-+					      <&ipcc 13 5 IRQ_TYPE_EDGE_RISING>;
-+		iommus = <&apps_smmu 0x15a3 0x0>;
-+		iommu-ranges = <0x0 0x84000000 0x0 0x04000000>;
-+		dma-coherent;
-+		mboxes = <&ipcc 13 5>;
-+		mbox-names = "dcp-power-tx";
-+
-+		dcp-subsystem {
-+			compatible = "virtio,device34";
-+
-+			iommus = <&apps_smmu 0x400 0x2>;
-+
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+
-+			ports {
-+				#address-cells = <1>;
-+				#size-cells = <0>;
-+
-+				port@0 {
-+					reg = <0>;
-+					dcp_intf0_out: endpoint {
-+
-+					};
-+				};
-+
-+			};
-+
-+			dcp_dsi0: dsi@0 {
-+				reg = <0>;
-+				#address-cells = <1>;
-+				#size-cells = <0>;
-+			};
-+		};
-+	};
- };
+To: Michael S. Tsirkin <mst@redhat.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: David S. Miller <davem@davemloft.net>
+To: Jakub Kicinski <kuba@kernel.org>
+To: Paolo Abeni <pabeni@redhat.com>
+To: Richard Cochran <richardcochran@gmail.com>
+To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+To: Andrew Lunn <andrew+netdev@lunn.ch>
+To: Eugenio Pérez <eperezma@redhat.com>
+To: Jason Wang <jasowangio@gmail.com>
+To: Alexei Starovoitov <ast@kernel.org>
+To: Daniel Borkmann <daniel@iogearbox.net>
+To: Jesper Dangaard Brouer <hawk@kernel.org>
+To: John Fastabend <john.fastabend@gmail.com>
+To: Stanislav Fomichev <sdf@fomichev.me>
+To: Eric Dumazet <edumazet@kernel.org>
+Cc: virtualization@lists.linux.dev
+Cc: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: bpf@vger.kernel.org
+Cc: kvm@vger.kernel.org
 
--- 
-2.43.0
+---
+Steffen Trumtrar (6):
+      virtio-net: move virtio_net_common_hdr to virtio_net.h
+      virtio-net: support receive timestamp
+      virtio-net: assert header sizes
+      vhost-net: support VIRTIO_NET_F_RX_TSTAMP
+      virtio-net: add XDP rx timestamp metadata
+      tun: add rx timestamp to the vnet header
+
+ drivers/net/tun.c               |  14 ++--
+ drivers/net/tun_vnet.h          |  18 +++--
+ drivers/net/virtio_net.c        | 171 ++++++++++++++++++++++++++++++++++------
+ drivers/vhost/net.c             |  17 +++-
+ include/linux/virtio_net.h      |  30 +++++++
+ include/uapi/linux/virtio_net.h |   1 +
+ 6 files changed, 214 insertions(+), 37 deletions(-)
+---
+base-commit: c03c1a14507dfaf8b856c2608f9ac216021fc222
+change-id: 20231218-v6-7-topic-virtio-net-ptp-3df023bc4f4d
+
+Best regards,
+--  
+Steffen Trumtrar <s.trumtrar@pengutronix.de>
 
