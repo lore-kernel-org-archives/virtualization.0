@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793052357;
-	b=2UA9Tg4SG/MGSlmV37KJDUvZwYmnqDtwwru7As/FJBVZblLXe2Gvme4p+so9rExFGT7w
-	 Sp66d5Nn+dMMgHtB0TExueCjAPX84xrcz3ab7P7s3IFDI+6JHJpelh2w/9ukhkPmnKlkK
-	 vIdU+K7bXod3MTFrbdI8kPj83auPzgaVEY+jl5I19XuJNXqKSdezv1T3vnQ5+0/TjhBDg
-	 NdU38YoIH/XwunwqefDcbo/wYskMVcomR9n19XrmUotk7D21EWF/GSDcNoX095n6MkZ+r
-	 UQAp1v7VRncOs3qUT5mbkpp7m5D9pzpAvES28SIl1xFYkvhExzZ2XlHyYkOn0i1enXw==
+	t=1793052423;
+	b=U/I4+vS7ik1tnhm0Sh37dn89Bkn6qxspCjqykg6n2vgW81d9MmNn9tjzibw2+Y04dax+
+	 mi7RwsODvXYP5Eaqs+TKUvhDx6aInXT4IH2IE0pfRxi9vBbgr+pdBAkyRCe1b+ss48Lpp
+	 ulmNiX0nK5wp0p/tAgbNymw9228SBVfkxCbfP5R07Swc+xXK3e5JrBS6k0wlJIvdQoBFP
+	 XE2fPeaq4qdOFT2wTO5pZY7eZv8QEvzZQLg9aLlPjNfznYCiGmB/x/OMo86xf5pKgRQMf
+	 zFddnBkRRUrxDv/2UdELtUIphChcug4S5GXuCmNjEa1cbg/i644lMtv4w2ung62lP/Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793052357;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793052423;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=I1Z/UEBMkZ2eyWGttef85G5kGG91dwTk/1RV8AnX9Hw=;
-	b=a846F/GACrno8VVrvykMjKFsfO90dbiWx0XXCNkzNM0rbAYFsbvaeiAUVE86uXC5JtEP
-	 BzGFA9lLQ857AkoOTVXlFlIqJEKz3dJUWz1thPXheXk+Sow9UsVPiO8CCk6+pqXwrrtSG
-	 b+rhRXuJ2sHbnP1z9R8f9hjmppp1+Rlc/BE4o30K4JQ0bpqnFR6ggHhCw+zmQbez9WCll
-	 FWpYRhp4qOfJ5r0brxYOQGHSuHpWHQ8oUq1+a36AeZBKFJoeuC6II7zVr2aGlKvRAHMWT
-	 QU9F77dCowvSO9FKqTF97X9fv8G/H71caZpkfT3NeimvsnL+SqZAngnITU/y3i6VWxg==
+	bh=iMoY1bhATOkV6/qdTLBe/XQQ1QFQE7+t4e7GpS+4QRQ=;
+	b=LSnSZ9+yFvzt5SgSpis13uQmmRdvSNR+yYYPKUSCeDYsC79pPR1fGPSmKot9d930BEH7
+	 kIcf4N1+Uul24Xu6ccW6j+Npd8frwV30wCmVnvw0CGL0ayQb9K86mAnOXaYEUa58CL1b1
+	 maknkDvGovpq9b6s8MeP+yGvPjbFWFPfE4og6FGDHDRt655l3ceoBkO1/4XAXeTV+1k8I
+	 cjAJVlqWgJW9stnFgf/yeHBuDMOMHlDqEfymJfXbOQnae6v2+5xYhpfaa9FRyd4HZSf3a
+	 +i2waEPiWHAEMj8H5Jzap+Ez659vuGb0suOnLXZbfRqQY/6OQozbUkaUt0Ca84q/vVw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RSb2K1rl;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=M789tOoG;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7D32606A325;
-	Mon, 26 Oct 2026 22:05:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F962606A31A;
+	Mon, 26 Oct 2026 22:07:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RSb2K1rl
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51A631F01828;
-	Mon, 26 Oct 2026 22:05:56 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=M789tOoG
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B49CB1F01825;
+	Mon, 26 Oct 2026 22:07:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793052356;
-	bh=I1Z/UEBMkZ2eyWGttef85G5kGG91dwTk/1RV8AnX9Hw=;
+	s=k20260515; t=1793052423;
+	bh=iMoY1bhATOkV6/qdTLBe/XQQ1QFQE7+t4e7GpS+4QRQ=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=RSb2K1rl2D/iiCOieLGIP5QjaYD0QT2vv84q0R5Tm9eP6wZC6gVhHBjFDpFMCjUXE
-	 sZMuI+u9XTrEAFZaNj1JhZtCtSgu94jXq8qdDCb3VZ86U61Gudmqwd2kiFhBspd4Td
-	 6tFbYaUkNytXXi8AIwNY45J3f1LelTIeY3q5+wVRWAmbJt7xET4QSpyv8c4m/R+CRc
-	 fsLtrngJjKN5WgFL70YTb1WuGjDQjknPN6pYbh7+quHr8Rz4hukQI1pw/ygAU647RJ
-	 2ZTzXbetdWfA01W3+4cNC4WA1VRqeZlwSFeaGSy0DfoRMhnQ6LMeRzw8inGT9nehq+
-	 u84tDA/URpBRw==
-Date: Mon, 26 Oct 2026 17:05:52 -0500
+	b=M789tOoGnX0+ozMdGj28v+IlM7S8xfX3xNFyeAHTz8Y2SJQmo3NOWNLXx5RcOR7VP
+	 EPkhtCK/tzDi4Z1t4NrS4VJm/m4SZ9UPJL8JxbpfZdi/D92gWbQ6aHiKQJiLEdmbEZ
+	 MOODUiqo4OAX1GrC7kyNyjsEHYqCbFlxPUtz9ADHG8u1ie4swNwSUyCcth1DNrxs92
+	 OkBKVdyyivn7jtCNufTAaqUeiqw6tHy+/7RkvWaZReEuiIrBWxBiEGgaVLfXmB9l3d
+	 bv634dgog++/8KKJ5D2ewiGl++MTURp8+pwTDt1/T7YzQyNL2PNp2d80fZ5tjNsGqT
+	 cWZKvR7qgq0Yg==
+Date: Mon, 26 Oct 2026 17:07:00 -0500
 From: Rob Herring <robh@kernel.org>
 To: Francesco Valla <francesco@valla.it>
 Cc: "Michael S. Tsirkin" <mst@redhat.com>, Mark Brown <broonie@kernel.org>,
@@ -53,7 +53,7 @@ Cc: "Michael S. Tsirkin" <mst@redhat.com>, Mark Brown <broonie@kernel.org>,
 	linux-spi@vger.kernel.org, devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev
 Subject: Re: [PATCH 1/2] dt-bindings: spi: add bindings for spi-virtio
-Message-ID: <20261026220552.GA3933778-robh@kernel.org>
+Message-ID: <20261026220700.GB3933778-robh@kernel.org>
 References: <20260929-spi-virtio-bindings-v1-0-6a0eef3213b3@valla.it>
  <20260929-spi-virtio-bindings-v1-1-6a0eef3213b3@valla.it>
 X-Mailing-List: virtualization@lists.linux.dev
@@ -75,47 +75,7 @@ On Tue, Sep 29, 2026 at 06:41:55PM +0200, Francesco Valla wrote:
 > is not used to instantiate the device, which is registered by the
 > transport (e.g.: virtio-mmio), but to define its properties and
 > establish dependencies with other nodes.
-> 
-> Add the new bindings inside the MAINTAINERS file.
-> 
-> Signed-off-by: Francesco Valla <francesco@valla.it>
-> ---
->  .../devicetree/bindings/spi/spi-virtio.yaml        | 53 ++++++++++++++++++++++
->  MAINTAINERS                                        |  1 +
->  2 files changed, 54 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/spi/spi-virtio.yaml b/Documentation/devicetree/bindings/spi/spi-virtio.yaml
-> new file mode 100644
-> index 000000000000..5b8639dd2e1f
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/spi/spi-virtio.yaml
-> @@ -0,0 +1,53 @@
-> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/spi/spi-virtio.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: Virtio SPI controller device
-> +
-> +maintainers:
-> +  - Francesco Valla <francesco@valla.it>
-> +
-> +allOf:
-> +  - $ref: /schemas/spi/spi-controller.yaml#
-> +  - $ref: /schemas/virtio/virtio-device.yaml#
-> +
-> +description:
-> +  Virtio SPI controller device, see /schemas/virtio/virtio-device.yaml for
-> +  more details.
 
-Drop. This just repeats the title and $ref.
-
-> +
-> +properties:
-> +  $nodename:
-> +    const: spi
-
-Drop. spi-controller.yaml already defines this.
+Also drop 'bindings for ' in the subject. No need to say bindings twice.
 
 Rob
