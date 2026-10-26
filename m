@@ -1,111 +1,111 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=205.220.180.131
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792995724;
-	b=Q2fgtgfT89O1YwSRTbZwKIxZg5ydfw4jF65aE9Uex/P6m3y85wtgOv+m6Ru1AtWRQTlh
-	 kJrJJFt8VMTlxzQHcdhgtEvkD4Fs+k564tvN7j7AGQyFFR9d3qtrZcJyBQKzSRxVtyBD6
-	 F6fRnEYcG3oj8+y1aYvstxxrHuevLn4Jy8gK25szlcEaLXRmH8e2afrFg6kfF1Se+TpAY
-	 XhXg/tDMoSZEOMRHFgmvWmkNQXYc2m8LWYfvCK8iF6BUCnXtq4ueY09wRPcptXuoE7ipZ
-	 AQLKanbPhQtQRINtCw9xMD8PkfmtuX7POVsZk5VWx1uC+XNFl758HTuOot7LvhnzxBg==
+	t=1792995734;
+	b=1p6RFrKijd+xhdzcPheJG10NhTGmYu68UzOCUtMvr16COmSJ29yssfHBszZGQq+9agCy
+	 SIjP4tUiJwt0Il85Od4eePHPv53Q06VlLzhHQ9E5YreQHDQiLA4b4zv9t+8jQKJuHK3r3
+	 NPs06l7wWhrhyo+Hnm6t/faCGN+ObJ3ZUsf8RMiNTzxRcwgvSB4v6aRWKGS60pXd7f+u+
+	 hnMvR0cQ02At2oXgkM2a8NjRPQGahRFKPIW+JAjP1E6ZB3cDou1JFk1Hh7Y+vkCsnvESf
+	 bKr+rdtciQ/EN1HU9+EDk106CRboNIbGiWRJjZqIx8a9BcNMiwJIsbAsDxg64u4cR9A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792995724;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792995734;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:
 	 DKIM-Signature:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:X-Received:Received:From:Date:
 	 Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
 	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Authority-Analysis:
-	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Info:X-Proofpoint-GUID:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Virus-Version:
+	 X-Developer-Signature:X-Developer-Key:X-Proofpoint-ORIG-GUID:
+	 X-Proofpoint-GUID:X-Proofpoint-Spam-Details-Enc:X-Authority-Analysis:
+	 X-Proofpoint-Spam-Info:X-Proofpoint-Virus-Version:
 	 X-Proofpoint-Spam-Details;
-	bh=UkAHUX0llya5PEzpYg3UC1gs87KN81ttllWLY2pq+4Y=;
-	b=O7GG7n/CJ63JZujLNuUSaqmH7QHYOv22q/a/CXyYtQL3GW3S/coQG0dkyogCaBREQmA8
-	 rvHR95lWeaee1lRdNTw/sFRmEYQzLAZtVv8UUS8brF5im0ugTZhrhXJpxMkame3yFAJf2
-	 LMbj9GM2OaN1uIDXMbGgtWvp+zqIWmGILKGPE9x4trWbt7gE3uE2jOqYuC7H/teOFclTE
-	 0eiUi3+mHL9/iQj6jQ8zlcelifRlhGAPe7YaXz25bg4+fZ+5+RLjaxunmU6IdRuiw7y2i
-	 snRpMNhFsAUWo01IlBfuZ6F/zuBDu5c9e0gEiaTLahi58EOLkrWQama0Afs9UEoJ9aA==
+	bh=POiBPcDJVA0W7NWtaD04Jkc5yVkz3p2FFJOSCoNB5ck=;
+	b=UCpT4vHO/MdvmkKc28nKX0Ei9gqHjs/O9dQtgYBd2raYyWQY2JrNnaI2+ztmCvnVybRH
+	 0ISB9XnIlb710snxGL3SJTX23SBXhjsMtseBUGqfSHzIPPnsYS3jcWnYf+msdr8FcSdfS
+	 cMFhoZj6dme6p/MIYpfNL9IUPd27aOPJe/jppyQ913XqgcTnlCIpU3oTpSioDM1nKZAlT
+	 zJsGL5h3gEaXIjiu1LhRUgwhnfSYlnF3bdS+IbMQZDOoJ8gQqaaPiH78RGbqC4g0jPaE7
+	 sWkMdE4e+Bm7OiVnwZ/IdlXhW9ZhoDvl80373zgYf6zN1EodDp/gvb9mKiFM0v7053w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=oss.qualcomm.com;
 	spf=pass smtp.mailfrom=oss.qualcomm.com;
-	dkim=pass header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b="Z/2OlKLo";
-	dkim=pass header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b="bn/S5hTT";
+	dkim=pass header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=pNAqnVpr;
+	dkim=pass header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=g2SYzezj;
 	arc=none smtp.remote-ip=205.220.180.131
 Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57052606A325
-	for <virtualization@lists.linux.dev>; Mon, 26 Oct 2026 06:22:03 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 57052606A325
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7563606A320
+	for <virtualization@lists.linux.dev>; Mon, 26 Oct 2026 06:22:13 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A7563606A320
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=Z/2OlKLo;
-	dkim=pass (2048-bit key, unprotected) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=bn/S5hTT
-Received: from pps.filterd (m0279872.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69Q4b63f1182156
-	for <virtualization@lists.linux.dev>; Mon, 26 Oct 2026 06:22:02 GMT
+	dkim=pass (2048-bit key, unprotected) header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=pNAqnVpr;
+	dkim=pass (2048-bit key, unprotected) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=g2SYzezj
+Received: from pps.filterd (m0279873.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69Q4aPJ42222515
+	for <virtualization@lists.linux.dev>; Mon, 26 Oct 2026 06:22:12 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
 	cc:content-transfer-encoding:content-type:date:from:in-reply-to
 	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	UkAHUX0llya5PEzpYg3UC1gs87KN81ttllWLY2pq+4Y=; b=Z/2OlKLogSEdBbPh
-	ZM4qlE5IcTZiluLHlUMJByxii1/a5/vxwnEjsNjKgYW3A4YhKKTg8ScdcYDe3UEy
-	INlVIkAvUaO0LQ2UhOKa334oap7isPaad1VckV+88j0xdHVgiNGey1Q0ZgeKszsE
-	vJJx5WIKi6cMLELfhVmPpYoin27WpjJYNdMWivkusvVCpJ6g3KGNmJ/w45OLMZGX
-	+wjDHN+6yeMvv3oUqqxFFxdQpXZYUbcIWr8MCnxpsqbxRmKI0vcdans7plElC4b1
-	+lpVESlMfvy0YlpFd+RSZPH2ZwYbr4ANKwHyeB/ec+XO5cgawvZ12xdfbdrwUBGU
-	8ERmaA==
-Received: from mail-pl1-f197.google.com (mail-pl1-f197.google.com [209.85.214.197])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4hgn27w1xs-1
+	POiBPcDJVA0W7NWtaD04Jkc5yVkz3p2FFJOSCoNB5ck=; b=pNAqnVpr0ql8iyVo
+	1gToezzkw2n0tAj8wurHtFkST70W6cGIapYdPDD4M59cqHzCG+2JBZRrTCTBqQ0P
+	AcW/j0jQpBLTzoAeMXKeY7Np+8I83dE6kZJRMm13k0PyZhzvK4nZr+q1hqNAGR0Q
+	MZG6xGkxMxqeIKbZFeAkoXFTOlTdLB4R3NsAZzF808Sj159EFZcO1LRK1yUK3ROD
+	wopb15V4SycTWuwDeOa3DMEer6RxRbvQ+kBiJcZAYO4kmx2LGQuXhdKWn/7axp+d
+	ogusp6koFQC8Zp9mT6NAyLgaCoR2KJoLrbVnV7mdUmEiXyGqaWsp/LYFdGX9EOI1
+	X0FKsw==
+Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com [209.85.214.199])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4hhvdd8tgg-1
 	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <virtualization@lists.linux.dev>; Mon, 26 Oct 2026 06:22:02 +0000 (GMT)
-Received: by mail-pl1-f197.google.com with SMTP id d9443c01a7336-2ea381ce04fso29073465ad.0
-        for <virtualization@lists.linux.dev>; Sun, 25 Oct 2026 23:22:02 -0700 (PDT)
+	for <virtualization@lists.linux.dev>; Mon, 26 Oct 2026 06:22:12 +0000 (GMT)
+Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-2e954d87b48so42211035ad.2
+        for <virtualization@lists.linux.dev>; Sun, 25 Oct 2026 23:22:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1792995721; x=1793600521; darn=lists.linux.dev;
+        d=oss.qualcomm.com; s=google; t=1792995731; x=1793600531; darn=lists.linux.dev;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=UkAHUX0llya5PEzpYg3UC1gs87KN81ttllWLY2pq+4Y=;
-        b=bn/S5hTT/KHY7OdV7A1gNSJfyZpjzpbDJ5mnnSO1dX38kQKh4UblO8riHuKkNvi+1W
-         h5drDjI/Mer9cOk7TIzILrAHQ8GxffQxht21pgQT0TSvgCytIXmVg9gIvoBYPrZKLSIi
-         tsaSbn14/01O3h/wNVNkf3MEi59muSLbwSSSCjeEnB9sNuW0U8D/xjeFpa1rCydMAhC+
-         MF3nWxx5Y9O3jlWTAitnp9JVUb70UejMms/vRoUnYFlIEdcvxyX+wQ110gsdR1HHJtFc
-         joqiNVBQE9CBd30Q+dT/5tzd4MuXXtrFhgyu7ESYMy0reH72IiR8oMx5OyIKikMEAZ5a
-         XyOw==
+        bh=POiBPcDJVA0W7NWtaD04Jkc5yVkz3p2FFJOSCoNB5ck=;
+        b=g2SYzezjcNknK/BxeplH896KxJngOVDsyjhTzIuvSy/sGdc7PRhqbWoaNj8yNm8e7y
+         WPF+jPvaBye0J2Zm30tdQVlG/pJnhssYea6hazkSXqC4fN/9XzbXIJ8TrBt96HW4xwgD
+         8g413bqIRZXjTxBCrVOCxffcXXIlGQ0ghuiKHuCrw9tA6GrMHcEMpV3XW6Dt4BCyOqN5
+         0RIANRot+h/T1qiteRrYgT8BN6uaSIBeZREp1940ThqaiDQ94/oMj03tig3oScryYy0Q
+         0lC0RZNWOeacm9ZSfpAQ9Z4jwKG+mS3qVk+jfSRqSvnkUVROmrHALQqsC0ioAU2F8SBT
+         zi2w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792995721; x=1793600521;
+        d=1e100.net; s=20260707; t=1792995731; x=1793600531;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=UkAHUX0llya5PEzpYg3UC1gs87KN81ttllWLY2pq+4Y=;
-        b=fJg6dxTSonCsuhH5zAQQuGof0mPn94Bn8uuXmGic5w8NtV++VHW0NAKkqtD1gsSPrf
-         OBjEhSwP6TyL4V/LFOqcjrc6iWEN19A1qwYpNT5NwwJ+hZZWKkJhMumySc/U8iwGNQP0
-         0G1gC3vhqw54vF4BXEWmhTfV7xZpQciwkbciPTgtrSR9AC1FXb/lQavBujd52wBeK7PV
-         rMMDleN93y8R7pl8u4nlAyeo4Y6LR6tELhi1LlYdS7n0QjDTA5e78IcQYv/1oB4VtO1l
-         bZOqMJ6E7K34BmsG/b8o2Nwv6OO9XM2FYBDiG90ui7r9URgPah/+vTGmz2xcsChinTbe
-         STVg==
-X-Forwarded-Encrypted: i=1; AKwUvBydtDLFPrWb4pNfJy1D30vb0yfvwi3LzzGSH9QiRVb0mfOoE9Ygz2mGzvl6T7mORzm3zE4LWgctKo/3Ftj3Ow==@lists.linux.dev
-X-Gm-Message-State: AFq9FYIsrlbbdhJYnHAnPPwqnjLHE9sGsUrqKqscVeILKfv6hh9idWkI
-	ps8c0io/U7YzPDq1CSDqRWOaiWflwOyT3/udELQAHyKzyaC6LfHiP2bOEkH/1g2UQ1RGGyBMZR6
-	tPXQfHXN6q9aHyZeRFT5LBw/2taiJoO6uNPVDm+1+jFDJ/VVjiarxURJt2sizhfx2OHVJXQ==
-X-Gm-Gg: AYBFou0c2CPl5zOZeFRdyGNKFHE4UJZoWF/pXUhM4AelVonnqGpBRlFzjhPfP8AtZ6z
-	OoqCRLi8TMevtirJJtNnukVXSIqy2YOaC8HGRfvBVwalr1P7VKzLAZxnQ0EYqjpwKP4oO+qlcLj
-	wH/8pj19Z2FTvfaQnakv+EX8gQAUW+HNLwA8xxXnNNp5UyJyn89qpTxtEqyu8G9NDmog+cW3EOH
-	VyqmSaw8H+HTRsx4ryhZuQnOmlAnOlHv3wtAhQV14YoXPMtcZxSze0KufxIobpIgF71RRUdgWs6
-	aiZB+R19rFGQEJy7ltgLnypbBvKl56CUC3C4wIXn3VgQ+usPOckhyOjQD1OcLG4eQ3OTJ//y8VM
-	+uQi4+hQjhXF2XW356Pfql8d3p2TSRNxBUw==
-X-Received: by 2002:a17:902:f792:b0:2e9:3a86:b995 with SMTP id d9443c01a7336-2ea9cbf197amr34216805ad.15.1792995720705;
-        Sun, 25 Oct 2026 23:22:00 -0700 (PDT)
-X-Received: by 2002:a17:902:f792:b0:2e9:3a86:b995 with SMTP id d9443c01a7336-2ea9cbf197amr34216275ad.15.1792995719865;
-        Sun, 25 Oct 2026 23:21:59 -0700 (PDT)
+        bh=POiBPcDJVA0W7NWtaD04Jkc5yVkz3p2FFJOSCoNB5ck=;
+        b=kOsYlHFBTM/zKt/7o+Cd1QU2XQ9KS01qQEA+tW+epMqBT/AbrJcM3c9qY3L4uKT1rS
+         dfJlIi6tgk7p0byCIyDY2r7aEMemxjoL9frTGzOOGYZm3y1Mr7U8xyKvXY8mobMG167A
+         G2liQ5mF7Xxdzo8NwZwWhxzfe7gOPIp74G+NpQ2IuGuvJPHAXiGMCwEbxrMoXYMBoJwV
+         XexFunZNxlqoKn/qYmFAhpW4xUAoFb51Ec8gcbBWU2Pz/R1LQg9qk/myPZycjSMXsymR
+         HePxrtafDpKbbShkQly09ykLO2vZYq6gvuk9mKFOaHheq0GnLMlCadiQ/oJKNcyPjCfN
+         /O6g==
+X-Forwarded-Encrypted: i=1; AKwUvBzrLd3yn61ROBbm6p4xFpSXSg+h0XxA6GdJrJTDDWCKUhzOwtS/87C7LnsSNc/IJwVxjzJ9dyz0uxgfcz6FNQ==@lists.linux.dev
+X-Gm-Message-State: AFq9FYLvnhNDT3z2D5zYyHWegFe2J4IqjiAkEKzzeKuaFOgMYwckya2w
+	MFtE5p4iUQxZCNRqqTmuiGvF32+m74WBWkbxRL8KNJF6KWwyxjYtxfZ2dwSyGXiS9W/25cz5TsW
+	9LGOsDzju7vbGdr7UkMpMWonGVXvtothbqhoznvIp8xKgvghZG1Myf9T8uiUBEFUZkTnMew==
+X-Gm-Gg: AYBFou067Osp5r8dyNaL90JLjr7AjLkfLb/lb/qBMDyTaLMtdZfbpC/np36JwXsvF7k
+	oOvptvX46H5gAJzT9WA7Cx95ST3WHrh3G4YTmTLC3YCLUE36jS8ot3rSpCyoOaGmE9FSkEakHAk
+	MPBiO8kkfSnogrvhBsPDf8XOtRJmcrI2lGNvQ2R2NEe4oJBb/qtWfeIEtLsdaWqbqGeBW0tjOhZ
+	q65PoaM8DHRl27l869+ZaXEKq53Rtpam4DceiKuJejVbn4hUWEX+waNHlUqY3qng/NCVgBj4lLx
+	F6T2KLxNjLbNqmQxhWx9L/Pw6pPPYlHkkyMn69lzifBikub1zUet84dZeHz7tzOBKFa0nAel6Ck
+	xqRcicIMjf7qTTDV2UyVOD5iJ82k1DvTrNw==
+X-Received: by 2002:a17:902:da91:b0:2df:7fe1:72b8 with SMTP id d9443c01a7336-2ea9c621714mr54435145ad.16.1792995731257;
+        Sun, 25 Oct 2026 23:22:11 -0700 (PDT)
+X-Received: by 2002:a17:902:da91:b0:2df:7fe1:72b8 with SMTP id d9443c01a7336-2ea9c621714mr54434815ad.16.1792995730740;
+        Sun, 25 Oct 2026 23:22:10 -0700 (PDT)
 Received: from hu-jshekhar-hyd.qualcomm.com ([202.46.22.19])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2ea9b1a1c56sm12633415ad.44.2026.10.25.23.21.49
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2ea9b1a1c56sm12633415ad.44.2026.10.25.23.22.00
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 25 Oct 2026 23:21:59 -0700 (PDT)
+        Sun, 25 Oct 2026 23:22:10 -0700 (PDT)
 From: Jayant Shekhar <jayant.shekhar@oss.qualcomm.com>
-Date: Mon, 26 Oct 2026 11:51:12 +0530
-Subject: [PATCH v2 02/23] drm/msm/dcp: Add HFI packet helpers
+Date: Mon, 26 Oct 2026 11:51:13 +0530
+Subject: [PATCH v2 03/23] drm/msm/dcp: Add HFI device definitions
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -117,7 +117,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261026-jshekhar-dcp-hlos-v2-2-7cf014efdee1@oss.qualcomm.com>
+Message-Id: <20261026-jshekhar-dcp-hlos-v2-3-7cf014efdee1@oss.qualcomm.com>
 References: <20261026-jshekhar-dcp-hlos-v2-0-7cf014efdee1@oss.qualcomm.com>
 In-Reply-To: <20261026-jshekhar-dcp-hlos-v2-0-7cf014efdee1@oss.qualcomm.com>
 To: Rob Clark <robin.clark@oss.qualcomm.com>,
@@ -152,1041 +152,316 @@ Cc: Jayant Shekhar <jayant.shekhar@oss.qualcomm.com>,
         linux-media@vger.kernel.org, linaro-mm-sig@lists.linaro.org,
         iommu@lists.linux.dev
 X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1792995687; l=34875;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1792995687; l=10561;
  i=jayant.shekhar@oss.qualcomm.com; s=20260925; h=from:subject:message-id;
- bh=CLlqwkCcOqDHtewu37EgNf7/yPwE/qWtMdHX+Tq7u8E=;
- b=3KMj4fFwETxl0CxqEU5+s736nv/AfekKrP/PxP8Ey9RV6lzdpy/gk1neV93iFjUwoelvS7MEa
- lYNPMdvm9ATCyWzyydYErEk+0WhBPHq/iKKSx072L/Ty5+3F9QnN/sy
+ bh=sk048O3IgrNWFy3YZMxwRpaI1TNXq2tqfBpVYWngnVA=;
+ b=q118fngHKM+mYo2M4qDdk6dfsYGHMv1a2Rxo5BFoY4d8b0A0UzHmhwqF9Jitu9S7HKMIVZkYA
+ LZiC9eh2u3kCyc04NhpUtGtf8rw0m6gIQVfYX1QfP5orT7XQBe//A9V
 X-Developer-Key: i=jayant.shekhar@oss.qualcomm.com; a=ed25519;
  pk=saYTwtCCpug4b0Hz0jHFoATgDtdhFVicwMzDJo2z5ZE=
-X-Authority-Analysis: v=2.4 cv=G7GJgNk5 c=1 sm=1 tr=0 ts=6adef18a cx=c_pps
- a=cmESyDAEBpBGqyK7t0alAg==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
+X-Proofpoint-ORIG-GUID: tR_BYlDDgHwrrqekV2i3z-fWeWZAFt-W
+X-Proofpoint-GUID: tR_BYlDDgHwrrqekV2i3z-fWeWZAFt-W
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDI2MDAyNSBTYWx0ZWRfX9aeRVKZ0j4vX
+ DMRs4rjkmK9OWajwo5fE7+N5ODS4eJsvZlzwG8GHNnpd0HjNM6eNpc63MarLMVWUlzqsCPa0OHm
+ ZxK6i0HaJdsjX8My7Yzi+GoYLhCwuceIXBmH79ClkRAVgo1obx1KYFRZHJMNX29ba7QJ1eX8M6s
+ zX7zAJ77zW2sRj0Rs5MPdoEwxb7LBopXLkOjpuQXGUGIZ1B/sWLMte3qbpteDv6H5rlGxkuAwd9
+ 86BkK0wcYgiyFelKeUJ18WKW93N47t6B71PgH0KqVFGBizo8gVFIN1Y3OdhBUO4LX3tVY8ASpMs
+ F+5Fx0nBbUQmB63nRReLlwoNXgQ7hh07JuurOyUiA8eD9Q968qO7driKNpxO79AA+tMdzMTDQxr
+ MMTrqimDx3UF+RwK8Al6kKO/Ng2o+kJlkt1pNpwbW++urihG0PIC8NVzpUh55Swf/7l9eakEkeA
+ cRkFPE7MwG3Fe60aU8g==
+X-Authority-Analysis: v=2.4 cv=N8+8hG9B c=1 sm=1 tr=0 ts=6adef194 cx=c_pps
+ a=JL+w9abYAAE89/QcEU+0QA==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
  a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=yx91gb_oNiZeI1HMLzn7:22
- a=EUspDBNiAAAA:8 a=wDQiAsBsKEeCgsny5A0A:9 a=QEXdDO2ut3YA:10
- a=1OuFwYUASf3TG4hYMiVC:22
-X-Proofpoint-ORIG-GUID: 5kXu1psf6getFBMwAvxHEJi128dvw5JC
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDI2MDAyNSBTYWx0ZWRfX7cvvwAzdrctC
- zxUP+huOSYgtgFoCZWVQDwbSiVX7wElN+FdJxbmqHq9VqscMsHqC9CgWovRMisD/nZBV+GZ0gR9
- IGZF0leqf+VCJObn48UKdJql+olj3pg=
-X-Proofpoint-GUID: 5kXu1psf6getFBMwAvxHEJi128dvw5JC
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDI2MDAyNSBTYWx0ZWRfX2jc8eNGXjI44
- FEGhhIwJ84vtsjIbPvlebZtSXvrPtodu/ajrY/V8C9oRjOXsLCM2h1+0SbsjlVCn4OBcWfFAdP9
- T9U1+alef1Gu7n7Z/FHvGgQw+pslC6Z9XzGhaGSh6FoDKhVs+cKNDjbda4a38avVvIWzat7n0+I
- VvNwW7kAKUPsXFgqEJoeQT1MUHWXZrHEucTTx0UusW+Oofm/JyE9UDPAlFHHS7aKdGI8Wy8yHjf
- z+rAcfDuNoVyniFjJb8F+8DWwXwj+QL1zgy282dmahpb50qXKbvGXEoUpRxPgFdRhIC8I6vIG1c
- OTru07QktXCnYrvwQVnbRlR+BTgg31O7e1kaoZ9rP0UElAkZDCcWerOvR3v4aDwGGCqf5Jd4JXq
- OvN1Hixo/I6YueOr2JkaNwJwfktLIbDVxM1GSC0XHEnhkT7VaVO7L16Uvw2Qimo+WcL4WLPj4KE
- msmAzRN+MMSB5N8NtLQ==
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=rJkE3RaqiGZ5pbrm-msn:22
+ a=EUspDBNiAAAA:8 a=9hKN-LdXriKJwKJ2pKYA:9 a=QEXdDO2ut3YA:10
+ a=324X-CrmTo6CU4MGRt3R:22
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDI2MDAyNSBTYWx0ZWRfXzIrp+Tk6x9OF
+ 5UeSUBH0khhY/jhmmZVZKRXv9VKTZ1WoLA9kD7AfjmpWFsEbWVO0gdNUYRz1G2XIEJ4r8t6Gcck
+ JBGnCaAZI5aRe0nRI7bmDqo9WYmq4zM=
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
  definitions=2026-10-26_01,2026-10-21_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 lowpriorityscore=0 clxscore=1015 adultscore=0
- priorityscore=1501 suspectscore=0 bulkscore=0 phishscore=0 spamscore=0
- impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610190000
- definitions=main-2610260025
+ clxscore=1015 phishscore=0 priorityscore=1501 adultscore=0 bulkscore=0
+ malwarescore=0 suspectscore=0 lowpriorityscore=0 spamscore=0 impostorscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2610190000 definitions=main-2610260025
 
-Define the HFI packet formats and serialization helpers required to
-communicate with DCP firmware. Without common packing and unpacking
-rules, the transport and display command layers cannot exchange
-commands reliably.
+Define the HFI device commands and properties needed to discover DCP
+capabilities and register display resources. The KMS backend cannot
+size or allocate the firmware-owned pipeline without these protocol
+definitions.
 
-Implement packet creation, property packing and unpacking, and
-shared HFI parsing utilities for the DCP transport and command
-implementations.
+Describe device commands, resource data, and capability property
+identifiers used by the DCP device and KMS layers.
 
 Assisted-by: LLM
 Signed-off-by: Jayant Shekhar <jayant.shekhar@oss.qualcomm.com>
 ---
- drivers/gpu/drm/msm/Kconfig                        |  25 +++
- drivers/gpu/drm/msm/Makefile                       |   6 +
- drivers/gpu/drm/msm/dcp/hfi/hfi_defs_common.h      | 182 +++++++++++++++++++++
- .../gpu/drm/msm/dcp/hfi/hfi_pack_unpack_common.h   |  79 +++++++++
- drivers/gpu/drm/msm/dcp/hfi/hfi_packer.c           | 106 ++++++++++++
- drivers/gpu/drm/msm/dcp/hfi/hfi_packer.h           |  65 ++++++++
- drivers/gpu/drm/msm/dcp/hfi/hfi_packet.h           |  76 +++++++++
- drivers/gpu/drm/msm/dcp/hfi/hfi_unpacker.c         | 157 ++++++++++++++++++
- drivers/gpu/drm/msm/dcp/hfi/hfi_unpacker.h         |  77 +++++++++
- drivers/gpu/drm/msm/dcp/hfi/hfi_utils.c            |  62 +++++++
- drivers/gpu/drm/msm/dcp/hfi/hfi_utils.h            |  56 +++++++
- 11 files changed, 891 insertions(+)
+ drivers/gpu/drm/msm/dcp/hfi/hfi_commands_device.h  |  78 ++++++++++++++++
+ drivers/gpu/drm/msm/dcp/hfi/hfi_defs_device.h      |  61 ++++++++++++
+ .../gpu/drm/msm/dcp/hfi/hfi_properties_device.h    | 102 +++++++++++++++++++++
+ 3 files changed, 241 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/Kconfig b/drivers/gpu/drm/msm/Kconfig
-index ed1c4775d1e9..a9f049271c25 100644
---- a/drivers/gpu/drm/msm/Kconfig
-+++ b/drivers/gpu/drm/msm/Kconfig
-@@ -114,6 +114,31 @@ config DRM_MSM_DPU
- 	  the MSM DRM driver. It is the display controller found in devices
- 	  using e.g. SDM845 and newer platforms.
- 
-+config DRM_MSM_DCP
-+	bool "Enable DCP firmware-delegated display support in MSM DRM driver"
-+	depends on DRM_MSM
-+	depends on VIRTIO
-+	select DRM_MSM_KMS
-+	select DRM_BRIDGE_CONNECTOR
-+	select DRM_MIPI_DSI
-+	select DRM_DISPLAY_DSC_HELPER
-+	default y
-+	help
-+	  Compile in support for the DCP (Display Coprocessor) firmware-delegated
-+	  display architecture in the MSM DRM driver.
-+
-+	  DCP is used on Hawi (qcom,hawi) SoC where all display hardware is
-+	  owned by a separate Display Coprocessor firmware. The host AP
-+	  communicates with DCP via two interfaces:
-+	    - IPCC SMP2P mailbox: one-shot wake signal before each HFI command
-+	    - HFI over VirtIO MMIO: all display command/response exchange
-+
-+	  DPU and bridge nodes in the Device Tree are topology-only (no
-+	  compatible string, no reg). The driver detects them by node name
-+	  prefix using of_node_name_prefix().
-+
-+	  If unsure, say N.
-+
- config DRM_MSM_DP
- 	bool "Enable DisplayPort support in MSM DRM driver"
- 	depends on DRM_MSM
-diff --git a/drivers/gpu/drm/msm/Makefile b/drivers/gpu/drm/msm/Makefile
-index 1e246616f83f..ad7b9dbf736e 100644
---- a/drivers/gpu/drm/msm/Makefile
-+++ b/drivers/gpu/drm/msm/Makefile
-@@ -4,6 +4,7 @@ ccflags-y += -I $(obj)/generated
- ccflags-y += -I $(src)/disp/dpu1
- ccflags-$(CONFIG_DRM_MSM_DSI) += -I $(src)/dsi
- ccflags-$(CONFIG_DRM_MSM_DP) += -I $(src)/dp
-+ccflags-$(CONFIG_DRM_MSM_DCP) += -I $(src)/dcp
- 
- adreno-y := \
- 	adreno/adreno_device.o \
-@@ -70,6 +71,11 @@ msm-display-$(CONFIG_DRM_MSM_MDP5) += \
- 	disp/mdp5/mdp5_plane.o \
- 	disp/mdp5/mdp5_smp.o \
- 
-+msm-display-$(CONFIG_DRM_MSM_DCP) += \
-+	dcp/hfi/hfi_packer.o \
-+	dcp/hfi/hfi_unpacker.o \
-+	dcp/hfi/hfi_utils.o
-+
- msm-display-$(CONFIG_DRM_MSM_DPU) += \
- 	disp/dpu1/dpu_core_perf.o \
- 	disp/dpu1/dpu_crtc.o \
-diff --git a/drivers/gpu/drm/msm/dcp/hfi/hfi_defs_common.h b/drivers/gpu/drm/msm/dcp/hfi/hfi_defs_common.h
+diff --git a/drivers/gpu/drm/msm/dcp/hfi/hfi_commands_device.h b/drivers/gpu/drm/msm/dcp/hfi/hfi_commands_device.h
 new file mode 100644
-index 000000000000..8e58a50f600c
+index 000000000000..abf15e6ceaec
 --- /dev/null
-+++ b/drivers/gpu/drm/msm/dcp/hfi/hfi_defs_common.h
-@@ -0,0 +1,182 @@
++++ b/drivers/gpu/drm/msm/dcp/hfi/hfi_commands_device.h
+@@ -0,0 +1,78 @@
 +/* SPDX-License-Identifier: GPL-2.0-only */
 +/*
 + * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
 + */
 +
-+#ifndef __H_HFI_DEFS_COMMON_H__
-+#define __H_HFI_DEFS_COMMON_H__
++#ifndef __H_HFI_COMMANDS_DEVICE_H__
++#define __H_HFI_COMMANDS_DEVICE_H__
 +
-+#include <linux/bits.h>
++/* Device-level command range. */
++#define HFI_COMMAND_DEVICE_BEGIN                                     0x01000000
 +
-+/* Boolean property values. */
-+#define HFI_FALSE		0
-+#define HFI_TRUE		1
++/* Initialize the device and return firmware capabilities. */
++#define HFI_COMMAND_DEVICE_INIT                                      0x01000001
 +
-+#define HFI_MAX_PLANES  4 /* Maximum number of planes supported */
++/* Device, display, and pipeline capability response. */
++#define HFI_COMMAND_DEVICE_INIT_DEVICE_CAPS                          0x01000002
 +
-+#define HFI_MAX_COLOR_COMPONENTS  3 /* Maximum number of color components supported */
-+#define HFI_DHDR_PAYLOAD_MAX_SIZE 32 /* Maximum dynamic HDR payload size */
++/* VIG pipeline capability response. */
++#define HFI_COMMAND_DEVICE_INIT_VIG_CAPS                             0x01000003
 +
-+/* Color-format class is encoded in bits 31:24. */
-+enum hfi_color_formats {
-+	/* Interleaved RGB */
-+	HFI_COLOR_FORMAT_INTERLEAVED_RGB_MIN        = 0x01000000,
-+	HFI_COLOR_FORMAT_RGB565                     = 0x01000001,
-+	HFI_COLOR_FORMAT_RGB888                     = 0x01000002,
-+	HFI_COLOR_FORMAT_ARGB8888                   = 0x01000003,
-+	HFI_COLOR_FORMAT_RGBA8888                   = 0x01000004,
-+	HFI_COLOR_FORMAT_XRGB8888                   = 0x01000005,
-+	HFI_COLOR_FORMAT_RGBX8888                   = 0x01000006,
-+	HFI_COLOR_FORMAT_ARGB1555                   = 0x01000007,
-+	HFI_COLOR_FORMAT_RGBA5551                   = 0x01000008,
-+	HFI_COLOR_FORMAT_XRGB1555                   = 0x01000009,
-+	HFI_COLOR_FORMAT_RGBX5551                   = 0x0100000a,
-+	HFI_COLOR_FORMAT_ARGB4444                   = 0x0100000b,
-+	HFI_COLOR_FORMAT_RGBA4444                   = 0x0100000c,
-+	HFI_COLOR_FORMAT_RGBX4444                   = 0x0100000d,
-+	HFI_COLOR_FORMAT_XRGB4444                   = 0x0100000e,
-+	HFI_COLOR_FORMAT_ARGB2_10_10_10             = 0x0100000f,
-+	HFI_COLOR_FORMAT_XRGB2_10_10_10             = 0x01000010,
-+	HFI_COLOR_FORMAT_RGBA10_10_10_2             = 0x01000011,
-+	HFI_COLOR_FORMAT_RGBX10_10_10_2             = 0x01000012,
-+	HFI_COLOR_FORMAT_ARGB_FP_16                 = 0x01000013,
-+	HFI_COLOR_FORMAT_RGBA_FP_16                 = 0x01000014,
-+	HFI_COLOR_FORMAT_RGBA8888_TILED             = 0x01000015,
-+	HFI_COLOR_FORMAT_RGBX8888_TILED             = 0x01000016,
-+	HFI_COLOR_FORMAT_RGBA10_10_10_2_TILED       = 0x01000017,
-+	HFI_COLOR_FORMAT_RGBX10_10_10_2_TILED       = 0x01000018,
-+	HFI_COLOR_FORMAT_RGB888_BYPASS              = 0x01000019,
-+	HFI_COLOR_FORMAT_INTERLEAVED_RGB_MAX        = 0x01ffffff,
-+	/* Interleaved BGR */
-+	HFI_COLOR_FORMAT_INTERLEAVED_BGR_MIN        = 0x02000000,
-+	HFI_COLOR_FORMAT_BGR565                     = 0x02000001,
-+	HFI_COLOR_FORMAT_BGR888                     = 0x02000002,
-+	HFI_COLOR_FORMAT_ABGR8888                   = 0x02000003,
-+	HFI_COLOR_FORMAT_BGRA8888                   = 0x02000004,
-+	HFI_COLOR_FORMAT_BGRX8888                   = 0x02000005,
-+	HFI_COLOR_FORMAT_XBGR8888                   = 0x02000006,
-+	HFI_COLOR_FORMAT_ABGR1555                   = 0x02000007,
-+	HFI_COLOR_FORMAT_BGRA5551                   = 0x02000008,
-+	HFI_COLOR_FORMAT_XBGR1555                   = 0x02000009,
-+	HFI_COLOR_FORMAT_BGRX5551                   = 0x0200000a,
-+	HFI_COLOR_FORMAT_ABGR4444                   = 0x0200000b,
-+	HFI_COLOR_FORMAT_BGRA4444                   = 0x0200000c,
-+	HFI_COLOR_FORMAT_BGRX4444                   = 0x0200000d,
-+	HFI_COLOR_FORMAT_XBGR4444                   = 0x0200000e,
-+	HFI_COLOR_FORMAT_ABGR2_10_10_10             = 0x0200000f,
-+	HFI_COLOR_FORMAT_XBGR2_10_10_10             = 0x02000010,
-+	HFI_COLOR_FORMAT_BGRA10_10_10_2             = 0x02000011,
-+	HFI_COLOR_FORMAT_BGRX10_10_10_2             = 0x02000012,
-+	HFI_COLOR_FORMAT_ABGR16_FP_16               = 0x02000013,
-+	HFI_COLOR_FORMAT_BGRA16_FP_16               = 0x02000014,
-+	HFI_COLOR_FORMAT_INTERLEAVED_BGR_MAX        = 0x02ffffff,
-+	/* Compressed RGBA UBWC 3.0/ 4.x / 5.0 Lossless */
-+	HFI_COLOR_FORMAT_RGBA_UBWC_LOSSLESS_MIN     = 0x03000000,
-+	HFI_COLOR_FORMAT_UBWC_RGBA8888              = 0x03000001,
-+	HFI_COLOR_FORMAT_UBWC_RGBA10_10_10_2        = 0x03000002,
-+	HFI_COLOR_FORMAT_UBWC_RGBA16_16_16_16_F     = 0x03000003,
-+	HFI_COLOR_FORMAT_UBWC_RGB565                = 0x03000004,
-+	HFI_COLOR_FORMAT_UBWC_RGBX8888              = 0x03000005,
-+	HFI_COLOR_FORMAT_UBWC_RGBX10_10_10_2        = 0x03000006,
-+	HFI_COLOR_FORMAT_RGBA_UBWC_LOSSLESS_MAX     = 0x03ffffff,
-+	/* Compressed RGBA UBWC 5.0 Lossy */
-+	HFI_COLOR_FORMAT_RGBA_UBWC_LOSSY_MIN        = 0x04000000,
-+	HFI_COLOR_FORMAT_UBWC_RGBA8888_L_8_5        = 0x04000001,
-+	HFI_COLOR_FORMAT_UBWC_RGBA8888_L_2_1        = 0x04000002,
-+	HFI_COLOR_FORMAT_RGBA_UBWC_LOSSY_MAX        = 0x04ffffff,
-+	/* Linear / Uncompressed YUV420 / FSC */
-+	HFI_COLOR_FORMAT_LINEAR_MIN                 = 0x05000000,
-+	HFI_COLOR_FORMAT_YU12                       = 0x05000001,
-+	HFI_COLOR_FORMAT_YV12                       = 0x05000002,
-+	HFI_COLOR_FORMAT_NV12                       = 0x05000003,
-+	HFI_COLOR_FORMAT_NV21                       = 0x05000004,
-+	HFI_COLOR_FORMAT_P010                       = 0x05000005,
-+	HFI_COLOR_FORMAT_YUYV                       = 0x05000006,
-+	HFI_COLOR_FORMAT_YVYU                       = 0x05000007,
-+	HFI_COLOR_FORMAT_UYVY                       = 0x05000008,
-+	HFI_COLOR_FORMAT_VYUY                       = 0x05000009,
-+	HFI_COLOR_FORMAT_FSC_R                      = 0x0500000a,
-+	HFI_COLOR_FORMAT_FSC_G                      = 0x0500000b,
-+	HFI_COLOR_FORMAT_FSC_B                      = 0x0500000c,
-+	HFI_COLOR_FORMAT_FSC_ALPHA                  = 0x0500000d,
-+	HFI_COLOR_FORMAT_P210                       = 0x0500000e,
-+	HFI_COLOR_FORMAT_Y10                        = 0x0500000f,
-+	HFI_COLOR_FORMAT_A10                        = 0x05000010,
-+	HFI_COLOR_FORMAT_Y10_MSB_ALIGN              = 0x05000011,
-+	HFI_COLOR_FORMAT_A10_MSB_ALIGN              = 0x05000012,
-+	HFI_COLOR_FORMAT_Y8                         = 0x05000013,
-+	HFI_COLOR_FORMAT_LINEAR_MAX                 = 0x05ffffff,
-+	/* Compressed UBWC 3.0 / 4.x / 5.0 Lossless / FSC */
-+	HFI_COLOR_FORMAT_UBWC_LOSSLESS_MIN          = 0x06000000,
-+	HFI_COLOR_FORMAT_UBWC_NV12                  = 0x06000001,
-+	HFI_COLOR_FORMAT_UBWC_NV12_INTERLACE        = 0x06000002,
-+	HFI_COLOR_FORMAT_UBWC_TP10                  = 0x06000003,
-+	HFI_COLOR_FORMAT_UBWC_P010                  = 0x06000004,
-+	HFI_COLOR_FORMAT_UBWC_FSC_R                 = 0x06000005,
-+	HFI_COLOR_FORMAT_UBWC_FSC_G                 = 0x06000006,
-+	HFI_COLOR_FORMAT_UBWC_FSC_B                 = 0x06000007,
-+	HFI_COLOR_FORMAT_UBWC_FSC_ALPHA             = 0x06000008,
-+	HFI_COLOR_FORMAT_UBWC_FSC_R_4R              = 0x06000009,
-+	HFI_COLOR_FORMAT_UBWC_FSC_G_4R              = 0x0600000a,
-+	HFI_COLOR_FORMAT_UBWC_FSC_B_4R              = 0x0600000b,
-+	HFI_COLOR_FORMAT_UBWC_FSC_ALPHA_4R          = 0x0600000c,
-+	HFI_COLOR_FORMAT_UBWC_ABGR_NV12_4R_4Y       = 0x0600000d,
-+	HFI_COLOR_FORMAT_UBWC_P210                  = 0x0600000e,
-+	HFI_COLOR_FORMAT_UBWC_Y10                   = 0x0600000f,
-+	HFI_COLOR_FORMAT_UBWC_A10                   = 0x06000010,
++/* DMA pipeline capability response. */
++#define HFI_COMMAND_DEVICE_INIT_DMA_CAPS                             0x01000004
 +
-+	HFI_COLOR_FORMAT_UBWC_LOSSLESS_MAX          = 0x06ffffff,
-+	/* Compressed UBWC 3.0 / 4.x / 5.0 Lossy */
-+	HFI_COLOR_FORMAT_UBWC_LOSSY_MIN             = 0x07000000,
-+	HFI_COLOR_FORMAT_UBWC_NV12_LOSSY            = 0x07000001,
-+	HFI_COLOR_FORMAT_UBWC_TP10_LOSSY            = 0x07000002,
-+	HFI_COLOR_FORMAT_UBWC_LOSSY_MAX             = 0x07ffffff,
-+};
++/* Common VIG/DMA capability response. */
++#define HFI_COMMAND_DEVICE_INIT_COMMON_LAYER_CAPS                    0x01000005
 +
-+/* Shared HFI buffer descriptor. */
-+struct hfi_buff {
-+	u32 addr_l;
-+	u32 addr_h;
-+	u32 size;
-+	u32 version;
-+	u32 flags;
-+};
++/* Display capability response. */
++#define HFI_COMMAND_DEVICE_INIT_DISPLAY_CAPS                         0x01000006
 +
-+/* Multi-plane HFI buffer descriptor. */
-+struct hfi_plane_buff {
-+	u32 addr_l[HFI_MAX_PLANES];
-+	u32 addr_h[HFI_MAX_PLANES];
-+	u32 size;
-+	u32 version;
-+	u32 flags;
-+	u32 format;
-+};
++/* Writeback capability response. */
++#define HFI_COMMAND_DEVICE_INIT_DISPLAY_WB_CAPS                      0x01000007
 +
-+/* 64-bit HFI property value. */
-+struct hfi_prop_u64 {
-+	u32 val_lo;
-+	u32 val_hi;
-+};
++/* Register clocks and bandwidth resources with firmware. */
++#define HFI_COMMAND_DEVICE_RESOURCE_REGISTER                         0x01000008
 +
-+#define HFI_BUFF_FEATURE_ENABLE         BIT(0)
-+#define HFI_BUFF_FEATURE_BROADCAST      BIT(1)
-+#define HFI_BUFF_FEATURE_HW_BLK_IDX_0   BIT(2)
-+#define HFI_BUFF_FEATURE_HW_BLK_IDX_1   BIT(3)
-+#define HFI_BUFF_FEATURE_HW_BLK_IDX_2   BIT(4)
-+#define HFI_BUFF_FEATURE_HW_BLK_IDX_3   BIT(5)
-+#define HFI_BUFF_3D_LUT_MODE_A          BIT(16)
-+#define HFI_BUFF_3D_LUT_MODE_B          BIT(17)
-+/* Buffer descriptor visible to the DPU. */
-+struct hfi_buff_dpu {
-+	u32 flags;
-+	u32 iova;
-+	u32 len;
-+};
++/* Firmware requests a resource vote from the host. */
++#define HFI_COMMAND_DEVICE_CALLBACK_RESOURCE_VOTE                    0x01000009
 +
-+/* HFI subsystem identifiers. */
-+enum hfi_subsystem_type {
-+	HFI_SUBSYSTEM_TYPE_LSR = 0,
-+	HFI_SUBSYSTEM_TYPE_GMU = 1
-+};
++/* VIG rect-1 capability response. */
++#define HFI_COMMAND_DEVICE_INIT_VIG_R1_CAPS                          0x0100000a
 +
-+#endif /* __H_HFI_DEFS_COMMON_H__ */
-diff --git a/drivers/gpu/drm/msm/dcp/hfi/hfi_pack_unpack_common.h b/drivers/gpu/drm/msm/dcp/hfi/hfi_pack_unpack_common.h
++/* DMA rect-1 capability response. */
++#define HFI_COMMAND_DEVICE_INIT_DMA_R1_CAPS                          0x0100000b
++
++/* Provide the last-command buffer to firmware. */
++#define HFI_COMMAND_DEVICE_LUT_DMA_LAST_CMD                          0x0100000c
++
++/* Deinitialize the device. */
++#define HFI_COMMAND_DEVICE_DEINIT                                    0x0100000d
++
++/* LSR writeback CSC layer capability response. */
++#define HFI_COMMAND_DEVICE_INIT_LSR_WB_CSC_LAYER_CAPS                0x0100000e
++
++/* LSR writeback reprojection layer capability response. */
++#define HFI_COMMAND_DEVICE_INIT_LSR_WB_REPROJ_LAYER_CAPS             0x0100000f
++
++/* LSR writeback CSC output capability response. */
++#define HFI_COMMAND_DEVICE_INIT_DISPLAY_LSR_WB_CSC_CAPS              0x01000010
++
++/* LSR writeback reprojection output capability response. */
++#define HFI_COMMAND_DEVICE_INIT_DISPLAY_LSR_WB_REPROJ_CAPS           0x01000011
++
++/* Configure the hardware-fence HFI queue. */
++#define HFI_COMMAND_DEVICE_HWFENCE_HFI_CONFIG                        0x01000012
++
++/* Update hotplug state and provide EDID/mode buffers. */
++#define HFI_COMMAND_DEVICE_HOT_PLUG_DETECT                           0x01000013
++
++/* Configure resources shared across virtual machines. */
++#define HFI_COMMAND_DEVICE_RESOURCE_CTRL                             0x01000014
++
++/* Notify firmware of a subsystem restart. */
++#define HFI_COMMAND_DEVICE_SUBSYSTEM_RESTART_NOTIFY                  0x01000015
++
++/* End of device-level command range. */
++#define HFI_COMMAND_DEVICE_END                                       0x01ffffff
++
++#endif /* __H_HFI_COMMANDS_DEVICE_H__ */
+diff --git a/drivers/gpu/drm/msm/dcp/hfi/hfi_defs_device.h b/drivers/gpu/drm/msm/dcp/hfi/hfi_defs_device.h
 new file mode 100644
-index 000000000000..b767e6ee8e40
+index 000000000000..c6c8fb556c3e
 --- /dev/null
-+++ b/drivers/gpu/drm/msm/dcp/hfi/hfi_pack_unpack_common.h
-@@ -0,0 +1,79 @@
++++ b/drivers/gpu/drm/msm/dcp/hfi/hfi_defs_device.h
+@@ -0,0 +1,61 @@
 +/* SPDX-License-Identifier: GPL-2.0-only */
 +/*
 + * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
 + */
 +
-+#ifndef __H_HFI_PACK_UNPACK_COMMON_H__
-+#define __H_HFI_PACK_UNPACK_COMMON_H__
-+
-+#include <linux/string.h>
-+#include <linux/kernel.h>
-+#include <linux/errno.h>
-+#include "hfi_packet.h"
-+
-+/* Header size field width. */
-+#define HFI_HEADER_SIZE_MAX                                   0x00ffffff
-+/* Packet size field width. */
-+#define HFI_PACKET_SIZE_MAX                                   0x000fffff
-+
-+#define HFI_HEADER_CMD_BUFF_TYPE_START_BIT                                   24
-+#define HFI_PACKET_PAYLOAD_TYPE_START_BIT                                21
-+
-+#define GET_HEADER_SIZE(data)           \
-+	((data) & ((1 << HFI_HEADER_CMD_BUFF_TYPE_START_BIT) - 1))
-+#define GET_HEADER_CMD_BUFF_TYPE(data)         \
-+	((data) >> HFI_HEADER_CMD_BUFF_TYPE_START_BIT)
-+#define GET_PACKET_SIZE(data)           \
-+	((data) & ((1 << HFI_PACKET_PAYLOAD_TYPE_START_BIT) - 1))
-+#define GET_PACKET_PAYLOAD_TYPE(data)   \
-+	((data) >> HFI_PACKET_PAYLOAD_TYPE_START_BIT)
-+
-+static inline struct hfi_packet *hfi_packet_first(struct hfi_header *hdr)
-+{
-+	return (struct hfi_packet *)((u8 *)hdr + sizeof(*hdr));
-+}
-+
-+static inline struct hfi_packet *hfi_packet_append(struct hfi_header *hdr)
-+{
-+	return (struct hfi_packet *)((u8 *)hdr +
-+		GET_HEADER_SIZE(hdr->cmd_buff_info));
-+}
-+
-+static inline struct hfi_packet *hfi_packet_next(struct hfi_packet *packet)
-+{
-+	return (struct hfi_packet *)((u8 *)packet +
-+		GET_PACKET_SIZE(packet->payload_info));
-+}
-+
-+/* Shared command-buffer handle. */
-+struct hfi_cmd_buff_hdl {
-+	void *cmd_buffer;
-+	u32 size;
-+};
-+
-+/* Packed HFI property key/value entry. */
-+struct hfi_kv_info {
-+	u32 key;
-+	void *value_ptr;
-+};
-+
-+/* HFI header fields. */
-+struct hfi_header_info {
-+	u32 num_packets;
-+	enum hfi_cmd_buff_type cmd_buff_type;
-+	u32 object_id;
-+	u32 header_id;
-+};
-+
-+/* HFI packet fields. */
-+struct hfi_packet_info {
-+	u32 cmd;
-+	u32 id;
-+	u32 flags;
-+	u32 packet_id;
-+	enum hfi_packet_payload_type payload_type;
-+	u32 payload_size;
-+	void *payload_ptr;
-+};
-+
-+#endif /* __H_HFI_PACK_UNPACK_COMMON_H__ */
-diff --git a/drivers/gpu/drm/msm/dcp/hfi/hfi_packer.c b/drivers/gpu/drm/msm/dcp/hfi/hfi_packer.c
-new file mode 100644
-index 000000000000..291af4716544
---- /dev/null
-+++ b/drivers/gpu/drm/msm/dcp/hfi/hfi_packer.c
-@@ -0,0 +1,106 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
-+ */
-+
-+#include "hfi_packer.h"
-+
-+static int hfi_validate_cmd_buff_size(struct hfi_header *hdr,
-+				      u32 allocated_size, u32 bytes_to_add)
-+{
-+	u32 bytes_used;
-+
-+	if (allocated_size < sizeof(struct hfi_header))
-+		return -EINVAL;
-+
-+	bytes_used = GET_HEADER_SIZE(hdr->cmd_buff_info);
-+	if (bytes_used < sizeof(*hdr) || bytes_used > allocated_size ||
-+	    bytes_to_add > allocated_size - bytes_used ||
-+	    bytes_used + bytes_to_add > HFI_HEADER_SIZE_MAX)
-+		return -EINVAL;
-+
-+	return 0;
-+}
-+
-+u32 hfi_get_header_size(struct hfi_cmd_buff_hdl *cmd_buf_hdl)
-+{
-+	struct hfi_header *hdr = cmd_buf_hdl->cmd_buffer;
-+
-+	return GET_HEADER_SIZE(hdr->cmd_buff_info);
-+}
-+
-+int hfi_create_header(struct hfi_cmd_buff_hdl *cmd_buf_hdl,
-+		      struct hfi_header_info *header_info)
-+{
-+	struct hfi_header *hdr;
-+
-+	if (!cmd_buf_hdl || !cmd_buf_hdl->cmd_buffer || !header_info)
-+		return -EINVAL;
-+
-+	hdr = cmd_buf_hdl->cmd_buffer;
-+	if (cmd_buf_hdl->size < sizeof(*hdr))
-+		return -EINVAL;
-+
-+	memset(hdr, 0, sizeof(*hdr));
-+	hdr->cmd_buff_info = (header_info->cmd_buff_type <<
-+		HFI_HEADER_CMD_BUFF_TYPE_START_BIT) | sizeof(*hdr);
-+	hdr->object_id = header_info->object_id;
-+	hdr->header_id = header_info->header_id;
-+
-+	return 0;
-+}
-+
-+static int hfi_create_packet(struct hfi_cmd_buff_hdl *cmd_buf_hdl,
-+			     struct hfi_packet_info *packet_info,
-+			     const void *payload, u32 payload_size)
-+{
-+	struct hfi_header *hdr;
-+	struct hfi_packet *pkt_hdr;
-+	u32 pkt_size;
-+	int ret;
-+
-+	if (!cmd_buf_hdl || !cmd_buf_hdl->cmd_buffer || !packet_info ||
-+	    (payload_size && !payload))
-+		return -EINVAL;
-+
-+	if (payload_size > HFI_PACKET_SIZE_MAX - sizeof(struct hfi_packet))
-+		return -EINVAL;
-+
-+	hdr = cmd_buf_hdl->cmd_buffer;
-+	pkt_size = sizeof(*pkt_hdr) + payload_size;
-+	ret = hfi_validate_cmd_buff_size(hdr, cmd_buf_hdl->size, pkt_size);
-+	if (ret)
-+		return ret;
-+
-+	pkt_hdr = hfi_packet_append(hdr);
-+	memset(pkt_hdr, 0, sizeof(*pkt_hdr));
-+	pkt_hdr->payload_info = (packet_info->payload_type <<
-+		HFI_PACKET_PAYLOAD_TYPE_START_BIT) | pkt_size;
-+	pkt_hdr->cmd = packet_info->cmd;
-+	pkt_hdr->flags = packet_info->flags;
-+	pkt_hdr->id = packet_info->id;
-+	pkt_hdr->packet_id = packet_info->packet_id;
-+	if (payload_size)
-+		memcpy(pkt_hdr + 1, payload, payload_size);
-+
-+	hdr->cmd_buff_info += pkt_size;
-+	hdr->num_packets++;
-+
-+	return 0;
-+}
-+
-+int hfi_create_full_packet(struct hfi_cmd_buff_hdl *cmd_buf_hdl,
-+			   struct hfi_packet_info *packet_info)
-+{
-+	if (!packet_info)
-+		return -EINVAL;
-+
-+	return hfi_create_packet(cmd_buf_hdl, packet_info,
-+		packet_info->payload_ptr, packet_info->payload_size);
-+}
-+
-+int hfi_create_packet_header(struct hfi_cmd_buff_hdl *cmd_buf_hdl,
-+			     struct hfi_packet_info *packet_info)
-+{
-+	return hfi_create_packet(cmd_buf_hdl, packet_info, NULL, 0);
-+}
-diff --git a/drivers/gpu/drm/msm/dcp/hfi/hfi_packer.h b/drivers/gpu/drm/msm/dcp/hfi/hfi_packer.h
-new file mode 100644
-index 000000000000..460c11c72416
---- /dev/null
-+++ b/drivers/gpu/drm/msm/dcp/hfi/hfi_packer.h
-@@ -0,0 +1,65 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
-+ */
-+
-+#ifndef __H_HFI_PACKER_H__
-+#define __H_HFI_PACKER_H__
-+
-+#ifdef __cplusplus
-+extern "C" {
-+#endif /* __cplusplus */
-+
-+#include <linux/kernel.h>
-+#include <linux/string.h>
-+
-+#include "hfi_pack_unpack_common.h"
-+
-+/* Pack a property ID, version, and size into one key. */
-+#define HFI_PACK_KEY(property_id, version, dsize) \
-+	((property_id) | ((version) << 20) | ((dsize) << 24))
-+
-+/* Pack a version-zero property and return its serialized word count. */
-+#define HFI_PACK(payload, property_id, ...) \
-+({ \
-+	const u32 __hfi_values[] = { __VA_ARGS__ }; \
-+	u32 *__hfi_payload = (payload); \
-+	u32 __hfi_count = ARRAY_SIZE(__hfi_values); \
-+\
-+	*__hfi_payload++ = HFI_PACK_KEY(property_id, 0, __hfi_count); \
-+	memcpy(__hfi_payload, __hfi_values, sizeof(__hfi_values)); \
-+	__hfi_count + 1; \
-+})
-+
-+/* Pack a property with an explicitly selected protocol version. */
-+#define HFI_PACK_VERSION(payload, property_id, version, ...) \
-+({ \
-+	const u32 __hfi_values[] = { __VA_ARGS__ }; \
-+	u32 *__hfi_payload = (payload); \
-+	u32 __hfi_count = ARRAY_SIZE(__hfi_values); \
-+\
-+	*__hfi_payload++ = HFI_PACK_KEY(property_id, version, __hfi_count); \
-+	memcpy(__hfi_payload, __hfi_values, sizeof(__hfi_values)); \
-+	__hfi_count + 1; \
-+})
-+
-+/** hfi_get_header_size() - Return the bytes used by an HFI header. */
-+u32 hfi_get_header_size(struct hfi_cmd_buff_hdl *cmd_buf_hdl);
-+
-+/** hfi_create_header() - Initialize an HFI command header. */
-+int hfi_create_header(struct hfi_cmd_buff_hdl *cmd_buf_hdl,
-+		      struct hfi_header_info *header_info);
-+
-+/** hfi_create_full_packet() - Append a packet and its payload. */
-+int hfi_create_full_packet(struct hfi_cmd_buff_hdl *cmd_buf_hdl,
-+			   struct hfi_packet_info *packet_info);
-+
-+/** hfi_create_packet_header() - Append a packet without a payload. */
-+int hfi_create_packet_header(struct hfi_cmd_buff_hdl *cmd_buf_hdl,
-+			     struct hfi_packet_info *packet_info);
-+
-+#ifdef __cplusplus
-+}
-+#endif /* __cplusplus */
-+
-+#endif /* __H_HFI_PACKER_H__ */
-diff --git a/drivers/gpu/drm/msm/dcp/hfi/hfi_packet.h b/drivers/gpu/drm/msm/dcp/hfi/hfi_packet.h
-new file mode 100644
-index 000000000000..80c6b2b64cfd
---- /dev/null
-+++ b/drivers/gpu/drm/msm/dcp/hfi/hfi_packet.h
-@@ -0,0 +1,76 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
-+ */
-+
-+#ifndef __H_HFI_PACKET_H__
-+#define __H_HFI_PACKET_H__
++#ifndef __H_HFI_DEFS_DEVICE_H__
++#define __H_HFI_DEFS_DEVICE_H__
 +
 +#include "hfi_defs_common.h"
 +
-+/* HFI header: size [23:0], command-buffer type [31:24]. */
-+struct hfi_header {
-+	u32 cmd_buff_info;
-+	u16 device_id;
-+	u16 object_id;
-+	u32 timestamp_hi;
-+	u32 timestamp_lo;
-+	u32 header_id;
++/* Hotplug state for dynamic display interfaces. */
++struct hfi_device_hotplug_config {
++	u32 orientation;
++	u32 port_index;
++	u32 pin_config;
++	u32 hpd_state;
++	u32 hpd_irq;
++};
++
++/* Display resource ownership state. */
++enum hfi_device_res_state {
++	HFI_DEVICE_RESOURCE_ACQUIRE = 0x0,
++	HFI_DEVICE_RESOURCE_RELEASE = 0x1,
++	HFI_DEVICE_RESOURCE_SHARED  = 0x2,
++	HFI_DEVICE_RESOURCE_PRE_RELEASE = 0x3,
++};
++
++/* Virtualized display-resource types. */
++enum hfi_device_resource_type {
++	HFI_DEVICE_RESOURCE_DISPLAY,
++};
++
++/* Virtualized display-resource configuration. */
++struct hfi_device_resource_config {
++	u32 disp_mask;
++	enum hfi_device_res_state vm_state;
++	u32 resource_type;
 +	u32 reserved[2];
-+	u32 num_packets;
 +};
 +
-+/* HFI packet: size [20:0], payload type [31:21]. */
-+struct hfi_packet {
-+	u32 payload_info;
-+	u32 cmd;
-+	u32 flags;
-+	u32 id;
-+	u32 packet_id;
-+	u32 reserved[3];
++/* Subsystem-restart event. */
++enum hfi_device_ssr_event {
++	HFI_DEVICE_SSR_EVENT_START  = 0,
++	HFI_DEVICE_SSR_EVENT_END  = 1,
 +};
 +
-+/* Command-buffer flags stored in object_id[15:8]. */
-+enum hfi_cmd_buff_flag {
-+	HFI_CMD_BUFF_FLAG_NONE    = 0x00,
-+	HFI_CMD_BUFF_FLAG_ASYNC   = 0x01,
-+	HFI_CMD_BUFF_FLAG_NO_WAIT = 0x02,
++/* Subsystem-restart information. */
++struct hfi_device_ssr_info {
++	enum hfi_subsystem_type subsystem_type;
++	enum hfi_device_ssr_event ssr_event;
++	u32 reserved1;
++	u32 reserved2;
 +};
 +
-+/* Packet payload encodings. */
-+enum hfi_packet_payload_type {
-+	HFI_PAYLOAD_NONE                = 0x0,
-+	HFI_PAYLOAD_U32                 = 0x1,
-+	HFI_PAYLOAD_U32_ARRAY           = 0x2,
-+	HFI_PAYLOAD_U64                 = 0x3,
-+	HFI_PAYLOAD_U64_ARRAY           = 0x4,
-+	HFI_PAYLOAD_BLOB                = 0x5,
++/* Active layer mask for a display. */
++struct hfi_device_active_layers_info {
++	u32 display_id;
++	u32 layers_mask;
 +};
 +
-+/* Command-buffer groups encoded in command headers. */
-+enum hfi_cmd_buff_type {
-+	HFI_CMD_BUFF_SYSTEM          = 0x1,
-+	HFI_CMD_BUFF_DEVICE          = 0x2,
-+	HFI_CMD_BUFF_DISPLAY         = 0x3,
-+	HFI_CMD_BUFF_DEBUG           = 0x4,
-+	HFI_CMD_BUFF_VIRTUALIZATION  = 0x5,
-+};
-+
-+/* Host-to-firmware packet flags. */
-+enum hfi_packet_tx_flags {
-+	HFI_TX_FLAGS_NONE              = 0x0,
-+	HFI_TX_FLAGS_INTR_REQUIRED     = 0x1,
-+	HFI_TX_FLAGS_RESPONSE_REQUIRED = 0x2,
-+	HFI_TX_FLAGS_NON_DISCARDABLE   = 0x4,
-+};
-+
-+/* Firmware-to-host packet flags. */
-+enum hfi_packet_rx_flags {
-+	HFI_RX_FLAGS_NONE               = 0x0,
-+	HFI_RX_FLAGS_SUCCESS            = 0x1,
-+	HFI_RX_FLAGS_INFORMATION        = 0x2,
-+	HFI_RX_FLAGS_DEVICE_ERROR       = 0x4,
-+	HFI_RX_FLAGS_SYSTEM_ERROR       = 0x8,
-+};
-+
-+#endif /* __H_HFI_PACKET_H__ */
-diff --git a/drivers/gpu/drm/msm/dcp/hfi/hfi_unpacker.c b/drivers/gpu/drm/msm/dcp/hfi/hfi_unpacker.c
++#endif /* __H_HFI_DEFS_DEVICE_H__ */
+diff --git a/drivers/gpu/drm/msm/dcp/hfi/hfi_properties_device.h b/drivers/gpu/drm/msm/dcp/hfi/hfi_properties_device.h
 new file mode 100644
-index 000000000000..e5b1a1c48b01
+index 000000000000..790fcca6ac0a
 --- /dev/null
-+++ b/drivers/gpu/drm/msm/dcp/hfi/hfi_unpacker.c
-@@ -0,0 +1,157 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
-+ */
-+
-+#include "hfi_unpacker.h"
-+
-+static int hfi_sanitize_cmd_buff(struct hfi_header *hdr)
-+{
-+	struct hfi_packet *packet;
-+	u32 packet_size, total_pkt_size = sizeof(*hdr);
-+	u32 hdr_size = GET_HEADER_SIZE(hdr->cmd_buff_info);
-+	int i;
-+
-+	if (hdr_size < sizeof(*hdr) + sizeof(*packet) || !hdr->num_packets)
-+		return -EINVAL;
-+
-+	packet = hfi_packet_first(hdr);
-+	for (i = 0; i < hdr->num_packets; i++) {
-+		if (total_pkt_size > hdr_size - sizeof(*packet))
-+			return -EINVAL;
-+
-+		packet_size = GET_PACKET_SIZE(packet->payload_info);
-+		if (packet_size < sizeof(*packet) ||
-+		    packet_size > hdr_size - total_pkt_size)
-+			return -EINVAL;
-+
-+		total_pkt_size += packet_size;
-+		packet = hfi_packet_next(packet);
-+	}
-+
-+	return hdr_size == total_pkt_size ? 0 : -EINVAL;
-+}
-+
-+static struct hfi_packet *hfi_packet_at(struct hfi_header *hdr, u32 packet_num)
-+{
-+	struct hfi_packet *packet = hfi_packet_first(hdr);
-+
-+	while (--packet_num)
-+		packet = hfi_packet_next(packet);
-+
-+	return packet;
-+}
-+
-+int hfi_unpacker_get_header_info(struct hfi_cmd_buff_hdl *cmd_buf_hdl,
-+				 struct hfi_header_info *header_info)
-+{
-+	struct hfi_header *hdr;
-+	u32 hdr_size;
-+
-+	if (!cmd_buf_hdl || !cmd_buf_hdl->cmd_buffer || !header_info)
-+		return -EINVAL;
-+
-+	hdr = cmd_buf_hdl->cmd_buffer;
-+	hdr_size = GET_HEADER_SIZE(hdr->cmd_buff_info);
-+	if (hdr_size < sizeof(*hdr) || hdr_size > cmd_buf_hdl->size)
-+		return -EINVAL;
-+
-+	header_info->num_packets = hdr->num_packets;
-+	header_info->cmd_buff_type = GET_HEADER_CMD_BUFF_TYPE(hdr->cmd_buff_info);
-+	header_info->object_id = hdr->object_id;
-+	header_info->header_id = hdr->header_id;
-+
-+	return 0;
-+}
-+
-+int hfi_unpacker_get_packet_info(struct hfi_cmd_buff_hdl *cmd_buf_hdl,
-+				 u32 packet_num,
-+				 struct hfi_packet_info *packet_info)
-+{
-+	struct hfi_header *hdr;
-+	struct hfi_packet *packet;
-+	u32 packet_size;
-+
-+	if (!cmd_buf_hdl || !cmd_buf_hdl->cmd_buffer || !packet_info ||
-+	    !packet_num)
-+		return -EINVAL;
-+
-+	hdr = cmd_buf_hdl->cmd_buffer;
-+	if (GET_HEADER_SIZE(hdr->cmd_buff_info) > cmd_buf_hdl->size ||
-+	    packet_num > hdr->num_packets || hfi_sanitize_cmd_buff(hdr))
-+		return -EINVAL;
-+
-+	packet = hfi_packet_at(hdr, packet_num);
-+	packet_size = GET_PACKET_SIZE(packet->payload_info);
-+	packet_info->cmd = packet->cmd;
-+	packet_info->flags = packet->flags;
-+	packet_info->id = packet->id;
-+	packet_info->packet_id = packet->packet_id;
-+	packet_info->payload_type = GET_PACKET_PAYLOAD_TYPE(packet->payload_info);
-+	packet_info->payload_size = packet_size - sizeof(*packet);
-+	packet_info->payload_ptr = packet_info->payload_size ?
-+		(void *)(packet + 1) : NULL;
-+
-+	return 0;
-+}
-+
-+int hfi_unpacker_get_kv_pairs_count(struct hfi_cmd_buff_hdl *cmd_buf_hdl,
-+				    struct hfi_packet_info *packet_info,
-+				    u32 kv_payload_offset, u32 *num_props)
-+{
-+	if (!cmd_buf_hdl || !cmd_buf_hdl->cmd_buffer || !packet_info ||
-+	    !packet_info->payload_ptr || !num_props ||
-+	    kv_payload_offset > packet_info->payload_size ||
-+	    !IS_ALIGNED(kv_payload_offset, sizeof(u32)) ||
-+	    packet_info->payload_size - kv_payload_offset < sizeof(u32))
-+		return -EINVAL;
-+
-+	*num_props = *(u32 *)((u8 *)packet_info->payload_ptr + kv_payload_offset);
-+
-+	return 0;
-+}
-+
-+int hfi_unpacker_get_kv_pairs(struct hfi_cmd_buff_hdl *cmd_buf_hdl,
-+			      struct hfi_packet_info *packet_info,
-+			      u32 kv_payload_offset, u32 num_props,
-+			      struct hfi_kv_info *kv_pairs)
-+{
-+	u32 *kv_pairs_counter_idx, *kv_pairs_key;
-+	u32 value_size, consumed;
-+	int i;
-+
-+	if (!cmd_buf_hdl || !cmd_buf_hdl->cmd_buffer || !packet_info ||
-+	    !packet_info->payload_ptr || !kv_pairs ||
-+	    kv_payload_offset > packet_info->payload_size ||
-+	    !IS_ALIGNED(kv_payload_offset, sizeof(u32)) ||
-+	    packet_info->payload_size - kv_payload_offset < sizeof(u32))
-+		return -EINVAL;
-+
-+	kv_pairs_counter_idx = (u32 *)((u8 *)packet_info->payload_ptr +
-+		kv_payload_offset);
-+	if (*kv_pairs_counter_idx != num_props)
-+		return -EINVAL;
-+
-+	consumed = sizeof(u32);
-+	for (i = 0; i < num_props; i++) {
-+		u32 remaining;
-+
-+		if (consumed > packet_info->payload_size - kv_payload_offset ||
-+		    packet_info->payload_size - kv_payload_offset - consumed <
-+		    sizeof(u32))
-+			return -EINVAL;
-+
-+		kv_pairs_key = (u32 *)((u8 *)kv_pairs_counter_idx + consumed);
-+		value_size = (*kv_pairs_key & 0xff000000) >> 24;
-+		remaining = packet_info->payload_size - kv_payload_offset -
-+			consumed - sizeof(u32);
-+		if (value_size > remaining / sizeof(u32))
-+			return -EINVAL;
-+
-+		kv_pairs[i].key = *kv_pairs_key;
-+		kv_pairs[i].value_ptr = kv_pairs_key + 1;
-+		consumed += sizeof(u32) * (1 + value_size);
-+	}
-+
-+	return 0;
-+}
-diff --git a/drivers/gpu/drm/msm/dcp/hfi/hfi_unpacker.h b/drivers/gpu/drm/msm/dcp/hfi/hfi_unpacker.h
-new file mode 100644
-index 000000000000..9f893d4ad47c
---- /dev/null
-+++ b/drivers/gpu/drm/msm/dcp/hfi/hfi_unpacker.h
-@@ -0,0 +1,77 @@
++++ b/drivers/gpu/drm/msm/dcp/hfi/hfi_properties_device.h
+@@ -0,0 +1,102 @@
 +/* SPDX-License-Identifier: GPL-2.0-only */
 +/*
 + * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
 + */
 +
-+#ifndef __H_HFI_UNPACKER_H__
-+#define __H_HFI_UNPACKER_H__
++#ifndef __H_HFI_PROPERTIES_DEVICE_H__
++#define __H_HFI_PROPERTIES_DEVICE_H__
 +
-+#ifdef __cplusplus
-+extern "C" {
-+#endif /* __cplusplus */
++/* Device-property range. */
++#define HFI_PROPERTY_DEVICE_BEGIN                                    0x00010000
 +
-+#include "hfi_pack_unpack_common.h"
++/* DCP hardware version. */
++#define HFI_PROPERTY_DEVICE_INIT_DCP_HW_VERSION                      0x00010001
 +
-+/* Extract the property ID, version, and value size from a key. */
-+#define HFI_UNPACK_KEY(key, property_id, version, size) \
-+	do { \
-+		typeof(key) __key = (key); \
-+		(property_id) = __key & 0x000fffff; \
-+		(version) = (__key & 0x00f00000) >> 20; \
-+		(size) = (__key & 0xff000000) >> 24; \
-+	} while (0)
++/* MDSS hardware version. */
++#define HFI_PROPERTY_DEVICE_INIT_MDSS_HW_VERSION                      0x00010002
 +
-+/**
-+ * hfi_unpacker_get_header_info() - Parse the command-buffer header.
-+ * @cmd_buf_hdl: Command buffer to inspect.
-+ * @header_info: Receives the decoded header information.
-+ *
-+ * Return: 0 on success, or a negative errno.
-+ */
-+int hfi_unpacker_get_header_info(struct hfi_cmd_buff_hdl *cmd_buf_hdl,
-+				 struct hfi_header_info *header_info);
++/* VIG layer indices; the high byte identifies the rectangle. */
++#define HFI_PROPERTY_DEVICE_INIT_VIG_INDICES                         0x00010004
 +
-+/**
-+ * hfi_unpacker_get_packet_info() - Parse one packet in a command buffer.
-+ * @cmd_buf_hdl: Command buffer to inspect.
-+ * @packet_num: One-based packet index.
-+ * @packet_info: Receives the decoded packet information.
-+ *
-+ * Return: 0 on success, or a negative errno.
-+ */
-+int hfi_unpacker_get_packet_info(struct hfi_cmd_buff_hdl *cmd_buf_hdl,
-+				 u32 packet_num, struct hfi_packet_info *packet_info);
++/* DMA layer indices; the high byte identifies the rectangle. */
++#define HFI_PROPERTY_DEVICE_INIT_DMA_INDICES                         0x00010005
 +
-+/**
-+ * hfi_unpacker_get_kv_pairs_count() - Count properties in a packet payload.
-+ * @cmd_buf_hdl: Command buffer to inspect.
-+ * @packet_info: Packet information returned by hfi_unpacker_get_packet_info().
-+ * @kv_payload_offset: Byte offset where key/value pairs begin.
-+ * @num_props: Receives the property count.
-+ *
-+ * Return: 0 on success, or a negative errno.
-+ */
-+int hfi_unpacker_get_kv_pairs_count(struct hfi_cmd_buff_hdl *cmd_buf_hdl,
-+				    struct hfi_packet_info *packet_info,
-+				    u32 kv_payload_offset, u32 *num_props);
++/* DCP firmware version. */
++#define HFI_PROPERTY_DEVICE_INIT_DCP_FW_VERSION                      0x00010003
 +
-+/**
-+ * hfi_unpacker_get_kv_pairs() - Decode properties from a packet payload.
-+ * @cmd_buf_hdl: Command buffer to inspect.
-+ * @packet_info: Packet information returned by hfi_unpacker_get_packet_info().
-+ * @kv_payload_offset: Byte offset where key/value pairs begin.
-+ * @num_props: Number of properties to decode.
-+ * @kv_pairs: Receives the decoded property entries.
-+ *
-+ * Return: 0 on success, or a negative errno.
-+ */
-+int hfi_unpacker_get_kv_pairs(struct hfi_cmd_buff_hdl *cmd_buf_hdl,
-+			      struct hfi_packet_info *packet_info,
-+			      u32 kv_payload_offset, u32 num_props,
-+			      struct hfi_kv_info *kv_pairs);
++/* Maximum display count. */
++#define HFI_PROPERTY_DEVICE_INIT_MAX_DISPLAY_COUNT                   0x00010006
 +
-+#ifdef __cplusplus
-+}
-+#endif /* __cplusplus */
++/* Writeback block indices. */
++#define HFI_PROPERTY_DEVICE_INIT_WB_INDICES                          0x00010007
 +
-+#endif /* __H_HFI_UNPACKER_H__ */
-diff --git a/drivers/gpu/drm/msm/dcp/hfi/hfi_utils.c b/drivers/gpu/drm/msm/dcp/hfi/hfi_utils.c
-new file mode 100644
-index 000000000000..71e720ffe3f0
---- /dev/null
-+++ b/drivers/gpu/drm/msm/dcp/hfi/hfi_utils.c
-@@ -0,0 +1,62 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
-+ */
++/* Maximum linear writeback size: width [31:16], height [15:0]. */
++#define HFI_PROPERTY_DEVICE_INIT_MAX_WB_LINEAR_RESOLUTION            0x00010008
 +
-+#include <linux/errno.h>
-+#include <linux/types.h>
++/* Maximum UBWC writeback size: width [31:16], height [15:0]. */
++#define HFI_PROPERTY_DEVICE_INIT_MAX_WB_UBWC_RESOLUTION              0x00010009
 +
-+#include "hfi_utils.h"
++/* DSI interface indices. */
++#define HFI_PROPERTY_DEVICE_INIT_DSI_INDICES                         0x0001000a
 +
-+int hfi_util_kv_parser_init(struct hfi_util_kv_parser *kv_parser,
-+			    u32 bytes, u32 *payload)
-+{
-+	if (!kv_parser || !payload || bytes > HFI_UTIL_MAX_ALLOC)
-+		return -EINVAL;
++/* Maximum DSI size: width [31:16], height [15:0]. */
++#define HFI_PROPERTY_DEVICE_INIT_MAX_DSI_RESOLUTION                  0x0001000b
 +
-+	if (bytes % sizeof(u32))
-+		return -EINVAL;
++/* DisplayPort interface indices. */
++#define HFI_PROPERTY_DEVICE_INIT_DP_INDICES                          0x0001000c
 +
-+	kv_parser->max_index  = bytes / sizeof(u32);
-+	kv_parser->cur_offset = 0;
-+	kv_parser->payload    = payload;
++/* Maximum DisplayPort size: width [31:16], height [15:0]. */
++#define HFI_PROPERTY_DEVICE_INIT_MAX_DP_RESOLUTION                   0x0001000d
 +
-+	return 0;
-+}
++/* Downscaler indices. */
++#define HFI_PROPERTY_DEVICE_INIT_DS_INDICES                          0x0001000e
 +
-+int hfi_util_kv_parser_get_next(struct hfi_util_kv_parser *kv_parser,
-+				u32 move, u32 *hfi_prop,
-+				u32 **payload, u32 *max_words)
-+{
-+	if (!kv_parser || !payload || !hfi_prop || !max_words)
-+		return -EINVAL;
++/* Maximum downscaler size: width [31:16], height [15:0]. */
++#define HFI_PROPERTY_DEVICE_INIT_MAX_DS_RESOLUTION                   0x0001000f
 +
-+	if (kv_parser->cur_offset > kv_parser->max_index ||
-+	    move > kv_parser->max_index - kv_parser->cur_offset)
-+		return -EINVAL;
++/* Core average-bandwidth vote. */
++#define HFI_PROPERTY_DEVICE_CORE_AB                                  0x00010010
 +
-+	kv_parser->cur_offset += move;
-+	*hfi_prop  = 0;
-+	*payload   = NULL;
-+	*max_words = 0;
++/* Core instantaneous-bandwidth vote. */
++#define HFI_PROPERTY_DEVICE_CORE_IB                                  0x00010011
 +
-+	/* End of payload is a valid result. */
-+	if (kv_parser->cur_offset == kv_parser->max_index)
-+		return 0;
++/* Core power-rail vote. */
++#define HFI_PROPERTY_DEVICE_CORE_POWER_RAIL                          0x00010012
 +
-+	if (kv_parser->cur_offset > kv_parser->max_index)
-+		return -EINVAL;
++/* LLCC average-bandwidth vote. */
++#define HFI_PROPERTY_DEVICE_LLCC_AB                                  0x00010013
 +
-+	if ((kv_parser->max_index - kv_parser->cur_offset) < 2)
-+		return -EINVAL;
++/* LLCC instantaneous-bandwidth vote. */
++#define HFI_PROPERTY_DEVICE_LLCC_IB                                  0x00010014
 +
-+	*hfi_prop  = kv_parser->payload[kv_parser->cur_offset++];
-+	*payload   = &kv_parser->payload[kv_parser->cur_offset];
-+	*max_words = kv_parser->max_index - kv_parser->cur_offset;
-+	if (HFI_PROP_SZ(*hfi_prop) && HFI_PROP_SZ(*hfi_prop) > *max_words)
-+		return -EINVAL;
-+	if (HFI_PROP_SZ(*hfi_prop))
-+		*max_words = HFI_PROP_SZ(*hfi_prop);
++/* DRAM average-bandwidth vote. */
++#define HFI_PROPERTY_DEVICE_DRAM_AB                                  0x00010015
 +
-+	return 0;
-+}
-diff --git a/drivers/gpu/drm/msm/dcp/hfi/hfi_utils.h b/drivers/gpu/drm/msm/dcp/hfi/hfi_utils.h
-new file mode 100644
-index 000000000000..61fdc483ad47
---- /dev/null
-+++ b/drivers/gpu/drm/msm/dcp/hfi/hfi_utils.h
-@@ -0,0 +1,56 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
-+ */
++/* DRAM instantaneous-bandwidth vote. */
++#define HFI_PROPERTY_DEVICE_DRAM_IB                                  0x00010016
 +
-+#ifndef _HFI_UTILS_H_
-+#define _HFI_UTILS_H_
++/* LSR writeback CSC indices. */
++#define HFI_PROPERTY_DEVICE_INIT_LSR_WB_CSC_INDICES                  0x00010017
 +
-+#include <linux/types.h>
++/* LSR writeback reprojection indices. */
++#define HFI_PROPERTY_DEVICE_INIT_LSR_WB_REPROJ_INDICES               0x00010018
 +
-+#define HFI_UTIL_MAX_ALLOC   4096
-+#define HFI_PROP_ID(val)    ((val) & 0xfffff)
-+#define HFI_PROP_SZ(val)    ((val) >> 24)
-+#define HFI_VAL_L32(val)    ((val) & 0xffffffff)
-+#define HFI_VAL_H32(val)    ((val) >> 32)
++/* LSR writeback CSC layer indices. */
++#define HFI_PROPERTY_DEVICE_INIT_LSR_WB_CSC_LAYER_INDICES            0x00010019
 +
-+/* Encode the major and minor feature versions in a property ID. */
-+#define HFI_UTIL_PACK_VERSION(major, minor, prop_id) \
-+	(((prop_id) & ~(0xf0f000)) | (((minor) & 0xf) << 20) | (((major) & 0xf) << 12))
++/* LSR writeback reprojection layer indices. */
++#define HFI_PROPERTY_DEVICE_INIT_LSR_WB_REPROJ_LAYER_INDICES         0x0001001a
 +
-+/**
-+ * struct hfi_util_kv_parser - State for iterating key/value properties.
-+ * @max_index: Number of u32 words available in @payload.
-+ * @cur_offset: Current u32 offset.
-+ * @payload: Property payload buffer.
-+ */
-+struct hfi_util_kv_parser {
-+	u32 max_index;
-+	u32 cur_offset;
-+	u32 *payload;
-+};
++/* System-cache staling configuration. */
++#define HFI_PROPERTY_DEVICE_INIT_SYS_CACHE_STALING                   0x0001001b
 +
-+/**
-+ * hfi_util_kv_parser_init() - Initialize a key/value parser.
-+ * @kv_parser: Parser state to initialize.
-+ * @bytes: Payload size in bytes; must be u32-aligned.
-+ * @payload: u32 payload buffer to parse.
-+ *
-+ * Return: 0 on success, or a negative errno.
-+ */
-+int hfi_util_kv_parser_init(struct hfi_util_kv_parser *kv_parser, u32 bytes, u32 *payload);
++/* Active layers per display. */
++#define HFI_PROPERTY_DEVICE_INIT_ACTIVE_LAYERS                        0x0001001c
 +
-+/**
-+ * hfi_util_kv_parser_get_next() - Read the next property from the payload.
-+ * @kv_parser: Parser state, updated in place.
-+ * @move: Number of u32 words occupied by the previous value.
-+ * @hfi_prop: Receives the packed property key, or zero at end of input.
-+ * @payload: Receives the property value pointer, or NULL at end of input.
-+ * @max_words: Receives the available value length in u32 words.
-+ *
-+ * Return: 0 on success or end of input, or a negative errno.
-+ */
-+int hfi_util_kv_parser_get_next(struct hfi_util_kv_parser *kv_parser, u32 move,
-+				u32 *hfi_prop, u32 **payload, u32 *max_words);
++/* Writeback DNSC support indices. */
++#define HFI_PROPERTY_DEVICE_INIT_WB_DNSC_SUPPORT_INDICES             0x0001001d
 +
-+#endif /* _HFI_UTILS_H_ */
++/* End of device-property range. */
++#define HFI_PROPERTY_DEVICE_END                                      0x0001ffff
++
++#endif /* __H_HFI_PROPERTIES_DEVICE_H__ */
 
 -- 
 2.43.0
