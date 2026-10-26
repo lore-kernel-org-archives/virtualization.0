@@ -1,79 +1,79 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=185.203.200.13
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793003373;
-	b=Vy06yBQ9uZTiV5SxSEpLoFEOu5SXB+KCOBNcdBiKGZVMkGDj2U4T5FvKMpn+licwPrZO
-	 NJocghJoqN54rjkiSngCJ6+dk8zPLd/x4U3+HwRuvvkzFKT9PEQ0YbRBsocIUflQ5zcUQ
-	 BSVLb3ZdN4fB7+bVHU1RM9COy0jhCYBDjRuHz6SF221ChabZX8IaxW3X+Nq3hZHqUjvzM
-	 JFA4XiOoTv5wJ6lrBm3Lt2K/sMiPW8Rpklx6/8wBrbdL4xhuoPL+eJifd2Ul0PE3dsQbo
-	 nNHA8shvDvsYqIDNzqJNU3In52Y1gREWSp0RAd8hSg2sEFsltY6BY82dvL4nmW9WXcg==
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.remote-ip=185.203.200.13
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=fail;
+	t=1793003366;
+	b=NHIoGf4MgxoVvwwxlVZNHqC7bFfmwT8CGISKrL25KBv1uQZtHOGJ7e7CLz+jXt4o2y24
+	 EXedXkEYsochRCAXL/kVhJXJW6Ziyx7/Abz6/5d+/a1nKuzyASQe7k1uV/F+kJMh9RDwY
+	 oDpYZPKmpgYPAtqEaCqOXAD+J/EuMUUY+wMnL9nrWTfLa9PvDKgFj1JcwJrNRFSIvGbQg
+	 tE+N0BCPUTuU0CuBKgwCqxrXMfqUR6lqbWkxRNmBTyPp7ys7eZswE+QP+SPiLsiyJAhID
+	 31za/K9ttoS8ErwbmSw3NsQsXH0vw0jVmA75/Oob+n5pYdH0cFGze55UkM+8Aacjopw==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793003373;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793003366;
 	h=DMARC-Filter:Received:DKIM-Signature:From:Date:Subject:MIME-Version:
 	 Content-Type:Content-Transfer-Encoding:Message-Id:References:
 	 In-Reply-To:To:Cc:X-Mailer:X-Developer-Signature:X-Developer-Key;
-	bh=luo5cWeAN0k7vV4vDsCxxXuFDBYxRP+eZO0mPO5W7Xk=;
-	b=dimOlARMINrFNTJes0086yS8gSvQ0ZD15xiKrR20XefPFQXEv+Wa/jpfr0f7lefzlsHo
-	 NlSwjHo/g7nnqp9wyS8hzTu17kz9+0fP8+iGJL/N3LIJ0ftNI0M9wbCblRVCbthcNYTgd
-	 VOi7LPMk8ASn/98FmiicwStlyRZ2q6I0jxUess2rJcaNSPJKRWnFTtkiHc2LiV0G29clj
-	 67c3RDZlNf2H/I5HICc7byYhpNdxSmQ0SBwScQpbasGMTJrq06zSsr0yfBXD20hXaSGuI
-	 yl2PCIE60HpmhIMOuAve4e9lxmM1Fn39qyrk/JLIwiI5iHR0QseLdRKcL5iHiySiRsA==
+	bh=SxPxwtKVo1NNAkpo6AEjFX1CwNaGv1grF35o4s4xQy0=;
+	b=ywCSBO5+hQ3VwjoKktXfFa7j1QyOuXqeiY4/gHb6Giujb+24S0CSML/9c9y30yOfVgMT
+	 C+tYDxjSyuU8d4u3lGBzx/N8Q5g80Sms762UefYhx0/QwpQAQKvpodEgcupeeIuYnz+nr
+	 gtA1xOhlPAa1RxAuSyyJRB3UTz+dBupgSt342PVGRGISw41dbRrelFOcqNkNEhzTEINz8
+	 ByFG6By4Ig/+fkTq2X/PbzfK2uLkfEBpx7TK0Pep0iNZI7OHB9j/Li9x/U1RSpA+TMAQv
+	 Dsg0Hek+6HW9jNwqvmxYq0QwOU+Rnl6yhaRdluEN0oKSqiK6LXpx2UJnIm52caXTJLQ==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
 	dmarc=none header.from=pengutronix.de;
 	spf=pass smtp.mailfrom=pengutronix.de;
-	dkim=pass header.d=pengutronix.de header.i=@pengutronix.de header.a=rsa-sha256 header.s=20260414 header.b="POQ/LH8V";
-	arc=pass header.oldest-pass=0 smtp.remote-ip=185.203.200.13
+	dkim=pass header.d=pengutronix.de header.i=@pengutronix.de header.a=rsa-sha256 header.s=20260414 header.b=P7RHyocg;
+	arc=fail smtp.remote-ip=185.203.200.13
 Received: from mx1.white.stw.pengutronix.de (mx1.white.stw.pengutronix.de [185.203.200.13])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC25960A260B
-	for <virtualization@lists.linux.dev>; Mon, 26 Oct 2026 08:29:27 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AC25960A260B
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C4BB606A320
+	for <virtualization@lists.linux.dev>; Mon, 26 Oct 2026 08:29:26 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1C4BB606A320
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=pengutronix.de header.i=@pengutronix.de header.a=rsa-sha256 header.s=20260414 header.b=POQ/LH8V
+	dkim=pass (2048-bit key, unprotected) header.d=pengutronix.de header.i=@pengutronix.de header.a=rsa-sha256 header.s=20260414 header.b=P7RHyocg
 Received: from ratatoskr.trumtrar.info (unknown [IPv6:2a00:1f:f805:2b01:a03:2f4:308a:7b52])
 	(Authenticated sender: str@pengutronix.de)
-	by mx1.white.stw.pengutronix.de (Postfix) with ESMTPSA id A60C5201E05;
+	by mx1.white.stw.pengutronix.de (Postfix) with ESMTPSA id 3617F201B9F;
 	Mon, 26 Oct 2026 09:29:24 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pengutronix.de;
-	s=20260414; t=1793003365;
+	s=20260414; t=1793003364;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=luo5cWeAN0k7vV4vDsCxxXuFDBYxRP+eZO0mPO5W7Xk=;
-	b=POQ/LH8VGa0lE5o+/D6FnuhdHXkwOyy3eKJdkCdlqPX+KoxP/W98pYLDZBdYQgtAkGtZou
-	ErrMUpZQjUfQEs+dr60P6pwm2FqMWCnH7ghiW7DupFml16+jo1v7nQbd0VpvOGzXmBS0JJ
-	ZqqTsXx8TZy4zh2rtBrUS9mi5WmS4/N1RAudrW+aGnAi6kAYj4+xIST/3O2YdDjCKrJaMQ
-	5NeHlJ63pUVeCJV0zKc29FY3rvUz+hSOfqUNVdANlsXCElpxseOIvsCwbKy4wMRL5hwYuJ
-	148fX5QUe1cWnHwkN7vgPJKUrgzaxkBw1Etv1+bDZhJh/A5/jxkjfesSjWgbvA==
-ARC-Seal: i=1; s=20260414; d=pengutronix.de; t=1793003365; a=rsa-sha256;
+	bh=SxPxwtKVo1NNAkpo6AEjFX1CwNaGv1grF35o4s4xQy0=;
+	b=P7RHyocgMwwrJ6qLz4KmuDGZbu59I1VCldPxCcZby/eEjWTheo6ae6N6+L/oQFepbjvi+f
+	NbTREo1Vni/ndNTfeZxmoCnbbBe3hfkB+0dDURr96ZdfJxwHZ3Pj1KBnadqVVWven136jU
+	pmpTIxAoxRfDoKQ5Q4NGWjEYMzzU9xeIpg44n2H2BqZ7flgy2+mTwQkPOMHFypRCrdaDRQ
+	ynvb3IwlNDmbw853E+zoQT+oXvuehYk2mH1qwiNwXU4/1/z6BoM8o3La/V8oTuoMLsWxsi
+	xO9LrVCH2abqVsHgxn0FKHmIQar3218pAvSK0K9r/T8ozOwuAc12ik43+MURBg==
+ARC-Seal: i=1; s=20260414; d=pengutronix.de; t=1793003364; a=rsa-sha256;
 	cv=none;
-	b=KE/QEkJyvw2r/tfpqd39svpxijbVVuoNTk1ZTGZb0NInQmSvL+tuQ0DtZcsPQiko5Fxkq7
-	3Wf1t11pVdAkz4qiS06MHRroPBDWXY5/okmvx0JXn+p/u8K9lGZCP5e/bRQ+TcSCAzu7qe
-	o+FTm9qJsaCsaaaaSVP0FBToR+EUQqmY8v2nyTZSsr3w7if+pBV2oxitJSTZHvPWXHjfEc
-	Ye4ZATs42PrjdDxCNG+DfC33CHISTubTOI0KtISrymzT3JEweI0qNeVyWr9sfCKsrbF61Y
-	hhjK5AvkGO+5+avkAaHlVgVsB7Q9XXno2h83SVTRBG7gO3e3FNieGTXckG3LBg==
+	b=GgHPqldAOKR8DqgiELRl9CBNQSzCx3z+fVcHe70Lby2+mUkvFyX9tSmXLfufV27N4TZYkJ
+	mPZ1ryhHV4UnxFxvyeZK51mqVkOpbifSN9lsBMq80mg/MtpZCf/8GnLVsj1iStdG5IX7d6
+	nomxZYLIxAl8wPr8+bOR7y1V4Q3plyWXP7clP04xlrqZVhdUDJfsxyS5syq17xgkz3jsKA
+	aiiElmNFIrHkOaBqRoR8xQwiSe4J/sZqNfs24lvPSAZkU+5UMYUtIsSIPq2g0EN5lkI9Y8
+	X7JVaFV/F1AvxZIvH+rZFKLPY1fzztmxuiHts7I+bW+RGmFAeCPT9Rp1CZAXVQ==
 ARC-Authentication-Results: i=1;
 	ORIGINATING;
 	auth=pass smtp.auth=str@pengutronix.de smtp.mailfrom=s.trumtrar@pengutronix.de
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=pengutronix.de;
-	s=20260414; t=1793003365;
+	s=20260414; t=1793003364;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=luo5cWeAN0k7vV4vDsCxxXuFDBYxRP+eZO0mPO5W7Xk=;
-	b=J/3Ktcnc4kH/rLeXZcP4oMYfEoMVX/oWJ6V9A/hILc0PNJwaKPOItSxa7sOHfG3DSejzS/
-	vDJj83fdf6ICsK3sB7LkSiDuGta1Ch3vxOYNii8zdhVtPnfUw+B+BwBxXWba9dbz4VVLqi
-	2jxYsCp7q3hbVIey16LslFKgv+LZqeGXCX1zfIIgXQgzYk9DAUOSQzxSocKMb+jxUVphPi
-	avlfr5ETkYcU1DpDDmw/QZa3E/fNBWUdKRStRsEcCVXqgd4LV4xfSm51TYj9sfwvxjr7g6
-	FpIVN7qQS8Ql8zA4oRZ98FTq4vI3si62BfhpcODLdePyRVtLB0JTsudDOx9WBQ==
+	bh=SxPxwtKVo1NNAkpo6AEjFX1CwNaGv1grF35o4s4xQy0=;
+	b=f1kWmWdCBZMr4FIfRElIwV2ZwAFyX8EL3y+h+NcAKKWk9EPS15KH5XMMglz4HtVa+DN59h
+	InzdFTzXiIEs8ppxdjVEt3bg0yzVNuyV90jclu0BxiJ3XTGIQeKlrk+nGUbUZRIiqdif/w
+	yyG1ajPHLYRtt6ufiAdv4KCAgllH2nalDYHaf6UwEslD1OZt4LOeMrdWLHLqnMWJzVBL7q
+	vwB7zn3O3WDVBYP4dGm0/qpS4J6np11Igf8zzAri073VYH1gQYMUD3qpCGEb+xunyUKrs9
+	ympMA3XblKiaSuYNwh5D39wwsLXRg0Vj7GYHlRgMICvTbafqYkXsb6VMuooz4Q==
 From: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-Date: Mon, 26 Oct 2026 09:29:05 +0100
-Subject: [PATCH RFC v4 5/6] virtio-net: add XDP rx timestamp metadata
+Date: Mon, 26 Oct 2026 09:29:04 +0100
+Subject: [PATCH RFC v4 4/6] vhost-net: support VIRTIO_NET_F_RX_TSTAMP
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -85,7 +85,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261026-v6-7-topic-virtio-net-ptp-v4-5-008af03cd43b@pengutronix.de>
+Message-Id: <20261026-v6-7-topic-virtio-net-ptp-v4-4-008af03cd43b@pengutronix.de>
 References: <20261026-v6-7-topic-virtio-net-ptp-v4-0-008af03cd43b@pengutronix.de>
 In-Reply-To: <20261026-v6-7-topic-virtio-net-ptp-v4-0-008af03cd43b@pengutronix.de>
 To: "Michael S. Tsirkin" <mst@redhat.com>, 
@@ -104,81 +104,74 @@ Cc: Steffen Trumtrar <s.trumtrar@pengutronix.de>,
  virtualization@lists.linux.dev, netdev@vger.kernel.org, 
  linux-kernel@vger.kernel.org, bpf@vger.kernel.org, kvm@vger.kernel.org
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2386;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2289;
  i=s.trumtrar@pengutronix.de; h=from:subject:message-id;
- bh=YTbCcS6XIdWWY5x5SWFh55/9qh3+beZ0gvegypiVem4=;
- b=owGbwMvMwCUmtVehiCsuTInxtFoSQ9Z9/kTOuQe9V4hF7EzIZN/qx/6axXj23R9sMqyK5nFHy
- x7LzFrYUcrCIMbFICumyKKysIJP1OODZ+Q0ES6YOaxMIEMYuDgFYCJ+7xgZFhfs3J7fEj7h2odC
- /vbfB+TfHXi33TzK7OSk2PuT8iW9RRj++3zO6GBZVrrp4Wa7XT/z+WvaPGZe7vMvaWTuMTZl+Rz
- ODQA=
+ bh=lebGyyUSFv+ztwjuRIxmRf3hzBJF94KNRyxQcoHneDw=;
+ b=owGbwMvMwCUmtVehiCsuTInxtFoSQ9Z9/sTLx0z1pFSuc1vYeL/zyFo8S22PopDmMi6RE7myT
+ abvHeM7SlkYxLgYZMUUWVQWVvCJenzwjJwmwgUzh5UJZAgDF6cATES1luF/1amCxccVph2x4Knx
+ fGh0bpbLigzWty3f+VxNzhy5baKYwshwuXqhT9s1sw1PZCU/TzVy7ZVf72mVb/emOYrj9aQNCkv
+ YAA==
 X-Developer-Key: i=s.trumtrar@pengutronix.de; a=openpgp;
  fpr=24A1780E1548F0495996140A1ABD20720A5E5622
 
-For the skb, the timestamp is read from the header before the XDP
-program runs, so XDP_PASS keeps it even if the program changes the
-packet. XDP therefore works with rx timestamping enabled.
+Advertise VIRTIO_NET_F_RX_TSTAMP to userspace and size the vnet header
+for it, so a guest can negotiate the feature with a vhost-net backed
+tap device.
 
-Add xmo_rx_timestamp so XDP programs can read the timestamp with
-bpf_xdp_metadata_rx_timestamp(). It returns -ENODATA if timestamping
-is not enabled or the device did not timestamp the packet. Install the
-metadata ops also if only VIRTIO_NET_F_RX_TSTAMP is negotiated;
-rx_hash returns -ENODATA then.
-
-Like virtnet_xdp_rx_hash(), the callback finds the header relative to
-xdp->data, so it has to be called before bpf_xdp_adjust_head().
+The header is 40 bytes if the feature is negotiated. Whoever writes
+the header (tun, or vhost itself with VHOST_NET_F_VIRTIO_NET_HDR) has
+to fill in the timestamp; vhost only reserves the room. If vhost
+writes the header, it zeroes everything behind num_buffers, so the
+timestamp is 0, which the guest ignores.
 
 Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
 Assisted-by: Claude:claude-opus-5-5
 ---
- drivers/net/virtio_net.c | 26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
+ drivers/vhost/net.c | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 23af10c613b48..e79b65653fad7 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -6848,8 +6848,30 @@ static int virtnet_xdp_rx_hash(const struct xdp_md *_ctx, u32 *hash,
- 	return 0;
- }
- 
-+static int virtnet_xdp_rx_timestamp(const struct xdp_md *_ctx, u64 *timestamp)
-+{
-+	const struct xdp_buff *xdp = (void *)_ctx;
-+	const struct virtio_net_common_hdr *hdr;
-+	struct virtnet_info *vi;
-+	u64 tstamp;
-+
-+	vi = netdev_priv(xdp->rxq->dev);
-+	if (!READ_ONCE(vi->hwts_rx_en))
-+		return -ENODATA;
-+
-+	hdr = (const struct virtio_net_common_hdr *)(xdp->data - vi->hdr_len);
-+	tstamp = get_unaligned_le64(hdr->tstamp);
-+	/* 0: the device did not timestamp this packet */
-+	if (!tstamp)
-+		return -ENODATA;
-+
-+	*timestamp = tstamp;
-+	return 0;
-+}
-+
- static const struct xdp_metadata_ops virtnet_xdp_metadata_ops = {
- 	.xmo_rx_hash			= virtnet_xdp_rx_hash,
-+	.xmo_rx_timestamp		= virtnet_xdp_rx_timestamp,
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 2cc730729e08a..2a38ad0ea1af2 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -77,7 +77,8 @@ static const int vhost_net_bits[] = {
+ 	VIRTIO_F_RING_RESET,
+ 	VIRTIO_F_IN_ORDER,
+ 	VIRTIO_NET_F_GUEST_UDP_TUNNEL_GSO,
+-	VIRTIO_NET_F_HOST_UDP_TUNNEL_GSO
++	VIRTIO_NET_F_HOST_UDP_TUNNEL_GSO,
++	VIRTIO_NET_F_RX_TSTAMP
  };
  
- static int virtnet_probe(struct virtio_device *vdev)
-@@ -7014,6 +7036,10 @@ static int virtnet_probe(struct virtio_device *vdev)
- 		dev->xdp_metadata_ops = &virtnet_xdp_metadata_ops;
- 	}
- 
-+	/* rx_hash returns -ENODATA without NETIF_F_RXHASH */
-+	if (vi->has_rx_tstamp)
-+		dev->xdp_metadata_ops = &virtnet_xdp_metadata_ops;
+ enum {
+@@ -1282,6 +1283,16 @@ static void handle_rx(struct vhost_net *net)
+ 			vhost_discard_vq_desc(vq, headcount, ndesc);
+ 			goto out;
+ 		}
++		/* Zero the rest of a header supplied by vhost, e.g. tstamp */
++		if (unlikely(vhost_hlen > sizeof(hdr) + sizeof(num_buffers))) {
++			size_t rest = vhost_hlen - sizeof(hdr) - sizeof(num_buffers);
 +
- 	if (vi->has_rx_tstamp)
- 		vi->hdr_len = offsetofend(struct virtio_net_common_hdr, tstamp);
- 	else if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_UDP_TUNNEL_GSO) ||
++			if (iov_iter_zero(rest, &fixup) != rest) {
++				vq_err(vq, "Failed vnet_hdr zeroing");
++				vhost_discard_vq_desc(vq, headcount, ndesc);
++				goto out;
++			}
++		}
+ 		nvq->done_idx += headcount;
+ 		count += in_order ? 1 : headcount;
+ 		if (nvq->done_idx > VHOST_NET_BATCH) {
+@@ -1688,6 +1699,10 @@ static int vhost_net_set_features(struct vhost_net *n, const u64 *features)
+ 				     VIRTIO_NET_F_GUEST_UDP_TUNNEL_GSO))
+ 		hdr_len = sizeof(struct virtio_net_hdr_v1_hash_tunnel);
+ 
++	/* The header layout is cumulative, tstamp sits behind all other fields. */
++	if (virtio_features_test_bit(features, VIRTIO_NET_F_RX_TSTAMP))
++		hdr_len = offsetofend(struct virtio_net_common_hdr, tstamp);
++
+ 	if (virtio_features_test_bit(features, VHOST_NET_F_VIRTIO_NET_HDR)) {
+ 		/* vhost provides vnet_hdr */
+ 		vhost_hlen = hdr_len;
 
 -- 
 2.52.0
