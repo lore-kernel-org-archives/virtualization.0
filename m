@@ -1,102 +1,58 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793027461;
-	b=W4AskmAeGyXltenR7l67Gqcpp9B819xrYG7PTv/U/mjEoIi6bEpZj2MK8MZz2tYOgmLs
-	 bt74R8PUpHOxqfHWOpXEgQKXSdhOmR8hFx3aq7C9O9iS53c+fyqPNAFkos6wxKFznBq6X
-	 QgGuSBAzOMLGUjVDienAQDps1QipH/OTzgEXx07kILoJQzsyZBy6AYnT3J71Zz8/csWYI
-	 mAvkWB+prlx/KysxfcywAGwyAaiWHg4Ydx06md7hcVG9tytD25xEasIzmcFzcj+avdh7q
-	 xFsgljJANOwgbObSe5EF7OdqagRJh5v1jUoeI6Gtz2XdS2X0zuHUEbobabROFGcSuQg==
+	t=1793028249;
+	b=4gdO5Ib73c2KddmIaud2iqfbfigqtaU0c/uuLuNJ8OFOSchJAwyzBkcOkpJLUoIn6wlz
+	 25EF1JLuAyxkue9gVLpZIl7MfT6HG9K/KR5g6x6tpLVNLu8VXg9uxuMJGctjAx/ilpq4O
+	 h1r6jk4/LXvPPs72IjFUFNl8NwJUJyTckTGDYhcxNCZGRBXMYIKS7DZrnjxgQuaHULV76
+	 DanuhYpXqUru6TvnD1SMFSSjIYuavj9yEgKfni9IGq3JmpUDGe2US8pJvHBXa7RVEyhI/
+	 tiW4WIGxb7Cf0rTlBFooxqJBit7wNxa7gCaWil0XL8a+krC1+d1YIAoDLGE75cXZTTw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793027461;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
-	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
-	 X-Mimecast-Originator:Content-Type:Content-Disposition;
-	bh=4f7t4kSuzzBVEK1HrUbPSVuQTcXA7ncMoRgV6e6y21c=;
-	b=4FuUwXIzx9OEfsKglye2JgSorpSsIUyU1qrwRtJ/zxOL006urQI36PPMbMKk+20xtvu6
-	 lvxYhi5ryVp4AohC1QwbY1Th4JNvCdJ4HhJrzM6TMGaZAn9ldWVrRrzGOcVNhAf2CohiK
-	 IFNg01RLdbVJ7DsMkwhuyOhOdnYLx9+9/KLcX1BgmX+2KwxxfjFf/vmjZYT5N9FZmCpBo
-	 FyqhLhjMy6qcMJHRaIcBQCucpg+lgAnYPTnduup5Elrmlr8gU6hbTXw2pKNXmZTGefrRV
-	 kUgLkWZU2eoe+wSfbbF5G8eMJaPCB16EnoyEN820OxdBJ5Tr82lQw4RHAwpvF3jbbcA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793028249;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=OK5kK482LwyZoDLbSM24uPB8wFUyBj/HMOVMqXxvc5U=;
+	b=ft0YfntYryjpJoYwlMu5sik9udBLTMXklwHTbqe+ZoSFFLXXT2lLwrSbz747wMQMpkOA
+	 BbcYq6QqsCyrQU0X5LXghN+Ui5CRQ/alMegUrZBleym3s/y5tRPp2cFlRee0ZD1zzDMw/
+	 K+4LeFzQH/wJgGaI4MCO+rL4KLnW2aMUNJZ1zUAcgXfRB1IEOffl4LXbp0i3Ae9ZjlrJn
+	 jyo2rMEx2kAICezv7SXGUEBz8dxZc60i0r+FPXZNkKOsDDFFBlJP0+UfwpjU2kKdMut2Y
+	 JPe7vKpxVIM/4n//y+2GjcI0ueCjK0Y6oSOGElrZ+9Zu0TMgum5p4EBP+e3bABvpiRw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=fVKdr7OM;
-	arc=none smtp.remote-ip=170.10.129.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HilUSFKD;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B2DB606A31D
-	for <virtualization@lists.linux.dev>; Mon, 26 Oct 2026 15:11:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6B2DB606A31D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B671D606A31B
+	for <virtualization@lists.linux.dev>; Mon, 26 Oct 2026 15:24:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=fVKdr7OM
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1793027460;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=4f7t4kSuzzBVEK1HrUbPSVuQTcXA7ncMoRgV6e6y21c=;
-	b=fVKdr7OMXQFDPLqEeZvmEIQQV7+sJCfQFdphX3dPT46IMAUV5cE2njKapF+sOcW3c19rtx
-	8sxtZ1ZvVlI46oq6R01IJcJwOEfiaSiq7IxeM0jD9XLFIq16Hhefdo18ljf6fRIm4x7a5h
-	ib6xJ+TevkzPb00/oy1VHXHr0so+cqk=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-489-fJwkzJwFPjmb8glW4jp_uA-1; Mon, 26 Oct 2026 11:10:58 -0400
-X-MC-Unique: fJwkzJwFPjmb8glW4jp_uA-1
-X-Mimecast-MFC-AGG-ID: fJwkzJwFPjmb8glW4jp_uA_1793027458
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-48c430f0f01so2692771f8f.1
-        for <virtualization@lists.linux.dev>; Mon, 26 Oct 2026 08:10:58 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793027458; x=1793632258;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=4f7t4kSuzzBVEK1HrUbPSVuQTcXA7ncMoRgV6e6y21c=;
-        b=xkdRmfgY0XGi3P5ErUxlyC/txjkn77soLA6CtjsmP5YdugMjaAr0szsbQlDHQxccaA
-         k0cspkneHsXPxoh0Ed8kbPSYAVuv+oRvSC1xuDoPCJbN0STj6rXXSmkdfBC8bSMYsnaF
-         8TL4bSybi69ktAVAmG1JzCNYC5iIs/WZBWN8j9KKNGiPyY7Dk7cgcZeQ6R95gBWltFk9
-         EvUyFkZafMKSC01hZCmjDvR0R42G6c8x1o/LwL1HJ7+EO5SjoDVIqAMK2h/jeto0a2tu
-         t0JLATfbeDpeLvsQ6H9brOtm1H2JOs+O0FjXCQmI79ADyPqRUz+T6H8OdOzBmE3tT4aZ
-         TRTw==
-X-Forwarded-Encrypted: i=1; AKwUvBzwD/ENPkblRibczDaY+DmFvtpcIyySHXUKdaBCgGioFkbTqT8sSZpKzGXbaE9nLCo456CvTPsNeWv4DuAAGQ==@lists.linux.dev
-X-Gm-Message-State: AFq9FYIfxpRUYypBBirCgQFAai/rBaTevTpadyvSwpqu5dzor9L+APaj
-	dV03aocL9pUZp5PVrtFWkyprHm9oaIGbMG3To/bJMFXAHXinLo3JNHsYLmbD6guXUlq0KsJaTaW
-	y7fYyKYhMgxiNS8bXasKZpZX30Q5gZlpeWekx61ROFo5ZJzVGxIBGq59tEGS1GGCNve7p
-X-Gm-Gg: AYBFou28Ex/PRqh4MvoRP3WgVLsxYpCyD2AI+JvAGsDjrdcKBmiYaGa7h8/eyqK0ETK
-	qwVGeFQrPBu/dstEpKN95uHvNzSjgrjCHplTJuLTnf+Sdj77EFsaKUvhhte3wLEhQ+1RBvazSCR
-	nNTypYcA33DIMwRG3s736K7L8rD+u/Czjznq7QMiVcd/OWG1hmu8MyHK+6ZQ5cWfted3ieY4UVr
-	rKmjd/S1YnrIFv28hR8nL3O08hdBe9kcs80PUqHsRapjF6xQXgbccSKIvJ3baiiFq6tcHigPWtA
-	rCj3Yddge0/IS2udlz42//tb1Lmm5t6NEYpRuDd7id8p0r3Gjo3K1HCzgP4vu7eq0T0=
-X-Received: by 2002:a05:600c:6212:b0:4a1:742e:3 with SMTP id 5b1f17b1804b1-4a35acdd912mr123088335e9.27.1793027457409;
-        Mon, 26 Oct 2026 08:10:57 -0700 (PDT)
-X-Received: by 2002:a05:600c:6212:b0:4a1:742e:3 with SMTP id 5b1f17b1804b1-4a35acdd912mr123087815e9.27.1793027456804;
-        Mon, 26 Oct 2026 08:10:56 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1536:fc00:b838:383:1c7:6e81])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48e3ebcb90dsm15531155f8f.22.2026.10.26.08.10.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 26 Oct 2026 08:10:56 -0700 (PDT)
-Date: Mon, 26 Oct 2026 11:10:53 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Ruben Hakobyan <hruben@meta.com>
-Cc: David Hildenbrand <david@kernel.org>, Breno Leitao <leitao@debian.org>,
-	Atish Patra <atishp@meta.com>, Jason Wang <jasowangio@gmail.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Alexander Duyck <alexander.h.duyck@linux.intel.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] virtio_balloon: batch large descriptor chains for page
- reporting
-Message-ID: <20261026111005-mutt-send-email-mst@kernel.org>
-References: <20261023081923.164950-1-hruben@meta.com>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HilUSFKD
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 141A01F01829;
+	Mon, 26 Oct 2026 15:24:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793028248;
+	bh=OK5kK482LwyZoDLbSM24uPB8wFUyBj/HMOVMqXxvc5U=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=HilUSFKD4Egcq0/FHXBe0nlAV5wpOEZUWfGNORKBFTxUySM2JxN0XO3D9jnXxCcI+
+	 ZsTvxkXZy8R8V9+wTkQo8yzYFAtOMwhYQkHHWAbQTf9gS8SxCIalRVBRq0KDcThija
+	 74ZRdRjXUheMQW+DtKAJBGpfjB0G0DlhCgvRlX2RN/bQZWxPWoYQrkuXDs0JGlcCYX
+	 I45G58iAzhj58JVfR8Ab9/x6SjGisSoZSwcVoxl+nrhLRwjIQIgtHpp+fktlWeYLt4
+	 dmjy6y8sjmvEbhO2czUOOaJv5L86FtXrlkslXJzR80llJrUiVVJLH58KrDVj+XOO8B
+	 bMy0WH3XO7zJg==
+Message-ID: <sashiko-outbox-185432@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 2/2] virtio_balloon: submit reported pages as individual
+ buffers
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux.dev, ojeda@kernel.org, gary@garyguo.net, "Eugenio
+ Perez" <eperezma@redhat.com>
+In-Reply-To: <6668d51dbda117d05d2eddd47db6ad69baab8b0c.1793026707.git.mst@redhat.com>
+References: <ad6a530f49c4a0e182112a73789e31b5e91f3bb7.1793026707.git.mst@redhat.com>
+ <6668d51dbda117d05d2eddd47db6ad69baab8b0c.1793026707.git.mst@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 26 Oct 2026 15:24:07 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -105,132 +61,186 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
-MIME-Version: 1.0
-In-Reply-To: <20261023081923.164950-1-hruben@meta.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 6p7mb_7KUtlb3UFXfMLj4sHM69qAacW7We14LHQ88Gw_1793027458
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-On Fri, Oct 23, 2026 at 01:19:19AM -0700, Ruben Hakobyan wrote:
-> The virtio_balloon driver reports a scatter-gather list of free pages
-> to the VMM so it may discard unused pages.
-> 
-> For an arm64 kernel with 64 KiB pages, the default reporting and
-> allocation orders allow entries ranging from 2 MiB to 512 MiB. If the
-> report contains a sufficient number of large entries, we will end up
-> with a descriptor chain that represents over 4 GiB of memory. This
-> violates virtio spec section 2.7.5.2, which requires that the total
-> buffer length of a descriptor chain be at most 4 GiB [1]. A VMM that
-> faithfully follows the spec may stop processing the descriptor chain
-> when it exceeds 4 GiB, and discard less memory than it could. For
-> example, this is the case for the virtio-queue in Rust-VMM [2].
-> 
-> Batch the requests into descriptor chains of at most U32_MAX bytes
-> (4 GiB - 1 byte). We use U32_MAX here so we can conveniently represent
-> the batch length in a u32.
-> 
-> [1] https://docs.oasis-open.org/virtio/virtio/v1.4/virtio-v1.4.html
-> [2]
-> https://github.com/rust-vmm/rust-vmm/blob/9f7250b1555ebe022ea4133fda676e6311040738/vm-virtio/virtio-queue/src/chain.rs#L183-L190
-> 
-> Fixes: b0c504f15471 ("virtio-balloon: add support for providing free page reports to host")
-> Signed-off-by: Ruben Hakobyan <hruben@meta.com>
-> ---
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [High] virtio: off-by-one in virtqueue_enable_cb_delayed_max() hangs page=
+ reporting
+- [Medium] virtio_balloon: broken callback suppression in virtballoon_free_=
+page_report()
+--
 
+commit e2548c4b5befc523db0e3106c2a724d4255859e6
+Author: Michael S. Tsirkin <mst@redhat.com>
 
-thanks a lot for the report. I posted a patchset for your
-consideration. if you test it, pls let us know the results.
-if you see a need for more changes, pls feel free to take
-over the work on it.
+virtio_balloon: submit reported pages as individual buffers
 
-> The wording in the spec is a bit ambiguous because it uses "chain
-> length" for both descriptor counts and the total size of the memory
-> ranges referenced by the descriptors. My read is that the byte limit
-> applies to the sum of descriptor lengths, which is also what rust-vmm
-> checks.
-> 
-> Another option I considered was to limit reporting capacity based
-> on the largest possible block. E.g. for 64 KiB pages, the largest
-> block is 512 MiB, so limit the reporting capacity to 7 to stay
-> below 4GiB. Although simpler, I found that the time to reclaim
-> was quite a bit longer.
-> 
-> I tested this patch on Cloud Hypervisor (which uses Rust-VMM)
-> and QEMU (which doesn't enforce this limit).
-> 
->  drivers/virtio/virtio_balloon.c | 47 ++++++++++++++++++++++++---------
->  1 file changed, 35 insertions(+), 12 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index ab3e3d887e00..68ce627c8e04 100644
+This commit submits each reported page in virtballoon_free_page_report() as=
+ a
+separate virtqueue buffer instead of a single scatter-gather descriptor cha=
+in
+to avoid exceeding the virtio specification's 2^32 byte limit. It uses
+virtqueue_enable_cb_delayed_max() and virtqueue_disable_cb() around
+wait_event() when draining the buffers.
+
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_ball=
+oon.c
+> index ab3e3d887e00f..64999f05f9f1d 100644
 > --- a/drivers/virtio/virtio_balloon.c
 > +++ b/drivers/virtio/virtio_balloon.c
-> @@ -15,6 +15,7 @@
->  #include <linux/slab.h>
->  #include <linux/module.h>
->  #include <linux/balloon.h>
-> +#include <linux/limits.h>
->  #include <linux/oom.h>
->  #include <linux/wait.h>
->  #include <linux/mm.h>
-> @@ -207,21 +208,43 @@ static int virtballoon_free_page_report(struct page_reporting_dev_info *pr_dev_i
->  	struct virtqueue *vq = vb->reporting_vq;
->  	unsigned int unused, err;
->  
-> -	/* We should always be able to add these buffers to an empty queue. */
-> -	err = virtqueue_add_inbuf(vq, sg, nents, vb, GFP_NOWAIT);
-> +	while (nents) {
-> +		bool unmark_end;
-> +		struct scatterlist *sg_batch_start = sg;
-> +		u32 batch_len = 0;
-> +		unsigned int batch_nents = 0;
->  
-> -	/*
-> -	 * In the extremely unlikely case that something has occurred and we
-> -	 * are able to trigger an error we will simply display a warning
-> -	 * and exit without actually processing the pages.
-> -	 */
-> -	if (WARN_ON_ONCE(err))
-> -		return err;
-> +		/*
-> +		 * Virtio spec 2.7.5.2 limits the total buffer length of a
-> +		 * descriptor chain to 2^32 bytes (4 GiB), so split larger
-> +		 * reports into batches no bigger than that size.
-> +		 */
-> +		while (batch_nents < nents &&
-> +		       sg->length <= U32_MAX - batch_len) {
-> +			batch_len += sg->length;
-> +			batch_nents += 1;
-> +			sg = sg_next(sg);
-> +		}
-> +		unmark_end = !sg_is_last(&sg_batch_start[batch_nents - 1]);
->  
-> -	virtqueue_kick(vq);
-> +		if (unmark_end)
-> +			sg_mark_end(&sg_batch_start[batch_nents - 1]);
->  
+> @@ -205,25 +205,47 @@ static int virtballoon_free_page_report(struct page=
+_reporting_dev_info *pr_dev_i
+
+[ ... ]
+
 > -	/* When host has read buffer, this completes via balloon_ack */
 > -	wait_event(vb->acked, virtqueue_get_buf(vq, &unused));
-> +		err = virtqueue_add_inbuf(vq, sg_batch_start, batch_nents, vb,
-> +					  GFP_NOWAIT);
-> +
-> +		if (unmark_end)
-> +			sg_unmark_end(&sg_batch_start[batch_nents - 1]);
-> +
-> +		if (WARN_ON_ONCE(err))
-> +			return err;
-> +
+> +	if (nents) {
 > +		virtqueue_kick(vq);
+> =20
+> -	return 0;
+> +		/* When host has read buffer, this completes via balloon_ack.
+> +		 * We report pages as individual buffers, so arm the callback
+> +		 * to only interrupt once all the queued buffers have been
+> +		 * used: otherwise we would get one interrupt per page.
+> +		 */
+> +		for (i =3D 0; i < nents; i++) {
+> +			unsigned int unused;
 > +
-> +		/* When host has read buffer, this completes via balloon_ack */
-> +		wait_event(vb->acked, virtqueue_get_buf(vq, &unused));
-> +		nents -= batch_nents;
-> +	}
->  
->  	return 0;
->  }
-> -- 
-> 2.53.0-Meta
+> +			virtqueue_enable_cb_delayed_max(vq);
 
+[Severity: High]
+Can calling virtqueue_enable_cb_delayed_max(vq) here cause wait_event() to
+hang indefinitely when VIRTIO_RING_F_EVENT_IDX is negotiated?
+
+In drivers/virtio/virtio_ring.c, virtqueue_enable_cb_delayed_max_split()
+computes the event index as:
+
+    bufs =3D (u16)(vq->split.avail_idx_shadow - vq->last_used_idx);
+
+    virtio_store_mb(vq->weak_barriers,
+                    &vring_used_event(&vq->split.vring),
+                    cpu_to_virtio16(vq->vq.vdev, vq->last_used_idx + bufs));
+
+    if (unlikely((u16)(virtio16_to_cpu(vq->vq.vdev, vq->split.vring.used->i=
+dx)
+                                    - vq->last_used_idx) > bufs)) {
+            END_USE(vq);
+            return false;
+    }
+
+In include/uapi/linux/virtio_ring.h, vring_need_event() checks:
+
+    static inline int vring_need_event(__u16 event_idx, __u16 new_idx, __u1=
+6 old)
+    {
+            return (__u16)(new_idx - event_idx - 1) < (__u16)(new_idx - old=
+);
+    }
+
+Because event_idx is 0-based, an interrupt is triggered when used->idx
+(new_idx) advances to event_idx + 1. When bufs buffers are queued at ring
+slots last_used_idx .. last_used_idx + bufs - 1, consuming all queued buffe=
+rs
+advances used->idx to last_used_idx + bufs.
+
+By setting vring_used_event to last_used_idx + bufs instead of
+last_used_idx + bufs - 1, when the device finishes consuming all queued
+buffers (new_idx =3D=3D event_idx), (__u16)(new_idx - event_idx - 1) underf=
+lows
+to 0xffff and vring_need_event() returns false. In addition, the race check
+tests (used->idx - last_used_idx) > bufs, which can never be true since the
+device cannot consume more than the bufs available buffers.
+
+Similarly, in virtqueue_enable_cb_delayed_max_packed():
+
+    bufs =3D vq->packed.vring.num - vq->vq.num_free;
+    last_used_idx =3D READ_ONCE(vq->last_used_idx);
+    wrap_counter =3D packed_used_wrap_counter(last_used_idx);
+
+    used_idx =3D packed_last_used(last_used_idx) + bufs;
+    if (used_idx >=3D vq->packed.vring.num) {
+            used_idx -=3D vq->packed.vring.num;
+            wrap_counter ^=3D 1;
+    }
+
+    vq->packed.vring.driver->off_wrap =3D cpu_to_le16(used_idx |
+            (wrap_counter << VRING_PACKED_EVENT_F_WRAP_CTR));
+
+This sets driver->off_wrap to packed_last_used(last_used_idx) + bufs
+(next_avail_idx, one descriptor past the last queued descriptor) instead of
+the last queued descriptor. Since that descriptor is not available to the
+device, the device never marks it used and never interrupts, hanging the
+page_reporting_process() -> page_reporting_cycle() ->
+virtballoon_free_page_report() worker in wait_event().
+
+> +			wait_event(vb->acked,
+> +				   virtqueue_get_buf(vq, &unused));
+> +			virtqueue_disable_cb(vq);
+> +		}
+> +	}
+
+[Severity: Medium]
+Does ordering virtqueue_enable_cb_delayed_max(), virtqueue_get_buf(), and
+virtqueue_disable_cb() this way defeat the delayed callback suppression?
+
+There appear to be three issues with the callback state machine in
+virtballoon_free_page_report():
+
+1. Reporting virtqueue callbacks are enabled by default in init_vqs(), and
+virtqueue_kick(vq) is called before callbacks are disabled or delayed, so t=
+he
+device is notified while interrupts are still armed for the first buffer.
+
+2. Inside the loop, virtqueue_enable_cb_delayed_max(vq) is called before
+wait_event(vb->acked, virtqueue_get_buf(vq, &unused)). Because callbacks are
+enabled when virtqueue_get_buf() runs, virtqueue_get_buf_ctx_split() (and
+update_last_used_idx_packed() for packed rings) overwrites the delayed event
+threshold on every dequeued buffer with the very next single buffer:
+
+    vq->last_used_idx++;
+    /* If we expect an interrupt for the next entry, tell host
+     * by writing event index and flush out the write before
+     * the read in the next get_buf call. */
+    if (!(vq->split.avail_flags_shadow & VRING_AVAIL_F_NO_INTERRUPT))
+            virtio_store_mb(vq->weak_barriers,
+                            &vring_used_event(&vq->split.vring),
+                            cpu_to_virtio16(vq->vq.vdev, vq->last_used_idx)=
+);
+
+3. When an interrupt fires, vring_interrupt() sets vq->event_triggered =3D =
+true.
+After wait_event() wakes and virtqueue_get_buf() writes
+vring_used_event =3D vq->last_used_idx, the subsequent virtqueue_disable_cb=
+(vq)
+call hits the early return in virtqueue_disable_cb_split() (and similarly in
+virtqueue_disable_cb_packed()):
+
+    if (!(vq->split.avail_flags_shadow & VRING_AVAIL_F_NO_INTERRUPT)) {
+            vq->split.avail_flags_shadow |=3D VRING_AVAIL_F_NO_INTERRUPT;
+
+            /*
+             * If device triggered an event already it won't trigger one ag=
+ain:
+             * no need to disable.
+             */
+            if (vq->event_triggered)
+                    return;
+
+            if (vq->event)
+                    /* TODO: this is a hack. Figure out a cleaner value to =
+write. */
+                    vring_used_event(&vq->split.vring) =3D 0x0;
+
+This leaves vring_used_event armed at vq->last_used_idx in the shared ring =
+at
+the end of the batch, so the next call to virtballoon_free_page_report()
+kicks the virtqueue with interrupts armed for the first buffer.
+
+Should callbacks be kept disabled while draining available buffers with
+virtqueue_get_buf(), only arming virtqueue_enable_cb_delayed_max() when
+virtqueue_get_buf() returns NULL?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/ad6a530f49c4a0e1821=
+12a73789e31b5e91f3bb7.1793026707.git.mst@redhat.com?part=3D2
