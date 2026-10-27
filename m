@@ -1,72 +1,72 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.210.70
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.167.198
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793069813;
-	b=jgmrjV81NRn+/qKQp0Ti5OolaiWVtL9cwZsUnV3VL5jQh9U6Sji8eQBFim8aHJYj5q8B
-	 UDfcrmCYWpoGtlv2sX3edDYwoUFmGuSqo9zDxa9BpnTEgezdrz870LEWI1eTNh7lEizBi
-	 M90E+Hifc6rHBclJxpw6i5ZaXth0ZqmYQSuc9rI9g7eCMQ+QP+vw/KtyWya7/PdSoYUBS
-	 p8/GFsE4d4Em/vCDUgrZuY93luAdiHJjqKo4Z7hTiG/U411Y6UVPpWLUA0AyKvB8SbKtz
-	 z98D7zKqeuYBHGftZxH/hy3y91NFrHmgTfQm+FUO+tc7XvCiH5MS049FF/sc9NTLnGQ==
+	t=1793069815;
+	b=rBmamA3FtrhkESzTTy18yngAF8u9rRqH0IrI+zKQQbp+/vhW/cBNr3c7KwBhNi6dBWP6
+	 A6KzI2vMmf7iaYyXyI6D2i4FaKjvI60NexGs4rbmAM//uZrSEjHIYKr61NKTMIGFFAFOh
+	 FjdLzIghq7uFTxlvABW+uykjD1UGenlW9tWRledHoy37aLO149a2dTcuihWrXafNkKsI3
+	 lz2moatZ+tkXlXAuzZH6wnHdkynO+i5Cx1UgxrMiI2YswVBDPxOn8tbD5ohBpXoj3Z1Zu
+	 sehtwsShedlzbiyj1z0aJhhsQ3wisBlZs0/2B2ecxTlq2XCU+G/GkdsUEr9GnnoUDVw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793069813;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793069815;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Gm-Message-State:X-Received:Date:In-Reply-To:Mime-Version:
 	 References:X-Mailer:Message-ID:Subject:From:To:Cc:Content-Type;
-	bh=JIN7ZwAAf8V6R765/OvGx6wup+UwImZjXSx/G9RFR6U=;
-	b=rn4hnVcS0gpCT10i42o9lXwpnr88cgq5pjemnntmOV+0z/VkGaWaqK5P1xhDqwbOFAwm
-	 fuHlHVlOe/SSUdYkYR6zhSVfYYr38UNO+9VNsrrrzatb2Q9OTxkPHcTmjE53jaMO+a9df
-	 hCLIT8ScYhr+rNH/5Mf4SAy9jkIDfrZ+6EDorjkPTIIzGwrsMqkoZJs5TAA9RYaqI/7Pu
-	 b+ZeawCF4brEcUCeBHdOXfsZnnIKEoCmdevuYtbE4qTy1mkcromHaj8K/J/CA8TBx9wb8
-	 VmrKX8BYDxvZVdJBzZUGtOpPpE9gWnyjhxFOXul9DV7+cRTW+FfxIYQFQTk64ioYZCA==
+	bh=LCdG6rFn11zBCazpVzMCvIt14BjXcoxSwJ2DZpHTKik=;
+	b=29GkTH8pTryZiAlocto0hqjxzOkQWC62p3w4YTVRU9C8C9+6Jzm1aOU2WvoR4NgHfC1w
+	 mhwErEePwW8uPPCio88PDYOAuVD4fySklxOl/TrpbqQLmqrKjTbqXet08Ye95yMsF/48Q
+	 awtVZgpH5gV5qID0PbDQW8VYS6XzGbEQv2W849GUWiqzG3QBBvPupCNkL5J2aXRqo7xeE
+	 fSb60ItSFk+EA7TKYYf/gU18YFsZcEvxqlThVoI54uRloY/0LYXMlZCnVBiXRb8Z56FhH
+	 8TcceU0cRmxav+FciBoT59dn6dOefbclRhGB4UqJj4kFw2lgzUu7Tdemox9zEs1P/1Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=google.com;
 	spf=pass smtp.mailfrom=flex--kevinloughlin.bounces.google.com;
-	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20251104 header.b=ZXDWe6Rr;
-	arc=none smtp.remote-ip=209.85.210.70
-Received: from mail-ot1-f70.google.com (mail-ot1-f70.google.com [209.85.210.70])
+	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20251104 header.b=vtKsx6RM;
+	arc=none smtp.remote-ip=209.85.167.198
+Received: from mail-oi1-f198.google.com (mail-oi1-f198.google.com [209.85.167.198])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3182D606A336
-	for <virtualization@lists.linux.dev>; Tue, 27 Oct 2026 02:56:53 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3182D606A336
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E50EF60A2607
+	for <virtualization@lists.linux.dev>; Tue, 27 Oct 2026 02:56:54 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E50EF60A2607
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--kevinloughlin.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20251104 header.b=ZXDWe6Rr
-Received: by mail-ot1-f70.google.com with SMTP id 46e09a7af769-83edc5c5ae9so2987502a34.1
-        for <virtualization@lists.linux.dev>; Mon, 26 Oct 2026 19:56:53 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20251104 header.b=vtKsx6RM
+Received: by mail-oi1-f198.google.com with SMTP id 5614622812f47-4dab94dc3e7so5879543b6e.0
+        for <virtualization@lists.linux.dev>; Mon, 26 Oct 2026 19:56:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1793069812; x=1793674612; darn=lists.linux.dev;
+        d=google.com; s=20251104; t=1793069814; x=1793674614; darn=lists.linux.dev;
         h=content-type:cc:to:from:subject:message-id:references:mime-version
          :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=JIN7ZwAAf8V6R765/OvGx6wup+UwImZjXSx/G9RFR6U=;
-        b=ZXDWe6Rr1meUS7/QX9fgbCNr+QBCMAM1mKW4ar9/iHy0t0bpDny+TOpcVrfOiZIrTT
-         e5kog+0OQ6DpDFUUcM8tSjaTxVPMuHzY2p7nsoaEWHfM79p6hz3foLNV72kYgdYZUmWh
-         Fy5T4V5OlY9+7H1mpCy9nK2Wcxu7E/LctkyNEQg/KncDUVC6g1IbsnXERLmooxDht6xn
-         R7YizAYII6ZnGJeBSbQJd/I6U8iGv7MYGPzxpHEc9kzWHtBx/PINT1DRbVM7oOT9/tQl
-         uakEySQ0z8d8Ve+Pddew1ubuXSRfsqKtqt18KeFANay9zy5Ybdb2esqFwxv5bq2J+QpZ
-         TLGQ==
+        bh=LCdG6rFn11zBCazpVzMCvIt14BjXcoxSwJ2DZpHTKik=;
+        b=vtKsx6RMnhJEYXAcL+jq1dKsksMTSnSRYIQwBw0GGZpfozsX/rPR8goIZD4ZKOfVIB
+         j/+FbtVe/nfY4VWbIEOxd5b/wS+Uec2MgqOkNr4y+nfZn2GttFA+oWoke8SF6/JuxnpD
+         16M2glMHmT3Hz9JzLzLUqzEXNwJ8TgHh0FyXlNv7Av+QysEc/N+EVTZQwLKHPMMq9V+7
+         pdZp2P1qqKzus3b28BgqnBKbEJTAf5Cu23HsWwVBhrPXS2DcPrxwFxGr7mVu6JQ3MCee
+         /Jdiz90ZAOWFmnypFQlyOfwrYh/XhwnUdhtPBPlM47Ozf0TWJDvF1sw5giwygrx+DQgA
+         pVMw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793069812; x=1793674612;
+        d=1e100.net; s=20260707; t=1793069814; x=1793674614;
         h=content-type:cc:to:from:subject:message-id:references:mime-version
          :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=JIN7ZwAAf8V6R765/OvGx6wup+UwImZjXSx/G9RFR6U=;
-        b=luDmpncIyEr0DZSaAN+trWa5PTDncI1uX5hFsBOhrA5VgPl66viLDxFkbAY64z/hxK
-         nxvbS9A5BpCp+9TwNzbrCctNtFu/iKP4dFN1GEqdYIFyEYeL3tmU2VmfW+tvx2lmk9Bs
-         oqUX73A3Q7HqhGU8I0dr1XMCax9VXmq0w9kEFTL+OPM3JI6G6GLxM49bhkh+D30L+WwZ
-         /apaus4I/LEwriR74lohd1l9fZ1Qe4GVSQNirOFpcNwmI1eo/9vSfoKQgW5Wqn5DaYMa
-         vqAeA5Vj7gJCKxKlFUQa4NjEaeL9398h5xY4PgJlyB5Trn0/bWOV1OUEY25V0CMKV4KU
-         LJ0A==
-X-Gm-Message-State: AFq9FYIgu5f5Dte/Luqq77QgzyvEAAQXO4qF94IkAZxwES2QYWQCwave
-	k/eO/TYMIWIuF/NFqokk3lpqH0dVEYfuJunOxmZbPe05Cb9dIrJ/nU4cwusvFV75gZsBHSYVP3I
-	PZLNhIPtI23/qw5ingykLW4uuTsfGREgbbA==
-X-Received: from ioaa4.prod.google.com ([2002:a05:6602:2084:b0:9c7:6772:c251])
+        bh=LCdG6rFn11zBCazpVzMCvIt14BjXcoxSwJ2DZpHTKik=;
+        b=kqRX1osHykxasWVNvJ+vlG+JNs57UDG8nkBGC45r7XUaBJQpeqTeSoSVb40JIlV7pE
+         XlXqGbx4040S/kskQkjFDb9OPocHxc+CsYPMBytq6V3qsTxbu+PskeYE3+zJOgOs2ogh
+         v2q2KdqwiC598C1HAsbIt26SQujt0RkO1uxdVY2BelyIlIwiIK9k+4PcYhDGE9VYdF0f
+         plbck6ZESzvSiAk6dgW0+qLwCrLfTZnkAYVipe+qRThxEzHB6CWMOru8cp39xOi6SvrE
+         M6QIJM9d9p/S+BoAAnKisvb1Ea6E9uH6acPqIRW5b82r7qNRTJL41R8ybgin1/wTA6Tr
+         d6Qg==
+X-Gm-Message-State: AFq9FYI0tesaTKG/WsjKWKeBAFk2ekan0QguaXKOC93CDpFuP1JU7drU
+	NtSNl3pNTRLwwV7l3eVdRdL9c6AISIYqZcZVhkqUHHNrHoOi/+UwtTagr1A3hgyrOcyaffwFk1T
+	DnGtNYFxuWAlSYdWxQNiGX81IDDYZ5InfGQ==
+X-Received: from iohd14-n1.prod.google.com ([2002:a05:6602:86ce:10b0:9c4:b80b:7605])
  (user=kevinloughlin job=prod-delivery.src-stubby-dispatcher) by
- 2002:a05:6820:1391:b0:6dd:25a3:94dd with SMTP id 006d021491bc7-70ba0e5707fmr4813315eaf.41.1793069811694;
- Mon, 26 Oct 2026 19:56:51 -0700 (PDT)
-Date: Tue, 27 Oct 2026 02:56:10 +0000
+ 2002:a05:6808:1b2b:b0:4f4:73a9:f853 with SMTP id 5614622812f47-55bfff91bbdmr5294339b6e.1.1793069813464;
+ Mon, 26 Oct 2026 19:56:53 -0700 (PDT)
+Date: Tue, 27 Oct 2026 02:56:11 +0000
 In-Reply-To: <20261027025616.1632690-1-kevinloughlin@google.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -79,8 +79,8 @@ Precedence: list
 Mime-Version: 1.0
 References: <20261027025616.1632690-1-kevinloughlin@google.com>
 X-Mailer: git-send-email 2.56.0.307.g5fe7bd680c-goog
-Message-ID: <20261027025616.1632690-8-kevinloughlin@google.com>
-Subject: [PATCH 07/13] mm/page_alloc: allow lower-order unaccepted_pages
+Message-ID: <20261027025616.1632690-9-kevinloughlin@google.com>
+Subject: [PATCH 08/13] mm/page_alloc: route unaccepted isolated pages
 From: Kevin Loughlin <kevinloughlin@google.com>
 To: "Michael S. Tsirkin" <mst@redhat.com>, David Hildenbrand <david@kernel.org>, Jason Wang <jasowangio@gmail.com>, 
 	"=?UTF-8?q?Eugenio=20P=C3=A9rez?=" <eperezma@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
@@ -102,483 +102,217 @@ Cc: virtualization@lists.linux.dev, linux-coco@lists.linux.dev,
 	David Skidmore <davidskidmore@google.com>, Kevin Loughlin <kevinloughlin@google.com>
 Content-Type: text/plain; charset="UTF-8"
 
-Currently, zone->unaccepted_pages assumes all unaccepted blocks are
-MAX_PAGE_ORDER. However, dynamic memory unacceptance operates at
-unaccepted_memory_order() granularity (typically 2 MiB / PMD_ORDER on
-x86).
+When free page reporting unaccepts isolated pages on confidential
+computing guests, __putback_isolated_page() must not return those
+unaccepted pages directly to zone->free_area; doing so would violate the
+allocator invariant that all pages on zone->free_area are accepted.
 
-Introduce has_unaccepted_memory() to report whether lazy unaccepted
-memory and dynamic unacceptance are active (returning false when booted
-with accept_memory=eager), and generalize zone->unaccepted_pages from
-MAX_PAGE_ORDER to orders >= unaccepted_memory_order() stored in
-page_private(page):
-- Update __free_unaccepted_locked() to verify that pageblocks are
-  mergeable (moving blocks >= pageblock_order to MIGRATE_MOVABLE) and
-  record the block order in page_private(page).
-- Update __accept_page(), try_to_accept_memory_one(), and
-  cond_accept_memory() to accept blocks of order page_private(page),
-  and ensure cond_accept_memory() accepts at least (1 << order) pages
-  when high-order watermark or rmqueue checks fail.
-- Update prep_move_freepages_block(), set_migratetype_isolate(),
-  isolate_single_pageblock(), and skip_buddy_pages() to handle
-  variable-order PageUnaccepted blocks.
+Update __putback_isolated_page(), __free_pages_ok(),
+__free_frozen_pages(), and free_unref_folios() to route dynamically
+unaccepted pages to zone->unaccepted_pages via __free_unaccepted_locked()
+(falling back to immediate acceptance for isolated or CMA pageblocks).
+
+In addition:
+- Extract free_pages_prepare_init() so post-acceptance poisoning,
+  zeroing, KASAN tagging, arch_free_page(), and debug_pagealloc
+  unmapping run after accept_memory() without touching unaccepted pages
+  in __free_pages_prepare() or re-running metadata teardown in
+  __accept_page().
+- Pass FPI_SKIP_REPORT_NOTIFY when __accept_page() frees a freshly
+  accepted block into the buddy allocator so it is not immediately
+  re-queued for free page reporting before allocation.
 
 Signed-off-by: Kevin Loughlin <kevinloughlin@google.com>
 ---
- Documentation/mm/physical_memory.rst     |   3 +-
- drivers/firmware/efi/unaccepted_memory.c |   2 +-
- include/linux/mm.h                       |   6 ++
- include/linux/mmzone.h                   |   2 +-
- mm/page_alloc.c                          | 127 ++++++++++++++++++-----
- mm/page_isolation.c                      |  44 +++++++-
- mm/page_owner.c                          |   7 +-
- 7 files changed, 155 insertions(+), 36 deletions(-)
+ mm/page_alloc.c | 120 ++++++++++++++++++++++++++++++++++--------------
+ 1 file changed, 85 insertions(+), 35 deletions(-)
 
-diff --git a/Documentation/mm/physical_memory.rst b/Documentation/mm/physical_memory.rst
-index 2e67e8b23a99..e9fb554932d5 100644
---- a/Documentation/mm/physical_memory.rst
-+++ b/Documentation/mm/physical_memory.rst
-@@ -526,7 +526,8 @@ General
-   ``zone_init_free_lists()``.
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 46ae8c6f3814..c10b77304633 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -1298,12 +1298,53 @@ static inline void pgalloc_tag_sub_pages(struct alloc_tag *tag, unsigned int nr)
  
- ``unaccepted_pages``
--  The list of pages to be accepted. All pages on the list are ``MAX_PAGE_ORDER``.
-+  The list of pages to be accepted. All pages on the list are at least
-+  ``unaccepted_memory_order()`` and record their order in ``page_private()``.
-   Defined only when ``CONFIG_UNACCEPTED_MEMORY`` is enabled.
+ #endif /* CONFIG_MEM_ALLOC_PROFILING */
  
- ``flags``
-diff --git a/drivers/firmware/efi/unaccepted_memory.c b/drivers/firmware/efi/unaccepted_memory.c
-index 128bc1b113cd..769faf430690 100644
---- a/drivers/firmware/efi/unaccepted_memory.c
-+++ b/drivers/firmware/efi/unaccepted_memory.c
-@@ -246,7 +246,7 @@ int mark_memory_unaccepted(phys_addr_t start, unsigned long size)
- 	unsigned long flags;
- 	u64 unit_size;
- 
--	if (!arch_has_unaccept_memory())
-+	if (!has_unaccepted_memory())
- 		return -EOPNOTSUPP;
- 
- 	unaccepted = efi_get_unaccepted_table();
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 27bb40651c85..619c71565dd6 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -5362,6 +5362,7 @@ int set_anon_vma_name(unsigned long addr, unsigned long size,
- 
- bool range_contains_unaccepted_memory(phys_addr_t start, unsigned long size);
- void accept_memory(phys_addr_t start, unsigned long size);
-+bool has_unaccepted_memory(void);
- unsigned int unaccepted_memory_order(void);
- int mark_memory_unaccepted(phys_addr_t start, unsigned long size);
- 
-@@ -5377,6 +5378,11 @@ static inline void accept_memory(phys_addr_t start, unsigned long size)
++static inline bool should_free_unaccepted(struct page *page,
++					  unsigned int order,
++					  fpi_t fpi_flags)
++{
++	return !(fpi_flags & FPI_NOLOCK) &&
++	       page_contains_unaccepted(page, order);
++}
++
++static void free_pages_prepare_init(struct page *page, unsigned int order)
++{
++	bool skip_kasan_poison = should_skip_kasan_poison(page);
++	bool init = want_init_on_free();
++
++	kernel_poison_pages(page, 1 << order);
++
++	/*
++	 * As memory initialization might be integrated into KASAN,
++	 * KASAN poisoning and memory initialization code must be
++	 * kept together to avoid discrepancies in behavior.
++	 *
++	 * With hardware tag-based KASAN, memory tags must be set before the
++	 * page becomes unavailable via debug_pagealloc or arch_free_page.
++	 */
++	if (!skip_kasan_poison) {
++		kasan_poison_pages(page, order, init);
++
++		/* Memory is already initialized if KASAN did it internally. */
++		if (kasan_has_integrated_init())
++			init = false;
++	}
++	if (init)
++		clear_highpages_kasan_tagged(page, 1 << order);
++
++	/*
++	 * arch_free_page() can make the page's contents inaccessible.  s390
++	 * does this.  So nothing which can access the page's contents should
++	 * happen after this.
++	 */
++	arch_free_page(page, order);
++
++	debug_pagealloc_unmap_pages(page, 1 << order);
++}
++
+ static __always_inline bool __free_pages_prepare(struct page *page,
+ 		unsigned int order, fpi_t fpi_flags)
  {
+ 	int bad = 0;
+-	bool skip_kasan_poison = should_skip_kasan_poison(page);
+-	bool init = want_init_on_free();
+ 	bool compound = PageCompound(page);
+ 	struct folio *folio = page_folio(page);
+ 
+@@ -1411,34 +1452,10 @@ static __always_inline bool __free_pages_prepare(struct page *page,
+ 					   PAGE_SIZE << order);
+ 	}
+ 
+-	kernel_poison_pages(page, 1 << order);
+-
+-	/*
+-	 * As memory initialization might be integrated into KASAN,
+-	 * KASAN poisoning and memory initialization code must be
+-	 * kept together to avoid discrepancies in behavior.
+-	 *
+-	 * With hardware tag-based KASAN, memory tags must be set before the
+-	 * page becomes unavailable via debug_pagealloc or arch_free_page.
+-	 */
+-	if (!skip_kasan_poison) {
+-		kasan_poison_pages(page, order, init);
+-
+-		/* Memory is already initialized if KASAN did it internally. */
+-		if (kasan_has_integrated_init())
+-			init = false;
+-	}
+-	if (init)
+-		clear_highpages_kasan_tagged(page, 1 << order);
+-
+-	/*
+-	 * arch_free_page() can make the page's contents inaccessible.  s390
+-	 * does this.  So nothing which can access the page's contents should
+-	 * happen after this.
+-	 */
+-	arch_free_page(page, order);
++	if (should_free_unaccepted(page, order, fpi_flags))
++		return true;
+ 
+-	debug_pagealloc_unmap_pages(page, 1 << order);
++	free_pages_prepare_init(page, order);
+ 
+ 	return true;
+ }
+@@ -1572,14 +1589,31 @@ static void free_one_page(struct zone *zone, struct page *page,
+ 	__count_vm_events(PGFREE, 1 << order);
  }
  
-+static inline bool has_unaccepted_memory(void)
++static bool handle_unaccepted_free(struct page *page, unsigned int order,
++				   fpi_t fpi_flags)
 +{
++	if (!should_free_unaccepted(page, order, fpi_flags))
++		return false;
++
++	if (__free_unaccepted(page, order))
++		return true;
++
++	accept_memory(page_to_phys(page), PAGE_SIZE << order);
++	free_pages_prepare_init(page, order);
 +	return false;
 +}
 +
- static inline unsigned int unaccepted_memory_order(void)
+ static void __free_pages_ok(struct page *page, unsigned int order,
+ 			    fpi_t fpi_flags)
  {
- 	return 0;
-diff --git a/include/linux/mmzone.h b/include/linux/mmzone.h
-index d44b04589f48..ae4657dbb5a8 100644
---- a/include/linux/mmzone.h
-+++ b/include/linux/mmzone.h
-@@ -1112,7 +1112,7 @@ struct zone {
- 	struct free_area	free_area[NR_PAGE_ORDERS];
+ 	unsigned long pfn = page_to_pfn(page);
+ 	struct zone *zone = page_zone(page);
  
- #ifdef CONFIG_UNACCEPTED_MEMORY
--	/* Pages to be accepted. All pages on the list are MAX_PAGE_ORDER */
-+	/* Pages to be accepted. All pages are >= unaccepted_memory_order() */
- 	struct list_head	unaccepted_pages;
+-	if (__free_pages_prepare(page, order, fpi_flags))
++	if (__free_pages_prepare(page, order, fpi_flags)) {
++		if (handle_unaccepted_free(page, order, fpi_flags))
++			return;
+ 		free_one_page(zone, page, pfn, order, fpi_flags);
++	}
+ }
  
- 	/* To be called once the last page in the zone is accepted */
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 3322f9e75616..46ae8c6f3814 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -300,8 +300,10 @@ static unsigned long alloc_stall_warn_jiffies = INITIAL_JIFFIES;
+ void __meminit __free_pages_core(struct page *page, unsigned int order,
+@@ -2955,7 +2989,8 @@ static void __free_frozen_pages(struct page *page, unsigned int order,
+ 	unsigned long pfn = page_to_pfn(page);
+ 	int migratetype;
  
- static bool page_contains_unaccepted(struct page *page, unsigned int order);
- static bool cond_accept_memory(struct zone *zone, unsigned int order,
--			       int alloc_flags);
--static bool __free_unaccepted(struct page *page);
-+			       int alloc_flags, bool force);
-+static bool __free_unaccepted(struct page *page, unsigned int order);
-+static bool __free_unaccepted_locked(struct page *page, struct zone *zone,
-+				     unsigned int order);
- 
- int page_group_by_mobility_disabled __read_mostly;
- 
-@@ -1614,8 +1616,10 @@ void __meminit __free_pages_core(struct page *page, unsigned int order,
- 		atomic_long_add(nr_pages, &page_zone(page)->managed_pages);
+-	if (!pcp_allowed_order(order)) {
++	if (!pcp_allowed_order(order) ||
++	    should_free_unaccepted(page, order, fpi_flags)) {
+ 		__free_pages_ok(page, order, fpi_flags);
+ 		return;
  	}
- 
--	if (page_contains_unaccepted(page, order)) {
--		if (order == MAX_PAGE_ORDER && __free_unaccepted(page))
-+	if (range_contains_unaccepted_memory(page_to_phys(page),
-+					     PAGE_SIZE << order)) {
-+		if (order >= unaccepted_memory_order() &&
-+		    __free_unaccepted(page, order))
- 			return;
- 
- 		accept_memory(page_to_phys(page), PAGE_SIZE << order);
-@@ -2003,6 +2007,13 @@ static bool prep_move_freepages_block(struct zone *zone, struct page *page,
- 				pfn += nr;
- 				continue;
- 			}
-+			if (PageUnaccepted(page)) {
-+				int nr = 1 << page_private(page);
-+
-+				*num_free += nr;
-+				pfn += nr;
-+				continue;
-+			}
- 			/*
- 			 * We assume that pages that could be isolated for
- 			 * migration are movable. But we don't actually try
-@@ -3872,7 +3883,7 @@ get_page_from_freelist(gfp_t gfp_mask, unsigned int order, int alloc_flags,
+@@ -3024,9 +3059,13 @@ void free_unref_folios(struct folio_batch *folios)
  			continue;
- 		}
- 
--		cond_accept_memory(zone, order, alloc_flags);
-+		cond_accept_memory(zone, order, alloc_flags, false);
- 
  		/*
- 		 * Detect whether the number of free pages is below high
-@@ -3897,7 +3908,7 @@ get_page_from_freelist(gfp_t gfp_mask, unsigned int order, int alloc_flags,
- 		if (!zone_watermark_fast(zone, order, mark,
- 				       ac->highest_zoneidx, alloc_flags,
- 				       gfp_mask)) {
--			if (cond_accept_memory(zone, order, alloc_flags))
-+			if (cond_accept_memory(zone, order, alloc_flags, true))
- 				goto try_this_zone;
+ 		 * Free orders not handled on the PCP directly to the
+-		 * allocator.
++		 * allocator, as well as any pages containing unaccepted memory.
+ 		 */
+-		if (!pcp_allowed_order(order)) {
++		if (!pcp_allowed_order(order) ||
++		    should_free_unaccepted(&folio->page, order, FPI_NONE)) {
++			if (handle_unaccepted_free(&folio->page, order,
++						   FPI_NONE))
++				continue;
+ 			free_one_page(folio_zone(folio), &folio->page,
+ 				      pfn, order, FPI_NONE);
+ 			continue;
+@@ -3187,6 +3226,16 @@ void __putback_isolated_page(struct page *page, unsigned int order, int mt)
+ 	/* zone lock should be held when this function is called */
+ 	lockdep_assert_held(&zone->lock);
  
- 			/*
-@@ -3934,7 +3945,7 @@ get_page_from_freelist(gfp_t gfp_mask, unsigned int order, int alloc_flags,
- 
- 			return page;
- 		} else {
--			if (cond_accept_memory(zone, order, alloc_flags))
-+			if (cond_accept_memory(zone, order, alloc_flags, true))
- 				goto try_this_zone;
- 
- 			/* Try again if zone has deferred pages */
-@@ -5216,7 +5227,7 @@ unsigned long alloc_pages_bulk_noprof(gfp_t gfp, int preferred_nid,
- 			goto failed;
- 		}
- 
--		cond_accept_memory(zone, 0, alloc_flags);
-+		cond_accept_memory(zone, 0, alloc_flags, false);
- retry_this_zone:
- 		mark = wmark_pages(zone, alloc_flags & ALLOC_WMARK_MASK) + nr_pages - nr_populated;
- 		if (zone_watermark_fast(zone, 0,  mark,
-@@ -5225,7 +5236,7 @@ unsigned long alloc_pages_bulk_noprof(gfp_t gfp, int preferred_nid,
- 			break;
- 		}
- 
--		if (cond_accept_memory(zone, 0, alloc_flags))
-+		if (cond_accept_memory(zone, 0, alloc_flags, true))
- 			goto retry_this_zone;
- 
- 		/* Try again if zone has deferred pages */
-@@ -7867,6 +7878,7 @@ bool has_managed_zone(enum zone_type zone)
- }
- 
- #ifdef CONFIG_UNACCEPTED_MEMORY
-+#include <asm/unaccepted_memory.h>
- 
- static bool lazy_accept = true;
- 
-@@ -7884,25 +7896,45 @@ static int __init accept_memory_parse(char *p)
- }
- early_param("accept_memory", accept_memory_parse);
- 
-+bool has_unaccepted_memory(void)
-+{
-+	return lazy_accept && efi_get_unaccepted_table() &&
-+	       arch_has_unaccept_memory() &&
-+	       unaccepted_memory_order() <= MAX_PAGE_ORDER;
-+}
-+EXPORT_SYMBOL_GPL(has_unaccepted_memory);
++	if (page_contains_unaccepted(page, order)) {
++		if (__free_unaccepted_locked(page, zone, order))
++			return;
++		accept_memory(page_to_phys(page), PAGE_SIZE << order);
++		free_pages_prepare_init(page, order);
++		split_large_buddy(zone, page, page_to_pfn(page), order,
++				  FPI_SKIP_REPORT_NOTIFY | FPI_TO_TAIL);
++		return;
++	}
 +
- static bool page_contains_unaccepted(struct page *page, unsigned int order)
- {
- 	phys_addr_t start = page_to_phys(page);
- 
-+	/*
-+	 * Unaccepted memory is tracked and freed in blocks of at least
-+	 * unaccepted_memory_order(). Skipping lower-order frees avoids
-+	 * acquiring unaccepted_memory_lock on normal page frees.
-+	 */
-+	if (!has_unaccepted_memory() || order < unaccepted_memory_order())
-+		return false;
-+
- 	return range_contains_unaccepted_memory(start, PAGE_SIZE << order);
- }
- 
- static void __accept_page(struct zone *zone, unsigned long *flags,
- 			  struct page *page)
- {
-+	unsigned int order = page_private(page);
-+	unsigned int nr_pages = 1 << order;
-+
- 	list_del(&page->lru);
--	account_freepages(zone, -MAX_ORDER_NR_PAGES, MIGRATE_MOVABLE);
--	__mod_zone_page_state(zone, NR_UNACCEPTED, -MAX_ORDER_NR_PAGES);
-+	account_freepages(zone, -nr_pages, MIGRATE_MOVABLE);
-+	__mod_zone_page_state(zone, NR_UNACCEPTED, -nr_pages);
- 	__ClearPageUnaccepted(page);
-+	set_page_private(page, 0);
+ 	/* Return isolated page to tail of freelist. */
+ 	__free_one_page(page, page_to_pfn(page), zone, order, mt,
+ 			FPI_SKIP_REPORT_NOTIFY | FPI_TO_TAIL);
+@@ -7933,8 +7982,9 @@ static void __accept_page(struct zone *zone, unsigned long *flags,
  	spin_unlock_irqrestore(&zone->lock, *flags);
  
--	accept_memory(page_to_phys(page), PAGE_SIZE << MAX_PAGE_ORDER);
-+	accept_memory(page_to_phys(page), PAGE_SIZE << order);
- 
--	__free_pages_ok(page, MAX_PAGE_ORDER, FPI_TO_TAIL);
-+	__free_pages_ok(page, order, FPI_TO_TAIL);
+ 	accept_memory(page_to_phys(page), PAGE_SIZE << order);
+-
+-	__free_pages_ok(page, order, FPI_TO_TAIL);
++	free_pages_prepare_init(page, order);
++	free_one_page(zone, page, page_to_pfn(page), order,
++		      FPI_TO_TAIL | FPI_SKIP_REPORT_NOTIFY);
  }
  
  void accept_page(struct page *page)
-@@ -7920,27 +7952,29 @@ void accept_page(struct page *page)
- 	__accept_page(zone, &flags, page);
- }
- 
--static bool try_to_accept_memory_one(struct zone *zone)
-+static unsigned int try_to_accept_memory_one(struct zone *zone)
- {
- 	unsigned long flags;
- 	struct page *page;
-+	unsigned int nr_pages;
- 
- 	spin_lock_irqsave(&zone->lock, flags);
- 	page = list_first_entry_or_null(&zone->unaccepted_pages,
- 					struct page, lru);
- 	if (!page) {
- 		spin_unlock_irqrestore(&zone->lock, flags);
--		return false;
-+		return 0;
- 	}
- 
-+	nr_pages = 1 << page_private(page);
- 	/* Unlocks zone->lock */
- 	__accept_page(zone, &flags, page);
- 
--	return true;
-+	return nr_pages;
- }
- 
- static bool cond_accept_memory(struct zone *zone, unsigned int order,
--			       int alloc_flags)
-+			       int alloc_flags, bool force)
- {
- 	long to_accept, wmark;
- 	bool ret = false;
-@@ -7957,7 +7991,7 @@ static bool cond_accept_memory(struct zone *zone, unsigned int order,
- 	/*
- 	 * Watermarks have not been initialized yet.
- 	 *
--	 * Accepting one MAX_PAGE_ORDER page to ensure progress.
-+	 * Accepting one block to ensure progress.
- 	 */
- 	if (!wmark)
- 		return try_to_accept_memory_one(zone);
-@@ -7968,32 +8002,62 @@ static bool cond_accept_memory(struct zone *zone, unsigned int order,
- 		    __zone_watermark_unusable_free(zone, order, 0) -
- 		    zone_page_state(zone, NR_UNACCEPTED));
- 
-+	if (force && to_accept < (1L << order))
-+		to_accept = 1L << order;
-+
- 	while (to_accept > 0) {
--		if (!try_to_accept_memory_one(zone))
-+		unsigned int accepted = try_to_accept_memory_one(zone);
-+
-+		if (!accepted)
- 			break;
- 		ret = true;
--		to_accept -= MAX_ORDER_NR_PAGES;
-+		to_accept -= accepted;
- 	}
- 
- 	return ret;
- }
- 
--static bool __free_unaccepted(struct page *page)
-+static bool __free_unaccepted_locked(struct page *page, struct zone *zone,
-+				     unsigned int order)
-+{
-+	unsigned int nr_pages = 1 << order;
-+	unsigned int step = max_t(unsigned int, 1, pageblock_nr_pages);
-+	unsigned int i;
-+
-+	lockdep_assert_held(&zone->lock);
-+
-+	for (i = 0; i < nr_pages; i += step) {
-+		int mt = get_pageblock_migratetype(page + i);
-+
-+		if (!migratetype_is_mergeable(mt))
-+			return false;
-+	}
-+
-+	if (order >= pageblock_order)
-+		change_pageblock_range(page, order, MIGRATE_MOVABLE);
-+
-+	set_page_private(page, order);
-+	list_add_tail(&page->lru, &zone->unaccepted_pages);
-+	account_freepages(zone, nr_pages, MIGRATE_MOVABLE);
-+	__mod_zone_page_state(zone, NR_UNACCEPTED, nr_pages);
-+	__SetPageUnaccepted(page);
-+	return true;
-+}
-+
-+static bool __free_unaccepted(struct page *page, unsigned int order)
- {
- 	struct zone *zone = page_zone(page);
- 	unsigned long flags;
-+	bool ret;
- 
- 	if (!lazy_accept)
- 		return false;
- 
- 	spin_lock_irqsave(&zone->lock, flags);
--	list_add_tail(&page->lru, &zone->unaccepted_pages);
--	account_freepages(zone, MAX_ORDER_NR_PAGES, MIGRATE_MOVABLE);
--	__mod_zone_page_state(zone, NR_UNACCEPTED, MAX_ORDER_NR_PAGES);
--	__SetPageUnaccepted(page);
-+	ret = __free_unaccepted_locked(page, zone, order);
- 	spin_unlock_irqrestore(&zone->lock, flags);
- 
--	return true;
-+	return ret;
- }
- 
- #else
-@@ -8004,12 +8068,19 @@ static bool page_contains_unaccepted(struct page *page, unsigned int order)
- }
- 
- static bool cond_accept_memory(struct zone *zone, unsigned int order,
--			       int alloc_flags)
-+			       int alloc_flags, bool force)
- {
- 	return false;
- }
- 
--static bool __free_unaccepted(struct page *page)
-+static bool __free_unaccepted_locked(struct page *page, struct zone *zone,
-+				     unsigned int order)
-+{
-+	BUILD_BUG();
-+	return false;
-+}
-+
-+static bool __free_unaccepted(struct page *page, unsigned int order)
- {
- 	BUILD_BUG();
- 	return false;
-diff --git a/mm/page_isolation.c b/mm/page_isolation.c
-index 5aaad037384e..c85ce158a646 100644
---- a/mm/page_isolation.c
-+++ b/mm/page_isolation.c
-@@ -165,6 +165,36 @@ static struct page *has_unmovable_pages(unsigned long start_pfn, unsigned long e
- 	return NULL;
- }
- 
-+static struct page *find_unaccepted_page_in_pageblock(struct zone *zone,
-+						      struct page *page)
-+{
-+#ifdef CONFIG_UNACCEPTED_MEMORY
-+	unsigned long pb_start = pageblock_start_pfn(page_to_pfn(page));
-+	unsigned long pb_end = pageblock_end_pfn(page_to_pfn(page));
-+	unsigned long start_pfn, pfn, step;
-+
-+	lockdep_assert_held(&zone->lock);
-+
-+	if (list_empty(&zone->unaccepted_pages) ||
-+	    unaccepted_memory_order() > MAX_PAGE_ORDER)
-+		return NULL;
-+
-+	start_pfn = ALIGN_DOWN(pb_start, MAX_ORDER_NR_PAGES);
-+	step = 1UL << unaccepted_memory_order();
-+
-+	for (pfn = start_pfn; pfn < pb_end; pfn += step) {
-+		struct page *cand = pfn_to_online_page(pfn);
-+
-+		if (!cand || page_zone(cand) != zone || !PageUnaccepted(cand))
-+			continue;
-+
-+		if (pfn + (1UL << page_private(cand)) > pb_start)
-+			return cand;
-+	}
-+#endif
-+	return NULL;
-+}
-+
- /*
-  * This function set pageblock migratetype to isolate if no unmovable page is
-  * present in [start_pfn, end_pfn). The pageblock must intersect with
-@@ -175,10 +205,14 @@ static int set_migratetype_isolate(struct page *page, enum pb_isolate_mode mode,
- {
- 	struct zone *zone = page_zone(page);
- 	struct page *unmovable;
-+	struct page *unaccepted = NULL;
- 	unsigned long check_unmovable_start, check_unmovable_end;
- 
--	if (PageUnaccepted(page))
--		accept_page(page);
-+retry:
-+	if (unaccepted) {
-+		accept_page(unaccepted);
-+		unaccepted = NULL;
-+	}
- 
- 	scoped_guard(spinlock_irqsave, &zone->lock) {
- 		/*
-@@ -189,6 +223,10 @@ static int set_migratetype_isolate(struct page *page, enum pb_isolate_mode mode,
- 		if (is_migrate_isolate_page(page))
- 			return -EBUSY;
- 
-+		unaccepted = find_unaccepted_page_in_pageblock(zone, page);
-+		if (unaccepted)
-+			goto retry;
-+
- 		/*
- 		 * FIXME: Now, memory hotplug doesn't call shrink_slab() by
- 		 * itself. We just check MOVABLE pages.
-@@ -383,7 +421,7 @@ static int isolate_single_pageblock(unsigned long boundary_pfn,
- 		pfn = page_to_pfn(page);
- 
- 		if (PageUnaccepted(page)) {
--			pfn += MAX_ORDER_NR_PAGES;
-+			accept_page(page);
- 			continue;
- 		}
- 
-diff --git a/mm/page_owner.c b/mm/page_owner.c
-index cfc31c92d765..e3f3a019b0bc 100644
---- a/mm/page_owner.c
-+++ b/mm/page_owner.c
-@@ -459,10 +459,13 @@ static inline bool skip_buddy_pages(unsigned long *pfn, struct page *page)
- {
- 	unsigned long order;
- 
--	if (!PageBuddy(page))
-+	if (PageBuddy(page))
-+		order = buddy_order_unsafe(page);
-+	else if (PageUnaccepted(page))
-+		order = READ_ONCE(page->private);
-+	else
- 		return false;
- 
--	order = buddy_order_unsafe(page);
- 	if (order <= MAX_PAGE_ORDER) {
- 		unsigned long new_pfn = *pfn + (1UL << order);
- 		unsigned long boundary = ALIGN(*pfn + 1, MAX_ORDER_NR_PAGES);
 -- 
 2.56.0.307.g5fe7bd680c-goog
 
