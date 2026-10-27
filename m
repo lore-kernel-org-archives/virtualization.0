@@ -1,125 +1,95 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.215.181
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793133575;
-	b=mqBZ9v7IQr/HS6RI8hKVKRBtlycDAI8HcysORXHBduJAOC9tIYv9w1JlnjYwheH7+UcD
-	 oJcIunA3L8KLTi6635Vpeb4cDHGaPz3nSbaLLM5Q5qIg0lUp8AYJK4PAyZ0VqoKJ/3qDr
-	 kI6HEou2YlTQY6mK9oWLUlb+Tgsyjugz77cOEVr8M2MHBjZlup6pOv+Ear+CWkNExaJno
-	 9eAAQ4byk4dviN434ORlj1Dt+owbnK/eZ5/I1p55FK+CQrRHbEFTzKSCMcDYIx4VdZtsR
-	 wT0iw7FNjMbnSndeIuzRG0K76Ps82DB5hseh4ROw22YBMmM8EsB1Fm73cOyincbOQpA==
+	t=1793144622;
+	b=jAe9JzY2BVYu6oD0eonbTk82oAamNKYArEdcwWLrabRmYWQGzSNBaZgmqymTFEiErcUV
+	 ygiigq7Nj8/Shw2AW9OgJj/P6X0RR5+rf7q+APZakDT/wZGKJAgVPHQyFl17B8HRAbdhx
+	 8noQwyVkhy5MVr5DcOyDDmjcW9ZcCBISw/WsirgxsRYEAx5nyTHt8RecWqv86GwhD1f7i
+	 Crpeo1gPT3K0XSo9Gc7xJOajZKDkaTxZvXZgExBCNCXTnKU+EsjKCTrkZWAn8A6OTLCxH
+	 C9l5VWf4Ho0RZkpeSPriyJ0s0GG7rTSQk+nucIynciFg8UyjWuYfj7Bu4nV02PktZLg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793133575;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
-	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
-	 X-Mimecast-Originator:Content-Type:Content-Disposition;
-	bh=roOwYu0f5KwBgODRuBr3gTl9MLGpmNzor9SYb28//4o=;
-	b=lQ5oY3XVgQXuNhWQk2T/4GLt2jD1JDMYbpI+SfcZEDezRd0O+x7rWbfPrCykBhD/4JVq
-	 Jz0EUXbnMj/U4FMiKVooAuUsb+1ifs5UZQNo/xMbCfDr49HkgqR9Q3JxtZ79opYNqGOkn
-	 447f+AGunGmDov0nShwG5kbDdEFCGdogzjZUQypIMjKI6Gvn0SE2Q0rtldhd4IhjidU1F
-	 9zQgh2y5ffADNcIl7xuYAH0y6QtRWYhMJr/8DDfDDQmhBrEXcPsZBRuRYjIXAppTwxv0Z
-	 IpF88y65G5wxaS+oJ1RhT7mAllrtrpjRFRvE9w/J1H6GnZFHrpG1nU3MGDZyhb0QnLw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793144622;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=B4qnDx0k2bpcfJWg33p4lPdO3IoU2oz8ozCUQhYAFVc=;
+	b=JAIj8FhqS64tdYLthimSZjTaD1p5GWc3axiMxalmXIxmldV5IoDZTkzAPdz+r3EKSkHi
+	 JGYbpxwZ4uFIxKfHmVrDi2/FDY7b2WjF44xb/3Nae1yyHepEid/NjsxIUP3vQI5WKqL1V
+	 3CSjCRslVhU/6I1+KG5z9Fi91iGyMsVRLjJUoRN1T82hyyRSfq9lnIwrVTohUrGs2JnH/
+	 13/dH+HfYp0l19opCJrUqPBziTdGnNoGJDT0V2CY6bSD7QOvVIUih08nqZ83T1xkYsXDm
+	 CfX/wm94xC2dEJC273IBMV8ybe8zyDq2d3c2o5DSUO8jKEEu80ES03y4OMWwbbAcFyg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Yzz1bmfS;
-	arc=none smtp.remote-ip=170.10.129.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=grLjHo8y;
+	arc=none smtp.remote-ip=209.85.215.181
+Received: from mail-pg1-f181.google.com (mail-pg1-f181.google.com [209.85.215.181])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 877FA606A31D
-	for <virtualization@lists.linux.dev>; Tue, 27 Oct 2026 20:39:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 877FA606A31D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CD97606A31D
+	for <virtualization@lists.linux.dev>; Tue, 27 Oct 2026 23:43:42 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7CD97606A31D
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Yzz1bmfS
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1793133573;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=roOwYu0f5KwBgODRuBr3gTl9MLGpmNzor9SYb28//4o=;
-	b=Yzz1bmfSNVbWf70ociut+9t8edvevKPOs03rhG9/4T0iDlgn/QgV5aHuQRgOWG1Xq7oOm3
-	G/yTrFIjnNA1OL9Shmn8mjaw/PvzNV1ZPJzxoEcGuG2kCymCH8K3xa8orUefmA14BibdEx
-	ef+G2ItOub3JXhwDkARyVecczJXoBVQ=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-591-B3jYjykRO3KqHY-gg7NnxQ-1; Tue, 27 Oct 2026 16:39:30 -0400
-X-MC-Unique: B3jYjykRO3KqHY-gg7NnxQ-1
-X-Mimecast-MFC-AGG-ID: B3jYjykRO3KqHY-gg7NnxQ_1793133569
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-48dea677afcso132420f8f.1
-        for <virtualization@lists.linux.dev>; Tue, 27 Oct 2026 13:39:29 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=grLjHo8y
+Received: by mail-pg1-f181.google.com with SMTP id 41be03b00d2f7-cd62c570b5dso278259a12.2
+        for <virtualization@lists.linux.dev>; Tue, 27 Oct 2026 16:43:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793144622; x=1793749422; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=B4qnDx0k2bpcfJWg33p4lPdO3IoU2oz8ozCUQhYAFVc=;
+        b=grLjHo8yE6p+cOnThJzbh7LieF548xgW5JThklPi273TShsWSruZ7RDz0Q9vQlZ95M
+         F519eiEd4/DaCmaYr4kfu0Erme/bjLPeCbUJOWW+y80VSWBsL0Hq6fZVeXRIVG9+OgSa
+         3uE4YZUnr+Y7hhIX4Bc+F9mHDC/6eepk4Y+sFljMz+P2IDLIL9Tre1J4ewy8hTPEn/Ip
+         TMaZL/uHcfj7wi6jWvkkCp/FgmB2mR0dTkkGSg9bMLP/yxELLcdMNUbqx0Pqg6yzAHJl
+         eVLbzf+hbiT6yHdJjVnaKfJaZl92FtGfz5SBLECFwE/5GA2iggACG26C0hwJY+AWDxJS
+         5Nwg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793133569; x=1793738369;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=roOwYu0f5KwBgODRuBr3gTl9MLGpmNzor9SYb28//4o=;
-        b=Pxu80sSLmYuyPawin9PRexvTlov7soYn2LomteKywsUKoRJWx4c4oxEseFsVTReu2V
-         hwWXBaqafJ1BVSNMyYLni+bvd0v8rL33LdUHK1QcXdrnYnQKBLBrRSfzdN3aOiVUjNvB
-         7kTcapstg6NOjqnJ514MTh/cOcwtFwMaSpvzNQ+UHLARx2am88qqCvLuIahnQhg6O6Yv
-         C8nn/vCmv79jb8xPhcoVzrXpWYPnZ5UG3KDy7Dd+OsnDJso5fms0yf4ypxTKdSdSUuso
-         7HxFnrlOUVLFQVmCTRu1ljghUyfaOtq7tbQKtjjRhyEGPokthfRIqimd02AskjyM4iAF
-         ZaFw==
-X-Forwarded-Encrypted: i=1; AKwUvBxFhlubfHxAe4Vy4VbcW4sQ3ip6iOfTGUGoopwrc9nw0ztPQdBHVx07JrYWN2h8sjH1la7cvKrsvw1tCQ48bw==@lists.linux.dev
-X-Gm-Message-State: AFq9FYJbsptVeIs/VdInT8LB9ehrBmBbnHXWr0l6dbdrrVUHtUbnfMmB
-	QBtqwp5zRp2mhT/QY+JCHvt3ew9R1h1DHJaFGErbNag/Y92tlYWRYOmCicdQyZ0ClwC7TdRjNd3
-	Nqv/rqnKd+pYiJiL1mp1zR01+6Cdik7h5k2PqrpNpaerGmivshF0p5zMh9A2X12xwdKvd
-X-Gm-Gg: AYBFou01k/i7xwlB8sH+A+urfh5/EGLs+YP5i0qpA69KGx4As7aPZ5oe8klh3n/FQYR
-	erh5aWZ9HAgeEcyDZ/7hoPYk85MQZ+gXSpPhKYKyKalmOZhB+krddSCtfaEkK2eTX1ygoYiPCrI
-	o19dTtZdENt+kVEwq7m9sfAGmEFaLs9TueGnkCi9DGxxT/cqDUKH8asqKkD+8IXz2w4t4yN++kB
-	jmt4hsuKojhvMglbKFHujseH5S8No2WA2udSSbJVzNucbd2jnym8YPnuff5IlXPynw6zSsPw/XO
-	KwNSpHsy3+B0iqy+Afax86/Cf0FhCMnIxz2vBAQX4GIwDgk3mJbKvD//ZRk3ECGNukA=
-X-Received: by 2002:a05:6000:60f:b0:48e:850:c0b7 with SMTP id ffacd0b85a97d-48e5d28705fmr1693088f8f.1.1793133568586;
-        Tue, 27 Oct 2026 13:39:28 -0700 (PDT)
-X-Received: by 2002:a05:6000:60f:b0:48e:850:c0b7 with SMTP id ffacd0b85a97d-48e5d28705fmr1693005f8f.1.1793133567964;
-        Tue, 27 Oct 2026 13:39:27 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1536:fc00:b838:383:1c7:6e81])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48e3ecdd5b3sm24553225f8f.53.2026.10.27.13.39.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Oct 2026 13:39:24 -0700 (PDT)
-Date: Tue, 27 Oct 2026 16:39:18 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Kevin Loughlin <kevinloughlin@google.com>
-Cc: David Hildenbrand <david@kernel.org>, Jason Wang <jasowangio@gmail.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Ard Biesheuvel <ardb@kernel.org>, Kiryl Shutsemau <kas@kernel.org>,
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Tom Lendacky <thomas.lendacky@amd.com>,
-	Ashish Kalra <ashish.kalra@amd.com>,
-	Michael Roth <michael.roth@amd.com>,
-	Rick Edgecombe <rick.p.edgecombe@intel.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Brendan Jackman <brendan.jackman@linux.dev>,
-	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
-	Alexander Duyck <alexanderduyck@fb.com>,
-	virtualization@lists.linux.dev, linux-coco@lists.linux.dev,
-	linux-efi@vger.kernel.org, linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org,
-	Sidharth Telang <sidtelang@google.com>,
-	Punit Salian <psalian@google.com>, Peter Gonda <pgonda@google.com>,
-	Ackerley Tng <ackerleytng@google.com>,
-	Jacky Li <jackyli@google.com>,
-	Steve Rutherford <srutherford@google.com>,
-	David Skidmore <davidskidmore@google.com>
-Subject: Re: [PATCH 00/13] virtio_balloon, efi/unaccepted: support memory
- ballooning and free page reporting in CoCo guests
-Message-ID: <20261027163814-mutt-send-email-mst@kernel.org>
-References: <20261027025616.1632690-1-kevinloughlin@google.com>
- <20261027051245-mutt-send-email-mst@kernel.org>
+        d=1e100.net; s=20260707; t=1793144622; x=1793749422;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=B4qnDx0k2bpcfJWg33p4lPdO3IoU2oz8ozCUQhYAFVc=;
+        b=D37DdsA0WgyclzJP/yAdLYKVEqdJCEPUh78o7AZq2p+Nhozb4pVf+8nVBsTw2lMjHS
+         v490c7N/JOcWAoQfX0A4mWr6DfJd1Fc+kCAXPVRjGqc8kasv4FhxupLD7P7oJ/Gsqa8p
+         5XfYkZRJEKPT/w9YRak+qsX81si85QM0LceiZ1dBRI9UHKOmjQ0OfaMUmT1YZuu67kpL
+         oJ6EN2Z/h/o9DF0ixpZuG9hyVRj6uC1wMkSgBq4I2fyIKtXuqYss7zqi0+QLRKdi8+GZ
+         qAs1rKTP4SUzOLVmvIlA2o83lu+P+ii+s8r62MBD7BOUrHvYbRi2UlEqgHlC7XxF7Rch
+         xY0g==
+X-Forwarded-Encrypted: i=1; AKwUvBxGEABiCyesCbNqN/9SaPT0QCeUecBDlDDYeriU+IeDyhIqWb1nBttR31V2vyAQBTAJvn36KIk0lxF3cyA3UQ==@lists.linux.dev
+X-Gm-Message-State: AFq9FYLSgjcM/DuIuL2xzzCKDZL1fB4RBl69CcveIHeC32V7jFZ2F2rR
+	L2TiVzlS/3hm04g/FouARzoOWnlSbATMVFv3/PDj4Ne+EyJ5CG1lTioW
+X-Gm-Gg: AYBFou3gD/SAWxoUqYNYCRGaIa4aIGeVJBeVeu0BR8KEa3Mad2tzfb55wZgogOymNse
+	3WwN/qUu56gENo4+eNd1/E2NWINLNuKVeEYC8zuKlEfvOVWLIMNrv0ZdD3p/UQQuNWgiDPxktAQ
+	b6HBXoHqhwZAUU7ApoqbfGJY0PN33WT2gYnWxFZA7Bg/UZmUsr36Un9OOUtsyjBhvyLw55OaP6L
+	EjNUBqYyjxHHFe/l/mkFwC8sTYhQ5Xf+n9/jk4iva6rLFU9WTeCVakmYGExaMPHEyEt4DCvS+Cr
+	9VegKPBunp6olVulyjBeSaJCPBTEWcBwV35ClqCRY19inJ//VoYqnPS9C5ysAD0eqeZIRpETg3z
+	hE9llQP5wjZ/4WULFSeLya1dUbzOCuMpbnBANy4OEqmmeiXac8lc9rpxUw5+OZNIPvGMyb5HHUk
+	4tz3P+tz4+IjFHPnSFXtL78ge9WUVt02Ae+t6ktJmZ9CkU5+PRzQAod/4delsjngfvDpoMTJt2l
+	bpfRSilowLiUFgPTSGTOUH1+vqq75nz8/FE8w4eWaGnhwepQfQ/gcU+6FVSs+S5KnXN0wPSWdNG
+	iMxAhVns1uW63EmcCyIv8Be0xy/Q8K8zGgc3tXyUhJy8be1twJQu7ZSFPOCfcCr7VHDgLuZtuEp
+	V7ug6LF/KxUkifudy2uHde8ewSHDbzoAd0AXGgS99ICzBFis=
+X-Received: by 2002:a05:6300:8003:b0:3e0:b937:883d with SMTP id adf61e73a8af0-3e90234d178mr489806637.25.1793144621759;
+        Tue, 27 Oct 2026 16:43:41 -0700 (PDT)
+Received: from localhost.localdomain ([183.96.175.225])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8a6a662b9f5sm542507b3a.21.2026.10.27.16.43.37
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Tue, 27 Oct 2026 16:43:40 -0700 (PDT)
+From: Joonho Lee <mynameisjune111@gmail.com>
+To: linux-sound@vger.kernel.org
+Cc: tiwai@suse.de,
+	perex@perex.cz,
+	anton.yakovlev@opensynergy.com,
+	mst@redhat.com,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v5 00/11] ALSA: virtio: staged capture and dsnoop recovery
+Date: Wed, 28 Oct 2026 08:43:23 +0900
+Message-ID: <20261027234334.32551-1-mynameisjune111@gmail.com>
+X-Mailer: git-send-email 2.54.0
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -129,78 +99,70 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-In-Reply-To: <20261027051245-mutt-send-email-mst@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: GY_xMMZ0rsAwFbOA13LnW8ucRNx2OzwwLz_j1qpiWvA_1793133569
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Tue, Oct 27, 2026 at 06:29:35AM -0400, Michael S. Tsirkin wrote:
-> On Tue, Oct 27, 2026 at 02:56:03AM +0000, Kevin Loughlin wrote:
-> > This series enables virtio-balloon free page reporting and memory balloon
-> > inflation/deflation in Confidential Computing (CoCo) guests, starting
-> > with architectural hooks implemented for AMD SEV variants, in order to
-> > support dynamic CoCo guest resizing.
-> > 
-> > Today, memory ballooning and free page reporting are essentially unusable
-> > in CoCo guests due to three main roadblocks:
-> 
-> 
-> For me, the bigger question is not whether we can, but whether we
-> should. Considerations I would like to see addressed:
-> 
-> Security, e.g.: does knowing which memory is free leak information from
-> the guest? If no, why not?
-> Consider CONFIG_SHUFFLE_PAGE_ALLOCATOR, RANDSTRUCT, etc.
-> 
-> correctness, e.g.:  Linux has init on free (and default on windows), if
-> initialized pages are dropped and host can not be trusted, they have to be
-> re-initialized. Is this handled? I don't see it in code.
-> 
-> Also, performance, e.g.: How much does this re-initialization cost?
-> 
-> Management: it was simple with balloon off unconditionally.
-> Now we are in murkier waters with various features offering
-> various performance/security tradeoffs.
-> What if some guests want the tradeoffs but others don't?
-> 
-> Documentation: for all of the above.
-> 
-> -- 
-> MST
+Hi Takashi,
 
-And to give this a bit more perspective, I present:
+Thanks for checking v4. I reproduced the application problem against
+sound.git for-next. The two dsnoop patches depended on nine patches from
+my earlier submissions that are still absent from that tree.
 
-commit ab676b7d6fbf4b294bf198fb27ade5b0e865c7ce
-Author: Kiryl Shutsemau <kas@kernel.org>
-Date:   Mon Mar 9 23:11:12 2015 +0200
+This version includes those dependencies in application order and applies
+directly to for-next at bcb4494239f57c98a8ef576566b03f2935b3000f.
+It needs no separately fetched prerequisite patches. Targeting 7.5 or later
+works for me; I have no deployment deadline for this work.
 
-    pagemap: do not leak physical addresses to non-privileged userspace
-    
-    As pointed by recent post[1] on exploiting DRAM physical imperfection,
-    /proc/PID/pagemap exposes sensitive information which can be used to do
-    attacks.
-    
-    This disallows anybody without CAP_SYS_ADMIN to read the pagemap.
-    
-    [1] http://googleprojectzero.blogspot.com/2015/03/exploiting-dram-rowhammer-bug-to-gain.html
-    
-    [ Eventually we might want to do anything more finegrained, but for now
-      this is the simple model.   - Linus ]
-    
-    Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-    Acked-by: Konstantin Khlebnikov <khlebnikov@openvz.org>
-    Acked-by: Andy Lutomirski <luto@amacapital.net>
-    Cc: Pavel Emelyanov <xemul@parallels.com>
-    Cc: Andrew Morton <akpm@linux-foundation.org>
-    Cc: Mark Seaborn <mseaborn@chromium.org>
-    Cc: stable@vger.kernel.org
-    Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+There are no code changes from the previously submitted patches. Stable
+patch IDs match all nine prerequisites and both patches from v4. Patches
+1-5 cover request lifetime and error recovery, 6 covers teardown waits,
+7 adds opt-in staged capture and pause restart, 8-9 cover ACK accounting
+and period work, and 10-11 add the stop-policy annotations and dsnoop fix.
 
+The staging and pause-restart changes were previously posted as RFCs.
+Including them here makes the dependency chain directly applicable; I
+would still welcome review of their device-compatibility assumptions.
+Capture staging and the VZ compatibility options remain opt-in. This
+series does not add host audio support to Docker Desktop or enable any
+host microphone permission.
 
-Leaking phys addresses to unpriveleged entities might not be wise.
+The dsnoop fix recognizes stop_threshold == boundary as free-running
+capture while preserving bounded-reader overflow checks. Returning to
+bounded mode with a full unread ring reports an XRUN. Paused ACK and
+period-work errors arm synchronous cleanup so the first prepare can
+release queued RX requests and recover. This fixes behavior introduced by
+the staged-capture patches in this series.
 
--- 
-MST
+Previous v4:
+https://lore.kernel.org/all/20261025064038.81674-1-mynameisjune111@gmail.com/
+Your rebase request:
+https://lore.kernel.org/all/87cxsv33oq.wl-tiwai@suse.de/
 
+Earlier submissions, now included rather than external prerequisites:
+https://lore.kernel.org/all/cover.1791881787.git.mynameisjune111@gmail.com/
+https://lore.kernel.org/all/rfc-v2-generic-control-wait-0.2eddd58a796e497f@gmail.com/
+https://lore.kernel.org/all/rfc-v2-vz-capture-compat-0.b9ab4c1540dc4691@gmail.com/
+https://lore.kernel.org/all/rfc-virtio-snd-capture-followups-0.f2737c95c12e45b4@gmail.com/
+
+I built a fresh ARM64 kernel and modules from this base with KASAN and
+lockdep enabled. All eleven patches passed sequential git apply and
+git am checks, and checkpatch reported no errors or warnings.
+
+On that kernel, all 16 paused-ACK recovery combinations passed across
+native pause and pause restart with one and two vCPUs. The first prepare
+recovered without a preceding drop. The native pause-release regression
+and all 13 mode/lifecycle cases also passed, including shared dsnoop
+readers, client drop, mode transitions and reopen. All six QEMU runs
+confirmed the expected module hashes and produced no KASAN or lockdep
+diagnostics.
+
+Earlier v4 validation covered 16 paused-ACK recovery combinations and the
+13-case mode suite under ARM64 QEMU with KASAN and lockdep. Earlier MOTU/VZ
+and KCSAN results used the previous base; they are not new results for
+this revision. Physical microphone testing, 32-bit builds and forced
+RX/pause interleaving have not been rerun on this base.
+
+Thanks,
+Joonho
+
+---
+base-commit: bcb4494239f57c98a8ef576566b03f2935b3000f
