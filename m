@@ -1,124 +1,117 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.46
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793093822;
-	b=fO4ljJgj0c14MDdaAPhgJ+EGfse1wseRiuc/pZXcJAcWQKlSPaO5XwkNmTd3VlMV/Xx/
-	 wgYBsNGXLUwvYk7gAXpXJhF0QqQmNb3igBaouquXmnPbJiGvOyDw90Hh2ayXzmqKY+Qxs
-	 tesHN6N6Xfd/QzeIRtBVzE+KdPH7H9MS0jkUdgcNTtoHAUX0wuFaJMZL9vuzjnbQiPj81
-	 9HXBbTokOhipSCPbr0sKiPOvBOlh+NnQGSOM/XB5ZOozqGaOGxV+nvoDM44IYYP82Mzvx
-	 S/xwN+MP13mfOEaDaYgAHGg0qD+ZgNwmugzwB+U/kZmsgbJP0ICpfs88o39WanrmO+A==
+	t=1793094117;
+	b=wUg/JKUyAjdgFdclHBKstXAPD/WgApmkX3sn1dFyxu5meYLrFm/VRGHyvJXRhwdxnmff
+	 pYwkptzpW+zrBcwcWQZMLY+blw12oNAB3cV6QW1kYWO5BY4KniRvK39jU6bsGlhVjm3Xh
+	 hHWrMQx8RC22ryqRNGl6lmT4M6yBYwq1HlW/g5Y/SlalDsPaMX1i620mCdpcHiesVUtVZ
+	 meWPpLbkUTbPpBEF1LCvPRREL1vUciMfHGffS5d7oDFcCriYBp00yh21U4Rd2cv+bcHjj
+	 57lIWDPco1GE0lRQNKpzFDg2fXMV3GrFYvGz9t0PVQxXCEB6+cRCq6gSAIzyD4tSg1w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793093822;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
-	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
-	 X-Mimecast-Originator:Content-Type:Content-Disposition;
-	bh=yZ6xG709ht579SVeXaHvhn7gbaGSx41yuwP8KO/9DQI=;
-	b=EnwmCAsR91BaTuBEIS9wj262sHLXDw036fnjz1avw83NmKBn58a1Pfni0oYk1Qg8DwkP
-	 ClA5b0SEYuxQ0noGJwB1eKMiG+ten5BVIS/RMj25xJGNbnphdCekWkBHWNq4EyXj8+pNE
-	 PzKJjOLRvOVSVRXM+if2+pV0TfPSTAuhVN6dZ9SucpCBAOaAf10Lvm2gUJWnwNNj7+dLw
-	 IwhL1adpYTU/a6mAKqeSlcMn3pGxnas2ZNZQm3TXwj/OUDG0lWge1tVnjkHGEvKaue4y3
-	 EozRBUkbHyjzBIMEzyxPHkDPeFdplN6gySf/TjhvY4L3HfViUTVoipeJjujrdVmoKUA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793094117;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To;
+	bh=0G5Gh9P2KO0+5GGiKNPkOdO6AKt1oHHc652uqXaZcqY=;
+	b=035RgL2IScXEV8UnNKsc7H9EX9+vzfzfH5zjyofgOkebp7RVcaQTe3pFy3DToVi/AuYP
+	 5TzS4Cbts1H9tYs/otnJ3Ss/JUuLIh6RSZmCSz0EexQJyoMAnjOHhlN1zhKhp85lkugA6
+	 xVfQYuU+cRUBPXM76nA4wxidgsILC7byuhvNkO7R+TnsEHE5K/jkxvxnaX02WBlKENSXo
+	 T2niv4eehzF4JruGQ3WmqayRTC1lL9VHsJGZbGT84kVI5ih8o/e+D4wh5GSOsqxDRP6XZ
+	 5tGjt4fT604dtFPE6V/bsD84I5ddW1XNFUrc+vMiOYkemK7kLkHGCbESmNOhjFOr6yQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=HIxsGLTp;
-	arc=none smtp.remote-ip=170.10.133.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=none header.from=baylibre.com;
+	spf=pass smtp.mailfrom=baylibre.com;
+	dkim=pass header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=S5DRW+v5;
+	arc=none smtp.remote-ip=209.85.128.46
+Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77166606A31B
-	for <virtualization@lists.linux.dev>; Tue, 27 Oct 2026 09:37:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 77166606A31B
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77FB7606A323
+	for <virtualization@lists.linux.dev>; Tue, 27 Oct 2026 09:41:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 77FB7606A323
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=HIxsGLTp
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1793093820;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=yZ6xG709ht579SVeXaHvhn7gbaGSx41yuwP8KO/9DQI=;
-	b=HIxsGLTpyjQPUPCm5dkHYO67YmKeYD2RFc/wND8N4lACDtkddc0Ma+J9hMRu2MVkysFg36
-	/RvyRCYW/Dkw9UHIwDs6qsvmdl5OaKJTi+6byyfUhjPFyeYkQdwGFasb1exfXplzc1RAr3
-	qjPTLnZuAl0GOpDoPoeUAsof1idzveU=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-346-kobijklZP0u747CeaR3cDQ-1; Tue, 27 Oct 2026 05:36:58 -0400
-X-MC-Unique: kobijklZP0u747CeaR3cDQ-1
-X-Mimecast-MFC-AGG-ID: kobijklZP0u747CeaR3cDQ_1793093818
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-48e1ad3cb66so2286682f8f.3
-        for <virtualization@lists.linux.dev>; Tue, 27 Oct 2026 02:36:58 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=S5DRW+v5
+Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-4a59100fa83so18163665e9.0
+        for <virtualization@lists.linux.dev>; Tue, 27 Oct 2026 02:41:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre.com; s=google; t=1793094115; x=1793698915; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=0G5Gh9P2KO0+5GGiKNPkOdO6AKt1oHHc652uqXaZcqY=;
+        b=S5DRW+v5ox8KWDXg++5gcUaSJaw5S4WhtOYRJ04fnzQpYlFeWrCiDmCRTQXPceSeTh
+         WmAyFzIIOv8p45qUrg0Gsi/uZX8scIhvEtXZ8Zllj0ZUvEBypMgGlOfU5YJfI/kt+U+q
+         K1j7rTRTkmrJV3AIblbMV1393Q9uJjL7WKYHCQfEhblIt+bD0Xv+QuL4gncFRAkSMN6F
+         /3QoZ9kr4706c7yanbrCz/+iPdsQjmyIiXKcCv/n7ruaP5UKFqjy4YvqJDxFo+FAwsVq
+         V92gd5SXwnivklhTY1Kc9+fk/7QFI+EwGFMLS4l/tq+IpbiDz42z3rp+4LQt/5kSHnAb
+         ra9Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793093818; x=1793698618;
+        d=1e100.net; s=20260707; t=1793094115; x=1793698915;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=yZ6xG709ht579SVeXaHvhn7gbaGSx41yuwP8KO/9DQI=;
-        b=NS4q9zZvlHIAGdoCR5jshXgj0FiR5CPnrAaq8g3SIBcueci5WyQ8X8DB5SyORm1SOm
-         DhANSkPAKZF7A6MgiE4vTZy2M8ptbvA4PqvlFXMiFb07NWzzFisS5uWf93e1VFwUEK5d
-         ugtiFIn7hxQq8Xm8a8gUmaJ0X8r21MR4doUNGhChMx3LMNsl95toLhtwUPfw7LV3hyrV
-         bmHKwLVYrwJbY0dAA5qYyAP+CJVIH2UUtJb2ysNGG2bsXBtyRA+8cU9n3lW/Rmt6Ttzr
-         CXKSgUryV0X99mBn2oqky85CugI00ItJ/T2W2GH4V66zPm5FXWgL4JmQFOFLD+D5tEti
-         WEQA==
-X-Forwarded-Encrypted: i=1; AKwUvBxbnVjF9AnY4B2r6EoleWJW/7SPI8CiQeQlNarbT3NtALVA/B24CyWasJg7QYJVYLrp8MT/7bDeCgJklF26FA==@lists.linux.dev
-X-Gm-Message-State: AFq9FYLGOVC1u7iGvrEUXsptUTSMfQENy0Uvb+yYCF/ipXoq0bmCfYFV
-	6yHgv7KudLcBi3VchkhqoKoq05ScU4c06g8aYpHZx4Wbot9uabKhnthYP2R9rQ+0lkhrkwFA6sM
-	qO1HqIWNrDF1xoIUqQgnl4PWw1hYM6ype5McLnyM3gklWCXuO8cjoFLQu1Ag9gdg5D4v6
-X-Gm-Gg: AYBFou3X5ghdrwVerMoJttqtAzdfYVoTXyQfwcMnZcDCvMlBrTownI7g/qKONprqOby
-	iGoR9R2dDRruobXplDjI6yXgOydkD3hkU+FxSDudat1VSn0pqKidW84NZ1ltEdGsdbjqT22fh1/
-	JUVD8MiBhjup3OBLAj4V33exdREdjacpidrYTmpLIFQncgNkjknxtUTMOrv3AJKmBYJ0imMAqvz
-	oe4Ys9DOycbtkdOc5PQNkZ+KboBbncJZ4vB42yefCVQAI92D0n6Q7MAB9oRnhzpBUJniU0VCZDp
-	zmQdP6jhf2JbT3kqpqymr3dmchkFL/FIkH0QZ/gApPvD9am2icnmMASVzC2F6ppWoFE=
-X-Received: by 2002:a05:600c:4f89:b0:4a2:150f:160f with SMTP id 5b1f17b1804b1-4a35aca4e43mr174240495e9.25.1793093817483;
-        Tue, 27 Oct 2026 02:36:57 -0700 (PDT)
-X-Received: by 2002:a05:600c:4f89:b0:4a2:150f:160f with SMTP id 5b1f17b1804b1-4a35aca4e43mr174239545e9.25.1793093816842;
-        Tue, 27 Oct 2026 02:36:56 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1536:fc00:b838:383:1c7:6e81])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a359fbb725sm253517165e9.0.2026.10.27.02.36.52
+        bh=0G5Gh9P2KO0+5GGiKNPkOdO6AKt1oHHc652uqXaZcqY=;
+        b=mnjxdghAXazX0+K2qbvgZDKv8nQyy7UC7r1KfpCHVPJBegHJ+S+yNAY7tWgiTRNfeH
+         Fe/OaanKO4kRAse8k8x/sGij1Ofn6UifPN09GZYWG0IoUAoGlGQRlG8P+g/ll2e3sMUS
+         tvedcy4nkRJSEgpBu70q0OzzqKlTOlhWJHEmD4zP23sRPgazh4JBXfKUihycAhkG+3/4
+         XxKO5AqZNznLERCnJQV3ZURshMUtVDCCZX899RAdvL4OufE68x05slefIHpjUlT/G/Bk
+         t+jSfc2Wd6ReLllgvtG7BmQ99nz2Mt015veWDpB5VsmPIjBOajd9HQ9porC0UPTk5DIM
+         H+Gw==
+X-Forwarded-Encrypted: i=1; AKwUvBw32M5uoBPoNfiaYBbLQ3GEbzZf6mrjPKwPotCaTixYt7HAeCWi+VvzlCetlBEUPEs6SzRu9J1o+PqtNAhMGQ==@lists.linux.dev
+X-Gm-Message-State: AFq9FYJZkc8BHUvswdw0L8RMKYa4Q1uhYCMWoZoQtmkt/2UipnU5Sbg0
+	r7//nSmUt50t6VNdbl3vAUot9Tx778xcMXuSyQhn0Dtld9WxxpRBzhmjVZj9GCGfGJ0=
+X-Gm-Gg: AYBFou0Z41deKQ6YeTmfj7dgUP+nl09UY32a7lZ9db7kvoAIor9xgAOVbQzGBB328+a
+	rz/hn7OauJHU0LlQC7M/9OMoRud5CWHzYuwomnR9JaIIdQQNZ6dZA7WUajTuzk9m3vopLbg8E7Y
+	ZVByY8XEDdRCrwcrtMSwEDzGRY7B67NaxPqTlO17nWChGGp9xy1CDt+NNEkTpvdfjI6qZdltZSz
+	64IUE8omoqj9I+9j3ADifi+KhI/sLd2NHAO1wzhBCnbT04WDncgAC4iAaa/mjRsoiONk14bsQI3
+	lrDwKIhxRcKIlQ1X3JoEWHsMl7QceQ5xTgVDLfF8yTR7iT38lu1bSPkL3QF59PwtF9NiaiYQFRs
+	QUO9BA+boJD4OS0TQHAA/bIyc1NkagjF505kui3L5isnmnHAFjgKuST4MpzE3yN1YpWIpXJHT63
+	NtANHhVz0O3Gm0ebCiJYowzFrpLoFYFsBMzIFLWk9Gn4+6dhCGdItxzQJL6nLfZt0w6PufnFYYP
+	w0vdDpxa9n0iy0vkOKbTViCconTFmuwsKWZarD9x9vEt5moz7hPub5vijCed3leFlL/ldDlf0Ge
+	Rac7NgXfEhynOPNo4F8VwCgV69W3KDYKee7cAX6y2H4=
+X-Received: by 2002:a05:600c:8a08:b0:4a4:7a8d:c736 with SMTP id 5b1f17b1804b1-4a47a8dc93bmr110335135e9.9.1793094114509;
+        Tue, 27 Oct 2026 02:41:54 -0700 (PDT)
+Received: from localhost (p200300f65f19a904240e81f1f32a429c.dip0.t-ipconnect.de. [2003:f6:5f19:a904:240e:81f1:f32a:429c])
+        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-4a35a59d998sm263939065e9.15.2026.10.27.02.41.53
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Oct 2026 02:36:55 -0700 (PDT)
-Date: Tue, 27 Oct 2026 05:36:51 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Kevin Loughlin <kevinloughlin@google.com>
-Cc: David Hildenbrand <david@kernel.org>, Jason Wang <jasowangio@gmail.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Ard Biesheuvel <ardb@kernel.org>, Kiryl Shutsemau <kas@kernel.org>,
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Tom Lendacky <thomas.lendacky@amd.com>,
-	Ashish Kalra <ashish.kalra@amd.com>,
-	Michael Roth <michael.roth@amd.com>,
-	Rick Edgecombe <rick.p.edgecombe@intel.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Brendan Jackman <brendan.jackman@linux.dev>,
-	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
-	Alexander Duyck <alexanderduyck@fb.com>,
-	virtualization@lists.linux.dev, linux-coco@lists.linux.dev,
-	linux-efi@vger.kernel.org, linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org,
-	Sidharth Telang <sidtelang@google.com>,
-	Punit Salian <psalian@google.com>, Peter Gonda <pgonda@google.com>,
-	Ackerley Tng <ackerleytng@google.com>,
-	Jacky Li <jackyli@google.com>,
-	Steve Rutherford <srutherford@google.com>,
-	David Skidmore <davidskidmore@google.com>
-Subject: Re: [PATCH 10/13] virtio_balloon: add higher-order page inflation
-Message-ID: <20261027051822-mutt-send-email-mst@kernel.org>
-References: <20261027025616.1632690-1-kevinloughlin@google.com>
- <20261027025616.1632690-11-kevinloughlin@google.com>
+        Tue, 27 Oct 2026 02:41:53 -0700 (PDT)
+Date: Tue, 27 Oct 2026 10:41:52 +0100
+From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig_=28The_Capable_Hub=29?= <u.kleine-koenig@baylibre.com>
+To: Frank Li <Frank.li@oss.nxp.com>
+Cc: Linus Walleij <linusw@kernel.org>, 
+	Bartosz Golaszewski <brgl@kernel.org>, Andy Shevchenko <andy@kernel.org>, linux-gpio@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, Lixu Zhang <lixu.zhang@intel.com>, 
+	Sakari Ailus <sakari.ailus@linux.intel.com>, 
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, Florian Fainelli <florian.fainelli@broadcom.com>, 
+	Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>, Frank Li <Frank.Li@nxp.com>, 
+	Sascha Hauer <s.hauer@pengutronix.de>, Pengutronix Kernel Team <kernel@pengutronix.de>, 
+	Fabio Estevam <festevam@gmail.com>, Imre Kaloz <kaloz@kernel.org>, 
+	Conor Dooley <conor.dooley@microchip.com>, Valentina Fernandez <valentina.fernandezalanis@microchip.com>, 
+	Daire McNamara <daire.mcnamara@microchip.com>, Daniel Palmer <daniel@thingy.jp>, 
+	Romain Perier <romain.perier@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, imx@lists.linux.dev, 
+	linux-arm-kernel@lists.infradead.org, linux-riscv@lists.infradead.org, 
+	Hoan Tran <hoan@os.amperecomputing.com>, Alan Borzeszkowski <alan.borzeszkowski@linux.intel.com>, 
+	Mika Westerberg <westeri@kernel.org>, Hans de Goede <hansg@kernel.org>, 
+	Matti Vaittinen <mazziesaccount@gmail.com>, "Enrico Weigelt, metux IT consult" <info@metux.net>, 
+	Viresh Kumar <vireshk@kernel.org>, virtualization@lists.linux.dev, Yinbo Zhu <zhuyinbo@loongson.cn>, 
+	Thierry Reding <thierry.reding@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, 
+	linux-tegra@vger.kernel.org, Geert Uytterhoeven <geert+renesas@glider.be>, 
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Srinivas Neeli <srinivas.neeli@amd.com>, 
+	Michal Simek <michal.simek@amd.com>, linux-aspeed@lists.ozlabs.org, asahi@lists.linux.dev, 
+	linux-mediatek@lists.infradead.org, openbmc@lists.ozlabs.org, linux-omap@vger.kernel.org, 
+	linux-renesas-soc@vger.kernel.org, linux-unisoc@lists.infradead.org, 
+	linux-rockchip@lists.infradead.org, linux-stm32@st-md-mailman.stormreply.com, 
+	Michael Buesch <m@bues.ch>, William Breathitt Gray <wbg@kernel.org>, 
+	Robert Richter <rric@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, 
+	linux-acpi@vger.kernel.org
+Subject: Re: [PATCH v3 00/22] gpio: Improvements around device-id arrays
+Message-ID: <auBxfVzkveb7KlEk@monoceros>
+References: <cover.1793030820.git.u.kleine-koenig@baylibre.com>
+ <at-CGVq5jVsMQief@SMW015318>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -128,339 +121,53 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-In-Reply-To: <20261027025616.1632690-11-kevinloughlin@google.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: cIebTVEPsmiXSNH3PgXr3fzMiW4AZMOQn_-CQrYMvNY_1793093818
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="qlk6jmpzfns64bdk"
 Content-Disposition: inline
-
-On Tue, Oct 27, 2026 at 02:56:13AM +0000, Kevin Loughlin wrote:
-> In confidential computing guests requiring page state transitions,
-> unaccepted memory tracking operates at the EFI unaccepted memory unit
-> granularity (typically 2MB / order 9 on x86). Inflating the balloon
-> with 4KB pages would prevent unaccepting the backing 2MB unit.
-> 
-> Inflate balloon pages at unaccepted_memory_order() when
-> virtballoon_cc_needs_state_transition() is true, while retaining
-> order-0 allocations for non-CoCo guests and CoCo guests that do not
-> use unaccepted memory transitions. When a higher-order balloon page
-> spans more 4KB balloon PFNs than VIRTIO_BALLOON_ARRAY_PFNS_MAX (256),
-> transmit its PFNs to the host in VIRTIO_BALLOON_ARRAY_PFNS_MAX chunks.
-> 
-> Signed-off-by: Kevin Loughlin <kevinloughlin@google.com>
-
-BTW I'd say *everyone* prefers large pages. The fact that balloon
-currently breaks them up isn't nice to anyone. The only setup
-where they might be helpful is severe fragmentation, but even then,
-it is not clear we aren't contributing to the problem
-by making the fragmentation worse.
+In-Reply-To: <at-CGVq5jVsMQief@SMW015318>
 
 
-> ---
->  drivers/virtio/virtio_balloon.c | 87 ++++++++++++++++++++++++++-------
->  include/linux/balloon.h         |  1 +
->  mm/balloon.c                    | 67 +++++++++++++++++++------
->  3 files changed, 121 insertions(+), 34 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 11f74848fdc4..d162c162b496 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -182,6 +182,13 @@ static void balloon_ack(struct virtqueue *vq)
->  	wake_up(&vb->acked);
->  }
->  
-> +static inline bool virtballoon_cc_needs_state_transition(void)
-> +{
-> +	return IS_ENABLED(CONFIG_UNACCEPTED_MEMORY) &&
-> +	       cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT) &&
-> +	       has_unaccepted_memory();
-> +}
-> +
->  static void tell_host(struct virtio_balloon *vb, struct virtqueue *vq)
->  {
->  	struct scatterlist sg;
-> @@ -243,24 +250,49 @@ static void set_page_pfns(struct virtio_balloon *vb,
->  					  page_to_balloon_pfn(page) + i);
->  }
->  
-> +static void queue_page_pfns(struct virtio_balloon *vb, struct virtqueue *vq,
-> +			    struct page *page, unsigned int order)
-> +{
-> +	unsigned int nr_pages = 1 << order;
-> +	unsigned int i;
-> +
-> +	for (i = 0; i < nr_pages; i++) {
-> +		set_page_pfns(vb, vb->pfns + vb->num_pfns, page + i);
-> +		vb->num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE;
-> +		if (vb->num_pfns == ARRAY_SIZE(vb->pfns)) {
-> +			tell_host(vb, vq);
-> +			vb->num_pfns = 0;
-> +		}
-> +	}
-> +}
-> +
-> +static inline unsigned int virtballoon_preferred_order(void)
-> +{
-> +	if (virtballoon_cc_needs_state_transition())
-> +		return unaccepted_memory_order();
-> +	return 0;
-> +}
-> +
->  static unsigned int fill_balloon(struct virtio_balloon *vb, size_t num)
->  {
-> -	unsigned int num_allocated_pages;
-> +	unsigned int order = virtballoon_preferred_order();
-> +	unsigned int page_pfns = (1 << order) * VIRTIO_BALLOON_PAGES_PER_PAGE;
-> +	unsigned int num_allocated_pages = 0;
->  	struct page *page, *next;
->  	unsigned int num_pfns;
->  	LIST_HEAD(pages);
->  
-> -	/* We can only do one array worth at a time. */
-> -	num = min(num, ARRAY_SIZE(vb->pfns));
-> +	/* We can only do one array or preferred-order page worth at a time. */
-> +	num = min(num, max_t(size_t, ARRAY_SIZE(vb->pfns), page_pfns));
->  
->  	for (num_pfns = 0; num_pfns < num;
-> -	     num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE) {
-> -		page = balloon_page_alloc();
-> +	     num_pfns += page_pfns) {
-> +		page = balloon_pages_alloc(order);
->  
->  		if (!page) {
->  			dev_info_ratelimited(&vb->vdev->dev,
->  					     "Out of puff! Can't get %u pages\n",
-> -					     VIRTIO_BALLOON_PAGES_PER_PAGE);
-> +					     page_pfns);
->  			/* Sleep for at least 1/5 of a second before retry. */
->  			msleep(200);
->  			break;
-> @@ -274,15 +306,17 @@ static unsigned int fill_balloon(struct virtio_balloon *vb, size_t num)
->  	vb->num_pfns = 0;
->  
->  	list_for_each_entry_safe(page, next, &pages, lru) {
-> +		unsigned int page_order = compound_order(page);
-> +		unsigned int pfns = (1 << page_order) * VIRTIO_BALLOON_PAGES_PER_PAGE;
-> +
->  		list_del(&page->lru);
->  		balloon_page_enqueue(&vb->vb_dev_info, page);
->  
-> -		set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
-> -		vb->num_pages += VIRTIO_BALLOON_PAGES_PER_PAGE;
-> -		vb->num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE;
-> +		vb->num_pages += pfns;
-> +		num_allocated_pages += pfns;
-> +		queue_page_pfns(vb, vb->inflate_vq, page, page_order);
->  	}
->  
-> -	num_allocated_pages = vb->num_pfns;
->  	/* Did we get any? */
->  	if (vb->num_pfns != 0)
->  		tell_host(vb, vb->inflate_vq);
-> @@ -304,28 +338,42 @@ static void release_pages_balloon(struct virtio_balloon *vb,
->  
->  static unsigned int leak_balloon(struct virtio_balloon *vb, size_t num)
->  {
-> -	unsigned int num_freed_pages;
-> +	unsigned int order = virtballoon_preferred_order();
-> +	unsigned int page_pfns = (1 << order) * VIRTIO_BALLOON_PAGES_PER_PAGE;
-> +	unsigned int num_freed_pages = 0;
->  	struct page *page;
->  	struct balloon_dev_info *vb_dev_info = &vb->vb_dev_info;
->  	LIST_HEAD(pages);
->  
-> -	/* We can only do one array worth at a time. */
-> -	num = min(num, ARRAY_SIZE(vb->pfns));
-> +	/* We can only do one array or preferred-order page worth at a time. */
-> +	num = min(num, max_t(size_t, ARRAY_SIZE(vb->pfns), page_pfns));
->  
->  	mutex_lock(&vb->balloon_lock);
->  	/* We can't release more pages than taken */
->  	num = min(num, (size_t)vb->num_pages);
-> -	for (vb->num_pfns = 0; vb->num_pfns < num;
-> -	     vb->num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE) {
-> +	vb->num_pfns = 0;
-> +	while (num_freed_pages < num) {
-> +		unsigned int dequeued_order;
-> +		unsigned int dequeued_pfns;
-> +
->  		page = balloon_page_dequeue(vb_dev_info);
->  		if (!page)
->  			break;
-> -		set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
-> +		dequeued_order = compound_order(page);
-> +		dequeued_pfns = (1 << dequeued_order) * VIRTIO_BALLOON_PAGES_PER_PAGE;
-> +
-> +		if (num_freed_pages + dequeued_pfns > num &&
-> +		    num_freed_pages > 0) {
-> +			balloon_page_enqueue(vb_dev_info, page);
-> +			break;
-> +		}
-> +
-> +		queue_page_pfns(vb, vb->deflate_vq, page, dequeued_order);
->  		list_add(&page->lru, &pages);
-> -		vb->num_pages -= VIRTIO_BALLOON_PAGES_PER_PAGE;
-> +		vb->num_pages -= dequeued_pfns;
-> +		num_freed_pages += dequeued_pfns;
->  	}
->  
-> -	num_freed_pages = vb->num_pfns;
->  	/*
->  	 * Note that if
->  	 * virtio_has_feature(vdev, VIRTIO_BALLOON_F_MUST_TELL_HOST);
-> @@ -474,7 +522,8 @@ static inline s64 towards_target(struct virtio_balloon *vb)
->  	 * Aligned up to guest page size to avoid inflating and deflating
->  	 * balloon endlessly.
->  	 */
-> -	target = ALIGN(num_pages, VIRTIO_BALLOON_PAGES_PER_PAGE);
-> +	target = ALIGN((s64)num_pages,
-> +		       VIRTIO_BALLOON_PAGES_PER_PAGE << virtballoon_preferred_order());
->  	return target - vb->num_pages;
->  }
->  
-> diff --git a/include/linux/balloon.h b/include/linux/balloon.h
-> index ca5b15150f42..bc46e36b997f 100644
-> --- a/include/linux/balloon.h
-> +++ b/include/linux/balloon.h
-> @@ -58,6 +58,7 @@ struct balloon_dev_info {
->  	bool adjust_managed_page_count;
->  };
->  
-> +struct page *balloon_pages_alloc(unsigned int order);
->  struct page *balloon_page_alloc(void);
->  void balloon_page_enqueue(struct balloon_dev_info *b_dev_info,
->  		struct page *page);
-> diff --git a/mm/balloon.c b/mm/balloon.c
-> index 96a8f1e20bc6..e9941d08d8e9 100644
-> --- a/mm/balloon.c
-> +++ b/mm/balloon.c
-> @@ -27,9 +27,12 @@ static DEFINE_SPINLOCK(balloon_pages_lock);
->  static void balloon_page_insert(struct balloon_dev_info *balloon,
->  				       struct page *page)
->  {
-> +	unsigned int i, nr_pages = 1U << compound_order(page);
-> +
->  	lockdep_assert_held(&balloon_pages_lock);
-> -	__SetPageOffline(page);
-> -	if (IS_ENABLED(CONFIG_BALLOON_MIGRATION)) {
-> +	for (i = 0; i < nr_pages; i++)
-> +		__SetPageOffline(page + i);
-> +	if (IS_ENABLED(CONFIG_BALLOON_MIGRATION) && !PageCompound(page)) {
->  		SetPageMovableOps(page);
->  		set_page_private(page, (unsigned long)balloon);
->  	}
-> @@ -45,20 +48,31 @@ static void balloon_page_insert(struct balloon_dev_info *balloon,
->   */
->  static void balloon_page_finalize(struct page *page)
->  {
-> +	unsigned int i, nr_pages = 1U << compound_order(page);
-> +
->  	lockdep_assert_held(&balloon_pages_lock);
-> -	if (IS_ENABLED(CONFIG_BALLOON_MIGRATION))
-> +	if (IS_ENABLED(CONFIG_BALLOON_MIGRATION) && !PageCompound(page))
->  		set_page_private(page, 0);
-> -	/* PageOffline is sticky until the page is freed to the buddy. */
-> +	/*
-> +	 * PageOffline is sticky on the head page until freed to the buddy,
-> +	 * which resets the head page's page_type in __free_pages_prepare().
-> +	 * Clear PageOffline on tail pages here as __free_pages_prepare()
-> +	 * expects tail pages to have a default page_type.
-> +	 */
-> +	for (i = 1; i < nr_pages; i++)
-> +		__ClearPageOffline(page + i);
->  }
->  
->  static void balloon_page_enqueue_one(struct balloon_dev_info *b_dev_info,
->  				     struct page *page)
->  {
-> +	unsigned int order = compound_order(page);
-> +
->  	balloon_page_insert(b_dev_info, page);
->  	if (b_dev_info->adjust_managed_page_count)
-> -		adjust_managed_page_count(page, -1);
-> -	__count_vm_event(BALLOON_INFLATE);
-> -	inc_node_page_state(page, NR_BALLOON_PAGES);
-> +		adjust_managed_page_count(page, -(1L << order));
-> +	__count_vm_events(BALLOON_INFLATE, 1UL << order);
-> +	mod_node_page_state(page_pgdat(page), NR_BALLOON_PAGES, 1L << order);
->  }
->  
->  /**
-> @@ -117,15 +131,18 @@ size_t balloon_page_list_dequeue(struct balloon_dev_info *b_dev_info,
->  
->  	spin_lock_irqsave(&balloon_pages_lock, flags);
->  	list_for_each_entry_safe(page, tmp, &b_dev_info->pages, lru) {
-> +		unsigned int order = compound_order(page);
-> +
->  		if (n_pages == n_req_pages)
->  			break;
->  		list_del(&page->lru);
->  		if (b_dev_info->adjust_managed_page_count)
-> -			adjust_managed_page_count(page, 1);
-> +			adjust_managed_page_count(page, 1L << order);
->  		balloon_page_finalize(page);
-> -		__count_vm_event(BALLOON_DEFLATE);
-> +		__count_vm_events(BALLOON_DEFLATE, 1UL << order);
->  		list_add(&page->lru, pages);
-> -		dec_node_page_state(page, NR_BALLOON_PAGES);
-> +		mod_node_page_state(page_pgdat(page), NR_BALLOON_PAGES,
-> +				    -(1L << order));
->  		n_pages++;
->  	}
->  	spin_unlock_irqrestore(&balloon_pages_lock, flags);
-> @@ -135,8 +152,9 @@ size_t balloon_page_list_dequeue(struct balloon_dev_info *b_dev_info,
->  EXPORT_SYMBOL_GPL(balloon_page_list_dequeue);
->  
->  /**
-> - * balloon_page_alloc - allocates a new page for insertion into the balloon
-> - *			page list.
-> + * balloon_pages_alloc - allocates a new page of given order for insertion
-> + *			 into the balloon page list.
-> + * @order: allocation order
->   *
->   * Driver must call this function to properly allocate a new balloon page.
->   * Driver must call balloon_page_enqueue before definitively removing the page
-> @@ -144,16 +162,35 @@ EXPORT_SYMBOL_GPL(balloon_page_list_dequeue);
->   *
->   * Return: struct page for the allocated page or NULL on allocation failure.
->   */
-> -struct page *balloon_page_alloc(void)
-> +struct page *balloon_pages_alloc(unsigned int order)
->  {
->  	gfp_t gfp_flags = __GFP_NOMEMALLOC | __GFP_NORETRY | __GFP_NOWARN;
->  
-> -	if (IS_ENABLED(CONFIG_BALLOON_MIGRATION))
-> +	if (IS_ENABLED(CONFIG_BALLOON_MIGRATION) && !order)
->  		gfp_flags |= GFP_HIGHUSER_MOVABLE;
->  	else
->  		gfp_flags |= GFP_HIGHUSER;
->  
-> -	return alloc_page(gfp_flags);
-> +	if (order > 0)
-> +		gfp_flags |= __GFP_COMP;
-> +
-> +	return alloc_pages(gfp_flags, order);
-> +}
-> +EXPORT_SYMBOL_GPL(balloon_pages_alloc);
-> +
-> +/**
-> + * balloon_page_alloc - allocates a new page for insertion into the balloon
-> + *			page list.
-> + *
-> + * Driver must call this function to properly allocate a new balloon page.
-> + * Driver must call balloon_page_enqueue before definitively removing the page
-> + * from the guest system.
-> + *
-> + * Return: struct page for the allocated page or NULL on allocation failure.
-> + */
-> +struct page *balloon_page_alloc(void)
-> +{
-> +	return balloon_pages_alloc(0);
->  }
->  EXPORT_SYMBOL_GPL(balloon_page_alloc);
->  
-> -- 
-> 2.56.0.307.g5fe7bd680c-goog
+--qlk6jmpzfns64bdk
+Content-Type: text/plain; protected-headers=v1; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH v3 00/22] gpio: Improvements around device-id arrays
+MIME-Version: 1.0
 
+Hello,
+
+On Mon, Oct 26, 2026 at 11:38:49AM -0500, Frank Li wrote:
+> On Mon, Oct 26, 2026 at 05:28:11PM +0100, Uwe Kleine-K=F6nig (The Capable=
+ Hub) wrote:
+> > [...]
+> >  drivers/gpio/gpio-imx-scu.c         |  1 +
+> > [...]
+> >  drivers/gpio/gpio-mxc.c             |  2 +-
+> >  drivers/gpio/gpio-mxs.c             |  4 ++--
+>=20
+> For all imx part:
+>=20
+> Acked-by: Frank Li <Frank.Li@nxp.com>
+
+I'll apply this to all patches touching the three files left in my
+quote.
+
+Best regards
+Uwe
+
+--qlk6jmpzfns64bdk
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmrgcd0ACgkQj4D7WH0S
+/k4RSwf+IK0Zg4d+0uYc5szRXc18DV2GOQKuWytvc6Mb7rb8wBUlhLcCzHXfHJw5
+GKyFFUIrW1GHu/p4aSlsaOLm8RjGYbgR1RTnxQySdf79td9IxG/EXqQcp6FcxSH5
+30Ema9IFNIy1Z1fLQlqcQWR4FaujBuohFx12psbgjzkhMn3OY0x3w6FsZddRxBu6
+hjb1B8M89jP2R7VcM2CC+KYKqlxNoQYiS/XOiE7oyKj9CqBRDIrGPNwKtLxUelaD
+kKhTCJUSL4uTa26RZDC42xIr79ip8u0RW/+hzEwjtlicpsH0uFemsO1TO74xS/ol
+PbKbBRoQJlRhoDMBJ7sTb6K4gJHPEA==
+=KSfn
+-----END PGP SIGNATURE-----
+
+--qlk6jmpzfns64bdk--
