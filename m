@@ -1,108 +1,108 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=205.220.168.131
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793099203;
-	b=D4qhiibp6WQvdDS0pQOoh0MzTuR9iGJqI585SeSHPiSFIjG1/5EVhwOnHVC4xPYy7BnL
-	 MzbkmqwZAZCLcmoW8m5e0xZ1UJ4W/MLPfgfNcGgwHSAGitSSV9+rhli0mnyiMqfl2Rs7V
-	 Vn/Y2rSQfDcH2r9TbSLqPrMXuOwYWs72tb3thduw/VS2cazybGJAHwoUg2TqUmTBmr8QN
-	 hceyYxbl+AvdvVKcC/O2UgfglanMUN3aTK4R/Y8aMA4wB638ZfvNV5uPoPTN6QQzf6UY3
-	 yoETQDpw4UJoMQWRt33LUCBv3yoMgmmKiHGcYpVNBtMrr31JSV5r2PAsX/akZ9Jffug==
+	t=1793101029;
+	b=wOYKYU3N6egIcwRIjaDfhOcK+/yJvdYkza2dQfkypqj+KG5bsdpTd52JWJXhr58lQfCV
+	 /9tzvodVdUnqC/lH5CAA7VyLH8TTdxXRTnCZgbw+42DMqnibgzNwi2h/RUq/RoQ4ENyiq
+	 fC7XHvXtJKIyx3yAyon+3W2ayXtBGh69J7cfSEdNancWljhvZ+kmdMZLWbexMacP+dN+p
+	 aZXjeYsndGP+vq1vx/oyA8kq5/AUSGuhf5KdClDrx29Xd+OyMVmrQaT9f3HCF6zw2kpV1
+	 JwysRBXVhKQmDMtkKm9AWPku4FAqrETLXQa8jg22IaYJhsIF1gS2aAbZfJgr4T6D6vQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793099203;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793101029;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:
 	 DKIM-Signature:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:X-Received:Received:Date:From:
 	 To:Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:X-Proofpoint-ORIG-GUID:
-	 X-Proofpoint-GUID:X-Authority-Analysis:X-Proofpoint-Spam-Details-Enc:
-	 X-Proofpoint-Spam-Info:X-Proofpoint-Virus-Version:
-	 X-Proofpoint-Spam-Details;
-	bh=YAs9yE3ryxQ6Hl63Kw+ENBo0qX1XTY4t+VA6gDiBjWc=;
-	b=wbfHhmF8Zegejje4XSY2CeP1/z/f5hrVptIUFeM9zVuvKc3dTZ37UFQtwiRiVtFF1sdQ
-	 tx8eV+aCcwwtRhRLdefMP0TNipxKIkEqfzrEx+kASFPBUDl4DFi7CAqlOXvpfWFP+HG4d
-	 co7PV6+kgcKgDx8DUMQRaoge9VDT66dJHvwY5ojY4+UaCzCQtg+VyHANw/CTB/oLSK5tZ
-	 FnAhbIkG4lbbN0qYsXwPfLKRhz9NLMiF8kdUp9BEbcGpOjc4XFUEpNnOCW9zsBaU6iu9U
-	 gLCMeW0q4USHo6KGk6b9gFmluvzGpdEK+oaLJLDkrIpxPNBfj9GvFvxc7ZQw11scjqA==
+	 Content-Disposition:In-Reply-To:X-Authority-Analysis:
+	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Info:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-GUID:
+	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
+	bh=d9Gksr16Ym7a6rQh3BsSgLKtbW1PN6uAQD1PHStu3Cg=;
+	b=3pRez5Vr9ZZ83Q34VPKnQXItXfUg7hxTIhDd7Ei56Bif2PKECY9fmroBx9hbOf6He4fB
+	 Q2zMWP68kZRhHTY4mBMjEhXjOll291nUwptvVG/Gwdov8mpArx+GBq6jL5LkXxDMWHZP6
+	 AZzk7l7EgcWJVi9R6jgbnd815hCgGNpybxMp/O1+QjdQKF33z+8AeOHo9+6l9+KQ9SbYJ
+	 59d1FkpxAOIjV61so1+Ysv0n1Otg4X3snWckqw9lW1BJ+WScQa/O/w7E7wkW3qYSxK2Hr
+	 kHivxKgIoL4j5i5kButxEbC6ua8FdkVvaOcvvznaNMtyHTEGO/lWPwsk3qTbgIwUdbw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=oss.qualcomm.com;
 	spf=pass smtp.mailfrom=oss.qualcomm.com;
-	dkim=pass header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=FNGxog26;
-	dkim=pass header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b="esJ/dn+I";
+	dkim=pass header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b="BYkqWIL/";
+	dkim=pass header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=YwYAIa58;
 	arc=none smtp.remote-ip=205.220.168.131
 Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBA5A606A320
-	for <virtualization@lists.linux.dev>; Tue, 27 Oct 2026 11:06:42 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DBA5A606A320
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18E1F606A31F
+	for <virtualization@lists.linux.dev>; Tue, 27 Oct 2026 11:37:09 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 18E1F606A31F
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=FNGxog26;
-	dkim=pass (2048-bit key, unprotected) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=esJ/dn+I
-Received: from pps.filterd (m0279865.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69RAe8Hl3026354
-	for <virtualization@lists.linux.dev>; Tue, 27 Oct 2026 11:06:42 GMT
+	dkim=pass (2048-bit key, unprotected) header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=BYkqWIL/;
+	dkim=pass (2048-bit key, unprotected) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=YwYAIa58
+Received: from pps.filterd (m0279863.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69RAdskK1973260
+	for <virtualization@lists.linux.dev>; Tue, 27 Oct 2026 11:37:08 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
 	cc:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=qcppdkim1; bh=YAs9yE3ryxQ6Hl63Kw+ENBo0
-	qX1XTY4t+VA6gDiBjWc=; b=FNGxog26mwWdehEENsBbB7Oh3lx2xg6xTtvNckj7
-	t5xNvF21EAv5y/mrOzf7MPaotkf7OeBeTKZ7KktncNEk8HEJagbOUpflq8Hj8urx
-	JjzUSufgbUzhqPQ3vr6WE6zY8ip16rYLar0Y31lJNxCRVPHPC9QzHXrXutahGEJj
-	0GU2fEzQP4567PSLaDIv2KA2IAdK8GqifFDnLMJD+XhJKP6X7GVQJ/LJUNZgQBat
-	djrJDkQoYiRc9mSFqpOEbU0OLW0IPP1HnOlRIh2HqEf2NTe0MnALNuQyl94Q940S
-	pyxFVhqhcvjRQCEwaQA3KiGqE66UKxQtQ53WPegLParnSw==
-Received: from mail-ua1-f72.google.com (mail-ua1-f72.google.com [209.85.222.72])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4hjh91a4m7-1
+	:references:subject:to; s=qcppdkim1; bh=d9Gksr16Ym7a6rQh3BsSgLKt
+	bW1PN6uAQD1PHStu3Cg=; b=BYkqWIL/vT76gUwo2BPV8+qHrr6gTQHtEF/qsZzV
+	t9k7/HNQeqhwS+OHKqnDsMIWulbLG2pqkKIwvCy+qUpRSxC99/XxZBrYFP4cxZ7l
+	/Q5YOmpG3L271QH2G5vKyPoPM1U+Mq8rSMuRfxu5hdQR1Oyw80YcKP/fbSWdHayk
+	T1s4ECD6OiTjnRcPlz4xyWeEWk5/6k+IM1aG5CEfYWk//wv8JxvDfs9IpI340eXV
+	4UYya+dCPcGYNtZp5Y0LWnfYkoc75+7VeOWSCho+8Jf88hndccM3tEwzSWSew6Ic
+	bV2hVKl418/lToGDeg8NuPuK+BK//WEAdS2VFXbsnHzZsw==
+Received: from mail-vs1-f69.google.com (mail-vs1-f69.google.com [209.85.217.69])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4hjst1gbfy-1
 	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <virtualization@lists.linux.dev>; Tue, 27 Oct 2026 11:06:41 +0000 (GMT)
-Received: by mail-ua1-f72.google.com with SMTP id a1e0cc1a2514c-990ca9607c3so2594495241.1
-        for <virtualization@lists.linux.dev>; Tue, 27 Oct 2026 04:06:41 -0700 (PDT)
+	for <virtualization@lists.linux.dev>; Tue, 27 Oct 2026 11:37:08 +0000 (GMT)
+Received: by mail-vs1-f69.google.com with SMTP id ada2fe7eead31-7c02e1df088so890763137.3
+        for <virtualization@lists.linux.dev>; Tue, 27 Oct 2026 04:37:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1793099201; x=1793704001; darn=lists.linux.dev;
+        d=oss.qualcomm.com; s=google; t=1793101027; x=1793705827; darn=lists.linux.dev;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=YAs9yE3ryxQ6Hl63Kw+ENBo0qX1XTY4t+VA6gDiBjWc=;
-        b=esJ/dn+IC1tw+Ks7xNeWkLxQYlj6fPKf+XsEDnOdoWXDKsA49B2ikzXNezlErIZpo9
-         tbchY2delATeQKgVFWhDGdXRoicCFGHtuzaek8E9HxEvit0v2lajyzHoBKnMw5W0t38M
-         4q6syxV69sDA9mXm5tfyK1koroKnVmA2skMEGIC1dLE8HOS1NGsoSd4WYoLmeGiqGJfj
-         c0/Bg7dtLmdHw5b4cm6H3M6ne1qNYeVRL/ZwlSHQWDrGdrFimWsX4HDxszK+KW6HUNJ6
-         W8GnpQL9crONFu0UYbzhRTG6CwNEg1px0afNdnBXg9ZkSE5cIzwy0ClmnFDkeE91rehI
-         uSrQ==
+        bh=d9Gksr16Ym7a6rQh3BsSgLKtbW1PN6uAQD1PHStu3Cg=;
+        b=YwYAIa58bf9rj8YOE5fSBzcJ9G8STim2199vHLTWNRkM+jp9LyX5P9BLnOs1gbt9sc
+         ZC8ZaZ0DIi9aCPjrC2I/7O+APnfrmx+G4oHC7R3qo/8nTCtidaynhX9wHazzOl5emwsz
+         i31LyBx9tWyA9+2PQ1cDBh2Jr2JBmhqpQoTDH7uu7W/3EUWu2cSJ7Swym6lqLH4GCDwq
+         ZFsK3iZFUrmD+ZVfDubjwgxg1dD9/PIlJVtSp4+LnWBrtzS+F9C1VFMlRvM6gCBBMrLU
+         MoRqtZCysThq2jQghpvvK8iqGXjRG4P25j7OQwYcq/kQLiX4KxGssBBpn3nOv4XprCzO
+         ZWGg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793099201; x=1793704001;
+        d=1e100.net; s=20260707; t=1793101027; x=1793705827;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=YAs9yE3ryxQ6Hl63Kw+ENBo0qX1XTY4t+VA6gDiBjWc=;
-        b=DvQx7T8NIUvzwohbRjaAPRbuT5tiQvw9+P0SSEeyoFpwKeQiyciSdMWyE4xi3/+r6/
-         O9381le9feD0VTZXHQRNoJENqlQWyJL4CkuULBjLS5V7tbJqx9TRH1f+eQcM9lKYZCnS
-         iUp581qnc99/2PJjdeke0ZL8ikXM+9fl+4eLddIheRiQNe56wLu1jTeokFAHkTmFD/4T
-         yDxr0mufRvgeGNBHZnRsnmfXwCK4HbdJ6ycfGakvi0GDwN77t+59bAoixbYSoDte7MA7
-         NqKnV6nxtGdpi9L+KsACIxKYkbaJrOx6URPjZ2fiApnt9fKctQN75N8bTyte7OTrZtEh
-         5GEA==
-X-Forwarded-Encrypted: i=1; AKwUvBxq30JsPj++kvFO6C7zzb2iipp0gDbfhlGt7YlshcBbfndYUcBbLANT39s4wxIZsADpCOybeCcpfpPZASvfEg==@lists.linux.dev
-X-Gm-Message-State: AFq9FYLL1z8jgX6yewQGqxZhvCllHLuQV0o+3nIipsCBqfhHQSo3X/WB
-	MukhT1smZWiHad5xtuc/fOzeVKKSrcVu5eu73EczZru003aCTzFNBjibfHIEOZaVeBtPl46PMmy
-	GLboR2ARHSogpU3eXiWkuM3LslsB4pgq8kKXlNCldGHOo3H0M57++pkC03Skm3LWMxZuttg==
-X-Gm-Gg: AYBFou0bniEPidkUYk8EFDL+lBu/EjYrdRJ50k7Hl0lHyTEb/FMKegVg4HwMd97yc5h
-	FUkRg82PPPyOsWgiPWo/+xyLOeCrijLVfKzX+rXgmm+5eWr5h9RXpq3NHtlyJPPZi//FZfO7oVi
-	f4g/IteaP6/9kysTC1GzrZVshTHOMec54lymsGAIzy7p1iokZbXm+wUJj1lJ/WD3SSEARXCvHzY
-	XIsyR42umPwxtQMll+qEj7Ixa1+27++zS1NB6kh4OkwC9bw/AN/cjJZoJcAFAdtwpwfuP7J4DU5
-	YcbXqJhDUUPWpCArFUgn0KvU/sjuEr+KWa1uWte+TKeP7t4NHEajO0YqjuqWlHfEvnmfzfONgyx
-	0rWqhMSpraWTybewKpexI0kUP82vfXH673Bbbsrdb+JricYyBFNFjoFbIWDRs0d3wIxnMYT8i5/
-	i4mpVDDYX9V2Sv
-X-Received: by 2002:a05:6102:50a4:b0:7b3:32fe:77b6 with SMTP id ada2fe7eead31-7ce5ca0ccd2mr3572982137.3.1793099200616;
-        Tue, 27 Oct 2026 04:06:40 -0700 (PDT)
-X-Received: by 2002:a05:6102:50a4:b0:7b3:32fe:77b6 with SMTP id ada2fe7eead31-7ce5ca0ccd2mr3572974137.3.1793099200096;
-        Tue, 27 Oct 2026 04:06:40 -0700 (PDT)
+        bh=d9Gksr16Ym7a6rQh3BsSgLKtbW1PN6uAQD1PHStu3Cg=;
+        b=xtS1yOIdJ8ydOpATDwgbVNwA/LIz5d85qDmdJMM8f+z5JflkAhrt8QQly965vgrIxo
+         mhQMzbiVEmuKmGrhPdG8V8tJfSQXVATdY7yTbq+NnJEmNNfaQtjy2/hk2Pjn8tRosXFN
+         1klmRQE/5fp3bwZOIPvPFsMRCro9ys9/rBQcXxqfuYJGOrJyFZpxYvm2GCvkngWLhCVH
+         bMjGD2T5tFkP96zdbPvrTJofV5M/II5r+SH2FMnphQ2F6ywaoJk7NeDc1p3bicvyHDjd
+         MdBgcIFJfKDzfBK+Fi/W0z2ebnvQRXf98QuiFyMptYB2p0637KeCCyJEKgejG/UmN3P8
+         MOqg==
+X-Forwarded-Encrypted: i=1; AKwUvBwMRICpFkHKVwJuD51bJkTEJv3t/Y+nzo7tAiiCubAZ+BibZk9vTTkPGleZkWoQiU0NXf5KbrbSx2MTooBrlw==@lists.linux.dev
+X-Gm-Message-State: AFq9FYI3bup9TKeqRsdwg/lub/4WNoRXJyBP6IiJyk6d4dB6fF5bLziX
+	F592hmkEtM+/D9cc/Klfz0m6vxx9tA6sSsGbPiFdAtln7LBZMkrXCLezWAGsAfUkFVfIh8+SHlQ
+	s3WMCmgJnnM+MAAQ1ZWkUS/0/7675aeIkT1pyohAvrCIzAI7xBmTO5Hz6WpdeLOhzIsHYhQ==
+X-Gm-Gg: AYBFou1ivjkcvqv2dfDQN32Rkm/dE54447ikyFjnaYyLLKlXTYUlF0pQ6rZNk5vN1RJ
+	hKoV3aDpRNFgbs6yHfJPN5M8L7/dunrBZbqa/y18GaUBEWqORdmKHzY1c+gbMireDuLs/jZnbSt
+	+CeHkP5c5lYlFDpzIYcz/dj9DFtUFzGxgRKAbvAaef1z2NEua0VtXHltYXHvGthvP0ZEjdo6LO5
+	ZWN/SjUnzYGerlXJer1DBrQ2kcdT/IYdA4fkB+UqOBie3HsK/MmrilNfdWvghflQ7ZUB03kUQQJ
+	uKWjGlR56efE9iJiBj9XKcDYemEcRxV4Cc16Eep0UBxbj6rhJ6wyrcPFWJJa1enIjUUJk33U5c/
+	5MJqnHmY8luqnUGoUQhZW1Lus4wmvxK8XUavrF/irnwKBxWNabExmzek5GdqKcnGn+6vs8y3EUH
+	wLNnHGZSbQ6Vij
+X-Received: by 2002:a05:6102:644a:b0:7cc:25bc:3b20 with SMTP id ada2fe7eead31-7ce5ccaae68mr2852897137.7.1793101026907;
+        Tue, 27 Oct 2026 04:37:06 -0700 (PDT)
+X-Received: by 2002:a05:6102:644a:b0:7cc:25bc:3b20 with SMTP id ada2fe7eead31-7ce5ccaae68mr2852880137.7.1793101026222;
+        Tue, 27 Oct 2026 04:37:06 -0700 (PDT)
 Received: from umbar.lan (2001-14ba-a073-af00-264b-feff-fe8b-be8a.rev.dnainternet.fi. [2001:14ba:a073:af00:264b:feff:fe8b:be8a])
-        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-3ac709f3a4csm25383871fa.25.2026.10.27.04.06.38
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5bfb7a8930dsm2093206e87.46.2026.10.27.04.37.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Oct 2026 04:06:39 -0700 (PDT)
-Date: Tue, 27 Oct 2026 13:06:36 +0200
+        Tue, 27 Oct 2026 04:37:04 -0700 (PDT)
+Date: Tue, 27 Oct 2026 13:37:03 +0200
 From: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
 To: Jayant Shekhar <jayant.shekhar@oss.qualcomm.com>
 Cc: Rob Clark <robin.clark@oss.qualcomm.com>,
@@ -134,10 +134,11 @@ Cc: Rob Clark <robin.clark@oss.qualcomm.com>,
         freedreno@lists.freedesktop.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
         linaro-mm-sig@lists.linaro.org, iommu@lists.linux.dev
-Subject: Re: [PATCH v2 10/23] drm/msm/dcp: Add HFI DSI and panel commands
-Message-ID: <ebhoujzyf4fn5v3gfmgrskjw646d2e7l5b3yr4pyq2wh4vrclq@5a6vx4zx55w3>
+Subject: Re: [PATCH v2 21/23] drm/msm: Support KMS backends without a display
+ IRQ
+Message-ID: <jmsh74ugfivd6ffwiqvofwnkkxnu5z67hqdei7jarhrftvkgac@hq2e5s2aj7fr>
 References: <20261026-jshekhar-dcp-hlos-v2-0-7cf014efdee1@oss.qualcomm.com>
- <20261026-jshekhar-dcp-hlos-v2-10-7cf014efdee1@oss.qualcomm.com>
+ <20261026-jshekhar-dcp-hlos-v2-21-7cf014efdee1@oss.qualcomm.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -149,656 +150,61 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261026-jshekhar-dcp-hlos-v2-10-7cf014efdee1@oss.qualcomm.com>
-X-Proofpoint-ORIG-GUID: iDXcUijku3gnjVfoYhiPCe7n5wnXQ8LW
-X-Proofpoint-GUID: iDXcUijku3gnjVfoYhiPCe7n5wnXQ8LW
-X-Authority-Analysis: v=2.4 cv=TuxzFzXh c=1 sm=1 tr=0 ts=6ae085c2 cx=c_pps
- a=ULNsgckmlI/WJG3HAyAuOQ==:117 a=xqWC_Br6kY4A:10 a=kj9zAlcOel0A:10
+In-Reply-To: <20261026-jshekhar-dcp-hlos-v2-21-7cf014efdee1@oss.qualcomm.com>
+X-Authority-Analysis: v=2.4 cv=HJ1WhYtv c=1 sm=1 tr=0 ts=6ae08ce4 cx=c_pps
+ a=5HAIKLe1ejAbszaTRHs9Ug==:117 a=xqWC_Br6kY4A:10 a=kj9zAlcOel0A:10
  a=660iZSQnnn4A:10 a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=u7WPNUs3qKkmUXheDGA7:22 a=Um2Pa8k9VHT-vaBCBUpS:22 a=EUspDBNiAAAA:8
- a=XOpGMaQh1TDZy5n8wDsA:9 a=CjuIK1q_8ugA:10 a=1WsBpfsz9X-RYQiigVTh:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDI3MDA0NCBTYWx0ZWRfXwtJ5ABNGzvPt
- uuq/GGLp3MS0cDVeneOu40lpHCjK43SdKr4THet4esRVTXyTZWQTTK+vDrGTyq3CwtvblS8hkTe
- 9BCIQ8Tju9pJSZnQt1ichFqLOawPuz9rk5kq+O5eRJ8UAFHY59JLjkZ9q81l6jYC4sr3GBIH2BD
- OhyXpoP+J/+zirQ03hh0nbXl33cIoqyWqCOCE594oGfw5Tsu4xIVHV90IJp5rJMu1QKQiuK+Kfq
- cDP/dgmqJ3c1xCHcxvi2U2Hr3HnR1h82/5Lz/3Q5EcwSw2MmM5GVpai4ExIbkwuhnS/tIKEZiHk
- xDo2tgtXhTx7E4qkTxw5e4BAxlNG91vg2Jq8zXbscEjwfLUGdYj76/n6mBs7maNtb1T1knNul0S
- pJFh3lPuSp+s6sIcoB19I7yn/zaLSJgUDt2jY4EDTsbeyFfEleaEzlmLZM8Enz3iMif/TaBmgie
- E6+4/pXbEIIr+gpSzCg==
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDI3MDA0NCBTYWx0ZWRfX5nZhN4PGuPd8
- KOg5EslHSd1hHrECa0ds4fFgVRMGLU4rFqs5YaAx5LbbW8Jm2MuH8f/+/7tlfd+u9oYOP/CH7Vo
- kky3vpsKAo6cy9/bR1es7tCQ4SdkgD8=
+ a=u7WPNUs3qKkmUXheDGA7:22 a=yOCtJkima9RkubShWh1s:22 a=EUspDBNiAAAA:8
+ a=auR94sGctrba0TjZuGkA:9 a=CjuIK1q_8ugA:10 a=gYDTvv6II1OnSo0itH1n:22
+X-Proofpoint-ORIG-GUID: --sSsJAvJu3qztuE9kKEsA7f4kNjx8gb
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDI3MDA0NiBTYWx0ZWRfXxPPC/Ux93Q9T
+ psk8rnOf30uMdHV0iCImnV3soKJYwBFxXTJgETuv2kBQVo/IzJmODJDqPCiqY6ZkQd7gXFAyBD+
+ YIxBod7BIEVT23BPx6/WY5/CfS39ve8=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDI3MDA0NiBTYWx0ZWRfX+3zeWSB/IuvB
+ 2Y/EPKV4ZQiXqMT6ssLqAyTjJr1W4HSYgrWMPo20tnA86jSTV/IQJfZyH00ZL6CWUMSox0PamL5
+ lE4l2o1gnslvGc7SMOjLBsPwfZyMMRR/zbE4NopSRoOqWArh+1nvlLp41V8BQeiV9FzVaCJuBvc
+ QagC6Ounf7SPA4v9kEj/4h41fw7BMk9eAhM/KUzzUnsB6GDH0yVRpQwRKbFQv8SnM8B2Wd/CKs5
+ n2MAe7JM6pxP3F6k5GM/9VsWWfZte383hCluThRx4TyvTNHWjtwzjG+6UoPZW1VXhhb+Vt8qZ7t
+ AtjCTbVBkB/Ru24tBjowYgIO8rg/cmvNe7WMyZwD9+Jp7THjvE0XyRtZY9u1oG1xix6jrSsCIvf
+ vVEwB28vm+cPkli3T4VeVTKjKc4o1ZOCUXDRmL4eYHFwHPZFbJhwNsZeTdUz0VkVPjJfOkoQ56W
+ bdZzkYEj3UFMuvB0N8g==
+X-Proofpoint-GUID: --sSsJAvJu3qztuE9kKEsA7f4kNjx8gb
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
  definitions=2026-10-27_02,2026-10-21_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 malwarescore=0 spamscore=0 priorityscore=1501 bulkscore=0
- adultscore=0 suspectscore=0 lowpriorityscore=0 impostorscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2610190000 definitions=main-2610270044
+ malwarescore=0 priorityscore=1501 suspectscore=0 lowpriorityscore=0
+ impostorscore=0 adultscore=0 spamscore=0 phishscore=0 clxscore=1015
+ bulkscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.22.0-2610190000
+ definitions=main-2610270046
 
-On Mon, Oct 26, 2026 at 11:51:20AM +0530, Jayant Shekhar wrote:
-> Translate DSI host and panel operations into HFI commands. Firmware
-> owns the DSI hardware, so mode validation, display power, panel setup,
-> and DCS transfers must cross the HFI interface instead of accessing
-> controller registers from Linux.
+On Mon, Oct 26, 2026 at 11:51:31AM +0530, Jayant Shekhar wrote:
+> Some MSM KMS backends receive display events through firmware or
+
+Which ones?
+
+> another transport and therefore have no host-visible display interrupt.
+> Rejecting such a backend during common KMS initialization prevents
+> it from using the MSM DRM framework.
 > 
-> Implement DSI mode validation, display session and power management,
-> panel initialization, and DCS transfer helpers while keeping them
-> separate from generic display commands.
-> 
+> Allow KMS backends to use IRQ_NOTCONNECTED. DCP receives VSYNC and
+> frame-scan completion as asynchronous HFI events over VirtIO; its IPCC
+> interrupt is reserved for power-notify acknowledgments. Existing
+> IRQ-backed KMS implementations retain their current request and
+> teardown flow.
+
+With the commit message fixed:
+
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
+
+
 > Assisted-by: LLM
 > Signed-off-by: Jayant Shekhar <jayant.shekhar@oss.qualcomm.com>
 > ---
->  drivers/gpu/drm/msm/Makefile                |   2 +
->  drivers/gpu/drm/msm/dcp/dcp_dsi_panel.h     |  81 ++++
->  drivers/gpu/drm/msm/dcp/dcp_hfi.h           |  25 ++
->  drivers/gpu/drm/msm/dcp/dcp_hfi_dsi.c       | 252 ++++++++++++
->  drivers/gpu/drm/msm/dcp/dcp_hfi_dsi_panel.c | 592 ++++++++++++++++++++++++++++
-
-Please stop calling it a panel. There can be any bridge after the DSI
-device. From the Linux point of view, drm_panel is a subclass of
-drm_bridge.
-
->  5 files changed, 952 insertions(+)
+>  drivers/gpu/drm/msm/msm_kms.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/drivers/gpu/drm/msm/Makefile b/drivers/gpu/drm/msm/Makefile
-> index bdc5e3b8efa7..77c268aabca6 100644
-> --- a/drivers/gpu/drm/msm/Makefile
-> +++ b/drivers/gpu/drm/msm/Makefile
-> @@ -74,6 +74,8 @@ msm-display-$(CONFIG_DRM_MSM_MDP5) += \
->  msm-display-$(CONFIG_DRM_MSM_DCP) += \
->  	dcp/dcp_hfi_core.o \
->  	dcp/dcp_hfi_crtc.o \
-> +	dcp/dcp_hfi_dsi.o \
-> +	dcp/dcp_hfi_dsi_panel.o \
->  	dcp/dcp_hfi_encoder.o \
->  	dcp/dcp_hfi_kms.o \
->  	dcp/dcp_hfi_plane.o \
-> diff --git a/drivers/gpu/drm/msm/dcp/dcp_dsi_panel.h b/drivers/gpu/drm/msm/dcp/dcp_dsi_panel.h
-> new file mode 100644
-> index 000000000000..a8898e469b44
-> --- /dev/null
-> +++ b/drivers/gpu/drm/msm/dcp/dcp_dsi_panel.h
-> @@ -0,0 +1,81 @@
-> +/* SPDX-License-Identifier: GPL-2.0-only */
-> +/*
-> + * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
-> + *
-> + * DCP DSI panel configuration shared by the HFI panel implementation and
-
-What if there is a DSI2DPI or DSI2LVDS bridge and then DPI or LVDS
-panel?
-
-> + * the DRM DSI bridge.
-> + */
-> +
-> +#ifndef __DCP_DSI_PANEL_H__
-> +#define __DCP_DSI_PANEL_H__
-> +
-> +#include <linux/dma-mapping.h>
-> +#include <linux/sizes.h>
-> +#include <linux/types.h>
-> +
-> +#define DCP_DSI_MAX_PHY_TIMINGS	32
-> +
-> +/**
-> + * struct dcp_dsi_hfi_panel_config - Complete HFI PANEL_INIT configuration.
-> + *
-> + * This contains the bridge-owned panel configuration plus the
-> + * mode-dependent values assembled before the HFI PANEL_INIT command.
-> + */
-> +struct dcp_dsi_hfi_panel_config {
-> +	u32 display_type;
-> +	u32 num_ctrls;
-> +	u32 ctrl_indices[4];
-> +	u32 num_phys;
-> +	u32 phy_indices[4];
-> +	u32 vsync_source;
-> +	u32 te_dcs_command;
-> +	u32 dma_trigger;
-> +	u32 stream_trigger;
-> +	u32 wr_mem_start;
-> +	u32 wr_mem_continue;
-> +	u32 dma_sched_line;
-> +	u32 dma_sched_window;
-> +	u32 phy_type;
-> +	bool cphy_mode;
-> +	bool lp11_init;
-> +	bool ulps_supported;
-> +	bool bllp_eof_power_mode;
-> +	bool bllp_power_mode;
-> +	u32 lane_map;
-> +	u32 color_order;
-> +	u32 esd_mode;
-> +	u32 jitter_numer;
-> +	u32 jitter_denom;
-> +	dma_addr_t dcs_tx_dva;
-> +	dma_addr_t dcs_tx_iova;
-> +	u32 dcs_tx_buf_size;
-> +	u32 phy_timings[DCP_DSI_MAX_PHY_TIMINGS];
-> +	u32 num_phy_timings;
-> +	bool dsc_enabled;
-> +	u32 dsc_version_major;
-> +	u32 dsc_version_minor;
-> +	u32 dsc_scr_version;
-> +	u32 dsc_slice_height;
-> +	u32 dsc_slice_width;
-> +	u32 dsc_slices_per_pkt;
-> +	u32 dsc_bits_per_component;
-> +	u32 dsc_pps_delay_ms;
-> +	u32 dsc_bits_per_pixel;
-> +	u32 dsc_chroma_format;
-> +	u32 dsc_color_space;
-> +	u32 dsc_block_prediction_enable;
-
-Why do you need to copy those? Can't you use struct drm_dsc directly?
-Having it as a non-NULL pointer would have saved you from having
-the dsc_enabled flag.
-
-> +	/* Optional DSC rate-control override panel configuration. */
-> +	bool dsc_rc_override;
-> +	u8 dsc_rc_min_qp[15];
-> +	u8 dsc_rc_max_qp[15];
-> +	u8 dsc_rc_bpg_offsets[15];
-> +	u32 topology_mixer_count;
-> +	u32 topology_enc_count;
-> +	u32 topology_intf_count;
-> +};
-> +
-> +/* DCS buffers use IOVAs directly in the firmware command descriptor. */
-> +#define DCP_DSI_DCS_TX_BUF_SIZE	SZ_4K
-> +#define DCP_DSI_DCS_RX_BUF_SIZE	SZ_4K
-> +
-> +#endif /* __DCP_DSI_PANEL_H__ */
-> diff --git a/drivers/gpu/drm/msm/dcp/dcp_hfi.h b/drivers/gpu/drm/msm/dcp/dcp_hfi.h
-> index 6d3eadb5e811..88d73de69383 100644
-> --- a/drivers/gpu/drm/msm/dcp/dcp_hfi.h
-> +++ b/drivers/gpu/drm/msm/dcp/dcp_hfi.h
-> @@ -242,6 +242,31 @@ int dcp_hfi_send_resource_register(struct dcp_hfi *hfi);
->  int dcp_hfi_set_display_property(struct dcp_hfi *hfi, u32 session_id,
->  				 u32 prop_id, u32 value);
->  
-> +struct dcp_dsi_hfi_panel_config;
-> +int dcp_hfi_panel_init(struct dcp_hfi *hfi, u32 intf_idx,
-> +		       const struct drm_display_mode *mode,
-> +		       const struct mipi_dsi_device *dsi,
-> +		       const struct dcp_dsi_hfi_panel_config *cfg);
-> +int dcp_hfi_display_enable(struct dcp_hfi *hfi, u32 intf_idx,
-> +			   u32 display_id, u32 *session_id);
-> +int dcp_hfi_display_close(struct dcp_hfi *hfi, u32 session_id);
-> +int dcp_hfi_display_mode_validate(struct dcp_hfi *hfi, u32 session_id,
-> +				  const struct drm_display_mode *mode,
-> +				  u64 clk_rate_hz);
-> +int dcp_hfi_display_set_mode(struct dcp_hfi *hfi, u32 session_id,
-> +			     const struct drm_display_mode *mode,
-> +			     u64 clk_rate_hz);
-> +int dcp_hfi_display_power_register(struct dcp_hfi *hfi, u32 session_id);
-> +int dcp_hfi_display_power_control_ack(struct dcp_hfi *hfi, u32 session_id,
-> +				      u32 packet_id);
-> +int dcp_hfi_display_post_enable(struct dcp_hfi *hfi, u32 session_id);
-> +int dcp_hfi_display_disable(struct dcp_hfi *hfi, u32 session_id);
-> +int dcp_hfi_display_post_disable(struct dcp_hfi *hfi, u32 session_id);
-> +ssize_t dcp_hfi_dcs_transfer(struct dcp_hfi *hfi, u32 session_id,
-> +			     const struct mipi_dsi_msg *msg,
-> +			     void *tx_buf, dma_addr_t tx_iova,
-> +			     void *rx_buf, dma_addr_t rx_iova,
-> +			     u32 post_wait_ms, u32 ctrl_idx);
->  #endif /* __DCP_HFI_H__ */
->  void dcp_hfi_set_power_control_cb(struct dcp_hfi *hfi, void *priv,
->  				  void (*cb)(void *priv, u32 display_id,
-> diff --git a/drivers/gpu/drm/msm/dcp/dcp_hfi_dsi.c b/drivers/gpu/drm/msm/dcp/dcp_hfi_dsi.c
-> new file mode 100644
-> index 000000000000..fbeec03cf90d
-> --- /dev/null
-> +++ b/drivers/gpu/drm/msm/dcp/dcp_hfi_dsi.c
-> @@ -0,0 +1,252 @@
-> +// SPDX-License-Identifier: GPL-2.0-only
-> +/*
-> + * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
-> + *
-> + * HFI commands for the DSI display-session lifecycle.
-> + * Panel initialization and DCS transfers are implemented in dcp_hfi_dsi_panel.c.
-> + */
-> +
-> +#include <linux/device.h>
-> +#include <drm/drm_modes.h>
-> +
-> +#include "dcp_hfi.h"
-> +#include "dcp_hfi_priv.h"
-> +#include "hfi/hfi_commands_display.h"
-> +#include "hfi/hfi_defs_common.h"
-> +#include "hfi/hfi_defs_display.h"
-> +#include "hfi/hfi_packet.h"
-> +#include "hfi/hfi_packer.h"
-> +#include "hfi/hfi_properties_display.h"
-> +
-> +static void dcp_hfi_fill_mode_info(struct hfi_display_mode_info *info,
-> +				   const struct drm_display_mode *mode)
-> +{
-> +	memset(info, 0, sizeof(*info));
-> +	info->size            = sizeof(*info);
-> +	info->h_active        = mode->hdisplay;
-> +	info->h_back_porch    = mode->htotal - mode->hsync_end;
-> +	info->h_sync_width    = mode->hsync_end - mode->hsync_start;
-> +	info->h_front_porch   = mode->hsync_start - mode->hdisplay;
-> +	info->h_skew          = mode->hskew;
-> +	info->h_sync_polarity = !!(mode->flags & DRM_MODE_FLAG_PHSYNC);
-> +	info->v_active        = mode->vdisplay;
-> +	info->v_back_porch    = mode->vtotal - mode->vsync_end;
-> +	info->v_sync_width    = mode->vsync_end - mode->vsync_start;
-> +	info->v_front_porch   = mode->vsync_start - mode->vdisplay;
-> +	info->v_sync_polarity = !!(mode->flags & DRM_MODE_FLAG_PVSYNC);
-> +	info->refresh_rate    = drm_mode_vrefresh(mode);
-> +	info->clk_rate_hz_lo = lower_32_bits((u64)mode->clock * 1000);
-> +	info->clk_rate_hz_hi = upper_32_bits((u64)mode->clock * 1000);
-> +}
-> +
-> +static void dcp_hfi_dump_mode_info(struct dcp_hfi *hfi, const char *cmd,
-> +				   u32 session_id,
-> +				   const struct hfi_display_mode_info *info)
-> +{
-> +	dev_dbg(hfi->dev,
-> +		"HFI %s s=%u h=%u/%u/%u/%u v=%u/%u/%u/%u p=%u/%u r=%u clk=%llu sz=%u\n",
-> +		cmd, session_id,
-> +		info->h_active, info->h_back_porch, info->h_sync_width,
-> +		info->h_front_porch,
-> +		info->v_active, info->v_back_porch, info->v_sync_width,
-> +		info->v_front_porch,
-> +		info->h_sync_polarity, info->v_sync_polarity,
-> +		info->refresh_rate,
-> +		(u64)info->clk_rate_hz_lo | ((u64)info->clk_rate_hz_hi << 32),
-> +		info->size);
-> +}
-> +
-> +int dcp_hfi_display_mode_validate(struct dcp_hfi *hfi, u32 session_id,
-> +				  const struct drm_display_mode *mode, u64 clk_rate_hz)
-> +{
-> +	struct hfi_display_mode_info info;
-> +	int ret;
-> +
-> +	dcp_hfi_fill_mode_info(&info, mode);
-> +	info.clk_rate_hz_lo = lower_32_bits(clk_rate_hz);
-> +	info.clk_rate_hz_hi = upper_32_bits(clk_rate_hz);
-> +	dcp_hfi_dump_mode_info(hfi, "HFI MODE_VALIDATE", session_id, &info);
-> +
-> +	ret = dcp_hfi_send_sync(hfi,
-> +				HFI_COMMAND_DISPLAY_MODE_VALIDATE,
-> +				HFI_CMD_BUFF_DISPLAY, session_id,
-> +				HFI_PAYLOAD_U32_ARRAY,
-> +				&info, sizeof(info),
-> +				HFI_TX_FLAGS_RESPONSE_REQUIRED |
-> +				HFI_TX_FLAGS_NON_DISCARDABLE,
-> +				NULL, 0,
-> +				DCP_HFI_TIMEOUT_MODE_MS);
-> +
-> +	return ret;
-> +}
-> +
-> +int dcp_hfi_display_set_mode(struct dcp_hfi *hfi, u32 session_id,
-> +			     const struct drm_display_mode *mode, u64 clk_rate_hz)
-> +{
-> +	struct hfi_display_mode_info info;
-> +	int ret;
-> +
-> +	dcp_hfi_fill_mode_info(&info, mode);
-> +	info.clk_rate_hz_lo = lower_32_bits(clk_rate_hz);
-> +	info.clk_rate_hz_hi = upper_32_bits(clk_rate_hz);
-> +	dcp_hfi_dump_mode_info(hfi, "HFI SET_MODE", session_id, &info);
-> +
-> +	ret = dcp_hfi_send_sync(hfi,
-> +				HFI_COMMAND_DISPLAY_SET_MODE,
-> +				HFI_CMD_BUFF_DISPLAY, session_id,
-> +				HFI_PAYLOAD_U32_ARRAY,
-> +				&info, sizeof(info),
-> +				HFI_TX_FLAGS_RESPONSE_REQUIRED |
-> +				HFI_TX_FLAGS_NON_DISCARDABLE,
-> +				NULL, 0,
-> +				DCP_HFI_TIMEOUT_MODE_MS);
-> +
-> +	return ret;
-> +}
-> +
-> +int dcp_hfi_display_power_register(struct dcp_hfi *hfi, u32 session_id)
-> +{
-> +	return dcp_hfi_send_sync(hfi,
-> +				 HFI_COMMAND_DISPLAY_POWER_REGISTER,
-> +				 HFI_CMD_BUFF_DISPLAY, session_id,
-> +				 HFI_PAYLOAD_NONE, NULL, 0,
-> +				 HFI_TX_FLAGS_RESPONSE_REQUIRED |
-> +				 HFI_TX_FLAGS_NON_DISCARDABLE,
-> +				 NULL, 0,
-> +				 DCP_HFI_TIMEOUT_DISPLAY_MS);
-> +}
-> +
-> +int dcp_hfi_display_power_control_ack(struct dcp_hfi *hfi, u32 session_id,
-> +				      u32 packet_id)
-> +{
-> +	struct dcp_hfi_buf *buf;
-> +	struct hfi_cmd_buff_hdl hdl;
-> +	struct hfi_header_info hdr_info;
-> +	struct hfi_packet_info pkt_info;
-> +	int ret;
-> +
-> +	buf = dcp_hfi_buf_alloc(hfi);
-> +	if (!buf)
-> +		return -ENOMEM;
-> +
-> +	hdl.cmd_buffer = buf->data;
-> +	hdl.size       = DCP_HFI_BUF_SIZE;
-> +
-> +	hdr_info.num_packets   = 0;
-> +	hdr_info.cmd_buff_type = HFI_CMD_BUFF_DISPLAY;
-> +	hdr_info.object_id     = session_id;
-> +	hdr_info.header_id     = dcp_hfi_next_packet_id(hfi);
-> +
-> +	ret = hfi_create_header(&hdl, &hdr_info);
-> +	if (ret)
-> +		goto err_free_buf;
-> +
-> +	pkt_info.cmd          = HFI_COMMAND_DISPLAY_POWER_CONTROL;
-> +	pkt_info.id           = session_id & 0xFFFF;
-> +	pkt_info.flags        = HFI_RX_FLAGS_SUCCESS;
-> +	pkt_info.packet_id    = packet_id;
-> +	pkt_info.payload_type = HFI_PAYLOAD_NONE;
-> +	pkt_info.payload_size = 0;
-> +	pkt_info.payload_ptr  = NULL;
-> +
-> +	ret = hfi_create_packet_header(&hdl, &pkt_info);
-> +	if (ret)
-> +		goto err_free_buf;
-> +
-> +	return dcp_hfi_send_cmd_async(hfi, buf, hfi_get_header_size(&hdl), NULL);
-> +
-> +err_free_buf:
-> +	dcp_hfi_buf_free(hfi, buf);
-> +	return ret;
-> +}
-> +
-> +int dcp_hfi_display_enable(struct dcp_hfi *hfi, u32 intf_idx, u32 display_id,
-> +			   u32 *session_id)
-> +{
-> +	int ret;
-> +
-> +	ret = dcp_hfi_send_sync(hfi,
-> +				HFI_COMMAND_DISPLAY_ENABLE,
-> +				HFI_CMD_BUFF_DISPLAY, display_id,
-> +				HFI_PAYLOAD_NONE, NULL, 0,
-> +				HFI_TX_FLAGS_RESPONSE_REQUIRED |
-> +				HFI_TX_FLAGS_NON_DISCARDABLE,
-> +				NULL, 0,
-> +				DCP_HFI_TIMEOUT_DISPLAY_MS);
-> +	if (ret) {
-> +		dev_err(hfi->dev,
-> +			"HFI DISPLAY_ENABLE intf=%u display_id=%u failed: %d\n",
-> +			intf_idx, display_id, ret);
-> +		return ret;
-> +	}
-> +
-> +	*session_id = display_id;
-> +
-> +	return 0;
-> +}
-> +
-> +int dcp_hfi_display_post_enable(struct dcp_hfi *hfi, u32 session_id)
-> +{
-> +	return dcp_hfi_send_sync(hfi,
-> +				 HFI_COMMAND_DISPLAY_POST_ENABLE,
-> +				 HFI_CMD_BUFF_DISPLAY, session_id,
-> +				 HFI_PAYLOAD_NONE, NULL, 0,
-> +				 HFI_TX_FLAGS_RESPONSE_REQUIRED |
-> +				 HFI_TX_FLAGS_NON_DISCARDABLE,
-> +				 NULL, 0,
-> +				 DCP_HFI_TIMEOUT_DISPLAY_MS);
-> +}
-> +
-> +int dcp_hfi_display_disable(struct dcp_hfi *hfi, u32 session_id)
-> +{
-> +	return dcp_hfi_send_sync(hfi,
-> +				 HFI_COMMAND_DISPLAY_DISABLE,
-> +				 HFI_CMD_BUFF_DISPLAY, session_id,
-> +				 HFI_PAYLOAD_NONE, NULL, 0,
-> +				 HFI_TX_FLAGS_RESPONSE_REQUIRED |
-> +				 HFI_TX_FLAGS_NON_DISCARDABLE,
-> +				 NULL, 0,
-> +				 DCP_HFI_TIMEOUT_DISPLAY_MS);
-> +}
-> +
-> +int dcp_hfi_display_post_disable(struct dcp_hfi *hfi, u32 session_id)
-> +{
-> +	return dcp_hfi_send_sync(hfi,
-> +				 HFI_COMMAND_DISPLAY_POST_DISABLE,
-> +				 HFI_CMD_BUFF_DISPLAY, session_id,
-> +				 HFI_PAYLOAD_NONE, NULL, 0,
-> +				 HFI_TX_FLAGS_RESPONSE_REQUIRED |
-> +				 HFI_TX_FLAGS_NON_DISCARDABLE,
-> +				 NULL, 0,
-> +				 DCP_HFI_TIMEOUT_DISPLAY_MS);
-> +}
-> +
-> +int dcp_hfi_display_close(struct dcp_hfi *hfi, u32 session_id)
-> +{
-> +	int ret;
-> +
-> +	ret = dcp_hfi_display_disable(hfi, session_id);
-> +	if (ret) {
-> +		dev_warn(hfi->dev, "HFI DISPLAY_DISABLE failed: %d\n", ret);
-> +		return ret;
-> +	}
-> +
-> +	ret = dcp_hfi_display_post_disable(hfi, session_id);
-> +	if (ret) {
-> +		dev_warn(hfi->dev, "HFI DISPLAY_POST_DISABLE failed: %d\n", ret);
-> +		return ret;
-> +	}
-
-Why are there two types of calls, pre and post? Should they go to the
-corresponding separate DRM callbacks?
-
-> +
-> +	ret = dcp_hfi_send_sync(hfi,
-> +				HFI_COMMAND_DISPLAY_CLOSE,
-> +				HFI_CMD_BUFF_DISPLAY, session_id,
-> +				HFI_PAYLOAD_NONE, NULL, 0,
-> +				HFI_TX_FLAGS_RESPONSE_REQUIRED |
-> +				HFI_TX_FLAGS_NON_DISCARDABLE,
-> +				NULL, 0,
-> +				DCP_HFI_TIMEOUT_DISPLAY_MS);
-> +	if (ret)
-> +		dev_warn(hfi->dev, "HFI DISPLAY_CLOSE failed: %d\n", ret);
-> +
-> +	return ret;
-> +}
-> diff --git a/drivers/gpu/drm/msm/dcp/dcp_hfi_dsi_panel.c b/drivers/gpu/drm/msm/dcp/dcp_hfi_dsi_panel.c
-> new file mode 100644
-> index 000000000000..b27fa8fa3160
-> --- /dev/null
-> +++ b/drivers/gpu/drm/msm/dcp/dcp_hfi_dsi_panel.c
-> @@ -0,0 +1,592 @@
-> +// SPDX-License-Identifier: GPL-2.0-only
-> +/*
-> + * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
-> + *
-> + * HFI commands for panel initialization and DCS transfers.
-> + * Firmware owns the DSI controller and PHY.
-> + */
-> +
-> +#include <linux/device.h>
-> +#include <linux/math64.h>
-> +#include <drm/drm_modes.h>
-> +#include <drm/drm_mipi_dsi.h>
-> +
-> +#include "dcp_dsi_panel.h"
-> +#include "dcp_hfi.h"
-> +#include "dcp_hfi_priv.h"
-> +#include "hfi/hfi_commands_display.h"
-> +#include "hfi/hfi_commands_panel.h"
-> +#include "hfi/hfi_defs_common.h"
-> +#include "hfi/hfi_defs_panel.h"
-> +#include "hfi/hfi_packet.h"
-> +#include "hfi/hfi_packer.h"
-> +#include "hfi/hfi_properties_panel.h"
-> +
-> +#define DCP_DSI_CTRL_CMD_READ              BIT(0)
-> +#define DCP_DSI_CTRL_CMD_FETCH_MEMORY      BIT(5)
-> +#define DCP_DSI_CTRL_CMD_LAST_COMMAND      BIT(6)
-> +
-> +static u32 dcp_bpp_to_hfi(u32 bpp)
-> +{
-> +	switch (bpp) {
-> +	case 16: return HFI_PANEL_BPP_16;
-> +	case 18: return HFI_PANEL_BPP_18;
-> +	case 30: return HFI_PANEL_BPP_30;
-> +	case 24:
-> +	default: return HFI_PANEL_BPP_24;
-> +	}
-> +}
-> +
-> +static u32 dcp_dsi_traffic_mode(const struct mipi_dsi_device *dsi)
-> +{
-> +	if (!(dsi->mode_flags & MIPI_DSI_MODE_VIDEO))
-> +		return HFI_PANEL_TRAFFIC_NON_BURST_SYNC_EVENT_MODE;
-> +	if (dsi->mode_flags & MIPI_DSI_MODE_VIDEO_BURST)
-> +		return HFI_PANEL_TRAFFIC_BURST_MODE;
-> +	if (dsi->mode_flags & MIPI_DSI_MODE_VIDEO_SYNC_PULSE)
-> +		return HFI_PANEL_TRAFFIC_NON_BURST_SYNC_PULSE_MODE;
-> +	return HFI_PANEL_TRAFFIC_NON_BURST_SYNC_EVENT_MODE;
-> +}
-> +
-> +static u32 dcp_lanes_to_hfi(u32 num_lanes)
-> +{
-> +	u32 mask = 0;
-> +
-> +	if (num_lanes >= 1)
-> +		mask |= HFI_PANEL_LANE_0;
-
-There is always at least one lane. Set the mask to HFI_PANEL_LANE_0.
-
-> +	if (num_lanes >= 2)
-> +		mask |= HFI_PANEL_LANE_1;
-> +	if (num_lanes >= 3)
-> +		mask |= HFI_PANEL_LANE_2;
-> +	if (num_lanes >= 4)
-> +		mask |= HFI_PANEL_LANE_3;
-> +
-> +	return mask ?: HFI_PANEL_LANE_0;
-> +}
-> +
-> +static bool dcp_hfi_panel_wait(struct dcp_hfi *hfi,
-> +			       struct dcp_hfi_completion *comp)
-> +{
-> +	unsigned long flags;
-> +
-> +	if (wait_for_completion_timeout(&comp->done,
-> +					msecs_to_jiffies(DCP_HFI_TIMEOUT_DISPLAY_MS)))
-> +		return false;
-> +
-> +	/* Serialize removal with response dispatch before the stack object dies. */
-> +	spin_lock_irqsave(&hfi->resp_drain_lock, flags);
-> +	dcp_hfi_pending_find(hfi, comp->packet_id);
-> +	spin_unlock_irqrestore(&hfi->resp_drain_lock, flags);
-> +	return true;
-> +}
-> +
-> +int dcp_hfi_panel_init(struct dcp_hfi *hfi, u32 intf_idx,
-> +		       const struct drm_display_mode *mode,
-> +		       const struct mipi_dsi_device *dsi,
-> +		       const struct dcp_dsi_hfi_panel_config *cfg)
-> +{
-> +	u32 num_lanes;
-> +	u32 bpp;
-> +	bool is_cmd_mode;
-> +	u32 display_type;
-> +	u32 vsync_source;
-> +	u32 traffic_mode;
-> +	u32 phy_type;
-> +
-> +	struct dcp_hfi_buf *buf1, *buf2;
-> +	struct hfi_cmd_buff_hdl hdl1, hdl2;
-> +	struct hfi_header_info hdr_info1, hdr_info2;
-> +	struct hfi_packet_info pkt_info;
-> +	struct dcp_hfi_completion comp1, comp2, comp3;
-> +	u32 payload[128];
-> +	u32 *p;
-> +	u32 packet_id, packet_id2, packet_id3;
-> +	u64 clk_hz;
-> +	int ret;
-> +	bool timeout1, timeout2, timeout3;
-> +	u32 link_bpp_x16;
-
-Reverse christmas tree, apply universally to all your code.
-
-> +
-> +	if (!hfi || !mode || !dsi || !dsi->lanes || !cfg)
-> +		return -EINVAL;
-
-And which of those can actually be passed as NULL?
-
-> +	if (cfg->num_ctrls > ARRAY_SIZE(cfg->ctrl_indices) ||
-> +	    cfg->num_phys > ARRAY_SIZE(cfg->phy_indices))
-> +		return -EINVAL;
-> +
-> +	display_type = cfg->display_type;
-> +	vsync_source = cfg->vsync_source;
-> +	phy_type = cfg->phy_type;
-> +	num_lanes = dsi->lanes;
-> +	bpp = mipi_dsi_pixel_format_to_bpp(dsi->format);
-> +	if (bpp < 0)
-> +		return -EINVAL;
-> +	is_cmd_mode = !(dsi->mode_flags & MIPI_DSI_MODE_VIDEO);
-> +	traffic_mode = dcp_dsi_traffic_mode(dsi);
-> +	link_bpp_x16 = bpp << 4;
-> +
-> +	buf1 = dcp_hfi_buf_alloc(hfi);
-> +	if (!buf1) {
-> +		dev_err(hfi->dev, "HFI PANEL_INIT: TX buffer exhausted\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	hdl1.cmd_buffer = buf1->data;
-> +	hdl1.size       = DCP_HFI_BUF_SIZE;
-> +
-> +	hdr_info1.num_packets   = 0;
-> +	hdr_info1.cmd_buff_type = HFI_CMD_BUFF_DISPLAY;
-> +	hdr_info1.object_id     = intf_idx;
-> +	hdr_info1.header_id     = dcp_hfi_next_packet_id(hfi);
-> +
-> +	ret = hfi_create_header(&hdl1, &hdr_info1);
-> +	if (ret) {
-> +		dev_err(hfi->dev, "PANEL_INIT: hfi_create_header (A) failed: %d\n",
-> +			ret);
-> +		goto err_free_buf1;
-> +	}
-> +
-> +	{
-
-Jayant, you really like to ignore comments. Please stop doing that. And
-also please stop having unconditional nested blocks. If you need one,
-extract it to a function.
-
-> +		u32 num_props = 0;
-> +
-> +		p = payload + 1;
-> +		num_props++;
-> +		p += HFI_PACK(p, HFI_PROPERTY_PANEL_TIMING_MODE_COUNT, 1);
-> +
-> +		/* DCS TX buffer is described by both DVA and IOVA properties. */
-> +		if (cfg->dcs_tx_iova && cfg->dcs_tx_dva &&
-> +		    !(cfg->dcs_tx_iova & 0x3ff) && !(cfg->dcs_tx_dva & 0x3ff)) {
-> +			num_props++;
-> +			p += HFI_PACK(p, HFI_PROPERTY_PANEL_DCS_CMD_TX_BUF_DVA,
-> +				       lower_32_bits(cfg->dcs_tx_dva),
-> +				       upper_32_bits(cfg->dcs_tx_dva),
-> +				       cfg->dcs_tx_buf_size, 0, 0);
-> +			num_props++;
-> +			p += HFI_PACK(p, HFI_PROPERTY_PANEL_DCS_CMD_TX_BUF_IOVA,
-> +				       lower_32_bits(cfg->dcs_tx_iova),
-> +				       upper_32_bits(cfg->dcs_tx_iova),
-> +				       cfg->dcs_tx_buf_size, 0, 0);
-> +		}
-> +		payload[0] = num_props;
-> +	}
-> +
 
 -- 
 With best wishes
