@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793145343;
-	b=FYywMQIuZQ3t0BVlret7CSYc4+L7ffoLhTI2OTqGkJ8PzzvcjP85QRoYE80ZuI/3osay
-	 QQJMn/kdtW81hULEjkvNegfpx77JY/Bjke0IzE+nWFOOI2dexqn4PxSVoNHxIWiCyXyqi
-	 TCUy2WnufWB5xiUj78E2m9liJYAj4aDF/2hycPOWARIFE1cFAYpt+mLErRyROPFJwKE6+
-	 UEEFFE8bW8mSNMMe9dKoaMSWQCCSYLV5K0S8fP/ifkKPHIo0Vvlnapm+IWTKvbbUQ4qN6
-	 ui/LOyzonEzkWn5MfbS66vkrpu2hXObn2OBTK7aQhqHRwSp3wjsLfXP5rUGIEZI3xLg==
+	t=1793145565;
+	b=G/aZV4dFpuLAL5BBg2e/C7PPEwVGoh5VfnTwtHZYwuwmRT3IQdc72Teu4Sdl+4XBGu8n
+	 CqFZ7yaTpHt9IlY3IDXvny/ir7CrA4kle4NZmtyOTMLJU2t8i4ezCXZr1uoUHSOXixKQH
+	 kIb54Zo0KhAESBrRXgFnZrA2znoFDI6rUy1f9BrsJO0repyfYpFA2+J4ZbMHgnJFrvPXb
+	 bdZO+Q3nib63C6xjWNtXjStasmAB4jHpF/rqy8fwcyIEbY6p9KJmmjDcuA/6+HeKnUqf+
+	 OzS7FQf4YyL7nA5VPfYdFUhTtSBtR9zCI7SfMcIPEn2N62Elb3OE1nOnjTybJYf7C2A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793145343;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793145565;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=tnlgzbpDWkaBV+j/E2BQNW2CJVix5snP5Css6owCKXs=;
-	b=cYHYbXVr6FXRa9PgJRG6cBP6IVpJ3n32A9bcuCbfAmWxf2eOs1/XGHqv6FUMjBfxp0x/
-	 vzcp92UPjviKCGSW3ROHgt7k7lA0sLBrkT1iGbLyRZRCdd33m1eyv7+UM6ujo/VX9b0oY
-	 Vm9ixoSwtOqS90W3bXolI5dm2zgSsWhOretVq4PULkSfCX4aygnrJ1MLfrBQPQdbMpPui
-	 /PW6lYUhWiA60tQKM0O/X+DxqsaiDYwUXgZdtq4B5/pv6sNmQuU/E9ckJrMMRNhw8Jdcd
-	 WGPTm5Z0EO7Kv3/VtT9CfnB/mDkwELdngAduPvSEaAkF7+xd8xv6AJWPsSEc4A+1ewA==
+	bh=BwZysRG4GY8YFxAdX1yt6ByLFv86tbzZVVWemg/Zd9c=;
+	b=RyeYI1kwTu51c3HmtUmhSGV8lRmitCLrrZlFvKQ/iA0zZ8nPtui3s+5MTcwu3mPnQqOy
+	 57r3GPS/oHA+PWzjIsgd/icOsw5BE+DZC+f20e/k4jR+GPlHgsD4bw+v2eUdIQkUkRNA8
+	 /0ZF0rLAGrP8lGebg1EXLyH7RKGlXlbY+3D+Cks7hktmuQmOQ5zCsNF8OVHGkxC1nOL5a
+	 LHu5ftoayVqUu8E/aKWONzcxQ89ybKKic78rQUH9UAsr4zN6h7GPf2sXj0X+lb0L/x/SC
+	 E9M50Sd9v1FtDhtiW0rZ07iclI/dHJsCoaSJRLGFCGa9J+sGkP5F0igkRdJNw0t8Xuw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="Tp/BpH+8";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VUF80tpf;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47199606A32C;
-	Tue, 27 Oct 2026 23:55:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C454606A31A;
+	Tue, 27 Oct 2026 23:59:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Tp/BpH+8
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB1771F01829;
-	Tue, 27 Oct 2026 23:55:42 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VUF80tpf
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BA4C1F01825;
+	Tue, 27 Oct 2026 23:59:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793145343;
-	bh=tnlgzbpDWkaBV+j/E2BQNW2CJVix5snP5Css6owCKXs=;
+	s=k20260515; t=1793145565;
+	bh=BwZysRG4GY8YFxAdX1yt6ByLFv86tbzZVVWemg/Zd9c=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Tp/BpH+8mjj8GJpkLooR2HJL/Nw4xiig0WpzjVwkxaRjFgpXBo9aqO30lM5Wp2sCr
-	 sFmbwJaTmVREVNFOyryezFPr4AW+KRt1tuZT7dm/tGJeIEFrZ6fOwsb/FYNRZX0/kZ
-	 qkPEHyL+Ncj0a9PBXGVdgDSibe5zHUQoZKX0dTmDol9GdDtZ8BZ7WFUChAVELc+6b2
-	 kMQiYVE1nNgTcILKhCCZxdHvKg4K24pdJMkwYtA2R6u6QTbpnL9ogRvDt1nmZdyO9E
-	 48WO+4QcJRWD+IiOAOvmsyxUtwDTtHwgwVf99RkjBm1ips0Y0jz7xCcpfc/VW30l49
-	 k8/Z/a71DAHOA==
-Message-ID: <sashiko-outbox-187245@kernel.org>
+	b=VUF80tpfZP0AtHRrJDCbXm/GlPRS6PE0f+WBn85PUFSM3U3IEbW5yk6N05qQ5Mg9U
+	 gW/m9TMuMCrbWriWtcseM+6oG8ejuVZCmnCePUVm4shUsDhaa27ruVtJAsW15nvc3f
+	 ySfGBRp14jHf3s5pspMS/1Ppe4daS85rz3SRmMPYdbwkwWxy7Ol4xMB0tUZzisrYlx
+	 TeUqAxTV8k8QO1bzEQz/0jK/SpeJk6V9wqdC3tdl68I5bEZn+GxAr+xq4Y15rxW3ac
+	 5sNGXflluKNLAUtdJFX4TartACANEyabOTUpkZpoGuvK6fgtod6RA31w7SpBCMvsI1
+	 ZBKir2UTtPX0Q==
+Message-ID: <sashiko-outbox-187246@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 05/11] ALSA: virtio: Keep control payloads alive
- through DMA completion
+Subject: Re: [PATCH v5 04/11] ALSA: virtio: Keep PCM DMA buffers alive
+ through device ownership
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Joonho Lee" <mynameisjune111@gmail.com>, linux-sound@vger.kernel.org
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261027234334.32551-6-mynameisjune111@gmail.com>
+In-Reply-To: <20261027234334.32551-5-mynameisjune111@gmail.com>
 References: <20261027234334.32551-1-mynameisjune111@gmail.com>
- <20261027234334.32551-6-mynameisjune111@gmail.com>
+ <20261027234334.32551-5-mynameisjune111@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 27 Oct 2026 23:55:42 +0000
+Date: Tue, 27 Oct 2026 23:59:24 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -64,99 +64,111 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Medium] ALSA: virtio: misaligned control value access in virtsnd_kctl_ge=
-t()
+- [High] ALSA: virtio: virtsnd_pcm_msg_complete() drops NOMMU capture data =
+on pause
 --
 
-commit 15e13c28bcb1079484dfa947a5ae6109ebb5b3c9
+commit a5392b9f568d1dcfcb1d686f254cd14115ceec53
 Author: Joonho Lee <mynameisjune111@gmail.com>
 
-ALSA: virtio: Keep control payloads alive through DMA completion
+ALSA: virtio: Keep PCM DMA buffers alive through device ownership
 
-This commit moves control request and response payloads into a
-reference-counted DMA buffer owned by struct virtio_snd_msg so caller
-buffers are not exposed to DMA after a timeout or interruption. It also
-aligns each scatterlist region to the greater of the DMA cacheline size
-and the alignment of struct virtio_snd_ctl_value.
+This commit retains references to the pages backing ALSA's vmalloc buffer
+until its queued I/O messages are freed, uses a driver-owned bounce buffer =
+on
+NOMMU systems, and clamps device-reported capture lengths to the message
+capacity.
 
-> diff --git a/sound/virtio/virtio_ctl_msg.c b/sound/virtio/virtio_ctl_msg.c
-> index 7114bea4033a5..2e0ff15e729da 100644
-> --- a/sound/virtio/virtio_ctl_msg.c
-> +++ b/sound/virtio/virtio_ctl_msg.c
+> diff --git a/sound/virtio/virtio_pcm_msg.c b/sound/virtio/virtio_pcm_msg.c
+> index 762480363b861..b7f2334bb221c 100644
+> --- a/sound/virtio/virtio_pcm_msg.c
+> +++ b/sound/virtio/virtio_pcm_msg.c
 [ ... ]
-> @@ -85,20 +161,85 @@ void *virtsnd_ctl_msg_response(struct virtio_snd_msg=
- *msg)
->  struct virtio_snd_msg *virtsnd_ctl_msg_alloc(size_t request_size,
-> -					     size_t response_size, gfp_t gfp)
-> +					     size_t response_size,
-> +					     size_t request_data_size,
-> +					     size_t response_data_size,
-> +					     gfp_t gfp)
->  {
-[ ... ]
-> +	cache_alignment =3D dma_get_cache_alignment();
-> +	if (cache_alignment <=3D 0)
-> +		return NULL;
-> +	/* DMA coherence does not remove the CPU's type alignment requirement. =
-*/
-> +	alignment =3D max_t(size_t, cache_alignment,
-> +			  __alignof__(struct virtio_snd_ctl_value));
-[ ... ]
-> diff --git a/sound/virtio/virtio_kctl.c b/sound/virtio/virtio_kctl.c
-> index 45f7b6a5b3080..4cf75dedbe9a3 100644
-> --- a/sound/virtio/virtio_kctl.c
-> +++ b/sound/virtio/virtio_kctl.c
-[ ... ]
-> @@ -161,10 +163,12 @@ static int virtsnd_kctl_get(struct snd_kcontrol *kc=
-ontrol,
->  	unsigned int i;
->  	int rc;
-> =20
-> -	msg =3D virtsnd_ctl_msg_alloc(request_size, response_size, GFP_KERNEL);
-> +	msg =3D virtsnd_ctl_msg_alloc(request_size, response_size, 0, 0,
-> +				    GFP_KERNEL);
->  	if (!msg)
->  		return -ENOMEM;
+> @@ -363,15 +539,48 @@ static void virtsnd_pcm_msg_complete(struct virtio_=
+pcm_msg *msg,
+>  	 * the hw_ptr value is unconditionally advanced.
+>  	 */
+>  	guard(spinlock)(&vss->lock);
+> +#ifndef CONFIG_MMU
+> +	if (vss->direction =3D=3D SNDRV_PCM_STREAM_CAPTURE &&
+> +	    vss->xfer_enabled && written_bytes > sizeof(msg->status)) {
+> +		struct snd_pcm_runtime *runtime =3D
+> +			vss->substream ? vss->substream->runtime : NULL;
+> +		size_t reported_bytes =3D written_bytes - sizeof(msg->status);
+> +		size_t data_bytes =3D min_t(size_t, reported_bytes, msg->length);
+> +
+> +		if (!runtime || !runtime->dma_area || !vss->owned_dma_area ||
+> +		    msg->data_offset > runtime->dma_bytes ||
+> +		    data_bytes > runtime->dma_bytes - msg->data_offset ||
+> +		    msg->data_offset > vss->owned_dma_bytes ||
+> +		    data_bytes > vss->owned_dma_bytes - msg->data_offset)
+> +			dev_err_ratelimited(&vss->snd->vdev->dev,
+> +					    "SID %u: invalid capture buffer for I/O message\n",
+> +				vss->sid);
+> +		else
+> +			memcpy(runtime->dma_area + msg->data_offset,
+> +			       vss->owned_dma_area + msg->data_offset, data_bytes);
+> +	}
+> +#endif
+> +	if (vss->direction =3D=3D SNDRV_PCM_STREAM_CAPTURE &&
+> +	    written_bytes > sizeof(msg->status) &&
+> +	    written_bytes - sizeof(msg->status) > msg->length)
+> +		dev_err_ratelimited(&vss->snd->vdev->dev,
+> +				    "SID %u: capture length exceeds I/O message capacity\n",
+> +			vss->sid);
+>  	/*
+>  	 * If the capture substream returned an incorrect status, then just
+> -	 * increase the hw_ptr by the message size.
+> +	 * increase the hw_ptr by the message size. Clamp valid capture lengths=
+ to
+> +	 * the actual SG payload capacity before accounting them.
+>  	 */
+>  	if (vss->direction =3D=3D SNDRV_PCM_STREAM_PLAYBACK ||
+> -	    written_bytes <=3D sizeof(msg->status))
+> +	    written_bytes <=3D sizeof(msg->status)) {
+>  		vss->hw_ptr +=3D msg->length;
+> -	else
+> -		vss->hw_ptr +=3D written_bytes - sizeof(msg->status);
+> +	} else {
+> +		size_t data_bytes =3D min_t(size_t,
+> +					  written_bytes - sizeof(msg->status),
+> +					  msg->length);
+> +
+> +		vss->hw_ptr +=3D data_bytes;
+> +	}
 
-[Severity: Medium]
-Does packing both the response header and struct virtio_snd_ctl_value into
-sg_response leave kvalue misaligned in virtsnd_kctl_get()?
+[Severity: High]
+Can gating the NOMMU capture bounce copy on vss->xfer_enabled drop captured
+audio data when a stream is paused?
 
-In virtsnd_ctl_msg_alloc(), each scatterlist region is aligned to at least
-__alignof__(struct virtio_snd_ctl_value), which is 8 bytes because of the
-__le64 integer64[64] array.
+In sound/virtio/virtio_pcm_ops.c, virtsnd_pcm_trigger() handles
+SNDRV_PCM_TRIGGER_PAUSE_PUSH by clearing vss->xfer_enabled while leaving
+vss->stopped false before synchronously sending VIRTIO_SND_R_PCM_STOP:
 
-In virtsnd_kctl_put(), the request header is struct virtio_snd_ctl_hdr (8
-bytes), so placing kvalue immediately after it preserves 8-byte alignment.
+	case SNDRV_PCM_TRIGGER_STOP:
+	case SNDRV_PCM_TRIGGER_PAUSE_PUSH:
+		scoped_guard(spinlock_irqsave, &vss->lock) {
+			if (command !=3D SNDRV_PCM_TRIGGER_PAUSE_PUSH)
+				vss->stopped =3D true;
+			vss->xfer_enabled =3D false;
+		}
 
-However, in virtsnd_kctl_get(), response_data_size is passed as 0 and
-response_size is sizeof(struct virtio_snd_hdr) + sizeof(*kvalue), with
-kvalue computed right after the 4-byte struct virtio_snd_hdr:
+		msg =3D virtsnd_pcm_ctl_msg_alloc(vss, VIRTIO_SND_R_PCM_STOP,
+						GFP_KERNEL);
+		if (!msg)
+			return -ENOMEM;
 
-sound/virtio/virtio_kctl.c:virtsnd_kctl_get() {
-	...
-	kvalue =3D (void *)((u8 *)virtsnd_ctl_msg_response(msg) +
-			  sizeof(struct virtio_snd_hdr));
+		return virtsnd_ctl_msg_send_sync(snd, msg);
 
-	switch (type) {
-	...
-	case VIRTIO_SND_CTL_TYPE_INTEGER64:
-		for (i =3D 0; i < count; ++i)
-			uvalue->value.integer64.value[i] =3D
-				le64_to_cpu(kvalue->value.integer64[i]);
-		break;
-	...
-}
+If an in-flight capture I/O message completes while vss->xfer_enabled is
+false during pause, virtsnd_pcm_msg_complete() skips the memcpy() from
+vss->owned_dma_area to runtime->dma_area, but still advances vss->hw_ptr by
+data_bytes and resets msg->length to 0.
 
-Since virtsnd_ctl_msg_response(msg) is aligned to a multiple of 8 bytes and
-sizeof(struct virtio_snd_hdr) is 4 bytes, kvalue is guaranteed to land at an
-8n + 4 address, causing unaligned 64-bit loads when reading a
-VIRTIO_SND_CTL_TYPE_INTEGER64 control.
-
-Should the control value payload be placed in response_data (or the
-request/response payloads placed in sg_request_data and sg_response_data) so
-that kvalue starts on an aligned boundary?
+When the stream is later resumed with SNDRV_PCM_TRIGGER_PAUSE_RELEASE, will
+userspace read stale or zeroed bytes from runtime->dma_area for that
+completed period?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261027234334.3255=
-1-1-mynameisjune111@gmail.com?part=3D5
+1-1-mynameisjune111@gmail.com?part=3D4
