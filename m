@@ -1,72 +1,72 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.167.199
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793069820;
-	b=MIm600MqBNdVqGB8ZVQ1+vj3oD2bh6s7AmtVxQ9N0+hTmfh3EY2Nxn2LAU5Dl9Rm4hUO
-	 YHddYLLoiJUgbG8xgx27VapiYTprUFVTjZKw7i1SYzYGDbxV9SaN/YW+dLENTXXrZUkau
-	 oew7bC8NOosqHIQnW6UrLmFSuuxhepQ7f1qLu8uqMVAxBXCy0E5iwecY8qeJgEHSRsugS
-	 cpc1wCz3EBBhwnpmQu+k6w9B6KBlMgSwM/99168UhCqlDODiLKfSW0LWW4fnpxEzPUpzS
-	 8HtoQoiarOVKcTW9gGoxrSkoIVn6YYNc03AfAIwi+vCxViPeDZkzlBlA31C7RvgW6nw==
+	t=1793069821;
+	b=y7O+7l5t/GCwfk3QpfCI9EXZN9nT7D7bfGKNPg+pLpGOj5fsyACUSt9t16j7pZ8+qLHW
+	 s67db1M0EbXCJixJvezbWsXDpgqaOkO8su7OdvQFMAg9p7exta13yPts4SMACPpzVa2a2
+	 5ztrfG0NBYjoBV1iwKly/eBwa0SdkTCs1KTKrlecB6/H1psfT+eht+Q10fhpEqGLqGnLS
+	 orBf0wcfcRn/fKDxf7xMbLISJ76D5VqcfEs6TzaK81wTTuEzl9qinyF7xVMBaJ2HBQCib
+	 c7wgvEdm2ZDjEV2TKDXZ+6LSxROgLk1z9puDDfEbC8tc6wEPIvnDN/j6hybte3Ro54Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793069820;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793069821;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Gm-Message-State:X-Received:Date:In-Reply-To:Mime-Version:
 	 References:X-Mailer:Message-ID:Subject:From:To:Cc:Content-Type;
-	bh=j+w6uCJntt3i4Wr5zbmAS2QfetxR0x7f970do0XgFlo=;
-	b=jUtZKPEq2iR54TCexCUrLNcP5qyaIqxAib548LdTnnPw5BEsam/wYRyoUM9DwpwLgu7t
-	 gKXh66F879hWsYP8sOTQLSbZMfZwTNBYAj1IVFoYKWM1pJ9sa4t7nJ+nloSvD0MBV3uSo
-	 biMXqwo9YthwFUS7DrME0Dhq+84kK2VACS+SUa8xCgpYdTqF4Q3NNFEbUp8Q2Fx8U0N3I
-	 HyEDZ6s20zQAaQ9oePYOjYSa2cR0ET+gCjFcv+FB2BaMsj1nepKuT23/9Z7/JtF+z6FIs
-	 /67E9fO2Q7As9gihPmgrmXLc2qmbtLgfOmWRoS03JFgURwOHMROjYu7R00XvFt8l18Q==
+	bh=CMgB+FzrQPZBtoyno0UE3jQCmYhoPeFOpiZUNmu3S6w=;
+	b=Ps4mITlqbwI3oN3o7P1FmKmCl1kn76AIkrEcVAS921VCuCfX56lq01zHA4SMGx9OpHRE
+	 kL29rVlZNCbynii/7YaLNYa25NRJAXmcSiBnHGM8JsL4wPxEPmJhQD7S+uViwOxqrx2wO
+	 9waccJcd3ylsg6QrcGykp+Kv3S0b1JUcPlMS3NVIuN9zay0iOVV/0P7Naxqe5mvirKT4I
+	 4MMPBDem6/7v2cd6GRljeH5KyX0oB5WdoSGn+mAHhU8k3ayWmlVdVuazbvef86TfK8tdC
+	 U6Sx1MkpMDFX59qzR3OlagAel+cx3lPjOwwum354aHuLkqSRiHUfHiN1bYe+zY55pYg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=google.com;
 	spf=pass smtp.mailfrom=flex--kevinloughlin.bounces.google.com;
-	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20251104 header.b=pmF+WlNF;
+	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20251104 header.b=AcJ3FXmv;
 	arc=none smtp.remote-ip=209.85.167.199
 Received: from mail-oi1-f199.google.com (mail-oi1-f199.google.com [209.85.167.199])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B09D560A3804
-	for <virtualization@lists.linux.dev>; Tue, 27 Oct 2026 02:56:59 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B09D560A3804
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6417260A3824
+	for <virtualization@lists.linux.dev>; Tue, 27 Oct 2026 02:57:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6417260A3824
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--kevinloughlin.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20251104 header.b=pmF+WlNF
-Received: by mail-oi1-f199.google.com with SMTP id 5614622812f47-4dab94dc3e7so5879611b6e.0
-        for <virtualization@lists.linux.dev>; Mon, 26 Oct 2026 19:56:59 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20251104 header.b=AcJ3FXmv
+Received: by mail-oi1-f199.google.com with SMTP id 5614622812f47-4c307941971so5068234b6e.1
+        for <virtualization@lists.linux.dev>; Mon, 26 Oct 2026 19:57:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1793069819; x=1793674619; darn=lists.linux.dev;
+        d=google.com; s=20251104; t=1793069820; x=1793674620; darn=lists.linux.dev;
         h=content-type:cc:to:from:subject:message-id:references:mime-version
          :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=j+w6uCJntt3i4Wr5zbmAS2QfetxR0x7f970do0XgFlo=;
-        b=pmF+WlNFWTR8E0DOnIlPkyPyPS7oMB74lkO5LMECdxdeQnyjHf3n8pRbAQKWBrBD6k
-         vK4raj7cGCwKuGlKaoOpbNmqTJ0MJ4txfyfa7zKA57vH1kRQJHppWA2o5OkL3z4BoL9f
-         cufUUlq1VU4ib1C4fegiv6Oyl6kWQoxLWkDQsjmptq2o3+NEX/Ncvo9LYu++g6IJED3B
-         ZY3EtvvagGqJmHwQ8W29wuRHVjg749O38QJFFheHGkBzIs6+251rdTraEpqg2yfZKNyb
-         PNd+mIJxVdMQBe6ipeszh1A29PW2pHV/L6hMIel4PVb1QJFjxspXxGVcmIaXgQIOpomi
-         rkcA==
+        bh=CMgB+FzrQPZBtoyno0UE3jQCmYhoPeFOpiZUNmu3S6w=;
+        b=AcJ3FXmv3hCfPJfGmf5idBCx6VMc9HUOH/Xs1bBFT9Wt1PO2dw1UZzDOmzaIOcoyg2
+         w1K0mZkEkOA+lBGyxbx5sA7bxtjGnz4IMWxZSwoEAIfVuSmuayXpy4HaI7S+aAk3BcxM
+         cAmrUq64kCnDe0FRKyZQk4Ijnih0mxAK6tyefoxYK5Q2aHjaT8U6U2N12H3iIRgDvzcg
+         DQFfmOCzlYhdwNRGpanl0NTKfez/rgiiseE5jxUNe+GisYuq57n7OutthHWla+oXUpFd
+         kLuIAjPli2yZYGNhK7/uWF+h7acWB/mu1Hr/dovvW0AkhAIcEcNJ9hGubhYpsPxAYhby
+         2p/w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793069819; x=1793674619;
+        d=1e100.net; s=20260707; t=1793069820; x=1793674620;
         h=content-type:cc:to:from:subject:message-id:references:mime-version
          :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=j+w6uCJntt3i4Wr5zbmAS2QfetxR0x7f970do0XgFlo=;
-        b=Au0y2D6w3w66Y8y/ObDQBGil7nDhHOsN/yD5Laa5GPIKvww8CU0dP0mZGInPsgJx4u
-         ukMGuCgB/C80FEVv8wt4CSePSSrA/IYUAyCjnk5nNifudqdpElQzcQeqX1mh7RPKRl3Q
-         /xZ9FsVg1s4lCWZsfr/4G/LBjojPSZ1F5ZMK+WO2RtMjHPZOTfpbZsQj5UgLISg1b14h
-         YhzDZLcOq3y7yHSFVVoRho/zaEicHI4tqqR/wFRmPe1FT49dSqQI9p9lXBQzUr8TyM0a
-         ENQhhpPZ1rlikh/VhQJcTH0kbTvOUiE8W1ZMjwbfJLgTEXaPYti5GF93wuaHmd1GO3ZK
-         ey3w==
-X-Gm-Message-State: AFq9FYJw1850B1+DYdu9M/zCLjtLvonbMvtlJLrcq34hVt49TYMFzeXB
-	TsYWwWlKQqQgE4W4UMlFGVBWZcIZw69EHuMErNkyruWaSPDVuLLh42S7D8A0SqLsLXQ8KdMY6oQ
-	/QyIMhmG1Dt1aIhi6URYGbdk7W8jFzVtwYA==
-X-Received: from ioo6-n2.prod.google.com ([2002:a05:6602:8646:20b0:9c7:5a22:a4be])
+        bh=CMgB+FzrQPZBtoyno0UE3jQCmYhoPeFOpiZUNmu3S6w=;
+        b=Vg1PKRAjkc2EpqEZkvZZAS44vElKrACNNYmK5O9202JTs+xRqmRUhD/Q2RdMxxOz6K
+         ywA/nRPdPZfS3AvuxG8zibhmm+2GsQ/4m6YjdEiTCeqFmrkIEbVcmomgMga9PQ9481P1
+         ihrPF9GXo2IPym8Oi6QfhwWMpAWtzGLx7yhc+u2Ti34/jOR4LhOwms+AZ/mtZ3Is/w7Z
+         1HY2RnBjgBEoRKfhNtIKDw5q0etyBmvuzHY2baZDsqM86ENsn3NOAe04UZB/052Dhg3/
+         hxh1qWULqOTfLhLMwV6C9pUBH3OQln01bfCgl7ygpU5sdf3FNTY0RO+lsEQeotY8S8fG
+         yttw==
+X-Gm-Message-State: AFq9FYLg7oEBHg4OVQQczUVGR2E1Xo5rSqzorbefNyzw5X5qFiDr+Tmk
+	RQh/+1MmSJDJ4CCndAfWYFutzZVWQloT5cuXIy1XYRJ6n0EMe6TGyeS7BTKyO+S8eluTdDj9O0L
+	mS3pnrOct8vm/S1t6CVD2tCMBrog3QTwDUg==
+X-Received: from iovf14.prod.google.com ([2002:a05:6602:38e:b0:9c8:5014:752e])
  (user=kevinloughlin job=prod-delivery.src-stubby-dispatcher) by
- 2002:a05:6808:1b2b:b0:4f4:73a9:f853 with SMTP id 5614622812f47-55bfff91bbdmr5294378b6e.1.1793069818445;
- Mon, 26 Oct 2026 19:56:58 -0700 (PDT)
-Date: Tue, 27 Oct 2026 02:56:14 +0000
+ 2002:a05:6808:50a3:b0:549:e9e3:9490 with SMTP id 5614622812f47-55c0023237emr5583862b6e.23.1793069820114;
+ Mon, 26 Oct 2026 19:57:00 -0700 (PDT)
+Date: Tue, 27 Oct 2026 02:56:15 +0000
 In-Reply-To: <20261027025616.1632690-1-kevinloughlin@google.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -79,8 +79,8 @@ Precedence: list
 Mime-Version: 1.0
 References: <20261027025616.1632690-1-kevinloughlin@google.com>
 X-Mailer: git-send-email 2.56.0.307.g5fe7bd680c-goog
-Message-ID: <20261027025616.1632690-12-kevinloughlin@google.com>
-Subject: [PATCH 11/13] virtio_balloon: unaccept free reporting ranges
+Message-ID: <20261027025616.1632690-13-kevinloughlin@google.com>
+Subject: [PATCH 12/13] virtio_balloon: unaccept inflated balloon pages
 From: Kevin Loughlin <kevinloughlin@google.com>
 To: "Michael S. Tsirkin" <mst@redhat.com>, David Hildenbrand <david@kernel.org>, Jason Wang <jasowangio@gmail.com>, 
 	"=?UTF-8?q?Eugenio=20P=C3=A9rez?=" <eperezma@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
@@ -102,69 +102,38 @@ Cc: virtualization@lists.linux.dev, linux-coco@lists.linux.dev,
 	David Skidmore <davidskidmore@google.com>, Kevin Loughlin <kevinloughlin@google.com>
 Content-Type: text/plain; charset="UTF-8"
 
-In confidential computing guests with dynamic unaccepted memory
-transitions, configure the free page reporting order to
-unaccepted_memory_order(). Invoke mark_memory_unaccepted() on each
-scatterlist range in virtballoon_free_page_report() before adding the
-scatterlist to reporting_vq and kicking the host.
-
-Unaccepting the pages prior to virtqueue_add_inbuf() and virtqueue_kick()
-guarantees that the guest finishes PVALIDATE(validate=false) before the
-host VMM can observe the reporting request in the virtqueue ring and
-punch a hole in guest_memfd, eliminating any race where the guest
-re-allocates and re-accepts a page before a deferred host hole-punch
-executes.
+When pages are allocated for balloon inflation in confidential
+computing guests requiring page state transitions, mark the allocated
+pages as unaccepted via mark_memory_unaccepted() before notifying the
+host VMM. When those pages are later deflated and released via
+put_page(), the page allocator routes them to zone->unaccepted_pages
+for lazy re-acceptance on demand.
 
 Signed-off-by: Kevin Loughlin <kevinloughlin@google.com>
 ---
- drivers/virtio/virtio_balloon.c | 26 ++++++++++++++++++++++++--
- 1 file changed, 24 insertions(+), 2 deletions(-)
+ drivers/virtio/virtio_balloon.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
 diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index d162c162b496..e10bd792ef7c 100644
+index e10bd792ef7c..217431e75751 100644
 --- a/drivers/virtio/virtio_balloon.c
 +++ b/drivers/virtio/virtio_balloon.c
-@@ -213,7 +213,26 @@ static int virtballoon_free_page_report(struct page_reporting_dev_info *pr_dev_i
- 	struct virtio_balloon *vb =
- 		container_of(pr_dev_info, struct virtio_balloon, pr_dev_info);
- 	struct virtqueue *vq = vb->reporting_vq;
--	unsigned int unused, err;
-+	unsigned int unused;
-+	int err;
-+
-+	if (virtballoon_cc_needs_state_transition()) {
-+		unsigned long unit_size = PAGE_SIZE << unaccepted_memory_order();
-+		struct scatterlist *sgl;
-+		unsigned int i;
-+
-+		for_each_sg(sg, sgl, nents, i) {
-+			if (WARN_ON_ONCE(!IS_ALIGNED(sg_phys(sgl), unit_size) ||
-+					 !IS_ALIGNED(sgl->length, unit_size)))
-+				return -EINVAL;
-+		}
-+		for_each_sg(sg, sgl, nents, i) {
-+			err = mark_memory_unaccepted(sg_phys(sgl), sgl->length);
-+			if (err)
-+				return err;
-+			cond_resched();
-+		}
-+	}
+@@ -329,6 +329,15 @@ static unsigned int fill_balloon(struct virtio_balloon *vb, size_t num)
+ 		unsigned int pfns = (1 << page_order) * VIRTIO_BALLOON_PAGES_PER_PAGE;
  
- 	/* We should always be able to add these buffers to an empty queue. */
- 	err = virtqueue_add_inbuf(vq, sg, nents, vb, GFP_NOWAIT);
-@@ -1142,8 +1161,11 @@ static int virtballoon_probe(struct virtio_device *vdev)
- 		 * host's base page size. However, it needs more work to report
- 		 * that value. The hard-coded order would be fine currently.
- 		 */
-+		if (virtballoon_cc_needs_state_transition())
-+			vb->pr_dev_info.order = unaccepted_memory_order();
- #if defined(CONFIG_ARM64) && defined(CONFIG_ARM64_64K_PAGES)
--		vb->pr_dev_info.order = 5;
-+		else
-+			vb->pr_dev_info.order = 5;
- #endif
+ 		list_del(&page->lru);
++		if (virtballoon_cc_needs_state_transition()) {
++			unsigned long page_size = (1UL << page_order) * PAGE_SIZE;
++			phys_addr_t paddr = page_to_phys(page);
++
++			if (mark_memory_unaccepted(paddr, page_size)) {
++				put_page(page);
++				continue;
++			}
++		}
+ 		balloon_page_enqueue(&vb->vb_dev_info, page);
  
- 		vb->pr_dev_info.capacity = capacity;
+ 		vb->num_pages += pfns;
 -- 
 2.56.0.307.g5fe7bd680c-goog
 
