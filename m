@@ -1,70 +1,70 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=188.68.63.174
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.244.194.184
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793087275;
-	b=Pqq/UGd06YlK2WurRrRxCAwlq5ekm5rxbT24SalQy1ZhihO+PSi59mUiRKuWl/056+Cu
-	 4FoLWwlD2PrdcFdChJPKvj4wLunGF35l1BSYsrIXHan2+exH1OtjToEwEssMafl/R9sPo
-	 asGO6ClikVOkqK/AdenU7Z8FLrLxFvcauTO+WL4WV1KUIFA/QLFK/r4Xhxhegvf16RG0B
-	 cpDwetgrLiowBkXTErJXd+CWqyFu18+8qaxIxNgJNIYXaLELQ4mCKc1ILVWcv9ChsSSka
-	 ql2R2V5gcvOdJ8eFmrpePYaxE9yY8L7ls2inNNFOZacEGHXq78c+aXotYK+xV4O3p2A==
+	t=1793087440;
+	b=DYT6AeKkwYfWxSsLu9mdE9xiMMgXxhh4RNX9K7gA3k2wNUj77GTUfnan3pjDADwZIuG3
+	 4iR+u6B8W+fHpcXNG0GkAW7s+Sxlv7AGyJYZqJ5lYk8b1GEcBXg10TJpaqzPtQg1Laiqi
+	 UlTkdCWpHOsdXjF3sDjnbP7J3GVz+wQQSpF96U873c13YsdWRS3OTYEVo3PwTNzdPZ/29
+	 2xZ0zt40Jhb2JCBEu/dNymTW89q1PTJW+XXrxENBq5KO5GtxS+MebfWkW53sT5HTZKZGW
+	 TWMaREiVf4PzSMjmnaLrrKE10/Um0dIiyW9ZXlineM7AIMyFFc6kwKkfDjGvQPbBlEA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793087275;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793087440;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
 	 Received-SPF:Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:
 	 References:From:Content-Language:In-Reply-To:Content-Type:
 	 Content-Transfer-Encoding:X-PPP-Message-ID:X-Rspamd-Server:
 	 X-Rspamd-Queue-Id:X-NC-CID;
-	bh=aKhDAgzXXUmG46ol/nzjlLM0rzeGHEiKNZ1GatfrbYk=;
-	b=ARQTpdrmWNg9rWukY/I9LKxs2h6kGED/0NXZxZn0i0klltPmqZbc2GCjELbaQFqXN1oF
-	 GxZlVU5O+ELPbMXLY215XQPr4dXAzRYKFNmGVvjboaLBuoThITYcIvsefNOpDgVHMIm44
-	 jqYobC0jrG7k8vfHlJs/WKGEkLcl6oY0+jKdEZasqN6qH7cJ9sxJ9roXEDfqwotXH9qvA
-	 utQEH+KRRostYUs7FcRTwXjJxutgpsS7xingoTKmiUeNE1sBcmthsBb9lRAoRRq1vjwmn
-	 nni+yFxEk1ri5r4LreADkCficr3oCSeQxXOT0rc3nfZEr1Bya+WUDH3AwPxD6gxVLSw==
+	bh=uBFlnf4zZWU6cOTbN86hfRAP6AeoL9i7Ja6BGfaY0Ro=;
+	b=ccXkHcD6xzkptU+f+KYibNgVsQyYEK7Bg7wjpkSbXGOHc7ncyMAy+SQaXQpJ0D3p2Rex
+	 mZAkEBy+XryaJ+FPUj9qExi38+zRLsTBR7Ky/TUIQfjDG3qEe3aQOjpjokMNcVSK7cKhT
+	 mDu2MZd/L+D1VmtTaQ3FzILi81AHYu+1OmmpzrPDOQCbJsV0E7SIOg/eOf0C+L9Uesya1
+	 MA//8VLYjToMzaCZlo9nYu/kEyVMlWQe/EWaRFW//f5JBqHih0IRF9lbkj7OhXdnFGLV9
+	 27KsDeKJcr+sIFz18X/V15jS5qQIgvGuzOuiZ8jMeLNlJ8+NNVzq18YZAHt7/evSF+w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=leemhuis.info;
 	spf=pass smtp.mailfrom=leemhuis.info;
-	dkim=pass header.d=leemhuis.info header.i=@leemhuis.info header.a=rsa-sha256 header.s=key2 header.b="eldrP/xP";
-	arc=none smtp.remote-ip=188.68.63.174
-Received: from relay.yourmailgateway.de (relay.yourmailgateway.de [188.68.63.174])
+	dkim=pass header.d=leemhuis.info header.i=@leemhuis.info header.a=rsa-sha256 header.s=key2 header.b=HkZ4V1IB;
+	arc=none smtp.remote-ip=185.244.194.184
+Received: from relay.yourmailgateway.de (relay.yourmailgateway.de [185.244.194.184])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE091606A31A;
-	Tue, 27 Oct 2026 07:47:52 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CE091606A31A
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 633BC606A31B;
+	Tue, 27 Oct 2026 07:50:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 633BC606A31B
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=leemhuis.info
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=leemhuis.info
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=leemhuis.info header.i=@leemhuis.info header.a=rsa-sha256 header.s=key2 header.b=eldrP/xP
-Received: from mors-relay8204.netcup.net (localhost [127.0.0.1])
-	by mors-relay8204.netcup.net (Postfix) with ESMTPS id 4jDMzN6HmYz8tt6;
-	Tue, 27 Oct 2026 07:47:44 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=leemhuis.info header.i=@leemhuis.info header.a=rsa-sha256 header.s=key2 header.b=HkZ4V1IB
+Received: from relay01-mors.netcup.net (localhost [127.0.0.1])
+	by relay01-mors.netcup.net (Postfix) with ESMTPS id 4jDN2M2bgnz9Vp6;
+	Tue, 27 Oct 2026 08:50:19 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=leemhuis.info;
-	s=key2; t=1793087264;
-	bh=jvH5rmcNh//J8ryzh9aICY7L0QAJcN8DwFIlF0b0dRs=;
+	s=key2; t=1793087419;
+	bh=csswwopQr0L6Iq80y+T2GffvxU9tazEIvHHPF/uJQv0=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=eldrP/xPXhDKLrDwUdZmFUxTy5je/eM7Mk7uPx1hMxzejC/E+/kQqkEZnV4YjvWF6
-	 NAfOr+NEpCmWCVig/1w/P8OxFBgkW4VQvTM67ogv63cipqMJuuhyI3JmFZlZgdCUPj
-	 tui5X3n75IWjPe70/OYu8lGPIDqNAklbVoyhXCllwOtiQHGcNo3XSQ+e8vVL4tK7oi
-	 UzjY8V/cLogqxx+NogI5D0X7/F786u7sm0T60bmoxjVwOKGJfh07J5E5nR7HmtMyeT
-	 DaP/kKljpIcrZzrpkcGLApoBOsHuw/OByzuPS5UoxflqIphYqC/88aHahDQXLmnUh1
-	 2nOkL16SayRhA==
+	b=HkZ4V1IBXdbR8zIBbXo0biyKDXITZj3lEUomkG8fLcUGk6y8uJFdNlqNeWnHr2wfh
+	 jwjIEjA/8pY66iUUCzX4TCsKM7EQXVwqvFqIir4wcOUq6yvwazRrLoC4TpA6XRMWAe
+	 Hdbb07jovHsIT/ojDa0yxSzVpO/47Emx+8tG3dNS/QloU8wZCGfn+PkcEy7Gn4cnGz
+	 Ml8Y4bcuZYI3g8cI8iSEj2/t/9DkfraTyrYBkpmV/2b+Vt/B75/XGtEhZFUN5fBYrX
+	 Z3GbqqbEKWhU5Rpg8RzRcay56rXb3GkhUXUZMXdy/EKAV83ubGQ8gdwoPAD+iI0lSA
+	 hsD/3Ey4Y6chQ==
 Received: from policy02-mors.netcup.net (unknown [46.38.225.35])
-	by mors-relay8204.netcup.net (Postfix) with ESMTPS id 4jDMzN5YPnz8tt1;
-	Tue, 27 Oct 2026 07:47:44 +0000 (UTC)
+	by relay01-mors.netcup.net (Postfix) with ESMTPS id 4jDN151s5pz7wqj;
+	Tue, 27 Oct 2026 08:49:13 +0100 (CET)
 Received: from mxe9fb.netcup.net (unknown [10.243.12.53])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by policy02-mors.netcup.net (Postfix) with ESMTPS id 4jDMzM0cMgz8sZN;
-	Tue, 27 Oct 2026 08:47:42 +0100 (CET)
+	by policy02-mors.netcup.net (Postfix) with ESMTPS id 4jDN150GL9z8svC;
+	Tue, 27 Oct 2026 08:49:13 +0100 (CET)
 Received: from [IPV6:2a02:8108:8984:1d00:a0cf:1912:4be:477f] (unknown [IPv6:2a02:8108:8984:1d00:a0cf:1912:4be:477f])
-	by mxe9fb.netcup.net (Postfix) with ESMTPSA id 56B0E5FA40;
-	Tue, 27 Oct 2026 08:47:35 +0100 (CET)
+	by mxe9fb.netcup.net (Postfix) with ESMTPSA id 168085F98B;
+	Tue, 27 Oct 2026 08:49:08 +0100 (CET)
 Authentication-Results: mxe9fb;
         spf=pass (sender IP is 2a02:8108:8984:1d00:a0cf:1912:4be:477f) smtp.mailfrom=regressions@leemhuis.info smtp.helo=[IPV6:2a02:8108:8984:1d00:a0cf:1912:4be:477f]
 Received-SPF: pass (mxe9fb: connection is authenticated)
-Message-ID: <b9284046-be28-4f80-81e9-d800e2d4204a@leemhuis.info>
-Date: Tue, 27 Oct 2026 08:47:34 +0100
+Message-ID: <7f21f160-f637-4b63-aa15-066d7b18e2ed@leemhuis.info>
+Date: Tue, 27 Oct 2026 08:49:07 +0100
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -100,10 +100,10 @@ Content-Language: de-DE, en-US
 In-Reply-To: <d106ad8a-78d4-45be-95da-0222c44107c5@suse.de>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-PPP-Message-ID: <179308725599.897684.6626675984855169399@mxe9fb.netcup.net>
+X-PPP-Message-ID: <179308734871.898318.4642876887831960881@mxe9fb.netcup.net>
 X-Rspamd-Server: rspamd-worker-8404
-X-Rspamd-Queue-Id: 56B0E5FA40
-X-NC-CID: M6CcPbjGK/UHjI05l20YNEahmWfau3KE3EWN7F4qWvaP7iQOPC0=
+X-Rspamd-Queue-Id: 168085F98B
+X-NC-CID: 03+Wsu/eo55EKoo4FpYSMVEN9eFUU4u2SjKgZFAKQ8+/Avnxn6c=
 
 On 9/14/26 13:00, Thomas Zimmermann wrote:
 > Am 11.09.26 um 09:39 schrieb Thorsten Leemhuis:
@@ -128,9 +128,15 @@ On 9/14/26 13:00, Thomas Zimmermann wrote:
 > 
 > I've now sent out an update with minor changes.
 
-Many thx again. But the thing is: it still s	
+Many thx again. But the thing is: it still sits on the list waiting for
+review afaics:
 
+https://lore.kernel.org/all/20260914110004.211027-1-tzimmermann@suse.de/
 
+Can you maybe prod the right people to finally get this resolved? Or
+what should be do instead?
+
+Ciao, Thorsten
 
 >>>>> So this is not really a problem. drm_WARN_ON_ONCE was ok for that. You
 >>>>> can also use a regular DRM print macro. But instead of drm_dbg_kms()
