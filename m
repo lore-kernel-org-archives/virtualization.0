@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793145215;
-	b=mv7wsWd7CStGxnHMXQikLzFSc8pAdWJ79VHNdoU+tJvKXcWaoSf7Tx73IhJv255prpB+
-	 TUhoKoBvvGft2glMpe0QMuExy58HEIHoYisbTPTCnR7NsXid76kvQ0xCdosmtNBv6OARv
-	 BuDJe8cWjN74tVA1ruN/nHCPZB1tAKrExFwgWWmX+D3h66gYQBYsIgdNIc1Qf2Pikyhdv
-	 3jfIv8SliqqN9NNH7xSAeY+SypHBiWAr7CAUBX8s6TEKArcPJtxZ2ZBEgD6VquKCDbnrC
-	 xa2NvU+S8Zd+htIMGG4kh5TpjMQ5FSLU5Rn9/FUZB07KwonnM1sPzCoCiCU0sA/CgDg==
+	t=1793145343;
+	b=FYywMQIuZQ3t0BVlret7CSYc4+L7ffoLhTI2OTqGkJ8PzzvcjP85QRoYE80ZuI/3osay
+	 QQJMn/kdtW81hULEjkvNegfpx77JY/Bjke0IzE+nWFOOI2dexqn4PxSVoNHxIWiCyXyqi
+	 TCUy2WnufWB5xiUj78E2m9liJYAj4aDF/2hycPOWARIFE1cFAYpt+mLErRyROPFJwKE6+
+	 UEEFFE8bW8mSNMMe9dKoaMSWQCCSYLV5K0S8fP/ifkKPHIo0Vvlnapm+IWTKvbbUQ4qN6
+	 ui/LOyzonEzkWn5MfbS66vkrpu2hXObn2OBTK7aQhqHRwSp3wjsLfXP5rUGIEZI3xLg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793145215;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793145343;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=63tMFJt0xgGy1zUFOfkDGxjWizeYEw5M5XctU2QztK0=;
-	b=gHEiN6q9TL/QQ+Xb6Vj31BCE08V5X3BK8BaVSifAb25PP9+QhE1M6Tf0wvvBwBt3dFQ2
-	 cbCyO5A+44JXenO0u9Ko/vFnzPyo8HO8/64O4w4zcPHSjxItiyHKc4DAp9FGYTcYo8lAe
-	 NNK/m/IjtzIwd+pUctpgd88YvziGyvViytanj+xQY5vpp7abZ+uYosry9RYBnojDda4rn
-	 zK+vdqrp48E2CzOPUL5oHuqssrBumFHnEOK8xCs09LQMiPmCudt+Mlf5IOY0sVxrXmImZ
-	 Vxo3+oiTfWj8ctGTkzvyqX66/fEFnpESAybd1V3BiJVRxgdIaW9rH9G3WrCZ2ZnbEGg==
+	bh=tnlgzbpDWkaBV+j/E2BQNW2CJVix5snP5Css6owCKXs=;
+	b=cYHYbXVr6FXRa9PgJRG6cBP6IVpJ3n32A9bcuCbfAmWxf2eOs1/XGHqv6FUMjBfxp0x/
+	 vzcp92UPjviKCGSW3ROHgt7k7lA0sLBrkT1iGbLyRZRCdd33m1eyv7+UM6ujo/VX9b0oY
+	 Vm9ixoSwtOqS90W3bXolI5dm2zgSsWhOretVq4PULkSfCX4aygnrJ1MLfrBQPQdbMpPui
+	 /PW6lYUhWiA60tQKM0O/X+DxqsaiDYwUXgZdtq4B5/pv6sNmQuU/E9ckJrMMRNhw8Jdcd
+	 WGPTm5Z0EO7Kv3/VtT9CfnB/mDkwELdngAduPvSEaAkF7+xd8xv6AJWPsSEc4A+1ewA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Nd3xkLtL;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="Tp/BpH+8";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B68C606A31E
-	for <virtualization@lists.linux.dev>; Tue, 27 Oct 2026 23:53:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47199606A32C;
+	Tue, 27 Oct 2026 23:55:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Nd3xkLtL
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 410DA1F01825;
-	Tue, 27 Oct 2026 23:53:35 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Tp/BpH+8
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB1771F01829;
+	Tue, 27 Oct 2026 23:55:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793145215;
-	bh=63tMFJt0xgGy1zUFOfkDGxjWizeYEw5M5XctU2QztK0=;
+	s=k20260515; t=1793145343;
+	bh=tnlgzbpDWkaBV+j/E2BQNW2CJVix5snP5Css6owCKXs=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Nd3xkLtLufehQIysD3295mmeBpmgA8G/C4IVIdMPJ3LvYHnatpmEXK+Hs2KVngAOh
-	 ZeKh/7V713OQbX63PGgVaZVhsCAcN0U594Y2NjftWvIZjVjnY6L6GzDzXgthgmcwkV
-	 MGP4QIAB81oOUJ/NseFFeNA1+4eVJFS6e6SQb+MXc0dzE/p0cgVl6ZRAygR14k5gb2
-	 MWw7j/vZuewrTVTfkO5aDW5HJcBZgqmvgBvefpAhgHHK1kL+IVKRFGcC5sI9VAIL7S
-	 RM0ulBk1dlZ8GJ5dyoxgphfzgDhHjK1fbDGItBaA2bmykoonYVQ9jLlpVOR+VDC7KY
-	 3PzH3BfP+8uUA==
-Message-ID: <sashiko-outbox-187240@kernel.org>
+	b=Tp/BpH+8mjj8GJpkLooR2HJL/Nw4xiig0WpzjVwkxaRjFgpXBo9aqO30lM5Wp2sCr
+	 sFmbwJaTmVREVNFOyryezFPr4AW+KRt1tuZT7dm/tGJeIEFrZ6fOwsb/FYNRZX0/kZ
+	 qkPEHyL+Ncj0a9PBXGVdgDSibe5zHUQoZKX0dTmDol9GdDtZ8BZ7WFUChAVELc+6b2
+	 kMQiYVE1nNgTcILKhCCZxdHvKg4K24pdJMkwYtA2R6u6QTbpnL9ogRvDt1nmZdyO9E
+	 48WO+4QcJRWD+IiOAOvmsyxUtwDTtHwgwVf99RkjBm1ips0Y0jz7xCcpfc/VW30l49
+	 k8/Z/a71DAHOA==
+Message-ID: <sashiko-outbox-187245@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 08/11] ALSA: virtio: account staged capture reads
- before RX refill
+Subject: Re: [PATCH v5 05/11] ALSA: virtio: Keep control payloads alive
+ through DMA completion
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Joonho Lee" <mynameisjune111@gmail.com>
+To: "Joonho Lee" <mynameisjune111@gmail.com>, linux-sound@vger.kernel.org
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261027234334.32551-9-mynameisjune111@gmail.com>
+In-Reply-To: <20261027234334.32551-6-mynameisjune111@gmail.com>
 References: <20261027234334.32551-1-mynameisjune111@gmail.com>
- <20261027234334.32551-9-mynameisjune111@gmail.com>
+ <20261027234334.32551-6-mynameisjune111@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 27 Oct 2026 23:53:34 +0000
+Date: Tue, 27 Oct 2026 23:55:42 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,38 +62,101 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> The RX callback holds the queue lock across a batch of completions. A
-> reader that has copied samples can wait for that lock in ACK before its
-> consumed bytes are removed from capture_ready. A later completion in the
-> same batch can then reject data using stale ring occupancy.
->=20
-> Account the staged read under the substream lock before acquiring the RX
-> queue lock. Release that lock before taking the queue and substream locks
-> in their established order to refill requests.
->=20
-> Once accounting is committed, latch refill errors as XRUN and return
-> success from ACK. A negative return would make ALSA restore appl_ptr while
-> the driver retained the consumed-byte accounting. Keep pre-commit errors,
-> ring-capacity checks, and normal period-work scheduling unchanged.
->=20
-> Source-extracted host and kernel fixtures reproduce the stale-capacity
-> race and post-commit ALSA pointer rollback. The candidate preserves wrapp=
-ed
-> data and pointer accounting. KASAN/lockdep QEMU lifecycle checks passed.
-> The fixtures substitute selected backend helpers and do not independently
-> establish physical-device acceptance.
->=20
-> This follows pending staged capture support, whose introducing patch has
-> no upstream commit ID for a Fixes tag yet.
->=20
-> Link: https://lore.kernel.org/all/rfc-v2-vz-capture-compat-1.b9ab4c1540dc=
-4691@gmail.com/
-> Assisted-by: LLM
-> Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Medium] ALSA: virtio: misaligned control value access in virtsnd_kctl_ge=
+t()
+--
 
-Sashiko has reviewed this patch and found no issues.
+commit 15e13c28bcb1079484dfa947a5ae6109ebb5b3c9
+Author: Joonho Lee <mynameisjune111@gmail.com>
+
+ALSA: virtio: Keep control payloads alive through DMA completion
+
+This commit moves control request and response payloads into a
+reference-counted DMA buffer owned by struct virtio_snd_msg so caller
+buffers are not exposed to DMA after a timeout or interruption. It also
+aligns each scatterlist region to the greater of the DMA cacheline size
+and the alignment of struct virtio_snd_ctl_value.
+
+> diff --git a/sound/virtio/virtio_ctl_msg.c b/sound/virtio/virtio_ctl_msg.c
+> index 7114bea4033a5..2e0ff15e729da 100644
+> --- a/sound/virtio/virtio_ctl_msg.c
+> +++ b/sound/virtio/virtio_ctl_msg.c
+[ ... ]
+> @@ -85,20 +161,85 @@ void *virtsnd_ctl_msg_response(struct virtio_snd_msg=
+ *msg)
+>  struct virtio_snd_msg *virtsnd_ctl_msg_alloc(size_t request_size,
+> -					     size_t response_size, gfp_t gfp)
+> +					     size_t response_size,
+> +					     size_t request_data_size,
+> +					     size_t response_data_size,
+> +					     gfp_t gfp)
+>  {
+[ ... ]
+> +	cache_alignment =3D dma_get_cache_alignment();
+> +	if (cache_alignment <=3D 0)
+> +		return NULL;
+> +	/* DMA coherence does not remove the CPU's type alignment requirement. =
+*/
+> +	alignment =3D max_t(size_t, cache_alignment,
+> +			  __alignof__(struct virtio_snd_ctl_value));
+[ ... ]
+> diff --git a/sound/virtio/virtio_kctl.c b/sound/virtio/virtio_kctl.c
+> index 45f7b6a5b3080..4cf75dedbe9a3 100644
+> --- a/sound/virtio/virtio_kctl.c
+> +++ b/sound/virtio/virtio_kctl.c
+[ ... ]
+> @@ -161,10 +163,12 @@ static int virtsnd_kctl_get(struct snd_kcontrol *kc=
+ontrol,
+>  	unsigned int i;
+>  	int rc;
+> =20
+> -	msg =3D virtsnd_ctl_msg_alloc(request_size, response_size, GFP_KERNEL);
+> +	msg =3D virtsnd_ctl_msg_alloc(request_size, response_size, 0, 0,
+> +				    GFP_KERNEL);
+>  	if (!msg)
+>  		return -ENOMEM;
+
+[Severity: Medium]
+Does packing both the response header and struct virtio_snd_ctl_value into
+sg_response leave kvalue misaligned in virtsnd_kctl_get()?
+
+In virtsnd_ctl_msg_alloc(), each scatterlist region is aligned to at least
+__alignof__(struct virtio_snd_ctl_value), which is 8 bytes because of the
+__le64 integer64[64] array.
+
+In virtsnd_kctl_put(), the request header is struct virtio_snd_ctl_hdr (8
+bytes), so placing kvalue immediately after it preserves 8-byte alignment.
+
+However, in virtsnd_kctl_get(), response_data_size is passed as 0 and
+response_size is sizeof(struct virtio_snd_hdr) + sizeof(*kvalue), with
+kvalue computed right after the 4-byte struct virtio_snd_hdr:
+
+sound/virtio/virtio_kctl.c:virtsnd_kctl_get() {
+	...
+	kvalue =3D (void *)((u8 *)virtsnd_ctl_msg_response(msg) +
+			  sizeof(struct virtio_snd_hdr));
+
+	switch (type) {
+	...
+	case VIRTIO_SND_CTL_TYPE_INTEGER64:
+		for (i =3D 0; i < count; ++i)
+			uvalue->value.integer64.value[i] =3D
+				le64_to_cpu(kvalue->value.integer64[i]);
+		break;
+	...
+}
+
+Since virtsnd_ctl_msg_response(msg) is aligned to a multiple of 8 bytes and
+sizeof(struct virtio_snd_hdr) is 4 bytes, kvalue is guaranteed to land at an
+8n + 4 address, causing unaligned 64-bit loads when reading a
+VIRTIO_SND_CTL_TYPE_INTEGER64 control.
+
+Should the control value payload be placed in response_data (or the
+request/response payloads placed in sg_request_data and sg_response_data) so
+that kvalue starts on an aligned boundary?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261027234334.3255=
-1-1-mynameisjune111@gmail.com?part=3D8
-
+1-1-mynameisjune111@gmail.com?part=3D5
