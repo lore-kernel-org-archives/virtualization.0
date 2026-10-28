@@ -1,56 +1,63 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793227036;
-	b=ZrWhJkLgCVXmATKS9ncfErJg1suUuw9SGgoLdoHf1BV+Ke8M1CIPDunD0XlE6BAUfVU0
-	 kiTXh5xyhcDOGEtfQW1Wypo8rCHdxYTUI1WUxKDKjS0FKKWNF4XFKYEEMlg68by9OnrRv
-	 MZnYyTMxtjVRPnSKj44Bx3GlH9t2XX0vJ9KRX3zt3dcxRjKSCb+n79SiiLvf8NtV/bOL2
-	 XmRdtMcTNPP9jKk/clUk/ofkEN2+s4ONNpMKKOOTlsmUYAYrWlO2q6qKSJSvFwamz9dlP
-	 9JZdqYYLr5N6mLi3JkHzr8PfnIaL9+xVjzaDhDy5MvDbwMYfZ8VyHNnJUQSKUCpV/ZA==
+	t=1793227397;
+	b=uOqHmHBcBhpMkdBL6/TGnKGWKZPdcLkGXfI+pxVclEU20h+JpTq37qwLogreu1BFUm+w
+	 Ip23NL6UpqYjq+GLKuVkis+TpAF6WSvRhsxW9/8LRrr+vZr19kDbnErKDYjN8XYNrJSB8
+	 iKjZIlO6VmG4449FCGmXpJNDsZQjGXT1RZtpO3B5PHNuMWTsg011ChBwGJfqD7hirS4GI
+	 EAVTrOIyASzUQBCzKaFv+cmHsfuAretDTOYhsbbPEpfxKyfnX3o/E1GAA7C6awaNCwK/y
+	 Wf1r0K7mhQx2ZkT3cYLwJSfroxZ0RKQogfg3a5ah/62B38QFksVRKEy6gznIhlg7bsg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793227036;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=er/rmomIm3zUcl4IfZ5liUNtJ1efSrOsd47sK22Z5Rk=;
-	b=ngC60SpqPogUCUCwBkBjUBVLfDPLwDxhuhH9+QEGbdsty1lF7qfXlosrBTwg+veh+qQh
-	 EDpqU0AyKJiY0lA4F5k4vi/5NBYdI5T45Z/nVlRnDlexKkHjqNdy3YGvEWN5zGj1HEujJ
-	 4+P6dSaKrFMQz8FpFRaMNpCRZRmrgZRJcOVKFBbieIBkVlVIFQcD1tHa0c6pjLuNUm4pr
-	 CVcBs92pkZbnbq7yRMljxbH+9sl8Ra0o47TM/cYYXHqgiIKoZcDq7MaNrwhMSHjMMbPqX
-	 dGTdoP6IKv3miNn6NYoe3wzNHX+PCYGV91lwNCQdReTYt/RWnDAsMD9MsRe+7kRxdRQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793227397;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 In-Reply-To:References:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=eqVVJFeJnbQ+zzZ8jfFA+lZorIfCEgmpfZFGduBn4xA=;
+	b=uBuQ3zRWjfnZpkIx1QaHsE4knPHg9sJSk8q3J5U7AaiA4DX5U2SNUoStloi8XnDia0V4
+	 zbySPczyT3HoZ1lPLOC3yhNLZk2+flrKJtr6KOrlj88tN4DfZiWdr5FNa70pgL4eYZeT8
+	 r2jklcCBG227DZnHPmKQzYgjIpN7YF6MnBqlhRgCfmUilDMgd6c6f44yNLG5JtczuMQ+y
+	 xZj/A/7OYA2vJ53gQ2Rjso4Z/xPDMUjHN9jE0pkuqg7EYNAIedJRXa8VR9TtVKOrMX57G
+	 Kt0tOYxv9tv3L5A9jAfbxi7TMH1Rq2qdasLT3XNdC+U+I4DdWbNwmPK21fxyOuqjTJg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fwqr3WpW;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=b2yzSQh9;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21A62606A31A
-	for <virtualization@lists.linux.dev>; Wed, 28 Oct 2026 22:37:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6FAD606A31C;
+	Wed, 28 Oct 2026 22:43:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fwqr3WpW
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6ADD1F031E0;
-	Wed, 28 Oct 2026 22:37:15 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=b2yzSQh9
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2DBA1F01825;
+	Wed, 28 Oct 2026 22:43:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793227035;
-	bh=er/rmomIm3zUcl4IfZ5liUNtJ1efSrOsd47sK22Z5Rk=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=fwqr3WpW0Mz+KV6c8oCmh68EUysXPcIdBfWr+px5NFdEWI4jH8a3RaRJHo1yQ5j/4
-	 ZYdykYAxIxPRlvs2dd9DIf46CWi3DgR1c4FdrT0Y2JJYAd6QvvQpZq9rncPYMS3h/2
-	 FP+jPBK7aFS0LjWhNVDGIOQYAZdYhehhrBhQ+AOsNlbGnR/7JLSpClx+THsDLdk+5R
-	 tO6nBCZqhbaY08WdmRgWXz+X+1vLw3h4H3tMCGt0n10zIJYUgsqUdw7ddkD5MFEaYs
-	 7FZ46u+bMPhhvuVsBm54muEQkDc/lM7KswcgMwF8FaoI+TExdhYz+dGadE+eKJQIiK
-	 EjSOQJhEYC9vw==
-Message-ID: <sashiko-outbox-188521@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] drm/virtio: Propagate errors from deferred blob mapping
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Changyul Lee" <lcy8047@gmail.com>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <20261028222500.2575769-1-lcy8047@gmail.com>
-References: <20261028222500.2575769-1-lcy8047@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 28 Oct 2026 22:37:15 +0000
+	s=k20260515; t=1793227396;
+	bh=eqVVJFeJnbQ+zzZ8jfFA+lZorIfCEgmpfZFGduBn4xA=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=b2yzSQh9/ObulIP0c9ObMSCqk3LxNuMxg1pcROA+zuHuRKwc9T9NOJQakpG3rvWWy
+	 7q2b1HcedbNjPL6H2wPG+Vsm5+0iEU3AFpy7qX77REOc7s6AiPbyp2fjHHocU713dS
+	 usc7RgtrBobb7x7ZmIUUAPAcaxnmF+pXBkL38Uy1cbFwoSK1Ng4z9e9XC7e1fAp4AD
+	 cOaHSykhfyb00xXAV8W3dqM81vrOgZo9RInEpZyLfdyQrBOJI/5suhvF1KripuFVUv
+	 nfMriYZJeHVs/g0r5C76VDdEptiR2ozQBxc664UdXHQMDvxP/LlkhpePqdUojF6ui6
+	 TSBJpqWWJxNmA==
+Date: Wed, 28 Oct 2026 15:43:15 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Willem de Bruijn
+ <willemdebruijn.kernel@gmail.com>, Chris Arges <carges@cloudflare.com>,
+ =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>, Phil Sutter
+ <phil@nwl.cc>, Jason Wang <jasowangio@gmail.com>, Eugenio =?UTF-8?B?UMOp?=
+ =?UTF-8?B?cmV6?= <eperezma@redhat.com>, Xuan Zhuo
+ <xuanzhuo@linux.alibaba.com>, Andrew Lunn <andrew+netdev@lunn.ch>, "David
+ S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, Paolo
+ Abeni <pabeni@redhat.com>, netdev@vger.kernel.org,
+ virtualization@lists.linux.dev, Max Krasnyansky <maxk@qualcomm.com>, Rusty
+ Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH net v6 0/5] more virtio-net csum hardening
+Message-ID: <20261028154315.4b9f3077@kernel.org>
+In-Reply-To: <20261025094449-mutt-send-email-mst@kernel.org>
+References: <cover.1792768096.git.mst@redhat.com>
+	<20261025094449-mutt-send-email-mst@kernel.org>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -59,31 +66,27 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-> virtio_gpu_vram_map_deferred() ignores errors from
-> virtio_gpu_vram_map(). If mapping fails before RESOURCE_MAP_BLOB
-> is queued, virtio_gpu_vram_mmap() still waits for a response
-> that will never arrive.
->=20
-> This can happen when drm_mm_insert_node() finds no room in
-> host_visible_mm. Since no command is sent, map_state remains
-> STATE_INITIALIZING. The task then waits indefinitely while holding
-> mmap_lock, and SIGKILL cannot terminate it. Any user with render
-> node access can trigger this by mmapping a deferred-mapping blob
-> larger than the host visible region.
->=20
-> Propagate the error so mmap() returns instead of waiting.
->=20
-> Tested on Linux v7.3 with QEMU (virtio-gpu-gl, blob=3Dtrue,
-> hostmem=3D256M).
->=20
-> Fixes: 4c26e162947f ("drm/virtio: Extend blob UAPI with deferred-mapping =
-hinting")
-> Signed-off-by: Changyul Lee <lcy8047@gmail.com>
+On Sun, 25 Oct 2026 09:50:24 -0400 Michael S. Tsirkin wrote:
+> > Apologies for reposting so frequently, I know netdev bot will be unhappy
+> > with that.  But Paulos's report made a lot of publicity, there is a lot
+> > of people looking into this, so I feel there's value in defending
+> > against all this class of issues sooner rather than later.
+> > 
+> > The issues were mostly found by code inspection, but all reproduced by
+> > me in a VM.  
+> 
+> Ok, I looked at netdev bot review, and there's another issue.
+> 
+> If a tunnel inner packet happens to have a valid header at
+> inner_nh_offset, it will pass all checks, but the transport header can
+> in fact overlap e.g. the real TCP header and checksum will overwrite
+> that.
 
-Sashiko has reviewed this patch and found no issues.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261028222500.2575=
-769-1-lcy8047@gmail.com?part=3D1
-
+Sorry for boring process stuff but FWIW the last patch also does not
+apply?
+-- 
+pw-bot: cr
