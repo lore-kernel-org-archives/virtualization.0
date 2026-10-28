@@ -1,86 +1,102 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=65.109.113.108
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793200409;
-	b=KD079KtYmcj9WKhRHYn+i37ZXNJFE4j9yhM2r35wlv1uIzO1waQkpgjubKpdO2Xl/j+3
-	 9pCs4dMZ5ZzYpfgF39DbdErFm/Uk550O926tiPApkRdHsy1dAMd3gMHHLewtytR3jQ1L1
-	 sKeyVOZhiaohW9o8+N1cqnW/MihFd/hWTEeDt24Z8Ur5YqHHQqyEWv6pEAUth8riL7q35
-	 cC4EJWiYr192EztiqLH7dvGTKLMYA2XK1mW9piicBmpq5sUa2AbeVqDXjQkWRTB+al/5R
-	 1abDR5nJqTc6At8vkZhR0th5TIwyEpsljkqhoaHeF83AsYBZDoMfjbWvQXv/kQi6Hig==
+	t=1793200687;
+	b=C3pn+yrU+YJv6UrOjuWsSVQyrafcl5pFuUOXvGj5FgwbmeaU3ZpPv9W+rNiEEr8+Xw+K
+	 xq1IvRLetrkORz9rDPbYeAL/bqDldIRTs/B57kT0kwSnGesPPdjQfCMbazuMx6Cq0FXmo
+	 t+oGeli3qUDOgdzdTS9580esi/R5j7UudIvSGCaLOzobarhL6e6YVgk5FKvAiYX3TT1gL
+	 XTly/cozhMx/jWpsp3BoEMI31peV4DI4M2M5BsiVpe/zJJG/TDQl4ot3d6cPghs+pngVf
+	 kWuIjPMgtnEOkO0Kllv/WDoRrfZ8R/a0V7RIpP8CZsMkV4LbdX/Cu1VY0osB80jRX5A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793200409;
-	h=DMARC-Filter:Received:X-Virus-Scanned:Received:DKIM-Signature:
-	 Received:Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=3imGrkEpHkRRFSltzD9nwj900Qui8XtxzswH1nxg748=;
-	b=laSh3tHgJ+4brZiZB00boN6ppeNvBCVc2sSC0Tx9iRFN1q0kLsZjnNjkPv/TMilSaZsa
-	 vUjWVzxBQO/tvTSOxhU1e73kha380sSyX4+PZCSNIvqpt4tB+ybnBL8pb+r5uTVBZziYf
-	 tZE78tkCSf7k5F1Vf8ofLSE0FTnNUcJOAFpri9ZTTolotsOmxw+3tXX4eCU9bMGiFEPJK
-	 VUcEj32lPEHphQCC1ofHlj1ZRIUVeG1Mhv4vSFEcBQ+lE0vX8vQ//3CjwRFwz5HD1MDHp
-	 uaUISm9asL4WOgGrUmLM7Z3ZGMOPJXQewL2+b7/BJn7XdFmZ+CgUm2pZojQ1LPJN5rw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793200687;
+	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
+	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
+	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
+	 X-Mimecast-Originator:Content-Type:Content-Disposition;
+	bh=ufMEsT+0UZj2JmdW++38V5jHMZ2SmFc52c/mrSsLj0A=;
+	b=38vRuBHFfAoPHAnA4J4FCKRVsQ+6Rw/m979oOHP6C0AFAXSxHkNdMYKHQp4bODgYF9ly
+	 8IqSxXsEEGy980+DAgu/AxTD6qNGRgJjLgP6I/kV2uyJ/g41j0VUHqQc8rnVKAd3Ehjmk
+	 8yzQJe+NEwqAyoaDctww5tdSZxnkOHxkZTppMK2doBhj9F88q5TexaaQHOy7MrrASgGYF
+	 2waooP3lYnC2KhfWifWBQNuKKcVNqfep2MgwNx6sDtIhLJdhSdcgszMfVGTOTFx4MiDvw
+	 t2PFPNdI1PyL9V+t6BGNcg1IvmgZWBwdpwBGttDUE/DRdfIg6CjbEj1QDkiFAXcR1QQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=alien8.de;
-	spf=pass smtp.mailfrom=alien8.de;
-	dkim=pass header.d=alien8.de header.i=@alien8.de header.a=rsa-sha256 header.s=alien8 header.b="ZgDL/Nzd";
-	arc=none smtp.remote-ip=65.109.113.108
-Received: from mail.alien8.de (mail.alien8.de [65.109.113.108])
+	dmarc=pass header.from=redhat.com;
+	spf=pass smtp.mailfrom=redhat.com;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b="dYZvX/T/";
+	arc=none smtp.remote-ip=170.10.129.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 203F6606A31E;
-	Wed, 28 Oct 2026 15:13:22 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 203F6606A31E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alien8.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53440606A31A
+	for <virtualization@lists.linux.dev>; Wed, 28 Oct 2026 15:18:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 53440606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (4096-bit key, unprotected) header.d=alien8.de header.i=@alien8.de header.a=rsa-sha256 header.s=alien8 header.b=ZgDL/Nzd
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTP id A263D40E04D4;
-	Wed, 28 Oct 2026 15:13:20 +0000 (UTC)
-X-Virus-Scanned: Debian amavisd-new at mail.alien8.de
-Authentication-Results: mail.alien8.de (amavisd-new); dkim=pass (4096-bit key)
-	header.d=alien8.de
-Received: from mail.alien8.de ([127.0.0.1])
-	by localhost (mail.alien8.de [127.0.0.1]) (amavisd-new, port 10026)
-	with ESMTP id PN37A0igGQJR; Wed, 28 Oct 2026 15:13:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=alien8;
-	t=1793200397; bh=3imGrkEpHkRRFSltzD9nwj900Qui8XtxzswH1nxg748=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=ZgDL/NzdjfjcID7q6Un7LHdLo5v4QtGZunYdgEtimMn5nectyejEi2phvkYOVTRr+
-	 X3GDSw4Bb2yjzV/O+o8+g1RbnblWQ6teLJ4VxqFdxAi4vLIyssJ/J8g5TH6/5afH9t
-	 U55k8+ZCMGC6mfytYVdMeRdBslAAYegc6OocXV6hu7XLMjfLevW4Ha9REXYIvYI2We
-	 KIHE0KeZByp7xz4LTsEXKA0xPZya0y2WnpCeq5xbYNdPEwvJ+gaCXprzC+atFUsLso
-	 xilfumHoqEEgYOU0Spy3JraRVAj5lmo4tM3hymr7kP/oJyefDWvGF97szsa4NNFjVf
-	 JS2LnnR7Oo2Dm6Gy6+E2fvAU5id58CrNooWEH7Z2U+Ww3iyUyC6OgIjfNVruxrcGK+
-	 2y68BZ0OzeM539hJ/H3IaNA4caWb2AGaCLvPKoz0InGBU5dcXWTSS0vf0GodHeeKhA
-	 cQr0It+PAjeuV1mZhduJL6WOteYQ9ZCS0geEwFyXbmpEF5xtgUyN/8NZ0AEP+bij6q
-	 WeJ5WK77dIo58MUL9jOxjWVd+nwd64gifdgqk2slOT/Uo1LebHMbME1EkuQRAjv/C/
-	 IBZRa1mGtS2C1IQc4SYbnNgJZnkIVhTeSgy0Zar0UylGfGwMcFVNcDgbzTnrb6/Qih
-	 coBRoAVVkHrnuTQ2TY6Za6os=
-Received: from stx.tnic (unknown [IPv6:2600:1700:38ca:c00::48])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (P-256) server-signature ECDSA (P-256) server-digest SHA256)
-	(No client certificate requested)
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id C445A40E04CF;
-	Wed, 28 Oct 2026 15:13:01 +0000 (UTC)
-Date: Wed, 28 Oct 2026 08:12:58 -0700
-From: Borislav Petkov <bp@alien8.de>
-To: Zack Rusin <zack.rusin@broadcom.com>
-Cc: Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>, x86@kernel.org,
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"H . Peter Anvin" <hpa@zytor.com>, virtualization@lists.linux.dev,
-	bcm-kernel-feedback-list@broadcom.com, linux-kernel@vger.kernel.org,
-	Peter Zijlstra <peterz@infradead.org>,
-	Josh Poimboeuf <jpoimboe@kernel.org>,
-	Nathan Chancellor <nathan@kernel.org>, llvm@lists.linux.dev
-Subject: Re: [PATCH v1] x86/vmware: Fix i386 high-bandwidth hypercall
- arguments
-Message-ID: <20261028151258.GAauIQ-vbIjX2xuQXd@fat_crate.local>
-References: <4ab10678a8f50053934b62b56af81f881c1d3798.1788414669.git.zack.rusin@broadcom.com>
- <CABQX2QMNetg9iYRRsQmeM3+1tnC94ccWM=450wMZL_sUbqAJtA@mail.gmail.com>
- <20261028060042.GCauGPirK7ePNeTGF0@fat_crate.local>
- <CABQX2QP=cpMfFTdmxdQr6uVnJSF5uVQj7F6bdGwpdb1BT_UtJQ@mail.gmail.com>
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=dYZvX/T/
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1793200686;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ufMEsT+0UZj2JmdW++38V5jHMZ2SmFc52c/mrSsLj0A=;
+	b=dYZvX/T/WJ1tNIMkwC6cjo79Y8Um9pwbDGrnB77nmxz2oarNSXZd8DWQggk5L9Y+UyLj4+
+	tHYJX3hcvPLz2csGU3Csz/avmzHXz7T3D+8xQ3ryFdNob2RHr7jkewVKzX6hXTVKQkYvjE
+	igdBR3rXEn+MB7jrPWFkVakQeDXz+dE=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-593-Qo1Q_auAOXK28rtC4CYK9g-1; Wed, 28 Oct 2026 11:18:02 -0400
+X-MC-Unique: Qo1Q_auAOXK28rtC4CYK9g-1
+X-Mimecast-MFC-AGG-ID: Qo1Q_auAOXK28rtC4CYK9g_1793200682
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4a77c1cbd15so10193495e9.0
+        for <virtualization@lists.linux.dev>; Wed, 28 Oct 2026 08:18:02 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793200682; x=1793805482;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=ufMEsT+0UZj2JmdW++38V5jHMZ2SmFc52c/mrSsLj0A=;
+        b=Q5HubrLjfm4qFh/VcCuvmo0v0sBoeWNrBInmEpk+UBZxRMwjSeeBRfxeFWPgc48Vuw
+         yJH4Ia4+xQB2v8h5QHS05H2cbaKyKM+qS/4cSymJ7cxpIzf+mZJvzrjSxz5JWQrehAp8
+         V5L5NWlPxdqrEOFRm1ZLPE6HVksDAyBskD5I6uIMS+0mMqlYcsO2eyokkM2AKhuXGC5V
+         KwpLBQ5lX5Qnd/y8lwzDUjFZf9O79WwHULIAA14z1shOKlEE1d2xU7KnCwfYo6h7ybty
+         mx7MqLzvfUKFsGc9pup/OwPkXcYD9Oi0KT2W+hQKGMZ1aFWImhgcYL9yTTzoNr/ddl3S
+         185A==
+X-Forwarded-Encrypted: i=1; AKwUvBxnnRY8ZEVcgu+iPhGqLtv09+ZrIM+/73IavH6Nsp2PlhbNj4yYg3kpHGa/74xKWVNAJHaRbpcB9ohVPFMLwg==@lists.linux.dev
+X-Gm-Message-State: AFq9FYJ+lQPKXejS+yiYlLSxeyZDdwQwxsItuaqfxW+bgmi1NLodYPmE
+	obii89/J7Z+m805jbFgYFaXvq4bqZ04q+ROsXDwcshPSMHSwA690hWtyfe1V+d+jQPrsXbWFmzB
+	AHUZXRnWHZmuVQg2OMDexBBQZyD6TZQbLib0asQvVIASetSSWRuf9l2Fth6TcwuEPN2hn
+X-Gm-Gg: AYBFou19peHoV4XYBrjV90tAfNVAQWThzVMafpalyH4VsIF1F4dwFfaBrzGqBE1F6yi
+	k5KsDUUY0mqcB1SSXXWrFqSlw/6DaeDaIa+IewuW+1j7CJAHcM6UqbDOvmcD9NyGMnz2cNoI9FF
+	nn6x7ZEGBg/ejm93/MTpqnKPuoyUpjZHCLOm8GPiDrqWyWqH3I7QMhCy9sUmH2sUBv01wZ61VLT
+	L2IPg9d1Nmi2u7lM1gQ3rJfIxZ4Z8V/VzjP9+oO9VGEjeMpUovtGOY6qMX6glsEiDhmxjRjXJfW
+	odcu1LvoQ+GsKd/xwUZJFoWHJ+rf8wr7C7R7IWIawP6PDBNoAEzr7YWnbXKC1EL8KQU/rB0OzE8
+	jmGBSv57zVtqbYT2kGnwiMJRSHG/q/PGvmVhzxd/j
+X-Received: by 2002:a05:600c:3516:b0:4a8:cb23:f71b with SMTP id 5b1f17b1804b1-4a966c4175cmr58229865e9.18.1793200681570;
+        Wed, 28 Oct 2026 08:18:01 -0700 (PDT)
+X-Received: by 2002:a05:600c:3516:b0:4a8:cb23:f71b with SMTP id 5b1f17b1804b1-4a966c4175cmr58228755e9.18.1793200680906;
+        Wed, 28 Oct 2026 08:18:00 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc0:1536:fc00:b838:383:1c7:6e81])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a97c9f1403sm56168915e9.9.2026.10.28.08.17.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 28 Oct 2026 08:18:00 -0700 (PDT)
+Date: Wed, 28 Oct 2026 11:17:58 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Dragos Tatulea <dtatulea@nvidia.com>
+Cc: "eperezma@redhat.com" <eperezma@redhat.com>,
+	Linfeng Sun <linfeng.sun.dev@gmail.com>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	Jason Wang <jasowangio@gmail.com>
+Subject: Re: [REGRESSION] vhost_iotlb: bound map allocation in add_range
+ breaks vhost-vdpa on hosts with fragmented memory
+Message-ID: <20261028110041-mutt-send-email-mst@kernel.org>
+References: <0f51918f-88c9-4930-ae5a-616bbe73e7cb@nvidia.com>
+ <20261028085839-mutt-send-email-mst@kernel.org>
+ <808a6e4e-085d-4723-9489-f17f023949c0@nvidia.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -90,34 +106,78 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <808a6e4e-085d-4723-9489-f17f023949c0@nvidia.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: yzBjUZAGO_VEyqy_W8D3_2qYqHB6fff1KoQV0RJbkYo_1793200682
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CABQX2QP=cpMfFTdmxdQr6uVnJSF5uVQj7F6bdGwpdb1BT_UtJQ@mail.gmail.com>
 
-On Wed, Oct 28, 2026 at 08:02:52AM -0400, Zack Rusin wrote:
-> I haven't seen this. I need to update my kernel setup to fetch those
-> muted Sashiko reports. Anyway, both are valid but they're preexisting
-> issues in vmwgfx. I was planning to rip out most of that code in
-> vmwgfx but I can provide fixes for these two. We could land them via
-> your tree if you need them as a prerequisite for landing the above,
-> I'll just make sure nothing touches that code via the drm tree while
-> the changes are staged in yours. Or I can send out the vmwgfx fixes to
-> dri-devel and land them in parallel via the regular drm tree. Let me
-> know what you prefer.
+On Wed, Oct 28, 2026 at 03:46:05PM +0100, Dragos Tatulea wrote:
+> On 28.10.26 14:05, Michael S. Tsirkin wrote:
+> > On Wed, Oct 28, 2026 at 01:44:30PM +0100, Dragos Tatulea wrote:
+> >> Hi,
+> >>
+> >> We've started seeing regressions for a while in our verification CI for
+> >> vDPA Live Migration tests. Occasionally the FW returns a syndrome
+> >> related to invalid mappings during device reset.
+> >>
+> >> We've narrowed this down to commit 1ed35ac7f3fe "vhost_iotlb: bound map
+> >> allocation in add_range" which limits the iotlbs to 2K by default. On a
+> >> host with fragmented memory you can get easily more than 2K entries.
+> >> This results in truncated/incomplete iotlbs mapped to the device and when
+> >> the rings happen to be outside of the first 2K mappings the FW will complain
+> >> because it got addresses that are not mapped.
+> >>
+> >> I'm not sure how to fix this though:
+> >>
+> >> - LLM suggests setting the 2K limit only in VA mode and using 0 as
+> >>   before in PA mode because PA mode is limited anyway. Does this
+> >>   work?
+> > 
+> > Well no, we do need the limit in PA mode I think.
+> > 
+> > But we should maybe  bound from what's actually being mapped rather than
+> > a fixed count. e.g. X entries per pinned page?
+> You could have many 1 PAGE_SIZE mappings though. It wouldn't help
+> then.
 
-Oh, I was actually only pointing them out and they're not really
-a prerequisite.
+it still mostly is 1 entry=1 pinned page
 
-I thought you guys should see this if you haven't and perhaps take a look at
-fixing them or documenting them, as this is our main modus operandi right now,
-in the age of AI-finds-bugs-in-code.
+sharing is possible but uncommon
 
-But ripping them out is the best fix anyway! :)
+> > Bounding by bytes instead of entry count is another option.How to get this limit from userspace though? Would RLIMIT_MEMLOCK
+> be an option? Although `ulimit -l unlimited` would need to be
+> capped to some value...
 
-Thx.
+guest ram no?
 
--- 
-Regards/Gruss,
-    Boris.
+> 
+> Also, if the entry limit is still there some kind of precedence between
+> memory and entry limit needs to be decided.
 
-https://people.kernel.org/tglx/notes-about-netiquette
+I'd steal a page from rlimit then use that for the entries, when out of
+that - steal another page.
+
+> 
+> > Also 0 is now rejected.
+> > 
+> > 
+> > 
+> >> - Can we detect this and reject the device / stop the device at boot time?
+> >>   Probably not as this doesn't cover Live Migration.
+> > 
+> > Exactly. Besides, failure is not at boot.
+> > 
+> >>
+> >> Any thoughts?
+> > 
+> > Does boosting max_iotlb_entries help?
+> > vhost_vdpa.max_iotlb_entries=65536? Or sized to guest RAM?
+> If set as module paramer? Yes, it works. But the user should see some
+> kind of error to know that something is off. Otherwise things will start
+> failing silently and randomly...
+> 
+> Thanks,
+> Dragos
+
