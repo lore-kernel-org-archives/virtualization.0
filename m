@@ -1,80 +1,89 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=192.198.163.9
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=67.231.145.42
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793199297;
-	b=M1jBv9vnr6mQG0C8YDs6zonCOqKKr+SPCAwJBEjryuRItefx77lzDKi1ucF3lWzX52Nz
-	 iSInq0zKbautAfJqB5WJvBdThU13a5xPj4bzdT7Rksynj+t7j642phIf2yEVMVsNIU9ag
-	 vWYpcQ4K+rICB2KHWaJCR4mrtUlIYjIg8gUpqPCDxjppjKtzvls6P7AFHPYU3M2Wesofl
-	 2dhrK5yvwRls3zTENjRupwnQmr9VfN7f5iqqHfDZjVf1pWQeJjRtKK1EVFAq9s1DT3zNG
-	 pux3eN3yByIxP4824nTh+M3YQFRCQNVhS8B676lqNbMnjGXdeN95itcbQO7PU0JwcYA==
+	t=1793199990;
+	b=Dy3FpKUELLZRKSRT+fcI2qUK8Wbyk2qZzwEaMoUouUmsCJJnw96kkixvY9TrH7rMIZYi
+	 tWmEKZD3lVm5AXL4DUNxd7b0SGgDUQ5tJcrX/tgPVYgrJFdwlHGP4LcP+KKtj7MQ+NIH0
+	 zeYNReEtz7YWZ5cKtj3xnUO/bYqnWfvbYzMH6wOl/7frrsp/o+q/LoO/flf54SMCglLH3
+	 h4lysSPf9oILH0U4WQOd/cBDSFRjSdARvD6XxUSbIdOKIDNFoQz7on7+P19BCXlTFjPVE
+	 21hVeXGvxM5sXVY1gAreCnAGtpqnYSh0dQH3pGzNIsYDHn2J7q4LR76R4vA94G4syMg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793199297;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Date:From:To:Cc:
-	 Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:Content-Transfer-Encoding:In-Reply-To:
-	 X-Patchwork-Hint:Organization;
-	bh=ZUJDRffYG+F6VqBe9IuaWee5oSe7laDQj682WBe/luI=;
-	b=O20AMsO9jopXXYktA/YguW4KOsEsHHBAdT8q6/v6hMpL0tIWsTBJxI/77IJvoNpdrevP
-	 088FNXqZ2ZZnruhVEympLVdLIwJJiK835Ik10t7GtgkIcyWKkfYrHEtRUPzXT3/a0i7my
-	 Ssq8nzXdRuK5Nhj/O5n1+CDvWNR/WXkIM/Xkm/FwB8gwncIRn7PNCFpU6QjtwqD5HS17D
-	 jLzEcSlUaSqDVEejOV7/ei4CObBjomE+yw6l/v9p0CFeNxoeAREHxrn88Acr0DyKEmvac
-	 IwtVSppXb6YLtr+54rdLClJxFnjlDjBAtwk5ZCd8iD+nQhQzI2bfGDxwvlKTDS2cj1A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793199990;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:From:To:CC:
+	 Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding:Content-Type:X-Originating-IP:
+	 X-Proofpoint-GUID:X-Proofpoint-ORIG-GUID:
+	 X-Proofpoint-Spam-Details-Enc:X-Authority-Analysis:
+	 X-Proofpoint-Spam-Info:X-Proofpoint-Virus-Version;
+	bh=n/akRagARDR+fJNDGCNVlhTugTuQn/VjpXfX2Yd9MwA=;
+	b=MkOY8zPhGdLMhFkN+TiTFjt3c9SlcU8E0PoAnT/H67V/4agsGJ+3Dt++Bf5f8Q+n9rcL
+	 akWM+4Hao3iEWa9uOHERAfm2lspebxFlYwZ3KvD+IPgFJnNLoVinzpOpbGKut6r/9lDgu
+	 zqVHy4/zVM9c+UCrkdC0cwKc2VVXU2YW/9akEB8MEWotIFMxMMd2XxDDx3z6b7uBh6c+/
+	 HfDUg/s6Q5+Av5/senf6s+PymyE3selV8TOHsw2Dpm/BW6LwS3sPl90QOjxHCZ609OhLj
+	 dr3GB9uIibB0ORn190F2zWVKRE4q4etELIeYDZMUyx32X8QV098SapL05c1qsS0ns1g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.intel.com;
-	spf=pass smtp.mailfrom=intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=FadSoElj;
-	arc=none smtp.remote-ip=192.198.163.9
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=pass header.from=meta.com;
+	spf=pass smtp.mailfrom=meta.com;
+	dkim=pass header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=VdMneMI8;
+	arc=none smtp.remote-ip=67.231.145.42
+Received: from mx0a-00082601.pphosted.com (mx0a-00082601.pphosted.com [67.231.145.42])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D053606A31A;
-	Wed, 28 Oct 2026 14:54:55 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7D053606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A92E606A31A
+	for <virtualization@lists.linux.dev>; Wed, 28 Oct 2026 15:06:29 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7A92E606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=FadSoElj
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1793199296; x=1824735296;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=3QGgfxy0F3MoGDBYlG7hgql2ytqZHCT/J2EbJReQvdA=;
-  b=FadSoEljR9RzdN4jSw9uSnKKpoArfX1HjtOau4mHbKJBme8WVTzp6Z+P
-   43ObLWbuHsG2fB5xuuQky4P4DxluJrHcz75GFhWJdeAt5qNyTkW+PzOuM
-   94ovUP83zTPXwd8Aw99Q1NHBI6rkYV+5KdBNU63V1u5HY5JgcWHUXsoHP
-   VetBQvmtRmaMD03SGJ+GnbFq0DsU6Ola4zmH3dUKSFSLXOTDWbztl/5yL
-   vJDDxE6w1+AV2xAPWwnBvl9WPR6Np9GFsjdfMT+kLUoFJwlc0Kn5DXo8e
-   N3y031XedTpgMEn872+jzKWEgOiA763+TTkQ3ITIdRGEO7xIEjZz+t+2N
-   Q==;
-X-CSE-ConnectionGUID: 8Ghp7xbJTGGfSH36SoROmQ==
-X-CSE-MsgGUID: rthn4g0fRKaBFiRltagvRw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11949"; a="1801606"
-X-IronPort-AV: E=Sophos;i="6.27,182,1787036400"; 
-   d="scan'208";a="1801606"
-Received: from orviesa008.jf.intel.com ([10.64.159.148])
-  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Oct 2026 07:54:55 -0700
-X-CSE-ConnectionGUID: wTPHqoAtST+Db7n4VEF56Q==
-X-CSE-MsgGUID: lw25RvjpTBq8S8w2BQPFzA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,182,1787036400"; 
-   d="scan'208";a="4719568"
-Received: from klitkey1-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.244.233])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Oct 2026 07:54:51 -0700
-Date: Wed, 28 Oct 2026 16:54:47 +0200
-From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-To: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: me@romanilin.is, louis.chauvet@bootlin.com,
-	maarten.lankhorst@linux.intel.com, mripard@kernel.org,
-	airlied@gmail.com, simona@ffwll.ch, javierm@redhat.com,
-	dmitry.osipenko@collabora.com, regressions@leemhuis.info,
-	peter.m.arnesen@gmail.com, dri-devel@lists.freedesktop.org,
-	virtualization@lists.linux.dev, sashiko-reviews@lists.linux.dev
-Subject: Re: [PATCH v4] drm/vblank: Don't arm vblank timer with invalid frame
- duration
-Message-ID: <auIMt8XmmaVykZTC@intel.com>
-References: <20260914110004.211027-1-tzimmermann@suse.de>
+	dkim=pass (2048-bit key, unprotected) header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=VdMneMI8
+Received: from pps.filterd (m0044010.ppops.net [127.0.0.1])
+	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69SBdEXx271934;
+	Wed, 28 Oct 2026 08:06:15 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=
+	pps82601-s2048-2026-q3; bh=n/akRagARDR+fJNDGCNVlhTugTuQn/VjpXfX2
+	Yd9MwA=; b=VdMneMI8O6wlNE0BYQWv2NoN0sywdAR3S3qF8UBQ8uoKgjLfzXI36
+	RMZoTPIpxHlgSe6OFVIofncfkaP6dZg/yjYK+MHsXD9WsedwgWQsgbiUgX/Fx8PR
+	qLZHqFn8ZseF9U+0o/daa6VpHQbi6IRGKq00BWh8A0tlTUGbn0arN/jSorQdkR4e
+	yyNWRof6oFLsVTSYAOG9elDCeBd2Mu2fsBvPhQbT24uswO4mzB+LjIZMOBHtWJFX
+	aPIw7LPrE/wCSUg4UEXrkJNKyLCqxM7GTBVm2z8UJTrCOEzqzZjhohl43rFyap+B
+	vBTE/TFyyrgyySC4gpZbsk2RDm8SU0WYw==
+Received: from mail.thefacebook.com ([163.114.134.16])
+	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4hjtuxtajc-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
+	Wed, 28 Oct 2026 08:06:14 -0700 (PDT)
+Received: from localhost (2620:10d:c085:208::7cb7) by mail.thefacebook.com
+ (2620:10d:c08b:78::c78f) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.56; Wed, 28 Oct
+ 2026 15:06:13 +0000
+From: Ruben Hakobyan <hruben@meta.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>
+CC: Jason Wang <jasowangio@gmail.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+        <virtualization@lists.linux.dev>,
+        Alexander Duyck
+	<alexander.h.duyck@linux.intel.com>,
+        David Hildenbrand <david@kernel.org>, Miguel Ojeda <ojeda@kernel.org>,
+        Boqun Feng <boqun@kernel.org>, Gary Guo
+	<gary@garyguo.net>,
+        =?UTF-8?q?Bj=C3=B6rn=20Roy=20Baron?=
+	<bjorn3_gh@protonmail.com>,
+        Benno Lossin <lossin@kernel.org>,
+        Andreas
+ Hindborg <a.hindborg@kernel.org>,
+        Alice Ryhl <aliceryhl@google.com>, Trevor
+ Gross <tmgross@umich.edu>,
+        Danilo Krummrich <dakr@kernel.org>,
+        Andrew Morton
+	<akpm@linux-foundation.org>,
+        <linux-kernel@vger.kernel.org>, <rust-for-linux@vger.kernel.org>
+Subject: Re: [PATCH v2 2/2] virtio_balloon: submit reported pages as individual buffers
+Date: Wed, 28 Oct 2026 08:06:04 -0700
+Message-ID: <20261028150604.201665-1-hruben@meta.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20261027151329-mutt-send-email-mst@kernel.org>
+References: <20261027151329-mutt-send-email-mst@kernel.org>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -84,227 +93,183 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260914110004.211027-1-tzimmermann@suse.de>
-X-Patchwork-Hint: comment
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs Bertel Jungin Aukio 5, 02600 Espoo, Finland
+Content-Type: text/plain
+X-Proofpoint-GUID: ZfxisLPKC3cRY4cfMcbSSv6NtTSdYeJP
+X-Proofpoint-ORIG-GUID: ZfxisLPKC3cRY4cfMcbSSv6NtTSdYeJP
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDI4MDA2MCBTYWx0ZWRfX3uw6g7EPuwTM
+ DibcRf8vVekPYTCzK4F1FwprinlUAm2GvLCsElTH9/XLSPG76R1GpMh9dqJMzeKzG13H734fbyK
+ cdgB5LvW5bK3FGvBO7w1K+oDLVN64AnUFIydsatNvMejfQn89d6vFGdCWFE5g4ibvNnwzSBRx+s
+ 4rihRJuV5LVx21l+s+z/w8dDR4vPznXi5VyrZmbWBEnD6FRFtN/K3sBZHdqSpRu1JdWgDoIl7Rn
+ gB8rJg7ZMM0EwHJ6X08zQmvftSozabHDdCfdy0b2jD97rWVQGfIXrQFQjnhXyjWMIVns7i9Rixa
+ YC/URyFdURSsyrY/2XsShIEF2npHlQB8vLiT3jQpuDsu3ZwNZT9gd8URJsD14ejifRJk3C8K4Hd
+ KT7kIVJQQzB43NAjWK2n+oIQz0M7WC61UNDDLCQkbnAoOeZv5czGcu9BEtoRVq/GbNrP4oTfx7l
+ UlkmkQaACkJQuuh+Zeg==
+X-Authority-Analysis: v=2.4 cv=V/XoQuni c=1 sm=1 tr=0 ts=6ae20f66 cx=c_pps
+ a=CB4LiSf2rd0gKozIdrpkBw==:117 a=CB4LiSf2rd0gKozIdrpkBw==:17
+ a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=7x6HtfJdh03M6CCDgxCd:22
+ a=8elwO82fXORLTBIkMd32:22 a=20KFwNOVAAAA:8 a=VabnemYjAAAA:8 a=QyXUC8HyAAAA:8
+ a=phoES-eJUOR2wqcIftMA:9 a=zY0JdQc1-4EAyPf5TuXT:22 a=gKebqoRLp9LExxC7YDUY:22
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDI4MDA2MCBTYWx0ZWRfX2yMZgPBxzOCj
+ mzZQH+ps0TPtroxNBzRJXHfpA529N1imxSDKw8IIWlYm8hu0fgoGAaSevkp9noOq9P8X+jxaP2A
+ eYzBB2S6JV1g34zNFsbiVhxf3LlXoxM=
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-10-28_04,2026-10-21_02,2025-10-01_01
 
-On Mon, Sep 14, 2026 at 12:57:26PM +0200, Thomas Zimmermann wrote:
-> From: Roman Ilin <me@romanilin.is>
-> 
-> When a CRTC's display mode carries a too small pixel clock,
-> drm_calc_timestamping_constants() computes a frame duration that
-> exceeds INT_MAX. drm_vblank_crtc.framedur_ns becomes negative.
-> drm_crtc_vblank_start_timer() then arms the vblank hrtimer with this
-> interval, after which vblank events are no longer delivered. Pending
-> page flips never complete and the display appears frozen.
-> 
-> This could be triggered on virtio-gpu guests that have dynamic resolution
-> enabled: when the SPICE agent or the X server resizes the output, it
-> submits a mode whose pixel clock is off by a factor of 1000, e.g.:
-> 
->     clock = 406 kHz, htotal = 3152, vtotal = 2148
+On Tue, Oct 27, 2026 at 7:17 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> On Tue, Oct 27, 2026 at 07:39:57AM -0700, Ruben Hakobyan wrote:
+> > On Tue, Oct 27, 2026 at 12:40 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > On Tue, Oct 27, 2026 at 05:32:04AM -0700, Ruben Hakobyan wrote:
+> > > > On Tue, Oct 27, 2026 at 10:35 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > > > On Tue, Oct 27, 2026 at 02:26:33AM -0700, Ruben Hakobyan wrote:
+> > > > > > On Mon, Oct 26, 2026 at 11:53 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > > > > > The virtio_balloon driver reports a scatter-gather list of free pages
+> > > > > > > to the VMM so it may discard unused pages.
+> > > > > > >
+> > > > > > > For an arm64 kernel with 64 KiB pages, the default reporting and
+> > > > > > > allocation orders allow entries ranging from 2 MiB to 512 MiB. If the
+> > > > > > > report contains a sufficient number of large entries, we will end up
+> > > > > > > with a descriptor chain that represents over 4 GiB of memory. This
+> > > > > > > violates virtio spec, which says:
+> > > > > > >         Drivers MUST NOT add a descriptor chain longer than $2^{32}$ bytes in total;
+> > > > > > >
+> > > > > > > Specifically, submitting $2^{32}$ or more breaks Rust-VMM.
+> > > > > > >
+> > > > > > > Submit each reported page as a separate virtqueue buffer instead of one
+> > > > > > > buffer with an sg list of all pages.  This also avoids indirect
+> > > > > > > descriptor allocation (kmalloc in the reporting path).
+> > > > > > >
+> > > > > > > To avoid multiple buffers causing interrupt storms, keep callbacks
+> > > > > > > disabled while we wait for an event.
+> > > > > > >
+> > > > > > > TODO: as an alternative, keep using virtqueue_enable_cb_delayed
+> > > > > > > but add buffers after there's space in the ring.
+> > > > > > >
+> > > > > > > Note: if the virtqueue is broken, wait_event on
+> > > > > > > virtqueue_get_buf hangs.  This is a pre-existing issue:
+> > > > > > > the old single-buffer code had the same hang.
+> > > > > > >
+> > > > > > > Reported-by: Ruben Hakobyan <hruben@meta.com>
+> > > > > > > Cc: Ruben Hakobyan <hruben@meta.com>
+> > > > > > > Fixes: b0c504f15471 ("virtio-balloon: add support for providing free page reports to host")
+> > > > > > > Cc: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+> > > > > > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > > > > > > ---
+> > > > > > >
+> > > > > > > Notes (changelog):
+> > > > > > >     changes since v1:
+> > > > > > >         keep callbacks disabled while draining: get_buf re-arms the used
+> > > > > > >         event for the next buffer, reintroducing an interrupt per page.
+> > > > > > >         Disable the reporting vq callbacks at probe, and only arm the
+> > > > > > >         delayed callback to wait.
+> > > > > > >
+> > > > > >
+> > > > > > Thanks for the patches! I think sashiko-bot found some issues on broken
+> > > > > > queues in the first patch that are worth looking into for correctness.
+> > > > >
+> > > > > Surprise removal of the balloon? Nope, it's a pre-existing issue that
+> > > > > it's broken.  Besides it's not really practical, no one removes
+> > > > > the balloon - no need.
+> > > >
+> > > > Fair point about that. But I meant the broken queue check.
+> > > > In virtqueue_enable_cb_delayed() there is:
+> > > > ```
+> > > > /*
+> > > >  * When the device is broken there is no point in polling used->idx,
+> > > >  * the backend will never update it. Return true to let callers
+> > > >  * exit their cleanup loops instead of spinning forever.
+> > > >  */
+> > > > if (unlikely(vq->broken))
+> > > >     return true;
+> > > > ```
+> > > >
+> > > > But virtqueue_enable_cb_delayed_max() doesn't have this. So I was just
+> > > > thinking the same reasoning should apply here?
+> > >
+> > > It's broken there, too.  E.g. what is the "cleanup loop" in balloon?
+> >
+> > The loop in virtballoon_free_page_report():
+> > ```
+> > wait_event(vb->acked, ({
+> >     for (;;) {
+> >         virtqueue_disable_cb(vq);
+> >         while (virtqueue_get_buf(vq, &unused))
+> >             i++;
+> >
+> >         /* Stop waiting if device used all that we added. */
+> >         if (i >= nents)
+> >             break;
+> >
+> >         if (virtqueue_enable_cb_delayed_max(vq))
+> >             break;
+> >     }
+> >     i >= nents;
+> > }));
+> > ```
+> >
+> > For a broken queue, you could exit the for loop early and avoid busy looping.
+> > It still hangs, but I think it can sleep rather than busy loop?
+> >
+> > Anyway, I'm not sure how practical a broken queue is, so I don't have a
+> > strong opinion.
+>
+> Maybe add the broken queue check explicitly then, then it does
+> not need to hang:
+>
+> if (virtqueue_is_broken(vq))
+>         i = nents;
+>
 
-How about actually "fixing" the clock in the driver?
+Ah yeah, indeed that would avoid the hang on the broken queue.
 
-> 
->     framedur_ns = 3152 * 2148 * 1000000 / 406 = 16675852216 ns (~16.7 s)
-> 
-> 16675852216 does not fit into an int and wraps to roughly -504000000.
-> ns_to_ktime() then yields a negative interval and the timer stops working.
-> 
-> Found by bisection, which pointed at commit a036f5fceedb ("drm/virtgpu:
-> Use vblank timer"). That commit merely made virtio-gpu use the vblank
-> timer and thereby exposed the pre-existing problem in the timer setup
-> added by commit 74afeb812850 ("drm/vblank: Add vblank timer").
-> 
-> To fix this, modify drm_calc_timestamping_constants() to use u64 for
-> calculations, check for INT_MAX overflows, and return an error code.
-> drm_crtc_vblank_start_timer() will then propagate the error, enabling
-> the driver to fall back to immediate vblank events. Valid modes are
-> unaffected, and the timer self-heals on the next mode with a sane clock.
-> 
-> v4:
-> - avoid log spamming with drm_warn_once()
-> 
-> Fixes: 74afeb812850 ("drm/vblank: Add vblank timer")
-> Suggested-by: Thomas Zimmermann <tzimmermann@suse.de>
-> Signed-off-by: Roman Ilin <me@romanilin.is>
-> ---
-> I took Roman's patch from [1] and replaced the error messages with
-> warn_once, as suggestde in my review.
-> 
-> [1] https://lore.kernel.org/dri-devel/20260702181027.98526-1-me@romanilin.is/
-> ---
->  drivers/gpu/drm/drm_vblank.c | 73 +++++++++++++++++++++++-------------
->  include/drm/drm_vblank.h     |  4 +-
->  2 files changed, 49 insertions(+), 28 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/drm_vblank.c b/drivers/gpu/drm/drm_vblank.c
-> index f90fb2d13e42..72b543bca9e3 100644
-> --- a/drivers/gpu/drm/drm_vblank.c
-> +++ b/drivers/gpu/drm/drm_vblank.c
-> @@ -631,45 +631,54 @@ EXPORT_SYMBOL(drm_crtc_vblank_waitqueue);
->   * drm_crtc_vblank_helper_get_vblank_timestamp(). They are derived from
->   * CRTC's true scanout timing, so they take things like panel scaling or
->   * other adjustments into account.
-> + *
-> + * Returns:
-> + * 0 on success, or a negative errno code otherwise.
->   */
-> -void drm_calc_timestamping_constants(struct drm_crtc *crtc,
-> -				     const struct drm_display_mode *mode)
-> +int drm_calc_timestamping_constants(struct drm_crtc *crtc,
-> +				    const struct drm_display_mode *mode)
->  {
->  	struct drm_device *dev = crtc->dev;
->  	unsigned int pipe = drm_crtc_index(crtc);
->  	struct drm_vblank_crtc *vblank = drm_crtc_vblank_crtc(crtc);
-> -	int linedur_ns = 0, framedur_ns = 0;
-> +	u64 linedur_ns, framedur_ns;
->  	int dotclock = mode->crtc_clock;
-> +	unsigned int frame_size;
->  
->  	if (!drm_dev_has_vblank(dev))
-> -		return;
-> +		return 0;
->  
->  	if (drm_WARN_ON(dev, pipe >= dev->num_crtcs))
-> -		return;
-> +		return -EINVAL;
->  
-> -	/* Valid dotclock? */
-> -	if (dotclock > 0) {
-> -		int frame_size = mode->crtc_htotal * mode->crtc_vtotal;
-> +	if (dotclock <= 0) {
-> +		drm_err_once(dev, "crtc %u: Can't calculate constants, dotclock = %d!\n",
-> +			     crtc->base.id, dotclock);
-> +		goto error;
-> +	}
->  
-> -		/*
-> -		 * Convert scanline length in pixels and video
-> -		 * dot clock to line duration and frame duration
-> -		 * in nanoseconds:
-> -		 */
-> -		linedur_ns  = div_u64((u64) mode->crtc_htotal * 1000000, dotclock);
-> -		framedur_ns = div_u64((u64) frame_size * 1000000, dotclock);
-> +	frame_size = (unsigned int)mode->crtc_htotal * (unsigned int)mode->crtc_vtotal;
->  
-> -		/*
-> -		 * Fields of interlaced scanout modes are only half a frame duration.
-> -		 */
-> -		if (mode->flags & DRM_MODE_FLAG_INTERLACE)
-> -			framedur_ns /= 2;
-> -	} else {
-> -		drm_err(dev, "crtc %u: Can't calculate constants, dotclock = 0!\n",
-> -			crtc->base.id);
-> +	/*
-> +	 * Convert scanline length in pixels and video dot clock to line duration
-> +	 * and frame duration in nanoseconds.
-> +	 */
-> +	linedur_ns  = div_u64((u64)mode->crtc_htotal * 1000000, dotclock);
-> +	framedur_ns = div_u64((u64)frame_size * 1000000, dotclock);
-> +
-> +	/*
-> +	 * Fields of interlaced scanout modes are only half a frame duration.
-> +	 */
-> +	if (mode->flags & DRM_MODE_FLAG_INTERLACE)
-> +		framedur_ns /= 2;
-> +
-> +	if (linedur_ns > INT_MAX || framedur_ns > INT_MAX) {
-> +		drm_err_once(dev, "crtc %u: Can't calculate constants, mode clock too small!\n",
-> +			     crtc->base.id);
-> +		goto error;
->  	}
->  
-> -	vblank->linedur_ns  = linedur_ns;
-> +	vblank->linedur_ns = linedur_ns;
->  	vblank->framedur_ns = framedur_ns;
->  	drm_mode_copy(&vblank->hwmode, mode);
->  
-> @@ -678,7 +687,16 @@ void drm_calc_timestamping_constants(struct drm_crtc *crtc,
->  		     crtc->base.id, mode->crtc_htotal,
->  		     mode->crtc_vtotal, mode->crtc_vdisplay);
->  	drm_dbg_core(dev, "crtc %u: clock %d kHz framedur %d linedur %d\n",
-> -		     crtc->base.id, dotclock, framedur_ns, linedur_ns);
-> +		     crtc->base.id, dotclock,
-> +		     vblank->framedur_ns, vblank->linedur_ns);
-> +
-> +	return 0;
-> +
-> +error:
-> +	vblank->linedur_ns = 0;
-> +	vblank->framedur_ns = 0;
-> +	drm_mode_copy(&vblank->hwmode, mode);
-> +	return -EINVAL;
->  }
->  EXPORT_SYMBOL(drm_calc_timestamping_constants);
->  
-> @@ -2221,6 +2239,7 @@ int drm_crtc_vblank_start_timer(struct drm_crtc *crtc)
->  	struct drm_vblank_crtc *vblank = drm_crtc_vblank_crtc(crtc);
->  	struct drm_vblank_crtc_timer *vtimer = &vblank->vblank_timer;
->  	unsigned long flags;
-> +	int ret;
->  
->  	if (!vtimer->crtc) {
->  		/*
-> @@ -2239,7 +2258,9 @@ int drm_crtc_vblank_start_timer(struct drm_crtc *crtc)
->  			hrtimer_try_to_cancel(&vtimer->timer);
->  	}
->  
-> -	drm_calc_timestamping_constants(crtc, &crtc->mode);
-> +	ret = drm_calc_timestamping_constants(crtc, &crtc->mode);
-> +	if (ret)
-> +		return ret;
->  
->  	spin_lock_irqsave(&vtimer->interval_lock, flags);
->  	vtimer->interval = ns_to_ktime(vblank->framedur_ns);
-> diff --git a/include/drm/drm_vblank.h b/include/drm/drm_vblank.h
-> index 2fcef9c0f5b1..d99772dfa034 100644
-> --- a/include/drm/drm_vblank.h
-> +++ b/include/drm/drm_vblank.h
-> @@ -311,8 +311,8 @@ void drm_crtc_vblank_on(struct drm_crtc *crtc);
->  u64 drm_crtc_accurate_vblank_count(struct drm_crtc *crtc);
->  void drm_crtc_vblank_restore(struct drm_crtc *crtc);
->  
-> -void drm_calc_timestamping_constants(struct drm_crtc *crtc,
-> -				     const struct drm_display_mode *mode);
-> +int drm_calc_timestamping_constants(struct drm_crtc *crtc,
-> +				    const struct drm_display_mode *mode);
->  wait_queue_head_t *drm_crtc_vblank_waitqueue(struct drm_crtc *crtc);
->  void drm_crtc_set_max_vblank_count(struct drm_crtc *crtc,
->  				   u32 max_vblank_count);
-> 
-> base-commit: 06576c2b43750d990297b8ff1989b94ac72e855f
-> prerequisite-patch-id: 6729bb10d5e338678e78ccda2dd24f232a13cd22
-> prerequisite-patch-id: 9d94d20bd45967493b4dc339b58082e1c8da0f4f
-> prerequisite-patch-id: 6ac8d22df34db9e7d467b1ab95ad30f94841d5db
-> prerequisite-patch-id: f548dbde3f944ca3415c808be628719acebe898a
-> prerequisite-patch-id: 2ae91ee8e2bbcd33b8325be046e7214185aba6aa
-> prerequisite-patch-id: f97bbde08a9996d7c62ca3e3ebfcd387e50bc5c3
-> prerequisite-patch-id: ecc3c825277bc9978c6979455517249a074c0cb1
-> prerequisite-patch-id: 0449925cca36664b566f614bfb7d573a11f0575f
-> prerequisite-patch-id: 9fb2c2787244e9621847af09bea03e575e6276c7
-> prerequisite-patch-id: eb4384d581805e1178d22e7df45f134223c38305
-> prerequisite-patch-id: 1a7a529e4b2864abe8071aa44598d28ce72483f4
-> prerequisite-patch-id: 844a85f4c2fe2f72209b82d46614004c3cfe4123
-> prerequisite-patch-id: 13f7cb22114c648d35f8c9fa74e9165656ce31eb
-> prerequisite-patch-id: 20ee46bd6fdd91e39f71d22f52ef6682a4e41512
-> prerequisite-patch-id: 1d26c0ff91796ff1e62d3831d00bee18723788ef
-> prerequisite-patch-id: 007f6ea0d09bef54b689bae0eb5abeb497bdfaad
-> prerequisite-patch-id: 2d89c1507c909520adf9bfb1a137d458a819ae8f
-> prerequisite-patch-id: d90dc4134468870ab8ccbd71547c9552dff74fbd
-> prerequisite-patch-id: c67e5d886a47b7d0266d81100837557fda34cb24
-> prerequisite-patch-id: a5a973e527c88a5b47053d7a72aefe0b550197cb
-> prerequisite-patch-id: b9adc9622920a3e70168e672c2c92795b3e3a106
-> prerequisite-patch-id: 5030de433a01c2e99056cadb676a8e2ba35f055a
-> -- 
-> 2.55.0
+>
+> but the issue is what if queue gets broken while we are waiting.
+>
 
--- 
-Ville Syrjälä
-Intel
+Hmm, yeah I see. I guess that's already outside of scope here.
+
+>
+> > >
+> > > > >
+> > > > > > Other than that, I tested the "normal path" on QEMU and Cloud Hypervisor,
+> > > > > > both on 4 KiB and 64 KiB guests, and this works correctly.
+> > > > >
+> > > > > Thanks a lot! Can you pls confirm whether the performance is about the
+> > > > > same/better/worse?
+> > > >
+> > > > >From my tests on QEMU, CPU time was about the same as my original patch
+> > > > and unmodified Linux.
+> > > >
+> > > > To bring a concrete example, with these patches it took ~437 ms of CPU to
+> > > > reclaim a whole 8 GiB with 4 KiB pages (vs ~434 ms on unmodified Linux).
+> > >
+> > > OK so that's just noise, there's no difference.
+> > >
+> > > >
+> > > > With 64 KiB pages, it averaged 121 ms CPU (vs ~112 ms with my original
+> > > > patch).
+> > >
+> > > Is this measurable, or also noise?
+> > >
+> > > >
+> > > > (I tested this on Nvidia Grace)
+> > >
+> > >
+> > > Thanks!
+> >
+> > Thanks, yeah I agree and my point was that performance looks on par.
+> > I just wanted to share some concrete numbers of what I've tested.
+>
+> Thanks a lot!
+
+Thanks again for the patches and for looking into this!
+
+>
+> > >
+> > > > >
+> > > > > --
+> > > > > MST
+> > > > >
+> > >
+
