@@ -1,84 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.176
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.172
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793156030;
-	b=dqNIGXyVBCc03ttWuzm59A5peJS2FmcmVsvTiH0m/T7WKmFBQa9/n39PMCLWL03kVT1k
-	 /nW/CD6c1isDXqmQ0z6GCXfYkjP2eGN0nWBl3fz/JMMaVVjXy1Wn1qkNOH5PH/4gkq0KF
-	 tNQfxTO6JdArKACupiWN/1qEd0F40lJmnlD0i0RGkP8JVcZDd0DPDkGH8hipWOqm0FFS3
-	 nTpZjdWz7IwkGDxhezU+hnoKgPKpy7w8uXH0SkkbIpPPNvUw1d9v2/+HGrlylmNfgOOjz
-	 li6JcNGTgIJkwmpidyX6J4AKSs9KWXV/qiDbpE+bkfclrLOdyBtezI0QIu4dMSCm1tg==
+	t=1793156033;
+	b=vXmbKZTV9q6AQZvBdQ1pqnMDVMkh95jip7g8O2CARL4dcNXZRdchtdp8Fs1sVDgSNm/X
+	 VnSXQzXIc+fX6zWkhVw/MnbSKlHifnWA/YQmvgXt8LC+dnvTQh6zfjw4rYx5DwxoopOKr
+	 4RZerkPljwtsopdf8o3lgppgJD57uF577pe6fhXCLlCsZ6a4urhsS2sRbrH7NH1TFDE7w
+	 mR6hBE6PjBxgrfelnpWXKisDD55+fawlx6yh6jVuS/YBzYbH0utaPjCbSRDpssbA/6YW4
+	 PwvVrXFE4b0xiguIKsWaTkyrOngrD9JQ/4XybGuxWcy2fRNmpYwxHNnIrGNgBPr4A8A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793156030;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793156033;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
 	 MIME-Version:Content-Transfer-Encoding;
-	bh=6eYi7haKrUUz5ppcKTnEsRmfpDKe/7u+K3cLCBGytI4=;
-	b=33uUsdz7dni/P5CHPBQODXji/DeHXnoAX99FPWK/0Ua0u+nw0p4JQjsiOkD0degtcwFC
-	 ujM1wfU+9F7a63DAkdrZqAM82BO0TVRumnXBI+F10spe9nEfnfmSxaFGLcybJPb9/zR1O
-	 TrQTpjl8rmDTuQ1OBB5JG2W3hWwPc/2n3TPCV9R3snrID/5RcPWU3f1DMyB83m/5WuWWj
-	 U+h69UY7SPVbszJsXUr1ttziyKQDeYJDPNTq6jrniM7goSYA5aWpbbyFd9D8ZWm4MiwaJ
-	 3pXcc4rRVj5aCUGEJpaa4GtopOHTL2Q88KhNMljuUM+5Ec1xQUcz22cly0bg/8yZxhg==
+	bh=1SSKD9R3/tZDll832XAf/4iUolviOcI2RSxt/Z/hu94=;
+	b=vSQs/5FmEJOqP+gBh40ntX6cv3J9Iby4IctB4s9z5s3uzf/aVXXn3x9HNm2sj5r23AIZ
+	 L3hL1pj0R7yEjnpHBmimc/4/a20uaYDJc9owX2fSkJB2yWXJTKXmZXmfgjTmjfnobJ0eZ
+	 x2OjOl/J/Dsy5yUqnrZl7que+maCYyHbqVyyhHjKRuPnzJpXTSyrBLUPFSBy5q/Hkd5vK
+	 ytmFZ9YvBIL4xYOsy1D5DaQbLukmrDJcw/2qtyaDA9vygjRqmojsxQuLmsYgcydCgKL/k
+	 HGjjSjd9IWKk0vCZce7GWKl3Wk5cg40s+EYp+WL72ipw9rfrXURy2tq6RF+5PcoxXDQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=PxJTgbMH;
-	arc=none smtp.remote-ip=74.125.82.176
-Received: from mail-dy1-f176.google.com (mail-dy1-f176.google.com [74.125.82.176])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=dHoWP+FL;
+	arc=none smtp.remote-ip=74.125.82.172
+Received: from mail-dy1-f172.google.com (mail-dy1-f172.google.com [74.125.82.172])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A183460A2636
-	for <virtualization@lists.linux.dev>; Wed, 28 Oct 2026 02:53:49 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A183460A2636
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B62F060A2636
+	for <virtualization@lists.linux.dev>; Wed, 28 Oct 2026 02:53:52 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B62F060A2636
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=PxJTgbMH
-Received: by mail-dy1-f176.google.com with SMTP id 5a478bee46e88-3535a54bed9so730210eec.1
-        for <virtualization@lists.linux.dev>; Tue, 27 Oct 2026 19:53:49 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=dHoWP+FL
+Received: by mail-dy1-f172.google.com with SMTP id 5a478bee46e88-3645f0f3fcdso895370eec.0
+        for <virtualization@lists.linux.dev>; Tue, 27 Oct 2026 19:53:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793156029; x=1793760829; darn=lists.linux.dev;
+        d=gmail.com; s=20260707; t=1793156032; x=1793760832; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=6eYi7haKrUUz5ppcKTnEsRmfpDKe/7u+K3cLCBGytI4=;
-        b=PxJTgbMHxGiy//5IHAZVXbYkWRlyqvcez5vFIFwO8W1xHuiWgopO7IRNfQQFvHaHLy
-         UPWEkBEHG/+QZIe2B2BPeTv//sDx7DCvdWAmZHBx2Qp+xHoth8KPc09WRyf7T7djRBln
-         nJbyl0AFw7Z3+K4o9AzwBso7Bulr2aqTMRoh0TlXzzW7bCtjpT0eakOBVR7TpiGjY+in
-         p+LDDsfbro/ZvtKLqTCWJdYMsYdPbmrh1/OeGf0ngaOOwF8unhucXZ5OTBumHm3dxZKJ
-         upvbSkb3gE2WHzLcqVV36bnAfXBs9QLXkRD55eKzKNVNjssf1glw5WTmT5q8BnxBh7ry
-         8XTQ==
+        bh=1SSKD9R3/tZDll832XAf/4iUolviOcI2RSxt/Z/hu94=;
+        b=dHoWP+FL0dDwsWWGqU72DapFck3uMT835UuSCjb/+NpEKom+9K1zlbSzhpYtObkZ9m
+         XZLGYfi46PrDfjTv7jZ9rqfSjubdFtqMlJ9laTX47U5jSCCTFejsxhxVB5PbEO7YjIIQ
+         f8RShiNeyTV3KfMwyXJkbtC9pRBoPaIEPx8/zoPmuzLKKtOVSFwVmmLGux6DjHY9btRc
+         +kKG/m/ODm6yB/g7QzgjrekbhDYdbqC4IgBxzs3RQY1e28DYKbvtR86/k5HQADZb+4UV
+         SK7YibEEeB3Usf5TSlgyIA2mKa5hYGHh7RBY9tbDtNOTHcb6Dlz0JytcGy3trTEcUjYK
+         w+7g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793156029; x=1793760829;
+        d=1e100.net; s=20260707; t=1793156032; x=1793760832;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=6eYi7haKrUUz5ppcKTnEsRmfpDKe/7u+K3cLCBGytI4=;
-        b=jA5DXh09E9yHTRrl6NYUrEuYB270oE4msMe3RcwV2ZpOZxmk8DPS7UX090oc7za5D6
-         T4zNxLQ5eB3vOX8VXMPQw+MrG1laO9XLt021Qe7g+5Rrgr8rj1ZEeOosOwdJ8KMsptGu
-         AtdmgdEKkAWDlT9YSbwuBEn6WOk3UcWsf0Ko9DYZYxO/Awl3ua3xphKOSd52Liy+gb0Q
-         3s6ptLh16AD38+hN9nBLg/2UkehBUYDdIiKBlEtn0sT8dqZ3A36q6hyLXHtAUGMivJal
-         7MLnSP/b84BawmBOKghnqM2QGPtIp3f0bYnIWiMpp0lCy/pFhde6PvoBo5y/6TZfeu8z
-         chnQ==
-X-Forwarded-Encrypted: i=1; AKwUvBz6TQLfipRT83+DchKfot051WcfOaTHXfXJ6nxfSTG3B7PP85HRDGckgL2RU3Tb4G932OoGjiHTompjXZBgAA==@lists.linux.dev
-X-Gm-Message-State: AFq9FYIPODjO3iJlmbAOwQ7x2fwvXN/ZwL2iF0MoXVMvHnepHACO0iaP
-	LhUikvEe2+C7c0D1g14iiOLhVGEUFz0U7BEKd6eQ5Y8ktD5E2nusxf6h
-X-Gm-Gg: AYBFou35nn5kEIwbh72wI7sjfwxDnBNJ0tH+IGO78HH+tDkWoc/pp6k5oD/jL9KTszP
-	qZ1L85IBY/CMNmxKTivnyQz8Pv8S2PTH9j18h1eiFmBlqpQde1VYVyq0LQo05KnhFW34NBpdKYr
-	xHDi0rK0y02D2K1xXKIo2SU0m1UvHAVbdsHEB07NsYdpRWpTrb+6kuJnJ+4Dir4TS9MQviGBjZ8
-	Z9AMIENGIMIHnIKMdUmP2FFdrkPckP7o/cqgq/lXeigWvf0O8G/Ya6dO9xsCJOtMZP84kmM43ya
-	tq0RHYuSE3ckwcch2pY8UEXDoZBq3SBH7xoKtuFXzH1yNv+QBoMCBSKzrPFPnFCQtjACHuujUja
-	ijR+IJfYFZ1rIeHY5uIYyrQuuDp7GGTZa9JwBJyoh2AiQSL+z8g3YM0arbEN8i/sVrN+E0mu/LK
-	mewnYslzpya7dyFOYGL71sHraW7Yq+w8SawxNfH3IwJ4fYWmmKqoi82V4LzPpH3k06N29CJUdWP
-	7Yewz27ERS6TPDGCxMS+MHJiMwNhzL7Lx8KVOi/1N7uu6C2CirRs5hUKmxZ3xb1lZM3EIByTNM9
-	Q+4zICz9E0hU/GhCtYyKSwoKDYJHA/ixnerOglE/HwQdtNlC3uuKRfLWODktxFXhO9dDwzE5vKc
-	Hm0LRHhItGGsZqHvHmh0U8fO6WqFmOB4N/vEBwmvcPbkGaSY=
-X-Received: by 2002:a05:693c:401a:b0:36a:1b95:fc75 with SMTP id 5a478bee46e88-36a2040717fmr2212392eec.35.1793156028554;
-        Tue, 27 Oct 2026 19:53:48 -0700 (PDT)
+        bh=1SSKD9R3/tZDll832XAf/4iUolviOcI2RSxt/Z/hu94=;
+        b=dDCXoTAQLuMcqvWiz9Fp6Jt2UVr/vBgjs39+LemXJErSiRnVQNjJ/nNN3CjLlb6U6V
+         hayjWxMldxuTyZSDJs9kcpgohTwSsjS7OVHMkpph3gJn7Jn7rbfhjOA88pOZ/NbkJdH0
+         O+JmTBerdBgdzjO6EUxJLW7Rehfo98azCwOjULUisUOqvcZuSq0vQQtmw8h8Mu5zwih2
+         004q6wIxmLMnZs8LyqQsZx7njezZcZaSartsaSdYxdQ4gLfA4n8oYZzw2OxBaqNJ5gbM
+         oWUwLS8kZoT9MpTO5DxpB6uQZJzkrv8nm2FfmCws/PSMsejQXcowfonAcnCZbafbVrXw
+         byEQ==
+X-Forwarded-Encrypted: i=1; AKwUvBxf4CYKtFyYcaSdDxLq1neqCb8MFB5kIOwzsnHtV1qlbLTaCsZ9pcSQ1y9K4SlUX87eGoZlcwMvFpXQl2KUhw==@lists.linux.dev
+X-Gm-Message-State: AFq9FYJPo/daZY3qB1OR+n1+KiSvWqRu7O5IMhs92R1/BZT9ym5roKoG
+	3qUm1S01rZskU9RMx7XuwwdN+Kc2tIzEUg3krK6hxLlVFa5krG6Dzitn
+X-Gm-Gg: AYBFou1PHsDUhqTNtIrPJONDVmyJAsgiSe6XgwLNGkBrB7zbCK8twBUycqutnngjZMd
+	ZEf+ghcY7V2WfBmsibBujeOVM7L8YVEv7JmFj5D4r6ipSiZKI85TEN4DGh3GYkCr4gsOWPJk19e
+	tqBwRofd5CDQlDzEt80vfVAe/NzFquSYYmGTnYbd+0lQhUSqkgOXMJgv5tX7s7h+lugYySB+Kef
+	tK+mS9WMEFd9OkFXgTZ3EgWEF9ThIQbtTy0J898H8Dw1Mci908fKRZFfkQFN8uPd7VYWHnaVd6K
+	1zk1pDcArMVB9AfUJ9JsVsTAc++tVIdEgfPAK7LcgH53FXNg1M+yoX/e4dRpSeLxyhGHaLr/Kim
+	3O46HoSpRzGP8tPNWRO6AgvDh9SYlOvuUSB5Mr+uHWi+99V8RwHDQ39Io8//vOpcszhz/GGji/1
+	n1wj+QOIbpx1OUmEZedf6w8ZiFqEkZOPVZf+U3grfEY9VmS5mlX//By+r8fO8r2qpiPaTkMTm94
+	SLPKOMegvWQ+SpuzYmj+jZmu1ql/Z9qjIz8d9O3sSlc6FbP7oWI2IqAqn0tddv0Tn1wqx++chP6
+	Hr8BLrv9/kfCuaXeU+dbBj9PLA5AP+Z1wXduR4B4oOMcWBwe9VWQKVP83U0BmUQXL+7Ffy1EmMR
+	Eg+ecRy8GjAObqVOqhAgR/I41OwnfliMu6ZdLOXbemvpm4l0=
+X-Received: by 2002:a05:7300:3a9d:b0:35c:85fa:5a61 with SMTP id 5a478bee46e88-36a201eb246mr1662143eec.38.1793156031765;
+        Tue, 27 Oct 2026 19:53:51 -0700 (PDT)
 Received: from localhost.localdomain ([183.96.175.225])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-36a239644efsm1711914eec.23.2026.10.27.19.53.45
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-36a239644efsm1711914eec.23.2026.10.27.19.53.48
         (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Tue, 27 Oct 2026 19:53:47 -0700 (PDT)
+        Tue, 27 Oct 2026 19:53:51 -0700 (PDT)
 From: Joonho Lee <mynameisjune111@gmail.com>
 To: linux-sound@vger.kernel.org
 Cc: tiwai@suse.de,
@@ -92,9 +92,9 @@ Cc: tiwai@suse.de,
 	rdunlap@infradead.org,
 	linux-doc@vger.kernel.org,
 	Joonho Lee <mynameisjune111@gmail.com>
-Subject: [PATCH v6 08/14] ALSA: virtio: account staged capture reads before RX refill
-Date: Wed, 28 Oct 2026 11:53:11 +0900
-Message-ID: <20261028025317.92450-9-mynameisjune111@gmail.com>
+Subject: [PATCH v6 09/14] ALSA: virtio: prioritize staged capture period work
+Date: Wed, 28 Oct 2026 11:53:12 +0900
+Message-ID: <20261028025317.92450-10-mynameisjune111@gmail.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20261028025317.92450-1-mynameisjune111@gmail.com>
 References: <20261028025317.92450-1-mynameisjune111@gmail.com>
@@ -109,185 +109,170 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The RX callback holds the queue lock across a batch of completions. A
-reader that has copied samples can wait for that lock in ACK before its
-consumed bytes are removed from capture_ready. A later completion in the
-same batch can then reject data using stale ring occupancy.
+CPU contention can delay staged capture period notifications while RX
+completions continue filling the unread ring. In a two-vCPU VZ guest with
+16 nice-0 CPU workers, the ACK-fixed baseline stopped with ring_capacity
+and EPIPE in three runs, after 11.74, 30.77 and 30.33 seconds of audio.
 
-Account the staged read under the substream lock before acquiring the RX
-queue lock. Release that lock before taking the queue and substream locks
-in their established order to refill requests.
+Route staged capture period work through system_highpri_wq with a common
+helper at all ten producers, including ACK errors and self-requeue. Keep
+playback and non-staged streams on the normal workqueue. Initialization,
+cancellation, buffer geometry and capture accounting remain unchanged.
 
-Once accounting is committed, latch refill errors as XRUN and return
-success from ACK. A negative return would make ALSA restore appl_ptr while
-the driver retained the consumed-byte accounting. Keep pre-commit errors,
-ring-capacity checks, and normal period-work scheduling unchanged.
+With the same kernel, input, geometry and userspace priority, the candidate
+completed three 70-second captures and immediate reopens. Its maximum
+matched queue-to-start delay was 20.366 ms, versus 108.112 ms in the first
+baseline failure. The other baseline failures had pending work without
+matching execution, so matched-only statistics do not bound that delay.
 
-Source-extracted host and kernel fixtures reproduce the stale-capacity
-race and post-commit ALSA pointer rollback. The candidate preserves wrapped
-data and pointer accounting. KASAN/lockdep QEMU lifecycle checks passed.
-The fixtures substitute selected backend helpers and do not independently
-establish physical-device acceptance.
+Reader scheduling delays were also present. Both arms passed a separate
+nice -10 reader control, and host load varied between runs. These results
+support the change for the tested workload without isolating a kernel-only
+cause or guaranteeing lossless capture under arbitrary CPU load.
+KASAN/lockdep QEMU regressions passed with the unchanged candidate source.
 
-This follows pending staged capture support, whose introducing patch has
-no upstream commit ID for a Fixes tag yet.
+This follows the staged ACK fix and pending VZ capture support. The
+introducing staged-capture patch has no upstream Fixes commit ID yet.
 
 Link: https://lore.kernel.org/all/rfc-v2-vz-capture-compat-1.b9ab4c1540dc4691@gmail.com/
 Assisted-by: LLM
 Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
 ---
- sound/virtio/virtio_pcm_ops.c | 128 ++++++++++++++++++++--------------
- 1 file changed, 77 insertions(+), 51 deletions(-)
+ sound/virtio/virtio_pcm.c     |  4 ++--
+ sound/virtio/virtio_pcm.h     | 12 ++++++++++++
+ sound/virtio/virtio_pcm_msg.c |  6 +++---
+ sound/virtio/virtio_pcm_ops.c | 10 +++++-----
+ 4 files changed, 22 insertions(+), 10 deletions(-)
 
-diff --git a/sound/virtio/virtio_pcm_ops.c b/sound/virtio/virtio_pcm_ops.c
-index 003832d112551..85e7576903d56 100644
---- a/sound/virtio/virtio_pcm_ops.c
-+++ b/sound/virtio/virtio_pcm_ops.c
-@@ -1229,70 +1229,96 @@ static int virtsnd_pcm_pb_ack(struct snd_pcm_substream *substream)
- 	return 0;
+diff --git a/sound/virtio/virtio_pcm.c b/sound/virtio/virtio_pcm.c
+index a3478fc8848db..d8515b2144a14 100644
+--- a/sound/virtio/virtio_pcm.c
++++ b/sound/virtio/virtio_pcm.c
+@@ -397,7 +397,7 @@ static void virtsnd_pcm_period_elapsed(struct work_struct *work)
+ 	}
+ 
+ 	if (requeue)
+-		schedule_work(&vss->elapsed_period);
++		virtsnd_pcm_schedule_period_elapsed(vss);
  }
  
--static int virtsnd_pcm_cp_ack(struct snd_pcm_substream *substream)
-+static int virtsnd_pcm_capture_staged_ack(struct virtio_pcm_substream *vss,
-+					  struct snd_pcm_runtime *runtime)
- {
--	struct virtio_pcm_substream *vss = snd_pcm_substream_chip(substream);
- 	struct virtio_snd_queue *queue = virtsnd_pcm_queue(vss);
--	struct snd_pcm_runtime *runtime = substream->runtime;
--	struct virtsnd_pcm_transfer transfer = {};
--	int rc;
-+	int rc = 0;
-+
-+	/*
-+	 * The RX callback holds the queue lock while draining completions.
-+	 * Account ALSA's read under the substream lock alone so completions later
-+	 * in that drain observe the newly released ring space.
-+	 */
-+	scoped_guard(spinlock_irqsave, &vss->lock) {
-+		snd_pcm_uframes_t appl_ptr;
-+		snd_pcm_sframes_t diff;
-+		size_t bytes;
-+		u64 next_acked_total;
-+
-+		if (!vss->runtime_active || !runtime || !runtime->control ||
-+		    !runtime->dma_area)
-+			return -EBADFD;
-+		if (vss->xfer_xrun)
-+			return -EPIPE;
-+		if (!virtsnd_pcm_capture_counters_valid(vss)) {
-+			vss->xfer_xrun = true;
-+			schedule_work(&vss->elapsed_period);
-+			return -EPIPE;
-+		}
- 
-+		appl_ptr = runtime->control->appl_ptr;
-+		diff = appl_ptr - vss->pcm_indirect.appl_ptr;
-+		if (diff < -(snd_pcm_sframes_t)(runtime->boundary / 2))
-+			diff += runtime->boundary;
-+		if (diff < 0 ||
-+		    (snd_pcm_uframes_t)diff > runtime->buffer_size) {
-+			vss->xfer_xrun = true;
-+			schedule_work(&vss->elapsed_period);
-+			return -EPIPE;
-+		}
-+
-+		/* ACK includes any subperiod tail already copied to the ring. */
-+		bytes = frames_to_bytes(runtime, diff);
-+		if (bytes > vss->capture_ready ||
-+		    check_add_overflow(vss->capture_acked_total, (u64)bytes,
-+				       &next_acked_total) ||
-+		    next_acked_total > vss->capture_copied_total) {
-+			vss->xfer_xrun = true;
-+			schedule_work(&vss->elapsed_period);
-+			return -EPIPE;
-+		}
-+
-+		vss->capture_acked_total = next_acked_total;
-+		vss->capture_ready -= bytes;
-+		vss->pcm_indirect.appl_ptr = appl_ptr;
-+	}
-+
-+	/* Preserve the queue -> substream lock order while refilling requests. */
- 	scoped_guard(spinlock_irqsave, &queue->lock) {
- 		guard(spinlock)(&vss->lock);
--		if (vss->capture_staging) {
--			snd_pcm_uframes_t appl_ptr;
--			snd_pcm_sframes_t diff;
--			size_t bytes;
--			u64 next_acked_total;
--
--			if (!vss->runtime_active || !runtime || !runtime->control ||
--			    !runtime->dma_area)
--				return -EBADFD;
--			if (vss->xfer_xrun)
--				return -EPIPE;
--			if (!virtsnd_pcm_capture_counters_valid(vss)) {
-+		if (vss->runtime_active && vss->xfer_enabled &&
-+		    !vss->xfer_xrun) {
-+			rc = virtsnd_pcm_capture_send(vss);
-+			if (rc) {
+ /**
+@@ -606,7 +606,7 @@ void virtsnd_pcm_event(struct virtio_snd *snd, struct virtio_snd_event *event)
+ 			if (vss->xfer_enabled) {
  				vss->xfer_xrun = true;
- 				schedule_work(&vss->elapsed_period);
--				return -EPIPE;
- 			}
--			appl_ptr = runtime->control->appl_ptr;
--			diff = appl_ptr - vss->pcm_indirect.appl_ptr;
-+		}
-+	}
- 
--			if (diff < -(snd_pcm_sframes_t)(runtime->boundary / 2))
--				diff += runtime->boundary;
--			if (diff < 0 ||
--			    (snd_pcm_uframes_t)diff > runtime->buffer_size) {
--				vss->xfer_xrun = true;
--				schedule_work(&vss->elapsed_period);
--				return -EPIPE;
--			}
-+	if (rc)
-+		dev_warn_ratelimited(&vss->snd->vdev->dev,
-+				     "SID %u: failed to refill capture queue after ACK: %d\n",
-+				     vss->sid, rc);
- 
--			/* ACK includes any subperiod tail already copied to the ring. */
--			bytes = frames_to_bytes(runtime, diff);
--			if (bytes > vss->capture_ready ||
--			    check_add_overflow(vss->capture_acked_total, (u64)bytes,
--					       &next_acked_total) ||
--			    next_acked_total > vss->capture_copied_total) {
--				vss->xfer_xrun = true;
--				schedule_work(&vss->elapsed_period);
--				return -EPIPE;
--			}
-+	/* The ACK is committed; a refill failure is reported by the next XRUN. */
-+	return 0;
-+}
- 
--			vss->capture_acked_total = next_acked_total;
--			vss->capture_ready -= bytes;
--			vss->pcm_indirect.appl_ptr = appl_ptr;
--			if (vss->xfer_enabled) {
--				rc = virtsnd_pcm_capture_send(vss);
--				if (rc) {
--					vss->xfer_xrun = true;
+ 				if (vss->capture_staging)
 -					schedule_work(&vss->elapsed_period);
--				}
--				return rc;
--			}
-+static int virtsnd_pcm_cp_ack(struct snd_pcm_substream *substream)
++					virtsnd_pcm_schedule_period_elapsed(vss);
+ 			}
+ 		}
+ 		break;
+diff --git a/sound/virtio/virtio_pcm.h b/sound/virtio/virtio_pcm.h
+index e143a15592f05..5d1d88f2823b2 100644
+--- a/sound/virtio/virtio_pcm.h
++++ b/sound/virtio/virtio_pcm.h
+@@ -8,6 +8,7 @@
+ 
+ #include <linux/atomic.h>
+ #include <linux/virtio_config.h>
++#include <linux/workqueue.h>
+ #include <sound/pcm.h>
+ #include <sound/pcm-indirect.h>
+ 
+@@ -114,6 +115,17 @@ struct virtio_pcm_substream {
+ 	wait_queue_head_t msg_empty;
+ };
+ 
++/* Keep non-staged PCM notifications on schedule_work()'s normal queue. */
++static inline bool
++virtsnd_pcm_schedule_period_elapsed(struct virtio_pcm_substream *vss)
 +{
-+	struct virtio_pcm_substream *vss = snd_pcm_substream_chip(substream);
-+	struct virtio_snd_queue *queue = virtsnd_pcm_queue(vss);
-+	struct snd_pcm_runtime *runtime = substream->runtime;
-+	struct virtsnd_pcm_transfer transfer = {};
-+	int rc;
++	if (vss->direction == SNDRV_PCM_STREAM_CAPTURE &&
++	    vss->capture_staging)
++		return queue_work(system_highpri_wq, &vss->elapsed_period);
++
++	return schedule_work(&vss->elapsed_period);
++}
++
+ /*
+  * ALSA may observe a subperiod tail before its period callback. Keep actual
+  * unread occupancy separate from pointer observations and notification state.
+diff --git a/sound/virtio/virtio_pcm_msg.c b/sound/virtio/virtio_pcm_msg.c
+index 795e52e09564b..663f7695b5be8 100644
+--- a/sound/virtio/virtio_pcm_msg.c
++++ b/sound/virtio/virtio_pcm_msg.c
+@@ -627,7 +627,7 @@ static void virtsnd_pcm_capture_xrun_locked(struct virtio_pcm_substream *vss)
+ {
+ 	if (!vss->xfer_xrun) {
+ 		vss->xfer_xrun = true;
+-		schedule_work(&vss->elapsed_period);
++		virtsnd_pcm_schedule_period_elapsed(vss);
+ 	}
+ }
  
--			return 0;
--		}
-+	if (vss->capture_staging)
-+		return virtsnd_pcm_capture_staged_ack(vss, runtime);
+@@ -720,7 +720,7 @@ static void virtsnd_pcm_capture_complete(struct virtio_pcm_msg *msg,
+ 			virtsnd_pcm_capture_xrun_locked(vss);
+ 		}
+ 		if (got_audio && !vss->xfer_xrun)
+-			schedule_work(&vss->elapsed_period);
++			virtsnd_pcm_schedule_period_elapsed(vss);
+ 	} else if (!vss->msg_count) {
+ 		wake_up_all(&vss->msg_empty);
+ 	}
+@@ -858,7 +858,7 @@ static void virtsnd_pcm_msg_complete(struct virtio_pcm_msg *msg,
+ 		runtime->delay =
+ 			bytes_to_frames(runtime,
+ 					le32_to_cpu(msg->status.latency_bytes));
+-		schedule_work(&vss->elapsed_period);
++		virtsnd_pcm_schedule_period_elapsed(vss);
+ 	} else if (!vss->msg_count) {
+ 		wake_up_all(&vss->msg_empty);
+ 	}
+diff --git a/sound/virtio/virtio_pcm_ops.c b/sound/virtio/virtio_pcm_ops.c
+index 85e7576903d56..d50924b792f65 100644
+--- a/sound/virtio/virtio_pcm_ops.c
++++ b/sound/virtio/virtio_pcm_ops.c
+@@ -232,7 +232,7 @@ virtsnd_pcm_pause_restart_fail(struct virtio_pcm_substream *vss,
+ 				VIRTSND_PCM_PAUSE_RESTART_RESET_REQUIRED;
+ 	}
+ 	if (notify_xrun)
+-		schedule_work(&vss->elapsed_period);
++		virtsnd_pcm_schedule_period_elapsed(vss);
+ 	vss->substream->runtime->stop_operating = true;
+ }
  
-+	scoped_guard(spinlock_irqsave, &queue->lock) {
-+		guard(spinlock)(&vss->lock);
- 		transfer.indirect = vss->pcm_indirect;
- 		if (vss->stopped) {
- 			rc = -EPIPE;
+@@ -1253,7 +1253,7 @@ static int virtsnd_pcm_capture_staged_ack(struct virtio_pcm_substream *vss,
+ 			return -EPIPE;
+ 		if (!virtsnd_pcm_capture_counters_valid(vss)) {
+ 			vss->xfer_xrun = true;
+-			schedule_work(&vss->elapsed_period);
++			virtsnd_pcm_schedule_period_elapsed(vss);
+ 			return -EPIPE;
+ 		}
+ 
+@@ -1264,7 +1264,7 @@ static int virtsnd_pcm_capture_staged_ack(struct virtio_pcm_substream *vss,
+ 		if (diff < 0 ||
+ 		    (snd_pcm_uframes_t)diff > runtime->buffer_size) {
+ 			vss->xfer_xrun = true;
+-			schedule_work(&vss->elapsed_period);
++			virtsnd_pcm_schedule_period_elapsed(vss);
+ 			return -EPIPE;
+ 		}
+ 
+@@ -1275,7 +1275,7 @@ static int virtsnd_pcm_capture_staged_ack(struct virtio_pcm_substream *vss,
+ 				       &next_acked_total) ||
+ 		    next_acked_total > vss->capture_copied_total) {
+ 			vss->xfer_xrun = true;
+-			schedule_work(&vss->elapsed_period);
++			virtsnd_pcm_schedule_period_elapsed(vss);
+ 			return -EPIPE;
+ 		}
+ 
+@@ -1292,7 +1292,7 @@ static int virtsnd_pcm_capture_staged_ack(struct virtio_pcm_substream *vss,
+ 			rc = virtsnd_pcm_capture_send(vss);
+ 			if (rc) {
+ 				vss->xfer_xrun = true;
+-				schedule_work(&vss->elapsed_period);
++				virtsnd_pcm_schedule_period_elapsed(vss);
+ 			}
+ 		}
+ 	}
