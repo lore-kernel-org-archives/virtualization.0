@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793157547;
-	b=EIDrRUYX9LsTXv609y50TUaZ4QkK0jcQlDb0SYfxfo9WylUdmExhosCc/jfOsF4To1h0
-	 4vWjzB9vv837I+XyCCaZeVBv3aKtBeKUSF6IO6FuI59RZiWYvUlNnJIjOq36uEN3sip4u
-	 /2EOBda9EdmSyQ5y8XyqIsEDQOkXyvi0QaZAKocjb24rLU2QIy1FPdCZGxi6GPxxSeu/v
-	 CwNsOPD175Eu45vc/5Xu+2NRE70ukAB89jafRHZ17i1SQwI0Q8yekfFNm+ua0RYAIUJki
-	 /5jzcBRYzBPuGpn53MoEDsOppTmhGnI8ax1yfF0WTiDjEShZ4Cr0mm37KXW7C01/qXQ==
+	t=1793157710;
+	b=UkCfl7BpuiNaVC/mFS4g/aVh8Yb3GnkqzpE64gNid+i0ZGyD831uk3YzkF+iBuuWsCQW
+	 AarE6xMaXThu0odq0rmAhdoqV+asEvRBEZ3mC44lY9n4yt1nhA/kaioMAuOnTswYuI2Ei
+	 WLsrZAXEIFQG2g18evOHNUyhNTg+ERSwDb6VWk0xEV+d91eLcLTP5hjlbx6MguPgcwnr7
+	 geIbgzpNFotcWH280XTM4yQ8d3CIbJUBk2XONTySKyZKjOaErFNB2yC+yWHcG9RCGJfos
+	 +4Lb9tzVerZ8J9NW6FS3wIoliJJxHwbXtpuiIJyLxIxlWBRkC35zcuNqtDhKK4NAMxQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793157547;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793157710;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=xdMG4zQTSjW5C4GmglZj3VWpLN8ANR2Ijau/ORA4hs4=;
-	b=OzWSyIlT2+VbTEASeNrnIrdE2uj9CajK2NuyuEJgUNbYROH/IQ9aXFOARZrrnP3OfkND
-	 AeA4hRpG0R/a2z/6lIIAq8j4CEv+NW2Naslm9jt3eG8mmtRMfuLshJ0vBvI65wl+nM7JF
-	 clp7qpLP/2wrva/lrV7rOIctHFuaueG6OhdmzOT7DK35oC8J3KuZazpRG25Pxao65Arws
-	 naawo9CxS72zj/hPWPFxsAUUiPBEZ4UlDjD0fSNJCbXo0jO6+Hm94y6ldFlURYxIDHSXg
-	 76P/Js6hbRoQttSLPvLZMPKa/GfVQtDYZmvD0ECUD24L8FpXMO9ij06h0IM4KjknVjA==
+	bh=29M8zr7x17dsoAm84YKB4rnazH1BlXT7XBSIpwwpgxY=;
+	b=gcd0po3oyRMbpEjF+j78T9u62FHcmrc/6Y+kj2Rl4p2naRwK4roV+TeAuV01wZuPImR8
+	 yHXza6oSZEOl2h+N7Aw+qHps/wyLWELxTh6w1IJVWI82FttJXhvI1C8eWsVGWQ3oet5JM
+	 qW65ln2AuUHn3T4I3z0UB7Gw/exosmlVRqcBAsQFOgFzJpBX33Y2B9vtjm2k24dsWM0Fd
+	 8DOA5qlJNdGQu8zkcyXDXyDRH+PpbeOKUvkWvXX0zWlwDS8LFQ3s6mr6/qOjxupHOclbB
+	 S2Ryg9LoHF8suBNgU/JoRVGgqhncMj2kuYbUtBb3T4XQZec/mWvnCuWhkX4XTkmAhwQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PXWS1ic+;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WDptkLPp;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 587A1606A31F
-	for <virtualization@lists.linux.dev>; Wed, 28 Oct 2026 03:19:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F6DA606A31A
+	for <virtualization@lists.linux.dev>; Wed, 28 Oct 2026 03:21:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PXWS1ic+
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 075BC1F01828;
-	Wed, 28 Oct 2026 03:19:06 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WDptkLPp
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EF621F01825;
+	Wed, 28 Oct 2026 03:21:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793157547;
-	bh=xdMG4zQTSjW5C4GmglZj3VWpLN8ANR2Ijau/ORA4hs4=;
+	s=k20260515; t=1793157710;
+	bh=29M8zr7x17dsoAm84YKB4rnazH1BlXT7XBSIpwwpgxY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=PXWS1ic+w99WDhkNCZBy6oKtlm7dD36vdS/EmEixsVlPPKqJzFAsmHNzMMnuVUdPz
-	 Wdm10ngPPTbCXmPq6eRMwV2p2DZAW5nDTkhuT32XN/uSCWgZ6GlrQulZweFjXACNbG
-	 RluW8QdyOfZVRVkuUzfURDdYORYcfqAxqk+wDLht5LgItPMOciykl0XJ6yZxS9i6Au
-	 XlJ35O3iYOnjZCnz3N9HqU7axHLutu/8QpSDbNjQItlx5wYVbyvYCANoCfpLf25qLZ
-	 /vSJqxv6jhoDNxBCz+VZ8EbiOYUb+fsK1XavNAVC9T8Tc29aUaBg1dUjzEuqYuoJNI
-	 ZLlwW/3yhR2bQ==
-Message-ID: <sashiko-outbox-187414@kernel.org>
+	b=WDptkLPpfBWfctydvNjRRs57BmRVX93mboPduv8ooxGmv73OMpUSYZHTB+xFSkf+P
+	 Ws/d1x2Pt8PFuyFSS1YfGQSa3X4Q1oaU6GbYSkrStGlng94xpiO/dMuHjM+8GjhD75
+	 QqbNooGtzhdQiXn0bn7zWcZuaoQ27w96Iv0+RNuykZcivqIcZR3/NOFr2e9yvDjsxG
+	 I3F/k9b8HgVmET+G/UIg2uGqU1UbNl8vEOXGQKJvRX+rAlPwfHLU33FWxrdxXVCQd5
+	 P4Ei3zAwho6JBbJyi0pkCWZFenIu9SK14CCPZ1l2PlsvBc20HFSzoxD/u1qchjHaIO
+	 pytLgCmr1Lu1g==
+Message-ID: <sashiko-outbox-187417@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 03/14] ALSA: virtio: Retain queued messages through
- device reset
+Subject: Re: [PATCH v6 02/14] ALSA: virtio: Recover PCM state after a failed
+ start
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Joonho Lee" <mynameisjune111@gmail.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261028025317.92450-4-mynameisjune111@gmail.com>
+In-Reply-To: <20261028025317.92450-3-mynameisjune111@gmail.com>
 References: <20261028025317.92450-1-mynameisjune111@gmail.com>
- <20261028025317.92450-4-mynameisjune111@gmail.com>
+ <20261028025317.92450-3-mynameisjune111@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 28 Oct 2026 03:19:06 +0000
+Date: Wed, 28 Oct 2026 03:21:49 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,17 +62,24 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> Keep the control queue available through snd_card_free() so close-time
-> STOP and RELEASE commands can still be submitted. Block new control
-> requests and mark pending messages canceled before reset, then release
-> their queue references only after reset and queue deletion.
+> Capture trigger queues I/O messages before PCM_START. If the START
+> message cannot be allocated or sent, transfers may remain queued, and
+> ALSA does not invoke the action undo callback for the failed trigger.
 >=20
-> For PCM queues, detach each remaining virtqueue buffer after the device
-> has stopped DMA and retire its message without reporting a normal
-> completion. Detach all queues before deleting them so outstanding DMA
-> mappings are unmapped and no token remains for a late device completion.
+> Mark the stream stopped and disable transfers for every failed START
+> path. Arm runtime->stop_operating so sync_stop releases pending I/O and
+> prevents prepare, hw_params, or START retries until release succeeds.
 >=20
-> Fixes: 9d45e514da88 ("ALSA: virtio: handling control messages")
+> The stopped flag is shared with ACK callbacks that can run without the
+> ALSA stream lock. Protect every stopped access with vss->lock. Read the
+> pending message count under the same lock in open and hw_params. In
+> sync_stop, decide whether RELEASE is needed and mark the stream stopped
+> in one locked transition; leave it stopped when release or draining fails.
+>=20
+> Always cancel elapsed-period work in sync_stop, even when no RELEASE
+> is needed.
+>=20
+> Fixes: da76e9f3e43a ("ALSA: virtio: PCM substream operators")
 > Assisted-by: LLM
 > Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
 
@@ -80,5 +87,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261028025317.9245=
-0-1-mynameisjune111@gmail.com?part=3D3
+0-1-mynameisjune111@gmail.com?part=3D2
 
