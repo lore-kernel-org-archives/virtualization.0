@@ -1,60 +1,79 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=176.119.200.160
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793210153;
-	b=BVygAPgngmNB9hJKLcVPSi7bHctD8Oi6vtQI7U5W6oXHVq+Fcej+V34/6aKowDJvUeO7
-	 dHzy3WW7GDGwS3zmlnTp4hxCia6/ZtWDkTcKgAVm0iSvDX5KM+VjgUzMQCUIXjPgNwz+V
-	 EgroWx48yPbMnkIkUW60AZOUE2JzC8GoRMpZczEn6QY9qmQsODB371DaStqNV7ubv761y
-	 3p6UuR1FrZZ60AXDDnyFBi3GZuMXR4ziZLS+2Hld25/wHvxOtgPbPbUict7LvbZe/0Lqa
-	 +hCuLGLEns15clTXqKX6S09hiMt+AS+5b1R20kPL69q7rlH+Rsa4S/QtEgsnZqwzd3A==
+	t=1793210161;
+	b=XD7tw20goxFeasrLbZ1qm51F3h2Rz9XSXmiv21qeSv+yh0InwlOKmYm/xBpKBfMdEB0O
+	 3h35T0ID7HpPoZ7BL5gVf/hhXbVM34tPVtqI2ZCk/FOWQVfGsahY/mpOaUikXXo2wbpnB
+	 CiegS4zuY0R1hQTxpkh/7smsyfrMnVi/gfp7uewabSyxVYnjsaeVGS8IoUmpujK1XwBTP
+	 TeUa/CfrTZykDKYePCDAhmRO4E2Obc6UnlQ6fapnMMpnuCPugVBp4K/Gc5rmfrdWhNiJ3
+	 Nx3PB9I8ebBQ1gKdlt7ScfCqrQfLH2svGspo/Kf0jO4PqC33I9eamFaLAfC0s8Vpaag==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793210153;
-	h=DMARC-Filter:DKIM-Signature:Date:Subject:In-Reply-To:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding:From:To:Cc:Message-ID:
-	 References:X-SimpleLogin-Type:X-SimpleLogin-EmailLog-ID:
-	 X-SimpleLogin-Want-Signing;
-	bh=17jbkdkItPENhd4Vh8NAsHyi7gmdt8hZfEFg1sHhfLQ=;
-	b=NijvpWPacoIgbs/VfJ78jvWYx1zkkUgzuhEtBI/fI5HH3ovCOE0At/InDTVMBl/NXd4Z
-	 vqPqyyj4N2wCumK3pI8eNbHU9I5Nh3a/4o2GUoBAfyToFgImNG8aTjw6PQPsy5FzP2EEP
-	 /NYXLazh/KK3yyw4Ohba9NHWUStKDTV1tFdxS+GabdbCVHrxKxv/oMHNVtM+EdEvgrNU5
-	 IIc68VExeVhqeU8fvoGJI/A0e9cHItMod+2yCYOauPBNhn+gqu74stbK9cIqSQgiovBVR
-	 1nRZIZqtCUxAXe1it9sieK8uTDSmiNlLShDEBUMa1KHTD5pXNL6b88mOeF7JNdqgSJw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793210161;
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=/7kQZK30vWurR4LOhHkoetB3xKBvRcGAUihhiqGJHYc=;
+	b=LNAiUBzB++VA+As2PGAjRmJF0UcO54AwtM4RrLOOTHRS2d1ltbJSKQwE280W+jdjnf3c
+	 N8NcspWndKSR9BvkAe4xv4zEK4qH6p18Azjjgn2a2qxufl20MbUVb5yWh2rYHpf6MlhGa
+	 9yQxybKJ55Ppm0vhhYkzGM7HX/S1v7kKmYAG6Zy0SyGlgecRq8rlcTt7+EKyh0qMXKOhY
+	 DOrRaSw44lCY2RrbZhz0DNMbxij5QdipRJrrnRdPAA2BEtygsdW1Bvd/L9fCmtwKK3CI+
+	 zGn7imuVmezC2NtslVhgf+oDyhHthhdJsH6P4PCTDS9A9cJaCNirH/1LWFY7auFAjow==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=eldare.de;
-	spf=pass smtp.mailfrom=eldare.de;
-	dkim=pass header.d=eldare.de header.i=@eldare.de header.a=rsa-sha256 header.s=dkim header.b=oYzKOgow;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=176.119.200.160
-Received: from mail-200160.simplelogin.co (mail-200160.simplelogin.co [176.119.200.160])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jKWuicWj;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE37860A263C;
+	Wed, 28 Oct 2026 17:56:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jKWuicWj
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1793210160;
+	b=nTLr5Yguq0b/C3H2OebW5hKxN5fKonxHD2xKVoAvM+3TUNA2vA5aXJOMiA4HHu/OCnrE
+	 /Yn0N1qGuU3orrHTqpQF9Y2L/GXsT76SBuiTflfNDMN4Og0JlUJ7aUR6n4KWwcSDrqIsj
+	 enOFXfcQbZKWQyCOGPbylENstpSUydJyKXx06lj3NnnKOKexf9U/dka7pwNfF63gaQ5yf
+	 ex27Deg+BVKNugAmHyGWjyFbizA2NXLIde7/pguBR6NX9KfiXxq2m7owVjPcDlod6++cl
+	 BLpLlnifDbCuBe+O+DPlqZJ22u5TzdBzwB53nJDddJyrMypFyPEe6exWIRIecwFYdOw==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1793210160;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=/7kQZK30vWurR4LOhHkoetB3xKBvRcGAUihhiqGJHYc=;
+	b=aRRBJ7OtXVPs4okXHaJW9/U0QVJNam24j+jQoinR9t5p3CvsMymxBI0miUqCGOssfgQr
+	 E9yS0tdwZtIZJEYcMd6e2UxhhRcPhhDpDTrrtowRtlPFSmAbmgTGZH/aTjSf4NcC/9OLc
+	 hskRimFO9+ACng3zKISTMPFD13jrnhmxKIeDy/fQaMywICZbbN/wbkee/2rjWDM0DgG+X
+	 dL+ydnkBDzYHbTeoZWefhfqnrlThMPEogNUGDAjIutbqkvpofbMIk8xNLJT0kgJC8UJ5y
+	 I1FKy1TRo0WFSQ2Fp9S8DjTMQAHcNljKlb0AsGoo4Y0vdc58VSLWw8MRJMwsmaRki9w==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C67660A2603
-	for <virtualization@lists.linux.dev>; Wed, 28 Oct 2026 17:55:53 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2C67660A2603
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=eldare.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=eldare.de
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=eldare.de header.i=@eldare.de header.a=rsa-sha256 header.s=dkim header.b=oYzKOgow
-ARC-Seal: i=1; a=rsa-sha256; d=simplelogin.co; s=arc-20230626; t=1793210146;
-	cv=none; b=UC0eApm5dIZwWLlFOhahU4En3V6504bc3d+Ld4YrJKT7Mvm7cGBnhu/+j4gcA8Ms7e5X3Y9Ycj0qKSDac+qJ7XT8UL4hWOf+ilk8wJUn6lxiCbH9xfntICQGSGXSrtb3Zkgv//9HKW6N0QPhLids/601Z/fVtY9TzO8hxD7fUNyQRHQFCgO7eTtGdzBOe0mB3tB6X/PYFNvHgLenCb3oKRXDUEIzT9C+izFe0dMca3Th0qB1Az63GxfsZw23JxCcRoEyBrq48w1hu+0CFRieeZ69UJqzBHVXOEqruw7UAAfgMABtQtBgkrwaJ3fmH9VZ34NsVpUahgQZ7QDNmDeO2g==
-ARC-Message-Signature: i=1; a=rsa-sha256; d=simplelogin.co; s=arc-20230626;
-	t=1793210146; c=relaxed/simple;
-	bh=17jbkdkItPENhd4Vh8NAsHyi7gmdt8hZfEFg1sHhfLQ=;
-	h=Date:Subject:In-Reply-To:From:To:Cc:References; b=devQZawep+mcr0bC8QBq2v/TQdEOe92b1LEsB6dE1JQZIcotXbooZcZR5T1HgFaU8463yJ4Jp/DeROm+9YGVjsk9CNwkX7gPbtTCK+iCqo7bVXPWrm19rBiqy6tnn1/+Ra6s14SGBtSCnHQnq2UwdzG1AuCT1kv+zDusW/OlUd+75TXMpiGUpumX298/yRAWbEdQe8PU9KkXv1wmAOXiML9TCTiW9E346g9e+7Lv5mH/6iQRufy5SgLMqcbjvGLnMmD19sGJ3pV9bhT0Cykgbvoy+EmLpOKtbNioeD5ZLcwIo23um+Icnz+urkA1Y8zaFUKWMtBJnUsBiLPBEwHWuw==
-ARC-Authentication-Results: i=1; mail.protonmail.ch
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=eldare.de; s=dkim;
-	t=1793210146;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=17jbkdkItPENhd4Vh8NAsHyi7gmdt8hZfEFg1sHhfLQ=;
-	b=oYzKOgowLD3u3eP2GABrI/IrDqcF1DMga26D88/cif3KN4lxtaKsToGpY7RQhIanEImtDH
-	TRQr4DdXUPQCcJr0UMBNqLuG9BZSjTJvTTOpOBHCrGvfsKQWjJKNNojjOcBriX54k+j+1j
-	0lxL+DNNMP9t3JmldQ7l+hknT7/ijsU=
-Date: Wed, 28 Oct 2026 17:55:35 +0000
-Subject: Re: [PATCH net] vsock/bpf: release sock lock while waiting for data
- in recvmsg
-In-Reply-To: <4dfb9200-8bd1-4806-90d8-892529b79962@rbox.co>
+	by smtp.kernel.org (Postfix) with ESMTPS id 7D8C31F031E5;
+	Wed, 28 Oct 2026 17:55:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793210160;
+	bh=/7kQZK30vWurR4LOhHkoetB3xKBvRcGAUihhiqGJHYc=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
+	b=jKWuicWjrWioaG8lRJQRktM1sg0hD3rgP1zhB+/dQ59e6I44SI8htGFkuj/Sq3BYp
+	 sesglhHmNXd0GbTR1YkIoi9tEkIH/ZP22N9CQM7/xrMyVVNPWqXxdzJjKs/1JrHKFd
+	 W7kS2Q11VDCnEkRbecauF/kNz+HSPYs9GMCQFbC44iz9zf6TBa57sF58wVEjdKKiWF
+	 0ORiaFv2v27/hE+VRe+hIoWQaHDZeKI49JpWvM46GFG31lnUU+H4EXPfnwKwH9SR09
+	 g51MA7GpQQ7qCEQN8w9j53px5Td/TlSaWhEvNkP3yyBDtr3XcIrx2smpkSto5QWUsy
+	 pHh5xLgg3dR7Q==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id 0E9CC45532;
+	Wed, 28 Oct 2026 17:55:59 +0000 (UTC)
+From: Jerome Mohm via B4 Relay <devnull+jrmmhm.kernel.eldare.de@kernel.org>
+Date: Wed, 28 Oct 2026 18:55:41 +0100
+Subject: [PATCH net v3 2/2] vsock/bpf: fix zero-length, MSG_OOB and
+ MSG_ERRQUEUE reads in recvmsg
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -64,57 +83,114 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-From: jrmmhm.kernel@eldare.de
-To: Stefano Garzarella <sgarzare@redhat.com>,Bobby Eshleman
- <bobbyeshleman@meta.com>,Michal Luczaj <mhal@rbox.co>
-Cc: "David S. Miller" <davem@davemloft.net>,Eric Dumazet
- <edumazet@google.com>,Jakub Kicinski <kuba@kernel.org>,Paolo Abeni
- <pabeni@redhat.com>,Simon Horman
- <horms@kernel.org>,bobby.eshleman@bytedance.com,"Michael S. Tsirkin"
- <mst@redhat.com>,virtualization@lists.linux.dev,netdev@vger.kernel.org,linux-kernel@vger.kernel.org,bpf@vger.kernel.org,stable@vger.kernel.org
-Message-ID: <179321014563.7.16847274233062903088.1728128549@eldare.de>
-References: <20260929-kbh3-1-022-fix-v1-1-cc97cc95d269@eldare.de>
- <ar4gvlZL1JyPycg1@sgarzare-redhat>
- <4dfb9200-8bd1-4806-90d8-892529b79962@rbox.co>
-X-SimpleLogin-Type: Reply
-X-SimpleLogin-EmailLog-ID: 1728128557
-X-SimpleLogin-Want-Signing: yes
+Content-Type: text/plain; charset="utf-8"
+Message-Id: <20261028-kbh3-1-022-fix-v2-v3-2-bc0752b2d3db@eldare.de>
+References: <20261028-kbh3-1-022-fix-v2-v3-0-bc0752b2d3db@eldare.de>
+In-Reply-To: <20261028-kbh3-1-022-fix-v2-v3-0-bc0752b2d3db@eldare.de>
+To: Stefano Garzarella <sgarzare@redhat.com>, 
+ Bobby Eshleman <bobbyeshleman@meta.com>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+ Simon Horman <horms@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Michal Luczaj <mhal@rbox.co>, virtualization@lists.linux.dev, 
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bpf@vger.kernel.org, 
+ stable@vger.kernel.org, Jerome Mohm <jrmmhm.kernel@eldare.de>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1793210158; l=3879;
+ i=jrmmhm.kernel@eldare.de; s=20260928; h=from:subject:message-id;
+ bh=Fv6wIyCvdPA88rsjL1PDN9TTHIaiEj+Jl/xpP9BfqoA=;
+ b=vmSFC1mMOaV9MgLgItP9fekE1g5KX6bCdGA9DejGXaGzh/80o4zkGJivxjZZg76MZW4/2Kvhn
+ Q+3bo60dXw8CHTUDk2ilW9hV1oPL9CmHR01g8x4AnIN03M/z+DgxcQ/
+X-Developer-Key: i=jrmmhm.kernel@eldare.de; a=ed25519;
+ pk=xRCxNXbnNottaHpmvPDAOC9NuMJxqKo24abkehKRVlo=
+X-Endpoint-Received: by B4 Relay for jrmmhm.kernel@eldare.de/20260928 with
+ auth_id=1075
+X-Original-From: Jerome Mohm <jrmmhm.kernel@eldare.de>
+Reply-To: jrmmhm.kernel@eldare.de
+Content-Transfer-Encoding: 7bit
 
-On 10/5/26 09:59, Michal Luczaj wrote:
-> I took a look at v2 and I don't really have any functional comments. Well=
-,
-> besides the use of READ_ONCE, but that's probably something we need to
-> tackle separately?
+From: Jerome Mohm <jrmmhm.kernel@eldare.de>
 
-Thanks for looking. Yes, I'd keep it separate. As far as I can see, the
-virtio_transport_common.c writers of vsk->peer_shutdown run under
-lock_sock() from virtio_transport_recv_pkt(); its WRITE_ONCE() is there
-for the lockless vsock_poll(). The writes outside lock_sock() are in the
-reset paths: virtio_vsock_reset_sock() (sk->sk_state, sk->sk_err),
-vhost_vsock_reset_orphans() (those plus peer_shutdown and SOCK_DONE) and
-vmci_transport_handle_detach(). Both wait loops read these fields; the
-state check is new in v3. The native vsock_connectible_wait_data() reads
-sk_err the same plain way, so I'd rather annotate both paths together in
-one patch than only the sockmap copy. Did you have other accesses in
-mind?
+vsock_bpf_recvmsg() sends every read that cannot be served from the
+transport's own queue through sk_msg_recvmsg() and its wait loop. Three
+kinds of read do not fit that path:
 
-> A single-patch v2 addresses not only the original bug, but also sashiko's
-> complains about the pre-existing issues (making the subject stale?), but =
-I
-> didn't know if you'd rather have all of that stuffed together, so I
-> refrained from commenting to avoid confusing the author.
+ - len == 0: with data queued in the psock ingress queue (for example
+   after an SK_PASS verdict), sk_msg_recvmsg() copies nothing and
+   returns 0, and the wait reports data ready at once, so the loop spins
+   with lock_sock() held. The vsock delivery worker then blocks on the
+   same lock and all rx on the transport stops (hung-task).
+   tcp_bpf, udp_bpf and unix_bpf return 0 early, and
+   __vsock_connectible_recvmsg() handles len == 0 too.
 
-Good point, thanks. v3 is a two-patch series: 1/2 keeps the subject and is
-the lock release with the wait loop it needs, 2/2 handles the len =3D=3D 0,
-MSG_ERRQUEUE and MSG_OOB reads. It also addresses the Medium and Low
-netdev Sashiko comments on v2; the pre-existing ingress_skb case will be a
-separate patch.
+ - MSG_ERRQUEUE: the read only reaches sock_recv_errqueue() when the
+   native fallback happens to be taken. With empty queues a blocking
+   recvmsg(MSG_ERRQUEUE) waits for stream data instead of returning
+   -EAGAIN for an empty error queue. Route it to the native path first,
+   as tcp_bpf does, so it is also not caught by the len == 0 check.
 
-Bobby, since the vsock sockmap support is yours, a look at v3 would be very
-welcome whenever you find the time.
+ - MSG_OOB: vsock has no out-of-band data and the native path returns
+   -EOPNOTSUPP, but sk_msg_recvmsg() ignores the flag and consumes
+   ordinary stream bytes; with empty queues the read waits for data.
+   Reject it right after the MSG_ERRQUEUE route and, as
+   unix_bpf_recvmsg() does, before the len == 0 check.
 
-Thanks,
-Jerome
+The len == 0 and MSG_OOB cases were reported by the netdev Sashiko AI
+review of earlier, single-patch versions of this fix; the MSG_ERRQUEUE
+case was found with the help of an LLM coding assistant (Anthropic's
+Claude). Each reproducer is a C program run as root in the guest: it
+adds one end of a vsock-loopback stream connection to a BPF sockmap
+(CAP_BPF and CAP_NET_ADMIN), for the queued-byte cases with an SK_PASS
+stream-verdict program, and issues the reads below. No kernel change or
+error injection is needed. The reproducers are available on request.
+
+Testing: on a private VM with a KASAN + lockdep kernel on net, with
+reproducers over vsock-loopback. Before this patch: recv(fd, buf, 0, 0)
+with a byte in the psock ingress queue spins and the delivery worker
+hangs (hung-task); a zero-length recvmsg(MSG_ERRQUEUE) blocks; and
+recv() with MSG_OOB waits for data or returns a queued ordinary byte,
+which a following plain recv() then misses. After: a zero-length recv()
+returns 0 and the next recv() returns the byte; MSG_ERRQUEUE returns
+-EAGAIN from the empty error queue; MSG_OOB returns -EOPNOTSUPP at once
+and consumes nothing. With both patches of this series applied, the
+three single-VM tests of tools/testing/selftests/vsock/vmtest.sh
+(vm_server_host_client, vm_client_host_server, vm_loopback; 44
+vsock_test cases each) pass, as on net; on both kernels the host-side
+runs skip the SO_INQ cases (SO_INQ not supported by the host kernel).
+The ns_* tests of vmtest.sh were not run (they need root on the host).
+The BPF test_progs sockmap_basic, sockmap_listen and sockmap_redir tests
+pass (767 of 767 subtests, among them the three vsock subtests of
+sockmap_basic and the 240 AF_VSOCK cases of sockmap_redir).
+
+Fixes: 634f1a7110b4 ("vsock: support sockmap")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jerome Mohm <jrmmhm.kernel@eldare.de>
+---
+ net/vmw_vsock/vsock_bpf.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/net/vmw_vsock/vsock_bpf.c b/net/vmw_vsock/vsock_bpf.c
+index 5120911b8143..3edc01268c42 100644
+--- a/net/vmw_vsock/vsock_bpf.c
++++ b/net/vmw_vsock/vsock_bpf.c
+@@ -111,6 +111,15 @@ static int vsock_bpf_recvmsg(struct sock *sk, struct msghdr *msg,
+ 	struct vsock_sock *vsk;
+ 	int copied;
+ 
++	if (unlikely(flags & MSG_ERRQUEUE))
++		return __vsock_recvmsg(sk, msg, len, flags);
++
++	if (flags & MSG_OOB)
++		return -EOPNOTSUPP;
++
++	if (!len)
++		return 0;
++
+ 	psock = sk_psock_get(sk);
+ 	if (unlikely(!psock))
+ 		return __vsock_recvmsg(sk, msg, len, flags);
+
+-- 
+2.56.0
+
 
