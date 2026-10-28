@@ -1,79 +1,80 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
 	t=1793210160;
-	b=Cg+L8kYxLOSwk4k5NiR+jgWkn6mwpvwd+aw2ja9O5GfZ5cNwAF5VYGNI5GdLEOeygBM/
-	 XR2lb1PvfPeKQ1iHn3FjGOtpMH0zKMi/YWspc6teFQLEr2KMdWlPc4fmnCOTLHKRDvEEK
-	 UXiJ4VKdeoyWowCGGCxezLha3YvHA4vGxNjdUq2cd5iyRIp/Xc/VDYh7Qc9SM0J9UdwQM
-	 kiVCeMxQ7RK0L8fc00zKL5c0v1xEdGXl8wvJyqpOEf+7yPck0RMjYwE6qGc5LjURySAMn
-	 Fr37Lnsaxy9JOZ61eQpgtDPrVrFiCf8qy9aEnmGXOyAdCowyp0mWlOUYFlJrc5mU5/w==
+	b=OjxsWlkKkJYV47fsbk2rVB9OZ1rf/OGbFIfveSNOFYt63AKIp2QEX9yFZf1u1cuasl6U
+	 Yq3NVmt7jtK9WXe3M6jbXgFwiG1J+aAS3T1fT6tTlEOwlKnpzY2sMhjC1AcRS7HsLSRYd
+	 VksZwi3dFFb4Fa4xn5j0JiNNDIjYW922QMaEaYEB6d7bI85KgC/ZJp0rEq9KHWIvEaDcX
+	 HVNXj3czNrcTDCCmEND/lPo5MqbJkNZhTEoWo9YwyR7I/5MYoy/DYreRQ9INnqsMxJZyv
+	 NNcI2fVyNdnBmk54SoA8Me1N12X6fn3MHi7CJPo8tAoVE9Qa0ZYCxXbp6eDz419NHWw==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1793210160;
-	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
-	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=B3Z8yibr0dNS80pUoWGrdQP0lvUWc3WoU/OtrkXqitA=;
-	b=FMEOcCHEM7/qjTiIw3vbLSyFuP6U829SFYgUZtBM5dmSKC+uaRHUP6wVvYRgJ/3heOiv
-	 rHPcppuDiRkMCKFe2UxFdutDEQdXyr0PWNZzsKxV1c/mTJZIEa4513dzwmOaZ04doeRue
-	 rAJD82wO96jG5rs8qE6kixR5zG5qeGo0yJ9a51n8NKaQonp1rQnpHrCP/LTO+HPUm3tXV
-	 BVAda+04oTzJ9NeGr30oLQOcKmVNEfvAMX0soKdXyNpEo8BcrATMMxqwvVCBlcka3kSZK
-	 HW8skRkTHljmZflYunnx1Y35fS2a83XT4C3JwGWFoXA+rx/QOs+1OEpirC/h8bgU7PA==
+	h=Received:DKIM-Signature:Received:From:Subject:Date:Message-Id:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding:X-B4-Tracking:
+	 X-Change-ID:To:Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:
+	 X-Endpoint-Received:X-Original-From:Reply-To;
+	bh=a/xQi7IAk9m+nuRxq8RigTOPlEQpxTs7m/an1+AlzF4=;
+	b=DXEGmHCdNr+ZCPA3mZuWXEr443PEJZCCOiOa8aaYCMv3zV7qhdc3g1ymRA0wVNiKFlBx
+	 QVugdVolAORJAyQFWxEsfdCPHY9IrUVcxEk7GELNE1Z5HFeWW0140fwV/+6wfjwz9slX0
+	 oHsXQXQpOt11Qnp5YWT2ct7GLTXTZe96qO3QRowWmWn27X51nAqmraiahpYwEtXwkr7OH
+	 5afd0G7tZfS/F1EQDAyFAjVCNW6NwGzdXzN5U8C1cxaL3mowZbNX3iRnhlDX6TUZ9QNPJ
+	 xlPAsjO118rM79uTj2ahOCLMJLcBJEQc4ov/4FjpAN37DhebxOA40PDcx8/U65Gwi7Q==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="XGBC/8/J";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VAow92Pp;
 	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 993F160A2603;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5226660A2602;
 	Wed, 28 Oct 2026 17:56:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XGBC/8/J
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VAow92Pp
 Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
 ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
 	t=1793210160;
-	b=XLoPnOiWe+vWS7fjejTrEctD7ZXLYGNtP8GGqgopsFA/Eyy79fvuNflAKWROXWBL9LKL
-	 RH04HaeB0DhEowzjZayjHrJOxudGncHWW9HV2tMVF9HHGMK2HxinSa122CQHe+rGuUxtE
-	 1dq0SVTx1h5hyOh3NpjeGGJhq+vWOAml4DohCntY14YeXRQ0zVfbRvylvJcJxsNZ2CIdh
-	 CmMFhExXijTrvrG+i2JicOU46trkplzARCkvQr1D/dH/F4cXHLeD7EJLfVnfHo8gpP15A
-	 37JapxvxnASilm+MhFmhipHX3mVpnBXU/VEvfNnxVDwbfTIjvwFn75VEeg8CsQ7LLjw==
+	b=VGlx3/t19nSNWObNtmDwOUniEPey5tBk8M2I3cOGHI8FCYwZdoptASDsDJ9P/MSIsTn5
+	 oP5LA2g6LDWQQ4Id6WDtgmMArnASbF3T3tCrT612pUj1eyfkUVO0hWq9Dabi/xxP1/OkC
+	 frGMCz78ORXlM1mvecAlzot05hU240NAQ5Oh1b8g7s4M0iRTrhkvlAzCDZfcNpDoSr37l
+	 sO/AtkS+qw3w5kMfGpVTWeOHQ3SsD8AYEb+0AUxtEfsj5XFWMOzinDkmyZ1bPX/CcfPqL
+	 5ryzOjKeLGpsvc9cLNiLMIz7QGBSGxNm91V+ed9R10IyM22NgiyXo0N/ITDgrTJduKg==
 ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
 	c=relaxed/relaxed; t=1793210160;
-	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
-	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=B3Z8yibr0dNS80pUoWGrdQP0lvUWc3WoU/OtrkXqitA=;
-	b=cWcva3ppz8GxhbjkEYXbJh8TPROQCQLXQg0zefOLLQrZOm/Y4xHwidakUHf9JwfherXN
-	 rmQ9slsgaQ91Uz9eCFdkDiqMwwYjCYAi9nvpXIwIe+1XgrgoDv4qy/yYrzn4sfSeH0cVE
-	 v8CoFDNHreLlaoZe8xm1eTsWzBDxcUNI2DrMu5XbwC82c+JF/bmh65A5qoL/tCtSJIN/C
-	 OmJv+ajDg8jfvKr247w8D76TD/kzyW7LUWwK/czFqLVE3eRTaf4nRHprSDU8zErzAaxTb
-	 JVVqY7/7seHHlQPcmlVAEbsINlROzuChzhXKZ7aj3e7XusbShOOTb0PbaqLC04tUO+g==
+	h=DKIM-Signature:Received:From:Subject:Date:Message-Id:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding:X-B4-Tracking:X-Change-ID:To:
+	 Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To;
+	bh=a/xQi7IAk9m+nuRxq8RigTOPlEQpxTs7m/an1+AlzF4=;
+	b=XzKwugfY2vLmALm+xtjanS312GEVb1zc5jU8v5nwgawLLm3AYGk2+pMXyspCtf+9OS6e
+	 PG2/Taw6FIi2eIcxquEB9aWuAybiQXYg/vJcb9fS4SJJXwuBpxIq8dGpQNIuZjvTaWtnn
+	 W85FUF4No98EBQco5b1dWkxFrrfs1r3TpKgW+lAKv8JO4nhNBsB7JSiwxqnMR+D4beHbl
+	 v0jdgVKE774IIlhlQxMqCHwo+M71ZU2cDrave7ANGX8n9sZD10RVRFoZZT9+Oi0RJC4cU
+	 fVnHAwmvvcKUBK1AjDdsZLqDsHIyRwLyVd4dcxFSCzA81LXnfm3d6U4wfcjLl17yHHg==
 ARC-Authentication-Results: i=1; smtp.kernel.org; 
 	arc=none smtp.remote-ip=100.80.115.77
 Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id 7291F1F031E1;
+	by smtp.kernel.org (Postfix) with ESMTPS id 66F6D1F031E0;
 	Wed, 28 Oct 2026 17:55:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
 	s=k20260515; t=1793210160;
-	bh=B3Z8yibr0dNS80pUoWGrdQP0lvUWc3WoU/OtrkXqitA=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
-	b=XGBC/8/J+T1IFpnUdKNc4sCuo2Oo3bVrgvo+8LiN7ovt2YgisidBXbOiOhgJBWVsy
-	 D/bhBh4DSpAjh5JqNt3gUqZ90IwMxgXfAtlVgSZ4QsWau8USI16C4EWAsOeoKP9rDj
-	 NlJNE57HKvkp8qitDlULVQixjVN0s7RqJZn2D85jyP4pnWi41zqb0b6l5BHXqg5ztS
-	 v9tFABqQPmYlf6jNHEUAiQ095oBDA1pazfxPaPZApoFBuB2Fi6mb3G0+iF78p/FwVM
-	 WiL7ENx/oxObI7cMsoQrJHclalLKxXIgCVEeYPQz1/yTHnN+kpmd9Mv0mgzRDB1uVD
-	 oZKfXOm96YkbA==
+	bh=a/xQi7IAk9m+nuRxq8RigTOPlEQpxTs7m/an1+AlzF4=;
+	h=From:Subject:Date:To:Cc:Reply-To;
+	b=VAow92Ppr+IMuw7VvilX8pwKxsVOpLDpRA32Zl55JmPzBZ7wGG8Efs0PlNRLQJDYB
+	 gkfZWeE/gh4yJsQqzKUoFC3toQeLIf1biGfxtxqiU+RnbtY93xALrpcxZX2WdOTUoe
+	 d2WAyip5eFxmRcnR8F+U3sz9l2Tz3qpKxr920nOku6oCyCIiHM9AttWG7faLXMJzaA
+	 pUAgevDbCblfMaB64LfUZwk8y8c2JkLMpv7MoXRTRhlfJJ4q8qGeU6Xgnq8rNysJuS
+	 3GC7rkvQ+Ar4SqZDmkfPsZlfww/ugIwmAdg7RmShRSfnijHEBc7RC6YFxddQCJSy0o
+	 /REGrIVBxSwRQ==
 Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 0333E45530;
-	Wed, 28 Oct 2026 17:55:59 +0000 (UTC)
+	by lkml.kernel.org (Postfix) with ESMTP id EB99B45523;
+	Wed, 28 Oct 2026 17:55:58 +0000 (UTC)
 From: Jerome Mohm via B4 Relay <devnull+jrmmhm.kernel.eldare.de@kernel.org>
-Date: Wed, 28 Oct 2026 18:55:40 +0100
-Subject: [PATCH net v3 1/2] vsock/bpf: release sock lock while waiting for
- data in recvmsg
+Subject: [PATCH net v3 0/2] vsock/bpf: fix waiting and flag handling in
+ recvmsg
+Date: Wed, 28 Oct 2026 18:55:39 +0100
+Message-Id: <20261028-kbh3-1-022-fix-v2-v3-0-bc0752b2d3db@eldare.de>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -84,9 +85,12 @@ List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261028-kbh3-1-022-fix-v2-v3-1-bc0752b2d3db@eldare.de>
-References: <20261028-kbh3-1-022-fix-v2-v3-0-bc0752b2d3db@eldare.de>
-In-Reply-To: <20261028-kbh3-1-022-fix-v2-v3-0-bc0752b2d3db@eldare.de>
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/32NSw6CMBCGr0Jm7ZhOQRRW3sOwKGWQqimmrY2Gc
+ HdL3bv8/ucCnp1hD22xgONovJltgnJXgJ6UvTKaITFIIWsSgvDeTyUSCilxNG+MErkcqZKNqCt
+ SkHpPx8nJmxewHKD7if7V31iHbW2LTcaH2X3yc6Qc/nMSKbEeFTeHk6LmWJ/5MSjH+4GhW9f1C
+ 8dh32bJAAAA
+X-Change-ID: 20261001-kbh3-1-022-fix-v2-e3f14290641a
 To: Stefano Garzarella <sgarzare@redhat.com>, 
  Bobby Eshleman <bobbyeshleman@meta.com>, 
  "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, 
@@ -96,204 +100,79 @@ Cc: Michal Luczaj <mhal@rbox.co>, virtualization@lists.linux.dev,
  netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bpf@vger.kernel.org, 
  stable@vger.kernel.org, Jerome Mohm <jrmmhm.kernel@eldare.de>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1793210158; l=7518;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1793210158; l=3124;
  i=jrmmhm.kernel@eldare.de; s=20260928; h=from:subject:message-id;
- bh=qTxhMDMjhFbFejtDYQ+YtTIUqClmtxTEnQn6UzGFnKM=;
- b=J/vorB6US6gv5IOLiS2LZHCHqvl40aF+mykV+xkOCOUSuK6qvayIJz3rdnmeXZLAg3xK0P9IH
- mnMKqYXZ/ErCEw7TIMfDeGJC5J0fATwa1Whj/aQfXrW4ogyeHdqdzmm
+ bh=5BjgUPTK+Q5h2bvpD5C1SETglAWcW6+J75MQCpy5pss=;
+ b=hIkUf7xsHfJhu8is5rphbJIa8ojwE74njpamLIww2+KFea5blbCiVJ7YFgrtSD8m2+PX1ycYc
+ Nb2geFyhP/SDVckrvVsn8DykNasVOYCwvTL8t3zP8dQ5S391WhRH2JC
 X-Developer-Key: i=jrmmhm.kernel@eldare.de; a=ed25519;
  pk=xRCxNXbnNottaHpmvPDAOC9NuMJxqKo24abkehKRVlo=
 X-Endpoint-Received: by B4 Relay for jrmmhm.kernel@eldare.de/20260928 with
  auth_id=1075
 X-Original-From: Jerome Mohm <jrmmhm.kernel@eldare.de>
 Reply-To: jrmmhm.kernel@eldare.de
-Content-Transfer-Encoding: 7bit
 
-From: Jerome Mohm <jrmmhm.kernel@eldare.de>
+vsock_bpf_recvmsg() holds lock_sock() while it sleeps for data, so the
+transport's delivery worker, which needs that lock to queue the data,
+deadlocks with the reader. Patch 1 releases the lock around the wait and
+makes the wait loop with the exit conditions of the native path,
+including a state check that ends the wait on a reset connection after
+getsockopt(SO_ERROR) has cleared sk_err. Patch 2 handles the reads that
+should never reach the sockmap wait: len == 0, MSG_ERRQUEUE and MSG_OOB.
 
-vsock_bpf_recvmsg() takes lock_sock(sk) and holds it across the receive
-loop, including vsock_msg_wait_data(), which sleeps in wait_woken()
-without dropping the lock. When data arrives, the transport's delivery
-context (the vsock-loopback worker, or the virtio/vhost rx path) calls
-virtio_transport_recv_pkt() -> lock_sock() on the same socket and blocks.
-That context is the only one that would queue the skb and wake the
-reader, so neither side makes progress: a blocking recv() hangs until a
-signal arrives or SO_RCVTIMEO expires, and meanwhile the shared delivery
-worker is stalled, so all vsock rx on that transport stops. The
-hung-task watchdog reports the worker:
+v2 was one patch; as Michal noted, it mixed the deadlock fix with
+fixes for pre-existing issues, so v3 splits it. Patch 1 alone fixes the
+deadlock, the dataless wakeup, the peer shutdown and the reset cases;
+the zero-length, MSG_ERRQUEUE and MSG_OOB reads keep their current
+behaviour until patch 2.
 
-  INFO: task kworker/1:3:107 blocked for more than 5 seconds.
-  task:kworker/1:3 state:D Workqueue: vsock-loopback vsock_loopback_work
-  Call Trace:
-   __schedule
-   schedule
-   __lock_sock
-   lock_sock_nested
-   virtio_transport_recv_pkt
-   vsock_loopback_work
+Not addressed here: the netdev Sashiko review of v2 also noted a
+pre-existing case where data that sits only in psock->ingress_skb makes
+recvmsg() fall back to the native path, which never looks at the psock
+queues. It is independent of this series and I will send a separate
+patch for it. Annotating the lockless accesses with
+READ_ONCE()/WRITE_ONCE() is likewise left for a separate patch that also
+covers the native vsock_connectible_wait_data().
 
-vsock_bpf.c is based on net/unix/unix_bpf.c, whose unix_msg_wait_data()
-drops u->iolock around wait_woken(); tcp_bpf and the native
-vsock_connectible_wait_data() also drop the lock across the wait.
+The deadlock and the MSG_ERRQUEUE case were found with the help of
+Anthropic's Claude; the other cases come from the netdev Sashiko review.
+The reproducers are available on request.
 
-Releasing the lock alone is not enough. With the lock dropped, the
-reader is also woken by events that bring no data, for example a credit
-update via sk_write_space(); vsock_msg_wait_data() did not loop, so a
-blocking recv() then returned -EAGAIN early. It also checked only for a
-local RCV_SHUTDOWN, so a peer shutdown or a reset was not noticed. A
-looping wait must stop on everything the native receive path stops on:
-without the shutdown checks a peer shutdown, and without the state
-check a reset whose error was already read with SO_ERROR, would sleep
-until the timeout.
+Changes in v3:
+- Split into two patches (Michal): 1/2 releases the lock and loops in
+  the wait, 2/2 handles len == 0, MSG_ERRQUEUE and MSG_OOB.
+- 1/2: also end the wait once the socket is no longer TCP_ESTABLISHED
+  (0 with SOCK_DONE, else -ENOTCONN, as __vsock_connectible_recvmsg()
+  does), so a reset connection whose error was read with SO_ERROR no
+  longer waits out the timeout (Sashiko review of v2).
+- 2/2: reject MSG_OOB with -EOPNOTSUPP before the len == 0 check, as
+  unix_bpf does; this also stops MSG_OOB from consuming ordinary bytes
+  (Sashiko review of v2).
+- Stefano's Acked-by on v1 is not carried: neither patch matches v1.
+- Drop the Assisted-by trailer (removed upstream); tool use is disclosed
+  above instead.
+- Rebase onto current net.
+- Link to v2: https://lore.kernel.org/netdev/20261001-kbh3-1-022-fix-v2-v1-1-cfae958a1976@eldare.de/
 
-Make vsock_msg_wait_data() loop and release the socket lock around each
-wait. It returns 1 when data is ready, -sk_err on a socket error, 0 on
-RCV_SHUTDOWN or a peer SEND_SHUTDOWN (as vsock_connectible_wait_data()
-does), -EAGAIN on timeout and sock_intr_errno() on a pending signal. It
-also stops once the socket is no longer TCP_ESTABLISHED, with 0 if
-SOCK_DONE is set and -ENOTCONN otherwise, mirroring the state check in
-__vsock_connectible_recvmsg(): a transport reset
-(virtio_vsock_reset_sock()) sets only TCP_CLOSE and sk_err, and
-getsockopt(SO_ERROR) clears sk_err, so without the state check the loop
-would wait out the whole timeout on a dead connection. Data already in
-the psock ingress queue is still returned first. vsock_bpf_recvmsg()
-returns a negative result as the error and 0 as end of file.
+Changes in v2:
+- Make vsock_msg_wait_data() loop, check sk_err and the peer
+  SEND_SHUTDOWN, and add the len == 0 guard (Sashiko review of v1);
+  route MSG_ERRQUEUE to the native path ahead of the guard.
+- Link to v1: https://lore.kernel.org/netdev/20260929-kbh3-1-022-fix-v1-1-cc97cc95d269@eldare.de/
 
-Two userspace-visible results are worth noting: a pending signal now
-returns sock_intr_errno() where the old code returned -EAGAIN, and after
-a virtio transport reset recv() returns -ECONNRESET until
-getsockopt(SO_ERROR) has read the error, where the native path returns
--ENOTCONN.
-
-The deadlock was found with the help of an LLM coding assistant
-(Anthropic's Claude); Sashiko AI reviews of two earlier sockmap patches
-had already noted it as a pre-existing issue. The early -EAGAIN on a
-dataless wakeup, the missed peer shutdown and the wait on a reset
-connection were reported by the netdev Sashiko AI review of earlier
-versions of this patch. Each reproducer is a C program run as root in
-the guest: it adds one end of a vsock stream connection to a BPF sockmap
-(CAP_BPF and CAP_NET_ADMIN) and drives a blocking recv(); the reset case
-connects to a peer on the host and unbinds the guest's virtio-vsock
-device, the others use vsock-loopback. No kernel change or error
-injection is needed. The reproducers are available on request.
-
-Testing: built a KASAN + lockdep kernel on net and ran reproducers on a
-private VM, before and after this patch. Before: a blocking recv() on a
-sockmap socket deadlocks the vsock-loopback worker (hung-task). After:
-it returns the data; a dataless credit-update wakeup does not end the
-wait; a peer SEND_SHUTDOWN returns 0; and after a reset of a virtio
-connection (unbinding the guest's virtio-vsock device) and
-getsockopt(SO_ERROR), recv() returns -ENOTCONN at once like a socket
-outside the sockmap, where before this patch it waited for SO_RCVTIMEO.
-No KASAN, lockdep or hung-task report. With both patches of this series
-applied, the three single-VM tests of
-tools/testing/selftests/vsock/vmtest.sh (vm_server_host_client,
-vm_client_host_server, vm_loopback; 44 vsock_test cases each) pass, as
-on net; on both kernels the host-side runs skip the SO_INQ cases (SO_INQ
-not supported by the host kernel). The ns_* tests of vmtest.sh were not
-run (they need root on the host). The BPF test_progs sockmap_basic,
-sockmap_listen and sockmap_redir tests pass (767 of 767 subtests, among
-them the three vsock subtests of sockmap_basic and the 240 AF_VSOCK
-cases of sockmap_redir).
-
-Fixes: 634f1a7110b4 ("vsock: support sockmap")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jerome Mohm <jrmmhm.kernel@eldare.de>
 ---
- net/vmw_vsock/vsock_bpf.c | 62 ++++++++++++++++++++++++++++++++++++-----------
- 1 file changed, 48 insertions(+), 14 deletions(-)
+Jerome Mohm (2):
+      vsock/bpf: release sock lock while waiting for data in recvmsg
+      vsock/bpf: fix zero-length, MSG_OOB and MSG_ERRQUEUE reads in recvmsg
 
-diff --git a/net/vmw_vsock/vsock_bpf.c b/net/vmw_vsock/vsock_bpf.c
-index 9049d2648646..5120911b8143 100644
---- a/net/vmw_vsock/vsock_bpf.c
-+++ b/net/vmw_vsock/vsock_bpf.c
-@@ -34,24 +34,55 @@ static bool vsock_has_data(struct sock *sk, struct sk_psock *psock)
- 	return vsock_sk_has_data(sk, psock);
- }
- 
--static bool vsock_msg_wait_data(struct sock *sk, struct sk_psock *psock, long timeo)
-+/* Returns 1 if data is ready, 0 on EOF/shutdown, or a negative error. */
-+static int vsock_msg_wait_data(struct sock *sk, struct sk_psock *psock, long timeo)
- {
--	bool ret;
-+	struct vsock_sock *vsk = vsock_sk(sk);
-+	int ret;
- 
- 	DEFINE_WAIT_FUNC(wait, woken_wake_function);
- 
--	if (sk->sk_shutdown & RCV_SHUTDOWN)
--		return true;
--
--	if (!timeo)
--		return false;
--
- 	add_wait_queue(sk_sleep(sk), &wait);
- 	sk_set_bit(SOCKWQ_ASYNC_WAITDATA, sk);
--	ret = vsock_has_data(sk, psock);
--	if (!ret) {
--		wait_woken(&wait, TASK_INTERRUPTIBLE, timeo);
--		ret = vsock_has_data(sk, psock);
-+	while (1) {
-+		if (vsock_has_data(sk, psock)) {
-+			ret = 1;
-+			break;
-+		}
-+
-+		if (sk->sk_err) {
-+			ret = -sk->sk_err;
-+			break;
-+		}
-+
-+		if ((sk->sk_shutdown & RCV_SHUTDOWN) ||
-+		    (vsk->peer_shutdown & SEND_SHUTDOWN)) {
-+			ret = 0;
-+			break;
-+		}
-+
-+		/* virtio_vsock_reset_sock() sets no shutdown bits, and
-+		 * SO_ERROR clears sk_err: check the state the way
-+		 * __vsock_connectible_recvmsg() does.
-+		 */
-+		if (sk->sk_state != TCP_ESTABLISHED) {
-+			ret = sock_flag(sk, SOCK_DONE) ? 0 : -ENOTCONN;
-+			break;
-+		}
-+
-+		if (!timeo) {
-+			ret = -EAGAIN;
-+			break;
-+		}
-+
-+		release_sock(sk);
-+		timeo = wait_woken(&wait, TASK_INTERRUPTIBLE, timeo);
-+		lock_sock(sk);
-+
-+		if (signal_pending(current)) {
-+			ret = sock_intr_errno(timeo);
-+			break;
-+		}
- 	}
- 	sk_clear_bit(SOCKWQ_ASYNC_WAITDATA, sk);
- 	remove_wait_queue(sk_sleep(sk), &wait);
-@@ -101,11 +132,14 @@ static int vsock_bpf_recvmsg(struct sock *sk, struct msghdr *msg,
- 	copied = sk_msg_recvmsg(sk, psock, msg, len, flags);
- 	while (copied == 0) {
- 		long timeo = sock_rcvtimeo(sk, flags & MSG_DONTWAIT);
-+		int data = vsock_msg_wait_data(sk, psock, timeo);
- 
--		if (!vsock_msg_wait_data(sk, psock, timeo)) {
--			copied = -EAGAIN;
-+		if (data < 0) {
-+			copied = data;
- 			break;
- 		}
-+		if (!data)
-+			break;
- 
- 		if (sk_psock_queue_empty(psock)) {
- 			release_sock(sk);
+ net/vmw_vsock/vsock_bpf.c | 71 +++++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 57 insertions(+), 14 deletions(-)
+---
+base-commit: 363c8c79220d0db4d65dcd570529ddda15067cb5
+change-id: 20261001-kbh3-1-022-fix-v2-e3f14290641a
 
--- 
-2.56.0
+Best regards,
+--  
+Jerome Mohm <jrmmhm.kernel@eldare.de>
 
 
