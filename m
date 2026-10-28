@@ -1,60 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=176.119.200.170
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.128.179
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793209909;
-	b=c3v9a+7Qok5pPXGCTS2G2TLj5YVEeeWbOe8kUL4wjaWjYAOTX2+8s6F6n/e6zR8C4D9/
-	 iyy8ccbUumwxHAdTE3KfaQKJmaidJIFp3FocWe9l7KAwX8qaf3WKTj2WLR0us74wAqBZx
-	 VmQzYBupDsPZQT/smDy+K4WeVLMEz2kzvzrTW1k6VHYIaNN/3c/rhUgMl3SBw2j0/1HH5
-	 riiz+jV/gtNKfqLN8y8F1OooE/YSNt0VAEy5/Ll3bEwa/Hd3pwsVQ+B7oNelBmXP9QV8Q
-	 5SuPMCFhXdH6pororadnoxklxtSfUdW2b4HaCeRDfncpghp7M1mJ/Hn9MotI7Z2Hxzw==
+	t=1793209912;
+	b=xmWyfBlOAC2lqQSdVDM5+46Pwo7X2MtvyTbqqgLxTj+OCkn0tqZ65wqWwer7XAqkPtmB
+	 5t5kzBMLUHTNZjvENzZh3xsMXypSHJlQAAR7AmT1j7OfQZOvgAyghbCjJFJ+Y7IkKlB2b
+	 DTjMikzzFi2s8C7FjdsUXk/8F2jwhvuiQ0RIeICnlH8/RIdW8JTQwWoTFkFRgpYLvcqwX
+	 WmMinnQxlEQAMdvWv9AW8p+yc5qyZktfB+iQ6BInvBdWZcuryLbusDCgS/2srHcPbNAzO
+	 zZMNCMbAEPPIu0Hi+jbKrbZcHbz5LYKNJfHYRAfhQZHdGj63+0j3nhCcSYchXGwKVLg==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793209909;
-	h=DMARC-Filter:DKIM-Signature:Date:Subject:In-Reply-To:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding:From:To:Cc:Message-ID:
-	 References:X-SimpleLogin-Type:X-SimpleLogin-EmailLog-ID:
-	 X-SimpleLogin-Want-Signing;
-	bh=fmazTGtR1oDTSrNKrvco0aIuxQh0Wi6ZbwjgI0VjrSs=;
-	b=qnMxz/QVyvyvUK8ZEdSszK4Qyxw7ePEjyxw5mbVaPGAiZPnIbdnczkaW6cRuCt9C87SJ
-	 TWZjEzSfW+mLr4Hl+NYX7+im7LpdrbTg86SWy0ZTl3UJbnS5E9CZ6OeUSMEVXuuowz1oR
-	 87C0z6TZI3GQw7heFAa2DVwk1FbEtMS/hu6XKR9He2pnrreY6jEbghdJ8uUuou6XXd4dF
-	 MnqxU81ct3sqlCJn8fTXYNulUy1rCcCKrG5wto4OP0QPtlj5ISNLknbzmZzN6ql9RKoSa
-	 dZTaOafiLHTIErRX1qqrFYjT2OKHSIVjcKEDsbdQjW7acdtBPuP1i2YTbssYHZ1MgPg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793209912;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=mF/L3R2/oy06ccOwt7FWjRMyAPem26+3IHOwef8ICXY=;
+	b=MYc8ymzbIpDUaJxbkNNnIiXRc7824o5KyZxMTtm6wFrdcibydf4fuBCzCHS7y5fdS4F3
+	 cbQ9DIhoMsobarzUAA9OdqPDeQnadfhkLGJbes8/TH8R6RfxB412R5fuM9JLjkuYb3hHG
+	 nUado6LRXlGTh2R/XZSZgE27b5vlkHlQICBqeJUo3zOdV7w3mjf9+f4XKKq77j3z2D735
+	 aO4eCj0qpPlQhlx7m0uOyb0QsCw24CTNI0vcqzqNPLY0vRtlSBzA0XL4aeUCxBqHXDxMe
+	 0sOpmLvAyik0JTsCxyZsJBUTTkrbg9sR0g+4CXFUGR5/jIz+uNg6cLgjuzKMqdDBnBA==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=eldare.de;
-	spf=pass smtp.mailfrom=eldare.de;
-	dkim=pass header.d=eldare.de header.i=@eldare.de header.a=rsa-sha256 header.s=dkim header.b="Z8qQZI/w";
-	arc=pass header.oldest-pass=0 smtp.remote-ip=176.119.200.170
-Received: from mail-200170.simplelogin.co (mail-200170.simplelogin.co [176.119.200.170])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=google.com;
+	spf=pass smtp.mailfrom=google.com;
+	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=FZiONIAZ;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.128.179
+Received: from mail-yw1-f179.google.com (mail-yw1-f179.google.com [209.85.128.179])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0582C606A323
-	for <virtualization@lists.linux.dev>; Wed, 28 Oct 2026 17:51:48 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0582C606A323
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=eldare.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=eldare.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD3AA60A2604
+	for <virtualization@lists.linux.dev>; Wed, 28 Oct 2026 17:51:51 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CD3AA60A2604
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=eldare.de header.i=@eldare.de header.a=rsa-sha256 header.s=dkim header.b=Z8qQZI/w
-ARC-Seal: i=1; a=rsa-sha256; d=simplelogin.co; s=arc-20230626; t=1793209901;
-	cv=none; b=w5kHItFYRgf0g9MvnjZe7Cgf621setVXpYeT9kQ0m0yjzjlD7z34JJHDO5E38uSIV3D9ndGMrv40YV5i1vSCwNsq0O67GBuIVFvwcarptIv/plI7591ILvQdNSiubM0gLii/SYkiq2caoQSv90/rEqweq6f9yOg2TsT9U+kV5M+dtnzbjhaWdO3Wbw+gnRbb0jSvxXWUR6JvUNew+LGM2nD9bmGv3KljuE1/JVlW7pI3P9cvRI0FjzxlSWZ2bO9PqCaGOeguwN622LSCWknVclvOyIk+y4E9WpRxRWBG9lUU1IXNo5iWP/rqaG4NPWctf6E7dEhDjKHKJXg9pya7sA==
-ARC-Message-Signature: i=1; a=rsa-sha256; d=simplelogin.co; s=arc-20230626;
-	t=1793209901; c=relaxed/simple;
-	bh=fmazTGtR1oDTSrNKrvco0aIuxQh0Wi6ZbwjgI0VjrSs=;
-	h=Date:Subject:In-Reply-To:From:To:Cc:References; b=aYj6zSTy1rXZDz9VTD7a+MZLGDKnSDyN2IjgCJcp2zpZHiVaxhGeJ89NRKVE3lbqzyF3vDM2TGOBMUb8PwKfC7HFVqP1Flq/bFJ2mwc44L40N/Zt5RSM7V+R4j/OmyFn31g3j6rMZJrSH6fcOwPkywvp72nYBwZ1Qh2Q6BeLtgv63P9m7OFxhVF8W5emraQD5vyr3Diu5J8J7rUycLapopnRLUupBboPOekhYE8GygAPIL6jGp+ytzlWTx1srywJKvztn6P0tAB4ENNN/ZO1Ou0MZFKlhzmV+HDV5falwHPqQ9IkJBq75TNmZACdx0Vysh8IqYik7HWW0dtLW01QGA==
-ARC-Authentication-Results: i=1; mail.protonmail.ch
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=eldare.de; s=dkim;
-	t=1793209901;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=fmazTGtR1oDTSrNKrvco0aIuxQh0Wi6ZbwjgI0VjrSs=;
-	b=Z8qQZI/wnxpX/I/xd2ojXpgrNV45+/iBHyDxTV0TF1zedRb2ARjUmZv93wsUZBAjEbBxrS
-	DfMbTodP+x7CsL1aGdN2L/P6blvgj1jMZsGuiXFcYltHLmscza4G2eIf0iEfAUOnIKIdxb
-	0mtmCCW7kRnU+7GELRe/aw6qfo6apdw=
-Date: Wed, 28 Oct 2026 17:51:33 +0000
-Subject: Re: [PATCH net v2] vsock/bpf: release sock lock while waiting for
- data in recvmsg
-In-Reply-To: <179123556339.434549.8635789838298158117@kernel.org>
+	dkim=pass (2048-bit key, unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=FZiONIAZ
+Received: by mail-yw1-f179.google.com with SMTP id 00721157ae682-8b0a921ee46so12082017b3.2
+        for <virtualization@lists.linux.dev>; Wed, 28 Oct 2026 10:51:51 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1793209911; cv=none;
+        d=google.com; s=arc-20260327;
+        b=UZaaY6bgB+AqeYWlVeVHGkBwIKfCeD+g8T64Njb4w+Hgnh0hc9+c/OyER2LZbtt92R
+         k7nEWPG8bZoBJ5Ae4hscnAGmBWd/vqn+OeC26VQNnGYKs1b3+5KrhgRCBJVW5Epb/5gU
+         SFXykEznd/1G8ktLZRDf798ILqSGFDCxCKCTiWoHDy/4J27TjAaF2lmiIXPxQBILsC4f
+         Aswv+iydXVOyLuSTE2vdNgRUsyKHztZWkFbJKdH+XLJ3JRc8uio51Q7suFerW3UuV3mx
+         med7BaZB+Hf4E0Pz7oXuqUIB6SJbqLG8YdzGxkNhxwUwZgSewlc+2zzoUKQrNf18yCv1
+         1hBA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=mF/L3R2/oy06ccOwt7FWjRMyAPem26+3IHOwef8ICXY=;
+        fh=KsKfPlFTW7vUpRyjbXmnAzCUFeSnLcE1sJa2vsaaheU=;
+        b=S96KvwiiEFaX29SxzWkd+L+I8OYWrZkyZaKTUT68adMLM3g9uvT1EYlOJdkeEDEBT6
+         17d9yXIKe17Z61hL3QDc+gjZNioxlFZaGS71RRzIrWpYIY7kLN+nRnrDPYO450Z5EZvo
+         MSXTihMcIyY6w6XSpAwBMGZ3m74DJ56/aaVpmPadHGhmtZMh+CgA18n/L5eekpIluyaO
+         QXFcWZV0iqp1PLxfhwGcowfy5L4KCiQAQe3zTbE18SscC0WD3q6zpJ8ZEFgLWM+EvGt0
+         ea08FUsPaseottld9ZkebnnIR94jBdIuytZ/JPxHxH6/oNM32RIqcSPa9Twpx6mFaOP8
+         OzGQ==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20260707; t=1793209911; x=1793814711; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=mF/L3R2/oy06ccOwt7FWjRMyAPem26+3IHOwef8ICXY=;
+        b=FZiONIAZ4+fN7A/Asrz6IRtwKo57iXMqV5y2AGdZCoYNqDLv1ZDGddxJCF0W3ZbfFr
+         QUL0DNEIwuRRGg0yKlfLq8YM6eUQjyTFGj7hbcEmyE2XgXkSVBBtIMepun7VwbVhNC9t
+         dy9mThuenTmJUikN0sNIodpvMLinKxAlDJqvjRWblAVDbJsXdx2jwlLiRQk8MF9WfgZD
+         nLjexp4HKbIpQ+9ujAocmoa2JudmC20dRMWO262jo/N5fxWXkoTJr0jzgku9S379j3Pr
+         14pD8t8Zx6E2DdvRptlwDO2bTmpo9LM3WGCROPIYGlNBHct+1GoJf5/wXdMP9tBLPnyE
+         4MUQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793209911; x=1793814711;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=mF/L3R2/oy06ccOwt7FWjRMyAPem26+3IHOwef8ICXY=;
+        b=JxfA0f2rraLMlXijU61u8LzeS68+NUc2jd8MMgIK4fmCM4XKB7rzWSmVtZgXLM6Svk
+         ly7hjmiH+lJS0mHWFNDv/Pvla4PqqYlDfyxDnF3NM8dR/OpgoJuOMOdoWCweBqiNqBRU
+         +oUE94GuNK+jNi+5rtXuUeaJVbMOOePR/4dqCmE+0wswfSlK3/XkfXUpPZWd2va1kfAu
+         +UC3BDzqt/avzxJyVX5At6TateAyFpchMpYd2XxFEs4blEfaN141QuT/VQ1pYJxMeV1d
+         v9RStspB8Sw4Djsjv8mwssYP6k4T/R5GHOfIlkFRp3MMNbXrxiStWDcafEFpknp3TpxY
+         GaEQ==
+X-Forwarded-Encrypted: i=1; AKwUvBwM/4PTeBSlqOIbpjIjox7wc1oAjINbhPemB1wVU5B1rsoHV2rHUVqt7YTUWp1ogINBaBqpQUxU7gy7afvyig==@lists.linux.dev
+X-Gm-Message-State: AFq9FYIxDuMwBuKTnybvX1wW2oHYeHKxLzzSRnkm3T5NsbayOX6k4lAl
+	Ju08PlVX0dMfKils77qcncpLQEoDQTXbXVftCrtR0FCv8tYwHNQPL2xBJDsXhTy5hcfjr2h36bI
+	YCxNtSkFQuVXUoi1eBu20JV8Y6mOyAoIuQr695TGQ
+X-Gm-Gg: AYBFou30+z4lDmrmANsUIqZXegsC9c/iLhrHg/AGWmYpgbXfYsqvKJ8nhZac5JM1dNF
+	mWFESGCT7oxPJCU5KuNacGASVAV298dYLXSGZlpBsyIQVm4DoEbYBaZ5cXOFYN7db4ZwM4h271E
+	p6F/KPBHMZH0wwAYMehKlrIq7VdEP5qTc6ZbDknnVhCK1COmdpOSDMuTr8ZKpx5no73/PJsGRcy
+	tk8/Fnaor7dv5Pqa2bZWDTIUqkpKeMrK5JxTBYmIY7vo1XG57O8kmfoI+ildOyMXEAGVrGq3P16
+	2FYjNxRJ/MWPzlEhN23gKw/m8ID8hYUJZueVZ7021kGgF+sG/lBmw59oSNT2HHO3nz8wdAAI9/1
+	+725xsSUGkpWUKBL93V5HQsD+k1XWqNtoJ9rkn5SqKp6zEVCJ2L35P3Dkm7SJIOJuYQ==
+X-Received: by 2002:a05:690c:c512:b0:89a:63da:fa8f with SMTP id
+ 00721157ae682-8b1b5d5b9a8mr19678387b3.74.1793209910194; Wed, 28 Oct 2026
+ 10:51:50 -0700 (PDT)
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -64,66 +104,132 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+References: <20261027025616.1632690-1-kevinloughlin@google.com>
+ <20261027051245-mutt-send-email-mst@kernel.org> <20261027163814-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20261027163814-mutt-send-email-mst@kernel.org>
+From: Kevin Loughlin <kevinloughlin@google.com>
+Date: Wed, 28 Oct 2026 10:51:39 -0700
+X-Gm-Features: AclHuK9-u99s7D6HT09CfAyO9Ftn7vr_iH3z9UIt21N8WRT_BYsbqycnLIpHOb4
+Message-ID: <CAGdbjm+f+b8bMBFMdqXavXx79NSnXzDFeJRUxZdEox_+dKV6tw@mail.gmail.com>
+Subject: Re: [PATCH 00/13] virtio_balloon, efi/unaccepted: support memory
+ ballooning and free page reporting in CoCo guests
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: David Hildenbrand <david@kernel.org>, Jason Wang <jasowangio@gmail.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Ard Biesheuvel <ardb@kernel.org>, 
+	Kiryl Shutsemau <kas@kernel.org>, Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
+	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
+	"H. Peter Anvin" <hpa@zytor.com>, Tom Lendacky <thomas.lendacky@amd.com>, 
+	Ashish Kalra <ashish.kalra@amd.com>, Michael Roth <michael.roth@amd.com>, 
+	Rick Edgecombe <rick.p.edgecombe@intel.com>, Andrew Morton <akpm@linux-foundation.org>, 
+	Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
+	Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, 
+	Brendan Jackman <brendan.jackman@linux.dev>, Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>, 
+	Alexander Duyck <alexanderduyck@fb.com>, virtualization@lists.linux.dev, 
+	linux-coco@lists.linux.dev, linux-efi@vger.kernel.org, linux-mm@kvack.org, 
+	linux-kernel@vger.kernel.org, Sidharth Telang <sidtelang@google.com>, 
+	Punit Salian <psalian@google.com>, Peter Gonda <pgonda@google.com>, 
+	Ackerley Tng <ackerleytng@google.com>, Jacky Li <jackyli@google.com>, 
+	Steve Rutherford <srutherford@google.com>, David Skidmore <davidskidmore@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-From: jrmmhm.kernel@eldare.de
-To: netdev-bot+sashiko@kernel.org
-Cc: Stefano Garzarella <sgarzare@redhat.com>,"David S. Miller"
- <davem@davemloft.net>,Eric Dumazet <edumazet@kernel.org>,Jakub Kicinski
- <kuba@kernel.org>,Paolo Abeni <pabeni@redhat.com>,Simon Horman
- <horms@kernel.org>,"Michael S. Tsirkin"
- <mst@redhat.com>,virtualization@lists.linux.dev,netdev@vger.kernel.org,linux-kernel@vger.kernel.org,bpf@vger.kernel.org,Michal
- Luczaj <mhal@rbox.co>,stable@vger.kernel.org,Bobby Eshleman
- <bobbyeshleman@meta.com>
-Message-ID: <179320990081.11.17283545588831385663.1728119957@eldare.de>
-References: <20261001-kbh3-1-022-fix-v2-v1-1-cfae958a1976@eldare.de>
- <179123556339.434549.8635789838298158117@kernel.org>
-X-SimpleLogin-Type: Reply
-X-SimpleLogin-EmailLog-ID: 1728119960
-X-SimpleLogin-Want-Signing: yes
 
-On Mon, 05 Oct 2026 21:26:03 +0000, netdev-bot+sashiko@kernel.org wrote:
-> [Severity: Medium]
-> Can this loop sleep forever on a connection that has already been reset?
-[...]
-> Should the loop also check sk->sk_state and SOCK_DONE, so that case still
-> works after the error has been read?
+On Tue, Oct 27, 2026 at 1:39=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
+ wrote:
+>
+> On Tue, Oct 27, 2026 at 06:29:35AM -0400, Michael S. Tsirkin wrote:
+> > On Tue, Oct 27, 2026 at 02:56:03AM +0000, Kevin Loughlin wrote:
+> > > This series enables virtio-balloon free page reporting and memory bal=
+loon
+> > > inflation/deflation in Confidential Computing (CoCo) guests, starting
+> > > with architectural hooks implemented for AMD SEV variants, in order t=
+o
+> > > support dynamic CoCo guest resizing.
+> > >
+> > > Today, memory ballooning and free page reporting are essentially unus=
+able
+> > > in CoCo guests due to three main roadblocks:
+> >
+> >
+> > For me, the bigger question is not whether we can, but whether we
+> > should. Considerations I would like to see addressed:
 
-Yes. I reproduced it by unbinding the guest's virtio-vsock device under an
-established sockmap'd connection: after getsockopt(SO_ERROR), recv() waited
-for the whole SO_RCVTIMEO and returned -EAGAIN, while a socket outside the
-sockmap returned -ENOTCONN at once. v3 ends the wait once the socket is no
-longer TCP_ESTABLISHED, with 0 if SOCK_DONE is set and -ENOTCONN otherwise,
-as __vsock_connectible_recvmsg() does.
+Thanks for raising these. I will address all of them in more detail if
+I send a v2, but here are a few shorter thoughts that I'd love your
+input on. For brevity, I will ignore the inflate/deflate case for
+CoCo, since I'm planning to drop that, and just focus on free page
+reporting...
 
-> [Severity: Low]
-> Should MSG_OOB be rejected here as well, next to MSG_ERRQUEUE?
-[...]
-> Rejecting MSG_OOB next to the new MSG_ERRQUEUE check would fix both
-> cases.
+> > Security, e.g.: does knowing which memory is free leak information from
+> > the guest? If no, why not?
+> > Consider CONFIG_SHUFFLE_PAGE_ALLOCATOR, RANDSTRUCT, etc.
 
-Agreed, both cases reproduce. v3 rejects MSG_OOB with -EOPNOTSUPP before
-the len =3D=3D 0 check, as unix_bpf_recvmsg() does, so it neither returns 0
-nor consumes ordinary bytes.
+I think the min order we'd support for CoCo free page reporting is 2
+MB (and tbh we might do 4 MB only for reasons I will mention in my
+reply to David's comments in a bit here). On that note, I 100% agree
+there would be some new direct leakage of "which 2MB or 4 MB regions
+are recently-freed or recently re-used inside the guest", which may
+present some side channels to infer other information.
 
-> [Severity: High]
-> This isn't a bug introduced by this patch, but the patch rewrites the cod=
-e
-> around it. Can a blocking recv() hang here while data is waiting in
-> psock->ingress_msg?
-[...]
-> Should this fallback also take psock->ingress_skb into account?
+Some related channels are already open in CoCo and don't seem to be
+signficantly worsened at first glance (ex: for
+CONFIG_SHUTTLE_PAGE_ALLOCATOR, the hypervisor can already induce
+faults on any GPA at 4 KB granularity). However, there is of course
+strictly-more information leaked by adding CoCo free page reporting.
+My hope is that the coarseness is a reasonable tradeoff for some
+guests, but I will follow up in more detail.
 
-I agree with the analysis (from reading the code; I have not reproduced
-it): vsock_has_data() counts psock->ingress_skb while
-sk_psock_queue_empty() looks only at ingress_msg, so data that is still on
-ingress_skb sends the reader to the native path, which never looks at the
-psock queues. It predates this series. The loop adds one more way into the
-same window, but the fix belongs in the fallback condition, so I'll send
-it as a separate patch.
+Aside: now that I'm looking at it, I think some aspects of upstream
+page shuffling logic might actually skip the unaccepted pages even
+today, so perhaps we should change this regardless of this series. I
+admittedly don't have as much context here right now.
 
-v3 also splits the change into two patches, following Michal's remark on
-v2; it will go out as a new thread.
+> > correctness, e.g.:  Linux has init on free (and default on windows), if
+> > initialized pages are dropped and host can not be trusted, they have to=
+ be
+> > re-initialized. Is this handled? I don't see it in code.
+> >
+> > Also, performance, e.g.: How much does this re-initialization cost?
 
-pw-bot: cr
+I think the existing accept_page() logic (which would re-run if we
+fault a reported page back in) is wired up to
+free_pages_prepare_init(), so I didn't introduce anything new here.
+However, I'll verify this and call it out either way if there's a v2
+of this series.
 
+> >
+> > Management: it was simple with balloon off unconditionally.
+> > Now we are in murkier waters with various features offering
+> > various performance/security tradeoffs.
+> > What if some guests want the tradeoffs but others don't?
+> >
+> > Documentation: for all of the above.
+
+100% agreed. I lean towards an opt-in policy for CoCo free page
+reporting (ex: via guest kernel command line, which could be attested
+as part of guest boot as one way to verify the setting matches
+expectations), but please let me know if you have other thoughts.
+
+> And to give this a bit more perspective, I present:
+>
+> commit ab676b7d6fbf4b294bf198fb27ade5b0e865c7ce
+> Author: Kiryl Shutsemau <kas@kernel.org>
+> Date:   Mon Mar 9 23:11:12 2015 +0200
+>
+>     pagemap: do not leak physical addresses to non-privileged userspace
+>
+>     As pointed by recent post[1] on exploiting DRAM physical imperfection=
+,
+>     /proc/PID/pagemap exposes sensitive information which can be used to =
+do
+>     attacks.
+ [...]
+> Leaking phys addresses to unpriveleged entities might not be wise.
+
+Yeah, while the host already controls GPA -> HPA mappings, the free
+page reporting would indeed likely give finer-grained timing control
+of what 2 MB or 4 MB GPA regions map to which HPAs. So yes, another
+potential case for "let's only support this if CoCo guest opts-in."
+WDYT?
+
+Thank you for taking the time to review, Michael!
