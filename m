@@ -1,102 +1,101 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793200687;
-	b=C3pn+yrU+YJv6UrOjuWsSVQyrafcl5pFuUOXvGj5FgwbmeaU3ZpPv9W+rNiEEr8+Xw+K
-	 xq1IvRLetrkORz9rDPbYeAL/bqDldIRTs/B57kT0kwSnGesPPdjQfCMbazuMx6Cq0FXmo
-	 t+oGeli3qUDOgdzdTS9580esi/R5j7UudIvSGCaLOzobarhL6e6YVgk5FKvAiYX3TT1gL
-	 XTly/cozhMx/jWpsp3BoEMI31peV4DI4M2M5BsiVpe/zJJG/TDQl4ot3d6cPghs+pngVf
-	 kWuIjPMgtnEOkO0Kllv/WDoRrfZ8R/a0V7RIpP8CZsMkV4LbdX/Cu1VY0osB80jRX5A==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793200687;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.218.50
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1793201943;
+	b=E23j1CO04pgVMgEk1rgZcdE+9Fx3vDUABMEA1zZ77KyFLJaCQjJu63//Skc5yT2iMki7
+	 obPG7uWV3d2fRnGJyugBDzaSjfUdWD1hv5wsyWjn+5ho5qoEIX8JiUCS8LZBFVaxmFv1z
+	 NKiGX3D5r39UoO6wMHOjX3CGS3TeAdxIUHaOwNpszcvfYv9s8EHtdGCOMdgS1IiRmKMVX
+	 tnmaxaNhaCLrwjz4X2nApxSvcsAYmeD6KyVJGLGnzMcOIszky69jRkAwKZJU0iCoFQFsV
+	 un/BYX+r3grdJ+2l5bgGlqdeQQXc2zFcdx8bc30QvxeT4Fuobit06SwrB6DKJ7KGUVg==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793201943;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
-	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
-	 X-Mimecast-Originator:Content-Type:Content-Disposition;
-	bh=ufMEsT+0UZj2JmdW++38V5jHMZ2SmFc52c/mrSsLj0A=;
-	b=38vRuBHFfAoPHAnA4J4FCKRVsQ+6Rw/m979oOHP6C0AFAXSxHkNdMYKHQp4bODgYF9ly
-	 8IqSxXsEEGy980+DAgu/AxTD6qNGRgJjLgP6I/kV2uyJ/g41j0VUHqQc8rnVKAd3Ehjmk
-	 8yzQJe+NEwqAyoaDctww5tdSZxnkOHxkZTppMK2doBhj9F88q5TexaaQHOy7MrrASgGYF
-	 2waooP3lYnC2KhfWifWBQNuKKcVNqfep2MgwNx6sDtIhLJdhSdcgszMfVGTOTFx4MiDvw
-	 t2PFPNdI1PyL9V+t6BGNcg1IvmgZWBwdpwBGttDUE/DRdfIg6CjbEj1QDkiFAXcR1QQ==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b="dYZvX/T/";
-	arc=none smtp.remote-ip=170.10.129.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=y7xxxnWLJ3cqzVXeSgOYrxm108qFnX6tdnhI16mhQOo=;
+	b=IYgzjyxzkIlTkRRvvO4i847WpihoA/hA0qza7atJskwAOS8yLB+J4CBF95RYBOr5MAqO
+	 n/o+F+rufBHFSvjUaeMHgzFgFYm+tM06upWr6/kW6z0jx+bydbQNnmckGSiq0/TmE/+Im
+	 lzyBO5yM4gHuyAECxoPK2/jS2b44mbQO9qCHdiJR+vgql1Uf/KqFT+t3580EmRgM0d5R8
+	 wfh37W4/gDmhQd60VhPGjOH+gsfoHdldEJ5/wIC5EAVTroo5aZwvsZpoDSL4Ogd1C4w7X
+	 nCbVRBOpCg4OCwQr6UScnnmKjTe95f4yNk25F5S4ZAoQZmOzvbd240OrnS98tpQIRFA==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=google.com;
+	spf=pass smtp.mailfrom=google.com;
+	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b="mm2UsPy/";
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.218.50
+Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53440606A31A
-	for <virtualization@lists.linux.dev>; Wed, 28 Oct 2026 15:18:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 53440606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D3B7606A322
+	for <virtualization@lists.linux.dev>; Wed, 28 Oct 2026 15:39:03 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6D3B7606A322
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=dYZvX/T/
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1793200686;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ufMEsT+0UZj2JmdW++38V5jHMZ2SmFc52c/mrSsLj0A=;
-	b=dYZvX/T/WJ1tNIMkwC6cjo79Y8Um9pwbDGrnB77nmxz2oarNSXZd8DWQggk5L9Y+UyLj4+
-	tHYJX3hcvPLz2csGU3Csz/avmzHXz7T3D+8xQ3ryFdNob2RHr7jkewVKzX6hXTVKQkYvjE
-	igdBR3rXEn+MB7jrPWFkVakQeDXz+dE=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-593-Qo1Q_auAOXK28rtC4CYK9g-1; Wed, 28 Oct 2026 11:18:02 -0400
-X-MC-Unique: Qo1Q_auAOXK28rtC4CYK9g-1
-X-Mimecast-MFC-AGG-ID: Qo1Q_auAOXK28rtC4CYK9g_1793200682
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4a77c1cbd15so10193495e9.0
-        for <virtualization@lists.linux.dev>; Wed, 28 Oct 2026 08:18:02 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=mm2UsPy/
+Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-c423b145922so156941566b.3
+        for <virtualization@lists.linux.dev>; Wed, 28 Oct 2026 08:39:03 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1793201942; cv=none;
+        d=google.com; s=arc-20260327;
+        b=kR/UBZcDCAKVOKsCJMIxtbZ2nLe+haZRCZ3A/6L0Y6MskwWPgznw0c+BjnPHlTuWLS
+         XUDzQ+PcqIo8AHxNmMWmL84XL+wF4tYsMVEVczVOn2JQ2+O7KXgdZFpjbSFkNnyQKLQF
+         e8oWzJn76IHq6YK9Jfk3Hvvy/z9FbEw5+HdgVmPk/Sdrz9iJtg6UzKgREyrEtsxOkE1j
+         Y8cfXJui9pLwMjg/oX9esXJcz3m60hN1hk7fr/i0+JyPDfLaJqmQRJGKgA6hAavV9zkT
+         sPjzYrv1LlPgxk+UdgEqiVmqTPbgZEZU5D+f+7pwhILsDqy4Ab5V0+cM/dn0YEmOImFp
+         T1rA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=y7xxxnWLJ3cqzVXeSgOYrxm108qFnX6tdnhI16mhQOo=;
+        fh=/sZpQwejFN1wnz7zUC1kBH9OgvPkj7geMlDTppovAME=;
+        b=pB2q16uGRCnbJGiXEMSXhuOBYIxkz+bQ3/hgQ7CEaMrGqfDtqAtYvwQSDInzpdhIlL
+         pgd/gk75QSY+zxPnXdDaIwy+dMFflyjkMpUfdx/PsELPqAHUQPVuu279cbTa1KjudBFY
+         AqgSeWAm4PVWwvmMsIL31Nmu+/+ZyfUjjA0zhBRD+1BqQCDDnrx1P0eIP/r98pOaHRsE
+         coyuqekf6KBw3bxGyYaIhOZesVYly3BJcXrF3v3juNXznrwGRP1xXNzR6dLv3NlJsqMz
+         lhVZ3MsMPRvmEUM8mZMx8TjxbJMz9GxaxYuYB/Kyfh/aZ0RxcxCMb2PAM8EGykX/bVDW
+         LSZA==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20260707; t=1793201942; x=1793806742; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=y7xxxnWLJ3cqzVXeSgOYrxm108qFnX6tdnhI16mhQOo=;
+        b=mm2UsPy/mJZlIQL3sSkrRr+szECnLzXTTLxGjgzqwmprXWZk3NV0T5K2RHzBa5m8TW
+         6qlUGaHLLpZ5DVcy4lJJ7UNo5eCFd1q0a/SNvtMwdEV9yck6SmEXsrWy2geG2KdX7ukw
+         U/yZ+KfKBoHIaS8knH/ky8LN0YI3ORv0CU0dN8Pi1crxM3XexOGjbWderpU1EbHz84eK
+         u3pr93D0L3pQ2el/5M9bHbEIAMJmKIu7Ik2+vl3GwveJwdQMPZqHqOSjd26glq9sijRH
+         tfu2RhwsJg4ePYsIRxqpGUzvAlEejvSlyKAoIezSDCWv10YiOlyt/b3XbB7/47RsVyyP
+         qVgw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793200682; x=1793805482;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
+        d=1e100.net; s=20260707; t=1793201942; x=1793806742;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=ufMEsT+0UZj2JmdW++38V5jHMZ2SmFc52c/mrSsLj0A=;
-        b=Q5HubrLjfm4qFh/VcCuvmo0v0sBoeWNrBInmEpk+UBZxRMwjSeeBRfxeFWPgc48Vuw
-         yJH4Ia4+xQB2v8h5QHS05H2cbaKyKM+qS/4cSymJ7cxpIzf+mZJvzrjSxz5JWQrehAp8
-         V5L5NWlPxdqrEOFRm1ZLPE6HVksDAyBskD5I6uIMS+0mMqlYcsO2eyokkM2AKhuXGC5V
-         KwpLBQ5lX5Qnd/y8lwzDUjFZf9O79WwHULIAA14z1shOKlEE1d2xU7KnCwfYo6h7ybty
-         mx7MqLzvfUKFsGc9pup/OwPkXcYD9Oi0KT2W+hQKGMZ1aFWImhgcYL9yTTzoNr/ddl3S
-         185A==
-X-Forwarded-Encrypted: i=1; AKwUvBxnnRY8ZEVcgu+iPhGqLtv09+ZrIM+/73IavH6Nsp2PlhbNj4yYg3kpHGa/74xKWVNAJHaRbpcB9ohVPFMLwg==@lists.linux.dev
-X-Gm-Message-State: AFq9FYJ+lQPKXejS+yiYlLSxeyZDdwQwxsItuaqfxW+bgmi1NLodYPmE
-	obii89/J7Z+m805jbFgYFaXvq4bqZ04q+ROsXDwcshPSMHSwA690hWtyfe1V+d+jQPrsXbWFmzB
-	AHUZXRnWHZmuVQg2OMDexBBQZyD6TZQbLib0asQvVIASetSSWRuf9l2Fth6TcwuEPN2hn
-X-Gm-Gg: AYBFou19peHoV4XYBrjV90tAfNVAQWThzVMafpalyH4VsIF1F4dwFfaBrzGqBE1F6yi
-	k5KsDUUY0mqcB1SSXXWrFqSlw/6DaeDaIa+IewuW+1j7CJAHcM6UqbDOvmcD9NyGMnz2cNoI9FF
-	nn6x7ZEGBg/ejm93/MTpqnKPuoyUpjZHCLOm8GPiDrqWyWqH3I7QMhCy9sUmH2sUBv01wZ61VLT
-	L2IPg9d1Nmi2u7lM1gQ3rJfIxZ4Z8V/VzjP9+oO9VGEjeMpUovtGOY6qMX6glsEiDhmxjRjXJfW
-	odcu1LvoQ+GsKd/xwUZJFoWHJ+rf8wr7C7R7IWIawP6PDBNoAEzr7YWnbXKC1EL8KQU/rB0OzE8
-	jmGBSv57zVtqbYT2kGnwiMJRSHG/q/PGvmVhzxd/j
-X-Received: by 2002:a05:600c:3516:b0:4a8:cb23:f71b with SMTP id 5b1f17b1804b1-4a966c4175cmr58229865e9.18.1793200681570;
-        Wed, 28 Oct 2026 08:18:01 -0700 (PDT)
-X-Received: by 2002:a05:600c:3516:b0:4a8:cb23:f71b with SMTP id 5b1f17b1804b1-4a966c4175cmr58228755e9.18.1793200680906;
-        Wed, 28 Oct 2026 08:18:00 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1536:fc00:b838:383:1c7:6e81])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a97c9f1403sm56168915e9.9.2026.10.28.08.17.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Oct 2026 08:18:00 -0700 (PDT)
-Date: Wed, 28 Oct 2026 11:17:58 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Dragos Tatulea <dtatulea@nvidia.com>
-Cc: "eperezma@redhat.com" <eperezma@redhat.com>,
-	Linfeng Sun <linfeng.sun.dev@gmail.com>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	Jason Wang <jasowangio@gmail.com>
-Subject: Re: [REGRESSION] vhost_iotlb: bound map allocation in add_range
- breaks vhost-vdpa on hosts with fragmented memory
-Message-ID: <20261028110041-mutt-send-email-mst@kernel.org>
-References: <0f51918f-88c9-4930-ae5a-616bbe73e7cb@nvidia.com>
- <20261028085839-mutt-send-email-mst@kernel.org>
- <808a6e4e-085d-4723-9489-f17f023949c0@nvidia.com>
+        bh=y7xxxnWLJ3cqzVXeSgOYrxm108qFnX6tdnhI16mhQOo=;
+        b=uCgMTjmwQ6y4AOtp9ZVwgBiKssDXzhFGmJpRdDJWuE7C7262LosPRBVZQUVEnmdA4I
+         LGK7Wm0QdWfEZtj138VUCS6NKM8OT1U/YGnlzTXT+nagkPKrcopcoxMhRzMQ2M++wSp5
+         CQz2q/VqxBwgcXQTMpRsJnDXZ6aVSqdFUfqv6X+vVigusb3l0QcBE6eG9ICfSeHs0BX4
+         is/6ZahYLXsxnT9kGa76AkRZJiCaebur/LAJDzz9IWVNRnwaH8MghVg6Q6AeXeclcwdX
+         GW0SKz9Ws1s+e4ZW8pCHyBzOLCeqDaauQpHVJ3dCi29e7Mpo2D/fO4JV5NatGMlepJLg
+         vxPg==
+X-Forwarded-Encrypted: i=1; AKwUvByjJbCmu8QKwoIxayBpLfMIsOXVL6/SOH8Nih8oCa5asZgvtvzNF/Yo58pFnK6bIi29j+JgUUnIg1nCLjPMCA==@lists.linux.dev
+X-Gm-Message-State: AFq9FYJ7Z/b2eZsOhqAwqKiWf/sn+WUTlNfS8E32YH+ggVIphisQ2XqP
+	VNQp/rOQ91QsmeChGPHoW9XaQ00cnVzNPb2KqbaYkT7nLLfFoO6EAPyoOkElFvqeS2EJO/rQs9V
+	ZY8+O6gBonBQh46B6KzUh3tgRNSAltD9LIJP9GrA6
+X-Gm-Gg: AYBFou1iFqEdK5/nMQCwYnHU+6epSCslT2CEgPt7wzfb4XV1eSYqQEh6hp78o+fJI3N
+	+AoBkRhX3z/tF4rZVgsm+r11qXmGWPU/AiT12QW5n1xJMFrvzd4wjVHPIFbxEgpePwpfCiAMzWT
+	zeTSmxNl4dT6dGfZM+Uh7+ishS67EOIm0DTBWMQV/DPegIqxYc9k1tA4kFkL7ppJN5f7vRiDr/a
+	2wh8Q6PPUcg4VYywcVLhH+jch/XqCFuC+Jp69CTV6MF8EnQkD0kKQT4LQb3PjF75he2h5BcUHvL
+	hVRSmuKHx7BWzeQZoW1Ek9S6+6ZNeRcUc+f8zh+rQVFbxQl2jpBAXh0K70kCoMFUqkONcLSeQxt
+	6dXTpcBu75wxjaNWyA9fo9wx3O2dQp7DMtIRqsgfT76wj17++lsqDQ+NjuGNlav7HtsxYpIOY3Y
+	Fyai+WiBy+z3A=
+X-Received: by 2002:a17:907:d308:b0:c3f:7ab8:bef1 with SMTP id
+ a640c23a62f3a-c49bdf2f80cmr259829766b.34.1793201941132; Wed, 28 Oct 2026
+ 08:39:01 -0700 (PDT)
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -106,78 +105,60 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-In-Reply-To: <808a6e4e-085d-4723-9489-f17f023949c0@nvidia.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: yzBjUZAGO_VEyqy_W8D3_2qYqHB6fff1KoQV0RJbkYo_1793200682
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+References: <20261027025616.1632690-1-kevinloughlin@google.com>
+ <20261027025616.1632690-2-kevinloughlin@google.com> <20261027053843-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20261027053843-mutt-send-email-mst@kernel.org>
+From: Kevin Loughlin <kevinloughlin@google.com>
+Date: Wed, 28 Oct 2026 08:38:46 -0700
+X-Gm-Features: AclHuK-vBr-9NFy3pcmA7HqGTQSybdCjlTCvxPcN7DJFBT-excWUi_DEsSkfHKE
+Message-ID: <CAGdbjmK_vbmxX5Dti9+RwEiWkxQDHz+Dg9ToNnyEd_z-2ncdPQ@mail.gmail.com>
+Subject: Re: [PATCH 01/13] virtio_ring: support per-virtqueue DMA mapping ops
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: David Hildenbrand <david@kernel.org>, Jason Wang <jasowangio@gmail.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Ard Biesheuvel <ardb@kernel.org>, 
+	Kiryl Shutsemau <kas@kernel.org>, Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
+	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
+	"H. Peter Anvin" <hpa@zytor.com>, Tom Lendacky <thomas.lendacky@amd.com>, 
+	Ashish Kalra <ashish.kalra@amd.com>, Michael Roth <michael.roth@amd.com>, 
+	Rick Edgecombe <rick.p.edgecombe@intel.com>, Andrew Morton <akpm@linux-foundation.org>, 
+	Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
+	Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, 
+	Brendan Jackman <brendan.jackman@linux.dev>, Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>, 
+	Alexander Duyck <alexanderduyck@fb.com>, virtualization@lists.linux.dev, 
+	linux-coco@lists.linux.dev, linux-efi@vger.kernel.org, linux-mm@kvack.org, 
+	linux-kernel@vger.kernel.org, Sidharth Telang <sidtelang@google.com>, 
+	Punit Salian <psalian@google.com>, Peter Gonda <pgonda@google.com>, 
+	Ackerley Tng <ackerleytng@google.com>, Jacky Li <jackyli@google.com>, 
+	Steve Rutherford <srutherford@google.com>, David Skidmore <davidskidmore@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Oct 28, 2026 at 03:46:05PM +0100, Dragos Tatulea wrote:
-> On 28.10.26 14:05, Michael S. Tsirkin wrote:
-> > On Wed, Oct 28, 2026 at 01:44:30PM +0100, Dragos Tatulea wrote:
-> >> Hi,
-> >>
-> >> We've started seeing regressions for a while in our verification CI for
-> >> vDPA Live Migration tests. Occasionally the FW returns a syndrome
-> >> related to invalid mappings during device reset.
-> >>
-> >> We've narrowed this down to commit 1ed35ac7f3fe "vhost_iotlb: bound map
-> >> allocation in add_range" which limits the iotlbs to 2K by default. On a
-> >> host with fragmented memory you can get easily more than 2K entries.
-> >> This results in truncated/incomplete iotlbs mapped to the device and when
-> >> the rings happen to be outside of the first 2K mappings the FW will complain
-> >> because it got addresses that are not mapped.
-> >>
-> >> I'm not sure how to fix this though:
-> >>
-> >> - LLM suggests setting the 2K limit only in VA mode and using 0 as
-> >>   before in PA mode because PA mode is limited anyway. Does this
-> >>   work?
-> > 
-> > Well no, we do need the limit in PA mode I think.
-> > 
-> > But we should maybe  bound from what's actually being mapped rather than
-> > a fixed count. e.g. X entries per pinned page?
-> You could have many 1 PAGE_SIZE mappings though. It wouldn't help
-> then.
+On Tue, Oct 27, 2026 at 2:42=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com>=
+ wrote:
+>
+> On Tue, Oct 27, 2026 at 02:56:04AM +0000, Kevin Loughlin wrote:
+> > Allow individual virtqueues to override the device-wide DMA mapping
+> > operations via virtqueue_set_map_ops(). When custom per-virtqueue
+> > mapping operations are configured, vring_map_one_sg(), vring_unmap_one(=
+),
+> > vring_mapping_error(), and the DMA sync helpers dispatch through
+> > vq->map_ops instead of the parent virtio_device DMA API path.
+> >
+> > Replace vring_map_single() with vring_map_indirect() and
+> > vring_unmap_indirect() using the device-level mapping path (vdev->map
+> > or dma_map_page_attrs()) so that indirect descriptor tables continue to
+> > be DMA-mapped for host VMM access even when a virtqueue overrides buffe=
+r
+> > mapping via vq->map_ops.
+> >
+> > Signed-off-by: Kevin Loughlin <kevinloughlin@google.com>
+>
+> Please, don't. The automatic mappings inside virtio core are there
+> to keep simple things, simple.
+>
+> Everyone doing something funky with mappings should use the premapped API=
+.
 
-it still mostly is 1 entry=1 pinned page
-
-sharing is possible but uncommon
-
-> > Bounding by bytes instead of entry count is another option.How to get this limit from userspace though? Would RLIMIT_MEMLOCK
-> be an option? Although `ulimit -l unlimited` would need to be
-> capped to some value...
-
-guest ram no?
-
-> 
-> Also, if the entry limit is still there some kind of precedence between
-> memory and entry limit needs to be decided.
-
-I'd steal a page from rlimit then use that for the entries, when out of
-that - steal another page.
-
-> 
-> > Also 0 is now rejected.
-> > 
-> > 
-> > 
-> >> - Can we detect this and reject the device / stop the device at boot time?
-> >>   Probably not as this doesn't cover Live Migration.
-> > 
-> > Exactly. Besides, failure is not at boot.
-> > 
-> >>
-> >> Any thoughts?
-> > 
-> > Does boosting max_iotlb_entries help?
-> > vhost_vdpa.max_iotlb_entries=65536? Or sized to guest RAM?
-> If set as module paramer? Yes, it works. But the user should see some
-> kind of error to know that something is off. Otherwise things will start
-> failing silently and randomly...
-> 
-> Thanks,
-> Dragos
-
+Thanks for suggesting. I will use the premapped API if I end up sending a v=
+2.
