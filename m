@@ -1,95 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.175
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=65.109.113.108
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793163204;
-	b=O6OgL1R2Wylm9WTQpNtfp2aJHlUsAp95WpBJq/WbLTciWWpcXUqBRx1JLWuhnBHBE/Il
-	 GjPxmxExrU/qJmoJQD/mNYQNX72Mdkx5sb9+VJSxR68pGcVLhPiHMwBl0O947A7YVA/nd
-	 /dmNo2bHtuorz+NN81rIFaeQjOMJW3TYgUXpPdiPsVvMzaUrKEgnny9NZN8zB9VUMRVyx
-	 R+rJ38Mrr8ay/K7ZImRPEvZA8jnr0nxqbnF6wjdOHAAgrUkS8jlu4bTsnSpYeQFR6AHk3
-	 G6fKONy+dHpEcbU8g37y/GcWgZTX8QgS8gf4/LMEqpDzMAmwOs2ZVhL2mD6PhFu5FAA==
+	t=1793167273;
+	b=3oqmboT8GXyOtTAWQmK+unuG7Ume/aFvt7G7mMPzNQcAz8+1fVZuI9dkvjxf2I8SGVnP
+	 k9NbmfYd6Dj6aZcFnHVq3sMBiLaloUEEyXEaXgA3o4dAgCnASHdRITy8aF1jj+4okCdAA
+	 A1GKhWhumVcElmV1qeuc7U3auLlLSXQaf/qMWzna8nv5jasOeRkypdy/g3d0V38BAkktw
+	 NcRocQsuxvfgdR4+yO0Pb7HTqE4jH85NQkcAUx7ZiQfk4W8QZQa8cjd2068U71ss67YtI
+	 4Zb/GNWq/hRdiiR0rhPDl75vtFaz0cE4LiFRdNLu69INVPmRU7krW4MpoUgkxO69cLg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793163204;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	a=rsa-sha256; c=relaxed/relaxed; t=1793167273;
+	h=DMARC-Filter:Received:X-Virus-Scanned:Received:DKIM-Signature:
+	 Received:Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
 	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=iMvg9EuHuu+x9NUwMZWsnJGwMCIhGiOL6i2k5eUcGIU=;
-	b=kECjLyVrDlQ/6PrghG/oImZ8Ftvsiho1IBeKpjSPNAmL2pYVsPqPaGhn619W1k3KRHFm
-	 EnzedIHd/103y1j1RyJfAmbF36jH7xEUiNb0OzNz3QA2brXii7dToatTt+ovmjowYTsU7
-	 gfQ+heOFPSJN6DrBpiRbdZpw8z4my/7nv1WyCmGMHYbJtGulack9/Mjg91ZJmQLsqj/pP
-	 9Pm9M8pyvW336sYgihMm9COiNenjywuzfhCrRGGfm+E3MyQNfMKPmz138Zlht8Lnu+UrR
-	 ybBGkrygZZ3gRMnTnHW9sUr393M0n4GuAlO+ioyI3duChy5byNMn5qqoTyuLStd4QqA==
+	bh=StQGvmW5dHLeZF+Vv+JIk9DEZOtfvNHFy4b+UUnTT8E=;
+	b=ACrmVkuMvt1hSiD/CrcoYGvRfSikv2d80QFS3Be3MGxuADY1Trr+8YYPX8AH9luEj+uC
+	 40FXfqqZztuZ4rRUM4z5w/5oe2ZEV7bNRGcevnwAmkV6+tDjZH+SJOaXWYWoGZznrhO61
+	 CvPAg89ftoymRo4LoGmoVDggTpsklyzPiSv6czn593gkPW5fViOaeAHPtFKskKgX+Jfr2
+	 SGlOU6T8FNM/5Lc7Xs9ALm/qDn4YEFDQlefgni0OB0nN64XCnBGCAiyE2gRsBH1MH17jo
+	 f2cVw+/KSsOifSObBeVojaZe5k49vXdydq/JPbysK48baPsN+bI0Kp5seM3ZFHt3jxg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linaro.org;
-	spf=pass smtp.mailfrom=linaro.org;
-	dkim=pass header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=fmWLLAZN;
-	arc=none smtp.remote-ip=74.125.82.175
-Received: from mail-dy1-f175.google.com (mail-dy1-f175.google.com [74.125.82.175])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=alien8.de;
+	spf=pass smtp.mailfrom=alien8.de;
+	dkim=pass header.d=alien8.de header.i=@alien8.de header.a=rsa-sha256 header.s=alien8 header.b=Da4zzXf3;
+	arc=none smtp.remote-ip=65.109.113.108
+Received: from mail.alien8.de (mail.alien8.de [65.109.113.108])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F781606A31D
-	for <virtualization@lists.linux.dev>; Wed, 28 Oct 2026 04:53:23 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5F781606A31D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84FA5606A321;
+	Wed, 28 Oct 2026 06:01:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 84FA5606A321
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alien8.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=fmWLLAZN
-Received: by mail-dy1-f175.google.com with SMTP id 5a478bee46e88-35829219da8so2159493eec.0
-        for <virtualization@lists.linux.dev>; Tue, 27 Oct 2026 21:53:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1793163202; x=1793768002; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=iMvg9EuHuu+x9NUwMZWsnJGwMCIhGiOL6i2k5eUcGIU=;
-        b=fmWLLAZNyxyM+QuYFagtUkVa2ZyTmEMZrGbKZL1ZYtDzvtaF24WF1DKSfEKFhRTMPi
-         clF97+AyrcCRgN+WcaeyCqB/OPMAHBy3hyA29/eYoeLsMdR0xp71b55YNKKneGWKgIn1
-         +w/pLAgdjLyYFNYUv2uqnq+wOC6A3cG6c+MpzsP4V4XrC+VIQBlDy3AtBa58yfGxRYna
-         T1ul1nwGchvT0g7x4WulubCnYP4rYdnsS7Z9zfp+e63un/h/8wnrqqjTFeLobBFrf6rU
-         b9gocz5j4SWTU/BH1DR69xhDKbwyd0YPrDPCtCHLFjBRyyLLllB4fvfQHoXoTNcJMUjt
-         +deg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793163202; x=1793768002;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=iMvg9EuHuu+x9NUwMZWsnJGwMCIhGiOL6i2k5eUcGIU=;
-        b=WSMKi0V50KiJvSEGLhwOdlfJDIJrIE5R92w3BkoZ3oFKj0IhEo/3tlcpyiXjDbckcz
-         nczqj37Bb2VFh/6SSQE8qxbFJ1wlIQlN3ciIfLdNUPSJa3u/Ues8KUpyc9NZBkU4qAAP
-         J1Nj4FMPtbAd3b6+FmY8slAu9RWOi6uDnSlQPDnsJoY0SoDJMHquoR2hjkmp9bSXJnpn
-         M/WQ+onzk5vfiZ6fOCQmzHtkflMp59IhPSuwYj2Hi23Fo8xbSeXZ+lqmPobu/UPKV+HT
-         6APhM3yLbkkbxwtvGlfEJyRUkx8qqbFG0YKxp+ZBH38HKW18rAGQhzdV7pwjmId9tCZZ
-         EZSQ==
-X-Forwarded-Encrypted: i=1; AKwUvBxf+ojHAeb72dvximgqfCPx+bH5FAjMIJItUzQgsMdHm59vO0rcweBKrU/5ibIB28WDl0wRb+CfUUUGEfvy3Q==@lists.linux.dev
-X-Gm-Message-State: AFq9FYIptoXTImGSM0Xi3Ca4VDqV6ePJ+TPkwrUwwpossUxEjsspTe6B
-	z1V1z89ZvlQoP5N7Y+r8YsdqcuxUVG9ME61DA5rZao/c7k4jOvdYQMfD1FQGqcawXMk=
-X-Gm-Gg: AYBFou21XcTHGh/qpBdPuDX0zzULZmQHOrLZzyYeCK2RcdPW2IB3w6ujV6VUaIuVukh
-	AavGp/6PkCwH760sLUfJpNc894oUat30s1qaFky9iHJimvtDkmZRuzDZCpMBCspWzbDwNQomcvf
-	5WZXvqg87olc7/lP0h+LvJ5mlnvANi7xONssxo1dcQZoXW7WA2HrmpiJNWB84SpDZjBdTz94Xlv
-	1rV8eB/yyMGOJ2ILLK2jzlXA/7Ca6OmBrbQM+r83z+J8/2mZ5iUxqjPnviElJQxwHTAIJXx3OU8
-	wf/8j3TenwPPhRj8kw2Y9SkOdqwJIl2lXCy9m1t9x1bqnbnzaVikQY8glL7g5IJiRd2xwKqS7AJ
-	n3wyKcX1m2na7fUKXL73rVZa+CPAO6aJek6G9Z1Jb/dlU0IAR4xamsJ0DGUn+kKJB0IGGimrVOg
-	cnNiFHuIT1ChfF9TAkcREX7PwCLlf/4G5WUqd7HQ+mvvj6yfZntHz5H868ZOUXxEn9EB5tYof5h
-	zOFZuQS6lprFgK0J+ON4WT8GPjaFvUPtI/l7ZyzalIcsAGCF1NFPXKvSkEjaw7eJBDjtcOJR+BG
-	sXvOTAJkKYw7Wu4dLAN0NucLIZGk2Z0=
-X-Received: by 2002:a05:7300:a212:b0:367:a092:3c73 with SMTP id 5a478bee46e88-36a0f81af52mr6190963eec.12.1793163202055;
-        Tue, 27 Oct 2026 21:53:22 -0700 (PDT)
-Received: from localhost ([122.172.82.240])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-36a2395bee6sm1963997eec.21.2026.10.27.21.53.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Oct 2026 21:53:21 -0700 (PDT)
-Date: Wed, 28 Oct 2026 10:23:18 +0530
-From: Viresh Kumar <viresh.kumar@linaro.org>
-To: Francesco Valla <francesco@valla.it>
-Cc: "Enrico Weigelt, metux IT consult" <info@metux.net>,
-	Viresh Kumar <vireshk@kernel.org>,
-	Linus Walleij <linusw@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>, linux-gpio@vger.kernel.org,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] gpio: virtio: convert to immutable irq_chip
-Message-ID: <auF_vjF6f0Y7dBHn@vireshk-B250M-D3H>
-References: <20261027-virtio-gpio-irqchip-immutable-v1-1-f64ed13d4567@valla.it>
+	dkim=pass (4096-bit key, unprotected) header.d=alien8.de header.i=@alien8.de header.a=rsa-sha256 header.s=alien8 header.b=Da4zzXf3
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTP id BD4D540E040C;
+	Wed, 28 Oct 2026 06:01:04 +0000 (UTC)
+X-Virus-Scanned: Debian amavisd-new at mail.alien8.de
+Authentication-Results: mail.alien8.de (amavisd-new); dkim=pass (4096-bit key)
+	header.d=alien8.de
+Received: from mail.alien8.de ([127.0.0.1])
+	by localhost (mail.alien8.de [127.0.0.1]) (amavisd-new, port 10026)
+	with ESMTP id 2D_q4lpLQLMK; Wed, 28 Oct 2026 06:01:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=alien8;
+	t=1793167261; bh=StQGvmW5dHLeZF+Vv+JIk9DEZOtfvNHFy4b+UUnTT8E=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=Da4zzXf3iJuEucJqmcEj+hezNaO8/B3DiVQ0cnTB5YJnrPdfTmHmxdxqrRbPbG1Ql
+	 vUbTtVGcNEGwFcUe8YB4qlW56/D1j7NBBILTfbdTbNzufyiTShYDxA+6UkBACH4/CB
+	 lld/XEuX9T4wHFI8osFB7Rmh4YoQ/x8p30Lfma8yXQ2ModJt0McAOet/FvZ1hweqUM
+	 ikAA7cowsWywEhdPfChzfN7soMJjhchMYb1N9Q/YbDRiwa+l3xq8NNxH3vo1ARWiw5
+	 xl0xmKPd7R3M8G6vCddFP0RFh0Al/AB3ejKzfpmrXnTFQ0MwRc9pEUgyWrKC1qb/nz
+	 1jEK8fAm9h4u2ybJsVq+o4b5dsj5ERs53OoaY4RTXRm/up525lBk+6C3F6zanWqK+Z
+	 d7DYSYWQ61evsjB9BwsxXOZrrdkb9ewjovzq0E29fAFt24QIyQFDVUs7aURfeoBRxo
+	 sMOyf5amfs6eoGZ+eqLuiScylHWpikLxLpRXOPquQZRd4aaj3d8kcZ1PCe+gOYqZ47
+	 5Ohuu2s/vM/FHRuV52ATuZUfjTnMgrRUcHddFrjSxkB9R5iMareOJDZD5YOtLeslVi
+	 1HN1UIrI0FM0Y5Ktvtr9rMljtv0BXQYoB0TuWrnfn23w6Em42NZ2I/SblBgwhVhYyy
+	 VMPxCRxj2fh7qnvjWhteZB+4=
+Received: from stx.tnic (unknown [IPv6:2600:1700:38ca:c00::a])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (P-256) server-signature ECDSA (P-256) server-digest SHA256)
+	(No client certificate requested)
+	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 8CD2A40E021A;
+	Wed, 28 Oct 2026 06:00:45 +0000 (UTC)
+Date: Tue, 27 Oct 2026 23:00:42 -0700
+From: Borislav Petkov <bp@alien8.de>
+To: Zack Rusin <zack.rusin@broadcom.com>
+Cc: Ajay Kaher <ajay.kaher@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>, x86@kernel.org,
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"H . Peter Anvin" <hpa@zytor.com>, virtualization@lists.linux.dev,
+	bcm-kernel-feedback-list@broadcom.com, linux-kernel@vger.kernel.org,
+	Peter Zijlstra <peterz@infradead.org>,
+	Josh Poimboeuf <jpoimboe@kernel.org>,
+	Nathan Chancellor <nathan@kernel.org>, llvm@lists.linux.dev
+Subject: Re: [PATCH v1] x86/vmware: Fix i386 high-bandwidth hypercall
+ arguments
+Message-ID: <20261028060042.GCauGPirK7ePNeTGF0@fat_crate.local>
+References: <4ab10678a8f50053934b62b56af81f881c1d3798.1788414669.git.zack.rusin@broadcom.com>
+ <CABQX2QMNetg9iYRRsQmeM3+1tnC94ccWM=450wMZL_sUbqAJtA@mail.gmail.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -99,26 +88,28 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20261027-virtio-gpio-irqchip-immutable-v1-1-f64ed13d4567@valla.it>
+In-Reply-To: <CABQX2QMNetg9iYRRsQmeM3+1tnC94ccWM=450wMZL_sUbqAJtA@mail.gmail.com>
 
-On 27-10-26, 13:55, Francesco Valla wrote:
-> The kernel has been warning about non-immutable irq_chips for quite some
-> time, printing messages such as the following one during initialization:
-> 
->   gpio gpiochip6: (virtio2): not an immutable chip, please consider fixing it!
-> 
-> Convert the gpio-virtio irq_chip to immutable and add the relevant
-> helpers. The exposed name is kept the same as before through the
-> .irq_print_chip callback.
-> 
-> Signed-off-by: Francesco Valla <francesco@valla.it>
-> ---
->  drivers/gpio/gpio-virtio.c | 41 ++++++++++++++++++++++++++---------------
->  1 file changed, 26 insertions(+), 15 deletions(-)
+On Tue, Oct 20, 2026 at 11:34:23PM -0400, Zack Rusin wrote:
+> Gentle ping on this one. It's a stable fix for the i386 high-bandwidth
+> hypercalls (vmwgfx uses them), Maaz reviewed it, and it still applies
+> cleanly to v7.3. The hypercall cleanup series I'm about to post moves
+> this assembly out of line and is based on it, so it would help to know
+> whether it's queued or needs changes.
 
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Sashiko complains about some pre-existing issues:
+
+https://sashiko.dev/#/patchset/4ab10678a8f50053934b62b56af81f881c1d3798.1788414669.git.zack.rusin%40broadcom.com
+
+Please address them: if valid, you should see about fixing them, if not,
+explain why they don't need to be fixed.
+
+Thx.
 
 -- 
-viresh
+Regards/Gruss,
+    Boris.
+
+https://people.kernel.org/tglx/notes-about-netiquette
