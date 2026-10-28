@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793158035;
-	b=qaI1AL00jgKny4OCYiIytR3ierXnOeBH2nfueZaPf8/4v32wk+aTpC9JG8Vn822XXaTQ
-	 DD+amLcztXMo5KOj6R+w/Xp6M8zO8Dta8M9TSMsHSNK2QxFzdsT94i+i6Fund/j6eUxje
-	 2oGweg0/PgqBLUkO/TcLeYYa6u2LbBGw1hnD1lOvN2tzIprt1idhlG5h6c5NYHHVjmgkC
-	 CwMmB4wF4YlSKhLw8fDaBf3PLruovhW9w4ttJMokmEoryMX19PzYqoOKVXrqXp3cN3iIa
-	 7jSH10kZw9aBg6b25CX6iaFURPJ46Mncv2DTmr4EiRT3xbMnwkPrGODsDsNz4en54Fw==
+	t=1793158051;
+	b=gGJk5zIVUf3dBtAsfZI6UIHb1ObI0qTIRtxaQuHjSxL7efB724PqzNTbev8Br7Kttnv5
+	 PcRVVoFU0ydcXntiMrcfSc0U8V86r57Z0MEdk3rJVBU8NjNTnlJb/Khh7VT3AuUaOWbBb
+	 5UDb9FanQEQKP0hlCplshSv/2iPqu5kZ8Bzg9ygz+CSMtznwvbuVDmeRd42/QMjpJff01
+	 FYx11qLxizWNTx1VntyvSBIVzYm7gejA4XehsIfERzL++h2iVwHia1nUHB3dezCablSyQ
+	 mQEKedoPx5dRevIAt/luoD9F5rdHznqWQuVRRi4YuvnDrQ56bOwbMwt2Dgn4T206/0w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793158035;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793158051;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=FiAyuvfDt7Lo7U7ff8w+xX2Qwp10ccWP1jO0lNR4T2k=;
-	b=mgXwHelBcLEUNpbu2MA0gtP0UFcVucP+Jj+KGB6347xwDIWkpEMjdPwg1CnaJ2SjXT0c
-	 nzhuy4YGRW+Y34KASEvz271tlQVRl1Uto5s7bVmlmJatcYQO19p1WyXovYgxB5GgiTNwD
-	 uG2Xzlj1kl6R9pnL+3Qw/NU2cihK+oHwSlu7hp1oZIPaPmKnSnlLw/kzC9/txWQ5Whp4q
-	 Wpa2NQvtTZ7zsMrqAjPRtBCVXToPa4pg/B8ypuChPxa2FCFZ8H6EDJgV1lc81zz8ZPdBW
-	 mxxrWNg0MkXboi4NbcSLnm6S06CwzMjKbgG9DEm5fGX0tqL5iNS2tkB1/oOnB2BPg5w==
+	bh=Q6hc77R+42guRLUrYCpxV5Wv7InZ1hzpEKeR4PVks24=;
+	b=UdV/X4r8gv++9FzN2wJns15dTO+vq5v1ucOAyzLGwFbdOywV3UWxn1vbympSusT3DmZr
+	 Tp+UvQNkjhAv0i9sdct6Hv7yufOQl1a0CjJC/KqgNNtymb6VeDaXUianEQEXs1M4mLk8D
+	 Zm7HNrIj+sv+MkuR4qxtyrcwHoVNgg+MMXVhaUuAX+GqD5ZcT+cP/D+NcBlLxd2SWmTv8
+	 AlGm+NJzERdu5j1/Ips1ExZ6i5QVpzfwrCSiUzaj9yXO11kyyLU9Ynlc7dW52vw5UapkL
+	 2lFzMavP26Uy0xy8j251vzp3fuSuFNHyzn+AmKU7ZazBsr9Gcqk66b+Y2YQO9Uo3kAQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ozvMFb8U;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=aUf0Krd9;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30541606A31A;
-	Wed, 28 Oct 2026 03:27:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E56FB606A31A;
+	Wed, 28 Oct 2026 03:27:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ozvMFb8U
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7AE61F01825;
-	Wed, 28 Oct 2026 03:27:14 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=aUf0Krd9
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8545A1F01828;
+	Wed, 28 Oct 2026 03:27:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793158035;
-	bh=FiAyuvfDt7Lo7U7ff8w+xX2Qwp10ccWP1jO0lNR4T2k=;
+	s=k20260515; t=1793158050;
+	bh=Q6hc77R+42guRLUrYCpxV5Wv7InZ1hzpEKeR4PVks24=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ozvMFb8U7Z4Vy3jT520zS0mvDJWSOR6NH1g8yQfFAru0qeSIUHpAbEeTXK/sG7QGu
-	 byhZCA1tJcWh3ynuEWiSrgqzB4SSlAgtYHy2ZGtL+ohQegagd3xaap4xtzaop15ElX
-	 iNlEWTPyRdPE02ijazmL4tbDVgskZvUBnxsxaNrwOEfrWOSfslyefdpEcjESD6J2KV
-	 ntPxeKaVNKok2EpQlyBKdlvO1hWZSD0shJTMFT6cIQttjNMnuCvOiuPAE6unLIcFuR
-	 TEQ1wJyc3qBdEN1HjJSohmSWFdMPlq622Ad12GE4z9vpL9N3+bL/G4yoVJm3VQySb2
-	 2f2LxPlMKp0Ow==
-Message-ID: <sashiko-outbox-187420@kernel.org>
+	b=aUf0Krd9etkpemJ1TO3Cn2kl4mvUjmnHq8sge+7iAq/r/3YZD0StEz2pUyZ72KdZB
+	 ehMaEddwJQYQpVM5lUnmIuSv1PEpgTFs790XLWdqynN3cwobMIHh6i0HqOltgkLEBN
+	 +T/ktsu60F2USwUTBSIoilYurHyt4G5qzWWKO69aSApIpM0AFqQa6wlcyUJyUk2uTe
+	 UodUXAUG/8g9b73Q9lvaM3+XC1U/AMvse2/l8bZEOdCRw5n50fwpWAeVgN+rnOrkgh
+	 v7JPLcZbvvn1rZNWPDONc9/jDye9vexTri9dyvFl8buvgZneiGQf4Ri/Lx82vQzBEW
+	 swyvkmYNirCuA==
+Message-ID: <sashiko-outbox-187421@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 07/14] ALSA: virtio: stage VZ capture and restart
- paused streams
+Subject: Re: [PATCH v6 13/14] ALSA: virtio: fence staged capture state and
+ recovery
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Joonho Lee" <mynameisjune111@gmail.com>, linux-sound@vger.kernel.org
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261028025317.92450-8-mynameisjune111@gmail.com>
+In-Reply-To: <20261028025317.92450-14-mynameisjune111@gmail.com>
 References: <20261028025317.92450-1-mynameisjune111@gmail.com>
- <20261028025317.92450-8-mynameisjune111@gmail.com>
+ <20261028025317.92450-14-mynameisjune111@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 28 Oct 2026 03:27:14 +0000
+Date: Wed, 28 Oct 2026 03:27:30 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,289 +62,476 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 6 potential issue(=
 s) to consider:
-- [Medium] ALSA: virtio: unnotified capture periods across pause cause lost=
- wakeup or XRUN
-- [Medium] ALSA: virtio: staged capture counters not updated on SNDRV_PCM_I=
-OCTL_RESET
-- [Medium] ALSA: virtio: race between virtsnd_pcm_pause_restart_sync_stop()=
- and prepare
+- [High] ALSA: virtio: deadlock and broken retry in virtsnd_pcm_pause_resta=
+rt_pause()
+- [High] ALSA: virtio: XRUN wakeup suppressed in virtsnd_pcm_pause_restart_=
+fail()
+- [High] ALSA: virtio: premature paused stop arming in virtsnd_pcm_cp_ack()
+- [High] ALSA: virtio: post-reset substream state clobbered after virtsnd_r=
+eset_vqs()
+- [High] ALSA: virtio: desynchronized prepared and stopped state on prepare=
+ and stop
+- [High] ALSA: virtio: missing paused stop arming in non-staged virtsnd_pcm=
+_cp_ack()
 --
 
-commit 769b2eda886498f63ca7e4ba1a0aa3578ffd2f05
+commit ff9dabc7b348389a68870e8f3710dbf75bdbd0a8
 Author: Joonho Lee <mynameisjune111@gmail.com>
 
-ALSA: virtio: stage VZ capture and restart paused streams
+ALSA: virtio: fence staged capture state and recovery
 
-This commit adds opt-in capture staging using request-owned buffers with
-response validation and ring accounting, along with a pause release and
-reprepare state machine for staged capture streams.
+This commit tracks device preparation under the substream lock, fences
+virtqueue submissions and state transitions across pause, reset, and open
+failure paths, and updates staged capture ACK and XRUN recovery handling.
 
-> diff --git a/sound/virtio/virtio_pcm.c b/sound/virtio/virtio_pcm.c
-> index be3893de40a55..a3478fc8848db 100644
-> --- a/sound/virtio/virtio_pcm.c
-> +++ b/sound/virtio/virtio_pcm.c
-> @@ -310,8 +310,94 @@ static void virtsnd_pcm_period_elapsed(struct work_s=
-truct *work)
->  {
->  	struct virtio_pcm_substream *vss =3D
->  		container_of(work, struct virtio_pcm_substream, elapsed_period);
-> +	struct snd_pcm_substream *substream =3D vss->substream;
-> +	struct snd_pcm_runtime *runtime;
-> +	size_t period_bytes;
-> +	u64 period_floor;
-> +	u64 snapshot;
-> +	bool staged_capture;
-> +	bool paused_xrun =3D false;
-> +	bool notify =3D false;
-> +	bool requeue =3D false;
+> diff --git a/sound/virtio/virtio_card.c b/sound/virtio/virtio_card.c
+> index df7091b74a521..852cc27ac4a45 100644
+> --- a/sound/virtio/virtio_card.c
+> +++ b/sound/virtio/virtio_card.c
+> @@ -348,6 +348,16 @@ static void virtsnd_reset_vqs(struct virtio_snd *snd)
+>  	struct virtio_device *vdev =3D snd->vdev;
+>  	unsigned int i;
+> =20
+> +	for (i =3D 0; snd->substreams && i < snd->nsubstreams; ++i) {
+> +		struct virtio_pcm_substream *vss =3D &snd->substreams[i];
+> +		struct virtio_snd_queue *queue =3D virtsnd_pcm_queue(vss);
 > +
-> +	scoped_guard(spinlock_irqsave, &vss->lock) {
-> +		staged_capture =3D vss->direction =3D=3D SNDRV_PCM_STREAM_CAPTURE &&
-> +				 vss->capture_staging;
+> +		guard(spinlock_irqsave)(&queue->lock);
+> +		guard(spinlock)(&vss->lock);
+> +		vss->prepared =3D false;
+> +		vss->xfer_enabled =3D false;
+> +		vss->suspended =3D true;
 > +	}
+>  	virtio_reset_device(vdev);
+> =20
+>  	/* Deleting a virtqueue does not unmap its outstanding descriptors. */
+> @@ -364,9 +374,20 @@ static void virtsnd_reset_vqs(struct virtio_snd *snd)
+>  		spin_unlock_irqrestore(&queue->lock, flags);
+>  	}
+> =20
+> -	vdev->config->del_vqs(vdev);
+> -	for (i =3D 0; i < VIRTIO_SND_VQ_MAX; ++i)
+> +	for (i =3D 0; i < VIRTIO_SND_VQ_MAX; ++i) {
+> +		guard(spinlock_irqsave)(&snd->queues[i].lock);
+>  		snd->queues[i].vqueue =3D NULL;
+> +	}
+> +	vdev->config->del_vqs(vdev);
+> +	for (i =3D 0; snd->substreams && i < snd->nsubstreams; ++i) {
+> +		struct virtio_pcm_substream *vss =3D &snd->substreams[i];
 > +
-> +	if (!staged_capture) {
-> +		snd_pcm_period_elapsed(substream);
-> +		return;
+> +		cancel_work_sync(&vss->elapsed_period);
+> +		guard(spinlock_irqsave)(&vss->lock);
+> +		vss->stopped =3D false;
+> +		vss->xfer_xrun =3D false;
+> +		vss->pause_restart_state =3D VIRTSND_PCM_PAUSE_RESTART_NONE;
 > +	}
-> +
-> +	/* Serialize the pointer snapshot with ALSA's pointer and ACK callbacks=
-. */
-> +	guard(pcm_stream_lock_irqsave)(substream);
-> +	if (!snd_pcm_running(substream)) {
-> +		scoped_guard(spinlock_irqsave, &vss->lock) {
-> +			runtime =3D substream->runtime;
-> +			paused_xrun =3D runtime &&
-> +				      runtime->state =3D=3D SNDRV_PCM_STATE_PAUSED &&
-> +				      vss->runtime_active && vss->xfer_xrun;
-> +		}
-> +		if (paused_xrun) {
-> +			/* Wake readers without sending STOP for a paused stream. */
-> +			snd_pcm_stop(substream, SNDRV_PCM_STATE_XRUN);
-> +		}
-> +		return;
-> +	}
+>  }
 
-[Severity: Medium]
-What happens if a staged capture completion crosses a period boundary right
-before SNDRV_PCM_TRIGGER_PAUSE_PUSH?
+[Severity: High]
+Can resetting vss->stopped, vss->xfer_xrun, and vss->pause_restart_state
+inside virtsnd_reset_vqs() get clobbered by in-flight control message
+senders that are only woken up afterwards?
 
-When virtsnd_pcm_capture_complete() copies data crossing a period boundary
-and schedules vss->elapsed_period right as snd_pcm_pause() runs,
-snd_pcm_pause() holds pcm_stream_lock across virtsnd_pcm_trigger() and
-snd_pcm_post_pause(), which sets runtime->state to SNDRV_PCM_STATE_PAUSED.
+In virtsnd_freeze() (and virtsnd_remove()), the teardown sequence runs:
 
-When virtsnd_pcm_period_elapsed() in sound/virtio/virtio_pcm.c subsequently
-acquires pcm_stream_lock, !snd_pcm_running(substream) is true, so it returns
-early without advancing vss->capture_notified_periods or calling
-snd_pcm_period_elapsed_under_stream_lock() to update runtime->status->hw_pt=
-r.
+  virtsnd_ctl_msg_cancel_all(snd);
+  virtsnd_reset_vqs(snd);
+  virtsnd_ctl_msg_cleanup(snd);
 
-Later, when the stream is resumed via SNDRV_PCM_TRIGGER_PAUSE_RELEASE in
-virtsnd_pcm_pause_restart_start() or virtsnd_pcm_trigger() in
-sound/virtio/virtio_pcm_ops.c:
+virtsnd_ctl_msg_cancel_all() marks pending control messages with
+msg->cancelled =3D true, but it does not complete msg->notify. The threads
+waiting in virtsnd_ctl_msg_send_sync() are only woken later when
+virtsnd_ctl_msg_cleanup() calls virtsnd_ctl_msg_complete().
 
-sound/virtio/virtio_pcm_ops.c:virtsnd_pcm_pause_restart_start() {
-	...
-	scoped_guard(spinlock_irqsave, &queue->lock) {
-		guard(spinlock)(&vss->lock);
-		if (vss->pause_restart_state !=3D
-			    VIRTSND_PCM_PAUSE_RESTART_PREPARED ||
-		    vss->msg_count || !vss->runtime_active || vss->xfer_xrun) {
-			rc =3D -EBADFD;
-		} else {
-			rc =3D virtsnd_pcm_capture_send(vss);
-			if (!rc)
-				vss->xfer_enabled =3D true;
-		}
-	}
-}
+When a thread blocked in virtsnd_pcm_pause_restart_send() wakes up after
+virtsnd_reset_vqs() has already reset the substream state,
+virtsnd_ctl_msg_uncertain(msg, rc) returns true and vss->pause_restart_state
+(now VIRTSND_PCM_PAUSE_RESTART_NONE) no longer matches submitted_state:
 
-vss->elapsed_period is not rescheduled even though
-vss->capture_copied_total / period_bytes > vss->capture_notified_periods, a=
-nd
-snd_pcm_post_pause() does not call snd_pcm_update_hw_ptr().
+  scoped_guard(spinlock_irqsave, &vss->lock) {
+          if ((rc && uncertain) || vss->pause_restart_state !=3D submitted_=
+state) {
+                  vss->pause_restart_state =3D
+                          VIRTSND_PCM_PAUSE_RESTART_RESET_REQUIRED;
+                  if (!rc)
+                          rc =3D -EIO;
+          } ...
+  }
 
-Could this leave readers in poll() or wait_for_avail() sleeping with
-avail =3D=3D 0, and on a 2-period buffer cause the next completed period to=
- hit
-audio_bytes >=3D vss->buffer_bytes - vss->capture_ready in
-virtsnd_pcm_capture_complete() and force a premature XRUN?
+The woken caller then runs virtsnd_pcm_pause_restart_fail() (or
+virtsnd_pcm_start_failed() in non-pause-restart mode), overwriting
+vss->pause_restart_state with VIRTSND_PCM_PAUSE_RESTART_RESET_REQUIRED and
+setting vss->stopped =3D true and vss->xfer_xrun =3D true after the reset h=
+as
+already completed, leaving the substream wedged after virtsnd_restore().
 
 [ ... ]
 
 > diff --git a/sound/virtio/virtio_pcm_ops.c b/sound/virtio/virtio_pcm_ops.c
-> index f74bf365065b6..003832d112551 100644
+> index c7e85b151c5c4..0685a001cf95d 100644
 > --- a/sound/virtio/virtio_pcm_ops.c
 > +++ b/sound/virtio/virtio_pcm_ops.c
 
 [ ... ]
 
-> @@ -420,6 +932,106 @@ static int virtsnd_pcm_trigger(struct snd_pcm_subst=
-ream *substream, int command)
->  	}
->  }
+> @@ -223,7 +227,8 @@ virtsnd_pcm_pause_restart_fail(struct virtio_pcm_subs=
+tream *vss,
+>  	bool notify_xrun;
 > =20
-> +static int
-> +virtsnd_pcm_pause_restart_sync_stop(struct snd_pcm_substream *substream)
-> +{
-> +	struct virtio_pcm_substream *vss =3D snd_pcm_substream_chip(substream);
-> +	unsigned int js =3D msecs_to_jiffies(virtsnd_msg_timeout_ms);
-> +	enum virtio_pcm_pause_restart_state state;
-> +	struct virtio_snd_msg *msg;
-> +	long waited;
-> +	int rc;
-> +
-> +	scoped_guard(spinlock_irqsave, &vss->lock) {
-> +		vss->xfer_enabled =3D false;
-> +		vss->stopped =3D true;
-> +		state =3D vss->pause_restart_state;
-> +	}
-> +	cancel_work_sync(&vss->elapsed_period);
-> +
-> +	if (state =3D=3D VIRTSND_PCM_PAUSE_RESTART_RESET_REQUIRED ||
-> +	    virtsnd_pcm_pause_restart_transitioning(state)) {
-> +		virtsnd_pcm_pause_restart_fail(vss, true);
-> +		dev_err(&vss->snd->vdev->dev,
-> +			"SID %u: PCM state is unknown; device reprobe required\n",
-> +			vss->sid);
-> +		return -EIO;
-> +	}
+>  	scoped_guard(spinlock_irqsave, &vss->lock) {
+> -		notify_xrun =3D !vss->xfer_xrun;
+> +		notify_xrun =3D vss->runtime_active && vss->xfer_enabled &&
+> +			      !vss->xfer_xrun;
+>  		vss->xfer_enabled =3D false;
+>  		vss->stopped =3D true;
+>  		vss->xfer_xrun =3D true;
 
-[Severity: Medium]
-Can a concurrent SNDRV_PCM_IOCTL_DROP and SNDRV_PCM_IOCTL_PREPARE race while
-virtsnd_pcm_pause_restart_sync_stop() is sleeping and permanently wedge the
-substream in VIRTSND_PCM_PAUSE_RESTART_RESET_REQUIRED?
+[Severity: High]
+Does requiring vss->xfer_enabled in virtsnd_pcm_pause_restart_fail()
+suppress XRUN notifications when SNDRV_PCM_TRIGGER_PAUSE_RELEASE or
+SNDRV_PCM_TRIGGER_PAUSE_PUSH fails?
 
-In sound/core/pcm_native.c, snd_pcm_drop() transitions runtime->state to
-SNDRV_PCM_STATE_SETUP and sets runtime->stop_operating =3D true under
-pcm_stream_lock_irq(), then drops the stream lock and calls
-snd_pcm_sync_stop(substream, true) without holding runtime->buffer_mutex:
+When a stream is paused, vss->xfer_enabled is false. During
+SNDRV_PCM_TRIGGER_PAUSE_RELEASE in virtsnd_pcm_pause_restart_start(),
+vss->xfer_enabled remains false until virtsnd_pcm_pause_prepare() and
+virtsnd_pcm_capture_send() both succeed:
 
-snd_pcm_drop()
-  snd_pcm_stop(substream, SNDRV_PCM_STATE_SETUP)
-    runtime->stop_operating =3D true;
-  snd_pcm_stream_unlock_irq(substream)
-  snd_pcm_sync_stop(substream, true)
-    substream->runtime->stop_operating =3D false;
-    substream->ops->sync_stop(substream)
-      virtsnd_pcm_pause_restart_sync_stop()
+  if (resume) {
+          rc =3D virtsnd_pcm_pause_prepare(vss);
+          if (rc) {
+                  virtsnd_pcm_pause_restart_failed(vss);
+                  return rc;
+          }
+          ...
+  }
+  scoped_guard(spinlock_irqsave, &queue->lock) {
+          guard(spinlock)(&vss->lock);
+          ...
+          rc =3D virtsnd_pcm_capture_send(vss);
+          if (!rc)
+                  vss->xfer_enabled =3D true;
+  }
+  if (rc) {
+          virtsnd_pcm_pause_restart_failed(vss);
+          return rc;
+  }
 
-Because snd_pcm_sync_stop() clears runtime->stop_operating before calling
-virtsnd_pcm_pause_restart_sync_stop(), a second thread invoking
-SNDRV_PCM_IOCTL_PREPARE while virtsnd_pcm_pause_restart_sync_stop() is
-sleeping in virtsnd_pcm_pause_restart_send() or wait_event_timeout() will s=
-ee
-runtime->state =3D=3D SNDRV_PCM_STATE_SETUP and runtime->stop_operating =3D=
-=3D false.
+If either step fails, virtsnd_pcm_pause_restart_fail() sees
+vss->xfer_enabled =3D=3D false and skips virtsnd_pcm_schedule_period_elapse=
+d().
+Because snd_pcm_action_single() runs snd_pcm_undo_pause() (where
+vss->xfer_xrun is already true) and skips snd_pcm_post_pause(), the stream
+stays in SNDRV_PCM_STATE_PAUSED with vss->xfer_xrun latched to true and
+virtsnd_pcm_period_elapsed() is never scheduled to transition it to
+SNDRV_PCM_STATE_XRUN and wake blocked readers.
 
-Its own call to snd_pcm_sync_stop() in snd_pcm_do_prepare() will then return
-immediately without waiting for the first thread's sync_stop to finish, and
-virtsnd_pcm_prepare() (or virtsnd_pcm_pause_restart_send()) in
-sound/virtio/virtio_pcm_ops.c will observe the in-flight *_SUBMITTED state:
-
-sound/virtio/virtio_pcm_ops.c:virtsnd_pcm_prepare() {
-	if (pause_restart) {
-		enum virtio_pcm_pause_restart_state state;
-
-		scoped_guard(spinlock_irqsave, &vss->lock)
-			state =3D vss->pause_restart_state;
-		if (state =3D=3D VIRTSND_PCM_PAUSE_RESTART_RESET_REQUIRED ||
-		    virtsnd_pcm_pause_restart_transitioning(state)) {
-			virtsnd_pcm_pause_restart_fail(vss, true);
-			return -EIO;
-		}
-	}
-}
-
-Wouldn't this transition vss->pause_restart_state to
-VIRTSND_PCM_PAUSE_RESTART_RESET_REQUIRED and leave the substream unusable
-until device reprobe?
+Similarly, in virtsnd_pcm_pause_restart_pause(), vss->xfer_enabled is
+cleared to false at function entry before VIRTIO_SND_R_PCM_STOP or
+virtsnd_pcm_pause_release_flush() runs, so any failure in
+virtsnd_pcm_pause_restart_pause() also sees vss->xfer_enabled =3D=3D false =
+and
+never schedules virtsnd_pcm_period_elapsed().
 
 [ ... ]
 
-> @@ -586,11 +1233,66 @@ static int virtsnd_pcm_cp_ack(struct snd_pcm_subst=
+> @@ -599,8 +614,6 @@ static int virtsnd_pcm_prepare(struct snd_pcm_substre=
+am *substream)
+>  			return -EBADFD;
+>  		}
+> =20
+> -		vss->buffer_bytes =3D snd_pcm_lib_buffer_bytes(substream);
+> -		vss->hw_ptr =3D 0;
+>  	} else {
+>  		struct snd_pcm_runtime *runtime =3D substream->runtime;
+>  		unsigned int buffer_bytes =3D snd_pcm_lib_buffer_bytes(substream);
+> @@ -616,31 +629,30 @@ static int virtsnd_pcm_prepare(struct snd_pcm_subst=
 ream *substream)
->  {
->  	struct virtio_pcm_substream *vss =3D snd_pcm_substream_chip(substream);
->  	struct virtio_snd_queue *queue =3D virtsnd_pcm_queue(vss);
-> +	struct snd_pcm_runtime *runtime =3D substream->runtime;
->  	struct virtsnd_pcm_transfer transfer =3D {};
+>  		}
+>  	}
+> =20
+> -	/* ALSA prepare resets its pointers even after a suspended stream. */
+> -	if (vss->capture_staging)
+> +	scoped_guard(spinlock_irqsave, &vss->lock) {
+> +		vss->prepared =3D false;
+> +		vss->buffer_bytes =3D snd_pcm_lib_buffer_bytes(substream);
+>  		vss->hw_ptr =3D 0;
+> -
+> -	if (!pause_restart)
+> -		vss->xfer_xrun =3D false;
+> -	vss->suspended =3D false;
+> -	vss->msg_count =3D 0;
+> -	virtsnd_pcm_msg_reset(vss);
+> -	if (vss->capture_staging) {
+> -		scoped_guard(spinlock_irqsave, &vss->lock) {
+> +		if (!pause_restart)
+> +			vss->xfer_xrun =3D false;
+> +		vss->suspended =3D false;
+> +		vss->msg_count =3D 0;
+> +		virtsnd_pcm_msg_reset(vss);
+> +		memset(&vss->pcm_indirect, 0, sizeof(vss->pcm_indirect));
+> +		vss->pcm_indirect.sw_buffer_size =3D vss->buffer_bytes;
+> +		vss->pcm_indirect.hw_buffer_size =3D vss->buffer_bytes;
+> +		if (vss->capture_staging) {
+>  			vss->capture_boundary =3D substream->runtime->boundary;
+>  			rc =3D virtsnd_pcm_capture_refresh_mode_locked(vss,
+> -								     &free_running);
+> +							     &free_running);
+> +			if (rc)
+> +				return rc;
+>  		}
+> -		if (rc)
+> -			return rc;
+>  	}
+> =20
+> -	memset(&vss->pcm_indirect, 0, sizeof(vss->pcm_indirect));
+> -	vss->pcm_indirect.sw_buffer_size =3D
+> -		vss->pcm_indirect.hw_buffer_size =3D
+> -		snd_pcm_lib_buffer_bytes(substream);
+> -
+>  	rc =3D virtsnd_pcm_dev_prepare(vss);
+> +	scoped_guard(spinlock_irqsave, &vss->lock)
+> +		vss->prepared =3D !rc;
+>  	if (pause_restart) {
+>  		if (rc) {
+>  			virtsnd_pcm_pause_restart_fail(vss, false);
+> @@ -759,13 +771,23 @@ static int virtsnd_pcm_pause_restart_pause(struct v=
+irtio_pcm_substream *vss)
+> =20
+>  	scoped_guard(spinlock_irqsave, &vss->lock) {
+>  		state =3D vss->pause_restart_state;
+> -		if (state =3D=3D VIRTSND_PCM_PAUSE_RESTART_RELEASE_SENT ||
+> -		    state =3D=3D VIRTSND_PCM_PAUSE_RESTART_RELEASED)
+> -			return 0;
+> +		if (state =3D=3D VIRTSND_PCM_PAUSE_RESTART_RELEASED)
+> +			return vss->xfer_xrun ? -EPIPE : 0;
+>  		vss->xfer_enabled =3D false;
+>  		vss->stopped =3D true;
+>  	}
+> =20
+> +	if (state =3D=3D VIRTSND_PCM_PAUSE_RESTART_RELEASE_SENT) {
+> +		rc =3D virtsnd_pcm_pause_restart_sync_stop(vss->substream);
+> +		if (!rc) {
+> +			guard(spinlock_irqsave)(&vss->lock);
+> +			vss->stopped =3D true;
+> +			if (vss->xfer_xrun)
+> +				rc =3D -EPIPE;
+> +		}
+> +		return rc;
+> +	}
+
+[Severity: High]
+Won't calling virtsnd_pcm_pause_restart_sync_stop() from inside
+virtsnd_pcm_pause_restart_pause() deadlock on the PCM stream lock when
+vss->elapsed_period work is pending or running?
+
+Because vpcm->pcm->nonatomic is true, the ALSA PCM stream lock is a mutex
+(substream->self_group.mutex), and ALSA holds it across substream->ops->tri=
+gger():
+
+  CPU 0                                  CPU 1 (workqueue)
+  snd_pcm_pause_lock_irq()
+    pcm_stream_lock_irq()
+    snd_pcm_action_single()
+      snd_pcm_do_pause()
+        virtsnd_pcm_trigger(PAUSE_PUSH)
+          virtsnd_pcm_pause_restart_pause()
+            virtsnd_pcm_pause_restart_sync_stop()
+              cancel_work_sync(&vss->elapsed_period)
+                                         virtsnd_pcm_period_elapsed()
+                                           guard(pcm_stream_lock_irqsave)(s=
+ubstream)
+
+virtsnd_pcm_period_elapsed() blocks waiting for pcm_stream_lock while
+virtsnd_pcm_pause_restart_sync_stop() waits for virtsnd_pcm_period_elapsed()
+to finish.
+
+In addition, VIRTSND_PCM_PAUSE_RESTART_RELEASE_SENT is reached when an
+earlier virtsnd_pcm_pause_release_flush() timed out, which called
+virtsnd_pcm_pause_restart_failed() and set vss->xfer_xrun =3D true while
+ALSA left runtime->state in SNDRV_PCM_STATE_RUNNING. When a subsequent
+SNDRV_PCM_TRIGGER_PAUSE_PUSH retry drains the queue and returns -EPIPE
+because vss->xfer_xrun is true, snd_pcm_action_single() runs
+snd_pcm_undo_pause() and skips snd_pcm_post_pause(), keeping runtime->state
+in SNDRV_PCM_STATE_RUNNING where snd_pcm_prepare() is rejected with -EBUSY.
+
+>  	if (state =3D=3D VIRTSND_PCM_PAUSE_RESTART_RESET_REQUIRED ||
+>  	    virtsnd_pcm_pause_restart_transitioning(state)) {
+>  		virtsnd_pcm_pause_restart_fail(vss, true);
+> @@ -813,10 +835,9 @@ static int virtsnd_pcm_pause_restart_stop(struct vir=
+tio_pcm_substream *vss,
+>  	enum virtio_pcm_pause_restart_state state;
 >  	int rc;
+> =20
+> -	if (suspend)
+> -		vss->suspended =3D true;
+> -
+>  	scoped_guard(spinlock_irqsave, &vss->lock) {
+> +		if (suspend)
+> +			vss->suspended =3D true;
+>  		vss->xfer_enabled =3D false;
+>  		vss->stopped =3D true;
+>  		state =3D vss->pause_restart_state;
+> @@ -887,7 +908,7 @@ static int virtsnd_pcm_trigger(struct snd_pcm_substre=
+am *substream, int command)
+> =20
+>  		scoped_guard(spinlock_irqsave, &queue->lock) {
+>  			guard(spinlock)(&vss->lock);
+> -			if (vss->stopped) {
+> +			if (vss->stopped || !vss->prepared) {
+>  				substream->runtime->stop_operating =3D true;
+>  				return -EBADFD;
+>  			}
+> @@ -920,17 +941,18 @@ static int virtsnd_pcm_trigger(struct snd_pcm_subst=
+ream *substream, int command)
+>  		msg =3D virtsnd_pcm_ctl_msg_alloc(vss, VIRTIO_SND_R_PCM_START,
+>  						GFP_KERNEL);
+>  		if (!msg) {
+> -			virtsnd_pcm_start_failed(vss, false);
+> +			virtsnd_pcm_start_failed(vss);
+>  			return -ENOMEM;
+>  		}
+> =20
+>  		rc =3D virtsnd_ctl_msg_send_sync(snd, msg);
+>  		if (rc)
+> -			virtsnd_pcm_start_failed(vss, false);
+> +			virtsnd_pcm_start_failed(vss);
+> =20
+>  		return rc;
+>  	case SNDRV_PCM_TRIGGER_SUSPEND:
+> -		vss->suspended =3D true;
+> +		scoped_guard(spinlock_irqsave, &vss->lock)
+> +			vss->suspended =3D true;
+>  		fallthrough;
+
+[Severity: High]
+Are vss->prepared, vss->stopped, and vss->suspended kept consistent across
+early prepare failures, sync_stop releases, and unprepared stop triggers?
+
+1. In virtsnd_pcm_prepare(), vss->prepared =3D false is only set after the
+early return checks for virtsnd_pcm_msg_pending_num(vss) and
+virtsnd_pcm_dev_set_params(). If a stream is already in
+SNDRV_PCM_STATE_PREPARED (with vss->prepared =3D=3D true) and a re-prepare =
+fails
+in virtsnd_pcm_dev_set_params() or virtsnd_pcm_msg_pending_num(),
+snd_pcm_do_prepare() leaves runtime->state as SNDRV_PCM_STATE_PREPARED and
+virtsnd_pcm_prepare() returns with vss->prepared still true, allowing
+subsequent START or ACK calls to queue transfers after a failed PREPARE.
+
+2. In virtsnd_pcm_sync_stop() and virtsnd_pcm_pause_restart_sync_stop(),
+sending VIRTIO_SND_R_PCM_RELEASE clears vss->stopped =3D false without
+setting vss->prepared =3D false. After SNDRV_PCM_IOCTL_DROP releases the
+stream on the device and moves runtime->state to SNDRV_PCM_STATE_SETUP,
+vss->prepared remains true and vss->stopped is false, so a subsequent
+SNDRV_PCM_IOCTL_SYNC_PTR (snd_pcm_sync_ptr() -> pcm_lib_apply_appl_ptr() ->
+substream->ops->ack()) passes the !vss->prepared and vss->stopped checks in
+virtsnd_pcm_pb_ack() and virtsnd_pcm_cp_ack() and queues descriptors on a
+released stream.
+
+3. Conversely, when !vss->prepared (such as after virtsnd_reset_vqs() sets
+vss->prepared =3D false and vss->stopped =3D false), if SNDRV_PCM_TRIGGER_S=
+TART
+returns -EBADFD, snd_pcm_action_single() calls snd_pcm_undo_start() ->
+virtsnd_pcm_trigger(SNDRV_PCM_TRIGGER_STOP). Because the
+SNDRV_PCM_TRIGGER_STOP case does not check vss->prepared, it sets
+vss->stopped =3D true and sends VIRTIO_SND_R_PCM_STOP to an unprepared
+stream, and the next virtsnd_pcm_sync_stop() sends VIRTIO_SND_R_PCM_RELEASE
+to the unconfigured stream, which fails and leaves vss->stopped latched to
+true.
+
+4. Also, vss->suspended =3D false in virtsnd_pcm_open() and the
+if (!vss->suspended) check in virtsnd_pcm_prepare() still access
+vss->suspended without holding vss->lock.
+
+[ ... ]
+
+> @@ -1352,7 +1376,9 @@ static int virtsnd_pcm_cp_ack(struct snd_pcm_substr=
+eam *substream)
+> =20
+>  	if (vss->capture_staging) {
+>  		rc =3D virtsnd_pcm_capture_staged_ack(vss, runtime);
+> -		if (rc =3D=3D -EPIPE) {
+> +		if (rc =3D=3D -EPIPE ||
+> +		    (!rc && runtime->state =3D=3D SNDRV_PCM_STATE_PAUSED &&
+> +		     snd_pcm_capture_avail(runtime) >=3D runtime->stop_threshold)) {
+>  			guard(spinlock_irqsave)(&vss->lock);
+>  			virtsnd_pcm_capture_arm_paused_stop(vss);
+>  		}
+
+[Severity: High]
+Can arming virtsnd_pcm_capture_arm_paused_stop() inside virtsnd_pcm_cp_ack()
+when rc =3D=3D 0 leave vss->stopped =3D true while the ALSA substream remai=
+ns in
+SNDRV_PCM_STATE_PAUSED?
+
+In __snd_pcm_lib_xfer(), a single read that wraps around the ring buffer
+boundary is split across two loop iterations. pcm_lib_apply_appl_ptr() ->
+substream->ops->ack() is called after each contiguous chunk, whereas
+snd_pcm_update_state() is only called once after the entire transfer loop
+finishes.
+
+If snd_pcm_capture_avail(runtime) >=3D runtime->stop_threshold after the fi=
+rst
+chunk at the wrap boundary, but avail drops below runtime->stop_threshold
+after the second chunk completes the read, virtsnd_pcm_cp_ack() calls
+virtsnd_pcm_capture_arm_paused_stop(vss) on the first chunk (setting
+vss->stopped =3D true and vss->xfer_enabled =3D false), while
+snd_pcm_update_state() sees avail < runtime->stop_threshold and keeps
+runtime->state in SNDRV_PCM_STATE_PAUSED. Calling snd_pcm_forward(),
+snd_pcm_rewind(), or snd_pcm_sync_ptr() while paused also invokes
+pcm_lib_apply_appl_ptr() -> substream->ops->ack() without calling
+snd_pcm_update_state().
+
+When userspace subsequently unpauses the stream with
+SNDRV_PCM_TRIGGER_PAUSE_RELEASE in native pause mode, virtsnd_pcm_trigger()
+sees vss->stopped =3D=3D true and fails with -EBADFD.
+
+>  		return rc;
+>  	}
 > =20
 >  	scoped_guard(spinlock_irqsave, &queue->lock) {
 >  		guard(spinlock)(&vss->lock);
-> +		if (vss->capture_staging) {
-> +			snd_pcm_uframes_t appl_ptr;
-> +			snd_pcm_sframes_t diff;
-> +			size_t bytes;
-> +			u64 next_acked_total;
-> +
-> +			if (!vss->runtime_active || !runtime || !runtime->control ||
-> +			    !runtime->dma_area)
-> +				return -EBADFD;
-> +			if (vss->xfer_xrun)
-> +				return -EPIPE;
-> +			if (!virtsnd_pcm_capture_counters_valid(vss)) {
-> +				vss->xfer_xrun =3D true;
-> +				schedule_work(&vss->elapsed_period);
-> +				return -EPIPE;
-> +			}
-> +			appl_ptr =3D runtime->control->appl_ptr;
-> +			diff =3D appl_ptr - vss->pcm_indirect.appl_ptr;
-> +
-> +			if (diff < -(snd_pcm_sframes_t)(runtime->boundary / 2))
-> +				diff +=3D runtime->boundary;
-> +			if (diff < 0 ||
-> +			    (snd_pcm_uframes_t)diff > runtime->buffer_size) {
-> +				vss->xfer_xrun =3D true;
-> +				schedule_work(&vss->elapsed_period);
-> +				return -EPIPE;
-> +			}
-> +
-> +			/* ACK includes any subperiod tail already copied to the ring. */
-> +			bytes =3D frames_to_bytes(runtime, diff);
-> +			if (bytes > vss->capture_ready ||
-> +			    check_add_overflow(vss->capture_acked_total, (u64)bytes,
-> +					       &next_acked_total) ||
-> +			    next_acked_total > vss->capture_copied_total) {
-> +				vss->xfer_xrun =3D true;
-> +				schedule_work(&vss->elapsed_period);
-> +				return -EPIPE;
-> +			}
+> +		if (!vss->prepared)
+> +			return -EBADFD;
+>  		transfer.indirect =3D vss->pcm_indirect;
+>  		if (vss->stopped && runtime->state !=3D SNDRV_PCM_STATE_DRAINING) {
+>  			rc =3D -EPIPE;
 
-[Severity: Medium]
-How does the staged capture accounting handle SNDRV_PCM_IOCTL_RESET when a
-stream is running or paused?
+[Severity: High]
+What happens in the non-staged capture path (!vss->capture_staging) when a
+paused read crosses runtime->stop_threshold and snd_pcm_update_state()
+moves the substream to SNDRV_PCM_STATE_XRUN?
 
-virtsnd_pcm_ops uses snd_pcm_lib_ioctl, which handles SNDRV_PCM_IOCTL1_RESET
-via snd_pcm_lib_ioctl_reset(). When the stream is running or paused,
-snd_pcm_lib_ioctl_reset() updates runtime->status->hw_ptr (wrapping it modu=
-lo
-runtime->buffer_size or zeroing it if paused), zeroes runtime->hw_ptr_base,
-and sets runtime->control->appl_ptr =3D runtime->status->hw_ptr in
-snd_pcm_post_reset() without calling substream->ops->ack().
+Because virtsnd_pcm_capture_arm_paused_stop() is only called in the
+vss->capture_staging branch of virtsnd_pcm_cp_ack(), a paused non-staged
+capture stream that enters SNDRV_PCM_STATE_XRUN from snd_pcm_update_state()
+after a partial read (or when virtsnd_pcm_cp_ack() returns -EPIPE) never
+sets vss->stopped =3D true or runtime->stop_operating =3D true, since
+snd_pcm_do_stop() is a no-op when !snd_pcm_running(substream).
 
-Because vss->capture_ready, vss->capture_acked_total, and
-vss->pcm_indirect.appl_ptr are not synchronized with that reset, any unread
-bytes discarded by advancing appl_ptr to hw_ptr remain counted in
-vss->capture_ready, which can cause virtsnd_pcm_capture_complete() to reject
-subsequent completions with a ring_capacity or ring_full XRUN before the AL=
-SA
-ring is actually full.
+As a result, the queued RX descriptors remain pending in the virtqueue and
+subsequent snd_pcm_prepare() calls skip virtsnd_pcm_sync_stop() and fail
+with -EBADFD at virtsnd_pcm_msg_pending_num(vss). Furthermore, on
+!CONFIG_MMU, because virtsnd_pcm_msg_complete() now checks
+vss->prepared && !vss->stopped instead of vss->xfer_enabled:
 
-Furthermore, once runtime->hw_ptr_base is non-zero (after a buffer wrap) or
-when resetting while paused, resetting runtime->control->appl_ptr without
-updating vss->pcm_indirect.appl_ptr causes the next call to
-virtsnd_pcm_cp_ack() in sound/virtio/virtio_pcm_ops.c to compute a negative
-diff =3D appl_ptr - vss->pcm_indirect.appl_ptr and fail with -EPIPE.
+  #ifndef CONFIG_MMU
+  	if (vss->direction =3D=3D SNDRV_PCM_STREAM_CAPTURE &&
+  	    vss->prepared && !vss->stopped &&
+  	    written_bytes > sizeof(msg->status)) {
+  ...
+  		memcpy(runtime->dma_area + msg->data_offset,
+  		       vss->owned_dma_area + msg->data_offset, data_bytes);
+  	}
+  #endif
 
-Should SNDRV_PCM_IOCTL1_RESET be intercepted in the ioctl callback to
-reconcile vss->pcm_indirect.appl_ptr, vss->capture_acked_total, and
-vss->capture_ready when vss->capture_staging is enabled?
+if userspace calls snd_pcm_drop() followed by snd_pcm_hw_params(),
+snd_pcm_lib_malloc_pages() can free and reallocate runtime->dma_area before
+virtsnd_pcm_hw_params() clears vss->prepared, allowing a concurrent RX
+completion in virtsnd_pcm_msg_complete() to copy into freed
+runtime->dma_area.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261028025317.9245=
-0-1-mynameisjune111@gmail.com?part=3D7
+0-1-mynameisjune111@gmail.com?part=3D13
