@@ -1,60 +1,94 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=165.173.182.11
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793189740;
-	b=j4vzI9oz78F+aBY2evsK9XXXNN4SvvVHMT1hRBQJ2b+o9pqqbH+ozUBBjDeX2x3w0ejG
-	 F3x328yomsmuLW8J6kpbosJyaYgXGym8wdOzMfY6RCd1TDVs/FQ8Esh6vcbJCCsgkQnXy
-	 LGvXVxEBzP/RFBSdsEd9ayBEsnL7eeIA0ugb3A/N5VyeA+i+soNkICOiCg3yAIkD0yuMP
-	 XyOC68WlisFmKbAQY/OYYQgJplx0X3yx0Gmi1F7hegwGljZtkxqwkjNm1fAnd6SOIgJ//
-	 eR3kbqzoSJjelycVh2C6O1hw4arfS+0VCgJlwrh+OdDFffK4lCoiQ9nG4okrML/u/rQ==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793189740;
-	h=DMARC-Filter:DKIM-Signature:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-ZohoMailClient;
-	bh=/2akYOy6YGKaOEXw/VkGTrsyV1hy65TQgDziu2YpSXU=;
-	b=foRjdprFa3r+T8n1hZtCSb3cKXs4bTawU9//ydX5Z60p702oBLLj6ieo9viooMhzbXsv
-	 wm+J6L4ZkoFGBxC7Uu6aB0pjvjNPgXYQL1bj052U06cdp7UpTXw2cXDSc09aCfsec4DVv
-	 bg6KVx8zMJn1wrn7trrsjrYbFRvwVTh1+NtczevtQFRzWWuRXbekFoV4rLlb7B5Za9yqa
-	 5izRBxx0GNlYh/lhjLmZlg+nfgj6zGNXMmNwyxlow3NKCLBnJRB4OqDN9mYbnLm6tg/am
-	 E+G2GlkVCUU9E4VNASryS6pGLemorgwWZhNYMKhoBnWX7FN0dLqrW4EETmJOX3YbIzA==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=collabora.com;
-	spf=pass smtp.mailfrom=collabora.com;
-	dkim=pass header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.a=rsa-sha256 header.s=zohomail header.b=CstQy5S5;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=165.173.182.11
-Received: from sender5-op-o11.zoho.com (sender5-op-o11.zoho.com [165.173.182.11])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.214.227
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793191277;
+	b=lHB1C3HQ3087Fd318eCPXXoCWHsycTpIJq50LBIpkBzO+kOrIYi16ZT3dx/hrzAf8U85
+	 rTec7inC/9WvjSNm3yqmlx0+E0F4giTEVMvcPkrP+BXc5XZdQnKeZjFXf7etfFhbjlNSG
+	 NTTFXuKa7d1dd9agHhwg++Sa1XWUbcf2zQrIP52YZ6oJax+rSVNCVdCejNx1ryqWvrs+f
+	 ReihzZXC7BMfAx+vuD5ucGYCIHpaZVonyGoJZxJGk3vGcOuoltSUT5BN2yLy3+q3tDLJ3
+	 S+CwcGmQKtp4qvFMvk6dFZP9TttIS/sH+auKmFz619op/w8N4g6eAjOUeB2YAwlc9xw==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793191277;
+	h=DMARC-Filter:Received:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:X-Relaying-Domain:
+	 X-CFilter-Loop:Received:DKIM-Signature:X-Forwarded-Encrypted:
+	 X-Received:X-Received:MIME-Version:References:In-Reply-To:From:Date:
+	 X-Gm-Features:Message-ID:Subject:To:Cc:X-DetectorID-Processed:
+	 Content-Type;
+	bh=ciaAmbJ6e90yzYg/KUuc2ylShGkIM7mAwlk2onuCaF4=;
+	b=CVRXj2lwCgL5TkOJUYTT3frfku76GrsZxX8nsboItmhX/7L0ZEVJugwaCqWzbVkYsPJh
+	 YO/QO2up/kyqMU4WYyLseDVtWpItzZI7ato/45zB395dU4TZuYsZjxzFwqcW4WR1iT6es
+	 HED4LKTwY/bRx39Sf6IOEI2XwnsPNNNUUg9hasWhml/LlggXNGM6hHly3vE7KAl1K7gky
+	 cqAt/MUiZXOBE+Rg9q/wIT5a5Ps+OC0TcvBczProNST5RL++ajzLHlCC7jkf75ClkpQyK
+	 /670gGl7RxkBVxlVLl4hpHgkpikIg2H9bcRJ9QvyM/EBSrdLp922pX8z1GDfX48MtTQ==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=broadcom.com;
+	spf=fail smtp.mailfrom=broadcom.com;
+	dkim=pass header.d=broadcom.com header.i=@broadcom.com header.a=rsa-sha256 header.s=google header.b=U6Ng5MPU;
+	arc=none smtp.remote-ip=209.85.214.227
+Received: from mail-pl1-f227.google.com (mail-pl1-f227.google.com [209.85.214.227])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19215606A31A;
-	Wed, 28 Oct 2026 12:15:39 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 19215606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C2CC606A31A
+	for <virtualization@lists.linux.dev>; Wed, 28 Oct 2026 12:41:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4C2CC606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.a=rsa-sha256 header.s=zohomail header.b=CstQy5S5
-ARC-Seal: i=1; a=rsa-sha256; t=1793189725; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=K9TxSEmnVHlVNBFEZUEqAaaoF57hHY576AksdpUvZHycTE/nB0qnd/cjN3FI0LH13ERpLv7jf4VzVc+y8JVYQC6SXLSLQ26UNe4QSCgIbr7A0fgLnwtymh+ddUXOJBJwbG26qnN8tcRG42aN6g5u0HwYL0xOsSZCrk2EFiWGAJk=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1793189725; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=/2akYOy6YGKaOEXw/VkGTrsyV1hy65TQgDziu2YpSXU=; 
-	b=DlzXHruOLBPUsROpYRNZ810mQdOt2ezz1cho8qyKgQGOj0cILjS2cgUdBA2tagLKwcjctRD66KAK3jd2UwTSIBjPXAowJMteIqml8sjlGj2NqH/IhWPjLXAKZjUXHoQ63MCRJMxXq2UjhIT4pIfrmqJ3JKSRPFRc6laS6XH63SY=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
-	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1793189725;
-	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
-	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=/2akYOy6YGKaOEXw/VkGTrsyV1hy65TQgDziu2YpSXU=;
-	b=CstQy5S5LsWpJc29h1knK3jXQrccC4lZT1z5WvyCOpwHp/OaBReYJZ8oD5CLrsP6
-	V/A4k9C3MtXUy70f96hOTk5puWg0ZGnVzC/0KZyCAemePncvcn3lJ1koz7fwqRsHNHv
-	7FYy7JPq1q7I7C3hoa8cwKwLZd5u5I6pmL4uLGO4=
-Received: by smtp.zohomail.com with SMTPS id 1793189721376354.21165480845355;
-	Wed, 28 Oct 2026 05:15:21 -0700 (PDT)
-Message-ID: <104e0ffd-4c87-4727-b510-cd80ba8c9eb2@collabora.com>
-Date: Wed, 28 Oct 2026 15:15:14 +0300
+	dkim=pass (1024-bit key, unprotected) header.d=broadcom.com header.i=@broadcom.com header.a=rsa-sha256 header.s=google header.b=U6Ng5MPU
+Received: by mail-pl1-f227.google.com with SMTP id d9443c01a7336-2e8fe8e343fso4871555ad.2
+        for <virtualization@lists.linux.dev>; Wed, 28 Oct 2026 05:41:16 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793191276; x=1793796076;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:dkim-signature:x-gm-gg:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=ciaAmbJ6e90yzYg/KUuc2ylShGkIM7mAwlk2onuCaF4=;
+        b=FrKoDA69QRSPUhjauebWKiKt5HLHE7Fz8iwwFoRBd4WsTANpv4rl9yB1lGTD/DIGnH
+         R5A38uc080KiE7RHFGS76v/Xyq/oNUJOgbyvnrL+ryE2X3F2swlnzwzlM+zDFh+ebTPt
+         AeVjcC0Usca5pU6IAIRN4NgiBE4be7ZV89NtpcfLHkfF0geNVJhe3MPlkEzcqtadZTin
+         lnn7NMyxYyuJB9TDcoK+tRsHng0tIDS2fWN1MHNSbtyMu/mtU3Hew/u5qvafTlGn8m94
+         yY8m7DUuV+EuD37CeUElQi71VaOb0V4eH+GlNn193K+9QmV7o013fssrNqfgtGvHtBQZ
+         WDwA==
+X-Forwarded-Encrypted: i=1; AKwUvBxakqFqJg9Vtg5Ctc5OqZNXP8AOK4XojeShSzzJZi/aG/V1TRtxxBxP3X0wVArLbzZQ7zBGmbqn8rPH50ZkcA==@lists.linux.dev
+X-Gm-Message-State: AFq9FYLUkalM1g+LW4S1qWWNoWPRrgy7r/qSBIRcXYC6rmAiN/7Dr1f5
+	v/Rv18dDyj0MfxEvwWkyvtKbYgQhZek0N4+trQOd8BrHQyUIa7vqvs20aYZr01iTPujGjRNToIP
+	3xcuLD229Y8nurrUHNGNrixnXXqWdC8Ag9EDIuAvZXHTAMMS5XD3qBzcQWKj912aeFyI9ufhd+j
+	VakGbi450Hi/fgYUy7ZvCxB4b6Dyv4NP7TJe9L8vzIhhhqU8lwyJB1NvOD4tRUQ/KyZ8nfezvl1
+	YlPGSpwd3foMsibzSI=
+X-Gm-Gg: AYBFou3ViShvZVppQhEwcQIHJ4epnkUK9hGxD+Fzrh+OIXcO5btGgaMX/dFa1Jj3s0T
+	PP2NTzFgGGgA+gHUQEH/ac34IL4iJ8TRyQMpunJugMXPGP2+3GG+VTMsepwJedZK2Lff43nPaS7
+	k1MExDoDvXXTgzcMAL+KQ00XVEvCx842uyjB9SOVJ9+gIFh78Sq/9yzt3hCe0e6X/W+DKL/ZW1d
+	MSyj9QqoCHkaHwYwR8pZwKpGX7Y4ZYVnc1Ik5ndNnOzZVZrcNQC8IBlfs3TAZQW5/uVSSyIEwk5
+	LtsTdLsjXF8AxAS47IqvwLOdXV5QZ6DOB0ETO143QWBfbdGCqHu9L2qFoeX2tKCWHXW8fvupuq7
+	f7+2Q6l6Pm1Du2ot7uJWPGfLmy23vslabR8MbRXFO8I9J6aPc2h3REz1s4LUDaGu2sGgsd55HNx
+	zVOVag3dINkmhun51oZNM0HGLSvjlshNXD
+X-Received: by 2002:a17:902:da8e:b0:2e9:4f21:91ef with SMTP id d9443c01a7336-2eb004bcb75mr17884355ad.36.1793191275511;
+        Wed, 28 Oct 2026 05:41:15 -0700 (PDT)
+Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-28.dlp.protect.broadcom.com. [144.49.247.28])
+        by smtp-relay.gmail.com with ESMTPS id d9443c01a7336-2eae641ceb6sm1095475ad.4.2026.10.28.05.41.14
+        for <virtualization@lists.linux.dev>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 28 Oct 2026 05:41:15 -0700 (PDT)
+X-Relaying-Domain: broadcom.com
+X-CFilter-Loop: Reflected
+Received: by mail-lj1-f200.google.com with SMTP id 38308e7fff4ca-3a9e7d65fe4so5213841fa.2
+        for <virtualization@lists.linux.dev>; Wed, 28 Oct 2026 05:41:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google; t=1793191273; x=1793796073; darn=lists.linux.dev;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=ciaAmbJ6e90yzYg/KUuc2ylShGkIM7mAwlk2onuCaF4=;
+        b=U6Ng5MPUN04zwnkCtQ9JH84hrXFOjY1BkLSz95a84UptTjmFIyDhH01EFXTMQYhjNw
+         RRvzel6DrlKvknY4RihpdCcII+h7x0MUy0IPqX8EoNH1s+ZrG7P7dmR/jQenB0pEnU6A
+         HuIC7UNktRFBli6tsUYDpg7ZiCGZDOO4zpB+A=
+X-Forwarded-Encrypted: i=1; AKwUvBxXjqWxbUTJMQ8YcODvm8SDc1NOzomqe3zDg5GUObFBoeLjh0OQ6I9qC13AtkZFGsNv/S71TUGiovSQFHZfLQ==@lists.linux.dev
+X-Received: by 2002:a05:651c:1593:b0:3a6:95a:52a6 with SMTP id 38308e7fff4ca-3ac9cf82d06mr5144331fa.20.1793191273047;
+        Wed, 28 Oct 2026 05:41:13 -0700 (PDT)
+X-Received: by 2002:a05:651c:1593:b0:3a6:95a:52a6 with SMTP id
+ 38308e7fff4ca-3ac9cf82d06mr5144181fa.20.1793191272523; Wed, 28 Oct 2026
+ 05:41:12 -0700 (PDT)
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -64,299 +98,186 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4] drm/vblank: Don't arm vblank timer with invalid frame
- duration
-To: Thomas Zimmermann <tzimmermann@suse.de>, me@romanilin.is,
- louis.chauvet@bootlin.com, maarten.lankhorst@linux.intel.com,
- mripard@kernel.org, airlied@gmail.com, simona@ffwll.ch, javierm@redhat.com,
- ville.syrjala@linux.intel.com, regressions@leemhuis.info,
- peter.m.arnesen@gmail.com
-Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
- sashiko-reviews@lists.linux.dev
-References: <20260914110004.211027-1-tzimmermann@suse.de>
- <bd3c0c3a-1452-4667-b99d-96af0087af3f@suse.de>
-Content-Language: en-US
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-In-Reply-To: <bd3c0c3a-1452-4667-b99d-96af0087af3f@suse.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ZohoMailClient: External
+References: <4ab10678a8f50053934b62b56af81f881c1d3798.1788414669.git.zack.rusin@broadcom.com>
+ <20261028082724.GE2668804@noisy.programming.kicks-ass.net>
+In-Reply-To: <20261028082724.GE2668804@noisy.programming.kicks-ass.net>
+From: Zack Rusin <zack.rusin@broadcom.com>
+Date: Wed, 28 Oct 2026 08:41:00 -0400
+X-Gm-Features: AclHuK8ut6bSnBp6Y6V2DclJ4JCRJx1r3_APd5D4CA092zg18Y7LFlwv6-znOuE
+Message-ID: <CABQX2QPwkot4tf23dt-Fv08a+15OUN8Z1hYLHGMa7Z7KjUq_DQ@mail.gmail.com>
+Subject: Re: [PATCH v1] x86/vmware: Fix i386 high-bandwidth hypercall arguments
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: Borislav Petkov <bp@alien8.de>, Ajay Kaher <ajay.kaher@broadcom.com>, 
+	Alexey Makhalov <alexey.makhalov@broadcom.com>, x86@kernel.org, 
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, "H . Peter Anvin" <hpa@zytor.com>, 
+	virtualization@lists.linux.dev, bcm-kernel-feedback-list@broadcom.com, 
+	linux-kernel@vger.kernel.org, Josh Poimboeuf <jpoimboe@kernel.org>, 
+	Nathan Chancellor <nathan@kernel.org>, llvm@lists.linux.dev
+X-DetectorID-Processed: b00c1d49-9d2e-4205-b15f-d015386d3d5e
+Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha-256;
+	boundary="000000000000ddcaa1065ee5e0cd"
 
-On 10/28/26 10:29, Thomas Zimmermann wrote:
-> 
-> Ping. Please review!
-> 
-> Am 14.09.26 um 12:57 schrieb Thomas Zimmermann:
->> From: Roman Ilin <me@romanilin.is>
->>
->> When a CRTC's display mode carries a too small pixel clock,
->> drm_calc_timestamping_constants() computes a frame duration that
->> exceeds INT_MAX. drm_vblank_crtc.framedur_ns becomes negative.
->> drm_crtc_vblank_start_timer() then arms the vblank hrtimer with this
->> interval, after which vblank events are no longer delivered. Pending
->> page flips never complete and the display appears frozen.
->>
->> This could be triggered on virtio-gpu guests that have dynamic resolution
->> enabled: when the SPICE agent or the X server resizes the output, it
->> submits a mode whose pixel clock is off by a factor of 1000, e.g.:
->>
->>      clock = 406 kHz, htotal = 3152, vtotal = 2148
->>
->>      framedur_ns = 3152 * 2148 * 1000000 / 406 = 16675852216 ns (~16.7 s)
->>
->> 16675852216 does not fit into an int and wraps to roughly -504000000.
->> ns_to_ktime() then yields a negative interval and the timer stops
->> working.
->>
->> Found by bisection, which pointed at commit a036f5fceedb ("drm/virtgpu:
->> Use vblank timer"). That commit merely made virtio-gpu use the vblank
->> timer and thereby exposed the pre-existing problem in the timer setup
->> added by commit 74afeb812850 ("drm/vblank: Add vblank timer").
->>
->> To fix this, modify drm_calc_timestamping_constants() to use u64 for
->> calculations, check for INT_MAX overflows, and return an error code.
->> drm_crtc_vblank_start_timer() will then propagate the error, enabling
->> the driver to fall back to immediate vblank events. Valid modes are
->> unaffected, and the timer self-heals on the next mode with a sane clock.
->>
->> v4:
->> - avoid log spamming with drm_warn_once()
->>
->> Fixes: 74afeb812850 ("drm/vblank: Add vblank timer")
->> Suggested-by: Thomas Zimmermann <tzimmermann@suse.de>
->> Signed-off-by: Roman Ilin <me@romanilin.is>
->> ---
->> I took Roman's patch from [1] and replaced the error messages with
->> warn_once, as suggestde in my review.
->>
->> [1] https://lore.kernel.org/dri-devel/20260702181027.98526-1-
->> me@romanilin.is/
->> ---
->>   drivers/gpu/drm/drm_vblank.c | 73 +++++++++++++++++++++++-------------
->>   include/drm/drm_vblank.h     |  4 +-
->>   2 files changed, 49 insertions(+), 28 deletions(-)
->>
->> diff --git a/drivers/gpu/drm/drm_vblank.c b/drivers/gpu/drm/drm_vblank.c
->> index f90fb2d13e42..72b543bca9e3 100644
->> --- a/drivers/gpu/drm/drm_vblank.c
->> +++ b/drivers/gpu/drm/drm_vblank.c
->> @@ -631,45 +631,54 @@ EXPORT_SYMBOL(drm_crtc_vblank_waitqueue);
->>    * drm_crtc_vblank_helper_get_vblank_timestamp(). They are derived from
->>    * CRTC's true scanout timing, so they take things like panel
->> scaling or
->>    * other adjustments into account.
->> + *
->> + * Returns:
->> + * 0 on success, or a negative errno code otherwise.
->>    */
->> -void drm_calc_timestamping_constants(struct drm_crtc *crtc,
->> -                     const struct drm_display_mode *mode)
->> +int drm_calc_timestamping_constants(struct drm_crtc *crtc,
->> +                    const struct drm_display_mode *mode)
->>   {
->>       struct drm_device *dev = crtc->dev;
->>       unsigned int pipe = drm_crtc_index(crtc);
->>       struct drm_vblank_crtc *vblank = drm_crtc_vblank_crtc(crtc);
->> -    int linedur_ns = 0, framedur_ns = 0;
->> +    u64 linedur_ns, framedur_ns;
->>       int dotclock = mode->crtc_clock;
->> +    unsigned int frame_size;
->>         if (!drm_dev_has_vblank(dev))
->> -        return;
->> +        return 0;
->>         if (drm_WARN_ON(dev, pipe >= dev->num_crtcs))
->> -        return;
->> +        return -EINVAL;
->>   -    /* Valid dotclock? */
->> -    if (dotclock > 0) {
->> -        int frame_size = mode->crtc_htotal * mode->crtc_vtotal;
->> +    if (dotclock <= 0) {
->> +        drm_err_once(dev, "crtc %u: Can't calculate constants,
->> dotclock = %d!\n",
->> +                 crtc->base.id, dotclock);
->> +        goto error;
->> +    }
->>   -        /*
->> -         * Convert scanline length in pixels and video
->> -         * dot clock to line duration and frame duration
->> -         * in nanoseconds:
->> -         */
->> -        linedur_ns  = div_u64((u64) mode->crtc_htotal * 1000000,
->> dotclock);
->> -        framedur_ns = div_u64((u64) frame_size * 1000000, dotclock);
->> +    frame_size = (unsigned int)mode->crtc_htotal * (unsigned
->> int)mode->crtc_vtotal;
->>   -        /*
->> -         * Fields of interlaced scanout modes are only half a frame
->> duration.
->> -         */
->> -        if (mode->flags & DRM_MODE_FLAG_INTERLACE)
->> -            framedur_ns /= 2;
->> -    } else {
->> -        drm_err(dev, "crtc %u: Can't calculate constants, dotclock =
->> 0!\n",
->> -            crtc->base.id);
->> +    /*
->> +     * Convert scanline length in pixels and video dot clock to line
->> duration
->> +     * and frame duration in nanoseconds.
->> +     */
->> +    linedur_ns  = div_u64((u64)mode->crtc_htotal * 1000000, dotclock);
->> +    framedur_ns = div_u64((u64)frame_size * 1000000, dotclock);
->> +
->> +    /*
->> +     * Fields of interlaced scanout modes are only half a frame
->> duration.
->> +     */
->> +    if (mode->flags & DRM_MODE_FLAG_INTERLACE)
->> +        framedur_ns /= 2;
->> +
->> +    if (linedur_ns > INT_MAX || framedur_ns > INT_MAX) {
->> +        drm_err_once(dev, "crtc %u: Can't calculate constants, mode
->> clock too small!\n",
->> +                 crtc->base.id);
->> +        goto error;
->>       }
->>   -    vblank->linedur_ns  = linedur_ns;
->> +    vblank->linedur_ns = linedur_ns;
->>       vblank->framedur_ns = framedur_ns;
->>       drm_mode_copy(&vblank->hwmode, mode);
->>   @@ -678,7 +687,16 @@ void drm_calc_timestamping_constants(struct
->> drm_crtc *crtc,
->>                crtc->base.id, mode->crtc_htotal,
->>                mode->crtc_vtotal, mode->crtc_vdisplay);
->>       drm_dbg_core(dev, "crtc %u: clock %d kHz framedur %d linedur %d\n",
->> -             crtc->base.id, dotclock, framedur_ns, linedur_ns);
->> +             crtc->base.id, dotclock,
->> +             vblank->framedur_ns, vblank->linedur_ns);
->> +
->> +    return 0;
->> +
->> +error:
->> +    vblank->linedur_ns = 0;
->> +    vblank->framedur_ns = 0;
->> +    drm_mode_copy(&vblank->hwmode, mode);
->> +    return -EINVAL;
->>   }
->>   EXPORT_SYMBOL(drm_calc_timestamping_constants);
->>   @@ -2221,6 +2239,7 @@ int drm_crtc_vblank_start_timer(struct
->> drm_crtc *crtc)
->>       struct drm_vblank_crtc *vblank = drm_crtc_vblank_crtc(crtc);
->>       struct drm_vblank_crtc_timer *vtimer = &vblank->vblank_timer;
->>       unsigned long flags;
->> +    int ret;
->>         if (!vtimer->crtc) {
->>           /*
->> @@ -2239,7 +2258,9 @@ int drm_crtc_vblank_start_timer(struct drm_crtc
->> *crtc)
->>               hrtimer_try_to_cancel(&vtimer->timer);
->>       }
->>   -    drm_calc_timestamping_constants(crtc, &crtc->mode);
->> +    ret = drm_calc_timestamping_constants(crtc, &crtc->mode);
->> +    if (ret)
->> +        return ret;
->>         spin_lock_irqsave(&vtimer->interval_lock, flags);
->>       vtimer->interval = ns_to_ktime(vblank->framedur_ns);
->> diff --git a/include/drm/drm_vblank.h b/include/drm/drm_vblank.h
->> index 2fcef9c0f5b1..d99772dfa034 100644
->> --- a/include/drm/drm_vblank.h
->> +++ b/include/drm/drm_vblank.h
->> @@ -311,8 +311,8 @@ void drm_crtc_vblank_on(struct drm_crtc *crtc);
->>   u64 drm_crtc_accurate_vblank_count(struct drm_crtc *crtc);
->>   void drm_crtc_vblank_restore(struct drm_crtc *crtc);
->>   -void drm_calc_timestamping_constants(struct drm_crtc *crtc,
->> -                     const struct drm_display_mode *mode);
->> +int drm_calc_timestamping_constants(struct drm_crtc *crtc,
->> +                    const struct drm_display_mode *mode);
->>   wait_queue_head_t *drm_crtc_vblank_waitqueue(struct drm_crtc *crtc);
->>   void drm_crtc_set_max_vblank_count(struct drm_crtc *crtc,
->>                      u32 max_vblank_count);
->>
->> base-commit: 06576c2b43750d990297b8ff1989b94ac72e855f
->> prerequisite-patch-id: 6729bb10d5e338678e78ccda2dd24f232a13cd22
->> prerequisite-patch-id: 9d94d20bd45967493b4dc339b58082e1c8da0f4f
->> prerequisite-patch-id: 6ac8d22df34db9e7d467b1ab95ad30f94841d5db
->> prerequisite-patch-id: f548dbde3f944ca3415c808be628719acebe898a
->> prerequisite-patch-id: 2ae91ee8e2bbcd33b8325be046e7214185aba6aa
->> prerequisite-patch-id: f97bbde08a9996d7c62ca3e3ebfcd387e50bc5c3
->> prerequisite-patch-id: ecc3c825277bc9978c6979455517249a074c0cb1
->> prerequisite-patch-id: 0449925cca36664b566f614bfb7d573a11f0575f
->> prerequisite-patch-id: 9fb2c2787244e9621847af09bea03e575e6276c7
->> prerequisite-patch-id: eb4384d581805e1178d22e7df45f134223c38305
->> prerequisite-patch-id: 1a7a529e4b2864abe8071aa44598d28ce72483f4
->> prerequisite-patch-id: 844a85f4c2fe2f72209b82d46614004c3cfe4123
->> prerequisite-patch-id: 13f7cb22114c648d35f8c9fa74e9165656ce31eb
->> prerequisite-patch-id: 20ee46bd6fdd91e39f71d22f52ef6682a4e41512
->> prerequisite-patch-id: 1d26c0ff91796ff1e62d3831d00bee18723788ef
->> prerequisite-patch-id: 007f6ea0d09bef54b689bae0eb5abeb497bdfaad
->> prerequisite-patch-id: 2d89c1507c909520adf9bfb1a137d458a819ae8f
->> prerequisite-patch-id: d90dc4134468870ab8ccbd71547c9552dff74fbd
->> prerequisite-patch-id: c67e5d886a47b7d0266d81100837557fda34cb24
->> prerequisite-patch-id: a5a973e527c88a5b47053d7a72aefe0b550197cb
->> prerequisite-patch-id: b9adc9622920a3e70168e672c2c92795b3e3a106
->> prerequisite-patch-id: 5030de433a01c2e99056cadb676a8e2ba35f055a
-> 
+--000000000000ddcaa1065ee5e0cd
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-The patch looks correct, though will be better to have a smaller diff 
-that doesn't require LLM for a review.
+On Wed, Oct 28, 2026 at 4:27=E2=80=AFAM Peter Zijlstra <peterz@infradead.or=
+g> wrote:
+>
+> On Thu, Sep 03, 2026 at 12:07:20PM -0400, Zack Rusin wrote:
+> > The high-bandwidth hypercall helpers push %ebp before loading the in6
+> > operand into it. On i386 without frame pointers, both GCC and Clang can
+> > address the memory-constrained operand relative to %esp. The push then
+> > moves the stack and the helpers load the wrong value.
+> >
+> > Typical i386 configurations use the frame-pointer unwinder and happen t=
+o
+> > address the operand through %ebp. However, UNWINDER_GUESS is available
+> > with EXPERT and permits the affected frame-pointer-disabled configurati=
+on.
+> > vmwgfx is also available on i386 and calls both helpers.
+> >
+> > Stage in6 through %eax before changing either stack register, then save
+> > %ebp and copy the staged value into it. Load the VMware magic immediate=
+ly
+> > before the string I/O instruction. Mark %eax early-clobber so it cannot
+> > also provide in6 or an address register for it. Use the same sequence o=
+n
+> > x86-64, where the full-width register preserves in6.
+> >
+> > Fixes: 34bf25e820ae ("x86/vmware: Introduce VMware hypercall API")
+> > Cc: stable@vger.kernel.org # 6.11+
+> > Signed-off-by: Zack Rusin <zack.rusin@broadcom.com>
+> > ---
+>
+> So I despise all these hypercalls that muck about with the [BS]P
+> registers. The Intel function call convention is much older than any of
+> them and yet they chose to violate it.
 
+Personally I reserve my "despise" for more important things in life,
+like celery or subscription services but I understand the sentiment. I
+don't think anyone's here writing love sonnets about this convention.
+I ranted about this internally in an old man yelling at a sun type of
+way because existing hosts and guests depend on this layout so
+"fixing" it would imply adding a new convention and still having to
+support and fix bugs in this one.
 
--void drm_calc_timestamping_constants(struct drm_crtc *crtc,
--				     const struct drm_display_mode *mode)
-+int drm_calc_timestamping_constants(struct drm_crtc *crtc,
-+				    const struct drm_display_mode *mode)
-  {
-  	struct drm_device *dev = crtc->dev;
-  	unsigned int pipe = drm_crtc_index(crtc);
-  	struct drm_vblank_crtc *vblank = drm_crtc_vblank_crtc(crtc);
--	int linedur_ns = 0, framedur_ns = 0;
-+	u64 linedur_ns = 0, framedur_ns = 0;
-  	int dotclock = mode->crtc_clock;
+> This is both vmware and hyperv.
+>
+> If if were just me I'd have nak'ed the lot. But alas.
+>
+> At least ARM64 people are (afaik) holding up and telling hyperv its
+> their problem.
 
-  	if (!drm_dev_has_vblank(dev))
--		return;
-+		return 0;
+Our arm64 conventions don't have this issue ([BS]P just goes through
+x6 there) our x86 low-bandwidth helpers also don't have it. I have a
+possible path to fixing this in the kernel (we can't do anything about
+our hypervisor but you don't care about that) by completely removing
+the high-bandwidth vmware hypercalls from the kernel but it's a large
+project and wouldn't help stable.
 
-  	if (drm_WARN_ON(dev, pipe >= dev->num_crtcs))
--		return;
-+		return -EINVAL;
+z
 
-  	/* Valid dotclock? */
-  	if (dotclock > 0) {
--		int frame_size = mode->crtc_htotal * mode->crtc_vtotal;
-+		u64 frame_size = (u64)mode->crtc_htotal * mode->crtc_vtotal;
+--000000000000ddcaa1065ee5e0cd
+Content-Type: application/pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
 
-  		/*
-  		 * Convert scanline length in pixels and video
-  		 * dot clock to line duration and frame duration
-  		 * in nanoseconds:
-  		 */
-  		linedur_ns  = div_u64((u64) mode->crtc_htotal * 1000000, dotclock);
--		framedur_ns = div_u64((u64) frame_size * 1000000, dotclock);
-+		framedur_ns = div_u64(frame_size * 1000000, dotclock);
-
-  		/*
-  		 * Fields of interlaced scanout modes are only half a frame duration.
-  		 */
-  		if (mode->flags & DRM_MODE_FLAG_INTERLACE)
-  			framedur_ns /= 2;
-+
-+		if (linedur_ns > INT_MAX || framedur_ns > INT_MAX) {
-+			drm_err_once(dev, "crtc %u: Can't calculate constants, mode clock 
-too small!\n",
-+				     crtc->base.id);
-+			linedur_ns = 0;
-+			framedur_ns = 0;
-+			dotclock = 0; /* reuse the existing error-logging branch below */
-+		}
-  	} else {
--		drm_err(dev, "crtc %u: Can't calculate constants, dotclock = 0!\n",
--			crtc->base.id);
-+		drm_err_once(dev, "crtc %u: Can't calculate constants, dotclock = %d!\n",
-+			     crtc->base.id, dotclock);
-  	}
-
--- 
-Best regards,
-Dmitry
+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
+6U6qgI8F5eiKsQyE0HgYrQJx/sDs9LLVZlaNiA3U8M8CgEnb8VhuH3BN/yXphhEQdJXb1TyaJA60
+SmHcZdEQZbl4EjwUcs3UIowmI/Mhi7ADQB7VNsO/BaOVBEQk53xH+4djY/cg7jvqTTeliY05j2Yx
+uwwXcDC4mWjGzxAT5DVqC8fKQvon1uc2heorHb555+sLdwYxAgMBAAGjggHYMIIB1DAOBgNVHQ8B
+Af8EBAMCBaAwgZMGCCsGAQUFBwEBBIGGMIGDMEYGCCsGAQUFBzAChjpodHRwOi8vc2VjdXJlLmds
+b2JhbHNpZ24uY29tL2NhY2VydC9nc2djY3I2c21pbWVjYTIwMjMuY3J0MDkGCCsGAQUFBzABhi1o
+dHRwOi8vb2NzcC5nbG9iYWxzaWduLmNvbS9nc2djY3I2c21pbWVjYTIwMjMwZQYDVR0gBF4wXDAJ
+BgdngQwBBQMBMAsGCSsGAQQBoDIBKDBCBgorBgEEAaAyCgMCMDQwMgYIKwYBBQUHAgEWJmh0dHBz
+Oi8vd3d3Lmdsb2JhbHNpZ24uY29tL3JlcG9zaXRvcnkvMAkGA1UdEwQCMAAwQQYDVR0fBDowODA2
+oDSgMoYwaHR0cDovL2NybC5nbG9iYWxzaWduLmNvbS9nc2djY3I2c21pbWVjYTIwMjMuY3JsMCIG
+A1UdEQQbMBmBF3phY2sucnVzaW5AYnJvYWRjb20uY29tMBMGA1UdJQQMMAoGCCsGAQUFBwMEMB8G
+A1UdIwQYMBaAFAApNp5ceroPry1QLdugI4UYsKCSMB0GA1UdDgQWBBQNDn2m/OLuDx9YjEqPLCDB
+s/VKNTANBgkqhkiG9w0BAQsFAAOCAgEAF463syOLTQkWZmEyyR60W1sM3J1cbnMRrBFUBt3S2NTY
+SJ2NAvkTAxbPoOhK6IQdaTyrWi8xdg2tftr5FC1bOSUdxudY6dipq2txe7mEoUE6VlpJid/56Mo4
+QJRb6YiykQeIfoJiYMKsyuXWsTB1rhQxlxfnaFxi8Xy3+xKAeX68DcsHG3ZU0h1beBURA44tXcz6
+fFDNPQ2k6rWDFz+XNN2YOPqfse2wEm3DXpqNT79ycU7Uva7e51b8XdbmJ6XVzUFmWzhjXy5hvV8z
+iF+DvP+KT1/bjO6aNL2/3PWiy1u6xjnWvobHuAYVrXxQ5wzk8aPOnED9Q8pt2nqk/UIzw2f67Cn9
+3CxrVqXUKm93J+rupyKVTGgKO9T1ODVPo665aIbM72RxSI9Wsofatm2fo8DWOkrfs29pYfy6eECl
+91qfFMl+IzIVfDgIrEX6gSngJ2ZLaG6L+/iNrUxHxxsaUmyDwBbTfjYwr10H6NKES3JaxVRslnpF
+06HTTciJNx2wowbYF1c+BFY4r/19LHygijIVa+hZEgNuMrVLyAamaAKZ1AWxTdv8Q/eeNN3Myq61
+b1ykTSPCXjBq/03CMF/wT1wly16jYjLDXZ6II/HYyJt34QeqnBENU9zXTc9RopqcuHD2g+ROT7lI
+VLi5ffzC8rVliltTltbYPc7F0lAvGKAxggJXMIICUwIBATBiMFIxCzAJBgNVBAYTAkJFMRkwFwYD
+VQQKExBHbG9iYWxTaWduIG52LXNhMSgwJgYDVQQDEx9HbG9iYWxTaWduIEdDQyBSNiBTTUlNRSBD
+QSAyMDIzAgxhPxw+eieHWB40hPkwDQYJYIZIAWUDBAIBBQCggccwLwYJKoZIhvcNAQkEMSIEIM+z
+NPBPuBFFd6i7wJ4pqvIbwpCRs0OTNhI/N38Kc/sMMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEw
+HAYJKoZIhvcNAQkFMQ8XDTI2MTAyODEyNDExM1owXAYJKoZIhvcNAQkPMU8wTTALBglghkgBZQME
+ASowCwYJYIZIAWUDBAEWMAsGCWCGSAFlAwQBAjAKBggqhkiG9w0DBzALBgkqhkiG9w0BAQcwCwYJ
+YIZIAWUDBAIBMA0GCSqGSIb3DQEBAQUABIIBAHLcF7Impa0aub9NE+1czJ8EIpd1QM2h4aU0XrVh
+eaY/LN/iUnhxo7bqGWPIEcTxDu/C+YxzQHWLqsHGFM+gU+WJjiTW9xah4moyyVwx3AaCZaieLkoH
+9NbFHN7T+OE0PP8SSYfLfic5Ye60j+bsw8sCrZHbxN+ngu7ohKi6UjvAlr+BxrzkqBKNLaKDoM/h
+XDK+CFuMvU4klHpFQsDLrt8fQmext9+jDp+A8Yjrq3yqGMGCSN2cnJYxcYvgB9o5n2qq308iLfqb
+CCj8FIzuaGyYkN0PTmiPFYFcAK8O8XiScP+I8k/dxRo6OGqBRgnZKb6HJC8VZQluSdRpHIHvIA4=
+--000000000000ddcaa1065ee5e0cd--
