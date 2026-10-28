@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793146059;
-	b=fbZnn/GF2uxFq3YJkX/Unw4CNw4X1lOZUUrgIgU4T6Lx98OVRecwiureuCFwitJt3a/h
-	 8lae7daKquuqjUwFWkmWBc1IH1FvUsIxk0H5tjtITV1RI8huBsfkBvNindZcDBdSXPerm
-	 k0UXfFaIDizgNnf4xnV01ThKjLWpaqMzt0ykuKVf3Ud8wJd3n/cojgtr7irhT7dTwKmSG
-	 hVJpV3FLzhJRCHBvLR6BDxeCd3nCZjhC/WwhDLjioiFm/5fYEJhInOKQqvCKT6IpTdufp
-	 WL6paxjBhMUcwiFh3XIL0XotvpSO6erk4jy5pc1iZ+mcwCUVF2zierNBaxAceWdOs6w==
+	t=1793146200;
+	b=TeVYBqwWdW+zSqjO+HtMeyLdai3rGm8r6L6LBU8zmmlo0gTg6ILfkcKqRfK8NDpXWBL3
+	 HVMbOwo7Hk4cy+JEaGhrVytJxSvlSIVFTLNjOj3bRZe9yr4kzSmALzLJnIHvHI7eHRRbT
+	 Bbvoa7/3dGerUOVmyjQNZwFjXF1HcIOvyrmbRJ2QfwDzhM5vcz4/w4CvShfsL7FWUT8st
+	 KaS9YrrDFVrYOXhwKnRdWL1uSx7e7xwuNXOTlji8We9ZyKTMRyd6OuK58Nb6D5SXCUrpz
+	 AUW0JFH07HAj8Kc/l9oUeaep6oIYIHFeibS9MMbnb663tqeBZciToO/aObo5jkyYQjA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793146059;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793146200;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=5+0z7+tuLGNS1NNGBwekclS0kOveSVj017dZVpDyfho=;
-	b=mrV35RTh5PeqVUWjmt0PxZknyj1EcKpqiJGFwCQTDbxgQ8ltptN/gURxgqFcivtpwdjf
-	 RV5oXEA4zqOzWgXhqGAGZbjM7d08FfOfWBeW2A7xEhdUwb4+UABwc7yXrUWNyGOzszPgB
-	 h4xLtrNkTWtaZZbOMXs+lAsmr962Kyx9ehO1JD60UCh16pNGVCEs/R/Qpj7b6MwWwOsaj
-	 +KM8KTeGXwragPXe3EeqPTOQwTpeog99KZ8XpPLce65Lm8GJ0RnlX90a8ff2PJu2Ofkxz
-	 QaliFxMiZFLJXgHqC9rvCZaTdBAQcxx026M+Vm8zdm23IRlRwoU9uIVRfF5o/MGr6aw==
+	bh=qNuLg4JO8zPZRfc9tHra3qyiBVrJiE+hOkqkbJCBA0o=;
+	b=swGA8vdHPxjGxIhm+6BdgZkdYSG6i7KzLEJ0OMA2vxp9mpQ3XSFgC0u2UXIbcRqinmQ2
+	 DM+iTTcPXHO9zfJEruCwNGA+AsW9/ks7KCz9E/YSMPhdSGTXOPfUMdXbcy4wILLvNW/vz
+	 hX98sBGFM+TwgyimhH5nNlDMCA/JXNSZVi+yexvtJFtcSZ4027TlqAUK44baX2kfPgvKd
+	 VGj740VwwVK0gtn7GDQlpOcR9TO4RZRsgs5b6sCwgDzVaM5RoOYhEYoBRxV5mMcLecINu
+	 m6HdgUT7M0yWWVFDsx6WUvAcR8MQ7kJrjauqAEwp06jst8o2NfW+MLk+h7+vjo3XtNA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZP1W1c2a;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QLw1dXYD;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 007AA606A31A;
-	Wed, 28 Oct 2026 00:07:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 718F7606A31A;
+	Wed, 28 Oct 2026 00:10:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZP1W1c2a
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 291631F01825;
-	Wed, 28 Oct 2026 00:07:38 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QLw1dXYD
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8B2E1F01825;
+	Wed, 28 Oct 2026 00:09:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793146058;
-	bh=5+0z7+tuLGNS1NNGBwekclS0kOveSVj017dZVpDyfho=;
+	s=k20260515; t=1793146200;
+	bh=qNuLg4JO8zPZRfc9tHra3qyiBVrJiE+hOkqkbJCBA0o=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ZP1W1c2aAXbqw9e++/RNBsEaSooDKI++0OHOOoAP1GZd1DVc7d5j+4kOzVc4nMY3n
-	 emlqdv5O2Wi/8TbzZsPZCWVs6Mtv56Bm+VUjeIi9aa2V0wgOW0DZ++NG6jRYwylbya
-	 YSwqoI+u2NRty1kvdB02+Oo12aZXFm32/N6gfRPgQY6OY8AswPEBGqyyI1klYxogNg
-	 Jik1jwIYPAh/qtZFQNhg/Ioe6xrB7uETAliUzCSQlZCNdwbU9+e+26LTtMKWyIgi5g
-	 SSwZBoEWcgPslVzm5OK7IfEVhWyxVgH1iMH+fzYgyRBcHFzmxZ/MbnZ43xag86fedD
-	 JRVPmtg560/7w==
-Message-ID: <sashiko-outbox-187254@kernel.org>
+	b=QLw1dXYDgOgQA0vpa13o1Kh4MpfpWNK/XkIob5glwhn++9giuXFWJrBGG6YUqy+jN
+	 DoH3uOYvvtw6Qk6YtBJOriggfyr1i5E9TyzuC8g0iMa41HZfbv3pl3sszPPKjK/JRY
+	 TPnTheH74/nmLOBRgas/T7IuxdzmPeJNpW3bK5y1Sl5jtDqTyqd8K5IqCi31DPoO/O
+	 A90niNcMbSwwpMyAFCybIJYspFPQQU9MtOOT1WgXoKZ5AEPlgAXfcMkKnykjLCRrK6
+	 l9UUqp/1wVZ7C+4FS9WF7sJ2gOdzYr02EbeCDr4H+kDRVQp6szR/OZaRAFOHCbhXoS
+	 v8F0ekjCtmH4Q==
+Message-ID: <sashiko-outbox-187258@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 06/11] ALSA: virtio: wait through signals for PCM
- teardown
+Subject: Re: [PATCH v5 01/11] ALSA: virtio: Propagate PCM send failures
+ through ACK
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Joonho Lee" <mynameisjune111@gmail.com>, linux-sound@vger.kernel.org
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261027234334.32551-7-mynameisjune111@gmail.com>
+In-Reply-To: <20261027234334.32551-2-mynameisjune111@gmail.com>
 References: <20261027234334.32551-1-mynameisjune111@gmail.com>
- <20261027234334.32551-7-mynameisjune111@gmail.com>
+ <20261027234334.32551-2-mynameisjune111@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 28 Oct 2026 00:07:37 +0000
+Date: Wed, 28 Oct 2026 00:09:59 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,156 +62,109 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] ALSA: virtio: interruptible I/O flush wait in virtsnd_pcm_sync_sto=
-p()
-- [Medium] ALSA: virtio: interrupted PCM_START in virtsnd_ctl_msg_send() br=
-eaks teardown
+- [High] ALSA: virtio: virtsnd_pcm_cp_ack() fails with -EPIPE during captur=
+e drain
 --
 
-commit cb2fb94625971d45e77abbb9e6f9bcb8abb321ee
+commit 7b35fc6d816e5d3f7f39daa43f235ee425fb93dd
 Author: Joonho Lee <mynameisjune111@gmail.com>
 
-ALSA: virtio: wait through signals for PCM teardown
+ALSA: virtio: Propagate PCM send failures through ACK
 
-This commit changes virtsnd_ctl_msg_send() to use an uninterruptible timeout
-wait for VIRTIO_SND_R_PCM_STOP and VIRTIO_SND_R_PCM_RELEASE control request=
-s so
-that pending signals do not abort PCM teardown before completion.
+This commit updates virtsnd_pcm_msg_send() to roll back the message length
+and notify the virtqueue for previously queued messages if adding a scatter=
+list
+fails. It also propagates transfer errors through the playback and capture
+ack callbacks, marking the stream stopped and returning an xrun error on
+failure.
 
-> diff --git a/sound/virtio/virtio_ctl_msg.c b/sound/virtio/virtio_ctl_msg.c
-> index 2e0ff15e729da..e50e6c7f3b8d1 100644
-> --- a/sound/virtio/virtio_ctl_msg.c
-> +++ b/sound/virtio/virtio_ctl_msg.c
-> @@ -314,7 +314,20 @@ int virtsnd_ctl_msg_send(struct virtio_snd *snd, str=
-uct virtio_snd_msg *msg,
->  		 */
->  		virtsnd_ctl_msg_unref(msg);
->  	} else if (!nowait) {
-> -		rc =3D wait_for_completion_interruptible_timeout(&msg->notify, js);
-> +		/*
-> +		 * Teardown must observe completion even with a pending signal.
-> +		 * Otherwise a subsequent open can retry RELEASE while the device
-> +		 * is still processing the previous teardown request.
-> +		 */
-> +		switch (le32_to_cpu(request->code)) {
-> +		case VIRTIO_SND_R_PCM_STOP:
-> +		case VIRTIO_SND_R_PCM_RELEASE:
-> +			rc =3D wait_for_completion_timeout(&msg->notify, js);
-> +			break;
+> diff --git a/sound/virtio/virtio_pcm_ops.c b/sound/virtio/virtio_pcm_ops.c
+> index 1091100a4c982..a40ea394bf174 100644
+> --- a/sound/virtio/virtio_pcm_ops.c
+> +++ b/sound/virtio/virtio_pcm_ops.c
 
-[Severity: High]
-When a signal is pending during PCM teardown, virtsnd_ctl_msg_send() now
-waits uninterruptibly for VIRTIO_SND_R_PCM_RELEASE to complete on the contr=
-ol
-virtqueue and returns 0 to virtsnd_pcm_sync_stop() with the signal still
-pending on current.
+[ ... ]
 
-However, right after virtsnd_ctl_msg_send_sync() returns in
-sound/virtio/virtio_pcm_ops.c:virtsnd_pcm_sync_stop(), the wait for pending
-TX/RX I/O buffers to drain is still interruptible:
-
-	rc =3D virtsnd_ctl_msg_send_sync(snd, msg);
-	if (rc) {
-		substream->runtime->stop_operating =3D true;
-		return rc;
-	}
-
-	rc =3D wait_event_interruptible_timeout(vss->msg_empty,
-					      !virtsnd_pcm_msg_pending_num(vss),
-					      js);
-	if (rc <=3D 0) {
-		dev_warn(&snd->vdev->dev, "SID %u: failed to flush I/O queue\n",
-			 vss->sid);
-		substream->runtime->stop_operating =3D true;
-
-		return !rc ? -ETIMEDOUT : rc;
-	}
-
-	scoped_guard(spinlock_irqsave, &vss->lock)
-		vss->stopped =3D false;
-
-Because TX/RX buffer completions arrive asynchronously on separate virtqueu=
-es
-(VIRTIO_SND_VQ_TX / VIRTIO_SND_VQ_RX), vss->msg_count can still be non-zero
-when the control message completes. With the signal still pending on curren=
-t,
-wait_event_interruptible_timeout() immediately returns -ERESTARTSYS, leaving
-vss->stopped =3D true and setting substream->runtime->stop_operating =3D tr=
-ue.
-
-In snd_pcm_release_substream(), do_hw_free() runs after snd_pcm_drop(), sees
-runtime->stop_operating =3D=3D true, and calls virtsnd_pcm_sync_stop() a se=
-cond
-time (or a subsequent virtsnd_pcm_open() preserves vss->stopped via
-vss->stopped |=3D !!vss->msg_count and calls virtsnd_pcm_sync_stop()). Both
-paths see need_release =3D vss->stopped || vss->msg_count as true and send a
-duplicate VIRTIO_SND_R_PCM_RELEASE while the first RELEASE is still flushing
-I/O or after the stream is already released. In addition,
-virtsnd_pcm_hw_free() skips virtsnd_pcm_msg_free(vss) while
-virtsnd_pcm_msg_pending_num(vss) is non-zero, leaving vss->msgs and retained
-vss->dma_pages (or vss->owned_dma_area on !CONFIG_MMU) allocated after clos=
-e.
-
-Should the vss->msg_empty wait in virtsnd_pcm_sync_stop() also use
-wait_event_timeout() so that the entire RELEASE teardown completes through
-pending signals?
-
-> +		default:
-> +			rc =3D wait_for_completion_interruptible_timeout(&msg->notify, js);
-> +			break;
+> @@ -466,36 +466,100 @@ virtsnd_pcm_cp_pointer(struct snd_pcm_substream *s=
+ubstream)
+>  static int virtsnd_pcm_cp_ack(struct snd_pcm_substream *substream)
+>  {
+>  	struct virtio_pcm_substream *vss =3D snd_pcm_substream_chip(substream);
+>  	struct virtio_snd_queue *queue =3D virtsnd_pcm_queue(vss);
+> +	struct virtsnd_pcm_transfer transfer =3D {};
+> +	int rc;
+> =20
+> -	guard(spinlock_irqsave)(&queue->lock);
+> -	guard(spinlock)(&vss->lock);
+> +	scoped_guard(spinlock_irqsave, &queue->lock) {
+> +		guard(spinlock)(&vss->lock);
+> +		transfer.indirect =3D vss->pcm_indirect;
+> +		if (vss->stopped) {
+> +			rc =3D -EPIPE;
+> +		} else {
+> +			rc =3D snd_pcm_indirect_capture_transfer(substream,
+> +							       &transfer.indirect,
+> +							       virtsnd_pcm_trans_copy);
 > +		}
 
-[Severity: Medium]
-What happens if a signal interrupts VIRTIO_SND_R_PCM_START in this default
-branch after the request has already been queued to the control virtqueue?
+[Severity: High]
+Does checking vss->stopped here break capture stream draining?
 
-In sound/virtio/virtio_pcm_ops.c:virtsnd_pcm_trigger(), both
-SNDRV_PCM_TRIGGER_START and SNDRV_PCM_TRIGGER_PAUSE_RELEASE send
-VIRTIO_SND_R_PCM_START synchronously:
+When userspace drains a running capture substream that still has unread
+frames in the ring buffer, snd_pcm_do_drain_init() stops the hardware stream
+and places the substream into the draining state so userspace can read the
+remaining captured data:
 
-		rc =3D virtsnd_ctl_msg_send_sync(snd, msg);
-		if (rc)
-			virtsnd_pcm_start_failed(vss);
+sound/core/pcm_native.c:snd_pcm_do_drain_init() {
+	...
+		if (runtime->state =3D=3D SNDRV_PCM_STATE_RUNNING) {
+			snd_pcm_state_t new_state;
 
-		return rc;
+			new_state =3D snd_pcm_capture_avail(runtime) > 0 ?
+				SNDRV_PCM_STATE_DRAINING : SNDRV_PCM_STATE_SETUP;
+			snd_pcm_do_stop(substream, new_state);
+			snd_pcm_post_stop(substream, new_state);
+		}
+}
 
-Notice that snd_pcm_drop() also triggers SNDRV_PCM_TRIGGER_PAUSE_RELEASE via
-snd_pcm_pause(substream, false) during teardown when runtime->state is
-SNDRV_PCM_STATE_PAUSED.
+snd_pcm_do_stop() invokes virtsnd_pcm_trigger(), which sets vss->stopped:
 
-If a signal is pending or arrives while waiting for VIRTIO_SND_R_PCM_START,
-virtsnd_ctl_msg_send_sync() returns -ERESTARTSYS while the device still
-processes the queued VIRTIO_SND_R_PCM_START and transitions the stream to
-STARTED. Meanwhile, virtsnd_pcm_start_failed() sets vss->stopped =3D true a=
-nd
-substream->runtime->stop_operating =3D true, and ALSA keeps runtime->state =
-in
-SNDRV_PCM_STATE_PREPARED or SNDRV_PCM_STATE_PAUSED:
+sound/virtio/virtio_pcm_ops.c:virtsnd_pcm_trigger() {
+	...
+	case SNDRV_PCM_TRIGGER_STOP:
+		vss->stopped =3D true;
+		fallthrough;
+}
 
-1. For linked streams in snd_pcm_action_group(), ops->undo_action is only
-   called on streams iterated before the failing stream, so
-   SNDRV_PCM_TRIGGER_STOP is not sent for the interrupted stream. Subsequent
-   snd_pcm_stop() sees snd_pcm_running(substream) =3D=3D false and skips
-   SNDRV_PCM_TRIGGER_STOP, after which virtsnd_pcm_sync_stop() sees
-   vss->stopped =3D=3D true and sends VIRTIO_SND_R_PCM_RELEASE while the de=
-vice
-   stream is still STARTED.
+When userspace subsequently reads those remaining buffered frames via
+__snd_pcm_lib_xfer(), advances appl_ptr via snd_pcm_forward(), or synchroni=
+zes
+via snd_pcm_sync_ptr(), pcm_lib_apply_appl_ptr() invokes substream->ops->ac=
+k():
 
-2. For unlinked streams where snd_pcm_undo_start() or snd_pcm_undo_pause()
-   sends VIRTIO_SND_R_PCM_STOP, vss->stopped remains true while
-   runtime->state stays PREPARED or PAUSED without snd_pcm_sync_stop()
-   running, so a syscall restart or retry of START/PAUSE_RELEASE fails with
-   -EBADFD in virtsnd_pcm_trigger(). In addition, when pause-restart mode is
-   active (from commit "ALSA: virtio: stage VZ capture and restart paused
-   streams"), an interrupted PAUSE_RELEASE during snd_pcm_drop() transitions
-   vss->pause_restart_state to VIRTSND_PCM_PAUSE_RESTART_RESET_REQUIRED,
-   skipping STOP and RELEASE and wedging the substream.
+sound/core/pcm_lib.c:pcm_lib_apply_appl_ptr() {
+	...
+	runtime->control->appl_ptr =3D appl_ptr;
+	if (substream->ops->ack) {
+		ret =3D substream->ops->ack(substream);
+		if (ret < 0) {
+			runtime->control->appl_ptr =3D old_appl_ptr;
+			if (ret =3D=3D -EPIPE)
+				__snd_pcm_xrun(substream);
+			return ret;
+		}
+	}
+}
 
-Should VIRTIO_SND_R_PCM_START also wait uninterruptibly once queued so the
-driver and device stream states stay synchronized?
+Because vss->stopped is already true during capture drain, virtsnd_pcm_cp_a=
+ck()
+will unconditionally fail and return -EPIPE, causing pcm_lib_apply_appl_ptr=
+()
+to revert appl_ptr, trigger __snd_pcm_xrun(), and prevent userspace from
+reading the remaining captured frames.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261027234334.3255=
-1-1-mynameisjune111@gmail.com?part=3D6
+1-1-mynameisjune111@gmail.com?part=3D1
