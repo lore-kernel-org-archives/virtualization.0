@@ -1,58 +1,107 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.215.180
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793205272;
-	b=qA3CqBCY7p0NjkPQkqXQPlUmGj1zilm5Z7AgHyDg96EOQ3yTKaNoc9b/HqgKhQpEAvNq
-	 aB9rBOO2XEwUHKSgwxtGK/c3rRqPVApOtIFrzIhWXWW16slX9wtIsyn5uyx/5nbsU/VEX
-	 AXeTfnker7RPe+eIGxZlbwvg8pbYOCQwFCbLhD7V56pf9lQhquBjuSNu5X4WJph/5MSlc
-	 G91UWx1tDwCWhggr4gyni3oVyOxP5Ef5FeTfikmCdqQ+xHqOMdP2+9KSqACe8XCOYgA9l
-	 zaRXU1r8sUqJ8hLJ+0E8UVYsOkaFERYhJUa+73+oB2vIEL1r9MWgcGXDV3dRBE9alEw==
+	t=1793208334;
+	b=hFWv3vaRUkTyGfWfMAX5lAOHNlCtNk1p6WJ1khbmVVVDfbZO7sS2+HrphohgasJqIark
+	 ZoRNrf3afkPuNJQygJrWLrA2i4+i60E3LzHNCwdqdt56PgJs0g1r5v7qMJtUF9wvYFoQd
+	 uci7xnwfNSRToMCGHA0m+2NdBIaQVcLQAzmpxeOBgDLnVQwVhTO6peJVfSpiTJxumIw/4
+	 MhKcOTdGE2E4ceFOPtT7SpK9BuwOQTi31BQpskUau20MpoAE1/nis7bQuylGo1lkrKukD
+	 vKOnuQ45lLE/LA5AGd9UfJV3ZEmWb7UuJ/zAal8MQvXNqfjLmuHu926osnbfaMUYoeQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793205272;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=0qMByyHPKGaQUWfgXFNZxpLHWxfO4wafpSFpsLM9Ew4=;
-	b=b5O0SiFl6fVJmGn94GRr+z8kJfX4E57T7vwavqlJ/xsTyZgf0nnupsl61OUBdik+/TZA
-	 kC8eyvGNrzYL4tX/x3BKkKsVHPSzJAQesgBX92dIShgHnisBoDH4Juhi0NE2bzm0fRxCA
-	 FAQjgsANEbwPsZ5WcQTjDv0aYNXkhQDwgtwIPbdexN0sV3Alat2XmDo4LKeyCyr3tMJ00
-	 +nQ/+V/JiUtVsVoggdM3Bp+Kuiv7larNlZ/wvjY9J82vfuXwvTGUAJ5iHphJhL6wFwJSz
-	 +q1cTBFkbu8UOzWjeIGyDfqM7XhmdRpPukmpNZHVp3w/Bb1hplLB1WD38MGawzz4GEA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793208334;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Content-Type:Date:
+	 Message-Id:Subject:From:To:Cc:In-Reply-To:References:
+	 Content-Transfer-Encoding:MIME-Version;
+	bh=XLYiEepDtnyQ6wJ1rlYe5RaJc/i8ARvs/UjwaNMVQRE=;
+	b=Qa6aTutfHS+oU15ktGmQyneXLzQnRirxYFwsdUKrP1TprxepCwJcXGXwWAJFFfgTUdfD
+	 i9e7eYGk7HHpTsYou2kb9m7p+KyGzlyFzfMYCxzsfkGFj6rsY5gI5MQj1MJf+scQXeyyd
+	 KKPxrBpfkbNESPfnaWoKPQpSHqCaqtgXSl0dgNkHyf2c9wRgccJm1UhieZUQhJ1t6jl2u
+	 ZHrwsIPJknKzHjCUeNMltczpPclxDGTrvlW+ll1X26QZwPIuxhOcyIydI1r5hEcW7IBiw
+	 pMu5nKMToyBRTcgpbLXKnDCldwINr4h9zr7OgRqyEwLt4x34kTDvlt6T/YTOcP15yrg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Sq0uzUAy;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=zv2Q01mH;
+	arc=none smtp.remote-ip=209.85.215.180
+Received: from mail-pg1-f180.google.com (mail-pg1-f180.google.com [209.85.215.180])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0B3A606A31A;
-	Wed, 28 Oct 2026 16:34:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1CDB606A31F
+	for <virtualization@lists.linux.dev>; Wed, 28 Oct 2026 17:25:33 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E1CDB606A31F
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Sq0uzUAy
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 564B31F01825;
-	Wed, 28 Oct 2026 16:34:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793205271;
-	bh=0qMByyHPKGaQUWfgXFNZxpLHWxfO4wafpSFpsLM9Ew4=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Sq0uzUAyrwf/IEVsDj/CwujMg6dOti6mqvoJ+DAnV7nsWaSUUelc1lXowij71/91g
-	 aO5kNF9MYq8fwJt/6Ws1eMMBtxvCzCoJUYwBbZPG2wWTbClj5mjo9kCzb98hWRjbJJ
-	 G/EvdgDF4mFH8yszdA4nppTdSfbjJrdaKDQKrS0it3A/ZI/fTzqNJcTbVBdfRfteCZ
-	 eUMU4C8ltDNDftLxTNx89yj9cbkZE0t8w+BlBeq/oB5mhoCdhKxRY5YApiNTHiuI62
-	 6jsqfYUw/VS9A91ksyH5Cwrv3BUkhD4gTYwo53vV9Erp73M6ZO1GxTKAafgP7uZCCi
-	 9nv1z3fbeE2ZQ==
-Message-ID: <sashiko-outbox-188166@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RFC 6/8] vsock: allow datagrams to use directional
- transports
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Sergio Lopez" <slp@redhat.com>
-Cc: virtualization@lists.linux.dev, kvm@vger.kernel.org, bpf@vger.kernel.org, linux-hyperv@vger.kernel.org, "Michael
- S. Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>
-In-Reply-To: <20261028-vsock-dgram-support-v1-6-e457cf7cee78@sinrega.org>
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=zv2Q01mH
+Received: by mail-pg1-f180.google.com with SMTP id 41be03b00d2f7-cc7d154ec4fso623561a12.0
+        for <virtualization@lists.linux.dev>; Wed, 28 Oct 2026 10:25:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793208333; x=1793813133; darn=lists.linux.dev;
+        h=mime-version:content-transfer-encoding:references:in-reply-to:cc:to
+         :from:subject:message-id:date:content-type:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=XLYiEepDtnyQ6wJ1rlYe5RaJc/i8ARvs/UjwaNMVQRE=;
+        b=zv2Q01mH32s4vXlb8aos4rsRKWBC4rHQ8JlxaJdDjONrODlR5X8VxMNW94UGbvmLV4
+         KAidNUUUc9hYhjFUY7inGmol0qIN6lyAE2zclt7tmnt7vBTmIMVyO521TY2XgCuMXXwS
+         3TyvKETz2N2f/QBojtabTDexLvu1ubKgwmRM2HXzmdL4MTYzX/23cxVjkbkg/PNGrwhl
+         rlrJ8mmCa55+Gh3X/TCsJE1ZXi2IXFP4RRFr/gJdEXgYLfeCX8loBABR8p5YuX7WitTK
+         ki5E18VMRTLkw40GwZNyJAdr/TuWfsc4aMcogiujNIHTRqq6n5ip6OHuP/84l2P84GJk
+         H36Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793208333; x=1793813133;
+        h=mime-version:content-transfer-encoding:references:in-reply-to:cc:to
+         :from:subject:message-id:date:content-type:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=XLYiEepDtnyQ6wJ1rlYe5RaJc/i8ARvs/UjwaNMVQRE=;
+        b=hWs583byj2RtvrmdYkFErZYfklKJp30Ln9qsX9ygbG24AhWObYqS+3Uz4FBpym8Ur5
+         M/+URIWpqPrRV9LjOnPMd/ChrIIcIWrKC5eQYYMkZhaXAGyx9q7Z+SbkkKoD3frVvcny
+         2o/bAm0Xak1YjTpb5Zm6h4BKZHZijTi523XVldHZY416+q4RQ2ssr0O6IqPeZxhvF9m7
+         FqzJ258st8O0A3oGJ1OSxDg97JW0IEoP2QEMTLHoyKQWh8qeBhyTl5JC9N9B6+ZhuClw
+         SO13xJFtAqxsetQQe4WuF8iSynKrdE7RuR+4DiPD7fUIKhAHWm64NtbSX4yPNQAJLGQl
+         eA5w==
+X-Gm-Message-State: AFq9FYJq7t5RPYPrw5xJhEqY/ho77HMHUpo40o3cXzEe5la8CKUKGhQE
+	0h4bP0UGJeKBZWtyt2r+R8U1+dW2jZc/DuBtxOimvbu0ilQpnSmxuGrU
+X-Gm-Gg: AYBFou2imm/zlNupLzJTEgNUXCP4W1ppLdCokn2mVuBQ2r1nfKepzz5RoYrCCwBjfxT
+	do88bD5ZbQhKWAXNtBcnkjUKLq4nfRhh8lgxYYD/5aTGXft+TGOsGacdzsM38piwAvrLLp/wpX4
+	hsIRv/A68JRDai/cxCHC0sXOmPMgtFlhbbQAxNRtOXZys1TPOOuGvyWRN9Ee6EvoCDlx6c9lH4G
+	xWDSYBohikEZ56EQxsowN7H6ZPvnD5sQMqv+MFWm5LO4OKUY9QKZ48gEMmVIfrTjMWKKCywlinq
+	uDqyBymuvs5X5zQYDpfF0I00IOX9KeiKgpVMgpc4mdZUwrYq1ZGnMBoRzW4cfDL8FpiK2YQ/yYw
+	EXY0MUvMCSwD73m3f2ZtI4dWF6kU9hw08TuR4W4x1xH5RljRPT38dCUciDNVq1XyDfv38Y5iRxC
+	QorG+QjMUuy9JeMbFkuqBG3+TgDtQXAXecxUFLni5NKqAsBL/Ufz/nwWCZk9MRFCN6rlFQjEO8r
+	dZvmv7kx7vMQfVkTyRT1tSDwJ4y4to3gk9uwR4QMym01EcCZ7HW6rEmciYsWs8v+pg2QyRDAADf
+	iAnkSYUmSjpi6GhLGpyjZmzjyjf5p/RXR7afIv0+66/YTMXcx+jwctqdxZYjwyxABQ548lqJ9dS
+	7izhTGZStyv3YeYa9z/fRde0ZtPt6sZk8lg==
+X-Received: by 2002:a17:90b:3a46:b0:3aa:fdad:7d6e with SMTP id 98e67ed59e1d1-3ae581b7b3fmr2290113a91.10.1793208333116;
+        Wed, 28 Oct 2026 10:25:33 -0700 (PDT)
+Received: from localhost ([153.61.198.248])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3ae6e9583c1sm397200a91.10.2026.10.28.10.25.32
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 28 Oct 2026 10:25:32 -0700 (PDT)
+Content-Type: text/plain; charset=UTF-8
+Date: Wed, 28 Oct 2026 17:25:31 +0000
+Message-Id: <DMGNAV67LK3F.2FNLTD5NVHDEA@gmail.com>
+Subject: Re: [PATCH RFC 0/8] vsock: add datagram support to virtio and vhost
+From: "Alexei Starovoitov" <alexei.starovoitov@gmail.com>
+To: "Sergio Lopez" <slp@redhat.com>, "Stefano Garzarella"
+ <sgarzare@redhat.com>, "Bobby Eshleman" <bobbyeshleman@meta.com>, "David S.
+ Miller" <davem@davemloft.net>, "Eric Dumazet" <edumazet@kernel.org>, "Jakub
+ Kicinski" <kuba@kernel.org>, "Paolo Abeni" <pabeni@redhat.com>, "Simon
+ Horman" <horms@kernel.org>, "Bryan Tan" <bryan-bt.tan@broadcom.com>,
+ "Vishnu Dasa" <vishnu.dasa@broadcom.com>, "Broadcom internal kernel review
+ list" <bcm-kernel-feedback-list@broadcom.com>, "Stefan Hajnoczi"
+ <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, "Jason Wang"
+ <jasowangio@gmail.com>, =?utf-8?q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, "Xuan Zhuo" <xuanzhuo@linux.alibaba.com>, "Haiyang
+ Zhang" <haiyangz@microsoft.com>, "Wei Liu" <wei.liu@kernel.org>, "Dexuan
+ Cui" <decui@microsoft.com>
+Cc: <virtualization@lists.linux.dev>, <netdev@vger.kernel.org>,
+ <linux-kernel@vger.kernel.org>, <kvm@vger.kernel.org>,
+ <bpf@vger.kernel.org>, <linux-hyperv@vger.kernel.org>
+In-Reply-To: <20261028-vsock-dgram-support-v1-0-e457cf7cee78@sinrega.org>
 References: <20261028-vsock-dgram-support-v1-0-e457cf7cee78@sinrega.org>
- <20261028-vsock-dgram-support-v1-6-e457cf7cee78@sinrega.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 28 Oct 2026 16:34:30 +0000
+Content-Transfer-Encoding: 8bit
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -61,192 +110,63 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+MIME-Version: 1.0
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] vsock/virtio: bypass of checks in virtio_transport_dgram_source_al=
-low()
-- [Medium] vsock: vsock_dgram_sendmsg() mutates connected vsk->remote_addr =
-on fallback
---
+On Wed, Oct 28, 2026 at 09:04 AM Sergio Lopez <slp@redhat.com> wrote:
+> This series implements SOCK_DGRAM support for virtio-vsock and
+> vhost-vsock, allowing applications to exchange connectionless messages
+> through the existing AF_VSOCK datagram API.
 
-commit 634f5c11de9d307a1a88027855c76c28c15f7d96
-Author: Sergio Lopez <slp@redhat.com>
+The cover doesn't say who needs it.
 
-vsock: allow datagrams to use directional transports
+Bobby and Amery took the same feature to v6:
+https://lore.kernel.org/all/20240710212555.1617795-1-amery.hung@bytedance.com/
+Stefano said there that it can work well and that the virtio spec change
+is the next step. The last mails of the thread have Amery's v7 WIP and a
+short list of what is left.
+The cover doesn't mention it. The spec change is still missing.
 
-This commit enables AF_VSOCK datagram sockets to initialize through and
-route across directional transports (such as virtio, vhost, and loopback)
-when a dedicated datagram transport is not registered.
+Why not finish v7 instead ?
 
-> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> index dc1add2d2e896..6419498a6fe27 100644
-> --- a/net/vmw_vsock/af_vsock.c
-> +++ b/net/vmw_vsock/af_vsock.c
-[ ... ]
-> @@ -1493,7 +1606,8 @@ static int vsock_dgram_sendmsg(struct socket *sock,=
- struct msghdr *msg,
->  		remote_addr =3D &vsk->remote_addr;
-> =20
->  		if (remote_addr->svm_cid =3D=3D VMADDR_CID_ANY)
-> -			remote_addr->svm_cid =3D transport->get_local_cid();
-> +			remote_addr->svm_cid =3D transport->dgram_transport_match ?
-> +				VMADDR_CID_LOCAL : transport->get_local_cid();
-> =20
->  		/* XXX Should connect() or this function ensure remote_addr is
->  		 * bound?
-> @@ -1507,13 +1621,14 @@ static int vsock_dgram_sendmsg(struct socket *soc=
-k, struct msghdr *msg,
->  		goto out;
->  	}
-> =20
-> -	if (!transport->dgram_allow(vsk, remote_addr->svm_cid,
-> -				    remote_addr->svm_port)) {
-> -		err =3D -EINVAL;
-> +	transport =3D vsock_dgram_get_transport(vsk, remote_addr);
-> +	if (IS_ERR(transport)) {
-> +		err =3D PTR_ERR(transport);
->  		goto out;
->  	}
+This RFC goes the other way in these places:
 
-[Severity: Medium]
-When vsock_dgram_sendmsg() is called without msg_name on a connected
-socket, remote_addr points directly to &vsk->remote_addr.
+  what               v6                        this RFC
+  -----------------  ------------------------  ----------------------------
+  (cid, port) space  own bind table for dgram  shared with stream. The 2nd
+                                               bind() gets EADDRINUSE
+  vsk->transport     empty until connect(),    g2h or h2g, picked in
+                     lookup per packet         socket(). -ENODEV with
+                                               vsock_loopback only
+  routing            one helper for stream     2nd copy of the chain in
+                     and dgram                 vsock_assign_transport()
+  recvmsg()          in af_vsock.c,            dgram_dequeue() stays,
+                     no dgram_dequeue()        dgram_payload_len() is new
+  VMCI               fallback                  first. No virtio dgram when
+                                               its module is loaded
+  dgram > RX buffer  drop, EHOSTUNREACH in     every RX buffer is 64K
+                     the error queue
 
-If the socket connected to an active H2G guest CID (leaving
-vsk->remote_addr.svm_flags without VMADDR_FLAG_TO_HOST) and that guest is
-temporarily unavailable while g2h_fallback is enabled,
-vsock_dgram_get_transport() takes the fallback path and mutates
-remote_addr in place:
+> Datagrams use destination-based routing across guest-to-host,
+> host-to-guest and loopback transports while retaining the socket's
+> transport state. VMCI keeps priority as the dedicated datagram
 
-net/vmw_vsock/af_vsock.c:vsock_dgram_get_transport() {
-	...
-	} else if (sock_net(sk)->vsock.g2h_fallback && transport_g2h &&
-		   transport_g2h->has_remote_cid &&
-		   transport_g2h->has_remote_cid(vsk, cid)) {
-		transport =3D transport_g2h;
-		to_host =3D true;
-	}
-	...
-	if (to_host)
-		remote_addr->svm_flags |=3D VMADDR_FLAG_TO_HOST;
-}
+A dgram socket uses two members of struct virtio_vsock_sock: tx_lock and
+bytes_unsent. They serve SIOCOUTQ only.
+virtio_transport_alloc_skb() does skb_set_owner_w() already.
+udp_ioctl() returns sk_wmem_alloc_get() for SIOCOUTQ.
 
-Because vsock_dgram_get_transport() checks VMADDR_FLAG_TO_HOST before
-transport_h2g->has_remote_cid(), won't this permanently pin
-vsk->remote_addr to transport_g2h for subsequent sends, receive source
-checks, and getpeername() even after the H2G guest restarts?
+Without them a dgram socket has no transport state, like in v6.
+Then no need for the owner transport, dgram_transport_match(),
+fallback_transport, tx_accounted, the skb destructor, etc.
 
-> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virt=
-io_transport_common.c
-> index ae33630d99e71..7c1ec8feb853c 100644
-> --- a/net/vmw_vsock/virtio_transport_common.c
-> +++ b/net/vmw_vsock/virtio_transport_common.c
-> @@ -322,13 +322,18 @@ static int virtio_transport_send_pkt_info(struct vs=
-ock_sock *vsk,
-> =20
->  	info->type =3D virtio_transport_get_type(sk_vsock(vsk));
-> =20
-> -	t_ops =3D virtio_transport_get_ops(vsk);
-> +	t_ops =3D info->t_ops ?: virtio_transport_get_ops(vsk);
->  	if (unlikely(!t_ops))
->  		return -EFAULT;
-> =20
->  	src_cid =3D t_ops->transport.get_local_cid();
-> +	/* Preserve explicit datagram bindings so loopback replies can find the=
-m. */
-> +	if (info->type =3D=3D VIRTIO_VSOCK_TYPE_DGRAM &&
-> +	    src_cid =3D=3D VMADDR_CID_LOCAL &&
-> +	    vsk->local_addr.svm_cid !=3D VMADDR_CID_ANY)
-> +		src_cid =3D vsk->local_addr.svm_cid;
->  	src_port =3D vsk->local_addr.svm_port;
-[ ... ]
-> @@ -1861,6 +1877,33 @@ static bool virtio_transport_valid_type(u16 type)
->  	       (type =3D=3D VIRTIO_VSOCK_TYPE_DGRAM);
->  }
-> =20
-> +static bool
-> +virtio_transport_dgram_source_allow(struct vsock_sock *vsk,
-> +				    const struct vsock_transport *transport,
-> +				    const struct sockaddr_vm *src)
-> +{
-> +	const struct vsock_transport *peer_transport;
-> +	struct sockaddr_vm peer =3D vsk->remote_addr;
-> +	bool allow;
-> +
-> +	if (!virtio_transport_dgram_transport_match(vsk->transport) ||
-> +	    !virtio_transport_dgram_transport_match(transport))
-> +		return false;
-> +	/* Shutdown preserves the peer; only disconnect removes it. */
-> +	if (sk_vsock(vsk)->sk_socket->state =3D=3D SS_UNCONNECTED)
-> +		return true;
-> +
-> +	peer_transport =3D vsock_dgram_get_transport(vsk, &peer);
-> +	if (IS_ERR(peer_transport))
-> +		return false;
-> +	allow =3D peer_transport =3D=3D transport &&
-> +		src->svm_port =3D=3D vsk->remote_addr.svm_port &&
-> +		(src->svm_cid =3D=3D vsk->remote_addr.svm_cid ||
-> +		 transport->get_local_cid() =3D=3D VMADDR_CID_LOCAL);
-> +	module_put(peer_transport->module);
-> +	return allow;
-> +}
-> +
->  /* We are under the virtio-vsock's vsock->rx_lock or vhost-vsock's vq->m=
-utex
->   * lock.
->   */
-> @@ -1911,14 +1954,14 @@ void virtio_transport_recv_pkt(struct virtio_tran=
-sport *t,
->  		vsk =3D vsock_sk(sk);
->  		lock_sock(sk);
->  		if (sock_flag(sk, SOCK_DEAD) ||
-> -		    vsk->transport !=3D &t->transport ||
-> -		    (sk->sk_socket->state !=3D SS_UNCONNECTED &&
-> -		     !vsock_check_source(vsk, &t->transport, &src))) {
-> +		    !virtio_transport_dgram_source_allow(vsk, &t->transport, &src)) {
->  			release_sock(sk);
->  			sock_put(sk);
->  			goto free_pkt;
->  		}
+> transport.  Guest RX buffers accommodate complete messages when
+> datagrams are negotiated, preserving message boundaries.
 
-[Severity: High]
-Can virtio_transport_dgram_source_allow() bypass feature negotiation,
-local CID transport isolation, and connected peer CID checks?
+That's 64K per RX buffer instead of 4K, for stream and seqpacket too.
+It undoes commit 03a92f036a04 ("vsock/virtio: Resize receive buffers so
+that each SKB fits in a 4K page").
 
-First, for SS_UNCONNECTED sockets, virtio_transport_dgram_source_allow()
-returns true immediately after virtio_transport_dgram_transport_match(),
-which is a static callback comparison that succeeds for virtio_transport,
-vhost_transport, and loopback_transport without calling
-transport->dgram_allow(vsk, src->svm_cid, src->svm_port).
-
-Since neither vhost_vsock_handle_tx_kick() nor virtio_transport_rx_work()
-checks vsock->dgram_allow before calling virtio_transport_recv_pkt(), a
-peer that has not negotiated VIRTIO_VSOCK_F_DGRAM can deliver
-VIRTIO_VSOCK_TYPE_DGRAM packets to any unconnected bound socket on the
-host (bypassing vhost_transport_dgram_allow()) or on a guest initialized
-via the vhost_transport fallback (bypassing
-virtio_transport_dgram_allow_check()).
-
-Second, returning true early for SS_UNCONNECTED sockets skips checking
-whether vsk->local_addr.svm_cid is compatible with the receiving
-transport. Because virtio_transport_rx_work() does not validate
-hdr->dst_cid against the guest CID and __vsock_find_bound_socket_net()
-matches dst.svm_cid =3D=3D vsk->local_addr.svm_cid or VMADDR_CID_ANY, an
-external peer on virtio_transport can send datagrams addressed to
-VMADDR_CID_LOCAL, VMADDR_CID_HOST, or VMADDR_CID_ANY and reach an
-unconnected socket bound to VMADDR_CID_LOCAL or VMADDR_CID_HOST.
-
-Third, on loopback_transport, virtio_transport_send_pkt_info() now
-preserves explicit vsk->local_addr.svm_cid values in hdr->src_cid, and
-__vsock_find_bound_socket_net() allows distinct local sockets to bind to
-the same port on different local CIDs (such as VMADDR_CID_LOCAL and the
-guest or host CID). Because transport->get_local_cid() =3D=3D VMADDR_CID_LO=
-CAL
-is always true for loopback_transport, won't a local socket bound to
-(VMADDR_CID_LOCAL, port) be accepted by a socket connected to (guest_cid,
-port) despite having a mismatched src->svm_cid?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261028-vsock-dgra=
-m-support-v1-0-e457cf7cee78@sinrega.org?part=3D6
+pskb_trim_unique() doesn't reduce skb->truesize. So a datagram of 1 byte
+charges more than 64K to sk_rmem_alloc of the guest socket.
+The default sk_rcvbuf is about 208K on x86-64. The 5th datagram in the
+queue is dropped.
