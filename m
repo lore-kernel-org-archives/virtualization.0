@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793181274;
-	b=t6G5AbSw9Un5aEnFr+nazPzpUnEnsFPGKrxlas/PBLDaq2JEiKiWl5H9WXX+DOFbcbJS
-	 81A7CjTityd4xQl17T1QASVn9xpGmClQiKzvGsdroD8it1N1CHpz2mM16VtwtkfBSJ+9S
-	 leoMDWdQ+ErIJ04GrrLj1QI//f6PO34rVPJFW4S8psOWw4NWosdI6wnxcyWg1kzOUMsVe
-	 UD2Mr2D4gJSUTYOdiZPqRqdhM4qTXMZP1RVUfmf9eEZ8TAfTibzw1nZRJ7g7k5eMRLi0r
-	 iGLNLrAL+Ou9xymjSmOfU1ioplxAwMNH5drN45vijKhbomW/CpSd2tu700P0rjZvviA==
+	t=1793181481;
+	b=o5GX41TVaRpue9NRIEF9JhkhuMKqwlk3E39kASruhD3I5s691QUGO8HFP9JLXjw7TgWi
+	 x30fu5vvaVS4cVRVPm/Uq8CUoxDZX2Qofe2UD5h5gR7YRCB3wB4U50PccgpdG04B8Z8nL
+	 O3fHDcqmMUNpC/eCD69e1CztRRmAagV7xioyekg8VLG0Bl0320D0F/ilz/6gtXxZUyEBJ
+	 hDCUmFYu/7UcpzaONtHJD0o/slN4FrwNB4OXhFTorgmg3RQRWj7fPZkq/ZB6T681M38ZC
+	 5pZdS7GWbmg9MMUsQjJzo/vLyLbO14pAEyetPudNkBzD6bmQwLpoF2kY5fbV+rlO5EQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793181274;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793181481;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=kpv7y76fyGp5PyupcLPm3jDGaVONVPAw2wUMrdNnqBE=;
-	b=g3RAwXp7U8fj+zZUszdLQe4rsc2Al8zU+IXG2gVbZgLW1ErOiFmyaPKbKm8hrw1z3Dzr
-	 FqdqtA7p56paXQ92q5Unv4srFeC9tTQxjQOo8m6+9UxYaD5OvX8F85IAmVNn8vXcsoQvr
-	 XNpP0Rm1ujGNlQQH2DU0LXCj3nvT4DVmOuBCoG+7liUj2yPEpLDG105lQVLnehQeDz0SC
-	 BaHDvQ4hHB7Cl2740/q9u/YSj9jGuFP46iPmW2fRb8z0uYw2PbjEABIHGacUVtR0w7sTA
-	 VavT7+br89ZVzL9AQc+ScZZKk9P9glWXor37R/wm5+pZ2qfJd3CZHkP/qbmgP/jYELg==
+	bh=2Zz+c3R9qwVDAWmrfGlt+GR4JRzYQWCIPcS0+X8bK64=;
+	b=aeeHdYS6EE8x/BCTeD7+Jr2nXBJmhhmvG9yf6YoOWPtWczq46H+gk6PgjoV4Z9hqf9RR
+	 XmO4/rGz3lmlBrAwnv98M/9W+j5sh6lhzYEqs5vQHBBuGnTQnUzDvGo6/ivZqRmUqZh+E
+	 xCQXwcju3VH4WSUFgly5OE/HutIFVyO3bZsRvbL94JJOxXGQ0XTqRaqkvJw4vwvpbVwiT
+	 FIxNQQC6BJyfI39AzjcPFnN14xtB1EW+IbxujHooopq9HePitOtKGQicc4UV5riRAIPSs
+	 2AicjyYmfEix6PmEzZnfFToGTBpjWeQpSoivyTyHSO9GZ5ncFewSlHZgjrkzYsiCQSw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="UvY/GE03";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NMntyzcQ;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F8C1606A31A
-	for <virtualization@lists.linux.dev>; Wed, 28 Oct 2026 09:54:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 653B2606A31A
+	for <virtualization@lists.linux.dev>; Wed, 28 Oct 2026 09:58:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UvY/GE03
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C51741F01825;
-	Wed, 28 Oct 2026 09:54:33 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NMntyzcQ
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F1DA1F01825;
+	Wed, 28 Oct 2026 09:58:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793181274;
-	bh=kpv7y76fyGp5PyupcLPm3jDGaVONVPAw2wUMrdNnqBE=;
+	s=k20260515; t=1793181481;
+	bh=2Zz+c3R9qwVDAWmrfGlt+GR4JRzYQWCIPcS0+X8bK64=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=UvY/GE031SEhMn0i9sdCfHqIM9v6D0rBOXvgM9S56afHYGe7Vv4qKanAkGVGJAeTi
-	 4LcTo4seEHEPWTEb1G2ABv/7YEWYsF4uAOn4bQ/8YrpMtl6bdrdwD3m+ilwLwg1l9q
-	 7lc3xUr7Bpx7yIkCDbmqa8iq1pO5nkuqlyMYG2APCZx0LDnvAZbR46ao8+WxKMPqfB
-	 sV2G/1Fw5p5deAOPv1n+9OhOJVACqLxdqfsRQl+Zu2HIMm57KlElc5jmANXOvKqhJN
-	 p2zx5blELgmI3BiVFqXmcUImq5dVmn4udi+j1KMnnVEh0r/Nji81fXCOboHbvdPm2d
-	 5jN7FSLkA8TGQ==
-Message-ID: <sashiko-outbox-187703@kernel.org>
+	b=NMntyzcQYkYS/jpUTTe2LY8HksmxwBqfwcMaSXGUNcSTot6AhiK6I3jxSowZ2BZXX
+	 O4+h8Uoz3Zf1V7V+I5oZUqGYEmBTttwJDKW3tfJ3gVyBn6S/EAHZv9ga0K3NrfBheB
+	 SDB6VBOaKs1OVfe0PBTnpWhbcg+rhj86ZoBPh8WHVk7DSb7m4gufEdanqRu251fO1s
+	 OvLtbSuhQGCY4eCDlCV3Mr56nEN5Ab1lSJremZi5fTAy4MoTydqYTrxt+iiPpGUqWo
+	 KIE4HcaK0X1AU3oZ9emuf6JvMH4poiNMqfWrYGYzlNlDE3fea+IeHfrBROhMKRQo5p
+	 UymNp8d7UVwzA==
+Message-ID: <sashiko-outbox-187708@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v7 05/16] ALSA: virtio: Keep control payloads alive
- through DMA completion
+Subject: Re: [PATCH v7 12/16] ALSA: virtio: complete control transitions and
+ preserve drain tail
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Joonho Lee" <mynameisjune111@gmail.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261028094132.20364-6-mynameisjune111@gmail.com>
+In-Reply-To: <20261028094132.20364-13-mynameisjune111@gmail.com>
 References: <20261028094132.20364-1-mynameisjune111@gmail.com>
- <20261028094132.20364-6-mynameisjune111@gmail.com>
+ <20261028094132.20364-13-mynameisjune111@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 28 Oct 2026 09:54:33 +0000
+Date: Wed, 28 Oct 2026 09:57:59 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,24 +62,28 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> Control requests can expose caller-owned payloads to the device after a
-> synchronous send times out. Keep request and response headers and payloads
-> in the reference-counted message so caller cleanup cannot invalidate DMA.
+> Pending signals can interrupt synchronous PCM state changes or the RX
+> teardown wait after the device has accepted the command. Recovery can then
+> issue a conflicting request before the previous transition has completed.
+> Wait for SET_PARAMS, PREPARE and START within the existing timeout, as for
+> STOP and RELEASE, and make the pending-RX drain wait non-interruptible.
+> Device reset still cancels the wait and the timeout remains bounded.
 >=20
-> Keep the queue reference until device completion or post-reset cleanup,
-> even when the caller times out or is interrupted. Consume the caller's
-> reference on every send path, and let response readers retain an extra
-> reference through copyout. Check payload sizes and allocation arithmetic
-> before building the scatterlists.
+> Track whether a control request was submitted. Expose that information to
+> the pause-restart state machine so it can distinguish a definitive failure
+> from a timeout or reset after submission. The next patch uses this helper.
 >=20
-> A control value payload is also read by the CPU as a typed structure. DMA
-> cacheline alignment alone does not guarantee the structure's CPU alignmen=
-t.
-> Align regions to the greater of the DMA cacheline and control-value type
-> alignment, and reserve prefix slack from the buffer base so typed accesses
-> remain aligned while scatterlist regions stay on cacheline boundaries.
+> Keep INTEGER64 control values in the aligned response-data allocation
+> instead of placing them immediately after the four-byte response header.
 >=20
-> Fixes: 9d45e514da88 ("ALSA: virtio: handling control messages")
+> Capture DRAINING must allow consumption of the remaining tail without
+> queueing fresh RX requests. Permit its indirect ACK while stopped and skip
+> the refill in the transfer callback. A non-staged drain test returned
+> -EPIPE with v5; the corrected kernel returned the final frame.
+>=20
+> These changes address Sashiko findings in patches 1, 5 and 6 of this
+> series. They apply after the included prerequisites.
+>=20
 > Assisted-by: LLM
 > Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
 
@@ -87,5 +91,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261028094132.2036=
-4-1-mynameisjune111@gmail.com?part=3D5
+4-1-mynameisjune111@gmail.com?part=3D12
 
