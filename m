@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793182686;
-	b=N+ciSsaI/S3OqI6dkts6aFI6xbtDsQWxj5u1jxrDz9OakfdTykQN5/4Z47JoJPnAwlhe
-	 GT7h2JFIs3D2LPmZ68Ezpcd4OmIY9aNhuvtv25YwbQW2qFD06Q6zCLHiVBJIOaRvR9X9b
-	 o6R6EdFUb+qdpbx0TkLC19v4ZCmGXJiMrQcF9Soa6JowyiNPvRUsss9PUDRr9NOkYsbTJ
-	 uFT9bvv6bidQOR05KYEDPOlBQY255Hi+1AwavP010ra7uv1wpvU13HnP/3iQBW7vteSfg
-	 8uupzBIhtwzhMl7cH3vvDs7O2DDKcAZhRqBwe0jRLwxvlGXN+nBR3E+KEpSmHACVwPA==
+	t=1793182852;
+	b=Z96J42Ck1b3/+hj+2QsuD0mK8X3C2hsDlFuykWhOpgbw8wOBaTDMjiGLzWiy4Sbe1PKu
+	 3eg6dSD2b7n+eMsQkH1l8kDBHiTnL2pzSEm/8iFy22gVMYxp2Gn17YDvNnEQsNTXegES5
+	 ceAwwc3jLFNVw9y6KWGspbUhbgpitxNHMm/oSrBYx0rrhH1M+AzJRvb4J2pUIva2y04NJ
+	 kZoTetOPyPrNV3XLLufo4ac+DXTca4ktl8pp1C8AIx+9ncDBCzDAmvBJnX3OoHPwf8m28
+	 y2zTnu+Szwc/A5F2H1Mfy/JICFEKVWp+X9UgU+25iPUlv6C7v3Qel9Zh+u1fV6jiomw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793182686;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793182852;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=qbVcQA6OMihZ1/KHH/GgokJy/XWP6syC1wcVXAsbmS4=;
-	b=ZFhxIP9cMPqyZuG0tL2AkeFF+7L/Ic4S4wGP/oyKxuoPildjxDjO96akMv6ZzrP4odZc
-	 ILx4p0DF+FcJs5FgKHOW1dhurHb5lgxHSlqnQ8AGX5LgtkfcRyvAAfOpi8PKgKNDxxzTS
-	 CFbYlcxw18EMeme5tcUb4TY5C6yUFkZAGuoDkhy5LbmeGj4mqGsaoZcvPW1x0HyiSsHE+
-	 eUUKaQxlo8Zi3cmsbBTrGFJYXifizJIfSIHccBMJSY+c8Adu4c9NAZlfKexO3jGdU5tHS
-	 JZEYC/aEahcT1lxl5S6ULJQmyoMFn/lDF6KrJk6SsWb5OYEeeSsilS2QKHKtCcop6NA==
+	bh=KWHlXyNznmRYxeQqRYQEvoRSplax05puUR1ke56I9gY=;
+	b=dznH3OfckbdzH5TyO73GG98Wg96y2IQlLQXuxbMf+4c0ysDvLJnaf3Yd4yZPm7jjCf+J
+	 8gRSr1eYnb97tkcUvvA4eOCrWIBJjXXVn+hQ43b4YX1ABfSZ92SJtaDEQDDUDnnGbMixZ
+	 7BKvJt3Upj3XDjA6ejxNVmscMd3/6KYkIMh8HxEeJBXtPUuuYDcNpqluuN3kkyGBpvDoq
+	 dgtd0FgGOQi2gB3N7sJ+TVil86jiLGuEPvBhV/ZtyL1RI0xjm9bBEjYhMgC4/0JwavaGm
+	 hY9Y4hQ+ZcizlyCjt9dM3brS8aDc2KPHlv4JWxlAfsra6Wvt6Fk1V3mT3fDYTIkmvzw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mNJQBRCK;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="nn/2by/L";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 279FD606A31A
-	for <virtualization@lists.linux.dev>; Wed, 28 Oct 2026 10:18:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47B4A606A31D;
+	Wed, 28 Oct 2026 10:20:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mNJQBRCK
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8F891F01825;
-	Wed, 28 Oct 2026 10:18:05 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nn/2by/L
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CEEE1F01825;
+	Wed, 28 Oct 2026 10:20:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793182686;
-	bh=qbVcQA6OMihZ1/KHH/GgokJy/XWP6syC1wcVXAsbmS4=;
+	s=k20260515; t=1793182851;
+	bh=KWHlXyNznmRYxeQqRYQEvoRSplax05puUR1ke56I9gY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=mNJQBRCKckKFWe8rn1Q5Pl34oNyPBYA4mpPk2XdWzk5dXp3lhPYqd5LDltZPUx4ze
-	 N6AK+T6PW54bwQTFOYgo0Egw+8eKVt0dFRYg5vuw402aShpIL4dvyy875PEG9W3Z9f
-	 YaQlFAitVkbpWORhbgr3A+Z1vgetpkvU0zhyton65qj01VINPiHgYt8B/Uz1+X59Q4
-	 riSy1bgZ1R2ijV0nZAQYRnQ9NLYIoa2CFhyrxOXmCe5suRtQ/pNznKzkpeNrQ3ZAJf
-	 UMihMeDd0rFCdRLCqgA4qkS8Jfyvs/fQrmRICv5SYJ+qMwWeVbW8BGu0DfsBg5zNjo
-	 rRFZliUKPCxag==
-Message-ID: <sashiko-outbox-187740@kernel.org>
+	b=nn/2by/LVrkA2yvLqK/ubJIKvMMR3pQ8cs+RFAhAnxmv1fbq4tXwwxQy6eS0CJ/z4
+	 imBcejQZl8oVMmOscH1DWYaux1htrCKsxLmCoyNuHKZU+Bf2dcUHkLydGSC6NeY22A
+	 +1rLezXE00l7AajNYtG7TM4GUaFnhPTtwDGXhgz5f15eIoWDZXl5yA5fhZ4xxZf+OI
+	 EuaGVDHGIkJkqiUeOvlBdeNnk26QLgsaDEgv7muamasB5HqMRzIBXhlZ5wOjJPVbpb
+	 MWbBkApy9TkdVM3RIO0pbLEwFUdKz8cOyeSzAbjqg0fAP0IuyV5xe0n75ODDe8nd/e
+	 v5wlENOHyfkLw==
+Message-ID: <sashiko-outbox-187742@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v7 02/16] ALSA: virtio: Recover PCM state after a failed
- start
+Subject: Re: [PATCH v7 11/16] ALSA: virtio-snd: fix dsnoop capture with
+ staged buffers
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Joonho Lee" <mynameisjune111@gmail.com>
+To: "Joonho Lee" <mynameisjune111@gmail.com>, linux-sound@vger.kernel.org
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261028094132.20364-3-mynameisjune111@gmail.com>
+In-Reply-To: <20261028094132.20364-12-mynameisjune111@gmail.com>
 References: <20261028094132.20364-1-mynameisjune111@gmail.com>
- <20261028094132.20364-3-mynameisjune111@gmail.com>
+ <20261028094132.20364-12-mynameisjune111@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 28 Oct 2026 10:18:05 +0000
+Date: Wed, 28 Oct 2026 10:20:51 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,30 +62,104 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> Capture trigger queues I/O messages before PCM_START. If the START
-> message cannot be allocated or sent, transfers may remain queued, and
-> ALSA does not invoke the action undo callback for the failed trigger.
->=20
-> Mark the stream stopped and disable transfers for every failed START
-> path. Arm runtime->stop_operating so sync_stop releases pending I/O and
-> prevents prepare, hw_params, or START retries until release succeeds.
->=20
-> The stopped flag is shared with ACK callbacks that can run without the
-> ALSA stream lock. Protect every stopped access with vss->lock. Read the
-> pending message count under the same lock in open and hw_params. In
-> sync_stop, decide whether RELEASE is needed and mark the stream stopped
-> in one locked transition; leave it stopped when release or draining fails.
->=20
-> Always cancel elapsed-period work in sync_stop, even when no RELEASE
-> is needed.
->=20
-> Fixes: da76e9f3e43a ("ALSA: virtio: PCM substream operators")
-> Assisted-by: LLM
-> Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Medium] ALSA: virtio-snd: incomplete XRUN handling in virtsnd_pcm_trigge=
+r()
+--
 
-Sashiko has reviewed this patch and found no issues.
+commit aaa1fb5901e460bfc006edef14710cb64e262e44
+Author: Joonho Lee <mynameisjune111@gmail.com>
+
+ALSA: virtio-snd: fix dsnoop capture with staged buffers
+
+This commit adds free-running staged capture policy support when
+stop_threshold equals the prepared boundary so dsnoop capture streams do not
+fail capacity checks. It also reconstructs unread occupancy when returning =
+to
+bounded capture and handles XRUN state transitions across paused streams.
+
+> diff --git a/sound/virtio/virtio_pcm_ops.c b/sound/virtio/virtio_pcm_ops.c
+> index d50924b792f65..cbf4e479d295f 100644
+> --- a/sound/virtio/virtio_pcm_ops.c
+> +++ b/sound/virtio/virtio_pcm_ops.c
+
+[ ... ]
+
+> @@ -893,6 +905,13 @@ static int virtsnd_pcm_trigger(struct snd_pcm_substr=
+eam *substream, int command)
+>  			if (rc) {
+>  				vss->stopped =3D true;
+>  				substream->runtime->stop_operating =3D true;
+> +				if (vss->capture_staging &&
+> +				    vss->direction =3D=3D SNDRV_PCM_STREAM_CAPTURE &&
+> +				    command =3D=3D SNDRV_PCM_TRIGGER_PAUSE_RELEASE) {
+> +					/* Pause undo leaves ALSA paused; wake its readers. */
+> +					vss->xfer_xrun =3D true;
+> +					virtsnd_pcm_schedule_period_elapsed(vss);
+> +				}
+>  				return rc;
+>  			}
+>  			vss->xfer_enabled =3D true;
+
+[Severity: Medium]
+What happens in virtsnd_pcm_trigger() if a staged capture stream using nati=
+ve
+pause (with virtsnd_capture_pause_restart disabled) hits another failure or
+prior XRUN during SNDRV_PCM_TRIGGER_PAUSE_RELEASE?
+
+Unlike virtsnd_pcm_pause_restart_start(), the native trigger path in
+virtsnd_pcm_trigger() does not check vss->xfer_xrun under vss->lock before
+queueing requests:
+
+sound/virtio/virtio_pcm_ops.c:virtsnd_pcm_trigger() {
+	case SNDRV_PCM_TRIGGER_START:
+	case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
+		queue =3D virtsnd_pcm_queue(vss);
+
+		scoped_guard(spinlock_irqsave, &queue->lock) {
+			guard(spinlock)(&vss->lock);
+			if (vss->stopped) {
+				substream->runtime->stop_operating =3D true;
+				return -EBADFD;
+			}
+			if (vss->direction =3D=3D SNDRV_PCM_STREAM_CAPTURE) {
+				if (vss->capture_staging) {
+					if (!vss->runtime_active)
+						rc =3D -EBADFD;
+					else
+						rc =3D virtsnd_pcm_capture_send(vss);
+
+If vss->xfer_xrun was already latched before SNDRV_PCM_TRIGGER_PAUSE_PUSH
+while virtsnd_pcm_period_elapsed() was waiting on the PCM stream lock, won't
+SNDRV_PCM_TRIGGER_PAUSE_RELEASE succeed, set vss->xfer_enabled =3D true, and
+send VIRTIO_SND_R_PCM_START on a stream that is already in XRUN (causing
+subsequent completions in virtsnd_pcm_capture_complete() to be dropped)?
+
+Additionally, if virtsnd_pcm_capture_send() succeeds during
+SNDRV_PCM_TRIGGER_PAUSE_RELEASE, but virtsnd_pcm_ctl_msg_alloc() or
+virtsnd_ctl_msg_send_sync() fails afterwards, virtsnd_pcm_trigger() calls
+virtsnd_pcm_start_failed(vss, false):
+
+sound/virtio/virtio_pcm_ops.c:virtsnd_pcm_start_failed() {
+	scoped_guard(spinlock_irqsave, &vss->lock) {
+		vss->xfer_enabled =3D false;
+		vss->stopped =3D true;
+		if (pause_restart)
+			vss->xfer_xrun =3D true;
+	}
+	vss->substream->runtime->stop_operating =3D true;
+}
+
+Because pause_restart is false here (and the early vss->stopped check also
+returns -EBADFD directly), neither path sets vss->xfer_xrun =3D true or cal=
+ls
+virtsnd_pcm_schedule_period_elapsed(vss). When ALSA undoes the failed pause
+release and leaves runtime->state in SNDRV_PCM_STATE_PAUSED with
+vss->stopped =3D=3D true, could readers blocked in wait_for_avail() or
+snd_pcm_poll() be left sleeping without virtsnd_pcm_period_elapsed() ever
+moving the stream to SNDRV_PCM_STATE_XRUN?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261028094132.2036=
-4-1-mynameisjune111@gmail.com?part=3D2
-
+4-1-mynameisjune111@gmail.com?part=3D11
