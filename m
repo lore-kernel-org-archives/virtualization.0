@@ -1,131 +1,66 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=80.241.56.172
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793269744;
-	b=KlDOZWcntJX95v+qgmHyKhAwECWEVL7/9Q4DezNuTePUbgvDTD2euQkPJcy7mIarSxUl
-	 z8Eimzg64uZeAc+2dwc+NWXKl/YKstX/2zwXZ3CB0gw6n7iHfMpNRTB3fOIk3TviUxqUt
-	 2wiSYZRi/CzAD/oS9g5YMTIpIggu6TX5TFek+4eBY814sGpLOHbYPI6Ss+Bq6PzUKBznV
-	 orDuez47Exw8UPPcOn4JtZdCFKjq/4iLKKB5y0ESFpwwht91Ps+L3miHG1fCZN9x5YC7m
-	 Yy9R750QcJSbbHQOpZuHi/fb9MVgciegTM840dBo5IyMabPWTbxcnlSRDgwWrJWfJ8g==
+	t=1793271235;
+	b=nwZg59mCCQYC9JiwXvUo9NNW2bzxLwhjk4aXt+QTg/nNvahg7FJU9HxsSXsiRYrpoBrr
+	 sdU9eiuai9qWy0zbuX7qEVl+TXGeWjo4ZHIMdAQ9i68HhRyObXPmzuCHj6myjRxEH0WAW
+	 YbG2WkVZo+n2wo2H74MoG8T1b/ywJjt9ymoDSaxxj0Ww5kpsc7ePcqvlxFuIAApP79aQk
+	 rAA6SEBC3UCGy2ME/iZZe1iEtur8ioZ/qduzHkmwdJgjrwe8WTuiSFDGcrgKHifGzemK8
+	 iOjpIfdeL9I4Abrs5p87QzP9WMmVCzNDVNZc04nTMZ0LdhCVGTV0zvAqVbObz4aEAuQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793269744;
-	h=DMARC-Filter:Received:DKIM-Signature:Message-ID:Subject:From:
-	 Reply-To:To:Cc:Date:In-Reply-To:References:Content-Type:
-	 Content-Transfer-Encoding:User-Agent:MIME-Version:X-MBO-RS-META:
-	 X-MBO-RS-ID;
-	bh=PQfG2Km+YKrxCDPAAbbWYdryEevMUab9CWpj+Sh05TA=;
-	b=uWL3FpTwqmc2B0mSB9cT6VZqFFJ1za+V717JG5slKcLCzx9rO0nG0XIi2p7EUC0VwmQW
-	 X27tgeFuv/TM46sqQS8YOnd5WCgo6bVs0TXqojf32VUXYK7gsn+xuw3VciGtZ5g0KNwOF
-	 GUrxwYuBxvQTIoRlx6QTL2s8wKGyEKiuQvq+5fYSc19NhU962i6tEsBcMvUvDqSkmPk1S
-	 5LgHrIsso7/oDIxHBIj13B13EEy0ZURZEiXWJ3hCfJ7ocP5D0eNLpJl+NVGb06PzXRwAx
-	 yhajCb3GKYSSuW723+CNeVY/rg4WmQQSpKnYWz9E3SFwTG7rP2BgPhszClpl/BKtwXw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793271235;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To:
+	 X-Cookie;
+	bh=65gOLGKNSzKKaUZM7WsX+Cz3ZVYsko2nYRWUmyLDTv4=;
+	b=JFTx35ytK34g5oxyCB2oSTO5OeuFpdzlqg3avgteAxcLp+MiU8O5Ui3p9CPFy48j/lBM
+	 UhM2f2b+pQKGQEikddyt3linEm7oyPc7/l9TMW89OUulitykrwF62DcXzBzG5N6Za5ox3
+	 7rF9oqZpvMkNExdQfxaqYfmtYKaHaSscvfiWQuRTjubFpyCLQHbVmr6m+s+EnIJfLF1aT
+	 xHoPRXL4hIM63xLlzp2ayUbwPelpy/aGYqzeyjQh1I0uDzIbuVFgtJDDMSCX3Unej+tIJ
+	 m3tQaAM2NHc0GekVDDZrfeY2R6zx2uPMUkXjX6R6mdO+kUmAP1V27yVBfgJXfkhqF5w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=mailbox.org;
-	spf=pass smtp.mailfrom=mailbox.org;
-	dkim=pass header.d=mailbox.org header.i=@mailbox.org header.a=rsa-sha256 header.s=mail20150812 header.b=owjb1PqO;
-	arc=none smtp.remote-ip=80.241.56.172
-Received: from mout-p-202.mailbox.org (mout-p-202.mailbox.org [80.241.56.172])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nmAM52+O;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12621606A31D
-	for <virtualization@lists.linux.dev>; Thu, 29 Oct 2026 10:29:02 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 12621606A31D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DFED606A31C;
+	Thu, 29 Oct 2026 10:53:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=mailbox.org header.i=@mailbox.org header.a=rsa-sha256 header.s=mail20150812 header.b=owjb1PqO
-Received: from smtp1.mailbox.org (smtp1.mailbox.org [IPv6:2001:67c:2050:b231:465::1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519MLKEM768 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mout-p-202.mailbox.org (Postfix) with ESMTPS id 4jFgSW3XgszMlJf;
-	Thu, 29 Oct 2026 11:28:59 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
-	t=1793269739; h=from:from:reply-to:reply-to:subject:subject:date:date:
-	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	 content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=PQfG2Km+YKrxCDPAAbbWYdryEevMUab9CWpj+Sh05TA=;
-	b=owjb1PqOwF30L04GcK9Gww366AX2aDnKYxBGxkid6fiIMNw14Fg6DhRRdvbRSRfBeVSMQl
-	WaxlytFFpjs1RJoZ5N45Sz33bL9w1qJBlyeR1eU5rt65f55C6aO6qdifwEcZ130ppK53tP
-	pSveThL3uREOnABjLcdpsunrn9gRUFcZLXwXOSMIY/Byy+6Sd2LBtfvMGzoSgr9hC9w0Ly
-	5xXQ0diqvtpnZBddkWZNE4v0Z6yBzfp+Ldvy08kYgCZJDjkf6XZXF1wQdHfrhUyKVv7ICE
-	Oy4tVehaRM110/poQ6AB8ew8cPWmwyLlOdtLmIRxn5M7f9zit58chkxeIOjPjA==
-Message-ID: <3565783722927fa48a30f48b063ef99bcd703eab.camel@mailbox.org>
-Subject: Re: [RFC PATCH 0/6] dma-buf: Phase out is_signaled() race
-From: Philipp Stanner <phasta@mailbox.org>
-Reply-To: phasta@kernel.org
-To: Lucas Stach <l.stach@pengutronix.de>, Philipp Stanner
- <phasta@kernel.org>,  Min Ma <mamin506@gmail.com>, Lizhi Hou
- <lizhi.hou@amd.com>, Oded Gabbay <ogabbay@kernel.org>,  "Rob Herring (Arm)"
-	 <robh@kernel.org>, Tomeu Vizoso <tomeu@tomeuvizoso.net>, Karol Wachowski	
- <karol.wachowski@linux.intel.com>, Andrzej Kacprowski	
- <andrzej.kacprowski@linux.intel.com>, Sumit Semwal
- <sumit.semwal@linaro.org>,  Christian =?ISO-8859-1?Q?K=F6nig?=	
- <christian.koenig@amd.com>, Felix Kuehling <Felix.Kuehling@amd.com>, Alex
- Deucher <alexander.deucher@amd.com>, David Airlie <airlied@gmail.com>,
- Simona Vetter	 <simona@ffwll.ch>, Maarten Lankhorst
- <maarten.lankhorst@linux.intel.com>,  Maxime Ripard <mripard@kernel.org>,
- Thomas Zimmermann <tzimmermann@suse.de>, Russell King	
- <linux+etnaviv@armlinux.org.uk>, Christian Gmeiner
- <christian.gmeiner@gmail.com>,  Jani Nikula <jani.nikula@linux.intel.com>,
- Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi
- <rodrigo.vivi@intel.com>, Tvrtko Ursulin <tursulin@ursulin.net>, Alessio
- Belle	 <alessio.belle@imgtec.com>, Luigi Santivetti
- <luigi.santivetti@imgtec.com>,  Qiang Yu <yuq825@gmail.com>, Rob Clark
- <robin.clark@oss.qualcomm.com>, Dmitry Baryshkov	 <lumag@kernel.org>,
- Abhinav Kumar <abhinav.kumar@linux.dev>, Jessica Zhang	
- <jesszhan0024@gmail.com>, Sean Paul <sean@poorly.run>, Marijn Suijten	
- <marijn.suijten@somainline.org>, Lyude Paul <lyude@redhat.com>, Danilo
- Krummrich <dakr@kernel.org>, Boris Brezillon
- <boris.brezillon@collabora.com>, Steven Price	 <steven.price@arm.com>,
- =?ISO-8859-1?Q?Adri=E1n?= Larumbe	 <adrian.larumbe@collabora.com>, Liviu
- Dudau <liviu.dudau@arm.com>, Dave Airlie	 <airlied@redhat.com>, Gerd
- Hoffmann <kraxel@redhat.com>, Matthew Brost	 <matthew.brost@intel.com>,
- Natalie Vock <nat@pixelcluster.dev>, Arun Pravin	
- <arunpravin.paneerselvam@amd.com>, Matthew Auld <matthew.auld@intel.com>, 
- Thomas =?ISO-8859-1?Q?Hellstr=F6m?=	 <thomas.hellstrom@linux.intel.com>,
- Melissa Wen <mwen@igalia.com>,  =?ISO-8859-1?Q?Ma=EDra?= Canal	
- <mcanal@igalia.com>, Dave Stevenson <dave.stevenson@raspberrypi.com>, 
- Raspberry Pi Kernel Maintenance	 <kernel-list@raspberrypi.com>, Dmitry
- Osipenko <dmitry.osipenko@collabora.com>,  Gurchetan Singh
- <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, Zack Rusin
- <zack.rusin@broadcom.com>,  Broadcom internal kernel review list	
- <bcm-kernel-feedback-list@broadcom.com>, Thierry Reding	
- <thierry.reding@kernel.org>, Mikko Perttunen <mperttunen@nvidia.com>, 
- Jonathan Cameron	 <jic23@kernel.org>, David Lechner
- <dlechner@baylibre.com>, Nuno =?ISO-8859-1?Q?S=E1?=	 <nuno.sa@analog.com>,
- Andy Shevchenko <andy@kernel.org>, Greg Kroah-Hartman	
- <gregkh@linuxfoundation.org>, Sunil Khatri <sunil.khatri@amd.com>, Kees
- Cook	 <kees@kernel.org>, Jesse Zhang <jesse.zhang@amd.com>, Timur
- =?ISO-8859-1?Q?Krist=F3f?=	 <timur.kristof@gmail.com>, Srinivasan Shanmugam
- <srinivasan.shanmugam@amd.com>,  Kexin Sun <kexinsun@smail.nju.edu.cn>,
- Prike Liang <Prike.Liang@amd.com>, David Rosca	 <david.rosca@amd.com>,
- Krzysztof Karas <krzysztof.karas@intel.com>, Marco Crivellari
- <marco.crivellari@suse.com>, Shixiong Ou <oushixiong@kylinos.cn>, Jouni
- =?ISO-8859-1?Q?H=F6gander?=	 <jouni.hogander@intel.com>, Thadeu Lima de
- Souza Cascardo <cascardo@igalia.com>,  Pierre-Eric Pelloux-Prayer
- <pierre-eric.pelloux-prayer@amd.com>, Joel Fernandes
- <joelagnelf@nvidia.com>, Al Viro <viro@zeniv.linux.org.uk>,  Neill Kapron
- <nkapron@google.com>, Michael Bommarito <michael.bommarito@gmail.com>, Sam
- Day <me@samcday.com>,  Gabriel Prostitis <prostitisgabriel@gmail.com>
-Cc: dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, 
-	linux-media@vger.kernel.org, amd-gfx@lists.freedesktop.org, 
-	etnaviv@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, 
-	imagination@lists.freedesktop.org, lima@lists.freedesktop.org, 
-	linux-arm-msm@vger.kernel.org, freedreno@lists.freedesktop.org, 
-	nouveau@lists.freedesktop.org, virtualization@lists.linux.dev, 
-	spice-devel@lists.freedesktop.org, intel-xe@lists.freedesktop.org, 
-	linux-tegra@vger.kernel.org, linux-iio@vger.kernel.org, 
-	linux-usb@vger.kernel.org
-Date: Thu, 29 Oct 2026 11:28:39 +0100
-In-Reply-To: <abca3f0039b07999e29558690c27fef23292bea3.camel@pengutronix.de>
-References: <20261029095542.1526750-3-phasta@kernel.org>
-	 <abca3f0039b07999e29558690c27fef23292bea3.camel@pengutronix.de>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.60.2 (3.60.2-2.fc44) 
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nmAM52+O
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18D341F01825;
+	Thu, 29 Oct 2026 10:53:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793271235;
+	bh=65gOLGKNSzKKaUZM7WsX+Cz3ZVYsko2nYRWUmyLDTv4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=nmAM52+O+/DQvV6qkfMbnKqpeCbeloN1B45BYEcdPqP7r9ogRIwIyh9HC2n4g9Ee5
+	 yPguFhqMfcBmrxl8dw7Jg/gvwVDhauqd5rbALrjOwJIcaJWrxSnCLYgk5YSmjDxz8k
+	 aTi1RJIJ7d3c8lYZ4n2YeWBvXg+mQZhRDVb+ci8r6l1guuDZPc0isEef1eAv5rr3cp
+	 hhb1lB5OrfW18sjIwrVLRvxgyr86gyaJnTcRNc6ZKeCYXAys0ee9ecKSYl7/nEhfuc
+	 q4Z+Z8yE1HsJGaLXyfc5xYsKiUgnvFQEfTgBNASSokl+KIx5DHn0yxBYo/3THswq1g
+	 Xrd1j4oukU63g==
+Date: Thu, 29 Oct 2026 10:53:49 +0000
+From: Mark Brown <broonie@kernel.org>
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Francesco Valla <francesco@valla.it>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Haixu Cui <quic_haixcui@quicinc.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	Viresh Kumar <viresh.kumar@linaro.org>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Mathieu Poirier <mathieu.poirier@linaro.org>,
+	linux-spi@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev
+Subject: Re: [PATCH v2 1/2] dt-bindings: spi: add spi-virtio
+Message-ID: <1449d4cf-9e9d-4fe4-a904-15d51ba9448d@sirena.org.uk>
+References: <20261027-spi-virtio-bindings-v2-0-67927b24b9d4@valla.it>
+ <20261027-spi-virtio-bindings-v2-1-67927b24b9d4@valla.it>
+ <20261029-enigmatic-honeybee-of-dignity-bee01f@quoll>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -135,40 +70,37 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-X-MBO-RS-META: j7weafhpcaunystyo7r38dam3cyszcnz
-X-MBO-RS-ID: 051d97976afa34da498
-
-On Thu, 2026-10-29 at 11:23 +0100, Lucas Stach wrote:
-> Hi Philipp, hi Christian,
-
-Jo Lucas
-
->=20
-> Am Donnerstag, dem 29.10.2026 um 10:55 +0100 schrieb Philipp Stanner:
-
-[=E2=80=A6]
-
-> I think we would all be interested in the actual use-case that's
-> sensitive to this kind of latency.
-
-Me too.
-
-Let me use this opportunity to stress that in the future, in DRM,
-whenever we have [to accept] a racy "optimization", both commit
-messages and code comments must document why it exists and who
-requested it with what proof.
-
-Would save us lots of time when those things are discussed >5 years
-later.
-
->=20
-> However, I wonder if this is even an issue anymore with the lock
-> inlined into the fence structure.
-
-Almost no one uses inline-lock so far. So unfortunately, we might
-regress old drivers, maybe.
-
-But sounds as if you're in favor of phasing the locklessness out :)
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="xh4GpOXgVUQqvuT8"
+Content-Disposition: inline
+In-Reply-To: <20261029-enigmatic-honeybee-of-dignity-bee01f@quoll>
+X-Cookie: I have a TINY BOWL in my HEAD
 
 
-P.
+--xh4GpOXgVUQqvuT8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Thu, Oct 29, 2026 at 09:29:56AM +0100, Krzysztof Kozlowski wrote:
+
+> I guess everything should go via DT tree, but Francesco, please update
+> the maintainers file if that's fine with Michael.
+
+I'd been expecting to pull it into spi since that's where the driver is.
+
+--xh4GpOXgVUQqvuT8
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmrjJbwACgkQJNaLcl1U
+h9Bl+Af/SRb9q/27ELXx9ZEZ40ZQK8PgoXa2g2rWIlRdsiD/UePNNfSG/AijrSds
+fZg9z/sbyOZ8mkW3F6Ud/Vy/bom/GOhmCGGVqdwBQ/NfcGnqh6tB139C5TyoQI7N
+q7mpYVj7cDX6tlf1sk4JbYh64e+QiWuUZusup3yuwaAl4eNrXZaOQJIAIuZZXQTJ
+kfha8B3SwBio6kWELiBvtbS6lYcMZ8iBvd0fautLZkdBWKLkbgEwgkSmC0lPttSz
+i5iNWEk++Qed8g4VCkMXxMBrqQ118tPQcj7oX5LEFR/Er/TJMw8WVj4yEqB5zLYe
+IcUgvpqYfwriH96isKQQZbdAs0K6HQ==
+=5bhi
+-----END PGP SIGNATURE-----
+
+--xh4GpOXgVUQqvuT8--
