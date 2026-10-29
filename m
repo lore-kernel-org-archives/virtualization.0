@@ -1,149 +1,104 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=185.203.200.13
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793273032;
-	b=z4QFVun5Y+Jd0WtbMeiDSS8ZYj6BWge/Pc4Fj8/NMBnUVaHLvaIZdxMayO7PZLX8P/X2
-	 rn+GN9OXLjElD3ArSqM7u4J4YaS9fRUNj+tlArCP4NZ1gK5V3lg5m5dh1+5BXVLDf9Bf8
-	 aS053YeLMQtQrgRcUiCZk4xL5XZ6qJz54YY1SA1KYbFgEpXF9zdH02Hz7mjzZWsHP8Xpu
-	 ih9vMbTmjF0fyHuZna7g5ABo+4ZxhFaH3VKoYywgf5vrkyjnBNC0iaOdT3o+xe1tFmFUH
-	 gJj5bKdZ3HTOlHsOKJ4E8yjOcMTaWNzL+LuLZzOS0rneKZoM5w6+ptnhZaIeP2tHi3w==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793273032;
-	h=DMARC-Filter:Received:DKIM-Signature:Message-ID:Subject:From:To:Cc:
-	 Date:In-Reply-To:References:Content-Type:Content-Transfer-Encoding:
-	 User-Agent:MIME-Version;
-	bh=s4uscHTSNNyFgyqCTfvm7pgyQFz42LzvHFK7u0x0Cw0=;
-	b=mfP8ILvOtpL4weQoQ8lYNrFevoAK0i/x5u0jD77eAoRIfoOwjRM0IOqBHqbm8+R20sjN
-	 Oqy9ZmzFXIYjQdgrSb30HIed2haKqYSnrdsWw+3BVj05+Mn3o24XQ6MZ34jhNdFsEvQ2H
-	 SW1/0X7yl0mjZgA8s8Ge3jmTICzHo8ncNPJtuob0BKc6Xhx+gscW18KAgA8Gc64UFxo2F
-	 SbKaWDDye0ASTay7Vrvstco405P73a+3sSDrcKFXm2F8EDgRgZqN4icmYiOoVs6R3Oe3x
-	 OE5sAsFnhDK4XxMXhKVRYbtq1R5jwcSW2noicl8z68ptRM1fWyarjWjKEBA/nMd7BSQ==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=none header.from=pengutronix.de;
-	spf=pass smtp.mailfrom=pengutronix.de;
-	dkim=pass header.d=pengutronix.de header.i=@pengutronix.de header.a=rsa-sha256 header.s=20260414 header.b=YhheDy8E;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=185.203.200.13
-Received: from mx1.white.stw.pengutronix.de (mx1.white.stw.pengutronix.de [185.203.200.13])
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.130
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793273756;
+	b=zIwAliKbUW3yAPxnlkUdhXBCcmO2omljC7jJD4iuJ6fHPNQBPkUc3ZMXMQPZ7l+yXYzi
+	 GE/EAlX7R73aFELMOgSA2WVgKyfuoSoGpX/uz6NIhdXhXFd+8ur46y6m7Ru52vivNSPOs
+	 D2xYAB3+2uoGlPtm32bSiFn8/Odn8CLz7amZwnLy5IVYyJUV8FgChXEBXJ/02SvXpYRKk
+	 byXrQS/GKb6MEptfHxFmXaWv8Q1tB6WGbIJ/Zvl7qnzAbR1gAB665h4FO5uxgCWVnNI4t
+	 aAouqGVwPdwwuhmebvf6o/9wBTv6zsmWkGxU+ARUaiRYwxhMievpbJC7QFfQbIBgY1g==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793273756;
+	h=DMARC-Filter:Received:DKIM-Signature:DKIM-Signature:DKIM-Signature:
+	 DKIM-Signature:Received:Received:Message-ID:Date:MIME-Version:
+	 User-Agent:Subject:To:Cc:References:Content-Language:From:Autocrypt:
+	 In-Reply-To:Content-Type:Content-Transfer-Encoding:X-Spamd-Result:
+	 X-Rspamd-Server:X-Rspamd-Action:X-Spam-Flag:X-Spam-Score:X-Spam-Level:
+	 X-Rspamd-Queue-Id;
+	bh=LpKorpwE5VF+LLd+ystQ99uRKk/l/0kB3IThQT3Bh1w=;
+	b=VC2cFnW37IEiARz+vhw2RT4u3cIbioLBHWkMJwRE9U2vLXKFLj4wyy3NEAjmJToGsQty
+	 qUVAo0hrSbK9SxDX1LSewY1UFJbdFeLaPyfPVzctRCj16ExTjsnNey9uXUDB9K4uz+vVj
+	 on9X3tX0JHysN5u49tT+jjIqXQ+v2+qCY205nb9GZIQPJNiV01+MmQHZkXSq3jY9Yl7nT
+	 to4QjRRtp+RcKa8yr6FifXSmwfLB5H0kTeEFFSKGP26uoK5HcGWBRJxdmZhuQi39bbU21
+	 JmZp9LF2DnxYkDX77PdftbE4VdZCL4OHpOmnWzuTCfeuatfwafKp1DGJjUCZztA060Q==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=suse.de;
+	spf=pass smtp.mailfrom=suse.de;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b="urG5rb/O";
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=JASaeWhD;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b="urG5rb/O";
+	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=JASaeWhD;
+	arc=none smtp.remote-ip=195.135.223.130
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C77F6606A31C
-	for <virtualization@lists.linux.dev>; Thu, 29 Oct 2026 11:23:50 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C77F6606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39585606A31A;
+	Thu, 29 Oct 2026 11:35:55 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 39585606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=pengutronix.de header.i=@pengutronix.de header.a=rsa-sha256 header.s=20260414 header.b=YhheDy8E
-Received: from [IPv6:::1] (ptz.office.stw.pengutronix.de [IPv6:2a0a:edc0:0:900:1d::77])
-	(Authenticated sender: lst@pengutronix.de)
-	by mx1.white.stw.pengutronix.de (Postfix) with ESMTPSA id 418BC2007F9;
-	Thu, 29 Oct 2026 12:23:46 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pengutronix.de;
-	s=20260414; t=1793273028;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	dkim=pass (1024-bit key, unprotected) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=urG5rb/O;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=JASaeWhD;
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=urG5rb/O;
+	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=JASaeWhD
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 2011C21FD7;
+	Thu, 29 Oct 2026 11:35:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1793273753; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=s4uscHTSNNyFgyqCTfvm7pgyQFz42LzvHFK7u0x0Cw0=;
-	b=YhheDy8EfCQv89DyrUXN/Yqh1aav8HKOaPDt4/Y3XFIPfM2HQZksNK1Q4J8Xiva3N9Z1Am
-	tkP2eX7Gmfxohg3zXmJeyevXeiaQVGhGYtgf5DW7WiXDKCn+YIxVKqJUBhnT18fBqcR9od
-	pNUOxHrNlb/aeBZqcMinomv32QEtNIj5iOvnDLzi8UenUwl35U/mEBFZgBoAEnX3k3vgMh
-	WQOKG6XE+gjRy2dunur160DUflwOCoaEEllxXNkae4RdWnLlHPVfWZgcVG5KwuGlYdMS4j
-	K8l8J5jfGgLMMk0a9E7oE+GBGvUkDtPQtpWfP+urJK7Rg8cIfoftFRGLPfWCxA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=pengutronix.de;
-	s=20260414; t=1793273028;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=LpKorpwE5VF+LLd+ystQ99uRKk/l/0kB3IThQT3Bh1w=;
+	b=urG5rb/Ok7uyBWsP9ff37DXtBv8h/uOg9818lW/vbk5VTFvG8w+o03fWYZe/YeK6uYv6TU
+	XCX8NgXVsBM5KiOvAka3B3V2+0DH1dUnMpk6Ywk/PH2C2UObaBvCCf+ECFVnOvqmJgBaha
+	L91d30d4BgFUuHdO/+37RmuzNsO3Obo=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1793273753;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=s4uscHTSNNyFgyqCTfvm7pgyQFz42LzvHFK7u0x0Cw0=;
-	b=YtyTqxntKVSuf0cXkpc84IWDjijQempbl/OM6z3jYncGCiwf/Ln99mK5+x8W0cyO9xO1gA
-	kZBUATT4teV385wTGMVEaT2ftHDv466XZMo/nCHJ+3VBjvaefh76HC4h6ZqGpVZBZzIif0
-	B0s67a7gzHS6sPKR61gN4QKr3LIKCsgfOapXu1CZ/XgwBY8WD5Dr2jHZMjCr5H6sThWMxU
-	MsRJbd3Mcfr33CLRmW8Bp3z2gPWqfmC5Y9O64Vqrjxd/mFXxtXsuyhRNEFalbt43sftG6G
-	xJ0leaBmncxO0k6VjKMNj5ycc2G3vyKocU53toT9hpLpEM+cmebxYVR8EEEN+Q==
-ARC-Authentication-Results: i=1;
-	ORIGINATING;
-	auth=pass smtp.auth=lst@pengutronix.de smtp.mailfrom=l.stach@pengutronix.de
-ARC-Seal: i=1; s=20260414; d=pengutronix.de; t=1793273028; a=rsa-sha256;
-	cv=none;
-	b=CMz7Ii0BbFpIf3JOy1xOkUy1/GalemR2HX7An2NH4NYYc7nV9uA9ia33/CLwhOM5TIZVCO
-	r5SjbN1jtUnItbnYc85Z8xd4yR28RKXjpQwR04UflRreGYa/mpCLkcKsFkvwIJI+HcAAQT
-	e6tyb0XkfNDiCGGfk7D6jVoenCj3H0aH4beZaCr4Eu2G+Ql31BsMOvYsHkb91GsL5HKzlk
-	3XcSZVASLqeWZ4KZWuMaxSYPs7oxi8oIKtwvZ2vU+4PLj3JdRq+wZ2/4S5M1ckb3lR6s7O
-	ZyHtIMqbdSoBMc5gGXlEKgsiCFaxc5lHEpetkI/HR6kfcn8G0LRnwE1RHAFQyQ==
-Message-ID: <d0610126883f23bec3472f41e528aae786f27c8c.camel@pengutronix.de>
-Subject: Re: [RFC PATCH 0/6] dma-buf: Phase out is_signaled() race
-From: Lucas Stach <l.stach@pengutronix.de>
-To: phasta@kernel.org, Min Ma <mamin506@gmail.com>, Lizhi Hou
- <lizhi.hou@amd.com>,  Oded Gabbay <ogabbay@kernel.org>, "Rob Herring (Arm)"
- <robh@kernel.org>, Tomeu Vizoso	 <tomeu@tomeuvizoso.net>, Karol Wachowski
- <karol.wachowski@linux.intel.com>,  Andrzej Kacprowski
- <andrzej.kacprowski@linux.intel.com>, Sumit Semwal
- <sumit.semwal@linaro.org>, Christian =?ISO-8859-1?Q?K=F6nig?=	
- <christian.koenig@amd.com>, Felix Kuehling <Felix.Kuehling@amd.com>, Alex
- Deucher <alexander.deucher@amd.com>, David Airlie <airlied@gmail.com>,
- Simona Vetter	 <simona@ffwll.ch>, Maarten Lankhorst
- <maarten.lankhorst@linux.intel.com>,  Maxime Ripard <mripard@kernel.org>,
- Thomas Zimmermann <tzimmermann@suse.de>, Russell King	
- <linux+etnaviv@armlinux.org.uk>, Christian Gmeiner
- <christian.gmeiner@gmail.com>,  Jani Nikula <jani.nikula@linux.intel.com>,
- Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi
- <rodrigo.vivi@intel.com>, Tvrtko Ursulin <tursulin@ursulin.net>, Alessio
- Belle	 <alessio.belle@imgtec.com>, Luigi Santivetti
- <luigi.santivetti@imgtec.com>,  Qiang Yu <yuq825@gmail.com>, Rob Clark
- <robin.clark@oss.qualcomm.com>, Dmitry Baryshkov	 <lumag@kernel.org>,
- Abhinav Kumar <abhinav.kumar@linux.dev>, Jessica Zhang	
- <jesszhan0024@gmail.com>, Sean Paul <sean@poorly.run>, Marijn Suijten	
- <marijn.suijten@somainline.org>, Lyude Paul <lyude@redhat.com>, Danilo
- Krummrich <dakr@kernel.org>, Boris Brezillon
- <boris.brezillon@collabora.com>, Steven Price	 <steven.price@arm.com>,
- =?ISO-8859-1?Q?Adri=E1n?= Larumbe	 <adrian.larumbe@collabora.com>, Liviu
- Dudau <liviu.dudau@arm.com>, Dave Airlie	 <airlied@redhat.com>, Gerd
- Hoffmann <kraxel@redhat.com>, Matthew Brost	 <matthew.brost@intel.com>,
- Natalie Vock <nat@pixelcluster.dev>, Arun Pravin	
- <arunpravin.paneerselvam@amd.com>, Matthew Auld <matthew.auld@intel.com>, 
- Thomas =?ISO-8859-1?Q?Hellstr=F6m?=	 <thomas.hellstrom@linux.intel.com>,
- Melissa Wen <mwen@igalia.com>,  =?ISO-8859-1?Q?Ma=EDra?= Canal	
- <mcanal@igalia.com>, Dave Stevenson <dave.stevenson@raspberrypi.com>, 
- Raspberry Pi Kernel Maintenance	 <kernel-list@raspberrypi.com>, Dmitry
- Osipenko <dmitry.osipenko@collabora.com>,  Gurchetan Singh
- <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, Zack Rusin
- <zack.rusin@broadcom.com>,  Broadcom internal kernel review list	
- <bcm-kernel-feedback-list@broadcom.com>, Thierry Reding	
- <thierry.reding@kernel.org>, Mikko Perttunen <mperttunen@nvidia.com>, 
- Jonathan Cameron	 <jic23@kernel.org>, David Lechner
- <dlechner@baylibre.com>, Nuno =?ISO-8859-1?Q?S=E1?=	 <nuno.sa@analog.com>,
- Andy Shevchenko <andy@kernel.org>, Greg Kroah-Hartman	
- <gregkh@linuxfoundation.org>, Sunil Khatri <sunil.khatri@amd.com>, Kees
- Cook	 <kees@kernel.org>, Jesse Zhang <jesse.zhang@amd.com>, Timur
- =?ISO-8859-1?Q?Krist=F3f?=	 <timur.kristof@gmail.com>, Srinivasan Shanmugam
- <srinivasan.shanmugam@amd.com>,  Kexin Sun <kexinsun@smail.nju.edu.cn>,
- Prike Liang <Prike.Liang@amd.com>, David Rosca	 <david.rosca@amd.com>,
- Krzysztof Karas <krzysztof.karas@intel.com>, Marco Crivellari
- <marco.crivellari@suse.com>, Shixiong Ou <oushixiong@kylinos.cn>, Jouni
- =?ISO-8859-1?Q?H=F6gander?=	 <jouni.hogander@intel.com>, Thadeu Lima de
- Souza Cascardo <cascardo@igalia.com>,  Pierre-Eric Pelloux-Prayer
- <pierre-eric.pelloux-prayer@amd.com>, Joel Fernandes
- <joelagnelf@nvidia.com>, Al Viro <viro@zeniv.linux.org.uk>,  Neill Kapron
- <nkapron@google.com>, Michael Bommarito <michael.bommarito@gmail.com>, Sam
- Day <me@samcday.com>,  Gabriel Prostitis <prostitisgabriel@gmail.com>
-Cc: dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, 
-	linux-media@vger.kernel.org, amd-gfx@lists.freedesktop.org, 
-	etnaviv@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, 
-	imagination@lists.freedesktop.org, lima@lists.freedesktop.org, 
-	linux-arm-msm@vger.kernel.org, freedreno@lists.freedesktop.org, 
-	nouveau@lists.freedesktop.org, virtualization@lists.linux.dev, 
-	spice-devel@lists.freedesktop.org, intel-xe@lists.freedesktop.org, 
-	linux-tegra@vger.kernel.org, linux-iio@vger.kernel.org, 
-	linux-usb@vger.kernel.org
-Date: Thu, 29 Oct 2026 12:23:45 +0100
-In-Reply-To: <3565783722927fa48a30f48b063ef99bcd703eab.camel@mailbox.org>
-References: <20261029095542.1526750-3-phasta@kernel.org>
-		 <abca3f0039b07999e29558690c27fef23292bea3.camel@pengutronix.de>
-	 <3565783722927fa48a30f48b063ef99bcd703eab.camel@mailbox.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.60.2 (3.60.2-2.fc44) 
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=LpKorpwE5VF+LLd+ystQ99uRKk/l/0kB3IThQT3Bh1w=;
+	b=JASaeWhD8US6j56Ah9hdHn0ti7mp8IrrGkT3EZkNZctE5oEnHqARJ3PnYHQyXAlUyi80EM
+	utzk37lJMuwSl2DQ==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b="urG5rb/O";
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=JASaeWhD
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1793273753; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=LpKorpwE5VF+LLd+ystQ99uRKk/l/0kB3IThQT3Bh1w=;
+	b=urG5rb/Ok7uyBWsP9ff37DXtBv8h/uOg9818lW/vbk5VTFvG8w+o03fWYZe/YeK6uYv6TU
+	XCX8NgXVsBM5KiOvAka3B3V2+0DH1dUnMpk6Ywk/PH2C2UObaBvCCf+ECFVnOvqmJgBaha
+	L91d30d4BgFUuHdO/+37RmuzNsO3Obo=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1793273753;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=LpKorpwE5VF+LLd+ystQ99uRKk/l/0kB3IThQT3Bh1w=;
+	b=JASaeWhD8US6j56Ah9hdHn0ti7mp8IrrGkT3EZkNZctE5oEnHqARJ3PnYHQyXAlUyi80EM
+	utzk37lJMuwSl2DQ==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id A22E613419;
+	Thu, 29 Oct 2026 11:35:52 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id 5B6rH5gv42peCgAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Thu, 29 Oct 2026 11:35:52 +0000
+Message-ID: <2c2f33cf-da6f-4e31-84bb-768778d7b063@suse.de>
+Date: Thu, 29 Oct 2026 12:35:52 +0100
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -153,72 +108,315 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4] drm/vblank: Don't arm vblank timer with invalid frame
+ duration
+To: =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>
+Cc: me@romanilin.is, louis.chauvet@bootlin.com,
+ maarten.lankhorst@linux.intel.com, mripard@kernel.org, airlied@gmail.com,
+ simona@ffwll.ch, javierm@redhat.com, dmitry.osipenko@collabora.com,
+ regressions@leemhuis.info, peter.m.arnesen@gmail.com,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
+ sashiko-reviews@lists.linux.dev
+References: <20260914110004.211027-1-tzimmermann@suse.de>
+ <auIMt8XmmaVykZTC@intel.com>
+Content-Language: en-US
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <auIMt8XmmaVykZTC@intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spamd-Result: default: False [-12.00 / 50.00];
+	SUSE_INTERNAL_BYPASS(-9.00)[];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	XM_UA_NO_VERSION(0.01)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	ARC_NA(0.00)[];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	RCPT_COUNT_TWELVE(0.00)[14];
+	MIME_TRACE(0.00)[0:+];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	RCVD_TLS_ALL(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:106:10:150:64:167:received,2a07:de40:b281:104:10:150:64:97:from];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	FREEMAIL_CC(0.00)[romanilin.is,bootlin.com,linux.intel.com,kernel.org,gmail.com,ffwll.ch,redhat.com,collabora.com,leemhuis.info,lists.freedesktop.org,lists.linux.dev];
+	MID_RHS_MATCH_FROM(0.00)[];
+	TAGGED_RCPT(0.00)[];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	DKIM_TRACE(0.00)[suse.de:+];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:url,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo,suse.de:email,suse.de:dkim]
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Rspamd-Action: no action
+X-Spam-Flag: NO
+X-Spam-Score: -12.00
+X-Spam-Level: 
+X-Rspamd-Queue-Id: 2011C21FD7
 
-Am Donnerstag, dem 29.10.2026 um 11:28 +0100 schrieb Philipp Stanner:
-> On Thu, 2026-10-29 at 11:23 +0100, Lucas Stach wrote:
-> > Hi Philipp, hi Christian,
->=20
-> Jo Lucas
->=20
-> >=20
-> > Am Donnerstag, dem 29.10.2026 um 10:55 +0100 schrieb Philipp Stanner:
->=20
-> [=E2=80=A6]
->=20
-> > I think we would all be interested in the actual use-case that's
-> > sensitive to this kind of latency.
->=20
-> Me too.
->=20
-> Let me use this opportunity to stress that in the future, in DRM,
-> whenever we have [to accept] a racy "optimization", both commit
-> messages and code comments must document why it exists and who
-> requested it with what proof.
->=20
-I don't fully agree that this is a racy optimization. To me it seems
-the most critical issue here is that "fence is signaled" is under
-specified.
+Hi
 
-Does it purely mean that the actual hardware operation that the fence
-is guarding is done? In that case the current implementation is fine,
-as the bit is only set after the HW told us that it is done. This is
-the interpretation I would assume was the original intent behind the
-current implementation.
+Am 28.10.26 um 15:54 schrieb Ville Syrjälä:
+> On Mon, Sep 14, 2026 at 12:57:26PM +0200, Thomas Zimmermann wrote:
+>> From: Roman Ilin <me@romanilin.is>
+>>
+>> When a CRTC's display mode carries a too small pixel clock,
+>> drm_calc_timestamping_constants() computes a frame duration that
+>> exceeds INT_MAX. drm_vblank_crtc.framedur_ns becomes negative.
+>> drm_crtc_vblank_start_timer() then arms the vblank hrtimer with this
+>> interval, after which vblank events are no longer delivered. Pending
+>> page flips never complete and the display appears frozen.
+>>
+>> This could be triggered on virtio-gpu guests that have dynamic resolution
+>> enabled: when the SPICE agent or the X server resizes the output, it
+>> submits a mode whose pixel clock is off by a factor of 1000, e.g.:
+>>
+>>      clock = 406 kHz, htotal = 3152, vtotal = 2148
+> How about actually "fixing" the clock in the driver?
 
-Does it mean that the hardware is done and all registered callbacks
-have been run, even if the actual work is done in a (indefinitely)
-deferred worker? You mentioning explosions caused by the pure signal
-state check outside the lock would imply that some consumers of the
-fence took the signaled state to mean this interpretation.
+It's not a broken driver, but user space. There is a bug report open for 
+spice to replace the incorrect units with correct ones. [1] The fix here 
+is supposed to resolve the kernel problem this triggers.
 
-> Would save us lots of time when those things are discussed >5 years
-> later.
->=20
-> >=20
-> > However, I wonder if this is even an issue anymore with the lock
-> > inlined into the fence structure.
->=20
-> Almost no one uses inline-lock so far. So unfortunately, we might
-> regress old drivers, maybe.
->=20
-> But sounds as if you're in favor of phasing the locklessness out :)
->=20
-I'm in favor of ripping out hard to reason optimizations if they turn
-out to not provide any optimization after all. However, before going in
-either direction we need to clarify the fence signal state interface.=C2=A0
+[1] https://gitlab.freedesktop.org/spice/linux/vd_agent/-/work_items/52
 
-Either we keep the (in my interpretation) original intent of the signal
-state only telling about HW progress state and thus declare some
-current uses as wrong usage of the interface, which need to be fixed.
-Or we need to include the SW callbacks too, but then your current lock
-approach only guards against code directly executed in the callback
-functions. If the implementation of the callback defers anything to a
-worker this may still be racy.
-And that's also my criticism to this patchset now that I thought a bit
-more about this: by simply putting things under the lock you serialized
-more of the SW state without actually better defining the guarantees
-that this changed fence interface provides or doesn't provide to the
-consumers.
+Best regards
+Thomas
 
-Regards,
-Lucas
+
+>
+>>      framedur_ns = 3152 * 2148 * 1000000 / 406 = 16675852216 ns (~16.7 s)
+>>
+>> 16675852216 does not fit into an int and wraps to roughly -504000000.
+>> ns_to_ktime() then yields a negative interval and the timer stops working.
+>>
+>> Found by bisection, which pointed at commit a036f5fceedb ("drm/virtgpu:
+>> Use vblank timer"). That commit merely made virtio-gpu use the vblank
+>> timer and thereby exposed the pre-existing problem in the timer setup
+>> added by commit 74afeb812850 ("drm/vblank: Add vblank timer").
+>>
+>> To fix this, modify drm_calc_timestamping_constants() to use u64 for
+>> calculations, check for INT_MAX overflows, and return an error code.
+>> drm_crtc_vblank_start_timer() will then propagate the error, enabling
+>> the driver to fall back to immediate vblank events. Valid modes are
+>> unaffected, and the timer self-heals on the next mode with a sane clock.
+>>
+>> v4:
+>> - avoid log spamming with drm_warn_once()
+>>
+>> Fixes: 74afeb812850 ("drm/vblank: Add vblank timer")
+>> Suggested-by: Thomas Zimmermann <tzimmermann@suse.de>
+>> Signed-off-by: Roman Ilin <me@romanilin.is>
+>> ---
+>> I took Roman's patch from [1] and replaced the error messages with
+>> warn_once, as suggestde in my review.
+>>
+>> [1] https://lore.kernel.org/dri-devel/20260702181027.98526-1-me@romanilin.is/
+>> ---
+>>   drivers/gpu/drm/drm_vblank.c | 73 +++++++++++++++++++++++-------------
+>>   include/drm/drm_vblank.h     |  4 +-
+>>   2 files changed, 49 insertions(+), 28 deletions(-)
+>>
+>> diff --git a/drivers/gpu/drm/drm_vblank.c b/drivers/gpu/drm/drm_vblank.c
+>> index f90fb2d13e42..72b543bca9e3 100644
+>> --- a/drivers/gpu/drm/drm_vblank.c
+>> +++ b/drivers/gpu/drm/drm_vblank.c
+>> @@ -631,45 +631,54 @@ EXPORT_SYMBOL(drm_crtc_vblank_waitqueue);
+>>    * drm_crtc_vblank_helper_get_vblank_timestamp(). They are derived from
+>>    * CRTC's true scanout timing, so they take things like panel scaling or
+>>    * other adjustments into account.
+>> + *
+>> + * Returns:
+>> + * 0 on success, or a negative errno code otherwise.
+>>    */
+>> -void drm_calc_timestamping_constants(struct drm_crtc *crtc,
+>> -				     const struct drm_display_mode *mode)
+>> +int drm_calc_timestamping_constants(struct drm_crtc *crtc,
+>> +				    const struct drm_display_mode *mode)
+>>   {
+>>   	struct drm_device *dev = crtc->dev;
+>>   	unsigned int pipe = drm_crtc_index(crtc);
+>>   	struct drm_vblank_crtc *vblank = drm_crtc_vblank_crtc(crtc);
+>> -	int linedur_ns = 0, framedur_ns = 0;
+>> +	u64 linedur_ns, framedur_ns;
+>>   	int dotclock = mode->crtc_clock;
+>> +	unsigned int frame_size;
+>>   
+>>   	if (!drm_dev_has_vblank(dev))
+>> -		return;
+>> +		return 0;
+>>   
+>>   	if (drm_WARN_ON(dev, pipe >= dev->num_crtcs))
+>> -		return;
+>> +		return -EINVAL;
+>>   
+>> -	/* Valid dotclock? */
+>> -	if (dotclock > 0) {
+>> -		int frame_size = mode->crtc_htotal * mode->crtc_vtotal;
+>> +	if (dotclock <= 0) {
+>> +		drm_err_once(dev, "crtc %u: Can't calculate constants, dotclock = %d!\n",
+>> +			     crtc->base.id, dotclock);
+>> +		goto error;
+>> +	}
+>>   
+>> -		/*
+>> -		 * Convert scanline length in pixels and video
+>> -		 * dot clock to line duration and frame duration
+>> -		 * in nanoseconds:
+>> -		 */
+>> -		linedur_ns  = div_u64((u64) mode->crtc_htotal * 1000000, dotclock);
+>> -		framedur_ns = div_u64((u64) frame_size * 1000000, dotclock);
+>> +	frame_size = (unsigned int)mode->crtc_htotal * (unsigned int)mode->crtc_vtotal;
+>>   
+>> -		/*
+>> -		 * Fields of interlaced scanout modes are only half a frame duration.
+>> -		 */
+>> -		if (mode->flags & DRM_MODE_FLAG_INTERLACE)
+>> -			framedur_ns /= 2;
+>> -	} else {
+>> -		drm_err(dev, "crtc %u: Can't calculate constants, dotclock = 0!\n",
+>> -			crtc->base.id);
+>> +	/*
+>> +	 * Convert scanline length in pixels and video dot clock to line duration
+>> +	 * and frame duration in nanoseconds.
+>> +	 */
+>> +	linedur_ns  = div_u64((u64)mode->crtc_htotal * 1000000, dotclock);
+>> +	framedur_ns = div_u64((u64)frame_size * 1000000, dotclock);
+>> +
+>> +	/*
+>> +	 * Fields of interlaced scanout modes are only half a frame duration.
+>> +	 */
+>> +	if (mode->flags & DRM_MODE_FLAG_INTERLACE)
+>> +		framedur_ns /= 2;
+>> +
+>> +	if (linedur_ns > INT_MAX || framedur_ns > INT_MAX) {
+>> +		drm_err_once(dev, "crtc %u: Can't calculate constants, mode clock too small!\n",
+>> +			     crtc->base.id);
+>> +		goto error;
+>>   	}
+>>   
+>> -	vblank->linedur_ns  = linedur_ns;
+>> +	vblank->linedur_ns = linedur_ns;
+>>   	vblank->framedur_ns = framedur_ns;
+>>   	drm_mode_copy(&vblank->hwmode, mode);
+>>   
+>> @@ -678,7 +687,16 @@ void drm_calc_timestamping_constants(struct drm_crtc *crtc,
+>>   		     crtc->base.id, mode->crtc_htotal,
+>>   		     mode->crtc_vtotal, mode->crtc_vdisplay);
+>>   	drm_dbg_core(dev, "crtc %u: clock %d kHz framedur %d linedur %d\n",
+>> -		     crtc->base.id, dotclock, framedur_ns, linedur_ns);
+>> +		     crtc->base.id, dotclock,
+>> +		     vblank->framedur_ns, vblank->linedur_ns);
+>> +
+>> +	return 0;
+>> +
+>> +error:
+>> +	vblank->linedur_ns = 0;
+>> +	vblank->framedur_ns = 0;
+>> +	drm_mode_copy(&vblank->hwmode, mode);
+>> +	return -EINVAL;
+>>   }
+>>   EXPORT_SYMBOL(drm_calc_timestamping_constants);
+>>   
+>> @@ -2221,6 +2239,7 @@ int drm_crtc_vblank_start_timer(struct drm_crtc *crtc)
+>>   	struct drm_vblank_crtc *vblank = drm_crtc_vblank_crtc(crtc);
+>>   	struct drm_vblank_crtc_timer *vtimer = &vblank->vblank_timer;
+>>   	unsigned long flags;
+>> +	int ret;
+>>   
+>>   	if (!vtimer->crtc) {
+>>   		/*
+>> @@ -2239,7 +2258,9 @@ int drm_crtc_vblank_start_timer(struct drm_crtc *crtc)
+>>   			hrtimer_try_to_cancel(&vtimer->timer);
+>>   	}
+>>   
+>> -	drm_calc_timestamping_constants(crtc, &crtc->mode);
+>> +	ret = drm_calc_timestamping_constants(crtc, &crtc->mode);
+>> +	if (ret)
+>> +		return ret;
+>>   
+>>   	spin_lock_irqsave(&vtimer->interval_lock, flags);
+>>   	vtimer->interval = ns_to_ktime(vblank->framedur_ns);
+>> diff --git a/include/drm/drm_vblank.h b/include/drm/drm_vblank.h
+>> index 2fcef9c0f5b1..d99772dfa034 100644
+>> --- a/include/drm/drm_vblank.h
+>> +++ b/include/drm/drm_vblank.h
+>> @@ -311,8 +311,8 @@ void drm_crtc_vblank_on(struct drm_crtc *crtc);
+>>   u64 drm_crtc_accurate_vblank_count(struct drm_crtc *crtc);
+>>   void drm_crtc_vblank_restore(struct drm_crtc *crtc);
+>>   
+>> -void drm_calc_timestamping_constants(struct drm_crtc *crtc,
+>> -				     const struct drm_display_mode *mode);
+>> +int drm_calc_timestamping_constants(struct drm_crtc *crtc,
+>> +				    const struct drm_display_mode *mode);
+>>   wait_queue_head_t *drm_crtc_vblank_waitqueue(struct drm_crtc *crtc);
+>>   void drm_crtc_set_max_vblank_count(struct drm_crtc *crtc,
+>>   				   u32 max_vblank_count);
+>>
+>> base-commit: 06576c2b43750d990297b8ff1989b94ac72e855f
+>> prerequisite-patch-id: 6729bb10d5e338678e78ccda2dd24f232a13cd22
+>> prerequisite-patch-id: 9d94d20bd45967493b4dc339b58082e1c8da0f4f
+>> prerequisite-patch-id: 6ac8d22df34db9e7d467b1ab95ad30f94841d5db
+>> prerequisite-patch-id: f548dbde3f944ca3415c808be628719acebe898a
+>> prerequisite-patch-id: 2ae91ee8e2bbcd33b8325be046e7214185aba6aa
+>> prerequisite-patch-id: f97bbde08a9996d7c62ca3e3ebfcd387e50bc5c3
+>> prerequisite-patch-id: ecc3c825277bc9978c6979455517249a074c0cb1
+>> prerequisite-patch-id: 0449925cca36664b566f614bfb7d573a11f0575f
+>> prerequisite-patch-id: 9fb2c2787244e9621847af09bea03e575e6276c7
+>> prerequisite-patch-id: eb4384d581805e1178d22e7df45f134223c38305
+>> prerequisite-patch-id: 1a7a529e4b2864abe8071aa44598d28ce72483f4
+>> prerequisite-patch-id: 844a85f4c2fe2f72209b82d46614004c3cfe4123
+>> prerequisite-patch-id: 13f7cb22114c648d35f8c9fa74e9165656ce31eb
+>> prerequisite-patch-id: 20ee46bd6fdd91e39f71d22f52ef6682a4e41512
+>> prerequisite-patch-id: 1d26c0ff91796ff1e62d3831d00bee18723788ef
+>> prerequisite-patch-id: 007f6ea0d09bef54b689bae0eb5abeb497bdfaad
+>> prerequisite-patch-id: 2d89c1507c909520adf9bfb1a137d458a819ae8f
+>> prerequisite-patch-id: d90dc4134468870ab8ccbd71547c9552dff74fbd
+>> prerequisite-patch-id: c67e5d886a47b7d0266d81100837557fda34cb24
+>> prerequisite-patch-id: a5a973e527c88a5b47053d7a72aefe0b550197cb
+>> prerequisite-patch-id: b9adc9622920a3e70168e672c2c92795b3e3a106
+>> prerequisite-patch-id: 5030de433a01c2e99056cadb676a8e2ba35f055a
+>> -- 
+>> 2.55.0
+
+-- 
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
+GF: Stefan Gaiser, Jochen Jaser, Abhinav Puri, (HRB 36809, AG Nürnberg)
+
+
