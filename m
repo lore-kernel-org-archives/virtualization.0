@@ -1,58 +1,187 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793288971;
-	b=lSZkSSOqz4zoJLvl+mV3bJFGWpRNR8k3wenGjbzLGnPr39pp3AOmFtTPbK54swckWspN
-	 kL8OQnSkGK4k7x5bWAwPqsUrSXfAZyLx3wmHIYLijg6CCUsJ+4U2n3+/N2DKCN4K3raHw
-	 muDe2uaY1ApfzX5ouFUCW+tCOzBufI76hntdvOMjeyi1SmyHz4ANnUjdYvPLmV277Z/qQ
-	 fbhqF9lAMvIl84DJsnlKEPA8XYLCShRON4sLfkwYvt40qQ1xaM/cUk76D4khFWzNB4v1m
-	 w/vOzC6Ggbp/A/+fHIh1/kcxvJGrdyxKgtuD6BJGNpBz4YshMjJeTPVfwuVvz6EEI3Q==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793288971;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=1nVL3d37zvK2XgdkIdbwnoQOs8EzL//9FTodGmD0EqQ=;
-	b=Xubk0ECjfihxmNPORedGP3IQ9esWJDDZWcBG/o29FZHejIznYy0lUAJTt30Bjq98UZ/H
-	 yRkZOX+jKuqlQDuk8/liFKFq1+e86wanasiPxStqr2W5Ls9ytYVPpp7hf8NuvijtQcoMK
-	 9qlekwlT95ENMeT3jN4Vlsx/0jDwOsFxL9h+z87pQOs3a3mGRnoxmPMvENmJ/bgkBtgJM
-	 DHKwUVG4MHpTJzQP+Teahp1LpO54gXDGh7z35LJJVO+A7Jl0AGopVzeOOD3hqbNVqBnwT
-	 TMAAEWOHsiK4N9cae8nEw6LqdmDEAg+t9wFRVV10nsMuMMjg5yAEP6pilsgoBl1XvLA==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=k3EqLe5d;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.remote-ip=192.198.163.7
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=fail;
+	t=1793289636;
+	b=PPpno1kSUsQnHdA1w2UhgaRoF7jpL9crd9xlbrwbnZ72PV0F2u8UW5X0crCrFYd101yh
+	 FaLpQkEe1AjzJebT9B28bZB4wpetcBaMIgdhvgdxHGjSoUyxkdASCEOXkdRc9ABylAYGG
+	 bIL5RM+y58BgNk4YhMonjJBhySUKlb09WTatMzb9z9nL6qSpD4Pp40Ju9HVAFPDhIJ8nV
+	 H36ydkjUNRD7HIjTSWKUyobqLYky1uC9C/CL93TVG2SwijESbos+PJYeSTmScx5PzUH9w
+	 EEexV2hyBecLmFA4e8Nkju/TOYjeq8fbvKZYD4RGDfooVnF4U9viFlJBSRDu5ukhq6w==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793289636;
+	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
+	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
+	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Received:Received:
+	 Received:Received:Received:Date:From:To:CC:Subject:Message-ID:
+	 References:Content-Type:Content-Disposition:In-Reply-To:
+	 X-ClientProxiedBy:MIME-Version:X-MS-PublicTrafficType:
+	 X-MS-TrafficTypeDiagnostic:X-MS-Office365-Filtering-Correlation-Id:
+	 X-MS-Exchange-SenderADCheck:X-MS-Exchange-AntiSpam-Relay:
+	 X-Microsoft-Antispam:X-Microsoft-Antispam-Message-Info:
+	 X-Forefront-Antispam-Report:
+	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
+	 X-MS-Exchange-AntiSpam-MessageData-0:X-Exchange-RoutingPolicyChecked:
+	 X-MS-Exchange-CrossTenant-Network-Message-Id:
+	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
+	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
+	 X-MS-Exchange-CrossTenant-FromEntityHeader:
+	 X-MS-Exchange-CrossTenant-Id:X-MS-Exchange-CrossTenant-MailboxType:
+	 X-MS-Exchange-CrossTenant-UserPrincipalName:
+	 X-MS-Exchange-Transport-CrossTenantHeadersStamped:X-OriginatorOrg;
+	bh=++iK9zA7vdSqa2z9khUOayVv3ianUOElr3aNyLxohNs=;
+	b=Is1GBUjBoAClfhG8FuBQWRggK8sy+xJsq0TO0yQkGooSQMDTrXZW+LpxetTWM9ro8Nmy
+	 V7L+QwO74mfuxUyNOaoiW52C5KB8KIDMRtL36xt9LADdDSLtmwQ43YMjxd/aLpJ4BWoRq
+	 U1yk0CGmO+bRbiidGuIFeoTsSEMJgmsO+RF3AvR2K0aoTIjSOjd2k6In6d+Y065j6rUIP
+	 M5aZTSBvblWNNgpHngCkcswP7d2MsSW0o7v5SGrFXJIpIq5ELHHX+cHUBbdECB6TdW7fj
+	 J7KowIzTlNTljnh03CguSlrKLXpq5C5cOHQzRCgx8j0bMRIlFpcHSeaPuufu+p0broA==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=intel.com;
+	spf=pass smtp.mailfrom=intel.com;
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b="nvDqaE/G";
+	arc=fail smtp.remote-ip=192.198.163.7
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48777606A31A
-	for <virtualization@lists.linux.dev>; Thu, 29 Oct 2026 15:49:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AD1E606A31A
+	for <virtualization@lists.linux.dev>; Thu, 29 Oct 2026 16:00:35 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6AD1E606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=k3EqLe5d
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 967641F01824;
-	Thu, 29 Oct 2026 15:49:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793288970;
-	bh=1nVL3d37zvK2XgdkIdbwnoQOs8EzL//9FTodGmD0EqQ=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=k3EqLe5dj/V4L063yAboPS0APm9gYX3VKpDypq549Yi1OLvQWogiI4VB5Ki1aoFpk
-	 oYC1cnpHWviBMTH1BWwL+yOWhuN7vN5NX1I08HTJBcFs+C64jhNxwjGLF3BZCEoX6H
-	 loL4pcDi4ASveTMz//R4uKkx0paQyjUgeqvlvuTlj5A4YS63lFGFlavbOr8G3J1fRG
-	 76ccKFPJD22jHBEs3KXfu5XdqyWa9Pa9xMgVEJqelULUoPkISJXXXD0xqm3eBVxpwZ
-	 jcMOFZZP3pkzinfhI0Vnk6PiB+aof5FIY+CJJd8cpJwZFW+GGDJouuoBDlV9pnCJ3L
-	 Gw0pVjjwRmZqw==
-Message-ID: <sashiko-outbox-189640@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v10 1/5] media: virtio: Add core driver and session
- management
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Brian Daniels" <briandaniels@google.com>
-Cc: virtualization@lists.linux.dev, media-ci@linuxtv.org, "Michael S.
- Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>
-In-Reply-To: <20261029153038.3800747-2-briandaniels@google.com>
-References: <20261029153038.3800747-1-briandaniels@google.com>
- <20261029153038.3800747-2-briandaniels@google.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 29 Oct 2026 15:49:29 +0000
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=nvDqaE/G
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1793289635; x=1824825635;
+  h=date:from:to:cc:subject:message-id:references:
+   in-reply-to:mime-version;
+  bh=1s7rQPzBWfF3kY4Gi4Gs8o36uSP/gZ92/BBROqe3tUA=;
+  b=nvDqaE/Gs2fOkazm9NHov7e+JWKPlX2rL6Gn0CeiUiukvzhjJeadaoyh
+   z6yULKM4OjtsNXU0tvpSOFnzI7GO4GZWOVe5ef3qwZsFTJelBhkaEJLju
+   5Dxdf7H6iYfEY0GHTxM9xoLyYsl4qKgGRywK5czcKrEbYqBO8zQqgBGmb
+   HDsjx8vMC2e/assW2pXtPX0kc2/jN7pfygNlEG+ZXqWD9JonmdOLHjYpl
+   mJGOl/DJbutUUwKgbTKhTzqpRwjO+QlD2sc28Df2haY5Ztp9bsngmN0IJ
+   EsWiIqYdGoEpsdVJrOsAoBz/Af8AjVzcGoZE56e+p4c8EXvJgtPBkGNzc
+   g==;
+X-CSE-ConnectionGUID: +MtnEKORR+WtQidp3TzTUA==
+X-CSE-MsgGUID: Bg1dySyPQzeRRfBM8IKnCA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11949"; a="1924328"
+X-IronPort-AV: E=Sophos;i="6.27,184,1787036400"; 
+   d="scan'208";a="1924328"
+Received: from orviesa006.jf.intel.com ([10.64.159.146])
+  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Oct 2026 09:00:34 -0700
+X-CSE-ConnectionGUID: yvTkDk+tT+OTJ+A6TBHHyA==
+X-CSE-MsgGUID: uKa5PQb6QsebgeeX3ej9Ng==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,184,1787036400"; 
+   d="scan'208";a="5275435"
+Received: from orsmsx902.amr.corp.intel.com ([10.22.229.24])
+  by orviesa006.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Oct 2026 09:00:32 -0700
+Received: from ORSMSX902.amr.corp.intel.com (10.22.229.24) by
+ ORSMSX902.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.56; Thu, 29 Oct 2026 09:00:31 -0700
+Received: from ORSEDG902.ED.cps.intel.com (10.7.248.12) by
+ ORSMSX902.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.56 via Frontend Transport; Thu, 29 Oct 2026 09:00:31 -0700
+Received: from SJ2PR03CU001.outbound.protection.outlook.com (52.101.43.69) by
+ edgegateway.intel.com (134.134.137.112) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.56; Thu, 29 Oct 2026 09:00:30 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=N7dw55R7QH2y/o1H0Krg6QrDe1sXjJtyKa4F5Vrih1n4MfYxcWou3GRsTxhzRyq1iRE+3U1dit0gBpLt+bjF/XnCDvO54GVFGp/vqODW+nfWhVZAPEN5GEPpLXsKlLnuI955r62lE2WhqTKgZncFwenkqrTUa+P9a/nuxpt9Ny7YL1qJOJ2Hy8q8Hm8KRt8TS8NjVADzaji6eRRrZhVV7ZO2GJBQ5nx2oY73Hgp/t6zi825dhD7jK3PnAiI3XgubsA8pS9M7s/fJGYy7h4Wny4kGjK4FLVJInuP3OtGF77AI8S0Dgo/Rd60l0j/sOqtq5hgEQ7VNkPN4vWxE4sZ1rA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=++iK9zA7vdSqa2z9khUOayVv3ianUOElr3aNyLxohNs=;
+ b=w+WtNPFR1X0tRSrixPIJjnQVocHwPpYr+kD1XQQ9C9MSsG4uj5pNQpGLbuCXtLqD6/XoKFkUB/WZLoE8mpzxtymqFObJQDf2Kvp2EwQadVfzSphjiVSKVm+4MY91fnii4zIidg+2hYSBUxzYv8k6iE/z17e0UhbI0knZBKWzbEO9PRBrECndUs/Sowi0aErm+TuaD5u55rdEP8wriUof1yMR1vK/wqz5E3sxQVIL6w6Qde1yfgAKoHfq9G1ptd8/992NrCO/y2yxyZ5YwSmt2crMuHC13fc9sZQKfFcgFeEqzpLuye7VDR7Nlt2EkROPaKY1vIExt4lnJo2B2/VHXg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Authentication-Results: mx.microsoft.com 1; dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+Received: from CO1PR11MB4787.namprd11.prod.outlook.com (2603:10b6:303:95::23)
+ by DS0PR11MB7999.namprd11.prod.outlook.com (2603:10b6:8:123::5) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.569.8; Thu, 29 Oct
+ 2026 16:00:20 +0000
+Received: from CO1PR11MB4787.namprd11.prod.outlook.com
+ ([fe80::e7eb:a872:53d1:21fd]) by CO1PR11MB4787.namprd11.prod.outlook.com
+ ([fe80::e7eb:a872:53d1:21fd%4]) with mapi id 15.21.0569.008; Thu, 29 Oct 2026
+ 16:00:19 +0000
+Date: Thu, 29 Oct 2026 09:00:15 -0700
+From: Matthew Brost <matthew.brost@intel.com>
+To: Philipp Stanner <phasta@kernel.org>
+CC: Min Ma <mamin506@gmail.com>, Lizhi Hou <lizhi.hou@amd.com>, Oded Gabbay
+	<ogabbay@kernel.org>, "Rob Herring (Arm)" <robh@kernel.org>, Tomeu Vizoso
+	<tomeu@tomeuvizoso.net>, Karol Wachowski <karol.wachowski@linux.intel.com>,
+	Andrzej Kacprowski <andrzej.kacprowski@linux.intel.com>, Sumit Semwal
+	<sumit.semwal@linaro.org>, Christian =?iso-8859-1?Q?K=F6nig?=
+	<christian.koenig@amd.com>, Felix Kuehling <Felix.Kuehling@amd.com>, "Alex
+ Deucher" <alexander.deucher@amd.com>, David Airlie <airlied@gmail.com>,
+	"Simona Vetter" <simona@ffwll.ch>, Maarten Lankhorst
+	<maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>, Lucas Stach
+	<l.stach@pengutronix.de>, Russell King <linux+etnaviv@armlinux.org.uk>,
+	Christian Gmeiner <christian.gmeiner@gmail.com>, Jani Nikula
+	<jani.nikula@linux.intel.com>, Joonas Lahtinen
+	<joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	Tvrtko Ursulin <tursulin@ursulin.net>, Alessio Belle
+	<alessio.belle@imgtec.com>, Luigi Santivetti <luigi.santivetti@imgtec.com>,
+	Qiang Yu <yuq825@gmail.com>, Rob Clark <robin.clark@oss.qualcomm.com>,
+	"Dmitry Baryshkov" <lumag@kernel.org>, Abhinav Kumar
+	<abhinav.kumar@linux.dev>, Jessica Zhang <jesszhan0024@gmail.com>, Sean Paul
+	<sean@poorly.run>, "Marijn Suijten" <marijn.suijten@somainline.org>, Lyude
+ Paul <lyude@redhat.com>, Danilo Krummrich <dakr@kernel.org>, Boris Brezillon
+	<boris.brezillon@collabora.com>, Steven Price <steven.price@arm.com>,
+	=?iso-8859-1?Q?Adri=E1n?= Larumbe <adrian.larumbe@collabora.com>, Liviu Dudau
+	<liviu.dudau@arm.com>, Dave Airlie <airlied@redhat.com>, Gerd Hoffmann
+	<kraxel@redhat.com>, Natalie Vock <nat@pixelcluster.dev>, Arun Pravin
+	<arunpravin.paneerselvam@amd.com>, Matthew Auld <matthew.auld@intel.com>,
+	Thomas =?iso-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>,
+	Melissa Wen <mwen@igalia.com>, =?iso-8859-1?Q?Ma=EDra?= Canal
+	<mcanal@igalia.com>, Dave Stevenson <dave.stevenson@raspberrypi.com>,
+	Raspberry Pi Kernel Maintenance <kernel-list@raspberrypi.com>, "Dmitry
+ Osipenko" <dmitry.osipenko@collabora.com>, Gurchetan Singh
+	<gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, Zack Rusin
+	<zack.rusin@broadcom.com>, Broadcom internal kernel review list
+	<bcm-kernel-feedback-list@broadcom.com>, Thierry Reding
+	<thierry.reding@kernel.org>, Mikko Perttunen <mperttunen@nvidia.com>,
+	Jonathan Cameron <jic23@kernel.org>, David Lechner <dlechner@baylibre.com>,
+	Nuno =?iso-8859-1?Q?S=E1?= <nuno.sa@analog.com>, Andy Shevchenko
+	<andy@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Sunil
+ Khatri" <sunil.khatri@amd.com>, Kees Cook <kees@kernel.org>, Jesse Zhang
+	<jesse.zhang@amd.com>, Timur =?iso-8859-1?Q?Krist=F3f?=
+	<timur.kristof@gmail.com>, Srinivasan Shanmugam
+	<srinivasan.shanmugam@amd.com>, Kexin Sun <kexinsun@smail.nju.edu.cn>, "Prike
+ Liang" <Prike.Liang@amd.com>, David Rosca <david.rosca@amd.com>, "Krzysztof
+ Karas" <krzysztof.karas@intel.com>, Marco Crivellari
+	<marco.crivellari@suse.com>, Shixiong Ou <oushixiong@kylinos.cn>, Jouni
+ =?iso-8859-1?Q?H=F6gander?= <jouni.hogander@intel.com>, "Thadeu Lima de Souza
+ Cascardo" <cascardo@igalia.com>, Pierre-Eric Pelloux-Prayer
+	<pierre-eric.pelloux-prayer@amd.com>, Joel Fernandes <joelagnelf@nvidia.com>,
+	Al Viro <viro@zeniv.linux.org.uk>, Neill Kapron <nkapron@google.com>,
+	"Michael Bommarito" <michael.bommarito@gmail.com>, Sam Day <me@samcday.com>,
+	"Gabriel Prostitis" <prostitisgabriel@gmail.com>,
+	<dri-devel@lists.freedesktop.org>, <linux-kernel@vger.kernel.org>,
+	<linux-media@vger.kernel.org>, <amd-gfx@lists.freedesktop.org>,
+	<etnaviv@lists.freedesktop.org>, <intel-gfx@lists.freedesktop.org>,
+	<imagination@lists.freedesktop.org>, <lima@lists.freedesktop.org>,
+	<linux-arm-msm@vger.kernel.org>, <freedreno@lists.freedesktop.org>,
+	<nouveau@lists.freedesktop.org>, <virtualization@lists.linux.dev>,
+	<spice-devel@lists.freedesktop.org>, <intel-xe@lists.freedesktop.org>,
+	<linux-tegra@vger.kernel.org>, <linux-iio@vger.kernel.org>,
+	<linux-usb@vger.kernel.org>
+Subject: Re: [RFC PATCH 5/6] dma-buf: dma-fence: Close race in
+ dma_fence_is_signaled() by default
+Message-ID: <auNtj8zYrqwtnXdK@gsse-cloud1.jf.intel.com>
+References: <20261029095542.1526750-3-phasta@kernel.org>
+ <20261029095542.1526750-8-phasta@kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <20261029095542.1526750-8-phasta@kernel.org>
+X-ClientProxiedBy: MW4PR04CA0044.namprd04.prod.outlook.com
+ (2603:10b6:303:6a::19) To CO1PR11MB4787.namprd11.prod.outlook.com
+ (2603:10b6:303:95::23)
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -61,376 +190,165 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CO1PR11MB4787:EE_|DS0PR11MB7999:EE_
+X-MS-Office365-Filtering-Correlation-Id: a6a3578e-fddd-4b58-297f-08df35d5babd
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|7416014|366016|1800799024|23010399003|18002099003|22082099003|56012099006|11063799006|261026140227099003|4143699003|261021123027099003|261021121427099003|10067099003|261026121527099003|261009223027099003|261022075727099003|261022105027099003|261028144727099003;
+X-Microsoft-Antispam-Message-Info: GcA/mTp3EeoLjKo9kf4JRRrRKZLtSlDNaMmvaSH66FCOzpPQZSRs/U5CmyaOEfe85COboqUvFC/IS2XNvmWk0YNjCp1HRjR7+YfGdy5ApnRrM/c67DJNNNEETe1xJ4eXeyYxwYAyvGUWo49j9UYEXcCDfM7TNvUKl7+1BKpFhcPUIHZ7WvA6SMFestx7luxt2me4h/k0MXsnbwVSD6ymbV7F2E5m+M653Aqp6BGQ/Pmr95HLeX7h0n8ZEE8HYdhSLbfaGl/CwOTcphOULwPXNSdQPy6Q/WXlAzgTmEuGea3akpjRVedIkpewnHHLYyTpkxIO3+AhjibRAVaRUb886ft7MLrmdF7945T+lnLtzd/IG2y6aaE/e4VU3HxpkZiV2nWqgMqNc8VXwNa1uxVuRCJQJXU4Y0UObzf1xQsN7ybsDvu6JeegZWipNKVjD7jLbjKyELE0sA095YtYQoMnTWlbavtkL2ZKpCSJsDWUD0zWrlktPcoD/hPddvLuWDqtDsbPcoRuxqgLAOr3uXEK2eLLRbt/8PwA/bocggz5KnHWwSyGSdhUlnDNYwOuZxjvY75hmGX+BOX/YoS8JWi6Gh0w+1MmkT3mzO9G/Wvr9SaMJoNXrUqFSvfDl42XLZeLh0EqVr6DwAWHqeRFrz9VHEFrclPMlQO9kT1wIOCPWjw=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CO1PR11MB4787.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(366016)(1800799024)(23010399003)(18002099003)(22082099003)(56012099006)(11063799006)(261026140227099003)(4143699003)(261021123027099003)(261021121427099003)(10067099003)(261026121527099003)(261009223027099003)(261022075727099003)(261022105027099003)(261028144727099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?yhF8AzJ4SOQZjKgwpgmtJEsmjJJJQZSmg7/qT2hQva1P3tFx5+K7Yuv0XDxE?=
+ =?us-ascii?Q?YGKyP6qm6UBfD/rfkSnzfmOttXOSXlYIgQEY3s/hDdvwREziNUYoATT3VAXg?=
+ =?us-ascii?Q?EyV1ZxkVWVmsB4bf2H1WrARuJ1BWkpzWKvU7vBjZxefHYHIKI9fathPH1BMg?=
+ =?us-ascii?Q?Mk8AL15M9nbE6rGhw7oNayZTS7ulj9k4xfkaWFXyzMAu4HCKl30YA7trp8qR?=
+ =?us-ascii?Q?jE7HPC18lS8DVACLGgnTvAtkJKYeYldgyP7/2baOmlVZJYZD4zmjEQF6QSqd?=
+ =?us-ascii?Q?6AG5+bexZyDihivIA/+1sqYcWy2ZsSKrtf2Sxg7ifGXqaLAO+DVmnpQYAY9u?=
+ =?us-ascii?Q?/0X5ieF1oXhQ5T46RrBIgTTGTU2/rS8fiDlgydqTCFa7GwWpITBfLq5XVMPO?=
+ =?us-ascii?Q?tuGFnYR5vwENoNvaBfimbbK8VFHzDgqWs9jH7vLZIh8JN4RM/3LbhFm0NlsP?=
+ =?us-ascii?Q?Bh/Ji3OtkT/HlQt8VnRQCL7Sa1pkviVpdXMyW63P4TLP4dpOJ/e+rIQps3sc?=
+ =?us-ascii?Q?gzIwLCo/A70cwZq4za64EOGuJYykb7JOEQev2O53+8iLbL0malpFKMc305wl?=
+ =?us-ascii?Q?M6QbbZX91ZcZYPaqYjIQsVkbLkQmuB0oZzvsnJZAUvt26nnRpc1kydEK/slq?=
+ =?us-ascii?Q?Og5hD3gWG0tHqDXZiVDtDYJ+A3NLPdDTX07EOWtGbaxmK8Rha/HeNsdRL7/K?=
+ =?us-ascii?Q?j2TNPOQP67Ce92OnO7VF+uUTKGnkedGKW/CUoArTGCjWOu75p5XfKj1gEqPl?=
+ =?us-ascii?Q?304SJqpFMsjiQkRPrybV2inV6ZIQxkq8thcDad8z+d7JaQw4/HpaiMFW3BPI?=
+ =?us-ascii?Q?Neo+pd7oiPbqwUOrRe/4Wj/uqkDldwF8+C4jPpxRHDcDr7SV2OAXR8DPsuaP?=
+ =?us-ascii?Q?FGZvPuF7Jf3IM7mBUWCev38v+otOOF6M6YCD3RepkIXNGX+mvvCuknak1PGI?=
+ =?us-ascii?Q?6t/URpwMQsZhbz9V5HTyaXIYqz3l4n5ZeaRmyiYnR1h566xM0KnX/+T4tDhC?=
+ =?us-ascii?Q?0+swB0C/53Ez5M8lOitNeERlB7rPLdqLpcENIdKp13fgv3W38Z/ee+MJkVlB?=
+ =?us-ascii?Q?JKKV15VqmaV3s0bu1aEufn8upTr8JsHkYTn4RjWI30HHUodW7Xj9Y8x5XCcD?=
+ =?us-ascii?Q?bScg1/3thW7vKQe5wngY3yBCkNKSJuhyKUoFNQVjFndmpGGpU79MUU56PlOu?=
+ =?us-ascii?Q?tNJCk6cpYJQBOuUan7AtIV8Q53o57SPua3K+laf4u6UsRhT5Egx1tCqG0XJk?=
+ =?us-ascii?Q?5cBrlRrfu0MM+TnKPzwRm3tbpqz/5hk0IwcyAXxs45t/lmMepkczpAbvEVJP?=
+ =?us-ascii?Q?T7Y7tanSinbMf0apgIhDdgGEygGUlX/u0zoCV03VYQFHM9lfHkaLnXNwMC9G?=
+ =?us-ascii?Q?rhBu6/NtP6w8OioKuV00NNXE7dKd2kYgjLklYSMSMlJTQ2HB8jUNBWlgyr0m?=
+ =?us-ascii?Q?OZ1/+zOUR0JwAlj2dSs4xV6HHZ2gHo+pTCZMQBIQ6z29M9SoIJMa7kC3HEWp?=
+ =?us-ascii?Q?ZxsMSwXPnI12wXgMvByM39w2Vafl2SJo3YdZIpnKGzrD7t/PqCyfPWpI+mEk?=
+ =?us-ascii?Q?mrYKJrNxoQPDpTvZPlGgmwyNMUUIsXtYRDjIm5XPzaNV0Q4+YEwCwXidBf2D?=
+ =?us-ascii?Q?znPX9w0PaoOE4qN7f8MBUF+ikYcHBjzyB18ztj7xUE9Cy7CzfcBNVaaZgdy9?=
+ =?us-ascii?Q?cAqGmr6juZ3Fq2qgbs0f0Nt5F1ZQplZE1fN+64VvSX205qGUiLFixjLme0zX?=
+ =?us-ascii?Q?T9a/l0vNZw=3D=3D?=
+X-Exchange-RoutingPolicyChecked: dLchvVtnFtecCNNV+v+ZIIG05MtGLBr70qRjTdh1vTzrBkOTUKxwylRlWDjcLKwFLSJ56kKgUfTh2ISt5C7dnlfSI8QUelygsNRnwrA7w5ztxSoLpV4FeJzVnQ/+LKkP1gXlMiwGPYbVa3hM4F4Kndc+8hpYKSVMm/Z7iXQByCiaNgp2ptitmUZ/Sk5vegJH521FjaX6x4BPVfva0LiV79JFOG0bRAD3q36M+lFvhAvG6ctR5jjk8jmBJTFuUYZXGKbao5N3CIb1jMvbQBeuEgNy0nbDnhecn8RRqVD7zO76vaxATu4keJHpxP6tIWa9Xqa+DUGAEnb4BQDgohgw4g==
+X-MS-Exchange-CrossTenant-Network-Message-Id: a6a3578e-fddd-4b58-297f-08df35d5babd
+X-MS-Exchange-CrossTenant-AuthSource: CO1PR11MB4787.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Oct 2026 16:00:19.1318
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: +5xI66ER351bw+NXujpvhxkFpRqgB+f3HwPJlr35TdqYCPpvwQDo7vWQUcbhQEiONluhg4IYvB+WQX47sagy2Q==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR11MB7999
+X-OriginatorOrg: intel.com
 
-Thank you for your contribution! Sashiko AI review found 6 potential issue(=
-s) to consider:
-- [Critical] media: virtio: UAF, NULL deref, and deadlock in virtio_media_r=
-emove()
-- [Critical] media: virtio: stack UAF and vq race in commandq_callback()
-- [Critical] media: virtio: dangling stack cb_param on virtqueue_kick() fai=
-lure
-- [Critical] media: virtio: unvalidated status negation in virtio_media_kic=
-k_command()
-- [High] media: virtio: missing reset and caps check in virtio_media_probe()
-- [Low] media: virtio: missing le32 conversions on virtio_media protocol fi=
-elds
---
+On Thu, Oct 29, 2026 at 10:55:42AM +0100, Philipp Stanner wrote:
+> dma_fence_is_signaled() contains a lockless check of the signaled-bit,
+> which is set under lock protection. This is a race condition which makes
+> the API fragile and has caused at least two bugs already, addressed in:
+> 
+> 	commit c8a5d5ea3ba6 ("nouveau: fix client work fence deletion race")
+> 	commit 7c703a7d3f2b ("drm/amdgpu: Fix one use-after-free of VM")
+> 
+> It has been argued by some that this race cannot be closed for the
+> entire kernel through locking because this would lead to a cache line
+> invalidation for all parties reading that fence. While it remains
+> unclear why these parties don't simply let themselves be notified about
+> the fence being signaled instead of checking this repeatedly manually,
+> there is a way to preserve this behavior in any case:
+> 
+> This patch adds a new flag for dma_fence_init(),
+> DMA_FENCE_INIT_FLAG_RACY_SIGNALED_CHECK. If this flag is not set, the
+> spinlock is taken and dma_fence_is_signaled() becomes perfectly
+> synchronized: it can only return true once signaling of the fence is
+> completed.
+> 
+> Disable the racy check for everyone by default. Should some parties
+> really experience severe performance degredations because of this, they
+> can trivially re-enable the race condition for their driver by setting
+> the flag in dma_fence_init().
+> 
 
-commit a1ad1972645a51f0e49e27a507fa954d0bc8dd41
-Author: Alexandre Courbot <gnurou@gmail.com>
+My 2 cents - anyone arguing about cachelines probably has broken code to
+begin with. I'd say don't give anyone an option to opt into a racey
+check, if this regressing some peoples code the answer is likely
+structurally fix your broken code.
 
-media: virtio: Add core driver and session management
+Matt
 
-This commit adds the initial virtio-media driver core, build system
-integration, and V4L2 session lifecycle management via VIRTIO_MEDIA_CMD_OPEN
-and VIRTIO_MEDIA_CMD_CLOSE over the command virtqueue.
-
-> diff --git a/drivers/media/virtio/virtio_media_driver.c b/drivers/media/v=
-irtio/virtio_media_driver.c
-> new file mode 100644
-> index 0000000000000..10073d863b574
-> --- /dev/null
-> +++ b/drivers/media/virtio/virtio_media_driver.c
-> @@ -0,0 +1,503 @@
-
-[ ... ]
-
-> +static int virtio_media_session_close(struct virtio_media *vv,
-> +				      struct virtio_media_session *session)
-> +{
-> +	struct virtio_media_cmd_close *cmd_close =3D &session->cmd.close;
-> +	struct scatterlist cmd_sg =3D {};
-> +	struct scatterlist *sgs[1] =3D { &cmd_sg };
-> +	int ret;
-> +
-> +	mutex_lock(&vv->vlock);
-> +
-> +	cmd_close->hdr.cmd =3D VIRTIO_MEDIA_CMD_CLOSE;
-> +	cmd_close->hdr.__reserved =3D 0;
-> +	cmd_close->session_id =3D session->id;
-> +	cmd_close->__reserved =3D 0;
-
-[Severity: Low]
-In virtio_media_session_close(), virtio_media_device_open(), and
-virtio_media_kick_command(), the protocol fields hdr.cmd, hdr.status, and
-session_id are declared as __le32 in include/uapi/linux/virtio_media.h, but
-they are read and written directly as host integers.
-
-Should these accesses use cpu_to_le32() and le32_to_cpu() to avoid sparse
-endianness warnings when building with C=3D1?
-
-[ ... ]
-
-> +struct virtio_media_cmd_callback_param {
-> +	struct virtio_media *vv;
-> +	bool done;
-> +	size_t resp_len;
-> +};
-> +
-> +/**
-> + * commandq_callback() - Callback for the command queue.
-> + * @queue: command virtqueue.
-> + *
-> + * This just wakes up the thread that was waiting on the command to comp=
-lete.
-> + */
-> +static void commandq_callback(struct virtqueue *queue)
-> +{
-> +	unsigned int len;
-> +	struct virtio_media_cmd_callback_param *param;
-> +
-> +process_bufs:
-> +	while ((param =3D virtqueue_get_buf(queue, &len))) {
-> +		param->resp_len =3D len;
-> +		param->done =3D true;
-> +		wake_up(&param->vv->wq);
-> +	}
-> +
-> +	if (!virtqueue_enable_cb(queue)) {
-> +		virtqueue_disable_cb(queue);
-> +		goto process_bufs;
-> +	}
-> +}
-> +
-> +/**
-> + * virtio_media_kick_command() - send a command to the commandq.
-> + * @vv: virtio-media device in use.
-> + * @sgs: descriptor chain to send.
-> + * @out_sgs: number of device-readable descriptors in @sgs.
-> + * @in_sgs: number of device-writable descriptors in @sgs.
-> + * @resp_len: output parameter. Upon success, contains the size of the r=
-esponse
-> + *            in bytes.
-> + */
-> +static int virtio_media_kick_command(struct virtio_media *vv,
-> +				     struct scatterlist **sgs,
-> +				     const size_t out_sgs, const size_t in_sgs,
-> +				     size_t *resp_len)
-> +{
-> +	struct virtio_media_cmd_callback_param cb_param =3D {
-> +		.vv =3D vv,
-> +		.done =3D false,
-> +		.resp_len =3D 0,
-> +	};
-> +	struct virtio_media_resp_header *resp_header;
-> +	int ret =3D virtqueue_add_sgs(vv->commandq, sgs, out_sgs, in_sgs,
-> +		  &cb_param, GFP_ATOMIC);
-> +	if (ret) {
-> +		v4l2_err(&vv->v4l2_dev,
-> +			 "failed to add sgs to command virtqueue\n");
-> +		return ret;
-> +	}
-> +
-> +	if (!virtqueue_kick(vv->commandq)) {
-> +		v4l2_err(&vv->v4l2_dev, "failed to kick command virtqueue\n");
-> +		return -EINVAL;
-> +	}
-
-[Severity: Critical]
-If virtqueue_kick() returns false here in virtio_media_kick_command(), the
-stack-allocated cb_param token and the DMA-mapped caller scatterlists have
-already been added to vv->commandq by virtqueue_add_sgs().
-
-When virtio_media_kick_command() returns -EINVAL without detaching the unus=
-ed
-buffer or resetting the device, cb_param goes out of scope while still queu=
-ed
-in vv->commandq, and in the close path:
-
-  virtio_media_device_close()
-    virtio_media_session_close() -> fails with -EINVAL
-    virtio_media_session_remove()
-    virtio_media_session_free() -> kfree(session)
-
-session->cmd.close is freed while still queued in the virtqueue. Could a
-subsequent completion in commandq_callback() dereference the dangling stack
-pointer param and access freed session memory?
-
-> +
-> +	/* Wait for the response. */
-> +	wait_event(vv->wq, cb_param.done);
-
-[Severity: Critical]
-Can commandq_callback() race with virtio_media_kick_command() and trigger a
-stack use-after-return or vring state corruption?
-
-In virtio_media_kick_command(), cb_param lives on the stack, and wait_event=
-()
-checks cb_param.done locklessly in its fast path before taking the waitqueue
-lock. In commandq_callback():
-
-  param->resp_len =3D len;
-  param->done =3D true;
-  wake_up(&param->vv->wq);
-
-As soon as param->done =3D true becomes visible on another CPU,
-virtio_media_kick_command() can finish wait_event() and return from the
-function before commandq_callback() evaluates &param->vv->wq on the next
-line, dereferencing the popped stack frame (for example, queue->vdev->priv
-could be used to reach vv instead of param->vv, or a struct completion could
-be used). In addition, param->resp_len and param->done are written and read
-without memory barriers (such as smp_store_release() and smp_load_acquire())
-when wait_event() takes its lockless fast path.
-
-Furthermore, callers serialize access to vv->commandq only with the mutex
-vv->vlock, whereas commandq_callback() runs in interrupt context without a
-spinlock. Once a woken caller returns, releases vv->vlock, and issues a new
-virtqueue_add_sgs() and virtqueue_kick() (or virtio_media_remove() detaches
-buffers), can that run concurrently with commandq_callback() still executing
-virtqueue_get_buf() and virtqueue_enable_cb() on vv->commandq?
-
-> +
-> +	if (resp_len)
-> +		*resp_len =3D cb_param.resp_len;
-> +
-> +	if (in_sgs > 0) {
-> +		/*
-> +		 * If we expect a response, make sure we have at least a
-> +		 * response header - anything shorter is invalid.
-> +		 */
-> +		if (cb_param.resp_len < sizeof(*resp_header)) {
-> +			v4l2_err(&vv->v4l2_dev,
-> +				 "received response header is too short\n");
-> +			return -EINVAL;
-> +		}
-> +
-> +		resp_header =3D sg_virt(sgs[out_sgs]);
-> +		if (resp_header->status)
-> +			/* Host returns a positive error code. */
-> +			return -resp_header->status;
-
-[Severity: Critical]
-What happens if the host writes an out-of-range value into
-resp_header->status (which is a 32-bit unsigned __le32)?
-
-If resp_header->status has bit 31 set (0x80000001..0xffffffff, such as a
-negative errno cast to u32), negating it yields a positive int when returned
-from virtio_media_kick_command(). Because virtio_media_send_command() only
-checks:
-
-  if (ret < 0)
-          return ret;
-
-it treats positive return values as success and returns 0, causing
-virtio_media_device_open() to succeed using an uninitialized or stale
-resp_open->session_id.
-
-Conversely, if resp_header->status is in (MAX_ERRNO, 0x80000000],
-virtio_media_kick_command() returns a negative value smaller than -MAX_ERRN=
-O.
-When propagated from virtio_media_device_open() through v4l2_open() and
-do_dentry_open() to path_openat(), ERR_PTR(ret) will not satisfy IS_ERR(),
-which can cause VFS open to install an invalid pointer into the process file
-descriptor table. Should status values outside 1..MAX_ERRNO be mapped to a
-fallback error such as -EINVAL or -EIO?
-
-[ ... ]
-
-> +static int virtio_media_probe(struct virtio_device *virtio_dev)
-> +{
-
-[ ... ]
-
-> +	virtio_cread_le(virtio_dev, struct virtio_media_config, device_caps,
-> +			&vd->device_caps);
-> +	if (vd->device_caps & (V4L2_CAP_VIDEO_M2M | V4L2_CAP_VIDEO_M2M_MPLANE))
-> +		vd->vfl_dir =3D VFL_DIR_M2M;
-> +	else if (vd->device_caps &
-> +		 (V4L2_CAP_VIDEO_OUTPUT | V4L2_CAP_VIDEO_OUTPUT_MPLANE))
-> +		vd->vfl_dir =3D VFL_DIR_TX;
-> +	else
-> +		vd->vfl_dir =3D VFL_DIR_RX;
-> +
-> +	virtio_device_ready(virtio_dev);
-> +
-> +	__u32 device_type;
-> +
-> +	virtio_cread_le(virtio_dev, struct virtio_media_config, device_type,
-> +			&device_type);
-> +	if (device_type >=3D VFL_TYPE_MAX) {
-> +		dev_err(&virtio_dev->dev, "Invalid device_type: %u",
-> +			device_type);
-> +		ret =3D -EINVAL;
-> +		goto err_del_vqs;
-> +	}
-> +
-> +	ret =3D video_register_device(vd, device_type, -1);
-> +	if (ret)
-> +		goto err_del_vqs;
-> +
-> +	return 0;
-> +
-> +err_del_vqs:
-> +	virtio_dev->config->del_vqs(virtio_dev);
-> +err_v4l2_device_unregister:
-> +	v4l2_device_unregister(&vv->v4l2_dev);
-> +err_free_virtio_media:
-> +	kfree(vv);
-> +	return ret;
-> +}
-
-[Severity: High]
-In virtio_media_probe(), virtio_device_ready(virtio_dev) is called before
-validating device_type and before video_register_device(). If either check
-fails and jumps to err_del_vqs, virtio_dev->config->del_vqs(virtio_dev) and
-kfree(vv) are called without calling virtio_reset_device(virtio_dev) first,
-leaving VIRTIO_CONFIG_S_DRIVER_OK set while the virtqueues and driver state
-are freed.
-
-In addition, vd->device_caps is read from config space without checking that
-it is non-zero; if device_type !=3D VFL_TYPE_SUBDEV and vd->device_caps =3D=
-=3D 0,
-__video_register_device() triggers a WARN_ON(!vdev->device_caps) and fails
-into err_del_vqs.
-
-Should vd->device_caps and device_type be validated before
-virtio_device_ready(), and should err_del_vqs reset the virtio device before
-deleting the virtqueues?
-
-> +
-> +static void virtio_media_remove(struct virtio_device *virtio_dev)
-> +{
-> +	struct virtio_media *vv =3D virtio_dev->priv;
-> +	struct list_head *p, *n;
-> +
-> +	/* Remove the video device to stop accessing the commandq virtqueue */
-> +	video_unregister_device(&vv->video_dev);
-> +
+> Signed-off-by: Philipp Stanner <phasta@kernel.org>
+> ---
+>  drivers/dma-buf/dma-fence.c |  2 ++
+>  include/linux/dma-fence.h   | 22 ++++++++++++++++++++++
+>  2 files changed, 24 insertions(+)
+> 
+> diff --git a/drivers/dma-buf/dma-fence.c b/drivers/dma-buf/dma-fence.c
+> index f7c084926ae6..1ae8c7aade39 100644
+> --- a/drivers/dma-buf/dma-fence.c
+> +++ b/drivers/dma-buf/dma-fence.c
+> @@ -1119,6 +1119,8 @@ dma_fence_init(struct dma_fence *fence, const struct dma_fence_ops *ops,
+>  	/* Mapp the init_flags to the fence-internal flags. */
+>  	if (test_bit(DMA_FENCE_INIT_FLAG_SEQNO64, &init_flags))
+>  		set_bit(DMA_FENCE_FLAG_SEQNO64_BIT, &fence_flag_bits);
+> +	if (test_bit(DMA_FENCE_INIT_FLAG_RACY_SIGNALED_CHECK, &init_flags))
+> +		set_bit(DMA_FENCE_FLAG_RACY_SIGNALED_CHECK_BIT, &fence_flag_bits);
+>  
+>  	__dma_fence_init(fence, ops, lock, context, seqno, fence_flag_bits);
+>  }
+> diff --git a/include/linux/dma-fence.h b/include/linux/dma-fence.h
+> index 52e7ddfd2d06..ee6e8de3ebc6 100644
+> --- a/include/linux/dma-fence.h
+> +++ b/include/linux/dma-fence.h
+> @@ -115,6 +115,7 @@ enum dma_fence_flag_bits {
+>  	DMA_FENCE_FLAG_SIGNALED_BIT,
+>  	DMA_FENCE_FLAG_TIMESTAMP_BIT,
+>  	DMA_FENCE_FLAG_ENABLE_SIGNAL_BIT,
+> +	DMA_FENCE_FLAG_RACY_SIGNALED_CHECK_BIT,
+>  
+>  	DMA_FENCE_FLAG_USER_BITS, /* must always be last member */
+>  };
+> @@ -124,9 +125,12 @@ enum dma_fence_flag_bits {
+>   * These flags can be passed in dma_fence_init().
+>   *
+>   * @DMA_FENCE_INIT_FLAG_SEQNO64: Use 64-bit sequence numbers.
+> + * @DMA_FENCE_INIT_FLAG_RACY_SIGNALED_CHECK:
+> + * Legacy flag. Enables a race condition in dma_fence_is_signaled().
+>   */
+>  enum dma_fence_init_flags {
+>  	DMA_FENCE_INIT_FLAG_SEQNO64,
+> +	DMA_FENCE_INIT_FLAG_RACY_SIGNALED_CHECK,
+>  
+>  	/* Must always be last member. */
+>  	DMA_FENCE_INIT_FLAG_NR_OF_FLAGs,
+> @@ -568,9 +572,27 @@ dma_fence_is_signaled_locked(struct dma_fence *fence)
+>  static inline bool
+>  dma_fence_is_signaled(struct dma_fence *fence)
+>  {
+> +	const bool racy_check = test_bit(DMA_FENCE_FLAG_RACY_SIGNALED_CHECK_BIT,
+> +					 &fence->flags);
+>  	const struct dma_fence_ops *ops;
+> +	bool signaled = false;
+> +	unsigned long flags;
+>  
 > +	/*
-> +	 * Acquire vlock to ensure no concurrent accesses to the commandq
-> +	 * virtqueue
+> +	 * For legacy reasons, there is a race window here against parties
+> +	 * signaling the fence. They might still be doing that right now.
+> +	 *
+> +	 * For most users, this window shall be closed, but there are parties
+> +	 * for whom the cache-line invalidation by taking the lock might be so
+> +	 * significant that they prefer to accept the race at their own risk.
 > +	 */
-> +	mutex_lock(&vv->vlock);
-> +
-> +	/* Stop all virtqueue callbacks */
-> +	virtio_reset_device(virtio_dev);
-> +
-> +	/*
-> +	 * Only detach the unused buffers to allow internal virtqueue clean up.
-> +	 * The actual buffers are freed in virtio_media_release()
-> +	 */
-> +	while (virtqueue_detach_unused_buf(vv->commandq))
-> +		;
-> +
-> +	/* Delete the virtqueues */
-> +	virtio_dev->config->del_vqs(virtio_dev);
-> +
-> +	mutex_unlock(&vv->vlock);
-> +
-> +	list_for_each_safe(p, n, &vv->sessions) {
-> +		struct virtio_media_session *s =3D
-> +			list_entry(p, struct virtio_media_session, list);
-> +
-> +		virtio_media_session_remove(vv, s);
-> +		virtio_media_session_free(s);
-> +	}
-> +
-> +	v4l2_device_put(&vv->v4l2_dev);
-> +}
-
-[Severity: Critical]
-What happens in virtio_media_remove() if the virtio device is unbound or
-hot-unplugged while userspace still has an open file descriptor (or an
-in-flight open/close)?
-
-First, video_unregister_device() only clears V4L2_FL_REGISTERED and unlinks
-the device node; it does not close open struct file instances or wait for
-in-flight file operations. In virtio_media_remove(), the loop over
-vv->sessions (which also iterates without holding vv->sessions_lock) frees
-every active session via virtio_media_session_free(), which calls:
-
-  virtio_media_session_fh_del(session)
-    v4l2_fh_del(&session->fh, session->file)
-      filp->private_data =3D NULL;
-  kfree(session);
-
-and virtio_dev->config->del_vqs(virtio_dev) frees vv->commandq. When
-userspace later closes its open file descriptor, v4l2_release() still invok=
-es
-virtio_media_device_close():
-
-  virtio_media_device_close(file)
-    session =3D fh_to_session(file->private_data); -> NULL (or freed sessio=
-n)
-    virtio_media_session_close(vv, session)
-      cmd_close->session_id =3D session->id; -> NULL dereference / UAF
-      virtio_media_send_command(vv, ...) -> uses deleted vv->commandq (UAF)
-    virtio_media_session_remove(vv, session);
-    virtio_media_session_free(session); -> double free
-
-Similarly, a concurrent virtio_media_device_open() or
-virtio_media_device_close() waiting on mutex_lock(&vv->vlock) during
-virtio_media_remove() will acquire vv->vlock after del_vqs() has already
-destroyed vv->commandq and attempt to submit a command on the freed
-virtqueue.
-
-Second, if a command is in flight in virtio_media_kick_command() waiting in
-uninterruptible wait_event(vv->wq, cb_param.done) while holding vv->vlock a=
-nd
-the device stops responding during hot-unplug, won't virtio_media_remove()
-deadlock forever on mutex_lock(&vv->vlock) before it can reach
-virtio_reset_device()?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261029153038.3800=
-747-1-briandaniels@google.com?part=3D1
+> +	if (!racy_check)
+> +		dma_fence_lock_irqsave(fence, flags);
+>  	if (dma_fence_test_signaled_flag(fence))
+> +		signaled = true;
+> +	if (!racy_check)
+> +		dma_fence_unlock_irqrestore(fence, flags);
+> +	if (signaled)
+>  		return true;
+>  
+>  	rcu_read_lock();
+> -- 
+> 2.56.0
+> 
