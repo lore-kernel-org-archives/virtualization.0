@@ -1,110 +1,74 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793258534;
-	b=CDancX37uIVx/3XVtVxwZ1kTr8LnlVUc56ZXMp7BL91hgCNoYa4FNtouVQinqFKMqh8J
-	 1VoKfBJxTysTW4eb7J2KLCdo8LOAc0s8bhdfHqybr/yZkWOROeLBo5HkK1E8qx6ex9OaE
-	 V0ZsXL1z/6MCpwLWdmGrWoe6gMD8s4jPP6WGMbx4i5pAcei9J0AcpNECTYcUA6LKSGH6K
-	 zBPvq5ATGB3Lunwdzc52On8xvqnqicpTOGCNFdnys1CuLdOo6GPZHczXZoohmQXG6bTvm
-	 V1iKBRS2O1wWfl2fJ0pUHe/Pr3ht0xcnfBZ8kD/J7JsBE5FcMVQm4e3UeEsLaTuXL1Q==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793258534;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
-	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
-	 X-Mimecast-Originator:Content-Type:Content-Disposition;
-	bh=TsAQS4rA4H1iNqLsq84hKblFTfrWhP+kWPfdX+CCGew=;
-	b=J+fNAtkZOmUGGmt/mZOFjS/+PTzDl5lwS4/4d90yn2ZJDqgPg/h98vT4n4G7LSHESmIH
-	 /hzohoQ9nGVOlVPnYDVJI/7gaxppMpHgCM7kZT9n/olryuFflR0tspEZWTA795dYHRCrr
-	 lJkc8yXNh5m8HG3j2YsyPYoi7FiVxJ6WUKthjYuTlK9v82QujoDsMsPXDaCjdbW3Y/jxv
-	 +nKbEFNH24c1+fQZq8EMq6dRUTWXLOnMCLe10JxhP5kv48uQvEnA7rbwTaiJ31qwPKmPf
-	 jUAN6RCBEMREwUvDbZxiUAKH/FAzBf/28tdwNP3ZPFTkluRHHChbiZ6+1W70msF7Wng==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=h3nLwMmr;
-	arc=none smtp.remote-ip=170.10.129.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=136.143.169.97
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1793261622;
+	b=f/IjTOwvXWz2XAz/LTJUyQiBN00GYOuiA/kDPnz+eUeEJIUDIEVX2dOjGyVtBp+nuc3o
+	 UGSnhG72VQ9LjiGC26h8LDxZLft4ee6dNZZfPnnWh6rDUfdiWrMRW9cLQGNYxNZwGEpLZ
+	 knHPpy91Kj5kHEfWziiLTzGNCVOmCMkD2yb2KUFynMq++vn57uV4F+2HW75kQ2KDPJ5DK
+	 J+3qTONmrM3foBKL/oAhPmP/Wi4WMdgraL0lzgn4ajDLecfk0Tc5/HkbJrOik8e+ZYJ/4
+	 m3qYTVHr2vPQLzrM8RGcfpoFP8id5TqHc/x96XQOUKtEvkUa/jnxulh7BOLcVZ5S37Q==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793261622;
+	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
+	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding:X-ZohoMailClient;
+	bh=Ydap92QocmwyU9V7T7zPNoS+1ppH35flYM0aoofe83s=;
+	b=O+hd7Q/XPP8usBP97fx8DcEUCkxMveXW9SCZj+nmubs5lZbXqa8+9gGMDpjVnJbs5MJN
+	 9LyCu5sdXMeHlzXTtZbHL1qRr7YCjWh4lair+gXAu+DL/zSQ2PkI3QXH8wA9KkqPw9md+
+	 EVQGaXxA/ZWT3OFH3wd3UlNr62FhcP8dxqLKiUW9l+6xIAqn57X/vgPB7fMO9IbQ8v4ym
+	 EHufbmkPlCd5Z9bJEUD88lXzQLTVDeMx1Z6cTZf/nYBHLQijCkVqyJ7QGfPn6CGkZLoQ9
+	 a63SrDo+ldoWR3EO5EHUgB0Hc1b1V+LsfV9wd7nxfgMDVmiyCu+XLXJWqeIUVioEsQg==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=zohomail.eu;
+	spf=pass smtp.mailfrom=zohomail.eu;
+	dkim=pass header.d=zohomail.eu header.i=@zohomail.eu header.a=rsa-sha256 header.s=zoho header.b=DiH8817y;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=136.143.169.97
+Received: from sender-pp-o97.zoho.eu (sender-pp-o97.zoho.eu [136.143.169.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67445606A31C
-	for <virtualization@lists.linux.dev>; Thu, 29 Oct 2026 07:22:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 67445606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D781E606A31A
+	for <virtualization@lists.linux.dev>; Thu, 29 Oct 2026 08:13:41 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D781E606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=zohomail.eu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zohomail.eu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=h3nLwMmr
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1793258532;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=TsAQS4rA4H1iNqLsq84hKblFTfrWhP+kWPfdX+CCGew=;
-	b=h3nLwMmrpaKBunfv6J9qj8Mygc+YphlZjqN7N7KR8jR0YGYdb3HGDiZdNYh9KOJ/4qmddq
-	RRNQQyJR+L9z3P45u+ls8clcYTthLAPRBQzbL+S0FtIEyCj7Zyo93OrTURPponA7VvqLks
-	C/t6yGNVc4bqVyjv10uFS1YdSs5O7l4=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-655-Ks2d3HkRP2OG0sBlMlNFVA-1; Thu, 29 Oct 2026 03:22:10 -0400
-X-MC-Unique: Ks2d3HkRP2OG0sBlMlNFVA-1
-X-Mimecast-MFC-AGG-ID: Ks2d3HkRP2OG0sBlMlNFVA_1793258530
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-48e4d1e29f3so1497503f8f.3
-        for <virtualization@lists.linux.dev>; Thu, 29 Oct 2026 00:22:10 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793258529; x=1793863329;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=TsAQS4rA4H1iNqLsq84hKblFTfrWhP+kWPfdX+CCGew=;
-        b=rkSvLsTK4Uk+M+0KxFzhTCzpzcNrS6rsT7CXBaKGxOu3U/3oSUNyqzn65Per3pUb+m
-         nn9HT1IOyJsMctjdzprBTzXeVNjv9tzzENl7BT1jdw4d2lIfHKBj0cuwvx9CFMVTjG4m
-         dO9XCbyEnKpFWM+8OGhXeqAot0JF9Azyoh2J/wpc63eqy82fbaQ717upBj7bbMyBAx1Y
-         CghEcFcuPI6XkSzVlFG+UYeIZBX4IPM+UVuC0ImWQZgvjL6tQRnvGmWt5yIqCWInTS1e
-         gOXIat+HisbWUyMXuFN7lU5VF7Vrmv29WXIEP5YSIc8JWw3K+VZV5NRmXPL6c0nqAYin
-         zPkA==
-X-Forwarded-Encrypted: i=1; AKwUvBzB31kOKnem/k9EE1Ou3VNI1TgDjIa2h2R0kt5d8s1aouN4XGPCE2jjNLdIy9G9cc7sWu9rDB+ywKlK9d12dg==@lists.linux.dev
-X-Gm-Message-State: AFq9FYLY1750CHcztHU6lA9nXpm2g0lujjcVk703lVQMvKpjTGkMHfT9
-	EB/5UXWKAIncVCmgz2BuWGKxFX9vA4bm69R7APnhY2uMrv0ZLbsD9B2nzDqYJpeP7fo7fTOaQdY
-	Pp4PjPIc76GlAyxqXpdVCE8BwN9QSTv4Hmd8IeLnhbaIBwLkObt4ws1fyrF3ANBxEQG/I
-X-Gm-Gg: AYBFou2f8MVGDDvANup3vb5ItjhnyN3ArMffY474WbLqa4wqZSLFseKSapHazbVhmcW
-	kgHVKCW/lwGcvDIreO1cq4wmpwrWDkYEkFX/qjX9kPNvDLlF2k+f4/VDEdqxhhPVpWwziUJe47q
-	lKAv4zkYotmeYTbWHcStPKvGNJnTMJp+p9zlICEe09VpHX6UHtuXjv5KkXFrGKcCbcCaeeXr2qB
-	mpxXVgVEWdJnXCh5BaWTVyjWCxsNZvf14EoWlH3NmENiIxG7lM6YXJ9S9lXrla9gJeu0IgaEAPd
-	amxBJ3h50ySR8Web1JAokU0MwF9u+Pd1j96MdtgGRu5nKfoGZS2k7xMqDeffcJyJ1EZcLVvldKN
-	SsFhGUYu+MrlAyRf8PCEi7/RJ2VVQx2Sqmb+DnZZaQqI=
-X-Received: by 2002:a05:600c:811b:b0:4a7:462c:6b9e with SMTP id 5b1f17b1804b1-4a967d96eebmr99427695e9.32.1793258529402;
-        Thu, 29 Oct 2026 00:22:09 -0700 (PDT)
-X-Received: by 2002:a05:600c:811b:b0:4a7:462c:6b9e with SMTP id 5b1f17b1804b1-4a967d96eebmr99427315e9.32.1793258528864;
-        Thu, 29 Oct 2026 00:22:08 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1501:b100:9ea2:fd21:b361:8dab])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48e3ece5e4asm31993080f8f.59.2026.10.29.00.22.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Oct 2026 00:22:06 -0700 (PDT)
-Date: Thu, 29 Oct 2026 03:22:02 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: linux-kernel@vger.kernel.org,
-	Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
-	Chris Arges <carges@cloudflare.com>,
-	=?iso-8859-1?Q?Bj=F6rn_T=F6pel?= <bjorn@kernel.org>,
-	Phil Sutter <phil@nwl.cc>, Jason Wang <jasowangio@gmail.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	dkim=pass (1024-bit key, unprotected) header.d=zohomail.eu header.i=@zohomail.eu header.a=rsa-sha256 header.s=zoho header.b=DiH8817y
+ARC-Seal: i=1; a=rsa-sha256; t=1793261606; cv=none; 
+	d=zohomail.eu; s=zohoarc; 
+	b=ImD7aTbOfNqhAvAT88wybLIlUVFovdqUi6ZZTwlwf9PSzwzTWXxCv2hKd6+ZaRExVB6TTWvJndC5GGYnLjVFEqBT9dSS9+cfEqH7r7mFPFUxTKH2NiMx8aWc60TVY9+mfFdV9FFOfXakd2A+soSt+e1PiV7L8t2VQ9m6rgwFPok=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.eu; s=zohoarc; 
+	t=1793261606; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=Ydap92QocmwyU9V7T7zPNoS+1ppH35flYM0aoofe83s=; 
+	b=WyLxnI1s8uowwTtc/5IxGRApwGrO9nLaCyNOlHDxsJwKv57EIsPiLlQHmWUr+k8sWG36jtBt4p4NRyiulVa8kaulZCh4e+5TP+pII4wd1LUiuglAK5/IW/Mpx3gAIdffKMIqX33Dpc6ixsZiHq+fkf2URrBXynk4+DgOavzeDoA=
+ARC-Authentication-Results: i=1; mx.zohomail.eu;
+	dkim=pass  header.i=zohomail.eu;
+	spf=pass  smtp.mailfrom=harukak@zohomail.eu;
+	dmarc=pass header.from=<harukak@zohomail.eu>
+DKIM-Signature: a=rsa-sha256; b=DiH8817yPvTnyoluoTzODXVQ/86Lqw3T0i56bk7PdopguWdZOJThsRRs0fQ+Tg9sgToyFe3WDIIfzgu2/D7phBt5G5TjHQZV0u8h6diah9RjQpwGQnYN3dQad3j56wqPVj5fkklBu94aPCCu5nYA2krWsF/lbj8BYK8rcY+bbIg=; c=relaxed/relaxed; s=zoho; d=zohomail.eu; v=1; bh=Ydap92QocmwyU9V7T7zPNoS+1ppH35flYM0aoofe83s=; h=Content-Description:Content-ID:Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:List-Subscribe:List-Post:List-Owner:List-Id:List-Archive:List-Help:List-Unsubscribe:MIME-Version:Message-ID:Resent-Sender:Resent-Cc:Resent-Date:Resent-To:Reply-To:Resent-Message-ID:Resent-From:Sender:Subject:To:Date:From:Message-Id:Reply-To:Subject:To:Cc;
+Received: by smtp.zoho.eu with SMTPS id 1793261604462290.4820452678574;
+	Thu, 29 Oct 2026 09:13:24 +0100 (CET)
+From: Haruka Kuze <harukak@zohomail.eu>
+To: Jens Wiklander <jenswi@kernel.org>,
+	"Michael S . Tsirkin" <mst@redhat.com>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Jason Wang <jasowangio@gmail.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	netdev@vger.kernel.org, virtualization@lists.linux.dev,
-	Max Krasnyansky <maxk@qualcomm.com>,
-	Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH net v6 0/5] more virtio-net csum hardening
-Message-ID: <20261029030932-mutt-send-email-mst@kernel.org>
-References: <cover.1792768096.git.mst@redhat.com>
- <20261025094449-mutt-send-email-mst@kernel.org>
- <20261028154315.4b9f3077@kernel.org>
+	Sumit Garg <sumit.garg@kernel.org>,
+	=?UTF-8?q?Alex=20Benn=C3=A9e?= <alex.bennee@linaro.org>,
+	Tomas Winkler <tomas.winkler@sandisk.com>,
+	Ulf Hansson <ulfh@kernel.org>,
+	Harald Mommer <harald.mommer@oss.qualcomm.com>,
+	virtualization@lists.linux.dev,
+	op-tee@lists.trustedfirmware.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 1/2] rpmb: stop the routing after unregister
+Date: Thu, 29 Oct 2026 17:13:16 +0900
+Message-ID: <20261029081317.2264887-2-harukak@zohomail.eu>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20261029081317.2264887-1-harukak@zohomail.eu>
+References: <20261029081317.2264887-1-harukak@zohomail.eu>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -114,37 +78,116 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-In-Reply-To: <20261028154315.4b9f3077@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: olIYaovLh9pbw-0hwsgSQDtxAze0vrNfEa4o75R5wLU_1793258530
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-ZohoMailClient: External
 
-On Wed, Oct 28, 2026 at 03:43:15PM -0700, Jakub Kicinski wrote:
-> On Sun, 25 Oct 2026 09:50:24 -0400 Michael S. Tsirkin wrote:
-> > > Apologies for reposting so frequently, I know netdev bot will be unhappy
-> > > with that.  But Paulos's report made a lot of publicity, there is a lot
-> > > of people looking into this, so I feel there's value in defending
-> > > against all this class of issues sooner rather than later.
-> > > 
-> > > The issues were mostly found by code inspection, but all reproduced by
-> > > me in a VM.  
-> > 
-> > Ok, I looked at netdev bot review, and there's another issue.
-> > 
-> > If a tunnel inner packet happens to have a valid header at
-> > inner_nh_offset, it will pass all checks, but the transport header can
-> > in fact overlap e.g. the real TCP header and checksum will overwrite
-> > that.
-> 
-> Sorry for boring process stuff but FWIW the last patch also does not
-> apply?
-> -- 
-> pw-bot: cr
+OP-TEE has a reference of RPMB device it used. So, it can route
+frames through the device after rpmb_dev_unregister() is called.
+Therefore, the parent device passed to route_frames() can be
+already freed, for example, mmc_blk_remove_rpmb_part() drops the
+last reference after rpmb unregister.
 
-I guess I need to rebase. Still don't have an idea what to do though.
+This patch clears the route_frames when the device is going to
+be removed by getting new rwsem and makes rpmb_route_frames()
+return -ENODEV if the device is gone.
 
+Fixes: 1e9046e3a154 ("rpmb: add Replay Protected Memory Block (RPMB) subsystem")
+Assisted-by: LLM
+Signed-off-by: Haruka Kuze <harukak@zohomail.eu>
+---
+ drivers/misc/rpmb-core.c | 22 +++++++++++++++++++---
+ include/linux/rpmb.h     |  4 ++++
+ 2 files changed, 23 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/misc/rpmb-core.c b/drivers/misc/rpmb-core.c
+index ecf14acf230a..0538871af584 100644
+--- a/drivers/misc/rpmb-core.c
++++ b/drivers/misc/rpmb-core.c
+@@ -45,16 +45,23 @@ EXPORT_SYMBOL_GPL(rpmb_dev_put);
+  * @rsp:	rpmb response frames
+  * @rsp_len:	length of rpmb response frames in bytes
+  *
+- * Returns: < 0 on failure
++ * Returns: < 0 on failure, -ENODEV if the device has been unregistered
+  */
+ int rpmb_route_frames(struct rpmb_dev *rdev, u8 *req,
+ 		      unsigned int req_len, u8 *rsp, unsigned int rsp_len)
+ {
++	int ret = -ENODEV;
++
+ 	if (!req || !req_len || !rsp || !rsp_len)
+ 		return -EINVAL;
+ 
+-	return rdev->descr.route_frames(rdev->dev.parent, req, req_len,
+-					rsp, rsp_len);
++	down_read(&rdev->lock);
++	if (rdev->descr.route_frames)
++		ret = rdev->descr.route_frames(rdev->dev.parent, req, req_len,
++					       rsp, rsp_len);
++	up_read(&rdev->lock);
++
++	return ret;
+ }
+ EXPORT_SYMBOL_GPL(rpmb_route_frames);
+ 
+@@ -126,6 +133,10 @@ EXPORT_SYMBOL_GPL(rpmb_interface_unregister);
+  * This function should be called from the release function of the
+  * underlying device used when the RPMB device was registered.
+  *
++ * Once this returns, rpmb_route_frames() no longer calls into
++ * the driver, even though the users might still hold a reference
++ * to the RPMB dev.
++ *
+  * Returns: < 0 on failure
+  */
+ int rpmb_dev_unregister(struct rpmb_dev *rdev)
+@@ -133,6 +144,10 @@ int rpmb_dev_unregister(struct rpmb_dev *rdev)
+ 	if (!rdev)
+ 		return -EINVAL;
+ 
++	down_write(&rdev->lock);
++	rdev->descr.route_frames = NULL;
++	up_write(&rdev->lock);
++
+ 	device_del(&rdev->dev);
+ 
+ 	rpmb_dev_put(rdev);
+@@ -165,6 +180,7 @@ struct rpmb_dev *rpmb_dev_register(struct device *dev,
+ 	if (!rdev)
+ 		return ERR_PTR(-ENOMEM);
+ 	rdev->descr = *descr;
++	init_rwsem(&rdev->lock);
+ 	rdev->descr.dev_id = kmemdup(descr->dev_id, descr->dev_id_len,
+ 				     GFP_KERNEL);
+ 	if (!rdev->descr.dev_id) {
+diff --git a/include/linux/rpmb.h b/include/linux/rpmb.h
+index ed3f8e431eff..0a976572d1cd 100644
+--- a/include/linux/rpmb.h
++++ b/include/linux/rpmb.h
+@@ -7,6 +7,7 @@
+ #define __RPMB_H__
+ 
+ #include <linux/device.h>
++#include <linux/rwsem.h>
+ #include <linux/types.h>
+ 
+ /**
+@@ -51,12 +52,15 @@ struct rpmb_descr {
+  * @id               : device_id
+  * @list_node        : linked list node
+  * @descr            : RPMB description
++ * @lock             : protect @descr.route_frames which is cleared when this
++ *                     device is unregistered
+  */
+ struct rpmb_dev {
+ 	struct device dev;
+ 	int id;
+ 	struct list_head list_node;
+ 	struct rpmb_descr descr;
++	struct rw_semaphore lock;
+ };
+ 
+ #define to_rpmb_dev(x)		container_of((x), struct rpmb_dev, dev)
 -- 
-MST
+2.55.0
 
