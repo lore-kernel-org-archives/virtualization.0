@@ -1,57 +1,62 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=95.215.58.91
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793262856;
-	b=ibfPQshvzU/IU5VEc8SfEzA/VuNoEY6dtzaDQWJibXFJIdlD4H5RvzmIeCrYCZ/rFd4c
-	 hu0v9Zj57x5ysq8aNMmPW0hhepTP9iarx8xi6y6UMOaGNTP60Z+Ia43Blzb2iZca7Ifsx
-	 QrIwYPo6MC841/2I9hv9r9nXJ4UwERRu2BQtCJp9P6GNGNNqlo9uhR6QAOb365wvtuLGw
-	 wS2pfJN77AZwnlfiGrX5lPB21g/uO0QGyhz91SJIIRpeBPDB87gSOBfJ7cd4I67PmyIHq
-	 uy0eplM+UdNeDmdK0coFb+I5KcQ6+XXyfVTXfa/tav/kY+r7RaZUhFpeG6VMkCPCwwg==
+	t=1793263266;
+	b=IUJreYe9F7BcdAKw9O28IkAFu5gvuHcKhUBDVOSKCO8Zj9BqfFCNFdfxnHkDTKxjOtOj
+	 prkE2TR170Ng4/9LPxz07TYPm3GyoZ/5qwPD/yvpR3U7zYpswYqjoIsIGwkBQFyvnoHsx
+	 YZly4n450u0tNTd1qoFgxg2RYMl+1ktL0Blt0Q+qFsm+Zagefcvz79GD+yFa2IwMjpzve
+	 CNroDxPE/H4DMwbw+eTmZdgJ1y6N6mBtDw8KAOZkJWSiEh8cHQ5rk9hT7FGbB89/j8+vw
+	 G3i6mGkfRXmO5qOWvm1QkNNoLNpI672mNRPahJMygf2R/8JFRqqOlyAvCuz5SrSeCCg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793262856;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=udwg5iTq6AynpYlm/gR3hWTijpTLO0SC8Cp3HMKQs3U=;
-	b=O0W3M6SJFKWHhzfVvLuuA90lvHSVOt8ulUHofrMrjtJ2i99blfMEit0XQkX5WtYbSyqP
-	 w5+dBS9nGOpTgdDk2WJbfx9WPrhrrwhtxkqwfsoFKt2hObWUQRBEKFnn9DJj37YwnG+c6
-	 CFAAeJOSg1M3b5RbonJwyfvni0LVGviaorR5F+IoGv4ewm8iu3ZeH56Dd66Ui2fuBClJC
-	 2c+o/XK60MUNJKrxPsr8vf3hEg4ekPTek4Lq8KiZr0j1OVXrN9t4eIbv5F/w3GVX5SYoy
-	 dm4Bt65HQihh+dn9iwrBimUiTkljoRifcmMWe8CQJMkpsFb1IP+Pt+xd4ALOUywHWjA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793263266;
+	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
+	 X-Mizu-Trace-ID:X-Migadu-Flow:From:To:Cc:Subject:Date:Message-ID:
+	 X-Mailer:MIME-Version:Content-Transfer-Encoding;
+	bh=SvpC/CqEqjBdZnQpgRe5OfHjCtNzXh6/qxDST/OshQQ=;
+	b=PO0i1OTy3ZHUNmtIZsbfu3RfCZPyKkv8agCyCJyDfIHwyq75Onr18bsMphdevWP/gq0k
+	 KHtno1u/imM0L4FgO0blg0V717+copUJSj/N9IY4LVJ6bsW8k2bgyasaTzmFYBXIxkuKC
+	 mKeKsTMhSSh7G/YY1YN0gVOvCXMdBF3hJ8p/iZDJZAuv92lUWFMIT7hNctgKjaXKDmioH
+	 sc0rxxcrgDCev1Wie0U0nFQgK3xaaK4rbefz+97slLPosGXYhkmZMMqGux0GwfB9apv2U
+	 aBJyevkvozWvEd68ElBGUGH/dGeH3ANh11F1sCL16n1IDiTMw+xJ9U551Tb41zq7rwQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OfeewIsZ;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=linux.dev;
+	spf=pass smtp.mailfrom=linux.dev;
+	arc=none smtp.remote-ip=95.215.58.91
+Received: from mta1.migadu.com (out-91.mta1.migadu.com [95.215.58.91])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4977E606A322
-	for <virtualization@lists.linux.dev>; Thu, 29 Oct 2026 08:34:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OfeewIsZ
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD8D11F031E4;
-	Thu, 29 Oct 2026 08:34:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793262856;
-	bh=udwg5iTq6AynpYlm/gR3hWTijpTLO0SC8Cp3HMKQs3U=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=OfeewIsZ/sxin/uunPuqU3gBGjBxich46k0zor72k3TaeuNqsnCz/WUmxWmkkv8BU
-	 8cKaiZQt3cZRJ3ZlYqPL38RKyWcOuwRgi4BZlxMPp9VuKAoZ17p9bsE/WyeTNFSZH5
-	 Szwg1CY4JX6gZkr5k4YudKjHJJ5AZXGFhSrzIk+k48hm7fTziZx9RPR+kBZo5PUumB
-	 aVdKroQh0zJo490mBSXnolg95xd6ZAPGwIYhzKSigkyLBIeZdSHMlzd5ScSZoOj1uT
-	 Dh9vYNnHMRacQW0yk61DarJvdvxsE9xByiiriDGELaBEz8AJzGL8+McSl9WFUwj4C+
-	 SiR2dtkSw5Kkg==
-Message-ID: <sashiko-outbox-188968@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/2] rpmb: add a virtio RPMB device driver
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Haruka Kuze" <harukak@zohomail.eu>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <20261029081317.2264887-3-harukak@zohomail.eu>
-References: <20261029081317.2264887-1-harukak@zohomail.eu>
- <20261029081317.2264887-3-harukak@zohomail.eu>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 29 Oct 2026 08:34:15 +0000
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6B0E606A31C
+	for <virtualization@lists.linux.dev>; Thu, 29 Oct 2026 08:41:04 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C6B0E606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+X-Envelope-To: virtualization@lists.linux.dev
+DKIM-Signature: a=rsa-sha256; bh=TqpGNjKT+lD2Rel7GLiUVY2FqEfci48dH7mpDqNpEiM=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1793263262; v=1; x=1793868062;
+ b=PXd0JWeQwCYvtlvhw2Sz21W/lWoZwoErCK3uSvellB3AA9AONRCKoSGHaBw6oB7DQdnbjunm
+ QFuKFPEvxqayjUv+DGm3XAI9QZURGen4jV+bEVpapUXQWJ5osDYNICMAqBTQrnDJgqF3tRa9ljB
+ +vxxJ0DQ8Fm3WXVtOCGeKXA8=
+X-Envelope-To: virtualization@lists.linux.dev
+Received: by smtp.migadu.com with ESMTPS id 2945813667bcd118;
+	Thu, 29 Oct 2026 08:41:02 +0000
+X-Mizu-Trace-ID: 2945813667bcd118
+X-Migadu-Flow: FLOW_OUT
+From: Zenghui Yu <zenghui.yu@linux.dev>
+To: virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Cc: mst@redhat.com,
+	jasowangio@gmail.com,
+	eperezma@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	nicolinc@nvidia.com,
+	jgg@nvidia.com,
+	"Zenghui Yu (Huawei)" <zenghui.yu@linux.dev>
+Subject: [PATCH] virtio_pci: don't take the MSI mutex under cpu_hotplug_lock
+Date: Thu, 29 Oct 2026 16:40:43 +0800
+Message-ID: <20261029084043.19409-1-zenghui.yu@linux.dev>
+X-Mailer: git-send-email 2.56.0
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -60,197 +65,113 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] rpmb: virtio_rpmb_probe() erroneously divides max_wr by 2
-- [Medium] virtio_rpmb: vr->vq published in virtio_rpmb_init_vq() before de=
-vice ready
---
+From: "Zenghui Yu (Huawei)" <zenghui.yu@linux.dev>
 
-commit 0fd82617fed90856fa2c50ebdd578db85ac1bddd
-Author: Haruka Kuze <harukak@zohomail.eu>
+Lockdep reports the following circular locking dependency when a virtio-net
+device is probed with lockdep enabled on a system whose devices sit behind
+an IOMMU:
 
-rpmb: add a virtio RPMB device driver
+    ======================================================
+    WARNING: possible circular locking dependency detected
+    7.3.0-rc1+ #84 Not tainted
+    ------------------------------------------------------
+    kworker/u34:0/57 is trying to acquire lock:
+    ffff800104f83ee8 (&md->mutex){+.+.}-{4:4}, at: msi_domain_get_virq+0xf0/0x118
 
-This commit adds a driver for virtio-rpmb devices (virtio ID 28) and regist=
-ers
-them with the RPMB subsystem as RPMB_TYPE_EMMC so in-kernel consumers such =
-as
-OP-TEE can use them.
+    but task is already holding lock:
+    ffffc00081edd930 (cpu_hotplug_lock){++++}-{0:0}, at: cpus_read_lock+0x10/0x1c
 
-Link: https://lore.kernel.org/all/20220405093759.1126835-4-alex.bennee@lina=
-ro.org/
+    which lock already depends on the new lock.
 
-> diff --git a/drivers/misc/virtio_rpmb.c b/drivers/misc/virtio_rpmb.c
-> new file mode 100644
-> index 0000000000000..f02bdf13aa43c
-> --- /dev/null
-> +++ b/drivers/misc/virtio_rpmb.c
+    Chain exists of:
+      &md->mutex --> &group->mutex --> cpu_hotplug_lock
 
-[ ... ]
+The cycle is composed of three dependencies:
 
-> +static int virtio_rpmb_init_vq(struct virtio_rpmb *vr)
-> +{
-> +	struct virtqueue *vq;
-> +
-> +	vq =3D virtio_find_single_vq(vr->vdev, virtio_rpmb_done, "request");
-> +	if (IS_ERR(vq))
-> +		return PTR_ERR(vq);
-> +
-> +	mutex_lock(&vr->lock);
-> +	vr->vq =3D vq;
-> +	mutex_unlock(&vr->lock);
-> +	return 0;
-> +}
+* cpu_hotplug_lock -> &md->mutex (which triggers the splat). virtio_net's
+  init_vqs() calls cpus_read_lock() around virtnet_set_affinity(), which
+  reaches vp_set_vq_affinity(). That calls pci_irq_vector(), which takes
+  the per-device MSI mutex (&dev->msi.data->mutex) via
+  msi_domain_get_virq().
 
-[ ... ]
+* &md->mutex -> &domain->mutex -> &group->mutex.  MSI-X allocation of any
+  device behind the IOMMU holds the MSI mutex while allocating interrupts
+  through the IRQ domain hierarchy. The MSI parent domain (GICv2m, or ITS
+  likewise) calls iommu_dma_prepare_msi() from its .alloc() to map the MSI
+  doorbell, which takes the IOMMU group mutex.
 
-> +static int virtio_rpmb_probe(struct virtio_device *vdev)
-> +{
-> +	struct rpmb_descr descr =3D {
-> +		/* Frames and their semantics are that of eMMC */
-> +		.type =3D RPMB_TYPE_EMMC,
-> +		.route_frames =3D virtio_rpmb_route_frames,
-> +		.dev_id =3D (u8 *)virtio_rpmb_dev_id,
-> +		.dev_id_len =3D sizeof(virtio_rpmb_dev_id),
-> +	};
-> +	struct virtio_rpmb *vr;
-> +	u8 capacity;
-> +	int ret;
-> +
-> +	capacity =3D virtio_cread8(vdev, offsetof(struct virtio_rpmb_config,
-> +						capacity));
-> +	if (!capacity || capacity > 0x80)
-> +		return dev_err_probe(&vdev->dev, -EINVAL,
-> +				     "invalid capacity %u\n", capacity);
-> +
-> +	vr =3D devm_kzalloc(&vdev->dev, sizeof(*vr), GFP_KERNEL);
-> +	if (!vr)
-> +		return -ENOMEM;
-> +
-> +	vdev->priv =3D vr;
-> +	vr->vdev =3D vdev;
-> +	mutex_init(&vr->lock);
-> +	vr->max_wr =3D virtio_cread8(vdev, offsetof(struct virtio_rpmb_config,
-> +						  max_wr_cnt));
-> +	vr->max_rd =3D virtio_cread8(vdev, offsetof(struct virtio_rpmb_config,
-> +						  max_rd_cnt));
-> +
-> +	ret =3D virtio_rpmb_init_vq(vr);
-> +	if (ret)
-> +		return ret;
-> +
-> +	virtio_device_ready(vdev);
-> +
-> +	/*
-> +	 * eMMC reports the reliable wr count in 512 byte sectors, but the devi=
-ce
-> +	 * limit is in 256 byte blocks.
-> +	 */
-> +	descr.capacity =3D capacity;
-> +	descr.reliable_wr_count =3D (vr->max_wr ?: U8_MAX) / 2;
+* &group->mutex -> cpu_hotplug_lock. bus_iommu_probe() calls
+  iommu_setup_dma_ops() under the group mutex; initializing the IOVA
+  rcaches registers a cpuhp instance, which takes cpu_hotplug_lock.
 
-[Severity: High]
-Should descr.reliable_wr_count be set without dividing vr->max_wr by 2?
+The cycle only became complete since commit 288683c92b1a ("iommu: Make
+iommu_dma_prepare_msi() into a generic operation"), where
+iommu_dma_prepare_msi() switched to use the group mutex.
 
-Each 256-byte RPMB data block is carried inside a single 512-byte
-struct virtio_rpmb_frame, so one 256-byte RPMB block corresponds 1-to-1 with
-one 512-byte RPMB frame/sector. This matches how virtio_rpmb_route_frames()
-validates write requests against vr->max_wr:
+pci_irq_vector() is a pure lookup of a vector that is bound to the
+queue for the whole lifetime of the queue, so there is no reason to
+take the MSI mutex for it from cpu hotplug locked contexts.
 
-	case VIRTIO_RPMB_REQ_DATA_WRITE:
-		if (req_len % VIRTIO_RPMB_FRAME_SIZE ||
-		    resp_len !=3D VIRTIO_RPMB_FRAME_SIZE)
-			return -EINVAL;
-		if (vr->max_wr && req_len / VIRTIO_RPMB_FRAME_SIZE > vr->max_wr)
-			return -EINVAL;
+Cache the IRQ number in virtio_pci_vq_info {} at vector binding time and
+make vp_set_vq_affinity() use the cached value.
 
-When a virtio-rpmb device reports max_wr_cnt =3D=3D 1, dividing vr->max_wr =
-by 2
-truncates descr.reliable_wr_count to 0. In-kernel consumers such as OP-TEE
-receive rdev->descr.reliable_wr_count directly in
-handle_rpc_func_rpmb_probe_next(), so reporting 0 makes the device unusable
-for writes when max_wr_cnt is 1, and halves the maximum write count for lar=
-ger
-values.
+This also covers the CPU hotplug callbacks
+(virtnet_cpu_online/virtnet_cpu_dead), which call virtnet_set_affinity()
+with cpu_hotplug_lock already held.
 
-> +
-> +	vr->rdev =3D rpmb_dev_register(&vdev->dev, &descr);
-> +	if (IS_ERR(vr->rdev)) {
-> +		virtio_rpmb_del_vq(vr);
-> +		return PTR_ERR(vr->rdev);
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static void virtio_rpmb_remove(struct virtio_device *vdev)
-> +{
-> +	struct virtio_rpmb *vr =3D vdev->priv;
-> +
-> +	rpmb_dev_unregister(vr->rdev);
-> +	virtio_rpmb_del_vq(vr);
-> +}
-> +
-> +static int virtio_rpmb_freeze(struct virtio_device *vdev)
-> +{
-> +	virtio_rpmb_del_vq(vdev->priv);
-> +	return 0;
-> +}
-> +
-> +static int virtio_rpmb_restore(struct virtio_device *vdev)
-> +{
-> +	return virtio_rpmb_init_vq(vdev->priv);
-> +}
+Signed-off-by: Zenghui Yu (Huawei) <zenghui.yu@linux.dev>
+---
+ drivers/virtio/virtio_pci_common.c | 12 +++++++++++-
+ drivers/virtio/virtio_pci_common.h |  3 +++
+ 2 files changed, 14 insertions(+), 1 deletion(-)
 
-[Severity: Medium]
-Can virtio_rpmb_restore() allow virtio_rpmb_xfer() to kick the virtqueue
-before the device is marked VIRTIO_CONFIG_S_DRIVER_OK?
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index b90c174450b2..2f42300a8a84 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -224,6 +224,16 @@ static struct virtqueue *vp_setup_vq(struct virtio_device *vdev, unsigned int in
+ 		goto out_info;
+ 
+ 	info->vq = vq;
++
++	/*
++	 * Cache the Linux IRQ number so that later users (e.g.
++	 * vp_set_vq_affinity() from cpu hotplug locked contexts)
++	 * don't have to take the MSI mutex via pci_irq_vector().
++	 */
++	info->virq = 0;
++	if (msix_vec != VIRTIO_MSI_NO_VECTOR)
++		info->virq = pci_irq_vector(vp_dev->pci_dev, msix_vec);
++
+ 	if (callback) {
+ 		spin_lock_irqsave(&vp_dev->lock, flags);
+ 		if (!vp_is_slow_path_vector(msix_vec))
+@@ -571,7 +581,7 @@ int vp_set_vq_affinity(struct virtqueue *vq, const struct cpumask *cpu_mask)
+ 
+ 	if (vp_dev->msix_enabled) {
+ 		mask = vp_dev->msix_affinity_masks[info->msix_vector];
+-		irq = pci_irq_vector(vp_dev->pci_dev, info->msix_vector);
++		irq = info->virq;
+ 		if (!cpu_mask)
+ 			irq_update_affinity_hint(irq, NULL);
+ 		else {
+diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
+index 8cd01de27baf..18b15a5f84ae 100644
+--- a/drivers/virtio/virtio_pci_common.h
++++ b/drivers/virtio/virtio_pci_common.h
+@@ -40,6 +40,9 @@ struct virtio_pci_vq_info {
+ 
+ 	/* MSI-X vector (or none) */
+ 	unsigned int msix_vector;
++
++	/* Linux IRQ number of msix_vector, or 0 if not mapped */
++	unsigned int virq;
+ };
+ 
+ struct virtio_pci_admin_vq {
+-- 
+2.56.0
 
-During freeze and restore, vr->rdev remains registered with the RPMB core, =
-and
-virtio_rpmb_xfer() uses vr->vq under vr->lock to check whether the device is
-available:
-
-	mutex_lock(&vr->lock);
-	if (!vr->vq) {
-		ret =3D -ENODEV;
-		goto out;
-	}
-
-	ret =3D virtqueue_add_sgs(vr->vq, sgs, 1, 1, &req, GFP_KERNEL);
-	if (ret)
-		goto out;
-
-	virtqueue_kick(vr->vq);
-	wait_for_completion(&req.done);
-
-In drivers/virtio/virtio.c, virtio_device_restore_priv() only calls
-virtio_device_ready(dev) after drv->restore(dev) returns:
-
-	if (restore) {
-		if (drv->restore) {
-			ret =3D drv->restore(dev);
-			if (ret)
-				goto err;
-		}
-	...
-	/* If restore didn't do it, mark device DRIVER_OK ourselves. */
-	if (!(dev->config->get_status(dev) & VIRTIO_CONFIG_S_DRIVER_OK))
-		virtio_device_ready(dev);
-
-Because virtio_rpmb_init_vq() sets vr->vq =3D vq and releases vr->lock befo=
-re
-virtio_device_ready(vdev) is called, a concurrent rpmb_route_frames() ->
-virtio_rpmb_route_frames() -> virtio_rpmb_xfer() call can observe a non-NULL
-vr->vq and call virtqueue_add_sgs() and virtqueue_kick() before
-VIRTIO_CONFIG_S_DRIVER_OK is set (or while vq->broken is still true under
-CONFIG_VIRTIO_HARDEN_NOTIFICATION).
-
-Should virtio_device_ready(vr->vdev) be called inside virtio_rpmb_init_vq()
-before publishing vr->vq under vr->lock?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261029081317.2264=
-887-1-harukak@zohomail.eu?part=3D2
