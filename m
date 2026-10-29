@@ -1,57 +1,108 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793291880;
-	b=RF5d7MVFCeccxh8A2QlGYdXheNLEw3C5/6G5uKMbiSDBxMd6EDNBEjKzfm6umgMxXEDR
-	 vTe3cMFMUqr4m5TjY80hf2FHCx6C+90UXkeLKWggvNBvop9R6QIi6/JzoB1+W7GqkW8mq
-	 eeYM8g5JVDP0koWBDieE973/bkS37Js1eUiMzEdmtChARjTW//3eueT8sIflGSsW2O2zR
-	 WJnGTo3Qh2vsQWnWZaoyb++Ix5Y9taDQN7S0iPu5sYm4yn7oMVmNsZM7nz/hJJbA5NDXC
-	 77ogl/DjGJ/MMq/O8fkgmqNCqNpaiFN2zqEWjrDXYGqxqOAqmf2uUetzECZwekL1DwQ==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793291880;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=2DDEdQH/QTqv5e3oFB/pJTqX4NnbROdAIi4Uwebm4XM=;
-	b=rLEwnW7eQbXbeefBkM6WI5Wt19dvkn/big+lR0Z6eov+G3Cglql7Kr9Pjyc6eYMipFfB
-	 ykY11hNBAFCe1v2+oYDJDlYquHrVDQ1ybhp3NBi/OLmdM8qsEaGanpQOlrzVdQ4UTwymi
-	 Z7/U0FpMIlfc2kXW7OeWQMfsY38P10U22xNpq34eClYDUAjWY86nHv9JtEuLHSYJf8tm7
-	 BXQgz8Sh/cED4ELrQl6MTgi1/3lLYOeyTLQMbVyh9MIMVW2eE+HC104cY1cmkR86BBnBN
-	 QrpQtUKb2DtdcaPCKfyAn7oTYREeL3kEvuvJH+SZUeEm7mhzB0dcXzFSpoAXURdwByg==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WXV2mfzM;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.48.8
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1793291985;
+	b=3sgu0pqYjkHH/PGaFCWBIRvr9wxhJL41aDPXbZ6xXtR1nej5pVrBq9KWEf7oRrRPRS7e
+	 Dti63CG6Im4v6A3/4VzbSlalMLg167MMnqjbcALfSqG+CemYsU2HtTWuHNsInV1qcEDiA
+	 STmKF3UUmTWc9fLMmbFBgTBpukS4T9CKAdSq1nrPt8Kbhx4kgU0RClv9xs3lc8Ve42nGb
+	 Uk1GxydBpNjgJTXpRudkzznz+QlTpc76hzT/J0ACI26JxDKo0mYIhlnXgx+y9byNH1Wgj
+	 9jeInuBnn2S9XToG/Sd/qGaJlkg0So4F/MqpnG4K7h8CrEv41IKJ5OnlbdG0KRb5vow==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793291985;
+	h=DMARC-Filter:DKIM-Signature:Received:Received:Date:From:To:Cc:
+	 Subject:Message-ID:References:Content-Type:Content-Disposition:
+	 Content-Transfer-Encoding:In-Reply-To:X-ClientProxiedBy:MIME-Version:
+	 X-MS-PublicTrafficType:X-MS-TrafficTypeDiagnostic:
+	 X-MS-Office365-Filtering-Correlation-Id:X-MS-Exchange-SenderADCheck:
+	 X-MS-Exchange-AntiSpam-Relay:X-Microsoft-Antispam:
+	 X-Microsoft-Antispam-Message-Info:X-Forefront-Antispam-Report:
+	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
+	 X-MS-Exchange-AntiSpam-MessageData-0:X-OriginatorOrg:
+	 X-MS-Exchange-CrossTenant-Network-Message-Id:
+	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
+	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
+	 X-MS-Exchange-CrossTenant-FromEntityHeader:
+	 X-MS-Exchange-CrossTenant-Id:X-MS-Exchange-CrossTenant-MailboxType:
+	 X-MS-Exchange-CrossTenant-UserPrincipalName:
+	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
+	bh=UWyYqycZVKNDpPdq0LPTCf1Fqe9kP99q/1k1Y+Cyk+I=;
+	b=efSJjaKELQ/OWN0PtfAYykGi+d9eLOrf0xOMpf+kJkJUHtDxHXHoF9HCNvRei4/OaWnW
+	 sHkIwBh/dZXNGfxD/YU7wakFZKD7yKdCc1B2t6KBJn3/JBHhlT+ay7rp2UMQknsOj0KZJ
+	 4palnpbL5BKLahvWB+flgpdv0pRnuDup8lqRnn/ytuxC51j9BKxIMHXj/ONcM//+m2dlu
+	 AkVNV+N5m6DAoaDw3j4TabC/YAAySJulz2VrQLI3kdK4lM5RcPsViUFGTZDStjMJ5E/zN
+	 cSUhe6UiNu96T6MELHnzkMf7N4/BSEdKdDJMUHCxaCBA42O+Buw6bDCzXMS07eDe12A==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=nvidia.com;
+	spf=fail smtp.mailfrom=nvidia.com;
+	dkim=pass header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=uWcfiJYv;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.48.8
+Received: from MW6PR02CU001.outbound.protection.outlook.com (mail-westus2azon11012008.outbound.protection.outlook.com [52.101.48.8])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D692E606A32D
-	for <virtualization@lists.linux.dev>; Thu, 29 Oct 2026 16:37:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8706606A31D
+	for <virtualization@lists.linux.dev>; Thu, 29 Oct 2026 16:39:44 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A8706606A31D
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WXV2mfzM
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44CC81F01829;
-	Thu, 29 Oct 2026 16:37:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793291879;
-	bh=2DDEdQH/QTqv5e3oFB/pJTqX4NnbROdAIi4Uwebm4XM=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=WXV2mfzMINmQX/nalSEngV08Aluaomf3e62xWimlB814ayx1osU1BcJzv9uXLN0p1
-	 DZPhAo18zR3can1yFhpgmSaF95qHlMmXIFIFcfu9RkGA/KroU1buW1EYSIeRbDZ9CD
-	 oclH9+7EEYRxzCcOWWZEezJczWVj5z4j+OIrmMOFlF1xXXFHcCZuuLJhLfMMZYzppk
-	 Itr0LCtQljdtaSD/mbO4LZb6hQ+jdLGoEe0Ug8LRr1k6Y8n092fzKDYGaCSs2OAq/x
-	 jxdIkaUPG4nvV8rJy38Btcoar4pQ+2IAUyUyLI4f6YsGJqu9MSRYZlPwqJOPtZPkTQ
-	 Ea9EDEcUC0BnA==
-Message-ID: <sashiko-outbox-189667@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v10 3/5] media: virtio: Add extended controls support
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Brian Daniels" <briandaniels@google.com>
-Cc: virtualization@lists.linux.dev, media-ci@linuxtv.org, "Michael S.
- Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>
-In-Reply-To: <20261029153038.3800747-4-briandaniels@google.com>
-References: <20261029153038.3800747-1-briandaniels@google.com>
- <20261029153038.3800747-4-briandaniels@google.com>
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=uWcfiJYv
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=O8nI3XzwoSy/qwm/gdGgAKEmAwxcv0lMksvhA9dTsoOHWDuo5hYgJORiJV9YeTr7XxVIuOkAVd1s51oGGLuPCf3V6sjh3RHqDMtWidGOXUgOFNnlF0bKZwUxvetX0gCzL7aDWGEV5CfWu/zd38XqPY4/1uTfwOpfdgdCRoIKxiiJA+nuoDp8jna9gHvvLYZfzOTp8N0fYh3s/+GWfL007OPVAi0CC1oB/OuJhTij9JowOoBgPOe2N21xzAk4N21vtniEczkM8g6n6mLwVVwft3GaHSgsiuBaoDyakFAkUKOZy7fQ73PcFHP8CVOQJF3dXX1CDZItX0op8V2zujq8gA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=UWyYqycZVKNDpPdq0LPTCf1Fqe9kP99q/1k1Y+Cyk+I=;
+ b=x5HVokzlzDDu24v0ZtbN5mPolkDxVsKw8wFwCA9/iqJ4y1B+LfW22uH95p3V+ZFiPVoz+S8A3Cml7bbpHoAQPQtGeba2xrjYn8qUSRgmVbtaEV/uB6c/wyxXOPf3Eqlp5Oy0ackXpPRdFVX2xbVWTqPGDZDzvxugqtOO99wXQ2czBVEwmM12duTeJo9j4L3iByNX9vepp7kMDCBm3aeqTsA/ICYmw2jwvL1lX5A8I+/LwNynd826RnsSt/tM9SkKGPa5CZyJLXshfHtHpcIhoeN9+vqsdmv+TpcgqPC0jqbCFN0+XP5dCwNmZlagwT4a6suedQNfdu0b1ALqsOwTtg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=UWyYqycZVKNDpPdq0LPTCf1Fqe9kP99q/1k1Y+Cyk+I=;
+ b=uWcfiJYvoZYbtZy12Dd8uEzTOnTNswk3wiZ7Hbs+xA5CpC401WwIpo/Cd0x/UPmgmVxl/Br/afzy6cKaVbErNp/HpnKOv1D9RrpHUR3va/agN8OZGGR30vG5CL3VvPfCQeivOyqGzyIkCQUsczMpikO5hZqdVsuqr006qFUiy2VKmqUSIM5JoG4vsrNvVNaXB8jb005M8XkXCcKzdKCs8bVxZYjPv2O46Qn0nR0IaqgMnyIH4K+Bde24ScYQwbJhrwqb13MjiEndL+TIVvWI6uwj268n21kU93EvqExkxAgSennygWxRP5blVC6AH49HyOMJIsR4fB8Z/YgPWf6txg==
+Authentication-Results: mx.microsoft.com 1; dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from DM3PR12MB9349.namprd12.prod.outlook.com (2603:10b6:0:49::12) by
+ SA1PR12MB8697.namprd12.prod.outlook.com (2603:10b6:806:385::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.546.22; Thu, 29 Oct
+ 2026 16:39:39 +0000
+Received: from DM3PR12MB9349.namprd12.prod.outlook.com
+ ([fe80::7678:ab4c:4a7d:7f9f]) by DM3PR12MB9349.namprd12.prod.outlook.com
+ ([fe80::7678:ab4c:4a7d:7f9f%3]) with mapi id 15.21.0569.007; Thu, 29 Oct 2026
+ 16:39:39 +0000
+Date: Thu, 29 Oct 2026 12:39:37 -0400
+From: Yury Norov <ynorov@nvidia.com>
+To: Mete Durlu <meted@linux.ibm.com>
+Cc: Shrikanth Hegde <sshegde@linux.ibm.com>, linux-kernel@vger.kernel.org,
+	mingo@kernel.org, peterz@infradead.org, juri.lelli@redhat.com,
+	vincent.guittot@linaro.org, yury.norov@gmail.com,
+	kprateek.nayak@amd.com, iii@linux.ibm.com, corbet@lwn.net,
+	tglx@kernel.org, gregkh@linuxfoundation.org, pbonzini@redhat.com,
+	seanjc@google.com, vschneid@redhat.com, huschle@linux.ibm.com,
+	rostedt@goodmis.org, dietmar.eggemann@arm.com, maddy@linux.ibm.com,
+	srikar@linux.ibm.com, hdanton@sina.com, chleroy@kernel.org,
+	vineeth@bitbyteword.org, frederic@kernel.org, arighi@nvidia.com,
+	pauld@redhat.com, christian.loehle@arm.com, tj@kernel.org,
+	tommaso.cucinotta@gmail.com, maz@kernel.org, rafael@kernel.org,
+	rdunlap@infradead.org, kernellwp@gmail.com,
+	linux-doc@vger.kernel.org, jgross@suse.com,
+	virtualization@lists.linux.dev, sunlightlinux@gmail.com
+Subject: Re: [PATCH v14 04/13] cpumask: Introduce cpu_preferred_mask
+Message-ID: <auN2yRZPKKWYk_CP@yury>
+References: <20260928053728.797539-1-sshegde@linux.ibm.com>
+ <20260928053728.797539-5-sshegde@linux.ibm.com>
+ <4605dad5-aab2-49e3-b919-bf9897181834@linux.ibm.com>
+ <auN0GKVMNvXbNdCN@yury>
+ <b83e2d2f-681d-4e19-a680-c076493b3edd@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 29 Oct 2026 16:37:58 +0000
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <b83e2d2f-681d-4e19-a680-c076493b3edd@linux.ibm.com>
+X-ClientProxiedBy: BL1PR13CA0255.namprd13.prod.outlook.com
+ (2603:10b6:208:2ba::20) To DM3PR12MB9349.namprd12.prod.outlook.com
+ (2603:10b6:0:49::12)
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -60,510 +111,138 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DM3PR12MB9349:EE_|SA1PR12MB8697:EE_
+X-MS-Office365-Filtering-Correlation-Id: bcfa84b6-4279-4a29-0059-08df35db39d4
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|23010399003|7416014|366016|376014|1800799024|261026135527099003|261026140227099003|11063799006|4143699003|261028144727099003|261026130827099003|10067099003|56012099006|261021130227099003|261022105027099003|261022113327099003|261021135927099003|261021123027099003|261022075727099003|261021133027099003|261022115727099003|261021121427099003|261009223027099003|22082099003|261026121527099003|18002099003|6133799003|3023799007;
+X-Microsoft-Antispam-Message-Info:
+	CJnEnkpZazoaAdldqifeQngcZ+7I6rwb50LM4+NGHJNNlFb+ttpKHHkyofmtD+MrZE7kjA5l2RtBfqE4r8ZxxwbISTyZsCROJxESg6G1XlOTn7UdmDk/COGL1Fjfy8U3b72X/T91e8wZIgv5hDz4ugMur3D+GMDUrzpdNChq+dFb9WP9P/bZb3B2hnIfjVUCqBekibug0ZNHsKlXQjpx+fB1CEbgqaw7MHRZd2+Zg1DJbfcNVmRCKXPlEk+vhR2IniLr++CHtORew4iuFpt8YfKpm2HyfBBLPOum7Spbt1MHPlnlmclPRLIhnEeKbVaocAt7QNyDtb8z9nPmsoSDYTezwLKxiE9zbKRTJc79Eff7jK3FPiWZucxV6C/+ldqCqhdNuJCZXeMF3i+cOICzCWhPtzjCZhL7smGtO3HuJgY2Jh1DT3kD5jnj+gfaZcNf3/38kX/o1SO+3VFMCizP/MSTYVqRcjYCf7CokF8m2JtYQGNv4mr2o8L/xCMKarv95PAOQ727lfCPooDCCsHEUndEe4EC6s4mAsMP3GMvoXxxGoQaCpuiCYLcyQJHlegV8uX4MmOjK+kb+hRfcA8wanhCpZm0vWf/aHk8dA2wg9qdlZUysk+oX+vv2dNnbRcE7BOP4YEwQyJRtAbmD/61azjS83akq/D1J1tGFteAE1w=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM3PR12MB9349.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(7416014)(366016)(376014)(1800799024)(261026135527099003)(261026140227099003)(11063799006)(4143699003)(261028144727099003)(261026130827099003)(10067099003)(56012099006)(261021130227099003)(261022105027099003)(261022113327099003)(261021135927099003)(261021123027099003)(261022075727099003)(261021133027099003)(261022115727099003)(261021121427099003)(261009223027099003)(22082099003)(261026121527099003)(18002099003)(6133799003)(3023799007);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?RkhKS1JWVC91WlFHclNRbThITHRwcmprY2U2ZjduaEIrcWVPN1dWUno4R3Jv?=
+ =?utf-8?B?bWw1S0cyTGlHOFVvU0NxT0JvT1AreUorN1dvMEd0aXlWb3NNb2NkckdqcFU0?=
+ =?utf-8?B?MWUrWGxZU3QzWWo4aTBKTUwreklOT21CMjRza0dDQk1PeDJ3b3J3VnJQcmdt?=
+ =?utf-8?B?YlFjZ3JRaVZ6NjNCTVY1Wmk0Uk5CZFdSMG0rYVFwb1B0aFVsZVNmdHV1MEFy?=
+ =?utf-8?B?Q2ZuTG11azY5WjBVRFBXbDhPcVlLbUlnWjUrRUY0TnFvdXFMZ0lmNFV4UFdD?=
+ =?utf-8?B?MXlud0RtUDZ1cjA3VkJzSS9NWUxXMEsvUmEydVUxMVpzUHhsYnFKMTN0QytF?=
+ =?utf-8?B?TCs3TWxXaGhKOTdrUUF6a2NWYk1FOU1DTFQ3aFQzTlFxODd2STY0eHVxSGNl?=
+ =?utf-8?B?NllwaFNkNFFsZW9qNzVadkZibE1MTU5DZXBBRHNQazFkYTVqV1k1VGgweTlC?=
+ =?utf-8?B?REVxN0hCb1JhaGxiNUJqUGkxVVNWMjd4cC9qcVM1dEo1aDcvQkFJZ2gzNEpl?=
+ =?utf-8?B?VUpBRWlNQk1LMXE0MUZVKytjalNBRkZnSnRjaFA1NEJoVTk3c1cxK2VCdDRB?=
+ =?utf-8?B?WkY5K1lzanQ2YTRMUjAxc0FEbmYzTWw1TUplKytkZEYxWjJTMzVyWFU0RGw0?=
+ =?utf-8?B?eW1LR3BteTM4ZmZTTTVwUmpYSGcrRElVeGtPTUxvUXZUN0x4TkRDMk81Tm1p?=
+ =?utf-8?B?SE9uRVhsbjlYeGRSMGNQcXJjdzNFTVU5YzJSbFI3eXRGVlo3cEVyTTBKTXpa?=
+ =?utf-8?B?RiszRnpJeWFQUTZQNVhGam1CckV6TjQvZWVFRmtkeGlCcTU5T1F3dVV6SjJV?=
+ =?utf-8?B?UHMwODZtNFZnWHR6SU5EMWc4MXFScFRENUl4akhXa3F3K2IvL0lSSitqVHdR?=
+ =?utf-8?B?cGpLbjBhVTVVZVlHSWE0TzJGVk5VV1gwWkxkYnoySWNuUmVCVi9FMVVxdzZ0?=
+ =?utf-8?B?STNHdW9kR1hvL1d0dE9JOWs4bi9ITTVzWk4xSmNEMFo1QUgyeXpvcHNaV2FY?=
+ =?utf-8?B?UGVWdnVyRUJnc1I3dERZcmlkNTR2VWk5Nm0xajVpMElnbThrYW9SMVVGQmk5?=
+ =?utf-8?B?UDV5SWdXM3NXQ3BDanhXQjRNVUJZbGRrNnZseGUzM0t0VWVwYlpWTjE4NDNO?=
+ =?utf-8?B?VjB3cE9McVd4S04xZWtUbTFxREM5VFFEc2FyaldpUC92eHZYeU92bVVuRFpH?=
+ =?utf-8?B?WWhqTFdZUkRaQlZtd0lMK2Q4V2J5MnF0ZHEzWkYzS0MyM1NwSVZRSno0aFpE?=
+ =?utf-8?B?d1ArcklOd1IvQVhKL3VXSXQya2t4QU5NT1NaT0lSYThlN1poODRnb1N3WG5D?=
+ =?utf-8?B?Z2x0Z3d6aGdaMzBxTGpzUC9remF4RkR4TkJGOFg3WkRLV0VoWVFLM29UZUxP?=
+ =?utf-8?B?QjQzcElzZjhCLzhUeG9sYkJHYVNTcE9PbVpBRXZaVlZQUWJmWTN4eFVCbzk1?=
+ =?utf-8?B?ZXI3NXhSakZtaFpxQ0dzcHdvMWpsSUpZWHRGTHg2UWlvaUZ3ZmMyM3NqaUxx?=
+ =?utf-8?B?MmpwR0ZSY1BRTFNrQS9mK3dyVmxPeUN2U1RXYWxraDRKK2lRYmVRanowbnlJ?=
+ =?utf-8?B?QkZuTkU5OGxwdzZIRllpL29qU2lrdHE5N25jSlN3N3RYNkRaeWszRUlqMU02?=
+ =?utf-8?B?QkVsVTcxVDcvNTNVci96RjVKdDY1MFpGTjYxZWtjbmZISlJuaVN6NEgzN25U?=
+ =?utf-8?B?Q3NtUGxpQ2t3aDIrcWl3QkVsMGRzUGVNbFNra3RjQnhSai85VlV0T1I2L2pu?=
+ =?utf-8?B?cGw3clg5RElLOXRBVzVoRElLS05uUnZQejlDSmNVREhEbGhZYkplOFh4eDNG?=
+ =?utf-8?B?OGN3QUN0RzJwWGZ0TFUvTGZwbGM2WTdzc0lvTUVJMGp5eGVnTHFCMmVkSnlw?=
+ =?utf-8?B?Rm1GcjdWYS9aYk4wRXVkR093WjNDNDVQb0lmQXRmSHMxaEw0UFpWZFdFenUz?=
+ =?utf-8?B?Q1JaN3ZoMzBJTVgyd3EvQzRvTGQrVmNjZU41VEpZaHhaZStBeTRZQWpza2R0?=
+ =?utf-8?B?NzBwYnptdnQzN2RMREllZWRyODdyUklNYzZJZUlTRm5nS2ppUWtnZzB6emY3?=
+ =?utf-8?B?Z1VjVW0yRGp4MURyVkQvL0pTOC9qNFdFZjEzY0JWTlFDWk8xMlB1RkhRNFhS?=
+ =?utf-8?B?RGJHRjRPdXA1SjdkUmhnMTVFR2hBTUlsTU1TYmhPbDh2U3YzUUtpZ2M5bitT?=
+ =?utf-8?B?dXVOTGhobHJzaDhtcDllalJVWnBPMmFTMHpOQ21uM3lNVVJyeFVLWGtDV0lN?=
+ =?utf-8?B?clpnM2VrL2xXUVJVYjhKUThraHR2bFlQa1lMOHNodDRpb1Z2aGpOejMxYmdH?=
+ =?utf-8?B?aExGQTYyREV2T2xzVXV4K2w2SGtUZmw4TER2TE9XNVhZSU1iTmJMdz09?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: bcfa84b6-4279-4a29-0059-08df35db39d4
+X-MS-Exchange-CrossTenant-AuthSource: DM3PR12MB9349.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Oct 2026 16:39:39.5776
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: Td5FHV9oAp2k+7T2uOlHtZSCcaTEFMM9b429QYLK9KLbYi5IVyROTSYgCCzOoWHheWyiYVe40rLLOdyWORW50Q==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR12MB8697
 
-Thank you for your contribution! Sashiko AI review found 8 potential issue(=
-s) to consider:
-- [Critical] media: virtio: premature page unpinning in __scatterlist_build=
-er_add_userptr()
-- [High] media: virtio: framevec and page pin leak on ext_ctrls ioctl error=
- paths
-- [High] media: virtio: unvalidated ctrls->count after shadow buffer retrie=
-val
-- [High] media: virtio: sg vs desc index mismatch in ext_controls response =
-chain
-- [High] media: virtio: uninitialized stack ctrl.size used on VIDIOC_G/S_CT=
-RL path
-- [Medium] media: virtio: invalid gfp_mask 0 in __scatterlist_builder_add_u=
-serptr()
-- [Medium] media: virtio: __scatterlist_builder_add_userptr() turns -EFAULT=
- into -EINVAL
-- [Medium] media: virtio: missing set_page_dirty_lock() before vb2_destroy_=
-framevec()
---
+On Thu, Oct 29, 2026 at 05:36:28PM +0100, Mete Durlu wrote:
+> On 29/10/2026 17:28, Yury Norov wrote:
+> > On Thu, Oct 29, 2026 at 02:32:08PM +0100, Mete Durlu wrote:
+> > > On 28/09/2026 07:37, Shrikanth Hegde wrote:
+> > > > Provide the preferred CPU infrastructure. Define get/set macros
+> > > > which could be used to get/set CPU state as preferred.
+> > > > 
+> > > > CONFIG_PREFERRED_CPU will be selected by the driver which handles
+> > > > steal time values. It is going to set/clear preferred CPU state.
+> > > > This driver will be called steal_governor and it is introduced in
+> > > > subsequent patches. It periodically computes the steal ratio and
+> > > > decides on preferred CPU state.
+> > > > 
+> > > > A CPU is set to preferred when it becomes active. Later it may be
+> > > > marked as non-preferred depending on steal ratio by the steal_governor.
+> > > > 
+> > > > Always maintain design construct of preferred is subset of active.
+> > > > i.e. preferred ⊆ active ⊆ online ⊆ present ⊆ possible
+> > > > 
+> > > > With CONFIG_PREFERRED_CPU=n, ensure set_cpu_preferred is a nop and get
+> > > > method returns the active state in that case.
+> > > > 
+> > > > Signed-off-by: Shrikanth Hegde <sshegde@linux.ibm.com>
+> > > > ---
+> > > >    include/linux/cpumask.h | 24 ++++++++++++++++++++++++
+> > > >    kernel/Kconfig.preempt  |  4 ++++
+> > > >    kernel/cpu.c            |  6 ++++++
+> > > >    kernel/sched/core.c     |  5 +++++
+> > > >    4 files changed, 39 insertions(+)
+> > > 
+> > > [..snip..]
+> > > 
+> > > >    #define cpu_is_offline(cpu)	unlikely(!cpu_online(cpu))
+> > > > diff --git a/kernel/Kconfig.preempt b/kernel/Kconfig.preempt
+> > > > index 985aea617cfe..edc067a0c422 100644
+> > > > --- a/kernel/Kconfig.preempt
+> > > > +++ b/kernel/Kconfig.preempt
+> > > > @@ -194,3 +194,7 @@ config SCHED_CLASS_EXT
+> > > >    	  For more information:
+> > > >    	    Documentation/scheduler/sched-ext.rst
+> > > >    	    https://github.com/sched-ext/scx
+> > > > +
+> > > > +config PREFERRED_CPU
+> > > > +	bool
+> > > > +	depends on SMP && PARAVIRT
+> > > FWICT, PREFERRED_CPU mechanism can work perfectly fine without PARAVIRT
+> > > selected. It would be annoying to enable it and implement a dummy
+> > > paravirt_steal_clock() just for that.
+> > > 
+> > > Shrikanth, would it be possible to drop that dependency?
+> > 
+> > Do you have a non-paravirt case in mind?
+> 
+> s390 LPARs are exactly that. s390 does not select PARAVIRT by default
+> but enabling PREFERRED_CPU is strongly considered.
+> 
+> I removed the PARAVIRT dependency and gave the whole thing a quick
+> spin. Builds and functions w/o any issues on s390!
+> > I'm actually about to submit an RFC that drops the PARAVIRT dependency
+> > and provides write access to the preferred mask. But I want to make
+> > sure that we need it, and we've got no reasonable mechanism to put
+> > unneeded CPUs on idle already.
+> 
+> You can mention s390 LPARs as valid case on your RFC if need be.
 
-commit d6379be31216df27a0facbc6a952d125cbfef732
-Author: Alexandre Courbot <gnurou@gmail.com>
+Sure, will do. I'm about submitting this before the end of week; will
+add you in CC.
 
-media: virtio: Add extended controls support
-
-This commit adds support for VIDIOC_G_EXT_CTRLS, VIDIOC_S_EXT_CTRLS, and
-VIDIOC_TRY_EXT_CTRLS to the virtio-media driver. It pins userspace control
-payloads using vb2_create_framevec() and passes their physical memory segme=
-nts
-to the host as an array of struct virtio_media_sg_entry descriptors in the
-session shadow buffer.
-
-> diff --git a/drivers/media/virtio/scatterlist_builder.c b/drivers/media/v=
-irtio/scatterlist_builder.c
-> index ae8ffee82fa6e..3615f45e15cfb 100644
-> --- a/drivers/media/virtio/scatterlist_builder.c
-> +++ b/drivers/media/virtio/scatterlist_builder.c
-> @@ -220,3 +220,247 @@ int scatterlist_builder_add_ioctl_resp(struct scatt=
-erlist_builder *builder,
->  	return scatterlist_builder_add_data(builder, resp_ioctl,
->  					    sizeof(*resp_ioctl));
->  }
-> +
-> +/**
-> + * __scatterlist_builder_add_userptr() - Add user pages to @builder.
-> + * @builder: builder to use.
-> + * @userptr: pointer to userspace memory that we want to add.
-> + * @length: length of the data to add.
-> + * @sg_list: output parameter. Upon success, points to the area of the s=
-hadow
-> + *           buffer containing the array of SG entries to be added to the
-> + *           descriptor chain.
-> + * @nents: output parameter. Upon success, contains the number of entries
-> + *         pointed to by @sg_list.
-> + *
-> + * Data referenced by userspace pointers can be potentially large and ve=
-ry
-> + * scattered, which could overwhelm the descriptor chain if added as-is.=
- For
-> + * these, we instead build an array of &struct virtio_media_sg_entry in =
-the
-> + * shadow buffer and reference it using a single descriptor.
-> + *
-> + * This function is a helper to perform that. Callers should then add the
-> + * descriptor to the chain properly.
-> + *
-> + * Returns %-EFAULT if @userptr is not a valid user address, which is a =
-case the
-> + * driver should consider as "normal" operation. All other failures sign=
-al a
-> + * problem with the driver.
-> + */
-> +static int
-> +__scatterlist_builder_add_userptr(struct scatterlist_builder *builder,
-> +				  unsigned long userptr, unsigned long length,
-> +				  struct virtio_media_sg_entry **sg_list,
-> +				  int *nents)
-> +{
-> +	struct sg_table sg_table =3D {};
-> +	struct frame_vector *framevec;
-> +	struct scatterlist *sg_iter;
-> +	struct page **pages;
-> +	const unsigned int offset =3D userptr & ~PAGE_MASK;
-> +	unsigned int pages_count;
-> +	size_t entries_size;
-> +	int i;
-> +	int ret;
-> +
-> +	if (builder->framevec) {
-> +		pr_warn("previous framevec found!");
-> +		vb2_destroy_framevec(builder->framevec);
-> +		builder->framevec =3D NULL;
-> +	}
-
-[Severity: Critical]
-When an extended controls ioctl contains two or more controls with
-ctrl->size > 0, doesn't this unpin the earlier control's user pages before =
-the
-virtio command is even sent to the host?
-
-In struct scatterlist_builder, there is only a single framevec pointer, whi=
-le
-scatterlist_builder_add_ext_ctrls_userptrs() loops over all ctrls->count
-entries and calls scatterlist_builder_add_userptr() ->
-__scatterlist_builder_add_userptr() for each control with ctrl->size > 0:
-
-virtio_media_send_ext_controls_ioctl()
-  scatterlist_builder_add_ext_ctrls_userptrs()
-    for (i =3D 0; i < ctrls->count; i++)
-      scatterlist_builder_add_userptr()
-        __scatterlist_builder_add_userptr()
-
-When the second control with ctrl->size > 0 is processed, builder->framevec=
- is
-already set from the first control. Calling vb2_destroy_framevec() here unp=
-ins
-the first control's pages while their physical addresses in builder->sgs are
-still queued and subsequently passed to virtio_media_send_command(), allowi=
-ng
-the host device to DMA to or from unpinned physical pages that may be freed=
- and
-reallocated.
-
-> +
-> +	framevec =3D vb2_create_framevec(userptr, length, true);
-> +	if (IS_ERR(framevec)) {
-> +		if (PTR_ERR(framevec) !=3D -EFAULT) {
-> +			pr_warn("error %ld creating frame vector for userptr 0x%lx, length 0x=
-%lx\n",
-> +				PTR_ERR(framevec), userptr, length);
-> +		} else {
-> +			/* -EINVAL is expected in case of invalid userptr. */
-> +			framevec =3D ERR_PTR(-EINVAL);
-> +		}
-> +		return PTR_ERR(framevec);
-> +	}
-
-[Severity: Medium]
-Should __scatterlist_builder_add_userptr() preserve -EFAULT here instead of
-converting it to -EINVAL?
-
-The kernel-doc comment above states that __scatterlist_builder_add_userptr()
-returns -EFAULT if userptr is not a valid user address, and V4L2 extended
-control ioctls (VIDIOC_G_EXT_CTRLS, VIDIOC_S_EXT_CTRLS, VIDIOC_TRY_EXT_CTRL=
-S)
-are expected to return -EFAULT when a control's user payload pointer is
-invalid.
-
-> +
-> +	pages =3D frame_vector_pages(framevec);
-> +	if (IS_ERR(pages)) {
-> +		pr_warn("error getting vector pages\n");
-> +		ret =3D PTR_ERR(pages);
-> +		goto free_framevec;
-> +	}
-> +	pages_count =3D frame_vector_count(framevec);
-> +	ret =3D sg_alloc_table_from_pages(&sg_table, pages, pages_count, offset,
-> +					length, 0);
-
-[Severity: Medium]
-Should the gfp_mask argument to sg_alloc_table_from_pages() be GFP_KERNEL
-rather than 0?
-
-__scatterlist_builder_add_userptr() runs in sleepable ioctl process context
-right after vb2_create_framevec() (which allocates with GFP_KERNEL). Passin=
-g 0
-clears __GFP_DIRECT_RECLAIM, __GFP_KSWAPD_RECLAIM, __GFP_IO, and __GFP_FS,
-preventing memory reclaim under pressure and skipping SLUB kmemleak
-registration.
-
-[ ... ]
-
-> +static int scatterlist_builder_add_userptr(struct scatterlist_builder *b=
-uilder,
-> +					   unsigned long userptr,
-> +					   unsigned long length)
-> +{
-> +	int ret;
-> +	int nents;
-> +	struct virtio_media_sg_entry *sg_list;
-> +
-> +	ret =3D __scatterlist_builder_add_userptr(builder, userptr, length,
-> +						&sg_list, &nents);
-> +	if (ret)
-> +		return ret;
-> +
-> +	ret =3D scatterlist_builder_add_data(builder, sg_list,
-> +					   sizeof(*sg_list) * nents);
-> +	if (ret)
-> +		return ret;
-> +
-> +	return 0;
-> +}
-
-[ ... ]
-
-> +int scatterlist_builder_retrieve_ext_ctrls(struct scatterlist_builder *b=
-uilder,
-> +					   size_t sg_index,
-> +					   struct v4l2_ext_controls *ctrls)
-> +{
-> +	struct v4l2_ext_control *controls_backup =3D ctrls->controls;
-> +	int ret;
-> +
-> +	ret =3D scatterlist_builder_retrieve_data(builder, sg_index++, ctrls);
-> +
-> +	if (ret)
-> +		goto cleanup;
-> +
-> +	ctrls->controls =3D controls_backup;
-> +
-> +	if (ctrls->count > 0 && ctrls->controls) {
-> +		ret =3D scatterlist_builder_retrieve_data(builder, sg_index++,
-> +							ctrls->controls);
-> +		if (ret)
-> +			goto cleanup;
-> +	}
-> +
-> +cleanup:
-> +	// Clean up the framevec created in __scatterlist_builder_add_userptr()
-> +	if (builder->framevec) {
-> +		vb2_destroy_framevec(builder->framevec);
-> +		builder->framevec =3D NULL;
-> +	}
-> +
-> +	return ret;
-> +}
-
-[Severity: Medium]
-Should the pages in builder->framevec be marked dirty with
-set_page_dirty_lock() before calling vb2_destroy_framevec()?
-
-__scatterlist_builder_add_userptr() pins the user pages with write =3D true=
- via
-vb2_create_framevec(userptr, length, true) and passes their physical addres=
-ses
-to the host device. Because host writes to those physical addresses bypass =
-the
-guest CPU MMU, the guest PTE dirty bits are not updated, so unpinning the p=
-ages
-without calling set_page_dirty_lock() (as done in vb2_dma_sg_put_userptr() =
-and
-vb2_vmalloc_put_userptr()) can allow modified pages to be treated as clean =
-and
-discarded under memory pressure.
-
-> diff --git a/drivers/media/virtio/virtio_media_ioctls.c b/drivers/media/v=
-irtio/virtio_media_ioctls.c
-> index 656ecea8a44cc..51f46b334800c 100644
-> --- a/drivers/media/virtio/virtio_media_ioctls.c
-> +++ b/drivers/media/virtio/virtio_media_ioctls.c
-
-[ ... ]
-
-> @@ -215,6 +218,124 @@ static int virtio_media_send_wr_ioctl(struct v4l2_f=
-h *fh, u32 ioctl,
->  	return 0;
->  }
-> =20
-> +/**
-> + * virtio_media_send_ext_controls_ioctl() - Send an ioctl taking extended
-> + * controls as parameters to the device.
-> + * @fh: file handler of the session doing the ioctl.
-> + * @ioctl: ``VIDIOC_*`` ioctl code.
-> + * @ctrls: &struct v4l2_ext_controls to be sent as the ioctl payload.
-> + *
-> + * Queues an ioctl that sends a &struct v4l2_ext_controls to the host and
-> + * receives an updated version.
-> + *
-> + * &struct v4l2_ext_controls has a pointer to an array of
-> + * &struct v4l2_ext_control, and also potentially pointers to user-space=
- memory
-> + * that we need to map properly, hence the dedicated function.
-> + */
-> +static int virtio_media_send_ext_controls_ioctl(struct v4l2_fh *fh, u32 =
-ioctl,
-> +						struct v4l2_ext_controls *ctrls)
-> +{
-> +	struct video_device *video_dev =3D fh->vdev;
-> +	struct virtio_media *vv =3D to_virtio_media(video_dev);
-> +	struct virtio_media_session *session =3D fh_to_session(fh);
-> +	size_t num_cmd_sgs;
-> +	size_t end_ctrls_sg;
-> +	struct v4l2_ext_control *controls_backup =3D ctrls->controls;
-> +	const u32 num_ctrls =3D ctrls->count;
-> +	struct scatterlist *sgs[64];
-> +	struct scatterlist_builder builder =3D {
-> +		.descs =3D session->command_sgs.sgl,
-> +		.num_descs =3D DESC_CHAIN_MAX_LEN,
-> +		.cur_desc =3D 0,
-> +		.shadow_buffer =3D session->shadow_buf,
-> +		.shadow_buffer_size =3D VIRTIO_SHADOW_BUF_SIZE,
-> +		.shadow_buffer_pos =3D 0,
-> +		.sgs =3D sgs,
-> +		.num_sgs =3D ARRAY_SIZE(sgs),
-> +		.cur_sg =3D 0,
-> +		.framevec =3D NULL,
-> +	};
-> +	size_t resp_len =3D 0;
-> +	int i;
-> +
-> +	/* Command descriptor */
-> +	int ret =3D scatterlist_builder_add_ioctl_cmd(&builder, session, ioctl);
-> +
-> +	if (ret)
-> +		return ret;
-> +
-> +	/* v4l2_controls */
-> +	ret =3D scatterlist_builder_add_ext_ctrls(&builder, ctrls);
-> +	if (ret)
-> +		return ret;
-> +
-> +	end_ctrls_sg =3D builder.cur_sg;
-> +
-> +	ret =3D scatterlist_builder_add_ext_ctrls_userptrs(&builder, ctrls);
-> +	if (ret)
-> +		return ret;
-> +
-> +	num_cmd_sgs =3D builder.cur_sg;
-> +
-> +	/* Response descriptor */
-> +	ret =3D scatterlist_builder_add_ioctl_resp(&builder, session);
-> +	if (ret)
-> +		return ret;
-> +
-> +	/* Response payload (same as input but without userptrs) */
-> +	for (i =3D 1; i < end_ctrls_sg; i++) {
-> +		ret =3D scatterlist_builder_add_descriptor(&builder, i);
-> +		if (ret < 0)
-> +			return ret;
-> +	}
-
-[Severity: High]
-Isn't passing i (which ranges up to end_ctrls_sg =3D builder.cur_sg) to
-scatterlist_builder_add_descriptor() indexing builder.descs[] using a
-builder.sgs[] index?
-
-In scatterlist_builder_add_descriptor():
-
-	builder->sgs[builder->cur_sg++] =3D &builder->descs[desc_index];
-
-When ctrls or ctrls->controls is a vmalloc address (for instance, video_use=
-rcopy()
-places ctrls in stack buffer sbuf when CONFIG_VMAP_STACK=3Dy) and crosses a
-non-contiguous page boundary, scatterlist_builder_add_data() advances
-builder->cur_desc for each non-contiguous page while only adding one entry =
-to
-builder->sgs[]. If ctrls spans descs[1] and descs[2] (with sgs[1] =3D &desc=
-s[1])
-and ctrls->controls is at descs[3] (with sgs[2] =3D &descs[3] and
-end_ctrls_sg =3D 3), this loop adds &descs[1] and &descs[2] to the response=
- sgs,
-mapping the second page of ctrls twice and omitting ctrls->controls from the
-writable response chain.
-
-> +
-> +	ret =3D virtio_media_send_command(vv, builder.sgs, num_cmd_sgs,
-> +					builder.cur_sg - num_cmd_sgs,
-> +					sizeof(struct virtio_media_resp_ioctl) +
-> +					sizeof(*ctrls),
-> +					&resp_len);
-> +
-> +	/* Just in case the host touched these. */
-> +	ctrls->controls =3D controls_backup;
-> +	if (ctrls->count !=3D num_ctrls) {
-> +		v4l2_err(&vv->v4l2_dev,
-> +			 "device returned a number of controls different than the one submitt=
-ed\n");
-> +	}
-> +	if (ctrls->count > num_ctrls)
-> +		return -ENOSPC;
-> +	if (ret < 0) {
-> +		/*
-> +		 * Even if we have received an error, we may need to read our
-> +		 * payloadback.
-> +		 */
-> +		if (resp_len >=3D sizeof(struct virtio_media_resp_ioctl) +
-> +		    sizeof(*ctrls)) {
-> +			/*
-> +			 * Deliberately ignore the error here as we want to
-> +			 * return the previous one.
-> +			 */
-> +			scatterlist_builder_retrieve_ext_ctrls(&builder,
-> +							       num_cmd_sgs + 1,
-> +							       ctrls);
-> +		}
-> +
-> +		return ret;
-> +	}
-> +
-> +	resp_len -=3D sizeof(struct virtio_media_resp_ioctl);
-> +
-> +	/* Make sure that the reply's length covers our v4l2_ext_controls */
-> +	if (resp_len < sizeof(*ctrls))
-> +		return -EINVAL;
-> +
-> +	ret =3D scatterlist_builder_retrieve_ext_ctrls(&builder, num_cmd_sgs + =
-1,
-> +						     ctrls);
-> +	if (ret)
-> +		return ret;
-> +
-> +	return 0;
-> +}
-
-[Severity: High]
-Does virtio_media_send_ext_controls_ioctl() leak builder.framevec and its
-FOLL_LONGTERM | FOLL_WRITE page pins when an error occurs before
-scatterlist_builder_retrieve_ext_ctrls() is reached?
-
-__scatterlist_builder_add_userptr() saves the pinned frame_vector in
-builder->framevec, and it is only freed in the cleanup label of
-scatterlist_builder_retrieve_ext_ctrls(). If scatterlist_builder_add_data()
-fails in scatterlist_builder_add_userptr(), if
-scatterlist_builder_add_ioctl_resp() or scatterlist_builder_add_descriptor()
-fails, if ctrls->count > num_ctrls, if virtio_media_send_command() fails wi=
-th
-resp_len < sizeof(struct virtio_media_resp_ioctl) + sizeof(*ctrls), or if
-resp_len < sizeof(*ctrls), the function returns without calling
-vb2_destroy_framevec(builder.framevec), leaving the user pages permanently
-pinned.
-
-[Severity: High]
-Also, shouldn't the ctrls->count validation happen after
-scatterlist_builder_retrieve_ext_ctrls(), and restore ctrls->count =3D num_=
-ctrls
-when ctrls->count > num_ctrls?
-
-First, when ctrls is staged in builder.shadow_buffer (such as when
-always_use_shadow_buffer is set), ctrls->count still holds the original
-num_ctrls value before scatterlist_builder_retrieve_ext_ctrls() copies the
-shadow buffer back into *ctrls. Inside scatterlist_builder_retrieve_ext_ctr=
-ls(),
-scatterlist_builder_retrieve_data() overwrites ctrls->count from the shadow
-buffer and immediately tests:
-
-	if (ctrls->count > 0 && ctrls->controls) {
-		ret =3D scatterlist_builder_retrieve_data(builder, sg_index++,
-							ctrls->controls);
-
-If num_ctrls was 0 on entry, check_array_args() in v4l2-ioctl.c left
-ctrls->controls (and controls_backup) as the raw untrusted userspace pointer
-and no descriptor was added for ctrls->controls, so a non-zero ctrls->count=
- in
-the shadow buffer causes scatterlist_builder_retrieve_data() to read the wr=
-ong
-sg_index or copy directly to an unvalidated userspace pointer.
-
-Second, because VIDIOC_G_EXT_CTRLS, VIDIOC_S_EXT_CTRLS, and
-VIDIOC_TRY_EXT_CTRLS have INFO_FL_ALWAYS_COPY set in v4l2_ioctls[], leaving
-ctrls->count > num_ctrls on return causes v4l2_compat_put_array_args() in
-v4l2-compat-ioctl32.c to loop ecs64->count times over a kernel buffer
-allocated for only num_ctrls elements, reading past the end of the buffer a=
-nd
-copying out-of-bounds heap memory to userspace.
-
-[ ... ]
-
-> @@ -472,6 +624,9 @@ const struct v4l2_ioctl_ops virtio_media_ioctl_ops =
-=3D {
-> =20
->  	/* Control handling */
->  	.vidioc_query_ext_ctrl =3D virtio_media_query_ext_ctrl,
-> +	.vidioc_g_ext_ctrls =3D virtio_media_g_ext_ctrls,
-> +	.vidioc_s_ext_ctrls =3D virtio_media_s_ext_ctrls,
-> +	.vidioc_try_ext_ctrls =3D virtio_media_try_ext_ctrls,
->  	.vidioc_querymenu =3D virtio_media_querymenu,
-> =20
->  	/* Audio ioctls */
-
-[Severity: High]
-When userspace invokes VIDIOC_G_CTRL or VIDIOC_S_CTRL, doesn't
-scatterlist_builder_add_ext_ctrls_userptrs() read an uninitialized ctrl->si=
-ze
-from the stack?
-
-Registering .vidioc_g_ext_ctrls and .vidioc_s_ext_ctrls in
-virtio_media_ioctl_ops without a v4l2_ctrl_handler or .vidioc_g_ctrl /
-.vidioc_s_ctrl callbacks enables the fallback paths in v4l_g_ctrl() and
-v4l_s_ctrl() in drivers/media/v4l2-core/v4l2-ioctl.c:
-
-v4l_g_ctrl() / v4l_s_ctrl()
-  struct v4l2_ext_controls ctrls;
-  struct v4l2_ext_control ctrl;
-  ...
-  ctrls.which =3D V4L2_CTRL_ID2WHICH(p->id);
-  ctrls.count =3D 1;
-  ctrls.controls =3D &ctrl;
-  ctrl.id =3D p->id;
-  ctrl.value =3D p->value;
-  ops->vidioc_g_ext_ctrls(file, NULL, &ctrls);
-
-Neither v4l_g_ctrl() nor v4l_s_ctrl() initializes ctrl.size (or ctrls.error=
-_idx,
-ctrls.request_fd, and the upper 32 bits of the union containing ctrl.ptr).
-When virtio_media_send_ext_controls_ioctl() calls
-scatterlist_builder_add_ext_ctrls_userptrs(), it checks if (ctrl->size > 0)=
- on
-uninitialized stack memory, causing it to treat ctrl->ptr (containing p->va=
-lue
-and stack garbage) as a user pointer and pass uninitialized stack fields to
-vb2_create_framevec() and the host device.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261029153038.3800=
-747-1-briandaniels@google.com?part=3D3
+Thanks,
+Yury
