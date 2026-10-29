@@ -1,57 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793252824;
-	b=rps2/X3omfqb3/P1N05k4IyvAUFsMl2cB4msE4jUDR7vSWXMfgeE4STeV+eP0CREC+L1
-	 aSCtWV2k+jyLACkwUOpB4EnHAjX/PZKXDwB6dXA1KR/z/kpHBZL87sDkgJQX4hnqGWpSX
-	 emM1M9VgKSYkJBgCLSNx9jSAyUCsFZsk1ahXMMqN0vSR2Z3EMirqbZyuv7VxwevyP/g2p
-	 dRveE3kfls2M5lHSMuCqVABzSKWuPUvFWtp4YhQh3Vw9GgXDYfQM4+CP2sF4F32ktPqHk
-	 i5OD/mpEI9wADGp77nxx20gTTulNKsgUTmBHIpMeEG1cb8UMTfLLLnH4Htc+LRihT5g==
+	t=1793252895;
+	b=2AJ3y9SK4ii+y79gbxAQtATj70q8nF9LpjyHTswOAeTp3ADyizlL7MdhIkSO8ZcHZIqw
+	 7VqfewvdMWFIrLGoHF+0+cYn7bmBds/S5PEEbsE0HmXiwiRxchrs1SfzUVqHxerHurdL9
+	 Y6IUomQlBovkqRGCdyODJZmP9ZlNGlCY4H+iOzHb3BDbnfGD8NbN3cN2evmVpMgDRreLJ
+	 2wgZbJ71fFYm3vz1oj8Nq0uhk5LvGbYDu+35V8v6teRWQALPWIBcngKtR09lH+WHuNORw
+	 uwmohflsVZMibNIjfVzI0vziFlWW7Fdu2QA4z4KMDQBwQd8XcSDWeoLDUsvF64vWW6A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793252824;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793252895;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=/Wu0wTcYs4LVwk5vZoYFcckSDWDphZEQVUg4vc8nv3U=;
-	b=wQVkLeYMQh8sGtwSEXT2G06xjqkBSm7/mRZckfIl6RVmY4DKQnqHc9BbyC9GKhWlFvjv
-	 FAFoLgeo8EhxcahIFmBIndjRgr+QKmmZvZ0+oe67vjEgdAFXMOPLA0RoPTfZbmk7SlpBj
-	 2rP40oG7pai2yKCq6uwsbn2FJ9JkGl75IL5llua29uo333yksdQ/kgPv4GVDSNkhAc6mq
-	 8BL23kLYnQJotAYNsdbTe2Lt/saQqoaxp2cYV+uPzdSVJrg7DpqeSyA0Ixc9nX7pNvIHn
-	 3o4A8Q0XQkd9BEQUZsB+OUsBzYBPxlghKWLPA6rMWyr24pGMzs0dyz6/aG3qWOrWONQ==
+	bh=VBAKbfjr3xW/FwdqmxwBmnQrWx9xBgic+X1WQCmxorw=;
+	b=z0U13FFMKqV10qWeaCrYy+hx7Ve0tE/C2nmLY8/UCs9zWjAkmd7fJMtoxEmfmY9azl8z
+	 Lo+jlabo4EisuB2Konntuq4k0+zYm5/sIx6Zag0rxbPkJr/hVrv1+Ux6h/WY8QeE22nrz
+	 Dsmm9d03eSXrgkDUmksutvvZRIYBRLHUNKoml1ncKw3pKKEDajycFO3LqCfn0XQbT47/j
+	 cSkWNDP3bzB7csdXYz3VMZ9rg8PNGf0U0fzuY/a/F8Khlh90013kxEVOl8sSb7Nh73Mxp
+	 kjfiQYsHd/TEX1SgZUrR/wh+VERIifx1sjGqr58OfbWueM8Bq23hL/7j7TSVI6ceWrg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oxaJrHUr;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=g+pKBARE;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16774606A31A
-	for <virtualization@lists.linux.dev>; Thu, 29 Oct 2026 05:47:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C12C7606A31A
+	for <virtualization@lists.linux.dev>; Thu, 29 Oct 2026 05:48:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oxaJrHUr
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5353A1F01825;
-	Thu, 29 Oct 2026 05:47:03 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=g+pKBARE
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CC431F01825;
+	Thu, 29 Oct 2026 05:48:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793252823;
-	bh=/Wu0wTcYs4LVwk5vZoYFcckSDWDphZEQVUg4vc8nv3U=;
+	s=k20260515; t=1793252894;
+	bh=VBAKbfjr3xW/FwdqmxwBmnQrWx9xBgic+X1WQCmxorw=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=oxaJrHUr5leJ691DIYfoaRkb5A0K7jvBCL48iPnRNG0MKeZb+XwC/bwd7Yb9p9ej3
-	 1cf4elmb3nVAHl9aj7JOeq8XMT9gi9HmCVj4fndFbS9LWrIcGpc4zX7qrFfp7MawUC
-	 7A7jC/i9OBV7dZimY1qmZZkOFcp6vCUfXT1vr7yjk9s+gUEZmdc+xWf7oNK+L8KQvV
-	 5KrmGfF8PjARrMtqjAcrv3ip08H5t++VRTkh95O14OJ7tMhRn5ERCx9swYpIHKSf3c
-	 GSqjaBSyHnzre+aPEyQeWJH4JJgdwPY1e8CYmGdeEc8hjoPdH7T9q22p68Gv9oUWYM
-	 uc4wRQt4NqMmQ==
-Message-ID: <sashiko-outbox-188770@kernel.org>
+	b=g+pKBAREIDRvfOIxtcgCu6YVXx1wNbiWyeZHfQg78WhCYOVIZUoUV3AWDT1ZXLtgR
+	 HTnyGmDR3Cu8UOYaGp/ayC2XZ+NzgixD4pRuFo+j/s1aUAuUiH0iZ/ckJ3sm0YEc3V
+	 7UHBayb+dD2crPX41cCVZOQjtj5i5nUpxWB0jxXM+DXZVIouTaKrhAxVorrCzeB3Ta
+	 d/qfjEinAmY8pbGrptGl27IqFl8sMmtWv12Bqa7MYuZU4JfRDV7MUl8rAiSELGbTNH
+	 9uxgykgnEi6vMlFyHK4v3CMhfTsw8l0Hhl5LUR3xxpBJMAEawhd1fUvxBcN+5IxG6R
+	 oxuDV0ejQh5MA==
+Message-ID: <sashiko-outbox-188772@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v8 11/14] docs: describe virtio-sound capture options
+Subject: Re: [PATCH v8 10/14] ALSA: virtio: prioritize staged capture period
+ work
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Joonho Lee" <mynameisjune111@gmail.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261029054354.2931-12-mynameisjune111@gmail.com>
+In-Reply-To: <20261029054354.2931-11-mynameisjune111@gmail.com>
 References: <20261029054354.2931-1-mynameisjune111@gmail.com>
- <20261029054354.2931-12-mynameisjune111@gmail.com>
+ <20261029054354.2931-11-mynameisjune111@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 29 Oct 2026 05:47:02 +0000
+Date: Thu, 29 Oct 2026 05:48:14 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -61,10 +62,14 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> Document the five opt-in capture module parameters introduced by this
-> series. All default to false. Describe the startup-empty, short-payload,
-> packed-status and pause-restart compatibility behavior alongside staging,
-> and require validation with the target device.
+> Queue staged capture period notifications on system_highpri_wq through
+> the common scheduling helper. This allows capture notifications to make
+> progress when ordinary workqueue workers are delayed by CPU contention.
+> Playback and ordinary capture keep schedule_work().
+>=20
+> This preserves the existing priority proposal without mixing RESET or
+> lifecycle changes into it. It provides no hard real-time deadline and
+> cannot prevent a userspace reader from overrunning its buffer.
 >=20
 > Assisted-by: LLM
 > Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
@@ -73,5 +78,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261029054354.2931=
--1-mynameisjune111@gmail.com?part=3D11
+-1-mynameisjune111@gmail.com?part=3D10
 
