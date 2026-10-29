@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793252901;
-	b=xe5S2waZ6pBZ9HC6KD91xWaQpHuetX0YxN5jkSMOQa2D9FUkUauATbfnoRTgXrAnBWIF
-	 wh9SoeKdVPdHxKcG4HxFR994hff9do6bSONnZUnlHp57y+JGhXLC7AYuX4P6PZgTFsIrX
-	 ttcWFIIKIEeC3qabfC3gxuv2MzCW/CQBWe5gE7lgQFc/5DW9kbyuekR6o6nWjFFGP1U43
-	 HudE7KVZ14kSKOKeEIXQtbeZVN1m7NP+G7NBEEDl5Nh6J2IRZaApKjgVpVLQfewVTAufw
-	 1lnhV2lFfXY1sHoh41sY/ZlHwuuTr9ax9sbYMI4nTxrD3G9IZxApRmI9Ba2Jk0Ixnww==
+	t=1793253123;
+	b=T8QLvfTO+0em/LUagI3Yj44POhu/vMloynoeT/+o7n3LuVFfyLaO+zCUakfBXTZVME+f
+	 Mp2aIHMjLKaN5A2xXU/K8JbXIjFl0Fd22/xPOs8aLjTP/EVIfuH2LRIf/ebFcj7ffFfnL
+	 4HFTF42Qf8Fiv/YyUTWmW7XCAyw5jcCu8j7Dvj4q6i6rs0q7+C2GMiMIwQMmkKaSJeEPY
+	 vakkE8ncSTDXxHAaFthgNCFVhyd/329c6hCCQqe1pp07MALqjnhmdokNf094xvPXGUBkw
+	 ENp8J+X9IFiZ66NReAksqkCA96hUWXRYDfWvNElr8jhDVQMB9YtqTXjbsNhVF8DgBUg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793252901;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793253123;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=uCpW0i/qsDVniOpj/RjMOtOnsqzmvRMkluxtDqZ7XDE=;
-	b=0CJasdfaZtaWxhK7fvpi53skgE5p49t6n7Vj/d+WwBb3YvI9OXr1F9RIrwDra5+KhWA9
-	 KX4ZbM2e2xNOmgwo0DZ15iX8sAnhW1Z+8FFd04L6kLjS1Y6lnNvhDTcyxPfP2gwILzlOF
-	 ePopOvaHHWaMwbppFo2PSheBWgAz/N9IzbFocbS3iWGjd8TN3xWoToYOdEAX86OsJBdoZ
-	 PTvv2veMs4IgVA43C7v47TeUi+78sOpFX0e6iBHRKvLaj0Q7fCcgh7SBxUuHsoDXbL7OR
-	 7PVlG0RZRF8b+yPZwOY2ektRG60Lznumjqpwb8gutPuVDdQp/GX3xIF2wPyG3pvUGsg==
+	bh=UpDaCC68JeFTfQRtIVsWigzo75YpXpCD9SYWhs7dsJk=;
+	b=VJJ/HKMOm+wWKknhx0U/oZ9ylOcz0Hw3iDPcRG0SW9hfefDRowmBOoTw2Uan+idnyY5q
+	 v30QURQqlsoXFxo5bJwHMI2g8hzFaGCQ4wCdsvuwX8b95bZdPolZ7zPlIdCqILEeCUZmH
+	 uBMMltioR3J08b47d5YFoO5UwRXaeWWceA/1bsO4CoY+TcRAxGCRD+yDZ9hkL83GpYBQC
+	 WyTPOVCpPg2rS1XudI3slCDkS/2nEYiDqwTp2aQ1rt/5+7eW7vgQnvqRROCYWvO7myra3
+	 6BSYPSMFlocf96CJ0NXAWZz+K3bMWiwHavcpGk8D9SOyyjFVqCGGqG/UgusWyAD6s4Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XOFwGeTi;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=emH1izkv;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C873B606A31A
-	for <virtualization@lists.linux.dev>; Thu, 29 Oct 2026 05:48:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48BBA606A320
+	for <virtualization@lists.linux.dev>; Thu, 29 Oct 2026 05:52:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XOFwGeTi
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D12D1F01825;
-	Thu, 29 Oct 2026 05:48:20 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=emH1izkv
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F0E51F01825;
+	Thu, 29 Oct 2026 05:52:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793252900;
-	bh=uCpW0i/qsDVniOpj/RjMOtOnsqzmvRMkluxtDqZ7XDE=;
+	s=k20260515; t=1793253122;
+	bh=UpDaCC68JeFTfQRtIVsWigzo75YpXpCD9SYWhs7dsJk=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=XOFwGeTis+oW4DKgWsVsSvvQuIkWYwJTYXP4ErSMQShlp650n+tJX6Y3fF79Mz4hr
-	 aJvBJfuaeixqWCZRxlVWywLEpmapZB6JYMqjlu76x1lnrPlbkMud5nhffcS8hw+gEv
-	 r/mtjk2XZQwcgulZFZ9WphkzMAapOGc3dCPb0DTr3Z62/MryO5Hz7BJbzAwYHdpszi
-	 IZ0SMamITvuLKk4aPI2wIv0pIYRZHTm+kZmcqA0pRp+KRPBPK/68cimVC3Y3x58X56
-	 gfPxpdYBMFwdbm8nHt+RfYfwfccdzKosZcdbUZpy49DdqIBL5nPPzYwpVb6VkI8CnM
-	 zs9fz5KOa/c5A==
-Message-ID: <sashiko-outbox-188773@kernel.org>
+	b=emH1izkvN/DokNcuNGlFtLACJklPxZ4MM369szoXzfgNK6ozOseICvF4PSLjTCeTw
+	 HTec0DxkctJRzsJbpf0Aq/ddnJFNXyMhQKUcz1BET53gOrKV88i22pL8pToHeVh5Kv
+	 3kKsMgC1R2LuaXSDdYV0gj0torj3LGlyjXlS4B2Xq7lOmXztc03qHfcU10M/6gKXSv
+	 JyMol7YS36vLFHLRXN1ifrKEM3rXfwrbIzoP4QcgfCor1lB08VhtO3qi+rU0IfDxdX
+	 9Iq0czDpiIyAEj7BEzFvXvncFSFclUnwit+l38zFFKLIw2pMfDHkxmu/z0JeWB/a7X
+	 0psIc/7pBm/4Q==
+Message-ID: <sashiko-outbox-188777@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v8 07/14] ALSA: pcm: mark stop-threshold accesses for
- capture policy sampling
+Subject: Re: [PATCH v8 12/14] ALSA: pcm: add an optional reset operation
+ under the stream lock
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Joonho Lee" <mynameisjune111@gmail.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261029054354.2931-8-mynameisjune111@gmail.com>
+In-Reply-To: <20261029054354.2931-13-mynameisjune111@gmail.com>
 References: <20261029054354.2931-1-mynameisjune111@gmail.com>
- <20261029054354.2931-8-mynameisjune111@gmail.com>
+ <20261029054354.2931-13-mynameisjune111@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 29 Oct 2026 05:48:19 +0000
+Date: Thu, 29 Oct 2026 05:52:01 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,17 +62,24 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> The staged virtio-snd capture path needs to sample stop_threshold from
-> completion context to distinguish free-running capture from bounded
-> capture. Software parameters can update this field while capture runs.
+> A driver which keeps private capture counters needs to reset those
+> counters together with the PCM application's position. The ioctl RESET
+> path releases the stream lock before core completes the position rebase,
+> and appl_ptr is updated in a separate post_action. Period processing can
+> observe the intermediate state.
 >=20
-> Mark the runtime stop-threshold assignments with WRITE_ONCE and the proc
-> status read with READ_ONCE. This pairs the assignments with the driver's
-> READ_ONCE policy sampling in the following patch.
+> Add an optional reset operation whose stream lock remains held through
+> the core position and appl_ptr updates. Export the common pointer reset
+> as snd_pcm_lib_reset(), so drivers can reuse pointer validation, time
+> accounting and XRUN handling without reacquiring the stream lock.
+> Drivers without the new operation keep their existing ioctl path.
 >=20
-> These annotations do not provide a transaction for the entire sw_params
-> update. The driver serializes its cached policy and accounting with its
-> own substream lock.
+> A successful callback member completes its reset immediately. If a later
+> linked member fails, the first error is returned and completed members
+> are not rolled back. Legacy members retain the existing post_action
+> [ ... ]
+> a user-visible failure. The new-candidate tests validate the
+> synchronization contract and recovery paths.
 >=20
 > Assisted-by: LLM
 > Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
@@ -81,5 +88,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261029054354.2931=
--1-mynameisjune111@gmail.com?part=3D7
+-1-mynameisjune111@gmail.com?part=3D12
 
