@@ -1,84 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.215.176
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.216.49
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793252681;
-	b=ji57+ZRXnSrDyznDbluKasr9Z3V6p2U2OJIKU++3KIi6A6rU7ioyFzF5yuvy7yEtXskT
-	 jQIj/nI8802BLZV781tmiG4HUf4f0XEVgqnYKtBBxpIqXjV9hu4CtqpXDsu3Ym/qPaCJt
-	 TjaqXRQnuW6Lhb0tvmVJEMc2BN0OTmgfqNkT41OnkXUCRybMKyXZ6Mp6Nuk1FQyT+4MG5
-	 u4+vTWUR0n/jTUj19TAZFuueHtb5IkTpIw8EwpIHckZb6Tml76E2lBm9K8ZfJSN07VGKg
-	 PjumZebZhgrYunhzCum+pExvwJ+m0rt3gdqfuqvVXMYJYCJJ0rln4xp+dxE6jrCLCLQ==
+	t=1793252684;
+	b=239R0n52Y53b4U0odcMDixtmCnTUSeIPV5OrV3Ub1DWdmJXk2LqOBjPfAX22gvQFRvuH
+	 cGLX3nx3BYky3uCgdvovQhlwekgOGlvy8elRZ1/aWSsbIoL/tQ/i4MCy7wmmpQ5dHLGZX
+	 NYoJf94PsMLyNWIbqhfv5ZuhixX2103CPYarqf2OnHj/SUdueEMuvPwXTzyDacku1VMiM
+	 S9Ot86+4bL67Ed69z8V3DSZh6zLlzqWilB26zJe5WYdDojhKE2APP0ZmUMG0E+Rtl0bvZ
+	 7ln0YmdpTk+hcCKbQV/Mkc9r8iWJPOaevnBwhGzoBqzLzDw9tbQlVGugqJVERtHUsZw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793252681;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793252684;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
 	 MIME-Version:Content-Transfer-Encoding;
-	bh=Z/l4dD/5O5m6RU90kbEhUZI1etATEz4+8y2FIjERE5k=;
-	b=xkmc79lxkmfXHm8gsNER+OTy2apN8COUMu2eG24lkImV/WddsKc9Qhp6koECPSPiJiLc
-	 OmYCk3iMTlu80MTe35SoFa7WQftxhKzLbQhjJbryarJR7fig1amb/TvVnywR5EEf6OI+z
-	 KqA8ixjRTVGp8fs+LgpnFgklUleH0cwxA7rAo2+HbW9tXCD/R7y0URxY2VvkPT6O/z6B2
-	 +t9S1lm3ZJqZChRo0iNXnKD6IRDEDbR0h1jd5imvPrvDZBBBaiMZqiR9zWdvBoSbJ7pA4
-	 Y35HXKXdk/d8O9AUGOpnBpI8ZM6z6r3ffZ8VTuKcuVSWxrvkB4uD0L8Xdz6TdAv0t6w==
+	bh=ec4/N7zw6HP65LFOCU/La2k3iDwpzO2wT9iw6qkE45M=;
+	b=A9M8hAutf/8QFpmOUYupluCxgI7t+KQac42RqeQ3MGGhUeb20IDizOSr34nGmylFrJ1W
+	 l2ML0HIN7wkxZVOlMnKmuNS0OaaXvXta91MW5dpYwAC60dzFnVHs+CRcbLJUboxmNAVJB
+	 Pt4ihhSQFZkq/VebpfTKYQ7ywmcvTWMXwTcdZxUi8sk92BSogKbJH/xqnQKvzQUf//PpH
+	 JknYmvpYtqbIOSMfssKjpBovaQNT+xcfH6xzAYYlaDYgFTO/qH0N6723kOytd89zWNQOD
+	 GX4iHicK2nQ+XumC8yvjXIPteSX9frvZsmgCLd5JzU8S8p2nJG0riNlSiyugB0guMqQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=sG5QMdVE;
-	arc=none smtp.remote-ip=209.85.215.176
-Received: from mail-pg1-f176.google.com (mail-pg1-f176.google.com [209.85.215.176])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="W+/cGuWg";
+	arc=none smtp.remote-ip=209.85.216.49
+Received: from mail-pj1-f49.google.com (mail-pj1-f49.google.com [209.85.216.49])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67872606A323
-	for <virtualization@lists.linux.dev>; Thu, 29 Oct 2026 05:44:40 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 67872606A323
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63573606A32C
+	for <virtualization@lists.linux.dev>; Thu, 29 Oct 2026 05:44:44 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 63573606A32C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=sG5QMdVE
-Received: by mail-pg1-f176.google.com with SMTP id 41be03b00d2f7-cd8ca57ef64so162424a12.0
-        for <virtualization@lists.linux.dev>; Wed, 28 Oct 2026 22:44:40 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=W+/cGuWg
+Received: by mail-pj1-f49.google.com with SMTP id 98e67ed59e1d1-3ac451e128cso1249742a91.1
+        for <virtualization@lists.linux.dev>; Wed, 28 Oct 2026 22:44:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793252680; x=1793857480; darn=lists.linux.dev;
+        d=gmail.com; s=20260707; t=1793252684; x=1793857484; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=Z/l4dD/5O5m6RU90kbEhUZI1etATEz4+8y2FIjERE5k=;
-        b=sG5QMdVE/MZ6grlFr9kA3Z25y2DxNr6ZNDn2u62ritH9Q2/6URQASwOQW/EdF4jnRQ
-         5MSzds7Ba6QBxlgSg0HJ+O+J9dW8Tw6Lpx4jNhkIEHakvXNch8rLCHNOa958+DMEPf1U
-         k0zBJuuCQaHOanGwV9NLKBhoOQ2apvJxNMgOwUyuT7ue/burNwzguXJ+aLCwG7Ox9k9U
-         zTBtw2yEKMlTW9wmSrqZGZWpNQn9ndvhv1aLLOIEvUn7/MExaA7pESNAOFJN1/zfkZm2
-         0RqKmdGUIsWAhYlfXGLyED598H/EpoU+mfuXa1MY6KdRaMDKcUZEVfJ+/e8tPbM6fFjt
-         0QpA==
+        bh=ec4/N7zw6HP65LFOCU/La2k3iDwpzO2wT9iw6qkE45M=;
+        b=W+/cGuWgAc4VyYWSw4gmbHG33LTKtkLVqqGqvhZrfBmU2CPiiDPpfZm8rKr4j8N31i
+         5pdwqHXqTXeZkkpSKFZpN6eRudOFpbAietbBNhgO+/Yg3Y2vJo4d+L0DOf0WWjrWZUFd
+         fwmp85/2Ypol99j8c8eOFkRfxhnx7P6vqe1mRBBfsrcMIQjZitcI567tdkrVXKB63dpi
+         TFe8UCrQcfLU5u/0msbY9cQGt9kZ0TX9wQB3Mp7ALsoADNGoNyF+xzcbdv+SlkpTHYMj
+         Xp/bT8wiAXnb7fdysvFln9s1LN5+gHdAbncnGuIwiG53CfVYBEDOlrqTJ5tym1rCkicA
+         px6A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793252680; x=1793857480;
+        d=1e100.net; s=20260707; t=1793252684; x=1793857484;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Z/l4dD/5O5m6RU90kbEhUZI1etATEz4+8y2FIjERE5k=;
-        b=WHzuwYx+G+u9S61II6Ko76+27FRD7QfEPIEUnIN2aFSyYIOnrZQOPo/zKwpg7Lx3Sl
-         NleQKFkPNiHQPUz9cduTSs/p7969cD7w9wGlsvQzWczPwoUNPVS/FA14d0tR3mMh54BS
-         ksbJPs+Euc9KLUWpBEyHCxWE7xRtCBMKkfDQIYxxdobfEj0Xam1Cr21OoNOBUwq/kMzi
-         7LhGPXf9GdPzWkfADMr+a0HxdoDGCr76+N6BLwiPU5pMqj3YjzwYq5mtvOxE2zJysmbz
-         CwgydwNsvf5eB8N7sA7dF2FZz3b3jS5Xs9Mv1qZpTCeglL7oCz1q4QlwSzQjZBYVRBDZ
-         U9iQ==
-X-Forwarded-Encrypted: i=1; AKwUvBy74bi518s9yl7RwrkHs731aMeUu4BGf0QxpqHOpR6uBV8b+8ArYCONICXb2KXXhFaNJHdZacuMulDR1nsEDg==@lists.linux.dev
-X-Gm-Message-State: AFq9FYIpueibRPW8W44a6+kUkeh7yF6J1+SGE3Hz9144KOdp1V9MvnqQ
-	zq9p6VixPNbrMvTHljJnaEiwKx+kaymvCJmUcoFqnnd/TI9s2VGmph0m
-X-Gm-Gg: AYBFou2occpqe+Rk7MIIknSHdAoVmePMoyrYCXWwggtDPcQCHyu9B8BwhXYMnS1Xlov
-	DGCEDjf13fIhj2a/tDuGYnZ51gyYc07m3I0YxlfoaVLKRR20RGUsAtuojpgZPheAReUj1jZcotc
-	dFSHex556Kv0SXtGSrrPzg8VRp2XLgdTvikmj5Hcy3QeleTkAGN1lyKShyZhcG9xFvjnZppxpth
-	dDy5WhOKGPQwqyOefwfsQPsC0Bxe7QoexPONnU7e6ELQEBBECKOOXOyInJd8jEKXW/qB+l0AuG6
-	6hYjDjSpUACm6GLROso1zriXxkOF1gjoAUk33IAyHGrN0CFRlsy7wqu9sdMPttEeG9FBmXplZt4
-	GfQ51v7TJOVhF6EVT/AYIJ1g8RByj5l2XGWtgRiHQ9GOMOC/SJUQUhGQWv99uc7/Jexuh5Ua23C
-	nqO10PdQzamH9zT0QOOTJzl5ai7rJbJ6btfRkSF75YYljvMx7bk/GPwZM/NDU2mWWdyNJ3MaUIV
-	podq6LBZL4bU/PJCocEZDt1lFizvcM9qjyiAiVLCtjJehfUiOVIEtQlrbeZbnmSnr7D+mYYS6kN
-	1f2YV4P5NwUYSsx2nFPOIK+pIivy3A3zzrtyZf6CJCLx4oMiNN0N/ac3T2NY8teKjIav1q71Ktq
-	eaaiqhcUhF48FLuJmU4fKyxj9gVKQJcMWathVblIIif1kTT8=
-X-Received: by 2002:a17:90b:3d83:b0:3ae:3e9b:5265 with SMTP id 98e67ed59e1d1-3ae6ed4d633mr905165a91.26.1793252679788;
-        Wed, 28 Oct 2026 22:44:39 -0700 (PDT)
+        bh=ec4/N7zw6HP65LFOCU/La2k3iDwpzO2wT9iw6qkE45M=;
+        b=CAy1/FTRh5SnrzjT2c8mM6xIXdyWj97GE/iBGS3rNjDsXyz6+bDiWtPHhfjfwyj9rH
+         36m8c28bGDeSx1tCV3LgVpHVTnB6boV84+WWqp3g5f3s2sOUBcZNT0j8bznVqsDH71l1
+         JeLdBG5P3PxOJAIzGs0cvkk+iV1kjBzeBZyMGBYQKjvIacqsQXZmik8G8Y6O4p1zeE7P
+         3ZpHfkKDD1MMDAr3mmJ8cf7Kd0A14DKzb/Bz9k4dB7Q7y4oFELv0Q4yWZkDEiwlhmBGE
+         /imiHbHnwavYEfr3NiEXIsFOwQ21SGkfY74g/VxwpNLM00kFgjr5iOjKBEX2K2gX4tBk
+         c4Pg==
+X-Forwarded-Encrypted: i=1; AKwUvBzrNzSN9h3/y+RrmoXJJ2vypadvQFUib721Zj+msQY3y4chrfZ/G4+9Y1zgrEMOaqGflYEQAKz35cG4w2oNsw==@lists.linux.dev
+X-Gm-Message-State: AFq9FYJ5bwbdftQCUpAJibwRPx08XPSwPOSva4ih5GX5xYlq8rM6q3XD
+	CXCWp+jFmVs4AdGj+pFjHhtyyiPdSRDDJ4VDPka5ANppnVOdku+UckYr
+X-Gm-Gg: AYBFou1Mt8fhvcnWB3H0FHFyP5Sk8m015WRKqCww8+Wz3B99KnZLGsrBpZjxpUKw0px
+	BljH3p2uWBOR07hK3FGDt9Lm1pkl/0Aniv5JVYW6hn3xIpJMh1S9R3FW7tvg5PPfHUEnH2kiqi5
+	BjJ8cLiKOLTPBdGmCESgAySeUCvSfvzYnbvVyijiL1ftWcYNQDYNd6EBflkSe5HQFwW8Ez4Zz7B
+	366W6Pt5b+mjJiKk0BYtV28cLIpcd67qlGChsxSu/x73dqK9X8DdAGNmio80cN+yXugk6PptMCE
+	gOfw8294PoCWlHhSYnJIGVqWhUSek4wCCJuvrJ/ez6z1AAp4UTcDq0ZhM6AtYf90tFj67XVSTzS
+	EEcXyrc1afLnx8uSxYhcON6Al1DC9DGFTcaFLTPyDeEbdYSM+Hf9pZNmmYgzk3yo54Y0t6x+eA4
+	eHiEfM5aLdQL7iHzWz/HUXwEjzLWKiJWt6gfEprbTl5W6zUt3g2wACYNO2/vy9IpaBz78oeuaXi
+	SaczjyNIV9kT4nxEIwGLDWxG3kVFwi3Dkg1ES3tSTT0j1Q9Zqx/EMaxUErTWEKtUaM98WrLLDjF
+	mHl0pyHpMXkfbQecmyhrhalurDzjNx95eMz+wqAIN694djrScETk2fL3u4FDHUCLsoITEaDybax
+	c0qOK59dcngadyjv75uBYsAdI7gXJGNnqf63rodCZybK0fq50HJ9i47IthS7RM00bnKqp
+X-Received: by 2002:a17:90a:d603:b0:3ad:818f:3da2 with SMTP id 98e67ed59e1d1-3ae5823f4eemr2777102a91.63.1793252683601;
+        Wed, 28 Oct 2026 22:44:43 -0700 (PDT)
 Received: from localhost.localdomain ([183.96.175.225])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3ae6e83127csm2433520a91.10.2026.10.28.22.44.36
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3ae6e83127csm2433520a91.10.2026.10.28.22.44.40
         (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Wed, 28 Oct 2026 22:44:39 -0700 (PDT)
+        Wed, 28 Oct 2026 22:44:43 -0700 (PDT)
 From: Joonho Lee <mynameisjune111@gmail.com>
 To: linux-sound@vger.kernel.org
 Cc: tiwai@suse.de,
@@ -92,9 +92,9 @@ Cc: tiwai@suse.de,
 	rdunlap@infradead.org,
 	linux-doc@vger.kernel.org,
 	Joonho Lee <mynameisjune111@gmail.com>
-Subject: [PATCH v8 10/14] ALSA: virtio: prioritize staged capture period work
-Date: Thu, 29 Oct 2026 14:43:50 +0900
-Message-ID: <20261029054354.2931-11-mynameisjune111@gmail.com>
+Subject: [PATCH v8 11/14] docs: describe virtio-sound capture options
+Date: Thu, 29 Oct 2026 14:43:51 +0900
+Message-ID: <20261029054354.2931-12-mynameisjune111@gmail.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20261029054354.2931-1-mynameisjune111@gmail.com>
 References: <20261029054354.2931-1-mynameisjune111@gmail.com>
@@ -109,35 +109,54 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Queue staged capture period notifications on system_highpri_wq through
-the common scheduling helper. This allows capture notifications to make
-progress when ordinary workqueue workers are delayed by CPU contention.
-Playback and ordinary capture keep schedule_work().
-
-This preserves the existing priority proposal without mixing RESET or
-lifecycle changes into it. It provides no hard real-time deadline and
-cannot prevent a userspace reader from overrunning its buffer.
+Document the five opt-in capture module parameters introduced by this
+series. All default to false. Describe the startup-empty, short-payload,
+packed-status and pause-restart compatibility behavior alongside staging,
+and require validation with the target device.
 
 Assisted-by: LLM
 Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
 
 ---
-diff --git a/sound/virtio/virtio_pcm.h b/sound/virtio/virtio_pcm.h
---- a/sound/virtio/virtio_pcm.h
-+++ b/sound/virtio/virtio_pcm.h
-@@ -146,10 +146,14 @@
- 	runtime->stop_operating = true;
- }
+diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+index e75344f..6c7b1b3 100644
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -8328,6 +8328,36 @@ Kernel parameters
+ 			brightness level.
+ 			default: 1
  
--/* Use one notification helper for all producers. */
-+/* Keep non-staged PCM notifications on schedule_work()'s normal queue. */
- static inline bool
- virtsnd_pcm_schedule_period_elapsed(struct virtio_pcm_substream *vss)
- {
-+	if (vss->direction == SNDRV_PCM_STREAM_CAPTURE &&
-+	    vss->capture_staging)
-+		return queue_work(system_highpri_wq, &vss->elapsed_period);
++	virtio_snd.capture_allow_empty= [HW,SOUND]
++			Retry a bounded number of empty startup capture replies.
++			Format: <bool>
++			Default: false. Compatibility option for devices that
++			require staged capture; validate with the target device.
 +
- 	return schedule_work(&vss->elapsed_period);
- }
++	virtio_snd.capture_allow_short= [HW,SOUND]
++			Accept non-empty, frame-aligned short capture replies.
++			Format: <bool>
++			Default: false. Compatibility option for devices that
++			require staged capture; validate with the target device.
++
++	virtio_snd.capture_packed_status= [HW,SOUND]
++			Read status immediately after the returned capture data.
++			Format: <bool>
++			Default: false. Compatibility option for devices that
++			require staged capture; validate with the target device.
++
++	virtio_snd.capture_pause_restart= [HW,SOUND]
++			Release and reprepare capture streams across pause.
++			Format: <bool>
++			Default: false. Compatibility option for devices that
++			require staged capture; validate with the target device.
++
++	virtio_snd.capture_staging= [HW,SOUND]
++			Use request-owned buffers for capture data.
++			Format: <bool>
++			Default: false. Compatibility option for devices that
++			require staged capture; validate with the target device.
++
+ 	virtio_mmio.device=
+ 			[VMMIO] Memory mapped virtio (platform) device.
  
+
