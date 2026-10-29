@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793253888;
-	b=YSaUapBvS5NzPrT9RtyZx93SZk4TVXVXV5n9099mlCthlqecC+YhxoPBSoj2l0bVWbqC
-	 cGpLJjW3LqdR9gUeOw0ijpUHH4c90pKpjALA2v2dI0aKVjTrf5HcHS/S9nXrCGnjK25fJ
-	 2mUnZtni5NgTy4KQU4t1fC48xoJTYhVEOnhfKwPsUbR0EIES1JixHRcLWBlJLtbDZy4Sd
-	 Pe+aJr93caYLDIb0IIQr7PClpB/my7uK9jpZR4ZPSZ/7ZHzopnszqoxw4PYpLfp03cRFI
-	 dcgkBR0BA2GdW+yHflzAxC0lYlM3cKe3RRRn+KEpBfupsENIRhpPz/Xsz8AMcsuJDSA==
+	t=1793253959;
+	b=v9RIJnP0PxvRiP5MWArkvPbqKhptf8P81BwNgSH6WzhKAqIJL08/UodoR9y13IPrfZVX
+	 e+/l0H4/FH0myUOEpbqoDxlX3DqVRK0NPFsbNcpv9i0WprLme5uys5zQMv/uNzEScHN6L
+	 hn80tm8c7hmCNsoeV25bRNUeEV2Bny+TU6svjaH0hbYnY6dF3dDrUWSP6BvV31YTZKaQq
+	 nlDpWYydUli8HRSytWFZdg+7lQocY6RVWniLLKUCHb4zev8nWyk8mH5Ynf+ogsFiNZNQ3
+	 +b6UdSBhSOUotHdzeHk4q2X+Z+HosUZd3ZvObLwJG9oOCIg7mKnRpB+5UZDQ7OHnQ1Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793253888;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793253959;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=AzGGPcNw5LzSJGH7OJce8tUXKI7AbuAtPe/a3RevD7E=;
-	b=3v3wnhovKgkrA7+fYh9Sla/ZDba6Kmm3vrDHeVsobcxLrYvsR0+nOKkMQSNZDmxVjjjX
-	 rYc4RlgEOLajjJcY22ZvrSiQIngdGYXkdNtZY3ngDBMXg9/fBeeChIFBOihiUgiNFcFIm
-	 zZWKFdAw6xf2go8c5+80Jf+EqvJey4KjPOH7CNFZ85q5a46qdnDDIjWQL3tuuNotF0OCg
-	 S/mMlfdGKpGOcD3ZQAiUx11hXxihX5RcsmuFDDqyyZql4vDSa/KEYStOt+HxdXZ0hkg4T
-	 ufoxuLDhtMmc6yZA+oPruQs6lGv3MSV7HIWYttXckt2Sv4lZvR87ewhYzlkRnNHKZuQ==
+	bh=0aby2d7GlFvbGVIUxtV1nVFkKWBr40fem1ZfezOpfeE=;
+	b=jdJH+nX/vn+eXyTWVGTmzLKiwL7I/ayLRxlwfz1B1M3NPC0hw0URXOSLfEuLrKOw2Mkm
+	 UysTLg0VIuIZrzb172ve9PJrzlSo036WGl3VxJHkWecxcZ2MtWAXh9jZec+53oGWObzj0
+	 H4E4IJS9QV/1ao0tApS0/CS5Em43UaV9DgyAdiyiXujjCl4A3jwhVAnSazs6jqt9ikdLk
+	 hDX+RVw/j1nkdPV3YRhGQWyxMbvH+MfliKvRsBNB4O0ssH0XW8D/kmct9BmcXw9508hyw
+	 6vxcUeojzVakUavfWXeFA1GC4Wx3vWUHkgtyshRjIxsBdr6SWpjxRqDXx6gHqVFwaMA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZoqNEA1s;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=b6rERSas;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DADF1606A31A;
-	Thu, 29 Oct 2026 06:04:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C073606A31C;
+	Thu, 29 Oct 2026 06:05:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZoqNEA1s
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D6981F01825;
-	Thu, 29 Oct 2026 06:04:47 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=b6rERSas
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A00A21F01825;
+	Thu, 29 Oct 2026 06:05:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793253887;
-	bh=AzGGPcNw5LzSJGH7OJce8tUXKI7AbuAtPe/a3RevD7E=;
+	s=k20260515; t=1793253958;
+	bh=0aby2d7GlFvbGVIUxtV1nVFkKWBr40fem1ZfezOpfeE=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ZoqNEA1s1fMazqQvpw6uUdmSWl+NB69BvHigL3/ayeb1tMRMoKzg/lBC/2cFHFZPZ
-	 +MiMjJUPpo6ZhZ7qshQ4N5PzW+2EdhQ/GpKDsuziJRs0BIaG3Xd5i1yKLSyHaPcX0i
-	 z7CJymGEOKJWiv+PqABF6V/loReIPtCo3gVSClQ6eoHTzXEaaOG0PfgdRBvvbXn0Xm
-	 X/C+NLpmk9i56Ua0n/77OfX9y7QUgWj2npY8HGdoI35YWmE0TFK029z2olPwMQXBTv
-	 XuF7CXoK+oGxYUD3eI7WmeFjH8ZecZMEM52BCybHdvmZwqKPbNZtnLPHbm08uZR/9L
-	 rCnDVK25dzktw==
-Message-ID: <sashiko-outbox-188788@kernel.org>
+	b=b6rERSasvJfPt8pKcAT+uxus1Lhg77/jQZpOzYNFF9pmSu7gP49qaHO81zU8+wuuP
+	 RU6JyhxNGSSY6FHraEjggc2D7EYcBKA9IcLxcmISF7XaluPGrG1IVvo2ZYAqXkCLKg
+	 q7rIBJbHQiBH2Z9aveLxXx2EikBxmd7dRpKa2/sj4XUUqXsRRraRy93ghQRrouFFdg
+	 MmDaNJBTTQ0hVCVhDS/I/vooL8rnSzwavDcOkolVHu3LP9dDVEy+ww9OSz0X2mVOi7
+	 neiQjGjA+UtGX0C5HT8FxLjsm5NA+JktyW1+qPk4+BuHwL9VklDGoC/sHD9kL74ZEm
+	 /YpXekFqf0TGw==
+Message-ID: <sashiko-outbox-188791@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v8 08/14] ALSA: pcm: stop paused streams before
- synchronizing teardown
+Subject: Re: [PATCH v8 13/14] ALSA: virtio: synchronize staged capture reset
+ with PCM positions
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Joonho Lee" <mynameisjune111@gmail.com>, linux-sound@vger.kernel.org
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261029054354.2931-9-mynameisjune111@gmail.com>
+In-Reply-To: <20261029054354.2931-14-mynameisjune111@gmail.com>
 References: <20261029054354.2931-1-mynameisjune111@gmail.com>
- <20261029054354.2931-9-mynameisjune111@gmail.com>
+ <20261029054354.2931-14-mynameisjune111@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 29 Oct 2026 06:04:46 +0000
+Date: Thu, 29 Oct 2026 06:05:58 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,205 +62,188 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [High] ALSA: pcm: unbalanced STOP trigger from PAUSED in snd_pcm_do_stop()
+- [High] ALSA: virtio: unupdated capture_notified_periods in virtsnd_pcm_re=
+set()
+- [High] ALSA: virtio: false XRUN and skipped rebase in virtsnd_pcm_reset()=
+ race
 --
 
-commit 1209424a81e0273da5db98a8f56a0fd0d7015011
+commit 4e51f7611d17678ff733d2492023b2e0abcb06d3
 Author: Joonho Lee <mynameisjune111@gmail.com>
 
-ALSA: pcm: stop paused streams before synchronizing teardown
+ALSA: virtio: synchronize staged capture reset with PCM positions
 
-This commit updates snd_pcm_do_stop() to issue the SNDRV_PCM_TRIGGER_STOP
-trigger and set stop_operating when a substream is in SNDRV_PCM_STATE_PAUSE=
-D,
-in addition to when it is running.
+This commit introduces a custom PCM reset operation for staged capture
+streams to synchronize private copied and acknowledged byte counters with
+ALSA core pointer resets. When resetting a running stream, it calls
+snd_pcm_lib_reset(), advances capture_acked_total to
+capture_pointer_seen_total, and attempts to refill the RX queue.
 
-> diff --git a/sound/core/pcm_native.c b/sound/core/pcm_native.c
-> index a2ea44c3c1d29..2b18c5f5801f9 100644
-> --- a/sound/core/pcm_native.c
-> +++ b/sound/core/pcm_native.c
-> @@ -1607,7 +1607,8 @@ static int snd_pcm_do_stop(struct snd_pcm_substream=
- *substream,
->  			   snd_pcm_state_t state)
->  {
->  	if (substream->runtime->trigger_master =3D=3D substream &&
-> -	    snd_pcm_running(substream)) {
-> +	    (snd_pcm_running(substream) ||
-> +	     substream->runtime->state =3D=3D SNDRV_PCM_STATE_PAUSED)) {
->  		substream->ops->trigger(substream, SNDRV_PCM_TRIGGER_STOP);
->  		substream->runtime->stop_operating =3D true;
->  	}
+> diff --git a/sound/virtio/virtio_pcm_ops.c b/sound/virtio/virtio_pcm_ops.c
+> index 66560d82b7f8e..ba14f395eef8a 100644
+> --- a/sound/virtio/virtio_pcm_ops.c
+> +++ b/sound/virtio/virtio_pcm_ops.c
+
+[ ... ]
+
+> @@ -1591,6 +1598,58 @@ static int virtsnd_pcm_sync_stop(struct snd_pcm_su=
+bstream *substream)
+>  	return virtsnd_pcm_sync_stop_locked(substream);
+>  }
+> =20
+> +/* The core holds the stream lock through the matching appl_ptr reset. */
+> +static int virtsnd_pcm_reset(struct snd_pcm_substream *substream)
+> +{
+> +	struct virtio_pcm_substream *vss =3D snd_pcm_substream_chip(substream);
+> +	struct snd_pcm_runtime *runtime =3D substream->runtime;
+> +	struct virtio_snd_queue *queue =3D virtsnd_pcm_queue(vss);
+> +	size_t position;
+> +	size_t period;
+> +	int rc;
+> +
+> +	/* Keep ALSA's pointer validation, time accounting and XRUN processing.=
+ */
+> +	rc =3D snd_pcm_lib_reset(substream);
+> +	if (rc || !vss->capture_staging)
+> +		return rc;
+> +
+> +	guard(spinlock_irqsave)(&queue->lock);
+> +	guard(spinlock)(&vss->lock);
+> +	if (vss->resetting)
+> +		return -ECANCELED;
+> +	/* The common reset has already handled a pointer-reported XRUN. */
+> +	if (vss->xfer_xrun)
+> +		return 0;
 
 [Severity: High]
-Can calling substream->ops->trigger(substream, SNDRV_PCM_TRIGGER_STOP)
-directly while in SNDRV_PCM_STATE_PAUSED cause regressions in drivers that
-expect start-class triggers (START, RESUME, PAUSE_RELEASE) and stop-class
-triggers (STOP, SUSPEND, PAUSE_PUSH) to be strictly paired?
+Can an RX completion arriving between snd_pcm_lib_reset() and acquiring
+vss->lock trigger a false XRUN and skip the private counter rebase?
 
-When a substream enters SNDRV_PCM_STATE_PAUSED via snd_pcm_do_pause(), the
-driver has already received SNDRV_PCM_TRIGGER_PAUSE_PUSH. Reaching
-snd_pcm_do_stop() while runtime->state is still SNDRV_PCM_STATE_PAUSED
-delivers SNDRV_PCM_TRIGGER_STOP without an intervening
-SNDRV_PCM_TRIGGER_PAUSE_RELEASE.
+During snd_pcm_do_reset() -> virtsnd_pcm_reset(), snd_pcm_lib_reset() calls
+virtsnd_pcm_cp_pointer(), which records vss->capture_pointer_seen_total and
+releases vss->lock while vss->capture_ready still holds the pre-reset
+unacknowledged byte count:
 
-This path can be reached from userspace when:
+sound/virtio/virtio_pcm_ops.c:virtsnd_pcm_cp_pointer() {
+    ...
+				} else {
+					vss->capture_pointer_seen_total =3D total;
+					hw_ptr =3D virtsnd_pcm_ring_offset(total, vss->buffer_bytes);
+				}
+    ...
+}
 
-1. __snd_pcm_xrun() -> snd_pcm_stop(substream, SNDRV_PCM_STATE_XRUN) runs on
-   a paused stream without calling snd_pcm_pause(substream, false), such as
-   when ops->ack() returns -EPIPE in pcm_lib_apply_appl_ptr() during write,
-   read, rewind, forward, or SNDRV_PCM_IOCTL_SYNC_PTR, when avail reaches
-   runtime->stop_threshold in snd_pcm_update_state(), or via a direct driver
-   snd_pcm_stop() call.
-2. snd_pcm_pause(substream, false) in snd_pcm_drop() or snd_pcm_prepare()
-   fails (its return value is ignored), for example if the driver's
-   SNDRV_PCM_TRIGGER_PAUSE_RELEASE trigger returns an error or if a linked
-   substream is not in SNDRV_PCM_STATE_PAUSED so snd_pcm_pre_pause() returns
-   -EBADFD.
-3. snd_pcm_drop(), snd_pcm_prepare(), or snd_pcm_stop() is called on a
-   non-paused substream that is linked to a paused substream.
+In managed mode (!vss->capture_free_running), if an in-flight RX completion
+arrives before virtsnd_pcm_reset() acquires queue->lock and vss->lock,
+virtsnd_pcm_capture_complete() checks the incoming bytes against the stale
+pre-reset vss->capture_ready:
 
-Several in-tree drivers appear to rely on never receiving
-SNDRV_PCM_TRIGGER_STOP after SNDRV_PCM_TRIGGER_PAUSE_PUSH without an
-intervening release:
+sound/virtio/virtio_pcm_msg.c:virtsnd_pcm_capture_complete() {
+    ...
+		else if (!free_running &&
+			 audio_bytes >=3D vss->buffer_bytes - vss->capture_ready)
+			invalid_reason =3D "ring_capacity";
+		else if (!free_running &&
+			 check_add_overflow(vss->capture_ready, audio_bytes,
+					    &next_ready))
+			invalid_reason =3D "ready_overflow";
+		else if (!free_running && next_ready >=3D vss->buffer_bytes)
+			invalid_reason =3D "ring_full";
+    ...
+}
 
-1. Clock enable_count underflow in sound/soc/qcom/lpass-cpu.c
-   (lpass_cpu_daiops_trigger()) and sound/soc/spear/spdif_in.c
-   (spdif_in_trigger()):
+When the pre-reset unacknowledged bytes plus audio_bytes reach
+vss->buffer_bytes, virtsnd_pcm_capture_complete() rejects the completion,
+drops the captured audio, and sets vss->xfer_xrun =3D true.
 
-   sound/soc/qcom/lpass-cpu.c:lpass_cpu_daiops_trigger() {
-       ...
-       case SNDRV_PCM_TRIGGER_STOP:
-       case SNDRV_PCM_TRIGGER_SUSPEND:
-       case SNDRV_PCM_TRIGGER_PAUSE_PUSH:
-           ...
-           clk_disable(drvdata->mi2s_bit_clk[dai->driver->id]);
-           break;
-   }
+When virtsnd_pcm_reset() then acquires the locks, it sees vss->xfer_xrun and
+returns 0 without updating vss->capture_acked_total, vss->capture_ready, or
+vss->pcm_indirect.appl_ptr, even though snd_pcm_lib_reset() did not observe
+the XRUN and snd_pcm_do_reset() proceeds to rebase runtime->status->hw_ptr
+and runtime->control->appl_ptr.
 
-   Receiving STOP while PAUSED calls clk_disable() a second time for a sing=
-le
-   clk_enable().
+> +	if (snd_pcm_running(substream)) {
+> +		/* Keep completions arriving after the core's pointer observation. */
+> +		vss->capture_acked_total =3D vss->capture_pointer_seen_total;
+> +		vss->capture_ready =3D vss->capture_free_running ? 0 :
+> +			vss->capture_copied_total - vss->capture_acked_total;
+> +	} else {
+> +		position =3D frames_to_bytes(runtime, runtime->status->hw_ptr);
+> +		vss->hw_ptr =3D position;
+> +		period =3D snd_pcm_lib_period_bytes(substream);
+> +		vss->capture_copied_total =3D position;
+> +		vss->capture_acked_total =3D position;
+> +		vss->capture_pointer_seen_total =3D position;
+> +		vss->capture_ready =3D 0;
+> +		vss->capture_notified_periods =3D period ? position / period : 0;
+> +	}
 
-2. Runtime PM usage count underflow in sound/soc/samsung/i2s.c
-   (i2s_trigger()):
+[Severity: High]
+Should the running-stream branch in virtsnd_pcm_reset() also advance
+vss->capture_notified_periods to match vss->capture_pointer_seen_total?
 
-   sound/soc/samsung/i2s.c:i2s_trigger() {
-       ...
-       case SNDRV_PCM_TRIGGER_STOP:
-       case SNDRV_PCM_TRIGGER_SUSPEND:
-       case SNDRV_PCM_TRIGGER_PAUSE_PUSH:
-           ...
-           pm_runtime_put(dai->dev);
-           break;
-   }
+If a completion in virtsnd_pcm_capture_complete() crosses a period boundary
+and schedules vss->elapsed_period, and userspace invokes
+SNDRV_PCM_IOCTL_RESET before virtsnd_pcm_period_elapsed() acquires the PCM
+stream lock, snd_pcm_lib_reset() -> snd_pcm_update_hw_ptr() ->
+virtsnd_pcm_cp_pointer() observes the new vss->capture_copied_total and
+updates vss->capture_pointer_seen_total.
 
-   Receiving STOP after PAUSE_PUSH calls pm_runtime_put(dai->dev) twice.
+In snd_pcm_do_reset(), the core then folds that position into
+runtime->hw_ptr_interrupt:
 
-3. Reference and active counter underflows or premature shared hardware
-   shutdown in sound/soc/stm/stm32_i2s.c (stm32_i2s_trigger() decrementing
-   i2s->refcount), sound/soc/rockchip/rockchip_i2s_tdm.c
-   (rockchip_snd_txrxctrl() decrementing i2s_tdm->refcount),
-   sound/soc/atmel/atmel-i2s.c (atmel_i2s_trigger() decrementing
-   dev->clk_use_no), sound/soc/dwc/dwc-i2s.c (dw_i2s_trigger() decrementing
-   dev->active), sound/soc/ti/omap-mcbsp.c (omap_mcbsp_dai_trigger()
-   decrementing mcbsp->active), sound/soc/pxa/mmp-sspa.c
-   (mmp_sspa_trigger()), sound/soc/bcm/cygnus-ssp.c (cygnus_ssp_trigger()),
-   and sound/soc/fsl/imx-pcm-fiq.c (snd_imx_pcm_trigger() calling
-   disable_fiq(imx_pcm_fiq) twice):
+sound/core/pcm_native.c:snd_pcm_do_reset() {
+    ...
+		runtime->hw_ptr_base =3D 0;
+		runtime->hw_ptr_interrupt =3D runtime->status->hw_ptr -
+			runtime->status->hw_ptr % runtime->period_size;
+		runtime->silence_start =3D runtime->status->hw_ptr;
+		runtime->silence_filled =3D 0;
+		runtime->control->appl_ptr =3D runtime->status->hw_ptr;
+    ...
+}
 
-   sound/soc/stm/stm32_i2s.c:stm32_i2s_trigger() {
-       ...
-       case SNDRV_PCM_TRIGGER_STOP:
-       case SNDRV_PCM_TRIGGER_SUSPEND:
-       case SNDRV_PCM_TRIGGER_PAUSE_PUSH:
-           ...
-           scoped_guard(spinlock, &i2s->lock_fd) {
-               i2s->refcount--;
-   }
+Because the running branch in virtsnd_pcm_reset() leaves
+vss->capture_notified_periods at its pre-reset value, the pending
+virtsnd_pcm_period_elapsed() worker later sees period_floor >
+vss->capture_notified_periods for a period boundary already accounted for in
+runtime->hw_ptr_interrupt:
 
-4. SOF IPC4 pipeline state leak in sound/soc/sof/ipc4-pcm.c:
+sound/virtio/virtio_pcm.c:virtsnd_pcm_period_elapsed() {
+    ...
+			period_floor =3D div64_ul(vss->capture_copied_total, period_bytes);
+			if (period_floor > vss->capture_notified_periods) {
+				/* Reserve crossed boundaries before the callback. */
+				vss->capture_notified_periods =3D period_floor;
+				notify =3D true;
+			}
+    ...
+}
 
-   sound/soc/sof/ipc4-pcm.c:sof_ipc4_add_pipeline_to_trigger_list() {
-       ...
-       case SOF_IPC4_PIPE_RESET:
-           /* RESET if the pipeline is neither running nor paused */
-           if (!spipe->started_count && !spipe->paused_count)
-               sof_ipc4_add_pipeline_by_priority(trigger_list, pipe_widget,=
- pipe_priority,
-                                                 true);
-           break;
-       case SOF_IPC4_PIPE_PAUSED:
-       case SOF_IPC4_PIPE_EOS:
-           if (spipe->paused_count =3D=3D (spipe->started_count - 1))
-               sof_ipc4_add_pipeline_by_priority(trigger_list, pipe_widget,=
- pipe_priority,
-                                                 true);
-           break;
-   }
+This triggers a duplicate snd_pcm_period_elapsed_under_stream_lock() ->
+snd_pcm_update_hw_ptr0(substream, 1) call where delta > new_hw_ptr:
 
-   When START is followed by PAUSE_PUSH, spipe->started_count is 1 and
-   spipe->paused_count is 1. If SNDRV_PCM_TRIGGER_STOP is then issued while
-   PAUSED, sof_ipc4_pcm_trigger() requests SOF_IPC4_PIPE_PAUSED, the check
-   spipe->paused_count =3D=3D (spipe->started_count - 1) evaluates to false=
-, and
-   neither started_count nor paused_count is decremented (and
-   sof_ipc4_update_pipeline_state() only decrements paused_count on
-   SNDRV_PCM_TRIGGER_PAUSE_RELEASE). Subsequent sof_ipc4_pcm_hw_free() then
-   skips SOF_IPC4_PIPE_RESET because started_count and paused_count remain
-   non-zero.
+sound/core/pcm_lib.c:snd_pcm_update_hw_ptr0() {
+    ...
+	if (in_interrupt) {
+		/* we know that one period was processed */
+		/* delta =3D "expected next hw_ptr" for in_interrupt !=3D 0 */
+		delta =3D runtime->hw_ptr_interrupt + runtime->period_size;
+		if (delta > new_hw_ptr) {
+			/* check for double acknowledged interrupts */
+			hdelta =3D curr_jiffies - runtime->hw_ptr_jiffies;
+			if (hdelta > runtime->hw_ptr_buffer_jiffies/2 + 1) {
+				hw_base +=3D runtime->buffer_size;
+    ...
+}
 
-5. Stuck hardware pause bits in sound/pci/cmipci.c (snd_cmipci_pcm_trigger(=
-)),
-   sound/pci/oxygen/oxygen_pcm.c (oxygen_trigger()), sound/pci/als300.c
-   (snd_als300_trigger()), sound/pci/ens1370.c (snd_ensoniq_trigger()), and
-   sound/pci/ice1712/ice1712.c (snd_ice1712_pcm_trigger()):
-
-   sound/pci/cmipci.c:snd_cmipci_pcm_trigger() {
-       ...
-       case SNDRV_PCM_TRIGGER_PAUSE_PUSH:
-       case SNDRV_PCM_TRIGGER_SUSPEND:
-           cm->ctrl |=3D pause;
-           snd_cmipci_write(cm, CM_REG_FUNCTRL0, cm->ctrl);
-           break;
-       case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
-       case SNDRV_PCM_TRIGGER_RESUME:
-           cm->ctrl &=3D ~pause;
-           snd_cmipci_write(cm, CM_REG_FUNCTRL0, cm->ctrl);
-           break;
-   }
-
-   In these drivers, the pause bit is only cleared on PAUSE_RELEASE or RESU=
-ME,
-   not by SNDRV_PCM_TRIGGER_STOP or prepare().
-
-6. Duplicate VIRTIO_SND_R_PCM_STOP in sound/virtio/virtio_pcm_ops.c
-   (virtsnd_pcm_trigger()):
-
-   sound/virtio/virtio_pcm_ops.c:virtsnd_pcm_trigger() {
-       ...
-       case SNDRV_PCM_TRIGGER_STOP:
-       case SNDRV_PCM_TRIGGER_PAUSE_PUSH:
-           scoped_guard(spinlock_irqsave, &vss->lock) {
-               if (command !=3D SNDRV_PCM_TRIGGER_PAUSE_PUSH)
-                   vss->stopped =3D true;
-               vss->xfer_enabled =3D false;
-           }
-
-           msg =3D virtsnd_pcm_ctl_msg_alloc(vss, VIRTIO_SND_R_PCM_STOP,
-                                           GFP_KERNEL);
-           if (!msg)
-               return -ENOMEM;
-
-           return virtsnd_ctl_msg_send_sync(snd, msg);
-   }
-
-   Because SNDRV_PCM_TRIGGER_PAUSE_PUSH already sends VIRTIO_SND_R_PCM_STOP
-   to the device, triggering SNDRV_PCM_TRIGGER_STOP from
-   SNDRV_PCM_STATE_PAUSED sends a second VIRTIO_SND_R_PCM_STOP while the
-   device stream is already stopped.
+If the jiffies delta exceeds half the buffer duration, snd_pcm_update_hw_pt=
+r0()
+treats the duplicate notification as a missed full-buffer wrap-around and
+advances runtime->status->hw_ptr by a full buffer_size of uncaptured frames.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261029054354.2931=
--1-mynameisjune111@gmail.com?part=3D8
+-1-mynameisjune111@gmail.com?part=3D13
