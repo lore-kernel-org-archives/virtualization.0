@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793262364;
-	b=S6i1Yf9zYeKC6MLu/wmOr5d1BVVy0oEif436nNh1+M9enYz2zP6vArUrueXxGOsFLO/K
-	 jQOxoB0NZjRKuA3XwFQcv4u7K280IXRS2oBNrgBPADxJq+PywJrl6ncb4JKibv8N4GgVL
-	 7nmy/pDboOIdNKDBKWtky6tcMkV4C8+L2vq7qSCya71WX4/f0pllxMIilDV0bghxwvP0c
-	 jApaVgRZuP3Gx4v9WPIEd3R2ZBbBiUwQrk8/G94uS8j3rKhSK9+Afq7gTaxEp9YUkVuG6
-	 nNlKJXdfnM75MZ0dOGO/I7NPWnWu3U2RvFhPUsdJPUigeM1+8TkN6vJMkfTgykbQNVA==
+	t=1793262601;
+	b=2ocC9gGOh6l9zONuaSowZ/l5yM4rslD//L8FQVz8ezxOWqBDeQq0BEXiSsygjWovRNuI
+	 QV1l1kais69GrUy+k0MiWMCiSNE1rx7rOg1JjgvLqOfQ8NQyscXnhcvN5Ba+1KbVnYiZS
+	 /Q/Kq5HJbsozMw2frylGAVDVtD+2Vxf23NHPyIGn3De8V2r+1q0Ezdl+/zJV/P9X2mn9C
+	 r4z3UFKrM3ob/z0wefDA4bcB0GBgBVnqeHDhOssOC8fygXjgjlYaUvBzN4g8i0aU7LbZ1
+	 DMdYrZXXB19E5mec5JP2uSq8zUdHe7vR3KPMSRWMMBXY3IlXJjXxTGGDVYH7PY3FNmA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793262364;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793262601;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=mZ6x+n/V07u5Ag7osmam8sMkmN40/qQMcxBAZTPA0VQ=;
-	b=tAVqyYdfcnEnyyAVQweJnMuHByQGCNlbsEEiHwyd/7rxGGAZKgciZLnWyjzk/u5BUO4P
-	 JBZytI5tHMcdwfNNGq0LrBNc8+0nPyqQ4mvEBJqAWxgWIFyAUkPF2Tbf/BT1H9K+GWSp4
-	 EiZLpJWgXrSqWCxjWSeUggQId0bmxEtjDzX3TBZpQZIPMbi3f0EUqFqHlxIWmbevGdBae
-	 ibeRVSIE9C9pow3zg2EgIDAkPXH/4k6K9wE5cHRK+B920+Bq2zoK1u1kfFVqGbS15ahWt
-	 SD4JivRNwlNG1Nne4mfzMahmwWl4fsZk6nE9NrSk1TEPC7GUugX7rGoZPAE5d32QSSQ==
+	bh=JqG+lDYltlnao/ARBbfD/u5hrXSlDYp4BgLb7g8BjiY=;
+	b=HQxmUKZEjQZhxrSEv0jsbhwwCBAVbZZ0ZKKhIsLOwwPbh/P1SF9f/pZsMjKXRDtx/emK
+	 p8AdwDWLPHkLDU+g6MOVXLtK2TVLfZljDO5jenZR7LjakLEdHBPgXkavCpEd3mvLzArCk
+	 lIbeoL9kPRRxZtW1vb08bwe7qlPHgdv6zZv/KaJQaKW+506IehcjHCB2YhxjO3BSzUqzi
+	 /SXpl8bb1Kc1Eu2XWk8wkeDPWRdcW4uAd4G4CmcM8QJFRNrKt5hZU28UcKUwqCAGUEgq7
+	 eCQ9sbs7YuexC0HWh+8MePzTBF33lYZX5o+u7jm9zi03k1sCHQ6CHUmauxihQ9mSagA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Z9n9eG73;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ie2qmN5B;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C381606A31A;
-	Thu, 29 Oct 2026 08:26:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E11A606A32A;
+	Thu, 29 Oct 2026 08:30:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Z9n9eG73
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2653D1F01829;
-	Thu, 29 Oct 2026 08:26:02 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ie2qmN5B
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E44A71F01828;
+	Thu, 29 Oct 2026 08:29:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793262364;
-	bh=mZ6x+n/V07u5Ag7osmam8sMkmN40/qQMcxBAZTPA0VQ=;
+	s=k20260515; t=1793262600;
+	bh=JqG+lDYltlnao/ARBbfD/u5hrXSlDYp4BgLb7g8BjiY=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=Z9n9eG73NF6tj5M0jpSTYABgAtvh/UYjzVr1km9aObaCC4I9Sk/e083uhbgNCb5AN
-	 UsAIG602t8CStb+VK9G/kfRuMYWthXT/LokI7T90DVocZzt9C+HsgfEcawPeCtN/V3
-	 i9cVgtmDfIFyNXUDfFx6u8Wequt2eY0WM58Q700hD0TjYtK347JIVSnnneSs3ycvUp
-	 NTLOU2g8B9mr12mL79OnyBcNGyQ/0DNbSUHtnalBAfHbU3VG+jCZMAo+/kDk/KkKPF
-	 Ms1w4UzE0pw6v65kOVdkbtbFBDQFa2L2SOLPwUWqNKzsHn7WLQrHSiLtH1FYYdO9c7
-	 LU6FyYzfDaDPQ==
-Date: Thu, 29 Oct 2026 09:26:00 +0100
+	b=ie2qmN5BLsWRHRXWQtNUeoQhAO7VCzoB+iQx5xm5/P85fbkbuJm/rXDVjLNABrKxZ
+	 kBMbwEbhNK42ftplmQwz8KF8kijVzYVvOba72hyox1YpRZSgEvIuKyu7LkuhLnbT1q
+	 7KqO5scIhOIpxNWXpoxTx0W6uHhZIH+3UUKzdDyOEwY9dP+qPz4Q7vD476UTlrZ4Jl
+	 0qJ7h35eRXscAqKEZqD+4rosLdev71DwSiZ6V0eZnPbGpryg4kp1HZy1LBbIWxyNUS
+	 3XUMoUuGkpxkNn6iN3Pizfx/YBi5brLizBqRS/G+U9r9SamN7T38R0EYjCxMXe3NIZ
+	 xnZiXk93yMj3Q==
+Date: Thu, 29 Oct 2026 09:29:56 +0100
 From: Krzysztof Kozlowski <krzk@kernel.org>
 To: Francesco Valla <francesco@valla.it>
 Cc: "Michael S. Tsirkin" <mst@redhat.com>, Mark Brown <broonie@kernel.org>, 
@@ -49,10 +49,10 @@ Cc: "Michael S. Tsirkin" <mst@redhat.com>, Mark Brown <broonie@kernel.org>,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
 	Mathieu Poirier <mathieu.poirier@linaro.org>, linux-spi@vger.kernel.org, devicetree@vger.kernel.org, 
 	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev
-Subject: Re: [PATCH v2 2/2] MAINTAINERS: add Francesco as spi-virtio reviewer
-Message-ID: <20261029-lucky-vanilla-spider-f9cefd@quoll>
+Subject: Re: [PATCH v2 1/2] dt-bindings: spi: add spi-virtio
+Message-ID: <20261029-enigmatic-honeybee-of-dignity-bee01f@quoll>
 References: <20261027-spi-virtio-bindings-v2-0-67927b24b9d4@valla.it>
- <20261027-spi-virtio-bindings-v2-2-67927b24b9d4@valla.it>
+ <20261027-spi-virtio-bindings-v2-1-67927b24b9d4@valla.it>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -64,29 +64,31 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20261027-spi-virtio-bindings-v2-2-67927b24b9d4@valla.it>
+In-Reply-To: <20261027-spi-virtio-bindings-v2-1-67927b24b9d4@valla.it>
 
-On Tue, Oct 27, 2026 at 08:26:34AM +0100, Francesco Valla wrote:
-> Add myself as reviewer for spi-virtio, following the introduction of the
-> devicetree bindings for it.
+On Tue, Oct 27, 2026 at 08:26:33AM +0100, Francesco Valla wrote:
+> Add bindings for spi-virtio based on virtio-device, allowing proper
+> validation of SPI controller nodes declared as children of virtio
+> transports (e.g.: virtio-mmio). Such nodes are not used to instantiate
+> devices, which are registered by the virtio transport, but to define
+> their properties and establish dependencies with other nodes.
+> 
+> The compatible follows what the virtio framework already searches for,
+> "2d" being the hexadecimal representation of the SPI controller device
+> ID defined by the virtio specification [1].
+> 
+> [1] https://docs.oasis-open.org/virtio/virtio/v1.4/virtio-v1.4.html
 > 
 > Signed-off-by: Francesco Valla <francesco@valla.it>
 > ---
->  MAINTAINERS | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 5724645bf703..45a29ad08096 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -29673,6 +29673,7 @@ F:	sound/virtio/*
->  
->  VIRTIO SPI DRIVER
->  M:	Haixu Cui <quic_haixcui@quicinc.com>
+>  .../devicetree/bindings/spi/spi-virtio.yaml        | 46 ++++++++++++++++++++++
+>  MAINTAINERS                                        |  1 +
+>  2 files changed, 47 insertions(+)
 
-Please drop this email with reasoning:
-Email bounces and maintainer did not update it after changing
-employerment.
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+
+I guess everything should go via DT tree, but Francesco, please update
+the maintainers file if that's fine with Michael.
 
 Best regards,
 Krzysztof
