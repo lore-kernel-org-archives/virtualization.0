@@ -1,187 +1,58 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.remote-ip=192.198.163.7
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=fail;
-	t=1793289636;
-	b=PPpno1kSUsQnHdA1w2UhgaRoF7jpL9crd9xlbrwbnZ72PV0F2u8UW5X0crCrFYd101yh
-	 FaLpQkEe1AjzJebT9B28bZB4wpetcBaMIgdhvgdxHGjSoUyxkdASCEOXkdRc9ABylAYGG
-	 bIL5RM+y58BgNk4YhMonjJBhySUKlb09WTatMzb9z9nL6qSpD4Pp40Ju9HVAFPDhIJ8nV
-	 H36ydkjUNRD7HIjTSWKUyobqLYky1uC9C/CL93TVG2SwijESbos+PJYeSTmScx5PzUH9w
-	 EEexV2hyBecLmFA4e8Nkju/TOYjeq8fbvKZYD4RGDfooVnF4U9viFlJBSRDu5ukhq6w==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793289636;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Received:Received:
-	 Received:Received:Received:Date:From:To:CC:Subject:Message-ID:
-	 References:Content-Type:Content-Disposition:In-Reply-To:
-	 X-ClientProxiedBy:MIME-Version:X-MS-PublicTrafficType:
-	 X-MS-TrafficTypeDiagnostic:X-MS-Office365-Filtering-Correlation-Id:
-	 X-MS-Exchange-SenderADCheck:X-MS-Exchange-AntiSpam-Relay:
-	 X-Microsoft-Antispam:X-Microsoft-Antispam-Message-Info:
-	 X-Forefront-Antispam-Report:
-	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
-	 X-MS-Exchange-AntiSpam-MessageData-0:X-Exchange-RoutingPolicyChecked:
-	 X-MS-Exchange-CrossTenant-Network-Message-Id:
-	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
-	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
-	 X-MS-Exchange-CrossTenant-FromEntityHeader:
-	 X-MS-Exchange-CrossTenant-Id:X-MS-Exchange-CrossTenant-MailboxType:
-	 X-MS-Exchange-CrossTenant-UserPrincipalName:
-	 X-MS-Exchange-Transport-CrossTenantHeadersStamped:X-OriginatorOrg;
-	bh=++iK9zA7vdSqa2z9khUOayVv3ianUOElr3aNyLxohNs=;
-	b=Is1GBUjBoAClfhG8FuBQWRggK8sy+xJsq0TO0yQkGooSQMDTrXZW+LpxetTWM9ro8Nmy
-	 V7L+QwO74mfuxUyNOaoiW52C5KB8KIDMRtL36xt9LADdDSLtmwQ43YMjxd/aLpJ4BWoRq
-	 U1yk0CGmO+bRbiidGuIFeoTsSEMJgmsO+RF3AvR2K0aoTIjSOjd2k6In6d+Y065j6rUIP
-	 M5aZTSBvblWNNgpHngCkcswP7d2MsSW0o7v5SGrFXJIpIq5ELHHX+cHUBbdECB6TdW7fj
-	 J7KowIzTlNTljnh03CguSlrKLXpq5C5cOHQzRCgx8j0bMRIlFpcHSeaPuufu+p0broA==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=intel.com;
-	spf=pass smtp.mailfrom=intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b="nvDqaE/G";
-	arc=fail smtp.remote-ip=192.198.163.7
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793290513;
+	b=Mz1rIk8jClJOndIk6LQSQmQ0OyCywscKzHnWA6wyVE7MiC6t9YsoKRA34tK6F9CCt9lQ
+	 oX8YJP724Q2cmQTRjoGFEJn6KFxTqJ0RFX2KEWBnnSDWVF8LVgPGoIYNCB/kOghumu1KZ
+	 aYcJAUK5kScNxSwKHCdggayTDwYwQeoj5KCqEFFAs0SKYuAtHwYjE6D7hzOWiXwzLNr0+
+	 4WmZjCBtgpFtWFfrJOj2ovWL9i/Gn5b4e14LuX/vgRro2E45y9VUbdXCI+W0ozVJnuuB/
+	 Z+purFgaxNQXMGD6mvjMeowFgTQiRs2AFughk+x6W2QgbRr2uUL2wlpBzsQqgXe7jJw==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793290513;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=bM37CGgfnEC2jvGALqvJN9E0i4J/GnGwzcXSDWkWwEk=;
+	b=dkoSCjvyT7HscCokDF8F48laujh47lS92p/zOGXr3cwYiJwKgOonkeZ9IqgiTGGfHYYq
+	 3E2fzGPftyIqTalEG2UKuKMi7kyhEe8RIA+fiwrkxh9PLiq7tHC00G2j1n8EfaW+8pofa
+	 Vf8yAXjxXzE9CshG+lJQrzxu8uUT7nwZe39rH/hQPks3gP/9FhojjaKll6EytAzrZ8Blu
+	 KOFsxYgr1fop73n8k0fmp7Ge3K2X63/A3RpupfPyXBmDhuXKj7NHQIehnAFI+NP+CUAg+
+	 ZL7SOVC47D5PRBVxftFWJGiBQDQcblVWlp15IgYOXfNnck6JkofTp/pdAxtnJzB5t8A==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=C30GP9EX;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AD1E606A31A
-	for <virtualization@lists.linux.dev>; Thu, 29 Oct 2026 16:00:35 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6AD1E606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BC97606A31C
+	for <virtualization@lists.linux.dev>; Thu, 29 Oct 2026 16:15:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=nvDqaE/G
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1793289635; x=1824825635;
-  h=date:from:to:cc:subject:message-id:references:
-   in-reply-to:mime-version;
-  bh=1s7rQPzBWfF3kY4Gi4Gs8o36uSP/gZ92/BBROqe3tUA=;
-  b=nvDqaE/Gs2fOkazm9NHov7e+JWKPlX2rL6Gn0CeiUiukvzhjJeadaoyh
-   z6yULKM4OjtsNXU0tvpSOFnzI7GO4GZWOVe5ef3qwZsFTJelBhkaEJLju
-   5Dxdf7H6iYfEY0GHTxM9xoLyYsl4qKgGRywK5czcKrEbYqBO8zQqgBGmb
-   HDsjx8vMC2e/assW2pXtPX0kc2/jN7pfygNlEG+ZXqWD9JonmdOLHjYpl
-   mJGOl/DJbutUUwKgbTKhTzqpRwjO+QlD2sc28Df2haY5Ztp9bsngmN0IJ
-   EsWiIqYdGoEpsdVJrOsAoBz/Af8AjVzcGoZE56e+p4c8EXvJgtPBkGNzc
-   g==;
-X-CSE-ConnectionGUID: +MtnEKORR+WtQidp3TzTUA==
-X-CSE-MsgGUID: Bg1dySyPQzeRRfBM8IKnCA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11949"; a="1924328"
-X-IronPort-AV: E=Sophos;i="6.27,184,1787036400"; 
-   d="scan'208";a="1924328"
-Received: from orviesa006.jf.intel.com ([10.64.159.146])
-  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Oct 2026 09:00:34 -0700
-X-CSE-ConnectionGUID: yvTkDk+tT+OTJ+A6TBHHyA==
-X-CSE-MsgGUID: uKa5PQb6QsebgeeX3ej9Ng==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,184,1787036400"; 
-   d="scan'208";a="5275435"
-Received: from orsmsx902.amr.corp.intel.com ([10.22.229.24])
-  by orviesa006.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Oct 2026 09:00:32 -0700
-Received: from ORSMSX902.amr.corp.intel.com (10.22.229.24) by
- ORSMSX902.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.56; Thu, 29 Oct 2026 09:00:31 -0700
-Received: from ORSEDG902.ED.cps.intel.com (10.7.248.12) by
- ORSMSX902.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.56 via Frontend Transport; Thu, 29 Oct 2026 09:00:31 -0700
-Received: from SJ2PR03CU001.outbound.protection.outlook.com (52.101.43.69) by
- edgegateway.intel.com (134.134.137.112) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.56; Thu, 29 Oct 2026 09:00:30 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=N7dw55R7QH2y/o1H0Krg6QrDe1sXjJtyKa4F5Vrih1n4MfYxcWou3GRsTxhzRyq1iRE+3U1dit0gBpLt+bjF/XnCDvO54GVFGp/vqODW+nfWhVZAPEN5GEPpLXsKlLnuI955r62lE2WhqTKgZncFwenkqrTUa+P9a/nuxpt9Ny7YL1qJOJ2Hy8q8Hm8KRt8TS8NjVADzaji6eRRrZhVV7ZO2GJBQ5nx2oY73Hgp/t6zi825dhD7jK3PnAiI3XgubsA8pS9M7s/fJGYy7h4Wny4kGjK4FLVJInuP3OtGF77AI8S0Dgo/Rd60l0j/sOqtq5hgEQ7VNkPN4vWxE4sZ1rA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=++iK9zA7vdSqa2z9khUOayVv3ianUOElr3aNyLxohNs=;
- b=w+WtNPFR1X0tRSrixPIJjnQVocHwPpYr+kD1XQQ9C9MSsG4uj5pNQpGLbuCXtLqD6/XoKFkUB/WZLoE8mpzxtymqFObJQDf2Kvp2EwQadVfzSphjiVSKVm+4MY91fnii4zIidg+2hYSBUxzYv8k6iE/z17e0UhbI0knZBKWzbEO9PRBrECndUs/Sowi0aErm+TuaD5u55rdEP8wriUof1yMR1vK/wqz5E3sxQVIL6w6Qde1yfgAKoHfq9G1ptd8/992NrCO/y2yxyZ5YwSmt2crMuHC13fc9sZQKfFcgFeEqzpLuye7VDR7Nlt2EkROPaKY1vIExt4lnJo2B2/VHXg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Authentication-Results: mx.microsoft.com 1; dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-Received: from CO1PR11MB4787.namprd11.prod.outlook.com (2603:10b6:303:95::23)
- by DS0PR11MB7999.namprd11.prod.outlook.com (2603:10b6:8:123::5) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.569.8; Thu, 29 Oct
- 2026 16:00:20 +0000
-Received: from CO1PR11MB4787.namprd11.prod.outlook.com
- ([fe80::e7eb:a872:53d1:21fd]) by CO1PR11MB4787.namprd11.prod.outlook.com
- ([fe80::e7eb:a872:53d1:21fd%4]) with mapi id 15.21.0569.008; Thu, 29 Oct 2026
- 16:00:19 +0000
-Date: Thu, 29 Oct 2026 09:00:15 -0700
-From: Matthew Brost <matthew.brost@intel.com>
-To: Philipp Stanner <phasta@kernel.org>
-CC: Min Ma <mamin506@gmail.com>, Lizhi Hou <lizhi.hou@amd.com>, Oded Gabbay
-	<ogabbay@kernel.org>, "Rob Herring (Arm)" <robh@kernel.org>, Tomeu Vizoso
-	<tomeu@tomeuvizoso.net>, Karol Wachowski <karol.wachowski@linux.intel.com>,
-	Andrzej Kacprowski <andrzej.kacprowski@linux.intel.com>, Sumit Semwal
-	<sumit.semwal@linaro.org>, Christian =?iso-8859-1?Q?K=F6nig?=
-	<christian.koenig@amd.com>, Felix Kuehling <Felix.Kuehling@amd.com>, "Alex
- Deucher" <alexander.deucher@amd.com>, David Airlie <airlied@gmail.com>,
-	"Simona Vetter" <simona@ffwll.ch>, Maarten Lankhorst
-	<maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>, Lucas Stach
-	<l.stach@pengutronix.de>, Russell King <linux+etnaviv@armlinux.org.uk>,
-	Christian Gmeiner <christian.gmeiner@gmail.com>, Jani Nikula
-	<jani.nikula@linux.intel.com>, Joonas Lahtinen
-	<joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Tvrtko Ursulin <tursulin@ursulin.net>, Alessio Belle
-	<alessio.belle@imgtec.com>, Luigi Santivetti <luigi.santivetti@imgtec.com>,
-	Qiang Yu <yuq825@gmail.com>, Rob Clark <robin.clark@oss.qualcomm.com>,
-	"Dmitry Baryshkov" <lumag@kernel.org>, Abhinav Kumar
-	<abhinav.kumar@linux.dev>, Jessica Zhang <jesszhan0024@gmail.com>, Sean Paul
-	<sean@poorly.run>, "Marijn Suijten" <marijn.suijten@somainline.org>, Lyude
- Paul <lyude@redhat.com>, Danilo Krummrich <dakr@kernel.org>, Boris Brezillon
-	<boris.brezillon@collabora.com>, Steven Price <steven.price@arm.com>,
-	=?iso-8859-1?Q?Adri=E1n?= Larumbe <adrian.larumbe@collabora.com>, Liviu Dudau
-	<liviu.dudau@arm.com>, Dave Airlie <airlied@redhat.com>, Gerd Hoffmann
-	<kraxel@redhat.com>, Natalie Vock <nat@pixelcluster.dev>, Arun Pravin
-	<arunpravin.paneerselvam@amd.com>, Matthew Auld <matthew.auld@intel.com>,
-	Thomas =?iso-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>,
-	Melissa Wen <mwen@igalia.com>, =?iso-8859-1?Q?Ma=EDra?= Canal
-	<mcanal@igalia.com>, Dave Stevenson <dave.stevenson@raspberrypi.com>,
-	Raspberry Pi Kernel Maintenance <kernel-list@raspberrypi.com>, "Dmitry
- Osipenko" <dmitry.osipenko@collabora.com>, Gurchetan Singh
-	<gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, Zack Rusin
-	<zack.rusin@broadcom.com>, Broadcom internal kernel review list
-	<bcm-kernel-feedback-list@broadcom.com>, Thierry Reding
-	<thierry.reding@kernel.org>, Mikko Perttunen <mperttunen@nvidia.com>,
-	Jonathan Cameron <jic23@kernel.org>, David Lechner <dlechner@baylibre.com>,
-	Nuno =?iso-8859-1?Q?S=E1?= <nuno.sa@analog.com>, Andy Shevchenko
-	<andy@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Sunil
- Khatri" <sunil.khatri@amd.com>, Kees Cook <kees@kernel.org>, Jesse Zhang
-	<jesse.zhang@amd.com>, Timur =?iso-8859-1?Q?Krist=F3f?=
-	<timur.kristof@gmail.com>, Srinivasan Shanmugam
-	<srinivasan.shanmugam@amd.com>, Kexin Sun <kexinsun@smail.nju.edu.cn>, "Prike
- Liang" <Prike.Liang@amd.com>, David Rosca <david.rosca@amd.com>, "Krzysztof
- Karas" <krzysztof.karas@intel.com>, Marco Crivellari
-	<marco.crivellari@suse.com>, Shixiong Ou <oushixiong@kylinos.cn>, Jouni
- =?iso-8859-1?Q?H=F6gander?= <jouni.hogander@intel.com>, "Thadeu Lima de Souza
- Cascardo" <cascardo@igalia.com>, Pierre-Eric Pelloux-Prayer
-	<pierre-eric.pelloux-prayer@amd.com>, Joel Fernandes <joelagnelf@nvidia.com>,
-	Al Viro <viro@zeniv.linux.org.uk>, Neill Kapron <nkapron@google.com>,
-	"Michael Bommarito" <michael.bommarito@gmail.com>, Sam Day <me@samcday.com>,
-	"Gabriel Prostitis" <prostitisgabriel@gmail.com>,
-	<dri-devel@lists.freedesktop.org>, <linux-kernel@vger.kernel.org>,
-	<linux-media@vger.kernel.org>, <amd-gfx@lists.freedesktop.org>,
-	<etnaviv@lists.freedesktop.org>, <intel-gfx@lists.freedesktop.org>,
-	<imagination@lists.freedesktop.org>, <lima@lists.freedesktop.org>,
-	<linux-arm-msm@vger.kernel.org>, <freedreno@lists.freedesktop.org>,
-	<nouveau@lists.freedesktop.org>, <virtualization@lists.linux.dev>,
-	<spice-devel@lists.freedesktop.org>, <intel-xe@lists.freedesktop.org>,
-	<linux-tegra@vger.kernel.org>, <linux-iio@vger.kernel.org>,
-	<linux-usb@vger.kernel.org>
-Subject: Re: [RFC PATCH 5/6] dma-buf: dma-fence: Close race in
- dma_fence_is_signaled() by default
-Message-ID: <auNtj8zYrqwtnXdK@gsse-cloud1.jf.intel.com>
-References: <20261029095542.1526750-3-phasta@kernel.org>
- <20261029095542.1526750-8-phasta@kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <20261029095542.1526750-8-phasta@kernel.org>
-X-ClientProxiedBy: MW4PR04CA0044.namprd04.prod.outlook.com
- (2603:10b6:303:6a::19) To CO1PR11MB4787.namprd11.prod.outlook.com
- (2603:10b6:303:95::23)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=C30GP9EX
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D71CE1F01824;
+	Thu, 29 Oct 2026 16:15:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793290512;
+	bh=bM37CGgfnEC2jvGALqvJN9E0i4J/GnGwzcXSDWkWwEk=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=C30GP9EXfUwm7JlCVd02efgccj7xSetyoa7eM2uadxIES7Oxi3lGVSeR7tbxno6OQ
+	 zQe/h9iVYaJZYFKAwZ0ETUva3eRak5SmFvbW0hAVpAnHOIMfSF2gswcgEJe/0wwfsR
+	 VVeMTZ2Cv3ZoeK3tAVE0Wze8a07Bv+yT/CqzGmn3dpm1a7YMxFYLYhsl9ShPxQSI2z
+	 2ST5Ae5ot9AVSKHrLYjOsh6HQv7jmPU9WDIn4ohIKufw6Tx1NCm3Lp7j6dG5MAGCX7
+	 KLaQatWZXMnc4xKXNuMQhxPgrkdVRn4otsqzno9pKAG3ertrj4QeAa9Zulch7i+M9U
+	 I1L8xDD3PqQ+g==
+Message-ID: <sashiko-outbox-189652@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v10 2/5] media: virtio: Add V4L2 ioctl forwarding
+ infrastructure
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Brian Daniels" <briandaniels@google.com>
+Cc: virtualization@lists.linux.dev, media-ci@linuxtv.org, "Michael S.
+ Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>
+In-Reply-To: <20261029153038.3800747-3-briandaniels@google.com>
+References: <20261029153038.3800747-1-briandaniels@google.com>
+ <20261029153038.3800747-3-briandaniels@google.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 29 Oct 2026 16:15:11 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -190,165 +61,457 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
-MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CO1PR11MB4787:EE_|DS0PR11MB7999:EE_
-X-MS-Office365-Filtering-Correlation-Id: a6a3578e-fddd-4b58-297f-08df35d5babd
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|7416014|366016|1800799024|23010399003|18002099003|22082099003|56012099006|11063799006|261026140227099003|4143699003|261021123027099003|261021121427099003|10067099003|261026121527099003|261009223027099003|261022075727099003|261022105027099003|261028144727099003;
-X-Microsoft-Antispam-Message-Info: GcA/mTp3EeoLjKo9kf4JRRrRKZLtSlDNaMmvaSH66FCOzpPQZSRs/U5CmyaOEfe85COboqUvFC/IS2XNvmWk0YNjCp1HRjR7+YfGdy5ApnRrM/c67DJNNNEETe1xJ4eXeyYxwYAyvGUWo49j9UYEXcCDfM7TNvUKl7+1BKpFhcPUIHZ7WvA6SMFestx7luxt2me4h/k0MXsnbwVSD6ymbV7F2E5m+M653Aqp6BGQ/Pmr95HLeX7h0n8ZEE8HYdhSLbfaGl/CwOTcphOULwPXNSdQPy6Q/WXlAzgTmEuGea3akpjRVedIkpewnHHLYyTpkxIO3+AhjibRAVaRUb886ft7MLrmdF7945T+lnLtzd/IG2y6aaE/e4VU3HxpkZiV2nWqgMqNc8VXwNa1uxVuRCJQJXU4Y0UObzf1xQsN7ybsDvu6JeegZWipNKVjD7jLbjKyELE0sA095YtYQoMnTWlbavtkL2ZKpCSJsDWUD0zWrlktPcoD/hPddvLuWDqtDsbPcoRuxqgLAOr3uXEK2eLLRbt/8PwA/bocggz5KnHWwSyGSdhUlnDNYwOuZxjvY75hmGX+BOX/YoS8JWi6Gh0w+1MmkT3mzO9G/Wvr9SaMJoNXrUqFSvfDl42XLZeLh0EqVr6DwAWHqeRFrz9VHEFrclPMlQO9kT1wIOCPWjw=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CO1PR11MB4787.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(366016)(1800799024)(23010399003)(18002099003)(22082099003)(56012099006)(11063799006)(261026140227099003)(4143699003)(261021123027099003)(261021121427099003)(10067099003)(261026121527099003)(261009223027099003)(261022075727099003)(261022105027099003)(261028144727099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?yhF8AzJ4SOQZjKgwpgmtJEsmjJJJQZSmg7/qT2hQva1P3tFx5+K7Yuv0XDxE?=
- =?us-ascii?Q?YGKyP6qm6UBfD/rfkSnzfmOttXOSXlYIgQEY3s/hDdvwREziNUYoATT3VAXg?=
- =?us-ascii?Q?EyV1ZxkVWVmsB4bf2H1WrARuJ1BWkpzWKvU7vBjZxefHYHIKI9fathPH1BMg?=
- =?us-ascii?Q?Mk8AL15M9nbE6rGhw7oNayZTS7ulj9k4xfkaWFXyzMAu4HCKl30YA7trp8qR?=
- =?us-ascii?Q?jE7HPC18lS8DVACLGgnTvAtkJKYeYldgyP7/2baOmlVZJYZD4zmjEQF6QSqd?=
- =?us-ascii?Q?6AG5+bexZyDihivIA/+1sqYcWy2ZsSKrtf2Sxg7ifGXqaLAO+DVmnpQYAY9u?=
- =?us-ascii?Q?/0X5ieF1oXhQ5T46RrBIgTTGTU2/rS8fiDlgydqTCFa7GwWpITBfLq5XVMPO?=
- =?us-ascii?Q?tuGFnYR5vwENoNvaBfimbbK8VFHzDgqWs9jH7vLZIh8JN4RM/3LbhFm0NlsP?=
- =?us-ascii?Q?Bh/Ji3OtkT/HlQt8VnRQCL7Sa1pkviVpdXMyW63P4TLP4dpOJ/e+rIQps3sc?=
- =?us-ascii?Q?gzIwLCo/A70cwZq4za64EOGuJYykb7JOEQev2O53+8iLbL0malpFKMc305wl?=
- =?us-ascii?Q?M6QbbZX91ZcZYPaqYjIQsVkbLkQmuB0oZzvsnJZAUvt26nnRpc1kydEK/slq?=
- =?us-ascii?Q?Og5hD3gWG0tHqDXZiVDtDYJ+A3NLPdDTX07EOWtGbaxmK8Rha/HeNsdRL7/K?=
- =?us-ascii?Q?j2TNPOQP67Ce92OnO7VF+uUTKGnkedGKW/CUoArTGCjWOu75p5XfKj1gEqPl?=
- =?us-ascii?Q?304SJqpFMsjiQkRPrybV2inV6ZIQxkq8thcDad8z+d7JaQw4/HpaiMFW3BPI?=
- =?us-ascii?Q?Neo+pd7oiPbqwUOrRe/4Wj/uqkDldwF8+C4jPpxRHDcDr7SV2OAXR8DPsuaP?=
- =?us-ascii?Q?FGZvPuF7Jf3IM7mBUWCev38v+otOOF6M6YCD3RepkIXNGX+mvvCuknak1PGI?=
- =?us-ascii?Q?6t/URpwMQsZhbz9V5HTyaXIYqz3l4n5ZeaRmyiYnR1h566xM0KnX/+T4tDhC?=
- =?us-ascii?Q?0+swB0C/53Ez5M8lOitNeERlB7rPLdqLpcENIdKp13fgv3W38Z/ee+MJkVlB?=
- =?us-ascii?Q?JKKV15VqmaV3s0bu1aEufn8upTr8JsHkYTn4RjWI30HHUodW7Xj9Y8x5XCcD?=
- =?us-ascii?Q?bScg1/3thW7vKQe5wngY3yBCkNKSJuhyKUoFNQVjFndmpGGpU79MUU56PlOu?=
- =?us-ascii?Q?tNJCk6cpYJQBOuUan7AtIV8Q53o57SPua3K+laf4u6UsRhT5Egx1tCqG0XJk?=
- =?us-ascii?Q?5cBrlRrfu0MM+TnKPzwRm3tbpqz/5hk0IwcyAXxs45t/lmMepkczpAbvEVJP?=
- =?us-ascii?Q?T7Y7tanSinbMf0apgIhDdgGEygGUlX/u0zoCV03VYQFHM9lfHkaLnXNwMC9G?=
- =?us-ascii?Q?rhBu6/NtP6w8OioKuV00NNXE7dKd2kYgjLklYSMSMlJTQ2HB8jUNBWlgyr0m?=
- =?us-ascii?Q?OZ1/+zOUR0JwAlj2dSs4xV6HHZ2gHo+pTCZMQBIQ6z29M9SoIJMa7kC3HEWp?=
- =?us-ascii?Q?ZxsMSwXPnI12wXgMvByM39w2Vafl2SJo3YdZIpnKGzrD7t/PqCyfPWpI+mEk?=
- =?us-ascii?Q?mrYKJrNxoQPDpTvZPlGgmwyNMUUIsXtYRDjIm5XPzaNV0Q4+YEwCwXidBf2D?=
- =?us-ascii?Q?znPX9w0PaoOE4qN7f8MBUF+ikYcHBjzyB18ztj7xUE9Cy7CzfcBNVaaZgdy9?=
- =?us-ascii?Q?cAqGmr6juZ3Fq2qgbs0f0Nt5F1ZQplZE1fN+64VvSX205qGUiLFixjLme0zX?=
- =?us-ascii?Q?T9a/l0vNZw=3D=3D?=
-X-Exchange-RoutingPolicyChecked: dLchvVtnFtecCNNV+v+ZIIG05MtGLBr70qRjTdh1vTzrBkOTUKxwylRlWDjcLKwFLSJ56kKgUfTh2ISt5C7dnlfSI8QUelygsNRnwrA7w5ztxSoLpV4FeJzVnQ/+LKkP1gXlMiwGPYbVa3hM4F4Kndc+8hpYKSVMm/Z7iXQByCiaNgp2ptitmUZ/Sk5vegJH521FjaX6x4BPVfva0LiV79JFOG0bRAD3q36M+lFvhAvG6ctR5jjk8jmBJTFuUYZXGKbao5N3CIb1jMvbQBeuEgNy0nbDnhecn8RRqVD7zO76vaxATu4keJHpxP6tIWa9Xqa+DUGAEnb4BQDgohgw4g==
-X-MS-Exchange-CrossTenant-Network-Message-Id: a6a3578e-fddd-4b58-297f-08df35d5babd
-X-MS-Exchange-CrossTenant-AuthSource: CO1PR11MB4787.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Oct 2026 16:00:19.1318
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: +5xI66ER351bw+NXujpvhxkFpRqgB+f3HwPJlr35TdqYCPpvwQDo7vWQUcbhQEiONluhg4IYvB+WQX47sagy2Q==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR11MB7999
-X-OriginatorOrg: intel.com
 
-On Thu, Oct 29, 2026 at 10:55:42AM +0100, Philipp Stanner wrote:
-> dma_fence_is_signaled() contains a lockless check of the signaled-bit,
-> which is set under lock protection. This is a race condition which makes
-> the API fragile and has caused at least two bugs already, addressed in:
-> 
-> 	commit c8a5d5ea3ba6 ("nouveau: fix client work fence deletion race")
-> 	commit 7c703a7d3f2b ("drm/amdgpu: Fix one use-after-free of VM")
-> 
-> It has been argued by some that this race cannot be closed for the
-> entire kernel through locking because this would lead to a cache line
-> invalidation for all parties reading that fence. While it remains
-> unclear why these parties don't simply let themselves be notified about
-> the fence being signaled instead of checking this repeatedly manually,
-> there is a way to preserve this behavior in any case:
-> 
-> This patch adds a new flag for dma_fence_init(),
-> DMA_FENCE_INIT_FLAG_RACY_SIGNALED_CHECK. If this flag is not set, the
-> spinlock is taken and dma_fence_is_signaled() becomes perfectly
-> synchronized: it can only return true once signaling of the fence is
-> completed.
-> 
-> Disable the racy check for everyone by default. Should some parties
-> really experience severe performance degredations because of this, they
-> can trivially re-enable the race condition for their driver by setting
-> the flag in dma_fence_init().
-> 
+Thank you for your contribution! Sashiko AI review found 9 potential issue(=
+s) to consider:
+- [Critical] media: virtio: session and commandq UAF on device removal with=
+ open fds
+- [High] media: virtio: uninitialized stack leak and wrong dir in g_input/g=
+_output
+- [High] media: virtio: scatterlist_builder_add_data() maps stack memory fo=
+r DMA
+- [High] media: virtio: virtio_media_device_ioctl() bypasses V4L2 std valid=
+ation
+- [Medium] media: virtio: missing NUL termination of cap->card in virtio_me=
+dia_querycap()
+- [Medium] media: virtio: KASAN tag mismatch in scatterlist_builder_retriev=
+e_data()
+- [Medium] media: virtio: unaligned DMA allocations in scatterlist_builder_=
+add_data()
+- [Low] media: virtio: undocumented module_param always_use_shadow_buffer
+- [Low] media: virtio: missing cpu_to_le32() in scatterlist_builder_add_ioc=
+tl_cmd()
+--
 
-My 2 cents - anyone arguing about cachelines probably has broken code to
-begin with. I'd say don't give anyone an option to opt into a racey
-check, if this regressing some peoples code the answer is likely
-structurally fix your broken code.
+commit b04e2fc2518c3e0e5bfe29cd7359b457cc6bf7a3
+Author: Alexandre Courbot <gnurou@gmail.com>
 
-Matt
+media: virtio: Add V4L2 ioctl forwarding infrastructure
 
-> Signed-off-by: Philipp Stanner <phasta@kernel.org>
-> ---
->  drivers/dma-buf/dma-fence.c |  2 ++
->  include/linux/dma-fence.h   | 22 ++++++++++++++++++++++
->  2 files changed, 24 insertions(+)
-> 
-> diff --git a/drivers/dma-buf/dma-fence.c b/drivers/dma-buf/dma-fence.c
-> index f7c084926ae6..1ae8c7aade39 100644
-> --- a/drivers/dma-buf/dma-fence.c
-> +++ b/drivers/dma-buf/dma-fence.c
-> @@ -1119,6 +1119,8 @@ dma_fence_init(struct dma_fence *fence, const struct dma_fence_ops *ops,
->  	/* Mapp the init_flags to the fence-internal flags. */
->  	if (test_bit(DMA_FENCE_INIT_FLAG_SEQNO64, &init_flags))
->  		set_bit(DMA_FENCE_FLAG_SEQNO64_BIT, &fence_flag_bits);
-> +	if (test_bit(DMA_FENCE_INIT_FLAG_RACY_SIGNALED_CHECK, &init_flags))
-> +		set_bit(DMA_FENCE_FLAG_RACY_SIGNALED_CHECK_BIT, &fence_flag_bits);
->  
->  	__dma_fence_init(fence, ops, lock, context, seqno, fence_flag_bits);
->  }
-> diff --git a/include/linux/dma-fence.h b/include/linux/dma-fence.h
-> index 52e7ddfd2d06..ee6e8de3ebc6 100644
-> --- a/include/linux/dma-fence.h
-> +++ b/include/linux/dma-fence.h
-> @@ -115,6 +115,7 @@ enum dma_fence_flag_bits {
->  	DMA_FENCE_FLAG_SIGNALED_BIT,
->  	DMA_FENCE_FLAG_TIMESTAMP_BIT,
->  	DMA_FENCE_FLAG_ENABLE_SIGNAL_BIT,
-> +	DMA_FENCE_FLAG_RACY_SIGNALED_CHECK_BIT,
->  
->  	DMA_FENCE_FLAG_USER_BITS, /* must always be last member */
->  };
-> @@ -124,9 +125,12 @@ enum dma_fence_flag_bits {
->   * These flags can be passed in dma_fence_init().
->   *
->   * @DMA_FENCE_INIT_FLAG_SEQNO64: Use 64-bit sequence numbers.
-> + * @DMA_FENCE_INIT_FLAG_RACY_SIGNALED_CHECK:
-> + * Legacy flag. Enables a race condition in dma_fence_is_signaled().
->   */
->  enum dma_fence_init_flags {
->  	DMA_FENCE_INIT_FLAG_SEQNO64,
-> +	DMA_FENCE_INIT_FLAG_RACY_SIGNALED_CHECK,
->  
->  	/* Must always be last member. */
->  	DMA_FENCE_INIT_FLAG_NR_OF_FLAGs,
-> @@ -568,9 +572,27 @@ dma_fence_is_signaled_locked(struct dma_fence *fence)
->  static inline bool
->  dma_fence_is_signaled(struct dma_fence *fence)
->  {
-> +	const bool racy_check = test_bit(DMA_FENCE_FLAG_RACY_SIGNALED_CHECK_BIT,
-> +					 &fence->flags);
->  	const struct dma_fence_ops *ops;
-> +	bool signaled = false;
-> +	unsigned long flags;
->  
+This commit introduces a scatterlist builder and synchronous V4L2 ioctl
+forwarding via VIRTIO_MEDIA_CMD_IOCTL. It uses this infrastructure to
+implement VIDIOC_QUERYCAP and fixed-size read, write, and read-write V4L2
+ioctls.
+
+> diff --git a/drivers/media/virtio/scatterlist_builder.c b/drivers/media/v=
+irtio/scatterlist_builder.c
+> new file mode 100644
+> index 0000000000000..ae8ffee82fa6e
+> --- /dev/null
+> +++ b/drivers/media/virtio/scatterlist_builder.c
+> @@ -0,0 +1,222 @@
+
+[ ... ]
+
+> +static bool always_use_shadow_buffer;
+> +module_param(always_use_shadow_buffer, bool, 0660);
+
+[Severity: Low]
+Should the new always_use_shadow_buffer module parameter be documented in
+Documentation/admin-guide/kernel-parameters.txt?
+
+[ ... ]
+
+> +int scatterlist_builder_add_data(struct scatterlist_builder *builder,
+> +				 void *data, size_t len)
+> +{
+> +	const size_t cur_desc =3D builder->cur_desc;
+> +
+> +	if (len =3D=3D 0)
+> +		return 0;
+> +
+> +	if (builder->cur_desc >=3D builder->num_descs)
+> +		return -ENOSPC;
+> +
+> +	if (!always_use_shadow_buffer && virt_addr_valid(data) &&
+> +	    virt_addr_valid(data + len)) {
+> +		/*
+> +		 * If "data" is in the 1:1 physical memory mapping then we can
+> +		 * use a single SG entry and avoid copying.
+> +		 */
+> +		struct page *page =3D virt_to_page(data);
+> +		size_t offset =3D (((size_t)data) & ~PAGE_MASK);
+> +		struct scatterlist *next_desc =3D
+> +			&builder->descs[builder->cur_desc];
+> +
+> +		memset(next_desc, 0, sizeof(*next_desc));
+> +		sg_set_page(next_desc, page, len, offset);
+> +		builder->cur_desc++;
+> +	} else if (!always_use_shadow_buffer && is_vmalloc_addr(data)) {
+
+[Severity: High]
+Can scatterlist_builder_add_data() end up mapping kernel stack memory
+directly into the virtqueue scatterlist for DMA when always_use_shadow_buff=
+er
+is false?
+
+Most V4L2 ioctl payloads passed here reside on the kernel stack:
+video_usercopy() in drivers/media/v4l2-core/v4l2-ioctl.c places any ioctl
+argument with _IOC_SIZE(cmd) <=3D 128 into char sbuf[128] on the stack, and
+virtio_media_g_input(), virtio_media_s_input(), virtio_media_g_output(),
+virtio_media_s_output(), virtio_media_s_std(), and
+virtio_media_device_ioctl() pass addresses of local stack variables (&input,
+&output, &s, &standard, and &std_id).
+
+When CONFIG_VMAP_STACK is disabled, stack addresses satisfy virt_addr_valid=
+();
+when CONFIG_VMAP_STACK is enabled, stack addresses satisfy is_vmalloc_addr(=
+).
+Without a !object_is_on_stack(data) check, stack buffers bypass
+builder->shadow_buffer and are passed to virtqueue_add_sgs(), triggering
+check_for_stack() warnings in kernel/dma/debug.c and risking stack corrupti=
+on
+on non-cache-coherent platforms while sleeping in wait_event().
+
+Also, shouldn't the end-of-buffer check be virt_addr_valid(data + len - 1)
+rather than virt_addr_valid(data + len), and doesn't reusing descriptor ind=
+ex
+1 in virtio_media_send_wr_ioctl() cause virtqueue_add_sgs() to DMA-map the
+same scatterlist entry twice concurrently as both DMA_TO_DEVICE and
+DMA_FROM_DEVICE?
+
+[ ... ]
+
+> +	} else {
+> +		/*
+> +		 * As a last resort, copy into the shadow buffer and reference
+> +		 * it with a single SG entry. Calling
+> +		 * scatterlist_builder_retrieve_data() will be necessary to copy
+> +		 * the data written by the device back into @data.
+> +		 */
+> +		void *shadow_buffer =3D
+> +			builder->shadow_buffer + builder->shadow_buffer_pos;
+> +		struct page *page =3D virt_to_page(shadow_buffer);
+> +		unsigned long offset =3D
+> +			(((unsigned long)shadow_buffer) & ~PAGE_MASK);
+> +		struct scatterlist *next_desc =3D
+> +			&builder->descs[builder->cur_desc];
+> +
+> +		if (len >
+> +		    builder->shadow_buffer_size - builder->shadow_buffer_pos)
+> +			return -ENOSPC;
+> +
+> +		memcpy(shadow_buffer, data, len);
+> +		memset(next_desc, 0, sizeof(*next_desc));
+> +		sg_set_page(next_desc, page, len, offset);
+> +		builder->cur_desc++;
+> +		builder->shadow_buffer_pos +=3D len;
+> +	}
+
+[Severity: Medium]
+When multiple descriptors are sub-allocated from builder->shadow_buffer (for
+example when always_use_shadow_buffer is true during
+virtio_media_send_r_ioctl() or virtio_media_send_wr_ioctl()), does advancing
+builder->shadow_buffer_pos by the unaligned len cause adjacent
+DMA_FROM_DEVICE and DMA_TO_DEVICE descriptors to share a CPU cache line?
+
+virtio_media_send_r_ioctl() places the 16-byte virtio_media_cmd_ioctl at
+offset 0, the 8-byte virtio_media_resp_ioctl at offset 16, and ioctl_data at
+offset 24. When virtqueue_add_sgs() maps each scatterlist entry separately =
+for
+DMA, unaligned offsets within session->shadow_buf can trigger
+CONFIG_DMA_API_DEBUG overlapping cacheline warnings and corrupt adjacent
+response data during cache invalidation on non-coherent DMA platforms unless
+shadow_buffer_pos is aligned to dma_get_cache_alignment() /
+ARCH_DMA_MINALIGN.
+
+[ ... ]
+
+> +int scatterlist_builder_retrieve_data(struct scatterlist_builder *builde=
+r,
+> +				      size_t sg_index, void *data)
+> +{
+> +	void *shadow_buf =3D builder->shadow_buffer;
+> +	struct scatterlist *sg;
+> +	void *kaddr;
+> +
+> +	/* We can only retrieve from the range of sgs currently set. */
+> +	if (sg_index >=3D builder->cur_sg)
+> +		return -ERANGE;
+> +
+> +	sg =3D builder->sgs[sg_index];
+> +	kaddr =3D pfn_to_kaddr(page_to_pfn(sg_page(sg))) + sg->offset;
+> +
+> +	if (kaddr >=3D shadow_buf &&
+> +	    kaddr < shadow_buf + builder->shadow_buffer_size) {
+> +		if (kaddr + sg->length >
+> +		    shadow_buf + builder->shadow_buffer_size)
+> +			return -EINVAL;
+> +
+> +		memcpy(data, kaddr, sg->length);
+> +	}
+> +
+> +	return 0;
+> +}
+
+[Severity: Medium]
+On arm64 with CONFIG_KASAN_SW_TAGS or CONFIG_KASAN_HW_TAGS enabled, will the
+range check in scatterlist_builder_retrieve_data() fail to match shadow_buf?
+
+In virtio_media_session_alloc(), session->shadow_buf is allocated with
+kzalloc(VIRTIO_SHADOW_BUF_SIZE, GFP_KERNEL), which returns a pointer with a
+KASAN tag in bits 63:56. Here, kaddr is computed via pfn_to_kaddr(), which
+produces an untagged linear address with 0xff in bits 63:56.
+
+Comparing kaddr < shadow_buf + builder->shadow_buffer_size compares an
+0xff-tagged address against a tagged pointer, which evaluates to false and
+silently skips copying the response payload out of the shadow buffer. Should
+kasan_reset_tag() (or page_address(sg_page(sg)) / sg_virt(sg)) be used when
+comparing and copying from shadow_buf?
+
+> +
+> +/**
+> + * scatterlist_builder_add_ioctl_cmd() - Add an ioctl command to the des=
+criptor
+> + *                                       chain.
+> + * @builder: builder to use.
+> + * @session: session on behalf of which the ioctl command is added.
+> + * @ioctl_code: code of the ioctl to add (i.e. ``VIDIOC_*``).
+> + */
+> +int scatterlist_builder_add_ioctl_cmd(struct scatterlist_builder *builde=
+r,
+> +				      struct virtio_media_session *session,
+> +				      u32 ioctl_code)
+> +{
+> +	struct virtio_media_cmd_ioctl *cmd_ioctl =3D &session->cmd.ioctl;
+> +
+> +	cmd_ioctl->hdr.cmd =3D VIRTIO_MEDIA_CMD_IOCTL;
+> +	cmd_ioctl->hdr.__reserved =3D 0;
+> +	cmd_ioctl->session_id =3D session->id;
+> +	cmd_ioctl->code =3D VIRTIO_MEDIA_IOCTL_CODE(ioctl_code);
+
+[Severity: Low]
+Since hdr.cmd, session_id, and code in struct virtio_media_cmd_ioctl are
+declared as __le32 in include/uapi/linux/virtio_media.h, should these
+assignments use cpu_to_le32() to avoid Sparse -Wbitwise warnings?
+
+[ ... ]
+
+> diff --git a/drivers/media/virtio/virtio_media_ioctls.c b/drivers/media/v=
+irtio/virtio_media_ioctls.c
+> new file mode 100644
+> index 0000000000000..656ecea8a44cc
+> --- /dev/null
+> +++ b/drivers/media/virtio/virtio_media_ioctls.c
+> @@ -0,0 +1,606 @@
+
+[ ... ]
+
+> +static int virtio_media_querycap(struct file *file, void *fh,
+> +				 struct v4l2_capability *cap)
+> +{
+> +	struct video_device *video_dev =3D video_devdata(file);
+> +	struct virtio_media *vv =3D to_virtio_media(video_dev);
+> +
+> +	strscpy(cap->bus_info, "platform:virtio-media");
+> +	strscpy(cap->driver, VIRTIO_MEDIA_DEFAULT_DRIVER_NAME);
+> +
+> +	virtio_cread_bytes(vv->virtio_dev, 8, cap->card, sizeof(cap->card));
+
+[Severity: Medium]
+Does virtio_media_querycap() need to ensure cap->card is NUL-terminated aft=
+er
+virtio_cread_bytes()?
+
+In include/uapi/linux/virtio_media.h, the comment for
+struct virtio_media_config states that if all 32 characters of card are used
+by the device, it does not need to be NUL-terminated:
+
+    * @card: name of the device, a NUL-terminated UTF-8 string. It correspo=
+nds
+    *        with the card field of the struct v4l2_capability. If all the
+    *        characters of the field are used, it does not need to be
+    *        NUL-terminated.
+
+However, V4L2 requires struct v4l2_capability.card to always be NUL-termina=
+ted
+when returned to userspace by VIDIOC_QUERYCAP.
+
+> +
+> +	cap->capabilities =3D video_dev->device_caps | V4L2_CAP_DEVICE_CAPS;
+> +	cap->device_caps =3D video_dev->device_caps;
+> +
+> +	return 0;
+> +}
+> +
+> +/*
+> + * s/g_input/output work with an unsigned int - recast this to a u32 so =
+the
+> + * size is unambiguous.
+> + */
+> +
+> +static int virtio_media_g_input(struct file *file, void *fh, unsigned in=
+t *i)
+> +{
+> +	u32 input;
+> +
+> +	int ret =3D virtio_media_send_wr_ioctl(file_to_v4l2_fh(file),
+> +					 VIDIOC_G_INPUT, &input,
+> +					 sizeof(input), sizeof(input));
+> +	if (ret)
+> +		return ret;
+> +
+> +	*i =3D input;
+> +
+> +	return 0;
+> +}
+> +
+> +static int virtio_media_s_input(struct file *file, void *fh, unsigned in=
+t i)
+> +{
+> +	u32 input =3D i;
+> +
+> +	return virtio_media_send_wr_ioctl(file_to_v4l2_fh(file),
+> +					  VIDIOC_S_INPUT, &input,
+> +					  sizeof(input), sizeof(input));
+> +}
+> +
+> +static int virtio_media_g_output(struct file *file, void *fh, unsigned i=
+nt *o)
+> +{
+> +	u32 output;
+> +
+> +	int ret =3D virtio_media_send_wr_ioctl(file_to_v4l2_fh(file),
+> +					 VIDIOC_G_OUTPUT, &output,
+> +					 sizeof(output), sizeof(output));
+
+[Severity: High]
+Should virtio_media_g_input() and virtio_media_g_output() call
+virtio_media_send_r_ioctl() instead of virtio_media_send_wr_ioctl()?
+
+Both VIDIOC_G_INPUT and VIDIOC_G_OUTPUT are defined with _IOR in
+include/uapi/linux/videodev2.h. Per the VIRTIO_MEDIA_CMD_IOCTL documentation
+in include/uapi/linux/virtio_media.h, _IOR ioctls should only be followed b=
+y a
+device-writable response descriptor.
+
+Calling virtio_media_send_wr_ioctl() attaches a device-readable command
+payload descriptor for an _IOR ioctl and sends 4 bytes of uninitialized sta=
+ck
+memory from input and output to the host (or copies uninitialized bytes into
+session->shadow_buf via memcpy()).
+
+[ ... ]
+
+> +long virtio_media_device_ioctl(struct file *file, unsigned int cmd,
+> +			       unsigned long arg)
+> +{
+> +	struct video_device *video_dev =3D video_devdata(file);
+> +	struct virtio_media *vv =3D to_virtio_media(video_dev);
+> +	struct v4l2_fh *vfh =3D NULL;
+> +	struct v4l2_standard standard;
+> +	v4l2_std_id std_id =3D 0;
+> +	int ret;
+> +
+> +	if (test_bit(V4L2_FL_USES_V4L2_FH, &video_dev->flags))
+> +		vfh =3D file_to_v4l2_fh(file);
+> +
+> +	mutex_lock(&vv->vlock);
+
+[Severity: Critical]
+What prevents a use-after-free of the session and vv->commandq if
+virtio_media_remove() runs while a file descriptor is open or an ioctl is
+waiting on vv->vlock?
+
+In drivers/media/virtio/virtio_media_driver.c, virtio_media_remove() does:
+
+	video_unregister_device(&vv->video_dev);
+	mutex_lock(&vv->vlock);
+	virtio_reset_device(virtio_dev);
+	while (virtqueue_detach_unused_buf(vv->commandq))
+		;
+	virtio_dev->config->del_vqs(virtio_dev);
+	mutex_unlock(&vv->vlock);
+
+	list_for_each_safe(p, n, &vv->sessions) {
+		struct virtio_media_session *s =3D
+			list_entry(p, struct virtio_media_session, list);
+
+		virtio_media_session_remove(vv, s);
+		virtio_media_session_free(s);
+	}
+
+If a thread passes v4l2_ioctl()'s unlocked video_is_registered() check and
+waits on mutex_lock(&vv->vlock) in virtio_media_device_ioctl() while
+virtio_media_remove() runs, virtio_media_remove() deletes vv->commandq and
+frees all sessions (including s->command_sgs and s->shadow_buf). Once
+virtio_media_device_ioctl() acquires vv->vlock, it proceeds without checking
+video_is_registered(video_dev), dereferencing the freed vfh / session and
+submitting descriptors to the deleted vv->commandq.
+
+Furthermore, when userspace later closes the open file descriptor,
+v4l2_release() calls virtio_media_device_close(), which looks up the already
+freed session from file->private_data, accesses vv->commandq in
+virtio_media_session_close(), and calls virtio_media_session_remove() and
+virtio_media_session_free() a second time.
+
+> +
 > +	/*
-> +	 * For legacy reasons, there is a race window here against parties
-> +	 * signaling the fence. They might still be doing that right now.
-> +	 *
-> +	 * For most users, this window shall be closed, but there are parties
-> +	 * for whom the cache-line invalidation by taking the lock might be so
-> +	 * significant that they prefer to accept the race at their own risk.
+> +	 * We need to handle a few ioctls manually because their results
+> +	 * rely on vfd->tvnorms, which is normally updated by the driver
+> +	 * as S_INPUT is called. Since we want to just pass these ioctls
+> +	 * through, we have to hijack them from here.
 > +	 */
-> +	if (!racy_check)
-> +		dma_fence_lock_irqsave(fence, flags);
->  	if (dma_fence_test_signaled_flag(fence))
-> +		signaled = true;
-> +	if (!racy_check)
-> +		dma_fence_unlock_irqrestore(fence, flags);
-> +	if (signaled)
->  		return true;
->  
->  	rcu_read_lock();
-> -- 
-> 2.56.0
-> 
+> +	switch (cmd) {
+> +	case VIDIOC_S_STD:
+> +		ret =3D copy_from_user(&std_id, (void __user *)arg,
+> +				     sizeof(std_id));
+> +		if (ret) {
+> +			ret =3D -EFAULT;
+> +			break;
+> +		}
+> +		ret =3D virtio_media_s_std(file, vfh, std_id);
+> +		break;
+> +	case VIDIOC_ENUMSTD:
+> +		ret =3D copy_from_user(&standard, (void __user *)arg,
+> +				     sizeof(standard));
+> +		if (ret) {
+> +			ret =3D -EFAULT;
+> +			break;
+> +		}
+> +		ret =3D virtio_media_enumstd(file, vfh, &standard);
+> +		if (ret)
+> +			break;
+> +		ret =3D copy_to_user((void __user *)arg, &standard,
+> +				   sizeof(standard));
+> +		if (ret)
+> +			ret =3D -EFAULT;
+> +		break;
+> +	case VIDIOC_QUERYSTD:
+> +		ret =3D virtio_media_querystd(file, vfh, &std_id);
+> +		if (ret)
+> +			break;
+> +		ret =3D copy_to_user((void __user *)arg, &std_id, sizeof(std_id));
+> +		if (ret)
+> +			ret =3D -EFAULT;
+> +		break;
+> +	default:
+> +		ret =3D video_ioctl2(file, cmd, arg);
+> +		break;
+> +	}
+
+[Severity: High]
+By intercepting VIDIOC_S_STD, VIDIOC_ENUMSTD, and VIDIOC_QUERYSTD before
+video_ioctl2(), doesn't virtio_media_device_ioctl() bypass several V4L2 core
+checks and 32-bit compat handling?
+
+Specifically:
+1. __video_do_ioctl() checks test_bit(_IOC_NR(cmd), video_dev->valid_ioctls)
+   and calls v4l2_prio_check(video_dev->prio, vfh->prio) for VIDIOC_S_STD
+   (which is marked INFO_FL_PRIO). Intercepting them here skips both device
+   validity and priority checks.
+2. For VIDIOC_ENUMSTD, v4l2_ioctls[] uses INFO_FL_CLEAR(v4l2_standard, inde=
+x)
+   so video_get_user() zeroes all output fields after index, whereas
+   copy_from_user() here forwards unzeroed trailing fields from userspace to
+   the host.
+3. Under CONFIG_COMPAT on x86_64, 32-bit userspace issues VIDIOC_ENUMSTD32
+   because struct v4l2_standard32 differs in size and alignment.
+   v4l2_compat_ioctl32() passes VIDIOC_ENUMSTD32 to fops->unlocked_ioctl;
+   because the switch statement only matches native VIDIOC_ENUMSTD,
+   VIDIOC_ENUMSTD32 falls through to video_ioctl2() -> v4l_enumstd(), where
+   video_dev->tvnorms is 0, failing with -EINVAL.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261029153038.3800=
+747-1-briandaniels@google.com?part=3D2
