@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793254072;
-	b=P/WEoUE3Pxj3zqmVam5r8RoINHdy1spjWYhhgcZo5Y2LdTC8odDGvve7QEMK+hNj/KwR
-	 pGHNogJ87NoAGZ21Lez5Ef8GFvuhhy1NPSE0Y6ipVKclV1tdTUHxj/N9wvaIy84kF0fT6
-	 xbcPg48rHSABGyWCndyAlRTdTY+Yz1kxBBsbdEH3Ej2EUGoS2ROVAZoM2QMoTeYD0Bh5V
-	 BXTyt0oUxVZh3ZpQqK1I3hvksjOmNNWaxk3CYkeknFkapDjzoRb+3rQaNTIlHyoWStHqQ
-	 Iq9BioSqJ0T8+NIcUFiDxrBp5uq7dzHpozPtUG5tZD6pSz8dEQOZ5cVzdFptyQXm62Q==
+	t=1793254233;
+	b=cYcMN0MxQcoUUzMmmASNycJuHO/InPOe/GNvTsji4WhOMn9QxyK+SKOF95O6OFU6zNmb
+	 kQseRg6TRYD3xbMizSrwHi+wsl8ZLC5kcCLuOvKt4VsY4Ig1DkQRX+H/x/MCplH1MfKqX
+	 WpmUMhrPEmnr3/1zUu/2s41P6lq0dePT/Fsvh3QRZmEFholSCM0NNrFcUhvB2V++AD5zP
+	 +ltmoaN7gT8LvuVne0H4vlJuP07Z1QmzLvKGH7RkYGJIl+gcYmMZlzqUxcxDBufP8SQpD
+	 uQEgaMDg/oYfdqt0XGK6c46F0NTSlIbXLG5QM3inx6JxJZ9CKWz84TJUDBKbDBKBStg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793254072;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793254233;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=9/w12gC2Flq4f1MChoH3uqKpVNeD2xjUZFA6jng+zrg=;
-	b=dzS4bOKWqG3A6zuMYVLfNib4WpQlcMdKD9IA8IJ3aNEoqnjYSfYqsbwzxRB7gnTuTwhN
-	 zlptl3h9wYEKnWMJb2Ys18OkxeZ28APB1rviCVS/b2hOubkok2YO3KEI4oV/txIiEUGIg
-	 VKrdG/jPkgN681QuqA4HS2YQ6+iTTJsBMT2I975ProO66Xpbd8iYoedr5yugnZFDXlESj
-	 LJx3Wafgx4QMIoPrI5flt+RLXxIsfg21gs11lagysQohmegIE00dyz+WlZ2+ptSJRMQrj
-	 3nlqLIPo11bFhk1xfISSE5jAuxnKdiKZ33ZOUJxTNtmhXaIp22eoyeHWCBdAaeckZnw==
+	bh=L/X5IEYHAt13vls0V/Tm8764OpoEKdj/tCgZCNr8eaM=;
+	b=INoo6bnKstjyzMRMv/WjTyAbfrXZ9h8DoiSHidOJj8FbcdaeFwoO0CInaapj2L4txnmg
+	 Aqq3oPIfpyr5D9Bw52g8JQOXjy/mLJOb7Ymv7ZsEELe2P4Ch1DlQZry0ZA46d+ypAxTck
+	 x4wZuUrWp5jSJ3dkPLogOzg2QENcJ9HpY9ma8f8KrHE1WRPgvIL9Lw36J1SGqgdEYFb/P
+	 YvZFNUpfzLoV2UyKEmXVbJu20CkUOZjytVirz51/1NfxWPQSVGqO3xw8zN0AkWecAEXxl
+	 6QZpnXX2OQ13VvuubKPLbz7lMnveNcOT6HqwlBTubW0J/OLgVvw3pCaK0pSR75aR6pg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=g+RwfhPA;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XfWPE0ZG;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57DF6606A31A;
-	Thu, 29 Oct 2026 06:07:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2FB8606A31A;
+	Thu, 29 Oct 2026 06:10:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=g+RwfhPA
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A07121F01825;
-	Thu, 29 Oct 2026 06:07:51 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XfWPE0ZG
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 845971F01825;
+	Thu, 29 Oct 2026 06:10:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793254071;
-	bh=9/w12gC2Flq4f1MChoH3uqKpVNeD2xjUZFA6jng+zrg=;
+	s=k20260515; t=1793254232;
+	bh=L/X5IEYHAt13vls0V/Tm8764OpoEKdj/tCgZCNr8eaM=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=g+RwfhPA1Mt6O6UVpev5um1RJ8s3LyPQF+6+aHd1g93pl7JREKQN+0SCWOlmE3irP
-	 AC2wIhDBwKQHGxjd4QrthcQTPA5fIZBEMIIz5+yQ2Hiybg1E62r6c13D0YQ/AcfGq4
-	 VWvB+4nQVzlEuWBj1U8DHdFpMtj6NF2euH0QmNj1CC6/MsTZFV2Qy9YhsE7BZExs7e
-	 0ttVSkcpDudQaO/MWjGSL2b7e6V1pIxyC63TaP0TxFMCt7he/7KtpGcRP4TeRYR6iA
-	 w6qzt/VYV56VxJ40VMZOGk92SYKnkJg9hzTCewolb0JubY0lDv6GfsgmgIBeDtO5tU
-	 rWPSzovTTnV7A==
-Message-ID: <sashiko-outbox-188794@kernel.org>
+	b=XfWPE0ZGOQJ5I37oLvbTOQVs/4OlfA48joYOHaiA+BSrYKPtEo6ytjbXwdfV77IH1
+	 EHHTPtVkP1MF3T02nu9AVobYVZuQN6ZJfv97nurlCkneXlwoAqvXf84fDf4qBDXctb
+	 PG//btKZEVL3EhqH6lFhRG+CoGt4nhi1dCF1Ll6jPQ6O1dxD0m54XguKrmnlPPV1l4
+	 M/lSWcbJj6ScUVu/YNae4m5FLg9IGEulylLC9zRlwqtQPmQVINcZ8KlBZK3ojD+KiD
+	 9ixrDjw3T8d6hNTcCAbvGVEnEVkQuaXAJIXrQv2MqjF82j6jjDQGlkRqtLQS5ATPta
+	 4EjIQydda34Sw==
+Message-ID: <sashiko-outbox-188795@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v8 04/14] ALSA: virtio: Keep PCM DMA buffers alive
- through device ownership
+Subject: Re: [PATCH v8 02/14] ALSA: virtio: Recover PCM state after a failed
+ start
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Joonho Lee" <mynameisjune111@gmail.com>, linux-sound@vger.kernel.org
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261029054354.2931-5-mynameisjune111@gmail.com>
+In-Reply-To: <20261029054354.2931-3-mynameisjune111@gmail.com>
 References: <20261029054354.2931-1-mynameisjune111@gmail.com>
- <20261029054354.2931-5-mynameisjune111@gmail.com>
+ <20261029054354.2931-3-mynameisjune111@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 29 Oct 2026 06:07:51 +0000
+Date: Thu, 29 Oct 2026 06:10:32 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -64,126 +64,136 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] ALSA: virtio: out-of-bounds vss->msgs[] access when buffer_bytes <=
- dma_bytes
+- [Medium] ALSA: virtio: virtsnd_pcm_sync_stop() resends PCM_RELEASE after =
+drain failure
 --
 
-commit 5684205c20865cb426276aaf2c41df707838c019
+commit 8526e884d4c74a3678dceb6e148567c0ca936c95
 Author: Joonho Lee <mynameisjune111@gmail.com>
 
-ALSA: virtio: Keep PCM DMA buffers alive through device ownership
+ALSA: virtio: Recover PCM state after a failed start
 
-This commit retains references to pages backing ALSA vmalloc buffers (or us=
-es
-a driver-owned DMA buffer on NOMMU systems) until queued virtio-snd I/O
-messages are freed. It also adds buffer validation during message allocation
-and clamps device-reported capture completion lengths to the message capaci=
-ty.
+This patch recovers PCM substream state when a start trigger fails by marki=
+ng
+the stream stopped, disabling transfers, arming stop_operating, and protect=
+ing
+accesses to the stopped flag with vss->lock.
 
-> diff --git a/sound/virtio/virtio_pcm_msg.c b/sound/virtio/virtio_pcm_msg.c
-> index 762480363b861..b7f2334bb221c 100644
-> --- a/sound/virtio/virtio_pcm_msg.c
-> +++ b/sound/virtio/virtio_pcm_msg.c
-
+> diff --git a/sound/virtio/virtio_pcm_ops.c b/sound/virtio/virtio_pcm_ops.c
+> index a40ea394bf174..970499fe419b4 100644
+> --- a/sound/virtio/virtio_pcm_ops.c
+> +++ b/sound/virtio/virtio_pcm_ops.c
 [ ... ]
-
-> @@ -132,36 +211,99 @@ static void virtsnd_pcm_sg_from(struct scatterlist =
-*sgs, int nsgs, u8 *data,
->  int virtsnd_pcm_msg_alloc(struct virtio_pcm_substream *vss,
->  			  unsigned int periods, unsigned int period_bytes)
->  {
-> -	struct snd_pcm_runtime *runtime =3D vss->substream->runtime;
-> +	struct snd_pcm_runtime *runtime;
-> +	size_t buffer_bytes;
->  	unsigned int i;
-> +	int rc;
+> @@ -115,7 +124,8 @@ static int virtsnd_pcm_open(struct snd_pcm_substream =
+*substream)
+>  	snd_pcm_hw_constraint_integer(substream->runtime,
+>  				      SNDRV_PCM_HW_PARAM_PERIODS);
 > =20
-> -	vss->msgs =3D kzalloc_objs(*vss->msgs, periods);
-> -	if (!vss->msgs)
-> +	if (vss->msgs || vss->nmsgs || vss->dma_pages || vss->ndma_pages)
-> +		return -EBUSY;
-> +#ifndef CONFIG_MMU
-> +	if (vss->owned_dma_area || vss->owned_dma_bytes)
-> +		return -EBUSY;
-> +#endif
-> +	if (!periods || !period_bytes)
-> +		return -EINVAL;
-> +
-> +	if (check_mul_overflow((size_t)periods, (size_t)period_bytes,
-> +			       &buffer_bytes))
-> +		return -EOVERFLOW;
-> +
-> +	if (!vss->substream || !vss->substream->runtime)
-> +		return -EINVAL;
-> +	runtime =3D vss->substream->runtime;
-> +	if (!runtime->dma_area || buffer_bytes > runtime->dma_bytes)
-> +		return -EINVAL;
+> -	vss->stopped =3D !!virtsnd_pcm_msg_pending_num(vss);
+> +	scoped_guard(spinlock_irqsave, &vss->lock)
+> +		vss->stopped |=3D !!vss->msg_count;
+>  	vss->suspended =3D false;
+[ ... ]
+> @@ -393,21 +434,31 @@ static int virtsnd_pcm_sync_stop(struct snd_pcm_sub=
+stream *substream)
+>  	struct virtio_snd *snd =3D vss->snd;
+>  	struct virtio_snd_msg *msg;
+>  	unsigned int js =3D msecs_to_jiffies(virtsnd_msg_timeout_ms);
+> +	bool need_release;
+>  	int rc;
+> =20
+> +	scoped_guard(spinlock_irqsave, &vss->lock) {
+> +		vss->xfer_enabled =3D false;
+> +		need_release =3D vss->stopped || vss->msg_count;
+> +		if (need_release)
+> +			vss->stopped =3D true;
+> +	}
+>  	cancel_work_sync(&vss->elapsed_period);
+> -
+> -	if (!vss->stopped)
+> +	if (!need_release)
+>  		return 0;
+> =20
+>  	msg =3D virtsnd_pcm_ctl_msg_alloc(vss, VIRTIO_SND_R_PCM_RELEASE,
+>  					GFP_KERNEL);
+> -	if (!msg)
+> +	if (!msg) {
+> +		substream->runtime->stop_operating =3D true;
+>  		return -ENOMEM;
+> +	}
+> =20
+>  	rc =3D virtsnd_ctl_msg_send_sync(snd, msg);
+> -	if (rc)
+> +	if (rc) {
+> +		substream->runtime->stop_operating =3D true;
+>  		return rc;
+> +	}
+> =20
+>  	/*
+>  	 * The spec states that upon receipt of the RELEASE command "the device
+> @@ -421,11 +472,13 @@ static int virtsnd_pcm_sync_stop(struct snd_pcm_sub=
+stream *substream)
+>  	if (rc <=3D 0) {
+>  		dev_warn(&snd->vdev->dev, "SID %u: failed to flush I/O queue\n",
+>  			 vss->sid);
+> +		substream->runtime->stop_operating =3D true;
+> =20
+>  		return !rc ? -ETIMEDOUT : rc;
+>  	}
+> =20
+> -	vss->stopped =3D false;
+> +	scoped_guard(spinlock_irqsave, &vss->lock)
+> +		vss->stopped =3D false;
+> =20
+>  	return 0;
+>  }
 
-[Severity: High]
-Can this validation allow buffer_bytes < runtime->dma_bytes to pass and lead
-to an out-of-bounds read on vss->msgs[] in virtsnd_pcm_msg_send()?
+[Severity: Medium]
+Can virtsnd_pcm_sync_stop() send a duplicate VIRTIO_SND_R_PCM_RELEASE comma=
+nd
+if the post-release queue drain wait is interrupted or times out?
 
-virtsnd_pcm_open() constrains SNDRV_PCM_HW_PARAM_PERIODS to an integer, and
-ALSA core constrains SNDRV_PCM_HW_PARAM_PERIOD_SIZE and
-SNDRV_PCM_HW_PARAM_BUFFER_BYTES to integers, but SNDRV_PCM_HW_PARAM_PERIOD_=
-BYTES
-is not constrained to an integer. When the device supports the 4-bit
-SNDRV_PCM_FORMAT_IMA_ADPCM format (VIRTIO_SND_PCM_FMT_IMA_ADPCM), a 1-chann=
-el
-stream (frame_bits =3D=3D 4) configured with an odd period_size (for exampl=
-e, 2001
-frames) and an even number of periods (for example, 2, giving buffer_size =
-=3D=3D
-4002 frames) refines SNDRV_PCM_HW_PARAM_BUFFER_BYTES to the exact integer 2=
-001
-(so runtime->dma_bytes is 2001), while SNDRV_PCM_HW_PARAM_PERIOD_BYTES refi=
-nes
-to the non-empty open interval (1000, 1001). Both params_period_bytes() and
-snd_pcm_lib_period_bytes() truncate that period byte size to 1000.
+In virtsnd_pcm_sync_stop(), after virtsnd_ctl_msg_send_sync() succeeds for
+VIRTIO_SND_R_PCM_RELEASE, wait_event_interruptible_timeout() waits for
+in-flight I/O messages to drain. If a signal is pending or the wait times o=
+ut
+before the last message completes, virtsnd_pcm_sync_stop() sets
+substream->runtime->stop_operating =3D true and returns an error while leav=
+ing
+vss->stopped =3D true.
 
-In virtsnd_pcm_msg_alloc(), buffer_bytes is computed as periods * period_by=
-tes
-(2000), which passes buffer_bytes > runtime->dma_bytes and allocates only
-vss->nmsgs =3D 2 messages (along with 2000 bytes of retained pages or
-owned_dma_area).
+Once the device finishes returning the remaining I/O messages and
+vss->msg_count reaches 0, vss->stopped remains true because a single boolean
+tracks both whether VIRTIO_SND_R_PCM_RELEASE still needs to be sent and
+whether pending I/O messages have finished draining.
 
-Later, virtsnd_pcm_prepare() sets vss->buffer_bytes and the pcm_indirect
-buffer sizes from snd_pcm_lib_buffer_bytes(substream) (2001):
+Because virtsnd_pcm_open() now uses vss->stopped |=3D !!vss->msg_count, and
+virtsnd_pcm_hw_params() and virtsnd_pcm_prepare() reject the substream with
+-EBADFD while vss->stopped is true, the next virtsnd_pcm_sync_stop() call
+(during close, hw_free, prepare, hw_params, or reopen via virtsnd_pcm_open(=
+))
+sees need_release =3D vss->stopped || vss->msg_count as true and sends a se=
+cond
+VIRTIO_SND_R_PCM_RELEASE command for a stream that was already released. If
+the device rejects the duplicate release command, virtsnd_pcm_sync_stop()
+fails again and leaves vss->stopped =3D true, wedging the substream.
 
-sound/virtio/virtio_pcm_ops.c:virtsnd_pcm_prepare() {
-	...
-		vss->buffer_bytes =3D snd_pcm_lib_buffer_bytes(substream);
-		vss->hw_ptr =3D 0;
-	...
-	vss->pcm_indirect.sw_buffer_size =3D
-		vss->pcm_indirect.hw_buffer_size =3D
-		snd_pcm_lib_buffer_bytes(substream);
-}
+Note that a later commit in the series ("ALSA: virtio: add staged capture
+accounting and lifecycle recovery") changes the drain wait in
+virtsnd_pcm_sync_stop_locked() to wait_event_timeout() and tracks
+VIRTSND_PCM_PAUSE_RESTART_RELEASE_SENT in the opt-in pause-restart state
+machine, but the default virtsnd_pcm_sync_stop_locked() path still leaves
+vss->stopped =3D true (and vss->prepared =3D true) if the drain wait times =
+out
+after VIRTIO_SND_R_PCM_RELEASE succeeded.
 
-When capture starts via virtsnd_pcm_trigger() ->
-virtsnd_pcm_msg_send(vss, 0, vss->buffer_bytes), or playback transfers the
-final byte of the buffer via virtsnd_pcm_pb_ack() -> virtsnd_pcm_msg_send(),
-virtsnd_pcm_msg_send() computes end =3D (offset + bytes - 1) / period_bytes=
- =3D
-2000 / 1000 =3D 2 and indexes vss->msgs[2] past the end of the 2-element
-vss->msgs[] array:
-
-sound/virtio/virtio_pcm_msg.c:virtsnd_pcm_msg_send() {
-	...
-	start =3D offset / period_bytes;
-	end =3D (offset + bytes - 1) / period_bytes;
-
-	for (i =3D start; i <=3D end; i++) {
-		struct virtio_pcm_msg *msg =3D vss->msgs[i];
-	...
-}
-
-Should virtsnd_pcm_msg_alloc() check buffer_bytes !=3D runtime->dma_bytes (=
-or
-constrain SNDRV_PCM_HW_PARAM_PERIOD_BYTES to an integer in virtsnd_pcm_open=
-())
-so that periods * period_bytes always covers the full PCM buffer?
+Should the driver track whether VIRTIO_SND_R_PCM_RELEASE has already succee=
+ded
+separately from whether vss->msg_count has drained to 0, so a subsequent
+virtsnd_pcm_sync_stop() only waits for remaining messages to drain instead =
+of
+resending VIRTIO_SND_R_PCM_RELEASE?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261029054354.2931=
--1-mynameisjune111@gmail.com?part=3D4
+-1-mynameisjune111@gmail.com?part=3D2
