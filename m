@@ -1,48 +1,48 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=117.135.210.4
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=220.197.31.4
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793349271;
-	b=ye5Jm86wV5nlgyzAF5y8dC0d1zuBVAN8EF+8ov27ePhF/tj99ne8+k+y9fjghkLDrTI4
-	 YXgTrkaCkThaOG6DD0dRefs5C0D+bMDiYttJa1Ddfbs+CNJJ6z32eOuLUBy1bc7GHI+pk
-	 cXijeWrSBXhu2+ohbfEBcoVTl2KCFQgz/bXx48ky1ax2O36Z6escNmd9qsygJ+H2SlZGD
-	 GMzFnf5+LKSsYsHZbfxWDhSJX2yYn7YrnjfPQ+ZNCiFOvykrEbnP/9u/x6T/X2QMZvMuf
-	 FQKJAoO8JblSdO0s3uxziTPa5At9ovP0Sr8EgSWWBTiqJXs3+ab2zFZKk+Zj5BfuQyQ==
+	t=1793349269;
+	b=rKOIitNyOCdhQGuZ825dS31dLLpu2xhFDsI/ZcJGi0Dnb90OaSQaPqVhC7livlfyTC3M
+	 +XWHFsRKKj/ly5IeVmrNapuuu5o9Sn0fRetNAWktcdnUfhbjmiFDK5gZDvwATGzTuaAQv
+	 AcG5IWyHz+s8ZN2XTpoogxSSAXdniCjBXWqSeNzl3X1OIdsK0GFMJMCqto4rSsl8BYRh4
+	 YKReuHJNXPHNBSRLlI5Ba/bXMEnP16MD1DVQ6Sp7YAKtBo98t4+9KWEIaMvpwR7Ku5eoH
+	 nuzppXqRdNICBSk2NFF9Tw1t3pUi0OIes66qU1OWKefEDJQFDIBwRS5fxeq+isvIJVA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793349271;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793349269;
 	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
 	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding:X-CM-TRANSID:X-Coremail-Antispam:
 	 X-CM-SenderInfo;
-	bh=I72n+CWhLWrUERT5jZ5V7O55jD6fzXYXW00CTfYGjS4=;
-	b=k9QrlLw5VsKVCm64vP51ymBM3CPCICluV5iNqXEqzQoOAUkThTEbpDUcEUjYNi9zjEex
-	 hEBfLIJuZILSfAZal1lq+LCjQAalSl9kPVnXy9GWBSjP6RAOAw6OSxIndrZtTSads5yIw
-	 pS8m7zWMRdZTzFPuwvzEa7G0gPEbEEnPOpppvKruxOlG6rMQb7Z3soh2Q46tjIWUyXBli
-	 iLEMTFFJWAOGXk/CHrKoXyf7Qb5GKdWgp9T8T1fggOh1onsFN0ydKKsG2Z0+CaJOYbxHN
-	 SzAHHPJxI2GT0DRdK5yKdcNdUHpYGVGzQ7v8nVkANCj024wicXA0OAxjPjTe6SJdkqQ==
+	bh=k/Cb+9PJIrDQIPotGU391kdpQTlHe+ce4bWa99eeXrE=;
+	b=AYxCIA+ccgcrIsPVll9ZGmtSZWqIPmuyjXZLpn2fY5PFZRdNFpQBUuRXMHYQ6EUJoPkx
+	 3NCD/vm5jbKAp/kFHdMo2ZlBAhB7S9z46JOLIbNXjwenySwcRBiOYIg+vLcNICuVlLY1h
+	 H2YjxXlG+/EInJSd/Ame/TyyOwpVYoPYFGbY6pfFkkZkQjuqRGde2/IgjXiOijnzAX/jX
+	 roZ2cMf44xT6476YfC1KJxt5DFuHBM5zrt8wcZioiBK1q9Hhb5QHVnIjWrZc9zK2vmXD0
+	 +tVdseB/k5jPRFPAC2PQVqS7djT3OGvDk04JSoo+boxFEV1EP5kykTdXNMsdHrhxZYQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=163.com;
 	spf=pass smtp.mailfrom=163.com;
-	dkim=pass header.d=163.com header.i=@163.com header.a=rsa-sha256 header.s=s110527 header.b=GWQZCO3K;
-	arc=none smtp.remote-ip=117.135.210.4
-Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.4])
+	dkim=pass header.d=163.com header.i=@163.com header.a=rsa-sha256 header.s=s110527 header.b="i/358uwq";
+	arc=none smtp.remote-ip=220.197.31.4
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.4])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90E86606A320
-	for <virtualization@lists.linux.dev>; Fri, 30 Oct 2026 08:34:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 90E86606A320
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC9C0606A31D
+	for <virtualization@lists.linux.dev>; Fri, 30 Oct 2026 08:34:26 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DC9C0606A31D
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=163.com header.i=@163.com header.a=rsa-sha256 header.s=s110527 header.b=GWQZCO3K
+	dkim=pass (1024-bit key, unprotected) header.d=163.com header.i=@163.com header.a=rsa-sha256 header.s=s110527 header.b=i/358uwq
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-ID:MIME-Version; bh=I7
-	2n+CWhLWrUERT5jZ5V7O55jD6fzXYXW00CTfYGjS4=; b=GWQZCO3KL7T/cQiFBD
-	y+vf17/v6PO27FhjeNQjKyBxTy9+OeikBghu7vo4R6irOguDrYFk7N4O29en60x0
-	nNUcnW1nYwnb3iDs878uhKfxR6iPN4iMyaD1d3MvMBGk5WncaJCyon3gzw5coagK
-	F38x0a/Z851VeW6xDVW0e0V1A=
+	s=s110527; h=From:To:Subject:Date:Message-ID:MIME-Version; bh=k/
+	Cb+9PJIrDQIPotGU391kdpQTlHe+ce4bWa99eeXrE=; b=i/358uwq5lB2w8KcCt
+	q5Sdp77z6yAtfUWMJgNhNTaZTddX8ZXRt3qLPhr1z6W+1BB8En0lJ5sfZFulFf87
+	rLLopNVjAP1wk9iamAZHc7W9hckW9PgJn7zn6oAyafrAr9mF3jgI/7xg7fT5W6HT
+	L7e6hoSSebvAxwwoiY59cB/7g=
 Received: from neo-TianYi510Pro-15ICK.. (unknown [])
-	by gzsmtp1 (Coremail) with SMTP id PCgvCgAXRXl+VuRqCoKSCg--.15983S5;
-	Fri, 30 Oct 2026 16:34:12 +0800 (CST)
+	by gzsmtp1 (Coremail) with SMTP id PCgvCgAXRXl+VuRqCoKSCg--.15983S4;
+	Fri, 30 Oct 2026 16:34:11 +0800 (CST)
 From: liuqiangneo@163.com
 To: "Michael S . Tsirkin" <mst@redhat.com>,
 	David Hildenbrand <david@kernel.org>
@@ -52,9 +52,9 @@ Cc: Jason Wang <jasowangio@gmail.com>,
 	linux-kernel@vger.kernel.org,
 	virtualization@lists.linux.dev,
 	Qiang Liu <liuqiang@kylinos.cn>
-Subject: [PATCH v2 3/3] virtio_balloon: add tracepoints for free page hinting and migration
-Date: Fri, 30 Oct 2026 16:34:00 +0800
-Message-ID: <20261030083400.66005-4-liuqiangneo@163.com>
+Subject: [PATCH v2 2/3] virtio_balloon: add tracepoint for host ack latency
+Date: Fri, 30 Oct 2026 16:33:59 +0800
+Message-ID: <20261030083400.66005-3-liuqiangneo@163.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20261030083400.66005-1-liuqiangneo@163.com>
 References: <20261030083400.66005-1-liuqiangneo@163.com>
@@ -68,120 +68,93 @@ List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:PCgvCgAXRXl+VuRqCoKSCg--.15983S5
-X-Coremail-Antispam: 1Uf129KBjvJXoWxWFyrZFyxJw43Kr1kZF4fZrb_yoWrGFWrpa
-	n7Arn5G3y8Xr47KFWfArW8uw15Z3s7CFWfJFW2g34UCF43JF9Fg3WDtr1DZrW3Ar18trn3
-	ZF1IgFWUCF1kuaUanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07jlGQfUUUUU=
-X-CM-SenderInfo: 5olx1xxdqj0vrr6rljoofrz/xtbC3wSK62rkVoTPlgAA3-
+X-CM-TRANSID:PCgvCgAXRXl+VuRqCoKSCg--.15983S4
+X-Coremail-Antispam: 1Uf129KBjvJXoWxZFy5WFyfGw18KF4kCFy7trb_yoW5AFyxpF
+	nxArnIk3yUXr42qFyfta1j9r15u397GryfJFWSgw1UCr43JFyDKr4DKF1qyFyrAr4vg3s3
+	uFn2qFZ0kF1kZw7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07jfAwxUUUUU=
+X-CM-SenderInfo: 5olx1xxdqj0vrr6rljoofrz/xtbC-AOJ6mrkVoOMrAAA3n
 
 From: Qiang Liu <liuqiang@kylinos.cn>
 
-Free page hint requests cannot be traced, and migration only
-provides summary stats. Lock contention causing migration abort
-cannot be distinguished, making these two flows hard to debug.
+Balloon inflate/deflate block in tell_host() for host buffer consumption.
+Host-side stalls are easily mistaken for guest allocation issues.
 
-Add tracepoints to record host hint commands, leftover hint blocks
-and balloon_lock -EAGAIN migration failures.
+Add virtio_balloon_host_ack to record tell_host() wait time,
+virtqueue and PFN count, to split balloon latency between guest and host.
 
 Signed-off-by: Qiang Liu <liuqiang@kylinos.cn>
 ---
- drivers/virtio/virtio_balloon.c       | 11 +++++-
- include/trace/events/virtio_balloon.h | 48 +++++++++++++++++++++++++++
- 2 files changed, 58 insertions(+), 1 deletion(-)
+ drivers/virtio/virtio_balloon.c       | 19 +++++++++++++++++--
+ include/trace/events/virtio_balloon.h | 22 ++++++++++++++++++++++
+ 2 files changed, 39 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index c4fdc6815b41..26c9c118ad96 100644
+index 2d0b16383661..c4fdc6815b41 100644
 --- a/drivers/virtio/virtio_balloon.c
 +++ b/drivers/virtio/virtio_balloon.c
-@@ -817,6 +817,10 @@ static void virtio_balloon_report_free_page(struct virtio_balloon *vb)
- 	err = send_cmd_id_stop(vb);
- 	if (unlikely(err))
- 		dev_err(dev, "Failed to send a stop id, err = %d\n", err);
-+
-+	trace_virtio_balloon_free_page_hint(
-+		virtio32_to_cpu(vb->vdev, vb->cmd_id_active),
-+		READ_ONCE(vb->num_free_page_blocks));
- }
+@@ -19,6 +19,7 @@
+ #include <linux/wait.h>
+ #include <linux/mm.h>
+ #include <linux/page_reporting.h>
++#include <linux/ktime.h>
+ #define CREATE_TRACE_POINTS
+ #include <trace/events/virtio_balloon.h>
  
- static void report_free_page_func(struct work_struct *work)
-@@ -869,8 +873,11 @@ static int virtballoon_migratepage(struct balloon_dev_info *vb_dev_info,
- 	 * recursion in the case it ends up triggering memory compaction
- 	 * while it is attempting to inflate the ballon.
- 	 */
--	if (!mutex_trylock(&vb->balloon_lock))
-+	if (!mutex_trylock(&vb->balloon_lock)) {
-+		trace_virtio_balloon_migrate(page_to_pfn(page),
-+					     page_to_pfn(newpage), -EAGAIN);
- 		return -EAGAIN;
+@@ -197,8 +198,22 @@ static void tell_host(struct virtio_balloon *vb, struct virtqueue *vq)
+ 		return;
+ 	virtqueue_kick(vq);
+ 
+-	/* When host has read buffer, this completes via balloon_ack */
+-	wait_event(vb->acked, virtqueue_get_buf(vq, &len));
++	/*
++	 * When host has read buffer, this completes via balloon_ack.
++	 *
++	 * The latency is only measured when the tracepoint is enabled, so a
++	 * disabled tracepoint adds no clock reads on this (hot) path.
++	 */
++	if (trace_virtio_balloon_host_ack_enabled()) {
++		ktime_t start = ktime_get();
++
++		wait_event(vb->acked, virtqueue_get_buf(vq, &len));
++		trace_virtio_balloon_host_ack(vb->num_pfns,
++					      vq->name,
++					      ktime_to_ns(ktime_sub(ktime_get(), start)));
++	} else {
++		wait_event(vb->acked, virtqueue_get_buf(vq, &len));
 +	}
- 
- 	/* balloon's page migration 1st step  -- inflate "newpage" */
- 	vb->num_pfns = VIRTIO_BALLOON_PAGES_PER_PAGE;
-@@ -883,6 +890,8 @@ static int virtballoon_migratepage(struct balloon_dev_info *vb_dev_info,
- 	tell_host(vb, vb->deflate_vq);
- 
- 	mutex_unlock(&vb->balloon_lock);
-+
-+	trace_virtio_balloon_migrate(page_to_pfn(page), page_to_pfn(newpage), 0);
- 	return 0;
  }
- #endif /* CONFIG_BALLOON_MIGRATION */
+ 
+ static int virtballoon_free_page_report(struct page_reporting_dev_info *pr_dev_info,
 diff --git a/include/trace/events/virtio_balloon.h b/include/trace/events/virtio_balloon.h
-index 559deb997e88..38e74a53bcd5 100644
+index f733fc360d8b..559deb997e88 100644
 --- a/include/trace/events/virtio_balloon.h
 +++ b/include/trace/events/virtio_balloon.h
-@@ -103,6 +103,54 @@ TRACE_EVENT(virtio_balloon_host_ack,
- 		  __get_str(vq_name), __entry->num_pfns, __entry->latency_ns)
+@@ -81,6 +81,28 @@ TRACE_EVENT(virtio_balloon_deflate,
+ 		  __entry->requested, __entry->deflated, __entry->num_pages)
  );
  
-+TRACE_EVENT(virtio_balloon_free_page_hint,
++TRACE_EVENT(virtio_balloon_host_ack,
 +
-+	/*
-+	 * unreclaimed_blocks: hint blocks given to the host but not yet
-+	 * reclaimed via CMD_ID_DONE; accumulated across reporting rounds.
-+	 */
-+	TP_PROTO(u32 cmd_id, unsigned long unreclaimed_blocks),
++	TP_PROTO(unsigned int num_pfns, const char *vq_name, s64 latency_ns),
 +
-+	TP_ARGS(cmd_id, unreclaimed_blocks),
++	TP_ARGS(num_pfns, vq_name, latency_ns),
 +
 +	TP_STRUCT__entry(
-+		__field(u32, cmd_id)
-+		__field(unsigned long, unreclaimed_blocks)
++		__field(unsigned int, num_pfns)
++		__string(vq_name, vq_name)
++		__field(s64, latency_ns)
 +	),
 +
 +	TP_fast_assign(
-+		__entry->cmd_id = cmd_id;
-+		__entry->unreclaimed_blocks = unreclaimed_blocks;
++		__entry->num_pfns = num_pfns;
++		__assign_str(vq_name);
++		__entry->latency_ns = latency_ns;
 +	),
 +
-+	TP_printk("cmd_id=%u unreclaimed_blocks=%lu",
-+		  __entry->cmd_id, __entry->unreclaimed_blocks)
++	TP_printk("vq=%s num_pfns=%u latency=%lldns",
++		  __get_str(vq_name), __entry->num_pfns, __entry->latency_ns)
 +);
-+
-+#ifdef CONFIG_BALLOON_MIGRATION
-+TRACE_EVENT(virtio_balloon_migrate,
-+
-+	TP_PROTO(unsigned long old_pfn, unsigned long new_pfn, long ret),
-+
-+	TP_ARGS(old_pfn, new_pfn, ret),
-+
-+	TP_STRUCT__entry(
-+		__field(unsigned long, old_pfn)
-+		__field(unsigned long, new_pfn)
-+		__field(long, ret)
-+	),
-+
-+	TP_fast_assign(
-+		__entry->old_pfn = old_pfn;
-+		__entry->new_pfn = new_pfn;
-+		__entry->ret = ret;
-+	),
-+
-+	TP_printk("old_pfn=0x%lx new_pfn=0x%lx ret=%ld",
-+		  __entry->old_pfn, __entry->new_pfn, __entry->ret)
-+);
-+#endif /* CONFIG_BALLOON_MIGRATION */
 +
  #endif /* _TRACE_VIRTIO_BALLOON_H */
  
