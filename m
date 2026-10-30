@@ -1,104 +1,81 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793370339;
-	b=LNxmiFUWEXE/vXtv9Ysb61jULd4kGxaOHxBzeu+euCbs2pjJwHVxLXjL35uPNWp9zrTg
-	 vGvpc8U8aW6TJa+CZOSII4+92KCcCON8KgPhr/CHiXXXZ7qvrSfb/VHSqKOtkttTYX4RO
-	 ou8OEmU2YTwU+6b32uwVhaV0sJAqXQ540RTpUxvgbxRYuQHT2QAptiFKWJHT2jl43oGsB
-	 tpeHqhrB50NSQq3T1SZYfljpBVwLe771TeAFhd1evnRqk0dpY6H9On1I2urxPR8cr675C
-	 914vMkr0ueZWPeLZ8cWulxhd8kvdQoHu4252tYo88KU/XfjZCizPXB52WLMHgArH8DA==
+	t=1793372049;
+	b=APGqHrv4yPfU2iGvMZfVt/r91CV0hMWgBP4ALPQJXwXL3yyJuPm8qvxYja2uka9JDBkZ
+	 WrrOrMAOBvJdhgtJui47+omdIegGNVAsQBkeh1MsXPGmkiP4HUmcGRFimQzMmeWotJxHO
+	 1q1XgsJ/4eC1uExxoEuviihTfJH0OYy9BxPVeNCvZoP49cRS0M9urjrUFuG/SGihWA4XQ
+	 /gZ0KC2eoVa8hjRLgJeejObuXnA9921t932+qIDGHrYqXudgnTzMzhl/dO/f+hvn5mSFB
+	 BLMDVWCB1P6Z2z5fcpDz/jXfKN9A+ocyjQ1QsSU4DU3TSvlZYnTjC3Huoxya74hbxVg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793370339;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
-	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
-	 X-Mimecast-Originator:Content-Type:Content-Disposition;
-	bh=aLnPtHK687FMiRhGf2fkDTjbZs7yseTcdHjFjaHWPdw=;
-	b=lo2uDmOPWBXvyFiO5fsbHC9zSXRcn7eUgND0lHxshkSSdwTiTLeqDBNgjOzRYQpcNjON
-	 HUD39dwDEBdb21aik3fyga0O/xT0i2kZx8FMBSCs6y0dfTIolxiwbz0cPdoXAHmfKKjtw
-	 Qt5Lvw6fFWZ7qn0ewZds03a5TiA2dY18mZY273gvp5jfB0sGfqGSrG6ASF1YLq6kKZOAv
-	 HPx9+70+iaS0y4z+f0qgQ+f4/kCVmW57JLw56iBP0+ecHf5/sAB1jptl9pOLD+zPJ8Qm7
-	 JNI3vG6AtvuHGMuXDF0mVX7Bds+0OqcuAXPxQf7+XQqZYxd2CeZ1U+PFpp11WTRo5SQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793372049;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
+	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
+	 User-Agent:Subject:To:Cc:References:From:Content-Language:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
+	 X-Proofpoint-Reinject:X-Proofpoint-GUID:X-Proofpoint-Spam-Details-Enc:
+	 X-Authority-Analysis:X-Proofpoint-Spam-Info:X-Proofpoint-ORIG-GUID:
+	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
+	bh=H9eLUfkkXk3rN8z33BkjptRVTbsFOrVizvCzkbGO2F4=;
+	b=GJF+uXelWmuKKvEo8IGOWekUvi3NZcleTtO0kWLp8HvP226QOOvSv/MF2WEZpnk3fFme
+	 HVHBrqmNVmylNv3BJzQsdIjm60k7pJjc4SbqFy5PPpGU+1hfYW1moBQuxdwXyQI1ahyg7
+	 2eDvwXUdX2EklTLCBoBS+qWna4DePSCpCn7zN/Mg41vFIGYHT18RnD6Y8dH8lAFizJ/Tb
+	 0UFNaPuSzJrFg4+sGM9Qk91k0tWFURpG5UVMQkYM6CijIZUzdB6MAQI1CeSEmhfsx8JAw
+	 gCjdnf25QAj48vYb3oHVncRYzrK8o4K7/wKg3Q/bBAzzz7Xr128UozbxTFVQnVc0KuQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=JzYW0hoY;
-	arc=none smtp.remote-ip=170.10.133.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	dmarc=pass header.from=linux.ibm.com;
+	spf=pass smtp.mailfrom=linux.ibm.com;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=LG5rx7k2;
+	arc=none smtp.remote-ip=148.163.158.5
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 737E1606A31E
-	for <virtualization@lists.linux.dev>; Fri, 30 Oct 2026 14:25:38 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 737E1606A31E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BA0960A2604
+	for <virtualization@lists.linux.dev>; Fri, 30 Oct 2026 14:54:09 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5BA0960A2604
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=JzYW0hoY
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1793370337;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=aLnPtHK687FMiRhGf2fkDTjbZs7yseTcdHjFjaHWPdw=;
-	b=JzYW0hoYfGbUsXkfhbYLFQQ81WLE0ZIHS46hGeV7vozhHFaB+JyMBMq4yMhW/hHTFOxhOE
-	V+t4NKr+X3Oy736pURNhuqPd6yt9X1JySm5mkGLg8UTfg5U1eym0XkyEq4Tvcee+jvCsjC
-	Vj7ZZJfdxR/B/nW3jZXutBVDql8CzVo=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-270-PVr0fDSYP8C4tLVJ3jbkfw-1; Fri, 30 Oct 2026 10:25:36 -0400
-X-MC-Unique: PVr0fDSYP8C4tLVJ3jbkfw-1
-X-Mimecast-MFC-AGG-ID: PVr0fDSYP8C4tLVJ3jbkfw_1793370335
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4a214a5f8a1so7482965e9.0
-        for <virtualization@lists.linux.dev>; Fri, 30 Oct 2026 07:25:35 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793370335; x=1793975135;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=aLnPtHK687FMiRhGf2fkDTjbZs7yseTcdHjFjaHWPdw=;
-        b=SeoBBBW0rRRCe7rCTagivkNaHtql7bSaxcnlI8731nQqx32aRO/VHrZAMZ78VfP9I/
-         lnl2kH+wyR//08jh5BVDTmFcQDrHTlnuzt08Q9nLIikL8xPBT7eGzv0yH1rrEgYiLDTw
-         t9zsteC3QmSy13Xa3hUFKR7OwIPWgON45xq6pBx+SV3qHMZd6xOUhzpjJ9CY7iajqnjF
-         LPwb9KEsnI9ALWnWI3hSLwy8JhpyghZ8hdPuIB4pbe2ey3rs/I8BNmBIokU8qXgwALwQ
-         j8xLaET7rUlmBymOGbT2i8QwihXPBu3M1iOz4popJ+eXf3QjBjtwbH9rLrmRTlp/7est
-         ZBAQ==
-X-Forwarded-Encrypted: i=1; AKwUvBwbTkTYOzdxudHiqD91W0z2WuSDSTglPf+hBIPxdmp0GfT3eo2S7/qGpGSzxlDwvZUAu4NUUvFh2oA6GNzT3w==@lists.linux.dev
-X-Gm-Message-State: AFq9FYI75GkFET6DurfD2I/BTaAwwnF4eI8dapHbpA9oWlzg6EKRCCvs
-	1x91OKbwcYhxlynO8TdyW3GzQ0A+egQPa6t8PlY5//LOBrjHJz2TZnFNYaOQpeWnRRkZRgswTh0
-	AObPHEM//7CYeoTcnuE5+2CWWDlLwHn4SJteNeG66T4/NYcthhTlBcLpt2dwI/vieYSzH
-X-Gm-Gg: AYBFou15fj1zwqDZ/x1bZTpMdKPxOnse5QSXxv0Wb0P88B2ee6tIn0xz7Qk8biJ2PSu
-	mHVOeLseGDVE5nSCb0m5Y+RInRO/EPKgH4ZI1QEkCpzXaxwUi9db4v2j0dhRYDU31dplT8tRBw6
-	8Q5+SezJrV7LZqkkdsrtTfdnhg99WDTjwJ9t0tuL8XgeNnshQjXXU0G5JVhS4X5gAxNgVdJrgMm
-	E7tNRUOlLwPbSSFGJzpFh5ghbOB6jvr+SekF2zT6idPZ5L5z6qlqM3AHmliKDGCrG5BOFq/Jv9w
-	Fq7c7W2BOwPwlXDX0J3Zf9kLz8//qHPkVIHcVaLD2i8GmfSV/I5I4Vtqd7wRFncPLXOebNo7biA
-	ihM3eyZEfc375luKSlrQy+6+b5qPvHxz9ht/ITz1RFWeD+tdBHKvuu/VxTcl8M8VUiVQo1fiB1k
-	cJAq7K5vAPXGmGDaE=
-X-Received: by 2002:a05:600c:354a:b0:4a3:5a55:f454 with SMTP id 5b1f17b1804b1-4ac17e10ac3mr56533815e9.19.1793370334645;
-        Fri, 30 Oct 2026 07:25:34 -0700 (PDT)
-X-Received: by 2002:a05:600c:354a:b0:4a3:5a55:f454 with SMTP id 5b1f17b1804b1-4ac17e10ac3mr56533065e9.19.1793370334072;
-        Fri, 30 Oct 2026 07:25:34 -0700 (PDT)
-Received: from sgarzare-redhat (ip190-139-192-82.pool-bba.aruba.it. [82.192.139.190])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4abf60f1076sm67431295e9.6.2026.10.30.07.25.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 30 Oct 2026 07:25:32 -0700 (PDT)
-Date: Fri, 30 Oct 2026 15:25:26 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: jrmmhm.kernel@eldare.de
-Cc: Bobby Eshleman <bobbyeshleman@meta.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Michal Luczaj <mhal@rbox.co>, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bpf@vger.kernel.org, 
-	stable@vger.kernel.org
-Subject: Re: [PATCH net v3 2/2] vsock/bpf: fix zero-length, MSG_OOB and
- MSG_ERRQUEUE reads in recvmsg
-Message-ID: <auSngVsWiGI475J4@sgarzare-redhat>
-References: <20261028-kbh3-1-022-fix-v2-v3-0-bc0752b2d3db@eldare.de>
- <20261028-kbh3-1-022-fix-v2-v3-2-bc0752b2d3db@eldare.de>
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=LG5rx7k2
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69UEigKo2023720;
+	Fri, 30 Oct 2026 14:53:50 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=H9eLUf
+	kkXk3rN8z33BkjptRVTbsFOrVizvCzkbGO2F4=; b=LG5rx7k2ZGi3UzhYmWiZhu
+	EyT6ySS/ZxjEMgG7gjKFTgWqAa2Yro9evOiStnJmWPbwM6/8RLcRxVZKlD/XkMmG
+	ixwo6FSUp3QozaRSZDBza8Tj+e6vUSZmu7yLkZ2POrQ1e6J31V3fuGuZoewuDFNU
+	E57I33b8nlgyA9zZbxYl9vvAdwVnH7gTZ/yZCoSoRVJjA9Wt1+gBbxOQ4dOCgLvB
+	PKSlx6WqMqsNccaqZwFtDaxnJ3uUl8N80hsk6FvfGbpvzDx7ln/VkuicEHxlbQ1K
+	rL1GxxQSGzDynIBO1O+ABv9Kqnmo2564XEIa4U2aGZ9c/TU4i6jGF6aHvIFnAsrQ
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hmeayu89k-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Fri, 30 Oct 2026 14:53:49 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69UEnrS3673647;
+	Fri, 30 Oct 2026 14:53:49 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hk55pktqu-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 30 Oct 2026 14:53:49 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69UErhZp30277974
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 30 Oct 2026 14:53:43 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A950320040;
+	Fri, 30 Oct 2026 14:53:43 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 94FDD2004B;
+	Fri, 30 Oct 2026 14:53:35 +0000 (GMT)
+Received: from [9.39.22.177] (unknown [9.39.22.177])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 30 Oct 2026 14:53:35 +0000 (GMT)
+Message-ID: <15083d2e-1c9f-4dad-816a-25cc2f3810b0@linux.ibm.com>
+Date: Fri, 30 Oct 2026 20:23:34 +0530
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -108,113 +85,139 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-In-Reply-To: <20261028-kbh3-1-022-fix-v2-v3-2-bc0752b2d3db@eldare.de>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: c6MMWyhSbKQlNRhCIrREcwWoRA2I8tmo5twch43oFFo_1793370335
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v14 04/13] cpumask: Introduce cpu_preferred_mask
+To: Mete Durlu <meted@linux.ibm.com>, Yury Norov <ynorov@nvidia.com>
+Cc: linux-kernel@vger.kernel.org, mingo@kernel.org, peterz@infradead.org,
+        juri.lelli@redhat.com, vincent.guittot@linaro.org,
+        yury.norov@gmail.com, kprateek.nayak@amd.com, iii@linux.ibm.com,
+        corbet@lwn.net, tglx@kernel.org, gregkh@linuxfoundation.org,
+        pbonzini@redhat.com, seanjc@google.com, vschneid@redhat.com,
+        huschle@linux.ibm.com, rostedt@goodmis.org, dietmar.eggemann@arm.com,
+        maddy@linux.ibm.com, srikar@linux.ibm.com, hdanton@sina.com,
+        chleroy@kernel.org, vineeth@bitbyteword.org, frederic@kernel.org,
+        arighi@nvidia.com, pauld@redhat.com, christian.loehle@arm.com,
+        tj@kernel.org, tommaso.cucinotta@gmail.com, maz@kernel.org,
+        rafael@kernel.org, rdunlap@infradead.org, kernellwp@gmail.com,
+        linux-doc@vger.kernel.org, jgross@suse.com,
+        virtualization@lists.linux.dev, sunlightlinux@gmail.com
+References: <20260928053728.797539-1-sshegde@linux.ibm.com>
+ <20260928053728.797539-5-sshegde@linux.ibm.com>
+ <4605dad5-aab2-49e3-b919-bf9897181834@linux.ibm.com> <auN0GKVMNvXbNdCN@yury>
+ <b83e2d2f-681d-4e19-a680-c076493b3edd@linux.ibm.com>
+From: Shrikanth Hegde <sshegde@linux.ibm.com>
+Content-Language: en-US
+In-Reply-To: <b83e2d2f-681d-4e19-a680-c076493b3edd@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-GUID: zD7eqUoFVJX6qOWyoBOqTcljINbZh8Yk
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDMwMDA1OCBTYWx0ZWRfX+OsVeVvUBuLP
+ +kotTP+CNj8Mq8uADmGzUuBDJhK/UTwi175qFLQeUiFq1GqBit5zwImg4DfUbimsSg+RM4/0MK4
+ BFdMuoyaiDQ8ZNc0mpoK6XjUK0DEpjs5Xd+ZK6Kcq18U4/eP9/cs5Yaqs2WqZtrzu2TtTFRJ7ra
+ Nvp/e9Xqdk1FPfoxi0rcn5hWZfqizp9tpEQGAio+cWimQA6EVoVP9LhsHeNBBBosFZvyHcVjDpZ
+ GgGp/oTZ8ImsZom58dt5WDhqrgQDPz0GS6gGPOTTdETfdZqx7HNgOGu31qmL9lHOZahYNaMlDc+
+ htKmSLMubsG2y5F9Y4IQ6+t2g47RQpqNjLJHbUNUhwBngPSyl4QPtS0GKkASig8+xRUIF6kuyFC
+ b7OuffOUPJa+CrSssjISvhi3SwmRiuxqX3RcDl6WYiNqWZv3fmJlto8a96qyb9lZIFw4Rj9Z56K
+ 9FW6BQs1ZjX+EusUhIQ==
+X-Authority-Analysis: v=2.4 cv=Ms3HeGae c=1 sm=1 tr=0 ts=6ae4af7e cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=NEAV23lmAAAA:8
+ a=VnNF1IyMAAAA:8 a=E59y4fOkklvYIgKuzMwA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDMwMDA1OCBTYWx0ZWRfX7nkNKVkVr8tJ
+ /RPF/E2QmW/AQa/67zLfDZ7aipRcJLJYLmzEL37METL9n45XMtxgPSG68I97PRx96+7XjI9Ktuf
+ WPFIGxLlg0rK5rxr5v8Rq5Z60BITo3o=
+X-Proofpoint-ORIG-GUID: L-bQG4I8V72p5Lz-1R7e8SLFZACiUwJZ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-10-30_05,2026-10-21_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 impostorscore=0 priorityscore=1501 phishscore=0 suspectscore=0
+ spamscore=0 adultscore=0 clxscore=1011 lowpriorityscore=0 bulkscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2610190000 definitions=main-2610300058
 
-On Wed, Oct 28, 2026 at 06:55:41PM +0100, Jerome Mohm via B4 Relay wrote:
->From: Jerome Mohm <jrmmhm.kernel@eldare.de>
->
->vsock_bpf_recvmsg() sends every read that cannot be served from the
->transport's own queue through sk_msg_recvmsg() and its wait loop. Three
->kinds of read do not fit that path:
->
-> - len == 0: with data queued in the psock ingress queue (for example
->   after an SK_PASS verdict), sk_msg_recvmsg() copies nothing and
->   returns 0, and the wait reports data ready at once, so the loop spins
->   with lock_sock() held. The vsock delivery worker then blocks on the
->   same lock and all rx on the transport stops (hung-task).
->   tcp_bpf, udp_bpf and unix_bpf return 0 early, and
->   __vsock_connectible_recvmsg() handles len == 0 too.
->
-> - MSG_ERRQUEUE: the read only reaches sock_recv_errqueue() when the
->   native fallback happens to be taken. With empty queues a blocking
->   recvmsg(MSG_ERRQUEUE) waits for stream data instead of returning
->   -EAGAIN for an empty error queue. Route it to the native path first,
->   as tcp_bpf does, so it is also not caught by the len == 0 check.
->
-> - MSG_OOB: vsock has no out-of-band data and the native path returns
->   -EOPNOTSUPP, but sk_msg_recvmsg() ignores the flag and consumes
->   ordinary stream bytes; with empty queues the read waits for data.
->   Reject it right after the MSG_ERRQUEUE route and, as
->   unix_bpf_recvmsg() does, before the len == 0 check.
->
->The len == 0 and MSG_OOB cases were reported by the netdev Sashiko AI
->review of earlier, single-patch versions of this fix; the MSG_ERRQUEUE
->case was found with the help of an LLM coding assistant (Anthropic's
->Claude). Each reproducer is a C program run as root in the guest: it
->adds one end of a vsock-loopback stream connection to a BPF sockmap
->(CAP_BPF and CAP_NET_ADMIN), for the queued-byte cases with an SK_PASS
->stream-verdict program, and issues the reads below. No kernel change or
->error injection is needed. The reproducers are available on request.
->
->Testing: on a private VM with a KASAN + lockdep kernel on net, with
->reproducers over vsock-loopback. Before this patch: recv(fd, buf, 0, 0)
->with a byte in the psock ingress queue spins and the delivery worker
->hangs (hung-task); a zero-length recvmsg(MSG_ERRQUEUE) blocks; and
->recv() with MSG_OOB waits for data or returns a queued ordinary byte,
->which a following plain recv() then misses. After: a zero-length recv()
->returns 0 and the next recv() returns the byte; MSG_ERRQUEUE returns
->-EAGAIN from the empty error queue; MSG_OOB returns -EOPNOTSUPP at once
->and consumes nothing. With both patches of this series applied, the
->three single-VM tests of tools/testing/selftests/vsock/vmtest.sh
->(vm_server_host_client, vm_client_host_server, vm_loopback; 44
->vsock_test cases each) pass, as on net; on both kernels the host-side
->runs skip the SO_INQ cases (SO_INQ not supported by the host kernel).
->The ns_* tests of vmtest.sh were not run (they need root on the host).
->The BPF test_progs sockmap_basic, sockmap_listen and sockmap_redir tests
->pass (767 of 767 subtests, among them the three vsock subtests of
->sockmap_basic and the 240 AF_VSOCK cases of sockmap_redir).
+Hi Mete, Yury,
 
-Ditto.
+On 10/29/26 10:06 PM, Mete Durlu wrote:
+> On 29/10/2026 17:28, Yury Norov wrote:
+>> On Thu, Oct 29, 2026 at 02:32:08PM +0100, Mete Durlu wrote:
+>>> On 28/09/2026 07:37, Shrikanth Hegde wrote:
+>>>> Provide the preferred CPU infrastructure. Define get/set macros
+>>>> which could be used to get/set CPU state as preferred.
+>>>>
+>>>> CONFIG_PREFERRED_CPU will be selected by the driver which handles
+>>>> steal time values. It is going to set/clear preferred CPU state.
+>>>> This driver will be called steal_governor and it is introduced in
+>>>> subsequent patches. It periodically computes the steal ratio and
+>>>> decides on preferred CPU state.
+>>>>
+>>>> A CPU is set to preferred when it becomes active. Later it may be
+>>>> marked as non-preferred depending on steal ratio by the steal_governor.
+>>>>
+>>>> Always maintain design construct of preferred is subset of active.
+>>>> i.e. preferred ⊆ active ⊆ online ⊆ present ⊆ possible
+>>>>
+>>>> With CONFIG_PREFERRED_CPU=n, ensure set_cpu_preferred is a nop and get
+>>>> method returns the active state in that case.
+>>>>
+>>>> Signed-off-by: Shrikanth Hegde <sshegde@linux.ibm.com>
+>>>> ---
+>>>>    include/linux/cpumask.h | 24 ++++++++++++++++++++++++
+>>>>    kernel/Kconfig.preempt  |  4 ++++
+>>>>    kernel/cpu.c            |  6 ++++++
+>>>>    kernel/sched/core.c     |  5 +++++
+>>>>    4 files changed, 39 insertions(+)
+>>>
+>>> [..snip..]
+>>>
+>>>>    #define cpu_is_offline(cpu)    unlikely(!cpu_online(cpu))
+>>>> diff --git a/kernel/Kconfig.preempt b/kernel/Kconfig.preempt
+>>>> index 985aea617cfe..edc067a0c422 100644
+>>>> --- a/kernel/Kconfig.preempt
+>>>> +++ b/kernel/Kconfig.preempt
+>>>> @@ -194,3 +194,7 @@ config SCHED_CLASS_EXT
+>>>>          For more information:
+>>>>            Documentation/scheduler/sched-ext.rst
+>>>>            https://github.com/sched-ext/scx
+>>>> +
+>>>> +config PREFERRED_CPU
+>>>> +    bool
+>>>> +    depends on SMP && PARAVIRT
+>>> FWICT, PREFERRED_CPU mechanism can work perfectly fine without PARAVIRT
+>>> selected. It would be annoying to enable it and implement a dummy
+>>> paravirt_steal_clock() just for that.
+>>>
+>>> Shrikanth, would it be possible to drop that dependency?
+>>
+>> Do you have a non-paravirt case in mind?
+> 
+> s390 LPARs are exactly that. s390 does not select PARAVIRT by default
+> but enabling PREFERRED_CPU is strongly considered.
 
->
->Fixes: 634f1a7110b4 ("vsock: support sockmap")
->Cc: stable@vger.kernel.org
->Signed-off-by: Jerome Mohm <jrmmhm.kernel@eldare.de>
->---
-> net/vmw_vsock/vsock_bpf.c | 9 +++++++++
-> 1 file changed, 9 insertions(+)
->
->diff --git a/net/vmw_vsock/vsock_bpf.c b/net/vmw_vsock/vsock_bpf.c
->index 5120911b8143..3edc01268c42 100644
->--- a/net/vmw_vsock/vsock_bpf.c
->+++ b/net/vmw_vsock/vsock_bpf.c
->@@ -111,6 +111,15 @@ static int vsock_bpf_recvmsg(struct sock *sk, struct msghdr *msg,
-> 	struct vsock_sock *vsk;
-> 	int copied;
->
->+	if (unlikely(flags & MSG_ERRQUEUE))
->+		return __vsock_recvmsg(sk, msg, len, flags);
+s390 may not have PARAVIRT=y, but this use case is still a virtualizated system no?
+i.e you are observing steal time. By definition of steal time, it is a para-
+virtualized system. Though you may be deriving the steal time not using the
+paravirt_steal_clock.
 
-If the psock ingress queue is not empty, wouldn't recvmsg(MSG_ERRQUEUE) 
-(e.g. a MSG_ZEROCOPY user reading completions) also consume stream bytes 
-through sk_msg_recvmsg(), since it only looks at MSG_PEEK? If so, maybe 
-worth mentioning in the commit message.
+Or my understanding here is wrong?
 
->+
->+	if (flags & MSG_OOB)
->+		return -EOPNOTSUPP;
->+
->+	if (!len)
->+		return 0;
->+
+> 
+> I removed the PARAVIRT dependency and gave the whole thing a quick
+> spin. Builds and functions w/o any issues on s390!
+>> I'm actually about to submit an RFC that drops the PARAVIRT dependency
+>> and provides write access to the preferred mask. But I want to make
+>> sure that we need it, and we've got no reasonable mechanism to put
+>> unneeded CPUs on idle already.
+> 
 
-Is the order of the checks important? We should mention it in the commit 
-description (if it's important or not and why).
+We might run into few corner cases quickly with write allowed.
+But yes, this is a simpler mechanism not to run anything on few CPUs
+in a dynamic way.
 
-Thanks,
-Stefano
-
-> 	psock = sk_psock_get(sk);
-> 	if (unlikely(!psock))
-> 		return __vsock_recvmsg(sk, msg, len, flags);
->
->-- 
->2.56.0
->
->
+> You can mention s390 LPARs as valid case on your RFC if need be.
+> Thank you!
+> 
 
