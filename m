@@ -1,101 +1,73 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.210.173
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793342683;
-	b=z0m4RPjvUrjhH0xy0rtR0BBIA93F6R6etS7bbUSee/b+3Zs3kmK16c1R66e8tDzV9C0i
-	 hy8sEaH2z4OnLpW38Uq4/gu1MsM8v+IHhbzK0+YlkpL+UK/FOMTZd8PdXjyyp5qi2N5cX
-	 aQx7LTLxK574WsScZc6Hf3O+DDwv9boyuCWnPm75DrMqqKFC0ZX0EeF/a7idvRsECGXyb
-	 /2GlKMneNdf1lMoPYMG/wipDp9joAuJFUwfes/FYkDilRQjacRkc8Yrp893Ue6OvnoSmR
-	 G1GtEUOD873ALnrBaZAh3CvJ7JNP5kzJtrRKea6zYe6jGt2aLv2Yr6CegnZG96AOrqA==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793342683;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=KVgic764o0iBpmXvPU3DCQnb57odNSKZ7p6xGDlXMlc=;
-	b=zGaNl50sF78jSfl3upcj71WdBiCOfK63/XbV9xOEHhKmfvsF98yTBRySVxZdxtva3g/m
-	 DAcBKipNqAwvhB5f/fbQ0W0Y20o3Q2XG6A9qGN83tCg+OmZ+edw2cl469x6mFlzEwvQDA
-	 uX3626bV3Tx7cmy36yNasbgXo5BeYdxgnTA5PnhZKx6Kss30bEoa6OU6UAki0aMwxw+7I
-	 CPGtBUv38ndJc3uAGZkssATUNf4AOAShtxPXa0ye1YR5y2RXwmNlkDd+W+3TjyjZHDM4y
-	 Zk2g7a8Numv8NMDSriNd5Jqv++Eq6AAuDkdlHPIeTtY0kpflIrlcx9/+2VJsDyDx7Hw==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=TBmnhApL;
-	arc=none smtp.remote-ip=209.85.210.173
-Received: from mail-pf1-f173.google.com (mail-pf1-f173.google.com [209.85.210.173])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=165.173.180.15
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1793342820;
+	b=mXCl/Gj/OmGjBIko9jaWiqx+7SKwlkuSQQBBJgEa3iKZIUpRYvEFa/sQJu19BgqLKkGs
+	 cnrT4PdR7cFi+4sztJivOP/yws+lVOKCz+EsK6Y6mdKmsVIyuFTFVt7ZZ7OhsQrQPbOnI
+	 vOqW8FbA7A6j2UfRZG5mQKA8iV7QQMIox2dQSFqGM4+LovV8X+QaRy9ROKnpSP/6dDP52
+	 eEw2+XQxFxvrelYnJzdE3RekKkMezM5XGp7QqKFWMKL9G6m1cMGgAtZ7jKK9OHpFWiele
+	 xUT0ZCmrsgLKenj0h3ku9EbflRGzSJiZxrJx3UFg/Ew6cOhO+2Sw9aFyKLDXjs131UQ==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793342820;
+	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
+	 Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
+	bh=ActI47yzI3V9YPR4LI6wlgEbQ+M6pe+vUeOdyRecz6E=;
+	b=HlMD6+q+4UlMD995PEGVeI4OzKmn9ho1/kHnTVqWSxqVeO9LP5Shp+hT87tmvXKtR7sZ
+	 yA4CRF2tMOIXKZqkrM//TjL7Wj6dkieuTVg097PqRaoCYAtHp2AEQprl8djQ3z3WovGxq
+	 sd41WSo4ISiN5vPuwTcP7u/79nsNgHzKKWOnAefKn+IDoXlOkFO9cmStvoIryORMjZHRc
+	 SqtfNJ3ZHSwTbvbrBD2dZGEpBaQgZ3N3vlj3SM0CXI9m0ullsyU7zOfjeSvMBbTnHTL6n
+	 TZATkxBknBG27sWjgtnYvXklvOCrk9XOkZpia2aQzf6MAPziQZOBSfoyFlH982QBUaQ==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=ikuyo.dev;
+	spf=pass smtp.mailfrom=ikuyo.dev;
+	dkim=pass header.d=ikuyo.dev header.i=@ikuyo.dev header.a=rsa-sha256 header.s=s1 header.b=V1Kj1axR;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=165.173.180.15
+Received: from sender6-op-o15.zoho.com (sender6-op-o15.zoho.com [165.173.180.15])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8114606A31D
-	for <virtualization@lists.linux.dev>; Fri, 30 Oct 2026 06:44:42 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C8114606A31D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 069E9606A31F
+	for <virtualization@lists.linux.dev>; Fri, 30 Oct 2026 06:46:59 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 069E9606A31F
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ikuyo.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ikuyo.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=TBmnhApL
-Received: by mail-pf1-f173.google.com with SMTP id d2e1a72fcca58-8a594d313a3so190211b3a.1
-        for <virtualization@lists.linux.dev>; Thu, 29 Oct 2026 23:44:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793342682; x=1793947482; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=KVgic764o0iBpmXvPU3DCQnb57odNSKZ7p6xGDlXMlc=;
-        b=TBmnhApLIHLptl8U8zhvv9fo4DT/ZR0emPw8uVOhwgcQjj6jQBPTRCQPboaf0KQ2sZ
-         rxtEwDQnvnVb7nx72WqWQ4PQ2sUStoX11nQr2aAlqV6GtkOKFqh+egPSzflQrAy6vW7Z
-         O20cGHBpPOkkkTOud/Mt6g3d+WXXcN9oYOOSg3MbgrAG/DNYi9Nio4elQ1pNAlpy/Oji
-         yJncSMwFwxFTExm4PlOwkLI6nXxcvu+vTmbiJ7UL+230gBNruJu65tvUnc1csR+h+149
-         /dYhPpFZ5edjq/pbBzYnmn9TMpkylrUIyn5pzaQKKwqJytM/6EsuQNmZbUNIhW1tJ+nQ
-         KDMQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793342682; x=1793947482;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=KVgic764o0iBpmXvPU3DCQnb57odNSKZ7p6xGDlXMlc=;
-        b=vHFIl/GjgUn7hEIOL7JASxHwsJFINYq9zO7j0DDKLkyA6YbFberdbUCoVhBYWOvuhM
-         qzHEaHMS7Ixtht1whSrc+NjvCna0WGMAFkrrBU/1EgyBmmceeHgg5nxnwwh3hbtfjiyk
-         4jiNYuSkqioq6bvTO20PdcWEkenwXNpKQ1y+kcWQO1mM5lXHbzfI508rttMNXnON0z6B
-         ukRh6XqWaKcOzIXYiZMn0d6lmbE2tb4XnvzOYAZOMTIhlP92kuWkA1fCi6RytXAU99S1
-         cyP22OtrxVHx564au4+kAsrq/dFoPStOT/BZi8Kd1JjMy2kqRh55ZXt0lPJfOseoCB7d
-         z0dw==
-X-Forwarded-Encrypted: i=1; AKwUvBw2dKvFjyoBJbjp05RC1TEeDmMurowbrIinV4kB/TNMlbPQ1Xa6U74jMoZdOyGPrHHfFFKORDgXsoYeqnS7Pg==@lists.linux.dev
-X-Gm-Message-State: AFq9FYI8aQ8ckATTTAj9rqXro1xnNlTSC1KgP+rCJ//0XUG2tLk/xIYa
-	4eiGrSSXDDk1kU3LN4C6LqCJoH7h116APMYRQeH57/9aqLkXvdGLHVgp
-X-Gm-Gg: AYBFou03filfJ4HcX2LUt9rv/k8Wj02F4+Z5D/74o0TLHFT1hBw90IYloxLrn91BqdZ
-	BKIpg9kNy5mQgdHiOF9tTEXt1hHS0jfdfSGiepwtiWv3A3B4uYRHGt94PVvjgw7tAV4PwbWnv+7
-	A3biWZzH52stXxP8VMBmlVexekZA1UgW9SUbwL/r6r6o/J6yM/TA1QSQkZ2spvOxNnEVMpH5F+s
-	wQmZVP6KhqXqqs7+suhrZGbPNO5w0ocMjsL66OX3rIyBW2psgXflcnMFeQEEnxpZGJqtzo4FQEw
-	xigxajs3NaJFgRI6bbvoTOCa1634TkCy4JP6n7SxRddFcUIV1yim1A7tuewf9qir9VRXcPlywbY
-	E/8uBN/GrRogpLrNvAZwlN/LBlxdcrM8lJz7H3OhPV9Y7hRmcHnIj3jSlt0uW0WyEesD+3q8GxY
-	ykq6ASjuhWLWeBccBVkLwYXfBKJXo4errulrOd9txcOlS3/nTF2SxpuHBE3KAKFBuQVwxjhqXim
-	8ImILCcjInEujJ0JMoa+jskzNZKxpW6TDdZPBJ/Yep714X/gOzWzu9fRsghb6lasHTtwK6a0T/d
-	cqEVIE0qO1k+1bUaLaZHh823Tb794SGPS51P0xloUg==
-X-Received: by 2002:a05:6a00:4612:b0:857:726d:2e96 with SMTP id d2e1a72fcca58-8a9bd1faff2mr1359294b3a.19.1793342682057;
-        Thu, 29 Oct 2026 23:44:42 -0700 (PDT)
-Received: from localhost.localdomain ([147.136.157.1])
-        by smtp.googlemail.com with ESMTPSA id d2e1a72fcca58-8a9ef56b38dsm363397b3a.31.2026.10.29.23.44.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Oct 2026 23:44:41 -0700 (PDT)
-From: phind.uet@gmail.com
-To: Stefano Garzarella <sgarzare@redhat.com>,
+	dkim=pass (2048-bit key, unprotected) header.d=ikuyo.dev header.i=@ikuyo.dev header.a=rsa-sha256 header.s=s1 header.b=V1Kj1axR
+ARC-Seal: i=1; a=rsa-sha256; t=1793342810; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=RQoKKSGTMcHcKejF5YVcP10g4Uuk+K11K/7ux1Dq6QQWT5DmYgWBNTm/bslIt87f7hJvnGdyvf/dbUv6/CIy5/B42D2TpA4eYB35eyc1yllfiYx+0kf98C+aNq8/QVf4rWYUZkST2MOyV7Tynty3cPiIapgGuNydkyRI7v+E2S0=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1793342810; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=ActI47yzI3V9YPR4LI6wlgEbQ+M6pe+vUeOdyRecz6E=; 
+	b=GO4d3oNHMslYfBFUw2e4PZfl66WpNX15Mz3T0ujoVbyw5t+yWFYJHkZAPcaskpM8F1LxSSLnCduj5dSGpCJbSFGUvL1wNSt/qnGd1miEASuZQAWE0g//0DWvDAxkDBoLjUyvZ15pMDEXBrvdxngmyLrqQ8vRnxpG0W/g4P848H4=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=ikuyo.dev;
+	spf=pass  smtp.mailfrom=eritque-arcus@ikuyo.dev;
+	dmarc=pass header.from=<eritque-arcus@ikuyo.dev>
+DKIM-Signature: a=rsa-sha256; b=V1Kj1axRMHat8VPGf2z/012jgrEhYhqpF8QOBNUjjHzMTt+e+BdGMDyBoXAODZr0gNFX/oNvRAsOZXZAQC2WioywrdHxZtXWd7zOuLLgxVmVPFMeWUDEs67NYMJXUfMdp1rEcIJwdj0RDJxRP0XYDWT04looSrzeptPflXyaSMumSGNzuio4xpNKcG3hNTIfvDD1goTrTgvgJa6PwFd2KT2rCvh9uQ2ntRAKssCFORNre2vff8L27pfCIMT1r9HRLODDl2xh2LQiM86O2rGYcRk0KSD0qf3gVUfpY93+RjFF8CiIZPk39qrSoj+T/A5Xim+1jfsSIKr1k5/mVNYD2w==; c=relaxed/relaxed; s=s1; d=ikuyo.dev; v=1; bh=ActI47yzI3V9YPR4LI6wlgEbQ+M6pe+vUeOdyRecz6E=; h=Content-Description:Content-ID:Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:List-Subscribe:List-Post:List-Owner:List-Id:List-Archive:List-Help:List-Unsubscribe:MIME-Version:Message-ID:Resent-Sender:Resent-Cc:Resent-Date:Resent-To:Reply-To:Resent-Message-ID:Resent-From:Sender:Subject:To:Date:From:Message-Id:Reply-To:Subject:To:Cc;
+Received: by smtp.zohomail.com with SMTPS id 1793342808745704.1039460582357;
+	Thu, 29 Oct 2026 23:46:48 -0700 (PDT)
+From: Yiran Qiu <eritque-arcus@ikuyo.dev>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>,
 	Bobby Eshleman <bobbyeshleman@meta.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
 	"David S. Miller" <davem@davemloft.net>,
 	Eric Dumazet <edumazet@kernel.org>,
 	Jakub Kicinski <kuba@kernel.org>,
 	Paolo Abeni <pabeni@redhat.com>,
 	Simon Horman <horms@kernel.org>,
-	George Zhang <georgezhang@vmware.com>,
-	Andy King <acking@vmware.com>,
-	Dmitry Torokhov <dtor@vmware.com>
-Cc: Nguyen Dinh Phi <phind.uet@gmail.com>,
+	kvm@vger.kernel.org,
 	virtualization@lists.linux.dev,
 	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] vsock: reject negative tv_usec in SO_VM_SOCKETS_CONNECT_TIMEOUT
-Date: Fri, 30 Oct 2026 14:43:50 +0800
-Message-ID: <20261030064428.73930-1-phind.uet@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	linux-kernel@vger.kernel.org,
+	Yiran Qiu <eritque-arcus@ikuyo.dev>
+Subject: [PATCH RFC net v2 0/3] vsock/virtio: don't let sockets send from another local CID
+Date: Fri, 30 Oct 2026 02:44:15 -0400
+Message-ID: <20261030064418.133349-1-eritque-arcus@ikuyo.dev>
+X-Mailer: git-send-email 2.56.0
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -107,34 +79,62 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-From: Nguyen Dinh Phi <phind.uet@gmail.com>
+The virtio transports send every packet from the transport's CID, so a
+socket bound to another local CID sends from another socket's address.
+Patch 1 refuses connect() on such a socket; patches 2 and 3 close two
+other ways a socket can send from another address or have its local
+CID changed.
 
-The timeval validation checks tv_usec < USEC_PER_SEC but not
-tv_usec >= 0, so a negative tv_usec makes the timeout computation
-wrap into a bogus value, later tripping "schedule_timeout: wrong
-timeout value" instead of being rejected.
+I'm sending this as an RFC because one problem is still open.  Over
+vsock_loopback, a socket bound to (VMADDR_CID_LOCAL, P) sends from the
+same address as the children of a listener on (guest CID, P) -- or, on
+a host, on (VMADDR_CID_HOST, P) -- and vsock_check_source()
+(dee44f41f206) accepts packets from either one as coming from the
+peer.  So either one can shut down or stall the other's connections,
+including those of clients that never called bind().  Making
+vsock_loopback send from the bound CID would fix this and make patch 1
+unnecessary for loopback.  Would you prefer that, or these patches as
+they are?
 
-Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+Changes in v2:
+- New approach.  v1 made bind() treat the same port on two local CIDs
+  as a conflict, but as the Sashiko review pointed out, its alias list
+  missed VMADDR_CID_HOST and did not handle guest->host transports
+  without a CID.  I reproduced both gaps.  v2 leaves bind() alone.
+- Patches 2 and 3 are new.
+- Only the virtio transports change, vsock_loopback included.  VMCI
+  picks its source context by route (a nested VMware guest reaches its
+  VMs from VMADDR_CID_HOST), and hv_sock has no CIDs.
+- v1: https://patch.msgid.link/20261028065231.655701-1-eritque-arcus@ikuyo.dev
 
-Signed-off-by: Nguyen Dinh Phi <phind.uet@gmail.com>
----
- net/vmw_vsock/af_vsock.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+I tested on net 4dca97647a3e (net/vmw_vsock is unchanged through
+5838f10563d5) under QEMU/KVM with vsock_loopback built in, in four
+setups: guests with vhost_vsock, with and without the virtio-vsock
+device; a guest with the device but no vhost_vsock; and a host with
+vhost_vsock and no virtio transport.  The table shows where each
+problem reproduces as the patches are applied one at a time ("no dev"
+is the guest without the device):
 
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index d0508887a2fb..1d7d53542724 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -2156,7 +2156,8 @@ static int vsock_connectible_setsockopt(struct socket *sock,
- 					     optname == SO_VM_SOCKETS_CONNECT_TIMEOUT_OLD);
- 		if (err)
- 			break;
--		if (tv.tv_sec >= 0 && tv.tv_usec < USEC_PER_SEC &&
-+		if (tv.tv_sec >= 0 && tv.tv_usec >= 0 &&
-+		    tv.tv_usec < USEC_PER_SEC &&
- 		    tv.tv_sec < (MAX_SCHEDULE_TIMEOUT / HZ - 1)) {
- 			vsk->connect_timeout = tv.tv_sec * HZ +
- 				DIV_ROUND_UP((unsigned long)tv.tv_usec, (USEC_PER_SEC / HZ));
+                       base          +1            +1+2     +1+2+3
+  connect() reset      all           fixed         fixed    fixed
+  credit update stall  all           all           fixed    fixed
+  rebind to CID ANY    no dev, host  no dev, host  no dev   fixed
+
+vsock_test passes at every step, and no connect() that used to succeed
+is now refused.  I have not tested VMware, Hyper-V or nested setups,
+nor run with KASAN, and there is no vsock_test case yet; I can add one.
+
+The patch 1 problem was found with afb-afl, an LLM-driven audit
+pipeline, and this letter was drafted with Claude.
+
+Yiran Qiu (3):
+  vsock/virtio: refuse connect() from a CID the transport does not own
+  vsock/virtio: send credit updates only while connecting or connected
+  vsock/virtio: only update a socket's local CID to the transport's CID
+
+ net/vmw_vsock/virtio_transport_common.c | 23 ++++++++++++++++++++---
+ 1 file changed, 20 insertions(+), 3 deletions(-)
+
 -- 
-2.43.0
+2.56.0
 
