@@ -1,108 +1,102 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.130
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793370081;
-	b=kGU72qObwyiuCtqmIE5lBqQFayXrdiGd+JfYP/PZnGLtE+J9minuzJ9Ip6lICam4Kiz+
-	 iT4NuGG9Me0epuv22ZH4Q9P+5LvLWpKfqYL1b+sjlhtk84emmcUgZmZh2ysYKNI8DqG50
-	 jRNaaDiWGzt8j/V0XVE73fchg2YCtwet0H2wmDkkp9QN0CpZ8s1IHFM/PKijZLn7/Neaz
-	 BumHWng+eg0JcwjQwjd0jwpcjWkw14kgNpHo9ge1JnUxrrA5bxQzNpq0Js1DINoLkPD0P
-	 O7HGHv6DX4JFAwoaQiKdYYE5A8fV5AgUOvya5cVAYIH76OSb3ztXaK8UWRxKCBryZgQ==
+	t=1793370318;
+	b=Cbdc1et9gcW5+UCBkY4jrsmKERdn4EQ76ZA4zlKszvxLho/89Rh4XH4SZxn1Zlapym8L
+	 O+QsKugs5Uby/7olRK3Q+u1i88JTkE8Ms6CHEaj1TQOo+4wPfhBu7aU8aJpmwJm637vle
+	 fBTFDCsipo9xPMhIzQwJOW09kkMLV8jyFyz7QnkAJzT/Rr4azoZALMjLqa7M3erLaBwrS
+	 cby5SaiQsoC3RocV3ZjXHGKevL7/zZMx1habV16ln87LRSN6/2YeDxlkjzh6yQ3hfktgh
+	 mLzDoxV4wicCCpVzSjKvrRjxXg5D2O2fO++MTst8IMJhAc/9K4CC3cFBYuzDl6nvs4A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793370081;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
-	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
-	 X-Mimecast-Originator:Content-Type:Content-Disposition;
-	bh=fEfp8kxzeB0lYyMGgIvcUMd83vVWKlsFB9jWk+Wz83o=;
-	b=4RbQDKmQjUw0hQxfkWVfncHMYTduFhOv2ScWIlsMwzWtkLAX6XyDrp3+Ngf40Y06A2o+
-	 tLANtZI6uYL4ULCkD/P6R1QkI7HE+m9AX5ry+SisRXau2V/racVwxUWmPLjDPkc6mTdM1
-	 V6kMLuDVDXHRUzXBuLl5bFPYeEJuEdbAOKYpBIxscQvmVBSPQLKmD6NXFkw+hHl7SXrFx
-	 sSLs9hYWnUASeIpCotF9XtYCwd0jVpFiKeReUuPQidE48r2JQzlbnQ3HdNNc7qZmJCy9i
-	 mWJ7oGTyPod+rTWKObSerH7/TrAn+GFvprHs4FezXDfTyRTkm9zugGRWCI6XbHM+Xmw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793370318;
+	h=DMARC-Filter:Received:DKIM-Signature:DKIM-Signature:DKIM-Signature:
+	 DKIM-Signature:Received:Received:Message-ID:Date:MIME-Version:
+	 User-Agent:Subject:To:Cc:References:Content-Language:From:Autocrypt:
+	 In-Reply-To:Content-Type:Content-Transfer-Encoding:X-Spam-Flag:
+	 X-Spam-Level:X-Spamd-Result:X-Spam-Score;
+	bh=NQaH/NEfSkFuRRvRaZMoOWTcku/Rk16IqqeHK0Sg+lQ=;
+	b=5WYRYQr4EnKP5zBD75epQFeiAFRNPA9rBL8sfdit71mBdKAJRI/m9VjDtRwJt6ULNY+a
+	 WZRDtv536/gl+i6HGqqQaQXXD5kvxh1XQvWv/oZUaFSA2v5tFwgcqvOdzz+oBLE5V1YHq
+	 6zFPCjLlqLOMFpwEGCfCCF4qEQXTXgo8YqVaWZSM/tY9DF4qlQipszwZlAz+o0FK6uEDs
+	 Zhw2Y/kRGEp+tXaeuguwrjymwKPmRF4fLTqfrO0VKiOlt2L8IhzkVx0GYlRJcEITP4Ru+
+	 beBm4NbBdB+rS/ZB9PZDrPnhr3y7ikK8GD7yPh7Hf7GPK5etSXTG5e8vWor1kJBrPKA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Ci3thpdE;
-	arc=none smtp.remote-ip=170.10.133.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	dmarc=pass header.from=suse.de;
+	spf=pass smtp.mailfrom=suse.de;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=Zp56ReRB;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=7JNS7Ue9;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=Zp56ReRB;
+	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=7JNS7Ue9;
+	arc=none smtp.remote-ip=195.135.223.130
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EF64606A32A
-	for <virtualization@lists.linux.dev>; Fri, 30 Oct 2026 14:21:20 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3EF64606A32A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0BC2606A31D;
+	Fri, 30 Oct 2026 14:25:17 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B0BC2606A31D
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Ci3thpdE
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1793370080;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=fEfp8kxzeB0lYyMGgIvcUMd83vVWKlsFB9jWk+Wz83o=;
-	b=Ci3thpdEggNIr/HBeGAyZ7aPbtz6GkgLXEWI92mROvdeLNyj8GUEokOyno5PrZFVHkYu2E
-	FJPSi0xKS7G/i81guzGcgI2kkoc1rupcEyfMO3nWfcTM1/ZDFKAbOU7WpneAcwmgF5QJSr
-	J+iu4bF1MVcU147wCPAqLkO/O/lwj/0=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-412-a9Lg5pgIPLG8awIsVHrrXg-1; Fri, 30 Oct 2026 10:21:17 -0400
-X-MC-Unique: a9Lg5pgIPLG8awIsVHrrXg-1
-X-Mimecast-MFC-AGG-ID: a9Lg5pgIPLG8awIsVHrrXg_1793370075
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4a4654add56so6868565e9.2
-        for <virtualization@lists.linux.dev>; Fri, 30 Oct 2026 07:21:16 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793370075; x=1793974875;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=fEfp8kxzeB0lYyMGgIvcUMd83vVWKlsFB9jWk+Wz83o=;
-        b=ubxxRs6X3PmqNR5DnC8YMhz9q6jTippkSHnrsJvh4Prwe2RXOw0NEImPDXVPU1QakK
-         m3D9EOI4LP6zutpxKe1iMFSj00BoG6ZYvlU/PUKT9O+vBFjgrpL+Fl++xtXTC40Thsue
-         ZIWRBNQYdmE2P6af7X350PfIOtaZ3orsAnA142fllOOusBbadfJfOui7FqwmZ3/e3d/k
-         XltJAiAKllTYHyRpuDiiEhsWybVLYQGAjBotPZN45yoEEpOUAnea/H68W/RnlGiwjxvI
-         UJ5uMsIcbjhzsUum6QH7Ghx0mkIPR3EAGOFreccPi44S+SK5SADx48XNIWdNPtjhPnfj
-         DslQ==
-X-Forwarded-Encrypted: i=1; AKwUvBxIDx5d5tTtmA2hfTWV54yiAdOLutRq11oTvU8vlrfhb6Zgg/w5EgX4+qCAkQroA29zjASvV+HCPO9BbSoHJg==@lists.linux.dev
-X-Gm-Message-State: AFq9FYKAgzBAnXxMsovldk8KBU12SHALua0TWTHi0D5yr4Y7PlqJgEKU
-	qtYxkoaI7BijyT4/wz3+VQQ/OrBH4/e3M5Y0/FThAZhQ9TbOT59pJJqCD4vikDfOb+g1o5SWm75
-	l43l9Y4fQ9NGU/qdkBTSSkLx56U7PAtCHuiWNibl+lYK07JTrV1Sfuo5ZpKwbR428TyHA
-X-Gm-Gg: AYBFou0msL0dMOCcL/EQ2iEArU90EsVqM7C4+Wa9+t/rHTGfUT4hdYie9ItZ1dVBXt/
-	DNdAL96OytGOwvQLf255d2XEpZvkiuJDIy6MERGkrQQ+go0zbcAPOLsKgCJZMbT1GX10vsaoF0V
-	sP2yonH1UjdsPAUjFnl1vUKHJn7mwHfz+xQciZJNzVvaPiohxweGAJGFqInvAVNCImUiBxz3L8n
-	3emcBWB+CCNG0c5EGx4oY0tvT0YWEP1HG90iLHKFa62BD4o6yAjBAMHI+ydm1LmAd5x6/xnEXYB
-	Dvrdrrxmu1d7iLN9toYlS4UftVfFidtwBem33YhnX5cjtyevP0/smoG8uhR5LLHpZyfrhmPooSG
-	rSY2V4IfovwwmAN0ud1yAPETQbsGSojJ5vfH3dH4=
-X-Received: by 2002:a05:600c:630d:b0:4a1:fae2:a8ab with SMTP id 5b1f17b1804b1-4ac150b38abmr52841525e9.3.1793370074994;
-        Fri, 30 Oct 2026 07:21:14 -0700 (PDT)
-X-Received: by 2002:a05:600c:630d:b0:4a1:fae2:a8ab with SMTP id 5b1f17b1804b1-4ac150b38abmr52840155e9.3.1793370074228;
-        Fri, 30 Oct 2026 07:21:14 -0700 (PDT)
-Received: from redhat.com ([187.40.250.61])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48e71a4d3cesm3743741f8f.7.2026.10.30.07.21.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 30 Oct 2026 07:21:13 -0700 (PDT)
-Date: Fri, 30 Oct 2026 10:21:09 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: jrmmhm.kernel@eldare.de, Stefan Hajnoczi <stefanha@redhat.com>,
-	Bobby Eshleman <bobbyeshleman@meta.com>,
-	Jason Wang <jasowangio@gmail.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@kernel.org>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>, virtualization@lists.linux.dev,
-	kvm@vger.kernel.org, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH net v2] vsock/virtio: clear vqs[] to avoid a UAF on a
- failed PM restore
-Message-ID: <20261030101918-mutt-send-email-mst@kernel.org>
-References: <20261028-vsock-restore-uaf-send-v2-1-675aad6da714@eldare.de>
- <auSZtMqcTz3r1nRk@sgarzare-redhat>
+	dkim=pass (1024-bit key, unprotected) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=Zp56ReRB;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=7JNS7Ue9;
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=Zp56ReRB;
+	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=7JNS7Ue9
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id BDFA52224B;
+	Fri, 30 Oct 2026 14:25:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1793370315; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=NQaH/NEfSkFuRRvRaZMoOWTcku/Rk16IqqeHK0Sg+lQ=;
+	b=Zp56ReRBoDYBXqzqljsdhcwB3pMAlmCmcATEK+l8m00q/opT5Tikjf5IBMeGVAbi8cVzBi
+	vxdp50jQAAP2eu/7tj4j+7n7fz51a+B6TgYGkyD9e4uMNpckT9uNWKkwMnCkaF7eFvob2c
+	pUiTpVJh2tR1YA9wcc1LTN/Q+3B7iNE=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1793370315;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=NQaH/NEfSkFuRRvRaZMoOWTcku/Rk16IqqeHK0Sg+lQ=;
+	b=7JNS7Ue9u5YGzpxjWdj+/8qOqbOIeW9TYa1T2gnNGy6V5JVxOmxXlF/KTUApWckV2dEErv
+	mmwhKhwN3jtTvOAw==
+Authentication-Results: smtp-out1.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1793370315; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=NQaH/NEfSkFuRRvRaZMoOWTcku/Rk16IqqeHK0Sg+lQ=;
+	b=Zp56ReRBoDYBXqzqljsdhcwB3pMAlmCmcATEK+l8m00q/opT5Tikjf5IBMeGVAbi8cVzBi
+	vxdp50jQAAP2eu/7tj4j+7n7fz51a+B6TgYGkyD9e4uMNpckT9uNWKkwMnCkaF7eFvob2c
+	pUiTpVJh2tR1YA9wcc1LTN/Q+3B7iNE=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1793370315;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=NQaH/NEfSkFuRRvRaZMoOWTcku/Rk16IqqeHK0Sg+lQ=;
+	b=7JNS7Ue9u5YGzpxjWdj+/8qOqbOIeW9TYa1T2gnNGy6V5JVxOmxXlF/KTUApWckV2dEErv
+	mmwhKhwN3jtTvOAw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 1041313419;
+	Fri, 30 Oct 2026 14:25:14 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id 4A3pK8qo5GpfFQAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Fri, 30 Oct 2026 14:25:14 +0000
+Message-ID: <f406b2f6-cad9-411f-941a-7e4f26af3947@suse.de>
+Date: Fri, 30 Oct 2026 15:25:14 +0100
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -112,225 +106,135 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-In-Reply-To: <auSZtMqcTz3r1nRk@sgarzare-redhat>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Rl6UFq7iVFXtceCCD9NFMBP7x3BfrNW5qErxr2PsJck_1793370075
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4] drm/vblank: Don't arm vblank timer with invalid frame
+ duration
+To: =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>
+Cc: me@romanilin.is, louis.chauvet@bootlin.com,
+ maarten.lankhorst@linux.intel.com, mripard@kernel.org, airlied@gmail.com,
+ simona@ffwll.ch, javierm@redhat.com, dmitry.osipenko@collabora.com,
+ regressions@leemhuis.info, peter.m.arnesen@gmail.com,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
+ sashiko-reviews@lists.linux.dev
+References: <20260914110004.211027-1-tzimmermann@suse.de>
+ <auIMt8XmmaVykZTC@intel.com> <2c2f33cf-da6f-4e31-84bb-768778d7b063@suse.de>
+ <auSIZNhP4DTj8Nb2@intel.com> <be8e41da-5ef1-4c37-a044-171ab1f32c6d@suse.de>
+ <auSgII_W-FJJz44W@intel.com>
+Content-Language: en-US
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <auSgII_W-FJJz44W@intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Flag: NO
+X-Spam-Level: 
+X-Spamd-Result: default: False [-11.79 / 50.00];
+	SUSE_INTERNAL_BYPASS(-9.00)[];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	XM_UA_NO_VERSION(0.01)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	ARC_NA(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	TAGGED_RCPT(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[14];
+	RCVD_TLS_ALL(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	TO_DN_SOME(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	FREEMAIL_CC(0.00)[romanilin.is,bootlin.com,linux.intel.com,kernel.org,gmail.com,ffwll.ch,redhat.com,collabora.com,leemhuis.info,lists.freedesktop.org,lists.linux.dev];
+	MID_RHS_MATCH_FROM(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:url,imap1.dmz-prg2.suse.org:helo,bootlin.com:url]
+X-Spam-Score: -11.79
 
-On Fri, Oct 30, 2026 at 02:51:26PM +0100, Stefano Garzarella wrote:
-> On Wed, Oct 28, 2026 at 07:22:43PM +0100, Jerome Mohm via B4 Relay wrote:
-> > From: Jerome Mohm <jrmmhm.kernel@eldare.de>
-> > 
-> > virtio_vsock_vqs_del() frees the virtqueues via del_vqs() but never
-> > clears vsock->vqs[]. If a later virtio_vsock_restore() fails to
-> > reallocate them (its error path is a bare "goto out" that only unlocks
-> > and returns), the driver is left bound with a dangling vqs[]. The next
-> > virtio_vsock_vqs_del() - on a second freeze or on remove/unbind - then
-> > passes a freed vring_virtqueue to virtqueue_detach_unused_buf(), a slab
-> > use-after-free. KASAN on a guest with a virtio-vsock device on
-> > virtio-pci, after a restore made to fail by fault injection:
-> > 
-> >  BUG: KASAN: slab-use-after-free in virtqueue_detach_unused_buf
-> >  Read of size 4 at addr ... by task repro
-> >   virtqueue_detach_unused_buf
-> >   virtio_vsock_vqs_del (net/vmw_vsock/virtio_transport.c:785)
-> >   virtio_vsock_remove
-> >   virtio_dev_remove
-> >   ... unbind_store
-> >  Freed by task ...:
-> >   kfree
-> >   vp_del_vqs
-> >   virtio_vsock_freeze          <- the preceding freeze freed the vq
-> >  Allocated by task 1:
-> >   vring_create_virtqueue
-> >   virtio_vsock_vqs_init
-> >   virtio_vsock_probe           <- original allocation at probe
-> > 
-> > That second virtio_vsock_vqs_del() also repeats del_vqs(), which not
-> > every transport tolerates. virtio-mmio's vm_del_vqs() always ends in
-> > free_irq(), but after the failed vm_find_vqs() the device no longer
-> > holds its IRQ, so on virtio-mmio the second call also warns:
-> > 
-> >  Trying to free already-free IRQ 51
-> >  WARNING: kernel/irq/manage.c:1894 at free_irq+0x23e/0x840
-> >   vm_del_vqs
-> >   virtio_vsock_vqs_del
-> >   virtio_vsock_remove          (or virtio_vsock_freeze)
-> > 
-> > virtio-pci's vp_del_vqs() is idempotent, so the PCI case shows only
-> > the use-after-free.
-> > 
-> > Clear vsock->vqs[] after del_vqs() and when virtio_find_vqs() fails in
-> > virtio_vsock_vqs_init(), and treat an empty vqs[] as "no virtqueues
-> > are live": virtio_vsock_vqs_del() then still resets the device
-> > (virtio_dev_remove() expects a reset device) and purges the send
-> > queue, but skips the detach loops and del_vqs(). find_vqs() cleans up
-> > after itself on failure, so skipping the second del_vqs() leaks
-> > nothing. Clearing the stale pointers follows virtio_blk
-> > commit 0739c2c6a015 ("virtio_blk: NULL out vqs to avoid double free on
-> > failed resume").
-> > 
-> > The use-after-free was found with the help of an LLM coding assistant
-> > (Anthropic's Claude); the free_irq() warning on virtio-mmio was reported
-> > by the netdev Sashiko AI review of an earlier version of this patch.
-> > 
-> > Testing: on a private VM with a KASAN fuzz kernel, over virtio-pci and
-> > over virtio-mmio (QEMU microvm). The restore allocation failure was
-> > forced with CONFIG_FAILSLAB steered by the fault-injection stacktrace
-> > filter to the virtio-vsock restore path only; a guest-root program
-> > drives a pm_test=devices freeze/restore cycle (so .restore returns
-> > -ENOMEM) and then unbinds the device, or runs a second freeze/restore
-> > cycle. Without a fix (v7.3-rc5 based) the PCI run reports the
-> > slab-use-after-free above. With only the vqs[] clearing (v1 of this
-> > patch, on net 363c8c79220d) the MMIO runs report the free_irq warning on
-> > remove and on the second freeze. With this patch on the same base,
-> > restore still fails with -ENOMEM on both transports and neither report
-> > appears; the device works again after a second, successful
-> > freeze/restore cycle and after unbind/bind, and a normal freeze/restore
-> > and unbind/bind still leave a working device. A find_vqs() failure after
-> > some virtqueues were set up was not exercised (each restore attempt
-> > failed at its first allocation, before any virtqueue was set up); that
-> > clear is covered by code reading only. The three single-VM tests of
-> > tools/testing/selftests/vsock/vmtest.sh (vm_server_host_client,
-> > vm_client_host_server, vm_loopback; 44 vsock_test cases each) pass on
-> > this tree, as on net; on both kernels the host-side runs skip the SO_INQ
-> > cases (SO_INQ not supported by the host kernel). The ns_* tests of
-> > vmtest.sh were not run (they need root on the host). checkpatch.pl
-> > --strict is clean and the fuzz-config build is warning-free. The
-> 
-> Do we really need to write in a commit message that checkpatch.pl --strict
-> is clean?
-> 
-> Descriptive commits are great, but we're going a bit too far here.
+Hi
 
-It's just what AI writes if you tell it to make it checkpatch.pl
-clean in the prompt.
+Am 30.10.26 um 14:48 schrieb Ville Syrjälä:
+[...]
+>> And how would drivers know that the values are garbage before processing
+>> them?
+> That's why I added the device wide mode_valid hook. Drivers can
+> use that to reject garbage before it reaches anything more
+> sensitive. I have somewhat hard time believing a mode that is
+> acceptable/reasonable to some real world hardware would fail
+> in the vblank calculations.
 
-> Please
-> include only the relevant information; for example, I think the part after
-> "Testing:" could be summarized in a few lines or removed altogether.
+I can think of some drivers with fixed display mode, such as a panel or 
+the sysfb drivers. If they use vblank timers they might run into that 
+situation.  But it's really a corner case.
 
+>
+> Hmm, and I just realized that I haven't actually added any low limit
+> for the dotclock in i915. I'll go do that now. I think ~10 MHz is
+> probably a reasonable enough number I can use there.
+>
+>> Even if a driver could program them to hardware, the vblank
+>> helpers could still not process them correctly. Thus leaving the
+>> userspace dis-functional.
+>>
+>> I see that we might want a common test function
+>> drm_vblank_check_display_mode() and put it in some central place in the
+>> atomic_check pipeline. At least we'd separate the testing from the
+>> calculation.
+> Yeah, something like that could work. Though I still
+> think it'd be better to do it from the driver's mode_valid
+> hook to reject the bogus stuff even earlier.
+>
+> That would also filter them out from the connectors' mode
+> lists. But I suppose you could do the vblank check in
+> the connector mode filtering unconditionally without
+> having the driver do it. Or does the buggy userspace also
+> need the kernel to return bogus modes from getconnector?
 
-Yea please write it yourself and make it concise. My eyes glazed over
-in the 1st paragraph.
+How about we add a dedicated mode_fixup helper for vblank validation? It 
+would run after new CRTC's mode_fixup callback. [1] There we could try 
+to adapt the CRTC's adjusted_mode.  Since we know the bug exactly, we 
+can try to detect it, fix it, and document it.
 
-> > reproducer needs guest root, CONFIG_FAILSLAB with
-> > CONFIG_FAULT_INJECTION_DEBUG_FS and
-> > CONFIG_FAULT_INJECTION_STACKTRACE_FILTER, and CONFIG_HIBERNATION with
-> > CONFIG_PM_DEBUG for pm_test; it is available on request.
-> > 
-> > Fixes: bd50c5dc182b ("vsock/virtio: add support for device suspend/resume")
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Jerome Mohm <jrmmhm.kernel@eldare.de>
-> > ---
-> > The use-after-free was found with the help of Anthropic's Claude; the
-> > virtio-mmio warning comes from the netdev Sashiko review.
-> 
-> This is already in the commit description, no?
-> 
-> > 
-> > Changes in v2:
-> > - Skip the detach loops and del_vqs() in virtio_vsock_vqs_del() when no
-> >  virtqueues are live, so the teardown after a failed restore does not
-> >  free virtio-mmio's IRQ a second time (Sashiko review).
-> > - Use an empty vqs[] as the 'no live virtqueues' marker instead of v1's
-> >  per-loop NULL checks, and purge the send queue before the early
-> >  return.
-> > - Commit message: cite only virtio_blk 0739c2c6a015; drop the wrong
-> >  virtio_rtc and virtio_console references (Sashiko review). Drop the
-> >  commit ID from the code comment.
-> > - Tested on virtio-mmio (QEMU microvm) as well as virtio-pci.
-> > - Drop the Assisted-by trailer (removed upstream); tool use is
-> >  disclosed above instead.
-> > - Link to v1: https://patch.msgid.link/20261001-vsock-restore-uaf-send-v1-1-5da60f707506@eldare.de
-> > ---
-> > net/vmw_vsock/virtio_transport.c | 24 +++++++++++++++++++++---
-> > 1 file changed, 21 insertions(+), 3 deletions(-)
-> > 
-> > diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
-> > index 4f9aa9c4c3aa..bba594b7fc14 100644
-> > --- a/net/vmw_vsock/virtio_transport.c
-> > +++ b/net/vmw_vsock/virtio_transport.c
-> > @@ -714,8 +714,14 @@ static int virtio_vsock_vqs_init(struct virtio_vsock *vsock)
-> > 	atomic_set(&vsock->queued_replies, 0);
-> > 
-> > 	ret = virtio_find_vqs(vdev, VSOCK_VQ_MAX, vsock->vqs, vqs_info, NULL);
-> > -	if (ret < 0)
-> > +	if (ret < 0) {
-> > +		/* On failure virtio_find_vqs() can leave freed virtqueues or
-> > +		 * error pointers in vsock->vqs[]. Clear it: an empty vqs[]
-> > +		 * tells virtio_vsock_vqs_del() that no virtqueues are live.
-> > +		 */
-> > +		memset(vsock->vqs, 0, sizeof(vsock->vqs));
-> 
-> Should we move this in the virtio_find_vqs() ?
-> 
-> Maybe not for this patch, but for long term it could be a good idea IMO.
-> 
-> > 		return ret;
-> > +	}
-> > 
-> > 	virtio_vsock_update_guest_cid(vsock);
-> > 
-> > @@ -781,6 +787,15 @@ static void virtio_vsock_vqs_del(struct virtio_vsock *vsock)
-> > 	 */
-> > 	virtio_reset_device(vdev);
-> > 
-> > +	virtio_vsock_skb_queue_purge(&vsock->send_pkt_queue);
-> > +
-> > +	/* No virtqueues are live, e.g. after a failed restore: they were
-> > +	 * already deleted, and a second del_vqs() is not safe on every
-> > +	 * transport (virtio-mmio would free its IRQ again).
-> > +	 */
-> > +	if (!vsock->vqs[VSOCK_VQ_RX])
-> > +		return;
-> > +
-> > 	mutex_lock(&vsock->rx_lock);
-> > 	while ((skb = virtqueue_detach_unused_buf(vsock->vqs[VSOCK_VQ_RX])))
-> > 		kfree_skb(skb);
-> > @@ -791,10 +806,13 @@ static void virtio_vsock_vqs_del(struct virtio_vsock *vsock)
-> > 		kfree_skb(skb);
-> > 	mutex_unlock(&vsock->tx_lock);
-> > 
-> > -	virtio_vsock_skb_queue_purge(&vsock->send_pkt_queue);
-> > -
-> > 	/* Delete virtqueues and flush outstanding callbacks if any */
-> > 	vdev->config->del_vqs(vdev);
-> > +
-> > +	/* The virtqueues are freed: clear the stale pointers, so that a
-> > +	 * virtio_vsock_vqs_del() after a failed restore skips them.
-> > +	 */
-> > +	memset(vsock->vqs, 0, sizeof(vsock->vqs));
-> 
-> Same above, should we introduce a virtio_del_vqs() to do both and call it in
-> all drivers?
-> 
-> Or skip del_vqs() if vdev->vqs is empty.
-> 
-> I guess this issue could be spread around virtio drivers, so would be nice
-> to add common API in the virtio core to be used in all of them.
-> 
-> That said, for a fix, this patch LGTM, my comments were more for a long term
-> work.
-> 
-> With a fixed commit message I can give my R-b.
-> 
-> Thanks,
-> Stefano
-> 
-> > }
-> > 
-> > static int virtio_vsock_probe(struct virtio_device *vdev)
-> > 
-> > ---
-> > base-commit: 363c8c79220d0db4d65dcd570529ddda15067cb5
-> > change-id: 20261001-vsock-restore-uaf-send-1fc7396fa1bd
-> > 
-> > Best regards,
-> > --
-> > Jerome Mohm <jrmmhm.kernel@eldare.de>
-> > 
-> > 
+[1] 
+https://elixir.bootlin.com/linux/v7.3/source/drivers/gpu/drm/drm_atomic_helper.c#L508
+
+Best regards
+Thomas
+
+>
+
+-- 
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
+GF: Stefan Gaiser, Jochen Jaser, Abhinav Puri, (HRB 36809, AG Nürnberg)
+
 
