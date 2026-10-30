@@ -1,104 +1,108 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793369920;
-	b=fU5G0eMzhzr+o//eFdChFYd5kjMYBvQ+Fp+r4Pn4cT8VtOPU7Tcr1GCQwJwR98YwhesK
-	 ufVa8MUxk4nkbivps50zcHGWwBNLSn56zWpavnaZsmmlVk36GMvFPS6ZQPam3IJuCeXim
-	 BXLxvDEgalStIUDzUojADLn9st+Z/LHVsKcPYXZ2Cm+uBX631bwzoZop08RW75AuAVCpH
-	 2RRy8I79ZKcMTYGWjaidfbHlE6ODz54JV1PEFbeMI6PosY6ZmESgOxKqqTCXIbi4KgDym
-	 JJNrJArsCZ+q7D/cvHH28htYxdWubuycXUu1Iq/DBrfimB9xKklsd3lywJC3ZRY1w8Q==
+	t=1793370081;
+	b=kGU72qObwyiuCtqmIE5lBqQFayXrdiGd+JfYP/PZnGLtE+J9minuzJ9Ip6lICam4Kiz+
+	 iT4NuGG9Me0epuv22ZH4Q9P+5LvLWpKfqYL1b+sjlhtk84emmcUgZmZh2ysYKNI8DqG50
+	 jRNaaDiWGzt8j/V0XVE73fchg2YCtwet0H2wmDkkp9QN0CpZ8s1IHFM/PKijZLn7/Neaz
+	 BumHWng+eg0JcwjQwjd0jwpcjWkw14kgNpHo9ge1JnUxrrA5bxQzNpq0Js1DINoLkPD0P
+	 O7HGHv6DX4JFAwoaQiKdYYE5A8fV5AgUOvya5cVAYIH76OSb3ztXaK8UWRxKCBryZgQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793369920;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793370081;
 	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
 	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
 	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
 	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
 	 X-Mimecast-Originator:Content-Type:Content-Disposition;
-	bh=0Ql7QE+ZG2n4x9bMClMMzyIrGK2QJZdx5EMFJUT94Io=;
-	b=Guas8xvjarUmm4FXn11iZp2E6OZ4R7PwtyaCTrfPW5FuhW2SxQLkcNJ7YVbUjax6K5OQ
-	 oALQMWuHzOPhOemgRQyhBpXeXqTPnz4rceeSOLFGyO79PEDBcf51VnDSv5IC4nbbymWFx
-	 pA+tmeCsGM4BJAbh6bg1LAofrJWPrkNVtIew0Mw+Tw7cnEfJ+kN0GLbnXisr1KfDz6hdu
-	 4dWBrmB8iP+g67nCrWXd3xkK9Jz+OEDdIDC4Gx10QpDOrb1WochBXT2LmnhO9oN9WV0jY
-	 i0dXEQ4CtxZxmMSEfXST/81Du+ePKcnr14du/QVTJpYJXz3bCIh1gc5jLq0jMceJL4A==
+	bh=fEfp8kxzeB0lYyMGgIvcUMd83vVWKlsFB9jWk+Wz83o=;
+	b=4RbQDKmQjUw0hQxfkWVfncHMYTduFhOv2ScWIlsMwzWtkLAX6XyDrp3+Ngf40Y06A2o+
+	 tLANtZI6uYL4ULCkD/P6R1QkI7HE+m9AX5ry+SisRXau2V/racVwxUWmPLjDPkc6mTdM1
+	 V6kMLuDVDXHRUzXBuLl5bFPYeEJuEdbAOKYpBIxscQvmVBSPQLKmD6NXFkw+hHl7SXrFx
+	 sSLs9hYWnUASeIpCotF9XtYCwd0jVpFiKeReUuPQidE48r2JQzlbnQ3HdNNc7qZmJCy9i
+	 mWJ7oGTyPod+rTWKObSerH7/TrAn+GFvprHs4FezXDfTyRTkm9zugGRWCI6XbHM+Xmw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=redhat.com;
 	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Wowh22FI;
-	arc=none smtp.remote-ip=170.10.129.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Ci3thpdE;
+	arc=none smtp.remote-ip=170.10.133.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D9B3606A326
-	for <virtualization@lists.linux.dev>; Fri, 30 Oct 2026 14:18:39 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0D9B3606A326
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EF64606A32A
+	for <virtualization@lists.linux.dev>; Fri, 30 Oct 2026 14:21:20 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3EF64606A32A
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Wowh22FI
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Ci3thpdE
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1793369919;
+	s=mimecast20190719; t=1793370080;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=0Ql7QE+ZG2n4x9bMClMMzyIrGK2QJZdx5EMFJUT94Io=;
-	b=Wowh22FI0QWVD5eZVe5fK7YVhNaQK6cEw9D/9Obwc+0AMqdcoQgsDv7rTdryjcloIl5Y9m
-	iE9t3opYCJL5FrIr4EJr9O/Hc9bMpd6HBC/bkg/SyYNLLnYef2xudGK8OQuTwqk/765Oig
-	l223uhHrqgkzyPP/kt05qFfOuDRbk04=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=fEfp8kxzeB0lYyMGgIvcUMd83vVWKlsFB9jWk+Wz83o=;
+	b=Ci3thpdEggNIr/HBeGAyZ7aPbtz6GkgLXEWI92mROvdeLNyj8GUEokOyno5PrZFVHkYu2E
+	FJPSi0xKS7G/i81guzGcgI2kkoc1rupcEyfMO3nWfcTM1/ZDFKAbOU7WpneAcwmgF5QJSr
+	J+iu4bF1MVcU147wCPAqLkO/O/lwj/0=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-609-GOjWth5IONi_9m8hRoAK6g-1; Fri, 30 Oct 2026 10:18:35 -0400
-X-MC-Unique: GOjWth5IONi_9m8hRoAK6g-1
-X-Mimecast-MFC-AGG-ID: GOjWth5IONi_9m8hRoAK6g_1793369914
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-48dfdc0f491so417645f8f.1
-        for <virtualization@lists.linux.dev>; Fri, 30 Oct 2026 07:18:35 -0700 (PDT)
+ us-mta-412-a9Lg5pgIPLG8awIsVHrrXg-1; Fri, 30 Oct 2026 10:21:17 -0400
+X-MC-Unique: a9Lg5pgIPLG8awIsVHrrXg-1
+X-Mimecast-MFC-AGG-ID: a9Lg5pgIPLG8awIsVHrrXg_1793370075
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4a4654add56so6868565e9.2
+        for <virtualization@lists.linux.dev>; Fri, 30 Oct 2026 07:21:16 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793369914; x=1793974714;
+        d=1e100.net; s=20260707; t=1793370075; x=1793974875;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=0Ql7QE+ZG2n4x9bMClMMzyIrGK2QJZdx5EMFJUT94Io=;
-        b=D9H1SCDnbxOJhP38LrhaStqdcHYfGSqZojUVbdYJGW7/+trYzVFk5mfq58r6x8rVnI
-         9ff5m6SH8OqHWo0FAmXcjLoE524fnId9cOXoktp4+oQTiSoZ/JUnC92g38iOCnC9RXqV
-         WIff+oza0GKwJj0TAcLbVbqDpVPsTDIBwKrdQQ9BCSWLcRyJGeHp4iuF8n8zvRL4tGCK
-         KlF0nVfYOB5suNvQ9pWjOLq+v946SBmHxCYnf+tskZo4K36MtIJDC1XKcv1xYkqCURI3
-         96rAkKV48esqoUscA/3mGqG4ef+O4OnN3TNdRAShbfXMLVt1+4vZ0fxjAL038ID5GpcA
-         KnhA==
-X-Forwarded-Encrypted: i=1; AKwUvBx8Ii6XGPHyfuYGI+DUOtKmrXmqjHOB04My0EWDKPCAdr3XAno5t22Z4zct2VcwmbDo3hegSdN70F4RenPoSQ==@lists.linux.dev
-X-Gm-Message-State: AFq9FYJVI+4S20SRpju8iVB1Lw2Nhy8pPvnvKzjwN+tZd1HXed/B2M+u
-	9Ny3qSnjMXPAy0RlMgH8KB06O9IzLlb8sE2vczh6JPxQzMkkgpCgEwVTD7qkJr1nCaRDWbNEfxb
-	0JchSNgttII2v+HyEVGjJ7P393t6WqDkaGaRuJlp8rgI0osDg0uOjOE39/d27DwFtdKyY
-X-Gm-Gg: AYBFou2p8cFC4p78gdm3RgGD0Je+D6I/If69XApTBwWPpMZ8F/BHBCCVV9wuEqvbWRm
-	ulwEEwnpX4x8zD/WFGBLDdjE0P0tAgTUjow3iCaozPA710vSwEZghmkYc/jb5+17MY67Zslr9rN
-	+w8OP4Mw3Q1vnHCGfBZ1Sk2EKcefIRY9jSDovwUIyM7Fkosa5HrI69cP2eoWR0uM9yGLBDRj5fu
-	wB0Nqd+yWLSxBYGb0RtHnbzx5KzCJ6Y2wkkmElpFVdczEODbFWKwIPdntDGQu1B3mBc/3hu31pI
-	Do9HGQYnP0d9zGjUMqlosN4Rgxo1SaxB+6xXIvA04ZKPQ4YuTN5k2o9XEX36vBy+wqru7S4nsOB
-	NTjqWFqE8icOGOkrD1/dYcszSBAysEHnqry4hUi8+2DP1MXc3JCzMP+qKtuznL3lbKZWNPCiEgN
-	Bg8MG+E0qj7PsBBls=
-X-Received: by 2002:a05:6000:4a07:b0:48e:68d5:81a6 with SMTP id ffacd0b85a97d-48e6e4f53fbmr6819372f8f.34.1793369914430;
-        Fri, 30 Oct 2026 07:18:34 -0700 (PDT)
-X-Received: by 2002:a05:6000:4a07:b0:48e:68d5:81a6 with SMTP id ffacd0b85a97d-48e6e4f53fbmr6819274f8f.34.1793369913924;
-        Fri, 30 Oct 2026 07:18:33 -0700 (PDT)
-Received: from sgarzare-redhat (ip190-139-192-82.pool-bba.aruba.it. [82.192.139.190])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48e71b9eaeesm3565782f8f.49.2026.10.30.07.18.32
+        bh=fEfp8kxzeB0lYyMGgIvcUMd83vVWKlsFB9jWk+Wz83o=;
+        b=ubxxRs6X3PmqNR5DnC8YMhz9q6jTippkSHnrsJvh4Prwe2RXOw0NEImPDXVPU1QakK
+         m3D9EOI4LP6zutpxKe1iMFSj00BoG6ZYvlU/PUKT9O+vBFjgrpL+Fl++xtXTC40Thsue
+         ZIWRBNQYdmE2P6af7X350PfIOtaZ3orsAnA142fllOOusBbadfJfOui7FqwmZ3/e3d/k
+         XltJAiAKllTYHyRpuDiiEhsWybVLYQGAjBotPZN45yoEEpOUAnea/H68W/RnlGiwjxvI
+         UJ5uMsIcbjhzsUum6QH7Ghx0mkIPR3EAGOFreccPi44S+SK5SADx48XNIWdNPtjhPnfj
+         DslQ==
+X-Forwarded-Encrypted: i=1; AKwUvBxIDx5d5tTtmA2hfTWV54yiAdOLutRq11oTvU8vlrfhb6Zgg/w5EgX4+qCAkQroA29zjASvV+HCPO9BbSoHJg==@lists.linux.dev
+X-Gm-Message-State: AFq9FYKAgzBAnXxMsovldk8KBU12SHALua0TWTHi0D5yr4Y7PlqJgEKU
+	qtYxkoaI7BijyT4/wz3+VQQ/OrBH4/e3M5Y0/FThAZhQ9TbOT59pJJqCD4vikDfOb+g1o5SWm75
+	l43l9Y4fQ9NGU/qdkBTSSkLx56U7PAtCHuiWNibl+lYK07JTrV1Sfuo5ZpKwbR428TyHA
+X-Gm-Gg: AYBFou0msL0dMOCcL/EQ2iEArU90EsVqM7C4+Wa9+t/rHTGfUT4hdYie9ItZ1dVBXt/
+	DNdAL96OytGOwvQLf255d2XEpZvkiuJDIy6MERGkrQQ+go0zbcAPOLsKgCJZMbT1GX10vsaoF0V
+	sP2yonH1UjdsPAUjFnl1vUKHJn7mwHfz+xQciZJNzVvaPiohxweGAJGFqInvAVNCImUiBxz3L8n
+	3emcBWB+CCNG0c5EGx4oY0tvT0YWEP1HG90iLHKFa62BD4o6yAjBAMHI+ydm1LmAd5x6/xnEXYB
+	Dvrdrrxmu1d7iLN9toYlS4UftVfFidtwBem33YhnX5cjtyevP0/smoG8uhR5LLHpZyfrhmPooSG
+	rSY2V4IfovwwmAN0ud1yAPETQbsGSojJ5vfH3dH4=
+X-Received: by 2002:a05:600c:630d:b0:4a1:fae2:a8ab with SMTP id 5b1f17b1804b1-4ac150b38abmr52841525e9.3.1793370074994;
+        Fri, 30 Oct 2026 07:21:14 -0700 (PDT)
+X-Received: by 2002:a05:600c:630d:b0:4a1:fae2:a8ab with SMTP id 5b1f17b1804b1-4ac150b38abmr52840155e9.3.1793370074228;
+        Fri, 30 Oct 2026 07:21:14 -0700 (PDT)
+Received: from redhat.com ([187.40.250.61])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48e71a4d3cesm3743741f8f.7.2026.10.30.07.21.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 30 Oct 2026 07:18:33 -0700 (PDT)
-Date: Fri, 30 Oct 2026 15:18:10 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: jrmmhm.kernel@eldare.de
-Cc: Bobby Eshleman <bobbyeshleman@meta.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Michal Luczaj <mhal@rbox.co>, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bpf@vger.kernel.org, 
-	stable@vger.kernel.org
-Subject: Re: [PATCH net v3 1/2] vsock/bpf: release sock lock while waiting
- for data in recvmsg
-Message-ID: <auSkQOU6qmj0NPEt@sgarzare-redhat>
-References: <20261028-kbh3-1-022-fix-v2-v3-0-bc0752b2d3db@eldare.de>
- <20261028-kbh3-1-022-fix-v2-v3-1-bc0752b2d3db@eldare.de>
+        Fri, 30 Oct 2026 07:21:13 -0700 (PDT)
+Date: Fri, 30 Oct 2026 10:21:09 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: jrmmhm.kernel@eldare.de, Stefan Hajnoczi <stefanha@redhat.com>,
+	Bobby Eshleman <bobbyeshleman@meta.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@kernel.org>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>, virtualization@lists.linux.dev,
+	kvm@vger.kernel.org, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH net v2] vsock/virtio: clear vqs[] to avoid a UAF on a
+ failed PM restore
+Message-ID: <20261030101918-mutt-send-email-mst@kernel.org>
+References: <20261028-vsock-restore-uaf-send-v2-1-675aad6da714@eldare.de>
+ <auSZtMqcTz3r1nRk@sgarzare-redhat>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -108,224 +112,225 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-In-Reply-To: <20261028-kbh3-1-022-fix-v2-v3-1-bc0752b2d3db@eldare.de>
+In-Reply-To: <auSZtMqcTz3r1nRk@sgarzare-redhat>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: qiNb7DF-3DG9ZdBJjTJ96zQpElSjTh_uLLKV5-9gQtI_1793369914
+X-Mimecast-MFC-PROC-ID: Rl6UFq7iVFXtceCCD9NFMBP7x3BfrNW5qErxr2PsJck_1793370075
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Wed, Oct 28, 2026 at 06:55:40PM +0100, Jerome Mohm via B4 Relay wrote:
->From: Jerome Mohm <jrmmhm.kernel@eldare.de>
->
->vsock_bpf_recvmsg() takes lock_sock(sk) and holds it across the receive
->loop, including vsock_msg_wait_data(), which sleeps in wait_woken()
->without dropping the lock. When data arrives, the transport's delivery
->context (the vsock-loopback worker, or the virtio/vhost rx path) calls
->virtio_transport_recv_pkt() -> lock_sock() on the same socket and blocks.
->That context is the only one that would queue the skb and wake the
->reader, so neither side makes progress: a blocking recv() hangs until a
->signal arrives or SO_RCVTIMEO expires, and meanwhile the shared delivery
->worker is stalled, so all vsock rx on that transport stops. The
->hung-task watchdog reports the worker:
->
->  INFO: task kworker/1:3:107 blocked for more than 5 seconds.
->  task:kworker/1:3 state:D Workqueue: vsock-loopback vsock_loopback_work
->  Call Trace:
->   __schedule
->   schedule
->   __lock_sock
->   lock_sock_nested
->   virtio_transport_recv_pkt
->   vsock_loopback_work
->
->vsock_bpf.c is based on net/unix/unix_bpf.c, whose unix_msg_wait_data()
->drops u->iolock around wait_woken(); tcp_bpf and the native
->vsock_connectible_wait_data() also drop the lock across the wait.
->
->Releasing the lock alone is not enough. With the lock dropped, the
->reader is also woken by events that bring no data, for example a credit
->update via sk_write_space(); vsock_msg_wait_data() did not loop, so a
->blocking recv() then returned -EAGAIN early. It also checked only for a
->local RCV_SHUTDOWN, so a peer shutdown or a reset was not noticed. A
->looping wait must stop on everything the native receive path stops on:
->without the shutdown checks a peer shutdown, and without the state
->check a reset whose error was already read with SO_ERROR, would sleep
->until the timeout.
->
->Make vsock_msg_wait_data() loop and release the socket lock around each
->wait. It returns 1 when data is ready, -sk_err on a socket error, 0 on
->RCV_SHUTDOWN or a peer SEND_SHUTDOWN (as vsock_connectible_wait_data()
->does), -EAGAIN on timeout and sock_intr_errno() on a pending signal. It
->also stops once the socket is no longer TCP_ESTABLISHED, with 0 if
->SOCK_DONE is set and -ENOTCONN otherwise, mirroring the state check in
->__vsock_connectible_recvmsg(): a transport reset
->(virtio_vsock_reset_sock()) sets only TCP_CLOSE and sk_err, and
->getsockopt(SO_ERROR) clears sk_err, so without the state check the loop
->would wait out the whole timeout on a dead connection. Data already in
->the psock ingress queue is still returned first. vsock_bpf_recvmsg()
->returns a negative result as the error and 0 as end of file.
->
->Two userspace-visible results are worth noting: a pending signal now
->returns sock_intr_errno() where the old code returned -EAGAIN, and after
->a virtio transport reset recv() returns -ECONNRESET until
->getsockopt(SO_ERROR) has read the error, where the native path returns
->-ENOTCONN.
->
->The deadlock was found with the help of an LLM coding assistant
->(Anthropic's Claude); Sashiko AI reviews of two earlier sockmap patches
->had already noted it as a pre-existing issue. The early -EAGAIN on a
->dataless wakeup, the missed peer shutdown and the wait on a reset
->connection were reported by the netdev Sashiko AI review of earlier
->versions of this patch. Each reproducer is a C program run as root in
->the guest: it adds one end of a vsock stream connection to a BPF sockmap
->(CAP_BPF and CAP_NET_ADMIN) and drives a blocking recv(); the reset case
->connects to a peer on the host and unbinds the guest's virtio-vsock
->device, the others use vsock-loopback. No kernel change or error
->injection is needed. The reproducers are available on request.
->
->Testing: built a KASAN + lockdep kernel on net and ran reproducers on a
->private VM, before and after this patch. Before: a blocking recv() on a
->sockmap socket deadlocks the vsock-loopback worker (hung-task). After:
->it returns the data; a dataless credit-update wakeup does not end the
->wait; a peer SEND_SHUTDOWN returns 0; and after a reset of a virtio
->connection (unbinding the guest's virtio-vsock device) and
->getsockopt(SO_ERROR), recv() returns -ENOTCONN at once like a socket
->outside the sockmap, where before this patch it waited for SO_RCVTIMEO.
->No KASAN, lockdep or hung-task report. With both patches of this series
->applied, the three single-VM tests of
->tools/testing/selftests/vsock/vmtest.sh (vm_server_host_client,
->vm_client_host_server, vm_loopback; 44 vsock_test cases each) pass, as
->on net; on both kernels the host-side runs skip the SO_INQ cases (SO_INQ
->not supported by the host kernel). The ns_* tests of vmtest.sh were not
->run (they need root on the host). The BPF test_progs sockmap_basic,
->sockmap_listen and sockmap_redir tests pass (767 of 767 subtests, among
->them the three vsock subtests of sockmap_basic and the 240 AF_VSOCK
->cases of sockmap_redir).
+On Fri, Oct 30, 2026 at 02:51:26PM +0100, Stefano Garzarella wrote:
+> On Wed, Oct 28, 2026 at 07:22:43PM +0100, Jerome Mohm via B4 Relay wrote:
+> > From: Jerome Mohm <jrmmhm.kernel@eldare.de>
+> > 
+> > virtio_vsock_vqs_del() frees the virtqueues via del_vqs() but never
+> > clears vsock->vqs[]. If a later virtio_vsock_restore() fails to
+> > reallocate them (its error path is a bare "goto out" that only unlocks
+> > and returns), the driver is left bound with a dangling vqs[]. The next
+> > virtio_vsock_vqs_del() - on a second freeze or on remove/unbind - then
+> > passes a freed vring_virtqueue to virtqueue_detach_unused_buf(), a slab
+> > use-after-free. KASAN on a guest with a virtio-vsock device on
+> > virtio-pci, after a restore made to fail by fault injection:
+> > 
+> >  BUG: KASAN: slab-use-after-free in virtqueue_detach_unused_buf
+> >  Read of size 4 at addr ... by task repro
+> >   virtqueue_detach_unused_buf
+> >   virtio_vsock_vqs_del (net/vmw_vsock/virtio_transport.c:785)
+> >   virtio_vsock_remove
+> >   virtio_dev_remove
+> >   ... unbind_store
+> >  Freed by task ...:
+> >   kfree
+> >   vp_del_vqs
+> >   virtio_vsock_freeze          <- the preceding freeze freed the vq
+> >  Allocated by task 1:
+> >   vring_create_virtqueue
+> >   virtio_vsock_vqs_init
+> >   virtio_vsock_probe           <- original allocation at probe
+> > 
+> > That second virtio_vsock_vqs_del() also repeats del_vqs(), which not
+> > every transport tolerates. virtio-mmio's vm_del_vqs() always ends in
+> > free_irq(), but after the failed vm_find_vqs() the device no longer
+> > holds its IRQ, so on virtio-mmio the second call also warns:
+> > 
+> >  Trying to free already-free IRQ 51
+> >  WARNING: kernel/irq/manage.c:1894 at free_irq+0x23e/0x840
+> >   vm_del_vqs
+> >   virtio_vsock_vqs_del
+> >   virtio_vsock_remove          (or virtio_vsock_freeze)
+> > 
+> > virtio-pci's vp_del_vqs() is idempotent, so the PCI case shows only
+> > the use-after-free.
+> > 
+> > Clear vsock->vqs[] after del_vqs() and when virtio_find_vqs() fails in
+> > virtio_vsock_vqs_init(), and treat an empty vqs[] as "no virtqueues
+> > are live": virtio_vsock_vqs_del() then still resets the device
+> > (virtio_dev_remove() expects a reset device) and purges the send
+> > queue, but skips the detach loops and del_vqs(). find_vqs() cleans up
+> > after itself on failure, so skipping the second del_vqs() leaks
+> > nothing. Clearing the stale pointers follows virtio_blk
+> > commit 0739c2c6a015 ("virtio_blk: NULL out vqs to avoid double free on
+> > failed resume").
+> > 
+> > The use-after-free was found with the help of an LLM coding assistant
+> > (Anthropic's Claude); the free_irq() warning on virtio-mmio was reported
+> > by the netdev Sashiko AI review of an earlier version of this patch.
+> > 
+> > Testing: on a private VM with a KASAN fuzz kernel, over virtio-pci and
+> > over virtio-mmio (QEMU microvm). The restore allocation failure was
+> > forced with CONFIG_FAILSLAB steered by the fault-injection stacktrace
+> > filter to the virtio-vsock restore path only; a guest-root program
+> > drives a pm_test=devices freeze/restore cycle (so .restore returns
+> > -ENOMEM) and then unbinds the device, or runs a second freeze/restore
+> > cycle. Without a fix (v7.3-rc5 based) the PCI run reports the
+> > slab-use-after-free above. With only the vqs[] clearing (v1 of this
+> > patch, on net 363c8c79220d) the MMIO runs report the free_irq warning on
+> > remove and on the second freeze. With this patch on the same base,
+> > restore still fails with -ENOMEM on both transports and neither report
+> > appears; the device works again after a second, successful
+> > freeze/restore cycle and after unbind/bind, and a normal freeze/restore
+> > and unbind/bind still leave a working device. A find_vqs() failure after
+> > some virtqueues were set up was not exercised (each restore attempt
+> > failed at its first allocation, before any virtqueue was set up); that
+> > clear is covered by code reading only. The three single-VM tests of
+> > tools/testing/selftests/vsock/vmtest.sh (vm_server_host_client,
+> > vm_client_host_server, vm_loopback; 44 vsock_test cases each) pass on
+> > this tree, as on net; on both kernels the host-side runs skip the SO_INQ
+> > cases (SO_INQ not supported by the host kernel). The ns_* tests of
+> > vmtest.sh were not run (they need root on the host). checkpatch.pl
+> > --strict is clean and the fuzz-config build is warning-free. The
+> 
+> Do we really need to write in a commit message that checkpatch.pl --strict
+> is clean?
+> 
+> Descriptive commits are great, but we're going a bit too far here.
 
-Ditto about commit message, please put more effort on writing something 
-readable by a human.
+It's just what AI writes if you tell it to make it checkpatch.pl
+clean in the prompt.
 
->
->Fixes: 634f1a7110b4 ("vsock: support sockmap")
->Cc: stable@vger.kernel.org
->Signed-off-by: Jerome Mohm <jrmmhm.kernel@eldare.de>
->---
-> net/vmw_vsock/vsock_bpf.c | 62 ++++++++++++++++++++++++++++++++++++-----------
-> 1 file changed, 48 insertions(+), 14 deletions(-)
->
->diff --git a/net/vmw_vsock/vsock_bpf.c b/net/vmw_vsock/vsock_bpf.c
->index 9049d2648646..5120911b8143 100644
->--- a/net/vmw_vsock/vsock_bpf.c
->+++ b/net/vmw_vsock/vsock_bpf.c
->@@ -34,24 +34,55 @@ static bool vsock_has_data(struct sock *sk, struct sk_psock *psock)
-> 	return vsock_sk_has_data(sk, psock);
-> }
->
->-static bool vsock_msg_wait_data(struct sock *sk, struct sk_psock *psock, long timeo)
->+/* Returns 1 if data is ready, 0 on EOF/shutdown, or a negative error. */
->+static int vsock_msg_wait_data(struct sock *sk, struct sk_psock *psock, long timeo)
-> {
->-	bool ret;
->+	struct vsock_sock *vsk = vsock_sk(sk);
->+	int ret;
->
-> 	DEFINE_WAIT_FUNC(wait, woken_wake_function);
->
->-	if (sk->sk_shutdown & RCV_SHUTDOWN)
->-		return true;
->-
->-	if (!timeo)
->-		return false;
->-
-> 	add_wait_queue(sk_sleep(sk), &wait);
-> 	sk_set_bit(SOCKWQ_ASYNC_WAITDATA, sk);
->-	ret = vsock_has_data(sk, psock);
->-	if (!ret) {
->-		wait_woken(&wait, TASK_INTERRUPTIBLE, timeo);
->-		ret = vsock_has_data(sk, psock);
->+	while (1) {
->+		if (vsock_has_data(sk, psock)) {
->+			ret = 1;
->+			break;
->+		}
->+
->+		if (sk->sk_err) {
->+			ret = -sk->sk_err;
+> Please
+> include only the relevant information; for example, I think the part after
+> "Testing:" could be summarized in a few lines or removed altogether.
 
-Why?
 
->+			break;
->+		}
->+
->+		if ((sk->sk_shutdown & RCV_SHUTDOWN) ||
->+		    (vsk->peer_shutdown & SEND_SHUTDOWN)) {
->+			ret = 0;
->+			break;
->+		}
->+
->+		/* virtio_vsock_reset_sock() sets no shutdown bits, and
->+		 * SO_ERROR clears sk_err: check the state the way
->+		 * __vsock_connectible_recvmsg() does.
->+		 */
->+		if (sk->sk_state != TCP_ESTABLISHED) {
->+			ret = sock_flag(sk, SOCK_DONE) ? 0 : -ENOTCONN;
->+			break;
->+		}
+Yea please write it yourself and make it concise. My eyes glazed over
+in the 1st paragraph.
 
-I'm thinking if we should split this in multiple patches.
-
->+
->+		if (!timeo) {
->+			ret = -EAGAIN;
->+			break;
->+		}
-
-Is the move of this check changing some user visible error?
-
-I mean before this patch it was one of the first checks, is this okay?
-
->+
->+		release_sock(sk);
->+		timeo = wait_woken(&wait, TASK_INTERRUPTIBLE, timeo);
->+		lock_sock(sk);
->+
->+		if (signal_pending(current)) {
->+			ret = sock_intr_errno(timeo);
->+			break;
->+		}
-
-Why? Should be a separate patch?
-
-> 	}
-> 	sk_clear_bit(SOCKWQ_ASYNC_WAITDATA, sk);
-> 	remove_wait_queue(sk_sleep(sk), &wait);
->@@ -101,11 +132,14 @@ static int vsock_bpf_recvmsg(struct sock *sk, struct msghdr *msg,
-> 	copied = sk_msg_recvmsg(sk, psock, msg, len, flags);
-> 	while (copied == 0) {
-> 		long timeo = sock_rcvtimeo(sk, flags & MSG_DONTWAIT);
->+		int data = vsock_msg_wait_data(sk, psock, timeo);
->
->-		if (!vsock_msg_wait_data(sk, psock, timeo)) {
->-			copied = -EAGAIN;
->+		if (data < 0) {
-
-Why not data <= 0  and void the other if?
-
-Thanks,
-Stefano
-
->+			copied = data;
-> 			break;
-> 		}
->+		if (!data)
->+			break;
->
-> 		if (sk_psock_queue_empty(psock)) {
-> 			release_sock(sk);
->
->-- 
->2.56.0
->
->
+> > reproducer needs guest root, CONFIG_FAILSLAB with
+> > CONFIG_FAULT_INJECTION_DEBUG_FS and
+> > CONFIG_FAULT_INJECTION_STACKTRACE_FILTER, and CONFIG_HIBERNATION with
+> > CONFIG_PM_DEBUG for pm_test; it is available on request.
+> > 
+> > Fixes: bd50c5dc182b ("vsock/virtio: add support for device suspend/resume")
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Jerome Mohm <jrmmhm.kernel@eldare.de>
+> > ---
+> > The use-after-free was found with the help of Anthropic's Claude; the
+> > virtio-mmio warning comes from the netdev Sashiko review.
+> 
+> This is already in the commit description, no?
+> 
+> > 
+> > Changes in v2:
+> > - Skip the detach loops and del_vqs() in virtio_vsock_vqs_del() when no
+> >  virtqueues are live, so the teardown after a failed restore does not
+> >  free virtio-mmio's IRQ a second time (Sashiko review).
+> > - Use an empty vqs[] as the 'no live virtqueues' marker instead of v1's
+> >  per-loop NULL checks, and purge the send queue before the early
+> >  return.
+> > - Commit message: cite only virtio_blk 0739c2c6a015; drop the wrong
+> >  virtio_rtc and virtio_console references (Sashiko review). Drop the
+> >  commit ID from the code comment.
+> > - Tested on virtio-mmio (QEMU microvm) as well as virtio-pci.
+> > - Drop the Assisted-by trailer (removed upstream); tool use is
+> >  disclosed above instead.
+> > - Link to v1: https://patch.msgid.link/20261001-vsock-restore-uaf-send-v1-1-5da60f707506@eldare.de
+> > ---
+> > net/vmw_vsock/virtio_transport.c | 24 +++++++++++++++++++++---
+> > 1 file changed, 21 insertions(+), 3 deletions(-)
+> > 
+> > diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+> > index 4f9aa9c4c3aa..bba594b7fc14 100644
+> > --- a/net/vmw_vsock/virtio_transport.c
+> > +++ b/net/vmw_vsock/virtio_transport.c
+> > @@ -714,8 +714,14 @@ static int virtio_vsock_vqs_init(struct virtio_vsock *vsock)
+> > 	atomic_set(&vsock->queued_replies, 0);
+> > 
+> > 	ret = virtio_find_vqs(vdev, VSOCK_VQ_MAX, vsock->vqs, vqs_info, NULL);
+> > -	if (ret < 0)
+> > +	if (ret < 0) {
+> > +		/* On failure virtio_find_vqs() can leave freed virtqueues or
+> > +		 * error pointers in vsock->vqs[]. Clear it: an empty vqs[]
+> > +		 * tells virtio_vsock_vqs_del() that no virtqueues are live.
+> > +		 */
+> > +		memset(vsock->vqs, 0, sizeof(vsock->vqs));
+> 
+> Should we move this in the virtio_find_vqs() ?
+> 
+> Maybe not for this patch, but for long term it could be a good idea IMO.
+> 
+> > 		return ret;
+> > +	}
+> > 
+> > 	virtio_vsock_update_guest_cid(vsock);
+> > 
+> > @@ -781,6 +787,15 @@ static void virtio_vsock_vqs_del(struct virtio_vsock *vsock)
+> > 	 */
+> > 	virtio_reset_device(vdev);
+> > 
+> > +	virtio_vsock_skb_queue_purge(&vsock->send_pkt_queue);
+> > +
+> > +	/* No virtqueues are live, e.g. after a failed restore: they were
+> > +	 * already deleted, and a second del_vqs() is not safe on every
+> > +	 * transport (virtio-mmio would free its IRQ again).
+> > +	 */
+> > +	if (!vsock->vqs[VSOCK_VQ_RX])
+> > +		return;
+> > +
+> > 	mutex_lock(&vsock->rx_lock);
+> > 	while ((skb = virtqueue_detach_unused_buf(vsock->vqs[VSOCK_VQ_RX])))
+> > 		kfree_skb(skb);
+> > @@ -791,10 +806,13 @@ static void virtio_vsock_vqs_del(struct virtio_vsock *vsock)
+> > 		kfree_skb(skb);
+> > 	mutex_unlock(&vsock->tx_lock);
+> > 
+> > -	virtio_vsock_skb_queue_purge(&vsock->send_pkt_queue);
+> > -
+> > 	/* Delete virtqueues and flush outstanding callbacks if any */
+> > 	vdev->config->del_vqs(vdev);
+> > +
+> > +	/* The virtqueues are freed: clear the stale pointers, so that a
+> > +	 * virtio_vsock_vqs_del() after a failed restore skips them.
+> > +	 */
+> > +	memset(vsock->vqs, 0, sizeof(vsock->vqs));
+> 
+> Same above, should we introduce a virtio_del_vqs() to do both and call it in
+> all drivers?
+> 
+> Or skip del_vqs() if vdev->vqs is empty.
+> 
+> I guess this issue could be spread around virtio drivers, so would be nice
+> to add common API in the virtio core to be used in all of them.
+> 
+> That said, for a fix, this patch LGTM, my comments were more for a long term
+> work.
+> 
+> With a fixed commit message I can give my R-b.
+> 
+> Thanks,
+> Stefano
+> 
+> > }
+> > 
+> > static int virtio_vsock_probe(struct virtio_device *vdev)
+> > 
+> > ---
+> > base-commit: 363c8c79220d0db4d65dcd570529ddda15067cb5
+> > change-id: 20261001-vsock-restore-uaf-send-1fc7396fa1bd
+> > 
+> > Best regards,
+> > --
+> > Jerome Mohm <jrmmhm.kernel@eldare.de>
+> > 
+> > 
 
