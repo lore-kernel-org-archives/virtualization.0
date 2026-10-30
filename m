@@ -1,102 +1,133 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793362195;
-	b=xZ4GE1qT6uwf4iZsCAn+KF5b6jdTsc6e9Ah1h2pfH/om8z1Z00k2UobVyzFpqmBOWMRI
-	 ton/LxqO3tFQz6PYcu7lJnA1Zr4/UYsfEKkPc6N3jq+h7pfV0bP5HCMcTttDuAMWPPy1B
-	 dMYG9nVsQ5OEhv5nxM0p/2WgyJpXF6Q3rBzACgsvm/h/mQkwclv/+THNIVjJO6ohnQOIP
-	 iJta0f5FpvjaZEpH8lWdzOVgL9c8nBDsrgxwsoj1SMqQAzaVeKJS49ki+am46B+9jK5xW
-	 FTC5UTMim+E5mCc50e+wAq/XtZVGjyUhYYwpn1xlIUG+4qxUUkyvXQpldPKIboQF07w==
+	t=1793364962;
+	b=k8ZWmN1kYQzGOE0i4yfaFEVQDmr4I3y8TzfTcrMPfelCVKAuSEYFNwBru83svC1xnR5Z
+	 aE1hFNCNiC/w7IWkAfHclfull1xqLNTCnoV7UhT8b1sf387IBzbTNg5i6zuS0MA5AmANQ
+	 l3KVSLoOvr6UQcefZdB/zuLQoojVz+GK2xD9WeiP4UIhnkFei86/jQMAMxeYpIWozySgi
+	 7TU+40teNMZlTvO9Mhq/yedhqfYTZz0MepNis4LNoBh1pItQEY+pDRB8hFQzXAnK2AvJ5
+	 mNXI14OEIMYYhCCNx0RCoxnt48oQo5kgOS9VghPnhyZSpqCJ9tFiBXPknrOkOiJa1Vw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793362195;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
-	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
-	 X-Mimecast-Originator:Content-Type:Content-Disposition;
-	bh=hdnZT0z7davEfnf6scqYwmgfFD2zK/8ZHhv4LP8xp6I=;
-	b=oCBlP/6xYrSzzScBhuUeAgp/JZKvAPIEbsF7LWoGAWFtVO2uYT6ezvWc6OmRqvAlrKkU
-	 BzHQNVtv7fXVyQhV04uc0gSNlb/hF19ljtyX5orGPMsCOwrPxPjKdgJzwjL0SWCGhRB7n
-	 5/S1vb9OBrpVzMWWF3lwRyfofSt4BlKiM+y7VJneCGv1t7Gmh86Nf0IepVoIX+QQQwJtk
-	 ku4T/pRHIqJIYIqb5AyDyluhTrpqYMOyKh7nsOjkXDBa3t7agOsRqM03r0qrbB431gVka
-	 Pvu9Nhi1zdHpr53aWT1Ef868Np53R/4E7yZyYoZuH+oJneZH/7pwH2SRn5o54Kj7ViQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793364962;
+	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
+	 In-Reply-To:References:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=QEN1UqSia/bSOQapCp3EkqxCvOcE8KsRJXMohGlQcDQ=;
+	b=N6xX8ZQOrj/2W3XiLEo7nuhB5+1+sbwB3eC+lfCUXq+gyiyj39EJ2wPHhsmymie/+Ts4
+	 umHGOcWpIjNLc6yQSWaNZP3Q8lu6J/yqc//EUHDm6vNf+dzZ29Ew+m89cDGEA6yx62TZw
+	 XXc2L/nz8O7PRNPlcNdBz7/IVVywCklU/1oJFXe9Ax2i+g9Fp9CzDBbP/NLfcxZkOVB9f
+	 s+fn/3eLDGI1ibUSv2ePoLsZWp6oQwcGWUq8uNE5eY4DrsFyXoeTZMwJlRYt9rOB3PWoM
+	 NflW/2CbP7pebkg2s70Uwy4xQXplxdLmV9nJYR1ABfV9WafbcAewYwux521TTz2z6sg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=DXUi28+h;
-	arc=none smtp.remote-ip=170.10.129.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DbvVbneF;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09C12606A31D
-	for <virtualization@lists.linux.dev>; Fri, 30 Oct 2026 12:09:54 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 09C12606A31D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC497606A31C;
+	Fri, 30 Oct 2026 12:56:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=DXUi28+h
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1793362194;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=hdnZT0z7davEfnf6scqYwmgfFD2zK/8ZHhv4LP8xp6I=;
-	b=DXUi28+hbO6FmC5/d21Xahoxavw3ah0vJ0o5YbmpVXXx0WJrG55MiS6amcdez3pMMW4JM8
-	1ql2sd+pT5eQ+oZ357P6GGTFzcQs+5Pxna/FqTXD0IQcDEy34n7+lnGbOvoc6wZd28hO8c
-	LeJt0EOVKpDUNkg0IHEBjsbfEs9nIHM=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-549-H4ve8s2SOKSojytRQa244A-1; Fri, 30 Oct 2026 08:09:52 -0400
-X-MC-Unique: H4ve8s2SOKSojytRQa244A-1
-X-Mimecast-MFC-AGG-ID: H4ve8s2SOKSojytRQa244A_1793362191
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4a70b42bab0so7650205e9.1
-        for <virtualization@lists.linux.dev>; Fri, 30 Oct 2026 05:09:52 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793362191; x=1793966991;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=hdnZT0z7davEfnf6scqYwmgfFD2zK/8ZHhv4LP8xp6I=;
-        b=Ri/ZVzhrVgt1uIaiLxE+7bwo6c4JdnPpF8Qf+lK0Inrem+jhOEgXMyyEiUe6K+A63Q
-         hgGYRvfj51yn6HzesmL1lZMicJqpYyuTRf3fQ63I3ZgWldGQjH70k+mbdeALK1/65q+w
-         CoXPgIK5D74JSzb7iYmBqSnJ9HXMF0EYLX0GZtnHiroUTAP2VkiLnVIV+HDhBBMRkR12
-         y6kmA5Xc2eIdXt2SQ7L0u7hii0tiijGgvGQwxcdkIapSEkBWq7SNARAPz4PlUG9Sq8wH
-         D09I84Sxa2E8XicQnTFoG2lKzpOrQaTk9kRZxmcKDOL8HChkf4yS5fkvf7/pOMGkT8fS
-         cduA==
-X-Forwarded-Encrypted: i=1; AKwUvByr3Tun6RkA8BJ9uG7ce7U2AR48eFvXvh8T+Ms7ltTlyBgDqRgrjVsjN2wMfnzChoHDUA0vosubVuuezEDSqg==@lists.linux.dev
-X-Gm-Message-State: AFq9FYLEYMEr/2ZwwOjiBQAitS+V+cEsjtVFHfgmFxp3WbHVF5OVaNRH
-	XI9DiHZJET1vDIKqp1onWkqKlJBU8pIQZX3kZiP4Awcu5YVPvwMtNh1qYgzArrGNN941IBExQHO
-	QMxMuSmsFMrVmW2gxMKq5DzT2Y6aY458hNNMjBNN/ps8KFt76tzunAXveNT87A3vV9wCH
-X-Gm-Gg: AYBFou049309sssFE7YKXlniweipG/WYrJHmHy4nk0UhrDOiKTLuqsCxdWd0YkkDFQZ
-	fabJBx9EzWaPrNkCP+nS0Mr5NBfFvpkruuL/eUmKMWME7FV1y2Gr9ejZWbKOyEYLj7hhxXBjW3L
-	DFLtBxsF/UfMIcvopkh3Hp3jaA05R5LLxQ5hyiCO+PUwsJrt2A2H7SursO1QgLf1KM4lBcTeEfx
-	15NR8bd0KhfbuA5bvK/ikGSiXC15n+yPG+YHxG9whY0qFXtHp/QumVTH+CbhpNrBCL/yN9l+4N5
-	KJh9X8cLEOAAf5Ue/GYds0xAXayTyAN5boYwWgNpgFsv6zOd65R9gu+r06Mqo4eYNRqqQ90LPqq
-	o+2m5d2vBDzeuXxqrWoxo+M+YfbwaKkt+6nOuEIWVT6AFlNov4IvMOZrxyVTIfD05rkE9c5INFy
-	YTCPEDissaM8eRPGg=
-X-Received: by 2002:a05:600c:37c8:b0:4a2:18c4:61a5 with SMTP id 5b1f17b1804b1-4ac16acd93cmr47053995e9.6.1793362191513;
-        Fri, 30 Oct 2026 05:09:51 -0700 (PDT)
-X-Received: by 2002:a05:600c:37c8:b0:4a2:18c4:61a5 with SMTP id 5b1f17b1804b1-4ac16acd93cmr47053415e9.6.1793362191072;
-        Fri, 30 Oct 2026 05:09:51 -0700 (PDT)
-Received: from sgarzare-redhat (ip190-139-192-82.pool-bba.aruba.it. [82.192.139.190])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4abf67aa704sm54507825e9.8.2026.10.30.05.09.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 30 Oct 2026 05:09:50 -0700 (PDT)
-Date: Fri, 30 Oct 2026 13:09:42 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: phind.uet@gmail.com
-Cc: Bobby Eshleman <bobbyeshleman@meta.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	George Zhang <georgezhang@vmware.com>, Andy King <acking@vmware.com>, Dmitry Torokhov <dtor@vmware.com>, 
-	virtualization@lists.linux.dev, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] vsock: reject negative tv_usec in
- SO_VM_SOCKETS_CONNECT_TIMEOUT
-Message-ID: <auSIGIZctLp1oOhf@sgarzare-redhat>
-References: <20261030064428.73930-1-phind.uet@gmail.com>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DbvVbneF
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 840761F000C1;
+	Fri, 30 Oct 2026 12:56:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793364961;
+	bh=QEN1UqSia/bSOQapCp3EkqxCvOcE8KsRJXMohGlQcDQ=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=DbvVbneFlRcReg135ryJEYVhhtWakAOVNath1hcKIIXE0a0XxAPDDvNN6T7Uf6+oe
+	 8w5jtD2yqrswAxXmfPTHEdkD7AvDqLamYaTsnJnneKspcbfXmYHU3OGl89jWEz8/U/
+	 /ww4ODFnAJ7tLbMPad8NuI/UAu0PK8s28Ey4jTtat4X8zzsm4uIT7x105xj2SQfJbe
+	 wzxdFTqJOrrKiP1LRPFbbaswMYtV6X09XW80Okkv+fqOYtPGsvIPYCiSGFVMsrui5k
+	 MrMYZoVyeIy+hz3rgx3Z3HJJdqyKirPMRBric5eDJy0W8pHIi0gyTDHmZJorASfuP1
+	 +FvfPpgyOt/TA==
+From: Maxime Ripard <mripard@kernel.org>
+To: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	David Airlie <airlied@gmail.com>,
+	Simona Vetter <simona@ffwll.ch>,
+	Maxime Ripard <mripard@kernel.org>
+Cc: dri-devel@lists.freedesktop.org,
+	=?UTF-8?q?Ma=C3=ADra=20Canal?= <mcanal@igalia.com>,
+	Dave Stevenson <dave.stevenson@raspberrypi.com>,
+	Raspberry Pi Kernel Maintenance <kernel-list@raspberrypi.com>,
+	Ruben Wauters <rubenru09@aol.com>,
+	Chen-Yu Tsai <wens@kernel.org>,
+	Samuel Holland <samuel@sholland.org>,
+	linux-sunxi@lists.linux.dev,
+	=?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+	Alex Deucher <alexander.deucher@amd.com>,
+	amd-gfx@lists.freedesktop.org,
+	Andrew Jeffery <andrew@codeconstruct.com.au>,
+	Joel Stanley <joel@jms.id.au>,
+	Dave Airlie <airlied@redhat.com>,
+	Jocelyn Falempe <jfalempe@redhat.com>,
+	Russell King <linux@armlinux.org.uk>,
+	Alim Akhtar <alim.akhtar@samsung.com>,
+	Inki Dae <inki.dae@samsung.com>,
+	Krzysztof Kozlowski <krzk@kernel.org>,
+	Kyungmin Park <kyungmin.park@samsung.com>,
+	Peter Griffin <peter.griffin@linaro.org>,
+	Seung-Woo Kim <sw0312.kim@samsung.com>,
+	linux-samsung-soc@vger.kernel.org,
+	Alison Wang <alison.wang@nxp.com>,
+	Stefan Agner <stefan@agner.ch>,
+	Tian Tao <tiantao6@hisilicon.com>,
+	Xinwei Kong <kong.kongxinwei@hisilicon.com>,
+	Yongbang Shi <shiyongbang@huawei.com>,
+	Paul Kocialkowski <paulk@sys-base.io>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	Icenowy Zheng <zhengxingda@iscas.ac.cn>,
+	Jianmin Lv <lvjianmin@loongson.cn>,
+	Mingcong Bai <jeffbai@aosc.io>,
+	Qianhai Wu <wuqianhai@loongson.cn>,
+	Xi Ruoyao <xry111@xry111.site>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	spice-devel@lists.freedesktop.org,
+	virtualization@lists.linux.dev,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	linux-renesas-soc@vger.kernel.org,
+	Marcus Folkesson <marcus.folkesson@gmail.com>,
+	Iker Pedrosa <ikerpedrosam@gmail.com>,
+	Alain Volmat <alain.volmat@foss.st.com>,
+	Raphael Gallais-Pou <rgallaispou@gmail.com>,
+	Jonathan Hunter <jonathanh@nvidia.com>,
+	Mikko Perttunen <mperttunen@nvidia.com>,
+	Thierry Reding <thierry.reding@kernel.org>,
+	linux-tegra@vger.kernel.org,
+	Alexey Brodkin <abrodkin@synopsys.com>,
+	Hans de Goede <hansg@kernel.org>,
+	LiangCheng Wang <zaq14760@gmail.com>,
+	Alex Lanzano <lanzano.alex@gmail.com>,
+	Sean Paul <sean@poorly.run>,
+	Chia-I Wu <olvaffe@gmail.com>,
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Haneen Mohammed <hamohammed.sa@gmail.com>,
+	Louis Chauvet <louis.chauvet@bootlin.com>,
+	Melissa Wen <melissa.srw@gmail.com>,
+	Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>,
+	Jerome Brunet <jbrunet@baylibre.com>,
+	Kevin Hilman <khilman@baylibre.com>,
+	Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+	linux-amlogic@lists.infradead.org,
+	Harry Wentland <harry.wentland@amd.com>,
+	Leo Li <sunpeng.li@amd.com>,
+	Rodrigo Siqueira <siqueira@igalia.com>,
+	Jani Nikula <jani.nikula@linux.intel.com>,
+	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+	Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	Tvrtko Ursulin <tursulin@ursulin.net>,
+	intel-gfx@lists.freedesktop.org,
+	intel-xe@lists.freedesktop.org,
+	Danilo Krummrich <dakr@kernel.org>,
+	Lyude Paul <lyude@redhat.com>,
+	nouveau@lists.freedesktop.org
+Subject: Re: (subset) [PATCH v2 00/59] drm/connector: Convert all drivers to atomic_create_state and remove reset
+Date: Fri, 30 Oct 2026 13:55:55 +0100
+Message-ID: <179336494956.280337.14142889938692228617.b4-ty@kernel.org>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20261022-drm-no-more-connector-reset-v2-0-0b7e4e85b1e8@kernel.org>
+References: <20261022-drm-no-more-connector-reset-v2-0-0b7e4e85b1e8@kernel.org>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -106,53 +137,67 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-In-Reply-To: <20261030064428.73930-1-phind.uet@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: e_QW-l-RaAvg03KzO4D62m81c0YY2P10BmLeC3NI2Sc_1793362191
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 
-On Fri, Oct 30, 2026 at 02:43:50PM +0800, phind.uet@gmail.com wrote:
->From: Nguyen Dinh Phi <phind.uet@gmail.com>
->
->The timeval validation checks tv_usec < USEC_PER_SEC but not
->tv_usec >= 0, so a negative tv_usec makes the timeout computation
->wrap into a bogus value, later tripping "schedule_timeout: wrong
->timeout value" instead of being rejected.
->
->Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
->
+On Thu, 22 Oct 2026 14:30:59 +0200, Maxime Ripard wrote:
+> This is a follow-up to the plane and CRTC reset removal series, and
+> part of a larger effort to remove the reset hook from all KMS objects.
+> 
+> The connector reset hook is overloaded: it is called both at probe
+> time to create the initial software state and during suspend/resume to
+> reset hardware and software state. These two roles have different
+> requirements, and the reset hook is not fallible, making error
+> handling difficult for the initial state allocation path.
+> 
+> [...]
 
-This blank line shouldn't be there, maybe it can be fixed when the net 
-maintainers apply this patch, so please wait their comments before 
-sending a v2.
+Applied to misc/kernel.git (drm-misc-next)
 
->Signed-off-by: Nguyen Dinh Phi <phind.uet@gmail.com>
->---
-> net/vmw_vsock/af_vsock.c | 3 ++-
-> 1 file changed, 2 insertions(+), 1 deletion(-)
->
->diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
->index d0508887a2fb..1d7d53542724 100644
->--- a/net/vmw_vsock/af_vsock.c
->+++ b/net/vmw_vsock/af_vsock.c
->@@ -2156,7 +2156,8 @@ static int vsock_connectible_setsockopt(struct socket *sock,
-> 					     optname == SO_VM_SOCKETS_CONNECT_TIMEOUT_OLD);
-> 		if (err)
-> 			break;
->-		if (tv.tv_sec >= 0 && tv.tv_usec < USEC_PER_SEC &&
->+		if (tv.tv_sec >= 0 && tv.tv_usec >= 0 &&
->+		    tv.tv_usec < USEC_PER_SEC &&
-> 		    tv.tv_sec < (MAX_SCHEDULE_TIMEOUT / HZ - 1)) {
-> 			vsk->connect_timeout = tv.tv_sec * HZ +
-> 				DIV_ROUND_UP((unsigned long)tv.tv_usec, (USEC_PER_SEC / HZ));
->-- 
->2.43.0
->
+[01/59] drm/hdmi: Change __drm_atomic_helper_connector_hdmi_state_init parameter order
+        commit: e8698caa41f659739861f3c5b19070ea973f58ab
+[02/59] drm/atomic-state-helper: Rename connector_tv_margins_reset to state_init
+        commit: 39e8c69f41882b12ffd1cbea39b07923dc430de6
+[03/59] drm/atomic-state-helper: Rename connector_tv_reset to state_init
+        commit: 27411554b73b2de2e230df3fefc6821485b3d509
+[04/59] drm/panel: Add atomic_create_state support
+        commit: a8684a05336c1115172bd5fce9a942d830e11d13
+[06/59] drm/aspeed: Switch to drm_atomic_helper_connector_create_state
+        commit: f88d567860da9e5a5ba0f05424ea4c8321af0467
+[07/59] drm/ast: Switch to drm_atomic_helper_connector_create_state
+        commit: 42572c272e61af9c53162f307c81bb48a0977e5d
+[19/59] drm/hisilicon: hibmc: Switch to drm_atomic_helper_connector_create_state
+        commit: 800edc28eb000fbcb2229d6799ffa5c3831def15
+[20/59] drm/logicvc: Switch to drm_atomic_helper_connector_create_state
+        commit: ec2e19c6518ca8959ca009491e62913ea53be450
+[22/59] drm/mgag200: Switch to drm_atomic_helper_connector_create_state
+        commit: f15c3a86f606c7dd8e057dc7a3d762d634b8fa20
+[24/59] drm/qxl: Switch to drm_atomic_helper_connector_create_state
+        commit: e439361203a610cebd725e068dc1694d585d6ecf
+[27/59] drm/sitronix: st7920: Switch to drm_atomic_helper_connector_create_state
+        commit: 382b5915baae6d289cf550b70e325cd162d140c5
+[33/59] drm/tiny: bochs: Switch to drm_atomic_helper_connector_create_state
+        commit: 6b1c795028b1552f25bc4b707673e0d848786dcb
+[34/59] drm/tiny: cirrus: Switch to drm_atomic_helper_connector_create_state
+        commit: 777642458977878a2e81399adf16b1e23ab57b17
+[35/59] drm/tiny: gm12u320: Switch to drm_atomic_helper_connector_create_state
+        commit: 379d9ab55e5d0453ab744892981f122f8e5614fc
+[36/59] drm/tiny: pixpaper: Switch to drm_atomic_helper_connector_create_state
+        commit: 417ff0dc9d68de04248361c3db10c902e33b87c6
+[37/59] drm/tiny: repaper: Switch to drm_atomic_helper_connector_create_state
+        commit: 7fdf84a3913597bb662a1d1aa37f798576dbd2ed
+[39/59] drm/udl: Switch to drm_atomic_helper_connector_create_state
+        commit: 9b9731aea4920327ec8fb757bcc9fa88c7c8fa45
+[40/59] drm/vboxvideo: Switch to drm_atomic_helper_connector_create_state
+        commit: 8c0c25d8724aa3a0850efac1f117444485ce899c
+[46/59] drm/gud: Convert to atomic_create_state
+        commit: 79363b9b53e285a5f98b95d75e32f889ef3431f3
+[50/59] drm/vc4: hdmi: Convert to atomic_create_state
+        commit: 946c74390c2fe7cc9acedf2d333ca1f924b7eba3
+[51/59] drm/vc4: vec: Convert to atomic_create_state
+        commit: 76000c76a4784e8bc4ea957dcebc93449f762bd7
+[54/59] drm/ast: Convert to atomic_create_state
+        commit: a1e63ab695ad76850ab9787b9eb6aab695dc2965
 
-LGTM:
-
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-
-
+Thanks!
+Maxime
