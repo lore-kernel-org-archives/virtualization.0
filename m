@@ -1,121 +1,82 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.65.32
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793360883;
-	b=j/qozuQrduPVhTHL3C8afpuerqm4aUzXOhktW/XM51t7a64XqErBedsjGsvrH0TqxS08
-	 lrFemJQNPcKSgESlZ4j6396XKkTBq1a7PSfxsMIVdBP/LWaejVs2Dr9pUUqYQC2Vv4ifr
-	 4xWyANxHxVUPO1NyKEJaVoUEzC1WBQTLWAWarh2uc4Y89zSe0Mm8ZGxZOGG2a3jKTSt2X
-	 RSzmxFUKW1X1Lyrqr1wDhPDbq4OQdzv5yG2IHhdFXChEam5e/alca+1CEhNOf9BYlv+8F
-	 vrfr8weZnUTNJQzOILpjGOjDTMWRmNLSX6asnEhjhX0QP5T2qqM6Gjv4OlBU73Fzwyg==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793360883;
-	h=DMARC-Filter:DKIM-Signature:Received:Received:From:To:Cc:Subject:
-	 Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 Content-Transfer-Encoding:Content-Type:X-ClientProxiedBy:MIME-Version:
-	 X-MS-PublicTrafficType:X-MS-TrafficTypeDiagnostic:
-	 X-MS-Office365-Filtering-Correlation-Id:X-MS-Exchange-SenderADCheck:
-	 X-MS-Exchange-AntiSpam-Relay:X-Microsoft-Antispam:
-	 X-Microsoft-Antispam-Message-Info:X-Forefront-Antispam-Report:
-	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
-	 X-MS-Exchange-AntiSpam-MessageData-0:X-OriginatorOrg:
-	 X-MS-Exchange-CrossTenant-Network-Message-Id:
-	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
-	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
-	 X-MS-Exchange-CrossTenant-FromEntityHeader:
-	 X-MS-Exchange-CrossTenant-Id:X-MS-Exchange-CrossTenant-MailboxType:
-	 X-MS-Exchange-CrossTenant-UserPrincipalName:
-	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
-	bh=FaeWdf7e5Egut/c5IuAOn2eUd4cxFgsEduxFwA8k3v4=;
-	b=p6iSdPqRmPDLzAEBtmAJn4uSNXWXaZ/fDHfzDDiv36ctBYqgLSbkbQiaza80kLv9GOP/
-	 djshKqFuSLOVbxqEtcZ9Wwc560UXMSZ4kfVj3ck87GuC4LUlLvM9OfKmaTOAgPSh+Kvkk
-	 na8Zd8pC+RP9FHlc9iVco/pCSF7m+1Y14Z790LKT07gqUj/KqUYiM93jMLQoiwTqFNaFD
-	 607CIaHdI95PBMyS6uk8aIFTKAo6vkpI3P9qN6F0xzzU5nKR31s/v6oA/jy9OQO8jX6Q+
-	 26yvGu8icDqJcX230YM8htV5CciE8XAOW9cjG+NmNWt2C8Mgynq4J2VsDI8sYE4HJCw==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=nxp.com;
-	spf=pass smtp.mailfrom=nxp.com;
-	dkim=pass header.d=nxp.com header.i=@nxp.com header.a=rsa-sha256 header.s=selector1 header.b=JJZNNOsp;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.65.32
-Received: from DU2PR03CU002.outbound.protection.outlook.com (mail-northeuropeazon11011032.outbound.protection.outlook.com [52.101.65.32])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.175.65.9
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793362029;
+	b=2kQ4haYrqaT2j+nDiw4NXTh4lC5RM+Mg4REcpKLH1ah+SMN1G7+HVB4J+SiTCXOPVrdU
+	 3pOAwebgUKE7JCL5JXmnyBQN2DtIXRg00kUWdsjFqa67J80HJ9RCHLgTKLE/42KHeUIex
+	 4YGKsJ63GabVzL5RkmYy9F5Lr4T/1sOIfzOPHHFVmF8EUm7DFUJ3mx60+XpN11xFbOY+9
+	 1UEDU1yduJTJUQY9n2f2dTqF7J7xn3Uab8gc3gNl9N2RbYh9lOCXRWRlYAo3k4vVf9mdR
+	 ExlAeNWjbfIC4m6SLxmyqYovCUnUTKNapD4AB7rc4DRicQYkaSNVzMwiQTAM8960D2Q==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793362029;
+	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
+	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
+	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Date:From:To:Cc:
+	 Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:Content-Transfer-Encoding:In-Reply-To:
+	 X-Patchwork-Hint:Organization;
+	bh=CPjArYl8G+Am8obLm7Z4sPZiszqq47ElsfbPQXkLSFI=;
+	b=AotEV3QFML+CBwd4HEIMTOWTt21G9m+huqna4JY9fnWnqWh1O4Br9T3B7ZIQpM48wGO7
+	 E8Bd0TWhBmSoAP6ctlpFUmgLr6vxiyKqRWzT71y5v7Bw1PBGsKt4128g4kiVlrAWtoybo
+	 TUvyNHaT3G1cUBd4K8FvwGelZgxAdpn5hbNtrFM2JqhrpNDz0vgaDykvBhzFVrbnf5WHw
+	 vzXLOnF9QkUuxQYv3lHm30n7GrQP8qb4OVc8TmRPae0S9X//gbafRBDZDN0zkCPRmcWQS
+	 1mFGud2D2JYYEV1CH2EXMuq+d3DERvFSrj0pM365FlkGGD5CFkCt4mEUHyst19EKhFQ==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=linux.intel.com;
+	spf=pass smtp.mailfrom=intel.com;
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=lrw3qPpR;
+	arc=none smtp.remote-ip=198.175.65.9
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.9])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EE2F606A31F
-	for <virtualization@lists.linux.dev>; Fri, 30 Oct 2026 11:48:02 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7EE2F606A31F
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC926606A321;
+	Fri, 30 Oct 2026 12:07:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DC926606A321
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=nxp.com header.i=@nxp.com header.a=rsa-sha256 header.s=selector1 header.b=JJZNNOsp
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=W8gCKB8A9Tx4mHKG971X+71q46qUmPoIX6MXyXA43VZaHk3+ArpOvsyT2+BpNPoj8htfVe4h7w6ieG874cV7mYmkyZA+zWKc7A3hjOqWC4TzLcS6kJxvY5oTMQLY+gTtM+MHml+N9iJ9o6zGT0VSeCjXZ/aHZaIrMXixsn7OofvShpdkPnMNjdFQ6diuHlEhHlYkF/cRCTxkVAYXjIicKiXeH9DOOTv2F7Z94yzYc74RvOTqHfKtdGA1UVjGCG+xyrfokSIfGCNmr2zOFUA59RmcdFt1saSmdfnkoZA/HDBA94QmCh+STVVlN9CG5VU9tfhBw38LGmgsud3Z7zCktg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=FaeWdf7e5Egut/c5IuAOn2eUd4cxFgsEduxFwA8k3v4=;
- b=zUlw3c2cM/LXCEuW6Y9g5lwUOdU8n4MXYEIypAkKCJe1zguSgdPH67/qfxTqP4WRRjjjarXng6Bdqc4Y8FhsttvH3L3h8oyWVRX6hKXZ1iKZBvOPa9/fQBjK6v2A95kyUrdTQn8L7sfrOtK1egd0/eOhJEeJ8rTm0saqr+UhSRWr+0DXXIWNKEXKKxDZUdh0AwXuNkRW/85SS/W0ijn/WaZMtmQkogNGJxTfIi14l8zJXzXKVMIbuQINEPKvw3SZoPgHr7xqzPQfOJKbSvOaDVZvKm8mOtAtzy92qZ9ic0fT+RxNwRg1AjmxcD/p+lWW913B0W+ak2nUdwMTIo+QoA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
- header.d=nxp.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=FaeWdf7e5Egut/c5IuAOn2eUd4cxFgsEduxFwA8k3v4=;
- b=JJZNNOspyJECsuvBhZjMVr/phbCGJngh3S6zA0V8FKLykNZNdFjer8pBzdo+AQTl8hCPRgSqybcRUeTkJprkhTeDWsBXBHMQ3ep40t8leqILbns+O7LbvVG0R6horfgYAU5e30ZKoUcPKWA18FOrKyJCVlvdNN+26qxwl3xChRR2DJTCw5VqkckjcB7Oxl7dr8HgwNQ6jcBUUV3+gu8m2wYfwksaleO03r2AojPLMSlNOEaG7tdw+qrg7HgJzhN3w3lQho5DTBpdiIuwWkfPRGsGrXbCjcK4kybaRqd8fvFbFedY4T6dFvtS5sC37ItW+P0SMh3soveNt04U3hKAWA==
-Authentication-Results: mx.microsoft.com 1; dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nxp.com;
-Received: from AM0PR04MB6900.eurprd04.prod.outlook.com (2603:10a6:208:17d::10)
- by AM9PR04MB7571.eurprd04.prod.outlook.com (2603:10a6:20b:2dd::18) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.569.9; Fri, 30 Oct
- 2026 11:48:00 +0000
-Received: from AM0PR04MB6900.eurprd04.prod.outlook.com
- ([fe80::7fda:8431:ca1b:b023]) by AM0PR04MB6900.eurprd04.prod.outlook.com
- ([fe80::7fda:8431:ca1b:b023%4]) with mapi id 15.21.0569.009; Fri, 30 Oct 2026
- 11:48:00 +0000
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
-To: netdev@vger.kernel.org
-Cc: Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@kernel.org>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Jesper Dangaard Brouer <hawk@kernel.org>,
-	John Fastabend <john.fastabend@gmail.com>,
-	Stanislav Fomichev <sdf@fomichev.me>,
-	Andrii Nakryiko <andrii@kernel.org>,
-	Eduard Zingerman <eddyz87@gmail.com>,
-	Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-	Martin KaFai Lau <martin.lau@linux.dev>,
-	Song Liu <song@kernel.org>,
-	Yonghong Song <yonghong.song@linux.dev>,
-	Jiri Olsa <jolsa@kernel.org>,
-	Emil Tsalapatis <emil@etsalapatis.com>,
-	Ihor Solodrai <ihor.solodrai@linux.dev>,
-	Kuniyuki Iwashima <kuniyu@google.com>,
-	Wang Zhan <wang.zhan@smartx.com>,
-	Martin Karsten <mkarsten@uwaterloo.ca>,
-	Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>,
-	linux-kernel@vger.kernel.org,
-	bpf@vger.kernel.org,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowangio@gmail.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	virtualization@lists.linux.dev,
-	Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Subject: [PATCH net 2/2] net: validate xmit skbs in generic_xdp_tx()
-Date: Fri, 30 Oct 2026 13:47:53 +0200
-Message-ID: <20261030114753.185281-2-vladimir.oltean@nxp.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20261030114753.185281-1-vladimir.oltean@nxp.com>
-References: <20261030114753.185281-1-vladimir.oltean@nxp.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: AM0P309CA0023.EURP309.PROD.OUTLOOK.COM
- (2603:10a6:20b:28f::27) To AM0PR04MB6900.eurprd04.prod.outlook.com
- (2603:10a6:208:17d::10)
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=lrw3qPpR
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1793362028; x=1824898028;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=Rlbhsc63UiMYZbt/HRcuVNEnIcavNe8xmS+iPQ01Y/4=;
+  b=lrw3qPpRacNOarQWqd9MHLlosJt3AI51DPVIuUffYRxnN2HUuSdilEnO
+   MrFJkedfDjQPO8NwSNfl+gxzLewSlmZHCuKXAzMCOtkdv9SjERgnqQB5L
+   LdNQszkQ9GYSsPWHNh34/6CfbcJAethEzmu8hu039YmK0UY1Y1hdt1kie
+   i8AZdQe0m+0TyIidoWpSLsaKDmgBGhV8/4dSBAyR1ThJbkJewWmlBH2yd
+   yMaM+9A310nzcVjMywuJY3OMTVtRfcPiij1CUXJxwvDowSOx5v0fNAiyV
+   LXc8L6wbeO/0pc1OpbyVrU/yG0zbGJ6eCjrPMLmCvfPnWEKiQtu0A2E9j
+   A==;
+X-CSE-ConnectionGUID: qPlrI986QcCS3/ur9XoAsA==
+X-CSE-MsgGUID: N2AMSLg0TI2jyDKsbBCWEQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11950"; a="2010400"
+X-IronPort-AV: E=Sophos;i="6.27,186,1787036400"; 
+   d="scan'208";a="2010400"
+Received: from fmviesa008.fm.intel.com ([10.60.135.148])
+  by orvoesa101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Oct 2026 05:07:07 -0700
+X-CSE-ConnectionGUID: SFofencFTlCRv2jth9NNtA==
+X-CSE-MsgGUID: buWd7vpfS8uqIjV9zBOT4Q==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,186,1787036400"; 
+   d="scan'208";a="5763461"
+Received: from abityuts-desk1.ger.corp.intel.com (HELO localhost) ([10.245.244.58])
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Oct 2026 05:07:03 -0700
+Date: Fri, 30 Oct 2026 14:07:00 +0200
+From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+To: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: me@romanilin.is, louis.chauvet@bootlin.com,
+	maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+	airlied@gmail.com, simona@ffwll.ch, javierm@redhat.com,
+	dmitry.osipenko@collabora.com, regressions@leemhuis.info,
+	peter.m.arnesen@gmail.com, dri-devel@lists.freedesktop.org,
+	virtualization@lists.linux.dev, sashiko-reviews@lists.linux.dev
+Subject: Re: [PATCH v4] drm/vblank: Don't arm vblank timer with invalid frame
+ duration
+Message-ID: <auSIZNhP4DTj8Nb2@intel.com>
+References: <20260914110004.211027-1-tzimmermann@suse.de>
+ <auIMt8XmmaVykZTC@intel.com>
+ <2c2f33cf-da6f-4e31-84bb-768778d7b063@suse.de>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -125,338 +86,256 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: AM0PR04MB6900:EE_|AM9PR04MB7571:EE_
-X-MS-Office365-Filtering-Correlation-Id: 48c8de00-9476-43a1-38da-08df367ba585
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|7416014|376014|23010399003|1800799024|366016|19092799006|5023799004|11063799006|56012099006|261009223027099003|261026140227099003|261026121527099003|261028144727099003|261021123027099003|261021135927099003|261021121427099003|261022105027099003|261022075727099003|10067099003|22082099003|18002099003|3023799007;
-X-Microsoft-Antispam-Message-Info:
-	SpzUU8wFGdwYltNk5cDUUzViUc6O78x5TqQvXeJ/c9HxUGv9SdIJxo9POL54WcIGfrLFJry5WXZeobU3KHDH8+r5mCCx8YVfw2wEUcZZmI7qprW1rwwxE0RGvzHWPly+tW+4xkLf7ijTQNF/uZgciBKuGrjyupf5kVXdcOqxXz97TCtAw4frrh8KL6L9mnPTMCsXApp/vpgQm8e+vgORCDoIwWoYuKy+RGEtHPdy615QC2FPlAvralvjKd7dDqN40bLvH31YG81PyOPHFKixGuEKmsmRoypZ0zzInU/AlEyUhVTEn/ze7duwRa97UEb4IzfFvrchqIjSHx93T5Kx5ZhkvzVlynciCj+A4JcNVku+FyPK2NkVFEQseLwEC5FSRl2uGjAkdYn5JwPhLIuhAVhCAUuHYa3AS+06iA/oj3e1MiiVCOnyUJGLx7Y1Jslyr/k52oT6QLMKoYN28isiUBHTVHbobUQRWQHU968fAdGtVjVjI4Zvu3oqxjT2+jVMarFGDdRM3ymKVn2JALhEiu8ne12zF0HzjZo31md786hRpTUz8SZWooiZ3KCLMmTH+dCvFHRj2qk9qBiv5V22D/o9zNQddiboZAOy5FDQeui3gVqzJ0QIfl4O1aZpg563m1Kb6ayQ7GKnET3K3ssRQ4FrtYGmFhlb9Q7Le8yjUjc=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM0PR04MB6900.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(23010399003)(1800799024)(366016)(19092799006)(5023799004)(11063799006)(56012099006)(261009223027099003)(261026140227099003)(261026121527099003)(261028144727099003)(261021123027099003)(261021135927099003)(261021121427099003)(261022105027099003)(261022075727099003)(10067099003)(22082099003)(18002099003)(3023799007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?gGHPcSnD0emN0fxpcSi/5h4t9IMXHNR8rmNvgxcJC/v3n7zoveAGEeM9mr7y?=
- =?us-ascii?Q?gbKY0Qz/4hJaoy1K7g6cm7dJG3Btr2yyXu/TDrUBlRDnavb098ccys8RukLA?=
- =?us-ascii?Q?KZv8jJ3CxRaoUAYVauxEleGcKYNUeM6nWpOo4PfzKSXKheAn77UTvnM/jbbf?=
- =?us-ascii?Q?CzEPAF/VWcFuUW7NgtQZ8uIjeW25ZM//MJbxO64dImayAi/Mlmfj9HBUjGNE?=
- =?us-ascii?Q?CJLBO5aBdoQjltIMUbRcQl+c9hc/9kgfNO48BeJYpRLrIiumeaooXDrgoYWc?=
- =?us-ascii?Q?JXTOU4ZFLcOFjTtMis6RcqexJWhHar5BFZDXlrKkqlYYGO7CscCftVOG/PFk?=
- =?us-ascii?Q?mIucIxuDDKTr/2tzpYeFS4UpVu5jnKO57Kq/FwfzNgXurGnhzfMdNlw5svyi?=
- =?us-ascii?Q?vlMz8WTLRsskum16mETDIjTx+1ydag9J8hgmaPk1/wr6lBgZg8ep3NJo6bnj?=
- =?us-ascii?Q?xBAtBww37AirFmDbXneVyHYL685GnyaKnhZimErLpnz4+UMlBP12kmVywGbm?=
- =?us-ascii?Q?+yzyPjyF2n6lxn/ycp5jadJOPOANL72u+As1hGNfnGdywTPjms9i59jYCQmP?=
- =?us-ascii?Q?vpJT7q8v2hVlqb7FEgS649FpIbkzmHwZurSLJ3/IQpvV+x11tBRYjW5GiTRl?=
- =?us-ascii?Q?ZR+UVS3XgXvyDdweQyO9+LLesS0S/Zzx8Yw1PsUpUtt8yRLfyzOmfKVUn5HC?=
- =?us-ascii?Q?hg9VvqYQd+utO4mJfQyzi2IJcS1iDqtho4XecTIfyZghQlGLRdz+yUNTrCU+?=
- =?us-ascii?Q?yZiBJozuxYI6ye8Xg2hsX6g0ho/Fb7KrWiPayR/MaYxJJcLfIVrnhJ8QqtHE?=
- =?us-ascii?Q?hbFx9GRWHUm6tN3RgQg1R0Zu89dfO54UuDuOpO+2PdWgCkO2WABpx8eBYxse?=
- =?us-ascii?Q?MSK9xYKpbGTRmlcaMB7lvhpxm2MSOp2j8xOgtwM4FsvLA/dMZseRfMmwsvid?=
- =?us-ascii?Q?UWXm9V8YVJ3lVVF/4neCD86T5ULQd1MD1SesWTBN86yWUx4NuhPASsQ1Mo/9?=
- =?us-ascii?Q?Op+oobE+0inkyzSs8LHji1CXPxMcQPxV8hlF5gO7gcPWZMuv9QbVxDhxQqUp?=
- =?us-ascii?Q?zWevFrpISY5rNHq0NTpDKrlcB7AlA2MZ1wgffpRV7Blhfqjp/JdAeV9ibx5Z?=
- =?us-ascii?Q?IoMlgNbjp0G5MIzOVoW7GPYzbl8lMborTq0nHxbwDTMN0igFspCVrnGeX2G8?=
- =?us-ascii?Q?uu+WdLRmDr5cTXfp5aIfKlD0EEF/TYfSujbnLNqjwDm2DyN0Xg4p5oBBXKsX?=
- =?us-ascii?Q?FNaIx+32b4w2leHgf8yd2lxrDJAw0kXX2hUSEu4xPCZ/en1yPprU+fSSyp3Y?=
- =?us-ascii?Q?DUv+LxGRtoMfNPr+KHRmPBR5IZABoUQBSVR4Q1liKVAEXIbabZtBUwjpZphP?=
- =?us-ascii?Q?goucm98AYUOSFQJ03bqOzZ3d8nWRNbDhYlBMypEr6X930j6jAOlKK/FxFvP5?=
- =?us-ascii?Q?K6MvrPFm7a9yh4JnRwV8eOcgnOa5l5rn9Rd4HkoXiYUQ0IC/I64h5lOuExoV?=
- =?us-ascii?Q?5l9BCw1ChL0VIUfeq7H/asOF2qibSHehKmyYL442eYSik+TgqW9LBU9VkP50?=
- =?us-ascii?Q?0rIVN2ko20sZEEsrc2R5GLKCVs7lWqvUi0n2lyOOI5uIX8kM+m6YTIeMun6F?=
- =?us-ascii?Q?9lirjGz+lkpWzmPqibq8BVWb93zpYYZg1Bsm3P4XJAnqyyv8sZfqexlylRZS?=
- =?us-ascii?Q?HPHiEwKhppTPvolpApWn7zA4F95Ggy/Nf+Ip4M+SI47TmXRNs5Jh+JrgRE7h?=
- =?us-ascii?Q?urAzxsa6Cw=3D=3D?=
-X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 48c8de00-9476-43a1-38da-08df367ba585
-X-MS-Exchange-CrossTenant-AuthSource: AM0PR04MB6900.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Oct 2026 11:47:59.9745
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: W6KHnUgydIi7GsdMPQwIRpsoxsSzVTTn7k/k8P6nubUCxoYU9CmKXgFCaQRd+uWQcDhAB6jiEicdx+BosdWE4w==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM9PR04MB7571
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <2c2f33cf-da6f-4e31-84bb-768778d7b063@suse.de>
+X-Patchwork-Hint: comment
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs Bertel Jungin Aukio 5, 02600 Espoo, Finland
 
-While auditing the limits imposed by the network stack on the number of
-GSO segments, I found that a GSO super-skb can reach a driver's
-ndo_start_xmit() with skb_shinfo(skb)->gso_segs set to 0, contrary to
-what drivers might expect. This involves SKB_GSO_DODGY, and can be
-easily reproduced on hardware.
+On Thu, Oct 29, 2026 at 12:35:52PM +0100, Thomas Zimmermann wrote:
+> Hi
+> 
+> Am 28.10.26 um 15:54 schrieb Ville Syrjälä:
+> > On Mon, Sep 14, 2026 at 12:57:26PM +0200, Thomas Zimmermann wrote:
+> >> From: Roman Ilin <me@romanilin.is>
+> >>
+> >> When a CRTC's display mode carries a too small pixel clock,
+> >> drm_calc_timestamping_constants() computes a frame duration that
+> >> exceeds INT_MAX. drm_vblank_crtc.framedur_ns becomes negative.
+> >> drm_crtc_vblank_start_timer() then arms the vblank hrtimer with this
+> >> interval, after which vblank events are no longer delivered. Pending
+> >> page flips never complete and the display appears frozen.
+> >>
+> >> This could be triggered on virtio-gpu guests that have dynamic resolution
+> >> enabled: when the SPICE agent or the X server resizes the output, it
+> >> submits a mode whose pixel clock is off by a factor of 1000, e.g.:
+> >>
+> >>      clock = 406 kHz, htotal = 3152, vtotal = 2148
+> > How about actually "fixing" the clock in the driver?
+> 
+> It's not a broken driver, but user space. There is a bug report open for 
+> spice to replace the incorrect units with correct ones. [1] The fix here 
+> is supposed to resolve the kernel problem this triggers.
 
-"Dodgy" GSO skbs are skbs whose GSO metadata comes from a source that
-the kernel does not trust. The main producer is virtio_net_hdr_to_skb(),
-which translates the offload request in a struct virtio_net_hdr into
-skb_shinfo() fields. It is used by tun, tap, AF_PACKET with
-PACKET_VNET_HDR and virtio_net on RX. It only does basic sanity checks
-(csum_start/csum_offset, gso_type, a minimum gso_size), then sets
-gso_size and gso_type, adds SKB_GSO_DODGY and leaves gso_segs at 0
-("Header must be checked, and gso_segs computed"). The rest of the
-validation is deferred to the transmit path, and the "dodgy" flag
-stays set afterwards unless the skb is actually segmented.
+Life becomes much simpler if you don't let garbage userspace input
+past some initial sanity checks. So technically the driver should
+just reject these modes. But in this case since you need to keep
+the broken userspace working the driver should just fix it up,
+and do so early so you don't have to deal with it anywhere else.
 
-On the dev_queue_xmit() path, qdisc_pkt_len_segs_init() already
-recomputes gso_segs for SKB_GSO_DODGY skbs. After that,
-validate_xmit_skb() decides whether the xmit netdev is capable of
-fulfilling an offload or whether it should be applied in the core.
-For GSO, skb_shinfo(skb)->gso_type is verified bitwise against the
-netdev features in net_gso_ok(): SKB_GSO_TCPV4 against NETIF_F_TSO,
-SKB_GSO_UDP_L4 against NETIF_F_GSO_UDP_L4, etc. For the SKB_GSO_DODGY
-gso_type bit, the corresponding feature is NETIF_F_GSO_ROBUST, which
-means "give me the unvalidated super-skb anyway".
+> 
+> [1] https://gitlab.freedesktop.org/spice/linux/vd_agent/-/work_items/52
+> 
+> Best regards
+> Thomas
+> 
+> 
+> >
+> >>      framedur_ns = 3152 * 2148 * 1000000 / 406 = 16675852216 ns (~16.7 s)
+> >>
+> >> 16675852216 does not fit into an int and wraps to roughly -504000000.
+> >> ns_to_ktime() then yields a negative interval and the timer stops working.
+> >>
+> >> Found by bisection, which pointed at commit a036f5fceedb ("drm/virtgpu:
+> >> Use vblank timer"). That commit merely made virtio-gpu use the vblank
+> >> timer and thereby exposed the pre-existing problem in the timer setup
+> >> added by commit 74afeb812850 ("drm/vblank: Add vblank timer").
+> >>
+> >> To fix this, modify drm_calc_timestamping_constants() to use u64 for
+> >> calculations, check for INT_MAX overflows, and return an error code.
+> >> drm_crtc_vblank_start_timer() will then propagate the error, enabling
+> >> the driver to fall back to immediate vblank events. Valid modes are
+> >> unaffected, and the timer self-heals on the next mode with a sane clock.
+> >>
+> >> v4:
+> >> - avoid log spamming with drm_warn_once()
+> >>
+> >> Fixes: 74afeb812850 ("drm/vblank: Add vblank timer")
+> >> Suggested-by: Thomas Zimmermann <tzimmermann@suse.de>
+> >> Signed-off-by: Roman Ilin <me@romanilin.is>
+> >> ---
+> >> I took Roman's patch from [1] and replaced the error messages with
+> >> warn_once, as suggestde in my review.
+> >>
+> >> [1] https://lore.kernel.org/dri-devel/20260702181027.98526-1-me@romanilin.is/
+> >> ---
+> >>   drivers/gpu/drm/drm_vblank.c | 73 +++++++++++++++++++++++-------------
+> >>   include/drm/drm_vblank.h     |  4 +-
+> >>   2 files changed, 49 insertions(+), 28 deletions(-)
+> >>
+> >> diff --git a/drivers/gpu/drm/drm_vblank.c b/drivers/gpu/drm/drm_vblank.c
+> >> index f90fb2d13e42..72b543bca9e3 100644
+> >> --- a/drivers/gpu/drm/drm_vblank.c
+> >> +++ b/drivers/gpu/drm/drm_vblank.c
+> >> @@ -631,45 +631,54 @@ EXPORT_SYMBOL(drm_crtc_vblank_waitqueue);
+> >>    * drm_crtc_vblank_helper_get_vblank_timestamp(). They are derived from
+> >>    * CRTC's true scanout timing, so they take things like panel scaling or
+> >>    * other adjustments into account.
+> >> + *
+> >> + * Returns:
+> >> + * 0 on success, or a negative errno code otherwise.
+> >>    */
+> >> -void drm_calc_timestamping_constants(struct drm_crtc *crtc,
+> >> -				     const struct drm_display_mode *mode)
+> >> +int drm_calc_timestamping_constants(struct drm_crtc *crtc,
+> >> +				    const struct drm_display_mode *mode)
+> >>   {
+> >>   	struct drm_device *dev = crtc->dev;
+> >>   	unsigned int pipe = drm_crtc_index(crtc);
+> >>   	struct drm_vblank_crtc *vblank = drm_crtc_vblank_crtc(crtc);
+> >> -	int linedur_ns = 0, framedur_ns = 0;
+> >> +	u64 linedur_ns, framedur_ns;
+> >>   	int dotclock = mode->crtc_clock;
+> >> +	unsigned int frame_size;
+> >>   
+> >>   	if (!drm_dev_has_vblank(dev))
+> >> -		return;
+> >> +		return 0;
+> >>   
+> >>   	if (drm_WARN_ON(dev, pipe >= dev->num_crtcs))
+> >> -		return;
+> >> +		return -EINVAL;
+> >>   
+> >> -	/* Valid dotclock? */
+> >> -	if (dotclock > 0) {
+> >> -		int frame_size = mode->crtc_htotal * mode->crtc_vtotal;
+> >> +	if (dotclock <= 0) {
+> >> +		drm_err_once(dev, "crtc %u: Can't calculate constants, dotclock = %d!\n",
+> >> +			     crtc->base.id, dotclock);
+> >> +		goto error;
+> >> +	}
+> >>   
+> >> -		/*
+> >> -		 * Convert scanline length in pixels and video
+> >> -		 * dot clock to line duration and frame duration
+> >> -		 * in nanoseconds:
+> >> -		 */
+> >> -		linedur_ns  = div_u64((u64) mode->crtc_htotal * 1000000, dotclock);
+> >> -		framedur_ns = div_u64((u64) frame_size * 1000000, dotclock);
+> >> +	frame_size = (unsigned int)mode->crtc_htotal * (unsigned int)mode->crtc_vtotal;
+> >>   
+> >> -		/*
+> >> -		 * Fields of interlaced scanout modes are only half a frame duration.
+> >> -		 */
+> >> -		if (mode->flags & DRM_MODE_FLAG_INTERLACE)
+> >> -			framedur_ns /= 2;
+> >> -	} else {
+> >> -		drm_err(dev, "crtc %u: Can't calculate constants, dotclock = 0!\n",
+> >> -			crtc->base.id);
+> >> +	/*
+> >> +	 * Convert scanline length in pixels and video dot clock to line duration
+> >> +	 * and frame duration in nanoseconds.
+> >> +	 */
+> >> +	linedur_ns  = div_u64((u64)mode->crtc_htotal * 1000000, dotclock);
+> >> +	framedur_ns = div_u64((u64)frame_size * 1000000, dotclock);
+> >> +
+> >> +	/*
+> >> +	 * Fields of interlaced scanout modes are only half a frame duration.
+> >> +	 */
+> >> +	if (mode->flags & DRM_MODE_FLAG_INTERLACE)
+> >> +		framedur_ns /= 2;
+> >> +
+> >> +	if (linedur_ns > INT_MAX || framedur_ns > INT_MAX) {
+> >> +		drm_err_once(dev, "crtc %u: Can't calculate constants, mode clock too small!\n",
+> >> +			     crtc->base.id);
+> >> +		goto error;
+> >>   	}
+> >>   
+> >> -	vblank->linedur_ns  = linedur_ns;
+> >> +	vblank->linedur_ns = linedur_ns;
+> >>   	vblank->framedur_ns = framedur_ns;
+> >>   	drm_mode_copy(&vblank->hwmode, mode);
+> >>   
+> >> @@ -678,7 +687,16 @@ void drm_calc_timestamping_constants(struct drm_crtc *crtc,
+> >>   		     crtc->base.id, mode->crtc_htotal,
+> >>   		     mode->crtc_vtotal, mode->crtc_vdisplay);
+> >>   	drm_dbg_core(dev, "crtc %u: clock %d kHz framedur %d linedur %d\n",
+> >> -		     crtc->base.id, dotclock, framedur_ns, linedur_ns);
+> >> +		     crtc->base.id, dotclock,
+> >> +		     vblank->framedur_ns, vblank->linedur_ns);
+> >> +
+> >> +	return 0;
+> >> +
+> >> +error:
+> >> +	vblank->linedur_ns = 0;
+> >> +	vblank->framedur_ns = 0;
+> >> +	drm_mode_copy(&vblank->hwmode, mode);
+> >> +	return -EINVAL;
+> >>   }
+> >>   EXPORT_SYMBOL(drm_calc_timestamping_constants);
+> >>   
+> >> @@ -2221,6 +2239,7 @@ int drm_crtc_vblank_start_timer(struct drm_crtc *crtc)
+> >>   	struct drm_vblank_crtc *vblank = drm_crtc_vblank_crtc(crtc);
+> >>   	struct drm_vblank_crtc_timer *vtimer = &vblank->vblank_timer;
+> >>   	unsigned long flags;
+> >> +	int ret;
+> >>   
+> >>   	if (!vtimer->crtc) {
+> >>   		/*
+> >> @@ -2239,7 +2258,9 @@ int drm_crtc_vblank_start_timer(struct drm_crtc *crtc)
+> >>   			hrtimer_try_to_cancel(&vtimer->timer);
+> >>   	}
+> >>   
+> >> -	drm_calc_timestamping_constants(crtc, &crtc->mode);
+> >> +	ret = drm_calc_timestamping_constants(crtc, &crtc->mode);
+> >> +	if (ret)
+> >> +		return ret;
+> >>   
+> >>   	spin_lock_irqsave(&vtimer->interval_lock, flags);
+> >>   	vtimer->interval = ns_to_ktime(vblank->framedur_ns);
+> >> diff --git a/include/drm/drm_vblank.h b/include/drm/drm_vblank.h
+> >> index 2fcef9c0f5b1..d99772dfa034 100644
+> >> --- a/include/drm/drm_vblank.h
+> >> +++ b/include/drm/drm_vblank.h
+> >> @@ -311,8 +311,8 @@ void drm_crtc_vblank_on(struct drm_crtc *crtc);
+> >>   u64 drm_crtc_accurate_vblank_count(struct drm_crtc *crtc);
+> >>   void drm_crtc_vblank_restore(struct drm_crtc *crtc);
+> >>   
+> >> -void drm_calc_timestamping_constants(struct drm_crtc *crtc,
+> >> -				     const struct drm_display_mode *mode);
+> >> +int drm_calc_timestamping_constants(struct drm_crtc *crtc,
+> >> +				    const struct drm_display_mode *mode);
+> >>   wait_queue_head_t *drm_crtc_vblank_waitqueue(struct drm_crtc *crtc);
+> >>   void drm_crtc_set_max_vblank_count(struct drm_crtc *crtc,
+> >>   				   u32 max_vblank_count);
+> >>
+> >> base-commit: 06576c2b43750d990297b8ff1989b94ac72e855f
+> >> prerequisite-patch-id: 6729bb10d5e338678e78ccda2dd24f232a13cd22
+> >> prerequisite-patch-id: 9d94d20bd45967493b4dc339b58082e1c8da0f4f
+> >> prerequisite-patch-id: 6ac8d22df34db9e7d467b1ab95ad30f94841d5db
+> >> prerequisite-patch-id: f548dbde3f944ca3415c808be628719acebe898a
+> >> prerequisite-patch-id: 2ae91ee8e2bbcd33b8325be046e7214185aba6aa
+> >> prerequisite-patch-id: f97bbde08a9996d7c62ca3e3ebfcd387e50bc5c3
+> >> prerequisite-patch-id: ecc3c825277bc9978c6979455517249a074c0cb1
+> >> prerequisite-patch-id: 0449925cca36664b566f614bfb7d573a11f0575f
+> >> prerequisite-patch-id: 9fb2c2787244e9621847af09bea03e575e6276c7
+> >> prerequisite-patch-id: eb4384d581805e1178d22e7df45f134223c38305
+> >> prerequisite-patch-id: 1a7a529e4b2864abe8071aa44598d28ce72483f4
+> >> prerequisite-patch-id: 844a85f4c2fe2f72209b82d46614004c3cfe4123
+> >> prerequisite-patch-id: 13f7cb22114c648d35f8c9fa74e9165656ce31eb
+> >> prerequisite-patch-id: 20ee46bd6fdd91e39f71d22f52ef6682a4e41512
+> >> prerequisite-patch-id: 1d26c0ff91796ff1e62d3831d00bee18723788ef
+> >> prerequisite-patch-id: 007f6ea0d09bef54b689bae0eb5abeb497bdfaad
+> >> prerequisite-patch-id: 2d89c1507c909520adf9bfb1a137d458a819ae8f
+> >> prerequisite-patch-id: d90dc4134468870ab8ccbd71547c9552dff74fbd
+> >> prerequisite-patch-id: c67e5d886a47b7d0266d81100837557fda34cb24
+> >> prerequisite-patch-id: a5a973e527c88a5b47053d7a72aefe0b550197cb
+> >> prerequisite-patch-id: b9adc9622920a3e70168e672c2c92795b3e3a106
+> >> prerequisite-patch-id: 5030de433a01c2e99056cadb676a8e2ba35f055a
+> >> -- 
+> >> 2.55.0
+> 
+> -- 
+> --
+> Thomas Zimmermann
+> Graphics Driver Developer
+> SUSE Software Solutions Germany GmbH
+> Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
+> GF: Stefan Gaiser, Jochen Jaser, Abhinav Puri, (HRB 36809, AG Nürnberg)
+> 
 
-When the xmit netdev lacks a feature corresponding to a set bit in
-gso_type, __skb_gso_segment() is called, which dispatches to the
-protocol's net_offload :: gso_segment() method (inet_gso_segment() ->
-tcp4_gso_segment() etc). Physical NICs do not advertise
-NETIF_F_GSO_ROBUST, so for them the SKB_GSO_DODGY bit alone is enough
-to get here, even if they support TSO. tcp_gso_segment() and
-__udp_gso_segment() then have this code:
-
-	if (skb_gso_ok(skb, features | NETIF_F_GSO_ROBUST)) {
-		/* Packet is from an untrusted source, reset gso_segs. */
-
-		skb_shinfo(skb)->gso_segs = DIV_ROUND_UP(skb->len, mss);
-
-		segs = NULL;
-		goto out;
-	}
-
-This fixes up the gso_segs value and returns NULL, which means that
-the protocol did not segment the super-skb, but that this is not an
-error either, so execution continues. The "dodgy" super-skb reaches the
-driver's ndo_start_xmit() with a valid gso_segs value and gets
-segmented there or in hardware.
-
-Generic XDP skips all of this. Instead of calling dev_queue_xmit() or
-dev_direct_xmit(), the XDP_TX and XDP_REDIRECT actions end up in
-generic_xdp_tx(), which calls netdev_start_xmit() directly. There are
-three callers:
-- do_xdp_generic(), for XDP_TX
-- xdp_do_generic_redirect(), for XDP_REDIRECT to an ifindex
-- dev_map_generic_redirect(), for XDP_REDIRECT through a DEVMAP or
-  DEVMAP_HASH map, including broadcast
-None of them validates the skb against the features of the egress
-device.
-
-A process can reach this path by write()-ing a struct virtio_net_hdr
-followed by an Ethernet frame to a TAP interface created by tun.c with
-IFF_VNET_HDR. No virtual machine, virtio-net driver or vhost-net is
-needed. Creating the interface and attaching the XDP program require
-CAP_NET_ADMIN, but a persistent TAP interface whose owner was set with
-TUNSETOWNER can then be written to by an unprivileged process. When the
-virtio-net header requests GSO, tun_get_user() does not run tun's own
-XDP program on an xdp_buff. It builds an skb and passes it to
-do_xdp_generic() instead. vhost-net reaches the same code through
-tun_xdp_one(). A program attached in generic mode runs on the same skb
-from __netif_receive_skb_core(). In all cases, the program sees an skb
-which virtio_net_hdr_to_skb() has just marked SKB_GSO_DODGY with
-gso_segs = 0. If the program redirects it to a physical interface, that
-interface's ndo_start_xmit() receives the skb unchanged.
-
-The same happens inside a guest whose virtio_net interface runs a
-generic XDP program, with GSO metadata coming from the host. virtio_net
-only disables guest offloads (or refuses the program, if
-VIRTIO_NET_F_CTRL_GUEST_OFFLOADS is not negotiated) when XDP is
-attached in native mode; a program attached in skb mode keeps receiving
-GSO packets from the host.
-
-macvtap and ipvtap (drivers/net/tap.c) also accept virtio-net headers
-from user space, but are not affected. For them, a write from user
-space is a transmit: tap_get_user() passes the skb to dev_queue_xmit()
-on the macvtap/ipvtap interface, where qdisc_pkt_len_segs_init()
-recomputes gso_segs. Only then can the skb reach an XDP hook, for
-example when macvlan in bridge mode forwards it to a sibling interface.
-Their RX path also runs generic XDP, but only on skbs that the lower
-device received and handed up through macvlan_handle_frame() or
-ipvlan_handle_frame(), before tap_handle_frame() queues them to user
-space. Similarly, an skb that has gone through __dev_queue_xmit() once
-(bridge, veth) normally has a valid gso_segs when it reaches generic XDP
-on another interface.
-
-The impact depends on how the egress driver uses gso_segs:
-
-- Drivers which do software TSO and check for TX ring space with
-  tso_count_descs() (enetc, fec, mvneta, mv643xx_eth, mvpp2), or with a
-  similar gso_segs based estimate (thunder nicvf, octeontx2), compute
-  that only nr_frags descriptors (or none) are needed. They then write
-  descriptors for every real segment. xdp_ok_fwd_dev() limits skb->len
-  to about the MTU, but gso_size can be as small as TCP_MIN_GSO_SIZE
-  (8 bytes). With a 9000 byte MTU, enetc without hardware LSO needs
-  2240 BDs for one such skb, so it overruns its 2048 entry ring and
-  overwrites BDs that are still in use.
-- nfp with the NFDK data path programs gso_segs into the TX descriptor
-  as the total segment count, and sfc ef100 treats gso_segs == 0 as a
-  non-TSO packet.
-- igb, igc, ixgbe, i40e, iavf and libwx compute
-  "bytecount += (gso_segs - 1) * hdr_len" and count gso_segs packets on
-  completion. With gso_segs == 0, the TSO packet is counted as zero
-  packets, and since (gso_segs - 1) is -1 after integer promotion, its
-  byte count is skb->len - hdr_len. A completion interval with only
-  such packets looks idle to the adaptive interrupt moderation of igb
-  and igc ("packets == 0"). hns3 uses the same byte formula, but counts
-  one packet per skb.
-- Drivers that use gso_segs only for statistics and fall back to
-  "gso_segs ?: 1" (e1000, e1000e, igbvf, r8152, lan78xx, ax88179_178a,
-  be2net) count such an skb as one packet of skb->len bytes. This is
-  the same convention as the core uses (qdisc_pkt_len_segs_init(),
-  ip_select_ident_segs() callers): a gso_segs of 0 means "not filled
-  in", not "no segments", and since any transmitted skb puts at least
-  one frame on the wire, 1 is the smallest count that can be true.
-  These drivers undercount, but the result is still a lower bound of
-  what was sent, consistent between bytes and packets, and their
-  descriptor use does not depend on gso_segs. Such a fallback would
-  not help the software TSO drivers above, where an underestimate
-  causes the overrun.
-- Drivers that pass only gso_size and gso_type to a backend and
-  advertise NETIF_F_GSO_ROBUST (such as virtio_net) never read
-  gso_segs and are not affected.
-
-Two places for the fix were considered: the XDP_REDIRECT callers of
-generic_xdp_tx(), or generic_xdp_tx() itself.
-
-XDP_TX is not affected by the gso_segs problem, because it transmits on
-the interface which received the packet. The only interfaces whose RX
-path hands generic XDP a GSO skb with gso_segs == 0 are those which
-build it from a virtio-net header supplied by user space or a
-hypervisor, such as tun and virtio_net. Their ndo_start_xmit() converts
-the skb back into such a header using only gso_type and gso_size, and
-never reads gso_segs. Physical NICs do not produce such skbs:
-generic_xdp_install() turns off LRO and GRO_HW, and GSO skbs built by
-GRO or by software interfaces like veth, lo or macvlan have a valid
-gso_segs. Validating only in the redirect callers would therefore keep
-XDP_TX on its current fast path.
-
-However, validating in generic_xdp_tx() is still the better choice:
-
-- Implementation-wise it is easier, since it covers all redirect paths
-  at once. The alternative would be to add separate validation paths in
-  xdp_do_generic_redirect() and in dev_map_generic_redirect(), which
-  both call generic_xdp_tx(). There are also challenges to validation
-  placement, which has to be done after skb->dev has been set to the
-  egress device (which is already set properly in generic_xdp_tx()).
-  Furthermore, generic_xdp_tx() is the only place which already
-  transmits the skb, and so can handle what validation returns.
-  validate_xmit_skb_list() may segment the skb, or free it and return
-  NULL. If a caller validated the skb and it got segmented, the caller
-  would have to transmit the segments itself. If it got freed, the
-  caller could not report an error either, because do_xdp_generic()
-  frees the skb again on error. Inside generic_xdp_tx(), the segments
-  are transmitted one by one, and any left over when the queue stops are
-  freed with kfree_skb_list().
-
-- Validation is not only about gso_segs, and XDP_TX benefits from the
-  rest of it too. With IFF_VNET_HDR, a tun interface accepts GSO
-  packets from user space even if user space never enabled TSO with
-  TUNSETOFFLOAD. XDP_TX on such a packet currently sends it back to
-  user space with a GSO virtio-net header, an offload that user space
-  never said it could handle. Checksum offload has the same problem.
-  Validation fixes these cases by segmenting or checksumming the packet
-  in software when the device lacks the feature.
-
-So do in generic_xdp_tx() what __dev_queue_xmit() does before handing
-the skb to the driver:
-
-- Call qdisc_pkt_len_segs_init() first. It recomputes gso_segs for
-  SKB_GSO_DODGY skbs and drops malformed ones. Without it,
-  validate_xmit_skb() would compare the untrusted gso_segs = 0 against
-  dev->gso_max_segs in gso_within_dev_limits(), and the check would
-  always pass. The protocol's gso_segment() would then fix up gso_segs
-  without comparing it against the limit, and with a 9000 byte MTU, a
-  super-skb with about 1120 segments would reach a driver which set a
-  lower limit with netif_set_tso_max_segs().
-
-- Pick the TX queue before validation, as __dev_queue_xmit() does.
-  netdev_core_pick_tx() doesn't operate on lists, but setting the queue
-  mapping of the super-skb allows segments created by validation to
-  inherit it.
-
-- Call validate_xmit_skb_list() and transmit the resulting list. Each
-  segment is passed with more = false, as the single skb was before, so
-  drivers don't rely on a later call to flush their TX queue. The
-  "again" result, which only xfrm offload sets, is ignored, as in
-  __dev_direct_xmit().
-
-Drops on either check now also fire trace_xdp_exception() with the
-caller's action, like the other drops in generic_xdp_tx(). Network taps
-are still bypassed, as before.
-
-Invoking validation also unavoidably changes what happens to VLAN tags
-that the ingress device placed into the hwaccel area. Generic XDP runs
-in __netif_receive_skb_core() before the VLAN tag is handled, so the
-hwaccel tag is still there in generic_xdp_tx(), outside the packet data
-the XDP program saw. Egress devices without VLAN TX offload will ignore
-it, and the frame goes out untagged. Now validate_xmit_vlan() inserts
-the tag into the frame on such devices, as dev_queue_xmit() does, so the
-frame is tagged whatever the egress device. This should be the more
-correct behaviour, but I only consider it a positive side effect and not
-itself worthy of a dedicated Fixes: tag.
-
-Fixes: 6103aa96ec07 ("net: implement XDP_REDIRECT for xdp generic")
-Fixes: 6d5fc1957989 ("xdp: Fix handling of devmap in generic XDP")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
----
- net/core/dev.c | 35 ++++++++++++++++++++++++++++-------
- 1 file changed, 28 insertions(+), 7 deletions(-)
-
-diff --git a/net/core/dev.c b/net/core/dev.c
-index 88860185f583..e98d85a53991 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -5855,23 +5855,44 @@ void generic_xdp_tx(struct sk_buff *skb, const struct bpf_prog *xdp_prog,
- 		    u32 act)
- {
- 	struct net_device *dev = skb->dev;
-+	enum skb_drop_reason reason;
- 	struct netdev_queue *txq;
--	bool free_skb = true;
-+	bool again = false;
- 	int cpu, rc;
- 
-+	reason = qdisc_pkt_len_segs_init(skb);
-+	if (unlikely(reason)) {
-+		trace_xdp_exception(dev, xdp_prog, act);
-+		dev_core_stats_tx_dropped_inc(dev);
-+		kfree_skb_reason(skb, reason);
-+		return;
-+	}
-+
- 	txq = netdev_core_pick_tx(dev, skb, NULL);
-+	skb = validate_xmit_skb_list(skb, dev, &again);
-+	if (!skb) {
-+		trace_xdp_exception(dev, xdp_prog, act);
-+		return;
-+	}
-+
- 	cpu = smp_processor_id();
- 	HARD_TX_LOCK(dev, txq, cpu);
--	if (!netif_xmit_frozen_or_drv_stopped(txq)) {
--		rc = netdev_start_xmit(skb, dev, txq, 0);
--		if (dev_xmit_complete(rc))
--			free_skb = false;
-+	while (skb && !netif_xmit_frozen_or_drv_stopped(txq)) {
-+		struct sk_buff *next = skb->next;
-+
-+		skb_mark_not_on_list(skb);
-+		rc = netdev_start_xmit(skb, dev, txq, false);
-+		if (!dev_xmit_complete(rc)) {
-+			skb->next = next;
-+			break;
-+		}
-+		skb = next;
- 	}
- 	HARD_TX_UNLOCK(dev, txq);
--	if (free_skb) {
-+	if (skb) {
- 		trace_xdp_exception(dev, xdp_prog, act);
- 		dev_core_stats_tx_dropped_inc(dev);
--		kfree_skb(skb);
-+		kfree_skb_list(skb);
- 	}
- }
- 
 -- 
-2.43.0
-
+Ville Syrjälä
+Intel
