@@ -1,79 +1,103 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=67.231.145.42
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.180
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793398125;
-	b=ehlGFn82JiZGcZwuWIaoJkYsAMgldkt346WTunl7V/11dWWaKX5PRsvIAN3J19mHnjRR
-	 MwkKNjmy8CPnhBfkBRzJ3DTAKpYfgb9Po7cEFS6TeGLhUKEithQdE9EcqCVVD4qrRF7RA
-	 twM7yGNlpCWSYrdKVGCnarqmIMIiGOiyQWB+VvoOPEM/4Y3cWl7mkN/zU/5ieHz3a2x35
-	 EtJXal0LlWoqXfRQ+IQBEuRluUpIv3wL/TUygs6MrvFvopuq5jNGsVMgSCK3I6U/EBIdS
-	 5W7cr/EuJy4hjVrzYsxBuHZ1I/n6nqeMPrNab8iNLjOit9ClzrxkKE9WxM9lmRCE2vA==
+	t=1793399105;
+	b=pkKO8T1mtVyRFHPaIC39pKuyoitdF58rXnrLMKA59q2Rm3bF+boNsp1PSnTk5TfgtdMn
+	 HsPj+lWmk9zaNv7lzo7Nuy+xtdwXxiqcLZPIBhddFDB9BbP7FOSx/2+pvUX4gfGf7oTxC
+	 8a7M4ZnElj5a3PzXQCW5C/DDlC3Xfadl5Jukh1rkt49weR22R7/NGGp25KR7ECJt1l1e2
+	 58Zg+r63EmWO81+V0UQ4mcrIe7gPhRHN4EeYfKwm3yW4f3l41tFsj7UH6cXUflG9xJSaH
+	 /ACQZ9TyvDRHkv/SdNV1o0Wue1SUnpgHCpRvkhMiMNxJ2NDc07dQRQFumn/pKjfNQ+Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793398125;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Date:From:To:
-	 CC:Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:X-Originating-IP:
-	 X-Proofpoint-Spam-Info:X-Proofpoint-Spam-Details-Enc:
-	 X-Authority-Analysis:X-Proofpoint-ORIG-GUID:X-Proofpoint-GUID:
-	 X-Proofpoint-Virus-Version;
-	bh=IICohW+gXVTtyus0Zx3MeKtRFKP0xbPml/xUyCDOv9s=;
-	b=jls3V2YEM7GwCWK+jlxfTmEI02eKcT0RWtpnGvLpvgC7KVAWCZM8IGT4s5nmjWKerAqY
-	 imk5KJn/O6nOASx/gDZOzRXyc6I6vRnbbQ9/0N1JFCuxhTY4rOwEWi20e4KqBBhf09xCo
-	 X3IRpJsO3Oq4geNgv9XQq8WsdYuqTVI4O3en6b81CLwRnkAZ+dibeHkZG9CaG7Scs1cJx
-	 tz3i2bxwJDEapuGofdaBKZ0PvikY+i3lGfICr5v6Gt1S3TAZFf2sPZ9L9P9w405RJYMVL
-	 Tt+ayC9wdzMOGONCb9vy2uQRNQrPj4Etohr6nXkdwpFXM2+yxpaF2x3T1Wu1NQy3zuw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793399105;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To;
+	bh=/+KneAP5j4JycW2Osy6h4oU9OQtsTeRD6BdS9+k/6qE=;
+	b=gvdteoBMZtXvrhoS6LVNu235M/r6C0qMGvVm5kH4IN0Oh8FQkn7EubmZGcVbonzV1chB
+	 4ln0rCNrDMSbd/T3EakrRbHJ6scLkDzv9LyTihQzjO/RqRKkLZov+20qaPzRsbe4kRlBO
+	 std9jfL2FS2fC7rWhr9Hou58GX3TIbWsNJXYcdIioYnfOH7ECLRa2MK+CeEyPVTXALbII
+	 xpYRHHhbDDN3g2nuMOxi62jUrev1VGvwN99q2WbFbxnyoueAXLgEpgblwGMF/lngi1YuJ
+	 4c1AlSYJUiYLqcHYM+zKSbuW78mc5ql7+ncJFIa+ElDcf1dqivZtYY6lMzLkqgrYEDA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=meta.com;
-	spf=pass smtp.mailfrom=meta.com;
-	dkim=pass header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=VNaMJH8W;
-	arc=none smtp.remote-ip=67.231.145.42
-Received: from mx0a-00082601.pphosted.com (mx0a-00082601.pphosted.com [67.231.145.42])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=itr521Zz;
+	arc=none smtp.remote-ip=209.85.128.180
+Received: from mail-yw1-f180.google.com (mail-yw1-f180.google.com [209.85.128.180])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86721606A32C
-	for <virtualization@lists.linux.dev>; Fri, 30 Oct 2026 22:08:44 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 86721606A32C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C4B4606A31C
+	for <virtualization@lists.linux.dev>; Fri, 30 Oct 2026 22:25:05 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7C4B4606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=VNaMJH8W
-Received: from pps.filterd (m0044010.ppops.net [127.0.0.1])
-	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69ULuIu63232843;
-	Fri, 30 Oct 2026 15:08:41 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pps82601-s2048-2026-q3; bh=IICohW+gXVT
-	tyus0Zx3MeKtRFKP0xbPml/xUyCDOv9s=; b=VNaMJH8W1qAXMgaK9QFqxOnGKfV
-	KRbHYwrd92+9z5CesSdl54DmSlguoQJKICFhLsbM2F5omxvdYGVT9MOoQKt9veEJ
-	yKrUeW3/Q7cwsTidwGG2X4xzkyoPOg1Oq7A6EGS3drqoY990Kn7wu7HqG9PANsbE
-	0dc3yLp+5i9NPnvK0bHbZN6+a7FKWSsfFdG17gs1pINX9DYQBQVN1RfVE6fELtca
-	DuLtO8TS/Jx+pGl6GqAcU7hfEwMsLE+tCCAErEFagTCMfuzyHD42n5alUTWbMeLU
-	j+BdMJ1wDRDTvRCOgFmn4uRz8lU/GomY5cfxc0YcZpzJYsVSaZPX2e2ByeA==
-Received: from maileast.thefacebook.com ([163.114.135.16])
-	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4hn2wd8avy-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
-	Fri, 30 Oct 2026 15:08:41 -0700 (PDT)
-Received: from localhost (2620:10d:c0a8:1b::2d) by mail.thefacebook.com
- (2620:10d:c0a9:6f::8fd4) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.56; Fri, 30 Oct
- 2026 22:08:40 +0000
-Date: Fri, 30 Oct 2026 15:08:39 -0700
-From: Bobby Eshleman <bobbyeshleman@meta.com>
-To: <phind.uet@gmail.com>
-CC: Stefano Garzarella <sgarzare@redhat.com>,
-        "David S. Miller"
-	<davem@davemloft.net>,
-        Eric Dumazet <edumazet@kernel.org>, Jakub Kicinski
-	<kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, Simon Horman
-	<horms@kernel.org>,
-        George Zhang <georgezhang@vmware.com>, Andy King
-	<acking@vmware.com>,
-        Dmitry Torokhov <dtor@vmware.com>, <virtualization@lists.linux.dev>,
-        <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] vsock: reject negative tv_usec in
- SO_VM_SOCKETS_CONNECT_TIMEOUT
-Message-ID: <auUVZ67KRrDLUF45@devvm29614.prn0.facebook.com>
-References: <20261030064428.73930-1-phind.uet@gmail.com>
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=itr521Zz
+Received: by mail-yw1-f180.google.com with SMTP id 00721157ae682-8ab43af5e97so15062707b3.1
+        for <virtualization@lists.linux.dev>; Fri, 30 Oct 2026 15:25:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793399104; x=1794003904; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=/+KneAP5j4JycW2Osy6h4oU9OQtsTeRD6BdS9+k/6qE=;
+        b=itr521ZzHMdfC8MTHJuAiEX1Sx6QsM/v7tg9iStirF0JcD/tcVLTFgEylihR3CyCoz
+         pteqJSSI1hSjh5I+t9MgWFRflnogsti4HQqI45zyJ45rGbDIrVmd25zq5dLUwGtRqJfx
+         3hildMQ/V4sVl4m8Q2v+8j+qhmCBto3qR4X9iLx30huaVjlL4fR/AJOP7pF/gppEcf2n
+         SPYo4v/wExlYq9FXeXiEV1crp4z4kg0D6LTRIt3EUiMVCPO+zdnroK/I/MehzAbiQ6oP
+         im8+Wj/1d/jtsY+pesltmLPMHspBqKkgLggF62tmj9kd9AO5HRRWblXMJlMlBcuF6gKH
+         RhGA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793399104; x=1794003904;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=/+KneAP5j4JycW2Osy6h4oU9OQtsTeRD6BdS9+k/6qE=;
+        b=kSDIRGA5EwJavE/PvrUQCUiW27jy+RiLRRpvZajGfHm0ND1R3eSX8/rQIIbfuw38GO
+         xfIvJFTjuqkXMCwLpHlkN0rm3eLiUsO/xcQfHRzpMNWWAVy6swY9UIYWvz38Y9EElOWk
+         XfEUvycxbozJaTa8VJUwtWGQ7i+Fs9xRNgQ6da6cke0py4BNieNODlB2sDZVDTOVLlhN
+         Qlz/VQxWHroBX40faNXHzYEbD5wT55qP84Qvla64AgCtSaMZ7gRWYhokouqUhYS+ZUoq
+         h1hVEtZLR6bWGSlJPSr/WbCQC4F1xx7SQ9fVG5OGkxsHELFrYODkssj/3l75Ja1DNw3K
+         ulRA==
+X-Forwarded-Encrypted: i=1; AKwUvBxpl6Y45S24tlW23MIDFvpRcRvq95xUw2cOgjry16k8iBn5DHxzixwbdT+LTuSsyysaogAPRj+7Imq1CPRQlQ==@lists.linux.dev
+X-Gm-Message-State: AFq9FYIXqC8Dd+7Lw7xUSic+YU2P0PVlvvbmgEXz1Qqgh2YITelnK/fx
+	5ohZbzANaFnA778H0NWDTutYtpeoUx7sFNeqyW1fZlSEzAI3L5NBuLMq
+X-Gm-Gg: AYBFou0ZtBP7DS/zsJoSotVn9gD3eLMiToXf2BOw2FQto1F+JMKneQrHeT1Fc7ddfRO
+	Ys5dff9dw6+7sTd4VnERLLNgrWmwnpl9XlPo7Bre0a1KXB1PsrayOZ0V2GbfKRfjX3BdHsVkm7x
+	ZaXZYRzb0X8rhl0/M5arG1QjeSfzYpIKgRCPnyO2Ane7bXtg2xk+IYAO6h0aTzUlgDe9/JHH+By
+	59AIJO4S5zGD5QEN4djfMHSFAbv38M2jne1oW3NWqlov0p4LOGtd7eIb09PWf0fOjjQYuM2Fd09
+	tN9kLhWSiv9ieF5+AtSa/d5ijn6kdtSQc6eBzklTbS6HQiO/NBijxAAEMFnwgJ9No49U5/u86oU
+	cv6nte4TiH+Gcen8LsO3pJCtx5CB3CvnyXkc6bqfJailRZ28vMR+XdKKPBlJVegUdH8XAzCf6dO
+	f4Wpy7ho14SPsIgXWgpoYTYobddo4UbMS9OXeaFmQ19KviUfzDsHD7ZOSSI5yc4s/2qlkZYRu//
+	izdQiQ3yBoB74iygSkteeshCbj/hEB/zXuoZWADCin/C1Xy1P2GeE5dpFfqWC5OvdElmKmaCF9+
+	Cv1SAPlDiFJEs+Hfk1ywTfvVqA==
+X-Received: by 2002:a05:690c:92:b0:8a9:8744:c07d with SMTP id 00721157ae682-8b1c67060e0mr55008757b3.18.1793399104308;
+        Fri, 30 Oct 2026 15:25:04 -0700 (PDT)
+Received: from localhost ([2a03:2880:ff:72::])
+        by smtp.gmail.com with ESMTPSA id 956f58d0204a3-67baf147246sm730246d50.1.2026.10.30.15.25.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 30 Oct 2026 15:25:03 -0700 (PDT)
+Date: Fri, 30 Oct 2026 15:25:02 -0700
+From: Bobby Eshleman <bobbyeshleman@gmail.com>
+To: jrmmhm.kernel@eldare.de
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@kernel.org>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>, kvm@vger.kernel.org,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH net] vsock/virtio: clear vqs[] to avoid a UAF on a failed
+ PM restore
+Message-ID: <auUZPiXDIPpQ2/vK@devvm29614.prn0.facebook.com>
+References: <20261001-vsock-restore-uaf-send-v1-1-5da60f707506@eldare.de>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -83,63 +107,143 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261030064428.73930-1-phind.uet@gmail.com>
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDMwMDA4OCBTYWx0ZWRfXw0MuiDwjz0Em
- krBRGsa3nTSm1kW+UAGL7bTZzIjswi/bXtO5JB39aPVjzr5rM4QwzRpx0hmYL049gOTcV0cqo24
- h3h6NmKV9ne8+vuNRyfQD3xd0Wib8C8=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDMwMDA4OCBTYWx0ZWRfX5XlPcq/AhTfp
- LqgTIbPtHMrXuVbks5Txu4lsosGvte0EYTz2EzznVsQOMfHo2pfOdLvIzl1QeoMWIdYw8jImaPr
- gDozDyp1qASdlWbG9ZHbsWpPPRGmTWu2Q2Y+wUam4vzViyu8rLk/S1KYtL8WrmkCoLUlw/QNDVK
- CSc+uZ92OV23h9vnHn43c2u7iBHav1GqGQeliFLu2d474ODLdC7NR/Y5J2s4EmewsabCptiq+Py
- jIxElougHKc6uaknh4DC4mNEvOLXlCA1qph3/q1d9xroz0omgEfsSDGkFo7JzmIyUEHZ0h4uOp6
- 52fqCbfqB7WUUYnmYBSlGzXMX9acRf0+lLdsQPNRuh1ZJ8lq7QDSSomA04la4qiLhzP+DkguTbb
- sT1AJl6LG/gUfljfDNgD/JqbReCc+POdryNB2bKXKQg0qMzqx+jDpzRdR5oplPtBO0UTdg7ZH84
- sEZXmmDXGOvHWp77fmw==
-X-Authority-Analysis: v=2.4 cv=V9joQuni c=1 sm=1 tr=0 ts=6ae51569 cx=c_pps
- a=MfjaFnPeirRr97d5FC5oHw==:117 a=MfjaFnPeirRr97d5FC5oHw==:17
- a=kj9zAlcOel0A:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=7x6HtfJdh03M6CCDgxCd:22 a=8elwO82fXORLTBIkMd32:22 a=pGLkceISAAAA:8
- a=zogz89TECfafHexjI6IA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-ORIG-GUID: ZkVbhWJaWa3dwnSBsflV5sQnJr0JF7Sk
-X-Proofpoint-GUID: ZkVbhWJaWa3dwnSBsflV5sQnJr0JF7Sk
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-10-30_07,2026-10-21_02,2025-10-01_01
+In-Reply-To: <20261001-vsock-restore-uaf-send-v1-1-5da60f707506@eldare.de>
 
-On Fri, Oct 30, 2026 at 02:43:50PM +0800, phind.uet@gmail.com wrote:
-> From: Nguyen Dinh Phi <phind.uet@gmail.com>
+On Thu, Oct 01, 2026 at 07:13:29PM +0200, Jerome Mohm via B4 Relay wrote:
+> From: Jerome Mohm <jrmmhm.kernel@eldare.de>
 > 
-> The timeval validation checks tv_usec < USEC_PER_SEC but not
-> tv_usec >= 0, so a negative tv_usec makes the timeout computation
-> wrap into a bogus value, later tripping "schedule_timeout: wrong
-> timeout value" instead of being rejected.
-
-BTW, this does need the 'net' prefix.
-
+> virtio_vsock_vqs_del() frees the virtqueues via del_vqs() but never
+> clears vsock->vqs[]. If a later virtio_vsock_restore() fails to
+> reallocate them (its error path is a bare "goto out" that only unlocks
+> and returns), the driver is left bound with a dangling vqs[]. The next
+> virtio_vsock_vqs_del() - on a second freeze or on remove/unbind - then
+> passes a freed vring_virtqueue to virtqueue_detach_unused_buf(), a slab
+> use-after-free. KASAN on a guest with a virtio-vsock device, after a
+> restore made to fail by fault injection:
 > 
-> Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+>   BUG: KASAN: slab-use-after-free in virtqueue_detach_unused_buf
+>   Read of size 4 at addr ... by task repro
+>    virtqueue_detach_unused_buf
+>    virtio_vsock_vqs_del (net/vmw_vsock/virtio_transport.c:785)
+>    virtio_vsock_remove
+>    virtio_dev_remove
+>    ... unbind_store
+>   Freed by task ...:
+>    kfree
+>    vp_del_vqs
+>    virtio_vsock_freeze          <- the preceding freeze freed the vq
+>   Allocated by task 1:
+>    vring_create_virtqueue
+>    virtio_vsock_vqs_init
+>    virtio_vsock_probe           <- original allocation at probe
 > 
-> Signed-off-by: Nguyen Dinh Phi <phind.uet@gmail.com>
+> The object is the RX vring_virtqueue freed during the freeze;
+> vsock->vqs[RX] still points at it. virtqueue_detach_unused_buf() does
+> not guard a NULL vq, so a bare NULL-out is not enough on its own.
+> 
+> Clear vsock->vqs[] after del_vqs() in virtio_vsock_vqs_del(), skip the
+> detach loops when a vq pointer is NULL, and also clear the array when
+> virtio_find_vqs() fails partway in virtio_vsock_vqs_init() (which can
+> leave freed pointers behind). This mirrors virtio_blk
+> commit 0739c2c6a015 ("virtio_blk: NULL out vqs to avoid double free on
+> failed resume") and virtio_rtc commit 548d2208455f ("virtio: rtc: tear
+> down old virtqueues before restore"); virtio_console carries the same
+> stale-pointers-after-failed-restore fix.
+> 
+> Testing: reproduced on a private VM with a KASAN fuzz kernel based on
+> v7.3-rc5. The restore allocation failure was forced with CONFIG_FAILSLAB
+> steered by the fault-injection stacktrace filter to the virtio-vsock
+> restore path only; a guest-root program drives a pm_test=devices
+> freeze/restore cycle (so .restore returns -ENOMEM) and then unbinds the
+> device. The unfixed kernel reports the slab-use-after-free above; with
+> this patch the same run makes restore fail identically yet produces no
+> KASAN report. checkpatch.pl --strict is clean and the build is
+> warning-free. The reproducer is available on request.
+> 
+> Fixes: bd50c5dc182b ("vsock/virtio: add support for device suspend/resume")
+> Cc: stable@vger.kernel.org
+> Assisted-by: LLM
+> Signed-off-by: Jerome Mohm <jrmmhm.kernel@eldare.de>
 > ---
->  net/vmw_vsock/af_vsock.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+>  net/vmw_vsock/virtio_transport.c | 28 +++++++++++++++++++++++-----
+>  1 file changed, 23 insertions(+), 5 deletions(-)
 > 
-> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> index d0508887a2fb..1d7d53542724 100644
-> --- a/net/vmw_vsock/af_vsock.c
-> +++ b/net/vmw_vsock/af_vsock.c
-> @@ -2156,7 +2156,8 @@ static int vsock_connectible_setsockopt(struct socket *sock,
->  					     optname == SO_VM_SOCKETS_CONNECT_TIMEOUT_OLD);
->  		if (err)
->  			break;
-> -		if (tv.tv_sec >= 0 && tv.tv_usec < USEC_PER_SEC &&
-> +		if (tv.tv_sec >= 0 && tv.tv_usec >= 0 &&
-> +		    tv.tv_usec < USEC_PER_SEC &&
->  		    tv.tv_sec < (MAX_SCHEDULE_TIMEOUT / HZ - 1)) {
->  			vsk->connect_timeout = tv.tv_sec * HZ +
->  				DIV_ROUND_UP((unsigned long)tv.tv_usec, (USEC_PER_SEC / HZ));
-> -- 
-> 2.43.0
+> diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+> index 4f9aa9c4c3aa..0553c0641fd2 100644
+> --- a/net/vmw_vsock/virtio_transport.c
+> +++ b/net/vmw_vsock/virtio_transport.c
+> @@ -714,8 +714,15 @@ static int virtio_vsock_vqs_init(struct virtio_vsock *vsock)
+>  	atomic_set(&vsock->queued_replies, 0);
+>  
+>  	ret = virtio_find_vqs(vdev, VSOCK_VQ_MAX, vsock->vqs, vqs_info, NULL);
+> -	if (ret < 0)
+> +	if (ret < 0) {
+> +		/*
+> +		 * On a partial failure virtio_find_vqs() can leave freed
+> +		 * virtqueue pointers in vsock->vqs[]; clear them so a later
+> +		 * virtio_vsock_vqs_del() does not detach a freed virtqueue.
+> +		 */
+
+IMHO we can drop this comment. Clearing after failure is common enough.
+
+> +		memset(vsock->vqs, 0, sizeof(vsock->vqs));
+>  		return ret;
+> +	}
+>  
+>  	virtio_vsock_update_guest_cid(vsock);
+>  
+> @@ -782,19 +789,30 @@ static void virtio_vsock_vqs_del(struct virtio_vsock *vsock)
+>  	virtio_reset_device(vdev);
+>  
+>  	mutex_lock(&vsock->rx_lock);
+> -	while ((skb = virtqueue_detach_unused_buf(vsock->vqs[VSOCK_VQ_RX])))
+> -		kfree_skb(skb);
+> +	if (vsock->vqs[VSOCK_VQ_RX])
+> +		while ((skb = virtqueue_detach_unused_buf(vsock->vqs[VSOCK_VQ_RX])))
+> +			kfree_skb(skb);
+>  	mutex_unlock(&vsock->rx_lock);
+>  
+>  	mutex_lock(&vsock->tx_lock);
+> -	while ((skb = virtqueue_detach_unused_buf(vsock->vqs[VSOCK_VQ_TX])))
+> -		kfree_skb(skb);
+> +	if (vsock->vqs[VSOCK_VQ_TX])
+> +		while ((skb = virtqueue_detach_unused_buf(vsock->vqs[VSOCK_VQ_TX])))
+> +			kfree_skb(skb);
+>  	mutex_unlock(&vsock->tx_lock);
+>  
+>  	virtio_vsock_skb_queue_purge(&vsock->send_pkt_queue);
+>  
+>  	/* Delete virtqueues and flush outstanding callbacks if any */
+>  	vdev->config->del_vqs(vdev);
+> +
+> +	/*
+> +	 * del_vqs() has freed the virtqueues. Clear the stale pointers: if a
+> +	 * later virtio_vsock_restore() fails to allocate new ones, the driver
+> +	 * stays bound with a dangling vqs[] and the next virtio_vsock_vqs_del()
+> +	 * would detach a freed virtqueue (use-after-free). Mirrors virtio_blk
+> +	 * commit 0739c2c6a015.
+> +	 */
+
+Ditto here.
+
+> +	memset(vsock->vqs, 0, sizeof(vsock->vqs));
+>  }
+>  
+>  static int virtio_vsock_probe(struct virtio_device *vdev)
 > 
+> ---
+> base-commit: a7bfaba4823e3c165bb2004c74eff7c096672bc7
+> change-id: 20261001-vsock-restore-uaf-send-1fc7396fa1bd
+> 
+> Best regards,
+> --  
+> Jerome Mohm <jrmmhm.kernel@eldare.de>
+> 
+> 
+
+The rest LGTM.
+
+Best,
+Bobby
