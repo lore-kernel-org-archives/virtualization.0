@@ -1,62 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793358704;
-	b=NgOTfRzgNzdL/MSR3WprBCf/VeO1HAZXfNzL+QP8SxSpgJIuIO4ZbdfTA9NW40wvJgg0
-	 mx4kvYTWIMQg1ER/3b2/fk6nDe+GGhdLImc4/J0A+1qYD3IzqG7KqI1q+9AmhccaJNFQg
-	 apcbg93a7mX3cNv44vZK2fkOJfIwlX/XgRKCXA4P5LRchFi9fvgMf4BqbCnX0FR9h94wc
-	 BQn/dRWFyl2rD/ZImx1wPN/P0ZPnkgNDx22cWqvVPab6cYm3ZDEmKmmyYSFleiFotn7Z8
-	 10XKHQDQaSy1gqAoFiBD/RqSUg5Ovne6ZGSCn7EDcAaNKTEI+yj6uQQ8YIEErc6nBRw==
+	t=1793358858;
+	b=iwSPeqX5C0tVhf8AH4K10MJ5FFSveu+MkLKCSMiqYlGvMqMQRfXyEf49FyLc6/+YGQvk
+	 qm1pceBZAFLx1YnOLH9mrHPsk40Tch6GuQUJRLAcSz2Rn+Dt7UOvZD7BYCg0nTzn19Upj
+	 VZ6iJpxTk8FfCSFPwmn/wjcpZheJabMZ8pG5eOr04BJrEIRLVBXPOZA9JxQj6KBpKxFYV
+	 i6cd9JCXTCzVkCHrchdTwuDVOcOqVZiS1/ExzQ0fRR1dShFSJaFj84dzfEvzb59rQ0m0E
+	 gP2InvJtNfwajpQ2tEipF6avhQYeBnzda9iyy3FSQWM1uf2k1l6sFAI/McxcIR63JxQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793358704;
-	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
-	 MIME-Version:X-Developer-Signature:X-Developer-Key:
-	 Content-Transfer-Encoding;
-	bh=jCYK5v4XQQfPSvL9dOgHNb6hBySDbFEoE4OZWzTPLKA=;
-	b=Z/CuXwW0p122wI8XH/Jllu7GCgxh6bb9h9G3EzPIqB4kwnmhOTedeZjL2CNNgjLWQpq4
-	 hiB0zG/9OFcNGRn0jVd1W+ORceNFtCbVP2kpAWAL82Pg0bj4DibOPvwqz7sczZ0w2WjY9
-	 nIvJDRi9dTGocqdhzXHsW5FZNHuLUv4Ome0Xvc+m/wZr6O7EHFmAQelZQ6Noz7lBirGet
-	 jbxfpDJ8yvhSGLzwuFMUUH9/7e0JEJxuqtxdXSLRGp7gQfRhXJ0PuZOlwVtYHxcafzHXs
-	 3h4FiiIZskT7DtpZjbUrE1Z2IupcfqR5XTSnORJFfomxxlifK7lvUsetfnhWUOcrmxQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793358858;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=kM5pnVhjS2kH/EKP6NpqjyaZ1cMA2cH2cM8ruYQH84k=;
+	b=X1xII5Dj7Hzc4BCVNkXK3cWbX2ChkGes4cRsFe6Moqlr4epg1bpTBrZWLObUy6ZPbw8T
+	 F/TYACVyRqQEZnyKBucjJeDm00tk+GFHhl1PK2iCbPgm6/7IG+D1klr8p7SijKz/kAu3r
+	 6gdvjmU3+Wu6PJpkMPDolPLnjZEY1772EC41V1T20K0rykPrA1iwei7IPBvb9kPxuHbZ7
+	 TdQqzVLKRSrXVP/eFi0uoTBI1xuL2OQX/9tWYTi/UF0rvYWpy0hyUCujR/F++mi6g9jIr
+	 KsNJ4MAVJRNrTUcFQo7ZI/o0wx0DzvAHCjVWcLZiYR7Om2UOvPZTrM+Mv4amIRUpa9A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=owvbKBV8;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ElHV88aU;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6E78606A31E;
-	Fri, 30 Oct 2026 11:11:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 170AE606A31C
+	for <virtualization@lists.linux.dev>; Fri, 30 Oct 2026 11:14:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=owvbKBV8
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86C661F000C1;
-	Fri, 30 Oct 2026 11:11:41 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ElHV88aU
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82CE11F000C1;
+	Fri, 30 Oct 2026 11:14:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793358704;
-	bh=jCYK5v4XQQfPSvL9dOgHNb6hBySDbFEoE4OZWzTPLKA=;
-	h=From:To:Cc:Subject:Date;
-	b=owvbKBV8NNXg7Lj9OtB7rK6tEk1LNVkciZy7BwCanHi5LSGeiA6x2gLKueQ8c2i23
-	 XhI48ioSIeiVvmL+11wmp2ExvH1DuoXGQ33RfoEH+ePUnSxc9eGIJmTiP8g0vfp2e7
-	 g0A2cHxY0dnFa90IRqxP5TtvJdPAt+FRiPvrXkas7yFCfDRSclAQsdj+iWPaCTljwZ
-	 7eE1xA58ufSFejivZ+AscUFazYJcy6BHY1bv8R6CXxeHtvzkibhZvfsMgmNezYhEy+
-	 pzuPqXw4pFAzVPk1oJeLqyjsFglnFd13MdV3wBpY/C3homtUiRykPmHIj6qHCWG7NA
-	 eM3p243lOyTqg==
-From: Thorsten Blum <blum@kernel.org>
-To: Juergen Gross <jgross@suse.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>
-Cc: Thorsten Blum <blum@kernel.org>,
-	virtualization@lists.linux.dev,
-	x86@kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] arm64: paravirt: Mark steal_acc as __initdata
-Date: Fri, 30 Oct 2026 12:10:55 +0100
-Message-ID: <20261030111053.114812-3-blum@kernel.org>
-X-Mailer: git-send-email 2.56.0
+	s=k20260515; t=1793358857;
+	bh=kM5pnVhjS2kH/EKP6NpqjyaZ1cMA2cH2cM8ruYQH84k=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=ElHV88aUqd0DFVNeBtHjXAavkgiAM4EW73q97jW9VO/UmfLxgD4XsxxeBjDaOeVCo
+	 9Fsp/LZpLgKMq7apVJKyUoreooP96cUt4/FofHezcEJSa0P7FbP88HTnHhNqCiJGi/
+	 DtelsodXfH6KJI1UAjZcDLtlW7qAMORbQniustqW9myTGFcofHbfu4Hl6oZGmS2MRu
+	 lRiQgmzY+m+eG2F/Qcg22tAr35WIfG+nxSg57jivIrvS22wqOLuthSkylc6kxbNY/H
+	 ZfQY4RwmVP0sqb2FLWXYtjMIMspQGPaKLd3jZMIQQV/i2TT/1lm7sZqKG8zWEMzA5J
+	 DxPoBMpfWfm0Q==
+Message-ID: <sashiko-outbox-190927@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] arm64: paravirt: Mark steal_acc as __initdata
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Thorsten Blum" <blum@kernel.org>
+Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
+ Perez" <eperezma@redhat.com>
+In-Reply-To: <20261030111053.114812-3-blum@kernel.org>
+References: <20261030111053.114812-3-blum@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 30 Oct 2026 11:14:17 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -65,29 +59,15 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
-MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=736; i=blum@kernel.org; h=from:subject; bh=kuEW+4WESnxfN5I5tznjdeP1HfZYuuQX1do2/C1S0eo=; b=owGbwMvMwCUWt7pQ4caZUj3G02pJDFlPqm0VPQqnHZBard7GLrtw8+3q400zE7/MkMoVXCPFF 3bn8unPHaUsDGJcDLJiiiwPZv2Y4VtaU7nJJGInzBxWJpAhDFycAjCRlTcYGeamXv+0SXefoXNe cF7q355Up/1Kvgsv/5r6WXfZrT+757gy/C8WC7BiXPSuhiOat36OxHEfhfkKk6OvFJy7kea4pPW KFyMA
-X-Developer-Key: i=blum@kernel.org; a=openpgp; fpr=1D60735E8AEF3BE473B69D84733678FD8DFEEAD4
-Content-Transfer-Encoding: 8bit
 
-steal_acc is only written by parse_no_stealacc() and read by
-pv_time_init(), both of which are __init functions.
+> steal_acc is only written by parse_no_stealacc() and read by
+> pv_time_init(), both of which are __init functions.
+>=20
+> Signed-off-by: Thorsten Blum <blum@kernel.org>
 
-Signed-off-by: Thorsten Blum <blum@kernel.org>
----
- arch/arm64/kernel/paravirt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Sashiko has reviewed this patch and found no issues.
 
-diff --git a/arch/arm64/kernel/paravirt.c b/arch/arm64/kernel/paravirt.c
-index 572efb96b23f..df2e90092f47 100644
---- a/arch/arm64/kernel/paravirt.c
-+++ b/arch/arm64/kernel/paravirt.c
-@@ -31,7 +31,7 @@ struct pv_time_stolen_time_region {
- 
- static DEFINE_PER_CPU(struct pv_time_stolen_time_region, stolen_time_region);
- 
--static bool steal_acc = true;
-+static bool steal_acc __initdata = true;
- static int __init parse_no_stealacc(char *arg)
- {
- 	steal_acc = false;
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261030111053.1148=
+12-3-blum@kernel.org?part=3D1
+
