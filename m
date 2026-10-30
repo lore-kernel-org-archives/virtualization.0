@@ -1,58 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793329317;
-	b=SXolm1om0z/EV1GkRZwbs2DZaKgJo/NOoEwsHQtZ2c8hCCpdhw2xh1uuCGt8jmBE6OwU
-	 XDhHd3unO9TcXnbligTDfpWLcNCmaL0zvozhuF90ah2m/aN1xYTs54cUW3ZBERooyPYkq
-	 1cLSe/Cs15cVKsAvXyvPj9iybtEaFq4a5VxUwx4PWV863V90tfEqT181e9qviV6O11KSs
-	 ltrxrUn47fQyFj/3M0U9Qyh4tXTdV77V5a+7kGm50JJlBMgYbSqv09Z+Y6f4+EUcGfaQH
-	 QXFK+q9kMtZBKxttA7Q7H57BqTDLBnuKzM5uml4/KSkLMXHhrVTozxpstOu4qQmMFmw==
+	t=1793329333;
+	b=smGx11M4d1OvlbVw+ITrU3ioduRoUFrXZArBsOovKTccA/ev2hsN8sIIasJWLQ9CbEj2
+	 900z0VOi33oKj4csX/dX+gtuzM3sGIuo8QqRYoMkPb8ZxwSc5arVjl9wrmQhCt3at5EFm
+	 PtbWkymVq+LqHH8/Gu+8EGob6pO+YnP8RRF0TQig2NxzaROjstUaMmrxplb33zK4ZdpPn
+	 UGlV2XCsv3YyqY+hXy8zdfkTG0Yr9b9rBTscmnXIc1VUz2YzPzSU7e8ej/lcQXR+G3qtl
+	 5bUthFg4hRVSlbxV9JzH5nNEhlNeSwGMEQiV7+/ywdS3+2f5DMTxt92D+W2jMA/ka7A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793329317;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793329333;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=Jwwk5V5ZCaD/R0nL2uW3Hm87B5N2Dc9jSKlvyDZ1btg=;
-	b=hoDFipFKhI/ypEkS6ybNmnD5YqWhbULS4AmKSD/7KcZphY7IpC5OyYOUMLxrhimC3BPC
-	 GkVDA0TDWpMDM1sAeRppzVFSL8JhrTR66e7nr7mEWApjpZ9Eix/6UMpbck9XhQQs6jK/E
-	 NV4eV5USDmNwlxmDyWXLA4kQau0LwE1XKm3YJGPJwZPomnPpDRuAGEgPD83yXIdiXj7ah
-	 v8UOhPPD+DAjdNgcRT49vdMZ9hElHXVVll9RIXViBvhjiKB9aD5ibEvCQa1dJzWGPKQzX
-	 3P2sCBKfqk+OHgeO3pDEdk6ATrTgTTZ2p5FIrUHfUjIyMmwxEEmyruG6yUn2FlbY2zg==
+	bh=CTqjPQ5cTJMN7TPA7YZ0B17wjUxjkaWSkyRExqZQQ4g=;
+	b=jna347hLAcv4et/Vda3EdztKi3xYmGQif9vjdNg4vAb0z3ko3VZGcRoq0tHnjh+6Xygw
+	 VwhuDTi5fPP3HBVGMk6IWEmtobS2mH0i6z2UTT60F2w8s9whm07y/Y+o9J1JkRlKYLfN4
+	 avy95iHhsvPDtg6EkPPmZ4BXFg/Cau1T9gNp6x5QfgnsXeOcm64ugi5i3QsVGLeFXu3tM
+	 cGhk8q+CnKNs61QHfIq3hsauPLoGIAMyx+YQ0LASNzJ/ljKgNwSGvXBnT6ZyXRxG8NT0y
+	 01I5plQSmqhxp/wPOWWgLw6zby5G6sJ4FZ9poFtzUfCYWaD8MNuGcbhqkjRlp7LrOHA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FJnDEi3J;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lxKQgdMJ;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2DBD606A31C
-	for <virtualization@lists.linux.dev>; Fri, 30 Oct 2026 03:01:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9263606A336
+	for <virtualization@lists.linux.dev>; Fri, 30 Oct 2026 03:02:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FJnDEi3J
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FE491F000C1;
-	Fri, 30 Oct 2026 03:01:56 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lxKQgdMJ
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09F001F000C1;
+	Fri, 30 Oct 2026 03:02:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793329316;
-	bh=Jwwk5V5ZCaD/R0nL2uW3Hm87B5N2Dc9jSKlvyDZ1btg=;
+	s=k20260515; t=1793329332;
+	bh=CTqjPQ5cTJMN7TPA7YZ0B17wjUxjkaWSkyRExqZQQ4g=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=FJnDEi3JwhmlwYX2MQl6klqygjAWGqoJy+2wX1Q5oThUhqyH+L7SxEOFPVBa9JDGU
-	 mEo2FWq+nUtKxkt+uwd8OSyrgq9Dudh54O/U4LpHSTg+LX9ZmOK8RWTTmJoGm+w6aY
-	 yJmR6tzCLsaXiVNPA8NcXks/jfp/JVi0dc5r1hS7ObRpSPmCYvj+PyKsgAs1FadmkT
-	 N2aq4vYyRBUarjGOSZdLNRgqvFJ4q0CZhY0cw3zwGmarU7/wtL7t3l5OZseG0rV4Vg
-	 rm/Pmp27He1Ntc7+2fPUW+hJBSkp2BLqHcawrHxZ/DVoghIPaFjEmdS3eSQxm20u0p
-	 Y6O0V9cBx2L3g==
-Message-ID: <sashiko-outbox-190191@kernel.org>
+	b=lxKQgdMJAhjVolTinBvOfROxMSLP+GJIbxahG1W0EspoiZbBYAIn7CWFCTT82CZLG
+	 qL3vvq2o/MuVPImCs1euHfFSFRWxf0ajmObuVLbWWiCfvJWcmcp57h2hU0g/THCK+d
+	 X74UwUfxS8T061OoIWwdraAe3uS0+JqWwmMPPGto3VrUt0zwlOvQUIYb3dNkVU62si
+	 nBg6Dgt2CLS327V2SGD+akCar3Ei0n+Fn1xKDzsVOINGkgWPn/Miy/f9kVEzgnvmgP
+	 jyLfVZPpzyh5HFxIg7AODMpy6FQdr7NTrkkE73iTMRYxKPemqtWp215fK55+gujIBa
+	 YSXI4wpVmneKg==
+Message-ID: <sashiko-outbox-190192@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/3] virtio_balloon: add tracepoints for inflate and
- deflate operations
+Subject: Re: [PATCH 2/3] virtio_balloon: add tracepoint for host ack latency
 Reply-To: sashiko-reviews@lists.linux.dev
 To: liuqiangneo@163.com
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261030025834.19160-2-liuqiangneo@163.com>
+In-Reply-To: <20261030025834.19160-3-liuqiangneo@163.com>
 References: <20261030025834.19160-1-liuqiangneo@163.com>
- <20261030025834.19160-2-liuqiangneo@163.com>
+ <20261030025834.19160-3-liuqiangneo@163.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 30 Oct 2026 03:01:55 +0000
+Date: Fri, 30 Oct 2026 03:02:11 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -64,12 +63,11 @@ Precedence: list
 
 > From: Qiang Liu <liuqiang@kylinos.cn>
 >=20
-> When the guest responds unexpectedly to balloon resize requests,
-> the actual applied delta cannot be observed from the guest side.
+> Balloon inflate/deflate block in tell_host() for host buffer consumption.
+> Host-side stalls are easily mistaken for guest allocation issues.
 >=20
-> Add a "virtio_balloon" trace system with three tracepoints:
-> config_change (target / resulting size / delta), and
-> inflate and deflate (requested / applied page units / resulting size).
+> Add virtio_balloon_host_ack to record tell_host() wait time,
+> virtqueue and PFN count, to split balloon latency between guest and host.
 >=20
 > Signed-off-by: Qiang Liu <liuqiang@kylinos.cn>
 
@@ -77,5 +75,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261030025834.1916=
-0-1-liuqiangneo@163.com?part=3D1
+0-1-liuqiangneo@163.com?part=3D2
 
