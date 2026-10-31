@@ -1,111 +1,112 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793400596;
-	b=t/lpymvlHzWmS8lnITPXffbFalErUZermknFep8khMLWZKHMZ51EwPzcuBd8bQuiBzQr
-	 7q2T6Cc9xlPWhPPe9y9CiQMkDblJWplnX/90vYpg9nczF8P/zS3fEIreOsg2IHZ8kCrWt
-	 MPshUN+sWGl2Eap/Blw6G7teZMRbMbhkgtmC8wHeaMbJu6xA8ucnlNXIDG8hIn8UDcZiQ
-	 VnK7h3P0Swoep9HqvC+wwkwNat8WNDrbSjgrjk3nWZIYeHBoNNFIyvrwJW5OPgAHvfWhe
-	 FwKiwi1cT0ZE7v5ipAjrIk6f5U+gokBnIfP1W0S3ucxLhdlvc3vBQu8ozST9MgLEAcw==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793400596;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
-	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
-	 X-Mimecast-Originator:Content-Type:Content-Disposition;
-	bh=+T9BCD4WHAeHhgAEVu7K97ymFe/bRNG12NnyP6fiFZk=;
-	b=isHCotB4dzkTnamNGmv0PktTjwYdJigCcPrXZa8nQYzpnh2nVK2PqxpP3J2Bl0Ig/zep
-	 62+uu6TQndoKqX1JcE0HzVptzXQDLwAQXG1FLhK3tam66S3q/iU0O5Uca8n/AGAln/7Cf
-	 L0yz+zOXwgDOzBe0NBMG1o25RE/ZmQ35Jp/nKNhw4qMU3uljSYQjXy9OdKU8C3uP7nQgY
-	 krVlzVWz70ybUT2PukYm0wJwXpQDuPckIvaEhZWRYZGWtmqqkHWcvCB3bosrqV66b9Abv
-	 17Ia4G/cC8MTD31nM3zziABS8sj/D7U0gUZbUKlxD0VIGFGRc0m9f8a5CUVioLl/fxg==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gVUqsrrZ;
-	arc=none smtp.remote-ip=170.10.133.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=40.93.198.60
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1793406802;
+	b=th7TWieJa6H29ttXoPOMIYgj47CeCDRUu6G54xUEMYKQkg0hgp0fQrckx3NBeJ6A2u7l
+	 CzVnzKHsFGFtBHoiWX4+HZ9WgIiy9eSa/hLhlKmKXtoMoZP1EsGd2n03hiRtL+vjjdM58
+	 UYADlnv68D+PnOngAr82rNmkNZBpcCcjDhc8D9YjUKkAMs/JfpUdsvDU8RZhbS37tdDhr
+	 qwPD4MrD4pXxT7XWbmikUym8xZYK+bxWhCTtuuXmh3lYiuo0mfcm2LQEFUZBqsOlvzOON
+	 z8YWEaIJsGm+f1zXzYP12Ne4i1FnAgj0tlLgjALpGTeVlAFim0D2cXlZaxenbeTz0UA==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793406802;
+	h=DMARC-Filter:DKIM-Signature:Received:Received:
+	 X-MS-Exchange-Authentication-Results:Received-SPF:Received:Received:
+	 Received:From:To:CC:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding:Content-Type:X-EOPAttributedMessage:
+	 X-MS-PublicTrafficType:X-MS-TrafficTypeDiagnostic:
+	 X-MS-Office365-Filtering-Correlation-Id:X-MS-Exchange-SenderADCheck:
+	 X-MS-Exchange-AntiSpam-Relay:X-Microsoft-Antispam:
+	 X-Microsoft-Antispam-Message-Info:X-Forefront-Antispam-Report:
+	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
+	 X-MS-Exchange-AntiSpam-MessageData-0:X-OriginatorOrg:
+	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
+	 X-MS-Exchange-CrossTenant-Network-Message-Id:
+	 X-MS-Exchange-CrossTenant-Id:
+	 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp:
+	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
+	 X-MS-Exchange-CrossTenant-FromEntityHeader:
+	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
+	bh=yih6QHYE4DaDHg0Vf0uZHGGyozrwe6Oms167g1kGBBM=;
+	b=oxAY58Qs5s8fmbA1Ve6+4aBBO00pHQURUtW2UBPAllEduwYKB34Cl+K1p0NEPyBqjfA/
+	 EhVesiLncBptxbavG82c0uMnaW4usBgeFoi4fqpyvxL9yxU4oVjQAFVlkIGfggBqaomLW
+	 iV8JF05TRCCtqLUMoG/TPDgemqiqbLr3xNJiiIiB9Y7Mqe+kojrGWw97LUsO8KpTeIV9C
+	 pkoMK1Tm9wo89fG9EZTWw83UZ/ooc2uTh2l/nZGA5fXIT4qmvL3KwWzVDefiE+B2hAbEV
+	 BTyLqNnpPGVXrPKKZQ8PCe8FZ8XLUgEEbkK35UBatrZ1xIV7JLWmf4ZNH37N6+cibMA==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=amd.com;
+	spf=fail smtp.mailfrom=amd.com;
+	dkim=pass header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=Pj4NAWOf;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=40.93.198.60
+Received: from CY7PR03CU001.outbound.protection.outlook.com (mail-westcentralusazon11010060.outbound.protection.outlook.com [40.93.198.60])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A09F606A31F
-	for <virtualization@lists.linux.dev>; Fri, 30 Oct 2026 22:49:54 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0A09F606A31F
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAC05606A31D
+	for <virtualization@lists.linux.dev>; Sat, 31 Oct 2026 00:33:21 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EAC05606A31D
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gVUqsrrZ
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1793400594;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=+T9BCD4WHAeHhgAEVu7K97ymFe/bRNG12NnyP6fiFZk=;
-	b=gVUqsrrZkg6LpTfju9XTWs6XqPcv4Yk4oUEBoMjYA90Yxo2LDgqoFpdrTPwwLBOwFDrwli
-	Wm9RMYIuOaJMl4e61QLyldCkkjM5XDRSOnok8n2F1DEnT0QXF5c4xY4KDLDuKwflhOnTAz
-	6OVrkLqxQvuI9/OpyuJgzP52FuVjqWw=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-308-neLbIjx9PC6kq63w92TnMw-1; Fri, 30 Oct 2026 18:49:52 -0400
-X-MC-Unique: neLbIjx9PC6kq63w92TnMw-1
-X-Mimecast-MFC-AGG-ID: neLbIjx9PC6kq63w92TnMw_1793400591
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4a35e1d2dddso10405365e9.0
-        for <virtualization@lists.linux.dev>; Fri, 30 Oct 2026 15:49:52 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793400591; x=1794005391;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=+T9BCD4WHAeHhgAEVu7K97ymFe/bRNG12NnyP6fiFZk=;
-        b=ii9+GWtFOX5tQYzty75UJFBChkCaCnfQ+lHXx1XebJjR7XHzh0uLA1gZ0ih7gd+aAx
-         xZcuRfmCwabqkIN+WNPZKtUy3J45JNKnDDTmJeLJA++rBqBgzA9Bx8uf0hvQgsb9m6J3
-         2pJ0cp1MTl9m8jVM2Tn/PxNC174hIdm0kWvWCr6t6Zr2WTcHCG13Xwz7NDVXJPdPO/qj
-         a6nH+yAmlia5cSRJL1QCOY2zMcDHMvObJHMFeNGsh4ceB1aZbfsX1ary6SiTBMc1QWO1
-         acM+7mWWePzt2+m88YSGIgUWep4zAs46Rp2oscjKhH7REQAGowAUClzA3RQb+ONkZUmu
-         mJ0A==
-X-Forwarded-Encrypted: i=1; AKwUvByJV3plagjhhHEqH/2HVfNcQfLMWvgqgPZvy8jqO3PT+4wEfIXYhcWnwwp5kMAYzOKcdcMfGF9SYHD44IeHWg==@lists.linux.dev
-X-Gm-Message-State: AFq9FYLBlC3gPEbMKILRT/pxxEGaTBj6qtThS64CSSnBPEvOuCX5yZu+
-	NGpOj/OeOY++GgyYUuReqNl/RVzu7BREVTrMm/krHxwamAWP05N44n/6r/TtTAkw7mHo/I2hPDO
-	ZlmeYTMn0VpCqu9v/OEoM2QJvibf6rVzUi0jddVffEdyAeoacRPoy98ldUm/wvRqAyudH
-X-Gm-Gg: AYBFou2AaOfrkc9YcNvmXghKTsyyP1V3YqsKyWcNpzEYZH+rDkP0pDYMXpDjwL/5V1B
-	Ma5sUAt8cIjM/XSCa7JkPKvjM5qI2YTx3WSNFef7FuQHPMkkTl2IpzsJDJNhVnFeI60XYyNJoGM
-	a7ZP0d2s/l20b9RXOs4yAucmfuKBhWY1zLkbZmRqBwE2O3tiY8mwQVQVDxyogPAQi1qTCP43F6i
-	TFClqzg1/Rp/9Ax1eSSVCJJ+8s6UwHeiBdZYekp0ALcJLzJU2DHf1GGr+FxF2KprmaaohAQCG57
-	jg2aP5wHT/797dfJnslQbrIKDiKpJ9evAXje4aWat8xGzmsrnwbrsKyFkAWnjRXRcqBGGC/L72m
-	Ys62BK0t/3x/8e459R52u1YBJAwtjmY46V6wqnUWFgjDk
-X-Received: by 2002:a05:600c:46d1:b0:4a2:1867:10e8 with SMTP id 5b1f17b1804b1-4ac17b2c8a7mr81098265e9.25.1793400591332;
-        Fri, 30 Oct 2026 15:49:51 -0700 (PDT)
-X-Received: by 2002:a05:600c:46d1:b0:4a2:1867:10e8 with SMTP id 5b1f17b1804b1-4ac17b2c8a7mr81097795e9.25.1793400590841;
-        Fri, 30 Oct 2026 15:49:50 -0700 (PDT)
-Received: from redhat.com ([2a06:c701:73c1:fd00:6c8e:5a61:f533:519d])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4abf0b36853sm80313395e9.0.2026.10.30.15.49.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 30 Oct 2026 15:49:49 -0700 (PDT)
-Date: Fri, 30 Oct 2026 18:49:46 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Chris Arges <carges@cloudflare.com>,
-	=?iso-8859-1?Q?Bj=F6rn_T=F6pel?= <bjorn@kernel.org>,
-	Phil Sutter <phil@nwl.cc>, Jason Wang <jasowangio@gmail.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@kernel.org>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	netdev@vger.kernel.org, virtualization@lists.linux.dev,
-	Max Krasnyansky <maxk@qualcomm.com>,
-	Rusty Russell <rusty@rustcorp.com.au>,
-	Paulos Yibelo <habte.yibelo@gmail.com>
-Subject: Re: [PATCH RFC v7 4/5] net: resolve uncommon partial checksums at
- ingress
-Message-ID: <20261030184752-mutt-send-email-mst@kernel.org>
-References: <cover.1793276116.git.mst@redhat.com>
- <93d0e37c99711bebdf60c120af03010455c2f2e2.1793276116.git.mst@redhat.com>
- <willemdebruijn.kernel.10a41a35b45f6@gmail.com>
+	dkim=pass (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=Pj4NAWOf
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=KhMzKwZMKQly6GmYIumdhB25xDVO/pGr8mMMMlkSforA129BbfG7MNhK7VYLsdD/KA9o0YXzMkizR+0revsXhus6vXl7LFPtFB/nqzg4cA64aByFkE1kqzOpN2f4lQNvKnVvE4NIVnyaYv4NV+PPvfN6RjgX4dYwW/bEApdKrelj1F2GnS311cQwflmTtyzc/lwxc49gK6dkq+dKQWeYnlaQtQBg5u/AOX+73m3thVmlnZVVVp7AeJGqnnylCj2gB1fWeB7wLzN1Q3HrW9KVvmhXzljeDLna3azooS8x84FPxUI37qiDJoVYYJt+Won07WiInf57arb+cEK2jvAlmg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=yih6QHYE4DaDHg0Vf0uZHGGyozrwe6Oms167g1kGBBM=;
+ b=U/nf+ZoxSo0YhkhPIuwDOD5oBqSoMluEdhI4cQy0yihGOwGCk7vQPr3Oh2NpVYPklbmAuS3yjqSfcNRQzfhFT0SoNwY9hCQCE2xyi/s7LyKehBzyzqDVAco73HTXilMhe62TMwOlpTvPETcgQ42cwdnsrrqEUWNBVuehuVj6xHIfgrIzBFjpGfSLTZrVUl18DEHUQZ9LyUpUe7QLVCTWz+l+KjGrREeS3TTeWF9Da04rvsyFV+Yy03+1c1MUKHMCcTXFAYMMeAb0Gz/cJiaqS5y9Ya1zV8EQuCPc0tiI3E75YFFS2OyXEljoFpOvrk7tRrlNit3Rtr3nXR6ZGiKcUg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=suse.com smtp.mailfrom=amd.com; dmarc=pass
+ (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=yih6QHYE4DaDHg0Vf0uZHGGyozrwe6Oms167g1kGBBM=;
+ b=Pj4NAWOfGu23NdnrtLCDLiYGgJa10xYwK8hshd3ka3eRY1H58YxmfZgXzfSGmNconrSZ4WSIhMNiDqsREQlqW1bO6cvjRH7zKXhERRowWVFcicy3efYjxdX/2KXao/AZ+W3Cb5uWR37eMSfluT38aD/A6Mvk2z/DyDDBCB3fuHQ=
+Received: from MW4PR03CA0120.namprd03.prod.outlook.com (2603:10b6:303:b7::35)
+ by SN7PR12MB8002.namprd12.prod.outlook.com (2603:10b6:806:34b::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.569.10; Sat, 31 Oct
+ 2026 00:33:13 +0000
+Received: from MWH0EPF000D894F.namprd05.prod.outlook.com
+ (2603:10b6:303:b7:cafe::63) by MW4PR03CA0120.outlook.office365.com
+ (2603:10b6:303:b7::35) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.21.569.9 via Frontend Transport; Sat, 31
+ Oct 2026 00:33:12 +0000
+X-MS-Exchange-Authentication-Results: mx.microsoft.com 1; spf=pass (sender IP
+ is 165.204.84.17) smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=satlexmb08.amd.com; pr=C
+Received: from satlexmb08.amd.com (165.204.84.17) by
+ MWH0EPF000D894F.mail.protection.outlook.com (10.167.249.215) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.21.592.5 via Frontend Transport; Sat, 31 Oct 2026 00:33:12 +0000
+Received: from satlexmb08.amd.com (10.181.42.217) by satlexmb08.amd.com
+ (10.181.42.217) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.53; Fri, 30 Oct
+ 2026 19:33:12 -0500
+Received: from amd-BIRMANPLUS.mshome.net (10.180.168.240) by
+ satlexmb08.amd.com (10.181.42.217) with Microsoft SMTP Server id 15.2.2562.53
+ via Frontend Transport; Fri, 30 Oct 2026 19:33:10 -0500
+From: Jason Andryuk <jason.andryuk@amd.com>
+To: Juergen Gross <jgross@suse.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>, "Broadcom internal kernel
+ review list" <bcm-kernel-feedback-list@broadcom.com>, Thomas Gleixner
+	<tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov
+	<bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, <x86@kernel.org>,
+	"H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, "Peter
+ Zijlstra" <peterz@infradead.org>, Boris Ostrovsky
+	<boris.ostrovsky@oracle.com>, Yazen Ghannam <yazen.ghannam@amd.com>, "Mario
+ Limonciello" <mario.limonciello@amd.com>
+CC: Jason Andryuk <jason.andryuk@amd.com>, Sean Christopherson
+	<seanjc@google.com>, Ingo Molnar <mingo@kernel.org>,
+	<virtualization@lists.linux.dev>, <linux-kernel@vger.kernel.org>,
+	<xen-devel@lists.xenproject.org>
+Subject: [PATCH] x86/paravirt: Add ioremap_verify_range hook and implement it for Xen PV
+Date: Fri, 30 Oct 2026 20:33:08 -0400
+Message-ID: <20261031003309.3751-1-jason.andryuk@amd.com>
+X-Mailer: git-send-email 2.34.1
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -115,176 +116,193 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-In-Reply-To: <willemdebruijn.kernel.10a41a35b45f6@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: BSESpJb3HfZcW5cL2SJrfQDudGs9fDnjdUXDy-EfjWM_1793400591
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: MWH0EPF000D894F:EE_|SN7PR12MB8002:EE_
+X-MS-Office365-Filtering-Correlation-Id: d7fea2ce-8a16-4fb9-77d5-08df36e68c03
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|23010399003|1800799024|376014|7416014|36860700016|82310400026|921020|260925022911599003|260925021911599003|260925021311599003|11063799006|56012099006|261009223027099003|261028144727099003|261026121527099003|261026140227099003|261021121427099003|261022075727099003|261022105027099003|10067099003|18002099003|13003099007;
+X-Microsoft-Antispam-Message-Info:
+	aWk6nQhKji0GcTEmX23tLPr4lYCz4W5jlrdrp2QAHXlkIK4KMFpVZFXdTeVQKmbeBFLCyrSmljHSR7EZmCUkF0HsOnnoUaocL0a+Pf5qPkayCbKfkNcyGB1DxTvws5K7IVX5eig6qTGRhdC5rCV7X9SbhmjSPpefOtXCvvPHRj61GbroMPq+HjMhTL++WH6VQC94VtKNUmhY4vCF06GCLv3BdIaKOLnn3IAAaimUWVDPD2oKYfQarklJVR9UTOOjXEzKflK2PXx5TQAoMoK319mZ2UDcV8xkmXj/u8tbHHSr9U1dY2rJYFesHi/g5Yci1rkjRc779gCqC2IwRgVKJQg3YuRfwfCNrXifytIW2dYsRFiVWGhwxGuw1hyI7U7tfSOdT5makn5MCHYmZY5sOksB7KvIeSUMh9K4eq2i7V0b1QBfqqZtFQ3AtyE9BenyJs8bpBHoMZVayU0f0LGuFmBU3bpXVwKX7ErK9ve7sdOizVc4bMCzRjlygLWAF19hHosXB7rbHWBoKvSfBtcN+0pDXw/tvQ6SXyEK2VFnzCzI+P88nAazNWeioMrem9S2E9DAZy5a9uWoUQjYuA3cmJ9ds51w9lhcI2eXz6ibzaA3Ye2P5KpninpAKtTgbCx7RjI0H1AioRp5WJny7lD6Oo11eAsfBQY9XFyJyxI1SFAypdzqAH0HZb64gGEGvkgXOjXwzJtp5HunXaBhjDvWeA==
+X-Forefront-Antispam-Report:
+	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:satlexmb08.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(23010399003)(1800799024)(376014)(7416014)(36860700016)(82310400026)(921020)(260925022911599003)(260925021911599003)(260925021311599003)(11063799006)(56012099006)(261009223027099003)(261028144727099003)(261026121527099003)(261026140227099003)(261021121427099003)(261022075727099003)(261022105027099003)(10067099003)(18002099003)(13003099007);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	NYRg0/BadDsns6DekT8ePeXb82enHV1ukRb5r52da1kdASpsWvA0mXuU15E3cFx1hHSgRYrqBbIozCDfFHTziJoruYwopYVw6igrGxSTguSTg4Qhfp++W5ZX6aGLuC0/pgqLtQ+iBtmHO5YkGhVIoBvaWaw7w6WiHvXiNrN/+EusxAjBiXA3C6/kS7w4719+P3in2EFe8BHpwuW28TAu8f+k4gXh6RyOukBly+trzlKTHOR2ngP2f8oKbLXLLahsqYlgNl5XEwtP075VkpKDdbax0Vg1ooDjbkQxlczggrJOgYBrocTr7daAbFgiQVr8/25ge/P9ko+YUJH7scHFHDj6Gc6tI+zRGXe84Bbmxq6W4db8aLcxK0XdrHeDBIAuUAUE5j526/zmVlYSPMmfbh6Hz/gqCFe5QDNVSMJIl2jAnmvcsCwd5jh47pJj89aQ
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 31 Oct 2026 00:33:12.8540
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: d7fea2ce-8a16-4fb9-77d5-08df36e68c03
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[satlexmb08.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	MWH0EPF000D894F.namprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR12MB8002
 
-On Fri, Oct 30, 2026 at 03:21:57PM -0400, Willem de Bruijn wrote:
-> Michael S. Tsirkin wrote:
-> > As reported first by Paulos Yibelo <habte.yibelo@gmail.com> (after which
-> > others, credited below, found more ways the bug can affect users) a
-> > virtio net header can place CHECKSUM_PARTIAL at any in-packet offset.
-> > If that state is retained, later checksum completion can modify the
-> > packet after protocol processing has made decisions from it.
-> > 
-> > Let's fix that: let's validate csum_start and csum_offset and only keep
-> > CHECKSUM_PARTIAL when csum_start and csum_offset match a parsed TCP or
-> > UDP header, while handling VLAN headers, IPv4 options and IPv6 extension
-> > headers.  Complete other non-GSO checksums immediately, before any
-> > protocol processing runs.
-> > 
-> > We can't easily "complete the checksum" for GSO we don't recognize - GSO
-> > assumes knowledge of the protocol. We could segment ignoring the
-> > checksum then do whatever csum_start and csum_offset say, but that
-> > seems like an overkill for something that shouldn't happen.
-> > 
-> > There's some risk here:
-> > - non-gso packets which can't be parsed get checksum calculated in
-> >   software, adding performance overhead
-> > - gso packets which can't be parsed get dropped
-> > 
-> > Note that for zero copy, userspace can change the data after the
-> > checksum has been calculated.  This is fundamental to zero copy by
-> > design, and the only outcome is a bad checksum and a packet drop.
-> > 
-> > To mitigate the risks, the following patch will add a sysctl knob to
-> > bypass the resolution. This is reasonable if the setup is such that
-> > there is no protocol processing at all.
-> > 
-> > UDP tunnel headers get the same handling on the inner header.
-> > 
-> > Packets without VIRTIO_NET_HDR_F_NEEDS_CSUM are unaffected.
-> > 
-> > Note a fundamental limitation of this approach: an nf/BPF program
-> > that tweaks the payload of a packet in flight may rely on the
-> > checksum being fixed up later, assuming the packet carries
-> > CHECKSUM_PARTIAL.
-> > 
-> > For metadata that fails validation the checksum
-> > is now completed at input, so such edits leave a stale checksum
-> > and the packet is dropped at the receiver.  Protocols whose
-> > transport header we cannot parse (anything but TCP and UDP) are
-> > affected even when the metadata is self-consistent.
-> > 
-> > The sysctl added in the next patch is the escape hatch for these setups,
-> > but it is a very blunt tool.
-> > 
-> > Reported-by: Paulos Yibelo <habte.yibelo@gmail.com>
-> > Reported-by: Chris Arges <carges@cloudflare.com>
-> > Tested-by: Chris Arges <carges@cloudflare.com>
-> > Fixes: f43798c27684 ("tun: Allow GSO using virtio_net_hdr")
-> > Suggested-by: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> 
-> > +static inline bool
-> > +virtio_net_l4_start(struct sk_buff *skb, unsigned int nhoff, __be16 proto,
-> > +		    unsigned int *thoff, int *ip_proto)
-> > +{
-> > +	if (proto == htons(ETH_P_IP)) {
-> > +		const struct iphdr *iph = virtio_net_ip4_parse(skb, nhoff, thoff);
-> > +
-> > +		if (!iph || ip_is_fragment(iph))
-> > +			return false;
-> > +		*ip_proto = iph->protocol;
-> > +		return true;
-> > +	}
-> > +
-> > +	if (proto == htons(ETH_P_IPV6)) {
-> > +		const struct ipv6hdr *iph;
-> > +		int flags = 0;
-> > +
-> > +		if (!pskb_may_pull(skb, nhoff + sizeof(*iph)))
-> > +			return false;
-> > +		iph = (const void *)(skb->data + nhoff);
-> > +		if (iph->version != 6)
-> > +			return false;
-> > +		*thoff = nhoff + sizeof(*iph);
-> > +		*ip_proto = iph->nexthdr;
-> > +		if (*ip_proto != IPPROTO_TCP && *ip_proto != IPPROTO_UDP) {
-> > +			*thoff = nhoff;
-> > +			/* Find the transport header behind any
-> > +			 * extension headers, AH included.
-> > +			 */
-> > +			*ip_proto = ipv6_find_hdr(skb, thoff, -1, NULL,
-> > +						  &flags);
-> > +			if (*ip_proto < 0 || flags & IP6_FH_F_FRAG)
-> > +				return false;
-> 
-> Minor, not cause for respinning on its own.
-> 
->     `flags` should include `IP6_FH_F_AUTH` so `ipv6_find_hdr()` stops at
->     `NEXTHDR_AUTH` instead of skipping it:
-> 
->     - `CHECKSUM_PARTIAL` and GSO behind IPsec AH are invalid: AH authenticates
->       the inner L4 header including its checksum field
-> 
-> > +		}
-> > +		return true;
-> > +	}
-> > +
-> > +	return false;
-> > +}
-> > +
-> 
-> > @@ -368,6 +660,21 @@ virtio_net_hdr_tnl_to_skb(struct sk_buff *skb,
-> >  	skb->inner_mac_header = inner_nh + skb_headroom(skb);
-> >  	skb->transport_header = outer_th + skb_headroom(skb);
-> >  	skb->encapsulation = 1;
-> > +
-> > +	if (!skb_is_gso(skb)) {
-> > +		/* Too small to segment: complete the checksum in place
-> > +		 * instead of dropping - senders do tag small packets
-> > +		 * with GSO headers, e.g. packetdrill sets gso_type and
-> > +		 * gso_size with --mss, whatever the packet size.
-> > +		 * The outer UDP checksum is not calculated, but a zero
-> > +		 * one is fine: UDP over IPv4 allows a disabled
-> > +		 * checksum, and so do tunnels over IPv6 where the
-> > +		 * receiver opts in (RFC 6935, RFC 6936).
-> > +		 */
-> > +		skb_shinfo(skb)->gso_type &= ~(SKB_GSO_UDP_TUNNEL_CSUM |
-> > +					       SKB_GSO_UDP_TUNNEL);
-> 
-> Maybe this carve-out for non-gso packet is best moved to its own
-> patch, as that is where the remaining issues (to merging the rest)
-> seem to be.
-> 
->     1. Moving `!tnl_csum_negotiated` below `virtio_net_csum_partial_ok_at_offset()`
->        accepts packets with an unnegotiated `VIRTIO_NET_HDR_F_UDP_TUNNEL_CSUM`
->        flag whenever inner validation falls back to
->        `__virtio_net_resolve_csum_partial_mismatch()`.
->     2. `__virtio_net_resolve_csum_partial_mismatch()` calls `skb_checksum_help()`,
->        which completes only the inner checksum at `hdr->csum_start` and sets
->        `skb->ip_summed = CHECKSUM_NONE`, leaving the outer UDP `uh->check` with
->        an uncompleted pseudo-header checksum seed.
-> 
->     Despite the comment, this block neither completes any checksum in place nor
->     is the outer UDP checksum zero when `VIRTIO_NET_HDR_F_UDP_TUNNEL_CSUM` is set:
->   
->     - With `VIRTIO_NET_HDR_F_UDP_TUNNEL_CSUM`, the outer `uh->check` carries the
->       non-zero pseudo-header checksum seed (as expected by
->       `__skb_udp_tunnel_segment()`), not `0`.
+Xen PV guests update page tables via hypercalls, and Xen refuses to let a
+domain map machine frames it does not own, such as chipset MMIO in a domU.
+The set_pte() paths ignore the hypercall result, so ioremap() returns a
+mapping whose PTEs are not present.  Accessing the virtual address then
+faults.  This was seen in print_s5_reset_status_mmio() on Xen PV domUs
+on AMD Zen hosts.  The machine address is not accessible by the domU and
+faults on access.
 
-Oh yea i kept tweaking this and forgot to update the ocmment.
+Add a pv_mmu_ops hook, ioremap_verify_range, which __ioremap_caller()
+calls after ioremap_page_range().  It defaults to returning success.
+Xen PV implements it by walking the range with lookup_address() and
+failing if any entry is not present, making ioremap() return NULL.
 
->     - Clearing `SKB_GSO_UDP_TUNNEL_CSUM` on a `!skb_is_gso(skb)` packet leaves
->       `skb->ip_summed == CHECKSUM_PARTIAL` at `inner_th` with nothing completing
->       the outer `uh->check` on transmit/forwarding (`validate_xmit_skb()` only
->       completes/offloads the single inner checksum, emitting a corrupt outer UDP
->       checksum). Even zeroing `uh->check` would be invalid over IPv6 unless the
->       receiver explicitly opted into RFC 6936 (`UDP_NO_CHECK6_RX`).
+This also affects a Xen PV dom0: an ioremap() of a range containing any
+page Xen refuses to map (e.g. MMIO Xen reserves for itself) now fails as
+a whole, rather than succeeding and faulting only when the refused page
+is accessed.  Pages Xen forces read-only are still mapped present and
+are unaffected.
 
-Indeed.
+Fixes: ab8131028710 ("x86/CPU/AMD: Print the reason for the last reset")
+Link: https://lore.kernel.org/xen-devel/20251219010131.12659-1-ariadne@ariadne.space/
+Suggested-by: Sean Christopherson <seanjc@google.com>
+Suggested-by: Borislav Petkov <bp@alien8.de>
+Signed-off-by: Jason Andryuk <jason.andryuk@amd.com>
+---
+ arch/x86/include/asm/paravirt.h       | 10 ++++++++++
+ arch/x86/include/asm/paravirt_types.h |  6 ++++++
+ arch/x86/kernel/paravirt.c            |  7 +++++++
+ arch/x86/mm/ioremap.c                 |  3 +++
+ arch/x86/xen/mmu_pv.c                 | 24 ++++++++++++++++++++++++
+ 5 files changed, 50 insertions(+)
 
-> > +	}
-> > +
-> >  	return 0;
-> >  }
-> >  
-> > -- 
-> > MST
-> > 
-> 
+diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
+index 0591aa38fd85..30cb1d1636e4 100644
+--- a/arch/x86/include/asm/paravirt.h
++++ b/arch/x86/include/asm/paravirt.h
+@@ -495,6 +495,11 @@ static inline void arch_leave_lazy_mmu_mode(void)
+ 	arch_flush_lazy_mmu_mode();
+ }
+ 
++static inline int ioremap_verify_range(unsigned long addr, unsigned long size)
++{
++	return PVOP_CALL2(int, pv_ops, mmu.ioremap_verify_range, addr, size);
++}
++
+ static inline void __set_fixmap(unsigned /* enum fixed_addresses */ idx,
+ 				phys_addr_t phys, pgprot_t flags)
+ {
+@@ -557,6 +562,11 @@ static __always_inline unsigned long arch_local_irq_save(void)
+ static inline void paravirt_enter_mmap(struct mm_struct *mm)
+ {
+ }
++
++static inline int ioremap_verify_range(unsigned long addr, unsigned long size)
++{
++	return 0;
++}
+ #endif
+ 
+ #ifndef CONFIG_PARAVIRT
+diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
+index b4c4a23e77a1..674613301a83 100644
+--- a/arch/x86/include/asm/paravirt_types.h
++++ b/arch/x86/include/asm/paravirt_types.h
+@@ -164,6 +164,12 @@ struct pv_mmu_ops {
+ 
+ 	void (*lazy_mode_flush)(void);
+ 
++	/*
++	 * Verify that an ioremap()ed kernel virtual address range was
++	 * actually mapped.  Returns 0 on success.
++	 */
++	int (*ioremap_verify_range)(unsigned long addr, unsigned long size);
++
+ 	/* dom0 ops */
+ 
+ 	/* Sometimes the physical address is a pfn, and sometimes its
+diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
+index 00b59d774389..b1bc519c660d 100644
+--- a/arch/x86/kernel/paravirt.c
++++ b/arch/x86/kernel/paravirt.c
+@@ -88,6 +88,11 @@ static noinstr void pv_native_set_debugreg(int regno, unsigned long val)
+ {
+ 	native_set_debugreg(regno, val);
+ }
++
++static int native_ioremap_verify_range(unsigned long addr, unsigned long size)
++{
++	return 0;
++}
+ #endif
+ 
+ struct pv_info pv_info = {
+@@ -207,6 +212,8 @@ struct paravirt_patch_template pv_ops = {
+ 
+ 	.mmu.lazy_mode_flush	= paravirt_nop,
+ 
++	.mmu.ioremap_verify_range	= native_ioremap_verify_range,
++
+ 	.mmu.set_fixmap		= native_set_fixmap,
+ #endif /* CONFIG_PARAVIRT_XXL */
+ };
+diff --git a/arch/x86/mm/ioremap.c b/arch/x86/mm/ioremap.c
+index 12c8180ca1ba..6b45a7eef593 100644
+--- a/arch/x86/mm/ioremap.c
++++ b/arch/x86/mm/ioremap.c
+@@ -301,6 +301,9 @@ __ioremap_caller(resource_size_t phys_addr, unsigned long size,
+ 	if (ioremap_page_range(vaddr, vaddr + size, phys_addr, prot))
+ 		goto err_free_area;
+ 
++	if (ioremap_verify_range(vaddr, size))
++		goto err_free_area;
++
+ 	ret_addr = (void __iomem *) (vaddr + offset);
+ 	mmiotrace_ioremap(unaligned_phys_addr, unaligned_size, ret_addr);
+ 
+diff --git a/arch/x86/xen/mmu_pv.c b/arch/x86/xen/mmu_pv.c
+index 377c3c0d9f20..e524d318171f 100644
+--- a/arch/x86/xen/mmu_pv.c
++++ b/arch/x86/xen/mmu_pv.c
+@@ -359,6 +359,29 @@ static void xen_set_pte(pte_t *ptep, pte_t pteval)
+ 	__xen_set_pte(ptep, pteval);
+ }
+ 
++/*
++ * PTE updates are made via (possibly batched) hypercalls whose failures
++ * are not propagated back to the caller.  Xen refuses to let a domain map
++ * machine frames it does not own (e.g. chipset MMIO in a domU), leaving the
++ * PTE not present.  Walk the range to make sure every page got mapped.
++ */
++static int xen_ioremap_verify_range(unsigned long addr, unsigned long size)
++{
++	unsigned long end = addr + size;
++	unsigned int level;
++	pte_t *pte;
++
++	while (addr < end) {
++		pte = lookup_address(addr, &level);
++		if (!pte || !pte_present(*pte))
++			return -ENXIO;
++
++		addr = (addr & page_level_mask(level)) + page_level_size(level);
++	}
++
++	return 0;
++}
++
+ static pte_t xen_ptep_modify_prot_start(struct vm_area_struct *vma,
+ 					unsigned long addr, pte_t *ptep)
+ {
+@@ -2218,6 +2241,7 @@ void __init xen_init_mmu_ops(void)
+ 	pv_ops.mmu.enter_mmap = xen_enter_mmap;
+ 	pv_ops.mmu.exit_mmap = xen_exit_mmap;
+ 	pv_ops.mmu.lazy_mode_flush = xen_flush_lazy_mmu;
++	pv_ops.mmu.ioremap_verify_range = xen_ioremap_verify_range;
+ 	pv_ops.mmu.set_fixmap = xen_set_fixmap;
+ 
+ 	memset(dummy_mapping, 0xff, PAGE_SIZE);
+-- 
+2.34.1
 
