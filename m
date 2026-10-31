@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793414025;
-	b=c4BAxsR5qVPcBdM6yRzQ0EFqVoRyUnPC7N/rspjiJ9Lr0e1FXdovY2jc6FCp+5rkgGO4
-	 35Vp6UXvx9YYyyu9hAJu5q/1Ghr5rf/tCjaFLsI/GLnTdGvo2PzkZt0pwtCMPWWVyRi4s
-	 vWIqd/itoxSv1MKfPw0WCvHOk3zSKZCC1neMx6SZ0mgUFg6TQGtaVe/gPVnjCyq5q4nHN
-	 K37lMFu7dShWesPGffBdeK4hsjkX0xVeQSkXZQj1YM9AwIXEXcctN/Vg5vOaXKqvxSIcs
-	 jVr6h1ZA90JdSqJmTF4BjMrM8XyD05b/C2vBmaesDKbmFpa5/1yMIcJQM/bxeoz5K/A==
+	t=1793414421;
+	b=XVfYdX/jP+8ojocCDUjm89ERL6F1+cnC01vP5YsunX55Z9SIJGPuUXwuDvNsRnjOR6k9
+	 HhGwigHweEx93orf8tP34W0MxSNgwAhWoZOr4SS6pdZIyjLOQMgP6e21a43J+4Ci4G5H9
+	 HWToaJkmHev4fOSXO4wsRqGEbGFaR2O1Nq/TebN7BNhDsxUgUplCGKQfRrh9trHTmDE4b
+	 4JT0NqBUug6kG5QOSpiUY3t6XFtXwUmzGnmiSsYPEqww+fXhRM1LrGDiUuhSMNpDHEGQq
+	 McSgFfWrZcqZQOIaHsb7+FfiRfZpqKg7quRyKl+crDN0K7lX52iEl1p/iwwrMIY35lg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793414025;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793414421;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=+2YmNgTxUCd1mmnoHN9f3XT+yj7v2pBZQwwAbdhD1OY=;
-	b=HnPlqFiGKzXKbfD0MRor4muEciv+uDlQGIM/1VdDXMOdwNVHrJRZWg+t6ahKR+zzZ9k6
-	 1WmOXipPTDZ4uOSSO9ThMdXZLD4XNwgZaKJMHmss887BKvKzKjFcgyHuiQ17P41o8hss1
-	 eTc3L6INJYJYic37ODv9BQrVLN5jfVXuSVCjsFkXipkdHSjC45OODLLlrkPHmnkM3VPtY
-	 Zel7on0So4h5vzSHtKUQW+qGSqR0mU7rtfHJzlbwnyY4JPlVPzSaTyRX9+tqSmY3czhK8
-	 hHV95Zdt18beLjUsreHW4WtPV0UyaoS9hqq/x5oHjCPyk2DbjRUZ/WOv1KK+AUBNsAQ==
+	bh=ie604QrCR+zZtXWwu5izfC2HG3f7XZRXPUsgbMgl6v8=;
+	b=4J4gbuYCW8/VWV1SlhtsCplJllQqiAZ2NeA3dSWfdxPzdBcinjzG3S/iT6j2ytnltTWI
+	 /xYTU3l9pIueFDq/kU5/yv3mI30M77lTvLyBgUXswwlR+YjtQn0hjdahQGIz/Elh+J6sP
+	 ip6VTkpMEPmyp3gB2nnezJRFu9nqoGwBiqKyTqjgBDtoBkZY0uvERp9YHrR1sKeX+ZJLb
+	 vNuHoZPrnwa1+WHDTRLf8ZdrEuEjJBTLmFtMXVv23fP8oksmgCMMMZkNlGN3Eo+uuvCpW
+	 bnwM7Sss810lrCqhu8zzNUzA8fugiYqrUp8IeGzDaHcQIA2ew2pMVCbOxh76cgiW26A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UQhSXSLC;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fLwrhSZV;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A973606A31A
-	for <virtualization@lists.linux.dev>; Sat, 31 Oct 2026 02:33:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96664606A31A
+	for <virtualization@lists.linux.dev>; Sat, 31 Oct 2026 02:40:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UQhSXSLC
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31FEF1F000C1;
-	Sat, 31 Oct 2026 02:33:44 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fLwrhSZV
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E17B51F000C1;
+	Sat, 31 Oct 2026 02:40:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793414024;
-	bh=+2YmNgTxUCd1mmnoHN9f3XT+yj7v2pBZQwwAbdhD1OY=;
+	s=k20260515; t=1793414421;
+	bh=ie604QrCR+zZtXWwu5izfC2HG3f7XZRXPUsgbMgl6v8=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=UQhSXSLCwTj+pN+vbBh9tgKMaZ7umaftNJ3w+u6IMlODBxcEH7j8qbJGTzBFzzuBW
-	 qD1mbbNb+PX42+FAN+gNrAHzj+Y8RJ1JHPHftsQShPILKTdO3YVTm+KgxTm1rVu/lM
-	 z+gMxzSrNOXkXr1UJ4Cs7Kti33In3wG/JWrcGj49ZmqNVpALE8JGZEmerYD+wh2dn/
-	 WBLuzw58ySvisxlUmcSP0mgMIsWSlg+CDVrJpvpknobc33oHdG4wTzs1qRkV1VX+Uu
-	 a3HMH6K3X+QGewVhye4KpB0MPB2vQFJT4sWkVBPgWvr8AgYOARIMa6GfJS0TLHdf45
-	 qcmocLxowYdVA==
-Message-ID: <sashiko-outbox-191712@kernel.org>
+	b=fLwrhSZVzEiU2k7AMcJtBrGVtFn6XAZLkNhGikBZ48z70In7p9FoiIy72uMx6if76
+	 RJR1Fr0+S9dCyM7bVqNfgUi1WgteSQLr33nbeGGQYptK4KoHozLC2dosnh7Och99Nf
+	 D5t9OUlz/91eIrUUkXSJmoWvdqol9kN2m7MOyrUCqwwV2NfvrBJlWJ6y09Isho/eBc
+	 ZEP4JItUXNVpTdazhA8odXaWOiFsNRR+aHPAV+A/r1PJatO6t3QuNk0qCG6aSMR4rC
+	 zbdF8OuYh1ZOsgzmUeqHrbIz8SIQlOGN5d/kznd5TObJSJTIy3nAaEM9AuMbLvpp74
+	 meC47ayZDbOeA==
+Message-ID: <sashiko-outbox-191714@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v11 04/14] ALSA: virtio: Keep PCM DMA buffers alive
- through device ownership
+Subject: Re: [PATCH v11 03/14] ALSA: virtio: Retain queued messages through
+ device reset
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Joonho Lee" <mynameisjune111@gmail.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261031020855.2402-5-mynameisjune111@gmail.com>
+In-Reply-To: <20261031020855.2402-4-mynameisjune111@gmail.com>
 References: <20261031020855.2402-1-mynameisjune111@gmail.com>
- <20261031020855.2402-5-mynameisjune111@gmail.com>
+ <20261031020855.2402-4-mynameisjune111@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 31 Oct 2026 02:33:43 +0000
+Date: Sat, 31 Oct 2026 02:40:20 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,28 +62,24 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> Retain references to the pages backing ALSA's vmalloc buffer until its
-> queued I/O messages are freed. On NOMMU systems, use driver-owned memory
-> for DMA and copy playback data before submission and capture data after
-> completion, so ALSA buffer release cannot invalidate an active request.
+> Keep the control queue available through snd_card_free() so close-time
+> STOP and RELEASE commands can still be submitted. Block new control
+> requests and mark pending messages canceled before reset, then release
+> their queue references only after reset and queue deletion.
 >=20
-> Validate the PCM buffer and each period before building scatterlists.
-> Clamp device-reported capture lengths to the message capacity before
-> advancing the hardware pointer, preventing an oversized completion from
-> accounting bytes beyond the buffer actually submitted.
+> For PCM queues, detach each remaining virtqueue buffer after the device
+> has stopped DMA and retire its message without reporting a normal
+> completion. Detach all queues before deleting them so outstanding DMA
+> mappings are unmapped and no token remains for a late device completion.
 >=20
-> Require whole-byte periods whose total matches the negotiated buffer.
-> Check offset, length and the final message index before indexing the
-> message array, including empty transfers and arithmetic wraparound.
+> Clear each queue wrapper inside the same critical section that detaches
+> its buffers. Check the callback's queue identity under the wrapper lock
+> for PCM, control and event queues. This makes queue retirement explicit
+> through teardown and restore. A forced callback test passed on both
+> versions; the proposed detached-ring IRQ failure was not reproduced on
+> the tested PCI transport.
 >=20
-> Seed the ordinary capture ring once per prepare. Native STOP preserves
-> queued requests and unread samples, so PAUSE_RELEASE must retain their
-> ownership. Re-enqueuing the entire ring adds another period to pending
-> message lengths and exposes unread DMA slots to the device. Return
-> consumed space through the existing indirect ACK path.
->=20
-> Fixes: f40a28679e0b ("ALSA: virtio: handling control and I/O messages for=
- the PCM device")
+> Fixes: 9d45e514da88 ("ALSA: virtio: handling control messages")
 > Assisted-by: LLM
 > Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
 
@@ -91,5 +87,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261031020855.2402=
--1-mynameisjune111@gmail.com?part=3D4
+-1-mynameisjune111@gmail.com?part=3D3
 
