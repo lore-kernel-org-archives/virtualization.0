@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793414427;
-	b=mhfBddcogeB2NCyzk+D4LjyatScnlxCTNwE39XHV4iDYR01JCCNK8GoCx+cqJLG8k2YV
-	 khCyoYQbJyvQbJfjVRPtNM+ssyExys1VHrELJn4hHaElVAQ56cFwAUifl1gKqfGfi2J8i
-	 HABglLvV2hRVUKUj9b/MixLX2vVcoNZHJ8Un9rHlC7GZXxpeUgEAn6jhqHI7ec4yph8hF
-	 UvCH4/ZzSv2n4NYZpANCACqwfBezmPJT0JpY3gSVrdUfvQfCAU1e4EbTgq3RNjq8ClmZe
-	 CPkBzJwGTVftxFeYF8zz2v3DP4zNOEVj0xp0kzqdw32bFvZDgFVPm0uVIeARyR/38BQ==
+	t=1793414569;
+	b=R3DixWEGjTfzZxA5JiAwlGvlLo4O4Zx9cM/hptBheO0bIoBP76WIpSi5969THIx3iZpq
+	 1IrnLM2+b66yS/oJbJfDQL+aUJIMOna4QQ9LQNGAKdkt8QhCHXKvZ7pQh/e0RRB6cz1hk
+	 mxQDN1uKaZPCXn+6pFXt7zZ7TFWfWYaSINucjX6/QkvSTs3Iuk5OGzJ6tlqsNA0KdLTAu
+	 t8OVratXe0TKsBoc4pYyvMwYXcyYgER8RkYoXyEOP3QRXoF+PFQjgwMAZkoa1G9MHqnaa
+	 6cfhWCNq3nSeMXW/RF3UR1ZsBpktzmp+pvqtVsdMVa9DGJM26RASidBROD7QaBAOwnQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793414427;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793414569;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=bXehV2Le+7bNAwDhSSVOo7FVY6vJukWMJ2YirnPbG8s=;
-	b=4S2gKs/zBTe0bUQfiW5nq6zdhQ6tfGYQBPMPaRV8+PaeUukARaLvJdmQDjUY0F9vl68g
-	 BabfpzhZFxLLm/lbGlAeg82IHhhg0DTEjvbtFtaTOylzCp1YYu2juKKfaRJgnHd59S2Rl
-	 1NmpHBZGTIO9O/+0AgU6nlqIFXQig9xh2gA43XipINv33z1IVuJA+Mnf7H9/JM1xpQjXh
-	 2JKdgRPQJbNqVSryPyk9Qz5e9TRos97H9sUgSuEAMAJHI0M/spGPG3Jno2niT4mdkz1Ox
-	 lc1JZm7j78S4efBr4kkQiSj7g9muHZKAN/0JyrHpa5vg7FUahH6V17TK2HTkGS50I7Q==
+	bh=baCOq91cROc2B6skxH5D5/iBrGJUeVBfpY89A9U787w=;
+	b=mIGoZngdsrOL7D4m4yQE4tPKR3RmE6EGBxHK9VdkKRkPo5+8Id8SHW5TEH/EFMzGu3H4
+	 pFZnyeqMEC8/7mAu3ec39mknOI/gZJQPFrNfGiN3b9S6E59bUalri2vE7ECggYQu6nfsa
+	 TGMTkHAgjYm3T744r8VzTfLPzU4rnuqZjbn/Li2vOGIQzsDpuAo/Sy6tiCmWfBJ+tsR9Y
+	 xvNqEerplo6lh34wZWbhuTgYsCoHJHtmaHxB8sTPXry8qdM6SVH5tzHvORWZfz/rvc37c
+	 bxtw2sSlH29+Pno9TX9TKMpSQKQrothto3PoZ3CNxpKx5kJ7rxBZBP58wbiLOvuEhXQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cmp1Tzm0;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ccy96Ydy;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4293A606A31A;
-	Sat, 31 Oct 2026 02:40:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D5F5606A31A
+	for <virtualization@lists.linux.dev>; Sat, 31 Oct 2026 02:42:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cmp1Tzm0
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 940B01F000C1;
-	Sat, 31 Oct 2026 02:40:26 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ccy96Ydy
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA71F1F000C1;
+	Sat, 31 Oct 2026 02:42:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793414426;
-	bh=bXehV2Le+7bNAwDhSSVOo7FVY6vJukWMJ2YirnPbG8s=;
+	s=k20260515; t=1793414569;
+	bh=baCOq91cROc2B6skxH5D5/iBrGJUeVBfpY89A9U787w=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=cmp1Tzm0hif86sUXUz1eMmHoKOcINxLf8lie5hgI6dwD0oub+e9XsEgqteMXCRgRh
-	 tconvsQ1FvHWhdJIHwUR4/RP6+ZP6squYIvxqL+xxg4rRuGxI2R2cNSZHcepeQ94Gg
-	 4iDK6k6h+FD6iVSIuixtxVHuP2LnvU61uWxkl/dEOK8bOXeFkXOxES1DioYSe636Bz
-	 27uANcCs+zC25tSUZMRbNmkICtkk5KwlRRU7viTaN9Eppn/iQy4K/qR9VXlLxGQ7ne
-	 RAw93NeLYubyC0CQNOi1L6FAPD3ZWvRv1XypLgX44hKj2NOalMmxxSk2HugTFQmXoJ
-	 8KAJ/nLDVdkAw==
-Message-ID: <sashiko-outbox-191715@kernel.org>
+	b=ccy96Ydy3z2h+CwxctK9k35cA7Ib31W2y7CHDUZN1AuztCSJi15TKWS0RVp/+xhKe
+	 jydXwBvx49CAXxrQf7ifTbNYYIILPzds8YdddrSPcdQjHm/xX0MUfyTd132fKKYkgC
+	 MdIxxj3ZU7+4lwfVeTJIIvN7QDr0aG/8xHN6K0+Xccv9vD38XHVcg2kfG0C2QaUstO
+	 O8gWnaUVgoRc/Wn8FIgBKPGsPTsXae5O1PbC76Z5TEwwGMAjvbtqZkiRJNQPZr7Tiu
+	 hjzTQLzb8ICVPmUYq75CoooJ/xadQK7Zet0TTBcd5dZTrd/lj7ZckB4Y+Q9grBJkX/
+	 1wXLiafp9d9dw==
+Message-ID: <sashiko-outbox-191716@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v11 14/14] ALSA: virtio: rebase ordinary capture
- accounting on RESET
+Subject: Re: [PATCH v11 13/14] ALSA: virtio: synchronize staged capture
+ accounting during RESET
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Joonho Lee" <mynameisjune111@gmail.com>, linux-sound@vger.kernel.org
+To: "Joonho Lee" <mynameisjune111@gmail.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261031020855.2402-15-mynameisjune111@gmail.com>
+In-Reply-To: <20261031020855.2402-14-mynameisjune111@gmail.com>
 References: <20261031020855.2402-1-mynameisjune111@gmail.com>
- <20261031020855.2402-15-mynameisjune111@gmail.com>
+ <20261031020855.2402-14-mynameisjune111@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 31 Oct 2026 02:40:26 +0000
+Date: Sat, 31 Oct 2026 02:42:48 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,122 +62,28 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Medium] ALSA: virtio: stale pcm_indirect state after RESET in PREPARED s=
-tate
---
+> Use the locked PCM reset operation for staged capture. Reclaim RX space
+> at the same locked pointer observation used by the common reset and keep
+> completions arriving after that observation. Rebase the notified-period
+> counter there to avoid replaying old period notifications.
+>=20
+> After common pointer mutation, finish the matching core rebase even if
+> refill fails. Latch XRUN and schedule notification. RESET can return zero
+> before the asynchronous error is visible; userspace still needs ordinary
+> XRUN recovery. A nonblocking read can initially return -EAGAIN and later
+> -EPIPE. This avoids leaving core and driver positions partly rebased.
+>=20
+> A forced 90 ms RX interval reproduced -EPIPE with the earlier accounting.
+> The corrected sequence matched the next 48,000 deterministic frames and
+> passed reopen. Linked RESET and prepare partial-failure fixtures also
+> passed with atomic and nonatomic stream locking.
+>=20
+> Assisted-by: LLM
+> Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
 
-commit c77024b62d8010ad66e1fdcc36816a226c5bcfcc
-Author: Joonho Lee <mynameisjune111@gmail.com>
-
-ALSA: virtio: rebase ordinary capture accounting on RESET
-
-This commit introduces virtsnd_pcm_indirect_reset() and
-virtsnd_pcm_capture_indirect_ops to rebase ordinary capture indirect
-positions and return discarded RX space when SNDRV_PCM_IOCTL_RESET is
-called. It also suppresses nested ACK refills during the RESET pointer
-observation and updates the period notification floor.
-
-Link: https://sashiko.dev/#/patchset/20261030052629.27742-1-mynameisjune111=
-%40gmail.com?part=3D14
-
-> diff --git a/sound/virtio/virtio_pcm_ops.c b/sound/virtio/virtio_pcm_ops.c
-> index f350d0c753763..9af0813acd77a 100644
-> --- a/sound/virtio/virtio_pcm_ops.c
-> +++ b/sound/virtio/virtio_pcm_ops.c
-
-[ ... ]
-
-> @@ -1761,6 +1769,89 @@ static int virtsnd_pcm_sync_stop(struct snd_pcm_su=
-bstream *substream)
->  	return virtsnd_pcm_sync_stop_locked(substream);
->  }
-> =20
-> +/*
-> + * The PCM lock covers indirect accounting and core completion. Once lib=
-_reset
-> + * changes hw_ptr, complete the core rebase even if refilling fails. The=
- latched
-> + * XRUN rejects subsequent pointer/ACK operations; the worker publishes =
-XRUN to
-> + * paused streams too. RESET success therefore does not imply stream rec=
-overy.
-> + */
-> +static int virtsnd_pcm_indirect_reset(struct snd_pcm_substream *substrea=
-m)
-> +{
-> +	struct virtio_pcm_substream *vss =3D snd_pcm_substream_chip(substream);
-> +	struct snd_pcm_runtime *runtime =3D substream->runtime;
-> +	struct virtio_snd_queue *queue =3D virtsnd_pcm_queue(vss);
-> +	struct virtsnd_pcm_transfer transfer =3D {};
-> +	snd_pcm_uframes_t paused_ptr =3D 0;
-> +	bool paused =3D runtime->state =3D=3D SNDRV_PCM_STATE_PAUSED;
-> +	int rc;
-> +
-> +	/* Only PCM-locked callbacks access this observation flag. */
-> +	vss->indirect_reset_observing =3D true;
-> +	rc =3D snd_pcm_lib_reset(substream);
-> +	vss->indirect_reset_observing =3D false;
-> +	if (rc)
-> +		return rc;
-> +	guard(spinlock_irqsave)(&queue->lock);
-> +	guard(spinlock)(&vss->lock);
-> +	if (vss->resetting)
-> +		return 0;
-> +	if (vss->xfer_xrun) {
-> +		virtsnd_pcm_transfer_failed(vss);
-> +		virtsnd_pcm_schedule_period_elapsed(vss);
-> +		return 0;
-> +	}
-> +	if (!snd_pcm_running(substream) && !paused)
-> +		return 0;
-
-[Severity: Medium]
-Can returning early here when the substream is in SNDRV_PCM_STATE_PREPARED
-leave vss->pcm_indirect.appl_ptr and vss->pcm_indirect.sw_ready out of sync
-with runtime->control->appl_ptr?
-
-While in SNDRV_PCM_STATE_PREPARED (where vss->prepared is true and
-vss->stopped is false), userspace can invoke SNDRV_PCM_IOCTL_SYNC_PTR
-without SNDRV_PCM_SYNC_PTR_APPL to advance appl_ptr to N:
-
-  snd_pcm_sync_ptr()
-    pcm_lib_apply_appl_ptr()
-      virtsnd_pcm_cp_ack()
-        virtsnd_pcm_cp_ack_locked()
-          snd_pcm_indirect_capture_transfer()
-
-which sets vss->pcm_indirect.appl_ptr =3D N and
-vss->pcm_indirect.sw_ready =3D -frames_to_bytes(runtime, N).
-
-If userspace then calls SNDRV_PCM_IOCTL_RESET in SNDRV_PCM_STATE_PREPARED,
-snd_pcm_lib_reset() sets runtime->status->hw_ptr =3D 0,
-virtsnd_pcm_indirect_reset() returns 0 early without updating
-vss->pcm_indirect, and snd_pcm_reset_substream() resets
-runtime->control->appl_ptr =3D runtime->status->hw_ptr (0).
-
-When the stream is subsequently started and virtsnd_pcm_cp_pointer() or
-virtsnd_pcm_cp_ack() runs before appl_ptr reaches N,
-snd_pcm_indirect_capture_transfer() sees diff =3D appl_ptr - rec->appl_ptr =
-< 0:
-
-  if (diff) {
-          if (diff < -(snd_pcm_sframes_t) (runtime->boundary / 2))
-                  diff +=3D runtime->boundary;
-          if (diff < 0)
-                  return -EPIPE;
-
-causing a false -EPIPE XRUN and a dev_err() message in
-virtsnd_pcm_cp_ack_locked().
-
-Should virtsnd_pcm_indirect_reset() also reset vss->pcm_indirect.sw_ready =
-=3D 0
-and vss->pcm_indirect.appl_ptr =3D runtime->status->hw_ptr when not running=
- or
-paused, similar to how virtsnd_pcm_reset() updates
-vss->pcm_indirect.appl_ptr =3D runtime->status->hw_ptr?
+Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261031020855.2402=
--1-mynameisjune111@gmail.com?part=3D14
+-1-mynameisjune111@gmail.com?part=3D13
+
