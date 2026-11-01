@@ -1,86 +1,86 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.217.43
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.180
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793545049;
-	b=1i/KY8RVfVUCw5HpaGVl/X2fVJ8qJdLg6idCyqF6xxjzxte4us1Kwv8DLgFJWIvqirTV
-	 OW5MLBJtsG6nJ9h9iQS1y96ZIK4CoEobN5FMNJsWfoM7Am6II52IvjXJNl8t23cm0//T4
-	 d5+2HCWdzW8AEDALvzGHv7H/HM1rHibhPEQq5aiu0BREsDkoNCrt/7SeVD3K9ZWaemPof
-	 P6zcn8eVjCGSWdlQnfehSqrtsnJEwLwLnrHh1itTz9cmsfeTeNy7irRABBe1i0Q+aA0N+
-	 oXlGEAIjIWLNZPEugOTbP59jelMZpsLwOCfDJgQTgucq83WsmFjHOiw9H2dcBJWsNJw==
+	t=1793545477;
+	b=aOpXoPl4rDi8Y8axD++YkyumqaN9GnfTtHHaorIaj+oCDRZxtEQMIIETBwCGS5lZx+oa
+	 YptTkDFxlFValrEqKhUo5MO68Ccj2Tsa7yZz51Ks2kPiw13Yu+fHykxu/5Cp8wqjlYk/p
+	 W2+iB4wXWbJfvwvMqV9DV1sDcETCkAPTZEeA970SjyFMUCxtRTQXUbrL0ZpnOP5e6JvQs
+	 MLwHhJz3qZiTYrmDwvvN60SHNf1chtDOP16R8icjLynsCEKtrgA0mtxFr0VdUbwjL4RHV
+	 gj6Tsu5D9+pCdl2tIEvgWM0CE8WLTb2Uw4h+J7B1ycRnpO2lZHRcN/i6+AKKI256gyg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793545049;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793545477;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
 	 MIME-Version:Content-Type:Content-Transfer-Encoding;
-	bh=PGMqY+oZ0RvA46OKAo95DoA/lt7CWx4VsMgHlnaoQfk=;
-	b=YdzwsnKQdWJNLrZyyG0+k2t+UCVRemjkc9H6HIdi7fEmz80qemsJ7T1FfAhSb38vqSMS
-	 sdKaty1JAgxoELZBcWQiw5TUeEBrg1fft/A02sUPcFeKAk64OGaaqljs+FByDMnnWFzz3
-	 XqUwU5Y5X8BHySA7udlxWM2JqswQbNp4OafcVqedxixCB5auOPM/+isGObhtaR9X/xPBH
-	 JmW/0N6zau7ONAMoqtgyULHOqt+DNApNCda2Iy5/4+SVecisHF8FntURpydREDjmbj3Ub
-	 d5UUNY8aKaCz5Yz+YNdnJcVeLNKkwA4UE5RDCpFVmzjXWCBxzVGToqK+K1i37zB7y7g==
+	bh=LTpJszTPfdrFGTPrUWviGsFCLOFVk1Llppz1WHIBDvc=;
+	b=wDoay6Wj8k/cPC5qZc7yotPcR/s76TQWMLWvC70W/5qgKNROyhlhyWz0pxql4E4FBNxP
+	 nzVnmky8d7XsyqLifI6Fs0WSvCxhhwisov9APBovfVux3b4nTgpTQ7aXtiHxoNAuK+S0X
+	 UhWAccUH7mbpthc/4GlbJpsfRKXp7YWhfJ5eSnIrdWIChSruLcN82fHrmVVpRBepI2lXJ
+	 G12LjBR99npQ1g8YEoh+2s/ltYMB3wf4Md0us9WeH/8KUE/j9oCg+zJCXrgVh9VzgFPjW
+	 oMDD1NCxLmnll3t9Celxdthr0PoHAT6sGqTywE6Mh4KlEHY93HrdpBTQek+HFv5k51A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=gmq5HQwz;
-	arc=none smtp.remote-ip=209.85.217.43
-Received: from mail-vs1-f43.google.com (mail-vs1-f43.google.com [209.85.217.43])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=ptUeHBZY;
+	arc=none smtp.remote-ip=209.85.221.180
+Received: from mail-vk1-f180.google.com (mail-vk1-f180.google.com [209.85.221.180])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05251606A325
-	for <virtualization@lists.linux.dev>; Sun,  1 Nov 2026 14:57:28 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 05251606A325
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6350E606A324
+	for <virtualization@lists.linux.dev>; Sun,  1 Nov 2026 15:04:37 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6350E606A324
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=gmq5HQwz
-Received: by mail-vs1-f43.google.com with SMTP id ada2fe7eead31-7cc0e865dd1so701724137.1
-        for <virtualization@lists.linux.dev>; Sun, 01 Nov 2026 06:57:28 -0800 (PST)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=ptUeHBZY
+Received: by mail-vk1-f180.google.com with SMTP id 71dfb90a1353d-5ead32bc7d8so1200923e0c.1
+        for <virtualization@lists.linux.dev>; Sun, 01 Nov 2026 07:04:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793545048; x=1794149848; darn=lists.linux.dev;
+        d=gmail.com; s=20260707; t=1793545476; x=1794150276; darn=lists.linux.dev;
         h=content-transfer-encoding:content-type:mime-version:subject
          :references:in-reply-to:message-id:cc:to:from:date:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=PGMqY+oZ0RvA46OKAo95DoA/lt7CWx4VsMgHlnaoQfk=;
-        b=gmq5HQwzHCCgRPdFxXYzD1DKal9QpHbObb16JjD/M/Ok5Je55jGZz8iwD9FQ3Ujqke
-         sLphPijbfpkoJdHatwvriGEGNvPhiKeYZ/ndJhKOWHIqvSAdRn4SO/VgyNjeqRy+9WEd
-         qCFFvTrU6MTKwxBCQcruPzPEuOHu3xMDMEq5DybMwvzn09ykCoL4bosH6iztXCl9AnXc
-         vK94KJHLt4rdUshA8HfFukfEG/jKLHPq5SwJoq3IGw68+R6c8o/5Z2+qNZ7iVAstp588
-         XEyEVSFBaA4h/0ZB8YVaVqfb6a8uNb/nyE/Aix0RYdGJS5yUpEURVv/kegrSh4mPtBKd
-         RW4g==
+        bh=LTpJszTPfdrFGTPrUWviGsFCLOFVk1Llppz1WHIBDvc=;
+        b=ptUeHBZYTGeZzyYnA4JUgLw0cQ/XSYWZrCrXMrO+t6EEONTh0PbP1QIRH4aQeUIkWd
+         YlBD6ph5zEwzPs98V9USLMwA7arphyB6So6/XhQlU8lkP3Zyr98j6PbFNGx2LGiNjPJb
+         xBgE3ekhtXP/xLteBpMh/Tns/GGnZ/QrnrMzL8V332KXWJ2jZRjo5GCAMkPcT7+sJ5Iz
+         DDVUQApnRiAW4qiIa/7M5G/HTeuBwlUGkppS7SPATvC383CH9JuJzydZe00CLbuIy06m
+         Qoz6USJ/5KV/8D4oIiZszwQPeQ+D98poNzsR2IK4EkSasAE4CjTfvuxVxLTrSN5M431G
+         PQsQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793545048; x=1794149848;
+        d=1e100.net; s=20260707; t=1793545476; x=1794150276;
         h=content-transfer-encoding:content-type:mime-version:subject
          :references:in-reply-to:message-id:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=PGMqY+oZ0RvA46OKAo95DoA/lt7CWx4VsMgHlnaoQfk=;
-        b=sCPHHqteedOu9fTjRRERUw8PwR7w++eXshBTtL7J1e6b+UAdAXDt6v2PjzjJ6sP1H+
-         3iDin8CAa+MZKWhSHQYYkdImdTotrg8X13ZqNtLceiA9j4BjgQ2ZLQLgGOrNbYhf9kMS
-         f8wPhrPqu6iSdwqxxaUI0iENZ0ujXhqRyKdE6Bf87g3dKyTMWTLL2A/P7X/V0Kwq6BF5
-         wJr7nmhtdBt6rt2CJRW55lTOix1/qy+WsNOZJrB9FbSeMej6liaARPZhl+0YF/M4k04f
-         V6J6iX6TL1KjNo8tsvY+b8UBuS678pm2I2acefFYAFUx72f+3NtaT13wCA5FWkyz44vn
-         RyQA==
-X-Forwarded-Encrypted: i=1; AKwUvBxDRd8IPiUFMOaST7jw2m1Wa3prrOw0zkCOaCxHWhFfFhkBzEXrDGTcVMfvJQ2ahD93bYOxwgOPy3ZiSYqofg==@lists.linux.dev
-X-Gm-Message-State: AFq9FYJ64cvnsbIxiFxh+AKj207LeddQg6MaeXo8vxUJjYuZwuFvSgLe
-	OfinqGg/oyKZe6etqIsPJ9s8h3Qz9DAG6iy1RdZ8cngW43xbfkQXLnkv
-X-Gm-Gg: AYBFou1mKSsv2M3+F6aLQWuM9lOI6x8wCEtjHpdq4cXOJ9U4LghRaM7mQYaRfCxgw4F
-	cCBxfN6XLEMH8IyzQjme4GFscryW4yTioQycZaTIFVnpMu1XAxkcJyAzjF8VkBxw55Vg3ji7N9M
-	QRfplbz+J3wokANyvAmmK79fAbUCQkX+pXGFVwKUw7+loGiFVrfte/4iMpQ9n6iVoYUaMQy2F0O
-	FI7OKzaH6rrfiph8lQLERMM9x2jgipYHhG3pUQQ8N4Nu04kLeFXsHNIhn2MGCdYClK9EqIbuEQN
-	GQt+patMRf/FYS5ZEHaphSb83Y/8Euau+hLewMFnwLMfexSg3yxaS65nIUwMwP1cFQ0vk3KfszY
-	LKvatZQXVO/owGxYQybaUIa6rOTrmXdUwIqR7dsnL09ZK3+95hqAfN+qz6nWtjfVOWgJNslI3LN
-	BUfbRAz+ZR3by1NKUM/CTNdo36lE1VmKiu1tGYha0TFLnTGEUiVn/Z5/fFPyAIJbP1OAitlZxmI
-	Xebi+zKWndHPp8EvlEEzBPidecsvPDB5Y94PlbTLzwIUxXExk3ac7GVfAiZkinZQ6f2ujELKSUn
-	yCzD9GCyt4UoLw+S27phR8jsEhxZ38d4Cwl0HVXZiIxOsr+whDyqlFrzqfk/xzgw8FaWo5IbgYU
-	AX2CW5W5ZlYN2xhAllPK6/W7HXvonpne9bcapLxteyN8d8qWugWfRzsgwS8WroE5huGQ7
-X-Received: by 2002:a05:6102:5709:b0:7c1:f530:2d8e with SMTP id ada2fe7eead31-7d072d33bbemr3289437137.35.1793545047921;
-        Sun, 01 Nov 2026 06:57:27 -0800 (PST)
+        bh=LTpJszTPfdrFGTPrUWviGsFCLOFVk1Llppz1WHIBDvc=;
+        b=NSoUt50E1o0dOWJx5ox/4y+lKqvL5OmY9uAfJ2OUxmi1CCbcDws4WnAGMSrNFjyzrN
+         5kKVaNHpjvb07uNEsKX2lXVK3a/3L+pdpXp5jp4G4i9aMJi0CjLCRtplujZGKJQZYZNZ
+         0KagR1IlErd43p66CSLbY2eyfW44PZqpspmL+QeMZUpMM5NTmybUyPccYYWtWJcnSPav
+         vMnGPD18fC+ZTGXIp6L7nRqsntAz70nb4kRElLJrRQCObpYfCzDqS7zLRchlSUMykBfH
+         xAJXZS3Rn86MqINIdjEoAm9V1Z42avSlo6Y/ARuaHvHq3jH5tXRU4PhoaXCeCkFwkflN
+         O9IA==
+X-Forwarded-Encrypted: i=1; AKwUvBy2Z5pijaxn37e2WuqSE8lbfYnMPRuy3C7Vt3NYABfcwJsupHcvtio+dtxaPTbV62gtrc6d5T4Mj+OMpjVX3Q==@lists.linux.dev
+X-Gm-Message-State: AFq9FYKKyU+/xnBDKEyTyNEesnRhwVGmR05A7pBhmTkcxtEJiF1T+mdW
+	QgtxcrGhURS+NdRI/2Jl72e4U4kEBVNaFg88cVGyjPrajs9XYGPMYnt1kl0E2Q==
+X-Gm-Gg: AYBFou1SslmWWfb8bJyiabtpzB6p7LfiG0h9I/aaxwzSbzd7nMeHNpK5lqg1NRgGq/o
+	36VF5IUa889U0jmoMdpnqmWQBThODybFAlvqFrAfgiG7bP3blSxuXZ5k7vJK5JROj1B136b5Qo2
+	NwbHMY6a5EEGHM57GNUmQZduFRYzNUJa/2wLcbBWAhDx/qVNLYeHHvT8ERssjK8UEcW1WfLG5ZO
+	YQzI+Bsm3aGuZ9JAJqxp2wInGcVa2yf0XXcoCMKjg7rSiwc8I5dWMYSN1JEktREiQVyiWo5pjeE
+	wr+rNe5fWOYNZA0VQq1wKxCNaibU97COGqzrIMTX+dN4EkJwo5/ULAeEfzASPRpzzXKhUboAaQk
+	V/azb0lf+7kJZ87ARdIs16DtsnHFYaTBE3Fth8X8USq8uNNa45DQpVmqiVTZ0NA39QtzeAG1bUm
+	gmQ3R4n69hLlAeGVFEP0E3i6WzrKO8XjouVRsd1q0/SDi6zd/bmcTLiRwM9xDl5goIYVxjR/KQg
+	YsHR1hm/J5N1La5fYvUClMmoNwoWFt3dKmXosI1lz8fX4blt3NSpIxoGcbBKJ/dQvsbX+KeDZr9
+	ANwDh+dVkAMlNwltxIcmtJDg+6S9ZIckUW8yBbWlmgNETzgoBxb+qubgKfQ08SBiH50IqpcXZ9q
+	DpStU14OloqKKTAa/1ZbcTFkDVnwd/SEH6DmsH4FkfhEMikGOeLTjCHaE6tzrflbVpEIZ
+X-Received: by 2002:a05:6122:e46c:b0:5e9:6d96:a598 with SMTP id 71dfb90a1353d-5ec68953084mr3744746e0c.6.1793545476321;
+        Sun, 01 Nov 2026 07:04:36 -0800 (PST)
 Received: from gmail.com (111.46.245.35.bc.googleusercontent.com. [35.245.46.111])
-        by smtp.gmail.com with ESMTPSA id a1e0cc1a2514c-992edfb5511sm9722277241.0.2026.11.01.06.57.26
+        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-5ec69c5389dsm8369176e0c.12.2026.11.01.07.04.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 01 Nov 2026 06:57:27 -0800 (PST)
-Date: Sun, 01 Nov 2026 09:57:26 -0500
+        Sun, 01 Nov 2026 07:04:35 -0800 (PST)
+Date: Sun, 01 Nov 2026 10:04:34 -0500
 From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
 To: Steffen Trumtrar <s.trumtrar@pengutronix.de>, 
  "Michael S. Tsirkin" <mst@redhat.com>, 
@@ -105,10 +105,11 @@ Cc: Steffen Trumtrar <s.trumtrar@pengutronix.de>,
  linux-kernel@vger.kernel.org, 
  bpf@vger.kernel.org, 
  kvm@vger.kernel.org
-Message-ID: <willemdebruijn.kernel.1d6388f036c46@gmail.com>
-In-Reply-To: <20261026-v6-7-topic-virtio-net-ptp-v4-0-008af03cd43b@pengutronix.de>
+Message-ID: <willemdebruijn.kernel.2adf5c78ee0e8@gmail.com>
+In-Reply-To: <20261026-v6-7-topic-virtio-net-ptp-v4-2-008af03cd43b@pengutronix.de>
 References: <20261026-v6-7-topic-virtio-net-ptp-v4-0-008af03cd43b@pengutronix.de>
-Subject: Re: [PATCH RFC v4 0/6] virtio-net: add receive timestamp support
+ <20261026-v6-7-topic-virtio-net-ptp-v4-2-008af03cd43b@pengutronix.de>
+Subject: Re: [PATCH RFC v4 2/6] virtio-net: support receive timestamp
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -120,149 +121,156 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain;
  charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
 
 Steffen Trumtrar wrote:
-> This series picks up Willem de Bruijn's work on a virtio-net receive
-> timestamp. The device puts the time of arrival (TAI, ns) into the
-> virtio-net header so the guest can use it for PTP and RTT estimation
-> without taking the timestamp itself after the host-to-guest latency.
-> =
-
-> The series is an RFC. I am mostly interested in feedback on the
-> approach and on the wire format:
-
-At a high level +1 from me.
-
-Some comments inline.
-> =
-
->  - The timestamp is a new field at the end of virtio_net_common_hdr
->    after outer_nh_offset and ipsec, offset 32 (see virtio spec),
->    negotiated with VIRTIO_NET_F_RX_TSTAMP (bit 49). Header size now 40
->    bytes.
->    Willem noted on v3 that virtio_net_common_hdr was not meant to be
->    extended this way; I kept it as the simplest approach, but a
->    separate struct for the timestamp header is an option.
->  - Timestamping is enabled at runtime with SIOCSHWTSTAMP; all
->    supported rx filters behave the same for now.
->  - XDP programs can read the timestamp with
->    bpf_xdp_metadata_rx_timestamp().
->  - vhost-net passes the feature through; the timestamp itself is
->    written by tun. The tun patch is only meant as a reference
->    implementation for the device side.
->  - The timestamp is in TAI.
-
-Is this a requirement? It is common for PHCs to be synced to TAI,
-but not 100% the case. Does virtio need to specify this.
-
->    The driver reports it as
->    SOF_TIMESTAMPING_RAW_HARDWARE without a PTP clock (phc_index -1),
->    so userspace cannot tell which clock it refers to and may compare
->    it against CLOCK_REALTIME (currently off by 37s). Options I see:
->    convert to the guest's system time in the driver (correct only if
->    host and guest agree on the TAI offset), expose a PHC so the
->    time base is explicit, or keep the raw TAI value and leave the
->    conversion to userspace. Which one is preferred?
->  - Like the existing rx_hash, the XDP timestamp callback locates the
->    header relative to xdp->data, so it must be called before
->    bpf_xdp_adjust_head().
-> =
-
-> A virtio spec change is needed as well and not yet proposed.
-> =
-
-> Testing: the feature needs a QEMU that knows VIRTIO_NET_F_RX_TSTAMP and=
-
-> sets the matching vnet header size; see
-> https://github.com/strumtrar/qemu/tree/v11.0.1/virtio-rx-stamps
-> =
-
-> Performance: I measured the receive rate with 64 byte UDP packets in
-> a nested QEMU/KVM setup with vhost-net. The variance between runs is
-> larger than any difference between the variants (without the series,
-> series without the feature, feature negotiated, feature enabled), so
-> I cannot show a measurable cost or the absence of one. Numbers from
-> bare metal will follow with a non-RFC version.
-
-This does not seem performance sensitive to me. And it is opt-in.
-IMHO no need for extensive testing for performance regressions.
-
-
+> Add optional hardware rx timestamp offload for virtio-net.
+> 
+> Introduce the virtio feature VIRTIO_NET_F_RX_TSTAMP. If negotiated, the
+> virtio-net header grows by room for a 64 bit TAI timestamp (header
+> size 40 bytes), stored in struct virtio_net_common_hdr. The layout is
+> cumulative: the field is at the same offset whether or not the
+> features before it were negotiated. The fixed layout needs
+> VIRTIO_F_VERSION_1, so the feature is cleared without it.
+> 
+> Implement ndo_hwtstamp_get/set so the timestamping can be enabled
+> and disabled at runtime with SIOCSHWTSTAMP. The driver cannot filter
+> what the device timestamps, so any rx filter other than NONE becomes
+> ALL. The timestamp is read before the packet is handed to the XDP
+> program or the stack, and attached to the skb with skb_hwtstamps().
+> It is a raw TAI value; there is no PHC.
+> 
+> The header size is negotiated per device and also applies to
+> transmitted packets. On transmit, zero the header behind the fields
+> the driver fills in, so the device sees a zero tstamp and no stale
+> skb->cb or headroom bytes.
+> 
+> On receive in big packet mode, the header is placed in front of the
+> data in the first page. Grow padded_vnet_hdr to 48 bytes so the
+> 40 byte header still fits there.
+> 
+> Tested in a guest with a patched QEMU:
+>   guest: ./timestamping eth0 \
+>           SOF_TIMESTAMPING_RAW_HARDWARE \
+>           SOF_TIMESTAMPING_RX_HARDWARE
+>   host:  nc -4 -u 192.168.1.1 319
+> 
+> Based on work by Willem de Bruijn.
+> 
 > Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+> Assisted-by: Claude:claude-opus-5-5
 > ---
-> Changes in v4:
-> - zero the header beyond the known fields on tx and in vhost
-> - grow padded_vnet_hdr for the 40 byte header (big packets)
-> - install xdp_metadata_ops if only RX_TSTAMP is negotiated
-> - rename VIRTIO_NET_F_TSTAMP to VIRTIO_NET_F_RX_TSTAMP
-> - move tstamp to offset 32 (header size 40) to match virtio spec layout=
-
-> - drop XDP restriction for SIOCSHWTSTAMP, add xmo_rx_timestamp
-> - add static_asserts for header sizes
-> - add support in vhost
-> - move virtio_net_common_hdr to virtio_net.h
-> - Link to v3: https://patch.msgid.link/20260921-v6-7-topic-virtio-net-p=
-tp-v3-0-3350851c4f88@pengutronix.de
-> Changes in v3:
-> - rework to use virtio_net_common_hdr instead of adding new struct
-> Changes in v2:
-> - rework patches to use flow filter instead of feature flag
-> - Link to v1: https://lore.kernel.org/r/20231218-v6-7-topic-virtio-net-=
-ptp-v1-0-cac92b2d8532@pengutronix.de
-> =
-
-> To: Michael S. Tsirkin <mst@redhat.com>
-> To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> To: David S. Miller <davem@davemloft.net>
-> To: Jakub Kicinski <kuba@kernel.org>
-> To: Paolo Abeni <pabeni@redhat.com>
-> To: Richard Cochran <richardcochran@gmail.com>
-> To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-> To: Andrew Lunn <andrew+netdev@lunn.ch>
-> To: Eugenio P=C3=A9rez <eperezma@redhat.com>
-> To: Jason Wang <jasowangio@gmail.com>
-> To: Alexei Starovoitov <ast@kernel.org>
-> To: Daniel Borkmann <daniel@iogearbox.net>
-> To: Jesper Dangaard Brouer <hawk@kernel.org>
-> To: John Fastabend <john.fastabend@gmail.com>
-> To: Stanislav Fomichev <sdf@fomichev.me>
-> To: Eric Dumazet <edumazet@kernel.org>
-> Cc: virtualization@lists.linux.dev
-> Cc: netdev@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Cc: bpf@vger.kernel.org
-> Cc: kvm@vger.kernel.org
-> =
-
-> ---
-> Steffen Trumtrar (6):
->       virtio-net: move virtio_net_common_hdr to virtio_net.h
->       virtio-net: support receive timestamp
->       virtio-net: assert header sizes
->       vhost-net: support VIRTIO_NET_F_RX_TSTAMP
->       virtio-net: add XDP rx timestamp metadata
->       tun: add rx timestamp to the vnet header
-> =
-
->  drivers/net/tun.c               |  14 ++--
->  drivers/net/tun_vnet.h          |  18 +++--
->  drivers/net/virtio_net.c        | 171 ++++++++++++++++++++++++++++++++=
-++------
->  drivers/vhost/net.c             |  17 +++-
->  include/linux/virtio_net.h      |  30 +++++++
+>  drivers/net/virtio_net.c        | 136 +++++++++++++++++++++++++++++++++++-----
+>  include/linux/virtio_net.h      |  10 +++
 >  include/uapi/linux/virtio_net.h |   1 +
->  6 files changed, 214 insertions(+), 37 deletions(-)
-> ---
-> base-commit: c03c1a14507dfaf8b856c2608f9ac216021fc222
-> change-id: 20231218-v6-7-topic-virtio-net-ptp-3df023bc4f4d
-> =
+>  3 files changed, 131 insertions(+), 16 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 17d3e32eed9d6..23af10c613b48 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -20,6 +20,7 @@
+>  #include <linux/filter.h>
+>  #include <linux/kernel.h>
+>  #include <linux/dim.h>
+> +#include <linux/unaligned.h>
+>  #include <net/route.h>
+>  #include <net/xdp.h>
+>  #include <net/net_failover.h>
+> @@ -416,6 +417,12 @@ struct virtnet_info {
+>  	u32 rss_hash_types_supported;
+>  	u32 rss_hash_types_saved;
+>  
+> +	/* Device passes time stamps to the driver */
+> +	bool has_rx_tstamp;
+> +	bool hwts_rx_en;
 
-> Best regards,
-> --  =
+nit: cryptic name. rx_tstamp_supported and rx_tstamp_enabled or so?
+> +
+> +	struct kernel_hwtstamp_config tstamp_config;
+> +
+>  	/* Has control virtqueue */
+>  	bool has_cvq;  
 
-> Steffen Trumtrar <s.trumtrar@pengutronix.de>
-> =
+> +static int virtnet_get_ts_info(struct net_device *dev,
+> +			       struct kernel_ethtool_ts_info *info)
+> +{
+> +	struct virtnet_info *vi = netdev_priv(dev);
+> +
+> +	/* setup default software timestamp */
+> +	ethtool_op_get_ts_info(dev, info);
+> +
+> +	if (vi->has_rx_tstamp) {
+> +		info->so_timestamping |=
+> +			SOF_TIMESTAMPING_RX_HARDWARE |
+> +			SOF_TIMESTAMPING_RAW_HARDWARE;
+> +
+> +		info->tx_types = BIT(HWTSTAMP_TX_OFF);
+> +		info->rx_filters = BIT(HWTSTAMP_FILTER_NONE) |
+> +				   BIT(HWTSTAMP_FILTER_ALL);
+> +	}
 
+    `ethtool_op_get_ts_info()` leaves `info->phc_index = -1`, which breaks Ethtool
+    Netlink `ETHTOOL_MSG_TSCONFIG_GET` and `ETHTOOL_MSG_TSCONFIG_SET`
+    (`ethtool --show-hwtstamp-cfg` / `--set-hwtstamp-cfg`): `tsconfig_prepare_data()`
+    in `net/ethtool/tsconfig.c` rejects `ts_info.phc_index == -1` with `-ENODEV`.
+
+    Either `net/ethtool/tsconfig.c` must be taught to allow PHC-less `ndo_hwtstamp_*`
+    drivers, or the device needs an associated PHC (e.g. `virtio_rtc`).
+
+
+> @@ -7250,7 +7353,8 @@ static struct virtio_device_id id_table[] = {
+>  	VIRTIO_NET_F_SPEED_DUPLEX, VIRTIO_NET_F_STANDBY, \
+>  	VIRTIO_NET_F_RSS, VIRTIO_NET_F_HASH_REPORT, VIRTIO_NET_F_NOTF_COAL, \
+>  	VIRTIO_NET_F_VQ_NOTF_COAL, \
+> -	VIRTIO_NET_F_GUEST_HDRLEN, VIRTIO_NET_F_DEVICE_STATS
+> +	VIRTIO_NET_F_GUEST_HDRLEN, VIRTIO_NET_F_DEVICE_STATS, \
+> +	VIRTIO_NET_F_RX_TSTAMP
+
+    `VIRTNET_FEATURES` expands into `features_legacy[]` as well as `features[]`.
+    Legacy virtio only supports 32 feature bits (`0..31`) and never has
+    `VIRTIO_F_VERSION_1`. Move `VIRTIO_NET_F_RX_TSTAMP` (bit 49) into `features[]`
+    alongside `VIRTIO_NET_F_*_UDP_TUNNEL_GSO*`.
+
+>  
+>  static unsigned int features[] = {
+>  	VIRTNET_FEATURES,
+> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+> index a6de308b8f25e..2abd8a614a23f 100644
+> --- a/include/linux/virtio_net.h
+> +++ b/include/linux/virtio_net.h
+> @@ -17,6 +17,16 @@ struct virtio_net_common_hdr {
+>  		struct virtio_net_hdr_v1_hash hash_v1_hdr;
+>  		struct virtio_net_hdr_v1_hash_tunnel tnl_hdr;
+>  	};
+> +	/*
+> +	 * The wire layout is fixed and cumulative: a field sits at the same
+> +	 * offset whether or not the features before it were negotiated; unused
+> +	 * bytes are padding. tstamp is thus always at offset 32 and only
+> +	 * present (header size 40) if VIRTIO_NET_F_RX_TSTAMP was negotiated.
+> +	 * The negotiated header size tells how much of this struct is
+> +	 * on the wire. Only ever append new fields at the end.
+> +	 */
+> +	__u8 reserved[8];	/* outer_nh_offset, ipsec_resource_hdr (not implemented) */
+> +	__le16 tstamp[4];	/* le64 TAI receive time in ns, 0 if none */
+>  };
+>  
+>  static inline bool virtio_net_hdr_match_proto(__be16 protocol, __u8 gso_type)
+> diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
+> index 1db45b01532b5..15e8e408d50fb 100644
+> --- a/include/uapi/linux/virtio_net.h
+> +++ b/include/uapi/linux/virtio_net.h
+> @@ -56,6 +56,7 @@
+>  #define VIRTIO_NET_F_MQ	22	/* Device supports Receive Flow
+>  					 * Steering */
+>  #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
+> +#define VIRTIO_NET_F_RX_TSTAMP	  49	/* Device sends TAI receive time */
+>  #define VIRTIO_NET_F_DEVICE_STATS 50	/* Device can provide device-level statistics. */
+>  #define VIRTIO_NET_F_VQ_NOTF_COAL 52	/* Device supports virtqueue notification coalescing */
+>  #define VIRTIO_NET_F_NOTF_COAL	53	/* Device supports notifications coalescing */
+> 
+> -- 
+> 2.52.0
+> 
 
 
