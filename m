@@ -1,83 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.44
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.51
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793552003;
-	b=TRY6Gqh4t1BI2IRhuMR03r4W1Aj9InaXb9F6LIjee/U+KTt6LfIUs5H5M+C7kDVA5gpw
-	 Uts2OJoZdx1zjvB6nLXX7CQVKxi3McAo8NeRj/+4tNnJtRXgVNe5vqP8Z7059MqC03Grj
-	 bFP4/ZeTXrI6X8hn9/BNYSgMFl/Uxa/qIJkINvkQzzBxr3jn7EoarU9gZGvD+eRLjJZ+O
-	 bs5bIOX3M0o2gL5/a1c47pGo0Tz+9gIoAzVkVLpqxQ+OOj9eoCSMWsUQ7sm9KBHYqkYkI
-	 CF2ghZnICdTCSgs8Rr/3KAXHHwqaua9T6JydWKZnAXZ/XSwAmdWCHFq4+rDu0413mkw==
+	t=1793552009;
+	b=gBt6XxFBCjqRWo9wyC82B6JCPhwUY4lZJxGwnTKNeevacexKlJnEviryftyrb0e7Ulmc
+	 c8b4xadOR10wnwGX7+WkXoUj6ZpLO/byPoEqrbGQKGv2fWEIEzDnhN+u5yEiWCNYh8x5A
+	 +Jkku+lFlpQbTCvexBeHPRHQ13DuuD7MTdyZ0KR/8tPy06YFLA4oTyoNLJHBLKWkuQ/eK
+	 bYX1ZdwMhDE+zNNx88Ii+2X9pgC4l1K2edbHQ1PRtMiPk49GBLdJuGWHyJdWU0s6LREEI
+	 QXVEt40ZemSfi2hVAvM2U6rWfLyiFO8GYX1IEBOcz72RnRin7AoGfq+MyTymjyQezHA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793552003;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793552009;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=097R5J/xw41Xh61+p10blxCYZ8kZHC4U5wK3EMQFzX0=;
-	b=yJpltJgN229P/Cm/TEj5uyqvw3prVEIC4XlBxzElOQCCUAynrt7qqTrvv9BCrQ7JbJY4
-	 0hySsja1L6hS6ux1eN/Jq7BdIR6uu03XgI+5bnMYlcc5UG9mb0tIsO4a5bXuZweNXZv2I
-	 AF9/twTujYk3sqyxB0+PHRcJ9IDHkGFlLMu8FGKSd7J2l50PwP4MiLn3Yf9tSy0g05+QI
-	 z47mpnhGQfLADHHWD3qhtsM7AdIsRjPLIcoh6TxOzcnDb4FKdrgZ8I/t0WL3rzwgjXKjO
-	 zob8IUl1x9ivJfyVksPsPb56ZhFOUf9A+0ftghceUf70rxRv3sNryveBYYtNHYvxerA==
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
+	 MIME-Version:Content-Transfer-Encoding;
+	bh=XNRrcw/P1Mej9G9gW7ieLo3ycxjD6V+M/Loq7iMzpSU=;
+	b=n72aSv2QnZADb63dpy/wHRlErG2zsZnlJzvUYS46Fif4vaeQOU/a3YiM+sXd4OKf3nLz
+	 mThXDUInOxDu2dRZ6ZdmZQ7fAlvBfWD5s4jTANJSfs02kZ7v0ReHDtmHzqwb/96YyhRwh
+	 KcTI5jusXosMUDE2C9qffQDLNgIeY13SLNcLf5JLL2aSWGQSjTBgtODeKIHvUwfp4r7uO
+	 f8hVkXm1yCR+aZW0saiZMHCAeDPBuIJqBVDLiZW+rJtc+pKRlkIyuR9BhAf9ltl/Ax0m/
+	 nxZWQivgo0kVOuGBwxANx44roEzUE12P5UB5H+erW/1m5g0L9m7SF/vh7HYyyKf0NRA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=bCCag73P;
-	arc=none smtp.remote-ip=209.85.128.44
-Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=xwa5ezxn;
+	arc=none smtp.remote-ip=209.85.128.51
+Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A509606A327
-	for <virtualization@lists.linux.dev>; Sun,  1 Nov 2026 16:53:22 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2A509606A327
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BD70606A32F
+	for <virtualization@lists.linux.dev>; Sun,  1 Nov 2026 16:53:27 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0BD70606A32F
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=bCCag73P
-Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-4a2153c8525so13278405e9.3
-        for <virtualization@lists.linux.dev>; Sun, 01 Nov 2026 08:53:22 -0800 (PST)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=xwa5ezxn
+Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-4a5b2be99a8so14260085e9.2
+        for <virtualization@lists.linux.dev>; Sun, 01 Nov 2026 08:53:27 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793552001; x=1794156801; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=097R5J/xw41Xh61+p10blxCYZ8kZHC4U5wK3EMQFzX0=;
-        b=bCCag73Pa1x9JBTBLY91uZn0/XiRaPvckHG/jfALCKi4JNIp7MwibCu1Hmg6fOZ5FX
-         +Z2og7TX1ykdSWBJ0XAd8mrnc4uSZ9OfgpJKNWxG/6fKVtbiUwYWc1m5MavdRO3CqqA1
-         oIF3VvBcVsN+IX+gX/DMLu7NbOdJjhsWj0YPRk3LEjvuhWYSp/VGd7bPR5yZQ+jf53JR
-         5fIZJPc2zBUSCAEpX8+ePkB+/2tb6nhVA6RJDyRvUDh5yEf+Wo4Bl7dcnjLsh8XL6pBY
-         TgJy8U0bz94G8wJO/X/bqdEpC1sRJIwu/KlwV90CylGRb+SVxwqJgvwnXnw3ap0E8wJl
-         F+6Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793552001; x=1794156801;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20260707; t=1793552006; x=1794156806; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=097R5J/xw41Xh61+p10blxCYZ8kZHC4U5wK3EMQFzX0=;
-        b=zZyWTAoeVarIPpxuoerqWzttZv8berAxIPwJ9yrrb77clGIj2mb86Dvj1aGR2ykPee
-         Fw6WylVWrFSKBlLgFq9B6USRBxYr1No9vfKPWqHsp3V4Liz/2OT03QfQKufmQwjTFZiC
-         aEbFTRNBCkeTIbUvIesI8xnvskz1B1uKd18/6V/IM9NYIUX4b0+o50TsCSZSxTdZWtlz
-         E8/AEdDjG4TxFdDxxivZbJt6b+EXyKbqJxRZ1JnDMlq7J+dcBqx/a1mGFA/QkhViu92C
-         p27ljRqgE3JF9Tbted4U8v4+qimy4tiu1JZ1a+7tb8mV3xIUG9t46CdohfqOi6I4woEe
-         WqXw==
-X-Forwarded-Encrypted: i=1; AKwUvBwscRm/M/1pkEZsW6XreS4zDripJj7iJDrmJiUsnHU+yAGZ4BJ9Etfg3IuxE4eIoJ4xtt1SrBYB0oTDITl4sw==@lists.linux.dev
-X-Gm-Message-State: AFq9FYIdE3WQvLVec0zmBOpMfmhXAHROc2jNID1geO1INFf9BoDuksxM
-	O/TbS4WNpoai4eTW+3t1S83lLKUIktwkXpGb+eyPp0jxws7rd1a2T2ab
-X-Gm-Gg: AYBFou0QI132ho7XT/pzaptlVpdgqtl6cdlC+l4mKEfgl21u4ccxp4m6+3wKicFwdZY
-	zBs1RooidogT8jKyzoQBjScAMfFZvzgxikJJEi+c8MwC9qUGAYf3zKQ2eHjqEUSYACR8XW5mSkY
-	7hEI3g27HlO+w2JdwkvOge9b1Bdd8ySzLuEGspEvjuZq278/1gjn6ky5Z43hedIfYbJFDROCIVT
-	7JhaQCXKvk5ZL6lvk+x9YsjklPxASVcLJlo8EMycZYuV+fXc38M6No2PCVC8ydmwM+xzxzldgu1
-	aRL6Zvbasb1zc1RVLzsySiOfIgH06TOp1jj2HkldiblG1hPKDUmXTHa6MiVhutpr1Ld+EwgT0Qt
-	25SE/XA5FJq1H741NHAQHGS2tbNOZ++uNCnTZqMXyh1vxx6b4qkQGubQvg5N69wDhowiJD/EEfv
-	6LWlxD7kMnFeDgvJWHzmhLWkUOc7r45lKp4JAeI4xOFXT4mzkmjjETORWsJflc/TAsA1Gg3Pk5g
-	dlTb9Uy5MiDKkd/no1a77cenzvCpRWUdX+m2bIoXYemHYhC0g/gnKT4J4+baEAoPybnd9Oq4vun
-	E8av9EcuzXda6idbK+6jfA64ytST03vQ4KcBqDUH8pGOs8Uct4CSGuQ3C6QFsSwsqqgsfltHpi3
-	3
-X-Received: by 2002:a05:600c:3f0a:b0:4a3:7344:13b4 with SMTP id 5b1f17b1804b1-4ac1709a2d0mr182481895e9.14.1793552001474;
-        Sun, 01 Nov 2026 08:53:21 -0800 (PST)
+        bh=XNRrcw/P1Mej9G9gW7ieLo3ycxjD6V+M/Loq7iMzpSU=;
+        b=xwa5ezxnJrfeNogR1RDpAE4nuk0Au8w0ViMZBLmz0nDHacpumu0grHh8R/kMCl7ZTu
+         gq0DccqZSoRxSr/922dysjPh3AHnxvKsfmNZG0VdS0cXtZcChu7aMsFTaj1BT9pPmrbN
+         r3ninVCPefN6hXCcwtGN7n6KL7Bzqus/p3SroqERU8/0w1RelS8J5GI3aQOIXvgeYYDD
+         Vz5PNxcVBzqdrmo7N28wfTaeFZoSLWVvMpBHlcMwAJKMZ9qjfsTxItXC4oMtvs0pAnK9
+         Wjzbh1F2aN3JGDzrIzjF4OaUn6ffr9NN21LnQ41RrSJaYRF47Zkm+fUq3dHphO1DPinb
+         TU0g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793552006; x=1794156806;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=XNRrcw/P1Mej9G9gW7ieLo3ycxjD6V+M/Loq7iMzpSU=;
+        b=Gf4OnLUB/uixhTB84Qd+f7hqTUxVhbGEymfkb+DhM9nqRibW/YYS6bUGVMZjHLc2Uw
+         ZkyUqByc8upKYJrBMMQwUPRXhC5iTzjsyQnRF1vIV+BavSvfUWvoBL+YCknS1RrJuMlF
+         xGW/CIXfFz0/eno9ou6jn69O8xlNABpLH8FrBNl+Tvz8V8Azcdw4gZCgB4MO5/vLlpKf
+         yVw2Udoy47FS4/lfPrfY8+Vnzr2M8yFJLNygNeeNa7ZpHusoQLRblEK2LjCWaA5rs8yn
+         HCoPMx8YFNAYK2sC7LHlC5RHYjo6IT4pTMTcd+Ezbrb+QKxl2+OVRT1VCZY3F8Fljp/3
+         XrRQ==
+X-Forwarded-Encrypted: i=1; AKwUvBym9eyP3KsmNtuBkCugTo5opjGWKtK8InuHDUI2/Qk2d69VBkw0SZAOdAa0xzXa28bkBy8GEfGtDLbW+NV3ZQ==@lists.linux.dev
+X-Gm-Message-State: AFq9FYIhCrtsGlBIqEhDFLj9ST75+ocRFOhROGz0bhMn9xEMhm+8J6JP
+	bRRg4f9zF+4WMAkPuodZF3j3UvMl6q+w0cv1AmAvwiUNi1DD7oHZrMhr
+X-Gm-Gg: AYBFou14vBtgDyY4dAbL9XIElc93pwHcY9kC3XODdOezPwwovX4Dm0A55wteC5GpWRa
+	Z6bTRAoMprLV3WputE1LV3/5Ko4HvP2BtHSXj4tdyvxzIe/8bA2pIVbbqVmR+Iso0sa4NwBEWym
+	7WaCN5WNkxNnc9LQS/NXF17mc9GXAgzImC1VxpWFQWsIa8eEsN2rFjK44871ZJTJZ5Dlb0oUgZY
+	ndy4vYwM10vXEaDLYhMrYWfopARhO+9xzOsD0e11AzRO0SlHXUk7SdBpz1XhbjdWKt4ZLL9638W
+	kToCCO7vC1C+B8sThUfW0h+jMLVmm5okbi/iHwSn1V5eIqwzzQvVKPcydT0D+SrtFgFbfSCljoD
+	swtmEVNF46E+a00yHmRXohfit4XEtjnQcuTNUDRpBA70GbvRBi293jrGfRuc+KHy02sWX6siv6Y
+	56mejGkDjYJrT47YSp0utC/yuT6vIh2j1JloiuL962+SRbzzZVwFGSSN4jxw2AkxU+rKWtv1vP1
+	1LKUE5DIsRZmzTLLxOb5+XHWR0U3jZZebDua1CQ72fcllil8XoJVar7+pUNQsSDxikzP8Oxl3ce
+	OfOCoW4NGuDSW4lcRJiT9RHoC2uPNa+1UrnuyST3jsnaGU0JRYuYsPlIvQRDKiwHJws2TaC707E
+	S
+X-Received: by 2002:a05:600c:8b2c:b0:4a7:a5db:a93e with SMTP id 5b1f17b1804b1-4ac150b3dbfmr190239205e9.4.1793552006429;
+        Sun, 01 Nov 2026 08:53:26 -0800 (PST)
 Received: from stjepan-Aspire-F5-573G.tailc0f20e.ts.net ([2a00:1bb8:118:d39e:5058:2b49:7a78:eb6d])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4abf6c76507sm223903095e9.10.2026.11.01.08.53.20
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4abf6c76507sm223903095e9.10.2026.11.01.08.53.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 01 Nov 2026 08:53:21 -0800 (PST)
+        Sun, 01 Nov 2026 08:53:26 -0800 (PST)
 From: Stjepan Poljak <stjepan.poljak@gmail.com>
 To: "Michael S. Tsirkin" <mst@redhat.com>,
 	Jason Wang <jasowangio@gmail.com>,
@@ -89,10 +90,12 @@ Cc: Paolo Bonzini <pbonzini@redhat.com>,
 	virtualization@lists.linux.dev,
 	linux-block@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH 0/2] virtio_blk: fit requests to virtqueues without indirect descriptors
-Date: Sun,  1 Nov 2026 17:53:05 +0100
-Message-ID: <20261101165307.2557421-1-stjepan.poljak@gmail.com>
+Subject: [PATCH 2/2] virtio_blk: fit max_segments to the virtqueue without indirect descriptors
+Date: Sun,  1 Nov 2026 17:53:07 +0100
+Message-ID: <20261101165307.2557421-3-stjepan.poljak@gmail.com>
 X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20261101165307.2557421-1-stjepan.poljak@gmail.com>
+References: <20261101165307.2557421-1-stjepan.poljak@gmail.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -104,62 +107,59 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-A virtio-blk device without VIRTIO_RING_F_INDIRECT_DESC needs one ring
-descriptor per segment of a request, plus one for the header and one for
-the status. virtio_blk takes max_segments from the device's seg_max
-without checking that against the size of the virtqueues, so a device
-that offers a seg_max above its queue size minus two gets requests that
-can never be added to the ring. virtqueue_add_split() warns, returns
--ENOSPC, and the request waits for ring space forever. A virtqueue with
-fewer than three descriptors cannot hold any request, and depending on
-the queue depth the probe then either fails without saying why or hangs
-on the first I/O.
+virtblk_read_limits() takes max_segments from the device's seg_max and
+only clamps it to VIRTIO_BLK_MAX_SG_ELEMS - 2, which fits the largest
+virtqueue the spec allows, not the one the device has. Without
+VIRTIO_RING_F_INDIRECT_DESC every segment takes a descriptor in the
+ring, next to the header and the status. A device that offers a seg_max
+above its queue size minus two thus lets the block layer build requests
+that can never be added: virtqueue_add_split() warns that the request
+is larger than the ring and returns -ENOSPC, and the hardware queue is
+stopped to wait for descriptors that even an empty ring does not have.
+The I/O hangs.
 
-I ran into this while writing the virtio-blk device of Hearth, a small
-KVM-based VMM, with queue sizes and seg_max values like these:
+Seen with a device that offers seg_max 254 on a 128-entry queue without
+indirect descriptors, where the boot hangs loading /sbin/init:
 
-  virtqueue  seg_max  queue_depth  before                    after
-  ---------  -------  -----------  ------------------------  -------------------
-  128        126      default      boots                     boots
-  128        127      default      WARN, hangs loading init  boots, 126 segments
-  128        254      default      WARN, hangs loading init  boots, 126 segments
-  1          -        default      -EINVAL, no reason given  -EINVAL, message
-  1          -        128          WARN, hangs on first I/O  -EINVAL, message
+  WARNING: drivers/virtio/virtio_ring.c:688 at virtqueue_add_split+0x6c0/0x850
+  ...
+   virtqueue_add_sgs+0xd1/0x120
+   virtblk_add_req+0xe2/0x140
+   virtio_queue_rq+0x79/0x1a0
 
-where the message is "virtqueue size 1 is too small for a request". A
-virtqueue of 2 is rejected the same way, with either queue depth.
+With seg_max 126 it boots, with 127 it hangs.
 
-Patch 1 checks the virtqueue sizes in virtblk_probe(), before the queue
-depth is derived from them, and fails the probe with a reason when one
-is too small for a request, whatever the queue depth: the last two rows
-and the virtqueue of 2. Patch 2 then clamps max_segments to the smallest
-virtqueue minus two when indirect descriptors are not negotiated: the
-seg_max rows.
+Without indirect descriptors, clamp max_segments to the size of the
+smallest virtqueue minus two. The previous commit makes the probe fail
+for a virtqueue smaller than three, so at least one segment is left.
 
-The seg_max case also reproduces with QEMU, which with seg-max-adjust=off
-offers seg_max 126 whatever the queue size:
+Assisted-by: Claude:claude-opus-5-5
+Signed-off-by: Stjepan Poljak <stjepan.poljak@gmail.com>
+---
+ drivers/block/virtio_blk.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-  -device virtio-blk-pci,drive=d0,indirect_desc=off,queue-size=64,seg-max-adjust=off
-
-Before the series this warns and hangs loading init, after it the guest
-boots with 62 segments. With QEMU's defaults nothing changes.
-
-The seg_max cases were tested by booting a busybox guest that reads its
-disk with O_DIRECT in 1 MiB blocks, the others by looking at the probe
-messages, on v7.3-19954-gcbbddb6b08cc, x86_64.
-
-These patches were written with the help of an AI assistant, as the
-Assisted-by tags say. I reviewed and tested them, and I can answer for
-every line.
-
-Stjepan Poljak (2):
-  virtio_blk: fail the probe when a virtqueue is too small for a request
-  virtio_blk: fit max_segments to the virtqueue without indirect
-    descriptors
-
- drivers/block/virtio_blk.c | 37 +++++++++++++++++++++++++++++++++++++
- 1 file changed, 37 insertions(+)
-
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 0a2af22f2365..5f05aaa079c2 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -1280,6 +1280,16 @@ static int virtblk_read_limits(struct virtio_blk *vblk,
+ 	/* Prevent integer overflows and honor max vq size */
+ 	sg_elems = min_t(u32, sg_elems, VIRTIO_BLK_MAX_SG_ELEMS - 2);
+ 
++	/*
++	 * Without indirect descriptors a request takes one ring descriptor
++	 * per segment, plus one for the header and one for the status, so
++	 * it has to fit in the smallest of the virtqueues. A larger request
++	 * would never fit and would wait for ring space forever.
++	 * virtblk_probe() made sure every virtqueue holds at least three.
++	 */
++	if (!virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC))
++		sg_elems = min(sg_elems, virtblk_min_vring_size(vblk) - 2);
++
+ 	/* We can handle whatever the host told us to handle. */
+ 	lim->max_segments = sg_elems;
+ 
 -- 
 2.53.0
 
