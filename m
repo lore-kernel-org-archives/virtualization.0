@@ -1,58 +1,54 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.167.197
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793552414;
-	b=2sqvAQW5gvNUvV/dPRCY/IN+tJvB4m8+LJ2rIAgZ+EePpUhBUDPmX6luQOR9vCo/fSnt
-	 9QJ5qT5FVl9ji75RXrvpFlkj60h//bYvqOTMij7e4EHHx0waB0W4PBTazDrFjklNvhNKC
-	 0PmZNfOHK9VceJS+KRVggXIBRdq6Df81d6it5ttlYW6g5jodsYN7qjE1PPXluAWDor2fy
-	 DwSVuPIxuYSQd3Zg2x/bwUPcyqM7KhUf3wk1HSWycKqaJqT3QwV74mHvS1XsYq1ZWmQyd
-	 jin1rN/6ueQL0VEvkLFwhie4t6h4p6BqBC6hia/zXr0K5gIApsncFaRuHwIKXGasgHQ==
+	t=1793565214;
+	b=H6UG0To6juujQvgi9ocQ7P3r5vO1XMhE4xu+8Vy/oc/EPzX1sv0ZiyvQw4P6NH0gwr6A
+	 5VvirnN9FWl0Pt12ymaOeV9ggXbAm3Y/n8Afbz6h1m3v1Za3VmVAsQzW0Pm9r1h5T25xy
+	 ssIOwNkOh94iT+hW1PKEGyhBKavtGCGp0d4GL5+M/hCiAamIOf9OqfCTUzILSFi3Kb9Wu
+	 ObRLS6vCZg32zzGLOt5yy5PTNKpwgFdrr3bHyLJTdx4CjpK5tVpnnNpcpt+iB02fwIYw8
+	 nAf3I6PXCkLgrJfOC9slFpYOA+GEsdvw2fBD8/RY4vA7wiamDuHmSCQYEw6/mblMNKQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793552414;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=X7FsGPBngEV3YpYG/HLXXDRPYysMgMNbjXbZcWLQpOg=;
-	b=rKkL6pidsC6cN7ySr+2Lz5vmfgnuDVN21Jv29a4dD70eAza+2YBwsi5CRfUnC0potDn0
-	 4FwPV0hyIO9gwxNFmmhuipdpELIqb7dG5b44lvuEmTdleq/Qi0ewT+1pc6t3i/0JKX2gv
-	 xWPBK+O1S8kXxK4CZdxT/oh6fs+mpuYi8Ai+fbseTUYrrCEJ6X4YbPff1F6gy7EeOsM1D
-	 Ra6Y7ByCJPqNn4iYIgSxjZWb4sQdmfnLAVY1TgpLfsfJo6oMXNDYg4C4npptQjCGGvQaN
-	 0IO5PI1QgIepTwbbBfarKzlXnOhcX2Qh/bCaQaGnMzQJIQ3sgg2WCJj4X1qlmE8OCyw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793565214;
+	h=DMARC-Filter:Received:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
+	 X-Gm-Message-State:MIME-Version:X-Received:Date:
+	 X-Google-Appengine-App-Id:X-Google-Appengine-App-Id-Alias:Message-ID:
+	 Subject:From:To:Content-Type;
+	bh=LW7OPyjwBJ2uOfyFmmXu2pAnbnSBBaS9xioKSKoFLno=;
+	b=m14ulo4bhI460rxgWLbcnJp71r8M08YVERmtdJpsmHsH/nN79lWHpIPPWTjKlIax19zj
+	 fd+z2kpPcZVLMqrcj+erIUJQwephnVECCW4cZGFMcNtzp2QIr1oniS2u89wC1tTy6yk6D
+	 mEjMREyXjhtJs6nS2tY8WIFtCJFWokALSb2t2Y3I5QePP5V8fC5ff0lUIEhiubBsDMZxe
+	 XEdxfNlf3XseYNzIBrkLeh+cGdy+p4hQELeBRoTzN2s3t5j50ArVt3+pA0mt+0rKz/2pw
+	 AtfAICr1XhEJkpHrH40EVriO8BcuEco9Mbxz2QbnI3P9erIU8wLn7uVZR4JfAmQkeig==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=G5ieD+pW;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=fail header.from=syzkaller.appspotmail.com;
+	spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com;
+	arc=none smtp.remote-ip=209.85.167.197
+Received: from mail-oi1-f197.google.com (mail-oi1-f197.google.com [209.85.167.197])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B4DB606A324
-	for <virtualization@lists.linux.dev>; Sun,  1 Nov 2026 17:00:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=G5ieD+pW
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6F031F000C1;
-	Sun,  1 Nov 2026 17:00:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793552414;
-	bh=X7FsGPBngEV3YpYG/HLXXDRPYysMgMNbjXbZcWLQpOg=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=G5ieD+pWxAS+Tc4/K8OYBJRtu2M3zxHvDe14OCQ6mQvMCsXhI1hLSQAeagfs53ZCJ
-	 781BYlNDbxXVhtqZcSzil30Je1PA+L8w7fQHfii9LV51/jN9p/n0Me2HpIeid+cbMN
-	 PkeueuLfqVlb/H0/ai0fyCrREaQp6IA5yab5Pxfpb0g1PNfehPHwFgaitbsiI+7Z65
-	 RKZscngnMm4AMSU7QaREIIalAsdFPJcEjcczUjcwYiySa6UyyRcZACVrd+0c7Oep3t
-	 UWVYq2c6VkLE7f2PId5xx7Mxz0Oc9UCb5HNAkexLj5GqlR5IhGb1dJUXQR2/L9CxAg
-	 chaePI0mo1ZQg==
-Message-ID: <sashiko-outbox-192517@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/2] virtio_blk: fail the probe when a virtqueue is too
- small for a request
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Stjepan Poljak" <stjepan.poljak@gmail.com>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <20261101165307.2557421-2-stjepan.poljak@gmail.com>
-References: <20261101165307.2557421-1-stjepan.poljak@gmail.com>
- <20261101165307.2557421-2-stjepan.poljak@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 01 Nov 2026 17:00:13 +0000
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF825606A325
+	for <virtualization@lists.linux.dev>; Sun,  1 Nov 2026 20:33:33 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CF825606A325
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-oi1-f197.google.com with SMTP id 5614622812f47-4ab260600easo5077848b6e.1
+        for <virtualization@lists.linux.dev>; Sun, 01 Nov 2026 12:33:33 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793565213; x=1794170013;
+        h=content-type:to:from:subject:message-id:date:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=LW7OPyjwBJ2uOfyFmmXu2pAnbnSBBaS9xioKSKoFLno=;
+        b=yGqimVmz9wo9IwTJodcrS2eUw0DAOz9g30TZd8Z1XyuPy8MWUQuZdxLijY6slOwNed
+         BQd235f7tNyGJGd/R9R6C5YJ1W8Xxbq8NioiKL+9bruGEI5eJt0isAlTZbrLYlxL36wU
+         ip7+n2fInrZ6XKw5dX8U9ubPawf8FJvy8k74DfeayutBgrY5eWr7NlpK4AQ56C+eoTet
+         lC3FTmRyq9KXvy3NNa0s22Ie7iUtlj+JlgJx10LyKvvGdACT/7VLhxnQKLWMe5Wwwipw
+         3UFcowhAEhwF9RuLHIEClR7u7dZJqfXB3L0ycywX4HhhBqcBogS3yD4TIqu7MNYUfllQ
+         nHwg==
+X-Forwarded-Encrypted: i=1; AKwUvBziNenlsWi0xKxUis/4RZMQ/bK6VxLfn5EUq33SgHKQV4Pcw5XqgWmTGAhVKt9g1qah/ecHGrpNXWJEoC42ow==@lists.linux.dev
+X-Gm-Message-State: AFq9FYKmAL3jJ07IslcT+zMqGrs+H8gjczr+g+BFDTcyHfeF8j1irLDX
+	eNNB2uyuy74370P2Uy0xy9ztfvKrisAH6QP67x3M2qF87GUzEzGVYp4hN62SVlOMaLlBniXx5uu
+	/YmTGibTfUT6uuKIFkJlNCqTr7O4/6DxSxfD8/xGWwV1yRhSnojW3xFakafQ=
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -61,34 +57,51 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+MIME-Version: 1.0
+X-Received: by 2002:a05:6808:6413:b0:540:8ca:36e3 with SMTP id
+ 5614622812f47-563ef9afc49mr5908539b6e.19.1793565212774; Sun, 01 Nov 2026
+ 12:33:32 -0800 (PST)
+Date: Sun, 01 Nov 2026 12:33:32 -0800
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <6ae7a21c.7fe51036.1ecf7.002c.GAE@google.com>
+Subject: [syzbot] Monthly virt report (Nov 2026)
+From: syzbot <syzbot+list1866aebaf3e7c04f9ac3@syzkaller.appspotmail.com>
+To: linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com, 
+	virtualization@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
 
-> Without VIRTIO_RING_F_INDIRECT_DESC a request takes at least three ring
-> descriptors: the header, one segment and the status. Nothing checks
-> that the virtqueues hold that many, and a smaller one fails in a way
-> that depends on the queue depth. With the default depth, num_free / 2,
-> a virtqueue of one descriptor gives a depth of 0, which
-> blk_mq_alloc_tag_set() refuses, and the probe fails without saying why:
->=20
->   virtio_blk virtio0: probe with driver virtio_blk failed with error -22
->=20
-> With a depth of at least one, from a virtqueue of two or from
-> virtio_blk.queue_depth, the probe succeeds and the first request never
-> fits: virtqueue_add_split() warns and returns -ENOSPC, and the hardware
-> queue is stopped to wait for descriptors that even an empty ring does
-> not have.
->=20
-> Check the virtqueue sizes right after the virtqueues are set up, before
-> the queue depth is derived from them, and fail the probe with a reason
-> when the smallest one cannot hold a request:
->=20
->   virtio_blk virtio0: virtqueue size 1 is too small for a request
->=20
-> Assisted-by: Claude:claude-opus-5-5
-> Signed-off-by: Stjepan Poljak <stjepan.poljak@gmail.com>
+Hello virt maintainers/developers,
 
-Sashiko has reviewed this patch and found no issues.
+This is a 31-day syzbot report for the virt subsystem.
+All related reports/information can be found at:
+https://syzkaller.appspot.com/upstream/s/virt
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261101165307.2557=
-421-1-stjepan.poljak@gmail.com?part=3D1
+During the period, 0 new issues were detected and 0 were fixed.
+In total, 6 issues are still open and 66 have already been fixed.
+There are also 3 low-priority issues.
 
+Some of the still happening issues:
+
+Ref Crashes Repro Title
+<1> 332     Yes   WARNING in virtio_gpu_alloc_vbufs
+                  https://syzkaller.appspot.com/bug?extid=1b129b44597a126d2d79
+<2> 109     Yes   WARNING in virtio_gpu_free_object
+                  https://syzkaller.appspot.com/bug?extid=3590d97d8a586fa955c2
+<3> 4092    Yes   INFO: rcu detected stall in do_idle
+                  https://syzkaller.appspot.com/bug?extid=385468161961cee80c31
+<4> 5       No    BUG: soft lockup in mac80211_hwsim_beacon (3)
+                  https://syzkaller.appspot.com/bug?extid=a009aa73657fb9a84de5
+
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+To disable reminders for individual bugs, reply with the following command:
+#syz set <Ref> no-reminders
+
+To change bug's subsystems, reply with:
+#syz set <Ref> subsystems: new-subsystem
+
+You may send multiple commands in a single email message.
