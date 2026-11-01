@@ -1,57 +1,75 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=67.231.153.30
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793500655;
-	b=zkJQieUdoklbi/gUdZW6+WEXTWYM3Cd5XjSEcpgv5wLzguuCsxSa5y4clQbsku/bzEV2
-	 g7YInv+lG0+s+TT76zYCe5MH9bzUWZAeJP7trrM2xflaQd7R+Fwz62/kzXwLPXtpwjb8H
-	 9C295hM0xNaBNng+uWlBBp4tnKhkuF/nYuS91ySpdhCbOqLbfgs6gNGmqu7JshA1F5Th1
-	 prbYjgSjCEP8ECkCKOl5csn2+KLpRoFrjpG6NrvVGUpMR0i9lTlT8KW4Ozoi4wETT6kBK
-	 H/LAwpbN89a16EyKlvnhPUFyuS77rPyICGNHqizTM/THhOhlylz7A2BxHR8Q+zGxQTQ==
+	t=1793502014;
+	b=qHFaFNL2KGwcAAkx4CBis8PwYZQZZVBlGiFJ6ojYkoTYxxkzKroQNf0oPFJlvUVgIxMe
+	 MLveXz/6nzZCKxt1gQjYXkzLKP3aMgCkCPhC9Nn+KJOiqyTpddB4eORjjW/tkcHqzPfqK
+	 sU26wPh4GaHrKw+MxP/y7daWadtWxaSc2wXdjdzAU3XGraxaJOxiEHMsQPLZLgogi/lq9
+	 wYwqJgPLM8HbPXm+2V84S6V7rJE6HpzX9g+PxXLlKt9srOvC56P4F5a5U+ntgjHoY0YBY
+	 5/hu72U8RvNp3CtQ199NZtV7DQhKvdU1YWy6eHBv0U273uVjM2r1DyJr+zVFBr/OLCg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793500655;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=rrudH8UIAv/LTt77MF7TP3SlBJsDUxZJhjoIjopSw+o=;
-	b=lhwuXU0hOsRmWHtGM1ubYQtY4UAWNAQ+cs28Hppaopryb6+HjcHiL++YJxfpHg/Ak4mD
-	 covbN+LZT6IXDhNh/0wPZbgKWR9nIf5Ad9iMj7op5iQerDtiertFhOOKCHAwQiJPc/dao
-	 MPnHh0BTRRDyW+SzXF4yxY57Xz4zWCT/YTV6EvUogiwGIOu6/yz9ZZKH8ZEOqxPbZN+hG
-	 naIhtTep4ximOlQeRbBdhKO9O6VCjuJ9shtf5PtLnxmAaa/MNcfIC9ZjAvEQw7nM4uwYO
-	 Yxd3o1FVy3nwCWAezU4knwBhYwKvtP3lHennDJBAG0KRgEB/0DsKUTraHQQ1/9NQLoQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793502014;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:From:
+	 To:CC:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
+	 MIME-Version:Content-Transfer-Encoding:X-FB-Internal:Content-Type:
+	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Info:X-Proofpoint-GUID:
+	 X-Authority-Analysis:X-Proofpoint-Spam-Details-Enc:
+	 X-Proofpoint-Virus-Version;
+	bh=+7tqArStNBb6UzWOhpgCNro6Nr4m1kw0/PjhJKGYy3U=;
+	b=kqUjMdtWXOSSSfpYdnRsdxXJoLUWZkeGWzevq4WlOBPwVHH5tzjt8Y8ypOdoik0/wJDU
+	 TxxDbCh4WxWuGzLtBc7QnAYX9Syz2PMK/5NVBX6vxTWHbgQsx7Y94bLvLrf37+wMrvzLQ
+	 gChdk51fpiBL6HpPMVeGR5dxDh1ByCuu5BZHaOl9/sHUV4Sq/6EZXLfr5UX/E6lwar/sl
+	 ywtwr5F60ukpxcUiFjjJPXUYvc2jkqfpPkDO12fABGhPGqiEAWCYs5sJAA/BDHRDTXQ+s
+	 RCeLazZmNunnLhL12n01/TUe6GL+W1Ys07B1jeJ5ElVX+rCHoMF+UrnEzywPM76afIA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KxChpuvl;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=meta.com;
+	spf=pass smtp.mailfrom=meta.com;
+	dkim=pass header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=W9cvOe1S;
+	arc=none smtp.remote-ip=67.231.153.30
+Received: from mx0b-00082601.pphosted.com (mx0b-00082601.pphosted.com [67.231.153.30])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CBC9606A324
-	for <virtualization@lists.linux.dev>; Sun,  1 Nov 2026 02:37:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC768606A326
+	for <virtualization@lists.linux.dev>; Sun,  1 Nov 2026 03:00:13 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DC768606A326
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KxChpuvl
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F1CA1F000C1;
-	Sun,  1 Nov 2026 02:37:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793500654;
-	bh=rrudH8UIAv/LTt77MF7TP3SlBJsDUxZJhjoIjopSw+o=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=KxChpuvlwZfC9CN7FE5XSW1FZ6SdR6QeSp/gEi6H1LbGUvJPNq5u2fTIooSfcCqdl
-	 htpHWmkX/fmpUAbBkAhDDxAzQC+5RNCuEiM3PK3tApX4awi3kezqhlZBweKctig6Rk
-	 8lpoJWcO+7d1MX0iPfqZnMN9PbeKP6Nj9ftIUXDuFz/J1cZS/M4U3B43nC+xOvtwL4
-	 YsTqQUe1EDBg2e8qkKVcu3sw2qiRy9yyOHTkNFZZyvlhJWuJ3TcVeQwnMLMR/yyvad
-	 WPE/4NEFAJwbzKYeTiGJ3o680Cu5a5SJE+QsEFZgYnHQc/qxEyCYorfTaqsUhudDet
-	 YsJccVtwWwsPw==
-Message-ID: <sashiko-outbox-192252@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] virtio_console: add console port to list before
- hvc_alloc()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Foo Bar" <muratseker@meta.com>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>
+	dkim=pass (2048-bit key, unprotected) header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=W9cvOe1S
+Received: from pps.filterd (m0528005.ppops.net [127.0.0.1])
+	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A11wvZs2697238
+	for <virtualization@lists.linux.dev>; Sat, 31 Oct 2026 20:00:12 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=
+	pps82601-s2048-2026-q3; bh=+7tqArStNBb6UzWOhpgCNro6Nr4m1kw0/PjhJ
+	KGYy3U=; b=W9cvOe1SMaIvNcvf7RfKbQOs/stp++R8dHDRsAj+aPqtErtPzNJ86
+	cDIt7TsSfEZh5Rbb+wIlosutUtbS/ipiN8g/AC0MzF/o0gpKiXMoEuQ81I86VHO8
+	AS6Asa5odsJcnL5cIA1gUsEzZwHuzLm+r+6ounuJeLW7WZK9PrWUI8d3BI1CDHds
+	ztRvMvX7cGK5NU/rPzr2EFubZUo2Lm/JK57zb0Td+uBysyn2N2fU7p3SkKS6HFT/
+	JzyfTsh18chx9aizem1PKKoRCnjp3XmzaH/SO4Nc8nUq+SX4Bew3mYXYxnZUNNUU
+	rWK+HMlRkwXJXBLq2lHalpgmZgQw/RuJw==
+Received: from maileast.thefacebook.com ([163.114.135.16])
+	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4hn2wddmx6-3
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
+	for <virtualization@lists.linux.dev>; Sat, 31 Oct 2026 20:00:12 -0700 (PDT)
+Received: from twshared119346.16.frc2.facebook.com (2620:10d:c0a8:1b::30) by
+ mail.thefacebook.com (2620:10d:c0a9:6f::8fd4) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.2.2562.56; Sun, 1 Nov 2026 03:00:10 +0000
+Received: by devvm18200.frc0.facebook.com (Postfix, from userid 352338)
+	id 8E6ED6E47EF20; Sat, 31 Oct 2026 19:59:57 -0700 (PDT)
+From: Murat Seker <muratseker@meta.com>
+To: <muratseker@meta.com>
+CC: <amit@kernel.org>, <arnd@arndb.de>, <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>, <rusty@rustcorp.com.au>,
+        <virtualization@lists.linux.dev>
+Subject: Re: [PATCH] virtio_console: add console port to list before hvc_alloc()
+Date: Sat, 31 Oct 2026 19:59:55 -0700
+Message-ID: <20261101025955.3870851-1-muratseker@meta.com>
+X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261101022435.3466820-1-muratseker@meta.com>
 References: <20261101022435.3466820-1-muratseker@meta.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 01 Nov 2026 02:37:33 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -60,116 +78,36 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-FB-Internal: Safe
+Content-Type: text/plain
+X-Proofpoint-ORIG-GUID: y3a3MgMZa2FKQGLtoFi_hL9iNpdJ1-ny
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTAxMDAxMSBTYWx0ZWRfXytUdWcAfeSKq
+ CjohA++uBqp2AcmRxgbK7UP1Di3RNbskI4Ak/ixAUW3wMQ94zit/ytRxe8GMUG8t9mnXidzCpsH
+ CAqMxScjaSDnFhEW5uUhJ0kWdyyy75c=
+X-Proofpoint-GUID: y3a3MgMZa2FKQGLtoFi_hL9iNpdJ1-ny
+X-Authority-Analysis: v=2.4 cv=G6OJgNk5 c=1 sm=1 tr=0 ts=6ae6ab3c cx=c_pps
+ a=MfjaFnPeirRr97d5FC5oHw==:117 a=MfjaFnPeirRr97d5FC5oHw==:17
+ a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=7x6HtfJdh03M6CCDgxCd:22
+ a=jCddH8ec0KUNCymVuxII:22 a=jLPmfgFi0iO_3v1wpOMA:9 a=QYH75iMubAgA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTAxMDAxMSBTYWx0ZWRfX5kkae/nqH5jp
+ uQ/RfL7nA2OG7Nzas/dt2r34AU0y809v/HmxnbN+1js7M0SadO19lHDLB8qUthSx9ROhnAQaT1G
+ 5+ukyzMwiJuNfLpxKC1wx0Qe4qXHvO26g20eTZsVHO/TNKaGIlnts5aquthUti17nvcyHF2880z
+ ArAw5VH5KNugf9ObxE+XxaWX/aC634TIvsBz+5rq0Er1wcZ9joYTfjVMI7b8QwEunee5qR2cK8W
+ PliGTX9uxvcaepQkR1OQvdjOmpIPfQqoIEmMLsNjUChdJ2nl1VJ1mFfZe5n7PiAwNVMSe9CYre0
+ qcjBwQP2KoXmnUV60C4Wjvk8gpJVTER6XG7uVyZQ/whM5fBQBkiuu6bdFg2S86J+yo4sdUXXnHd
+ OZ/+x80bw1RUH2dMqxDWa7zP/YL6PQ3ARJCLnEmRETsxhlJet7dA+HwIwyJ2jJ655WWYQ7+FDTv
+ iHACkP89qfm6FlvG0RQ==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-11-01_01,2026-10-21_02,2025-10-01_01
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Critical] virtio_console: race between __send_to_port() and out_intr() i=
-n add_port()
---
+On Sat, 31 Oct 2026 19:24:35 -0700, Murat Seker wrote:
+> Subject: [PATCH] virtio_console: add console port to list before hvc_al=
+loc()
 
-commit e1686190742677c49792956e3ec4f167b8b193e9
-Author: Murat Seker <muratseker@meta.com>
+Please disregard this patch. I'll send a different fix.
 
-virtio_console: add console port to list before hvc_alloc()
-
-This commit adds the console port to pdrvdata.consoles before calling
-hvc_alloc() in init_port_console() so that put_chars() can find the port
-when register_console() replays the kernel log buffer. If hvc_alloc()
-fails, the port is removed from pdrvdata.consoles before freeing the
-vtermno.
-
-> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-> index 019bcae81af5c..a31fdac658913 100644
-> --- a/drivers/char/virtio_console.c
-> +++ b/drivers/char/virtio_console.c
-> @@ -1280,18 +1280,28 @@ static int init_port_console(struct port *port)
->  		return ret;
-> =20
->  	port->cons.vtermno =3D ret;
-> +
-> +	/*
-> +	 * hvc_alloc() may register the console, which replays the log buffer
-> +	 * through put_chars().  put_chars() finds the port on this list, so
-> +	 * add it first or the replayed messages are dropped.
-> +	 */
-> +	spin_lock_irq(&pdrvdata_lock);
-> +	list_add_tail(&port->cons.list, &pdrvdata.consoles);
-> +	spin_unlock_irq(&pdrvdata_lock);
-> +
->  	port->cons.hvc =3D hvc_alloc(port->cons.vtermno, 0, &hv_ops, PAGE_SIZE);
-
-[Severity: Critical]
-When probing a non-multiport device with a preferred hvc console, can this
-cause a race between __send_to_port() and out_intr() on port->out_vq?
-
-In virtcons_probe(), init_vqs() sets out_intr() as the callback for
-portdev->out_vqs[0] and virtio_device_ready() enables virtqueue interrupts
-before add_port() is called.
-
-In add_port(), when !use_multiport(port->portdev) is true,
-init_port_console() is called before the port is added to
-port->portdev->ports:
-
-drivers/char/virtio_console.c:add_port() {
-	...
-	else if (!use_multiport(port->portdev)) {
-		/*
-		 * If we're not using multiport support,
-		 * this has to be a console port.
-		 */
-		err =3D init_port_console(port);
-		if (err)
-			goto free_inbufs;
-	}
-
-	spin_lock_irq(&portdev->ports_lock);
-	list_add_tail(&port->list, &port->portdev->ports);
-	spin_unlock_irq(&portdev->ports_lock);
-	...
-}
-
-Because port->cons.list is now in pdrvdata.consoles during hvc_alloc(),
-hvc_alloc() -> hvc_check_console() -> register_console() synchronously
-replays the kernel log buffer through hvc_console_print() -> put_chars() ->
-__send_to_port() while port is still not in portdev->ports.
-
-__send_to_port() acquires port->outvq_lock with spin_lock_irqsave(), queues
-the buffer on out_vq, kicks the host, and spins waiting for completion:
-
-drivers/char/virtio_console.c:__send_to_port() {
-	...
-	/* Tell Host to go! */
-	virtqueue_kick(out_vq);
-
-	if (!in_blocking) {
-		...
-		while (!(buf =3D virtqueue_get_buf(out_vq, &len))
-			&& !virtqueue_is_broken(out_vq))
-			cpu_relax();
-	}
-	...
-}
-
-If the host completes the buffer and raises an interrupt on another CPU
-before add_port() adds the port to portdev->ports, out_intr() runs and
-find_port_by_vq() returns NULL:
-
-drivers/char/virtio_console.c:out_intr() {
-	struct port *port;
-
-	port =3D find_port_by_vq(vq->vdev->priv, vq);
-	if (!port) {
-		flush_bufs(vq, false);
-		return;
-	}
-	...
-}
-
-Wouldn't flush_bufs() then call virtqueue_get_buf() and free_buf() on
-out_vq without holding port->outvq_lock, corrupting the virtqueue ring
-concurrently with __send_to_port() and stealing the completed buffer so
-that __send_to_port() spins forever with interrupts disabled?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261101022435.3466=
-820-1-muratseker@meta.com?part=3D1
+Sorry for the noise.
+Murat Seker
