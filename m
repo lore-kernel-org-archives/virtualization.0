@@ -1,62 +1,103 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.226.149.38
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793618866;
-	b=yEe4wC9p4ma/snLNFqcdK6Ed9TIMLS1hNKUtIWv64Gl341kAxuFwTGaKIyijIsuudJ2I
-	 oJ0UnT0UxVLi8GXY18yaGwIgvzJsVJ90dqNgJ3XeMC09P8TALWA9aeSEQUmIoinqJOFiS
-	 Sxt2qdhd8/N84E+bCqJ/6o1YFHmBJd5V86mUT6XVZgmX8tQe76eWVhzWEPttmh9QmWbAP
-	 15NQcgQJn4+lvfp9T69dxRf0nrnuKSiW7rMwFF2V5HB/eqiGRV/6hdbqpG2xVR8Puzcju
-	 yw3xh/K+q8NN3nN0nAoXj9E5DAnWBVjxjf/8FssE2qsSP4bARpY2mzNQUDAk6rKBBHw==
+	t=1793620120;
+	b=CsxGFT9ig+mIFPE4xGOP0tQzwg6hOErl/cf55Tb6SVmL5w6erxw2Ttayllk+emDBNQqj
+	 XxzIeT7RjcD5BC+Rdtj7AMRLHjbZqKfDhztd+ICyAqTeCsIH+yijfFSuNwsmI3n8iSOjP
+	 JJMyX14Yo9MDjxqv3/AXi4m85QNHW+1aMH1LF/Fx8nXA6Excouq7O1xy8HV9iRijzcLdU
+	 wTMKUNhAGvUeMuWR1DQzC6pSPZsYHukma1JTA5FTWzDSpjkEgOG23Gp16KFYR9XC65izY
+	 Kyb9r2WofnPJkq9+zOKd6gOPQxOW/duJGtAFMidkpJwl9NSMORu9MBbBymM3eJ31xUg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793618866;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Message-ID:
-	 Date:MIME-Version:User-Agent:From:Subject:To:Cc:References:
-	 Content-Language:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-	bh=TEl1DgfXUA5pWV0ULqPFDtP6OTn2CRZgvQuqRoLVd2k=;
-	b=vbME1SJBQaK+iwRWiw/uKNi+6hiJ1OwGddbf/odL7moRVQbsxGx6vgGNaD/mbZ55jXQr
-	 E2Y57LShEWdYUZ9GRUsqTIqLW0nqeFDdJW2zo0mApEOQD/Xnh4ZR0Lpf/2tF+Ae9lvNn3
-	 O6hIS1rcWPoncUftc+IxaArHoeL/AOyEFdwNys7JZgzWQ8SaQAqCY5cI87yemTFuo1rJ1
-	 qIOIvuGTKkKHDbw/sBjjY5CaiaFISlnkvenhfc+iNuKffx+BdIbz356f9XGdulsMUQQfR
-	 VYAM0szThOhE4OMUlxkl/4K14seM8uVYwMPNHB2olUoKq+L/omtQ5Jin3vxH0201EpQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793620120;
+	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
+	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
+	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
+	 X-Mimecast-Originator:Content-Type:Content-Disposition;
+	bh=ziwl8QBf1v7FFJqjlJ23GJJU3dSmhwP3y1Fomlh8GfI=;
+	b=a4jDAjb5QEKeS2nWR2qDhprytFERXawT+YHW9FAiD/YftelC2r1IFVL7wq3ZkC6x7Bu/
+	 Ka2egJNvDvIrOb9CmRQ+NGKmZ3TKIUnP6ncMb9yTFAU3binY4jVBkkzjmqiWrbTDkETT/
+	 rXuKCnPgjg9nTm5gnVbRdLmdNJwnijwnF/cqAX53P21lJrlCLAIHVo7Aksw3uhTJuoMsu
+	 ewk9+Jed/2Q5D2bMaq+1iRA50sCeDfrLbj8ww4+SLta/oVqr0NhvgSFUlRrTMgduO0iBa
+	 21FxtHBJjkVQxAehKtU+m1OLWrU89dl/VJF4XOoCgzUUQYWTfXqDS6G7XOpa7ir9YPg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=rbox.co;
-	spf=pass smtp.mailfrom=rbox.co;
-	dkim=pass header.d=rbox.co header.i=@rbox.co header.a=rsa-sha256 header.s=selector1 header.b=UdlUnKwa;
-	arc=none smtp.remote-ip=185.226.149.38
-Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
+	dmarc=pass header.from=redhat.com;
+	spf=pass smtp.mailfrom=redhat.com;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=aQii4uzd;
+	arc=none smtp.remote-ip=170.10.129.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C27D606A32C;
-	Mon,  2 Nov 2026 11:27:44 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0C27D606A32C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BBB0606A337
+	for <virtualization@lists.linux.dev>; Mon,  2 Nov 2026 11:48:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1BBB0606A337
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=rbox.co header.i=@rbox.co header.a=rsa-sha256 header.s=selector1 header.b=UdlUnKwa
-Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
-	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-	(Exim 4.93)
-	(envelope-from <mhal@rbox.co>)
-	id 1xNqCJ-00BSF2-62; Mon, 02 Nov 2026 12:27:31 +0100
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector1; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:References:
-	Cc:To:Subject:From:MIME-Version:Date:Message-ID;
-	bh=TEl1DgfXUA5pWV0ULqPFDtP6OTn2CRZgvQuqRoLVd2k=; b=UdlUnKwa2wwdsv4p1NZcbSZeV7
-	t4UOZnJaFeNb1oOLIegteX+/dZrJeyljqcQ8j+DemSAkcNZ9NA6RWxLB1qHZwZpB51BTC6BQllue7
-	kUMdtmojCpnGTa7941e3k/nOmpzV90w9kZJo+S6M0WLvFJcPy3x0eW7Okn9UrI0Mho7XOqc1/gDPz
-	J7OgLEcen16fXD3G+0uHsUVhj/SkBoJl+XumCZkg+45U3u6GRIH5EaDajhTqxh8WHW1GAr4INWy4d
-	nUkOjpuLeOMmHg40TB5oRoTVszVeAuf/LQnMd7teaFJCfeGJI7wxfjhsnD0t6bOizG7rupdqMfw7W
-	shLj9clg==;
-Received: from [10.9.9.73] (helo=submission02.runbox)
-	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
-	(envelope-from <mhal@rbox.co>)
-	id 1xNqC6-0001gG-1k; Mon, 02 Nov 2026 12:27:18 +0100
-Received: by submission02.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.95)
-	id 1xNqC0-00BRqT-Uz;
-	Mon, 02 Nov 2026 12:27:13 +0100
-Message-ID: <44aa83c2-042b-4d4f-9f9c-f9be8b0fccc1@rbox.co>
-Date: Mon, 2 Nov 2026 12:27:10 +0100
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=aQii4uzd
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1793620119;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ziwl8QBf1v7FFJqjlJ23GJJU3dSmhwP3y1Fomlh8GfI=;
+	b=aQii4uzdIeGwM+RWfXi2JMTXGzmrbFtmLlbwOuhaYCv5fgrWkVW+ES/hslOmuTV060cU6u
+	n4rLjvuFZQ9Y0djMvXDahFAoxUI2R5bLUMyRrzzMAFnGm1Cvuzhqu8+8IWEFPcTHha2YaM
+	tYhfksjrmx1c4RzOdjsRRWJyMTeL55E=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-453-dhQKdZnhPeGwcH3rO1wWvg-1; Mon, 02 Nov 2026 06:48:35 -0500
+X-MC-Unique: dhQKdZnhPeGwcH3rO1wWvg-1
+X-Mimecast-MFC-AGG-ID: dhQKdZnhPeGwcH3rO1wWvg_1793620115
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4a1d1f26a63so28144295e9.1
+        for <virtualization@lists.linux.dev>; Mon, 02 Nov 2026 03:48:35 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793620115; x=1794224915;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=ziwl8QBf1v7FFJqjlJ23GJJU3dSmhwP3y1Fomlh8GfI=;
+        b=KwvOzf5mrcgVNyU3TYng0DAIOP3gkOSIlAGU2yav1iqE4+YVTbp/+f1FMDpoPvE/kS
+         DM/sI2HRovRzt4wVbICgn6j4FvHoNzIQkyHfmPFt9U900rUkh109a92i3O/TnTWi4Iq9
+         gb7IpGRrlIt49WeFwQmCiWkqWRlTX8/DSu4SfN5QGeKth3LU5MV0rCvl0qHZMITUvkQs
+         hpyUxfQMOW9H4QzJT52/K036aUBbJuQNnlnrMh6cL9rcOKBzP0KktYJsCV0rDfjAbKgs
+         7uMNSImc7a1VawlcFUxKksfE5yNk4Pv0VsgruocHpmC5XhpQRJBX8t14ZM0TOp40UBcz
+         ruKQ==
+X-Forwarded-Encrypted: i=1; AKwUvBylX1wZeHi8wNR0RpjMoEW+eRhE/jDCDU5cb5mA0W/UnIpJbI35iGoPKYLrNted/gfW0dANjFJKTj3d33Enzw==@lists.linux.dev
+X-Gm-Message-State: AFq9FYKdYoYe45P/1ZgsCzz7nUzns3qjfeXJSBpuPjENR8ARB2AIh7jr
+	mrQqe5fduNPtmp8s4EDm9qDnPFFJX0Sw2o5i4DVDs+ljgb07gf5P5rVOp+ygywcCmakMw2tib+B
+	LdULlkkeuBE08YtZV2+0Q5PLNPZ+ZTSbY/0bOTlP/wwsbdluWWGg4479h47DhGSvflHt2euHzlI
+	HA
+X-Gm-Gg: AYBFou1BAC8UYlzhXjbtQALpTyM2KnyQV4IFL/gkVdPMtz/z4nIaY4bK4hsQNk1Xs9z
+	QO5+X7yczBJDdq4aOGDiEMic9fwRHElJg9Zeiw8rvipGoKw43hud19jV6h5Ijbt/SPFwi16tgW7
+	fPXrwaOpeTyhLostw3vJ7yHaecIlEpnvYBwrBSFvOKYrtq7KuGMFn/fAiWnhMiGpqWNwByVS/Ra
+	VI99F/ZayMct9pltFnQ/k2jB/0kpjvaXYDxS1haQobjNgVOqPNrpathofjxJLoawu+zwdV+Zwi2
+	jhjjWFFkuVGzO4usTVGN2UlmNbY6dFk+hmQP4okbZuUR6ksr6TM0jaJ0UGvhhpqQ013vuJNsfsH
+	7XPYW8/kvmon1UnmHAmeVjPLxG7md5GWobz9VjzwZwA==
+X-Received: by 2002:a05:600c:46d1:b0:4a1:825a:56fd with SMTP id 5b1f17b1804b1-4ac18a88fa6mr234177065e9.32.1793620114465;
+        Mon, 02 Nov 2026 03:48:34 -0800 (PST)
+X-Received: by 2002:a05:600c:46d1:b0:4a1:825a:56fd with SMTP id 5b1f17b1804b1-4ac18a88fa6mr234176455e9.32.1793620113987;
+        Mon, 02 Nov 2026 03:48:33 -0800 (PST)
+Received: from redhat.com ([2a0d:6fc0:1501:b100:9ea2:fd21:b361:8dab])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4ac0a66caefsm216985365e9.5.2026.11.02.03.48.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 02 Nov 2026 03:48:33 -0800 (PST)
+Date: Mon, 2 Nov 2026 06:48:30 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>
+Cc: Hannes Reinecke <hare@suse.de>, jasowangio@gmail.com, mkp@kernel.org,
+	James.Bottomley@hansenpartnership.com, pbonzini@redhat.com,
+	stefanha@redhat.com, eperezma@redhat.com,
+	virtualization@lists.linux.dev, linux-scsi@vger.kernel.org,
+	linux-kernel@vger.kernel.org, sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] scsi: virtio_scsi: implement eh_host_reset_handler
+Message-ID: <20261102064501-mutt-send-email-mst@kernel.org>
+References: <20260911164417.33860-1-ngocthang2710.1999@gmail.com>
+ <28865bba-ac60-4c6e-aec8-64b1fcdb1c8f@suse.de>
+ <20260914133144.15509-1-ngocthang2710.1999@gmail.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -66,53 +107,109 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-From: Michal Luczaj <mhal@rbox.co>
-Subject: Re: [PATCH net-next v4 4/7] vsock: add a netlink command to assign
- the g2h device to a netns
-To: Bobby Eshleman <bobbyeshleman@meta.com>
-Cc: Stefano Garzarella <sgarzare@redhat.com>,
- "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
- Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>,
- Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin"
- <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Shuah Khan <shuah@kernel.org>,
- Randy Dunlap <rdunlap@infradead.org>, Donald Hunter
- <donald.hunter@gmail.com>, Eric Dumazet <edumazet@kernel.org>,
- virtualization@lists.linux.dev, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
- kvm@vger.kernel.org, linux-kselftest@vger.kernel.org, sargun@sargun.me,
- jlinbox@meta.com
-References: <20261020-vsock-guest-ns-v4-0-047527cfccfc@meta.com>
- <20261020-vsock-guest-ns-v4-4-047527cfccfc@meta.com>
- <atjZZP2ebhXKzMxL@sgarzare-redhat>
- <atld3+5LKmGxJ8+s@devvm29614.prn0.facebook.com>
- <atnjOZjKUBagRVWq@sgarzare-redhat>
- <d946003a-8bec-4e8b-89a3-05eeb96780cc@rbox.co>
- <auT+YIawHSMPHbJI@devvm29614.prn0.facebook.com>
- <5a411a67-f550-459d-be9b-5e8e51d3018c@rbox.co>
-Content-Language: pl-PL, en-GB
-In-Reply-To: <5a411a67-f550-459d-be9b-5e8e51d3018c@rbox.co>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20260914133144.15509-1-ngocthang2710.1999@gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: Zxg3nCmw_t_aFt_3tuQUUIb6lrTsIbspqhKn3bWDPUA_1793620115
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 11/2/26 02:21, Michal Luczaj wrote:
-> On 10/30/26 21:30, Bobby Eshleman wrote:
->>> virtio_vsock_reset_sock() and vhost_vsock_reset_orphans() are my pet
->>> peeves: state switcheroo without taking lock_sock(). Which, again, races
->>> vsock_connect().
->>
->> True, I don't love that either, but I feel the impact is at least
->> constrained by the fact that it only happens when the module or device
->> is already going away.
+On Mon, Sep 14, 2026 at 08:31:44PM +0700, Nguyen Ngoc Thang wrote:
+> Once virtscsi_eh_timed_out() lets SCSI EH run on an unresponsive host,
+> abort and device reset both fail the same way (same dead ctrl vq), and
+> since virtio_scsi implements neither target nor bus reset, EH falls
+> through to scsi_eh_offline_sdevs(), which frees the stuck commands' DMA
+> buffers without any guarantee the device has actually stopped touching
+> them. If bus mastering (or whatever broke the transport) comes back
+> later, the device can still write into memory the kernel has already
+> reused.
 > 
-> Doesn't it happen on suspend as well? Is so, with a poorly timed connect()
-> things can go south on resume.
+> Add a real eh_host_reset_handler instead. virtio_reset_device() is the
+> guarantee scsi_eh_offline_sdevs() was missing: once it returns, the
+> device will not touch guest memory again, so it is safe to hand
+> outstanding commands' buffers back. Reuse virtscsi_remove_vqs() +
+> virtscsi_init() -- the exact sequence already used across
+> suspend/resume -- to tear the virtqueues down and rebuild them.
+> 
+> Verified with a QEMU virtio-scsi repro (PCI_COMMAND_MASTER cleared
+> mid-write): EH now runs abort -> device reset -> host reset -> abort ->
+> device reset -> host reset -> offline, then dd's stuck fsync returns
+> EIO and D-state drains to 0, in ~244s total. No task remains
+> uninterruptibly blocked.
+> 
+> Suggested-by: Hannes Reinecke <hare@suse.de>
+> Signed-off-by: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>
 
-What I wrote doesn't really make sense, does it? vsock_connect() cannot
-freeze midway, so SS_UNCONNECTED (due to virtio_vsock_reset_sock() flipping
-state to TCP_CLOSE) can't be set. Sorry.
 
-But it is still the case for bind/unbind, right?
+This is not posted correctly:
+
+- start a nbew thread do not reply
+- against some tree which is not upstream
+
+I papered over it
+
+
+> ---
+> v1 -> v2: implemented eh_host_reset_handler as suggested by Hannes
+> Reinecke in review of the original RFC, instead of relying solely on
+> the EH loop falling through to offline.
+> ---
+>  drivers/scsi/virtio_scsi.c | 24 ++++++++++++++++++++++++
+>  1 file changed, 24 insertions(+)
+> 
+> diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
+> index b4f20c487718..9698f4f91cc6 100644
+> --- a/drivers/scsi/virtio_scsi.c
+> +++ b/drivers/scsi/virtio_scsi.c
+> @@ -833,6 +833,8 @@ static enum scsi_timeout_action virtscsi_eh_timed_out(struct scsi_cmnd *scmnd)
+>  	return SCSI_EH_NOT_HANDLED;
+>  }
+>  
+> +static int virtscsi_host_reset(struct scsi_cmnd *sc);
+> +
+
+so move the function here?
+
+>  static const struct scsi_host_template virtscsi_host_template = {
+>  	.module = THIS_MODULE,
+>  	.name = "Virtio SCSI HBA",
+> @@ -846,6 +848,7 @@ static const struct scsi_host_template virtscsi_host_template = {
+>  	.eh_abort_handler = virtscsi_abort,
+>  	.eh_device_reset_handler = virtscsi_device_reset,
+>  	.eh_timed_out = virtscsi_eh_timed_out,
+> +	.eh_host_reset_handler = virtscsi_host_reset,
+>  	.sdev_init = virtscsi_device_alloc,
+>  
+>  	.dma_boundary = UINT_MAX,
+> @@ -947,6 +950,27 @@ static int virtscsi_init(struct virtio_device *vdev,
+>  	return err;
+>  }
+>  
+> +/*
+> + * No bus/target reset in virtio-scsi, so EH lands here after device
+> + * reset also times out. A virtio reset guarantees the device won't
+> + * touch guest memory again, so stuck commands can be freed safely.
+> + * Same teardown/rebuild already used for suspend/resume.
+> + */
+> +static int virtscsi_host_reset(struct scsi_cmnd *sc)
+> +{
+> +	struct virtio_scsi *vscsi = shost_priv(sc->device->host);
+> +	struct virtio_device *vdev = vscsi->vdev;
+> +
+> +	scmd_printk(KERN_INFO, sc, "host reset\n");
+> +
+> +	virtscsi_remove_vqs(vdev);
+> +	if (virtscsi_init(vdev, vscsi))
+> +		return FAILED;
+> +
+> +	virtio_device_ready(vdev);
+> +	return SUCCESS;
+> +}
+> +
+>  static int virtscsi_probe(struct virtio_device *vdev)
+>  {
+>  	struct Scsi_Host *shost;
+> -- 
+> 2.43.0
+> 
+
