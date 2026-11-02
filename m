@@ -1,62 +1,82 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.226.149.37
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793582531;
-	b=jvyV/hxyg8rEZbLDE7cJXmQ/tPmRoHtTHWXl829RiEkfmTme5vDLYF6HADZt8lLX7mSt
-	 PwOWPx1Js/2LHdlXSvPeDqXXQ4jQGcbKWmIWahTAiDFA/Y8Wlf2x9lmh//QAC03tZBkp+
-	 GuE+c2PWbHDTR2JZIeGg9jn8nD8Ebf8dQII2k8eAATVAQjDWwmrYlLZPXhm+Aymd5mbQM
-	 TJd1DzQLi6cTwJ2C45Ap895fZIugraEWnh4HOTd46l8Yyt9U+WHEQLMmU9TgE+FyT8UbF
-	 IRL9No2jWeCuD55zbQc65d7m2pwuG3r6GP8wPRvjhARsQ6oaNLzpgwgtcQhS/nUYGbw==
+	t=1793606494;
+	b=V7mLTJ1olKWBtXPiATJhsZb43BCA/UMFUcoVF3gkab1Z+3X6MPp999RzAZ0f+XnzBZK0
+	 afwF6JYajk3mPJRCFotMn/JLOIPbqmY/qf36uAznUrW2Mm/8lBdIAkAb+kacCYc0PTjNC
+	 GDmszBjOL976nkl1unF83nvhSiN54sXcIbnAXNI7Mnc5qS0USw+cjfD0U1VNTwAkBOsKT
+	 kM+lGZjmdPrHGNcmVyvg0rFo2XJmsoR4Zui88W5gcZ3S6M2kvzBTJebOTGfBEbDIOXn/d
+	 gvZ0iBR53OyeQnwl7Ikun9TooSET4LgGQViloFDciXaZmlYYynww5ytEh5js+WfwCEQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793582531;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Message-ID:
-	 Date:MIME-Version:User-Agent:From:Subject:To:Cc:References:
-	 Content-Language:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-	bh=C5gqpTOgkDU//zQkGOQKjOKsqsvBDDMS+gbejxMeVdk=;
-	b=r1jk7OLvcBx//RbsjTw+M51BupX6xk1APaIKGgw4oiraqYGsVxNEcKk9/VmV8YdF67m+
-	 6muAyAFYhp07T/6hpsDAMzotn0UuY+i4Z8caFLZCHa5GclZTHgbyTPJiBm3o21tca7Lst
-	 gnNHBkXKvLcLjW1jUYFDiLMEZMYKYyCybXm3g7Ks2jA/dD3m2ojyeUkMCFVuRFjeGcysY
-	 7nfDzhxcAh5RXUKY+Qq2Ao+87aqn77FyBhE7Ean4ofmaA4rU7TpQZufJUVusWAM1SkjdN
-	 g0BSvQW1nrqtZa0BTHYLs2QdNG4ldoPq1+fUt/oTXc+ft041LP4R1rxJCs9kPI1aztQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793606494;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
+	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
+	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
+	 X-Proofpoint-Reinject:X-Authority-Analysis:X-Proofpoint-Spam-Info:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-GUID:
+	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Virus-Version:
+	 X-Proofpoint-Spam-Details;
+	bh=HBnD11gMSZpLVfr+vR9u0GimaEXWjeLtUh8hd5opuf4=;
+	b=5sSowSP9lyg4mWqvRNUe1XXkTg1Xccy2nsDYvqnviWlSzMrd/sD07QA8WhXQbzYm02pS
+	 dn/27vribM4Suj94hvXLsOtWPt9inHN68vjyMG1wppCuiVOPgR8sm9hwMQHp+OxypmIcB
+	 fqXM3nOx7mYpjzz0qXZ4HilsGpO0GqhiaR+BeOYdCxPN+aOVRbcrPSF7CXGuzpY+OYXd3
+	 cQteE0xrNw1XkMOF7xqMJiCweVkcgHjibLUc0c4+DdTPyOJ42cTKuf1oApPIknErRvYgZ
+	 bGiNpc7f3xBgluNkDCjOGXBuYom0i1mFQf/oViGHZ5VBi8liQF1+bcak2UUeDYg3jrg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=rbox.co;
-	spf=pass smtp.mailfrom=rbox.co;
-	dkim=pass header.d=rbox.co header.i=@rbox.co header.a=rsa-sha256 header.s=selector1 header.b=I2EnYMrr;
-	arc=none smtp.remote-ip=185.226.149.37
-Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
+	dmarc=pass header.from=linux.ibm.com;
+	spf=pass smtp.mailfrom=linux.ibm.com;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=GVi985Fx;
+	arc=none smtp.remote-ip=148.163.158.5
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BF74606A324;
-	Mon,  2 Nov 2026 01:22:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4BF74606A324
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7481606A324
+	for <virtualization@lists.linux.dev>; Mon,  2 Nov 2026 08:01:33 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B7481606A324
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=rbox.co header.i=@rbox.co header.a=rsa-sha256 header.s=selector1 header.b=I2EnYMrr
-Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
-	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-	(Exim 4.93)
-	(envelope-from <mhal@rbox.co>)
-	id 1xNgkL-008BKP-AU; Mon, 02 Nov 2026 02:22:01 +0100
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector1; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:References:
-	Cc:To:Subject:From:MIME-Version:Date:Message-ID;
-	bh=C5gqpTOgkDU//zQkGOQKjOKsqsvBDDMS+gbejxMeVdk=; b=I2EnYMrrFCOKTtqiYFvChN8tuO
-	Cy6ULEkHqZw8Q+rhppEMB19ro7BO6VuN7dn5ELjJpjzLDnCsLnHAmJUg76QVbr15RlNupVPczMgOt
-	WYkrmzXN0jXh8lEMvXbiTMmKmjoXOSWj46V1Cq2SE+xjtzOUeBeI2TCoF+OAImGTyva3Ujp36uUn2
-	+OMa3CNuLMCPwwJtY0Kp5TaNEtIzTJgcWZ1rDSglQuY4CGsVryG5zGIVdAkk8GgEeZN9Yd8LC/G5i
-	eU1Z+j1RLVNA9qCUpGXnxdd7hU17+050tLzAXhcYSJFagJ/wJ9TbMYxkYmr5DaiWwyI0KVcfok/4+
-	uvU/cxWw==;
-Received: from [10.9.9.74] (helo=submission03.runbox)
-	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
-	(envelope-from <mhal@rbox.co>)
-	id 1xNgk3-00069h-Pc; Mon, 02 Nov 2026 02:21:43 +0100
-Received: by submission03.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.95)
-	id 1xNgjp-00AfUJ-El;
-	Mon, 02 Nov 2026 02:21:29 +0100
-Message-ID: <5a411a67-f550-459d-be9b-5e8e51d3018c@rbox.co>
-Date: Mon, 2 Nov 2026 02:21:27 +0100
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=GVi985Fx
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A24EBHK1895532;
+	Mon, 2 Nov 2026 08:00:48 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=HBnD11
+	gMSZpLVfr+vR9u0GimaEXWjeLtUh8hd5opuf4=; b=GVi985Fx81FXaLN/zhVL8E
+	67lr+VFKj8a4CAVz80ht3+ABtWxDiKRSwvbaNznYCs7/8z8HpkHJETPyEPn6uAvK
+	LhTxLukt6QE43gF+ut2DZ+nwW91AiZsfbhvGMQJLsDRZeMS2vawEhCVNdSUIk7kT
+	HvqR5M0SGlrJDEppmB/ShTqq5aoUoJl13ns1YfYzdE2PTIYJS2+WG52/nlncaXFu
+	W4ksiidEKuafaB4afFQ38V3omT1u+96wiRcbDEBDNDGiz9AbJkdYh/tGJfy3PvHc
+	UFGqoD2ADRvb1q+7lGo8u01QTMjZcGqZsP4qeNpTNPS+P6KZ19CugbELrjiEIvNg
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hn7yrqa9w-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Mon, 02 Nov 2026 08:00:47 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A280NPN394430;
+	Mon, 2 Nov 2026 08:00:46 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4hnwbxvkpk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 02 Nov 2026 08:00:46 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A280ghv49283404
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 2 Nov 2026 08:00:42 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3222420049;
+	Mon,  2 Nov 2026 08:00:42 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1026520040;
+	Mon,  2 Nov 2026 08:00:41 +0000 (GMT)
+Received: from [9.111.42.133] (unknown [9.111.42.133])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  2 Nov 2026 08:00:40 +0000 (GMT)
+Message-ID: <62c7faba-3f9a-4ab8-a3b2-dce4f748cff7@linux.ibm.com>
+Date: Mon, 2 Nov 2026 09:00:40 +0100
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -67,118 +87,143 @@ List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-From: Michal Luczaj <mhal@rbox.co>
-Subject: Re: [PATCH net-next v4 4/7] vsock: add a netlink command to assign
- the g2h device to a netns
-To: Bobby Eshleman <bobbyeshleman@meta.com>
-Cc: Stefano Garzarella <sgarzare@redhat.com>,
- "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
- Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>,
- Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin"
- <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Shuah Khan <shuah@kernel.org>,
- Randy Dunlap <rdunlap@infradead.org>, Donald Hunter
- <donald.hunter@gmail.com>, Eric Dumazet <edumazet@kernel.org>,
- virtualization@lists.linux.dev, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
- kvm@vger.kernel.org, linux-kselftest@vger.kernel.org, sargun@sargun.me,
- jlinbox@meta.com
-References: <20261020-vsock-guest-ns-v4-0-047527cfccfc@meta.com>
- <20261020-vsock-guest-ns-v4-4-047527cfccfc@meta.com>
- <atjZZP2ebhXKzMxL@sgarzare-redhat>
- <atld3+5LKmGxJ8+s@devvm29614.prn0.facebook.com>
- <atnjOZjKUBagRVWq@sgarzare-redhat>
- <d946003a-8bec-4e8b-89a3-05eeb96780cc@rbox.co>
- <auT+YIawHSMPHbJI@devvm29614.prn0.facebook.com>
-Content-Language: pl-PL, en-GB
-In-Reply-To: <auT+YIawHSMPHbJI@devvm29614.prn0.facebook.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH v14 04/13] cpumask: Introduce cpu_preferred_mask
+To: Shrikanth Hegde <sshegde@linux.ibm.com>, Yury Norov <ynorov@nvidia.com>
+Cc: linux-kernel@vger.kernel.org, mingo@kernel.org, peterz@infradead.org,
+        juri.lelli@redhat.com, vincent.guittot@linaro.org,
+        yury.norov@gmail.com, kprateek.nayak@amd.com, iii@linux.ibm.com,
+        corbet@lwn.net, tglx@kernel.org, gregkh@linuxfoundation.org,
+        pbonzini@redhat.com, seanjc@google.com, vschneid@redhat.com,
+        huschle@linux.ibm.com, rostedt@goodmis.org, dietmar.eggemann@arm.com,
+        maddy@linux.ibm.com, srikar@linux.ibm.com, hdanton@sina.com,
+        chleroy@kernel.org, vineeth@bitbyteword.org, frederic@kernel.org,
+        arighi@nvidia.com, pauld@redhat.com, christian.loehle@arm.com,
+        tj@kernel.org, tommaso.cucinotta@gmail.com, maz@kernel.org,
+        rafael@kernel.org, rdunlap@infradead.org, kernellwp@gmail.com,
+        linux-doc@vger.kernel.org, jgross@suse.com,
+        virtualization@lists.linux.dev, sunlightlinux@gmail.com
+References: <20260928053728.797539-1-sshegde@linux.ibm.com>
+ <20260928053728.797539-5-sshegde@linux.ibm.com>
+ <4605dad5-aab2-49e3-b919-bf9897181834@linux.ibm.com> <auN0GKVMNvXbNdCN@yury>
+ <b83e2d2f-681d-4e19-a680-c076493b3edd@linux.ibm.com>
+ <15083d2e-1c9f-4dad-816a-25cc2f3810b0@linux.ibm.com>
+Content-Language: en-US
+From: Mete Durlu <meted@linux.ibm.com>
+In-Reply-To: <15083d2e-1c9f-4dad-816a-25cc2f3810b0@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Authority-Analysis: v=2.4 cv=Mcr5KJ/f c=1 sm=1 tr=0 ts=6ae84330 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=NEAV23lmAAAA:8
+ a=VnNF1IyMAAAA:8 a=cLjWqlLnyS6TRyV_P9wA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTAyMDAzMCBTYWx0ZWRfXxc13DqFV7AON
+ iE1R7zP+9t82qywmbI1AiMPzcm3Mnh/0qfdZ13fEwNU21swUrBAiCap0EQTJGXGh+vj04pXCplE
+ RTZEmvmLcYk2CyeSsfIk3v0pd89V3I4=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTAyMDAzMCBTYWx0ZWRfX6r3qhuOgUIiW
+ BrZWH8aCRIEmtFLzolcE3ed8rArIUROlGKFh8344mFHYCNCi6qyLT8S6q9ZikaX0qMo5ikOwfAN
+ E8IlrAj4Yu41zIvVIt177dJexvaF6uNMyPYpIEnuDNYXogENgsSVUbumurdUhqnS5jAa0d/m1Nz
+ guBAsFHVCUtuik3ARxFFlvgmfgo9+XzaBwrlgPSaw4tEeNwJFUw3HgJYXzWVSHfKjYes0Z7ewWL
+ PqFeaJx//byaTWrBg9tl2LTn1W96xF8Opv0MRALUCw9XJL4gF0Bvd1lVq9nB2WhpYFTdnFoLf4c
+ qo3lf2MEwkLeCsFJ0w82kXi/WA2DZGjk0cQs5uxiBHxzxi6GE9BhwTBZLBNqijA9u1Mv2CVYmTF
+ KoY30WRynrv837PdyfR+hGEiDrAHzPfiBV2bzyzNcDfONG9z1bAMbRemiUTuk9xVlPl7GYIwJvj
+ BSM/6ajTWXxUMnGqPiQ==
+X-Proofpoint-GUID: diq5pX26PNT8Bm1BrVRQ0Sx0Cm9WmTwW
+X-Proofpoint-ORIG-GUID: q2xB-e3zYjJaIp0j0NLZWRkX-ciZF6xG
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-11-02_02,2026-10-21_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 priorityscore=1501
+ clxscore=1015 impostorscore=0 adultscore=0 spamscore=0 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2610300000 definitions=main-2611020030
 
-On 10/30/26 21:30, Bobby Eshleman wrote:
->>>> Yeah its all kind of a pain. The problem is that we need to hold
->>>> sock_lock to set sk_state and sk_err, but can't acquire it under the
->>>> table lock. Instead, we grab the socket ref sock_hold under the table
->>>> lock to guarantee it stays alive between releasing the table lock and
->>>> grabbing the socket lock.
->>>>
->>>> I was really tempted to not do this lock_sock dance though. The race
->>>> condition I'm avoiding here is that if this reset races with an RST
->>>> receive, then the socket could end up with TCP_CLOSING + sk_err
->>>> ECONNRESET... but I'm not sure this actually propagates up into a real
->>>> problem for any potential user.
->>
->> Right, vsock_connect() is fragile. Two things to be cautious about:
->> 1. Don't let it reset the already connected socket. Because that would
->> allow user to "re-connect()" and make mess in connected_table.
->> 2. Don't let it re-assign transport of an already connected socket. Because
->> that breaks the contract in few places.
->>
->> State 1 is not an issue: vsock_g2h_reset_unreachable() calls
->> __vsock_remove_connected().
->>
->> State 2 may be problematic: if vsock_g2h_reset_unreachable() sets TCP_CLOSE
->> when connect() is scheduled out, then after the wake-up sock may get reset
->> to SS_UNCONNECTED. Then user re-connect()s and hits the transport
->> re-assignment logic. I'm worried that, as we re-assign, someone may be
->> holding a reference to such "connected" (even if not in connected_table
->> anymore) vsock.
+On 30/10/2026 15:53, Shrikanth Hegde wrote:
+> Hi Mete, Yury,
 > 
-> I see path you're looking at... after vsock_connect() gets scheduled
-> back in we set TCP_CLOSE/SS_UNCONNECTED if sock_error returns non-zero.
-> Could you elaborate on your last concern there about someone holding a
-> reference? I'm not sure I fully understood.
-
-Ah, sorry, let me explain. This case reminded me of the vsock's TCP_CLOSING
-bug[1]: reporter mentioned vsk->trans getting freed when skb was still in
-flight. I did not reproduce the exact scenario, but it did sound plausible
-and I thought it applies here: virtio_transport_destruct() frees vsk->trans
-the moment vsock_loopback_work() invokes virtio_transport_consume_skb_sent().
-
-Now, to get there let's start with vsock_connect() setting SS_UNCONNECTED
-(on a connected) socket after vsock_g2h_reset_unreachable(). Then user is
-able to re-assign the transport, which involves
-virtio_transport_destruct(). But since we're dealing with a connected
-socket, (before the reset) some send() might have triggered
-vsock_loopback_work(). Does this make sense to you?
-
-Another thing is this feature of vsock_assign_transport(): in some
-re-assign failure paths you may end up with vsk->transport = NULL. In the
-past this caused issues with sockmap: see WARN_ON_ONCE in
-vsock_bpf_recvmsg(). Problem here is that normally vsock gets removed from
-sockmap on close(), but in our (reset+reassign) case close() is never invoked.
-
-[1]: https://lore.kernel.org/netdev/anzT1fREOSyHT99k@v4bel/
-
->> So I don't know, maybe it's vsock_connect() that should be fixed/hardened
->> instead?
->>
->> Or at least disallow transport *re*-assignment? Does the "re-" part have a
->> use case?
->>
->> Hope it's not too off-topic.
->>
->>>> It also avoided some racing with the tx path, but now that send_pkt()
->>>> also checks reachability I think that path is safe.
+> On 10/29/26 10:06 PM, Mete Durlu wrote:
+>> On 29/10/2026 17:28, Yury Norov wrote:
+>>> On Thu, Oct 29, 2026 at 02:32:08PM +0100, Mete Durlu wrote:
+>>>> On 28/09/2026 07:37, Shrikanth Hegde wrote:
+>>>>> Provide the preferred CPU infrastructure. Define get/set macros
+>>>>> which could be used to get/set CPU state as preferred.
+>>>>>
+>>>>> CONFIG_PREFERRED_CPU will be selected by the driver which handles
+>>>>> steal time values. It is going to set/clear preferred CPU state.
+>>>>> This driver will be called steal_governor and it is introduced in
+>>>>> subsequent patches. It periodically computes the steal ratio and
+>>>>> decides on preferred CPU state.
+>>>>>
+>>>>> A CPU is set to preferred when it becomes active. Later it may be
+>>>>> marked as non-preferred depending on steal ratio by the 
+>>>>> steal_governor.
+>>>>>
+>>>>> Always maintain design construct of preferred is subset of active.
+>>>>> i.e. preferred ⊆ active ⊆ online ⊆ present ⊆ possible
+>>>>>
+>>>>> With CONFIG_PREFERRED_CPU=n, ensure set_cpu_preferred is a nop and get
+>>>>> method returns the active state in that case.
+>>>>>
+>>>>> Signed-off-by: Shrikanth Hegde <sshegde@linux.ibm.com>
+>>>>> ---
+>>>>>    include/linux/cpumask.h | 24 ++++++++++++++++++++++++
+>>>>>    kernel/Kconfig.preempt  |  4 ++++
+>>>>>    kernel/cpu.c            |  6 ++++++
+>>>>>    kernel/sched/core.c     |  5 +++++
+>>>>>    4 files changed, 39 insertions(+)
 >>>>
->>>> What do you think about doing the below hunk (TCP_CLOSE, ECONNRESET,
->>>> sk_error_report) with no lock_sock?
+>>>> [..snip..]
+>>>>
+>>>>>    #define cpu_is_offline(cpu)    unlikely(!cpu_online(cpu))
+>>>>> diff --git a/kernel/Kconfig.preempt b/kernel/Kconfig.preempt
+>>>>> index 985aea617cfe..edc067a0c422 100644
+>>>>> --- a/kernel/Kconfig.preempt
+>>>>> +++ b/kernel/Kconfig.preempt
+>>>>> @@ -194,3 +194,7 @@ config SCHED_CLASS_EXT
+>>>>>          For more information:
+>>>>>            Documentation/scheduler/sched-ext.rst
+>>>>>            https://github.com/sched-ext/scx
+>>>>> +
+>>>>> +config PREFERRED_CPU
+>>>>> +    bool
+>>>>> +    depends on SMP && PARAVIRT
+>>>> FWICT, PREFERRED_CPU mechanism can work perfectly fine without PARAVIRT
+>>>> selected. It would be annoying to enable it and implement a dummy
+>>>> paravirt_steal_clock() just for that.
+>>>>
+>>>> Shrikanth, would it be possible to drop that dependency?
 >>>
->>> Looking at the code, it seems that in all the places where we close all 
->>> connections (virtio_vsock_reset_sock, vhost_vsock_reset_orphans) we do 
->>> with no lock_sock but with vsock_table_lock.
->>>
->>> So, makes sense to me.
+>>> Do you have a non-paravirt case in mind?
 >>
->> virtio_vsock_reset_sock() and vhost_vsock_reset_orphans() are my pet
->> peeves: state switcheroo without taking lock_sock(). Which, again, races
->> vsock_connect().
+>> s390 LPARs are exactly that. s390 does not select PARAVIRT by default
+>> but enabling PREFERRED_CPU is strongly considered.
 > 
-> True, I don't love that either, but I feel the impact is at least
-> constrained by the fact that it only happens when the module or device
-> is already going away.
+> s390 may not have PARAVIRT=y, but this use case is still a virtualizated 
+> system no?
 
-Doesn't it happen on suspend as well? Is so, with a poorly timed connect()
-things can go south on resume.
+Yes, it is virtualized.
+
+> i.e you are observing steal time. By definition of steal time, it is a 
+> para-
+> virtualized system. Though you may be deriving the steal time not using the
+> paravirt_steal_clock.
+> 
+> Or my understanding here is wrong?
+> 
+So you propose s390 to enable CONFIG_PARAVIRT *just because* s390
+fits the "paravirtualized system" definition, even if s390 would not
+utilize any functionality comes with the config option? (even worse
+it comes with deadcode...)
+
+That sounds a bit wrong to me, I would really like to avoid
+enabling a config option just because it's name suggests that
+it is related to our platform.
+
+Yury already sent the patch series he mentioned. I suppose we should
+keep discussing this there.
+
+Thank you!
+-Mete
