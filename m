@@ -1,73 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.69
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793610143;
-	b=PHieoAJSQpiHc94phBXksV6YqWRXnVWyN/d2TkE9GgUiieEM5qBG9/XcdB3oruGrEOJk
-	 CZrCO7epRw7O1dEKF3PX+rEnPmi7mgr9oFjzYkgFwfCbHkXyACdZzf+3dnYlcQutayvNh
-	 98AbZFyatHDXDM4JPzR0yT052zK9coBKwGAJu8RBS0b0tTBtklXINVw844Z0ImWhuJyyu
-	 x2S//1Mnnefpa2lTOogmmq2/0xAc+iCLJIVwgKIndX72qEbSqhbNKV818SOk2g2V9iApl
-	 UI76gAkBG7gkYF1BVEuCget2fDbT71gDiYi9UZ5jUPijVk3z+mDpdMNfd6GYvLpRW6g==
+	t=1793612158;
+	b=JMq7M3Z1vo2zNoVJd6vMY4zH/Z1bLsh7V0Y9ly/47+lW+XgHw/gjlO45oXbh5kHoGvvM
+	 MC4YP7r1tQ0bVMk6CgBOMNOwQrhz2FqCEmXU3ph9ZibJgtUbpqOysbRZ867J5JVXjRd3u
+	 15xATItTlzVfW3mmt0a4WiPXRnvoZEjHpT3ERY8tfecPdGzNww4V9VeN6Ygb7iYXKd4ZC
+	 xaQ9yRa+74zya2/QZJrxZDMpicp1yiy8MR3MnzcFKy0w90f3SZ9ebOs+DBU1aMRg5abB1
+	 XFM1U9qUT8ua6Te5JngpmBKZ5F1i/cDmiByYw3ZCO3LFdcQx6l48aS2q8RJC2VJdqgw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793610143;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Received:Date:In-Reply-To:Mime-Version:
-	 References:X-Mailer:Message-ID:Subject:From:To:Cc:Content-Type;
-	bh=yJCWLcVlTtiQVfwuNd4Ug+QWJeJEHbdAzaMQBdZ49Qc=;
-	b=aPFjOOiU6s6VRgTH6eNYsR2SQTIrXkPS37d6zff/CsBAdulcOIRhh2kW4e42mCfDBFs+
-	 nOgk547ObOgpwWPJuQcJia/zI/Rt1/O4JLg+OhiSkQ5/NMpfTLhtY1JWcI+RjBDRh45dN
-	 JB/ZRXFj+aRi/ecZTSkx4fkRM6T6dRQHE0vjLv+/ppT8sSbzq2hstGEiBCs5C6C+vLmri
-	 ONN8PbGaoGtoNyUrdfpkZuob7ChytzOpFo9RyHUBlJ4CyCjjVVbycCBAYJFCacUGr6NVu
-	 aWPxrXZRdWJ9HimpE66NOO9fbIqogsSjj3PjhzujOu86l+9dE5adY5D4tZCSpTL7UDA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793612158;
+	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
+	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
+	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
+	 X-Mimecast-Originator:Content-Type:Content-Disposition;
+	bh=Mm9UAeiTDrhCY7oe9mnBBjHCOX4kZjsSHaPe1K0OWSw=;
+	b=IavrFxyAkFzJly0SuyFaTH+BDttPu4nO3Lf0OpYwTnR7qFzciminKBb9Zif54nYZDrRG
+	 FZRSiNdn2zJzZtpH0pTYsrmL0wVi1R7NKdKQoIKo0P4dtd2Kvgk1Q0/zMG7OmkaloGuCb
+	 MfTJEMhrRowcv6OhrxQj6NxUdkabALe/bSGgslHRFNAK49aLqNRHck4zva9vh1ilt2XjJ
+	 O5k3AXZVP6nXXcw/KeXejXonfyJKKBjHqB9YImbNAYNBlaNgmo+UECq/icc+cymKqtBoZ
+	 TeXFvCUrJ2zsdwvaIx1+I3SrBwyWW55QkeSptH/rFPyMvDo2veWnjcI9h4WZ+hoj81Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=google.com;
-	spf=pass smtp.mailfrom=flex--sergiiushakov.bounces.google.com;
-	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=TVeLehq7;
-	arc=none smtp.remote-ip=209.85.221.69
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com [209.85.221.69])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=redhat.com;
+	spf=pass smtp.mailfrom=redhat.com;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UFTkJ+mv;
+	arc=none smtp.remote-ip=170.10.129.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB947606A326
-	for <virtualization@lists.linux.dev>; Mon,  2 Nov 2026 09:02:22 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EB947606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--sergiiushakov.bounces.google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0F64606A338
+	for <virtualization@lists.linux.dev>; Mon,  2 Nov 2026 09:35:57 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A0F64606A338
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=TVeLehq7
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-48e1ad3cb66so1936420f8f.3
-        for <virtualization@lists.linux.dev>; Mon, 02 Nov 2026 01:02:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20260707; t=1793610141; x=1794214941; darn=lists.linux.dev;
-        h=content-type:cc:to:from:subject:message-id:references:mime-version
-         :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=yJCWLcVlTtiQVfwuNd4Ug+QWJeJEHbdAzaMQBdZ49Qc=;
-        b=TVeLehq7T+A8yrNw+lguAM8iBXVB1/cnSBcHCgHJOSa1Jsg2skphg16kqdc5ou886L
-         f/rjilV48UQ5ryd22k9OeDYyJKiKQQpqImWLE6vQeQPGAwX9ey/KDAAJRcTFvg3jBUVP
-         IyptyouW61lGeno6/OfaotADBswbbE6UUxU4HM7+IjV9gTGQa/mzQIp8KXGTYiY8SOgf
-         MvGNP6KhPe3V0lQzGXU38u9W1NFDcxJqmQ2wviZ1mQVxTlF1pgIxJASclk+riYzAcn9r
-         l66KHkGMOLRVNKBTRF3egUDVlF95+fupF22KMXt7EL7wCTApCEN5kLdVO0Bw2jAeRuVg
-         C9zg==
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UFTkJ+mv
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1793612156;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Mm9UAeiTDrhCY7oe9mnBBjHCOX4kZjsSHaPe1K0OWSw=;
+	b=UFTkJ+mvX0cSyL7Ru/Ychv8nd/tsyjr4F7N4I953A4u1L4VaNQXzJ2qpFhkAnClSBDjzeT
+	KVsPG/QVtBHzCgKP9q2Yi7TKljoYTf0KAWiMFebpZLFOBqMSM5cjJqkM+3YuMSBUMmYgXC
+	2lNQMWxGLMQrxzxzhLG42nbu2PC7bZg=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-441-NQOSunB7OnGZstW_x7UxLg-1; Mon, 02 Nov 2026 04:35:55 -0500
+X-MC-Unique: NQOSunB7OnGZstW_x7UxLg-1
+X-Mimecast-MFC-AGG-ID: NQOSunB7OnGZstW_x7UxLg_1793612154
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4a2065a2ef9so26803625e9.3
+        for <virtualization@lists.linux.dev>; Mon, 02 Nov 2026 01:35:55 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793610141; x=1794214941;
-        h=content-type:cc:to:from:subject:message-id:references:mime-version
-         :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=yJCWLcVlTtiQVfwuNd4Ug+QWJeJEHbdAzaMQBdZ49Qc=;
-        b=Wx0+07z4v+ZI3+HjE9lIBdFP5kHvXqhzNdIL1+5Gx+ZBSnP02xUlajFueeJQ8Yw4vf
-         57nzt36zw3Fbg6KIAUe3AdkknSNpX3djdCe8Q8UNGIvNJIU9R0RY7v2lmr4BCg0kifYZ
-         8osYLPTZQO452Dh4Rc2IZWABHBtFZes5BIz66/9K0AaxWJmNncXB6fBe5zegpKizRPBn
-         NRy0e8T/GKivnT9i9hgiGEFeebSPa/SyImMLkGDFdatVOKYmT4CBKATyTdk1GwtD0o3u
-         rrJ0eesVimKorfU6t1PZenCUVSF6MaUCj7d60TS9rBkNt2NoZs5x/eQoxqRwMidJX02p
-         D4nA==
-X-Gm-Message-State: APuU4Z+SczjslXNHl2JhSpMTx+qTf902K1aO9pqSW5KZfv0oBLwN8NKG
-	/3VUdEZyPCWjo4fecsqBcFktaKqopjCcDimRDjK7hpzsup3aA+XmaWJkpzsHpTPO/6Q6bxafo9Q
-	lDfM2z7sIdEV2Q5W/QsPQ83YWvYuotGz0pQ==
-X-Received: from wrox17.prod.google.com ([2002:adf:f0d1:0:b0:48d:f214:2440])
- (user=sergiiushakov job=prod-delivery.src-stubby-dispatcher) by
- 2002:adf:e001:0:10b0:48d:f470:6b3e with SMTP id ffacd0b85a97d-48e6e30722amr15896125f8f.13.1793610140239;
- Mon, 02 Nov 2026 01:02:20 -0800 (PST)
-Date: Mon,  2 Nov 2026 10:02:17 +0100
-In-Reply-To: <20260918135120.1261150-1-sergiiushakov@google.com>
+        d=1e100.net; s=20260707; t=1793612154; x=1794216954;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=Mm9UAeiTDrhCY7oe9mnBBjHCOX4kZjsSHaPe1K0OWSw=;
+        b=YBxHlSItR7AorsTXbWc2YHahKZjdN96gW1mY1t6Wevc76avL3bGYRqFv79/D/8kZcI
+         ezggrvWz2h048xZaHUd3HlyYaLfrqloj18fcnD9MunGeWN7oi0qK4oTxiXi7siSmCB9z
+         hpTbOJ+Ys/3G4Av2jQr2YdNdqnZNAEpr1fPY/HUHD8KUT9gWrI3hiYwGCER5nDA0MZK6
+         +UwN5/VVZcPHDSpt3cQD/Qpb2n6AthH8AJ3pu7MRhD7+ixqcHFHViTtN7BShZkPZttlg
+         AGc+1JkGOvkAO+iSwjllrBuCqHB5tjfvEXG2ZeLaxr0BYfT3AkOE2haz+ud1oBOvGPDn
+         HKGw==
+X-Forwarded-Encrypted: i=1; AKwUvBw1hG30zWX9+V54vrLGeUdLm1WfAjvZC17f18x5gmSyZPC/yFxIzzMPF9peqrDUlq7yTKGt6bF8EM/UXGQMQg==@lists.linux.dev
+X-Gm-Message-State: AFq9FYIUlrQcy+9coFWsoyNT6/mdA09XC+SQ+iSBXcWZUA2cEsKqQxLt
+	mD32wC4AvbXWw6njigGnPxYyla24XvFHF2frI8GaUu+veVuG3HwaCr1UpFFlrGAr4I2N2AR85QG
+	KsHHMXll/G7V8wcUVMaqA+I2ZwtGgV/2vp6bHtdLYpJcu+I/LC7eDEZfKVhi+A+KyrOiL
+X-Gm-Gg: AYBFou3t+5tnb6tgZuCJKmngO1ONz1J40nzwIuVOuZMlqKzicpgAkzPq4M/VT+kYeLc
+	dwB7peejE292ojgHPN9ZqmNjZks/OE0fdQ/lvRdhNG3C6B1KrnxeanxyvD0ym4pkZtTkQNwGiXV
+	v9jbaleocslJ/cqGwTjk6DEntdkoTMjieXOvS0bU1h+8HTU8583n8nMBJftLGOXt+9wRcgP5Ir5
+	+g8UH3J2HKv7pzcF5aDlBmEQJD3ZRmyIzyDAmWGuSdaxiETi36YEx8iGDzqE5g2oxTlpLynNwVZ
+	9gS+0ydWl6gNp4Ey0nwDUlIYcw0Evc6CDx0KNey7TplQfiLn0S3C3KS3FNfJXKKUCzrOVytlTXL
+	sxfsA23ubIGpUFnyCTVhRQSafAf8maGpp76Fn+WpWsw==
+X-Received: by 2002:a05:600c:5397:b0:4a3:5991:719 with SMTP id 5b1f17b1804b1-4ac1899353bmr216599235e9.31.1793612154063;
+        Mon, 02 Nov 2026 01:35:54 -0800 (PST)
+X-Received: by 2002:a05:600c:5397:b0:4a3:5991:719 with SMTP id 5b1f17b1804b1-4ac1899353bmr216598595e9.31.1793612153380;
+        Mon, 02 Nov 2026 01:35:53 -0800 (PST)
+Received: from redhat.com ([2a0d:6fc0:1501:b100:9ea2:fd21:b361:8dab])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4abf6e63e0esm335169085e9.12.2026.11.02.01.35.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 02 Nov 2026 01:35:52 -0800 (PST)
+Date: Mon, 2 Nov 2026 04:35:50 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Hemanth Selam <hemanth.selam@gmail.com>
+Cc: Jason Wang <jasowangio@gmail.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+	netdev@vger.kernel.org
+Subject: Re: [PATCH] vdpa: fix typos in comments
+Message-ID: <20261102043526-mutt-send-email-mst@kernel.org>
+References: <20260904104440.18772-1-hemanth.selam@gmail.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -76,26 +103,59 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
-Mime-Version: 1.0
-References: <20260814105954.4060627-1-sergiiushakov@google.com>
- <20260918083557-mutt-send-email-mst@kernel.org> <20260918135120.1261150-1-sergiiushakov@google.com>
-X-Mailer: git-send-email 2.56.0.317.g454f8302e1-goog
-Message-ID: <20261102090217.3324999-1-sergiiushakov@google.com>
-Subject: Re: [PATCH v4] virtio-blk: clamp max_segments to virtqueue ring size
-From: Sergii Ushakov <sergiiushakov@google.com>
-To: mst@redhat.com, axboe@kernel.dk, stefanha@redhat.com, hch@lst.de
-Cc: virtualization@lists.linux.dev, linux-block@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, jasowang@redhat.com, xuanzhuo@linux.alibaba.com, 
-	eperezma@redhat.com, pbonzini@redhat.com, sergiiushakov@google.com
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+In-Reply-To: <20260904104440.18772-1-hemanth.selam@gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: Q2duKOZCl75obb9605dp40rok5_F3JQwGGdcHGy4Zi0_1793612154
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Hi Michael, Jens,
+On Fri, Sep 04, 2026 at 04:14:38PM +0530, Hemanth Selam wrote:
+> Fix typos in comments, reported by scripts/checkpatch.pl using the
+> misspelling list in scripts/spelling.txt.  Only touches comments, no code
+> changes.
+> 
+> Assisted-by: Cursor:claude-opus-5
+> Signed-off-by: Hemanth Selam <hemanth.selam@gmail.com>
+> ---
+>  drivers/vdpa/alibaba/eni_vdpa.c | 2 +-
+>  include/uapi/linux/virtio_net.h | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/vdpa/alibaba/eni_vdpa.c b/drivers/vdpa/alibaba/eni_vdpa.c
+> index fd6fdba46094..6bb5f6ef57cf 100644
+> --- a/drivers/vdpa/alibaba/eni_vdpa.c
+> +++ b/drivers/vdpa/alibaba/eni_vdpa.c
+> @@ -273,7 +273,7 @@ static int eni_vdpa_set_vq_state(struct vdpa_device *vdpa, u16 qid,
+>  	struct virtio_pci_legacy_device *ldev = vdpa_to_ldev(vdpa);
+>  	const struct vdpa_vq_state_split *split = &state->split;
+>  
+> -	/* ENI is build upon virtio-pci specfication which not support
+> +	/* ENI is build upon virtio-pci specification which not support
+>  	 * to set state of virtqueue. But if the state is equal to the
+>  	 * device initial state by chance, we can let it go.
+>  	 */
 
-Gentle ping on v4 of this patch:
-https://lore.kernel.org/virtualization/20260918135120.1261150-1-sergiiushakov@google.com/
 
-All review comments from v3 have been addressed. Please let me know if
-anything else is needed.
+given you are bothering - built, not build
 
-Thanks,
-Sergii
+> diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
+> index 1db45b01532b..4a458ebb2567 100644
+> --- a/include/uapi/linux/virtio_net.h
+> +++ b/include/uapi/linux/virtio_net.h
+> @@ -316,7 +316,7 @@ struct virtio_net_ctrl_mac {
+>   * Control link announce acknowledgement
+>   *
+>   * The command VIRTIO_NET_CTRL_ANNOUNCE_ACK is used to indicate that
+> - * driver has recevied the notification; device would clear the
+> + * driver has received the notification; device would clear the
+>   * VIRTIO_NET_S_ANNOUNCE bit in the status field after it receives
+>   * this command.
+>   */
+
+separate patch pls.
+
+> -- 
+> 2.48.1
+
