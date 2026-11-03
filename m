@@ -1,59 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793724656;
-	b=fBVUBdMYQ/tvzV8GGpQbqvMomcwvTsWZTO7+42jrerGbUI8ZCU3pIl9B0U/IZ5BN8OEg
-	 7+Et/VVyoDej0ZXmezGxFUS3ntpLmO4uMibvDTRQ6f4Aa/CGsjy4DeoeebMuZgJGUJJyC
-	 4oiyDOQYQHpwPOjFtbJa3uPWamNnMFihQIf+HvNOgOrpovFx2T9/5Z62KK6qC5GqE+H+C
-	 G8tzDs2NYYrGcTuWbqLxjwVdxp78kDwAMUr3PiMptl8LvP2m3T3M++KSFXjx+MPUd02Xa
-	 0898Xo6umpK+SEdR1iVvpP0vFr80c91G/XPY/Gn0Px5UEXeGSDZYu3BEpSqXsohRd/A==
+	t=1793724882;
+	b=fO8zM8tfFT2I1jC31kxczUVFQWg6lihsgGxai+1lr62Y/OEKAXEHrDeSFl/ADwxFR1bU
+	 7MbWpIVaBpLcWeWC22GLG+JMzu8LA0CRgX/aZFS0fnntZdVDLjrYNoKOW/+0yNimKHXQP
+	 qjd+QQQLuthYqTjyerDezmbQZUTLFzFzbdZUKjOLf3vF3MkKcXURrC4sXpHH9qdGj1Uho
+	 lmXr9b80rVMda9Tucm8hGlmABaxPga3u+VBJ+7TukLJLXUWz17MsQhksOmpY+PTknGX5U
+	 egZ+DyfMEnwtm9rhPSHzgScp4E0/LR2fMolHWaxq161sU6SdnTxTqCCItPQcoyJWzjA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793724656;
-	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
-	 In-Reply-To:References:MIME-Version:X-Developer-Signature:
-	 X-Developer-Key:Content-Transfer-Encoding;
-	bh=HvepMD3bA5aDGNIpfaaW63plOSdqKDU2bYIKQSrUk80=;
-	b=VD52NBf585a1GWw01BRSulWqFFvVZTUL9K2Ae9l9sOsNgJmgrEXfvWrHJjarpmb4ethZ
-	 fnNh20qv4tAszcyVd7XhoM/vH6TkVzgYiHf2J3HJjhoV4aLIVPJYvEbOmEo25t/R/NM/y
-	 tfZ7u/wD3+KcDxfuzh7q05fdDEPAyghsxPNi56me2vTmFUMh6iwZR8/mpqzMit9Rip/UL
-	 7TfM57l2pkV/0oKWCXylbLL01m7/cENZDtdkpVD8HWDGDLMInUYAsDEwyMyEw33IR61v4
-	 gV5GnyoAcJ5deW9nQmFD3V8d8yaK2uH4SlQGMvbR1n43pndRKMqNUlAePPxew4F7J/w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793724882;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=7iwWMb3ynZ4vW41Y43N4DF/G8PiTwiwru1u0mSb/mks=;
+	b=eLwShjonlKtZIEWNWPnyB2wj7CVday/jRH+J2uD8gd6FomCK5gKR+qADnjatcWdBJ0JF
+	 CKrBQLCA4v5naubpAGLSE8CBOPncneVlGSeDstC86q9+qK4vIo6ElldLS+0/rjytYo0PF
+	 h8IBCX+eQCEHtZX3Jue8JcplcweZlbCk5qLRAqy/hkJqym0KG8914NEnt+minhqkzDW20
+	 iQ8LuqbiyK50TpJCwaBjl9FY+Ek1gdKfruOKyHLUSYqD5iQGebeu6bHhBGaEye7/K14Cx
+	 FbJNPu5J7253jmbER1AulYdTCZn/GDKlNJwnIZ/NCCGn/7EDnp4SLq3N460U+2AiMEA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jpA5uBAm;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PM53uM15;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD9F9606A336;
-	Tue,  3 Nov 2026 16:50:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BBF7606A327
+	for <virtualization@lists.linux.dev>; Tue,  3 Nov 2026 16:54:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jpA5uBAm
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 953981F000C1;
-	Tue,  3 Nov 2026 16:50:53 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PM53uM15
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C31ED1F00A15;
+	Tue,  3 Nov 2026 16:54:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793724655;
-	bh=HvepMD3bA5aDGNIpfaaW63plOSdqKDU2bYIKQSrUk80=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=jpA5uBAm0M8lavM0Yy9jEvsCvpODwogzY029ZQQx02unY8o9Ng3vAi3wrAMpQaSmc
-	 IsgFkgEOAoNLVz6giG052wF/QTcjrog10kF1oMaehPi2euvGgv63M07ma/qVKfWlnb
-	 gfi+rNwmcb2F6KyTVLB0xQ8CUDe+cuQwbFj40CRrdaiv8T41J7jJgIhreCbYVBL8GN
-	 A2uG1vzN+gGC1jvaTMKXvB4YGP/NRFJGiMpde30xaRNKsWtAN7r9ktWjRZ2OeCOnxG
-	 SWTYwR3GaKLSuT8AcqY2ra2oe9Nmrmh4tNr2IeNjMRxRxwBPGpnc1fpAh6x+ZP8wHI
-	 Tscg02HMqee8w==
-From: Thorsten Blum <blum@kernel.org>
-To: Laurent Vivier <lvivier@redhat.com>,
-	Olivia Mackall <olivia@selenic.com>,
-	Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Thorsten Blum <blum@kernel.org>,
-	virtualization@lists.linux.dev,
-	linux-crypto@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] hwrng: virtio - simplify virtrng_restore()
-Date: Tue,  3 Nov 2026 17:50:28 +0100
-Message-ID: <20261103165026.454333-4-blum@kernel.org>
-X-Mailer: git-send-email 2.56.0
+	s=k20260515; t=1793724882;
+	bh=7iwWMb3ynZ4vW41Y43N4DF/G8PiTwiwru1u0mSb/mks=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=PM53uM15vrVCy4iLlvfPi6JZQJqt4hryW0SV1nEmVrnoJnpKyfz6EQJqB1icFk4sw
+	 Y10akFKyY1TfGPbwUU3MlSH1NXo72A7S2HMrHssbJ3zY39JCkZvLXqcgR0rn+CEa/k
+	 nxgazZAmP9GJAxajUGlG0plpmyAaK8Eo6pTmOkwrVtudNdpXiaGpaUqRcoN9T43wgH
+	 clndEb/0ju4WtnMR+wTap9OxHOZh3oDLQYq6ThCfzEJzDKgNn6oGQXDULstOtC/UVQ
+	 279qtXe9VP8YhDaPPfKJfxC9TH7M3e0zyGwqvSGsWD9YTptYEUZjA6ymbE8SBbHh5d
+	 /pxPEnwsZjdhQ==
+Message-ID: <sashiko-outbox-195754@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 1/2] hwrng: virtio - simplify probe_common()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Thorsten Blum" <blum@kernel.org>
+Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
+ Perez" <eperezma@redhat.com>
 In-Reply-To: <20261103165026.454333-3-blum@kernel.org>
 References: <20261103165026.454333-3-blum@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 03 Nov 2026 16:54:41 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,62 +59,17 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
-MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1486; i=blum@kernel.org; h=from:subject; bh=FVIFUZ5ihpdfeiOOZxwZ1iGDyjPpbrvySLprWVV+LNc=; b=owGbwMvMwCUWt7pQ4caZUj3G02pJDFmvBO6aHzBe/+dAw3Oz01Nd1a//CLs4U1n8wcE9i1XF5 +yrYtrH1VHKwiDGxSArpsjyYNaPGb6lNZWbTCJ2wsxhZQIZwsDFKQATmfeb4X+OiZ9p+26Xt4sm nIvj+6abK+BTv09h3RG+b6r8R0Pnlrxj+MPFaWKttr99m1o/a/aeOdsvK9crng9a/ifNYtmz/5f SbzEBAA==
-X-Developer-Key: i=blum@kernel.org; a=openpgp; fpr=1D60735E8AEF3BE473B69D84733678FD8DFEEAD4
-Content-Transfer-Encoding: 8bit
 
-Return errors directly to simplify the control flow.
+> Drop the redundant NULL initialization since vi is immediately
+> reassigned. Drop the redundant index variable and use vi->index
+> directly. Also call ida_free() directly and consolidate the error
+> cleanup paths.
+>=20
+> Signed-off-by: Thorsten Blum <blum@kernel.org>
 
-Signed-off-by: Thorsten Blum <blum@kernel.org>
----
- drivers/char/hw_random/virtio-rng.c | 31 +++++++++++++++--------------
- 1 file changed, 16 insertions(+), 15 deletions(-)
+Sashiko has reviewed this patch and found no issues.
 
-diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
-index f5e8e6093e27..de1d0113ce6c 100644
---- a/drivers/char/hw_random/virtio-rng.c
-+++ b/drivers/char/hw_random/virtio-rng.c
-@@ -244,26 +244,27 @@ static int virtrng_freeze(struct virtio_device *vdev)
- 
- static int virtrng_restore(struct virtio_device *vdev)
- {
-+	struct virtrng_info *vi;
- 	int err;
- 
- 	err = probe_common(vdev);
--	if (!err) {
--		struct virtrng_info *vi = vdev->priv;
-+	if (err)
-+		return err;
-+	vi = vdev->priv;
- 
--		/*
--		 * Set hwrng_removed to ensure that virtio_read()
--		 * does not block waiting for data before the
--		 * registration is complete.
--		 */
--		vi->hwrng_removed = true;
--		err = hwrng_register(&vi->hwrng);
--		if (!err) {
--			vi->hwrng_register_done = true;
--			vi->hwrng_removed = false;
--		}
--	}
-+	/*
-+	 * Set hwrng_removed to ensure that virtio_read()
-+	 * does not block waiting for data before the
-+	 * registration is complete.
-+	 */
-+	vi->hwrng_removed = true;
-+	err = hwrng_register(&vi->hwrng);
-+	if (err)
-+		return err;
- 
--	return err;
-+	vi->hwrng_register_done = true;
-+	vi->hwrng_removed = false;
-+	return 0;
- }
- 
- static const struct virtio_device_id id_table[] = {
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261103165026.4543=
+33-3-blum@kernel.org?part=3D1
+
