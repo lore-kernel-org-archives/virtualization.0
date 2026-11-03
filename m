@@ -1,101 +1,96 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.49
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.173
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1793716294;
-	b=XBNU0XvSF2xtC//h217OTLG/BXkaTic2KlCvLI0bJGsI0tuFk42J69T3JQf3by3gOsTE
-	 ozJwaHNpGzt5GZcs1sZc8zq09a8OHmv8vlPx2+COlmgJ4CvKPjPWOtUSmDCWcPUC1dxWs
-	 dFDOBB1/iV95kc45JDSCIrL6VgPRQSGDY7kZCYD2J4eRBborXxfd+86KFj/p3bj5YvNOm
-	 WjhMttMh2nZn9E0BAGOC2SrIH3VENIuC52MdX9BhRvExjBcXPFoP0lqXmhA5vm4UZNEXn
-	 dXkhBGQilbFwAz0d2+eu0UbXUJWXE2VzAuINp+ehEkT88CXG/l+Ilwaq7MOUnufmLZA==
+	b=kKBcvft+w4s/65H5Rr16pCJnf1qVXaPsFvoTQc0kCyjVqm0e9sHmL20orhJEOIe0KrIB
+	 na7tHKtZAbgXb0mb+sx/ursRTEvqR26f2u6iqoRqjTqF1eXdOInWO/+S8j5Y1IMRulmnV
+	 NHjJ2/I+cMcR9zwEtMBcug5mMXSFI64320E6O1ZVuHMmQRSaP5MqWtoZK4+CsZWCll+1X
+	 ykinvv5bLD3cx9x7e8Er6M4p8NuowQkoNBnFcB8EyQMTdQN5Gbbp/Hl0I6wwsb7+gMIFD
+	 Sw14qRxd1tIIdJXQUVwjSiBcuFvUT824sPVIIFzzZyvQx9hQK3PMj3yNgQ1c09c23vQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1793716294;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding:X-Mailer;
-	bh=wk9IlcGYhsSNWUuj3B81ByEUkAlft9P2T8KxXmSzXGY=;
-	b=GSYownmKc0mhHCTwXDN2ct/jQyujFCQvyy/WG22KkIy6cq1w1BDfpBwXKzupefErdY8F
-	 gW4Z87QbEHGGiFEZcOixpCKauUtOJYAHd24cemYXROAqTA6QejMtDxLpjIC0oF3sBq3Up
-	 oqs3LSNhe7Yk5NXoCjDdN+aJK0Yozcm3aGKBoqfdnh+7nbnK3BXVeXC7GsW/PD+EC7ej0
-	 FWPmbC2afYq9NDdhUKTysrQQN4awB0UPTymQUc65yG+nMGxHPKMXOMG3ZBlXO+U2tODq0
-	 jJNJU+gMasz2Mvj72B/JUrCvslWGkKZVDQRJoBxOBnXPMYTY3yMztnF7HMZMu7xD0aA==
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:In-Reply-To:
+	 References:Subject:Message-Id:Date:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:X-Mailer;
+	bh=EKlM9iD6F1gyXy04opeEG9+C51VAWggNyeLVBX+b5pY=;
+	b=fnoQoXVIcDGcdOT46t3kIIK/YzTcrkbv/oOiGODpDuXQcW2aRXT+dAs7j/gxjBhc7mX1
+	 kXn5t++oyq+pNDYn3LpvF1v8o70RZDktUWyQ/cJ3/3yv3LWFXMGYC4l9aIly/M+IeJ5Hc
+	 +yUlcaWJTYJxlfmf271gTbefZfoRTe/hmpcLZm0Otgbk2pOZzEnWea+fP2rWV5q8Vcw/q
+	 xHkcHAJvvOZvtzcZ04K2XtRPFnxujAKkkwYnAeEaKrt4x/C1QJNFOfjMkI6mQ5PorvxEJ
+	 qceCKKE4+KGV5Pdir38nCegIYCsY0yPADGa9YivacGfeDfhsoDjR6LG1IWpE2gD6PLQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=kernel.dk;
 	spf=pass smtp.mailfrom=kernel.dk;
-	dkim=pass header.d=kernel-dk.20260707.gappssmtp.com header.i=@kernel-dk.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b=RRKhmFHK;
-	arc=none smtp.remote-ip=74.125.82.49
-Received: from mail-dl1-f49.google.com (mail-dl1-f49.google.com [74.125.82.49])
+	dkim=pass header.d=kernel-dk.20260707.gappssmtp.com header.i=@kernel-dk.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b=SeX4Ngp4;
+	arc=none smtp.remote-ip=74.125.82.173
+Received: from mail-dy1-f173.google.com (mail-dy1-f173.google.com [74.125.82.173])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 387AD6083632
-	for <virtualization@lists.linux.dev>; Tue,  3 Nov 2026 14:31:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 387AD6083632
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FFE0608508F
+	for <virtualization@lists.linux.dev>; Tue,  3 Nov 2026 14:31:33 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7FFE0608508F
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel-dk.20260707.gappssmtp.com header.i=@kernel-dk.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b=RRKhmFHK
-Received: by mail-dl1-f49.google.com with SMTP id a92af1059eb24-1a2761c69fbso7218789c88.0
-        for <virtualization@lists.linux.dev>; Tue, 03 Nov 2026 06:31:29 -0800 (PST)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel-dk.20260707.gappssmtp.com header.i=@kernel-dk.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b=SeX4Ngp4
+Received: by mail-dy1-f173.google.com with SMTP id 5a478bee46e88-3535bf8b3e0so5954852eec.0
+        for <virtualization@lists.linux.dev>; Tue, 03 Nov 2026 06:31:33 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20260707.gappssmtp.com; s=20260707; t=1793716288; x=1794321088; darn=lists.linux.dev;
+        d=kernel-dk.20260707.gappssmtp.com; s=20260707; t=1793716293; x=1794321093; darn=lists.linux.dev;
         h=content-transfer-encoding:content-type:mime-version:date:message-id
          :subject:references:in-reply-to:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=wk9IlcGYhsSNWUuj3B81ByEUkAlft9P2T8KxXmSzXGY=;
-        b=RRKhmFHK8lerJ45rDb4x2WeaBbjOV0XMkGCnYQq1RhcC90MrMWQBs7CpHrDpXxh9+8
-         YAB7zF55gFhGaXpQXzfGqzsiP9E1msqjKKRFPRZX4qr4zQBQCsn27O0hgET79yN6nSTb
-         ne/SImqkzcnyudJCjlbPXHNEOlVyRRdMFmQrUddl+ZQ6CZuRYvqCgs2m2RWD3800Gj0u
-         itbve3JGCRCUQS0KSTQmOT4RKSXGWk8SX4XITJlYhQ5ChbE7TGtMldI+mWpQ9ChwSLYo
-         P2uzIK5IRUgn6WVv+NDBgkwGSUwYqdrtnCfwUlGhOoQOvrC/4gNondeayJAQ/sU77e4W
-         DoYA==
+        bh=EKlM9iD6F1gyXy04opeEG9+C51VAWggNyeLVBX+b5pY=;
+        b=SeX4Ngp4cuQu5dNC+rcEluV9bGK3QARW7jp5a6Epo0TSUehLhDQvlhe2DxrrTJOqVI
+         yo5PzshfngDpys1qLH2ZGQtMor3OOWwuogmdDcJ7La5Vnr0ginXCLDXZIraiVM836W+M
+         2PgzUPWZk7648ig0dbpldab9bJTbLhXJvfvpSZJiNHsAkdyvsYwQ6qR6Ol1CKRK4/QNF
+         8IXNBMRkQ6Kzwea3nI+c6pp3Ny+yZP6NB/cFLozmqit81rFtl8y88YTNi73Lg171b1/W
+         KIv0d7MzrtDGWU8KO//QB8alA7fvo8HYGvRjemZLwdI46ca9Rk47vRmhQUVLdc3FP0YT
+         icCw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793716288; x=1794321088;
+        d=1e100.net; s=20260707; t=1793716293; x=1794321093;
         h=content-transfer-encoding:content-type:mime-version:date:message-id
          :subject:references:in-reply-to:cc:to:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=wk9IlcGYhsSNWUuj3B81ByEUkAlft9P2T8KxXmSzXGY=;
-        b=ACJ7t7H8bFC+pZsqzZ3/bG357tdSADF9UcDJrgbeUlYdEMhVXJl1K6wyskz4w/gIWm
-         1QClcZGToignf9JOvl/6LPht9HS/236xq18WbKc3bm5ShloNnNkzt5Qd0B8j/6IJQ42Y
-         AZeWgzlPEawDXeb7Z+qUhusXve/jyp2K3XySftbBsYTZ+79+vbHkahQV8wKbJktNa3Ta
-         8+21+Md81+THLf12p8C20g23NY2hECr5Gtn9yPbkwbkqlYFkEGAikbOMFiXmxwUAvfn+
-         I02EMnIebGvUuGw4gx7NHRuyM0Y8CYbkL3KqOBI0Jq7epjvXDmT9Bd3e2TG2YGb3dUZY
-         ujDQ==
-X-Forwarded-Encrypted: i=1; AKwUvBxJNoSAGhO7IQqbCuQ8Lm+2+5gtYfO7S0AuaTbnu2CIXcvjNPexG/mFhjk7QXAZnH2/8rvz/rAj/F5HfI1MuA==@lists.linux.dev
-X-Gm-Message-State: APuU4Z8BLF4Z4+tmuG5kVA5qbCTLs7M8EIrvhWuwmewfl4708RPh1iZP
-	q4G9ii2LWwtWrqVs5PE2YY5nnYzpE0+loLKYmqSxTt2TVoFwV5q+eJ94/lz9GmTwk60=
-X-Gm-Gg: AYBFou2ovVRCCEgCeZ7/B6JJRea5IndH0ef+onPF1Fjm+YdhdLYB8WfDStSQArhVXuv
-	ao+jRmi6ZYodeB3++zB5JIdL+FRCLznmmVCpCVpSOc5JsG4Ze1noAUjBBy440CatGwLlkVFUxFb
-	o+oXgYyT9VAqeLRvYTp8VPfUXRAfvTLLWdNwlV6oww9atzeH89pyWl/Z+HrGIOHDz5Q70mEDz8B
-	HvxKkos1qZkUnZpwUJbdDVT6JTRfF2s2xMlyPaUHxTnujkvPS0+xycqyn5KJWuy7JLfP7Z9XeAu
-	SxZGye1bFFgEopTpw2rHio9YUsjGHtwVzZwR/CGDpsbBu3XnaPUy9iHLX1r6RVJAeWkPrGHrV7N
-	Yrb2fWd53PE2UTtJute1FUPG/cTwW0mrE2XQ703o82jmqitk14bIVqbxUQgDJDWqc+iTPFYb7qU
-	uhNhzPPFgYZ2g6q+Si8NYxhsOK0dVRCWTmZ8YfWnYarWV9LEwNasPuCmZ8Wg1a+q6QDdikh+IDn
-	VVA/Ekp8zs5b8JA1uU8RzTphkfoouuKSLir/3wLOGCsKUkkCRxNKbqwDV4TRJ7YSDHZlbaUk4YL
-	k9hU373CBHtp8N/gMYkHeb7/361/aeaX47tc7dpScGKpEeQdulM4NIs3k6ejY3vB3NUrToLNspN
-	+lQ0344gLgoE+
-X-Received: by 2002:a05:7022:f517:b0:193:9aa3:4758 with SMTP id a92af1059eb24-1ac55968b07mr19882618c88.4.1793716288267;
-        Tue, 03 Nov 2026 06:31:28 -0800 (PST)
+        bh=EKlM9iD6F1gyXy04opeEG9+C51VAWggNyeLVBX+b5pY=;
+        b=DKk+9Usw92RfaD0yF1zT1A6ErDZciUIhVOxs79H9rXuOBuKuBqWwJut4StcJiogPQ4
+         /9gVcRU90Y8Jllo0f0pJWK+7h7rXD43Xgo55fc+c8ZtoNN+l8oNX5Bp0B2ljLIp4NwmI
+         jSiq34FRGNfb2fAiKPxu+rzXnY60/Ks+uwO6z7Ns7Oj/ipk9WG0PLRMsFaTEak5YItg2
+         39PCaLl+MGjskpZh5A/xIr10iE1WICLld51jgqMeiHD+w/mKFV0oyWapi3bUTeRPCYAO
+         2uh7lpWIJLdpusLFpyb6yQyosj9d91VoDcQzNQySkg1oNDhVxcLvh46ejcnm5QuCp3xx
+         xZyQ==
+X-Gm-Message-State: APuU4Z845KWJw6eT5EnCRC8Ok/NWdwnEqpA6C1GS4+KUMOstVU+wSuhA
+	0qJGatXb5YYR/L+85ozvyz5x3LZbC02NjfN5Jb0pqHacgTJun6US5L8k/an9sN+28tQ=
+X-Gm-Gg: AYBFou38ML6b0lCViS5Aq8FawcP7DwPwURzdNxK/pSMj+4kC03zb/cORSFqg4uouEQ+
+	T8v8+ULiTz8cw+OeIHdeUrLOhHU2RBrubzsl+pI8YYNxZLeesQPwGqL/wcNU+DgTOzm+CqsOn3H
+	RqnpGrVJaAGUXLs7qeK8Y1XGi8vUeozsGYqJY6H/euRt+uRFe0fq1kOnKZyP3CawCR+qDH1zwOq
+	3jz4Rm5D7aFumCfEH00OlaoXHLKxpM/f970ttWHBMmMZz2dnXKset7/pZ7IZolCV/GSTwSuebL1
+	XaOX6j2IexrxI4rNAm9CoS9YzZZvCxmNwog5eZJR/RmW5MLbdZBomuuBvLLKvTVXHq9LucmyBOS
+	pYV/m0e5ZqckFQQ1u7jX+ux47trBXpN/DQJXTJGZ3Pfhyf39v2ZEciQKkvljL8d9lmOxAPk7bDl
+	zqEdAsDAWzvZhHzNolrX/wrGzE8LALyc1jzE1ifgKagSjGKpAeB4uh06DbcyNQofMl+pxyOQY7L
+	5F+qaQ8N9YRk262X5XxOAOK4r/InVkyvPtx1spkxoocwitZWJVuuJyJnBeKEwpHye0MeRugvYeb
+	e3xGMccr1uWphVJFei5spDfeJx2q27C8N9TQ8SVYqxDzCGYIn1xcbc5olymTbY2X5AjbIHd5F3C
+	/FotJa8Rh3Wfe
+X-Received: by 2002:a05:7022:1706:b0:1ac:7044:2bad with SMTP id a92af1059eb24-1ac70442d69mr16914729c88.36.1793716292497;
+        Tue, 03 Nov 2026 06:31:32 -0800 (PST)
 Received: from [192.168.1.106] ([198.8.77.135])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b23b847348sm9534779c88.4.2026.11.03.06.31.27
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b23b847348sm9534779c88.4.2026.11.03.06.31.31
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Nov 2026 06:31:27 -0800 (PST)
+        Tue, 03 Nov 2026 06:31:31 -0800 (PST)
 From: Jens Axboe <axboe@kernel.dk>
-To: "Michael S. Tsirkin" <mst@redhat.com>, 
- Jason Wang <jasowangio@gmail.com>, 
- Yunye Zhao <yunye.zhao@linux.alibaba.com>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>, 
- Paolo Bonzini <pbonzini@redhat.com>, 
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Max Gurtovoy <mgurtovoy@nvidia.com>, 
- virtualization@lists.linux.dev, linux-block@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Joseph Qi <joseph.qi@linux.alibaba.com>, 
- Ferry Meng <mengferry@linux.alibaba.com>
-In-Reply-To: <20261102133740.88919-1-yunye.zhao@linux.alibaba.com>
-References: <20261102133740.88919-1-yunye.zhao@linux.alibaba.com>
-Subject: Re: [PATCH] virtio_blk: freeze the virtqueue layout at probe time
-Message-Id: <179371628704.3691261.225757712594968612.b4-ty@b4>
-Date: Tue, 03 Nov 2026 07:31:27 -0700
+To: mst@redhat.com, stefanha@redhat.com, hch@lst.de, 
+ Sergii Ushakov <sergiiushakov@google.com>
+Cc: virtualization@lists.linux.dev, linux-block@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, xuanzhuo@linux.alibaba.com, 
+ eperezma@redhat.com, pbonzini@redhat.com, Jason Wang <jasowangio@gmail.com>
+In-Reply-To: <20260918135120.1261150-1-sergiiushakov@google.com>
+References: <20260918135120.1261150-1-sergiiushakov@google.com>
+Subject: Re: [PATCH v4] virtio-blk: clamp max_segments to virtqueue ring
+ size
+Message-Id: <179371629139.3691261.5658135029894981037.b4-ty@b4>
+Date: Tue, 03 Nov 2026 07:31:31 -0700
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -110,24 +105,24 @@ Content-Transfer-Encoding: 7bit
 X-Mailer: b4 0.15.2
 
 
-On Mon, 02 Nov 2026 21:37:40 +0800, Yunye Zhao wrote:
-> init_vq() reads the writable num_request_queues and poll_queues module
-> parameters both at probe and when recreating virtqueues after suspend
-> or reset. However, virtio-blk does not update the blk-mq hardware queue
-> count or queue maps on restore.
+On Fri, 18 Sep 2026 15:51:20 +0200, Sergii Ushakov wrote:
+> In virtblk_add_req(), each request consumes 2 extra descriptors (out_hdr
+> and in_hdr) in addition to the data scatter-gather segments.
 > 
-> Increasing poll_queues can therefore remove the completion callback
-> from a virtqueue still used for interrupt-driven I/O, leaving requests
-> uncompleted. Reducing the effective request queue count through
-> num_request_queues can instead leave existing hardware contexts
-> indexing beyond the reallocated vblk->vqs array.
+> When a hypervisor (e.g. QNX Hypervisor) advertises VIRTIO_BLK_F_SEG_MAX
+> with seg_max = 1024 alongside a 1024-entry split ring (vring.num = 1024)
+> and VIRTIO_RING_F_INDIRECT_DESC disabled, lim->max_segments is set to
+> 1024. When the block layer submits requests with 1023 or 1024 data
+> segments, total_sg reaches 1025 or 1026. This exceeds vring.num (1024),
+> causing virtqueue_add_split() to return -ENOSPC and permanently wedge
+> the blk-mq queue.
 > 
 > [...]
 
 Applied, thanks!
 
-[1/1] virtio_blk: freeze the virtqueue layout at probe time
-      commit: d53c1a12ff1cfdb12770ddcfdf5603915d0ba0d8
+[1/1] virtio-blk: clamp max_segments to virtqueue ring size
+      commit: 603e66e8dd6adf2bad54bb27f4b690eacba3745e
 
 Best regards,
 -- 
