@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793664769;
-	b=EG98F2MlJx8Wt3eOR56p70LwxCjKO+qjAKVh8H0Q9dryqXtyz05DGs6VIf0Z6KwpHaNR
-	 ki+D/NRpzZRnBK8RF2v0wfRCSeHmoin7keTxUSBpbRQqNJzl0pOl2ZBUf5hPtabiSoXgj
-	 vRIjVbypRdrZjpQVCtWDb4tXxEjLHU/uUxdKdVkWN1BUIpqRB3CXY9YQT3wSz9qN+p4GB
-	 a3ptOB/+EeG5kadMJ/2IbwnP4qvi2YLrNBgOwcOuGmqFObI9oOrnck8u+t5z24rx21cVE
-	 lfamwu1DNxaIbjcX5mBiQOmjS6ghuGk5g5U2vo5bebYZIbhfK12sHTSv9t0thhLQMnw==
+	t=1793664820;
+	b=xD9LPczgNBtF4uFq/b2/Wt4vGRAJkKhStDUc2P9m4dHxHtG/3j9uAA1YBdSk49h3s1jT
+	 ANNDDiLkuS3QAyU1uwp9pHkCz/hX8ownD54BCWQ7hOhYL9FdXv2TiLwY6cQSBo4dIaF+x
+	 INtN0mAKMO0xqrX+uauKnOPRIzM2J8XGVa2A99RKqyj0ORBYocyVmQYRtuspAatlE4MnK
+	 yro5No+zl2ax13wY4cYOGh/YP+k37fU9Zb5M2Q6tO/vBU3jEuCbXZ/IIvfuNzYvHc1SSG
+	 okPPzWbUztIeSzIeNyGoSqlNKFEqNn1bBSxUxYbaFVrbOD+/iSbpE6uQZ96+fJl3AsQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793664769;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793664820;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=UKxdljUcFjlIq7c7w9X9w7+xAgdgpZHk5iBJVAdXujY=;
-	b=rstiMImIxW1ZoLPIaFEQPNCKeY5Ecr+YaFCdvV2DbLyUJ1cHQr2TGt483jWiFSusKx/K
-	 T6spS80xVa/IYgiOplByQcMP3dJVMLtqxuZUfbqkfRo+Mi8IzTAKYhep3aXWxYqlizJlK
-	 sqKtQEBAPxp1YFo8TYaaQZrv4egpEL8OV6yrkCz/vQe1Y/QchZvNZqYfx5pEGRCMYLnf9
-	 Xs1vzXqUustPYY481uG1hlus407elzOHMP8v0sMQ7yIqiRmlXhm8DVkX+/DqsRR03l2bg
-	 MeBkEj6kuGrS6kRi2C5bbnykYu6mNOeYs+Km0NY0rNUmFMLWPWyQ8iqNBjF6IQIB4PQ==
+	bh=4BGZ13Bkvj+nY9S5laHX6suMtDSaz5EyN/MBpLH+Qy8=;
+	b=SOMrAOZ609UXpdChhwp7r/b80pHb6rFBlBYkITyaK6MoZqyHnozu2YA61dXQjWglFoyt
+	 upcbmuv4CarZwiy03Kby/vzWZs1/nBgJ5Ga+kdWWIF/GDvw2sPdzwdMaXqTV6nDxLz21d
+	 VcLNRJp1W/+maIL29OE5uFB8uZH+GRIqukO2373Q6Ub5cRzX5lijq3ony7pUUfxRKgOHt
+	 O7D1SH342E20cExPwmsEEM432XRN0+SOHiPE/ZV3IRdmYwVtRnRSUo9r5lD60dqiXyIUw
+	 kpCaQoylFAmQMQ+CuNTQH0dWZyKNg2vWIybRVDVpoUh8jeWOWjsjfs5HuZZ1jb6FktQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PWmO5LHZ;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=G5yN7jo2;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BE5B606A324
-	for <virtualization@lists.linux.dev>; Tue,  3 Nov 2026 00:12:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C648606A324
+	for <virtualization@lists.linux.dev>; Tue,  3 Nov 2026 00:13:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PWmO5LHZ
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABB781F000C1;
-	Tue,  3 Nov 2026 00:12:48 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=G5yN7jo2
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BABD61F000C1;
+	Tue,  3 Nov 2026 00:13:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793664768;
-	bh=UKxdljUcFjlIq7c7w9X9w7+xAgdgpZHk5iBJVAdXujY=;
+	s=k20260515; t=1793664820;
+	bh=4BGZ13Bkvj+nY9S5laHX6suMtDSaz5EyN/MBpLH+Qy8=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=PWmO5LHZ8ARuJ7Ds47EV6OJzL9xT/YYVxnaDmAVP8dyxiH31xFYQuVeRpgbD2TUpK
-	 7mI4xSVJL32nqcMDu5zpClfrOx2WWlwmgcmKO2hmOlStOD8J9FCRNDNMuYxdYn16gD
-	 gHz1Ylv2jGSULGhQliykG5Hr8gPEB2XbTiV4TyB6+AlpuKMlOZjLQgRdrvUgncK2c6
-	 7x1cv9HpvvwkxEwabBlyW7M28zzeluRySP5dKrT0c/FeRDCGXrJsMDaVmd2oTfqRJQ
-	 XW/ffPxg/vxVVqYUBcdp7RF4spL92tuQxbVecatI7tf/SC1Ky+pS6dx1ltR6LcR99D
-	 6h192Kh8bMiYg==
-Message-ID: <sashiko-outbox-194364@kernel.org>
+	b=G5yN7jo20DwChUiXr6N1Wl4cF8ze02zJdsbWEGAT/Q1ZrwQxR5f+ArLGiPmQf0243
+	 zZge1z4xn6WNW61uAULhUpbfpgZGvEVIbsnzyGEE1GJ35IaIbLCuSXpAyQlIb4p6uK
+	 kR8iR1zAdEb4z08T3eq8qc3WV3YeT66KxgiL6B/iio/vKOSO2At4vFAMC/WFFVYCqK
+	 TGnmZOmwjryY+z2Zve3kJPzu9mVAfHxHceFhgOPnnntnxWRmKF2JiSF0vEnqkrxW76
+	 jrZsbLd59QtFozvtobrJpJ8F/josHATuL8HwDPUr2UODtE8V5eRtKYxJWFtVSeQvbR
+	 6NoCjUAQoKFZA==
+Message-ID: <sashiko-outbox-194365@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v12 05/12] ALSA: virtio: Keep control payloads alive
- through DMA completion
+Subject: Re: [PATCH v12 09/12] ALSA: pcm: add an optional reset operation
+ under the stream lock
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Joonho Lee" <mynameisjune111@gmail.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261103000403.67106-6-mynameisjune111@gmail.com>
+In-Reply-To: <20261103000403.67106-10-mynameisjune111@gmail.com>
 References: <20261103000403.67106-1-mynameisjune111@gmail.com>
- <20261103000403.67106-6-mynameisjune111@gmail.com>
+ <20261103000403.67106-10-mynameisjune111@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 03 Nov 2026 00:12:48 +0000
+Date: Tue, 03 Nov 2026 00:13:39 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,27 +62,25 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> Control requests can expose caller-owned payloads to the device after a
-> synchronous send times out. Keep request and response headers and payloads
-> in the reference-counted message so caller cleanup cannot invalidate DMA.
+> A driver may need to synchronize private capture accounting with the
+> common RESET pointer observation and the core's position rebase.
 >=20
-> Keep the queue reference until device completion or post-reset cleanup,
-> even when the caller times out or is interrupted. Consume the caller's
-> reference on every send path, and let response readers retain an extra
-> reference through copyout. Check payload sizes and allocation arithmetic
-> before building the scatterlists.
+> Add an optional reset operation called under the member's stream lock.
+> Expose snd_pcm_lib_reset() so the callback can retain common pointer and
+> time handling. On zero return the core completes that member's rebase
+> before unlocking it. Drivers without the callback retain the ioctl path.
+> The operation is also used after a successful prepare.
 >=20
-> A control value payload is also read by the CPU as a typed structure. DMA
-> cacheline alignment alone does not guarantee the structure's CPU alignmen=
-t.
-> Align regions to the greater of the DMA cacheline and control-value type
-> alignment, and reserve prefix slack from the buffer base so typed accesses
-> remain aligned while scatterlist regions stay on cacheline boundaries.
+> Zero permits the position rebase; it does not promise XRUN recovery.
+> A negative return skips the core rebase, so a callback returning an error
+> must leave coherent pointer state even after partial work.
 >=20
-> Keep response values in a separately allocated aligned response buffer
-> so INTEGER64 control accesses are aligned from this patch onward.
+> Linked RESET and prepare stop at the first error without rollback.
+> Earlier callback members may already have completed. Legacy members keep
+> [ ... ]
+> callback retained an acknowledged appl_ptr of 64, and finite-silence
+> playback kept the written prefix while clearing the rewound tail.
 >=20
-> Fixes: 9d45e514da88 ("ALSA: virtio: handling control messages")
 > Assisted-by: LLM
 > Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
 
@@ -90,5 +88,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261103000403.6710=
-6-1-mynameisjune111@gmail.com?part=3D5
+6-1-mynameisjune111@gmail.com?part=3D9
 
