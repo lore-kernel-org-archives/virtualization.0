@@ -1,63 +1,64 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=115.124.28.3
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793716081;
-	b=LCtoUBzR9fAQ4LHikW/iVgdY5/R+efGtXmToLN7r4VNXZ7/OMyYYcK02dVgrP4IFfHIE
-	 c7QuvKjxe/q+uDoNDnIwZOg9TWt8BJFMxHiPJ2yzs3HGtiwogjbFY+0IjBOwpb5Bws9hx
-	 9rL/fvo2Uz8KFhylyADng+2VizmOauiKfmIW7tDDHPL2BSX0A77oCWG7K9/12VxZhVp1b
-	 Tp9T3EcwWfGLTEFEUtO8Ou9goPe0Pf3tBvRgY8RG9gysqovn4Jk6wDjyjH4IKYhZp4OJV
-	 yERA7TOEW2R+GEWOhJvZFHrtBeTL0HZZqm+NJ8+kLsfew7vfT+udm2Y6GT3i8XLYjmg==
+	t=1793716185;
+	b=Xo+oYeD33oFXN8+6kA9xcVqmd8nKC/rFRvwU7X9tuaZvKkToJjJdQ8Rn+qrKW6u0brKL
+	 YnFFNEngrKJedn9+YZpp5xBwNXLIRmX2htF+amgIbu4p0tcTxo0+GedAOLi1/JBVlOvyA
+	 B3IfeDtwJGEbHbB3ik5/xZoeAItLipi1CtfUKKHaQ1ddZRZJVzmBSE+rTodd1t89oV86H
+	 fAj8hbu75/5abrHQQ0lkKoMYQX0iDL8EB4lsZCGI3di/CcOIw6m5ohVdGpYF5zddwRqMG
+	 Sii9a4fSJBYCMLfm084ycw6SYgACm2/r/smnypIf/DyCUCQoQAY2hHnxSZA2QwQ5RLA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793716081;
-	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:
-	 In-Reply-To:References:Auto-Submitted:Content-Type:
-	 Content-Transfer-Encoding:MIME-Version;
-	bh=PJRu7W6/Or1we5Gv3BgoLEtby0D0Y0UGgfjBHfRc5+k=;
-	b=sgCEzOG5MmlwroamKp6HsP5IgH649KiGgr5TeVMmM9eFBzB9VU40yezASGZuQKH7xnVz
-	 ist4wogupJ2YOvcZMVXs5wzXwPS9TVaYpaD7njqi7lMYFJm4Aa++VQDjUsJMtyKrBtAp2
-	 2q08JcTntdRbpcqHMHr/VZJQ31oeuUMVuj4pup3/7da8p4QMD+AxM0/WBCGAiXR12QhaU
-	 b/hoicxz+63QOpDBAzMde6sfP4Ufpl40RYSsQ03DUWekpjISbYu+6j/JVY7Fm7ht3nzuB
-	 1MLhTdvmO0CrY8ZOQfCNikOq3TVxZz8eKWfbuyhfxhuUfE/Lm1YHkUAckXwk4lTEHsQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793716185;
+	h=DMARC-Filter:DKIM-Signature:X-Alimail-AntiSpam:Received:From:To:Cc:
+	 Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=n/GZUP2ZsjOuhhEd/klWEvvXLu7voLybiNnp082YBt8=;
+	b=lAc770euc5vfRBqDMOl/+ISIastkoANbIj90iOSKQ0RKRCWpGnPgdq2BA7PSv36haOio
+	 pBhcvbEEUHHEpRhTgWU7UaMOdIOyyUZ0pPJPjKPheGCtQwGE5xA2DzPwpmigi81pNcNr3
+	 osesOjufAMxqp4DknWAHCINNIkBloO/AqKm1WnoCgUXK8/awTUW+Vm5gIgzuFeHMHw+vA
+	 lnOpvXfq3PL1XWLj70X1cOJmcxpGI+yTuiYUgDy2fu6xKnAhUazFdP7apAGTkKYLz4kqI
+	 YQeqtErf/hWzuam2NRpiJ9SwH4cpOy+URYNE9//PF9QcH/CEZe/iF9LutGunBfEkzbw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HHpjdexY;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=none header.from=xiaopeng.com;
+	spf=pass smtp.mailfrom=xiaopeng.com;
+	dkim=pass header.d=xiaopeng.com header.i=@xiaopeng.com header.a=rsa-sha256 header.s=default header.b=lycISWbw;
+	arc=none smtp.remote-ip=115.124.28.3
+Received: from out28-3.mail.aliyun.com (out28-3.mail.aliyun.com [115.124.28.3])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D12D1606A328;
-	Tue,  3 Nov 2026 14:28:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8976F606A327
+	for <virtualization@lists.linux.dev>; Tue,  3 Nov 2026 14:29:42 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8976F606A327
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xiaopeng.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xiaopeng.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HHpjdexY
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 732951F000C1;
-	Tue,  3 Nov 2026 14:27:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793716080;
-	bh=PJRu7W6/Or1we5Gv3BgoLEtby0D0Y0UGgfjBHfRc5+k=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=HHpjdexYLv1LKFZhWNvbOPCNPUsD/VZW8osv5/BChV1k2ouAGtlQR9SQn5QMzOthq
-	 m058MRJH9UbvslLaBI1qYprnEAb8vklbQkkWKgqM/Npgil7PBBZAAGOM/gYC2e4srq
-	 rPcFraQzJMLo3j+FOTlKmjQbtfV9Xd/gd7YWIn8/3BJ3zXJCJNjUHtdy3R3ELgP197
-	 lT0QIgG9IL6pFlvA0J/7Vn0b4Uv2Dlpc9L6O1HBJJuSxrNGQYxxgx+qK3FnWOD3K5L
-	 2903gMFeOEbJvYRba/ie5qyjb5Sx1gCrtsdqtfjwmUJ8k8Cn3QHuJWrjGCfIeJAgzn
-	 1ATTd+1lQLj9Q==
-From: netdev-bot+sinfo@kernel.org
-To: Antonio Quartulli <antonio@mandelbit.com>
-Cc: willemdebruijn.kernel@gmail.com, jasowangio@gmail.com,
- andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@kernel.org,
- kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, mst@redhat.com,
- eperezma@redhat.com, shuah@kernel.org, ast@kernel.org, daniel@iogearbox.net,
- hawk@kernel.org, john.fastabend@gmail.com, sdf@fomichev.me,
- maheshb@google.com, peterpenkov96@gmail.com, netdev@vger.kernel.org,
- virtualization@lists.linux.dev, linux-kselftest@vger.kernel.org,
- bpf@vger.kernel.org
-Subject: Re: [PATCH net v4 0/2] tun: bound the NAPI receive queue
-Date: Tue, 03 Nov 2026 14:27:59 +0000
-Message-ID: <179371607900.488859.488506175171813009@kernel.org>
-In-Reply-To: <20261103142232.1869185-1-antonio@mandelbit.com>
-References: <20261103142232.1869185-1-antonio@mandelbit.com>
-Auto-Submitted: auto-generated
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	dkim=pass (1024-bit key, unprotected) header.d=xiaopeng.com header.i=@xiaopeng.com header.a=rsa-sha256 header.s=default header.b=lycISWbw
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=xiaopeng.com; s=default;
+	t=1793716175; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=n/GZUP2ZsjOuhhEd/klWEvvXLu7voLybiNnp082YBt8=;
+	b=lycISWbw5HzTTpeAPheAB7FhQf0XGx9b+yFlGISP2Y46AoBMnFJ8sHgJ2fP+s6b2ufndj9SFDFWfDCeqUCiv+yufbWudAImvL0C/RA770TBSUO0gd2QttzkZ7wjLHWLrW61pcs4bplaJdbwuuu5Yh1gmpn4xzBgYNkrGdEtEAgQ=
+X-Alimail-AntiSpam:AC=CONTINUE;BC=0.1085895|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_social|0.0253143-0.00086085-0.973825;FP=3442595331818532187|0|0|0|0|-1|-1|-1;HT=maildocker-contentspam033037034138;MF=fangxy@xiaopeng.com;NM=1;PH=DS;RN=10;RT=10;SR=0;TI=SMTPD_---.jvr1CsY_1793716173;
+Received: from localhost.localdomain(mailfrom:fangxy@xiaopeng.com fp:SMTPD_---.jvr1CsY_1793716173 cluster:ay29)
+          by smtp.aliyun-inc.com;
+          Tue, 03 Nov 2026 22:29:34 +0800
+From: Fang Xieyan <fangxy@xiaopeng.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowangio@gmail.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	virtualization@lists.linux.dev,
+	kvm@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org,
+	Guanglei Zhu <zhugl3@xiaopeng.com>
+Subject: Re: [PATCH] vhost/vringh: reject zero-length indirect descriptor tables
+Date: Tue,  3 Nov 2026 22:29:32 +0800
+Message-ID: <20261103142932.65745-1-fangxy@xiaopeng.com>
+X-Mailer: git-send-email 2.50.1
+In-Reply-To: <20261103055650-mutt-send-email-mst@kernel.org>
+References: <20261103055650-mutt-send-email-mst@kernel.org>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -67,21 +68,21 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Hi!
+Hi Michael,
 
-This is an automated message. This series looks like a fix, but its
-commit messages seem to be missing some information:
+Thanks. I checked the applied v2 (60a792b97933) in your
+vhost branch and it looks good.
 
- - How the issue was discovered, e.g. hit in production, hit during
-   development, syzbot report, manual code inspection, LLM or static
-   analysis tool scan.
+One small thing on top of it: vringh_bad() there still
+passes the raw desc->len, so the reported length reads
+wrong when the vring byte order differs from the CPU
+byte order. The October 21 posting had this right; the
+rest is fine as is.
 
-Please do not repost the series just to address the above. Instead,
-reply to this email with the missing information, so that reviewers
-can take it into account. If the series needs another revision for
-other reasons, please include the information in the commit messages
-then.
+Happy to send a one-line follow-up on top of your branch
+if you want it; otherwise fine to leave as is.
 
-The evaluation is done by an LLM so it may be wrong, if you think
-that is the case please reply and explain.
+Thanks,
+Fang
