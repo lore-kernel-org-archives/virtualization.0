@@ -1,103 +1,58 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.178
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793693346;
-	b=WyZbUbk9/hqug7T3anLQAXGm4U5kUjcKwmIY0uJ/KBrrwHNFfQkiCZB8Ow5ClGLeueLQ
-	 SA3gz6qtmJr3VZgISo1y108aK6mKAKYdcnOQbQnMNPTe1vHQqZHMuofGBQSyGaVBYpDMv
-	 Z+zixEksDcXvVazHt9ZHHGLjVHKg0GJWWd5yqfSknm5/zEOtLZEH4iw2dt5cZJ+kKms1a
-	 TUz2dDUr1SDrr1cLC7htMv4wqdkb05RULEOuoUiNrpE/NSYLVF6+4/9WiwZdS0gPpU0Tl
-	 LJqoytZO05I0eyoXHkEXppcpK5VgU95qssZeGuY6n/eDkl+GLipXTIxKXR/+nJW0MTA==
+	t=1793694796;
+	b=SoW7ie0mKOTq2vcsuz2RPiDlhlqo12fDZd17eUdgpHzHfTFYNxk/SW35alSKP5EjZdaW
+	 rL6GHZXeNS3hYs5hfXX2Neh9D1DLAi30uUK2mrVeTF6YcF6HfHTDHA2sg4gg9CZaRzv0l
+	 dhXOXSiZ221EliaMXE7LN/ky7cfdQEbTILk9YkT6JYqVD2An4iN6WsvyXfoy7NqdzWuI/
+	 Fhz9L2y/XjbkKprC4ARqFiig6nSPSgQM9QgusR2dPztupgdqkmICmTAs1aVGPRHoioaD4
+	 zzhUYYHRyi3g0YhTiJ4As2/qRhXCtBOa4nS0VkJ7hoeT2Y+EikjirrzG5A1UadKhiow==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793693346;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=NvWnjCDmeIY5HYOU7QecIwh3VjwG9tp0eowU5uql+p4=;
-	b=AM1t69tRoymZx/IaOFntKHfMLDff22wdrBmgLiJv8/GHi4VbvGrHgjozDH8mzk4qT1SH
-	 HJ/YAp/r4N2ASp4fsuwCRKHIQxnrL/VMV6RB5MP/RkmMfgdrClCUnIGY6tiKjaAGWAz/e
-	 nQFgWYrOzSJ0pD2rpsTFXK8EP6GnsimSj9z/zw/8nqTFhjbAGFc5TMmAFdYGDJBI+lWs6
-	 iV+cJuxLMUlnjtVtgUlbAmgGCY5057sKLACLBBIiyK8wOL6a5hC5E1DiX2wykrfmu8PWo
-	 w9rCOT+1fQzMgGRh9ZwW36NwU0i5nSmHGF3K4jaP0DQ1OIsIJ3wOcgeLwNkVzSm4wHQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793694796;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=d8XvZ731/nH3uz6YjucyhxkBQmpTLgZPZ5QlBs2V3eA=;
+	b=P9wrSNDKr0G8P0j1wBkuV0Ia3PacjogXN9AOxFFADxqptUtLHOxC4bONCQqTibtySoji
+	 fiu1ke+KhDPBfOdSN6u82r8hE+UpDT5mKkraEW6hm5u5j+e2RBXg/3VOCuQvkw+eHK2Yv
+	 qUb7cPLHQOxjxx+RqcLWMHIj1wXKv8Y0YuwMY+jAA8pJ7BPTfoc/ijSQMtp6EhgCPQWHB
+	 BQPIENez+JmOxr8BBAYPz7RZBvS+2/gF+XowTQ6ZClkdPpG+gXlZ9wArD1K5GtopIourg
+	 GVUZeeRStoMwIMdfuikyAw8kBeUW8KOVgmGEp/4uNtk8lNPpYB2X/yPeDuh/EQMZ7fA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=EyGyIneh;
-	arc=none smtp.remote-ip=74.125.82.178
-Received: from mail-dy1-f178.google.com (mail-dy1-f178.google.com [74.125.82.178])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Vdi1+Azj;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE255606EE80
-	for <virtualization@lists.linux.dev>; Tue,  3 Nov 2026 08:09:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AE255606EE80
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D24E5606A334;
+	Tue,  3 Nov 2026 08:33:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=EyGyIneh
-Received: by mail-dy1-f178.google.com with SMTP id 5a478bee46e88-3535a54bed9so5792453eec.1
-        for <virtualization@lists.linux.dev>; Tue, 03 Nov 2026 00:09:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793693345; x=1794298145; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=NvWnjCDmeIY5HYOU7QecIwh3VjwG9tp0eowU5uql+p4=;
-        b=EyGyInehu+xEbd6JhGJubDgKcVcpcHdY+l+pP+C2LFrErjstdnDfzZ7q00MFcyH+L/
-         STIjvnMqI9XOI+j98ZOHzHTaQW8J0xBR06tEd7QFIaB2podxbvQ42IkJ6NyV5P4axmCq
-         kOLr9bk+85MLHM615kp4FJ/6zFQikyaQiARA0Txo/2bo/bBbzYQywCtIs0KjFM/2NMO2
-         1wZCgYu4jsDcArGGUjSNrVIySSdvQtArdYis5YJZlBB/NyJea2LHUJUnXhFkVko/ANzv
-         SrjiSDQBbIosM/iv36YeM0ulEywC0s22W+8CC/je0FpYnvaisRvOmp5bp5zMfr+iM/7Q
-         uk5w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793693345; x=1794298145;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=NvWnjCDmeIY5HYOU7QecIwh3VjwG9tp0eowU5uql+p4=;
-        b=a8dhWGsE08WsCI468fYLTgA4xQVafyEMd0OjRsMOWc9rvCEAFaEB5XrT9XScfNWGqu
-         8fCdLeu000gSO9nKRqhAuKqDPolw+LhlfSQ/1hGuP0lub/0hJ0S5ruAg/8gK/7wsWTN0
-         kVKcGJ+zgFXRd5dlWw/lKH7pHQzUMEQVhuJJGXmL239casNjbbvSt9183RPpMTNVP6bC
-         cE/rIA5eLuhYLbwB4MTIT0JWHXx6vKvaKzt+Caa25DS+WcQeWr6pkznOGCj84dc2AZma
-         XToGLbHMSS2OlolgXofLmrMVbivM0ep0pMbR8JB46QIcERoFm30we7ou34FZAUah0XSa
-         BA3A==
-X-Forwarded-Encrypted: i=1; AKwUvBxUMiM/v7fXUU1TOgXEKK1hg0mVeXBlBP6fuYGqe6N0lV+TSL2YrcGp8LlEO9nbZyP7KIm1xzjuF55GBBTRkA==@lists.linux.dev
-X-Gm-Message-State: APuU4Z8JrDpRP1jeXAiQ+0e9Os6HQ/h69C0VSPQJkcmKVpC3dBTS+Cot
-	TB0fp+yMuJOgJP610XSZWKu0C+tdeY6ecBrT2Gaek8kOFD0zqR5jIEDv
-X-Gm-Gg: AYBFou0RYfEIt0isZ0uzNXgqelN6HuPPvvV2XDUTLgaI+Wg7cGB1yLbqcCmrFquEFmx
-	bUTAJc1PL1gxEcSirxpkXBN81zkCEiLADN8nruZkl9a9DtOTNFA8UF0lW8NDJCn87c9sJud3Ltb
-	1mjpieKV3lYB8N9h3DhNVPW6DoYQ7AcFQkXo58v04P5xq8jloxz0LSVGIDszRz7YQKgtSCqcLoK
-	hqfUv+cXqxiT91SZLIkM8BlBjI3kQrmpZIqx1/mva22C6+7yyZbjbsMZE76T586pNMW6Yvlw7A9
-	JKqhMnM6pXrKrLL569c8hMujvq5kM5wRYMXFZsYQD/+V7ASdb0biohZ7jwXPL/o72A6E9ngcvez
-	33BLygruXiW1fHQQyMM4wC/Wg+JVaS9RIo09EXuSxz/SaJqeBdz9hWWPTotPY5McgRfDibbGRWe
-	FEteTpPIxzYp2dOp5J/yVctcpFJqGZYQGK2eWjvJ5/Hq6vjzdgUQ6ArS9eFzPwzSxcxXMfW+zDk
-	2PF5plKotAmdk6HJIlnUHy02f5UvKgB1lHZKgcu2SDcqs6OefOJ122QjrC2B6S+Io2AgQl13CdQ
-	08dyoQGFmdsAbq1dSevZMLIGxUCVryYg0MTyrY2b8AC9RE4SnE5urIOsd44gVsgkl9H0CktP9lN
-	tQM9hgQpZAHd9wWqQV4+gFAyzFye0e50z0bysVl10PZr9hes=
-X-Received: by 2002:a05:693c:20c2:10b0:369:f9b6:f486 with SMTP id 5a478bee46e88-36a4260db8cmr20091240eec.41.1793693344807;
-        Tue, 03 Nov 2026 00:09:04 -0800 (PST)
-Received: from localhost.localdomain ([183.96.175.225])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-36a428fa380sm41468466eec.12.2026.11.03.00.09.01
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Tue, 03 Nov 2026 00:09:04 -0800 (PST)
-From: Joonho Lee <mynameisjune111@gmail.com>
-To: linux-sound@vger.kernel.org
-Cc: tiwai@suse.de,
-	perex@perex.cz,
-	anton.yakovlev@opensynergy.com,
-	mst@redhat.com,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	corbet@lwn.net,
-	skhan@linuxfoundation.org,
-	rdunlap@infradead.org,
-	linux-doc@vger.kernel.org,
-	Joonho Lee <mynameisjune111@gmail.com>
-Subject: [PATCH v13 11/12] ALSA: virtio: prioritize staged capture period work
-Date: Tue,  3 Nov 2026 17:08:20 +0900
-Message-ID: <20261103080821.16983-12-mynameisjune111@gmail.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20261103080821.16983-1-mynameisjune111@gmail.com>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Vdi1+Azj
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7061C1F00919;
+	Tue,  3 Nov 2026 08:33:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793694795;
+	bh=d8XvZ731/nH3uz6YjucyhxkBQmpTLgZPZ5QlBs2V3eA=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Vdi1+Azj3K2gZsCYPnJbHvEtsrnsDn35vlur1tnr05DH/iIB+N7O2FB9Wxx71GhHB
+	 jn52bWG8/IdFPh6/+hNXxdhOxfW5u/QZXuvl42Jgk4N5Z7R2SmX7bNvSqVTMYDAnF1
+	 0FI+0EsKGoFJ3MFnQFt9V69f01h/muKjQm3ORPjg3dsnYmzUczPRL+Z0vd3xZdqqgT
+	 DcgdYw+d2ISx0dSxjHmUS0QxOA1FZ6lk3a5+yFEEFp225vZ9uq1I58+xs+X5XSEuDe
+	 UcGJ+fEQZN9864+eUrXA/9/JMb375Ov02s/+VFD9UA6Lubzr955r9E2sg/vTt4ObNo
+	 1MIcYc0N5qTRQ==
+Message-ID: <sashiko-outbox-194832@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v13 01/12] ALSA: virtio: Propagate PCM send failures
+ through ACK
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Joonho Lee" <mynameisjune111@gmail.com>, linux-sound@vger.kernel.org
+Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
+ Perez" <eperezma@redhat.com>
+In-Reply-To: <20261103080821.16983-2-mynameisjune111@gmail.com>
 References: <20261103080821.16983-1-mynameisjune111@gmail.com>
+ <20261103080821.16983-2-mynameisjune111@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 03 Nov 2026 08:33:14 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -106,36 +61,167 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Queue staged capture period notifications on system_highpri_wq through
-the common scheduling helper. This allows capture notifications to make
-progress when ordinary workqueue workers are delayed by CPU contention.
-Playback and ordinary capture keep schedule_work().
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Medium] ALSA: virtio: race with sync_stop in virtsnd_pcm_pb_ack()
+--
 
-This preserves the existing priority proposal without mixing RESET or
-lifecycle changes into it. It provides no hard real-time deadline and
-cannot prevent a userspace reader from overrunning its buffer.
+commit 75f714a08c45af9f82b5baffff5589166c1182bf
+Author: Joonho Lee <mynameisjune111@gmail.com>
 
-Assisted-by: LLM
-Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
+ALSA: virtio: Propagate PCM send failures through ACK
 
----
- sound/virtio/virtio_pcm.h |    4 ++++
- 1 file changed, 4 insertions(+)
+This commit restores message length and notifies the virtqueue on partial
+send failures in virtsnd_pcm_msg_send(), and propagates those errors through
+the PCM ACK callbacks as XRUNs while rejecting ACK calls from invalid PCM
+states.
 
-diff --git a/sound/virtio/virtio_pcm.h b/sound/virtio/virtio_pcm.h
---- a/sound/virtio/virtio_pcm.h
-+++ b/sound/virtio/virtio_pcm.h
-@@ -169,6 +169,10 @@
- static inline bool
- virtsnd_pcm_schedule_period_elapsed(struct virtio_pcm_substream *vss)
- {
-+	if (vss->direction == SNDRV_PCM_STREAM_CAPTURE &&
-+	    vss->capture_staging)
-+		return queue_work(system_highpri_wq, &vss->elapsed_period);
-+
- 	return schedule_work(&vss->elapsed_period);
- }
- 
+> diff --git a/sound/virtio/virtio_pcm_ops.c b/sound/virtio/virtio_pcm_ops.c
+> index 1091100a4c982..67460bd2a61ca 100644
+> --- a/sound/virtio/virtio_pcm_ops.c
+> +++ b/sound/virtio/virtio_pcm_ops.c
+> @@ -466,36 +466,124 @@ virtsnd_pcm_cp_pointer(struct snd_pcm_substream *s=
+ubstream)
+[ ... ]
+> +/* Caller holds vss->lock. */
+> +static void virtsnd_pcm_transfer_failed(struct virtio_pcm_substream *vss)
+> +{
+> +	vss->xfer_enabled =3D false;
+> +	vss->stopped =3D true;
+> +	vss->substream->runtime->stop_operating =3D true;
+> +}
+> =20
+> -	virtsnd_pcm_msg_send(vss, rec->sw_data, bytes);
+> +/* The caller holds the PCM lock, also used by DROP and state transition=
+s. */
+> +static int virtsnd_pcm_ack_state(struct snd_pcm_substream *substream)
+> +{
+> +	switch (substream->runtime->state) {
+> +	case SNDRV_PCM_STATE_XRUN:
+> +		return -EPIPE;
+> +	case SNDRV_PCM_STATE_PREPARED:
+> +	case SNDRV_PCM_STATE_RUNNING:
+> +	case SNDRV_PCM_STATE_PAUSED:
+> +	case SNDRV_PCM_STATE_DRAINING:
+> +		return 0;
+> +	default:
+> +		return -EBADFD;
+> +	}
+>  }
+> =20
+>  static int virtsnd_pcm_pb_ack(struct snd_pcm_substream *substream)
+>  {
+>  	struct virtio_pcm_substream *vss =3D snd_pcm_substream_chip(substream);
+>  	struct virtio_snd_queue *queue =3D virtsnd_pcm_queue(vss);
+> +	struct virtsnd_pcm_transfer transfer =3D {};
+> +	int rc;
+> =20
+> -	guard(spinlock_irqsave)(&queue->lock);
+> -	guard(spinlock)(&vss->lock);
+> +	rc =3D virtsnd_pcm_ack_state(substream);
+> +	if (rc)
+> +		return rc;
+> =20
+> -	return snd_pcm_indirect_playback_transfer(substream, &vss->pcm_indirect,
+> -						  virtsnd_pcm_trans_copy);
+> +	scoped_guard(spinlock_irqsave, &queue->lock) {
+> +		guard(spinlock)(&vss->lock);
+> +		transfer.indirect =3D vss->pcm_indirect;
+> +		if (vss->stopped) {
+> +			rc =3D -EPIPE;
+> +		} else {
+> +			rc =3D snd_pcm_indirect_playback_transfer(substream,
+> +								&transfer.indirect,
+> +								virtsnd_pcm_trans_copy);
+> +		}
+> +		if (!rc)
+> +			rc =3D transfer.error;
+> +		if (rc)
+> +			virtsnd_pcm_transfer_failed(vss);
+
+[Severity: Medium]
+As reported by Sashiko on v12 [1], can virtsnd_pcm_pb_ack() and
+virtsnd_pcm_cp_ack() still race with snd_pcm_sync_stop() ->
+virtsnd_pcm_sync_stop() on vss->stopped and substream->runtime->stop_operat=
+ing
+when a stream is in SNDRV_PCM_STATE_PREPARED or SNDRV_PCM_STATE_DRAINING?
+
+Because virtio-snd sets vpcm->pcm->nonatomic =3D true, snd_pcm_prepare() and
+snd_pcm_hw_params() hold runtime->buffer_mutex rather than the PCM stream
+lock across snd_pcm_sync_stop() and substream->ops->prepare() /
+substream->ops->hw_params(). Meanwhile, a concurrent SNDRV_PCM_IOCTL_SYNC_P=
+TR
+in snd_pcm_sync_ptr() only acquires the PCM stream lock and calls
+pcm_lib_apply_appl_ptr() -> virtsnd_pcm_pb_ack() / virtsnd_pcm_cp_ack().
+
+In virtsnd_pcm_ack_state(), SNDRV_PCM_STATE_SETUP is rejected, which covers
+snd_pcm_drop(), but SNDRV_PCM_STATE_PREPARED and SNDRV_PCM_STATE_DRAINING a=
+re
+allowed:
+
+1. When a capture stream with available frames is drained via
+   snd_pcm_drain(), snd_pcm_do_drain_init() stops the stream and places it =
+in
+   SNDRV_PCM_STATE_DRAINING with vss->stopped =3D true and
+   runtime->stop_operating =3D true. Similarly, if snd_pcm_start() fails on=
+ a
+   later linked stream, snd_pcm_undo_start() stops the earlier stream while
+   leaving it in SNDRV_PCM_STATE_PREPARED with vss->stopped =3D true and
+   runtime->stop_operating =3D true. On a draining capture stream, any read=
+ or
+   SNDRV_PCM_IOCTL_SYNC_PTR will also see vss->stopped =3D=3D true in
+   virtsnd_pcm_cp_ack() and fail with -EPIPE.
+
+2. When snd_pcm_prepare() or snd_pcm_hw_params() is called from
+   SNDRV_PCM_STATE_PREPARED (or snd_pcm_prepare() from
+   SNDRV_PCM_STATE_DRAINING on capture), runtime->state is unchanged while
+   snd_pcm_sync_stop() clears runtime->stop_operating =3D false and calls
+   virtsnd_pcm_sync_stop():
+
+   sound/virtio/virtio_pcm_ops.c:virtsnd_pcm_sync_stop() {
+       if (!vss->stopped)
+           return 0;
+       ...
+       vss->stopped =3D false;
+   }
+
+   While virtsnd_pcm_sync_stop() is sleeping in cancel_work_sync(),
+   VIRTIO_SND_R_PCM_RELEASE, or wait_event_interruptible_timeout(), a
+   concurrent SNDRV_PCM_IOCTL_SYNC_PTR passes virtsnd_pcm_ack_state(), sees
+   vss->stopped =3D=3D true, calls virtsnd_pcm_transfer_failed(vss) to re-a=
+rm
+   vss->stopped =3D true and runtime->stop_operating =3D true, and returns =
+-EPIPE
+   so pcm_lib_apply_appl_ptr() triggers __snd_pcm_xrun(). Conversely, if
+   SNDRV_PCM_IOCTL_SYNC_PTR runs right after virtsnd_pcm_sync_stop() clears
+   vss->stopped =3D false and before prepare finishes, ACK sees
+   vss->stopped =3D=3D false and enqueues I/O messages on the released stre=
+am.
+
+3. Later commits in this series ("ALSA: virtio: Recover PCM state after a
+   failed start" and "ALSA: virtio: add staged capture and serialize PCM
+   lifecycle accounting") add vss->lock around vss->stopped and gate ACK on
+   vss->prepared and vss->preparing, but virtsnd_pcm_prepare_locked() and
+   virtsnd_pcm_hw_params() still call virtsnd_pcm_sync_stop_locked() before
+   setting vss->preparing =3D true or clearing vss->prepared =3D false. Whi=
+le
+   virtsnd_pcm_sync_stop_locked() or virtsnd_pcm_pause_restart_sync_stop()
+   sleeps in disable_work_sync(), cancel_work_sync(),
+   virtsnd_pcm_stop_device(), or virtsnd_pcm_send_sync() for
+   VIRTIO_SND_R_PCM_RELEASE, runtime->state remains SNDRV_PCM_STATE_PREPARE=
+D,
+   vss->preparing is false, and vss->prepared remains true. A concurrent
+   SNDRV_PCM_IOCTL_SYNC_PTR can still enqueue messages during
+   disable_work_sync() or observe vss->stopped =3D=3D true during STOP/RELE=
+ASE,
+   re-arm runtime->stop_operating =3D true via virtsnd_pcm_transfer_failed(=
+),
+   and return -EPIPE to trigger __snd_pcm_xrun().
+
+[1] https://lore.kernel.org/r/20261103000403.67106-2-mynameisjune111@gmail.=
+com
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261103080821.1698=
+3-1-mynameisjune111@gmail.com?part=3D1
