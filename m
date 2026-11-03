@@ -1,97 +1,101 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.46
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.49
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793716272;
-	b=1dg2okRDp+/WrSNpZwBBI04H60vy6nr38E1st3BZDdBsF2kH9aue4PdIIT32OdRcPuS7
-	 93ZbQPUIr5brP/LchX8/E2U7kRIXwGQztxWKME6PGlJPSZa+d8egzN2yUbjfuydjdQpn6
-	 N55jt/gZDr98c0T4M1V/qgI3v5dntgXVIJDi5ldgxa6J4JHEpVFhNfE1WEMle6jP4xuXs
-	 2eQIo+pPpCHRaiqT9TlnXO4ZWFU4obbifmMsL5wQDeYjU1JqL+sms5SiwY6Www+XFP+Z1
-	 bX/0KY3GbCxMgxgF3GCTC2EZURHJW4F7gWy0bhgkv1+q8JqZ42oI5w8Kx0PuUOjFOJw==
+	t=1793716294;
+	b=XBNU0XvSF2xtC//h217OTLG/BXkaTic2KlCvLI0bJGsI0tuFk42J69T3JQf3by3gOsTE
+	 ozJwaHNpGzt5GZcs1sZc8zq09a8OHmv8vlPx2+COlmgJ4CvKPjPWOtUSmDCWcPUC1dxWs
+	 dFDOBB1/iV95kc45JDSCIrL6VgPRQSGDY7kZCYD2J4eRBborXxfd+86KFj/p3bj5YvNOm
+	 WjhMttMh2nZn9E0BAGOC2SrIH3VENIuC52MdX9BhRvExjBcXPFoP0lqXmhA5vm4UZNEXn
+	 dXkhBGQilbFwAz0d2+eu0UbXUJWXE2VzAuINp+ehEkT88CXG/l+Ilwaq7MOUnufmLZA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793716272;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793716294;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
 	 MIME-Version:Content-Type:Content-Transfer-Encoding:X-Mailer;
-	bh=gJM0tAyN19ozTNsT7Q0jTKA95QkMzgeT7FdAvzFKoO8=;
-	b=zPJmGPYJArPWmBuFNSsiJUIxZcq2wL68HFL+2qv3KXZvDR6wAJkU6xNbXMl7a1HdAsXl
-	 zKt3qXuPPTM9Ly7qINN6EnYP2ombIeFcqlimwLtkwGqvyU3G91w17XNVyTWA32R5anpl1
-	 bp1FQNvNtfVpMfF9vMsQehSRBRCjEq+PtpgxD+p+bdMSmGMZkekaGk8t6DnPmXUOIBE1z
-	 Lnfyqe/75jY1pNIqUoBes2bROtnfYciryi8S0GQIi5DVxJC356vYEKjbKf5kZdu0AHH6z
-	 kjI44+Nehf4C6clgWV/iSdzCjcQgt/JFx26xHl2FdNAm/uG/Bfs9WBSBjkhCcaBOL2A==
+	bh=wk9IlcGYhsSNWUuj3B81ByEUkAlft9P2T8KxXmSzXGY=;
+	b=GSYownmKc0mhHCTwXDN2ct/jQyujFCQvyy/WG22KkIy6cq1w1BDfpBwXKzupefErdY8F
+	 gW4Z87QbEHGGiFEZcOixpCKauUtOJYAHd24cemYXROAqTA6QejMtDxLpjIC0oF3sBq3Up
+	 oqs3LSNhe7Yk5NXoCjDdN+aJK0Yozcm3aGKBoqfdnh+7nbnK3BXVeXC7GsW/PD+EC7ej0
+	 FWPmbC2afYq9NDdhUKTysrQQN4awB0UPTymQUc65yG+nMGxHPKMXOMG3ZBlXO+U2tODq0
+	 jJNJU+gMasz2Mvj72B/JUrCvslWGkKZVDQRJoBxOBnXPMYTY3yMztnF7HMZMu7xD0aA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=kernel.dk;
 	spf=pass smtp.mailfrom=kernel.dk;
-	dkim=pass header.d=kernel-dk.20260707.gappssmtp.com header.i=@kernel-dk.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b="VNiNg/BF";
-	arc=none smtp.remote-ip=74.125.82.46
-Received: from mail-dl1-f46.google.com (mail-dl1-f46.google.com [74.125.82.46])
+	dkim=pass header.d=kernel-dk.20260707.gappssmtp.com header.i=@kernel-dk.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b=RRKhmFHK;
+	arc=none smtp.remote-ip=74.125.82.49
+Received: from mail-dl1-f49.google.com (mail-dl1-f49.google.com [74.125.82.49])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2709B606EE83
-	for <virtualization@lists.linux.dev>; Tue,  3 Nov 2026 14:31:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2709B606EE83
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 387AD6083632
+	for <virtualization@lists.linux.dev>; Tue,  3 Nov 2026 14:31:29 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 387AD6083632
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel-dk.20260707.gappssmtp.com header.i=@kernel-dk.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b=VNiNg/BF
-Received: by mail-dl1-f46.google.com with SMTP id a92af1059eb24-1a2af4c8d00so6270555c88.0
-        for <virtualization@lists.linux.dev>; Tue, 03 Nov 2026 06:31:12 -0800 (PST)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel-dk.20260707.gappssmtp.com header.i=@kernel-dk.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b=RRKhmFHK
+Received: by mail-dl1-f49.google.com with SMTP id a92af1059eb24-1a2761c69fbso7218789c88.0
+        for <virtualization@lists.linux.dev>; Tue, 03 Nov 2026 06:31:29 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20260707.gappssmtp.com; s=20260707; t=1793716271; x=1794321071; darn=lists.linux.dev;
+        d=kernel-dk.20260707.gappssmtp.com; s=20260707; t=1793716288; x=1794321088; darn=lists.linux.dev;
         h=content-transfer-encoding:content-type:mime-version:date:message-id
          :subject:references:in-reply-to:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=gJM0tAyN19ozTNsT7Q0jTKA95QkMzgeT7FdAvzFKoO8=;
-        b=VNiNg/BFMilaO/9RHxu/XaDUV94OHX6NH9bf8tIbWlhW23YG8GOuHg+zpcdI893F4R
-         be2G3VDsCdmDQJ9hIQCphm+2/mPnomw9zZXYN1NIQYTppZTUFPY1rCAZEagxXKBuSkul
-         16nZcZMYt+52L8M2pEKZihtsjFpdqrNuvrb+EYoV8Pl3Tr9sSMvgGy9rjHT4gmIIRE17
-         j8BwmFwLXfZzjaWz6X21fSSew/0+Timnne8Gfc48QKCFjLWxt6x3nX+xQ5yh1A8ylp2H
-         ueSXxl+0pTAanV0NzPO8q/UjpDPYCvzhllQPtV1QZyZqiQzpJrD0iWT6kbFB/aU9BaxF
-         ToTA==
+        bh=wk9IlcGYhsSNWUuj3B81ByEUkAlft9P2T8KxXmSzXGY=;
+        b=RRKhmFHK8lerJ45rDb4x2WeaBbjOV0XMkGCnYQq1RhcC90MrMWQBs7CpHrDpXxh9+8
+         YAB7zF55gFhGaXpQXzfGqzsiP9E1msqjKKRFPRZX4qr4zQBQCsn27O0hgET79yN6nSTb
+         ne/SImqkzcnyudJCjlbPXHNEOlVyRRdMFmQrUddl+ZQ6CZuRYvqCgs2m2RWD3800Gj0u
+         itbve3JGCRCUQS0KSTQmOT4RKSXGWk8SX4XITJlYhQ5ChbE7TGtMldI+mWpQ9ChwSLYo
+         P2uzIK5IRUgn6WVv+NDBgkwGSUwYqdrtnCfwUlGhOoQOvrC/4gNondeayJAQ/sU77e4W
+         DoYA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793716271; x=1794321071;
+        d=1e100.net; s=20260707; t=1793716288; x=1794321088;
         h=content-transfer-encoding:content-type:mime-version:date:message-id
          :subject:references:in-reply-to:cc:to:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=gJM0tAyN19ozTNsT7Q0jTKA95QkMzgeT7FdAvzFKoO8=;
-        b=mLVoorIw/2qWxwSIEJ7STQ7kGo9kBrv1uLaHdri9qScmy8WoHoVLMbXRMnLWD9BTwm
-         1te6ZbEwvHRREu1qy6WJ4tVv5y6aAPDSn+YYUzkKInnNvO/p42qRH/wsVFX2oOocP3MH
-         CLrK9PNXxAFX/8G0sDNXTE621x+EFlZ82ywGxBoJtywfr9kWJmVS+ekf3u/OTbw8Wun1
-         aCDrJSdm7TxR/IXgo4kO5mxmGDAG/sb/I9lC2wHY5pkcRwDo+/tzDrQ2lTN5KWn2eI/2
-         j0pUP/LqJZLnDdVja4E4RWByT5ZPNQjPtSu2KITT7wL+3c7uJsOnR/MYnxtZbxPTb/hs
-         EaHA==
-X-Forwarded-Encrypted: i=1; AKwUvBzN7Xf+aQ0DetSgIT9QdnMyPA0pDT3E/iZlUDVrEh11xtI+HAYzkPiOpf9HQazSTIOTmgeKpbBrPpY43CrzHQ==@lists.linux.dev
-X-Gm-Message-State: APuU4Z+NBR+QKv7PGXNL60dMIso93eqleToxp6ueaCnB4sRaSrbC1KX+
-	kLSwZlOooEb2Lzcg9jK1iNh26VLb1hxLz1lNcBgtUm4MgaG92Ltz6ZueubVXy2oJH1A=
-X-Gm-Gg: AYBFou3LEo0d+1tBeCOezFcC/zOdCREN14xNk2JMjdNcflqLPCDBcE0MayczdyZ3C5S
-	61Kf4KtZifuLd8HMCJKRoUqTqHrnRW/61lojQI34VlJs8NvVNGp1bYgV8Y00VnSZ7uwoAhEk3rd
-	novS1GMiU3Nvp+N2Pu20yt540ayUsluXW4GhXXDDC4iUe+x+DCxTvP0SvasiJntwOFjCL6ubLVa
-	g0Eb+v3fgI2GHqnn89Skfef1oDBLfF9+kVrV6RyTtNIktOGWyMPm5E7aYhclEhx++lvITVGI1iE
-	avIE9C3wvwI2J766VpRM10i/DEYtC9ukt/fdSt1yzeEOAJhFQhiYn7nJXtZiy07KNl/B/uhdFIh
-	Y+nYQtW0R04sOSuOHpysEObg1+Cr5bRszy3OeFURrw7EKKdNYH6dHUpQme9RH0fvYCgz37NJSqX
-	FZHqHlFyl3ZNV18YLZmvK+WQfrC3rhJ/WopGL8hJirsyzDW9WuCp+8N6D2Kl7Sa6muISfOcVQA7
-	slraCqQPVaQXKSG6Wxu2vPfJwWtbj/lQeFwcq5uvCyZuRgBCXGYraNGRcdpaQTI6UOOOf/0Jahe
-	2D8e5mr2kvJsFORt8K8nmg1AHZo+fuHRMKsJTIHzGLXWG8Fj7esGgv/kHcztDd9RsLgZYO/koIR
-	6HbNuMaqJrOE4
-X-Received: by 2002:a05:7022:258a:b0:18c:e014:6f1d with SMTP id a92af1059eb24-1ac55f2d3cemr24516668c88.1.1793716270505;
-        Tue, 03 Nov 2026 06:31:10 -0800 (PST)
+        bh=wk9IlcGYhsSNWUuj3B81ByEUkAlft9P2T8KxXmSzXGY=;
+        b=ACJ7t7H8bFC+pZsqzZ3/bG357tdSADF9UcDJrgbeUlYdEMhVXJl1K6wyskz4w/gIWm
+         1QClcZGToignf9JOvl/6LPht9HS/236xq18WbKc3bm5ShloNnNkzt5Qd0B8j/6IJQ42Y
+         AZeWgzlPEawDXeb7Z+qUhusXve/jyp2K3XySftbBsYTZ+79+vbHkahQV8wKbJktNa3Ta
+         8+21+Md81+THLf12p8C20g23NY2hECr5Gtn9yPbkwbkqlYFkEGAikbOMFiXmxwUAvfn+
+         I02EMnIebGvUuGw4gx7NHRuyM0Y8CYbkL3KqOBI0Jq7epjvXDmT9Bd3e2TG2YGb3dUZY
+         ujDQ==
+X-Forwarded-Encrypted: i=1; AKwUvBxJNoSAGhO7IQqbCuQ8Lm+2+5gtYfO7S0AuaTbnu2CIXcvjNPexG/mFhjk7QXAZnH2/8rvz/rAj/F5HfI1MuA==@lists.linux.dev
+X-Gm-Message-State: APuU4Z8BLF4Z4+tmuG5kVA5qbCTLs7M8EIrvhWuwmewfl4708RPh1iZP
+	q4G9ii2LWwtWrqVs5PE2YY5nnYzpE0+loLKYmqSxTt2TVoFwV5q+eJ94/lz9GmTwk60=
+X-Gm-Gg: AYBFou2ovVRCCEgCeZ7/B6JJRea5IndH0ef+onPF1Fjm+YdhdLYB8WfDStSQArhVXuv
+	ao+jRmi6ZYodeB3++zB5JIdL+FRCLznmmVCpCVpSOc5JsG4Ze1noAUjBBy440CatGwLlkVFUxFb
+	o+oXgYyT9VAqeLRvYTp8VPfUXRAfvTLLWdNwlV6oww9atzeH89pyWl/Z+HrGIOHDz5Q70mEDz8B
+	HvxKkos1qZkUnZpwUJbdDVT6JTRfF2s2xMlyPaUHxTnujkvPS0+xycqyn5KJWuy7JLfP7Z9XeAu
+	SxZGye1bFFgEopTpw2rHio9YUsjGHtwVzZwR/CGDpsbBu3XnaPUy9iHLX1r6RVJAeWkPrGHrV7N
+	Yrb2fWd53PE2UTtJute1FUPG/cTwW0mrE2XQ703o82jmqitk14bIVqbxUQgDJDWqc+iTPFYb7qU
+	uhNhzPPFgYZ2g6q+Si8NYxhsOK0dVRCWTmZ8YfWnYarWV9LEwNasPuCmZ8Wg1a+q6QDdikh+IDn
+	VVA/Ekp8zs5b8JA1uU8RzTphkfoouuKSLir/3wLOGCsKUkkCRxNKbqwDV4TRJ7YSDHZlbaUk4YL
+	k9hU373CBHtp8N/gMYkHeb7/361/aeaX47tc7dpScGKpEeQdulM4NIs3k6ejY3vB3NUrToLNspN
+	+lQ0344gLgoE+
+X-Received: by 2002:a05:7022:f517:b0:193:9aa3:4758 with SMTP id a92af1059eb24-1ac55968b07mr19882618c88.4.1793716288267;
+        Tue, 03 Nov 2026 06:31:28 -0800 (PST)
 Received: from [192.168.1.106] ([198.8.77.135])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b23b847348sm9534779c88.4.2026.11.03.06.31.08
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b23b847348sm9534779c88.4.2026.11.03.06.31.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Nov 2026 06:31:09 -0800 (PST)
+        Tue, 03 Nov 2026 06:31:27 -0800 (PST)
 From: Jens Axboe <axboe@kernel.dk>
-To: mst@redhat.com, jasowangio@gmail.com, virtualization@lists.linux.dev, 
- shao.mingyin@zte.com.cn
-Cc: pbonzini@redhat.com, stefanha@redhat.com, eperezma@redhat.com, 
- hch@lst.de, dlemoal@kernel.org, linux-block@vger.kernel.org, 
- linux-kernel@vger.kernel.org
-In-Reply-To: <202610261955196384aSLGuy3_0MiTvlYXVdiC@zte.com.cn>
-References: <202610261955196384aSLGuy3_0MiTvlYXVdiC@zte.com.cn>
-Subject: Re: [PATCH] virtio-blk: Fix zone append sector reporting in
- batched completion
-Message-Id: <179371626856.3691261.9118119964005322830.b4-ty@b4>
-Date: Tue, 03 Nov 2026 07:31:08 -0700
+To: "Michael S. Tsirkin" <mst@redhat.com>, 
+ Jason Wang <jasowangio@gmail.com>, 
+ Yunye Zhao <yunye.zhao@linux.alibaba.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>, 
+ Paolo Bonzini <pbonzini@redhat.com>, 
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Max Gurtovoy <mgurtovoy@nvidia.com>, 
+ virtualization@lists.linux.dev, linux-block@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Joseph Qi <joseph.qi@linux.alibaba.com>, 
+ Ferry Meng <mengferry@linux.alibaba.com>
+In-Reply-To: <20261102133740.88919-1-yunye.zhao@linux.alibaba.com>
+References: <20261102133740.88919-1-yunye.zhao@linux.alibaba.com>
+Subject: Re: [PATCH] virtio_blk: freeze the virtqueue layout at probe time
+Message-Id: <179371628704.3691261.225757712594968612.b4-ty@b4>
+Date: Tue, 03 Nov 2026 07:31:27 -0700
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -106,20 +110,24 @@ Content-Transfer-Encoding: 7bit
 X-Mailer: b4 0.15.2
 
 
-On Mon, 26 Oct 2026 19:55:19 +0800, shao.mingyin@zte.com.cn wrote:
-> For zone append, the block layer copies req->__sector back into the
-> bio in blk_zone_append_update_request_bio(), so the driver must update
-> req->__sector with the sector reported by the device.
-> virtblk_request_done() does that, but the batched completion path used
-> by virtblk_poll() only unmaps and cleans up the requests before calling
-> blk_mq_end_request_batch().
+On Mon, 02 Nov 2026 21:37:40 +0800, Yunye Zhao wrote:
+> init_vq() reads the writable num_request_queues and poll_queues module
+> parameters both at probe and when recreating virtqueues after suspend
+> or reset. However, virtio-blk does not update the blk-mq hardware queue
+> count or queue maps on restore.
+> 
+> Increasing poll_queues can therefore remove the completion callback
+> from a virtqueue still used for interrupt-driven I/O, leaving requests
+> uncompleted. Reducing the effective request queue count through
+> num_request_queues can instead leave existing hardware contexts
+> indexing beyond the reallocated vblk->vqs array.
 > 
 > [...]
 
 Applied, thanks!
 
-[1/1] virtio-blk: Fix zone append sector reporting in batched completion
-      commit: 08a6572441a4e646c96c2b8d8ead9eea0e458332
+[1/1] virtio_blk: freeze the virtqueue layout at probe time
+      commit: d53c1a12ff1cfdb12770ddcfdf5603915d0ba0d8
 
 Best regards,
 -- 
