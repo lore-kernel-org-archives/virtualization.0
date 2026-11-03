@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793690811;
-	b=BHxPonwLWdqWudgC6q9Y3qp8EHxuf13QmO26/3ufWltfQLmEWItUNAnUbf5I7Ggfq1Ob
-	 a4gr+091Wr/alDfzDR1+dxRA9BsQxiSDNKoeuM6rw39nNrwBXefHQxHjrubTvOK8SP3jd
-	 fC9P161ZLp8/LL7ZitHDdyNTOkgMlOiSN+XKNvF/YyZM3dsCUaKd5s2ThDAP1cVe2d7iF
-	 H9JTTZHhHJK8N79ybpEbYef//msvZIiKn7eoVxoCexn7IY2dsKTm9BJUnVs7YWc1mnYWF
-	 xkU2qxvFbuNdeQn678gftMEtAvwEUmalTZJFgDalhLpNFEuALODrEkOOgw/iC89eWKQ==
+	t=1793690823;
+	b=BwQPsqQxW5BsxYRrjWxJ7uUnmI+ad9YUEodVT3YU4n920IqZwb/HQvEAJAjrWy1kxocJ
+	 K7+dHbDQrRoQEvcBRR0Bd4ugbEtl3fyA9yDho7+O4MWjoC8lyktQt9uFui095QvYKX+//
+	 aPaRj2qtS3ZreLKMuuEVw1aYx+ucqGQOXFHntb7vfHXfxSmwn9Wv9FrET85t8GlrnJYuZ
+	 JBGOARotSiGR+dNhOarQq4u0GTeGbuWCSw1q5rX9ZwmT1NK3ObiGYHM3T7EPE78GBo+mo
+	 9IzB8Vr5Ht7FtToYPpY/ECmCikXuQYHbGrfXkKMRCNJMgEnZ+23p+2gEBdFNCXsEYew==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793690811;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793690823;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=xeOz21GdoCPeNpFUEa0jl7zrHso+M35UQy/LYSv6XQw=;
-	b=DBiRFGj2D+xxPlZYdDtdTKXvegXltYrK4/XkdiHXgjHU7iCnXWYWmGoviJqA8E9uGFje
-	 +pTKNKw7yPUjQ6ip/2fdyebGm6SvSNKXjBKOjuHGyeFPhxQ5m3qPr1Uqlqv+Ow4gIc50V
-	 Pbcozq7y/4av/yWq2hNMoDjildJtdelFZXml0L7i58lTDrjBi+FPTqzAGSk+GSHgaXty0
-	 YPDGxdDK3FiemUyt+kpvTmRQJQdJXc4lprWIFxX7ufv+6lbzDHaUHKZzmibLpxDFPdxeF
-	 /z6sFgNkg6d/Ok/3UWGgfD25rJ5lHgY0OIVjFPYmJOD1Yj05fWgJBeQf5jmKWv0lbDg==
+	bh=4o22mHhcctzJTVQyut80krUT4gSGQENsCqnY6rDcYns=;
+	b=Z4RtI129uglGm2uD9ccl3qgrxXNUSpS3y4ToJp2U8Hy+se3noOS5nonTAscYRmkcwwuR
+	 D/t8tvarQiCicCv5xRgebEuTr+hIoDM3etOetIOWMswvMiSjHsW7mYPTLSPNR+KGb6RmA
+	 AawooG56zhp+xSuYDfmo1v1oZ93N89R+HuHnLaZgxSMQELpYbgQO+Bsze3xX9bkEJkCyG
+	 L9LUnUJYiGOxjGcmGGTUkY5h357OemZE+zYupxwmjQNqgBq42jVMoslukU6V7tmuRlvc7
+	 CvVoCKm+nItfEgQGIw8xhEdu7tilhaxf8wv3JzICmGBq2Yhb4aqv8prMnfpg/HP4TnQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QTD6kFzA;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hzs+Lu8d;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A62D606A32D
-	for <virtualization@lists.linux.dev>; Tue,  3 Nov 2026 07:26:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39B5E606A32F
+	for <virtualization@lists.linux.dev>; Tue,  3 Nov 2026 07:27:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QTD6kFzA
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F23C61F0093A;
-	Tue,  3 Nov 2026 07:26:50 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hzs+Lu8d
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E3AA1F00A16;
+	Tue,  3 Nov 2026 07:27:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793690811;
-	bh=xeOz21GdoCPeNpFUEa0jl7zrHso+M35UQy/LYSv6XQw=;
+	s=k20260515; t=1793690822;
+	bh=4o22mHhcctzJTVQyut80krUT4gSGQENsCqnY6rDcYns=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=QTD6kFzAZoIms2OBB3QqQIxiFMoqGL5+0fesPl0sDuXrAqrs+HZaqey5Ap+PplOdF
-	 9ta3WXO8mg92nxQcpk/0tQyORTB/sGUO6Pgs3w39iA6aqAX6FyG0dsIo2/S+aHk7Z3
-	 paKAULeg47Ysw2fxIng1k7sBAgUDCJv3W0Due41f2N/n8gf/93Zn8rZwH7pMTyeu2q
-	 SQYL/9E4RVcuRWiLEUar+JuLpSltMewgOTmQ4FZtxSbyXIr3AyJiWbiBUGvk1QtPcU
-	 Rk+y/IplD+MBxD72CFDq9HyDDfu6yu46ognY3iXpQkFJdbGtgvaYZj2YUgEw8VfZfO
-	 OlwhJAW5RFLvQ==
-Message-ID: <sashiko-outbox-194710@kernel.org>
+	b=hzs+Lu8dXRmleLBgXL1p6wGlBPGIL/eMdrpdiTFADFVzHAPDbxaIiSB+92Wbwz3Wb
+	 /egwm5M2mshyUjQSwgvUL7Wfssi3uWDnlzfGcG0/TL1Bc5HERkqHKbsGK9UD0cUvjv
+	 /pcT5XUrVVwNPCJsURBYyax/ekCKJA/N6DgfFgcaWrFtpYZgSwsv4Fhp0UEdsKmx4y
+	 MzLikr3DeFd4CtmB5ACnAgfBOPH6OrQgbsIsD2bSxWv/He5h0mJG8hcZ8tweyCOd3X
+	 qdkLqIRVvsb0urzPbeZUMqOkx/cTPVSaNrH5MK2NuHiExMcyAu/hjGnl8ZU6XvW1x4
+	 hNgn0UzB8r0YQ==
+Message-ID: <sashiko-outbox-194711@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 1/1] x86/vmware: Allocate shared storage for
- steal-time counters
+Subject: Re: [PATCH v3 3/3] x86/cpufeatures: Remove unused VMware hypercall
+ feature bits
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Zack Rusin" <zack.rusin@broadcom.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <52b57836c0c28abe1c4157646b39329c603ff77f.1792471114.git.zack.rusin@broadcom.com>
-References: <cover.1792471114.git.zack.rusin@broadcom.com>
- <52b57836c0c28abe1c4157646b39329c603ff77f.1792471114.git.zack.rusin@broadcom.com>
+In-Reply-To: <c8e57b19d95fd8ffbfd13e7ab1c1ade551b1bd7b.1793685318.git.zack.rusin@broadcom.com>
+References: <cover.1793685318.git.zack.rusin@broadcom.com>
+ <c8e57b19d95fd8ffbfd13e7ab1c1ade551b1bd7b.1793685318.git.zack.rusin@broadcom.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 03 Nov 2026 07:26:50 +0000
+Date: Tue, 03 Nov 2026 07:27:02 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,35 +62,19 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> Steal time accounts for time a virtual CPU waits to run on the host.
-> VMware updates a counter in guest memory, but encrypted guests currently
-> register private memory which the host cannot write.
+> The static-call conversion removed the alternative instruction templates
+> that used X86_FEATURE_VMCALL and X86_FEATURE_VMW_VMMCALL. Their remaining
+> users only force the bits during VMware setup; no code tests either bit.
 >=20
-> Allocate the counters together instead of embedding them in every CPU's
-> per-CPU area, and share them before registering any address. Move setup
-> for all guests to an early initcall, after the page allocator is available
-> and before secondary CPUs start, so it can use the normal conversion API.
+> Remove the forced capabilities and mark both positions free in the kernel
+> header. Neither feature has a cpuinfo name, so this changes no
+> userspace-visible flag.
 >=20
-> Keep the allocation for CPU hotplug. Enable accounting only after boot-CPU
-> registration succeeds, and retain pages whose encryption state is unknown
-> on failure. A secondary CPU's registration failure must not prevent the
-> other CPUs from unregistering their counters.
->=20
-> Suggested-by: Borislav Petkov <bp@alien8.de>
-> Suggested-by: Peter Zijlstra <peterz@infradead.org>
-> Link: https://lore.kernel.org/r/20261001235950.GHar7z9v3zfk8odoTh@fat_cra=
-te.local
-> Link: https://lore.kernel.org/r/20260309235250.2611115-5-alexey.makhalov@=
-broadcom.com
-> Co-developed-by: Bo Gan <bo.gan@broadcom.com>
-> Signed-off-by: Bo Gan <bo.gan@broadcom.com>
-> Co-developed-by: Alexey Makhalov <alexey.makhalov@broadcom.com>
-> Signed-off-by: Alexey Makhalov <alexey.makhalov@broadcom.com>
 > Signed-off-by: Zack Rusin <zack.rusin@broadcom.com>
 
 Sashiko has reviewed this patch and found no issues.
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/cover.1792471114.gi=
-t.zack.rusin@broadcom.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/cover.1793685318.gi=
+t.zack.rusin@broadcom.com?part=3D3
 
