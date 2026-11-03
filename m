@@ -1,47 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793692669;
-	b=5LrNcMJA2F5cqm6Q3C0hz51STLHK+IhGDeeYhZ2eEdj7N83zM4F3I0dpterkRA8NYopW
-	 6IDp77ppJUTrBIXGm78VZOX0o3eWhsjJ7r1d/+mOLimAFapZhs3r6SIkg52hwxyBJ2HQh
-	 FEi9rJ9d1xZVjV6Fxh6n32cKICzswU2Wsnp3gh5SMzQbzYpMefOykydk6xzQ9lzjVrBDR
-	 CGxtWkZAsyuhOzsJGKYneiL3SYIALfb6Zj/vt4gQDT0QnTbk1vRhUcNxytQRsar8mfuFe
-	 mEDAxGGYj5S1lRxrJWLxAosArf6FvD5JahlueBSAXnvCCtsNPc9u6YaJUZUZVWcMoFA==
+	t=1793692815;
+	b=XTRBUZ6kYPYgj8E+oCn56KG0xfSqfYUC/indj0zA8cwuioqMPvKxa0ISeFzuTSL4lxnE
+	 aztlhwDOjztjLz6OfNCzOCI8UOOrPk+p56q/3fJpfdpg50UMhSLTEXMK2TYSbJKtaEukM
+	 Vw13bGe87+gsRlGblInmijvrIOGssNDmgGe8Cg2Ceyoc7uLbsgXikHiexQSS6aYZxJMwI
+	 KDv0rb82xSLxQvCyk9vIGWlC8aUpT1ecAzkTNzbsFwtnOuT+cxUA5ozV8eHhUj3leESEU
+	 nsWImLGAhsH3USO0TV2PBW3YC5ybGK/oJFn4b1zPXtFiXBMHKrgUj/HlVfyVj3+bYNg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793692669;
-	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
-	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=rJQLd3VOK3FZhENCM8D/t0DZtET0O4ORpZWDG+n9uQY=;
-	b=AJJp0td+BvVg79gZ49OL/yOYU0M1UyoYht2GJ4B8jJpOJp+WBznQB+qYL0kuyYGnXEY/
-	 9n/IeUaV0a2CAW/jfxTjLAkCknwW/j/Obm45du8/nI92mm7RR3VKVcPnuwlvj4Hpal5IG
-	 +c0Av+cN3fetUQlER1ZePFRim99Bwv3wOVGyCXcZMNJkRWI/7jTONnSSA3TJn6ntMle2L
-	 /2Ia1S8/ujo+OW7+D5WW21iV0BbkUucroIoJGPgePBIjQvbtNLmdUp00rLLJwtPEtX+dE
-	 4hMTT2sAIEpBstc7Z7bkHqvFypsB4jkdWLCONkazfTMBqRPiwj7XcxCYu8GDXTW5HwQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793692815;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=hsqZmaqCawpJnaTognm7aA36Scren9Jybtra+jnBacQ=;
+	b=lP+Ajn0EOQ8Cxf3oBiRxYzW2leU1e6kLjvJXbOSLtTYw+/+PXuDe4k+lFg/YsYXrR9nY
+	 3AunGOqrwaRyVARKly/46cZmyranDRalpzniaZve13nLlmRFN1ZsamuUXI6bCHK9ErnCU
+	 lCP1OqZ/ShuByL9wQgKTEgVxe1h+Fc8mdu7+FwAef/NyuH8m8GCfD6ivCLCb6d1WoarYz
+	 c/78v/OrH16CU75xdlrwNqYZB+abvj1irZrYywitWe+GpxOYKUVQiiXfjdb9VZbJpDZz+
+	 VKxzyXwNGYd32ErZXDRdGIl1cJZ/14dy6MCztBiCxcHRyWnMWeogDg81kqITR0p2j6Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TJ9QnrTf;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="ghKdtH/k";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2592C606A324;
-	Tue,  3 Nov 2026 07:57:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54238606A32E
+	for <virtualization@lists.linux.dev>; Tue,  3 Nov 2026 08:00:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TJ9QnrTf
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F36A1F000C1;
-	Tue,  3 Nov 2026 07:57:46 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ghKdtH/k
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0E0B1F00919;
+	Tue,  3 Nov 2026 08:00:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793692668;
-	bh=rJQLd3VOK3FZhENCM8D/t0DZtET0O4ORpZWDG+n9uQY=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=TJ9QnrTfbo/UeTq5oGknUx4stta7TmKqMiWIVL97e2xhYNM2Ke1SEAfqKUTf1Lf2U
-	 6JlctJEa1VCEqRNgtTuELapT/qmz4mugxiTg1CVrYOQlFLJ3sjAQAO/7ruE4pX1XZt
-	 asRKKmwXBthZTCuQpKh0xFs4JzS2QnKIIbZ330BH+P8vXtbQkTt3dCw8Kw/RwxC99M
-	 wVlW8iebhJUZMCJY7W3D48Qgn5+UnvoTdzfuXWCS0EXxwux7yMaE/PEqnLPnwMhQxi
-	 uxabVzjB/2hMRbKMH5Ds1wxKgFwxvDuLxYTH/AcLlvdmLB6XZVmDYIoji1gphWNA2X
-	 Rndou7otc+iqQ==
-Message-ID: <34e16c38-2150-4d88-be97-105b0f81f03c@kernel.org>
-Date: Tue, 3 Nov 2026 08:57:43 +0100
+	s=k20260515; t=1793692815;
+	bh=hsqZmaqCawpJnaTognm7aA36Scren9Jybtra+jnBacQ=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=ghKdtH/kvmetF90fZORBSgxQj7v/ZmTk0xp//NIyxY3zOoJPc75FBR1NkKj1qNBK2
+	 AdWYoWbPnxL1jcwG663mgdnDdtsVKon109HwfmIvZApMjn/KB0gLEx+nqST9cD4H+A
+	 N6AKJho8/ldriWREdoA5V49MDTKsESLV7mJrknBuJfVcTU6D/0AZm4vIdBdF4ISTBU
+	 HPKvMqjj2ElBmKau20JPPLKxEyyX5RVQyU5wBWH09HyRLZDXGGBGmV+yBDSzmpfBtX
+	 aRwUXOv9lLm17HBYsPMY5i4lq3eqfdfAwIMs8iM4RmnYPQ3AG5dSRqoHjGP6dc5JXY
+	 3L2fvzR/MS55w==
+Message-ID: <sashiko-outbox-194785@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] x86/vmware: Map vTPM as private in encrypted VMs
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Zack Rusin" <zack.rusin@broadcom.com>
+Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
+ Perez" <eperezma@redhat.com>
+In-Reply-To: <e0e5389688fe4102b639c42295305e08f306a092.1793692366.git.zack.rusin@broadcom.com>
+References: <e0e5389688fe4102b639c42295305e08f306a092.1793692366.git.zack.rusin@broadcom.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 03 Nov 2026 08:00:14 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -50,90 +59,33 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] virtio-mem: only mark the device ready in kdump mode
- with vmcore support
-To: Yuho Choi <oss.patchbox@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowangio@gmail.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-References: <20261102203518.436327-2-oss.patchbox@gmail.com>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
- qIws/H2t
-In-Reply-To: <20261102203518.436327-2-oss.patchbox@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
 
-On 11/2/26 21:35, Yuho Choi wrote:
-> virtio_mem_init_kdump() marks the device DRIVER_OK before it checks for
-> CONFIG_PROC_VMCORE. Without vmcore support it then fails with -EBUSY,
-> and virtio_mem_probe() deletes the virtqueue on that error path without
-> resetting the device first. The device is left with DRIVER_OK set and a
-> queue that points at freed memory. Nothing has been queued at that
-> point, so the device has nothing to process, but the driver should not
-> leave a device it is giving up on marked ready.
-> 
-> Before commit a9403425b3cf ("virtio-mem: mark device ready before
-> registering callbacks in kdump mode"), virtio_mem_probe() called
-> virtio_device_ready() only after virtio_mem_init() had succeeded, so this
-> path never exposed a ready device.
-> 
-> Move virtio_device_ready() into the CONFIG_PROC_VMCORE branch, right
-> before the vmcore callbacks that need it are registered, so the -EBUSY
-> path never sets DRIVER_OK.
-> 
-> Fixes: a9403425b3cf ("virtio-mem: mark device ready before registering callbacks in kdump mode")
-> Signed-off-by: Yuho Choi <oss.patchbox@gmail.com>
-> ---
+> From: Alex James <alex.james@broadcom.com>
+>=20
+> Encrypted VMware guests can use a virtual Trusted Platform Module
+> (vTPM) implemented by a paravisor, trusted code running alongside Linux
+> inside the protected VM. Its register page needs a private mapping so
+> accesses reach the paravisor instead of host device emulation.
+>=20
+> The default ioremap() path maps device registers as shared. Without a
+> VMware private-MMIO override, this also applies to the vTPM registers,
+> preventing the guest from communicating with the paravisor's TPM.
+>=20
+> Install is_private_mmio() for the vTPM's single register page when guest
+> memory encryption is active and firmware supplies a TPM event log. This
+> lets ioremap() select a private mapping for the device. Hyper-V already
+> does the same for its paravisor vTPM in hv_is_private_mmio(), added by
+> commit 812b0597fb40 ("x86/hyperv: Change vTOM handling to use standard
+> coco mechanisms").
+>=20
+> [ zack: Moved the include and explained the private-mapping requirement ]
+>=20
+> Signed-off-by: Alex James <alex.james@broadcom.com>
+> Signed-off-by: Zack Rusin <zack.rusin@broadcom.com>
 
-Acked-by: David Hildenbrand (Arm) <david@kernel.org>
+Sashiko has reviewed this patch and found no issues.
 
--- 
-Cheers,
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/e0e5389688fe4102b63=
+9c42295305e08f306a092.1793692366.git.zack.rusin@broadcom.com?part=3D1
 
-David
