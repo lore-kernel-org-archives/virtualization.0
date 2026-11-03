@@ -1,115 +1,47 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.216.100
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793692461;
-	b=UhEQEHI1W7lyPvkrLga9Hg6yqrbRJ9sS4DrUbQNYz3s1B1sStaNsKNgLFb3Ayh647e1y
-	 3suxAQ3yL/la6J6QJ9oHy1/5t2WcZXavS/cc/JK3ouY58n1kjsyeM7kXZo/NVmlTXM3en
-	 qcWHAk0MF1jjqQT7EOCSkKpBbnsJYPPkguXiC3rKkVQm+s5SI+0CVxwj8QEKHC0IfOWQt
-	 h7XdaNoV6ifxxq5X9oy5NnbhT72oKwoF6Xu6R8eFumlppBs4NIs97HSr8C90o5/4LfPHn
-	 02hqFS9NQzQ1TgKVbZK+oSHsTnrTA51YNDdMkFE6hRfpSgqnx4Lqan31q55kwlJ1ouQ==
+	t=1793692669;
+	b=5LrNcMJA2F5cqm6Q3C0hz51STLHK+IhGDeeYhZ2eEdj7N83zM4F3I0dpterkRA8NYopW
+	 6IDp77ppJUTrBIXGm78VZOX0o3eWhsjJ7r1d/+mOLimAFapZhs3r6SIkg52hwxyBJ2HQh
+	 FEi9rJ9d1xZVjV6Fxh6n32cKICzswU2Wsnp3gh5SMzQbzYpMefOykydk6xzQ9lzjVrBDR
+	 CGxtWkZAsyuhOzsJGKYneiL3SYIALfb6Zj/vt4gQDT0QnTbk1vRhUcNxytQRsar8mfuFe
+	 mEDAxGGYj5S1lRxrJWLxAosArf6FvD5JahlueBSAXnvCCtsNPc9u6YaJUZUZVWcMoFA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793692461;
-	h=DMARC-Filter:Received:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:X-Relaying-Domain:
-	 X-CFilter-Loop:Received:DKIM-Signature:X-Forwarded-Encrypted:
-	 X-Received:X-Received:Received:From:To:Cc:Subject:Date:Message-ID:
-	 X-Mailer:MIME-Version:Content-Transfer-Encoding:
-	 X-DetectorID-Processed;
-	bh=SSKe6YFblVjuOlewl86JzUttzs9TwvUcFTxoEjaaYZQ=;
-	b=kATz5Bl2s7v9sykRWDQT3+QVNBKVF84/K/jIr8NYc0G17+D3fWTF5EnqlMVQ8azGawak
-	 uUkmJS8MEEbu+CCacTRH4BTzvDIBNnYRb/jtBDOtLIfMjF3SyeywQ6X2mfIAgSRSJ4h4Z
-	 qnlC2CZNQKZ8XjvZ72WgTBXvg+ppKMqkkWXlKrn58BXBwcevJNz00W8bnoOVkN+twoOHq
-	 2jTt5J9ByMtA9acBea1+rL7Vnpsf0qMaIh48ddgBsljx4bU6ovVOuwAwdQqvO2x/OKiCB
-	 dSRdzELP1d7+NQ4uSCsASu2+W9MxWrYZJNQ4ymY7k0LqEmgV7tJdTyMHLcZhBvER4aw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793692669;
+	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
+	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=rJQLd3VOK3FZhENCM8D/t0DZtET0O4ORpZWDG+n9uQY=;
+	b=AJJp0td+BvVg79gZ49OL/yOYU0M1UyoYht2GJ4B8jJpOJp+WBznQB+qYL0kuyYGnXEY/
+	 9n/IeUaV0a2CAW/jfxTjLAkCknwW/j/Obm45du8/nI92mm7RR3VKVcPnuwlvj4Hpal5IG
+	 +c0Av+cN3fetUQlER1ZePFRim99Bwv3wOVGyCXcZMNJkRWI/7jTONnSSA3TJn6ntMle2L
+	 /2Ia1S8/ujo+OW7+D5WW21iV0BbkUucroIoJGPgePBIjQvbtNLmdUp00rLLJwtPEtX+dE
+	 4hMTT2sAIEpBstc7Z7bkHqvFypsB4jkdWLCONkazfTMBqRPiwj7XcxCYu8GDXTW5HwQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=broadcom.com;
-	spf=fail smtp.mailfrom=broadcom.com;
-	dkim=pass header.d=broadcom.com header.i=@broadcom.com header.a=rsa-sha256 header.s=google header.b=GILHWIvt;
-	arc=none smtp.remote-ip=209.85.216.100
-Received: from mail-pj1-f100.google.com (mail-pj1-f100.google.com [209.85.216.100])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TJ9QnrTf;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB024606A329
-	for <virtualization@lists.linux.dev>; Tue,  3 Nov 2026 07:54:20 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AB024606A329
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2592C606A324;
+	Tue,  3 Nov 2026 07:57:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=broadcom.com header.i=@broadcom.com header.a=rsa-sha256 header.s=google header.b=GILHWIvt
-Received: by mail-pj1-f100.google.com with SMTP id 98e67ed59e1d1-3aded3c6103so1834592a91.0
-        for <virtualization@lists.linux.dev>; Mon, 02 Nov 2026 23:54:20 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793692460; x=1794297260;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:dkim-signature:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=SSKe6YFblVjuOlewl86JzUttzs9TwvUcFTxoEjaaYZQ=;
-        b=Uh+kIm92+ydI7BotAsPt93rxhQUHYFxI8BSD/KTLnV9BO2Ep3Eja21P0BiFW7DuaeP
-         4QSfp4PSmGcVR4bRLpYeSe2fb7pOtehU4yRgj6BJQ7Hdo00GPu2sZPZMWkOaeo8IQQAC
-         LpHJTKV721BmdFkX8xW8RfrjiQ1J5qxhNNsry60UvNG4/TThUTyE0PoFu3fE2mblU1kt
-         sN/oJwSgjXnfA/cMoa3ce1iO7GU13xDhpZM6OQ0dhU0ahGQJWYq9OpvC4gnOT+JrzlnN
-         OH3h2jE7sUU/v94n6XOrPVrHZLSBw2HYGzBz22Tsrq4xATIzjvAyr7Nr8YA0yw5rQrjL
-         mPDQ==
-X-Forwarded-Encrypted: i=1; AKwUvBxhP6k7xuTNjnWBsfsAYT1EGQhJqDD2YCkl6OhbiUcPkiulcixqAwlm23hBvAbZyASZiooFMPYcid0eI6IF1w==@lists.linux.dev
-X-Gm-Message-State: APuU4Z9EShX8+HoXLZWsMTDEibsm12pdztptlOGFCaO8UtcxaFfp620J
-	fZ1Jh9Dv9wSd+UtBEqOj8TnTmkVUKAdFsk9Uh5uyZ1GBJjq6Mo1Id+f0RGvm5cRK/CtvnOIkOch
-	Y9e5SrIwHRkAhT2C0K5/02nym9MWMhm7sr7T0+xvRQ4lKZbq9TXerqksGqxVcBDCtGdohuQPit8
-	luWjO7UEEd64JCET1LfOxJkJZ6TVW4dX+Ey1/TwdPRm6dGduDpLxM4XdI4zZ4rh1NbsJ/L6edi7
-	g7ynuxiEddZ/VHVqQ0=
-X-Gm-Gg: AYBFou15goAPshj0Hl+gq0KD5YDY9DdqkwKy256H9x9KG7fDaWdeSyQ3gMFWWamPho8
-	cbq/ZxzRrm+LcMH3yYwZNET2+r93cJ9EzpLTscbW9mgzudPcgWmxjbyCvyWguYljAP2WeABtYLR
-	1fOnPrcSPKZWxrDsD6LOS7BsNFL5PezhrVVuMHxkPg9FL6SRhjaQzYLPVY1QQL6gJvnRJdRMMPg
-	YR2JDm/ZW6BYXfJpOEYQZ2fOUO75X+Jgh2k6DMpeUsihIWcgWYgz+bn+NveSHm68LwGca2wAQ4G
-	btV2nWx8vwqfbB+8XANisRfycbfPzks2KtzjKp6MItBSO9WDAelXXVT4i+N9jPBrFoJ+Sij4jJ6
-	F3PRd6YVapj8vKHdatJLySH7r3buKQcvTso+4yP7S3CD/CXqJjpY6UCaU/fSOekvFcu4zZtG3Mt
-	0Ow8vBa7Zy2ucJ5iPdEqg/FGR7HJk5rmn5
-X-Received: by 2002:a17:90b:57c6:b0:3ac:80dc:f409 with SMTP id 98e67ed59e1d1-3ae898281d9mr8730110a91.61.1793692459940;
-        Mon, 02 Nov 2026 23:54:19 -0800 (PST)
-Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-28.dlp.protect.broadcom.com. [144.49.247.28])
-        by smtp-relay.gmail.com with ESMTPS id 41be03b00d2f7-cdb363a80f1sm39047a12.3.2026.11.02.23.54.18
-        for <virtualization@lists.linux.dev>
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 02 Nov 2026 23:54:19 -0800 (PST)
-X-Relaying-Domain: broadcom.com
-X-CFilter-Loop: Reflected
-Received: by mail-dy1-f198.google.com with SMTP id 5a478bee46e88-30c0d568830so7584219eec.1
-        for <virtualization@lists.linux.dev>; Mon, 02 Nov 2026 23:54:18 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1793692457; x=1794297257; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=SSKe6YFblVjuOlewl86JzUttzs9TwvUcFTxoEjaaYZQ=;
-        b=GILHWIvt4QJN0VkjG7F/fTGywguYsQi1PMYiTE/bNrBbcfy4eJMm0yMvdGRyR40GsC
-         XU0xJNX/P/WqtF0mqQQCZQvQkGZChiQMzXSg5fGWnEUZDZNLJrJqzgZsCBe/Orae1PSQ
-         +IOcjkMEylD+NbFFntEoWCU13nblY2zL8rF3k=
-X-Forwarded-Encrypted: i=1; AKwUvBwgh8RDBXB1y49nwwZ6Kw3D8WspzB2g2j4EK1USyueI6/aQcAQOia/ua6+wZgJyIN4O76n6gWnkLE8U4AVgsQ==@lists.linux.dev
-X-Received: by 2002:a05:693c:41d4:10b0:35c:99e1:c755 with SMTP id 5a478bee46e88-36a4242c0e1mr18340258eec.38.1793692457440;
-        Mon, 02 Nov 2026 23:54:17 -0800 (PST)
-X-Received: by 2002:a05:693c:41d4:10b0:35c:99e1:c755 with SMTP id 5a478bee46e88-36a4242c0e1mr18340217eec.38.1793692456621;
-        Mon, 02 Nov 2026 23:54:16 -0800 (PST)
-Received: from vertex.localdomain ([192.19.218.250])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-36a42902649sm50287635eec.11.2026.11.02.23.54.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Nov 2026 23:54:15 -0800 (PST)
-From: Zack Rusin <zack.rusin@broadcom.com>
-To: Borislav Petkov <bp@alien8.de>,
-	x86@kernel.org,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>
-Cc: Thomas Gleixner <tglx@kernel.org>,
-	Ingo Molnar <mingo@redhat.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Alex James <alex.james@broadcom.com>,
-	Michael Kelley <mhkelley58@gmail.com>,
-	linux-coco@lists.linux.dev,
-	virtualization@lists.linux.dev,
-	bcm-kernel-feedback-list@broadcom.com,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] x86/vmware: Map vTPM as private in encrypted VMs
-Date: Tue,  3 Nov 2026 02:54:08 -0500
-Message-ID: <e0e5389688fe4102b639c42295305e08f306a092.1793692366.git.zack.rusin@broadcom.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TJ9QnrTf
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F36A1F000C1;
+	Tue,  3 Nov 2026 07:57:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793692668;
+	bh=rJQLd3VOK3FZhENCM8D/t0DZtET0O4ORpZWDG+n9uQY=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=TJ9QnrTfbo/UeTq5oGknUx4stta7TmKqMiWIVL97e2xhYNM2Ke1SEAfqKUTf1Lf2U
+	 6JlctJEa1VCEqRNgtTuELapT/qmz4mugxiTg1CVrYOQlFLJ3sjAQAO/7ruE4pX1XZt
+	 asRKKmwXBthZTCuQpKh0xFs4JzS2QnKIIbZ330BH+P8vXtbQkTt3dCw8Kw/RwxC99M
+	 wVlW8iebhJUZMCJY7W3D48Qgn5+UnvoTdzfuXWCS0EXxwux7yMaE/PEqnLPnwMhQxi
+	 uxabVzjB/2hMRbKMH5Ds1wxKgFwxvDuLxYTH/AcLlvdmLB6XZVmDYIoji1gphWNA2X
+	 Rndou7otc+iqQ==
+Message-ID: <34e16c38-2150-4d88-be97-105b0f81f03c@kernel.org>
+Date: Tue, 3 Nov 2026 08:57:43 +0100
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -119,77 +51,89 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-DetectorID-Processed: b00c1d49-9d2e-4205-b15f-d015386d3d5e
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] virtio-mem: only mark the device ready in kdump mode
+ with vmcore support
+To: Yuho Choi <oss.patchbox@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowangio@gmail.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+References: <20261102203518.436327-2-oss.patchbox@gmail.com>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=david@kernel.org; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <20261102203518.436327-2-oss.patchbox@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-From: Alex James <alex.james@broadcom.com>
+On 11/2/26 21:35, Yuho Choi wrote:
+> virtio_mem_init_kdump() marks the device DRIVER_OK before it checks for
+> CONFIG_PROC_VMCORE. Without vmcore support it then fails with -EBUSY,
+> and virtio_mem_probe() deletes the virtqueue on that error path without
+> resetting the device first. The device is left with DRIVER_OK set and a
+> queue that points at freed memory. Nothing has been queued at that
+> point, so the device has nothing to process, but the driver should not
+> leave a device it is giving up on marked ready.
+> 
+> Before commit a9403425b3cf ("virtio-mem: mark device ready before
+> registering callbacks in kdump mode"), virtio_mem_probe() called
+> virtio_device_ready() only after virtio_mem_init() had succeeded, so this
+> path never exposed a ready device.
+> 
+> Move virtio_device_ready() into the CONFIG_PROC_VMCORE branch, right
+> before the vmcore callbacks that need it are registered, so the -EBUSY
+> path never sets DRIVER_OK.
+> 
+> Fixes: a9403425b3cf ("virtio-mem: mark device ready before registering callbacks in kdump mode")
+> Signed-off-by: Yuho Choi <oss.patchbox@gmail.com>
+> ---
 
-Encrypted VMware guests can use a virtual Trusted Platform Module
-(vTPM) implemented by a paravisor, trusted code running alongside Linux
-inside the protected VM. Its register page needs a private mapping so
-accesses reach the paravisor instead of host device emulation.
+Acked-by: David Hildenbrand (Arm) <david@kernel.org>
 
-The default ioremap() path maps device registers as shared. Without a
-VMware private-MMIO override, this also applies to the vTPM registers,
-preventing the guest from communicating with the paravisor's TPM.
+-- 
+Cheers,
 
-Install is_private_mmio() for the vTPM's single register page when guest
-memory encryption is active and firmware supplies a TPM event log. This
-lets ioremap() select a private mapping for the device. Hyper-V already
-does the same for its paravisor vTPM in hv_is_private_mmio(), added by
-commit 812b0597fb40 ("x86/hyperv: Change vTOM handling to use standard
-coco mechanisms").
-
-[ zack: Moved the include and explained the private-mapping requirement ]
-
-Signed-off-by: Alex James <alex.james@broadcom.com>
-Signed-off-by: Zack Rusin <zack.rusin@broadcom.com>
----
- arch/x86/kernel/cpu/vmware.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
-
-diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-index 34b73573b108..afb40036ff49 100644
---- a/arch/x86/kernel/cpu/vmware.c
-+++ b/arch/x86/kernel/cpu/vmware.c
-@@ -26,6 +26,7 @@
- #include <linux/export.h>
- #include <linux/clocksource.h>
- #include <linux/cpu.h>
-+#include <linux/tpm_ptp.h>
- #include <linux/efi.h>
- #include <linux/reboot.h>
- #include <linux/static_call.h>
-@@ -374,6 +375,17 @@ static void __init vmware_paravirt_ops_setup(void)
- #define vmware_paravirt_ops_setup() do {} while (0)
- #endif
- 
-+/*
-+ * VMware hypervisors use a paravisor to provide a secure vTPM device to
-+ * encrypted VMs. The vTPM MMIO region must be mapped as private to ensure
-+ * that it is handled by the paravisor.
-+ */
-+static bool vmware_is_private_mmio(u64 addr)
-+{
-+	return addr >= TIS_MEM_X86_LPC_BASE &&
-+	       addr < TIS_MEM_X86_LPC_BASE + PAGE_SIZE;
-+}
-+
- /*
-  * VMware hypervisor takes care of exporting a reliable TSC to the guest.
-  * Still, due to timing difference when running on virtual cpus, the TSC can
-@@ -442,6 +454,12 @@ static void __init vmware_platform_setup(void)
- #endif
- 
- 	vmware_set_capabilities();
-+
-+	if (IS_ENABLED(CONFIG_X86_MEM_ENCRYPT) &&
-+	    cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT) &&
-+	    efi.tpm_log != EFI_INVALID_TABLE_ADDR) {
-+		x86_platform.hyper.is_private_mmio = vmware_is_private_mmio;
-+	}
- }
- 
- static u8 __init vmware_select_hypercall(void)
-
-base-commit: c03c1a14507dfaf8b856c2608f9ac216021fc222
+David
