@@ -1,130 +1,120 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.214.226
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.215.227
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793690162;
-	b=2QaCjtmQqyusAvvivf6g1cN319thA0GR3krPZ04tnzCy3S6v+0Cmma7gysgDVoLE6SIV
-	 Nc+xoRsjR0ix3sjQnKP20j5LQajCYZWn3/N/G96onWyxILcdld0OEtxNn85fsLT7de5rs
-	 2iR4F5RXYa3Kr1yYI3SdO5TqeIxaY6d9AxKxGICAHEAoy+DdeOqq6GVgdeP1MnwFVO6y6
-	 cx3aDDyU/G3t2wgD+GWgMMZwIhE8K5a2iKjAdiKHUP5WporMUypxh+XgedpgGr/rUrhni
-	 uFCu9jjeCXvBlDfn/z9s9NmpwDzttuUakHnGkddmP7KmaEgew6j8E5umulaAYyB4IWw==
+	t=1793690444;
+	b=0xEGfP/JVTvcgWmwlmlKspfJyUjdrDHlpE4aeWlbqBfGdjzu+tGnwgtVN1Ay0oFrraY4
+	 gAZ1IPx3RxqZLmVFOBBleXNYx7Q/qwQVgoglQK8EQls6t72UGsNt5LWk21kwcjhWsQ8zJ
+	 SsBI63bt+8QLSTpCJx8GQ8TuKjpT4D8QI7+UPBl0rh0PTFSL8kTDAh3CYjdblFeN076rF
+	 E3uq0zZ4PRWwy3MDWoGacGokCg68s+rJHvBcFTbyklcsIpsQjgUWoVxuOKjpnFmSWg+mH
+	 1rbFzSP7mK5qVl6BX0RbQZQ0nxxvXoZHnLI0pLI5STvFWnwyultPsBdnKTtvEvrtdrg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793690162;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793690444;
 	h=DMARC-Filter:Received:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:X-Relaying-Domain:
 	 X-CFilter-Loop:Received:DKIM-Signature:X-Forwarded-Encrypted:
 	 X-Received:X-Received:Received:From:To:Cc:Subject:Date:Message-ID:
-	 X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding:X-DetectorID-Processed;
-	bh=q4y6B1icyNzjJObRP5v2+iWtsvF0W+PG7Ux6Z6hjgbY=;
-	b=nAGEPtTKN2qfkd1XmzKNqORR4IwbQixJ4uXeaQNcTh1/ilLP7s7XE3k2PyYxCrUbWOK3
-	 z0u9HTGF7OzczeJNMmgxm+JKDCt6SlbHnnABDVPpORqtc8J636ybjssUEVy3Tz9Xjtp9q
-	 5MHOAJmZrhANFP8TxLrMztYlKs22IEX4ChliQVhEdWo9EmPeocfrMnKkpCDcv4KIKfLAa
-	 AMvUGQ/4ssMh6mKhU9jO8RK37ldxPSNlOC0R7wt1+hxQ0Qo5CJ4uQs1lTIkjGpWFDMBmu
-	 esLuQ6fILywtadUw7WQBPunv7+SSsuWxDiDwAHCIjzj26fp3TGFH3m3Llk+MADSNbug==
+	 X-Mailer:MIME-Version:Content-Transfer-Encoding:
+	 X-DetectorID-Processed;
+	bh=nQGxanT95z7gj11pozst1Dv+dzrh+mNFxgMJ/FgtyKo=;
+	b=XTzQFoWi6/eHFy+CZDXn55slIqA8t4LHa6MtAkoFQK0sKzK6f7Q1bg9EpV6oVSEWYZpz
+	 iJlRH0y8FKlgfC90J4exGtvopdQwtJZBU8zwXDYdEExYY1a6IaepOMZdKc+Y5EA6ZCnI3
+	 BBGm1fS32rAHh0TjAVHVVpxDXZWzy4a/1HXP0SoqGn+6yUe1gbMuI6RNu6Sz47vEdELjV
+	 vA1z1PIBjm4GGz8lubsY8Khj8jlHFA1zBe9zfdUqKHxIfMtUwD91XzUhfT65hD60RyxIU
+	 +jXShgr+jtewZjEEGaNm7z61YO2i6OHrqTYz+d7g+JG/p50AadPRQLgHcgVmyXD+IqA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=broadcom.com;
 	spf=fail smtp.mailfrom=broadcom.com;
-	dkim=pass header.d=broadcom.com header.i=@broadcom.com header.a=rsa-sha256 header.s=google header.b=GhECud09;
-	arc=none smtp.remote-ip=209.85.214.226
-Received: from mail-pl1-f226.google.com (mail-pl1-f226.google.com [209.85.214.226])
+	dkim=pass header.d=broadcom.com header.i=@broadcom.com header.a=rsa-sha256 header.s=google header.b=R1wkrrFV;
+	arc=none smtp.remote-ip=209.85.215.227
+Received: from mail-pg1-f227.google.com (mail-pg1-f227.google.com [209.85.215.227])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 965E1606A334
-	for <virtualization@lists.linux.dev>; Tue,  3 Nov 2026 07:16:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 965E1606A334
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86CA6606A324
+	for <virtualization@lists.linux.dev>; Tue,  3 Nov 2026 07:20:44 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 86CA6606A324
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=broadcom.com header.i=@broadcom.com header.a=rsa-sha256 header.s=google header.b=GhECud09
-Received: by mail-pl1-f226.google.com with SMTP id d9443c01a7336-2eb0f1b592bso12694605ad.1
-        for <virtualization@lists.linux.dev>; Mon, 02 Nov 2026 23:16:01 -0800 (PST)
+	dkim=pass (1024-bit key, unprotected) header.d=broadcom.com header.i=@broadcom.com header.a=rsa-sha256 header.s=google header.b=R1wkrrFV
+Received: by mail-pg1-f227.google.com with SMTP id 41be03b00d2f7-cdaefe02d5dso2057882a12.1
+        for <virtualization@lists.linux.dev>; Mon, 02 Nov 2026 23:20:44 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793690161; x=1794294961;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:dkim-signature:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=q4y6B1icyNzjJObRP5v2+iWtsvF0W+PG7Ux6Z6hjgbY=;
-        b=eQJDHDsEaPiItBOhcGb4szOrpxTxCWngPRi42VmMQ4cUxHOJL4iVlB4tYteqKKrf7w
-         zo/JFO1XuVpJTpx8kmpzWriNYQiqjDIEWXGqTPNRkynQS9UNZnTlsxk6CBbDMIjPk6yE
-         I33O5pVnN0hZNULzWhjsJLgfEYDNzlvB2nzw5KDDLOU2MBIPJ4HeyKsFP4WDeiqeUtAy
-         x7If7Ym7Cu/uoq8Ubzqj1l+83S3+Yf1WzE3B0rwTXjLf353isGZAOmjnGfPzMfZYap3r
-         4CiYNbkl1rTCPJRcsqpe+9fEkFFOA0MlMJpN0eTXnWb4XFtGYlVBHgubWIrO9LUJ45j+
-         r6Zw==
-X-Forwarded-Encrypted: i=1; AKwUvBxfMK8VaOexYAtLjlupqBVgcjaVk1xnfGi76cszYJ966vCbTAocHZfLicKUqtccIrp6fDYtGyeZsXffklKaUg==@lists.linux.dev
-X-Gm-Message-State: APuU4Z+hsiKWX8gamGwQPgNX5SJHbSCK0jTgvtVE/270I+jw22InrqBw
-	PfoVAzfr1Awdu8pQknC3k+Y7JPBZpahof1ntcT3tt4koGg9upppbH5Qo3gaYOFccACMV3GB+TPr
-	/WdUm7pKPoRWMXbbLGZJhCarrIK7RcjUCVmzP5OUq/GiitijCmwCZblYBeBqVgjHEFZ9cdmW6GO
-	45u04Pdyg8eWJ9HupbDhvJFHFvmwzJHw94ahir06PFL3V/PjWj/oLa1w/lC6tVJrYqFJu9aFX1a
-	iNVRsBDWwYsKlsdpAk=
-X-Gm-Gg: AYBFou0hA/4f4+R+q/vnqftP8pbU+tB/tZAf2Z3kDuLhf586uig2d3ogfBAgWcNrCd/
-	f1IJ+Zu0QqrNoeemLocJgUtHWqaWEBvLgigFNrE68G+q7QVde6YjScWQqKss6new3CvOxjPwF7x
-	bltF+KuiEv65ZWEuCSNRP2jI2UfrElIX/98kD3yAocT95cBNqKP6DvcxcgU/N9QZ8pYmyCVjV7i
-	eCqVPgVf/mo70VcCmFYj3GRwzUCqIDCN4XtEjxedxt1oFy30JFSRkFhhA7uSoew3dZpA6uPqbz0
-	b36xP79pXAg8mVlcuJm0hy7HZoBABgci6gGgye9yUjaac0m92DDZFS7TZtp0c/sMa5uifNsne9F
-	ksJTZfSHRTfrOkVzMWlYV7fGecXUlwTHqoMziBGctggoaUr6w8uIwzA+ylToBM+YTmenIE+pq+0
-	m2x/203XkV4QZgcPTE5mxVifC9iItoRNmM
-X-Received: by 2002:a17:903:285:b0:2d8:d4cd:dc8f with SMTP id d9443c01a7336-2eb36426f25mr118120485ad.18.1793690160783;
-        Mon, 02 Nov 2026 23:16:00 -0800 (PST)
+        d=1e100.net; s=20260707; t=1793690444; x=1794295244;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:dkim-signature:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=nQGxanT95z7gj11pozst1Dv+dzrh+mNFxgMJ/FgtyKo=;
+        b=27nXgLxhLzVcW+3vHZep2CLsRagAH5aAMOdB/ydD5SmTuNWz81Dqx8NU6WAwPxk1ps
+         Lhb5o7t9O+J25V307JRc2heqGBwdq+pK3hS5ei7EhHzpGWAN2LxxhQJ51RubZtKKGydQ
+         hfmG6MkCQihbvNJBCHWCy94z7zxy/wUPf4b7LHSW+Po8LhqwYUKFnI90V0LULx59gj/n
+         SaO76/7vDRe5RO7aICA74hZy1vgrMAOWiBIeoVOK+gJRmO6DQWQJZC1/9SdeMc8u+ZZm
+         zhlWtCxslMOisnTA56Ft2m4jiq0mxggNEthLluUlhed5R4z8e/DJHiC7MHu0xPZLn8j/
+         peWA==
+X-Forwarded-Encrypted: i=1; AKwUvBwxBt9CKBp+XdiCh2qTasgHMSfiBpsr+xke73dwHKBxpHjKkVNfSuYo7RMCIBObXz4+c3kb8mD2oHR5czk9ug==@lists.linux.dev
+X-Gm-Message-State: APuU4Z94rCN/bkfq/rvfsrBLUrkQ5evSKkrsuuDsVcaoyHrVdwB560G7
+	6PyZINszyTMnEHJBRmt126YejXIrGaZtF8lFVpo069mx/B1cLSISsr+4vVgayYYywDY5jYbLWTM
+	V8CiSJJbuOmbzTVDLarLwwvWDa0DzChlFIR/OtHGr6Yp7xTqA2ziDbN+X1GuF3984mO6urdcQfW
+	ulaefvgCFL7kbmplcijpaUdv/RCqtngBSUk8YjI2z8ysr+9yoOLj0Gg0o25HgQdZs+VDMYxw6+D
+	OhmpFz8CzA1ocShZmo=
+X-Gm-Gg: AYBFou1TIM/xHEXyxFaaSu6X/HNOmYw8GOKEKJc0cq7ucrYG3ni3BrMfjbDmV+oQ2NQ
+	B/3FghZHaLgGBJ3YtdDwPmcrF0M8dDLO3VTDoAxJhEeSRJoNACqbcPBysX7aamL0eCTwHP7Bukk
+	iBEBopYa53DB61CpiPOiVxxumJ0Un08gsJGDGgG1TfJ9f3zaa3lx+PWH7gmrZBeWBFMIfvv+o7U
+	YIKgNOB3ocwgHdT44eTqkzdgePLlqe78FBXK6oO/oAmu8sYwCLP9cj/ydg8zHHdlh3aw1DwBSTu
+	lRt4+vdtGh1fgSaFROJGehQrIqU72vEsPI+dv1FTp2AHeude7O9YpfTk8AdEMWQ8iywrdWVPDJ1
+	tR9pN5Dy154o8JrriBWN2IK7tv0coatYzbeolUPzpfEPOHbcROp9lFII57/+AqoJxcBejMWfGF2
+	mNIxdZofxSJJLljhJ+IzHIvsDY+YjT6uxE
+X-Received: by 2002:a17:90b:448c:b0:3ac:a7ee:6766 with SMTP id 98e67ed59e1d1-3ae8980ed36mr10175337a91.36.1793690443763;
+        Mon, 02 Nov 2026 23:20:43 -0800 (PST)
 Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-13.dlp.protect.broadcom.com. [144.49.247.13])
-        by smtp-relay.gmail.com with ESMTPS id d9443c01a7336-2eb3922cbb8sm1675955ad.12.2026.11.02.23.16.00
+        by smtp-relay.gmail.com with ESMTPS id 98e67ed59e1d1-3ae881b1b69sm3205927a91.4.2026.11.02.23.20.43
         for <virtualization@lists.linux.dev>
         (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 02 Nov 2026 23:16:00 -0800 (PST)
+        Mon, 02 Nov 2026 23:20:43 -0800 (PST)
 X-Relaying-Domain: broadcom.com
 X-CFilter-Loop: Reflected
-Received: by mail-qk1-f197.google.com with SMTP id af79cd13be357-93f1e62510cso846446685a.1
-        for <virtualization@lists.linux.dev>; Mon, 02 Nov 2026 23:15:59 -0800 (PST)
+Received: by mail-qt1-f197.google.com with SMTP id d75a77b69052e-542fc619afaso43787711cf.2
+        for <virtualization@lists.linux.dev>; Mon, 02 Nov 2026 23:20:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1793690159; x=1794294959; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=q4y6B1icyNzjJObRP5v2+iWtsvF0W+PG7Ux6Z6hjgbY=;
-        b=GhECud09CCG2xDSX3qdfb2dUa25DXE0ZtWCEIeulEoqEBZN+lYO3gK5CPPU/nBi9pY
-         QjdnUj/9Efa8smtWYtZjwRG3/nTXc0OFLPU+LHhHqH66+L3xWrbbTjIsRJxFqUkyx/Lu
-         qocYx55XFx1NmaMNjrEprxWh4ry1qAql+cy20=
-X-Forwarded-Encrypted: i=1; AKwUvBzW3JzalOH4z8IpN/TH7cWTp4nUCpTdiFcW7AwjfU4Znrkb2JhOpDPjcL0D9Ue1ek4XutdXhQvBnU4qhnY2Tw==@lists.linux.dev
-X-Received: by 2002:a05:620a:2687:b0:943:b019:f011 with SMTP id af79cd13be357-94421719dd1mr1970190485a.28.1793690159388;
-        Mon, 02 Nov 2026 23:15:59 -0800 (PST)
-X-Received: by 2002:a05:620a:2687:b0:943:b019:f011 with SMTP id af79cd13be357-94421719dd1mr1970188385a.28.1793690158920;
-        Mon, 02 Nov 2026 23:15:58 -0800 (PST)
-Received: from vertex.localdomain (pool-173-49-113-140.phlapa.fios.verizon.net. [173.49.113.140])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-9442581b2d2sm1018334585a.15.2026.11.02.23.15.51
+        d=broadcom.com; s=google; t=1793690442; x=1794295242; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=nQGxanT95z7gj11pozst1Dv+dzrh+mNFxgMJ/FgtyKo=;
+        b=R1wkrrFVEidRGzr0n+7hgFrvB0JxmXrcwMkILF9EkcflxhfqxnaflZMnZyW1qLsruc
+         zcrv9dsyeuc/ZMIXBYyMzmCyuNhpB3Yu9h39epIbDA229bY/LYervTeiiMwsk9cuZ+2I
+         KhQLj2f67Od7QpoBizG5QX4doGZgmxzpHTdJo=
+X-Forwarded-Encrypted: i=1; AKwUvBwL8ABEKsWAeQrNEHXucCIOP9A5K2gj0JttPEObuf0CE5drxbxK7k5v2wz6w993/vEyH2t81IFwaCpfPGMIAA==@lists.linux.dev
+X-Received: by 2002:ac8:5a86:0:b0:535:a5fa:edff with SMTP id d75a77b69052e-542b7c08be6mr197741081cf.63.1793690442089;
+        Mon, 02 Nov 2026 23:20:42 -0800 (PST)
+X-Received: by 2002:ac8:5a86:0:b0:535:a5fa:edff with SMTP id d75a77b69052e-542b7c08be6mr197740811cf.63.1793690441651;
+        Mon, 02 Nov 2026 23:20:41 -0800 (PST)
+Received: from vertex.localdomain ([192.19.218.250])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-5498c379989sm18885491cf.19.2026.11.02.23.20.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Nov 2026 23:15:52 -0800 (PST)
+        Mon, 02 Nov 2026 23:20:40 -0800 (PST)
 From: Zack Rusin <zack.rusin@broadcom.com>
 To: Borislav Petkov <bp@alien8.de>,
+	x86@kernel.org,
 	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	x86@kernel.org
-Cc: Thomas Gleixner <tglx@kernel.org>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>
+Cc: Kiryl Shutsemau <kas@kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Thomas Gleixner <tglx@kernel.org>,
 	Ingo Molnar <mingo@redhat.com>,
 	Dave Hansen <dave.hansen@linux.intel.com>,
 	"H. Peter Anvin" <hpa@zytor.com>,
-	virtualization@lists.linux.dev,
-	bcm-kernel-feedback-list@broadcom.com,
-	linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@linux-foundation.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Josh Poimboeuf <jpoimboe@kernel.org>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	David Airlie <airlied@gmail.com>,
-	Simona Vetter <simona@ffwll.ch>,
-	Kiryl Shutsemau <kas@kernel.org>,
+	Tom Lendacky <thomas.lendacky@amd.com>,
 	Rick Edgecombe <rick.p.edgecombe@intel.com>,
+	Bo Gan <bo.gan@broadcom.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Vitaly Kuznetsov <vkuznets@redhat.com>,
+	virtualization@lists.linux.dev,
 	linux-coco@lists.linux.dev,
-	kvm@vger.kernel.org,
-	dri-devel@lists.freedesktop.org,
-	Zack Rusin <zack.rusin@broadcom.com>
-Subject: [PATCH v3 3/3] x86/cpufeatures: Remove unused VMware hypercall feature bits
-Date: Tue,  3 Nov 2026 02:14:58 -0500
-Message-ID: <c8e57b19d95fd8ffbfd13e7ab1c1ade551b1bd7b.1793685318.git.zack.rusin@broadcom.com>
+	bcm-kernel-feedback-list@broadcom.com,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v3 0/1] x86/vmware: Share steal-time counters in encrypted guests
+Date: Tue,  3 Nov 2026 02:20:33 -0500
+Message-ID: <cover.1792471114.git.zack.rusin@broadcom.com>
 X-Mailer: git-send-email 2.53.0
-In-Reply-To: <cover.1793685318.git.zack.rusin@broadcom.com>
-References: <cover.1793685318.git.zack.rusin@broadcom.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -137,47 +127,47 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-DetectorID-Processed: b00c1d49-9d2e-4205-b15f-d015386d3d5e
 
-The static-call conversion removed the alternative instruction templates
-that used X86_FEATURE_VMCALL and X86_FEATURE_VMW_VMMCALL. Their remaining
-users only force the bits during VMware setup; no code tests either bit.
+Steal time is the time a virtual CPU was ready to run but waited for the
+host to schedule it. For example, in a 100 ms interval a vCPU might run
+for 70 ms and wait 30 ms for a physical CPU. Reporting those 30 ms lets
+Linux:
+- account CPU usage accurately, without charging applications for time
+  their vCPU wasn't running;
+- base scheduling decisions on the CPU time tasks actually received;
+- show host contention in the "st" column of top and vmstat and in
+  /proc/stat.
 
-Remove the forced capabilities and mark both positions free in the kernel
-header. Neither feature has a cpuinfo name, so this changes no
-userspace-visible flag.
+VMware writes a running total into a small per-CPU buffer in guest
+memory, and Linux reads it. In a confidential guest (AMD SEV-SNP, Intel
+TDX) memory is private by default and the host cannot write it, so the
+guest has to share the buffer first. Linux currently registers the
+buffer without sharing it, and ESXi then powers off the VM. This only
+affects VMs with the steal clock enabled, which ESXi enables by default
+only for Photon guests.
 
-Signed-off-by: Zack Rusin <zack.rusin@broadcom.com>
----
- arch/x86/include/asm/cpufeatures.h | 4 ++--
- arch/x86/kernel/cpu/vmware.c       | 4 ----
- 2 files changed, 2 insertions(+), 6 deletions(-)
+Following the v2 discussion, this version uses one packed allocation for
+all possible CPUs' counters and shares it before registering any address.
+Setup moves to an early initcall so it can use the normal memory-conversion
+API. This avoids converting a page in every CPU's per-CPU area and
+concentrates sharing in one allocation.
 
-diff --git a/arch/x86/include/asm/cpufeatures.h b/arch/x86/include/asm/cpufeatures.h
-index 61930f0d4578..b7633930020f 100644
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -233,8 +233,8 @@
- #define X86_FEATURE_VMMCALL		( 8*32+15) /* "vmmcall" Prefer VMMCALL to VMCALL */
- #define X86_FEATURE_XENPV		( 8*32+16) /* Xen paravirtual guest */
- #define X86_FEATURE_EPT_AD		( 8*32+17) /* "ept_ad" Intel Extended Page Table access-dirty bit */
--#define X86_FEATURE_VMCALL		( 8*32+18) /* Hypervisor supports the VMCALL instruction */
--#define X86_FEATURE_VMW_VMMCALL		( 8*32+19) /* VMware prefers VMMCALL hypercall instruction */
-+// free: was #define X86_FEATURE_VMCALL ( 8*32+18) /* Hypervisor supports VMCALL */
-+// free: was #define X86_FEATURE_VMW_VMMCALL ( 8*32+19) /* VMware prefers VMMCALL */
- // free: was #define X86_FEATURE_PVUNLOCK               ( 8*32+20) /* PV unlock function */
- #define X86_FEATURE_VCPUPREEMPT		( 8*32+21) /* PV vcpu_is_preempted function */
- #define X86_FEATURE_TDX_GUEST		( 8*32+22) /* "tdx_guest" Intel Trust Domain Extensions Guest */
-diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-index 6719c009f237..b5c1610ff408 100644
---- a/arch/x86/kernel/cpu/vmware.c
-+++ b/arch/x86/kernel/cpu/vmware.c
-@@ -492,10 +492,6 @@ static void __init vmware_set_capabilities(void)
- 	setup_force_cpu_cap(X86_FEATURE_TSC_RELIABLE);
- 	if (vmware_tsc_khz)
- 		setup_force_cpu_cap(X86_FEATURE_TSC_KNOWN_FREQ);
--	if (vmware_hypercall_mode == CPUID_VMWARE_FEATURES_ECX_VMCALL)
--		setup_force_cpu_cap(X86_FEATURE_VMCALL);
--	else if (vmware_hypercall_mode == CPUID_VMWARE_FEATURES_ECX_VMMCALL)
--		setup_force_cpu_cap(X86_FEATURE_VMW_VMMCALL);
- }
- 
- static unsigned long
+Changes since v2:
+- Replace the six infrastructure patches with one VMware-only fix.
+- Leave the per-CPU allocator, linker, KVM and early conversion code alone.
+- Move ordinary-guest setup to the same initcall.
+- Rebase onto v7.3.
+
+Tested on ordinary VMware x86-64 SMP/UP guests, ESXi SEV-SNP and TDX
+guests (SMP, UP, 66 vCPUs and percpu_alloc=page), and QEMU/KVM x86-64
+guests.
+
+v2: https://lore.kernel.org/r/20260929040256.543767-1-zack.rusin@broadcom.com
+
+Zack Rusin (1):
+  x86/vmware: Allocate shared storage for steal-time counters
+
+ arch/x86/kernel/cpu/vmware.c | 130 +++++++++++++++++++++++------------
+ 1 file changed, 86 insertions(+), 44 deletions(-)
+
+
+base-commit: c03c1a14507dfaf8b856c2608f9ac216021fc222
