@@ -1,77 +1,81 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793708685;
-	b=fXr+R30FwqZG8SPbvzPVO1his1UrpHwMTMwWmsprkDo20lk4nhmud2rQxaSJjpp6ujue
-	 QinzGqmG7ybon0E7bt33lymyKV+0KNnfLEZO9xxm20F8Tdv73kil/GQz7Il/hgkUSrDyT
-	 i3ClIbOCBVDqBr9sm8c6pnhVDz1nGJrAhuP9M1qPQ4TcWXpkep3GDu7spkzcbM0DZFR4K
-	 FwRLivBjgO80Zr6/LnnXlsVT5etd+1R7M2YGRdL2kyfwdo5v2bkxBPI5qnIr82Grdpy1B
-	 HfBKB+aCOhQyuMb8/yF+xqd/g51VzGDYqIjN4aVEmufMD3mt1kWWKBAo5o3ULbnKOWg==
+	t=1793713924;
+	b=US/pHG2PEbV09OYm4hZV+TGxAYKkWx5K/jWoZoemi0rTFUZe7Op0tgidar11P3XNuPqB
+	 NGr11/ij242DTfpG7t1g8jJtid1DcfkeUbQUdGuEFAHy2iVm8GGOtdT2bbEFj6repmv/O
+	 sNs7gXlxQbeMuJ4nBDXHMdaqmGpLPpUJjiktVfTzuRhOvfmAHS6AvNp7rs6bRk6JfxjTp
+	 AX3ddZVfW2Iz2MOX8RBfZ9O1u7t4bTs3QGrrED+JTOs+O++Vb/dN42oIUsEPO6X6O/dvA
+	 yh/rA5wZd8Fo5cU3/xFIstGdCECuRnpONm6U44rrdXOoEwZ0gyL9lU2mCElrDxSJaVA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793708685;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:
-	 Content-Transfer-Encoding:In-Reply-To;
-	bh=2DQ96R/0ulhMhCPuDty/w5YNIxZWO7PXWDO3bMU5BOI=;
-	b=Ip6E2j857ix97JXJu4uigVh4ksPNxv4W0fQllqJu6J6GMdOMsIbqzXrWkG1BIOk5emr9
-	 KIwEKwkgux6R2Fdt576scKlr8q+q5iruCa6J8DLtVZ454k6Z21cYcyFw43zVamwT1OCQt
-	 6qjPybwlsckujvLI6UNLzLa1Pr6szzIIIOBbXTMIqnOGTEn9heLtUm7cXxqtzdh09B35s
-	 5HwW/Df7c8OVRBvxztspJtA9dBATYv+6t0UmqT0biAMqIsVswMA2iB0jJw2cwJ36HWkmE
-	 GaHWe5UWRI9Xi2Y7XLDFG715H6Y2B9kGxUSZhucpeeiqXXrfM/2jMdOzDenUCNwCODQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793713924;
+	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
+	 X-Mimecast-MFC-AGG-ID:Received:Received:Date:From:To:Cc:Subject:
+	 Message-ID:References:MIME-Version:In-Reply-To:X-Scanned-By:
+	 X-Mimecast-MFC-PROC-ID:X-Mimecast-Originator:Content-Type:
+	 Content-Disposition;
+	bh=3CiB6pHb/Xg9TLgDzg5nxHTYIzZ/5IkLEI/qgRbMHzo=;
+	b=yxN0BCFsilPq52Yx9I/42derab9CSjr/CDituGblbduYVS7RS410g2XcsqY/iYmlwiRC
+	 iwovao9EUi4ovDNGSzbY4SOULFUEguCNfRBCgBO3EmKxlprfWUagfSRkXCA3F49bapqY8
+	 K/liItdRDJLIG17l77/riQZFVZc7+2yn8cII914NmHwl66/bVE6SmP7Gbr8P3MwO/Q3/n
+	 TmifXCZcjFj5+QyF/PQuIAjeESkhPUOQ6EoUnzxe6/SgHVBBXf37E5VHuTKGqQONHB3K8
+	 b+j57p7iqC/QB1AKyVMBaBOuvDuhclzMHrTkNqc06XCNcGDZ6BjEEuzFceKNVaP2GcA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Y2DPOtoe;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=redhat.com;
+	spf=pass smtp.mailfrom=redhat.com;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b="h/0/JH22";
+	arc=none smtp.remote-ip=170.10.133.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with UTF8SMTPS id AEBFE606A326;
-	Tue,  3 Nov 2026 12:24:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07823606D816
+	for <virtualization@lists.linux.dev>; Tue,  3 Nov 2026 13:52:03 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 07823606D816
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Y2DPOtoe
-Received: by smtp.kernel.org (Postfix) with UTF8SMTPSA id 5D33F1F00919;
-	Tue,  3 Nov 2026 12:24:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793708684;
-	bh=2DQ96R/0ulhMhCPuDty/w5YNIxZWO7PXWDO3bMU5BOI=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=Y2DPOtoeBhQC9H3iDa32ycCqijeUsQyOWUtRGHIYLH0dXLxZUgEjv6SLfXFJy1+yx
-	 REGyvcQMfuo3sZnBFrDxClG/MkMaDIKnK90l7RtK0PDTXjGL6CaKqpsTGr1H383bgl
-	 4TyhCnpi2mmiJ18g5WO9YEH6HMlaMgnH5EIfxQ78ETdDfCbW0Nq7FnvPdbMq/lkRzu
-	 YVxjlkUTO+w5EzhvM5yynGpZ7GDn2zzh6C78NzGOnNAyoUN8QGMgJIfas682UgvcoY
-	 za6RIYThdNdxsriG9j3+KBkt/9fGZF5z8OM8R3azJs/Dg4hZMYuSZR8c3Kxw2uTAo8
-	 Un2lK6ZcYoQzw==
-Date: Tue, 3 Nov 2026 13:24:40 +0100
-From: Bartosz Golaszewski <brgl@kernel.org>
-To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig_=28The_Capable_Hub=29?= <u.kleine-koenig@baylibre.com>
-Cc: Linus Walleij <linusw@kernel.org>, Andy Shevchenko <andy@kernel.org>, 
-	linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, Lixu Zhang <lixu.zhang@intel.com>, 
-	Sakari Ailus <sakari.ailus@linux.intel.com>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, Florian Fainelli <florian.fainelli@broadcom.com>, 
-	Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>, Frank Li <Frank.Li@nxp.com>, 
-	Sascha Hauer <s.hauer@pengutronix.de>, Pengutronix Kernel Team <kernel@pengutronix.de>, 
-	Fabio Estevam <festevam@gmail.com>, Imre Kaloz <kaloz@kernel.org>, 
-	Conor Dooley <conor.dooley@microchip.com>, Valentina Fernandez <valentina.fernandezalanis@microchip.com>, 
-	Daire McNamara <daire.mcnamara@microchip.com>, Daniel Palmer <daniel@thingy.jp>, 
-	Romain Perier <romain.perier@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, imx@lists.linux.dev, 
-	linux-arm-kernel@lists.infradead.org, linux-riscv@lists.infradead.org, 
-	Hoan Tran <hoan@os.amperecomputing.com>, Alan Borzeszkowski <alan.borzeszkowski@linux.intel.com>, 
-	Mika Westerberg <westeri@kernel.org>, Hans de Goede <hansg@kernel.org>, 
-	Nuno =?utf-8?B?U8Oh?= <nuno.sa@analog.com>, linux-hwmon@vger.kernel.org, 
-	Matti Vaittinen <mazziesaccount@gmail.com>, "Enrico Weigelt, metux IT consult" <info@metux.net>, 
-	Viresh Kumar <vireshk@kernel.org>, virtualization@lists.linux.dev, Yinbo Zhu <zhuyinbo@loongson.cn>, 
-	Thierry Reding <thierry.reding@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, 
-	linux-tegra@vger.kernel.org, Geert Uytterhoeven <geert+renesas@glider.be>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Srinivas Neeli <srinivas.neeli@amd.com>, 
-	Michal Simek <michal.simek@amd.com>, linux-aspeed@lists.ozlabs.org, asahi@lists.linux.dev, 
-	linux-mediatek@lists.infradead.org, openbmc@lists.ozlabs.org, linux-omap@vger.kernel.org, 
-	linux-renesas-soc@vger.kernel.org, linux-unisoc@lists.infradead.org, 
-	linux-rockchip@lists.infradead.org, linux-stm32@st-md-mailman.stormreply.com, 
-	Michael Buesch <m@bues.ch>, William Breathitt Gray <wbg@kernel.org>, 
-	Robert Richter <rric@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, 
-	linux-acpi@vger.kernel.org
-Subject: Re: [PATCH v4 00/23] gpio: Improvements around device-id arrays
-Message-ID: <oiwdi2r7fbay3dsghfaqzejpv7d5dpuerh5jy2vsw3kjyhvhdm@hyrpff5ytihz>
-References: <cover.1793097104.git.u.kleine-koenig@baylibre.com>
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=h/0/JH22
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1793713922;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=3CiB6pHb/Xg9TLgDzg5nxHTYIzZ/5IkLEI/qgRbMHzo=;
+	b=h/0/JH22sw23sC46Vl422EYL3Bq63S927IKR9XZbRavEFdw0D5HViG56TBOZ09MxaPPdIx
+	rNgYDmFMQP8ncRHXFyyK6/ULZBfhCiIlgBupAGvxqNWuD0WxSiMrwgrB2yFCkhuG+nKO2Y
+	astMsEp3MkefYQR0fVgCTtO7mx06gTI=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-518-hvePkwNkNtOmG3aq1m2fhg-1; Tue,
+ 03 Nov 2026 08:52:01 -0500
+X-MC-Unique: hvePkwNkNtOmG3aq1m2fhg-1
+X-Mimecast-MFC-AGG-ID: hvePkwNkNtOmG3aq1m2fhg_1793713919
+Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 470E71800646;
+	Tue,  3 Nov 2026 13:51:59 +0000 (UTC)
+Received: from localhost (headnet04.pony-001.prod.iad2.dc.redhat.com [10.2.32.116])
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 18CBC1800677;
+	Tue,  3 Nov 2026 13:51:57 +0000 (UTC)
+Date: Tue, 3 Nov 2026 08:51:56 -0500
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Hannes Reinecke <hare@suse.de>
+Cc: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>, mst@redhat.com,
+	jasowangio@gmail.com, mkp@kernel.org,
+	James.Bottomley@hansenpartnership.com, pbonzini@redhat.com,
+	eperezma@redhat.com, virtualization@lists.linux.dev,
+	linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+	sashiko-bot@kernel.org, kwolf@redhat.com
+Subject: Re: [PATCH v2] scsi: virtio_scsi: implement eh_host_reset_handler
+Message-ID: <20261103135156.GB2072598@shajnocz.csb>
+References: <20260911164417.33860-1-ngocthang2710.1999@gmail.com>
+ <28865bba-ac60-4c6e-aec8-64b1fcdb1c8f@suse.de>
+ <20260914133144.15509-1-ngocthang2710.1999@gmail.com>
+ <20261102200615.GC1738758@shajnocz.csb>
+ <c5460180-e134-423a-b67f-a58a00106eb8@suse.de>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -81,37 +85,141 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <c5460180-e134-423a-b67f-a58a00106eb8@suse.de>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
+X-Mimecast-MFC-PROC-ID: DSXk0Q8OXM20qL29YUT1P0kP0YVFqs2tnXN9ywpxRK0_1793713919
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <cover.1793097104.git.u.kleine-koenig@baylibre.com>
 
-On Tue, Oct 27, 2026 at 11:48:37AM +0100, Uwe Kleine-König (The Capable Hub) wrote:
-> Hello,
-> 
-> the original motivation for this series are the patches that convert the
-> arrays to use named initializers, see
-> https://lore.kernel.org/all/cover.1780048925.git.u.kleine-koenig@baylibre.com/
-> for the idea behind it. Looking left and right a bit while implementing
-> that, the series grew a bit.
-> 
-> Changes since v3 (available at
-> https://lore.kernel.org/all/cover.1793030820.git.u.kleine-koenig@baylibre.com):
-> 
->  - Picked up review tags (b4 even found some from v2)
->  - Add a 2nd MODULE_DEVICE_TABLE(of, ...) in drivers/gpio/gpio-mpc5200.c
->    (My grep didn't handle >1 driver per file well), noticed by Sashiko
->  - New patch to use named initializers for auxiliary_device_id arrays
->  - Fix code style of of_device_id array in drivers/gpio/gpio-grgpio.c
->    (My script doesn't handle of_device_id::name) and
->    drivers/gpio/gpio-ppc44x.c (didn't exist yet when I sent v2 and
->    failed to notice that for v3)
->  - Fix code style of auxiliary_device_id array in
->    drivers/gpio/gpio-shared-proxy.c, missed as I didn't have a script
->    for auxiliary_device_id before.
->  - Dropped a few broken email addresses from Cc:
-> 
+On Tue, Nov 03, 2026 at 08:27:52AM +0100, Hannes Reinecke wrote:
+> On 11/2/26 9:06 PM, Stefan Hajnoczi wrote:
+> > On Mon, Sep 14, 2026 at 08:31:44PM +0700, Nguyen Ngoc Thang wrote:
+> > > Once virtscsi_eh_timed_out() lets SCSI EH run on an unresponsive host,
+> > > abort and device reset both fail the same way (same dead ctrl vq), and
+> > > since virtio_scsi implements neither target nor bus reset, EH falls
+> > > through to scsi_eh_offline_sdevs(), which frees the stuck commands' DMA
+> > > buffers without any guarantee the device has actually stopped touching
+> > > them. If bus mastering (or whatever broke the transport) comes back
+> > > later, the device can still write into memory the kernel has already
+> > > reused.
+> > > 
+> > > Add a real eh_host_reset_handler instead. virtio_reset_device() is the
+> > > guarantee scsi_eh_offline_sdevs() was missing: once it returns, the
+> > > device will not touch guest memory again, so it is safe to hand
+> > > outstanding commands' buffers back. Reuse virtscsi_remove_vqs() +
+> > > virtscsi_init() -- the exact sequence already used across
+> > > suspend/resume -- to tear the virtqueues down and rebuild them.
+> > > 
+> > > Verified with a QEMU virtio-scsi repro (PCI_COMMAND_MASTER cleared
+> > > mid-write): EH now runs abort -> device reset -> host reset -> abort ->
+> > > device reset -> host reset -> offline, then dd's stuck fsync returns
+> > > EIO and D-state drains to 0, in ~244s total. No task remains
+> > > uninterruptibly blocked.
+> > 
+> > By the way, there is a known limitation in the QEMU virtio-scsi
+> > implementation where some reset-related operations are implemented
+> > synchronously (can block vCPUs and QEMU activity while waiting for I/O
+> > to drain in some situations) instead of asynchronously. Recently there
+> > has been work in QEMU to make VIRTIO device reset asynchronous, for
+> > example, but it needs to be implemented on a per-device basis and
+> > virtio-scsi hasn't taken advantage of it yet.
+> > 
+> > Please let me know if you'd like to discuss or contribute. It's
+> > something that is on my radar but not until 2027.
+> > 
+> > > 
+> > > Suggested-by: Hannes Reinecke <hare@suse.de>
+> > > Signed-off-by: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>
+> > > ---
+> > > v1 -> v2: implemented eh_host_reset_handler as suggested by Hannes
+> > > Reinecke in review of the original RFC, instead of relying solely on
+> > > the EH loop falling through to offline.
+> > > ---
+> > >   drivers/scsi/virtio_scsi.c | 24 ++++++++++++++++++++++++
+> > >   1 file changed, 24 insertions(+)
+> > > 
+> > > diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
+> > > index b4f20c487718..9698f4f91cc6 100644
+> > > --- a/drivers/scsi/virtio_scsi.c
+> > > +++ b/drivers/scsi/virtio_scsi.c
+> > > @@ -833,6 +833,8 @@ static enum scsi_timeout_action virtscsi_eh_timed_out(struct scsi_cmnd *scmnd)
+> > >   	return SCSI_EH_NOT_HANDLED;
+> > >   }
+> > > +static int virtscsi_host_reset(struct scsi_cmnd *sc);
+> > > +
+> > >   static const struct scsi_host_template virtscsi_host_template = {
+> > >   	.module = THIS_MODULE,
+> > >   	.name = "Virtio SCSI HBA",
+> > > @@ -846,6 +848,7 @@ static const struct scsi_host_template virtscsi_host_template = {
+> > >   	.eh_abort_handler = virtscsi_abort,
+> > >   	.eh_device_reset_handler = virtscsi_device_reset,
+> > >   	.eh_timed_out = virtscsi_eh_timed_out,
+> > > +	.eh_host_reset_handler = virtscsi_host_reset,
+> > >   	.sdev_init = virtscsi_device_alloc,
+> > >   	.dma_boundary = UINT_MAX,
+> > > @@ -947,6 +950,27 @@ static int virtscsi_init(struct virtio_device *vdev,
+> > >   	return err;
+> > >   }
+> > > +/*
+> > > + * No bus/target reset in virtio-scsi, so EH lands here after device
+> > 
+> > The choice to use the VIRTIO device reset in virtscsi_host_reset() looks
+> > good to me, but I would like clarification on this comment. virtio-scsi
+> > does have I_T_NEXUS_RESET and I believe this is the modern equivalent to
+> > the pre-SCSI-6 TARGET RESET. Is it really the case that virtio-scsi
+> > doesn't have target reset? And do you want to go ahead and implement
+> > .eh_target_reset_handler() using I_T_NEXUS_RESET?
+> > 
+> Would probably not a bad idea to use I_T_NEXUS_RESET here.
+> Not sure what it does internally, though; _is_ there a nexus
+> to reset?
 
-If there are no objections, I'll queue it by the end of this week.
+Whether there is any benefit to I_T_NEXUS_RESET may depend on the device
+implementation. In QEMU:
+- LOGICAL_UNIT_RESET resets just 1 LUN
+- I_T_NEXUS_RESET resets all LUNs
+- VIRTIO device reset also resets the HBA itself
 
-Bart
+In practice QEMU's I_T_NEXUS_RESET is unlikely to fix things if
+LOGICAL_UNIT_RESET wasn't sufficient. Maybe it will help on other device
+implementations though.
+
+I think the Linux driver mapping should be:
+- .eh_device_reset_handler() -> LOGICAL_UNIT_RESET
+- .eh_target_reset_handler() -> I_T_NEXUS_RESET
+- .eh_host_reset_handler() -> VIRTIO device reset
+
+> > > + * reset also times out. A virtio reset guarantees the device won't
+> > > + * touch guest memory again, so stuck commands can be freed safely.
+> > > + * Same teardown/rebuild already used for suspend/resume.
+> > > + */
+> > > +static int virtscsi_host_reset(struct scsi_cmnd *sc)
+> > > +{
+> > > +	struct virtio_scsi *vscsi = shost_priv(sc->device->host);
+> > > +	struct virtio_device *vdev = vscsi->vdev;
+> > > +
+> > > +	scmd_printk(KERN_INFO, sc, "host reset\n");
+> > > +
+> > > +	virtscsi_remove_vqs(vdev);
+> > 
+> > This is synchronous and may take a long time. I noticed that some SCSI
+> > drivers have a timeout that returns FAILED when the low-level host reset
+> > operation takes too long. This can be done here too but would require
+> > adding a timeout to virtio_reset_device() (i.e. see the virtio-pci
+> > implementation that loops until the device register indicates reset is
+> > complete).
+> > 
+> Never, ever, return FAILED from a host reset.
+> That will induce a non-recoverable error, and you have to reset the
+> OS to get the virtio devices back.
+> Not something you'd want to do I guess.
+> 
+> Yes, I know that host reset can take a long time. But normally
+> host reset would be the last resort, so really when you have to
+> call it your system has exhausted all other options.
+
+Okay.
+
+Stefan
+
