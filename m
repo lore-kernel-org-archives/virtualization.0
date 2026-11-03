@@ -1,84 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.176
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.170
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793693332;
-	b=SBdNRvpVw+P7zRs3x7BlZS3Mj75Z93iOfu9gNgM8f5wuGwaYFIajTeCgfzmzRiVTwx7V
-	 3B8kUzHGPeoVfh6vZ0XzthSuVZO4zobPN+946tGvV0703qZDesu+fmiXtIolvMWkKnRve
-	 THOTvXw0Tlw4FnsMZNSETmKC3KbYdBPB0RioILiL3zZs8aoNIM7DaM1vcJJGs9NP0iBGB
-	 oHUC45mN44KIkomOssIVdvb5QWe8ZG2N6BEBBMPVF7oHGu3VnECTPkhUbTAAZyyARXVeL
-	 lJtrzDKQptiqstZBoAC2QbQXXWiVM09jvuPg2EXdk7dO+5t4ziBeBBySWOpjV61XYAQ==
+	t=1793693335;
+	b=y2mD5qFsURe1dAESa7yTHjsfcxORSlLFwGt/6A/v2NbO1bM1jMldUZvOeUjskEJ3bUEM
+	 5qFjVyU1qRcDDnT+z7EYBdelE171Af76wAI7XzI6w4gm117q2Y2M8nWughjD/Ow21dniJ
+	 3hijaEFK2CMSM1U6TzhDykm3rfoTi4/Zw1T09Az3AdqbMFxhjRH1Bxvp1AY/LNsMPtdU9
+	 Y3y0HTxqu1+sLkB2sFD7clgkHtAtzDWOvKDLOhCNL8hCY6nKwpLtCRcP8mLlz8GZEUC/L
+	 CnfkJsNaRK6byr4gcS8n+jZjE+LtiXNcZLMeXs85ig2SmxiQLAlsUkyDjAGFgshhmig==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793693332;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793693335;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
 	 MIME-Version:Content-Transfer-Encoding;
-	bh=cywAFZhsAgp/KuYWOYg1vGaGoupxAXpCdkIyUc+cjWw=;
-	b=q4h8GheBqnzGNu7Mvo3+JI6x/0bxv5cPIp/JVCYWOZrVOeqFB3nZgGGbcpPFvSLUItUm
-	 cabOClgsD0THYb5dpMQYl0t8ePQoggZ2TnGofANdBJovNuROCpcB6riJT2yJh1tY7HpKJ
-	 ZFwUK5Y7k9vF+2iJn9HEkKqMnAFi0IEwYy7rdWsWz2POcMzLKZucM+ZW7LqftERF3kXex
-	 PtzpoAgXBzYvthbv4H7a3rvRMLY74HXZ7WZzdfNzNnWSihm63PkxBCGErimZD2LtB1/kM
-	 q2n7vb+7h30gNcvtXeUqaSHwXSiPoKVE7bijA11tYcO+Xl1Uo2Kr5j3H/e50s2Rn22A==
+	bh=s/Zxo1I+8S4n5i1RRZUqfT8IwOehGqzQiN0Xdf27+bI=;
+	b=noKBOGN58g9AHi55Ep9juN3khFX+hS7x9SpByaU33ai3WNkXH5GZuderHPB+c5FSgL/s
+	 4t7Mei+LWscKbaO4YYgZJtnonZ6gYmke7nSRAEiXPsmTBMz43znUQY0Zo8l/oTt086Djr
+	 /0NI5fEeFgVyeVXdadkLx2psrpqX0qMyW34FC282VqE7YNCxoH2B2hgQ0j4jBS9aX9p9b
+	 ulrKksz8afcn87NtLHZ4c4wLDiPvXbAkba8KBr9T5S65X0O8dgrTnBuEepClV7rfopgF7
+	 OFjeHhPCy6TtlJvW2cnPwSaBuZVtVAuLcaev/AEH1de6nd+sIlBhIciyU1bsX+xLWZg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=hVdOOfuB;
-	arc=none smtp.remote-ip=74.125.82.176
-Received: from mail-dy1-f176.google.com (mail-dy1-f176.google.com [74.125.82.176])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=WLpBpU5g;
+	arc=none smtp.remote-ip=74.125.82.170
+Received: from mail-dy1-f170.google.com (mail-dy1-f170.google.com [74.125.82.170])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4BFB606A33C
-	for <virtualization@lists.linux.dev>; Tue,  3 Nov 2026 08:08:51 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B4BFB606A33C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A23C606D827
+	for <virtualization@lists.linux.dev>; Tue,  3 Nov 2026 08:08:55 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4A23C606D827
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=hVdOOfuB
-Received: by mail-dy1-f176.google.com with SMTP id 5a478bee46e88-36661f953e4so5955139eec.1
-        for <virtualization@lists.linux.dev>; Tue, 03 Nov 2026 00:08:51 -0800 (PST)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=WLpBpU5g
+Received: by mail-dy1-f170.google.com with SMTP id 5a478bee46e88-36c9a93a1abso114652eec.1
+        for <virtualization@lists.linux.dev>; Tue, 03 Nov 2026 00:08:55 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793693331; x=1794298131; darn=lists.linux.dev;
+        d=gmail.com; s=20260707; t=1793693334; x=1794298134; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=cywAFZhsAgp/KuYWOYg1vGaGoupxAXpCdkIyUc+cjWw=;
-        b=hVdOOfuBW9UK+tVRtcdZZG98xG1JRWmEIduLmI8ivoeUya5X5y7fGaM6uj6qVMQaKQ
-         n2YY3YCWRSMvIQmcT5AQbn6gKsOtIvVaP//uUI9ikyybe0YYeQRfsTkgnONGxkoNReAc
-         mrAABizQizAx/RFPlvYUqKWtUo79apvZd60Z2aMULXgWx8FOBRtUD7zJa9+loJ+VjgnI
-         aL5VlgNBsIietnQJUIWhHecxC8YEs4s98BCRu8ro9j6Cq0ZszK8YXV4MkmbzNewvRogk
-         dj6oStGw/nKgP09ihduJuMhHqVRJyrCeb1tvNhzVI/3LvB6JSjPvi5XDMzsKUBF9iDAp
-         ff8A==
+        bh=s/Zxo1I+8S4n5i1RRZUqfT8IwOehGqzQiN0Xdf27+bI=;
+        b=WLpBpU5gHVjEbYgT1tWts4JUhOH8pbshomNuKMMgQLKCJq1LPMIUn95fxrvKTynGI0
+         v+5GmPA8mlgbfpw44bNyMgzVHfcKXRjm0qnCEWGLHCvfTNF5lJd6TTZET4VHtyq8vKZp
+         8TwWz7ROSTvr5G9fkn5iGvZsqhJdKvHkz4ySiCX0xI/E0s/+bx428VTUTDJtM5wJfqla
+         akLqAbKdonh/nBJVxIx8AgZoESnkRZ0I39WCDSq0/52QYWy41EomRM2la+QL7YBOeLvf
+         RzL0tfP+a7GHjC71a7rYLKzJUO/fOW2PqO6CcBsQXoODS0AS4TrE9UIwLcx1i+ced8FG
+         aoVA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793693331; x=1794298131;
+        d=1e100.net; s=20260707; t=1793693334; x=1794298134;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=cywAFZhsAgp/KuYWOYg1vGaGoupxAXpCdkIyUc+cjWw=;
-        b=fR9PN9Y5wJO7rTxWGJDkO+SXAxMpq5JRNSqaHeQsox7/8FYc5bTdSq+cZON7GyJs81
-         ZxyESjhd+4Lned40GMW004V4jd1h6L70ZBQwj+t4CqVDYM5VlCjEwFdEkSpgKDSYFi0d
-         FpYiXl3Jrgs0Kn9lEAWUj15mbQbNHD8vZTnFVYDHxrxlLIIJlk6yvxzVMvA7NN3vq256
-         revCtRjGCrQDdsVz4F0orh4vLRL9uS5W++BJ94IHolT2lxfLSQe1yVpAeeu917Po9aDl
-         JcKEWgKeyBxB6sOR/47W0J+UbarxnlhJyi5IOCq3GzExKqcn17tERqOuSwL6snJflzIW
-         dfWg==
-X-Forwarded-Encrypted: i=1; AKwUvByYUk7wtrW1+4KQRrltBaiZ5VAgp8zJlFd411r/yHYRN6P9nb1uRqdUBSxMBKZM06zKEeU0bziKpzVbpmiaow==@lists.linux.dev
-X-Gm-Message-State: APuU4Z+Tfl4sF0GtwEKHABNtkfHDuOlPmZD8o/FWtOj9mSqjBzqiLDun
-	JJwsO5SlwJNjXOoCcfayrcjp2JZiFtBmywmYR5+TGyr5ur3/aU9fG+6L
-X-Gm-Gg: AYBFou2i853bPGd/qMh2taGtj5tKxiROTLQ1+BAnYuLCReHX6SOxZaj8h8jlnQpTprE
-	TiFe6/DuyWatMpFczNImLMiYMlQzyKf+dZW1Sz6tSw9V28mI6w7w7iN6H+MncP3GD39as9GVXYC
-	+qk/q4NOE6uCg9X5RfbdykXWCF71Dd1dxdBY0nFPk/qge+HkSOVA6WgcY44rc7poSk/cD1DaMW1
-	tmkz6a/FD7DxYXFHTNyG/p3SB6i4U9oLggPayy0eq0kCiXVq/0y0iysz8pbvBiHBQZowHXbv9VO
-	0gfYcESZZwIpSU6cHGPfGhJQrlRJic1ApDQEOzyqJJRKW+QERzezkldXZhIzD/b8MrepgcoveWx
-	oQ9pZMHlmuQwEefwqB0KS+IRW6tuZu19mo9eD6ltm6YwTHuOlUmlOdQeguYi9p5BeR0qv4XMG+P
-	3q45OfZSoDl2v4WKbUXBIQH9rY2gF0CH8wj7d4v4KFplNubrK3pj9+EkGAyDUJtiKH4+MopJ9kT
-	Hz6H32Bx7l2is0xO901JOnQKG/J7+A9OfXxX5Xqh/igxINOL5HKRbUpv0QWXWIOhMmO1vDSIoj1
-	z4p7Uq++rSDfUG1D5Z8pulrZyEk06XlCTVxNFToEQZ6L3j5y10HcubbxkNnOWoeLglX304XR6vB
-	jD63lAMQWvkpnIdEkmz8A6u0czvWM6jD/7mL5Mzx/1TxMwsIsylyTZZRNmU2p+naB4dkj
-X-Received: by 2002:a05:7301:6189:20b0:358:ec5c:bef1 with SMTP id 5a478bee46e88-36a42425486mr17468985eec.39.1793693330692;
-        Tue, 03 Nov 2026 00:08:50 -0800 (PST)
+        bh=s/Zxo1I+8S4n5i1RRZUqfT8IwOehGqzQiN0Xdf27+bI=;
+        b=SD+FJrJvKkdnJMLVz1aM7MAEj73VWfRJtGbPpvzowZq5Dy6tWkGfo/7M4xmAecKBQu
+         Jwllt1aqxgI3kiQWL6FzzOSyQkTdM3+SIcw0giZXcauxDV2tUbAos/EAA7WGM4XaCzJN
+         tJSKq0UBz+GwBhr6kabDdfWI6cK2Qt8AQJIajXNl/3uKJQuGz5qlnqM6Da4LkHeC+rsG
+         Sfw4uKB8hkUKSap8miG6KULddudXVLP4R3JRGQZRAifUt6eY/6UUf5CzxqUet8oxC7V7
+         U9Li8j27UjU0LpiuJxVOOJmcPTYEAS3xUpForYZ+Ohm1P5/f6fE4OscnXXdujGfvWrxh
+         YAgQ==
+X-Forwarded-Encrypted: i=1; AKwUvByKRvAOHLUTyIntK9QGytTxgXvmVs8z+nnphf9bmvs7sMZXt6sQUakdnVAOItGEWdFplBHzCxdusiDpjGFtkQ==@lists.linux.dev
+X-Gm-Message-State: APuU4Z8Htoqak1GC377VUKnG2X1ubyYTBpedWwRkBOhvNhRBThP4YDQI
+	301CuBseXsRkpLx/ItaepbFaTkzFvpUTYByNU6hmNwdlAy5j5cuxvla3
+X-Gm-Gg: AYBFou2DiobhUcUiHtyOQGEKPbN+vrbqM7JGT+c78TTwTfTJlgC2kED927NsPFnnEtf
+	/s5k3eUEBwDXKIBR/lyQZnygD9iAPhfCTeuvOGemzyBd9IcMIIuW6F88UrfEMWHAbJ1JIB7kwr+
+	YvcLTSvUF/zSb4X02SHZwmp3xkB9jCEbkKEnlWrD6DqWZJDyX211KObtKSPWgTF8NEXsTCPpSJX
+	XNw4G0pVSkhtvaJSdHl9xJuzPoQktPjBUdXPAKYFjJ49ZQu4ycwxLtzViSfbQi+qpeRa1CukVg6
+	WdN1ONzsKx3p1FJyjin4AewkcsoECCDSZHbwVeIhGAYHlQdD2ycFk67osoIlaRzhQpsUotksH+t
+	/BcMpWlw8CXp/Vn7CnDtfouFOTeG822hTP0TZ//6Fh5Ma2phuf5lzb+vK1aUcDKL846br2vBkQI
+	okMbPYzVJYmhrHjJ9osgnZMqWktimWk2w43k3tTcxsYWyqfLW0hpa1Aibfa6RVUcBLFi3A4EQLD
+	fRc9zbJDVrnxX0AJv9r4Bagd98cYvL+9XnGrRTWFdrEZxor8Sj4nC1xIPrXbQVqzY/zit6ftOGK
+	9+3NbUTP+d/zKyUXuHER7cT9I/fyC3f+2r2W0mTBOYl2BWWd9t9zqzTBovmOhY7JZ2QZw4Jxfp8
+	r7S2YK3qYBXRjO2c5t0np/C74j+PZDUR3JxqRLslEyFt0NK8=
+X-Received: by 2002:a05:7300:fe87:b0:36b:c4a0:47b8 with SMTP id 5a478bee46e88-36bc4a04a45mr1387296eec.11.1793693334448;
+        Tue, 03 Nov 2026 00:08:54 -0800 (PST)
 Received: from localhost.localdomain ([183.96.175.225])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-36a428fa380sm41468466eec.12.2026.11.03.00.08.47
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-36a428fa380sm41468466eec.12.2026.11.03.00.08.51
         (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Tue, 03 Nov 2026 00:08:50 -0800 (PST)
+        Tue, 03 Nov 2026 00:08:53 -0800 (PST)
 From: Joonho Lee <mynameisjune111@gmail.com>
 To: linux-sound@vger.kernel.org
 Cc: tiwai@suse.de,
@@ -92,9 +92,9 @@ Cc: tiwai@suse.de,
 	rdunlap@infradead.org,
 	linux-doc@vger.kernel.org,
 	Joonho Lee <mynameisjune111@gmail.com>
-Subject: [PATCH v13 07/12] ALSA: pcm: mark stop-threshold accesses for capture policy sampling
-Date: Tue,  3 Nov 2026 17:08:16 +0900
-Message-ID: <20261103080821.16983-8-mynameisjune111@gmail.com>
+Subject: [PATCH v13 08/12] ALSA: pcm: report partial progress under the stream lock
+Date: Tue,  3 Nov 2026 17:08:17 +0900
+Message-ID: <20261103080821.16983-9-mynameisjune111@gmail.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20261103080821.16983-1-mynameisjune111@gmail.com>
 References: <20261103080821.16983-1-mynameisjune111@gmail.com>
@@ -109,71 +109,66 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The staged virtio-snd capture path needs to sample stop_threshold from
-completion context to distinguish free-running capture from bounded
-capture. Software parameters can update this field while capture runs.
+Staged capture can make readable data available before a complete period
+has elapsed. Skipping notification leaves a blocked reader asleep, while
+using the period-interrupt path for this event can infer a false ring wrap
+when the notification is delayed.
 
-Mark the runtime stop-threshold assignments with WRITE_ONCE and the proc
-status read with READ_ONCE. This pairs the assignments with the driver's
-READ_ONCE policy sampling in patch 9.
+Add snd_pcm_progress_under_stream_lock() to update the hardware pointer
+through the non-interrupt path and notify readers and fasync listeners.
+It runs under the caller's PCM stream lock and does not tick the PCM timer.
+The driver must release its pointer and trigger locks before calling it.
+Existing period notification callers keep their current behavior.
 
-These annotations do not provide a transaction for the entire sw_params
-update. The driver serializes its cached policy and accounting with its
-own substream lock.
+Atomic and nonatomic synthetic PCM tests reproduced the missing wakeup
+and false-wrap alternatives. The new helper delivered 64 final frames and
+reported four available frames after delayed partial progress without XRUN.
 
 Assisted-by: LLM
 Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
 
 ---
- sound/core/oss/pcm_oss.c |    2 +-
- sound/core/pcm.c         |    3 ++-
- sound/core/pcm_native.c  |    5 +++--
- 3 files changed, 6 insertions(+), 4 deletions(-)
+ include/sound/pcm.h  |    1 +
+ sound/core/pcm_lib.c |   19 +++++++++++++++++++
+ 2 files changed, 20 insertions(+)
 
-diff --git a/sound/core/oss/pcm_oss.c b/sound/core/oss/pcm_oss.c
---- a/sound/core/oss/pcm_oss.c
-+++ b/sound/core/oss/pcm_oss.c
-@@ -2958,7 +2958,7 @@
- 	       runtime->oss.mmap_bytes);
- #endif
- 	/* In mmap mode we never stop */
--	runtime->stop_threshold = runtime->boundary;
-+	WRITE_ONCE(runtime->stop_threshold, runtime->boundary);
+diff --git a/include/sound/pcm.h b/include/sound/pcm.h
+--- a/include/sound/pcm.h
++++ b/include/sound/pcm.h
+@@ -1182,6 +1182,7 @@
+ int snd_pcm_lib_ioctl(struct snd_pcm_substream *substream,
+ 		      unsigned int cmd, void *arg);                      
+ void snd_pcm_period_elapsed_under_stream_lock(struct snd_pcm_substream *substream);
++void snd_pcm_progress_under_stream_lock(struct snd_pcm_substream *substream);
+ void snd_pcm_period_elapsed(struct snd_pcm_substream *substream);
+ snd_pcm_sframes_t __snd_pcm_lib_xfer(struct snd_pcm_substream *substream,
+ 				     void *buf, bool interleaved,
+diff --git a/sound/core/pcm_lib.c b/sound/core/pcm_lib.c
+--- a/sound/core/pcm_lib.c
++++ b/sound/core/pcm_lib.c
+@@ -1919,6 +1919,25 @@
+ EXPORT_SYMBOL(snd_pcm_period_elapsed_under_stream_lock);
  
- 	return 0;
- }
-diff --git a/sound/core/pcm.c b/sound/core/pcm.c
---- a/sound/core/pcm.c
-+++ b/sound/core/pcm.c
-@@ -422,7 +422,8 @@
- 	snd_iprintf(buffer, "period_step: %u\n", runtime->period_step);
- 	snd_iprintf(buffer, "avail_min: %lu\n", runtime->control->avail_min);
- 	snd_iprintf(buffer, "start_threshold: %lu\n", runtime->start_threshold);
--	snd_iprintf(buffer, "stop_threshold: %lu\n", runtime->stop_threshold);
-+	snd_iprintf(buffer, "stop_threshold: %lu\n",
-+		    READ_ONCE(runtime->stop_threshold));
- 	snd_iprintf(buffer, "silence_threshold: %lu\n", runtime->silence_threshold);
- 	snd_iprintf(buffer, "silence_size: %lu\n", runtime->silence_size);
- 	snd_iprintf(buffer, "boundary: %lu\n", runtime->boundary);
-diff --git a/sound/core/pcm_native.c b/sound/core/pcm_native.c
---- a/sound/core/pcm_native.c
-+++ b/sound/core/pcm_native.c
-@@ -871,7 +871,7 @@
- 	runtime->period_step = 1;
- 	runtime->control->avail_min = runtime->period_size;
- 	runtime->start_threshold = 1;
--	runtime->stop_threshold = runtime->buffer_size;
-+	WRITE_ONCE(runtime->stop_threshold, runtime->buffer_size);
- 	runtime->silence_threshold = 0;
- 	runtime->silence_size = 0;
- 	runtime->boundary = runtime->buffer_size;
-@@ -1062,7 +1062,8 @@
- 		runtime->period_step = params->period_step;
- 		runtime->control->avail_min = params->avail_min;
- 		runtime->start_threshold = params->start_threshold;
--		runtime->stop_threshold = params->stop_threshold;
-+		/* Drivers may sample the stop policy from completion context. */
-+		WRITE_ONCE(runtime->stop_threshold, params->stop_threshold);
- 		runtime->silence_threshold = params->silence_threshold;
- 		runtime->silence_size = params->silence_size;
- 		params->boundary = runtime->boundary;
+ /**
++ * snd_pcm_progress_under_stream_lock - Report progress without a period IRQ
++ * @substream: PCM substream
++ *
++ * Context: PCM stream lock held, with no driver pointer or trigger locks held.
++ * Updates the pointer and wakes readers for partial-period transfers. Unlike
++ * a period notification, this does not imply an elapsed period or tick the PCM
++ * timer. The same pointer, trigger and timestamp callbacks may be invoked.
++ */
++void snd_pcm_progress_under_stream_lock(struct snd_pcm_substream *substream)
++{
++	if (PCM_RUNTIME_CHECK(substream) || !snd_pcm_running(substream))
++		return;
++	snd_pcm_update_hw_ptr(substream);
++	snd_kill_fasync(substream->runtime->fasync, SIGIO, POLL_IN);
++}
++EXPORT_SYMBOL_GPL(snd_pcm_progress_under_stream_lock);
++
++
++/**
+  * snd_pcm_period_elapsed() - update the status of runtime for the next period by acquiring lock of
+  *			      PCM substream.
+  * @substream: the instance of PCM substream.
