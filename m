@@ -1,104 +1,47 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793723208;
-	b=A45/wzjXDcSK0zdq0INi9diHm9nIXLlZ4QF1ZNjhM6Y2CdpQwyC4PN3k1mwN+nALAOqb
-	 RCOxjNElZf8LRpAhM+p4N88shcRWJo/TlgIV44EYAGcHYvxK7a4xcXUxWnjpllAioMyWU
-	 jt/zyUC5c6HGjTmSM3D2SUZGdGpY1B/RfHLHqTrnpj7Nfeguo7qJLbYqNID3DjLtdt9jN
-	 ZwYuCBUxsosWRm4KmoOYaH4dkH/nK2AlcLcMLPuKjkn6b5CHrDxt/NOGOikuWLhj5c82I
-	 lpKJanf5KqsTSpCA4OcJGds4uEOBq99nGBhOq8jSM0cm80zyCxoMrGxXF9do1GHbsqw==
+	t=1793723396;
+	b=s/60NGbPsLmwxPknKrjwl9eh12L18iAelScDKZguEDY2MRGKFFx//gZ5x/peVDOAQP9p
+	 E4bzvpqTI8LPtMNauc+f0AGsoth2aDiDW3Pull8RtuwtAlrVx9RKBWKnVBNgXvvIclaCF
+	 9jplSlCSKcsrJi29G7gZ4sHzerac0KfKk91/OA82M2Kppvwcxoni/FVO8YMkQH5GwxPst
+	 12CZdkirwwLUBnrehAGT31gKm1MkJ/T3TMLW81mMCjxLFgTSDcSv4cqUzylh1aEPnSyDz
+	 VCwTeMH74VMrlN8jnJE9WTNIBg5SDVArypyOkpz9dVOxSdrdBmHDv0QkT6AKj2UfOJw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793723208;
-	h=DMARC-Filter:Received:DKIM-Signature:DKIM-Signature:DKIM-Signature:
-	 DKIM-Signature:Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-Spamd-Result:X-Rspamd-Server:
-	 X-Rspamd-Action:X-Spam-Flag:X-Spam-Score:X-Spam-Level:
-	 X-Rspamd-Queue-Id;
-	bh=rouW7nDm2RAxW8KJh1mBeowYSzyQJYswbOx6xzxW26I=;
-	b=w8pBeeSB6Azhpoms+Aj921R40Bu7bQUYrBmGsRNJApZmTkRGVU8eQzIiJ/wG0/so67to
-	 2AlGjRASitDaDRnz+9qXJ8+NPkh9d9qJKF70gAuMo+LUI0Mu24CGJituKdIpjLR6EcS+u
-	 tcVCtrPZx5MkzDIu1okAOFiQbkZfDq6dCPhBv3moV+KuJe/KxqXpfRXc6ME2YKwJE9yzi
-	 Qt2A2lnmFAafA7thEpAlns+pAwReLAvMMEb27WsPklVezUnRqg4j/7uppTH4N6MVvSd8e
-	 JGeNtFFhuGN3g0jn3zArg+/59SK00SJ9dBGmT0H8STdIQR2N4DsrrUUN05+BU+sBJoQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793723396;
+	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
+	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=XP0ozVk9+CRaYdZkDjrlK4V/5HSBcJ6GFrBwej+PFtA=;
+	b=Y/+YuN9OysjPwbeUOuNQ+xJVlyLd2lD5b0HMhfzYKwAznSNsqkphyHRoFIZDSG++28Ol
+	 Ji95ouSAXLRHsXKa5xr3QraLYrKckxPC/C4r2ThT7YOBCDKjftFjUQSGFL+iUAQHeWL9V
+	 s7KEhiqNOM5fy0CRUUhowP1aXFwtTqH9rhSDdU4qAqOqOiphY+N7y48NkdMemJ0koEq6p
+	 8fn7lSq1aksKrQeiYrb8EGkz97Bq1kG+VrY48ipJFmS9NL3YLnS6YcvVUQa2/8ixZi8U1
+	 zu//U7tpKr0KkTfzfQyTsKmzMwvmstv7TFwBQn37jC5a2FsVogeMXuTCB8T4GbwBATw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=suse.de;
-	spf=pass smtp.mailfrom=suse.de;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=1NKBjawz;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=tvc6WHl9;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=O00ctMrb;
-	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=bzygVwcx;
-	arc=none smtp.remote-ip=195.135.223.131
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ajLm0KeB;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3D43606A33E
-	for <virtualization@lists.linux.dev>; Tue,  3 Nov 2026 16:26:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org F3D43606A33E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABFD2606A324;
+	Tue,  3 Nov 2026 16:29:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=1NKBjawz;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=tvc6WHl9;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=O00ctMrb;
-	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=bzygVwcx
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 40BCA1F7B6;
-	Tue,  3 Nov 2026 16:26:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1793723206; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=rouW7nDm2RAxW8KJh1mBeowYSzyQJYswbOx6xzxW26I=;
-	b=1NKBjawzsf9PETfHWSEvBLYRuL0k+NovLQqKA8iTIZdCWIMPCBXAQoeRxE0cod9VblD8J8
-	OcyhSACe2WcGVnVoTCDcNPVMLrooiEbrcOulaAnXciCKLL/VdR2SPxOjvCGGw88ONe8zXt
-	GWwFWc91F9twexc0WLuvPwxfFnQ60cs=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1793723206;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=rouW7nDm2RAxW8KJh1mBeowYSzyQJYswbOx6xzxW26I=;
-	b=tvc6WHl96AxZeSxWXyQNtJW597ZfDoqrl3dB7e6bWNPUO9hw0v5vjC/QsTsQjLUjDzgpxG
-	xxxXaEx69ARebNAg==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=O00ctMrb;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=bzygVwcx
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1793723205; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=rouW7nDm2RAxW8KJh1mBeowYSzyQJYswbOx6xzxW26I=;
-	b=O00ctMrbIa/ZUYnmI0ZDEBP/Z6ySkVq4ePuJGqBwj8oHyUkjip+EovTfhuDTbm9ArPFRHK
-	/BonMrU+nV2Kl2Qns8rFi76ncxwvOYCotIT4JaketV/PeMMiaOswJH7WpsQq6sCzv53BgK
-	N7/Cs2Pkuqzy5VAs5cQ+ZUnsmP3bM4U=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1793723205;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=rouW7nDm2RAxW8KJh1mBeowYSzyQJYswbOx6xzxW26I=;
-	b=bzygVwcx/B7vQu6/HShqQgImb/hL7D1OMGKETyqXcdGIuUCOmttBzhwb6QjJmkP7KY3eiQ
-	XBaSIrgHihlB83AQ==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id AD09C134B8;
-	Tue,  3 Nov 2026 16:26:44 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id cm5NIkQL6mpNfgAAD6G6ig
-	(envelope-from <hare@suse.de>); Tue, 03 Nov 2026 16:26:44 +0000
-Message-ID: <bdef8300-8570-4103-8c8b-cb978c88eb81@suse.de>
-Date: Tue, 3 Nov 2026 17:26:44 +0100
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ajLm0KeB
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 772D11F00919;
+	Tue,  3 Nov 2026 16:29:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793723395;
+	bh=XP0ozVk9+CRaYdZkDjrlK4V/5HSBcJ6GFrBwej+PFtA=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=ajLm0KeBDWIea2Y0ancKBrYORerT1THMaXy4jFvdxErxcwgHfh+0oiYOveUkK9Nic
+	 XDAFGUviaQL/b0kNaroGvMJMqoLUZcayGQsdxlhhKJxTYSIUrnZsBKzGU4wv4rNf7r
+	 3CBPCl+Ey1fm96csxww1HLjXlVEsssmjSz/rMlAZZgy7+5Nhk2XccA3BneAUCBtfaf
+	 2QgZDOqG6J1xT7AHzWRKG9bzb6tKo3BhHqX7f2/GxXJ4qnCbEovQlZj91NtWbCJUGd
+	 zpk6sZlD0x7hC77KXkvSqgUw9O6xVoAVxA8jXsTPtgtNxonUYjtEccrALxOXWNnR36
+	 dBwXxiyDg6Utw==
+Message-ID: <fd6094d5-50d3-4e73-8c09-91b0769476ab@kernel.org>
+Date: Tue, 3 Nov 2026 17:29:44 +0100
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -109,176 +52,90 @@ List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] scsi: virtio_scsi: implement eh_host_reset_handler
-To: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>, mst@redhat.com,
- jasowangio@gmail.com, mkp@kernel.org, James.Bottomley@hansenpartnership.com,
- pbonzini@redhat.com, eperezma@redhat.com, virtualization@lists.linux.dev,
- linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
- sashiko-bot@kernel.org, kwolf@redhat.com
-References: <20260911164417.33860-1-ngocthang2710.1999@gmail.com>
- <28865bba-ac60-4c6e-aec8-64b1fcdb1c8f@suse.de>
- <20260914133144.15509-1-ngocthang2710.1999@gmail.com>
- <20261102200615.GC1738758@shajnocz.csb>
- <c5460180-e134-423a-b67f-a58a00106eb8@suse.de>
- <20261103135156.GB2072598@shajnocz.csb>
+Subject: Re: [PATCH RFC 0/6] virtio-mem: support memmap_on_memory
+To: Nikolaos Karaolidis <nick@karaolidis.com>,
+ Lorenzo Stoakes <ljs@kernel.org>, "Liam R. Howlett" <liam@infradead.org>,
+ Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>,
+ Suren Baghdasaryan <surenb@google.com>, Jonathan Corbet <corbet@lwn.net>,
+ Shuah Khan <skhan@linuxfoundation.org>, Randy Dunlap <rdunlap@infradead.org>
+Cc: Oscar Salvador <osalvador@suse.de>, "Michael S. Tsirkin"
+ <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Andrew Morton <akpm@linux-foundation.org>,
+ Michal Hocko <mhocko@suse.com>, Hui Zhu <teawater@gmail.com>,
+ Georgi Djakov <georgi.djakov@oss.qualcomm.com>,
+ virtualization@lists.linux.dev, linux-mm@kvack.org,
+ linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-cxl@vger.kernel.org
+References: <20261103-virtio-mem-memmap-v1-0-308ae1da6240@karaolidis.com>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
-From: Hannes Reinecke <hare@suse.de>
-In-Reply-To: <20261103135156.GB2072598@shajnocz.csb>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spamd-Result: default: False [-12.00 / 50.00];
-	SUSE_INTERNAL_BYPASS(-9.00)[];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	XM_UA_NO_VERSION(0.01)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	ARC_NA(0.00)[];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	RCPT_COUNT_TWELVE(0.00)[13];
-	MIME_TRACE(0.00)[0:+];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	RCVD_TLS_ALL(0.00)[];
-	TO_DN_SOME(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from,2a07:de40:b281:106:10:150:64:167:received];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	FREEMAIL_CC(0.00)[gmail.com,redhat.com,kernel.org,hansenpartnership.com,lists.linux.dev,vger.kernel.org];
-	MID_RHS_MATCH_FROM(0.00)[];
-	TAGGED_RCPT(0.00)[];
-	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	DKIM_TRACE(0.00)[suse.de:+];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo,suse.de:email,suse.de:dkim]
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Rspamd-Action: no action
-X-Spam-Flag: NO
-X-Spam-Score: -12.00
-X-Spam-Level: 
-X-Rspamd-Queue-Id: 40BCA1F7B6
+Autocrypt: addr=david@kernel.org; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <20261103-virtio-mem-memmap-v1-0-308ae1da6240@karaolidis.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On 11/3/26 2:51 PM, Stefan Hajnoczi wrote:
-> On Tue, Nov 03, 2026 at 08:27:52AM +0100, Hannes Reinecke wrote:
->> On 11/2/26 9:06 PM, Stefan Hajnoczi wrote:
->>> On Mon, Sep 14, 2026 at 08:31:44PM +0700, Nguyen Ngoc Thang wrote:
->>>> Once virtscsi_eh_timed_out() lets SCSI EH run on an unresponsive host,
->>>> abort and device reset both fail the same way (same dead ctrl vq), and
->>>> since virtio_scsi implements neither target nor bus reset, EH falls
->>>> through to scsi_eh_offline_sdevs(), which frees the stuck commands' DMA
->>>> buffers without any guarantee the device has actually stopped touching
->>>> them. If bus mastering (or whatever broke the transport) comes back
->>>> later, the device can still write into memory the kernel has already
->>>> reused.
->>>>
->>>> Add a real eh_host_reset_handler instead. virtio_reset_device() is the
->>>> guarantee scsi_eh_offline_sdevs() was missing: once it returns, the
->>>> device will not touch guest memory again, so it is safe to hand
->>>> outstanding commands' buffers back. Reuse virtscsi_remove_vqs() +
->>>> virtscsi_init() -- the exact sequence already used across
->>>> suspend/resume -- to tear the virtqueues down and rebuild them.
->>>>
->>>> Verified with a QEMU virtio-scsi repro (PCI_COMMAND_MASTER cleared
->>>> mid-write): EH now runs abort -> device reset -> host reset -> abort ->
->>>> device reset -> host reset -> offline, then dd's stuck fsync returns
->>>> EIO and D-state drains to 0, in ~244s total. No task remains
->>>> uninterruptibly blocked.
->>>
->>> By the way, there is a known limitation in the QEMU virtio-scsi
->>> implementation where some reset-related operations are implemented
->>> synchronously (can block vCPUs and QEMU activity while waiting for I/O
->>> to drain in some situations) instead of asynchronously. Recently there
->>> has been work in QEMU to make VIRTIO device reset asynchronous, for
->>> example, but it needs to be implemented on a per-device basis and
->>> virtio-scsi hasn't taken advantage of it yet.
->>>
->>> Please let me know if you'd like to discuss or contribute. It's
->>> something that is on my radar but not until 2027.
->>>
->>>>
->>>> Suggested-by: Hannes Reinecke <hare@suse.de>
->>>> Signed-off-by: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>
->>>> ---
->>>> v1 -> v2: implemented eh_host_reset_handler as suggested by Hannes
->>>> Reinecke in review of the original RFC, instead of relying solely on
->>>> the EH loop falling through to offline.
->>>> ---
->>>>    drivers/scsi/virtio_scsi.c | 24 ++++++++++++++++++++++++
->>>>    1 file changed, 24 insertions(+)
->>>>
->>>> diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
->>>> index b4f20c487718..9698f4f91cc6 100644
->>>> --- a/drivers/scsi/virtio_scsi.c
->>>> +++ b/drivers/scsi/virtio_scsi.c
->>>> @@ -833,6 +833,8 @@ static enum scsi_timeout_action virtscsi_eh_timed_out(struct scsi_cmnd *scmnd)
->>>>    	return SCSI_EH_NOT_HANDLED;
->>>>    }
->>>> +static int virtscsi_host_reset(struct scsi_cmnd *sc);
->>>> +
->>>>    static const struct scsi_host_template virtscsi_host_template = {
->>>>    	.module = THIS_MODULE,
->>>>    	.name = "Virtio SCSI HBA",
->>>> @@ -846,6 +848,7 @@ static const struct scsi_host_template virtscsi_host_template = {
->>>>    	.eh_abort_handler = virtscsi_abort,
->>>>    	.eh_device_reset_handler = virtscsi_device_reset,
->>>>    	.eh_timed_out = virtscsi_eh_timed_out,
->>>> +	.eh_host_reset_handler = virtscsi_host_reset,
->>>>    	.sdev_init = virtscsi_device_alloc,
->>>>    	.dma_boundary = UINT_MAX,
->>>> @@ -947,6 +950,27 @@ static int virtscsi_init(struct virtio_device *vdev,
->>>>    	return err;
->>>>    }
->>>> +/*
->>>> + * No bus/target reset in virtio-scsi, so EH lands here after device
->>>
->>> The choice to use the VIRTIO device reset in virtscsi_host_reset() looks
->>> good to me, but I would like clarification on this comment. virtio-scsi
->>> does have I_T_NEXUS_RESET and I believe this is the modern equivalent to
->>> the pre-SCSI-6 TARGET RESET. Is it really the case that virtio-scsi
->>> doesn't have target reset? And do you want to go ahead and implement
->>> .eh_target_reset_handler() using I_T_NEXUS_RESET?
->>>
->> Would probably not a bad idea to use I_T_NEXUS_RESET here.
->> Not sure what it does internally, though; _is_ there a nexus
->> to reset?
-> 
-> Whether there is any benefit to I_T_NEXUS_RESET may depend on the device
-> implementation. In QEMU:
-> - LOGICAL_UNIT_RESET resets just 1 LUN
-> - I_T_NEXUS_RESET resets all LUNs
-> - VIRTIO device reset also resets the HBA itself
-> 
-> In practice QEMU's I_T_NEXUS_RESET is unlikely to fix things if
-> LOGICAL_UNIT_RESET wasn't sufficient. Maybe it will help on other device
-> implementations though.
-> 
-> I think the Linux driver mapping should be:
-> - .eh_device_reset_handler() -> LOGICAL_UNIT_RESET
-> - .eh_target_reset_handler() -> I_T_NEXUS_RESET
-> - .eh_host_reset_handler() -> VIRTIO device reset
-> 
-I guess 'target_reset' is pretty much pointless for modern setups.
-If lun reset doesn't work it's pretty much guaranteed that target_reset
-won't help, either.
-(Unless you are on SAS, then it might, as I_T nexus reset actually
-resets the SAS link and such does something useful).
-Problem is that in most cases LUN reset fails as the _communication_
-to the LUN is interrupted, and hence sending another TMF across the
-same communication channel won't help, either.
-For virtio that would mean that we'd have to reset the virtio queues;
-can we even do that in a meaningful fashion?
+On 11/3/26 10:50, Nikolaos Karaolidis wrote:
+> virtio-mem adds memory without MHP_MEMMAP_ON_MEMORY. With the memory
+> onlined to ZONE_MOVABLE, a VM that grows to many times its boot size
+> can run short of unmovable memory. I ran into this while working on
+> a guest-initiated memory negotiation project.
 
+Care to pitch the use case to me?
+
+I'm all for making virtio-mem better suitable for some workloads, but my time is
+limited.
+
+Is this something that your use case would actually benefit from, or was that
+project already discarded?
+
+Why so much MOVABLE memory, and how do other kernel allocations (page tables
+etc) cope with that?
+
+-- 
 Cheers,
 
-Hannes
--- 
-Dr. Hannes Reinecke                  Kernel Storage Architect
-hare@suse.de                                +49 911 74053 688
-SUSE Software Solutions GmbH, Frankenstr. 146, 90461 Nürnberg
-HRB 36809 (AG Nürnberg), GF: I. Totev, A. McDonald, W. Knoblich
+David
