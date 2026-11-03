@@ -1,57 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793705236;
-	b=me1EpcsW+CKT9C2xquBUyn7hVqkBsOnk3nuSTQDlLCHANvBCHMgpsQU4dQhRVfk4Dpdf
-	 rOe4K/HjeZqBoU5Bx5u8atd5y/B4w0RnqDG7JEe2mHHMpHEB+17IdyrNQWD6K1aglLgcZ
-	 cdru/NHhbxFazTS7BRIyJlBltatgISEHtwz+uSLiYTM8VGh4h673Dct3xGS+GGAzlEEFU
-	 PvcbFmpwKRXGltMORr8YtVwtS5kbXYGHfB95+G12bfFs7eDQY3KRV+kFHwpNqLdMfjI2C
-	 /xZDgiB/p0Uctj0FbvXRrSc7U5pExM26/caeIfr5JSf9+QsGQBPRn/b6TZ1eL+sBsQg==
+	t=1793705615;
+	b=HMjyWnqQz/PxfhoUbL09rwTNiUTWqOhWOpx9HIovfNxvaeyUxbZHw9dhQHBWhP/QK8CL
+	 UlGgZqS5/+BLMK8RciZjjZZCcIQJ3dIowBt8yAYo9x0Ay/URnkrwWWaQfmArMl9rVnFUL
+	 TiCsl24mtW+EuQ9T2PRtEDae/p0i2DWnCcO+zATbzH+rFOw/y5W8s/jsrLw+ARpkgeb4A
+	 Vpb8RGU4ik84i5tCha6dOE1s/RXO1UPy16zO/qoLdsrL6AA70AnOJYBsJF7vJSeClV2HO
+	 5pwlt17KR3xkwXBvLW1cnSUViTxgDH1pBXk1RDRCyKBNVsc31BM+iIOikWqzCRAqn6w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793705236;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=CRrLZLcVyc36aDQFrWVQs6dHBrvuyiS9kzIqr1ICWvA=;
-	b=kwgywu2WKYvs+FEA3sVZHGPkq7xR25HZjdRamFKbtvvHS6fLnp/F0EHDuEhh/L41xPE+
-	 SMPlLgUBCDYgoyEsM2JeDzZI18j1CvO5gwvETPBMIRbISU88O8ZCDdnP8euDbGA393m90
-	 rrnyGgZ4hcgLqrfLSDi4M+sBpEKua2wjOsQIeWv191eLCUg3dakhxY8DnAKgkpItzenvC
-	 ZOiZyBGqRaXuHB0Iia4KuLAsasb3WuB1Q1n1CrkhvW5EjFTOzcjwdNLeU8m+L8z5c+hju
-	 1RKrBEtW7S/F3RfSbh7KwvBdHqB6OWxie8JS3xJ+TkoucoNoYbo8E5gK823TGy/rKiw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793705615;
+	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
+	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
+	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
+	 X-Mimecast-Originator:Content-Type:Content-Disposition;
+	bh=m0qyUESMc56kSUhZkAax4TSYZKgGyd+m6l8qEmY93H0=;
+	b=k7deBX0DHxQd01EHXZJLQTbQBGWUnJETQbnPybUm0UkMd8k9CBStSHHwcnmQZLCYNlQD
+	 4FCDZNyDsSlqrOVaObA6FCcDM0AGVMtuISwWMGIQpP9vSqUCqksuPwG25Xho2EUavab4w
+	 2vEfWXQPfZkR5dcWiBnl8UcH4EupCHeNNjnl0Aly2wgQdN4LJs3/UDSZsZpL/tfju8o9Y
+	 eiX6+JiS+DLqzQAjh2aBEs/0DPNjbhC0RWQ0jaSBMkSiPjBJQ0lBRtV89COvl2dpxp3oe
+	 ftb7nhoRASw86JMAqz7Wi4FYWzN81Sejw1rvWRqinFXkWLvRdQrMVVYPlAwm5oGZ9ng==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MhyoqwTI;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=redhat.com;
+	spf=pass smtp.mailfrom=redhat.com;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=DGX2Qzx8;
+	arc=none smtp.remote-ip=170.10.129.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7422606C565;
-	Tue,  3 Nov 2026 11:27:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21D61606A326
+	for <virtualization@lists.linux.dev>; Tue,  3 Nov 2026 11:33:34 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 21D61606A326
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MhyoqwTI
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 082621F0093A;
-	Tue,  3 Nov 2026 11:27:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793705235;
-	bh=CRrLZLcVyc36aDQFrWVQs6dHBrvuyiS9kzIqr1ICWvA=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=MhyoqwTIE5YoyxAJFrpQ5cTiLk273anNKWWdM2Q3sIV3sgwGwinB1Ah2VGmQbgL/Y
-	 /z3+lL2dxZPycAgNn5q4zl11HPfROnatdxCQa7KXKVo/HVxSD1cAFAG/4jFFa6nYP9
-	 RWeZGpTHrZEtGCJvS9cTEqQ8R9opSCvcej0PX4+czhHpj0PXwUIGv9fW/NQSU5NkhO
-	 mITZ8YjKeYBA3RSxIeiIJPykuW69B3moO4U6+08/bZEHqIAPIoELFxg+++bf4w5Jp9
-	 96/RcWx7IsK+VU2K/Zn9xgGW8DPYZZ+8EFpYJxmmT+uo5x3yGmee6qxHmYGgbnvk9w
-	 FctcRA0m8DUTw==
-Message-ID: <sashiko-outbox-195148@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v13 12/12] docs: describe virtio-sound capture options
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Joonho Lee" <mynameisjune111@gmail.com>, linux-sound@vger.kernel.org
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <20261103080821.16983-13-mynameisjune111@gmail.com>
-References: <20261103080821.16983-1-mynameisjune111@gmail.com>
- <20261103080821.16983-13-mynameisjune111@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 03 Nov 2026 11:27:14 +0000
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=DGX2Qzx8
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1793705614;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=m0qyUESMc56kSUhZkAax4TSYZKgGyd+m6l8qEmY93H0=;
+	b=DGX2Qzx8TZPQV0DqKuZTKsJ3Wwz039C4uWPBMwRbb3w1A1GnNTq7uOIaWwJ5qyEoeFRkiK
+	L0QYZ8raD14EBMi7SD9U1mAAA4vUBhdEgaXWZJhj3Y54lfWb10OBtnyEqtNMmJ6bL60f8/
+	nBmdukyvYdGbcAa+dfvOMLUPR9ghtYw=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-637-YEVVUJ5EObGY0MqZQznokg-1; Tue, 03 Nov 2026 06:33:32 -0500
+X-MC-Unique: YEVVUJ5EObGY0MqZQznokg-1
+X-Mimecast-MFC-AGG-ID: YEVVUJ5EObGY0MqZQznokg_1793705612
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-48dff112181so3591562f8f.3
+        for <virtualization@lists.linux.dev>; Tue, 03 Nov 2026 03:33:32 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793705612; x=1794310412;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=m0qyUESMc56kSUhZkAax4TSYZKgGyd+m6l8qEmY93H0=;
+        b=Vf2WNT/azroAvgEEdvB/Tlulp9T379WZlsN2wjP95mSFWNR0OfE7Zv1JwVuh3sWaxI
+         190LRh/x3uKT5MGvU4By5muCFs0nOlButqxMbjXH+hYg20V5BXOKsA35nnjDq7LIZjzf
+         lGmk3kSxYARKC4QrjDEUZ9HEgcK1SSqVS+sSj/ctSqYu4wJxV2oFw61Mo8mdFPg4JDeC
+         jp0afjnvHxtYj4ssnHjIXxEXpqds2JApS6LMb+q1pPVI1o3s97M9c2eM9asOG/Vc70n6
+         MRw+cTqS+61NjqClVSKKIcdgQpMLd4XHKi9D14j8pZDLsJECHY1Rm45ph3OeBerg9l5q
+         Jr8A==
+X-Forwarded-Encrypted: i=1; AKwUvBxYakg/xXndx+3LsizBjVmuKm4kUPWVOvb0UWBY+INs68raEj6oCBsNDl+v8N0kLePdJjV7uXk7QGtXcW7AWg==@lists.linux.dev
+X-Gm-Message-State: APuU4Z8i1tLJsX3bVLUOYKl9kR+64EHzouikt5ByBWCtGWn9fGm+/6Ua
+	PLeM+1wW+121PwonU+ROpnhSzMtnincMlU5j78KXu2liCnFayZzFB1IWpUXZgxDO2hd2b5xQ+7k
+	nflgTc59tDrLpD8Rlq/p9hIH/lx55bt9qY0ElSaXGOr709tkHgbp9a8ysBHCsgU6e7gYud7z+9w
+	kw
+X-Gm-Gg: AYBFou1/wUPpGie9bDhHmXkl6U08NBiOwDGRhDPAMRtDQfm4u6f7RZo7kAj9t8U+Z3g
+	mMEYNoCksnCyjxoO5Bk8o27YN11tgg1PqCPAk/NHA5emOPO6IhPH7THykgRlHdRYnULYwdDhk5L
+	2Q/CZetF5T0SdH+KLWTNS64yyTuorpiCVmteyAcIbgMekVoEXNHrEmK0O/u8h/D2pjvsgDoP4A1
+	mgUn/lHj3iN7G+revKloqRZxDBA++P244PjTS/3P4ZVVemjNP8m7BxqGwtmvNlVWq/9nRdb3c3s
+	kuSDQsKhOdtjL7b7f/uLsX/o+6e2bLx3/f8vcoi9upDpSEvpZCD5RnU7s/3L4TPdX7JOscIdK7d
+	bJoNQG9rqIQ3j3Moava8TinBBGZwchmsXsaR8WZ63PQ==
+X-Received: by 2002:a05:600c:4e12:b0:4a2:a9:ed87 with SMTP id 5b1f17b1804b1-4ac1765cf2cmr304324185e9.19.1793705611600;
+        Tue, 03 Nov 2026 03:33:31 -0800 (PST)
+X-Received: by 2002:a05:600c:4e12:b0:4a2:a9:ed87 with SMTP id 5b1f17b1804b1-4ac1765cf2cmr304323575e9.19.1793705611091;
+        Tue, 03 Nov 2026 03:33:31 -0800 (PST)
+Received: from redhat.com ([2a0d:6fc0:1506:fd00:9e19:9994:44b1:e6f2])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4b2a93232f0sm51757025e9.10.2026.11.03.03.33.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Nov 2026 03:33:30 -0800 (PST)
+Date: Tue, 3 Nov 2026 06:33:27 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Guanglei Zhu <zhugl3@xiaopeng.com>
+Cc: amit@kernel.org, virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org, liuc63@xiaopeng.com
+Subject: Re: [PATCH] virtio: console: check the control packet size before
+ parsing it
+Message-ID: <20261103062747-mutt-send-email-mst@kernel.org>
+References: <20261103043238-mutt-send-email-mst@kernel.org>
+ <20261103111734.472283-1-zhugl3@xiaopeng.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -60,201 +103,35 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+MIME-Version: 1.0
+In-Reply-To: <20261103111734.472283-1-zhugl3@xiaopeng.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: gN3lS5HCOdjC_y7L7DzXl1OAZBVIAgLvhf-HVflAJMU_1793705612
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
-s) to consider:
-- [Medium] ALSA: virtio: missing NOMMU copy when stopped in virtsnd_pcm_msg=
-_complete()
-- [Medium] ALSA: virtio: reject short non-staged replies in virtsnd_pcm_msg=
-_complete()
-- [Low] docs: kernel-parameters: document capture_staging dependency for vi=
-rtio_snd
-- [Low] docs: kernel-parameters: use [HW,ALSA] instead of undefined [HW,SOU=
-ND] tag
-- [Low] docs: virtio-sound: remove prompt instructions from commit descript=
-ion
---
+On Tue, Nov 03, 2026 at 07:17:34PM +0800, Guanglei Zhu wrote:
+> You are right, the impact statement does not hold up: the reused
+> buffer still contains a previously valid control message,
 
-commit 0d2f51e1deefbf07b12391911246c9ce81e71037
-Author: Joonho Lee <mynameisjune111@gmail.com>
+Not always, the buffers are allocated with GFP_KERNEL on the
+1st pass.
 
-docs: describe virtio-sound capture options
+> so a short
+> packet makes the driver parse stale - not attacker-controlled - data,
 
-This commit documents the five opt-in capture module parameters for
-virtio_snd in Documentation/admin-guide/kernel-parameters.txt.
+Who is the attacker here the device? it is absolutely
+controlling all of virtio_console_control.
 
->     docs: describe virtio-sound capture options
->    =20
->     Document the five opt-in capture module parameters introduced by this
->     series. All default to false. Describe the startup-empty, short-paylo=
-ad,
->     packed-status and pause-restart compatibility behavior alongside stag=
-ing,
->     and require validation with the target device.
->    =20
->     Keep the virtio_snd entries after virtio_mmio in alphabetical order.
->     Include a diffstat in every mail patch.
->    =20
->     Assisted-by: LLM
->     Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
+> and that is not worth carrying an extra check for.  Please drop this
+> patch.
+> 
+> Sorry for the noise, and thanks for the review.
 
-[Severity: Low]
-This isn't a bug, but "Include a diffstat in every mail patch." in the
-commit description looks like a leftover patch-submission or prompt
-instruction. Should that sentence be removed from the changelog?
+I ask that you please think critically not just go back and forth on it
+like an LLM.
 
-> diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentat=
-ion/admin-guide/kernel-parameters.txt
-> index e75344f4e0cde..de47885cd54b3 100644
-> --- a/Documentation/admin-guide/kernel-parameters.txt
-> +++ b/Documentation/admin-guide/kernel-parameters.txt
-> @@ -8344,6 +8344,36 @@ Kernel parameters
-> =20
->  			Can be used multiple times for multiple devices.
-> =20
-> +	virtio_snd.capture_allow_empty=3D [HW,SOUND]
+-- 
+MST
 
-[Severity: Low]
-This isn't a bug, but the parameter restriction list at the top of
-Documentation/admin-guide/kernel-parameters.txt defines ALSA:
-
-	ALSA	ALSA sound support is enabled.
-
-and does not define SOUND. Should these five virtio_snd.capture_* entries
-use [HW,ALSA] instead of [HW,SOUND]?
-
-> +			Retry a bounded number of empty startup capture replies.
-> +			Format: <bool>
-> +			Default: false. Compatibility option for devices that
-> +			require staged capture; validate with the target device.
-> +
-> +	virtio_snd.capture_allow_short=3D [HW,SOUND]
-> +			Accept non-empty, frame-aligned short capture replies.
-> +			Format: <bool>
-> +			Default: false. Compatibility option for devices that
-> +			require staged capture; validate with the target device.
-> +
-> +	virtio_snd.capture_packed_status=3D [HW,SOUND]
-> +			Read status immediately after the returned capture data.
-> +			Format: <bool>
-> +			Default: false. Compatibility option for devices that
-> +			require staged capture; validate with the target device.
-> +
-> +	virtio_snd.capture_pause_restart=3D [HW,SOUND]
-> +			Release and reprepare capture streams across pause.
-> +			Format: <bool>
-> +			Default: false. Compatibility option for devices that
-> +			require staged capture; validate with the target device.
-
-[Severity: Low]
-In sound/virtio/virtio_pcm_msg.c and sound/virtio/virtio_pcm_ops.c, all
-four of these compatibility parameters only take effect when
-vss->capture_staging is enabled:
-
-sound/virtio/virtio_pcm_msg.c:virtsnd_pcm_msg_complete() {
-	if (vss->direction =3D=3D SNDRV_PCM_STREAM_CAPTURE &&
-	    vss->capture_staging) {
-		virtsnd_pcm_capture_complete(msg, written_bytes);
-		return;
-	}
-}
-
-sound/virtio/virtio_pcm_msg.c:virtsnd_pcm_capture_status() {
-	if (msg->substream->capture_staging && virtsnd_capture_packed_status) {
-		...
-	}
-}
-
-sound/virtio/virtio_pcm_ops.c:virtsnd_pcm_pause_restart_enabled() {
-	return virtsnd_capture_pause_restart && vss->capture_staging &&
-	       vss->direction =3D=3D SNDRV_PCM_STREAM_CAPTURE;
-}
-
-If a user enables virtio_snd.capture_allow_empty,
-virtio_snd.capture_allow_short, virtio_snd.capture_packed_status, or
-virtio_snd.capture_pause_restart while leaving virtio_snd.capture_staging
-at its default value of false, the options silently have no effect.
-
-Should the documentation for these four parameters explicitly state that
-they require virtio_snd.capture_staging to be enabled?
-
-[Severity: Medium]
-Also looking at the underlying capture completion handling in
-sound/virtio/virtio_pcm_msg.c:virtsnd_pcm_msg_complete(), can non-staged
-capture on CONFIG_MMU=3Dn builds advance vss->hw_ptr without copying the
-captured audio payload when vss->stopped is true (such as during
-SNDRV_PCM_STATE_DRAINING)?
-
-In virtsnd_pcm_msg_complete(), post-STOP capture completions are only
-discarded when written_bytes <=3D sizeof(*msg->status):
-
-	if (vss->direction =3D=3D SNDRV_PCM_STREAM_CAPTURE &&
-	    (!vss->prepared ||
-	     (vss->stopped && written_bytes <=3D sizeof(*msg->status)))) {
-		msg->length =3D 0;
-		vss->msg_count--;
-		if (!vss->msg_count)
-			wake_up_all(&vss->msg_empty);
-		return;
-	}
-
-When a draining stream stops via snd_pcm_drain() -> snd_pcm_do_drain_init()
--> snd_pcm_do_stop() -> virtsnd_pcm_trigger(..., SNDRV_PCM_TRIGGER_STOP),
-vss->stopped is set to true while vss->prepared remains true. If an
-in-flight RX request then completes with written_bytes >
-sizeof(*msg->status), the #ifndef CONFIG_MMU bounce-buffer copy is skipped
-because of the !vss->stopped check:
-
-#ifndef CONFIG_MMU
-	if (vss->direction =3D=3D SNDRV_PCM_STREAM_CAPTURE &&
-	    vss->prepared && !vss->stopped &&
-	    written_bytes > sizeof(*msg->status)) {
-		...
-			memcpy(runtime->dma_area + msg->data_offset,
-			       vss->owned_dma_area + msg->data_offset, data_bytes);
-	}
-#endif
-	vss->hw_ptr +=3D completed_bytes;
-
-Since virtsnd_pcm_cp_pointer() and virtsnd_pcm_cp_ack_locked() allow reads
-while in SNDRV_PCM_STATE_DRAINING, doesn't advancing vss->hw_ptr and
-vss->capture_copied_total without copying from vss->owned_dma_area expose
-stale or zeroed bytes in runtime->dma_area to userspace?
-
-[Severity: Medium]
-In the same non-staged capture path in
-sound/virtio/virtio_pcm_msg.c:virtsnd_pcm_msg_complete(), what happens if
-a device returns a non-empty, frame-aligned short capture reply (0 <
-completed_bytes < msg->length) when virtio_snd.capture_staging is false?
-
-In staged mode, virtsnd_pcm_capture_complete() explicitly rejects short
-replies unless virtsnd_capture_allow_short is set:
-
-		} else if (audio_bytes < msg->length &&
-			   !virtsnd_capture_allow_short) {
-			virtsnd_pcm_capture_xrun_locked(vss);
-
-However, in non-staged mode, virtsnd_pcm_msg_complete() only checks
-!completed_bytes after virtsnd_pcm_capture_status():
-
-		if (virtsnd_pcm_capture_status(msg, written_bytes, frame_bytes,
-					       &completed_bytes, &latency_bytes) ||
-		    !completed_bytes) {
-			vss->xfer_xrun =3D true;
-			...
-			return;
-		}
-
-Because virtsnd_pcm_msg_alloc() permanently binds each non-staged
-vss->msgs[i] to a fixed slice at runtime->dma_area + i * period_bytes,
-accepting completed_bytes < msg->length advances vss->hw_ptr by
-completed_bytes and resets vss->msgs[i]->length =3D 0 while the next
-descriptor vss->msgs[i + 1] writes at (i + 1) * period_bytes. Doesn't this
-desynchronize vss->hw_ptr from the fixed descriptor slices (exposing the
-unwritten tail of vss->msgs[i] to userspace on subsequent completions) and
-leave later descriptors with msg->length < period_bytes in
-virtsnd_pcm_msg_send() so they are not re-queued?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261103080821.1698=
-3-1-mynameisjune111@gmail.com?part=3D12
