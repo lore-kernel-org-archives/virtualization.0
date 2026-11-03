@@ -1,83 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.175
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.174
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793693308;
-	b=1gK02xzh/PRC8dQ6HZ9EE58dLhpmr7AFtKYmYN330qzOOqwxjgHNoHU7qTIkYjDSRRRF
-	 /MwnHixm0ejJJZ0noCTYOceShg6AZ4iqK8MYbkintu3MTMlR1/4tohQ3KEJph9J5JhkwO
-	 jiFFbGBBzK4j69RS8uE+hkwzCEZK9BeFt9IHoB5DgjHPQy6KEVpLnI9p3N/HCOrWAg7Ak
-	 xj7zbET2VdamlJfXxdNxeOHtZO4NtZdacqIhzVnA8Np4Jd7KbDoiiY+kpR3tb8NUwMVNg
-	 DGNmkUNIbPXRUGMTaNzW9b9OedddcDaNluMM3rnpXz2uclwIdtLmjeLnymtBdOCBseg==
+	t=1793693315;
+	b=xTa6AZligTRMsNLlk2N2x5qEZy+sXeJQss52Qu1BonstahkhB3s+YklB0D3ZjwQeDGWS
+	 woe+wnmQ0lCVkKEPvem/4qOvfLL2bOx0DUaGH5I8DHxVU9cKOAZlEmKlQwFbHR5oS5EdB
+	 pPN+hHXX+PjplVduW/i1Vy9vWERxg4lCZi6r14OJPnH+F/iQA510oJbdF5McjrsS8zhHa
+	 Mmse2TI9T/E24f7D42hgwZZYTW1KMklzC0b51W+ICI3Td2YyQ7kT/J+kn/yJ0e4qixliK
+	 C0YlTZ8ikvjuYBrPsIqvaja2dkRPIVy3uNElb7jfMw4bnCDV2UWLAWpkI8aJFcLLBHQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793693308;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793693315;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=pXz+ijE9EUDzSG+3qju7ZVTn1bPYlfF6y8GttsYWRPU=;
-	b=sYL7Ee0WWhUgIP20PJGatd0kJBW88E9Q14kvQ0s4wxVze17B7pCMiAOAOFDh/iizll0Y
-	 DQ5xBU4l7OulEztWOe7149GBFXldhX3p9qOgBkDLoNTQQT9hLc4VtOM931K9LoIC1AveE
-	 hkApN5ZFHruLaSxz/b+RoYH4iTRsQmpk3YLdzr+R6ZMQJDlW4BfpA5dPorgfbg28gCJy3
-	 fXnX032g4NZq6BvSWlD9ZsdZmehi0OcUmeOr0ESXLpOljJH5pRLGO+YxBmxEGGt7rSGrL
-	 /fbWAnwFnXosD6mxjDtx4SCY2io3msarZ7Z7Kza9R8SBQj7z+o8ccaD7cus4SGc4QbQ==
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
+	 MIME-Version:Content-Transfer-Encoding;
+	bh=7ISRk/hThz0s3N0yY62fPvRzMoAMDGueG8DMaorOn1g=;
+	b=WRytmx79nfuMVxzUsdQRQOcxdmJ07cZoIujkcFDn0UsyhAG/kYiwVwRAvo+qMGFkW5bI
+	 ijqFqxyX6VoL8bvzcG+1I6fMI2G/Zmj05N5b+WEAWNupgwqcaHouiXlj4fUkliX4ttaZu
+	 EnVps3cOIssbZlLv8Jkd7G/2gLIjqZcbCSoHXpGBRdeqGpprS9XJH/owYfuM8BXlhtbLV
+	 1UUCVUGpmTQp1s8Vtrh40MGJ7dv68GpYr5+2IyhuqzLWoSSOwZn5D8s8pjemkLWi5uzyn
+	 E8y7/TIHLhsvJj8y6Ee8LlncYubWSVnyLRfShhE4WdaFBDBiSjsbGzXuCYWZi4d4lAg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=AY361MLv;
-	arc=none smtp.remote-ip=74.125.82.175
-Received: from mail-dy1-f175.google.com (mail-dy1-f175.google.com [74.125.82.175])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="BV9/2wir";
+	arc=none smtp.remote-ip=74.125.82.174
+Received: from mail-dy1-f174.google.com (mail-dy1-f174.google.com [74.125.82.174])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B670606A324
-	for <virtualization@lists.linux.dev>; Tue,  3 Nov 2026 08:08:28 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8B670606A324
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF285606A331
+	for <virtualization@lists.linux.dev>; Tue,  3 Nov 2026 08:08:34 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EF285606A331
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=AY361MLv
-Received: by mail-dy1-f175.google.com with SMTP id 5a478bee46e88-36c9a93a1abso114245eec.1
-        for <virtualization@lists.linux.dev>; Tue, 03 Nov 2026 00:08:28 -0800 (PST)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=BV9/2wir
+Received: by mail-dy1-f174.google.com with SMTP id 5a478bee46e88-36a17a332ecso5941947eec.1
+        for <virtualization@lists.linux.dev>; Tue, 03 Nov 2026 00:08:34 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793693308; x=1794298108; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=pXz+ijE9EUDzSG+3qju7ZVTn1bPYlfF6y8GttsYWRPU=;
-        b=AY361MLvQfAj7Sp4GKBAQJtSLpokSGMQY50p7Hs3jkB06uA71VUompv8J9THZ1XGGc
-         Y/UEuJE2opXfVm2RoryuBZfiIbWxLZJHefOd5L67I+AoW66UWhSqtTe0lMmRz75y2d2A
-         DERFnZNRHkRVaiGrbB2eVRB0vJKz9Gz2z/8XSkFBg7H3IWHRa0OnExQR+AV3qWdZJNFn
-         fSq3ww2i5xpNicLWZmINXkaqys28nLhJy+cZb0++Rm4JfoMxPQyXUooo+yJlsKMdhJEP
-         OUvMBqUSOhDwlxkIGZZU1iA2hfW/u7WRxIEcJYEcmbCr1VP2VDQog+g0A+2XsSM8fVFQ
-         UojA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793693308; x=1794298108;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20260707; t=1793693314; x=1794298114; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=pXz+ijE9EUDzSG+3qju7ZVTn1bPYlfF6y8GttsYWRPU=;
-        b=tHcZHSecWcfM8hYaB2AtXIS71pue2PsgQD3HMXXGtnuwALl+4DLgMV7jb/0afT9arS
-         61QVtxUasfRSd65TVi0p1rJB40o7XCE3oPXr4DZP7TU0MrUU811TZasIUSXHxr8nJVa9
-         7IbriXHB3A3c8HD/wisHQSYfk4DicDXb4h/gakdCpPFTt8j1sH1oAxAcWgYb9DdlSQBP
-         qmi3qzTagflaotqJfHQzap6tPCafUNDlNHzu8wK2qUh5nhMdMeFyvavqWwG4DVlG2RfI
-         m96pSeoR+KjVMo8cZyYsjMotER9LT7jBtoGDgZhx7O72BXZdGL6wn316tgYKjtwT4N4+
-         IE+w==
-X-Forwarded-Encrypted: i=1; AKwUvBx+zxGHGIi5geOOwyr46XCUufMwjeClGEAiALn4xhUMfvU85jlQg62GhwIgEX+p2o+XyV6po2Km+c61cu2qtw==@lists.linux.dev
-X-Gm-Message-State: APuU4Z+OnlBdIBvpbt5fA7rFb7CQnWzgDfhW00TLS95amZa2vK6u/UF/
-	ZvwKL424pW7xB62Ao4eE+N8xmnjSNeGtoybrHokFO38UQPa4aJGUvWbs
-X-Gm-Gg: AYBFou0YoKxbPvGo0V9jxdVJLgbs/lu/WWLJEXj052bcIHkI0inwg4Yqanu2WWxN+3N
-	yHJYur0T1n5Pugkd/kMc+3ZMnQMe0F9qkOe2sFWRdbLAIaanO0pgv1KYlnJonkpeUYsSXZVG2Bn
-	BlCHbFt6JoEuiVn6iEgIMRFv9BKH3yvCIKKH3sZ1lqKOuqGJEs5AkwIiLmV5coV9MbClNZcLVhm
-	59cZbn7LkCPr9Q0/TpxvfSSUX5t/oHGMAh9Hi09VTtouNRMh8ldBBuGYlQI+0g6ALlyBKDgRG+7
-	yS+UK1NwKzarFL7IbyXGPBfMlQNhRjGz63iRwrTUcBskYFr71DF87gGsnswWm9T7eRUXyl+m7uT
-	so2mVfSE+IcXIDVCvzXjynRRwHZ42Zu4G9vEBC6D4eJ9Cu39Rl9u8ZhCY5n6HpaVkLYZLcwlWsX
-	izbPYbQBi/NPFYM9DTV0yz3l/h1qD3cp63Lx7S4kZOaK71NYmUXKIioo7p4O+glbgCmpQRIiX5m
-	1m0EMAgg3myrkFvb4XG2cHRzLRcF5NSm3aAqFREG4EpfXOzNN/RL9Huf9qysdEJ1FcE6S66lznz
-	/42uGv2KJ8EJAdEb3sYI4mayaDSKolNx/C9aABByxvkH1gAHUvcR9uql6tzW/epQD2f5qrwwPTp
-	991WjiJq/D4Duzg3NQjk+ph0cFK7Jqa7k+0P0h5fDOeZkOP8=
-X-Received: by 2002:a05:693c:2184:b0:36c:9a25:8073 with SMTP id 5a478bee46e88-36c9a2582e2mr543808eec.2.1793693307306;
-        Tue, 03 Nov 2026 00:08:27 -0800 (PST)
+        bh=7ISRk/hThz0s3N0yY62fPvRzMoAMDGueG8DMaorOn1g=;
+        b=BV9/2wirb/u9lUJXfhs8xbW82Wch1YI5jQou7Vezm6bs/B0dkvFO/MTZToIvT/1UST
+         GIdGZ644suphZiRe6eksDGfA/pKaMbPKDoFBssc3duIkwv/AxjGmveLT5/buuh4P3z4t
+         HzNQX8S0HtjLYMFl2zpvbehALpOrbBCA2JLaIs2QVOXaclyyX/+sB1tnuvL85dBk3E+K
+         gPTDMx4Zlcoks9w1Ttb0h2rCaBw2eEy9p/c+rtw+uZQDTK0p7LtkBQGQDL+xYw0LEvNf
+         vtr46LkjKZObVBPFkDFeSMHzgJiTzcAdvof0MrOCUlGDNXKv15HGsRNtiQSzAznUp3r/
+         pTXg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793693314; x=1794298114;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=7ISRk/hThz0s3N0yY62fPvRzMoAMDGueG8DMaorOn1g=;
+        b=r1YTvv7xeJfwKFeTCxhYAB5i2CVmKc/SEoMEaPtLaIOWzKuKSITVKfXrXaAsx1xHgk
+         rOeGvWQk6fggTvyEQNX/9pguRl0Fq47Tz+/VqfcHWaQExxdsiOTMJPnJDVd/MGl1jhg2
+         VOXYRPmIqpAtQrwJvccKK9D9BZRMg/JvePO5vVsX1MQdIYdDOnyipXJYebsj0U0EAwZH
+         ULTu+Ly8pt60nUEpLyBXWe9YEJCZHVCXnssIzZPdLbKgdxdqOl+8YhEOcnIcw5J+6gNY
+         7qzM0vjDy5aWcFMtMd06XqwJPbrLuYGCDkoWh3pcJbaB7SSImcVLC7cHOl2+IKAbOvyW
+         5iWg==
+X-Forwarded-Encrypted: i=1; AKwUvByhMp08u/8TeWsuChie5dYyztVuR58aCCsdWdN11nvZ5i2ods3TSTC4ezmMCPqhSJcbQQU86Obcd+xSriR30w==@lists.linux.dev
+X-Gm-Message-State: APuU4Z81wgeVM5KHiGj7+r3RZfG8Wq6U/rBVEB3JiWPDAAI1mme7O/42
+	z7rk1pi/Yz01acYMomiR8G9+XyWCcVNeqvWhNPz9opeGrkW7uBWUzRSJ
+X-Gm-Gg: AYBFou1hdMi7LTMs9mvG1aKeUrawZDi+r2HawSsdOsqzxXk8fphG7JSKdqPsxAT6Ozb
+	Zzrti1sofFsYfLhhOD2uBoEKb6W/ClAtBuqWqdabTH1lnAZBOlprOIm+Lb8PWZh5q9BYSl5MCed
+	gJD51kK9NdIhtHhcLpVgNIG7+ZRI1ZkXMI5nV7dyhiV+Tgc+7qKXAhN6w35Nfsa96+5tCp7zi25
+	wjtFjVI7r7/wAT4koN7D72CoXPWXfBT1wIg4YJy98GP+kHgBWyrsGuwsWyAEfEBfz+ceshblh3z
+	kdQAWwkuDvyDLgaeKMMWY7RmFwCUK90lmnf9i0BfzWDvToLnNuf/novgOO68fJMlvzahvkAUyxt
+	WDZaj/espiRpGpnBs83/TCVQWcWfccpImPygt7N6UY/fUMdFLR8EAavfPwFRa0p9sQsD+azA3bg
+	/nedgfFfjPCUdgvsG43/GJ8CTxg50qi3co2QkLY7wdyU1pDY9TefnXNYCbtYgnHwJqgulO3lJjV
+	cwi4v1rBCwuOMDxCKmVhW/55aOIn0pDXIIyViU19tDewGiSWItREJeHNIjHyXqq/QY28LfoZcGG
+	BaVGfoJb5YepzDWMwVnQjcHZuLPFoGSIrw8CFhPOvBo4i1/MUZi1Bp9C/bjiCOgfLzWOEDnLiAu
+	ETHR+dmBDLmSYtvWi7TzcKICByqEPgeAzwi/GNkCNkTrp4sY=
+X-Received: by 2002:a05:693c:2512:b0:369:fa7c:aee9 with SMTP id 5a478bee46e88-36a423f54a1mr18011806eec.19.1793693314004;
+        Tue, 03 Nov 2026 00:08:34 -0800 (PST)
 Received: from localhost.localdomain ([183.96.175.225])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-36a428fa380sm41468466eec.12.2026.11.03.00.08.24
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-36a428fa380sm41468466eec.12.2026.11.03.00.08.30
         (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Tue, 03 Nov 2026 00:08:26 -0800 (PST)
+        Tue, 03 Nov 2026 00:08:33 -0800 (PST)
 From: Joonho Lee <mynameisjune111@gmail.com>
 To: linux-sound@vger.kernel.org
 Cc: tiwai@suse.de,
@@ -89,11 +90,14 @@ Cc: tiwai@suse.de,
 	corbet@lwn.net,
 	skhan@linuxfoundation.org,
 	rdunlap@infradead.org,
-	linux-doc@vger.kernel.org
-Subject: [PATCH v13 00/12] ALSA: virtio: staged capture recovery and PCM RESET synchronization
-Date: Tue,  3 Nov 2026 17:08:09 +0900
-Message-ID: <20261103080821.16983-1-mynameisjune111@gmail.com>
+	linux-doc@vger.kernel.org,
+	Joonho Lee <mynameisjune111@gmail.com>
+Subject: [PATCH v13 02/12] ALSA: virtio: Recover PCM state after a failed start
+Date: Tue,  3 Nov 2026 17:08:11 +0900
+Message-ID: <20261103080821.16983-3-mynameisjune111@gmail.com>
 X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20261103080821.16983-1-mynameisjune111@gmail.com>
+References: <20261103080821.16983-1-mynameisjune111@gmail.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -105,93 +109,256 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Hi Takashi,
+Capture trigger queues I/O messages before PCM_START. If the START
+message cannot be allocated or sent, transfers may remain queued, and
+ALSA does not invoke the action undo callback for the failed trigger.
 
-This revision addresses the v12 review and Randy's formatting comments.
-It replaces v12 and includes the unmerged prerequisites. Apply patches
-1-12 to sound.git for-next at
-a4311e9447bbb219044db38897f95be112f46a8a.
-Targeting 7.5 or later still works for me.
+Mark the stream stopped and disable transfers for every failed START
+path. Arm runtime->stop_operating so sync_stop releases pending I/O and
+prevents prepare, hw_params, or START retries until release succeeds.
 
-Previous series:
-https://lore.kernel.org/linux-sound/20261103000403.67106-1-mynameisjune111@gmail.com/T/
-Randy's review:
-https://lore.kernel.org/linux-sound/dbf3b343-0af1-4297-b78a-bed68865d59f@infradead.org/
+The stopped flag is shared with ACK callbacks that can run without the
+ALSA stream lock. Protect every stopped access with vss->lock. Read the
+pending message count under the same lock in open and hw_params. In
+sync_stop, decide whether RELEASE is needed and mark the stream stopped
+in one locked transition; leave it stopped when release or draining fails.
 
-ACK now checks the PCM state before changing transfer state. A raw
-SYNC_PTR racing with DROP previously changed SETUP to XRUN and re-armed
-stop_operating. The correction preserves SETUP and rejects that ACK with
--EBADFD. Event callback admission is protected by the event queue lock,
-so a callback pending at disable cannot dispatch into freed ALSA objects.
-Enable and pending-event draining use the same lock.
+Always cancel elapsed-period work in sync_stop, even when no RELEASE
+is needed.
 
-The prepare gate is cleared on failure and device reset. A successful
-hw_params clears the suspend flag, avoiding a second SET_PARAMS during
-prepare. Staged pointer queries reject unavailable epochs while retaining
-the released paused compatibility case. Playback pointer and ACK paths
-honor latched device XRUNs, and TX completion preserves the latch. The
-pause compatibility START path reports a latched XRUN as -EPIPE.
+Record the RELEASE obligation after successful PREPARE and clear it as
+soon as RELEASE succeeds. If the subsequent RX wait fails, retry that
+wait without submitting RELEASE again.
 
-Staged ACK retains an unconsumed sub-byte frame for the next complete
-byte, including appl_ptr boundary wrap. Capture RESET completes the
-private cursor rebase on error paths, retaining the XRUN latch and
-notification. Synchronous teardown owns a balanced work disable until
-the next successful prepare, preventing RX completions from requeuing
-period work after cancellation. The last completion always wakes the
-release waiter.
+Fixes: da76e9f3e43a ("ALSA: virtio: PCM substream operators")
+Assisted-by: LLM
+Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
 
-Playback RESET changes behavior when TX requests remain device-owned:
-it returns -EBUSY before changing the pointers or queue accounting.
-With no outstanding TX, it rebases every indirect offset and clears
-partial message fills together. DROP/PREPARE retires a busy generation.
-This affects playback callers with capture_staging disabled as well.
-I would appreciate review of this busy-TX RESET policy.
+---
+ sound/virtio/virtio_pcm.h     |    6 ++
+ sound/virtio/virtio_pcm_ops.c |  106 ++++++++++++++++++++++++++++++++---------
+ 2 files changed, 88 insertions(+), 24 deletions(-)
 
-The refined partial-period test demonstrated why the accounting matters:
-a 64-frame partial write before RESET caused a later 960-frame write to
-submit a 1024-frame period. The correction waits for the remaining 64
-frames. Linked RESET retains first-error and partial-completion behavior;
-both member orders and group prepare recovery were tested.
-
-Full-ring capture overwrite protection remains enabled. Delaying RX
-observation can overwrite the ring before drain. The candidate still
-returns -EPIPE in that case and returns the correct 64-frame tail for a
-normal drain. The post-cancellation worker issue is handled separately
-through work lifetime management.
-
-The suspend-flag findings share one correction. The playback state
-finding overlaps the ACK/DROP correction; its remaining XRUN handling
-is included here. Capture compatibility options stay opt-in and default
-to false. Every patch includes a diffstat, and the virtio_snd parameter
-entries follow virtio_mmio in the documentation.
-
-The series layout remains twelve patches: request and DMA lifetime in
-1-6, core stop-threshold access in 7, partial-progress notification in 8,
-the optional PCM reset operation in 9, capture/lifecycle/RESET handling
-in 10, work priority in 11 and parameter documentation in 12. The core
-source is unchanged from v12.
-
-Validation selected 19 ARM64 QEMU runs with KASAN/lockdep and separate
-KCSAN_STRICT tests, including expected-failing original comparisons.
-The correction passed native and pause-compatibility lifecycle tests,
-prepare recovery, reconfiguration, XRUN delivery, repeated teardown and
-both linked RESET orders. The staged 4-bit ACK and pointer/error-reset
-checks call the real driver functions with isolated kernel fixtures.
-They do not establish negotiated hardware IMA_ADPCM capture support.
-The suspend test models the flag before real hw_params calls.
-
-Uninstrumented ordinary and staged capture each passed 70-second RW and
-MMAP recordings with RESET, pause/resume and reopen. All 14 segments,
-14,208,000 mono S16 frames at 48 kHz, matched independent sequence
-hashes. These results cover ARM64 QEMU TCG with two vCPUs and 512 MiB.
-Physical VZ/MOTU, host sleep/resume and broader format, channel and
-architecture coverage remain pending. No general high-load scheduling
-improvement is claimed.
-
-LLM assistance was used for analysis, implementation, fixtures and this
-explanation. The patches carry Assisted-by: LLM.
-
-Thanks,
-Joonho
-
-base-commit: a4311e9447bbb219044db38897f95be112f46a8a
+diff --git a/sound/virtio/virtio_pcm.h b/sound/virtio/virtio_pcm.h
+--- a/sound/virtio/virtio_pcm.h
++++ b/sound/virtio/virtio_pcm.h
+@@ -26,13 +26,13 @@
+  * @hw: Kernel ALSA substream hardware descriptor.
+  * @elapsed_period: Kernel work to handle the elapsed period state.
+  * @lock: Spinlock that protects fields shared by interrupt handlers and
+- *        substream operators.
++ *        substream operators, including @stopped.
+  * @buffer_bytes: Current buffer size in bytes.
+  * @hw_ptr: Substream hardware pointer value in bytes [0 ... buffer_bytes).
+  * @xfer_enabled: Data transfer state (0 - off, 1 - on).
+  * @xfer_xrun: Data underflow/overflow state (0 - no xrun, 1 - xrun).
+  * @stopped: True if the substream is stopped and must be released on the device
+- *           side.
++ *           side; protected by @lock.
+  * @suspended: True if the substream is suspended and must be reconfigured on
+  *             the device side at resume.
+  * @msgs: Allocated I/O messages.
+@@ -56,6 +56,8 @@
+ 	bool xfer_enabled;
+ 	bool xfer_xrun;
+ 	bool stopped;
++	/* Successful PREPARE still needs RELEASE; protected by lock. */
++	bool release_required;
+ 	bool suspended;
+ 	struct virtio_pcm_msg **msgs;
+ 	unsigned int nmsgs;
+diff --git a/sound/virtio/virtio_pcm_ops.c b/sound/virtio/virtio_pcm_ops.c
+--- a/sound/virtio/virtio_pcm_ops.c
++++ b/sound/virtio/virtio_pcm_ops.c
+@@ -96,6 +96,15 @@
+ 
+ static int virtsnd_pcm_sync_stop(struct snd_pcm_substream *substream);
+ 
++static void virtsnd_pcm_start_failed(struct virtio_pcm_substream *vss)
++{
++	scoped_guard(spinlock_irqsave, &vss->lock) {
++		vss->xfer_enabled = false;
++		vss->stopped = true;
++	}
++	vss->substream->runtime->stop_operating = true;
++}
++
+ /**
+  * virtsnd_pcm_open() - Open the PCM substream.
+  * @substream: Kernel ALSA substream.
+@@ -115,7 +124,8 @@
+ 	snd_pcm_hw_constraint_integer(substream->runtime,
+ 				      SNDRV_PCM_HW_PARAM_PERIODS);
+ 
+-	vss->stopped = !!virtsnd_pcm_msg_pending_num(vss);
++	scoped_guard(spinlock_irqsave, &vss->lock)
++		vss->stopped |= !!vss->msg_count;
+ 	vss->suspended = false;
+ 
+ 	/*
+@@ -217,11 +227,23 @@
+ {
+ 	struct virtio_pcm_substream *vss = snd_pcm_substream_chip(substream);
+ 	struct virtio_device *vdev = vss->snd->vdev;
++	unsigned int msg_count;
++	bool stopped;
+ 	int rc;
+ 
+-	if (virtsnd_pcm_msg_pending_num(vss)) {
++	scoped_guard(spinlock_irqsave, &vss->lock) {
++		msg_count = vss->msg_count;
++		stopped = vss->stopped;
++	}
++	if (msg_count) {
+ 		dev_err(&vdev->dev, "SID %u: invalid I/O queue state\n",
+ 			vss->sid);
++		return -EBADFD;
++	}
++	if (stopped) {
++		dev_err(&vdev->dev, "SID %u: stream release failed\n",
++			vss->sid);
++		substream->runtime->stop_operating = true;
+ 		return -EBADFD;
+ 	}
+ 
+@@ -273,6 +295,17 @@
+ 	struct virtio_pcm_substream *vss = snd_pcm_substream_chip(substream);
+ 	struct virtio_device *vdev = vss->snd->vdev;
+ 	struct virtio_snd_msg *msg;
++	bool stopped;
++	int rc;
++
++	scoped_guard(spinlock_irqsave, &vss->lock)
++		stopped = vss->stopped;
++	if (stopped) {
++		dev_err(&vdev->dev, "SID %u: stream release failed\n",
++			vss->sid);
++		substream->runtime->stop_operating = true;
++		return -EBADFD;
++	}
+ 
+ 	if (!vss->suspended) {
+ 		if (virtsnd_pcm_msg_pending_num(vss)) {
+@@ -311,7 +344,12 @@
+ 	if (!msg)
+ 		return -ENOMEM;
+ 
+-	return virtsnd_ctl_msg_send_sync(vss->snd, msg);
++	rc = virtsnd_ctl_msg_send_sync(vss->snd, msg);
++	if (!rc) {
++		guard(spinlock_irqsave)(&vss->lock);
++		vss->release_required = true;
++	}
++	return rc;
+ }
+ 
+ /**
+@@ -338,31 +376,40 @@
+ 
+ 		scoped_guard(spinlock_irqsave, &queue->lock) {
+ 			guard(spinlock)(&vss->lock);
++			if (vss->stopped) {
++				substream->runtime->stop_operating = true;
++				return -EBADFD;
++			}
+ 			if (vss->direction == SNDRV_PCM_STREAM_CAPTURE)
+ 				rc = virtsnd_pcm_msg_send(vss, 0, vss->buffer_bytes);
+-			if (rc)
++			if (rc) {
++				vss->stopped = true;
++				substream->runtime->stop_operating = true;
+ 				return rc;
++			}
+ 			vss->xfer_enabled = true;
+ 		}
+ 
+ 		msg = virtsnd_pcm_ctl_msg_alloc(vss, VIRTIO_SND_R_PCM_START,
+ 						GFP_KERNEL);
+ 		if (!msg) {
+-			guard(spinlock_irqsave)(&vss->lock);
+-			vss->xfer_enabled = false;
+-
++			virtsnd_pcm_start_failed(vss);
+ 			return -ENOMEM;
+ 		}
+ 
+-		return virtsnd_ctl_msg_send_sync(snd, msg);
++		rc = virtsnd_ctl_msg_send_sync(snd, msg);
++		if (rc)
++			virtsnd_pcm_start_failed(vss);
++
++		return rc;
+ 	case SNDRV_PCM_TRIGGER_SUSPEND:
+ 		vss->suspended = true;
+ 		fallthrough;
+ 	case SNDRV_PCM_TRIGGER_STOP:
+-		vss->stopped = true;
+-		fallthrough;
+ 	case SNDRV_PCM_TRIGGER_PAUSE_PUSH:
+ 		scoped_guard(spinlock_irqsave, &vss->lock) {
++			if (command != SNDRV_PCM_TRIGGER_PAUSE_PUSH)
++				vss->stopped = true;
+ 			vss->xfer_enabled = false;
+ 		}
+ 
+@@ -393,21 +440,34 @@
+ 	struct virtio_snd *snd = vss->snd;
+ 	struct virtio_snd_msg *msg;
+ 	unsigned int js = msecs_to_jiffies(virtsnd_msg_timeout_ms);
++	bool need_release;
+ 	int rc;
+ 
++	scoped_guard(spinlock_irqsave, &vss->lock) {
++		vss->xfer_enabled = false;
++		need_release = vss->release_required;
++		if (need_release)
++			vss->stopped = true;
++	}
+ 	cancel_work_sync(&vss->elapsed_period);
+ 
+-	if (!vss->stopped)
+-		return 0;
+-
+-	msg = virtsnd_pcm_ctl_msg_alloc(vss, VIRTIO_SND_R_PCM_RELEASE,
+-					GFP_KERNEL);
+-	if (!msg)
+-		return -ENOMEM;
+-
+-	rc = virtsnd_ctl_msg_send_sync(snd, msg);
+-	if (rc)
+-		return rc;
++	if (need_release) {
++		msg = virtsnd_pcm_ctl_msg_alloc(vss, VIRTIO_SND_R_PCM_RELEASE,
++						GFP_KERNEL);
++		if (!msg) {
++			substream->runtime->stop_operating = true;
++			return -ENOMEM;
++		}
++
++		rc = virtsnd_ctl_msg_send_sync(snd, msg);
++		if (rc) {
++			substream->runtime->stop_operating = true;
++			return rc;
++		}
++
++		scoped_guard(spinlock_irqsave, &vss->lock)
++			vss->release_required = false;
++	}
+ 
+ 	/*
+ 	 * The spec states that upon receipt of the RELEASE command "the device
+@@ -421,11 +481,13 @@
+ 	if (rc <= 0) {
+ 		dev_warn(&snd->vdev->dev, "SID %u: failed to flush I/O queue\n",
+ 			 vss->sid);
++		substream->runtime->stop_operating = true;
+ 
+ 		return !rc ? -ETIMEDOUT : rc;
+ 	}
+ 
+-	vss->stopped = false;
++	scoped_guard(spinlock_irqsave, &vss->lock)
++		vss->stopped = false;
+ 
+ 	return 0;
+ }
