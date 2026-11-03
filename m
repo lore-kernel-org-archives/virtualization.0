@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793701030;
-	b=breFpxg0v4kSfw9TxB2fWNTWwwbIvj9ubufD1kts55wkk+ENtrtnTxenC/+Y2Hl96F5v
-	 BC0vj60c49NPP2IBT0CjKOrJuf+v3Rj4DBjD1yHTZnGBo8G0d7fjT9/hlWwMwWliCuTRE
-	 vr7BBV4mTSVAn2ylQ7LzGlNMwxprqPzmO3yX79A0W1BZqUmkrtNUyH1eXJ7wlZKaNuChl
-	 Xkrr62T3Qr4afF9G+3Wuokc/6oNjTNGlH89Q4kl0Tg1pP9+5cnICr6l9SJ0W0GlqEb3x0
-	 nEwVUpBbn5eEFV9Yx46d4UI04hTl2jC46ImBCYC7uA2cBlqqdKdJsWBRJC03ZSv78dQ==
+	t=1793701229;
+	b=DUP010Ywy9QrhVVL9Y0DdfAnn7218B5ztQ0TTMW+GfWUhc9DE5Sb1wyGpbJ49F6flai9
+	 57U7UwWVG3SfBP4IESYyZvEVigOOSBj5XX76EeuU9euX8sAym71TlYkcCqcVIf8lD6bba
+	 qpFkQHjicJ7sx3J3tA7mxQRGCMwGoGtfoa81JmabOQxfmG7Uc101sqRY3DO/A33JJ2Znr
+	 40MHTHm0O8+YJZlk9wlkfDJZQyy5OrGYxowZ/7hPbnSm+t0K1HjPV8AM55t1M5LnZttRz
+	 Auf6fInMaAlgJgdb3jjsbCAxf0TmvZfjxZYPRAbWmSB/8caZSRL+WiJtpr7K4x5j20A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793701030;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793701229;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=PkBSgq1iANGhkBorWYDZdv/aZPUUT3f2DxK9faj9i2s=;
-	b=n2O5Jw7MvJSs3PM2HMXFzbnGGcJdaXoYNRhPzZwT+w0mQ9u8xt4sVHEPagBW3YC9X2kM
-	 Tv68b2MxDxHvMGdOyXyb2p4bbZeZL7CsQCjyB3UKWqTeOvy7Cx6G2sFSi9OckVcWHMEu3
-	 F9F7+Y0cTgc679j16ai3OTX/+Y/ndsA8cCdKrF7pgouRGCcHXOje/+rkPsCwnrIed0DLa
-	 4+UGVCg2H7fGvo3dXw2qlDS5l6l8XuDZKDdVDEnt6e68VfV8QkXwJeqgIvEeASJcOYv68
-	 g1aYezWkM8kb8qMm/rEKhNy0t2KvILy0EVpQZD6RQt/aum4TS4L/ia/hvOAGxqn4ocg==
+	bh=sa1LzZBFNpBkI+J7Q09YpjJaQ23SK7JyFmU0tWKiPuw=;
+	b=TLjqMoFadMf2xOb3wt/ZZPqRMWqKHTrbYljBa9ZWjW0uaVsufV0MWZ3iLYamiYr4jupR
+	 NhDnjC0jKpC0Qc7pUVICq0ICWlwiGveLwHn8XFzSGpIO6hJwTW7NKNNuQX5rSog8gSMgK
+	 Sw/uGpOApVDhBBLQkm58czK1RQMNFQzKyNjDIBeZ1revVZZ32SnNoAE12LG45jRHB2Wad
+	 ef+9J7PhSmm8/VKClcVfVCF4GstAbR51ywtCVW3TKc8xTxgjFPzsJI9UkdUGtcko1jIDq
+	 14eRYKHsGUbLuSlqWcmWiEgzJWNnqxMAeUUv8g5FPiGQrs4aCHqcJUSHv1fwqLhjHpg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MMsOK2pM;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=K2mEZvad;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62F20606A831
-	for <virtualization@lists.linux.dev>; Tue,  3 Nov 2026 10:17:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1ECE8606BFB7
+	for <virtualization@lists.linux.dev>; Tue,  3 Nov 2026 10:20:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MMsOK2pM
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C686D1F000C1;
-	Tue,  3 Nov 2026 10:17:09 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=K2mEZvad
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F4031F00A18;
+	Tue,  3 Nov 2026 10:20:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793701030;
-	bh=PkBSgq1iANGhkBorWYDZdv/aZPUUT3f2DxK9faj9i2s=;
+	s=k20260515; t=1793701228;
+	bh=sa1LzZBFNpBkI+J7Q09YpjJaQ23SK7JyFmU0tWKiPuw=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=MMsOK2pMTM1PvQoWJlzG9f2JF74H3558BN21yxHnsnqfX6ksCm0AL+LJ5vlJ4ycYQ
-	 LKQhqW7UeBfNcxp0MjFYt6PViT/4fAx5o8MyJz13wDCWEPHNczzR83CRglWPk1hChi
-	 2d5rHNvZXLnPuzZsSvYkGEwuZ59l9XSZrpVqBRAzYReMmTjItgc4u4+OoCI92eu5MP
-	 r4xcl2+caV3F1C+5Z2oHsRddyqGrj4oHPmn8+/t7n13maeeedeitQHwNoE1gBfPGL6
-	 23l//ZwB46YBNUh9tGGavwc/5tshPjqvq49M/YGVHhyHZfRycHmDySS9eFHmSL01tj
-	 uQEwrXtael0kQ==
-Message-ID: <sashiko-outbox-195022@kernel.org>
+	b=K2mEZvadpK++NN1+lnmd4Xd9HHSYK6KMEUFEhqlDJOYa3LCb3PvVAQFdLPGFuZ0iY
+	 fxPe9jTYJfnsoAiIXQUqyOW7grNt0lY7XQgPb6iHESyrJYcdD27kyCoGSOrI8+FCC8
+	 K5WgUxL0SGmKlRd/CxjsluJmC/ijowOLDZ6bVYq00c+fZljaV2c0RadK2rbrAG2Kzb
+	 lgWl7svnF9ybTxElRdp5VGBKXqOIyVCB2hRJuAhqbGi7EhpupE4fixYZ1XYMir4lJV
+	 yLlpkuo8WuXU2Awv9nJBuo9hXijdOx+WaAiryTZofL/T3EzmX+XcfmdC05WHcxtNGN
+	 l94HCjf3f5icw==
+Message-ID: <sashiko-outbox-195031@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v13 07/12] ALSA: pcm: mark stop-threshold accesses for
- capture policy sampling
+Subject: Re: [PATCH v13 08/12] ALSA: pcm: report partial progress under the
+ stream lock
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Joonho Lee" <mynameisjune111@gmail.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261103080821.16983-8-mynameisjune111@gmail.com>
+In-Reply-To: <20261103080821.16983-9-mynameisjune111@gmail.com>
 References: <20261103080821.16983-1-mynameisjune111@gmail.com>
- <20261103080821.16983-8-mynameisjune111@gmail.com>
+ <20261103080821.16983-9-mynameisjune111@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 03 Nov 2026 10:17:09 +0000
+Date: Tue, 03 Nov 2026 10:20:28 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,17 +62,22 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> The staged virtio-snd capture path needs to sample stop_threshold from
-> completion context to distinguish free-running capture from bounded
-> capture. Software parameters can update this field while capture runs.
+> Staged capture can make readable data available before a complete period
+> has elapsed. Skipping notification leaves a blocked reader asleep, while
+> using the period-interrupt path for this event can infer a false ring wrap
+> when the notification is delayed.
 >=20
-> Mark the runtime stop-threshold assignments with WRITE_ONCE and the proc
-> status read with READ_ONCE. This pairs the assignments with the driver's
-> READ_ONCE policy sampling in patch 9.
+> Add snd_pcm_progress_under_stream_lock() to update the hardware pointer
+> through the non-interrupt path and notify readers and fasync listeners.
+> It runs under the caller's PCM stream lock and does not tick the PCM time=
+r.
+> The driver must release its pointer and trigger locks before calling it.
+> Existing period notification callers keep their current behavior.
 >=20
-> These annotations do not provide a transaction for the entire sw_params
-> update. The driver serializes its cached policy and accounting with its
-> own substream lock.
+> Atomic and nonatomic synthetic PCM tests reproduced the missing wakeup
+> and false-wrap alternatives. The new helper delivered 64 final frames and
+> reported four available frames after delayed partial progress without XRU=
+N.
 >=20
 > Assisted-by: LLM
 > Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
@@ -81,5 +86,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261103080821.1698=
-3-1-mynameisjune111@gmail.com?part=3D7
+3-1-mynameisjune111@gmail.com?part=3D8
 
