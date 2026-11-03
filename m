@@ -1,56 +1,56 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.10.208.46
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.10.208.40
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793715770;
-	b=c3FSPqf7nsJNNw1gAVLfilrdslXJ01zBpojcTyMGBB1BuM4tA3bZ/hsGAuYDo1gGVWjn
-	 R++e5IGfeHQ1h/Ba+DUhv6vFdp9bCNEnIEhL287l5hvjAugeIdiAwGi27BDMyXlrX7X7C
-	 WSsQUWfJi4bjVbEHcWRzJIG0J4trjGAIiXCcVCwPlGuvqU1DLjGdBNfK69zF3ce48EaOi
-	 L2Z+eAawX/yPG5N7940NUox+6LXNE64R/C55Ne1HBaAIWGzUAzOOv2C1RFJgDQyi5Q8iB
-	 FGt1Q1cKN3Iu4V5ayI8zActKIepgSDihTpDq10moZQv2jqSoqxUNqNjZoTcdDNCu2uw==
+	t=1793715772;
+	b=Z0+c1UazBFdyULZX4yQPaTi4QjPZODr1Ivq6s50Oej2gjJPSLxnldlbH5gxbe6fAIt68
+	 kzYJ3NUV/AGVUHg1t5Aq0CzEURyFIbU+eKPrk5mxEh9MSV1gbIEpt23kHUozo9FrCYjrK
+	 zXCx1cj137PLlC1nw8Ly0dNZuWlFpc1MpvW6NL9rbD8Fc418as0i+JS5m1XVLsHmNwkrm
+	 GmGdDcum8HwLql8KIi0FQY+Z0mjkLELnNbkVIY1DseXE65x8IMw5EddhM4W+CyXZLd2f1
+	 6GtL/lD+79TovbS8Nv2K+qyxyJYIRTVr11c+iHM6Z3qvNmrOC7G1IszrA1b3K62lIbA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793715770;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793715772;
 	h=DMARC-Filter:Received:DKIM-Signature:From:To:Cc:Subject:Date:
 	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding:X-Rspamd-Queue-Id;
-	bh=XLJPnkyQhuEnZBa/myDWTU9XLxRjPFGToIxLj/Biql0=;
-	b=xXYEfaA7bz3/c2Za4jx8Sc2biG1adBvAjqywDo/uRhaMfXve64pdTN7iUEo08TT9rYuK
-	 FCSd6fH0QaUdubG37yBb+q4RXdglAZApf7xCm/JFRNOhCdaClalWiEeaor3ivwEzmQ0rN
-	 IoHxlkwhK6hMuFTbRy1YJAM8ssKh/fiGuf5btddCVHc5qWJvIZHjzM05XArnlUjqUuKwK
-	 1zrUqecMdU48ECPPywAmERsX+09XalToPBHxp1mS3VNalw+fGQw1R1CK3GpT7hFRahzK1
-	 5M4viCyfa4pHGO2lOtJIaC9kjBwKxThTE3p44/i1VqhrPqhj39bDAQWdn0AgPfI4CMw==
+	bh=uRaOOdHNL2jhfSdxi+3Ia5TDewDrCzWyo2m09xbyvCE=;
+	b=GEzLa/69zyZXSgDItxzHcO2uM6BdXMw+AH04eEDH09SpqF5/elu3aH4YMPlD/bzzogd3
+	 VPeXa+BNmEX+9J3cz37ktOVun2YwAW16pHAmnKpyN5f/mqI+4Rgj945XHTrGQu8Q3iUia
+	 GtHqNtRB7Td6Q/1q86aLbpGsuhEiV024O/gm7RwMNx5hWmUdOdRCJMCxNMBhfBe8v6Jn+
+	 I0S00al0sDz4YLAGXlLAFp/TGMCn6/o/JvBqwfajgLNIntAX2S5vRtNy7jDP9v7J2vd3E
+	 TgRDZ14ssYONB0bC2Ma+GxCHUrcKsUr2PQ229IoBsMiGAeBQnElzPGeNvvproQrxuFg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=mandelbit.com;
 	spf=pass smtp.mailfrom=mandelbit.com;
-	dkim=pass header.d=mandelbit.com header.i=@mandelbit.com header.a=rsa-sha256 header.s=MBO0001 header.b=Pf58EaMa;
-	arc=none smtp.remote-ip=195.10.208.46
-Received: from mout-b-106.mailbox.org (mout-b-106.mailbox.org [195.10.208.46])
+	dkim=pass header.d=mandelbit.com header.i=@mandelbit.com header.a=rsa-sha256 header.s=MBO0001 header.b=1r415yba;
+	arc=none smtp.remote-ip=195.10.208.40
+Received: from mout-b-210.mailbox.org (mout-b-210.mailbox.org [195.10.208.40])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A88A5606D802
-	for <virtualization@lists.linux.dev>; Tue,  3 Nov 2026 14:22:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A88A5606D802
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 801C6606D810
+	for <virtualization@lists.linux.dev>; Tue,  3 Nov 2026 14:22:51 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 801C6606D810
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=mandelbit.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mandelbit.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=mandelbit.com header.i=@mandelbit.com header.a=rsa-sha256 header.s=MBO0001 header.b=Pf58EaMa
+	dkim=pass (2048-bit key, unprotected) header.d=mandelbit.com header.i=@mandelbit.com header.a=rsa-sha256 header.s=MBO0001 header.b=1r415yba
 Received: from smtp102.mailbox.org (smtp102.mailbox.org [IPv6:2001:67c:2050:b231:465::102])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519MLKEM768 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mout-b-106.mailbox.org (Postfix) with ESMTPS id 4jJrPw0T0PzNlqt;
-	Tue, 03 Nov 2026 15:22:44 +0100 (CET)
+	by mout-b-210.mailbox.org (Postfix) with ESMTPS id 4jJrPt42dvzFr0F;
+	Tue, 03 Nov 2026 15:22:42 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mandelbit.com;
-	s=MBO0001; t=1793715764;
+	s=MBO0001; t=1793715762;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=XLJPnkyQhuEnZBa/myDWTU9XLxRjPFGToIxLj/Biql0=;
-	b=Pf58EaMaJvJIUN+LbVOlLhvCY6NE5uQE4PeBlVTXku+7yDQejV4Y8Rq3xEOBuuq+nGowYi
-	BATNTFzW4dw4t/JUqxl864UnwvVz637rnAvIfIkHGsQbm+1dbgUXPrdtrPYX5x9lXBlEGq
-	K1UDLEFQdeysQ6B7ECRkMpfn9UC5NsDLwH/hF26ByiNFYdBIUOO9M6vGUFOzCKkmvOqFRH
-	uIkKKIcGXwXVQKE1cx8JqKYgi0zX+EmkNLiv5APy7uf/+N6UN31gGfWcIN7Pkr0Bqkyn+A
-	ZJEoeccFfm1kW3rnfvPHfn1JnJIxMujo9e2wN8Gma0269tOjuian3wGRaZRFEg==
+	bh=uRaOOdHNL2jhfSdxi+3Ia5TDewDrCzWyo2m09xbyvCE=;
+	b=1r415ybabUbWERttLIgSIUOXUYJdcaNy+45+NslmLZle7yqJj5ZboXY7qB9cNsh/70AD1e
+	KfH1sg7Fc2nDyCZRB1mXV+YQyYUHQGgI4h5IAFpdZ4Sw37N3Slx5f22o46Z9s1CsQKPbH5
+	nOBB1YKoHnDKuA/9XP/x/E9SggiN12hentePUykIRa9yMV6c2tx09G9CHfedYOygiJNyEW
+	c4BXss1cy0KWSxydga7YfzaAz9U31ORI4ox2PL3Run9iEhWWFYHib9SHj4py/MSVTbOxGU
+	TIpTQpPZE1ojABDtYdS9W8SPglSF0AnrQdD8IWiYh8togfV463ephZR+aejdZg==
 Authentication-Results: outgoing_mbo_mout;
 	dkim=none;
 	spf=pass (outgoing_mbo_mout: domain of antonio@mandelbit.com designates 2001:67c:2050:b231:465::102 as permitted sender) smtp.mailfrom=antonio@mandelbit.com
@@ -78,9 +78,9 @@ Cc: Antonio Quartulli <antonio@mandelbit.com>,
 	virtualization@lists.linux.dev,
 	linux-kselftest@vger.kernel.org,
 	bpf@vger.kernel.org
-Subject: [PATCH net v4 2/2] selftests: net: add a vhost-net test for the tun NAPI queue bound
-Date: Tue,  3 Nov 2026 15:22:30 +0100
-Message-ID: <20261103142232.1869185-3-antonio@mandelbit.com>
+Subject: [PATCH net v4 1/2] tun: bound the NAPI receive queue
+Date: Tue,  3 Nov 2026 15:22:29 +0100
+Message-ID: <20261103142232.1869185-2-antonio@mandelbit.com>
 X-Mailer: git-send-email 2.56.0
 In-Reply-To: <20261103142232.1869185-1-antonio@mandelbit.com>
 References: <20261103142232.1869185-1-antonio@mandelbit.com>
@@ -94,424 +94,220 @@ List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Rspamd-Queue-Id: 4jJrPw0T0PzNlqt
+X-Rspamd-Queue-Id: 4jJrPt42dvzFr0F
 
-Send 16k packets from vhost-net into a tap device with IFF_NAPI and
-netdev_max_backlog set to 8, in the three ways vhost-net passes packets
-to tun: batches of XDP buffers, one packet per sendmsg() with MSG_MORE,
-and zerocopy buffers. Check that excess packets are dropped and counted,
-that the queue keeps draining while vhost-net keeps sending, that every
-packet is either delivered or dropped, and that every buffer comes back
-to the ring, which it does not if a dropped zerocopy buffer is never
-completed.
+With IFF_NAPI, tun_get_user() queues every written packet for NAPI on
+an unbounded list. When the poll runs asynchronously (threaded NAPI)
+and is slower than the writer, the queue grows until the system runs
+out of memory. An unprivileged user can do this from its own user and
+network namespaces, and the queued skbs are not charged to its memcg:
+in a test VM, a uid 1000 process limited to 128 MB caused a global OOM
+in ~6 seconds. The socket send buffer cannot bound this: tun sets it to
+INT_MAX, and the build_skb() and XDP batch paths do not check it.
 
-The zerocopy variant needs vhost_net loaded with experimental_zcopytx=1
-and is skipped otherwise; with it, vhost-net does not batch and the
-batch variant is skipped instead.
+Drop packets once more than netdev_max_backlog of them are queued, like
+enqueue_to_backlog() does, and count them as rx_dropped: before
+allocating and copying them where possible, and again under the queue
+lock before queueing. This covers write(), sendmsg() and the batches of
+XDP buffers vhost-net passes to tun_sendmsg(), which share the queue.
+Zerocopy buffers of packets dropped early are completed.
 
-The test drives a minimal split virtqueue itself. It needs root and
-CONFIG_VHOST_NET, and restores netdev_max_backlog, which is global, on
-exit.
+The NAPI poll moves the whole queue out, processes up to its budget and
+puts the rest back: while it runs, the queue looks empty to writers, so
+with the poll on another CPU the backlog still grows without limit. Keep
+the leftovers on a queue of their own and take the next batch only once
+it is empty, like process_backlog() does, so that neither queue holds
+more than the limit.
 
+Dropping because the queue is full also schedules NAPI, in all three
+places. vhost-net sends with MSG_MORE while it has more packets, and
+tun_get_user() schedules NAPI only after the last one or once more than
+NAPI_POLL_WEIGHT are queued. With a netdev_max_backlog below that, the
+queue would not drain until vhost-net ran out of packets; with zerocopy,
+vhost-net never would, as it stops sending when too many queued buffers
+are pending.
+
+Reproducer, as an unprivileged user in a new user and network
+namespace, without kernel modifications or fault injection:
+  ip tuntap add t0 mode tun; ip addr add 10.11.0.1/24 dev t0
+  ip link add d0 type dummy; ip addr add 10.20.0.1/24 dev d0
+  ip link set t0 up; ip link set d0 up; sysctl net.ipv4.ip_forward=1
+  install ~500 iptables FORWARD rules and a MASQUERADE rule on d0
+  open t0 with IFF_TUN | IFF_NO_PI | IFF_NAPI
+  echo 1 > /sys/class/net/t0/threaded
+  write() 1400-byte IPv4 packets for 10.20.0.2 in a loop
+
+Tested in an x86-64 VM with 1 and 2 vCPUs: with the reproducer running
+for 15 seconds, memory use stays flat and the forwarding rate is
+unchanged; the tun kselftest passes, as it does without the patch; and
+the tun_vhost kselftest added by the next patch, which drives the
+vhost-net batch, copy and zerocopy paths, passes, while it fails without
+the patch.
+
+Still open: the limit counts packets rather than bytes and applies per
+queue, up to about twice the limit can be in flight (queued plus taken
+by the poll), and the queued skbs are still not charged to the writer's
+memcg.
+
+Fixes: 943170998b20 ("tun: enable NAPI for TUN/TAP driver")
 Signed-off-by: Antonio Quartulli <antonio@mandelbit.com>
 ---
- tools/testing/selftests/net/Makefile    |   1 +
- tools/testing/selftests/net/config      |   1 +
- tools/testing/selftests/net/tun_vhost.c | 361 ++++++++++++++++++++++++
- 3 files changed, 363 insertions(+)
- create mode 100644 tools/testing/selftests/net/tun_vhost.c
+ drivers/net/tun.c | 82 +++++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 68 insertions(+), 14 deletions(-)
 
-diff --git a/tools/testing/selftests/net/Makefile b/tools/testing/selftests/net/Makefile
-index df215e1a6262..de4cdaac99a0 100644
---- a/tools/testing/selftests/net/Makefile
-+++ b/tools/testing/selftests/net/Makefile
-@@ -203,6 +203,7 @@ TEST_GEN_PROGS := \
- 	tap \
- 	tcp_port_share \
- 	tls \
-+	tun_vhost \
- 	udp_splice_checksum \
- # end of TEST_GEN_PROGS
+diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+index 770b8fe085c3..ea99ee0aee2b 100644
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -58,6 +58,7 @@
+ #include <linux/nsproxy.h>
+ #include <linux/virtio_net.h>
+ #include <linux/rcupdate.h>
++#include <net/hotdata.h>
+ #include <net/net_namespace.h>
+ #include <net/netns/generic.h>
+ #include <net/rtnetlink.h>
+@@ -140,6 +141,8 @@ struct tun_file {
+ 		unsigned int ifindex;
+ 	};
+ 	struct napi_struct napi;
++	/* NAPI poll only: skbs taken off sk_write_queue, not yet received */
++	struct sk_buff_head napi_process_queue;
+ 	bool napi_enabled;
+ 	bool napi_frags_enabled;
+ 	struct mutex napi_mutex;	/* Protects access to the above napi */
+@@ -227,31 +230,40 @@ struct veth {
+ static void tun_flow_init(struct tun_struct *tun);
+ static void tun_flow_uninit(struct tun_struct *tun);
  
-diff --git a/tools/testing/selftests/net/config b/tools/testing/selftests/net/config
-index cb8cb4696df7..1dce372caf43 100644
---- a/tools/testing/selftests/net/config
-+++ b/tools/testing/selftests/net/config
-@@ -136,6 +136,7 @@ CONFIG_TRACEPOINTS=y
- CONFIG_TUN=y
- CONFIG_USER_NS=y
- CONFIG_VETH=y
-+CONFIG_VHOST_NET=m
- CONFIG_VLAN_8021Q=y
- CONFIG_VXLAN=m
- CONFIG_XFRM_INTERFACE=m
-diff --git a/tools/testing/selftests/net/tun_vhost.c b/tools/testing/selftests/net/tun_vhost.c
-new file mode 100644
-index 000000000000..dbf76d324a7e
---- /dev/null
-+++ b/tools/testing/selftests/net/tun_vhost.c
-@@ -0,0 +1,361 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Send packets from vhost-net into a tap device with IFF_NAPI and check
-+ * that the NAPI queue is bounded by netdev_max_backlog: excess packets
-+ * are dropped and counted, and every buffer is returned to the driver,
-+ * zerocopy ones included.
-+ *
-+ * vhost-net passes packets to tun in three ways:
-+ *  - batch: batches of XDP buffers (tun_xdp_one()), the default when the
-+ *    socket send buffer is unlimited and zerocopy is disabled
-+ *  - copy: one packet per sendmsg(), when the send buffer is limited
-+ *  - zerocopy: one packet per sendmsg() with a ubuf_info to complete,
-+ *    only with vhost_net experimental_zcopytx=1 (else skipped)
-+ *
-+ * Tun schedules NAPI only after a batch, or after the last of a series of
-+ * MSG_MORE packets, so with a small netdev_max_backlog the queue always
-+ * overflows. It must keep draining while the sender keeps sending.
-+ *
-+ * Author: Antonio Quartulli <antonio@mandelbit.com>
++/* In IFF_NAPI mode written packets wait in the tfile's sk_write_queue for the
++ * NAPI poll, which may run later in a kthread or ksoftirqd. Bound that queue
++ * like the per-CPU backlog of netif_rx().
 + */
-+
-+#define _GNU_SOURCE
-+#include <errno.h>
-+#include <fcntl.h>
-+#include <poll.h>
-+#include <sched.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <unistd.h>
-+#include <linux/if.h>
-+#include <linux/if_arp.h>
-+#include <linux/if_ether.h>
-+#include <linux/if_tun.h>
-+#include <linux/vhost.h>
-+#include <linux/virtio_config.h>
-+#include <linux/virtio_net.h>
-+#include <linux/virtio_ring.h>
-+#include <sys/eventfd.h>
-+#include <sys/ioctl.h>
-+#include <sys/socket.h>
-+
-+#include "kselftest_harness.h"
-+
-+#define TV_IFNAME	"tvh0"
-+#define TV_RING_NUM	256
-+#define TV_BUF_SIZE	2048
-+#define TV_HDR_LEN	sizeof(struct virtio_net_hdr_v1)
-+#define TV_PKTS		(64 * TV_RING_NUM)
-+#define TV_BACKLOG	"8"
-+#define TV_TX_VQ	1
-+
-+static const unsigned char tv_mac_tap[ETH_ALEN] = { 2, 0, 0, 0, 0, 1 };
-+static const unsigned char tv_mac_dst[ETH_ALEN] = { 2, 0, 0, 0, 0, 2 };
-+static const unsigned char tv_mac_src[ETH_ALEN] = { 2, 0, 0, 0, 0, 3 };
-+
-+struct tv_stats {
-+	unsigned long long rx_packets;
-+	unsigned long long rx_dropped;
-+};
-+
-+static int tv_read_stats(const char *ifname, struct tv_stats *st)
++static bool tun_napi_queue_full(const struct sk_buff_head *queue)
 +{
-+	char line[512], *p;
-+	FILE *f;
-+	int ret = -1;
-+
-+	f = fopen("/proc/net/dev", "r");
-+	if (!f)
-+		return -1;
-+	while (fgets(line, sizeof(line), f)) {
-+		p = strchr(line, ':');
-+		if (!p)
-+			continue;
-+		*p = '\0';
-+		if (strcmp(line + strspn(line, " "), ifname))
-+			continue;
-+		if (sscanf(p + 1, "%*u %llu %*u %llu", &st->rx_packets,
-+			   &st->rx_dropped) == 2)
-+			ret = 0;
-+		break;
-+	}
-+	fclose(f);
-+	return ret;
++	return skb_queue_len_lockless(queue) >
++	       READ_ONCE(net_hotdata.max_backlog);
 +}
 +
-+FIXTURE(tun_vhost)
-+{
-+	int backlog_fd;
-+	char backlog[32];
-+	int tap;
-+	int vhost;
-+	int kick;
-+	int call;
-+	void *ring;
-+	struct vring vr;
-+	char *bufs;
-+	unsigned short avail_idx;
-+	unsigned short used_idx;
-+};
-+
-+FIXTURE_VARIANT(tun_vhost)
-+{
-+	bool batch;
-+	bool limit_sndbuf;
-+	bool zerocopy;
-+	int pktlen;
-+};
-+
-+FIXTURE_VARIANT_ADD(tun_vhost, batch)
-+{
-+	.batch = true,
-+	.pktlen = 64,
-+};
-+
-+FIXTURE_VARIANT_ADD(tun_vhost, copy)
-+{
-+	.limit_sndbuf = true,
-+	.pktlen = 64,
-+};
-+
-+FIXTURE_VARIANT_ADD(tun_vhost, zerocopy)
-+{
-+	.limit_sndbuf = true,
-+	.zerocopy = true,
-+	.pktlen = 1000,
-+};
-+
-+static bool tv_zerocopy_enabled(void)
-+{
-+	char c = '0';
-+	int fd;
-+
-+	fd = open("/sys/module/vhost_net/parameters/experimental_zcopytx",
-+		  O_RDONLY);
-+	if (fd < 0)
-+		return false;
-+	if (read(fd, &c, 1) != 1)
-+		c = '0';
-+	close(fd);
-+	return c == '1';
-+}
-+
-+static void tv_vhost_setup(struct __test_metadata *_metadata,
-+			   FIXTURE_DATA(tun_vhost) *self)
-+{
-+	struct vhost_vring_state state = { .index = TV_TX_VQ };
-+	struct vhost_vring_file file = { .index = TV_TX_VQ };
-+	struct vhost_vring_addr addr = { .index = TV_TX_VQ };
-+	size_t memsz = sizeof(struct vhost_memory) +
-+		       sizeof(struct vhost_memory_region);
-+	unsigned long long features;
-+	struct vhost_memory *mem;
-+
-+	ASSERT_EQ(ioctl(self->vhost, VHOST_SET_OWNER, NULL), 0);
-+	ASSERT_EQ(ioctl(self->vhost, VHOST_GET_FEATURES, &features), 0);
-+	ASSERT_TRUE(features & (1ULL << VIRTIO_F_VERSION_1));
-+	features = 1ULL << VIRTIO_F_VERSION_1;
-+	ASSERT_EQ(ioctl(self->vhost, VHOST_SET_FEATURES, &features), 0);
-+
-+	/* buffer addresses are passed as is: map them 1:1 */
-+	mem = calloc(1, memsz);
-+	ASSERT_NE(mem, NULL);
-+	mem->nregions = 1;
-+	mem->regions[0].guest_phys_addr = (unsigned long)self->bufs;
-+	mem->regions[0].userspace_addr = (unsigned long)self->bufs;
-+	mem->regions[0].memory_size = TV_RING_NUM * TV_BUF_SIZE;
-+	ASSERT_EQ(ioctl(self->vhost, VHOST_SET_MEM_TABLE, mem), 0);
-+	free(mem);
-+
-+	state.num = TV_RING_NUM;
-+	ASSERT_EQ(ioctl(self->vhost, VHOST_SET_VRING_NUM, &state), 0);
-+	state.num = 0;
-+	ASSERT_EQ(ioctl(self->vhost, VHOST_SET_VRING_BASE, &state), 0);
-+	addr.desc_user_addr = (unsigned long)self->vr.desc;
-+	addr.avail_user_addr = (unsigned long)self->vr.avail;
-+	addr.used_user_addr = (unsigned long)self->vr.used;
-+	ASSERT_EQ(ioctl(self->vhost, VHOST_SET_VRING_ADDR, &addr), 0);
-+	file.fd = self->kick;
-+	ASSERT_EQ(ioctl(self->vhost, VHOST_SET_VRING_KICK, &file), 0);
-+	file.fd = self->call;
-+	ASSERT_EQ(ioctl(self->vhost, VHOST_SET_VRING_CALL, &file), 0);
-+	file.fd = self->tap;
-+	ASSERT_EQ(ioctl(self->vhost, VHOST_NET_SET_BACKEND, &file), 0);
-+}
-+
-+FIXTURE_SETUP(tun_vhost)
-+{
-+	struct ifreq ifr = {};
-+	int hdrlen = TV_HDR_LEN;
-+	int sndbuf = 1 << 20;
-+	ssize_t n;
-+	int i, fd;
-+
-+	self->tap = -1;
-+	self->vhost = open("/dev/vhost-net", O_RDWR);
-+	if (self->vhost < 0)
-+		SKIP(return, "no /dev/vhost-net");
-+	if (variant->zerocopy && !tv_zerocopy_enabled())
-+		SKIP(return, "vhost_net experimental_zcopytx not enabled");
-+	if (variant->batch && tv_zerocopy_enabled())
-+		SKIP(return, "vhost_net does not batch with zerocopy");
-+
-+	/* global, and only visible from init_net: keep it open to restore */
-+	self->backlog_fd = open("/proc/sys/net/core/netdev_max_backlog",
-+				O_RDWR);
-+	ASSERT_GE(self->backlog_fd, 0);
-+	n = read(self->backlog_fd, self->backlog, sizeof(self->backlog) - 1);
-+	ASSERT_GT(n, 0);
-+	self->backlog[n] = '\0';
-+	ASSERT_EQ(pwrite(self->backlog_fd, TV_BACKLOG, strlen(TV_BACKLOG), 0),
-+		  strlen(TV_BACKLOG));
-+
-+	ASSERT_EQ(unshare(CLONE_NEWNET), 0);
-+
-+	self->tap = open("/dev/net/tun", O_RDWR);
-+	ASSERT_GE(self->tap, 0);
-+	ifr.ifr_flags = IFF_TAP | IFF_NO_PI | IFF_VNET_HDR | IFF_NAPI;
-+	memcpy(ifr.ifr_name, TV_IFNAME, sizeof(TV_IFNAME));
-+	ASSERT_EQ(ioctl(self->tap, TUNSETIFF, &ifr), 0);
-+	ASSERT_EQ(ioctl(self->tap, TUNSETVNETHDRSZ, &hdrlen), 0);
-+	if (variant->limit_sndbuf)
-+		ASSERT_EQ(ioctl(self->tap, TUNSETSNDBUF, &sndbuf), 0);
-+
-+	fd = socket(AF_INET, SOCK_DGRAM, 0);
-+	ASSERT_GE(fd, 0);
-+	ifr.ifr_hwaddr.sa_family = ARPHRD_ETHER;
-+	memcpy(ifr.ifr_hwaddr.sa_data, tv_mac_tap, ETH_ALEN);
-+	ASSERT_EQ(ioctl(fd, SIOCSIFHWADDR, &ifr), 0);
-+	ASSERT_EQ(ioctl(fd, SIOCGIFFLAGS, &ifr), 0);
-+	ifr.ifr_flags |= IFF_UP;
-+	ASSERT_EQ(ioctl(fd, SIOCSIFFLAGS, &ifr), 0);
-+	close(fd);
-+
-+	/* every buffer: zeroed vnet header + IPv4 frame for another host,
-+	 * which the stack drops without counting it in rx_dropped
+ static int tun_napi_receive(struct napi_struct *napi, int budget)
+ {
+ 	struct tun_file *tfile = container_of(napi, struct tun_file, napi);
++	struct sk_buff_head *process_queue = &tfile->napi_process_queue;
+ 	struct sk_buff_head *queue = &tfile->sk.sk_write_queue;
+-	struct sk_buff_head process_queue;
+ 	struct sk_buff *skb;
+ 	int received = 0;
+ 
+-	__skb_queue_head_init(&process_queue);
+-
+-	spin_lock(&queue->lock);
+-	skb_queue_splice_tail_init(queue, &process_queue);
+-	spin_unlock(&queue->lock);
+-
+-	while (received < budget && (skb = __skb_dequeue(&process_queue))) {
++	while (received < budget) {
++		/* Refill only when empty: leftovers are not put back on the
++		 * queue writers check, so neither queue exceeds the limit.
++		 */
++		if (skb_queue_empty(process_queue)) {
++			spin_lock(&queue->lock);
++			skb_queue_splice_tail_init(queue, process_queue);
++			spin_unlock(&queue->lock);
++			if (skb_queue_empty(process_queue))
++				break;
++		}
++		skb = __skb_dequeue(process_queue);
+ 		napi_gro_receive(napi, skb);
+ 		++received;
+ 	}
+ 
+-	if (!skb_queue_empty(&process_queue)) {
+-		spin_lock(&queue->lock);
+-		skb_queue_splice(&process_queue, queue);
+-		spin_unlock(&queue->lock);
+-	}
+-
+ 	return received;
+ }
+ 
+@@ -572,6 +584,8 @@ static void tun_queue_purge(struct tun_file *tfile)
+ 		tun_ptr_free(ptr);
+ 
+ 	skb_queue_purge(&tfile->sk.sk_write_queue);
++	/* NAPI is disabled by now */
++	__skb_queue_purge(&tfile->napi_process_queue);
+ 	skb_queue_purge(&tfile->sk.sk_error_queue);
+ }
+ 
+@@ -1856,6 +1870,23 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
+ 			zerocopy = true;
+ 	}
+ 
++	/* NAPI queue full: drop before allocating, and schedule NAPI, which a
++	 * MSG_MORE sender may not have done yet. Rechecked under the lock.
 +	 */
-+	ASSERT_EQ(posix_memalign((void **)&self->bufs, 4096,
-+				 TV_RING_NUM * TV_BUF_SIZE), 0);
-+	memset(self->bufs, 0, TV_RING_NUM * TV_BUF_SIZE);
-+	for (i = 0; i < TV_RING_NUM; i++) {
-+		unsigned char *eth = (unsigned char *)self->bufs +
-+				     i * TV_BUF_SIZE + TV_HDR_LEN;
++	if (tfile->napi_enabled &&
++	    unlikely(tun_napi_queue_full(&tfile->sk.sk_write_queue))) {
++		local_bh_disable();
++		napi_schedule(&tfile->napi);
++		local_bh_enable();
++		if (msg_control) {
++			struct ubuf_info *uarg = msg_control;
 +
-+		memcpy(eth, tv_mac_dst, ETH_ALEN);
-+		memcpy(eth + ETH_ALEN, tv_mac_src, ETH_ALEN);
-+		eth[12] = ETH_P_IP >> 8;
-+		eth[13] = ETH_P_IP & 0xff;
-+		eth[14] = 0x45;
-+	}
-+
-+	ASSERT_EQ(posix_memalign(&self->ring, 4096,
-+				 vring_size(TV_RING_NUM, 4096)), 0);
-+	memset(self->ring, 0, vring_size(TV_RING_NUM, 4096));
-+	vring_init(&self->vr, TV_RING_NUM, self->ring, 4096);
-+
-+	self->kick = eventfd(0, EFD_NONBLOCK);
-+	self->call = eventfd(0, EFD_NONBLOCK);
-+	ASSERT_GE(self->kick, 0);
-+	ASSERT_GE(self->call, 0);
-+
-+	tv_vhost_setup(_metadata, self);
-+}
-+
-+FIXTURE_TEARDOWN(tun_vhost)
-+{
-+	if (self->tap < 0)
-+		return;
-+	/* waits for outstanding zerocopy buffers */
-+	close(self->vhost);
-+	close(self->tap);
-+	if (pwrite(self->backlog_fd, self->backlog, strlen(self->backlog),
-+		   0) < 0)
-+		TH_LOG("cannot restore netdev_max_backlog to %s",
-+		       self->backlog);
-+	close(self->backlog_fd);
-+}
-+
-+/* queue up to @n buffers, return how many */
-+static int tv_post(FIXTURE_DATA(tun_vhost) *self, int pktlen, int n)
-+{
-+	int inflight = (unsigned short)(self->avail_idx - self->used_idx);
-+	unsigned long long one = 1;
-+	int i;
-+
-+	for (i = 0; i < n && inflight < TV_RING_NUM; i++, inflight++) {
-+		unsigned int id = self->avail_idx % TV_RING_NUM;
-+
-+		self->vr.desc[id].addr = (unsigned long)self->bufs +
-+					 id * TV_BUF_SIZE;
-+		self->vr.desc[id].len = TV_HDR_LEN + pktlen;
-+		self->vr.desc[id].flags = 0;
-+		self->vr.avail->ring[id] = id;
-+		self->avail_idx++;
-+	}
-+	__atomic_store_n(&self->vr.avail->idx, self->avail_idx,
-+			 __ATOMIC_RELEASE);
-+	if (i && write(self->kick, &one, sizeof(one)) != sizeof(one))
-+		return -1;
-+	return i;
-+}
-+
-+/* reap returned buffers, waiting up to @ms for at least one */
-+static int tv_reap(FIXTURE_DATA(tun_vhost) *self, int ms)
-+{
-+	struct pollfd pfd = { .fd = self->call, .events = POLLIN };
-+	unsigned short used;
-+	unsigned long long v;
-+
-+	for (;;) {
-+		used = __atomic_load_n(&self->vr.used->idx, __ATOMIC_ACQUIRE);
-+		if (used != self->used_idx) {
-+			int n = (unsigned short)(used - self->used_idx);
-+
-+			self->used_idx = used;
-+			return n;
++			uarg->ops->complete(NULL, uarg, false);
 +		}
-+		if (ms <= 0 || poll(&pfd, 1, 100) < 0)
++		dev_core_stats_rx_dropped_inc(tun->dev);
++		return total_len;
++	}
++
+ 	if (!frags && tun_can_build_skb(tun, tfile, len, noblock, zerocopy)) {
+ 		/* For the packet that is not easy to be processed
+ 		 * (e.g gso or jumbo packet), we will do it at after
+@@ -2045,6 +2076,17 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
+ 			goto free_skb;
+ 		}
+ 
++		/* NAPI queue full: drop, as above */
++		if (unlikely(tun_napi_queue_full(queue))) {
++			spin_unlock(&queue->lock);
++			napi_schedule(&tfile->napi);
++			local_bh_enable();
++			rcu_read_unlock();
++			dev_core_stats_rx_dropped_inc(tun->dev);
++			drop_reason = SKB_DROP_REASON_FULL_RING;
++			goto free_skb;
++		}
++
+ 		__skb_queue_tail(queue, skb);
+ 		queue_len = skb_queue_len(queue);
+ 		spin_unlock(&queue->lock);
+@@ -2649,6 +2691,17 @@ static int tun_xdp_one(struct tun_struct *tun,
+ 			return -EBUSY;
+ 		}
+ 
++		/* NAPI queue full: drop, and schedule NAPI so that it drains
++		 * even if nothing in this batch gets queued
++		 */
++		if (unlikely(tun_napi_queue_full(queue))) {
++			spin_unlock(&queue->lock);
++			napi_schedule(&tfile->napi);
++			kfree_skb_reason(skb, SKB_DROP_REASON_FULL_RING);
++			dev_core_stats_rx_dropped_inc(tun->dev);
 +			return 0;
-+		if (pfd.revents & POLLIN && read(self->call, &v, sizeof(v)) < 0)
-+			return -1;
-+		ms -= 100;
-+	}
-+}
-+
-+TEST_F(tun_vhost, napi_queue_bounded)
-+{
-+	struct tv_stats before, after;
-+	unsigned long long delivered, dropped;
-+	int posted = 0, reaped = 0, n;
-+
-+	ASSERT_EQ(tv_read_stats(TV_IFNAME, &before), 0);
-+
-+	while (reaped < TV_PKTS) {
-+		n = tv_post(self, variant->pktlen, TV_PKTS - posted);
-+		ASSERT_GE(n, 0);
-+		posted += n;
-+		n = tv_reap(self, 5000);
-+		ASSERT_GE(n, 0);
-+		if (!n) {
-+			TH_LOG("%d of %d buffers not returned",
-+			       posted - reaped, posted);
-+			ASSERT_GT(n, 0);
 +		}
-+		reaped += n;
-+	}
 +
-+	ASSERT_EQ(tv_read_stats(TV_IFNAME, &after), 0);
-+	delivered = after.rx_packets - before.rx_packets;
-+	dropped = after.rx_dropped - before.rx_dropped;
-+	TH_LOG("sent %d, delivered %llu, dropped %llu", TV_PKTS, delivered,
-+	       dropped);
-+	/* bounded, */
-+	EXPECT_GT(dropped, 0);
-+	/* still draining, */
-+	EXPECT_GE(delivered, TV_PKTS / 64);
-+	/* and every packet accounted for */
-+	EXPECT_EQ(delivered + dropped, TV_PKTS);
-+}
-+
-+TEST_HARNESS_MAIN
+ 		__skb_queue_tail(queue, skb);
+ 		spin_unlock(&queue->lock);
+ 		ret = 1;
+@@ -3571,6 +3624,7 @@ static int tun_chr_open(struct inode *inode, struct file * file)
+ 	}
+ 
+ 	mutex_init(&tfile->napi_mutex);
++	__skb_queue_head_init(&tfile->napi_process_queue);
+ 	RCU_INIT_POINTER(tfile->tun, NULL);
+ 	tfile->flags = 0;
+ 	tfile->ifindex = 0;
 -- 
 2.56.0
 
