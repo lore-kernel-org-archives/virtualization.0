@@ -1,98 +1,103 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=52.103.32.6
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793703288;
-	b=c8FfyMff8aT0CHxm0z7AlLJMIGbnIf1mDNinbIV5bHAvq4jH9Iw9gspEalOqAbvUYChU
-	 P8v7tOG6gX3xDRyiaCw9mc0YjuChUb5qgxU27BpgT0wcEPYAXJNgpCmvXmbpMox/cGPBy
-	 nbzMn7i755jvPrf9qSws4Xdk/JnTcpLUufrPhnWfvpKcsCfJKyNG6nree5hnlAbheaHtQ
-	 ZqZo65KoTLPU3OlgIOwgXQFTX6wed9TT5narpm0uxIJYSHsqWAVMvU7LPTViFDlsaZmfW
-	 6IdOsY9QjFnpFTb/691QHf7ucuPNpR+CM654/dKCoEmuT+73MC2fYlb/YruJrc4DMeg==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793703288;
-	h=DMARC-Filter:DKIM-Signature:Received:Received:From:To:Cc:Subject:
-	 Date:Message-ID:X-Mailer:Content-Transfer-Encoding:Content-Type:
-	 X-ClientProxiedBy:X-Microsoft-Original-Message-ID:MIME-Version:
-	 X-MS-Exchange-MessageSentRepresentingType:X-MS-PublicTrafficType:
-	 X-MS-TrafficTypeDiagnostic:X-MS-Office365-Filtering-Correlation-Id:
-	 X-Microsoft-Antispam:X-Microsoft-Antispam-Message-Info:
-	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
-	 X-MS-Exchange-AntiSpam-MessageData-0:X-OriginatorOrg:
-	 X-MS-Exchange-CrossTenant-Network-Message-Id:
-	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
-	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
-	 X-MS-Exchange-CrossTenant-FromEntityHeader:
-	 X-MS-Exchange-CrossTenant-Id:
-	 X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
-	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
-	bh=HxnYJdkI/LkidTPK0wZKlrXpcgyWDOY5sDKRwEUsxcQ=;
-	b=wIwYB6eOjSzZdxMOToLSkiLpdHLSlu0Ld7JGrUuV4AoK0vzcAB+EJiVbvXMeDLwol5xz
-	 MV8GtXrq3VmlTN5CuLVZwMOcGEK5ha8ZjHTOgDtb+NhjdE66sX8pfDt5KdnrcXxnpxW/2
-	 J+uohkF+eX+Qva78iTwOupq6QP7d79uP+3QeAzy7JFVO91pIci0dTcup468BuFyN9+P9w
-	 W41wA+/+9TId8snyTQuyO+tgQVCYA1U7Wn6JGK0Gis1b+bvvNtpQyQiSHK9fWG9dmmVK1
-	 +WY+WkZGptpq/4tQRO3N12/cWAaAaIA1jhXzcHahYJFAQ3hp3DK7MF9v16HTtKUTWIg==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=hotmail.co.uk;
-	spf=pass smtp.mailfrom=hotmail.co.uk;
-	dkim=pass header.d=HOTMAIL.CO.UK header.i=@HOTMAIL.CO.UK header.a=rsa-sha256 header.s=selector1 header.b=rL6nr1EU;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=52.103.32.6
-Received: from DB3PR0202CU003.outbound.protection.outlook.com (mail-northeuropeazolkn19010006.outbound.protection.outlook.com [52.103.32.6])
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793703478;
+	b=k1XUf7hyJsxyK/xIa4loqB5zA7B5fbOx+qFP3Gz6J3YoIzWuizoMieGGRMLgnjuGVcyd
+	 njSaCBN909tiKih/famqp3Fk4R5UUfE5pMRl4LAmFv+VyJN6Lk3WTLOM/Ds1QAojtn6Li
+	 UnenP1k5NpASBXXtGLPCTYuqfNwAwpmUcCQUJFWYqB1OfG4ckX1aegq/SmxDsDKdJ3Rag
+	 tgCZ2wiyh/ez9FjS2rOeOPRbrO0OCt6NyhsZZfAq0TJlIOszPcwi/81tXNddcHIuu/XqE
+	 340CHu907/q2dUgnh1rKDtzVWVlAMWk9tYKcThB0c0DRYGn3PNVsrk//DQbvTAb7IJQ==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793703478;
+	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
+	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
+	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
+	 X-Mimecast-Originator:Content-Type:Content-Disposition;
+	bh=uecybL+gqfrB8HHj3vVKJyhfRKn7L+ejiH5DOEaosNc=;
+	b=eUGn8zAY7ka3V0Jw6mrCUpr/wP4yEyyX+n9JG9vOc/yutwx01fd+/kbsJ0Aw2XuqWarP
+	 S9ujj6aP5yS8YS5SrkdNVCHDKJGi8s8+qvhEn00UcHBWBbStyn/WwaVJS6Zw+tiUotEMm
+	 ckwKJjJqJrgbqaTGzPSHH+InpI9HiqELvwfTOZOyQLY/MaTAAhxgJCthP6LbULmtelSJ5
+	 mSV7S5meRkefDcS9olS1nDc1B795i4A0+vY/6FbJFpnD/3Jf4GKXimHXc3Ryyt+FQm2fQ
+	 +Z8Xk3pwaSOjcvUfPCxk3+hM32Dhe75fgDjZDEtEtkS6hMWKb/MIKD+4CGz8iYvBJWA==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=redhat.com;
+	spf=pass smtp.mailfrom=redhat.com;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=bBa7T2lO;
+	arc=none smtp.remote-ip=170.10.133.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE76F606D82D
-	for <virtualization@lists.linux.dev>; Tue,  3 Nov 2026 10:54:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AE76F606D82D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hotmail.co.uk
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hotmail.co.uk
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49276606C5B5
+	for <virtualization@lists.linux.dev>; Tue,  3 Nov 2026 10:57:58 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 49276606C5B5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=HOTMAIL.CO.UK header.i=@HOTMAIL.CO.UK header.a=rsa-sha256 header.s=selector1 header.b=rL6nr1EU
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=vMxVKpgmuLg75CQgn8Z6CeC236T+4wsX8+TwAVKNPX63Kz+KmHi3gM1ZjXDVI8AS4Pw1SjS6+YYDzF9BTSqiFowID9/UosaBXvlwJV9f1OcbvAI6BkGiGXKiemc4fcKchbVLsL74/0c6ANn0YRST50pJYYVzlm4p3Dr+uk4YZEBVCJHvNrC1RBzEDo64ADsZ7jMvpkNW3PkYYuG1KKQt9MEiHM+z/COpjJIoFVuHAH3Tq4MPc3zgLfkdULoAlgK/GNUuRGUfZlGeDvKjJQu3wN/zO3BqWlBNcncuV48aq07rML/KttQVdXZfyWQgMOmQ38nRJxjOXb3jNwJLxxZJZA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=HxnYJdkI/LkidTPK0wZKlrXpcgyWDOY5sDKRwEUsxcQ=;
- b=rWiynT1gYOeR1ZfBpxlRShZWUCGBFWwX5ZAsvdWgQZcO1RwCt0fnEAt1HYFP0M37FJhz08Lg8N4EZHzV5m70F8kW3FDWVzxOECEJIxXusu1Y/fmdAglBNdZjrTAEwRUlWxdMhHOCM8qLRl4JQzAHYAqnONPs1q5tYruT3W+4ZqtM/TyomarTILnFans4G9G5wtfSB+0HhiG7zXeWlRB92FdWIIh4wBqlN1flB7H9MnPV3xyJ5UTXTl2X+wyiSEn5JDQgi5s8H2GOMjvRwT4OJrB7tT6HT4aOeabvsb0eFIO6EHu7i1K/c84QKUtKWKKkkr/568DdFJUfx+/iWAa8YQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=HOTMAIL.CO.UK;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=HxnYJdkI/LkidTPK0wZKlrXpcgyWDOY5sDKRwEUsxcQ=;
- b=rL6nr1EUnZex/JoatO9Ln9cVYVMZZ4fu73ZYrZzQOxJ39PQ61pAowoYsGgntt65/CPgR5ydlhOhDpsjd2g9QsqwTwScvQmJH5Lu3nmJyfR1m/VoYOWltEhjIeDPJU5YM4hboyC3QKXlUZmgyrarckC4KRbpYpeD/AAehfbug6JskImnsNqB+nb/NVs5z1ZaCSrR2T7VlGW/1bSrieveVls7FNkUXEfZ6XFAP0RQA8qR5eLbXgAthWsTHe6B4d4Aryj9nuy4bBoBzM/KqQQIrO1g1TRfxvjMumEkIkz0jWgVxcPnemYcPOxRnlYUbN0OFnKsldSykozdbBNvdz4OJyQ==
-Received: from AS8P251MB0001.EURP251.PROD.OUTLOOK.COM (2603:10a6:20b:344::22)
- by MIWP251MB810810.EURP251.PROD.OUTLOOK.COM (2603:10a6:290:aa::20) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.569.12; Tue, 3 Nov
- 2026 10:54:42 +0000
-Received: from AS8P251MB0001.EURP251.PROD.OUTLOOK.COM
- ([fe80::2952:d4d0:4ba:8352]) by AS8P251MB0001.EURP251.PROD.OUTLOOK.COM
- ([fe80::2952:d4d0:4ba:8352%3]) with mapi id 15.21.0592.007; Tue, 3 Nov 2026
- 10:54:42 +0000
-From: Aamir Ahmed <elb12345@hotmail.co.uk>
-To: "Michael S . Tsirkin" <mst@redhat.com>
-Cc: shakeel.butt@linux.dev,
-	jasowangio@gmail.com,
-	eperezma@redhat.com,
-	vschneid@redhat.com,
-	ziqianlu@bytedance.com,
-	peterz@infradead.org,
-	kvm@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: [PATCH v2] vhost: Run TIF_NOTIFY_RESUME work in the vhost_task loop
-Date: Tue,  3 Nov 2026 10:54:40 +0000
-Message-ID:
- <AS8P251MB0001F1EACBED6E7A2AFA8A96C8692@AS8P251MB0001.EURP251.PROD.OUTLOOK.COM>
-X-Mailer: git-send-email 2.55.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: LO4P123CA0412.GBRP123.PROD.OUTLOOK.COM
- (2603:10a6:600:189::21) To AS8P251MB0001.EURP251.PROD.OUTLOOK.COM
- (2603:10a6:20b:344::22)
-X-Microsoft-Original-Message-ID:
- <20261103105440.43028-1-elb12345@hotmail.co.uk>
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=bBa7T2lO
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1793703477;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=uecybL+gqfrB8HHj3vVKJyhfRKn7L+ejiH5DOEaosNc=;
+	b=bBa7T2lOJ+4pF2WLhuJ0Y1S/bo5D48zOxrbNpkeP0iS0LOi67rlAAT3sznN229mI9G3Cy/
+	kMYmP/+nP8amZ7BywKn3sLSxA80NwooEqQggcMYv7ZUw/iT1mPr2fOtMRvjlPCJX6AHSyq
+	apDQurP5hOTmEwx7YKaWSiT0Kzlockc=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-212-MHMw55lTPxeiolchl_K-PQ-1; Tue, 03 Nov 2026 05:57:56 -0500
+X-MC-Unique: MHMw55lTPxeiolchl_K-PQ-1
+X-Mimecast-MFC-AGG-ID: MHMw55lTPxeiolchl_K-PQ_1793703475
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-48b00febba3so2752211f8f.1
+        for <virtualization@lists.linux.dev>; Tue, 03 Nov 2026 02:57:55 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793703475; x=1794308275;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=uecybL+gqfrB8HHj3vVKJyhfRKn7L+ejiH5DOEaosNc=;
+        b=ofjD4r6MPmSfYcICC1MpmAkgp4txDyob5MWAUZOkqOS4rqPgUKqv4cy14F9rUUTZ31
+         GtfDAx09dvDhbNswtRl+NSYhhEJ0kM1BzYFK0SFHwAeoIJOFzrf0V1GRy422x3EtD5Ub
+         KzP08aNIVzOEAgk1DDLGsCTIJH7jpw3IRdC2cbpxwjQ68ivZWzpB4GThPB9uat8Tq/j1
+         B9ZEbdajlqPvKWeFbW+z6l+xKuFSIesQ5RWxt4S5HhPN57+0Hev5keN+N0TRCLxDX3tG
+         +HAxliRz5vL7K9D/TxXqid28Fwsc4cydau60C/rEQ2KrW2Ctn27jZyq0zQ8X0jdRYeA6
+         fhsA==
+X-Forwarded-Encrypted: i=1; AKwUvBzbM4IV20BYiHgro+AGTwUgiP1XdYDKFT8kxHIz4wVmuwxBKJqk2dLQXomQnnfkadLgayvD4iwGD+Hgduo6gA==@lists.linux.dev
+X-Gm-Message-State: APuU4Z8GELegocUZmUNsrpSLBWPExrih1SDNueeXmigNplbYbQ+RGbzv
+	tO4bw2A44TeqPNchCr7jhUts3XykKLE6cm2fUzf/4hyeX2nZC6fwYdpUUtPIUbgeFTFL1G6QkTS
+	YUjh32VCddmGU2jMnJ3U74tLdZA1XvTjJ9JEtkhmyYlqwmPGUbz00tCPHEIOqAuat4gd2
+X-Gm-Gg: AYBFou1qeIInGd5JhSwnD0t4toiwG/axOwWOxyAi7BvnycFh8X/sngadU5xNeOuGGSB
+	TS/n+AhDrCFUyEFSfZGq27WSQLUI/j5Jf2JacZ7WXRSAsf+BHMmfHgNruAu05m8tXBipBJ25530
+	SCCl6OudPxfzreR0BPQ4AYWDX46fMZ/5iRBB4QrqhH66YvPQjd7BXQAq6chIIiAIUqiGUDoExNk
+	xBWwHy75BAbw6aTPbwvYuOaIDee0j6Xt+SF8/RGopWagQgf66JtS45piKdIkkeAaLIbKJZItsLQ
+	6LX2E+1bRtQolxFQulH89kiymEXeSvv8OD6PnSgdIDVQtFUiCcJ+GEqgRunmmJX4IgrZYjQ21tF
+	Ct5Ptqrkt3DzOuG996liss5uR52Bxkgj4WIaIfcKs5Q==
+X-Received: by 2002:a05:6000:25fd:b0:48e:2406:57d0 with SMTP id ffacd0b85a97d-48e6e2f6620mr27753775f8f.19.1793703474656;
+        Tue, 03 Nov 2026 02:57:54 -0800 (PST)
+X-Received: by 2002:a05:6000:25fd:b0:48e:2406:57d0 with SMTP id ffacd0b85a97d-48e6e2f6620mr27753733f8f.19.1793703474133;
+        Tue, 03 Nov 2026 02:57:54 -0800 (PST)
+Received: from redhat.com ([2a0d:6fc0:1506:fd00:9e19:9994:44b1:e6f2])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48e71b8c6e9sm24257782f8f.43.2026.11.03.02.57.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Nov 2026 02:57:53 -0800 (PST)
+Date: Tue, 3 Nov 2026 05:57:50 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Fang Xieyan <fangxy@xiaopeng.com>
+Cc: Jason Wang <jasowang@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	virtualization@lists.linux.dev, kvm@vger.kernel.org,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org, Guanglei Zhu <zhugl3@xiaopeng.com>
+Subject: Re: [PATCH] vhost/vringh: reject zero-length indirect descriptor
+ tables
+Message-ID: <20261103055650-mutt-send-email-mst@kernel.org>
+References: <20261102122942-mutt-send-email-mst@kernel.org>
+ <20261103032935.58823-1-fangxy@xiaopeng.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -102,138 +107,43 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: AS8P251MB0001:EE_|MIWP251MB810810:EE_
-X-MS-Office365-Filtering-Correlation-Id: 84a396da-cb30-467f-a13e-08df3998dd3d
-X-Microsoft-Antispam:
-	BCL:0;ARA:14566002|8060799015|25010399006|260925184616899003|19110799012|15080799012|5072599009|25031999004|37011999003|5062599005|23021999003|24021099003|55001999006|51005399006|41001999006|1602099012|10035399007|40105399003|26104999009|3412199025|4302099013|440099028;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?QXFWINgzTSl3xsIAyY2z79kWIy+BUtBPO2dbOGDevjR1rAEHQUzvAC2RV8f+?=
- =?us-ascii?Q?CSB6XyZZu9M/VEucxulgbZgAhVCLyZ4iz+OTwYUrNeEMhNzh4RHcq9vaoAKM?=
- =?us-ascii?Q?9IK8Qd/MUJLvF+kJ6MYN+br2WHi0hqk78hjlfdo++dyjEiEen3NEkEe2wm5I?=
- =?us-ascii?Q?d9CwOVXu70PilTFdopFVwpxms+EWLP8gLk+VFvk+E1X+nfWfglGKVXpCmful?=
- =?us-ascii?Q?r29y6Uw+qIj2pCHoS9N++/ZV9ndG5uGkw8sopYANPY4WEtMzkasN/hfAV43y?=
- =?us-ascii?Q?ILaWQzuvdUAPkX5MkW3QF/wa4xHsMQwn4i4aa1DAc+G6Ze5g2VfMSOIuidIO?=
- =?us-ascii?Q?B6W2jnofso5BCpAGkqjkmF9yPZDc2EAbt4sC4M8XhTCB3QjrXfdPpVKtrE6w?=
- =?us-ascii?Q?+ndpfMiB53UkpA7mQ9Q7xk5FV1yM+SX6S70G+9QjK71/6yQa/9DEC+18r2k2?=
- =?us-ascii?Q?6QDfhh5L1iJ+ka365WlGa+IQ6GZwBbl1waE5SJS3x3QjgY2lYkNj2PDXrrgx?=
- =?us-ascii?Q?lmvokv7bz4EhExLTTMTqJZBEzl2+0/jAGa4kQ67WGFR23cixS5apApO8T4bm?=
- =?us-ascii?Q?jEluxgSh2ARXBHWiie/jgfPyxHnqaCisfv/kvoinZYBz8OOrLpWct0EUfvWe?=
- =?us-ascii?Q?yHwtkBAWJINY7DV6k4y3Od9EMCfCpL9K3oWxYshAKK5+Z/3U4OvfWbrD/lnt?=
- =?us-ascii?Q?u9WCw42vabDCdb6l/pjFq2iVoC0FRuJj9ZAGbwqbF5IUxUa2sb+Mq7843JX3?=
- =?us-ascii?Q?gG5UEim7+IhdtDgtemoc6HzfY10xC43Yn0fYYXXv9aME/OVnWVmlp6RvlZFW?=
- =?us-ascii?Q?VeVWT9m9m5hhXyhH1PDTw2Mzpes1Bpqopm58SN9p13ZzxlbgZ22wpJd+g9p2?=
- =?us-ascii?Q?D022HMAS6qRacUDuII5PPKrIEHVYYeFxtkJtgsCEn8BwWMbkLD4G9BC81fXm?=
- =?us-ascii?Q?wDPEHdAQsKJrNxWf/KmS8cOdmg0VPQlpzG5UAnNpjJrbZfDvzwCeiSFXVTcN?=
- =?us-ascii?Q?/dGVAdNjv3kDDDxmS9I/6WAT0oloc5xD+qgkRfZ72LsW3TOgUUQKbOJPSuF6?=
- =?us-ascii?Q?sByH2m6nXJ8Z9wQ/BXIFAW0Dtccx7U3gTR9HodQX5V5DjjXFByG3dmgP/JDW?=
- =?us-ascii?Q?aHzgbrG9DSLo?=
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?He3TDZgL6sdYTEgDMLVT1FL+FK+ck9MlGJcMjYUHfzgSSIMKX695yw/bvr78?=
- =?us-ascii?Q?mJ0n6ExWZkVqVigY6vhRseYpf7Qs7tCMYCqFf3or0yN7i4wD+oiMi2PB73bi?=
- =?us-ascii?Q?f0CkMSSHFD4rWByBhHHJi9jChIRIdoo/susTUImv4H7Rts/6ahfClnKyHb6a?=
- =?us-ascii?Q?4o+ST34qeJO+wMOw4ReGwJCZSJ4XK7cp4rFOdGn8s3c4cJ6yr2VP0voT8Z9q?=
- =?us-ascii?Q?UWqrycu5hTyPqo0pHCgs/xdXaJtOdzZw7+4JedaII/im9FdgiKBT/rlJtt/t?=
- =?us-ascii?Q?0z7gm/vkgtqTjd/SLDXEAYUvAYDoxeAhs42GBJUV6MlPz0VDqEJQauzJJzwN?=
- =?us-ascii?Q?qTiQ7O9GBAVuuwJaKsON4AmM9bXk+n4V4qttfeIgQlIU2l2MM3Ge2k6/dsX4?=
- =?us-ascii?Q?++GYx9wspnZ21oRv60aTH/aAiEgidLr7EnCoUQnPCEGThiGcNbrHeVGcpBV7?=
- =?us-ascii?Q?vT9x5oHMvPOK4pEUri7ZQmV7Dvtpx2GAqrbRxz1p7lfh3iYafzhXTW1bp9/u?=
- =?us-ascii?Q?cZOgHoxkf/zy4MhRbva7NkFjdd3ziQqkSe7jsQck21wzOkF5DDWsFSDfyjeK?=
- =?us-ascii?Q?71rgfY/tE12J28KYrx8RJcevM7fxYCTtm40jrHMzBHdq83izva8oD88mcv5H?=
- =?us-ascii?Q?q2CSZRjfosBltRX9Wl5R0fowUnTFHnffcavuS1M5A24Be2Q80O0HTWj7/iEa?=
- =?us-ascii?Q?PG9N7+BwmT0p4DX9hQ/Rf6kO6v2Y3bgcUUk4OUicP4adfXJs9c2MqKPGCU3e?=
- =?us-ascii?Q?vh8I15lPBYdPYTx8p0UxyxdF9cTx68ci6bhhzkubu0cFJqtHyI/jiN9Kkfk9?=
- =?us-ascii?Q?0XMdq6j4SxwE4WYqOCFywCX0ftDguiXsu6G7LRvCM+lqs/hwzUerbHOi0Uz2?=
- =?us-ascii?Q?fZdPx1iOgNeEfYa8LD9cqLruQ1dLu8gU7P+Dk/SAhEyo9b8r62Ovh9bpOho8?=
- =?us-ascii?Q?CTdlNOVnhs4wiOxAsif4H4Vco+TqM0/euIVa9c3e/JH+0OL+a74CwRlNTKWn?=
- =?us-ascii?Q?mv7iWQy3gfjT/ybZpcGKroDp7mIPUaTMhj7F8+VhOmg+eB0qztkCZzXkL8iK?=
- =?us-ascii?Q?9+LjSE/umdFmm0I7wYYeZuso96vOqGBkSiilJfliL8sujEpmXz46QT9D05wU?=
- =?us-ascii?Q?gKdCP738HAaPJijIOhHesTCHqT2WjDe+hMRn68GzlXyFOXwd04A5oI0gxXED?=
- =?us-ascii?Q?LltmZj8eBjrGTKYA1QpKOacvuEl39bstXuUe+qkU0dptDmDvlTM4UDUwKpov?=
- =?us-ascii?Q?0ZyyefNYjVqkKC//HLBlOegVeZdSPf2B20STu+RBlHaKhvjvXhNaRdkfgd5e?=
- =?us-ascii?Q?DIdsmB5Xbg7E71/ASistye+AZJNJr8QotCdICA285GmG2v2U/mItfuMf0FtC?=
- =?us-ascii?Q?P3ey6w7TfdD0E3OU6a9IuNrlkkQFr88e/CEEmsfK3Di9/Dwe/8IJbjltnbbX?=
- =?us-ascii?Q?jerZ1QrqFKKqoVd8D0f4MRaKAax1At0o?=
-X-OriginatorOrg: sct-15-20-9412-3-msonline-outlook-fe3f5.templateTenant
-X-MS-Exchange-CrossTenant-Network-Message-Id: 84a396da-cb30-467f-a13e-08df3998dd3d
-X-MS-Exchange-CrossTenant-AuthSource: AS8P251MB0001.EURP251.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Nov 2026 10:54:42.2645
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
-	00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MIWP251MB810810
+In-Reply-To: <20261103032935.58823-1-fangxy@xiaopeng.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: rcQT-_-eh_7B_6v-ZtiHnezyA0FPFAJIOcRQ1j4WyeU_1793703475
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Since commit e1fad12dcb66 ("sched/fair: Switch to task based throttle
-model"), a throttled task is only dequeued when TWA_RESUME task_work
-runs on its way back to user mode.
+On Tue, Nov 03, 2026 at 11:29:35AM +0800, Fang Xieyan wrote:
+> Hi Michael,
+> 
+> Yes, same fix - sorry. The October 21 posting is a duplicate
+> of the v2 I posted on September 26:
+> 
+> https://lore.kernel.org/virtualization/20260926160755.21485-1-fangxy@xiaopeng.com/
+> 
+> I resent it as a new patch instead of a v3.
+> 
+> The !len form is equivalent to v2's len < sizeof(struct
+> vring_desc) check when combined with the modulo check -
+> zero is the only length below one descriptor that is also
+> a multiple of the descriptor size.
+> 
+> The diagnostic change is to pass the byte-order converted
+> len instead of the raw desc->len, so the reported length is
+> correct when the vring byte order differs from the CPU byte
+> order.
+> 
+> Would you prefer that I send a v3 on the original v2 thread
+> with this diagnostic correction, or should I drop the
+> October 21 posting and leave v2 as is?
+> 
+> Thanks,
+> Fang
 
-vhost workers never return to user mode, and vhost_task_fn() only runs
-task_work via get_signal() when a signal is pending. A busy vhost worker
-therefore ignores its cgroup's cpu.max, while its runtime is still
-charged to the group, throttling the group's other tasks (typically the
-VM's vCPUs) harder.
+pls take a look at my tree, vhost branch. if you want any
+changes made wrt that, pls let me know.
 
-This also fixes memory.high and block cgroup throttling for vhost
-workers, which are handled in resume_user_mode_work() as well.
-
-Run pending notify-resume work at the top of the worker loop, as io-wq
-does in io_run_task_work(). Commit 12013e3d4695 ("KVM: powerpc: Use
-generic xfer to guest work function") fixed the same problem for KVM.
-
-Fixes: e1fad12dcb66 ("sched/fair: Switch to task based throttle model")
-Cc: stable@vger.kernel.org # 6.18+
-Reviewed-by: Shakeel Butt <shakeel.butt@linux.dev>
-Tested-by: Shakeel Butt <shakeel.butt@linux.dev>
-Assisted-by: LLM
-Signed-off-by: Aamir Ahmed <elb12345@hotmail.co.uk>
----
-v2:
-- Also describe the memory.high and block cgroup throttling fixes
-  (Shakeel)
-- Add Shakeel's Reviewed-by and Tested-by
-- Update the code comment to match
-- v1: https://lore.kernel.org/AS8P251MB00012469E6ECBEA2B7D87BB0C86C2@AS8P251MB0001.EURP251.PROD.OUTLOOK.COM
-
-Tested on x86_64 with a vhost_task-based reproducer: in a 0.2-CPU cgroup
-a busy worker drops from 100% to 19% of a CPU. Reproducer available on
-request.
-
- kernel/vhost_task.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
-
-diff --git a/kernel/vhost_task.c b/kernel/vhost_task.c
-index 3717885a599..f63ac005214 100644
---- a/kernel/vhost_task.c
-+++ b/kernel/vhost_task.c
-@@ -6,6 +6,7 @@
- #include <linux/completion.h>
- #include <linux/sched/task.h>
- #include <linux/sched/vhost_task.h>
-+#include <linux/resume_user_mode.h>
- #include <linux/sched/signal.h>
- 
- enum vhost_task_flags {
-@@ -31,6 +32,14 @@ static int vhost_task_fn(void *data)
- 	for (;;) {
- 		bool did_work;
- 
-+		/*
-+		 * We never return to user mode, so TWA_RESUME task_work and
-+		 * memory.high/blkcg throttling would otherwise never run. Run
-+		 * them here, where no locks are held, like io-wq workers do.
-+		 */
-+		if (test_thread_flag(TIF_NOTIFY_RESUME))
-+			resume_user_mode_work(NULL);
-+
- 		if (signal_pending(current)) {
- 			struct ksignal ksig;
- 
-
-base-commit: c03c1a14507dfaf8b856c2608f9ac216021fc222
 -- 
-2.55.0
+MST
+
