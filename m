@@ -1,79 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=176.119.200.168
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793809605;
-	b=QmwDsYYB7FWzMsY3e4kZgUe6KLJ0OiaXUSt3RB8KjgW6c8OHhhH6/mIHBGB4tKsmajKT
-	 wN2laiSaJixycawP8pS38OLUVMwMDijRl244q8fjvpTOzxgY69feFiQGgJEAvtwhwFPNq
-	 zK4qksoQ9EKCCIBJam0sQjVo/F3wOMT0RL5RCAXZHBG1fAApdFudX1KuldMrcQoAhCixS
-	 +CG6BE4jQBUKLLP0aE4LS9mXrtue+MDoUN88ZbF81bDrnBtmwzs+ujd0SaWVJlocto7FZ
-	 hjZpR12NjqNSjZxvssV+mXfF29nQOV3s5tNebzfXX0mseMOS2TvmyEOsx3q1dbwWuew==
+	t=1793810933;
+	b=LXRZNDOJi8lygF6UdEZXXdfYpG1jMaeKYRqfts1tT63TOLQWJPqbgpIFijQSExX1XrDN
+	 NecFhRZEuIOHvGYVotppkl5DkwIZR2qsZBMMXbVusKS1GAYUyrxXWdIoj+9BEzyhHI9tJ
+	 cG3Mck1gBaYoFiDpM8NrFh0+VxUDEiuldF7V25HHuR+qoa0h3TKMckAIt5m7fqaEOU17P
+	 21LTIT8cGwOxAVeQ/bCa1fZhw/z+Xfq/yOh8v/Q/dA+29MucE2dAS0pOkExizYHsfmwtX
+	 mNWNR9sxfDQlRhKMcxZRi3barOlLaVmtdiXarT29Eiv1u6fTVZv8ts2jbRGTPIZDOaQ==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793809605;
-	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
-	 Content-Type:Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=XqcOSoI2kRENMhOfGA/ODIWysXZLeFgrpZu657FzjSs=;
-	b=nppq6DXj9zKyS4PkzVV6eqSBbLQjv6fKGgh09JQmfc3/16KU6MtkaIP0g7eimw+vRJB3
-	 b0EZrAc6waFZr5JlbTJOZynVJeqKqhzzuIp1F0nq5Q5Cd2se+RFhL2Dg28HmTcC/UjriK
-	 ju6hCzlOfXv8JS349Ho23mSM/7CxU0iVbyZegy1F9LuLhiRoM+JK4Jc/5CAfNXlEM3iKW
-	 IgwJ4OLnWVAUm3jGACtS+zq4cWH6Sx9UqRXuO4cd79m4QsnKZjWi5j7ocYBOfMhmfVsGL
-	 hXpoiSBWEN12BS5GgPbeLSV1ah7qwJFBPUvbrnwKYF7fVO+91sBHWWUXA4evAs6JQTQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793810933;
+	h=DMARC-Filter:DKIM-Signature:Date:Subject:In-Reply-To:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding:From:To:Cc:Message-ID:
+	 References:X-SimpleLogin-Type:X-SimpleLogin-EmailLog-ID:
+	 X-SimpleLogin-Want-Signing;
+	bh=+6NWrTkD19j6pXo7fX9iBIpL0RSF2GXs9ygbR1u2JBY=;
+	b=D30SANx8LUcdR/PbOCMBBGGfF/54eGJKhr/X03w0p3jNXfGoKiVdkq5kUuojQm7V6V0W
+	 Xyoc58E0DS02/cj6IJhLNS0FLDrZMqOxcOY0hRjN1Tu9CHzbqyi+lFBQ1FodKitYzp1JE
+	 i4Ql0APrqxhx6lvSttllqeIp8oKKUdJ5pd2K49eK+HLVAFpmd81Nd+TRROhbdYdzQ/4ul
+	 DFLZE7AGIBHV+40He0Z0Rphceruli6G5mNqvXCbWU64BoGso3BanEd3FM9/nd3zkdwrXS
+	 E5Wd7xvHXi5Z8R85BPetBYVx35z9Bal4V9uXOEjEyQVfsDOm9T8T+hC3t08nhtOB/ZA==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CM13evda;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90486606A326;
-	Wed,  4 Nov 2026 16:26:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CM13evda
-Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
-ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1793809605;
-	b=WxZPwbTLs0KLHl+Y7/bDq5EeiH32pOSyFk4P09lXBH9dF2seUJu44p470se3wsI74tzT
-	 WcrquxfneGGiRT+n8IU1aHg6U1AuCa2emIBcA3cLfdUtaYcw9fpilDTtYTuh+9OnyGr07
-	 EeZb9wpSm3f4TDphS0BMzr3r1Q8i6qZLk3Yjp4Cg4CoCx/5hCML9aHELHpWOmm9a00lZL
-	 j+OBnXWZOUmfGHBgqeQhHUtNoXHRGVsMjy7k05+9m3YtsSsjCD3TOGLQnHUJ7WqIaWTPY
-	 Ex6KQ2cCpp1aTFS9+cMvjDEQEiucO/K2EI6oqsug9RjD9azs3fGXcLRM4EwPLmQUIww==
-ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1793809605;
-	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
-	 Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=XqcOSoI2kRENMhOfGA/ODIWysXZLeFgrpZu657FzjSs=;
-	b=NNbH7XPwzJfIQjpan58x1x/Hrab8LGKgPFEytOcIfBePGX5XMDMkyMmBBmlKFQs4/+T4
-	 pOtx2a4bvpbVSAN0dzXNJlHzvEHBKnmo9tbmXwoZjYB659YpBmbNMzQZIDm5KBDBSqGWP
-	 BgM/s3udsrf2igTOTUfntD0Rmv7SLiUXLB+Ei5w6X9TlvMCQfEnfbhp7vuoFmhHLMookp
-	 8ZGAn59if6nEwjzxyTC8++mYo3ucsLBmUciRXuqL2Dm7+xFI/MRQXanbIkDM0ZB6xZCMG
-	 gIht11bAi8S7bcfSDb0hTPkzeuMqx5iw9sEkHrNKGho/r2M+zvYb7cRaeik1ksqv6zQ==
-ARC-Authentication-Results: i=1; smtp.kernel.org; 
-	arc=none smtp.remote-ip=100.80.115.77
-Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
+	dmarc=pass header.from=eldare.de;
+	spf=pass smtp.mailfrom=eldare.de;
+	dkim=pass header.d=eldare.de header.i=@eldare.de header.a=rsa-sha256 header.s=dkim header.b=LPPJmNY1;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=176.119.200.168
+Received: from mail-200168.simplelogin.co (mail-200168.simplelogin.co [176.119.200.168])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id B45F11F000C1;
-	Wed,  4 Nov 2026 16:26:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793809605;
-	bh=XqcOSoI2kRENMhOfGA/ODIWysXZLeFgrpZu657FzjSs=;
-	h=From:Date:Subject:To:Cc:Reply-To;
-	b=CM13evdaMJmOZ/jza3wRt04swqYZGmtAK3y2WcUtsY/MgxRFQVipTGnzvkFwlj1I8
-	 VsU3wwImJsiWAsXZDVB9dUB0ExaApWNna0zqOwUhGmQ18PwDszl1TyaQdRtPucoPt2
-	 HDLXYRPa8fRQOywziLUJZcWGZC7c4mi8Q8tjj9/eis6O7Fwu1nQPfRTLFL8qLocTDM
-	 mjrQRFLg9LxFyjDNX2+SJHm92HHsnFh775dE5sbCE6Jdd5LgA+rIMTTbXN5NQczRmg
-	 1TNWzqMUEmHiJwG2FbVQtLzHEaPEHAUbKMRlPjuKS+5WPOSg9MGYJD+8hCz6TRBCUx
-	 SK4fR2wZOg4Ew==
-Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 13AC946EB7;
-	Wed,  4 Nov 2026 16:26:44 +0000 (UTC)
-From: Jerome Mohm via B4 Relay <devnull+jrmmhm.kernel.eldare.de@kernel.org>
-Date: Wed, 04 Nov 2026 17:26:43 +0100
-Subject: [PATCH net v3] vsock/virtio: clear vqs[] to avoid a UAF on a
- failed PM restore
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 308F0606D828
+	for <virtualization@lists.linux.dev>; Wed,  4 Nov 2026 16:48:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 308F0606D828
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=eldare.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=eldare.de
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key, unprotected) header.d=eldare.de header.i=@eldare.de header.a=rsa-sha256 header.s=dkim header.b=LPPJmNY1
+ARC-Seal: i=1; a=rsa-sha256; d=simplelogin.co; s=arc-20230626; t=1793810931;
+	cv=none; b=vNNsw+udY1vYJbNjVyXwt+DnayQTkYHfuxdNl6jI5OCNzzieV8/Nz0cRI/Hzotb28MjUX8GK2YJ63FX1ZcfAoLkUA0L3/q8uYOiUhkj/BYiDxwlynlmlOzV/qPAucZIR90h1LCMhlbuDKFOSpMtgPJKZnfLW/pFRstqDAynH1MF/ofxEKMuzLJ0tMHcbhpWBnURWh/qq8y/H/iDgV7/0kYMGNMjH5/VKgh51SpxC/ZITgr4j1aZLhjdzaqSYi1mQ8P418bbRhm4bRGGGe44WL5QjCV4oa1wOqbHZxrzv5+eBYx0r9ade+r7ojwlvd9CwOSvKbiyR9ZjjPfuwzOZOlQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; d=simplelogin.co; s=arc-20230626;
+	t=1793810931; c=relaxed/simple;
+	bh=NZfHjc8GabK+5fWc9xU1eIPV8ar6IHlihuK1W6X9Wrk=;
+	h=Date:Subject:In-Reply-To:From:To:Cc:References; b=CqyEDSrkOyrGgTHIQxjYSBNbn0RoKwBxczaaIB1oItAJIJuOZTRvi3RxUaI04S5DJsIqeMIu8AJQMZrH1cXtnj3oleyut6juWA0tS2ZzH1xCP/SicTmUPqAFg1W+S/k0UJcNuYLD3IOewaK6wX1dm5arJ8t3GdjwaJM/oh7a4nVeV+viOz8m21+D/s7BAQ8wVvXMmtyo+DFRaFjh3GbZnM0W/GsCW+PV9mjEUJOeZK3o1utvXHg+rjMwWI/I7qszBGXSaqpWerOpLgBVGpvGBtyb+vwSEBfWAUn+EjcrkQOcP3XZZ9cd47mzAYFHbDXHgOJLDe8ZATGP/WDMKul1wg==
+ARC-Authentication-Results: i=1; mail.protonmail.ch
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=eldare.de; s=dkim;
+	t=1793810931;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=+6NWrTkD19j6pXo7fX9iBIpL0RSF2GXs9ygbR1u2JBY=;
+	b=LPPJmNY1E9Afuj8tm1dblKOuW0bxHTT/z8wxoKA1SWLuokKtwfZQdsa1q0vyV1i4itNXSH
+	t70Rmwl3JdmySaKgnjxgXHQ1Z0I0pGT/edUTIiU72xqAa7fNWOwaigxF9i/aB33SlYt8la
+	BTYSyUnSSDLMgNBg2V3RfWM23P7RpDs=
+Date: Wed, 04 Nov 2026 16:48:44 +0000
+Subject: Re: [PATCH net v3 1/2] vsock/bpf: release sock lock while waiting for
+ data in recvmsg
+In-Reply-To: <auSkQOU6qmj0NPEt@sgarzare-redhat>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -83,131 +64,85 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261104-vsock-restore-uaf-send-v3-1-d60d06488b57@eldare.de>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/4XNQQ7CIBAF0Ks0sxYD1IK68h7GBYXBooYaaImm6
- d2luOnGuPyTP+9PEDE4jHCsJgiYXHS9z6HeVKA75a9InMkZOOWCUcpIir2+k4Bx6AOSUVkS0Rv
- CrJb1QVjFWgP5+RnQuleBz+BxgMv3GMf2hnpYyKXWucV5l/nESvnfUmKEkcYoQa2ksqHihA+jA
- m4NlpHEVwzf/2R4ZoRslDLCKMl2a2ae5w9qgSuWGgEAAA==
-X-Change-ID: 20261001-vsock-restore-uaf-send-1fc7396fa1bd
-To: Stefan Hajnoczi <stefanha@redhat.com>, 
- Stefano Garzarella <sgarzare@redhat.com>, 
- Bobby Eshleman <bobbyeshleman@meta.com>, 
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>, 
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
- Simon Horman <horms@kernel.org>
-Cc: virtualization@lists.linux.dev, kvm@vger.kernel.org, 
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
- stable@vger.kernel.org, Jerome Mohm <jrmmhm.kernel@eldare.de>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1793809603; l=3366;
- i=jrmmhm.kernel@eldare.de; s=20260928; h=from:subject:message-id;
- bh=M5xaSNmFTKxhlPUeiNqMrmM7Ti9uva3s+Lictxc3xSk=;
- b=WiOH3gK7gWMGtImU9UnXdRgEZeOga4gZyBeLDnXYU6u/5UOadx+GaGWSQtbgVTmXTQcBfTXY9
- PGRLQ/f248gDMYpfGRy39AwTlpbiJWq423G3xb7DftydlGoHe0CV4/S
-X-Developer-Key: i=jrmmhm.kernel@eldare.de; a=ed25519;
- pk=xRCxNXbnNottaHpmvPDAOC9NuMJxqKo24abkehKRVlo=
-X-Endpoint-Received: by B4 Relay for jrmmhm.kernel@eldare.de/20260928 with
- auth_id=1075
-X-Original-From: Jerome Mohm <jrmmhm.kernel@eldare.de>
-Reply-To: jrmmhm.kernel@eldare.de
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+From: jrmmhm.kernel@eldare.de
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: Bobby Eshleman <bobbyeshleman@meta.com>,"David S. Miller"
+ <davem@davemloft.net>,Eric Dumazet <edumazet@kernel.org>,Jakub Kicinski
+ <kuba@kernel.org>,Paolo Abeni <pabeni@redhat.com>,Simon Horman
+ <horms@kernel.org>,"Michael S. Tsirkin" <mst@redhat.com>,Michal Luczaj
+ <mhal@rbox.co>,virtualization@lists.linux.dev,netdev@vger.kernel.org,linux-kernel@vger.kernel.org,bpf@vger.kernel.org,stable@vger.kernel.org
+Message-ID: <179381093020.9.4719932034061956856.1746278795@eldare.de>
+References: <20261028-kbh3-1-022-fix-v2-v3-0-bc0752b2d3db@eldare.de>
+ <20261028-kbh3-1-022-fix-v2-v3-1-bc0752b2d3db@eldare.de>
+ <auSkQOU6qmj0NPEt@sgarzare-redhat>
+X-SimpleLogin-Type: Reply
+X-SimpleLogin-EmailLog-ID: 1746278842
+X-SimpleLogin-Want-Signing: yes
 
-From: Jerome Mohm <jrmmhm.kernel@eldare.de>
+On Fri, Oct 30, 2026 at 03:18:10PM +0100, Stefano Garzarella wrote:
+> Ditto about commit message, please put more effort on writing something
+> readable by a human.
 
-virtio_vsock_vqs_del() frees the virtqueues but leaves vsock->vqs[]
-pointing at them. If virtio_vsock_restore() then fails, the driver
-stays bound with a dangling vqs[], and the next freeze or unbind
-passes a freed virtqueue to virtqueue_detach_unused_buf():
+Agreed, I'll rewrite both messages myself for v4, much shorter.
 
-  BUG: KASAN: slab-use-after-free in virtqueue_detach_unused_buf
-   virtio_vsock_vqs_del (net/vmw_vsock/virtio_transport.c:785)
-   virtio_vsock_remove
-  Freed by task ...:
-   vp_del_vqs
-   virtio_vsock_freeze
+> >+            if (sk->sk_err) {
+> >+                    ret =3D -sk->sk_err;
+>
+> Why?
 
-Clear vqs[] after del_vqs() and when virtio_find_vqs() fails. Return
-early from virtio_vsock_vqs_del() when vqs[] is empty: a second
-del_vqs() would free virtio-mmio's IRQ again ("Trying to free
-already-free IRQ").
+Same as vsock_connectible_wait_data(): an error that arrives during the
+wait is returned to recv(). Without the check the loop still ends, since
+every path that sets sk_err also closes the socket or sets peer_shutdown,
+but recv() then returns 0 or -ENOTCONN instead of the error.
 
-Found with the help of Anthropic's Claude and reproduced on virtio-pci
-by failing the restore with failslab; the virtio-mmio IRQ issue was
-found by the netdev Sashiko review. With this patch neither report
-appears on virtio-pci or virtio-mmio guests, and the vsock vmtest.sh
-single-VM tests pass. A find_vqs() failure after some virtqueues were
-set up was not exercised.
+> >+            if (sk->sk_state !=3D TCP_ESTABLISHED) {
+> >+                    ret =3D sock_flag(sk, SOCK_DONE) ? 0 : -ENOTCONN;
+> >+                    break;
+> >+            }
+>
+> I'm thinking if we should split this in multiple patches.
 
-Fixes: bd50c5dc182b ("vsock/virtio: add support for device suspend/resume")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jerome Mohm <jrmmhm.kernel@eldare.de>
----
-Changes in v3:
-- Shorten the commit message (Stefano, Michael).
-- Drop the two comments on clearing vqs[] (Bobby) and shorten the
-  remaining one.
-- Drop the tool note below "---"; it is in the commit message (Stefano).
-- Comment changes only; not rebuilt or retested.
-- Link to v2: https://patch.msgid.link/20261028-vsock-restore-uaf-send-v2-1-675aad6da714@eldare.de
----
- net/vmw_vsock/virtio_transport.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+From reading the code, it can be split without breaking bisect: first
+loop on all exit conditions with the lock still held, then drop the lock
+around wait_woken(). The order is fixed, since dropping the lock alone
+brings back the early -EAGAIN, and the loop alone does not fix the
+deadlock, so both would carry the Fixes tag. That is why I kept it as one
+patch, but I'm fine either way. Split it like that for v4, with the
+current 2/2 on top, or keep it as one?
 
-diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
-index 4f9aa9c4c3aa..ffe7cd93463d 100644
---- a/net/vmw_vsock/virtio_transport.c
-+++ b/net/vmw_vsock/virtio_transport.c
-@@ -714,8 +714,10 @@ static int virtio_vsock_vqs_init(struct virtio_vsock *vsock)
- 	atomic_set(&vsock->queued_replies, 0);
- 
- 	ret = virtio_find_vqs(vdev, VSOCK_VQ_MAX, vsock->vqs, vqs_info, NULL);
--	if (ret < 0)
-+	if (ret < 0) {
-+		memset(vsock->vqs, 0, sizeof(vsock->vqs));
- 		return ret;
-+	}
- 
- 	virtio_vsock_update_guest_cid(vsock);
- 
-@@ -781,6 +783,14 @@ static void virtio_vsock_vqs_del(struct virtio_vsock *vsock)
- 	 */
- 	virtio_reset_device(vdev);
- 
-+	virtio_vsock_skb_queue_purge(&vsock->send_pkt_queue);
-+
-+	/* After a failed restore no virtqueues are live, and a second
-+	 * del_vqs() would free virtio-mmio's IRQ again.
-+	 */
-+	if (!vsock->vqs[VSOCK_VQ_RX])
-+		return;
-+
- 	mutex_lock(&vsock->rx_lock);
- 	while ((skb = virtqueue_detach_unused_buf(vsock->vqs[VSOCK_VQ_RX])))
- 		kfree_skb(skb);
-@@ -791,10 +801,10 @@ static void virtio_vsock_vqs_del(struct virtio_vsock *vsock)
- 		kfree_skb(skb);
- 	mutex_unlock(&vsock->tx_lock);
- 
--	virtio_vsock_skb_queue_purge(&vsock->send_pkt_queue);
--
- 	/* Delete virtqueues and flush outstanding callbacks if any */
- 	vdev->config->del_vqs(vdev);
-+
-+	memset(vsock->vqs, 0, sizeof(vsock->vqs));
- }
- 
- static int virtio_vsock_probe(struct virtio_device *vdev)
+> >+            if (!timeo) {
+> >+                    ret =3D -EAGAIN;
+> >+                    break;
+> >+            }
+>
+> Is the move of this check changing some user visible error?
+> I mean before this patch it was one of the first checks, is this okay?
 
----
-base-commit: 363c8c79220d0db4d65dcd570529ddda15067cb5
-change-id: 20261001-vsock-restore-uaf-send-1fc7396fa1bd
+Yes, for non-blocking reads, intentionally: -sk_err, 0 on peer shutdown
+and the not-connected result now come before -EAGAIN, as on the native
+recvmsg path. I'll say so in the commit message.
 
-Best regards,
---  
-Jerome Mohm <jrmmhm.kernel@eldare.de>
+> >+            if (signal_pending(current)) {
+> >+                    ret =3D sock_intr_errno(timeo);
+> >+                    break;
+> >+            }
+>
+> Why? Should be a separate patch?
 
+No, the loop needs it: with a pending signal wait_woken() returns at
+once, so without the check the loop spins until SO_RCVTIMEO expires, or
+forever if none is set. I checked it by removing the check: a signalled
+reader without SO_RCVTIMEO never returned and used a full CPU. The
+native path does the same.
+
+> >+            if (data < 0) {
+>
+> Why not data <=3D 0  and void the other if?
+
+Right, will do in v4.
+
+Thanks,
+Jerome
 
