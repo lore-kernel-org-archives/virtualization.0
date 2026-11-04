@@ -1,57 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793763942;
-	b=pvF1vojQZtRm803NF/16xx0KW5+8vSs2bJa908lVGP538tKSbQMBHBSx4lX8UhZPfzT6
-	 hHagpZZra36Pu67DgjAgLEBTFSwzsrg1rxE9PJpAqqDcEevy8EEhCacalJ94xxYpN/ukd
-	 kItciNGD2YqX8v+S8HHNxn4j2Y5r4kjo5NGDMI3SvQvrxtPXFXH7R6ee+zizWzx3+EE7X
-	 wjS5CMmCkXxkDUqrdKkwJUcVdMQe8p6yGrK8PzV3KUCsFbCHeF14xpy8R4t1clnR1Z4cp
-	 0aYSh/Y+4Ps77GVGvPtMqxPITdXrFM0uLRBtOmLh5bLG0EZtI09R0+U1Bo4QQlzPjHw==
+	t=1793764217;
+	b=WDfcDEykUSGGMTgnlh7CYCOVaaO/o8NYAFGlH3zKt4ftEtnL4hLrrXqXpW/Wo0j0fOLT
+	 TZOj9EvmXNNg0IYhhWpqEzgGNvkca83jfHMBT1aMiHDM9FUX1kk6IXYYgAw+Pws8Z65jG
+	 EZWpyBUo+XSLB6yGB9iz4HaH1iyU7QhTwWBkPzIMcy3a1ojscJId5QUQl6ecFDYDO9+D4
+	 iAUGKeXYkwr7TUv9Zs2Ytbqdj77EVJHy74+TYHNqhFRDwJxHh149hY6gjpskZ07xlz9MQ
+	 sYDfFvqg2tSbsqk1mqNSri4LBOShTf1J+uGyDszJZQ/hV6DODf2pgB4iGFTthGBbMWQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793763942;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793764217;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=ZWueSpOS900P7Vs4cBiTr3fWj7NOFsuJUl3ANKNed/Q=;
-	b=i2o1w9r+0G0bqdZDmrXVWvLSpa8/lCyU3V3MJIl8l3L8/k6ELI8Cq+M+eshbzIF14FBM
-	 Oy+Qmk2Q2lGT2GREWDGv33w1HzvB6hjyfbFzOtApnssCicqJNVdA3OQXAQ1ZrdssnT2bY
-	 DbU2N9Q7h1eD8D+SPILHgfBP0rQPxaTAgYXI0tTmrXhz6w8H6HmMEu+xHTKyke2p11O3x
-	 Dj/U99mLaWMOypkKma/tzO3GAEqjbhmD+pHunCeP4jFWCPjU4i3HJCLVdP690fJXzq5M3
-	 oTgfF6V/E+xC9rjjKAPpoihXVR8/BkfjzKMRyY0HNvNpzixfDMogB8Tgjvs9eFB71QA==
+	bh=z3dnmN9k8HHbXI9Us00ihbPA8aSvosWZzZvJWfWcdiI=;
+	b=PbpC2JS3lnCVvDXY6wykE701/mT9Nxx0RHmTfMFo8BaDkSuyKfMhm876o6d/5Aew6BSh
+	 YN+yclI8i1wY5QRVTFhUYtQ4J9MCbxmK4+1i9ZNNTY4c9pMJPy8dVZaQnXQrRrhfP9SV9
+	 4zpGMkWf3A+2i4/yrCk0Ij/eCjGNNZEukhJpPbZKPukA6e7l3fR30qJyBpw4ciBM3pCVU
+	 tOGy/Oi8T35zaR2AQLwAqCyDUh6HZ9mjSO852q6AHPOGOIa17pIJlsoMUUmdAdGeGlf6k
+	 hb9SYdR9WqIPj4KtXQLns8RX/PM14vTdhKh25Q9LskaUKdDEsms4lNa/M3Beo8if5jw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WUWQ54mp;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EIw3Uh0x;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87A6E606A31B
-	for <virtualization@lists.linux.dev>; Wed,  4 Nov 2026 03:45:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00E68606A31B
+	for <virtualization@lists.linux.dev>; Wed,  4 Nov 2026 03:50:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WUWQ54mp
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3CD91F000C1;
-	Wed,  4 Nov 2026 03:45:41 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EIw3Uh0x
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 949721F000C1;
+	Wed,  4 Nov 2026 03:50:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793763942;
-	bh=ZWueSpOS900P7Vs4cBiTr3fWj7NOFsuJUl3ANKNed/Q=;
+	s=k20260515; t=1793764216;
+	bh=z3dnmN9k8HHbXI9Us00ihbPA8aSvosWZzZvJWfWcdiI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=WUWQ54mpDYNlcs1FXMqYcOuDbiJ6yjv3Y5YxiVWaixkQ8+24ey2E23MybwZs4dAmJ
-	 Ray4VM+Z04s0rkeMKYXIdvBZygdS1hKpB5lhpmRva4JycIxLemhupBES+zris22qh7
-	 QJEpYOQtgObAPaKLMzNF+iBrqy0DFBE9NmUpasHpgaKBjNhV+S4oazRuaps6vM+Jel
-	 f0r/tm1oU85hBpsvDEJ9RXVPkf6BpF47pwBJJRBVIgH4DCHS1Ws5OKfbd2IQcFfwI4
-	 6JppcakjM4b1+SbKbU3ai/22PpSy40XCGeoj2Rh3sxyqkrOcYkhm95WwOvLzIHQFrY
-	 I8Y/vmhFcBJ7Q==
-Message-ID: <sashiko-outbox-196632@kernel.org>
+	b=EIw3Uh0xMAFLWqch0ll9ppBriBzQyGp8O6ICC0jd8MnRLI4HCRgvHHTNE7hdnP4Ba
+	 uI7wACMSHyaqTq5tT91HCVpPT9MqWfWuPpTGfr6O68GoQbQ+kTf2liaI9KdWmE2XbC
+	 vlEQP6fBLtYLOL+NVLHob2z+ArIlhYlM1sniB74+oqd4F+2URfyzzuWjcs7UQ56Wyy
+	 DsgpbS/MvBj4N1UX4YMrb3RlRcyT9Jq2ntSNXh6e19pAO2fYMYj7ZMz+Vs+dhK8CMZ
+	 roitkYjrAhfNPU9o9m4NImhyt4cxsvHG5ifN81KAU03m9txiGW8yiTHcPgGzjZGAVP
+	 7ejliT17UehmQ==
+Message-ID: <sashiko-outbox-196637@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v14 12/12] docs: describe virtio-sound capture options
+Subject: Re: [PATCH v14 10/12] ALSA: virtio: add staged capture and
+ serialize PCM lifecycle accounting
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Joonho Lee" <mynameisjune111@gmail.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261104021745.57733-13-mynameisjune111@gmail.com>
+In-Reply-To: <20261104021745.57733-11-mynameisjune111@gmail.com>
 References: <20261104021745.57733-1-mynameisjune111@gmail.com>
- <20261104021745.57733-13-mynameisjune111@gmail.com>
+ <20261104021745.57733-11-mynameisjune111@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 04 Nov 2026 03:45:41 +0000
+Date: Wed, 04 Nov 2026 03:50:16 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -61,10 +62,24 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> Document the five opt-in virtio_snd capture module parameters. State that
-> capture_allow_empty, capture_allow_short, capture_packed_status and
-> capture_pause_restart require capture_staging, and use the ALSA kernel
-> parameter restriction tag for each entry.
+> Use request-owned RX storage and separate produced, observed and consumed
+> positions for shared capture clients. Serialize lifecycle operations with
+> lifecycle_lock and ACK accounting with the PCM stream lock.
+>=20
+> Close ACK admission before any sleeping teardown and keep prepare's gate
+> through the core pointer reset. Reject unavailable epochs with -EBADFD.
+> Real transfer XRUNs arm stop_operating in ACK and pause/restart triggers,
+> so DROP and prepare retire the remaining device state.
+>=20
+> Track RELEASE completion and rearm release_required immediately after a
+> successful resume PREPARE. Publish the resumed prepared state before RX
+> submission because a device can complete RX before the START response.
+> Record suspend state even when the stopped stream has no queued messages.
+>=20
+> Account staged ACK progress in runtime->min_align frames. Advance the
+> [ ... ]
+>=20
+> The capture compatibility options remain opt-in and disabled by default.
 >=20
 > Assisted-by: LLM
 > Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
@@ -73,5 +88,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104021745.5773=
-3-1-mynameisjune111@gmail.com?part=3D12
+3-1-mynameisjune111@gmail.com?part=3D10
 
