@@ -1,106 +1,67 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.179
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793806622;
-	b=cQdYcOFf8tTfQpSoobXHtWUvUxQGulTF11+mxWLbolVJfkhxjXtEQkhBkqsLE48YPU9a
-	 RI2Ssazw3Gi7yH3cFBQtXZyJyJ5EpoLoVEnYeeLt0e5h2A3xNCfshjOZ/+Pao9fkaKpqG
-	 C+4i0LVd+7JbLHS1eXrJDXLwIY9jwcLfYt76tE4/Htu3290f7LRMzS7NaweXOHcFlFwf9
-	 /RCS7SQxZbE99UUbdzPiHyVMlK26TbBriScriaUEmNRIuRr9TftbWnu8Qx/GHvKPnPCTT
-	 iKpiFQFJFRxkta+yJQqAz5AYqnmlDMotT8KCV2liNCPFEwZLfkr+3qYv5btKWOf1iKA==
+	t=1793808229;
+	b=DqDHp580h3A0aZDIjI06rVEtKi6Qb6ISArJmNF81AKHaHsQaFAWVCoKT6O0Rzya0YGL+
+	 y8rFnsCJtXKYOim8AGxM/QWy0ye35bN7Qb5Lh+33Ug4PQkovHEGyBWqmziasKCcSNSWPS
+	 FL/jJjiEdAmy3BTiTgk1Nul5kLycR+1vSGjumRlQsJqJdimrZJKnBGJW8AxlZYeXPgimc
+	 0/Ed4nNIhZwrhWJeeMp2+6YaAhfzaTxfiacuGnDnLNOtuzFabPNtxEPUa1APAwEj1wgK5
+	 GUln7FGAXOwPpvpVQHxAn00cHsuxvW6TyTQHbzZSd3z78UkbzXLRiJo6whViYUcPQDA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793806622;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding;
-	bh=hVIa3swhsbmrrYjC4G+lOwvdapL/nqbZUw7IU7FT/vo=;
-	b=yJ1EVOE70Rj7vG8Whn70FxqNKft3WX2/BsIGnZ132JcljsoFXAG6Ii8PykaI/lQ1zvpY
-	 fl4UwI9ph0f9LOJbrwA2inBRGZa2d+I8j24XqXFFMM0MBzryJqPJfs6YVaf0xMRmaCBhu
-	 G0tVsCASlSQ2gzZq0PHd311a079P+9xNpP9oLDEqTxEmTFUyMN5tLN/CltLaQ0F6I470d
-	 zajsh8fQ8koghqvDjFSh9z/7a9zgAzs4KYLlSPyzKOBrLNpdJYbbk58nOcMrtJjjZgU3O
-	 FT8lDD/XIviXs2ehaPor6UqiiZrgNN33+BVbvpknvqxLyRW+1LWiO3SQePPHQ2zTpSw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793808229;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=4z0jvqdS/1LMWIjFo97DLyqM1S7YnHqeCK2uONFB0l0=;
+	b=MO83QFkT2YdfJtyKLkx/y023AZAobTdDtkE7doTUWNuxma6dgdWnThWwW3qx2EqNnI85
+	 Jn/ciP63h/cV7Ngbupc3wRSKxJARrtc6lqWEPe1B0VNk+oZDKZJ8qx2sLzxeo8AnRU2u1
+	 B+rRGNSia6VszK44Xnecs3ApB0LtkcKKqXKmGy60id317u9bIWPOq7Ytl6GAP7spkHyMV
+	 O/xI9K7t4rRPiK1VM/F+rlgE7Wpcu93p5K2l34Gxd6vYcML5CNPGVj5mjRAprMPkxyijp
+	 HiR9uzCl82LSSfCoSPtkJESd0dJQ5510lTErnZEsa08ziJIqCQNY67qSFQS637mVlBQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=LgdYpm7g;
-	arc=none smtp.remote-ip=209.85.221.179
-Received: from mail-vk1-f179.google.com (mail-vk1-f179.google.com [209.85.221.179])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lvmssJKq;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A23C2606D831
-	for <virtualization@lists.linux.dev>; Wed,  4 Nov 2026 15:37:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A23C2606D831
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E54AC606A337;
+	Wed,  4 Nov 2026 16:03:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=LgdYpm7g
-Received: by mail-vk1-f179.google.com with SMTP id 71dfb90a1353d-5eaefe5b523so544042e0c.0
-        for <virtualization@lists.linux.dev>; Wed, 04 Nov 2026 07:37:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793806620; x=1794411420; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:mime-version:subject
-         :references:in-reply-to:message-id:cc:to:from:date:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=hVIa3swhsbmrrYjC4G+lOwvdapL/nqbZUw7IU7FT/vo=;
-        b=LgdYpm7gILENQdkdEgIezV8joSSgsNEJTDDyDilFRWDkfsG7RGcxI9Gynyy0pen8/Q
-         H8tFAW1KAb9i41EMre5Q7c7WUtnXqKIMDHyQog/1fOhPoZlw2ltgqegtE8SLuzjJe9cX
-         Fhs9Ai6wkMYgLywoR7z/v+zuq98zSEHjH8wWwAVpY5QEuV0W2tyvAF3BK29bF8oK57Qd
-         eSIQ2LPje0Q+GYX5xU4r+mpXGtKjr5qjswK5/V1uPQRGCySICU0Z38vwcOYCQpd5K/X6
-         5dHhK79VCaEcsE6Q0ewYNEBxnIWFm7TEgQoRMmTc+RFyuTHLF/cmvlAwBdDH0wja37C2
-         qe1A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793806620; x=1794411420;
-        h=content-transfer-encoding:content-type:mime-version:subject
-         :references:in-reply-to:message-id:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=hVIa3swhsbmrrYjC4G+lOwvdapL/nqbZUw7IU7FT/vo=;
-        b=fKgy+gzDSK6GduGBCGH1fM4WqM1EVVjcxLMuWPSxqS9Ry4zE+9uPsD7bSAi0cGWww6
-         ssGX+e6JD28PkbWQ+zn9+IL0Uu3r9Y5C+IdO+mE36VtmD52OFsZFtj715SokYhD9veDH
-         YSAQVuUv/WIWzFlFhOAVC7cWrOy2zLY1AWJp4fE68IP5fazkEXyi9GVcSeZIsd0vChZP
-         lN/KmfWVy3bmY1lBKZYUjHmZnj0Iwa4C7HPCeSONyhgLheS7vE8OSGn/rox8ZPcO43HN
-         Js3ORaGKz83a6bTk3MCzFmWfZWzLBeG2kuaih/iZWjDM9wIsEU7WLXnLO8TcxO5EiAIW
-         xUYA==
-X-Forwarded-Encrypted: i=1; AKwUvBwqu8CoQPr8CfLOQRyTEvrNz650edLMqVKLr7UPbHnqZPIz4euRXI59macAxvZUg5aJkvxCXLbS26kz1mpitw==@lists.linux.dev
-X-Gm-Message-State: APuU4Z9WLkCVC9kbPyn/qt/8nJImxKZLiSZAvxhupXjFdkqcPzv6frUo
-	uSvTEvIPOOXlaavqyEOBUHdGHvAdxgYLoHoYq8L3j0TnPSTCssDmKHXy
-X-Gm-Gg: AYBFou2xdphSXrV89QPHdYFkdppFlcU+BM56waBXnGI5hvHuW/MX/1OTxTHU8TKl96X
-	tP7jN8YrKGYQt/Jf85rQOmt/JkaozhzUg4iVQZ7XwubtWJxe/rdvRytbFiO8YTPpws+EfNhkiKm
-	ChksTlvtnNDBHm174RRWth+Wcq8txPxBh6TkU44o1XmCjvVFk4VeTVLH1TC2SutYldUSQsA3Evz
-	pAUhuCfOJzrhzQtIQ2O5dYcR01TGe4o13GOFdLuab/Ggl1nNTQEN8IWJobnaWojuAPw4gVXiOgT
-	+cmjsciSX5Vmc5NUQu1HFLsoan34FHBHgHNpib+UghFgtT3RGjEKtHkIdxE669tAgpPJNlJnChN
-	bPDW2wN2VIMDFIjZrGiA+lrbzWC2A6uCzFSRL4H5Bo/F90wxxvB+keUsQnzgDtmKAYMp8obtYdM
-	r/iw/EM+RV0AjDQWwtpmdiVLG+qQ8cfKVJNIzI8nNaKoNFNixMG1A3qEv1NKUJ+zbd1+JnHSJQP
-	QnvjiG9uocoOFmUVm0exIkLQWzyU+ZVRyNoCMbao6JLntaRvnCelEm7mEWtWEPMLBKP0ay3H9MK
-	fpbh85pJVJwdONcobUjeK9GeSlJc9xktCNZVfD5C8I2gAmVsHbzuETilaA6xqZB2WeAaWxRdTXS
-	6nDmC2YOo89m7pQ/L/xAFRYrOTHdINWx2laPYXnSola9Im38ykasx7IgMdO4lHoDpNryRf3jPg+
-	rm1NfRL0bkf1pUhWtR8w==
-X-Received: by 2002:a05:6122:4d86:b0:5ea:aedd:6087 with SMTP id 71dfb90a1353d-5ec6871d3d2mr7672956e0c.4.1793806620530;
-        Wed, 04 Nov 2026 07:37:00 -0800 (PST)
-Received: from gmail.com (223.230.150.34.bc.googleusercontent.com. [34.150.230.223])
-        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-5eca8d774dcsm1927819e0c.5.2026.11.04.07.36.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 Nov 2026 07:36:59 -0800 (PST)
-Date: Wed, 04 Nov 2026 10:36:58 -0500
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-To: Eric Dumazet <edumazet@kernel.org>, 
- netdev@vger.kernel.org, 
- "David S. Miller" <davem@davemloft.net>, 
- Jakub Kicinski <kuba@kernel.org>, 
- Paolo Abeni <pabeni@redhat.com>
-Cc: Eric Dumazet <edumazet@kernel.org>, 
- Simon Horman <horms@kernel.org>, 
- Willem de Bruijn <willemb@google.com>, 
- "Michael S. Tsirkin" <mst@redhat.com>, 
- =?UTF-8?B?RXVnZW5pbyBQw6lyZXo=?= <eperezma@redhat.com>, 
- Hassan Sultan <hassansultan@google.com>, 
- virtualization@lists.linux.dev
-Message-ID: <willemdebruijn.kernel.394adf46ec48d@gmail.com>
-In-Reply-To: <20261104050131.629967-4-edumazet@kernel.org>
-References: <20261104050131.629967-1-edumazet@kernel.org>
- <20261104050131.629967-4-edumazet@kernel.org>
-Subject: Re: [PATCH net v2 3/3] selftests: net: tun: test outer protocol of
- UDP tunnel GSO packets
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lvmssJKq
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EAF61F00A02;
+	Wed,  4 Nov 2026 16:03:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793808228;
+	bh=4z0jvqdS/1LMWIjFo97DLyqM1S7YnHqeCK2uONFB0l0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=lvmssJKqKlBB8zb6lcm8q6aHeXG/qCiP+gUjcU9nvF+xGya/hGTMk+h5EqGwaP7Dg
+	 hCEjLaOMvxn99ux2L1vQ1WZcAx2UrUfxZq7tcVAtMx/fDv/Y5cU6wFg00SgqtSbZ+a
+	 /WXDF59xns9xcQX8OTZxjVf71BkxvniIjNyKm58RvBXNg83UcnxxNX2rY1B43JrSuJ
+	 8RqAyPwTf10OjQuQ7aJ8eKOoS80vk/S9VLlqiPDSLY5yZngtZ4hz6g28t2nn+PF25i
+	 8xKOs2XnzNhgBZUBhfQUJEOVMjBCn0dWJFHOAMfzJuGQi9BEpg3Gc3u0bauDSadtxU
+	 b+XunlvXOSbvg==
+Date: Wed, 4 Nov 2026 10:03:46 -0600
+From: Rob Herring <robh@kernel.org>
+To: Vikash Garodia <vikash.garodia@oss.qualcomm.com>
+Cc: "Joerg Roedel (AMD)" <joro@8bytes.org>,
+	Vasant Hegde <vasant.hegde@amd.com>,
+	Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Lu Baolu <baolu.lu@linux.intel.com>,
+	Jean-Philippe Brucker <jpb@kernel.org>,
+	Saravana Kannan <saravanak@kernel.org>,
+	Tomasz Nowicki <tomasz.nowicki@caviumnetworks.com>,
+	Eric Auger <eric.auger@redhat.com>,
+	Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
+	iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev, devicetree@vger.kernel.org,
+	Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>,
+	Vishnu Reddy <busanna.reddy@oss.qualcomm.com>
+Subject: Re: [PATCH v6 2/2] of: Add support for "iommu-ranges" on a device
+ node
+Message-ID: <20261104160346.GD3951195-robh@kernel.org>
+References: <20261103-add_iommu_ranges-v6-0-361f3921a133@oss.qualcomm.com>
+ <20261103-add_iommu_ranges-v6-2-361f3921a133@oss.qualcomm.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -110,34 +71,67 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261103-add_iommu_ranges-v6-2-361f3921a133@oss.qualcomm.com>
 
-Eric Dumazet wrote:
-> Add tests writing single 4in4 Geneve GSO frames to tun devices with
-> UDP tunnel offloads enabled.
+On Tue, Nov 03, 2026 at 08:59:33PM +0530, Vikash Garodia wrote:
+> Reserving an IOVA address using "iommu-addresses" requires it to be
+> placed in the reserved-memory node. But when "iommu-addresses" is the
+> only property being described and there is no backing "reg" (i.e. no
+> actual reserved system memory), it does not really belong under
+> /reserved-memory. A device IOVA range is specific to its own address
+> space, and does not describe the system physical memory to make it
+> qualify under reserved-memory. Given this, place "iommu-addresses"
+> inside reserved-memory only when it is paired with a "reg", otherwise,
+> define it within the device own node. It was discussed here:
+> https://lore.kernel.org/all/662f7093-fb0a-4564-9ca0-98e03e68ba9a@kernel.org
 > 
-> tun_vnet_udptnl_proto uses a tap device:
+> Existing "iommu-addresses" property expects a phandle, which does
+> not make sense when the property is defined within the device node.
+> "iommu-ranges" was introduced to specify the device specific IOVA ranges
+> when there is no backing "reg".
 > 
-> - outer_proto_ok: an outer IPv4 header, with or without an 802.1Q tag,
->   is accepted.
-> - outer_proto_bad: an outer ethertype that does not match the declared
->   tunnel type (IPv6 on an IPv4 tunnel, or NSH, with or without a VLAN
->   tag) is rejected with EINVAL.
+> Suggested-by: Rob Herring <robh@kernel.org>
+> Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
+> Co-developed-by: Vishnu Reddy <busanna.reddy@oss.qualcomm.com>
+> Signed-off-by: Vishnu Reddy <busanna.reddy@oss.qualcomm.com>
+> Signed-off-by: Vikash Garodia <vikash.garodia@oss.qualcomm.com>
+> ---
+>  drivers/iommu/of_iommu.c | 134 +++++++++++++++++++++++++++++++++++++++++++----
+>  1 file changed, 125 insertions(+), 9 deletions(-)
 > 
-> tun_vnet_udptnl_proto_l3 uses an IFF_TUN device with a tun_pi header,
-> so skb->protocol comes from userspace and there is no Ethernet header.
-> The outer IPv4 header carries options, as virtio_net_hdr_tnl_to_skb()
-> expects room for an Ethernet header before the outer transport header.
-> 
-> - outer_proto_ok: tun_pi and the frame agree on IPv4, accepted.
-> - outer_proto_bad: tun_pi claims IPv6, or the IP version of the frame
->   is not 4 while tun_pi claims IPv4: rejected with EINVAL.
-> 
-> Without the first patch of this series, both outer_proto_bad tests fail
-> because the kernel accepts the frames.
-> 
-> Signed-off-by: Eric Dumazet <edumazet@kernel.org>
+> diff --git a/drivers/iommu/of_iommu.c b/drivers/iommu/of_iommu.c
+> index 5c266511db78910d6fd221af5437cecff4931c22..0428ceb50dec58f11872b4fb64e283fa8d9046a3 100644
+> --- a/drivers/iommu/of_iommu.c
+> +++ b/drivers/iommu/of_iommu.c
+> @@ -185,11 +185,118 @@ iommu_resv_region_get_type(struct device *dev,
+>  	if (start == phys->start && end == phys->end)
+>  		return IOMMU_RESV_DIRECT;
+>  
+> -	dev_warn(dev, "treating non-direct mapping [%pr] -> [%pap-%pap] as reservation\n", phys,
+> -		 &start, &end);
+> +	dev_err(dev, "non-direct mapping [%pr] -> [%pap-%pap] is not supported\n", phys,
+> +		&start, &end);
+>  	return IOMMU_RESV_RESERVED;
+>  }
+>  
+> +/**
+> + * of_iommu_derive_resv_regions - derive reserved regions which
+> + *                                are outside of iommu-ranges
+> + * @dev: device for which to get reserved regions
+> + * @list: reserved region list
+> + *
+> + * A device can describe its own usable IOVA ranges directly on its node
+> + * via "iommu-ranges". Everything not under those ranges is derived
+> + * as a reserved region so the IOMMU allocator won't use it. Entries may
+> + * appear in any order in the property.
+> + */
+> +#if IS_ENABLED(CONFIG_OF_ADDRESS)
 
-Reviewed-by: Willem de Bruijn <willemb@google.com>
+Is this really needed? Assuming CONFIG_OF is enabled, this is only false 
+on Sparc. I don't think Sparc needs anything in this file. There 
+aren't any IOMMU drivers for Sparc unless COMPILE_TEST is enabled. So 
+maybe building of_iommu.c as a whole should depend on CONFIG_OF_ADDRESS?
+
+Rob
