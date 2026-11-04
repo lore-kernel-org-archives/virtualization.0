@@ -1,83 +1,66 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=67.231.145.42
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793742202;
-	b=EAZxHdTfd8aOeNTfieFK0NHbimvvebkxIp48qbYvNqzpbTpBp6AdTxt7jzwV/7odUMHo
-	 3JMdjZ2+PUatKu9dTViGVudCXPXbKBEY2v9OrDOBLKT+XQaHsgUNNxNuNK3rpl/xAgrhj
-	 jVtRRbgV2BaCK1KoZ5Hn/OvolAWQG9H6w0zLv+QZOl7I5nAae9zneStT8GmOEj6X7ihMa
-	 ExlfPhtqtJygpB3pid62DF/pfqVATLnAK3vHVS23jlg8vBOroE81tUVCjqCylUYMhjwK/
-	 lKGGRR/soSnIXr+jYll219w7cKap3XG2hUgYybxl9rGYuL4KAGIxsrbIVXCjlXZ0wyg==
+	t=1793757261;
+	b=cT5maV6CDMxw8GJpj0e04u+7hP7gfZio23g4xtjWxd7ax/rbKr3cUUpqHMJxBxSz937r
+	 wbxd+wHuPEsZFazW0MX6YErq2zcVFwmkEjUSW0tS6MDnBZWWKu90ozHg4etAheCUWExjH
+	 O6DWQZZwxckj1gyE9UwVBCHZBnMDvDqs+sdNrTyz/qWFjZ7LvPA52yKecTBPAeD4n9EnQ
+	 lkBbnpXMSvrYrqaKRVU7HKa9/oIyDax6vpaPxsJ8ITNNbeQLDHXjq+czYOZnOWFbBBv9i
+	 IsC/lqxuvc9SbBm6QhBadg6JQd699UVb5VnldxAqd8mf4HBLzqCZYMt9VyaRQeKX7TQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793742202;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:Received:Date:From:To:Cc:Subject:
-	 Message-ID:References:MIME-Version:In-Reply-To:X-Scanned-By:
-	 X-Mimecast-MFC-PROC-ID:X-Mimecast-Originator:Content-Type:
-	 Content-Disposition;
-	bh=Gdx/WQdxu5mNkZRNRx7LJXwK9h4DO072qzsRF6KgrFQ=;
-	b=kS37k0fAr2XGieOMGFjTqwAHJbM5eHRJ4EcXsB78obge8QQBfFNC87D3KFpcOYqEBlCw
-	 q3krf/HqZeS5DFLsEoKLs37GcjMsDlOiLREzhVICkX2U0e/EXZMZy5Q3wfidKrYtAWryf
-	 QfzquJkcmkT/fBj0IFcLZCC9+EAHokyy3MtrxeToilKMETop7Z+QWDPgZX6RQHY8jgZyT
-	 URy7NzR54Wao0Ego1/9vW+mfbNIl/D3MWQez3CLUbtsvgOGGMcgan38uiAVdCm7J/EEO1
-	 nV8nc2Wcj5AIHinG1RdoeDpoDRhONhSVeX6WXQ0fZpKggshFNH5zH0hZfKtOBUYESnw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793757261;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:From:Date:
+	 Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
+	 Message-ID:References:In-Reply-To:To:CC:X-Mailer:X-Originating-IP:
+	 X-Proofpoint-GUID:X-Authority-Analysis:X-Proofpoint-Spam-Details-Enc:
+	 X-Proofpoint-Spam-Info:X-Proofpoint-ORIG-GUID:
+	 X-Proofpoint-Virus-Version;
+	bh=oR+Bkg8GJxAW2CVAmjRHYxlRtmLJ1D5BjCzlD2s/Akw=;
+	b=GujnAEOmPWSMMoXgsQx+oE3GUvpdMG/ZxC0Ef5/fT/l/8fHkEFdpEnXLSoE+b8NU337Z
+	 RB5TPwES7nar4F9dJrUn5BKv2SpYxHYgMxW/lLTcA2nBkO7jD+apF7deu21IJn5eEwQHZ
+	 +5WnLQzzqwYy4ND0Sfh9MQtN/kvv0AR2fipWl9iX+f35j0FctYBGMBdfLOC2KxqbrJNyi
+	 63UCsqjRl95u6KU4WkxVqGyAVe+6YOP4s5aZ6kZZbrpZIc56/rlD07OZ0ScyyHKKd92tc
+	 H6LAZzGXOhrm9SCKiMARCeNlrwKQu/RUGfy1z5Ap06D6E4lAiyXcuJ3WYS8V9dEX09w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b="P/sHOt4o";
-	arc=none smtp.remote-ip=170.10.129.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	dmarc=pass header.from=meta.com;
+	spf=pass smtp.mailfrom=meta.com;
+	dkim=pass header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=JLHhJh1k;
+	arc=none smtp.remote-ip=67.231.145.42
+Received: from mx0a-00082601.pphosted.com (mx0a-00082601.pphosted.com [67.231.145.42])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8BFB606EE82
-	for <virtualization@lists.linux.dev>; Tue,  3 Nov 2026 21:43:21 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C8BFB606EE82
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EDF2606A31B
+	for <virtualization@lists.linux.dev>; Wed,  4 Nov 2026 01:54:20 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6EDF2606A31B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=P/sHOt4o
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1793742200;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Gdx/WQdxu5mNkZRNRx7LJXwK9h4DO072qzsRF6KgrFQ=;
-	b=P/sHOt4ogENWbCgi9EWRBIx65oOiPOkFDrQuuKaI8fsVf0ldoT1vg/G6+Hn535LuJwRnyp
-	5KEHlp6HenW4dbl6k7+NZWguJYwM0f5nlRl6yYqHnIeSo29iaIEwk5Eq9pW8uGSLfgrwYd
-	+EQxr/U9aOgXvjfE7s6Tr/pzh8GWl9A=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-649-YYDZYaQiMUuMg9E1mMQlNA-1; Tue,
- 03 Nov 2026 16:43:17 -0500
-X-MC-Unique: YYDZYaQiMUuMg9E1mMQlNA-1
-X-Mimecast-MFC-AGG-ID: YYDZYaQiMUuMg9E1mMQlNA_1793742196
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id BB1E5195604E;
-	Tue,  3 Nov 2026 21:43:15 +0000 (UTC)
-Received: from localhost (headnet04.pony-001.prod.iad2.dc.redhat.com [10.2.32.116])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id C44F5195608D;
-	Tue,  3 Nov 2026 21:43:14 +0000 (UTC)
-Date: Tue, 3 Nov 2026 16:43:13 -0500
-From: Stefan Hajnoczi <stefanha@redhat.com>
-To: Hannes Reinecke <hare@suse.de>
-Cc: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>, mst@redhat.com,
-	jasowangio@gmail.com, mkp@kernel.org,
-	James.Bottomley@hansenpartnership.com, pbonzini@redhat.com,
-	eperezma@redhat.com, virtualization@lists.linux.dev,
-	linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-	sashiko-bot@kernel.org, kwolf@redhat.com
-Subject: Re: [PATCH v2] scsi: virtio_scsi: implement eh_host_reset_handler
-Message-ID: <20261103214313.GA2159241@shajnocz.csb>
-References: <20260911164417.33860-1-ngocthang2710.1999@gmail.com>
- <28865bba-ac60-4c6e-aec8-64b1fcdb1c8f@suse.de>
- <20260914133144.15509-1-ngocthang2710.1999@gmail.com>
- <20261102200615.GC1738758@shajnocz.csb>
- <c5460180-e134-423a-b67f-a58a00106eb8@suse.de>
- <20261103135156.GB2072598@shajnocz.csb>
- <bdef8300-8570-4103-8c8b-cb978c88eb81@suse.de>
+	dkim=pass (2048-bit key, unprotected) header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=JLHhJh1k
+Received: from pps.filterd (m0148461.ppops.net [127.0.0.1])
+	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A40STr43727576;
+	Tue, 3 Nov 2026 17:54:04 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=
+	pps82601-s2048-2026-q3; bh=oR+Bkg8GJxAW2CVAmjRHYxlRtmLJ1D5BjCzlD
+	2s/Akw=; b=JLHhJh1korhfc+kAoLkD7tpKzO4/g+QQyNVLTcABw4JPEEVnjq/m4
+	UsTM8qbhUpYDxKxKlKIu5jBLRYPTe9zFHU6q1Lw13Bb6ocfLDunRtV3/XakHtP+n
+	NLV7vCXO+sFBDAoi40vIvtRE3FoJ/9Qn7H3dqTPBqo/9CeQl7384n0OIv0cwKzvp
+	QATjyUsU92FMi7NjnFRkjyMTPALoc8C5cAZFnPYpPw/a2FFdOVM7lESlhhQF+egn
+	3Xi1ml3LBnSymUxCw8Oj3KX36J9qd+VJrqQRpinv2nty5Y/BkRj+FLtVHzDGaPrP
+	th3zov8siEpFkvQV54v0KcEG424pLlzAA==
+Received: from mail.thefacebook.com ([163.114.134.16])
+	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4hqbb1qbu4-4
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
+	Tue, 03 Nov 2026 17:54:04 -0800 (PST)
+Received: from localhost (2620:10d:c085:108::4) by mail.thefacebook.com
+ (2620:10d:c08b:78::c78f) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.56; Wed, 4 Nov
+ 2026 01:54:03 +0000
+From: Bobby Eshleman <bobbyeshleman@meta.com>
+Date: Tue, 3 Nov 2026 17:53:18 -0800
+Subject: [PATCH net-next v5 3/7] vsock: pass the netns to
+ ->has_remote_cid()
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -87,126 +70,144 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-In-Reply-To: <bdef8300-8570-4103-8c8b-cb978c88eb81@suse.de>
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
-X-Mimecast-MFC-PROC-ID: NZGW7bQ2DTAoQvHMA6dhjixTaIVsZOoCdTuYDbhBtdI_1793742196
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-ID: <20261103-vsock-guest-ns-v5-3-48179b9b66b8@meta.com>
+References: <20261103-vsock-guest-ns-v5-0-48179b9b66b8@meta.com>
+In-Reply-To: <20261103-vsock-guest-ns-v5-0-48179b9b66b8@meta.com>
+To: Stefano Garzarella <sgarzare@redhat.com>,
+        "David S. Miller"
+	<davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
+	<pabeni@redhat.com>,
+        Simon Horman <horms@kernel.org>, Jonathan Corbet
+	<corbet@lwn.net>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Stefan Hajnoczi
+	<stefanha@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang
+	<jasowangio@gmail.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+        Shuah Khan
+	<shuah@kernel.org>, Randy Dunlap <rdunlap@infradead.org>,
+        Donald Hunter
+	<donald.hunter@gmail.com>,
+        Eric Dumazet <edumazet@kernel.org>,
+        Eric Dumazet
+	<edumazet@kernel.org>
+CC: <virtualization@lists.linux.dev>, <netdev@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <linux-doc@vger.kernel.org>,
+        <kvm@vger.kernel.org>, <linux-kselftest@vger.kernel.org>,
+        <sargun@sargun.me>, <jlinbox@meta.com>,
+        Bobby Eshleman <bobbyeshleman@gmail.com>,
+        Bobby Eshleman
+	<bobbyeshleman@meta.com>
+X-Mailer: b4 0.14.3
+X-Proofpoint-GUID: Me3SgFmUXnB2ZtChJutEyFXdcG4XU-ey
+X-Authority-Analysis: v=2.4 cv=LsIHWXdc c=1 sm=1 tr=0 ts=6aea903c cx=c_pps
+ a=CB4LiSf2rd0gKozIdrpkBw==:117 a=CB4LiSf2rd0gKozIdrpkBw==:17
+ a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=7x6HtfJdh03M6CCDgxCd:22 a=03ozwUkBphtHgyqjj1sw:22 a=20KFwNOVAAAA:8
+ a=VabnemYjAAAA:8 a=XJcQsa36eN5O9Fc7FbYA:9 a=QEXdDO2ut3YA:10
+ a=gKebqoRLp9LExxC7YDUY:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTA0MDAwNyBTYWx0ZWRfXx+zuCa20p+Po
+ /fWnkqje2odZn539UhAfWdoHvrt3EjTT2/AL2u0vUR1IY2G3rQFUxSxnZsDVwNR0CFf0LYrjq35
+ cVLh+CrhJMmESahPRnfBwdyaeJ+4q1yQU8z/2TatEdHIfUVFWQeX8235TCNZe8G32W3XK+t7ZHc
+ pdOzICV6XE22iHhrAch0C4W24gz9g4eaq1NMIiyS7RJA1qfapEN89dTN/rS0QtPUaKFowYMRJ9N
+ /O9swn4ggQK+VHTaNbaye8Ip3JxNLrAoX28vhvH3WVuFCwiemcs+vffRVk8x3N4nP8x1c/U9X1Y
+ Sfsz36YHLss9ukGryES1hKFsan3meLBhFo2mGB1h9orRUxt4kzCjWeKiaF0H7ozrDY86BU69LkP
+ W1nnlhGDAjnveWb6eBG+D25UwKK9y4el3bHG3qSjOR+nsdv2TIWQR7lo10PbkAtgXZmCcyvVWIr
+ B4501mf8abfr5BbTeeQ==
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTA0MDAwNyBTYWx0ZWRfX66HY/FS/arBk
+ /otKztARnWDnBYLZ/ZD+KmUZ6S+/SBfupujqkf+oR3bp0zsYM2w9TnjfP5mu4egsItK8evp4oMf
+ Ra+KqFA/xERvwBYT/H1tbVZYoxCzoNY=
+X-Proofpoint-ORIG-GUID: Me3SgFmUXnB2ZtChJutEyFXdcG4XU-ey
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-11-04_01,2026-11-03_04,2025-10-01_01
 
-On Tue, Nov 03, 2026 at 05:26:44PM +0100, Hannes Reinecke wrote:
-> On 11/3/26 2:51 PM, Stefan Hajnoczi wrote:
-> > On Tue, Nov 03, 2026 at 08:27:52AM +0100, Hannes Reinecke wrote:
-> > > On 11/2/26 9:06 PM, Stefan Hajnoczi wrote:
-> > > > On Mon, Sep 14, 2026 at 08:31:44PM +0700, Nguyen Ngoc Thang wrote:
-> > > > > Once virtscsi_eh_timed_out() lets SCSI EH run on an unresponsive host,
-> > > > > abort and device reset both fail the same way (same dead ctrl vq), and
-> > > > > since virtio_scsi implements neither target nor bus reset, EH falls
-> > > > > through to scsi_eh_offline_sdevs(), which frees the stuck commands' DMA
-> > > > > buffers without any guarantee the device has actually stopped touching
-> > > > > them. If bus mastering (or whatever broke the transport) comes back
-> > > > > later, the device can still write into memory the kernel has already
-> > > > > reused.
-> > > > > 
-> > > > > Add a real eh_host_reset_handler instead. virtio_reset_device() is the
-> > > > > guarantee scsi_eh_offline_sdevs() was missing: once it returns, the
-> > > > > device will not touch guest memory again, so it is safe to hand
-> > > > > outstanding commands' buffers back. Reuse virtscsi_remove_vqs() +
-> > > > > virtscsi_init() -- the exact sequence already used across
-> > > > > suspend/resume -- to tear the virtqueues down and rebuild them.
-> > > > > 
-> > > > > Verified with a QEMU virtio-scsi repro (PCI_COMMAND_MASTER cleared
-> > > > > mid-write): EH now runs abort -> device reset -> host reset -> abort ->
-> > > > > device reset -> host reset -> offline, then dd's stuck fsync returns
-> > > > > EIO and D-state drains to 0, in ~244s total. No task remains
-> > > > > uninterruptibly blocked.
-> > > > 
-> > > > By the way, there is a known limitation in the QEMU virtio-scsi
-> > > > implementation where some reset-related operations are implemented
-> > > > synchronously (can block vCPUs and QEMU activity while waiting for I/O
-> > > > to drain in some situations) instead of asynchronously. Recently there
-> > > > has been work in QEMU to make VIRTIO device reset asynchronous, for
-> > > > example, but it needs to be implemented on a per-device basis and
-> > > > virtio-scsi hasn't taken advantage of it yet.
-> > > > 
-> > > > Please let me know if you'd like to discuss or contribute. It's
-> > > > something that is on my radar but not until 2027.
-> > > > 
-> > > > > 
-> > > > > Suggested-by: Hannes Reinecke <hare@suse.de>
-> > > > > Signed-off-by: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>
-> > > > > ---
-> > > > > v1 -> v2: implemented eh_host_reset_handler as suggested by Hannes
-> > > > > Reinecke in review of the original RFC, instead of relying solely on
-> > > > > the EH loop falling through to offline.
-> > > > > ---
-> > > > >    drivers/scsi/virtio_scsi.c | 24 ++++++++++++++++++++++++
-> > > > >    1 file changed, 24 insertions(+)
-> > > > > 
-> > > > > diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
-> > > > > index b4f20c487718..9698f4f91cc6 100644
-> > > > > --- a/drivers/scsi/virtio_scsi.c
-> > > > > +++ b/drivers/scsi/virtio_scsi.c
-> > > > > @@ -833,6 +833,8 @@ static enum scsi_timeout_action virtscsi_eh_timed_out(struct scsi_cmnd *scmnd)
-> > > > >    	return SCSI_EH_NOT_HANDLED;
-> > > > >    }
-> > > > > +static int virtscsi_host_reset(struct scsi_cmnd *sc);
-> > > > > +
-> > > > >    static const struct scsi_host_template virtscsi_host_template = {
-> > > > >    	.module = THIS_MODULE,
-> > > > >    	.name = "Virtio SCSI HBA",
-> > > > > @@ -846,6 +848,7 @@ static const struct scsi_host_template virtscsi_host_template = {
-> > > > >    	.eh_abort_handler = virtscsi_abort,
-> > > > >    	.eh_device_reset_handler = virtscsi_device_reset,
-> > > > >    	.eh_timed_out = virtscsi_eh_timed_out,
-> > > > > +	.eh_host_reset_handler = virtscsi_host_reset,
-> > > > >    	.sdev_init = virtscsi_device_alloc,
-> > > > >    	.dma_boundary = UINT_MAX,
-> > > > > @@ -947,6 +950,27 @@ static int virtscsi_init(struct virtio_device *vdev,
-> > > > >    	return err;
-> > > > >    }
-> > > > > +/*
-> > > > > + * No bus/target reset in virtio-scsi, so EH lands here after device
-> > > > 
-> > > > The choice to use the VIRTIO device reset in virtscsi_host_reset() looks
-> > > > good to me, but I would like clarification on this comment. virtio-scsi
-> > > > does have I_T_NEXUS_RESET and I believe this is the modern equivalent to
-> > > > the pre-SCSI-6 TARGET RESET. Is it really the case that virtio-scsi
-> > > > doesn't have target reset? And do you want to go ahead and implement
-> > > > .eh_target_reset_handler() using I_T_NEXUS_RESET?
-> > > > 
-> > > Would probably not a bad idea to use I_T_NEXUS_RESET here.
-> > > Not sure what it does internally, though; _is_ there a nexus
-> > > to reset?
-> > 
-> > Whether there is any benefit to I_T_NEXUS_RESET may depend on the device
-> > implementation. In QEMU:
-> > - LOGICAL_UNIT_RESET resets just 1 LUN
-> > - I_T_NEXUS_RESET resets all LUNs
-> > - VIRTIO device reset also resets the HBA itself
-> > 
-> > In practice QEMU's I_T_NEXUS_RESET is unlikely to fix things if
-> > LOGICAL_UNIT_RESET wasn't sufficient. Maybe it will help on other device
-> > implementations though.
-> > 
-> > I think the Linux driver mapping should be:
-> > - .eh_device_reset_handler() -> LOGICAL_UNIT_RESET
-> > - .eh_target_reset_handler() -> I_T_NEXUS_RESET
-> > - .eh_host_reset_handler() -> VIRTIO device reset
-> > 
-> I guess 'target_reset' is pretty much pointless for modern setups.
-> If lun reset doesn't work it's pretty much guaranteed that target_reset
-> won't help, either.
-> (Unless you are on SAS, then it might, as I_T nexus reset actually
-> resets the SAS link and such does something useful).
-> Problem is that in most cases LUN reset fails as the _communication_
-> to the LUN is interrupted, and hence sending another TMF across the
-> same communication channel won't help, either.
-> For virtio that would mean that we'd have to reset the virtio queues;
-> can we even do that in a meaningful fashion?
+The transports only use the socket to find its network namespace. Pass
+the namespace instead, so that a later patch can ask whether a CID is
+taken in a namespace without necessarily having a socket on hand. This
+will help with avoiding CID collisions when devices move between
+namespaces.
 
-The virtqueues can only really be reset by VIRTIO device reset
-(.eh_host_reset_handler()).
+No functional change.
 
-Stefan
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
+---
+ drivers/vhost/vsock.c            | 4 +---
+ include/net/af_vsock.h           | 2 +-
+ net/vmw_vsock/af_vsock.c         | 6 ++++--
+ net/vmw_vsock/virtio_transport.c | 2 +-
+ 4 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+index abed1fbcf66c..01f8930ca51f 100644
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -91,10 +91,8 @@ static struct vhost_vsock *vhost_vsock_get(u32 guest_cid, struct net *net)
+ 	return NULL;
+ }
+ 
+-static bool vhost_transport_has_remote_cid(struct vsock_sock *vsk, u32 cid)
++static bool vhost_transport_has_remote_cid(struct net *net, u32 cid)
+ {
+-	struct sock *sk = sk_vsock(vsk);
+-	struct net *net = sock_net(sk);
+ 	bool found;
+ 
+ 	rcu_read_lock();
+diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+index 370fcd3ddabc..1c38a27fadf2 100644
+--- a/include/net/af_vsock.h
++++ b/include/net/af_vsock.h
+@@ -183,7 +183,7 @@ struct vsock_transport {
+ 	 * CIDs via the hypervisor (i.e. supports the fallback overlay). VMCI
+ 	 * does not implement this as it only serves CIDs 0 and 2.
+ 	 */
+-	bool (*has_remote_cid)(struct vsock_sock *vsk, u32 remote_cid);
++	bool (*has_remote_cid)(struct net *net, u32 remote_cid);
+ 
+ 	/* Read a single skb */
+ 	int (*read_skb)(struct vsock_sock *, skb_read_actor_t);
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index aa4732c3599f..c9b28e34b1b3 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -633,11 +633,13 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
+ 			new_transport = transport_g2h;
+ 		else if (transport_h2g &&
+ 			 (!transport_h2g->has_remote_cid ||
+-			  transport_h2g->has_remote_cid(vsk, remote_cid)))
++			  transport_h2g->has_remote_cid(sock_net(sk),
++							remote_cid)))
+ 			new_transport = transport_h2g;
+ 		else if (sock_net(sk)->vsock.g2h_fallback &&
+ 			 transport_g2h && transport_g2h->has_remote_cid &&
+-			 transport_g2h->has_remote_cid(vsk, remote_cid)) {
++			 transport_g2h->has_remote_cid(sock_net(sk),
++						       remote_cid)) {
+ 			vsk->remote_addr.svm_flags |= VMADDR_FLAG_TO_HOST;
+ 			new_transport = transport_g2h;
+ 		} else {
+diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+index 4f9aa9c4c3aa..eced6929405d 100644
+--- a/net/vmw_vsock/virtio_transport.c
++++ b/net/vmw_vsock/virtio_transport.c
+@@ -548,7 +548,7 @@ bool virtio_transport_stream_allow(struct vsock_sock *vsk, u32 cid, u32 port)
+ static bool virtio_transport_seqpacket_allow(struct vsock_sock *vsk,
+ 					     u32 remote_cid);
+ 
+-static bool virtio_transport_has_remote_cid(struct vsock_sock *vsk, u32 cid)
++static bool virtio_transport_has_remote_cid(struct net *net, u32 cid)
+ {
+ 	/* The CID could be implemented by the host. Always assume it is. */
+ 	return true;
+
+-- 
+2.53.0-Meta
 
