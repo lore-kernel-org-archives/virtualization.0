@@ -1,58 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793822520;
-	b=eiyo5HNamcp/9trs7fOHq5Wr5xpX1zmQrwfgoSiEfkMiL6JNF6zN3c6v8FqEsz8vIzsD
-	 27tbgJ+keerFpIHCHwI7sIhnCsspJR/rKtdO1MtBrCz3nQVxu8wYmUN3YZw/HMY0RGhMi
-	 95FnhG0sg44cfTn5CtzAW6WpsTVAUkkFQqGf8uPJ/vzX7Fuv3GJfXsufpaynunOq8W9Xv
-	 MX9lrmYsW1zrQFZY/tTQtos68VqIaIIWFNn2ACEeozeDijVrPT9N3zMZuh1/9MQR89vnW
-	 bqqH6RKiyIn2yiohz+qnRDtRhE8f4aJ0v5ZLmu8ZBLh2DRW8Kznj6TVP+c21zWU3UbA==
+	t=1793822632;
+	b=bVI8eVcDdFOnGlU+/eJnwCQVPWAr3Ll15fL/U0b8NahcHq+fg97DXI9rPRwfcvBWRqmy
+	 kv9ThS/9TgEy1CnZvM/0lO3kr18L+gDsiFwItyDKPRp6VJl/DGkduYvL6hrfSSMTKuEDS
+	 nYu/aB4uzlM1Wzr56MZOhJaUfL8Yi6TDUVWapYRaUFpZ52GRmyZnHWVBD9eWTwU3OrXK4
+	 0sROiX+DiIEOd3H/XAHgnN0BvicdETMTgVL1Ojd0BhYgGoNYrVGipHcge0Rlk8t2eYcZQ
+	 lCQkZvZbIpawI0iadIv+U7L7H5AWcSEj3OGHHBModsfZEMb27V6OuyBIyiY9DhlGrfw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793822520;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793822632;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=7B1dL+7wDfNrCepqeQ+YxsywK+j6s2fDZQTzAfjp/tA=;
-	b=5hfkxAPSyLJdbrs+g5kMRXekdoAsx7cOKU/+PDGon7/cZvySGQGZNbwpsSB7pYfmv5H2
-	 eqOD3pymzfCdkk7m/fvz5Hw4HJWTMjwc07vIXI5tuSjA8a0em2/99qY23c0lc4QfNpjZh
-	 Fg9zTPjluK9z/YVY68mGVv0ptZMGffSXLPCi0Nxa20NukW0TPUBOTMvRt3BTuL4H1ZIm/
-	 cNPB/U324y7MSOJEKRIwrY3ZG0E++ohvVsJ9GYH7l9pwHQoprH85S2blB5ZdyZNosB9+0
-	 bEGT5jTcT8cVMvAMfnBEP/AX5tqAqlIN/ZljyJcig0F5jJjpMj0/0EaD5hZs32WnKiA==
+	bh=EauI2F9zE8X32gU+4zTTTj61PF8BoqcUugWVKf7JV3Y=;
+	b=h+0Hsrw0rVD6Or+MN1pwHG6nIJW3Cf80YXwPJgHpa4r2u3tiTI+9cIwchGHw0Vwynkoj
+	 TqkQ8wmAOj40X0AxoTO7+eEcYeifXrr/VPsuUGXaMbyDyDQl99FZQhSD79CtCu6OflrT7
+	 7/MoKa0pn6ZF9j9QAJJAHDRYs6rZ+w+XgQek5DKxJu2FJ2GLhGzIPqJJ/r1iWZDJfQLXO
+	 VWSOcSo0qCNjLdOqIuFzhqBV54pX9/wJ48IEqXm2Jgj3grAy+vAiAgsOJNots2ZDYS/43
+	 WR8P6CtGUQv60K5vkDyVuwugu6JnG+j42wGzaKJe17vcU3XokH8gtCwNApQtD12JZgA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ND5ory5B;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VBkwm24W;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE039606E815
-	for <virtualization@lists.linux.dev>; Wed,  4 Nov 2026 20:01:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DC0B606D4D5
+	for <virtualization@lists.linux.dev>; Wed,  4 Nov 2026 20:03:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ND5ory5B
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70D881F00919;
-	Wed,  4 Nov 2026 20:01:59 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VBkwm24W
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD57E1F000C1;
+	Wed,  4 Nov 2026 20:03:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793822519;
-	bh=7B1dL+7wDfNrCepqeQ+YxsywK+j6s2fDZQTzAfjp/tA=;
+	s=k20260515; t=1793822631;
+	bh=EauI2F9zE8X32gU+4zTTTj61PF8BoqcUugWVKf7JV3Y=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ND5ory5BhLEcksLn8+xxemnWfGPQ0YnIWdKJEfeGV4bEcnM/ShyJiz04pXTRWfH8g
-	 FiyXKqcM8aiNwFJymyQkdFamyicxQGBDGETbM2A203GozQLW0w7tTyl9ZA4F/leqGE
-	 Uf6DUTOYzvLYfaaAWoJOaEykWLmnwTaMBloQP17JXQaUnkBfUXfgEXTreTKqnm1QCJ
-	 BZjZYjyL2iOD+mUhObqyzpqmdoqfKS1cXgviu6rpv6YMOKsaYinMJ3TkyROJe0Q8jX
-	 LItGDPIquMHq1IlnSyy1B+ZktKjGHwMqDo1MN6SzRxAwgIwxbMl5KY3lNvLfp8Ii47
-	 vdFLH3rYSfTUg==
-Message-ID: <sashiko-outbox-197987@kernel.org>
+	b=VBkwm24WXYmTV3ZiBI5Jv3hODbHImnQ4ZlswDVZyL5+tv6jjUe8lzNY2kt4FNlPtR
+	 QKb9I4UOz22s2FmiwIz9KOo9Qesqn/mzAPQaAlYHc40sIn9kjCyOacxygzLPkpG5Pc
+	 f2gfGEfEs38s1hPiFC1gDzpXDGxE3tNqG7QsiIdbxDejLg6mxSHHbcO/+n6KnvnDz4
+	 P8+IGtGcanapbQ7ovE+G4iW3SImQo/z8xnU8MS2vl+9/2Bn0ef6dv0JGSegJRmKriA
+	 TZWL9sijycnN/Rl+e0KCIh/tTxOcufRzOD1sWToW0KE6nFVqvB5CXjITxCVBt10ujG
+	 kqLSmQJL73CDA==
+Message-ID: <sashiko-outbox-197990@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/2] gpio: virtio: compute the line names size in a
- size_t
+Subject: Re: [PATCH 1/2] gpio: virtio: bound the line names block by its
+ configured size
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Lianjie Wang" <lian@is.s.u-tokyo.ac.jp>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261104195632.1702765-2-lian@is.s.u-tokyo.ac.jp>
+In-Reply-To: <20261104195632.1702765-1-lian@is.s.u-tokyo.ac.jp>
 References: <20261104195632.1702765-1-lian@is.s.u-tokyo.ac.jp>
- <20261104195632.1702765-2-lian@is.s.u-tokyo.ac.jp>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 04 Nov 2026 20:01:59 +0000
+Date: Wed, 04 Nov 2026 20:03:51 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,21 +61,27 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> virtio_gpio_get_names() computes the size of the GET_LINE_NAMES response
-> as sizeof(*res) + gpio_names_size in an int, where gpio_names_size is a
-> u32 from the config space. A gpio_names_size of 0xffffffff makes the
-> size 0, devm_kzalloc() returns ZERO_SIZE_PTR, and reading the status
-> byte of the response through it oopses:
+> virtio_gpio_get_names() walks the line names that the device returns in
+> a block of gpio_names_size bytes, which the driver ends with a NUL, and
+> checks each name only after stepping past it. If the block holds fewer
+> than ngpio names, the walk reaches the end of the block after the last
+> name, and the next iteration starts strlen() at the byte after the
+> allocation. With a block that holds one name for four lines, KASAN
+> reports:
 >=20
->   Oops: general protection fault, probably for non-canonical address 0xdf=
-fffc0000000002: 0000 [#1] SMP KASAN PTI
->   KASAN: null-ptr-deref in range [0x0000000000000010-0x0000000000000017]
->   RIP: 0010:_virtio_gpio_req+0x2b8/0x550
+>   BUG: KASAN: slab-out-of-bounds in strlen+0x57/0x70
+>   Read of size 1 at addr ffff8880026687c0 by task swapper/0/1
 >   Call Trace:
->    virtio_gpio_probe+0xc2a/0xfc0
+>    strlen+0x57/0x70
+>    virtio_gpio_probe+0xcb4/0xfc0
 >    virtio_dev_probe+0xa7a/0xc50
+>   Allocated by task 1:
+>    devm_kmalloc+0x6e/0x280
+>    virtio_gpio_probe+0xc06/0xfc0
+>   The buggy address is located 0 bytes to the right of
+>    allocated 64-byte region [ffff888002668780, ffff8880026687c0)
 >=20
-> Compute the size with struct_size() into a size_t.
+> Check that a name starts inside the block before reading it.
 >=20
 > This patch is assisted by Claude Opus 5.5.
 >=20
@@ -88,5 +93,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104195632.1702=
-765-1-lian@is.s.u-tokyo.ac.jp?part=3D2
+765-1-lian@is.s.u-tokyo.ac.jp?part=3D1
 
