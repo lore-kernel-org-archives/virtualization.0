@@ -1,67 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793808229;
-	b=DqDHp580h3A0aZDIjI06rVEtKi6Qb6ISArJmNF81AKHaHsQaFAWVCoKT6O0Rzya0YGL+
-	 y8rFnsCJtXKYOim8AGxM/QWy0ye35bN7Qb5Lh+33Ug4PQkovHEGyBWqmziasKCcSNSWPS
-	 FL/jJjiEdAmy3BTiTgk1Nul5kLycR+1vSGjumRlQsJqJdimrZJKnBGJW8AxlZYeXPgimc
-	 0/Ed4nNIhZwrhWJeeMp2+6YaAhfzaTxfiacuGnDnLNOtuzFabPNtxEPUa1APAwEj1wgK5
-	 GUln7FGAXOwPpvpVQHxAn00cHsuxvW6TyTQHbzZSd3z78UkbzXLRiJo6whViYUcPQDA==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793808229;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=4z0jvqdS/1LMWIjFo97DLyqM1S7YnHqeCK2uONFB0l0=;
-	b=MO83QFkT2YdfJtyKLkx/y023AZAobTdDtkE7doTUWNuxma6dgdWnThWwW3qx2EqNnI85
-	 Jn/ciP63h/cV7Ngbupc3wRSKxJARrtc6lqWEPe1B0VNk+oZDKZJ8qx2sLzxeo8AnRU2u1
-	 B+rRGNSia6VszK44Xnecs3ApB0LtkcKKqXKmGy60id317u9bIWPOq7Ytl6GAP7spkHyMV
-	 O/xI9K7t4rRPiK1VM/F+rlgE7Wpcu93p5K2l34Gxd6vYcML5CNPGVj5mjRAprMPkxyijp
-	 HiR9uzCl82LSSfCoSPtkJESd0dJQ5510lTErnZEsa08ziJIqCQNY67qSFQS637mVlBQ==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lvmssJKq;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=79.135.107.171
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1793809097;
+	b=RjQaRBlPmZOvp0qCH1zMPevU9DpSrQ1BEMgDa3EV7wCgh8NbVHdT7iulSM5EBg9Z9RCo
+	 1BJ47BIOMYRhvv8PujGCTX950yjHk4ekacSfjnk2nsAwu0uBOiHYI6N7Clta2Ebmr4ulE
+	 UtvCqYQN5ivVKPvFWSVx/ezr2eJuh9AyNjBXAb06FCSyJDXHes3HWbLuTyyY2Hk2DVXVl
+	 mNH/oLJPQ933JRwylTIVQinkbrw7JuSXXZVuJc6EwrK0I8klEt57E1SJqNAM7SL7fBz2+
+	 gHitbIBWTUGt574J/jmrd9fdMoCBo7LWaCGa2G2XnChPajmcUqs1PRYPYeWV/IV3eGA==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793809097;
+	h=DMARC-Filter:DKIM-Signature:Date:Subject:In-Reply-To:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding:From:To:Cc:Message-ID:
+	 References:X-SimpleLogin-Type:X-SimpleLogin-EmailLog-ID:
+	 X-SimpleLogin-Want-Signing;
+	bh=/rQmXVkHiDzs2uGaSf1glcnE9dLrPSRCk+lZ+qfQqGw=;
+	b=vXrKWaifXWOYJkP+WHkYlrj7eQPon85D5sSffQiT1pbRQDdxJW0ZhPzd+27wxxmUjAnG
+	 N591oQRJPYkrQmjcWfIbYVakv2jADz8ErZM6XfpKF96YBUNqjxml5dWkiDOifSw1o4q2t
+	 hW3UzKlL36uM34EkcdqO3p6vlhr6eIfUEe6Xu42kbjgHR2Y7LcKKReBjzzVPR9CccndKO
+	 EPdwFXbnet1zVtK7DhVNn0YpRdmxBbwWU4J11/OB8dWQMzBGqAwld1aQEDjEn16gDfvo5
+	 MKFkSGOglwDQpf3cSWaLvbWlufp7tmcI89V0f/PwsR2qvqd/MAujWV8bY0+LPV8WlQA==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=eldare.de;
+	spf=pass smtp.mailfrom=eldare.de;
+	dkim=pass header.d=eldare.de header.i=@eldare.de header.a=rsa-sha256 header.s=dkim header.b=xSx87DqC;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=79.135.107.171
+Received: from mail-107171.simplelogin.co (mail-107171.simplelogin.co [79.135.107.171])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E54AC606A337;
-	Wed,  4 Nov 2026 16:03:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6B62606EEA9
+	for <virtualization@lists.linux.dev>; Wed,  4 Nov 2026 16:18:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D6B62606EEA9
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=eldare.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=eldare.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lvmssJKq
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EAF61F00A02;
-	Wed,  4 Nov 2026 16:03:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793808228;
-	bh=4z0jvqdS/1LMWIjFo97DLyqM1S7YnHqeCK2uONFB0l0=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=lvmssJKqKlBB8zb6lcm8q6aHeXG/qCiP+gUjcU9nvF+xGya/hGTMk+h5EqGwaP7Dg
-	 hCEjLaOMvxn99ux2L1vQ1WZcAx2UrUfxZq7tcVAtMx/fDv/Y5cU6wFg00SgqtSbZ+a
-	 /WXDF59xns9xcQX8OTZxjVf71BkxvniIjNyKm58RvBXNg83UcnxxNX2rY1B43JrSuJ
-	 8RqAyPwTf10OjQuQ7aJ8eKOoS80vk/S9VLlqiPDSLY5yZngtZ4hz6g28t2nn+PF25i
-	 8xKOs2XnzNhgBZUBhfQUJEOVMjBCn0dWJFHOAMfzJuGQi9BEpg3Gc3u0bauDSadtxU
-	 b+XunlvXOSbvg==
-Date: Wed, 4 Nov 2026 10:03:46 -0600
-From: Rob Herring <robh@kernel.org>
-To: Vikash Garodia <vikash.garodia@oss.qualcomm.com>
-Cc: "Joerg Roedel (AMD)" <joro@8bytes.org>,
-	Vasant Hegde <vasant.hegde@amd.com>,
-	Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Lu Baolu <baolu.lu@linux.intel.com>,
-	Jean-Philippe Brucker <jpb@kernel.org>,
-	Saravana Kannan <saravanak@kernel.org>,
-	Tomasz Nowicki <tomasz.nowicki@caviumnetworks.com>,
-	Eric Auger <eric.auger@redhat.com>,
-	Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
-	iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev, devicetree@vger.kernel.org,
-	Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>,
-	Vishnu Reddy <busanna.reddy@oss.qualcomm.com>
-Subject: Re: [PATCH v6 2/2] of: Add support for "iommu-ranges" on a device
- node
-Message-ID: <20261104160346.GD3951195-robh@kernel.org>
-References: <20261103-add_iommu_ranges-v6-0-361f3921a133@oss.qualcomm.com>
- <20261103-add_iommu_ranges-v6-2-361f3921a133@oss.qualcomm.com>
+	dkim=pass (1024-bit key, unprotected) header.d=eldare.de header.i=@eldare.de header.a=rsa-sha256 header.s=dkim header.b=xSx87DqC
+ARC-Seal: i=1; a=rsa-sha256; d=simplelogin.co; s=arc-20230626; t=1793809095;
+	cv=none; b=rNhBcnJBGT5vY8TOubhM6rBFm8SpI5iq4ZgabOm1hxruxsHuBUYIyFsZHbdhSEN0sz6AKzcuEPYF4UAUqOUHEMnhUjNAP17OBPueumFM/lgP/iLKS4rj3VI4+WSH1jk1+eEWubTiLRjNG82mCv2Tsyh9doGyea56QPc8FK63GudWo75yEnMgrXWg9ttlllMsIyqkbr1NDvGqi3/0Xn4R+Ff8cxNTc4zEJWy1C3Hdx4RLBOIh72mWpW6ntFss+jv49g/1v6Oa0QlEy7E5aRM1/sqV+Q/3AJleRygPu87il5hybWx/loqfJSbU1DllVwgs40HM6hCDIVjmSR6mQp76SQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; d=simplelogin.co; s=arc-20230626;
+	t=1793809095; c=relaxed/simple;
+	bh=/rQmXVkHiDzs2uGaSf1glcnE9dLrPSRCk+lZ+qfQqGw=;
+	h=Date:Subject:In-Reply-To:From:To:Cc:References; b=mdjmSQwQR4rSeVppfo1dQetXWHxhh4XNQGQkQ8UQBQVVGc6mS6EVNj/SzaPXsbyB1MERpuLubET4XK2g09jyD3mCSLz4I46IAfLWANB2UAv3BPLErb0AzE7IFqrqN56bvCU1fSIYfP2UhhHBFVq0zOoYtzSrj/ijnZ6Qrc2poG3AHovfouG4NMKUn8K+BnMB8xrhEwold2IHc/3vVYvZbGHqV2FGAmr1OOBjyC9B88bSEX/8vWjf0SrDWjPDIYiNfwdQbY0rlVaZnr+nKqgZ+0sorfmyl7TkYox4Rdk8r0bTGZUNHI4yXwVfU5BYvDSUvHx1M4XwpsgrGs25P/os1w==
+ARC-Authentication-Results: i=1; mail.protonmail.ch
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=eldare.de; s=dkim;
+	t=1793809095;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=/rQmXVkHiDzs2uGaSf1glcnE9dLrPSRCk+lZ+qfQqGw=;
+	b=xSx87DqCQq+Fct0l999tAxbeu/mkF5mEzDxj2RgbXVt2RT84a6q03GkZR80mtxSUGeNhXN
+	CDFeabpFPCjfRpci/FftoVLVlcKd5pq8+5K1HQz6ar3BNJs49aJJNw39wCrpiipVod1alh
+	KiKGZESQXgxJANgZXScTRCMj6oHeow0=
+Date: Wed, 04 Nov 2026 16:18:06 +0000
+Subject: Re: [PATCH net v2] vsock/virtio: clear vqs[] to avoid a UAF on a
+ failed PM restore
+In-Reply-To: <20261030101918-mutt-send-email-mst@kernel.org>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -71,67 +64,48 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261103-add_iommu_ranges-v6-2-361f3921a133@oss.qualcomm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+From: jrmmhm.kernel@eldare.de
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Stefano Garzarella <sgarzare@redhat.com>,Stefan Hajnoczi
+ <stefanha@redhat.com>,Bobby Eshleman <bobbyeshleman@meta.com>,Jason Wang
+ <jasowangio@gmail.com>,=?utf-8?q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>,Xuan Zhuo <xuanzhuo@linux.alibaba.com>,"David S.
+ Miller" <davem@davemloft.net>,Eric Dumazet <edumazet@kernel.org>,Jakub
+ Kicinski <kuba@kernel.org>,Paolo Abeni <pabeni@redhat.com>,Simon Horman
+ <horms@kernel.org>,virtualization@lists.linux.dev,kvm@vger.kernel.org,netdev@vger.kernel.org,linux-kernel@vger.kernel.org,stable@vger.kernel.org
+Message-ID: <179380909424.8.665274581449917096.1746194870@eldare.de>
+References: <20261028-vsock-restore-uaf-send-v2-1-675aad6da714@eldare.de>
+ <auSZtMqcTz3r1nRk@sgarzare-redhat>
+ <20261030101918-mutt-send-email-mst@kernel.org>
+X-SimpleLogin-Type: Reply
+X-SimpleLogin-EmailLog-ID: 1746194907
+X-SimpleLogin-Want-Signing: yes
 
-On Tue, Nov 03, 2026 at 08:59:33PM +0530, Vikash Garodia wrote:
-> Reserving an IOVA address using "iommu-addresses" requires it to be
-> placed in the reserved-memory node. But when "iommu-addresses" is the
-> only property being described and there is no backing "reg" (i.e. no
-> actual reserved system memory), it does not really belong under
-> /reserved-memory. A device IOVA range is specific to its own address
-> space, and does not describe the system physical memory to make it
-> qualify under reserved-memory. Given this, place "iommu-addresses"
-> inside reserved-memory only when it is paired with a "reg", otherwise,
-> define it within the device own node. It was discussed here:
-> https://lore.kernel.org/all/662f7093-fb0a-4564-9ca0-98e03e68ba9a@kernel.org
-> 
-> Existing "iommu-addresses" property expects a phandle, which does
-> not make sense when the property is defined within the device node.
-> "iommu-ranges" was introduced to specify the device specific IOVA ranges
-> when there is no backing "reg".
-> 
-> Suggested-by: Rob Herring <robh@kernel.org>
-> Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
-> Co-developed-by: Vishnu Reddy <busanna.reddy@oss.qualcomm.com>
-> Signed-off-by: Vishnu Reddy <busanna.reddy@oss.qualcomm.com>
-> Signed-off-by: Vikash Garodia <vikash.garodia@oss.qualcomm.com>
-> ---
->  drivers/iommu/of_iommu.c | 134 +++++++++++++++++++++++++++++++++++++++++++----
->  1 file changed, 125 insertions(+), 9 deletions(-)
-> 
-> diff --git a/drivers/iommu/of_iommu.c b/drivers/iommu/of_iommu.c
-> index 5c266511db78910d6fd221af5437cecff4931c22..0428ceb50dec58f11872b4fb64e283fa8d9046a3 100644
-> --- a/drivers/iommu/of_iommu.c
-> +++ b/drivers/iommu/of_iommu.c
-> @@ -185,11 +185,118 @@ iommu_resv_region_get_type(struct device *dev,
->  	if (start == phys->start && end == phys->end)
->  		return IOMMU_RESV_DIRECT;
->  
-> -	dev_warn(dev, "treating non-direct mapping [%pr] -> [%pap-%pap] as reservation\n", phys,
-> -		 &start, &end);
-> +	dev_err(dev, "non-direct mapping [%pr] -> [%pap-%pap] is not supported\n", phys,
-> +		&start, &end);
->  	return IOMMU_RESV_RESERVED;
->  }
->  
-> +/**
-> + * of_iommu_derive_resv_regions - derive reserved regions which
-> + *                                are outside of iommu-ranges
-> + * @dev: device for which to get reserved regions
-> + * @list: reserved region list
-> + *
-> + * A device can describe its own usable IOVA ranges directly on its node
-> + * via "iommu-ranges". Everything not under those ranges is derived
-> + * as a reserved region so the IOMMU allocator won't use it. Entries may
-> + * appear in any order in the property.
-> + */
-> +#if IS_ENABLED(CONFIG_OF_ADDRESS)
+On Fri, Oct 30, 2026 at 10:21:09AM -0400, Michael S. Tsirkin wrote:
+> On Fri, Oct 30, 2026 at 02:51:26PM +0100, Stefano Garzarella wrote:
+> > Do we really need to write in a commit message that checkpatch.pl --str=
+ict
+> > is clean?
 
-Is this really needed? Assuming CONFIG_OF is enabled, this is only false 
-on Sparc. I don't think Sparc needs anything in this file. There 
-aren't any IOMMU drivers for Sparc unless COMPILE_TEST is enabled. So 
-maybe building of_iommu.c as a whole should depend on CONFIG_OF_ADDRESS?
+No, v3 will drop it.
 
-Rob
+> Yea please write it yourself and make it concise. My eyes glazed over
+> in the 1st paragraph.
+
+Point taken. v3 will have a commit message shorter than the diff.
+
+> > This is already in the commit description, no?
+
+Yes, v3 will have it in the commit message only.
+
+> > I guess this issue could be spread around virtio drivers, so would be n=
+ice
+> > to add common API in the virtio core to be used in all of them.
+
+Agreed, that would be a good follow-up; this patch stays the minimal fix.
+
+Thanks for the reviews,
+Jerome
+
