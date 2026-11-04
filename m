@@ -1,66 +1,106 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=67.231.153.30
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.179
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793757268;
-	b=aBcm3ZmN3pdCEUck2xpEh2CSf0JFnl9sT9LEZYT4Njlq+fGNDeOymrQaEWUsPv69m4au
-	 CTaxnbPdPgEcTXAaFNo2PquMR8XCgs5Uwz8BAWiKwXRgqMoLjjehkpKeCGwr3wLvCQJCi
-	 MA6w8SCs5QoIRtV7fPBH6PAWvig/cke8re9StzH/SYPPiSuZABD1gvv9l2mUWjdqxSrp/
-	 wOr2S/9W5l4R6UuaCs20ejhauxb5ZuHpKA6tHjn8GisMLcDyU8OO2x3qZhwmQzqX8L8eW
-	 vYvjRSWpQFZr8CVVh1/fq4PAYuldyKZ68pbEWBTw4j2H60UKft8dtrMg55qQE7DFhsg==
+	t=1793757713;
+	b=w8CpssAaf7uY7CeCiITad1N9cHJEsMQChiRjNx1twxRfzpRExrtVKydeELn8U5ijdJJY
+	 jsWiVgq22mxroXorSLPMK+x8qS34LbU0EpGpqiDtOfup42Yq7YO+5mSrqtmmNtUhQZydc
+	 8KwALEjtbro/WHbfo+68lft/U5ak84KXvSP1+3+HqvchVyKrlYp1vGy5p54fyabGsjKaK
+	 8sbCaI0eU3I/NGNXIesvcxKLbzjZznFegDgdg3DIFi4qtBWWCEu7zdndkyYQSZoR0p8nU
+	 mmKjwB5CFCduSbC1LU9hxxsi8OOBS4X5lEGnB6JB2tfaVG8P19Ha1wsiAwV7j4baLYA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793757268;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:From:Date:
-	 Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
-	 Message-ID:References:In-Reply-To:To:CC:X-Mailer:X-Originating-IP:
-	 X-Authority-Analysis:X-Proofpoint-ORIG-GUID:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Spam-Info:
-	 X-Proofpoint-GUID:X-Proofpoint-Virus-Version;
-	bh=5k1N2Js0SfVvfWjaVF3vgyTDwUhkemawtCQi5cXuHYY=;
-	b=LJDz3lL/PMHHxHDGm/smSsVbvoAX372EyvTXboY7G6IfkDdrwMwbGx3CA6WSbrbGYTMt
-	 uScfovDYbp37pH98C4tlfDSvXwiLUfrP6i7z4vVAtzl8ZVx4eW+T6tgQRTJWgUAUbZEXy
-	 QX4JQ3955jCW2oAJZBcg/elAFyB/r1fKsUoQlOClP9bvRFdDwjdtczC4hQb73Lzalbe1i
-	 YLWL9iSaCnjbiHGoghh6QY8Kh87khsSrP48ERuG6iF803pxHLvSLy2H3Z5OgRGQaWorL7
-	 nmWeXxuAUpoihznKmzsPR6MtWO6Q8qT07/yVA2KEYcAsnyKfUFDxq70Aut6inpU2IEw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793757713;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding;
+	bh=Ef3LJtj0EHb+BHKwRreNfN/8Uj/h0T0Rh6JYGdvZlAI=;
+	b=pwaFrbTb1EwUfLC6JCKRXA2E8jvDLSH0d3ZgeJSDKEcVEODY6tDT9XuKPbPyu0njUizj
+	 XIC0Eg0Ja/qpnWR7wN5pPjQo4Wsh8w9KSlYF1qATkdxU031NHxyyB98qWXESVUyIKeeUI
+	 hrk3yZKpP2As+LCBeW1GuNvyxbIvqKMAM6UPvkDnn4W8NrIKACqRPKbjQlmOJWG99hUhQ
+	 ToJtuGokFxknM3Jm51wu2GlIwccCChwuuG313QYBwhQJt8Dl7gdPRhhAnMJ5c/O2mY/yS
+	 acRMMFkD82g/TubPTr94IhqAcJsMYRgW+RQGGw4nnsk1NYwDy5cHy3T8g0tIwxqUgIw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=meta.com;
-	spf=pass smtp.mailfrom=meta.com;
-	dkim=pass header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=TLgJtHxZ;
-	arc=none smtp.remote-ip=67.231.153.30
-Received: from mx0b-00082601.pphosted.com (mx0b-00082601.pphosted.com [67.231.153.30])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Q2P95gsm;
+	arc=none smtp.remote-ip=209.85.221.179
+Received: from mail-vk1-f179.google.com (mail-vk1-f179.google.com [209.85.221.179])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97A08606A33D
-	for <virtualization@lists.linux.dev>; Wed,  4 Nov 2026 01:54:27 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 97A08606A33D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 312B6606A329
+	for <virtualization@lists.linux.dev>; Wed,  4 Nov 2026 02:01:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 312B6606A329
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=TLgJtHxZ
-Received: from pps.filterd (m0528004.ppops.net [127.0.0.1])
-	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A40Suw93696504;
-	Tue, 3 Nov 2026 17:54:08 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=
-	pps82601-s2048-2026-q3; bh=5k1N2Js0SfVvfWjaVF3vgyTDwUhkemawtCQi5
-	cXuHYY=; b=TLgJtHxZh8aqI40ItPpGGoiNTvRQ/gYcl7JZ4tOMANSCeo+kkMNht
-	brCww2GC3PgOnRnFw8WjJeII3CyRfSBqeO4MkrF6Jvck/o5aQC7gG7U96tmR4oj1
-	yoCmv32BzGCBvA7w97oikR/yY1ZABk0bYGQhODFDMjACcNWyFgmGwGqIn8COmqSZ
-	noxXJvM+TKY147C5pTdfTJa0H9ixW8aluMVYFjcypXmrLa4t7d36VKFMLJn/PXTi
-	hGn4nSY3iwdrlwM1wHP9sMn29NU0lHe3oxvgdLkdMc7FeCks0uPmLS45cEdl+fvA
-	CTIvLSRgP8bybzNE+EWZfjQWZ/GIiRtMw==
-Received: from mail.thefacebook.com ([163.114.134.16])
-	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4hqrad13vm-2
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
-	Tue, 03 Nov 2026 17:54:08 -0800 (PST)
-Received: from localhost (2620:10d:c085:108::150d) by mail.thefacebook.com
- (2620:10d:c08b:78::c78f) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.56; Wed, 4 Nov
- 2026 01:54:06 +0000
-From: Bobby Eshleman <bobbyeshleman@meta.com>
-Date: Tue, 3 Nov 2026 17:53:21 -0800
-Subject: [PATCH net-next v5 6/7] selftests/vsock: test the guest vsock
- device network namespace
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Q2P95gsm
+Received: by mail-vk1-f179.google.com with SMTP id 71dfb90a1353d-5eac7220e9cso44260e0c.3
+        for <virtualization@lists.linux.dev>; Tue, 03 Nov 2026 18:01:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793757712; x=1794362512; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:mime-version:subject
+         :references:in-reply-to:message-id:cc:to:from:date:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=Ef3LJtj0EHb+BHKwRreNfN/8Uj/h0T0Rh6JYGdvZlAI=;
+        b=Q2P95gsmqjMv1L2fsQn/h1Mb5GrRKu0l857HkTSf4OXyLIzqj6PcivcH9eHdhJvUUc
+         9fp/cOQGX4kqjuYaARNYZetKIlcAQJhAT/ru6VnRfLvRHZ7oox6h20LUF664rWLT/hPY
+         yqV4V5sW4A1sRT8opGSUfuoPUkMroI+U1xhwdXgWi6RmgfqHyl8p65FI/uZHtJvJQ9DP
+         7fFlgpF7gG5/meSKhUFjE1jX+RMv3SNHFZvcxVmRfCf+9hKAnXgMYSiWyM0mq+t5GKou
+         ZoXtGsoj3ZtIZ5XakerVPxncz5TNP29RjINyAPrihZ3t1vNB2c8DDFGEz1pCNGNZQOZU
+         ylrg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793757712; x=1794362512;
+        h=content-transfer-encoding:content-type:mime-version:subject
+         :references:in-reply-to:message-id:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=Ef3LJtj0EHb+BHKwRreNfN/8Uj/h0T0Rh6JYGdvZlAI=;
+        b=hjH/SjNzHdcLLS9QVCzUUWYa6IpI4lX2c2zm/GS5/2o4wQb7rL3LxLB3tvYm3TF69t
+         AYntelOJgn+sTxLegE5Ehmn3k3Y89DvSdDEOIjvPLmII7tLXq8lINc6HH/v/fKoK1JTx
+         yG7RUq/t2hFtII5+yaIaDZk6NirKyw6kRJ1YiRPNXEgP+zTJkPpC+qKGjz9+r1bT2SoD
+         Lw5rOavkuzIPq9Mnd5+LlEthqgMEzZ2V83aXOY/9MGwPph/SHDb3RcvXUbV602fnpWuO
+         /QPDsIZXtM2Au2JwOYpwEDTZVJiHknfsc0oH9g0pl2+4mA0RXC2DnmTO/pWTVutoMKks
+         Ly0w==
+X-Forwarded-Encrypted: i=1; AKwUvBw9agKTa0anAYDvfBZvuYPBus4AcBtfj1ZAKWRFoHubwmElDDSJo2aWQNJfl2vI5g5hUQRbPdLGPJzIVH5s8w==@lists.linux.dev
+X-Gm-Message-State: APuU4Z8SPOlL8C1nrnt4K6QOQ5U+4AS10p5/zcC+3WkQ9Z+UnOuaY4Ha
+	Vh+CULarHxLiMfENIij6VGKoGQ5uNoqZBOxtXhs4QIUTRa9f2mlcHevK/BCpQQ==
+X-Gm-Gg: AYBFou2Pg4Gc2fI7XncvNe7CCD3YwEnkMpsuwxV9ytLKhMLoj0EpZjQ3jCGNGhXaSPy
+	zYlyJzFDHQJzGrQ9523numldjkuJiTwh0ZDp/WTT1Mj8vRxcHrFbnCKU/SGD8TL0X2UH9yfBxki
+	8jhBEfNJh97yc8Z9ko3upSHbhetIrC7KfdOj2/BAj2zoZJojUBDJvXF0xbvJGxXepz/Wzktk4nT
+	xGkqOgq5JariXMoqm4lihPAmGUv1JZzbKX89xyJJnX+A9E1CuVCuGef5uC6f/ZtIAyws5eSkYS4
+	PfH+K3fVeEtFYy6jFNELHIfUIMMeT+EP3VgzWnBo1TV2P2QBiZDHqeIsrmmqHiB/+/jwFaKhVlr
+	uZLNjZpoE0QTxkeFQPTmdShU4IJnBlKjh99zYfpF91fWf/5bKDnau4Y7JGL2hzLPiC9e2JCdoHo
+	XwOTb/NNT6FELQKfN/1lEJ92hEBRdE4pqn29r3N5JJRDsX5WC019ylnedeOi9G2cBOKiIQjsVjs
+	UqVMgXuv7z7l6et3IiwAGbq0Vm33D8f9GVNKsh4dy1DCnv28GaNGMhmTOZ9rs/4LiKhdVoO6LAH
+	Bd9fMaq57alUp73G0xj4M0UZLw1cKoiwp0OpPMnVaF7W9kTgIZKYz06Mp2TuNeqzPKEQeJy8Uve
+	YyIAHHVR4IdE8WjDnzlhoJ3ijO0Ln/+k5eOhMHXSIn6/r86OWAILq9Bl5j26CB/+AyVBRPpM=
+X-Received: by 2002:a05:6122:3115:b0:5d4:1193:73d3 with SMTP id 71dfb90a1353d-5ec6894bf5emr6089133e0c.14.1793757712007;
+        Tue, 03 Nov 2026 18:01:52 -0800 (PST)
+Received: from gmail.com (223.230.150.34.bc.googleusercontent.com. [34.150.230.223])
+        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-5eca8d7780fsm615030e0c.3.2026.11.03.18.01.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Nov 2026 18:01:51 -0800 (PST)
+Date: Tue, 03 Nov 2026 21:01:50 -0500
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+To: Eric Dumazet <edumazet@kernel.org>, 
+ netdev@vger.kernel.org, 
+ "David S. Miller" <davem@davemloft.net>, 
+ Jakub Kicinski <kuba@kernel.org>, 
+ Paolo Abeni <pabeni@redhat.com>, 
+ mst@redhat.com
+Cc: Eric Dumazet <edumazet@kernel.org>, 
+ Simon Horman <horms@kernel.org>, 
+ Willem de Bruijn <willemb@google.com>, 
+ "Michael S. Tsirkin" <mst@redhat.com>, 
+ =?UTF-8?B?RXVnZW5pbyBQw6lyZXo=?= <eperezma@redhat.com>, 
+ Hassan Sultan <hassansultan@google.com>, 
+ virtualization@lists.linux.dev
+Message-ID: <willemdebruijn.kernel.2e11b18d6e190@gmail.com>
+In-Reply-To: <20261103203113.550604-2-edumazet@kernel.org>
+References: <20261103203113.550604-1-edumazet@kernel.org>
+ <20261103203113.550604-2-edumazet@kernel.org>
+Subject: Re: [PATCH net 1/3] net: virtio: validate outer protocol of UDP
+ tunnel GSO packets
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -70,706 +110,110 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain;
+ charset=utf-8
 Content-Transfer-Encoding: 7bit
-Message-ID: <20261103-vsock-guest-ns-v5-6-48179b9b66b8@meta.com>
-References: <20261103-vsock-guest-ns-v5-0-48179b9b66b8@meta.com>
-In-Reply-To: <20261103-vsock-guest-ns-v5-0-48179b9b66b8@meta.com>
-To: Stefano Garzarella <sgarzare@redhat.com>,
-        "David S. Miller"
-	<davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
-	<pabeni@redhat.com>,
-        Simon Horman <horms@kernel.org>, Jonathan Corbet
-	<corbet@lwn.net>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Stefan Hajnoczi
-	<stefanha@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang
-	<jasowangio@gmail.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
-        Shuah Khan
-	<shuah@kernel.org>, Randy Dunlap <rdunlap@infradead.org>,
-        Donald Hunter
-	<donald.hunter@gmail.com>,
-        Eric Dumazet <edumazet@kernel.org>,
-        Eric Dumazet
-	<edumazet@kernel.org>
-CC: <virtualization@lists.linux.dev>, <netdev@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <linux-doc@vger.kernel.org>,
-        <kvm@vger.kernel.org>, <linux-kselftest@vger.kernel.org>,
-        <sargun@sargun.me>, <jlinbox@meta.com>,
-        Bobby Eshleman <bobbyeshleman@gmail.com>,
-        Bobby Eshleman
-	<bobbyeshleman@meta.com>
-X-Mailer: b4 0.14.3
-X-Authority-Analysis: v=2.4 cv=fLWsTpae c=1 sm=1 tr=0 ts=6aea9040 cx=c_pps
- a=CB4LiSf2rd0gKozIdrpkBw==:117 a=CB4LiSf2rd0gKozIdrpkBw==:17
- a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=7x6HtfJdh03M6CCDgxCd:22 a=GbPsI2Ihf5RTnMjR_gZv:22 a=VabnemYjAAAA:8
- a=CMzfravdsZyu_tbiwAgA:9 a=QEXdDO2ut3YA:10 a=O8hF6Hzn-FEA:10
- a=gKebqoRLp9LExxC7YDUY:22
-X-Proofpoint-ORIG-GUID: wVDBxmQ5H8jtha7tOaW-pH1vpxkN_Uyc
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTA0MDAwNyBTYWx0ZWRfX17aF1/8Fz+5W
- yX25q/1PA51+ixQVndVk/EEbqj5Xl0cVGJVJqJwUxSavBM5vTxenk+W5eQEOBWCRcTSp13NLwSY
- 9ZkCEtgmoEP7i+s60m7ft0XDYolkPlQJnFJgG8Sky99mmCWPxvFCMNqXrZKZseRXALQPZnC+WGO
- Rutufi9Q2rGoJ4F/KqttY1bclCcOcvkgvs1dEsg54JpZSeM+1XX46kG6xSqeYXAG5qrMhel4UoJ
- MZA63oiM1VwaigWCI2UCnfx3dhcdOi28PlnXsWqxQ7j8dGiDUUqJSrQwHwpwv+z6C+FVc0y1Ojn
- 0VveTkTMu5UeHl4xHEzAXl/gTuIuv5zIaP1YX+lqviBM1oQNVwSVzCLtWxqxywp+dPCluFGOq0P
- RED/ueojw93flJvWxcJ+gdzl0/e1IT8YsNGB5vGHZbUhmFNx3yeVhA4sOexmWKVjYpiwDapVC8k
- tpXPvRl8NJO5OmIplFw==
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTA0MDAwNyBTYWx0ZWRfX7eGNLAkR6R7g
- Vhje4k+SCaXD/0XTfLi8J4ta9KotK0pO3NNLzhev2yahKKd+HtOJlS2Y1goEGlWnFUwoTu8+3aU
- igHrbMdB05YS6DcY2Hu33KY/mifvGL0=
-X-Proofpoint-GUID: wVDBxmQ5H8jtha7tOaW-pH1vpxkN_Uyc
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-04_01,2026-11-03_04,2025-10-01_01
 
-Add tests for guest vsock device namespace assignment, including ns
-destruction and the device moving between namespaces.
+Eric Dumazet wrote:
+> virtio_net_hdr_tnl_to_skb() trusts the virtio header to describe a
+> UDP tunnel over IPv4 or IPv6, but never checks that the frame actually
+> carries such an outer header. Because VIRTIO_NET_HDR_F_NEEDS_CSUM is
+> mandatory for tunnel GSO, __virtio_net_hdr_to_skb() skips the flow
+> dissector, so virtio_net_hdr_match_proto() is never applied either.
+> 
+> A guest (or a tap writer) can then inject a frame with an arbitrary
+> outer ethertype, for example ETH_P_NSH, with SKB_GSO_UDP_TUNNEL set.
+> The GSO stack then runs nsh_gso_segment() on top of the UDP tunnel
+> segmentation, which assumes a different header layout. The result is
+> segments with skb->data before skb->head, and a host crash in
+> skb_under_panic() as soon as a later layer pushes a header:
+> 
+>   skbuff: skb_under_panic: ... put:4 ... dev:gretap1
+>   kernel BUG at net/core/skbuff.c:215!
+>    skb_push
+>    __gre_xmit
+>    gre_tap_xmit
+>    ...
+>    tun_get_user
+> 
+> Require the outer L3 protocol to match the declared tunnel type:
+> for Ethernet frames, look at the ethertype after optional VLAN tags,
+> and check that the outer network header fits before outer_th_offset.
+> For IFF_TUN, skb->protocol is already set by the caller.
+> 
+> Fixes: a2fb4bc4e2a6 ("net: implement virtio helpers to handle UDP GSO tunneling.")
+> Reported-by: Hassan Sultan <hassansultan@google.com>
+> Signed-off-by: Eric Dumazet <edumazet@kernel.org>
+> Cc: Willem de Bruijn <willemb@google.com>
+> Cc: Michael S. Tsirkin <mst@redhat.com>
 
-The tests drive the device through ynl's cli.py and create guest
-namespaces with unshare, so they need python3, PyYAML and unshare. A
-missing one skips only these tests, not the whole script.
+Thanks for the fix. It overlaps with
 
-Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
----
-Changes in v4:
-- Start the old_conn_send_fails stopwatch before the sender, so a slow
-  guest skips rather than fails (Sashiko)
+commit "net: resolve uncommon partial checksums at ingress"
+https://lore.kernel.org/netdev/93d0e37c99711bebdf60c120af03010455c2f2e2.1793276116.git.mst@redhat.com/
 
-Changes in v3:
-- Replace reset_on_ns_delete_ok with pins_ns_ok, to cover the netns
-  pinning
-- Skip only the ns_guest_ tests when PyYAML or the ynl CLI or spec is
-  missing, and ship the ynl bits via TEST_FILES for installed trees
-  (Sashiko)
-- Also skip only the ns_guest_ tests when unshare or python3 is missing
-- Make vm_ns_start() wait for the namespace and report failure (Sashiko)
-- Poll for FIRST in old_conn_send_fails instead of sleeping, and report
-  an over-long assign as a skip (Sashiko)
-- Kill the guest-side socat by name, $! names a local subshell (Sashiko)
-- Wait for the host listener to exit before the next test binds its
-  port (Sashiko)
+There are a bunch of subtle issues here. That series is up to v7.
 
-Changes in v2:
-- Drive the assign with ynl cli.py, drop the vsock_assign_g2h_netns
-  ioctl helper and its patch
-- Terminate the guest socat sender too, it sometimes outlived the test
-  and kept holding on to a port the next test binds
----
- tools/testing/selftests/vsock/Makefile  |   5 +
- tools/testing/selftests/vsock/vmtest.sh | 502 +++++++++++++++++++++++++++++++-
- 2 files changed, 501 insertions(+), 6 deletions(-)
+Two specific issues are that
+- skb->protocol in general cannot be trusted, and
+- non-L3 sources cannot be assumed Ethernet
 
-diff --git a/tools/testing/selftests/vsock/Makefile b/tools/testing/selftests/vsock/Makefile
-index c407c0afd938..2b066ba91bcd 100644
---- a/tools/testing/selftests/vsock/Makefile
-+++ b/tools/testing/selftests/vsock/Makefile
-@@ -13,5 +13,10 @@ $(VSOCK_TEST_DIR)/vsock_test: $(VSOCK_TEST_SRCS)
- TEST_PROGS += vmtest.sh
- TEST_GEN_FILES := vsock_test
- 
-+TEST_FILES := \
-+	../../../net/ynl/pyynl/cli.py \
-+	../../../net/ynl/pyynl/lib \
-+	../../../../Documentation/netlink/specs/vsock.yaml
-+
- include ../lib.mk
- 
-diff --git a/tools/testing/selftests/vsock/vmtest.sh b/tools/testing/selftests/vsock/vmtest.sh
-index 310dfc2a39ad..f8aee1336a09 100755
---- a/tools/testing/selftests/vsock/vmtest.sh
-+++ b/tools/testing/selftests/vsock/vmtest.sh
-@@ -17,6 +17,20 @@ readonly KERNEL_CHECKOUT=$(realpath "${SCRIPT_DIR}"/../../../../)
- source "${SCRIPT_DIR}"/../kselftest/ktap_helpers.sh
- 
- readonly VSOCK_TEST="${SCRIPT_DIR}"/vsock_test
-+
-+# "make install" copies the ynl CLI, its lib package and the spec next to this
-+# script (see TEST_FILES); in a source tree they stay where they are built.
-+if [[ -r "${SCRIPT_DIR}"/cli.py ]]; then
-+	readonly YNL_CLI="${SCRIPT_DIR}"/cli.py
-+	readonly YNL_LIB="${SCRIPT_DIR}"/lib
-+	readonly VSOCK_SPEC="${SCRIPT_DIR}"/vsock.yaml
-+else
-+	readonly YNL_DIR="${KERNEL_CHECKOUT}"/tools/net/ynl/pyynl
-+	readonly YNL_CLI="${YNL_DIR}"/cli.py
-+	readonly YNL_LIB="${YNL_DIR}"/lib
-+	readonly SPEC_DIR="${KERNEL_CHECKOUT}"/Documentation/netlink/specs
-+	readonly VSOCK_SPEC="${SPEC_DIR}"/vsock.yaml
-+fi
- readonly TEST_GUEST_PORT=51000
- readonly TEST_HOST_PORT=50000
- readonly TEST_HOST_PORT_LISTENER=50001
-@@ -73,6 +87,12 @@ readonly TEST_NAMES=(
- 	ns_delete_vm_ok
- 	ns_delete_host_ok
- 	ns_delete_both_ok
-+	ns_guest_local_connect_to_host_fails
-+	ns_guest_assign_g2h_netns_connect_to_host_ok
-+	ns_guest_assign_g2h_netns_init_ns_connect_fails
-+	ns_guest_assign_g2h_netns_host_connect_ok
-+	ns_guest_assign_g2h_netns_pins_ns_ok
-+	ns_guest_assign_g2h_netns_old_conn_send_fails
- )
- readonly TEST_DESCS=(
- 	# vm_server_host_client
-@@ -149,12 +169,36 @@ readonly TEST_DESCS=(
- 
- 	# ns_delete_both_ok
- 	"Check that deleting the VM and host's namespaces does not break the socket connection"
-+
-+	# ns_guest_local_connect_to_host_fails
-+	"Check a guest process in a local ns cannot reach the host without the netns assign."
-+
-+	# ns_guest_assign_g2h_netns_connect_to_host_ok
-+	"Check a guest process in a local ns reaches the host once the vsock device is assigned to it."
-+
-+	# ns_guest_assign_g2h_netns_init_ns_connect_fails
-+	"Check the guest's initial ns loses vsock once the device is assigned to another ns."
-+
-+	# ns_guest_assign_g2h_netns_host_connect_ok
-+	"Check the host reaches a guest listener in the ns the vsock device is assigned to."
-+
-+	# ns_guest_assign_g2h_netns_pins_ns_ok
-+	"Check the assignment keeps the ns alive when deleted, and that reassigning releases it."
-+
-+	# ns_guest_assign_g2h_netns_old_conn_send_fails
-+	"Check connections made before the assign stop sending once they lose the device."
- )
- 
- readonly USE_SHARED_VM=(
- 	vm_server_host_client
- 	vm_client_host_server
- 	vm_loopback
-+	ns_guest_local_connect_to_host_fails
-+	ns_guest_assign_g2h_netns_connect_to_host_ok
-+	ns_guest_assign_g2h_netns_init_ns_connect_fails
-+	ns_guest_assign_g2h_netns_host_connect_ok
-+	ns_guest_assign_g2h_netns_pins_ns_ok
-+	ns_guest_assign_g2h_netns_old_conn_send_fails
- )
- readonly NS_MODES=("local" "global")
- 
-@@ -316,6 +360,34 @@ check_deps() {
- 	fi
- }
- 
-+check_ns_guest_deps() {
-+	local tname=$1
-+	local dep
-+
-+	if [[ ! "${tname}" =~ ^ns_guest_ ]]; then
-+		return 0
-+	fi
-+
-+	for dep in unshare python3; do
-+		if [[ ! -x $(command -v "${dep}") ]]; then
-+			log_host "no ${dep} for test ${tname}"
-+			return 1
-+		fi
-+	done
-+
-+	if ! python3 -c "import yaml" &>/dev/null; then
-+		log_host "no python3 yaml module for test ${tname}"
-+		return 1
-+	fi
-+
-+	if [[ ! -r "${YNL_CLI}" ]] || [[ ! -r "${VSOCK_SPEC}" ]]; then
-+		log_host "no ynl cli or vsock spec for test ${tname}"
-+		return 1
-+	fi
-+
-+	return 0
-+}
-+
- check_netns() {
- 	local tname=$1
- 
-@@ -401,6 +473,19 @@ setup_home() {
- 	mkdir -p "$(dirname "${SSH_KEY_PATH}")"
- 	ssh-keygen -t ed25519 -f "${SSH_KEY_PATH}" -N "" -q
- 	cp "${VSOCK_TEST}" "${TEST_HOME}"/vsock_test
-+
-+	mkdir -p "${TEST_HOME}"/ynl
-+	if [[ -r "${YNL_CLI}" ]]; then
-+		cp "${YNL_CLI}" "${TEST_HOME}"/ynl/
-+		cp -r "${YNL_LIB}" "${TEST_HOME}"/ynl/
-+		cp "${VSOCK_SPEC}" "${TEST_HOME}"/ynl/
-+	fi
-+
-+	# One of the tests runs the CLI as an unprivileged user, so the CLI
-+	# has to be reachable by one.
-+	chmod -R a+rX "${TEST_HOME}"/ynl
-+
-+	chmod 755 "${TEST_HOME}"
- }
- 
- create_pidfile() {
-@@ -528,6 +613,82 @@ vm_wait_for_ssh() {
- 	done
- }
- 
-+# Create a local mode namespace in the VM and echo the pid holding it open.
-+vm_ns_start() {
-+	local ns=$1
-+	local initns
-+	local nspid
-+	local newns
-+	local i
-+
-+	local mode=/proc/sys/net/vsock/child_ns_mode
-+
-+	if ! vm_ssh "${ns}" -- "echo local > ${mode}" &>/dev/null; then
-+		return
-+	fi
-+
-+	nspid=$(vm_ssh "${ns}" -- "unshare -n sleep infinity" \
-+		'>/dev/null 2>&1 & echo $!')
-+	if [[ -z "${nspid}" ]]; then
-+		return
-+	fi
-+
-+	initns=$(vm_ssh "${ns}" -- "readlink /proc/self/ns/net")
-+	for ((i = 0; i < WAIT_PERIOD_MAX; i++)); do
-+		newns=$(vm_ssh "${ns}" -- "readlink /proc/${nspid}/ns/net" \
-+			2>/dev/null)
-+		if [[ -n "${newns}" ]] && [[ "${newns}" != "${initns}" ]]; then
-+			echo "${nspid}"
-+			return
-+		fi
-+		sleep 1
-+	done
-+
-+	vm_ns_stop "${ns}" "${nspid}"
-+}
-+
-+# Returns once the holder is gone, so that the namespace is unreferenced and
-+# the kernel can start tearing it down.
-+vm_ns_stop() {
-+	local ns=$1
-+	local nspid=$2
-+
-+	vm_ssh "${ns}" <<-EOF &>/dev/null
-+		kill ${nspid}
-+		for ((i = 0; i < ${WAIT_PERIOD_MAX}; i++)); do
-+			kill -0 ${nspid} 2>/dev/null || break
-+			sleep 1
-+		done
-+	EOF
-+}
-+
-+# Runs in the guest's initial namespace when <nspid> is empty. The command must
-+# not contain single quotes.
-+vm_ns_exec() {
-+	local ns=$1
-+	local nspid=$2
-+	local cmd=$3
-+
-+	if [[ -z "${nspid}" ]]; then
-+		vm_ssh "${ns}" -- "${cmd}"
-+		return
-+	fi
-+
-+	vm_ssh "${ns}" -- nsenter -t "${nspid}" -n sh -c "'${cmd}'"
-+}
-+
-+vm_ns_assign_g2h() {
-+	local ns=$1
-+	local nspid=$2
-+
-+	vm_ns_exec "${ns}" "${nspid}" "python3 /root/ynl/cli.py --no-schema \
-+		--spec /root/ynl/vsock.yaml --do dev-netns-set"
-+}
-+
-+vm_reset_g2h() {
-+	vm_ns_assign_g2h "init_ns" "" &>/dev/null
-+}
-+
- # derived from selftests/net/net_helper.sh
- wait_for_listener()
- {
-@@ -564,17 +725,33 @@ wait_for_listener()
- 	done
- }
- 
--vm_wait_for_listener() {
-+# Runs in the guest's initial namespace when <nspid> is empty.
-+vm_ns_wait_for_listener() {
- 	local ns=$1
--	local port=$2
--	local protocol=$3
-+	local nspid=$2
-+	local port=$3
-+	local protocol=$4
-+	local nsenter=
-+	local args
-+
-+	[[ -n "${nspid}" ]] && nsenter="nsenter -t ${nspid} -n"
-+	args="${port} ${WAIT_PERIOD} ${WAIT_PERIOD_MAX} ${protocol}"
- 
- 	vm_ssh "${ns}" <<EOF
- $(declare -f wait_for_listener)
--wait_for_listener ${port} ${WAIT_PERIOD} ${WAIT_PERIOD_MAX} ${protocol}
-+export -f wait_for_listener
-+${nsenter} bash -c "wait_for_listener ${args}"
- EOF
- }
- 
-+vm_wait_for_listener() {
-+	local ns=$1
-+	local port=$2
-+	local protocol=$3
-+
-+	vm_ns_wait_for_listener "${ns}" "" "${port}" "${protocol}"
-+}
-+
- host_wait_for_listener() {
- 	local ns=$1
- 	local port=$2
-@@ -1421,6 +1598,317 @@ test_ns_delete_both_ok() {
- 	check_ns_delete_doesnt_break_connection "both"
- }
- 
-+# Send a string from the guest to a host listener and leave what the host
-+# received in <outfile>.
-+guest_send_to_host() {
-+	local ns=$1
-+	local nspid=$2
-+	local port=$3
-+	local outfile=$4
-+	local cmd="echo TEST | socat -u STDIN VSOCK-CONNECT:2:${port}"
-+	local pid
-+
-+	socat -u VSOCK-LISTEN:"${port}" STDOUT > "${outfile}" 2>/dev/null &
-+	pid=$!
-+	host_wait_for_listener "${ns}" "${port}" "vsock"
-+
-+	vm_ns_exec "${ns}" "${nspid}" "${cmd}" 2>/dev/null
-+
-+	timeout "${WAIT_PERIOD}" \
-+		bash -c 'while [[ ! -s '"${outfile}"' ]]; do sleep 1; done'
-+
-+	# Wait for the listener to actually go, or the next test binding the
-+	# same port races it and silently reads nothing.
-+	terminate_pids "${pid}"
-+	wait "${pid}" 2>/dev/null
-+}
-+
-+# Send a string from the host to a listener in the guest and leave what the
-+# guest received in <outfile>.
-+host_send_to_guest() {
-+	local ns=$1
-+	local nspid=$2
-+	local port=$3
-+	local outfile=$4
-+	local cmd="socat -u VSOCK-LISTEN:${port} STDOUT"
-+	local dst="VSOCK-CONNECT:${VSOCK_CID}:${port}"
-+	local pid
-+
-+	vm_ns_exec "${ns}" "${nspid}" "${cmd}" > "${outfile}" 2>/dev/null &
-+	pid=$!
-+	vm_ns_wait_for_listener "${ns}" "${nspid}" "${port}" "vsock"
-+
-+	echo TEST | socat -u STDIN "${dst}" 2>/dev/null
-+
-+	timeout "${WAIT_PERIOD}" \
-+		bash -c 'while [[ ! -s '"${outfile}"' ]]; do sleep 1; done'
-+
-+	vm_ns_exec "${ns}" "${nspid}" \
-+		"pkill -f VSOCK-LISTEN:${port}" &>/dev/null
-+	terminate_pids "${pid}"
-+	wait "${pid}" 2>/dev/null
-+}
-+
-+ns_old_conn_cleanup() {
-+	local port=$1
-+	local pid=$2
-+	local sender=$3
-+	local outfile=$4
-+	local nspid=$5
-+
-+	vm_ns_exec "init_ns" "" "pkill -f VSOCK-CONNECT:2:${port}" &>/dev/null
-+	terminate_pids "${pid}" "${sender}"
-+	wait "${pid}" "${sender}" 2>/dev/null
-+	rm -f "${outfile}"
-+	vm_ns_stop "init_ns" "${nspid}"
-+	vm_reset_g2h
-+}
-+
-+test_ns_guest_assign_g2h_netns_old_conn_send_fails() {
-+	local gap=$(( WAIT_PERIOD * 3 ))
-+	local port=12346
-+	local elapsed
-+	local started
-+	local outfile
-+	local result
-+	local sender
-+	local nspid
-+	local pid
-+
-+	nspid=$(vm_ns_start "init_ns")
-+	if [[ -z "${nspid}" ]]; then
-+		log_host "failed to create a namespace inside the guest"
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	outfile=$(mktemp)
-+	socat -u VSOCK-LISTEN:"${port}" STDOUT > "${outfile}" 2>/dev/null &
-+	pid=$!
-+	host_wait_for_listener "init_ns" "${port}" "vsock"
-+
-+	# Send a message, wait, then send another. While waiting, assign the
-+	# device to a namespace. Confirm the second message does not arrive.
-+	started=${SECONDS}
-+	vm_ssh "init_ns" -- \
-+		"(echo FIRST; sleep ${gap}; echo SECOND) |" \
-+		"socat -u STDIN VSOCK-CONNECT:2:${port}" &>/dev/null &
-+	sender=$!
-+
-+	timeout "$(( WAIT_PERIOD * WAIT_PERIOD_MAX ))" \
-+		bash -c 'while [[ ! -s '"${outfile}"' ]]; do sleep 1; done'
-+
-+	if ! vm_ns_assign_g2h "init_ns" "${nspid}"; then
-+		log_host "failed to assign the vsock device to the guest ns"
-+		ns_old_conn_cleanup "${port}" "${pid}" "${sender}" \
-+			"${outfile}" "${nspid}"
-+		return "${KSFT_FAIL}"
-+	fi
-+	elapsed=$(( SECONDS - started ))
-+
-+	sleep $(( gap + WAIT_PERIOD ))
-+
-+	result=$(cat "${outfile}")
-+	ns_old_conn_cleanup "${port}" "${pid}" "${sender}" \
-+		"${outfile}" "${nspid}"
-+
-+	if [[ "${result}" != *FIRST* ]]; then
-+		log_host "no connection before the assign: [${result}]"
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	if [[ $(( elapsed + 1 )) -ge ${gap} ]]; then
-+		log_host "connect and assign took ${elapsed}s of a ${gap}s gap"
-+		return "${KSFT_SKIP}"
-+	fi
-+
-+	if [[ "${result}" == *SECOND* ]]; then
-+		log_host "old connection still delivered after the assign"
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	return "${KSFT_PASS}"
-+}
-+
-+test_ns_guest_local_connect_to_host_fails() {
-+	local port=12345
-+	local outfile
-+	local result
-+	local nspid
-+
-+	nspid=$(vm_ns_start "init_ns")
-+	if [[ -z "${nspid}" ]]; then
-+		log_host "failed to create a namespace inside the guest"
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	outfile=$(mktemp)
-+	guest_send_to_host "init_ns" "${nspid}" "${port}" "${outfile}"
-+
-+	vm_ns_stop "init_ns" "${nspid}"
-+	vm_reset_g2h
-+
-+	result=$(cat "${outfile}")
-+	rm -f "${outfile}"
-+
-+	if [[ "${result}" == TEST ]]; then
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	return "${KSFT_PASS}"
-+}
-+
-+test_ns_guest_assign_g2h_netns_connect_to_host_ok() {
-+	local port=12345
-+	local outfile
-+	local result
-+	local nspid
-+
-+	nspid=$(vm_ns_start "init_ns")
-+	if [[ -z "${nspid}" ]]; then
-+		log_host "failed to create a namespace inside the guest"
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	if ! vm_ns_assign_g2h "init_ns" "${nspid}"; then
-+		log_host "failed to assign the vsock device to the guest ns"
-+		vm_ns_stop "init_ns" "${nspid}"
-+		vm_reset_g2h
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	outfile=$(mktemp)
-+	guest_send_to_host "init_ns" "${nspid}" "${port}" "${outfile}"
-+
-+	vm_ns_stop "init_ns" "${nspid}"
-+	vm_reset_g2h
-+
-+	result=$(cat "${outfile}")
-+	rm -f "${outfile}"
-+
-+	if [[ "${result}" != TEST ]]; then
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	return "${KSFT_PASS}"
-+}
-+
-+test_ns_guest_assign_g2h_netns_init_ns_connect_fails() {
-+	local port=12345
-+	local outfile
-+	local result
-+	local nspid
-+
-+	nspid=$(vm_ns_start "init_ns")
-+	if [[ -z "${nspid}" ]]; then
-+		log_host "failed to create a namespace inside the guest"
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	if ! vm_ns_assign_g2h "init_ns" "${nspid}"; then
-+		log_host "failed to assign the vsock device to the guest ns"
-+		vm_ns_stop "init_ns" "${nspid}"
-+		vm_reset_g2h
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	outfile=$(mktemp)
-+	guest_send_to_host "init_ns" "" "${port}" "${outfile}"
-+
-+	vm_ns_stop "init_ns" "${nspid}"
-+	vm_reset_g2h
-+
-+	result=$(cat "${outfile}")
-+	rm -f "${outfile}"
-+
-+	if [[ "${result}" == TEST ]]; then
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	return "${KSFT_PASS}"
-+}
-+
-+test_ns_guest_assign_g2h_netns_host_connect_ok() {
-+	local port=12345
-+	local outfile
-+	local result
-+	local nspid
-+
-+	nspid=$(vm_ns_start "init_ns")
-+	if [[ -z "${nspid}" ]]; then
-+		log_host "failed to create a namespace inside the guest"
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	if ! vm_ns_assign_g2h "init_ns" "${nspid}"; then
-+		log_host "failed to assign the vsock device to the guest ns"
-+		vm_ns_stop "init_ns" "${nspid}"
-+		vm_reset_g2h
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	outfile=$(mktemp)
-+	host_send_to_guest "init_ns" "${nspid}" "${port}" "${outfile}"
-+
-+	vm_ns_stop "init_ns" "${nspid}"
-+	vm_reset_g2h
-+
-+	result=$(cat "${outfile}")
-+	rm -f "${outfile}"
-+
-+	if [[ "${result}" != TEST ]]; then
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	return "${KSFT_PASS}"
-+}
-+
-+test_ns_guest_assign_g2h_netns_pins_ns_ok() {
-+	local port=12345
-+	local outfile
-+	local result
-+	local nspid
-+
-+	nspid=$(vm_ns_start "init_ns")
-+	if [[ -z "${nspid}" ]]; then
-+		log_host "failed to create a namespace inside the guest"
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	if ! vm_ns_assign_g2h "init_ns" "${nspid}"; then
-+		log_host "failed to assign the vsock device to the guest ns"
-+		vm_ns_stop "init_ns" "${nspid}"
-+		vm_reset_g2h
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	vm_ns_stop "init_ns" "${nspid}"
-+	sleep "${WAIT_PERIOD}"
-+
-+	outfile=$(mktemp)
-+	guest_send_to_host "init_ns" "" "${port}" "${outfile}"
-+	result=$(cat "${outfile}")
-+	if [[ "${result}" == TEST ]]; then
-+		log_host "device returned to the init ns instead of pinning it"
-+		rm -f "${outfile}"
-+		vm_reset_g2h
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	# Assigning it back is what releases the deleted namespace.
-+	vm_reset_g2h
-+
-+	guest_send_to_host "init_ns" "" "$(( port + 1 ))" "${outfile}"
-+	result=$(cat "${outfile}")
-+	rm -f "${outfile}"
-+
-+	if [[ "${result}" != TEST ]]; then
-+		log_host "device did not come back on reassign: [${result}]"
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	return "${KSFT_PASS}"
-+}
-+
- shared_vm_test() {
- 	local tname
- 
-@@ -1453,7 +1941,8 @@ run_shared_vm_tests() {
- 			continue
- 		fi
- 
--		if ! check_netns "${arg}"; then
-+		if ! check_netns "${arg}" ||
-+		   ! check_ns_guest_deps "${arg}"; then
- 			check_result "${KSFT_SKIP}" "${arg}"
- 			continue
- 		fi
-@@ -1517,7 +2006,8 @@ run_ns_tests() {
- 			continue
- 		fi
- 
--		if ! check_netns "${arg}"; then
-+		if ! check_netns "${arg}" ||
-+		   ! check_ns_guest_deps "${arg}"; then
- 			check_result "${KSFT_SKIP}" "${arg}"
- 			continue
- 		fi
+Would it make sense to take the relevant parts from the quoted commit,
+which has hopefully resolved those edge cases, and send that on its own?
+The rest of the series can come later.
 
--- 
-2.53.0-Meta
+> ---
+>  include/linux/virtio_net.h | 28 ++++++++++++++++++++++++++++
+>  1 file changed, 28 insertions(+)
+> 
+> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+> index d6466f96cdd0..d3f97d71d81c 100644
+> --- a/include/linux/virtio_net.h
+> +++ b/include/linux/virtio_net.h
+> @@ -282,6 +282,31 @@ static inline unsigned int virtio_l3min(bool is_ipv6)
+>  	return is_ipv6 ? sizeof(struct ipv6hdr) : sizeof(struct iphdr);
+>  }
+>  
+> +/* The outer network header of a UDP tunnel GSO packet must match the
+> + * tunnel type declared in the virtio header, otherwise the GSO stack
+> + * would parse the packet as something else (e.g. NSH).
+> + */
+> +static inline bool virtio_net_tnl_outer_proto_ok(const struct sk_buff *skb,
+> +						 bool outer_isv6,
+> +						 unsigned int outer_th)
+> +{
+> +	__be16 expected = outer_isv6 ? htons(ETH_P_IPV6) : htons(ETH_P_IP);
+> +	__be16 proto = skb->protocol;
+> +	int nh_off = ETH_HLEN;
+> +
+> +	/* L3 device (IFF_TUN): the caller already set the protocol. */
+> +	if (proto)
+> +		return proto == expected;
+> +
+> +	/* Ethernet frame, possibly VLAN tagged. */
+> +	proto = eth_hdr(skb)->h_proto;
+> +	if (eth_type_vlan(proto))
+> +		proto = __vlan_get_protocol(skb, proto, &nh_off);
+> +
+> +	return proto == expected &&
+> +	       nh_off + virtio_l3min(outer_isv6) <= outer_th;
+> +}
+> +
+>  static inline int
+>  virtio_net_hdr_tnl_to_skb(struct sk_buff *skb,
+>  			  const struct virtio_net_hdr_v1_hash_tunnel *vhdr,
+> @@ -338,6 +363,9 @@ virtio_net_hdr_tnl_to_skb(struct sk_buff *skb,
+>  	if (ret)
+>  		return ret;
+>  
+> +	if (!virtio_net_tnl_outer_proto_ok(skb, outer_isv6, outer_th))
+> +		return -EINVAL;
+> +
+>  	/* In case of USO, the inner protocol is still unknown and
+>  	 * `inner_isv6` is just a guess, additional parsing is needed.
+>  	 * The previous validation ensures that accessing an ipv4 inner
+> -- 
+> 2.53.0
+> 
+
 
