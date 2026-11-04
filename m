@@ -1,60 +1,86 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=79.135.107.171
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793809097;
-	b=RjQaRBlPmZOvp0qCH1zMPevU9DpSrQ1BEMgDa3EV7wCgh8NbVHdT7iulSM5EBg9Z9RCo
-	 1BJ47BIOMYRhvv8PujGCTX950yjHk4ekacSfjnk2nsAwu0uBOiHYI6N7Clta2Ebmr4ulE
-	 UtvCqYQN5ivVKPvFWSVx/ezr2eJuh9AyNjBXAb06FCSyJDXHes3HWbLuTyyY2Hk2DVXVl
-	 mNH/oLJPQ933JRwylTIVQinkbrw7JuSXXZVuJc6EwrK0I8klEt57E1SJqNAM7SL7fBz2+
-	 gHitbIBWTUGt574J/jmrd9fdMoCBo7LWaCGa2G2XnChPajmcUqs1PRYPYeWV/IV3eGA==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793809097;
-	h=DMARC-Filter:DKIM-Signature:Date:Subject:In-Reply-To:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding:From:To:Cc:Message-ID:
-	 References:X-SimpleLogin-Type:X-SimpleLogin-EmailLog-ID:
-	 X-SimpleLogin-Want-Signing;
-	bh=/rQmXVkHiDzs2uGaSf1glcnE9dLrPSRCk+lZ+qfQqGw=;
-	b=vXrKWaifXWOYJkP+WHkYlrj7eQPon85D5sSffQiT1pbRQDdxJW0ZhPzd+27wxxmUjAnG
-	 N591oQRJPYkrQmjcWfIbYVakv2jADz8ErZM6XfpKF96YBUNqjxml5dWkiDOifSw1o4q2t
-	 hW3UzKlL36uM34EkcdqO3p6vlhr6eIfUEe6Xu42kbjgHR2Y7LcKKReBjzzVPR9CccndKO
-	 EPdwFXbnet1zVtK7DhVNn0YpRdmxBbwWU4J11/OB8dWQMzBGqAwld1aQEDjEn16gDfvo5
-	 MKFkSGOglwDQpf3cSWaLvbWlufp7tmcI89V0f/PwsR2qvqd/MAujWV8bY0+LPV8WlQA==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=eldare.de;
-	spf=pass smtp.mailfrom=eldare.de;
-	dkim=pass header.d=eldare.de header.i=@eldare.de header.a=rsa-sha256 header.s=dkim header.b=xSx87DqC;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=79.135.107.171
-Received: from mail-107171.simplelogin.co (mail-107171.simplelogin.co [79.135.107.171])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.46
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793809394;
+	b=GxO0mx8XZi97Xm8KaDiaQI1WvFQ/RC+Iu4b15pOqxyys0mQzywJfT/pqDN4TNkHIG5RD
+	 Y+aA4MI/Y8A2+phObHn/8HAdGizCo+52aD+edPSULh2e6TUwHySROhhb7p0Cl07kRo6t0
+	 UONx7HnozLcpic2wX79BDMG7spSaqsp4aZyiUsjWUxQ7lQ/XVmJRqGZBv9b38Qm0g3866
+	 HSCXRHyKk86KtcIKTa/oklk5TA7VzfLuW4e/vbSU8wmV2vvIS4pgnO+E7ouBiWOq8lhtr
+	 gf4K3V3dqzpI6RPsP0oNNKXBZuZq7Zi3vuQxv+HnJcNSIk8aw/xtcTJd/L7l3IuDnew==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793809394;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:References:From:
+	 Content-Language:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+	bh=vocGYEw/5tonadEsgL+tN2/v9RawaaHXU9Cku3rNbjM=;
+	b=isB/gONiVZL8HBjXpfGvaLPOs3grsl5G61uYOjnJtJckBd0xKwGMyNab1Erdivuafg0F
+	 En/9q9DTxpOvOXyoq9urOVIyRHORqBmZRRQtcaok31SQ+fHDlJXuDUWAKFrEHv6aC+usC
+	 3tT86WWyD0mh5I0mVBoBNmqx/1ysZirknSy58qeGIjBZNir2LMaFSvXQTsgpTALgoEU5t
+	 1r862Z48blTbd2gJ9KJQz+BS6wIQEzr59X6JfpVS60LWkQLGRAfqUzKTDoY74wO8+oRic
+	 YVhJUYiBvITIbw/WZ99zrzw0uNDg7jd/WfgZ6tg/xr026xZms56jSH/h/Utd6pVLskA==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=linaro.org;
+	spf=pass smtp.mailfrom=linaro.org;
+	dkim=pass header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=kdQJmj61;
+	arc=none smtp.remote-ip=209.85.128.46
+Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6B62606EEA9
-	for <virtualization@lists.linux.dev>; Wed,  4 Nov 2026 16:18:16 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D6B62606EEA9
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=eldare.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=eldare.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33779606D80A
+	for <virtualization@lists.linux.dev>; Wed,  4 Nov 2026 16:23:13 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 33779606D80A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=eldare.de header.i=@eldare.de header.a=rsa-sha256 header.s=dkim header.b=xSx87DqC
-ARC-Seal: i=1; a=rsa-sha256; d=simplelogin.co; s=arc-20230626; t=1793809095;
-	cv=none; b=rNhBcnJBGT5vY8TOubhM6rBFm8SpI5iq4ZgabOm1hxruxsHuBUYIyFsZHbdhSEN0sz6AKzcuEPYF4UAUqOUHEMnhUjNAP17OBPueumFM/lgP/iLKS4rj3VI4+WSH1jk1+eEWubTiLRjNG82mCv2Tsyh9doGyea56QPc8FK63GudWo75yEnMgrXWg9ttlllMsIyqkbr1NDvGqi3/0Xn4R+Ff8cxNTc4zEJWy1C3Hdx4RLBOIh72mWpW6ntFss+jv49g/1v6Oa0QlEy7E5aRM1/sqV+Q/3AJleRygPu87il5hybWx/loqfJSbU1DllVwgs40HM6hCDIVjmSR6mQp76SQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; d=simplelogin.co; s=arc-20230626;
-	t=1793809095; c=relaxed/simple;
-	bh=/rQmXVkHiDzs2uGaSf1glcnE9dLrPSRCk+lZ+qfQqGw=;
-	h=Date:Subject:In-Reply-To:From:To:Cc:References; b=mdjmSQwQR4rSeVppfo1dQetXWHxhh4XNQGQkQ8UQBQVVGc6mS6EVNj/SzaPXsbyB1MERpuLubET4XK2g09jyD3mCSLz4I46IAfLWANB2UAv3BPLErb0AzE7IFqrqN56bvCU1fSIYfP2UhhHBFVq0zOoYtzSrj/ijnZ6Qrc2poG3AHovfouG4NMKUn8K+BnMB8xrhEwold2IHc/3vVYvZbGHqV2FGAmr1OOBjyC9B88bSEX/8vWjf0SrDWjPDIYiNfwdQbY0rlVaZnr+nKqgZ+0sorfmyl7TkYox4Rdk8r0bTGZUNHI4yXwVfU5BYvDSUvHx1M4XwpsgrGs25P/os1w==
-ARC-Authentication-Results: i=1; mail.protonmail.ch
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=eldare.de; s=dkim;
-	t=1793809095;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=/rQmXVkHiDzs2uGaSf1glcnE9dLrPSRCk+lZ+qfQqGw=;
-	b=xSx87DqCQq+Fct0l999tAxbeu/mkF5mEzDxj2RgbXVt2RT84a6q03GkZR80mtxSUGeNhXN
-	CDFeabpFPCjfRpci/FftoVLVlcKd5pq8+5K1HQz6ar3BNJs49aJJNw39wCrpiipVod1alh
-	KiKGZESQXgxJANgZXScTRCMj6oHeow0=
-Date: Wed, 04 Nov 2026 16:18:06 +0000
-Subject: Re: [PATCH net v2] vsock/virtio: clear vqs[] to avoid a UAF on a
- failed PM restore
-In-Reply-To: <20261030101918-mutt-send-email-mst@kernel.org>
+	dkim=pass (2048-bit key, unprotected) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=kdQJmj61
+Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-4a5720b0a57so12542825e9.0
+        for <virtualization@lists.linux.dev>; Wed, 04 Nov 2026 08:23:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1793809391; x=1794414191; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:in-reply-to:content-language
+         :from:references:cc:to:subject:user-agent:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=vocGYEw/5tonadEsgL+tN2/v9RawaaHXU9Cku3rNbjM=;
+        b=kdQJmj61fGHKGwx1dWASklCXYb2Tb47QaXXzlzfqZ6Y0VoSkXYa4rWD0fwo545mfCv
+         DvAXBH7Pr+2kHxi5i0a+lX0Ym+ajj6aGirn5v8hnL/NcR8DdYbM9qChmRwQ+Cc3Gomru
+         MqbakvtOjJlTpbus7yTNCjMmY5MyZ1l4gQo/v+9jdomiFEAuxBv5Qhrx2vyWeJ6keN+F
+         DKW4xbo7Az7l8Jw+xnVemDd/krlGcGBSjEed9Q5fVMG2ES21/X4MNY2VhNTqIe/7Wv7F
+         BCNEDDmd/JZHXYHrIDRf8zmOWZaxp29vOKlZMILZI0zt/aeY26WLRdclQvPZMMHyUdNT
+         pQNA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793809391; x=1794414191;
+        h=content-transfer-encoding:content-type:in-reply-to:content-language
+         :from:references:cc:to:subject:user-agent:mime-version:date
+         :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=vocGYEw/5tonadEsgL+tN2/v9RawaaHXU9Cku3rNbjM=;
+        b=UA/lAbh9ySzd3aCrfc/PqliYK/9pouo4ePnJmE1Mh4//ikl+yGIVEw8BU2usI0qiGo
+         Mv05fu8FKxfeBs/RPFZi/WZOFmDY8y1pM4YG0mfcFwRTK2d2mya2pbew2wsr2R2tFsyd
+         PfJZnH+4QIcZhbt5OkYCPW1i2uvbAxRyE0nozyUa7xHweqPmdPtxrEnbZRBPk9WSHEQM
+         6wNGBHPbn4SJwbG5NlU9vwiZVPt5KYYXL6SunzAcJ7nrgjQz7cDiyzpZMDSaiNybPHW8
+         441RK6V35YwqIy+ZLc9N4woCLt6jlBSOm7/Na+RJlD4hqLLTmzhenL9lyO+V7lgifJb4
+         +tWw==
+X-Forwarded-Encrypted: i=1; AKwUvBzSKrtXukssiXt46bkBKnyf1dru4325u9Hx+rf2+KHwsaYxdxJKYSqppgPWUj7bff0a8z3u52l3GZnb2wHRbw==@lists.linux.dev
+X-Gm-Message-State: APuU4Z/pMDZzpoli0kH2927YszKYQC53Wg3g+1J3F8hTV/jTruPIetdJ
+	p9SWKxOPSHTimGSKZs2rjwEKtybqVCdUuZICQS1rMgnN/EO8uofTY5AtN5yFGIovja8=
+X-Gm-Gg: AYBFou2A441hcpxDqhCF7mWW0bLsTnizjdOV5wsioYsURFgZrMEvKdfe1DgoXRF3bvw
+	rajGZbJgOVWQzftO6b0XqYS0Tzq0lYiZHRcy+01UCW67vIBY5ZrREJBxvG3p74S0kvowFWoQUN1
+	3k5naM9gjRg3a8B20bYIz/1978k9R1smz0Pf5z/Syd3GdG5OBVVQJHPr+vUWISL8811VYtapMRZ
+	jcWDpOgr7nvy5G4p/EtcK3FCCxUZq0oY0hokBNBei2DLeJZELt49iVyFAT1v1u6u1pC9q6qzPuY
+	vfNwIDbh3IR+D0T1LglS680eoiZTCAbUaoYn6YyAC/T1LJKX4q3EQAsXjYnKyYZ4lEdsOylJfGJ
+	x1ig7V+sb2xxvQ95WuNNL7+agX68S/DfkaGSiGojibkLDvMv0yXSxQ1LPgEpeJcIjboPXwU2Hgi
+	PdREr8CfPdXeKDBSFJNmW+rePEcFhC9uLaizf4/TwNnmxjJSUSi0BHMsUQ0ls1I1XWAWbbwUfSE
+	dIIy5bo3Fqrxh6sC5DZBRmxceV5xd14/VJx82C+hyL1Ad8zCzRTWpYyB8PCZfmB6y/I2K2kHMJQ
+	vxdbiyegFuYbSXrGlb0RuUZ88c8KbR7l9rCGSuZgig==
+X-Received: by 2002:a05:600c:1907:b0:4b4:a551:681a with SMTP id 5b1f17b1804b1-4b55c8743d8mr75395e9.3.1793809391436;
+        Wed, 04 Nov 2026 08:23:11 -0800 (PST)
+Received: from [192.168.0.167] ([109.76.163.117])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4b2a80e0fe6sm168477495e9.1.2026.11.04.08.23.09
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 04 Nov 2026 08:23:10 -0800 (PST)
+Message-ID: <f416b51a-0775-4834-9e1d-af8a72d9a1d8@linaro.org>
+Date: Wed, 4 Nov 2026 16:23:09 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -64,48 +90,57 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-From: jrmmhm.kernel@eldare.de
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Stefano Garzarella <sgarzare@redhat.com>,Stefan Hajnoczi
- <stefanha@redhat.com>,Bobby Eshleman <bobbyeshleman@meta.com>,Jason Wang
- <jasowangio@gmail.com>,=?utf-8?q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>,Xuan Zhuo <xuanzhuo@linux.alibaba.com>,"David S.
- Miller" <davem@davemloft.net>,Eric Dumazet <edumazet@kernel.org>,Jakub
- Kicinski <kuba@kernel.org>,Paolo Abeni <pabeni@redhat.com>,Simon Horman
- <horms@kernel.org>,virtualization@lists.linux.dev,kvm@vger.kernel.org,netdev@vger.kernel.org,linux-kernel@vger.kernel.org,stable@vger.kernel.org
-Message-ID: <179380909424.8.665274581449917096.1746194870@eldare.de>
-References: <20261028-vsock-restore-uaf-send-v2-1-675aad6da714@eldare.de>
- <auSZtMqcTz3r1nRk@sgarzare-redhat>
- <20261030101918-mutt-send-email-mst@kernel.org>
-X-SimpleLogin-Type: Reply
-X-SimpleLogin-EmailLog-ID: 1746194907
-X-SimpleLogin-Want-Signing: yes
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v6 2/2] of: Add support for "iommu-ranges" on a device
+ node
+To: Vikash Garodia <vikash.garodia@oss.qualcomm.com>,
+ "Joerg Roedel (AMD)" <joro@8bytes.org>, Vasant Hegde <vasant.hegde@amd.com>,
+ Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+ Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
+ David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>,
+ Jean-Philippe Brucker <jpb@kernel.org>, Rob Herring <robh@kernel.org>,
+ Saravana Kannan <saravanak@kernel.org>,
+ Tomasz Nowicki <tomasz.nowicki@caviumnetworks.com>,
+ Eric Auger <eric.auger@redhat.com>
+Cc: iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev, devicetree@vger.kernel.org,
+ Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>,
+ Vishnu Reddy <busanna.reddy@oss.qualcomm.com>
+References: <20261103-add_iommu_ranges-v6-0-361f3921a133@oss.qualcomm.com>
+ <20261103-add_iommu_ranges-v6-2-361f3921a133@oss.qualcomm.com>
+From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Content-Language: en-GB
+In-Reply-To: <20261103-add_iommu_ranges-v6-2-361f3921a133@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Fri, Oct 30, 2026 at 10:21:09AM -0400, Michael S. Tsirkin wrote:
-> On Fri, Oct 30, 2026 at 02:51:26PM +0100, Stefano Garzarella wrote:
-> > Do we really need to write in a commit message that checkpatch.pl --str=
-ict
-> > is clean?
+On 03/11/2026 15:29, Vikash Garodia wrote:
+> diff --git a/drivers/iommu/of_iommu.c b/drivers/iommu/of_iommu.c
+> index 5c266511db78910d6fd221af5437cecff4931c22..0428ceb50dec58f11872b4fb64e283fa8d9046a3 100644
+> --- a/drivers/iommu/of_iommu.c
+> +++ b/drivers/iommu/of_iommu.c
+> @@ -185,11 +185,118 @@ iommu_resv_region_get_type(struct device *dev,
+>   	if (start == phys->start && end == phys->end)
+>   		return IOMMU_RESV_DIRECT;
+>   
+> -	dev_warn(dev, "treating non-direct mapping [%pr] -> [%pap-%pap] as reservation\n", phys,
+> -		 &start, &end);
+> +	dev_err(dev, "non-direct mapping [%pr] -> [%pap-%pap] is not supported\n", phys,
+> +		&start, &end);
+>   	return IOMMU_RESV_RESERVED;
+>   }
+>   
 
-No, v3 will drop it.
+Same feedback as @ the last version of this.
 
-> Yea please write it yourself and make it concise. My eyes glazed over
-> in the 1st paragraph.
+I still think this behaviour change should have its own patch that 
+preceds this patch so that the logical change is clearly explained and 
+understood as a standalone change.
 
-Point taken. v3 will have a commit message shorter than the diff.
+Supporting iommu-ranges != not mapping misaligned ranges.
 
-> > This is already in the commit description, no?
+Otherwise this change goes under the radar of the new functionality 
+addition.
 
-Yes, v3 will have it in the commit message only.
-
-> > I guess this issue could be spread around virtio drivers, so would be n=
-ice
-> > to add common API in the virtio core to be used in all of them.
-
-Agreed, that would be a good follow-up; this patch stays the minimal fix.
-
-Thanks for the reviews,
-Jerome
-
+---
+bod
