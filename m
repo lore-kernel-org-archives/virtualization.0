@@ -1,56 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793826900;
-	b=S3u/578d7YN1ljxhcKa3MugM06mE/oxydBZ3UHGEwYkcDcYGcDVYY/UTPLtwATBNXur5
-	 R8KmkHdNgfxfvgu5QgraBwoCCcpNr9OtyE8RGvMzEFxqANSFPD4NqkyI2bqVydFV3QZbw
-	 OGMxmd3TEiLF3oxRioBpKWmZvNL1/uCG5LcIiTN5v0X/NhboMoMrvM2aNcOvAVAF+8UAP
-	 E59GrIh7+R6ZTQ6poWGdfHoBqgAA3B72AQlglaooGqlUjJ0Dk59HHygxg6tvNqzg5p0FZ
-	 NVSD0FUWAhgGXbk+weGJsML3fhBEuehei9J5o89qKWikDcUXvFmmcwejOc9jGypC1qg==
+	t=1793826893;
+	b=T1YJKlgVZrzArj74DrMj9x+FZvPJawnHx83qJ9vRlnq/sSmHFPLT/MOs2cOXRhFL6QNK
+	 58QGRyonAevaU8VzHPP1NwqOyYSwipca/14FkQN45neQWFFnFtT5KYraEWeMOTmGB3gF6
+	 m+2NhvNcN+EtaTcmqruBhskU/X5UcFNiO+NA47U/sxdcC5dYRWGwgT7XkxDtrxRKm/RbX
+	 TIRTTPmGwxPAX7pcmlDuRojKucq791yxfV5J/I8aHSpEp8q91PV1iS9vd1wcIxrK/Qh2Q
+	 oYdcwnrMQQT8It9h+bAqe6KViU99DwfrKWpCosQmQE4jb32tpBpLyIHYe8t9hF1uEGg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793826900;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793826893;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=4XJ7Y5ih6U1SYVWC8QWWlkNzc6N22IY1SWBmX+mrZY0=;
-	b=Cc/Xeeh/iYDp/2QnhloP3prCSjrNvhgFVSFav848OAqiVftM41HL/jlXo5xSpkziE7wm
-	 wsg4ZB6zpwCovuEsMuVcNsXPMJj17kkqSrsJ66v9HhpMw/quvfV6ehXucubbfabKZxpYk
-	 g7ROSavODuetPREMYGZ+yXT1v92rHxgpQdQfmB0kPmYDZqaV73PSjd46C1b0J2e4lQ36m
-	 DHcnLw+jyhD5sA/QpUaSaX+VNPKVthI1Qh+Dd9oPKatZ/GFsU+gzpVpb/aySJ96bpw0fK
-	 5Fc2AjVVG6vLfc/YDvMFAivT7cxD9iAjwDiggurcAA/mkUA8oEMEseZcrSmMh+HpsLA==
+	bh=JYWJlyYIG0M8QxclLsh8thjYd5ecaC2qgMkpuLl4nTs=;
+	b=S4U1GVwCARATYTyWWkq7SnaeSQyYb7Vo8XrcziOe5K1EORftodO6e36VE91whuqhJwQq
+	 O4m4IBJgvt1ALDxo2KYrkvBOMXpFl+JqP7qL3WP6KcxGSN/U/7+4u/gEXRT1FTlf7ogL2
+	 /r5gJiy2eeCaXA81t+QeSOv5K8POlwNarfZkyYltbMF16L1FTU9F+r2I0H+C9N8afmfSz
+	 KumwydxASb8J0m0OZnVA1spiKAZ8MxHwYzKRfZlUshR49CDqwOpUIW/buao0FrcVMwn0E
+	 GBdvhq+dMSty31U5gXXcJMBL3Z85Ul1L5zqho6f3+1k1D+A7n0zER5dAZkvWQn4NjjQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="gaB/PHSd";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nGwxhna2;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C00560B47A9;
-	Wed,  4 Nov 2026 21:15:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A56DF6070760;
+	Wed,  4 Nov 2026 21:14:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=gaB/PHSd
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A94A31F0093A;
-	Wed,  4 Nov 2026 21:14:59 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nGwxhna2
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32F211F000C1;
+	Wed,  4 Nov 2026 21:14:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793826900;
-	bh=4XJ7Y5ih6U1SYVWC8QWWlkNzc6N22IY1SWBmX+mrZY0=;
+	s=k20260515; t=1793826893;
+	bh=JYWJlyYIG0M8QxclLsh8thjYd5ecaC2qgMkpuLl4nTs=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=gaB/PHSdwm3ayXIkQKxmV2Y1Um9GvjkQz7Zjgd/ySnMF2jptmuXLSNKXq9Ig+HP7y
-	 pNvrdkOSQRAbY42HUxxqiXTp86QYqoxG1aDHLoc4TMAw9SyLY/O/XlegJUPLdeRt6+
-	 FD+wrWnvYZh37mXMQJqQMu9lDmbiqZ1Re5yy+U2/F1SmKGRxeYUeeYoMXRIaHZazpZ
-	 lmvq3SrITp53j3vHS+vq3emnzHtahBj9Io/MQc3RhIzGWVTKIDaciUxlQ488O4P5I7
-	 ZlTDEzTBudt8LTjKij5+ip3ahY8JTFDCJLhX51pXrtFdJlNXDEplSS0Hq0685g96Qy
-	 8NzEDShFJgg3w==
-Message-ID: <sashiko-outbox-198074@kernel.org>
+	b=nGwxhna20M7O/iLPC9ftztdz7IEi9uchsNvc4J07jorKAB/Q9t4Pi2K1u2oFYJBvH
+	 6oTvMYMLerHXK74ec5w6j9zwvoE3zXjY9PZk8ipzugtK6UtAqyjO3ccnbeWuFr1nA5
+	 Rp5YaWKJy9N0YGI3jTkNnqr/Xhh6izoAFijZThB13ZKCJPRkmFNGbXmJ5DZ++OAMVo
+	 uKfIno04uylCWc/po/x8d8+/EEnKxiOt0QfwuajYRh35IzG4vPCJLWZSxTMIcjYyZ6
+	 4OSiM1rPY1197ZRcdsDJKHlGgHFzW2raQEwJNs8YWqcuMLuyqLINH8wWa2RvOsCLKZ
+	 QiP9EX5RHuRfg==
+Message-ID: <sashiko-outbox-198072@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net-next v1 5/5] net: remove skb_mark_for_recycle()
+Subject: Re: [PATCH net-next v1 3/5] net: datagram: refcount page_pool frags
+ in zerocopy_fill_skb_from_iter()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Mina Almasry" <almasrymina@google.com>, virtualization@lists.linux.dev, linux-rdma@vger.kernel.org
 Cc: "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>
-In-Reply-To: <20261103211424.127627-6-almasrymina@google.com>
+In-Reply-To: <20261103211424.127627-4-almasrymina@google.com>
 References: <20261103211424.127627-1-almasrymina@google.com>
- <20261103211424.127627-6-almasrymina@google.com>
+ <20261103211424.127627-4-almasrymina@google.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 04 Nov 2026 21:14:59 +0000
+Date: Wed, 04 Nov 2026 21:14:52 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -60,11 +61,18 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> Now that page_pool reference counting is dispatched directly from each
-> netmem's type and skb->pp_recycle has been removed, skb_mark_for_recycle()
-> is a no-op stub with no remaining purpose. Remove its definition, all
-> in-tree callers, and its reference in
-> Documentation/networking/page_pool.rst.
+> When an application maps order-0 page_pool RX fragments into user space
+> via TCP_ZEROCOPY_RECEIVE and forwards that mapped address into TX
+> sendmsg(MSG_ZEROCOPY), zerocopy_fill_skb_from_iter() pins the pages via
+> iov_iter_get_pages2() (which increments page->_refcount) while
+> skb_release_data() releases fragments via netmem_dec_ref().
+>=20
+> Acquire each fragment reference via netmem_inc_ref() when attaching a
+> fragment in zerocopy_fill_skb_from_iter() and release the corresponding
+> GUP page->_refcount reference via the existing batched page_ref_sub()
+> path so the TX SKB fragment reference pairs with netmem_dec_ref() in
+> skb_release_data() once netmem_inc_ref() and netmem_dec_ref() handle
+> page_pool netmems.
 >=20
 > Signed-off-by: Mina Almasry <almasrymina@google.com>
 
@@ -72,5 +80,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261103211424.1276=
-27-1-almasrymina@google.com?part=3D5
+27-1-almasrymina@google.com?part=3D3
 
