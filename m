@@ -1,57 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793822632;
-	b=bVI8eVcDdFOnGlU+/eJnwCQVPWAr3Ll15fL/U0b8NahcHq+fg97DXI9rPRwfcvBWRqmy
-	 kv9ThS/9TgEy1CnZvM/0lO3kr18L+gDsiFwItyDKPRp6VJl/DGkduYvL6hrfSSMTKuEDS
-	 nYu/aB4uzlM1Wzr56MZOhJaUfL8Yi6TDUVWapYRaUFpZ52GRmyZnHWVBD9eWTwU3OrXK4
-	 0sROiX+DiIEOd3H/XAHgnN0BvicdETMTgVL1Ojd0BhYgGoNYrVGipHcge0Rlk8t2eYcZQ
-	 lCQkZvZbIpawI0iadIv+U7L7H5AWcSEj3OGHHBModsfZEMb27V6OuyBIyiY9DhlGrfw==
+	t=1793824293;
+	b=ESb3zur/uLp/su9P9BVf6tr5vyZgit/gMIGYmDzMyhTxBLf10DyoVp3rSa2TratEmHrJ
+	 3kXyf6gbHi0JYQhxTY5h4tu23r3TB4WeFpQ1ZGkqc+mxlZ0aSiIevu82XXsFs7DnjzAD/
+	 0DHAIYjDgfxq1d6N14WcOWgK65ZWyjUpGHL/cR0M7nHagi1uhpGWzpVTXRT7D2ey1TC2T
+	 ezP9clWiMUxS6tJRmO/l6E0H1G4VvYRr4F6HzpD1JAfxdquK9AnG9CcK8MQzEjN6qXJ2v
+	 Dt3kkwCogbcgxEU2VSWENEZh+aZvoA+F0098mxRlVDdClWBVTyvuZcmE/3aryf5wYiA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793822632;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793824293;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=EauI2F9zE8X32gU+4zTTTj61PF8BoqcUugWVKf7JV3Y=;
-	b=h+0Hsrw0rVD6Or+MN1pwHG6nIJW3Cf80YXwPJgHpa4r2u3tiTI+9cIwchGHw0Vwynkoj
-	 TqkQ8wmAOj40X0AxoTO7+eEcYeifXrr/VPsuUGXaMbyDyDQl99FZQhSD79CtCu6OflrT7
-	 7/MoKa0pn6ZF9j9QAJJAHDRYs6rZ+w+XgQek5DKxJu2FJ2GLhGzIPqJJ/r1iWZDJfQLXO
-	 VWSOcSo0qCNjLdOqIuFzhqBV54pX9/wJ48IEqXm2Jgj3grAy+vAiAgsOJNots2ZDYS/43
-	 WR8P6CtGUQv60K5vkDyVuwugu6JnG+j42wGzaKJe17vcU3XokH8gtCwNApQtD12JZgA==
+	bh=GkC6hlzznfqVyJ2TbdNnZQs4/DkpLYQvc92N7GdJIIk=;
+	b=i/0uElAGwwjwDkGPcRdLJBMimNA8X60sc18J/5AG1cZlouzTdnbj7nZ/CAwxSdZOt8oo
+	 8HK3EzEeRznpJGU5FatwdP2XjTpq1jHTXy3h+uQrsZroCsM1fDdQvIdVg9iCSzWAWHQxS
+	 2Cpf0onHSwKtRrNIHgtiGLvfIxqiEXpFFr7o9CasiRO7nZ4oxY8kk88FYyIeYHS2LoQIE
+	 +iZ1y65sl/6I7HwBYkQJiQ6M324EI2JJODVFGxwvE/l0tTjCGQ4hRvtSViNVpuFqnS1Fm
+	 cctppEBI6NYa6XObh4Z4ZUO14uQVfz2x1fFqng7XuJ2p5lafLS8T0mW4XqmGrfWYqxQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VBkwm24W;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=eKmF6RT2;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DC0B606D4D5
-	for <virtualization@lists.linux.dev>; Wed,  4 Nov 2026 20:03:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6B98606AE27
+	for <virtualization@lists.linux.dev>; Wed,  4 Nov 2026 20:31:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VBkwm24W
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD57E1F000C1;
-	Wed,  4 Nov 2026 20:03:51 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=eKmF6RT2
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5180E1F000C1;
+	Wed,  4 Nov 2026 20:31:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793822631;
-	bh=EauI2F9zE8X32gU+4zTTTj61PF8BoqcUugWVKf7JV3Y=;
+	s=k20260515; t=1793824292;
+	bh=GkC6hlzznfqVyJ2TbdNnZQs4/DkpLYQvc92N7GdJIIk=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=VBkwm24WXYmTV3ZiBI5Jv3hODbHImnQ4ZlswDVZyL5+tv6jjUe8lzNY2kt4FNlPtR
-	 QKb9I4UOz22s2FmiwIz9KOo9Qesqn/mzAPQaAlYHc40sIn9kjCyOacxygzLPkpG5Pc
-	 f2gfGEfEs38s1hPiFC1gDzpXDGxE3tNqG7QsiIdbxDejLg6mxSHHbcO/+n6KnvnDz4
-	 P8+IGtGcanapbQ7ovE+G4iW3SImQo/z8xnU8MS2vl+9/2Bn0ef6dv0JGSegJRmKriA
-	 TZWL9sijycnN/Rl+e0KCIh/tTxOcufRzOD1sWToW0KE6nFVqvB5CXjITxCVBt10ujG
-	 kqLSmQJL73CDA==
-Message-ID: <sashiko-outbox-197990@kernel.org>
+	b=eKmF6RT2BWOu2rvW7In3YTY9waZqDjccREGP8SBxzt7ZtXVgVQ01wkFOoCP/lMJRz
+	 +hEVdCXYY+ypymcOzSFAY/U342p2VJqJ/UBXQ9tlk/ZO7OE385/RoJiRottJTIQAPH
+	 2JOi5KyOW7T3Yrc+r+Smt6WmYkM/h7ClUnAsWjFNHba2j6TfYHCWQSqqXwsAUOZr4z
+	 BTakljyF64gcUNaLhyZIm0170k4wfJf5OUBPT5jJCTiFi0AlwIO5rzrOO9hw0TJq2r
+	 4Js5NqUKVV021VhdPFyvl+OcYm8W12Bnmo0ju2yJAm5BIagpsLo6quNdpE5rmw9xde
+	 xX7rjkr+U6DWQ==
+Message-ID: <sashiko-outbox-198016@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/2] gpio: virtio: bound the line names block by its
- configured size
+Subject: Re: [PATCH net 1/3] net: virtio: validate outer protocol of UDP
+ tunnel GSO packets
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Lianjie Wang" <lian@is.s.u-tokyo.ac.jp>
+To: "Eric Dumazet" <edumazet@kernel.org>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261104195632.1702765-1-lian@is.s.u-tokyo.ac.jp>
-References: <20261104195632.1702765-1-lian@is.s.u-tokyo.ac.jp>
+In-Reply-To: <20261103203113.550604-2-edumazet@kernel.org>
+References: <20261103203113.550604-1-edumazet@kernel.org>
+ <20261103203113.550604-2-edumazet@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 04 Nov 2026 20:03:51 +0000
+Date: Wed, 04 Nov 2026 20:31:31 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -61,37 +62,94 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> virtio_gpio_get_names() walks the line names that the device returns in
-> a block of gpio_names_size bytes, which the driver ends with a NUL, and
-> checks each name only after stepping past it. If the block holds fewer
-> than ngpio names, the walk reaches the end of the block after the last
-> name, and the next iteration starts strlen() at the byte after the
-> allocation. With a block that holds one name for four lines, KASAN
-> reports:
->=20
->   BUG: KASAN: slab-out-of-bounds in strlen+0x57/0x70
->   Read of size 1 at addr ffff8880026687c0 by task swapper/0/1
->   Call Trace:
->    strlen+0x57/0x70
->    virtio_gpio_probe+0xcb4/0xfc0
->    virtio_dev_probe+0xa7a/0xc50
->   Allocated by task 1:
->    devm_kmalloc+0x6e/0x280
->    virtio_gpio_probe+0xc06/0xfc0
->   The buggy address is located 0 bytes to the right of
->    allocated 64-byte region [ffff888002668780, ffff8880026687c0)
->=20
-> Check that a name starts inside the block before reading it.
->=20
-> This patch is assisted by Claude Opus 5.5.
->=20
-> Fixes: 3a29355a22c0 ("gpio: Add virtio-gpio driver")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Lianjie Wang <lian@is.s.u-tokyo.ac.jp>
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] net: virtio: unreliable L3 check in virtio_net_tnl_outer_proto_ok()
+--
 
-Sashiko has reviewed this patch and found no issues.
+commit 02f420dee7a050b3832ecf552c44f9c2eeaaddc1
+Author: Eric Dumazet <edumazet@kernel.org>
+
+net: virtio: validate outer protocol of UDP tunnel GSO packets
+
+This commit validates that the outer L3 protocol of a UDP tunnel GSO packet
+matches the tunnel type declared in the virtio header in
+virtio_net_hdr_tnl_to_skb().
+
+> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+> index d6466f96cdd00..d3f97d71d81cc 100644
+> --- a/include/linux/virtio_net.h
+> +++ b/include/linux/virtio_net.h
+> @@ -282,6 +282,31 @@ static inline unsigned int virtio_l3min(bool is_ipv6)
+>  	return is_ipv6 ? sizeof(struct ipv6hdr) : sizeof(struct iphdr);
+>  }
+> =20
+> +/* The outer network header of a UDP tunnel GSO packet must match the
+> + * tunnel type declared in the virtio header, otherwise the GSO stack
+> + * would parse the packet as something else (e.g. NSH).
+> + */
+> +static inline bool virtio_net_tnl_outer_proto_ok(const struct sk_buff *s=
+kb,
+> +						 bool outer_isv6,
+> +						 unsigned int outer_th)
+> +{
+> +	__be16 expected =3D outer_isv6 ? htons(ETH_P_IPV6) : htons(ETH_P_IP);
+> +	__be16 proto =3D skb->protocol;
+> +	int nh_off =3D ETH_HLEN;
+> +
+> +	/* L3 device (IFF_TUN): the caller already set the protocol. */
+> +	if (proto)
+> +		return proto =3D=3D expected;
+
+[Severity: High]
+Can testing if (proto) here be bypassed in tun_get_user() in two ways?
+
+First, on an IFF_TAP device with IFF_NAPI_FRAGS enabled, tun_get_user()
+allocates the skb via tun_napi_alloc_frags() -> napi_get_frags(). When a
+prior packet was merged by GRO (GRO_MERGED_FREE in napi_frags_finish()),
+napi_reuse_skb() caches napi->skb for reuse without clearing skb->protocol
+(which napi_frags_skb() set to the previous frame's eth->h_proto, such as
+htons(ETH_P_IP)).
+
+In drivers/net/tun.c:tun_get_user(), tun_vnet_hdr_tnl_to_skb() runs before
+eth_type_trans() updates skb->protocol for the new frame:
+
+	if (tun_vnet_hdr_tnl_to_skb(tun->flags, features, skb, &hdr)) {
+		atomic_long_inc(&tun->rx_frame_errors);
+		err =3D -EINVAL;
+		goto free_skb;
+	}
+
+	if ((tun->flags & TUN_TYPE_MASK) =3D=3D IFF_TAP)
+		skb->protocol =3D eth_type_trans(skb, tun->dev);
+
+With a reused napi->skb still carrying skb->protocol =3D=3D htons(ETH_P_IP),
+virtio_net_tnl_outer_proto_ok() takes the if (proto) branch and returns true
+without inspecting eth_hdr(skb)->h_proto or checking nh_off +
+virtio_l3min(outer_isv6) <=3D outer_th, and eth_type_trans() then sets
+skb->protocol to the new frame's actual EtherType (such as ETH_P_NSH).
+
+Second, on an IFF_TUN device without IFF_NO_PI, tun_get_user() copies struct
+tun_pi from userspace and sets skb->protocol =3D pi.proto:
+
+		skb_reset_network_header(skb);
+		skb->protocol =3D pi.proto;
+		break;
+
+If userspace passes pi.proto =3D=3D 0, proto is 0, so
+virtio_net_tnl_outer_proto_ok() falls through to the Ethernet path and chec=
+ks
+eth_hdr(skb)->h_proto inside the L3 payload, leaving skb->protocol =3D=3D 0=
+ with
+SKB_GSO_UDP_TUNNEL set if those bytes match expected.
+
+Since all callers set skb->network_header before calling
+virtio_net_hdr_tnl_to_skb() (to 0 via skb_reset_network_header() for IFF_TU=
+N,
+and to ETH_HLEN via skb_set_network_header() for IFF_TAP and virtio_net),
+would checking !skb_network_offset(skb) instead of if (proto) avoid both
+issues?
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104195632.1702=
-765-1-lian@is.s.u-tokyo.ac.jp?part=3D1
-
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261103203113.5506=
+04-1-edumazet@kernel.org?part=3D1
