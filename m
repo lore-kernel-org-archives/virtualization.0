@@ -1,62 +1,66 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=111.22.67.135
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793768504;
-	b=tVS4dikqE70KF780EkQtIlYT/kl+7tbYiOVoK+/VBQx3tLb2FlLjF8U/Y+6DxwERENXd
-	 fe/uFkN8wFh5rsUYjwXXGmr2J3/ye61suhbClI4mgOAN2yNPI3ioHGTjiq/l/8qtR7HAN
-	 mDHrKvX47SKU4TcSQiEwTf/fxFxONg9Ig8dGgUGBHW2YezGfEg10CKiOjtfocCK1u13J7
-	 mcyrHBoNGYTbU9FKMqq42OzoVTssPtinTElvT16PX5EWgkW4Ri7MyQ7OfgC0A20fE7d4Q
-	 Oy/Q0tOPlnCsJs4N7G0czmwh8YraRrcCACGxv19Pkyhysf8Rv12NO0mX76BGgJys1kQ==
+	t=1793780358;
+	b=Ws8lzep0TRgwIdjU1YPgdyllydrpzENW+wjlijfe4L3Efv3X7LF1bzDm5YfY/PQ7IT/J
+	 yAJGdWpgJJLEGNjv+UxytV/JEOUiqYs8n+xah263Mi9ov7x7NY+M7fbQygOkBlk+w91Ix
+	 w1O9DwRw908R+xxVTItr5pep7z/+Q9CJoOYG6AMxoGLfbeyLjrDrojXW98s7NbwrGiwR1
+	 6sVkgodYuK4gweZk/GAU7yDUywVrAwp4ple635W1aTc3s4CnPZXS8+rNmCImt4pUgqj5T
+	 Gn/dtrNjz4/y8/ENBUAzjvZTMlg21uAXrvaSVV4rYlBEBBxhhwqiO7Nz/Bz3der64ZQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793768504;
-	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
-	 In-Reply-To:References:MIME-Version:Content-Transfer-Encoding;
-	bh=5GMAqY7FM6ZAQr9W6BNb+fX/DcRpx409vq4+uvPz0kM=;
-	b=Xxs9HmOgCsKZtFPK7Ne9OBSaiXd2nmRKjPyGditGiDAtv4af+Pl6F/4bsmwt6MLN+U6h
-	 RbyWY0/O0lUC2/KqOSOtTDkDHoL5fj7ULpQjjD6m3UF5dGtf1VutSrAV0ysV13GphwzjZ
-	 7MR64CVxpPh54gUlyXb0GUoiBjExfGmM0H0TjhGwoBMH+zokrz+5FWey81iwbxcqUlUGp
-	 sVLr/Rvz4AX2xWbpqDpJZW8Hr629/sgjcZyYNb/yYSdJ/RN+bchY7Ir4ixlIQkx+kDIBc
-	 vsXrl2BebQB3fMZvom70k/HqdD45RH46TDSiiOm5afwPdUYNh6HIPAUBjRTsO/rzcnw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793780358;
+	h=DMARC-Filter:DKIM-Signature:X-RM-TagInfo:X-RM-SPAM-FLAG:Received:
+	 X-RM-TRANSID:X-RM-TagInfo:X-RM-SPAM-FLAG:Received:X-RM-TRANSID:From:
+	 To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=DRomMyMPrRWlOAYAGPu7tvN+fhaYoqbxpR/jJJoldWA=;
+	b=f3yvr5DW/OvAUjSKSAbqMpmw9hvY44NOxNGTvwRGiBoeZL6kCCOt2u38fZFwRLnaFVxd
+	 /rxdC1az4T7L/IudqOIYGTMK9xTnBR8j14XmyqJuHbSt+XlEMQ3Q5++/PkVKW82dna8+k
+	 vwx7/iS8S8yu6btVSGOI0hHlDxwhPPe5TrwLQxH3Ym+KJ5/yMYWRPdxoG3W7oOREruQtB
+	 QVNZhHfmcZGGWag+vMIQUER3QNnDF/p6+oNlYRTHb1kRPlvOynTQ7TuhQj8NpfgxMkHKU
+	 2pU0S8NjQOPNppGUASYllX7P9/MxswRBtd8KMc7ZRZjDw6FIOSrwChay5Vy0bJVdueg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LRJlvdw2;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65764606A329;
-	Wed,  4 Nov 2026 05:01:44 +0000 (UTC)
+	dmarc=pass header.from=cmss.chinamobile.com;
+	spf=pass smtp.mailfrom=cmss.chinamobile.com;
+	dkim=pass header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.a=rsa-sha256 header.s=default header.b=Xk72a7Su;
+	arc=none smtp.remote-ip=111.22.67.135
+Received: from cmccmta2.chinamobile.com (cmccmta2.chinamobile.com [111.22.67.135])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 6C06E606D811
+	for <virtualization@lists.linux.dev>; Wed,  4 Nov 2026 08:19:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6C06E606D811
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cmss.chinamobile.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cmss.chinamobile.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LRJlvdw2
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A45DB1F000C1;
-	Wed,  4 Nov 2026 05:01:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793768504;
-	bh=5GMAqY7FM6ZAQr9W6BNb+fX/DcRpx409vq4+uvPz0kM=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=LRJlvdw25Xn4b3ldmZixbHRHdB75iJJps7HrEj5OLHlxh6QvGS13Ce74HnCf/H5aa
-	 +iBXWoI2Lxhn7mUL4CeWdc7d25IdJnKGLScCeY2HNCPIXpyz7me/R6XXULkAzjlhrM
-	 sWzk0Hqc/EVlc9xyQJfR3WUEbyO76ryKPFC81tu+mw+KirEFUerNvwEtlTyHTskn0A
-	 k2B71zGp9Jxs9GA8OjLDXfhcYf2+MHnBk0SKJQ+PYuQH67PcPPI6zsdc1/DtwMeWpg
-	 d3lKDC7TcxTzFY03h6G7cbT0YbGv//y8pZRoCxzOVljMKQTbBaT4X/pH+8EgJUaKOx
-	 g8Ombk6P3rLqg==
-From: Eric Dumazet <edumazet@kernel.org>
-To: netdev@vger.kernel.org,
-	"David S. Miller" <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>
-Cc: Eric Dumazet <edumazet@kernel.org>,
-	Simon Horman <horms@kernel.org>,
-	Willem de Bruijn <willemb@google.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Hassan Sultan <hassansultan@google.com>,
-	virtualization@lists.linux.dev
-Subject: [PATCH net v2 2/3] selftests: net: tuntap: fix UDP checksum length in build_udp_packet_csum()
-Date: Wed,  4 Nov 2026 06:01:30 +0100
-Message-ID: <20261104050131.629967-3-edumazet@kernel.org>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20261104050131.629967-1-edumazet@kernel.org>
-References: <20261104050131.629967-1-edumazet@kernel.org>
+	dkim=pass (1024-bit key, unprotected) header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.a=rsa-sha256 header.s=default header.b=Xk72a7Su
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cmss.chinamobile.com; s=default; l=0;
+	h=from:subject:message-id:to:cc:mime-version;
+	bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
+	b=Xk72a7SuM96yT2HyztB6fjHRj+9F3PJbZJSGKWqnigwCbmMsps7bN/Bx1FI7spUdpPU733anRCMNp
+	 PATQRw8ZMO7z9kGU1C2DEu1CbBXtFpKRcCeKy4pjaqY0KWq8PIePIU6MR+A+7LAs7Up9bYXvQs7y+f
+	 FmeoerzYaKRvpHvc=
+X-RM-TagInfo: emlType=0                                       
+X-RM-SPAM-FLAG:00000000
+Received:from spf.mail.chinamobile.com (unknown[10.188.0.87])
+	by rmmx-syy-dmz-app03-12003 (RichMail) with SMTP id 2ee36aeaea80713-67a9d;
+	Wed, 04 Nov 2026 16:19:13 +0800 (CST)
+X-RM-TRANSID:2ee36aeaea80713-67a9d
+X-RM-TagInfo: emlType=0                                       
+X-RM-SPAM-FLAG:00000000
+Received:from FHB-W5100250 (unknown[36.137.216.21])
+	by rmsmtp-syy-appsvr07-12007 (RichMail) with SMTP id 2ee76aeaea7a6a7-1a9dc;
+	Wed, 04 Nov 2026 16:19:13 +0800 (CST)
+X-RM-TRANSID:2ee76aeaea7a6a7-1a9dc
+From: Gu Bin <gubin@cmss.chinamobile.com>
+To: mst@redhat.com
+Cc: jasowangio@gmail.com,
+	eperezma@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] tools/virtio/virtio-trace: fix swapped read/write label in path error
+Date: Wed,  4 Nov 2026 16:19:02 +0800
+Message-ID: <20261104081903.1834-1-gubin@cmss.chinamobile.com>
+X-Mailer: git-send-email 2.50.1.windows.1
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -68,54 +72,36 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-build_udp_packet_csum() passes udph->len, which is in network byte
-order, as the number of bytes to checksum. On little-endian hosts this
-reads up to 64KB past the UDP header and computes a wrong checksum.
+make_path() builds the path whose direction is given by
+this_is_write_path, but the pr_err() labels it with the opposite
+direction: "read" when building the write path and "write" when
+building the read path, pointing the user at the wrong side when
+path generation fails. This is a cosmetic fix: only the error
+message text is wrong, the path construction logic is unaffected.
 
-Existing callers did not crash only because they use packet buffers
-of MAX_VNET_TUNNEL_PACKET_SZ bytes.
+Swap the literals so the message matches the attempted path.
 
-Use ntohs(udph->len), as tap.c does in its own build_udp_packet().
-
-While at it, clear udph->check before summing instead of relying on
-the caller, and send 0xffff instead of a computed zero checksum, as
-the kernel does with CSUM_MANGLED_0.
-
-Fixes: a942fcd72e97 ("selftest: tun: Introduce tuntap_helpers.h header for TUN/TAP testing")
-Reviewed-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: Eric Dumazet <edumazet@kernel.org>
+Fixes: 108fc82596e3 ("tools: Add guest trace agent as a user tool")
+Signed-off-by: Gu Bin <gubin@cmss.chinamobile.com>
 ---
- tools/testing/selftests/net/tuntap_helpers.h | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ tools/virtio/virtio-trace/trace-agent.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/net/tuntap_helpers.h b/tools/testing/selftests/net/tuntap_helpers.h
-index d6c0437136ec..ecad83fae158 100644
---- a/tools/testing/selftests/net/tuntap_helpers.h
-+++ b/tools/testing/selftests/net/tuntap_helpers.h
-@@ -330,14 +330,22 @@ static inline void build_udp_packet_csum(uint8_t *buf, int family,
- 	size_t ipalen = ip_addr_len(family);
- 	uint32_t sum;
+diff --git a/tools/virtio/virtio-trace/trace-agent.c b/tools/virtio/virtio-trace/trace-agent.c
+index 7e2d9bbf0b84..555521fc8bfd 100644
+--- a/tools/virtio/virtio-trace/trace-agent.c
++++ b/tools/virtio/virtio-trace/trace-agent.c
+@@ -130,7 +130,7 @@ static const char *make_path(int cpu_num, bool this_is_write_path)
  
-+	udph->check = 0;
-+
- 	/* No extension IPv4 and IPv6 headers addresses are the last fields */
- 	sum = add_csum(buf - 2 * ipalen, 2 * ipalen);
- 	sum += htons(IPPROTO_UDP) + udph->len;
+ 	if (ret <= 0) {
+ 		pr_err("Failed to generate %s path(CPU#%d):%d\n",
+-			this_is_write_path ? "read" : "write", cpu_num, ret);
++			this_is_write_path ? "write" : "read", cpu_num, ret);
+ 		goto error;
+ 	}
  
- 	if (!csum_off)
--		sum += add_csum(buf, udph->len);
-+		sum += add_csum(buf, ntohs(udph->len));
- 
- 	udph->check = finish_ip_csum(sum);
-+
-+	/* A zero UDP checksum means no checksum: send 0xffff instead,
-+	 * as the kernel does with CSUM_MANGLED_0.
-+	 */
-+	if (!csum_off && !udph->check)
-+		udph->check = 0xffff;
- }
- 
- static inline int build_udp_packet(uint8_t *buf, uint16_t sport, uint16_t dport,
 -- 
-2.53.0
+2.55.0.windows.3
+
+
 
