@@ -1,57 +1,59 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=159.69.87.85
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793826893;
-	b=T1YJKlgVZrzArj74DrMj9x+FZvPJawnHx83qJ9vRlnq/sSmHFPLT/MOs2cOXRhFL6QNK
-	 58QGRyonAevaU8VzHPP1NwqOyYSwipca/14FkQN45neQWFFnFtT5KYraEWeMOTmGB3gF6
-	 m+2NhvNcN+EtaTcmqruBhskU/X5UcFNiO+NA47U/sxdcC5dYRWGwgT7XkxDtrxRKm/RbX
-	 TIRTTPmGwxPAX7pcmlDuRojKucq791yxfV5J/I8aHSpEp8q91PV1iS9vd1wcIxrK/Qh2Q
-	 oYdcwnrMQQT8It9h+bAqe6KViU99DwfrKWpCosQmQE4jb32tpBpLyIHYe8t9hF1uEGg==
+	t=1793836929;
+	b=hBPhmLr/u3SktQpSayhrlI0wEk+qJBl1NZ901/MvCxgv6l0K443GEdwv9AzxxfNGLK86
+	 2/OIJzf182tFa4KpxNEUohH9cOKdFSssSomf/6zByl5jTbwuAKmBd558HY6yCp6Vltj6o
+	 U7VPFB8lTTHqYzxBEctd497PABAX4LrOtfXd90jet0JJjQrH8Pw+FgNCL8p5CNbH2Qfze
+	 yQeY9cmCYQqs5AF5mRsAMykWu/z+UWLMt14rG4tk2bwGRDT54uYAc94W+GlRptbyr23ww
+	 qFPdhmBrQ06Tk94J4H4wxWORS4nDmIkHTMwm5a90DDpNJWLdrC4Mot8/D/J7M4Ftcvw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793826893;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=JYWJlyYIG0M8QxclLsh8thjYd5ecaC2qgMkpuLl4nTs=;
-	b=S4U1GVwCARATYTyWWkq7SnaeSQyYb7Vo8XrcziOe5K1EORftodO6e36VE91whuqhJwQq
-	 O4m4IBJgvt1ALDxo2KYrkvBOMXpFl+JqP7qL3WP6KcxGSN/U/7+4u/gEXRT1FTlf7ogL2
-	 /r5gJiy2eeCaXA81t+QeSOv5K8POlwNarfZkyYltbMF16L1FTU9F+r2I0H+C9N8afmfSz
-	 KumwydxASb8J0m0OZnVA1spiKAZ8MxHwYzKRfZlUshR49CDqwOpUIW/buao0FrcVMwn0E
-	 GBdvhq+dMSty31U5gXXcJMBL3Z85Ul1L5zqho6f3+1k1D+A7n0zER5dAZkvWQn4NjjQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793836929;
+	h=DMARC-Filter:Received:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
+	 MIME-Version:Content-Transfer-Encoding:X-Spam-Status:
+	 X-Spam-Checker-Version;
+	bh=oLJyanmstYagcI9Rv5WYzf+IYeOCfgcugYDSw4IlpLU=;
+	b=WrTFQPI4vyq+TzycMfC1AP/JqVfxoUy06H2veWrslJQLUWVwHYge25uJtiwoTtNq/GYx
+	 ZEMBFpxl4CVJhD6DDDslhutthBQT4AFL5YkrZXbEBRJbwpRg36LCpkBbVj747KsCrYf2n
+	 bnJLrzH7buUkLIlcYXqC05nazAzbg9/clJ8kfudamUSmcmVpTlYH5yg7VOntEiqlG06PN
+	 6oL0fx+fF9eIETo1MweAqa9B3yy9ZTr0d+2Y5M/LdwhKElHi+vcUVmLPe4jXsRIO/0vMX
+	 vlN5fah0qxJ8s71U90lOhsNV/+JJ2AlhOdut83VIdhcR1O0QXLR9AOHsY89U7ddTAYA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nGwxhna2;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=none header.from=linuxhacker.ru;
+	spf=none smtp.mailfrom=linuxhacker.ru;
+	arc=none smtp.remote-ip=159.69.87.85
+Received: from eagle.linuxhacker.ru (linuxhacker.ru [159.69.87.85])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A56DF6070760;
-	Wed,  4 Nov 2026 21:14:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nGwxhna2
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32F211F000C1;
-	Wed,  4 Nov 2026 21:14:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793826893;
-	bh=JYWJlyYIG0M8QxclLsh8thjYd5ecaC2qgMkpuLl4nTs=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=nGwxhna20M7O/iLPC9ftztdz7IEi9uchsNvc4J07jorKAB/Q9t4Pi2K1u2oFYJBvH
-	 6oTvMYMLerHXK74ec5w6j9zwvoE3zXjY9PZk8ipzugtK6UtAqyjO3ccnbeWuFr1nA5
-	 Rp5YaWKJy9N0YGI3jTkNnqr/Xhh6izoAFijZThB13ZKCJPRkmFNGbXmJ5DZ++OAMVo
-	 uKfIno04uylCWc/po/x8d8+/EEnKxiOt0QfwuajYRh35IzG4vPCJLWZSxTMIcjYyZ6
-	 4OSiM1rPY1197ZRcdsDJKHlGgHFzW2raQEwJNs8YWqcuMLuyqLINH8wWa2RvOsCLKZ
-	 QiP9EX5RHuRfg==
-Message-ID: <sashiko-outbox-198072@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net-next v1 3/5] net: datagram: refcount page_pool frags
- in zerocopy_fill_skb_from_iter()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Mina Almasry" <almasrymina@google.com>, virtualization@lists.linux.dev, linux-rdma@vger.kernel.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>
-In-Reply-To: <20261103211424.127627-4-almasrymina@google.com>
-References: <20261103211424.127627-1-almasrymina@google.com>
- <20261103211424.127627-4-almasrymina@google.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 04 Nov 2026 21:14:52 +0000
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C91FA606A31B
+	for <virtualization@lists.linux.dev>; Thu,  5 Nov 2026 00:02:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C91FA606A31B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linuxhacker.ru
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linuxhacker.ru
+Received: from intelbox1.virtnet (unknown [162.81.204.199])
+	by eagle.linuxhacker.ru (Postfix) with ESMTPSA id 82E49BEE42;
+	Thu,  5 Nov 2026 00:01:57 +0000 (UTC)
+From: Oleg Drokin <green@linuxhacker.ru>
+To: sgarzare@redhat.com,
+	stefanha@redhat.com,
+	mst@redhat.com
+Cc: jasowangio@gmail.com,
+	eperezma@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	bobbyeshleman@meta.com,
+	davem@davemloft.net,
+	edumazet@kernel.org,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	horms@kernel.org,
+	netdev@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	kvm@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH net 0/3] vsock/virtio: bound what a peer can make the host queue
+Date: Wed,  4 Nov 2026 19:01:38 -0500
+Message-ID: <20261105000141.3617241-1-green@linuxhacker.ru>
+X-Mailer: git-send-email 2.56.0
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -60,25 +62,60 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-> When an application maps order-0 page_pool RX fragments into user space
-> via TCP_ZEROCOPY_RECEIVE and forwards that mapped address into TX
-> sendmsg(MSG_ZEROCOPY), zerocopy_fill_skb_from_iter() pins the pages via
-> iov_iter_get_pages2() (which increments page->_refcount) while
-> skb_release_data() releases fragments via netmem_dec_ref().
->=20
-> Acquire each fragment reference via netmem_inc_ref() when attaching a
-> fragment in zerocopy_fill_skb_from_iter() and release the corresponding
-> GUP page->_refcount reference via the existing batched page_ref_sub()
-> path so the TX SKB fragment reference pairs with netmem_dec_ref() in
-> skb_release_data() once netmem_inc_ref() and netmem_dec_ref() handle
-> page_pool netmems.
->=20
-> Signed-off-by: Mina Almasry <almasrymina@google.com>
+A virtio-vsock peer that does not consume what it is sent can make the
+local side queue memory that no limit covers. On a host the peer is a
+guest, and the memory is GFP_KERNEL, charged to no memory cgroup. Two
+ways remain on net/main:
 
-Sashiko has reviewed this patch and found no issues.
+ - the send credit trusts the fwd_cnt the peer reports, so a peer that
+   never reads but keeps acknowledging gets unlimited credit (patch 2);
+ - credit updates are not bounded at all: a peer can solicit them with
+   OP_CREDIT_REQUEST, or by sending small packets that a reader drains,
+   while posting no rx buffers (patch 3).
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261103211424.1276=
-27-1-almasrymina@google.com?part=3D3
+Patch 1 fixes the accounting of packets that vhost drops on rx errors;
+patch 2 relies on bytes_unsent being right.
+
+Nothing changes on the wire.
+
+Tested in an x86_64 qemu/KVM guest running the kernel under test
+(net/main 03897066069f); the "guest" is a user-space program driving
+/dev/vhost-vsock directly, talking to plain AF_VSOCK host sockets:
+
+  case                                      net/main      this series
+  lying fwd_cnt, no rx buffers, 2 s of      256 MiB       256 KiB
+  non-blocking send() on one socket         queued        (one window)
+  20000 OP_CREDIT_REQUEST, no rx buffers    +18.5 MiB     +0
+  20000 1-byte packets, each read by host   +18.0 MiB     +24 KiB
+
+vsock_test from tools/testing/vsock passes over loopback and between a
+nested guest and its host. A bidirectional stress test (up to 512
+connections streaming both ways, readers draining in small reads) runs
+without stalls, and vsock_perf throughput stays within run-to-run noise.
+With KASAN and lockdep enabled, these tests show no reports.
+
+The reproducer (a small user-space program that drives /dev/vhost-vsock
+as the guest) is available on request.
+
+The patches, the test setup and these changelogs were prepared with an
+AI coding assistant (Claude); the tests above were run as described.
+
+Oleg Drokin (3):
+  vhost/vsock: release the accounting of packets dropped on rx errors
+  vsock/virtio: bound the send credit by bytes not yet consumed by the
+    transport
+  vsock/virtio: queue at most one credit update per socket
+
+ drivers/vhost/vsock.c                   | 25 +++++++--
+ include/linux/virtio_vsock.h            |  5 ++
+ net/vmw_vsock/virtio_transport.c        |  2 +
+ net/vmw_vsock/virtio_transport_common.c | 69 +++++++++++++++++++++++--
+ net/vmw_vsock/vsock_loopback.c          |  1 +
+ 5 files changed, 95 insertions(+), 7 deletions(-)
+
+-- 
+2.56.0
 
