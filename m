@@ -1,104 +1,58 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793891396;
-	b=yy9UoT5OpA/36xr0KVKtteLpo6QY1bJHY8RkDAPa2Vltn6pEfkEeJ1KRIC8uaY4RPVPd
-	 /vxLr7Gj8meBCXDGjMGMiOAXrKbRwWpKgrIlwnvkr13tciNoQk//UyfpeF59tSqhC1m5B
-	 JMuritWiyvsbtEZTdGu9Md/CMFTRuYN1cUtLneSpjDbfvIEGaUgkETfqyn2VCb+gCyMQG
-	 SHmvlb1o4U2H6MZcPkXmjcBcRDC82Fs4Cc/SIQyEKrzRukqWzKo2A7cDczXZNpG6XugMz
-	 h8gKGpmYjs8vISOrDDPikqesGocD6E5I7IX1LQfvrTAd2oXEg5ly+YQZrk6lDu1t1jA==
+	t=1793891538;
+	b=33KLJenPOnj9DEeJY9UNBuHuHeV0VF1+x6FQd3ElRDLfeoMJ0SoHOSQX+G5uyXNHBzzy
+	 YiYiaU9o6DWNkPR36QSpJSvCwInuF6x+t6UtKgbfJZGaJvZsXAoeHRF/A7j11mIrrKZ9n
+	 emFZc35fjnSekBpZect+6TdAJzST8uSd41CobkgUB0mVjIw/9LUqSJoN9Xr/UzC7SFNCa
+	 DvH3O8D89pCaKuRTbBs2nhDe/SxbMdU/hlzp62VIOykNhX3k9F1e6QrTYyYp9kmamr627
+	 7vooBGJXB0VkoiBOYFceYDVfeujcKBjTpdBvWIfm5UxNFvhEqUPMmmFy04ovtVEznZg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793891396;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:Received:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
-	 In-Reply-To:References:MIME-Version:X-Mimecast-Spam-Score:
-	 X-Mimecast-MFC-PROC-ID:X-Mimecast-Originator:
-	 Content-Transfer-Encoding:content-type;
-	bh=KphLnH6Y7Gp74AYUkx+0gciVD76K0BIzunIfeqpjC3k=;
-	b=B888IYIjoUxnSrTf1y4U83VfcpWjUDRJf7gf0WTK7XTT0Abur0q4ajxLLBkMyqHty2i0
-	 fDdGBajXjXZ6/Z/qvqfpG+bQ+YJ7LZkOKC1GYBgsGYKKU7ni0WL+Teg/Ff33YsuVlTErV
-	 i9g1sVBHztBFgFfMRMrgYKvS2QDskDtUsSr2jRQ9u3WA//XgSIX9D3RXJi3iMMJO992lH
-	 C3kqWqlV8QxbAetyI92JBtFTNMGOKFY0SOHzDajvA5yTvqbj8B1IMJmXoME4oktt7KhWE
-	 eJwAYjF1pI0fMsY8s9ajIxvI08yzzSewdXflWgZcVMJTHUkQWD/+HE00pRGZcthCIiA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793891538;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=YwlRlnupOz5rxsWt/GhPVa2k6ZJRqx/vd97RMkDyW8s=;
+	b=JTiENaTwM8l5qL6YVQi3ewqvFc4+L1qoNTh79N2GeF1DHGbgNc1pnOsM7OXWwQYl6cWr
+	 XqRXfDUN+NmD7dT4R82BTqIOl9Wa/pEnV4oVWEgAX3a0wSiAIOjeEtTXklOc29rVSOs6Z
+	 wanCjYgzydzJSTRqL/j2LFYLOVLhlimhjnnEGpKEifP1Vjbt1WuOjC6z+tPHfAc7umqef
+	 xr0JWeL8eu+8PcGuDGWlvrpT63dr3Y/rbZbrr9+r98B8eQHGDEmcK55CcO9T2w5Z/S3+y
+	 yxaaaBmnmQQwvScWeoU9mGNFGATHOaKZ6XSn/gaZ1UlTrUNvYllzdnBpeSs+EP0e2Nw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=IhLmgn6z;
-	arc=none smtp.remote-ip=170.10.129.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CWH0ykUH;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB7FD606D815
-	for <virtualization@lists.linux.dev>; Thu,  5 Nov 2026 15:09:55 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BB7FD606D815
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E235B606A31B
+	for <virtualization@lists.linux.dev>; Thu,  5 Nov 2026 15:12:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=IhLmgn6z
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1793891394;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=KphLnH6Y7Gp74AYUkx+0gciVD76K0BIzunIfeqpjC3k=;
-	b=IhLmgn6z2wxg3f+EFytsrHGNX7ZYB83YBI5rrU+V1XvJR2soG+/GCHsMKNzUhO3nodTTvd
-	1BBvSBF/UGOazGoG8Yqkn5hL3VvagJVpcX9Q5VahElwd5zygHzIPUw2WvRWIaFKW4p0CkJ
-	8NP9gccPlFKS6WNvRkN+o6kxE1NaQgE=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-5-MqyShuo4OTaX2lp9unF9UA-1; Thu, 05 Nov 2026 10:09:53 -0500
-X-MC-Unique: MqyShuo4OTaX2lp9unF9UA-1
-X-Mimecast-MFC-AGG-ID: MqyShuo4OTaX2lp9unF9UA_1793891392
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4a20fd059ddso15844975e9.0
-        for <virtualization@lists.linux.dev>; Thu, 05 Nov 2026 07:09:53 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793891392; x=1794496192;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=KphLnH6Y7Gp74AYUkx+0gciVD76K0BIzunIfeqpjC3k=;
-        b=X8nDrMWAAZ+56pqwq9r7qu7iaXddnuw/SMovAo9gKVFgX2ydcyLR3Z0RKPi8JkNadD
-         PKcMcR8hyddw93fR86/DdzXUfHbeJ9dk9T3COxA46FteUJ+k472hyJ/Vlwz97c2oeiq2
-         pJ5SDoHYinlq1amzgeVMxOeGBVDeTbnBL5PYxJbT+TEP5Muxvd86sAHdmNDG37gn4Fzv
-         Ow4QFWtNWkPRWbX5MPtx2y6yNXuvhZg8VxAuKIG1Nkf+PK6u4NmIvK+i3RxVuaG1YhZs
-         O0Cc5yAYFK9Epo0yEepSiyZ0nRMXns69KmTOIDcAZXLvqfnZhPFE5y3irZgMdmFEREzQ
-         tmWQ==
-X-Forwarded-Encrypted: i=1; AKwUvBxEO2bqceKtSCR7FTVcVBcafMGgRQNbyF32WrSGsI830Fs2Dk1XS0LhZNxJdngi352ZqK0Sc15qzfmJGuEs1A==@lists.linux.dev
-X-Gm-Message-State: APuU4Z/7a6zSsfz5IDcJmy7mM4/cSN/NAtL+2HXZS5XIJEq1PGvGa8Cg
-	ui9JLneXhwRZE7Fpc2O/jAluR+0r6FEI7iyvksk130MMcr4RQkWJ29MCWXfVUH/1CCF3hbIoSwX
-	nlgII862aUcg7NvE/SzpCZwK4XMS8kKreyVwrR3jNBbCoj0oSgO1AQylK2Rry7LWfZVQI
-X-Gm-Gg: AYBFou3qep2+3fgAy34sQNPv4K9luFkKcJDl7Q+9Qkfvfroe02UZqy78RQ0mVkSZl1Y
-	Q1tYyFOpf0eYsK1/TsW6bp85LF/aO/mmsPHP7F+vo2Wp1WI/ABV5J0qxbXMmeH1NQQiiwgKN73l
-	N8virn0lND2Cm1PVyWQ/aWuaRHzNSOs33eUQ4fmn0OYDYccsJihhpRp7uZAGJFY31L2whWJu+at
-	lkw0mDWlGkJgpTS92+cFHMs8CsSQ46R61F04Tpqo8ioedEl8AGbUFWGhYN0Zq4Ah4Yeq3Q0oQeD
-	WmRjAYmZYe3iaPDLDVxJbJTd9JYRR7uF9u5B2J7e5MI2gwmdyPOYb9eqP91TR75IGiGYdEkxjUt
-	MXt2NVnqkYkScTNOQ2Uh5KmkKFgg7JFj07DfTKBJ+9ebkj3rEYxSbAYT6oQW74eZbyG7NjqGUlb
-	7LlOfzKJCWu1quCkcgYMCeeDdvuBYNpqLqsTcO3RsdR70=
-X-Received: by 2002:a05:600c:4e02:b0:4a1:e6a9:4086 with SMTP id 5b1f17b1804b1-4ac1228b10amr437949885e9.0.1793891392370;
-        Thu, 05 Nov 2026 07:09:52 -0800 (PST)
-X-Received: by 2002:a05:600c:4e02:b0:4a1:e6a9:4086 with SMTP id 5b1f17b1804b1-4ac1228b10amr437949535e9.0.1793891391973;
-        Thu, 05 Nov 2026 07:09:51 -0800 (PST)
-Received: from mszeredi-thinkpadt14gen6.redhat.corp (188-142-154-142.pool.digikabel.hu. [188.142.154.142])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48feda207d8sm9961340f8f.52.2026.11.05.07.09.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Nov 2026 07:09:50 -0800 (PST)
-From: Miklos Szeredi <mszeredi@redhat.com>
-To: fuse-devel@lists.linux.dev
-Cc: German Maglione <gmaglione@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	virtualization@lists.linux.dev,
-	Sashiko <sashiko-bot@kernel.org>
-Subject: [PATCH 3/3] virtiofs: zero the reply region of the argument buffer
-Date: Thu,  5 Nov 2026 16:09:42 +0100
-Message-ID: <20261105150943.86650-4-mszeredi@redhat.com>
-X-Mailer: git-send-email 2.56.0
-In-Reply-To: <20261105150943.86650-1-mszeredi@redhat.com>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CWH0ykUH
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46CFF1F000C1;
+	Thu,  5 Nov 2026 15:12:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793891537;
+	bh=YwlRlnupOz5rxsWt/GhPVa2k6ZJRqx/vd97RMkDyW8s=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=CWH0ykUHmMVeMQNPKYxwY1vvCVrzTipYc5HcvP/FQ3DBDTJ1OmC0ZU+O8yaJtKAIE
+	 ZcFVkDgj4d3pJh6NuD//ALFXUW2cDeCi0aArhQYYWf86pWWVajReW3INZIndyWdX0i
+	 fqUWjaZNbwV5Ln30cOPlBIgd1zCwejptfCdOa/fp9FI4XRkNcrpg+q237AeQJGrecE
+	 L2x0E8qi5CcGHuYKxfuKlbWELGXinsNmr5WkfWYjVIno6lkV5ExeEqAaQl2Dcrtw+z
+	 Nz9TLa7qsNCJJcmr5Zz2NBDAYm2pa/jYKGf/21eHkjoIh4mlT4sVWy6L54qe0uix78
+	 9euugE04OJgUQ==
+Message-ID: <sashiko-outbox-199301@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 1/3] virtiofs: fix use-after-free of fs->tag on device
+ removal
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Miklos Szeredi" <mszeredi@redhat.com>
+Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
+ Perez" <eperezma@redhat.com>
+In-Reply-To: <20261105150943.86650-2-mszeredi@redhat.com>
 References: <20261105150943.86650-1-mszeredi@redhat.com>
+ <20261105150943.86650-2-mszeredi@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 05 Nov 2026 15:12:16 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -107,79 +61,33 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
-MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 22spp386Mgsti34VN1XFyPZDAiPbfEEImMTCSCdLqyw_1793891392
-X-Mimecast-Originator: redhat.com
-Content-Transfer-Encoding: 8bit
-content-type: text/plain; charset="US-ASCII"; x-default=true
 
-copy_args_to_argbuf() allocates one buffer for the fixed in- and out-args
-and fills only the in-arg part.  The remainder is handed to the server as
-a device-writable buffer, and the server is under no obligation to write
-it: the used length it reports is its own claim and
-virtio_fs_verify_response() has nothing to cross-check it against.
+> The virtio_fs object is refcounted via its kobject, so a mount can keep it
+> alive well beyond the lifetime of the virtio device binding.  The tag
+> string, however, was allocated with devm_kmalloc() and is therefore freed
+> by devres_release_all() as soon as the device is unbound, i.e. right after
+> virtio_fs_remove() returns (see device_unbind_cleanup() in
+> drivers/base/dd.c).
+>=20
+> virtio_fs_get_tree() looks up the instance, takes a kobject reference and
+> then drops virtio_fs_mutex before doing the sleepable part of the mount
+> (allocations, fuse_conn_init(), sget_fc()).  A concurrent device removal
+> can complete in that window:
+>=20
+>   CPU 0 (mount)                         CPU 1 (remove)
+>   -------------                         --------------
+>   virtio_fs_get_tree()
+> [ ... ]
+> Fixes: a62a8ef9d97d ("virtio-fs: add virtiofs filesystem")
+> Cc: <stable@vger.kernel.org>
+> Reported-by: Sashiko <sashiko-bot@kernel.org>
+> Closes: https://sashiko.dev/#/bug/linux-0328b3a1-043b-468e-8425-6a613d91b=
+5ef
+> Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 
-A reply that declares its full length without filling the buffer makes
-copy_args_from_argbuf() copy the uninitialized remainder to the caller,
-so a server that fails partway through writing a reply returns stale heap
-contents from e.g. fuse_statfs() or fuse_getxattr() instead of an error.
+Sashiko has reviewed this patch and found no issues.
 
-Commit 5364d081125a ("virtiofs: validate fixed-output response length")
-covers the case where the declared length is short.  Zero the reply
-region so that the remaining case yields zeroes rather than whatever the
-allocator last held.  Only that region is zeroed; the in-arg part is
-overwritten by the copy below and the buffer can be as large as
-XATTR_SIZE_MAX.
-
-Fixes: a62a8ef9d97d ("virtio-fs: add virtiofs filesystem")
-Reported-by: Sashiko <sashiko-bot@kernel.org>
-Closes: https://sashiko.dev/#/bug/linux-f0d6d4a3-f5df-4f72-ab09-802e5aab49a6
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
----
- fs/fuse/virtio_fs.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
-
-diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-index c824916f0a9b..cdd6f5c50d6d 100644
---- a/fs/fuse/virtio_fs.c
-+++ b/fs/fuse/virtio_fs.c
-@@ -701,15 +701,16 @@ static int copy_args_to_argbuf(struct fuse_req *req, gfp_t gfp)
- 	unsigned int offset = 0;
- 	unsigned int num_in;
- 	unsigned int num_out;
--	unsigned int len;
-+	unsigned int in_len;
-+	unsigned int out_len;
- 	unsigned int i;
- 
- 	num_in = args->in_numargs - args->in_pages;
- 	num_out = args->out_numargs - args->out_pages;
--	len = fuse_len_args(num_in, (struct fuse_arg *) args->in_args) +
--	      fuse_len_args(num_out, args->out_args);
-+	in_len = fuse_len_args(num_in, (struct fuse_arg *) args->in_args);
-+	out_len = fuse_len_args(num_out, args->out_args);
- 
--	req->argbuf = kmalloc(len, gfp);
-+	req->argbuf = kmalloc(in_len + out_len, gfp);
- 	if (!req->argbuf)
- 		return -ENOMEM;
- 
-@@ -720,6 +721,14 @@ static int copy_args_to_argbuf(struct fuse_req *req, gfp_t gfp)
- 		offset += args->in_args[i].size;
- 	}
- 
-+	/*
-+	 * The server is not required to fill the reply region and the length
-+	 * it reports in the used ring cannot confirm that it did.  Zero the
-+	 * region so that an unwritten reply yields zeroes rather than stale
-+	 * heap contents.
-+	 */
-+	memset(req->argbuf + in_len, 0, out_len);
-+
- 	return 0;
- }
- 
--- 
-2.56.0
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261105150943.8665=
+0-1-mszeredi@redhat.com?part=3D1
 
