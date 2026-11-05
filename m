@@ -1,58 +1,98 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793914017;
-	b=BeGIOwG07+4AzjdSrIValtoPjiTICwz68ZLin40jD1FfRRWPPceLJk84skUBWVSe6zmP
-	 aDrZZT+6WKtpg9GwgNMWhXTBeMZTKCMVxcw/YqBjAFl6xFLPyue3K5J/grTks6RAqEwau
-	 rduPskxl8BHQVU4mz2PKPBp/5qH1GoL/0PekdKE/ETzSo39C1tXVzpfB6eq1eOnkkopWc
-	 RyNGJUHxFA3iyL8x0ODQad0y0j0XUBpMnYfJwNXs7drl6vr+Rb6A6ylkMbwUPu8xxiBwK
-	 Iq/yxYlc2etuVq11nvs9BU28M0ybbKxKB/K8+QbFno3U5ew2y20cODvBVT+FM/XHxFw==
+	t=1793915008;
+	b=YC2d3lxZ+xdYtYVIQ1Gets1P9uEhzTnPPB4autnz0zXaiZsBRWKpwzSz76fcHih0kKeA
+	 k6m1g18KWEU9FDJU1zbGXX0qZa2MPOWVujCYHiS10v025y4od05xwl9A9oD2FfDpSvki0
+	 A6hTXBQzLnDEmAmDaGoaQIUfnEP8T7vc+qw/pzoEDhfdGROi9cjzFKvmpNF91CyGgVs1u
+	 lf1v/w2SflXEohOkjNNrySEyswUOymoCZBzJVTkJn+9pOqtYqD19kTdS81sP5YUnjhd2Y
+	 WkGBfxccMBXSjxaen0vlxUHMRqWF0Sy6ywPUFQfcywo1pN4ASzSdU/dyYCmDo+OwOGw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793914017;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=zF1WwzQG6j/x8GqNJnPHlKh/icMKUoaZFzHBysqm9pc=;
-	b=JQRUPkfnixxZxjfo2Qc4PLieCYl494UecpIc/VJ1MFZ15SdL5/L4jF045aQ1VTeqsuLG
-	 eHFRg8Fn2k5PBkz0b2kLrd92uZcmnBg6xHScvYOjJM7O6W27A8R4cLFGk4+Ckhif7cX+c
-	 UDV6Om5780eD3TWcPiYDmCksPqcf23Bxz2RWsqPBbZuqiMlAPZo9i3Jm9FEGIN2Vj8iX9
-	 rjzpwGEQ0jzUyyyHa1Ngtb56JV2jgw8qef7PIoRg76LDbAWAoSw6jiG2gvVTcZLs2LWyh
-	 C1QDOzkyQ8XHphVA7laNfPZ8AtEFOdj3sG60pqogkCsgFKvy502usMYJTpMPCUiixXA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793915008;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=nnsNMtUi8B/PfO4GG0OW4lr6jLs4u50NUe2xEiA6RC0=;
+	b=eaXvzoqyiCBoR+f0jPBzGX9KQ428npqD2s7gfoAAZby0+JDtyN2kU3Nbw30MXUwutcHa
+	 biy23HSyPb2qDXtCAX2avu5V0EA5FKzY74A3dle++4ESh/2WOwr+3PpGuC+rCNO0nJqzh
+	 InQVF724oMGidILBy1+lzYWigoS4qW438260I/YDRUpSzbsFHWrUFsUDzaGMb+Hl/l20K
+	 aCDKFjuqdNXVpKbrdJAouL4igPR9fk5yOJ9TQIHIxzGCIIKUbvMoVn6tzrcxGL9IHf/0S
+	 6Nlg7wVbN+qZy9tc7vf4cLfMvFXwMovd0xKTKcxgroc09y9YNHKrpLIe+8XTCYLgp5g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nrrEZIze;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KFA+ZicK;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33B2D606A334
-	for <virtualization@lists.linux.dev>; Thu,  5 Nov 2026 21:26:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with UTF8SMTPS id 0B1DC606A326;
+	Thu,  5 Nov 2026 21:43:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nrrEZIze
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A2981F0089F;
-	Thu,  5 Nov 2026 21:26:56 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KFA+ZicK
+Received: by smtp.kernel.org (Postfix) with UTF8SMTPSA id 0AE881F0089F;
+	Thu,  5 Nov 2026 21:43:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793914016;
-	bh=zF1WwzQG6j/x8GqNJnPHlKh/icMKUoaZFzHBysqm9pc=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=nrrEZIzev+1H/YepTUEjJiWPEu1InJoYmJIAgkt1gR+ovHj/7h3Osmo3e7lrzAHR+
-	 A7PmJwxMzw5DON0Ngw6IGL2enaCZI+uz8Ltvbfagx7rROpz9hedOYrleWKwqp3LsaP
-	 QX4HuCjNMY5bs32RA97D3KCj44z69eH4rRmUW1zZPgjZg2gfiFU19FmbJQrntYHhza
-	 j6SOrlZh4cDhVmRhuZL4ElVoV3Q0fSP8GhX4RA40P1aIpp3Z5bsU6zgfq5WTi4VZLc
-	 jZUfNeDSJof1OqRPbpJ0QQFf2W8T/5+PJFCrcMzA1hCxnSQnzUCURII6SgIL0iqQXT
-	 rkvzfDgVLa2bQ==
-Message-ID: <sashiko-outbox-200225@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RESEND 62/83] drm/cirrus-qemu: Switch to
- drm_mode_config_create_initial_state
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Maxime Ripard" <mripard@kernel.org>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <20261105-drm-no-more-config-reset-v1-62-1f58d1e33380@kernel.org>
-References: <20261105-drm-no-more-config-reset-v1-0-1f58d1e33380@kernel.org>
- <20261105-drm-no-more-config-reset-v1-62-1f58d1e33380@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 05 Nov 2026 21:26:56 +0000
+	s=k20260515; t=1793915007;
+	bh=nnsNMtUi8B/PfO4GG0OW4lr6jLs4u50NUe2xEiA6RC0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=KFA+ZicKHpTxqbxZeNU9rKNH0zDIw+G9WkxRcTelADPJIyDG9z+SV38MG0CjPlcEC
+	 1gjbq2m9ysrv8pBHAJrvqPnMERLZq6W4rxcogl2DlIDB44RylaSdblCTSEXNnxfcbK
+	 l3RbrI5Oxv1bkdw/nOHwLpMlw6rPe3TmPXrqXYMaHNImuFIqgFREHKoGTzOn5W2eUw
+	 HnogndejHth27NGEbdc3qPN/i0WWKweuYdEdmiZr5RDjCfk6/mEdy1F9Yu6XlveCU2
+	 QfoEW83U8XIbYRbkOdJsXHQEOAAPFI6k6EpuBWa/BFfpmagRIXSu+HdiZvkzWIUa8b
+	 kW/HsHhM4i4og==
+Date: Thu, 5 Nov 2026 23:43:23 +0200
+From: Jarkko Sakkinen <jarkko@kernel.org>
+To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+Cc: Juergen Gross <jgross@suse.com>,
+	Stefano Stabellini <sstabellini@kernel.org>,
+	Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	"Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
+	Shrikanth Hegde <sshegde@linux.ibm.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>,
+	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>, Jan Kara <jack@suse.com>,
+	Paul Moore <paul@paul-moore.com>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Ondrej =?utf-8?B?TW9zbsOhxI1law==?= <omosnacek@gmail.com>,
+	Joel Stanley <joel@jms.id.au>,
+	Andrew Jeffery <andrew@codeconstruct.com.au>,
+	Ryan Chen <ryan_chen@aspeedtech.com>,
+	Billy Tsai <billy_tsai@aspeedtech.com>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Konrad Dybcio <konradybcio@kernel.org>,
+	Abel Vesa <abelvesa@kernel.org>, Jens Wiklander <jenswi@kernel.org>,
+	Sumit Garg <sumit.garg@kernel.org>,
+	Scott Branden <scott.branden@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Richard Cochran <richardcochran@gmail.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@kernel.org>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
+	linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
+	linux-sgx@vger.kernel.org, selinux@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org,
+	linux-arm-msm@vger.kernel.org, op-tee@lists.trustedfirmware.org,
+	netdev@vger.kernel.org
+Subject: Re: [PATCH 05/14] x86/sgx: convert vepc mmap hook to mmap_prepare
+Message-ID: <auz4e81zm0mTMknq@kernel.org>
+References: <20261105-late-2026-mmap_prepare-v1-0-c56aadfbab8a@kernel.org>
+ <20261105-late-2026-mmap_prepare-v1-5-c56aadfbab8a@kernel.org>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -61,23 +101,64 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261105-late-2026-mmap_prepare-v1-5-c56aadfbab8a@kernel.org>
 
-> drm_mode_config_reset() has a dual role: it creates the initial KMS
-> state at probe time, and resets hardware and software state during
-> suspend/resume cycles.
->=20
-> Since the two roles need different behaviors (notably for objects like
-> drm_private_obj that must persist across suspend/resume),
-> drm_mode_config_create_initial_state() was introduced to handle only
-> the initial state creation at probe time.
->=20
-> Switch to drm_mode_config_create_initial_state().
->=20
-> Signed-off-by: Maxime Ripard <mripard@kernel.org>
+On Thu, Nov 05, 2026 at 09:05:36PM +0000, Lorenzo Stoakes (ARM) wrote:
+> Move from the deprecated mmap hook to the new mmap_prepare hook. The hook
+> only checks that the mapping is shared and sets VMA flags, operations and
+> private data.
+> 
+> Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+> ---
+>  arch/x86/kernel/cpu/sgx/virt.c | 15 ++++++++-------
+>  1 file changed, 8 insertions(+), 7 deletions(-)
+> 
+> diff --git a/arch/x86/kernel/cpu/sgx/virt.c b/arch/x86/kernel/cpu/sgx/virt.c
+> index 6a1933ddc6fc..850990519ca5 100644
+> --- a/arch/x86/kernel/cpu/sgx/virt.c
+> +++ b/arch/x86/kernel/cpu/sgx/virt.c
+> @@ -98,17 +98,18 @@ static const struct vm_operations_struct sgx_vepc_vm_ops = {
+>  	.fault = sgx_vepc_fault,
+>  };
+>  
+> -static int sgx_vepc_mmap(struct file *file, struct vm_area_struct *vma)
+> +static int sgx_vepc_mmap_prepare(struct vm_area_desc *desc)
+>  {
+> -	struct sgx_vepc *vepc = file->private_data;
+> +	struct sgx_vepc *vepc = desc->file->private_data;
+>  
+> -	if (!(vma->vm_flags & VM_SHARED))
+> +	if (!vma_desc_test(desc, VMA_SHARED_BIT))
+>  		return -EINVAL;
+>  
+> -	vma->vm_ops = &sgx_vepc_vm_ops;
+> +	desc->vm_ops = &sgx_vepc_vm_ops;
+>  	/* Don't copy VMA in fork() */
+> -	vm_flags_set(vma, VM_PFNMAP | VM_IO | VM_DONTDUMP | VM_DONTCOPY);
+> -	vma->vm_private_data = vepc;
+> +	vma_desc_set_flags(desc, VMA_PFNMAP_BIT, VMA_IO_BIT, VMA_DONTDUMP_BIT,
+> +			   VMA_DONTCOPY_BIT);
+> +	desc->private_data = vepc;
+>  
+>  	return 0;
+>  }
+> @@ -315,7 +316,7 @@ static const struct file_operations sgx_vepc_fops = {
+>  	.unlocked_ioctl	= sgx_vepc_ioctl,
+>  	.compat_ioctl	= sgx_vepc_ioctl,
+>  	.release	= sgx_vepc_release,
+> -	.mmap		= sgx_vepc_mmap,
+> +	.mmap_prepare	= sgx_vepc_mmap_prepare,
+>  };
+>  
+>  static struct miscdevice sgx_vepc_dev = {
+> 
+> -- 
+> 2.56.0
+> 
 
-Sashiko has reviewed this patch and found no issues.
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261105-drm-no-mor=
-e-config-reset-v1-0-1f58d1e33380@kernel.org?part=3D62
-
+Br, Jarkko
