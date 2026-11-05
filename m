@@ -1,80 +1,50 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793912067;
-	b=LisG40CPpNFdKdfrPGg5nUlGY4Cc6pK6tpU3+XGFX2F+Vtd+zUOWSl6hoiGMPcS7oZaC
-	 PAViy6TP2L4sVBVRdtWeiOLBjuNHcmI2B8bkJVINMIJRhXYZbErADf835xCEC5wxx+zO/
-	 ZB19mIE7Sk17+KXfQqOYj1uTZeAEcwBgIbpySdfFuLUa9lsyxT/VDKw1D/Q86wjTpksVc
-	 p6uUtJwlyCE1ogSc9bQnJ3yWgoyXHqKBoaiqPfEq9/XcrKkFwpZg2Xl4Um1bE30CwQGYr
-	 F7eZ1jrQ3VGeLI0Q7Gt4EueesFCHh7H2RWNpKtC2bP2OgEZ/meHeoVdbkM8/8Si5hww==
+	t=1793912762;
+	b=eIFvOmD50+bHbXC8za8CgL3Oaaqb89XRnfCubynQH0AT6wMT7VWHHLl6B6lAxXscbj1b
+	 qp2J31SpqX1bgYBVBNoc51MIj8BXmj6laUrj7p9gkvMrC7nwe/uTHkzOtZzu5WJ9Qwp8W
+	 zqA9CxQDQEMVmawpbVsA4CB+SEc2fgVjEOkSPraSl231YGCZ+b3vg8WYy+WQglbicXj3O
+	 N/YkVNqBwRDT7cqqYWTsOa7XPet7G6Dzw91Em41nXETyfMjrW1VD8rRLBfYp48msavVNs
+	 YDUBnhcaQ/buVRjFcqAPou/R7H1JG4JK9E0GZ7GnCGlYF4P6Phey5eifcRyojf3/Zjg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793912067;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Content-Language:From:To:Subject:Cc:Content-Type:
-	 Content-Transfer-Encoding:X-TM-AS-GCONF:X-Authority-Analysis:
-	 X-Proofpoint-Spam-Info:X-Proofpoint-Spam-Details-Enc:
-	 X-Proofpoint-GUID:X-Proofpoint-ORIG-GUID:X-Proofpoint-Virus-Version:
-	 X-Proofpoint-Spam-Details;
-	bh=BYNswcPZGDgSK67bMtBFGEMHtpEdBrVLSwJpO1RCMQI=;
-	b=0MfwrKW4DdYGdrk8EjIL7tTxa7Iz2msWuOZZYiUNvkCd9Ib98/9PsL2SS21XHc+dbHh6
-	 ODTZMfNkVJZQ8snuBgORhY2y10MVAEcIE27rCdpFwZtGMh5XF6RIQ9kWg4jIqvF0OLXvN
-	 EogR+NlE7/PdcKFTHrVoKbSC6RhUssTyxn0z7PgGuc3G3j+Sa8mL8ie2OLzcBgh6O1YgG
-	 XmoX40/qzzfv0QO/z6c3hciQ6A6rcSRrDZMZ9Cp1B89l+9mxFcot1ixh7sHCiE2pa5V1l
-	 weCDMfff35A4PAQImiDhWy7ofu0KyLMtbdl58A+txOmPfLPGa+xvTz4Fs7aEPK6ePcA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793912762;
+	h=Received:DKIM-Signature:From:Subject:Date:Message-Id:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding:X-B4-Tracking:X-Change-ID:To:
+	 Cc:X-Mailer:X-Developer-Signature:X-Developer-Key;
+	bh=r1JpUn64UzzrZcFRUjQyI0S3ynWk5u6y/MaberysBgo=;
+	b=i6pqCzK0ZWdwsXCWHfzhwisuGfuf2kji0oOj8bF1EnfUDlH+NNUorOXkV2Ya1vwz4gP3
+	 3wCApOVtrHlKpRVGakYzaydwOFJzJiQRlWwTSNsB7xVTZ4IdqBmfTU7PiMGcSn/IUboxD
+	 MMg/ln0DADY9bgjedRdQK7E0WzsFEjjrXwTX4rPVs2pv3VtlUs45zStiKDRWCmrDxvRnW
+	 8TouM1+WXlDEEQ8gskUsj4byMy1RpRJ8GUEOypwrIQmCy4VzLsru/ua43smsifOYKe1c+
+	 jl+QoM5yu+3L2cWpOLg32/EO/QgN3PTh3N0QpJZrvl7CwfuK9lta6F9IMsywDxY0wgA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.ibm.com;
-	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=S7Q9t4Fc;
-	arc=none smtp.remote-ip=148.163.158.5
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=n5OND3Bx;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09B3A606A31B;
-	Thu,  5 Nov 2026 20:54:26 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 09B3A606A31B
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0772B606A328;
+	Thu,  5 Nov 2026 21:06:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=S7Q9t4Fc
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A5HiJ9Q008383;
-	Thu, 5 Nov 2026 20:54:24 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=pp1; bh=BYNswcPZGDgSK67bMtBFGEMHtpEd
-	BrVLSwJpO1RCMQI=; b=S7Q9t4Fcp5/uJn5pR3EevUNem54QQKvOoVNL9rvlIsjB
-	7XCVcLLvVW/jKJ6JBsRutjEWmX5DBPOLiYxWwGlZ/MxAuOzY6HZAYDQ7vr4sDU7F
-	fkx25N6Uys32YF5qupF2Pc8b38z7fmFoTdu2lRFxLxIHy56X4qfFvB/TLMNTsD8w
-	ftrP9BqO/5IutTBjq2915MGwI8stsQffwRHYW1z2/rEC5yjTMpHnsULGyL2PEss5
-	4HDULA2Eysg1ZTfiWHxueRt7aQxEPlBpGbzcUtY5oDo4G6wIAyCBdeoE0FADiQLP
-	p9/1Rhmb1dkRR5lAjSMoErWtduXF03QbaNOU62Eqqg==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hn7yscdva-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Thu, 05 Nov 2026 20:54:23 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A5I4xFf2035786;
-	Thu, 5 Nov 2026 20:54:23 GMT
-Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hqv1v2aa7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 05 Nov 2026 20:54:23 +0000 (GMT)
-Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
-	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A5KrWFc22610466
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 5 Nov 2026 20:53:32 GMT
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 384AC5805A;
-	Thu,  5 Nov 2026 20:54:21 +0000 (GMT)
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D93F058052;
-	Thu,  5 Nov 2026 20:54:20 +0000 (GMT)
-Received: from [9.105.76.126] (unknown [9.105.76.126])
-	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu,  5 Nov 2026 20:54:20 +0000 (GMT)
-Message-ID: <6e6eaf23-9194-488b-8961-63cc062024ca@linux.ibm.com>
-Date: Thu, 5 Nov 2026 15:54:20 -0500
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=n5OND3Bx
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB99D1F0089F;
+	Thu,  5 Nov 2026 21:05:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793912761;
+	bh=r1JpUn64UzzrZcFRUjQyI0S3ynWk5u6y/MaberysBgo=;
+	h=From:Subject:Date:To:Cc;
+	b=n5OND3BxSSsOe8W9Zhi3cBnfi6d7KzMyxkuyo5/trkHHVydx/yyOeQwXqKCdDUFcT
+	 m0c7eQ5D+U2buHxE7rSfcgJl5cMehkqtS+hpW9IxvuXOMi55EMjADBA8fn4bKVqGbY
+	 QpdNhrT0rU9HdBZA+CuDfrevb5VT/Sx+nUsDraIAPhBmT6/yt6g6bda0HLCJEF8Rbm
+	 u4rk8HUwvqrwddVG/k8amH7FQhV89FGy1AgFqoqMKw9DPQswpB9EwKW20G2YExJRhk
+	 9nSCRJkbQMXNq6KKP+CtmuUzVVPRlageLXK7RVKP4WcD+F7KQux77Q7qE1lDODIcT6
+	 zYdrWy6DfJfSw==
+From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+Subject: [PATCH 00/14] mm: convert further simple mmap hooks to
+ mmap_prepare
+Date: Thu, 05 Nov 2026 21:05:31 +0000
+Message-Id: <20261105-late-2026-mmap_prepare-v1-0-c56aadfbab8a@kernel.org>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -84,163 +54,120 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Content-Language: en-US
-From: Cam Miller <cam@linux.ibm.com>
-To: virtualization@lists.linux.dev, iommu@lists.linux.dev, jpb@kernel.org
-Subject: iommu/virtio: design question: hot-removal allowed?
-Cc: Matthew Rosato <mjrosato@linux.ibm.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=Mcr5KJ/f c=1 sm=1 tr=0 ts=6aeced00 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=4U0PJRJ9yvyAoT9MvQIA:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTA1MDA4MiBTYWx0ZWRfX4MgUzdAXhZzl
- ITWwmHkKwIQh/ctmnb6QwmDq7wWnmOShltGD0pU7UobUcuzJwL+2xujLEz7NflLPsySHQiJp85A
- +aXENF776P52QxtBlncU2AK84aWqy/I=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTA1MDA4MiBTYWx0ZWRfX6R6cWq/PWEys
- 7t98IYOR6pxMoMDyB6Dvi2fnMW/Ll9KoEsx/LbQb0lZOJp7cZMnZDYGEljuy8sBetWK0lLjDEQD
- K0geTGyYV8c9jQBvDVf6G0DO1PDuzrLhzvZpMv5jQhwkAFibe2zuVey5Zmtb418X2Olzuwe+rDu
- gItzlLYM+qztyTQ7yp7PcQt1F0ysA+GXvCOQhWCWgbO/FDvfACOavaw/PVI7w2zSY3KW0irS08S
- P/OxEkx3rjAxYqPpBQNOjnOT4JQIQtzPHK9Bpjm1DF3FrYq7Gk2Yh4o76lyGFD4W6WpM8oTF1tC
- iHBXpe2vRnLL5/IEsay32A5W5fAOvx6N3Vi3QUvSkmzyEYsIrGdx7kWy1/r1hAlFT1UAvMEuUOI
- 1twD9q78DBYFzBUsLh/CmK3JSrqr+qrmV7e2qI2diaJEk49vTIUyLYyvrT02fdU4LxyeGl0Sj/N
- mrmDl3xPPc4m1l/Gg7Q==
-X-Proofpoint-GUID: hIfhNxgk7FEdllp1oliPlI7511L-9pMK
-X-Proofpoint-ORIG-GUID: hIfhNxgk7FEdllp1oliPlI7511L-9pMK
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-05_05,2026-11-04_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 priorityscore=1501
- clxscore=1011 impostorscore=0 adultscore=0 spamscore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2610300000 definitions=main-2611050082
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/x3MXQqAIBAE4KvIPregBhVdJSJEt1roRzQiiO7e1
+ uM3zMwNmRJThlbdkOjkzPsmMIUCP7ttIuQgBqttZYw2uLiD8BOuq4tDTBRdItTWN3WwpVQIZCz
+ 5yNd/3PXP8wJmgP8laAAAAA==
+X-Change-ID: 20261101-late-2026-mmap_prepare-02c87d23101e
+To: Juergen Gross <jgross@suse.com>, 
+ Stefano Stabellini <sstabellini@kernel.org>, 
+ Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>, 
+ Madhavan Srinivasan <maddy@linux.ibm.com>, 
+ Nicholas Piggin <npiggin@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, 
+ "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, 
+ "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>, 
+ Shrikanth Hegde <sshegde@linux.ibm.com>, 
+ Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
+ Dexuan Cui <decui@microsoft.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+ Jason Wang <jasowangio@gmail.com>, 
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Jarkko Sakkinen <jarkko@kernel.org>, 
+ Dave Hansen <dave.hansen@linux.intel.com>, 
+ Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
+ Borislav Petkov <bp@alien8.de>, x86@kernel.org, 
+ "H. Peter Anvin" <hpa@zytor.com>, Jan Kara <jack@suse.com>, 
+ Paul Moore <paul@paul-moore.com>, 
+ Stephen Smalley <stephen.smalley.work@gmail.com>, 
+ =?utf-8?q?Ondrej_Mosn=C3=A1=C4=8Dek?= <omosnacek@gmail.com>, 
+ Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@codeconstruct.com.au>, 
+ Ryan Chen <ryan_chen@aspeedtech.com>, 
+ Billy Tsai <billy_tsai@aspeedtech.com>, 
+ Bjorn Andersson <andersson@kernel.org>, 
+ Konrad Dybcio <konradybcio@kernel.org>, Abel Vesa <abelvesa@kernel.org>, 
+ Jens Wiklander <jenswi@kernel.org>, Sumit Garg <sumit.garg@kernel.org>, 
+ Scott Branden <scott.branden@broadcom.com>, 
+ Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
+ Arnd Bergmann <arnd@arndb.de>, 
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+ Richard Cochran <richardcochran@gmail.com>, 
+ David Woodhouse <dwmw2@infradead.org>, Andrew Lunn <andrew+netdev@lunn.ch>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
+Cc: ljs@kernel.org, xen-devel@lists.xenproject.org, 
+ linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
+ kvm@vger.kernel.org, linux-hyperv@vger.kernel.org, 
+ virtualization@lists.linux.dev, linux-sgx@vger.kernel.org, 
+ selinux@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+ linux-aspeed@lists.ozlabs.org, linux-arm-msm@vger.kernel.org, 
+ op-tee@lists.trustedfirmware.org, netdev@vger.kernel.org
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2622; i=ljs@kernel.org;
+ h=from:subject:message-id; bh=bTkwJYolGBPtNOiPTfj3hFZfQ60rxzsNf5rIq+CvvT4=;
+ b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLLevF/tK9xtdq7Cd9m+05LfHinP2t1rLvjzsfyV5AfsU
+ /zCH+pydZSyMIhxMciKKbI8/yK+P0gkbF7nBX83mDmsTCBDGLg4BWAiX68x/GI6KjBdv8dWvKl/
+ o4fajxstEyfeVrhs6VhWqdT9b1lOzElGhhMsTpzms2K+v4ia9+OlpuvFLR9T93vz6S/zZZ6pzvr
+ 6EAsA
+X-Developer-Key: i=ljs@kernel.org; a=openpgp;
+ fpr=E7F417BF5214569E89D04F46CF9DCD8A81E27F14
 
-Hi,
+Continue the conversion of users of the deprecated f_op->mmap callback to
+f_op->mmap_prepare. Keep things gentle this cycle by targeting simple
+cases.
 
+No functional change intended.
 
-Testing on x86, I noticed that userspace supplies a mechanism for hot-removing a virtio-iommu device.
+Build tested on x86-64 (allmodconfig, each patch individually), i386,
+arm64 and ppc64le.
 
-  echo 1 > /sys/bus/pci/devices/<virtio_iommu_dev>/remove
+<<>>
 
-Hot-removing virtio-iommu should NOT be supported, right? The intention is clear in the QEMU source,
-which fences off hot(un)plugging virtio-iommu devices.
+David, Andrew - I wonder whether one of you guys could take this series
+through your tree? Since it's kernel-wide it seems sensible to take it
+through an mm tree.
 
-If I am correct, then shall we fence off hot-removal (perhaps by simply omitting this remove file
-from sysfs)? Else, keep reading...
+Thanks!
 
-...I believe I have found two bugs in viommu_remove() path that I would like to bring attention to.
-The first bug is that the echo above causes the following kernel panic.
+Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+---
+Lorenzo Stoakes (ARM) (14):
+      xen/privcmd: convert mmap hook to mmap_prepare
+      KVM: PPC: Book3S: convert spapr TCE mmap hook to mmap_prepare
+      mshv_vtl: convert mmap hooks to mmap_prepare
+      vduse: convert IOVA domain mmap hook to mmap_prepare
+      x86/sgx: convert vepc mmap hook to mmap_prepare
+      udf: convert mmap hook to mmap_prepare
+      selinuxfs: convert mmap hooks to mmap_prepare
+      xen: convert xenstore interface mmap hooks to mmap_prepare
+      soc: aspeed: convert LPC and P2A control mmap hooks to mmap_prepare
+      soc: qcom: rmtfs_mem: convert mmap hook to mmap_prepare
+      tee: convert shm mmap hook to mmap_prepare
+      misc: bcm-vk: convert mmap hook to mmap_prepare
+      ptp: vmclock: convert mmap hook to mmap_prepare
+      vhost-vdpa: convert mmap hook to mmap_prepare
 
-  BUG: kernel NULL pointer dereference, address: 0000000000000030
-  --- snip ---
-  RIP: 0010:sysfs_remove_link_from_group+0x10/0x40
-  --- snip ---
-  Call Trace:
-   <TASK>
-  --- snip ---
-   ? sysfs_remove_link_from_group+0x10/0x40
-   iommu_deinit_device+0x2a/0xe0
-   __iommu_group_remove_device+0xb0/0xe0
-   ? __pfx_remove_iommu_group+0x10/0x10
-   remove_iommu_group+0x35/0x60
-   bus_for_each_dev+0x83/0xd0
-   iommu_device_unregister+0x3d/0xb0
-   viommu_remove+0x25/0x60
-   virtio_dev_remove+0x3c/0x90
-  --- snip ---
+ arch/powerpc/kvm/book3s_64_vio.c        |  6 +++---
+ arch/x86/kernel/cpu/sgx/virt.c          | 15 ++++++++-------
+ drivers/hv/mshv_vtl_main.c              | 14 +++++++-------
+ drivers/misc/bcm-vk/bcm_vk_dev.c        | 20 ++++++++++----------
+ drivers/ptp/ptp_vmclock.c               | 19 +++++++++----------
+ drivers/soc/aspeed/aspeed-lpc-ctrl.c    | 20 +++++++++-----------
+ drivers/soc/aspeed/aspeed-p2a-ctrl.c    | 22 ++++++++--------------
+ drivers/soc/qcom/rmtfs_mem.c            | 22 ++++++++++------------
+ drivers/tee/tee_shm.c                   | 14 +++++++-------
+ drivers/vdpa/vdpa_user/iova_domain.c    | 12 ++++++------
+ drivers/vhost/vdpa.c                    | 23 ++++++++++++-----------
+ drivers/xen/privcmd.c                   | 11 +++++------
+ drivers/xen/xenbus/xenbus_dev_backend.c | 14 ++++++--------
+ drivers/xen/xenfs/xenstored.c           | 14 ++++++--------
+ fs/udf/file.c                           |  8 ++++----
+ security/selinux/selinuxfs.c            | 24 +++++++++++-------------
+ 16 files changed, 121 insertions(+), 137 deletions(-)
+---
+base-commit: b61fa14ce6bcbba2cb9a96feea31b760226d6b43
+change-id: 20261101-late-2026-mmap_prepare-02c87d23101e
 
-Here is a fix:
+Cheers,
+-- 
+Lorenzo Stoakes (ARM) <ljs@kernel.org>
 
-  diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-  index 587fc13197f1..a08474eeed58 100644
-  --- a/drivers/iommu/virtio-iommu.c
-  +++ b/drivers/iommu/virtio-iommu.c
-  @@ -1254,8 +1254,8 @@ static void viommu_remove(struct virtio_device *vdev)
-   {
-   	struct viommu_dev *viommu = vdev->priv;
-
-  -	iommu_device_sysfs_remove(&viommu->iommu);
-   	iommu_device_unregister(&viommu->iommu);
-  +	iommu_device_sysfs_remove(&viommu->iommu);
-
-   	/* Stop all virtqueues */
-   	virtio_reset_device(vdev);
-
-Other IOMMU drivers order iommu_device_unregister() before iommu_device_sysfs_remove(). I would be
-happy to elaborate on how exactly I believe that the reverse ordering leads to the NULL pointer
-dereference, if desired.
-
-After applying the fix shown above, a second problem is exposed. Unregistering the IOMMU while
-endpoints remain active is like pulling out the rug from underneath those endpoints. The following
-warning catches this case.
-
-  WARNING: drivers/iommu/iommu.c:743 at __iommu_group_free_device.constprop.0+0xb9/0xe0, CPU#1:
-bash/1250
-  --- snip ---
-  Call Trace:
-   <TASK>
-   __iommu_group_remove_device+0x95/0xe0
-   ? __pfx_remove_iommu_group+0x10/0x10
-   remove_iommu_group+0x39/0x60
-   bus_for_each_dev+0x85/0xd0
-   iommu_device_unregister+0x3d/0xb0
-   viommu_remove+0x1d/0x60
-  --- snip ---
-
-As a consequence, endpoint drivers attempting IO hang.
-
-  igb 0000:01:00.0 enp1s0: NETDEV WATCHDOG: CPU: 5: transmit queue 2 timed out 5120 ms
-  igb 0000:01:00.0 enp1s0: Reset adapter
-  igb 0000:01:00.0 enp1s0: igb: enp1s0 NIC Link is Up 1000 Mbps Full Duplex, Flow Control: RX/TX
-  clocksource: Watchdog remote CPU 7 read timed out
-  igb 0000:01:00.0: Detected Tx Unit Hang
-
-Moreover shutting down the system at this point leads to a kernel panic. I believe treating stale
-IOVAs as a physical addresses is what causes the page fault.
-
-  BUG: unable to handle page fault for address: ffffee9903ffffc0
-  --- snip ---
-  RIP: 0010:dma_free_contiguous+0x59/0xb0
-  --- snip ---
-  Call Trace:
-   <TASK>
-   __igb_close.isra.0+0xb0/0x1c0 [igb]
-   __igb_shutdown.isra.0+0x27a/0x310 [igb]
-   igb_shutdown+0x2f/0x90 [igb]
-   pci_device_shutdown+0x35/0x60
-   device_shutdown+0x118/0x1b0
-   kernel_power_off+0x35/0x80
-   __do_sys_reboot+0x1d4/0x240
-   do_syscall_64+0xbe/0x470
-   ? vfs_writev+0xe8/0x3c0
-   ? do_writev+0x7f/0x110
-   ? do_writev+0x7f/0x110
-   ? do_syscall_64+0xfa/0x470
-   ? do_user_addr_fault+0x2ae/0x7b0
-   ? irqentry_exit+0x40/0x730
-   ? do_syscall_64+0x37/0x470
-   ? __irq_exit_rcu+0x4c/0x110
-   entry_SYSCALL_64_after_hwframe+0x76/0x7e
-  --- snip ---
-
-As a crude test, I added a loop to the beginning of iommu_device_unregister() that calls
-device_release_driver() on each endpoint. With this change, no longer do the kernel panics/warnings
-occur. But still, obviously all PCI IO is remains broken at this point.
-
-...Point being that hot-removing virtio-iommu is currently broken.
-
-In summary:
-- Should hot-removal be supported/allowed?
-- If no, then how shall we fence it off? Via sysfs?
-- Else, there are some bugs that need to be fixed (and I would be happy to work on that if that is
-not already evident).
-
-
-Thank you,
-Cam
