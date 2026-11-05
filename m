@@ -1,104 +1,47 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.41
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793896366;
-	b=VEtsHPTNwFt2pBvVfbbE0hCOyb1h2uJbuCPj23iMR5NtLOzDi4IqD8RNtrRy1UyrMImn
-	 qCMc9oo3RGACuhRvD8Ni7uFDDhmEPMTIULZHF26XbwH5rdy4KPDcc0CNSn1hVpM+9x+PN
-	 6r7ZIprY12oG2v6ZBC6SMbfb3NzMPccMYdMKBleC8A7ecQpkAhvp3DLCTaYD8zkhF75/W
-	 AGXZbgQTAiRY/GqacbD+NWEQcp91o0NQi5Gwz4F4l2v6cwC+u5+4W1vIcOmSuLTT1WNmw
-	 PftR/uxhnsmCf1ZVP9GPH5WeBiX1z/kSPyhym1HrCTY2etz9yEslDu+C7kPfCiqojzQ==
+	t=1793896560;
+	b=3MxJePvqET/rKF8sWWlCZX9rmV+WdUC1Ei6/fJ7fpu1ckNpGUgTqJf1P/ojunVFIfnp+
+	 XzGoDYCD1B0aqqN633mfkTYCkBPZcpbkfyXIDpEEJur61lQIxSy5u17Yx9aT8rrjIxK20
+	 PW9KMraFP9xlKN/GlTy7sRSJPIEOjxRg6H6E5NV8wmwcT/byD9GfLGYrzTTjOdIutvx94
+	 e3KXXN+rTe81gj/25AcZQY9Ttmlm9aXWC57oKIc9E7W3xXX1pJ9+8LNU5Q33STQHGfikn
+	 SFkw5iQ3A95NncLJniYBtw1zewO5lLc+k3ag776pfRCx1rBkbk9GQJha8r3FWtZglrA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793896366;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:Content-Transfer-Encoding:User-Agent:MIME-Version;
-	bh=d4uIAeI9pE7bf79BRULVqsTB5We4Hv2szuGRJya4Up0=;
-	b=yvwhgwjYsgogogYheiVBu9aXZjtK70IUuc145xVAyGP+Dgp0XO+MJEZASLoL8Fj2Ak44
-	 rfxQyrjOuBQrUSzmQnGz0LysPRP/ufWEfFMAkeAZThd/KHi2cxvKofoNYxdDyJU0cdX2n
-	 uFkqupA9KbjJK2lH/YSfJ7AiYbY7cxwqqKyk0f8IwlAwCJ27EK9NylAG7HV/s1wFO0K9b
-	 tAZv78kzAnBC1VeoXKcz6HgRU8C86CbtaNSh9DlyPD+qOgjoBykHDbrCNWcIxJVtKMndH
-	 FfbrsStfbuMyWL53imRawfVTc0Ww6pkhYq7CLRUb2Obyp7AqeKOb4aXmVw38fuO7ZAg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793896560;
+	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
+	 Subject:To:Cc:References:Content-Language:From:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=oaFEybmB3/LpRlTwU2ESXZoM0QOYsoH22CakPe6LiW0=;
+	b=WKUB0QkMDAn4Vx0wTnBZ7LmLyjIx4d4hxvqXsqBN8XLGM4b2Jld6Vsm6aIMWjYbJicMj
+	 JAu+fOlyxtr0fjWKmqdqJ8Liut5/DRaZ9nUMASWNenp8OV+CNBzSAyTJd5ObFDizc8PvI
+	 9VxYJehL+tuYpptGJwBatIC6vXTZSZZ4aJZ0u7gZ3f7WkoCU5dnjLGnmoh3bVAx7ONEAa
+	 2Q6O3+ILeX3aN+4QXNESuBl0J0op9azPpNDxLi8p9vODc52vRlO0rqmG6RRCQyzO2CvIN
+	 eMqbwT3T1XMjZQ6om2s//oqrnrB2N1Oru+yc9zth1iR9J+llMoq3oGyVJ2ADuOrSupQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=jazlQgWL;
-	arc=none smtp.remote-ip=209.85.128.41
-Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="PpT8/D5z";
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B214E606CBEC
-	for <virtualization@lists.linux.dev>; Thu,  5 Nov 2026 16:32:45 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B214E606CBEC
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D52B606A33F;
+	Thu,  5 Nov 2026 16:35:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=jazlQgWL
-Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-4b4571ff080so22664785e9.1
-        for <virtualization@lists.linux.dev>; Thu, 05 Nov 2026 08:32:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793896364; x=1794501164; darn=lists.linux.dev;
-        h=mime-version:user-agent:content-transfer-encoding:content-type
-         :references:in-reply-to:date:cc:to:from:subject:message-id:from:to
-         :cc:subject:date:message-id:reply-to:content-type;
-        bh=d4uIAeI9pE7bf79BRULVqsTB5We4Hv2szuGRJya4Up0=;
-        b=jazlQgWLYlyZr19tYiKsTG4IraS/rTEbhEv5oHBsgqabdFjSpy8Ajo11eWbZGz4mrI
-         zHLAjK0y1smjkmF7z5w2VHKNXEUuwSyrjsgKKgVtjXJt/NiqxIcWSWxL8PRfLOIXx6rA
-         Y5dC1ceebSvonwsnMLZUQM7JXPEPus0ajfXlXkRK1ik978SajE1KBHCSRvKk0OfClmQZ
-         HFNa5Gt26RV6bmhii3o3W8cCEWJhzI+CrfonjpbbIaOjiaBu7mCrdO9JC2MnWmJdfFbO
-         ZnHcoIbLJ8c8to9bpqRU4wgA+ide3V45OmD0BdBCWlUJrfteP8rTkrvnMsXd9dLlyI15
-         dxOA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793896364; x=1794501164;
-        h=mime-version:user-agent:content-transfer-encoding:content-type
-         :references:in-reply-to:date:cc:to:from:subject:message-id:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=d4uIAeI9pE7bf79BRULVqsTB5We4Hv2szuGRJya4Up0=;
-        b=T9BWEtuJ8frIc2c7Kk3N0rv1tFSTgZRzwlHCHiJ+p7jcI/x+kLwOgJSSDhKLwJdrez
-         /j12OoiUjlvucKJ05NzSr3vFQEkYjuzxcC/ZXmbUw8mg/fBuxyU62lzuxV14AnCKMwnF
-         lT0xv18BvPu2bLGTEv1HTH3DZI7NXadaAHNJm+VnR+wBHYs8DE+gGH8RMqG4zUqax1Ar
-         ll1voWMRxTF4y9MFuTchArBKK2qnedVy3dJr3zozCRxDV9H3mVbAKDmOnZ79t0bfe2X2
-         FAJq35Xad7JuDK2T+6iUmcZrR03TYz+RO14FVyzmaHB0IfopFd1jAqQlVoNzGGXCejLW
-         M6YA==
-X-Forwarded-Encrypted: i=1; AKwUvBw+XrUADRluqb0YtItUS6B3KgA/LFMJJrGqSoglZVNMUUTjL69zR+DiB5v3+yYdqTgQa0f4v1S7SXZZwTOGXw==@lists.linux.dev
-X-Gm-Message-State: APuU4Z+uT/4Gqzir6azpFqhdsitA6dpZT9o1Z3dcgDDUDwCXsSVvWBGb
-	PN3WLSWZHpk8cdyspHomRWq/fCbc8d0MdvediyfAby1ZmK2JJIdC9i6q
-X-Gm-Gg: AYBFou1j30wSm+fyvn81C1WeZE7WeLwVZH2ANEBz7hhNeoLK5RAM03YsG9cT6JtBt0O
-	MPW4KGxjlB4/IkpjpAJRaAeMWVOmJPjaiGk2CrbEEpYsauUhGHl4JzgXu3BmADoDUPmwbSzhu+6
-	UHnnEjzozXSht8rciLAI10emKZhloaFy5nwlYXIsk7wZqM6YWgjv22ZwyaWO+/UqyzRiWjQXDKs
-	YM2QzHZRMElhkrjQyAjxjQnGVBGrPID6Xv/gvZrQCTcq73VnW/SgpV2HtgESNZbH2iUqra8XiB/
-	DS+Dyz28wzHJQ6Ope8slmTkGcTdk19pgH8WbO56ouoIsn78mQMc9awcu07fAzOo42ZvUJi1qp3Z
-	LPdviW5A0S+XpGT2FHmndEbNG+XR66c/7h2HimuAzpd/UhC358mJNYXwPZ2RbCFkFv/h1Zuentc
-	kLT1nAjaNootYMJwIaFKCYO1OBPV05FhdrYOYXT/0NP2tG78k1ax8Cxjt7J1psKFwX3E1Ed/t2t
-	BUqKXwo4afylVIKpk0oRJ9AVntDMcm44iaZacZ8QPDIAw4wFI1k1ltEhJRSzhjRE3DaInpSbGtE
-	SVy1ks8Bu/rA9iM3sgJKUhL7C0gTg+VfEZ24dNQGl42Rtat+2mnHEpf4/SILA/lbUHDanJsoG2J
-	jD0JBV4VC
-X-Received: by 2002:a05:600c:3b87:b0:4a2:150f:1607 with SMTP id 5b1f17b1804b1-4ac1709ad56mr464115355e9.13.1793896363894;
-        Thu, 05 Nov 2026 08:32:43 -0800 (PST)
-Received: from [192.168.1.86] (240.red-79-154-229.dynamicip.rima-tde.net. [79.154.229.240])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4b56fca22e1sm89764875e9.14.2026.11.05.08.32.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Nov 2026 08:32:43 -0800 (PST)
-Message-ID: <0e3689d102abf41b1e788402cc9da354d5c2d969.camel@gmail.com>
-Subject: Re: [PATCH 0/3] dma-buf: dma-fence: Remove dma_fence_init64()
-From: Timur =?ISO-8859-1?Q?Krist=F3f?= <timur.kristof@gmail.com>
-To: Philipp Stanner <phasta@kernel.org>
-Cc: dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, 
-	linux-media@vger.kernel.org, amd-gfx@lists.freedesktop.org, 
-	etnaviv@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, 
-	imagination@lists.freedesktop.org, lima@lists.freedesktop.org, 
-	linux-arm-msm@vger.kernel.org, freedreno@lists.freedesktop.org, 
-	nouveau@lists.freedesktop.org, virtualization@lists.linux.dev, 
-	spice-devel@lists.freedesktop.org, intel-xe@lists.freedesktop.org, 
-	linux-tegra@vger.kernel.org, linux-iio@vger.kernel.org, 
-	linux-usb@vger.kernel.org, rust-for-linux@vger.kernel.or
-Date: Thu, 05 Nov 2026 17:32:42 +0100
-In-Reply-To: <20261105113529.1989375-2-phasta@kernel.org>
-References: <20261105113529.1989375-2-phasta@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: base64
-User-Agent: Evolution 3.60.2 (3.60.2-3.fc44) 
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PpT8/D5z
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10A1A1F000C1;
+	Thu,  5 Nov 2026 16:35:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793896559;
+	bh=oaFEybmB3/LpRlTwU2ESXZoM0QOYsoH22CakPe6LiW0=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=PpT8/D5zeLlfhjXRHDS9Xn7yTDCLEhyyWpMkM0/IfblI9PMLXcKedSOlnoASybHch
+	 QMV8ab3TA2uSLtQsY231ygXHLK4E1dZjZWYTUyaq5EG+U+7SRxv/SC5EV5zIEGfbl+
+	 Anl6FvxIWk2bzbUyorgGwbK7QtWE0eneo9Vkb0oEtRPqNHIcsTwj/H9gaUxgdyQRKl
+	 9la8Ee4KQAzAUk3BDbj8WwQQ1UKgW36gLtWALpg8W7Mm455sUJQJK7b75HwOTlAxFH
+	 tWWXsXG7Et2NnPPdGnHQoyRFRfRXjPc/WvDrWcLkNmwuDZMfzvcAqJShtCN7KTNjC+
+	 ltbn1tD2mVL7w==
+Message-ID: <cf2e3292-d591-42a4-bf6e-76f4567604c6@kernel.org>
+Date: Thu, 5 Nov 2026 17:35:34 +0100
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -108,93 +51,206 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v1 0/5] net: deprecate skb->pp_recycle and
+ skb_mark_for_recycle()
+To: Mina Almasry <almasrymina@google.com>, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+ linux-mm@kvack.org, bpf@vger.kernel.org, linux-wireless@vger.kernel.org,
+ linux-doc@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com,
+ imx@lists.linux.dev, linux-rdma@vger.kernel.org,
+ linux-hyperv@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
+ linux-omap@vger.kernel.org
+Cc: "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+ Steffen Klassert <steffen.klassert@secunet.com>,
+ Herbert Xu <herbert@gondor.apana.org.au>,
+ Willem de Bruijn <willemb@google.com>, Stanislav Fomichev <sdf@fomichev.me>,
+ Pavel Begunkov <asml.silence@gmail.com>,
+ Bobby Eshleman <bobbyeshleman@meta.com>, Andrew Lunn
+ <andrew+netdev@lunn.ch>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowangio@gmail.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ David Hildenbrand <david@kernel.org>, Lorenzo Stoakes <ljs@kernel.org>,
+ "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
+ Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
+ Michal Hocko <mhocko@suse.com>,
+ Ilias Apalodimas <ilias.apalodimas@linaro.org>,
+ Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
+ John Fastabend <john.fastabend@gmail.com>,
+ Sabrina Dubroca <sd@queasysnail.net>,
+ Johannes Berg <johannes@sipsolutions.net>, Byungchul Park
+ <byungchul@sk.com>, Jonathan Corbet <corbet@lwn.net>,
+ Shuah Khan <skhan@linuxfoundation.org>, Randy Dunlap
+ <rdunlap@infradead.org>, Lorenzo Bianconi <lorenzo@kernel.org>,
+ Wen Gu <guwen@linux.alibaba.com>, Philo Lu <lulie@linux.alibaba.com>,
+ Justin Chen <justin.chen@broadcom.com>,
+ Florian Fainelli <florian.fainelli@broadcom.com>,
+ Vikas Gupta <vikas.gupta@broadcom.com>,
+ Michael Chan <michael.chan@broadcom.com>,
+ Pavan Chebbi <pavan.chebbi@broadcom.com>, Doug Berger <opendmb@gmail.com>,
+ Nicolai Buchwitz <nb@tipi-net.de>, Satish Kharat <satishkh@cisco.com>,
+ Wei Fang <wei.fang@nxp.com>, Frank Li <frank.li@nxp.com>,
+ Shenwei Wang <shenwei.wang@nxp.com>, Joshua Washington
+ <joshwash@google.com>, Harshitha Ramamurthy <hramamurthy@google.com>,
+ Jijie Shao <shaojijie@huawei.com>, Jian Shen <shenjian15@huawei.com>,
+ Fan Gong <gongfan1@huawei.com>, Tony Nguyen <anthony.l.nguyen@intel.com>,
+ Przemek Kitszel <przemyslaw.kitszel@intel.com>,
+ Marcin Wojtas <marcin.s.wojtas@gmail.com>,
+ Russell King <linux@armlinux.org.uk>, Sunil Goutham <sgoutham@marvell.com>,
+ Geetha sowjanya <gakula@marvell.com>, Ratheesh Kannoth
+ <rkannoth@marvell.com>, Subbaraya Sundeep <sbhatta@marvell.com>,
+ Bharat Bhushan <bbhushan2@marvell.com>, Felix Fietkau <nbd@nbd.name>,
+ Matthias Brugger <matthias.bgg@gmail.com>,
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+ Tariq Toukan <tariqt@nvidia.com>, Saeed Mahameed <saeedm@nvidia.com>,
+ Mark Bloch <mbloch@nvidia.com>, Leon Romanovsky <leon@kernel.org>,
+ Ido Schimmel <idosch@nvidia.com>, Petr Machata <petrm@nvidia.com>,
+ Horatiu Vultur <horatiu.vultur@microchip.com>, UNGLinuxDriver@microchip.com,
+ Daniel Machon <daniel.machon@microchip.com>,
+ Steen Hegelund <Steen.Hegelund@microchip.com>,
+ Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
+ Dexuan Cui <decui@microsoft.com>, Yibo Dong <dong100@mucse.com>,
+ Brett Creeley <brett.creeley@amd.com>, Justin Lai
+ <justinlai0215@realtek.com>, Larry Chiu <larry.chiu@realtek.com>,
+ =?UTF-8?Q?Niklas_S=C3=B6derlund?= <niklas.soderlund@ragnatech.se>,
+ Paul Barker <paul@pbarker.dev>,
+ Masahisa Kojima <kojima.masahisa@socionext.com>,
+ Maxime Chevallier <maxime.chevallier@bootlin.com>,
+ Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+ Alexandre Torgue <alexandre.torgue@foss.st.com>,
+ FUJITA Tomonori <fujita.tomonori@gmail.com>,
+ Siddharth Vadapalli <s-vadapalli@ti.com>, Roger Quadros <rogerq@kernel.org>,
+ MD Danish Anwar <danishanwar@ti.com>, Jiawen Wu <jiawenwu@trustnetic.com>,
+ Mengyuan Lou <mengyuanlou@net-swift.com>,
+ Ronak Doshi <ronak.doshi@broadcom.com>, Ryder Lee <ryder.lee@mediatek.com>,
+ Shayne Chen <shayne.chen@mediatek.com>, Sean Wang <sean.wang@mediatek.com>,
+ Juergen Gross <jgross@suse.com>, Stefano Stabellini
+ <sstabellini@kernel.org>,
+ Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+ Jordan Rhee <jordanrhee@google.com>, Ankit Garg <nktgrg@google.com>,
+ Tim Hostetler <thostet@google.com>,
+ Erni Sri Satya Vennela <ernis@linux.microsoft.com>,
+ Eric Joyner <eric.joyner@amd.com>, Mohammad Heib <mheib@redhat.com>,
+ Prabu Thayalan <prabu.ponrajthayalan@amd.com>,
+ Chintan Vankar <c-vankar@ti.com>,
+ Nora Schiffer <nora.schiffer@ew.tq-group.com>,
+ Alexander Sverdlin <alex@sverdlin.org>, Kevin Hao <haokexin@gmail.com>,
+ Karl Mehltretter <kmehltretter@gmail.com>,
+ Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
+ Meghana Malladi <m-malladi@ti.com>, Jacob Keller <jacob.e.keller@intel.com>,
+ StanleyYP Wang <StanleyYP.Wang@mediatek.com>
+References: <20261103211424.127627-1-almasrymina@google.com>
+Content-Language: en-US
+From: Jesper Dangaard Brouer <hawk@kernel.org>
+In-Reply-To: <20261103211424.127627-1-almasrymina@google.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-T24gVGh1LCAyMDI2LTExLTA1IGF0IDEyOjM1ICswMTAwLCBQaGlsaXBwIFN0YW5uZXIgd3JvdGU6
-Cj4gV2UgcmVjZW50bHkgaGFkIGEgZGlzY3Vzc2lvbiBhYm91dCByZXdvcmtpbmcgZG1hX2ZlbmNl
-IGluaXQgdG8gY2xvc2UKPiBhCj4gcmFjZS13aW5kb3cgWzFdLgo+IAo+IFRoZSBjb21tdW5pdHkg
-YWdyZWVtZW50IHNlZW1zIHRvIGhhdmUgYmVlbiB0aGF0IHdlIGNhbiBnZXQgcmlkIG9mCj4gZG1h
-X2ZlbmNlX2luaXQ2NCgpLCBzbyBsZXQncyBkbyB0aGF0IGFscmVhZHkuIEluIHRoZSBtZWFudGlt
-ZSB3ZSBjYW4KPiBjb250aW51ZSBvdXIgZGlzY3Vzc2lvbnMgcmVnYXJkaW5nIHRoZSByYWNlIGlu
-IFsxXS4KPiAKPiBUaGlzIGFsc28gdG91Y2hlcyB0aGUgUnVzdCBkbWFfZmVuY2UsIHdoaWNoIGFj
-dHVhbGx5IHNob3VsZCB1c2UgNjQtCj4gYml0Cj4gc2Vxbm9zICh3YXMgZm9yZ290dGVuIHNvIGZh
-cikuIFJ1c3QgZmVuY2UgaGFzIG5vIHVzZXJzIGN1cnJlbnRseSwgc28KPiBuZWVkcyBubyBiYWNr
-cG9ydGluZywgc28gSSB3b3VsZCBsaWtlIHRvIGFkZHJlc3MgdGhhdCBpbiBhIGRpc3RpbmN0Cj4g
-cGF0Y2guCj4gCj4gVGVzdGVkIG9uIE5vdXZlYXUgd2l0aCBhbmQgd2l0aG91dCB0aGUgU0VRTk82
-NCBmbGFnLiBOb3V2ZWF1IGFsc28KPiB1c2VzCj4gdGhlIFVTRVIgZmxhZywgc28gSSBob3BlIHdl
-J3JlIGZpbmUuCj4gCj4gCj4gUC4KPiAKPiBbMV0KPiBodHRwczovL2xvcmUua2VybmVsLm9yZy9k
-cmktZGV2ZWwvMjAyNjEwMjkwOTU1NDIuMTUyNjc1MC0zLXBoYXN0YUBrZXJuZWwub3JnLwoKTWFr
-ZXMgZ29vZCBzZW5zZSB0byBtZS4KRm9yIHRoZSBlbnRpcmUgc2VyaWVzOgoKUmV2aWV3ZWQtYnk6
-IFRpbXVyIEtyaXN0w7NmIDx0aW11ci5rcmlzdG9mQGdtYWlsLmNvbT4KCihwcy4gSSBoYWQgdG8g
-cmVtb3ZlIHNvbWUgcmVjaXBpZW50cyBmcm9tIHRoaXMgZW1haWwgYmVjYXVzZSB0aGUKb3JpZ2lu
-YWwgaGFkIG1vcmUgdGhhbiAxMDAgcmVjaXBpZW50cyBhbmQgZ21haWwgd291bGRuJ3QgbGV0IG1l
-IHJlcGx5CnRvIGFsbCBvZiB0aGVtLiBBcG9sb2dpZXMgZm9yIHRoYXQuKQoKPiAKPiAKPiBQaGls
-aXBwIFN0YW5uZXIgKDMpOgo+IMKgIGRtYS1idWY6IGRtYS1mZW5jZTogQWRkIGZsYWdzIHBhcmFt
-ZXRlciB0byBkbWFfZmVuY2VfaW5pdCgpCj4gwqAgZG1hLWJ1ZjogUG9ydCB1c2VycyBvZiBkbWFf
-ZmVuY2VfaW5pdDY0KCkKPiDCoCBkbWEtYnVmOiBkbWEtZmVuY2U6IFJlbW92ZSBkbWFfZmVuY2Vf
-aW5pdDY0KCkKPiAKPiDCoGRyaXZlcnMvYWNjZWwvYW1keGRuYS9hbWR4ZG5hX2N0eC5jwqDCoMKg
-wqDCoMKgwqDCoMKgwqAgfMKgIDIgKy0KPiDCoGRyaXZlcnMvYWNjZWwvZXRob3N1L2V0aG9zdV9q
-b2IuY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqAgMiArLQo+IMKgZHJpdmVycy9hY2NlbC9p
-dnB1L2l2cHVfam9iLmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqAgMiArLQo+
-IMKgZHJpdmVycy9hY2NlbC9yb2NrZXQvcm9ja2V0X2pvYi5jwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgIHzCoCAyICstCj4gwqBkcml2ZXJzL2RtYS1idWYvZG1hLWZlbmNlLWFycmF5LmPCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqAgfMKgIDIgKy0KPiDCoGRyaXZlcnMvZG1hLWJ1Zi9kbWEtZmVuY2Ut
-Y2hhaW4uY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqAgNCArLQo+IMKgZHJpdmVycy9kbWEt
-YnVmL2RtYS1mZW5jZS5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHwgNTgg
-KysrKysrKysrLS0tLS0tLS0KPiAtLQo+IMKgZHJpdmVycy9kbWEtYnVmL3N0LWRtYS1mZW5jZS1j
-aGFpbi5jwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCAyICstCj4gwqBkcml2ZXJzL2RtYS1idWYvc3Qt
-ZG1hLWZlbmNlLXVud3JhcC5jwqDCoMKgwqDCoMKgwqDCoCB8wqAgMiArLQo+IMKgZHJpdmVycy9k
-bWEtYnVmL3N0LWRtYS1mZW5jZS5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCAy
-ICstCj4gwqBkcml2ZXJzL2RtYS1idWYvc3QtZG1hLXJlc3YuY8KgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgIHzCoCAyICstCj4gwqBkcml2ZXJzL2RtYS1idWYvc3dfc3luYy5jwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqAgMiArLQo+IMKgLi4uL2dwdS9k
-cm0vYW1kL2FtZGdwdS9hbWRncHVfYW1ka2ZkX2ZlbmNlLmPCoCB8wqAgMiArLQo+IMKgLi4uL2Ry
-bS9hbWQvYW1kZ3B1L2FtZGdwdV9ldmljdGlvbl9mZW5jZS5jwqDCoMKgIHzCoCA3ICsrLQo+IMKg
-ZHJpdmVycy9ncHUvZHJtL2FtZC9hbWRncHUvYW1kZ3B1X2ZlbmNlLmPCoMKgwqDCoCB8wqAgMiAr
-LQo+IMKgLi4uL2dwdS9kcm0vYW1kL2FtZGdwdS9hbWRncHVfdXNlcnFfZmVuY2UuY8KgwqAgfMKg
-IDUgKy0KPiDCoC4uLi9ncHUvZHJtL2FtZC9hbWRncHUvYW1kZ3B1X3ZtX3RsYl9mZW5jZS5jwqAg
-fMKgIDUgKy0KPiDCoGRyaXZlcnMvZ3B1L2RybS9kcm1fY3J0Yy5jwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgIDIgKy0KPiDCoGRyaXZlcnMvZ3B1L2RybS9kcm1fd3Jp
-dGViYWNrLmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCAyICstCj4gwqBkcml2ZXJz
-L2dwdS9kcm0vZXRuYXZpdi9ldG5hdml2X2dwdS5jwqDCoMKgwqDCoMKgwqDCoCB8wqAgMiArLQo+
-IMKgZHJpdmVycy9ncHUvZHJtL2k5MTUvZ2VtL2k5MTVfZ2VtX3R0bV9tb3ZlLmPCoCB8wqAgMiAr
-LQo+IMKgZHJpdmVycy9ncHUvZHJtL2k5MTUvaTkxNV9yZXF1ZXN0LmPCoMKgwqDCoMKgwqDCoMKg
-wqDCoCB8wqAgMiArLQo+IMKgZHJpdmVycy9ncHUvZHJtL2k5MTUvaTkxNV9zd19mZW5jZV93b3Jr
-LmPCoMKgwqDCoCB8wqAgMiArLQo+IMKgZHJpdmVycy9ncHUvZHJtL2k5MTUvaTkxNV92bWFfcmVz
-b3VyY2UuY8KgwqDCoMKgwqAgfMKgIDIgKy0KPiDCoC4uLi9ncHUvZHJtL2k5MTUvc2VsZnRlc3Rz
-L2k5MTVfc3dfZmVuY2UuY8KgwqDCoCB8wqAgMiArLQo+IMKgZHJpdmVycy9ncHUvZHJtL2ltYWdp
-bmF0aW9uL3B2cl9jY2IuY8KgwqDCoMKgwqDCoMKgwqAgfMKgIDIgKy0KPiDCoGRyaXZlcnMvZ3B1
-L2RybS9pbWFnaW5hdGlvbi9wdnJfcXVldWUuY8KgwqDCoMKgwqDCoCB8wqAgMiArLQo+IMKgZHJp
-dmVycy9ncHUvZHJtL2xpbWEvbGltYV9zY2hlZC5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzC
-oCAyICstCj4gwqBkcml2ZXJzL2dwdS9kcm0vbXNtL21zbV9mZW5jZS5jwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoCB8wqAgMiArLQo+IMKgZHJpdmVycy9ncHUvZHJtL25vdXZlYXUvbm91dmVh
-dV9mZW5jZS5jwqDCoMKgwqDCoMKgIHzCoCA0ICstCj4gwqBkcml2ZXJzL2dwdS9kcm0vcGFuZnJv
-c3QvcGFuZnJvc3Rfam9iLmPCoMKgwqDCoMKgwqAgfMKgIDIgKy0KPiDCoGRyaXZlcnMvZ3B1L2Ry
-bS9wYW50aG9yL3BhbnRob3Jfc2NoZWQuY8KgwqDCoMKgwqDCoCB8wqAgMiArLQo+IMKgZHJpdmVy
-cy9ncHUvZHJtL3F4bC9xeGxfcmVsZWFzZS5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCAy
-ICstCj4gwqBkcml2ZXJzL2dwdS9kcm0vcmFkZW9uL3JhZGVvbl9mZW5jZS5jwqDCoMKgwqDCoMKg
-wqDCoCB8wqAgMiArLQo+IMKgZHJpdmVycy9ncHUvZHJtL3NjaGVkdWxlci9zY2hlZF9mZW5jZS5j
-wqDCoMKgwqDCoMKgIHzCoCA0ICstCj4gwqAuLi4vZ3B1L2RybS9zY2hlZHVsZXIvdGVzdHMvbW9j
-a19zY2hlZHVsZXIuY8KgIHzCoCAyICstCj4gwqBkcml2ZXJzL2dwdS9kcm0vdHRtL3Rlc3RzL3R0
-bV9ib190ZXN0LmPCoMKgwqDCoMKgwqAgfMKgIDIgKy0KPiDCoC4uLi9ncHUvZHJtL3R0bS90ZXN0
-cy90dG1fYm9fdmFsaWRhdGVfdGVzdC5jwqAgfMKgIDIgKy0KPiDCoGRyaXZlcnMvZ3B1L2RybS92
-M2QvdjNkX2ZlbmNlLmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCAyICstCj4gwqBk
-cml2ZXJzL2dwdS9kcm0vdmM0L3ZjNF9nZW0uY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgIHzCoCAyICstCj4gwqBkcml2ZXJzL2dwdS9kcm0vdmdlbS92Z2VtX2ZlbmNlLmPCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqAgfMKgIDIgKy0KPiDCoGRyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmly
-dGdwdV9mZW5jZS5jwqDCoMKgwqDCoMKgwqAgfMKgIDIgKy0KPiDCoGRyaXZlcnMvZ3B1L2RybS92
-bXdnZngvdm13Z2Z4X2ZlbmNlLmPCoMKgwqDCoMKgwqDCoMKgIHzCoCAyICstCj4gwqBkcml2ZXJz
-L2dwdS9kcm0veGUveGVfaHdfZmVuY2UuY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCAy
-ICstCj4gwqBkcml2ZXJzL2dwdS9kcm0veGUveGVfb2EuY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgIHzCoCAyICstCj4gwqBkcml2ZXJzL2dwdS9kcm0veGUveGVfcHJlZW1w
-dF9mZW5jZS5jwqDCoMKgwqDCoMKgwqDCoCB8wqAgMiArLQo+IMKgZHJpdmVycy9ncHUvZHJtL3hl
-L3hlX3RsYl9pbnZhbC5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCAyICstCj4gwqBkcml2
-ZXJzL2dwdS9ob3N0MXgvZmVuY2UuY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgIHzCoCAyICstCj4gwqBkcml2ZXJzL2lpby9pbmR1c3RyaWFsaW8tYnVmZmVyLmPCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqAgfMKgIDIgKy0KPiDCoGRyaXZlcnMvdXNiL2dhZGdldC9mdW5jdGlv
-bi9mX2ZzLmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCAyICstCj4gwqBpbmNsdWRlL2xpbnV4
-L2RtYS1mZW5jZS5owqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8IDE0
-ICsrKy0tCj4gwqBydXN0L2tlcm5lbC9kbWFfYnVmL2RtYV9mZW5jZS5yc8KgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgIHzCoCAyICstCj4gwqA1MiBmaWxlcyBjaGFuZ2VkLCA5NSBpbnNlcnRpb25z
-KCspLCA5NCBkZWxldGlvbnMoLSkKPiAKPiAKPiBiYXNlLWNvbW1pdDogODI1OGEzNzcwMmI5Yjlj
-ZjI3ZjVjMGVhMDc2MjVlM2U2YmQ3NGY1YQo=
+
+
+On 11/3/26 22:14, Mina Almasry wrote:
+> Remove the per-SKB skb->pp_recycle bitfield and skb_mark_for_recycle()
+> helper, and reference-count netmems directly by their underlying type
+> via netmem_is_pp() inside netmem_inc_ref() and netmem_dec_ref().
+> 
+> This series simplifies SKB and netmem reference counting:
+> - Reclaims 1 bit from struct sk_buff (skb->pp_recycle).
+> - Unifies reference counting of SKB fragment netmems and regular netmems
+>    under netmem_inc_ref() and netmem_dec_ref(), eliminating the separate
+>    skb_netmem_ref(), skb_netmem_unref(), and skb_mark_for_recycle() APIs.
+
+Part of the performance gain from page_pool was to completely avoid the
+atomic refcnt operation, when we can see that page refcnt==1.
+Are you removing this?
+
+
+> - Removes 110 net lines of non-test/doc code across 63 files (196
+>    insertions, 306 deletions).
+> 
+> 1/5: net: skbuff: skip managed zerocopy frags in skb_frag_ref()
+> 2/5: net: skbuff: refcount spliced page_pool frags via skb_pipe_buf_ops
+> 3/5: net: datagram: refcount page_pool frags in zerocopy_fill_skb_from_iter()
+> 4/5: net: remove skb->pp_recycle and consolidate netmem refcounting
+> 5/5: net: remove skb_mark_for_recycle()
+> 
+> Mina Almasry (5):
+>    net: skbuff: skip managed zerocopy frags in skb_frag_ref()
+>    net: skbuff: refcount spliced page_pool frags via skb_pipe_buf_ops
+>    net: datagram: refcount page_pool frags in
+>      zerocopy_fill_skb_from_iter()
+>    net: remove skb->pp_recycle and consolidate netmem refcounting
+>    net: remove skb_mark_for_recycle()
+> 
+>   Documentation/networking/page_pool.rst        |   1 -
+>   drivers/net/ethernet/airoha/airoha_eth.c      |   1 -
+>   drivers/net/ethernet/alibaba/eea/eea_rx.c     |   3 -
+>   .../net/ethernet/broadcom/asp2/bcmasp_intf.c  |   1 -
+>   .../net/ethernet/broadcom/bnge/bnge_txrx.c    |   5 -
+>   drivers/net/ethernet/broadcom/bnxt/bnxt.c     |   8 -
+>   .../net/ethernet/broadcom/genet/bcmgenet.c    |   2 -
+>   drivers/net/ethernet/cisco/enic/enic_rq.c     |   1 -
+>   drivers/net/ethernet/engleder/tsnep_main.c    |   2 -
+>   drivers/net/ethernet/freescale/fec_main.c     |   1 -
+>   drivers/net/ethernet/google/gve/gve_rx_dqo.c  |   9 -
+>   .../net/ethernet/hisilicon/hibmcge/hbg_txrx.c |   1 -
+>   .../net/ethernet/hisilicon/hns3/hns3_enet.c   |   6 -
+>   .../net/ethernet/huawei/hinic3/hinic3_rx.c    |   1 -
+>   drivers/net/ethernet/intel/iavf/iavf_txrx.c   |   2 -
+>   drivers/net/ethernet/marvell/mvneta.c         |   2 -
+>   .../net/ethernet/marvell/mvpp2/mvpp2_main.c   |   2 -
+>   .../marvell/octeontx2/nic/otx2_txrx.c         |   1 -
+>   drivers/net/ethernet/mediatek/mtk_eth_soc.c   |   1 -
+>   drivers/net/ethernet/mellanox/mlx4/en_rx.c    |   1 -
+>   .../net/ethernet/mellanox/mlx5/core/en_rx.c   |   8 -
+>   drivers/net/ethernet/mellanox/mlxsw/pci.c     |   2 -
+>   .../ethernet/microchip/lan966x/lan966x_fdma.c |   2 -
+>   .../microchip/sparx5/lan969x/lan969x_fdma.c   |   1 -
+>   drivers/net/ethernet/microsoft/mana/mana_en.c |   3 -
+>   .../net/ethernet/mucse/rnpgbe/rnpgbe_lib.c    |   1 -
+>   .../net/ethernet/pensando/ionic/ionic_txrx.c  |   2 -
+>   .../net/ethernet/realtek/rtase/rtase_main.c   |   1 -
+>   drivers/net/ethernet/renesas/ravb_main.c      |   2 -
+>   drivers/net/ethernet/socionext/netsec.c       |   1 -
+>   .../net/ethernet/stmicro/stmmac/stmmac_main.c |   1 -
+>   drivers/net/ethernet/tehuti/tn40.c            |   1 -
+>   drivers/net/ethernet/ti/am65-cpsw-nuss.c      |   1 -
+>   drivers/net/ethernet/ti/cpsw.c                |   2 -
+>   drivers/net/ethernet/ti/cpsw_new.c            |   2 -
+>   drivers/net/ethernet/ti/icssg/icssg_common.c  |   1 -
+>   drivers/net/ethernet/wangxun/libwx/wx_lib.c   |   2 -
+>   drivers/net/veth.c                            |   3 +-
+>   drivers/net/virtio_net.c                      |  16 +-
+>   drivers/net/vmxnet3/vmxnet3_xdp.c             |   1 -
+>   drivers/net/wireless/mediatek/mt76/dma.c      |   1 -
+>   .../net/wireless/mediatek/mt76/mt7996/mac.c   |   1 -
+>   drivers/net/wireless/mediatek/mt76/npu.c      |   1 -
+>   drivers/net/wireless/mediatek/mt76/usb.c      |   1 -
+>   drivers/net/xen-netfront.c                    |   1 -
+>   include/linux/mm.h                            |   2 +-
+>   include/linux/skbuff.h                        |  12 +-
+>   include/linux/skbuff_ref.h                    |  60 +--
+>   include/net/netmem.h                          |  39 +-
+>   include/net/page_pool/helpers.h               |  46 ++-
+>   net/core/datagram.c                           |   5 +
+>   net/core/gro.c                                |   9 -
+>   net/core/net_test.c                           | 369 +++++++++++-------
+>   net/core/netmem_priv.h                        |  23 +-
+>   net/core/page_pool.c                          |   8 +-
+>   net/core/skbuff.c                             |  78 ++--
+>   net/core/xdp.c                                |  13 +-
+>   net/ipv4/esp4.c                               |  11 +-
+>   net/ipv6/esp6.c                               |  11 +-
+>   net/tls/tls_device.c                          |  14 +-
+>   net/tls/tls_device_fallback.c                 |   6 +-
+>   net/tls/tls_main.c                            |   4 +-
+>   net/wireless/util.c                           |  31 +-
+>   net/xfrm/trace_iptfs.h                        |   6 +-
+>   net/xfrm/xfrm_iptfs.c                         |  16 +-
+>   65 files changed, 418 insertions(+), 454 deletions(-)
+> 
+> 
+> base-commit: 7b6ab4dbc156e2f96419715130b3d5738a306c93
 
