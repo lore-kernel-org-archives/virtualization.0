@@ -1,47 +1,66 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=67.231.145.42
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793896560;
-	b=3MxJePvqET/rKF8sWWlCZX9rmV+WdUC1Ei6/fJ7fpu1ckNpGUgTqJf1P/ojunVFIfnp+
-	 XzGoDYCD1B0aqqN633mfkTYCkBPZcpbkfyXIDpEEJur61lQIxSy5u17Yx9aT8rrjIxK20
-	 PW9KMraFP9xlKN/GlTy7sRSJPIEOjxRg6H6E5NV8wmwcT/byD9GfLGYrzTTjOdIutvx94
-	 e3KXXN+rTe81gj/25AcZQY9Ttmlm9aXWC57oKIc9E7W3xXX1pJ9+8LNU5Q33STQHGfikn
-	 SFkw5iQ3A95NncLJniYBtw1zewO5lLc+k3ag776pfRCx1rBkbk9GQJha8r3FWtZglrA==
+	t=1793907050;
+	b=1MweU+wyCK+7vEjGhrRvyfrT1bcVoyNTK0g9nxnEkse/Ma5sTqxT1yUt/7Etu9BVjIzr
+	 nQszp3qywS7gBC1eKlrwc9uGjhiTAS0R02JFwr8z0o3HiP+x2kczseqLeu9v+debaCzBl
+	 afKqiCooAF2REAOyAeP+2k1SA9pg/y1i0GO3kygeNMiiwb5AnK95ekDTJ/ys3MEBUFGsI
+	 Q7f5MwcZEPkD8P0Vsr2K7Eu3tr0z/zrrjysufuLp91OgqLQqaQLfttPM+3Zw7qAWJZJ4U
+	 zqWf7ZLBk2Sw2EwUTV1ZOGMAzaywajIXoNal5bKs90/syUY/LcEiGMAag7HGDyZrsNg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793896560;
-	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
-	 Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=oaFEybmB3/LpRlTwU2ESXZoM0QOYsoH22CakPe6LiW0=;
-	b=WKUB0QkMDAn4Vx0wTnBZ7LmLyjIx4d4hxvqXsqBN8XLGM4b2Jld6Vsm6aIMWjYbJicMj
-	 JAu+fOlyxtr0fjWKmqdqJ8Liut5/DRaZ9nUMASWNenp8OV+CNBzSAyTJd5ObFDizc8PvI
-	 9VxYJehL+tuYpptGJwBatIC6vXTZSZZ4aJZ0u7gZ3f7WkoCU5dnjLGnmoh3bVAx7ONEAa
-	 2Q6O3+ILeX3aN+4QXNESuBl0J0op9azPpNDxLi8p9vODc52vRlO0rqmG6RRCQyzO2CvIN
-	 eMqbwT3T1XMjZQ6om2s//oqrnrB2N1Oru+yc9zth1iR9J+llMoq3oGyVJ2ADuOrSupQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793907050;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:From:Subject:
+	 Date:Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding:
+	 X-B4-Tracking:X-Change-ID:To:CC:X-Mailer:X-Originating-IP:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-ORIG-GUID:
+	 X-Authority-Analysis:X-Proofpoint-GUID:X-Proofpoint-Spam-Info:
+	 X-Proofpoint-Virus-Version;
+	bh=SWWPSVLLVKvkpC4tnGOX971RJR6r0apghAA3uHz/fzA=;
+	b=qzcgEaAKZf0PMe8x24MoQ0XwtcYLdcdksbGf6LeO3m17uUc3RHft4BB9r6+kJYlHEz8A
+	 V6ICpQHxYbAWTWBmtj/Js//p8VfSjTFNgNh5OZaYOvN+ilpxCPbY1Lktvdno1OcjsVRnH
+	 4yF6jCIhAnhCbcQ7S1/xDqoMeuyVrRK8K+ubwL8ys4sSV4SZwSIX4KA9/uxV/LFtTVYa5
+	 j16OUXZIiVUfZYfURz3i1PlA8mANTz+OXcG9+ZcfXV4Rd0g1frr9iNhcnKshg41JQ2Yt+
+	 clcQ960fr+nzoUTiDE9tQfWZL6IC63uU5i9vnqs5RppLQ62b6VnOuTnESR/TZt8RCbQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="PpT8/D5z";
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=meta.com;
+	spf=pass smtp.mailfrom=meta.com;
+	dkim=pass header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=dClOlS5X;
+	arc=none smtp.remote-ip=67.231.145.42
+Received: from mx0a-00082601.pphosted.com (mx0a-00082601.pphosted.com [67.231.145.42])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D52B606A33F;
-	Thu,  5 Nov 2026 16:35:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6169606D529
+	for <virtualization@lists.linux.dev>; Thu,  5 Nov 2026 19:30:49 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D6169606D529
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PpT8/D5z
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10A1A1F000C1;
-	Thu,  5 Nov 2026 16:35:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793896559;
-	bh=oaFEybmB3/LpRlTwU2ESXZoM0QOYsoH22CakPe6LiW0=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=PpT8/D5zeLlfhjXRHDS9Xn7yTDCLEhyyWpMkM0/IfblI9PMLXcKedSOlnoASybHch
-	 QMV8ab3TA2uSLtQsY231ygXHLK4E1dZjZWYTUyaq5EG+U+7SRxv/SC5EV5zIEGfbl+
-	 Anl6FvxIWk2bzbUyorgGwbK7QtWE0eneo9Vkb0oEtRPqNHIcsTwj/H9gaUxgdyQRKl
-	 9la8Ee4KQAzAUk3BDbj8WwQQ1UKgW36gLtWALpg8W7Mm455sUJQJK7b75HwOTlAxFH
-	 tWWXsXG7Et2NnPPdGnHQoyRFRfRXjPc/WvDrWcLkNmwuDZMfzvcAqJShtCN7KTNjC+
-	 ltbn1tD2mVL7w==
-Message-ID: <cf2e3292-d591-42a4-bf6e-76f4567604c6@kernel.org>
-Date: Thu, 5 Nov 2026 17:35:34 +0100
+	dkim=pass (2048-bit key, unprotected) header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=dClOlS5X
+Received: from pps.filterd (m0148461.ppops.net [127.0.0.1])
+	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A5J5oDr576959;
+	Thu, 5 Nov 2026 11:30:47 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pps82601-s2048-2026-q3; bh=SWWPSVLLV
+	KvkpC4tnGOX971RJR6r0apghAA3uHz/fzA=; b=dClOlS5XS2tUnWmDDIZNuvHGA
+	jc5CbyX2nHcG0QpdrY1A1GGCf1tCulQil8vqLMtgkjn3N8oTYIF6IGZDPfN5YEw2
+	UUZ9YO2Q8DsfRlfvinRXF3TEJE6ZHKtDuGR2beLaRkWIpM6ajGuxGEDnT76PcXXT
+	r9ICg9do4q4FHr26d3Bodj2KX2ed3WsvsdR7eg1LM7gjxz7hQNBy2cYct3Ny6CX1
+	KKw1BgaFAYGmYQwFU40l2fUJFXr/bi/PdVLBvhiTaSZbhPDMNM3Tf4Rwr9XJ+1so
+	sn2le1lRCQKDNfFc1r1/MMEp31Rea9+o7rVJ0rASL5n7GnhHmpysDCwMuejSA==
+Received: from maileast.thefacebook.com ([163.114.135.16])
+	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4hrbck8mxf-2
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
+	Thu, 05 Nov 2026 11:30:46 -0800 (PST)
+Received: from localhost (2620:10d:c0a8:fe::f072) by mail.thefacebook.com
+ (2620:10d:c0a9:6f::237c) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.56; Thu, 5 Nov
+ 2026 19:30:45 +0000
+From: Bobby Eshleman <bobbyeshleman@meta.com>
+Subject: [PATCH RFC iproute2-next 0/2] ip: add "ip vsock" to move the guest
+ vsock device to a netns
+Date: Thu, 5 Nov 2026 11:30:34 -0800
+Message-ID: <20261105-vsock-guest-ns-v1-0-b1c11b3b69c7@meta.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -51,206 +70,86 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v1 0/5] net: deprecate skb->pp_recycle and
- skb_mark_for_recycle()
-To: Mina Almasry <almasrymina@google.com>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
- linux-mm@kvack.org, bpf@vger.kernel.org, linux-wireless@vger.kernel.org,
- linux-doc@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com,
- imx@lists.linux.dev, linux-rdma@vger.kernel.org,
- linux-hyperv@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
- linux-omap@vger.kernel.org
-Cc: "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
- Steffen Klassert <steffen.klassert@secunet.com>,
- Herbert Xu <herbert@gondor.apana.org.au>,
- Willem de Bruijn <willemb@google.com>, Stanislav Fomichev <sdf@fomichev.me>,
- Pavel Begunkov <asml.silence@gmail.com>,
- Bobby Eshleman <bobbyeshleman@meta.com>, Andrew Lunn
- <andrew+netdev@lunn.ch>, "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowangio@gmail.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- David Hildenbrand <david@kernel.org>, Lorenzo Stoakes <ljs@kernel.org>,
- "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
- Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
- Michal Hocko <mhocko@suse.com>,
- Ilias Apalodimas <ilias.apalodimas@linaro.org>,
- Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
- John Fastabend <john.fastabend@gmail.com>,
- Sabrina Dubroca <sd@queasysnail.net>,
- Johannes Berg <johannes@sipsolutions.net>, Byungchul Park
- <byungchul@sk.com>, Jonathan Corbet <corbet@lwn.net>,
- Shuah Khan <skhan@linuxfoundation.org>, Randy Dunlap
- <rdunlap@infradead.org>, Lorenzo Bianconi <lorenzo@kernel.org>,
- Wen Gu <guwen@linux.alibaba.com>, Philo Lu <lulie@linux.alibaba.com>,
- Justin Chen <justin.chen@broadcom.com>,
- Florian Fainelli <florian.fainelli@broadcom.com>,
- Vikas Gupta <vikas.gupta@broadcom.com>,
- Michael Chan <michael.chan@broadcom.com>,
- Pavan Chebbi <pavan.chebbi@broadcom.com>, Doug Berger <opendmb@gmail.com>,
- Nicolai Buchwitz <nb@tipi-net.de>, Satish Kharat <satishkh@cisco.com>,
- Wei Fang <wei.fang@nxp.com>, Frank Li <frank.li@nxp.com>,
- Shenwei Wang <shenwei.wang@nxp.com>, Joshua Washington
- <joshwash@google.com>, Harshitha Ramamurthy <hramamurthy@google.com>,
- Jijie Shao <shaojijie@huawei.com>, Jian Shen <shenjian15@huawei.com>,
- Fan Gong <gongfan1@huawei.com>, Tony Nguyen <anthony.l.nguyen@intel.com>,
- Przemek Kitszel <przemyslaw.kitszel@intel.com>,
- Marcin Wojtas <marcin.s.wojtas@gmail.com>,
- Russell King <linux@armlinux.org.uk>, Sunil Goutham <sgoutham@marvell.com>,
- Geetha sowjanya <gakula@marvell.com>, Ratheesh Kannoth
- <rkannoth@marvell.com>, Subbaraya Sundeep <sbhatta@marvell.com>,
- Bharat Bhushan <bbhushan2@marvell.com>, Felix Fietkau <nbd@nbd.name>,
- Matthias Brugger <matthias.bgg@gmail.com>,
- AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
- Tariq Toukan <tariqt@nvidia.com>, Saeed Mahameed <saeedm@nvidia.com>,
- Mark Bloch <mbloch@nvidia.com>, Leon Romanovsky <leon@kernel.org>,
- Ido Schimmel <idosch@nvidia.com>, Petr Machata <petrm@nvidia.com>,
- Horatiu Vultur <horatiu.vultur@microchip.com>, UNGLinuxDriver@microchip.com,
- Daniel Machon <daniel.machon@microchip.com>,
- Steen Hegelund <Steen.Hegelund@microchip.com>,
- Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
- Dexuan Cui <decui@microsoft.com>, Yibo Dong <dong100@mucse.com>,
- Brett Creeley <brett.creeley@amd.com>, Justin Lai
- <justinlai0215@realtek.com>, Larry Chiu <larry.chiu@realtek.com>,
- =?UTF-8?Q?Niklas_S=C3=B6derlund?= <niklas.soderlund@ragnatech.se>,
- Paul Barker <paul@pbarker.dev>,
- Masahisa Kojima <kojima.masahisa@socionext.com>,
- Maxime Chevallier <maxime.chevallier@bootlin.com>,
- Maxime Coquelin <mcoquelin.stm32@gmail.com>,
- Alexandre Torgue <alexandre.torgue@foss.st.com>,
- FUJITA Tomonori <fujita.tomonori@gmail.com>,
- Siddharth Vadapalli <s-vadapalli@ti.com>, Roger Quadros <rogerq@kernel.org>,
- MD Danish Anwar <danishanwar@ti.com>, Jiawen Wu <jiawenwu@trustnetic.com>,
- Mengyuan Lou <mengyuanlou@net-swift.com>,
- Ronak Doshi <ronak.doshi@broadcom.com>, Ryder Lee <ryder.lee@mediatek.com>,
- Shayne Chen <shayne.chen@mediatek.com>, Sean Wang <sean.wang@mediatek.com>,
- Juergen Gross <jgross@suse.com>, Stefano Stabellini
- <sstabellini@kernel.org>,
- Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
- Jordan Rhee <jordanrhee@google.com>, Ankit Garg <nktgrg@google.com>,
- Tim Hostetler <thostet@google.com>,
- Erni Sri Satya Vennela <ernis@linux.microsoft.com>,
- Eric Joyner <eric.joyner@amd.com>, Mohammad Heib <mheib@redhat.com>,
- Prabu Thayalan <prabu.ponrajthayalan@amd.com>,
- Chintan Vankar <c-vankar@ti.com>,
- Nora Schiffer <nora.schiffer@ew.tq-group.com>,
- Alexander Sverdlin <alex@sverdlin.org>, Kevin Hao <haokexin@gmail.com>,
- Karl Mehltretter <kmehltretter@gmail.com>,
- Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
- Meghana Malladi <m-malladi@ti.com>, Jacob Keller <jacob.e.keller@intel.com>,
- StanleyYP Wang <StanleyYP.Wang@mediatek.com>
-References: <20261103211424.127627-1-almasrymina@google.com>
-Content-Language: en-US
-From: Jesper Dangaard Brouer <hawk@kernel.org>
-In-Reply-To: <20261103211424.127627-1-almasrymina@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAFvZ7GoC/x3MQQqDMBAF0KuEv3bAhFgh20IP0K100aajHQqJZ
+ KII4t2L3b7F26FchBXB7Ci8ikpOCMY2BvHzTBOTvBEMXOsu1rYdrZrjl6aFtVJS8q/RRu597x2
+ jMZgLj7L9wwH32/U0mUteKjtKvFU8juMHTqkwmXYAAAA=
+X-Change-ID: 20261105-vsock-guest-ns-4bf1ce74742e
+To: <netdev@vger.kernel.org>
+CC: David Ahern <dsahern@kernel.org>,
+        Stephen Hemminger
+	<stephen@networkplumber.org>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        <virtualization@lists.linux.dev>,
+        Bobby Eshleman <bobbyeshleman@meta.com>,
+        Bobby Eshleman <bobbyeshleman@gmail.com>
+X-Mailer: b4 0.14.3
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTA1MDA3NyBTYWx0ZWRfX9AFgeEAuM27d
+ KLLA14hTLQuIuaVg9LFSVjRvpvfml2lOQguk7lkxfgNExkSgb+nc0pHzDWN4mY3wX95m6ZlWcta
+ cBzxKcn9c+F3yK2Mhfbcryfg9i6Y8R3gKK+vkMbPGV3RdEqMksbjP5koz3zX0322gwdsJ+/RU3r
+ R3gHsNnDEjUd0CVCptoN3J9WMqhaQFc+IGtOb67rLc88SL8qeOHU5S/olvWu47XHDA2ux9u91Rf
+ H2GgZvGdo9loZZTUVzm6RA0Z0zN+aoNNdix48Ht6zvbrXoVBrTMUrt32f+nyj0A4/4YYNycFx4V
+ cBRmnPQBe9plCkzHAmyWyUFkiJkJZFtCWJw8lgfzThegDUZmt9aYhIXu74sA2QyDD1NBvgMJVQm
+ S3LfRVhBPQh5K8Nd6nzX52iqEQCxIcGma6PQPVFs4sj1uRorGAUCAMp4QnIfHw7uWwIY9UQtp/b
+ Cp3PgDVwWR3LcF2qJKQ==
+X-Proofpoint-ORIG-GUID: MK8M69-W0cL1ieTmctf0U3ytc-1AYzUR
+X-Authority-Analysis: v=2.4 cv=bp/Zl0ai c=1 sm=1 tr=0 ts=6aecd966 cx=c_pps
+ a=MfjaFnPeirRr97d5FC5oHw==:117 a=MfjaFnPeirRr97d5FC5oHw==:17
+ a=VEq9NWtHcDJz48dA:21 a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=7x6HtfJdh03M6CCDgxCd:22 a=03ozwUkBphtHgyqjj1sw:22
+ a=VwQbUJbxAAAA:8 a=VabnemYjAAAA:8 a=vV-DuPaObkBpmeysVfEA:9 a=QEXdDO2ut3YA:10
+ a=gKebqoRLp9LExxC7YDUY:22
+X-Proofpoint-GUID: MK8M69-W0cL1ieTmctf0U3ytc-1AYzUR
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTA1MDA3NyBTYWx0ZWRfX8Ka24nF8Im/e
+ A7ILubJi4Kqb70ty3n14YYFJXQKeUwXK7RaqohsGOcXeSsKsy+knRY128JzeMxzzCqv9Fi6YPs7
+ o4WUIu0HLHVxStC7qCoS82NrzzHtRVs=
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-11-05_05,2026-11-04_01,2025-10-01_01
 
+This adds iproute2 support for the "vsock" generic netlink family from
+the kernel series "vsock: assign the guest vsock device to a network
+namespace":
 
+  https://lore.kernel.org/all/20261103-vsock-guest-ns-v5-0-48179b9b66b8@meta.com/
 
-On 11/3/26 22:14, Mina Almasry wrote:
-> Remove the per-SKB skb->pp_recycle bitfield and skb_mark_for_recycle()
-> helper, and reference-count netmems directly by their underlying type
-> via netmem_is_pp() inside netmem_inc_ref() and netmem_dec_ref().
-> 
-> This series simplifies SKB and netmem reference counting:
-> - Reclaims 1 bit from struct sk_buff (skb->pp_recycle).
-> - Unifies reference counting of SKB fragment netmems and regular netmems
->    under netmem_inc_ref() and netmem_dec_ref(), eliminating the separate
->    skb_netmem_ref(), skb_netmem_unref(), and skb_mark_for_recycle() APIs.
+The guest's vsock device is not a netdev, so it cannot be moved with
+"ip link set DEV netns". The kernel series adds VSOCK_CMD_DEV_NETNS_SET,
+which assigns the device to the namespace the request was sent from, and
+VSOCK_CMD_DEV_NETNS_GET, which reports where it is. This series exposes
+both through a new "ip vsock" object:
 
-Part of the performance gain from page_pool was to completely avoid the
-atomic refcnt operation, when we can see that page refcnt==1.
-Are you removing this?
+  # ip netns add guest
+  # ip vsock set netns guest
+  # ip vsock show
+  vsock netns guest
+  # ip -n guest vsock show
+  vsock
 
+I considered using "ip link", but I opted away from that option to avoid
+the scenario (however unlikely) of masking out / colliding with a netdev
+with the name "vsock".
 
-> - Removes 110 net lines of non-test/doc code across 63 files (196
->    insertions, 306 deletions).
-> 
-> 1/5: net: skbuff: skip managed zerocopy frags in skb_frag_ref()
-> 2/5: net: skbuff: refcount spliced page_pool frags via skb_pipe_buf_ops
-> 3/5: net: datagram: refcount page_pool frags in zerocopy_fill_skb_from_iter()
-> 4/5: net: remove skb->pp_recycle and consolidate netmem refcounting
-> 5/5: net: remove skb_mark_for_recycle()
-> 
-> Mina Almasry (5):
->    net: skbuff: skip managed zerocopy frags in skb_frag_ref()
->    net: skbuff: refcount spliced page_pool frags via skb_pipe_buf_ops
->    net: datagram: refcount page_pool frags in
->      zerocopy_fill_skb_from_iter()
->    net: remove skb->pp_recycle and consolidate netmem refcounting
->    net: remove skb_mark_for_recycle()
-> 
->   Documentation/networking/page_pool.rst        |   1 -
->   drivers/net/ethernet/airoha/airoha_eth.c      |   1 -
->   drivers/net/ethernet/alibaba/eea/eea_rx.c     |   3 -
->   .../net/ethernet/broadcom/asp2/bcmasp_intf.c  |   1 -
->   .../net/ethernet/broadcom/bnge/bnge_txrx.c    |   5 -
->   drivers/net/ethernet/broadcom/bnxt/bnxt.c     |   8 -
->   .../net/ethernet/broadcom/genet/bcmgenet.c    |   2 -
->   drivers/net/ethernet/cisco/enic/enic_rq.c     |   1 -
->   drivers/net/ethernet/engleder/tsnep_main.c    |   2 -
->   drivers/net/ethernet/freescale/fec_main.c     |   1 -
->   drivers/net/ethernet/google/gve/gve_rx_dqo.c  |   9 -
->   .../net/ethernet/hisilicon/hibmcge/hbg_txrx.c |   1 -
->   .../net/ethernet/hisilicon/hns3/hns3_enet.c   |   6 -
->   .../net/ethernet/huawei/hinic3/hinic3_rx.c    |   1 -
->   drivers/net/ethernet/intel/iavf/iavf_txrx.c   |   2 -
->   drivers/net/ethernet/marvell/mvneta.c         |   2 -
->   .../net/ethernet/marvell/mvpp2/mvpp2_main.c   |   2 -
->   .../marvell/octeontx2/nic/otx2_txrx.c         |   1 -
->   drivers/net/ethernet/mediatek/mtk_eth_soc.c   |   1 -
->   drivers/net/ethernet/mellanox/mlx4/en_rx.c    |   1 -
->   .../net/ethernet/mellanox/mlx5/core/en_rx.c   |   8 -
->   drivers/net/ethernet/mellanox/mlxsw/pci.c     |   2 -
->   .../ethernet/microchip/lan966x/lan966x_fdma.c |   2 -
->   .../microchip/sparx5/lan969x/lan969x_fdma.c   |   1 -
->   drivers/net/ethernet/microsoft/mana/mana_en.c |   3 -
->   .../net/ethernet/mucse/rnpgbe/rnpgbe_lib.c    |   1 -
->   .../net/ethernet/pensando/ionic/ionic_txrx.c  |   2 -
->   .../net/ethernet/realtek/rtase/rtase_main.c   |   1 -
->   drivers/net/ethernet/renesas/ravb_main.c      |   2 -
->   drivers/net/ethernet/socionext/netsec.c       |   1 -
->   .../net/ethernet/stmicro/stmmac/stmmac_main.c |   1 -
->   drivers/net/ethernet/tehuti/tn40.c            |   1 -
->   drivers/net/ethernet/ti/am65-cpsw-nuss.c      |   1 -
->   drivers/net/ethernet/ti/cpsw.c                |   2 -
->   drivers/net/ethernet/ti/cpsw_new.c            |   2 -
->   drivers/net/ethernet/ti/icssg/icssg_common.c  |   1 -
->   drivers/net/ethernet/wangxun/libwx/wx_lib.c   |   2 -
->   drivers/net/veth.c                            |   3 +-
->   drivers/net/virtio_net.c                      |  16 +-
->   drivers/net/vmxnet3/vmxnet3_xdp.c             |   1 -
->   drivers/net/wireless/mediatek/mt76/dma.c      |   1 -
->   .../net/wireless/mediatek/mt76/mt7996/mac.c   |   1 -
->   drivers/net/wireless/mediatek/mt76/npu.c      |   1 -
->   drivers/net/wireless/mediatek/mt76/usb.c      |   1 -
->   drivers/net/xen-netfront.c                    |   1 -
->   include/linux/mm.h                            |   2 +-
->   include/linux/skbuff.h                        |  12 +-
->   include/linux/skbuff_ref.h                    |  60 +--
->   include/net/netmem.h                          |  39 +-
->   include/net/page_pool/helpers.h               |  46 ++-
->   net/core/datagram.c                           |   5 +
->   net/core/gro.c                                |   9 -
->   net/core/net_test.c                           | 369 +++++++++++-------
->   net/core/netmem_priv.h                        |  23 +-
->   net/core/page_pool.c                          |   8 +-
->   net/core/skbuff.c                             |  78 ++--
->   net/core/xdp.c                                |  13 +-
->   net/ipv4/esp4.c                               |  11 +-
->   net/ipv6/esp6.c                               |  11 +-
->   net/tls/tls_device.c                          |  14 +-
->   net/tls/tls_device_fallback.c                 |   6 +-
->   net/tls/tls_main.c                            |   4 +-
->   net/wireless/util.c                           |  31 +-
->   net/xfrm/trace_iptfs.h                        |   6 +-
->   net/xfrm/xfrm_iptfs.c                         |  16 +-
->   65 files changed, 418 insertions(+), 454 deletions(-)
-> 
-> 
-> base-commit: 7b6ab4dbc156e2f96419715130b3d5738a306c93
+Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
+---
+Bobby Eshleman (2):
+      uapi: add vsock_netlink.h
+      ip: add "ip vsock" to move the guest vsock device to a netns
+
+ include/uapi/linux/vsock_netlink.h |  28 +++++
+ ip/Makefile                        |   2 +-
+ ip/ip.c                            |   3 +-
+ ip/ip_common.h                     |   1 +
+ ip/ipvsock.c                       | 205 +++++++++++++++++++++++++++++++++++++
+ man/man8/ip-vsock.8                | 121 ++++++++++++++++++++++
+ man/man8/ip.8                      |   7 +-
+ 7 files changed, 364 insertions(+), 3 deletions(-)
+---
+base-commit: 204a721033556114c81c47d00375f2d52e98e463
+change-id: 20261105-vsock-guest-ns-4bf1ce74742e
+
+Best regards,
+-- 
+Bobby Eshleman <bobbyeshleman@meta.com>
 
