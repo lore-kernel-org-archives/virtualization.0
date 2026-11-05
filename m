@@ -1,58 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793891610;
-	b=yS4JFhvdDmWEVWQhE2qWg/W+P8T2EHjkx0+BWoLAbt5swLtdgycesrRROtkbKc07t8uA
-	 WAyPFzdoqFQ7eTtabCGIOI3hElg4ausYndbtCnlQzLtja9gpGUlzvDGOa9jnEtKU4bucg
-	 ANadtlNMMMMd5iOWBJj+xI8ZNuBF+g9RP74u5UDBNzRF069qTdLUTv09AJk8oKjCuFQMD
-	 jkacygEPE7ACrLfqN6s97ivhZH50eD+GC0Gv9h3Dxl6MSwz0i+zdpbLGAncppJM/53SJI
-	 q4BAwqZszSEunUDFGcvAhJgqyjA/MHCjP4wpCuShpZBZso73FybyGpUj7Srjk2dFQMw==
+	t=1793891635;
+	b=N3BZPajT8cTE0wqCpLXDnxBJK9NGRtys44V2cPYB7tNIquwlARpMN5ODaMcwih0M3jw4
+	 ES/zZtfXeHumTE4XXDNfXj1hCgFbwDuLMxlNjs354nycJYWpT4vcgy/qZoyeDI9cH6hsh
+	 1SmG/nvbKrZCJ1IzGwzMOyUMo05JURlluzCa47b32SgWO9g7i8+RRhODyEMetlbVi71Jk
+	 xF4lyn37LynGMOCUXRPpHGhM2h6QBAdNb6ZS+EoczezQMQqTej+NFLtJz7ry61NfDft5S
+	 xRiDdDngWlU46/JD8zUoAMYu1iia3dWLWjh9J54BA52kUJVxZm9evl5x7TMR1JZj2oQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793891610;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793891635;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=+kuezWz0di39mk8Ui+h0TN4JDk0dTEA42Ut2hOsKzsI=;
-	b=hpXJ/9e5IoHEhR6bIC68tU6FXJHgfQTCOhwxWBB586esND60lyNlLyj+6agAiQhs+Sq1
-	 X3qap9dQRBg9FiYatE8uZUeiySXu0iU116MfaciXjaQUBVL8F+YvM7YW2ryIuZ1LFG9CE
-	 smIlAnnCsEzum6fBi/CRsVXdF01qW0wYLqJcshv/0ei6i7sPqJ3CTdxVREI3xjAeWkfUT
-	 3drUK4F1600mC/c0HWteml+bLlN8HDavOJlzHLi7A2+I6Cq7xxrjdPlqfPgPstyvwQVhy
-	 wvZ/JHoTfpS56H4SuNtUmxWH1/DsCZqbJJ3LZIRATMVZm8DrhFdRCSnj7/O5lv/AG2A==
+	bh=FAiLThNA0tfCrnNn34hqjBMdB1k5+a4NQbfFUQrgWQ8=;
+	b=ShtXwl5l9c/Nk0Di4ewyykCHXG7Zs3g56j6u3hUPIQkKPdjX+z9bmoVCmAZ7nuaL8o9k
+	 wIilDqw1chH9CXrrRApdRhoouDsyJ4vox0BM7EPp18EKg34wK1I06ZWUd9d3jDB7CpHAJ
+	 rZnEvCBUry0tCWIJNtvQfLIr2baa/njqEjN2jC+yldqLAZ4QS4QXbTCS/ikcHSmIivycx
+	 H5K0Fx28ur9hglwFfWrXEkt+nyTsY0cVw/6HIpViO1aW/4Um/BjHJMI5HcZQcGJgDaTiB
+	 BHHWggggznkNKHZBEHWEb7w6qk+srKl3QezoOi7o/KZMwZEGZlb5RctU/sB8Xzd9vRw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fCOHlfFZ;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SvpU8Kux;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B680D606A331
-	for <virtualization@lists.linux.dev>; Thu,  5 Nov 2026 15:13:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18D21606A326
+	for <virtualization@lists.linux.dev>; Thu,  5 Nov 2026 15:13:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fCOHlfFZ
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14DFD1F000C1;
-	Thu,  5 Nov 2026 15:13:29 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SvpU8Kux
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD6A11F00A17;
+	Thu,  5 Nov 2026 15:13:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793891609;
-	bh=+kuezWz0di39mk8Ui+h0TN4JDk0dTEA42Ut2hOsKzsI=;
+	s=k20260515; t=1793891635;
+	bh=FAiLThNA0tfCrnNn34hqjBMdB1k5+a4NQbfFUQrgWQ8=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=fCOHlfFZVa51eLqKmhXEFl5npKZigcRT/qxcQwQgTssQpJ24t29MgPrqe24sRnRlI
-	 0gy1SM2I+3Gcvf1EIvfm4QPEylWKaWyZEXq2hL9VZmdu3MlpsuYHuOjbQvBYjY1saa
-	 vLKICWNtyfULXkr2PQDL7IjBCZaUULjnksOlYf6fHVS91flspEZFqRqoOhsZJCnpBb
-	 YIVhcnXS9l1Co4LQOkaM5JuRajQqCn+QOS0MpSqJ+F53O0DLTcsRWZILueTShsu4Ss
-	 E1tq/ny9Ymtf5DIDsSzWXIZ9w4tWfMj0VaUtn6iE37GVJKBxQqUNAVYbsDyjBLHIrW
-	 JzSt/aSEbK+Hw==
-Message-ID: <sashiko-outbox-199302@kernel.org>
+	b=SvpU8KuxLppAin2YLnH5gbH4BLS++BpEfxh4AOcWrjaWI0JAMmfGaMAoWkSKMGSZ+
+	 oPv9PVNHDlOComKqWS3MddqCTiPLoS2XkWQYOrBrFbuiYtngUhtIj8f98XVkS4i75X
+	 kzAfPUzeHCrobcBy5nw36iOMY7Bmkf+s72YLqWSnme3G8t61nbcqU7IgUJ5fToKk46
+	 a5y6/f6i6wtb03icv99xwECWsEVNCqfxZzLx4owj1g0II6C9hfYjuuFdjHBe+frj0r
+	 S9lLufiOTdeyXg+NYXgVpXjIGRWtOWgoMU9Z6Sn7/6FUi7TLEBsFw0N2HpvKg3t82S
+	 v2nl1VY9l7sAA==
+Message-ID: <sashiko-outbox-199303@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 3/3] virtiofs: zero the reply region of the argument
- buffer
+Subject: Re: [PATCH 2/3] virtiofs: disable request timeout
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Miklos Szeredi" <mszeredi@redhat.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261105150943.86650-4-mszeredi@redhat.com>
+In-Reply-To: <20261105150943.86650-3-mszeredi@redhat.com>
 References: <20261105150943.86650-1-mszeredi@redhat.com>
- <20261105150943.86650-4-mszeredi@redhat.com>
+ <20261105150943.86650-3-mszeredi@redhat.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 05 Nov 2026 15:13:28 +0000
+Date: Thu, 05 Nov 2026 15:13:54 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,33 +61,33 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> copy_args_to_argbuf() allocates one buffer for the fixed in- and out-args
-> and fills only the in-arg part.  The remainder is handed to the server as
-> a device-writable buffer, and the server is under no obligation to write
-> it: the used length it reports is its own claim and
-> virtio_fs_verify_response() has nothing to cross-check it against.
+> The request timeout is implemented by aborting the connection:
+> fuse_check_timeout() calls fuse_chan_abort(), which splices
+> fpq->processing onto a local list and ends those requests.  Ending a
+> request wakes the waiting caller, which then drops the last reference and
+> frees it.
 >=20
-> A reply that declares its full length without filling the buffer makes
-> copy_args_from_argbuf() copy the uninitialized remainder to the caller,
-> so a server that fails partway through writing a reply returns stale heap
-> contents from e.g. fuse_statfs() or fuse_getxattr() instead of an error.
+> That is safe for /dev/fuse, where the request has already been copied out
+> to userspace and nothing outside the kernel retains a pointer to it.  It
+> is not safe for virtiofs.  virtio_fs_enqueue_req() passes the bare req as
+> the virtqueue token, and the scatterlists point at req->in.h, req->out.h,
+> req->argbuf and the request's folios; the device still owns all of that
+> after the abort.  When the device eventually completes the request,
+> virtio_fs_requests_done_work() gets the freed req back from
+> virtqueue_get_buf() and passes it to virtio_fs_verify_response() and
+> virtio_fs_request_complete(), which dereference req->args - the caller's
+> [ ... ]
 >=20
-> Commit 5364d081125a ("virtiofs: validate fixed-output response length")
-> covers the case where the declared length is short.  Zero the reply
-> region so that the remaining case yields zeroes rather than whatever the
-> allocator last held.  Only that region is zeroed; the in-arg part is
-> overwritten by the copy below and the buffer can be as large as
-> XATTR_SIZE_MAX.
->=20
-> Fixes: a62a8ef9d97d ("virtio-fs: add virtiofs filesystem")
+> Fixes: 0f6439f61a6e ("fuse: add kernel-enforced timeout option for reques=
+ts")
 > Reported-by: Sashiko <sashiko-bot@kernel.org>
-> Closes: https://sashiko.dev/#/bug/linux-f0d6d4a3-f5df-4f72-ab09-802e5aab4=
-9a6
+> Closes: https://sashiko.dev/#/bug/linux-8171ebf0-ef01-4ccd-943e-8633a8d54=
+239
 > Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 
 Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261105150943.8665=
-0-1-mszeredi@redhat.com?part=3D3
+0-1-mszeredi@redhat.com?part=3D2
 
