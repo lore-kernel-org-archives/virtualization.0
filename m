@@ -1,55 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793879590;
-	b=fkkrEyC/jHpXP6UZZZTPYefVJ7iVV9RwCu1RCLj9jJb8liSldO2FTfCmuei0EFcP3NRt
-	 UwGyb0Q4n+4tq0W1KS+uarFSHcrjKwrHiQgptjuPSkBQ8OI71DX9m7dXnEim0iUlW4Y5s
-	 lpHPu30qQQZvsCQJEiW8p1/KuXlNtBOiE6jL/PoqsokaFCD36vAH7ovjHTyjB0i4b9/fO
-	 OFh21ZgiKkXT6gXxIZKWPclrF75IY/ItutpeyUqzWhyGoZ/+DkQlv1TOKCcY4SUQ0XGrX
-	 /a0pn7XToiQ/QAc13eAN5qau4IVIq8iUMHCzXDOrbqFRYA5sQOifNzGiLJVEJ9auGyA==
+	t=1793879669;
+	b=eRv8d+4dgfCOtejGb2vp2TGTUh9wfeCIbKPzEincjJbxEwO+729GxbzplG0qAa5vvHH0
+	 R8+dUS+2w7CLHzIsw0HoGejJFq6L6g+GTpXwiOt2ieueb9vAxbUGarG4kIxFA7idhDX+y
+	 bowdOaLyFljxAB8DJKfM2pIC5QafwfxTKNpbSo0Vfu9C5ATlRpw7zEpo0GW3M4n9jal2g
+	 JSNLY/CGq9L0JxWqPwuWkfnjtnmV63Tu/Kroqr5ZOm1QOJJ3mQJ8cVCt6tapXh8/Y3fN8
+	 g15bbr+fasFhcm5NLEVOlUV0IGbuFIdpTbvtgaAkU0+tNQ8ZxidYx+olhsGlUWo+K3g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793879590;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793879669;
 	h=Received:DKIM-Signature:Received:X-Forwarded-Encrypted:
 	 X-Gm-Message-State:X-Received:MIME-Version:References:In-Reply-To:
 	 From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:Message-ID:
 	 Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=pU8MqVBzZi+RPXqbye/xaM5dO7j5j/RQgdDQgBghCKw=;
-	b=hYiNcgtAuFDUuZdMd8H5vrBHDptnvI2oQJJglGimhfvVnL4YwaI5wRfAoIhpFItSANG1
-	 jTrIG9w8fK+pRrFOrcYetyqGtm4rL4oEwRCiLU2fFhxbaSn9+WR5to0JnCXDpOl+DYiQb
-	 hCfMiP2dDy2P/uE/q4Gii/XkzUhTvXDCbKwhvn20faecEWAtUO1oCsR5kBm0j2IJsFIrM
-	 JgYQz7wIvxTjmhzvp49XCm6IYaBAL3ehT+esCXPU4+lnzIV33QevGsCIVhp2n8afObJi6
-	 X6MxenD7ixeU8q+inL2FmMKU8PiJ9Nv6uLcjiaO6afT+6Iu2csmZt3DUyelN4Q1YLvw==
+	bh=9QbVFt2hlPhcZEm3mRTztj/H+Fc6Cn/Nf/eAUAf8Ebs=;
+	b=3JgH2A5hF2Fpc+hYEl+nJ6Z1+wrpJUUiumR02jksk+LmdUUSxFz99UrKq/yN8thG9dbu
+	 ogYumexG3jaZ6n9boAReGz6qHga0CbvgwUWQZv74aCV2AhHMTwTPfv2bJSXMLEZfXSihl
+	 qB6MtpZXtKCbIHwI79jMoBajyzlMY+816+VSD0ADeb51z4d/X127WAW7lU4FYagPdMgVT
+	 YqjKM9bPP4io0NVQX6l+38zTlPWndkUKhO60/aUcHSvpAGYX6FeunvLQFWVYysMeO2qsu
+	 gNUMp29xZB0kQpnhamboApvntSKM3fXvHC+qfVCsCoJj5BHQgDIQg67AbqOZmIo4h+g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=W9laYjhL;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kkvK9xJR;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15D8E606A927
-	for <virtualization@lists.linux.dev>; Thu,  5 Nov 2026 11:53:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3F8B606A922
+	for <virtualization@lists.linux.dev>; Thu,  5 Nov 2026 11:54:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=W9laYjhL
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C88601F0093A
-	for <virtualization@lists.linux.dev>; Thu,  5 Nov 2026 11:53:09 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kkvK9xJR
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 444E41F00A17
+	for <virtualization@lists.linux.dev>; Thu,  5 Nov 2026 11:54:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793879589;
-	bh=pU8MqVBzZi+RPXqbye/xaM5dO7j5j/RQgdDQgBghCKw=;
+	s=k20260515; t=1793879668;
+	bh=9QbVFt2hlPhcZEm3mRTztj/H+Fc6Cn/Nf/eAUAf8Ebs=;
 	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=W9laYjhLL3ZbVRzIItjXmiAFRrTmirbi/Eyp+leZcob42t2A0IjZ4vOPQXIv/GRDv
-	 r7CrMnfFN+oELGBuTTVk3OL58wy7XmdsXFSgxudEy8PjJErSEktIZ3uTwhvnbXDedt
-	 a/iE17OXwL8qrT4ZtUzgB2w5b5h4Izq8do6e/9kW5+S87ly9ANbEa+XhrDOWW43LEJ
-	 A6i6wqJDivqJNwmXWSw+JZ3qHEUS4CdxHYt1GQRKWShiwLlS5/coVs5pO+bxraD5XL
-	 uO6p5M0WHH9E5X/o5MmUI/zLrB1wdZKamVQWdKKzbjKyIQo7GfS4X5xDa2TyKL+uMo
-	 I1ghxfwyIRPUg==
-Received: by mail-ot1-f44.google.com with SMTP id 46e09a7af769-7f48c750afcso1238285a34.0
-        for <virtualization@lists.linux.dev>; Thu, 05 Nov 2026 03:53:09 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AKwUvBzSjxEQiStvTxFWh46B4znoX/XQiuE8uEBBwUqtzQNfuP9WM73R2FF1vtKzXcRd438NAsaJU4npv6zZVdI7CA==@lists.linux.dev
-X-Gm-Message-State: APuU4Z/qZKBd3Pd7MD+h8kMZURxiURWDMhG9WciPQdVuMjUJhx7UTBKd
-	rdxfHRfPCqSiXER2UzsuJHagnmLc/sMJGnboD7FxTYo1/M4iHVUMKv+MMJuBTsv/v6smpkjUr2G
-	E4msbhYObdbjb/K+g2tWErnHMEyjpP7o=
-X-Received: by 2002:a05:6830:2694:b0:844:d1b5:df47 with SMTP id
- 46e09a7af769-85d3640637bmr13785532a34.19.1793879588857; Thu, 05 Nov 2026
- 03:53:08 -0800 (PST)
+	b=kkvK9xJRShfJ5INlF6DkKs4ae3tUVWLFJZCWoy/ibAMHaZUQXzz+yq493D8r2NoTT
+	 0x4+9ZG/PxVHLN4cl4bSX2GgRUlmvMKCY1cNjebacYfjRgvAP4fTcSeOi3yn5Hm+jR
+	 JuJYTyJSeRdXOymmT1iCeHZ/2ruzphDpVXSgFlH4882gcAfWy4Tb9iqclR0Z2BhpaS
+	 BW6hbBVScJJ1JljH1Aa/WmAXRiQu8G/hsC1EgABO7sI81XXprzIaGkmeZdwLvt8TMj
+	 xChAJIEnR59D2COtkB/N6ElTtN6d5UFDrR7UmXrH1Bc0MZUssXIG4pIAR0OfRiGFPx
+	 K/yIGsV9W7NXQ==
+Received: by mail-ot1-f51.google.com with SMTP id 46e09a7af769-8470d7d430fso746947a34.3
+        for <virtualization@lists.linux.dev>; Thu, 05 Nov 2026 03:54:28 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AKwUvBzIbSaoYj7aVlhuoXBTiFgN1usc4yHpCzXvLYdW1Om9PhDs1eUGbMnbFrGRZkeablHUNqVoj6xWaOO7q86cgA==@lists.linux.dev
+X-Gm-Message-State: APuU4Z/L6PTtqxE3IqUnWhWoXHkCdhtSv7X7ZHoTTzMC/AVNY/7po8WM
+	4jzDkstG8qBzHK/Pcq0m5hVqO+jnA0sscru5fezRnLRYUvfaMHognflh9VTwrIsXSoQQk5IQVTx
+	lIm0tEtNdRcu6r2O3Nlkl15cTzqKVQ/o=
+X-Received: by 2002:a05:6830:4424:b0:83f:f24d:fe19 with SMTP id
+ 46e09a7af769-85d362ea353mr15326377a34.3.1793879667558; Thu, 05 Nov 2026
+ 03:54:27 -0800 (PST)
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -59,15 +59,15 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-References: <20261104050131.629967-2-edumazet@kernel.org> <179387332014.488856.9111956413610107951@kernel.org>
-In-Reply-To: <179387332014.488856.9111956413610107951@kernel.org>
+References: <20261104050131.629967-4-edumazet@kernel.org> <179387332145.488856.1149073246990672028@kernel.org>
+In-Reply-To: <179387332145.488856.1149073246990672028@kernel.org>
 From: Eric Dumazet <edumazet@kernel.org>
-Date: Thu, 5 Nov 2026 12:52:57 +0100
-X-Gmail-Original-Message-ID: <CAL4Wiiqw-nTCTPwd9pJ+Yzgz+ysNB3_Oa01mb_x7_ZB2w86R5A@mail.gmail.com>
-X-Gm-Features: AclHuK_6gvJ7x0AL4m_JKZbY8pQOCPRBoVm7yEjNIav82DdDO4rj1Cvv-LcyOAk
-Message-ID: <CAL4Wiiqw-nTCTPwd9pJ+Yzgz+ysNB3_Oa01mb_x7_ZB2w86R5A@mail.gmail.com>
-Subject: Re: [PATCH net v2 1/3] net: virtio: validate outer protocol of UDP
- tunnel GSO packets
+Date: Thu, 5 Nov 2026 12:54:15 +0100
+X-Gmail-Original-Message-ID: <CAL4WiiqNYh-FQziPMhg0jeAZ+tCGEwr49mtypAz+QoVfNzPtNA@mail.gmail.com>
+X-Gm-Features: AclHuK-Uaf0JVD2MbKUpokQNMNsj34pabP7ciYh30gRs4WUQbUX3FXhmYMX5luA
+Message-ID: <CAL4WiiqNYh-FQziPMhg0jeAZ+tCGEwr49mtypAz+QoVfNzPtNA@mail.gmail.com>
+Subject: Re: [PATCH net v2 3/3] selftests: net: tun: test outer protocol of
+ UDP tunnel GSO packets
 To: netdev-bot+sashiko@kernel.org
 Cc: netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org, 
 	pabeni@redhat.com, horms@kernel.org, willemb@google.com, mst@redhat.com, 
@@ -81,7 +81,7 @@ rit :
 > Thank you for your contribution! Sashiko AI review found 2 potential
 > issue(s) to consider.
 >
-> Critical: 0 =C2=B7 High: 1 =C2=B7 Medium: 0 =C2=B7 Low: 1
+> Critical: 0 =C2=B7 High: 0 =C2=B7 Medium: 1 =C2=B7 Low: 1
 >
 > If you believe none of the issues are legitimate, please reply to each
 > issue of Medium severity or higher and explain why the AI is wrong.
@@ -91,194 +91,121 @@ k
 y
 > (one such reply per series is enough).
 >
-> - [High] The new outer-header validator can still be bypassed, so the
->   NSH-over-UDP-tunnel GSO crash this commit claims to fix is still=E2=80=
-=A6
-> - [Low] In virtio_net_l4_start() (include/linux/virtio_net.h), the
->   comment before the ipv6_find_hdr() call says "Find the transport=E2=80=
-=A6
+> - [Medium] The new tun_vnet_udptnl_proto and tun_vnet_udptnl_proto_l3
+>   tests do not work on big-endian hosts.
+> - [Low] The new comment in virtio_net_l4_start()
+>   (include/linux/virtio_net.h) says the code does something it does not.
 >
 > --
 >
-> net: virtio: validate outer protocol of UDP tunnel GSO packets
+> selftests: net: tun: test outer protocol of UDP tunnel GSO packets
 >
-> This commit makes virtio_net_hdr_tnl_to_skb() validate the outer headers
-> of UDP tunnel GSO packets. The frame must carry an outer IPv4 or IPv6
-> header that matches the declared tunnel type, with UDP at
-> outer_th_offset. The L3 start is taken from the device type: either an
-> Ethernet/VLAN header, or the network header the caller set.
+> This adds tun selftests that write single 4in4 Geneve GSO frames to tap
+> and IFF_TUN devices with UDP tunnel offloads enabled. They check that
+> frames with a matching outer IPv4 header are accepted. They also check
+> that a mismatched outer ethertype, tun_pi protocol or IP version is
+> rejected with EINVAL.
 >
-> Link: https://lore.kernel.org/netdev/93d0e37c99711bebdf60c120af03010455c2=
-f2e2.1793276116.git.mst@redhat.com/
+> > diff --git a/tools/testing/selftests/net/tun.c b/tools/testing/selftest=
+s/net/tun.c
+> > index 34de2580e32ec..81410afbbcc8d 100644
+> > --- a/tools/testing/selftests/net/tun.c
+> > +++ b/tools/testing/selftests/net/tun.c
+> > @@ -683,6 +683,275 @@ TEST_F(tun_vnet_gso, vlan_tcpv4_gso_no_csum_64k)
+>
+> [ ... ]
+>
+> > +static int build_udptnl_frame(uint8_t *buf, bool vlan, uint16_t l3prot=
+o,
+> > +                           int payload_len)
+> > +{
+> > +     struct virtio_net_hdr_v1_hash_tunnel *vh =3D (void *)buf;
+> > +     int vlan_len =3D vlan ? 4 : 0;
+> > +     int hlen =3D ETH_HLEN + vlan_len + UDP_TUNNEL_GENEVE_4IN4_HDRLEN;
+> > +     uint8_t *outer_udph, *cur =3D buf;
+> > +     int pktlen;
+> > +
+> > +     /* The buffer is reused: do not leave bytes from a previous frame=
+. */
+> > +     memset(buf, 0, TUN_VNET_TNL_SIZE + hlen + payload_len);
+> > +
+> > +     cur +=3D build_virtio_net_hdr_v1_hash_tunnel(cur, true, hlen, 140=
+0,
+> > +                                                AF_INET, AF_INET);
+> > +     vh->outer_th_offset +=3D vlan_len;
+> > +     vh->inner_nh_offset +=3D vlan_len;
+> > +     vh->hash_hdr.hdr.csum_start +=3D vlan_len;
+>
+> [Severity: Medium]
+> Do these new tests work on big-endian hosts? In struct
+> virtio_net_hdr_v1_hash_tunnel, outer_th_offset and inner_nh_offset are
+> __le16. Here they get native-endian arithmetic, applied on top of the
+> host-order values that build_virtio_net_hdr_v1_hash_tunnel() in
+> tuntap_helpers.h already wrote:
+>
+>     vh_tunnel->outer_th_offset =3D eth_hlen + outer_iphlen;
+>     vh_tunnel->inner_nh_offset =3D vh_tunnel->outer_th_offset + ETH_HLEN =
++
+>                                  GENEVE_HLEN + sizeof(struct udphdr);
+>
+> The kernel always decodes the tunnel offsets as little-endian. csum_start=
+,
+> on the other hand, follows the tun vnet endianness:
+>
+> include/linux/virtio_net.h:virtio_net_hdr_tnl_to_skb() {
+>     ...
+>     inner_th =3D __virtio16_to_cpu(little_endian, hdr->csum_start);
+>     inner_nh =3D le16_to_cpu(vhdr->inner_nh_offset);
+>     outer_th =3D le16_to_cpu(vhdr->outer_th_offset);
+>     if (outer_th < outer_l3min ||
+>         inner_nh < outer_th + sizeof(struct udphdr) ||
+>         inner_th < inner_nh + inner_l3min)
+>         return -EINVAL;
+>     ...
+> }
+>
+> tun_open() never issues TUNSETVNETLE. On s390x or BE ppc64, csum_start is
+> therefore read in host order, but outer_th 34 is read as 0x2200 and
+> inner_nh 64 as 0x4000. The offset check above then returns -EINVAL before
+> virtio_net_tnl_offsets_ok() is reached.
+>
+> Wouldn't outer_proto_ok then fail on BE? And wouldn't outer_proto_bad
+> pass there without ever reaching the new outer protocol validation?
+>
+> build_udptnl_l3_frame() does the same:
+>
+>     vh->outer_th_offset +=3D IPV4_OPT_LEN;
+>     vh->inner_nh_offset +=3D IPV4_OPT_LEN;
+>
+> The helper's host-order writes predate this patch, and the existing
+> tun_vnet_udptnl tests share the problem. Could these fields be converted
+> with htole16()/le16toh() here and in the helper?
+
+
+Right. build_virtio_net_hdr_v1_hash_tunnel() writes the tunnel offsets
+in host order since commit a942fcd72e97 ("selftest: tun: Introduce
+tuntap_helpers.h header for TUN/TAP testing"), so all UDP tunnel tests
+in tun.c are broken on big-endian hosts, not only the new ones.
+
+v3 adds a patch converting the offsets with htole16() in the helper,
+and le16toh()/htole16() where the tests adjust them.
+
+
+>
+> > +
+> > +     if (vlan) {
+> > +             uint16_t vlan_tag[2] =3D { htons(100), htons(l3proto) };
+>
+> [ ... ]
+>
+> The following is about the first patch in this series, commit
+> fca58b5faf90 ("net: virtio: validate outer protocol of UDP tunnel GSO
+> packets"), which adds the code that the outer_proto_bad tests exercise.
 >
 > > diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
 > > index d6466f96cdd00..b9c8babb1fd73 100644
 > > --- a/include/linux/virtio_net.h
 > > +++ b/include/linux/virtio_net.h
->
-> [ ... ]
->
-> > @@ -48,6 +51,146 @@ static inline int virtio_net_hdr_set_proto(struct s=
-k_buff *skb,
->
-> [ ... ]
->
-> > +static inline bool
-> > +virtio_net_l3_start(struct sk_buff *skb, int *nhoff, __be16 *proto)
-> > +{
-> > +     /* skb->dev should always be set here already,
-> > +      * but let's not crash when it is not.
-> > +      */
-> > +     if (WARN_ON_ONCE(!skb->dev))
-> > +             return false;
-> > +
-> > +     if (skb->dev->type =3D=3D ARPHRD_ETHER ||
-> > +         skb->dev->type =3D=3D ARPHRD_LOOPBACK) {
-> > +             __be16 h_proto;
-> > +
-> > +             if (!pskb_may_pull(skb, ETH_HLEN))
-> > +                     return false;
-> > +             h_proto =3D eth_hdr(skb)->h_proto;
-> > +             /* skb->protocol is a sender claim, and parts of the
-> > +              * stack parse the packet per it: when it disagrees with
-> > +              * the frame we do not know which view the packet will
-> > +              * be parsed as, so do not validate.
-> > +              */
-> > +             if (skb->protocol && skb->protocol !=3D h_proto)
-> > +                     return false;
-> > +             *nhoff =3D ETH_HLEN;
-> > +             *proto =3D h_proto;
-> > +             if (eth_type_vlan(*proto)) {
-> > +                     *proto =3D __vlan_get_protocol(skb, *proto, nhoff=
-);
-> > +                     if (!*proto)
-> > +                             return false;
-> > +             }
-> > +     } else {
-> > +             const struct iphdr *iph;
-> > +
-> > +             *nhoff =3D skb_network_offset(skb);
-> > +             /* An unset network header shows up as an offset
-> > +              * outside of the packet.
-> > +              */
-> > +             if (*nhoff < 0 || (unsigned int)*nhoff >=3D skb->len)
-> > +                     return false;
-> > +             /* No L2 header to cross-check with: take the protocol
-> > +              * from the IP version at the network header.
-> > +              */
-> > +             if (!pskb_may_pull(skb, *nhoff + 1))
-> > +                     return false;
-> > +             iph =3D (const struct iphdr *)(skb->data + *nhoff);
-> > +             if (iph->version =3D=3D 4)
-> > +                     *proto =3D htons(ETH_P_IP);
-> > +             else if (iph->version =3D=3D 6)
-> > +                     *proto =3D htons(ETH_P_IPV6);
-> > +             else
-> > +                     return false;
-> > +             if (skb->protocol && skb->protocol !=3D *proto)
-> > +                     return false;
-> > +     }
-> > +     return true;
-> > +}
->
-> [Severity: High]
->
-> Can a tap owner push this function into the wrong branch, so the NSH
-> crash from the commit message is still reachable?
->
-> The branch is chosen from skb->dev->type. In tun, the real framing and th=
-e
-> later eth_type_trans() call both follow tun->flags. The tap owner can set
-> dev->type to any value with TUNSETLINK while the device is down:
->
-> drivers/net/tun.c:__tun_chr_ioctl() {
->     ...
->                         tun->dev->type =3D (int) arg;
->     ...
-> }
->
-> Take an IFF_TAP device with dev->type set to, for example, ARPHRD_NONE.
-> tun_get_user() does:
->
->                 skb_set_network_header(skb, ETH_HLEN);
->         ...
->         if (tun_vnet_hdr_tnl_to_skb(tun->flags, features, skb, &hdr)) {
->         ...
->         if ((tun->flags & TUN_TYPE_MASK) =3D=3D IFF_TAP)
->                 skb->protocol =3D eth_type_trans(skb, tun->dev);
->
-> In that case virtio_net_l3_start() takes the else branch with
-> nhoff =3D ETH_HLEN and only reads the IP version nibble at byte 14.
->
-> The skb->protocol cross-check is skipped because skb->protocol is still 0
-> at this point. h_proto in bytes 12-13 is never read.
->
-> With a valid IPv4 header at offset 14 and UDP at offset 34,
-> virtio_net_tnl_offsets_ok() returns true. eth_type_trans() then sets
-> skb->protocol from the unchecked h_proto, for example ETH_P_NSH, while
-> SKB_GSO_UDP_TUNNEL is set. tun_xdp_one() has the same order: validation
-> first, then an unconditional eth_type_trans().
->
-> If that skb is redirected with tc mirred to a gretap, does it reach the
-> same crash shown in the commit message?
->
-> validate_xmit_skb()
->   skb_mac_gso_segment()
->     nsh_gso_segment()
-> ...
-> gre_tap_xmit()
->   __gre_xmit()
->     skb_push()
->       skb_under_panic()
->
-> Compared with the original reproducer, the only extra step seems to be
-> one TUNSETLINK ioctl before bringing the tap up.
->
-> There is a second variant: an IFF_TUN device with a packet-info header
-> and dev->type set to ARPHRD_ETHER.
->
-> With pi.proto =3D 0x8100 and bytes 12-13 =3D 0x8100, the cross-check pass=
-es.
-> The validator then walks a VLAN tag at 14 to IPv4 at 18 and UDP at 38.
->
-> The stack handles the packet as raw L3, though. skb_vlan_untag() reads
-> the VLAN header at data[0], so attacker-chosen bytes 2-3 (for example
-> NSH) become skb->protocol.
->
-> The skb->protocol cross-check cannot catch either case. In the first it
-> is 0, and in the second the sender controls both values.
->
-> vhost-net guests cannot change dev->type, so the guest path looks closed.
-> The tap writer path named in the commit message still seems open.
-
-Right, both variants are real. They need CAP_NET_ADMIN over the
-device: TUNSETLINK only works while the device is down, and it has to
-be brought up again. A vhost-net guest cannot use them, but a tap
-writer in a user namespace can.
-
-v3 follows your suggestion: virtio_net_hdr_tnl_to_skb() gets a has_eth
-argument from its callers, and virtio_net_l3_start() no longer looks
-at the device type. tun passes whether the device is IFF_TAP (and true
-from tun_xdp_one(), which always calls eth_type_trans()), virtio_net
-always passes true. v3 also adds tests for both variants (tap set to
-ARPHRD_NONE, IFF_TUN set to ARPHRD_ETHER).
-
-
->
-> A smaller point: dev->type is read here without READ_ONCE() or a lock,
-> while TUNSETLINK writes it under rtnl. The bypass above does not need
-> that race, though, since a stable mismatched type is enough.
->
-
-Since tun_get_user() only drops packets of a down device after the
-checks, a check of dev->type in tun alone would have been racy too.
-With has_eth, dev->type is no longer read on this path.
-
-
-> Could the caller tell the validator whether the frame starts with an
-> Ethernet header instead? tun knows this from tun->flags, and virtio_net
-> always has one. Another option would be to always cross-check h_proto
-> whenever eth_type_trans() will be applied afterwards.
 >
 > [ ... ]
 >
@@ -303,33 +230,32 @@ UDP) {
 > > +                                               &flags);
 >
 > [Severity: Low]
->
-> This isn't a bug, but the comment says the walk goes past AH. With
-> flags =3D IP6_FH_F_AUTH and target =3D -1, ipv6_find_hdr() actually stops=
- at
-> the AH header:
+> This isn't a bug, but does this comment in virtio_net_l4_start() match
+> what ipv6_find_hdr() does with these arguments?
 
-Indeed, the comment comes from Michael's helper, which walked past
-AH. I will fix it in v3.
-
-pw-bot: cr
+Same as for patch 1: the comment is wrong, I will fix it in v3.
 
 
+>With flags =3D IP6_FH_F_AUTH
+> and target =3D -1, it stops at the AH header instead of walking past it:
 >
 > net/ipv6/exthdrs_core.c:ipv6_find_hdr() {
 >     ...
->                 } else if (nexthdr =3D=3D NEXTHDR_AUTH) {
->                         if (flags && (*flags & IP6_FH_F_AUTH) && (target =
-< 0))
->                                 break;
+>     } else if (nexthdr =3D=3D NEXTHDR_AUTH) {
+>         if (flags && (*flags & IP6_FH_F_AUTH) && (target < 0))
+>             break;
 >     ...
 > }
 >
-> It returns NEXTHDR_AUTH, so an outer IPv6+AH+UDP frame is rejected. That
-> matches the commit message ("ipv6_find_hdr() stops at an AH header").
+> So for an outer IPv6 header followed by AH, ip_proto comes back as
+> NEXTHDR_AUTH and virtio_net_tnl_offsets_ok() rejects the frame. The commi=
+t
+> message says this is intended:
 >
-> Could the comment say that the walk stops at AH? As written, a reader
-> might take it as a reason to drop IP6_FH_F_AUTH later.
+>   Unlike the original helpers, ipv6_find_hdr() stops at an AH header,
+>   as Willem suggested in the review of that series.
+>
+> Could the comment say that the walk stops at AH?
 >
 > > +                     if (*ip_proto < 0 || flags & IP6_FH_F_FRAG)
 > > +                             return false;
