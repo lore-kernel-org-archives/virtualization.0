@@ -1,85 +1,58 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=124.126.103.232
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793863095;
-	b=NWwHp03ShgeztJ44NbJPxY/dcI/uiIEDKGfXXu3tgH6pjsyxYiCG6GeuBlviU5NfM6Hj
-	 0UXZQQDEhe2HjFBeH0IF1/kIIwQHeI3FTScHl61d+11UB5r1qXTPiW5LUZzo8FKbmnVJz
-	 V74C1vAmgLruJZl8BisHBRLidVROPcx/gENZ5CL8ecrLzzpxPFcDGtZsZDlVCaW/EkYzX
-	 ZM45I+EbMI4D4qrXryc6HJjLLrBaHBcHWUc8IA8JeTVTsCYPoUk09F4zyV/IOjL3EM1uh
-	 vWBSgl6xq806qoebJkpPjEwdIXiC9Hld2HfbAcQp9jn1r0eykIKtEH2c4OOO6jXmVDw==
+	t=1793863151;
+	b=YtqwDpWqW1Sxn05bk35nHMAMD9AOAlYXArN40eeuJdzDLu+Y/I1SLZeeBGIqXKNJ250K
+	 OXryk0sxb1m2GApQFgkicrRu2JIm3gn21eNibVuF4BrhBZQM0p16eb0XeodNNopYloWhz
+	 17KxroiN/n2DEhLv+YbvXMx5REmar42iyCMEZQ20gofzpJUf+be8k8NYX0rvwokVl4feG
+	 H3+rU+EQ2+xPBVfZaqYuEnk5J86az5dHWcO6AL5CKS/g+hSAXq2V4UVwQRfoTzjjgyz3C
+	 tuIS9A8B2OmKwa2J9uojVDETvsHgJhcZC1rJdlF+QJiZDPU0ldYe9Tkw+7PWVymPqkA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793863095;
-	h=DMARC-Filter:X-UUID:X-CTIC-Tags:X-CID-P-RULE:X-CID-O-INFO:X-CID-INFO:
-	 X-CID-META:X-CID-BVR:X-CID-BAS:X-CID-FACTOR:X-CID-RHF:X-UUID:X-User:
-	 Received:From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=GJfuccBsESyaMktbIQtsSYOwxg6JTp+e/MYBrXLWAPI=;
-	b=CUwk+z7Mxu1sD7xxX7QyqCp8zffETV6Au7KHI4LSy+PXdWMxYCZvfuzc1xV6RdhoDGjZ
-	 tB7eMVrTRQfFQ/ziDSrTEn+PP8CgWoN6/NhNOeiRQJ5xsy2GvgS+G/pnhKlPl3X7q0evJ
-	 zEOhYKBI5jO8tynfb5iQn4wSTKPEAqQiWUmupFlGIRecJzkGJh0XncZbKiFlB++PnM7d2
-	 9R/o9dEfjLaiidEHauSvv+3pWBFDwNrcJRwgJxl2xc6E0Z7OkTJJp6/NpFm4mrnVOv5PS
-	 ghlNJNmlXo12ALNsHn3Emz9YP20qem5ur4KIkv9zcy+cVsprbQxfBTaB9eXIvh8hsMw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793863151;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=56elTfCmj9FZp3MddjsLgsgWWaDgoiURjg7k8/BvNsc=;
+	b=sX0hQYuSXy1KfiZEp/XhwzKZdzqROAdGeiCSnw4xtF+JOQt835W68bdUjG++F0WCQhFL
+	 0ZkB542Kw/TeFYjIghOYB9eL47Rz7z61Hk8SGDvHAWPJgmFbzmbku1hYKKoNG7iyHwiVT
+	 CbaaJDnkX7HRQyijCR6Nsl3Jy7mk6EqoGbxYGZA+EA66Z74rdmZeDJcoB6OjtFRXaSM+B
+	 j8DUVELMVygT5/R6HSczcoFzZg5t1Pb9XdVTgaZUdoKMJCDdkVnZNqAX9HYqZ+Qv8td61
+	 vb3cytfokaVckyN0K5vVXSOsYzlvjzx8cy/pthMk5jBBso20hyhPZ/UH8npLdEUzLIw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=kylinos.cn;
-	spf=pass smtp.mailfrom=kylinos.cn;
-	arc=none smtp.remote-ip=124.126.103.232
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=a3ouSUaB;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 314F6606A31B
-	for <virtualization@lists.linux.dev>; Thu,  5 Nov 2026 07:18:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 314F6606A31B
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: 09ea3350d8e911f19a56ed5b684f684d-20261105
-X-CTIC-Tags:
-	HR_CC_COUNT, HR_CC_DOMAIN_COUNT, HR_CC_NAME, HR_CC_NO_NAME, HR_CTE_8B
-	HR_CTT_MISS, HR_DATE_H, HR_DATE_WKD, HR_DATE_ZONE, HR_FROM_NAME
-	HR_SJ_LANG, HR_SJ_LEN, HR_SJ_LETTER, HR_SJ_NOR_SYM, HR_SJ_PHRASE
-	HR_SJ_PHRASE_LEN, HR_SJ_WS, HR_TO_ADR_NAME, HR_TO_COUNT, HR_TO_NO_NAME
-	IP_TRUSTED, SRC_TRUSTED, SA_EXISTED, SN_UNTRUSTED, SN_UNFAMILIAR
-	SPF_NOPASS, DKIM_NOPASS, DMARC_NOPASS, CIE_BAD, CIE_GOOD
-	CIE_GOOD_SPF, GTI_FG_BS, GTI_RG_INFO, GTI_C_BU, AMN_GOOD
-	ABX_MISS_RDNS
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.3.19,REQID:1a3d4cd5-2fb7-469d-848b-876edd21e248,IP:10,
-	URL:0,TC:0,Content:0,EDM:25,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTIO
-	N:release,TS:35
-X-CID-INFO: VERSION:1.3.19,REQID:1a3d4cd5-2fb7-469d-848b-876edd21e248,IP:10,UR
-	L:0,TC:0,Content:0,EDM:25,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION:
-	release,TS:35
-X-CID-META: VersionHash:7db8b62,CLOUDID:b678190c7abd29f5c4e550106320e6c8,BulkI
-	D:261105151805TSDO90KJ,BulkQuantity:0,SF:10|40|66|78|102|127|153|865|898,T
-	C:nil,Content:0|15|50|99,EDM:5,IP:-2|1,URL:0,File:nil,RT:nil,Bulk:nil,QS:n
-	il,BEC:nil,COL:0,OSI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC
-	:0
-X-CID-BVR: 2,SSN|SDN
-X-CID-BAS: 2,SSN|SDN,0,_
-X-CID-FACTOR: TF_CID_SPAM_IBB,TF_CID_SPAM_SNR
-X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
-X-UUID: 09ea3350d8e911f19a56ed5b684f684d-20261105
-X-User: leixiang@kylinos.cn
-Received: from ninol [(116.128.244.169)] by mailgw.kylinos.cn
-	(envelope-from <leixiang@kylinos.cn>)
-	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
-	with ESMTP id 635666650; Thu, 05 Nov 2026 15:18:03 +0800
-From: Xiang Lei <leixiang@kylinos.cn>
-To: 
-Cc: Xiang Lei <leixiang@kylinos.cn>,
-	Wei Liu <liuwei@kylinos.cn>,
-	stable@vger.kernel.org,
-	Laurent Vivier <lvivier@redhat.com>,
-	Olivia Mackall <olivia@selenic.com>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Michael Bommarito <michael.bommarito@gmail.com>,
-	virtualization@lists.linux.dev,
-	linux-crypto@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] hwrng: virtio - fix copy_data() handling of partial reads
-Date: Thu,  5 Nov 2026 15:17:33 +0800
-Message-ID: <20261105071736.65932-1-leixiang@kylinos.cn>
-X-Mailer: git-send-email 2.53.0
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C2CA606A31B
+	for <virtualization@lists.linux.dev>; Thu,  5 Nov 2026 07:19:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=a3ouSUaB
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 473B41F000C1;
+	Thu,  5 Nov 2026 07:19:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793863151;
+	bh=56elTfCmj9FZp3MddjsLgsgWWaDgoiURjg7k8/BvNsc=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=a3ouSUaBC9GNZBdtF5/WWbut+pZEBVjAyNp2yzUvJNf0hOrj4QjNaGOBFB1OSFXbU
+	 P09CBNubVUEv6EBqtoO2vGJvVxU8tT9agHUD4yCbz5pBu2qQKgRemLKOQTZ2GEX/BM
+	 tSOPdOcq5DDxmffPS8FKfubDcDHLOwNR9wz8jtI2KDfgXTIbJWGCd2WK6fCuyVuiBd
+	 FyYcWG+BrT4rWLiuCj1rg49SCeF5EFwDu/htx8CjNIcxWDlVhnA6RMwjrYfHEQ6N1F
+	 O0kIU05X9jdCCfjoGNMqYVSSNZsti4pDYzvNlUsrsL2FMEhDcsJsTsyULH3gHz5/LW
+	 UgPyTqZP2yOzg==
+Message-ID: <sashiko-outbox-198658@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v17 08/12] ALSA: virtio: Keep control payloads alive
+ through DMA completion
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Joonho Lee" <mynameisjune111@gmail.com>
+Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
+ Perez" <eperezma@redhat.com>
+In-Reply-To: <20261105070845.6449-9-mynameisjune111@gmail.com>
+References: <20261105070845.6449-1-mynameisjune111@gmail.com>
+ <20261105070845.6449-9-mynameisjune111@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 05 Nov 2026 07:19:10 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -88,56 +61,34 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-vi->data_avail is decremented on each read, so it holds the remaining
-bytes rather than the total length. Subtracting vi->data_idx from it
-again in commit e3046eeada29 ("hwrng: virtio: clamp device-reported
-used.len at copy_data()") undercounts the bytes left after a partial
-read. This can leave vi->data_avail nonzero without queuing a new
-request, causing virtio_read() to hang on have_data.
+> Control requests can expose caller-owned payloads to the device after a
+> synchronous send times out. Keep request and response headers and
+> payloads in the reference-counted message so caller cleanup cannot
+> invalidate DMA.
+>=20
+> Keep the queue reference until device completion or post-reset cleanup,
+> even when the caller times out or is interrupted. Consume the caller's
+> reference on every send path, and let response readers retain an extra
+> reference through copyout. Check payload sizes and allocation arithmetic
+> before building the scatterlists.
+>=20
+> A control value payload is also read by the CPU as a typed structure.
+> DMA cacheline alignment alone does not guarantee the structure's CPU
+> alignment. Align regions to the greater of the DMA cacheline and
+> control-value type alignment, and reserve prefix slack from the buffer
+> base so typed accesses remain aligned while scatterlist regions stay on
+> cacheline boundaries.
+>=20
+> Keep response values in a separately allocated aligned response buffer
+> so INTEGER64 control accesses are aligned from this patch onward.
+>=20
+> Fixes: 9d45e514da88 ("ALSA: virtio: handling control messages")
+> Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
 
-Clamp vi->data_avail to sizeof(vi->data) - vi->data_idx instead.
+Sashiko has reviewed this patch and found no issues.
 
-Fixes: e3046eeada29 ("hwrng: virtio: clamp device-reported used.len at copy_data()")
-Tested-by: Wei Liu <liuwei@kylinos.cn>
-Cc: stable@vger.kernel.org
-Signed-off-by: Xiang Lei <leixiang@kylinos.cn>
----
- drivers/char/hw_random/virtio-rng.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
-index f9982217247d..a3392f7e2d8c 100644
---- a/drivers/char/hw_random/virtio-rng.c
-+++ b/drivers/char/hw_random/virtio-rng.c
-@@ -70,7 +70,7 @@ static void request_entropy(struct virtrng_info *vi)
- static unsigned int copy_data(struct virtrng_info *vi, void *buf,
- 			      unsigned int size)
- {
--	unsigned int idx, avail;
-+	unsigned int idx;
- 
- 	/*
- 	 * vi->data_avail was set from the device-reported used.len and
-@@ -81,13 +81,13 @@ static unsigned int copy_data(struct virtrng_info *vi, void *buf,
- 	 * steered into adjacent slab memory, including under
- 	 * speculation.
- 	 */
--	avail = min(vi->data_avail, sizeof(vi->data));
--	if (vi->data_idx >= avail) {
-+	if (vi->data_idx >= sizeof(vi->data)) {
- 		vi->data_avail = 0;
- 		request_entropy(vi);
- 		return 0;
- 	}
--	size = min(size, avail - vi->data_idx);
-+	vi->data_avail = min(vi->data_avail, sizeof(vi->data) - vi->data_idx);
-+	size = min(size, vi->data_avail);
- 	idx = array_index_nospec(vi->data_idx, sizeof(vi->data));
- 	memcpy(buf, vi->data + idx, size);
- 	vi->data_idx += size;
--- 
-2.53.0
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261105070845.6449=
+-1-mynameisjune111@gmail.com?part=3D8
 
