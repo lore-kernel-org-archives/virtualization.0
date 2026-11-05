@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793837614;
-	b=TBIpiMVLopNWXsPXQzKV3VQXbBEQg7zJoUrL4vWtWEwgTPOcWGONfzkCaWoQiE15+eHW
-	 wRm0uHmWV0Ly2RFOw0aM1NK9t9RquXDONsYbN5ORXiO5kUkd6qv+JFQMuqS192jG8jPsv
-	 FH4+6465EFhe00UYbJKsNQ5o0dTWi6p/v2AHxdtWMZLYpP/l9I3IxLQr6a/lXDxDNuJWy
-	 FhJD4yvFMuZ/RpyNhuuiyZ7eQEq3xczXMoP8eoc9sxwuhZIVJHrh4v+ZigBpv2VGZVNOi
-	 U5yopW+OxCT7gmvFCz6jJEqpJPC0wPeOX9Lo6JdnRVArtkr5dfRNC29MzP8yY5wsAFQ==
+	t=1793837750;
+	b=SEMEELcwb2HugbOb/j0/QJo1UYUqaO+Xx7FHrBO8faryYtfLnVsNLLXPyhXYuOY0momH
+	 /QuV1YfGMmAZYDOfsbj5fbt57G3T4QbO/KzC4CB22xs91cEu5pMoiuQJBWH3Hd18qZfYd
+	 V+vBI5geuFZ7JNoCQK/rIToCDIjzh4N4UpYkNfklegpzfHWQYG1S1NS1PIgIKvZs2RpLi
+	 Voix1NsxWbUfSwa1S5VvK2yo51wNtVNojZ5EBX5bh5K70x2rfdPdCcCxNxjF8CHoKmYkp
+	 8QTGJk+yb03n01mc5gu89esDhhTqmyeOAa6H5K21mWesgEgYrtFOf5eRb74+dpkssBQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793837614;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793837750;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=hMCKmJtxerbL6W55vnXzI9SORSRDhQyNkdn0Xauzvqs=;
-	b=TSUKjg6YxJu+CHu4YC2Yvec9GMLr4wxUlJHW8soG/eQZPhdB9yGKYDhS+/mSHV7iFHKd
-	 rUsFREZjnfOxk4GPoyXkmhk0zYO2eEOWtJ5JWpUw+xllNiB0wA5vUtZRldP4J4uvjuvtV
-	 P5aY0YoGNgfgQC9JP4ghZexQNqJR5A5kDUt3gxlOog6mxdUGcnD0YqVsN8/aDjpTFUM64
-	 Z06/B2DwSLNlT+M/aTh1cON+DXqHfU8aOzyHj/MbR8o0lpMtv2iMkkvreMgm+XhfBgNCx
-	 UaSIAmQnm/XB5L3NbQh81bAbhwqEeSSu72mgVVG/Lp5yu5Kuv7H/r8fQpx0kT+AAXug==
+	bh=BerBGoN1qSZ+ceAs90hdRrnGSuGJ3WKkM3hRbf5sLtk=;
+	b=zJsLK0yMFX8LyyDtbt3y/EQATv938Qzwcor5Bna1O3vWPLT7aSYr7+HotdX74HxpBlq6
+	 Y90yX2vaHYSjCdTDK88Rfhe28zrVaSVMTpryy40bR5yVD2lCjz/UyIzrQVkWEFtxgbGBF
+	 qcvd3MDUrv36KcUlG72eTuM+6pdhEf6Jz2XS3DV8tdlZN0I99o8aKLdq2S0WUOw054mtu
+	 FvfXJUQEzxIloamXgA4TNO/+mApd/EI4llf/cnfIZ9L8VomosHI1+zh5X4GF+ZOWO5VFs
+	 4qL1OXQ7dsZElhqHR77ZiLZPcZCb3VfH8k1Q23RcX6vNp3opvxely7Y2D7vm6kJ3Qcg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EYWuZ2dH;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JwjdWDIu;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA01B606A31B
-	for <virtualization@lists.linux.dev>; Thu,  5 Nov 2026 00:13:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC68C606A31B
+	for <virtualization@lists.linux.dev>; Thu,  5 Nov 2026 00:15:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EYWuZ2dH
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F3AE1F00919;
-	Thu,  5 Nov 2026 00:13:33 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JwjdWDIu
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 552511F000C1;
+	Thu,  5 Nov 2026 00:15:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793837613;
-	bh=hMCKmJtxerbL6W55vnXzI9SORSRDhQyNkdn0Xauzvqs=;
+	s=k20260515; t=1793837749;
+	bh=BerBGoN1qSZ+ceAs90hdRrnGSuGJ3WKkM3hRbf5sLtk=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=EYWuZ2dHumDj/HnK9u/nn3cX+tsCvhQW42Q0JxgvC1YXiL6e2Q8VSmG2PuhIsLzhy
-	 Z9b4i1gxOTOtjj2kqXXNxPxGuhPkNSGF1pYQjInnvwzGEdaa3i+bwWjOdY4p2X/Xlt
-	 2nSThp6FWF+uQjA8PZ9KFSybBnGe0Zqu1BGFlo2Rm9vHnnCH7bCIVno8D8LzK90Cax
-	 D9zIscjPuYu+AVWLluULoozyVvAluYYXKyDE48VmKLZWfPchEJngHY50dBeYhWy0DR
-	 6EgzC2kS3LD+XdGulmLd1BknWgX5q6jaNuo+hylcxFHLsPJrYUv5WeJMwv96UvLKKP
-	 rS/7lIr0q7GyA==
-Message-ID: <sashiko-outbox-198337@kernel.org>
+	b=JwjdWDIu9goLg6quifeekjBZ3LOtetJj23Gg+Q4MBY7TUZRQksWndFvEaq/cYHW6C
+	 PjK6BD3YxM9i7XZpdzBnAudt3IQnJ5AmqYvnOy8O7+NMk/KzG/dOJfOIbearbX+ry3
+	 tDFuLPaEGCcdZc9ufYKwCYxHAF+36OiwV7VknB0y1mo3gs3qLcAgg8xJzW05fgQpH2
+	 h1w1YdPaBoGXVrrABIy3WdUJgjDaPs4+8fgibmueQ5znKHR0Sy1ymkTLbGdAIRuIft
+	 XNM8V+YKU2aCesQ5kqZB1n7Bfamp5GAG3RkybclrbJHCw4FmSoRF2A0sf9XxS7ZdZz
+	 FKaKMYf/e9wGA==
+Message-ID: <sashiko-outbox-198338@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v15 02/12] ALSA: pcm: report partial progress under the
- stream lock
+Subject: Re: [PATCH v15 03/12] ALSA: pcm: add an optional reset operation
+ under the stream lock
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Joonho Lee" <mynameisjune111@gmail.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261105000915.15177-3-mynameisjune111@gmail.com>
+In-Reply-To: <20261105000915.15177-4-mynameisjune111@gmail.com>
 References: <20261105000915.15177-1-mynameisjune111@gmail.com>
- <20261105000915.15177-3-mynameisjune111@gmail.com>
+ <20261105000915.15177-4-mynameisjune111@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 05 Nov 2026 00:13:32 +0000
+Date: Thu, 05 Nov 2026 00:15:48 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,22 +62,24 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> Staged capture can make readable data available before a complete period
-> has elapsed. Skipping notification leaves a blocked reader asleep, while
-> using the period-interrupt path for this event can infer a false ring wrap
-> when the notification is delayed.
+> A driver may need to synchronize private capture accounting with the
+> common RESET pointer observation and the core's position rebase.
 >=20
-> Add snd_pcm_progress_under_stream_lock() to update the hardware pointer
-> through the non-interrupt path and notify readers and fasync listeners.
-> It runs under the caller's PCM stream lock and does not tick the PCM time=
-r.
-> The driver must release its pointer and trigger locks before calling it.
-> Existing period notification callers keep their current behavior.
+> Add an optional reset operation called under the member's stream lock.
+> Expose snd_pcm_lib_reset() so the callback can retain common pointer and
+> time handling. On zero return the core completes that member's rebase
+> before unlocking it. Drivers without the callback retain the ioctl path.
+> The operation is also used after a successful prepare.
 >=20
-> Atomic and nonatomic synthetic PCM tests reproduced the missing wakeup
-> and false-wrap alternatives. The new helper delivered 64 final frames and
-> reported four available frames after delayed partial progress without XRU=
-N.
+> Zero permits the position rebase; it does not promise XRUN recovery.
+> A negative return skips the core rebase, so a callback returning an error
+> must leave coherent pointer state even after partial work.
+>=20
+> Linked RESET and prepare stop at the first error without rollback.
+> Earlier callback members may already have completed. Legacy members keep
+> [ ... ]
+> callback retained an acknowledged appl_ptr of 64, and finite-silence
+> playback kept the written prefix while clearing the rewound tail.
 >=20
 > Assisted-by: LLM
 > Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
@@ -86,5 +88,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261105000915.1517=
-7-1-mynameisjune111@gmail.com?part=3D2
+7-1-mynameisjune111@gmail.com?part=3D3
 
