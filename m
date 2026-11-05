@@ -1,58 +1,66 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=111.22.67.139
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793864592;
-	b=EbztRfO/NPp1QB1cYHsfTbuWEnQ41fbS6uD24uZJYPg8e6cKqYLNt+pm3SsuDk/45rJR
-	 +iMHydXOywKVwC8SHmvKdxvZDSwRSvOODSHR5hHlB1QlmxDiDi+Vy9B0M2fSTM2wJ2ZDf
-	 XgKaP0D6Ods6/KUqk1lsZSGT6gAGhpEwecHVVyqlov0QGpO2xC9cLyr6jADETQwNZuqSm
-	 wMkEo+j3rTdIKZokGXbKy977Sw+ZusEHsTE2zDXNieQYhQHNUPmP3mmVEncHFM1fFRJix
-	 IP4KsfVOalOGHseR+tW58JFBiyn/tQS45BcPz9quTOukXmmqRbWUCWtKnvBN54sNhOQ==
+	t=1793864874;
+	b=XtYeP1apgFjR9O7n5xybEQZ1YG66giVPmAH243E/sU5rCDfBxHr9bGbsUZMJrrtlFCt0
+	 MPk0rU7th6uqoClEEJrNJYiVV9SJXuH+szPTFafYNHX+0XC5QJasdlf+OpYjOFxMPMCZT
+	 RKSMYCWZvEmA6ERqeSsg/Wa2EhUGyEVB41AHysMbrAzyjlWhXCR2tkOXcPezVe6iKLE1D
+	 7tysnpWW6UGHa3e1l8T6TLt/Ntj76ZzqhPnq/UD3G4gQgZIv/QGsD+xlr8hDogsZMZubK
+	 NL4UnlnSdNFnsCyy0khHRtwa9JZ5WxPXV3BWEbqVYdstVLhgOb3iHsMUunGdFDpwWhg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793864592;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=t+NFLHoVhd+07FnjFza/4vQaf/elQVLQNnIGbXwEDnM=;
-	b=1lplA3H6Ad/B7UHZeQfjJyDB75DhSsZfVrCvocZHWVZ7zCjVGG09cj5Z36gbJdA94HjF
-	 e8d4P/GJw9nMG0B1trjsJfX+NUxBJJML58uQY8/uHPsc+RBj7adshh2kLm1Zw9kOgGYfE
-	 GzV+1e5vntbj62qG5sYs1RWMGqMP494x9gB4ena+BAh7q2ndg6parLebZc8BVVa78LWCD
-	 VrbGR6Gk5MKtZJkCtkV2/q0xZfZH9uc4k+lQQUExiQvkfcPkcgphmwTFs1TbyuLtosNYY
-	 Rb3toXNndmEnltaWaaOBWxe7KgMdynq3D/LDI9+8vYUl1Sd+Wk/aJowLKz2TaIFhLXw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793864874;
+	h=DMARC-Filter:DKIM-Signature:X-RM-TagInfo:X-RM-SPAM-FLAG:Received:
+	 X-RM-TRANSID:X-RM-TagInfo:X-RM-SPAM-FLAG:Received:X-RM-TRANSID:From:
+	 To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=DrbFdPeJVGFrc8E9XpDNvFLxAqYYBIIEWSforRQNQpY=;
+	b=PW282/lwWIkIokfOTUolo16lk0V5k/K5847c5tqsaFwLZp8zB58PEJbpcqBtmpEGFG+Y
+	 QBdsSeoeVF7q5ZisQ1c9vEz+9tdvFhxHSFfjKDb48VqcBx/Ov+d9oeJWMApyVGAHdQtny
+	 5yQ1SBm2dvAwofisAgSs7XMZP+teXOvecswAG7kd+QhobpohU3ASRLo0d3d2HJxK9qB68
+	 fc+5fuCcp55TvV+A0RbwLdPEGv0JMYJZesthsWeNjPrTGwrBk2wF9bnxZ7NdYBbilWhAU
+	 x0V31NqJ/u5Ki6erD5nt4eJPx/IvvkoZ8tU/0ZN6brPDxfp6ZCnMRgKLMBIubAKdRug==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=moLZsTR+;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE92F606A31B
-	for <virtualization@lists.linux.dev>; Thu,  5 Nov 2026 07:43:11 +0000 (UTC)
+	dmarc=pass header.from=cmss.chinamobile.com;
+	spf=pass smtp.mailfrom=cmss.chinamobile.com;
+	dkim=pass header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.a=rsa-sha256 header.s=default header.b="dm/gVz9N";
+	arc=none smtp.remote-ip=111.22.67.139
+Received: from cmccmta6.chinamobile.com (cmccmta6.chinamobile.com [111.22.67.139])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 5D679606A335
+	for <virtualization@lists.linux.dev>; Thu,  5 Nov 2026 07:47:52 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5D679606A335
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cmss.chinamobile.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cmss.chinamobile.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=moLZsTR+
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AC301F0093A;
-	Thu,  5 Nov 2026 07:43:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793864591;
-	bh=t+NFLHoVhd+07FnjFza/4vQaf/elQVLQNnIGbXwEDnM=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=moLZsTR+7v3Q2kY4N+xdJ/tUXUltMRqRyUID9vWP+JMqB+ibvINA5nfJ0DREZfnSV
-	 jS42djs181FeuSzGHt7MH0rU6mcu9yrA7Rq+/QXwAgbx4urJGu0rVDRXRlz/9nM2yX
-	 FdCn6eMHPHOzX2vyKdOPq48uxh0zDiN8QE4WRCm9HAulLeF5ZhhYiAHliv9c0huhkf
-	 fWSvEac2ZU5YZLD4Lz8KcQ69B6ZSIeUykY20qQmAUmOeGppyQKfOBimKMzaPUgfX27
-	 nOcl9qvVufC/PSKx1IrLmFooykd5av3WhhwVAGKJGpi7sh/N9lPXHLiZ5c8SViUTPC
-	 bFoZMKs1VpT9w==
-Message-ID: <sashiko-outbox-198694@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v17 07/12] ALSA: virtio: retain PCM DMA buffers and
- validate capture completions
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Joonho Lee" <mynameisjune111@gmail.com>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <20261105070845.6449-8-mynameisjune111@gmail.com>
-References: <20261105070845.6449-1-mynameisjune111@gmail.com>
- <20261105070845.6449-8-mynameisjune111@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 05 Nov 2026 07:43:11 +0000
+	dkim=pass (1024-bit key, unprotected) header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.a=rsa-sha256 header.s=default header.b=dm/gVz9N
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cmss.chinamobile.com; s=default; l=0;
+	h=from:subject:message-id:to:cc:mime-version;
+	bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
+	b=dm/gVz9Nf120tAe8MlhWS5EjwwciKc2WiFf+0ZxgTAOI8ruwb6vnDkc0y45EJ9i2kaeBgayBx0luq
+	 Xvw6CN7YpAeCcadCTiSPKWTlPCT0Q/JRLDNg8ieeKjZyqq+o0JknCSsOdUXymxaTN8hAxAPPJdmTZQ
+	 JckOrFpMjiB8zpjI=
+X-RM-TagInfo: emlType=0                                       
+X-RM-SPAM-FLAG:00000000
+Received:from spf.mail.chinamobile.com (unknown[10.188.0.87])
+	by rmmx-syy-dmz-app01-12001 (RichMail) with SMTP id 2ee16aec34a35e0-806fc;
+	Thu, 05 Nov 2026 15:47:50 +0800 (CST)
+X-RM-TRANSID:2ee16aec34a35e0-806fc
+X-RM-TagInfo: emlType=0                                       
+X-RM-SPAM-FLAG:00000000
+Received:from FHB-W5100250 (unknown[36.137.216.21])
+	by rmsmtp-syy-appsvr05-12005 (RichMail) with SMTP id 2ee56aec349f2f9-40b47;
+	Thu, 05 Nov 2026 15:47:50 +0800 (CST)
+X-RM-TRANSID:2ee56aec349f2f9-40b47
+From: Gu Bin <gubin@cmss.chinamobile.com>
+To: mst@redhat.com
+Cc: jasowangio@gmail.com,
+	eperezma@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] tools/virtio/virtio_test: advance next_reset by reset_n, not completed
+Date: Thu,  5 Nov 2026 15:47:40 +0800
+Message-ID: <20261105074741.2177-1-gubin@cmss.chinamobile.com>
+X-Mailer: git-send-email 2.50.1.windows.1
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -61,32 +69,44 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-> Retain references to the pages backing ALSA's vmalloc buffer until its
-> queued I/O messages are freed. On NOMMU systems, use driver-owned memory
-> for DMA and copy playback data before submission and capture data after
-> completion, so ALSA buffer release cannot invalidate an active request.
->=20
-> Validate the PCM buffer and each period before building scatterlists.
-> Require a successful full-period response for ordinary capture before
-> advancing its pointer. Each descriptor targets a fixed ring slice, so a
-> short response would expose the unwritten remainder as captured data.
->=20
-> Require whole-byte periods whose total matches the negotiated buffer.
-> Check offset, length and the final message index before indexing the
-> message array, including empty transfers and arithmetic wraparound.
->=20
-> Seed the ordinary capture ring once per prepare. Native STOP preserves
-> [ ... ]
-> retire empty stopped completions without advancing capture state. Once
-> an XRUN is latched, later completions only retire queue ownership. An
-> out-of-order full completion reports XRUN rather than publishing an
-> unwritten ring slice; this path does not reorder completed requests.
-> Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
+run_test() arms the next device reset with
 
-Sashiko has reviewed this patch and found no issues.
+	while (completed > next_reset)
+		next_reset += completed;
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261105070845.6449=
--1-mynameisjune111@gmail.com?part=3D7
+next_reset starts at reset_n, but each rearm advances the threshold by
+the absolute completion count instead of the configured interval, so
+the reset cadence stretches after every reset: with reset_n == 16 the
+resets fire at completions 17, 34, 68, 136, ... instead of every 16
+completions, and only a handful of resets happen over the whole run.
+
+Advance next_reset by reset_n so resets stay evenly spaced, matching
+the --reset=<n> option meaning.
+
+Fixes: 264ee5aa81ec ("tools/virtio: Add --reset")
+Signed-off-by: Gu Bin <gubin@cmss.chinamobile.com>
+---
+ tools/virtio/virtio_test.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/virtio/virtio_test.c b/tools/virtio/virtio_test.c
+index 028f54e6854a..b8deca893f12 100644
+--- a/tools/virtio/virtio_test.c
++++ b/tools/virtio/virtio_test.c
+@@ -250,7 +250,7 @@ static void run_test(struct vdev_info *dev, struct vq_info *vq,
+ 
+ 				started = completed;
+ 				while (completed > next_reset)
+-					next_reset += completed;
++					next_reset += reset_n;
+ 			}
+ 		} while (r == 0);
+ 		if (completed == completed_before && started == started_before)
+-- 
+2.55.0.windows.3
+
+
 
