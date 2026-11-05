@@ -1,44 +1,44 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793878813;
-	b=ATcvSRSvlWcufUo6181s/BHZJqKOyoz8sEytM63Id8cMi1nI0X1cyjN5N9KtPRqRfkeu
-	 Rkcev6USpEHTAqhgWJiOvGsgQhqH7PZ9wZ8jpWA6n5kCt9rq0PAchBfSye4WIavBiZ9+F
-	 ODaSsCF9XBpEdZGDpzD/on/ZN/JwWPR7pLbXHx/azS5YnhUv6VbkKqBCKlQewLTchlcz2
-	 Et2Uv47GKKowaPof3ug6ZW+7mhrUQYNaPgY88iCak+qisu4DymqoUt7uMzarbQR1RloZK
-	 WMBmv58goA2oL93rydswDI+GZx1XymWN+HwEHSZnMSagTQJPi/hZngTd9z+8b8wBONw==
+	t=1793878836;
+	b=C7kBDvEN5x9gLQNrF6AFL89VY4PDwMMlgz6sHLIOHzfm/5X1j5mPM+fHArYm3Dbcp3ie
+	 XSzgX4snYFmGMMolGA77zdCBNgtK/fIXDKtdYL2dw0fDhuBpA/hOudItTfI+eVUej67GI
+	 pIxZ/R/1z3ljHfGiEcTNmtJM40AbpmfVZoe89znoXas0XkWHR/PMAbURMJcI0rDZZwFEL
+	 dcY9L8nAC+YPAQDzuEukfSgMZNPdkgpzJZJbM9gnMpCr3vrBEQvVsZhA3m0HxFU1kFT2E
+	 PpDIBg7hME8vdSgBfrWSk5KGdf6KtmoIDt1AYYxZpuLE2zqGr1TMfKM8FxhYzs4PjZQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793878813;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793878836;
 	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
 	 In-Reply-To:References:MIME-Version:Content-Transfer-Encoding;
-	bh=SLxt8gL8S4bp8BkjrllqUrd84IP3TwVRmle+af4zaM8=;
-	b=R8WogtDRgtl74K38DKqzLVH2gbgEckWu84L0g40PK2CX5tGsDmmJ8/0GWjOkGy5nmS5n
-	 ULkbb9xVbY8zq7E+G3oOc65Pla7ndiN3xVmTyPUC6NWU/Y4nBFFCOjEBLdBc546oQu7Ob
-	 l42lp5fDQVqHyztvteBMbKOF2CvABsHvkALV2pD7u/xKxu1r0p0/+CHHWA3k9BWLAQnJY
-	 /3haYV3J/VygjIeQP8KU3hnoTvHdisVfo28pcLYTwSlgOw/jFeZZCyaMiSPUQh2wtnm5V
-	 ORKTachgG7mdeMbz+ENyqJQiJGfWzkge3Qr6+1nRafynuEPfQJgXkPfpZ0el+TiWQUQ==
+	bh=zyIV87KvFE0knJG+E8ltk8/vfmvsVvYdTTr3ey3DQco=;
+	b=zkb4tA+Ci+BjW7oJc8Cjfu2WMWp7+pmcf1wqbCu1Bj6l+7jHU38qJwBVbjPcU5xR0G0n
+	 AVPftD2HA8oYLzHXPGsAeaatXkOUUR7Bth5WB8lzJLy/0lG1Un9OxWWFXlFbnGkK6MzMY
+	 5tdfOpwTbT1x2BHQIVSVXbqUVjuUghrgoIqKk41AD5DbE7mZvBzlLmY0kHkfCiE1qq/Z6
+	 LKTlwcCDsou7ZE12r2RJn0w3V0kc0kRTAWewU5DhAsMggK7RcMjbZSVviMyz7Sz8IzHrv
+	 4p9EHOi1vjQTXthJZ1ahqSH6dK1nXCzpyL4q4fv1vB44MjToiO4SaQMV9kfY5FMOMpQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jmtvL6JN;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="bIkf/cAU";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20AEC606D803;
-	Thu,  5 Nov 2026 11:40:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F59E606A326;
+	Thu,  5 Nov 2026 11:40:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jmtvL6JN
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C29F1F0093A;
-	Thu,  5 Nov 2026 11:39:48 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bIkf/cAU
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CA1E1F00A16;
+	Thu,  5 Nov 2026 11:40:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793878812;
-	bh=SLxt8gL8S4bp8BkjrllqUrd84IP3TwVRmle+af4zaM8=;
+	s=k20260515; t=1793878835;
+	bh=zyIV87KvFE0knJG+E8ltk8/vfmvsVvYdTTr3ey3DQco=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=jmtvL6JNx/LTuU5nwvdXJgdkdF729H39y+/gluqMOWtETW4wth76UGatWMf0UpmSL
-	 KuzZP3d+OGyMwi1JkopR8sxmOk3Of7u10D1WZWJ2gOKPPKj1RyEa2MC/4Hy7vvoFyj
-	 a2/wjrUg34AP+eF7GWAGrFmiJQUG1dgczg8FplZYSUrmw5ZFTGiTSTdGP6iWFawN7A
-	 dICAFcjP/fVxrJAphmIGwXXYfOZiZVekEOSwLEtuVkseGkon+tOf2YsFOB3FbuDvfh
-	 Ha/+C+wCHrw8KUcj/EeY3Tyq3ICLi0hwsYwYVzTcFzdOVjdIx6DIsB9NFCuCX8O6j/
-	 DvUI7nvwy0POA==
+	b=bIkf/cAUayJAST5nxBaDm2r1gDLZk464lMw4yx34u5Ky9D6OvUVzHp+wKK1AOefOm
+	 r+kjYHBphMf2uvUL98WgB4Hjtnh8K1yZNSuvrWrFomeLu6ODVYt3zRihR8D2zzIsZ3
+	 btH7balNkjt0D4YAZ7OXuZdZNtagQcAh5ETZREuD8w2gSo2t5NNv4iO1doqusXmt0G
+	 juOlg0eYNfvWNEwRoJTozaxT6R/Qc7ZaNeekdRcePShhJ776LtBu8i33C/2ALD2cAa
+	 K/bcKWB8ua/vNDzPTLpS1vyW817JgGZl/tSxFF6qrRjVzHdozN88JDmzcAO4sbSI3H
+	 v6zAfJyRSPMzg==
 From: Philipp Stanner <phasta@kernel.org>
 To: Min Ma <mamin506@gmail.com>,
 	Lizhi Hou <lizhi.hou@amd.com>,
@@ -154,9 +154,9 @@ Cc: dri-devel@lists.freedesktop.org,
 	linux-iio@vger.kernel.org,
 	linux-usb@vger.kernel.org,
 	rust-for-linux@vger.kernel.or
-Subject: [PATCH 2/3] dma-buf: Port users of dma_fence_init64()
-Date: Thu,  5 Nov 2026 12:35:29 +0100
-Message-ID: <20261105113529.1989375-4-phasta@kernel.org>
+Subject: [PATCH 3/3] dma-buf: dma-fence: Remove dma_fence_init64()
+Date: Thu,  5 Nov 2026 12:35:30 +0100
+Message-ID: <20261105113529.1989375-5-phasta@kernel.org>
 X-Mailer: git-send-email 2.56.0
 In-Reply-To: <20261105113529.1989375-2-phasta@kernel.org>
 References: <20261105113529.1989375-2-phasta@kernel.org>
@@ -171,82 +171,68 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-dma_fence_init() now natively allows for selecting 64-bit seqno support.
-Port all users of dma_fence_init64() to this unified method.
+All users of dma_fence_init64() have been removed. They now use the
+respective initialization flag in dma_fence_init().
+
+Remove dma_fence_init64().
 
 Signed-off-by: Philipp Stanner <phasta@kernel.org>
 ---
- drivers/dma-buf/dma-fence-chain.c                  | 4 ++--
- drivers/gpu/drm/amd/amdgpu/amdgpu_eviction_fence.c | 7 ++++---
- drivers/gpu/drm/amd/amdgpu/amdgpu_userq_fence.c    | 5 +++--
- drivers/gpu/drm/amd/amdgpu/amdgpu_vm_tlb_fence.c   | 5 +++--
- 4 files changed, 12 insertions(+), 9 deletions(-)
+ drivers/dma-buf/dma-fence.c | 27 ---------------------------
+ include/linux/dma-fence.h   |  2 --
+ 2 files changed, 29 deletions(-)
 
-diff --git a/drivers/dma-buf/dma-fence-chain.c b/drivers/dma-buf/dma-fence-chain.c
-index a588f55ea4d3..7d1495235577 100644
---- a/drivers/dma-buf/dma-fence-chain.c
-+++ b/drivers/dma-buf/dma-fence-chain.c
-@@ -261,8 +261,8 @@ void dma_fence_chain_init(struct dma_fence_chain *chain,
- 			seqno = max(prev->seqno, seqno);
- 	}
+diff --git a/drivers/dma-buf/dma-fence.c b/drivers/dma-buf/dma-fence.c
+index a511cf755ee8..da784fd7bdae 100644
+--- a/drivers/dma-buf/dma-fence.c
++++ b/drivers/dma-buf/dma-fence.c
+@@ -1138,33 +1138,6 @@ dma_fence_init(struct dma_fence *fence, const struct dma_fence_ops *ops,
+ }
+ EXPORT_SYMBOL(dma_fence_init);
  
--	dma_fence_init64(&chain->base, &dma_fence_chain_ops, NULL,
--			 context, seqno);
-+	dma_fence_init(&chain->base, &dma_fence_chain_ops, NULL,
-+		       context, seqno, BIT(DMA_FENCE_FLAG_SEQNO64_BIT));
- 
- 	/*
- 	 * dma_fence_chain_enable_signaling() is invoked while holding
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_eviction_fence.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_eviction_fence.c
-index f8652fd0525d..2924f34da316 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_eviction_fence.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_eviction_fence.c
-@@ -133,9 +133,10 @@ int amdgpu_evf_mgr_rearm(struct amdgpu_eviction_fence_mgr *evf_mgr,
- 	ev_fence->evf_mgr = evf_mgr;
- 	get_task_comm(ev_fence->timeline_name, current);
- 	spin_lock_init(&ev_fence->lock);
--	dma_fence_init64(&ev_fence->base, &amdgpu_eviction_fence_ops,
--			 &ev_fence->lock, evf_mgr->ev_fence_ctx,
--			 atomic_inc_return(&evf_mgr->ev_fence_seq));
-+	dma_fence_init(&ev_fence->base, &amdgpu_eviction_fence_ops,
-+		       &ev_fence->lock, evf_mgr->ev_fence_ctx,
-+		       atomic_inc_return(&evf_mgr->ev_fence_seq),
-+		       BIT(DMA_FENCE_FLAG_SEQNO64_BIT));
- 
- 	/* Remember it for newly added BOs */
- 	dma_fence_put(evf_mgr->ev_fence);
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_userq_fence.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_userq_fence.c
-index c1257f530e9a..5329c13f4237 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_userq_fence.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_userq_fence.c
-@@ -274,8 +274,9 @@ static void amdgpu_userq_fence_init(struct amdgpu_usermode_queue *userq,
- 	bool signaled = false;
- 
- 	spin_lock_init(&fence->lock);
--	dma_fence_init64(&fence->base, &amdgpu_userq_fence_ops, &fence->lock,
--			 fence_drv->context, seq);
-+	dma_fence_init(&fence->base, &amdgpu_userq_fence_ops, &fence->lock,
-+		       fence_drv->context, seq,
-+		       BIT(DMA_FENCE_FLAG_SEQNO64_BIT));
- 
- 	/* Make sure the fence is visible to the hang detect worker */
- 	dma_fence_put(userq->last_fence);
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm_tlb_fence.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm_tlb_fence.c
-index b0002c898386..f8cc258dcdef 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm_tlb_fence.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm_tlb_fence.c
-@@ -100,8 +100,9 @@ void amdgpu_vm_tlb_fence_create(struct amdgpu_device *adev, struct amdgpu_vm *vm
- 	INIT_WORK(&f->work, amdgpu_tlb_fence_work);
- 	spin_lock_init(&f->lock);
- 
--	dma_fence_init64(&f->base, &amdgpu_tlb_fence_ops, &f->lock,
--			 vm->tlb_fence_context, atomic64_read(&vm->tlb_seq));
-+	dma_fence_init(&f->base, &amdgpu_tlb_fence_ops, &f->lock,
-+		       vm->tlb_fence_context, atomic64_read(&vm->tlb_seq),
-+		       BIT(DMA_FENCE_FLAG_SEQNO64_BIT));
- 
- 	/* TODO: We probably need a separate wq here */
- 	dma_fence_get(&f->base);
+-/**
+- * dma_fence_init64 - Initialize a custom fence with 64-bit seqno support.
+- * @fence: the fence to initialize
+- * @ops: the dma_fence_ops for operations on this fence
+- * @lock: optional irqsafe spinlock to use for locking this fence
+- * @context: the execution context this fence is run on
+- * @seqno: a linear increasing sequence number for this context
+- *
+- * Initializes an allocated fence, the caller doesn't have to keep its
+- * refcount after committing with this fence, but it will need to hold a
+- * refcount again if &dma_fence_ops.enable_signaling gets called.
+- *
+- * Context and seqno are used for easy comparison between fences, allowing
+- * to check which fence is later by simply using dma_fence_later().
+- *
+- * New users MUST NOT use external locks. Check the documentation in
+- * dma_fence_init() to understand the motives behind the legacy use cases.
+- */
+-void
+-dma_fence_init64(struct dma_fence *fence, const struct dma_fence_ops *ops,
+-		 spinlock_t *lock, u64 context, u64 seqno)
+-{
+-	__dma_fence_init(fence, ops, lock, context, seqno,
+-			 BIT(DMA_FENCE_FLAG_SEQNO64_BIT));
+-}
+-EXPORT_SYMBOL(dma_fence_init64);
+-
+ /**
+  * dma_fence_driver_name - Access the driver name
+  * @fence: the fence to query
+diff --git a/include/linux/dma-fence.h b/include/linux/dma-fence.h
+index 6f5c245d89ec..56c4e5beaafe 100644
+--- a/include/linux/dma-fence.h
++++ b/include/linux/dma-fence.h
+@@ -288,8 +288,6 @@ struct dma_fence_ops {
+ void dma_fence_init(struct dma_fence *fence, const struct dma_fence_ops *ops,
+ 		    spinlock_t *lock, u64 context, u64 seqno,
+ 		    unsigned long flags);
+-void dma_fence_init64(struct dma_fence *fence, const struct dma_fence_ops *ops,
+-		      spinlock_t *lock, u64 context, u64 seqno);
+ void dma_fence_release(struct kref *kref);
+ void dma_fence_free(struct dma_fence *fence);
+ void dma_fence_describe(struct dma_fence *fence, struct seq_file *seq);
 -- 
 2.56.0
 
