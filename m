@@ -1,58 +1,85 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=124.126.103.232
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793862897;
-	b=l1y1IcbLux5YFAcOT8V3pXNPvCZ8H2HaM/BBjIaX1ctlIFGlClZ6flLFfzaUCC7MYpeC
-	 DSMpMeRu67smVk5po07TQsRP6td5bihvx7MUw0dftN2HCpkxGWO4kb0LhBV0rVy4A2dWL
-	 9ioxiPSzVbJboumuUXW/+j5F352lMEG07mW1nW6BnK80B+SviphGPrCe/Yvda1g1aQkcI
-	 cm4YF5sZHrOdwsiL880AbTEXLo5N23ONTfjYQ6y6z0etyoQYJGKmoSw0bv7uVxhhBicir
-	 vtyY0iPXW7IGx3rNZzDA3qqEcJN/SqWTZDG8C1yJdGhjkMPMVV4nwOKipzzGi/iLYZQ==
+	t=1793863095;
+	b=NWwHp03ShgeztJ44NbJPxY/dcI/uiIEDKGfXXu3tgH6pjsyxYiCG6GeuBlviU5NfM6Hj
+	 0UXZQQDEhe2HjFBeH0IF1/kIIwQHeI3FTScHl61d+11UB5r1qXTPiW5LUZzo8FKbmnVJz
+	 V74C1vAmgLruJZl8BisHBRLidVROPcx/gENZ5CL8ecrLzzpxPFcDGtZsZDlVCaW/EkYzX
+	 ZM45I+EbMI4D4qrXryc6HJjLLrBaHBcHWUc8IA8JeTVTsCYPoUk09F4zyV/IOjL3EM1uh
+	 vWBSgl6xq806qoebJkpPjEwdIXiC9Hld2HfbAcQp9jn1r0eykIKtEH2c4OOO6jXmVDw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793862897;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=K2zbkjWeSjAVoVEc6COlkmqjHdkBItuEDdE38GQ68HU=;
-	b=xCwHl0N8Bl5k6BVQhQK09R0BnutMWp3bo7fVPjFLgJ+U0z/UOwpIkq/eY/NfP/IUrwTK
-	 ryqqaL2svFHDSDFZVYSaOO/FwNROpEYYmlkRVe5x648pZS2Mk/1+mYhRS90TulreUlQo+
-	 /+a1rDnkNKzbIqd5SLsI4+E1V+ISj/bI4+gh2AWayv3sNVT0opmqRiURjQ94c/QY/DQjw
-	 AoAI7Xa28gc08WYbGu7zObAHTI6P0ftfV2T2hBdTUnL347SiU/S88qCrNu4967g0J8w7G
-	 lGknmdvWHOVHL/MN4OjVRg6V/+c/8FJ7TeMdDkS/FEd3l26nWxLhfN/TR+2Ttrr03fg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793863095;
+	h=DMARC-Filter:X-UUID:X-CTIC-Tags:X-CID-P-RULE:X-CID-O-INFO:X-CID-INFO:
+	 X-CID-META:X-CID-BVR:X-CID-BAS:X-CID-FACTOR:X-CID-RHF:X-UUID:X-User:
+	 Received:From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=GJfuccBsESyaMktbIQtsSYOwxg6JTp+e/MYBrXLWAPI=;
+	b=CUwk+z7Mxu1sD7xxX7QyqCp8zffETV6Au7KHI4LSy+PXdWMxYCZvfuzc1xV6RdhoDGjZ
+	 tB7eMVrTRQfFQ/ziDSrTEn+PP8CgWoN6/NhNOeiRQJ5xsy2GvgS+G/pnhKlPl3X7q0evJ
+	 zEOhYKBI5jO8tynfb5iQn4wSTKPEAqQiWUmupFlGIRecJzkGJh0XncZbKiFlB++PnM7d2
+	 9R/o9dEfjLaiidEHauSvv+3pWBFDwNrcJRwgJxl2xc6E0Z7OkTJJp6/NpFm4mrnVOv5PS
+	 ghlNJNmlXo12ALNsHn3Emz9YP20qem5ur4KIkv9zcy+cVsprbQxfBTaB9eXIvh8hsMw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dvZoJtzs;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=none header.from=kylinos.cn;
+	spf=pass smtp.mailfrom=kylinos.cn;
+	arc=none smtp.remote-ip=124.126.103.232
+Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47D8D606A31B
-	for <virtualization@lists.linux.dev>; Thu,  5 Nov 2026 07:14:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dvZoJtzs
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5B181F000C1;
-	Thu,  5 Nov 2026 07:14:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793862896;
-	bh=K2zbkjWeSjAVoVEc6COlkmqjHdkBItuEDdE38GQ68HU=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=dvZoJtzs8TAhHygzXdAhV5CxP1/2SKhFsjj05oHbSU8lYNjBMnzDkaykI89tyMMZ1
-	 Aa9U9F8yZ6JnoV4OMsVN/EAWkhzr+momRwJznSdi7GUHPZ6SVO4LbbKU6hjgwuNL6c
-	 Nvs3EysO1R4YCOtwCM/I900iDiXMdDaqYo3PG29VPE6h+Vq6UoSKMNO08Yo32QBuTm
-	 vKfVVYMns3gLrQZ3aw27Ygqltza7BEMgWvlJnOOPQQ/Qe6W4iz7/lojnSh4Yz3Y7xE
-	 iYuSyjkBd4hQshOFxFjzK8GY7tRH7okTGW171+QBHcXP3H1m82nW/WHpWjzULW3ewA
-	 sS1g+YNDgJTRQ==
-Message-ID: <sashiko-outbox-198648@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v17 03/12] ALSA: pcm: add an optional reset operation
- under the stream lock
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Joonho Lee" <mynameisjune111@gmail.com>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <20261105070845.6449-4-mynameisjune111@gmail.com>
-References: <20261105070845.6449-1-mynameisjune111@gmail.com>
- <20261105070845.6449-4-mynameisjune111@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 05 Nov 2026 07:14:56 +0000
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 314F6606A31B
+	for <virtualization@lists.linux.dev>; Thu,  5 Nov 2026 07:18:11 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 314F6606A31B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
+X-UUID: 09ea3350d8e911f19a56ed5b684f684d-20261105
+X-CTIC-Tags:
+	HR_CC_COUNT, HR_CC_DOMAIN_COUNT, HR_CC_NAME, HR_CC_NO_NAME, HR_CTE_8B
+	HR_CTT_MISS, HR_DATE_H, HR_DATE_WKD, HR_DATE_ZONE, HR_FROM_NAME
+	HR_SJ_LANG, HR_SJ_LEN, HR_SJ_LETTER, HR_SJ_NOR_SYM, HR_SJ_PHRASE
+	HR_SJ_PHRASE_LEN, HR_SJ_WS, HR_TO_ADR_NAME, HR_TO_COUNT, HR_TO_NO_NAME
+	IP_TRUSTED, SRC_TRUSTED, SA_EXISTED, SN_UNTRUSTED, SN_UNFAMILIAR
+	SPF_NOPASS, DKIM_NOPASS, DMARC_NOPASS, CIE_BAD, CIE_GOOD
+	CIE_GOOD_SPF, GTI_FG_BS, GTI_RG_INFO, GTI_C_BU, AMN_GOOD
+	ABX_MISS_RDNS
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.3.19,REQID:1a3d4cd5-2fb7-469d-848b-876edd21e248,IP:10,
+	URL:0,TC:0,Content:0,EDM:25,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTIO
+	N:release,TS:35
+X-CID-INFO: VERSION:1.3.19,REQID:1a3d4cd5-2fb7-469d-848b-876edd21e248,IP:10,UR
+	L:0,TC:0,Content:0,EDM:25,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION:
+	release,TS:35
+X-CID-META: VersionHash:7db8b62,CLOUDID:b678190c7abd29f5c4e550106320e6c8,BulkI
+	D:261105151805TSDO90KJ,BulkQuantity:0,SF:10|40|66|78|102|127|153|865|898,T
+	C:nil,Content:0|15|50|99,EDM:5,IP:-2|1,URL:0,File:nil,RT:nil,Bulk:nil,QS:n
+	il,BEC:nil,COL:0,OSI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC
+	:0
+X-CID-BVR: 2,SSN|SDN
+X-CID-BAS: 2,SSN|SDN,0,_
+X-CID-FACTOR: TF_CID_SPAM_IBB,TF_CID_SPAM_SNR
+X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
+X-UUID: 09ea3350d8e911f19a56ed5b684f684d-20261105
+X-User: leixiang@kylinos.cn
+Received: from ninol [(116.128.244.169)] by mailgw.kylinos.cn
+	(envelope-from <leixiang@kylinos.cn>)
+	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
+	with ESMTP id 635666650; Thu, 05 Nov 2026 15:18:03 +0800
+From: Xiang Lei <leixiang@kylinos.cn>
+To: 
+Cc: Xiang Lei <leixiang@kylinos.cn>,
+	Wei Liu <liuwei@kylinos.cn>,
+	stable@vger.kernel.org,
+	Laurent Vivier <lvivier@redhat.com>,
+	Olivia Mackall <olivia@selenic.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Michael Bommarito <michael.bommarito@gmail.com>,
+	virtualization@lists.linux.dev,
+	linux-crypto@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] hwrng: virtio - fix copy_data() handling of partial reads
+Date: Thu,  5 Nov 2026 15:17:33 +0800
+Message-ID: <20261105071736.65932-1-leixiang@kylinos.cn>
+X-Mailer: git-send-email 2.53.0
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -61,39 +88,56 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-> A driver may need to synchronize private capture accounting with the
-> common RESET pointer observation and the core's position rebase.
->=20
-> Add an optional reset operation called under the member's stream lock.
-> Expose snd_pcm_lib_reset() so the callback can retain common pointer and
-> time handling. On zero return the core completes that member's rebase
-> before unlocking it. Drivers without the callback retain the ioctl path.
-> The operation is also used after a successful prepare.
->=20
-> Zero permits the position rebase; it does not promise XRUN recovery. A
-> negative return skips the core rebase, so a callback returning an error
-> must leave coherent pointer state even after partial work.
->=20
-> Linked RESET and prepare stop at the first error without rollback.
-> Earlier callback members may already have completed. Legacy members keep
-> the existing post_action policy. Applications must recover the group
-> after partial failure before relying on shared positions.
->=20
-> This adds an internal kernel operation and no userspace ioctl or layout.
-> Out-of-tree modules using snd_pcm_ops need to be rebuilt.
->=20
-> Complete appl_ptr rebasing once in the callback path. A later linked
-> member can sleep in prepare while the earlier member accepts SYNC_PTR; a
-> subsequent unlocked post_prepare assignment would overwrite that
-> acknowledgment. Keep explicit RESET playback silence processing and
-> leave prepare-time filling to the normal START path, preserving samples
-> written and rewound after prepare.
-> Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
+vi->data_avail is decremented on each read, so it holds the remaining
+bytes rather than the total length. Subtracting vi->data_idx from it
+again in commit e3046eeada29 ("hwrng: virtio: clamp device-reported
+used.len at copy_data()") undercounts the bytes left after a partial
+read. This can leave vi->data_avail nonzero without queuing a new
+request, causing virtio_read() to hang on have_data.
 
-Sashiko has reviewed this patch and found no issues.
+Clamp vi->data_avail to sizeof(vi->data) - vi->data_idx instead.
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261105070845.6449=
--1-mynameisjune111@gmail.com?part=3D3
+Fixes: e3046eeada29 ("hwrng: virtio: clamp device-reported used.len at copy_data()")
+Tested-by: Wei Liu <liuwei@kylinos.cn>
+Cc: stable@vger.kernel.org
+Signed-off-by: Xiang Lei <leixiang@kylinos.cn>
+---
+ drivers/char/hw_random/virtio-rng.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
+index f9982217247d..a3392f7e2d8c 100644
+--- a/drivers/char/hw_random/virtio-rng.c
++++ b/drivers/char/hw_random/virtio-rng.c
+@@ -70,7 +70,7 @@ static void request_entropy(struct virtrng_info *vi)
+ static unsigned int copy_data(struct virtrng_info *vi, void *buf,
+ 			      unsigned int size)
+ {
+-	unsigned int idx, avail;
++	unsigned int idx;
+ 
+ 	/*
+ 	 * vi->data_avail was set from the device-reported used.len and
+@@ -81,13 +81,13 @@ static unsigned int copy_data(struct virtrng_info *vi, void *buf,
+ 	 * steered into adjacent slab memory, including under
+ 	 * speculation.
+ 	 */
+-	avail = min(vi->data_avail, sizeof(vi->data));
+-	if (vi->data_idx >= avail) {
++	if (vi->data_idx >= sizeof(vi->data)) {
+ 		vi->data_avail = 0;
+ 		request_entropy(vi);
+ 		return 0;
+ 	}
+-	size = min(size, avail - vi->data_idx);
++	vi->data_avail = min(vi->data_avail, sizeof(vi->data) - vi->data_idx);
++	size = min(size, vi->data_avail);
+ 	idx = array_index_nospec(vi->data_idx, sizeof(vi->data));
+ 	memcpy(buf, vi->data + idx, size);
+ 	vi->data_idx += size;
+-- 
+2.53.0
 
