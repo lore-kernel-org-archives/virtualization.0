@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793867539;
-	b=Bf4x0bsqBW5vUDuoeRz6qidTLnknrbXnQI07BjX76Yay9xmEMKkl44oEyi59UL54GpcA
-	 geYVGcgR2dYmaVdegAq5TMY5cRlH6CeucQ2cvx/RZDPcXrC6kO39mOcypKdvURHsuf5Bu
-	 E5rMmVlC17Zpd9dkw/oI57j6ddevPKStBT06hPuabdBZC6TXQ+Qd+idSiPqlR6p65Ips6
-	 ekHWpZB6Q8AQ4aHhHdyyBnWtxYbCWpzFFZ3faDqunUEyNg1xW8+YyayfK/Vfje90Kse3u
-	 uEtKp3011xqP0WfkNgUnCUfB7Wm11N4pVxN2jZ0IaBzuttarNCM7nu0PzEJQeOqkY9g==
+	t=1793867537;
+	b=Noi19rJnrkRZ9UimI13MojiFjo+tI9h1/fdzo7sDOGgYcRzrCG4XmLHEHEfvLYG2dszl
+	 SaqTVdm87RRt8f+2kv7CI6nUguJTlFl+zWJjpIkGLW46kisViwK1/+rCOsJaohEKI+VLo
+	 P/rQyWcqnnJv4FZvI6q+D1RkvX0OglQgW+uUymsQweOfaXDryrcUG/z4FbGZ9trzHL9S4
+	 38hA2JyMOqOHWSW28bDhGmstjLrTvJZBnmr+x54BwfMzqArGx1kPilnZMirgVkgLUe/EY
+	 EWchUw9LxMDD/hRmYTpbgkq1o7EF2DIL/i8CKHHQplRmIo9Czx8+6sN3ievCQNFseaQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793867539;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793867537;
 	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
 	 In-Reply-To:References:X-sashiko-severity:Content-Type:
 	 Content-Transfer-Encoding:MIME-Version;
-	bh=NVbW2BmaD9uKOnn7G67IrkamJB+FiKSrtrQf7TOH35E=;
-	b=mcEhlVqV6RXbV/TAf4UJ0lpaI9nHjHwMkGP8kqGLNZKMYQ56KH0joqSXkY/opCks48Po
-	 Y16+Wq08xft1ouNLmPYrytN0B6DhDYrZCsH8KH+eSQzQE4ZpIXg7zzYN+Rf7nl6Exy+SX
-	 O0Ce5nIuObz7p8dkJsXJwBoNlbXdEL5Sl/mFQNQ3bz8SZ4TGyCR6403WGqsQck182KUa9
-	 ekXBOaLvNkzi7BJKOLfQD0pfdy9FsizPsUak91GtBtHlfJDuAI+4hXhh8Iad4VVysEJFR
-	 NBXvXxlgAfeZegciC3I3snNsL6RSGlMLNOxuGWggcmiuczQN/xzOOk/MFBY3eKD07hA==
+	bh=1zDfPviynLIvaee9l0jCILxTyyGvoF0wwovBplZNoF0=;
+	b=4iQIwnRQm0MhX1ODG3agvv60i31pjXoyvmnUgkqBwikLa0Rh14TuhABGVej2mlzo0P8z
+	 Jgl4WpYjVP6TsJD5AGz2uWRdtIdEcA7trOM4vsn3Q+CrJkuTqmcLy+58nX3rgoYWMxEKc
+	 7DyymFhMeE7rkvOSJ+Hbl171vFF/Gx2kPrGCvJJjEK6mboIxiGSl6yjmJ0sEp5bcwO8P1
+	 VxOvd1tz4/qfk/+el+EbDq4XpLdjHuwBJhyBkuX97r8oX1A9RnFkMa6Dh9gx44k/0aYUI
+	 O8L/PV3OWYBxUtvzw46prI5CMczUm/gVDW+wAeZJxiIMkM9FvoW3/HIm2mlOopG4W9g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=O4f4SU0D;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IuvTqoAG;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0AD1606A32C;
-	Thu,  5 Nov 2026 08:32:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=O4f4SU0D
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9ED881F00919;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6DD49606A31B;
 	Thu,  5 Nov 2026 08:32:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IuvTqoAG
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61E8A1F000C1;
+	Thu,  5 Nov 2026 08:32:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793867538;
-	bh=NVbW2BmaD9uKOnn7G67IrkamJB+FiKSrtrQf7TOH35E=;
+	s=k20260515; t=1793867537;
+	bh=1zDfPviynLIvaee9l0jCILxTyyGvoF0wwovBplZNoF0=;
 	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=O4f4SU0D8QIgL1X10PD9EVe0bw/EfGxKi4rbWrDIY5Q/Y9urMRJepmU1iI8zqSYxm
-	 Ml+7pzp2epoG9bkg5Hocu4KklduGIonUPFnqj3jPu8grFbLrgjXZW0y7ekufemrQG0
-	 qKyi8DzKqSbwNatkOhp0Ja+E4TfkYg2hSjJe0pElsCYldYYEgGr2/26glmErirx/WT
-	 j4LL6CbYpIASfkqJJJT4XQneo+ThZZDws7oSSoXe6dwBipvvVwUB9uNo4Rz/88J1nB
-	 JzllwV3Spt6ff5COQiPpaWan3MtU02VeACWvpblkLiEGNcprDWFIqBJN03OMpbtwEq
-	 BXqMQEFS19rpQ==
-Subject: Re: [PATCH net 3/3] selftests: net: tun: test outer protocol of UDP
+	b=IuvTqoAGqVdUkyr7sq5rUUk0KkbVWj5Uygz+R8WRatRcxbvjjbp/re2lbkRerdCjc
+	 j+TRzQXi6ov91S7yJhTP7XQghvTukzqoLXwvnVoa0b6AP5+iCQXVeGntQN+uONBv5R
+	 GI5Yix/w6VkCf6i+rhymQHg4OTC21T1KkcweWPSnmk0Cnix/e2ChpNKWCyJ6rkDnsi
+	 UtAPBoBHMY67K86lGGBqzrctYXuvZVknUbhkz+81tMDz8mLMHB/OTqB2oR4TD+7/fL
+	 3YcNs6cwb3lt+EM1K/pqQJ9dOyJTsq2Ojmyeexo5jlAXK6ioYW+UhOlSe2xrVYvF4s
+	 LaNzYThAD144A==
+Subject: Re: [PATCH net 1/3] net: virtio: validate outer protocol of UDP
  tunnel GSO packets
 From: netdev-bot+sashiko@kernel.org
 To: edumazet@kernel.org
 Cc: netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
  pabeni@redhat.com, horms@kernel.org, willemb@google.com, mst@redhat.com,
  eperezma@redhat.com, hassansultan@google.com, virtualization@lists.linux.dev
-Date: Thu, 05 Nov 2026 08:32:17 +0000
-Message-ID: <179386753718.488856.13433005125725728519@kernel.org>
-In-Reply-To: <20261103203113.550604-4-edumazet@kernel.org>
-References: <20261103203113.550604-4-edumazet@kernel.org>
-X-sashiko-severity: Low
+Date: Thu, 05 Nov 2026 08:32:15 +0000
+Message-ID: <179386753589.488856.11455181721004759454@kernel.org>
+In-Reply-To: <20261103203113.550604-2-edumazet@kernel.org>
+References: <20261103203113.550604-2-edumazet@kernel.org>
+X-sashiko-severity: High
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 X-Mailing-List: virtualization@lists.linux.dev
@@ -64,172 +64,188 @@ List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
 
-Thank you for your contribution! Sashiko AI review found more severe
-issue(s) in other patches of this series. This mail is only an FYI, in case
-you want to address the nit picks below when you respin.
+Thank you for your contribution! Sashiko AI review found 3 potential
+issue(s) to consider.
 
-Low priority / nit picks for your consideration:
+Critical: 0 · High: 1 · Medium: 1 · Low: 1
 
-- [Low] The new tests cover only part of the fix they are meant to
-  validate.
-- [Low] virtio_net_tnl_outer_proto_ok() in include/linux/virtio_net.h was
-  added by the series commit "net: virtio: validate outer protocol of…
-- [Low] Both tun_vnet_udptnl_proto tests build several frames in the same
-  calloc'd buffer (self->pkt) without clearing it in between.
+If you believe none of the issues are legitimate, please reply to each
+issue of Medium severity or higher and explain why the AI is wrong.
+If any of them are legitimate and you plan to respin, please let patchwork
+know by including "pw-bot: cr" as a separate line at the end of your reply
+(one such reply per series is enough).
+
+- [High] The validation in virtio_net_tnl_outer_proto_ok()
+  (include/linux/virtio_net.h) can be bypassed on IFF_TAP devices that…
+- [Medium] virtio_net_tnl_outer_proto_ok() only checks the outer
+  ethertype (or skb->protocol) and that a minimum-size IPv4/IPv6 header…
+- [Low] virtio_net_tnl_outer_proto_ok() treats skb->protocol == 0 as
+  meaning "Ethernet frame", and its comment says that for IFF_TUN "the…
 
 --
 
-selftests: net: tun: test outer protocol of UDP tunnel GSO packets
+net: virtio: validate outer protocol of UDP tunnel GSO packets
 
-This adds a tun_vnet_udptnl_proto fixture that writes single 4in4 Geneve
-GSO frames to a tap device with UDP tunnel offloads enabled. outer_proto_ok
-expects outer IPv4 frames, optionally VLAN tagged, to be accepted.
-outer_proto_bad expects IPv6 or NSH outer ethertypes to be rejected with
-EINVAL.
+This patch adds virtio_net_tnl_outer_proto_ok(), called from
+virtio_net_hdr_tnl_to_skb(). The new helper requires the outer L3
+protocol of a UDP tunnel GSO packet to match the tunnel type declared
+in the virtio header. For Ethernet frames it checks the ethertype after
+optional VLAN tags, plus the outer network header size against
+outer_th_offset. For IFF_TUN it relies on skb->protocol, which the
+caller has already set.
 
-> diff --git a/tools/testing/selftests/net/tun.c b/tools/testing/selftests/net/tun.c
-> index 34de2580e32ec..47a24b9c477bb 100644
-> --- a/tools/testing/selftests/net/tun.c
-> +++ b/tools/testing/selftests/net/tun.c
-> @@ -683,6 +683,136 @@ TEST_F(tun_vnet_gso, vlan_tcpv4_gso_no_csum_64k)
-
-[ ... ]
-
-> +FIXTURE_SETUP(tun_vnet_udptnl_proto)
+> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+> index d6466f96cdd00..d3f97d71d81cc 100644
+> --- a/include/linux/virtio_net.h
+> +++ b/include/linux/virtio_net.h
+> @@ -282,6 +282,31 @@ static inline unsigned int virtio_l3min(bool is_ipv6)
+>  	return is_ipv6 ? sizeof(struct ipv6hdr) : sizeof(struct iphdr);
+>  }
+>  
+> +/* The outer network header of a UDP tunnel GSO packet must match the
+> + * tunnel type declared in the virtio header, otherwise the GSO stack
+> + * would parse the packet as something else (e.g. NSH).
+> + */
+> +static inline bool virtio_net_tnl_outer_proto_ok(const struct sk_buff *skb,
+> +						 bool outer_isv6,
+> +						 unsigned int outer_th)
 > +{
-> +	int flags = IFF_TAP | IFF_NO_PI | IFF_VNET_HDR;
+> +	__be16 expected = outer_isv6 ? htons(ETH_P_IPV6) : htons(ETH_P_IP);
+> +	__be16 proto = skb->protocol;
+> +	int nh_off = ETH_HLEN;
+> +
+> +	/* L3 device (IFF_TUN): the caller already set the protocol. */
+> +	if (proto)
+> +		return proto == expected;
 
-[Severity: Low]
-This fixture only opens IFF_TAP devices. That means the IFF_TUN branch of
-virtio_net_tnl_outer_proto_ok() from the previous patch is never run. Does
-the assumption behind that branch hold?
+[Severity: High]
+Can a stale skb->protocol on an IFF_TAP device get past this check?
 
-include/linux/virtio_net.h:virtio_net_tnl_outer_proto_ok() {
+On the IFF_TAP path, tun_get_user() does not clear skb->protocol before
+it calls tun_vnet_hdr_tnl_to_skb(). eth_type_trans() only sets it
+afterwards:
+
+drivers/net/tun.c:tun_get_user() {
     ...
-	/* L3 device (IFF_TUN): the caller already set the protocol. */
-	if (proto)
-		return proto == expected;
-
-	/* Ethernet frame, possibly VLAN tagged. */
-	proto = eth_hdr(skb)->h_proto;
+	if (tun_vnet_hdr_tnl_to_skb(tun->flags, features, skb, &hdr)) {
     ...
 }
 
-The previous patch's commit message also says "For IFF_TUN, skb->protocol
-is already set by the caller."
+With IFF_NAPI_FRAGS, tun_napi_alloc_frags() gets its skb from
+napi_get_frags(&tfile->napi), which returns the cached napi->skb. If GRO
+merged the previous frame with GRO_MERGED_FREE, that skb was recycled
+through:
 
-For IFF_TUN without IFF_NO_PI, tun_get_user() in drivers/net/tun.c copies
-struct tun_pi from userspace. It stores the value as-is before
-tun_vnet_hdr_tnl_to_skb() runs:
+napi_frags_finish()
+  napi_reuse_skb()
 
+napi_reuse_skb() resets dev, pkt_type, encapsulation, ip_summed, gso_type
+and gso_size. It does not reset skb->protocol, which napi_frags_skb() had
+set to the previous frame's eth->h_proto (for example ETH_P_IP).
+
+On the next write, __virtio_net_hdr_to_skb() leaves skb->protocol alone
+on the NEEDS_CSUM path. virtio_net_tnl_outer_proto_ok() then sees
+htons(ETH_P_IP), takes the "L3 device" early return, and never reads the
+real ethertype (for example ETH_P_NSH).
+
+eth_type_trans() then sets skb->protocol to ETH_P_NSH on an skb that
+carries SKB_GSO_UDP_TUNNEL. If that skb is forwarded (bridge to gretap)
+and segmented in software, wouldn't nsh_gso_segment() run and hit the
+same skb_under_panic() described in the commit message?
+
+The setup needs a tap opened with IFF_TAP | IFF_NAPI_FRAGS
+(CAP_NET_ADMIN). GRO also has to hold packets across writes, for
+example with napi_defer_hard_irqs / gro_flush_timeout configured. Once
+that is in place, a guest using vhost-net controls the frame contents.
+
+Could the helper avoid inferring L2 vs L3 from skb->protocol? For
+example, the caller could pass an explicit L2/L3 flag, or Ethernet
+callers could always parse eth_hdr().
+
+> +
+> +	/* Ethernet frame, possibly VLAN tagged. */
+> +	proto = eth_hdr(skb)->h_proto;
+> +	if (eth_type_vlan(proto))
+> +		proto = __vlan_get_protocol(skb, proto, &nh_off);
+
+[Severity: Low]
+Does IFF_TUN always set a non-zero skb->protocol, as the comment above
+assumes?
+
+For IFF_TUN without IFF_NO_PI, tun_get_user() copies the protocol
+directly from the userspace struct tun_pi:
+
+drivers/net/tun.c:tun_get_user() {
+    ...
 		skb_reset_network_header(skb);
 		skb->protocol = pi.proto;
+    ...
+}
 
-pi.proto can be 0 here. In that case, would the helper take the Ethernet
-branch for an L3 packet?
+If pi.proto is 0, the L3 packet lands in this Ethernet branch.
+eth_hdr(skb)->h_proto then reads bytes 12-13 of the IPv4/IPv6 header as
+an ethertype, and the sender chooses those source address bytes. They
+can also match a VLAN TPID and be parsed further by
+__vlan_get_protocol().
 
-The mac header was reset to the start of the outer IP header. So h_proto
-would be read from the first two bytes of the IPv4 saddr, and nh_off would
-be measured from ETH_HLEN.
+With an IPv4 saddr that starts with 0x0800, the frame is accepted with
+skb->protocol still 0 and SKB_GSO_UDP_TUNNEL set. The practical impact
+looks small: no L3 handler takes protocol 0, and skb_mac_gso_segment()
+would return -EPROTONOSUPPORT. Still, the write is accepted when it
+presumably should fail with -EINVAL.
 
-For example, a 4in4 frame with an outer saddr of 8.0.x.x and outer_th >= 34
-(IPv4 options) would pass the check. The skb would then go into the stack
-with SKB_GSO_UDP_TUNNEL set and skb->protocol == 0, which the comment says
-can't happen. With other saddr values the same packet would be rejected.
+This is the same skb->protocol based L2/L3 test as above.
 
-The downstream impact looks limited, because skb_mac_gso_segment() returns
--EINVAL when skb_network_protocol() gives 0. Even so, should the helper or
-its comment handle this case? Would an IFF_TUN case in this fixture be
-useful?
-
-[ ... ]
-
-> +static int build_udptnl_frame(uint8_t *buf, bool vlan, uint16_t l3proto,
-> +			      int payload_len)
-> +{
-> +	struct virtio_net_hdr_v1_hash_tunnel *vh = (void *)buf;
-> +	int vlan_len = vlan ? 4 : 0;
-> +	int hlen = ETH_HLEN + vlan_len + UDP_TUNNEL_GENEVE_4IN4_HDRLEN;
-> +	uint8_t *outer_udph, *cur = buf;
-> +	int pktlen;
 > +
-> +	cur += build_virtio_net_hdr_v1_hash_tunnel(cur, true, hlen, 1400,
-> +						   AF_INET, AF_INET);
-> +	vh->outer_th_offset += vlan_len;
+> +	return proto == expected &&
+> +	       nh_off + virtio_l3min(outer_isv6) <= outer_th;
 
-[Severity: Low]
-outer_th_offset is always shifted by vlan_len, and the outer family is
-always AF_INET. Given that, do these tests reach all of the checks added by
-"net: virtio: validate outer protocol of UDP tunnel GSO packets"?
+[Severity: Medium]
+Is checking only the ethertype and a minimum L3 size enough to stop GSO
+from parsing the packet as something other than a UDP tunnel?
 
-virtio_net_tnl_outer_proto_ok() ends with:
+Nothing checks that the outer iph->protocol (or the IPv6 nexthdr chain)
+is UDP. Nothing checks that the real outer header length (ihl,
+extension headers) ends at outer_th either. GSO ignores the virtio
+outer_th and dispatches from the IP header itself:
 
-	return proto == expected &&
-	       nh_off + virtio_l3min(outer_isv6) <= outer_th;
+net/ipv4/af_inet.c:inet_gso_segment() {
+    ...
+	ops = rcu_dereference(inet_offloads[proto]);
+    ...
+}
 
-The length clause can only fail when a VLAN tag moves nh_off to 18 or
-more. Without a tag it is the same as the existing outer_l3min check.
+For example, a frame with ethertype ETH_P_IP, iph->protocol =
+IPPROTO_GRE and VIRTIO_NET_HDR_GSO_UDP_TUNNEL_IPV4 passes this check.
+gre_gso_segment() then tests only skb->encapsulation, which
+virtio_net_hdr_tnl_to_skb() sets, and not SKB_GSO_GRE:
 
-No case here sends a VLAN tagged IPv4 frame with outer_th_offset left at
-34. If that clause were removed or miscomputed (for example in a stable
-backport), no test would fail.
+net/ipv4/gre_offload.c:gre_gso_segment() {
+    ...
+	if (!skb->encapsulation)
+		goto out;
+    ...
+}
 
-Every frame also declares VIRTIO_NET_HDR_GSO_UDP_TUNNEL_IPV4. So the
-outer_isv6 side of expected is never tested either, for example an IPv4
-ethertype on a declared IPv6 tunnel.
+With IPPROTO_TCP the frame would reach tcp4_gso_segment(), because
+gso_type also carries the inner SKB_GSO_TCPV4 bit.
 
-Separately, the commit message says outer_proto_bad covers:
+With ihl > 5, or with IPv6 extension headers, __skb_udp_tunnel_segment()
+derives tnl_hlen from the transport header that GSO recomputed:
 
-    (IPv6 on an IPv4 tunnel, or NSH, with or without a VLAN tag)
+	int tnl_hlen = skb_inner_mac_header(skb) - skb_transport_header(skb);
 
-outer_proto_bad actually tests IPv6 untagged, NSH untagged and NSH behind a
-VLAN tag. IPv6 behind a VLAN tag is not tested. Should the message be
-narrowed, or should that case be added?
+That value differs from the outer_th layout validated here and can be
+smaller than a udphdr. The UDP len/check writes could then land on the
+inner IP header.
 
-[ ... ]
+I could not show a crash from this: pskb_may_pull() catches a negative
+tnl_hlen, and gre_gso_segment() recomputes its own offsets. Would it
+make sense to also require the outer L4 protocol to be UDP, and the
+outer L3 header to end exactly at outer_th?
 
-> +TEST_F(tun_vnet_udptnl_proto, outer_proto_ok)
-> +{
-> +	uint8_t *pkt = self->pkt;
-> +	int len, ret;
+> +}
 > +
-> +	len = build_udptnl_frame(pkt, false, ETH_P_IP, 2800);
-> +	ret = write(self->fd, pkt, len);
-> +	ASSERT_EQ(ret, len);
-> +
-> +	/* The outer IPv4 header can follow a VLAN tag. */
-> +	len = build_udptnl_frame(pkt, true, ETH_P_IP, 2800);
-
-[Severity: Low]
-Is the VLAN tagged frame here well formed? self->pkt is calloc'd once in
-FIXTURE_SETUP and is not cleared between frames. The helpers in
-tuntap_helpers.h expect a zeroed buffer.
-
-build_ipv4_header() never writes tos or frag_off. It also sums over
-whatever is already in the check field:
-
-	iph->check = build_ip_csum(buf, iph->ihl << 2, 0);
-
-build_udp_packet_csum() also sums over the existing udph->check. The
-existing tun_vnet_udptnl test clears its buffer first in send_gso_packet():
-
-	memset(pkt, 0, sizeof(pkt));
-
-In this test, the second frame's outer IPv4 header starts 4 bytes after the
-first frame's. As a result:
-
-- frag_off holds the previous outer IPv4 checksum
-- tos holds the low byte of the previous IP ID
-- the checksum is computed starting from stale saddr bytes
-
-The inner IPv4 header and the inner UDP checksum are shifted and corrupted
-in the same way.
-
-This only passes today because the kernel path checks just the offsets and
-the ethertype. If that path ever validates the outer IPv4 header, for
-example by rejecting fragments for GSO, outer_proto_ok would fail for an
-unrelated reason. Would a memset at the start of build_udptnl_frame() avoid
-this?
 
 [ ... ]
 
