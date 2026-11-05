@@ -1,48 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793912933;
-	b=e4UtUnz/Lvsx6tfY/bhDwiC26qhoG8Ksu1psAOJHRsD7sJNF2/wInSxAdkvS4WVTZ2Te
-	 NzX02p2wd9QNGziKPyzPmKP86jCq2DCapkm/nrJj0uqoxihIAPCXaJxalMC7+bIDuxUaF
-	 JSZx9sJSJoRaMasLkHVr4fPj3Ygah1hO9k8+7NamTMOd3Q+bsyjNbCZ3djsiDxbt/o4PD
-	 9ni1sulQjh7vSycSDtwXLeRgii8WnpueObGAq7c/XXRmFZ4SqpFGveS119Oul685Y/m2B
-	 C4ePszhSAUDZ8X5QyvviPttiHNA+zB4HPbjBB4eYUWnH0atPBbw0stHEaZhSmh7kABA==
+	t=1793913936;
+	b=01bKNMYg5RZoCL4rwRgFLUdHYinV5fD7IIeHWZVju9rlw1tR1HbE+bjcJgdihBwQ8/tO
+	 b92R/Dlbj+JTFMIOgFbweHpSaWID/QdJ3i1CU1zaOIO7oxWER7UTtwKaUqNXQSDvPePZb
+	 fF760r8h2z3VYAQNf8bonSRjQdojVGQl5XJaTypo1NATIva/Sp/PVdRVa6xVH02EXZYwE
+	 9wXZ/t9Kev4WZNcZduTYIagTRx0LY3X16s0wPK28bysLFwmbTcFmPC4KiCPE+G/C6zjkO
+	 U/TiBcK7l+QmhDyqfbaFCVEVvoJZkPNqLpr2Q+3eH5ADXxytMpIaqOHrKwtjVHgadqw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793912933;
-	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
-	 X-Mailer:X-Developer-Signature:X-Developer-Key;
-	bh=f5KzmK9Yc1O2UTKJiw6Ig75W/rQrebyZwa5yMpDxZPA=;
-	b=pLScJHH3wL0ljpTaS6WcxHFwU+36boWywu9tDluKtQbIFJV4754kLfU/HRFTFiiblvH/
-	 MRsr3UrE1F6mWGUZT770JJ4/1irkn4H58EaREgvSCMb5IU0tX71KT9FnZ3f4hhTpS5ymW
-	 UrGwtGWikSNxBYHInFrnzMiGd/EKWZilD5H60o/cY5Ul7+0EaK34laur08rLPaHH/GMld
-	 bTkmvdpdc6bel9iwjWgkLtRNnmc4xnlSLxkk/O9DUOcTomX60a/RsaW8RakU06/cHrrCr
-	 f6IxscE1TTCAKYprQDBukDbV3sneHHIdTndDU0VuDAlKc5HQ00WjExpa639cXN/zQYw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793913936;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=r+q7dKY3xO2HFUtlSY8lStxJBToJ2l1YsihqprMXeKI=;
+	b=i71aNVfUAMbMO74/1dG1k/pQ4y5PFqGSuYEdFPRQV/qPRQO6cVV7jNcVlVeTjh2WvbSs
+	 z6vYV4l/OmPXD6bgycvG+Ikv9FcyFja2NnHjl/JTu1nvhSD4MYQDPRcWOm8CYamY8BCro
+	 HGfNgJKs2RFClPnqXK49HGHfGl41NOs+Y72RFJ88ckSf7JpzXs0EIw9cw2JNSc7sXgP6v
+	 p9FmUuikIRNC/TPAwSBVMO4pFGeW8S7WpXVm/jaqZdulSzHWmZwfRlyT4m3TMqkdUfaoR
+	 71w1B334Av7u5NYamKmDYt9wiaaQHuJb404SknzdSymL6HMYjxy2gbYQk+/VvWrEFnA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=n8CRph5N;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=c2pD3fgB;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 412B6606D82C;
-	Thu,  5 Nov 2026 21:08:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54B28606A31B
+	for <virtualization@lists.linux.dev>; Thu,  5 Nov 2026 21:25:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=n8CRph5N
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 555ED1F008A2;
-	Thu,  5 Nov 2026 21:08:41 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=c2pD3fgB
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AACA31F0089F;
+	Thu,  5 Nov 2026 21:25:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793912933;
-	bh=f5KzmK9Yc1O2UTKJiw6Ig75W/rQrebyZwa5yMpDxZPA=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=n8CRph5N+6GvMpxdTIZcApabmYM00ArLewFL8fQnfylRd81N3dMFr0fH9tM4p+HtO
-	 aUidU5CiMimh6FJxpyYqMz3zczVFtpB2Rg8C6Cvpnenu7HefwcLf7SzXaei+nFpCsq
-	 g+IIikN+Wpf5xA5Iml3JdYU+nz+jxroAIVKnx8cAky1Mefm7dQRJYZr4fXxy8faV+B
-	 gKm7dUWZnjvRP+x3tKmFXknw94zv5xgigYJCPUGpqxlfNq5n3JmZ8HKLtFE8wxCIUp
-	 5Rf8140WFsZqvLSCfX0CiwE+wK86zC1db93JvTfAih23Aag2hbuzEZLeh7mzRE98Cl
-	 QUXlmqQj/bSaw==
-From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-Date: Thu, 05 Nov 2026 21:05:45 +0000
-Subject: [PATCH 14/14] vhost-vdpa: convert mmap hook to mmap_prepare
+	s=k20260515; t=1793913935;
+	bh=r+q7dKY3xO2HFUtlSY8lStxJBToJ2l1YsihqprMXeKI=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=c2pD3fgBzyh0n02BvGAwgDNfNHWnl7QU8Hf/53ulF1RkK4aVogLV8pERmNCG5vLkz
+	 t3A9LWJiIx1llA3wQe+5TyBLEpGxDJEMy8BToa/8v79x7IrOilXTTIrE5kBwOhOx/n
+	 jUqqJYbOs+He2pVLHx6bHT/2rmhZkdwQU7UL7S/IYkf5RPzNAeQzrX0HufK9NMi1kg
+	 4zx9KCXrSxTP6eNHd1O5+O3sktr0BnXIhwi0X+g7gqT5uH502ub7CK16X/dGstSHPb
+	 1CWQXUQ4z+LRgTfBWMEK9uV6MezWEhgDPrq9tkd9DpDnW1l+34GwiJ86nNk1rrPEvl
+	 e5RSlne/rABNQ==
+Message-ID: <sashiko-outbox-200223@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH RESEND 61/83] drm/bochs: Switch to
+ drm_mode_config_create_initial_state
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Maxime Ripard" <mripard@kernel.org>
+Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
+ Perez" <eperezma@redhat.com>
+In-Reply-To: <20261105-drm-no-more-config-reset-v1-61-1f58d1e33380@kernel.org>
+References: <20261105-drm-no-more-config-reset-v1-0-1f58d1e33380@kernel.org>
+ <20261105-drm-no-more-config-reset-v1-61-1f58d1e33380@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 05 Nov 2026 21:25:35 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -51,130 +61,23 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261105-late-2026-mmap_prepare-v1-14-c56aadfbab8a@kernel.org>
-References: <20261105-late-2026-mmap_prepare-v1-0-c56aadfbab8a@kernel.org>
-In-Reply-To: <20261105-late-2026-mmap_prepare-v1-0-c56aadfbab8a@kernel.org>
-To: Juergen Gross <jgross@suse.com>, 
- Stefano Stabellini <sstabellini@kernel.org>, 
- Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>, 
- Madhavan Srinivasan <maddy@linux.ibm.com>, 
- Nicholas Piggin <npiggin@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, 
- "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, 
- "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>, 
- Shrikanth Hegde <sshegde@linux.ibm.com>, 
- Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
- Dexuan Cui <decui@microsoft.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
- Jason Wang <jasowangio@gmail.com>, 
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Jarkko Sakkinen <jarkko@kernel.org>, 
- Dave Hansen <dave.hansen@linux.intel.com>, 
- Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
- Borislav Petkov <bp@alien8.de>, x86@kernel.org, 
- "H. Peter Anvin" <hpa@zytor.com>, Jan Kara <jack@suse.com>, 
- Paul Moore <paul@paul-moore.com>, 
- Stephen Smalley <stephen.smalley.work@gmail.com>, 
- =?utf-8?q?Ondrej_Mosn=C3=A1=C4=8Dek?= <omosnacek@gmail.com>, 
- Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@codeconstruct.com.au>, 
- Ryan Chen <ryan_chen@aspeedtech.com>, 
- Billy Tsai <billy_tsai@aspeedtech.com>, 
- Bjorn Andersson <andersson@kernel.org>, 
- Konrad Dybcio <konradybcio@kernel.org>, Abel Vesa <abelvesa@kernel.org>, 
- Jens Wiklander <jenswi@kernel.org>, Sumit Garg <sumit.garg@kernel.org>, 
- Scott Branden <scott.branden@broadcom.com>, 
- Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
- Arnd Bergmann <arnd@arndb.de>, 
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
- Richard Cochran <richardcochran@gmail.com>, 
- David Woodhouse <dwmw2@infradead.org>, Andrew Lunn <andrew+netdev@lunn.ch>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
-Cc: ljs@kernel.org, xen-devel@lists.xenproject.org, 
- linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
- kvm@vger.kernel.org, linux-hyperv@vger.kernel.org, 
- virtualization@lists.linux.dev, linux-sgx@vger.kernel.org, 
- selinux@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
- linux-aspeed@lists.ozlabs.org, linux-arm-msm@vger.kernel.org, 
- op-tee@lists.trustedfirmware.org, netdev@vger.kernel.org
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2490; i=ljs@kernel.org;
- h=from:subject:message-id; bh=JMVxOxpfFwzbko1Dkxmi/MhSfdurHV7XcSZNEQmi5LM=;
- b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLLevF9bav5wk6fYrXOXd6ULZVa0TPfJ+Lg9MZfZ9diee
- +qG2zLOdJSyMIhxMciKKbI8/yK+P0gkbF7nBX83mDmsTCBDGLg4BWAiYXcY/qcUxNtcOqidzSK8
- Kjc5+rCJmY7SZFXp7BChe/6HDFawfmP473xkKtfXWhYbrcSmOwwT5rzNXJ5t/Wde6Okj54p0482
- qOAA=
-X-Developer-Key: i=ljs@kernel.org; a=openpgp;
- fpr=E7F417BF5214569E89D04F46CF9DCD8A81E27F14
 
-Move from the deprecated mmap hook to the new mmap_prepare hook. The hook
-only validates the request and sets the VMA flags, operations and page
-protection.
+> drm_mode_config_reset() has a dual role: it creates the initial KMS
+> state at probe time, and resets hardware and software state during
+> suspend/resume cycles.
+>=20
+> Since the two roles need different behaviors (notably for objects like
+> drm_private_obj that must persist across suspend/resume),
+> drm_mode_config_create_initial_state() was introduced to handle only
+> the initial state creation at probe time.
+>=20
+> Switch to drm_mode_config_create_initial_state().
+>=20
+> Signed-off-by: Maxime Ripard <mripard@kernel.org>
 
-Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
----
- drivers/vhost/vdpa.c | 23 ++++++++++++-----------
- 1 file changed, 12 insertions(+), 11 deletions(-)
+Sashiko has reviewed this patch and found no issues.
 
-diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-index ff7d90719171..993b2d7c8927 100644
---- a/drivers/vhost/vdpa.c
-+++ b/drivers/vhost/vdpa.c
-@@ -1573,19 +1573,19 @@ static const struct vm_operations_struct vhost_vdpa_vm_ops = {
- 	.fault = vhost_vdpa_fault,
- };
- 
--static int vhost_vdpa_mmap(struct file *file, struct vm_area_struct *vma)
-+static int vhost_vdpa_mmap_prepare(struct vm_area_desc *desc)
- {
--	struct vhost_vdpa *v = vma->vm_file->private_data;
-+	struct vhost_vdpa *v = desc->file->private_data;
- 	struct vdpa_device *vdpa = v->vdpa;
- 	const struct vdpa_config_ops *ops = vdpa->config;
- 	struct vdpa_notification_area notify;
--	unsigned long index = vma->vm_pgoff;
-+	unsigned long index = desc->pgoff;
- 
--	if (vma->vm_end - vma->vm_start != PAGE_SIZE)
-+	if (vma_desc_size(desc) != PAGE_SIZE)
- 		return -EINVAL;
--	if ((vma->vm_flags & VM_SHARED) == 0)
-+	if (!vma_desc_test(desc, VMA_SHARED_BIT))
- 		return -EINVAL;
--	if (vma->vm_flags & VM_READ)
-+	if (vma_desc_test(desc, VMA_READ_BIT))
- 		return -EINVAL;
- 	if (!ops->get_vq_notification)
- 		return -ENOTSUPP;
-@@ -1598,12 +1598,13 @@ static int vhost_vdpa_mmap(struct file *file, struct vm_area_struct *vma)
- 		return -EINVAL;
- 	if (notify.addr & (PAGE_SIZE - 1))
- 		return -EINVAL;
--	if (vma->vm_end - vma->vm_start != notify.size)
-+	if (vma_desc_size(desc) != notify.size)
- 		return -ENOTSUPP;
- 
--	vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
--	vm_flags_set(vma, VM_IO | VM_PFNMAP | VM_DONTEXPAND | VM_DONTDUMP);
--	vma->vm_ops = &vhost_vdpa_vm_ops;
-+	desc->page_prot = pgprot_noncached(desc->page_prot);
-+	vma_desc_set_flags(desc, VMA_IO_BIT, VMA_PFNMAP_BIT, VMA_DONTEXPAND_BIT,
-+			   VMA_DONTDUMP_BIT);
-+	desc->vm_ops = &vhost_vdpa_vm_ops;
- 	return 0;
- }
- #endif /* CONFIG_MMU */
-@@ -1615,7 +1616,7 @@ static const struct file_operations vhost_vdpa_fops = {
- 	.write_iter	= vhost_vdpa_chr_write_iter,
- 	.unlocked_ioctl	= vhost_vdpa_unlocked_ioctl,
- #ifdef CONFIG_MMU
--	.mmap		= vhost_vdpa_mmap,
-+	.mmap_prepare	= vhost_vdpa_mmap_prepare,
- #endif /* CONFIG_MMU */
- 	.compat_ioctl	= compat_ptr_ioctl,
- };
-
--- 
-2.56.0
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261105-drm-no-mor=
+e-config-reset-v1-0-1f58d1e33380@kernel.org?part=3D61
 
