@@ -1,55 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793954916;
-	b=dGasJPR2cKi6r2ndrvedoQTJCnzJT95WU8JbJb583q455170zx/AmyFFNwn/43lUD7+h
-	 5/+P7TLyvyfUK4ylSIvpW2fUPA3Dmv0qnw5U7+CLv8K3lwkrFtKReXe9We+JWY9taU1EJ
-	 Hu4qClUS8s6Xerlq5Y1YczmwlMsVaAiKvomFCkQkO22KteJ4NPrcdpoJDNW/XZhqXl1Hu
-	 FvsSbDIKCVx2+PYxaw1wpSIl5TADTDYSXESOcy9Nv1wjXnCbaTNY+bHXYNkOk5OJfwA2v
-	 SWCg7mWdHKhOmeUJP/llNZ1C8IGa6IqE8jibYq2VARx3Te0YtppGAjhrsGlnX8N6jpQ==
+	t=1793954959;
+	b=KAEsLv+lRQfdlSll0aBt8q/G2MuQeTBImDmcQyTxOk/3jqArXbddpc33fEYciFODCxhQ
+	 jr4YUDN9RRa1EDk/qVe/XTqArUbpCts7WXnPAqfyCMV1eCdbYMz9E/dYJ/1yNHTvZnHnk
+	 qw+HZSe6qudTFauV3O87DXmR3BEMC55zTmm+mV/DBjiIBdBMpRnerBN8QOgLJQzH69L7A
+	 mgg0Bbz5pz2+TlDpF3s2+4vKWjAMY1FQfEglGW5uBfx+u9VetyMfEFqbTLe+qrnvUPZq2
+	 c4kfEBvqMqwJE0lhNBn7/4m8fq0npXtVQE5S8pvmbfCXa/EMl0oYG9u2SQlhRshZzXg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793954916;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793954959;
 	h=Received:DKIM-Signature:Received:X-Forwarded-Encrypted:
 	 X-Gm-Message-State:X-Received:MIME-Version:References:In-Reply-To:
 	 From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:Message-ID:
 	 Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=QPSWzvYvVt1otuhEA/nRLFOiH4lZX6RTdmU2sAZbE2A=;
-	b=rt8MX802mE9KgztYDh+TcROb06YLLPoN7uyW/TLRkNlqgiwKjFqadlrpAoDm5nppNPhO
-	 Mx0humq0GbUoX9IdkVc4Os7OT/h7hXP/U+eoTpeQ7qYtjoyS6OOxWWoa6uF1ikg9WFeZh
-	 j/52ak3uziMcR8qjcSE4tcUXaWVQXy2VFWT2+LOjZ2MiPiCxPhUJYRkVTBUkOgDDxXZAc
-	 bAdAkLPcMfGMN++0KTPQ+PPoCLeM4wVoRuyla7fO5LsKTINMC9ZrEwon3QO/hB1Ch+8eh
-	 VmxJF6bMUAhSpRerphXEV6U1m7dzb+DnOCqrxFQbo7XidNuNFymkJZwkxkkwF71E4Nw==
+	bh=DgXP7zZI1FlaPaSSGpM+hJxyXMjUNEAftizK0rzrvB8=;
+	b=fvQeVanJozmV5j9MnF1m1HzoC4++TmxWnXzbiWhqCnP7mLfkDh/IMGaBBgc2fAL8/HvC
+	 yBI2n0tAqvWAhkwEl49eikCi2TEPiAQ488orWN9T52Eny9YaFFl3QqtxLkEIjlpzdkAg8
+	 6uZOUkkY/Q9exnTtt8m+Ah9dUWbfrWoiYnOldtdxEt7NEIZmHkBqBiSVb2omtKsB73rGH
+	 fKZb9N7Wc5jO8t03mKfhgO3rGfplgxg2V1MGlp4NI4ESbP3LGVbwgQc+xfxw94eGe4BTI
+	 FkKErTEAFuSWZA8xt8c1zdC/oaAcN12c24ePzDyG/mwnq0zdRbrPqLMvSFynXkyYSCg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="XmQ1kK/S";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DZPHm5ui;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E42E8606A329
-	for <virtualization@lists.linux.dev>; Fri,  6 Nov 2026 08:48:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FAD7606A328
+	for <virtualization@lists.linux.dev>; Fri,  6 Nov 2026 08:49:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XmQ1kK/S
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FDC81F008BC
-	for <virtualization@lists.linux.dev>; Fri,  6 Nov 2026 08:48:35 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DZPHm5ui
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3D721F008A2
+	for <virtualization@lists.linux.dev>; Fri,  6 Nov 2026 08:49:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793954915;
-	bh=QPSWzvYvVt1otuhEA/nRLFOiH4lZX6RTdmU2sAZbE2A=;
+	s=k20260515; t=1793954958;
+	bh=DgXP7zZI1FlaPaSSGpM+hJxyXMjUNEAftizK0rzrvB8=;
 	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=XmQ1kK/S++uQRzPT8eUgxF8quhZhWr+S+11Hf0A1VS0vj+4Np6Jwd3fbMLMkcW8sA
-	 DfOKGYeUMJs0hkWvWWP9RbFosgiUfI7NXv33Q/d+nzgVob57itUjKjsYMYA1NXrgob
-	 dxUQGn4AYXZHyV2CwBCXbe54s7oMXGhxsgq9N0ZSkkDSxnirRAlx5PoTW0E0j4ZPcB
-	 +MIwpE7p7TUo336o+mn67JN6e3SEw2lIVP88uKgROdK99E8g19xWH0QtnMK1UdYitQ
-	 iDbXerf5IF+zea39WOY3FFXRQx8mBXifpm9TX8d4wXZnPxnBH6UwZbAsS5dnnL5Tan
-	 LZWWdx6LAFnfw==
-Received: by mail-oa1-f47.google.com with SMTP id 586e51a60fabf-486f013db83so86321fac.0
-        for <virtualization@lists.linux.dev>; Fri, 06 Nov 2026 00:48:35 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AKwUvBxZTzxM3RyiEU6CErsMuAoUA024fVxqRkUwmTKssU+AhnJBxByq00IkyoZO5ImIFHyXH2dpxrM4Gf7P+mqmow==@lists.linux.dev
-X-Gm-Message-State: APuU4Z8a+WLR7QMaBMEFn508Az/S5UwtLjXVat0u67hLpqtocmOks9tF
-	cESphXxucYrVluTnlFgKGunsaQQ3mlRGKfkr+YtlU1yzLHSmSeledtIEyjl4CpeJKkzbXdR+iib
-	x83hD8+4oU6G+xTwi+MMU59SSjzwDIks=
-X-Received: by 2002:a05:6870:8327:b0:48f:e24e:6b6a with SMTP id
- 586e51a60fabf-4ad9914e161mr1171313fac.61.1793954914699; Fri, 06 Nov 2026
- 00:48:34 -0800 (PST)
+	b=DZPHm5uiZBwE4Dfn527zSL0DaEhuyn+7lYoex9PMjTVa/E9heISQGnqAO53JbYTSu
+	 5IIoAb66VFlweRXSpAOgGkQNhEII9pDPwB8xbqaLTILlrIPqBKIMCUX9VbKtcpLwd1
+	 XwH6DXpupBu+qRJRa9YpSzlBUyCZVtk6HQilDURNwrrAYWNjS9el15DhxbLxZobTsp
+	 BbvY6yqKGsHPp8H33bZTlZvdc4t7jglDugg8OCdwwFnA4eT7oY/zCN4XcU3/nh92Lh
+	 i3LWjpinjkskuD3oryRLFnxNUXe+ggNjQNLxu6+HbGYYO+Lr6/MmIcat3IJ/BjVl17
+	 rGa+RWj8Sf0Uw==
+Received: by mail-oa1-f48.google.com with SMTP id 586e51a60fabf-4911df1e196so164569fac.1
+        for <virtualization@lists.linux.dev>; Fri, 06 Nov 2026 00:49:18 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AKwUvBxZC3/o9mNwbh0W0R6o7uIC80BxckCnZSVg/GNfYX76PFXNrC7HowmbvjSPdSzQ1CUb3h98CwXEBQ+OplGcBw==@lists.linux.dev
+X-Gm-Message-State: APuU4Z9oeFhtMOtVV57+qmWxiBWPZTklc7THyLuk8/ecw2hQeyP1L8Kd
+	Lr6Gsa1enhqobKw5aLDj9fAJyPxLGvoat6s5ZgzjkjJBD08P+otoybq6DC9txzcVz1Umb8pUlG2
+	uUlBjZ4WfYB3qem3F5ZYhVbgyFd6DYf0=
+X-Received: by 2002:a05:6870:b3c3:b0:4a8:6aa4:5ac7 with SMTP id
+ 586e51a60fabf-4ad98e47a9emr1170796fac.45.1793954958065; Fri, 06 Nov 2026
+ 00:49:18 -0800 (PST)
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -59,16 +59,15 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-References: <20261105115715.1466924-1-edumazet@kernel.org> <20261105115715.1466924-3-edumazet@kernel.org>
- <willemdebruijn.kernel.2494b56c7bdc2@gmail.com>
-In-Reply-To: <willemdebruijn.kernel.2494b56c7bdc2@gmail.com>
+References: <20261105115715.1466924-1-edumazet@kernel.org> <20261105115715.1466924-4-edumazet@kernel.org>
+ <willemdebruijn.kernel.1afc96da83d57@gmail.com>
+In-Reply-To: <willemdebruijn.kernel.1afc96da83d57@gmail.com>
 From: Eric Dumazet <edumazet@kernel.org>
-Date: Fri, 6 Nov 2026 09:48:23 +0100
-X-Gmail-Original-Message-ID: <CAL4Wiiqoa7+=0vxHuG8p497O3yU9hJvXV+F1zpOSOiRMG9-j6w@mail.gmail.com>
-X-Gm-Features: AclHuK8VZB_QmyiYw9SabnBbcPNtk4vy7WYuuy3H9l5V4RQHRVJOYmWAQ5YIbSs
-Message-ID: <CAL4Wiiqoa7+=0vxHuG8p497O3yU9hJvXV+F1zpOSOiRMG9-j6w@mail.gmail.com>
-Subject: Re: [PATCH net v3 2/8] net: virtio: do not use dev->type to find the
- outer L3 header
+Date: Fri, 6 Nov 2026 09:49:06 +0100
+X-Gmail-Original-Message-ID: <CAL4WiiqrXe6XehCt+SiR-PzpXzYK71U+rP_vBhJ09ub3TZnjcQ@mail.gmail.com>
+X-Gm-Features: AclHuK-7ZZim4zJUAqt1vFqkkEBh1Sez_DrWsXKs9fMK90nqYIlPwYCa_geKNP4
+Message-ID: <CAL4WiiqrXe6XehCt+SiR-PzpXzYK71U+rP_vBhJ09ub3TZnjcQ@mail.gmail.com>
+Subject: Re: [PATCH net v3 3/8] tun: clear stale skb->protocol of NAPI frags skbs
 To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
 Cc: netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, 
 	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
@@ -78,55 +77,61 @@ Cc: netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-Le ven. 6 nov. 2026 =C3=A0 05:18, Willem de Bruijn
+Le ven. 6 nov. 2026 =C3=A0 05:21, Willem de Bruijn
 <willemdebruijn.kernel@gmail.com> a =C3=A9crit :
 >
 > Eric Dumazet wrote:
-> > virtio_net_l3_start() decides from skb->dev->type whether the frame
-> > starts with an Ethernet header. tun decides it from the IFF_TAP and
-> > IFF_TUN flags, and TUNSETLINK can set the type of a down tun device
-> > to any value, without changing the flags.
+> > With IFF_NAPI_FRAGS, tun_napi_alloc_frags() gets its skb from
+> > napi_get_frags(). If GRO merged the previous frame with
+> > GRO_MERGED_FREE, that skb was recycled by napi_reuse_skb(), which does
+> > not reset skb->protocol set by napi_frags_skb() for the previous frame.
 > >
-> > On an IFF_TAP device set to ARPHRD_NONE, the outer protocol checks
-> > look at the IP header at the network header (ETH_HLEN), and never read
-> > the Ethernet header. eth_type_trans() then sets skb->protocol from an
-> > unchecked h_proto, for instance ETH_P_NSH, and the packet can reach
-> > the skb_under_panic() addressed by the previous patch.
+> > On the IFF_TAP path, tun_get_user() calls tun_vnet_hdr_tnl_to_skb()
+> > before eth_type_trans(), so the virtio header checks see the protocol
+> > of the previous frame: the outer protocol check of UDP tunnel GSO
+> > packets rejects a valid frame when the two ethertypes differ, and
+> > GSO packets without VIRTIO_NET_HDR_F_NEEDS_CSUM are dissected with
+> > the wrong protocol.
 > >
-> > On an IFF_TUN device set to ARPHRD_ETHER, the checks validate an
-> > Ethernet header that tun then treats as the start of the L3 header.
+> > This needs GRO to hold packets across writes, for example with
+> > napi_defer_hard_irqs and gro_flush_timeout set on the device.
 > >
-> > Checking in tun that the device type matches the framing is not
-> > enough: the type is read again later, and a concurrent TUNSETLINK can
-> > change it in between, since tun_get_user() only drops packets of a
-> > down device after these checks.
+> > Clear skb->protocol for IFF_TAP frames, as for skbs allocated by
+> > tun_alloc_skb(). eth_type_trans() sets it right after.
 > >
-> > Add a has_eth argument to virtio_net_hdr_tnl_to_skb(), passed down to
-> > virtio_net_l3_start(), so the device type is no longer used:
-> >
-> > - virtio_net always receives Ethernet frames.
-> > - tun_get_user() passes whether the device is IFF_TAP.
-> > - tun_xdp_one() always calls eth_type_trans() on its frames.
-> >
-> > Fixes: 288f30435132 ("tun: enable gso over UDP tunnel support.")
+> > Fixes: 90e33d459407 ("tun: enable napi_gro_frags() for TUN/TAP driver")
 > > Reported-by: Sashiko <sashiko-bot@kernel.org>
-> > Closes: https://lore.kernel.org/netdev/sashiko-outbox-198573@kernel.org=
-/
-> > Link: https://lore.kernel.org/netdev/179387332014.488856.91119564136101=
-07951@kernel.org/
+> > Closes: https://lore.kernel.org/netdev/179386753589.488856.114551817210=
+04759454@kernel.org/
 > > Signed-off-by: Eric Dumazet <edumazet@kernel.org>
 >
 > Reviewed-by: Willem de Bruijn <willemb@google.com>
 >
-> Makes sense, and easier to review stand-alone.
+> > ---
+> >  drivers/net/tun.c | 5 +++++
+> >  1 file changed, 5 insertions(+)
+> >
+> > diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+> > index 3920b3dff1e8..6b648f21018c 100644
+> > --- a/drivers/net/tun.c
+> > +++ b/drivers/net/tun.c
+> > @@ -1941,6 +1941,11 @@ static ssize_t tun_get_user(struct tun_struct *t=
+un, struct tun_file *tfile,
+> >                       goto drop;
+> >               }
+> >               skb_set_network_header(skb, ETH_HLEN);
+> > +             /* A NAPI frags skb recycled by napi_reuse_skb() keeps th=
+e
+> > +              * protocol of a previous frame. eth_type_trans() sets it
+> > +              * below, the virtio header checks must not see a stale o=
+ne.
+> > +              */
+> > +             skb->protocol =3D 0;
 >
-> But if having to respin, squash into 1/8?
+> This resets it for all IFF_TAP.
 >
-> Also, to avoid having to respin too often could (now that they're
-> public and archived) leave the self-tests for a later series.
+> Would it make sense to do this in tun_napi_alloc_frags if it is only
+> needed for IFF_NAPI_FRAGS?
 
-Thanks Willem, v4 does both: this patch is squashed into the first
-one, and the selftests are dropped from the series. I will send them
-separately, with the fixes Sashiko found in patches 7 and 8.
-
-pw-bot: cr
+Yes, other skbs come from tun_alloc_skb() or build_skb() with a zero
+protocol. Done in v4, where I kept your Reviewed-by.
