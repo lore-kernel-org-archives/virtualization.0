@@ -1,55 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793923338;
-	b=GVSdh5bA+bhTKabuIpuukJ3dnELaBTkHI7IsHeSNos464975EJlRdTlAXYOJnWY+42KR
-	 QzIgflL4oXJm6ka77hxMIT6Nz62nPmE9JW5kWAOypJCyFLPxs8+YqtBbRn3ZIfNkO/RKF
-	 z7tGFfNbuoj96xp2YrlLQUBsXcq84geZpYCZxbHrKbjGVEg5an2c+gcrdNLksKbpG+PJL
-	 bfWdtWvqXNijJxWgLtDGomYU0bU2md6pmD2xM3bIjjiQQ8+PHOMIRBm/JyGTvjdcPth8x
-	 cajVTUwfaxTU2GhlM9/yPAQ1HJgGmQ2zl+BRbYBY3ax3GE3MSVMvokE3oGQN0R+Z4lw==
+	t=1793923339;
+	b=DBTE7zhPcCsMv3SwM4sipxu+mccl8uxBZepz8RpNVeBv2b3qaztswlN+uyTcbNBFPWPo
+	 PtLxtNSmEuSPpe2VpGirwBbNlJ9SBSVJ3GxudX6BXbbGIYOlswtZuj2G12rKlkZE/1Yk6
+	 G0AQZXTl6hFEepMjtSO3cZEDqW1QZVSshFW6nSBhRSMOSYvC7bkwYJaQmqOE20j5+dGmh
+	 vIP7pTQVtO0gHRtGpUX6BkLGXc7hiugXoajYmEQs8usy3TtBn7cnplp72XA2pQMGbejaU
+	 xyFzlukr5XrKG1rQNErTy3hNGvmatYgCs0qHgugPYvg/LuniCNHqevjCBeEAu871lHg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793923338;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793923339;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=z++6mrdU4ZT+gZqj+OJdyBM+V/WsuQKO201L/9pOO+M=;
-	b=cVVqL84TCxpTUHElMqBDhA1z9MPW7mBYMfNhjgRWWRFkpZdK3mmZcj4l0mEzQN2zu9YR
-	 KGHgkmiZi07mCDjXvS85PAONdNgLmkz2EKYxtHpO7vdeP/g/Z/O7dV+EoQ8eM1vkWeHS0
-	 p0FRddpzYRg6A8CH02pg3DAhwU3aooZ3PRrWXTWkaFcLi+6KLgFotU6uujEfCfusJBV5h
-	 pQK+CIpfRbTTOhFwLwHXHmobhMq6PdtfNEWUT9LKSF+ETYp6gxtiYAlGmiN8zW/RaIxZY
-	 QWtqviIaOr7McAOUODc+tBqFOcQouGTNEPw1Gf+WpKOfmTh0QYtmK7L/k6ezx0WcvKg==
+	bh=s8NyW5LhQsrIuxGrQrW+2hXkB5sJ5WWGtOEKG8kVHGs=;
+	b=DEQr1FzJOhkaw2ZrsM0ONoE6VjvKUAKvKD0aTpZPzqFiveaXZwAIhrFGBhk/51nSOdJ7
+	 KQGaHSMkjvhZ6bkREaYNnOCwlODtZnrKie8l+IlIHsD8gaNKvlOvn4eTDy6FGubWl8WOK
+	 KEpfAXEO+mMkuADgZr4NU6SPJqQqHYuL/ZLUTCgafzUxuu/7nNQCXApA2flBX3+xKDCh+
+	 4zZzfBzZ5dwekS9usc35yx/9Cw/tVQmHl3ZcQSqGDSxWwv8eRLgW0n8VtitH3N78g2/HQ
+	 PogwQKMx84Tp4w80dND3Kc9bjjqFyUCivvibVGZzA+FH3oPGI+kzgTnbnBgdV4ej3VA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NFcIZ7Qz;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EMwp6dpW;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33912606A31B
-	for <virtualization@lists.linux.dev>; Fri,  6 Nov 2026 00:02:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7AD2606A328
+	for <virtualization@lists.linux.dev>; Fri,  6 Nov 2026 00:02:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NFcIZ7Qz
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9038D1F0089F;
-	Fri,  6 Nov 2026 00:02:17 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EMwp6dpW
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 429D31F008A1;
+	Fri,  6 Nov 2026 00:02:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793923337;
-	bh=z++6mrdU4ZT+gZqj+OJdyBM+V/WsuQKO201L/9pOO+M=;
+	s=k20260515; t=1793923338;
+	bh=s8NyW5LhQsrIuxGrQrW+2hXkB5sJ5WWGtOEKG8kVHGs=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=NFcIZ7Qz7i2rv4L4zjBlztkAQO28kLi66CD7t/3B4Owr5JnMruQSXg0O9fLbQkSPv
-	 HvgLzhfB7scsEXIac8973JcUafdyagafOWLjHryPrgRCp2SN+b02cAOu3R5YXmUlyL
-	 Nw1j/njFFRBqAmAKYvBPuXCs6icOKuUmpwIexOXU44IuluzcObW3G2z/Xhc9FD6kv4
-	 FKK+sTBMqC4Jq4uVr7dNZoX9MkbFw3Ygcl3dIYikUhSKaWH6r6+D8faCNR87D0YOHN
-	 /jzgO5avfVmS0pDh2okl406en2ZDCMxH3YGGeWt+6lJM5NxeUCAr6cEmxrOfaMrKe2
-	 dfFk1HZJT+20A==
-Message-ID: <sashiko-outbox-200419@kernel.org>
+	b=EMwp6dpWRehsbEVnIVyG2eit6RdeeVoZj23tMLuzBQ3lzKJsP9mkEaWkof5l3toTw
+	 uB38ou3FjI7PpLv8vnzo8SnTnN0CEis0pOc3FJmi5DXHcKQzxYd6njVZjw6U0vd9tr
+	 G4IXCs9LgHmQEtvUTuEenQNqfLCYvnlzxHzfcJluWDzxYAUws1VKysvgBOr0SjlwQM
+	 6Of9hhKkg5mtSkEazWFUXnsfNcQtwsnS27UgZ6ruR01/REBoKeAzRuEVhKKyPmOXDO
+	 R1VkNKXSGZZ9cvPFZktAxSN2ESAquC5HzjjWQqwKM/tfYJc0IF6M2U7uNJkONTcANM
+	 MfzX8QMg1vIfA==
+Message-ID: <sashiko-outbox-200420@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net 1/3] vhost/vsock: release the accounting of packets
- dropped on rx errors
+Subject: Re: [PATCH net 2/3] vsock/virtio: bound the send credit by bytes
+ not yet consumed by the transport
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Oleg Drokin" <green@linuxhacker.ru>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261105000141.3617241-2-green@linuxhacker.ru>
+In-Reply-To: <20261105000141.3617241-3-green@linuxhacker.ru>
 References: <20261105000141.3617241-1-green@linuxhacker.ru>
- <20261105000141.3617241-2-green@linuxhacker.ru>
+ <20261105000141.3617241-3-green@linuxhacker.ru>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 Date: Fri, 06 Nov 2026 00:02:17 +0000
@@ -62,30 +62,31 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> When vhost_transport_do_send_pkt() fails to deliver a packet to the guest
-> (unexpected output buffers, a buffer smaller than the header, a fault
-> while copying the header or the payload) it frees the skb with
-> kfree_skb() and gives up. The success path does more:
-> virtio_transport_consume_skb_sent() subtracts the payload from the
-> socket's bytes_unsent (SIOCOUTQ), and for a reply the queued_replies
-> counter is decremented, restarting the guest's tx queue once it drops
-> below the ring size.
+> The send credit is
 >=20
-> The error paths skip both. Every such drop leaves SIOCOUTQ too high for
-> the life of the socket, and every dropped reply permanently takes one
-> slot of the queued_replies budget, so that after a ring's worth of them
-> vhost stops processing the guest's tx queue for good.
+>     min(peer_buf_alloc, buf_alloc) - (tx_cnt - peer_fwd_cnt)
 >=20
-> Release both on the error paths, as the success path does.
+> where peer_fwd_cnt is taken unchecked from every header the peer sends.
+> A peer that never consumes what it is sent but keeps reporting
+> fwd_cnt =3D=3D tx_cnt gets unlimited credit: every send() is accepted and
+> the skbs pile up in the transport's queue (on a host, vhost's
+> send_pkt_queue, for a guest that posts no rx buffers). The skbs are
+> GFP_KERNEL allocations charged to no memory cgroup. The peer learns
+> tx_cnt easily when the host side relays a stream it also controls.
 >=20
-> Fixes: 433fc58e6bf2 ("VSOCK: Introduce vhost_vsock.ko")
-> Fixes: e6ab45005772 ("vsock/virtio: add SIOCOUTQ support for all virtio b=
-ased transports")
+> Commit 8ee784fdf006 ("vsock/virtio: cap TX credit to local buffer size")
+> bounded peer_buf_alloc, but not peer_fwd_cnt.
+>=20
+> [ ... ]
+> (SIOCOUTQ 268304384, where the test stops); with this patch it stays at
+> one window (SIOCOUTQ 262144).
+>=20
+> Fixes: 06a8fc78367d ("VSOCK: Introduce virtio_vsock_common.ko")
 > Signed-off-by: Oleg Drokin <green@linuxhacker.ru>
 
 Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261105000141.3617=
-241-1-green@linuxhacker.ru?part=3D1
+241-1-green@linuxhacker.ru?part=3D2
 
