@@ -1,13 +1,13 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=205.220.180.131
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793985341;
-	b=5e0GwcvIGCUlI9XyN6qa7t3Vc/q28cAoXKkw7SvyPGDp2NZFL0jepd9a6z0hQyrtnbsm
-	 UlJUn6iaZikduHHUNsqgwD52ERsIM7WWDWsdb8pID+8bXpQdOrk6XQdlgZzVdumEFMbKU
-	 P2aBU+udnRSpsmu1DOEeDo2ACiKPdDEC6IP2A6H12qd2xkByMV1uPhWx5THUD1FF9r68Z
-	 IAsqepTtSRDFDTnj0DXGqYDWQdonxeMpqG51T8N9z7DaHkrsOTKfQ7x/HhYhhfV8dmlmO
-	 qI13KztCfZngquMH/+BWrDh2nIM0g/c7M0JGzYZwzWK3aWKujodrAKYjM4iqig7P1Lg==
+	t=1793985352;
+	b=COeQpBqfVInobPSzOMupUJm+edTlBKQEw8hLF3RArumt9DnpS4USQj138QUKjXN7smFr
+	 w8lXuv5K5VYB56bvHV+g+yQTX4uJ/oBTdAoKezkxHYwryLTmrKJjfqPPduQX00XqKWlEI
+	 H8O/etNCDesb5slYHfcqKjZJecwW2e2DDvBrUpnZWgnRVkc0B7OyUer3RhgqRDRecNq7V
+	 druI3SWSVh+QLaoyHJGBGJvTJyf0oY/PX4KhWPg6a75yhKAANsRdeyfBHFBTzdaJ5kBYs
+	 TXYPdabugEhcJeE0AuhzgH2ox11tW5eZ6QkYXpjiu+XlqbNcA6tfk+0K4LQWt4EudBQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793985341;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793985352;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:
 	 DKIM-Signature:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:X-Received:Received:From:Date:
@@ -17,96 +17,97 @@ ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	 X-Proofpoint-Spam-Info:X-Proofpoint-ORIG-GUID:X-Authority-Analysis:
 	 X-Proofpoint-GUID:X-Proofpoint-Virus-Version:
 	 X-Proofpoint-Spam-Details;
-	bh=ktnp8h8HYMjSZRjDLlt4pPs82/7KOH2Yv0rLDfthZeI=;
-	b=p341Gbz4AcO6hDpZkGnvv2Zgg9L0YnB4ECYeQWq2k1DgTKQ7nR+TAiXaMkGcI3yEf0b9
-	 YKQ4RdppWil46bjPOKLVeNH7eBx0nRxhAbGRxRSzXaL5g9pbMF5+v94pKDF2SbmZ5dHvH
-	 ao319Crn/eyc2Lo0gf4D4EakaXxWJ6l0lWeQadILEw6oLYPKs6MrhtTOAXVZyOpUXJWVP
-	 YTFpFLh2e2KC4zs1mWdt1tpSdrL+YYy0PiIUKqFoU1IfO4rl5ZljdwpFYFvIbcEusqhCB
-	 yTCPAx+qvhohQxPnVTjP6g4timBT1ljdKTeeUsC7PVFUUXrCDf2e3Q9XoeFya+q/W2w==
+	bh=47JQnoGH/w4xWuL9FcqDdeP8e8K7V4oop5mGTZtNivY=;
+	b=P6Uv8a3KCK7/s8V1R3DO/yXfEDiNHLl7jjABqu2Mz064FAyFxfpnlqpm/qM69MkhdMTk
+	 r4ZM9qKF96Id8eDLhy8C2WsoFFuI9kgDXBs68AOZWciYvbeS079nFwdrlz918hZOe2z+G
+	 yJrkILgIXDOpFyorAWuifOPW9uc6wXvV1mBKeJYF2sNAaI6Bh2LANtbztIz46x40iETy4
+	 VelH8K1CX2yivVtPC9Pv1iW6Bpf26/NgdH42iSoJ8NKBN99JKeg/986Cc0GMAeIuFFImZ
+	 GeYIw4E3DuAgBpz8a4WBe5xqsddkrpIrI+nZUeqsbqdZ6Ac7I3f4nzFAP+8cuQAPL8w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=oss.qualcomm.com;
 	spf=pass smtp.mailfrom=oss.qualcomm.com;
-	dkim=pass header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=PxynK2so;
-	dkim=pass header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=jycC9308;
+	dkim=pass header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=lz5FhTah;
+	dkim=pass header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=as0VVvFh;
 	arc=none smtp.remote-ip=205.220.180.131
 Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9515606A326
-	for <virtualization@lists.linux.dev>; Fri,  6 Nov 2026 17:15:40 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D9515606A326
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 746A8606A339
+	for <virtualization@lists.linux.dev>; Fri,  6 Nov 2026 17:15:52 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 746A8606A339
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=PxynK2so;
-	dkim=pass (2048-bit key, unprotected) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=jycC9308
+	dkim=pass (2048-bit key, unprotected) header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=lz5FhTah;
+	dkim=pass (2048-bit key, unprotected) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=as0VVvFh
 Received: from pps.filterd (m0279870.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A6ExvOB102052
-	for <virtualization@lists.linux.dev>; Fri, 6 Nov 2026 17:15:40 GMT
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A6Extdb101948
+	for <virtualization@lists.linux.dev>; Fri, 6 Nov 2026 17:15:51 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
 	cc:content-transfer-encoding:content-type:date:from:in-reply-to
 	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	ktnp8h8HYMjSZRjDLlt4pPs82/7KOH2Yv0rLDfthZeI=; b=PxynK2soVuo53JjN
-	5aj46e3rVH7kXRVGRgHizLTk7r1efV79/U0yrirlZ7/QvmE9lWyP1ixbn046WYHW
-	mRNkgaEaaU5spk5b068thk09RJAnom8M5OiVBPi47dlSmBWBNLB8ncWTx78AAh7p
-	jhzXb/yblbck7Ox/MlVS8y+fvGb/gylJcl6EgNx+NlJ/9KmmI9gZjdwjFDv3oZYX
-	ZDE+4oTOJNA6cPFKwCcls9o+Dp7zL00pMeN6/9V06JMNLlCrP4ae9Xy4jH1E9HOI
-	bLaYdwKm+bI35HThXY48Od99Ofdf7AebqtXjmLlDrhKozB/bTqxzNqKmWqfkJLuy
-	dkCcwQ==
-Received: from mail-dy1-f198.google.com (mail-dy1-f198.google.com [74.125.82.198])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4hs3pa3v0a-1
+	47JQnoGH/w4xWuL9FcqDdeP8e8K7V4oop5mGTZtNivY=; b=lz5FhTah4B9BCc/s
+	NQSQgeKsB7LOLEjFMeXdPGb4qtinRoVqnaqyN9T9p3Q7Hbf/IaresKX2B++yOuVc
+	DpgjXJsUJCZMoBDC5iO5z0HtQBYG9ejZkF8Y3jDMLlq+YZ0gAixhbRvH9mWX5C2t
+	72w2VYKvLs970D756X+8JzDCYl6SqPaEQRKH7yOL3XexGmHm+Dt9kFKH1dkdsbC3
+	yVeWJsPtON2+9uQJO4Yrt6nXpIxVF50qVyYulkfEQoqtfiMO31bwwDXmAShFCPH8
+	DvvYmylTIevfHotdELylpo3loI13hMsR4iRrnykzFVmotPcWwd4aoa0P+fQCyNdi
+	KOldkg==
+Received: from mail-dy1-f197.google.com (mail-dy1-f197.google.com [74.125.82.197])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4hs3pa3v1e-1
 	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <virtualization@lists.linux.dev>; Fri, 06 Nov 2026 17:15:39 +0000 (GMT)
-Received: by mail-dy1-f198.google.com with SMTP id 5a478bee46e88-36f1e7d9d4dso1730531eec.0
-        for <virtualization@lists.linux.dev>; Fri, 06 Nov 2026 09:15:39 -0800 (PST)
+	for <virtualization@lists.linux.dev>; Fri, 06 Nov 2026 17:15:51 +0000 (GMT)
+Received: by mail-dy1-f197.google.com with SMTP id 5a478bee46e88-36de26cb4b3so1048836eec.1
+        for <virtualization@lists.linux.dev>; Fri, 06 Nov 2026 09:15:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1793985339; x=1794590139; darn=lists.linux.dev;
+        d=oss.qualcomm.com; s=google; t=1793985350; x=1794590150; darn=lists.linux.dev;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=ktnp8h8HYMjSZRjDLlt4pPs82/7KOH2Yv0rLDfthZeI=;
-        b=jycC930835TqI4rqDc/eXQudgrAHtFomGrO1Exji1zkrieevndsyD/pudiqU2FmpOF
-         uTFkMz+wWj3vG1n4jMzQuxQqFO9QZssNWGeMliESxNi7WLWg9q+CQ5SYSmEmbT575pAl
-         bVqpmQ+ks6WuGO+nnXnwJx9bR2K5UQSB7zKmO0hbgwEFajOwFm/SOvK2yCREBXPzrOx9
-         ISMUBNicJcQzdCUbCSkGbGtQsWvE98VNajleDG3MEQd2tMc5w3w+qO2sWTwpFO50pDJW
-         8WRAn9lE3rX5Qra8vDQS50Otmg8jLcSQ02R1EGm/0PTN0gGdncRwfKwPIZyYGnDPo2UD
-         xOhw==
+        bh=47JQnoGH/w4xWuL9FcqDdeP8e8K7V4oop5mGTZtNivY=;
+        b=as0VVvFhtyc/h1ImIS978lkxcLt+ptCG1Y9dhb9Rp/F/YAqGFjMu3PF7BfA4sb86YL
+         nQQv5hMIqlXs1zssiH8fYpNGbMz5IMKpAMpdztmRZ6WvAPtQsz0QU3f0NBlR39OTBK2z
+         MAFp+kII2En9z09sI5XsnkGhpz7HEdm8FUk6Z54m0nTsJMeZoya+tFN6qbjWRzZ5CDXH
+         EwT2ttz7I3wEdOAd3k/Nym1iHbDE1vpKNVDuDbRHaUC3vzUgITYQBQm+g9JyAtoH3YQ+
+         72Jpw67ftCc+L36sfr9kxwAjVjWXxdhp9PrX1mUkqe4cUZ5WgDIAdVdQ7xwhycdkWbTZ
+         B4iw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793985339; x=1794590139;
+        d=1e100.net; s=20260707; t=1793985350; x=1794590150;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=ktnp8h8HYMjSZRjDLlt4pPs82/7KOH2Yv0rLDfthZeI=;
-        b=Lj5BK4qHoJCv8QbxFsjGdYSrQthbRC56V4ooMTnhl2wjRYhCvUw/qYu0sllRcW2Lra
-         xVfx22hjt8EqCx5dWXSrLqUfBYAc1L9QJomvcQjjkwQnCiS5VlywAj+5MM3lBOO3FMYK
-         kTfhrFOqqUumaKQ9Aa1VON4fFR+blARYQTjH5kiOJ0d6UIVuj1LQ43Y8sI/ZLACy0xsv
-         rqpOH3zdW4pfsrHsVsJypjyDvO3w7fqGetGODRLJ1NP9oVN30WsrYPrEQaCqLmZPyCBt
-         BmxeTXPPd2MZw2Ww8lP8PXRUXusKyNuSI93G3oGOZ1VO+VbExkjxCAf9jCagqPEolzIk
-         slKw==
-X-Forwarded-Encrypted: i=1; AL+hErHBjBCmo9k6D03UP1u3ldAwfus4PuqbLgZAwKEaRvpp30LvYhi49mMpwJONj3e6gBx2CURZu0dS+8Je2uthvA==@lists.linux.dev
-X-Gm-Message-State: APuU4Z++OM5fXBYQO6RxTqRHeZCK94CVOmt1PZWuozu1JPvjRqx5DmBJ
-	m0hyPhgNJYPZradRc0J2kM9kPr8LeX7TMtMBSCAfiFT67i0cebSpCWtOgixtkfTOTgQ5T7xk3M6
-	Uld15lIyFYyB5ivSH44IqhQR+UC3GTqZaSqLX/BDbQLH4E5n97qBDQT8rcmB+/KmHgVb9LQ==
-X-Gm-Gg: AYBFou2GoFDfD356Z0PvRmNLYkktTTXXxeEbHpQZ0WwV6tRfD2Q/WsODzBgTYewc8PC
-	sdAO9l/QV91SaPDZ/OrtDuK1cFSdi7SfVF9qk+bkpKNeY8jz5Jx1d9iaL/v7/oghloEnPfLoYeS
-	4T+MM3UXBTIHQJzBAwrarGlIga057WvkNbhbQT57vz2pU5C/Gw8dQ1nWUvt5ds9U3eDIy3JCdD9
-	qPiZYUMLRr3SZAShKRtMq63suQ2nUa/mgHrszX5U0wls1LdjsShM1FWx36WrDGp82foqm2t0oTl
-	jKfpHr6lAf4uKeqEwFPaUiXP1dsoNFBTDFGrdNQe+HxJejRUceqnVAlW3V20d8eyx3i1H1/RS/8
-	AB32nMtKq4KJuYJ3aTQn+Wv2r0fF+9mBrIwV4gU+30xMrmpJWyJipXxc9tIAeyAYEglw+ZbvnWS
-	Yu3flPHxXf
-X-Received: by 2002:a05:693c:839a:20b0:36e:371:8255 with SMTP id 5a478bee46e88-36f6fb7f6b0mr4460525eec.0.1793985338751;
-        Fri, 06 Nov 2026 09:15:38 -0800 (PST)
-X-Received: by 2002:a05:693c:839a:20b0:36e:371:8255 with SMTP id 5a478bee46e88-36f6fb7f6b0mr4460485eec.0.1793985338092;
-        Fri, 06 Nov 2026 09:15:38 -0800 (PST)
+        bh=47JQnoGH/w4xWuL9FcqDdeP8e8K7V4oop5mGTZtNivY=;
+        b=x48FbL4d4iteeWvJbZ5xl0UZh5Vm3SfYgi80UbVR4H5KeZTfraj8tq1qDZdA5/6VQq
+         nCa/ZWrOzXnKlEAo0C8Gjfe59/0Syn5niwXDxHTEadP2N/1o+nsqmQaC9CRNH9LNtu8e
+         ZQymI5PHdZLpHGXjymgKIlwFaOOMbQzIcj8QmTUr8So0l77jdKYJplh28M4RO9VnJumN
+         l9bDsNpLgyU8IDlQycwsVzHGwnVLQpeUqNSFOLQF4J3Q4uQvm71aH8PiyvHI2Dp2tINC
+         q42w0QRlwM87tRAbt3evP1JLtuvgaFHPTTHok2ES9+fZbbbVu+VebktKz4ae3z6mLkna
+         BXqQ==
+X-Forwarded-Encrypted: i=1; AL+hErGruJjEloN+YMB1+9TvO71Yrq5oyUnZkKDNK8qjcHOo1QYwOMMKnHLgb9iKNYfKKS481m9b0J8M3xdnIiZebg==@lists.linux.dev
+X-Gm-Message-State: APuU4Z97+8p5wQUCUCIx8sNc715bIheLAW00tTdMxvIa1ph/6twzdT/C
+	F+mf2x9p8Yra+OWJilAcUxWmIUSndWkzDVisNhy7huEaOegpigkVuEtdrB5xtfRSdP4fMADRj3P
+	JaEXUsxMA81iFZJsLiDcRUY9d7qH44GMpgzOpJUx8hep959sgphhon3XWOhp8Kjo8Bxzk5g==
+X-Gm-Gg: AYBFou2GtzfcqG/NV5aTuqs/MXWFdLQYkBY7Ys8eRt1usqY+HooXvkpJrw/i4gLzFI0
+	Q5DiLxIlNiGZD0wvK9QA5coBlfN05tX58oWreklkE940xK1h4DQr8Z/fWGtY/n/OOoGHxzbBzQR
+	m5U86alcZM1mggIVrsEgtarhLYTQXZ1gr9FHyFqrfbKhWk896Pp86Iuv8xi3D+q0IvNseMqsF2K
+	Cf0fe3A2CYLfR6oMT/zCn04wjBMgNf/yDyPqgfpo6HKqxVssJ4NUtp+aW2aiDJFMOUutH0EI56X
+	vRU+pQMO0+QVUkvWdeK14gkw1yDZFTqt4F9ypvJPz5IZoPuo73PIYt8jEqEuFjRXe1CgR8jbzT/
+	An5feesf0JoRPMC6nlPLj3GY8lBbjpjBUvTQntkrB88nzw+0nvrDpAtpRDLKBN/utAYtX5VxH83
+	MILT6KC+/C
+X-Received: by 2002:a05:7300:8248:b0:36c:ec0:23ef with SMTP id 5a478bee46e88-36f76d11c44mr3974076eec.16.1793985347752;
+        Fri, 06 Nov 2026 09:15:47 -0800 (PST)
+X-Received: by 2002:a05:7300:8248:b0:36c:ec0:23ef with SMTP id 5a478bee46e88-36f76d11c44mr3974004eec.16.1793985346688;
+        Fri, 06 Nov 2026 09:15:46 -0800 (PST)
 Received: from hu-vgarodia-hyd.qualcomm.com ([202.46.23.25])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-36fa9aea75fsm14693756eec.15.2026.11.06.09.15.29
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-36fa9aea75fsm14693756eec.15.2026.11.06.09.15.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Nov 2026 09:15:37 -0800 (PST)
+        Fri, 06 Nov 2026 09:15:46 -0800 (PST)
 From: Vikash Garodia <vikash.garodia@oss.qualcomm.com>
-Date: Fri, 06 Nov 2026 22:44:27 +0530
-Subject: [PATCH v7 4/5] iommu/of: Require reg for iommu-addresses
+Date: Fri, 06 Nov 2026 22:44:28 +0530
+Subject: [PATCH v7 5/5] iommu/of: Add support for "iommu-ranges" on a
+ device node
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -118,7 +119,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261106-add_iommu_ranges-v7-4-5c0f72083e52@oss.qualcomm.com>
+Message-Id: <20261106-add_iommu_ranges-v7-5-5c0f72083e52@oss.qualcomm.com>
 References: <20261106-add_iommu_ranges-v7-0-5c0f72083e52@oss.qualcomm.com>
 In-Reply-To: <20261106-add_iommu_ranges-v7-0-5c0f72083e52@oss.qualcomm.com>
 To: "Joerg Roedel (AMD)" <joro@8bytes.org>,
@@ -143,34 +144,35 @@ Cc: iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
         kvm@vger.kernel.org, linux-arm-msm@vger.kernel.org,
         linux-media@vger.kernel.org,
         Vikash Garodia <vikash.garodia@oss.qualcomm.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>,
         Vishnu Reddy <busanna.reddy@oss.qualcomm.com>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1793985294; l=3341;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1793985294; l=4721;
  i=vikash.garodia@oss.qualcomm.com; s=20241104; h=from:subject:message-id;
- bh=eqYY4N+b5bBNKlPSwJkXdHdjtL4HfBKjpUYn+IsXKkA=;
- b=GBQVa8RApuiz6ercB/DdrPne5hpMvwbz+39mcf5Gak8TM+/DOIR+JsQkatd14qD1YxOVp3Bni
- be5cEvNi0vbASIajgNIko9PHVXfje8oKBQGQwGiGrYCVoXQBWE0ZAFZ
+ bh=eRH33zHRlGkqD6JL6t9hWZjinm5AiyYB0srZIG0kiDM=;
+ b=GGWfxUKY22AA92W9aIu377FRuudRQ0Bh3ofyR9ljR+TCb4fnvbIxUCC2bS4EZ+DmG7Ncs/AGM
+ Wl5jawco4DNDe5QKZz1XypR9Ru5i5F/dgc3EaPFviVCPsXUNplf7UW2
 X-Developer-Key: i=vikash.garodia@oss.qualcomm.com; a=ed25519;
  pk=LY9Eqp4KiHWxzGNKGHbwRFEJOfRCSzG/rxQNmvZvaKE=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTA2MDA2OCBTYWx0ZWRfX+0ubAYeoviw7
- U6nlT591zL+sQr5/PmBfKhWnKCsFw3iLpT4o4C8geB6fBut2ABjpBLJ34KvsAt98iw+amWpJ9qW
- 9/XcVUQztEJleJTElSzf8RF5GRnBsZYxmsoIEyb+l/n0UVBu1bDgHTO61fjwgGchyNZ1juvKZ7h
- TmUadKNufPFYwMMfMqg1E/sd6RS3Rkmt6rboIaVuFaVo7GSmE8fuJpDqd7j/Wnq3/8d7SDi5+zn
- 9mPSmZ3aBdgveBaGDjECRDhTBeDvB3+hcgLb/mOg1U0p+PW1pi4ITRv0JJ8gmNuhQ2JP15Fe+qY
- adKQJ2UKivuWUBf2zfFyW16CgbS6OhDCwMoUtkM+MhxFFi5HmneXIkC/1IYu8W31ip/v8GgT4Jr
- HCTWCYk32VQX1xW2WLpQl7bya6Km2EssrrMOJepp6o//DyGdwJ591FVqR6R+U2nAcrKAVJ+Pkfy
- cTEvCE5dVxzX36gQs5A==
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTA2MDA2OCBTYWx0ZWRfX0Xjw+lpXR8IX
- FToH/gBgDtkdepsFV9KIqWanbf4vOW7VJRq3isg3iL8P8mK+WvuoxaWEWkii1LB1lfc8YDWbd7x
- NkZCa9iLn/lVwoTS7w7X0dwfkN7INL4=
-X-Proofpoint-ORIG-GUID: uboDMs2CpsTTSeYagF_qfKjlcOemud2a
-X-Authority-Analysis: v=2.4 cv=GpzXaU1C c=1 sm=1 tr=0 ts=6aee0b3b cx=c_pps
- a=wEP8DlPgTf/vqF+yE6f9lg==:117 a=ZePRamnt/+rB5gQjfz0u9A==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTA2MDA2OCBTYWx0ZWRfX8sVDVYBptnjN
+ R8rfzK5q+bE3KRE4/0D1wStiWckyERmhgbQGRCBoEb6kTSjNwiAMmHT028F0FfQpIYv5euK2qb5
+ bUhvYpauTO9+nRLAHm6ov9D1LRCTlCzfvkPpYhTFgYWBHbrgMEaNfbo/ioWizIozAGb8TeyyVrz
+ XFQkbW+ioEuIAxU5rlGeLWOaQo7LG8yS28YG8uBfv7ykZazBEMYAFmNAM7DswxoE+aT4PAQZIMR
+ LYFxV9cO/ZH/fLtbu8tOg84SLTEwXZEZj/JAzgF2zdu1l090goeicfBngM8wgGOFB0hcLCTnSpJ
+ 7K6idXGe6dssVoeqyoVnf0FdWo3kt4SuKeajlny7K47/nf8CQaCUU74B3RTq37x5CGdM7dHXd06
+ DDJp5kwywsxUcr3KF5Mo614/FmsFwtIISHiSVCOEdZfH0ddFbL02OreW3wDseqVG1cYuPFkhHQt
+ TaKVXQP1n9e6HJ0t8WA==
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTA2MDA2OCBTYWx0ZWRfX4qCb0zxbOdXw
+ NT6+4kpUWcRD0OzDjAMPmKI5RqiEeCzbsMrT/ahz/TujJAOYronmu/81rrpiuLif33kXQSnOZcZ
+ RjpSkrrsU/ZI59v5GiUVAU6StxnodPc=
+X-Proofpoint-ORIG-GUID: w-NuGBqZgB3klFYA5D5-YSEK2J1NybsA
+X-Authority-Analysis: v=2.4 cv=GpzXaU1C c=1 sm=1 tr=0 ts=6aee0b47 cx=c_pps
+ a=Uww141gWH0fZj/3QKPojxA==:117 a=ZePRamnt/+rB5gQjfz0u9A==:17
  a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=s4-Qcg_JpJYA:10
  a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=gowsoOTTUOVcmtlkKump:22
- a=NEAV23lmAAAA:8 a=VwQbUJbxAAAA:8 a=EUspDBNiAAAA:8 a=S4w_zJ8MM8sBhC3S0vwA:9
- a=QEXdDO2ut3YA:10 a=bBxd6f-gb0O0v-kibOvt:22
-X-Proofpoint-GUID: uboDMs2CpsTTSeYagF_qfKjlcOemud2a
+ a=VwQbUJbxAAAA:8 a=EUspDBNiAAAA:8 a=NeORdnCe0LA2B_GC58cA:9 a=QEXdDO2ut3YA:10
+ a=PxkB5W3o20Ba91AHUih5:22
+X-Proofpoint-GUID: w-NuGBqZgB3klFYA5D5-YSEK2J1NybsA
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
  definitions=2026-11-06_05,2026-11-06_01,2025-10-01_01
@@ -180,96 +182,155 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611060068
 
-The "iommu-addresses" property describes an identity 1:1 mapping between
-an IOVA range and the physical memory specified by "reg" in the same
-reserved-memory node. Without "reg", there is no physical memory to map.
+Reserving an IOVA address using "iommu-addresses" requires it to be
+placed in the reserved-memory node. But when "iommu-addresses" is the
+only property being described and there is no backing "reg" (i.e. no
+actual reserved system memory), it does not really belong under
+/reserved-memory. A device IOVA range is specific to its own address
+space, and does not describe the system physical memory to make it
+qualify under reserved-memory. Given this, place "iommu-addresses"
+inside reserved-memory only when it is paired with a "reg", otherwise,
+define it within the device own node. It was discussed here:
+https://lore.kernel.org/all/662f7093-fb0a-4564-9ca0-98e03e68ba9a@kernel.org
 
-The DT schema now requires "reg" whenever "iommu-addresses" is present.
-Align the kernel implementation with this requirement.
-https://github.com/devicetree-org/dt-schema/pull/207
-
-An identity mapping requires matching IOVA and "reg" ranges. Reject
-mismatched ranges and report an error.
+Existing "iommu-addresses" property expects a phandle, which does
+not make sense when the property is defined within the device node.
+"iommu-ranges" was introduced to specify the device specific IOVA ranges
+when there is no backing "reg".
 
 Suggested-by: Rob Herring <robh@kernel.org>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
 Co-developed-by: Vishnu Reddy <busanna.reddy@oss.qualcomm.com>
 Signed-off-by: Vishnu Reddy <busanna.reddy@oss.qualcomm.com>
 Signed-off-by: Vikash Garodia <vikash.garodia@oss.qualcomm.com>
 ---
- drivers/iommu/of_iommu.c | 32 +++++++++++++++-----------------
- 1 file changed, 15 insertions(+), 17 deletions(-)
+ drivers/iommu/of_iommu.c | 107 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 107 insertions(+)
 
 diff --git a/drivers/iommu/of_iommu.c b/drivers/iommu/of_iommu.c
-index 6675fc900e6c2d55b34c61dc9effaeb48e24f18f..00b02c19f27e195fc36c4bc1d91253255147c9ab 100644
+index 00b02c19f27e195fc36c4bc1d91253255147c9ab..e133d3b346feecac7e2bfaec44e4882060ee89ec 100644
 --- a/drivers/iommu/of_iommu.c
 +++ b/drivers/iommu/of_iommu.c
-@@ -174,19 +174,12 @@ iommu_resv_region_get_type(struct device *dev,
- {
- 	phys_addr_t end = start + length - 1;
- 
--	/*
--	 * IOMMU regions without an associated physical region cannot be
--	 * mapped and are simply reservations.
--	 */
--	if (phys->start >= phys->end)
--		return IOMMU_RESV_RESERVED;
--
- 	/* may be IOMMU_RESV_DIRECT_RELAXABLE for certain cases */
- 	if (start == phys->start && end == phys->end)
- 		return IOMMU_RESV_DIRECT;
- 
--	dev_warn(dev, "treating non-direct mapping [%pr] -> [%pap-%pap] as reservation\n", phys,
--		 &start, &end);
-+	dev_err(dev, "non-direct mapping [%pr] -> [%pap-%pap] is not supported\n", phys,
-+		&start, &end);
+@@ -183,6 +183,111 @@ iommu_resv_region_get_type(struct device *dev,
  	return IOMMU_RESV_RESERVED;
  }
  
-@@ -211,12 +204,14 @@ void of_iommu_get_resv_regions(struct device *dev, struct list_head *list)
- 		struct resource phys;
- 		int size;
- 
--		memset(&phys, 0, sizeof(phys));
-+		maps = of_get_property(it.node, "iommu-addresses", &size);
-+		if (!maps)
-+			continue;
- 
- 		/*
--		 * The "reg" property is optional and can be omitted by reserved-memory regions
--		 * that represent reservations in the IOVA space, which are regions that should
--		 * not be mapped.
-+		 * "iommu-addresses" must be used in combination with a "reg" that provides
-+		 * the physical address and size of this memory region, for an identity 1:1
-+		 * IOVA mapping to that physical memory.
- 		 */
- 		if (of_property_present(it.node, "reg")) {
- 			err = of_address_to_resource(it.node, 0, &phys);
-@@ -225,11 +220,11 @@ void of_iommu_get_resv_regions(struct device *dev, struct list_head *list)
- 					it.node, err);
- 				continue;
- 			}
--		}
--
--		maps = of_get_property(it.node, "iommu-addresses", &size);
--		if (!maps)
-+		} else {
-+			dev_err(dev, "%pOF: iommu-addresses requires a reg property\n",
-+				it.node);
- 			continue;
-+		}
- 
- 		end = maps + size / sizeof(__be32);
- 
-@@ -257,6 +252,9 @@ void of_iommu_get_resv_regions(struct device *dev, struct list_head *list)
- 				}
- 				type = iommu_resv_region_get_type(dev, &phys, iova, length);
- 
-+				if (type != IOMMU_RESV_DIRECT)
-+					continue;
++/**
++ * of_iommu_derive_resv_regions - derive reserved regions which
++ *                                are outside of iommu-ranges
++ * @dev: device for which to get reserved regions
++ * @list: reserved region list
++ *
++ * A device can describe its own usable IOVA ranges directly on its node
++ * via "iommu-ranges". Everything not under those ranges is derived
++ * as a reserved region so the IOMMU allocator won't use it. Entries may
++ * appear in any order in the property.
++ */
++static void of_iommu_derive_resv_regions(struct device *dev, struct list_head *list)
++{
++	struct of_iommu_range {
++		struct list_head node;
++		phys_addr_t start;
++		phys_addr_t end;
++	} *pos, *new, *next_range;
++	int size, prot = IOMMU_READ | IOMMU_WRITE;
++	struct iommu_resv_region *region;
++	const __be32 *maps, *end;
++	struct list_head *prev;
++	phys_addr_t next = 0;
++	LIST_HEAD(ranges);
 +
- 				region = iommu_alloc_resv_region(iova, length, prot, type,
- 								 GFP_KERNEL);
- 				if (region)
++	maps = of_get_property(dev->of_node, "iommu-ranges", &size);
++	if (!maps)
++		return;
++
++	end = maps + size / sizeof(__be32);
++
++	while (maps < end) {
++		phys_addr_t iova, iova_end;
++		resource_size_t length;
++
++		maps = of_translate_dma_region(dev->of_node, maps, &iova, &length);
++		if (!maps) {
++			dev_err(dev, "%pOF: failed to parse iommu-ranges\n",
++				dev->of_node);
++			goto exit;
++		}
++
++		if (!length)
++			continue;
++
++		iova_end = iova + length - 1;
++
++		if (iova_end < iova) {
++			dev_err(dev, "%pOF: iommu-ranges overflows address space\n",
++				dev->of_node);
++			goto exit;
++		}
++
++		prev = &ranges;
++		list_for_each_entry(pos, &ranges, node) {
++			if (pos->start > iova)
++				break;
++			prev = &pos->node;
++		}
++
++		new = kmalloc_obj(*new);
++		if (!new)
++			goto exit;
++
++		new->start = iova;
++		new->end = iova_end;
++		list_add(&new->node, prev);
++	}
++
++	if (list_empty(&ranges))
++		return;
++
++	if (of_dma_is_coherent(dev->of_node))
++		prot |= IOMMU_CACHE;
++
++	list_for_each_entry_safe(pos, next_range, &ranges, node) {
++		if (pos->start > next) {
++			region = iommu_alloc_resv_region(next, pos->start - next, prot,
++							 IOMMU_RESV_RESERVED, GFP_KERNEL);
++			if (region)
++				list_add_tail(&region->list, list);
++		}
++
++		if (pos->end >= PHYS_ADDR_MAX - 1)
++			goto exit;
++
++		if (pos->end >= next)
++			next = pos->end + 1;
++
++		list_del(&pos->node);
++		kfree(pos);
++	}
++
++	region = iommu_alloc_resv_region(next, PHYS_ADDR_MAX - next,
++					 prot, IOMMU_RESV_RESERVED, GFP_KERNEL);
++	if (region)
++		list_add_tail(&region->list, list);
++
++exit:
++	list_for_each_entry_safe(pos, next_range, &ranges, node) {
++		list_del(&pos->node);
++		kfree(pos);
++	}
++}
++
+ /**
+  * of_iommu_get_resv_regions - reserved region driver helper for device tree
+  * @dev: device for which to get reserved regions
+@@ -262,5 +367,7 @@ void of_iommu_get_resv_regions(struct device *dev, struct list_head *list)
+ 			}
+ 		}
+ 	}
++
++	of_iommu_derive_resv_regions(dev, list);
+ }
+ EXPORT_SYMBOL(of_iommu_get_resv_regions);
 
 -- 
 2.34.1
