@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793989194;
-	b=DWqAOIe1SevqhwXJyMarqIdKGzzlD18AezU1toJbz0EmPqCH51TpwJYw9XTfEblxMutg
-	 aW1rZeaIZksoQC4PJxhd5IehlE9xTHFbDjaBuuQGO47Yc3FeGtiwRG6RIqiINTJGvHuVz
-	 I8nKlgRpQlfR5GVIGjd2tIkWpB4lNdjXZqZupyOPocPhOSZbbS//3zRkeB3EDcrp9mtWX
-	 +XyUo3urMmuk4raguMOjTN9L5hzJqQao/FlP05cdAo+QPZYMHJq9QmEeuhjw0h7/ytpfq
-	 GvtLEUVn26IU88OB9pRCYydMC7KS+wL5LYRcssFvhBTME48ver13yYfeZRAHKcz+dsA==
+	t=1793989781;
+	b=sSF37RGTqzbRhI+hYlmpTjZuD45wdC+LPEAArAzL7g7NHSGcKNiPAbQJ3UF++3LZHf90
+	 GvaBFOVTF48zyxzRm79xQOhLYT3Gl5GU9FQQp+dvvNZpvT0Ba/HAe25gsAy1gw1ZY7Izi
+	 z8+7/wXYqpauOgu6iKM3Tborl2eJdjE3nfafu2yBFbThHDDwxgte+yfYNI67mV9/p/mo5
+	 /mXgA1Ukzi4FHEI99JhL1zd+i528F1uyPQoveEqdPlYGfDElXgKbRxWSnU6YTkuZQEEyC
+	 0gx7deWFHeDyS8tQ6RSzHmswavPuw6Iwj5LtJd7DEMC5+VT1nPyGzujqOtTyIewWLfg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793989194;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793989781;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=jgQYr1qO+YBZuGceCNEk1WU0AJEaTAb66XiA3OT4AfM=;
-	b=kNjfo+vnjLiUYmY0cKrtbYbA/yHofBggvz4Bd485oze00+MZ8TgmklaKGiVAIbh+5OxE
-	 q4lvk8hecDEsWdT4zlHKS4+ntLycJ5JSd7+SlV2wZ/LerCeMfkhFm6AKZHD0zDHpuPnMP
-	 ukbMo/6J/3+rXLu+XYs+jppdFJNJbBFm06muhjJ1NBPsuLNHvDQPUKhEVgaB64cGklUhm
-	 GKSmlAxmzORKA8av3EvNkBAJwsYB+M3FcmPtnOVtBSEYH/o0MyHsNF5g64xkrKSieqJ0O
-	 zkdb+OxXVh0/lFYMHr+TbnaxKc5Q+PXPAITeQyfNxPgbGHA5/juMQ18Md96S44e/73Q==
+	bh=C1GOQe2MO5aR8EQKD0yxhnKG5KI/WvfC9alSZy/SxIg=;
+	b=uFBEXAY5qKiyJ3SPdkPkLcfzc0IPx/UfciTaVwFHTyz1KF3BMftXuo4GQSzrsYxaYzBY
+	 BUdyHpsdMBcpB28U1ipHpvMeE2IYvj9mWzhjJviv2xgoew5lSlozsKNagjlf6x1cL02rx
+	 muRrDYjVg4kxY8ZDUEPIFXYaqnutFHnAXfHvWQVk+SxJVDOW6tG8MkzLyioJ4xNHMYC9x
+	 7EaHtbKxzsKXpNQx3oS/nKIzZUly9RlxCEK4rd5eTHcC+IXlGXvrE2OwaThw618L38uqV
+	 ZFhxErhUOlaHqGqPmop/N1g4fCLiPu/6yJdCneXdg5rfIRLKUJFHiRlcQfSLUrvwVYA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Yb3VQDIT;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ejlCvW8M;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99D68606A326;
-	Fri,  6 Nov 2026 18:19:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80B99606A329
+	for <virtualization@lists.linux.dev>; Fri,  6 Nov 2026 18:29:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Yb3VQDIT
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E57591F0089F;
-	Fri,  6 Nov 2026 18:19:53 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ejlCvW8M
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8CF01F0089F;
+	Fri,  6 Nov 2026 18:29:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793989194;
-	bh=jgQYr1qO+YBZuGceCNEk1WU0AJEaTAb66XiA3OT4AfM=;
+	s=k20260515; t=1793989781;
+	bh=C1GOQe2MO5aR8EQKD0yxhnKG5KI/WvfC9alSZy/SxIg=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Yb3VQDITD0UHFPSAVg3UaIKKK9ZF+nRFXfvNMYmrRU2DP2FbkuEzuxmui5HbXygta
-	 TM1dwSRngzZOYmYnUduWHIM/6dcWzzc5ORrFBH8UhZqCtH5u0+XeiLQQKTd8qG4Poh
-	 VKbY5aM28oWQrDFlmtvKXnmBmM0Y0NjUyC1hJpk6NRLowC2Wfdwu4zDlt7YbKYd2j/
-	 O490Hl3GfPx5bX1xxZXg+I/uJYA/PMqrU0m4EI3H//+XG8thUaUbaDblpsEaFLm+jY
-	 7/1LPaAFW8852iUcPhVd/lGzTHildPU7DKLBUejBtwfx1JqRFMvNXwK5eNII0QgwWu
-	 sXzqCGlCuMkcg==
-Message-ID: <sashiko-outbox-202010@kernel.org>
+	b=ejlCvW8MbUJuMOWFUe18suW8aGhxHK0Juar/A0pOhNE8WEaGG+4Wbd3+xwX5NVDAk
+	 9maHxGylD1oDrl+914kS0JIn1aaDzX3HviYTJjJyBVCUVjKdqRppZwC3ukBQBsH2br
+	 V73aKw9lkfBYcnbeAe77VE0En3WXWNCaDS6SlY06G7mXuzUlxHuiJ1VhWborxoD274
+	 EpzgubisMoCb6ezUvBA+rWHUmxn060UWLSvdLl1BhNDKP7mQZq8nAIPu/OqZDH2dP7
+	 fnIQR55JxnOKFXjQP9LOalG6yijHK/Zdswgmu7apQYJyuXjIRCzo7kMLZeX0Lf1KuG
+	 JvwLzj/aHLPkQ==
+Message-ID: <sashiko-outbox-202038@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v19 07/12] ALSA: virtio: validate indirect capture
- appl_ptr accounting
+Subject: Re: [PATCH v19 08/12] ALSA: virtio: Keep control payloads alive
+ through DMA completion
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Joonho Lee" <mynameisjune111@gmail.com>, linux-sound@vger.kernel.org
+To: "Joonho Lee" <mynameisjune111@gmail.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261106161838.94308-8-mynameisjune111@gmail.com>
+In-Reply-To: <20261106161838.94308-9-mynameisjune111@gmail.com>
 References: <20261106161838.94308-1-mynameisjune111@gmail.com>
- <20261106161838.94308-8-mynameisjune111@gmail.com>
+ <20261106161838.94308-9-mynameisjune111@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 06 Nov 2026 18:19:53 +0000
+Date: Fri, 06 Nov 2026 18:29:40 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,71 +62,33 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [Medium] ALSA: virtio: sub-byte frame truncation in
-  virtsnd_pcm_capture_ack_validate()
---
+> Control requests can expose caller-owned payloads to the device after a
+> synchronous send times out. Keep request and response headers and
+> payloads in the reference-counted message so caller cleanup cannot
+> invalidate DMA.
+>=20
+> Keep the queue reference until device completion or post-reset cleanup,
+> even when the caller times out or is interrupted. Consume the caller's
+> reference on every send path, and let response readers retain an extra
+> reference through copyout. Check payload sizes and allocation arithmetic
+> before building the scatterlists.
+>=20
+> A control value payload is also read by the CPU as a typed structure.
+> DMA cacheline alignment alone does not guarantee the structure's CPU
+> alignment. Align regions to the greater of the DMA cacheline and
+> control-value type alignment, and reserve prefix slack from the buffer
+> base so typed accesses remain aligned while scatterlist regions stay on
+> cacheline boundaries.
+>=20
+> Keep response values in a separately allocated aligned response buffer
+> so INTEGER64 control accesses are aligned from this patch onward.
+>=20
+> Fixes: 9d45e514da88 ("ALSA: virtio: handling control messages")
+> Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
 
-commit 6d8079ee9be8b0bc45d98d37834441cf9aa4b749
-Author: Joonho Lee <mynameisjune111@gmail.com>
-
-ALSA: virtio: validate indirect capture appl_ptr accounting
-
-This commit retains references to PCM DMA pages (or uses a driver-owned
-buffer on NOMMU), validates full-period capture responses, seeds the RX
-ring once per prepare, and validates capture appl_ptr accounting before
-invoking the indirect transfer helper.
-
-> diff --git a/sound/virtio/virtio_pcm_ops.c b/sound/virtio/virtio_pcm_ops.c
-> index 343700ec50476..6a8752997d092 100644
-> --- a/sound/virtio/virtio_pcm_ops.c
-> +++ b/sound/virtio/virtio_pcm_ops.c
-
-[ ... ]
-
-> @@ -599,6 +619,69 @@ struct virtsnd_pcm_transfer {
->  	int error;
->  };
-> =20
-> +/* Caller holds @vss->lock and the PCM stream lock. */
-> +static int virtsnd_pcm_capture_ack_validate(struct virtio_pcm_substream =
-*vss,
-> +					    struct snd_pcm_runtime *runtime,
-> +					    bool *skip_transfer)
-> +{
-
-[ ... ]
-
-> +	/* The RX ring reserves its full size; only the excess is unread data. =
-*/
-> +	unread_bytes =3D (s64)rec->hw_ready + (s64)rec->sw_ready -
-> +		       (s64)rec->sw_buffer_size;
-> +	if (unread_bytes < 0 || unread_bytes > (s64)hw_queue_size)
-> +		return -EPIPE;
-> +
-> +	appl_bytes =3D frames_to_bytes(runtime, (snd_pcm_uframes_t)appl_diff);
-> +	if ((u64)appl_bytes > (u64)unread_bytes)
-> +		return -EPIPE;
-> +
-> +	return 0;
-> +}
-
-[Severity: Medium]
-Can frames_to_bytes() truncate sub-byte frame deltas here and let an
-unaligned appl_ptr advance bypass validation?
-
-virtsnd_pcm_hw_params() permits sub-byte frame formats such as 1-channel
-SNDRV_PCM_FORMAT_IMA_ADPCM (4-bit frames, runtime->min_align =3D=3D 2) when
-the period size is a whole number of bytes.  If userspace advances
-appl_ptr by an odd number of frames via SNDRV_PCM_IOCTL_SYNC_PTR (for
-example, 1 frame when unread_bytes is 0), frames_to_bytes() truncates
-appl_bytes down, passing the unread_bytes check.
-snd_pcm_indirect_capture_transfer() then sets rec->appl_ptr to the
-unaligned appl_ptr while subtracting the truncated byte count from
-rec->sw_ready, pushing appl_ptr past hw_ptr and permanently leaking
-rec->sw_ready accounting so RX descriptors stop being requeued.
+Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261106161838.9430=
-8-1-mynameisjune111@gmail.com?part=3D7
+8-1-mynameisjune111@gmail.com?part=3D8
+
