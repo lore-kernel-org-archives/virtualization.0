@@ -1,116 +1,80 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.217.43
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793999052;
-	b=TINDVu+2zf6EVjk+5VxNJYarSD3b10RNY4U3/H5grodj13cTWVWp8CC0TSLUTjT3TaKC
-	 xuN3LL3pbojiA/+6N9TXo13BDRmcyF0iIbA0HSJx8ZPB2etJgUAt+UQQcNx/XUNuWx/xs
-	 +aG1vEa0r3A7sZ1yX0QKjzFQ9VTQK+0m3k+T5W1eu9oNmss9TTda4iHIUyZN0/oBMGt04
-	 5gnh6sX2TOchuZc5kSPzdalJwBRS5fVkEKURym+T4GRKox2ZDw3IX8KzfTKDFDMk6aeC5
-	 Lgz/CPMT8kY2GWwya3qXbRw/07X6ilhhPOGMeojJZVcwXBIkYZDn+xRC1ViFQShGv1A==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793999052;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding;
-	bh=9rbAT6HOHtgTNmvUZ4uTgxskj8ClF6GOt0gfNlKXaVw=;
-	b=UW/RP3SzBOZTHhR7phtmeY8vanp9KQhPdI1xF8+6NLgIBM/ga/LnIc4fDeeEDfcKE6wu
-	 GrIurYkI8yv25xl81TIsDXf8yAe+dEkzA96Ehhj+XLF64IkbZjSpOQ00XzeM19KI12Pz3
-	 vIlXdXuEIUtj0p5PGoMTi0PBKefpG1WcKDl1UFW21SPQjAAo5aDPkyAI4807oop5M8JQ5
-	 DePVxckYG4heh7m/HF41x4P3/MfKm13v3lIM5t+qghXzShwvjWFAQ2pL7PwD52vRvi/CX
-	 AFVkDZPIXnavPtbVABmp4OdVDK6CTC92Iy5jSkjT335qD00lbAD0LEUzFZ9aOqdO56A==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=c1EGlj5Q;
-	arc=none smtp.remote-ip=209.85.217.43
-Received: from mail-vs1-f43.google.com (mail-vs1-f43.google.com [209.85.217.43])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794002246;
+	b=2n7hvBYuYi1bO/KFwoEHcb0Ax0w4u0/U6L4O2dPmsHcFkVlUFxh6HHEOw8hcNi3iqM2N
+	 DRE4Oy8XhlNtsQHUoy6qMEYxyOShNdPRIbkZy/6M85v9nBYMe+z11dqq18B9DCq7RIkKX
+	 q/kNLM1ODl/aD5aRC3KctT02mVQWRpymIYqHovJtm6Ue5Mexdba6baXcpcuefSzKyuw1D
+	 j2EOxRHccjXRez5CzvF6ONiGVyrGdaVivN55p3cz1G3/Y9TD157u0BwcY4hzas9TvBcfX
+	 nkHEclhNOPY2XJFz02oKnAxe5u3kmyS1Ftv4rDTq6N1mPLXRdgGaUDFUJgWGiU7wFJg==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794002246;
+	h=Received:DKIM-Signature:Received:From:Subject:Date:Message-Id:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding:X-B4-Tracking:
+	 X-Change-ID:To:Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:
+	 X-Endpoint-Received:X-Original-From:Reply-To;
+	bh=4hTF15KGZnWZXaxkczJaxpuVmQOPU5K6aaPcUmXIxUQ=;
+	b=kGra/X7YgnHH57i6K/DykpFuU+1EIX7sVwMsc5+K7cpPLo6jB77p1GyFETGGMgxEK3ue
+	 F/YsRxaq00sSzXG3asEF2vb0aN7fOj9zDY3imHMgQ7t7iSYc4gaUJLufHnhs3aLu9q4Y/
+	 FpUjNLwaaxCYo6R9xdJylUdEwmmaF6oFlj32289vF8HopL0iDKNMVVqlBVHBheJsPGuVs
+	 4kbCYlbscenHAgsKnDWH0A2x/Z/cKGuy5E4ILXGmxCkNE4q255sh6DstHvlcB1+9G8O4+
+	 yVic63Z7yFAe0wJ/pnsW65ha38ffW+9xur/fK1Z2GUDmplkAdyUSyDNStq6/qRl7FDA==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BmXRZoMV;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3511606A33A;
+	Fri,  6 Nov 2026 21:57:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BmXRZoMV
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1794002245;
+	b=GQFLqXs9ZSBdCVsaypa7ul4+rB/iuREMX8x+JAM/ZwvYWCLIEHkT37MuQMykjSSUxLuP
+	 7Iw98j8+vBhEh1UU4XAAAn0Gq4aOOzeobM+MLcZksrd90fxd4KXbgu/FwuHwOHy+G97zD
+	 a3DCuOatsN01DUn8pYLrzuIdk5OfZEoVufoIqVms6o687eLx2vxNECG/x93PFJqHNrip/
+	 7QS5GzqDjbLVQiTdkU+0Grx1Tx2lQ9Stch7nBelg91RZhnIV8Of39eRBMPl/CV11JBzaV
+	 7In/AJKP8LFfvBdm3FtjN8wm27lCcjUvwlAiZg9pjZqyCYJ1KhMf6gqCuRX1cpKKdoQ==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1794002245;
+	h=DKIM-Signature:Received:From:Subject:Date:Message-Id:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding:X-B4-Tracking:X-Change-ID:To:
+	 Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To;
+	bh=4hTF15KGZnWZXaxkczJaxpuVmQOPU5K6aaPcUmXIxUQ=;
+	b=XMA4wY13oO2feldtj9iB8YOXNB2F8mmGe2//7wSY5Rhy8KdAQrFiFSzEaDOEJUYmr/d+
+	 iiEVkEdVFcYY7+xtPB9vFfxumjp7ttFbuy82Lc9lY7dT4GkR8UUbZqi4wodG6893xGMHA
+	 j3W9RX9mJX4PKj5eHGJwwm02K0lmfRhZbBFSG2aEhx010N9wfB4Gmzwxg2pA4zQw9F19Z
+	 MRdk+IXErvKnsmSlJ9eB/DczKsCNi5XhlXEyqICQC9ZSQ1TUUQ3hVS+l14nJltjCA6isR
+	 pFFHdxa3u5NbZ46Us9MR4/VDa6fCqZBQVR7FOl9SlEItVVRZdJmHcECMAt3gePqlDmw==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68E5B606A333
-	for <virtualization@lists.linux.dev>; Fri,  6 Nov 2026 21:04:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 68E5B606A333
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=c1EGlj5Q
-Received: by mail-vs1-f43.google.com with SMTP id ada2fe7eead31-7d06763335aso373664137.2
-        for <virtualization@lists.linux.dev>; Fri, 06 Nov 2026 13:04:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793999050; x=1794603850; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:mime-version:subject
-         :references:in-reply-to:message-id:cc:to:from:date:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=9rbAT6HOHtgTNmvUZ4uTgxskj8ClF6GOt0gfNlKXaVw=;
-        b=c1EGlj5QBG/qVypv5pjmgBkPAljTAojgbLIgflvQFchrKsdt6dqYBqIl0w5heaOiFp
-         NGLJ1Dsg2hiq7Etz28ZKARrDgzgJFXHEO08Ej6I0PLKcDMdVK+cVbdgEZPuQrnfhO2x4
-         tPGqV7qnEUpV4hr54N7oXTB/N8WDsNIYV4k1Tlxj1U/FsKa3VMwEykZo2K/w6lCuVIN5
-         +GHYu+mMoQNCaclAdNP6/lzsIq16De1DKUpHJAGzFhdIkp8TH5hpep9tEhLUKN5JzWxG
-         TGRZfN7Bedo+IKXHoiQdqKw1KOm+Kw+xyMQ0HuVWlLVW1LYhRUxJxUOYF3dXdNW41B3S
-         bx+g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793999050; x=1794603850;
-        h=content-transfer-encoding:content-type:mime-version:subject
-         :references:in-reply-to:message-id:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=9rbAT6HOHtgTNmvUZ4uTgxskj8ClF6GOt0gfNlKXaVw=;
-        b=DYuyyHLgWjBfvjQRjqW5/ic4vArKi/nvhPuSA1+w4wRm8wDfQ/pkxia0aQvqxPJC2U
-         +sycIUIYkLXLK2xTWv6eW6NECd73Yk1j8Pvd6s01ALYDikG25FlH1SZQrqhOMC9DKU1b
-         OCiDQBqDa2QqHgX42QexhI1N6FWcUxMNRMHSyU1OPYbgJFldgn1adiXpTSf9NYZfGm2r
-         3IkUIva6a5f3w4haAhjBerHxtZzyS0mczNHWRpqPdtt8EZSVUjI+xB1vmIKTguKninph
-         rKsaW1qHCiFs6PwG7VQACWnPdR8fuUcAYFzNgRBgQ8krNeTP7O83kM4Nv8p/a2cCAaz7
-         4kEg==
-X-Forwarded-Encrypted: i=1; AL+hErGvYIi5UdGT9UA0MvyS2nFPQsGu+e8uhio8Ot+jhpY03+qvjW2Xb5+p7GeQLvGY4c32VybOeFweV7QysLEKUA==@lists.linux.dev
-X-Gm-Message-State: APuU4Z/vjxtgZcXTFft3nR7lPZQNdZ+LB21Bdq89UY4jSd0vebgzkWic
-	SEBn/WD8v6fNBscXWixE+28vfkUkim6i1tl4hFK6ZmV8RoTn56gb18tx
-X-Gm-Gg: AYBFou2uNMgZe7HDd996JWN08jcDTGx7ug1TXoNR4nJnvsNWfCZHu5CPoyQLGnjMRdi
-	aKDpdB9hROh7Co051+c3MgSC+tHExCwDiLXEgibj+S5MHZEO8nu0iPrKX9pGlhSTTjO6EYHoEkg
-	9jOXz7/ZHJguJU1cZp0svJY3P0k5Ocl3FtEXWoKEpcl53I+fM+16LfhKwIFt/CLFqO0ukzBiH43
-	YRlcOq9ToST/Vwrrv9OlRuAAWA/EY7jwmjwHqyIoy90FoD5zueWGQjk5f9GSFtrDvyM2PWwBH8j
-	8nZYNfIuvOxOWBidrtcQ7U/MUjHLDEYE4jqylX3OJfFOR9H1jQQTP9dLJVomJwloXxaCNXewkTF
-	QX752+7RG48e3S+8XLGQ+OSPdAcAi0cp5No98SBmd6bzgmxFupJvDEv+xRNAeUWH+kz52LE7H3W
-	oELZeXIa/qXO9I4PS2mAY3ke82MNKNHgYnitlqFWJdpC9g7gGlt++vNxrGawO+hjPdLVg5z+VON
-	e+GYEP+aOJLPFOqYOKFmB4vWsgrbAa0MtDgJ7vmqou8L1gdgP75oTlbd8Bek8weHoBhY8uddu1V
-	DAOSgqWAufIk8HTR/uleh5V542Un9+noIJLgnngIKrnafs3gvihDyXCy4Cm7e1pAXfhNCknYPpX
-	2XwkZdxMbvqpeJQxNj8BekvKYbPDJcsImTswUpG+UWtxrxGOhcxhNbWJn/8Q01trb40cbMos=
-X-Received: by 2002:a05:6102:6cc:b0:7d2:7c63:59fd with SMTP id ada2fe7eead31-7d2a169a84amr1938421137.34.1793999050220;
-        Fri, 06 Nov 2026 13:04:10 -0800 (PST)
-Received: from gmail.com (223.230.150.34.bc.googleusercontent.com. [34.150.230.223])
-        by smtp.gmail.com with ESMTPSA id ada2fe7eead31-7d2a89a75b2sm2222405137.5.2026.11.06.13.04.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Nov 2026 13:04:09 -0800 (PST)
-Date: Fri, 06 Nov 2026 16:04:08 -0500
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-To: Antonio Quartulli <antonio@mandelbit.com>, 
- willemdebruijn.kernel@gmail.com, 
- jasowangio@gmail.com
-Cc: Antonio Quartulli <antonio@mandelbit.com>, 
- andrew+netdev@lunn.ch, 
- davem@davemloft.net, 
- edumazet@kernel.org, 
- kuba@kernel.org, 
- pabeni@redhat.com, 
- horms@kernel.org, 
- mst@redhat.com, 
- eperezma@redhat.com, 
- shuah@kernel.org, 
- ast@kernel.org, 
- daniel@iogearbox.net, 
- hawk@kernel.org, 
- john.fastabend@gmail.com, 
- sdf@fomichev.me, 
- maheshb@google.com, 
- peterpenkov96@gmail.com, 
- netdev@vger.kernel.org, 
- virtualization@lists.linux.dev, 
- linux-kselftest@vger.kernel.org, 
- bpf@vger.kernel.org
-Message-ID: <willemdebruijn.kernel.20268598d87e6@gmail.com>
-In-Reply-To: <20261103142232.1869185-2-antonio@mandelbit.com>
-References: <20261103142232.1869185-1-antonio@mandelbit.com>
- <20261103142232.1869185-2-antonio@mandelbit.com>
-Subject: Re: [PATCH net v4 1/2] tun: bound the NAPI receive queue
+	by smtp.kernel.org (Postfix) with ESMTPS id 068601F008A1;
+	Fri,  6 Nov 2026 21:57:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794002245;
+	bh=4hTF15KGZnWZXaxkczJaxpuVmQOPU5K6aaPcUmXIxUQ=;
+	h=From:Subject:Date:To:Cc:Reply-To;
+	b=BmXRZoMVRUwrx6vKTJEE8lQTIttkKxTb9rd4NZ15y4yLfggmRPBh6TkjotfmWONCL
+	 eSD/PAh+Lm2TXi/lWQeZh8a/GeeItO/4pFknTB/gNMbgCGjgmvbO9XLGvBbksZ47aG
+	 A6LOWPartW7dCrWVT3dH2Y9FcsGtVl6KOMME2v2J9KnmVdsSYHZqK/lvLzz3hhJBJM
+	 B9sp+TruqCfV+GGwTmTFb671dLECc7Yq6PFgYofTf8NlQs98ok3uZHKTJLJFwNk6/a
+	 D7WngxUmDbC9tfKQPJ3h5HILbzG7xq1bUdAGQCYVYvZr4CNRfktqQNfAXOJOf+MlwU
+	 bYwFDDYeB8nCg==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id 5BF06478B1;
+	Fri,  6 Nov 2026 21:57:23 +0000 (UTC)
+From: Jerome Mohm via B4 Relay <devnull+jrmmhm.kernel.eldare.de@kernel.org>
+Subject: [PATCH net v4 0/2] vsock/bpf: fix waiting and flag handling in
+ recvmsg
+Date: Fri, 06 Nov 2026 22:57:20 +0100
+Message-Id: <20261106-kbh3-1-022-fix-v2-v4-0-c7d36703814d@eldare.de>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -120,248 +84,100 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/32NOw7CMBBErxK5ZpG9zpeKeyAKfzbEgBJkBwsU5
+ e44oUmBKN/uzJuJBfKOAjtkE/MUXXBDnyDfZcx0qr8QOJuYIcdScC7gpjsJAjgitO4FEYFkK3J
+ seJkLxVLv4Sl9VueJ9TSy8/cYnvpKZlxsS6xzYRz8e12OYg3/GYkisWkVNUWtRFOVR7pb5Wlva
+ fVHuTFg/csggYM2vCpQo5VWbw3zPH8AJ4gEqgsBAAA=
+X-Change-ID: 20261001-kbh3-1-022-fix-v2-e3f14290641a
+To: Stefano Garzarella <sgarzare@redhat.com>, 
+ Bobby Eshleman <bobbyeshleman@meta.com>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+ Simon Horman <horms@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Michal Luczaj <mhal@rbox.co>, virtualization@lists.linux.dev, 
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bpf@vger.kernel.org, 
+ stable@vger.kernel.org, Jerome Mohm <jrmmhm.kernel@eldare.de>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1794002242; l=3156;
+ i=jrmmhm.kernel@eldare.de; s=20260928; h=from:subject:message-id;
+ bh=3N1HVbW/FKojBN21DNx2VL0tmiNZKFzaJqEUw7vm67M=;
+ b=dzk2bNoM+L/XeEtTJDqisAtunD/8hRkFnTCN+GQfp2y4JcrBsy04acBNPoTkUcxKfYxQm442M
+ 4vz/Xn5ONiVC2M5bVBzXmgcbfqPuYtoIEKpgY5HrdJ2I16tmzZnqwXK
+X-Developer-Key: i=jrmmhm.kernel@eldare.de; a=ed25519;
+ pk=xRCxNXbnNottaHpmvPDAOC9NuMJxqKo24abkehKRVlo=
+X-Endpoint-Received: by B4 Relay for jrmmhm.kernel@eldare.de/20260928 with
+ auth_id=1075
+X-Original-From: Jerome Mohm <jrmmhm.kernel@eldare.de>
+Reply-To: jrmmhm.kernel@eldare.de
 
-Antonio Quartulli wrote:
-> With IFF_NAPI, tun_get_user() queues every written packet for NAPI on
-> an unbounded list. When the poll runs asynchronously (threaded NAPI)
-> and is slower than the writer, the queue grows until the system runs
-> out of memory. An unprivileged user can do this from its own user and
-> network namespaces, and the queued skbs are not charged to its memcg:
-> in a test VM, a uid 1000 process limited to 128 MB caused a global OOM
-> in ~6 seconds. The socket send buffer cannot bound this: tun sets it to
-> INT_MAX, and the build_skb() and XDP batch paths do not check it.
-> 
-> Drop packets once more than netdev_max_backlog of them are queued, like
-> enqueue_to_backlog() does, and count them as rx_dropped: before
-> allocating and copying them where possible, and again under the queue
-> lock before queueing. This covers write(), sendmsg() and the batches of
-> XDP buffers vhost-net passes to tun_sendmsg(), which share the queue.
-> Zerocopy buffers of packets dropped early are completed.
-> 
-> The NAPI poll moves the whole queue out, processes up to its budget and
-> puts the rest back: while it runs, the queue looks empty to writers, so
-> with the poll on another CPU the backlog still grows without limit. Keep
-> the leftovers on a queue of their own and take the next batch only once
-> it is empty, like process_backlog() does, so that neither queue holds
-> more than the limit.
-> 
-> Dropping because the queue is full also schedules NAPI, in all three
-> places. vhost-net sends with MSG_MORE while it has more packets, and
-> tun_get_user() schedules NAPI only after the last one or once more than
-> NAPI_POLL_WEIGHT are queued. With a netdev_max_backlog below that, the
-> queue would not drain until vhost-net ran out of packets; with zerocopy,
-> vhost-net never would, as it stops sending when too many queued buffers
-> are pending.
-> 
-> Reproducer, as an unprivileged user in a new user and network
-> namespace, without kernel modifications or fault injection:
->   ip tuntap add t0 mode tun; ip addr add 10.11.0.1/24 dev t0
->   ip link add d0 type dummy; ip addr add 10.20.0.1/24 dev d0
->   ip link set t0 up; ip link set d0 up; sysctl net.ipv4.ip_forward=1
->   install ~500 iptables FORWARD rules and a MASQUERADE rule on d0
->   open t0 with IFF_TUN | IFF_NO_PI | IFF_NAPI
->   echo 1 > /sys/class/net/t0/threaded
->   write() 1400-byte IPv4 packets for 10.20.0.2 in a loop
-> 
-> Tested in an x86-64 VM with 1 and 2 vCPUs: with the reproducer running
-> for 15 seconds, memory use stays flat and the forwarding rate is
-> unchanged; the tun kselftest passes, as it does without the patch; and
-> the tun_vhost kselftest added by the next patch, which drives the
-> vhost-net batch, copy and zerocopy paths, passes, while it fails without
-> the patch.
-> 
-> Still open: the limit counts packets rather than bytes and applies per
-> queue, up to about twice the limit can be in flight (queued plus taken
-> by the poll), and the queued skbs are still not charged to the writer's
-> memcg.
-> 
-> Fixes: 943170998b20 ("tun: enable NAPI for TUN/TAP driver")
-> Signed-off-by: Antonio Quartulli <antonio@mandelbit.com>
+vsock_bpf_recvmsg() holds lock_sock() while it sleeps for data, so the
+transport's delivery worker, which needs that lock to queue the data,
+deadlocks with the reader. Patch 1 releases the lock around the wait and
+makes the wait loop with the exit conditions of the native path. Patch 2
+handles the reads that should never reach the sockmap wait: len == 0,
+MSG_ERRQUEUE and MSG_OOB.
 
-This is quite a complex solution.
+Not addressed here, as in v3: data that sits only in psock->ingress_skb,
+and READ_ONCE()/WRITE_ONCE() for the lockless accesses; both are left for
+separate patches. Not run: the ns_* tests of vmtest.sh (they need root on
+the host); the reproducers ran in a guest over virtio-vsock (PCI) and
+vsock-loopback only.
 
-Can we perhaps simplify it a bit? For instance:
+The deadlock and the MSG_ERRQUEUE case were found with the help of
+Anthropic's Claude; the other cases come from the netdev Sashiko review.
+The reproducers are available on request.
 
-On tx only keep the lockless check. Number of packets that can bypass
-that is bounded, by the number of competing threads.
+Changes in v4:
+- 1/2: comment why the wait stops on sk_err and why it checks
+  signal_pending() (Stefano).
+- 1/2: one data <= 0 check in vsock_bpf_recvmsg() (Stefano).
+- 1/2: say why this is one patch and how non-blocking reads change
+  (Stefano).
+- 2/2: say that MSG_ERRQUEUE consumed stream bytes and why the checks
+  come in this order (Stefano).
+- Shorter commit messages.
+- Rebase onto current net.
+- Retested, with a new reproducer for a dataless wakeup during a timed
+  wait.
+- Link to v3: https://patch.msgid.link/20261028-kbh3-1-022-fix-v2-v3-0-bc0752b2d3db@eldare.de
 
-On rx avoid the new queue, by not temporary presenting an empty queue:
+Changes in v3:
+- Split into two patches (Michal): 1/2 releases the lock and loops in
+  the wait, 2/2 handles len == 0, MSG_ERRQUEUE and MSG_OOB.
+- 1/2: also end the wait once the socket is no longer TCP_ESTABLISHED
+  (0 with SOCK_DONE, else -ENOTCONN, as __vsock_connectible_recvmsg()
+  does), so a reset connection whose error was read with SO_ERROR no
+  longer waits out the timeout (Sashiko review of v2).
+- 2/2: reject MSG_OOB with -EOPNOTSUPP before the len == 0 check, as
+  unix_bpf does; this also stops MSG_OOB from consuming ordinary bytes
+  (Sashiko review of v2).
+- Stefano's Acked-by on v1 is not carried: neither patch matches v1.
+- Drop the Assisted-by trailer (removed upstream); tool use is disclosed
+  above instead.
+- Rebase onto current net.
+- Link to v2: https://lore.kernel.org/netdev/20261001-kbh3-1-022-fix-v2-v1-1-cfae958a1976@eldare.de/
 
-        spin_lock(&queue->lock);
-        if (skb_queue_len(queue) <= budget) {
-            skb_queue_splice_tail_init(queue, &process_queue);
-        } else {
-            while (skb_queue_len(&process_queue) < budget &&
-                   (skb = __skb_dequeue(queue)))
-                __skb_queue_tail(&process_queue, skb);
-        }
-        spin_unlock(&queue->lock);
+Changes in v2:
+- Make vsock_msg_wait_data() loop, check sk_err and the peer
+  SEND_SHUTDOWN, and add the len == 0 guard (Sashiko review of v1);
+  route MSG_ERRQUEUE to the native path ahead of the guard.
+- Link to v1: https://lore.kernel.org/netdev/20260929-kbh3-1-022-fix-v1-1-cc97cc95d269@eldare.de/
 
+---
+Jerome Mohm (2):
+      vsock/bpf: release sock lock while waiting for data in recvmsg
+      vsock/bpf: fix zero-length, MSG_OOB and MSG_ERRQUEUE reads in recvmsg
 
+ net/vmw_vsock/vsock_bpf.c | 77 ++++++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 63 insertions(+), 14 deletions(-)
+---
+base-commit: 6d2cf411aba2aa0bd641b49be5b1964ac5097a50
+change-id: 20261001-kbh3-1-022-fix-v2-e3f14290641a
 
-
-> ---
->  drivers/net/tun.c | 82 +++++++++++++++++++++++++++++++++++++++--------
->  1 file changed, 68 insertions(+), 14 deletions(-)
-> 
-> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-> index 770b8fe085c3..ea99ee0aee2b 100644
-> --- a/drivers/net/tun.c
-> +++ b/drivers/net/tun.c
-> @@ -58,6 +58,7 @@
->  #include <linux/nsproxy.h>
->  #include <linux/virtio_net.h>
->  #include <linux/rcupdate.h>
-> +#include <net/hotdata.h>
->  #include <net/net_namespace.h>
->  #include <net/netns/generic.h>
->  #include <net/rtnetlink.h>
-> @@ -140,6 +141,8 @@ struct tun_file {
->  		unsigned int ifindex;
->  	};
->  	struct napi_struct napi;
-> +	/* NAPI poll only: skbs taken off sk_write_queue, not yet received */
-> +	struct sk_buff_head napi_process_queue;
->  	bool napi_enabled;
->  	bool napi_frags_enabled;
->  	struct mutex napi_mutex;	/* Protects access to the above napi */
-> @@ -227,31 +230,40 @@ struct veth {
->  static void tun_flow_init(struct tun_struct *tun);
->  static void tun_flow_uninit(struct tun_struct *tun);
->  
-> +/* In IFF_NAPI mode written packets wait in the tfile's sk_write_queue for the
-> + * NAPI poll, which may run later in a kthread or ksoftirqd. Bound that queue
-> + * like the per-CPU backlog of netif_rx().
-> + */
-> +static bool tun_napi_queue_full(const struct sk_buff_head *queue)
-> +{
-> +	return skb_queue_len_lockless(queue) >
-> +	       READ_ONCE(net_hotdata.max_backlog);
-> +}
-> +
->  static int tun_napi_receive(struct napi_struct *napi, int budget)
->  {
->  	struct tun_file *tfile = container_of(napi, struct tun_file, napi);
-> +	struct sk_buff_head *process_queue = &tfile->napi_process_queue;
->  	struct sk_buff_head *queue = &tfile->sk.sk_write_queue;
-> -	struct sk_buff_head process_queue;
->  	struct sk_buff *skb;
->  	int received = 0;
->  
-> -	__skb_queue_head_init(&process_queue);
-> -
-> -	spin_lock(&queue->lock);
-> -	skb_queue_splice_tail_init(queue, &process_queue);
-> -	spin_unlock(&queue->lock);
-> -
-> -	while (received < budget && (skb = __skb_dequeue(&process_queue))) {
-> +	while (received < budget) {
-> +		/* Refill only when empty: leftovers are not put back on the
-> +		 * queue writers check, so neither queue exceeds the limit.
-> +		 */
-> +		if (skb_queue_empty(process_queue)) {
-> +			spin_lock(&queue->lock);
-> +			skb_queue_splice_tail_init(queue, process_queue);
-> +			spin_unlock(&queue->lock);
-> +			if (skb_queue_empty(process_queue))
-> +				break;
-> +		}
-> +		skb = __skb_dequeue(process_queue);
->  		napi_gro_receive(napi, skb);
->  		++received;
->  	}
->  
-> -	if (!skb_queue_empty(&process_queue)) {
-> -		spin_lock(&queue->lock);
-> -		skb_queue_splice(&process_queue, queue);
-> -		spin_unlock(&queue->lock);
-> -	}
-> -
->  	return received;
->  }
->  
-> @@ -572,6 +584,8 @@ static void tun_queue_purge(struct tun_file *tfile)
->  		tun_ptr_free(ptr);
->  
->  	skb_queue_purge(&tfile->sk.sk_write_queue);
-> +	/* NAPI is disabled by now */
-> +	__skb_queue_purge(&tfile->napi_process_queue);
->  	skb_queue_purge(&tfile->sk.sk_error_queue);
->  }
->  
-> @@ -1856,6 +1870,23 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
->  			zerocopy = true;
->  	}
->  
-> +	/* NAPI queue full: drop before allocating, and schedule NAPI, which a
-> +	 * MSG_MORE sender may not have done yet. Rechecked under the lock.
-> +	 */
-> +	if (tfile->napi_enabled &&
-> +	    unlikely(tun_napi_queue_full(&tfile->sk.sk_write_queue))) {
-> +		local_bh_disable();
-> +		napi_schedule(&tfile->napi);
-> +		local_bh_enable();
-> +		if (msg_control) {
-> +			struct ubuf_info *uarg = msg_control;
-> +
-> +			uarg->ops->complete(NULL, uarg, false);
-> +		}
-> +		dev_core_stats_rx_dropped_inc(tun->dev);
-> +		return total_len;
-> +	}
-> +
->  	if (!frags && tun_can_build_skb(tun, tfile, len, noblock, zerocopy)) {
->  		/* For the packet that is not easy to be processed
->  		 * (e.g gso or jumbo packet), we will do it at after
-> @@ -2045,6 +2076,17 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
->  			goto free_skb;
->  		}
->  
-> +		/* NAPI queue full: drop, as above */
-> +		if (unlikely(tun_napi_queue_full(queue))) {
-> +			spin_unlock(&queue->lock);
-> +			napi_schedule(&tfile->napi);
-> +			local_bh_enable();
-> +			rcu_read_unlock();
-> +			dev_core_stats_rx_dropped_inc(tun->dev);
-> +			drop_reason = SKB_DROP_REASON_FULL_RING;
-> +			goto free_skb;
-> +		}
-> +
->  		__skb_queue_tail(queue, skb);
->  		queue_len = skb_queue_len(queue);
->  		spin_unlock(&queue->lock);
-> @@ -2649,6 +2691,17 @@ static int tun_xdp_one(struct tun_struct *tun,
->  			return -EBUSY;
->  		}
->  
-> +		/* NAPI queue full: drop, and schedule NAPI so that it drains
-> +		 * even if nothing in this batch gets queued
-> +		 */
-> +		if (unlikely(tun_napi_queue_full(queue))) {
-> +			spin_unlock(&queue->lock);
-> +			napi_schedule(&tfile->napi);
-> +			kfree_skb_reason(skb, SKB_DROP_REASON_FULL_RING);
-> +			dev_core_stats_rx_dropped_inc(tun->dev);
-> +			return 0;
-> +		}
-> +
->  		__skb_queue_tail(queue, skb);
->  		spin_unlock(&queue->lock);
->  		ret = 1;
-> @@ -3571,6 +3624,7 @@ static int tun_chr_open(struct inode *inode, struct file * file)
->  	}
->  
->  	mutex_init(&tfile->napi_mutex);
-> +	__skb_queue_head_init(&tfile->napi_process_queue);
->  	RCU_INIT_POINTER(tfile->tun, NULL);
->  	tfile->flags = 0;
->  	tfile->ifindex = 0;
-> -- 
-> 2.56.0
-> 
+Best regards,
+--  
+Jerome Mohm <jrmmhm.kernel@eldare.de>
 
 
