@@ -1,87 +1,86 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.175
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.217.43
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793938730;
-	b=YoFjlEnT84mescH//P0x8N9VmNsoOboAAcAaWDd0fUv9McwHkHdg9F/Z4rF+CiO7y+eE
-	 yekwRXBrFyfjlbhRpaxoWvw3fs/0dyAsDiddDvCBe99/JTdKgAKLLveV7I8Ryasm4w9pd
-	 jrxL9Cg0Ydr6XmVVQ219BxH+epFFN6KJAkR0HZnFFVszn5r9QmFfpZVBFjuCV+POKQM4l
-	 9YpyCmnUhO46vHVXAa8HCCMqsyx8b5/50fFTvAylV/UW0Puz1vAs8e4n334GZ4p4ag9Tk
-	 ZTsyIhsna8dgICFAYNz4rksJbYsKiW3mB9OH6rI5IZqv6xuzWm1/ROEG5qajB50Tlnw==
+	t=1793938911;
+	b=EqLVDGdhBJ5Iy/TvTPbVMC5OIsx37tocC0lep2xkjjQKQoOjW3n/0QvvU9zMjF1i6tsB
+	 0142VpJkd10dWNhErdWpCm1yaD63Epe6NnimFsHjeNWrspXRVvYuULiOV4YtfreE/2+dx
+	 th5k0+cN4YqlQlrxPg+AMjNgU9+o+pAmVXMk9y4oL7An3VssEqPVce7qcaIwVeI3Hhwo9
+	 X6I6R30PDnUT3aHkn6nx46PCY9rFzLiE4FT3+FW2qVsyjENAJE/+EfgpwTl2CH2RpCzyo
+	 WSBpIVazhMMeY7C4MbDTtJDvoYlZW+xYoy3D5y/V9D5t4NQK5FfCA7nvLMEJdpDfxQQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793938730;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793938911;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
 	 MIME-Version:Content-Type:Content-Transfer-Encoding;
-	bh=qkRXBwd9VuNyjRdV31nMFJ+5eNrq3IUMvPVOYqoi14Q=;
-	b=VpAcsS9qAbn0T43qG4H2XHsu2q9F2b3jOhbN3RR+NwS4M//K0oQUiJCfZxoNYFXiZNmw
-	 K24ozZeDwvRjuozjn70x7Hx20ngsxIxLO4noci+FalKR1PpG0OOo6VEWsvGC0DxBzsO8j
-	 WDjwAcQn3RBiUnbQn4Te7Qa3E909EY5ZNc63ztOtLvTCS7d5N7UlG/yNeAchmQU0pPtrs
-	 nGmV+ME2WMWdvYnJU2zX/xMEGF1sjjgXAG7/+qfkp7kavBCuvqfRAF639ifeI/4T4r8R/
-	 toPqPn4FnoTuNCEw7pWov5bcOsMpGxSqdA5Y1uGnPD46/0buPmsvSY9v/ObtKnnT9uw==
+	bh=3iWGu++LVn2H+H7qSXINsSF2Yix8YUXmGD2jfuzlbW4=;
+	b=HfI90zSqFKh1jXMKqyxVpuk3jjYVj++WsWj4vLawy2399nT9h37JIBtpsVqNsUGBaO/Z
+	 13re3KKNyZbT5XfDLqo9edVuxLJZL6UdFxSKeqn2VaK/zR3G7hv49eSXK/CnNq5jHMVFu
+	 kX8zLEcvvYqz7gaMkKu/CioDgiTME+kOkxy7Z4YYJZhGrYSr9GG+wdILQhmgrDJtmacBK
+	 AJIO/off7Ed2Cezzz0r/Pvq9+s1+pzEkUkGHQO64oduZ5Pkugh6dI50mG9AIHRhVepAT/
+	 /IalxzwybCUSlkCl/EYXeAYhM7mPm4kpifNmbLOStHLYnh/rhSfAZAUQ0Krp9hJ6Puw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=TZgYuzEG;
-	arc=none smtp.remote-ip=209.85.221.175
-Received: from mail-vk1-f175.google.com (mail-vk1-f175.google.com [209.85.221.175])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=QOBx94jG;
+	arc=none smtp.remote-ip=209.85.217.43
+Received: from mail-vs1-f43.google.com (mail-vs1-f43.google.com [209.85.217.43])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBDB1606A326
-	for <virtualization@lists.linux.dev>; Fri,  6 Nov 2026 04:18:49 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BBDB1606A326
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 671DF606A31B
+	for <virtualization@lists.linux.dev>; Fri,  6 Nov 2026 04:21:51 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 671DF606A31B
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=TZgYuzEG
-Received: by mail-vk1-f175.google.com with SMTP id 71dfb90a1353d-5eaa5e03c47so1283301e0c.0
-        for <virtualization@lists.linux.dev>; Thu, 05 Nov 2026 20:18:49 -0800 (PST)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=QOBx94jG
+Received: by mail-vs1-f43.google.com with SMTP id ada2fe7eead31-7ce77f98658so79060137.3
+        for <virtualization@lists.linux.dev>; Thu, 05 Nov 2026 20:21:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793938729; x=1794543529; darn=lists.linux.dev;
+        d=gmail.com; s=20260707; t=1793938910; x=1794543710; darn=lists.linux.dev;
         h=content-transfer-encoding:content-type:mime-version:subject
          :references:in-reply-to:message-id:cc:to:from:date:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=qkRXBwd9VuNyjRdV31nMFJ+5eNrq3IUMvPVOYqoi14Q=;
-        b=TZgYuzEG/ECzcsTUI+zU83Mn0kj4VC15XdOTK+FcrwcxnofEXSsYTJn9/JxAMMz4nR
-         ixDHrWEG/VLAnXCPgp2DoIGPqBEM3oLqBE3Dvy5ihZLfdKGXrkIAZ02Hq9bmHv9HA9kv
-         mIA/JX+nig9DI+vKHu2KfaTzqTfEd1GSeAkcHcU89NX3P1OLwr6m1S6yw+kIEMgp+b2B
-         rd5FhR1UWlu939M8WlHFBjCadPsBWq/EGLnViRQ+LWB0kGLEeq/Nl83nnLYxGTugNJVf
-         edERMg7DqSVHPOQKoc+RzlZlP1TTxYXjy7jbx0egPwtqjwsiHDAtItfc+8o6bURwghzj
-         m57A==
+        bh=3iWGu++LVn2H+H7qSXINsSF2Yix8YUXmGD2jfuzlbW4=;
+        b=QOBx94jGXFQUgXrieFqY4ta4nfZy2iUxd56221YG/7yo5sAA4C9wj+pmfgcx3C+FKV
+         pS5ISMectTJyLfxzZBwwkEHQnqDSHo9BUCJihXHQzxYoJTno10V6QasnpeHN4Cxfu1NO
+         Un8TKl0hq7okhcnBZxaWuGzEQxWpuuX5fTpU8hx+aHU6yup9P2QQVFnFGsZ8648etXu2
+         jB8XO9VQgHWdjoGiTLbwo0BDEmQkelVuKTS3clO+yedJI1/Lt+/Wu1gexzrq1g7fBYm/
+         ox6jz4JAOWt2UKCO4WlqQQdjUWs/tNM7ZJwd4XWIoSL70zOhrrqXcPWCGlmZOJR37oRD
+         KYRg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793938729; x=1794543529;
+        d=1e100.net; s=20260707; t=1793938910; x=1794543710;
         h=content-transfer-encoding:content-type:mime-version:subject
          :references:in-reply-to:message-id:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=qkRXBwd9VuNyjRdV31nMFJ+5eNrq3IUMvPVOYqoi14Q=;
-        b=Ai/eyqhRL/J4raUeGymL/jnrW2hdWl6pLhCkfjzQ+mY8fkgZwfgBAxTnYHvhUpEWEn
-         ASUkgKN7Q5HGD6vwgn8eNHnojmjzOdOhnp/4Zj032gVU8lgGBRK5H7G4Wp8HBWAY5eoE
-         qSm04OGx86/yL+QOiAGRVc5QLC5ko00mw/4ewcGQd/+eZpfEk7ybXJYW9tH6LxQWUQ+/
-         XCeN/ZIaIZp6XKuDqClQLpTt967tHdVVmAOKBMTlOXCYAOIkyTXI7VJ4GuXjqJEGJce7
-         rjcRwx4YZ1sKrAxEVxw7q/86dG6Xr8TIG845m46LL9LsMIlY5ydsN02hgZk2DeRtceeq
-         8EnA==
-X-Forwarded-Encrypted: i=1; AKwUvBzeXcOfzaN4+xWdxnsdkiUg519t3EKNFHSo8JqpEs7gS2ZpSz63AfG0uRPCxm9wC5LtN34i3bP6QqZJb8LAIw==@lists.linux.dev
-X-Gm-Message-State: APuU4Z+xboPYmfijj57ikHaHzNX5PL3Rg5VoJMFjJKwvkIV0GJ5zDKMh
-	lIQ5xxDBiTNIOt7sUGpeXYkHXwwpzHZ6zkgXO1ml4NKzzlcnjEzmWUIr
-X-Gm-Gg: AYBFou1d0ACYWdPbKVL1PFn2m2WhFu4aQi+dIJ7ihkTOM3e5onHr+Pl8UH2/RE0GzH2
-	vIS0qBRArwYvMm0zf0pLHaHP0D/mVHIoFsKcLGtDTtPOCNZLOybiU8+a+NNKod6XnpLc4s54LGG
-	p0htElh1RfuEshz+iWXmEd2tmx5JD6XjN/nxpTQWsPDOThbAWVTHvVr8UJtItEYEyDFUjWwu3Dk
-	B85tybaxJhiegML9qagjqyIYaS51WvnflkkjuBfs+1vv/uok5jT6NgDGqIZYjsT/H5FnoTllw18
-	XvDINTpfFhTWXnp7OjQ9VZnbhtXC/hSbTCmPC1XhEn+itcpLaxvykDBPlL7U9EcS5CPSaB/ECuo
-	2idp5LG8u8XqLnVO2Rd6J23VcryrgOPjflvOGBUaB7DOVtItQW2euybt5d+G11SIeGTEPi371J7
-	dLjtuKplv4TM3fqtG0DODnhPGeuGqvlh9Z67XkDmJU0rwRzEERtpCEVE6PQHkvMuJE7OtU8aTdb
-	PL6Nw1/EQor5N4Nti6Zqv1LaoK7dOkETyNclEs5jjOx6TE95o7cHJXB1uLgw7AClV3tY8Jm/T5x
-	6AhpvJDCaguNWU8DLLl4iObSt1+TkVJEgTEuOO02Y+vJX+xDBb7ym4ZHm5XmZutkH6P08j63QxI
-	5eykOEFJ8rr9zkNyQYyWAh1TewmUAVJ9ByNjkXsfmHBX2eL7QCMIbnX4rQOE18GOG0TRcr/vIgc
-	rpwbZil2IzQ8BbZaMh
-X-Received: by 2002:a05:6102:9d7:b0:7c3:874d:60bb with SMTP id ada2fe7eead31-7d2a14b652amr651881137.5.1793938728631;
-        Thu, 05 Nov 2026 20:18:48 -0800 (PST)
+        bh=3iWGu++LVn2H+H7qSXINsSF2Yix8YUXmGD2jfuzlbW4=;
+        b=WYh+zaFrDW+jzsT8G1ySINROP31xQt4wGTWBrh9OFLnbclHVvWOOCtRcQeJs84RoOX
+         am4InYzwQ62WRYxOPaaoeGaEWM8z8W4ICS+SOovC8nGa7eLWI5qBBNaVi1JW6H3ahopF
+         iwlBIAeA4+AJvqDER8EP8p4CwEKepKVgD6b5m/P9E4/myT8PUxRqo6RQdoksquzy2mhr
+         JaEt67dBq1XI/4JZqG2dBWX/jXOyT7b7A5ogKf3y6MLCMUh4Ct01v3qw/kOlgUbm8CEa
+         fRD+Z18NuF2Vv8uPmglVeYm3FxXWLni/KG44z87Gxdv0Lk6n48BAsaqVyJH1Dd/gcY3h
+         SwQA==
+X-Forwarded-Encrypted: i=1; AKwUvByONQIDXd6MnRw3Uh4lYu6aj50nVfwHNdByITiFoBffhViU5W9cnmByd11dhtiSIXH8Gy6xPDRiZntISt6R5A==@lists.linux.dev
+X-Gm-Message-State: APuU4Z/YZA1Ui+CF4b9wtIm1OBBczqE98UC/jpv63CjDgQm/rVG1QXF4
+	IY+Uvy4q6n1Co49m78DgbP3abF7vvQGjUNhsvNBz8GCt/4fN+1PWPLWL
+X-Gm-Gg: AYBFou2qQZ1yJx5JiX3skCcjj0au2kMxAklDoin1/Ls+CvjpJgrDaSOGNxhsEfq2veI
+	Znu+9Y2WTgmDPLz5asT/C4ef3uNVGqF0N4HKMZ5EThu0Kc4RJFgebb18bbl8rHRu6p1drrq4BZh
+	iIq0BgiQd7d0NGQQYX/1ISC/QaOzsr2SGaKsxcSAvHPan5mmFvWmpH9Bq3iqpGumj07gFRgkCV5
+	Jkz9c4udnLLRXSBZXfDY+bznwKt0gfPkoO2P+jxa8QFoQY8iUq4d7xj7PdcHYJRBVYqHlxQrZ+T
+	95KOe2UfnizPSWxStiCFJ0RAbmZNOsIzAL2R3OENJGzmnfr8otD9zRv6ASFG01AMbV28RuJj7A5
+	mnHIJbppSNPfWqp4/bV293RiPGmetn66BAk6vQ8ukSzQYv1abFHOHqIRViS/EdmgKfRQySaJvts
+	XxGp7GUgd1lZaI9SbdmpSyt45RgtBewMf727Nlh2DErllFuEFm7dM9vVWEq2cO9KT2FLPr+84t9
+	OetC9F9yB5ngwyw5rfXEOXKPU0l03aIbbgdI/IUS0718HsF6gGC4puNw7KEhU2j69SAeywpoxlZ
+	Z0aN9E5fHRoJxdY0CxPdtjJKTQNH8Q1UlRlIKPL2iC5J6OQDl45k3odupiXomeSqzB+KKR9B8Nd
+	9V3UDJjNgZNV40lGDSWgvT2Vu1ouo0/u9GtDrxpGapwGhlogGspauj0QB3Txlm7fHCVBUuRI=
+X-Received: by 2002:a05:6102:a18f:10b0:7ce:6474:7216 with SMTP id ada2fe7eead31-7d2a2f0ac8cmr439924137.36.1793938910317;
+        Thu, 05 Nov 2026 20:21:50 -0800 (PST)
 Received: from gmail.com (223.230.150.34.bc.googleusercontent.com. [34.150.230.223])
-        by smtp.gmail.com with ESMTPSA id ada2fe7eead31-7d2a8b52ca9sm427837137.9.2026.11.05.20.18.47
+        by smtp.gmail.com with ESMTPSA id ada2fe7eead31-7d2a85beb50sm492944137.1.2026.11.05.20.21.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Nov 2026 20:18:48 -0800 (PST)
-Date: Thu, 05 Nov 2026 23:18:47 -0500
+        Thu, 05 Nov 2026 20:21:49 -0800 (PST)
+Date: Thu, 05 Nov 2026 23:21:49 -0500
 From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
 To: Eric Dumazet <edumazet@kernel.org>, 
  netdev@vger.kernel.org, 
@@ -96,12 +95,12 @@ Cc: Eric Dumazet <edumazet@kernel.org>,
  =?UTF-8?B?RXVnZW5pbyBQw6lyZXo=?= <eperezma@redhat.com>, 
  Hassan Sultan <hassansultan@google.com>, 
  virtualization@lists.linux.dev
-Message-ID: <willemdebruijn.kernel.2494b56c7bdc2@gmail.com>
-In-Reply-To: <20261105115715.1466924-3-edumazet@kernel.org>
+Message-ID: <willemdebruijn.kernel.1afc96da83d57@gmail.com>
+In-Reply-To: <20261105115715.1466924-4-edumazet@kernel.org>
 References: <20261105115715.1466924-1-edumazet@kernel.org>
- <20261105115715.1466924-3-edumazet@kernel.org>
-Subject: Re: [PATCH net v3 2/8] net: virtio: do not use dev->type to find the
- outer L3 header
+ <20261105115715.1466924-4-edumazet@kernel.org>
+Subject: Re: [PATCH net v3 3/8] tun: clear stale skb->protocol of NAPI frags
+ skbs
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -116,43 +115,59 @@ Content-Type: text/plain;
 Content-Transfer-Encoding: 7bit
 
 Eric Dumazet wrote:
-> virtio_net_l3_start() decides from skb->dev->type whether the frame
-> starts with an Ethernet header. tun decides it from the IFF_TAP and
-> IFF_TUN flags, and TUNSETLINK can set the type of a down tun device
-> to any value, without changing the flags.
+> With IFF_NAPI_FRAGS, tun_napi_alloc_frags() gets its skb from
+> napi_get_frags(). If GRO merged the previous frame with
+> GRO_MERGED_FREE, that skb was recycled by napi_reuse_skb(), which does
+> not reset skb->protocol set by napi_frags_skb() for the previous frame.
 > 
-> On an IFF_TAP device set to ARPHRD_NONE, the outer protocol checks
-> look at the IP header at the network header (ETH_HLEN), and never read
-> the Ethernet header. eth_type_trans() then sets skb->protocol from an
-> unchecked h_proto, for instance ETH_P_NSH, and the packet can reach
-> the skb_under_panic() addressed by the previous patch.
+> On the IFF_TAP path, tun_get_user() calls tun_vnet_hdr_tnl_to_skb()
+> before eth_type_trans(), so the virtio header checks see the protocol
+> of the previous frame: the outer protocol check of UDP tunnel GSO
+> packets rejects a valid frame when the two ethertypes differ, and
+> GSO packets without VIRTIO_NET_HDR_F_NEEDS_CSUM are dissected with
+> the wrong protocol.
 > 
-> On an IFF_TUN device set to ARPHRD_ETHER, the checks validate an
-> Ethernet header that tun then treats as the start of the L3 header.
+> This needs GRO to hold packets across writes, for example with
+> napi_defer_hard_irqs and gro_flush_timeout set on the device.
 > 
-> Checking in tun that the device type matches the framing is not
-> enough: the type is read again later, and a concurrent TUNSETLINK can
-> change it in between, since tun_get_user() only drops packets of a
-> down device after these checks.
+> Clear skb->protocol for IFF_TAP frames, as for skbs allocated by
+> tun_alloc_skb(). eth_type_trans() sets it right after.
 > 
-> Add a has_eth argument to virtio_net_hdr_tnl_to_skb(), passed down to
-> virtio_net_l3_start(), so the device type is no longer used:
-> 
-> - virtio_net always receives Ethernet frames.
-> - tun_get_user() passes whether the device is IFF_TAP.
-> - tun_xdp_one() always calls eth_type_trans() on its frames.
-> 
-> Fixes: 288f30435132 ("tun: enable gso over UDP tunnel support.")
+> Fixes: 90e33d459407 ("tun: enable napi_gro_frags() for TUN/TAP driver")
 > Reported-by: Sashiko <sashiko-bot@kernel.org>
-> Closes: https://lore.kernel.org/netdev/sashiko-outbox-198573@kernel.org/
-> Link: https://lore.kernel.org/netdev/179387332014.488856.9111956413610107951@kernel.org/
+> Closes: https://lore.kernel.org/netdev/179386753589.488856.11455181721004759454@kernel.org/
 > Signed-off-by: Eric Dumazet <edumazet@kernel.org>
 
 Reviewed-by: Willem de Bruijn <willemb@google.com>
 
-Makes sense, and easier to review stand-alone.
+> ---
+>  drivers/net/tun.c | 5 +++++
+>  1 file changed, 5 insertions(+)
+> 
+> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+> index 3920b3dff1e8..6b648f21018c 100644
+> --- a/drivers/net/tun.c
+> +++ b/drivers/net/tun.c
+> @@ -1941,6 +1941,11 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
+>  			goto drop;
+>  		}
+>  		skb_set_network_header(skb, ETH_HLEN);
+> +		/* A NAPI frags skb recycled by napi_reuse_skb() keeps the
+> +		 * protocol of a previous frame. eth_type_trans() sets it
+> +		 * below, the virtio header checks must not see a stale one.
+> +		 */
+> +		skb->protocol = 0;
 
-But if having to respin, squash into 1/8?
+This resets it for all IFF_TAP.
 
-Also, to avoid having to respin too often could (now that they're
-public and archived) leave the self-tests for a later series.
+Would it make sense to do this in tun_napi_alloc_frags if it is only
+needed for IFF_NAPI_FRAGS?
+
+>  		break;
+>  	}
+>  
+> -- 
+> 2.53.0
+> 
+
+
