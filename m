@@ -1,55 +1,47 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=180.181.231.80
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793963523;
-	b=zGk/YTvfFejnfpi+GCkfPT/iZItfunZE4RY9wEdnRjNhJp50UPJBptkMFEc23Ys/Z/jx
-	 6CtTgbPvIhxXCRnhm+CiDgguccdMpBYcy2u5Prz5GQqflMkEVSKKsoIefr3KwLzkGnHQr
-	 2o1XilRqUQiEA5KzsT7GIFDKuUK21MUjcq5YCDChBlVLX6+kMfi8TNS2A5biwZD/sEL5Q
-	 TvWTr31Nfyb09EDmyeW4w9STlfK/uea9FEuSVdl3NmlthJRNgQhgI4bMWCMSvh8ohqoQw
-	 W9qatBKJzGVn1ErMR7TObR64uMsVZytRGnf7A9npayQZFLL8DeSGPzfPpASYUx4chEw==
+	t=1793964629;
+	b=hf8fSn1ML4uVpYyFfOLPhiXie5WhC0Og3HzMSRQlrhXT34gy5cNQmb3xRxshevBFPjil
+	 qgZAferKPm/LKBCI51Ho2SgTptV5QkcoW7MLg+CJSVTTL+5NQYY/+i5Tg6Fz0ozownW8V
+	 +dWmuuUqVz7ISUZcYsXdOtDFZnQA8AsmsNCvWVOBC3B0KKgBzTBA+I4swtSsprCeC8QUz
+	 SOtPII4HIwMbEouZ9M5Fy4LTNm8TSr8kxK24ZslxnfuvZf8P/+TCuoIZnsYjmhSwLC1rK
+	 buz9A+qi07Ag+Nbq7iMqSHiplyo6i6tH+joUnOwZQocdM4EiXuU5ItyzdTN808CfVCg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793963523;
-	h=DMARC-Filter:DKIM-Signature:Received:Received:Date:From:To:Cc:
-	 Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To;
-	bh=qHsvtGSzruDpufmVgGB18b19oNg1SUnZv08yqQlPOS8=;
-	b=lA4y26b3iPNmnfOJy6ms+b5DHXJGloNboK73D8shevoAQjlx6sT7y+hBCnYPH+LEoAXz
-	 icdSIn0rwvU7V+KD4EVxNq3Sto3GL3g05192ppdQkTivwfXBEhR90G49vLW6U0EOsKpOM
-	 t3J35RkQJYEn7zQIfNEQxqRH6ZWYSFtoq+T/8Ex39qZYeiIfnDMbuc6aww3kBiOIdxhoj
-	 uPi4OWsjqRtg5v5Xt3cqpxGdUy50/5JenwgkwEvUJ5f27zYkVgEPNw/G03ybT3cDP9Mti
-	 tOLvomd6aIoEHVhF5WoE4tjWMKkY6jHhkjGodwjgbMsWCDTVfDIO7BKE7tU5GfPFLJQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793964629;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=m9WRGg7uv4AersWeud7SoY+SXQFUs0fujKXYHljLyqQ=;
+	b=En5LXkxI0/IEX6evjO/EitABfb4GKNB6phk3+OwRRsTStIPBV7qr22Is+YKPAnS5D7Y0
+	 fTBw6xQJ+vMu7Qb8333xC+EdOvFSp1AKAhnbHeRBRc6McaACEOIO4zn0IlLr7FG6vR/x/
+	 ppjUOAwuJUPVh6IaahATWfvfQZuM5ZB1DaEdBAc1NTjj9SA8ClUjR+kSD7nZL4dmjgfm8
+	 m0bFdqKiB1urAjTjPWmiB99PJG7t3NeVxb2/UkPmFvRGKrkM03IkpqbEV7ZfKoE9tMpb7
+	 LFQQxev2LOIZagaFjV00A812JZQ8Xj5v4WA8GEuMV9XGNRW1VXF9mgaHBdVGryleMdA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gondor.apana.org.au;
-	spf=pass smtp.mailfrom=gondor.apana.org.au;
-	dkim=pass header.d=gondor.apana.org.au header.i=@gondor.apana.org.au header.a=rsa-sha256 header.s=h01 header.b=R2A6eVjD;
-	arc=none smtp.remote-ip=180.181.231.80
-Received: from abb.hmeau.com (abb.hmeau.com [180.181.231.80])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GdDZQn8Y;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C32A606A329;
-	Fri,  6 Nov 2026 11:12:02 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6C32A606A329
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E685E606EEBA;
+	Fri,  6 Nov 2026 11:30:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gondor.apana.org.au header.i=@gondor.apana.org.au header.a=rsa-sha256 header.s=h01 header.b=R2A6eVjD
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=gondor.apana.org.au; s=h01; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:cc:to:subject:message-id:date:
-	from:content-type:reply-to; bh=qHsvtGSzruDpufmVgGB18b19oNg1SUnZv08yqQlPOS8=; 
-	b=R2A6eVjDt8hq/OYN4TBmIILWlMHMTJo5MVY5Af74wlJUlr4KwgQrtfkZRHBz6Sa5DvxBzGnY4PW
-	tOtng6AJvil7nbCyKO+6Mz733dDQsi2yNoAohwBaP7NJ8ztTLn93pAm74bk04bVw/nZeWu9Qa3Uro
-	a75O7PA2nBVA5k1DMauM/PEALG4pX6Cc2ITI4ALulT1A4Oj5+RGxmr36h0NmMy4ST7wVyRIgLLzV7
-	lO92i6R8thvqehYIhD88SQu6SGxAU/fTBzTbFVjeGn6WQH9k1RuU0fmG9+tkg6/L7GjpngIvI8hcl
-	FroikT7/6Y0Ot8SQOoCTz4frO9TUjJmqp6FQ==;
-Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
-	by formenos.hmeau.com with smtp (Exim 4.98.2 #2 (Debian))
-	id 1xPHrK-0000000BqVB-39Dr;
-	Fri, 06 Nov 2026 19:11:51 +0800
-Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Fri, 06 Nov 2026 19:11:50 +0800
-Date: Fri, 6 Nov 2026 19:11:50 +0800
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: Thorsten Blum <blum@kernel.org>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GdDZQn8Y
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93FC21F008A1;
+	Fri,  6 Nov 2026 11:30:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793964628;
+	bh=m9WRGg7uv4AersWeud7SoY+SXQFUs0fujKXYHljLyqQ=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=GdDZQn8Ykl1TppbRA05wdf6ZG/Ay/vL6GEnVHghCS/Q6PkjbeEMIitnGBO0FUf7UJ
+	 2YGNjIsoO+8yZ4AWUlW0s7PkwwmxAYARTnbBTLHMzIZ4c9UB4cO+N2TNOTqM8hv18C
+	 bGX4bYh7Ei1SqX7F5yqGynVZOQRNNpIS4IqjYL9M0AexBeHSIHxn7w1oahQF2qOWW0
+	 FCTL9hiJzKFfLqMjhe6ggejEp+KusZSdAeJdANwZcRayWf7eIIgPi87ihVCkePGI/L
+	 S/Yr0DmWk3gK7ojk3i+UrWaBTgMIkaOeYk2NiKbtmtbP7eWQO9HxfkyltASCLG95T4
+	 UaMuVHGSFemHA==
+Date: Fri, 6 Nov 2026 12:30:23 +0100
+From: Thorsten Blum <blum@kernel.org>
+To: Herbert Xu <herbert@gondor.apana.org.au>
 Cc: Laurent Vivier <lvivier@redhat.com>,
 	Olivia Mackall <olivia@selenic.com>,
 	Rusty Russell <rusty@rustcorp.com.au>, Amos Kong <akong@redhat.com>,
@@ -57,8 +49,9 @@ Cc: Laurent Vivier <lvivier@redhat.com>,
 	linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] hwrng: virtio - prevent use-after-free after a failed
  restore
-Message-ID: <au219vQfcYE0maYw@gondor.apana.org.au>
+Message-ID: <au26T4dmLXWFkxPv@kernel.org>
 References: <20261016103640.4989-2-blum@kernel.org>
+ <au219vQfcYE0maYw@gondor.apana.org.au>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -70,32 +63,35 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261016103640.4989-2-blum@kernel.org>
+In-Reply-To: <au219vQfcYE0maYw@gondor.apana.org.au>
 
-On Fri, Oct 16, 2026 at 12:36:40PM +0200, Thorsten Blum wrote:
-> remove_common() frees the driver data during freeze, but does not clear
-> vdev->priv, which points to freed memory. If probe_common() then fails
-> during restore, a later remove or freeze can dereference the dangling
-> pointer.
+Hi Herbert,
+
+On Fri, Nov 06, 2026 at 07:11:50PM +0800, Herbert Xu wrote:
+> On Fri, Oct 16, 2026 at 12:36:40PM +0200, Thorsten Blum wrote:
+> > remove_common() frees the driver data during freeze, but does not clear
+> > vdev->priv, which points to freed memory. If probe_common() then fails
+> > during restore, a later remove or freeze can dereference the dangling
+> > pointer.
+> > 
+> > Clear vdev->priv on the probe_common() error cleanup path and before
+> > freeing the driver data in remove_common(). Also reset the device and
+> > return early from remove_common() if vdev->priv is already NULL for a
+> > safe teardown after a failed restore.
+> > 
+> > Fixes: 08e53fbdb85c ("virtio-rng: support multiple virtio-rng devices")
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Thorsten Blum <blum@kernel.org>
+> > ---
+> >  drivers/char/hw_random/virtio-rng.c | 7 +++++++
+> >  1 file changed, 7 insertions(+)
 > 
-> Clear vdev->priv on the probe_common() error cleanup path and before
-> freeing the driver data in remove_common(). Also reset the device and
-> return early from remove_common() if vdev->priv is already NULL for a
-> safe teardown after a failed restore.
+> Please respond to this comment:
 > 
-> Fixes: 08e53fbdb85c ("virtio-rng: support multiple virtio-rng devices")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Thorsten Blum <blum@kernel.org>
-> ---
->  drivers/char/hw_random/virtio-rng.c | 7 +++++++
->  1 file changed, 7 insertions(+)
+> https://sashiko.dev/#/patchset/20261016103640.4989-2-blum%40kernel.org
 
-Please respond to this comment:
-
-https://sashiko.dev/#/patchset/20261016103640.4989-2-blum%40kernel.org
+I think the issue raised by Sashiko is valid, but also pre-existing and
+could therefore be fixed in a separate follow-up patch.
 
 Thanks,
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Thorsten
