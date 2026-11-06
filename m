@@ -1,104 +1,53 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793977463;
-	b=tszjEkegFUfcEFU+B7keBMmOkNKCa62ZosbZgr4ICvuDZze8QaKV9c3dMbYiguaSq5/C
-	 eLPO78AzepvfsZs2ArXXReAD5nE8LB89xvIZsZ5pJhSeRM0jZs5pPHfCsVvZ3U1aJFP2u
-	 C66sqC9kgQeCLXrLb+LzFlJ+K5fI6EsqaxnklvZI6Pg2JzoSQL3cYcsMf/GKIj3PJhPFl
-	 P07nAessww5nJbCS+xV+Lo18KuiUHJ817oIF4OPoA9XR4RqPPdBc7jdyisna+WBOdmpCK
-	 /OcMFIgEO0neVfS+PMOtRPV2GGJScA5fkAhBFHvD4xOP/zoug+7MOUp7xVHgL3DHfAA==
+	t=1793981228;
+	b=xo+QiYltnQ2lwzvruBq7VX5McxP4sjl/kxz3utAg+nNZJs/DtlG363HPOQYFGohCOIF/
+	 rWf2A6zK4yO4+D8gg/j54o7YKaDb0Gk7y5fc8IposCClcyDktryKJRl0/bVzWVVhxqkeQ
+	 WSaIJwpin2zswraf0Qt/yBAfVvFSUsyNhfAht+8YFIcI6X4/yepNmJK42//A8Z4hhLCHu
+	 Oezf376pN6Q0Cgqdj1G50+Ww8+uywVEf5rQ2fhTfOx3dMLLmAone8drZ1u2kuHYNmkLQE
+	 S2hTMf2Rjcnsv/zvhrbK90yhfINIju4tYWXu6qEFDFSs7I/zZbUQQPljTuNnsVP6XIg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793977463;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
-	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
-	 X-Mimecast-Originator:Content-Type:Content-Disposition;
-	bh=VFHEfM7uSHxmbeEDYFc714iPr6SLeYV/p8Cpk1n20G0=;
-	b=JSy9GYvYqEnJc89ZDk1gY8RjoRxE7/iiD6UJll7CtIgZG3uuDNsJgxBdp8DKOAB83bzs
-	 i1pL97cxEdVC/tuQ5OPoFFMvNwh8/fpbwGCUmud1VqbeJmLSfVIC+dgwpZdPAYstsskWN
-	 q41zSfRIPJ5o3qNjEjfNnt7A+LWsXpS0K3gXLurakWC49Fgf/OgTPjGqT9HDp1jU8IOTt
-	 a3Uy4654Yloxu1rycbkD/A+GdTLzXbNY/FXXUY9ySbNVf1aWYwUr2Ndyt3C4uBXA/ztLD
-	 f8NTZCANfo2rdJbq48V+advPnu2ZIv4u3uHj2tk4MUmOcglgkCT8Wyov9k1x3eqBWQA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793981228;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=24tcA7CkBj6LFWiedM+EjtolEDXjlrMm3/iSbAJVeAU=;
+	b=ozWRiHawXjbVIPOlQh2OIHgjq2G3VCZFptRG3+ZMGbTPuvREWSsRZqIz6CKRoXPIyq8S
+	 Yunh/lV1ruEQNHvwvxM8qCFzh4csQAGH7baPoAywUhJnGMYyJBi6Qglq3Yc7sNs8Cg5yZ
+	 C1gbHmHlJC612qr3nxbHLkLkJqyN0y8fJqpolK7r8xA2mvD3I+zdFZPt9ws0pyPJkJapZ
+	 SsG0PQRPLejfcE2ibXC0d77sIHJkfb3BcCmm+1GvBAe5YM2ontm8RABEdcq8BrKNoKbJL
+	 Wy1GwyZwiPTg0LC7GzU7WJeIc7RPewrmJlqPDqNS7tMrLVgTDyLaM6vRCSCtU6jKIEA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=YWJI0aR8;
-	arc=none smtp.remote-ip=170.10.129.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="TR/x0BVs";
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 180B3606A329
-	for <virtualization@lists.linux.dev>; Fri,  6 Nov 2026 15:04:22 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 180B3606A329
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 209A7606A326;
+	Fri,  6 Nov 2026 16:07:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=YWJI0aR8
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1793977462;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=VFHEfM7uSHxmbeEDYFc714iPr6SLeYV/p8Cpk1n20G0=;
-	b=YWJI0aR83JkRMYKC0xUEf5vevtX22MosZC0Oecjg+f3OnI1AzAu5y0AbeQ+nnnrl0dbVTy
-	zZ4ilrR9UXX3PZMpj4qOjXR5a9A0numo2IMEuW0CPNvW8VecPl3lo+CsGzCfyrSNrE7V84
-	Y4IO5afjsaMgUNEZKHibuxJSXkSqjpM=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-675-A9fL8D2yOrynv_swuHImyw-1; Fri, 06 Nov 2026 10:04:20 -0500
-X-MC-Unique: A9fL8D2yOrynv_swuHImyw-1
-X-Mimecast-MFC-AGG-ID: A9fL8D2yOrynv_swuHImyw_1793977460
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4a359c7f47bso7402805e9.2
-        for <virtualization@lists.linux.dev>; Fri, 06 Nov 2026 07:04:20 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793977460; x=1794582260;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=VFHEfM7uSHxmbeEDYFc714iPr6SLeYV/p8Cpk1n20G0=;
-        b=aAzucE3vwOpMS3VhN9Trh588ORT6j68E4VplChagEX5nvT3kEHJ4ANi8fd88LwxLaV
-         e+kGe01Txxl2bXhT6ScO5ht7IVugRNG3Wrtk0PpWWAddbS26yDPog1XO9xdiSnWDSGKC
-         EFho9Mg7au47x1sYNqwSo0xj+nQhwtCHjdjYSXjJRo7QvgcEJCHNj/3jeB7dcs5pbwy2
-         IFoA9uwFxdRA/s62nykzCQL50ISAfzbb0BR1OdrPjulNpjjCj09LFqqKnQsGcBJ+F4mT
-         4CiJp2Ou61xc68VztAIaVm5NXmY9ZjQUheJds8r2H6lHq0pYYGbBAiNgV1BoCasWo9Md
-         bGog==
-X-Forwarded-Encrypted: i=1; AKwUvBwBUTBWp++j6WiiP92pNduRCFNSCOfOkkyi+gselAZNhqG5jbjsvszo25qThqCDtz1KzE2oKBSFqonMfJbYow==@lists.linux.dev
-X-Gm-Message-State: APuU4Z8m9TXxCokpIJfsY7Z6GuOaU2ToRG3VA8+6vjyx0ZAxGCKuTVbw
-	GknkbIJyfkXmtsjJ0NVZDQTwdB3A945C7dDzcAzv5P56SnzGyAx+wg6F6zPxa8nPX7U5tqHDFUE
-	Ube+N6t12jzgzT7KPC2lU5S00cVF+KYNW5wwM6IB4BzZB/xY2d4oSA/AJiHBKZ42f/fNl
-X-Gm-Gg: AYBFou2etWXEAKnzbVoXZVr6dIyw3zwyRDYW10WNLrFi0ZBsr+3Ux+xJ5uoY81p/TtE
-	cy5Gtuxk4f2RL2nPiGZ6V4EKO/1KnxxVg280ADlh/6gXZToL1XrQQ5wI62VQ6+FUUdUdJbIfBXU
-	UKZepiNFJ3V3jJeofMWPBjYDs9RX2ffw3OzodZnPX18AwXZsfPFpsCN1MYKCyKzi12pf3/ZANmq
-	po3WjaaqkLnQP1u4Gs8MyGMK3J29MPOhUTQzYWoZwP+u6szmXk8A1C1dkZRBWuajfL2b7+gNHcK
-	DqXMhH9AJrlVL9OkhhtgPILYHVAhxtPLwMhdOQ+TEFj8lMX5W6aWmPbTscBSONMEUFp+rAQGuM+
-	gBoHH9Nz6DLLKlXhuqblApRcxMG4izyLceABKJ9xCxs+CKzEf8okRZuJO1hIk5cOn0s808caGFx
-	FZx0NSuAvP
-X-Received: by 2002:a05:600c:37c9:b0:4a1:e0d5:293e with SMTP id 5b1f17b1804b1-4b6df8c9cbbmr42830125e9.21.1793977459557;
-        Fri, 06 Nov 2026 07:04:19 -0800 (PST)
-X-Received: by 2002:a05:600c:37c9:b0:4a1:e0d5:293e with SMTP id 5b1f17b1804b1-4b6df8c9cbbmr42829535e9.21.1793977459116;
-        Fri, 06 Nov 2026 07:04:19 -0800 (PST)
-Received: from leonardi-redhat ([176.206.36.131])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4b7626a2804sm29251095e9.4.2026.11.06.07.04.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Nov 2026 07:04:17 -0800 (PST)
-Date: Fri, 6 Nov 2026 16:04:15 +0100
-From: Luigi Leonardi <leonardi@redhat.com>
-To: Andrea Parri <parri.andrea@gmail.com>
-Cc: Stefano Garzarella <sgarzare@redhat.com>, 
-	Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Bobby Eshleman <bobbyeshleman@meta.com>, Simon Horman <horms@kernel.org>, 
-	Xuewei Niu <niuxuewei.nxw@antgroup.com>, linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net] hv_sock: Report no unread data before a channel is
- available
-Message-ID: <au3sW3i2qjKDLMzq@leonardi-redhat>
-References: <20261106123920.162131-1-parri.andrea@gmail.com>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TR/x0BVs
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B9321F0089F;
+	Fri,  6 Nov 2026 16:07:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793981227;
+	bh=24tcA7CkBj6LFWiedM+EjtolEDXjlrMm3/iSbAJVeAU=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=TR/x0BVsUbOGO2/IySWpntHAUb7M2R3jo2gI0q/2mExprKo6qljhE1F8WAv4R6kcJ
+	 x7dJ+SK+L6E1+37UBNA8kqXdoxsMR4cyqZ2WXgIzSlz9o9XBQQRTcPT7LZmmmE1m7f
+	 OFfmfqmXsKEMR0jL1nYfsBW5t2WSuskIIa1d8TUtZdcRtOfYB78k2k+9t/pmDCrmO2
+	 /rJOWlucwV1am6WOd06eu9v9vXvVsq/MPXSTHEEaj4tVLSmcMRGG+obfMg0oKWGph9
+	 ByKZ+tfx9nJFuTQo+Eb7pTNNdqKh+/dAazeFPJ0nEBamH7B1G9WAiqQ9ZkW1qJOcMP
+	 GauGt68yKqbZQ==
+Date: Fri, 6 Nov 2026 16:07:40 +0000
+From: Jean-Philippe Brucker <jpb@kernel.org>
+To: Cam Miller <cam@linux.ibm.com>
+Cc: virtualization@lists.linux.dev, iommu@lists.linux.dev,
+	Matthew Rosato <mjrosato@linux.ibm.com>,
+	Niklas Schnelle <schnelle@linux.ibm.com>
+Subject: Re: iommu/virtio: design question: hot-removal allowed?
+Message-ID: <20261106160740.GA76938@myrica>
+References: <6e6eaf23-9194-488b-8961-63cc062024ca@linux.ibm.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -108,55 +57,89 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-In-Reply-To: <20261106123920.162131-1-parri.andrea@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: gT9RktGOkliiEXl4yVoZHpSAP42FLQ5xBRwISwEkcR4_1793977460
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <6e6eaf23-9194-488b-8961-63cc062024ca@linux.ibm.com>
 
-On Fri, Nov 06, 2026 at 01:39:18PM +0100, Andrea Parri wrote:
->The Hyper-V transport is assigned before the asynchronous VMBus channel
->offer completes.  Its zero-initialized hvsock therefore has a NULL chan
->until hvs_open_connection() associates the channel with the socket.
->
->SIOCINQ can query the assigned transport while the socket is connecting,
->or after connect() fails once the transport has been assigned.  Unlike
->poll(), that path does not check stream_is_active() before calling the
->transport's stream_has_data callback.  hvs_stream_has_data() then passes
->the NULL channel to hvs_channel_readable_payload(), and any user in the
->guest can trigger an oops:
->
->  BUG: kernel NULL pointer dereference, address: 0000000000000178
->  RIP: 0010:hvs_stream_has_data+0x23/0x120
->  Call Trace:
->   <TASK>
->   ? vsock_ioctl+0x74/0xf0
->   sock_do_ioctl+0x42/0xf0
->   sock_ioctl+0x27d/0x310
->   do_vfs_ioctl+0x700/0x810
->   __x64_sys_ioctl+0x7d/0xf0
->
->Return zero unread bytes when no channel is available, before accessing
->the receive state or ring.  Leave the existing channel-backed receive
->handling unchanged.
->
->The oops was reproduced on an unmodified v7.4-rc1 kernel in a WSL2
->guest with a small user-space program, available on request.  With this
->patch, the program reports zero unread bytes and the kernel logs nothing.
->Other vsock_test cases were not run, as most of them need a host-side
->peer.
->
->AI assistance was used to identify the issue and develop the fix.
->
->Fixes: f7c722659275 ("vsock: Add support for SIOCINQ ioctl")
->Cc: stable@vger.kernel.org
->Signed-off-by: Andrea Parri <parri.andrea@gmail.com>
->---
+Hi Cam,
 
-oops, thanks!
+Thanks for investigating this
 
-Reviewed-by: Luigi Leonardi <leonardi@redhat.com>
+On Thu, Nov 05, 2026 at 03:54:20PM -0500, Cam Miller wrote:
+> Hi,
+> 
+> 
+> Testing on x86, I noticed that userspace supplies a mechanism for hot-removing a virtio-iommu device.
+> 
+>   echo 1 > /sys/bus/pci/devices/<virtio_iommu_dev>/remove
+> 
+> Hot-removing virtio-iommu should NOT be supported, right? The intention is clear in the QEMU source,
+> which fences off hot(un)plugging virtio-iommu devices.
 
-Luigi
+We would also have to prevent:
 
+* unbinding the driver. For that we can use .suppress_bind_attrs
+
+* unbinding the transport driver: virtio-pci, virtio-mmio
+
+* possibly other weird cases like PCI bridges upstream of the IOMMU
+  getting removed
+
+Module removal is fine because the IOMMU core holds a module ref for
+each endpoint.
+
+> If I am correct, then shall we fence off hot-removal (perhaps by simply omitting this remove file
+> from sysfs)?
+
+That would be a PCI core change, I guess?
+
+I'd much prefer handling forced removal as gently as possible in the
+viommu driver, but as you've noticed, we're not there.
+
+> Else, keep reading...
+> 
+> ...I believe I have found two bugs in viommu_remove() path that I would like to bring attention to.
+> The first bug is that the echo above causes the following kernel panic.
+
+Yes please send a patch
+
+[...]
+> After applying the fix shown above, a second problem is exposed. Unregistering the IOMMU while
+> endpoints remain active is like pulling out the rug from underneath those endpoints. The following
+> warning catches this case.
+> 
+>   WARNING: drivers/iommu/iommu.c:743 at __iommu_group_free_device.constprop.0+0xb9/0xe0, CPU#1:
+> bash/1250
+>   --- snip ---
+>   Call Trace:
+>    <TASK>
+>    __iommu_group_remove_device+0x95/0xe0
+>    ? __pfx_remove_iommu_group+0x10/0x10
+>    remove_iommu_group+0x39/0x60
+>    bus_for_each_dev+0x85/0xd0
+>    iommu_device_unregister+0x3d/0xb0
+>    viommu_remove+0x1d/0x60
+>   --- snip ---
+
+Device links would likely prevent this sort of thing. I worked on it a
+while ago but at the time I was hoping the new fw_devlink would
+automatically create those links. Unfortunately there was (is?) at least
+a problem with having the IOMMU on the same bus as the endpoints. So we
+should add explicit device_link_add() in the driver, to force endpoint
+unbind before viommu unbind.
+
+> ...Point being that hot-removing virtio-iommu is currently broken.
+> 
+> In summary:
+> - Should hot-removal be supported/allowed?
+
+Reluctantly allowed, I think
+
+> - If no, then how shall we fence it off? Via sysfs?
+> - Else, there are some bugs that need to be fixed (and I would be happy to work on that if that is
+> not already evident).
+
+That would be really welcome!
+
+Thanks,
+Jean
