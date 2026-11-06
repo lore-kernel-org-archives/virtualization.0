@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793982959;
-	b=npW2A8DE9mPndWsE6PgTKkCM5U9QnGwHcb0BCeSJiX6nQw4+KXCx01aF36olVC9YwPiO
-	 hLjl2A1tshqACFajDwoL2rwbrBvcuPFh4GtJKONTCo74pBbaiSc5Yf1QMTDyBDcrM3FXO
-	 NeYwulmFr3SOrxttpIlYtXuPdbwM7vLmNlbPRV+Ogy+++8IVRlipJb3ss5HlQfGgMNq1c
-	 njJLNDIY/GAXh91UhzHBYcAxNeuAqXrwemCzbNmaOl3LfEQi1BhBNAXXO1qB6uvOQKJbi
-	 3XsQu1PEYW+lbY377O0aVOTMbvikMWcyLMqW/OuxoFt+cr2eZXxOpiUuKMHM41fz5AA==
+	t=1793984468;
+	b=Z61vpiO8mHWdRMn/6bBCOjNMsE441d4ZKMg0PqkT7CfJSxpvVCBUGxh0MS0funvcgGeC
+	 wjymBdLjXmIeAQW/l7NirvqlWOgsZoe/V3OXpxTeIEFIU2iCd983dsD5AdUVEPGBtQs4i
+	 Vfq0hxXOTL7EfO4TnbocNa8eQtwenEiSE+RPRDAvqa/7UJj/OeNb/3v0PZ4wshMsbls20
+	 ysgsiQwY4qcrzV6IUiuAppufcbgkaK0oqNlVUUvoskk+hTsB/2Z363vEriLZwk89ODLdn
+	 d2g9QBtwB5GVanOJ2sQRu/TbgkkrS3qrXr3SSzcmHPnGqFFdVOLA1GBNMczz3rleQ9w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793982959;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793984468;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=lYbnsei6PcAUgqtn4irfG4QQrjrN1uv7XChPED3jKYE=;
-	b=hfXVmJu4R3mn3iZaNqBMNcCPNIKxAFIiTscJGst302QMfCnZCF1Anw4TSNz4P2/MNvr3
-	 bHSZ2HNh15EQauPmJrg/BXbqdQei6D86bctb+X+w6ZFrdyWiiI3vFbYxu1Z9oFYGYhJRl
-	 x/hL7T+i2xV+0FkQRKQvLMieD0qgtS9F41ghU2C29/Yo86lR1xR6r4J47QZ7vi/0LBdLw
-	 xhouRzqHa0nXlkOlorW05BYBLULAw3d4j2o4jyQsb8xwrgMAfixHhe0pVKwOiuiaQOu5z
-	 k0Dp4ZC7iUuiJUhJVbRZ6UQiBbXVYiz/xyNcma17oqU2yV3idts3ST5khNLShJSPkug==
+	bh=1QvmJl3qPTfDCpPRjHcaoobK3nhw7xqn7zSkkRVilTk=;
+	b=W0bJTGe9L6IG4r3p2f55jIyRQquJkdoOAqEbfmlX6monWmezFTyu35PVbsV/gCFoFZWp
+	 TBcRzAxmF9W75Y6MOV6VL5x/2LIjj7rhL/K7g41BVu8DyGniIriEN+ti0do5+D/e1oNNA
+	 /8VmoU3X/2PLJSuYCrpVhQmCZAscjvuqC+94FH67rCFDgPGBDBmHcGaNNCpoffJArCLGZ
+	 Swp1S2lQpih4X8dN2DUrL4OanH/YTdd/hkBkM8Hcis8PRW6d9FvuefN+z6pQvR15O+r8M
+	 9FulT9xSnQwPNX+sV1dCbnRNuZMh/BiR1jzsS9dOGFRpFSDhxA+NAQ98a6K3WhwKCPA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=eWvqIhD5;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="b/CMSDD3";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E5FE606A335
-	for <virtualization@lists.linux.dev>; Fri,  6 Nov 2026 16:35:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF487606A32D
+	for <virtualization@lists.linux.dev>; Fri,  6 Nov 2026 17:01:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=eWvqIhD5
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 741D21F008A1;
-	Fri,  6 Nov 2026 16:35:58 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=b/CMSDD3
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FF951F0089F;
+	Fri,  6 Nov 2026 17:01:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793982958;
-	bh=lYbnsei6PcAUgqtn4irfG4QQrjrN1uv7XChPED3jKYE=;
+	s=k20260515; t=1793984467;
+	bh=1QvmJl3qPTfDCpPRjHcaoobK3nhw7xqn7zSkkRVilTk=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=eWvqIhD5jLTy5a+N46PatHrDvD1K419NlDKH1CM2mJr4etXW9r2LpGvyN1kzUzo5v
-	 Wa2FiJpDyVgUhJt5FRDB/hCBnIXKYz6Ti0e/irfHLp3maiUBqLFTGIwt67LCBXf4CJ
-	 XKVLqPlNdhV5pBovXh4r4z8mnWhqdZH7lm4kVIe3eoZ0P3Hg53DKGEZABZXQpDjq1F
-	 5XLc6La+CWQFgz6Ne2cmad1hvYIDiE0tPFETO/FGE3ufLd+vFZj1uUxO161iuFrAmt
-	 FgaFjPs5wLmTv4Fv5LsET2XS9XLWJTBzlGD/EkiQsxE91hjE/stwpH4mY8OuO0FCbx
-	 7qpIR/OU2oP5g==
-Message-ID: <sashiko-outbox-201831@kernel.org>
+	b=b/CMSDD3C55x7jfYxVYbFwWMiNG6MOa+OWnDGqSKKDMhZy8TIbthmj6ds47/FFt3E
+	 qm21WdoPfO9SXw3YVvgLMvluLz8OtiKua6f++xp6VByyLx7+vJzx3M/LjoU9yUJs5V
+	 rUf/K90Ft5y1Y5r0CRHdgm5FNyB+oeBMagJycJ6AB6+YHLCyiLtukGRoRSjmXopEh+
+	 2VQcfgeqnTm6PBDc1NtJNcHeYSx23BJG8fo8uFXKvYiDC90VK3/gJtQ1zNpHFxAbO8
+	 UQVDvWgNiQ8y4rEtv1ITL2UtS4nNeGt926ta+d+DUdTOBDrQr9UK0cygrd2WIM4Q1W
+	 X7qAPmtGjrJRw==
+Message-ID: <sashiko-outbox-201887@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v19 03/12] ALSA: pcm: add an optional reset operation
- under the stream lock
+Subject: Re: [PATCH v19 04/12] ALSA: virtio: Propagate PCM send failures
+ through ACK
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Joonho Lee" <mynameisjune111@gmail.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261106161838.94308-4-mynameisjune111@gmail.com>
+In-Reply-To: <20261106161838.94308-5-mynameisjune111@gmail.com>
 References: <20261106161838.94308-1-mynameisjune111@gmail.com>
- <20261106161838.94308-4-mynameisjune111@gmail.com>
+ <20261106161838.94308-5-mynameisjune111@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 06 Nov 2026 16:35:58 +0000
+Date: Fri, 06 Nov 2026 17:01:06 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,38 +62,36 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> A driver may need to synchronize private capture accounting with the
-> common RESET pointer observation and the core's position rebase.
+> virtsnd_pcm_msg_send() can fail while queueing a transfer. Restore the
+> failed message's length and notify the device about earlier messages
+> queued by the same call, so they do not remain stranded.
 >=20
-> Add an optional reset operation called under the member's stream lock.
-> Expose snd_pcm_lib_reset() so the callback can retain common pointer and
-> time handling. On zero return the core completes that member's rebase
-> before unlocking it. Drivers without the callback retain the ioctl path.
-> The operation is also used after a successful prepare.
+> Propagate errors through the indirect transfer callback and commit its
+> private cursor only after successful submission. Genuine transfer errors
+> arm stop_operating and return -EPIPE so ALSA can retire the stream.
 >=20
-> Zero permits the position rebase; it does not promise XRUN recovery. A
-> negative return skips the core rebase, so a callback returning an error
-> must leave coherent pointer state even after partial work.
+> Close ACK admission under the PCM stream lock before sleeping teardown.
+> Keep the prepared state protected by the substream lock and reject ACK
+> through prepare and parameter changes. Reopen admission in the reset
+> callback while the core holds the PCM lock for its pointer rebase. An
+> ACK racing with teardown returns -EBADFD and preserves stop state.
 >=20
-> Linked RESET and prepare stop at the first error without rollback.
-> Earlier callback members may already have completed. Legacy members keep
-> the existing post_action policy. Applications must recover the group
-> after partial failure before relying on shared positions.
+> Keep the polling feature path unchanged.
 >=20
-> This adds an internal kernel operation and no userspace ioctl or layout.
-> Out-of-tree modules using snd_pcm_ops need to be rebuilt.
+> Fixes: fe981e67568c ("ALSA: virtio: use ack callback")
 >=20
-> Complete appl_ptr rebasing once in the callback path. A later linked
-> member can sleep in prepare while the earlier member accepts SYNC_PTR; a
-> subsequent unlocked post_prepare assignment would overwrite that
-> acknowledgment. Keep explicit RESET playback silence processing and
-> leave prepare-time filling to the normal START path, preserving samples
-> written and rewound after prepare.
+> Reject a stopped playback ACK before the XRUN path can rearm
+> stop_operating. For capture, allow the ordinary stopped tail only during
+> DRAINING and only while no transfer XRUN is latched.
+>=20
+> Latch a transfer failure before stopping PCM work. Once core reports the =
+member XRUN, ACK returns -EBADFD to avoid another linked XRUN. ACK during p=
+repare remains rejected until the core state reaches PREPARED.
 > Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
 
 Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261106161838.9430=
-8-1-mynameisjune111@gmail.com?part=3D3
+8-1-mynameisjune111@gmail.com?part=3D4
 
