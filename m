@@ -1,58 +1,111 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793925370;
-	b=1gsMBxP7iMbx8HZ0B6/eTkTHiqmvj2BcaEYhAOe10UCx4s683YEycx0dd+rtbVGpp4BM
-	 eqD9kczSK+Eufe6M/K/dxpZ6NmOYtUwWWSyL83YuoArTiOiO8u4RcMp3DRZUXEheUzUVw
-	 NU7Us67aX9ZRJy8pVP/RFoK9u6Ue3zqePy79mKRFElqWxGAhVh/Y1ULJOSDyGWJqZT1+y
-	 FqlwlA5FqKcmxy9HLRl4OnkIRTUjeNQkDP22XdXuDLz5ipebFQqZANmpCrqU0L+s/8OqE
-	 vJyn1KWkGnCaOqwF6wdbqRlRjQgqHD2NNu5tkpuNQkZ/6ka7TVMLcgO8Aw479KcpIBw==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793925370;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=G7EHYORUbI/Od6bP41K+8SbHrG8XXKOBiTMtAO5OmAk=;
-	b=lS4AOvI5gkgRB3OWn5gbEN/Ypf/lDRAKS/PmXGBlKLt+xlhvWLN9ldg2k5TaSe4hN8v/
-	 9ze30N4ChExNp7nJLjY9Te3nq3NSpjpGdIE767U0fWRi47DpypguCpzK2EU5O1BkAZ7gE
-	 nrU+W7ibSMEGEMmkqRsNloGZiD0q41vAlaD0UTrq0jfQI9gPaVzW+jIq5k+LbVlh3SgSA
-	 Rx5QApSFkg6R1263wXtWRdQw5Hgw3O0IVU5oJ/G8ypSrBrnAD6n/14g7pgBjQJjGiiCrL
-	 l3JbqzlOCMnA88QmcEFI8EDy2s7QdyRvXGVt7la7mnoMSCORz8nXPtHj/Wx2B5jf9NQ==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GpMM9Eiu;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=140.211.166.138
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1793926639;
+	b=AY3WUXd43DSDkzBwDIRMThFN9eljBpHa+gT9n4TltfZwj4LiBpsI8WHP7Kc5z3FxJ80q
+	 esADHy5PxcuDjm9sFfhsGYlZXHJgpHZC3yNO7N+2d3oat1rPBIlcFBaGrX0+NvV2cXAuu
+	 8bvrwV1skPvy++yFrQEzwoSJMrQ5fGpjFxxqwQCLJrpSoxLkKeci2Gu+yx5IN5hom0Q86
+	 7NTXeHUxlimf2hTp5bcIdXP9AVvDN/1pNo6Q09BGmYsYB3m08LJu7bQ6cTagFLqG1gJ01
+	 uTEXUThjpJ2Xl9pz3t93LFFfK8TV9kkhy363oDJdB3RC+5gGg3lvKjtXeoKlc9uaaHQ==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793926639;
+	h=Received:X-Virus-Scanned:X-Spam-Flag:X-Spam-Score:X-Spam-Level:
+	 X-Spam-Status:Received:ARC-Filter:Received-SPF:Received:Received:
+	 Received:DKIM-Signature:Received:Subject:From:In-Reply-To:References:
+	 X-PR-Tracked-List-Id:X-PR-Tracked-Message-Id:X-PR-Tracked-Remote:
+	 X-PR-Tracked-Commit-Id:X-PR-Merge-Tree:X-PR-Merge-Refname:
+	 X-PR-Merge-Commit-Id:Message-Id:Date:To:Cc;
+	bh=7fNxTmo1iJxAalqGfiJl8NK5T396HgpYiPcomm03E7g=;
+	b=sR099MIxdq8DrEhIXiA87qHsPj0VRX66ckmc/WMNcLrZzHz21nHTD4O5w1GS+4Nn4Q6g
+	 IjOCoHstvXQZK8AQsyZWTzGJpErnF7Qvl6Uiymxi8/xqwd54ub7QitWTxvbr3y/WMQybJ
+	 ZfBwgJt0NQVhHLsJz54H8xJJR5vLGEY2ZX9LEF0HIU7n5lCMovH4qV0K+o5gvLbPG/8up
+	 Jpyg9qEwKYOEQIMNw9vfMPOvQOAD0d3cCjsYOSCKHtpfWxFJorUfl4uokcribQcvGQYj8
+	 zvDSR0LGL0N99Fju0NCLMYQWtQJ2eWOlBNfIKt7KVVCe3RMkkrZ6ZiqMhqwRTqLOlTw==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MberW9n1;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=140.211.166.138
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2B0D606A331;
-	Fri,  6 Nov 2026 00:36:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65517606A328
+	for <virtualization@lists.linux-foundation.org>; Fri,  6 Nov 2026 00:57:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GpMM9Eiu
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12C371F008A1;
-	Fri,  6 Nov 2026 00:36:09 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MberW9n1
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 11E1F80DA1
+	for <virtualization@lists.linux-foundation.org>; Fri,  6 Nov 2026 00:57:19 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.651
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 9-Ww1X4QSPaH for <virtualization@lists.linux-foundation.org>;
+ Fri,  6 Nov 2026 00:57:18 +0000 (UTC)
+ARC-Filter: OpenARC Filter v1.3.2 smtp1.osuosl.org 199B780B97
+Authentication-Results: smtp1.osuosl.org; arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
+ARC-Seal: i=1; d=osuosl.org; s=arc; a=rsa-sha256; cv=none; t=1793926638;
+	b=RoBMTKPVBV0iRWp4PAX5o7AlIHpun+Wn0JfHyRnSU2wrRGIB8itTDVenSaMsEUn6Tt2R
+	 i/auLHNaBi9ebwEdn+5VxqsBEU68lz/Mnp5VUS1hlqZiQyi3UdAKXRpalmonLOu10RKjv
+	 jn5lhUrIBkpH2x8qoKP4QCbcgltBkTUOm4xxdLfYQXiEoKGWhglrgGDQnJAU7FGjISvnX
+	 9Qd08bOKoVtH9sBLd+0LWnOc+f8aQAwj0fbzvHIc6IwOZ6Z4DQJ7/cdrHnkpcyhemyPSb
+	 ZFJFvGhgn8fcK1NTQQywlDUGxO6I55KJ/FZCZzipFyBqplAmXCjnefWyHY+yb6HrS1A==
+ARC-Message-Signature: i=1; d=osuosl.org; s=arc; a=rsa-sha256;
+	c=relaxed/relaxed; t=1793926638;
+	h=Received-SPF:Received:Received:DKIM-Signature:Received:Subject:From:
+	 In-Reply-To:References:X-PR-Tracked-List-Id:X-PR-Tracked-Message-Id:
+	 X-PR-Tracked-Remote:X-PR-Tracked-Commit-Id:X-PR-Merge-Tree:
+	 X-PR-Merge-Refname:X-PR-Merge-Commit-Id:Message-Id:Date:To:Cc;
+	bh=7fNxTmo1iJxAalqGfiJl8NK5T396HgpYiPcomm03E7g=;
+	b=Ts02gaGxJMG6KND1bMgQ0ZjTeSCvCAGuuxkjKJYlQMj83fZ3+i5gZft/E3ZHhr1XzfZe
+	 up7q4G6NVWSV/t8Ginw6T5UN1AaJwNtJFf8BOMSCX1WErmmAO9zVQMbrpsQANwUZK0brK
+	 oYYf5ASwWXqG1Z5pfltC4fcPWFQaCGQKMpjRhl0bHgSCQwKQbwukFNyG9vrgesqr/75hR
+	 +OoYyjBRDOxTxCNmzDSe33+RKcp8cTIKIJakEnM1RbomI7Yy9AQlAaCR2E3qCdySFW7ah
+	 19KIyjgN9qoRTl3Vlj8XvdbAetXg1hIuZhAR5z0Lvze09ba0bkmAdyta6BjRZLfmQAQ==
+ARC-Authentication-Results: i=1; smtp1.osuosl.org; 
+	dmarc=pass header.from=kernel.org;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MberW9n1;
+	arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=pr-tracker-bot@kernel.org; receiver=<UNKNOWN> 
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MberW9n1
+Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 199B780B97
+	for <virtualization@lists.linux-foundation.org>; Fri,  6 Nov 2026 00:57:17 +0000 (UTC)
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	by sea.source.kernel.org (Postfix) with ESMTP id 0D76A43AF0;
+	Fri,  6 Nov 2026 00:57:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1A351F0089F;
+	Fri,  6 Nov 2026 00:57:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793925369;
-	bh=G7EHYORUbI/Od6bP41K+8SbHrG8XXKOBiTMtAO5OmAk=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=GpMM9Eiu0PoCQh//bheA1MsZTxewtU9opVC2FGwo1Akx79BWlE80ooZZS4fHlCk4q
-	 f8zmwpU/Y7wEI0Oy66yE1EhamHtUHyCI3RBjoRl/JBOOdSzZrX7Kt2wg0k7QcT6YVd
-	 lbo20kbSAKtkbGUgLu7YtfcTeJnhTAv4uvRfZvsAr1pRShrtFGLb3nMaUVFBBpKsoZ
-	 QfiAc5XGTwy2e26dL2QmRymmUuT+29ThRkVsiYmmvTG64uIwJkmm7tQb4ZRnVva9Jh
-	 jQyuOq7eaG9WY9m7v4zaEII0SC0lGSbeCjtFOXf1ccMzAuRKISjNvClDGX9a0cehc0
-	 Xv2cq3xHXaYTw==
-Message-ID: <sashiko-outbox-200452@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v18 07/12] ALSA: virtio: retain PCM DMA pages and
- validate capture ring ownership
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Joonho Lee" <mynameisjune111@gmail.com>, linux-sound@vger.kernel.org
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <20261106000644.20460-8-mynameisjune111@gmail.com>
-References: <20261106000644.20460-1-mynameisjune111@gmail.com>
- <20261106000644.20460-8-mynameisjune111@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 06 Nov 2026 00:36:08 +0000
+	s=k20260515; t=1793926636;
+	bh=7fNxTmo1iJxAalqGfiJl8NK5T396HgpYiPcomm03E7g=;
+	h=Subject:From:In-Reply-To:References:Date:To:Cc;
+	b=MberW9n17EZW4JlwHg7V3W2ZtrrnmWJZJwd5mtDOUt4gkSqspi6hiq2lUAbh20wMI
+	 rFqBlTQbht0+DqdtjOuN0SmjyEXbBZuLJoOEBOhsuMPw947OvgOtUtQ1DSF/r9bcfj
+	 jfPS2xcTdyOKwzwT2S2xU/hIBHVm2AtyCalEnBOlBIpZ3tC23W8ZtJLLbnxF9ax6nN
+	 h55b3FV4Vbss7w5ODyoF/SwwbSZ5vFg4fCMdugmp4oJc/2nejeb/0Nu8RXnzmhgLrX
+	 /+6BYha2HZanVKCEFyQHV4pcd91eQnyc1DXTb6/pKN+uTUAxK3zV1vLQ8stm7ZWGn5
+	 oFwmv9LsdOSZQ==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id D85E2391B1B3;
+	Fri,  6 Nov 2026 00:57:16 +0000 (UTC)
+Subject: Re: [GIT PULL] vhost,virtio,vdpa: bugfixes
+From: pr-tracker-bot@kernel.org
+In-Reply-To: <20261104081535-mutt-send-email-mst@kernel.org>
+References: <20261104081535-mutt-send-email-mst@kernel.org>
+X-PR-Tracked-List-Id: <stable.vger.kernel.org>
+X-PR-Tracked-Message-Id: <20261104081535-mutt-send-email-mst@kernel.org>
+X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+X-PR-Tracked-Commit-Id: 1a577f9402c1780cc1e663f48d5dd54c02051b09
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 69e2b55fc3b4fa3639b8c320374c255f046ddda5
+Message-Id: <179392663544.268614.18316121610882837897.pr-tracker-bot@kernel.org>
+Date: Fri, 06 Nov 2026 00:57:15 +0000
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 2312891301@qq.com, blum@kernel.org, co+6dcbccedc9ec6452@bugs.sh, eperezma@redhat.com, fangxy@xiaopeng.com, jasowangio@gmail.com, kmehltretter@gmail.com, linfeng.sun.dev@gmail.com, lirongqing@baidu.com, longpareto@gmail.com, mst@redhat.com, oss.patchbox@gmail.com, p@1g4.org, phx0fer@gmail.com, physicalmtea@gmail.com, sergiiushakov@google.com, shubham@octane.security, stable@vger.kernel.org, stjepan.poljak@gmail.com, syzbot+13df72e0dc4be5c62215@syzkaller.appspotmail.com, tavhadia@gmail.com, tjdqudcks0424@naver.com, tz2294@columbia.edu, xieyongji@bytedance.com, xmei5@asu.edu, yuz08559@gmail.com, zenghui.yu@linux.dev, zhaimingbing@cmss.chinamobile.com, zhangjiao2@cmss.chinamobile.com
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,104 +115,15 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] ALSA: virtio: sw_ready desynchronization in virtsnd_pcm_cp_ack()
---
+The pull request you sent on Wed, 4 Nov 2026 08:15:35 -0500:
 
-commit b314c942dc53f8c652b76808e69e1ee4418c9e8e
-Author: Joonho Lee <mynameisjune111@gmail.com>
+> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
-ALSA: virtio: retain PCM DMA pages and validate capture ring ownership
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/69e2b55fc3b4fa3639b8c320374c255f046ddda5
 
-This commit retains references to ALSA PCM DMA pages (or uses driver-owned
-buffers on NOMMU systems) until queued I/O messages are freed, and adds
-validation for period boundaries and fixed-slot capture completions. It also
-seeds the ordinary capture ring once per prepare and reserves the RX ring v=
-ia
-sw_ready until appl_ptr consumes the captured data.
+Thank you!
 
-> diff --git a/sound/virtio/virtio_pcm_ops.c b/sound/virtio/virtio_pcm_ops.c
-> index 343700ec50476..bf9dafe149dac 100644
-> --- a/sound/virtio/virtio_pcm_ops.c
-> +++ b/sound/virtio/virtio_pcm_ops.c
-
-[ ... ]
-
-> @@ -433,8 +446,15 @@ static int virtsnd_pcm_trigger(struct snd_pcm_substr=
-eam *substream, int command)
->  				substream->runtime->stop_operating =3D true;
->  				return -EBADFD;
->  			}
-> -			if (vss->direction =3D=3D SNDRV_PCM_STREAM_CAPTURE)
-> +			if (vss->direction =3D=3D SNDRV_PCM_STREAM_CAPTURE &&
-> +			    !vss->capture_rx_seeded) {
->  				rc =3D virtsnd_pcm_msg_send(vss, 0, vss->buffer_bytes);
-> +				if (!rc) {
-> +					/* The full RX ring is reserved until userspace reads it. */
-> +					vss->pcm_indirect.sw_ready =3D vss->buffer_bytes;
-> +					vss->capture_rx_seeded =3D true;
-> +				}
-> +			}
->  			if (rc) {
->  				vss->stopped =3D true;
->  				substream->runtime->stop_operating =3D true;
-
-[Severity: High]
-Can userspace desynchronize or underflow vss->pcm_indirect.sw_ready via
-SNDRV_PCM_IOCTL_SYNC_PTR in virtsnd_pcm_cp_ack()?
-
-In sound/virtio/virtio_pcm_ops.c, virtsnd_pcm_ack_state() allows ACK in
-SNDRV_PCM_STATE_PREPARED, and virtsnd_pcm_cp_ack() does not check
-vss->capture_rx_seeded before calling snd_pcm_indirect_capture_transfer():
-
-sound/virtio/virtio_pcm_ops.c:virtsnd_pcm_cp_ack() {
-	...
-	scoped_guard(spinlock_irqsave, &queue->lock) {
-		guard(spinlock)(&vss->lock);
-		if (vss->preparing || !vss->prepared)
-			return -EBADFD;
-		/* Keep only the post-STOP capture tail available during drain. */
-		if (vss->stopped &&
-		    (vss->xfer_xrun ||
-		     substream->runtime->state !=3D SNDRV_PCM_STATE_DRAINING))
-			return -EBADFD;
-		if (vss->xfer_xrun) {
-			rc =3D -EPIPE;
-		} else {
-			transfer.indirect =3D vss->pcm_indirect;
-			rc =3D snd_pcm_indirect_capture_transfer(substream,
-							       &transfer.indirect,
-							       virtsnd_pcm_trans_copy);
-	...
-}
-
-If userspace invokes SNDRV_PCM_IOCTL_SYNC_PTR (without
-SNDRV_PCM_SYNC_PTR_APPL) while the capture stream is in
-SNDRV_PCM_STATE_PREPARED before SNDRV_PCM_TRIGGER_START,
-pcm_lib_apply_appl_ptr() invokes virtsnd_pcm_cp_ack() ->
-snd_pcm_indirect_capture_transfer(), which updates vss->pcm_indirect.appl_p=
-tr
-and decrements vss->pcm_indirect.sw_ready below zero while sw_data and
-hw_data remain 0. When virtsnd_pcm_trigger() later handles
-SNDRV_PCM_TRIGGER_START, it sets vss->pcm_indirect.sw_ready =3D
-vss->buffer_bytes while vss->pcm_indirect.appl_ptr is already non-zero,
-leaving sw_ready and sw_data out of sync with appl_ptr.
-
-Similarly, after SNDRV_PCM_TRIGGER_START in SNDRV_PCM_STATE_RUNNING,
-pcm_lib_apply_appl_ptr() only bounds each appl_ptr advance to
-runtime->buffer_size rather than the unread captured frames. If userspace
-uses SNDRV_PCM_IOCTL_SYNC_PTR to advance appl_ptr ahead of captured bytes
-(for example when hw_ready is 0 before completions arrive),
-snd_pcm_indirect_capture_transfer() subtracts frames_to_bytes(runtime, diff)
-from rec->sw_ready without transferring anything.
-
-Wouldn't subsequent period completions in virtsnd_pcm_cp_pointer() then see
-rec->sw_ready < rec->sw_buffer_size and prematurely re-queue capture
-descriptors before userspace reads them, or allow repeated SYNC_PTR calls to
-underflow rec->sw_ready so (int)(rec->sw_buffer_size - rec->sw_ready) wraps
-negative and calls virtsnd_pcm_msg_send() on already-queued descriptors?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261106000644.2046=
-0-1-mynameisjune111@gmail.com?part=3D7
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
