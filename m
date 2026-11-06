@@ -1,86 +1,83 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.217.43
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.47
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793938911;
-	b=EqLVDGdhBJ5Iy/TvTPbVMC5OIsx37tocC0lep2xkjjQKQoOjW3n/0QvvU9zMjF1i6tsB
-	 0142VpJkd10dWNhErdWpCm1yaD63Epe6NnimFsHjeNWrspXRVvYuULiOV4YtfreE/2+dx
-	 th5k0+cN4YqlQlrxPg+AMjNgU9+o+pAmVXMk9y4oL7An3VssEqPVce7qcaIwVeI3Hhwo9
-	 X6I6R30PDnUT3aHkn6nx46PCY9rFzLiE4FT3+FW2qVsyjENAJE/+EfgpwTl2CH2RpCzyo
-	 WSBpIVazhMMeY7C4MbDTtJDvoYlZW+xYoy3D5y/V9D5t4NQK5FfCA7nvLMEJdpDfxQQ==
+	t=1793939157;
+	b=YdJS5gTVUHC94rvcz6p80eBtcrvilppF/hhepWabsWZxU7Zs453K6jML0XdTSDl6JhM5
+	 IcAW4ptdKiCGMp2pTubmM7woNX9Nu8Gc9w52vLghlBun49KYkKSW74JDVmY5zdla+HmDh
+	 PQlpGFMy1Lz87TWzZ4YzsopfFiWkhYMWeuPlVoCSKHVvdtK40NI+4RAlT5q2ultN31+3x
+	 H+9hrlxzYTHOboMjebscDsk+kYDgazMSm0eGk2ssBCalcToRLWurDaXWFvKSVAS6FUJLv
+	 QLesJt/HaQDtzzLgdc+n/5IEh+VJTd7Nrdr4vLoWEwr0fOP3RavS8/oADwsBpHvp3cQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793938911;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793939157;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
 	 MIME-Version:Content-Type:Content-Transfer-Encoding;
-	bh=3iWGu++LVn2H+H7qSXINsSF2Yix8YUXmGD2jfuzlbW4=;
-	b=HfI90zSqFKh1jXMKqyxVpuk3jjYVj++WsWj4vLawy2399nT9h37JIBtpsVqNsUGBaO/Z
-	 13re3KKNyZbT5XfDLqo9edVuxLJZL6UdFxSKeqn2VaK/zR3G7hv49eSXK/CnNq5jHMVFu
-	 kX8zLEcvvYqz7gaMkKu/CioDgiTME+kOkxy7Z4YYJZhGrYSr9GG+wdILQhmgrDJtmacBK
-	 AJIO/off7Ed2Cezzz0r/Pvq9+s1+pzEkUkGHQO64oduZ5Pkugh6dI50mG9AIHRhVepAT/
-	 /IalxzwybCUSlkCl/EYXeAYhM7mPm4kpifNmbLOStHLYnh/rhSfAZAUQ0Krp9hJ6Puw==
+	bh=qqKPGKgxzCnJl5Zf6W6XFm1IHi1NIK5zysMn+xDZUsU=;
+	b=ZX8wQOJhnBC2OCNbyt89aFzpZI+Ku6aAuRwIKweIq7573W6TT2Ojz/5psceDfuGD9WWM
+	 hqDfvMTDg04MbUSWDE9kUK733fVgrhkRD1Bt+VLJ/rw57BXuYZtD3emq4TOLKIfpb9UKQ
+	 nFkp97Tkd7Ov8OpmmRE/rajPSy/z+ivjEadqxeHhn95ggof/tAmmqRfQk2zWUkhOzc6Pa
+	 beMhhkU5yOGKIdLPO5wP1TUmNcuInOLGHmvHEqKc+U1lntfcJj0YvHbfWyoZapGHxzq3L
+	 hbkb4+kjffBAZm7nlM4O9DTQ8HKBu4MLBknoqfom4uBYTMfyCzQ2s09T8oP/rwchajw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=QOBx94jG;
-	arc=none smtp.remote-ip=209.85.217.43
-Received: from mail-vs1-f43.google.com (mail-vs1-f43.google.com [209.85.217.43])
+	arc=none smtp.remote-ip=209.85.222.47
+Received: from mail-ua1-f47.google.com (mail-ua1-f47.google.com [209.85.222.47])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 671DF606A31B
-	for <virtualization@lists.linux.dev>; Fri,  6 Nov 2026 04:21:51 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 671DF606A31B
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DB80606A31B
+	for <virtualization@lists.linux.dev>; Fri,  6 Nov 2026 04:25:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3DB80606A31B
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=QOBx94jG
-Received: by mail-vs1-f43.google.com with SMTP id ada2fe7eead31-7ce77f98658so79060137.3
-        for <virtualization@lists.linux.dev>; Thu, 05 Nov 2026 20:21:51 -0800 (PST)
+Received: by mail-ua1-f47.google.com with SMTP id a1e0cc1a2514c-990835cec4bso119159241.1
+        for <virtualization@lists.linux.dev>; Thu, 05 Nov 2026 20:25:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793938910; x=1794543710; darn=lists.linux.dev;
+        d=gmail.com; s=20260707; t=1793939152; x=1794543952; darn=lists.linux.dev;
         h=content-transfer-encoding:content-type:mime-version:subject
          :references:in-reply-to:message-id:cc:to:from:date:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=3iWGu++LVn2H+H7qSXINsSF2Yix8YUXmGD2jfuzlbW4=;
-        b=QOBx94jGXFQUgXrieFqY4ta4nfZy2iUxd56221YG/7yo5sAA4C9wj+pmfgcx3C+FKV
-         pS5ISMectTJyLfxzZBwwkEHQnqDSHo9BUCJihXHQzxYoJTno10V6QasnpeHN4Cxfu1NO
-         Un8TKl0hq7okhcnBZxaWuGzEQxWpuuX5fTpU8hx+aHU6yup9P2QQVFnFGsZ8648etXu2
-         jB8XO9VQgHWdjoGiTLbwo0BDEmQkelVuKTS3clO+yedJI1/Lt+/Wu1gexzrq1g7fBYm/
-         ox6jz4JAOWt2UKCO4WlqQQdjUWs/tNM7ZJwd4XWIoSL70zOhrrqXcPWCGlmZOJR37oRD
-         KYRg==
+        bh=qqKPGKgxzCnJl5Zf6W6XFm1IHi1NIK5zysMn+xDZUsU=;
+        b=gzlmd4xG0WBCoOyWcprbwWuIW7h/ZOyJDjZiA7GuOwcVBkwFBTF8B8tbwj6DLercUA
+         Zn5WuC0i/pdDNY9cfrcWNX+vhPJYlqqeXUz2arIqdvAIFTc2ivAQao2g84WUT4SuMHBK
+         hkoOzX2ayXCZl1wHBPwjWGPwLgi/zdMyX2iod35MwWhjcrLW7W6LdwzCdDnJ5/YhptGD
+         z9dbXvVYt42dAwOa5mlmTHxl3U+iKV5RgSd+Tl62bxjc12ohj30myiyonad3uhqLflnO
+         xUd6QBY1X8ujmbPvUBUlC4qXrADTa9UAZ/e1UXT2nLGZOJ61j/ovzg3dL02m9gu1UnaN
+         ipZw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793938910; x=1794543710;
+        d=1e100.net; s=20260707; t=1793939152; x=1794543952;
         h=content-transfer-encoding:content-type:mime-version:subject
          :references:in-reply-to:message-id:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=3iWGu++LVn2H+H7qSXINsSF2Yix8YUXmGD2jfuzlbW4=;
-        b=WYh+zaFrDW+jzsT8G1ySINROP31xQt4wGTWBrh9OFLnbclHVvWOOCtRcQeJs84RoOX
-         am4InYzwQ62WRYxOPaaoeGaEWM8z8W4ICS+SOovC8nGa7eLWI5qBBNaVi1JW6H3ahopF
-         iwlBIAeA4+AJvqDER8EP8p4CwEKepKVgD6b5m/P9E4/myT8PUxRqo6RQdoksquzy2mhr
-         JaEt67dBq1XI/4JZqG2dBWX/jXOyT7b7A5ogKf3y6MLCMUh4Ct01v3qw/kOlgUbm8CEa
-         fRD+Z18NuF2Vv8uPmglVeYm3FxXWLni/KG44z87Gxdv0Lk6n48BAsaqVyJH1Dd/gcY3h
-         SwQA==
-X-Forwarded-Encrypted: i=1; AKwUvByONQIDXd6MnRw3Uh4lYu6aj50nVfwHNdByITiFoBffhViU5W9cnmByd11dhtiSIXH8Gy6xPDRiZntISt6R5A==@lists.linux.dev
-X-Gm-Message-State: APuU4Z/YZA1Ui+CF4b9wtIm1OBBczqE98UC/jpv63CjDgQm/rVG1QXF4
-	IY+Uvy4q6n1Co49m78DgbP3abF7vvQGjUNhsvNBz8GCt/4fN+1PWPLWL
-X-Gm-Gg: AYBFou2qQZ1yJx5JiX3skCcjj0au2kMxAklDoin1/Ls+CvjpJgrDaSOGNxhsEfq2veI
-	Znu+9Y2WTgmDPLz5asT/C4ef3uNVGqF0N4HKMZ5EThu0Kc4RJFgebb18bbl8rHRu6p1drrq4BZh
-	iIq0BgiQd7d0NGQQYX/1ISC/QaOzsr2SGaKsxcSAvHPan5mmFvWmpH9Bq3iqpGumj07gFRgkCV5
-	Jkz9c4udnLLRXSBZXfDY+bznwKt0gfPkoO2P+jxa8QFoQY8iUq4d7xj7PdcHYJRBVYqHlxQrZ+T
-	95KOe2UfnizPSWxStiCFJ0RAbmZNOsIzAL2R3OENJGzmnfr8otD9zRv6ASFG01AMbV28RuJj7A5
-	mnHIJbppSNPfWqp4/bV293RiPGmetn66BAk6vQ8ukSzQYv1abFHOHqIRViS/EdmgKfRQySaJvts
-	XxGp7GUgd1lZaI9SbdmpSyt45RgtBewMf727Nlh2DErllFuEFm7dM9vVWEq2cO9KT2FLPr+84t9
-	OetC9F9yB5ngwyw5rfXEOXKPU0l03aIbbgdI/IUS0718HsF6gGC4puNw7KEhU2j69SAeywpoxlZ
-	Z0aN9E5fHRoJxdY0CxPdtjJKTQNH8Q1UlRlIKPL2iC5J6OQDl45k3odupiXomeSqzB+KKR9B8Nd
-	9V3UDJjNgZNV40lGDSWgvT2Vu1ouo0/u9GtDrxpGapwGhlogGspauj0QB3Txlm7fHCVBUuRI=
-X-Received: by 2002:a05:6102:a18f:10b0:7ce:6474:7216 with SMTP id ada2fe7eead31-7d2a2f0ac8cmr439924137.36.1793938910317;
-        Thu, 05 Nov 2026 20:21:50 -0800 (PST)
+        bh=qqKPGKgxzCnJl5Zf6W6XFm1IHi1NIK5zysMn+xDZUsU=;
+        b=rvgQxXThtT8iGCQA50Gsy2GjQ6wgya6NxRBqN72XZ98Gf6u/3HnM6F3BIBShAlCOcp
+         pYiR1JqU9pFKXNezsOhLz/E7/I/SO1vqP0kFWf1CxQknekZWSHgdz3rKeOvOP9/hwuqi
+         hcQ62A/zS4hoA7s9gaNcaIxQYVpgY7TNfRLeS3vJZHJv3OqAAqQlIEhpZXzabb3GisMr
+         kuVf7RKHW5Du4C6d6sxM6UrCmxLUos4iIjG50cH/t1Kjzn3Tu+nnx3dL9qglRPD0VxzM
+         W8tODZtXnOrVdTyh2bEswCfNQ3IRmdmssGZuFuWtdr1QtfSJKZaug/Pe56G83KHh7bvu
+         JRhQ==
+X-Forwarded-Encrypted: i=1; AKwUvBx2QneXpALjAS7rQnjs4oJ0/BZSjNJQl7eCvrC97zNxINzLDp9HqslkNrW07Ee6BAG375cOfDr6EVERCf4vhw==@lists.linux.dev
+X-Gm-Message-State: APuU4Z9KeOX12eBNCnUWPDxdMGj+LsEzeUoEfKUaf95891iUTFHChjty
+	xbvBU3UScTK+KcWjXAeNsn6Ej/1LqgTIuJDsTBvtvAedN9CCP+/5uiYN
+X-Gm-Gg: AYBFou06sVPMZ1Vve60D160jMwKp4eNEZWu/VjE6DbSNbp+xZObIfCJ1mOrczkTQyF6
+	LHJu3Ev3STD1dVAwWoqPRiEo8/oVQdC9f0xiDz0igPcSk/NpwbUhXwG4xQWRhRpqWTFPrXDMZQb
+	QZ4dDEZ4kqfvpN1CirXxHpOyfpeU0hzhNaGzIkhTiYXkbO3ILBOWW4ytk89Y2xnOh/ySMHfoaG8
+	xRRtF/C7jWJuMA3eaTCD/nx24PAVWa5m1rMjjKOmyVsisme1mSLFSFFXDi2uW29R+vapnzXAY3S
+	Snd4CEdiXivQp9m9kaEOt9HsrJKT2FScESAqyNZ8bXXP97DwUXc5yuUaX2NsNTdMTcNNkk7EoZu
+	NBOM/vKTuujL0t+vBMc3CWlwU/ZhlZ1zTg6xnKRxDIWDFhhM/uLXWr/wnG6GFVtwXIurSIKXRBc
+	jLjigWOpBPv+kZ3Oj+WXb+TIeMvxcGUnYn25ekgTxnjUkWIIGAZg8HwCF/rLOHY6usVNLbsAla3
+	Pq+uaWuJBMnFAVPscIjJqy1O6cWmXp/zrD/TK8clQ0eA0Kvwd0bTQjFTDczWcg0mBlmv5UmR8dR
+	l+wWjDbqAyWT73ARFMj/T0EEV8oLu+aC4Nlgy8b0m3UpPDgKx/qHRtVW/uqjuhbShDJ0On7TqRO
+	nu3kRov6GeMDTQ0C2BZR6Jk/nlFRzK0izM3V4F2VN7SAMtdKoap0ZGo8+kq4VSHgspT32KOM=
+X-Received: by 2002:a05:6122:1d07:b0:5ea:c37b:450 with SMTP id 71dfb90a1353d-5ecc4428992mr843406e0c.20.1793939152230;
+        Thu, 05 Nov 2026 20:25:52 -0800 (PST)
 Received: from gmail.com (223.230.150.34.bc.googleusercontent.com. [34.150.230.223])
-        by smtp.gmail.com with ESMTPSA id ada2fe7eead31-7d2a85beb50sm492944137.1.2026.11.05.20.21.49
+        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-5ecc64a6774sm576387e0c.3.2026.11.05.20.25.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Nov 2026 20:21:49 -0800 (PST)
-Date: Thu, 05 Nov 2026 23:21:49 -0500
+        Thu, 05 Nov 2026 20:25:51 -0800 (PST)
+Date: Thu, 05 Nov 2026 23:25:51 -0500
 From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
 To: Eric Dumazet <edumazet@kernel.org>, 
  netdev@vger.kernel.org, 
@@ -95,12 +92,12 @@ Cc: Eric Dumazet <edumazet@kernel.org>,
  =?UTF-8?B?RXVnZW5pbyBQw6lyZXo=?= <eperezma@redhat.com>, 
  Hassan Sultan <hassansultan@google.com>, 
  virtualization@lists.linux.dev
-Message-ID: <willemdebruijn.kernel.1afc96da83d57@gmail.com>
-In-Reply-To: <20261105115715.1466924-4-edumazet@kernel.org>
+Message-ID: <willemdebruijn.kernel.1374b4bb37bc5@gmail.com>
+In-Reply-To: <20261105115715.1466924-7-edumazet@kernel.org>
 References: <20261105115715.1466924-1-edumazet@kernel.org>
- <20261105115715.1466924-4-edumazet@kernel.org>
-Subject: Re: [PATCH net v3 3/8] tun: clear stale skb->protocol of NAPI frags
- skbs
+ <20261105115715.1466924-7-edumazet@kernel.org>
+Subject: Re: [PATCH net v3 6/8] selftests: net: tun: test UDP tunnel GSO on
+ retyped devices
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -115,59 +112,23 @@ Content-Type: text/plain;
 Content-Transfer-Encoding: 7bit
 
 Eric Dumazet wrote:
-> With IFF_NAPI_FRAGS, tun_napi_alloc_frags() gets its skb from
-> napi_get_frags(). If GRO merged the previous frame with
-> GRO_MERGED_FREE, that skb was recycled by napi_reuse_skb(), which does
-> not reset skb->protocol set by napi_frags_skb() for the previous frame.
+> Use TUNSETLINK to make the device type disagree with the tun/tap
+> framing, and check that the outer headers of UDP tunnel GSO frames are
+> still validated according to the framing:
 > 
-> On the IFF_TAP path, tun_get_user() calls tun_vnet_hdr_tnl_to_skb()
-> before eth_type_trans(), so the virtio header checks see the protocol
-> of the previous frame: the outer protocol check of UDP tunnel GSO
-> packets rejects a valid frame when the two ethertypes differ, and
-> GSO packets without VIRTIO_NET_HDR_F_NEEDS_CSUM are dissected with
-> the wrong protocol.
+> - tun_vnet_udptnl_proto.outer_proto_link_type: tap device set to
+>   ARPHRD_NONE. Frames with an NSH outer ethertype, with or without a
+>   VLAN tag, are rejected. A valid outer IPv4 frame is accepted.
+> - tun_vnet_udptnl_proto_l3.outer_proto_link_type: IFF_TUN device set
+>   to ARPHRD_ETHER. An Ethernet frame behind the tun_pi header is
+>   rejected.
 > 
-> This needs GRO to hold packets across writes, for example with
-> napi_defer_hard_irqs and gro_flush_timeout set on the device.
+> Without the patch "net: virtio: do not use dev->type to find the outer
+> L3 header", the frames expected to be rejected are accepted.
 > 
-> Clear skb->protocol for IFF_TAP frames, as for skbs allocated by
-> tun_alloc_skb(). eth_type_trans() sets it right after.
-> 
-> Fixes: 90e33d459407 ("tun: enable napi_gro_frags() for TUN/TAP driver")
-> Reported-by: Sashiko <sashiko-bot@kernel.org>
-> Closes: https://lore.kernel.org/netdev/179386753589.488856.11455181721004759454@kernel.org/
 > Signed-off-by: Eric Dumazet <edumazet@kernel.org>
 
 Reviewed-by: Willem de Bruijn <willemb@google.com>
 
-> ---
->  drivers/net/tun.c | 5 +++++
->  1 file changed, 5 insertions(+)
-> 
-> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-> index 3920b3dff1e8..6b648f21018c 100644
-> --- a/drivers/net/tun.c
-> +++ b/drivers/net/tun.c
-> @@ -1941,6 +1941,11 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
->  			goto drop;
->  		}
->  		skb_set_network_header(skb, ETH_HLEN);
-> +		/* A NAPI frags skb recycled by napi_reuse_skb() keeps the
-> +		 * protocol of a previous frame. eth_type_trans() sets it
-> +		 * below, the virtio header checks must not see a stale one.
-> +		 */
-> +		skb->protocol = 0;
-
-This resets it for all IFF_TAP.
-
-Would it make sense to do this in tun_napi_alloc_frags if it is only
-needed for IFF_NAPI_FRAGS?
-
->  		break;
->  	}
->  
-> -- 
-> 2.53.0
-> 
-
-
+This TUNSETLINK ioctl is so odd. Changing dev->type but not really
+changing the underlying link layer expectations, such as eth_type_trans.
