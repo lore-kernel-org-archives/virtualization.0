@@ -1,57 +1,108 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.45
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793944253;
-	b=Kb9iA7WXGNreTcfvo1QgMxoXBYB82McVcvkHtWIcHjBg/3AWTpffIMTNd89VJ7cVuvsH
-	 bOcvZxmS0SR9PdzxBwMFNkUizfeww+Z1+FusCB7AyEg0zlsG46R5w6fqSm4AB37AKy8my
-	 /TZ77OO9Ob40oEXyLx+bX5XN0wEsQi8NxMOwHL9pZQBBmf5Uz0fpCj1puH0IrelVfRbn4
-	 aI+4B096GgARlNTeYIjoGdzgm1gqBBVdg64LNoN2cw+w8JzOKZFcHaQh5N2W/ZEJS3QId
-	 kc0EJ++0veGE6PIZeIuvaMW2jUX7rDMafWLgl9IFdnV5LRGbolREe8aKQ8hIL+weB/g==
+	t=1793944616;
+	b=Qbycd85FwELSg7jjEjk0t0Lf/fx3STxoJmvtLB/PLOIp0gn6YjcVvXzm0u7J7XEnM/7z
+	 4BTmEjB4w9yv5pO5LfDmVr0UzZgx5CiFeBcoiSvJteBnwNtOjOyATg5Cgm59JLYEBpfyU
+	 quTdZTfKn/Ub2rsmFmgg3HhRC4ua6JBwOc54ykQMTtlgxRW5sjWhl51dcXT/yhNjJ83jh
+	 EgkHOttxvSCwOAKr0sNRIG+FyLiK9BgVfbvwdCOE+o6Xthe56E5QM0G7uqdpGx9NAENEi
+	 /qO/CSgZ2XELImUQB2u7mbiHNACPkLPRUyDZrkwyVfSUSfV86aCd/iwjz7AMsaupb7g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793944253;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=q33Iw0NQot0Eu0pzBS6JaAbTkeKRPc2nqwP9zTt25Os=;
-	b=QKT4HdcoJdEvUZfIcgwEDiYkoRKAl+U5a+eQWDejG4zbhztRLoVkV05rnokrQjZZds2W
-	 sBlV/y+nIfxJkuLgfZ6lxt+rPAv9Xspwv2HW7HtQXGee+c5yllctxeF2MG7DMCCg/WRqB
-	 efiX3V+uaLaxFJp9o7u9n5Hh5NJHTaFpS9yvhEyFDDd4BppIpraaoaeeO36xUKqKcDr97
-	 D4lLNYyEOc5VWvpxs13Tc/K+gH88rIVGDG6oXUBMb7NVCc2RGVWx2ETWBz88M5m5GW003
-	 t58v8Of7ArrOl0tFQm04N/BXnLX88JHX+y1Qwn3eco0bWVfUrsyvphGb0ZVVwf89vLg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793944616;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=yi2qTdJXyLd3b2RG4dIfjLNRpH1if0sm6Lbt6BNdtQo=;
+	b=uAruGRnmowiDVB9aj7QIX3JMdjRjh7IgeAJ5St4+Mfz7wi5aNolykGzuARYk5Cs7Y+1U
+	 x3ny4LUsifO3DxsHx5fOGx00ueLfiOSJAinc+02n4xabZgkk9vz4BJM++s4llPdvQ+3HP
+	 yxw7iTYdHhqrBRzcHHoafAkEqShQnDS07oqqIQYDktO+j5z7vf7xH6KgqJFylNZ/VEt/P
+	 BXeUrx8R2ND8SJrWgf09++bnuJCrcz2wI3Loi13sFRMiMSKprSxZJtcGOb/7iBu1dDJww
+	 IEwUEEXd/kXliAqY1l3G6yKVvUxHce79L/bq/WY77TmZhQ/DYf58fEYM81YSC2nR96w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nkhIoCk9;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=mUyniDh9;
+	arc=none smtp.remote-ip=209.85.128.45
+Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38A10606A335
-	for <virtualization@lists.linux.dev>; Fri,  6 Nov 2026 05:50:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A4ED606A328
+	for <virtualization@lists.linux.dev>; Fri,  6 Nov 2026 05:56:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3A4ED606A328
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nkhIoCk9
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 909201F008A2;
-	Fri,  6 Nov 2026 05:50:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793944252;
-	bh=q33Iw0NQot0Eu0pzBS6JaAbTkeKRPc2nqwP9zTt25Os=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=nkhIoCk9DwM9LoEYPsQlhTu0H86n+6EKiCKI87gsIehtnBihAb0G2Fui3sMJx45YJ
-	 DTYPmnH09bJyL5Gt4o+8338dQLvTI54UjNtFqcdhNLNIEzODp60NNuEE+qDjk4MPbX
-	 hdrxAgQ36LgFBuwIR+Eg2XjXUqsOY58KkNhNE08WRpO1cHzYicRp882z4hAAyD/Iyp
-	 pA7lSG0yE3fK8kLyFBHiyaxTWf0pGiOKHbpXGj9USu3/5SnayPnhFU++07gg6brfZp
-	 yIFR5vnZ70joEgW0O97y7NfDkbxRf6ECHxlle/zcMpbihEM+2+lN9hcBAFXzw2hwtG
-	 114+ACDVw/eug==
-Message-ID: <sashiko-outbox-200865@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3] virtio_console: fix buffer ownership and unplug
- races in the read path
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Yaohan Li" <shunsheng1218@gmail.com>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <20261106053438.1206065-1-shunsheng1218@gmail.com>
-References: <20261106053438.1206065-1-shunsheng1218@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 06 Nov 2026 05:50:52 +0000
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=mUyniDh9
+Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-4a214af2076so1332275e9.0
+        for <virtualization@lists.linux.dev>; Thu, 05 Nov 2026 21:56:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793944614; x=1794549414; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=yi2qTdJXyLd3b2RG4dIfjLNRpH1if0sm6Lbt6BNdtQo=;
+        b=mUyniDh9KdDdsgIIPDplDC+QfdU5zXyuTGfpmpSJGrTBfnKb6vk47KfMF2lDlpIog0
+         frHj/DeZCUsF04IAjqvW/wUF6oYTa9VH4Mm1PE21M4eShwMMd0nufZ1/CdjgiGdKB79r
+         dmONQnvCJr7vtntnsu80M208CTUx6AnxAAGjq2+nwHvmFxRK9oWZnOko1o/oA6Efx/ie
+         eupYLLJEsXAdZTIUb8DEOqXtb3Ee0uZYOEiYysYRzPPC3HnSVxpr7adqwPgRfqpyooYK
+         ONq7WSRQ9NjZWzDoYhnYwmlFTdrWH3qVI7SWVLCURYF5q5MeqOJBiPgP8bZ6RbAOXmRi
+         08Ew==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793944614; x=1794549414;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=yi2qTdJXyLd3b2RG4dIfjLNRpH1if0sm6Lbt6BNdtQo=;
+        b=G/eLMCRYV8hiYj11stcUqtFolzdgG0YXvqKQPT9iXKU2G4/Q5DinVeELZh0dAgF0Xk
+         JKF3CrKJ5drYgigbI3wfVvgbzZ1QenWl/9uMBZ+73VIJSW2+oOUzSbBS9S3qIBj6OqBp
+         +Ivc3uHAXL83yXOeaVAUvOL/A71tArJvXZEFW0XXgbYRrvyCtXMriUVMTZu5u9/WpN6U
+         GFWc3LtHBtBDTc9/e5pEQXX61twtQdfrN/1DWMdOKHSa2nOZTZq6q1TlomFnoN43mEZH
+         iIoEvbBeA7lBNtWb0tinS3X+H2tyP0Yk7Nsh8BuF24nFjgK/ZNcdUpBbF8ws0T6zAFVi
+         haOw==
+X-Forwarded-Encrypted: i=1; AKwUvBw4CSzC49wqmrvDtAHP/l2rRWqyD/I7cZfFa+An/RZlkTs7+ThtJ0coYBezTil0IaKfMSlEGgj1aSvrlYWzFQ==@lists.linux.dev
+X-Gm-Message-State: APuU4Z8VzKEofkR8X1y7tWvDcYO3K7rkc4Nhp7IkGE3BfCosiBKPNgoP
+	wqOXJ9IHZNd958kzlhB7A4uKpO4MpnRDUh8tgYO7rK1Fy56XdtXDcKsK
+X-Gm-Gg: AYBFou2qF/oIrExGj/JqScHaYGGERBUca1UMMwAEB4uxJgmLONFKLtgpJAAkRLC1RWd
+	6oWecYe0uGPAFtOgSidNX0mGxRoCW0U+vouca8vi35NKpkZ/b3+2ujsXUnA85fmHP+EPHSfYRRn
+	NP9M+Rj+ZS9gwD9VQKmgbGba2ZU1+UdJW9VUYXXV2z+DRbQDqNxpuVAiFgZ67b9LRab5IUmad8Y
+	GpRgXEAii0GaXAnP8n6yX22VkiCclWL+dhZC2HEpT8KPoZxKVw26VwoC4L1kLs99NKO3EHcjXrk
+	e5WBFsXhjlPONNGJOQh76OThvvYG+Ga4aXFq12FWIyuVj6/jWvLzjiW/MSFppxioHxS/OEQO7k0
+	u7udtqL2262p7wC8tK8lv4EEK+16LBiOHYuiH89K/e44Ho2LTEx//yoxMSkqTzL5AKUS//NSGyj
+	3S/YI7mljKW/y3bvTa9R1bRkcT0eG+CB6DiC57Iubv+e524TErGUHG/MXE9DxBhGwp3ICIUBdtR
+	ZtEYwXJtEn0U476h1UAXP1kKmuiqU/YH+2WaJraR2huo7emIfOEGCl0Qjpj+PTjWLXrNHtq5C0m
+	F1F0YnpIJN/gveb3ICMnPkxrbKYgebVUGnlvM8LLEXg7sj72wU7vVIsF5NaCStWS0TPy/fcTWEI
+	=
+X-Received: by 2002:a05:600c:a10c:b0:4a2:148b:c88c with SMTP id 5b1f17b1804b1-4b6dd82ab3cmr14697045e9.8.1793944614412;
+        Thu, 05 Nov 2026 21:56:54 -0800 (PST)
+Received: from stjepan-Aspire-F5-573G.tailc0f20e.ts.net ([2a00:1bb8:118:d39e:452b:db14:9bf:f8a8])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4b6e2029209sm35245025e9.11.2026.11.05.21.56.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 05 Nov 2026 21:56:54 -0800 (PST)
+From: Stjepan Poljak <stjepan.poljak@gmail.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Cornelia Huck <cohuck@redhat.com>,
+	Halil Pasic <pasic@linux.ibm.com>,
+	Eric Farman <farman@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Alexander Graf <graf@amazon.com>,
+	virtualization@lists.linux.dev,
+	linux-um@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v2] virtio_ring: return an error pointer from vring_create_virtqueue()
+Date: Fri,  6 Nov 2026 06:56:33 +0100
+Message-ID: <20261106055635.3019889-1-stjepan.poljak@gmail.com>
+X-Mailer: git-send-email 2.53.0
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -60,149 +111,216 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [Medium] virtio_console: unplug race in fill_readbuf() and
-  port_fops_read() returns 0
---
+vring_create_virtqueue() and vring_create_virtqueue_map() return NULL
+on any failure, so the error returned from vring_alloc_queue_split()
+is lost and turned into -ENOMEM. This is especially misleading if
+vring_alloc_queue_split() rejects a queue size with -EINVAL (i.e. if
+queue size is not a power of two):
 
-commit eb5deeedcdec231a191fa4aa424df11b809cdf63
-Author: Yaohan Li <shunsheng1218@gmail.com>
+  virtio_blk virtio0: Bad virtqueue length 100
+  virtio_blk virtio0: probe with driver virtio_blk failed with error -12
 
-virtio_console: fix buffer ownership and unplug races in the read path
+So the error points whoever debugs it at an allocation failure that
+never happened.
 
-This commit tracks ownership of port input buffers across unlocked reads
-and adds an unplugging state to prevent use-after-free and buffer reorder
-races during concurrent reads and port hot-unplug.
+Return an ERR_PTR() instead: the error from vring_alloc_queue_split()
+or vring_alloc_queue_packed(), or -ENOMEM when allocating the
+virtqueue itself fails. Make the callers, virtio_pci (modern and
+legacy), virtio_mmio, virtio_vdpa, virtio_ccw and virtio_uml, check
+with IS_ERR() and pass the error on. The error path in virtio_ccw
+deletes a non-NULL vq, so clear vq there before taking it.
 
-> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-> index 019bcae81af5c..d1757017d9bd0 100644
-> --- a/drivers/char/virtio_console.c
-> +++ b/drivers/char/virtio_console.c
-[ ... ]
-> @@ -534,19 +551,48 @@ static void discard_port_data(struct port *port)
->  			 err);
->  }
-> =20
-> -static bool port_has_data(struct port *port)
-> +/*
-> + * Input state of a port, snapshotted under inbuf_lock.  The distinction
-> + * between a buffer that can be acquired now (AVAILABLE) and one that is
-> + * owned by another reader (CLAIMED) matters for poll() and for blocking
-> + * reads: only AVAILABLE must be reported as readable, while both mean
-> + * that unread data may still be pending for the EOF logic.
-> + */
-> +enum port_input_state {
-> +	PORT_INPUT_EMPTY,
-> +	PORT_INPUT_AVAILABLE,
-> +	PORT_INPUT_CLAIMED,
-> +	PORT_INPUT_UNPLUGGED,
-> +};
-> +
-> +/* Callers must not hold inbuf_lock. */
-> +static enum port_input_state port_input_state(struct port *port)
->  {
->  	unsigned long flags;
-> -	bool ret;
-> +	enum port_input_state state;
-> =20
-> -	ret =3D false;
->  	spin_lock_irqsave(&port->inbuf_lock, flags);
-> -	port->inbuf =3D get_inbuf(port);
-> -	if (port->inbuf)
-> -		ret =3D true;
-> +
-> +	if (port->unplugging || !port->portdev) {
-> +		state =3D PORT_INPUT_UNPLUGGED;
-> +	} else if (port->inbuf_claimed) {
-> +		state =3D PORT_INPUT_CLAIMED;
-> +	} else {
-> +		port->inbuf =3D get_inbuf(port);
-> +		state =3D port->inbuf ? PORT_INPUT_AVAILABLE
-> +				    : PORT_INPUT_EMPTY;
-> +	}
-> =20
->  	spin_unlock_irqrestore(&port->inbuf_lock, flags);
-> -	return ret;
-> +	return state;
-> +}
-> +
-> +static bool port_has_data(struct port *port)
-> +{
-> +	enum port_input_state state =3D port_input_state(port);
-> +
-> +	return state =3D=3D PORT_INPUT_AVAILABLE ||
-> +	       state =3D=3D PORT_INPUT_CLAIMED;
->  }
-[ ... ]
-> @@ -692,24 +738,112 @@ static ssize_t __send_to_port(struct port *port, s=
-truct scatterlist *sg,
-[ ... ]
-> +	port->inbuf =3D get_inbuf(port);
->  	buf =3D port->inbuf;
-> +	if (!buf) {
-> +		spin_unlock_irqrestore(&port->inbuf_lock, flags);
-> +		if (!to_user)
-> +			return 0;
-> +		if (nonblock)
-> +			return READ_ONCE(port->host_connected) ? -EAGAIN : 0;
-> +		/*
-> +		 * The data we saw was consumed by another reader while we
-> +		 * waited for its claim.  Keep blocking like the fops-level
-> +		 * wait instead of reporting a spurious EOF: wait for new
-> +		 * data, a disconnect or the unplug fence.
-> +		 */
-> +		err =3D wait_event_freezable(port->waitqueue,
-> +					   !will_read_block(port));
-> +		if (err)
-> +			return err;
-> +		if (!READ_ONCE(port->guest_connected))
-> +			return -ENODEV;
-> +		if (!READ_ONCE(port->host_connected) && !port_has_data(port))
-> +			return 0;
-> +		goto retry;
-> +	}
+Assisted-by: Claude:claude-opus-5-5
+Signed-off-by: Stjepan Poljak <stjepan.poljak@gmail.com>
+---
+v2: use Assisted-by instead of Co-Authored-By (Michael)
+v1: https://lore.kernel.org/r/20261105193426.2999631-1-stjepan.poljak@gmail.com
 
-[Severity: Medium]
-Can fill_readbuf() and port_fops_read() still return 0 instead of -ENODEV
-when a read races with unplug_port()?
+Tested on x86_64 with a virtio-mmio virtio-blk device offering a
+100-entry queue: the probe now fails with -22 instead of -12, and a
+128-entry queue probes as before. The other transports are only
+compile-tested (x86_64, ARCH=um, s390 with clang, W=1).
 
-unplug_port() sets port->unplugging =3D true under inbuf_lock, drops the
-lock to remove port->list under ports_lock, and only then re-acquires
-inbuf_lock to clear guest_connected and host_connected.  Furthermore,
-port_has_data() returns false for PORT_INPUT_UNPLUGGED, and
-port->host_connected is read outside inbuf_lock:
+No Fixes: tag, since the error has been -ENOMEM since 2010 and nothing
+regressed.
 
-CPU0 (fill_readbuf)               CPU1 (unplug_port)
-wait_event_freezable(...)
-                                  spin_lock_irq(&port->inbuf_lock)
-                                  port->unplugging =3D true
-                                  spin_unlock_irq(&port->inbuf_lock)
-                                  ...
-                                  spin_lock_irq(&port->inbuf_lock)
-  !READ_ONCE(port->guest_connected)
-    -> false
-                                  port->guest_connected =3D false
-                                  port->host_connected =3D false
-                                  spin_unlock_irq(&port->inbuf_lock)
-  !READ_ONCE(port->host_connected)
-    && !port_has_data(port)
-    -> true (PORT_INPUT_UNPLUGGED)
-  return 0;  <-- returns EOF instead of -ENODEV
+This conflicts trivially with patch 07/12 of Alexander Graf's "virtio:
+support devices that own their virtqueue memory" v2:
+https://lore.kernel.org/virtualization/20260818211425.91009-1-graf@amazon.com/
+---
+ arch/um/drivers/virtio_uml.c       |  4 ++--
+ drivers/s390/virtio/virtio_ccw.c   |  5 +++--
+ drivers/virtio/virtio_mmio.c       |  4 ++--
+ drivers/virtio/virtio_pci_legacy.c |  4 ++--
+ drivers/virtio/virtio_pci_modern.c |  4 ++--
+ drivers/virtio/virtio_ring.c       | 12 +++++++-----
+ drivers/virtio/virtio_vdpa.c       |  4 ++--
+ include/linux/virtio_ring.h        |  6 +++++-
+ 8 files changed, 25 insertions(+), 18 deletions(-)
 
-The same split between port_input_state() (or get_inbuf()) and
-READ_ONCE(port->host_connected) exists in the non-blocking path above and
-at bothPORT_INPUT_EMPTY checks in port_fops_read(): if unplug_port() runs
-after port_input_state() returns PORT_INPUT_EMPTY, it clears
-port->host_connected and the reader returns 0 instead of -ENODEV.
+diff --git a/arch/um/drivers/virtio_uml.c b/arch/um/drivers/virtio_uml.c
+index 881c34098a74..8b645523277f 100644
+--- a/arch/um/drivers/virtio_uml.c
++++ b/arch/um/drivers/virtio_uml.c
+@@ -984,8 +984,8 @@ static struct virtqueue *vu_setup_vq(struct virtio_device *vdev,
+ 
+ 	vq = vring_create_virtqueue(index, num, PAGE_SIZE, vdev, true, true,
+ 				    ctx, vu_notify, callback, info->name);
+-	if (!vq) {
+-		rc = -ENOMEM;
++	if (IS_ERR(vq)) {
++		rc = PTR_ERR(vq);
+ 		goto error_create;
+ 	}
+ 	vq->priv = info;
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index 552d77998012..c5a30f0a2bc2 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -590,10 +590,11 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
+ 				    vdev, true, may_reduce, ctx,
+ 				    notify, callback, name);
+ 
+-	if (!vq) {
++	if (IS_ERR(vq)) {
+ 		/* For now, we fail if we can't get the requested size. */
+ 		dev_warn(&vcdev->cdev->dev, "no vq\n");
+-		err = -ENOMEM;
++		err = PTR_ERR(vq);
++		vq = NULL;
+ 		goto out_err;
+ 	}
+ 
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index e2ec0ec01d67..c403a025006e 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -396,8 +396,8 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned int in
+ 	/* Create the vring */
+ 	vq = vring_create_virtqueue(index, num, VIRTIO_MMIO_VRING_ALIGN, vdev,
+ 				 true, true, ctx, notify, callback, name);
+-	if (!vq) {
+-		err = -ENOMEM;
++	if (IS_ERR(vq)) {
++		err = PTR_ERR(vq);
+ 		goto error_new_virtqueue;
+ 	}
+ 
+diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
+index 8115aa39e01e..9d94fffff344 100644
+--- a/drivers/virtio/virtio_pci_legacy.c
++++ b/drivers/virtio/virtio_pci_legacy.c
+@@ -130,8 +130,8 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+ 				    VIRTIO_PCI_VRING_ALIGN, &vp_dev->vdev,
+ 				    true, false, ctx,
+ 				    vp_notify, callback, name);
+-	if (!vq)
+-		return ERR_PTR(-ENOMEM);
++	if (IS_ERR(vq))
++		return vq;
+ 
+ 	vq->num_max = num;
+ 
+diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
+index 922e2df027de..28ccb2130e27 100644
+--- a/drivers/virtio/virtio_pci_modern.c
++++ b/drivers/virtio/virtio_pci_modern.c
+@@ -720,8 +720,8 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+ 				    SMP_CACHE_BYTES, &vp_dev->vdev,
+ 				    true, true, ctx,
+ 				    notify, callback, name);
+-	if (!vq)
+-		return ERR_PTR(-ENOMEM);
++	if (IS_ERR(vq))
++		return vq;
+ 
+ 	vq->num_max = num;
+ 
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index f683a2d6a200..6dd4a7651bde 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -1421,13 +1421,13 @@ static struct virtqueue *vring_create_virtqueue_split(
+ 	err = vring_alloc_queue_split(&vring_split, vdev, num, vring_align,
+ 				      may_reduce_num, map);
+ 	if (err)
+-		return NULL;
++		return ERR_PTR(err);
+ 
+ 	vq = __vring_new_virtqueue_split(index, &vring_split, vdev, weak_barriers,
+ 				   context, notify, callback, name, map);
+ 	if (!vq) {
+ 		vring_free_split(&vring_split, vdev, map);
+-		return NULL;
++		return ERR_PTR(-ENOMEM);
+ 	}
+ 
+ 	to_vvq(vq)->we_own_ring = true;
+@@ -2671,15 +2671,17 @@ static struct virtqueue *vring_create_virtqueue_packed(
+ {
+ 	struct vring_virtqueue_packed vring_packed = {};
+ 	struct virtqueue *vq;
++	int err;
+ 
+-	if (vring_alloc_queue_packed(&vring_packed, vdev, num, map))
+-		return NULL;
++	err = vring_alloc_queue_packed(&vring_packed, vdev, num, map);
++	if (err)
++		return ERR_PTR(err);
+ 
+ 	vq = __vring_new_virtqueue_packed(index, &vring_packed, vdev, weak_barriers,
+ 					context, notify, callback, name, map);
+ 	if (!vq) {
+ 		vring_free_packed(&vring_packed, vdev, map);
+-		return NULL;
++		return ERR_PTR(-ENOMEM);
+ 	}
+ 
+ 	to_vvq(vq)->we_own_ring = true;
+diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
+index f9559b6b2e0b..c1b6134b2267 100644
+--- a/drivers/virtio/virtio_vdpa.c
++++ b/drivers/virtio/virtio_vdpa.c
+@@ -208,8 +208,8 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
+ 	vq = vring_create_virtqueue_map(index, max_num, align, vdev,
+ 					true, may_reduce_num, ctx,
+ 					notify, callback, name, map);
+-	if (!vq) {
+-		err = -ENOMEM;
++	if (IS_ERR(vq)) {
++		err = PTR_ERR(vq);
+ 		goto error_new_virtqueue;
+ 	}
+ 
+diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
+index c97a12c1cda3..c808ca7e8d58 100644
+--- a/include/linux/virtio_ring.h
++++ b/include/linux/virtio_ring.h
+@@ -66,6 +66,9 @@ struct device;
+  * may_reduce_num is set, then this may allocate a smaller ring than
+  * expected.  The caller should query virtqueue_get_vring_size to learn
+  * the actual size of the ring.
++ *
++ * Returns the virtqueue or an ERR_PTR() on failure: -EINVAL if num is
++ * not a valid ring size, -ENOMEM if the ring could not be allocated.
+  */
+ struct virtqueue *vring_create_virtqueue(unsigned int index,
+ 					 unsigned int num,
+@@ -80,7 +83,8 @@ struct virtqueue *vring_create_virtqueue(unsigned int index,
+ 
+ /*
+  * Creates a virtqueue and allocates the descriptor ring with per
+- * virtqueue mapping operations.
++ * virtqueue mapping operations.  Returns the virtqueue or an ERR_PTR()
++ * on failure, like vring_create_virtqueue().
+  */
+ struct virtqueue *vring_create_virtqueue_map(unsigned int index,
+ 					     unsigned int num,
 
-In addition, because unplug_port() sets port->unplugging before clearing
-port->guest_connected, port_fops_poll() can observe port->guest_connected
-as true and then call will_read_block(), which sees PORT_INPUT_UNPLUGGED
-and returns false, reporting EPOLLIN | EPOLLRDNORM on an unplugging port
-with no data.
+base-commit: 1a577f9402c1780cc1e663f48d5dd54c02051b09
+-- 
+2.53.0
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261106053438.1206=
-065-1-shunsheng1218@gmail.com?part=3D1
