@@ -1,55 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793953004;
-	b=rrWVSb+oKQwv8ZbSP54xBorM6KLmbiF1g345q5Odql3bai9GuOJIo+7aDIxXSqXv/LZE
-	 boXdjn6BuKuWJ3iRsUtS/qy1i00YVPvJY9N6+2yxjdI0r+syKmxRR8uGMToX8tH3rcW63
-	 K96zwEPruRJbrNkWreTRP9wb1Yt0Yj7vLEzvthyoZP7Xhx4A4BfYWgpoCRJ1suE9eLvMV
-	 ddgmtfHNg1n4GoGCP7EXu4KHja7Z6DMZ3zesjMMg0mfsc8EQlC+vaHPpNWoAJoAgE6owA
-	 iIxETYt1UM+/0e6B0fK4crVVeO+Yqa2IBm09zgp3NaBMOMo+eqXKOPUkJ/zejgJ9TsA==
+	t=1793953005;
+	b=mQsT04YEPKI58SplIlsDzAAwRjLaMzaMopLnjJ/KQv2lfQPb1XmAjGSGqnwRd1s6cPpy
+	 +Rn9eiRkDvekLzuyXYo0xn/Tt5P9+P5EgX5mHOn3rdZ9wSH9pXn2wuRjitfRVJyqgVCsb
+	 OqxE5zGqsGTYCIpn90SEDH1GQJKqPOrY0cRC2uiDxC2+4vnxl2wuJBH448DlLpq6+csW5
+	 e4C/rEaJflmtacHIp6cjfLN8s03PDG3Fm1nHb3yCbOWujDcqZ/EIFsBhRz4wSkp0Mf9/q
+	 haMmFnbs0oXZwzXZC9YOdb2Ys+wwqpC6sTKLbG+pEsN3xGOC8WBdhtfFalXEwUG/YWA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793953004;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793953005;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=l1ItVHn5z88MlPKrDIbSUtbpz8/qcxAo2Wi1/8tmnNA=;
-	b=3FW+FacuWXfEa7fbaItGg9YwDdPDrhDuh6mf4R9fXpHoFrzo8bGVdF2VOVUl5Y+9UwGR
-	 G1PpjkJM1nGGZXoI3JoQLtV92AUCu/QSZk+amEye8s8mvAdDvVRkOzDIkpUOQdQbnQVjb
-	 AWao1QCiL+k6xGzNoNMxJoC8TWUCoQEqgBt9dkpXZU1YrY7kEX4nUT443beTR+5yQHgoJ
-	 6hZy1+4sptv1xPxNTSHE1trnmoUH/kHxBGxYKm03rUfdn4BJiyfp8MNoEVZJsH4Zx6zif
-	 r5ZrNPbrfRAkS2cWNLiBavawWVae5tQiy6Vwv11jZgyjkQcjmtDN5nM39qZ4dA+uOEw==
+	bh=Yy/Gt6KRSMmevGtujEE5wsqst5S2MekrJb/ecToLrQI=;
+	b=DXYcL4jKBRy1kEzjt4elyBC9A+TD2o5sMCnKF670q9NZUGeH0wowpiN2TAOUveyBnNwc
+	 3nqBYpz4nhVeLgGmbM1wvSHybub2h2mY7/eHwQV0EPCn4xssxhVdvC5bGqBzfQxxcINrb
+	 Az7Sb5wIpVY/Alzo3U7NFPRgkcXpbxR/uZ7eti6fzvHTlRHCbaliWOv3Wg9pnvPnkX/EM
+	 m9abCGnh8EYWZtMua1R8SLsP4VM6dkqnkXCL+6xYXHtfOGnCOoWS4vpuaqsC6YzYu28em
+	 R8iY0SMqGkCHPLmuoh2v7tuWkjV93C99RIcc4UInwBbkGyaOW0huLG89e98p3bvRZ/Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ojOhpJSG;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UUFXQUQ2;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A639606A329
-	for <virtualization@lists.linux.dev>; Fri,  6 Nov 2026 08:16:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABD04606A32D
+	for <virtualization@lists.linux.dev>; Fri,  6 Nov 2026 08:16:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ojOhpJSG
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 932921F008A2;
-	Fri,  6 Nov 2026 08:16:43 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UUFXQUQ2
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A4B51F0089F;
+	Fri,  6 Nov 2026 08:16:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793953003;
-	bh=l1ItVHn5z88MlPKrDIbSUtbpz8/qcxAo2Wi1/8tmnNA=;
+	s=k20260515; t=1793953004;
+	bh=Yy/Gt6KRSMmevGtujEE5wsqst5S2MekrJb/ecToLrQI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ojOhpJSGdM0IOKhvn2/TbPShVXFHP9LkjueGkN1+oCRJDOx0KWikVKsoBMDR5rskX
-	 RJ8WQmwj43R2o+vzvb7T0NHVCjc3eMMQYX88L55TXvzb7ht4PAh7mCDHAqZRwgmrzA
-	 VggbXcgBRQOVFk2NkdFIeGx5lTbFcUDcTpbEU7+DVmETIJEYWuMzienXNwDjUjt7HY
-	 0u+ULGbIV5YHO4vq3Tconp9gBhEdIrsi/Vnb6dmOZizCxFQ5p6nqBXuEyX11108GN0
-	 YuVFIH13Iko51oCaLd9Pp2r0LNoYdgUJT/5Gk4MEp/al6Lwa2yRNbiUcIpSqTlbWr7
-	 PUb58VLkF0XLg==
-Message-ID: <sashiko-outbox-201043@kernel.org>
+	b=UUFXQUQ2k6Zw/4RjKonhdZFSGbZC5Md63S6m7L8TwngUwugl4MI4H6HJ7K8ekttzu
+	 89fBJyih6N83qdIJIAbUgGlPQYzlaInfTXPMMlx/wr+T6ytGeE1ViLngSk8bQhmiUO
+	 BihammBNeRQENOyMBe5SzrVDRL5yqWlFuXgog8LiFg994P8VGYAoW/w/f4Mmp9PLFg
+	 zc82o8Zo1aiVLXrX8zT2k2YgKiXPOAt4WGCNLcBKC2mv3aYAAzw5zMjisHlqb/IcPG
+	 ltoKqFu/uW+XSUddZUMKZM3PFDinAZsFyQyLlVaVjP3+odU23ELJRMdJ7nr8lpTdNy
+	 C0rkVCFe4DcRw==
+Message-ID: <sashiko-outbox-201044@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net v3 6/8] selftests: net: tun: test UDP tunnel GSO on
- retyped devices
+Subject: Re: [PATCH net v3 7/8] selftests: net: tun: test more outer header
+ mismatches of UDP tunnel GSO
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Eric Dumazet" <edumazet@kernel.org>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261105115715.1466924-7-edumazet@kernel.org>
+In-Reply-To: <20261105115715.1466924-8-edumazet@kernel.org>
 References: <20261105115715.1466924-1-edumazet@kernel.org>
- <20261105115715.1466924-7-edumazet@kernel.org>
+ <20261105115715.1466924-8-edumazet@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 Date: Fri, 06 Nov 2026 08:16:43 +0000
@@ -62,25 +62,77 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> Use TUNSETLINK to make the device type disagree with the tun/tap
-> framing, and check that the outer headers of UDP tunnel GSO frames are
-> still validated according to the framing:
->=20
-> - tun_vnet_udptnl_proto.outer_proto_link_type: tap device set to
->   ARPHRD_NONE. Frames with an NSH outer ethertype, with or without a
->   VLAN tag, are rejected. A valid outer IPv4 frame is accepted.
-> - tun_vnet_udptnl_proto_l3.outer_proto_link_type: IFF_TUN device set
->   to ARPHRD_ETHER. An Ethernet frame behind the tun_pi header is
->   rejected.
->=20
-> Without the patch "net: virtio: do not use dev->type to find the outer
-> L3 header", the frames expected to be rejected are accepted.
->=20
-> Signed-off-by: Eric Dumazet <edumazet@kernel.org>
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [Medium] selftests: net: tun: off-by-ETH_HLEN lengths in
+  build_udptnl6_frame()
+--
 
-Sashiko has reviewed this patch and found no issues.
+commit 5c13d992f1a4a8ebd5983197ac9a5424f5b3dd20
+Author: Eric Dumazet <edumazet@kernel.org>
+
+selftests: net: tun: test more outer header mismatches of UDP tunnel GSO
+
+This commit adds tap selftests in tools/testing/selftests/net/tun.c to test
+outer header validation for UDP tunnel GSO frames, including IPv6 outer
+headers, mismatched address families, VLAN-tagged frames, and non-UDP outer
+L4 protocols.
+
+> diff --git a/tools/testing/selftests/net/tun.c b/tools/testing/selftests/=
+net/tun.c
+> index cfeca53863ce2..a135d3aa10d18 100644
+> --- a/tools/testing/selftests/net/tun.c
+> +++ b/tools/testing/selftests/net/tun.c
+> @@ -869,6 +869,103 @@ TEST_F(tun_vnet_udptnl_proto, outer_proto_link_type)
+>  	ASSERT_EQ(ret, len);
+>  }
+> =20
+> +/* Build a 4in6 Geneve GSO frame whose outer ethertype is @l3proto. */
+> +static int build_udptnl6_frame(uint8_t *buf, uint16_t l3proto,
+> +			       int payload_len)
+> +{
+> +	int hlen =3D UDP_TUNNEL_GENEVE_4IN6_HDRLEN;
+> +	uint8_t *outer_udph, *cur =3D buf;
+> +	int pktlen;
+> +
+> +	memset(buf, 0, TUN_VNET_TNL_SIZE + hlen + payload_len);
+> +
+> +	cur +=3D build_virtio_net_hdr_v1_hash_tunnel(cur, true, hlen, 1400,
+> +						   AF_INET6, AF_INET);
+> +	cur +=3D build_eth(cur, l3proto, param_hwaddr_outer_dst,
+> +			 param_hwaddr_outer_src);
+> +
+> +	pktlen =3D UDP_TUNNEL_GENEVE_4IN6_HDRLEN - ETH_HLEN -
+> +		 sizeof(struct ipv6hdr) + payload_len;
+
+[Severity: Medium]
+Are hlen and pktlen in build_udptnl6_frame() off by ETH_HLEN (14 bytes)?
+
+UDP_TUNNEL_GENEVE_4IN6_HDRLEN only counts one ETH_HLEN for the inner
+Ethernet header encapsulated inside Geneve:
+
+#define UDP_TUNNEL_GENEVE_4IN6_HDRLEN                               \
+	(ETH_HLEN + sizeof(struct iphdr) + sizeof(struct ipv6hdr) + \
+	 GENEVE_HLEN + 2 * sizeof(struct udphdr))
+
+For comparison, the 4in4 counterpart in build_udptnl_frame() adds ETH_HLEN
+to hlen for the outer Ethernet header and does not subtract ETH_HLEN when
+computing pktlen:
+
+	int hlen =3D ETH_HLEN + vlan_len + UDP_TUNNEL_GENEVE_4IN4_HDRLEN;
+	...
+	pktlen =3D UDP_TUNNEL_GENEVE_4IN4_HDRLEN - sizeof(struct iphdr) +
+		 payload_len;
+
+Because build_udptnl6_frame() emits both an outer Ethernet header and an
+inner Ethernet header, leaving ETH_HLEN out of hlen and subtracting ETH_HLEN
+from pktlen causes memset() to zero 14 bytes fewer than the returned frame
+length (cur - buf), sets the virtio header hdr_len to 98 instead of 112
+(which is smaller than csum_start at 104), and leaves the outer IPv6
+payload_len, outer UDP length, and outer UDP checksum coverage 14 bytes too
+short when outer_proto_ok_ipv6 and outer_proto_bad_family write the frame to
+the tap device.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261105115715.1466=
-924-1-edumazet@kernel.org?part=3D6
-
+924-1-edumazet@kernel.org?part=3D7
