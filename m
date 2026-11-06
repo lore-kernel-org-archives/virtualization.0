@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1793923339;
-	b=DBTE7zhPcCsMv3SwM4sipxu+mccl8uxBZepz8RpNVeBv2b3qaztswlN+uyTcbNBFPWPo
-	 PtLxtNSmEuSPpe2VpGirwBbNlJ9SBSVJ3GxudX6BXbbGIYOlswtZuj2G12rKlkZE/1Yk6
-	 G0AQZXTl6hFEepMjtSO3cZEDqW1QZVSshFW6nSBhRSMOSYvC7bkwYJaQmqOE20j5+dGmh
-	 vIP7pTQVtO0gHRtGpUX6BkLGXc7hiugXoajYmEQs8usy3TtBn7cnplp72XA2pQMGbejaU
-	 xyFzlukr5XrKG1rQNErTy3hNGvmatYgCs0qHgugPYvg/LuniCNHqevjCBeEAu871lHg==
+	b=pqLBMbKGGDtj21KPVGboD5ZsHRh9Cq5nqLIA3eADpyraRPTHwElMrMxdzHwFamVrOFoE
+	 cWpQ6XnDKZjltjPEtNZqDFFlWbJu23yfUMOZOkoTKwBf0zqycyG/JEMMMwhPMfUlE9XP2
+	 4xdeR0IppQzc6FmELI40Ilv7enpqFPP5LozJbYBEL/CPKjm578ZxapAxZdNiHDm1QBJ6w
+	 J/94KjdSgm8baMMp1gSPDHRpzR8X5oA3u7p12MMAMmId8IVLTj0r0CrIfkKk59tqNfyGs
+	 CpTLSDqBCk3rKXuoSMAv6CsG/GzvJ/Ra9I+UGhbqlfV0vA3GzHvtnl0QyKOUE9DLV8Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1793923339;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=s8NyW5LhQsrIuxGrQrW+2hXkB5sJ5WWGtOEKG8kVHGs=;
-	b=DEQr1FzJOhkaw2ZrsM0ONoE6VjvKUAKvKD0aTpZPzqFiveaXZwAIhrFGBhk/51nSOdJ7
-	 KQGaHSMkjvhZ6bkREaYNnOCwlODtZnrKie8l+IlIHsD8gaNKvlOvn4eTDy6FGubWl8WOK
-	 KEpfAXEO+mMkuADgZr4NU6SPJqQqHYuL/ZLUTCgafzUxuu/7nNQCXApA2flBX3+xKDCh+
-	 4zZzfBzZ5dwekS9usc35yx/9Cw/tVQmHl3ZcQSqGDSxWwv8eRLgW0n8VtitH3N78g2/HQ
-	 PogwQKMx84Tp4w80dND3Kc9bjjqFyUCivvibVGZzA+FH3oPGI+kzgTnbnBgdV4ej3VA==
+	bh=I+AKrKdXrTGF3YhHydrji5oIlm8/d8kpGckl/JGzOyc=;
+	b=K/5OpOC75xNvsjeMOUdfhMsojbqdlWLeI213gyOAD301c5AIsib6zDp7/DjJ8ORMM8Mq
+	 0AueVwz2fnyFZqmoRkX7rXWey0G4iM7bo4Y/jsmaB8p/8hvND29o/50q3YwbynJ1bBpJw
+	 K5fclkANHLg1vJCj2vIAPmKbP+5FIfJSCc8KenCU6StEw22NZ8RyOErKzNS7uTVbGFBpr
+	 S+JTeMUXeOjg0a6Alh+uO5b5bCbRT3UWM5ZKY4oOH11EnY8GLOUt6NnWofhI+eZ5k6NJW
+	 T0uxJ3Khwaa+eWEaO01hnEWQkksyUukg5Bqyh3ayMVMwTLlxlAas0zEFNrkMJJkVmhw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EMwp6dpW;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nK2hn9LD;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7AD2606A328
-	for <virtualization@lists.linux.dev>; Fri,  6 Nov 2026 00:02:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97CC9606A328;
+	Fri,  6 Nov 2026 00:02:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EMwp6dpW
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 429D31F008A1;
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nK2hn9LD
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF8161F0089F;
 	Fri,  6 Nov 2026 00:02:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793923338;
-	bh=s8NyW5LhQsrIuxGrQrW+2hXkB5sJ5WWGtOEKG8kVHGs=;
+	s=k20260515; t=1793923339;
+	bh=I+AKrKdXrTGF3YhHydrji5oIlm8/d8kpGckl/JGzOyc=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=EMwp6dpWRehsbEVnIVyG2eit6RdeeVoZj23tMLuzBQ3lzKJsP9mkEaWkof5l3toTw
-	 uB38ou3FjI7PpLv8vnzo8SnTnN0CEis0pOc3FJmi5DXHcKQzxYd6njVZjw6U0vd9tr
-	 G4IXCs9LgHmQEtvUTuEenQNqfLCYvnlzxHzfcJluWDzxYAUws1VKysvgBOr0SjlwQM
-	 6Of9hhKkg5mtSkEazWFUXnsfNcQtwsnS27UgZ6ruR01/REBoKeAzRuEVhKKyPmOXDO
-	 R1VkNKXSGZZ9cvPFZktAxSN2ESAquC5HzjjWQqwKM/tfYJc0IF6M2U7uNJkONTcANM
-	 MfzX8QMg1vIfA==
-Message-ID: <sashiko-outbox-200420@kernel.org>
+	b=nK2hn9LDrrajrZEXf5Hj/6MFANn3WSgT2Ksihbp5WbmkddYTlGN5SCLBlC321KJeI
+	 G6UQOpo+tEJw1Hmde+kxM5K7+blKYo2jBdIRxQpMeRwjsB5mTeUWEzffbEkLV1fZvI
+	 Oyodb0Vb4t1hWkQPlKvA6wAvr86tGNlT8ccHgblZhepGqUYhv/TvP9rxdlygtcT3/q
+	 XDDakEho7iruSTJGk++snUvP0cFxOOMap3ZqqF+TEzAaLgzY/O8RyrIJkxzLpiGxry
+	 +zkkR/0r7OC+ZCdlgYcrqLQWc9E2wJaf6FBLGaiROnQ417sEpXXbd8ihdLz1rVLcvK
+	 GFdPeZ6nQEehw==
+Message-ID: <sashiko-outbox-200421@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net 2/3] vsock/virtio: bound the send credit by bytes
- not yet consumed by the transport
+Subject: Re: [PATCH net 3/3] vsock/virtio: queue at most one credit update
+ per socket
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Oleg Drokin" <green@linuxhacker.ru>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
+Cc: virtualization@lists.linux.dev, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261105000141.3617241-3-green@linuxhacker.ru>
+In-Reply-To: <20261105000141.3617241-4-green@linuxhacker.ru>
 References: <20261105000141.3617241-1-green@linuxhacker.ru>
- <20261105000141.3617241-3-green@linuxhacker.ru>
+ <20261105000141.3617241-4-green@linuxhacker.ru>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 06 Nov 2026 00:02:17 +0000
+Date: Fri, 06 Nov 2026 00:02:18 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,31 +62,75 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> The send credit is
->=20
->     min(peer_buf_alloc, buf_alloc) - (tx_cnt - peer_fwd_cnt)
->=20
-> where peer_fwd_cnt is taken unchecked from every header the peer sends.
-> A peer that never consumes what it is sent but keeps reporting
-> fwd_cnt =3D=3D tx_cnt gets unlimited credit: every send() is accepted and
-> the skbs pile up in the transport's queue (on a host, vhost's
-> send_pkt_queue, for a guest that posts no rx buffers). The skbs are
-> GFP_KERNEL allocations charged to no memory cgroup. The peer learns
-> tx_cnt easily when the host side relays a stream it also controls.
->=20
-> Commit 8ee784fdf006 ("vsock/virtio: cap TX credit to local buffer size")
-> bounded peer_buf_alloc, but not peer_fwd_cnt.
->=20
-> [ ... ]
-> (SIOCOUTQ 268304384, where the test stops); with this patch it stays at
-> one window (SIOCOUTQ 262144).
->=20
-> Fixes: 06a8fc78367d ("VSOCK: Introduce virtio_vsock_common.ko")
-> Signed-off-by: Oleg Drokin <green@linuxhacker.ru>
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] vsock/virtio: premature credit_update clear in virtio_transport_se=
+nd_skb()
+--
 
-Sashiko has reviewed this patch and found no issues.
+commit 2cdb1a5b77890d0e5001ce1a907ca3477d945d5d
+Author: Oleg Drokin <green@linuxhacker.ru>
+
+vsock/virtio: queue at most one credit update per socket
+
+This commit limits each vsock socket to at most one queued credit update
+packet when its last queued packet is already an OP_CREDIT_UPDATE. When the
+transport transmits the queued credit update and no newer packet has been
+queued after it, virtio_transport_credit_update_xmit() refreshes its
+fwd_cnt and buf_alloc and clears vvs->credit_update.
+
+> diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_tran=
+sport.c
+> index 4f9aa9c4c3aa5..82cd52249de3c 100644
+> --- a/net/vmw_vsock/virtio_transport.c
+> +++ b/net/vmw_vsock/virtio_transport.c
+> @@ -104,6 +104,8 @@ static int virtio_transport_send_skb(struct sk_buff *=
+skb, struct virtqueue *vq,
+>  	int ret, in_sg =3D 0, out_sg =3D 0;
+>  	struct scatterlist **sgs;
+> =20
+> +	virtio_transport_credit_update_xmit(skb);
+> +
+>  	sgs =3D vsock->out_sgs;
+>  	sg_init_one(sgs[out_sg], virtio_vsock_hdr(skb),
+>  		    sizeof(*virtio_vsock_hdr(skb)));
+
+[Severity: High]
+Does calling virtio_transport_credit_update_xmit(skb) before
+virtqueue_add_sgs() clear vvs->credit_update and advance vvs->last_fwd_cnt
+even when adding the packet to the tx virtqueue fails?
+
+In virtio_transport_send_skb(), virtqueue_add_sgs() can fail (for example
+with -ENOSPC when VSOCK_VQ_TX is full, or -ENOMEM under GFP_ATOMIC on the
+fast path):
+
+net/vmw_vsock/virtio_transport.c:virtio_transport_send_skb() {
+	virtio_transport_credit_update_xmit(skb);
+	...
+	ret =3D virtqueue_add_sgs(vq, sgs, out_sg, in_sg, skb, gfp);
+	if (ret < 0)
+		return ret;
+}
+
+When that happens, virtio_transport_credit_update_xmit(skb) has already set
+vvs->credit_update =3D NULL and vvs->last_fwd_cnt =3D vvs->fwd_cnt, and the
+caller then queues or requeues skb in vsock->send_pkt_queue:
+
+- via virtio_transport_send_pkt() -> virtio_transport_send_skb_fast_path(),
+  which falls back to virtio_vsock_skb_queue_tail(&vsock->send_pkt_queue, s=
+kb)
+  when vsock->send_pkt_queue was initially empty, or
+- via virtio_transport_send_pkt_work(), which puts skb back with
+  virtio_vsock_skb_queue_head(&vsock->send_pkt_queue, skb).
+
+While skb sits in vsock->send_pkt_queue with vvs->credit_update cleared to
+NULL, subsequent calls to virtio_transport_send_credit_update() (from
+OP_CREDIT_REQUEST or local reads) will queue additional OP_CREDIT_UPDATE
+skbs behind it. In addition, when skb is later sent by
+virtio_transport_send_pkt_work(), virtio_transport_credit_update_xmit(skb)
+sees vvs->credit_update !=3D skb and will not refresh hdr->fwd_cnt or
+hdr->buf_alloc with credits freed while it was queued.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261105000141.3617=
-241-1-green@linuxhacker.ru?part=3D2
-
+241-1-green@linuxhacker.ru?part=3D3
