@@ -1,60 +1,58 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=176.119.200.170
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793988213;
-	b=jqF7kIg73Rl6RSRCELxHvbxndbckCBtmvo0eOIc2mBhMKTZSxkEYKlAZwJDu4FvVb1Jw
-	 v59AVx3PO+uaG3gTv54fmqBK+jeMf4qr495LmnE7ujssQAiCALdnk0nh/yJMu2W9ePS4i
-	 P6pthSWwJm4t6q9Z28wHHXxHXPLPmo+XXccrFGRNjE6KhdCVA1Z8oE8asK4+amhuzmNYH
-	 65mZ3YBY8+UczizHI/rVbShXi03ntgydrHTjapwqzbJBdOC9o+ndiZLb8dILZjOdA04+3
-	 rV13xCyHVYIVzWgkbxeID598FkpK0R8Rv9FWGVsU/VuR+RvAOaqILJSVJ/6AY7yNHhw==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793988213;
-	h=DMARC-Filter:DKIM-Signature:Date:Subject:In-Reply-To:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding:From:To:Cc:Message-ID:
-	 References:X-SimpleLogin-Type:X-SimpleLogin-EmailLog-ID:
-	 X-SimpleLogin-Want-Signing;
-	bh=SiS3p1Pdfw5SumEsCCsXq+4z7US+NPjbCfUp1+4kB04=;
-	b=P5elLQf74Cft66Tq+/sZB5iZjwl87pIDQEjHHepGCkRD2qBo2CZ2p3Uie5LYKy+DvHso
-	 XzEEcchkvOuHudYM14Mst3Ma4XT3X7nqej5gisrOpj7Y6qCBQS3xS1Ns97lvvc/RQ+ulR
-	 aIaoBNuZ/7BipHXnBUgXX9lDfVycba9XJmp6OCiKBgQTzhCmZBan2rtaqVIqNcPzjXjx0
-	 ecZ74xRqp1lYWfky6XYkF4sRjgVJ40rZ0eHCaVgmwgbPVU2JBIUUDa2MvGDDkgfBJOZ+J
-	 DMYygGMan+WeU4cDOMJ4cHX+XtAR9gWH0ia+tAd/NcHW4jGInPH7/uvZllLYJmI/vkw==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=eldare.de;
-	spf=pass smtp.mailfrom=eldare.de;
-	dkim=pass header.d=eldare.de header.i=@eldare.de header.a=rsa-sha256 header.s=dkim header.b=g0ZKc83x;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=176.119.200.170
-Received: from mail-200170.simplelogin.co (mail-200170.simplelogin.co [176.119.200.170])
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793989194;
+	b=DWqAOIe1SevqhwXJyMarqIdKGzzlD18AezU1toJbz0EmPqCH51TpwJYw9XTfEblxMutg
+	 aW1rZeaIZksoQC4PJxhd5IehlE9xTHFbDjaBuuQGO47Yc3FeGtiwRG6RIqiINTJGvHuVz
+	 I8nKlgRpQlfR5GVIGjd2tIkWpB4lNdjXZqZupyOPocPhOSZbbS//3zRkeB3EDcrp9mtWX
+	 +XyUo3urMmuk4raguMOjTN9L5hzJqQao/FlP05cdAo+QPZYMHJq9QmEeuhjw0h7/ytpfq
+	 GvtLEUVn26IU88OB9pRCYydMC7KS+wL5LYRcssFvhBTME48ver13yYfeZRAHKcz+dsA==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793989194;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=jgQYr1qO+YBZuGceCNEk1WU0AJEaTAb66XiA3OT4AfM=;
+	b=kNjfo+vnjLiUYmY0cKrtbYbA/yHofBggvz4Bd485oze00+MZ8TgmklaKGiVAIbh+5OxE
+	 q4lvk8hecDEsWdT4zlHKS4+ntLycJ5JSd7+SlV2wZ/LerCeMfkhFm6AKZHD0zDHpuPnMP
+	 ukbMo/6J/3+rXLu+XYs+jppdFJNJbBFm06muhjJ1NBPsuLNHvDQPUKhEVgaB64cGklUhm
+	 GKSmlAxmzORKA8av3EvNkBAJwsYB+M3FcmPtnOVtBSEYH/o0MyHsNF5g64xkrKSieqJ0O
+	 zkdb+OxXVh0/lFYMHr+TbnaxKc5Q+PXPAITeQyfNxPgbGHA5/juMQ18Md96S44e/73Q==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Yb3VQDIT;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E22FB606A32D
-	for <virtualization@lists.linux.dev>; Fri,  6 Nov 2026 18:03:32 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E22FB606A32D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=eldare.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=eldare.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99D68606A326;
+	Fri,  6 Nov 2026 18:19:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=eldare.de header.i=@eldare.de header.a=rsa-sha256 header.s=dkim header.b=g0ZKc83x
-ARC-Seal: i=1; a=rsa-sha256; d=simplelogin.co; s=arc-20230626; t=1793988211;
-	cv=none; b=TnL1jVtSQDg9t4tNi2XEcs1buOQeg4an7YvtMUvXf6nlfjSZN8nYNWX3V5BhkJevk5zn0RW8Ja539uEZacN/xnHJiuyyaQwxJp3f5lrD8stG0/42x66cGX3VrLsmsrFt9vPaVQPMFuDV3L83UnDTfA2Ph6KDYhOtpi0vdlf7zhfyAgi4G1VEC0mnrLfNKS9Vn1o07Mr2ZGHQaqsAg+BoN/IBj3XcfdgAryhOqL+S49s9tRt8POL9hrw85unGDuX2LKvybKnlgPL9YGSzvxbHnioFHYXKqfYXu20LamY9PyvkDW944jed1aINMoL+OpwZ75VQLHbBGRf+kPrAX2dhPA==
-ARC-Message-Signature: i=1; a=rsa-sha256; d=simplelogin.co; s=arc-20230626;
-	t=1793988211; c=relaxed/simple;
-	bh=TkX1EUPzM5jpig3x/0OdpL9Rw6sv05DAS7uiaOgULNc=;
-	h=Date:Subject:In-Reply-To:From:To:Cc:References; b=YDuIBsEZd4MM40MhEuyuML2OCJayxxhnz7lnTJoN0IpUmKSHKcnuXpHd5h4egnSL+pxbWkVtjMwxa/cos8whk/ak9Y3NHu/fuy2Apqnj0qHj1U6MVJ8kQ7ghAmW2leVs/jAvkan8hPUxxhnA7kfVP63m45xIqE11llYtb6/fFfd6PkHVK445mzri5PU9O+JefMLpvfXIwaepfqpEeLrlHl8o+vUqGGeNjaWugC75h/7l/nlMj9VmyBAduDbkhUZjvgr7Ukr4Pp0kk8JM3vcTXVvs/YOSAZofcfeGfJgasdY1sgHNlYdsv6zU6OI6MRLbaDb3Z2+aF1qjBYRbOSy0eg==
-ARC-Authentication-Results: i=1; mail.protonmail.ch
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=eldare.de; s=dkim;
-	t=1793988210;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=SiS3p1Pdfw5SumEsCCsXq+4z7US+NPjbCfUp1+4kB04=;
-	b=g0ZKc83xSZzO+UpuFYgy08AZnH+NmQX7MkhwulgO49XB8FZevtrtxjtznybni/3/1Y8FAB
-	Y3aKyL12x5U/9YqCi3d7mCAZ/oGoPPWgoVvrERUoOwgWPEUb3VtnkxcJ0dEkwedTEd/wQY
-	kD8wItTx4I5Kwm5s22z+lHb5692ah+M=
-Date: Fri, 06 Nov 2026 18:03:21 +0000
-Subject: Re: [PATCH net v3] vsock/virtio: clear vqs[] to avoid a UAF on a
- failed PM restore
-In-Reply-To: <auxVKMavkOw3Ia-6@sgarzare-redhat>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Yb3VQDIT
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E57591F0089F;
+	Fri,  6 Nov 2026 18:19:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793989194;
+	bh=jgQYr1qO+YBZuGceCNEk1WU0AJEaTAb66XiA3OT4AfM=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Yb3VQDITD0UHFPSAVg3UaIKKK9ZF+nRFXfvNMYmrRU2DP2FbkuEzuxmui5HbXygta
+	 TM1dwSRngzZOYmYnUduWHIM/6dcWzzc5ORrFBH8UhZqCtH5u0+XeiLQQKTd8qG4Poh
+	 VKbY5aM28oWQrDFlmtvKXnmBmM0Y0NjUyC1hJpk6NRLowC2Wfdwu4zDlt7YbKYd2j/
+	 O490Hl3GfPx5bX1xxZXg+I/uJYA/PMqrU0m4EI3H//+XG8thUaUbaDblpsEaFLm+jY
+	 7/1LPaAFW8852iUcPhVd/lGzTHildPU7DKLBUejBtwfx1JqRFMvNXwK5eNII0QgwWu
+	 sXzqCGlCuMkcg==
+Message-ID: <sashiko-outbox-202010@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v19 07/12] ALSA: virtio: validate indirect capture
+ appl_ptr accounting
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Joonho Lee" <mynameisjune111@gmail.com>, linux-sound@vger.kernel.org
+Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
+ Perez" <eperezma@redhat.com>
+In-Reply-To: <20261106161838.94308-8-mynameisjune111@gmail.com>
+References: <20261106161838.94308-1-mynameisjune111@gmail.com>
+ <20261106161838.94308-8-mynameisjune111@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 06 Nov 2026 18:19:53 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -63,56 +61,72 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-From: jrmmhm.kernel@eldare.de
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>,Bobby Eshleman
- <bobbyeshleman@meta.com>,"Michael S. Tsirkin" <mst@redhat.com>,Jason Wang
- <jasowangio@gmail.com>,=?utf-8?q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>,Xuan Zhuo <xuanzhuo@linux.alibaba.com>,"David S.
- Miller" <davem@davemloft.net>,Eric Dumazet <edumazet@kernel.org>,Jakub
- Kicinski <kuba@kernel.org>,Paolo Abeni <pabeni@redhat.com>,Simon Horman
- <horms@kernel.org>,virtualization@lists.linux.dev,kvm@vger.kernel.org,netdev@vger.kernel.org,linux-kernel@vger.kernel.org,stable@vger.kernel.org
-Message-ID: <179398820999.8.18191536850628408290.1752255756@eldare.de>
-References: <20261104-vsock-restore-uaf-send-v3-1-d60d06488b57@eldare.de>
- <auxVKMavkOw3Ia-6@sgarzare-redhat>
-X-SimpleLogin-Type: Reply
-X-SimpleLogin-EmailLog-ID: 1752255789
-X-SimpleLogin-Want-Signing: yes
 
-On Thu, Nov 05, 2026 at 11:19:23AM +0100, Stefano Garzarella wrote:
->On Wed, Nov 04, 2026 at 05:26:43PM +0100, Jerome Mohm via B4 Relay wrote:
->>Clear vqs[] after del_vqs() and when virtio_find_vqs() fails. Return
->>early from virtio_vsock_vqs_del() when vqs[] is empty: a second
->>del_vqs() would free virtio-mmio's IRQ again ("Trying to free
->>already-free IRQ").
->
->Is this an issue or just a warning?
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [Medium] ALSA: virtio: sub-byte frame truncation in
+  virtsnd_pcm_capture_ack_validate()
+--
 
-Just a warning: free_irq() finds no action for the IRQ, WARNs and
-returns without freeing anything. That taints the kernel, and panics
-only with panic_on_warn or at kernel.warn_limit. v4 says WARN in the
-message.
+commit 6d8079ee9be8b0bc45d98d37834441cf9aa4b749
+Author: Joonho Lee <mynameisjune111@gmail.com>
 
->>+    virtio_vsock_skb_queue_purge(&vsock->send_pkt_queue);
->
->I'd prefer to move this before the virtio_reset_device(), because the
->comment on top of that is related also to the next steps (detach unused
->buffers), so having this in the middle is not really readable.
+ALSA: virtio: validate indirect capture appl_ptr accounting
 
-Sure, v4 moves it right before virtio_reset_device().
+This commit retains references to PCM DMA pages (or uses a driver-owned
+buffer on NOMMU), validates full-period capture responses, seeds the RX
+ring once per prepare, and validates capture appl_ptr accounting before
+invoking the indirect transfer helper.
 
->>+    /* After a failed restore no virtqueues are live, and a second
->>+     * del_vqs() would free virtio-mmio's IRQ again.
->
->What will be the issue of freeing virtio-mmio's IRQ again?
+> diff --git a/sound/virtio/virtio_pcm_ops.c b/sound/virtio/virtio_pcm_ops.c
+> index 343700ec50476..6a8752997d092 100644
+> --- a/sound/virtio/virtio_pcm_ops.c
+> +++ b/sound/virtio/virtio_pcm_ops.c
 
-Only that WARN. The early return is needed anyway: with vqs[] cleared,
-the detach loops below would pass NULL to
-virtqueue_detach_unused_buf(). I'll say that in the v4 message too.
+[ ... ]
 
-Thanks,
-Jerome
+> @@ -599,6 +619,69 @@ struct virtsnd_pcm_transfer {
+>  	int error;
+>  };
+> =20
+> +/* Caller holds @vss->lock and the PCM stream lock. */
+> +static int virtsnd_pcm_capture_ack_validate(struct virtio_pcm_substream =
+*vss,
+> +					    struct snd_pcm_runtime *runtime,
+> +					    bool *skip_transfer)
+> +{
 
+[ ... ]
+
+> +	/* The RX ring reserves its full size; only the excess is unread data. =
+*/
+> +	unread_bytes =3D (s64)rec->hw_ready + (s64)rec->sw_ready -
+> +		       (s64)rec->sw_buffer_size;
+> +	if (unread_bytes < 0 || unread_bytes > (s64)hw_queue_size)
+> +		return -EPIPE;
+> +
+> +	appl_bytes =3D frames_to_bytes(runtime, (snd_pcm_uframes_t)appl_diff);
+> +	if ((u64)appl_bytes > (u64)unread_bytes)
+> +		return -EPIPE;
+> +
+> +	return 0;
+> +}
+
+[Severity: Medium]
+Can frames_to_bytes() truncate sub-byte frame deltas here and let an
+unaligned appl_ptr advance bypass validation?
+
+virtsnd_pcm_hw_params() permits sub-byte frame formats such as 1-channel
+SNDRV_PCM_FORMAT_IMA_ADPCM (4-bit frames, runtime->min_align =3D=3D 2) when
+the period size is a whole number of bytes.  If userspace advances
+appl_ptr by an odd number of frames via SNDRV_PCM_IOCTL_SYNC_PTR (for
+example, 1 frame when unread_bytes is 0), frames_to_bytes() truncates
+appl_bytes down, passing the unread_bytes check.
+snd_pcm_indirect_capture_transfer() then sets rec->appl_ptr to the
+unaligned appl_ptr while subtracting the truncated byte count from
+rec->sw_ready, pushing appl_ptr past hw_ptr and permanently leaking
+rec->sw_ready accounting so RX descriptors stop being requeued.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261106161838.9430=
+8-1-mynameisjune111@gmail.com?part=3D7
