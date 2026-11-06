@@ -1,58 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793954728;
-	b=uRM7R4hSDpqlB+Q60srZO5BIUYECfPLw8S+mSkzmUOmXeSZST8wRISrrHul6cVKBK2r9
-	 bJXKpSlvTrrNmScaVuSEJ3LRLGmaDtsraLUSJsIDnhN3Cd3CT55lxXm+MroLAAKxDLalj
-	 C2rCfNTVF+fuaJ1WsPLfPyuhZyzhX0PS9koxuLwdZh9weptOWl+0PNP7+Nmgk0o5r20XF
-	 cB9dEfup70FbGlTCMN9dTS2fuv+ZA7X5PP0nvVemQ+Y3XZDjASPpQc08RmSqKpklJHqg/
-	 Ix/zoDNseOJPq4RZiUbSlcJHrVpFLfYy0Z5+XdzzRif8JzF1xBiptLZ3x1/LguHkSoQ==
+	t=1793954916;
+	b=dGasJPR2cKi6r2ndrvedoQTJCnzJT95WU8JbJb583q455170zx/AmyFFNwn/43lUD7+h
+	 5/+P7TLyvyfUK4ylSIvpW2fUPA3Dmv0qnw5U7+CLv8K3lwkrFtKReXe9We+JWY9taU1EJ
+	 Hu4qClUS8s6Xerlq5Y1YczmwlMsVaAiKvomFCkQkO22KteJ4NPrcdpoJDNW/XZhqXl1Hu
+	 FvsSbDIKCVx2+PYxaw1wpSIl5TADTDYSXESOcy9Nv1wjXnCbaTNY+bHXYNkOk5OJfwA2v
+	 SWCg7mWdHKhOmeUJP/llNZ1C8IGa6IqE8jibYq2VARx3Te0YtppGAjhrsGlnX8N6jpQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793954728;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=3fGx44LK8Xg2h7S66g4T2ycdSwPn484L7XRsxFEgyzY=;
-	b=wKtVnqFh4MhVNYTvTIaP+2XDqnecA0E253p0CxEL1kAtUCo4oya2VwlVeHbPRQFc29vu
-	 /B0x5tQKxymw2BTe3mXzSuuSXsXT3lJYfS6ARl+rXZqbecnbkiDde/Qk+4rcFO1PVlxK1
-	 zkV24+5QfQZ+KKP7shCLP8/RaziutEsWgL0drGnJLPVaHS9NwSS8PrnEf2yREddvjjVDI
-	 TvhVrVrbBtKd4ABA0pVmJ0S7Tyjj95BEzxnOkjbA587x6r9OTLhBOR89k+BeujAcVX0tE
-	 mDFAs48OT40Bq2aOpibPlvziyNXfNZ7OAT0VA7DBxbzpfHW7AeVSqd0zNNw/ujDooJQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793954916;
+	h=Received:DKIM-Signature:Received:X-Forwarded-Encrypted:
+	 X-Gm-Message-State:X-Received:MIME-Version:References:In-Reply-To:
+	 From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:Message-ID:
+	 Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=QPSWzvYvVt1otuhEA/nRLFOiH4lZX6RTdmU2sAZbE2A=;
+	b=rt8MX802mE9KgztYDh+TcROb06YLLPoN7uyW/TLRkNlqgiwKjFqadlrpAoDm5nppNPhO
+	 Mx0humq0GbUoX9IdkVc4Os7OT/h7hXP/U+eoTpeQ7qYtjoyS6OOxWWoa6uF1ikg9WFeZh
+	 j/52ak3uziMcR8qjcSE4tcUXaWVQXy2VFWT2+LOjZ2MiPiCxPhUJYRkVTBUkOgDDxXZAc
+	 bAdAkLPcMfGMN++0KTPQ+PPoCLeM4wVoRuyla7fO5LsKTINMC9ZrEwon3QO/hB1Ch+8eh
+	 VmxJF6bMUAhSpRerphXEV6U1m7dzb+DnOCqrxFQbo7XidNuNFymkJZwkxkkwF71E4Nw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fyw54Sg+;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="XmQ1kK/S";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C08CB606A326
-	for <virtualization@lists.linux.dev>; Fri,  6 Nov 2026 08:45:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E42E8606A329
+	for <virtualization@lists.linux.dev>; Fri,  6 Nov 2026 08:48:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fyw54Sg+
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DE4B1F0089F;
-	Fri,  6 Nov 2026 08:45:27 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XmQ1kK/S
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FDC81F008BC
+	for <virtualization@lists.linux.dev>; Fri,  6 Nov 2026 08:48:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793954727;
-	bh=3fGx44LK8Xg2h7S66g4T2ycdSwPn484L7XRsxFEgyzY=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=fyw54Sg+HE3Xi4SsVKT17zACIpgdZqV99SlELnEwSe5P2FkEhU3/XTa5OHVhF/c/I
-	 TspXfA9Ioyz5pAKPZZWZqtHM+EOC0XZ7kuJ4XX99qvGpV5s6m6dWk0kB7Vc0L113SQ
-	 69b4Lgt7aAWj5i1I4INbPGOvC8TW5WrYGq/6+E677fcPCjcBpIFDqZt/1ENPMVhYfU
-	 1Y9lvNjZWdWdwTl8C3zSrvDbOoCwJpj1viwtdLFKYdZ8HR2brtGmXdHDG+HgUprqrG
-	 8tdvHm+rk98/B1SZVjpQqKII2miBD+WFnttOKZdKl9jyNhbMrzP69Nv7FzlQ+K0zZe
-	 NgPRF3k68yWVw==
-Message-ID: <sashiko-outbox-201087@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [RFC PATCH v10 3/4] drm/virtio: implement userptr resource
- support
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Honglei Huang" <honghuan@amd.com>
-Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev, "Michael
- S. Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>
-In-Reply-To: <20261106082625.812860-4-honghuan@amd.com>
-References: <20261106082625.812860-1-honghuan@amd.com>
- <20261106082625.812860-4-honghuan@amd.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 06 Nov 2026 08:45:26 +0000
+	s=k20260515; t=1793954915;
+	bh=QPSWzvYvVt1otuhEA/nRLFOiH4lZX6RTdmU2sAZbE2A=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc;
+	b=XmQ1kK/S++uQRzPT8eUgxF8quhZhWr+S+11Hf0A1VS0vj+4Np6Jwd3fbMLMkcW8sA
+	 DfOKGYeUMJs0hkWvWWP9RbFosgiUfI7NXv33Q/d+nzgVob57itUjKjsYMYA1NXrgob
+	 dxUQGn4AYXZHyV2CwBCXbe54s7oMXGhxsgq9N0ZSkkDSxnirRAlx5PoTW0E0j4ZPcB
+	 +MIwpE7p7TUo336o+mn67JN6e3SEw2lIVP88uKgROdK99E8g19xWH0QtnMK1UdYitQ
+	 iDbXerf5IF+zea39WOY3FFXRQx8mBXifpm9TX8d4wXZnPxnBH6UwZbAsS5dnnL5Tan
+	 LZWWdx6LAFnfw==
+Received: by mail-oa1-f47.google.com with SMTP id 586e51a60fabf-486f013db83so86321fac.0
+        for <virtualization@lists.linux.dev>; Fri, 06 Nov 2026 00:48:35 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AKwUvBxZTzxM3RyiEU6CErsMuAoUA024fVxqRkUwmTKssU+AhnJBxByq00IkyoZO5ImIFHyXH2dpxrM4Gf7P+mqmow==@lists.linux.dev
+X-Gm-Message-State: APuU4Z8a+WLR7QMaBMEFn508Az/S5UwtLjXVat0u67hLpqtocmOks9tF
+	cESphXxucYrVluTnlFgKGunsaQQ3mlRGKfkr+YtlU1yzLHSmSeledtIEyjl4CpeJKkzbXdR+iib
+	x83hD8+4oU6G+xTwi+MMU59SSjzwDIks=
+X-Received: by 2002:a05:6870:8327:b0:48f:e24e:6b6a with SMTP id
+ 586e51a60fabf-4ad9914e161mr1171313fac.61.1793954914699; Fri, 06 Nov 2026
+ 00:48:34 -0800 (PST)
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -61,191 +58,75 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+MIME-Version: 1.0
+References: <20261105115715.1466924-1-edumazet@kernel.org> <20261105115715.1466924-3-edumazet@kernel.org>
+ <willemdebruijn.kernel.2494b56c7bdc2@gmail.com>
+In-Reply-To: <willemdebruijn.kernel.2494b56c7bdc2@gmail.com>
+From: Eric Dumazet <edumazet@kernel.org>
+Date: Fri, 6 Nov 2026 09:48:23 +0100
+X-Gmail-Original-Message-ID: <CAL4Wiiqoa7+=0vxHuG8p497O3yU9hJvXV+F1zpOSOiRMG9-j6w@mail.gmail.com>
+X-Gm-Features: AclHuK8VZB_QmyiYw9SabnBbcPNtk4vy7WYuuy3H9l5V4RQHRVJOYmWAQ5YIbSs
+Message-ID: <CAL4Wiiqoa7+=0vxHuG8p497O3yU9hJvXV+F1zpOSOiRMG9-j6w@mail.gmail.com>
+Subject: Re: [PATCH net v3 2/8] net: virtio: do not use dev->type to find the
+ outer L3 header
+To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	Willem de Bruijn <willemb@google.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Hassan Sultan <hassansultan@google.com>, virtualization@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 2 potential
-issues to consider:
-- [Medium] drm/virtio: virtio_gpu_userptr_restore() skips DMA remap
-  after failed map
-- [Low] drm/virtio: duplicated virtio_gpu_userptr_free() and dead
-  userptr struct fields
---
+Le ven. 6 nov. 2026 =C3=A0 05:18, Willem de Bruijn
+<willemdebruijn.kernel@gmail.com> a =C3=A9crit :
+>
+> Eric Dumazet wrote:
+> > virtio_net_l3_start() decides from skb->dev->type whether the frame
+> > starts with an Ethernet header. tun decides it from the IFF_TAP and
+> > IFF_TUN flags, and TUNSETLINK can set the type of a down tun device
+> > to any value, without changing the flags.
+> >
+> > On an IFF_TAP device set to ARPHRD_NONE, the outer protocol checks
+> > look at the IP header at the network header (ETH_HLEN), and never read
+> > the Ethernet header. eth_type_trans() then sets skb->protocol from an
+> > unchecked h_proto, for instance ETH_P_NSH, and the packet can reach
+> > the skb_under_panic() addressed by the previous patch.
+> >
+> > On an IFF_TUN device set to ARPHRD_ETHER, the checks validate an
+> > Ethernet header that tun then treats as the start of the L3 header.
+> >
+> > Checking in tun that the device type matches the framing is not
+> > enough: the type is read again later, and a concurrent TUNSETLINK can
+> > change it in between, since tun_get_user() only drops packets of a
+> > down device after these checks.
+> >
+> > Add a has_eth argument to virtio_net_hdr_tnl_to_skb(), passed down to
+> > virtio_net_l3_start(), so the device type is no longer used:
+> >
+> > - virtio_net always receives Ethernet frames.
+> > - tun_get_user() passes whether the device is IFF_TAP.
+> > - tun_xdp_one() always calls eth_type_trans() on its frames.
+> >
+> > Fixes: 288f30435132 ("tun: enable gso over UDP tunnel support.")
+> > Reported-by: Sashiko <sashiko-bot@kernel.org>
+> > Closes: https://lore.kernel.org/netdev/sashiko-outbox-198573@kernel.org=
+/
+> > Link: https://lore.kernel.org/netdev/179387332014.488856.91119564136101=
+07951@kernel.org/
+> > Signed-off-by: Eric Dumazet <edumazet@kernel.org>
+>
+> Reviewed-by: Willem de Bruijn <willemb@google.com>
+>
+> Makes sense, and easier to review stand-alone.
+>
+> But if having to respin, squash into 1/8?
+>
+> Also, to avoid having to respin too often could (now that they're
+> public and archived) leave the self-tests for a later series.
 
-commit a322ca4c583b559738cbbb3a5e62c08918a07dd8
-Author: Honglei Huang <honghuan@amd.com>
+Thanks Willem, v4 does both: this patch is squashed into the first
+one, and the selftests are dropped from the series. I will send them
+separately, with the fixes Sashiko found in patches 7 and 8.
 
-drm/virtio: implement userptr resource support
-
-This commit adds virtio_gpu_object_userptr so the guest kernel can pin an
-existing userspace mapping with FOLL_LONGTERM and pass its backing pages to
-the host via VIRTIO_GPU_CMD_RESOURCE_CREATE_BLOB, including hibernation
-restore support.
-
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virti=
-o/virtgpu_drv.h
-> index 9df4c7117341e..a29429b41561f 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-[ ... ]
-> @@ -138,12 +139,42 @@ struct virtio_gpu_object_vram {
->  	struct drm_mm_node vram_node;
->  };
-> =20
-> +struct virtio_gpu_object_userptr;
-> +
-> +struct virtio_gpu_object_userptr_ops {
-> +	int (*get_pages)(struct virtio_gpu_object_userptr *userptr);
-> +	void (*put_pages)(struct virtio_gpu_object_userptr *userptr);
-> +};
-> +
-> +struct virtio_gpu_object_userptr {
-> +	struct virtio_gpu_object base;
-> +	const struct virtio_gpu_object_userptr_ops *ops;
-> +	/* Protects @pages, @sgt and @dma_mapped. */
-> +	struct mutex lock;
-> +
-> +	uint64_t start;
-> +	uint32_t npages;
-> +	uint32_t bo_handle;
-> +	uint32_t flags;
-> +
-> +	struct virtio_gpu_device *vgdev;
-> +	struct drm_file *file;
-> +	struct page **pages;
-> +	struct sg_table *sgt;
-> +	bool dma_mapped;
-> +	enum dma_data_direction dma_dir;
-> +	struct mm_struct *mm;
-> +};
-[ ... ]
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_userptr.c b/drivers/gpu/drm/v=
-irtio/virtgpu_userptr.c
-> new file mode 100644
-> index 0000000000000..b8606932550eb
-> --- /dev/null
-> +++ b/drivers/gpu/drm/virtio/virtgpu_userptr.c
-> @@ -0,0 +1,350 @@
-[ ... ]
-> +static void virtio_gpu_userptr_free(struct drm_gem_object *obj)
-> +{
-> +	struct virtio_gpu_object *bo =3D gem_to_virtio_gpu_obj(obj);
-> +	struct virtio_gpu_device *vgdev =3D obj->dev->dev_private;
-> +
-> +	/*
-> +	 * Pages stay pinned until RESOURCE_UNREF finishes. Its callback
-> +	 * calls virtio_gpu_cleanup_object to drop them.
-> +	 */
-> +	if (bo->created) {
-> +		virtio_gpu_remove_from_restore_list(bo);
-> +		virtio_gpu_cmd_unref_resource(vgdev, bo, false);
-> +		virtio_gpu_notify(vgdev);
-> +		return;
-> +	}
-> +
-> +	virtio_gpu_cleanup_object(bo);
-> +}
-
-[Severity: Low]
-This isn't a bug, but virtio_gpu_userptr_free() is identical to
-virtio_gpu_free_object() in drivers/gpu/drm/virtio/virtgpu_object.c and
-could reuse it directly if exported.
-
-In struct virtio_gpu_object_userptr, bo_handle is never used and file is
-only written in virtio_gpu_userptr_init() and never read (leaving an
-unreferenced struct drm_file pointer on an object that can outlive the file
-descriptor until RESOURCE_UNREF finishes).  Also,
-struct virtio_gpu_object_userptr_ops has only one static implementation, so
-virtio_gpu_userptr_get_pages() and virtio_gpu_userptr_put_pages() can be
-called directly without the ops vtable.
-
-[ ... ]
-
-> +static int
-> +virtio_gpu_userptr_get_entries(struct virtio_gpu_device *vgdev,
-> +			       struct virtio_gpu_object_userptr *userptr,
-> +			       struct virtio_gpu_mem_entry **ents,
-> +			       unsigned int *nents)
-> +{
-> +	bool use_dma_api =3D virtio_gpu_use_dma_api(vgdev->vdev);
-> +	struct scatterlist *sg;
-> +	unsigned int count;
-> +	int si;
-> +
-> +	count =3D use_dma_api ? userptr->sgt->nents : userptr->sgt->orig_nents;
-> +	if (!count)
-> +		return -EINVAL;
-> +
-> +	*ents =3D kvmalloc_array(count, sizeof(**ents), GFP_KERNEL);
-> +	if (!*ents)
-> +		return -ENOMEM;
-> +
-> +	if (use_dma_api) {
-> +		for_each_sgtable_dma_sg(userptr->sgt, sg, si) {
-> +			(*ents)[si].addr =3D cpu_to_le64(sg_dma_address(sg));
-> +			(*ents)[si].length =3D cpu_to_le32(sg_dma_len(sg));
-> +			(*ents)[si].padding =3D 0;
-> +		}
-> +	} else {
-> +		for_each_sgtable_sg(userptr->sgt, sg, si) {
-> +			(*ents)[si].addr =3D cpu_to_le64(sg_phys(sg));
-> +			(*ents)[si].length =3D cpu_to_le32(sg->length);
-> +			(*ents)[si].padding =3D 0;
-> +		}
-> +	}
-> +
-> +	*nents =3D count;
-> +	return 0;
-> +}
-> +
-> +int virtio_gpu_userptr_restore(struct virtio_gpu_device *vgdev,
-> +			       struct virtio_gpu_object *bo,
-> +			       struct virtio_gpu_mem_entry **ents,
-> +			       unsigned int *nents)
-> +{
-> +	struct virtio_gpu_object_userptr *userptr =3D to_virtio_gpu_userptr(bo);
-> +	int ret;
-> +
-> +	mutex_lock(&userptr->lock);
-> +	if (!userptr->sgt || !userptr->pages) {
-> +		mutex_unlock(&userptr->lock);
-> +		return -EINVAL;
-> +	}
-> +
-> +	if (userptr->dma_mapped) {
-> +		struct device *dev =3D drm_dev_dma_dev(vgdev->ddev);
-> +
-> +		dma_unmap_sgtable(dev, userptr->sgt, userptr->dma_dir,
-> +				  DMA_ATTR_REQUIRE_COHERENT);
-> +		userptr->dma_mapped =3D false;
-> +
-> +		ret =3D dma_map_sgtable(dev, userptr->sgt, userptr->dma_dir,
-> +				      DMA_ATTR_REQUIRE_COHERENT);
-> +		if (ret) {
-> +			mutex_unlock(&userptr->lock);
-> +			return ret;
-> +		}
-> +		userptr->dma_mapped =3D true;
-> +	}
-> +
-> +	ret =3D virtio_gpu_userptr_get_entries(vgdev, userptr, ents, nents);
-> +	mutex_unlock(&userptr->lock);
-> +	return ret;
-> +}
-
-[Severity: Medium]
-If dma_map_sgtable() fails in virtio_gpu_userptr_restore(), will a later
-restore attempt send unmapped DMA addresses to the host?
-
-When dma_map_sgtable() fails after dma_unmap_sgtable(), userptr->dma_mapped
-is left false while userptr->sgt->nents remains non-zero and the object
-stays on vgdev->obj_restore_list.  A subsequent virtio_gpu_userptr_restore()
-call then skips remapping because userptr->dma_mapped is false, but
-virtio_gpu_userptr_get_entries() checks virtio_gpu_use_dma_api(vgdev->vdev)
-and reads the unmapped sg_dma_address(sg) entries anyway.
-
-Checking virtio_gpu_use_dma_api(vgdev->vdev) to decide whether
-dma_map_sgtable() is needed, and only checking userptr->dma_mapped before
-calling dma_unmap_sgtable(), would avoid this.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261106082625.8128=
-60-1-honghuan@amd.com?part=3D3
+pw-bot: cr
