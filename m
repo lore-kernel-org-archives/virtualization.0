@@ -1,132 +1,50 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793973527;
-	b=RqZnn6YYc3p0Xz0V3JlYVBTjYBEJCMRMUD+vN9a1TkOYlcsJf06V+OMw5wZ5iKS0Nv1H
-	 IvSe6YOAPbDRJxRXj8LJOGtnQ5eVzdnwgURCIP77nysZ9twxdowXQ60+PgyR0fZwVijto
-	 EiMF4y8n1uxzvW9RnMhIrY6D9plYeO7bnMfj9fVSIfP9jN/c+x3GB35NL/6mu/XgxrhWG
-	 wdPHpZx9LQonKrKj22Mcjn8+KX0GBzvD51FmIHl6mR4JZwiRG+azU0I9NGRINPmpb7q2v
-	 L8PlotMpU5kp03vyQckpIHBpBX4Lun5OqEF9mqAR2xCGnxXbVJt0R9u79OZ4ngOkEPw==
+	t=1793975766;
+	b=Jy74BcGKanyLDqEPq44aogCAuhM2lKNdw59A1EqGogiuvkaXeb/o2/xuc7Eibt+8yKE7
+	 GOFK16W7pysOTYjZtF8hih7O/ZfxdDpknLXEdfXgLQXMC4cBW437Nu1GGuN77mm0Xnuz8
+	 0mIcUlHZzo3DEqulwFFJSM3PXm3KxFf2O7h869GqAwo/S0+Fe4WFJY27++S0WdtT3dqNH
+	 26thBc1VJ4f6sH4VOHu4qeRw9RYanGxSwK+Ii2eJbcCNMqh62y64eFQu+FCR77+fk2JEp
+	 jWnkaLGn4Jv6gB4I2CNpwgYNOELoz2RAjSVwIngdTEZOFnjF2ew0EGgvRiBjd1XMNNA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793973527;
-	h=DMARC-Filter:Received:DKIM-Signature:DKIM-Signature:DKIM-Signature:
-	 DKIM-Signature:Received:Received:Received:Date:From:To:Cc:Subject:
-	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
-	 In-Reply-To:X-Spam-Flag:X-Spam-Level:X-Spamd-Result:X-Spam-Score;
-	bh=ItHvNO33pb8zb9UZ+LEb6x6bQbeF4DIAGvYYNsI45U8=;
-	b=3S2jh5vL0ALvz/OnqIqM/Mau898FQfif4G+o2eTKKgseMxpvJwD8RNsOSwe+B5nmG1gj
-	 K1BVC3ttSYOO+2B1qX3n6ZSLo+qIxb+7TBr0Ieg/9s2LXRNuA4IUfNgbHREWXdshivvST
-	 5USYeXe9pOZToqLhQrv1/dcyw9c5y79SIFa9sCtDKtwy67/uaNdzdzMtYAwdxy+eLQ1/J
-	 E7zclzw+UfesxYiI8dwgV7GU3arKM+DjGmXDz0Ugr1WW5Ee5TCJF03dRklO+KjwjbrKfM
-	 MrfTe0KrDwxKjwBLP/lngHIavl8zLC2aD3ScA3pKlbx9YfPvAovGVRdlc86C+d+HWxQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793975766;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=UZBaqvXPYn8tsPq6ir45XhyHFYphF5yT8PXZDHmG2I8=;
+	b=Jj+RnLeaI0HTz76CRccN1+KNx+VRMmWfT0NXmA6kzpsxXHBS0RVJvFf+2QinqLXg6V3X
+	 vfMIVuXxXAGy0BdBE0ffQIwYvVVO6ldnRU8RRFTf7V7i2haTUtYdd1BRlTWdYQKtShWUy
+	 4qsRCwUM43ZEtYf6EPs9idrB4yP3rQH14dseyACILLInsLymsLjWEOTG+Bktd4byIeRBN
+	 hRcdAGhXhdOYkNuOjqwxryBAgDbnso4zLfqR97bDV1s2SemEjXiMg8RjqvCYMeiTWxYku
+	 IY/CUzBfHt5lhkTBQfbkpaFFMzl/mXkVkVJG4+ECaA3BjK6s7FMtkq7t9ZRDatMq2ow==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=suse.cz;
-	spf=pass smtp.mailfrom=suse.cz;
-	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=uiFsa2Bw;
-	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=6UCJswdK;
-	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=LgjfvuMA;
-	dkim=neutral header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=X0ai5JyZ;
-	arc=none smtp.remote-ip=195.135.223.130
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	dkim=pass header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=J1z4+EaZ;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF8E3606A32C
-	for <virtualization@lists.linux.dev>; Fri,  6 Nov 2026 13:58:45 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EF8E3606A32C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C74D606A326;
+	Fri,  6 Nov 2026 14:36:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=uiFsa2Bw;
-	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=6UCJswdK;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=LgjfvuMA;
-	dkim=neutral header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=X0ai5JyZ
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id F315122154;
-	Fri,  6 Nov 2026 13:58:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1793973524; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ItHvNO33pb8zb9UZ+LEb6x6bQbeF4DIAGvYYNsI45U8=;
-	b=uiFsa2BwcYOxq2gi53CMvsQcPLhPjX3qEOfmyRG+MMW+i9UaggY9jJaa5wavXNFuLDRya0
-	b9bIk7d+ZGVpmXDC5GD2K4lSWXyUMEx1Xgkq2ZbP1QBkGfhdEqjgXpD2RQsoW8lER5KjM6
-	2nPPQOWWqm1KOh+/u7G+gDW1pky2kPE=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1793973524;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ItHvNO33pb8zb9UZ+LEb6x6bQbeF4DIAGvYYNsI45U8=;
-	b=6UCJswdK0Z/DiwhrcdamgOXwZj9ItIC+/2kw90iroytJRvaOKpNnwu36Zgri1J7K0hnpW1
-	lNS/qFpJKVe0WBAA==
-Authentication-Results: smtp-out1.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1793973523; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ItHvNO33pb8zb9UZ+LEb6x6bQbeF4DIAGvYYNsI45U8=;
-	b=LgjfvuMAU87vP+sPHVFl3AgPTWwGTRrRaQzjksp+GUoFchaJHCJWRi3C7JriPqlaDS1xv0
-	xf0+UF6xyLfW5w2peCcDGzuPDj/KNox0QLmUkIz4npAwhjxdTcSyJLMVg3YL5GoQgLdgFJ
-	1Wd203yEyPmbh14aWkzxWl+puCMK0x8=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1793973523;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ItHvNO33pb8zb9UZ+LEb6x6bQbeF4DIAGvYYNsI45U8=;
-	b=X0ai5JyZByGuYCrevlOApXcGyusGRiOAMLTwFWFDZ7nil+IaqW8n/M/kqrLHGa75L9F+9G
-	ed8IDOXKbujoFXBQ==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id C0677134E9;
-	Fri,  6 Nov 2026 13:58:42 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id 67kcJxLd7WqbVAAAD6G6ig
-	(envelope-from <jack@suse.cz>); Fri, 06 Nov 2026 13:58:42 +0000
-Received: by quack.suse.cz (Postfix, from userid 1000)
-	id 4E5B121B72; Fri, 06 Nov 2026 14:58:27 +0100 (CET)
-Date: Fri, 6 Nov 2026 14:58:27 +0100
-From: Jan Kara <jack@suse.cz>
-To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-Cc: Juergen Gross <jgross@suse.com>, 
-	Stefano Stabellini <sstabellini@kernel.org>, Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Nicholas Piggin <npiggin@gmail.com>, 
-	Michael Ellerman <mpe@ellerman.id.au>, "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, 
-	"Ritesh Harjani (IBM)" <ritesh.list@gmail.com>, Shrikanth Hegde <sshegde@linux.ibm.com>, 
-	Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Jarkko Sakkinen <jarkko@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, 
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Jan Kara <jack@suse.com>, 
-	Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Ondrej =?utf-8?B?TW9zbsOhxI1law==?= <omosnacek@gmail.com>, Joel Stanley <joel@jms.id.au>, 
-	Andrew Jeffery <andrew@codeconstruct.com.au>, Ryan Chen <ryan_chen@aspeedtech.com>, 
-	Billy Tsai <billy_tsai@aspeedtech.com>, Bjorn Andersson <andersson@kernel.org>, 
-	Konrad Dybcio <konradybcio@kernel.org>, Abel Vesa <abelvesa@kernel.org>, 
-	Jens Wiklander <jenswi@kernel.org>, Sumit Garg <sumit.garg@kernel.org>, 
-	Scott Branden <scott.branden@broadcom.com>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, Arnd Bergmann <arnd@arndb.de>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Richard Cochran <richardcochran@gmail.com>, 
-	David Woodhouse <dwmw2@infradead.org>, Andrew Lunn <andrew+netdev@lunn.ch>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, xen-devel@lists.xenproject.org, 
-	linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org, 
-	linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev, linux-sgx@vger.kernel.org, 
-	selinux@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	linux-aspeed@lists.ozlabs.org, linux-arm-msm@vger.kernel.org, op-tee@lists.trustedfirmware.org, 
-	netdev@vger.kernel.org
-Subject: Re: [PATCH 06/14] udf: convert mmap hook to mmap_prepare
-Message-ID: <6ve6dvcmmozqiv5zkkq57thm62rtsc43jlbsfoxm24qrm5bhkg@ygji3l2k2qxq>
-References: <20261105-late-2026-mmap_prepare-v1-0-c56aadfbab8a@kernel.org>
- <20261105-late-2026-mmap_prepare-v1-6-c56aadfbab8a@kernel.org>
+	dkim=pass (1024-bit key, unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=J1z4+EaZ
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B79121F0089F;
+	Fri,  6 Nov 2026 14:36:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxfoundation.org;
+	s=korg; t=1793975765;
+	bh=UZBaqvXPYn8tsPq6ir45XhyHFYphF5yT8PXZDHmG2I8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=J1z4+EaZDFsbx+ArXSCT0Os32UYwumgcR2YWYvuejXsp3MhXUuP9ctZZmUeYcERH9
+	 eUHE/cvZsncIQ5sFF97yBYKVeetwePQJ190R0nQmUNaw91Y0ShsyOnYU3oUj4XgoDp
+	 4IWhUV3VWz/f6GeG99lXcTNOr2P5fx2Dq0PnMdfk=
+Date: Fri, 6 Nov 2026 09:36:03 -0500
+From: Greg KH <gregkh@linuxfoundation.org>
+To: Yaohan Li <shunsheng1218@gmail.com>
+Cc: amit@kernel.org, arnd@arndb.de, rusty@rustcorp.com.au,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4] virtio_console: fix buffer ownership and unplug races
+ in the read path
+Message-ID: <2026110624-crowd-unveiling-34bc@gregkh>
+References: <20261106091739.1334178-1-shunsheng1218@gmail.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -138,85 +56,153 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261105-late-2026-mmap_prepare-v1-6-c56aadfbab8a@kernel.org>
-X-Spam-Flag: NO
-X-Spam-Level: 
-X-Spamd-Result: default: False [-15.30 / 50.00];
-	SUSE_INTERNAL_BYPASS(-9.00)[];
-	REPLY(-4.00)[];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MID_RHS_NOT_FQDN(0.50)[];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	MISSING_XM_UA(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	ARC_NA(0.00)[];
-	TO_DN_SOME(0.00)[];
-	TAGGED_RCPT(0.00)[netdev];
-	RCVD_COUNT_THREE(0.00)[3];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	FROM_HAS_DN(0.00)[];
-	FREEMAIL_CC(0.00)[suse.com,kernel.org,epam.com,linux.ibm.com,gmail.com,ellerman.id.au,microsoft.com,redhat.com,linux.alibaba.com,linux.intel.com,alien8.de,zytor.com,paul-moore.com,jms.id.au,codeconstruct.com.au,aspeedtech.com,broadcom.com,arndb.de,linuxfoundation.org,infradead.org,lunn.ch,davemloft.net,lists.xenproject.org,vger.kernel.org,lists.ozlabs.org,lists.linux.dev,lists.infradead.org,lists.trustedfirmware.org];
-	R_RATELIMIT(0.00)[to_ip_from(RLyerg7kx5bdf6cnfzf33td54o)];
-	FROM_EQ_ENVFROM(0.00)[];
-	RCVD_TLS_LAST(0.00)[];
-	TO_MATCH_ENVRCPT_SOME(0.00)[];
-	RCPT_COUNT_GT_50(0.00)[61];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:email,suse.cz:email,imap1.dmz-prg2.suse.org:helo]
-X-Spam-Score: -15.30
+In-Reply-To: <20261106091739.1334178-1-shunsheng1218@gmail.com>
 
-On Thu 05-11-26 21:05:37, Lorenzo Stoakes (ARM) wrote:
-> Move from the deprecated mmap hook to the new mmap_prepare hook. The hook
-> only updates the access time and sets the VMA operations.
+On Fri, Nov 06, 2026 at 05:17:39PM +0800, Yaohan Li wrote:
+> The read path hands port buffers to readers without any ownership
+> protocol.  Two threads sharing one file descriptor can both pick up
+> port->inbuf, copy from it concurrently and requeue it twice, and an
+> input virtqueue callback prefetching the next buffer can drop the
+> remainder a reader is about to put back.  During port unplug a
+> reader can also call add_inbuf() on a virtqueue that is being torn
+> down (KASAN: slab-use-after-free in virtqueue_get_buf_ctx), or
+> requeue a buffer nobody will free anymore.  The input virtqueue
+> callback itself can run past find_port_by_vq() into port->portdev
+> and the virtqueue after unplug_port() has cleared them.
 > 
-> Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
-
-Looks good. Feel free to add:
-
-Reviewed-by: Jan Kara <jack@suse.cz>
-
-I'll leave it for MM guys to merge this.
-								Honza
-
-> ---
->  fs/udf/file.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
+> Track buffer ownership explicitly:
 > 
-> diff --git a/fs/udf/file.c b/fs/udf/file.c
-> index 02e9314818dc..d5e80c6cae96 100644
-> --- a/fs/udf/file.c
-> +++ b/fs/udf/file.c
-> @@ -190,10 +190,10 @@ static int udf_release_file(struct inode *inode, struct file *filp)
->  	return 0;
->  }
->  
-> -static int udf_file_mmap(struct file *file, struct vm_area_struct *vma)
-> +static int udf_file_mmap_prepare(struct vm_area_desc *desc)
->  {
-> -	file_accessed(file);
-> -	vma->vm_ops = &udf_file_vm_ops;
-> +	file_accessed(desc->file);
-> +	desc->vm_ops = &udf_file_vm_ops;
->  
->  	return 0;
->  }
-> @@ -202,7 +202,7 @@ const struct file_operations udf_file_operations = {
->  	.read_iter		= generic_file_read_iter,
->  	.unlocked_ioctl		= udf_ioctl,
->  	.open			= generic_file_open,
-> -	.mmap			= udf_file_mmap,
-> +	.mmap_prepare		= udf_file_mmap_prepare,
->  	.write_iter		= udf_file_write_iter,
->  	.release		= udf_release_file,
->  	.fsync			= simple_fsync,
+> - fill_readbuf() claims port->inbuf under inbuf_lock and owns it
+>   exclusively across the unlocked copy.  port_read_snapshot() and
+>   the input virtqueue callback do not prefetch another buffer while
+>   a claim is held (nor once the port is being unplugged), so a
+>   partially consumed buffer is always finished before the next one
+>   and the byte order is preserved.
 > 
-> -- 
-> 2.56.0
+> - The input state and the connection state are snapshotted together
+>   under inbuf_lock as empty, readable (a buffer can be acquired),
+>   claimed, or unplugged, together with guest_connected and
+>   host_connected.  poll() reports EPOLLIN when a buffer is available,
+>   or when the host has disconnected with no pending data so that a
+>   reader can observe EOF; a claimed buffer is not reported as
+>   immediately readable.  A claimed buffer is data pending for the EOF
+>   and host-disconnect logic, so a peer reader sharing the file
+>   descriptor does not observe EOF while another reader still owns
+>   unread bytes and instead waits for the claim to be released.  A
+>   nonblocking reader gets -EAGAIN (or 0 when the host has
+>   disconnected and no data is left).  Because the unplug state and
+>   the connection state are taken in the same critical section, a read
+>   that observes PORT_INPUT_UNPLUGGED in its snapshot returns -ENODEV,
+>   and poll() reports EPOLLHUP without a fake EPOLLIN.  A concurrent
+>   read may complete according to an earlier snapshot instead of
+>   observing the unplug immediately.  This
+>   ordering guarantee is against unplug_port(); the normal
+>   host_connected control-message update is not serialized by
+>   inbuf_lock and is read with READ_ONCE(), as before.  The atomic
+>   HVC poll simply retries.  will_read_block() uses the same snapshot
+>   for its wait predicate.
 > 
--- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+> - unplug_port() publishes an "unplugging" state under inbuf_lock
+>   before any teardown.  After observing the unplugging state under
+>   inbuf_lock, in_intr() drops its port reference and returns without
+>   accessing portdev or the input virtqueue.  The separate HVC adapter
+>   lifetime race after inbuf_lock is dropped is addressed by the
+>   independently submitted hvc_kick change.  Readers stop touching the
+>   input virtqueue from that point; a reader returning a claimed buffer
+>   frees it instead of requeueing it.  A userspace read() that has not
+>   copied any byte returns -ENODEV for an unplugged port, while the HVC
+>   get_chars() path keeps returning 0.  In the fill_readbuf() release
+>   branches of this change, the teardown, copy-fault and
+>   failed-requeue paths defer free_buf() until inbuf_lock is dropped,
+>   so a userspace read may sleep in free_buf() for DMA buffers.  Other
+>   driver paths still free buffers under their own locks.  Nothing
+>   reads the buffer after it is freed, and the claim is
+>   always released with a wakeup, so readers waiting for the claim
+>   are not stalled until the next packet.
+> 
+>   The deferred rproc DMA buffers are reclaimed in unplug_port() after
+>   hvc_remove().  For the normal HVC polling path, the console entry is
+>   removed from pdrvdata.consoles before hvc_remove(), so a get_chars()
+>   that starts later cannot find this port; hvc_remove() also waits
+>   (via hp->lock) for a get_chars() that already found it.  The
+>   CONFIG_CONSOLE_POLL path is outside this normal teardown
+>   synchronization and has not been runtime-tested.
+> 
+>   For device-wide removal, virtio_break_device(), the virtqueue
+>   callback synchronization during reset, and cancellation of the
+>   control/config work precede unplug_port(); remove_vqs() subsequently
+>   frees remaining buffers in sleepable context.  For the virtio-pci
+>   and virtio-mmio transports, the reset-time callback synchronization
+>   is synchronize_irq() over the device vectors, and vring_interrupt()
+>   checks vq->broken before invoking the driver callback, so a late
+>   interrupt cannot invoke the callback after reset.  This does not
+>   establish runtime coverage of single-port PORT_REMOVE, where the
+>   device stays up and the remaining virtqueue callbacks are not
+>   stopped by reset, nor of all remoteproc transport behavior.
+> 
+> - A zero-length read returns 0 before the unplug checks, preserving
+>   the normal read(fd, buf, 0) semantics.
+> 
+> This issue was investigated and the fix was developed with AI
+> assistance (ZCode/GLM-4).
+> 
+> Testing with QEMU and KASAN injection (lockdep and
+> CONFIG_DEBUG_ATOMIC_SLEEP enabled in the test kernel):
+> 
+> - A shared-fd, two-reader test without unplug delivered all 20000
+>   records exactly once, with no corruption or reordering.  The
+>   unmodified kernel delivered 19979 of them more than once and only
+>   48 could be attributed to any consistent stream order.
+> - Stalling the input callback right after find_port_by_vq() while a
+>   QMP device_del unplugs the port made the previous version
+>   dereference the cleared portdev (KASAN null-ptr-deref in
+>   in_intr()); this version returns through the unplug check and
+>   reports nothing.
+> - Stalling a userspace read() just before fill_readbuf() and
+>   unplugging the port while it is parked: the previous version
+>   returns 0 (treated as a normal host disconnect), this version
+>   returns -ENODEV.
+> - With one reader parked while holding a claim, poll() no longer
+>   reports EPOLLIN and a nonblocking read from the second reader
+>   returns -EAGAIN instead of a readable/EAGAIN mismatch.  With the
+>   host disconnecting at the same point, the second reader gets
+>   -EAGAIN rather than a premature EOF, and the following blocking
+>   read receives the remainder the first reader puts back.
+> - During concurrent unplug, readers received a valid contiguous
+>   prefix before disconnect, with no duplicates or KASAN reports;
+>   the same stall sequences produce six slab use-after-free reports
+>   per run on the unmodified kernel.
+> - A separate fault-injection run exercised 20 failed buffer
+>   requeues, all going through the deferred free path, without a
+>   reported use-after-free, lockdep splat or invalid-context sleep.
+> - A nonblocking read with an empty input raced against unplug: the
+>   previous version returned 0 (a false EOF) once unplug cleared
+>   host_connected.  A read that observes the unplug state in its
+>   input/connection snapshot returns -ENODEV; a concurrent read may
+>   complete according to an earlier snapshot.  In this test the new
+>   version returns -EAGAIN and the next read -ENODEV.
+> - Polling while unplug_port() had published the unplugging state but
+>   not yet cleared the connection state: the previous version reported
+>   EPOLLIN | EPOLLRDNORM; this version reports EPOLLHUP only.
+> - A normal host disconnect still returns 0.
+> - Combined with the hvc_kick change for the HVC adapter lifetime,
+>   the 20000-record integrity test, the callback/unplug injection
+>   and a normal PORT_REMOVE run all complete without new KASAN,
+>   lockdep, duplicate or reordered data.  The 20000-record, High and
+>   -ENODEV tests were re-run on this version.
+> 
+> The test environment provides virtual virtio-console devices only.
+> Real remoteproc DMA buffers were not available, so the rproc-serial
+> DMA buffer path is covered by code inspection of the claim, deferred
+> free and reclaim ordering, not by a runtime test.
+> 
+> Fixes: 203baab8ba319 ("virtio: console: Introduce function to hand off data from host to readers")
+> Signed-off-by: Yaohan Li <shunsheng1218@gmail.com>
+
+This wall of text is insane and is not ok.  Please delete it all and
+write it by hand, without using any LLM at all, to describe simply what
+the problem is and why you are solving it this way.
+
+thanks,
+
+greg k-h
