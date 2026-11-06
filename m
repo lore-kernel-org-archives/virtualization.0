@@ -1,111 +1,107 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=140.211.166.138
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793926639;
-	b=AY3WUXd43DSDkzBwDIRMThFN9eljBpHa+gT9n4TltfZwj4LiBpsI8WHP7Kc5z3FxJ80q
-	 esADHy5PxcuDjm9sFfhsGYlZXHJgpHZC3yNO7N+2d3oat1rPBIlcFBaGrX0+NvV2cXAuu
-	 8bvrwV1skPvy++yFrQEzwoSJMrQ5fGpjFxxqwQCLJrpSoxLkKeci2Gu+yx5IN5hom0Q86
-	 7NTXeHUxlimf2hTp5bcIdXP9AVvDN/1pNo6Q09BGmYsYB3m08LJu7bQ6cTagFLqG1gJ01
-	 uTEXUThjpJ2Xl9pz3t93LFFfK8TV9kkhy363oDJdB3RC+5gGg3lvKjtXeoKlc9uaaHQ==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793926639;
-	h=Received:X-Virus-Scanned:X-Spam-Flag:X-Spam-Score:X-Spam-Level:
-	 X-Spam-Status:Received:ARC-Filter:Received-SPF:Received:Received:
-	 Received:DKIM-Signature:Received:Subject:From:In-Reply-To:References:
-	 X-PR-Tracked-List-Id:X-PR-Tracked-Message-Id:X-PR-Tracked-Remote:
-	 X-PR-Tracked-Commit-Id:X-PR-Merge-Tree:X-PR-Merge-Refname:
-	 X-PR-Merge-Commit-Id:Message-Id:Date:To:Cc;
-	bh=7fNxTmo1iJxAalqGfiJl8NK5T396HgpYiPcomm03E7g=;
-	b=sR099MIxdq8DrEhIXiA87qHsPj0VRX66ckmc/WMNcLrZzHz21nHTD4O5w1GS+4Nn4Q6g
-	 IjOCoHstvXQZK8AQsyZWTzGJpErnF7Qvl6Uiymxi8/xqwd54ub7QitWTxvbr3y/WMQybJ
-	 ZfBwgJt0NQVhHLsJz54H8xJJR5vLGEY2ZX9LEF0HIU7n5lCMovH4qV0K+o5gvLbPG/8up
-	 Jpyg9qEwKYOEQIMNw9vfMPOvQOAD0d3cCjsYOSCKHtpfWxFJorUfl4uokcribQcvGQYj8
-	 zvDSR0LGL0N99Fju0NCLMYQWtQJ2eWOlBNfIKt7KVVCe3RMkkrZ6ZiqMhqwRTqLOlTw==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MberW9n1;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=140.211.166.138
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.175
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793938730;
+	b=YoFjlEnT84mescH//P0x8N9VmNsoOboAAcAaWDd0fUv9McwHkHdg9F/Z4rF+CiO7y+eE
+	 yekwRXBrFyfjlbhRpaxoWvw3fs/0dyAsDiddDvCBe99/JTdKgAKLLveV7I8Ryasm4w9pd
+	 jrxL9Cg0Ydr6XmVVQ219BxH+epFFN6KJAkR0HZnFFVszn5r9QmFfpZVBFjuCV+POKQM4l
+	 9YpyCmnUhO46vHVXAa8HCCMqsyx8b5/50fFTvAylV/UW0Puz1vAs8e4n334GZ4p4ag9Tk
+	 ZTsyIhsna8dgICFAYNz4rksJbYsKiW3mB9OH6rI5IZqv6xuzWm1/ROEG5qajB50Tlnw==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793938730;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding;
+	bh=qkRXBwd9VuNyjRdV31nMFJ+5eNrq3IUMvPVOYqoi14Q=;
+	b=VpAcsS9qAbn0T43qG4H2XHsu2q9F2b3jOhbN3RR+NwS4M//K0oQUiJCfZxoNYFXiZNmw
+	 K24ozZeDwvRjuozjn70x7Hx20ngsxIxLO4noci+FalKR1PpG0OOo6VEWsvGC0DxBzsO8j
+	 WDjwAcQn3RBiUnbQn4Te7Qa3E909EY5ZNc63ztOtLvTCS7d5N7UlG/yNeAchmQU0pPtrs
+	 nGmV+ME2WMWdvYnJU2zX/xMEGF1sjjgXAG7/+qfkp7kavBCuvqfRAF639ifeI/4T4r8R/
+	 toPqPn4FnoTuNCEw7pWov5bcOsMpGxSqdA5Y1uGnPD46/0buPmsvSY9v/ObtKnnT9uw==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=TZgYuzEG;
+	arc=none smtp.remote-ip=209.85.221.175
+Received: from mail-vk1-f175.google.com (mail-vk1-f175.google.com [209.85.221.175])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65517606A328
-	for <virtualization@lists.linux-foundation.org>; Fri,  6 Nov 2026 00:57:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBDB1606A326
+	for <virtualization@lists.linux.dev>; Fri,  6 Nov 2026 04:18:49 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BBDB1606A326
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MberW9n1
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 11E1F80DA1
-	for <virtualization@lists.linux-foundation.org>; Fri,  6 Nov 2026 00:57:19 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.651
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 9-Ww1X4QSPaH for <virtualization@lists.linux-foundation.org>;
- Fri,  6 Nov 2026 00:57:18 +0000 (UTC)
-ARC-Filter: OpenARC Filter v1.3.2 smtp1.osuosl.org 199B780B97
-Authentication-Results: smtp1.osuosl.org; arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
-ARC-Seal: i=1; d=osuosl.org; s=arc; a=rsa-sha256; cv=none; t=1793926638;
-	b=RoBMTKPVBV0iRWp4PAX5o7AlIHpun+Wn0JfHyRnSU2wrRGIB8itTDVenSaMsEUn6Tt2R
-	 i/auLHNaBi9ebwEdn+5VxqsBEU68lz/Mnp5VUS1hlqZiQyi3UdAKXRpalmonLOu10RKjv
-	 jn5lhUrIBkpH2x8qoKP4QCbcgltBkTUOm4xxdLfYQXiEoKGWhglrgGDQnJAU7FGjISvnX
-	 9Qd08bOKoVtH9sBLd+0LWnOc+f8aQAwj0fbzvHIc6IwOZ6Z4DQJ7/cdrHnkpcyhemyPSb
-	 ZFJFvGhgn8fcK1NTQQywlDUGxO6I55KJ/FZCZzipFyBqplAmXCjnefWyHY+yb6HrS1A==
-ARC-Message-Signature: i=1; d=osuosl.org; s=arc; a=rsa-sha256;
-	c=relaxed/relaxed; t=1793926638;
-	h=Received-SPF:Received:Received:DKIM-Signature:Received:Subject:From:
-	 In-Reply-To:References:X-PR-Tracked-List-Id:X-PR-Tracked-Message-Id:
-	 X-PR-Tracked-Remote:X-PR-Tracked-Commit-Id:X-PR-Merge-Tree:
-	 X-PR-Merge-Refname:X-PR-Merge-Commit-Id:Message-Id:Date:To:Cc;
-	bh=7fNxTmo1iJxAalqGfiJl8NK5T396HgpYiPcomm03E7g=;
-	b=Ts02gaGxJMG6KND1bMgQ0ZjTeSCvCAGuuxkjKJYlQMj83fZ3+i5gZft/E3ZHhr1XzfZe
-	 up7q4G6NVWSV/t8Ginw6T5UN1AaJwNtJFf8BOMSCX1WErmmAO9zVQMbrpsQANwUZK0brK
-	 oYYf5ASwWXqG1Z5pfltC4fcPWFQaCGQKMpjRhl0bHgSCQwKQbwukFNyG9vrgesqr/75hR
-	 +OoYyjBRDOxTxCNmzDSe33+RKcp8cTIKIJakEnM1RbomI7Yy9AQlAaCR2E3qCdySFW7ah
-	 19KIyjgN9qoRTl3Vlj8XvdbAetXg1hIuZhAR5z0Lvze09ba0bkmAdyta6BjRZLfmQAQ==
-ARC-Authentication-Results: i=1; smtp1.osuosl.org; 
-	dmarc=pass header.from=kernel.org;
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MberW9n1;
-	arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=pr-tracker-bot@kernel.org; receiver=<UNKNOWN> 
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MberW9n1
-Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 199B780B97
-	for <virtualization@lists.linux-foundation.org>; Fri,  6 Nov 2026 00:57:17 +0000 (UTC)
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by sea.source.kernel.org (Postfix) with ESMTP id 0D76A43AF0;
-	Fri,  6 Nov 2026 00:57:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1A351F0089F;
-	Fri,  6 Nov 2026 00:57:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793926636;
-	bh=7fNxTmo1iJxAalqGfiJl8NK5T396HgpYiPcomm03E7g=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc;
-	b=MberW9n17EZW4JlwHg7V3W2ZtrrnmWJZJwd5mtDOUt4gkSqspi6hiq2lUAbh20wMI
-	 rFqBlTQbht0+DqdtjOuN0SmjyEXbBZuLJoOEBOhsuMPw947OvgOtUtQ1DSF/r9bcfj
-	 jfPS2xcTdyOKwzwT2S2xU/hIBHVm2AtyCalEnBOlBIpZ3tC23W8ZtJLLbnxF9ax6nN
-	 h55b3FV4Vbss7w5ODyoF/SwwbSZ5vFg4fCMdugmp4oJc/2nejeb/0Nu8RXnzmhgLrX
-	 /+6BYha2HZanVKCEFyQHV4pcd91eQnyc1DXTb6/pKN+uTUAxK3zV1vLQ8stm7ZWGn5
-	 oFwmv9LsdOSZQ==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id D85E2391B1B3;
-	Fri,  6 Nov 2026 00:57:16 +0000 (UTC)
-Subject: Re: [GIT PULL] vhost,virtio,vdpa: bugfixes
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <20261104081535-mutt-send-email-mst@kernel.org>
-References: <20261104081535-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-List-Id: <stable.vger.kernel.org>
-X-PR-Tracked-Message-Id: <20261104081535-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-X-PR-Tracked-Commit-Id: 1a577f9402c1780cc1e663f48d5dd54c02051b09
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 69e2b55fc3b4fa3639b8c320374c255f046ddda5
-Message-Id: <179392663544.268614.18316121610882837897.pr-tracker-bot@kernel.org>
-Date: Fri, 06 Nov 2026 00:57:15 +0000
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 2312891301@qq.com, blum@kernel.org, co+6dcbccedc9ec6452@bugs.sh, eperezma@redhat.com, fangxy@xiaopeng.com, jasowangio@gmail.com, kmehltretter@gmail.com, linfeng.sun.dev@gmail.com, lirongqing@baidu.com, longpareto@gmail.com, mst@redhat.com, oss.patchbox@gmail.com, p@1g4.org, phx0fer@gmail.com, physicalmtea@gmail.com, sergiiushakov@google.com, shubham@octane.security, stable@vger.kernel.org, stjepan.poljak@gmail.com, syzbot+13df72e0dc4be5c62215@syzkaller.appspotmail.com, tavhadia@gmail.com, tjdqudcks0424@naver.com, tz2294@columbia.edu, xieyongji@bytedance.com, xmei5@asu.edu, yuz08559@gmail.com, zenghui.yu@linux.dev, zhaimingbing@cmss.chinamobile.com, zhangjiao2@cmss.chinamobile.com
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=TZgYuzEG
+Received: by mail-vk1-f175.google.com with SMTP id 71dfb90a1353d-5eaa5e03c47so1283301e0c.0
+        for <virtualization@lists.linux.dev>; Thu, 05 Nov 2026 20:18:49 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793938729; x=1794543529; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:mime-version:subject
+         :references:in-reply-to:message-id:cc:to:from:date:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=qkRXBwd9VuNyjRdV31nMFJ+5eNrq3IUMvPVOYqoi14Q=;
+        b=TZgYuzEG/ECzcsTUI+zU83Mn0kj4VC15XdOTK+FcrwcxnofEXSsYTJn9/JxAMMz4nR
+         ixDHrWEG/VLAnXCPgp2DoIGPqBEM3oLqBE3Dvy5ihZLfdKGXrkIAZ02Hq9bmHv9HA9kv
+         mIA/JX+nig9DI+vKHu2KfaTzqTfEd1GSeAkcHcU89NX3P1OLwr6m1S6yw+kIEMgp+b2B
+         rd5FhR1UWlu939M8WlHFBjCadPsBWq/EGLnViRQ+LWB0kGLEeq/Nl83nnLYxGTugNJVf
+         edERMg7DqSVHPOQKoc+RzlZlP1TTxYXjy7jbx0egPwtqjwsiHDAtItfc+8o6bURwghzj
+         m57A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793938729; x=1794543529;
+        h=content-transfer-encoding:content-type:mime-version:subject
+         :references:in-reply-to:message-id:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=qkRXBwd9VuNyjRdV31nMFJ+5eNrq3IUMvPVOYqoi14Q=;
+        b=Ai/eyqhRL/J4raUeGymL/jnrW2hdWl6pLhCkfjzQ+mY8fkgZwfgBAxTnYHvhUpEWEn
+         ASUkgKN7Q5HGD6vwgn8eNHnojmjzOdOhnp/4Zj032gVU8lgGBRK5H7G4Wp8HBWAY5eoE
+         qSm04OGx86/yL+QOiAGRVc5QLC5ko00mw/4ewcGQd/+eZpfEk7ybXJYW9tH6LxQWUQ+/
+         XCeN/ZIaIZp6XKuDqClQLpTt967tHdVVmAOKBMTlOXCYAOIkyTXI7VJ4GuXjqJEGJce7
+         rjcRwx4YZ1sKrAxEVxw7q/86dG6Xr8TIG845m46LL9LsMIlY5ydsN02hgZk2DeRtceeq
+         8EnA==
+X-Forwarded-Encrypted: i=1; AKwUvBzeXcOfzaN4+xWdxnsdkiUg519t3EKNFHSo8JqpEs7gS2ZpSz63AfG0uRPCxm9wC5LtN34i3bP6QqZJb8LAIw==@lists.linux.dev
+X-Gm-Message-State: APuU4Z+xboPYmfijj57ikHaHzNX5PL3Rg5VoJMFjJKwvkIV0GJ5zDKMh
+	lIQ5xxDBiTNIOt7sUGpeXYkHXwwpzHZ6zkgXO1ml4NKzzlcnjEzmWUIr
+X-Gm-Gg: AYBFou1d0ACYWdPbKVL1PFn2m2WhFu4aQi+dIJ7ihkTOM3e5onHr+Pl8UH2/RE0GzH2
+	vIS0qBRArwYvMm0zf0pLHaHP0D/mVHIoFsKcLGtDTtPOCNZLOybiU8+a+NNKod6XnpLc4s54LGG
+	p0htElh1RfuEshz+iWXmEd2tmx5JD6XjN/nxpTQWsPDOThbAWVTHvVr8UJtItEYEyDFUjWwu3Dk
+	B85tybaxJhiegML9qagjqyIYaS51WvnflkkjuBfs+1vv/uok5jT6NgDGqIZYjsT/H5FnoTllw18
+	XvDINTpfFhTWXnp7OjQ9VZnbhtXC/hSbTCmPC1XhEn+itcpLaxvykDBPlL7U9EcS5CPSaB/ECuo
+	2idp5LG8u8XqLnVO2Rd6J23VcryrgOPjflvOGBUaB7DOVtItQW2euybt5d+G11SIeGTEPi371J7
+	dLjtuKplv4TM3fqtG0DODnhPGeuGqvlh9Z67XkDmJU0rwRzEERtpCEVE6PQHkvMuJE7OtU8aTdb
+	PL6Nw1/EQor5N4Nti6Zqv1LaoK7dOkETyNclEs5jjOx6TE95o7cHJXB1uLgw7AClV3tY8Jm/T5x
+	6AhpvJDCaguNWU8DLLl4iObSt1+TkVJEgTEuOO02Y+vJX+xDBb7ym4ZHm5XmZutkH6P08j63QxI
+	5eykOEFJ8rr9zkNyQYyWAh1TewmUAVJ9ByNjkXsfmHBX2eL7QCMIbnX4rQOE18GOG0TRcr/vIgc
+	rpwbZil2IzQ8BbZaMh
+X-Received: by 2002:a05:6102:9d7:b0:7c3:874d:60bb with SMTP id ada2fe7eead31-7d2a14b652amr651881137.5.1793938728631;
+        Thu, 05 Nov 2026 20:18:48 -0800 (PST)
+Received: from gmail.com (223.230.150.34.bc.googleusercontent.com. [34.150.230.223])
+        by smtp.gmail.com with ESMTPSA id ada2fe7eead31-7d2a8b52ca9sm427837137.9.2026.11.05.20.18.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 05 Nov 2026 20:18:48 -0800 (PST)
+Date: Thu, 05 Nov 2026 23:18:47 -0500
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+To: Eric Dumazet <edumazet@kernel.org>, 
+ netdev@vger.kernel.org, 
+ "David S. Miller" <davem@davemloft.net>, 
+ Jakub Kicinski <kuba@kernel.org>, 
+ Paolo Abeni <pabeni@redhat.com>
+Cc: Eric Dumazet <edumazet@kernel.org>, 
+ Simon Horman <horms@kernel.org>, 
+ Willem de Bruijn <willemb@google.com>, 
+ "Michael S. Tsirkin" <mst@redhat.com>, 
+ Jason Wang <jasowangio@gmail.com>, 
+ =?UTF-8?B?RXVnZW5pbyBQw6lyZXo=?= <eperezma@redhat.com>, 
+ Hassan Sultan <hassansultan@google.com>, 
+ virtualization@lists.linux.dev
+Message-ID: <willemdebruijn.kernel.2494b56c7bdc2@gmail.com>
+In-Reply-To: <20261105115715.1466924-3-edumazet@kernel.org>
+References: <20261105115715.1466924-1-edumazet@kernel.org>
+ <20261105115715.1466924-3-edumazet@kernel.org>
+Subject: Re: [PATCH net v3 2/8] net: virtio: do not use dev->type to find the
+ outer L3 header
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -114,16 +110,49 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: 7bit
 
-The pull request you sent on Wed, 4 Nov 2026 08:15:35 -0500:
+Eric Dumazet wrote:
+> virtio_net_l3_start() decides from skb->dev->type whether the frame
+> starts with an Ethernet header. tun decides it from the IFF_TAP and
+> IFF_TUN flags, and TUNSETLINK can set the type of a down tun device
+> to any value, without changing the flags.
+> 
+> On an IFF_TAP device set to ARPHRD_NONE, the outer protocol checks
+> look at the IP header at the network header (ETH_HLEN), and never read
+> the Ethernet header. eth_type_trans() then sets skb->protocol from an
+> unchecked h_proto, for instance ETH_P_NSH, and the packet can reach
+> the skb_under_panic() addressed by the previous patch.
+> 
+> On an IFF_TUN device set to ARPHRD_ETHER, the checks validate an
+> Ethernet header that tun then treats as the start of the L3 header.
+> 
+> Checking in tun that the device type matches the framing is not
+> enough: the type is read again later, and a concurrent TUNSETLINK can
+> change it in between, since tun_get_user() only drops packets of a
+> down device after these checks.
+> 
+> Add a has_eth argument to virtio_net_hdr_tnl_to_skb(), passed down to
+> virtio_net_l3_start(), so the device type is no longer used:
+> 
+> - virtio_net always receives Ethernet frames.
+> - tun_get_user() passes whether the device is IFF_TAP.
+> - tun_xdp_one() always calls eth_type_trans() on its frames.
+> 
+> Fixes: 288f30435132 ("tun: enable gso over UDP tunnel support.")
+> Reported-by: Sashiko <sashiko-bot@kernel.org>
+> Closes: https://lore.kernel.org/netdev/sashiko-outbox-198573@kernel.org/
+> Link: https://lore.kernel.org/netdev/179387332014.488856.9111956413610107951@kernel.org/
+> Signed-off-by: Eric Dumazet <edumazet@kernel.org>
 
-> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+Reviewed-by: Willem de Bruijn <willemb@google.com>
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/69e2b55fc3b4fa3639b8c320374c255f046ddda5
+Makes sense, and easier to review stand-alone.
 
-Thank you!
+But if having to respin, squash into 1/8?
 
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+Also, to avoid having to respin too often could (now that they're
+public and archived) leave the self-tests for a later series.
