@@ -1,102 +1,80 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.214.181
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=111.22.67.151
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794017359;
-	b=L3H3MjGM2qvMG/rj+7vc+51ym1B1/s+lTIw1kWY3fJ3FhhQZw9+upIKgYQEXoAS2FwRz
-	 ltjIPsFZsURY+p1ihw3LkqioDd9W81yhF+q/qg7lGzQWQoW8TFfw5k7cU6xUmhSGJI5tJ
-	 lvLJe9PVfrNsKEvjRtTA9NKFYwu9c/aVWfPgGAMdWWsPQngM5/dUFUyxkCoAAiV/QwUmR
-	 YC4NHi+RcsiAr2F+c5y9UCQmQ6Fsx4pYIKz+C9kGnxAr+rKHy+TtcLNTt+4SN9Nt0ttdS
-	 a1shEetOiuYKwCkFXFHHY0LDrIGna078Fk+0/D1+i/djlffYYRBj+c2IvtCn6aXWG1g==
+	t=1794027496;
+	b=pFxiV8arWwbjF01POBlc1nmKiHTtv0hQ56J/XdkzJAzh/zoeKchMTdH/CM7o4mcgJ2aQ
+	 tnoKh4Y1K7Fcsub7L4LFf5P6rbiUmuqw4ggDrU0fxyKfCxw8zY9/HtR/vmdhS84bpf/lH
+	 jrYa3JqPSlyTXW4CeTYq/OO6gt/db8lBD2mnO3dSdbAx1tAe9IxwznPCmNrKC/0TT0lbT
+	 9/wxJJAh7Q+y3/3qfLcOuo5OV4GMwX4VwuM/DSFhZNJGPBzQPUIJwWG+n8+v+H7tLlzj1
+	 6li91NMfh4qj5B0TIGAJoTewaSK1ILFKZYcLoT0cV28PZuUWqjjgfMJarZY++JYbIxQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794017359;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Content-Type:Date:Message-Id:Cc:Subject:From:To:In-Reply-To:
-	 References:Content-Transfer-Encoding:MIME-Version;
-	bh=oWCm5sO2ZJcIfwM/bU9hgd9OcLaoRmJrQ2OQCAcOYQw=;
-	b=fFzvvv1JoSnKT9uf+ryj8xVLuPebyktzdvd9ehjxusyLoWpHo5ldz6/edBYiisNoBbOj
-	 YlgJ8KRCvQx+JFJAKYKQh+2iwhjZski4Mo7OfZ8z2f9BKEas2jC0Wa8DfHh2HL4iHqlY5
-	 ccFjZTEQ6EXeUdAY4/8BZCxxvwC8p6FSiaEmaOZel2ieBXQDfbcYnJtN27g35HjO8pwsx
-	 VA1h2+KbB5K9r5gL/4XJcNKPi1DQMgOMfN09ZNUmrxNly0EUSQcMVgN1MQca0U2wYdHPu
-	 0AkWJckz+MXO8HJaJrolvtvMLWD5c4Rq4z5DfV+X1uIV4GcQ+hrWfuSaBT7vX2xx+6A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794027496;
+	h=DMARC-Filter:DKIM-Signature:X-RM-TagInfo:X-RM-SPAM-FLAG:Received:
+	 X-RM-TRANSID:X-RM-TagInfo:X-RM-SPAM-FLAG:Received:X-RM-TRANSID:From:
+	 To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
+	 MIME-Version:Content-Transfer-Encoding;
+	bh=k/8YzMNiVPZlBUW40yrliXFv9KTnhM76PNAu4E7vSnw=;
+	b=b8OKYfG0xIF8AgfxzScCupDUd8Y/Wz+nndnwNg1/rHXWzKyJoc/THP2tqc5rf5XdZzZ/
+	 0/AtPzUg+Ldnt501rjQxMgKxVvuoRYjvNi/c35wYLuHmG5pocm6ANtF3ct2Dx87s+Un8N
+	 eDWoY5+ET0iSiZJa4qeYyJ2lIkLvJoXFIRGYxYBVMMaDLd5FxyvtZvaPxSft/OV7r7aOj
+	 +VMDFgWoIr0c69dk3nAXsOaG0F7If58qh2wkksIIYZd8sn3Ci00oULf5RHTXiblUZjl18
+	 1i6BSPpz7W4NMO9KJjlkolktw5jyQJmQn+mI643mY6+9KtCag6dIOgS702co2G5N5Fg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=UbIj9HF5;
-	arc=none smtp.remote-ip=209.85.214.181
-Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DAB9606A336
-	for <virtualization@lists.linux.dev>; Sat,  7 Nov 2026 02:09:19 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8DAB9606A336
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	dmarc=pass header.from=cmss.chinamobile.com;
+	spf=pass smtp.mailfrom=cmss.chinamobile.com;
+	dkim=pass header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.a=rsa-sha256 header.s=default header.b=SaDZMVKj;
+	arc=none smtp.remote-ip=111.22.67.151
+Received: from cmccmta8.chinamobile.com (cmccmta8.chinamobile.com [111.22.67.151])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 7A506606A32F
+	for <virtualization@lists.linux.dev>; Sat,  7 Nov 2026 04:58:13 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7A506606A32F
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cmss.chinamobile.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cmss.chinamobile.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=UbIj9HF5
-Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-2e96502e447so10888235ad.1
-        for <virtualization@lists.linux.dev>; Fri, 06 Nov 2026 18:09:19 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.a=rsa-sha256 header.s=default header.b=SaDZMVKj
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794017359; x=1794622159; darn=lists.linux.dev;
-        h=mime-version:content-transfer-encoding:references:in-reply-to:to
-         :from:subject:cc:message-id:date:content-type:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=oWCm5sO2ZJcIfwM/bU9hgd9OcLaoRmJrQ2OQCAcOYQw=;
-        b=UbIj9HF5CSPW9rJvd7DGqV5Eavx0HCoZOUg1CH6QeCW3+7lJ0GSSgzFcYTSOThYRQk
-         WzvsTLW7GCZ/0yX+yw5X/vdEIk8JGrd4bblHoePK/AtZLmt84FdE9VIVxjZFn94PuS88
-         651RIJX3b9DC2gSUKBCDj/gtTIZCoHHlUHrY7YHftsV6tUny4mNIJKvXUiFlkq+UrEBq
-         c1epXYrybM8yYueZsseeLmhmnqUfCMViRqeepx/EKWYktpcOEy4Ib0ZjuVUSFJ+A5mqd
-         lN7/7kW+1vLLt2Nsd49l94m7HiQfe2Bl5Lo0OwvPYeGXMjZ8i4kwXL6X/LMcg0ahslqJ
-         tbcA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794017359; x=1794622159;
-        h=mime-version:content-transfer-encoding:references:in-reply-to:to
-         :from:subject:cc:message-id:date:content-type:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=oWCm5sO2ZJcIfwM/bU9hgd9OcLaoRmJrQ2OQCAcOYQw=;
-        b=BHxGuE4j7jHkatvPrY+/3G56bRa2hPJGeGgfh77orEx0nAU93E8AKuEhxUVyF6pK9v
-         IOW4mhckwOAGZyVA49rE4hst8oE2A1Wc4Cm0NSOnlnuFj/U5jWAYut5VzGxA49lccp43
-         VcydyeJ7Eoy6SZlWBqIYbn9pQeSYZzf3iStt2X/LstPoGD/HcpqEFqSg3RJrDwnulprm
-         6qPuEG/ZxhFE6Wvb1D5QneWF6F8EUjsjPHs/mXuFfp8O14iFQlWH88dKdxrC0ONEgvi8
-         ZZVyzI8eXODRzxASBMrCJopdTiavrfRNM/TLKPk2NvAbmhj3ZZRsfoymbErBVyn/9Ue7
-         UJYg==
-X-Forwarded-Encrypted: i=1; AL+hErECe5d6Z2h2NR1mclW8zxJsyoAxACeAOx2sJ5oKFHtvUmqz4JXk+UxYCXNyi7KK2uk38CGQJKBQMNBFAIp3KA==@lists.linux.dev
-X-Gm-Message-State: APuU4Z985xfjSzdjgmvHp+jwKoEgIlSyzyiYtcdEen8f3avVWlk/MEHr
-	8M9vtbwgIW9DGRJ8SLZ/HbLsVMXq2gU2eskXiKw1+XycRENM61sZyBqp
-X-Gm-Gg: AYBFou3r03VR2pXOHG+mv3JX+c+6jqJCd2TUzbF9jE7XVFkvBfNZTgZTrxU1brTTFTe
-	0Tnd7YfzXB0S2ynIq7ClDZxoKwOde4BZZ0IJF5WsOK+daLgzSaEpdu8y2xaftC1COB+Zv+OR4Th
-	oXWgrmkfZpzG3dAAx6TxZAY6NBFqSmUwIF5AFB3GJySI/7P9hD6pwV8teYjSUaTNTp49jXfmjdw
-	chlE5QDTGqLh/3mCEHIwZC0J6h4sSuV06VjvRGz1sQpvVvbsMiEcc+QDmRIrsGNt2N+Qn492gsD
-	5RZq/buVN+4DRyY78xvGxLLT4wNUUDeSMpDWs/m2DEL8HPAMDCKk0RZWEEI54uj4SIlfGCfpcSY
-	KPdA3aWaC4wVmptIrVsoMRl6QpgOzyNMBpHqxSZISkad1SATnuk64+dPI46WjzIPSO3D8zUmAuV
-	c4fHTIm8PcOXs9LEwMXpNgnoXtvlh/kEUH4rImVXrV/4AKZYauf5t+TMf8fjIZOzmEBy72PFnjx
-	GgR+2YJjyVu6vlL3W6xzH4YKn5WyAmo4MYvJqLFcr7H22ZB6TtoNP/Wzl5cP6gZUwrC/xGunF1R
-	aYBx0sxTcNHTF6xS6A/grk3Nuh+ycIzRwcRdXhf+0l8EjYsSlGO92NrQ1O0zHl72kGMG9B6CiBy
-	HDiUjjW1Azm/CVeQnivuWkki02l9Lq76ATQ==
-X-Received: by 2002:a17:90b:1a91:b0:3b0:ae41:2707 with SMTP id 98e67ed59e1d1-3b0db6fe133mr4547927a91.45.1794017358501;
-        Fri, 06 Nov 2026 18:09:18 -0800 (PST)
-Received: from localhost ([153.61.198.246])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3b105864375sm1156571a91.4.2026.11.06.18.09.17
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 06 Nov 2026 18:09:18 -0800 (PST)
-Content-Type: text/plain; charset=UTF-8
-Date: Sat, 07 Nov 2026 02:09:17 +0000
-Message-Id: <DMOM2SFCFHYK.3BT44IQ90X9UB@gmail.com>
-Cc: "Michal Luczaj" <mhal@rbox.co>, <virtualization@lists.linux.dev>,
- <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
- <bpf@vger.kernel.org>, <stable@vger.kernel.org>
-Subject: Re: [PATCH net v4 1/2] vsock/bpf: release sock lock while waiting
- for data in recvmsg
-From: "Alexei Starovoitov" <alexei.starovoitov@gmail.com>
-To: <jrmmhm.kernel@eldare.de>, "Stefano Garzarella" <sgarzare@redhat.com>,
- "Bobby Eshleman" <bobbyeshleman@meta.com>, "David S. Miller"
- <davem@davemloft.net>, "Eric Dumazet" <edumazet@kernel.org>, "Jakub
- Kicinski" <kuba@kernel.org>, "Paolo Abeni" <pabeni@redhat.com>, "Simon
- Horman" <horms@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
-In-Reply-To: <20261106-kbh3-1-022-fix-v2-v4-1-c7d36703814d@eldare.de>
-References: <20261106-kbh3-1-022-fix-v2-v4-0-c7d36703814d@eldare.de> <20261106-kbh3-1-022-fix-v2-v4-1-c7d36703814d@eldare.de>
-Content-Transfer-Encoding: 8bit
+	d=cmss.chinamobile.com; s=default; l=0;
+	h=from:subject:message-id:to:cc:mime-version;
+	bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
+	b=SaDZMVKjyMlf0KH9q3yyUhjZ520K80NGBM605AVOIOvReWJidJ6up7qUNoOfajiiVWjPrc3r+voXz
+	 wSKmOHc7MqUsMjZuOD73E8VIsp54HSXT6QDlKvJCfWBFlCas2sDMvIEO9cYrI1FK0XjvpXNQUy267D
+	 ONOHuHo1OVLe1tuU=
+X-RM-TagInfo: emlType=0                                       
+X-RM-SPAM-FLAG:00000000
+Received:from spf.mail.chinamobile.com (unknown[10.188.0.87])
+	by rmmx-syy-dmz-app02-12002 (RichMail) with SMTP id 2ee26aeeafd8a49-f164b;
+	Sat, 07 Nov 2026 12:58:06 +0800 (CST)
+X-RM-TRANSID:2ee26aeeafd8a49-f164b
+X-RM-TagInfo: emlType=0                                       
+X-RM-SPAM-FLAG:00000000
+Received:from  (unknown[74.82.203.40])
+	by rmsmtp-syy-appsvr03-12003 (RichMail) with SMTP id 2ee36aeeafb3fe6-3a4df;
+	Sat, 07 Nov 2026 12:58:06 +0800 (CST)
+X-RM-TRANSID:2ee36aeeafb3fe6-3a4df
+From: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@kernel.org>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Jesper Dangaard Brouer <hawk@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>,
+	Stanislav Fomichev <sdf@fomichev.me>,
+	netdev@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	bpf@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH net 1/2] virtio_net: Don't DMA map the kernel image for the AF_XDP TX header
+Date: Sat,  7 Nov 2026 21:57:02 +0900
+Message-ID: <20261107125723.33547-2-yanhaishuang@cmss.chinamobile.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20261107125723.33547-1-yanhaishuang@cmss.chinamobile.com>
+References: <20261107125723.33547-1-yanhaishuang@cmss.chinamobile.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -106,118 +84,94 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-On Fri, Nov 06, 2026 at 01:57 PM Jerome Mohm via B4 Relay <devnull+jrmmhm.kernel.eldare.de@kernel.org> wrote:
-> example by a credit update. So the wait also loops until data arrives
-> or one of the native exits applies: a socket error, a local or peer
-> shutdown, a socket that is no longer connected, the timeout or a
-> pending signal. The loop alone, with the lock still held, keeps the
-> deadlock, so the fix needs both halves and stays one patch.
+virtnet_xsk_pool_enable() DMA maps the static xsk_hdr, which lives in
+the kernel image. On arm64 the kernel image is mapped in the vmalloc
+area, so when the device uses the DMA API the mapping is rejected:
 
-No need for a 2nd copy of the return values.
-The old code returns true on RCV_SHUTDOWN. The psock queue is empty, so
-the caller goes to __vsock_recvmsg(), which picks the return value.
-tcp_bpf, udp_bpf and unix_bpf do the same.
-Do it for sk_err, peer_shutdown and sk_state too.
-__vsock_recvmsg() doesn't wait in any of these states.
-It handles len == 0, MSG_OOB and MSG_ERRQUEUE as well.
+  virtio_net virtio0: rejecting DMA map of vmalloc memory
+  WARNING: drivers/virtio/virtio_ring.c:3882 ...
 
-The copy differs from a socket that is not in a sockmap in four cases.
-The diff differs in one, the last row:
+and binding an AF_XDP zero-copy socket fails with -ENOMEM. Even where
+the mapping succeeds, the header shares cache lines with unrelated data.
 
-  recv()                          no sockmap    this series   the diff
-  ------------------------------  ------------  ------------  -----------
-  after a virtio reset            -ENOTCONN     -ECONNRESET   -ENOTCONN
-  after a reset, len == 0         -ENOTCONN     0             -ENOTCONN
-  after a reset, MSG_OOB          -ENOTCONN     -EOPNOTSUPP   -ENOTCONN
-  after peer shutdown, SO_INQ on  0 + SCM_INQ   0             0 + SCM_INQ
-  asleep when the reset comes     -ECONNRESET   -ECONNRESET   -ENOTCONN
+Allocate the all-zero header per send queue when the pool is enabled
+and free it when it is disabled.
 
-Instead of patches 1 and 2 (compile tested only):
+Fixes: 21a4e3ce6dc7 ("virtio_net: xsk: bind/unbind xsk for tx")
+Signed-off-by: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
+---
+ drivers/net/virtio_net.c | 23 +++++++++++++++++++----
+ 1 file changed, 19 insertions(+), 4 deletions(-)
 
-diff --git a/net/vmw_vsock/vsock_bpf.c b/net/vmw_vsock/vsock_bpf.c
-index 9049d26..3cf017d 100644
---- a/net/vmw_vsock/vsock_bpf.c
-+++ b/net/vmw_vsock/vsock_bpf.c
-@@ -34,24 +34,34 @@ static bool vsock_has_data(struct sock *sk, struct sk_psock *psock)
- 	return vsock_sk_has_data(sk, psock);
- }
-
--static bool vsock_msg_wait_data(struct sock *sk, struct sk_psock *psock, long timeo)
-+/* __vsock_recvmsg() doesn't wait in these states and knows what to return. */
-+static bool vsock_rx_done(struct sock *sk)
- {
--	bool ret;
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index dd2c41ef6fbe..4f5d8812f75b 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -315,6 +315,8 @@ struct send_queue {
+ 
+ 	struct xsk_buff_pool *xsk_pool;
+ 
++	/* All-zero header shared by the AF_XDP packets sent on this queue */
++	struct virtio_net_common_hdr *xsk_hdr;
+ 	dma_addr_t xsk_hdr_dma_addr;
+ };
+ 
+@@ -500,8 +502,6 @@ struct virtio_net_common_hdr {
+ 	};
+ };
+ 
+-static struct virtio_net_common_hdr xsk_hdr;
 -
--	DEFINE_WAIT_FUNC(wait, woken_wake_function);
-+	return sk->sk_err || sk->sk_state != TCP_ESTABLISHED ||
-+	       (sk->sk_shutdown & RCV_SHUTDOWN) ||
-+	       (vsock_sk(sk)->peer_shutdown & SEND_SHUTDOWN);
-+}
-
--	if (sk->sk_shutdown & RCV_SHUTDOWN)
--		return true;
-+static int vsock_msg_wait_data(struct sock *sk, struct sk_psock *psock, long timeo)
-+{
-+	int ret = 0;
-
--	if (!timeo)
--		return false;
-+	DEFINE_WAIT_FUNC(wait, woken_wake_function);
-
- 	add_wait_queue(sk_sleep(sk), &wait);
- 	sk_set_bit(SOCKWQ_ASYNC_WAITDATA, sk);
--	ret = vsock_has_data(sk, psock);
--	if (!ret) {
--		wait_woken(&wait, TASK_INTERRUPTIBLE, timeo);
--		ret = vsock_has_data(sk, psock);
-+	while (!vsock_has_data(sk, psock) && !vsock_rx_done(sk)) {
-+		if (!timeo) {
-+			ret = -EAGAIN;
-+			break;
-+		}
-+		if (signal_pending(current)) {
-+			ret = sock_intr_errno(timeo);
-+			break;
-+		}
-+		release_sock(sk);
-+		timeo = wait_woken(&wait, TASK_INTERRUPTIBLE, timeo);
-+		lock_sock(sk);
- 	}
- 	sk_clear_bit(SOCKWQ_ASYNC_WAITDATA, sk);
- 	remove_wait_queue(sk_sleep(sk), &wait);
-@@ -80,6 +90,9 @@ static int vsock_bpf_recvmsg(struct sock *sk, struct msghdr *msg,
- 	struct vsock_sock *vsk;
- 	int copied;
-
-+	if (unlikely(!len || (flags & (MSG_OOB | MSG_ERRQUEUE))))
-+		return __vsock_recvmsg(sk, msg, len, flags);
+ static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *buf);
+ static void virtnet_sq_free_unused_buf_done(struct virtqueue *vq);
+ static int virtnet_xdp_handler(struct bpf_prog *xdp_prog, struct xdp_buff *xdp,
+@@ -5971,11 +5971,21 @@ static int virtnet_xsk_pool_enable(struct net_device *dev,
+ 	if (!rq->xsk_buffs)
+ 		return -ENOMEM;
+ 
+-	hdr_dma = virtqueue_map_single_attrs(sq->vq, &xsk_hdr, vi->hdr_len,
++	/*
++	 * Don't map a static header: the kernel image is not in the linear
++	 * map on all architectures (e.g. arm64), so it can't be DMA mapped.
++	 */
++	sq->xsk_hdr = kzalloc_obj(*sq->xsk_hdr);
++	if (!sq->xsk_hdr) {
++		err = -ENOMEM;
++		goto err_free_buffs;
++	}
 +
- 	psock = sk_psock_get(sk);
- 	if (unlikely(!psock))
- 		return __vsock_recvmsg(sk, msg, len, flags);
-@@ -102,10 +115,9 @@ static int vsock_bpf_recvmsg(struct sock *sk, struct msghdr *msg,
- 	while (copied == 0) {
- 		long timeo = sock_rcvtimeo(sk, flags & MSG_DONTWAIT);
++	hdr_dma = virtqueue_map_single_attrs(sq->vq, sq->xsk_hdr, vi->hdr_len,
+ 					     DMA_TO_DEVICE, 0);
+ 	if (virtqueue_map_mapping_error(sq->vq, hdr_dma)) {
+ 		err = -ENOMEM;
+-		goto err_free_buffs;
++		goto err_free_hdr;
+ 	}
+ 
+ 	err = xsk_pool_dma_map(pool, dma_dev, 0);
+@@ -6004,6 +6014,9 @@ static int virtnet_xsk_pool_enable(struct net_device *dev,
+ err_xsk_map:
+ 	virtqueue_unmap_single_attrs(rq->vq, hdr_dma, vi->hdr_len,
+ 				     DMA_TO_DEVICE, 0);
++err_free_hdr:
++	kfree(sq->xsk_hdr);
++	sq->xsk_hdr = NULL;
+ err_free_buffs:
+ 	kvfree(rq->xsk_buffs);
+ 	return err;
+@@ -6032,6 +6045,8 @@ static int virtnet_xsk_pool_disable(struct net_device *dev, u16 qid)
+ 
+ 	virtqueue_unmap_single_attrs(sq->vq, sq->xsk_hdr_dma_addr,
+ 				     vi->hdr_len, DMA_TO_DEVICE, 0);
++	kfree(sq->xsk_hdr);
++	sq->xsk_hdr = NULL;
+ 	kvfree(rq->xsk_buffs);
+ 
+ 	return err;
+-- 
+2.43.0
 
--		if (!vsock_msg_wait_data(sk, psock, timeo)) {
--			copied = -EAGAIN;
-+		copied = vsock_msg_wait_data(sk, psock, timeo);
-+		if (copied)
- 			break;
--		}
 
- 		if (sk_psock_queue_empty(psock)) {
- 			release_sock(sk);
 
-[...]
-
-> guest's virtio-vsock device. With the series applied they behave as on
-> a native socket, except for the reset case above, and the vsock
-> vmtest.sh single-VM tests and the BPF sockmap test_progs pass.
-
-None of these tests sleeps in vsock_msg_wait_data().
-The sockmap tests call select() before recv() or pass MSG_DONTWAIT.
-vmtest.sh doesn't use sockmap.
-
-pw-bot: cr
