@@ -1,57 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794030505;
-	b=sfMLdNqhtDN+4cAPvhnaGddV1X9cMzpRHgcVvDKD/ypYPUMwWPh8eCfILoyCS7gvOJcD
-	 CFPGRfb0fzmOIjXe0ULi0vbayS4ejLWo6u79Yz0se14Yqa+RVdusxqxdL49W1hu9EH9DZ
-	 ekbTV7KIK78w4IgV9qGXjKKvghY4uQBEhPJsGw1wzgNHBIzJOTq+WTC3Q0UUFcQ+1ae7R
-	 9dHPpXJfQF2hbjjTda5D46uijeEYzVDY2ZwjuwukF4Svb+g/Of6OvpdmaY51a8HjCh8mv
-	 BCMk9Gl0C3g64bwWpQecMbvMHYQK5nAAswJ+zNzaWOfAb32zu+YYJMNB2FVJIZTs5OA==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794030505;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=hvFgl/kjkWGXHr2H+iaJ4VFDZ4WhgKoJ1tIt3R676h8=;
-	b=aCJhUe6By5rHRTiodelxTfz1KokhKcvL+zfOLKyLFKpggAKbvUyC8LbfTV+xhDqKx5Xj
-	 /vhcUexdgsPieI9enFihI36e3QcHGhfON+SxG99hIV5wkBcJn1H7TywezXP3U8mYccuVb
-	 OhU5NfLlwhynSogC6r6ocnahEeu8urI3KRkPNhbHIy4mKMdazK1qGR/r9mUVOTJnqll2a
-	 v5NUP1h3EJO+GJvXXNc6K5sTvkNCVHf/3nRdzwCUkuWGCHR3WXEwmfWHrAxX8MLijL/T7
-	 wv36YKqPdCGnc8DhTOtqYzakj543X4cYp8h0RoIhQuR/Mg2C1OhayDq4aAczjddSfUA==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RfEuxcl7;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=176.119.200.171
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794046277;
+	b=cTShmKHDMzejtQwjgoblNtbN9hbXDA0sYfoi4OUSMF8qa1fcpGIAiSV1p0G/f9g/hbP/
+	 9RqKOKBMkQsN5MB254yjbhsaD4taSTQQVyTeALo9KiQhujBkGanPtyBkd8LEd0hY2QOsb
+	 Wyl73h4GsjkKfYCgjhis5ST4t5ZyAbqg5xbD3qGBexL4D7pRJWofZAhaouiAQ5EDumq6u
+	 cG/pImYrO6UNLKDT8QCgsf7YjXwSP1538UUAEKivpg8CimcY2neVrvnPjnsjRFSutbD01
+	 X5l7unkJfxHGgzROSFSfYNWCk5AQGx9v9MUq9Uw4sN7tnB+NG5YMUo48SCIFH1tFPBg==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794046277;
+	h=DMARC-Filter:DKIM-Signature:Date:Subject:In-Reply-To:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding:From:To:Cc:Message-ID:
+	 References:X-SimpleLogin-Type:X-SimpleLogin-EmailLog-ID:
+	 X-SimpleLogin-Want-Signing;
+	bh=D8qnkZYaP8QEiEnWStUV7Ol/+8QaugHXvxXWg6fF5ic=;
+	b=kq9ThaNR1Z3PURM81+173EoqKbtQGLSYyG/h96HlYVGqr5eqpFhPd+gAUv8tRg86JLI0
+	 NPnQFWQpCOEJd1J95f/ZQ5ZuXL9ODyGf9H8ARJGDqN40OSdaB6WeBnd4TjzkPlWGRsavx
+	 oRkSH8836zW7Cdqr+ln6AjYiC5rDzYkLmxOpqBaVzNTiFy1JblOAQhUmUsGCL2+FqEirE
+	 WS0ePDV+OPyw8O3WdIzW7kn6k3C113pe3Ku4kDBVpzGLcLVZkVRlK7Mkzu0QqjU4qnX9+
+	 Na/cB3qsR1M0fWqDWWTT8DJkhJIuomUyjAdYqEFuEulwbHWL6+i5K3QRUyA4vrk1QdQ==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=eldare.de;
+	spf=pass smtp.mailfrom=eldare.de;
+	dkim=pass header.d=eldare.de header.i=@eldare.de header.a=rsa-sha256 header.s=dkim header.b="q+//nBJo";
+	arc=pass header.oldest-pass=0 smtp.remote-ip=176.119.200.171
+Received: from mail-200171.simplelogin.co (mail-200171.simplelogin.co [176.119.200.171])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B8F6606A326;
-	Sat,  7 Nov 2026 05:48:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F311606A32C
+	for <virtualization@lists.linux.dev>; Sat,  7 Nov 2026 10:11:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9F311606A32C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=eldare.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=eldare.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RfEuxcl7
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A503F1F0089F;
-	Sat,  7 Nov 2026 05:48:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794030505;
-	bh=hvFgl/kjkWGXHr2H+iaJ4VFDZ4WhgKoJ1tIt3R676h8=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=RfEuxcl7ZCvMlvzP+lq84O4g7AWja/wu7g2xOcuaorx1cNvXwIo+FgTv63OV5v+Lq
-	 DXjzssfBTAspbK0cYN7yFLg1E2b0dI4mgCx8edKbcAeW7tYWREFKPas93GowaZIREO
-	 InJS5qD9RHME/d63zszxv6K9FAdvZlriMVI5ivYy9W/By5/6b0sfexIrXndsq2qTTC
-	 ahYnC0hy9im6P7zP3PiKFHCUhgzP0SDC1Zp48bUTDYar//QlF/jkAAlNW5kWYzdA+Z
-	 JBD1AQBv2Qu/xvGj2uVO5Q91yFLppNznBd3Ec6lbID67thRIreuRGaUC+Bn96XJJxO
-	 85x3b8oPJt5jA==
-Message-ID: <sashiko-outbox-202636@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v1] vhost-scsi: do not validate vrings during endpoint
- teardown
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Yuho Choi" <oss.patchbox@gmail.com>
-Cc: virtualization@lists.linux.dev, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <20261106054811.281798-2-oss.patchbox@gmail.com>
-References: <20261106054811.281798-2-oss.patchbox@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 07 Nov 2026 05:48:24 +0000
+	dkim=pass (1024-bit key, unprotected) header.d=eldare.de header.i=@eldare.de header.a=rsa-sha256 header.s=dkim header.b=q+//nBJo
+ARC-Seal: i=1; a=rsa-sha256; d=simplelogin.co; s=arc-20230626; t=1794046269;
+	cv=none; b=inMcURBaUnnmiFzBKA0XFDIgVEEXX6wZRINKCIAG6GakaHqeqKniiZkuGe2Hl77ebLtKhQp6gQyV2RBapiDzNs8B4QAMYgxtUtkPgoTH9yB88cTo30qmi5A88N/P9LkXEs/KkS6Ci0ch8L6tCyq7ui22YvPEKZIGNkzxk0Qz4dxnsGhzhSHdevDx/to6ttjyx66JrdfkeiczcGjyrqrF6DxVz4Y86bBOFXKDDHL8ik3cZ9+1gyEfkKrPLBstzbOg2smHdoRhn3WgqZ25M8z4/KIg68uOK1RfT2KzfW+LudGYMAzsLH7kwL/uXLtbfpleusZci3sWuuxna41qcgJ9UQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; d=simplelogin.co; s=arc-20230626;
+	t=1794046269; c=relaxed/simple;
+	bh=jVDqDvrRQsAZ22D6DF6i3XHA4gMN1HWL8uRQDdFvR2U=;
+	h=Date:Subject:In-Reply-To:From:To:Cc:References; b=LzapzOb5NdiOrSUdwgDyf+5xQCwbWMDd4DY56oaTxXK+EAAVDN2u6ldDaBdJsyL7hTTxv6RrLXnE54UDt2aEGapXY0CyEg5mCxCoS+rzKBA3Sv7zJQHipU0di43i19gE7nP8LeslauPhr+yrzoaD6Pe+MSwzlqFUb0QCKtBstU9dFXe0ffhvONP/XMWd4fEw33EFx8jfSfwp36sBU5+2h0KcvUzJ3X+BOpTkuEGLoivu+JksELgFaCOKWsr2PDtnMrlzy9mAXuLC97l6trOfwUY1RGmJ8WeKCOvFPrtpooEws93grPUv/yGIXgqoZq45kUukBsm3CbR7t/YQjuKj3w==
+ARC-Authentication-Results: i=1; mail.protonmail.ch
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=eldare.de; s=dkim;
+	t=1794046269;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=D8qnkZYaP8QEiEnWStUV7Ol/+8QaugHXvxXWg6fF5ic=;
+	b=q+//nBJoIM/k20Tl2DfPZ86y9MIYto7smEAAHF+Mbho6wezvb9NVx3efTxHoM1gM4akVOI
+	GImpZhMCtnE4iNLR79mmLuSp0jX/7jMu3/UPo6mh4+B4EBOA28fiegBaHurnZ259ukBvPl
+	vktk03EjoFqtNdVvf+8M0AA6ZnzelbU=
+Date: Sat, 07 Nov 2026 10:11:02 +0000
+Subject: Re: [PATCH net v4 1/2] vsock/bpf: release sock lock while waiting for
+ data in recvmsg
+In-Reply-To: <DMOM2SFCFHYK.3BT44IQ90X9UB@gmail.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -60,76 +63,55 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+From: jrmmhm.kernel@eldare.de
+To: Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Cc: Stefano Garzarella <sgarzare@redhat.com>,Bobby Eshleman
+ <bobbyeshleman@meta.com>,"David S. Miller" <davem@davemloft.net>,Eric Dumazet
+ <edumazet@kernel.org>,Jakub  Kicinski <kuba@kernel.org>,Paolo Abeni
+ <pabeni@redhat.com>,Simon  Horman <horms@kernel.org>,"Michael S. Tsirkin"
+ <mst@redhat.com>,Michal Luczaj
+ <mhal@rbox.co>,virtualization@lists.linux.dev,netdev@vger.kernel.org,linux-kernel@vger.kernel.org,bpf@vger.kernel.org,stable@vger.kernel.org
+Message-ID: <179404626756.7.5004773530941890450.1753698952@eldare.de>
+References: <20261106-kbh3-1-022-fix-v2-v4-0-c7d36703814d@eldare.de>
+ <20261106-kbh3-1-022-fix-v2-v4-1-c7d36703814d@eldare.de>
+ <DMOM2SFCFHYK.3BT44IQ90X9UB@gmail.com>
+X-SimpleLogin-Type: Reply
+X-SimpleLogin-EmailLog-ID: 1753699019
+X-SimpleLogin-Want-Signing: yes
 
-Thank you for your contribution! Sashiko AI review found no new issues
-in this patch, but noticed 1 related pre-existing issue it does not
-introduce:
-- [High] vhost-scsi: unhandled vhost_vq_init_access() failure in
-  vhost_scsi_set_endpoint() [1]
---
+On Sat, 07 Nov 2026 02:09:17 +0000, Alexei Starovoitov wrote:
+> No need for a 2nd copy of the return values.
+[...]
+>   recv()                          no sockmap    this series   the diff
+>   ------------------------------  ------------  ------------  -----------
+>   after a virtio reset            -ENOTCONN     -ECONNRESET   -ENOTCONN
+>   after a reset, len =3D=3D 0         -ENOTCONN     0             -ENOTCO=
+NN
+>   after a reset, MSG_OOB          -ENOTCONN     -EOPNOTSUPP   -ENOTCONN
+>   after peer shutdown, SO_INQ on  0 + SCM_INQ   0             0 + SCM_INQ
+>   asleep when the reset comes     -ECONNRESET   -ECONNRESET   -ENOTCONN
 
-commit b696a8fa1d0b9b5e5c27a63e36f3d5e5c268720d
-Author: Yuho Choi <oss.patchbox@gmail.com>
+Agreed. I ran your diff in a guest with the reproducers of this series:
+the deadlock, the dataless wakeup, signal, timeout, peer shutdown,
+MSG_ERRQUEUE and MSG_OOB cases behave as with v4, with no KASAN, lockdep
+or hung task report. In the first four rows of your table the sockmap
+socket now returns exactly what a native one returns.
 
-vhost-scsi: do not validate vrings during endpoint teardown
+The last row is confirmed as well. I'd accept that and say so in the
+commit message, since it only changes which error a reader of an
+already reset connection sees.
 
-This commit removes the vhost_vq_access_ok() check from
-vhost_scsi_clear_endpoint() so that endpoint teardown always disables the
-virtqueue backends and waits for in-flight SCSI commands before state is
-freed.
+> None of these tests sleeps in vsock_msg_wait_data().
+> The sockmap tests call select() before recv() or pass MSG_DONTWAIT.
+> vmtest.sh doesn't use sockmap.
 
-> diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-> index e44044449cef8..f0966f25b09a9 100644
-> --- a/drivers/vhost/scsi.c
-> +++ b/drivers/vhost/scsi.c
-> @@ -2194,17 +2194,10 @@ vhost_scsi_clear_endpoint(struct vhost_scsi *vs,
->  	struct vhost_scsi_tpg *tpg;
->  	struct vhost_virtqueue *vq;
->  	bool match =3D false;
-> -	int index, ret, i;
-> +	int ret, i;
->  	u8 target;
-> =20
->  	mutex_lock(&vs->dev.mutex);
-> -	/* Verify that ring has been setup correctly. */
-> -	for (index =3D 0; index < vs->dev.nvqs; ++index) {
-> -		if (!vhost_vq_access_ok(&vs->vqs[index].vq)) {
-> -			ret =3D -EFAULT;
-> -			goto err_dev;
-> -		}
-> -	}
-> =20
->  	if (!vs->vs_tpg) {
->  		ret =3D 0;
+Right. v5 won't cite them as coverage of this change.
 
-[Severity: High]
-This problem wasn't introduced by this patch, but should the paired
-vhost_scsi_set_endpoint() path check the return value of
-vhost_vq_init_access() [1]?
+v5 will be a single patch based on your diff, with your Suggested-by.
 
-drivers/vhost/scsi.c:vhost_scsi_set_endpoint() {
-    ...
-		for (i =3D 0; i < vs->dev.nvqs; i++) {
-			vq =3D &vs->vqs[i].vq;
-			if (i >=3D VHOST_SCSI_VQ_IO && !vs->vqs[i].scsi_cmds)
-				continue;
+Thanks,
+Jerome
 
-			mutex_lock(&vq->mutex);
-			vhost_vq_set_backend(vq, vs_tpg);
-			vhost_vq_init_access(vq);
-			mutex_unlock(&vq->mutex);
-		}
-    ...
-}
-
-If userspace invokes VHOST_SCSI_SET_ENDPOINT before configuring the vring
-addresses, vhost_vq_init_access() fails for the control and event
-virtqueues while their backends remain set to vs_tpg, leaving
-last_used_idx uninitialized and breaking event delivery and control
-command handling.
-
-[1] https://sashiko.dev/#/bug/linux-00d9df6c-e264-4a85-ae70-5ede3bace73b
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261106054811.2817=
-98-2-oss.patchbox@gmail.com?part=3D1
