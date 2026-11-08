@@ -1,72 +1,75 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.199
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.200
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794117620;
-	b=iFd5H824S8e9cmwuZPvzABmxZ+3n+xWFd6OKQ/qm9be6wnzMFkuTNHPSlc/Ce9P7sxwo
-	 iKy5216BlIukmYJCZkXXxGalvxRwG3TLLBqhiKJ14FdwBqbpiJyv5qSy7LeqYrxnHWubH
-	 BkOR1b36ON882ZJt4fuwDWkJWwEeI/V3vpQfW1FaetW1bh4EtMKgfsxpnzu+MMS2TXA3P
-	 NQICUfJvUSj9oeUVLDxGiieIefGKmfkVLJGDOH0P9BLZ3dI0z4xgRmXNiAyPcxePt2f6A
-	 g/geD/Whu9zsd5YxcqpXsqWQ4GVn1RjNW4OiVkwAqZ4AUHaSBdJja+OprHWsZ+UUqPA==
+	t=1794117622;
+	b=KAIM393ReK2M1U86zigy/5qD9c8QGuovAH/d5V7mzxNDboNgM8uCY22lTbqwjHwk3XV9
+	 rXK1QA/13LPDVOajsi3C8aHSJmfOOBr6wwAowK3SFBhz4CMOCvLSjubX0IKa7UmxA12uX
+	 q5ecxJJRXCyuWlH+xJUAu/WlQP+wCRpfP4aUPI0+POrJ2iNJ0rXboh1fgt//RxaRP28Yw
+	 gJ89Tsutc2JA38cbIntPzJ7QbfwgkE0NmlDsX8RUPxANw9Zj07aAzAK2CWS1GOZdDMc8u
+	 fEXA5DtY/8qXLpOhTWpqs8IwSG1+xsT/SMbqWDVyvhZwc+OEDcJ5AqP/Yk5EoxJ4h1A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794117620;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794117622;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Received:Date:Mime-Version:
-	 X-Mailer:Message-ID:Subject:From:To:Cc:Content-Type;
-	bh=v2y1yaggoH6p1mGRTKD+i49Hl5+O8T2kFeVCtW/lYKQ=;
-	b=obGthy/rzK5JBH/pAb8lQc+pq3RKt+GJ0rVQDwFikEinQVTRsQMY3jqhrJ+MQ6fYpTC5
-	 62k1BMy8AHQBV7yogfevq4Qaz6UUdfqq2GQg7YUuYBHE1rdAPv2ohCK4Z7qsBTr9269Yp
-	 8Xqy9cR+vquJP0ybhJgV2NOGB0w1wIT6VdgxhlBQoN1IyXR9UwRSzMMnhxHY8TGSaIjLz
-	 rrSw6Aj3qWtzvqe/GAOUGMgG1fnJjOO77BSDdSnesswHdv1vYuw/Avg8TfQ1F6Y/OX5RN
-	 +RJR2GLjxrOSIRD6XIyTweMZqBsN+7/D4U0qbAIeyVqWfgsReX6zo+btzlEzXOZLJKw==
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Received:Date:In-Reply-To:
+	 Mime-Version:References:X-Mailer:Message-ID:Subject:From:To:Cc:
+	 Content-Type;
+	bh=zMjClMAhSRqoCMrDS5bvxCNb79WE0UiAP81MU3z8MjY=;
+	b=Yhouy9MFY57oQPUiTPtYXqmpAo2mPkM5MMnhEi2Q5JxkhvAmOug0DvMfi40x+xWtsBU2
+	 N56Ce4NAcR94G1B6+I8qz1cdqCMUTvpPi0i/M1CF8YuN0398qBLIPofiVd9IDV50+CtAq
+	 pG6Dofrd3NFiGZKJsNztprS6XljjgOMVYcT/0Dbaj9/jemrddS/2IV8y/UgC00jS+NTPI
+	 eEjeVWJg7MMgxKrq0bmDEtKp4ZRSVXIbUCRDzzMc2B/htUqd1NsdE+4JISlF9aAw159vy
+	 c/8lm4HxSupYol0t4e11UIAOLRQjBHVNqOLpM+kR8BzIilXtKZ0IMHh8scXsoC7qHeA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=google.com;
 	spf=pass smtp.mailfrom=flex--almasrymina.bounces.google.com;
-	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=QvE4Fyp2;
-	arc=none smtp.remote-ip=74.125.82.199
-Received: from mail-dy1-f199.google.com (mail-dy1-f199.google.com [74.125.82.199])
+	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=hf+n7k+h;
+	arc=none smtp.remote-ip=74.125.82.200
+Received: from mail-dy1-f200.google.com (mail-dy1-f200.google.com [74.125.82.200])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8B8F606A31E
-	for <virtualization@lists.linux.dev>; Sun,  8 Nov 2026 06:00:19 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D8B8F606A31E
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF83F606D809
+	for <virtualization@lists.linux.dev>; Sun,  8 Nov 2026 06:00:21 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BF83F606D809
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--almasrymina.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=QvE4Fyp2
-Received: by mail-dy1-f199.google.com with SMTP id 5a478bee46e88-37158b53d06so712300eec.1
-        for <virtualization@lists.linux.dev>; Sat, 07 Nov 2026 22:00:19 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=hf+n7k+h
+Received: by mail-dy1-f200.google.com with SMTP id 5a478bee46e88-3724667bc16so345142eec.1
+        for <virtualization@lists.linux.dev>; Sat, 07 Nov 2026 22:00:21 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20260707; t=1794117619; x=1794722419; darn=lists.linux.dev;
-        h=content-type:cc:to:from:subject:message-id:mime-version:date:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=v2y1yaggoH6p1mGRTKD+i49Hl5+O8T2kFeVCtW/lYKQ=;
-        b=QvE4Fyp2A64HwDKrie9/2UQu/aVWOj9X7KYFXn8sZvRNtI4r1covLY6dNd5qn4SXtj
-         c5vKIBFrtgvDeMlDls2nbQkLjZ0oR4n6HiL2Qr6kN12l7uJr5sl94UKBIY3g4yrthMcW
-         Uu2HI2HsDXtwDTtjWJ46qYaf2LJ4ZCDUQYngFZXF1/LCAYhpIFkbL81yM+Be9MSA8Kf5
-         4qTDc1qqdRl0/tTq8SB1cFoQSB+OgwvezXW/jeqv/pUJWdepPczz8F/7RA6ylzJs0n0Q
-         /y6L3y9m4j3Az5QuI1owgQ8iLouxgQkwR/3HXRk/PLdq5StKR0bfDx5KhxyLNhlEFPZy
-         pMgA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794117619; x=1794722419;
-        h=content-type:cc:to:from:subject:message-id:mime-version:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+        d=google.com; s=20260707; t=1794117621; x=1794722421; darn=lists.linux.dev;
+        h=content-type:cc:to:from:subject:message-id:references:mime-version
+         :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=v2y1yaggoH6p1mGRTKD+i49Hl5+O8T2kFeVCtW/lYKQ=;
-        b=xGaqHMKbvDzT2Z6jaXNmIZmV+Pctf8HKFLmVpuKemWToGlU7LTu8xvlDLjaJAhhxTv
-         V056wvgV4pBV0a7I8KdISXYvbee80vY1N5ttZPq386Rn7/msVV2YO2k3JrrjY3jx5eCF
-         ZVFqrvL8XCRszZCZHC74kYgF8G4RP5KzAO11hMXIWOYvtjavgzAqADSLLFOeiL0mMJqe
-         Wuuxpa9IYutfirICbO9Wg+5xX4PM9MIV84lC7GKjj/8hSYTZLEdLHFb7rueuptwvVhqb
-         D9NfSSlM1KPcOO1jcjZW2e4WCDEQwJ23dB1udWZFxi+aIEcqFcZS9Urylkvb4zgjhXBo
-         3jpQ==
-X-Forwarded-Encrypted: i=1; AKwUvBxzlbllQQIgRU/TG669rGCF/5h0qt+lvPqwsyScjnD697BGXzhs+oJwMjDOCDab6NXm5EgtRHpKH2QYkCsnow==@lists.linux.dev
-X-Gm-Message-State: APuU4Z8eQph4npMfdBEoLvXx5Yhk5tvtusr++or1e8UsL2j2zYPDHpYr
-	PdBZ6Bqq6BPvCgM1pjRSEvRKqoKYUXYVn6qOTy3QWiNiv/GOAgyuMRoJ/7hO+enIdQQGVaroMKl
-	LwhXX2EXMIVQDE7n3bK8mBlft4g==
-X-Received: from dycoy13.prod.google.com ([2002:a05:7301:fc0d:b0:35c:eb2a:8c31])
+        bh=zMjClMAhSRqoCMrDS5bvxCNb79WE0UiAP81MU3z8MjY=;
+        b=hf+n7k+h83VSmBancFF7fceELbkbZc0jVcAPODW0PMlwYlzwik0/oIZpPi0bJvG3iE
+         X7WMxqX+xu5P4E21OeK+bqErNDMhV8YsajLwd4o5sCFlhjVVlE1MDr6foOypEShSK8et
+         Oa5QwdcvM7tL81DnsUPm+CuUuE72iyDIdcsLYJ471HVWpsBnvoMDKW86agi6Sj54q1pE
+         KeICsQ/egu+LEP+YM9VuoOsJcf8tJXt7HZRlX3ycRl/xXdUYn8jRvda0FJrK1nXA2o+f
+         R+wRqZ0XeYKysIOVQ8XprsS54QRxci1lPHNtSMhLWqBdk8DkqvE0OMq+8q9aehheQIew
+         SYlg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794117621; x=1794722421;
+        h=content-type:cc:to:from:subject:message-id:references:mime-version
+         :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=zMjClMAhSRqoCMrDS5bvxCNb79WE0UiAP81MU3z8MjY=;
+        b=bxBARy0/erXSbSu55IYr7y4n5ZGjtQtk+SR6PKhAc6DKHwXxvTzHQ9V10EaO1Y/tqo
+         jKqQcw83wftAKlQRrNswBaf6p0tB8yvYbNR5ISdFoZBrvl0+o/4zfajqpOBKcJLlN2yO
+         LqRZgt10x4y3lmIFZMGXEa5A7VMRPMvYhVFMnGQmWbBGdXleOuLhAlGD4YXzkDkS+YnG
+         6G4yZo7r9HhWDOni2le9ArNFmA5Ph+R5GoSpe9T30OI0mJp0Pw32rSwnizkJBm1cCWaF
+         UoMepwkdkRr1Rk18zUqywIIzMQwaTXHYuctmKmutQqWFeIHuiaEoPhqy0UPItvJi/D4T
+         6Dsw==
+X-Forwarded-Encrypted: i=1; AL+hErEE5nVO7QRnTOvVVOjJ/t4lWCngmVW9HzzVMW7LqFtHes8u0tiW3YxpFxxP8JD4T/QsptOnh0GHYDJPuTgMsg==@lists.linux.dev
+X-Gm-Message-State: APuU4Z+PBhSMMAchg6k95qaf2YVWC36mRtuZBscE8omLqNhqilAtaEjI
+	xuNIUuVFHJX4h3TpYDLNY8PPtw7M5UY3xB0qS0cUyQEiAHyth4uC39csKJmR6e96jpf5hkbH6EQ
+	+rlgrcyF9XpRXHCUDctRZJOnwYQ==
+X-Received: from dycc22.prod.google.com ([2002:a05:693c:60d6:b0:36c:9a9b:3677])
  (user=almasrymina job=prod-delivery.src-stubby-dispatcher) by
- 2002:a05:7022:264b:b0:13c:f65c:d5b5 with SMTP id a92af1059eb24-1b269a6631dmr4891275c88.3.1794117617306;
- Sat, 07 Nov 2026 22:00:17 -0800 (PST)
-Date: Sun,  8 Nov 2026 06:00:11 +0000
+ 2002:a05:693c:20c8:10b0:36a:2473:9b2f with SMTP id 5a478bee46e88-370f7f80e04mr5298946eec.23.1794117619069;
+ Sat, 07 Nov 2026 22:00:19 -0800 (PST)
+Date: Sun,  8 Nov 2026 06:00:12 +0000
+In-Reply-To: <20261108060016.2131509-1-almasrymina@google.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -76,9 +79,10 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 Mime-Version: 1.0
+References: <20261108060016.2131509-1-almasrymina@google.com>
 X-Mailer: git-send-email 2.56.0.455.g6c5a503b38-goog
-Message-ID: <20261108060016.2131509-1-almasrymina@google.com>
-Subject: [PATCH net-next v2 0/5] net: deprecate skb->pp_recycle and skb_mark_for_recycle()
+Message-ID: <20261108060016.2131509-2-almasrymina@google.com>
+Subject: [PATCH net-next v2 1/5] net: skbuff: skip managed zerocopy frags in skb_frag_ref()
 From: Mina Almasry <almasrymina@google.com>
 To: netdev@vger.kernel.org
 Cc: Mina Almasry <almasrymina@google.com>, Jesper Dangaard Brouer <hawk@kernel.org>, 
@@ -147,161 +151,84 @@ Cc: Mina Almasry <almasrymina@google.com>, Jesper Dangaard Brouer <hawk@kernel.o
 	linux-omap@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 
-Remove the per-SKB skb->pp_recycle bitfield and skb_mark_for_recycle()
-helper, and reference-count netmems directly by their underlying type
-via netmem_is_pp() inside netmem_inc_ref() and netmem_dec_ref().
+skb_frag_unref() and skb_release_data() skip releasing references on
+managed zerocopy fragments (SKBFL_MANAGED_FRAG_REFS), whereas
+skb_frag_ref() acquires a reference unconditionally. If skb_frag_ref()
+is called on a managed zerocopy SKB, the acquired reference is never
+released by skb_frag_unref() or skb_release_data().
 
-Establish the invariant that pp_ref_count is only incremented by callers
-that already hold an active pp_ref_count (>= 1) on that netmem, and a
-raw page_ref_count is never converted into a pp_ref_count:
-- Detach page_pool pages in tcp_zerocopy_receive() before mapping them
-  into userspace via vm_insert_pages(), so userspace VMAs and subsequent
-  GUP callers (such as MSG_ZEROCOPY or vmsplice()) never observe an
-  active page_pool page.
-- Fall back to copying in tls_push_data() when MSG_SPLICE_PAGES
-  encounters a page_pool page, since kTLS device offload record->frags[]
-  tracks pages via raw struct page references.
-- Keep page_pool_unref_netmem(), napi_pp_get_page(), napi_pp_put_page(),
-  and __page_pool_put_page() free of 0 -> 1 pp_ref_count conversion
-  workarounds or extra barriers, preserving the non-atomic
-  page_pool_unref_netmem() fast path unchanged.
+Skip acquiring a reference in skb_frag_ref() when skb_zcopy_managed(skb)
+is true so skb_frag_ref() matches skb_frag_unref() and
+skb_release_data(), and disable share_ok in iptfs_output_queued() when
+skb_zcopy_managed(skb) is true so iptfs_consume_frags() does not append
+unreferenced fragments into a managed zerocopy outer SKB.
 
-bench_page_pool_simple results (5-iteration interleaved UML runs):
-- no-softirq-page_pool01 (fast-path cache recycle): 40 cycles (20.3 ns)
-  baseline vs 30-31 cycles (15.3 ns) patched (~9-10 cycles / -24.7%
-  improvement over baseline: using __netmem_to_page() in
-  page_pool_netmem_is_exclusively_owned() and
-  __page_pool_page_can_be_recycled() after checking netmem_is_net_iov()
-  eliminates two redundant WARN_ON_ONCE() expansions and out-of-line
-  netmem_to_page() calls per recycle).
-- no-softirq-page_pool02 (ptr_ring recycle): 81 cycles (40.7 ns)
-  baseline vs 74 cycles (37.2 ns) patched (~7 cycles / -8.6%
-  improvement over baseline).
-- no-softirq-page_pool03 (slow page-allocator path with elevated
-  page_ref_count): 458-461 cycles (230.0 ns) baseline vs 454-455 cycles
-  (227.6 ns) patched (~5 cycles / -1.0% improvement over baseline).
+Signed-off-by: Mina Almasry <almasrymina@google.com>
+---
+ include/linux/skbuff_ref.h | 10 +++++++---
+ net/core/net_test.c        | 10 ++++++++++
+ net/xfrm/xfrm_iptfs.c      |  3 ++-
+ 3 files changed, 19 insertions(+), 4 deletions(-)
 
-This series simplifies SKB and netmem reference counting:
-- Reclaims 1 bit from struct sk_buff (skb->pp_recycle).
-- Unifies reference counting of SKB fragment netmems and regular netmems
-  under netmem_inc_ref() and netmem_dec_ref(), eliminating the separate
-  skb_netmem_ref(), skb_netmem_unref(), and skb_mark_for_recycle() APIs.
-- Removes 95 net lines across 65 files (339 insertions, 434 deletions).
-
-1/5: net: skbuff: skip managed zerocopy frags in skb_frag_ref()
-2/5: net: skbuff: refcount spliced page_pool frags via skb_pipe_buf_ops
-3/5: tcp: detach page_pool pages before mapping in tcp_zerocopy_receive()
-4/5: net: remove skb->pp_recycle and consolidate netmem refcounting
-5/5: net: remove skb_mark_for_recycle()
-
-v1 -> v2:
-- Patch 2/5: Check page_ref_count(compound_head(buf->page)) <= 0 with
-  WARN_ON_ONCE() in skb_pipe_buf_get() to guard against refcount
-  overflow, and fall back to copying in tls_push_data() when
-  MSG_SPLICE_PAGES encounters a page_pool page so kTLS device offload
-  never converts a raw page_ref_count into a pp_ref_count.
-- Patch 3/5: Replace zerocopy_fill_skb_from_iter() refcount conversion
-  with detaching page_pool pages up front in tcp_zerocopy_receive()
-  before vm_insert_pages().
-- Patch 4/5: Keep net/tls/ record->frags[] and fallback scatterlists on
-  get_page()/put_page() to match mlx5 tx_sync_info_get(), and restore
-  page_pool_unref_netmem(), napi_pp_get_page(), napi_pp_put_page(), and
-  __page_pool_put_page() to their clean baseline non-RMW fast paths.
-- v1:
-  https://lore.kernel.org/netdev/20261103211424.127627-1-almasrymina@google.com/
-
-Notes on Medium/Low Sashiko findings intentionally skipped:
-- Patch 1/5 (Low): iptfs_output_queued() skb_zcopy_managed() check does
-  not carry a separate Fixes: tag as it is part of this net-next
-  refactoring series.
-- Patch 3/5 (Medium): can_map_frag() requires page_pool_ref_count == 1,
-  so drivers holding an undrained fragment bias (e.g. mlx5 mpwqe, fbnic)
-  fall back to copying in tcp_zerocopy_receive() (documented in commit
-  message; detaching requires holding the sole pp_ref_count).
-- Patch 3/5 (Low): page_pool_ref_count() naming kept to mirror
-  page_ref_count().
-- Patch 4/5 (Medium): skb_irq_freeable() in netpoll_zap_completion_queue()
-  does not check netmem_is_pp() (pre-existing for forwarded pp_recycle=1
-  RX SKBs; documented in commit message Caveats).
-- Patch 4/5 (Low): napi_pp_get_page() and napi_pp_put_page() remain
-  out-of-line exported functions in net/core/skbuff.c.
-
-Mina Almasry (5):
-  net: skbuff: skip managed zerocopy frags in skb_frag_ref()
-  net: skbuff: refcount spliced page_pool frags via skb_pipe_buf_ops
-  tcp: detach page_pool pages before mapping in tcp_zerocopy_receive()
-  net: remove skb->pp_recycle and consolidate netmem refcounting
-  net: remove skb_mark_for_recycle()
-
- Documentation/networking/page_pool.rst        |   1 -
- drivers/net/ethernet/airoha/airoha_eth.c      |   1 -
- drivers/net/ethernet/alibaba/eea/eea_rx.c     |   3 -
- .../net/ethernet/broadcom/asp2/bcmasp_intf.c  |   1 -
- .../net/ethernet/broadcom/bnge/bnge_txrx.c    |   5 -
- drivers/net/ethernet/broadcom/bnxt/bnxt.c     |   8 -
- .../net/ethernet/broadcom/genet/bcmgenet.c    |   2 -
- drivers/net/ethernet/cisco/enic/enic_rq.c     |   1 -
- drivers/net/ethernet/engleder/tsnep_main.c    |   2 -
- drivers/net/ethernet/freescale/fec_main.c     |   1 -
- drivers/net/ethernet/google/gve/gve_rx_dqo.c  |   9 -
- .../net/ethernet/hisilicon/hibmcge/hbg_txrx.c |   1 -
- .../net/ethernet/hisilicon/hns3/hns3_enet.c   |   6 -
- .../net/ethernet/huawei/hinic3/hinic3_rx.c    |   1 -
- drivers/net/ethernet/intel/iavf/iavf_txrx.c   |   2 -
- drivers/net/ethernet/marvell/mvneta.c         |   2 -
- .../net/ethernet/marvell/mvpp2/mvpp2_main.c   |   2 -
- .../marvell/octeontx2/nic/otx2_txrx.c         |   1 -
- drivers/net/ethernet/mediatek/mtk_eth_soc.c   |   1 -
- drivers/net/ethernet/mellanox/mlx4/en_rx.c    |   1 -
- .../net/ethernet/mellanox/mlx5/core/en_rx.c   |   8 -
- drivers/net/ethernet/mellanox/mlxsw/pci.c     |   2 -
- .../ethernet/microchip/lan966x/lan966x_fdma.c |   2 -
- .../microchip/sparx5/lan969x/lan969x_fdma.c   |   1 -
- drivers/net/ethernet/microsoft/mana/mana_en.c |   3 -
- .../net/ethernet/mucse/rnpgbe/rnpgbe_lib.c    |   1 -
- .../net/ethernet/pensando/ionic/ionic_txrx.c  |   2 -
- .../net/ethernet/realtek/rtase/rtase_main.c   |   1 -
- drivers/net/ethernet/renesas/ravb_main.c      |   2 -
- drivers/net/ethernet/socionext/netsec.c       |   1 -
- .../net/ethernet/stmicro/stmmac/stmmac_main.c |   1 -
- drivers/net/ethernet/tehuti/tn40.c            |   1 -
- drivers/net/ethernet/ti/am65-cpsw-nuss.c      |   1 -
- drivers/net/ethernet/ti/cpsw.c                |   2 -
- drivers/net/ethernet/ti/cpsw_new.c            |   2 -
- drivers/net/ethernet/ti/icssg/icssg_common.c  |   1 -
- drivers/net/ethernet/wangxun/libwx/wx_lib.c   |   2 -
- drivers/net/veth.c                            |   3 +-
- drivers/net/virtio_net.c                      |  16 +-
- drivers/net/vmxnet3/vmxnet3_xdp.c             |   1 -
- drivers/net/wireless/mediatek/mt76/dma.c      |   1 -
- .../net/wireless/mediatek/mt76/mt7996/mac.c   |   1 -
- drivers/net/wireless/mediatek/mt76/npu.c      |   1 -
- drivers/net/wireless/mediatek/mt76/usb.c      |   1 -
- drivers/net/xen-netfront.c                    |   1 -
- include/linux/mm.h                            |   2 +-
- include/linux/skbuff.h                        |  12 +-
- include/linux/skbuff_ref.h                    |  60 +---
- include/net/netmem.h                          |  37 ++-
- include/net/page_pool/helpers.h               |  25 +-
- net/core/datagram.c                           |   2 +
- net/core/gro.c                                |   9 -
- net/core/net_test.c                           | 274 ++++++++----------
- net/core/netmem_priv.h                        |  21 +-
- net/core/page_pool.c                          |   6 +-
- net/core/skbuff.c                             |  74 ++---
- net/core/xdp.c                                |  13 +-
- net/ipv4/esp4.c                               |  11 +-
- net/ipv4/tcp.c                                |  44 ++-
- net/ipv6/esp6.c                               |  11 +-
- net/tls/tls_device.c                          |   8 +-
- net/tls/tls_device_fallback.c                 |   2 +-
- net/wireless/util.c                           |  31 +-
- net/xfrm/trace_iptfs.h                        |   6 +-
- net/xfrm/xfrm_iptfs.c                         |  16 +-
- 65 files changed, 339 insertions(+), 434 deletions(-)
-
-
-base-commit: 7b6ab4dbc156e2f96419715130b3d5738a306c93
+diff --git a/include/linux/skbuff_ref.h b/include/linux/skbuff_ref.h
+index b6f6da556ee90..e94c599ce83d2 100644
+--- a/include/linux/skbuff_ref.h
++++ b/include/linux/skbuff_ref.h
+@@ -36,12 +36,16 @@ static __always_inline void skb_netmem_ref(netmem_ref netmem, bool recycle)
+  *
+  * Acquires a reference on the @f'th fragment of @skb via skb_netmem_ref()
+  * (pp_ref_count if skb->pp_recycle and page_pool-backed, else non-pp
+- * backing refcount). Counterpart to skb_frag_unref().
++ * backing refcount), skipping managed zerocopy fragments. Counterpart to
++ * skb_frag_unref().
+  */
+ static __always_inline void skb_frag_ref(struct sk_buff *skb, int f)
+ {
+-	skb_netmem_ref(skb_frag_netmem(&skb_shinfo(skb)->frags[f]),
+-		       skb->pp_recycle);
++	struct skb_shared_info *shinfo = skb_shinfo(skb);
++
++	if (!skb_zcopy_managed(skb))
++		skb_netmem_ref(skb_frag_netmem(&shinfo->frags[f]),
++			       skb->pp_recycle);
+ }
+ 
+ bool napi_pp_put_page(netmem_ref netmem);
+diff --git a/net/core/net_test.c b/net/core/net_test.c
+index 2b5080c226636..e20059a00003c 100644
+--- a/net/core/net_test.c
++++ b/net/core/net_test.c
+@@ -571,6 +571,16 @@ static void netmem_ref_test_page(struct kunit *test)
+ 	skb_frag_unref(skb, 0);
+ 	KUNIT_EXPECT_EQ(test, page_ref_count(page), base_ref);
+ 
++	/* SKBFL_MANAGED_FRAG_REFS skips both skb_frag_ref and skb_frag_unref */
++	skb_shinfo(skb)->flags |= SKBFL_ZEROCOPY_ENABLE |
++				  SKBFL_MANAGED_FRAG_REFS;
++	skb_frag_ref(skb, 0);
++	KUNIT_EXPECT_EQ(test, page_ref_count(page), base_ref);
++	skb_frag_unref(skb, 0);
++	KUNIT_EXPECT_EQ(test, page_ref_count(page), base_ref);
++	skb_shinfo(skb)->flags &= ~(SKBFL_ZEROCOPY_ENABLE |
++				    SKBFL_MANAGED_FRAG_REFS);
++
+ 	skb_shinfo(skb)->nr_frags = 0;
+ 	consume_skb(skb);
+ 	__free_page(page);
+diff --git a/net/xfrm/xfrm_iptfs.c b/net/xfrm/xfrm_iptfs.c
+index 103cf7c5dbfb9..04ef833074fc8 100644
+--- a/net/xfrm/xfrm_iptfs.c
++++ b/net/xfrm/xfrm_iptfs.c
+@@ -2258,7 +2258,8 @@ static void iptfs_output_queued(struct xfrm_state *x, struct sk_buff_head *list)
+ 				nextp = &(*nextp)->next;
+ 		}
+ 
+-		if (shi->frag_list || skb_cloned(skb) || skb_shared(skb))
++		if (shi->frag_list || skb_cloned(skb) || skb_shared(skb) ||
++		    skb_zcopy_managed(skb))
+ 			share_ok = false;
+ 
+ 		/* See if we have enough space to simply append.
 -- 
 2.56.0.455.g6c5a503b38-goog
 
