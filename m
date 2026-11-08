@@ -1,80 +1,54 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=111.22.67.137
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.167.199
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794129877;
-	b=TpJ9vWy2Novub+2DDsVucpXoBJzw07lcHuRWeUjpSrgeN+twTZVYRO97fTdCi0CNY7Ey
-	 D6WntvDA3Rj1aqCoT681/+es6O3EJpL29uSD0Ey8M/9mFMl7EMonAki+/7xGTepizVy/N
-	 jKZcFMrJRc+FKyovq7O2BCOEGqTaKLSSgfQ9OpdWU6W/+yGw0DjveY0LarJbh2J2mZL+o
-	 Whev1rRji8OrO9CIcCYTLdjZd+l1+/NLqb3ljRQKueKRyOaf4wHEn6g2BhsIv9ETKr5dI
-	 XUONNubqfgOXMKOtI/Emt29Zzmz3WV1R8XFDwgCxB5djXrK1P2IDanaYu5DecyTvV9g==
+	t=1794136288;
+	b=R2J4E4IH3tlouYeK/pQHBzl86VbAPnEE7TBT9+HrGWeteTxdw8xlFLNlBuywOZcORBwD
+	 5Mx8A0N41VYJoGJmUUK5R04yFxtJ5HLKMHhmoSCvhPGi/vSkNBJKymHQupoUOtw8D3sVc
+	 iPSBGQmVnHgo+NEK6G5Jp30VUSFHLMg/76DN/ReU2Mys2mKaJSYSoXtQFOZp9U7yhUvDI
+	 MbNjs0lPLoB7DTZ/R1ZLHATDhdT0n9JcmMSHhLEoSugaAsxd1qN3JE5tK7l33wIT/tfUp
+	 YVC5SZmBB7VdOUIf1ak10wRiDsUZHdziNbF63lJc1+6Kr9MCG8FQtjh8AS2M3P7nYCw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794129877;
-	h=DMARC-Filter:DKIM-Signature:X-RM-TagInfo:X-RM-SPAM-FLAG:Received:
-	 X-RM-TRANSID:X-RM-TagInfo:X-RM-SPAM-FLAG:Received:X-RM-TRANSID:From:
-	 To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=PnzH+B+BQHmWRcHqdfcGVVstdJf8NJtY2FdKLBnT8BA=;
-	b=moFluC48b/pxWvLJ0oPoBfFailUVbJbddVmNIcBnPsGYiji14fspV9VzDU6Dnek8ZTLJ
-	 muFutSUSXLnQnwU4ajPC+Nl+XhPNgZCpbQjCVXuzlY2Jq78FilOQ72hnDoTADNaPm3bZI
-	 qbvbl2+zQWoUOf8Wtq+OalpDWNwb074sY09MRAW1afDqB06ByznTYlkoLRuVwSmChEER8
-	 7aBtwvHfUg2ce1OipdCkg9HkEPeA2QoUND2hnadMvaR4qSCuvk96P0W5cOsrtCYY03wOI
-	 UI6MMRyxCE+kk6DOM6RA7fn8BcxW6BXj+8VKZm4IS/B03tmJxKZJxiogffixRd2VL1A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794136288;
+	h=DMARC-Filter:Received:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
+	 X-Gm-Message-State:MIME-Version:X-Received:Date:In-Reply-To:
+	 X-Google-Appengine-App-Id:X-Google-Appengine-App-Id-Alias:Message-ID:
+	 Subject:From:To:Content-Type;
+	bh=fHKEKHdPjoZhYVJRZoCAKKckDq3mCm+7VXF61UEPMbE=;
+	b=00T6kOtEbmT1U1P0mBoWyTFBz2noWJsnVDtPpA+pnUJGUjW2ISOppcdJdSQxrSkbfcsa
+	 qY/D4Brr3zDEAKHz54/LDswgB2AAkDI5XoaNjlsfKpQ1MxjCIpSa8WHS+BJgXBpHRlGSm
+	 zZnILY4JMGiAtWq2+6w6ECkrUi4SuJ6lfrIfWrPXkJkr7jl9KxdlB6RIydLaRKMnUZyb9
+	 RH6pwLLb2WvsOHeu21GBpIzZ06ayu2t/gVzGO2HiRFN4R67kpOTqIahNzL9zUN/CEF0WX
+	 9Z97z2zDV8Pw41FMrvKsnOnGM5qN+69jaq3vQ9eb3bKJvHVaUrxbLGoia79mfdZA68w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=cmss.chinamobile.com;
-	spf=pass smtp.mailfrom=cmss.chinamobile.com;
-	dkim=pass header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.a=rsa-sha256 header.s=default header.b=P6HdDUCZ;
-	arc=none smtp.remote-ip=111.22.67.137
-Received: from cmccmta4.chinamobile.com (cmccmta4.chinamobile.com [111.22.67.137])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id B8C27606A332
-	for <virtualization@lists.linux.dev>; Sun,  8 Nov 2026 09:24:35 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B8C27606A332
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cmss.chinamobile.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cmss.chinamobile.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.a=rsa-sha256 header.s=default header.b=P6HdDUCZ
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cmss.chinamobile.com; s=default; l=0;
-	h=from:subject:message-id:to:cc:mime-version;
-	bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
-	b=P6HdDUCZ2dodrGT4fxgKTi+gcM2AkdrIy1MRstIFj6tiyIi5AAWFz+a1KqJgaNoDq3kdT/LXsx/Ol
-	 8lpjzTROB9Pi98FQQudt3FpG6rLUHyHcUubKzESAblFP6B7rF2p4zESaYABsJ7axqy7o0Q+xxQxy2i
-	 OhHS1Qcf+NsKrn+M=
-X-RM-TagInfo: emlType=0                                       
-X-RM-SPAM-FLAG:00000000
-Received:from spf.mail.chinamobile.com (unknown[10.188.0.87])
-	by rmmx-syy-dmz-app04-12004 (RichMail) with SMTP id 2ee46af03fc5e3c-5aacd;
-	Sun, 08 Nov 2026 17:24:27 +0800 (CST)
-X-RM-TRANSID:2ee46af03fc5e3c-5aacd
-X-RM-TagInfo: emlType=0                                       
-X-RM-SPAM-FLAG:00000000
-Received:from openEuler-24.03.03 (unknown[74.82.203.40])
-	by rmsmtp-syy-appsvr07-12007 (RichMail) with SMTP id 2ee76af03fc1270-639dd;
-	Sun, 08 Nov 2026 17:24:26 +0800 (CST)
-X-RM-TRANSID:2ee76af03fc1270-639dd
-From: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowangio@gmail.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@kernel.org>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Jesper Dangaard Brouer <hawk@kernel.org>,
-	John Fastabend <john.fastabend@gmail.com>,
-	Stanislav Fomichev <sdf@fomichev.me>,
-	netdev@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	bpf@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net 1/2] virtio_net: Don't DMA map the kernel image for the AF_XDP TX header
-Date: Mon,  9 Nov 2026 02:23:54 +0900
-Message-ID: <20261108172417.56607-1-yanhaishuang@cmss.chinamobile.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <179411647562.994134.8636776015987575971@kernel.org>
-References: <20261107125723.33547-1-yanhaishuang@cmss.chinamobile.com> <20261107125723.33547-2-yanhaishuang@cmss.chinamobile.com> <179411647562.994134.8636776015987575971@kernel.org>
+	dmarc=fail header.from=syzkaller.appspotmail.com;
+	spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com;
+	arc=none smtp.remote-ip=209.85.167.199
+Received: from mail-oi1-f199.google.com (mail-oi1-f199.google.com [209.85.167.199])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 900DE606A321
+	for <virtualization@lists.linux.dev>; Sun,  8 Nov 2026 11:11:28 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 900DE606A321
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-oi1-f199.google.com with SMTP id 5614622812f47-5641cd2cc13so20490b6e.0
+        for <virtualization@lists.linux.dev>; Sun, 08 Nov 2026 03:11:28 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794136287; x=1794741087;
+        h=content-type:to:from:subject:message-id:in-reply-to:date
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=fHKEKHdPjoZhYVJRZoCAKKckDq3mCm+7VXF61UEPMbE=;
+        b=ZWmBka/Ps01ggEeEh4yfk99ZBqw8fAYW8ElAy0kMx5MbyNbPXpuoMlh9etLUUoFwm+
+         ResrLvANRIN1O387QgEd+gqbQYjFRleyFtDb4Gxa0f8kdTF3r9iHDDOJW6KxvB1U53XJ
+         47kiZEUg4081YEMr3PGLhfFPBcCFJuzjafAwJelZFF4DvluMOmvQ+OToEwAZ1PdtzKhH
+         VAPKYUmx0VjfHhzgCaY8x6jsnMuqx/QVJA+4K40e6rxxnuWEMySKPlOXM3rDg98S+7gy
+         D1ywrJO2UhhnSlSNjYDoJqMBsb9sCBgnf0rFERwTSYr4S7hHThqkT1jtDzkEsffs9wMh
+         nNdg==
+X-Forwarded-Encrypted: i=1; AL+hErGUk3Wg3DjuuvbRAAB39cCr8pZZQ5t71k5cukqzskhlWnmXw8IcnN3Z21uuFw5yj2t1MRoLexBRxPM1cP5/Rg==@lists.linux.dev
+X-Gm-Message-State: APuU4Z8wos45SC4DCcXrOscGVaHeHGZPnS/nOFsDzYTwoxa2B4LeZ8xp
+	/ojII3iaeIEJemtXIQJRyx8FDVIQOCDwKs0RWkolYWij4vpTdNB3R28H91AGyTPPqWyedh9Eh/5
+	tyVdJ3TSM/+64Rl/BKGmlDZCqRWDVBR028WQkBhGlaIV/P/3lxOChhGf8bPg=
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -84,23 +58,23 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Received: by 2002:a05:6808:1a0b:b0:567:f6db:8b46 with SMTP id
+ 5614622812f47-568143a1689mr647675b6e.34.1794136287572; Sun, 08 Nov 2026
+ 03:11:27 -0800 (PST)
+Date: Sun, 08 Nov 2026 03:11:27 -0800
+In-Reply-To: <6a6a98ca.86abc875.e5c3d.0057.GAE@google.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <6af058df.f50b2b3a.2c0de7.0007.GAE@google.com>
+Subject: Re: [moderation] KFENCE: use-after-free read in virtqueue_get_buf_ctx
+From: syzbot <syzbot+0f659760bac1ecb01812@syzkaller.appspotmail.com>
+To: david@kernel.org, eperezma@redhat.com, jasowangio@gmail.com, 
+	linux-kernel@vger.kernel.org, mst@redhat.com, stable@vger.kernel.org, 
+	syzkaller-bugs@googlegroups.com, 
+	syzkaller-upstream-moderation@googlegroups.com, 
+	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com, 
+	zhaimingbing@cmss.chinamobile.com
+Content-Type: text/plain; charset="UTF-8"
 
-On Sun, Nov 08, 2026 at 05:41:15AM +0000, netdev-bot+sashiko@kernel.org wrote:
-> > and binding an AF_XDP zero-copy socket fails with -ENOMEM. Even where
-> > the mapping succeeds, the header shares cache lines with unrelated data.
->
-> [Severity: Low]
-> Does the second sentence here match what the patch does? It reads as
-> though the patch also gives the header its own cache line.
-
-[ ... ]
-
-> Could this sentence be dropped, or reworded so it doesn't suggest the
-> patch provides cache-line isolation?
-
-Agreed. The header is only mapped DMA_TO_DEVICE, so the sentence
-doesn't describe a real problem, and the patch doesn't change it
-anyway. I'll drop it in v2.
-
-
+Auto-closing this bug as obsolete.
+Crashes did not happen for a while, no reproducer and no activity.
