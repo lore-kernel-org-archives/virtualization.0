@@ -1,80 +1,97 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=111.22.67.151
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.215.176
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794137977;
-	b=SCfgkBc/VFG2OtXYlhFkE9NQrficcBRr28Av09+klhGgO9Gzz9hsO9Ea9ifk10asfSYe
-	 HfzSGZTEd4SjVyPIHA+frb9FBaJUHc1FgZyJCjfdEUvv82rcQ9UOurr3YDGWIeggdqWPk
-	 HOvZrOS5QJuThhaAJGJTbjf6OctJ/DeKz/x6kfKs7zWk0/zHGy7jjNW14jU6jUdD0HjRr
-	 V6Zsq6SjsiAURQWYjCsTcNTO7/tqRWW1gBBYgsFhBLFnvFvSFozRBADkazMmSX6WT4k2F
-	 lRrlaom4kquH/o8GtNirXeouPuTqClqy5Eu0myGxChEySV85c7oYZTf8jtoz15aeQNg==
+	t=1794146320;
+	b=SH6HF2nOdJAfmt0ws+oB2YzSW5hBet/a+GcvyNk/n3v0H7nrENh777h/OP6U3XJ/pnlR
+	 yacpDwnE7ZqD/gcVhJpFDioMZpWvikLvFUOCB7zUTlBdRsqcAQAH9wi1cu3PU96H33BO+
+	 qk+xTMB77TCwaIUVEVRWglJNsnFhR0lMfdgJ7U/OmEqXPaQMeY3nZGrsPq0jJNT2cYJWN
+	 /NQ3F9QpXL67YYdvOtSjXDTaiQJewmoXlJK7sa5leWPkID1+nyD4cXPUyGYaoCSmAZctJ
+	 w8X123xrEprKPaLa83E5pwZ4SnIRRii2OAJHkuITAVi8CvmA+J1vD04wL/dWuTuE71Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794137977;
-	h=DMARC-Filter:DKIM-Signature:X-RM-TagInfo:X-RM-SPAM-FLAG:Received:
-	 X-RM-TRANSID:X-RM-TagInfo:X-RM-SPAM-FLAG:Received:X-RM-TRANSID:From:
-	 To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=YI+QK96xKMFwFE4sByJjvSpEiF0SUOoelmRtxJdJZqo=;
-	b=OZ3vlg3ScOrHhcrnK+t0dcz0sw9KhmrngaCY625PXk/+0234SZ1CVfXbwIPihioTFoIT
-	 zvK5ZVzc1cXVTo3/ruKYavJpr5rGZu5FtAV73ogL8VArwPwqPgTvF9T0orMQdxfjx8BHq
-	 C5IofIx0Q8AVQehLCSrpIkKb3yVMFhT5BfSM6E9XxAgCW6P6ypGvNFx1w8yvWNXi57thi
-	 fZxzqqo+D2QorcFUdHvzTgtC3ZsrYDaBMiGtHp6F3LgPIP4sXbputIUEeix3fhpzmfnpt
-	 S2dlCSsIRuKLtskH0ae2j7FpX4Cj82xEdwc9pXlykt1lKE7WTGCtqLY1bygyKfeGzYQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794146320;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=nIt2c7TgqELjjufCcZKCuw1pwzNN3kz5J9LhJ3UcC28=;
+	b=LJNItqGkG8d/ZY65VUBT0LJ/NdYOJvJdoFrbIo/ksuvIJ4tNKUE5Qtg0YDLlCAtnPFEY
+	 GCoXFOqG/8SJGyMjUWmoyTDKQvhQrNDa1Oo77GECFWPrQ0/8k0EEvUvc9pGTfBJL/Pg0X
+	 /+nA5x/HnFYgurJMVLeQrM2VjXUl98NCTLsQJoKm5uyLCKThN9O13tsIQRh7hO0PZsNH4
+	 Kp7oTXQ1jTf06dkwWOlOf8VaoEp+nJccsse7kgnHUVATE555ddmyH++AzbdkN1LoTQYCr
+	 G7Va85GOxHvtVhkTrfjuuzJJpUfhAguPjNQd74gSaWwEqdh4wWfIj/4qEqmr/afzKXA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=cmss.chinamobile.com;
-	spf=pass smtp.mailfrom=cmss.chinamobile.com;
-	dkim=pass header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.a=rsa-sha256 header.s=default header.b=WHFiWLPc;
-	arc=none smtp.remote-ip=111.22.67.151
-Received: from cmccmta8.chinamobile.com (cmccmta8.chinamobile.com [111.22.67.151])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 5B712606A330
-	for <virtualization@lists.linux.dev>; Sun,  8 Nov 2026 11:39:35 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5B712606A330
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cmss.chinamobile.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cmss.chinamobile.com
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=EQkYe8Zd;
+	arc=none smtp.remote-ip=209.85.215.176
+Received: from mail-pg1-f176.google.com (mail-pg1-f176.google.com [209.85.215.176])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A544A606A31C
+	for <virtualization@lists.linux.dev>; Sun,  8 Nov 2026 13:58:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A544A606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.a=rsa-sha256 header.s=default header.b=WHFiWLPc
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=EQkYe8Zd
+Received: by mail-pg1-f176.google.com with SMTP id 41be03b00d2f7-cdb2fcaafb7so6228a12.0
+        for <virtualization@lists.linux.dev>; Sun, 08 Nov 2026 05:58:39 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cmss.chinamobile.com; s=default; l=0;
-	h=from:subject:message-id:to:cc:mime-version;
-	bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
-	b=WHFiWLPcp/qEP9VqwRM22BotBJx+p+jvBvs2luGpaDiHO+IJzqfTqp/v8Ijkm7gvf9zjnlnHGi68X
-	 yKVDcRmEFqblpH6C3LZzwJhvgcuE2EiUo7TAvdNCxhT0d/SeBeeDBOwUi99xdaw2G0bL2pHsiE4jy7
-	 GnRUhOakAvV8PzDY=
-X-RM-TagInfo: emlType=0                                       
-X-RM-SPAM-FLAG:00000000
-Received:from spf.mail.chinamobile.com (unknown[10.188.0.87])
-	by rmmx-syy-dmz-app02-12002 (RichMail) with SMTP id 2ee26af05f6e7d3-f7409;
-	Sun, 08 Nov 2026 19:39:29 +0800 (CST)
-X-RM-TRANSID:2ee26af05f6e7d3-f7409
-X-RM-TagInfo: emlType=0                                       
-X-RM-SPAM-FLAG:00000000
-Received:from  (unknown[74.82.203.40])
-	by rmsmtp-syy-appsvr10-12010 (RichMail) with SMTP id 2eea6af05f47e53-666cf;
-	Sun, 08 Nov 2026 19:39:29 +0800 (CST)
-X-RM-TRANSID:2eea6af05f47e53-666cf
-From: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowangio@gmail.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@kernel.org>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Jesper Dangaard Brouer <hawk@kernel.org>,
-	John Fastabend <john.fastabend@gmail.com>,
-	Stanislav Fomichev <sdf@fomichev.me>,
-	netdev@vger.kernel.org,
+        d=gmail.com; s=20260707; t=1794146319; x=1794751119; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=nIt2c7TgqELjjufCcZKCuw1pwzNN3kz5J9LhJ3UcC28=;
+        b=EQkYe8ZdPkUeGqboo2iK7mGeLqDzWCoAGng3wkiYi877Nf8KuE5auFTRr5RIyDRRUf
+         PPq/NLwrBQiNwh+slCOvOj0N/G2z7ryveVPh1cUQEUdGkYdMleXhTsyO8JO2TtCo46sP
+         mbGe3hFq4RLgiIBFSI5RSRUibbVrSqW8wrvv5a7lg02/gaKUODQNzLk9IHgHSQYwVX8l
+         v6H6fF6VyaivYzjFQSh5Ft//rBeec++HJPWSjtvhFksglGEaQVfjX/jZSKjXlCugwvzh
+         NCJ351LMPAhFjigP6IcuRHfUiZTP9z4HVZ5cTddTb/kmZRso4nV5PTv8TlSdPMBjF5kG
+         nuWA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794146319; x=1794751119;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=nIt2c7TgqELjjufCcZKCuw1pwzNN3kz5J9LhJ3UcC28=;
+        b=kZPmz7riamEXx1TlNSS8w76DiwHCTE0bpybAqi9fci4M7e+rzVusivLMhPKjzb91/j
+         WMbA1PUdpTcNUDxEfSpEsUapeDHyyC8m4W9nPGvrovbgtbWJQmWwpkNlNdULD6+EgF/Q
+         XAm3sdvxi2FkPex+o7wVQ4FDulI8E7VwAc+1M1zgIi9euObCAiZmwaOnJfJ89YReoLEZ
+         Wq+wBgeGY3iPJ3fGpAG5b9FtJdfi8sMNNseofEgYeOqyOM2WFzI31QClwTmt2Vf+oSra
+         UYABzCE3WIGsjv6lADNKUByBGrSPdBSYvMIFioCNEdZ7/XdkgDBwgLe7BtOoGtlrj7cf
+         ePqQ==
+X-Forwarded-Encrypted: i=1; AL+hErHwVxsBL5YncBiSnDNdw/C4A6kRNtoynLIq32OUORIq77gWBPvY3fl1nWkvFbbr1Bq1Jus1tFAMw1tFTkWLFQ==@lists.linux.dev
+X-Gm-Message-State: APuU4Z/3S1uqs+Z8DRaf0QWi1eFbFXeij3sZYBT53tim4KkJZ2X5eVp8
+	lTOGPEIwnJ0uTVnjnsWV4QjcYKXO0uMLvasIac6ADk7A37Gd1GRAIAg6FGhRPHBsFbEUXw==
+X-Gm-Gg: AYBFou2g1OkeBGvZsI45ihTREaKLvQF4ieS7LdUHev5jvIegcqEb1TPDLTQz4BY9Sxc
+	jYaagp5kNdJaNYJb1gMKJulOcQwlDPHGkUarfZx6YfDDuh4crCZPgx42XbMxpT8pIO+ujyjF94i
+	/kQ4SuVDV9lFc4uNdvn38Cjww3da7bJRefvmVlKJgH3fzipUEPKUo64GpYbTJ+X20U5gB53CAnw
+	13ceIfRdHI6XEaDSlSH5KWbnEjup1ElggAEbrMp+vEtG2GDvdJDKHWBR4d2rhN5mcflqvH0+gtm
+	oNf1uqiFQOePwBopreh7KoAn5od51pNnPbWKk+JJFjS+eYKNgK2cM8wwjyIHQZE/ifaO93M+LBh
+	8IJ9r2hS0ylkvl4MCgPPkbFWiYsLykrv9oHrMEZf6MfaEJzhAyq8JLc+PCdSUcfGHoIcJWNzdjc
+	BnFvDSGfh+HSQaJ+7NrV+eKsgF7o6FP4xdsASYviL0Elh4fZmYGZNRUdxX+ejWxzxG6f5FpdKcW
+	Btb2ALiCL5pIe27x7aMyycOODNGh3qt6nyFk23QJZlyLxR+s8OwTyD13CxyHxCoi84H6ptlMIk/
+	ShWTzSuAgnO+OIZBIL4N2eilxy/NlPumXZm9H8ezcrnHC4ZauQEh/ggni27+HDeHJ9ctV+o9WpP
+	OgmAGKYZwRyami6mfOILz7DA=
+X-Received: by 2002:a17:90b:3912:b0:3b0:9a3e:bf8b with SMTP id 98e67ed59e1d1-3b12d4c5f3cmr2106208a91.6.1794146318912;
+        Sun, 08 Nov 2026 05:58:38 -0800 (PST)
+Received: from localhost.localdomain ([14.150.132.131])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cdb96969220sm647168a12.27.2026.11.08.05.58.35
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Sun, 08 Nov 2026 05:58:38 -0800 (PST)
+From: Qihang <q.h.hack.winter@gmail.com>
+To: German Maglione <gmaglione@redhat.com>,
+	Vivek Goyal <vgoyal@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Miklos Szeredi <miklos@szeredi.hu>
+Cc: "Eugenio Perez" <eperezma@redhat.com>,
 	virtualization@lists.linux.dev,
-	bpf@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org,
+	fuse-devel@lists.linux.dev,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH net v2 3/3] virtio_net: Keep AF_XDP zero-copy pools bound across suspend
-Date: Mon,  9 Nov 2026 04:38:39 +0900
-Message-ID: <20261108193845.73621-4-yanhaishuang@cmss.chinamobile.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20261108193845.73621-1-yanhaishuang@cmss.chinamobile.com>
-References: <20261108193845.73621-1-yanhaishuang@cmss.chinamobile.com>
+Subject: [PATCH v2] fuse: virtio-fs: stop new requests before draining queues
+Date: Sun,  8 Nov 2026 21:58:30 +0800
+Message-ID: <20261108135830.29924-1-q.h.hack.winter@gmail.com>
+X-Mailer: git-send-email 2.54.0
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -86,243 +103,145 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-virtnet_freeze() frees the receive and send queues and virtnet_restore()
-allocates new ones, but AF_XDP sockets stay bound to the device in the
-xsk core. Whatever the driver set up for a zero-copy pool is lost on
-freeze: the pool's DMA mapping, the xsk_buffs array, the TX header and
-its mapping are leaked, and the queue comes back with no pool. When the
-socket is closed afterwards, the core asks the driver to disable the
-pool again:
+virtio_fs_conn_destroy() drains the virtqueues and then calls
+fuse_conn_destroy(), which aborts the connection.  The abort ends every
+request the fuse device still owns, and each ended request is freed as
+soon as its waiter wakes up.
 
-  WARNING: net/core/xdp.c:140 ... Missing register, driver bug
-  BUG: KASAN: null-ptr-deref in xp_dma_unmap
-  Read of size 8 at addr 0000000000000090
+The drain only covers the requests that were already counted in
+fsvq->in_flight when it started.  A request submitted after it returns is
+not covered, but is still handed to the device before the abort runs:
 
-as virtnet_xsk_pool_disable() unregisters an xdp_rxq_info that was
-never registered and passes the NULL rq->xsk_pool to
-xsk_pool_dma_unmap().
+  CPU 0 (umount)                     CPU 1
+  ---------------------------------  --------------------------------
+  virtio_fs_drain_all_queues()
+    /* in_flight drops to 0 and
+       the drain returns */
+                                     virtio_fs_enqueue_req()
+                                       virtqueue_add_sgs()
+                                       inc_in_flight_req() -> 1
+  fuse_conn_destroy()
+    fuse_send_destroy()
+    fuse_chan_abort()
+      /* ends and frees the
+         request above */
+    fuse_chan_wait_aborted()
+                                     /* the device still owns the
+                                        virtqueue descriptors and
+                                        DMA-writes into the freed
+                                        request and its argbuf */
 
-Keep the pools DMA mapped across suspend, as the DMA device does not
-change, and only move the driver state of a pool from the old queues to
-the new ones. On freeze, release it in remove_vq_common() once the
-device is reset and the posted buffers are back in the pool. On restore,
-set it up again before virtnet_open() fills the queues and enables NAPI.
+Stop admitting requests on each queue before that queue is drained.
+The flag is set per queue, but that is sufficient: each queue is
+drained after its own flag is set, and request admission,
+virtqueue_add_sgs() and, on the submission path, the in_flight
+increment are serialized by the same fsvq->lock.  A request is
+therefore either rejected before the device can see it, or already
+counted in fsvq->in_flight and covered by the drain.  There is no
+window in between.
 
-If that fails for a queue, the pool is left DMA mapped and
-virtnet_xsk_pool_disable() only unmaps it when the socket is closed. A
-pool left above curr_queue_pairs by removing XDP is not set up again,
-so it is unmapped on freeze.
+Rejected requests use the existing -ENOTCONN error path and are ended by
+virtio_fs_request_dispatch_work() through end_reqs, so no new request
+completion or ownership state is introduced.  Nothing has to be
+discarded in the completion path, and fsvq->in_flight remains the only
+state that has to be tracked.
 
-This was found by code review of the suspend path and reproduced in
-QEMU by running a suspend cycle with an AF_XDP socket bound, not in
-production.
+The new state is not folded into fsvq->connected because the request
+queues have to stay usable: fuse_conn_destroy() sends FUSE_DESTROY
+through them, with args.force set so that fuse_simple_request() waits
+for the reply.  Clearing fsvq->connected would make that request fail
+with -ENOTCONN and the server would never see the destroy.
 
-Fixes: 09d2b3182c8e ("virtio_net: xsk: bind/unbind xsk for rx")
-Signed-off-by: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
+FUSE_DESTROY is the sole exception while aborting is set.  It is sent
+only after the first drain, and its completion is waited for before
+fuse_chan_abort() can end requests, so the destroy is the only request
+the device sees after the drain.  virtio-fs exposes no userspace
+/dev/fuse fd (and no_control disables the fusectl interface), so
+userspace cannot inject another request.
+
+virtio_fs_start_all_queues() clears the flag, so a mount that follows an
+unmount starts with admission enabled again.
+
+Signed-off-by: Qihang <q.h.hack.winter@gmail.com>
 ---
- drivers/net/virtio_net.c | 151 +++++++++++++++++++++++++++++++++++++--
- 1 file changed, 145 insertions(+), 6 deletions(-)
+V1 -> V2:
+- prevent new requests from reaching the virtqueue at teardown time
+  instead of skipping completions of aborted requests
+- keep FUSE_DESTROY working: it is the teardown request and is waited
+  for before fuse_chan_abort()
+- drop the per-vq aborted flag and the completion-skip branch
+ fs/fuse/virtio_fs.c | 30 +++++++++++++++++++++++++++++-
+ 1 file changed, 29 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index f9d227060375..d9c920f42126 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -5774,6 +5774,8 @@ static void virtnet_freeze_down(struct virtio_device *vdev)
+diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+index ba8d79c4bcac6..c6d2120157340 100644
+--- a/fs/fuse/virtio_fs.c
++++ b/fs/fuse/virtio_fs.c
+@@ -55,6 +55,7 @@ struct virtio_fs_vq {
+ 	struct work_struct dispatch_work;
+ 	struct fuse_dev *fud;
+ 	bool connected;
++	bool aborting; /* reject new requests except FUSE_DESTROY */
+ 	long in_flight;
+ 	struct completion in_flight_zero; /* No inflight requests */
+ 	struct kobject *kobj;
+@@ -348,6 +349,7 @@ static void virtio_fs_start_all_queues(struct virtio_fs *fs)
+ 		fsvq = &fs->vqs[i];
+ 		spin_lock(&fsvq->lock);
+ 		fsvq->connected = true;
++		fsvq->aborting = false;
+ 		spin_unlock(&fsvq->lock);
+ 	}
  }
- 
- static int init_vqs(struct virtnet_info *vi);
-+static void virtnet_xsk_pools_release(struct virtnet_info *vi);
-+static void virtnet_xsk_pools_attach(struct virtnet_info *vi);
- 
- static int virtnet_restore_up(struct virtio_device *vdev)
- {
-@@ -5790,13 +5792,13 @@ static int virtnet_restore_up(struct virtio_device *vdev)
- 
- 	virtio_device_ready(vdev);
- 
--	if (netif_running(vi->dev)) {
--		rtnl_lock();
-+	rtnl_lock();
-+	virtnet_xsk_pools_attach(vi);
-+	if (netif_running(vi->dev))
- 		err = virtnet_open(vi->dev);
--		rtnl_unlock();
--		if (err)
--			goto err_destroy_pools;
--	}
-+	rtnl_unlock();
-+	if (err)
-+		goto err_destroy_pools;
- 
- 	netif_tx_lock_bh(vi->dev);
- 	netif_device_attach(vi->dev);
-@@ -5808,6 +5810,7 @@ static int virtnet_restore_up(struct virtio_device *vdev)
- err_destroy_pools:
- 	virtio_reset_device(vdev);
- 	free_unused_bufs(vi);
-+	virtnet_xsk_pools_release(vi);
- 	virtnet_destroy_page_pools(vi);
- 	virtnet_del_vqs(vi);
- 	return err;
-@@ -6038,6 +6041,13 @@ static int virtnet_xsk_pool_disable(struct net_device *dev, u16 qid)
- 	rq = &vi->rq[qid];
- 
- 	pool = rq->xsk_pool;
-+	if (!pool) {
-+		/* Binding it again on restore failed, only the DMA map is left */
-+		pool = xsk_get_pool_from_qid(dev, qid);
-+		if (pool)
-+			xsk_pool_dma_unmap(pool, 0);
-+		return 0;
-+	}
- 
- 	err = virtnet_rq_bind_xsk_pool(vi, rq, NULL);
- 	err |= virtnet_sq_bind_xsk_pool(vi, sq, NULL);
-@@ -6053,6 +6063,133 @@ static int virtnet_xsk_pool_disable(struct net_device *dev, u16 qid)
- 	return err;
+@@ -1226,6 +1228,28 @@ static void virtio_fs_stop_all_queues(struct virtio_fs *fs)
+ 	}
  }
  
 +/*
-+ * Freeze frees the receive and send queues, but the AF_XDP sockets stay
-+ * bound and the xsk core keeps their pools. Release only the driver state
-+ * of the zero-copy pools here, once the device is reset and the buffers
-+ * posted to it are back in the pools. The pools stay DMA mapped, since the
-+ * DMA device is still the same after restore and the buffers on their free
-+ * lists keep their DMA addresses.
++ * Stop admitting new requests before draining the queues.  Admission and
++ * virtqueue submission are serialized by fsvq->lock, so a request is
++ * either rejected before reaching the device or accounted in in_flight
++ * and covered by the drain.
 + *
-+ * A pool left above curr_queue_pairs by removing XDP is not bound again
-+ * on restore, so unmap it as well.
++ * FUSE_DESTROY is exempt because fuse_conn_destroy() sends it after the
++ * first drain and waits for its completion before aborting the channel.
 + */
-+static void virtnet_xsk_pools_release(struct virtnet_info *vi)
++static void virtio_fs_stop_new_requests(struct virtio_fs *fs)
 +{
++	struct virtio_fs_vq *fsvq;
 +	int i;
 +
-+	for (i = 0; i < vi->max_queue_pairs; i++) {
-+		struct receive_queue *rq = &vi->rq[i];
-+		struct send_queue *sq = &vi->sq[i];
-+
-+		if (rq->xsk_pool) {
-+			if (i >= vi->curr_queue_pairs)
-+				xsk_pool_dma_unmap(rq->xsk_pool, 0);
-+			xdp_rxq_info_unreg(&rq->xsk_rxq_info);
-+			kvfree(rq->xsk_buffs);
-+			rq->xsk_buffs = NULL;
-+			rq->xsk_pool = NULL;
-+		}
-+
-+		if (sq->xsk_pool) {
-+			virtqueue_unmap_single_attrs(sq->vq, sq->xsk_hdr_dma_addr,
-+						     vi->hdr_len, DMA_TO_DEVICE, 0);
-+			kfree(sq->xsk_hdr);
-+			sq->xsk_hdr = NULL;
-+			sq->xsk_pool = NULL;
-+		}
++	for (i = 0; i < fs->nvqs; i++) {
++		fsvq = &fs->vqs[i];
++		spin_lock(&fsvq->lock);
++		fsvq->aborting = true;
++		spin_unlock(&fsvq->lock);
 +	}
 +}
 +
-+/* Set up the driver state of a still DMA mapped pool on a new queue pair. */
-+static int virtnet_xsk_pool_attach(struct virtnet_info *vi, u16 qid,
-+				   struct xsk_buff_pool *pool)
-+{
-+	struct receive_queue *rq = &vi->rq[qid];
-+	struct send_queue *sq = &vi->sq[qid];
-+	struct device *dma_dev;
-+	dma_addr_t hdr_dma;
-+	int err;
-+
-+	dma_dev = virtqueue_dma_dev(rq->vq);
-+	if (!rq->page_pool || !dma_dev || dma_dev != virtqueue_dma_dev(sq->vq))
-+		return -EINVAL;
-+
-+	rq->xsk_buffs = kvzalloc_objs(*rq->xsk_buffs,
-+				      virtqueue_get_vring_size(rq->vq));
-+	if (!rq->xsk_buffs)
-+		return -ENOMEM;
-+
-+	sq->xsk_hdr = kzalloc_obj(*sq->xsk_hdr);
-+	if (!sq->xsk_hdr) {
-+		err = -ENOMEM;
-+		goto err_free_buffs;
-+	}
-+
-+	hdr_dma = virtqueue_map_single_attrs(sq->vq, sq->xsk_hdr, vi->hdr_len,
-+					     DMA_TO_DEVICE, 0);
-+	if (virtqueue_map_mapping_error(sq->vq, hdr_dma)) {
-+		err = -ENOMEM;
-+		goto err_free_hdr;
-+	}
-+
-+	err = xdp_rxq_info_reg(&rq->xsk_rxq_info, vi->dev, qid,
-+			       rq->napi.napi_id);
-+	if (err < 0)
-+		goto err_unmap_hdr;
-+
-+	err = xdp_rxq_info_reg_mem_model(&rq->xsk_rxq_info,
-+					 MEM_TYPE_XSK_BUFF_POOL, NULL);
-+	if (err < 0)
-+		goto err_unreg;
-+
-+	xsk_pool_set_rxq_info(pool, &rq->xsk_rxq_info);
-+
-+	sq->xsk_hdr_dma_addr = hdr_dma;
-+	sq->xsk_pool = pool;
-+	rq->xsk_pool = pool;
-+
-+	return 0;
-+
-+err_unreg:
-+	xdp_rxq_info_unreg(&rq->xsk_rxq_info);
-+err_unmap_hdr:
-+	virtqueue_unmap_single_attrs(sq->vq, hdr_dma, vi->hdr_len,
-+				     DMA_TO_DEVICE, 0);
-+err_free_hdr:
-+	kfree(sq->xsk_hdr);
-+	sq->xsk_hdr = NULL;
-+err_free_buffs:
-+	kvfree(rq->xsk_buffs);
-+	rq->xsk_buffs = NULL;
-+	return err;
-+}
-+
-+/*
-+ * On restore, set the zero-copy pools up again on the new queues before
-+ * they are filled and their NAPI is enabled.
-+ */
-+static void virtnet_xsk_pools_attach(struct virtnet_info *vi)
-+{
-+	struct xsk_buff_pool *pool;
-+	int i, err;
-+
-+	ASSERT_RTNL();
-+
-+	for (i = 0; i < vi->curr_queue_pairs; i++) {
-+		pool = xsk_get_pool_from_qid(vi->dev, i);
-+		if (!pool || !pool->umem->zc)
-+			continue;
-+
-+		/* The pool stays DMA mapped until it is disabled */
-+		err = virtnet_xsk_pool_attach(vi, i, pool);
-+		if (err)
-+			netdev_warn(vi->dev,
-+				    "failed to bind AF_XDP pool to queue %d: %d\n",
-+				    i, err);
-+	}
-+}
-+
- static int virtnet_xsk_pool_setup(struct net_device *dev, struct netdev_bpf *xdp)
+ static void virtio_fs_remove(struct virtio_device *vdev)
  {
- 	if (xdp->xsk.pool)
-@@ -7208,6 +7345,8 @@ static void remove_vq_common(struct virtnet_info *vi)
- 	/* Free unused buffers in both send and recv, if any. */
- 	free_unused_bufs(vi);
+ 	struct virtio_fs *fs = vdev->priv;
+@@ -1479,7 +1503,8 @@ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
  
-+	virtnet_xsk_pools_release(vi);
+ 	spin_lock(&fsvq->lock);
+ 
+-	if (!fsvq->connected) {
++	if (!fsvq->connected ||
++	    (fsvq->aborting && req->in.h.opcode != FUSE_DESTROY)) {
+ 		spin_unlock(&fsvq->lock);
+ 		ret = -ENOTCONN;
+ 		goto out;
+@@ -1669,6 +1694,9 @@ static void virtio_fs_conn_destroy(struct fuse_mount *fm)
+ 	spin_lock(&fsvq->lock);
+ 	fsvq->connected = false;
+ 	spin_unlock(&fsvq->lock);
 +
- 	/*
- 	 * Rule of thumb is netdev_tx_reset_queue() should follow any
- 	 * skb freeing not followed by netdev_tx_completed_queue()
++	/* Nothing may be queued after the drain below */
++	virtio_fs_stop_new_requests(vfs);
+ 	virtio_fs_drain_all_queues(vfs);
+ 
+ 	fuse_conn_destroy(fm);
 -- 
-2.43.0
-
-
+2.54.0 (Apple Git-157)
 
