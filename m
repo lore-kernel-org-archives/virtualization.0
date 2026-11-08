@@ -1,62 +1,72 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.199
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794116479;
-	b=WNLfxeO8MWxH3bqtCCJf8ND5erMrApPUGVx5SR5ePqC7f49FaMWqSefK5cZ+DzjCeeTN
-	 jUPHc2Dwqk/HMEpRKTNFzeu7Ty9+JkOV3e51HE51xiZCkRhIXI1Fajp8CVYOd7R5926Ao
-	 Kq8I1E0/XQIlAypXIokgzIk9CFYjYioOLP854Btv6CGSBsN+tNjmEA5A5hHaMKuU/bYqm
-	 7TA5YZRFq6q6fk3iVJI9bo2ilp3zmmomz7j2tPzViIfD2E7nuPKq8qFhK5T6fCtF5ivt+
-	 Qmffyi9RurUWcRYGLuLLRPZ1L/KFnk5P6m8O/sfzUTzlPAsG5D3DDPiMyKzryEc4WLQ==
+	t=1794117620;
+	b=iFd5H824S8e9cmwuZPvzABmxZ+3n+xWFd6OKQ/qm9be6wnzMFkuTNHPSlc/Ce9P7sxwo
+	 iKy5216BlIukmYJCZkXXxGalvxRwG3TLLBqhiKJ14FdwBqbpiJyv5qSy7LeqYrxnHWubH
+	 BkOR1b36ON882ZJt4fuwDWkJWwEeI/V3vpQfW1FaetW1bh4EtMKgfsxpnzu+MMS2TXA3P
+	 NQICUfJvUSj9oeUVLDxGiieIefGKmfkVLJGDOH0P9BLZ3dI0z4xgRmXNiAyPcxePt2f6A
+	 g/geD/Whu9zsd5YxcqpXsqWQ4GVn1RjNW4OiVkwAqZ4AUHaSBdJja+OprHWsZ+UUqPA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794116479;
-	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
-	 In-Reply-To:References:X-sashiko-severity:Content-Type:
-	 Content-Transfer-Encoding:MIME-Version;
-	bh=IPLIMMSflTCXvdcYE0YdAxRGwBqpklNNDxYuzi2MxMA=;
-	b=F6yv5RWWWUl/Tu3Aq41w7P4xRxTeVKsH4O7lbJbvGVEqHIOh0qccphlD7IdWQryG///Z
-	 7tV+x5tdqjWqwzK5cWEz+oOkOhRn5Gi7kMI7YhxAN6lK1hODOJifRsYAsEqVLIvAOz3YB
-	 IktJa50qOLd8p6Bf5NhSeSoS4euG91rAb6Y+2isuDLwFPQ/BJ5y4WFyobNIaRfZA2EoBN
-	 bhpz24UHODv+zZrHAMaVudJZih5XRN6WOqmhFTJ/F9JxCQGr7ABVSoaKB2nBnnOAwbDDd
-	 j0/IiF1rdgeCC1aF1JdQlHxiBJX50mzs9QNHr8F2gJ/BaWIfhtLC/pPSi2XQLGy3GPA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794117620;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Received:Date:Mime-Version:
+	 X-Mailer:Message-ID:Subject:From:To:Cc:Content-Type;
+	bh=v2y1yaggoH6p1mGRTKD+i49Hl5+O8T2kFeVCtW/lYKQ=;
+	b=obGthy/rzK5JBH/pAb8lQc+pq3RKt+GJ0rVQDwFikEinQVTRsQMY3jqhrJ+MQ6fYpTC5
+	 62k1BMy8AHQBV7yogfevq4Qaz6UUdfqq2GQg7YUuYBHE1rdAPv2ohCK4Z7qsBTr9269Yp
+	 8Xqy9cR+vquJP0ybhJgV2NOGB0w1wIT6VdgxhlBQoN1IyXR9UwRSzMMnhxHY8TGSaIjLz
+	 rrSw6Aj3qWtzvqe/GAOUGMgG1fnJjOO77BSDdSnesswHdv1vYuw/Avg8TfQ1F6Y/OX5RN
+	 +RJR2GLjxrOSIRD6XIyTweMZqBsN+7/D4U0qbAIeyVqWfgsReX6zo+btzlEzXOZLJKw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iAa9mcHd;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=google.com;
+	spf=pass smtp.mailfrom=flex--almasrymina.bounces.google.com;
+	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=QvE4Fyp2;
+	arc=none smtp.remote-ip=74.125.82.199
+Received: from mail-dy1-f199.google.com (mail-dy1-f199.google.com [74.125.82.199])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A906606A334;
-	Sun,  8 Nov 2026 05:41:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8B8F606A31E
+	for <virtualization@lists.linux.dev>; Sun,  8 Nov 2026 06:00:19 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D8B8F606A31E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--almasrymina.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iAa9mcHd
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DA311F008A1;
-	Sun,  8 Nov 2026 05:41:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794116478;
-	bh=IPLIMMSflTCXvdcYE0YdAxRGwBqpklNNDxYuzi2MxMA=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=iAa9mcHdXIo9Q+xwrhFFYeH9vQPqUIeZ/n5Ix8O7ExIzF50jPFLqh5SfsVByA8IU/
-	 llRAiPsy/vf59O3yJp12giI3JOxqD5wA2pldhlWlJqr3VMznu0US17KmOJJvaPCBG1
-	 9twtx4HzQqL5f/jHOQ6OiUURVnrezuMOOnS3xRXqzVPmWBIog/Bgke5IK/7rvU2YeG
-	 7surETfUfmb9wbWld66+4VzoNIzTmpZjbr6GZqOqCOcNy2S51rxMJsUfDh37fij0zA
-	 9QuZSnRNv8E6GI9l8SgFnVR7o8a7IN+WaxpUh5KFRe7BIRvPHWrdJb2XoJjnIAzWSM
-	 LYgisYIYE2u1g==
-Subject: Re: [PATCH net 2/2] virtio_net: Keep AF_XDP zero-copy pools bound
- across suspend
-From: netdev-bot+sashiko@kernel.org
-To: yanhaishuang@cmss.chinamobile.com
-Cc: mst@redhat.com, jasowangio@gmail.com, xuanzhuo@linux.alibaba.com,
- eperezma@redhat.com, andrew+netdev@lunn.ch, davem@davemloft.net,
- edumazet@kernel.org, kuba@kernel.org, pabeni@redhat.com, ast@kernel.org,
- daniel@iogearbox.net, hawk@kernel.org, john.fastabend@gmail.com,
- sdf@fomichev.me, netdev@vger.kernel.org, virtualization@lists.linux.dev,
- bpf@vger.kernel.org, linux-kernel@vger.kernel.org
-Date: Sun, 08 Nov 2026 05:41:17 +0000
-Message-ID: <179411647719.994134.8428591729717130295@kernel.org>
-In-Reply-To: <20261107125723.33547-3-yanhaishuang@cmss.chinamobile.com>
-References: <20261107125723.33547-3-yanhaishuang@cmss.chinamobile.com>
-X-sashiko-severity: High
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=QvE4Fyp2
+Received: by mail-dy1-f199.google.com with SMTP id 5a478bee46e88-37158b53d06so712300eec.1
+        for <virtualization@lists.linux.dev>; Sat, 07 Nov 2026 22:00:19 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20260707; t=1794117619; x=1794722419; darn=lists.linux.dev;
+        h=content-type:cc:to:from:subject:message-id:mime-version:date:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=v2y1yaggoH6p1mGRTKD+i49Hl5+O8T2kFeVCtW/lYKQ=;
+        b=QvE4Fyp2A64HwDKrie9/2UQu/aVWOj9X7KYFXn8sZvRNtI4r1covLY6dNd5qn4SXtj
+         c5vKIBFrtgvDeMlDls2nbQkLjZ0oR4n6HiL2Qr6kN12l7uJr5sl94UKBIY3g4yrthMcW
+         Uu2HI2HsDXtwDTtjWJ46qYaf2LJ4ZCDUQYngFZXF1/LCAYhpIFkbL81yM+Be9MSA8Kf5
+         4qTDc1qqdRl0/tTq8SB1cFoQSB+OgwvezXW/jeqv/pUJWdepPczz8F/7RA6ylzJs0n0Q
+         /y6L3y9m4j3Az5QuI1owgQ8iLouxgQkwR/3HXRk/PLdq5StKR0bfDx5KhxyLNhlEFPZy
+         pMgA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794117619; x=1794722419;
+        h=content-type:cc:to:from:subject:message-id:mime-version:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=v2y1yaggoH6p1mGRTKD+i49Hl5+O8T2kFeVCtW/lYKQ=;
+        b=xGaqHMKbvDzT2Z6jaXNmIZmV+Pctf8HKFLmVpuKemWToGlU7LTu8xvlDLjaJAhhxTv
+         V056wvgV4pBV0a7I8KdISXYvbee80vY1N5ttZPq386Rn7/msVV2YO2k3JrrjY3jx5eCF
+         ZVFqrvL8XCRszZCZHC74kYgF8G4RP5KzAO11hMXIWOYvtjavgzAqADSLLFOeiL0mMJqe
+         Wuuxpa9IYutfirICbO9Wg+5xX4PM9MIV84lC7GKjj/8hSYTZLEdLHFb7rueuptwvVhqb
+         D9NfSSlM1KPcOO1jcjZW2e4WCDEQwJ23dB1udWZFxi+aIEcqFcZS9Urylkvb4zgjhXBo
+         3jpQ==
+X-Forwarded-Encrypted: i=1; AKwUvBxzlbllQQIgRU/TG669rGCF/5h0qt+lvPqwsyScjnD697BGXzhs+oJwMjDOCDab6NXm5EgtRHpKH2QYkCsnow==@lists.linux.dev
+X-Gm-Message-State: APuU4Z8eQph4npMfdBEoLvXx5Yhk5tvtusr++or1e8UsL2j2zYPDHpYr
+	PdBZ6Bqq6BPvCgM1pjRSEvRKqoKYUXYVn6qOTy3QWiNiv/GOAgyuMRoJ/7hO+enIdQQGVaroMKl
+	LwhXX2EXMIVQDE7n3bK8mBlft4g==
+X-Received: from dycoy13.prod.google.com ([2002:a05:7301:fc0d:b0:35c:eb2a:8c31])
+ (user=almasrymina job=prod-delivery.src-stubby-dispatcher) by
+ 2002:a05:7022:264b:b0:13c:f65c:d5b5 with SMTP id a92af1059eb24-1b269a6631dmr4891275c88.3.1794117617306;
+ Sat, 07 Nov 2026 22:00:17 -0800 (PST)
+Date: Sun,  8 Nov 2026 06:00:11 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -65,269 +75,233 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
-MIME-Version: 1.0
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.56.0.455.g6c5a503b38-goog
+Message-ID: <20261108060016.2131509-1-almasrymina@google.com>
+Subject: [PATCH net-next v2 0/5] net: deprecate skb->pp_recycle and skb_mark_for_recycle()
+From: Mina Almasry <almasrymina@google.com>
+To: netdev@vger.kernel.org
+Cc: Mina Almasry <almasrymina@google.com>, Jesper Dangaard Brouer <hawk@kernel.org>, 
+	Ilias Apalodimas <ilias.apalodimas@linaro.org>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Simon Horman <horms@kernel.org>, Neal Cardwell <ncardwell@google.com>, 
+	Kuniyuki Iwashima <kuniyu@google.com>, Pavel Begunkov <asml.silence@gmail.com>, 
+	Bobby Eshleman <bobbyeshleman@meta.com>, Stanislav Fomichev <sdf@fomichev.me>, linux-kernel@vger.kernel.org, 
+	Steffen Klassert <steffen.klassert@secunet.com>, Herbert Xu <herbert@gondor.apana.org.au>, 
+	Willem de Bruijn <willemb@google.com>, John Fastabend <john.fastabend@gmail.com>, 
+	Sabrina Dubroca <sd@queasysnail.net>, Andrew Lunn <andrew+netdev@lunn.ch>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>, 
+	"=?UTF-8?q?Eugenio=20P=C3=A9rez?=" <eperezma@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@kernel.org>, 
+	Lorenzo Stoakes <ljs@kernel.org>, "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
+	Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, 
+	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+	Johannes Berg <johannes@sipsolutions.net>, Byungchul Park <byungchul@sk.com>, Zi Yan <ziy@nvidia.com>, 
+	virtualization@lists.linux.dev, linux-mm@kvack.org, bpf@vger.kernel.org, 
+	linux-wireless@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, 
+	Shuah Khan <skhan@linuxfoundation.org>, Randy Dunlap <rdunlap@infradead.org>, 
+	Lorenzo Bianconi <lorenzo@kernel.org>, Wen Gu <guwen@linux.alibaba.com>, 
+	Philo Lu <lulie@linux.alibaba.com>, Justin Chen <justin.chen@broadcom.com>, 
+	Florian Fainelli <florian.fainelli@broadcom.com>, Vikas Gupta <vikas.gupta@broadcom.com>, 
+	Michael Chan <michael.chan@broadcom.com>, Pavan Chebbi <pavan.chebbi@broadcom.com>, 
+	Doug Berger <opendmb@gmail.com>, Nicolai Buchwitz <nb@tipi-net.de>, 
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, Satish Kharat <satishkh@cisco.com>, 
+	Wei Fang <wei.fang@nxp.com>, Frank Li <frank.li@nxp.com>, Shenwei Wang <shenwei.wang@nxp.com>, 
+	Joshua Washington <joshwash@google.com>, Harshitha Ramamurthy <hramamurthy@google.com>, 
+	Jijie Shao <shaojijie@huawei.com>, Jian Shen <shenjian15@huawei.com>, 
+	Fan Gong <gongfan1@huawei.com>, Tony Nguyen <anthony.l.nguyen@intel.com>, 
+	Przemek Kitszel <przemyslaw.kitszel@intel.com>, Marcin Wojtas <marcin.s.wojtas@gmail.com>, 
+	Russell King <linux@armlinux.org.uk>, Sunil Goutham <sgoutham@marvell.com>, 
+	Geetha sowjanya <gakula@marvell.com>, Ratheesh Kannoth <rkannoth@marvell.com>, 
+	Subbaraya Sundeep <sbhatta@marvell.com>, Bharat Bhushan <bbhushan2@marvell.com>, 
+	Felix Fietkau <nbd@nbd.name>, Matthias Brugger <matthias.bgg@gmail.com>, 
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Tariq Toukan <tariqt@nvidia.com>, 
+	Saeed Mahameed <saeedm@nvidia.com>, Mark Bloch <mbloch@nvidia.com>, Leon Romanovsky <leon@kernel.org>, 
+	Ido Schimmel <idosch@nvidia.com>, Petr Machata <petrm@nvidia.com>, 
+	Horatiu Vultur <horatiu.vultur@microchip.com>, UNGLinuxDriver@microchip.com, 
+	Daniel Machon <daniel.machon@microchip.com>, Steen Hegelund <Steen.Hegelund@microchip.com>, 
+	Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
+	Dexuan Cui <decui@microsoft.com>, Yibo Dong <dong100@mucse.com>, 
+	Brett Creeley <brett.creeley@amd.com>, Justin Lai <justinlai0215@realtek.com>, 
+	Larry Chiu <larry.chiu@realtek.com>, 
+	"=?UTF-8?q?Niklas=20S=C3=B6derlund?=" <niklas.soderlund@ragnatech.se>, Paul Barker <paul@pbarker.dev>, 
+	Masahisa Kojima <kojima.masahisa@socionext.com>, 
+	Maxime Chevallier <maxime.chevallier@bootlin.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, 
+	Alexandre Torgue <alexandre.torgue@foss.st.com>, FUJITA Tomonori <fujita.tomonori@gmail.com>, 
+	Siddharth Vadapalli <s-vadapalli@ti.com>, Roger Quadros <rogerq@kernel.org>, 
+	MD Danish Anwar <danishanwar@ti.com>, Jiawen Wu <jiawenwu@trustnetic.com>, 
+	Mengyuan Lou <mengyuanlou@net-swift.com>, Ronak Doshi <ronak.doshi@broadcom.com>, 
+	Ryder Lee <ryder.lee@mediatek.com>, Shayne Chen <shayne.chen@mediatek.com>, 
+	Sean Wang <sean.wang@mediatek.com>, Juergen Gross <jgross@suse.com>, 
+	Stefano Stabellini <sstabellini@kernel.org>, 
+	Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>, Jordan Rhee <jordanrhee@google.com>, 
+	Ankit Garg <nktgrg@google.com>, Tim Hostetler <thostet@google.com>, 
+	Eric Joyner <eric.joyner@amd.com>, Prabu Thayalan <prabu.ponrajthayalan@amd.com>, 
+	"Nikhil P. Rao" <nikhil.rao@amd.com>, Chintan Vankar <c-vankar@ti.com>, 
+	Nora Schiffer <nora.schiffer@ew.tq-group.com>, Alexander Sverdlin <alex@sverdlin.org>, 
+	Kevin Hao <haokexin@gmail.com>, Karl Mehltretter <kmehltretter@gmail.com>, 
+	Aleksandr Loktionov <aleksandr.loktionov@intel.com>, Meghana Malladi <m-malladi@ti.com>, 
+	Jacob Keller <jacob.e.keller@intel.com>, StanleyYP Wang <StanleyYP.Wang@mediatek.com>, 
+	linux-doc@vger.kernel.org, imx@lists.linux.dev, linux-rdma@vger.kernel.org, 
+	linux-hyperv@vger.kernel.org, linux-renesas-soc@vger.kernel.org, 
+	linux-omap@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-Thank you for your contribution! Sashiko AI review found 4 potential
-issue(s) to consider.
+Remove the per-SKB skb->pp_recycle bitfield and skb_mark_for_recycle()
+helper, and reference-count netmems directly by their underlying type
+via netmem_is_pp() inside netmem_inc_ref() and netmem_dec_ref().
 
-Critical: 0 · High: 3 · Medium: 1 · Low: 0
+Establish the invariant that pp_ref_count is only incremented by callers
+that already hold an active pp_ref_count (>= 1) on that netmem, and a
+raw page_ref_count is never converted into a pp_ref_count:
+- Detach page_pool pages in tcp_zerocopy_receive() before mapping them
+  into userspace via vm_insert_pages(), so userspace VMAs and subsequent
+  GUP callers (such as MSG_ZEROCOPY or vmsplice()) never observe an
+  active page_pool page.
+- Fall back to copying in tls_push_data() when MSG_SPLICE_PAGES
+  encounters a page_pool page, since kTLS device offload record->frags[]
+  tracks pages via raw struct page references.
+- Keep page_pool_unref_netmem(), napi_pp_get_page(), napi_pp_put_page(),
+  and __page_pool_put_page() free of 0 -> 1 pp_ref_count conversion
+  workarounds or extra barriers, preserving the non-atomic
+  page_pool_unref_netmem() fast path unchanged.
 
-If you believe none of the issues are legitimate, please reply to each
-issue of Medium severity or higher and explain why the AI is wrong.
-If any of them are legitimate and you plan to respin, please let patchwork
-know by including "pw-bot: cr" as a separate line at the end of your reply
-(one such reply per series is enough).
+bench_page_pool_simple results (5-iteration interleaved UML runs):
+- no-softirq-page_pool01 (fast-path cache recycle): 40 cycles (20.3 ns)
+  baseline vs 30-31 cycles (15.3 ns) patched (~9-10 cycles / -24.7%
+  improvement over baseline: using __netmem_to_page() in
+  page_pool_netmem_is_exclusively_owned() and
+  __page_pool_page_can_be_recycled() after checking netmem_is_net_iov()
+  eliminates two redundant WARN_ON_ONCE() expansions and out-of-line
+  netmem_to_page() calls per recycle).
+- no-softirq-page_pool02 (ptr_ring recycle): 81 cycles (40.7 ns)
+  baseline vs 74 cycles (37.2 ns) patched (~7 cycles / -8.6%
+  improvement over baseline).
+- no-softirq-page_pool03 (slow page-allocator path with elevated
+  page_ref_count): 458-461 cycles (230.0 ns) baseline vs 454-455 cycles
+  (227.6 ns) patched (~5 cycles / -1.0% improvement over baseline).
 
-- [High] virtnet_xsk_pools_unbind() calls virtnet_xsk_pool_disable() for
-  pools whose AF_XDP sockets are still XSK_BOUND.
-- [High] virtio_net: stale DMA addresses in free_list after unaligned XSK
-  pool rebind
-- [High] virtio_net: uninitialized xsk_hdr_dma_addr used in
-  virtnet_xsk_pool_enable()
-- [Medium] virtnet_xsk_pools_unbind()
-  (drivers/net/virtio_net.c:6063-6072) loops over max_queue_pairs and…
+This series simplifies SKB and netmem reference counting:
+- Reclaims 1 bit from struct sk_buff (skb->pp_recycle).
+- Unifies reference counting of SKB fragment netmems and regular netmems
+  under netmem_inc_ref() and netmem_dec_ref(), eliminating the separate
+  skb_netmem_ref(), skb_netmem_unref(), and skb_mark_for_recycle() APIs.
+- Removes 95 net lines across 65 files (339 insertions, 434 deletions).
 
---
+1/5: net: skbuff: skip managed zerocopy frags in skb_frag_ref()
+2/5: net: skbuff: refcount spliced page_pool frags via skb_pipe_buf_ops
+3/5: tcp: detach page_pool pages before mapping in tcp_zerocopy_receive()
+4/5: net: remove skb->pp_recycle and consolidate netmem refcounting
+5/5: net: remove skb_mark_for_recycle()
 
-virtio_net: Keep AF_XDP zero-copy pools bound across suspend
+v1 -> v2:
+- Patch 2/5: Check page_ref_count(compound_head(buf->page)) <= 0 with
+  WARN_ON_ONCE() in skb_pipe_buf_get() to guard against refcount
+  overflow, and fall back to copying in tls_push_data() when
+  MSG_SPLICE_PAGES encounters a page_pool page so kTLS device offload
+  never converts a raw page_ref_count into a pp_ref_count.
+- Patch 3/5: Replace zerocopy_fill_skb_from_iter() refcount conversion
+  with detaching page_pool pages up front in tcp_zerocopy_receive()
+  before vm_insert_pages().
+- Patch 4/5: Keep net/tls/ record->frags[] and fallback scatterlists on
+  get_page()/put_page() to match mlx5 tx_sync_info_get(), and restore
+  page_pool_unref_netmem(), napi_pp_get_page(), napi_pp_put_page(), and
+  __page_pool_put_page() to their clean baseline non-RMW fast paths.
+- v1:
+  https://lore.kernel.org/netdev/20261103211424.127627-1-almasrymina@google.com/
 
-This patch releases the driver side of AF_XDP zero-copy pools in
-virtnet_freeze() and binds them again in virtnet_restore(). The xsk core
-keeps the pools across suspend, so the driver needs to drop and rebuild its
-own state for them. It also makes virtnet_xsk_pool_disable() return early
-when a queue has no pool.
+Notes on Medium/Low Sashiko findings intentionally skipped:
+- Patch 1/5 (Low): iptfs_output_queued() skb_zcopy_managed() check does
+  not carry a separate Fixes: tag as it is part of this net-next
+  refactoring series.
+- Patch 3/5 (Medium): can_map_frag() requires page_pool_ref_count == 1,
+  so drivers holding an undrained fragment bias (e.g. mlx5 mpwqe, fbnic)
+  fall back to copying in tcp_zerocopy_receive() (documented in commit
+  message; detaching requires holding the sole pp_ref_count).
+- Patch 3/5 (Low): page_pool_ref_count() naming kept to mirror
+  page_ref_count().
+- Patch 4/5 (Medium): skb_irq_freeable() in netpoll_zap_completion_queue()
+  does not check netmem_is_pp() (pre-existing for forwarded pp_recycle=1
+  RX SKBs; documented in commit message Caveats).
+- Patch 4/5 (Low): napi_pp_get_page() and napi_pp_put_page() remain
+  out-of-line exported functions in net/core/skbuff.c.
 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 4f5d8812f75b0..5995ad730a91a 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
+Mina Almasry (5):
+  net: skbuff: skip managed zerocopy frags in skb_frag_ref()
+  net: skbuff: refcount spliced page_pool frags via skb_pipe_buf_ops
+  tcp: detach page_pool pages before mapping in tcp_zerocopy_receive()
+  net: remove skb->pp_recycle and consolidate netmem refcounting
+  net: remove skb_mark_for_recycle()
 
-[ ... ]
+ Documentation/networking/page_pool.rst        |   1 -
+ drivers/net/ethernet/airoha/airoha_eth.c      |   1 -
+ drivers/net/ethernet/alibaba/eea/eea_rx.c     |   3 -
+ .../net/ethernet/broadcom/asp2/bcmasp_intf.c  |   1 -
+ .../net/ethernet/broadcom/bnge/bnge_txrx.c    |   5 -
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c     |   8 -
+ .../net/ethernet/broadcom/genet/bcmgenet.c    |   2 -
+ drivers/net/ethernet/cisco/enic/enic_rq.c     |   1 -
+ drivers/net/ethernet/engleder/tsnep_main.c    |   2 -
+ drivers/net/ethernet/freescale/fec_main.c     |   1 -
+ drivers/net/ethernet/google/gve/gve_rx_dqo.c  |   9 -
+ .../net/ethernet/hisilicon/hibmcge/hbg_txrx.c |   1 -
+ .../net/ethernet/hisilicon/hns3/hns3_enet.c   |   6 -
+ .../net/ethernet/huawei/hinic3/hinic3_rx.c    |   1 -
+ drivers/net/ethernet/intel/iavf/iavf_txrx.c   |   2 -
+ drivers/net/ethernet/marvell/mvneta.c         |   2 -
+ .../net/ethernet/marvell/mvpp2/mvpp2_main.c   |   2 -
+ .../marvell/octeontx2/nic/otx2_txrx.c         |   1 -
+ drivers/net/ethernet/mediatek/mtk_eth_soc.c   |   1 -
+ drivers/net/ethernet/mellanox/mlx4/en_rx.c    |   1 -
+ .../net/ethernet/mellanox/mlx5/core/en_rx.c   |   8 -
+ drivers/net/ethernet/mellanox/mlxsw/pci.c     |   2 -
+ .../ethernet/microchip/lan966x/lan966x_fdma.c |   2 -
+ .../microchip/sparx5/lan969x/lan969x_fdma.c   |   1 -
+ drivers/net/ethernet/microsoft/mana/mana_en.c |   3 -
+ .../net/ethernet/mucse/rnpgbe/rnpgbe_lib.c    |   1 -
+ .../net/ethernet/pensando/ionic/ionic_txrx.c  |   2 -
+ .../net/ethernet/realtek/rtase/rtase_main.c   |   1 -
+ drivers/net/ethernet/renesas/ravb_main.c      |   2 -
+ drivers/net/ethernet/socionext/netsec.c       |   1 -
+ .../net/ethernet/stmicro/stmmac/stmmac_main.c |   1 -
+ drivers/net/ethernet/tehuti/tn40.c            |   1 -
+ drivers/net/ethernet/ti/am65-cpsw-nuss.c      |   1 -
+ drivers/net/ethernet/ti/cpsw.c                |   2 -
+ drivers/net/ethernet/ti/cpsw_new.c            |   2 -
+ drivers/net/ethernet/ti/icssg/icssg_common.c  |   1 -
+ drivers/net/ethernet/wangxun/libwx/wx_lib.c   |   2 -
+ drivers/net/veth.c                            |   3 +-
+ drivers/net/virtio_net.c                      |  16 +-
+ drivers/net/vmxnet3/vmxnet3_xdp.c             |   1 -
+ drivers/net/wireless/mediatek/mt76/dma.c      |   1 -
+ .../net/wireless/mediatek/mt76/mt7996/mac.c   |   1 -
+ drivers/net/wireless/mediatek/mt76/npu.c      |   1 -
+ drivers/net/wireless/mediatek/mt76/usb.c      |   1 -
+ drivers/net/xen-netfront.c                    |   1 -
+ include/linux/mm.h                            |   2 +-
+ include/linux/skbuff.h                        |  12 +-
+ include/linux/skbuff_ref.h                    |  60 +---
+ include/net/netmem.h                          |  37 ++-
+ include/net/page_pool/helpers.h               |  25 +-
+ net/core/datagram.c                           |   2 +
+ net/core/gro.c                                |   9 -
+ net/core/net_test.c                           | 274 ++++++++----------
+ net/core/netmem_priv.h                        |  21 +-
+ net/core/page_pool.c                          |   6 +-
+ net/core/skbuff.c                             |  74 ++---
+ net/core/xdp.c                                |  13 +-
+ net/ipv4/esp4.c                               |  11 +-
+ net/ipv4/tcp.c                                |  44 ++-
+ net/ipv6/esp6.c                               |  11 +-
+ net/tls/tls_device.c                          |   8 +-
+ net/tls/tls_device_fallback.c                 |   2 +-
+ net/wireless/util.c                           |  31 +-
+ net/xfrm/trace_iptfs.h                        |   6 +-
+ net/xfrm/xfrm_iptfs.c                         |  16 +-
+ 65 files changed, 339 insertions(+), 434 deletions(-)
 
-> @@ -6052,6 +6055,42 @@ static int virtnet_xsk_pool_disable(struct net_device *dev, u16 qid)
->  	return err;
->  }
->  
-> +/*
-> + * Freeze frees the receive and send queues while the AF_XDP sockets stay
-> + * bound to the device, so release the driver side of the zero-copy pools
-> + * before and bind them again after restore.
-> + */
-> +static void __maybe_unused virtnet_xsk_pools_unbind(struct virtnet_info *vi)
-> +{
-> +	int i;
-> +
-> +	ASSERT_RTNL();
-> +
-> +	for (i = 0; i < vi->max_queue_pairs; i++)
-> +		if (vi->rq[i].xsk_pool)
-> +			virtnet_xsk_pool_disable(vi->dev, i);
 
-[Severity: High]
-Does this work for a pool created with XDP_UMEM_UNALIGNED_CHUNK_FLAG?
-
-On freeze, virtnet_xsk_pool_disable() resets the RX virtqueue with
-virtnet_rq_unmap_free_buf(), which hands every posted buffer back with
-xsk_buff_free(). Those xdp_buff_xsk entries go onto pool->free_list
-with xskb->dma and xskb->frame_dma still pointing into the old
-mapping. xsk_pool_dma_unmap() then tears that mapping down.
-
-On restore, xsk_pool_dma_map() ends up in xp_init_dma_info(), but that
-only refreshes the per-buffer DMA addresses for aligned pools:
-
-	if (!pool->unaligned) {
-		...
-		for (i = 0; i < pool->heads_cnt; i++) {
-			...
-			xp_init_xskb_dma(xskb, pool, ...);
-		}
-	}
-
-For unaligned pools the address is filled in by xp_get_xskb() when a
-buffer is taken from the fill queue. Buffers recycled from
-pool->free_list in xp_alloc_reused() or xp_alloc() are handed out as
-they are.
-
-So when virtnet_rq_bind_xsk_pool() refills the ring through
-virtnet_rx_resume()->try_fill_recv()->virtnet_add_recvbuf_xsk(),
-won't xsk_buff_xdp_get_dma() return the pre-suspend address for the
-recycled buffers? With an IOMMU or swiotlb, that address is no longer
-mapped or may already belong to someone else. The device would then
-either fault or write received data into the wrong memory.
-xp_dma_sync_for_device() would also be called on the stale address.
-
-The normal unbind path never hits this, because the pool is destroyed
-together with the socket. Here the same pool is unmapped and mapped
-again while buffers sit on its free_list.
-
-Should the driver keep the pool DMA mapping across freeze instead of
-dropping it? Or does the xsk core need to reinitialise the free_list
-entries when an unaligned pool is mapped again?
-
-[Severity: Medium]
-
-What happens here for a pool bound to a queue at or above
-curr_queue_pairs? virtnet_xsk_pool_disable() returns before it releases
-anything:
-
-virtnet_xsk_pool_disable() {
-	...
-	if (qid >= vi->curr_queue_pairs)
-		return -EINVAL;
-	...
-}
-
-The return value is dropped here, so nothing is reported.
-
-This state looks reachable. With native XDP attached, curr_queue_pairs is
-curr_qp + nr_cpu_ids and real_num_rx_queues goes up to match. A zero-copy
-socket can then bind to one of the XDP queues, because
-virtnet_xsk_pool_enable() only requires qid < curr_queue_pairs.
-
-When XDP is detached, virtnet_xdp_set() lowers curr_queue_pairs without
-checking for bound pools:
-
-	err = virtnet_set_queues(vi, curr_qp + xdp_qp);
-	if (err)
-		goto err;
-	netif_set_real_num_rx_queues(dev, curr_qp + xdp_qp);
-	vi->xdp_queue_pairs = xdp_qp;
-
-On a later suspend, remove_vq_common()->virtnet_free_queues() frees vi->rq
-and vi->sq. For those queues, wouldn't the pool DMA mapping,
-rq->xsk_buffs, sq->xsk_hdr and the hdr DMA mapping still leak?
-
-virtnet_xsk_pools_rebind() only walks curr_queue_pairs, so these queues
-are not rebound on restore either. If the socket is closed after that, the
-core gets -EINVAL back from virtnet_xsk_pool_disable() and warns "Failed
-to disable zero-copy!". If XDP is attached again before the close, the new
-!pool early return reports success and the umem DMA mapping is never
-unmapped.
-
-The missing check in virtnet_xdp_set() predates this patch. However, the
-commit message says the patch releases "the driver side of all zero-copy
-pools before freezing", and this case is still skipped without any error
-being reported.
-
-> +}
-
-[ ... ]
-
-> @@ -7246,6 +7285,10 @@ static __maybe_unused int virtnet_freeze(struct virtio_device *vdev)
->  {
->  	struct virtnet_info *vi = vdev->priv;
->  
-> +	rtnl_lock();
-> +	virtnet_xsk_pools_unbind(vi);
-> +	rtnl_unlock();
-> +
-
-[Severity: High]
-
-Can this race with the receive datapath? At this point the AF_XDP sockets
-are still XSK_BOUND. The device is also still live, because
-virtnet_freeze_down() has not run yet.
-
-When the xsk core disables a pool itself, it quiesces the datapath first
-in xsk_unbind_dev():
-
-	WRITE_ONCE(xs->state, XSK_UNBOUND);
-
-	/* Wait for driver to stop using the xdp socket. */
-	xp_del_xsk(xs->pool, xs);
-	synchronize_net();
-
-Here, virtnet_xsk_pool_disable() does this instead:
-
-	err = virtnet_rq_bind_xsk_pool(vi, rq, NULL);
-	err |= virtnet_sq_bind_xsk_pool(vi, sq, NULL);
-
-	xsk_pool_dma_unmap(pool, 0);
-
-virtnet_rq_bind_xsk_pool(NULL) ends with virtnet_rx_resume(), which
-refills the ring with page_pool buffers and re-enables NAPI. rq->xdp_prog
-is still set, so an XDP_REDIRECT into the XSKMAP reaches xsk_rcv(). Since
-the socket is still bound, xsk_rcv_check() passes and the copy path runs:
-
-xsk_rcv()->__xsk_rcv()->xsk_buff_alloc()->xp_alloc()
-
-xp_alloc() reads pool->dev and calls xp_dma_sync_for_device(). In
-unaligned mode, xp_get_xskb() reads pool->dma_pages.
-
-At the same time, xp_dma_unmap() can be running on another CPU. It unmaps
-the pages, kvfree()s pool->dma_pages and sets pool->dev to NULL. RTNL does
-not exclude the softirq.
-
-Could this cause a use-after-free of pool->dma_pages, a DMA sync on an
-address that was already unmapped (with swiotlb the bounce slot may have
-been reused), or a NULL dev being passed to dma_sync_single_for_device()?
-
-Restore seems to have the same window in reverse. virtnet_restore_up()
-re-enables NAPI first. Then
-virtnet_xsk_pools_rebind()->virtnet_xsk_pool_enable() calls
-xsk_pool_dma_map() before virtnet_rq_bind_xsk_pool() pauses NAPI.
-
-xp_init_dma_info() publishes pool->dev before it fills in the dma_pages
-contents. A concurrent copy-mode receive, for example from a generic XDP
-program still attached to the netdev, could then see a half-initialised
-pool.
-
-Before this patch, the driver's enable and disable paths only ran while the
-socket was not bound, so this concurrency could not happen.
-
->  	virtnet_cpu_notif_remove(vi);
->  	virtnet_freeze_down(vdev);
->  	remove_vq_common(vi);
-
-[ ... ]
-
-> @@ -7270,6 +7313,10 @@ static __maybe_unused int virtnet_restore(struct virtio_device *vdev)
->  		return err;
->  	}
->  
-> +	rtnl_lock();
-> +	virtnet_xsk_pools_rebind(vi);
-> +	rtnl_unlock();
-> +
->  	return 0;
->  }
->  
-
-[Severity: High]
-Is the ordering in virtnet_xsk_pool_enable() still safe now that it
-can be called for a pool whose sockets are already bound?
-
-virtnet_restore_up() allocates a new, zeroed vi->sq array, so
-sq->xsk_hdr_dma_addr is 0 when virtnet_xsk_pools_rebind() runs.
-virtnet_xsk_pool_enable() maps the header into the local hdr_dma.
-However, it only stores it in sq->xsk_hdr_dma_addr after
-virtnet_sq_bind_xsk_pool() has returned.
-
-virtnet_sq_bind_xsk_pool() sets sq->xsk_pool and then calls
-virtnet_tx_resume(), which goes through virtnet_napi_tx_enable() to
-virtnet_napi_do_enable(). That schedules the TX NAPI and runs it from
-local_bh_enable(), so virtnet_poll_tx() can execute before
-virtnet_sq_bind_xsk_pool() returns. A wakeup from userspace through
-virtnet_xsk_wakeup() or a TX interrupt can get there as well.
-
-virtnet_poll_tx() sees sq->xsk_pool set and calls virtnet_xsk_xmit().
-On the initial bind there is nothing to send at that point, because
-xp_assign_dev() calls ndo_bpf before the socket is added to
-pool->xsk_tx_list. On restore the sockets are already on xsk_tx_list
-and may still have descriptors queued in their TX ring from before
-suspend. virtnet_xsk_xmit_one() would then pass sq->xsk_hdr_dma_addr,
-which is still 0, to sg_fill_dma() and post it with
-virtqueue_add_outbuf_premapped().
-
-That hands DMA address 0 to the device as the virtio-net header for
-every packet in the batch. Under an IOMMU this would fault. Without
-one, the device would send whatever happens to be at that address as
-the header.
-
-The ordering predates this patch. Before it, though, the driver enable
-path only ran before the socket was on xsk_tx_list. Should
-sq->xsk_hdr_dma_addr be set before virtnet_sq_bind_xsk_pool() is
-called, with the error path clearing it again?
-
+base-commit: 7b6ab4dbc156e2f96419715130b3d5738a306c93
 -- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261107125723.33547-1-yanhaishuang%40cmss.chinamobile.com
+2.56.0.455.g6c5a503b38-goog
+
