@@ -1,84 +1,55 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794237268;
-	b=19kH3552970OU5rH9QectUKcA9XSx6L8UsTO5ofKC0gzBT5FESVSh8QZWhLB+w2oPrmY
-	 cbMfVsr711B2aYzJh2I4h9V1JcCRYEZ+MXPwLscpzz4qWt/YddZzWKgp727yROX6+3Qv9
-	 ttn/33FUT+crPKt2QaXYt7BtIhL4HK+ldSW5FysomhO1HZYw6rpAvLG257/lSvYOwIDSR
-	 /QRzTyVSaB2Hpeq572fb0a5ZkyTM9fa+1Pg9SdScT2pW0mMolc+fotrGwSkCvZpDEygQn
-	 ly+DneBh/ssZi7Ynr5yky5uX89H7V0Ic5FVgifesV/sk3DfJy0EGCik+9s2MgRPG17A==
+	t=1794241477;
+	b=nr2Q61+ja+h3ZIAGTfjia0WTLQg5gDRH/ZoTMsoHl0/TbuazpbGxNVtRUAVHp55fCVsp
+	 Hs9YmE4ufUiySGa5BRMB/qOc3s/1T5FD5dasejuD5m2Dd1fZT2KYSiTgfLql3DUUijSZL
+	 cBLBo9eCLStjCJDowjmM2qs4RWOzci+C2q2ug9dgYPIAeqSqadhSFkJBo4E+UXbyPTVpS
+	 dHtzji9AzvWnrdhxWmejXPjSVbykD6Q5Z01HH7vGs9oKNCPnHjIfAePmAbXxKjn6NGvnk
+	 J2lFzsFbBcCMIW2VzJRwes9VwpcGsMTDqJgnxJpoTe5/8IovltyqD6P2YjMrEu5IhHA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794237268;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:Received:Date:From:To:Cc:Subject:
-	 Message-ID:References:MIME-Version:In-Reply-To:X-Scanned-By:
-	 X-Mimecast-MFC-PROC-ID:X-Mimecast-Originator:Content-Type:
-	 Content-Disposition;
-	bh=p66YjuZUERp8DvJZY4JdqHSsqpUZEslDN4DOOe6L+lA=;
-	b=M5ieFQ+kjDiQ9rHQ4GMiGv3s0TUybJnFCGvYwz8yC6Jq1YMOMWvzr0nqqFCrC12ah3h8
-	 Gb3e7KWqFBQjGLmoV5tHhTqzlXxNFCD2D8tdl+kKWpEnw/f5smtL+/5KTC3N6VtWeC1Xh
-	 S6/zgDSJdvYMeav4/jcEDZnn8fBnh8gvFC4JyjG/qAuyJsb8iZAiDjcvXuQusRSaoVmNf
-	 KA0AjqR0ylziPJuVdU3H0ua8rwdtcpmG910uSAi0qsbaMCxZkQzBxHWoLtpXTgf6dFy85
-	 ve1T4ZEIxeQ4xHnxW5l3J1WNx1Zt3IZOD0HCN38ZNt7uVYYQjeKRaFvmoeEenRyT03Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794241477;
+	h=Received:DKIM-Signature:Received:X-Forwarded-Encrypted:
+	 X-Gm-Message-State:X-Received:MIME-Version:References:In-Reply-To:
+	 From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:Message-ID:
+	 Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=n5wuRW+BfwesQSl9RZrQwjD+U8kT1DloxPy/4T2mCjg=;
+	b=VFezA7o7NppMAlkRTey0GIFJL/PKxv3gJJ8zntfjiveKZPvrOgVt7asOBOxjRcVIdsdO
+	 KSqwJdPJq3+ZoKsf6LFh/XatljLLhyg8JKzzCuKckXwazOQMXN0V+9pLcsd5crCsFzqro
+	 vhKiiZD5PlNqzOOqhtkXLNshiW6rwKenn5eCbrCCed5iHy4b5HqjO+LcKnyWGEoGH0pwI
+	 tps+fuCiT3cj1yVnaE7kSuhnPOdXA+rzdX2TiFvauFc1+zm7xZTUt+8m6oxh/T1FphsX+
+	 C0auu6KM+k6yOL4K4SnH6XwuCEl3vzBqV3cGI0xBemAgTzvmJIs7D/LMuO6cfz1FW8g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=U9h54ba5;
-	arc=none smtp.remote-ip=170.10.133.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="iLsvu3/I";
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22D5C606A325
-	for <virtualization@lists.linux.dev>; Mon,  9 Nov 2026 15:14:27 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 22D5C606A325
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7ABF4606EE81
+	for <virtualization@lists.linux.dev>; Mon,  9 Nov 2026 16:24:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=U9h54ba5
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1794237267;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=p66YjuZUERp8DvJZY4JdqHSsqpUZEslDN4DOOe6L+lA=;
-	b=U9h54ba5kh6eMTiHWVDyfsP4JD/QBOWMm/37xE+CVtUiAqORHpL2pRhQQy2Xp/LqQh5soB
-	wkLp93nnLVlX/9taZ+FUqyVM3v0xQ4NLoy4P+cnKrnM/DLbbXVoLoMaHwXkc+BwUj34N+R
-	eDMHAa/7rPZN3+RMsrBTlvZcfzVSwWE=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-178-rwOSsI06N2GlokMiHUUWcQ-1; Mon,
- 09 Nov 2026 10:14:21 -0500
-X-MC-Unique: rwOSsI06N2GlokMiHUUWcQ-1
-X-Mimecast-MFC-AGG-ID: rwOSsI06N2GlokMiHUUWcQ_1794237259
-Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id A25231955F1A;
-	Mon,  9 Nov 2026 15:14:18 +0000 (UTC)
-Received: from localhost (headnet04.pony-001.prod.iad2.dc.redhat.com [10.2.32.116])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 9DE4318004FC;
-	Mon,  9 Nov 2026 15:14:17 +0000 (UTC)
-Date: Sat, 7 Nov 2026 08:17:14 -0500
-From: Stefan Hajnoczi <stefanha@redhat.com>
-To: Mike Christie <michael.christie@oracle.com>
-Cc: Hannes Reinecke <hare@suse.de>,
-	Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>, mst@redhat.com,
-	jasowangio@gmail.com, mkp@kernel.org,
-	James.Bottomley@hansenpartnership.com, pbonzini@redhat.com,
-	eperezma@redhat.com, virtualization@lists.linux.dev,
-	linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-	sashiko-bot@kernel.org, kwolf@redhat.com
-Subject: Re: [PATCH v2] scsi: virtio_scsi: implement eh_host_reset_handler
-Message-ID: <20261107131714.GA379875@shajnocz.csb>
-References: <20260911164417.33860-1-ngocthang2710.1999@gmail.com>
- <28865bba-ac60-4c6e-aec8-64b1fcdb1c8f@suse.de>
- <20260914133144.15509-1-ngocthang2710.1999@gmail.com>
- <20261102200615.GC1738758@shajnocz.csb>
- <c5460180-e134-423a-b67f-a58a00106eb8@suse.de>
- <20261103135156.GB2072598@shajnocz.csb>
- <92a8e5e4-2729-476f-82e5-e73e51a010e6@oracle.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iLsvu3/I
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2ADA21F008BE
+	for <virtualization@lists.linux.dev>; Mon,  9 Nov 2026 16:24:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794241477;
+	bh=n5wuRW+BfwesQSl9RZrQwjD+U8kT1DloxPy/4T2mCjg=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc;
+	b=iLsvu3/IT33w2+nw1tF/w838npiyt65hR1rXxS8vjaUt3qDkKBO8b5eWmYbwZ6OHJ
+	 8Snwt3Yyv/03bfyxCdmcwa+imVXIrxZCqOWxdbDYB5XSXcNen/nPu5kraSi0kTvBCE
+	 htS9lFwL5+zzJsEAnOFmua9OnZ6MHIAVuIx0M3zl0uoBPDAExEHjC4f/OU+ulyHnI2
+	 h7Z3Ini3FqqPlsDjiRUJvZf9ypBD2c7AL8pZCP80U1JYgxZ4u4SwH96LuT52FqTlYk
+	 1ZXMHHwmAUcnpoo6jTdp+dCjoWJXEiKlqdGhmAYDGbS49uaVVpTpH5q6GxYgLhLS8i
+	 nFijdDGiI/45Q==
+Received: by mail-oa1-f46.google.com with SMTP id 586e51a60fabf-4ad60ec5eaaso833380fac.0
+        for <virtualization@lists.linux.dev>; Mon, 09 Nov 2026 08:24:37 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AL+hErF3TzyZxFYUQlG7/vyU6PE/GGd1U0pKI1q9Dy5/7O70vo9wtE2M1RWo05P5mS/rYkdAlhPFCmTsu916mRs+aw==@lists.linux.dev
+X-Gm-Message-State: APuU4Z+cdokIocBT5ySilqkZo2M7M36UT39KNVpHlMu+FxyiMxiLfEkv
+	Tv6nhwFFLxaalQZkZop0aISvbOjkLMoKdaFfWtpPdLhWOrOga5Lln9HXz/okCCJ1xDfI/tZJ5h2
+	iraJ6zltVq3iwEG0R2U7k5/pEAhM+DaI=
+X-Received: by 2002:a05:6870:e311:b0:46a:c673:a16c with SMTP id
+ 586e51a60fabf-4ae1fe6de5cmr5970fac.5.1794241476458; Mon, 09 Nov 2026 08:24:36
+ -0800 (PST)
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -88,119 +59,221 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-In-Reply-To: <92a8e5e4-2729-476f-82e5-e73e51a010e6@oracle.com>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
-X-Mimecast-MFC-PROC-ID: OpaILRe7AnKxn71Ih9jFMb1xsGo-yLrXqqpNm-qvhjQ_1794237259
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+References: <20261106095340.2113683-2-edumazet@kernel.org> <179421814766.994134.3669228181251158303@kernel.org>
+In-Reply-To: <179421814766.994134.3669228181251158303@kernel.org>
+From: Eric Dumazet <edumazet@kernel.org>
+Date: Mon, 9 Nov 2026 17:24:25 +0100
+X-Gmail-Original-Message-ID: <CAL4Wiioa61dp2DXSOfJwj3avru8zBiqyx44G_JfBBfHbrAjMsg@mail.gmail.com>
+X-Gm-Features: AclHuK83hY0GSMGeOmqZ2p3f1VOqev2f_DFnXet7mIxLfflYJSQXAipPxiQLIMA
+Message-ID: <CAL4Wiioa61dp2DXSOfJwj3avru8zBiqyx44G_JfBBfHbrAjMsg@mail.gmail.com>
+Subject: Re: [PATCH net v4 1/2] net: virtio: validate outer protocol of UDP
+ tunnel GSO packets
+To: netdev-bot+sashiko@kernel.org
+Cc: netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org, 
+	pabeni@redhat.com, horms@kernel.org, willemb@google.com, mst@redhat.com, 
+	jasowangio@gmail.com, eperezma@redhat.com, hassansultan@google.com, 
+	virtualization@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, Nov 06, 2026 at 02:12:19PM -0600, Mike Christie wrote:
-> On 11/3/26 7:51 AM, Stefan Hajnoczi wrote:
-> > On Tue, Nov 03, 2026 at 08:27:52AM +0100, Hannes Reinecke wrote:
-> >> On 11/2/26 9:06 PM, Stefan Hajnoczi wrote:
-> >>> On Mon, Sep 14, 2026 at 08:31:44PM +0700, Nguyen Ngoc Thang wrote:
-> >>>> Once virtscsi_eh_timed_out() lets SCSI EH run on an unresponsive host,
-> >>>> abort and device reset both fail the same way (same dead ctrl vq), and
-> >>>> since virtio_scsi implements neither target nor bus reset, EH falls
-> >>>> through to scsi_eh_offline_sdevs(), which frees the stuck commands' DMA
-> >>>> buffers without any guarantee the device has actually stopped touching
-> >>>> them. If bus mastering (or whatever broke the transport) comes back
-> >>>> later, the device can still write into memory the kernel has already
-> >>>> reused.
-> >>>>
-> >>>> Add a real eh_host_reset_handler instead. virtio_reset_device() is the
-> >>>> guarantee scsi_eh_offline_sdevs() was missing: once it returns, the
-> >>>> device will not touch guest memory again, so it is safe to hand
-> >>>> outstanding commands' buffers back. Reuse virtscsi_remove_vqs() +
-> >>>> virtscsi_init() -- the exact sequence already used across
-> >>>> suspend/resume -- to tear the virtqueues down and rebuild them.
-> >>>>
-> >>>> Verified with a QEMU virtio-scsi repro (PCI_COMMAND_MASTER cleared
-> >>>> mid-write): EH now runs abort -> device reset -> host reset -> abort ->
-> >>>> device reset -> host reset -> offline, then dd's stuck fsync returns
-> >>>> EIO and D-state drains to 0, in ~244s total. No task remains
-> >>>> uninterruptibly blocked.
-> >>> By the way, there is a known limitation in the QEMU virtio-scsi
-> >>> implementation where some reset-related operations are implemented
-> >>> synchronously (can block vCPUs and QEMU activity while waiting for I/O
-> >>> to drain in some situations) instead of asynchronously. Recently there
-> >>> has been work in QEMU to make VIRTIO device reset asynchronous, for
-> >>> example, but it needs to be implemented on a per-device basis and
-> >>> virtio-scsi hasn't taken advantage of it yet.
-> >>>
-> >>> Please let me know if you'd like to discuss or contribute. It's
-> >>> something that is on my radar but not until 2027.
-> >>>
-> >>>> Suggested-by: Hannes Reinecke <hare@suse.de>
-> >>>> Signed-off-by: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>
-> >>>> ---
-> >>>> v1 -> v2: implemented eh_host_reset_handler as suggested by Hannes
-> >>>> Reinecke in review of the original RFC, instead of relying solely on
-> >>>> the EH loop falling through to offline.
-> >>>> ---
-> >>>>   drivers/scsi/virtio_scsi.c | 24 ++++++++++++++++++++++++
-> >>>>   1 file changed, 24 insertions(+)
-> >>>>
-> >>>> diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
-> >>>> index b4f20c487718..9698f4f91cc6 100644
-> >>>> --- a/drivers/scsi/virtio_scsi.c
-> >>>> +++ b/drivers/scsi/virtio_scsi.c
-> >>>> @@ -833,6 +833,8 @@ static enum scsi_timeout_action virtscsi_eh_timed_out(struct scsi_cmnd *scmnd)
-> >>>>   	return SCSI_EH_NOT_HANDLED;
-> >>>>   }
-> >>>> +static int virtscsi_host_reset(struct scsi_cmnd *sc);
-> >>>> +
-> >>>>   static const struct scsi_host_template virtscsi_host_template = {
-> >>>>   	.module = THIS_MODULE,
-> >>>>   	.name = "Virtio SCSI HBA",
-> >>>> @@ -846,6 +848,7 @@ static const struct scsi_host_template virtscsi_host_template = {
-> >>>>   	.eh_abort_handler = virtscsi_abort,
-> >>>>   	.eh_device_reset_handler = virtscsi_device_reset,
-> >>>>   	.eh_timed_out = virtscsi_eh_timed_out,
-> >>>> +	.eh_host_reset_handler = virtscsi_host_reset,
-> >>>>   	.sdev_init = virtscsi_device_alloc,
-> >>>>   	.dma_boundary = UINT_MAX,
-> >>>> @@ -947,6 +950,27 @@ static int virtscsi_init(struct virtio_device *vdev,
-> >>>>   	return err;
-> >>>>   }
-> >>>> +/*
-> >>>> + * No bus/target reset in virtio-scsi, so EH lands here after device
-> >>> The choice to use the VIRTIO device reset in virtscsi_host_reset() looks
-> >>> good to me, but I would like clarification on this comment. virtio-scsi
-> >>> does have I_T_NEXUS_RESET and I believe this is the modern equivalent to
-> >>> the pre-SCSI-6 TARGET RESET. Is it really the case that virtio-scsi
-> >>> doesn't have target reset? And do you want to go ahead and implement
-> >>> .eh_target_reset_handler() using I_T_NEXUS_RESET?
-> >>>
-> >> Would probably not a bad idea to use I_T_NEXUS_RESET here.
-> >> Not sure what it does internally, though; _is_ there a nexus
-> >> to reset?
-> > Whether there is any benefit to I_T_NEXUS_RESET may depend on the device
-> > implementation. In QEMU:
-> > - LOGICAL_UNIT_RESET resets just 1 LUN
-> > - I_T_NEXUS_RESET resets all LUNs
-> > - VIRTIO device reset also resets the HBA itself
-> > 
-> > In practice QEMU's I_T_NEXUS_RESET is unlikely to fix things if
-> > LOGICAL_UNIT_RESET wasn't sufficient. Maybe it will help on other device
-> > implementations though.
-> > 
-> > I think the Linux driver mapping should be:
-> > - .eh_device_reset_handler() -> LOGICAL_UNIT_RESET
-> > - .eh_target_reset_handler() -> I_T_NEXUS_RESET
-> > - .eh_host_reset_handler() -> VIRTIO device reset
-> 
-> How are vhost drivers notified of the device reset? For qemu virtio-scsi
-> this would call virtio_scsi_reset right?
-> 
-> For vhost-scsi though, do we need to add a similar reset function?
+Le lun. 9 nov. 2026 =C3=A0 10:55, <netdev-bot+sashiko@kernel.org> a =C3=A9c=
+rit :
+>
+> Thank you for your contribution! Sashiko AI review found 1 potential
+> issue(s) to consider.
+>
+> Critical: 0 =C2=B7 High: 0 =C2=B7 Medium: 1 =C2=B7 Low: 0 (1)
+>
+> If you believe none of the issues are legitimate, please reply to each
+> issue of Medium severity or higher and explain why the AI is wrong.
+> If any of them are legitimate and you plan to respin, please let patchwor=
+k
+> know by including "pw-bot: cr" as a separate line at the end of your repl=
+y
+> (one such reply per series is enough).
+>
+> - [Medium] The new strict outer-offset check rejects UDP-tunnel GSO
+>   frames that the kernel's own tun TX path produces whenever the skb=E2=
+=80=A6
+>
+> Pre-existing issues:
+> - [Low] In virtio_net_hdr_tnl_to_skb(), outer_l3min =3D ETH_HLEN +
+>   virtio_l3min(outer_isv6) (include/linux/virtio_net.h:491).
+>
+> --
+>
+> net: virtio: validate outer protocol of UDP tunnel GSO packets
+>
+> This commit makes virtio_net_hdr_tnl_to_skb() check that the frame's oute=
+r
+> L3 protocol matches the declared tunnel type. It also checks that the out=
+er
+> UDP header sits exactly at outer_th_offset. Callers pass a new has_eth
+> argument that says whether the frame starts with an Ethernet header. This
+> closes a path where an arbitrary outer ethertype combined with
+> SKB_GSO_UDP_TUNNEL could crash the host in skb_under_panic().
+>
+> Link: https://lore.kernel.org/netdev/93d0e37c99711bebdf60c120af03010455c2=
+f2e2.1793276116.git.mst@redhat.com/
+>
+> > diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+> > index d6466f96cdd00..b7b6b542f4763 100644
+> > --- a/include/linux/virtio_net.h
+> > +++ b/include/linux/virtio_net.h
+>
+> [ ... ]
+>
+> > @@ -282,9 +424,33 @@ static inline unsigned int virtio_l3min(bool is_ip=
+v6)
+> >       return is_ipv6 ? sizeof(struct ipv6hdr) : sizeof(struct iphdr);
+> >  }
+> >
+> > +/* Do the tunnel offsets match the outer headers in the frame?
+> > + * The L3 header the tunnel claims must be the one the frame
+> > + * carries, with UDP following it at @outer_th.
+> > + */
+> > +static inline bool
+> > +virtio_net_tnl_offsets_ok(struct sk_buff *skb, bool has_eth, bool oute=
+r_isv6,
+> > +                       unsigned int outer_th)
+> > +{
+> > +     int nhoff;
+> > +     __be16 proto;
+> > +     unsigned int thoff;
+> > +     int ip_proto;
+> > +
+> > +     if (!virtio_net_l3_start(skb, has_eth, &nhoff, &proto))
+> > +             return false;
+> > +     if (outer_isv6 !=3D (proto =3D=3D htons(ETH_P_IPV6)))
+> > +             return false;
+> > +     if (!virtio_net_l4_start(skb, nhoff, proto, &thoff, &ip_proto))
+> > +             return false;
+> > +
+> > +     return ip_proto =3D=3D IPPROTO_UDP && outer_th =3D=3D thoff;
+>
+> [Severity: Medium]
+>
+> Can this exact match reject UDP tunnel GSO frames that tun itself produce=
+s
+> when the skb carries a VLAN hwaccel tag?
+>
+> On the producer side, tun_put_user() writes the 802.1Q tag into the frame
+> it copies to userspace or vhost-net. It calls tun_vnet_hdr_tnl_from_skb()
+> with vlan_hlen =3D VLAN_HLEN. Only csum_start accounts for the tag:
+>
+> include/linux/virtio_net.h:virtio_net_hdr_from_skb() {
+>     ...
+>                 hdr->csum_start =3D __cpu_to_virtio16(little_endian,
+>                         skb_checksum_start_offset(skb) + vlan_hlen);
+>     ...
+> }
+>
+> The tunnel offsets do not:
+>
+> include/linux/virtio_net.h:virtio_net_hdr_tnl_from_skb() {
+>     ...
+>         inner_nh =3D skb->inner_network_header - skb_headroom(skb);
+>         outer_th =3D skb->transport_header - skb_headroom(skb);
+>         vhdr->inner_nh_offset =3D cpu_to_le16(inner_nh);
+>         vhdr->outer_th_offset =3D cpu_to_le16(outer_th);
+>     ...
+> }
+>
+> So outer_th_offset and inner_nh_offset both end up 4 bytes short of the
+> real UDP and inner headers in the emitted frame.
+>
+> On the consumer side, with has_eth set, virtio_net_l3_start() walks the
+> in-band VLAN tag with __vlan_get_protocol(). That gives nhoff =3D 18, so
+> thoff points at the real UDP header (38 for IPv4). The emitted outer_th i=
+s
+> 34, this comparison fails, and virtio_net_hdr_tnl_to_skb() returns -EINVA=
+L.
+>
+> Before this patch the same frame was accepted. Only transport_header was
+> off by 4, and ip_rcv_core() and ip6_rcv_core() reset it for local deliver=
+y.
+>
+> With this change, would a guest that gets these frames from a host tap
+> drop them in virtnet_receive_done() as "bad gso" and bump
+> rx_frame_errors? A tun/tap writer that re-injects frames it read from
+> another tun would see the same rejection.
+>
+> This looks reachable with VLAN-tagged UDP tunnel GSO traffic. Two example=
+s
+> are a VLAN filtering bridge with a tagged egress port, and a vlan device =
+on
+> top of a tap. tun advertises NETIF_F_HW_VLAN_CTAG_TX/STAG_TX in
+> hw_features and hw_enc_features, so the tag stays in hwaccel until
+> tun_put_user().
+>
+> The later patch in this series, "tun: clear stale skb->protocol of NAPI
+> frags skbs", does not seem to fix the producer side. Should
+> virtio_net_hdr_tnl_from_skb() add vlan_hlen to outer_th_offset and
+> inner_nh_offset, with that fix landing with or before this check?
+>
 
-VIRTIO device reset is handled by vhost_scsi's VHOST_SCSI_CLEAR_ENDPOINT
-and VHOST_SCSI_SET_ENDPOINT ioctls called from QEMU's
-hw/scsi/vhost-scsi.c:vhost_scsi_set_status(). The Linux vhost_scsi code
-flushes requests and resets the device, so I don't think code changes
-are needed.
+Right. tun keeps the tag in hwaccel for UDP tunnel GSO packets, and only
+csum_start accounts for it. The wrong offsets were already a bug: the
+receiver set inner_network_header 4 bytes off, and a forwarded packet
+segmented again would use the wrong inner headers.
 
-Stefan
+v5 will add a patch before this one, so that virtio_net_hdr_tnl_from_skb()
+adds vlan_hlen to both offsets.
 
+> > +}
+> > +
+> >  static inline int
+> >  virtio_net_hdr_tnl_to_skb(struct sk_buff *skb,
+> >                         const struct virtio_net_hdr_v1_hash_tunnel *vhd=
+r,
+> > +                       bool has_eth,
+> >                         bool tnl_hdr_negotiated,
+> >                         bool tnl_csum_negotiated,
+> >                         bool little_endian)
+> > @@ -338,6 +504,9 @@ virtio_net_hdr_tnl_to_skb(struct sk_buff *skb,
+> >       if (ret)
+> >               return ret;
+> >
+> > +     if (!virtio_net_tnl_offsets_ok(skb, has_eth, outer_isv6, outer_th=
+))
+> > +             return -EINVAL;
+> > +
+>
+> [Severity: Low]
+>
+> This is a pre-existing issue, not one introduced by this patch, but does
+> the has_eth =3D false path ever see ordinary IFF_TUN frames?
+>
+> Earlier in virtio_net_hdr_tnl_to_skb(), the minimum outer offset still
+> assumes an Ethernet header, whatever has_eth says:
+>
+>         outer_l3min =3D ETH_HLEN + virtio_l3min(outer_isv6);
+>         ...
+>         if (outer_th < outer_l3min ||
+>
+> For IFF_TUN, tun_get_user() passes has_eth =3D false and the network head=
+er
+> is at offset 0. virtio_net_tnl_offsets_ok() therefore needs outer_th =3D=
+=3D 20
+> for plain IPv4 or 40 for plain IPv6. Both values are below the 34/54 floo=
+r,
+> so these frames are rejected before the new check runs.
+>
+> That leaves the !has_eth branch of virtio_net_l3_start() reachable only f=
+or
+> outer IPv4 with at least 16 bytes of options, or outer IPv6 with at least
+> 16 bytes of extension headers. The L3-relative offsets produced by tun TX
+> and by the selftest helper build_virtio_net_hdr_v1_hash_tunnel()
+> (eth_hlen =3D 0 for !is_tap) are still rejected.
+>
+> The ETH_HLEN floor dates from a2fb4bc4e2a6. Now that callers pass has_eth=
+,
+> should outer_l3min depend on it?
+>
+
+This predates this series: UDP tunnel GSO over IFF_TUN has never worked
+with plain IPv4/IPv6 outer headers. Removing the floor would enable a
+path that has never been used, which does not belong in this fix.
+I will send this as a follow-up.
+
+pw-bot: cr
