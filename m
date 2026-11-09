@@ -1,62 +1,143 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794227698;
-	b=zZyxb3Ur2UOf93aemHeEG8zwJCYXB57TYp8vl03Z8uwZJ/zXj2y8JIA2OQZij3Kngjc7
-	 Uhpz/5uhsEatK59fswSHuLtJq3MnnuuYoahaT2S+z5upsVZsgE1wRe+C8ngtLcq7EgBGZ
-	 NEH9t2ORGPTgxu7rDdr00Dig513unRHA0RLqfApQYZDjA0HO3RQCs8S70nepguuxaLzpA
-	 tVUS23v27GE3495rTUltItyLD3ZVLyMXHO5mh5b03qNuYAKEWNHF/mYps9fbqDqYVMnBW
-	 Lr8HCa/GfOzyjyDZzN76DEl4QWZh7m+Egb4iw9OUz5W04yiNJC1wAgq2dyIvNnKfOUQ==
+	t=1794229611;
+	b=VurpK7hDFaLDSp+YwZgaSqlj5mTj4xgmM7RMXpXpzsMi8qep/39qEPiixlZ+GBucmB9o
+	 rL7glWG75UbNo9Bv0Ppp5YQxKSVMsSC6/wPzEbw0CZLNjG0YG06hs4wkvtgBcOeAMwnRq
+	 KhHGgqad38Yx9pnhfxoPVzEVZ0UUspA6sRFNk/Hn2wPQtmrBocniB2E6aNorG/BZiS8dz
+	 ZPimKZgf0suIWilIO7VRTS1yYcF7L2lyAfdBAl65CASLJmM72fOhQqXCOpbIAu80aQtSI
+	 ZCPUoRSdBQ811W4GNFvye8yGHZQjkIjzyyoHZ4YADspnOrp8aSpEheEFuetdczXtbqQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794227698;
-	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
-	 In-Reply-To:References:X-sashiko-severity:Content-Type:
-	 Content-Transfer-Encoding:MIME-Version;
-	bh=FV/e5DTSHGHujwnLji+sEp9cemeAfuZJZ3Rm6Igc44Y=;
-	b=Ui+xwO2zA+S/v7pdQznQp6iuZuVjuWbXhCSOASksmOz3YXeey6JHCEDmZdHW4Tr+Dgc3
-	 Kupi+qHwogUQw0ph1CtR/lHHtwPkgdbgRLz4tOeU0ozA6vy/SAszFTzYPKH3ZriSJeA4o
-	 Rb6KcqpqD37nynDWpDxyFM3BJ8Up6mBLpFAZ4f3CuteaalOp9+kcspl9MSCR+OdVBCACz
-	 sfHDFR1fOa9f2GecJ2SeTSWPPv0NdOrwfOip0/Es5rVkq1CgqkFcoe01ZunIKVAzQ3JKq
-	 Crt4cq2vP2TKIX+gTqrZFsCaDVmVgxA7oeSNCpx9uZbLxJEfVP2OYIQ6cT+v4mLBn8Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794229611;
+	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
+	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
+	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
+	 X-Mimecast-Originator:Content-Type:Content-Disposition;
+	bh=Ala+oDARam9VyrCVVd83FiqqzQ26GgOylxTttfV+xTA=;
+	b=s3Rq7sA7CaEefMMgnNkmQAtP/9CsEz2UAltjXhu2sJI0YqjjhNaDSz2MsHsgHoqMex2u
+	 FuBAAgUgAMy7BVknwIwiElGRimO2WIhB0oe/r+QQrjlHB8FqUBqXV3iEUj/HMnWKm62iD
+	 rHMw7PpRXloCEbexhBjS7dNetxrsN7TeHXAVXDEo83CVIGS9++DGXXV940aF9u+3h6d6Y
+	 q8rtDLnhPG4ZvknudIrmiujjfzEcZROdxMiZdv4KSAji1jIz/S8GliPBr5j1/gy7oio+I
+	 kiswsbL19NVcOhXvOYFmPpd6hUrHHYCRDL9vJf42UVehQFb6tYLDNS7mpLUh21KR66Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WvDlWwGB;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=redhat.com;
+	spf=pass smtp.mailfrom=redhat.com;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UXmcXJOt;
+	arc=none smtp.remote-ip=170.10.133.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8647A606EEB5;
-	Mon,  9 Nov 2026 12:34:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CDA0606A336
+	for <virtualization@lists.linux.dev>; Mon,  9 Nov 2026 13:06:50 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1CDA0606A336
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WvDlWwGB
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16E331F0089F;
-	Mon,  9 Nov 2026 12:34:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794227698;
-	bh=FV/e5DTSHGHujwnLji+sEp9cemeAfuZJZ3Rm6Igc44Y=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=WvDlWwGBFrIAvkPaKeIjvUvoXyewNtM4oNcjfnVwDwBRSpReShHkZOPL9ty6xKrg6
-	 13LpSsoV1ANlwc+InTjjPtgNr045ZnEjrTODjJ/MUMaISlxjNu1n+80E4Cog6ngdZn
-	 MVXJ5cMg2OfVZARYAaJP+SoQUlYSlyXKTdCS3iePda0/4iUcTG7+XY4pLKXK/KU+q6
-	 eQr36UYj5N9PpoaeD5o0EGQeCPpF3SNcnFSH+zOqWDpWZ6AXuEej7u/opmgPnj5os2
-	 L6YXVZer7HFsiB1YVVgyRcycMXMuBkiFcJLsZQKHl4T9MsQKrKWFwZVm9PZIuQi2tZ
-	 uV6lgrU8tdXng==
-Subject: Re: [PATCH net v2 3/3] virtio_net: Keep AF_XDP zero-copy pools bound
- across suspend
-From: netdev-bot+sashiko@kernel.org
-To: yanhaishuang@cmss.chinamobile.com
-Cc: mst@redhat.com, jasowangio@gmail.com, xuanzhuo@linux.alibaba.com,
- eperezma@redhat.com, andrew+netdev@lunn.ch, davem@davemloft.net,
- edumazet@kernel.org, kuba@kernel.org, pabeni@redhat.com, ast@kernel.org,
- daniel@iogearbox.net, hawk@kernel.org, john.fastabend@gmail.com,
- sdf@fomichev.me, netdev@vger.kernel.org, virtualization@lists.linux.dev,
- bpf@vger.kernel.org, linux-kernel@vger.kernel.org
-Date: Mon, 09 Nov 2026 12:34:56 +0000
-Message-ID: <179422769660.994134.7551261891585249565@kernel.org>
-In-Reply-To: <20261108193845.73621-4-yanhaishuang@cmss.chinamobile.com>
-References: <20261108193845.73621-4-yanhaishuang@cmss.chinamobile.com>
-X-sashiko-severity: High
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UXmcXJOt
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1794229610;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Ala+oDARam9VyrCVVd83FiqqzQ26GgOylxTttfV+xTA=;
+	b=UXmcXJOtilHFjGvwez6rO6q+AbZFLoTde0Y511FZa8Lb1Ab7Lbiewhz5vCV0eEA7Nz7xDA
+	A34uvJHDfl2e8bxZcRRR4hqBGi7MDd+AImCsbElrXtnX9MNkW6wqAu+HeVd0jcVCzvVv/X
+	0mIn02WplMqjvTFwaiUbo3BrR6zDdRM=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-686-R9dhMviaPBmYaObykCA6Ww-1; Mon, 09 Nov 2026 08:06:48 -0500
+X-MC-Unique: R9dhMviaPBmYaObykCA6Ww-1
+X-Mimecast-MFC-AGG-ID: R9dhMviaPBmYaObykCA6Ww_1794229607
+Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-c4163a5400eso88521566b.1
+        for <virtualization@lists.linux.dev>; Mon, 09 Nov 2026 05:06:48 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794229607; x=1794834407;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=Ala+oDARam9VyrCVVd83FiqqzQ26GgOylxTttfV+xTA=;
+        b=idjUhbV2POBrAfWK+vVA4umygd5q162iNHGgj/Hy3mhvTDbvSKO3nso5npMIXASwDo
+         hi3WPnGi6hUZLsQjakZNv1ImXmPrfpM5hp5W6lZ0NLR/CR0wFp3prKNuK+Kza/82XBzE
+         c89g/IpLkru7p+bnyLLD2rkZagQvUmUaNGOSncQGswc1KO39MblOfcgYZREaAc1qYpCl
+         +WRFD0tNw1ufCSvGLsZyelaO9AAvTrAFzxfikWGVX/wcMs89sJxqFT2Td0baTHAsbO/Z
+         8GuJJ8lQZ7GNId9uyXdOS8PgHuYcynprKL/xw/INDePEfJvtdPoNSu3qY4cfQxggaSy6
+         QUNA==
+X-Forwarded-Encrypted: i=1; AL+hErGcN4Ps3VzEAKJoo4LKzL0JE9xMXRCfRLmjRGRlWAStdUAGSR9nb+qpcYd4BvW5R+OwrjW8x3YD5HqRc2bzZQ==@lists.linux.dev
+X-Gm-Message-State: APuU4Z9Y2wJpAaL7LF+7vip5arCDEbeNxxNsGcHyPd0vkQ6iGBKJf03L
+	uQ0DNaEcIF3eqsI2GAwGuDrJoBOd5nnR5CSdeE56mFbPn26E8h1VT4c12bnriXGHvwM7jY0Cs6r
+	L4hMBKpb/C12xY0ESJYrDw6jP/x1e7Xl5SwaMEICvUK0jD4S97/v/BgGymEJB5cmkI4hB
+X-Gm-Gg: AYBFou3NaUhJ6dYyPWfxPXxUlqq8upQvw5EWTObfKrYApnfOmJs//ywieY79yTTped4
+	bTK2fnPy8ucasgNPBubMVugIHyFBU2WAhzIwLSoR2/kV2CSzoc5O4UwyDVsy4HgzetCH3U36VZc
+	wgi2I1mY8mVy9iRi48llxKoTJhqCrhoLSenbzyKTpWu2E+mlVZzIqdJ1iG7qJAPqSAdhw3oZEGR
+	ulNIi0Ji7ZThin4KibAsN9brYgIbNIXkZ5gpWpnCwUiqqKmJ6qO93XwocNFVdOWvi1hnHz6m/O7
+	Pu3sgErqk/CvUX8LwuvNcIP5R5QyFv88+WdKqtWHlaeYsIOli0kEbpQrvGvr73IUMU84/Ys8fS0
+	ekzEiHbgL/UtPpU/894pTvtFYIuExgz5fkFmMANTK
+X-Received: by 2002:a17:907:18c3:b0:c25:f7db:4bec with SMTP id a640c23a62f3a-c4d6db5760cmr321582066b.18.1794229607388;
+        Mon, 09 Nov 2026 05:06:47 -0800 (PST)
+X-Received: by 2002:a17:907:18c3:b0:c25:f7db:4bec with SMTP id a640c23a62f3a-c4d6db5760cmr321574566b.18.1794229606674;
+        Mon, 09 Nov 2026 05:06:46 -0800 (PST)
+Received: from redhat.com ([2a0d:6fc0:1511:2900:ff37:b35c:a97:952d])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c4d69f9384csm168299566b.13.2026.11.09.05.06.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 09 Nov 2026 05:06:45 -0800 (PST)
+Date: Mon, 9 Nov 2026 08:06:38 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+Cc: Juergen Gross <jgross@suse.com>,
+	Stefano Stabellini <sstabellini@kernel.org>,
+	Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	"Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
+	Shrikanth Hegde <sshegde@linux.ibm.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>,
+	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Jarkko Sakkinen <jarkko@kernel.org>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>, Jan Kara <jack@suse.com>,
+	Paul Moore <paul@paul-moore.com>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Ondrej =?utf-8?B?TW9zbsOhxI1law==?= <omosnacek@gmail.com>,
+	Joel Stanley <joel@jms.id.au>,
+	Andrew Jeffery <andrew@codeconstruct.com.au>,
+	Ryan Chen <ryan_chen@aspeedtech.com>,
+	Billy Tsai <billy_tsai@aspeedtech.com>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Konrad Dybcio <konradybcio@kernel.org>,
+	Abel Vesa <abelvesa@kernel.org>, Jens Wiklander <jenswi@kernel.org>,
+	Sumit Garg <sumit.garg@kernel.org>,
+	Scott Branden <scott.branden@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Richard Cochran <richardcochran@gmail.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@kernel.org>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
+	linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
+	linux-sgx@vger.kernel.org, selinux@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org,
+	linux-arm-msm@vger.kernel.org, op-tee@lists.trustedfirmware.org,
+	netdev@vger.kernel.org
+Subject: Re: [PATCH 14/14] vhost-vdpa: convert mmap hook to mmap_prepare
+Message-ID: <20261109080616-mutt-send-email-mst@kernel.org>
+References: <20261105-late-2026-mmap_prepare-v1-0-c56aadfbab8a@kernel.org>
+ <20261105-late-2026-mmap_prepare-v1-14-c56aadfbab8a@kernel.org>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -66,299 +147,86 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
+In-Reply-To: <20261105-late-2026-mmap_prepare-v1-14-c56aadfbab8a@kernel.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: arF0X7a53-XqeYezYQY58rM3ScH-EY6ybugHPJj0_Tg_1794229607
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Thank you for your contribution! Sashiko AI review found 4 potential
-issue(s) to consider.
+On Thu, Nov 05, 2026 at 09:05:45PM +0000, Lorenzo Stoakes (ARM) wrote:
+> Move from the deprecated mmap hook to the new mmap_prepare hook. The hook
+> only validates the request and sets the VMA flags, operations and page
+> protection.
+> 
+> Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
 
-Critical: 0 · High: 1 (1) · Medium: 3 · Low: 0
 
-If you believe none of the issues are legitimate, please reply to each
-issue of Medium severity or higher and explain why the AI is wrong.
-If any of them are legitimate and you plan to respin, please let patchwork
-know by including "pw-bot: cr" as a separate line at the end of your reply
-(one such reply per series is enough).
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-- [High] virtnet_xsk_pools_release() unmaps the DMA of a zero-copy pool
-  sitting at a qid >= curr_queue_pairs (left there by removing XDP), but…
-- [Medium] When virtnet_xsk_pool_attach() fails on restore, the pool
-  stays DMA mapped while rq->xsk_pool stays NULL.
-- [Medium] If virtnet_xsk_pool_attach() fails during restore,
-  virtnet_xsk_pools_attach() only logs netdev_warn() and the resume…
-- [Medium] virtnet_xsk_pools_release() is a new writer of AF_XDP driver
-  state (rq->xsk_pool, sq->xsk_pool, rq->xsk_buffs, sq->xsk_hdr) that…
-
-Pre-existing issues:
-- [High] This problem wasn't introduced by this patch, but it defeats the
-  patch's cleanup model on the failed-restore path.
-
---
-
-virtio_net: Keep AF_XDP zero-copy pools bound across suspend
-
-This patch keeps AF_XDP zero-copy pools DMA mapped across freeze and
-restore. Only the driver state (xsk_buffs, TX header, xdp_rxq_info) moves
-from the old queues to the new ones: it is released in remove_vq_common()
-and attached again in virtnet_restore_up() before virtnet_open(). Pools
-above curr_queue_pairs are unmapped on freeze. virtnet_xsk_pool_disable()
-gets a fallback that unmaps pools whose attach failed on restore.
-
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index f9d227060375c..d9c920f421268 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-
-[ ... ]
-
-> @@ -5808,6 +5810,7 @@ static int virtnet_restore_up(struct virtio_device *vdev)
->  err_destroy_pools:
->  	virtio_reset_device(vdev);
->  	free_unused_bufs(vi);
-> +	virtnet_xsk_pools_release(vi);
->  	virtnet_destroy_page_pools(vi);
->  	virtnet_del_vqs(vi);
->  	return err;
-
-[Severity: High]
-This is a pre-existing issue that this patch did not introduce, but the
-new error path depends on it.
-
-When virtnet_restore_up() fails (init_vqs, virtnet_create_page_pools or
-virtnet_open), or virtnet_cpu_notif_add() fails in virtnet_restore(),
-virtnet_del_vqs()->virtnet_free_queues() does:
-
-	kfree(vi->rq);
-	kfree(vi->sq);
-
-The pointers are not cleared, and the netdev stays registered.
-
-On this path virtnet_xsk_pools_release() deliberately leaves the pools with
-i < curr_queue_pairs DMA mapped. It expects virtnet_xsk_pool_disable() to
-unmap them when the socket is closed. A socket close after thaw goes
-through:
-
-xp_release_deferred()
-  xp_clear_dev()
-    xp_disable_drv_zc()
-      ndo_bpf()
-        virtnet_xsk_pool_disable()
-
-and that function starts with:
-
-	sq = &vi->sq[qid];
-	rq = &vi->rq[qid];
-
-	pool = rq->xsk_pool;
-
-Does this read the freed vi->rq before it ever reaches the new !pool
-check? Depending on the stale contents, it could go on into
-virtnet_rq_bind_xsk_pool() and virtqueue_reset() on freed queues.
-
-xp_put_pool() queues the release on system_freezable_wq, so it cannot run
-while the system is frozen. Only the failed-restore case applies. Other
-ndo ops, such as virtnet_close(), also touch the dangling vi->rq after a
-failed restore.
-
-[ ... ]
-
-> @@ -6038,6 +6041,13 @@ static int virtnet_xsk_pool_disable(struct net_device *dev, u16 qid)
->  	rq = &vi->rq[qid];
+Who's merging this, me?
+> ---
+>  drivers/vhost/vdpa.c | 23 ++++++++++++-----------
+>  1 file changed, 12 insertions(+), 11 deletions(-)
+> 
+> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+> index ff7d90719171..993b2d7c8927 100644
+> --- a/drivers/vhost/vdpa.c
+> +++ b/drivers/vhost/vdpa.c
+> @@ -1573,19 +1573,19 @@ static const struct vm_operations_struct vhost_vdpa_vm_ops = {
+>  	.fault = vhost_vdpa_fault,
+>  };
 >  
->  	pool = rq->xsk_pool;
-> +	if (!pool) {
-> +		/* Binding it again on restore failed, only the DMA map is left */
-> +		pool = xsk_get_pool_from_qid(dev, qid);
-> +		if (pool)
-> +			xsk_pool_dma_unmap(pool, 0);
-> +		return 0;
-> +	}
-
-[Severity: Medium]
-Can this fallback miss a pool that is still mapped? xsk_get_pool_from_qid()
-filters on the current real queue counts:
-
-net/xdp/xsk.c:xsk_get_pool_from_qid() {
-	if (queue_id < dev->real_num_rx_queues)
-		return dev->_rx[queue_id].pool;
-	if (queue_id < dev->real_num_tx_queues)
-		return dev->_tx[queue_id].pool;
-	return NULL;
-}
-
-Consider this sequence:
-
-1. A zc pool is bound at a queue Q in the XDP range
-   [curr_qp, curr_qp + xdp_qp).
-
-2. Suspend keeps it mapped because Q < curr_queue_pairs. On resume,
-   virtnet_xsk_pool_attach() fails (allocation failure, header mapping
-   error, or xdp_rxq_info_reg() failure) and only netdev_warn() is
-   printed.
-
-3. XDP is reinstalled and then removed. Removing it right after resume is
-   a no-op, because freeze dropped rq->xdp_prog. The removal makes
-   virtnet_xdp_set() call netif_set_real_num_rx_queues(dev, curr_qp).
-
-4. When the socket closes, virtnet_xsk_pool_disable(Q) sees
-   rq->xsk_pool == NULL. xsk_get_pool_from_qid() fails both real_num
-   checks and returns NULL, so the function returns 0.
-
-Is the DMA mapping, and the umem's xsk_dma_map refcount, leaked at that
-point? A later freeze doesn't clean it up either, because
-virtnet_xsk_pools_release() only acts when rq->xsk_pool is set. The umem
-pages would later be unpinned while the IOMMU still maps them.
-
-[ ... ]
-
-> +static void virtnet_xsk_pools_release(struct virtnet_info *vi)
-> +{
-> +	int i;
-> +
-> +	for (i = 0; i < vi->max_queue_pairs; i++) {
-> +		struct receive_queue *rq = &vi->rq[i];
-> +		struct send_queue *sq = &vi->sq[i];
-> +
-> +		if (rq->xsk_pool) {
-> +			if (i >= vi->curr_queue_pairs)
-> +				xsk_pool_dma_unmap(rq->xsk_pool, 0);
-
-[Severity: High]
-Does this leave a zero-copy pool registered in the xsk core but no longer
-DMA mapped? The pool stays at dev->_rx[Q].pool with umem->zc set, and
-xp_dma_unmap() does:
-
-	kvfree(pool->dma_pages);
-	pool->dma_pages = NULL;
-	pool->dma_pages_cnt = 0;
-	pool->dev = NULL;
-
-It does not clear the per-xskb dma values in pool->heads.
-
-curr_queue_pairs can later grow back over Q. One way is ethtool -L:
-virtnet_set_channels() only rejects the change when rq[0].xdp_prog is set,
-and that is NULL after resume. Reinstalling XDP has the same effect.
-
-On the next suspend/resume, virtnet_xsk_pools_attach() only filters on:
-
-	if (!pool || !pool->umem->zc)
-		continue;
-
-virtnet_xsk_pool_attach() only checks rq->page_pool and that the DMA
-devices match. So the unmapped pool is installed as rq->xsk_pool and
-sq->xsk_pool.
-
-On TX the path is:
-
-virtnet_poll_tx()
-  virtnet_xsk_xmit()
-    virtnet_xsk_xmit_one()
-      xsk_buff_raw_get_dma()
-        __xp_raw_get_dma()
-
-which indexes pool->dma_pages[addr >> PAGE_SHIFT] while dma_pages is NULL,
-at an offset chosen by userspace.
-
-On RX the path is:
-
-virtnet_open()
-  try_fill_recv()
-    virtnet_add_recvbuf_xsk()
-      xsk_buff_alloc_batch()
-
-pool->dev is NULL, so the slow path is skipped. Stale xskb->dma addresses
-from the destroyed mapping are then posted with
-virtqueue_add_inbuf_premapped(). With a vIOMMU or swiotlb (confidential VMs,
-for example), those IOVAs or bounce slots have already been freed.
-
-Doesn't this break the invariant behind the comment in
-virtnet_xsk_pools_attach(), "The pool stays DMA mapped until it is
-disabled"?
-
-[ ... ]
-
-> +static void virtnet_xsk_pools_attach(struct virtnet_info *vi)
-> +{
-> +	struct xsk_buff_pool *pool;
-> +	int i, err;
-> +
-> +	ASSERT_RTNL();
-> +
-> +	for (i = 0; i < vi->curr_queue_pairs; i++) {
-> +		pool = xsk_get_pool_from_qid(vi->dev, i);
-> +		if (!pool || !pool->umem->zc)
-> +			continue;
-> +
-> +		/* The pool stays DMA mapped until it is disabled */
-> +		err = virtnet_xsk_pool_attach(vi, i, pool);
-> +		if (err)
-> +			netdev_warn(vi->dev,
-> +				    "failed to bind AF_XDP pool to queue %d: %d\n",
-> +				    i, err);
-> +	}
-> +}
-
-[Severity: Medium]
-What happens to the bound AF_XDP socket when this attach fails? The pool is
-still registered at the qid with umem->zc set, but rq->xsk_pool and
-sq->xsk_pool stay NULL. virtnet_poll_tx() only services XSK TX when
-sq->xsk_pool is set:
-
-	if (sq->xsk_pool)
-		xsk_done = virtnet_xsk_xmit(sq, sq->xsk_pool, budget);
-	else
-		free_old_xmit(sq, txq, !!budget);
-
-So the socket's TX ring is never consumed. virtnet_xsk_wakeup() still
-returns 0, and the socket gets no sk_err or ENETDOWN, so userspace has no
-signal that anything is wrong. RX on that queue quietly falls back to
-page_pool buffers.
-
-The socket stays stalled until the next suspend cycle or a rebind. The
-commit message says:
-
-    If that fails for a queue, the pool is left DMA mapped and
-    virtnet_xsk_pool_disable() only unmaps it when the socket is closed.
-
-It does not mention that the socket stops passing traffic. Should the
-socket be told about the failure, or should this case be handled some
-other way?
-
-[ ... ]
-
-> @@ -7208,6 +7345,8 @@ static void remove_vq_common(struct virtnet_info *vi)
->  	/* Free unused buffers in both send and recv, if any. */
->  	free_unused_bufs(vi);
+> -static int vhost_vdpa_mmap(struct file *file, struct vm_area_struct *vma)
+> +static int vhost_vdpa_mmap_prepare(struct vm_area_desc *desc)
+>  {
+> -	struct vhost_vdpa *v = vma->vm_file->private_data;
+> +	struct vhost_vdpa *v = desc->file->private_data;
+>  	struct vdpa_device *vdpa = v->vdpa;
+>  	const struct vdpa_config_ops *ops = vdpa->config;
+>  	struct vdpa_notification_area notify;
+> -	unsigned long index = vma->vm_pgoff;
+> +	unsigned long index = desc->pgoff;
 >  
-> +	virtnet_xsk_pools_release(vi);
-> +
+> -	if (vma->vm_end - vma->vm_start != PAGE_SIZE)
+> +	if (vma_desc_size(desc) != PAGE_SIZE)
+>  		return -EINVAL;
+> -	if ((vma->vm_flags & VM_SHARED) == 0)
+> +	if (!vma_desc_test(desc, VMA_SHARED_BIT))
+>  		return -EINVAL;
+> -	if (vma->vm_flags & VM_READ)
+> +	if (vma_desc_test(desc, VMA_READ_BIT))
+>  		return -EINVAL;
+>  	if (!ops->get_vq_notification)
+>  		return -ENOTSUPP;
+> @@ -1598,12 +1598,13 @@ static int vhost_vdpa_mmap(struct file *file, struct vm_area_struct *vma)
+>  		return -EINVAL;
+>  	if (notify.addr & (PAGE_SIZE - 1))
+>  		return -EINVAL;
+> -	if (vma->vm_end - vma->vm_start != notify.size)
+> +	if (vma_desc_size(desc) != notify.size)
+>  		return -ENOTSUPP;
+>  
+> -	vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+> -	vm_flags_set(vma, VM_IO | VM_PFNMAP | VM_DONTEXPAND | VM_DONTDUMP);
+> -	vma->vm_ops = &vhost_vdpa_vm_ops;
+> +	desc->page_prot = pgprot_noncached(desc->page_prot);
+> +	vma_desc_set_flags(desc, VMA_IO_BIT, VMA_PFNMAP_BIT, VMA_DONTEXPAND_BIT,
+> +			   VMA_DONTDUMP_BIT);
+> +	desc->vm_ops = &vhost_vdpa_vm_ops;
+>  	return 0;
+>  }
+>  #endif /* CONFIG_MMU */
+> @@ -1615,7 +1616,7 @@ static const struct file_operations vhost_vdpa_fops = {
+>  	.write_iter	= vhost_vdpa_chr_write_iter,
+>  	.unlocked_ioctl	= vhost_vdpa_unlocked_ioctl,
+>  #ifdef CONFIG_MMU
+> -	.mmap		= vhost_vdpa_mmap,
+> +	.mmap_prepare	= vhost_vdpa_mmap_prepare,
+>  #endif /* CONFIG_MMU */
+>  	.compat_ioctl	= compat_ptr_ioctl,
+>  };
+> 
+> -- 
+> 2.56.0
 
-[Severity: Medium]
-Should this run under RTNL? Every other writer of rq->xsk_pool,
-sq->xsk_pool, rq->xsk_buffs and sq->xsk_hdr runs under RTNL through
-ndo_bpf. remove_vq_common() is reached from virtnet_freeze() without RTNL.
-The err_destroy_pools path in virtnet_restore_up() also calls
-virtnet_xsk_pools_release() after rtnl_unlock().
-
-The unmap path is:
-
-xsk_pool_dma_unmap()
-  xp_dma_unmap()
-    xp_find_dma_map()
-    xp_destroy_dma_map()
-
-xp_find_dma_map() walks pool->umem->xsk_dma_list without a lock, and
-xp_destroy_dma_map() does a plain list_del(). The ndo_bpf callers hold
-RTNL, and that is the only serialization.
-
-With XDP_SHARED_UMEM across two virtio-net devices, one umem->xsk_dma_list
-holds one dma_map per netdev. PCI devices have async suspend enabled
-(pci_pm_init()->device_enable_async_suspend()), so two virtnet_freeze()
-calls can run at the same time. Both could take the
-i >= curr_queue_pairs unmap branch.
-
-Could that corrupt the shared list, or touch a dma_map that has already
-been freed? free_receive_bufs() later in remove_vq_common() already takes
-rtnl_lock(), so wrapping virtnet_xsk_pools_release() in RTNL should close
-this.
-
--- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261108193845.73621-1-yanhaishuang%40cmss.chinamobile.com
