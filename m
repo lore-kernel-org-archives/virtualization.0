@@ -1,71 +1,117 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794203902;
-	b=TRUHsj9SFS3oedYKbmwFNqzk6IRMdKrDX0a8h2la/n0opgnDF09H3/sg7XohLXvWAHZQ
-	 TLxyDUbYx6a7n2j4zm/J/GIxxXYhEhCMZgjjRwQfqtPGpBTL6gXOrGyQS4at2pp76hLx8
-	 ayAehqrQVCh8qrww7pPUjWu1yBr9Elu1fcV9xkaG9+C0FbM77JkGTCKmFmlfDHJNoFPj/
-	 TYsP08z4+w4NU+GS5nd/dJUHK4hZJbp/qEgpNx2NZmxzt0Rm0UVGN7zGHe2EaRIJsMym/
-	 PCXL2RjnftYaBKXP2CbnKFeVRbMsFmwh8Sy075AEIeWUW9yE6oyxV/U98yJspGb/Gbg==
+	t=1794204041;
+	b=Fe/womsOYgs2GoX6qIQI1vaBeBjgn/p2mtGOP1326PeDGaXCwr0cFc4bQsKwaTzzNw5z
+	 /IrjIwl8OsKiRZwcpS4lSmDg3FdA3wSLr/b2XeNL8/m56RkXy0SWWj6feYtDa2fy8A3a5
+	 2rv0Z/eQvPcjWd14nXGxWWo3CE45w8exLNU+y7zePKZ3I8BALV2AXfSAeWFQMs8sgHANQ
+	 2/rhTkAQXONiMUh2aD1//lBVJM1CAdilpL8+j/0shj28re8K8fWFKcB/GtoqXOC8yILuz
+	 nYBfS1owv9ugG/dw/ZvHy2gxdXFGcLcc82lQHj9djjuBei2aBVgOQbdNffxDkdf2MsQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794203902;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794204041;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=8kgk2s1BDPoGx8z6VEMyByixhHxqx+/hqI2eAc6Pl/w=;
-	b=AqmRxO8ogF8gup+8OIeGVSZtoXji1ztBlM7n26rfUKrNay3SE3FuQWE3qYmScf6TDWnW
-	 1CVTz/PvDAFvvDQdHTx5+nC+KB5EmmjYvfsC7EgEhAWbZbL2A+rbJ70aVpO1HhZ62lWpF
-	 gL/bXDDvZWz6akWQp+/IOxRq1lqu/47K6GbHlq0AkAw/D8SwZCSHuIeV03JUEnRJ37t8n
-	 cMNjLgb922SrklENvwaLGI1dpPXH8SeZ6nWlpH0Le83huMr75SVOJXDrXLTtMC2m+WGi4
-	 WVrVRvR3do80fY9MkQuXOB8AwJwe3u1SHEJn1Oi9ykiaspqlHbYE5Jdkb0OJ+HV2/7w==
+	bh=u7aSiRAyqUJJCYptUrQffwehB1VQ0X01AiRX22xwuyM=;
+	b=jpp1tGlpR6/d4lcDKP22/UaaEy+kT7w9I+kTFdT8i6NJWzHem0iy6B9tMuYMn6W4zNv/
+	 D1KIP8eitMikqYufNBPVc4NbHIvy2mEhegA7h1jNK5QsAjxUFgTPfAQOdJ2U3oue1p/vO
+	 ULiZjtN4OOkWQMIpeTf7v5JWb4gSFZO7f3yEwO2qzh/NHCKF/PRfdnxwiMnBehH6veETS
+	 Y7MJtW9dl6uM6OXj93bgKCT2lW8y0W+9sjTqHWIOKb189UcchZHodsvlWAtOUUx5sS/mE
+	 4HekgpBR4JxoUXYADnL4/+fC6DU/kHaqpth0TyfPaGivVW9McO0zuMtdKdg3H5pN1rg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AMirM362;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mhCpmFyH;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6231606A321
-	for <virtualization@lists.linux.dev>; Mon,  9 Nov 2026 05:58:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A115606A321;
+	Mon,  9 Nov 2026 06:00:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AMirM362
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E13921F0089F;
-	Mon,  9 Nov 2026 05:58:16 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mhCpmFyH
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4ABB31F008A1;
+	Mon,  9 Nov 2026 06:00:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794203901;
-	bh=8kgk2s1BDPoGx8z6VEMyByixhHxqx+/hqI2eAc6Pl/w=;
+	s=k20260515; t=1794204041;
+	bh=u7aSiRAyqUJJCYptUrQffwehB1VQ0X01AiRX22xwuyM=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=AMirM362rg8bEQb6ceECmalUjTHSJxZ/a9mN4yY3pWdgqvnKcYijxgacd2IvZnJ7g
-	 IyhVxl6Ofp1gZgZrdg6jQtSLD7ozBvVzbZsxR/xUR3ikgWI6Oy4DmPHd097FPdMtEw
-	 Jsfx2sVhmMG5F3qCygqhlS7gmGmbF4vAY5I7A5wA8sj/Dgiom3bnB30tdF2uIaVbld
-	 U9owqHBpWmVeynxGauew3Vg8P6EeMBvczrM0PWOHuDu29dWnfLxksrrKNlfidpORrN
-	 E09pT/a5m2/CasmRlZSM9KFlnD67hGokhS7t2kd73+yEbDTtnGhB1Vqi54oCq0iqkd
-	 ajjA2iqQH1Vwg==
-Message-ID: <sashiko-outbox-204467@kernel.org>
+	b=mhCpmFyH7SOmyvOcs7GgLvFo4llqJQLn3JD9Ni+eLlL44nVNxcNUeVegJZSzxSMdc
+	 4fJ85yE8c0ifBT0lCGnrINGc9IH004uFZD8R+b6P41elU0YmVXjixx42sa+uupOW5M
+	 t+DPMvcBgCziGhkh+DZuIoOOYMOLMaRbgFrBWnYpL64er4kcD3H71VgIaMyFEIbsWW
+	 7vjbN496UkeAwpsdLUdqap0gmN2SIES3Plx7MWAv3GZQm9V4/nH/Gg4fWSNVombPOQ
+	 WGcmvMqaVR+eRUutu7SCemogVHTSWAObX2YQSSs55qVnnpCNvnODqGljh3ZINFQgOv
+	 Pm6DPq60Ltkhw==
+Message-ID: <sashiko-outbox-204470@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 1/4] panic: Add a platform panic notifier list
+Subject: Re: [PATCH net-next v2 1/5] net: skbuff: skip managed zerocopy
+ frags in skb_frag_ref()
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Zack Rusin" <zack.rusin@broadcom.com>, "Andrew Morton" <akpm@linux-foundation.org>, "Petr
- Mladek" <pmladek@suse.com>, "Baoquan He" <baoquan.he@linux.dev>, "Mike
- Rapoport" <rppt@kernel.org>, "Pasha Tatashin" <pasha.tatashin@soleen.com>, "Pratyush
- Yadav" <pratyush@kernel.org>, "Dave Young" <ruirui.yang@linux.dev>
-Cc: "Borislav Petkov" <bp@alien8.de>, "Ajay Kaher" <ajay.kaher@broadcom.com>, "Alexey
- Makhalov" <alexey.makhalov@broadcom.com>, x86@kernel.org, "Joel Granados" <joel.granados@kernel.org>, "Thomas
- Gleixner" <tglx@kernel.org>, "Ingo Molnar" <mingo@redhat.com>, "Dave Hansen" <dave.hansen@linux.intel.com>, "H.
- Peter Anvin" <hpa@zytor.com>, virtualization@lists.linux.dev, bcm-kernel-feedback-list@broadcom.com, "John
- Ogness" <john.ogness@linutronix.de>, "Steven Rostedt" <rostedt@goodmis.org>, "Sergey
- Senozhatsky" <senozhatsky@chromium.org>, "Kees Cook" <kees@kernel.org>, "Jonathan
- Corbet" <corbet@lwn.net>, "Bo Gan" <bo.gan@broadcom.com>, "Brennan
- Lamoreaux" <brennan.lamoreaux@broadcom.com>, kexec@lists.infradead.org, "Guilherme
- G. Piccoli" <gpiccoli@igalia.com>, "Maaz Mombasawala" <maaz.mombasawala@broadcom.com>, "Shuah
- Khan" <skhan@linuxfoundation.org>, "Randy Dunlap" <rdunlap@infradead.org>, "Stephen
- Brennan" <stephen.s.brennan@oracle.com>, "Michael Kelley" <mhklinux@outlook.com>, "Ian
- Forbes" <ian.forbes@broadcom.com>, "Bradley Morgan" <brads@mainlining.org>, "Michael
- S. Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>
-In-Reply-To: <42090fa4453561ebc35f35cc563ec79933eebe75.1794201807.git.zack.rusin@broadcom.com>
-References: <cover.1794201807.git.zack.rusin@broadcom.com>
- <42090fa4453561ebc35f35cc563ec79933eebe75.1794201807.git.zack.rusin@broadcom.com>
+To: "Mina Almasry" <almasrymina@google.com>
+Cc: "Jesper Dangaard Brouer" <hawk@kernel.org>, "Ilias Apalodimas" <ilias.apalodimas@linaro.org>, "David
+ S. Miller" <davem@davemloft.net>, "Eric Dumazet" <edumazet@kernel.org>, "Jakub
+ Kicinski" <kuba@kernel.org>, "Paolo Abeni" <pabeni@redhat.com>, "Simon
+ Horman" <horms@kernel.org>, "Neal Cardwell" <ncardwell@google.com>, "Kuniyuki
+ Iwashima" <kuniyu@google.com>, "Pavel Begunkov" <asml.silence@gmail.com>, "Bobby
+ Eshleman" <bobbyeshleman@meta.com>, "Stanislav Fomichev" <sdf@fomichev.me>, "Steffen
+ Klassert" <steffen.klassert@secunet.com>, "Herbert Xu" <herbert@gondor.apana.org.au>, "Willem
+ de Bruijn" <willemb@google.com>, "John Fastabend" <john.fastabend@gmail.com>, "Sabrina
+ Dubroca" <sd@queasysnail.net>, "Andrew Lunn" <andrew+netdev@lunn.ch>, "Michael
+ S. Tsirkin" <mst@redhat.com>, "Jason Wang" <jasowangio@gmail.com>,
+ =?utf-8?b?RXVnZW5pbyBQw6lyZXo=?= <eperezma@redhat.com>, "Xuan Zhuo" <xuanzhuo@linux.alibaba.com>, "Andrew
+ Morton" <akpm@linux-foundation.org>, "David Hildenbrand" <david@kernel.org>, "Lorenzo
+ Stoakes" <ljs@kernel.org>, "Liam R. Howlett" <liam@infradead.org>, "Vlastimil
+ Babka" <vbabka@kernel.org>, "Mike Rapoport" <rppt@kernel.org>, "Suren
+ Baghdasaryan" <surenb@google.com>, "Michal Hocko" <mhocko@suse.com>, "Alexei
+ Starovoitov" <ast@kernel.org>, "Daniel Borkmann" <daniel@iogearbox.net>, "Johannes
+ Berg" <johannes@sipsolutions.net>, "Byungchul Park" <byungchul@sk.com>, "Zi
+ Yan" <ziy@nvidia.com>, virtualization@lists.linux.dev, linux-mm@kvack.org, bpf@vger.kernel.org, "Jonathan
+ Corbet" <corbet@lwn.net>, "Shuah Khan" <skhan@linuxfoundation.org>, "Randy
+ Dunlap" <rdunlap@infradead.org>, "Lorenzo Bianconi" <lorenzo@kernel.org>, "Wen
+ Gu" <guwen@linux.alibaba.com>, "Philo Lu" <lulie@linux.alibaba.com>, "Justin
+ Chen" <justin.chen@broadcom.com>, "Florian Fainelli" <florian.fainelli@broadcom.com>, "Vikas
+ Gupta" <vikas.gupta@broadcom.com>, "Michael Chan" <michael.chan@broadcom.com>, "Pavan
+ Chebbi" <pavan.chebbi@broadcom.com>, "Doug Berger" <opendmb@gmail.com>, "Nicolai
+ Buchwitz" <nb@tipi-net.de>, "Broadcom internal kernel review list" <bcm-kernel-feedback-list@broadcom.com>, "Satish
+ Kharat" <satishkh@cisco.com>, "Wei Fang" <wei.fang@nxp.com>, "Frank Li" <frank.li@nxp.com>, "Shenwei
+ Wang" <shenwei.wang@nxp.com>, "Joshua Washington" <joshwash@google.com>, "Harshitha
+ Ramamurthy" <hramamurthy@google.com>, "Jijie Shao" <shaojijie@huawei.com>, "Jian
+ Shen" <shenjian15@huawei.com>, "Fan Gong" <gongfan1@huawei.com>, "Tony
+ Nguyen" <anthony.l.nguyen@intel.com>, "Przemek Kitszel" <przemyslaw.kitszel@intel.com>, "Marcin
+ Wojtas" <marcin.s.wojtas@gmail.com>, "Russell King" <linux@armlinux.org.uk>, "Sunil
+ Goutham" <sgoutham@marvell.com>, "Geetha sowjanya" <gakula@marvell.com>, "Ratheesh
+ Kannoth" <rkannoth@marvell.com>, "Subbaraya Sundeep" <sbhatta@marvell.com>, "Bharat
+ Bhushan" <bbhushan2@marvell.com>, "Felix Fietkau" <nbd@nbd.name>, "Matthias
+ Brugger" <matthias.bgg@gmail.com>, "AngeloGioacchino Del Regno" <angelogioacchino.delregno@collabora.com>, "Tariq
+ Toukan" <tariqt@nvidia.com>, "Saeed Mahameed" <saeedm@nvidia.com>, "Mark
+ Bloch" <mbloch@nvidia.com>, "Leon Romanovsky" <leon@kernel.org>, "Ido
+ Schimmel" <idosch@nvidia.com>, "Petr Machata" <petrm@nvidia.com>, "Horatiu
+ Vultur" <horatiu.vultur@microchip.com>, UNGLinuxDriver@microchip.com, "Daniel
+ Machon" <daniel.machon@microchip.com>, "Steen Hegelund" <Steen.Hegelund@microchip.com>, "Haiyang
+ Zhang" <haiyangz@microsoft.com>, "Wei Liu" <wei.liu@kernel.org>, "Dexuan
+ Cui" <decui@microsoft.com>, "Yibo Dong" <dong100@mucse.com>, "Brett Creeley" <brett.creeley@amd.com>, "Justin
+ Lai" <justinlai0215@realtek.com>, "Larry Chiu" <larry.chiu@realtek.com>,
+ =?utf-8?b?TmlrbGFzIFPDtmRlcmx1bmQ=?= <niklas.soderlund@ragnatech.se>, "Paul
+ Barker" <paul@pbarker.dev>, "Masahisa Kojima" <kojima.masahisa@socionext.com>, "Maxime
+ Chevallier" <maxime.chevallier@bootlin.com>, "Maxime Coquelin" <mcoquelin.stm32@gmail.com>, "Alexandre
+ Torgue" <alexandre.torgue@foss.st.com>, "FUJITA Tomonori" <fujita.tomonori@gmail.com>, "Siddharth
+ Vadapalli" <s-vadapalli@ti.com>, "Roger Quadros" <rogerq@kernel.org>, "MD
+ Danish Anwar" <danishanwar@ti.com>, "Jiawen Wu" <jiawenwu@trustnetic.com>, "Mengyuan
+ Lou" <mengyuanlou@net-swift.com>, "Ronak Doshi" <ronak.doshi@broadcom.com>, "Ryder
+ Lee" <ryder.lee@mediatek.com>, "Shayne Chen" <shayne.chen@mediatek.com>, "Sean
+ Wang" <sean.wang@mediatek.com>, "Juergen Gross" <jgross@suse.com>, "Stefano
+ Stabellini" <sstabellini@kernel.org>, "Oleksandr Tyshchenko" <oleksandr_tyshchenko@epam.com>, "Jordan
+ Rhee" <jordanrhee@google.com>, "Ankit Garg" <nktgrg@google.com>, "Tim
+ Hostetler" <thostet@google.com>, "Eric Joyner" <eric.joyner@amd.com>, "Prabu
+ Thayalan" <prabu.ponrajthayalan@amd.com>, "Nikhil P. Rao" <nikhil.rao@amd.com>, "Chintan
+ Vankar" <c-vankar@ti.com>, "Nora Schiffer" <nora.schiffer@ew.tq-group.com>, "Alexander
+ Sverdlin" <alex@sverdlin.org>, "Kevin Hao" <haokexin@gmail.com>, "Karl
+ Mehltretter" <kmehltretter@gmail.com>, "Aleksandr Loktionov" <aleksandr.loktionov@intel.com>, "Meghana
+ Malladi" <m-malladi@ti.com>, "Jacob Keller" <jacob.e.keller@intel.com>, "StanleyYP
+ Wang" <StanleyYP.Wang@mediatek.com>, imx@lists.linux.dev, linux-rdma@vger.kernel.org, linux-hyperv@vger.kernel.org, Frank.Li@kernel.org, wsa+renesas@sang-engineering.com
+In-Reply-To: <20261108060016.2131509-2-almasrymina@google.com>
+References: <20261108060016.2131509-1-almasrymina@google.com>
+ <20261108060016.2131509-2-almasrymina@google.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 09 Nov 2026 05:58:16 +0000
+Date: Mon, 09 Nov 2026 06:00:34 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -77,59 +123,38 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 1 potential
 issue to consider:
-- [Medium] crash: kexec_trylock() held across panic_notify_platform()
-  breaks kdump
+- [Low] net: skbuff: missing Fixes trailers for skb_frag_ref() and iptfs
+  fixes
 --
 
-commit 27b42ef2d74e73a1aad7b08a71b2e46383b32891
-Author: Zack Rusin <zack.rusin@broadcom.com>
+commit 289785b15a220a700e7ce94d6b9993ab94b82d49
+Author: Mina Almasry <almasrymina@google.com>
 
-panic: Add a platform panic notifier list
+> net: skbuff: skip managed zerocopy frags in skb_frag_ref()
+>
+> skb_frag_unref() and skb_release_data() skip releasing references on
+> managed zerocopy fragments (SKBFL_MANAGED_FRAG_REFS), whereas
+> skb_frag_ref() acquires a reference unconditionally. If skb_frag_ref()
+> is called on a managed zerocopy SKB, the acquired reference is never
+> released by skb_frag_unref() or skb_release_data().
+>
+> Skip acquiring a reference in skb_frag_ref() when skb_zcopy_managed(skb)
+> is true so skb_frag_ref() matches skb_frag_unref() and
+> skb_release_data(), and disable share_ok in iptfs_output_queued() when
+> skb_zcopy_managed(skb) is true so iptfs_consume_frags() does not append
+> unreferenced fragments into a managed zerocopy outer SKB.
+>
+> Signed-off-by: Mina Almasry <almasrymina@google.com>
 
-This commit adds a platform panic notifier list (panic_notifiers_platform_l=
-ist)
-that runs early in vpanic() and in __crash_kexec(), along with a kernel
-parameter to disable it.
+[Severity: Low]
+Since this fixes fragment reference accounting for SKBFL_MANAGED_FRAG_REFS =
+in
+skb_frag_ref() and fragment sharing in iptfs_output_queued(), should the
+commit message include:
 
-Link: https://lore.kernel.org/r/ateYxCu63pRY9EGq@pathway.suse.cz
-
-> diff --git a/kernel/crash_core.c b/kernel/crash_core.c
-> index d0bd2d0cf8990..10b4384294c2b 100644
-> --- a/kernel/crash_core.c
-> +++ b/kernel/crash_core.c
-[ ... ]
-> @@ -139,6 +140,8 @@ void __noclone __crash_kexec(struct pt_regs *regs)
->  			struct pt_regs fixed_regs;
-> =20
->  			crash_setup_regs(&fixed_regs, regs);
-> +			/* For crash paths that bypass panic() */
-> +			panic_notify_platform();
->  			crash_save_vmcoreinfo();
->  			machine_crash_shutdown(&fixed_regs);
->  			crash_cma_clear_pending_dma();
-
-[Severity: Medium]
-Can calling panic_notify_platform() while kexec_trylock() is held prevent
-kdump from running if a platform notifier callback panics?
-
-panic_notify_platform() sets done =3D true before invoking the notifier
-chain so that a callback that panics will not re-run the list when it
-enters vpanic().  However, when __crash_kexec() is entered directly on a
-crash path that bypasses panic() (such as oops_end() -> crash_kexec()),
-__kexec_lock is already held:
-
-  crash_kexec()
-    __crash_kexec(regs)
-      kexec_trylock()
-      panic_notify_platform()
-        <callback panics>
-          vpanic()
-            __crash_kexec(NULL)
-              kexec_trylock()  <-- fails, skips kdump
-
-Because vpanic() never returns to the outer __crash_kexec() frame,
-machine_kexec() is never reached and the crash dump is lost.
+  Fixes: 753f1ca4e1e5 ("net: introduce managed frags infrastructure")
+  Fixes: b96ba312e21c ("xfrm: iptfs: share page fragments of inner packets")
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/cover.1794201807.gi=
-t.zack.rusin@broadcom.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261108060016.2131=
+509-1-almasrymina@google.com?part=3D1
