@@ -1,62 +1,54 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=91.218.175.13
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794184575;
-	b=LlcjF416JmG1z6ONcdvz/xN15oTng7qw8tH8lxFAMRhp3joOSCj2GDXA54Ql2aZRRMU8
-	 yvtm9Eml8LCd6DQ0XHKJjmkNl/t3n/J2DnhOgFPfkwgXfl5a2rpY8NgfrNDdFa9DHZYVH
-	 yBkKAX6I0la2rggFobvRnrU4p7t/+xyTt1l08WemJsGKpbOYqhqDFVyJB8yIIJmhiQJrG
-	 fZYNnSh7ZJgVcaocZGpB8YbrHxXO6vbVDCZaazdcwZf9P+78ChTK/wY7geAuEO5bV3qKl
-	 OliGCE6q12HkyOsvfQzN+o7PEcRqsUoXdLxdN9yskk7NhKYREHz0tsadSnIJ26WdqyQ==
+	t=1794191161;
+	b=hvqjqRBxP/e0LRhJcae1fJjGsTv7OWNJ01Kzd0r/G+0lUvrKkxtuHLbcZbOyJxlkm/A7
+	 yAGLwgc6ZjBeGOiYcORgY+7FG1pqPE0h4oJF3BTO9ScOXH3ZjO2bC1+MgwP09zCgr8ZNW
+	 iDiR1g+uYHRd1InQ8QA9FBHNE69hbU67rO068pYHsL0hlGYwU1OB7f49yIGM+wxlOOkUS
+	 B+8N2bZgkSWGENMF7nqR3R1fIB7lvENIEHlkIFT60pWCydOEoNDmAEyQagWCae+SDLKtI
+	 D385GnDpfjl1Iln8WWnRmWU64nB5UEbnBJ1CU6/yFVI8Men9zK2WdlAvvCFAR7/IUyQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794184575;
-	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
-	 In-Reply-To:References:X-sashiko-severity:Content-Type:
-	 Content-Transfer-Encoding:MIME-Version;
-	bh=MrgV9fXwBYVj4uLezFVa59Hg+/XXAINskq6Fghy76zs=;
-	b=Y3QEe9UDXU0sDI1lJOXCIsjy/rr8+8gCM3hQ6DkdoVv61vehcj608GYkjHDEo2XHNoN6
-	 BQ7n8EsBUISgzKosUxj8oE9ImGkvlDBdFkx5FUv+ofpEliSgFdAXQcQnqfQ8cQNkDoku5
-	 CRvgJ6Czh2RUxN9LWc7q9CJefhxZgvuogd0U41kizGHt0q17ESS+nxIfV8gUjYGUMXQ2L
-	 IAptQNcezbNK5rEobLQzQfMCKP9aatyWNgqgClUyY0IWpEic7qTlnk+K8dFanNmytdRTE
-	 oSvoEgiuwBRsvHkbeJjMruxvXE5dQ/yJw8DzFDF+MNA0+YoWA0K20B5HIYxmP9CqdmA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794191161;
+	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
+	 X-Mizu-Trace-ID:X-Migadu-Flow:Message-ID:Date:MIME-Version:User-Agent:
+	 Cc:Subject:To:References:From:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=WtwmJoa5jwRbvW7yFmjKyxfZjcIBewf+YKrRBbn3v2s=;
+	b=4AtU7yQ2CHbJs9xvgC6e761tgTctZxS9GuoDkQT1PUubEYoWc93n2Gth/s+Stw4vCv1Q
+	 UPMDpMYkx51G63kcyp4EY0ZoEQk6ihe3TPQDR/ycyusfz+1frDyWk/sqxqzaGDu3fUiL8
+	 +Yh2br4sjmR8X3A/KVsQfR54kKJjHZxi7VoSyqynYi3yFAC8/GGoWKyQX/GCk9wJZ+CxF
+	 jnXkLpyeoJvl0DiivOKVsNphI/j9avLask/kq57ZGUoMyox+ciMZGIoZikbyAx9tmtndd
+	 9dp/+kfxFj8SNxdiKJtL7/K+wHpHo4bgPkJOS5M4J4z3VHvv6Y+CVlh2UpFKIkpBV/A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FcaNjP8t;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=linux.dev;
+	spf=pass smtp.mailfrom=linux.dev;
+	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=mxJ5f8vT;
+	arc=none smtp.remote-ip=91.218.175.13
+Received: from mta0.migadu.com (out-13.mta0.migadu.com [91.218.175.13])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40173606A31C;
-	Mon,  9 Nov 2026 00:36:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4669B606A325
+	for <virtualization@lists.linux.dev>; Mon,  9 Nov 2026 02:25:59 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4669B606A325
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FcaNjP8t
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B21E1F008A2;
-	Mon,  9 Nov 2026 00:36:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794184575;
-	bh=MrgV9fXwBYVj4uLezFVa59Hg+/XXAINskq6Fghy76zs=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=FcaNjP8t3uYt8wwOigY7Jj/L+2eMml7Pwt9+M+mSCd1uTIiJ83mLqNitjPNkzxUnX
-	 TsKJW2EWvaOxz/qgCVLIwh0jhIWJlg9k+SYK8XoJxUcsnlcuFTIt7jL2qPnzYMIA8R
-	 6krCikJbxLI2mJdOEGp8WOzf4MMc9CDjLNnKTzeThgGr2tyouFKgK4intwgZGpiLoS
-	 /x/DQo3vqldDdcI0gSz57AHQb/FWFeohWbWHnzN9xNdZkMLb9NPkjyHrUc8n1aNzeS
-	 pvAZYnTMqKbllCvLgeWkhpc5ZQPor3KR9NYmKlgR8QYkjl84Eob3FSR3nH53DNfCK2
-	 7LikZBOQtZ2/w==
-Subject:
- Re: [PATCH net 3/3] vsock/virtio: queue at most one credit update per socket
-From: netdev-bot+sashiko@kernel.org
-To: green@linuxhacker.ru
-Cc: sgarzare@redhat.com, stefanha@redhat.com, mst@redhat.com,
- jasowangio@gmail.com, eperezma@redhat.com, xuanzhuo@linux.alibaba.com,
- bobbyeshleman@meta.com, davem@davemloft.net, edumazet@kernel.org,
- kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, netdev@vger.kernel.org,
- virtualization@lists.linux.dev, kvm@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Date: Mon, 09 Nov 2026 00:36:13 +0000
-Message-ID: <179418457356.994134.15621990093990477357@kernel.org>
-In-Reply-To: <20261105000141.3617241-4-green@linuxhacker.ru>
-References: <20261105000141.3617241-4-green@linuxhacker.ru>
-X-sashiko-severity: Medium
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=mxJ5f8vT
+X-Envelope-To: virtualization@lists.linux.dev
+DKIM-Signature: a=rsa-sha256; bh=3wQFNru/GSW5wMzbNQX/aezP9rAklvDUaKeBXnZI+gw=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1794191158; v=1; x=1794795958;
+ b=mxJ5f8vTD5vQI/xxFid8apJbYaunElojr7df5vF3uWKiE8sIfF7AXHUkOhzPmEzINJxLhVlA
+ QB5jKEX5FmNVqABGE1BGcfxACrjburhNnxQzOJ1Zb90mvmrXxE12AWSIOAg8A5UukyrxkPv8ZCP
+ tOv3XPDPn4x+AOdU9HhQ0lQg=
+X-Envelope-To: virtualization@lists.linux.dev
+Received: by smtp.migadu.com with ESMTPS id 1a20c7d2490421e5;
+	Mon, 09 Nov 2026 02:25:58 +0000
+X-Mizu-Trace-ID: 1a20c7d2490421e5
+X-Migadu-Flow: FLOW_OUT
+Message-ID: <a583bcd4-b502-4733-9592-58203e941d7d@linux.dev>
+Date: Mon, 9 Nov 2026 10:25:49 +0800
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -66,139 +58,244 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Cc: cui.tao@linux.dev, linux-mm@kvack.org,
+ James.Bottomley@HansenPartnership.com, sumit.semwal@linaro.org,
+ christian.koenig@amd.com, phasta@kernel.org, joro@8bytes.org,
+ will@kernel.org, linux-scsi@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, kvm@vger.kernel.org,
+ virtualization@lists.linux.dev, linux-trace-kernel@vger.kernel.org,
+ bobbyeshleman@meta.com, mathieu.desnoyers@efficios.com,
+ robin.murphy@arm.com, mason@kernel.org, aesteve@redhat.com,
+ tjmercier@google.com, harry@kernel.org, vbabka@suse.cz, cuitao@kylinos.cn,
+ media-ci@linuxtv.org
+Subject: Re: [PATCH 1/7] scsi: sg and st: account the command buffer memory to
+ memcg
+To: sashiko-reviews@lists.linux.dev, akpm@linux-foundation.org,
+ dgilbert@interlog.com, mkp@kernel.org, loberman@redhat.com,
+ jmeneghi@redhat.com, kraxel@redhat.com, vivek.kasireddy@intel.com,
+ mst@redhat.com, jasowangio@gmail.com, eperezma@redhat.com,
+ stefanha@redhat.com, sgarzare@redhat.com, rostedt@goodmis.org,
+ vdonnefort@google.com, mhiramat@kernel.org, jgg@ziepe.ca,
+ kevin.tian@intel.com, axboe@kernel.dk
+References: <20261106131829.3228926-1-cui.tao@linux.dev>
+ <20261106131829.3228926-2-cui.tao@linux.dev>
+ <sashiko-outbox-202918@kernel.org>
+From: Tao Cui <cui.tao@linux.dev>
+In-Reply-To: <sashiko-outbox-202918@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue(s) to consider.
+Hi,
 
-Critical: 0 · High: 0 · Medium: 1 · Low: 0
+在 2026/11/7 21:27, sashiko-bot@kernel.org 写道:
+> Thank you for your contribution! Sashiko AI review found 4 potential
+> issues to consider:
+> - [High] scsi: sg: GFP_ATOMIC | __GFP_ACCOUNT in sg_build_indirect()
+>   bypasses memcg max
+I'll take another look at the allocation context and whether GFP_ATOMIC
+is still required here.
+> - [Medium] scsi: sg: unrelated and broken blktrace CAP_SYS_ADMIN gate in
+>   sg_ioctl_common()
+The capability check doesn't belong in this patch.  It was accidentally
+carried over while splitting the series and should have remained in the
+separate blktrace patch.  I'll remove it from this patch.
+> - [Medium] scsi: st: misattributed GFP_KERNEL_ACCOUNT probe charges in
+>   new_tape_buffer()
+Thanks for pointing this out.  v2 drops the st side and keeps the
+accounting on the sg side.
+> - [Low] scsi: sg: commit message cites non-existent history in
+>   sg_build_indirect()
+The commit message is indeed inaccurate.  I'll fix the historical
+description and clarify the reserved buffer limit in the next revision.
+> It also noticed 1 related pre-existing issue this patch does not
+> introduce:
+> - [High] scsi: sg: shift-out-of-bounds in sg_build_indirect() [1]
+Thanks for pointing that out.  It predates the series, and I'll
+investigate it separately.
+> --
+> 
+> commit ec96b2b0cdd1df3575b4521cd9f81da9824bc2b2
+> Author: Tao Cui <cuitao@kylinos.cn>
+> 
+> scsi: sg and st: account the command buffer memory to memcg
+> 
+> This commit adds __GFP_ACCOUNT to buffer and descriptor allocations in the
+> sg and st drivers to charge them to the calling process's memory cgroup, and
+> adds a CAP_SYS_ADMIN check for blktrace ioctls in sg_ioctl_common().
+> 
+>> The sg data buffers are unaccounted: the per-fd reserved buffer, the
+>> scatter-gather page array, and the order-0..N pages behind it, plus the
+>> per-device tape buffer in st.  All of it is user controllable.  The
+>> reserved size is capped only by the device max_sectors, SG_MAX_QUEUE
+>> (16) commands can be in flight per fd, and the fd count is bounded by
+>> RLIMIT_NOFILE.  Nothing is charged to the memcg of the process driving
+>> it.  The September 2026 fixes in sg_build_indirect reshaped the element
+>> sizing and left the accounting alone.
+> 
+> [Severity: Low]
+> Is the commit message accurate about the history of sg_build_indirect() and
+> the reserved buffer cap?
+> 
+> In git history, sg_build_indirect() has not been modified since
+> aaff5ebaa269 ("scsi: remove the unchecked_isa_dma flag") in 2021, and its
+> element sizing has not changed since 10db10d144c0 ("sg: convert the indirect
+> IO path to use the block layer") in 2008.  In addition, the initial per-fd
+> reserved buffer in sg_add_sfp() is capped by min_t(int, def_reserved_size,
+> max_sectors_bytes(sdp->device->request_queue)), while only resizing via
+> SG_SET_RESERVED_SIZE is capped solely by max_sectors_bytes().
+> 
+>> diff --git a/drivers/scsi/sg.c b/drivers/scsi/sg.c
+>> index 5408f002e6c01..80d919fa5cf91 100644
+>> --- a/drivers/scsi/sg.c
+>> +++ b/drivers/scsi/sg.c
+>> @@ -910,6 +910,19 @@ static int put_compat_request_table(struct compat_sg_req_info __user *o,
+>>  }
+>>  #endif
+>>  
+>> +/*
+>> + * The sg passthrough of the blktrace ioctls has the same exposure as the
+>> + * block device path: holding the node is the only requirement today, and
+>> + * a created trace outlives the fd.  Must match the gate in
+>> + * blk_trace_ioctl().
+>> + */
+>> +static bool sg_is_blktrace_cmd(unsigned int cmd)
+>> +{
+>> +	return cmd == BLKTRACESETUP || cmd == BLKTRACESETUP2 ||
+>> +	       cmd == BLKTRACESTART || cmd == BLKTRACESTOP ||
+>> +	       cmd == BLKTRACETEARDOWN;
+>> +}
+>> +
+>>  static long
+>>  sg_ioctl_common(struct file *filp, Sg_device *sdp, Sg_fd *sfp,
+>>  		unsigned int cmd_in, void __user *p)
+>> @@ -919,6 +932,9 @@ sg_ioctl_common(struct file *filp, Sg_device *sdp, Sg_fd *sfp,
+>>  	Sg_request *srp;
+>>  	unsigned long iflags;
+>>  
+>> +	if (sg_is_blktrace_cmd(cmd_in) && !capable(CAP_SYS_ADMIN))
+>> +		return -EPERM;
+>> +
+> 
+> [Severity: Medium]
+> Does this capability check belong in a memcg accounting commit, and does it
+> cause a UAPI regression for unprivileged users with access to /dev/sg*?
+> 
+> Despite the comment, blk_trace_ioctl() in kernel/trace/blktrace.c does not
+> check capable(CAP_SYS_ADMIN); block devices gate these ioctls only on access
+> to the device node.  Moreover, sg_is_blktrace_cmd() matches BLKTRACESETUP2
+> even though sg_ioctl_common() only implements BLKTRACESETUP, BLKTRACESTART,
+> BLKTRACESTOP, and BLKTRACETEARDOWN, so unprivileged callers now get -EPERM
+> instead of -ENOTTY for BLKTRACESETUP2.
+> 
+>> @@ -1841,7 +1857,7 @@ static int
+>>  sg_build_sgat(Sg_scatter_hold * schp, const Sg_fd * sfp, int tablesize)
+>>  {
+>>  	int sg_bufflen = tablesize * sizeof(struct page *);
+>> -	gfp_t gfp_flags = GFP_ATOMIC | __GFP_NOWARN;
+>> +	gfp_t gfp_flags = GFP_ATOMIC | __GFP_NOWARN | __GFP_ACCOUNT;
+>>  
+>>  	schp->pages = kzalloc(sg_bufflen, gfp_flags);
+>>  	if (!schp->pages)
+>> @@ -1856,7 +1872,8 @@ sg_build_indirect(Sg_scatter_hold * schp, Sg_fd * sfp, int buff_size)
+>>  	int ret_sz = 0, i, k, rem_sz, num, mx_sc_elems;
+>>  	int sg_tablesize = sfp->parentdp->sg_tablesize;
+>>  	int blk_size = buff_size, order;
+>> -	gfp_t gfp_mask = GFP_ATOMIC | __GFP_COMP | __GFP_NOWARN | __GFP_ZERO;
+>> +	gfp_t gfp_mask = GFP_ATOMIC | __GFP_COMP | __GFP_NOWARN |
+>> +			 __GFP_ACCOUNT | __GFP_ZERO;
+>>  
+>>  	if (blk_size < 0)
+>>  		return -EFAULT;
+> 
+> [Severity: High]
+> This problem wasn't introduced by this patch, but can the ret_sz shift in
+> sg_build_indirect() trigger a signed shift-out-of-bounds [1]?
+> 
+> drivers/scsi/sg.c:sg_build_indirect() {
+> 	...
+> 	num = scatter_elem_sz;
+> 	...
+> 	order = get_order(num);
+> retry:
+> 	ret_sz = 1 << (PAGE_SHIFT + order);
+> 	...
+> }
+> 
+> On 4 KB page architectures, setting the scatter_elem_sz module parameter
+> near INT_MAX gives order == 19, so 1 << (PAGE_SHIFT + order) evaluates the
+> signed 32-bit shift 1 << 31, triggering UBSAN or yielding a negative ret_sz
+> that corrupts the allocation loop.
+> 
+>> @@ -2146,7 +2163,7 @@ sg_add_sfp(Sg_device * sdp)
+>>  	unsigned long iflags;
+>>  	int bufflen;
+>>  
+>> -	sfp = kzalloc_obj(*sfp, GFP_ATOMIC | __GFP_NOWARN);
+>> +	sfp = kzalloc_obj(*sfp, GFP_ATOMIC | __GFP_NOWARN | __GFP_ACCOUNT);
+>>  	if (!sfp)
+>>  		return ERR_PTR(-ENOMEM);
+> 
+> [Severity: High]
+> Does combining GFP_ATOMIC with __GFP_ACCOUNT in sg_build_sgat(),
+> sg_build_indirect(), and sg_add_sfp() allow processes to bypass their memcg
+> memory.max limit?
+> 
+> GFP_ATOMIC sets __GFP_HIGH and lacks __GFP_DIRECT_RECLAIM.  When a memcg is
+> at memory.max, try_charge_memcg() skips reclaim because the allocation
+> cannot block and then force-charges past memory.max because __GFP_HIGH is
+> set:
+> 
+> mm/memcontrol.c:try_charge_memcg() {
+> 	...
+> nomem:
+> 	if (!(gfp_mask & (__GFP_NOFAIL | __GFP_HIGH)))
+> 		return -ENOMEM;
+> force:
+> 	page_counter_charge(&memcg->memory, nr_pages);
+> 	...
+> }
+> 
+> All callers of sg_add_sfp(), sg_build_sgat(), and sg_build_indirect()
+> (sg_open(), SG_SET_RESERVED_SIZE in sg_ioctl_common(), and sg_start_req())
+> run in sleepable process context holding only mutexes, so using GFP_KERNEL
+> would allow memcg reclaim and enforce memory.max.
+> 
+>> diff --git a/drivers/scsi/st.c b/drivers/scsi/st.c
+>> index f1c3c49466379..7083d37622c08 100644
+>> --- a/drivers/scsi/st.c
+>> +++ b/drivers/scsi/st.c
+>> @@ -3973,7 +3973,7 @@ static struct st_buffer *new_tape_buffer(int max_sg)
+>>  {
+>>  	struct st_buffer *tb;
+>>  
+>> -	tb = kzalloc_obj(struct st_buffer);
+>> +	tb = kzalloc_obj(struct st_buffer, GFP_KERNEL_ACCOUNT);
+>>  	if (!tb) {
+>>  		printk(KERN_NOTICE "st: Can't allocate new tape buffer.\n");
+>>  		return NULL;
+>> @@ -3982,7 +3982,8 @@ static struct st_buffer *new_tape_buffer(int max_sg)
+>>  	tb->use_sg = max_sg;
+>>  	tb->buffer_size = 0;
+>>  
+>> -	tb->reserved_pages = kzalloc_objs(struct page *, max_sg);
+>> +	tb->reserved_pages = kzalloc_objs(struct page *, max_sg,
+>> +					  GFP_KERNEL_ACCOUNT);
+>>  	if (!tb->reserved_pages) {
+>>  		kfree(tb);
+>>  		return NULL;
+> 
+> [Severity: Medium]
+> Does using GFP_KERNEL_ACCOUNT in new_tape_buffer() charge the device probe
+> context instead of the process driving tape I/O?
+> 
+> new_tape_buffer() is only called from st_probe() when a tape device is
+> attached, and both tb and tb->reserved_pages live until scsi_tape_release(),
+> so they are never charged to the process performing I/O.  Meanwhile, the
+> per-I/O page array allocated in the driving process's context during direct
+> I/O in sgl_map_user_pages() (pages = kmalloc_objs(*pages, max_pages))
+> remains unaccounted.
+> 
+> [1] https://sashiko.dev/#/bug/linux-ccac9556-cc9e-4b08-b44f-5f7ffb342827
+> 
 
-If you believe none of the issues are legitimate, please reply to each
-issue of Medium severity or higher and explain why the AI is wrong.
-If any of them are legitimate and you plan to respin, please let patchwork
-know by including "pw-bot: cr" as a separate line at the end of your reply
-(one such reply per series is enough).
-
-- [Medium] Both the guest and vhost transports call
-  virtio_transport_credit_update_xmit() before the packet is actually…
-
---
-
-vsock/virtio: queue at most one credit update per socket
-
-This patch limits how many credit update packets each virtio vsock socket
-can have queued. It tracks the last queued credit update skb in
-virtio_vsock_sock and suppresses new ones while that skb is pending.
-Transports call a new virtio_transport_credit_update_xmit() hook to
-refresh fwd_cnt/buf_alloc on the tracked skb and release tracking when it
-is sent. A tracked skb holds a refcount on virtio_vsock_sock to keep it
-alive.
-
-[ ... ]
-
-> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-> index 74a8fdf825d50..65d6e0790e724 100644
-> --- a/net/vmw_vsock/virtio_transport_common.c
-> +++ b/net/vmw_vsock/virtio_transport_common.c
-> @@ -604,18 +604,68 @@ static void virtio_transport_dec_rx_pkt(struct virtio_vsock_sock *vvs,
-
-[ ... ]
-
-> +/* Called by the transports when @skb is put on the wire. */
-> +void virtio_transport_credit_update_xmit(struct sk_buff *skb)
-> +{
-> +	struct virtio_vsock_sock *vvs = VIRTIO_VSOCK_SKB_CB(skb)->vvs;
-> +	struct virtio_vsock_hdr *hdr = virtio_vsock_hdr(skb);
-> +
-> +	if (!vvs)
-> +		return;
-> +
-> +	spin_lock_bh(&vvs->rx_lock);
-> +	/* Still the socket's last packet: carry what was suppressed. */
-> +	if (vvs->credit_update == skb) {
-> +		vvs->credit_update = NULL;
-> +		vvs->last_fwd_cnt = vvs->fwd_cnt;
-> +		hdr->fwd_cnt = cpu_to_le32(vvs->fwd_cnt);
-> +		hdr->buf_alloc = cpu_to_le32(vvs->buf_alloc);
-> +	}
-> +	spin_unlock_bh(&vvs->rx_lock);
-> +}
-> +EXPORT_SYMBOL_GPL(virtio_transport_credit_update_xmit);
-
-[Severity: Medium]
-This hook can't be undone once it has run. It clears vvs->credit_update,
-advances vvs->last_fwd_cnt and rewrites the header. Do the guest and vhost
-transports call it before the packet is actually committed?
-
-In the guest driver, virtio_transport_send_skb() calls it before
-virtqueue_add_sgs(), and that call fails when the tx vq is full:
-
-net/vmw_vsock/virtio_transport.c:virtio_transport_send_skb() {
-	virtio_transport_credit_update_xmit(skb);
-	...
-	ret = virtqueue_add_sgs(vq, sgs, out_sg, in_sg, skb, gfp);
-	if (ret < 0)
-		return ret;
-	...
-}
-
-virtio_transport_send_pkt_work() then puts the skb back at the head:
-
-	ret = virtio_transport_send_skb(skb, vq, vsock, GFP_KERNEL);
-	if (ret < 0) {
-		virtio_vsock_skb_queue_head(&vsock->send_pkt_queue, skb);
-		break;
-	}
-
-When the fast path fails, virtio_transport_send_pkt() queues it at the
-tail instead.
-
-The requeued skb is no longer tracked. So the next
-virtio_transport_send_credit_update() is not suppressed, and it queues a
-second, tracked credit update behind the first.
-
-Doesn't that make the per-socket bound two, rather than the "at most one
-credit update" the commit message describes? Any later updates are still
-suppressed by the second tracked one, so the unbounded queuing stays
-fixed.
-
-In vhost, vhost_transport_do_send_pkt() calls the hook right after it
-gets a descriptor, before the checks that drop the skb:
-
-	virtio_transport_credit_update_xmit(skb);
-
-	if (out) {
-		restart_tx |= vhost_vsock_drop_skb(vsock, skb);
-		...
-	}
-
-	iov_len = iov_length(&vq->iov[out], in);
-	if (iov_len < sizeof(*hdr)) {
-		restart_tx |= vhost_vsock_drop_skb(vsock, skb);
-		...
-
-The copy_to_iter() and skb_copy_datagram_iter() fault paths drop the skb
-in the same way.
-
-Suppose updates were suppressed while this one was queued. Their fwd_cnt
-has been merged into this skb and recorded in last_fwd_cnt, but the
-guest never receives this skb.
-
-Before this patch, the suppressed update would have been a separate skb,
-delivered on the next descriptor. Now nothing resends it until more local
-reads happen. Could the guest-side sender then stall waiting for credit?
-
-Moving the hook after these checks would not be enough by itself, since
-the suppressed state is lost whenever a tracked update is dropped.
-
-The commit message says:
-
-  So a suppressed update always reaches the
-  peer, either in the queued one or in a later packet, and the fwd_cnt
-  the peer sees never goes back.
-
-Is that still true on these drop paths?
-
-[ ... ]
-
--- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261105000141.3617241-1-green%40linuxhacker.ru
