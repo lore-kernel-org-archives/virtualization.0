@@ -1,79 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794254911;
-	b=unGeR5rjn3BzpSXnNcfJpUfWRo/ECkooHRmRqwSywWf6+SLF/Mu3FW7UEe2thKJD2tvn
-	 sgZsh29Ukmid9s3I1tC6o+Z4coBxtYmkk0fHyEU+Mkj/msjl9CJnOv06IcVYCgLF4s8/X
-	 kMSwcwO6FgotKIqIB+IDPeu1l04EXUB2J9ewUuhTA+8oRS7cHrzyCE2fCNm2ANaTXj8KZ
-	 A8zUwTCrkv53oyvnXBzhA6bhX+ZXJoL6ISbn7DToGkkz8Vcgk1A22kfNLGopuHZixk5ee
-	 c9gpahHsFHfIGjIQyIBw/MGRm5qdCaaedj9xXiymWhWVnA/JmLi6z9sW62JPU7wWH5w==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794254911;
-	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
-	 Content-Type:Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=OWULWeROBq9QHKGDrZtJVZFqDXu9makIQwCeo4uR55Y=;
-	b=reijL5MAWROdQ9Ca7c3iyRu3tlGl07jUma7GDVDJLwKX5WpylFh+y4DrenCY9zArVDnh
-	 /Z91bSU1akhDL88YYwSLAMZLwGvn4LDzhifABpJDCwY3RTQaLqcuUN9jEYC/1HIk3B2MH
-	 +igm9sd7o1puezO6LyI0PMvcDeZs+KKuAEiEd4bxSM8cGboArGhwrkPzm4mAP2kx/+qnc
-	 dggWcQdd5iXbVRL11pWj2kJozbkwAk7eshTgNHVx2fXLAPJbnGXHhULZ4GO2UOfp2JCxS
-	 MiLIaTRYk3+t2j36hUCueMCSdaTtZtokBeVfS7WVuruOxqdqvLt0kXSOLzApTPVoaqg==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ebfIBqRO;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1794259399;
+	b=ZPvyGYqt5o0yev5s8g4xacK0U/9W8TrjnsRepzZd8ffSNd7eZGrbY1+wZJhXZSb4W4JJ
+	 +/yuMHD35kYfYA+2HGUp45mkZcmtWaCe0UeZFb03tKs/ijiEskAGubSBVQKr5SzFunHoH
+	 tnDdZsdTAh8PRSum3t7nYjNnR7NW2d1Ewr10WMwOSKv2INMl9WeNNEVasZpkggh0iyPUK
+	 nzYCGa9XXS3nMRAvKOXWZTUoxs7NVAfE9LsQb4eGRMQ9JyxrAOaiMxSzIAuwQjJtsgDi2
+	 O7pJn2y2l2Thl2UVGcQJcHiFct3zt2Yd031QT1B9KDJRa0KJIBR+HORQXhUONpyDOTg==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794259399;
+	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
+	 In-Reply-To:References:X-sashiko-severity:Content-Type:
+	 Content-Transfer-Encoding:MIME-Version;
+	bh=+kUTd224F4w2WVRCX29Wbt8/OcYpKrZOIe0kcjayeIo=;
+	b=plNbDbmkjhphRWA7jd6lRxcsYOmH8LOME30n6vRKNKedgpB1RBCrOejk+ErxJy4BDRyj
+	 9WpLZMKrvpuv2rvag0LU35AOPbIgJ1+RQ5T94dMwfZ0kcDFtwBhbmEMISJrAq9S3v1EIE
+	 t3n65GTyPTRyb7BZOUkCJqZauAJ69tKnrqB6VkGtH2w2o1GmfQHESK+lX+Yr8SgZwF5xT
+	 WrGvGQ2LvHhZe0fDZh7LTNaQlUYn/kL08lQ6GtJmehzjt9a5dYo+KH589ZAvJrS6jyT+8
+	 VsfPwOLyQWSlOTjPxqea54PzgbpT5ttwxugim8m3ss0wKb29n5H7/PrO+5wGcMBdVZA==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nVqjpXl3;
+	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEDF5606A321;
-	Mon,  9 Nov 2026 20:08:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC301606A31C;
+	Mon,  9 Nov 2026 21:23:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ebfIBqRO
-Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
-ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1794254910;
-	b=yHLccIuQmJPWYHOtcIEc5bIKeRxIfm4l18ovjHGuSiyiIzWHrlGgNMNhtSXXm5YgZm7C
-	 E24cYB/5m2u/WBCFbkJo53dttQV68hBhCrH3z6wzwYVhEbeRKD99Hf8G/WbR6pg9A7a+a
-	 2rf6mPQIInlKt2ZWS9VbRZX/Duvu3tE1MkFqHOEfkElffCqPpLChr7qJksBUdiOfJFtbi
-	 Qwajp2T2QtVuSJqW53bdn4P0I6ELtOQ9fkZgPYLLCH6G+TXe92IZL0koPP1g/PvPAjRwj
-	 chneViDlhSOTUT7mCJ5ZcaXP3AoRxWPNlPUgcQyyIR6lmAHOrHjZEYDNJaDPCLG2C/A==
-ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1794254910;
-	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
-	 Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=OWULWeROBq9QHKGDrZtJVZFqDXu9makIQwCeo4uR55Y=;
-	b=qB7ieS30qaawhMex0PT2K7XOd1hga4zJL3iz71tcNFik1SYIMeg73Br+TykVCOXS0IqC
-	 JmEd8XVaaYQywUqGcihDyZsym/dLciVwojUCgUB8BCnQ10RoIcyh0p5DIpYNyQMuq+8nx
-	 BYXoy9rr1ieyR9oSlPRhSoLCbDYevfdF/lvqj9TvjCagunCHC7+AgrdNEt/4UtAm9FxrF
-	 C0ULI7lFzxPS7ZkpKhFOqiaCr58/cruG+ArDc/csJiV3tSTW3AgYvGri5/E5IzPgh+AK1
-	 iJeMZm0hovRx7w+87ico1NNpZXhT9A9HMwRmb8xZ5rm0sMFZxii6hfaYTbcbUlsEVyw==
-ARC-Authentication-Results: i=1; smtp.kernel.org; 
-	arc=none smtp.remote-ip=100.80.115.77
-Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id D46901F008A1;
-	Mon,  9 Nov 2026 20:08:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nVqjpXl3
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 969901F008A1;
+	Mon,  9 Nov 2026 21:23:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794254910;
-	bh=OWULWeROBq9QHKGDrZtJVZFqDXu9makIQwCeo4uR55Y=;
-	h=From:Date:Subject:To:Cc:Reply-To;
-	b=ebfIBqRODot7wOSzMTZg5MD9ozpqRtBARsY21u3s2GmfRN9iIl/sKm2WCpB4S2rDM
-	 t51epgmb2erF4nAKJ8Wdt5VL1zLoCjUEzzVm4YVCEp5REcSoXsrHWDLRMeK6EWeiBe
-	 L0amVa53SEGZtQOTmnFkHZY2tetvw+kqgXo4Rou4X5NMALcGNwfWdVXG7hOrhW13vk
-	 Qwd64P8TBFy3v1uUR10l/CiCiw2puwgE7G3VtMWA5oYcp3D8r26D0dA6Zy818BSndS
-	 XFqtok7+Ja0enXKm+MqcS8smpC46Tt2IXk5zsjQl4WF2I3v2p5iqYLoGHI5xHca4Bc
-	 tZ5nZdXa1+Ylg==
-Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 5FE0C48626;
-	Mon,  9 Nov 2026 20:08:29 +0000 (UTC)
-From: Jerome Mohm via B4 Relay <devnull+jrmmhm.kernel.eldare.de@kernel.org>
-Date: Mon, 09 Nov 2026 21:08:29 +0100
-Subject: [PATCH net v5] vsock/bpf: release sock lock while waiting for data
- in recvmsg
+	s=k20260515; t=1794259398;
+	bh=+kUTd224F4w2WVRCX29Wbt8/OcYpKrZOIe0kcjayeIo=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References;
+	b=nVqjpXl3jELyOGYz8QbtC9ZmJjl+dXzZ0Nfjtwg2s+48CfxcodVzNgRjxDGMX+HJ4
+	 zZPk79N9QUVB43OeJhBO2LOmq06RNAy/ZzZuhj3qyTEkTs+k3Hm6PUnuPBwUY3hq5x
+	 ftt88gv/tSP0PlpMIXbRAH9IQDEuV0G/Y98Zq8DW69iLNVDbRkUMpCH53Wwzb9fMk8
+	 P1TvlqzvOZdTULh13FTwnHlA3lD7Hkk7hVJ2g0UZ6B3YoFoy8JPCgcCXxKbxfebTtp
+	 eUN9eQXZVT5Cp50jDKrmzPbW31kYKxmsVBTobYAOEBLixE1pA+jWUGl9GBOf3TiKcO
+	 j+R8thQJBIgHQ==
+Subject: Re: [PATCH net] virtio_net: check RX buffer length before DMA sync
+From: netdev-bot+sashiko@kernel.org
+To: vladimir@dfb.sh
+Cc: netdev@vger.kernel.org, mst@redhat.com, jasowangio@gmail.com,
+ eperezma@redhat.com, xuanzhuo@linux.alibaba.com, andrew+netdev@lunn.ch,
+ davem@davemloft.net, edumazet@kernel.org, kuba@kernel.org, pabeni@redhat.com,
+ vishs@meta.com, virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+ stable@vger.kernel.org, nikolai@kalinidze.me
+Date: Mon, 09 Nov 2026 21:23:17 +0000
+Message-ID: <179425939711.994134.2719389056327615125@kernel.org>
+In-Reply-To: <20261108-b4-virtionet-rxlen-v1-1-0078c5ab7e14@dfb.sh>
+References: <20261108-b4-virtionet-rxlen-v1-1-0078c5ab7e14@dfb.sh>
+X-sashiko-severity: Medium
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -83,183 +64,107 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261109-kbh3-1-022-fix-v2-v5-1-4d9af04f0fad@eldare.de>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/33NTU7EMAwF4KuMssbIdtK0nRX3QCzy49IA6qCkR
- KBR706mLBihEctnP38+qyI5SVHHw1llqamk09JCd3dQYXbLs0CKLStGtoRI8OpnDQTIDFP6hMo
- geiLDI1pDTrW79yxts5uPapFVPf0My4d/kbBetEttTmU95a/9c6W9/M+TSi2HycnYDY7G3j7IW
- 3RZ7qPsftVXAg+3BA0IPmDfseeoo/8rmF+B0N4STBNCH7XtUQ9k4rWwbds3J8/vrk0BAAA=
-X-Change-ID: 20261001-kbh3-1-022-fix-v2-e3f14290641a
-To: Stefano Garzarella <sgarzare@redhat.com>, 
- Bobby Eshleman <bobbyeshleman@meta.com>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
- Simon Horman <horms@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, 
- Alexei Starovoitov <ast@kernel.org>
-Cc: Michal Luczaj <mhal@rbox.co>, virtualization@lists.linux.dev, 
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bpf@vger.kernel.org, 
- stable@vger.kernel.org, Jerome Mohm <jrmmhm.kernel@eldare.de>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1794254908; l=5966;
- i=jrmmhm.kernel@eldare.de; s=20260928; h=from:subject:message-id;
- bh=gAMP05v48lA79FLWFALXd9zeaNzA0SUA1TvaXrc531E=;
- b=MuAaoC1faU7y/6OsXRinifDWmeyjxYlifpBjeMeeVMCUz5e3BmcfGP4S3n/tMEixejmsuZtB6
- 4LMrBMbv0c2BKMjd1OG1HqhbS0uPowujNLWIg2eCPSTIa1QrJh4yRPu
-X-Developer-Key: i=jrmmhm.kernel@eldare.de; a=ed25519;
- pk=xRCxNXbnNottaHpmvPDAOC9NuMJxqKo24abkehKRVlo=
-X-Endpoint-Received: by B4 Relay for jrmmhm.kernel@eldare.de/20260928 with
- auth_id=1075
-X-Original-From: Jerome Mohm <jrmmhm.kernel@eldare.de>
-Reply-To: jrmmhm.kernel@eldare.de
-Content-Transfer-Encoding: 7bit
 
-From: Jerome Mohm <jrmmhm.kernel@eldare.de>
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue(s) to consider.
 
-vsock_bpf_recvmsg() sleeps in vsock_msg_wait_data() with the socket lock
-held, so the virtio delivery worker, which needs that lock, deadlocks
-with the reader and all vsock rx on that worker stops.
+Critical: 0 · High: 0 · Medium: 1 · Low: 0
 
-Release the lock around the wait. The reader can then wake without
-data, so the wait loops until data arrives, the timeout, a signal
-(wait_woken() returns at once while one is pending), or a state in
-which __vsock_recvmsg() would not wait. Those states, and zero-length,
-MSG_OOB and MSG_ERRQUEUE reads, go to __vsock_recvmsg(), as Alexei
-suggested; a non-blocking read now sees them before -EAGAIN. The loop
-and the zero-length check belong to the fix (without them the reader
-returns early or spins with the lock held), so this is one patch;
-MSG_OOB and MSG_ERRQUEUE just share that path. One tested difference
-remains: a reader asleep at a virtio transport reset gets -ENOTCONN,
-where a native socket gets -ECONNRESET (0 on seqpacket).
+If you believe none of the issues are legitimate, please reply to each
+issue of Medium severity or higher and explain why the AI is wrong.
+If any of them are legitimate and you plan to respin, please let patchwork
+know by including "pw-bot: cr" as a separate line at the end of your reply
+(one such reply per series is enough).
 
-The deadlock and the MSG_ERRQUEUE case were found with the help of
-Anthropic's Claude, the rest by the netdev Sashiko reviews and Alexei.
-Each was reproduced in a VM without kernel changes or error injection
-(the resets unbind the guest's virtio-vsock device), except one Sashiko
-case that was checked in the code; with this patch they behave as on a
-native socket apart from the reset case above. The vsock vmtest.sh
-single-VM tests and the BPF sockmap selftests still pass, though they
-never sleep in this wait.
+- [Medium] The Fixes: tag and the changelog blame commit 24fbd3967f3f
+  ("virtio_net: add page_pool support for buffer allocation") for…
 
-Fixes: 634f1a7110b4 ("vsock: support sockmap")
-Suggested-by: Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Jerome Mohm <jrmmhm.kernel@eldare.de>
----
-Changes in v5:
-- One patch, using Alexei's approach: in the states where
-  __vsock_recvmsg() does not wait, and for zero-length, MSG_OOB and
-  MSG_ERRQUEUE reads, fall back to __vsock_recvmsg() instead of
-  copying its return values (Alexei).
-- So after a reset, recv(), a zero-length read and MSG_OOB return
-  -ENOTCONN, and a peer shutdown with SO_INQ reports SCM_INQ, as on a
-  socket outside a sockmap. A reset while the reader sleeps now
-  returns -ENOTCONN instead of -ECONNRESET.
-- This also covers the netdev Sashiko review of v4: SEQPACKET after a
-  reset, MSG_OOB on a closed socket and SCM_INQ on a zero-length read;
-  SHUT_RD with a pending sk_err by code reading only. A SEQPACKET
-  reader asleep at a reset still gets -ENOTCONN (native 0).
-- Don't cite the selftests as coverage of the wait (Alexei).
-- Link to v4: https://patch.msgid.link/20261106-kbh3-1-022-fix-v2-v4-0-c7d36703814d@eldare.de
+--
 
-Not tested: virtio-mmio, repeated runs, a sockmap delete while a
-reader sleeps, a signal arriving in the same wakeup as the timeout
-(returns -EAGAIN, native -EINTR), and the vmtest.sh ns_* tests.
-Still left for separate patches, as in v4: data that sits only in
-psock->ingress_skb, and READ_ONCE()/WRITE_ONCE() for the lockless
-accesses.
+virtio_net: check RX buffer length before DMA sync
 
-Changes in v4: comments, one data <= 0 check and message changes
-(Stefano); rebase; retest with a new dataless-wakeup reproducer.
-Changes in v3: split into two patches (Michal); end the wait after a
-reset read with SO_ERROR, and MSG_OOB returns -EOPNOTSUPP (Sashiko).
-Changes in v2: loop in the wait, len == 0 guard (Sashiko); MSG_ERRQUEUE
-to the native path.
----
- net/vmw_vsock/vsock_bpf.c | 43 ++++++++++++++++++++++++++++---------------
- 1 file changed, 28 insertions(+), 15 deletions(-)
+This patch moves check_mergeable_len() ahead of
+page_pool_dma_sync_for_cpu() in the mergeable fragment loops. It also
+limits the head buffer sync in receive_buf() to the length of the buffer
+that was posted. The goal is to stop a malicious device under SWIOTLB from
+using an oversized used length to bounce its own bytes over neighbouring
+page pool fragments.
 
-diff --git a/net/vmw_vsock/vsock_bpf.c b/net/vmw_vsock/vsock_bpf.c
-index 9049d2648646..c0c9e69860dc 100644
---- a/net/vmw_vsock/vsock_bpf.c
-+++ b/net/vmw_vsock/vsock_bpf.c
-@@ -34,24 +34,35 @@ static bool vsock_has_data(struct sock *sk, struct sk_psock *psock)
- 	return vsock_sk_has_data(sk, psock);
- }
- 
--static bool vsock_msg_wait_data(struct sock *sk, struct sk_psock *psock, long timeo)
-+/* __vsock_recvmsg() doesn't wait in these states and knows what to return. */
-+static bool vsock_rx_done(struct sock *sk)
- {
--	bool ret;
-+	return sk->sk_err || sk->sk_state != TCP_ESTABLISHED ||
-+	       (sk->sk_shutdown & RCV_SHUTDOWN) ||
-+	       (vsock_sk(sk)->peer_shutdown & SEND_SHUTDOWN);
-+}
-+
-+static int vsock_msg_wait_data(struct sock *sk, struct sk_psock *psock,
-+			       long timeo)
-+{
-+	int ret = 0;
- 
- 	DEFINE_WAIT_FUNC(wait, woken_wake_function);
- 
--	if (sk->sk_shutdown & RCV_SHUTDOWN)
--		return true;
--
--	if (!timeo)
--		return false;
--
- 	add_wait_queue(sk_sleep(sk), &wait);
- 	sk_set_bit(SOCKWQ_ASYNC_WAITDATA, sk);
--	ret = vsock_has_data(sk, psock);
--	if (!ret) {
--		wait_woken(&wait, TASK_INTERRUPTIBLE, timeo);
--		ret = vsock_has_data(sk, psock);
-+	while (!vsock_has_data(sk, psock) && !vsock_rx_done(sk)) {
-+		if (!timeo) {
-+			ret = -EAGAIN;
-+			break;
-+		}
-+		if (signal_pending(current)) {
-+			ret = sock_intr_errno(timeo);
-+			break;
-+		}
-+		release_sock(sk);
-+		timeo = wait_woken(&wait, TASK_INTERRUPTIBLE, timeo);
-+		lock_sock(sk);
- 	}
- 	sk_clear_bit(SOCKWQ_ASYNC_WAITDATA, sk);
- 	remove_wait_queue(sk_sleep(sk), &wait);
-@@ -80,6 +91,9 @@ static int vsock_bpf_recvmsg(struct sock *sk, struct msghdr *msg,
- 	struct vsock_sock *vsk;
- 	int copied;
- 
-+	if (unlikely(!len || (flags & (MSG_OOB | MSG_ERRQUEUE))))
-+		return __vsock_recvmsg(sk, msg, len, flags);
-+
- 	psock = sk_psock_get(sk);
- 	if (unlikely(!psock))
- 		return __vsock_recvmsg(sk, msg, len, flags);
-@@ -102,10 +116,9 @@ static int vsock_bpf_recvmsg(struct sock *sk, struct msghdr *msg,
- 	while (copied == 0) {
- 		long timeo = sock_rcvtimeo(sk, flags & MSG_DONTWAIT);
- 
--		if (!vsock_msg_wait_data(sk, psock, timeo)) {
--			copied = -EAGAIN;
-+		copied = vsock_msg_wait_data(sk, psock, timeo);
-+		if (copied)
- 			break;
--		}
- 
- 		if (sk_psock_queue_empty(psock)) {
- 			release_sock(sk);
+> Since commit 24fbd3967f3f ("virtio_net: add page_pool support for
+> buffer allocation"), an RX queue that uses the DMA API
+> (rq->use_page_pool_dma, for example with VIRTIO_F_ACCESS_PLATFORM)
+> syncs each received buffer with page_pool_dma_sync_for_cpu() using the
+> length the device wrote to the used ring, and checks that length
+> against the posted buffer only after the sync.
 
----
-base-commit: 6d2cf411aba2aa0bd641b49be5b1964ac5097a50
-change-id: 20261001-kbh3-1-022-fix-v2-e3f14290641a
+[ ... ]
 
-Best regards,
---  
-Jerome Mohm <jrmmhm.kernel@eldare.de>
+> Fixes: 24fbd3967f3f ("virtio_net: add page_pool support for buffer allocation")
+> Cc: stable@vger.kernel.org
 
+[Severity: Medium]
+Is 24fbd3967f3f the right commit for the Fixes: tag? The sync before the
+length check seems to predate page_pool. That commit appears to have only
+moved it into the per-site page_pool_dma_sync_for_cpu() calls.
 
+In the parent of 24fbd3967f3f, every merge or small mode RX buffer goes
+through virtnet_rq_get_buf(). It syncs using the raw used length:
+
+drivers/net/virtio_net.c:virtnet_rq_get_buf() {
+    ...
+	buf = virtqueue_get_buf_ctx(rq->vq, len, ctx);
+	if (buf)
+		virtnet_rq_unmap(rq, buf, *len);
+    ...
+}
+
+drivers/net/virtio_net.c:virtnet_rq_unmap() {
+    ...
+	if (dma->need_sync && len) {
+		offset = buf - (head + sizeof(*dma));
+
+		virtqueue_map_sync_single_range_for_cpu(rq->vq, dma->addr,
+							offset, len,
+							DMA_FROM_DEVICE);
+	}
+    ...
+}
+
+This covers the head buffer through virtnet_receive_packets() ->
+receive_buf(). It also covers the fragments in receive_mergeable(),
+virtnet_build_xdp_buff_mrg(), xdp_linearize_page() and
+mergeable_buf_free().
+
+In every case the sync runs before check_mergeable_len() or the
+GOOD_PACKET_LEN check in receive_small().
+
+In virtnet_rq_alloc() the mapping covers the whole alloc_frag:
+
+	dma->len = alloc_frag->size - sizeof(*dma);
+
+So under SWIOTLB, wouldn't an oversized used length copy bytes chosen by
+the device over the neighbouring RX buffers in the same frag? That looks
+like the same primitive the changelog describes.
+
+git blame points at 295525e29a5b ("virtio_net: merge dma operations when
+filling mergeable buffers"). The path then became unconditional for merge
+and small mode in fb22437c1ba3 ("virtio_net: rx remove premapped failover
+code").
+
+Kernels with fb22437c1ba3 but not 24fbd3967f3f seem to be just as
+exposed. With only the 24fbd3967f3f tag, stable tooling would not pick
+those trees up. This patch also cannot apply there, because the page_pool
+code does not exist in them.
+
+That also affects the note after the changelog:
+
+> An alternative is one sync helper bounded by the posted length for all
+> four call sites; we kept the per-site change to keep the net and
+> stable backport small.
+
+Should the Fixes: tag point at 295525e29a5b and/or fb22437c1ba3? It would
+also help to say in the changelog that those trees need a separate fix,
+for example limiting the sync in virtnet_rq_unmap() to the posted length.
+
+-- 
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261108-b4-virtionet-rxlen-v1-1-0078c5ab7e14%40dfb.sh
