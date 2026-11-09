@@ -1,58 +1,62 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794224374;
-	b=xiOhr7Xi/O6UDDeYQTcrJG+/zpoJyBVmlosUi14ri2e1hbv/3Pv8zGbPU4dOHrqUaXQR
-	 CCx+CMllqlISjg89aWetC7JSZnlzFzBbAN/lbZCRAT/1bak+Mr/DW/7bTg2c75Jh3H4+7
-	 g1I/fkYgU1dJorT2vlmz+tIvuGx9MRsskB7EL+pxzA9JxLK7DQxHxWF4+TBr63rAjhXha
-	 Ct5z+5R4Ba9fSQhmP3tPIno0ehYNqPlHSr0ADJQXGzogqXfTjEoLkx8YJkPqfiwzx2xOV
-	 iVICvjB+4IPhtMpjgxjMaQSVPSraJjbZs5weA1oVDquuY0RbAe2HsWEX7oHfCtVJU5w==
+	t=1794227697;
+	b=FzsS8GELFsnFDZJBbMDBMW+tM/AmzLBDzdgsrq+duv1MfwquJhBJGL6gVyunDGndwwb5
+	 siNIjnMgFndNPknAyW+TNmHYxdZzmaZ++yVEZE+BI11qqnB9fF3/NthsLnFE07OLrIgDi
+	 2z9ENhYrTz+wsW1e+fKDyqt2mqFTbzi7JerYE8BO1EKGa8PBJg2utv+WKvd8/9ceIQxOK
+	 xjoTqpCxXaG7lAtv5r+6FSlrGmNEerUDuLJpwvjkBOxc7nJM8CRJA7b2c7EutwN99ttxu
+	 1f/HyAuYNAG1mvQXDI5//41fwFy0L3QXUegctkPMdIJ6ZUPpr14yMwwwKGmJjzcHn/Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794224374;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=ktZiBN6oq8tKGv1h+O2XcUUsEH++jxjkstqeUMzHfjE=;
-	b=jLOpZdVMuM5NWFOHaRmbfvB3822cnSLZn5E9MccP7lQRd2xM74BQnnXrtlBdP85lWsWE
-	 eyV/FW1L1ODIGC5pTpJJKEPlHFnSa+fV09DK8pKVQFXbn/0UY8ji/zm5qi2Sw4I+ClImT
-	 pc8e23ILR0PG7aNMrKFFCEHZ79BQb9zZdrsquM0Jh+zYlIdwWBiPq1CcPoecgtJZ52ydy
-	 qg2/GB+2W2XOAz2pmZBoel60KHW0ZmDbYZxoNvVm5lwzbTPM8mxUP2Bl1sT/MWU8pexRg
-	 E5IFzroQBawI59YUEssyOI6pHOw5rUFNmYeoRcNOltz2HBhiIR97wkJ9Kd475nTgLaQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794227697;
+	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
+	 In-Reply-To:References:X-sashiko-severity:Content-Type:
+	 Content-Transfer-Encoding:MIME-Version;
+	bh=4GbJ+kUwo8z1BuDy3RTehdprY4yldT3/buOwkYyDG08=;
+	b=RwyVT3Z3OUcP7j6+d9Y5W/iLLcB3DA1nXcQ+Gh9Lr4oOTdKQpKJzE/UrAUnGUkNJUfFo
+	 HYROOz7WpJzua5q7rSFruRyD+PBT6QNznmJnttiL4+2Too3MWLejj10VPIlIM+mVM48XF
+	 BU1mFulBt0eqIoD+/V/hDAEr1mENsm4ZNtRH/+cKgbT6lSoQeE6kuBM0aJOG7/i4KNG4m
+	 uRavNdqAVVQf/LwxlJ1O/79lJtxdxKpi78WX7z7NqX/7XYj8FOZbNu0Yy9ef8qXOE6jRf
+	 /bchQ8b+B/zSvn7OWuxzeZqEnYQzxRIvLLvi96AkDJsHWHNLZbnqMM4YVEdYfJPoCeg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GhnRr4fZ;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=E94VJpTc;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BF25606A333;
-	Mon,  9 Nov 2026 11:39:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CED1C606EE94;
+	Mon,  9 Nov 2026 12:34:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GhnRr4fZ
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFAE21F0089F;
-	Mon,  9 Nov 2026 11:39:33 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=E94VJpTc
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B32F1F008A3;
+	Mon,  9 Nov 2026 12:34:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794224374;
-	bh=ktZiBN6oq8tKGv1h+O2XcUUsEH++jxjkstqeUMzHfjE=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=GhnRr4fZKiyjV6YisqcdXb6W0WpXzVyJ+sPj9Rd7EnzXh7bpFYKG7qe3cpuoVlbHJ
-	 bD9TSCutoqm8yhs0VWRCluaPyLhomLoXmkLMu0NGf9f0yw3CMq+T5qIPXfiFXOQHRO
-	 8Mdepit62HK0zCno0G6KPy2ys0+gRVzq1ddebeMBtl9ctDjg6gUNjsFYhld0I0W8mi
-	 OQGRG0VD/Ggu2ZSGt48CRNmBTvzjlx/zegonyX3/wwrq2j88lO8lfkGqby0zmF138S
-	 RmwYyvDVqW6xfAyR2Xqk5a5vctyrvlJeK3kATIyN+dJMwAGafX05MihOjZdvX5IdjH
-	 8tGr/tVj9MtVA==
-Message-ID: <sashiko-outbox-204885@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net v2 3/3] virtio_net: Keep AF_XDP zero-copy pools
- bound across suspend
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Haishuang Yan" <yanhaishuang@cmss.chinamobile.com>
-Cc: virtualization@lists.linux.dev, bpf@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <20261108193845.73621-4-yanhaishuang@cmss.chinamobile.com>
-References: <20261108193845.73621-1-yanhaishuang@cmss.chinamobile.com>
- <20261108193845.73621-4-yanhaishuang@cmss.chinamobile.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 09 Nov 2026 11:39:33 +0000
+	s=k20260515; t=1794227696;
+	bh=4GbJ+kUwo8z1BuDy3RTehdprY4yldT3/buOwkYyDG08=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References;
+	b=E94VJpTcFDjJZq8KFikD+Zpgt0InXO4fas8YTA0WkAdfxCVMIY+PD+PT/BCkUQzeD
+	 qdT8Rz7jNBLBIj02N3BDKxeCyBZaczxv99mqZp1s6hDcV4wqAnS9QgxJ+bwV13s00M
+	 Q1xSUOvP4KBpRa17VqpMgDQeo6uurIfOP0J4QCctiAkkN7Iw10ZwWTou6qNPe0sd8Q
+	 zKkGBxUHdVAUmkQ9O+aBADI36mYDOzULUQy+M98uVLL0+ECE9f7Lf1ClyUdqyPpEM1
+	 OAC+fdLOav1DdmxizNvfN1b5P2sF+woIPAXP2DfYpituS3Ez6dy7rBn7hmujjt74Gg
+	 yZ6KjF7iZZZ1w==
+Subject: Re: [PATCH net v2 2/3] virtio_net: Disable AF_XDP pools on queues
+ above curr_queue_pairs
+From: netdev-bot+sashiko@kernel.org
+To: yanhaishuang@cmss.chinamobile.com
+Cc: mst@redhat.com, jasowangio@gmail.com, xuanzhuo@linux.alibaba.com,
+ eperezma@redhat.com, andrew+netdev@lunn.ch, davem@davemloft.net,
+ edumazet@kernel.org, kuba@kernel.org, pabeni@redhat.com, ast@kernel.org,
+ daniel@iogearbox.net, hawk@kernel.org, john.fastabend@gmail.com,
+ sdf@fomichev.me, netdev@vger.kernel.org, virtualization@lists.linux.dev,
+ bpf@vger.kernel.org, linux-kernel@vger.kernel.org
+Date: Mon, 09 Nov 2026 12:34:55 +0000
+Message-ID: <179422769501.994134.8613940611095428101@kernel.org>
+In-Reply-To: <20261108193845.73621-3-yanhaishuang@cmss.chinamobile.com>
+References: <20261108193845.73621-3-yanhaishuang@cmss.chinamobile.com>
+X-sashiko-severity: Medium
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -61,165 +65,155 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+MIME-Version: 1.0
 
-Thank you for your contribution! Sashiko AI review found 4 potential
-issues to consider:
-- [High] virtio_net: virtnet_xsk_pools_attach() attaches unmapped AF_XDP
-  pool
-- [Medium] virtio_net: UAF on vi->rq in virtnet_xsk_pool_disable() after
-  failed restore
-- [Medium] virtio_net: DMA map leak in virtnet_xsk_pool_disable() after
-  XDP detach
-- [Medium] virtio_net: missing rtnl_lock() around xsk_pool_dma_unmap()
-  on freeze
+Thank you for your contribution! Sashiko AI review found 2 potential
+issue(s) to consider.
+
+Critical: 0 · High: 0 · Medium: 1 · Low: 1
+
+If you believe none of the issues are legitimate, please reply to each
+issue of Medium severity or higher and explain why the AI is wrong.
+If any of them are legitimate and you plan to respin, please let patchwork
+know by including "pw-bot: cr" as a separate line at the end of your reply
+(one such reply per series is enough).
+
+- [Medium] In the final state of the series, the widened qid range in
+  virtnet_xsk_pool_disable() from this patch combines with the restore…
+- [Low] The commit message names only one trigger: explicitly removing
+  XDP and then closing the socket.
+
 --
 
-commit f8bbdffa48d34460262d93d81019cacaef0e299f
-Author: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
+virtio_net: Disable AF_XDP pools on queues above curr_queue_pairs
 
-virtio_net: Keep AF_XDP zero-copy pools bound across suspend
+This patch changes the qid check in virtnet_xsk_pool_disable() to use
+max_queue_pairs instead of curr_queue_pairs. With this change, an AF_XDP
+zero-copy pool bound to an XDP_TX queue can still be unbound after the XDP
+program is removed. Before this patch, the core freed the pool while
+rq->xsk_pool still pointed to it, which caused a use-after-free on refill.
 
-This commit preserves AF_XDP zero-copy pools across suspend and resume by
-releasing only the per-queue driver state on freeze while keeping the pools
-DMA-mapped, then re-attaching them to the newly allocated queues on
-restore.
+> When the program is removed, the queue count goes down again while the
+> pool stays bound to the driver. When the socket is closed afterwards,
+> virtnet_xsk_pool_disable() rejects the queue with -EINVAL, and the core
+> frees the pool anyway:
+
+[Severity: Low]
+
+Is explicit XDP removal followed by closing the socket the only trigger?
+
+Ordinary netdev unregistration looks like it ends in the same failed
+disable. Examples are virtio-net hot-unplug, driver unbind and module
+unload. This needs an XDP program attached and a zero-copy socket bound
+to one of the XDP_TX queues:
+
+unregister_netdevice_many_notify()
+    dev_xdp_uninstall(dev)
+        virtnet_xdp_set(NULL)    <- lowers curr_queue_pairs
+    call_netdevice_notifiers(NETDEV_UNREGISTER, dev)
+        xsk_notifier()
+            xp_clear_dev(xs->pool)
+                xp_disable_drv_zc()
+                    ndo_bpf(XDP_SETUP_XSK_POOL, NULL, qid)
+                        virtnet_xsk_pool_disable()  <- -EINVAL before this patch
+
+Before this patch, that path hit WARN(1, "Failed to disable zero-copy!")
+in xp_disable_drv_zc(). It also left rq->xsk_pool, sq->xsk_pool, the
+posted XSK buffers and the pool DMA map in place.
+
+The new max_queue_pairs bound fixes this path as well. The commit message
+only hints at it with "Removing XDP must not fail". Could the message
+also mention the unregister path?
 
 > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index f9d227060375c..d9c920f421268 100644
+> index 4f5d8812f75b0..f9d227060375c 100644
 > --- a/drivers/net/virtio_net.c
 > +++ b/drivers/net/virtio_net.c
-
-[ ... ]
-
-> @@ -5808,6 +5810,7 @@ static int virtnet_restore_up(struct virtio_device =
-*vdev)
->  err_destroy_pools:
->  	virtio_reset_device(vdev);
->  	free_unused_bufs(vi);
-> +	virtnet_xsk_pools_release(vi);
->  	virtnet_destroy_page_pools(vi);
->  	virtnet_del_vqs(vi);
->  	return err;
-> @@ -6038,6 +6041,13 @@ static int virtnet_xsk_pool_disable(struct net_dev=
-ice *dev, u16 qid)
->  	rq =3D &vi->rq[qid];
-> =20
->  	pool =3D rq->xsk_pool;
-> +	if (!pool) {
-> +		/* Binding it again on restore failed, only the DMA map is left */
-> +		pool =3D xsk_get_pool_from_qid(dev, qid);
-> +		if (pool)
-> +			xsk_pool_dma_unmap(pool, 0);
-> +		return 0;
-> +	}
+> @@ -6030,7 +6030,8 @@ static int virtnet_xsk_pool_disable(struct net_device *dev, u16 qid)
+>  	struct send_queue *sq;
+>  	int err;
+>  
+> -	if (qid >= vi->curr_queue_pairs)
+> +	/* Removing XDP can leave the pool on a queue above curr_queue_pairs */
+> +	if (qid >= vi->max_queue_pairs)
+>  		return -EINVAL;
 
 [Severity: Medium]
-Can virtnet_xsk_pool_disable() dereference a freed or NULL vi->rq after a
-failed restore?
 
-If virtnet_restore_up() fails (for example at err_destroy_pools, or
-earlier in init_vqs()), virtnet_del_vqs() -> virtnet_free_queues() frees
-vi->rq and vi->sq while the net_device and bound AF_XDP pools remain
-registered.  When the socket is later closed, virtnet_xsk_pool_disable()
-reads vi->rq[qid].xsk_pool from the dangling vi->rq pointer.
+How does this wider qid range interact with the restore fallback that a
+later patch in this series adds to this function? That patch is
+"virtio_net: Keep AF_XDP zero-copy pools bound across suspend", and the
+fallback looks like this:
 
-[Severity: Medium]
-Can this fallback also leak the pool's DMA mappings if XDP is detached
-before the socket is closed?
+drivers/net/virtio_net.c:virtnet_xsk_pool_disable() {
+    ...
+	pool = rq->xsk_pool;
+	if (!pool) {
+		/* Binding it again on restore failed, only the DMA map is left */
+		pool = xsk_get_pool_from_qid(dev, qid);
+		if (pool)
+			xsk_pool_dma_unmap(pool, 0);
+		return 0;
+	}
+    ...
+}
 
-When virtnet_xsk_pool_attach() fails on restore for a pool bound to an XDP
-queue (qid >=3D curr_qp), rq->xsk_pool is left NULL while the pool stays
-DMA-mapped.  If the XDP program is then removed via virtnet_xdp_set(),
-netif_set_real_num_rx_queues() lowers dev->real_num_rx_queues to
-curr_qp <=3D qid (and dev->real_num_tx_queues is also curr_qp).  When the
-socket is subsequently closed, xsk_get_pool_from_qid(dev, qid) returns
-NULL because qid is no longer below real_num_rx_queues or
-real_num_tx_queues, skipping xsk_pool_dma_unmap().
+xsk_get_pool_from_qid() only returns a pool for a qid below
+real_num_rx_queues or real_num_tx_queues:
 
-Unmapping the pool directly in virtnet_xsk_pools_attach() when
-virtnet_xsk_pool_attach() fails would avoid leaving a half-bound DMA map
-behind.
+net/xdp/xsk.c:xsk_get_pool_from_qid() {
+	if (queue_id < dev->real_num_rx_queues)
+		return dev->_rx[queue_id].pool;
+	if (queue_id < dev->real_num_tx_queues)
+		return dev->_tx[queue_id].pool;
 
-> @@ -6053,6 +6063,133 @@ static int virtnet_xsk_pool_disable(struct net_de=
-vice *dev, u16 qid)
->  	return err;
->  }
-> =20
-> +/*
-> + * Freeze frees the receive and send queues, but the AF_XDP sockets stay
-> + * bound and the xsk core keeps their pools. Release only the driver sta=
-te
-> + * of the zero-copy pools here, once the device is reset and the buffers
-> + * posted to it are back in the pools. The pools stay DMA mapped, since =
-the
-> + * DMA device is still the same after restore and the buffers on their f=
-ree
-> + * lists keep their DMA addresses.
-> + *
-> + * A pool left above curr_queue_pairs by removing XDP is not bound again
-> + * on restore, so unmap it as well.
-> + */
-> +static void virtnet_xsk_pools_release(struct virtnet_info *vi)
-> +{
-> +	int i;
-> +
-> +	for (i =3D 0; i < vi->max_queue_pairs; i++) {
-> +		struct receive_queue *rq =3D &vi->rq[i];
-> +		struct send_queue *sq =3D &vi->sq[i];
-> +
-> +		if (rq->xsk_pool) {
-> +			if (i >=3D vi->curr_queue_pairs)
-> +				xsk_pool_dma_unmap(rq->xsk_pool, 0);
+	return NULL;
+}
 
-[Severity: Medium]
-Does calling xsk_pool_dma_unmap() here without holding rtnl_lock() race on
-pool->umem->xsk_dma_list?
+This patch now lets those same qids through after XDP removal. Consider
+this sequence:
 
-remove_vq_common() calls virtnet_xsk_pools_release() outside rtnl_lock()
-during virtnet_freeze().  xp_dma_unmap() walks and deletes entries from
-pool->umem->xsk_dma_list, which is protected by rtnl_lock.  If an xdp_umem
-is shared across multiple devices via XDP_SHARED_UMEM, concurrent async
-suspends can corrupt xsk_dma_list.
+1. XDP is attached. virtnet_xdp_set() raises curr_queue_pairs and
+   real_num_rx_queues, and real_num_tx_queues stays at the original
+   count.
 
-[ ... ]
+2. A zero-copy socket binds to a qid in the XDP_TX range.
 
-> +/*
-> + * On restore, set the zero-copy pools up again on the new queues before
-> + * they are filled and their NAPI is enabled.
-> + */
-> +static void virtnet_xsk_pools_attach(struct virtnet_info *vi)
-> +{
-> +	struct xsk_buff_pool *pool;
-> +	int i, err;
-> +
-> +	ASSERT_RTNL();
-> +
-> +	for (i =3D 0; i < vi->curr_queue_pairs; i++) {
-> +		pool =3D xsk_get_pool_from_qid(vi->dev, i);
-> +		if (!pool || !pool->umem->zc)
-> +			continue;
-> +
-> +		/* The pool stays DMA mapped until it is disabled */
-> +		err =3D virtnet_xsk_pool_attach(vi, i, pool);
+3. On suspend, virtnet_xsk_pools_release() leaves the pool DMA mapped,
+   because qid < curr_queue_pairs.
 
-[Severity: High]
-Can virtnet_xsk_pools_attach() re-attach a pool that was already
-DMA-unmapped by virtnet_xsk_pools_release()?
+4. On resume, virtnet_xsk_pools_attach()->virtnet_xsk_pool_attach()
+   fails. Possible causes are a kvzalloc()/kzalloc() failure, a TX header
+   DMA mapping error or an xdp_rxq_info_reg() failure. Only a warning is
+   printed. The pool stays DMA mapped and rq->xsk_pool is NULL.
 
-If a pool is bound to an XDP queue qid, detaching XDP lowers
-vi->curr_queue_pairs below qid, and the next freeze unmaps the pool in
-virtnet_xsk_pools_release() via xsk_pool_dma_unmap().  xp_dma_unmap() sets
-pool->dma_pages =3D NULL and pool->dev =3D NULL, but pool->umem->zc and
-dev->_rx[qid].pool remain set.  If XDP is re-attached after resume (raising
-vi->curr_queue_pairs above qid again) and the system suspends a second
-time, virtnet_xsk_pools_attach() sees pool->umem->zc =3D=3D true and attach=
-es
-the unmapped pool to the queue, leading to a NULL pointer dereference on
-pool->dma_pages or pool->dev during RX/TX.
+5. XDP is removed. curr_queue_pairs, real_num_rx_queues and
+   real_num_tx_queues are now all at or below qid.
 
-Should this check pool->dma_pages instead of pool->umem->zc, or re-map the
-pool when pool->dma_pages is NULL?
+6. The socket is closed. The qid passes the new max_queue_pairs check
+   and rq->xsk_pool is NULL. xsk_get_pool_from_qid() returns NULL, so
+   the unmap is skipped and 0 is returned.
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261108193845.7362=
-1-1-yanhaishuang@cmss.chinamobile.com?part=3D3
+The core then frees the pool through xp_release_deferred()->xp_destroy(),
+which never unmaps:
+
+net/xdp/xsk_buff_pool.c:xp_destroy() {
+    ...
+	kvfree(pool->tx_descs);
+	kvfree(pool->heads);
+	kvfree(pool);
+}
+
+Does this leak the xsk_dma_map, its dma_pages array and the DMA or IOMMU
+mappings of the umem pages? Would the umem pages then be unpinned and
+freed while they are still mapped for the device?
+
+A few possible fixes:
+
+- read dev->_rx[qid].pool directly in the fallback, which is bounded by
+  num_rx_queues
+- keep a driver-side pointer to a pool that is mapped but not attached
+- unmap on restore when the attach fails
+
+-- 
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261108193845.73621-1-yanhaishuang%40cmss.chinamobile.com
