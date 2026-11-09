@@ -1,59 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794201907;
-	b=i98oGD9CjB/NGqGjP8319TFAGKcVohBA8L4oq2nEDjS8d7ye50beusAo0fNQM9TOwkqi
-	 IVggvmOXIRbVzCiSvo8bncCFrHSAaNO91ex6AptIzduyOMsUjhPBp5U9ug/gSr1xZqUJ/
-	 jyIhKx5RjVzQkvjChx0nA5O6ttiw41+ejhbGAAm3IDuNlqCzJ84KA3h0SZUbKXnDKNFGG
-	 f6wovQaMiU3Et5WJzA4ZdkfL4/wvt8y5pKauYryGRno0MOLNzeBLaeBGqBkkcjadFQWHz
-	 MW9GFL5AX3nfC/Lsj7NZi6z3tUnTix2XxDxYNaLoWO9ekp3LL/Pl/yB85T/8JwfclXw==
+	t=1794201937;
+	b=XykZ8hmpapClJ56nApjXbKd4zIiZ6Ql+Ss+OGrr2Rn0o6n69lZc+FZFmGZOoV9rmVsCn
+	 5occJbBbm3ZSDr1vtlJQuD3Po+S5GoX/iC8HJUHkL+IWKbkC5i2h2dG86aUJPchgwBagR
+	 otiXQ1iKHkcNXQG7+GgQQjy9BTebTxTd+GOyauDev2pNfyp4OjlQAnSOw4FDQZhMtysEJ
+	 YRhWHM/h0lKidGxAXOQaioyJ5+a1X+K9b7yH7sH6TNhqTaSTAlfOCSYFhucwMKocqF/hL
+	 dZFbmrUjZkp4bHyW9eXQ7AY7hLtCAIT0Dd23gfs9SafwjJOojGJO9lnoKY12xoZ8iKA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794201907;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794201937;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=VFb6gHU/2zyxh+lMcFzw5uetqRIdcBq1UPmQpfVrmIY=;
-	b=xA5e/FMOe2fygK3/10tuANgGStyoy5awyfD56KXlGqE5dkd0bmknjeS1+G314ShG0a1F
-	 qf7t1oYwT7YA36O798iguhkBRAF3psOwthMb2H688cgJnJL5wQcUJQOW+M7eLAYHe5R/Y
-	 Z9pId+TBXAy7KKwq9MXpzQn+Gz60+f8awNHRXa78Y/NPCSG72Sw4CxCamToXGCzQBDQD+
-	 3+q61Vr7G3yFvNsD7YzB41FmezXfQS+VEWOJn8wp7XBSVIlIpXyKlcpoAnhdojYft0p/5
-	 5PJRYsAgKdcK2xJ16u5cZ6CkuqMkLin/PK23SkzPQeVvUZSZE22EdiPkyMg8aB+NDVw==
+	bh=68NZ1/exFlsFcIBIDxMRsHsph16pNQBOOY8Ytw1EFA0=;
+	b=rqTm3yyNHVKyIFHu/FAMUiwyXX8lNXlmNfboOJFZHYtoPtHc78v+Ull3sdaZIHVPbZdF
+	 0T4hHRb60NQ2GA1WJCmeVBKP+AldVaRQ7JQbRZlU9HJshWRHJA8GGTrOZWjIBCdc7kbdG
+	 C0R6fCw65s845pj2TT/kcNRs136GRIzikDsWkiTZwfq7w2WT+/ddxId5Tn6ZkRRk+v0cG
+	 ULnwqVGnQrGlrIoKmahHwedhdCVuGRbKKDK49rNN4wYQWwYIZjrifckLzrAzISCbV1EwA
+	 fOl+dZ92lRF+rRxn03SJ4O6wiCY6FJ+nqjjINxIoVlQtnNwxgK/Ler8oW3UZA+eVeSg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lPbIlde7;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WXu+Ksj9;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABE61606A31C
-	for <virtualization@lists.linux.dev>; Mon,  9 Nov 2026 05:25:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F650606A31C
+	for <virtualization@lists.linux.dev>; Mon,  9 Nov 2026 05:25:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lPbIlde7
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2CE21F0089F;
-	Mon,  9 Nov 2026 05:25:05 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WXu+Ksj9
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9CB91F0089F;
+	Mon,  9 Nov 2026 05:25:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794201906;
-	bh=VFb6gHU/2zyxh+lMcFzw5uetqRIdcBq1UPmQpfVrmIY=;
+	s=k20260515; t=1794201936;
+	bh=68NZ1/exFlsFcIBIDxMRsHsph16pNQBOOY8Ytw1EFA0=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=lPbIlde7CEZ3aWHWQQ2CRe4erLjkDzqy5n1Pdp0PJjp8SOx9AV/Hj4Q7GSkX2Z8Ai
-	 GlxEVX5qvsJUkRJ81hgDEAVMt1gPDWDqYdLB5VF8SXNFAbrhJEsEkiVyU+Ilu7ohig
-	 NDUAANrzIad3sEVo9GUV5zBtZGD/h6hHSDgaFAYYumLPNO/F/hiq4Olr5db05uRVQl
-	 GofslW+hs1Y0NCr5SBIdu5Do4nxyWCYhiKAK1uWcclKzkG+gMW/C4UWmzOfe6lSmko
-	 wpg4cOJtKss4ppGRPAh9EbZEk/0+TCsxP9LxnLTikYPGn+dOQKkBA6bErPc/NdCdVD
-	 s4DPFiVZgUV3Q==
-Message-ID: <sashiko-outbox-204433@kernel.org>
+	b=WXu+Ksj9GL09MldySm0OVAZMAr70d8ew3biaOxf0RucXo1GvAJZAba5Ah2Fxl0kbz
+	 bTsgTaOIlAvacowLNvZcaBsQKX6x2EBSmH0SYlShXAcLiaLbnupvU1quyX7FgUv1UL
+	 +HafVprRDZrHAusYRw/3ceqnrnRIF8edRUtnsson0x0/rhUYIHB2YnAwfiztGylLg9
+	 VJaK1ReOyV9c7xTs9A7bcbhbYPuGlBxknbBUfjMKguA4Yt5eVTVYoGSBgElDCqY3Xm
+	 MwqqYodZ0/dEK8Exyl/Ko/madjckgt8S0ufC+5/6ErlonOsW8lZ4U7P5vbI0jSjcrL
+	 Z3AIYYFCEJkaA==
+Message-ID: <sashiko-outbox-204434@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v22 09/13] ALSA: virtio: Keep control payloads alive
- through DMA completion
+Subject: Re: [PATCH v22 03/13] ALSA: pcm: add an optional reset operation
+ under the stream lock
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Joonho Lee" <mynameisjune111@gmail.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261109051618.22506-10-mynameisjune111@gmail.com>
+In-Reply-To: <20261109051618.22506-4-mynameisjune111@gmail.com>
 References: <20261108235457.12688-1-mynameisjune111@gmail.com>
  <20261109051618.22506-1-mynameisjune111@gmail.com>
- <20261109051618.22506-10-mynameisjune111@gmail.com>
+ <20261109051618.22506-4-mynameisjune111@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 09 Nov 2026 05:25:05 +0000
+Date: Mon, 09 Nov 2026 05:25:36 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -63,28 +63,34 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> Control requests can expose caller-owned payloads to the device after a
-> synchronous send times out. Keep request and response headers and
-> payloads in the reference-counted message so caller cleanup cannot
-> invalidate DMA.
+> A driver may need to synchronize private capture accounting with the
+> common RESET pointer observation and the core's position rebase.
 >=20
-> Keep the queue reference until device completion or post-reset cleanup,
-> even when the caller times out or is interrupted. Consume the caller's
-> reference on every send path, and let response readers retain an extra
-> reference through copyout. Check payload sizes and allocation arithmetic
-> before building the scatterlists.
+> Add an optional reset operation called under the member's stream lock.
+> Expose snd_pcm_lib_reset() so the callback can retain common pointer and
+> time handling. On zero return the core completes that member's rebase
+> before unlocking it. Drivers without the callback retain the ioctl path.
+> The operation is also used after a successful prepare.
 >=20
-> A control value payload is also read by the CPU as a typed structure.
-> DMA cacheline alignment alone does not guarantee the structure's CPU
-> alignment. Align regions to the greater of the DMA cacheline and
-> control-value type alignment, and reserve prefix slack from the buffer
-> base so typed accesses remain aligned while scatterlist regions stay on
-> cacheline boundaries.
+> Zero permits the position rebase; it does not promise XRUN recovery. A
+> negative return skips the core rebase, so a callback returning an error
+> must leave coherent pointer state even after partial work.
 >=20
-> Keep response values in a separately allocated aligned response buffer
-> so INTEGER64 control accesses are aligned from this patch onward.
+> Linked RESET and prepare stop at the first error without rollback.
+> Earlier callback members may already have completed. Legacy members keep
+> the existing post_action policy. Applications must recover the group
+> after partial failure before relying on shared positions.
 >=20
-> Fixes: 9d45e514da88 ("ALSA: virtio: handling control messages")
+> This adds an internal kernel operation and no userspace ioctl or layout.
+> Out-of-tree modules using snd_pcm_ops need to be rebuilt.
+>=20
+> Complete appl_ptr rebasing once in the callback path. A later linked
+> member can sleep in prepare while the earlier member accepts SYNC_PTR; a
+> subsequent unlocked post_prepare assignment would overwrite that
+> acknowledgment. Keep explicit RESET playback silence processing and
+> leave prepare-time filling to the normal START path, preserving samples
+> written and rewound after prepare.
+>=20
 > Assisted-by: LLM
 > Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
 
@@ -92,5 +98,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261109051618.2250=
-6-1-mynameisjune111@gmail.com?part=3D9
+6-1-mynameisjune111@gmail.com?part=3D3
 
