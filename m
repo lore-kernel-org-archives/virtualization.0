@@ -1,55 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794204043;
-	b=0iTWDYtTE4inYqCYn0kau+wb7M2N6f4tJl9HvsIsiLhJgNeLimlX5fUF23zwJcHY2gci
-	 vKdFswDFKEOhsvXARlBYYcjOM1/rOSyf83r1YuO/fhvJG4M7tFOqxhF0AsEW35/r1Cjrd
-	 Hy/hffZRyTtHQ5fk0imXtYzCR5D+QH0NvRrXf+EE0lDlRrdx2kvCyd9Hl2MyKUvxNUpqI
-	 8LLDGIlezYK48F/gX/HUOFVdHfqpL2MXR1sUJjHcjy12bBfAhgF/xseE5yJY22x5shFmu
-	 Z1/01ftteOp/ayurW4SGS6w+shysVZcT8nApQdYVakIL72vfYsrzAfUnLIDU2NCEnbg==
+	t=1794204044;
+	b=tLvlf2KTO+kyK45tfigk/e78lNGYDpFPi97eszrvcy/6XJS0WxyMGd+Ds2gB0fvrWlmU
+	 pibpabRCVDTrP837aRl+vk5TheH7LAfDzHkT5mhWd+44AIwcI5xcuz7cqYl3H+lbcrd0r
+	 03gFevkb1j3qrvepFJ2d93jrjhY0MCwZUn5QsDr0o5hBDkqabuASl074adB83bd/+6ic1
+	 uzYz1PbDww2gfIkX3Nqzf3zkO0NcHNG7S/rOkq80jl/2pFIaVZuuejKngczeHEmAsTsye
+	 MMKCbuvxOTr5sQe2MFhuzu4lO1549ncOJLLooodpFdibrRBqcXG5TtjbilbP+2zGIHw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794204043;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794204044;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=QpZo9amzJcy9TafpVWqdaIHz5m9nEPLYUGaZ1jjst+0=;
-	b=xkIJNGti5n7bE5mSGkqhB9GtLijyKiSm/o8dTQrAuTxOLSRkCm7mL43vma7+7OOKPDYQ
-	 oKrBw5OcfSGqUx3e6bJKCdLunJDw9cYgiCLejt80+kZf3Zf5wSUyLCe9JZhBpYqWYMSEt
-	 a8lXxAcTLEcNLUTk4Nrojul0BmHSHt0j7m+waywrwm9PhZvmLiYXIhJk07C45iccdupyH
-	 pN8ovwhzXqFIWLAcACuEit5Qg+2ZnfsFlmLPDhxLavLEtpiFKFxpNpJS6orNaP63ZPJ00
-	 wma+kCy6RG1Wm4XSfgRvL/K1uLxdTweXVaQFBAxo5Lrt1zOGGgbFlNf1Qpgcmhd7/GA==
+	bh=JnH38Qke0dcLvNp518+5EvLVu7o3/Crn1Hzc8hwSUa0=;
+	b=j7TtnBaZ+WWvL0tyMsfCKywP5sSlMe7dPQmdouRekSnoyeTECQ2MjPd+su2LkZQggetK
+	 7EGoiuHrp9v5qUQL38G9mAo5vVSXaTzxCYV1KHGvVsFdlTLm6NvaKtJxO63LbpXovjWRB
+	 2nR64HRVaC++FmAnAIwG+soxWcQn4VB3RgK8PZJFD1QomBAbndGmgCqhtwlTq1B+fDS3t
+	 CfawQ/fxoJ01Y+hQtbg2k2apazulU2PMgomXvUHSPOfiL4SPj+CCvrrkr5VNdTC8w+bi7
+	 W93bV+habor9j7s3xkUGYGCAPg/FfJHmzQNpL8T0/+I0Z5vKT7e+3giO9q1rj81IijA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=S4JeAbR4;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cdq0qFzX;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5D5C606A338;
-	Mon,  9 Nov 2026 06:00:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F03FE606A33E;
+	Mon,  9 Nov 2026 06:00:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=S4JeAbR4
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73F321F008A1;
-	Mon,  9 Nov 2026 06:00:42 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cdq0qFzX
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DF521F008A1;
+	Mon,  9 Nov 2026 06:00:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794204042;
-	bh=QpZo9amzJcy9TafpVWqdaIHz5m9nEPLYUGaZ1jjst+0=;
+	s=k20260515; t=1794204043;
+	bh=JnH38Qke0dcLvNp518+5EvLVu7o3/Crn1Hzc8hwSUa0=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=S4JeAbR4eW5E8nmnkI115ayPhN6ry44YaAqcfvo0iuc4iUPMqsOTq2kkwD/csEhGO
-	 aytftk/vdF2suO2K2B7K/APiiDoMKx9Ztp+LTaXC1wUo4s5Ox8P2z8UGpdEYoqt5h2
-	 rzWlzraH26cc1yBbyaGZ+Mh7BY7HeuEgjDKGNyaiJN1f4BmqzYoa0IHz+wz+yXYjhH
-	 w6Bme2ejnNpp+VwSlmGq42ziPDSLyN3+zA02KoyjnDbpwG2zIrXU9k0kc7fCSnem58
-	 7PFEvTndF6gtFdVCDTPdQGLgCY3J9eRvyIMlfcYXVS4MPQCamDcg12OJrdc/oUQcXx
-	 7cA308BArbTDg==
-Message-ID: <sashiko-outbox-204472@kernel.org>
+	b=cdq0qFzXk4dqMksfIJAuRMy2GOLknaocI4lKWmENE3cWdDaGfRwnQc7zrOeNDLjtQ
+	 IUmvho3j0V5HwKLVVbqWKyjGhWAo/3SwKUn5RKM6bMUT2FQAnhEGpCMK30mSZo8eQX
+	 gg7b+fZ/l5IM76rHzckXOnqvzdfRyvv6/arWfp678d8DIpT9odRZ2/fHRv7VL1iFC6
+	 5RoyRJROQGeRChv5tYwEO88HFcw1feVkJ+RW5uVmWClouHfRPlVkWzTqhwjScM+oqr
+	 w0uvI4SrS1VaDvgOTpepHLp8cW2U/P/hAfqS84OYJUL1dbff2sNgv6+C28VJjrFzkM
+	 XRusHe/GFntFA==
+Message-ID: <sashiko-outbox-204473@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net-next v2 3/5] tcp: detach page_pool pages before
- mapping in tcp_zerocopy_receive()
+Subject: Re: [PATCH net-next v2 4/5] net: remove skb->pp_recycle and
+ consolidate netmem refcounting
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Mina Almasry" <almasrymina@google.com>
 Cc: virtualization@lists.linux.dev, linux-rdma@vger.kernel.org, "Michael S.
  Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>
-In-Reply-To: <20261108060016.2131509-4-almasrymina@google.com>
+In-Reply-To: <20261108060016.2131509-5-almasrymina@google.com>
 References: <20261108060016.2131509-1-almasrymina@google.com>
- <20261108060016.2131509-4-almasrymina@google.com>
+ <20261108060016.2131509-5-almasrymina@google.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 Date: Mon, 09 Nov 2026 06:00:42 +0000
@@ -62,32 +62,25 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> Once tcp_zerocopy_receive() maps an order-0 RX fragment page into a
-> userspace VMA via vm_insert_pages(), vm_insert_pages() increments
-> page->_refcount, which prevents the page from being recycled back into
-> its page_pool when the RX SKB is freed. However, while the RX SKB still
-> holds its fragment reference, the page remains marked as a page_pool
-> page (page_pool_page_is_pp(page) =3D=3D true) inside the userspace VMA, so
-> subsequent GUP callers such as sendmsg(MSG_ZEROCOPY) or vmsplice() can
-> encounter a page_pool page while holding only a raw struct page
-> reference.
+> skb->pp_recycle was introduced in commit 6a5bcd84e886 ("page_pool: Allow
+> drivers to hint on SKB recycling") when drivers had to explicitly opt in
+> to page_pool SKB recycling and to avoid touching struct page on the free
+> path. Today every page_pool-backed netmem carries its own identity via
+> netmem_is_pp(), making the per-SKB skb->pp_recycle bitfield redundant
+> and error-prone when SKBs are cloned, split, segmented, shifted, or
+> coalesced across page_pool and non-page_pool buffers. For non-page_pool
+> pages, get_page(), put_page(), and skb_free_frag() immediately load the
+> same first struct page cache line (compound_head, which shares the cache
+> line with pp_magic), so checking netmem_is_pp() does not add an extra
+> cache-line load.
 >=20
-> Establish the invariant that pp_ref_count is only incremented by callers
-> that already hold an active pp_ref_count (>=3D 1) on that netmem, and a
-> raw page_ref_count is never converted into a pp_ref_count:
-> - In can_map_frag(), require !skb_cloned(skb), page_pool_ref_count =3D=3D=
- 1,
->   and page_ref_count =3D=3D 1 for page_pool pages so the fragment being
->   mapped holds the sole reference to the page; cloned SKBs or page_pool
->   pages with additional references (including drivers holding an
->   undrained fragment bias) fall back to copying.
-> - In tcp_zerocopy_receive(), convert the fragment's sole pp_ref_count
->   into a regular page reference and detach the page from its page_pool
->   via get_page(page) + napi_pp_put_page(page_to_netmem(page)) before
->   queueing the page for vm_insert_pages(). If vm_insert_pages()
->   subsequently fails, the detached page remains referenced by the RX SKB
->   via its regular page reference and is freed back to the page allocator
->   when the SKB is consumed.
+> Remove skb->pp_recycle and check netmem_is_pp() directly via
+> napi_pp_get_page() and napi_pp_put_page() inside netmem_inc_ref(),
+> netmem_dec_ref(), and skb_pp_recycle(), dropping the now-redundant
+> [ ... ]
+>   skb_irq_freeable() does not exclude SKBs holding page_pool memory
+>   before calling __kfree_skb() with hardirqs disabled; TX SKBs carrying
+>   spliced page_pool fragments are subject to the same path.
 >=20
 > Signed-off-by: Mina Almasry <almasrymina@google.com>
 
@@ -95,5 +88,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261108060016.2131=
-509-1-almasrymina@google.com?part=3D3
+509-1-almasrymina@google.com?part=3D4
 
