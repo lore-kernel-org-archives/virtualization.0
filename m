@@ -1,60 +1,99 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.174
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794259399;
-	b=ZPvyGYqt5o0yev5s8g4xacK0U/9W8TrjnsRepzZd8ffSNd7eZGrbY1+wZJhXZSb4W4JJ
-	 +/yuMHD35kYfYA+2HGUp45mkZcmtWaCe0UeZFb03tKs/ijiEskAGubSBVQKr5SzFunHoH
-	 tnDdZsdTAh8PRSum3t7nYjNnR7NW2d1Ewr10WMwOSKv2INMl9WeNNEVasZpkggh0iyPUK
-	 nzYCGa9XXS3nMRAvKOXWZTUoxs7NVAfE9LsQb4eGRMQ9JyxrAOaiMxSzIAuwQjJtsgDi2
-	 O7pJn2y2l2Thl2UVGcQJcHiFct3zt2Yd031QT1B9KDJRa0KJIBR+HORQXhUONpyDOTg==
+	t=1794267656;
+	b=mSMRDAVzE4Poqcu1cCKD6ocTCh5PKSGKzCNk9CC1eUvuiQTxIpy24+SUqWR+FFl+DmNB
+	 exCOFz5x/GXv6EUenJw/7/sF8xaqvL1HcMJyO5R/rSmtzupNRxa5cCQU/3n1Zz/iGM/wV
+	 9bp9TRAmYDWY8+D35LpSapPqSDSmZDKI7AGJQs5KEu0JInd8LPaRJ141N+dn4SbhD9f7C
+	 EeOpiEMLfSbAjJ7I++/tjw8TPRDPCuldHh/4oDCfpSK/bdVZ8LVt1kmWoYq2WcbihbzGR
+	 i3AXSKjS5COcrqnbv0KRyzKY75/LHWIHhxlB670Of26oHWBz+qDZr7WkDSf6Ci5c5Og==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794259399;
-	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
-	 In-Reply-To:References:X-sashiko-severity:Content-Type:
-	 Content-Transfer-Encoding:MIME-Version;
-	bh=+kUTd224F4w2WVRCX29Wbt8/OcYpKrZOIe0kcjayeIo=;
-	b=plNbDbmkjhphRWA7jd6lRxcsYOmH8LOME30n6vRKNKedgpB1RBCrOejk+ErxJy4BDRyj
-	 9WpLZMKrvpuv2rvag0LU35AOPbIgJ1+RQ5T94dMwfZ0kcDFtwBhbmEMISJrAq9S3v1EIE
-	 t3n65GTyPTRyb7BZOUkCJqZauAJ69tKnrqB6VkGtH2w2o1GmfQHESK+lX+Yr8SgZwF5xT
-	 WrGvGQ2LvHhZe0fDZh7LTNaQlUYn/kL08lQ6GtJmehzjt9a5dYo+KH589ZAvJrS6jyT+8
-	 VsfPwOLyQWSlOTjPxqea54PzgbpT5ttwxugim8m3ss0wKb29n5H7/PrO+5wGcMBdVZA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794267656;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=UYh9+NfHPKZajvTz1xi7cTDaycXDIClv3BtU5BxbMAs=;
+	b=ZIIDPmVtaFgYw+Z3m1wGrFbz2KU2IicOwQaCW6OtGLEstn05jdfbdobkxqY0MFEVmeIk
+	 FoFdUX/yoV5b2o8Y0iWcwoCC4/r4otUB7uth9Rz330786pAmZ5qiWRo7KuX+tymYvFLAk
+	 CwnGIpiRVvhHCapoAr2P+Ok7Bz6RW2nhStipUZoqhfEbEnSi5lgrXaZ/h64+L7zfXkudx
+	 UVX5+847gYVdwPYQuQ3A74wymjskn/m+w2UB0tjBqpVANjoqeaQuHflh8zzVgonZ0dYAw
+	 08OK/zZZOnzxdn8ICiyxTouGZxODU5G8f3o8PoGc8BI891efHaLRwB7HZsq6Cht05hQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nVqjpXl3;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=r4EtHMDW;
+	arc=none smtp.remote-ip=74.125.82.174
+Received: from mail-dy1-f174.google.com (mail-dy1-f174.google.com [74.125.82.174])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC301606A31C;
-	Mon,  9 Nov 2026 21:23:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3962E606A325
+	for <virtualization@lists.linux.dev>; Mon,  9 Nov 2026 23:40:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3962E606A325
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nVqjpXl3
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 969901F008A1;
-	Mon,  9 Nov 2026 21:23:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794259398;
-	bh=+kUTd224F4w2WVRCX29Wbt8/OcYpKrZOIe0kcjayeIo=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=nVqjpXl3jELyOGYz8QbtC9ZmJjl+dXzZ0Nfjtwg2s+48CfxcodVzNgRjxDGMX+HJ4
-	 zZPk79N9QUVB43OeJhBO2LOmq06RNAy/ZzZuhj3qyTEkTs+k3Hm6PUnuPBwUY3hq5x
-	 ftt88gv/tSP0PlpMIXbRAH9IQDEuV0G/Y98Zq8DW69iLNVDbRkUMpCH53Wwzb9fMk8
-	 P1TvlqzvOZdTULh13FTwnHlA3lD7Hkk7hVJ2g0UZ6B3YoFoy8JPCgcCXxKbxfebTtp
-	 eUN9eQXZVT5Cp50jDKrmzPbW31kYKxmsVBTobYAOEBLixE1pA+jWUGl9GBOf3TiKcO
-	 j+R8thQJBIgHQ==
-Subject: Re: [PATCH net] virtio_net: check RX buffer length before DMA sync
-From: netdev-bot+sashiko@kernel.org
-To: vladimir@dfb.sh
-Cc: netdev@vger.kernel.org, mst@redhat.com, jasowangio@gmail.com,
- eperezma@redhat.com, xuanzhuo@linux.alibaba.com, andrew+netdev@lunn.ch,
- davem@davemloft.net, edumazet@kernel.org, kuba@kernel.org, pabeni@redhat.com,
- vishs@meta.com, virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- stable@vger.kernel.org, nikolai@kalinidze.me
-Date: Mon, 09 Nov 2026 21:23:17 +0000
-Message-ID: <179425939711.994134.2719389056327615125@kernel.org>
-In-Reply-To: <20261108-b4-virtionet-rxlen-v1-1-0078c5ab7e14@dfb.sh>
-References: <20261108-b4-virtionet-rxlen-v1-1-0078c5ab7e14@dfb.sh>
-X-sashiko-severity: Medium
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=r4EtHMDW
+Received: by mail-dy1-f174.google.com with SMTP id 5a478bee46e88-37000e7234bso2075649eec.1
+        for <virtualization@lists.linux.dev>; Mon, 09 Nov 2026 15:40:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794267655; x=1794872455; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=UYh9+NfHPKZajvTz1xi7cTDaycXDIClv3BtU5BxbMAs=;
+        b=r4EtHMDWiqNKDeWtJ2c1z7QV4zcFyuBxZri9ZZbUwMy3dMM/YXIdv3GY6aINYoFYhQ
+         TqsNUaKr4k+w7WeRCj+dVa4LIi+1eHkf25R5g/Grnf6nAThzP0v4KodLZKxSOCoUSSQf
+         Pub/X0g1jvgPgahCWoQgxFZ2GaP1ZByaNOnedMowtj5KsjXpqNzrKQSntdibBzkmh//5
+         X5RvfzpKB5lP8J6pSxtsn852NL/mKHn41QxmuOxZ5JACQlacyuqaT+DLN5v3mBdmeNPL
+         MljWs9C06cDcSapWf6mWQQI4CnZm0CK/YNspyjHr/ciUkUukf6vlZl4rSlkGhMDOdaQc
+         CwHg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794267655; x=1794872455;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=UYh9+NfHPKZajvTz1xi7cTDaycXDIClv3BtU5BxbMAs=;
+        b=Csz8AJv4KrJ+6s5SOhhjWEBDDBPJ1cWM3Vf2qMA2TKY5qNEaB5zuEQSGUiUprebRcM
+         cut69/whb3kpgJt59++uYYOVdjAyRmts3VNYSsEbejGn0zxGgbOjflzAswi1NsGIppZ4
+         ba5DSr/4prKpahzV754UHQf0+vEVMeQpxEZeaapdICoMhvNkG6jGNA+B+UIe/9LHHEkm
+         bIZvxdPUlr/RzTcSNOgLZOKyWX9EUUHuWXc0pKvZpNWmvgV6J2q83Q7pOPC+8/PXN7xG
+         nKeZNJGNN50095D9SHqD6EHRrf1lQmu5FY1LxKZeW1ZNNw7HleUG3G5AzW9uod8IXeDD
+         QCTA==
+X-Forwarded-Encrypted: i=1; AL+hErGFjtx7+bAbyB/RhOoQmgFCQS3X7DyWSLutVocxmE85zab0DRop70y/7sq6o8mwj8i+S7qPcNtHfjJoWpDbBA==@lists.linux.dev
+X-Gm-Message-State: APuU4Z9ckFy20MMt/eY3FAIkjgoG2wsTWIUxQh5KzF7AA4/cM4G0sipW
+	o1fEw0ryxPEM68hphZwMcAFxLdhi92a67rH7XAdAFXy1HxCHk/RJG259
+X-Gm-Gg: AYBFou2JvQxuN8+oQX0Pt0v582FZWr71Nl9vqoBLSJIZkXQ+Kv2MBCLSlIQlj6yrQRO
+	+l3pERW1HqYuBjjRxGZpx+8GJHnbwHyzsr+0FvVj1m1mjPHNBBZf41ZE8q2qJCqq3efguF9FG95
+	c52iy40lj4U6J1qYmj4Zx7Mw71pQZpdiQqT78GJveolujyDSIC69Crr0IFWNBFG85+RAZotro1d
+	6NEV1ZsmWjdYCXYHL4zBptPScXo23LhIlCkoelIk0rQP9JLjdSU6fidRWU2fIyMyM8Hg7YImqKK
+	ZhE1hMJ/jTX/4St8LOxHeV0ibwO2z3xoL9eCWthS6fj7SW8m/NAbVDbWkgKZIOWy27MKFuK53hC
+	HzyLHBa2kil/gl2pWFLwm79LLku50Q4liIOTnUZXMU3YKbAtcEAa4uQ4yJkxOCp+ciOEnmdEXBz
+	NsfwjCPw/XlpEbWRVaABuXmZmmufz9eA+nLgjI+uTNaMG0Wpiu6YaY/7wiJAO8KGv44SP/hj67r
+	+yEIlpDUitgiP3EJRowSITMx8Sm6UVYHN+538uEJOZMZ4yilbgrDIsrYtv771OJn5lVp+OiM9D0
+	ANx5RUwVEG1HhmkdvStSVhHjQeO93gKaCpn90TWlhM9tCVKJ+61KLRFE/Nq79zZX3zA6QepjfQG
+	eW14OYwjh1MXFva1GTdLYawrQ38GQBgPCHwMPNBbKw9LacGiqsSRqUpxuK1AM6u2jp94Z
+X-Received: by 2002:a05:7022:f4e:b0:1a4:c892:b130 with SMTP id a92af1059eb24-1b3b5fccca8mr1420330c88.15.1794267655107;
+        Mon, 09 Nov 2026 15:40:55 -0800 (PST)
+Received: from localhost.localdomain ([183.96.175.225])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3751fe2ff5dsm1739049eec.5.2026.11.09.15.40.51
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Mon, 09 Nov 2026 15:40:53 -0800 (PST)
+From: Joonho Lee <mynameisjune111@gmail.com>
+To: linux-sound@vger.kernel.org
+Cc: tiwai@suse.com,
+	perex@perex.cz,
+	anton.yakovlev@opensynergy.com,
+	mst@redhat.com,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	corbet@lwn.net,
+	skhan@linuxfoundation.org,
+	rdunlap@infradead.org,
+	linux-doc@vger.kernel.org
+Subject: [PATCH v23 00/14] ALSA: virtio: serialize PCM recovery and capture accounting
+Date: Tue, 10 Nov 2026 08:40:35 +0900
+Message-ID: <20261109234049.79534-1-mynameisjune111@gmail.com>
+X-Mailer: git-send-email 2.54.0
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -64,107 +103,100 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue(s) to consider.
+This series updates PCM error recovery, queue ownership and capture
+accounting in virtio-snd. It also provides opt-in staged capture for
+backends whose completion lengths need explicit compatibility handling.
+The capture compatibility parameters remain disabled by default.
 
-Critical: 0 · High: 0 · Medium: 1 · Low: 0
+The previous series is at
+https://lore.kernel.org/linux-sound/20261109051618.22506-1-mynameisjune111@gmail.com/T/.
 
-If you believe none of the issues are legitimate, please reply to each
-issue of Medium severity or higher and explain why the AI is wrong.
-If any of them are legitimate and you plan to respin, please let patchwork
-know by including "pw-bot: cr" as a separate line at the end of your reply
-(one such reply per series is enough).
+The v23 changes address the v22 automated review and a separate existing
+linked-buffer locking problem. Linked prepare now commits member states
+and driver admission under the group and member PCM locks. Suspended or
+disconnected members keep their states, and a canceled successful driver
+prepare returns an error to its caller. Failed prepares notify only the
+attempted prefix and do not generate a stop-timer event.
 
-- [Medium] The Fixes: tag and the changelog blame commit 24fbd3967f3f
-  ("virtio_net: add page_pool support for buffer allocation") for…
+A separate core patch closes every linked member's buffer-access gate
+and takes buffer mutexes in the stable group order. The caller-first
+ordering and caller-only access gate are already present in the upstream
+base; this patch is distinct from the prepare-completion API change.
 
---
+The failed-start patch owns the direction-independent error latch. The
+later recovery code keeps native pause admission closed when a linked
+resume rollback fails in PAUSED. Paused ordinary capture preserves the
+accounting-error XRUN path. Staged capture rejects unaligned application
+pointer deltas before changing policy or counters. The DMA lifetime and
+staged-capture commit messages now describe their full source changes.
 
-virtio_net: check RX buffer length before DMA sync
+The order separates the ALSA core APIs and existing linked-buffer fix,
+ACK propagation and failed-start recovery, message and control lifetime,
+teardown waits, opt-in capture compatibility, work priority, and option
+documentation. Each patch is represented by an independently checked
+cumulative source stage.
 
-This patch moves check_mergeable_len() ahead of
-page_pool_dma_sync_for_cpu() in the mergeable fragment loops. It also
-limits the head buffer sync in receive_buf() to the length of the buffer
-that was posted. The goal is to stop a malicious device under SWIOTLB from
-using an oversized used length to bounce its own bytes over neighbouring
-page pool fragments.
+Validation used ARM64 QEMU with KASAN and lockdep. The eleven changed
+cumulative stages, 04 through 14, built with W=1 without compiler
+warnings or errors. Applying all fourteen patches in order reproduces
+every cumulative source stage and the exact final candidate.
 
-> Since commit 24fbd3967f3f ("virtio_net: add page_pool support for
-> buffer allocation"), an RX queue that uses the DMA API
-> (rq->use_page_pool_dma, for example with VIRTIO_F_ACCESS_PLATFORM)
-> syncs each received buffer with page_pool_dma_sync_for_cpu() using the
-> length the device wrote to the used ring, and checks that length
-> against the posted buffer only after the sync.
+A test PCM driver passed fourteen core scenarios, including linked
+success and partial failure, atomic and nonatomic locks, suspend and
+disconnect cancellation, overlapping DROP, an active sibling buffer
+access, parallel group actions, and old-generation ACK retirement.
+The stop-timer change was checked by source review; this run did not
+attach a timer client to count timer notifications.
 
-[ ... ]
+The instrumented virtio-snd tests passed definite START and STOP rejection,
+RUNNING pause restoration, failed linked resume rollback, deferred group
+XRUN, DROP, prepare, real playback and capture I/O, and reopen in RW and
+MMAP modes. Actual SYNC_PTR calls checked rejected ACK rollback and
+unaligned ACK policy preservation. The alignment and invalid-accounting
+inputs are synthetic test geometry. A separate stage-07 test verified
+four START failure/recovery cases and failed playback drain termination.
 
-> Fixes: 24fbd3967f3f ("virtio_net: add page_pool support for buffer allocation")
-> Cc: stable@vger.kernel.org
+The pure final driver passed ordinary and staged RW and MMAP recording.
+Each configuration included a seventy-second capture. RW checked three
+reopen cycles; MMAP checked RESET and a reopened stream. All fourteen
+captured segments matched SHA256 values generated independently on the host from recorded QEMU sequence
+epochs. No KASAN or lockdep diagnostics were reported by the passing runs.
 
-[Severity: Medium]
-Is 24fbd3967f3f the right commit for the Fixes: tag? The sync before the
-length check seems to predate page_pool. That commit appears to have only
-moved it into the per-site page_pool_dma_sync_for_cpu() calls.
+Additional tests used the same candidate with strict KCSAN and lockdep.
+The runtime selftest and an isolated positive-control race confirmed
+instrumentation. Fourteen core cases passed at both default and higher
+sampling rates. Twenty-four driver control and accounting assertions
+passed. Ordinary and staged RW/MMAP captures matched all fourteen
+independent signal segments, including RESET and reopen.
 
-In the parent of 24fbd3967f3f, every merge or small mode RX buffer goes
-through virtnet_rq_get_buf(). It syncs using the raw used length:
+The KCSAN campaign did report an ARM64 saved-PSTATE race outside ALSA:
+copy_thread() races with spectre_v4_enable_task_mitigation(). I built the
+pristine base with the identical config and ran the same fork workload
+with all sound modules unloaded. It reproduced the original pair; the
+ARM64 source and compiled objects are identical between the two kernels.
+The report remains recorded, so this is not a globally KCSAN-clean result.
+No ARM64 change is included in this series.
 
-drivers/net/virtio_net.c:virtnet_rq_get_buf() {
-    ...
-	buf = virtqueue_get_buf_ctx(rq->vq, len, ctx);
-	if (buf)
-		virtnet_rq_unmap(rq, buf, *len);
-    ...
-}
+Physical tests on macOS VZ used Scarlett 2i2 input 1 at 48 kHz. Direct
+ALSA RW and MMAP each recorded seventy seconds, with signal statistics
+checked against a simultaneous host capture. Pause/RESET, the first open
+after killing a running recorder, and capture after VM restart passed.
+These tests enabled all five compatibility options. They do not establish
+bit-exact physical sample continuity or Docker Desktop microphone support.
 
-drivers/net/virtio_net.c:virtnet_rq_unmap() {
-    ...
-	if (dma->need_sync && len) {
-		offset = buf - (head + sizeof(*dma));
+Two test-tool problems were corrected before the final runs: asynchronous
+ACK snapshots could evict a control-error record, and truncating an old
+capture file after START stalled the test client beyond its PCM ring.
+The final MMAP test prepares RAM before START and writes output after
+closing PCM. Source, config and data-oracle acceptance stayed unchanged.
 
-		virtqueue_map_sync_single_range_for_cpu(rq->vq, dma->addr,
-							offset, len,
-							DMA_FROM_DEVICE);
-	}
-    ...
-}
+Synthetic alignment checks do not represent an actual sub-byte capture
+device. The stop-timer change remains source-reviewed without an attached
+timer client. One-shot command rejection exercises a definite error path;
+uncertain control timeouts can still require device reset or reprobe.
+Heavy-load TCG scheduling limits remain outside this qualification.
 
-This covers the head buffer through virtnet_receive_packets() ->
-receive_buf(). It also covers the fragments in receive_mergeable(),
-virtnet_build_xdp_buff_mrg(), xdp_linearize_page() and
-mergeable_buf_free().
-
-In every case the sync runs before check_mergeable_len() or the
-GOOD_PACKET_LEN check in receive_small().
-
-In virtnet_rq_alloc() the mapping covers the whole alloc_frag:
-
-	dma->len = alloc_frag->size - sizeof(*dma);
-
-So under SWIOTLB, wouldn't an oversized used length copy bytes chosen by
-the device over the neighbouring RX buffers in the same frag? That looks
-like the same primitive the changelog describes.
-
-git blame points at 295525e29a5b ("virtio_net: merge dma operations when
-filling mergeable buffers"). The path then became unconditional for merge
-and small mode in fb22437c1ba3 ("virtio_net: rx remove premapped failover
-code").
-
-Kernels with fb22437c1ba3 but not 24fbd3967f3f seem to be just as
-exposed. With only the 24fbd3967f3f tag, stable tooling would not pick
-those trees up. This patch also cannot apply there, because the page_pool
-code does not exist in them.
-
-That also affects the note after the changelog:
-
-> An alternative is one sync helper bounded by the posted length for all
-> four call sites; we kept the per-site change to keep the net and
-> stable backport small.
-
-Should the Fixes: tag point at 295525e29a5b and/or fb22437c1ba3? It would
-also help to say in the changelog that those trees need a separate fix,
-for example limiting the sync in virtnet_rq_unmap() to the posted length.
-
--- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261108-b4-virtionet-rxlen-v1-1-0078c5ab7e14%40dfb.sh
+The staged path and its backend compatibility options need maintainer
+review before they can be recommended for a production deployment.
