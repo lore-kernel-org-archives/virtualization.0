@@ -1,63 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=220.197.31.3
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794217430;
-	b=HtqJXCQPYI1/XQSyV10T64IGJ60Dye0lM6mdKVnDYwgMlvLJ35rG2nC2HDFr1EOqFCjz
-	 9eu54O2QDkYZb0HLpN0wekmeYqlldqQB4Jal7CWuIy3VwTeWNSokpcN5pJHGNGcY68Peo
-	 /KPzXMl+96v6iidvbmxNbe3BIYuep5sZ52iyEDKnz6iGC0PPzoZDC4Yyg+O10olPUeeMa
-	 HPgKg6F3TB9vp/YVD8U5+ui+Yhc4nRFkuoGmNLpDxIJBAvmRpHem6uSSMQiEic+LWeC7F
-	 7lMNrM1MFMwSw8MFnW3heJH9TD+8wU+MF/xZ26Oxbnpf3w4S0Npa/Si+z+Y12gv0FnQ==
+	t=1794218149;
+	b=U/333gpdyQHopOjcpHhM6vPCvArnjHd3nmfyiUX5MWtOOAFI88MbdBE3frNHCjd16v9c
+	 Lak9/Gasc9eW0oObHe0lEEOXEufYJenWVIxfQ47Hci+liQQSNqAkAWf6sIvWlp9C2aOwQ
+	 zPWfkVWW1eAkgBSj1wtUHnPf8mQPhyeqocZgCX8U3BL7r4U3XA1Qkvjzm6xYUOgHORDaJ
+	 Bj9C09Ev6yWwaFeHZg60a05xCiyB/dwXNykG2VppbokZk6QVlHewwuzuBFF+8ndLhQw3I
+	 AXHuFBZU1aaNkvPYs8KCJw2WbVRmxcFTgT8IlDw9e1tov3/YrfoEDB8rL5mtZrYTCGw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794217430;
-	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
-	 Message-Id:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding:X-CM-TRANSID:X-Coremail-Antispam:
-	 X-CM-SenderInfo;
-	bh=/uZsH17bYEh5dbv52qPr8YKax8++4Unn6PCBM2yJmTk=;
-	b=rO50yaue46Ck+8eCZdCMnNHhs56i3KBwxXBUtQQO0mnSMp+p/giOTLz61es+vqVnXioN
-	 mvXpj9NBZJc76s/P2ceMHftwGPmhOihQHpZFN5B4a0rqbIyVnHYa9Vpldz5Ix0iZ8jVvJ
-	 sHMIgarC983SzgEGxda9xew68Td8/ebwhsCRyGbFxKdDYiO77odMQndHCNVC+ZesAmBqd
-	 zUFAxn60C56uCyQoDPtoNKX7iLUh1u2L793bTWZsg48lMaCBZ3KvV8LnGfaZurpLAA1sJ
-	 1Os/a8Gq1M2wE41dXRQCbRwqTWAfkXCKIpqEIlQvM3DWiO4GrBemGfzbqaNLJW/VOUA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794218149;
+	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
+	 In-Reply-To:References:X-sashiko-severity:Content-Type:
+	 Content-Transfer-Encoding:MIME-Version;
+	bh=2kS7qNxqF06hjCKC8fEyeKjUWUV8Pu6SASn8EXMiOk8=;
+	b=eEbN1OjM1CeR41uGrjFzXfw21Jj/WrT2WthlwwHqBbYYLxj2x1MoxmLDqRAT5Pvu5D25
+	 Ui5frvLZb3jeYfV2Frg4/XiI8glVdkk6gDWLVyqxGQ4YRgyjnPw38Iexkf15oIPK360Hd
+	 yo/XtncNlyLu/sU02soiEvjxARQb03KCAdy93C7uqejRzcvojxRw0phRSJ/iu3b2dydxw
+	 ggpSGLyDn9GctYsMsNGNiY5PVm/vtJkodU0RtxEfC7oCL0ISCU1GnCMEKbXBEB8A8B/0o
+	 c1CsxVw7ph3h1OOopuXW09sk668VdHcu2oPSBqayUR941wrd96l/sk+YDVSePSjgu5A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=163.com;
-	spf=pass smtp.mailfrom=163.com;
-	dkim=pass header.d=163.com header.i=@163.com header.a=rsa-sha256 header.s=s110527 header.b=M2MmqxUk;
-	arc=none smtp.remote-ip=220.197.31.3
-Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.3])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mYXtlQQ3;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCA11606A331
-	for <virtualization@lists.linux.dev>; Mon,  9 Nov 2026 09:43:49 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CCA11606A331
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D71D4606A31C;
+	Mon,  9 Nov 2026 09:55:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.a=rsa-sha256 header.s=s110527 header.b=M2MmqxUk
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=/u
-	ZsH17bYEh5dbv52qPr8YKax8++4Unn6PCBM2yJmTk=; b=M2MmqxUksP32Up3ASA
-	+Arbe3MsTy2RE4ok/WAIvbSe/YolFtb50QFRSZfQIwZUJKz5L9I5BqdkFd2R7+/A
-	1NVCweYg2+/nYL7iGbrEdJnsXzvSA5Nze4sHNiRY0p/Siqxox9PYvIeIjXJtMaxa
-	YBGKyfHUigi9tIqYhgqMWe5Gk=
-Received: from localhost.localdomain (unknown [])
-	by gzga-smtp-mtada-g0-2 (Coremail) with SMTP id _____wBHJCGvlfFq58sxGQ--.4049S5;
-	Mon, 09 Nov 2026 17:43:14 +0800 (CST)
-From: Longjun Tang <lange_tang@163.com>
-To: mst@redhat.com,
-	kuba@kernel.org,
-	eperezma@redhat.com,
-	jasowangio@gmail.com
-Cc: xuanzhuo@linux.alibaba.com,
-	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org,
-	tanglongjun@kylinos.cn
-Subject: [PATCH 3/3] virtio_net: add rx_timeouts per-queue statistic
-Date: Mon,  9 Nov 2026 17:43:10 +0800
-Message-Id: <20261109094310.103979-4-lange_tang@163.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20261109094310.103979-1-lange_tang@163.com>
-References: <20261109094310.103979-1-lange_tang@163.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mYXtlQQ3
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21AA81F008A1;
+	Mon,  9 Nov 2026 09:55:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794218148;
+	bh=2kS7qNxqF06hjCKC8fEyeKjUWUV8Pu6SASn8EXMiOk8=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References;
+	b=mYXtlQQ3AU5gJigOCf34O6QC51fVY5KBDLWEl+xbx+LS3SzNrbz8URsSbFIWhKytn
+	 rpJGwzGJhScF3ZTcHS9VcYMHAzfyXAeKRgnVVaYtsIj0iiXb4bOlktx5oeQ77Z+Okq
+	 1ASDVm5oqJZQ/YywjT2dvQKAhKOAy0y2tV9b5dOYERy2m6tgEv/Z2IPQyQbQzyWhZ3
+	 I230V1r4rJZ3QLwrVQD0cXP36XJ2pooohfwTk2zlXzNgkAjn/4Ztqt2BW7TwZlVaIS
+	 QXaXCN0SxknMH1ge/OjQ9Pr4wrY7xa/5TagYg2bIHSYcxK9CIeeiNEPvWDysP7LZgk
+	 Wccv4Myae35UQ==
+Subject: Re: [PATCH net v4 1/2] net: virtio: validate outer protocol of UDP
+ tunnel GSO packets
+From: netdev-bot+sashiko@kernel.org
+To: edumazet@kernel.org
+Cc: netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
+ pabeni@redhat.com, horms@kernel.org, willemb@google.com, mst@redhat.com,
+ jasowangio@gmail.com, eperezma@redhat.com, hassansultan@google.com,
+ virtualization@lists.linux.dev
+Date: Mon, 09 Nov 2026 09:55:47 +0000
+Message-ID: <179421814766.994134.3669228181251158303@kernel.org>
+In-Reply-To: <20261106095340.2113683-2-edumazet@kernel.org>
+References: <20261106095340.2113683-2-edumazet@kernel.org>
+X-sashiko-severity: Medium
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -67,58 +64,169 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:_____wBHJCGvlfFq58sxGQ--.4049S5
-X-Coremail-Antispam: 1Uf129KBjvJXoW7Kr4fXryDKFW8Xw1xCryfJFb_yoW8Aryfpr
-	45A342yFyrXw48XFWfGrWUZ345Jwn3AFW7Gryag34ruFn8GrnYyr109FWjkF17CFZ8ArWj
-	vanYv398J3yj9FUanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07jVoGPUUUUU=
-X-CM-SenderInfo: 5odqwvxbwd0wi6rwjhhfrp/xtbC-hKo1mrxlbJWQgAA36
 
-From: Longjun Tang <tanglongjun@kylinos.cn>
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue(s) to consider.
 
-Add an rx_timeouts field to the per-queue RX statistics and expose it
-via ethtool. Whenever an RX queue gets stuck, the NAPI poll increments
-rx_timeouts, so it counts RX queue stuck events.
+Critical: 0 · High: 0 · Medium: 1 · Low: 0 (1)
 
-Signed-off-by: Longjun Tang <tanglongjun@kylinos.cn>
----
- drivers/net/virtio_net.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+If you believe none of the issues are legitimate, please reply to each
+issue of Medium severity or higher and explain why the AI is wrong.
+If any of them are legitimate and you plan to respin, please let patchwork
+know by including "pw-bot: cr" as a separate line at the end of your reply
+(one such reply per series is enough).
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index ec7c248080c5..feb6bfbb1c5a 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -135,6 +135,7 @@ struct virtnet_rq_stats {
- 	u64_stats_t xdp_redirects;
- 	u64_stats_t xdp_drops;
- 	u64_stats_t kicks;
-+	u64_stats_t rx_timeouts;
- };
- 
- #define VIRTNET_SQ_STAT(name, m) {name, offsetof(struct virtnet_sq_stats, m), -1}
-@@ -168,6 +169,7 @@ static const struct virtnet_stat_desc virtnet_rq_stats_desc[] = {
- 	VIRTNET_RQ_STAT("xdp_redirects", xdp_redirects),
- 	VIRTNET_RQ_STAT("xdp_drops",     xdp_drops),
- 	VIRTNET_RQ_STAT("kicks",         kicks),
-+	VIRTNET_RQ_STAT("rx_timeouts",   rx_timeouts),
- };
- 
- static const struct virtnet_stat_desc virtnet_sq_stats_desc_qstat[] = {
-@@ -2983,6 +2985,12 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
- 		u64_stats_add(item, u64_stats_read(src));
- 	}
- 
-+	/* Count a stall recovered by this poll. */
-+	if (rq->watchdog.stalled) {
-+		u64_stats_inc(&rq->stats.rx_timeouts);
-+		rq->watchdog.stalled = false;
-+	}
-+
- 	u64_stats_add(&rq->stats.packets, u64_stats_read(&stats.packets));
- 	u64_stats_add(&rq->stats.bytes, u64_stats_read(&stats.bytes));
- 	u64_stats_add(&rq->stats.alloc_fail, u64_stats_read(&stats.alloc_fail));
+- [Medium] The new strict outer-offset check rejects UDP-tunnel GSO
+  frames that the kernel's own tun TX path produces whenever the skb…
+
+Pre-existing issues:
+- [Low] In virtio_net_hdr_tnl_to_skb(), outer_l3min = ETH_HLEN +
+  virtio_l3min(outer_isv6) (include/linux/virtio_net.h:491).
+
+--
+
+net: virtio: validate outer protocol of UDP tunnel GSO packets
+
+This commit makes virtio_net_hdr_tnl_to_skb() check that the frame's outer
+L3 protocol matches the declared tunnel type. It also checks that the outer
+UDP header sits exactly at outer_th_offset. Callers pass a new has_eth
+argument that says whether the frame starts with an Ethernet header. This
+closes a path where an arbitrary outer ethertype combined with
+SKB_GSO_UDP_TUNNEL could crash the host in skb_under_panic().
+
+Link: https://lore.kernel.org/netdev/93d0e37c99711bebdf60c120af03010455c2f2e2.1793276116.git.mst@redhat.com/
+
+> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+> index d6466f96cdd00..b7b6b542f4763 100644
+> --- a/include/linux/virtio_net.h
+> +++ b/include/linux/virtio_net.h
+
+[ ... ]
+
+> @@ -282,9 +424,33 @@ static inline unsigned int virtio_l3min(bool is_ipv6)
+>  	return is_ipv6 ? sizeof(struct ipv6hdr) : sizeof(struct iphdr);
+>  }
+>  
+> +/* Do the tunnel offsets match the outer headers in the frame?
+> + * The L3 header the tunnel claims must be the one the frame
+> + * carries, with UDP following it at @outer_th.
+> + */
+> +static inline bool
+> +virtio_net_tnl_offsets_ok(struct sk_buff *skb, bool has_eth, bool outer_isv6,
+> +			  unsigned int outer_th)
+> +{
+> +	int nhoff;
+> +	__be16 proto;
+> +	unsigned int thoff;
+> +	int ip_proto;
+> +
+> +	if (!virtio_net_l3_start(skb, has_eth, &nhoff, &proto))
+> +		return false;
+> +	if (outer_isv6 != (proto == htons(ETH_P_IPV6)))
+> +		return false;
+> +	if (!virtio_net_l4_start(skb, nhoff, proto, &thoff, &ip_proto))
+> +		return false;
+> +
+> +	return ip_proto == IPPROTO_UDP && outer_th == thoff;
+
+[Severity: Medium]
+
+Can this exact match reject UDP tunnel GSO frames that tun itself produces
+when the skb carries a VLAN hwaccel tag?
+
+On the producer side, tun_put_user() writes the 802.1Q tag into the frame
+it copies to userspace or vhost-net. It calls tun_vnet_hdr_tnl_from_skb()
+with vlan_hlen = VLAN_HLEN. Only csum_start accounts for the tag:
+
+include/linux/virtio_net.h:virtio_net_hdr_from_skb() {
+    ...
+		hdr->csum_start = __cpu_to_virtio16(little_endian,
+			skb_checksum_start_offset(skb) + vlan_hlen);
+    ...
+}
+
+The tunnel offsets do not:
+
+include/linux/virtio_net.h:virtio_net_hdr_tnl_from_skb() {
+    ...
+	inner_nh = skb->inner_network_header - skb_headroom(skb);
+	outer_th = skb->transport_header - skb_headroom(skb);
+	vhdr->inner_nh_offset = cpu_to_le16(inner_nh);
+	vhdr->outer_th_offset = cpu_to_le16(outer_th);
+    ...
+}
+
+So outer_th_offset and inner_nh_offset both end up 4 bytes short of the
+real UDP and inner headers in the emitted frame.
+
+On the consumer side, with has_eth set, virtio_net_l3_start() walks the
+in-band VLAN tag with __vlan_get_protocol(). That gives nhoff = 18, so
+thoff points at the real UDP header (38 for IPv4). The emitted outer_th is
+34, this comparison fails, and virtio_net_hdr_tnl_to_skb() returns -EINVAL.
+
+Before this patch the same frame was accepted. Only transport_header was
+off by 4, and ip_rcv_core() and ip6_rcv_core() reset it for local delivery.
+
+With this change, would a guest that gets these frames from a host tap
+drop them in virtnet_receive_done() as "bad gso" and bump
+rx_frame_errors? A tun/tap writer that re-injects frames it read from
+another tun would see the same rejection.
+
+This looks reachable with VLAN-tagged UDP tunnel GSO traffic. Two examples
+are a VLAN filtering bridge with a tagged egress port, and a vlan device on
+top of a tap. tun advertises NETIF_F_HW_VLAN_CTAG_TX/STAG_TX in
+hw_features and hw_enc_features, so the tag stays in hwaccel until
+tun_put_user().
+
+The later patch in this series, "tun: clear stale skb->protocol of NAPI
+frags skbs", does not seem to fix the producer side. Should
+virtio_net_hdr_tnl_from_skb() add vlan_hlen to outer_th_offset and
+inner_nh_offset, with that fix landing with or before this check?
+
+> +}
+> +
+>  static inline int
+>  virtio_net_hdr_tnl_to_skb(struct sk_buff *skb,
+>  			  const struct virtio_net_hdr_v1_hash_tunnel *vhdr,
+> +			  bool has_eth,
+>  			  bool tnl_hdr_negotiated,
+>  			  bool tnl_csum_negotiated,
+>  			  bool little_endian)
+> @@ -338,6 +504,9 @@ virtio_net_hdr_tnl_to_skb(struct sk_buff *skb,
+>  	if (ret)
+>  		return ret;
+>  
+> +	if (!virtio_net_tnl_offsets_ok(skb, has_eth, outer_isv6, outer_th))
+> +		return -EINVAL;
+> +
+
+[Severity: Low]
+
+This is a pre-existing issue, not one introduced by this patch, but does
+the has_eth = false path ever see ordinary IFF_TUN frames?
+
+Earlier in virtio_net_hdr_tnl_to_skb(), the minimum outer offset still
+assumes an Ethernet header, whatever has_eth says:
+
+	outer_l3min = ETH_HLEN + virtio_l3min(outer_isv6);
+	...
+	if (outer_th < outer_l3min ||
+
+For IFF_TUN, tun_get_user() passes has_eth = false and the network header
+is at offset 0. virtio_net_tnl_offsets_ok() therefore needs outer_th == 20
+for plain IPv4 or 40 for plain IPv6. Both values are below the 34/54 floor,
+so these frames are rejected before the new check runs.
+
+That leaves the !has_eth branch of virtio_net_l3_start() reachable only for
+outer IPv4 with at least 16 bytes of options, or outer IPv6 with at least
+16 bytes of extension headers. The L3-relative offsets produced by tun TX
+and by the selftest helper build_virtio_net_hdr_v1_hash_tunnel()
+(eth_hlen = 0 for !is_tap) are still rejected.
+
+The ETH_HLEN floor dates from a2fb4bc4e2a6. Now that callers pass has_eth,
+should outer_l3min depend on it?
+
+[ ... ]
+
 -- 
-2.51.0
-
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261106095340.2113683-1-edumazet%40kernel.org
