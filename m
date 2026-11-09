@@ -1,85 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.54
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.42
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794201385;
-	b=Yyjih16CljkqcP7cRc7tTquC1XJQlS0q8OwrN0Isv/qYnYrh14dq1q7/o74O4gM0DnZH
-	 mNmHPJodpqqqyUWKbnXgOd9G5gBzG3xm9tatO8sSRSt+N0HngLBljnuj3dl1sV9oBjC2n
-	 sDkw0o5EsMEdrQFgEGLsN/B1g6Vmg06jrn2Ciwh+CTtNzL6FHgRtJJ2WH0kfmUcBBB736
-	 U06Y4sNldnLr8kjQp3v467lxZ54t/bd+e1DUHEsC6TXi2QDeHWb1vSqH0Yxb+3mkbeVD4
-	 wvqypKFSIkARJ7VI1rdtIV9m6FjqF4L/BRPPbLN0+qL7NXaHtv6rETWRsTIz5AaGD2Q==
+	t=1794201391;
+	b=bw1Q8vOYFnJdEdHhhWGojVWAdssXo+eKQ0OpbXhS+ofVVTzpba//3vrk8Uk0p72xeMKm
+	 25JLz2RCs0zvzpEf5twQObbx/9eSrQ/e7qSWRbC5IZwXylI0q3WoFxOf15pMwj78RQM52
+	 D8uFnyob/bOAdZPaVfhswdxRMVEz+AfhRSy/A2STYq4X+WMqZhH1pCnUDqTWQylidERSM
+	 Dop1DWidHVmg7RqNN4JzkjQpcH/g90VduRyAtJUdFhdRxxppApxKWduMaRg/k0AwKQHT0
+	 I5r9uaTII0JRRFzkufkTs7UNULtppKEXzOK0dfHUXlLT+Iwb37dRnxgUfe3KmRI3O3w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794201385;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794201391;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding;
-	bh=dJKjNdPYk3m+cvdLchMSCMmDNiLwFmiH/BaL2cS3TCk=;
-	b=Osm56Rho5/LeDhZPkUCEsLN0mqc2jiwJkm8MlBUxGpAyeIkuDMvNPyK2KpcjBhBVyjKx
-	 hKdo2dEPJyIqsd7Dy/Cmb2gx74tajCOt6qXMFSqilspbiLkLil7cRNEXT42hZDdfSdW0t
-	 szir3lz2mTb7UdJImc4ajpruON/nkSfn+J5z94QLxHrwnMG1r1D/FN6wD+U0qifernJl5
-	 EeKu1lt/awWgKzF9NhmDRF8T05wgsb23vnfZZrpvo6FIfD/MmwAWrge+2O1ceEjjrBCIi
-	 JR9P0V5hZjdN4Jh8kGsod4vcrlUAfMPIuQSL9Anr2KiBwfgUF1P7LcrqvXmcV4MVw9w==
+	 MIME-Version:Content-Transfer-Encoding;
+	bh=RIRJFzJUwhXXYeLruwX5KfbkGWQEo4baZ96Hekp+nk0=;
+	b=R/P4hK8YVZ80KNkOEyxIPIAzmQlswdo+xCDCdx44T0XRQH0zAFGRk/0gF7vBaHoNlPQ3
+	 NvvocsVzE/xmZ9g8CVhkKK7rwyAJzm+6nsh/Myfwc6W4B4At5hCsz1p8CTB7cPiRd80ur
+	 bKgnXQKoU3+pomFcXsAMY5MghCn78hxUK1BmFGP7pri/yMINLXnWSppY8z6TVHFR21DWf
+	 axyB/Y57K+kE9uLqYJEgsHpdiI/yB6Qa+aJIuQEy5TSIHd1Nrzri4+s/+TvpEnhblR173
+	 nFlyNAvX3N+zXcP+I8fteT2RMZPTAP0zVQd8w/EtWvKBTfrxZpg3HCQ3ijEQkqH61qg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=WNdkeIO5;
-	arc=none smtp.remote-ip=74.125.82.54
-Received: from mail-dl1-f54.google.com (mail-dl1-f54.google.com [74.125.82.54])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=ErA1QPDO;
+	arc=none smtp.remote-ip=74.125.82.42
+Received: from mail-dl1-f42.google.com (mail-dl1-f42.google.com [74.125.82.42])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8134606A32A
-	for <virtualization@lists.linux.dev>; Mon,  9 Nov 2026 05:16:24 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C8134606A32A
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24A83606A330
+	for <virtualization@lists.linux.dev>; Mon,  9 Nov 2026 05:16:30 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 24A83606A330
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=WNdkeIO5
-Received: by mail-dl1-f54.google.com with SMTP id a92af1059eb24-1ae58d17cd9so161610c88.1
-        for <virtualization@lists.linux.dev>; Sun, 08 Nov 2026 21:16:24 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=ErA1QPDO
+Received: by mail-dl1-f42.google.com with SMTP id a92af1059eb24-170135e43c7so665003c88.0
+        for <virtualization@lists.linux.dev>; Sun, 08 Nov 2026 21:16:30 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794201384; x=1794806184; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=dJKjNdPYk3m+cvdLchMSCMmDNiLwFmiH/BaL2cS3TCk=;
-        b=WNdkeIO5WYy3BY3Y3AvspLvoLtawhkKWHjAJCXnodtCuYTJx3s4MjMGlGbMn9D3Fi/
-         KsothWzgmfCspJBlnrvFhIsx/shJeacxQRDI7JR1HITTKxcClyD33y/x2+B9+9vfk8fi
-         kl4Tr6fTaMg/ZKq5/dcHR8fMWpky3Z6KjEkj2TtKNN9Ai0RwY+VQvzRH59RfP/rHLI7D
-         ULrA58A3IMx6GmM8EhNl8MzmQynSQrkjAbXR9TXlYOL2pQNLA42v5TSRAHv5DnIZnl9E
-         E0mLP0ff85Jz7Ibri2l8/NUSxASbYDgF9uECSq6V63jRYKGrdLjAqEkI1HZG6dGSe8GL
-         al/g==
+        d=gmail.com; s=20260707; t=1794201390; x=1794806190; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=RIRJFzJUwhXXYeLruwX5KfbkGWQEo4baZ96Hekp+nk0=;
+        b=ErA1QPDORTRMo123SLzVYKE887LJTLhxsOvHUrF6WPXK6pofCsUuzupqlT3Pi6IcOU
+         jEMydV2zhJveScWAc1Oz4TWZSqkdfn1S+6MnvL1lQy+u8t2+IG5lqEs78Su40RbdrNum
+         fRAj5kULqjAmwhZoI8RyGudFHOKzm85ayvjU6GXxUKajEZCg0DMQ48aSOLjx+WPsa7+q
+         gY5Tb4zMxlUMzug8zdDR7DS8JuSZam/6vqmOzdQ+mnnYcz0ejjpt6hbONdSpXTSCEqsv
+         4Rj0m6frxkuBZ3h1WRz+kjqmEPUXCQlbq+SMbOLSEyC2DvuJhstpOAFZo9cFt6DVxKpZ
+         Q80g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794201384; x=1794806184;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=dJKjNdPYk3m+cvdLchMSCMmDNiLwFmiH/BaL2cS3TCk=;
-        b=Ws/eU/BuwYnSaClTodrAUGKQW68GKkG/pTPOmyl1Gk1M8JyAvwvMzMd+PLAu08zAI4
-         aAy39bfej5vyPRgw9rtKF01YDh+K17T9RNYMquhBwkk0nejU0+pm/yzYSGMl+B8GVdQh
-         qIX4kVItJxnDItW6eOWuX2q3ybEAmTe39Oiqg/Vz9fAS6x3CujKNxrlQNYNmL355wcfo
-         2zAYvEGwD6rupZ1+BKtatwfT9x4B3TQIbt22FGtLFW48FxzxRCij6ATNtoEBq8/qjssZ
-         sfzyFfHEHbnhwoVROKi/8nt/sKnSvSkLWlJ51DZHhfqmhDGMcTN3Wyfy/TOQr5w2W32f
-         WrKw==
-X-Forwarded-Encrypted: i=1; AL+hErHR727JehrFrIbbQQzAfOPVQz78s5dDg50tULX+gl8fJksJXg6dcPjL0DndOLshi6o7rP+JkqUtjTMH8IE6wg==@lists.linux.dev
-X-Gm-Message-State: APuU4Z+xWucllE7YcLiLDiSS4rhD7qAg9w2HjfdbbEJ8vT9LBGkWORtV
-	Zr8JI5QoAa8QUxISLiIIBtYX7JI8McA923Y6zA5AY5TuyLf4J3SlsJCr
-X-Gm-Gg: AYBFou3TBeSsercQ710tIzM6WHG8/nQ4L4LT2RAL5LEhgspkglS4293MaqH3vM2UMo2
-	W4GmycDTmpsprrL2AByEb6HUOL8rcs7MzGbmtu/oSy+xQD+Y52sE6Ugs/CV1KOyCl8SCAWwAzc/
-	92RkzPvDViASJKFINLoNc+EeYOeiS2Pk2KShFWFjU9zT9/sQPBhO6cxTeIF9KPYhwbgZeCAa5F9
-	/R2W25W1B6E+ogOS2zOqGvgSCME45TEpUF8akreOkOR8nJ1mvjcQh37/EC8XuaRkScAamQhM33J
-	TltVsMn01fWzaTljouASpzbwTURvGn7xxWxim/xojfvquotW2kSC/hWbno/tV9WEoe5dq+THbTa
-	YssvI/YIPelrULz3e6bQG2OymJU3CDWkFhbzT/Fmk+8Diy7iLUlxNnM27nrDhpOecRMrEHA9kgL
-	1s29T9TRhkd3nummKhDc9Us8tncA+xB00mqVyR/DyPfDALaC5suhq0GeefTO0X0/1V2tFtzpjMz
-	ikhiuUTWmvfnzhB5e9p/Wk1MrCumujkPHvsm5fYXrrlDEGlQcg8XCj8yoyrkGrdsznLmexJ+ip2
-	DLBNCZJvtvO43VQ55uIisdndXi0dDQFykteTEiPDW6bs+jIQfND84WA40tTXZxc0lSEs/MtOkc4
-	llHnWZr/Ut+n/NUv4+fZ30Zelz9Htp+aG1AapLyCPW7ic88M=
-X-Received: by 2002:a05:701b:420f:10b0:1ab:6b10:461 with SMTP id a92af1059eb24-1b39ff1d2famr4693747c88.45.1794201383745;
-        Sun, 08 Nov 2026 21:16:23 -0800 (PST)
+        d=1e100.net; s=20260707; t=1794201390; x=1794806190;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=RIRJFzJUwhXXYeLruwX5KfbkGWQEo4baZ96Hekp+nk0=;
+        b=uQqA5Pfj6CVv7GdbtMn9IPIIJn+LKnd3TT34qCz7jbLFcg5YVOuHdjI1nsXFwr9JXE
+         5n6NYS3eHnzJRLbxfCA+k7ZupWoPgujl9PtFMssMopv1QCULnhf2Gjr6PJn0jZOgolDp
+         I1ay0QjCVrzb5I1D28xmiHfdjfaZrfcziz92W8yFELBKCOaqVxCeq1RUUNss3VxroUKM
+         C/bYjEenluOCNkPjaagMR8fbspzgkLK7bKsWO1IPeiMxTTyaWn4C3dTJYBLEXzIfW61M
+         5sv/TwNgorcE38ZSz3UO1OQxOj3otuFqiKSLitFIrljiDTQ3CGyz1e1K47j/kFe9yyNL
+         RISA==
+X-Forwarded-Encrypted: i=1; AL+hErHWMwDw/5es/MdPpWiqL/2j0bz9jLgH3duTgsKk7EJW6ruHLbLnlb/HWzSqn/HTvAzapRGwcXnNMPYlmkwrrw==@lists.linux.dev
+X-Gm-Message-State: APuU4Z/wHsIXYMq48z454uqPChg037c6zSQODgHjMMP7pNBcYFpo8bTY
+	DY1R6b7ZNRrbPsqI4eqIK+rygOrnW8lLg71QlE/VwgjbdAs0Fiaz18/+
+X-Gm-Gg: AYBFou0avDEfCqjMms9sSA6JZBtqOdGoJIrHaEYwZFWo8qf5PVCAvUTtjqze9KODpOt
+	yrbojD169+3rWd3k+7wjvRZICyj66vG4lo9aEA3tFAgTGrjHmtcx0Y7aNahTrKnFUFX5F60sOYu
+	gwrrjubir5tWOKVJdbl+w19KujbOVQQUP3V9pXpRJEV3fmaevw7b1OxJmJv0EOWrC0Nft2HfL04
+	BC4ADHeqDfEAWa4qiK3/oN+URp863lMWwi4EkiQV3e0zwV6+bnxzkK96mDwAj8utZHaCIZU69lM
+	vPfqZwSrb5yep5/LgwBTALUZSRSQZVOZX7r600Ana6EIENsi3UN3ODdOAk4VT6J7jlyp8Vo2ZyR
+	qCz/2TsGCy3/0mc6fgvSJBWnFSUxg7ukhlqmv5t5iTn30DCkcCvGIGdv17H6IGePEdOsn101R6K
+	ahm243lTiVcqzzkEar279QaM7ctLUc6RNNErmyZ6A4t064Rek1c/rymk80ViRgYDiUcqJc0rCLn
+	xDOgq3K6Nu4mNbAR2xOn1F8olNfv1A+ItcabFtlKHj9pyH377HWOv+dzhlw4FSU0DLx8ln8Vr/V
+	ZwkGYQ/F900e4SzEbVkvaxiHHY9fKvXwTUbnrOe+L3cKAJikZpu6zAqSn112Wu9Dnm5VL96hPb9
+	l5cxZ2IIou1wo5Qh6VJo2JT56gztWzwT/uRYNmYOHRcpapls=
+X-Received: by 2002:a05:701b:2902:b0:1b2:539b:496c with SMTP id a92af1059eb24-1b39ff1388fmr4548819c88.35.1794201390152;
+        Sun, 08 Nov 2026 21:16:30 -0800 (PST)
 Received: from localhost.localdomain ([183.96.175.225])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b37314826asm11395635c88.3.2026.11.08.21.16.20
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b37314826asm11395635c88.3.2026.11.08.21.16.27
         (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Sun, 08 Nov 2026 21:16:23 -0800 (PST)
+        Sun, 08 Nov 2026 21:16:29 -0800 (PST)
 From: Joonho Lee <mynameisjune111@gmail.com>
 To: linux-sound@vger.kernel.org
 Cc: tiwai@suse.com,
@@ -91,13 +90,15 @@ Cc: tiwai@suse.com,
 	corbet@lwn.net,
 	skhan@linuxfoundation.org,
 	rdunlap@infradead.org,
-	linux-doc@vger.kernel.org
-Subject: [PATCH v22 00/13] ALSA: virtio: validate PCM ACK and prepare completion
-Date: Mon,  9 Nov 2026 14:16:05 +0900
-Message-ID: <20261109051618.22506-1-mynameisjune111@gmail.com>
+	linux-doc@vger.kernel.org,
+	Joonho Lee <mynameisjune111@gmail.com>
+Subject: [PATCH v22 02/13] ALSA: pcm: report partial progress under the stream lock
+Date: Mon,  9 Nov 2026 14:16:07 +0900
+Message-ID: <20261109051618.22506-3-mynameisjune111@gmail.com>
 X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20261108235457.12688-1-mynameisjune111@gmail.com>
+In-Reply-To: <20261109051618.22506-1-mynameisjune111@gmail.com>
 References: <20261108235457.12688-1-mynameisjune111@gmail.com>
+ <20261109051618.22506-1-mynameisjune111@gmail.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -107,39 +108,65 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-This cumulative v22 update adds an optional linked-prepare completion
-hook and validates playback ACK accounting before indirect transfer.
+Staged capture can make readable data available before a complete period
+has elapsed. Skipping notification leaves a blocked reader asleep, while
+using the period-interrupt path for this event can infer a false ring
+wrap when the notification is delayed.
 
-The core hook runs after all linked prepare actions and post-actions
-succeed. If an action fails, callbacks cover only the attempted prefix;
-the core moves opted-in members in that prefix to SETUP before calling
-back. Pre-action failures and standalone RESET do not invoke the hook.
-Drivers that leave it unset retain existing prepare-failure behavior.
+Add snd_pcm_progress_under_stream_lock() to update the hardware pointer
+through the non-interrupt path and notify readers and fasync listeners.
+It runs under the caller's PCM stream lock and does not tick the PCM
+timer. The driver must release its pointer and trigger locks before
+calling it. Existing period notification callers keep their current
+behavior.
 
-Virtio uses the hook to keep ACK admission closed through the core
-pointer reset. Patch 5 also returns -EBADFD for an ACK on an already
-XRUN member, avoiding a second linked-group XRUN request.
+Assisted-by: LLM
+Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
 
-Playback ACK validates normalized boundary deltas, frame-to-byte
-geometry, ring indices, signed ready counters, and total queued bytes
-before the indirect transfer helper mutates its cursor. An invalid
-paused ACK returns -EBADFD without starting a linked XRUN.
+---
+include/sound/pcm.h  |    1 +
+ sound/core/pcm_lib.c |   19 +++++++++++++++++++
+ 2 files changed, 20 insertions(+)
 
-Validation: The exact-source ARM64 W=1/KASAN/LOCKDEP build passed;
-final-r4 snd-pcm and virtio_snd modules match the previous build, and
-Image executable sections and System.map match. The W=1 stage 04–13
-build chain passed without warnings or errors. The v22-only checkpatch
-delta reported zero errors, warnings, or checks. The bounded playback
-ACK helper passed 23 candidate-only cases. The prepare-completion QEMU
-probe passed six lifecycle cases, including a later member's OPEN
-pre-action abort. Normal playback passed in QEMU with RW and MMAP,
-including prepare, fill, START, supported pause/resume, drain, drop, and
-reopen. Four ordinary/staged capture paths (RW/MMAP) passed with 14
-oracle captures, including post-reset capture checks.
-
-The prepare-ordering diagnosis comes from static source inspection; no
-baseline runtime test was run. KCSAN and physical-device testing remain
-pending.
+diff --git a/include/sound/pcm.h b/include/sound/pcm.h
+--- a/include/sound/pcm.h
++++ b/include/sound/pcm.h
+@@ -1182,6 +1182,7 @@
+ int snd_pcm_lib_ioctl(struct snd_pcm_substream *substream,
+ 		      unsigned int cmd, void *arg);                      
+ void snd_pcm_period_elapsed_under_stream_lock(struct snd_pcm_substream *substream);
++void snd_pcm_progress_under_stream_lock(struct snd_pcm_substream *substream);
+ void snd_pcm_period_elapsed(struct snd_pcm_substream *substream);
+ snd_pcm_sframes_t __snd_pcm_lib_xfer(struct snd_pcm_substream *substream,
+ 				     void *buf, bool interleaved,
+diff --git a/sound/core/pcm_lib.c b/sound/core/pcm_lib.c
+--- a/sound/core/pcm_lib.c
++++ b/sound/core/pcm_lib.c
+@@ -1919,6 +1919,25 @@
+ EXPORT_SYMBOL(snd_pcm_period_elapsed_under_stream_lock);
+ 
+ /**
++ * snd_pcm_progress_under_stream_lock - Report progress without a period IRQ
++ * @substream: PCM substream
++ *
++ * Context: PCM stream lock held, with no driver pointer or trigger locks held.
++ * Updates the pointer and wakes readers for partial-period transfers. Unlike
++ * a period notification, this does not imply an elapsed period or tick the PCM
++ * timer. The same pointer, trigger and timestamp callbacks may be invoked.
++ */
++void snd_pcm_progress_under_stream_lock(struct snd_pcm_substream *substream)
++{
++	if (PCM_RUNTIME_CHECK(substream) || !snd_pcm_running(substream))
++		return;
++	snd_pcm_update_hw_ptr(substream);
++	snd_kill_fasync(substream->runtime->fasync, SIGIO, POLL_IN);
++}
++EXPORT_SYMBOL_GPL(snd_pcm_progress_under_stream_lock);
++
++
++/**
+  * snd_pcm_period_elapsed() - update the status of runtime for the next period by acquiring lock of
+  *			      PCM substream.
+  * @substream: the instance of PCM substream.
