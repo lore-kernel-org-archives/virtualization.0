@@ -1,118 +1,78 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.44
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794328467;
-	b=VLg2nk8eNIpFiXiPdsYoQPOOtNy0sp7ZegC2ilwo/oqiOfVh0xKGdfn0O1JM1bcbMvvG
-	 ixO4D+SfjCzphSvn//D20v369NZ1cY+UW+tN9kQqBX8bm31dml5VtnxSfxqWFXGap3qhT
-	 8FPFBHxlCnFhxLnZssHEesBqcxsDPTRrk6oOj4FponlPxqZ6bE7J8EmIVK1GsccN2fKTv
-	 ktFTmVKsODQFbIhmObq8sSpkygJVgs1/HroCTGVqgdFvX7Rz+meJSCFmhdK+IwNHjuJ+t
-	 DAG7SpCqQDhn6pQyITk1WBoFWfUcXrfc6+6/J1QL9pLa71HHqjqsrAfQqtcZtz+ZPdA==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794328467;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding;
-	bh=y+V2JxIlVOChITFgo1z9lTreH4E5kp3RpfFu+UewLVo=;
-	b=mHoX/zo6kvuN745MMDdv+HgQtxtfHrCNC8+IzAt8otLJT+4fVqRphPpXl6WNw+F6dNZo
-	 YvBWIc6J9b8MeZsJTf6toJoD7/xKcS9TArIZN7/395wbogn25dFbwk/iiRjtvLsb5Nf9S
-	 TOvGfBIVCn6CG9e9FgBNPwoNbZScr3GiX5aaEeiFNTYZdrRqR39KWh9iFjPjFmfVzgasI
-	 TSMJG9xXM1CWAy9hortHc+8UPdgTaKjNi1zMApj9XzAGq5T5bUG0EHFSCUixN4d70PfbH
-	 z7o06x3K94euURvwEVXiJYaKurGgAxPyvgAWq/taD2hpPbk3HQyz+Vz7Dml2IDQZsnA==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=CogSuGPl;
-	arc=none smtp.remote-ip=209.85.222.44
-Received: from mail-ua1-f44.google.com (mail-ua1-f44.google.com [209.85.222.44])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794330680;
+	b=Ylij6QCLnPhGxe5UTm/jox+ICBfaj1A2xAjXYI1dyWCnUecwBJA1OafnUvfM8S9yuiBv
+	 GIRwdrKhTWJiLLvE7OzNAb86HDrjI1TJSN1p5vWOA3VlIEDM5DTut4ecIqBzcVLx+OmR8
+	 B77MpZaF/pd1XGmO17zzgHOXpvVEVoTPwl3b9Q4mp/0CmErCOzHcNAr6e299mxnw4R5HT
+	 m8VCjagI8ZAe8VWIgHkX24vk2kwsmc35QB9Te5QRJtgc6IhBUntIsBDDBRP3Ay6klh9Tg
+	 uWIYKknZ8bmUm2ZrLV6Ft9981q3xA2QsUBTTq00tbTUm9pL+FU2pSY0kYyBd+hsTLyQ==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794330680;
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=JD64Ud7a3qHc7EvaTpRIa2pxyb3pp+K7JU5At4Osxfo=;
+	b=eqeW6oPTHeFUZhDSGgQP6FIGcVUf2tYWSmS2HE2NDmgi17J80xIvtKyLgsuQ6Bgv4d1G
+	 L1zlqbog5NiuuAW6yesc84B2jUWexLMw0q3UFL4DRmsGfWLdW2iGMy2p0+UZEqpBmdELn
+	 4pEJsa1civgNIOElZf9a0tO0jxjRg2o+puHxq/kfyIhNh43+4SfdXQXonSxhHDfvpbfPL
+	 b8fufG7dg4jJRfV0a1aQqvSiEBXDHmbjwOW5qiGIUEliB9CJOQKLFlyhUKeUSn5Iek+L4
+	 AAUdJQB9OVNqCIn7N3IsbbMOkKReJhTR21qpMjyBeWvO5J+QKZZs6VfdTdTBLj1wnKQ==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FxrKUzU8;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB36C606A31C;
+	Tue, 10 Nov 2026 17:11:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FxrKUzU8
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1794330679;
+	b=tJiS2txvWvl9sTQjmHlzlcavYhgvA+FQVwxmmGWBUelkEhb0wLfWePRYIZ7RnB0zPM9r
+	 YyRzK9mx5e1KqJHIgOY1uR+RJTrKWryzAyaOl4E86q2E+SW42lpLbllQz4Hm4Egs5IGb4
+	 w9hbLSsLVSmzKmoM52Nj5EH5FEu57WDL+DF09IIJfpIoB0wAzRxQsKBgbYSCi0bH73RdP
+	 3KjBgY71J/zmgMxgP/3ZdJ9NzhMaIEHbDTEfBU7GZ+fBC4fvmY0whP+T/xJa9XeUc0keD
+	 eYEBDiZV7TjDXo1+IgBskXbGTPNosqH6VHxZVLKzo4MLdT5a5Tj6alq1+67G39oGz+w==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1794330679;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=JD64Ud7a3qHc7EvaTpRIa2pxyb3pp+K7JU5At4Osxfo=;
+	b=jn0Xk2sKpv8tn2aFXR0vZihllQkx3bt3G2DIRqhWUp9VBrjy3sCzIYZZh7ZnW+HRQPBH
+	 BnaYJSJyYN52Ec9505OSVkk1Ga4Z4+oZws1Jt4dJC4AMjozNnDc1eA1GncsjX5WZnI3hk
+	 oKB/NRFeFivP4zRxInytW9n2CocMU8gEL/TG0WouuZ8RLGYUgyQX/hYqBXhXPWSwi2hqZ
+	 VzlzmAOqNlDeI1ykyy0kLYABahrnAmT7c7OcSAEzQDNpyufTyLUNopF06IFOhgmKqreuG
+	 ICM4gMB7T9tAeHek34iCNUs0DhYgmwddmGJglH+sGJsLl40HId0kVcd4yHUeRQBXFPQ==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 599CF606A8A4
-	for <virtualization@lists.linux.dev>; Tue, 10 Nov 2026 16:34:27 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 599CF606A8A4
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=CogSuGPl
-Received: by mail-ua1-f44.google.com with SMTP id a1e0cc1a2514c-97ccbba8e86so597822241.3
-        for <virtualization@lists.linux.dev>; Tue, 10 Nov 2026 08:34:27 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794328466; x=1794933266; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:mime-version:subject
-         :references:in-reply-to:message-id:cc:to:from:date:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=y+V2JxIlVOChITFgo1z9lTreH4E5kp3RpfFu+UewLVo=;
-        b=CogSuGPlc5jdAfOI9Yn1v2JGDqN/XPcuNCSGxD5kownz6LXWwSqqSv1r2n8OXI+ix5
-         ezHsGg3OzFmneg9+0jdt2D5wU1QiEyG4dvaCyUodvo7WBYdW709skryxzQ6p9HrxeiV6
-         AI7aK5aSTR7gaN/zL2q5Cgnn79eeW4XA/54BSpbCVbsxmP3wMPOhBSspGOSBlqJdNF3U
-         p78m6bz5xQIhQvrvId+YS3FZ/EPiJLnbV8j6us3wFMxGi+A27DkZRyloAhQp6NFooqUS
-         tL0dvz4/QfwMjP2VmWVIYD4Q6EFtX0wwP3QJFOEGNHNTwvJlRiTcOKqIEVYtBtXZUqQk
-         etNw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794328466; x=1794933266;
-        h=content-transfer-encoding:content-type:mime-version:subject
-         :references:in-reply-to:message-id:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=y+V2JxIlVOChITFgo1z9lTreH4E5kp3RpfFu+UewLVo=;
-        b=EX86E5j1eiHKnaQeU+mrJHqt3AH9IxD2PHTo9PmiechI1M11KrgPWS1za6LjC/TKor
-         cFSiLrYtDfA2kKNblNpyCENLyr8CWeUDj54m5Stx8yj4uEwhtzhCwX6grZSDT19uivDZ
-         9pplR5GYB3cgP8hapXDQHSE9d9uCRdBL8fGrQYyP9lhhREhR6zFkj70J86xz1fiZgs2N
-         y9cqs3RTqBB/kcXvwIaBbXe4+h8SpqgHxDHYW1/w69g4jt3aPyzcP1BRExSMLGvwZn6u
-         VIu1fZV1/Lnv6uHfop5k1OeZFqyjJ97aCzgL38wzJttSyl/CHWPMjZoTziY3gWplf4Be
-         N5sg==
-X-Forwarded-Encrypted: i=1; AL+hErEpFPm6gO0RHtpYH0sAeUxXp73q3Peu11XihiIrFg3OIjK3qxvBwHO9Z0RMoF8R8ToypVqt62nAl+4uNbnQ/g==@lists.linux.dev
-X-Gm-Message-State: APuU4Z8L3pWCAh1fDsrHkrbdKpGSQAEz9Cu57UC87HEeW/rlI+ZKnRPG
-	7s63UEr5IjrZLq1iKDxs1geX+lHpDNXmnoAKJwAPXWMTKY+Ujfbpm+lN
-X-Gm-Gg: AYBFou0rljcPQMnl3EnxIkSnwUCaRoGz4ijG6BxL7FbRUODS0cicFaEm9az4RVLnOCm
-	JZGPJBwE1zJXH5yBKx7kQEQT3npo6nS60msRZf4WScIgLGhOGYyzBlR5OnoeJ8QskJzZD7NEE1C
-	IEeVEqyfZkYrOzG28dpjUQ8DCnZCKGLMgx/gU16pWD6ulsEzfXuX4TwQhMU9iVxmNt5LhGsiSKO
-	0iohHfSclGXfv9cvDiyzSY+vu4QQPhvnzpkTMZN7wjWapAhy8O7P8towKlYRSnBtHiTEcARB6+m
-	iY5ANiO3276iLyuiDXaah5IXiSX97AGFXhmELRZ8U068Pu4kzlAOZ94I7aIYnMH8l/cVQ4RUNOz
-	e8n0ZsjmDL+lgIIfAl4XGbWOzMOO3IP666xWknbVwPMgdhv9iaGta082eBS8Gsa9Cybbjtrzqwz
-	T82+sNwqHtWm/4MHf9WyFa6vUdoqC5AxxZ7qbWLGV8Llk0bL8A2qQS5wLxTOBVYdJS7MRARn34a
-	+i8+9hpI8F4SpSkpLHcr6/m19RpLTdCSqooP+4Q68CAhREpbykEGu7gQBWDNWJJGPDK2EMHJAjp
-	yN8yPQNORqM31yCcNc4aPbQg7oqZSVEBhFc1gdBHfdrOq81gueaZ/RVffP6t7KXUg98w+Kk+2eJ
-	OquvWMrjWch4xltdWLZ2k8oxoH5wrn6ZfvgjhoP3IS7Y6ut4vg4XShUel39OwyNLy1Uc8ObiXnW
-	osqjbOBI+a2x5TXBpr
-X-Received: by 2002:a05:6102:c54:b0:7b5:7cd5:2a1b with SMTP id ada2fe7eead31-7d301b9d79fmr866580137.10.1794328466169;
-        Tue, 10 Nov 2026 08:34:26 -0800 (PST)
-Received: from gmail.com (223.230.150.34.bc.googleusercontent.com. [34.150.230.223])
-        by smtp.gmail.com with ESMTPSA id a1e0cc1a2514c-99c200838f0sm2147394241.9.2026.11.10.08.34.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Nov 2026 08:34:25 -0800 (PST)
-Date: Tue, 10 Nov 2026 11:34:25 -0500
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-To: Steffen Trumtrar <s.trumtrar@pengutronix.de>, 
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
- kuba@kernel.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- "David S. Miller" <davem@davemloft.net>, 
- Jakub Kicinski <kuba@kernel.org>, 
- Paolo Abeni <pabeni@redhat.com>, 
- Richard Cochran <richardcochran@gmail.com>, 
- Andrew Lunn <andrew+netdev@lunn.ch>, 
- =?UTF-8?B?RXVnZW5pbyBQw6lyZXo=?= <eperezma@redhat.com>, 
- Jason Wang <jasowangio@gmail.com>, 
- Alexei Starovoitov <ast@kernel.org>, 
- Daniel Borkmann <daniel@iogearbox.net>, 
- Jesper Dangaard Brouer <hawk@kernel.org>, 
- John Fastabend <john.fastabend@gmail.com>, 
- Stanislav Fomichev <sdf@fomichev.me>, 
- Eric Dumazet <edumazet@kernel.org>, 
- virtualization@lists.linux.dev, 
- netdev@vger.kernel.org, 
- linux-kernel@vger.kernel.org, 
- bpf@vger.kernel.org, 
- kvm@vger.kernel.org, 
- namangulati@google.com
-Message-ID: <willemdebruijn.kernel.4096b48e9e59@gmail.com>
-In-Reply-To: <874ido29iy.fsf@pengutronix.de>
-References: <20261026-v6-7-topic-virtio-net-ptp-v4-0-008af03cd43b@pengutronix.de>
- <willemdebruijn.kernel.1d6388f036c46@gmail.com>
- <874ido29iy.fsf@pengutronix.de>
-Subject: Re: [PATCH RFC v4 0/6] virtio-net: add receive timestamp support
+	by smtp.kernel.org (Postfix) with ESMTPS id ECDEA1F0089F;
+	Tue, 10 Nov 2026 17:11:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794330679;
+	bh=JD64Ud7a3qHc7EvaTpRIa2pxyb3pp+K7JU5At4Osxfo=;
+	h=From:Date:Subject:To:Cc:Reply-To;
+	b=FxrKUzU8vVuhy7ylN5Kl1tZZcNS/y0NEl11bn60auuRfyMYft+r60Gx2Esl93UdEa
+	 u7wGTtCdTBAHZM1BVkNN7tlyqFwSVstTd6CfXkPA177QZ5NZsq4fudV2QMrBpPMQ8J
+	 1lSDLFrAluayNWEqGZSOYLyaJArChPXz/5OvioGz3pmaT9glnunwXq54kmd0gVFF0e
+	 m/baqQEpClM0jsZ/a6+RYRswm2LhbalMRVv+5j8piSmGScczMkLWs58IgNLO9SebB1
+	 nPZ7KxyUNs9BL0XI0rJwRXoVVx+QeiXhtdcs6ATBUEFN369dE1728JwsE/6/3AjVjt
+	 A+hm+ixoRrsxQ==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id 7D6DE48C22;
+	Tue, 10 Nov 2026 17:11:18 +0000 (UTC)
+From: Seonghyeon Lim via B4 Relay <devnull+forfortuna.naver.com@kernel.org>
+Date: Wed, 11 Nov 2026 02:11:13 +0900
+Subject: [PATCH] can: virtio: fix virtqueue use before DRIVER_OK
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -122,91 +82,92 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
+Content-Type: text/plain; charset="utf-8"
+Message-Id: <20261111-virtio-can-ready-v1-1-0b4dd020af0b@naver.com>
+X-B4-Tracking: v=1; b=H4sIADBQ82oC/yXMQQ5AMBCF4avIrE1SgjSuIhZVU8aiZIoQcXfF2
+ 32L918QSJgC1MkFQjsHnn1EliZgR+MHQu6jIVd5lcXhzrLyjNZ4FDL9ibq05JxTldEFxNsi5Pj
+ 4kk37O2zdRHZ9O3DfD8XMF5F0AAAA
+X-Change-ID: 20261111-virtio-can-ready-85cefff06a84
+To: Harald Mommer <harald.mommer@oss.qualcomm.com>, 
+ Matias Ezequiel Vara Larsen <mvaralar@redhat.com>, 
+ Marc Kleine-Budde <mkl@pengutronix.de>, 
+ Vincent Mailhol <mailhol@kernel.org>, 
+ Mikhail Golubev-Ciuchea <mikhail.golubev-ciuchea@oss.qualcomm.com>, 
+ Francesco Valla <francesco@valla.it>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux.dev, linux-can@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Jason Wang <jasowangio@gmail.com>, 
+ Seonghyeon Lim <forfortuna@naver.com>
+X-Mailer: b4 0.16.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1794330677; l=1943;
+ i=forfortuna@naver.com; s=20261110; h=from:subject:message-id;
+ bh=MJAobe4rPXYioFnUfp9+XUMNTxBij8wL6gfGu1JqKaQ=;
+ b=E1tjMRm3+lNVL2OwfvqZKG7Q0qtbt8SWyZ1IIFGIkPNrZN1rDFwRWWcxA8zCPaJbUwq2c0pta
+ au/rzScbiSpAZ3U57rYO8ZM0v+Qsd863Ysb4r0+HahDb4KjqAiFl424
+X-Developer-Key: i=forfortuna@naver.com; a=ed25519;
+ pk=NSzj4ReyzmE01C4q/f+7jqXzWqsN5NwQK5UsSI6ufiE=
+X-Endpoint-Received: by B4 Relay for forfortuna@naver.com/20261110 with
+ auth_id=1481
+X-Original-From: Seonghyeon Lim <forfortuna@naver.com>
+Reply-To: forfortuna@naver.com
 Content-Transfer-Encoding: 7bit
 
-Steffen Trumtrar wrote:
-> 
-> Hi Willem,
-> 
-> On 2026-11-01 at 09:57 -05, Willem de Bruijn <willemdebruijn.kernel@gmail.com> wrote:
-> 
-> > Steffen Trumtrar wrote:
-> > > This series picks up Willem de Bruijn's work on a virtio-net receive
-> > > timestamp. The device puts the time of arrival (TAI, ns) into the
-> > > virtio-net header so the guest can use it for PTP and RTT estimation
-> > > without taking the timestamp itself after the host-to-guest latency.
-> > > 
-> > > The series is an RFC. I am mostly interested in feedback on the
-> > > approach and on the wire format:
-> > 
-> > At a high level +1 from me.
-> 
-> Thanks!
-> 
-> > 
-> > Some comments inline.
-> > > 
-> > >  - The timestamp is a new field at the end of virtio_net_common_hdr
-> > >    after outer_nh_offset and ipsec, offset 32 (see virtio spec),
-> > >    negotiated with VIRTIO_NET_F_RX_TSTAMP (bit 49). Header size now 40
-> > >    bytes.
-> > >    Willem noted on v3 that virtio_net_common_hdr was not meant to be
-> > >    extended this way; I kept it as the simplest approach, but a
-> > >    separate struct for the timestamp header is an option.
-> > >  - Timestamping is enabled at runtime with SIOCSHWTSTAMP; all
-> > >    supported rx filters behave the same for now.
-> > >  - XDP programs can read the timestamp with
-> > >    bpf_xdp_metadata_rx_timestamp().
-> > >  - vhost-net passes the feature through; the timestamp itself is
-> > >    written by tun. The tun patch is only meant as a reference
-> > >    implementation for the device side.
-> > >  - The timestamp is in TAI.
-> > 
-> > Is this a requirement? It is common for PHCs to be synced to TAI,
-> > but not 100% the case. Does virtio need to specify this.
-> >
-> 
-> No, I don't think it has to be TAI. TAI is only what the tun reference
-> implementation does (ktime_get_clocktai_ns()). What the guest really
-> needs is to know which clock the timestamp comes from, so it can compare
-> it with something.
-> 
-> One idea for the spec change: don't fix the time base in virtio-net at
-> all, only say the timestamp is in nanoseconds of some device clock, and
-> let the device tell the driver which clock that is. virtio_rtc already
-> has clock ids with a type (UTC, TAI, monotonic, ...), and the Linux
-> driver registers a PHC for each of them (with VIRTIO_RTC_PTP).
-> virtio-net could carry the virtio_rtc clock id in its config space, and
-> the driver reports the index of that PHC in get_ts_info. That would also
-> fix the phc_index == -1 problem you pointed out in 2/6.
-> 
-> What I don't like about it: virtio-net then depends on a second device
-> being there, and with more than one virtio_rtc device the clock id alone
-> is not enough to find the right one. Without virtio_rtc the driver would
-> not offer hardware timestamps at all.
-> 
-> The alternative is a PHC in virtio-net itself (gettime over the control
-> vq), which is a lot more spec for one timestamp field.
-> 
-> Do you think the virtio_rtc way is reasonable, or is there something
-> simpler I'm missing?
+From: Seonghyeon Lim <forfortuna@naver.com>
 
-I don't have an obvious answer. This needs consensus.
+virtio_can_probe() and virtio_can_restore() fill the RX virtqueue and
+kick it before the device is set DRIVER_OK. The virtio specification
+does not allow the driver to notify the device before DRIVER_OK.
 
-Hardcoding clock base to TAI is definitely easiest.
+In restore, if the interface was up, virtio_can_open() then sends a
+START control message and waits for the reply. DRIVER_OK is only set
+by the virtio core after restore returns, so the device may never
+handle the request and the wait never completes, which hangs system
+resume. In probe, an ndo_open() right after register_candev() can
+likewise send the START message before DRIVER_OK.
 
-Outside of virtio, the relationship between PHY RX timestamps and PHC
-is well understood. It would make some sense for virtio to follow that
-model.
+Call virtio_device_ready() before the first virtqueue use in both
+probe and restore, as virtio-net does.
 
-But indeed when having multiple NICs and multiple PHCs, how to map them
-I think is an unresolved issue in general? Of course, aslo moot if they
-are all synced, which I think may be an implicit assumption especially
-in the world of spec compliant PTP.
+Fixes: 083082a4e6d8 ("can: virtio: Add virtio CAN driver")
+Signed-off-by: Seonghyeon Lim <forfortuna@naver.com>
+---
+Tested with QEMU 8.2 + vhost-device-can: with the CAN interface up,
+suspend/resume (pm_test=devices) hangs without this patch and
+completes with it. No new lockdep warnings.
+---
+ drivers/net/can/virtio_can.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-And, if virtualizing anyway, it is feasible to do the clock conversion
-in the software device, not having to bother with all this complexity
-inside the VM. Though maybe not for direct HW virtio-net queues.
+diff --git a/drivers/net/can/virtio_can.c b/drivers/net/can/virtio_can.c
+index f67d0bf09681..ae35a00b784b 100644
+--- a/drivers/net/can/virtio_can.c
++++ b/drivers/net/can/virtio_can.c
+@@ -912,6 +912,9 @@ static int virtio_can_probe(struct virtio_device *vdev)
+ 		err = -ENOMEM;
+ 		goto on_failure;
+ 	}
++
++	virtio_device_ready(vdev);
++
+ 	virtio_can_populate_rx_vq(vdev);
+ 
+ 	err = register_virtio_can_dev(dev);
+@@ -966,6 +969,9 @@ static int __maybe_unused virtio_can_restore(struct virtio_device *vdev)
+ 		virtio_can_del_vq(vdev);
+ 		return -ENOMEM;
+ 	}
++
++	virtio_device_ready(vdev);
++
+ 	virtio_can_populate_rx_vq(vdev);
+ 
+ 	if (netif_running(ndev)) {
+
+---
+base-commit: ddfe51b0a0f5dc9e415cc2c8ad8db17532dd426b
+change-id: 20261111-virtio-can-ready-85cefff06a84
+
+Best regards,
+--  
+Seonghyeon Lim <forfortuna@naver.com>
+
 
