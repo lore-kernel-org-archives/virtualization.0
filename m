@@ -1,78 +1,103 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794330680;
-	b=Ylij6QCLnPhGxe5UTm/jox+ICBfaj1A2xAjXYI1dyWCnUecwBJA1OafnUvfM8S9yuiBv
-	 GIRwdrKhTWJiLLvE7OzNAb86HDrjI1TJSN1p5vWOA3VlIEDM5DTut4ecIqBzcVLx+OmR8
-	 B77MpZaF/pd1XGmO17zzgHOXpvVEVoTPwl3b9Q4mp/0CmErCOzHcNAr6e299mxnw4R5HT
-	 m8VCjagI8ZAe8VWIgHkX24vk2kwsmc35QB9Te5QRJtgc6IhBUntIsBDDBRP3Ay6klh9Tg
-	 uWIYKknZ8bmUm2ZrLV6Ft9981q3xA2QsUBTTq00tbTUm9pL+FU2pSY0kYyBd+hsTLyQ==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794330680;
-	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
-	 Content-Type:Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=JD64Ud7a3qHc7EvaTpRIa2pxyb3pp+K7JU5At4Osxfo=;
-	b=eqeW6oPTHeFUZhDSGgQP6FIGcVUf2tYWSmS2HE2NDmgi17J80xIvtKyLgsuQ6Bgv4d1G
-	 L1zlqbog5NiuuAW6yesc84B2jUWexLMw0q3UFL4DRmsGfWLdW2iGMy2p0+UZEqpBmdELn
-	 4pEJsa1civgNIOElZf9a0tO0jxjRg2o+puHxq/kfyIhNh43+4SfdXQXonSxhHDfvpbfPL
-	 b8fufG7dg4jJRfV0a1aQqvSiEBXDHmbjwOW5qiGIUEliB9CJOQKLFlyhUKeUSn5Iek+L4
-	 AAUdJQB9OVNqCIn7N3IsbbMOkKReJhTR21qpMjyBeWvO5J+QKZZs6VfdTdTBLj1wnKQ==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FxrKUzU8;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB36C606A31C;
-	Tue, 10 Nov 2026 17:11:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FxrKUzU8
-Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
-ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1794330679;
-	b=tJiS2txvWvl9sTQjmHlzlcavYhgvA+FQVwxmmGWBUelkEhb0wLfWePRYIZ7RnB0zPM9r
-	 YyRzK9mx5e1KqJHIgOY1uR+RJTrKWryzAyaOl4E86q2E+SW42lpLbllQz4Hm4Egs5IGb4
-	 w9hbLSsLVSmzKmoM52Nj5EH5FEu57WDL+DF09IIJfpIoB0wAzRxQsKBgbYSCi0bH73RdP
-	 3KjBgY71J/zmgMxgP/3ZdJ9NzhMaIEHbDTEfBU7GZ+fBC4fvmY0whP+T/xJa9XeUc0keD
-	 eYEBDiZV7TjDXo1+IgBskXbGTPNosqH6VHxZVLKzo4MLdT5a5Tj6alq1+67G39oGz+w==
-ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1794330679;
-	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
-	 Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=JD64Ud7a3qHc7EvaTpRIa2pxyb3pp+K7JU5At4Osxfo=;
-	b=jn0Xk2sKpv8tn2aFXR0vZihllQkx3bt3G2DIRqhWUp9VBrjy3sCzIYZZh7ZnW+HRQPBH
-	 BnaYJSJyYN52Ec9505OSVkk1Ga4Z4+oZws1Jt4dJC4AMjozNnDc1eA1GncsjX5WZnI3hk
-	 oKB/NRFeFivP4zRxInytW9n2CocMU8gEL/TG0WouuZ8RLGYUgyQX/hYqBXhXPWSwi2hqZ
-	 VzlzmAOqNlDeI1ykyy0kLYABahrnAmT7c7OcSAEzQDNpyufTyLUNopF06IFOhgmKqreuG
-	 ICM4gMB7T9tAeHek34iCNUs0DhYgmwddmGJglH+sGJsLl40HId0kVcd4yHUeRQBXFPQ==
-ARC-Authentication-Results: i=1; smtp.kernel.org; 
-	arc=none smtp.remote-ip=100.80.115.77
-Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1794331592;
+	b=UIlVEU32SJErKYeNSDnGb/ZRYFQ+nDporfKex1tYbDb0rPQHOnWcRTPzCSwuJjjo0tJi
+	 c1vgvlBpfnME4tMMHVC0MSM4vzHjOh5QrPkrAdRTX6mIeuclBduJ/x7sRaYiXb+NIFqq6
+	 ere87SyHqDa7YTj4dy6pGMibvgYRfIFs6D8Uo3kw4f5StCkKGAx8lCmBfJncHRBCuOVA0
+	 pYILRgYbZ4e0XNa57EYE4eVFR2CtsUs5SYVKRDbqyvVQdMUBousMJ0kjIJ/Q9l5/EClO5
+	 jQTbaTX7YDJob5l4QNfg1TA312dPPkdH6QHja7c/zNPpZjyNVGdwFekxJqi+A+AVbrQ==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794331592;
+	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
+	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
+	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
+	 X-Mimecast-Originator:Content-Type:Content-Disposition;
+	bh=EKRRknjMWCPzWVN1v0/d1lk7IVipZL2/q4GtTn0t/go=;
+	b=aViD3AYdqtHXErIS7LChOEy08HudMlowUoWGKQKjwrq+WIFTkBW0562eDlO+m8g4O5fL
+	 GQDDhjEm5dcJvlkPX+wsdsouNVQNDHESsdtubyB6RULz/1xyoj1gElosy1ckG846rEzT3
+	 yD/eyKwzJgoqvWC/+hKHbsnRPIE+C+r5Kc32WEOjsm5YWeEKH+LE5O/WvlEVJ1pjX69oa
+	 LL3CfjsLlcPD7I2ukMWPmqfY3t5MBg56AWXoS34PLxzmV/my3O8vR/rvICRMyiEAerXYX
+	 /9mguKqcT6p8OHpc0WMLucvWUjPdG1FKDaWjl9GmGWT7Yz0C76unvd31t2r3xuDb4Sw==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=redhat.com;
+	spf=pass smtp.mailfrom=redhat.com;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Tj0skr00;
+	arc=none smtp.remote-ip=170.10.129.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id ECDEA1F0089F;
-	Tue, 10 Nov 2026 17:11:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794330679;
-	bh=JD64Ud7a3qHc7EvaTpRIa2pxyb3pp+K7JU5At4Osxfo=;
-	h=From:Date:Subject:To:Cc:Reply-To;
-	b=FxrKUzU8vVuhy7ylN5Kl1tZZcNS/y0NEl11bn60auuRfyMYft+r60Gx2Esl93UdEa
-	 u7wGTtCdTBAHZM1BVkNN7tlyqFwSVstTd6CfXkPA177QZ5NZsq4fudV2QMrBpPMQ8J
-	 1lSDLFrAluayNWEqGZSOYLyaJArChPXz/5OvioGz3pmaT9glnunwXq54kmd0gVFF0e
-	 m/baqQEpClM0jsZ/a6+RYRswm2LhbalMRVv+5j8piSmGScczMkLWs58IgNLO9SebB1
-	 nPZ7KxyUNs9BL0XI0rJwRXoVVx+QeiXhtdcs6ATBUEFN369dE1728JwsE/6/3AjVjt
-	 A+hm+ixoRrsxQ==
-Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 7D6DE48C22;
-	Tue, 10 Nov 2026 17:11:18 +0000 (UTC)
-From: Seonghyeon Lim via B4 Relay <devnull+forfortuna.naver.com@kernel.org>
-Date: Wed, 11 Nov 2026 02:11:13 +0900
-Subject: [PATCH] can: virtio: fix virtqueue use before DRIVER_OK
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61EE9606A32A
+	for <virtualization@lists.linux.dev>; Tue, 10 Nov 2026 17:26:32 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 61EE9606A32A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Tj0skr00
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1794331591;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=EKRRknjMWCPzWVN1v0/d1lk7IVipZL2/q4GtTn0t/go=;
+	b=Tj0skr00V0eP7+ylUEUve3V3jWtNU9QQKLshaxMAP19ngaQ6Hu+jxVt8BTR+4h5HelsV2T
+	ZQMaJuK79fYpuv8nJmpynWjXknDAvRNIQpmrrYJU8GGZYgCyqGV8eFkCC9vnIK3bAeLbyT
+	QL4IJKhwU6uYI1QYw10mdZq97Ujqs1A=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-63-VY3Mlmo2MJeZeuIN6vutRg-1; Tue, 10 Nov 2026 12:26:29 -0500
+X-MC-Unique: VY3Mlmo2MJeZeuIN6vutRg-1
+X-Mimecast-MFC-AGG-ID: VY3Mlmo2MJeZeuIN6vutRg_1794331588
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-48e4d1e29f3so2192077f8f.3
+        for <virtualization@lists.linux.dev>; Tue, 10 Nov 2026 09:26:29 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794331588; x=1794936388;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=EKRRknjMWCPzWVN1v0/d1lk7IVipZL2/q4GtTn0t/go=;
+        b=luK482cK2xWHF8kQQrR7Fo6oXpRm8tC4bBRb98F78rk99vJwBjpfI76ZAP5wcc/Exg
+         i0jwDWyFlN5HMkM4SU7ZSGoUKi6k+08Cit41HauU2yDV8HWpmN+KHZPXtCgoIB3avp7C
+         sG0T7ZqRtecN3klgkw/sCvxhcjhgF5sZd/7arpc5P5pML5Fc1k7NpuGhp9Kx8/3AJlox
+         C5d0yHp7DEiM2dw3efowAi4z9cn7BDXiY/MTgAS8S6NgUWjmCdXSMN/9RJ7MgnmuW6m1
+         XwPyxTcKUqpbG1yKk/z0aRKEoZHWvoKIKM3xiZwq9c2/ODAfJ0Cd7PjnBuSWdm4iCWQK
+         tVRQ==
+X-Forwarded-Encrypted: i=1; AL+hErEWVjZxoMhJFW3zLooU2g/yduPq2SuqJORQ2fhGmgq/XKi+1F8tv24ArJf0O5sRvHhVPKtgT1HmSLQgSiYbZQ==@lists.linux.dev
+X-Gm-Message-State: APuU4Z/dseaQ7o0gcGp1Z1ZHJei6/9t7KPBHAPAnKX1UV6ZU3n8JzPwu
+	b6XiIyRIQuXa8qrhPAV/pbpRSshKTmXVrssguTvgNk/5LxuxHYebiTzA1H00K+sjq0DrtnuxEoF
+	RLpikvvV0rexDAWleKgDhDe8/c3ZkkfWYvPNdbX9RytKI5vY2ZGXjgdIcn8epMApTkFtU
+X-Gm-Gg: AYBFou0k+ozMb6NV3nWxMqfKWEY9RqqyLXZx0GsEtO7LsuO+x1t4W/tH46qOYGvVpeP
+	42owzRgekpgMwbwUXaJYZ8fQJtnsMLXU68lvj7xHHh9D4ySyrOiZwZIlaFBjIs3FyEzOd7EYtZA
+	TvPZEqKaZJE1VvLM+G3WW10Ki5yUpq56A2RgV3Ypi4w/7CSCiRWWMbGGC3yQFeG/pSYgpwmn9VQ
+	nG75l712nCgCLS65C7PL6uKSmPpjm2/FkyRvjANJXiSvVjZ97zRhuTvUxbq3J+XPiHVY6ujpDUM
+	GITXSjS6jbEcf9GTaNItPgfxUWIMbrHB1GOtw1QHfZew2YIkUffpYXlAiMggmLDyq49HumSEPSy
+	2vsNPXj83qckI4UbndevkN5k77jm9QjCLHLrAczvR9w==
+X-Received: by 2002:a5d:5f86:0:b0:491:f34b:49b4 with SMTP id ffacd0b85a97d-498309aeeb5mr6440913f8f.44.1794331588070;
+        Tue, 10 Nov 2026 09:26:28 -0800 (PST)
+X-Received: by 2002:a5d:5f86:0:b0:491:f34b:49b4 with SMTP id ffacd0b85a97d-498309aeeb5mr6440867f8f.44.1794331587415;
+        Tue, 10 Nov 2026 09:26:27 -0800 (PST)
+Received: from redhat.com ([2a0d:6fc0:1511:2900:ff37:b35c:a97:952d])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-498365ccbccsm6152831f8f.44.2026.11.10.09.26.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 Nov 2026 09:26:26 -0800 (PST)
+Date: Tue, 10 Nov 2026 12:26:23 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: forfortuna@naver.com
+Cc: Harald Mommer <harald.mommer@oss.qualcomm.com>,
+	Matias Ezequiel Vara Larsen <mvaralar@redhat.com>,
+	Marc Kleine-Budde <mkl@pengutronix.de>,
+	Vincent Mailhol <mailhol@kernel.org>,
+	Mikhail Golubev-Ciuchea <mikhail.golubev-ciuchea@oss.qualcomm.com>,
+	Francesco Valla <francesco@valla.it>,
+	virtualization@lists.linux.dev, linux-can@vger.kernel.org,
+	linux-kernel@vger.kernel.org, Jason Wang <jasowangio@gmail.com>
+Subject: Re: [PATCH] can: virtio: fix virtqueue use before DRIVER_OK
+Message-ID: <20261110122457-mutt-send-email-mst@kernel.org>
+References: <20261111-virtio-can-ready-v1-1-0b4dd020af0b@naver.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -82,92 +107,80 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261111-virtio-can-ready-v1-1-0b4dd020af0b@naver.com>
-X-B4-Tracking: v=1; b=H4sIADBQ82oC/yXMQQ5AMBCF4avIrE1SgjSuIhZVU8aiZIoQcXfF2
- 32L918QSJgC1MkFQjsHnn1EliZgR+MHQu6jIVd5lcXhzrLyjNZ4FDL9ibq05JxTldEFxNsi5Pj
- 4kk37O2zdRHZ9O3DfD8XMF5F0AAAA
-X-Change-ID: 20261111-virtio-can-ready-85cefff06a84
-To: Harald Mommer <harald.mommer@oss.qualcomm.com>, 
- Matias Ezequiel Vara Larsen <mvaralar@redhat.com>, 
- Marc Kleine-Budde <mkl@pengutronix.de>, 
- Vincent Mailhol <mailhol@kernel.org>, 
- Mikhail Golubev-Ciuchea <mikhail.golubev-ciuchea@oss.qualcomm.com>, 
- Francesco Valla <francesco@valla.it>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux.dev, linux-can@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Jason Wang <jasowangio@gmail.com>, 
- Seonghyeon Lim <forfortuna@naver.com>
-X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1794330677; l=1943;
- i=forfortuna@naver.com; s=20261110; h=from:subject:message-id;
- bh=MJAobe4rPXYioFnUfp9+XUMNTxBij8wL6gfGu1JqKaQ=;
- b=E1tjMRm3+lNVL2OwfvqZKG7Q0qtbt8SWyZ1IIFGIkPNrZN1rDFwRWWcxA8zCPaJbUwq2c0pta
- au/rzScbiSpAZ3U57rYO8ZM0v+Qsd863Ysb4r0+HahDb4KjqAiFl424
-X-Developer-Key: i=forfortuna@naver.com; a=ed25519;
- pk=NSzj4ReyzmE01C4q/f+7jqXzWqsN5NwQK5UsSI6ufiE=
-X-Endpoint-Received: by B4 Relay for forfortuna@naver.com/20261110 with
- auth_id=1481
-X-Original-From: Seonghyeon Lim <forfortuna@naver.com>
-Reply-To: forfortuna@naver.com
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20261111-virtio-can-ready-v1-1-0b4dd020af0b@naver.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: o3cbYSiRX0NViutf-VT2gXvJIcqeDIK845CFEBoJFcw_1794331588
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-From: Seonghyeon Lim <forfortuna@naver.com>
+On Wed, Nov 11, 2026 at 02:11:13AM +0900, Seonghyeon Lim via B4 Relay wrote:
+> From: Seonghyeon Lim <forfortuna@naver.com>
+> 
+> virtio_can_probe() and virtio_can_restore() fill the RX virtqueue and
+> kick it before the device is set DRIVER_OK. The virtio specification
+> does not allow the driver to notify the device before DRIVER_OK.
+> 
+> In restore, if the interface was up, virtio_can_open() then sends a
+> START control message and waits for the reply. DRIVER_OK is only set
+> by the virtio core after restore returns, so the device may never
+> handle the request and the wait never completes, which hangs system
+> resume. In probe, an ndo_open() right after register_candev() can
+> likewise send the START message before DRIVER_OK.
+> 
+> Call virtio_device_ready() before the first virtqueue use in both
+> probe and restore, as virtio-net does.
+> 
+> Fixes: 083082a4e6d8 ("can: virtio: Add virtio CAN driver")
+> Signed-off-by: Seonghyeon Lim <forfortuna@naver.com>
 
-virtio_can_probe() and virtio_can_restore() fill the RX virtqueue and
-kick it before the device is set DRIVER_OK. The virtio specification
-does not allow the driver to notify the device before DRIVER_OK.
+however, device ready means you can get callbacks: config
+and vq.
 
-In restore, if the interface was up, virtio_can_open() then sends a
-START control message and waits for the reply. DRIVER_OK is only set
-by the virtio core after restore returns, so the device may never
-handle the request and the wait never completes, which hangs system
-resume. In probe, an ndo_open() right after register_candev() can
-likewise send the START message before DRIVER_OK.
 
-Call virtio_device_ready() before the first virtqueue use in both
-probe and restore, as virtio-net does.
+did you audit the driver to make sure this is safe while
+probe did not yet populate and register the device?
 
-Fixes: 083082a4e6d8 ("can: virtio: Add virtio CAN driver")
-Signed-off-by: Seonghyeon Lim <forfortuna@naver.com>
----
-Tested with QEMU 8.2 + vhost-device-can: with the CAN interface up,
-suspend/resume (pm_test=devices) hangs without this patch and
-completes with it. No new lockdep warnings.
----
- drivers/net/can/virtio_can.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+> ---
 
-diff --git a/drivers/net/can/virtio_can.c b/drivers/net/can/virtio_can.c
-index f67d0bf09681..ae35a00b784b 100644
---- a/drivers/net/can/virtio_can.c
-+++ b/drivers/net/can/virtio_can.c
-@@ -912,6 +912,9 @@ static int virtio_can_probe(struct virtio_device *vdev)
- 		err = -ENOMEM;
- 		goto on_failure;
- 	}
-+
-+	virtio_device_ready(vdev);
-+
- 	virtio_can_populate_rx_vq(vdev);
- 
- 	err = register_virtio_can_dev(dev);
-@@ -966,6 +969,9 @@ static int __maybe_unused virtio_can_restore(struct virtio_device *vdev)
- 		virtio_can_del_vq(vdev);
- 		return -ENOMEM;
- 	}
-+
-+	virtio_device_ready(vdev);
-+
- 	virtio_can_populate_rx_vq(vdev);
- 
- 	if (netif_running(ndev)) {
-
----
-base-commit: ddfe51b0a0f5dc9e415cc2c8ad8db17532dd426b
-change-id: 20261111-virtio-can-ready-85cefff06a84
-
-Best regards,
---  
-Seonghyeon Lim <forfortuna@naver.com>
-
+> Tested with QEMU 8.2 + vhost-device-can: with the CAN interface up,
+> suspend/resume (pm_test=devices) hangs without this patch and
+> completes with it. No new lockdep warnings.
+> ---
+>  drivers/net/can/virtio_can.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
+> 
+> diff --git a/drivers/net/can/virtio_can.c b/drivers/net/can/virtio_can.c
+> index f67d0bf09681..ae35a00b784b 100644
+> --- a/drivers/net/can/virtio_can.c
+> +++ b/drivers/net/can/virtio_can.c
+> @@ -912,6 +912,9 @@ static int virtio_can_probe(struct virtio_device *vdev)
+>  		err = -ENOMEM;
+>  		goto on_failure;
+>  	}
+> +
+> +	virtio_device_ready(vdev);
+> +
+>  	virtio_can_populate_rx_vq(vdev);
+>  
+>  	err = register_virtio_can_dev(dev);
+> @@ -966,6 +969,9 @@ static int __maybe_unused virtio_can_restore(struct virtio_device *vdev)
+>  		virtio_can_del_vq(vdev);
+>  		return -ENOMEM;
+>  	}
+> +
+> +	virtio_device_ready(vdev);
+> +
+>  	virtio_can_populate_rx_vq(vdev);
+>  
+>  	if (netif_running(ndev)) {
+> 
+> ---
+> base-commit: ddfe51b0a0f5dc9e415cc2c8ad8db17532dd426b
+> change-id: 20261111-virtio-can-ready-85cefff06a84
+> 
+> Best regards,
+> --  
+> Seonghyeon Lim <forfortuna@naver.com>
+> 
 
