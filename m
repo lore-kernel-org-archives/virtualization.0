@@ -1,58 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1794303835;
-	b=KMkq7/W+lJb7TenZ60z7BGjQ5xwK0XNfUb1XyowaQr7/SqU9TU1mQBeI1JdYKBLq3FIF
-	 8UXArSpyOBr15vorIBWksB9Ijbi0I0UmaZr5JpoW/ExQOIWGpC/o7c0ipgkSL79XyhPRd
-	 w823X8pKCcmRXrWyzu94PsU8ylDbxzrPmtonIIQMsmafjQ8T1mvavEEPIW93tWFtxHO0l
-	 ybc30TaRVJ4DaleSLC/MuaaoRWYRiP/jOU1qRNsag11Cd+lYE4Q2ZOTzV8u56ZXXjuh13
-	 0HXuh6QeKHjweg7pg46QwwjEIJcye10fUq4iNQzKHkCOQKhm+YQjHmyt8gZ5aBxA60g==
+	b=ry8477IcBgYna5AB+t1FDtGjt3BoCpVSh9itGlsfMhCrkiqtdMLrmfj2J7avp6LG5uU3
+	 UNaoMgVy7C+w/idv0h2XwGzmYvfVo2lpY5X2n9nBNTTBIDJsm2IpIBuHRefYx/eM0OtqM
+	 DCahh/dT/WeVCf68Kb6mFPF5MGV8oZ7r3QReAUgLycFmWeYynDKj+cQ3sQ7xXqsgNQGJF
+	 BHzBO9KoMxxwRFItunKAuEfvb8FaYiedkAmy6lvMKQOYdu/eqQqnfVUmsaL2AHLYQwr8g
+	 XWSBdRBAZhYSlbmdb7fe0OX6tMbNp0MwCEugMXUVbVIMdmIetmRuuSUHGreenj5i7jA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1794303835;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=gJr6mxpWnjgrlMtZdi3suD6cYGTd+5tw0Dafn+NCukw=;
-	b=sqqSSTRhwtIST6Wnu38RK9vpog3S1ZWNJQ4QSw8tq++japZNrF+9jc6F3yrBdljiSE9U
-	 Oe1g2SfdAuXZbPfRtzU6qcQCY3zMtk2RZxWo58pJB/wuqKD+i5rcCJBT6+lb8fooMYGCW
-	 pYrMluS3FntyiZQo6d0ngYVVspU5tNBR/h+j53Ku9llFu8r3hCMauzl0k0LSuRkS3cfju
-	 3lxwRBe4GvM9ihUKmxC+iVrxseVkBcq9bzWCuJTJnP/V+epS+4BvUPE2oB8Ot/TULolpF
-	 4cW1Tc/6rsEGCKsH8Y8f7X/VZd7QDJO3cTiPEa8f8gkxAYYaNOtmqY4woHLz+MDszAQ==
+	bh=auJk7Aoyx/zAAhdUA/PRMYr7VWRte89D5FD9GIGZ0eY=;
+	b=YQ8xpS5RZLV/bYe1AC+jb1mqJ3h8UvosNGOxp2akVG82m4SSomJhTtizAw3cP8+6tO4E
+	 GK5N/IC9z1YOdyu+j4ZgyU/n6RHSNYQC7VL22HA3zAbRxx/e0v+wXBj1kBRaFnVqWopq6
+	 u7riF2AsgFoWOgXPmYSU7UaPq7tdkcTHhNR5dG0tOtUvgzvCxX7e+lHM8DHpEPArE661O
+	 4Rc45bNvsWviKiiQuieB8DkPcrN+HEJkzxwGY8qZURidJAXFldZueCIdUROYDhmlecvQ0
+	 /jZbOQBT55A5pffTu6iMMrPAENKQ6L4N/S5vnUMOBnrfsDaXm3Wk3787qe+J7CxFJhw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=O5XWRPGd;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OJkpq+cB;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3342606BF07
-	for <virtualization@lists.linux.dev>; Tue, 10 Nov 2026 09:43:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64A34606BF0A
+	for <virtualization@lists.linux.dev>; Tue, 10 Nov 2026 09:43:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=O5XWRPGd
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 151CA1F008A1;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OJkpq+cB
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAB211F0089F;
 	Tue, 10 Nov 2026 09:43:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794303834;
-	bh=gJr6mxpWnjgrlMtZdi3suD6cYGTd+5tw0Dafn+NCukw=;
+	s=k20260515; t=1794303835;
+	bh=auJk7Aoyx/zAAhdUA/PRMYr7VWRte89D5FD9GIGZ0eY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=O5XWRPGdIRnN6sQDMAevMpnSW/XEvKUhvqv0gyNasBRSoaZjP8xR6XlU4VdBq27L9
-	 XHCM2MJ8WdExEwcmXU+Zekc4ayFvATjaXSCnPy1DxhAgMq4CLoHRxikRBnYA0V7e2J
-	 raw5IuDkBT4O/QTBN+GqRwHAXvdLePu8gealU85HZD5Iq0EyshBnkKrCtvVcZ0Zvyp
-	 szrPD8IsmR1KgCHF7mRYt9egXJwzRzrqrPxAUOaeMa+v6Xy7Y9QVNN7m0ue7ILfvDA
-	 FJMdyvaozr+ITJbyt6duUt+qAfKFKwYV1/OwekMGISJgygytGAk8dB1yu6u+lgiThB
-	 leJzUxwM0DrQw==
-Message-ID: <sashiko-outbox-206798@kernel.org>
+	b=OJkpq+cBCXvEGBRxkEAg0hqJ4trx8SeRGbjXGSB5cO20Xb7dKuWCEtz79ZtrLUMIx
+	 iNwT/U9NpPufkIMjYtgg348QTulHWqY9rJEaTCwyhkGHXUIX0GRyGRFrGY0nCyec2n
+	 EsVvSTVmXUo/FWJEFzzzwkcdD+fynhJxpyjW6sd92Qf9sOpj3DEd37sPKm+Shp5sQI
+	 Sta4b6ZeqnpSaZ5lPmN4zy7p3e3CGFORLDIrWjqFZ7Q597YHbdjXqxvwgwnH13Mjbx
+	 TrLdiRNNURb5d5njDRkHWsEKP+xFzy5/aLgtIfMSmLu6VQOVUnF+zIiCGPKzdm8DBZ
+	 Yz0/qtEXtvA6g==
+Message-ID: <sashiko-outbox-206799@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/3] virtio_net: introduce an RX queue watchdog for
- stuck detection
+Subject: Re: [PATCH 3/3] virtio_net: add rx_timeouts per-queue statistic
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Longjun Tang" <lange_tang@163.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261109094310.103979-3-lange_tang@163.com>
+In-Reply-To: <20261109094310.103979-4-lange_tang@163.com>
 References: <20261109094310.103979-1-lange_tang@163.com>
- <20261109094310.103979-3-lange_tang@163.com>
+ <20261109094310.103979-4-lange_tang@163.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 10 Nov 2026 09:43:53 +0000
+Date: Tue, 10 Nov 2026 09:43:54 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,176 +61,103 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 3 potential
+Thank you for your contribution! Sashiko AI review found 2 potential
 issues to consider:
-- [Medium] virtio_net: virtnet_rx_watchdog() races with
-  virtqueue_resize() and reset
-- [Low] virtio_net: broken runtime re-enable and overflow of
-  rx_watchdog_timeo
-- [Low] virtio_net: virtnet_rx_watchdog() counts idle time toward stall
-  timeout
-It also noticed 1 related pre-existing issue this patch does not
-introduce:
-- [Medium] virtio_net: memory leak in virtnet_probe() [1]
+- [Medium] virtio_net: data race and lost rx_timeouts events via
+  rq->watchdog.stalled
+- [Medium] virtio_net: race between virtnet_rx_watchdog() and RX queue
+  pause/reset
 --
 
-commit 8f4864b7d541d6a73ad04b5a7ad25842595fc1aa
+commit 4a62fe0fe638e28583b6ebe514a0626f687513ee
 Author: Longjun Tang <tanglongjun@kylinos.cn>
 
-virtio_net: introduce an RX queue watchdog for stuck detection
+virtio_net: add rx_timeouts per-queue statistic
 
-This commit adds a per-device periodic timer that checks active RX queues
-for unconsumed used buffers without progress or new interrupts for
-rx_watchdog_timeo seconds, and reschedules NAPI when a stall is detected.
+This commit adds an rx_timeouts per-queue RX statistic exposed via ethtool
+that is incremented in virtnet_receive() when rq->watchdog.stalled is set.
 
 > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index dd2c41ef6fbe7..ec7c248080c57 100644
+> index ec7c248080c57..feb6bfbb1c5a8 100644
 > --- a/drivers/net/virtio_net.c
 > +++ b/drivers/net/virtio_net.c
-> @@ -36,6 +36,10 @@ module_param(csum, bool, 0444);
->  module_param(gso, bool, 0444);
->  module_param(napi_tx, bool, 0644);
-> =20
-> +/* RX queue stall timeout in seconds; 0 disables the watchdog. */
-> +static unsigned int rx_watchdog_timeo =3D 5;
-> +module_param(rx_watchdog_timeo, uint, 0644);
 
 [ ... ]
 
-> @@ -3067,6 +3084,80 @@ static int virtnet_poll(struct napi_struct *napi, =
-int budget)
->  	return received;
->  }
+> @@ -2983,6 +2985,12 @@ static int virtnet_receive(struct receive_queue *r=
+q, int budget,
+>  		u64_stats_add(item, u64_stats_read(src));
+>  	}
 > =20
-> +/*
-> + * An RX queue is stalled if it has a backlog but makes no progress and
-> + * gets no new interrupt for rx_watchdog_timeo seconds, usually because
-> + * an interrupt was lost.  Mark it stalled and reschedule NAPI to drain
-> + * the ring, refill the buffers.
-> + */
-> +static void virtnet_rx_watchdog(struct timer_list *t)
-> +{
-> +	struct virtnet_info *vi =3D timer_container_of(vi, t, rx_watchdog);
-> +	unsigned long timeout =3D rx_watchdog_timeo * HZ;
-> +	int i;
+> +	/* Count a stall recovered by this poll. */
+> +	if (rq->watchdog.stalled) {
+> +		u64_stats_inc(&rq->stats.rx_timeouts);
+> +		rq->watchdog.stalled =3D false;
+> +	}
 > +
-> +	if (!rx_watchdog_timeo)
-> +		return;
-
-[Severity: Low]
-If rx_watchdog_timeo is set to 0 at boot or via sysfs (0644) and later
-written back to a non-zero value while the interface is up, how does
-vi->rx_watchdog get started again?  Both virtnet_rx_watchdog_start() and
-virtnet_rx_watchdog() return without arming the timer when
-rx_watchdog_timeo is 0, and there is no module parameter callback to
-restart it on open devices.
-
-Also, virtnet_rx_watchdog() reads rx_watchdog_timeo twice without
-READ_ONCE() and multiplies rx_watchdog_timeo * HZ in 32-bit unsigned int
-arithmetic before widening to unsigned long.  A concurrent update from 0
-to non-zero can compute timeout =3D 0 while passing the zero check, and a
-large value can wrap 32-bit multiplication, causing immediate false stall
-warnings.
-
-> +
-> +	for (i =3D 0; i < vi->curr_queue_pairs; i++) {
-> +		struct receive_queue *rq =3D &vi->rq[i];
-> +		u16 last_used =3D virtqueue_get_last_used_idx(rq->vq);
-> +		u16 calls =3D rq->calls;
-> +		bool backlog =3D virtqueue_poll(rq->vq, last_used);
+>  	u64_stats_add(&rq->stats.packets, u64_stats_read(&stats.packets));
+>  	u64_stats_add(&rq->stats.bytes, u64_stats_read(&stats.bytes));
+>  	u64_stats_add(&rq->stats.alloc_fail, u64_stats_read(&stats.alloc_fail));
 
 [Severity: Medium]
-Can virtnet_rx_watchdog() race with virtnet_rx_resize() or
-virtnet_rq_bind_xsk_pool() while the interface is up?
+Does passing timeout events through the plain boolean rq->watchdog.stalled
+race with virtnet_rx_watchdog() and lose rx_timeouts increments?
 
-virtnet_rx_pause() disables NAPI and DIM before resizing or resetting
-rq->vq, but it does not stop vi->rx_watchdog.  virtqueue_resize_split()
-and virtqueue_resize_packed() free the old vring before attaching the new
-one, and virtqueue_poll() only checks vq->broken:
+CPU0 (timer softirq)              CPU1 (NAPI poll)
+virtnet_rx_watchdog()             virtnet_receive()
+                                    if (rq->watchdog.stalled)
+                                      u64_stats_inc(&rq->stats.rx_timeouts)
+  rq->watchdog.stalled =3D true;
+                                      rq->watchdog.stalled =3D false;
+                                        <-- data race / lost timeout
 
-CPU0                                  CPU1 (<softirq>)
-virtnet_set_ringparam()
-  virtnet_rx_resize()
-    virtnet_rx_pause(vi, rq)
-    virtqueue_resize(rq->vq, ...)
+Because virtnet_rx_watchdog() writes rq->watchdog.stalled =3D true on each
+timeout and virtnet_receive() reads and clears it without atomic operations,
+concurrent execution triggers a KCSAN data race and can clobber a newly
+detected stall.  Counting in virtnet_receive() also leaves rx_timeouts at 0
+while NAPI remains wedged, collapses multiple watchdog expirations before a
+poll into a single increment, loses the count if the device is reopened via
+virtnet_rx_watchdog_init_queue() before NAPI runs, and clears stalled even
+when virtnet_poll() is called with budget =3D=3D 0 (such as via netpoll) wi=
+thout
+draining packets.
+
+[Severity: Medium]
+Can virtnet_rx_watchdog() also race with RX queue pause, resize, and reset?
+
+CPU0                              CPU1 (timer softirq)
+virtnet_rx_resize()               virtnet_rx_watchdog()
+  virtnet_rx_pause(vi, rq)
+  virtqueue_resize(rq->vq, ...)
+    virtqueue_resize_split()
       vring_free(&vq->vq)
-                                      virtnet_rx_watchdog()
-                                        virtqueue_poll(rq->vq, last_used)
-                                          <-- use-after-free of vring
-      virtqueue_init(...)
-      virtqueue_vring_attach_*(...)
+                                    virtqueue_poll(rq->vq, last_used)
+                                      <-- use-after-free / OOB read
+      virtqueue_vring_attach_split()
 
-On packed virtqueues, if virtnet_rx_resize() shrinks the ring after
-virtnet_rx_watchdog() reads last_used, is_used_desc_packed() can also
-index vq->packed.vring.desc[used_idx] out of bounds.  In addition,
-virtqueue_resize() and virtqueue_reset() reset vq->last_used_idx to 0,
-but virtnet_rx_resume() does not call virtnet_rx_watchdog_init_queue(rq),
-leaving stale state in rq->watchdog.
+commit "virtio_net: introduce an RX queue watchdog for stuck detection"
+starts vi->rx_watchdog in virtnet_open() and only stops it in
+virtnet_close(), while virtnet_rx_pause() only disables rq->napi and cancels
+rq->dim:
 
-> +		bool progress =3D last_used !=3D rq->watchdog.last_used;
-> +
-> +		if (!backlog || progress || calls !=3D rq->watchdog.calls) {
-> +			rq->watchdog.last_used =3D last_used;
-> +			rq->watchdog.calls =3D calls;
-> +			rq->watchdog.jiffies =3D jiffies;
-> +			continue;
-> +		}
-> +
-> +		if (time_after(jiffies, rq->watchdog.jiffies + timeout)) {
+drivers/net/virtio_net.c:virtnet_rx_pause() {
+	bool running =3D netif_running(vi->dev);
 
-[Severity: Low]
-Does the first timer tick that sees backlog =3D=3D true count the preceding
-idle second toward timeout?
+	if (running) {
+		virtnet_napi_disable(rq);
+		virtnet_cancel_dim(vi, &rq->dim);
+	}
+}
 
-When a queue is idle (!backlog), rq->watchdog.jiffies is updated to the
-idle tick's jiffies and the timer is re-armed for jiffies + HZ.  If a
-packet arrives just before the next tick and has not been consumed yet,
-backlog is true, progress is false, and calls =3D=3D rq->watchdog.calls, so
-virtnet_rx_watchdog() immediately compares jiffies against the timestamp
-from the previous idle tick.  When rx_watchdog_timeo is 1 (or the timer
-softirq is delayed), time_after(jiffies, rq->watchdog.jiffies + timeout)
-can trigger on the very first observation of a backlog and report an
-inflated stall_ms.
-
-Furthermore, sampling last_used and calls before virtqueue_poll() means
-that if an interrupt arrives and NAPI drains the packet between reading
-last_used/calls and calling virtqueue_poll(rq->vq, last_used),
-virtqueue_poll() compares the new used index against the stale last_used
-and sees a false backlog with no apparent progress.
-
-[ ... ]
-
-> @@ -6900,6 +7003,7 @@ static int virtnet_probe(struct virtio_device *vdev)
->  	INIT_WORK(&vi->config_work, virtnet_config_changed_work);
->  	INIT_WORK(&vi->rx_mode_work, virtnet_rx_mode_work);
->  	disable_work(&vi->rx_mode_work);
-> +	timer_setup(&vi->rx_watchdog, virtnet_rx_watchdog, 0);
-
-[Severity: Medium]
-This problem wasn't introduced by this patch, but can a failed
-virtnet_cpu_notif_add() in virtnet_probe() leak queued RX buffers and DMA
-mappings if the device was opened concurrently [1]?
-
-Once virtnet_probe() drops rtnl_unlock(), userspace can open the device
-and populate the receive queues via virtnet_open() -> try_fill_recv():
-
-CPU0                                  CPU1
-virtnet_probe()
-  register_netdevice(dev)
-  rtnl_unlock()
-                                      virtnet_open()
-                                        try_fill_recv()
-  virtnet_cpu_notif_add(vi) -> fails
-  unregister_netdev(dev)
-  ...
-  virtio_reset_device(vdev)
-  virtnet_del_vqs(vi)  <-- leaks unused buffers
-
-Unlike remove_vq_common(), the free_unregister_netdev error path resets
-the device and deletes the virtqueues without calling free_unused_bufs().
-
-[1] https://sashiko.dev/#/bug/linux-701d943e-275e-4959-aa9f-bafbe242f070
+When virtnet_rx_resize() or virtnet_rq_bind_xsk_pool() pauses a queue to
+resize or reset rq->vq, virtnet_rx_watchdog() continues polling rq->vq every
+second and can read freed vring memory or index past a newly shrunk packed
+descriptor ring, or call virtqueue_napi_schedule() while rq->vq is being
+reset.  Because neither path reinitializes rq->watchdog after resetting
+vq->last_used_idx, any rq->watchdog.stalled state left from before the
+reset is also consumed by virtnet_receive() on resume and falsely increments
+rq->stats.rx_timeouts.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261109094310.1039=
-79-1-lange_tang@163.com?part=3D2
+79-1-lange_tang@163.com?part=3D3
