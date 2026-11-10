@@ -1,44 +1,44 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794346594;
-	b=Eihz4/sw6CRx/NigVuHCuzwT56pnc2o7MQjSi8n8uSvzh/Btjmax9NVmsmSk92o3LpnC
-	 qZFlYaf71z5l+x0pFttzhDSDlfiP+Jf8i042ZyLWVRUbugDGP0dbAPcK7VVtWKZoo9nhS
-	 nVbaqMU4FdEkF58rZo3wkLHzG8hPLXvwb+602iMjXJ/JrERJ1S6ieIBVxUlQb+d4eMGjY
-	 ghLPiv5jZqKrqJ2prAJZNpsbnCufZkp/vviicIBpDvO2vpSXjnAbhj+xmvF3TG8Hefxin
-	 lqyG6R5nKJlCjQyUAhY/tTMfBJ+8enzDhugZMVnLnkGIIdfeZ6qtN0LMlmfS/2iDGVg==
+	t=1794346598;
+	b=VjwEISbIhg1mP0SbArIEmgZQBoTz1hKfl0PxwfdxeN/upuIZiIm39aqUxiBNfUGirdKJ
+	 1EtptH+GWqMdDXEKgZYNwDsMj7tRC8iF87OlxGUGUHmTU6WfbxeyIF2cI87zg1Xti0gtc
+	 nnXbL2ulzYwYJ6TGHfjY4Q/k92MneOfgWE8rZH4HrL1odfNXX6DVGCeaJdR14QHLj35rm
+	 JEOTVp1XvWtP4QFcaYrQ+Bw6e4WG/y6I0oKk/KSV8e/3oD2NUADHZyzn6UBmRv1CE86Dt
+	 d2n2CrDJkXea/LnsotwTKICgwa2DpTTE75KR0YfiSkFfChezMp3kDrIDBaTQWW8fdSA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794346594;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794346598;
 	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=8n0le04FNg/0rCa83fIxN5EOqJ6nyAusJtI49zdt4g8=;
-	b=gcIrrsE5YRZLhYtES7mESwMR584hPTkVkxfrV2gdkm3DTswW2RoTcaMMitio9NOfYT13
-	 LrPKjAxfISVvIT3+6TvnfmczZiU/14NbuGwPd2reCBqsXyetvJpX8cjsreFRY2qFOJwc5
-	 ovNzrXy+k4p9RLt2RNmuz7/2aUCR6DAL9KoKk5ReDEGbp7jNuy5uPB7p54Y2tiuau+SGJ
-	 e5XV5nS0DEqOra3RB1+YaXANDEXhROLDgQjXfWQwj6JK25rX+TPp1B2uXKy4W7X2kNqpQ
-	 J9K/KlsXSxsIj/SFtlHooF275cr7dLu/MddxUPyryn2TSgr12DMnACDpGTPM7e58ojw==
+	 In-Reply-To:References:MIME-Version:Content-Transfer-Encoding;
+	bh=HTmxr13iXWhhDne07Lv/d84VD/IopfjenubeoJyRVDg=;
+	b=t/IuSrqA2f9o3kxM5Og25ZH589N70389EGl4kC505Ebhi6sm17XUeNSahRfgr/ZPfabf
+	 4M4KHTArINP+OWCrXYVICfdW0NpQ2oj/KcbFkobqIiSKYgWjgwQUc/NbngazRRu9re0+u
+	 uHG5c+VgMwGkQ9pkS+WRtgyy+oqB8CUeLACDHGHnH8V3aFnTJCJuAwLJD/xB80WYXwLk6
+	 DqpmNDp6rfRxPZ0acl3BfjBhzOVTnO4t7NmYOMjDSp8Oc3EbNM55VN4/DnL7bs1w92md7
+	 vlJ2pgYqn3k537OtMYno3RPcfFWoBEBZhV883e0eohDKvnhx7RQXeSiTnDzipVjSmVA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QF7n+VSI;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Efec3Ayb;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D07B606A31C;
-	Tue, 10 Nov 2026 21:36:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37296606A325;
+	Tue, 10 Nov 2026 21:36:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QF7n+VSI
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CB371F0089F;
-	Tue, 10 Nov 2026 21:36:31 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Efec3Ayb
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA5371F0089F;
+	Tue, 10 Nov 2026 21:36:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794346593;
-	bh=8n0le04FNg/0rCa83fIxN5EOqJ6nyAusJtI49zdt4g8=;
-	h=From:To:Cc:Subject:Date;
-	b=QF7n+VSIlcNx++it9DojKYSHFZSvlbPfny89ikkS0toDmJdJpI9KWh71wwzN7RFcN
-	 LTC4fPbylf62bDQSxLDzJiDZ0pr49hNFKybYXXypetI9EuMLCsC2IHnZ/NsvxHwEq0
-	 1XsGAsEbgI/ROxmtyOALdZZAtMspIlHJSBhiqZgcLmi8VUpUA9wHA7oyg6TEkQn6hG
-	 fpT/wuza7a5deViRxeVNR2x1gerJpyjuHJfHKhQxw1fIsqEd3gx3P0YTU5Ck7YRopE
-	 UWycLgYQZk55YZ/Ed1cJbSXpAXIsWyL6266lpX7nl8vv31CHlTHX5dd0kgHdXMlwZ3
-	 WtsO5D5aGsTVA==
+	s=k20260515; t=1794346597;
+	bh=HTmxr13iXWhhDne07Lv/d84VD/IopfjenubeoJyRVDg=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=Efec3AybM5Qt9jhSaZU7KiJWQym9Fi9wY0tLjQOxwQK0rEzyjVPFnaaysZV9KaX23
+	 jAMQYwfeytZic+wEIcuioBB3SdBuZnVb9L9eUMM4Ov8SzLtwfqf7re+6/I/qacPNdo
+	 G50Yx8b296b2lZnS6mli+h536H6yt6iB9IueE0nF1QduaGNS/DDw/IH0X/TgT8qFR1
+	 sHzGQ/tqdeOo7bjYFvVGYE3IYSZ/ykn4M6F3X2Xa2BWFGZ2hTpcEiklGZGnkPLRBBB
+	 dxCmh6LswsnyV5BF/Bx7mq/h8/xxmZbzWt4pBBU4xZZ+hZ/bBh1DePLtIi3pExQX9J
+	 cOqoF6jXG5lcw==
 From: Eric Dumazet <edumazet@kernel.org>
 To: "David S . Miller" <davem@davemloft.net>,
 	Jakub Kicinski <kuba@kernel.org>,
@@ -52,11 +52,14 @@ Cc: Willem de Bruijn <willemb@google.com>,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
 	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
 	Hassan Sultan <hassansultan@google.com>,
-	virtualization@lists.linux.dev
-Subject: [PATCH net v6 0/3] net: virtio: validate outer protocol of UDP tunnel GSO packets
-Date: Tue, 10 Nov 2026 22:36:25 +0100
-Message-ID: <20261110213628.3476051-1-edumazet@kernel.org>
+	virtualization@lists.linux.dev,
+	Sashiko <sashiko-bot@kernel.org>
+Subject: [PATCH net v6 1/3] net: virtio: fix UDP tunnel GSO header of VLAN tagged packets
+Date: Tue, 10 Nov 2026 22:36:26 +0100
+Message-ID: <20261110213628.3476051-2-edumazet@kernel.org>
 X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20261110213628.3476051-1-edumazet@kernel.org>
+References: <20261110213628.3476051-1-edumazet@kernel.org>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -68,87 +71,79 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-virtio_net_hdr_tnl_to_skb() does not check that a UDP tunnel GSO
-packet really has outer IPv4/IPv6 and UDP headers matching the
-declared tunnel type. A guest, or any tap writer, can send a frame
-with another outer ethertype (NSH in the report), and the GSO stack
-then builds segments with skb->data before skb->head. The host
-crashes in skb_under_panic() as soon as a header is pushed.
+virtio_net_hdr_tnl_from_skb() builds a wrong header for VLAN tagged UDP
+tunnel GSO packets.
 
-Patch 1 fixes the producer side, virtio_net_hdr_tnl_from_skb(), for
-VLAN tagged packets:
-- the tunnel offsets did not account for the VLAN tag tun inserts in
-  the frame, and were 4 bytes short.
-- the outer family came from skb->protocol, which is the VLAN protocol
-  when the tag is in the packet data, so an outer IPv6 header was
-  reported as IPv4.
-Without it, patch 3 would drop such packets. Kernels without this fix
-still send such headers, so it should go to stable along with patch 3.
+1) When the skb carries a hwaccel VLAN tag, tun_put_user() inserts the
+   802.1Q header in the frame it copies to user space or vhost-net, and
+   passes vlan_hlen = VLAN_HLEN. virtio_net_hdr_from_skb() adds
+   vlan_hlen to csum_start, but inner_nh_offset and outer_th_offset do
+   not account for it, and are 4 bytes short of the real inner L3 and
+   outer UDP headers in the emitted frame.
 
-Patch 2 clears a stale skb->protocol left on recycled NAPI frags skbs,
-which could make the checks of patch 3 reject valid frames.
+   tun advertises NETIF_F_HW_VLAN_CTAG_TX and NETIF_F_HW_VLAN_STAG_TX
+   in hw_enc_features, and its vlan_features keep the UDP tunnel GSO
+   features, so this happens for example with a VLAN filtering bridge
+   with a tagged port, or with a vlan device on top of a tap.
 
-Patch 3 validates the outer headers, using the parsing helpers from
-Michael's series "net: resolve uncommon partial checksums at ingress",
-as Willem suggested. The callers tell whether frames start with an
-Ethernet header, as the device type of a tun device can be changed
-with TUNSETLINK. The rest of Michael's series (checksum validation and
-completion) is left to him.
+2) The outer family comes from skb->protocol, which is ETH_P_8021Q or
+   ETH_P_8021AD when the VLAN tag is in the packet data, so a packet
+   with an outer IPv6 header is reported as
+   VIRTIO_NET_HDR_GSO_UDP_TUNNEL_IPV4. This happens when
+   __vlan_hwaccel_push_inside() inserted the tag because the device does
+   not offload it: virtio_net never offloads VLAN insertion but keeps
+   UDP tunnel GSO in its vlan_features, and tun does the same with VLAN
+   TX offload disabled, or with QinQ (outer tag offloaded, inner tag in
+   the data).
 
-The selftests of v3 will follow in a separate series, with the fixes
-Sashiko found in them.
+The receiver sets inner_network_header and transport_header from these
+offsets, and checks them with the wrong outer family. A forwarded
+packet that gets segmented again uses the wrong inner headers, and a
+receiver checking the outer headers against the virtio header drops
+the packet.
 
-v6:
-- Patch 1: also take the outer family from vlan_get_protocol()
-  instead of skb->protocol (Sashiko). New title.
-- Move the tun skb->protocol fix (now patch 2) before the outer
-  protocol check (now patch 3), so that no commit rejects valid frames
-  (Sashiko). Reword its changelog accordingly.
-- No change to patch 3.
+Add vlan_hlen to both offsets like csum_start, and take the outer
+family from vlan_get_protocol(), which skips VLAN tags in the data.
 
-v5: https://lore.kernel.org/netdev/20261109163507.3102091-1-edumazet@kernel.org/
-- New patch 1: account for the VLAN tag in the tunnel offsets built by
-  virtio_net_hdr_tnl_from_skb() (Sashiko).
-- Patch 2: add Michael's Acked-by, no code change.
+Fixes: a2fb4bc4e2a6 ("net: implement virtio helpers to handle UDP GSO tunneling.")
+Reported-by: Sashiko <sashiko-bot@kernel.org>
+Closes: https://lore.kernel.org/netdev/179421814766.994134.3669228181251158303@kernel.org/
+Closes: https://lore.kernel.org/netdev/179433950084.994134.15100186606737698605@kernel.org/
+Signed-off-by: Eric Dumazet <edumazet@kernel.org>
+---
+ include/linux/virtio_net.h | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-v4: https://lore.kernel.org/netdev/20261106095340.2113683-1-edumazet@kernel.org/
-- Squash v3 patch 2 into patch 1 (Willem). Dropped Michael's Acked-by,
-  as virtio_net_l3_start() now takes a has_eth argument.
-- Patch 2: clear skb->protocol in tun_napi_alloc_frags(), the only
-  place that needs it (Willem).
-- Drop the selftests from this series (Willem).
-
-v3: https://lore.kernel.org/netdev/20261105115715.1466924-1-edumazet@kernel.org/
-- Patch 1: fix a comment, ipv6_find_hdr() stops at AH (Sashiko).
-- New patch 2: do not use the device type to find the outer L3 header,
-  TUNSETLINK can change it (Sashiko).
-- New patch 3: clear a stale skb->protocol on IFF_NAPI_FRAGS skbs
-  (Sashiko).
-- More selftests, and big-endian fixes for them (Sashiko).
-
-v2: https://lore.kernel.org/netdev/20261104050131.629967-1-edumazet@kernel.org/
-- Use Michael's helpers instead of a new one: find the L3 header from
-  the device type instead of assuming Ethernet when skb->protocol is
-  unset, do not trust skb->protocol when it disagrees with the frame,
-  and require UDP exactly at outer_th_offset. Stop at IPv6 AH headers
-  (Willem).
-- Selftest fixes, IFF_TUN tests.
-
-v1: https://lore.kernel.org/netdev/20261103203113.550604-1-edumazet@kernel.org/
-
-Eric Dumazet (3):
-  net: virtio: fix UDP tunnel GSO header of VLAN tagged packets
-  tun: clear stale skb->protocol of NAPI frags skbs
-  net: virtio: validate outer protocol of UDP tunnel GSO packets
-
- drivers/net/tun.c          |  15 ++-
- drivers/net/tun_vnet.h     |   5 +-
- drivers/net/virtio_net.c   |   2 +-
- include/linux/virtio_net.h | 181 ++++++++++++++++++++++++++++++++++++-
- 4 files changed, 195 insertions(+), 8 deletions(-)
-
-
-base-commit: fdca4b030c78fa2773a94fda3a6dc3ce5558a727
+diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+index d6466f96cdd0..83f801ff5700 100644
+--- a/include/linux/virtio_net.h
++++ b/include/linux/virtio_net.h
+@@ -453,7 +453,10 @@ virtio_net_hdr_tnl_from_skb(const struct sk_buff *skb,
+ 	if (feature_hdrlen && hdr->hdr_len)
+ 		__virtio_net_set_tnl_hdrlen(skb, hdr);
+ 
+-	if (skb->protocol == htons(ETH_P_IPV6))
++	/* skb->protocol is the VLAN protocol when the tag is in the
++	 * packet data.
++	 */
++	if (vlan_get_protocol(skb) == htons(ETH_P_IPV6))
+ 		hdr->gso_type |= VIRTIO_NET_HDR_GSO_UDP_TUNNEL_IPV6;
+ 	else
+ 		hdr->gso_type |= VIRTIO_NET_HDR_GSO_UDP_TUNNEL_IPV4;
+@@ -461,8 +464,11 @@ virtio_net_hdr_tnl_from_skb(const struct sk_buff *skb,
+ 	if (skb_shinfo(skb)->gso_type & SKB_GSO_UDP_TUNNEL_CSUM)
+ 		hdr->flags |= VIRTIO_NET_HDR_F_UDP_TUNNEL_CSUM;
+ 
+-	inner_nh = skb->inner_network_header - skb_headroom(skb);
+-	outer_th = skb->transport_header - skb_headroom(skb);
++	/* Like csum_start, the offsets must account for a VLAN tag
++	 * the caller inserts in the frame.
++	 */
++	inner_nh = skb->inner_network_header - skb_headroom(skb) + vlan_hlen;
++	outer_th = skb->transport_header - skb_headroom(skb) + vlan_hlen;
+ 	vhdr->inner_nh_offset = cpu_to_le16(inner_nh);
+ 	vhdr->outer_th_offset = cpu_to_le16(outer_th);
+ 	return 0;
 -- 
 2.53.0
 
