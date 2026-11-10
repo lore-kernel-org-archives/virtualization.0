@@ -1,57 +1,98 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794303835;
-	b=ry8477IcBgYna5AB+t1FDtGjt3BoCpVSh9itGlsfMhCrkiqtdMLrmfj2J7avp6LG5uU3
-	 UNaoMgVy7C+w/idv0h2XwGzmYvfVo2lpY5X2n9nBNTTBIDJsm2IpIBuHRefYx/eM0OtqM
-	 DCahh/dT/WeVCf68Kb6mFPF5MGV8oZ7r3QReAUgLycFmWeYynDKj+cQ3sQ7xXqsgNQGJF
-	 BHzBO9KoMxxwRFItunKAuEfvb8FaYiedkAmy6lvMKQOYdu/eqQqnfVUmsaL2AHLYQwr8g
-	 XWSBdRBAZhYSlbmdb7fe0OX6tMbNp0MwCEugMXUVbVIMdmIetmRuuSUHGreenj5i7jA==
+	t=1794307267;
+	b=pAZEwsGwaVxfaxOEUP8QV3Hj1d7y25fOmr/tVOuewHc3ATAAjEQbYQChbvx6PJiv7LfK
+	 7p1xxiIyRKJI6oT+eOU9q5E8sgFr/s2CsW++tY8uvfmQVLxxR6zXgRgMXpzMx0Qyc7U46
+	 Ql7PoLHe0r2OIeGJAqvhnu3NaKFAl9yGc3pD2OgDNwR6ftNdLhyND4Iby9FAuMM4H4ggQ
+	 bKfeOzdrNxNPihF0cYq4ZNDYECJAe/lLKvBJpcSCCC+1rsxmJu4/klaIe6HLvi+MN1iRd
+	 2smndlQSN336dxiUZT12tjjvaclsr6ozDtzjy1wtwE/q4TkGsKVGTGJdxdoUY8jKwuw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794303835;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=auJk7Aoyx/zAAhdUA/PRMYr7VWRte89D5FD9GIGZ0eY=;
-	b=YQ8xpS5RZLV/bYe1AC+jb1mqJ3h8UvosNGOxp2akVG82m4SSomJhTtizAw3cP8+6tO4E
-	 GK5N/IC9z1YOdyu+j4ZgyU/n6RHSNYQC7VL22HA3zAbRxx/e0v+wXBj1kBRaFnVqWopq6
-	 u7riF2AsgFoWOgXPmYSU7UaPq7tdkcTHhNR5dG0tOtUvgzvCxX7e+lHM8DHpEPArE661O
-	 4Rc45bNvsWviKiiQuieB8DkPcrN+HEJkzxwGY8qZURidJAXFldZueCIdUROYDhmlecvQ0
-	 /jZbOQBT55A5pffTu6iMMrPAENKQ6L4N/S5vnUMOBnrfsDaXm3Wk3787qe+J7CxFJhw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794307267;
+	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
+	 X-Mimecast-MFC-AGG-ID:Received:Received:From:To:Cc:Subject:Date:
+	 Message-ID:In-Reply-To:References:MIME-Version:X-Scanned-By:
+	 X-Mimecast-MFC-PROC-ID:X-Mimecast-Originator:
+	 Content-Transfer-Encoding:content-type;
+	bh=9RvJebEHN0ToJdhmNwuM3zN40XxviuMMEwwuGiw6/Qg=;
+	b=ESNM9crmHs8GLuhY+hkzmsza4M74+NGSYwDrQu+EqOrO9Qy8hoq8kNRvUoZWTPlzGBf4
+	 cHmU61DvS03aalYyeh25X1jiJqMCA3WRGV/WZRBx1jjr5YdKPtPbjoQeyHfBMI73zq+fP
+	 yud4Qx0pZpMYp3PErTjNxQUnJHg3YAKb2Lp09t3ieuUBKIq1OaVAyzxAA4H23xZ6yE/oh
+	 77GMBeynnpH53JfhNOTiw4BEoHoJnJki9KoERQ0Tk7yJRDvCTVculfmI9eXGD9VPuiFgi
+	 hBY7cA41y0wJTQ9W+W4hCkVkjJpn86CpejslI9lHwRfHO4TxMEcYvpvvNRaSiIWKPfA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OJkpq+cB;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=redhat.com;
+	spf=pass smtp.mailfrom=redhat.com;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b="P03nS/Ld";
+	arc=none smtp.remote-ip=170.10.133.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64A34606BF0A
-	for <virtualization@lists.linux.dev>; Tue, 10 Nov 2026 09:43:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2D7C60A2600
+	for <virtualization@lists.linux.dev>; Tue, 10 Nov 2026 10:41:06 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C2D7C60A2600
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OJkpq+cB
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAB211F0089F;
-	Tue, 10 Nov 2026 09:43:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794303835;
-	bh=auJk7Aoyx/zAAhdUA/PRMYr7VWRte89D5FD9GIGZ0eY=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=OJkpq+cBCXvEGBRxkEAg0hqJ4trx8SeRGbjXGSB5cO20Xb7dKuWCEtz79ZtrLUMIx
-	 iNwT/U9NpPufkIMjYtgg348QTulHWqY9rJEaTCwyhkGHXUIX0GRyGRFrGY0nCyec2n
-	 EsVvSTVmXUo/FWJEFzzzwkcdD+fynhJxpyjW6sd92Qf9sOpj3DEd37sPKm+Shp5sQI
-	 Sta4b6ZeqnpSaZ5lPmN4zy7p3e3CGFORLDIrWjqFZ7Q597YHbdjXqxvwgwnH13Mjbx
-	 TrLdiRNNURb5d5njDRkHWsEKP+xFzy5/aLgtIfMSmLu6VQOVUnF+zIiCGPKzdm8DBZ
-	 Yz0/qtEXtvA6g==
-Message-ID: <sashiko-outbox-206799@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 3/3] virtio_net: add rx_timeouts per-queue statistic
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Longjun Tang" <lange_tang@163.com>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <20261109094310.103979-4-lange_tang@163.com>
-References: <20261109094310.103979-1-lange_tang@163.com>
- <20261109094310.103979-4-lange_tang@163.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 10 Nov 2026 09:43:54 +0000
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=P03nS/Ld
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1794307266;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=9RvJebEHN0ToJdhmNwuM3zN40XxviuMMEwwuGiw6/Qg=;
+	b=P03nS/Ldtp+4AFEbkhSkxUlbKTzCwozXPvCJZZ3CaNT6YmxKIhFY3KEDs6nk5EuDF/zNPD
+	Lnb2ljqSEimaZgekknytZa8FY/+M7lLL51LyGeTajt7mm66mwoCc7OZMxQf5vwnsWLc+eG
+	xrvBf/9/xqUmerBPYYAU9FmfjDHPWwI=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-294-TOY0otYhNVWo4ajIt8-xfA-1; Tue,
+ 10 Nov 2026 05:41:01 -0500
+X-MC-Unique: TOY0otYhNVWo4ajIt8-xfA-1
+X-Mimecast-MFC-AGG-ID: TOY0otYhNVWo4ajIt8-xfA_1794307259
+Received: from mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.95])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id B032D18004F9;
+	Tue, 10 Nov 2026 10:40:58 +0000 (UTC)
+Received: from pabeni-thinkpadp1gen8.rmtit.csb (headnet04.pony-001.prod.iad2.dc.redhat.com [10.2.32.116])
+	by mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id CA62626C;
+	Tue, 10 Nov 2026 10:40:51 +0000 (UTC)
+From: Paolo Abeni <pabeni@redhat.com>
+To: bobbyeshleman@meta.com
+Cc: sgarzare@redhat.com,
+	davem@davemloft.net,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	horms@kernel.org,
+	corbet@lwn.net,
+	skhan@linuxfoundation.org,
+	stefanha@redhat.com,
+	mst@redhat.com,
+	jasowangio@gmail.com,
+	xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com,
+	shuah@kernel.org,
+	rdunlap@infradead.org,
+	donald.hunter@gmail.com,
+	edumazet@kernel.org,
+	virtualization@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-doc@vger.kernel.org,
+	kvm@vger.kernel.org,
+	linux-kselftest@vger.kernel.org,
+	sargun@sargun.me,
+	jlinbox@meta.com,
+	bobbyeshleman@gmail.com
+Subject: Re: [PATCH net-next v5 5/7] vsock/virtio: support guest device network namespace
+Date: Tue, 10 Nov 2026 11:40:35 +0100
+Message-ID: <20261110104035.225429-1-pabeni@redhat.com>
+In-Reply-To: <20261103-vsock-guest-ns-v5-5-48179b9b66b8@meta.com>
+References: <20261103-vsock-guest-ns-v5-5-48179b9b66b8@meta.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -60,104 +101,231 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+MIME-Version: 1.0
+X-Scanned-By: MIMEDefang 3.6 on 10.30.177.95
+X-Mimecast-MFC-PROC-ID: qNNoUIdn29xpMNQyQIbg6verpbDWS1PHDbs2Pn5GSqY_1794307259
+X-Mimecast-Originator: redhat.com
+Content-Transfer-Encoding: 8bit
+content-type: text/plain; charset="US-ASCII"; x-default=true
 
-Thank you for your contribution! Sashiko AI review found 2 potential
-issues to consider:
-- [Medium] virtio_net: data race and lost rx_timeouts events via
-  rq->watchdog.stalled
-- [Medium] virtio_net: race between virtnet_rx_watchdog() and RX queue
-  pause/reset
---
+This is an AI-generated review of your patch. The human sending this
+email has considered the AI review valid, or at least plausible.
+Full review at: https://netdev-ai.bots.linux.dev/sashiko/
+---
+--- Patch [5]: [PATCH net-next v5 5/7] vsock/virtio: support guest device network namespace ---
+I found three issues in this patch: one functional regression, one commit message problem, and one existing tap leak that the patch now reaches.
 
-commit 4a62fe0fe638e28583b6ebe514a0626f687513ee
-Author: Longjun Tang <tanglongjun@kylinos.cn>
+commit 074136a5d2f57598d227b743b7c490274cb32bed
+Author: Bobby Eshleman <bobbyeshleman@meta.com>
 
-virtio_net: add rx_timeouts per-queue statistic
+vsock/virtio: support guest device network namespace
 
-This commit adds an rx_timeouts per-queue RX statistic exposed via ethtool
-that is incremented in virtnet_receive() when rq->watchdog.stalled is set.
+This patch makes the virtio-vsock guest device assignable to a network
+namespace. virtio_transport_rx_work() now re-reads the assigned netns for
+each packet and passes it to virtio_transport_recv_pkt(). The listen and
+connecting receive paths now call vsock_maybe_set_connected() instead of
+vsock_insert_connected(), and virtio_transport_send_pkt() gains a
+reachability check.
 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index ec7c248080c57..feb6bfbb1c5a8 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
+> Make the virtio-vsock device assignable to a namespace and initialize it
+> to init_net. Because virtio-vsock and init_net are both hardcoded to
+> global mode, nothing changes until the assign command is issued.
 
 [ ... ]
 
-> @@ -2983,6 +2985,12 @@ static int virtnet_receive(struct receive_queue *r=
-q, int budget,
->  		u64_stats_add(item, u64_stats_read(src));
+> it wins the race to the table and does NOT pass the reachability tests,
+> then it will be reset. This is the purpose of the new helper
+> 'vsock_maybe_set_connected()'.
+
+[Severity: Low]
+[Finding: main-1-1]
+[Sources: opus-5-5]
+This isn't a bug, but does this description match what this patch does?
+
+The previous commit in the series ("vsock: add a netlink command to
+assign the g2h device to a netns") already defines and exports
+vsock_maybe_set_connected(). The same commit adds netns_assign_allow to
+struct vsock_transport and initializes the g2h netns to init_net:
+
+net/vmw_vsock/af_vsock.c:
+    static struct net __rcu *vsock_g2h_net = RCU_INITIALIZER(&init_net);
+
+This patch only calls the helper and sets .netns_assign_allow = true.
+
+The reachability check added to virtio_transport_send_pkt() is only
+described in the v4 changelog below the --- line, so it won't reach git
+history. Could the commit message say that virtio_transport_send_pkt()
+now drops packets from a netns that cannot reach the device and returns
+-ENETUNREACH? That includes credit updates, shutdown packets and RST
+replies.
+
+> diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+> index eced6929405df..06df82b130cff 100644
+> --- a/net/vmw_vsock/virtio_transport.c
+> +++ b/net/vmw_vsock/virtio_transport.c
+> @@ -256,6 +256,15 @@ virtio_transport_send_pkt(struct sk_buff *skb, struct net *net)
+>  		goto out_rcu;
 >  	}
-> =20
-> +	/* Count a stall recovered by this poll. */
-> +	if (rq->watchdog.stalled) {
-> +		u64_stats_inc(&rq->stats.rx_timeouts);
-> +		rq->watchdog.stalled =3D false;
+>  
+> +	/* A socket reset by an assign can still send credit updates from
+> +	 * recvmsg() and setsockopt(SO_RCVLOWAT).
+> +	 */
+> +	if (!vsock_g2h_net_reachable(net)) {
+> +		kfree_skb(skb);
+> +		len = -ENETUNREACH;
+> +		goto out_rcu;
 > +	}
 > +
->  	u64_stats_add(&rq->stats.packets, u64_stats_read(&stats.packets));
->  	u64_stats_add(&rq->stats.bytes, u64_stats_read(&stats.bytes));
->  	u64_stats_add(&rq->stats.alloc_fail, u64_stats_read(&stats.alloc_fail));
 
-[Severity: Medium]
-Does passing timeout events through the plain boolean rq->watchdog.stalled
-race with virtnet_rx_watchdog() and lose rx_timeouts increments?
+[ ... ]
 
-CPU0 (timer softirq)              CPU1 (NAPI poll)
-virtnet_rx_watchdog()             virtnet_receive()
-                                    if (rq->watchdog.stalled)
-                                      u64_stats_inc(&rq->stats.rx_timeouts)
-  rq->watchdog.stalled =3D true;
-                                      rq->watchdog.stalled =3D false;
-                                        <-- data race / lost timeout
+> @@ -682,10 +697,15 @@ static void virtio_transport_rx_work(struct work_struct *work)
+>  
+>  			virtio_transport_deliver_tap_pkt(skb);
+>  
 
-Because virtnet_rx_watchdog() writes rq->watchdog.stalled =3D true on each
-timeout and virtnet_receive() reads and clears it without atomic operations,
-concurrent execution triggers a KCSAN data race and can clobber a newly
-detected stall.  Counting in virtnet_receive() also leaves rx_timeouts at 0
-while NAPI remains wedged, collapses multiple watchdog expirations before a
-poll into a single increment, loses the count if the device is reopened via
-virtnet_rx_watchdog_init_queue() before NAPI runs, and clears stalled even
-when virtnet_poll() is called with budget =3D=3D 0 (such as via netpoll) wi=
-thout
-draining packets.
+[Severity: High]
+[Finding: main-6-6]
+[Sources: opus-5-5]
+This isn't a bug introduced by this patch, but this patch extends it to
+the guest device, which can now be isolated. Can tap delivery leak the
+assigned namespace's traffic to vsockmon devices in other namespaces?
 
-[Severity: Medium]
-Can virtnet_rx_watchdog() also race with RX queue pause, resize, and reset?
+virtio_transport_deliver_tap_pkt() runs before the netns-aware
+virtio_transport_recv_pkt(). The call chain
+vsock_deliver_tap()->__vsock_deliver_tap() then walks the global
+vsock_tap_all list without any netns filter:
 
-CPU0                              CPU1 (timer softirq)
-virtnet_rx_resize()               virtnet_rx_watchdog()
-  virtnet_rx_pause(vi, rq)
-  virtqueue_resize(rq->vq, ...)
-    virtqueue_resize_split()
-      vring_free(&vq->vq)
-                                    virtqueue_poll(rq->vq, last_used)
-                                      <-- use-after-free / OOB read
-      virtqueue_vring_attach_split()
-
-commit "virtio_net: introduce an RX queue watchdog for stuck detection"
-starts vi->rx_watchdog in virtnet_open() and only stops it in
-virtnet_close(), while virtnet_rx_pause() only disables rq->napi and cancels
-rq->dim:
-
-drivers/net/virtio_net.c:virtnet_rx_pause() {
-	bool running =3D netif_running(vi->dev);
-
-	if (running) {
-		virtnet_napi_disable(rq);
-		virtnet_cancel_dim(vi, &rq->dim);
-	}
+net/vmw_vsock/af_vsock_tap.c:__vsock_deliver_tap() {
+    ...
+	list_for_each_entry_rcu(tmp, &vsock_tap_all, list) {
+		ret = __vsock_deliver_tap_skb(skb, tmp->dev);
+    ...
 }
 
-When virtnet_rx_resize() or virtnet_rq_bind_xsk_pool() pauses a queue to
-resize or reset rq->vq, virtnet_rx_watchdog() continues polling rq->vq every
-second and can read freed vring memory or index past a newly shrunk packed
-descriptor ring, or call virtqueue_napi_schedule() while rq->vq is being
-reset.  Because neither path reinitializes rq->watchdog after resetting
-vq->last_used_idx, any rq->watchdog.stalled state left from before the
-reset is also consumed by virtnet_receive() on resume and falsely increments
-rq->stats.rx_timeouts.
+This loop never compares dev_net(tmp->dev) with the packet's namespace.
+vsockmon_link_ops has no netns restriction. RTM_NEWLINK only needs
+CAP_NET_ADMIN in the user namespace that owns the netns.
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261109094310.1039=
-79-1-lange_tang@163.com?part=3D3
+So an unprivileged user can run unshare -Urn and create a vsockmon link.
+The module autoloads through MODULE_ALIAS_RTNL_LINK("vsockmon"). The user
+can then capture on that link with AF_PACKET.
+
+Wouldn't that let any namespace see the traffic of the local-mode
+namespace the guest device was assigned to? The tap paths in vhost-vsock
+and vsock_loopback have the same problem.
+
+> -			/* Force virtio-transport into global mode since it
+> -			 * does not yet support local-mode namespacing.
+> +			/* Only grab a reference if the net changes underneath
+> +			 * us.
+>  			 */
+> -			virtio_transport_recv_pkt(&virtio_transport, skb, NULL);
+> +			if (unlikely(!vsock_g2h_net_eq(net))) {
+> +				put_net_track(net, &ns_tracker);
+> +				net = vsock_g2h_net_get(&ns_tracker);
+> +			}
+> +
+> +			virtio_transport_recv_pkt(t, skb, net);
+>  		}
+>  	} while (!virtqueue_enable_cb(vq));
+
+[ ... ]
+
+> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+> index 1e762a480df49..7efcbdc7e04fc 100644
+> --- a/net/vmw_vsock/virtio_transport_common.c
+> +++ b/net/vmw_vsock/virtio_transport_common.c
+
+[ ... ]
+
+> @@ -1478,9 +1478,14 @@ virtio_transport_recv_connecting(struct sock *sk,
+>  
+>  	switch (le16_to_cpu(hdr->op)) {
+>  	case VIRTIO_VSOCK_OP_RESPONSE:
+> -		sk->sk_state = TCP_ESTABLISHED;
+> +		if (!vsock_maybe_set_connected(vsk)) {
+> +			virtio_transport_reset_no_sock(t, skb, net);
+
+[Severity: High]
+[Finding: main-1-0]
+[Sources: opus-5-5]
+Can this RST ever reach the host?
+
+virtio_transport_reset_no_sock() ends in t->send_pkt(reply, net). The
+check this patch adds to virtio_transport_send_pkt() frees the reply when
+net cannot reach the device:
+
+	if (!vsock_g2h_net_reachable(net)) {
+		kfree_skb(skb);
+		len = -ENETUNREACH;
+		goto out_rcu;
+	}
+
+The v5 changelog says the arrival netns is passed here instead of
+sock_net(sk) so that the RST is not dropped. But vsock_net_check_mode()
+looks like an equivalence relation:
+
+	if (net_eq(ns0, ns1))
+		return true;
+	...
+	return mode0 == VSOCK_NET_MODE_GLOBAL && mode0 == mode1;
+
+A netns's mode is also fixed when the netns is created: vsock_net_init()
+sets it, and later writes to the ns_mode sysctl return -EPERM.
+
+virtio_transport_recv_pkt() finds the socket through
+__vsock_find_{connected,bound}_socket_net(), which requires
+vsock_net_check_mode(sock_net(sk), net). vsock_maybe_set_connected() only
+fails when sock_net(sk) cannot reach the newly assigned g2h netns.
+
+So the arrival netns cannot reach it either, and
+vsock_g2h_net_reachable(net) is false whenever this branch runs.
+
+An assign can land after the per-packet snapshot in
+virtio_transport_rx_work() and before the check in
+vsock_maybe_set_connected(). That is the race the commit message
+describes.
+
+In this OP_RESPONSE case the host already holds an ESTABLISHED socket. If
+the RST is dropped, won't that connection stay half-open until the host
+sends something? A host that only reads would wait forever.
+
+The commit message says such a socket "will be reset", but only the
+local socket is closed.
+
+The same applies to the new failure path in
+virtio_transport_recv_listen():
+
+	if (!vsock_maybe_set_connected(vchild)) {
+		release_sock(child);
+		virtio_transport_reset_no_sock(t, skb, net);
+		sock_put(child);
+		return -ENETUNREACH;
+	}
+
+Here the host's connect() gets neither a RESPONSE nor an RST. It waits for
+its connect timeout instead of failing with ECONNRESET.
+
+By the same reasoning, the other virtio_transport_reset_no_sock() calls in
+virtio_transport_recv_listen() that v5 moved from sock_net(sk) to net
+behave the same either way.
+
+Would getting the RST out need a different approach? For example, it
+could be sent on the newly assigned g2h netns, or replies could be exempt
+from the check in virtio_transport_send_pkt().
+
+> +			skerr = ECONNRESET;
+> +			err = -ENETUNREACH;
+> +			goto close;
+> +		}
+> +
+>  		sk->sk_socket->state = SS_CONNECTED;
+> -		vsock_insert_connected(vsk);
+>  		sk->sk_state_change(sk);
+>  		break;
+
+[ ... ]
+-- 
+This is an AI-generated review.
+
