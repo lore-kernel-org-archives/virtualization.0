@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794269235;
-	b=h7oL7IUaHykAlucCQOow1g1eKUasSQRUIF/dOqhnsDcjwXuPstW7nDtF9fQUKax5zGlg
-	 3VPVa6z5xwebEC9OswHSagGflKEgavDVhnRxNUUg3teIY/VNx9EEHifTIZWnL4QKtCPmA
-	 eOuvRdTTCOpNWrF+LMN5WdUHUJBCz1NHZlnjuTdZhoNOvWyrm6GogLjMRFXEhmO16P45q
-	 yHKiaPVY87teBOaWDP/VwXaUV48Dx2zj+6Ug6qJYBLUqQ6HM+NNg2K5YpQmSPgyChLFIY
-	 ghm5AwmXVKCtyP4AOrLOvnLeBoSaAIek9vQyffzJB3i3XjWNqpDG7tY/tne0nQnymvQ==
+	t=1794269437;
+	b=GcAcp8Jgm7XxM1LZGeyHKy9EatxiN04nCJPzQlEcCwur/LCW/o5Zm5rCKgaCDO6jxKNO
+	 q4G25qh01PDyUyCHOiSfYceh/lEVKfli7678p8bVGF1BEwgkPhKHZz6eCw58SPLRohP6T
+	 UhzaAMb5tAesUSiYRH6QAQz5jA4LMhla8RMQwgOfp3rAyN4Do1Fztk/LQnBe8c4z1HmaY
+	 FhHY/YJruYlXdcGB+Us6nKRH3F9EtJfkZ9Lp9q+KDqj9CXYjSUtD4WseeESSzxy2Cgy/P
+	 lU1jIyQrANl3TEIhzpN0CGMplDHUhyTd35GoPZUNmSesLHuROKMcmcwugAhgJUIw1OA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794269235;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794269437;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=eghenesJj1NDJawE8Z1dFELfKM6yaT30e9CTTiJd6Wo=;
-	b=QYOYQuoYCBg86aGJy7JR4arws1b9fTD0M3ktR3GprhMotk/sDvkUBynZ5nxg+ysL4RLs
-	 Jw2VCzkqhTCzMAmMzhenmRfB/+aMtnlMMU3YdXoOLYrhrRGh6fgI9rBtu7jFrKHh2zj86
-	 C6rE+uV3OrHPCAtjK/hQVY9iOK5zixeMKJPcUivk1vI3dEMsoONJGpN5a3nGsExCjbcC4
-	 ch/mrnqb/jLlBIazegyFimVIimp7CPP3dIBFydtpNTku2/s6WSVecr1aoHCiGxeLXXw/E
-	 g4uHxzcJysoNvzszjGIqDm/WkllOayJTAdbUI7FLWVK5a1W57tTXbaYOCAHwyRfbSmA==
+	bh=dzCOZTh3/OVCMrzz3EBQu9tpq3bCsis7APX3xkaqFhY=;
+	b=bNVslYLUyZmES3Ko5tvCyWxheRHrdWeANA0mhH/YinB9ZH+V3mFmOkFHm2dD6zEqSzmc
+	 BCaK56MJ4x9KaC9Do37VUOcZOGe38NDRhzAzEovhobwY1rPqHFtBI6Zaegu/QXE0RDISs
+	 81qrO3Xad/l1Ptx5mzgDJ+0qHxb43z11z6FZxv+HEOJ8oT4ebhHBBmiAclP8tlkPJk0Ko
+	 IClXYjYrryGUKvxGl2GyJAGU4ZU/ZHhVro8g8cm0GnIQTAkg7izce4OYeBA/m3VTNe64G
+	 u3HbkfnyEKLa8oFqI3MNVY6KzjYkJM8A7u/0wt/hLp9nU3DfFdkXKmKFtfDtKXsnS2w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=gavZopG2;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Vkjwua6E;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A93CE606A321
-	for <virtualization@lists.linux.dev>; Tue, 10 Nov 2026 00:07:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C873606A338
+	for <virtualization@lists.linux.dev>; Tue, 10 Nov 2026 00:10:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=gavZopG2
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56CAB1F008A2;
-	Tue, 10 Nov 2026 00:07:14 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Vkjwua6E
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A1B01F0089F;
+	Tue, 10 Nov 2026 00:10:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794269234;
-	bh=eghenesJj1NDJawE8Z1dFELfKM6yaT30e9CTTiJd6Wo=;
+	s=k20260515; t=1794269437;
+	bh=dzCOZTh3/OVCMrzz3EBQu9tpq3bCsis7APX3xkaqFhY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=gavZopG2XwNIvL/LmWymz2rhGsY1vng/XRGu/3uDnOU/fE7t27HeZdxu8n1uVIkIk
-	 w1WWg4AXQZPL+Zfcjj4Tt8e/6pysZ0yNNdQagZUMOpTOSVT/w0N9En335rPTBTjngX
-	 wSiwdHDa2TzWTFdHaKjxZd92kuc8kMo5JrU06riuYm2CrODo3weaHnuxUzPYaVyaUK
-	 8BEEbUlIkn+/CE1kGQVGOydxWVhC3N+5uA3U+LyLgWWMHjlr1YceuLBxKb1NSTmwEL
-	 bEWk1symK0CBmMgraCKIQZ+HVgzyewlzd/rHow6myzzm0CXa8XhDCHPYxV4i7OFwML
-	 Wxc/MY6HhNasA==
-Message-ID: <sashiko-outbox-205816@kernel.org>
+	b=Vkjwua6EbmH7oD0eELM3wQvkIhmVokUh3zhR9yAJXWnv35NZeMyMTJw72Bi3QYZLG
+	 oZLInHqRXJedcKRPP5b3/M/EWYA+9Uu6Qo01VTDlPHXKwuY/nIwBBR9dB+Lig1kKPl
+	 cUtAbXAZ75KsW2LN3JpMA1E1KHTLoWOa96RFSCHFIBJcsLcnzhEaczbXwoQ1Xz0Q1b
+	 r3bx4BzTYBh/iPwYkKQU5RbhHUul7RUZ7sF6J+qzrzoa3NZTqkFY9eWXfVPOTQ30/R
+	 Xc9Pj3xpSSvcp6s6QEY0wqarHI1ilmtEq9IExll0v6Zvvr9tbNH//zjJSO/gbozbMY
+	 5XLKMe1f2K9eA==
+Message-ID: <sashiko-outbox-205821@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v23 06/14] ALSA: virtio: propagate PCM send failures
- through ACK
+Subject: Re: [PATCH v23 07/14] ALSA: virtio: Recover PCM state after a
+ failed start
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Joonho Lee" <mynameisjune111@gmail.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261109234049.79534-7-mynameisjune111@gmail.com>
+In-Reply-To: <20261109234049.79534-8-mynameisjune111@gmail.com>
 References: <20261109234049.79534-1-mynameisjune111@gmail.com>
- <20261109234049.79534-7-mynameisjune111@gmail.com>
+ <20261109234049.79534-8-mynameisjune111@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 10 Nov 2026 00:07:13 +0000
+Date: Tue, 10 Nov 2026 00:10:36 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,21 +62,34 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> A failed queue submission can strand earlier messages from the same ACK.
-> Restore the failed message length, notify any earlier queued messages,
-> and propagate the failure through the indirect transfer callback. Commit
-> its private cursor only after successful submission.
+> Capture trigger queues I/O messages before PCM_START. If the START
+> message cannot be allocated or sent, transfers may remain queued, and
+> ALSA does not invoke the action undo callback for the failed trigger.
 >=20
-> Keep ACK admission closed across the linked prepare action and publish
-> the prepared state from the new prepare-completion callback. On failure,
-> leave the stream unprepared and reopen admission only after the core
-> reports completion.
+> Mark the stream stopped and disable transfers for every failed START
+> path. Arm runtime->stop_operating so sync_stop releases pending I/O and
+> prevents prepare, hw_params, or START retries until release succeeds.
 >=20
-> Once the PCM core has moved a member to XRUN, return -EBADFD from a
-> later ACK so it does not request a second linked-group XRUN. ACK during
-> prepare remains rejected until the completion callback.
+> Latch a transfer XRUN in both playback and capture, and schedule the
+> existing period worker so a running or draining core stream sees the
+> pointer error. This also retires a failed playback START during drain,
+> where drain-init can already have advanced the core state to DRAINING.
 >=20
-> Fixes: fe981e67568c ("ALSA: virtio: use ack callback")
+> The stopped flag is shared with ACK callbacks that can run without the
+> ALSA stream lock. Protect every stopped access with vss->lock. Read the
+> pending message count under the same lock in open and hw_params. In
+> sync_stop, decide whether RELEASE is needed and mark the stream stopped
+> in one locked transition; leave it stopped when release or draining
+> fails.
+>=20
+> Always cancel elapsed-period work in sync_stop, even when no RELEASE is
+> needed.
+>=20
+> Record the RELEASE obligation after successful PREPARE and clear it as
+> soon as RELEASE succeeds. If the subsequent RX wait fails, retry that
+> wait without submitting RELEASE again.
+>=20
+> Fixes: da76e9f3e43a ("ALSA: virtio: PCM substream operators")
 > Assisted-by: LLM
 > Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
 
@@ -84,5 +97,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261109234049.7953=
-4-1-mynameisjune111@gmail.com?part=3D6
+4-1-mynameisjune111@gmail.com?part=3D7
 
