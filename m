@@ -1,49 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794332407;
-	b=dM2T9f67S1OfT+zDjzvNeTFRBgDcKmJcr4p3YLg2eyPOaalHDIgzB13g4QnwJ63aIj4B
-	 rfmQlaUDc8VSA8YSfoxES0Fc71t5kATFuopdm1eHfrIMf7W6uDV0UfB4ejMLdGFu/4BNa
-	 nF2zYmytTm4qsyLETNMV1l2S/z0eSE6xZIFA9o4vBFzvpE/8G2qEgmTD0tkbfEfxb7nUe
-	 xPvtTx49lSIqDPfpqVd/BQ0qEMFxxcwz5cMhK27FQ+925yDqvJOw5O0WamSbKm7duA/5F
-	 AsYWqZ24tfKPi7Zq7/oBSoZ+iIYU/DSiFKG8WCmxh0f6OGYH9JVqU6RQYebi5veacZQ==
+	t=1794332819;
+	b=ZBIiJnEpAwgquG6WuU0sd0Mu4nEsxL4szRUuAMIOtcNuEIJDaqDk1Tjbv69yhZ3+k7iD
+	 Q8hfKeqwmhG1m/yq+4hiLKRJZWynSvioO1kEjNUoSDRE7ymfOjG+Iz4rEO0lIuuqGez9i
+	 fBKYNIJs4Zp9txRh0rwdQfF4yr28avqp+5GMumIB520Jyw+PQjlxxN8Gfhr0WV542kGfr
+	 ap88dm/BTm86RKUQXaJP3AJIEPGFHgWdU/JdLvv76SugnVbPaf+viITo1vk37ySxDojL5
+	 fveOvqCDG2zHWDs67ZYujdg1OoIQCAAZbaU68zo9n5De+FzbYF6PXbtl/kXKes0GEnw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794332407;
-	h=Received:DKIM-Signature:Received:Content-Type:MIME-Version:
-	 Content-Transfer-Encoding:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc;
-	bh=vDIdWDqCs7bQzZm4Myzs55AdA8xj+ko5T/nZrnXBCKE=;
-	b=G8ayJaZPf3W0ipD8e2ULmoTKXJxqS42mXCOX36GvFXdyVU0Zo6hiAD4cTNNfbPj9JQvl
-	 Ocki7xZslxtQCvfBAyxSV3tiocu3PY23epghK9UfaWgImJko5UXFLP07qxTvXHkRzKVh7
-	 MFs0KcdluXhgrDhwN09qXB4lTN6/hk9RfhqSOEvkcm19DwCq5PhR/9uGvEAG2gkUP3Am4
-	 +VNJs3nCm0LvGuNn7PpnWxBxIZvzSret1a76oXue0FsqKiRDrdMqV+1ZcJnttqCHeLSsF
-	 OHBJx3w3eOC2i+Dp8ccBbUXuSBcifuMqC32D4fAvuz04KcuWNj0BgzdYCUgfiZyqOVg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794332819;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=yvFnNvugq2mYNX7u6LvLolFLh88DRFVKka0rBKunI0o=;
+	b=gP3t/E6H6cvqYzQh/2su6tLLSRX5V73W8kLsbwDtxEDvUXRGOlmqPocS2uyoLBDBEBMz
+	 lBEXv6HzuYoILMrsdyB0n4ASmXLIcMB0ONW829FxnPwIWbHMrjSObT9QzgN24sLkfEdqq
+	 gvvN0XLTALfcuKPyGDldb4l4c003pgv8nQ0UQMQlnqW8z25uc3qz9R7SWW2VzAKw0Lhml
+	 UVvaoQ37tjhHHvtDq3q8szMaHqn92RHPlhkG+iOh8Da1Ylu4lx9p5yX7NaNnR4DEG2rvo
+	 9Kfs4b+BwPFOVnj94H1ediarh1NoCeJ4oTcwKX8QXellNuOUBHNFc6MikMUIkMZCKhg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XnvYMYZ4;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fpNsYCi0;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E490460A5BD4;
-	Tue, 10 Nov 2026 17:40:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59F64606A320;
+	Tue, 10 Nov 2026 17:46:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XnvYMYZ4
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CAE31F00937;
-	Tue, 10 Nov 2026 17:40:06 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fpNsYCi0
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3EF71F0089F;
+	Tue, 10 Nov 2026 17:46:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794332406;
-	bh=vDIdWDqCs7bQzZm4Myzs55AdA8xj+ko5T/nZrnXBCKE=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc;
-	b=XnvYMYZ4G8cIRDuO7q4ftQDGNfQCYbcw4Y0r+Sx9Ury9+EeXu1Ofk80fTxwxNRu7Z
-	 EIT4s+RAXmlsN2Dvpu/tkOpnjC+REH2LhaEaF4gyOki/5LJzMBps6l3RyLf/CYU2El
-	 jLNRFePMY25wEJ1AV+DvvmiJmclMZs7SHlChygHHzsgqpIlH+vhIWBM6osWL+mD89H
-	 9tBXhTdjLEkmP16EpsNPWzCpAwX4BsGLyHQ1yh5I++DR4aCCmziJJcvATJ1iWP2N8g
-	 ud5byP66KBVWAcND/DXN4y2eSfTH56fw8ZUZaZ5+gw16gVE++mJMw0exNIHSUO8aQM
-	 Z88Xri6zAsfYA==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 2111839D6088;
-	Tue, 10 Nov 2026 17:40:06 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=k20260515; t=1794332819;
+	bh=yvFnNvugq2mYNX7u6LvLolFLh88DRFVKka0rBKunI0o=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=fpNsYCi0TCSO8ej6y4MbhTZCTmQepJTFObJLAL0c87HHqVdOoFpOK8BlXhg4gHiX1
+	 lql3rNN8cMa9GuIt2jJ9887qGblOm5rAlKX0k0CT0BGdVGxHXku3aCnus+UixEKLa7
+	 rCK7u9+NLcEohJ7BanBIG96k66A3WZp+kNMRIxLG2WV3Sqxkafn912Bj5igP0scMXj
+	 3dkN5WaM7Ugu+ky0dHd5sZDj2OwES0EeGS+LHC59t3kR6O2NYJBCwlv9sd92HP0tBJ
+	 11l9w4UCpxDFnfsnnZ2nOchISkpm/Fr5ZfI76zkicmYLIpVm9xHZ7dopJ3dCCTVAHj
+	 enIFqKIf/rVEw==
+Message-ID: <sashiko-outbox-207511@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] can: virtio: fix virtqueue use before DRIVER_OK
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Seonghyeon Lim" <forfortuna@naver.com>
+Cc: virtualization@lists.linux.dev, linux-can@vger.kernel.org, "Marc
+ Kleine-Budde" <mkl@pengutronix.de>, "Oliver Hartkopp" <socketcan@hartkopp.net>, "Vincent
+ Mailhol" <mailhol@kernel.org>, "Oleksij Rempel" <o.rempel@pengutronix.de>, "Michael
+ S. Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>
+In-Reply-To: <20261111-virtio-can-ready-v1-1-0b4dd020af0b@naver.com>
+References: <20261111-virtio-can-ready-v1-1-0b4dd020af0b@naver.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 10 Nov 2026 17:46:58 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -52,56 +61,101 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net 1/2] net: pass the XDP action to generic_xdp_tx() for
- tracing
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <179433240494.4112524.1031731452606255276.git-patchwork-notify@kernel.org>
-Date: Tue, 10 Nov 2026 17:40:04 +0000
-References: <20261030114753.185281-1-vladimir.oltean@nxp.com>
-In-Reply-To: <20261030114753.185281-1-vladimir.oltean@nxp.com>
-To: Vladimir Oltean <vladimir.oltean@nxp.com>
-Cc: netdev@vger.kernel.org, andrew+netdev@lunn.ch, davem@davemloft.net,
- edumazet@kernel.org, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
- ast@kernel.org, daniel@iogearbox.net, hawk@kernel.org,
- john.fastabend@gmail.com, sdf@fomichev.me, andrii@kernel.org,
- eddyz87@gmail.com, memxor@gmail.com, martin.lau@linux.dev, song@kernel.org,
- yonghong.song@linux.dev, jolsa@kernel.org, emil@etsalapatis.com,
- ihor.solodrai@linux.dev, kuniyu@google.com, wang.zhan@smartx.com,
- mkarsten@uwaterloo.ca, makita.toshiaki@lab.ntt.co.jp,
- linux-kernel@vger.kernel.org, bpf@vger.kernel.org, mst@redhat.com,
- jasowangio@gmail.com, eperezma@redhat.com, xuanzhuo@linux.alibaba.com,
- virtualization@lists.linux.dev, willemdebruijn.kernel@gmail.com
 
-Hello:
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [High] can: virtio: RX/TX stall if interrupt fires before
+  virtio_can_napi_enable()
+--
 
-This series was applied to netdev/net-next.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
+commit 8c2e9ab878f651e327c76d0ed7de23824865f16e
+Author: Seonghyeon Lim <forfortuna@naver.com>
 
-On Fri, 30 Oct 2026 13:47:52 +0200 you wrote:
-> When generic_xdp_tx() fails to transmit an skb, it reports the drop
-> through trace_xdp_exception() with the action hardcoded to XDP_TX.
-> That was right when generic XDP was added, and XDP_TX was the only
-> caller. Since then, two XDP_REDIRECT paths have started to transmit
-> through generic_xdp_tx() as well:
-> 
-> - xdp_do_generic_redirect(), for a redirect to an ifindex
-> - dev_map_generic_redirect(), for DEVMAP and DEVMAP_HASH redirects,
->   including broadcast
-> 
-> [...]
+can: virtio: fix virtqueue use before DRIVER_OK
 
-Here is the summary with links:
-  - [net,1/2] net: pass the XDP action to generic_xdp_tx() for tracing
-    https://git.kernel.org/netdev/net-next/c/655978fc71fa
-  - [net,2/2] net: validate xmit skbs in generic_xdp_tx()
-    https://git.kernel.org/netdev/net-next/c/67b0cca9ba88
+This commit calls virtio_device_ready() before populating the RX virtqueue
+in virtio_can_probe() and virtio_can_restore() so that virtqueues are not
+notified before DRIVER_OK is set.
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+> diff --git a/drivers/net/can/virtio_can.c b/drivers/net/can/virtio_can.c
+> index f67d0bf09681f..ae35a00b784bd 100644
+> --- a/drivers/net/can/virtio_can.c
+> +++ b/drivers/net/can/virtio_can.c
+> @@ -912,6 +912,9 @@ static int virtio_can_probe(struct virtio_device *vde=
+v)
+>  		err =3D -ENOMEM;
+>  		goto on_failure;
+>  	}
+> +
+> +	virtio_device_ready(vdev);
+> +
+>  	virtio_can_populate_rx_vq(vdev);
+> =20
+>  	err =3D register_virtio_can_dev(dev);
+> @@ -966,6 +969,9 @@ static int __maybe_unused virtio_can_restore(struct v=
+irtio_device *vdev)
+>  		virtio_can_del_vq(vdev);
+>  		return -ENOMEM;
+>  	}
+> +
+> +	virtio_device_ready(vdev);
+> +
+>  	virtio_can_populate_rx_vq(vdev);
+> =20
+>  	if (netif_running(ndev)) {
 
+[Severity: High]
+Can an RX or TX virtqueue interrupt arriving before
+virtio_can_napi_enable() permanently wedge the queue?
 
+virtio_device_ready() unbreaks the virtqueues and sets DRIVER_OK while
+priv->napi and priv->napi_tx are still disabled (NAPI_STATE_SCHED is set).
+In virtio_can_open(), virtio_can_start() then sends
+VIRTIO_CAN_SET_CTRL_MODE_START and sleeps in wait_for_completion() before
+calling virtio_can_napi_enable():
+
+drivers/net/can/virtio_can.c:virtio_can_open() {
+	...
+	err =3D virtio_can_start(ndev);
+	if (err) {
+		close_candev(ndev);
+		return err;
+	}
+
+	virtio_can_napi_enable(priv);
+}
+
+drivers/net/can/virtio_can.c:virtio_can_rx_intr() {
+	struct virtio_can_priv *can_priv =3D vq->vdev->priv;
+
+	virtqueue_disable_cb(vq);
+	napi_schedule(&can_priv->napi);
+}
+
+CPU0                              CPU1 (virtio interrupt)
+virtio_can_restore() / probe()
+  virtio_device_ready(vdev)
+  virtio_can_populate_rx_vq(vdev)
+  virtio_can_open()
+    virtio_can_start()
+      ...
+      wait_for_completion()
+                                  virtio_can_rx_intr()
+                                    virtqueue_disable_cb(vq)
+                                    napi_schedule(&can_priv->napi)
+                                      <no-op: NAPI_STATE_SCHED set>
+    virtio_can_napi_enable()
+      napi_enable(&priv->napi)    <-- clears NAPI_STATE_SCHED;
+                                      vq cb stays disabled
+
+Once napi_enable() clears NAPI_STATE_SCHED without scheduling a poll or
+re-enabling the virtqueue callback, virtio_can_rx_poll() never runs and RX
+is permanently stalled.
+
+Enabling NAPI before virtio_can_start(), or kicking the virtqueues via
+virtqueue_napi_schedule() after napi_enable() as virtio-net does in
+virtnet_napi_do_enable(), would avoid losing the notification.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261111-virtio-can=
+-ready-v1-1-0b4dd020af0b@naver.com?part=3D1
