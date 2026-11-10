@@ -1,81 +1,68 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=111.22.67.139
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=54.254.200.128
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794280884;
-	b=cuM88I7ahFYRuArfYYR5reXap5PuzX+ENgj2Vn7ZOPA/NG4mAptHdbhHtnXs+IwzARSa
-	 nNtpNhV4SitbLE0eDQVjsfG51rnwfjLrYeMMq1EtxPG+ITBy02UlhsOsdgowVvBfV7NGX
-	 m1X4sP37Cf/qzXFf/ERWzHyYhc7lRydbWQJ4E5JPjCQLJeo5y9/MpRVqQAKnS1TDAm5RW
-	 jPgZiIAlAhP3nwm4Y/QZr70bc1/I9gVn0uryLH5LpzyII9KG5W5V3GXAi3a7P3km5bJbn
-	 jTwiGgWEfsPQULRAvm9YeLagKz4VQNj3hAyFc9Zxn4CJ3uRaLHue/xbjseacsemkuDw==
+	t=1794287835;
+	b=hQeUTw7oFYIRJHUYCZvHRcwYxRQyiQ55txVbHahL+T33v3V8w8FmD6o/FcFN0vHdeRhs
+	 FST41/CF3sSMqHEUoWhUwnCIRtirtjAEBmx+npT8hwXANNBIxlZfIfNLWAgQDHnhdaKYK
+	 oI2lUkYOLSYHlwmIbGN5BWmnJ/UkmDhdQrCjltlDYGe1+k99DHloTInMy01RNiiOOk89k
+	 1jNVf9PP81zaRSDDe9IyG1dBZVdxvgLuPZO35u6siuLURl0QvTRDlMBdEHOlF1NCUVZ1d
+	 l5hf//ge0gfKxudpGZMsXexb9vIMOaUfBYGb+ppdGlAw/5hN9zd6pl7F4X5kTn8mdsw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794280884;
-	h=DMARC-Filter:DKIM-Signature:X-RM-TagInfo:X-RM-SPAM-FLAG:Received:
-	 X-RM-TRANSID:X-RM-TagInfo:X-RM-SPAM-FLAG:Received:X-RM-TRANSID:From:
-	 To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding;
-	bh=Iu/jo1GP6S2hOnbceCXpLkMdW9l1lBuKE6wK4rMGL7s=;
-	b=XTsmP4J1nJ60c3mB6rb4ByHm515xJLtlwQ00vwtm1KQ+ezCWequ5oTTFwePI6ubp6UFR
-	 1Py3n/drdnQ1sgHD+cAZZcdy/dnsQ5L2SkSkp5VC/OXvr5j6F3UOh0wjkTYQ52r2dGYEE
-	 ITXfvcCs2B4w5D1TldyyOMfC0aC3NzNPeEkwqHzeNv7b4Ft4gql3iq6Cbp348kzFnIB4E
-	 qaryBe4EjQslALDexyFseVqtWSiM4prOJaQvkVQjhbT34KM1Oe5yNf9tkYN3S/hrbpE1a
-	 /lg21p9uRi8IbjkknNJYWlW7jx/hBfZvWKXbO8SQaKA2ZwIXpazkLl7TXPMO0gHBuCw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794287835;
+	h=DMARC-Filter:DKIM-Signature:X-QQ-mid:X-QQ-Originating-IP:Received:
+	 X-QQ-SSF:X-QQ-GoodBg:X-BIZMAIL-ID:EX-QQ-RecipientCnt:From:To:Cc:
+	 Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding:X-QQ-SENDSIZE:Feedback-ID:X-QQ-XMAILINFO:
+	 X-QQ-XMRINFO:X-QQ-RECHKSPAM;
+	bh=Yv0P3TWiAzWONtWG2ECNG8H4lCa4xc6OHScDZ0+4aCc=;
+	b=f0QlzDffR0TVc/1VnpRR/8QiKK8ZqSfg2MlgPeOvv0o0D/TRhaA7pnUAzWQnRN+Ni3gb
+	 7DJSc46Prxhrb8XG0IP4o3gMawhrxSkAtUa/dow98Lh95IPOoKWj9hgmfP2hkwryHQOEf
+	 55J/k5UYyxFzhib+YmUdI61NP0tB29BRywforhyOpitIvoyBiUGE0g4cp4+zN7fHcdIEp
+	 khQYQrgIjCSqpEnrVmIk8eqoJYaYIK/IXxgc2zD6m/eeOmtlmEZc55/vJ0Fptya6Lvh1z
+	 ZCPOIGho8fA7N1BYdtALZwf8YMwl9k8/SxfSZNjZ/BZQ55JJBzgVvyLYEht6D/mqTAw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=cmss.chinamobile.com;
-	spf=pass smtp.mailfrom=cmss.chinamobile.com;
-	dkim=pass header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.a=rsa-sha256 header.s=default header.b=vtyrBxX3;
-	arc=none smtp.remote-ip=111.22.67.139
-Received: from cmccmta6.chinamobile.com (cmccmta6.chinamobile.com [111.22.67.139])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id EF8BB606A331
-	for <virtualization@lists.linux.dev>; Tue, 10 Nov 2026 03:21:23 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EF8BB606A331
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cmss.chinamobile.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cmss.chinamobile.com
+	dmarc=pass header.from=uniontech.com;
+	spf=pass smtp.mailfrom=uniontech.com;
+	dkim=pass header.d=uniontech.com header.i=@uniontech.com header.a=rsa-sha256 header.s=onoh2408 header.b=p6P+7S4a;
+	arc=none smtp.remote-ip=54.254.200.128
+Received: from smtpbgsg2.qq.com (smtpbgsg2.qq.com [54.254.200.128])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32A4D606A330
+	for <virtualization@lists.linux.dev>; Tue, 10 Nov 2026 05:17:11 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 32A4D606A330
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=uniontech.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.a=rsa-sha256 header.s=default header.b=vtyrBxX3
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cmss.chinamobile.com; s=default; l=0;
-	h=from:subject:message-id:to:cc:mime-version;
-	bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
-	b=vtyrBxX3nBUcwHfcB5JBkuwv5gtB/DTRDFKTqGUq6Gu/IU7LYPokXEW3Gb1RVDuuA+2LtkbJ2kDw6
-	 w810ovi1LNhJlyje+jiO3TbThnEeQB0gHwDlukhHm0dpTD8bjy4U7p2oLtL73uyj7OkSFz2BKm7NXa
-	 lqh1xjS0I6WonSuI=
-X-RM-TagInfo: emlType=0                                       
-X-RM-SPAM-FLAG:00000000
-Received:from spf.mail.chinamobile.com (unknown[10.188.0.87])
-	by rmmx-syy-dmz-app09-12009 (RichMail) with SMTP id 2ee96af28db151c-cf7e2;
-	Tue, 10 Nov 2026 11:21:21 +0800 (CST)
-X-RM-TRANSID:2ee96af28db151c-cf7e2
-X-RM-TagInfo: emlType=0                                       
-X-RM-SPAM-FLAG:00000000
-Received:from openEuler-24.03.03 (unknown[74.82.203.40])
-	by rmsmtp-syy-appsvr08-12008 (RichMail) with SMTP id 2ee86af28daaccd-a499f;
-	Tue, 10 Nov 2026 11:21:21 +0800 (CST)
-X-RM-TRANSID:2ee86af28daaccd-a499f
-From: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowangio@gmail.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@kernel.org>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Jesper Dangaard Brouer <hawk@kernel.org>,
-	John Fastabend <john.fastabend@gmail.com>,
-	Stanislav Fomichev <sdf@fomichev.me>,
-	netdev@vger.kernel.org,
+	dkim=pass (1024-bit key, unprotected) header.d=uniontech.com header.i=@uniontech.com header.a=rsa-sha256 header.s=onoh2408 header.b=p6P+7S4a
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uniontech.com;
+	s=onoh2408; t=1794287821;
+	bh=Yv0P3TWiAzWONtWG2ECNG8H4lCa4xc6OHScDZ0+4aCc=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version;
+	b=p6P+7S4a/rtI0Ax5JVDJTg165W4NPkTC5PFo99HU5CfgqWHxsLR1DoAVyBe/kivJu
+	 EzSLruBoQ7nNBjBEi6LzK9SnHiECUPuNDwrG4BTWW09SZmlmmCgkI8joDMmdkrOoHF
+	 khEnjOBFC5M/BWvNshaRZ3243n1DiKaZ3ufNE4sU=
+X-QQ-mid: esmtpgz10t1794287805t9d703794
+X-QQ-Originating-IP: aIKJNBS3eM61OM3SC3IHGrznIfXqHEw19N6Jpqqjrgg=
+Received: from PEN202512010004 ( [113.57.152.160])
+	by bizesmtp.qq.com (ESMTP) with 
+	id ; Tue, 10 Nov 2026 13:16:43 +0800 (CST)
+X-QQ-SSF: 0000000000000000000000000000000
+X-QQ-GoodBg: 1
+X-BIZMAIL-ID: 10376603232952361344
+EX-QQ-RecipientCnt: 8
+From: raoxu <raoxu@uniontech.com>
+To: mst@redhat.com
+Cc: jasowangio@gmail.com,
+	eperezma@redhat.com,
+	kvm@vger.kernel.org,
 	virtualization@lists.linux.dev,
-	bpf@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net v2 3/3] virtio_net: Keep AF_XDP zero-copy pools bound across suspend
-Date: Tue, 10 Nov 2026 20:21:13 +0900
-Message-ID: <20261110112114.11278-1-yanhaishuang@cmss.chinamobile.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <179422769660.994134.7551261891585249565@kernel.org>
-References: <20261108193845.73621-1-yanhaishuang@cmss.chinamobile.com> <20261108193845.73621-4-yanhaishuang@cmss.chinamobile.com> <179422769660.994134.7551261891585249565@kernel.org>
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	raoxu@uniontech.com
+Subject: [PATCH] vhost/net: Fix receive queue test in busy poll
+Date: Tue, 10 Nov 2026 13:16:42 +0800
+Message-ID: <005FA5F7354482C7+20261110051642.249640-1-raoxu@uniontech.com>
+X-Mailer: git-send-email 2.50.1
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -85,46 +72,58 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-QQ-SENDSIZE: 520
+Feedback-ID: esmtpgz:uniontech.com:qybglogicsvrgz:qybglogicsvrgz6b-0
+X-QQ-XMAILINFO: OKDqGZ+wcdYmN7I/w5u32lU6eKdu1rDL+iRi6TU3+4kma/JDSI7yDCwL
+	s8mdutyqH1o/CPRRqvZQBOc7rwstx6xyYpYSR2kPGE/JiQDZpiAp984By23LA5MzsWoq4Bj
+	VFwr0sBLM9iZeeBX+A+aZk/MCNI1by4iV2JPVb/O1G0N23aY8/79kHjJVgLhmyvXoD71vSc
+	vSb9sbitlgBiF8LLCAVMLj8HwsnHCLIf5n6kmzRJPE2nWhyBWeDGXNJc+QK4F91IvALPFfr
+	KoXx5TfxS7Oq9DdwEM74EHAAia6/1xI4NcJ333aPADvcTZm39Uva35nnj3ZzC8cvisuB/tX
+	EMyVfFTyZ0yiDA3kQKoxWpINHH4W8txW5U22jZF7BWCVr8USId0rdeY4m+gc+uVswmfdLRz
+	SR7MHgCrte3G6P48hyUoOC5aMbytOdJzdMs1g2JJ3R+ja8zN2HfCCP8JdOT2jXoBH2v3fxb
+	Nbk61qenkhFvrliiTb4AzwI3c8FbQ113yIazXkJPtzZHkh21Vwte1s5CMhfc4bI+uw2cNsg
+	vAtVo/qQZEO2wUEp5aP6EhXbkbHm1xVfe4CuAkLIPOqGjr4Z+wjGJHmSZ5waSxm4TciHy5C
+	9Af+FGgjh28jt1EdCC5j+nFiLM5CUPYlii/X2cPjycOZl76XfBd/j5E5grlP/wtIQvmHX+z
+	EGKRlvEMDeHe9uFrLpedkbtvoEx3PQQUgPRwWDtuizLIdFeXuZRjSc1GK8918XKzoMioZ2F
+	m7yjIaO02zskO2tIqveEqZKELJ/vTNesxsVMuPHpmchVc71KGV/yfz9Kgs1hxSq7u8Z17EP
+	+jCAxIofhZPhgQD2SfjhE0dYLHpQ8F8XBVtFYV07eMbmlzLjfQI2UGxMqR/b1tv7oAojpsL
+	u3bWlSp4gj8EUL+K6HnfM3oLg4Uqshn2urZ9CYKVmSYRNvFCeN/LnhY3boeYielYakBErCm
+	3GKyCIfQk7X2z91C4KCQxw9ib3MIddR85yi+EbyQCmPpgCCW3BPg7oC1fI5LHKX/efG3awl
+	41S/T1LKYKydWZUBf684sKJTykkrEc9BqLn7hyemB7cHuM7GEX
+X-QQ-XMRINFO: OD9hHCdaPRBwH5bRRRw8tsiH4UAatJqXfg==
+X-QQ-RECHKSPAM: 0
 
-On Mon, Nov 09, 2026 at 12:34:56PM +0000, netdev-bot+sashiko@kernel.org wrote:
-> - [High] virtnet_xsk_pools_release() unmaps the DMA of a zero-copy pool
->   sitting at a qid >= curr_queue_pairs (left there by removing XDP), but…
-> - [Medium] When virtnet_xsk_pool_attach() fails on restore, the pool
->   stays DMA mapped while rq->xsk_pool stays NULL.
-> - [Medium] If virtnet_xsk_pool_attach() fails during restore,
->   virtnet_xsk_pools_attach() only logs netdev_warn() and the resume…
-> - [Medium] virtnet_xsk_pools_release() is a new writer of AF_XDP driver
->   state (rq->xsk_pool, sq->xsk_pool, rq->xsk_buffs, sq->xsk_hdr) that…
->
-> Pre-existing issues:
-> - [High] This problem wasn't introduced by this patch, but it defeats the
->   patch's cleanup model on the failed-restore path.
+From: Xu Rao <raoxu@uniontech.com>
 
-Thanks, these all hold. sashiko-bot raised the same points in its
-review of this patch.
+sock_has_rx_data() returns a positive result when receive data is
+available. Socket implementations with a peek_len() callback follow
+that convention, but the fallback for sockets without one returns
+skb_queue_empty(), which has the opposite meaning.
 
-The High one and the first Medium have the same cause: once the queues
-are freed on freeze, the patch finds a pool again only through
-xsk_get_pool_from_qid(), which depends on the current queue counts. A
-pool on a queue above curr_queue_pairs can then be unmapped on freeze
-and bound again unmapped later, or not found when it has to be
-unmapped.
+This makes busy polling stop when a raw packet socket has no queued data
+and fail to recognize queued data through the fallback path. Return the
+negated queue-empty result so the fallback matches the callback and its
+callers.
 
-The second Medium is right as well: when the attach fails, the socket
-stays bound but gets no traffic and no error. And the release on freeze
-runs without RTNL, unlike every other writer of that state.
+Signed-off-by: Xu Rao <raoxu@uniontech.com>
+---
+ drivers/vhost/net.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-The failed-restore issue is older, as noted: after a failed
-virtnet_restore_up(), vi->rq and vi->sq are freed while the netdev
-stays registered, and virtnet_close() uses them too. I'd rather keep
-that separate.
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 4570a4ffbab2..10ed2d55ff07 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -538,7 +538,7 @@ static int sock_has_rx_data(struct socket *sock)
+ 	if (sock->ops->peek_len)
+ 		return sock->ops->peek_len(sock);
 
-I'll drop this patch from the series, resend patches 1 and 2 as v3, and
-rework it to keep track of the pools in the driver across suspend
-instead of looking them up by queue id.
+-	return skb_queue_empty(&sock->sk->sk_receive_queue);
++	return !skb_queue_empty(&sock->sk->sk_receive_queue);
+ }
 
-pw-bot: cr
-
+ static void vhost_net_busy_poll_try_queue(struct vhost_net *net,
+--
+2.50.1
 
