@@ -1,98 +1,61 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=185.203.200.13
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794338832;
-	b=zSEQfWg3uONwmx0Q5NnUpKpMYwMmn7gMGivghm3jyArvK7WDrNxBNxi2TADcMi285ltT
-	 nWMaI4WjPHflopDzMniNoN46gLQUG/igul4v6TBF27ExFe7czi+wQx8HtN8vxsGYfN9hz
-	 DQ4gvLQOd+V56lLp/RRMCDlGVud+kigQ8OwWqie4AQ4nD6ZEdtnZtOUcHHHWLKoORxGkb
-	 RevJm4Jarg0Y6sz4MPgHSGxqY3j4DhmJ7189TmBFy4nGzDYsNF7Z2ZeVCATYeBxVuLCGA
-	 i3Y7iQZfmRCzdESx8l4M0nwVsJRm3CPJIs4rGhYfbr200A+5y3L+93QKxOOrZh5ZUGw==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794338832;
-	h=DMARC-Filter:Received:DKIM-Signature:From:To:Cc:Subject:In-Reply-To:
-	 References:User-Agent:Date:Message-ID:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=ODatzweUCW7o26hwhl5kE9FWoziqlEwZz6tErIYcf3Q=;
-	b=dBgrQVsNx4bf8xaTqG6NU2AGF8Z7AvxQmVJSAm1Yl6sChKsKLfeUk+iwavHmYbVdbw0K
-	 mlEh2ENfheAnUJXYir+eOR7XuTwo3uqyOHZM3aKqpsT6pIPzL8cLaNW59zBWKjBSrqtYy
-	 3xkeAHcy98Izvjre5m803/7D+EXGsQA+0z56LE/zLQH65lEmCey0MYu0gvk0Qbrs5FJEC
-	 bTPKH6VfSd2tMIDjTBQH84JWsE0VZ/RYIQ9zd8pbOelEjFG8QU5w7p/+ytXC2fqejBC4K
-	 zjQY6+vZN8rs0KD1QatkELR/r4yvqvENDWeifiy3jsY+m+4GRPNoFWNkQquqNDgCRzw==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=none header.from=pengutronix.de;
-	spf=pass smtp.mailfrom=pengutronix.de;
-	dkim=pass header.d=pengutronix.de header.i=@pengutronix.de header.a=rsa-sha256 header.s=20260414 header.b=axFxc57Y;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=185.203.200.13
-Received: from mx1.white.stw.pengutronix.de (mx1.white.stw.pengutronix.de [185.203.200.13])
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1794339502;
+	b=akZybUYfYzWBWPJRGpsAjeqfmSVNWe/lo/xmnoarZbuqdigkq9rOxbq6hdrls8N/oDQ+
+	 1k8rjELqz4AGTSrziShMs7h9qstTedR4yAwY9tLPAcSCsn4SA+lknZ49JT2o0aKWwMG75
+	 paEyD1NS48LHqK+kk+uliZfQ6y4x5mddP0gQRBk7105MrDZXThzM3zqxakUCJBFXBymn/
+	 j7BpboAhnlXgu+TYiDy7Dlp+s2fsD9XYUrZiX7qbFalxw0Jdx6vSVHCxkizIA2JUlhc0I
+	 JwzOk+ChJDDkdWdtfV9/kpbeGyUxKbT2EuFdQ0vXuwMZfFXFWw31/H3ePZ6yCQRHbvQ==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794339502;
+	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
+	 In-Reply-To:References:X-sashiko-severity:Content-Type:
+	 Content-Transfer-Encoding:MIME-Version;
+	bh=KczWLl7i/PwGJvfx1CK6VpAYZMF7kfOV83kHxwP3sLk=;
+	b=WfDpjaLwul/h63aj82riyDt7tWnQExOcYmH/54OefPMo3RXrpUsh9xAyjWicFRmdFOmj
+	 B4uZdLGy9K6rksv+F9hCohyqCfanneZxNWZLI1k9d2KcxXDymRV7ZSPjDvcHhjQzwXz3N
+	 rzfNY0fvkn/uvYZ1DLv54Db4pphmllzQsnMbD7mwFN1BV20yyuN6HG4vqQmlBIYRtu4Sm
+	 KCT8uppVICCINWAXNBURMqqCaYnNqSMwqac5FZ81csV7HS90KW4cUo1fIzfwpzjfxeWF2
+	 2Wq9VB0AQcIt3kNDXRkyoCaQ+3HBv2a+u77GGNYSVuZtnGszZH58WSf7gG8eN1ZGUpg==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lxoaQN9T;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0D96606A326
-	for <virtualization@lists.linux.dev>; Tue, 10 Nov 2026 19:27:10 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C0D96606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C77C606A320;
+	Tue, 10 Nov 2026 19:38:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=pengutronix.de header.i=@pengutronix.de header.a=rsa-sha256 header.s=20260414 header.b=axFxc57Y
-Received: from ratatoskr.pengutronix.de (unknown [IPv6:2a00:1f:f805:2b01:a03:2f4:308a:7b52])
-	(Authenticated sender: str@pengutronix.de)
-	by mx1.white.stw.pengutronix.de (Postfix) with ESMTPSA id 8BD0E201F43;
-	Tue, 10 Nov 2026 20:27:04 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pengutronix.de;
-	s=20260414; t=1794338824;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ODatzweUCW7o26hwhl5kE9FWoziqlEwZz6tErIYcf3Q=;
-	b=axFxc57YGOskhC2HI2z4xDSvzgCtzuAXY8Knr9qFzsc+a7wrW8VAQx/IsBszC7lven9owS
-	2FfsB78fRdwzNe47fV2HcPaI0iWunzz5ZMUGJc2mr4/dy6FWo8ACnpoMxBeA/6pKKhXJUR
-	QB3+86oOjzX81gKVi130N9q1McuVWktylsu+C1gXCgXIQDDDEPPptbQn6t6JuUcyf5BOE4
-	rKPfn33jjKEZPYEw6ihaClJbFpa9kvhDCCqrhWT9o6YQO3z3EP83rBubBfgXjyfPN2jINo
-	NDFYV+f8O4KudinwcrmPWIyVTtNnn033e6cTBF8QesUYgkucwN+v2YtOz+SXIQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=pengutronix.de;
-	s=20260414; t=1794338824;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ODatzweUCW7o26hwhl5kE9FWoziqlEwZz6tErIYcf3Q=;
-	b=BuwLSFTXEPbgZoXPmMfP847UiDdg7yfDag5qeRedm6DCAisISY+tAM3ib9uJL4DxX+esnL
-	UcBIrds43eOXIbYN7JjoIqbYjk4eKlPgP+FebysRP8HEGfHmg2ycjF2biXZEnolOYSVAE3
-	/i8EdUzhzUue/XFv6aUoSDDK17iwNsGl/uZT11NPJOfp5zNEDiUmqMXI/QET/lFq8S8ys2
-	J+SFA/7woz09hIdZqXi71fQ4Z1jhE7gvLXvkjy3VT7kwq3QamOH+D5JYCJoFx81dbKRNyX
-	SMoAygzG2W/5j1E0sCrtBN7LYbyUmvkphAhjmRkN8Q3ZMh+cFaiyWcpw8Cis7Q==
-ARC-Seal: i=1; s=20260414; d=pengutronix.de; t=1794338824; a=rsa-sha256;
-	cv=none;
-	b=VP+KPQ5a7GMBOJPnXBnWZlwAKh3chavc2oaAqwJmKA6Me6u1CuToWDrd0RMFVCdEPgwjDb
-	WYEG6EhF6UgqsEk7/lKNVmEajmnuzmlhyx3UCrzdBqz/P4M3oU2csBLGv1nzZ1ABCfApN+
-	DA5gGKCqUBokK5qbDEaDBpJlQXjBYs+O/OeqXvmjFBqbEa83bTUcI0vZ+kcU5ZZ726Df6m
-	Awfrcmmy/VJT8poW8tYP3PEU1kmUeLJ/JhMLw9EfHh12unTwm2mxUs4nk8YJOf7XZ4xE47
-	krNeN+kXbw6/OEJauq2nn4qBSTWYxRQhLBig3Y1jGv29PGIe0DOepYTHrmGfXA==
-ARC-Authentication-Results: i=1;
-	ORIGINATING;
-	auth=pass smtp.auth=str@pengutronix.de smtp.mailfrom=s.trumtrar@pengutronix.de
-From: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,  Xuan Zhuo
- <xuanzhuo@linux.alibaba.com>,  "David S. Miller" <davem@davemloft.net>,
-  Jakub Kicinski <kuba@kernel.org>,  Paolo Abeni <pabeni@redhat.com>,
-  Richard Cochran <richardcochran@gmail.com>,  Andrew Lunn
- <andrew+netdev@lunn.ch>,  Eugenio =?utf-8?Q?P=C3=A9rez?=
- <eperezma@redhat.com>,  Jason Wang
- <jasowangio@gmail.com>,  Alexei Starovoitov <ast@kernel.org>,  Daniel
- Borkmann <daniel@iogearbox.net>,  Jesper Dangaard Brouer
- <hawk@kernel.org>,  John Fastabend <john.fastabend@gmail.com>,  Stanislav
- Fomichev <sdf@fomichev.me>,  Eric Dumazet <edumazet@kernel.org>,
-  virtualization@lists.linux.dev,  netdev@vger.kernel.org,
-  linux-kernel@vger.kernel.org,  bpf@vger.kernel.org,  kvm@vger.kernel.org
-Subject: Re: [PATCH RFC v4 5/6] virtio-net: add XDP rx timestamp metadata
-In-Reply-To: <willemdebruijn.kernel.9c17365c41b3@gmail.com>
-References: <20261026-v6-7-topic-virtio-net-ptp-v4-0-008af03cd43b@pengutronix.de>
-	<20261026-v6-7-topic-virtio-net-ptp-v4-5-008af03cd43b@pengutronix.de>
-	<willemdebruijn.kernel.9c17365c41b3@gmail.com>
-User-Agent: mu4e 1.14.3; emacs 31.1
-Date: Tue, 10 Nov 2026 20:27:04 +0100
-Message-ID: <87pkwczdvb.fsf@pengutronix.de>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lxoaQN9T
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54A4D1F0089F;
+	Tue, 10 Nov 2026 19:38:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794339502;
+	bh=KczWLl7i/PwGJvfx1CK6VpAYZMF7kfOV83kHxwP3sLk=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References;
+	b=lxoaQN9TYqSuvgxCFZz3LSglVjemYZhIgKDNOP/T50rwDRVKZ1F79PJah9ttRYX+2
+	 Xz4v63IJJxydmqcn9OMmvyqdyT2sjrzRV/K9ntoeRhOHq4WCrE0LDIQPZMsvixZBDV
+	 qQ1BDqMyLTpgJcxpYT4MexijlvUa68mVMi7SqtgIF4J/KlZVFhLCnljz3rtiops3jO
+	 TtnLZ0w3APDHbtMt9QJy43BdItg1xgkVYw1Y5KKAg8wZxvniC8PJJD5nHJoOy8Z+MW
+	 tgr++Iq0nmEYnhDrUgG3JKj2185zk6eT0I1FYDumVf/j3h2Ts3SW+VglqG9P84NTt7
+	 Bp5kM3wEM3CPg==
+Subject: Re: [PATCH net v5 1/3] net: virtio: account for the VLAN tag in UDP
+ tunnel GSO offsets
+From: netdev-bot+sashiko@kernel.org
+To: edumazet@kernel.org
+Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
+ netdev@vger.kernel.org, horms@kernel.org, willemb@google.com, mst@redhat.com,
+ jasowangio@gmail.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+ hassansultan@google.com, virtualization@lists.linux.dev,
+ sashiko-bot@kernel.org
+Date: Tue, 10 Nov 2026 19:38:20 +0000
+Message-ID: <179433950084.994134.15100186606737698605@kernel.org>
+In-Reply-To: <20261109163507.3102091-2-edumazet@kernel.org>
+References: <20261109163507.3102091-2-edumazet@kernel.org>
+X-sashiko-severity: High
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -102,99 +65,115 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
 
-On 2026-11-01 at 10:12 -05, Willem de Bruijn <willemdebruijn.kernel@gmail.c=
-om> wrote:
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue(s) to consider.
 
-> Steffen Trumtrar wrote:
-> > For the skb, the timestamp is read from the header before the XDP
-> > program runs, so XDP_PASS keeps it even if the program changes the
-> > packet. XDP therefore works with rx timestamping enabled.
-> >=20
-> > Add xmo_rx_timestamp so XDP programs can read the timestamp with
-> > bpf_xdp_metadata_rx_timestamp(). It returns -ENODATA if timestamping
-> > is not enabled or the device did not timestamp the packet. Install the
-> > metadata ops also if only VIRTIO_NET_F_RX_TSTAMP is negotiated;
-> > rx_hash returns -ENODATA then.
-> >=20
-> > Like virtnet_xdp_rx_hash(), the callback finds the header relative to
-> > xdp->data, so it has to be called before bpf_xdp_adjust_head().
-> >=20
-> > Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-> > Assisted-by: Claude:claude-opus-5-5
-> > ---
-> >  drivers/net/virtio_net.c | 26 ++++++++++++++++++++++++++
-> >  1 file changed, 26 insertions(+)
-> >=20
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index 23af10c613b48..e79b65653fad7 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -6848,8 +6848,30 @@ static int virtnet_xdp_rx_hash(const struct xdp_=
-md *_ctx, u32 *hash,
-> >  	return 0;
-> >  }
-> >=20=20
-> > +static int virtnet_xdp_rx_timestamp(const struct xdp_md *_ctx, u64 *ti=
-mestamp)
-> > +{
-> > +	const struct xdp_buff *xdp =3D (void *)_ctx;
-> > +	const struct virtio_net_common_hdr *hdr;
-> > +	struct virtnet_info *vi;
-> > +	u64 tstamp;
-> > +
-> > +	vi =3D netdev_priv(xdp->rxq->dev);
-> > +	if (!READ_ONCE(vi->hwts_rx_en))
-> > +		return -ENODATA;
-> > +
-> > +	hdr =3D (const struct virtio_net_common_hdr *)(xdp->data - vi->hdr_le=
-n);
->=20
->     Reading `hdr->tstamp` in place from `xdp->data - vi->hdr_len` violate=
-s the XDP
->     metadata area contract (`Documentation/networking/xdp-rx-metadata.rst=
-`: drivers
->     must copy device-reserved metadata out of `[data_hard_start, data)` b=
-efore
->     presenting the frame to XDP) and breaks standard XDP metadata consume=
-rs:
->     - `hdr->tstamp` sits at `[xdp->data - 8, xdp->data)`. Standard XDP pr=
-ograms=E2=80=94such
->       as `tools/testing/selftests/bpf/progs/xdp_hw_metadata.c`=E2=80=94ca=
-ll
->       `bpf_xdp_adjust_meta(ctx, -(int)sizeof(struct xdp_meta))` first, in=
-itialize
->       fields in `meta` (e.g. `meta->hint_valid =3D 0` at `[xdp->data - 4,=
- xdp->data)`),
->       and only then call `bpf_xdp_metadata_rx_timestamp(ctx, &meta->rx_ti=
-mestamp)`.
->       Initializing `meta` overwrites `hdr->tstamp` (and `hdr->hash_v1_hdr=
-`) before
->       this kfunc runs.
->     - Calling `bpf_xdp_adjust_head()` before reading metadata also shifts=
- `xdp->data`,
->       reading arbitrary bytes at `xdp->data - vi->hdr_len`.
->=20
->     Wrap `struct xdp_buff` in a driver struct on the stack (`container_of=
-`, and in
->     `struct xdp_buff_xsk`'s `cb` verified with `XSK_CHECK_PRIV_TYPE()` fo=
-r AF_XDP,
->     matching `gve`/`igc`/`ice`/`mlx5`) and stash `tstamp` (already extrac=
-ted in
->     `receive_buf()` and `virtnet_receive_xsk_buf()` before XDP runs) and =
-the hash
->     fields before `bpf_prog_run_xdp()`.
+Critical: 0 · High: 1 · Medium: 0 · Low: 0
 
-Agreed, Sashiko complained about the same thing. I'll stash the
-timestamp in a wrapper around xdp_buff before the program runs.
+If you believe none of the issues are legitimate, please reply to each
+issue of Medium severity or higher and explain why the AI is wrong.
+If any of them are legitimate and you plan to respin, please let patchwork
+know by including "pw-bot: cr" as a separate line at the end of your reply
+(one such reply per series is enough).
 
+- [High] virtio_net_hdr_tnl_from_skb() (include/linux/virtio_net.h)
+  chooses the outer-family GSO bit with `if (skb->protocol ==…
 
-Steffen
+--
 
---=20
-Pengutronix e.K.                | Dipl.-Inform. Steffen Trumtrar |
-Steuerwalder Str. 21            | https://www.pengutronix.de/    |
-31137 Hildesheim, Germany       | Phone: +49-5121-206917-0       |
-Amtsgericht Hildesheim, HRA 2686| Fax:   +49-5121-206917-5555    |
+net: virtio: account for the VLAN tag in UDP tunnel GSO offsets
+
+This commit adds vlan_hlen to inner_nh_offset and outer_th_offset in
+virtio_net_hdr_tnl_from_skb(), the same way virtio_net_hdr_from_skb()
+already adjusts csum_start. It targets the case where tun_put_user()
+inserts a hwaccel VLAN tag into the frame, which leaves both tunnel
+offsets 4 bytes short.
+
+Closes: https://lore.kernel.org/netdev/179421814766.994134.3669228181251158303@kernel.org/
+
+> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+> index d6466f96cdd00..ab44342cf09f7 100644
+> --- a/include/linux/virtio_net.h
+> +++ b/include/linux/virtio_net.h
+> @@ -461,8 +461,11 @@ virtio_net_hdr_tnl_from_skb(const struct sk_buff *skb,
+>  	if (skb_shinfo(skb)->gso_type & SKB_GSO_UDP_TUNNEL_CSUM)
+>  		hdr->flags |= VIRTIO_NET_HDR_F_UDP_TUNNEL_CSUM;
+>  
+> -	inner_nh = skb->inner_network_header - skb_headroom(skb);
+> -	outer_th = skb->transport_header - skb_headroom(skb);
+> +	/* Like csum_start, the offsets must account for a VLAN tag
+> +	 * the caller inserts in the frame.
+> +	 */
+> +	inner_nh = skb->inner_network_header - skb_headroom(skb) + vlan_hlen;
+> +	outer_th = skb->transport_header - skb_headroom(skb) + vlan_hlen;
+
+[Severity: High]
+This fixes the hwaccel case. There, vlan_hlen is VLAN_HLEN and
+skb->protocol still holds the real L3 protocol. What happens when the
+skb carries its VLAN tag inside the packet data?
+
+Just above this hunk, the outer family comes from skb->protocol:
+
+include/linux/virtio_net.h:virtio_net_hdr_tnl_from_skb() {
+    ...
+	if (skb->protocol == htons(ETH_P_IPV6))
+		hdr->gso_type |= VIRTIO_NET_HDR_GSO_UDP_TUNNEL_IPV6;
+	else
+		hdr->gso_type |= VIRTIO_NET_HDR_GSO_UDP_TUNNEL_IPV4;
+    ...
+}
+
+For an in-band tagged frame, vlan_insert_tag_set_proto() has already set
+skb->protocol to ETH_P_8021Q or ETH_P_8021AD. Wouldn't an IPv6 outer
+header then be reported as VIRTIO_NET_HDR_GSO_UDP_TUNNEL_IPV4?
+
+The commit message says:
+
+    virtio_net passes vlan_hlen = 0 and is not affected.
+
+virtio_net has no NETIF_F_HW_VLAN_CTAG_TX, so validate_xmit_vlan() pushes
+every tag into the data:
+
+net/core/dev.c:validate_xmit_vlan() {
+	if (skb_vlan_tag_present(skb) &&
+	    !vlan_hw_offload_capable(features, skb->vlan_proto))
+		skb = __vlan_hwaccel_push_inside(skb);
+    ...
+}
+
+Its vlan_features and hw_enc_features still include
+NETIF_F_GSO_UDP_TUNNEL. Take a VXLAN or Geneve device over an IPv6
+underlay on a VLAN subinterface: it sends unsegmented skbs with
+skb->protocol == ETH_P_8021Q into
+xmit_skb()->virtio_net_hdr_tnl_from_skb(). Is virtio_net really
+unaffected in that case?
+
+tun seems to reach the same path in three cases: ethtool -K tapX txvlan
+off, QinQ (outer tag in hwaccel, inner tag in the data), and a vlan
+device created with reorder_hdr off.
+
+Before this series, a Linux receiver used this bit only to compute a
+looser outer_l3min, so the wrong value did no harm. Later in the series,
+"net: virtio: validate outer protocol of UDP tunnel GSO packets" adds
+virtio_net_tnl_offsets_ok(). That function walks the VLAN tags and
+rejects the mismatch:
+
+	if (!virtio_net_l3_start(skb, has_eth, &nhoff, &proto))
+		return false;
+	if (outer_isv6 != (proto == htons(ETH_P_IPV6)))
+		return false;
+
+Once that check is in place, will tun_get_user(), tun_xdp_one() and
+virtnet_receive_done() drop every VLAN tagged UDP tunnel GSO packet with
+an IPv6 outer header from these senders?
+
+Could the outer family be taken from vlan_get_protocol(skb) here instead
+of skb->protocol?
+
+>  	vhdr->inner_nh_offset = cpu_to_le16(inner_nh);
+>  	vhdr->outer_th_offset = cpu_to_le16(outer_th);
+>  	return 0;
+
+-- 
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261109163507.3102091-1-edumazet%40kernel.org
