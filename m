@@ -1,58 +1,77 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=90.155.50.34
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794332819;
-	b=ZBIiJnEpAwgquG6WuU0sd0Mu4nEsxL4szRUuAMIOtcNuEIJDaqDk1Tjbv69yhZ3+k7iD
-	 Q8hfKeqwmhG1m/yq+4hiLKRJZWynSvioO1kEjNUoSDRE7ymfOjG+Iz4rEO0lIuuqGez9i
-	 fBKYNIJs4Zp9txRh0rwdQfF4yr28avqp+5GMumIB520Jyw+PQjlxxN8Gfhr0WV542kGfr
-	 ap88dm/BTm86RKUQXaJP3AJIEPGFHgWdU/JdLvv76SugnVbPaf+viITo1vk37ySxDojL5
-	 fveOvqCDG2zHWDs67ZYujdg1OoIQCAAZbaU68zo9n5De+FzbYF6PXbtl/kXKes0GEnw==
+	t=1794338381;
+	b=YAAidrFI/Oqw5I0Bz0G0peH/oXSGihWhKtOhTqQbuUGVo4NHWg9cHLQujJi2e51Wv+V7
+	 HeuwYkbBQIlpYrDpwFAXot3GyI1D1oPz493Ohg457xHVXmpTobc5q3B3M5eUfK1/hHRlj
+	 a1luZu9qcv6HowpYs4U6k8/9gqWU8AE2ogaGIfEfQYrIRV1t+uV96DS5Qu35BE3N10xbX
+	 0ElfV1/GEMpdFxdYGvIzgishp05KTnotIbPpAY/uHl1pVYRLXQIh8y6dG0kgc3WKUcWO+
+	 x1xW3O6s+RkXTC87tkEBT6kKHwVAj/utu+uWwiYJgZj+ESVMSPFEqJT+k4sjRWxxh+Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794332819;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=yvFnNvugq2mYNX7u6LvLolFLh88DRFVKka0rBKunI0o=;
-	b=gP3t/E6H6cvqYzQh/2su6tLLSRX5V73W8kLsbwDtxEDvUXRGOlmqPocS2uyoLBDBEBMz
-	 lBEXv6HzuYoILMrsdyB0n4ASmXLIcMB0ONW829FxnPwIWbHMrjSObT9QzgN24sLkfEdqq
-	 gvvN0XLTALfcuKPyGDldb4l4c003pgv8nQ0UQMQlnqW8z25uc3qz9R7SWW2VzAKw0Lhml
-	 UVvaoQ37tjhHHvtDq3q8szMaHqn92RHPlhkG+iOh8Da1Ylu4lx9p5yX7NaNnR4DEG2rvo
-	 9Kfs4b+BwPFOVnj94H1ediarh1NoCeJ4oTcwKX8QXellNuOUBHNFc6MikMUIkMZCKhg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794338381;
+	h=DMARC-Filter:DKIM-Signature:Received:Date:From:To:Cc:Subject:
+	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
+	 In-Reply-To;
+	bh=lgBsX/4ajBlOSJuEQTW3U4syAbk3rWHkGnOmGP2zj/M=;
+	b=Ih/q6wIGBNQB1xvNeq/XPmkfeVxKmoDjlcSQGZrqagC91EbQPzg3hRjQpOpnHlvqk16q
+	 wJCfBosWJQmpz7T1odgjKVoyGpep2WgnAn17NIaFl2p4sKqCC9XS/2T/2Axy7glpUuQ1g
+	 mYl9AEVYoa312z5Di5y0DGfy6H+FstgUkR3Eq4WZoix0AXSC8rfGu9/1AUxENMOGjy59n
+	 pdReKri4+5ET5J4kB6D0OglxgK2bk1muicGNsEkk4Z3OylnFrSPbqU+SBVeRYJ3hmEyJW
+	 xzUz2m+Z7DNRdrg0XdNWAiNKikNEFI31Urvfa7vBbkSkj/Gy7JzMv9c4VlMNr93CF/A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fpNsYCi0;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=infradead.org;
+	spf=pass smtp.mailfrom=infradead.org;
+	dkim=pass header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=b8wcirio;
+	arc=none smtp.remote-ip=90.155.50.34
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59F64606A320;
-	Tue, 10 Nov 2026 17:46:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A848A606A320;
+	Tue, 10 Nov 2026 19:19:40 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A848A606A320
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fpNsYCi0
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3EF71F0089F;
-	Tue, 10 Nov 2026 17:46:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794332819;
-	bh=yvFnNvugq2mYNX7u6LvLolFLh88DRFVKka0rBKunI0o=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=fpNsYCi0TCSO8ej6y4MbhTZCTmQepJTFObJLAL0c87HHqVdOoFpOK8BlXhg4gHiX1
-	 lql3rNN8cMa9GuIt2jJ9887qGblOm5rAlKX0k0CT0BGdVGxHXku3aCnus+UixEKLa7
-	 rCK7u9+NLcEohJ7BanBIG96k66A3WZp+kNMRIxLG2WV3Sqxkafn912Bj5igP0scMXj
-	 3dkN5WaM7Ugu+ky0dHd5sZDj2OwES0EeGS+LHC59t3kR6O2NYJBCwlv9sd92HP0tBJ
-	 11l9w4UCpxDFnfsnnZ2nOchISkpm/Fr5ZfI76zkicmYLIpVm9xHZ7dopJ3dCCTVAHj
-	 enIFqKIf/rVEw==
-Message-ID: <sashiko-outbox-207511@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] can: virtio: fix virtqueue use before DRIVER_OK
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Seonghyeon Lim" <forfortuna@naver.com>
-Cc: virtualization@lists.linux.dev, linux-can@vger.kernel.org, "Marc
- Kleine-Budde" <mkl@pengutronix.de>, "Oliver Hartkopp" <socketcan@hartkopp.net>, "Vincent
- Mailhol" <mailhol@kernel.org>, "Oleksij Rempel" <o.rempel@pengutronix.de>, "Michael
- S. Tsirkin" <mst@redhat.com>, "Eugenio Perez" <eperezma@redhat.com>
-In-Reply-To: <20261111-virtio-can-ready-v1-1-0b4dd020af0b@naver.com>
-References: <20261111-virtio-can-ready-v1-1-0b4dd020af0b@naver.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 10 Nov 2026 17:46:58 +0000
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=b8wcirio
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=lgBsX/4ajBlOSJuEQTW3U4syAbk3rWHkGnOmGP2zj/M=; b=b8wcirioktk1V+I6cLxgnytfHt
+	s+1gNzt+oNaj/8v1dB/y2ooHBs+sOIEHLV1guXHLK59Y0ipc+WH3YGXTdpmoCXAVaPIlKaFOebP9x
+	Q5IjU/RAw03kchBuA4YhIuHn67fv4DvrG7GM8mSEoFF6gG8Ec3W2gJu2wrjCdEdxI6RsFxbL/xc8a
+	rV8WT7MV79m+BKLbPEao/T/+olEtQaSWrcoxh4kWVD6r5loEe6lhcQZCaufTxfC9qjGpluQcQn8/D
+	cRSHrQc9aTr9kcCKqogmnDRYf/CTOej2gLRp010jpVxxjtaJOi3Fc/5efWuKRC+T0KSc9Jq8nypQT
+	BOKCuF3A==;
+Received: from willy by casper.infradead.org with local (Exim 4.100.1 #2 (Red Hat Linux))
+	id 1xQrNT-00000000PMy-0Ax1;
+	Tue, 10 Nov 2026 19:19:31 +0000
+Date: Tue, 10 Nov 2026 19:19:30 +0000
+From: Matthew Wilcox <willy@infradead.org>
+To: "Kiryl Shutsemau (Meta)" <kas@kernel.org>
+Cc: Christian Brauner <brauner@kernel.org>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Miklos Szeredi <miklos@szeredi.hu>, Amit Shah <amit@kernel.org>,
+	Jan Kara <jack@suse.cz>,
+	Linus Torvalds <torvalds@linux-foundation.org>,
+	"David Hildenbrand (Arm)" <david@kernel.org>,
+	Zi Yan <ziy@nvidia.com>, Bernd Schubert <bschubert@ddn.com>,
+	Hugh Dickins <hughd@google.com>,
+	Baolin Wang <baolin.wang@linux.alibaba.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@kernel.org>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>, linux-fsdevel@vger.kernel.org,
+	fuse-devel@lists.linux.dev, virtualization@lists.linux.dev,
+	netdev@vger.kernel.org, linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org, kernel-team@meta.com
+Subject: Re: [PATCH 1/4] virtio_console: copy pipe buffers in splice_write()
+Message-ID: <avNuQqLf9CG9dSsE@casper.infradead.org>
+References: <20261110145241.536019-1-kas@kernel.org>
+ <20261110145241.536019-2-kas@kernel.org>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -61,101 +80,32 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261110145241.536019-2-kas@kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [High] can: virtio: RX/TX stall if interrupt fires before
-  virtio_can_napi_enable()
---
+On Tue, Nov 10, 2026 at 02:52:36PM +0000, Kiryl Shutsemau (Meta) wrote:
+> +	page = alloc_page(GFP_KERNEL);
+> +	if (!page)
+> +		return -ENOMEM;
+>  
+> +	offset = sd->pos & ~PAGE_MASK;
+>  
+> +	len = sd->len;
+> +	if (len + offset > PAGE_SIZE)
+> +		len = PAGE_SIZE - offset;
+>  
+> +	src = kmap_local_page(buf->page);
+> +	memcpy(page_address(page) + offset, src + buf->offset, len);
+> +	kunmap_local(src);
 
-commit 8c2e9ab878f651e327c76d0ed7de23824865f16e
-Author: Seonghyeon Lim <forfortuna@naver.com>
+	memcpy_from_page(page_address(page) + offset, buf->page, buf->offset,
+			len);
 
-can: virtio: fix virtqueue use before DRIVER_OK
-
-This commit calls virtio_device_ready() before populating the RX virtqueue
-in virtio_can_probe() and virtio_can_restore() so that virtqueues are not
-notified before DRIVER_OK is set.
-
-> diff --git a/drivers/net/can/virtio_can.c b/drivers/net/can/virtio_can.c
-> index f67d0bf09681f..ae35a00b784bd 100644
-> --- a/drivers/net/can/virtio_can.c
-> +++ b/drivers/net/can/virtio_can.c
-> @@ -912,6 +912,9 @@ static int virtio_can_probe(struct virtio_device *vde=
-v)
->  		err =3D -ENOMEM;
->  		goto on_failure;
->  	}
-> +
-> +	virtio_device_ready(vdev);
-> +
->  	virtio_can_populate_rx_vq(vdev);
-> =20
->  	err =3D register_virtio_can_dev(dev);
-> @@ -966,6 +969,9 @@ static int __maybe_unused virtio_can_restore(struct v=
-irtio_device *vdev)
->  		virtio_can_del_vq(vdev);
->  		return -ENOMEM;
->  	}
-> +
-> +	virtio_device_ready(vdev);
-> +
->  	virtio_can_populate_rx_vq(vdev);
-> =20
->  	if (netif_running(ndev)) {
-
-[Severity: High]
-Can an RX or TX virtqueue interrupt arriving before
-virtio_can_napi_enable() permanently wedge the queue?
-
-virtio_device_ready() unbreaks the virtqueues and sets DRIVER_OK while
-priv->napi and priv->napi_tx are still disabled (NAPI_STATE_SCHED is set).
-In virtio_can_open(), virtio_can_start() then sends
-VIRTIO_CAN_SET_CTRL_MODE_START and sleeps in wait_for_completion() before
-calling virtio_can_napi_enable():
-
-drivers/net/can/virtio_can.c:virtio_can_open() {
-	...
-	err =3D virtio_can_start(ndev);
-	if (err) {
-		close_candev(ndev);
-		return err;
-	}
-
-	virtio_can_napi_enable(priv);
-}
-
-drivers/net/can/virtio_can.c:virtio_can_rx_intr() {
-	struct virtio_can_priv *can_priv =3D vq->vdev->priv;
-
-	virtqueue_disable_cb(vq);
-	napi_schedule(&can_priv->napi);
-}
-
-CPU0                              CPU1 (virtio interrupt)
-virtio_can_restore() / probe()
-  virtio_device_ready(vdev)
-  virtio_can_populate_rx_vq(vdev)
-  virtio_can_open()
-    virtio_can_start()
-      ...
-      wait_for_completion()
-                                  virtio_can_rx_intr()
-                                    virtqueue_disable_cb(vq)
-                                    napi_schedule(&can_priv->napi)
-                                      <no-op: NAPI_STATE_SCHED set>
-    virtio_can_napi_enable()
-      napi_enable(&priv->napi)    <-- clears NAPI_STATE_SCHED;
-                                      vq cb stays disabled
-
-Once napi_enable() clears NAPI_STATE_SCHED without scheduling a poll or
-re-enabling the virtqueue callback, virtio_can_rx_poll() never runs and RX
-is permanently stalled.
-
-Enabling NAPI before virtio_can_start(), or kicking the virtqueues via
-virtqueue_napi_schedule() after napi_enable() as virtio-net does in
-virtnet_napi_do_enable(), would avoid losing the notification.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261111-virtio-can=
--ready-v1-1-0b4dd020af0b@naver.com?part=3D1
+> +	sg_set_page(&sgl->sg[sgl->n], page, len, offset);
+>  	sgl->n++;
+>  	sgl->len += len;
+>  
+>  	return len;
+>  }
