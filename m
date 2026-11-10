@@ -1,68 +1,78 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=54.254.200.128
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=111.22.67.139
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794287835;
-	b=hQeUTw7oFYIRJHUYCZvHRcwYxRQyiQ55txVbHahL+T33v3V8w8FmD6o/FcFN0vHdeRhs
-	 FST41/CF3sSMqHEUoWhUwnCIRtirtjAEBmx+npT8hwXANNBIxlZfIfNLWAgQDHnhdaKYK
-	 oI2lUkYOLSYHlwmIbGN5BWmnJ/UkmDhdQrCjltlDYGe1+k99DHloTInMy01RNiiOOk89k
-	 1jNVf9PP81zaRSDDe9IyG1dBZVdxvgLuPZO35u6siuLURl0QvTRDlMBdEHOlF1NCUVZ1d
-	 l5hf//ge0gfKxudpGZMsXexb9vIMOaUfBYGb+ppdGlAw/5hN9zd6pl7F4X5kTn8mdsw==
+	t=1794296188;
+	b=wcsJ6geq3inGychjCD3wyE+fSg1gLQh3VSv8S7TU8QOPUY7vYq9Zjh2iviFigjJMvV+6
+	 ot/wwfeMIIrgCIV52Tm+5Qf4F5kJJemNd6ta8PtNPHh/YXsWe5cKEoO4XXU1UpPW5WeMT
+	 PI3MUdOIg1dAnrvF240SKpExPb2qJ4VRifLK0pCehhiP9+7Ix510XG0d5PTO3fTG6EJg2
+	 ky6En0vNflm9p5uxjlwV8EJg6cjDGzi+Prv7IsUsmR7TWYKAsTPaSc3l93gHsFowS1VrH
+	 3vWp4znFigos0NfIWC481taAAwZ1V5+Jl8BwTRjMCPuyIO6HnhDyxa1PVsoEgCFM7yw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794287835;
-	h=DMARC-Filter:DKIM-Signature:X-QQ-mid:X-QQ-Originating-IP:Received:
-	 X-QQ-SSF:X-QQ-GoodBg:X-BIZMAIL-ID:EX-QQ-RecipientCnt:From:To:Cc:
-	 Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding:X-QQ-SENDSIZE:Feedback-ID:X-QQ-XMAILINFO:
-	 X-QQ-XMRINFO:X-QQ-RECHKSPAM;
-	bh=Yv0P3TWiAzWONtWG2ECNG8H4lCa4xc6OHScDZ0+4aCc=;
-	b=f0QlzDffR0TVc/1VnpRR/8QiKK8ZqSfg2MlgPeOvv0o0D/TRhaA7pnUAzWQnRN+Ni3gb
-	 7DJSc46Prxhrb8XG0IP4o3gMawhrxSkAtUa/dow98Lh95IPOoKWj9hgmfP2hkwryHQOEf
-	 55J/k5UYyxFzhib+YmUdI61NP0tB29BRywforhyOpitIvoyBiUGE0g4cp4+zN7fHcdIEp
-	 khQYQrgIjCSqpEnrVmIk8eqoJYaYIK/IXxgc2zD6m/eeOmtlmEZc55/vJ0Fptya6Lvh1z
-	 ZCPOIGho8fA7N1BYdtALZwf8YMwl9k8/SxfSZNjZ/BZQ55JJBzgVvyLYEht6D/mqTAw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794296188;
+	h=DMARC-Filter:DKIM-Signature:X-RM-TagInfo:X-RM-SPAM-FLAG:Received:
+	 X-RM-TRANSID:X-RM-TagInfo:X-RM-SPAM-FLAG:Received:X-RM-TRANSID:From:
+	 To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=cFd6ezi/lAlBtvDnXCqb/PVYufkJTh2+r/D5VNJo2rw=;
+	b=Ytn6mFlQIuN3jgut+5Pwb+1tp0QQemPFwKioGDduSsksQdrQ9J/VxiQ/M7AEXCwZaqWf
+	 gsvGOnJn1RHSJZUG3aQFhwH+Ryzj6YeLNBUN7mHHrb26Z2UoFprpjllGMEspZ2vqrcORf
+	 QObfgXmG2wTP1CiAUthzt5ceSA5ygh2Tx+LWdqMCDWX6nltJ7mTi/W5FdZVCM1HWmC9Qg
+	 FPPIEJg715WKe7rLMGRDmaElHYpU6WP/Aj8EhIYChEFuv6zWFVIQcmCDO8QOn/7clhCJX
+	 GVOvlMaq1okvTAYdVA9uJXmfQ4DHWjVE1aF1LhyqgYBXjEUmCJjU34dqauvk8axCWmg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=uniontech.com;
-	spf=pass smtp.mailfrom=uniontech.com;
-	dkim=pass header.d=uniontech.com header.i=@uniontech.com header.a=rsa-sha256 header.s=onoh2408 header.b=p6P+7S4a;
-	arc=none smtp.remote-ip=54.254.200.128
-Received: from smtpbgsg2.qq.com (smtpbgsg2.qq.com [54.254.200.128])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32A4D606A330
-	for <virtualization@lists.linux.dev>; Tue, 10 Nov 2026 05:17:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 32A4D606A330
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=uniontech.com
+	dmarc=pass header.from=cmss.chinamobile.com;
+	spf=pass smtp.mailfrom=cmss.chinamobile.com;
+	dkim=pass header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.a=rsa-sha256 header.s=default header.b=LfTc7lZL;
+	arc=none smtp.remote-ip=111.22.67.139
+Received: from cmccmta6.chinamobile.com (cmccmta6.chinamobile.com [111.22.67.139])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 9C75A606A32A
+	for <virtualization@lists.linux.dev>; Tue, 10 Nov 2026 07:36:27 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9C75A606A32A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cmss.chinamobile.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cmss.chinamobile.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=uniontech.com header.i=@uniontech.com header.a=rsa-sha256 header.s=onoh2408 header.b=p6P+7S4a
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uniontech.com;
-	s=onoh2408; t=1794287821;
-	bh=Yv0P3TWiAzWONtWG2ECNG8H4lCa4xc6OHScDZ0+4aCc=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version;
-	b=p6P+7S4a/rtI0Ax5JVDJTg165W4NPkTC5PFo99HU5CfgqWHxsLR1DoAVyBe/kivJu
-	 EzSLruBoQ7nNBjBEi6LzK9SnHiECUPuNDwrG4BTWW09SZmlmmCgkI8joDMmdkrOoHF
-	 khEnjOBFC5M/BWvNshaRZ3243n1DiKaZ3ufNE4sU=
-X-QQ-mid: esmtpgz10t1794287805t9d703794
-X-QQ-Originating-IP: aIKJNBS3eM61OM3SC3IHGrznIfXqHEw19N6Jpqqjrgg=
-Received: from PEN202512010004 ( [113.57.152.160])
-	by bizesmtp.qq.com (ESMTP) with 
-	id ; Tue, 10 Nov 2026 13:16:43 +0800 (CST)
-X-QQ-SSF: 0000000000000000000000000000000
-X-QQ-GoodBg: 1
-X-BIZMAIL-ID: 10376603232952361344
-EX-QQ-RecipientCnt: 8
-From: raoxu <raoxu@uniontech.com>
-To: mst@redhat.com
-Cc: jasowangio@gmail.com,
-	eperezma@redhat.com,
-	kvm@vger.kernel.org,
-	virtualization@lists.linux.dev,
+	dkim=pass (1024-bit key) header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.a=rsa-sha256 header.s=default header.b=LfTc7lZL
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cmss.chinamobile.com; s=default; l=0;
+	h=from:subject:message-id:to:cc:mime-version;
+	bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
+	b=LfTc7lZLt4NTisK0hdvZcTeiA5o3yNBjieukBJ5S2AIVeRSJAmR0LsHpC3T2jU2HyOyH++aBgtDwD
+	 2xeRppo4t5AGOdM3xnVSBye9/PWbLhcrsCoeKf/OM7rdntJKpNhhreVQCFDg8p3iYXIsAR9lStL8Ou
+	 zBhrwVnJY4VPPj0U=
+X-RM-TagInfo: emlType=0                                       
+X-RM-SPAM-FLAG:00000000
+Received:from spf.mail.chinamobile.com (unknown[10.188.0.87])
+	by rmmx-syy-dmz-app05-12005 (RichMail) with SMTP id 2ee56af2c979783-c9cf4;
+	Tue, 10 Nov 2026 15:36:26 +0800 (CST)
+X-RM-TRANSID:2ee56af2c979783-c9cf4
+X-RM-TagInfo: emlType=0                                       
+X-RM-SPAM-FLAG:00000000
+Received:from openEuler-24.03.03 (unknown[74.82.203.40])
+	by rmsmtp-syy-appsvr03-12003 (RichMail) with SMTP id 2ee36af2c970885-ab713;
+	Tue, 10 Nov 2026 15:36:25 +0800 (CST)
+X-RM-TRANSID:2ee36af2c970885-ab713
+From: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@kernel.org>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Jesper Dangaard Brouer <hawk@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>,
+	Stanislav Fomichev <sdf@fomichev.me>,
 	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	raoxu@uniontech.com
-Subject: [PATCH] vhost/net: Fix receive queue test in busy poll
-Date: Tue, 10 Nov 2026 13:16:42 +0800
-Message-ID: <005FA5F7354482C7+20261110051642.249640-1-raoxu@uniontech.com>
-X-Mailer: git-send-email 2.50.1
+	virtualization@lists.linux.dev,
+	bpf@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH net v3 0/2] virtio_net: AF_XDP zero-copy fixes for arm64 and XDP queues
+Date: Wed, 11 Nov 2026 00:29:59 +0900
+Message-ID: <20261110153003.23731-1-yanhaishuang@cmss.chinamobile.com>
+X-Mailer: git-send-email 2.43.0
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -73,57 +83,68 @@ List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-QQ-SENDSIZE: 520
-Feedback-ID: esmtpgz:uniontech.com:qybglogicsvrgz:qybglogicsvrgz6b-0
-X-QQ-XMAILINFO: OKDqGZ+wcdYmN7I/w5u32lU6eKdu1rDL+iRi6TU3+4kma/JDSI7yDCwL
-	s8mdutyqH1o/CPRRqvZQBOc7rwstx6xyYpYSR2kPGE/JiQDZpiAp984By23LA5MzsWoq4Bj
-	VFwr0sBLM9iZeeBX+A+aZk/MCNI1by4iV2JPVb/O1G0N23aY8/79kHjJVgLhmyvXoD71vSc
-	vSb9sbitlgBiF8LLCAVMLj8HwsnHCLIf5n6kmzRJPE2nWhyBWeDGXNJc+QK4F91IvALPFfr
-	KoXx5TfxS7Oq9DdwEM74EHAAia6/1xI4NcJ333aPADvcTZm39Uva35nnj3ZzC8cvisuB/tX
-	EMyVfFTyZ0yiDA3kQKoxWpINHH4W8txW5U22jZF7BWCVr8USId0rdeY4m+gc+uVswmfdLRz
-	SR7MHgCrte3G6P48hyUoOC5aMbytOdJzdMs1g2JJ3R+ja8zN2HfCCP8JdOT2jXoBH2v3fxb
-	Nbk61qenkhFvrliiTb4AzwI3c8FbQ113yIazXkJPtzZHkh21Vwte1s5CMhfc4bI+uw2cNsg
-	vAtVo/qQZEO2wUEp5aP6EhXbkbHm1xVfe4CuAkLIPOqGjr4Z+wjGJHmSZ5waSxm4TciHy5C
-	9Af+FGgjh28jt1EdCC5j+nFiLM5CUPYlii/X2cPjycOZl76XfBd/j5E5grlP/wtIQvmHX+z
-	EGKRlvEMDeHe9uFrLpedkbtvoEx3PQQUgPRwWDtuizLIdFeXuZRjSc1GK8918XKzoMioZ2F
-	m7yjIaO02zskO2tIqveEqZKELJ/vTNesxsVMuPHpmchVc71KGV/yfz9Kgs1hxSq7u8Z17EP
-	+jCAxIofhZPhgQD2SfjhE0dYLHpQ8F8XBVtFYV07eMbmlzLjfQI2UGxMqR/b1tv7oAojpsL
-	u3bWlSp4gj8EUL+K6HnfM3oLg4Uqshn2urZ9CYKVmSYRNvFCeN/LnhY3boeYielYakBErCm
-	3GKyCIfQk7X2z91C4KCQxw9ib3MIddR85yi+EbyQCmPpgCCW3BPg7oC1fI5LHKX/efG3awl
-	41S/T1LKYKydWZUBf684sKJTykkrEc9BqLn7hyemB7cHuM7GEX
-X-QQ-XMRINFO: OD9hHCdaPRBwH5bRRRw8tsiH4UAatJqXfg==
-X-QQ-RECHKSPAM: 0
 
-From: Xu Rao <raoxu@uniontech.com>
+Two AF_XDP zero-copy fixes for virtio_net.
 
-sock_has_rx_data() returns a positive result when receive data is
-available. Socket implementations with a peek_len() callback follow
-that convention, but the fallback for sockets without one returns
-skb_queue_empty(), which has the opposite meaning.
+Patch 1: on arm64, binding a zero-copy socket fails with -ENOMEM and a
+"rejecting DMA map of vmalloc memory" warning whenever the device uses
+the DMA API (e.g. VIRTIO_F_ACCESS_PLATFORM), because the static TX
+header lives in the kernel image, which arm64 maps in the vmalloc area.
 
-This makes busy polling stop when a raw packet socket has no queued data
-and fail to recognize queued data through the fallback path. Return the
-negated queue-empty result so the fallback matches the callback and its
-callers.
+Patch 2: removing XDP, explicitly or when the device is unregistered,
+can leave a zero-copy pool bound to a queue above curr_queue_pairs.
+Unbinding the socket then fails in the driver, and the queue is
+refilled from the freed pool.
 
-Signed-off-by: Xu Rao <raoxu@uniontech.com>
----
- drivers/vhost/net.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+The suspend fix that was patch 3 in v2 is dropped from this series.
+Review found problems with it for pools on queues above
+curr_queue_pairs; it will be reworked and sent separately on top of
+these two.
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 4570a4ffbab2..10ed2d55ff07 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -538,7 +538,7 @@ static int sock_has_rx_data(struct socket *sock)
- 	if (sock->ops->peek_len)
- 		return sock->ops->peek_len(sock);
+Testing used KASAN kernels in QEMU with virtio-net-pci and
+iommu_platform=on:
 
--	return skb_queue_empty(&sock->sk->sk_receive_queue);
-+	return !skb_queue_empty(&sock->sk->sk_receive_queue);
- }
+- Patch 1 on arm64 (TCG, virt): binding an XDP_ZEROCOPY socket fails
+  without the patch and succeeds with it.
+- Patch 2 on x86_64 (KVM, q35, intel-iommu, two queue pairs): with a
+  socket bound to an XDP queue, removing XDP and then closing the
+  socket gives "Failed to disable zero-copy!" and a KASAN
+  use-after-free in xp_alloc_batch() on net, and no warnings with this
+  series. Unbinding the device from virtio_net with XDP attached and a
+  socket on an XDP queue gives "Failed to disable zero-copy!" on net,
+  and no warning with this series. In both cases the unregister then
+  keeps waiting for eth0 to become free; that also happens with only
+  XDP attached and no socket, so it is a separate issue.
 
- static void vhost_net_busy_poll_try_queue(struct vhost_net *net,
---
-2.50.1
+The issues were found with the help of an AI coding assistant.
+
+Changes in v3:
+- Drop patch 3, to be reworked and sent separately (Sashiko).
+- Patch 2: mention the unregister path in the changelog (Sashiko).
+- Rebased on net 1d5e2c57e9ff; the code of patches 1 and 2 is
+  unchanged.
+
+Changes in v2:
+- Patch 1: drop the sentence about cache lines from the changelog
+  (Sashiko).
+- New patch 2, for a pool left on a queue above curr_queue_pairs
+  (Sashiko).
+- Patch 3: rework (Sashiko).
+
+v2: https://lore.kernel.org/netdev/20261108193845.73621-1-yanhaishuang@cmss.chinamobile.com/
+v1: https://lore.kernel.org/netdev/20261107125723.33547-1-yanhaishuang@cmss.chinamobile.com/
+
+Haishuang Yan (2):
+  virtio_net: Don't DMA map the kernel image for the AF_XDP TX header
+  virtio_net: Disable AF_XDP pools on queues above curr_queue_pairs
+
+ drivers/net/virtio_net.c | 26 +++++++++++++++++++++-----
+ 1 file changed, 21 insertions(+), 5 deletions(-)
+
+
+base-commit: 1d5e2c57e9ffc134e14b3f837c8d7c53b508bd22
+-- 
+2.43.0
+
+
 
