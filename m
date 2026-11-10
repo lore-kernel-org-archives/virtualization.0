@@ -1,58 +1,81 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=111.22.67.137
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794270048;
-	b=Rk0ih4kSEb/8ztBuqUR9T7asurNOGX9U9OF42WnDCb18Yop7wIjcufT2st4J5dofhHep
-	 klnofB0IV06uQEqSDBndWFEij1KeXfi6dRStZ1ctbTSSUuzrM1Kuz0KvVPmrDTOk6hKkM
-	 Kktxs9DzA+D3liNDwums9pdWBBNK+rOC3VO7av6cJJ9Is4iREGkeaBiz9wB1FD2+z9sHY
-	 2cyiDpfM4Q+Y1GyWQHFCUtbIC+k3VS1HT0wXSp96NOPuc6P6bRseu22ATw04wB9dFVfLe
-	 zA60og5Gds8BoVElwh4+469OteBBNKFfZwFAWwbu4xpRwlD77Q8zTry8DxTaDbHJvYA==
+	t=1794280865;
+	b=qnnDJivRdnomLKtybwoNRWiUBX98eqnrE6uMqri+slLoX+3MinihEiGEXV6qKDoNvvI9
+	 6qJdCLYtQbO/I3EpgAgHZDinJ14D7ZOZVDoYaSKJackBWn03cGKPIgOAxvgcp6R4s+/Zz
+	 scZBzUnhyrk7yZmyupPwFLsOgoJAx7uC4lg9gILffdB/pHkABg1IFR3FRR/Sp2gGQFiHQ
+	 efcqyppLQsxYbl2Z7p88ogMNQNWj0rDrpuezcvYWRJBGrQ0h57JGW9YKpkQjP80vLoZd5
+	 TjAJIOD6NhDHAu4SW3fbmG5jlbZBg07ZyfWu/dlLLbMiPKszjzfasF39MzYku7X1GfQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794270048;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=0L87P+N9joXMhhBF1nwBLGuVj0pgq6z2RXd0RKbGDsw=;
-	b=v4G3lTuTGYTT3gElA0IIdKfDzjEKSCoP5ZL/M2FDfXugUDrPwODFW+rOUK7X0UphvzBG
-	 Ggnym5SvfCaaE8okvPRhtNEb8QbznJY0wtVhmVHeHckDXN20iOSD+QKP62JXTuX2xHsNR
-	 SqX41TkJvxOJ05NlWCXopW/tVQ4ezmwdOtR28T96bqB/BmWhK09Cui83Prixqq7q3il5t
-	 YINx1rm6KRytAY4kNlC814Kk4qqSjSAK8JUGWnkLJg0GbBMK0pIbuawdtoHpqetCDfeUL
-	 6x2lRkm4U2MEO5xMCYFf+bg93/1x8mgQ5jTN1ie6b07yRZj3Pn6iO6/2Xbf7nsSnwYg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794280865;
+	h=DMARC-Filter:DKIM-Signature:X-RM-TagInfo:X-RM-SPAM-FLAG:Received:
+	 X-RM-TRANSID:X-RM-TagInfo:X-RM-SPAM-FLAG:Received:X-RM-TRANSID:From:
+	 To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
+	 MIME-Version:Content-Transfer-Encoding;
+	bh=QQYq9UN0ymiPTQymz+UkJfbvfMGgvjzLlUXXSTgUt70=;
+	b=f+NAmWVmLpJDTAH2t9MLC48RSUclRxKDlz70ItCBvoQJWxz+cHobrP28smXmBOqs1jPe
+	 5Yw6vtRuu1Ivuws4r4rjMem9dHsSWKERrL70N3fQc8d40/OUauka1Ci6ogrsBq3Yg55uP
+	 /l/8/2xYWUbd/yMxyQYpIuLO4ynuvC0S6WVN9URImJcnayNhY7zv2rBK/e6dRzw5qPxEd
+	 zbGSaqoGq8D29j2BYfSQoDWjBx+XO+0/CNp2SwLD2zJ9J4cPgJBOhd7sImG3F/yqiml2w
+	 gqOVbn0CDQRxNauDwm9/uHfX0G92kq6IWm85r+p82SLaoAwQpzRNmYgksytOuxP9Mow==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PVCwDeXv;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 674FB606A335;
-	Tue, 10 Nov 2026 00:20:47 +0000 (UTC)
+	dmarc=pass header.from=cmss.chinamobile.com;
+	spf=pass smtp.mailfrom=cmss.chinamobile.com;
+	dkim=pass header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.a=rsa-sha256 header.s=default header.b=qlMRuqXO;
+	arc=none smtp.remote-ip=111.22.67.137
+Received: from cmccmta4.chinamobile.com (cmccmta4.chinamobile.com [111.22.67.137])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 8920F606A325
+	for <virtualization@lists.linux.dev>; Tue, 10 Nov 2026 03:21:02 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8920F606A325
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cmss.chinamobile.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cmss.chinamobile.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PVCwDeXv
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B0AA1F008A1;
-	Tue, 10 Nov 2026 00:20:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794270047;
-	bh=0L87P+N9joXMhhBF1nwBLGuVj0pgq6z2RXd0RKbGDsw=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=PVCwDeXvB/+aXex7FXvRx77Qq+Xghq1R2KcYXx3SmhgxYg849eS5bindN+lAvzsv/
-	 KpNlMmYNaIl0ZLGtPzdvYWSCD4gSmCRGaIf99ko+qmXgGnJlUfd4Y+y1OkFgoyJDhr
-	 z6Q133Bxv0oz/Xk1uM4Km2FTY3PiiNshU2oBVluQOxt/1lQwUXwKlPIvMR593WRq9C
-	 tfWgLV3/Zbg4yrH1pN8T9Qk3jPRNq8jjWL3MV+RIbLWu5N1VU+HbJjSRuQP9bhhpR4
-	 WcnTBJAEmSRUApHhfbhmzQdMtq81KcUWFjRcakPe9w84Veh2IkRWR3NQmaBQe9T+p6
-	 /wY5H6q+NuXFA==
-Message-ID: <sashiko-outbox-205838@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v23 09/14] ALSA: virtio: bound PCM transfers and retain
- DMA buffers
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Joonho Lee" <mynameisjune111@gmail.com>, linux-sound@vger.kernel.org
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
- Perez" <eperezma@redhat.com>
-In-Reply-To: <20261109234049.79534-10-mynameisjune111@gmail.com>
-References: <20261109234049.79534-1-mynameisjune111@gmail.com>
- <20261109234049.79534-10-mynameisjune111@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 10 Nov 2026 00:20:46 +0000
+	dkim=pass (1024-bit key) header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.a=rsa-sha256 header.s=default header.b=qlMRuqXO
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cmss.chinamobile.com; s=default; l=0;
+	h=from:subject:message-id:to:cc:mime-version;
+	bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
+	b=qlMRuqXOptJ17RYY0rNr1Zu1onjRr4pOhvNzWXVzO9BuNvGV02fm6fIyIZZ07tk3vzT6P3Ya2TwSX
+	 Qd4w/O1w8SMEe+ZOAcf48R7Pz+QnaVwb7A4Ah825mv/AvJVAcWE+yl4khh+ajWBcgEwd+puhP6nufW
+	 b9wDq3w4+FxWfSzM=
+X-RM-TagInfo: emlType=0                                       
+X-RM-SPAM-FLAG:00000000
+Received:from spf.mail.chinamobile.com (unknown[10.188.0.87])
+	by rmmx-syy-dmz-app04-12004 (RichMail) with SMTP id 2ee46af28d9b020-69e18;
+	Tue, 10 Nov 2026 11:21:00 +0800 (CST)
+X-RM-TRANSID:2ee46af28d9b020-69e18
+X-RM-TagInfo: emlType=0                                       
+X-RM-SPAM-FLAG:00000000
+Received:from openEuler-24.03.03 (unknown[74.82.203.40])
+	by rmsmtp-syy-appsvr08-12008 (RichMail) with SMTP id 2ee86af28d91c9a-a496c;
+	Tue, 10 Nov 2026 11:21:00 +0800 (CST)
+X-RM-TRANSID:2ee86af28d91c9a-a496c
+From: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@kernel.org>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Jesper Dangaard Brouer <hawk@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>,
+	Stanislav Fomichev <sdf@fomichev.me>,
+	netdev@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	bpf@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net v2 2/3] virtio_net: Disable AF_XDP pools on queues above curr_queue_pairs
+Date: Tue, 10 Nov 2026 20:20:47 +0900
+Message-ID: <20261110112049.11228-1-yanhaishuang@cmss.chinamobile.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <179422769501.994134.8613940611095428101@kernel.org>
+References: <20261108193845.73621-1-yanhaishuang@cmss.chinamobile.com> <20261108193845.73621-3-yanhaishuang@cmss.chinamobile.com> <179422769501.994134.8613940611095428101@kernel.org>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -61,105 +84,46 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [Medium] ALSA: virtio: partial RX on stop latches XRUN in
-  virtsnd_pcm_msg_complete()
---
-
-commit 8701e733a8297edcfeb307fc6817693d437f58dc
-Author: Joonho Lee <mynameisjune111@gmail.com>
-
-ALSA: virtio: bound PCM transfers and retain DMA buffers
-
-This commit validates PCM buffer geometry, ACK transfer bounds, and RX
-completions while retaining backing DMA pages until virtqueue messages are
-freed.
-
-> diff --git a/sound/virtio/virtio_pcm_msg.c b/sound/virtio/virtio_pcm_msg.c
-> index 59ad99e21e899..c728e8fafb37f 100644
-> --- a/sound/virtio/virtio_pcm_msg.c
-> +++ b/sound/virtio/virtio_pcm_msg.c
+On Mon, Nov 09, 2026 at 12:34:55PM +0000, netdev-bot+sashiko@kernel.org wrote:
+> [Severity: Low]
+>
+> Is explicit XDP removal followed by closing the socket the only trigger?
+>
+> Ordinary netdev unregistration looks like it ends in the same failed
+> disable. Examples are virtio-net hot-unplug, driver unbind and module
+> unload.
 
 [ ... ]
 
-> @@ -356,42 +536,81 @@ static void virtsnd_pcm_msg_complete(struct virtio_=
-pcm_msg *msg,
->  				     size_t written_bytes)
->  {
->  	struct virtio_pcm_substream *vss =3D msg->substream;
-> +	bool capture_invalid =3D false;
-> =20
->  	/*
-> -	 * hw_ptr always indicates the buffer position of the first I/O message
-> -	 * in the virtqueue. Therefore, on each completion of an I/O message,
-> -	 * the hw_ptr value is unconditionally advanced.
-> +	 * Completed requests can return captured data after STOP while the PCM
-> +	 * buffer remains prepared. Once preparation ends, completions only ret=
-ire
-> +	 * queue ownership.
->  	 */
->  	guard(spinlock)(&vss->lock);
-> -	/*
-> -	 * If the capture substream returned an incorrect status, then just
-> -	 * increase the hw_ptr by the message size.
-> -	 */
-> -	if (vss->direction =3D=3D SNDRV_PCM_STREAM_PLAYBACK ||
-> -	    written_bytes <=3D sizeof(msg->status))
-> -		vss->hw_ptr +=3D msg->length;
-> -	else
-> -		vss->hw_ptr +=3D written_bytes - sizeof(msg->status);
-> +	if (vss->direction =3D=3D SNDRV_PCM_STREAM_CAPTURE &&
-> +	    (!vss->prepared || vss->xfer_xrun ||
-> +	     (vss->stopped && written_bytes <=3D sizeof(msg->status)))) {
-> +		msg->length =3D 0;
-> +		vss->msg_count--;
-> +		if (!vss->msg_count)
-> +			wake_up_all(&vss->msg_empty);
-> +		return;
-> +	}
-> =20
-> -	if (vss->hw_ptr >=3D vss->buffer_bytes)
-> -		vss->hw_ptr -=3D vss->buffer_bytes;
-> +	/* Only the next complete ring slice can extend captured data. */
-> +	if (vss->direction =3D=3D SNDRV_PCM_STREAM_CAPTURE &&
-> +	    (msg->data_offset !=3D vss->hw_ptr ||
-> +	     written_bytes < sizeof(msg->status) ||
-> +	     le32_to_cpu(msg->status.status) !=3D VIRTIO_SND_S_OK ||
-> +	     written_bytes - sizeof(msg->status) !=3D msg->length)) {
-> +		dev_err_ratelimited(&vss->snd->vdev->dev,
-> +				    "SID %u: invalid capture position, status or length\n",
-> +			vss->sid);
-> +		vss->xfer_xrun =3D true;
-> +		capture_invalid =3D true;
-> +	}
+> The new max_queue_pairs bound fixes this path as well. The commit message
+> only hints at it with "Removing XDP must not fail". Could the message
+> also mention the unregister path?
 
-[Severity: Medium]
-Does this latch vss->xfer_xrun when the device completes a partially filled=
- RX
-buffer upon VIRTIO_SND_R_PCM_STOP?
+Yes. Unbinding the device from virtio_net with XDP attached and a
+socket bound to an XDP queue gives "Failed to disable zero-copy!"
+without this patch and no warning with it. I'll mention that path in
+the changelog.
 
-Under the VirtIO Sound specification (section 5.14.6.8.2.1), the last RX
-buffer returned when a capture stream stops may contain fewer than
-period_bytes of PCM frames.  During SNDRV_PCM_IOCTL_DRAIN,
-virtsnd_pcm_trigger(SNDRV_PCM_TRIGGER_STOP) sets vss->stopped =3D true and =
-sends
-VIRTIO_SND_R_PCM_STOP while leaving the substream in SNDRV_PCM_STATE_DRAINI=
-NG.
-A partial RX completion has written_bytes > sizeof(msg->status) and
-written_bytes - sizeof(msg->status) < msg->length, so it bypasses the early
-return and sets vss->xfer_xrun =3D true.  That causes virtsnd_pcm_cp_ack() =
-to
-fail with -EBADFD and virtsnd_pcm_cp_pointer() to report SNDRV_PCM_POS_XRUN,
-preventing userspace from draining full periods that had already completed
-before STOP.
+> [Severity: Medium]
+>
+> How does this wider qid range interact with the restore fallback that a
+> later patch in this series adds to this function?
 
-Similarly, SNDRV_PCM_TRIGGER_PAUSE_PUSH sends VIRTIO_SND_R_PCM_STOP without
-setting vss->stopped, so any empty or partial in-flight RX buffer returned =
-on
-pause also latches vss->xfer_xrun.
+[ ... ]
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261109234049.7953=
-4-1-mynameisjune111@gmail.com?part=3D9
+> Does this leak the xsk_dma_map, its dma_pages array and the DMA or IOMMU
+> mappings of the umem pages?
+
+It does, but only together with the restore fallback of patch 3, which
+looks the pool up with xsk_get_pool_from_qid(). Patch 3 has other
+problems for pools above curr_queue_pairs too, so I'll drop it from the
+series and resend patches 1 and 2 as v3. The reworked patch 3 will keep
+track of the pools in the driver instead of looking them up by queue
+id.
+
+pw-bot: cr
+
+
