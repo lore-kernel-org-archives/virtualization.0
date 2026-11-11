@@ -1,65 +1,90 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.208.41
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794424188;
-	b=Gw3ZmTBURt76F8PvkpweS+JqonrTUtVS7t0oweTnv0l6dAjXafsCkuA8ZPzPedyd9j+9
-	 dZKNRTXewmuULBF0ZppCd+t8P2bsAUBtwHEHuLgpMLuPoTYdO+UaqxvLLSvAffr/EB1K/
-	 hZUscPII6oMEhOlZtEsULe06EFgD/ULXgyjyVgCJVf/rsh6Y9pfIEGXrWyl/XQxeywntS
-	 bwDlQj79Qql+/v/12s7DrU5agLBnn4ZHFMjpGang2TKpObmW3GqNdtPIKrqDdYfKyoNnw
-	 kCXbFldVQs3eVyq8e8EAVrQYm++hth99qsBtCGt4TGjJKsI2oaXefFjCHtzOapfUYRg==
+	t=1794425190;
+	b=tiHDfREg3ftXHpdiRID1xpMQtAfRK1CttRVJNch83XTj8j8VQ3qKHs9d8NZnL++CPih5
+	 4ol3dqAQmXd6JUeez93eZI63O9wvkLz1Vz3oqz0zSdY87f3F3//7USZrfpLDuFhjoOxma
+	 MRV61TFkmXWUZtr21RYHkvZtOmOgpkX8HBJlyZoZI6qOBF/qkRD+jcIJeDRs5agDKN1fL
+	 elzOCdv4YHbVKcZm6leFmlXEa7doEi2uzfDS1qItv92n+Db6NmAFAvc6wK4d0lzeomZZd
+	 OsSndFpejfQ6JeD9P25RUfRXqajaHgKijZOFgOa3LHThhjE5ulUkYOV/JWzCqi9UDxw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794424188;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=9nXz4XsFyxf6p/xbkIeQCjsAjClLO9LnUnA+aL97b8k=;
-	b=GeQPvfCVVQftNZifYkVVlyNaDTga95F9K2IuxtjcPuvR1hRSixLybwKqmx5gMLKzMGL7
-	 rp1m2iqsdbtCV1TekH4w/rgB9gRbEGfqR+pQcewnT5WAwxdsOGwTU0Ux9aJ6Y9JowFqEz
-	 144JKh4/F2z/7fLyzh8N93IRsapeVV3ySgeLZbuU2Er9yM80CqrzapjrPQ8Ro3n6greRk
-	 SOh2/aVWGAG8fkbvkseGElSrXsecolGhbUY3DazwXxUysjw4P/0R3HQCjwRjg/UQyJHhT
-	 W1Y8MHpqZeBLUKxZhXf+QLhU9e4Il3EmFChrEhZ+vJpr9JkjMFsztqfBDLJpCI+S+gg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794425190;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Received:X-Forwarded-Encrypted:X-Received:MIME-Version:References:
+	 In-Reply-To:From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type;
+	bh=wd2WluVLwj4r2VIyBQDufDpYxaAOyEu9BCBLHFr84dA=;
+	b=gK0Ghx+vBmaHDTekDmZ336odvpmYoKPPrmcUjKP0eOiH911ysNztZC2smNINDOPrS7Qz
+	 KzcsUYqVW7IZogUa9Fx4BYIdStVB0oU8HzrFb4VXzLbx7iradM0q4mw36x1vANnTdiP0j
+	 SytecFCL3mi5oyJ8B/G8jv89N4ixp9O+UgS2SkOIdE2x8KESiRkJfgZvp4ws5YOZk2hF/
+	 Cjev28q34XYz8a81U4OuRlU0/6wePNyG1VOnL7qmZV4H3nTIbPH7Q+Xgx6jzd+++5G/Hq
+	 NWwrqawHZ4Zrjn4KUADUPqZNuqThdMZmxcUCv1Tiaabj5aLh6dZfnWpAO4ohYP3R+Pw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WFzKR564;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=none header.from=linux-foundation.org;
+	spf=pass smtp.mailfrom=linuxfoundation.org;
+	dkim=pass header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google header.b=Xg48hDJ9;
+	arc=none smtp.remote-ip=209.85.208.41
+Received: from mail-ed1-f41.google.com (mail-ed1-f41.google.com [209.85.208.41])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67BE7606A339;
-	Wed, 11 Nov 2026 19:09:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD275606A89B
+	for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 19:26:29 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BD275606A89B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WFzKR564
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46EBD1F00A06;
-	Wed, 11 Nov 2026 19:09:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794424187;
-	bh=9nXz4XsFyxf6p/xbkIeQCjsAjClLO9LnUnA+aL97b8k=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=WFzKR564G0UiQUdYOgmFp64Zc7kQghLq8rSQs9/kVQoM9daXgTwgHOIJBA4tmvZrP
-	 pl6NoDuycNPmuZKQC+tzUKJ2vWwXQC8zrvj43OVZP4oWYZL0WyxpI2BufbHbJlKfq4
-	 bRR+95WaVEV3bPIzkVBgR7D0CKAjDBkeQVBHCeXQOgYJMybl3r3qHb/DPBqfzrvX05
-	 H0X7U6M4JViBLSxAaSrZ1etmocb0hrvAPh0WYJUIMVJu6D4nAtCFOLHOKh5QBJk04L
-	 R3LUfJh51xF61ypZxQbgdKSrvD7fx1TIlT+f7bxfa8TknOwtlBSn1q/knjPjUE/X5U
-	 d6pzS9gcNa1iQ==
-Date: Wed, 11 Nov 2026 21:09:42 +0200
-From: Leon Romanovsky <leon@kernel.org>
-To: "Popov, Pavel E" <pavel.e.popov@intel.com>
-Cc: Bjorn Helgaas <bhelgaas@google.com>,
-	Logan Gunthorpe <logang@deltatee.com>,
-	Lukas Wunner <lukas@wunner.de>, Jim Chow <jim.chow@broadcom.com>,
-	Radu Rugina <radu.rugina@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Wei Liu <wei.liu@kernel.org>, Michael Kelley <mhklinux@outlook.com>,
-	Nathan Ciobanu <nathan.d.ciobanu@linux.intel.com>,
-	"bcm-kernel-feedback-list@broadcom.com" <bcm-kernel-feedback-list@broadcom.com>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
-	"linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v4 0/2] PCI/P2PDMA: Allow P2PDMA on Intel Xeon server CPUs
-Message-ID: <20261111190942.GT8635@unreal>
-References: <20261020173736.81755-1-pavel.e.popov@intel.com>
- <LV2PR11MB6070064A9E674EBDFB1A3B20B2712@LV2PR11MB6070.namprd11.prod.outlook.com>
- <20261111081057.GP8635@unreal>
- <LV2PR11MB6070A8BA690DEA91D6675682B2712@LV2PR11MB6070.namprd11.prod.outlook.com>
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google header.b=Xg48hDJ9
+Received: by mail-ed1-f41.google.com with SMTP id 4fb4d7f45d1cf-6b71b012e3cso2371542a12.1
+        for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 11:26:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google; t=1794425188; x=1795029988; darn=lists.linux.dev;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=wd2WluVLwj4r2VIyBQDufDpYxaAOyEu9BCBLHFr84dA=;
+        b=Xg48hDJ9I6I9quvE9TG2xdSsiqmBRV2Q1z1wbnE8WwtwYmJdpWM7xWuR6at0wdTy0q
+         G8sDJ9bwWbAlHvnJ9nh+xkTmUgaEsTNM7s6GPfvJ9CGs27N+LqogW/QTsr7Oyz/d/hJg
+         y7zm4gHR5lJKMF8h6jxrlrM+6Uy0FIgmLFfZw=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794425188; x=1795029988;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=wd2WluVLwj4r2VIyBQDufDpYxaAOyEu9BCBLHFr84dA=;
+        b=sTqc66nI9sk/jMcLRZZ4JVTIKlnqR+/1NdPOxU+4KTrUxyYJ+4O+6pM17pMSjcZKZL
+         S25mzStsSM5TjWu7sEdNdAC2Sd02YgVp54LppNzKRY/nJSbCQYi2aNDrIalhcqjeeuXW
+         HpRvmIFdYW8+Tuc26ZhfsGJPiliazbd383LVOEdNoK9bokfPRQau+q57S2dksG1Bz6jF
+         01ySW50eWT8Lwq397HR66eAtPi0jepXIVVkaXtfU0iIRbqUGxyv1HWhe57aR6r9rQCj1
+         zSIdVz+H0NXML27cXTDLJIOtoaV6lspwf9kyM1Lis9JnQycSbD1tBlRrvluWqeSoMf6Q
+         Ao5A==
+X-Forwarded-Encrypted: i=1; AL+hErGU4wf+wLvOSt+3p1uV9TT5SYYskpV4rWlBW0VHZAY4MLvnegpbAnU03m8a73PCXDPmwqvS0oD37TutvTQUzw==@lists.linux.dev
+X-Gm-Message-State: APuU4Z94BsLYEcH2uI/e5s/PNjuO31VFjkZJLmbzd963yz1/lj13iiSw
+	7DINxdvfEsQgEtRPrZ4kSiZxPGdXoNDSqGq5TBdobocB/mtqbgjzL5o85NmjprR2R4jElZ6x92i
+	4tXXykJY=
+X-Gm-Gg: AYBFou3/8FHdeZQw9yJjGrn+IcToTD/vZa/ATmLfc3WtuvwPQMqYTS+yB9UkhLfyap4
+	6OVRq4uL2r/bxE2du9EANKL+Mm+l8hKNbDvQ9llgrywDCLeUnmsbHeILdk1BLRjYZcW4sWok7cp
+	u7l5+iQaQg1XNP8UhtZDD311tQ5YTeT40qQCiLpo212SXOIcTsDH6w6SOeFqziV6vkZnohoJee5
+	03vczBBb6Sb12rw2Vhpl04OSkQyPeqcTd91zxe0iHH9ah07Usd5WdwMs6l0XTo9yDjpfj9NfkfA
+	+QUfAJHP29ishO9amnGDHZ5/DlliF3u3b+pEGJJFiV2RA70KqHBcVTJ5u/Z1ztaeLLXr0nKyjgg
+	ind4hZG57oYYzMKkSuNhlOl9+fHhZMWVsYBfWcIfnhrgkrgMh5OWAy/G4G8dlIeer2fHO2OlCge
+	GdI0YAVgru+MgD0FC7u4yYSAGk4srfTbWCICVs5n3tvRM1FLG3EyDjKLOUkWKvDpmuAmhIrZmft
+	mfaU2DrLovKvkIVwecpVGM6lvHrglwceTSSqt9DTnMUbCnYWNpp5WAMJMG/od+/ZqQBk8QzzsOm
+	fVvPU7xzWqChGGopK3zKDRPkV0LEGi76OYReS+8KvPkZIZ7dHKvGhrNuUvDzlf3zPuFuhAS8kLs
+	JxiE=
+X-Received: by 2002:a05:6402:22d9:b0:6b5:962e:e017 with SMTP id 4fb4d7f45d1cf-6b777702145mr1868606a12.23.1794425188068;
+        Wed, 11 Nov 2026 11:26:28 -0800 (PST)
+Received: from mail-ed1-f54.google.com (mail-ed1-f54.google.com. [209.85.208.54])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6b78348cb4esm964825a12.23.2026.11.11.11.26.26
+        for <virtualization@lists.linux.dev>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 11 Nov 2026 11:26:27 -0800 (PST)
+Received: by mail-ed1-f54.google.com with SMTP id 4fb4d7f45d1cf-6b71b012e3cso2371510a12.1
+        for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 11:26:26 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AL+hErFo34lyflsg8mS7c13GHVO4UezjhpkmvgFpxS6R2hRryM/A6iLgOtVaib7U+THoOdC7MdnKpaavFVFpCfUWWA==@lists.linux.dev
+X-Received: by 2002:aa7:d1ca:0:b0:6b5:6478:a9a5 with SMTP id
+ 4fb4d7f45d1cf-6b7773edf34mr1838418a12.10.1794425186528; Wed, 11 Nov 2026
+ 11:26:26 -0800 (PST)
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -69,163 +94,53 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <LV2PR11MB6070A8BA690DEA91D6675682B2712@LV2PR11MB6070.namprd11.prod.outlook.com>
+References: <20261110145241.536019-1-kas@kernel.org> <20261110145241.536019-2-kas@kernel.org>
+ <avNuQqLf9CG9dSsE@casper.infradead.org> <20261111-heimreisen-ungeziefer-empfunden-a892571f2c07@brauner>
+ <20261111-thunfisch-wirbt-waldrand-822275b2d3b1@brauner> <CAHk-=wjPY=kfgnmtx4COEQjD5UzKx9m2-=KLGAZP4d=RKEH+pg@mail.gmail.com>
+ <20261111-stumpf-montag-miterleben-c4e2feac8090@brauner>
+In-Reply-To: <20261111-stumpf-montag-miterleben-c4e2feac8090@brauner>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Wed, 11 Nov 2026 11:26:09 -0800
+X-Gmail-Original-Message-ID: <CAHk-=wjGXBnme-N+HvbzHH40ftb7Suc=kZVT5cuintQWyMHJ7Q@mail.gmail.com>
+X-Gm-Features: AclHuK8LZq7-9ajWCZDJwTRjmLDnovqaiY30E_XKr8U-iLvj6BsIi-SShy4XPgk
+Message-ID: <CAHk-=wjGXBnme-N+HvbzHH40ftb7Suc=kZVT5cuintQWyMHJ7Q@mail.gmail.com>
+Subject: Re: [PATCH 1/4] virtio_console: copy pipe buffers in splice_write()
+To: Christian Brauner <brauner@kernel.org>
+Cc: Matthew Wilcox <willy@infradead.org>, "Kiryl Shutsemau (Meta)" <kas@kernel.org>, 
+	Alexander Viro <viro@zeniv.linux.org.uk>, Miklos Szeredi <miklos@szeredi.hu>, Amit Shah <amit@kernel.org>, 
+	Jan Kara <jack@suse.cz>, "David Hildenbrand (Arm)" <david@kernel.org>, Zi Yan <ziy@nvidia.com>, 
+	Bernd Schubert <bschubert@ddn.com>, Hugh Dickins <hughd@google.com>, 
+	Baolin Wang <baolin.wang@linux.alibaba.com>, Andrew Morton <akpm@linux-foundation.org>, 
+	Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	linux-fsdevel@vger.kernel.org, fuse-devel@lists.linux.dev, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, linux-mm@kvack.org, 
+	linux-kernel@vger.kernel.org, kernel-team@meta.com
+Content-Type: text/plain; charset="UTF-8"
 
-On Wed, Nov 11, 2026 at 03:37:13PM +0000, Popov, Pavel E wrote:
-> On Wed, Nov 11, 2026 at 10:10:57AM +0200, Leon Romanovsky wrote:
-> > Peer-to-peer is a general concept, and the code should reflect that. It is
-> > reasonable to expect you to join the effort and help clean it up.
-> 
-> I'm in. My proposal is to do it after this series, since this one
-> unblocks P2PDMA in guests and the cleanup is out of PCI scope: even
-> the minimal fix for p2pdma.c alone means changes under arch/x86, so it
-> would no longer be a P2PDMA patch but an x86 header series with its
-> own maintainers and review. That x86 header series is also the right
-> place to drop the same guard from six other files, and I'm ready to
-> do it:
+On Wed, 11 Nov 2026 at 10:53, Christian Brauner <brauner@kernel.org> wrote:
+>
+> If that's the official new stance than I'm very happy.
 
-If you are ready, why hasn't it been done until now?
+I definitely want to remove HIGHMEM entirely in the not too distant
+future. And before we remove it, we can most definitely document the
+fact that we will not be worried about insane users.
 
-The claims of urgency are hard to take seriously: `SKYLAKE_X` was added to
-`arch/x86/include/asm/intel-family.h` in 2016, and now, ten years later,
-you are asking us to "do it urgently." I strongly suspect that if I don't
-bring up P2P at LPC, we won't see this patch for another ten years.
+And things like security issues count as "insane user": if you use
+HIGHMEM outside of controlled embedded setups or museum pieces you get
+to keep both pieces when it breaks.
 
-Even now, despite being asked to clean this up before the merge
-window, you still haven't done so. Trust is built by following
-through, not by making promises.
+IOW, it's legacy. We should aim to not introduce *new* bugs to it, but
+if there are pre-existing bugs they very much count as "don't care",
+this will be removed soon.
 
-> 
->   drivers/acpi/mipi-disco-img.c
->   drivers/cpufreq/cpufreq_ondemand.h
->   drivers/gpu/drm/i915/intel_cpu_info.c
->   drivers/char/tpm/tpm.h
->   drivers/crypto/ccp/ccp-dev.c
->   include/linux/platform_data/x86/soc.h
-> 
-> Bjorn, is v4 OK for v7.5 as is? The x86 header series will follow on
-> top.
+I think the only reason it wasn't removed a couple of years ago
+already is basically a few old 32-bit ARM platforms that still used
+it.
 
-I disagree. You can't build this on top, as it would need to go through
-different trees and would likely cause merge conflicts. The cleanup series
-would have to touch the same lines in the PCI subsystem that you are
-changing now.
+Those platforms still exist, and I predict that they'll still exist
+next year, but if those users have to stay at the current LTS kernel,
+that's fine.
 
-The only sane approach is to do the cleanup first and then build the p2p
-changes on top of it.
-
-Thanks
-
-> 
-> Thanks,
-> Pavel
-> 
-> > -----Original Message-----
-> > From: Leon Romanovsky <leon@kernel.org>
-> > Sent: Wednesday, November 11, 2026 1:11 AM
-> > To: Popov, Pavel E <pavel.e.popov@intel.com>
-> > Cc: Bjorn Helgaas <bhelgaas@google.com>; Logan Gunthorpe
-> > <logang@deltatee.com>; Lukas Wunner <lukas@wunner.de>; Jim Chow
-> > <jim.chow@broadcom.com>; Radu Rugina <radu.rugina@broadcom.com>;
-> > Alexey Makhalov <alexey.makhalov@broadcom.com>; Wei Liu
-> > <wei.liu@kernel.org>; Michael Kelley <mhklinux@outlook.com>; Nathan
-> > Ciobanu <nathan.d.ciobanu@linux.intel.com>; bcm-kernel-feedback-
-> > list@broadcom.com; virtualization@lists.linux.dev; linux-
-> > hyperv@vger.kernel.org; linux-pci@vger.kernel.org; linux-
-> > kernel@vger.kernel.org
-> > Subject: Re: [PATCH v4 0/2] PCI/P2PDMA: Allow P2PDMA on Intel Xeon
-> > server CPUs
-> > 
-> > On Wed, Nov 11, 2026 at 03:48:07AM +0000, Popov, Pavel E wrote:
-> > > Hi Bjorn,
-> > >
-> > > Gentle ping on this series. Is this OK for v7.5?
-> > 
-> > I would say no. An Intel employee was asked to clean up an Intel-created mess
-> > while upstreaming an Intel-specific patch.
-> > 
-> > Peer-to-peer is a general concept, and the code should reflect that. It is
-> > reasonable to expect you to join the effort and help clean it up.
-> > 
-> > Thanks
-> > 
-> > >
-> > > Thanks,
-> > > Pavel
-> > >
-> > > > -----Original Message-----
-> > > > From: Popov, Pavel E <pavel.e.popov@intel.com>
-> > > > Sent: Tuesday, October 20, 2026 10:38 AM
-> > > > To: Bjorn Helgaas <bhelgaas@google.com>; Logan Gunthorpe
-> > > > <logang@deltatee.com>
-> > > > Cc: Popov, Pavel E <pavel.e.popov@intel.com>; Leon Romanovsky
-> > > > <leon@kernel.org>; Lukas Wunner <lukas@wunner.de>; Jim Chow
-> > > > <jim.chow@broadcom.com>; Radu Rugina
-> > <radu.rugina@broadcom.com>;
-> > > > Alexey Makhalov <alexey.makhalov@broadcom.com>; Wei Liu
-> > > > <wei.liu@kernel.org>; Michael Kelley <mhklinux@outlook.com>; Nathan
-> > > > Ciobanu <nathan.d.ciobanu@linux.intel.com>; bcm-kernel-feedback-
-> > > > list@broadcom.com; virtualization@lists.linux.dev; linux-
-> > > > hyperv@vger.kernel.org; linux-pci@vger.kernel.org; linux-
-> > > > kernel@vger.kernel.org
-> > > > Subject: [PATCH v4 0/2] PCI/P2PDMA: Allow P2PDMA on Intel Xeon
-> > > > server CPUs
-> > > >
-> > > > VMware and Hyper-V expose passthrough devices to guest VMs without
-> > > > an explicit host bridge device. Consequently,
-> > > > host_bridge_whitelist() cannot automatically identify the underlying
-> > > > host bridge structure, causing Peer-to- Peer DMA (P2PDMA) requests
-> > > > to be rejected unless the device IDs are explicitly listed in
-> > > > pci_p2pdma_whitelist[]. To enable P2PDMA on Intel hosts, this series
-> > > > extends cpu_supports_p2pdma(), which so far covers AMD Zen and
-> > newer, with an explicit list of Intel Xeon server generations.
-> > > >
-> > > > Patch 1 moves the CONFIG_X86 #ifdef out of cpu_supports_p2pdma().
-> > > > Patch 2 is the v3 patch rebased on it, with Logan's Reviewed-by
-> > > > carried over; the Xeon list and the check are unchanged.
-> > > >
-> > > > Changes in v4:
-> > > > - Add 1/2, moving the CONFIG_X86 #ifdef out of cpu_supports_p2pdma()
-> > > >   (Logan Gunthorpe, Leon Romanovsky)
-> > > > - Keep the #ifdef around the asm/ includes, as these headers exist
-> > > >   only on x86 (Bjorn Helgaas)
-> > > >
-> > > > Changes in v3:
-> > > > - Drop the hypervisor check and move the Xeon list into
-> > > >   cpu_supports_p2pdma(), next to the AMD check, as suggested by Logan
-> > > >   Gunthorpe and Leon Romanovsky [1]
-> > > > - Fold the VMware and Hyper-V patches into one, as the check no longer
-> > > >   depends on the hypervisor
-> > > >
-> > > > Changes in v2:
-> > > > - Replace the Skylake-and-newer threshold with an explicit list of Intel
-> > > >   Xeon server generations, from Skylake-SP to Diamond Rapids (Logan
-> > > >   Gunthorpe)
-> > > > - Move the CONFIG_X86 #ifdef out of hypervisor_supports_p2pdma()
-> > > >   (Logan Gunthorpe)
-> > > > - Rebased on current mainline
-> > > >
-> > > > [1] https://lore.kernel.org/r/20261016153147.GC219304@unreal
-> > > >
-> > > > v3: https://lore.kernel.org/r/20261020151305.65218-1-
-> > > > pavel.e.popov@intel.com
-> > > > v2: https://lore.kernel.org/r/20261016223402.19991-1-
-> > > > pavel.e.popov@intel.com
-> > > > v1: https://lore.kernel.org/r/20261009154034.82321-1-
-> > > > pavel.e.popov@intel.com
-> > > >
-> > > > Pavel Popov (2):
-> > > >   PCI/P2PDMA: Move CONFIG_X86 #ifdef out of cpu_supports_p2pdma()
-> > > >   PCI/P2PDMA: Allow P2PDMA on Intel Xeon server CPUs
-> > > >
-> > > >  drivers/pci/p2pdma.c | 33 +++++++++++++++++++++++++++++++--
-> > > >  1 file changed, 31 insertions(+), 2 deletions(-)
-> > > >
-> > > >
-> > > > base-commit: c03c1a14507dfaf8b856c2608f9ac216021fc222
-> > > > --
-> > > > 2.53.0
-> > >
-> 
+                  Linus
