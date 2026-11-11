@@ -1,58 +1,138 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=124.126.103.232
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=80.241.56.152
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794387016;
-	b=pJqJpUIC+V4aDQVtW3/pJ7N7bm9BVtaaV053100qYmhz9iQVcYwACPPQ1QjX+HtFqcf7
-	 VgzyHxq9q+WAer7n/4xZGRl+KWbPP28DS8E7raLjgBdutX4AXx1mHBX1DG91I9cQCuawG
-	 sjt1OBBn2FXtslrFEDqUIOQEidedADPECyk3ozTTh0S6sGrdVdIFJZzGEcnXTP9X0GmFI
-	 W9OYbPEoU4y3U+L0vKPRX2UGIVYdGeYImba4ypXWgs/mrXGFbTI2E2oUkejtIGMFcjgJo
-	 cifssE7owZPBkFMJ8TCPc9nQPTDu0rTgocrJhZtesKlkGrofrjlguXwOnU59MBLiIMw==
+	t=1794387229;
+	b=P7CpMRcN7V8LsuDxUeWXQizanyumorqBSYlMsbGF4OaL5ndT+lJLloQetoak1dLr9CGh
+	 sRPjHmRj300WvVFzeQ33CXQjBRTHDkkJ/otk97YNTE9w72gUj1zVAnBC38OO0vux1CGCN
+	 OUhAHN74k8hIxjRtJkHHAbE+o1ocNxB//9Um+kzytnpYntPeIJ7p6AnzMzrRoG5ITXgSm
+	 dCAOrJ05ZcXOTNPdYkLb37xYEUFfS44513AbpxJIDGHNR29WvdpPJ4q5BVqMj9W/X77rn
+	 Z1O7yKENwAKdcxmrmoL5uyj7RVfzWbWDj20Pufc++2ZUqv8vptH1cVF1TkF+JvVYhXg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794387016;
-	h=DMARC-Filter:X-UUID:X-CID-P-RULE:X-CID-O-INFO:X-CID-META:X-CID-BVR:
-	 X-CID-BAS:X-CID-FACTOR:X-CID-RHF:X-UUID:X-User:Received:Message-ID:
-	 Date:MIME-Version:User-Agent:Subject:To:Cc:References:
-	 Content-Language:From:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=Dyi44XrPNZ+h4KSieqNDltLyYDUp+MK/l2iG04ch2ZY=;
-	b=qhW0UfQG7XFb5Qw8S6Wj1SMK1ptMEnZiPlD/JcQ0w2IJcLdvTVP9wdCoi8PKBYs0TjIV
-	 /3rFjvtPh9IQRIGWQVzPYIQ/CHoZWED/fdxcm+1x+vKTTGzuXKlKKDM3sFg9+YWKeDism
-	 u85sX4xR6GzylorB5TKIQK/CUetEGF6zbiapi1ZkUUsBwVylNsioTIaNofjPTxs6eJZo6
-	 XIWuKZJcdRBUkpRnu4/eQiA0jtk8rlAQbB8AH5ifg8wsotqEuFghoCPH1406v6eSTDqgd
-	 j7FSUSziErGbXBasKhLhzL+K7jCRqvRC1JsfTk/ZzktigVBVMZ3EKVV6GUJC5sWF5kA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794387229;
+	h=DMARC-Filter:Received:DKIM-Signature:Message-ID:Subject:From:
+	 Reply-To:To:Cc:Date:In-Reply-To:References:Content-Type:
+	 Content-Transfer-Encoding:User-Agent:MIME-Version:X-MBO-RS-ID:
+	 X-MBO-RS-META;
+	bh=VRiZhzrsDkrLspAml0XRBl5rak3lI4bTzhSsupMJ/y8=;
+	b=eGrDAsqsp/fgteJ0kqNSgFiqYQnj8HTC/6pusVneLQC13z+oOjUDpxiTDPNtK986pHS2
+	 ngfhLrQDgQJHmPYxUGrkIeWuPlB0+UqSnSaoPEhgubVP2uXDzX7SkVzV/L+8kH6RTYa/B
+	 ZcCXJw1OcTjhTYmALhoizJDrA5mqYbKYo94XE8pwWK4xuOeYVA+QwSPigI1AlHVN1I6dv
+	 O0wPzrFbZVGJrSjyqrBpF0ch8HhXLdgtQynWysbwg5ygbQIn3XIKcka2KnJwPpPTVlQYC
+	 tbJweR0/ahFmhcxSLMzBI62dzfEHwErsgWIHCL2TO0oaKUdQ0zgynbzqp3Quw+OgaUA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=kylinos.cn;
-	spf=pass smtp.mailfrom=kylinos.cn;
-	arc=none smtp.remote-ip=124.126.103.232
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
+	dmarc=pass header.from=mailbox.org;
+	spf=pass smtp.mailfrom=mailbox.org;
+	dkim=pass header.d=mailbox.org header.i=@mailbox.org header.a=rsa-sha256 header.s=mail20150812 header.b=td12n49U;
+	arc=none smtp.remote-ip=80.241.56.152
+Received: from mout-p-102.mailbox.org (mout-p-102.mailbox.org [80.241.56.152])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E2A3606A327;
-	Wed, 11 Nov 2026 08:50:14 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8E2A3606A327
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: e5d51c96ddac11f19a56ed5b684f684d-20261111
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.3.19,REQID:70de7592-74cc-407f-a7ce-20aa329763cf,IP:0,U
-	RL:25,TC:0,Content:0,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION
-	:release,TS:25
-X-CID-META: VersionHash:7db8b62,CLOUDID:1a2a5734b3bf66cc1711c3c22ae16d56,BulkI
-	D:nil,BulkQuantity:0,SF:80|81|82|83|102|865|898,TC:nil,Content:0|15|50|99,
-	EDM:-3,IP:nil,URL:11|94|82|1,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0
-	,OSI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
-X-CID-BVR: 2,SSN|SDN
-X-CID-BAS: 2,SSN|SDN,0,_
-X-CID-FACTOR: TF_CID_SPAM_SNR,TF_CID_SPAM_ULN
-X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
-X-UUID: e5d51c96ddac11f19a56ed5b684f684d-20261111
-X-User: liwang@kylinos.cn
-Received: from [10.42.16.85] [(10.44.16.150)] by mailgw.kylinos.cn
-	(envelope-from <liwang@kylinos.cn>)
-	(Generic MTA with TLSv1.3 TLS_AES_128_GCM_SHA256 128/128)
-	with ESMTP id 1586439326; Wed, 11 Nov 2026 16:50:08 +0800
-Message-ID: <656d0e00-01a6-4e90-a924-4ad2329c3d74@kylinos.cn>
-Date: Wed, 11 Nov 2026 16:50:05 +0800
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E21A606A33E
+	for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 08:53:48 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0E21A606A33E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.a=rsa-sha256 header.s=mail20150812 header.b=td12n49U
+Received: from smtp102.mailbox.org (smtp102.mailbox.org [IPv6:2001:67c:2050:b231:465::102])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519MLKEM768 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mout-p-102.mailbox.org (Postfix) with ESMTPS id 4jPckV706vzKsYn;
+	Wed, 11 Nov 2026 09:53:38 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+	t=1794387219; h=from:from:reply-to:reply-to:subject:subject:date:date:
+	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+	 content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=VRiZhzrsDkrLspAml0XRBl5rak3lI4bTzhSsupMJ/y8=;
+	b=td12n49UKDo56vCxSTn09U/FbdYGCk/hjrgkPwsYYmfR0Gs5QBppPCBDtVxxLchIEUwdQb
+	qOgaQ7bu4TKe2ydp1VVhzS3MjouOIvhK3svhqAqL4/zeXX6snq3K7vPx9e14jLpaWSPfrN
+	CC8kqaWegcbNN3dhGKGxAUSh8tFn4cT6u0zUeVOhFHv7yRgcI2X3Hx2TJKeot6Qlqt1EwC
+	lXHAwJBaYus+xC2WzZaQgsfOSySsNxfufDkkyksnvgI5eJB6EDfy5i8Q8e6p4IJt1EIvEW
+	KDNGmFpUTrOi351V8lzioglBOuHpSOovM/WIAIwzWjYiS+xktKSPpS25dn1MEg==
+Message-ID: <a2e7519ab463dec876aa806d91961456f31a725a.camel@mailbox.org>
+Subject: Re: [PATCH 0/3] dma-buf: dma-fence: Remove dma_fence_init64()
+From: Philipp Stanner <phasta@mailbox.org>
+Reply-To: phasta@kernel.org
+To: Philipp Stanner <phasta@kernel.org>, Min Ma <mamin506@gmail.com>, Lizhi
+ Hou	 <lizhi.hou@amd.com>, Oded Gabbay <ogabbay@kernel.org>, "Rob Herring
+ (Arm)"	 <robh@kernel.org>, Tomeu Vizoso <tomeu@tomeuvizoso.net>, Karol
+ Wachowski	 <karol.wachowski@linux.intel.com>, Andrzej Kacprowski	
+ <andrzej.kacprowski@linux.intel.com>, Heiko Stuebner <heiko@sntech.de>, 
+ Sumit Semwal <sumit.semwal@linaro.org>, Christian =?ISO-8859-1?Q?K=F6nig?=
+ <christian.koenig@amd.com>,  Felix Kuehling <Felix.Kuehling@amd.com>, Alex
+ Deucher <alexander.deucher@amd.com>, David Airlie	 <airlied@gmail.com>,
+ Simona Vetter <simona@ffwll.ch>, Maarten Lankhorst	
+ <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
+ Thomas Zimmermann <tzimmermann@suse.de>, Lucas Stach
+ <l.stach@pengutronix.de>, Russell King	 <linux+etnaviv@armlinux.org.uk>,
+ Christian Gmeiner <christian.gmeiner@gmail.com>,  Jani Nikula
+ <jani.nikula@linux.intel.com>, Joonas Lahtinen
+ <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>,
+ Tvrtko Ursulin <tursulin@ursulin.net>, Alessio Belle	
+ <alessio.belle@imgtec.com>, Luigi Santivetti <luigi.santivetti@imgtec.com>,
+  Qiang Yu <yuq825@gmail.com>, Rob Clark <robin.clark@oss.qualcomm.com>,
+ Dmitry Baryshkov	 <lumag@kernel.org>, Abhinav Kumar
+ <abhinav.kumar@linux.dev>, Jessica Zhang	 <jesszhan0024@gmail.com>, Sean
+ Paul <sean@poorly.run>, Marijn Suijten	 <marijn.suijten@somainline.org>,
+ Lyude Paul <lyude@redhat.com>, Danilo Krummrich <dakr@kernel.org>, Boris
+ Brezillon <boris.brezillon@collabora.com>, Steven Price	
+ <steven.price@arm.com>, =?ISO-8859-1?Q?Adri=E1n?= Larumbe	
+ <adrian.larumbe@collabora.com>, Liviu Dudau <liviu.dudau@arm.com>, Dave
+ Airlie	 <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, Matthew
+ Brost	 <matthew.brost@intel.com>, Natalie Vock <nat@pixelcluster.dev>, Arun
+ Pravin	 <arunpravin.paneerselvam@amd.com>, Matthew Auld
+ <matthew.auld@intel.com>,  Thomas =?ISO-8859-1?Q?Hellstr=F6m?=	
+ <thomas.hellstrom@linux.intel.com>, Melissa Wen <mwen@igalia.com>, 
+ =?ISO-8859-1?Q?Ma=EDra?= Canal	 <mcanal@igalia.com>, Dave Stevenson
+ <dave.stevenson@raspberrypi.com>,  Raspberry Pi Kernel Maintenance	
+ <kernel-list@raspberrypi.com>, Dmitry Osipenko
+ <dmitry.osipenko@collabora.com>,  Gurchetan Singh
+ <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, Zack Rusin
+ <zack.rusin@broadcom.com>,  Broadcom internal kernel review list	
+ <bcm-kernel-feedback-list@broadcom.com>, Thierry Reding	
+ <thierry.reding@kernel.org>, Mikko Perttunen <mperttunen@nvidia.com>, 
+ Jonathan Cameron	 <jic23@kernel.org>, David Lechner
+ <dlechner@baylibre.com>, Nuno =?ISO-8859-1?Q?S=E1?=	 <nuno.sa@analog.com>,
+ Andy Shevchenko <andy@kernel.org>, Neill Kapron	 <nkapron@google.com>, Greg
+ Kroah-Hartman <gregkh@linuxfoundation.org>, Alice Ryhl
+ <aliceryhl@google.com>, Miguel Ojeda <ojeda@kernel.org>, Boqun Feng
+ <boqun@kernel.org>,  Gary Guo <gary@garyguo.net>, =?ISO-8859-1?Q?Bj=F6rn?=
+ Roy Baron <bjorn3_gh@protonmail.com>,  Benno Lossin <lossin@kernel.org>,
+ Andreas Hindborg <a.hindborg@kernel.org>, Trevor Gross <tmgross@umich.edu>,
+  Daniel Almeida <daniel.almeida@collabora.com>, Tamir Duberstein
+ <tamird@kernel.org>, Alexandre Courbot	 <acourbot@nvidia.com>, Onur
+ =?ISO-8859-1?Q?=D6zkan?= <work@onurozkan.dev>,  Sunil Khatri
+ <sunil.khatri@amd.com>, Prike Liang <Prike.Liang@amd.com>, Vitaly Prosyak	
+ <vitaly.prosyak@amd.com>, Jesse Zhang <Jesse.Zhang@amd.com>, Timur
+ =?ISO-8859-1?Q?Krist=F3f?=	 <timur.kristof@gmail.com>, Srinivasan Shanmugam
+ <srinivasan.shanmugam@amd.com>,  David Rosca <david.rosca@amd.com>, Marco
+ Crivellari <marco.crivellari@suse.com>, Krzysztof Karas	
+ <krzysztof.karas@intel.com>, Andi Shyti <andi.shyti@linux.intel.com>,
+ Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>, Shixiong Ou
+ <oushixiong@kylinos.cn>, Jouni =?ISO-8859-1?Q?H=F6gander?=	
+ <jouni.hogander@intel.com>, Joel Fernandes <joelagnelf@nvidia.com>, Thadeu
+ Lima de Souza Cascardo	 <cascardo@igalia.com>, Pierre-Eric Pelloux-Prayer	
+ <pierre-eric.pelloux-prayer@amd.com>, Al Viro <viro@zeniv.linux.org.uk>, 
+ Michael Bommarito <michael.bommarito@gmail.com>, Sam Day <me@samcday.com>,
+ Gabriel Prostitis	 <prostitisgabriel@gmail.com>
+Cc: dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, 
+	linux-media@vger.kernel.org, amd-gfx@lists.freedesktop.org, 
+	etnaviv@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, 
+	imagination@lists.freedesktop.org, lima@lists.freedesktop.org, 
+	linux-arm-msm@vger.kernel.org, freedreno@lists.freedesktop.org, 
+	nouveau@lists.freedesktop.org, virtualization@lists.linux.dev, 
+	spice-devel@lists.freedesktop.org, intel-xe@lists.freedesktop.org, 
+	linux-tegra@vger.kernel.org, linux-iio@vger.kernel.org, 
+	linux-usb@vger.kernel.org
+Date: Wed, 11 Nov 2026 09:53:25 +0100
+In-Reply-To: <20261105113529.1989375-2-phasta@kernel.org>
+References: <20261105113529.1989375-2-phasta@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.60.2 (3.60.2-3.fc44) 
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,104 +142,38 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/3] virtiofs: fix use-after-free of fs->tag on device
- removal
-To: Miklos Szeredi <mszeredi@redhat.com>, fuse-devel@lists.linux.dev
-Cc: German Maglione <gmaglione@redhat.com>,
- Stefan Hajnoczi <stefanha@redhat.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, virtualization@lists.linux.dev,
- stable@vger.kernel.org, Sashiko <sashiko-bot@kernel.org>
-References: <20261105150943.86650-1-mszeredi@redhat.com>
- <20261105150943.86650-2-mszeredi@redhat.com>
-Content-Language: en-GB
-From: Li Wang <liwang@kylinos.cn>
-In-Reply-To: <20261105150943.86650-2-mszeredi@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+X-MBO-RS-ID: bc6accce8d8b9e73737
+X-MBO-RS-META: pdph9mgme6uj6kihqyt55uq9zqcpmeni
 
-Hi Miklos,
+On Thu, 2026-11-05 at 12:35 +0100, Philipp Stanner wrote:
+> We recently had a discussion about reworking dma_fence init to close a
+> race-window [1].
+>=20
+> The community agreement seems to have been that we can get rid of
+> dma_fence_init64(), so let's do that already. In the meantime we can
+> continue our discussions regarding the race in [1].
+>=20
+> This also touches the Rust dma_fence, which actually should use 64-bit
+> seqnos (was forgotten so far). Rust fence has no users currently, so
+> needs no backporting, so I would like to address that in a distinct
+> patch.
+>=20
+> Tested on Nouveau with and without the SEQNO64 flag. Nouveau also uses
+> the USER flag, so I hope we're fine.
+>=20
+>=20
+> P.
+>=20
+> [1] https://lore.kernel.org/dri-devel/20261029095542.1526750-3-phasta@ker=
+nel.org/
+>=20
+>=20
+> Philipp Stanner (3):
+> =C2=A0 dma-buf: dma-fence: Add flags parameter to dma_fence_init()
+> =C2=A0 dma-buf: Port users of dma_fence_init64()
+> =C2=A0 dma-buf: dma-fence: Remove dma_fence_init64()
 
-On 05/11/2026 23:09, Miklos Szeredi wrote:
-> The virtio_fs object is refcounted via its kobject, so a mount can keep it
-> alive well beyond the lifetime of the virtio device binding.  The tag
-> string, however, was allocated with devm_kmalloc() and is therefore freed
-> by devres_release_all() as soon as the device is unbound, i.e. right after
-> virtio_fs_remove() returns (see device_unbind_cleanup() in
-> drivers/base/dd.c).
-> 
-> virtio_fs_get_tree() looks up the instance, takes a kobject reference and
-> then drops virtio_fs_mutex before doing the sleepable part of the mount
-> (allocations, fuse_conn_init(), sget_fc()).  A concurrent device removal
-> can complete in that window:
-> 
->   CPU 0 (mount)                         CPU 1 (remove)
->   -------------                         --------------
->   virtio_fs_get_tree()
->     virtio_fs_find_instance()
->     // reference taken, mutex dropped
->                                         virtio_fs_remove()
->                                           list_del_init(&fs->list);
->                                         // driver core unbinds device
->                                         // devres frees fs->tag
->   virtio_fs_fill_super()
->     mutex_lock(&virtio_fs_mutex);
->     if (list_empty(&fs->list))
->             pr_info(... fs->tag);   <-- use-after-free
-> 
-> The virtio_fs object itself is still valid here, only its tag has been
-> freed behind its back.
-> 
-> Fix the lifetime mismatch at the source: allocate the tag with kmalloc()
-> and free it from virtio_fs_ktype_release(), so that it lives exactly as
-> long as the object embedding it.  All probe error paths already drop the
-> final kobject reference, so they are covered.  Merely dropping the tag
-> from the error message would paper over this instance while leaving a
-> devres pointer embedded in an object that routinely outlives its device.
-> 
-> The other readers of fs->tag are unaffected: tag_show() is fenced off by
-> the kobject_del() in virtio_fs_remove(), the automatic KOBJ_REMOVE uevent
-> is emitted from __kobject_del() while the device is still bound, and both
-> virtio_fs_add_instance() and virtio_fs_find_instance() only walk instances
-> still on virtio_fs_instances.
-> 
-> Fixes: a62a8ef9d97d ("virtio-fs: add virtiofs filesystem")
-> Cc: <stable@vger.kernel.org>
-> Reported-by: Sashiko <sashiko-bot@kernel.org>
-> Closes: https://sashiko.dev/#/bug/linux-0328b3a1-043b-468e-8425-6a613d91b5ef
-> Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-> ---
->  fs/fuse/virtio_fs.c | 9 +++++++--
->  1 file changed, 7 insertions(+), 2 deletions(-)
-> 
-> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-> index ba8d79c4bcac..ef58bedc3941 100644
-> --- a/fs/fuse/virtio_fs.c
-> +++ b/fs/fuse/virtio_fs.c
-> ...
-> -/* Read filesystem name from virtio config into fs->tag (must kfree()). */
-> +/*
-> + * Read filesystem name from virtio config into fs->tag.  Freed by
-> + * virtio_fs_ktype_release() so that it stays valid for as long as the
-> + * virtio_fs object itself, which may outlive the virtio device.
-> + */
->  static int virtio_fs_read_tag(struct virtio_device *vdev, struct virtio_fs *fs)
->  {
->  	char tag_buf[sizeof_field(struct virtio_fs_config, tag)];
-> @@ -505,7 +510,7 @@ static int virtio_fs_read_tag(struct virtio_device *vdev, struct virtio_fs *fs)
->  		end = &tag_buf[sizeof(tag_buf)];
->  
->  	len = end - tag_buf;
-> -	fs->tag = devm_kmalloc(&vdev->dev, len + 1, GFP_KERNEL);
-> +	fs->tag = kmalloc(len + 1, GFP_KERNEL);
+@Christian, what do you think, shall we go on with this one?
 
-The fix for the UAF issue regarding fs->tag looks good to me.
 
-However, while looking at this, I happened to notice another similar potential issue: when the DAX mode 
-is enabled for file read/write, the DAX window is mapped via devm_memremap_pages and unmapped when the device 
-is unbound. Although as far as I know, the corresponding QEMU changes for DAX mode don't seem to have landed 
-in QEMU upstream, fs->window_kaddr and other established page table mappings still point to this memory region.
-Perhaps we should also look into cleaning them up?
-
-Reviewed-by: Li Wang <liwang@kylinos.cn>
-
+P.
