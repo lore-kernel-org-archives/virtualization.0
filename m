@@ -1,90 +1,102 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.208.41
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794425190;
-	b=tiHDfREg3ftXHpdiRID1xpMQtAfRK1CttRVJNch83XTj8j8VQ3qKHs9d8NZnL++CPih5
-	 4ol3dqAQmXd6JUeez93eZI63O9wvkLz1Vz3oqz0zSdY87f3F3//7USZrfpLDuFhjoOxma
-	 MRV61TFkmXWUZtr21RYHkvZtOmOgpkX8HBJlyZoZI6qOBF/qkRD+jcIJeDRs5agDKN1fL
-	 elzOCdv4YHbVKcZm6leFmlXEa7doEi2uzfDS1qItv92n+Db6NmAFAvc6wK4d0lzeomZZd
-	 OsSndFpejfQ6JeD9P25RUfRXqajaHgKijZOFgOa3LHThhjE5ulUkYOV/JWzCqi9UDxw==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794425190;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Received:X-Forwarded-Encrypted:X-Received:MIME-Version:References:
-	 In-Reply-To:From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type;
-	bh=wd2WluVLwj4r2VIyBQDufDpYxaAOyEu9BCBLHFr84dA=;
-	b=gK0Ghx+vBmaHDTekDmZ336odvpmYoKPPrmcUjKP0eOiH911ysNztZC2smNINDOPrS7Qz
-	 KzcsUYqVW7IZogUa9Fx4BYIdStVB0oU8HzrFb4VXzLbx7iradM0q4mw36x1vANnTdiP0j
-	 SytecFCL3mi5oyJ8B/G8jv89N4ixp9O+UgS2SkOIdE2x8KESiRkJfgZvp4ws5YOZk2hF/
-	 Cjev28q34XYz8a81U4OuRlU0/6wePNyG1VOnL7qmZV4H3nTIbPH7Q+Xgx6jzd+++5G/Hq
-	 NWwrqawHZ4Zrjn4KUADUPqZNuqThdMZmxcUCv1Tiaabj5aLh6dZfnWpAO4ohYP3R+Pw==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=linux-foundation.org;
-	spf=pass smtp.mailfrom=linuxfoundation.org;
-	dkim=pass header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google header.b=Xg48hDJ9;
-	arc=none smtp.remote-ip=209.85.208.41
-Received: from mail-ed1-f41.google.com (mail-ed1-f41.google.com [209.85.208.41])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=185.56.87.11
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794433908;
+	b=Tkt8u8xGwrbGCYbUHQwIab7kZOXNV9T9TyFmYKcc/nFvEp+WavGxwzgQDjGSwkWFLIzZ
+	 8QHiJwcXPEHWLx4co4UlN3TiBkNPrq8awI8YPlsFWHv6I5ZTf3fyc5FIVhDGDVkGOoahd
+	 OkSxIfJaFsL4iMqS8LtWl7YfyvGNRRfrmnEdnYDaoeRwg958iN9Bveygr/D5Tj9k02gbU
+	 s0MGLMAJGVywaYEXPzSxS5Ufe7HceWxOxbjwzj5JBWbjTNdeh1bC4t1VCDWUKVCIgIOj6
+	 X/SUdNiUob3MqOh8HVR4/uRvesBF/6WQ1U4gU7C21Sp3eJik8JrBisQHhwgqrFYmIOA==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794433908;
+	h=DMARC-Filter:DKIM-Signature:Received:DKIM-Signature:Received:Date:
+	 From:To:Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To:X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:
+	 X-AntiAbuse:X-AntiAbuse:X-Source:X-Source-Args:X-Source-Dir:
+	 X-SGantispam-id:X-AntiAbuse:AntiSpam-DLS:AntiSpam-DLSP:AntiSpam-DLSRS:
+	 AntiSpam-TS:CFBL-Address:CFBL-Feedback-ID;
+	bh=Vbx0Meut0QWhwLY5JReWROPpzdfMrBn/4+QeVAVvMPI=;
+	b=vGdUqPJvUCN41PtNsI1VbvyO4ZPxeEB5FZjpcvxUVvPAXQKMRFSkxi3we/SZE36aGoeW
+	 jwQYh0Dyi3kdOEyP+IDO4S/YibX3KtWd/Zj+ftd+EB/+JjOfnypcS+Kx7rd/YezgMOoXh
+	 MIIB5l64haOhN225IM9Pah14iQcIr3geXLcrWqHJICB68GOMy/LI6AUsIeAwbW1VQeeC4
+	 vS9aSTh/dIsvxxt78inXnfpdVpqRP+NsaQ4eA7Dm9Zyepi2jv5wGM93HR5u8ebp+cXZ5/
+	 WyKyXzoizIZEygKS3BRfw0j2U4H//USy3SCvpbn06K3YFn4m5bE0hfZ0BSaTtl8fPxA==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=valla.it;
+	spf=pass smtp.mailfrom=valla.it;
+	dkim=pass header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.a=rsa-sha256 header.s=default header.b=N1lUvULp;
+	dkim=pass header.d=valla.it header.i=@valla.it header.a=rsa-sha256 header.s=default header.b=Aq6+g+6A;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=185.56.87.11
+Received: from delivery.antispam.mailspamprotection.com (delivery.antispam.mailspamprotection.com [185.56.87.11])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD275606A89B
-	for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 19:26:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BD275606A89B
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BB83606A332
+	for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 21:51:47 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8BB83606A332
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=valla.it
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=valla.it
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google header.b=Xg48hDJ9
-Received: by mail-ed1-f41.google.com with SMTP id 4fb4d7f45d1cf-6b71b012e3cso2371542a12.1
-        for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 11:26:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google; t=1794425188; x=1795029988; darn=lists.linux.dev;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=wd2WluVLwj4r2VIyBQDufDpYxaAOyEu9BCBLHFr84dA=;
-        b=Xg48hDJ9I6I9quvE9TG2xdSsiqmBRV2Q1z1wbnE8WwtwYmJdpWM7xWuR6at0wdTy0q
-         G8sDJ9bwWbAlHvnJ9nh+xkTmUgaEsTNM7s6GPfvJ9CGs27N+LqogW/QTsr7Oyz/d/hJg
-         y7zm4gHR5lJKMF8h6jxrlrM+6Uy0FIgmLFfZw=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794425188; x=1795029988;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=wd2WluVLwj4r2VIyBQDufDpYxaAOyEu9BCBLHFr84dA=;
-        b=sTqc66nI9sk/jMcLRZZ4JVTIKlnqR+/1NdPOxU+4KTrUxyYJ+4O+6pM17pMSjcZKZL
-         S25mzStsSM5TjWu7sEdNdAC2Sd02YgVp54LppNzKRY/nJSbCQYi2aNDrIalhcqjeeuXW
-         HpRvmIFdYW8+Tuc26ZhfsGJPiliazbd383LVOEdNoK9bokfPRQau+q57S2dksG1Bz6jF
-         01ySW50eWT8Lwq397HR66eAtPi0jepXIVVkaXtfU0iIRbqUGxyv1HWhe57aR6r9rQCj1
-         zSIdVz+H0NXML27cXTDLJIOtoaV6lspwf9kyM1Lis9JnQycSbD1tBlRrvluWqeSoMf6Q
-         Ao5A==
-X-Forwarded-Encrypted: i=1; AL+hErGU4wf+wLvOSt+3p1uV9TT5SYYskpV4rWlBW0VHZAY4MLvnegpbAnU03m8a73PCXDPmwqvS0oD37TutvTQUzw==@lists.linux.dev
-X-Gm-Message-State: APuU4Z94BsLYEcH2uI/e5s/PNjuO31VFjkZJLmbzd963yz1/lj13iiSw
-	7DINxdvfEsQgEtRPrZ4kSiZxPGdXoNDSqGq5TBdobocB/mtqbgjzL5o85NmjprR2R4jElZ6x92i
-	4tXXykJY=
-X-Gm-Gg: AYBFou3/8FHdeZQw9yJjGrn+IcToTD/vZa/ATmLfc3WtuvwPQMqYTS+yB9UkhLfyap4
-	6OVRq4uL2r/bxE2du9EANKL+Mm+l8hKNbDvQ9llgrywDCLeUnmsbHeILdk1BLRjYZcW4sWok7cp
-	u7l5+iQaQg1XNP8UhtZDD311tQ5YTeT40qQCiLpo212SXOIcTsDH6w6SOeFqziV6vkZnohoJee5
-	03vczBBb6Sb12rw2Vhpl04OSkQyPeqcTd91zxe0iHH9ah07Usd5WdwMs6l0XTo9yDjpfj9NfkfA
-	+QUfAJHP29ishO9amnGDHZ5/DlliF3u3b+pEGJJFiV2RA70KqHBcVTJ5u/Z1ztaeLLXr0nKyjgg
-	ind4hZG57oYYzMKkSuNhlOl9+fHhZMWVsYBfWcIfnhrgkrgMh5OWAy/G4G8dlIeer2fHO2OlCge
-	GdI0YAVgru+MgD0FC7u4yYSAGk4srfTbWCICVs5n3tvRM1FLG3EyDjKLOUkWKvDpmuAmhIrZmft
-	mfaU2DrLovKvkIVwecpVGM6lvHrglwceTSSqt9DTnMUbCnYWNpp5WAMJMG/od+/ZqQBk8QzzsOm
-	fVvPU7xzWqChGGopK3zKDRPkV0LEGi76OYReS+8KvPkZIZ7dHKvGhrNuUvDzlf3zPuFuhAS8kLs
-	JxiE=
-X-Received: by 2002:a05:6402:22d9:b0:6b5:962e:e017 with SMTP id 4fb4d7f45d1cf-6b777702145mr1868606a12.23.1794425188068;
-        Wed, 11 Nov 2026 11:26:28 -0800 (PST)
-Received: from mail-ed1-f54.google.com (mail-ed1-f54.google.com. [209.85.208.54])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6b78348cb4esm964825a12.23.2026.11.11.11.26.26
-        for <virtualization@lists.linux.dev>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 11 Nov 2026 11:26:27 -0800 (PST)
-Received: by mail-ed1-f54.google.com with SMTP id 4fb4d7f45d1cf-6b71b012e3cso2371510a12.1
-        for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 11:26:26 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AL+hErFo34lyflsg8mS7c13GHVO4UezjhpkmvgFpxS6R2hRryM/A6iLgOtVaib7U+THoOdC7MdnKpaavFVFpCfUWWA==@lists.linux.dev
-X-Received: by 2002:aa7:d1ca:0:b0:6b5:6478:a9a5 with SMTP id
- 4fb4d7f45d1cf-6b7773edf34mr1838418a12.10.1794425186528; Wed, 11 Nov 2026
- 11:26:26 -0800 (PST)
+	dkim=pass (1024-bit key, unprotected) header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.a=rsa-sha256 header.s=default header.b=N1lUvULp;
+	dkim=pass (1024-bit key, unprotected) header.d=valla.it header.i=@valla.it header.a=rsa-sha256 header.s=default header.b=Aq6+g+6A
+ARC-Seal: i=1; cv=none; a=rsa-sha256; d=outgoing.instance-europe-west4-ssp3.prod.antispam.mailspamprotection.com; s=arckey; t=1794433907;
+	 b=IUrBP3+nnsqpIMXDMemnIM/Ox8qcCcNzjkp75tZpGwCcVxyd7kJPnFgeItxjlhoHMEMsyRE02/
+	  gzaIrz3YSCOZJ3B6KJgHq7op3ucOmho3J0gu9DzhFl8lFJydSkEzepYZwbZU4Y7bB4Li4jaK8N
+	  +A3kUmfuCMDFAcZkjPOt0Gh4oMSFa86lagrjWDWDk7bSg4v7sZDc55SLh61H4sFLtCRWzLRAjn
+	  5mQ2+id+CNa2z+itG/JFjXHx/NTyXZ2NtxhGPtbNuRe413kk+V75LiEmuWr0YLMVrpIQA+jGt+
+	  aKKXU+Z5jIzYIE+OzSlFkGq6zXs2KvIAoa1ZIotVnEzsXw==;
+ARC-Authentication-Results: i=1; outgoing.instance-europe-west4-ssp3.prod.antispam.mailspamprotection.com; smtp.remote-ip=35.214.173.214;
+	iprev=pass (214.173.214.35.bc.googleusercontent.com) smtp.remote-ip=35.214.173.214;
+	auth=pass (LOGIN) smtp.auth=esm19.siteground.biz;
+	dkim=pass header.d=valla.it header.s=default header.a=rsa-sha256;
+	arc=none
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed; d=outgoing.instance-europe-west4-ssp3.prod.antispam.mailspamprotection.com; s=arckey; t=1794433907;
+	bh=wE06SBMMCgOMrEf8HNYFL5BLe2cwoz+SLDUxZoCq3sc=;
+	h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:
+	  From:Date:DKIM-Signature:DKIM-Signature;
+	b=PxdAUx3jsXsBWanhNxEZbxy1mMYJGNTMOyzCHOZi2KoTQpTaUM7uxWHDHtgio4U+yOkdAd3wIS
+	  LgYJAojHKY0TkniNkjiCllDSS01HgeahAKZq+iVv2yieT/JWC2tjiDxTsHYlHE0e9PFdu/0EPB
+	  ZHyUQJz1XXJDaMDgXTYO++dDU/zq+C5N4LHvCURGLlh3MagYpossZVpKvKNhIy2HltDEZGeL9W
+	  /ikhBd76Aoxd0bHo972qz4l+fNL4YYphCp2bDL4zR5WjaI3RdMbMITcMbqA5SL/5OW02rD78ik
+	  4IZxGgc+w9M5k5+u2SkVQj7DzT3jm5m8d33zvylGgjZrSQ==;
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=antispam.mailspamprotection.com; s=default; h=CFBL-Feedback-ID:CFBL-Address
+	:Content-Type:MIME-Version:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+	List-Unsubscribe:Content-Transfer-Encoding;
+	bh=Vbx0Meut0QWhwLY5JReWROPpzdfMrBn/4+QeVAVvMPI=; b=N1lUvULpAKD9sh9rCkkqTGJBS5
+	UVP3q5EnV7N1yDcgGZTKSmAb1LJIPrgQNTVUtozbQPNOoc8G6+tob0zRFlYqnVyQUK9VEG9bYH1gy
+	6ZxZYSqLe7At5iY9sw0ztFdi4nizaU7lCuqfGtxV2niBLaQVRh2zlJGjh0sdJyPNeH7A=;
+Received: from 214.173.214.35.bc.googleusercontent.com ([35.214.173.214] helo=esm19.siteground.biz)
+	by instance-europe-west4-ssp3.prod.antispam.mailspamprotection.com with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+	(Exim 4.100.1)
+	(envelope-from <francesco@valla.it>)
+	id 1xRGEF-00000000Ojb-0Me3
+	for virtualization@lists.linux.dev;
+	Wed, 11 Nov 2026 21:51:39 +0000
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=valla.it;
+	s=default; h=Subject:Cc:To:From:Date:list-help:list-unsubscribe:
+	list-subscribe:list-post:list-owner:list-archive;
+	bh=Vbx0Meut0QWhwLY5JReWROPpzdfMrBn/4+QeVAVvMPI=; b=Aq6+g+6AcHy0QLhEQnG/yUlCbN
+	CN0yTZsZx+Zj6ueBMau198JKdMwt1qNMDLPZa8wVpCgFLb6/3vxBsGUp82I0GXJKh6jC695S/sZC7
+	2fnHDs2IBrpXpoUzinQ4bDzc9c2KQd0cn0zP9fc23wgnB0h/ULmL5PsxnPAZBeVCu8yw=;
+Received: from [79.17.15.196] (port=62469 helo=bywater)
+	by esm19.siteground.biz with essmtpa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+	(Exim 4.100.1)
+	(envelope-from <francesco@valla.it>)
+	id 1xRGE6-00000000FIH-21LM;
+	Wed, 11 Nov 2026 21:51:30 +0000
+Date: Wed, 11 Nov 2026 22:51:28 +0100
+From: Francesco Valla <francesco@valla.it>
+To: Stjepan Poljak <stjepan.poljak@gmail.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, 
+	Jason Wang <jasowangio@gmail.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Andy Lutomirski <luto@kernel.org>, 
+	Bjorn Andersson <andersson@kernel.org>, Mathieu Poirier <mathieu.poirier@linaro.org>, 
+	virtualization@lists.linux.dev, linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] virtio_ring: reject a split ring size that is not a
+ power of two again
+Message-ID: <avThD0u2WQx8drWl@bywater>
+References: <20261111172947.3579982-1-stjepan.poljak@gmail.com>
+ <20261111172947.3579982-2-stjepan.poljak@gmail.com>
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -94,53 +106,101 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-References: <20261110145241.536019-1-kas@kernel.org> <20261110145241.536019-2-kas@kernel.org>
- <avNuQqLf9CG9dSsE@casper.infradead.org> <20261111-heimreisen-ungeziefer-empfunden-a892571f2c07@brauner>
- <20261111-thunfisch-wirbt-waldrand-822275b2d3b1@brauner> <CAHk-=wjPY=kfgnmtx4COEQjD5UzKx9m2-=KLGAZP4d=RKEH+pg@mail.gmail.com>
- <20261111-stumpf-montag-miterleben-c4e2feac8090@brauner>
-In-Reply-To: <20261111-stumpf-montag-miterleben-c4e2feac8090@brauner>
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Wed, 11 Nov 2026 11:26:09 -0800
-X-Gmail-Original-Message-ID: <CAHk-=wjGXBnme-N+HvbzHH40ftb7Suc=kZVT5cuintQWyMHJ7Q@mail.gmail.com>
-X-Gm-Features: AclHuK8LZq7-9ajWCZDJwTRjmLDnovqaiY30E_XKr8U-iLvj6BsIi-SShy4XPgk
-Message-ID: <CAHk-=wjGXBnme-N+HvbzHH40ftb7Suc=kZVT5cuintQWyMHJ7Q@mail.gmail.com>
-Subject: Re: [PATCH 1/4] virtio_console: copy pipe buffers in splice_write()
-To: Christian Brauner <brauner@kernel.org>
-Cc: Matthew Wilcox <willy@infradead.org>, "Kiryl Shutsemau (Meta)" <kas@kernel.org>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Miklos Szeredi <miklos@szeredi.hu>, Amit Shah <amit@kernel.org>, 
-	Jan Kara <jack@suse.cz>, "David Hildenbrand (Arm)" <david@kernel.org>, Zi Yan <ziy@nvidia.com>, 
-	Bernd Schubert <bschubert@ddn.com>, Hugh Dickins <hughd@google.com>, 
-	Baolin Wang <baolin.wang@linux.alibaba.com>, Andrew Morton <akpm@linux-foundation.org>, 
-	Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	linux-fsdevel@vger.kernel.org, fuse-devel@lists.linux.dev, 
-	virtualization@lists.linux.dev, netdev@vger.kernel.org, linux-mm@kvack.org, 
-	linux-kernel@vger.kernel.org, kernel-team@meta.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261111172947.3579982-2-stjepan.poljak@gmail.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - esm19.siteground.biz
+X-AntiAbuse: Original Domain - lists.linux.dev
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - valla.it
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-SGantispam-id: 1dd1656ad9c6d0c1c7d5c7e284a28435
+X-AntiAbuse: ID - 1dd1656ad9c6d0c1c7d5c7e284a28435
+AntiSpam-DLS: false
+AntiSpam-DLSP: 
+AntiSpam-DLSRS: 
+AntiSpam-TS: 1.0
+CFBL-Address: feedback@antispam.mailspamprotection.com; report=arf
+CFBL-Feedback-ID: 1xRGEF-00000000Ojb-0Me3-feedback@antispam.mailspamprotection.com
+Authentication-Results: outgoing.instance-europe-west4-ssp3.prod.antispam.mailspamprotection.com;
+	iprev=pass (214.173.214.35.bc.googleusercontent.com) smtp.remote-ip=35.214.173.214;
+	auth=pass (LOGIN) smtp.auth=esm19.siteground.biz;
+	dkim=pass header.d=valla.it header.s=default header.a=rsa-sha256;
+	arc=none
 
-On Wed, 11 Nov 2026 at 10:53, Christian Brauner <brauner@kernel.org> wrote:
+Hi Stjepan,
+
+On Wed, Nov 11, 2026 at 06:29:37PM +0100, Stjepan Poljak wrote:
+> The split ring indexes its avail and used rings with num - 1 as a mask,
+> so its size must be a power of two. Commit 2a2d1382fe9d ("virtio: Add
+> improved queue allocation API") moved that check from
+> vring_new_virtqueue() into the new allocation path, which
+> vring_new_virtqueue() does not use.
+> 
+> remoteproc calls vring_new_virtqueue() with a ring size from the
+> firmware, checked only to be non-zero. With 100 entries, for example,
+> the driver would put buffers 4 and 8 in avail slot 0. The device would
+> look for them at slots 4 and 8, possibly reading the wrong data.
 >
-> If that's the official new stance than I'm very happy.
 
-I definitely want to remove HIGHMEM entirely in the not too distant
-future. And before we remove it, we can most definitely document the
-fact that we will not be worried about insane users.
+Good catch - I think I encountered something like this during my
+experiments with virtio-over-remoteproc and ascribed it to a different
+cause.
 
-And things like security issues count as "insane user": if you use
-HIGHMEM outside of controlled embedded setups or museum pieces you get
-to keep both pieces when it breaks.
+> Put the check back for the split ring; the packed ring has no such
+> restriction.
+> 
+> Fixes: 2a2d1382fe9d ("virtio: Add improved queue allocation API")
+> Signed-off-by: Stjepan Poljak <stjepan.poljak@gmail.com>
+> ---
+> remoteproc still reports this as -ENOMEM, although the "Bad virtqueue
+> length" warning names the cause. Returning an error pointer from
+> vring_new_virtqueue() is left for later; the same change for
+> vring_create_virtqueue() is here:
+> https://lore.kernel.org/r/20261106055635.3019889-1-stjepan.poljak@gmail.com
+> ---
+>  drivers/virtio/virtio_ring.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
+> 
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index f683a2d6a200..8da9bd0e70f4 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -3513,6 +3513,12 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
+>  						    name, map);
+>  	}
+>  
+> +	/* The split ring indexes its rings with num - 1 as a mask. */
+> +	if (!is_power_of_2(num)) {
+> +		dev_warn(&vdev->dev, "Bad virtqueue length %u\n", num);
 
-IOW, it's legacy. We should aim to not introduce *new* bugs to it, but
-if there are pre-existing bugs they very much count as "don't care",
-this will be removed soon.
+This is definitely and error, and should be logged as such (I know, the
+same message is printed as a warn in vring_alloc_queue_split(), but we
+have no ABI to align to here).
 
-I think the only reason it wasn't removed a couple of years ago
-already is basically a few old 32-bit ARM platforms that still used
-it.
+Also, consider to adopt a message a bit more descriptive; maybe
+something like this is sufficient:
 
-Those platforms still exist, and I predict that they'll still exist
-next year, but if those users have to stay at the current LTS kernel,
-that's fine.
+   "Bad virtqueue length %u (not a power of two)\n"
 
-                  Linus
+> +		return NULL;
+> +	}
+> +
+>  	vring_init(&vring_split.vring, num, pages, vring_align);
+>  	return __vring_new_virtqueue_split(index, &vring_split, vdev, weak_barriers,
+>  				     context, notify, callback, name,
+> 
+> base-commit: 1a577f9402c1780cc1e663f48d5dd54c02051b09
+> -- 
+> 2.53.0
+> 
+> 
+
+Thank you!
+
+Regards,
+Francesco
+
