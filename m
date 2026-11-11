@@ -1,83 +1,65 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=203.205.221.191
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794406428;
-	b=fRiSaX6yCgDFwvzUIl8UHi5R3EraeZxc2WqjzyLH4hZEonCByM1PeaLweXr/GtZ8dUN4
-	 hKrkW8OtpTDzkovTa1Xwbt1vbo9zfVyIEam/Xwt0jXrn+mAPjfsO1M2a02Ek1e44tYPIA
-	 XGSoBeCpIiF3Mz7jAhSZipAkUH/m8OWyapqeOLc6gfhFKKgQEvEAeXgUW9An/hjjfNzGW
-	 LimedRy7TaZJ+DPXEkuMHvfL6+8Z36SCTlY4KbkC43nucS9RpdSqx921iHQJwF6NQWslX
-	 nG5S9BY0BSAMOnq3rD/eoTpxa3SZvNl/hQylODaHm6VynXOWto4pCcW65lArk3qh9TA==
+	t=1794409736;
+	b=zMO0x1BhjxhZSMLey27ghzAQZNUmYimO1fXWEQoLDPM7aDjfSXlhhquTQJue9dClabbe
+	 7UOAcHASWRWPMk2fyBA2jblEhIRcTT6hZHkx2OtoDHDDJEEc3iVEJQau5c1BkXszFOO+Z
+	 kFVw8udjohSEwfOy8/QCua57P1wEBKlt/PdoSpzdkNiYjXrE+4vIljNtxE4V7K52NP+Mv
+	 gMiYbi1pxO3C0CHvDk+qu9AgkPtbyZ/GN61Cf1aSbAfmklhSJtm5ixwQM65+5lelRR08o
+	 t0qw7Ibp6dyN2cTpU09gae4r/ydlxwuRMuDiJau1mj9DXUTgP6SuF9TDpxHXDoA0LJg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794406428;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=Hpk1hIi7XOiwEjgpy1/0/z4p3t9ooWMOkXOse5X+snU=;
-	b=h8Vvi0IYLGxGigefzGeev6QHIZvDPMP9t2naxfnMlWkZ044lFM3xYCBz81q4DBVEy6tR
-	 sV/mXHAt5dv6rhAbB5rwIMeCXEnex+DiQCTDV2cYRmsQToDhF+lPwkldJWVnMrGzA2Wgb
-	 3+pDLjKiCqaxzucINvMDKWGMZoloiVvADSMc7791x2XKMnxTd5Gq9IqZkr8MkPsLCn+9L
-	 WnYKaO9woXmy0H5D8MoZ/PTbMG9hI68Deji0HkWKZzQcDyIxEkw3C8pi/VmcssyTyuuXU
-	 A/VCct30Y/InEPL/OmcAYXPnNv3UEMW7eDMHanX0FrbIzAxeHo0gb0xm116sEWoNNnQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794409736;
+	h=DMARC-Filter:DKIM-Signature:X-QQ-XMRINFO:X-QQ-XMAILINFO:From:To:Cc:
+	 Subject:Mime-Version:Content-Type:Content-Transfer-Encoding:Date:
+	 X-Priority:Message-ID:X-QQ-MIME:X-Mailer:X-QQ-Mailer:References:
+	 In-Reply-To:X-QQ-mid;
+	bh=LPV/0m1FhlHncjDMGPgjphBsoLLLCxbF9YAsFHWAVCk=;
+	b=s2MS8w3pdIvj4h96wE345RRZue4tFhoix2QL8RJPHDFSFw/W2gQu1yoOnNcHdWpGVKqP
+	 u7JCABT5OZ3tOYZjqFt3b55lhMwtVBLgH8UUKvjnDssFPa4Q/4J15Noe4XM4YIK69Da03
+	 alVq7z9dl4RIJ8rULyfYd0dZ2MSLzIOqvnlXmfxefXa6lz8oxm8l95eyxMlsZopvqZpjc
+	 eqijEyRNoHsv5ImR0tpeI+i4UqdUYs3yTs0U0hXfduoRhGHGBYNS7j2O5wklaIHEX414S
+	 YseJSgeTMWZk4kBY6zwyp7ykAQWOHRQOoqago1qQFPwWkGYUdE5p2BLZz07GSeaHljQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ccH0Vsla;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=qq.com;
+	spf=pass smtp.mailfrom=qq.com;
+	dkim=pass header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b=EAOBzMc3;
+	arc=none smtp.remote-ip=203.205.221.191
+Received: from out203-205-221-191.mail.qq.com (out203-205-221-191.mail.qq.com [203.205.221.191])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABEEA606A894;
-	Wed, 11 Nov 2026 14:13:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C3C6606A899
+	for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 15:08:54 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8C3C6606A899
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ccH0Vsla
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F9901F00A06;
-	Wed, 11 Nov 2026 14:13:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794406428;
-	bh=Hpk1hIi7XOiwEjgpy1/0/z4p3t9ooWMOkXOse5X+snU=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=ccH0Vslai/XhiQzYLaY6LVV1GiPvL6PFsDomzdlhfDfdNwCtXYgpnqABTAcrKhrBt
-	 7ASdw3d34VJscDVuOV87qBfD8IYhWyBBH+EXJB/TZVl2pclmrqZ2ioEXukibOdR1Oi
-	 4eyB0BlNMC/LJesN/cGT5JGitNrbks/7p/SdrRxSzeoR0fIwnsrfLKCWTYaKFeLQXV
-	 HwuTf1P3rykgTyIee6xQM6PluUfUFx1zWEt3uX8gjwH4rSmrOb/Q6PvHVIEKlqFLDu
-	 b3sKzFRZAeBRaCmlPMqxZ09tffwA8PFWlndXfYAMEpC4AVYo7kr81WBAaU420luCvd
-	 uQanlR/g2zJEg==
-Date: Wed, 11 Nov 2026 08:13:46 -0600
-From: Rob Herring <robh@kernel.org>
-To: Jayant Shekhar <jayant.shekhar@oss.qualcomm.com>
-Cc: iommu@lists.linux.dev, Abhinav Kumar <abhinav.kumar@linux.dev>,
-	Simona Vetter <simona@ffwll.ch>,
-	Robin Murphy <robin.murphy@arm.com>,
-	Dmitry Baryshkov <lumag@kernel.org>, Sean Paul <sean@poorly.run>,
-	Conor Dooley <conor+dt@kernel.org>,
-	David Airlie <airlied@gmail.com>, linux-arm-msm@vger.kernel.org,
-	Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
-	devicetree@vger.kernel.org,
-	Rob Clark <robin.clark@oss.qualcomm.com>,
-	linaro-mm-sig@lists.linaro.org, virtualization@lists.linux.dev,
-	Jason Wang <jasowangio@gmail.com>, linux-kernel@vger.kernel.org,
-	Maxime Ripard <mripard@kernel.org>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	"Joerg Roedel (AMD)" <joro@8bytes.org>, linux-media@vger.kernel.org,
-	Mahadevan P <mahap@oss.qualcomm.com>,
-	freedreno@lists.freedesktop.org,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Jessica Zhang <jesszhan0024@gmail.com>,
-	Flemin Jose <flemin.jose@oss.qualcomm.com>,
-	Marijn Suijten <marijn.suijten@somainline.org>,
-	dri-devel@lists.freedesktop.org, Abel Vesa <abelvesa@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Will Deacon <will@kernel.org>,
-	Sumit Semwal <sumit.semwal@linaro.org>,
-	Philipp Stanner <phasta@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Konrad Dybcio <konradybcio@kernel.org>
-Subject: Re: [PATCH v2 01/23] dt-bindings: display: msm: Add Qualcomm DCP
-Message-ID: <20261111141346.GC1476246-robh@kernel.org>
-References: <20261026-jshekhar-dcp-hlos-v2-0-7cf014efdee1@oss.qualcomm.com>
- <20261026-jshekhar-dcp-hlos-v2-1-7cf014efdee1@oss.qualcomm.com>
- <179304379330.2965544.11793708430519844335.robh@kernel.org>
- <2fb9fd90-fac5-4a9e-ac7e-5dde689d8b80@oss.qualcomm.com>
+	dkim=pass (1024-bit key, unprotected) header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b=EAOBzMc3
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
+	t=1794409731; bh=LPV/0m1FhlHncjDMGPgjphBsoLLLCxbF9YAsFHWAVCk=;
+	h=From:To:Cc:Subject:Date:References:In-Reply-To;
+	b=EAOBzMc3O6x8UPIR7x/MytAXpBssLOPoe96zo1eP/1KlUnlf4PfpX+frIPnoF2xtp
+	 kxRZApTZHVC1lQr5aSKekIlBPJ8i1w6a6x6xMY0qFr+qA7VFQVLbqwFJI9wmkegfVw
+	 VimFhgk0wXyExaFHqVdCdf5XTyUxiIv+EeAdZ3P0=
+X-QQ-XMRINFO: NI4Ajvh11aEjEMj13RCX7UuhPEoou2bs1g==
+X-QQ-XMAILINFO: MqG4KXyEKpQy7PiNJkUwScMSuOKEvaNZq9Aq/l5NSGpib8u2OnqKzLAYdyyp/A
+	 8eVi9qNs+CP5ydoCffnvW6hiPslk0aUOXOBuc1thONTqbCeHXpC+v6IONyx6aR7S/u/DenGt2SRoX
+	 ajixyL2fwiQhdxPEs/cozU/PKNbKmLEKC1gQGjV14krN6k2p6X2SlQgnu2Ly1El7o5UtwT8DpGQyC
+	 tGQkMhFiclq4hbM2hsvcexfNtuzWL6xAg4t7T0hS5hAo0rmaYPqcz03qu5ByugQ3Q1nnsZQEeqNBS
+	 BKsjyM0hJ9h5mji3S3fpmh7QDEZZVMEtN4k6vD1TaxPUEgY81NZXBlPSYHE1CURSMKUhy5VBtEqS0
+	 MSnr/yGnQW+h+mBm3axG/KeXlS0Qi6LNRU4T0CxJ6M2x+oiXVnRKkyHF/UzJjTJOGWfFAgn2HKr4+
+	 uf3Dw227SMxQzvtD7V6LZZfw30N5ivVE9JGpoNPNzU78GOyiT4vCqovuWQADU2ALrfsZk7RuJ1fr1
+	 fl9japYPU6vqvNMSo9rQCnZqU3F7ilWJRr97qmhUhoiyJK1Qndqx1KQUuPMdIgQwVIMqSwvuef99u
+	 tsIp43Qdd45wQ0nq/wkPRm9Y9PSH3Tx8zP3zVf2HJ1Uov/C0eJwmi8XWaK/ryvS+7gURwal9uyN13
+	 jJh17/rAHGASKuibWbMZxk4MNqu4WYdEbWM2hQW1LQfF3iHLl4h7+Ty02V9ZzSfTVY3DTV7g7SXKI
+	 MdcsD5M567oFWFEeTGtvUYjb1nfRp8j3u+mGR4g44Ei3DAOzjZ3fSUGBtDGmyNGXajcBP73ws/U77
+	 UuMQek1qD+4SJwy0IYkcDTCZS5YME9hcHjX4dmHN8KSO0OA3G7lwZ4pl/UG0ZIDp3+mLV1yaufU6V
+	 e+EHW5xi8V0Kntk4xbTC4MUwdIkHMToFy3jPYH8K0joV1W/6PtjmSk2dLtWQA58/jNrHkKTHU/Skj
+	 8eqtSrFPB1lxVOkOm1tdCMhRMhGoe4YG4SNeVNvIvN9K1HMFN1tllxFDW21NZOhj/lguwaITAFRiu
+	 0+f0Gbz4dUoMXjkI2iCMVoTBSqvq6ljD6bm1yupwvz65wUMwz+nw5a/YNoAmQrihrF4qKOsUSdQN3
+	 Mtgm6JTFWchzFA==
+From: "=?utf-8?B?emNq?=" <zcjie0802@qq.com>
+To: "=?utf-8?B?bmV0ZGV2LWJvdCtzaW5mbw==?=" <netdev-bot+sinfo@kernel.org>
+Cc: "=?utf-8?B?bmV0ZGV2?=" <netdev@vger.kernel.org>, "=?utf-8?B?bXN0?=" <mst@redhat.com>, "=?utf-8?B?amFzb3dhbmdpbw==?=" <jasowangio@gmail.com>, "=?utf-8?B?ZXBlcmV6bWE=?=" <eperezma@redhat.com>, "=?utf-8?B?eHVhbnpodW8=?=" <xuanzhuo@linux.alibaba.com>, "=?utf-8?B?YW5kcmV3K25ldGRldg==?=" <andrew+netdev@lunn.ch>, "=?utf-8?B?ZGF2ZW0=?=" <davem@davemloft.net>, "=?utf-8?B?ZWR1bWF6ZXQ=?=" <edumazet@kernel.org>, "=?utf-8?B?a3ViYQ==?=" <kuba@kernel.org>, "=?utf-8?B?cGFiZW5p?=" <pabeni@redhat.com>, "=?utf-8?B?aG9ybXM=?=" <horms@kernel.org>, "=?utf-8?B?dmlydHVhbGl6YXRpb24=?=" <virtualization@lists.linux.dev>, "=?utf-8?B?bGludXgta2VybmVs?=" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH net 1/2] net: napi: add completion with an ordered IRQ mask callback
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -86,95 +68,37 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2fb9fd90-fac5-4a9e-ac7e-5dde689d8b80@oss.qualcomm.com>
+Mime-Version: 1.0
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: base64
+Date: Wed, 11 Nov 2026 23:08:48 +0800
+X-Priority: 3
+Message-ID: <tencent_4DBDF69909B9FD811F54F2DC0E6BAC1C0507@qq.com>
+X-QQ-MIME: TCMime 1.0 by Tencent
+X-Mailer: QQMail 2.x
+X-QQ-Mailer: QQMail 2.x
+References: <tencent_AA4F39DA7ADE330C721C03AAA832B92DD608@qq.com>
+ <tencent_74EA7A2E8BF5758E9C5EF18C9B1CED401D06@qq.com>
+	<179440541756.2168702.17991706426089713368@kernel.org>
+In-Reply-To: <179440541756.2168702.17991706426089713368@kernel.org>
+X-QQ-mid: xmsezc52-0t1794409728tprkn7v98
 
-On Wed, Nov 11, 2026 at 12:40:05PM +0530, Jayant Shekhar wrote:
-> 
-> On 27-10-2026 01:14, Rob Herring (Arm) wrote:
-> > On Mon, 26 Oct 2026 11:51:11 +0530, Jayant Shekhar wrote:
-> > > DCP platforms place the display pipeline under firmware control, so Linux
-> > > cannot discover display resources through direct register access. The DRM
-> > > driver therefore needs device-tree descriptions of the Qualcomm transport
-> > > wrapper, display topology, IOMMU contexts, and panel connections.
-> > > 
-> > > Add bindings for the Qualcomm DCP transport wrapper and VirtIO display
-> > > subsystem. Document the IPCC power-notify resources, transport and
-> > > framebuffer IOMMU contexts, firmware-visible IOVA range, INTF graph, and
-> > > DSI panel connections. The wrapper creates a standard VirtIO-MMIO child
-> > > after the IPCC power-notify sequence has completed.
-> > > 
-> > > Assisted-by: LLM
-> > > Signed-off-by: Jayant Shekhar <jayant.shekhar@oss.qualcomm.com>
-> > > ---
-> > >   .../bindings/display/msm/qcom,dcp-dsi.yaml         |  79 ++++++++++++
-> > >   .../devicetree/bindings/display/msm/qcom,dcp.yaml  | 123 +++++++++++++++++++
-> > >   .../bindings/virtio/qcom,dcp-virtio.yaml           | 132 +++++++++++++++++++++
-> > >   3 files changed, 334 insertions(+)
-> > > 
-> > My bot found errors running 'make dt_binding_check' on your patch:
-> > 
-> > yamllint warnings/errors:
-> > 
-> > dtschema/dtc warnings/errors:
-> > /builds/robherring/linux-dt-review/Documentation/devicetree/bindings/virtio/qcom,dcp-virtio.yaml: iommu-ranges: multiple incompatible types: uint32-array
-> > /usr/local/lib/python3.13/dist-packages/dtschema/schemas/iommu/iommu.yaml: iommu-ranges: multiple incompatible types: uint32-matrix
-> > Could not decode node virtio@9be8000 property iommu-ranges with value b'\x00\x00\x00\x00\x84\x00\x00\x00\x00\x00\x00\x00\x04\x00\x00\x00'
-> > 
-> > Traceback (most recent call last):
-> >    File "/usr/local/bin/dt-validate", line 8, in <module>
-> >      sys.exit(main())
-> >               ~~~~^^
-> >    File "/usr/local/lib/python3.13/dist-packages/dtschema/dtb_validate.py", line 443, in main
-> >      dtb_diagnostics = sg.check_dtb(filename)
-> >    File "/usr/local/lib/python3.13/dist-packages/dtschema/dtb_validate.py", line 331, in check_dtb
-> >      dt = self.validator.decode_dtb(f.read(), decode_errors)
-> >    File "/usr/local/lib/python3.13/dist-packages/dtschema/validator.py", line 631, in decode_dtb
-> >      return [dtschema.dtb.fdt_unflatten(self, dtb)]
-> >              ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
-> >    File "/usr/local/lib/python3.13/dist-packages/dtschema/dtb.py", line 591, in fdt_unflatten
-> >      dt = fdt_scan_node(validator, fdt, '/', offset)
-> >    File "/usr/local/lib/python3.13/dist-packages/dtschema/dtb.py", line 320, in fdt_scan_node
-> >      node = fdt_scan_node(validator, fdt, nodename, offset)
-> >    File "/usr/local/lib/python3.13/dist-packages/dtschema/dtb.py", line 320, in fdt_scan_node
-> >      node = fdt_scan_node(validator, fdt, nodename, offset)
-> >    File "/usr/local/lib/python3.13/dist-packages/dtschema/dtb.py", line 312, in fdt_scan_node
-> >      node_dict = node_props(validator, fdt, nodename, offset)
-> >    File "/usr/local/lib/python3.13/dist-packages/dtschema/dtb.py", line 258, in node_props
-> >      props_dict[p.name] = prop_value(validator, nodename, p)
-> >                           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
-> >    File "/usr/local/lib/python3.13/dist-packages/dtschema/dtb.py", line 185, in prop_value
-> >      if len(p) / type_format[fmt].size >= min_dim:
-> >                  ~~~~~~~~~~~^^^^^
-> > KeyError: 'uint32-array'
-> > 
-> > doc reference errors (make refcheckdocs):
-> > 
-> > See https://patchwork.kernel.org/project/devicetree/patch/20261026-jshekhar-dcp-hlos-v2-1-7cf014efdee1@oss.qualcomm.com
-> > 
-> > The base for the series is generally the latest rc1. A different dependency
-> > should be noted in *this* patch.
-> > 
-> > If you already ran 'make dt_binding_check' and didn't see the above
-> > error(s), then make sure 'yamllint' is installed and dt-schema is up to
-> > date:
-> > 
-> > pip3 install dtschema --upgrade
-> > 
-> > Please check and re-submit after running the above command yourself. Note
-> > that DT_SCHEMA_FILES can be set to your schema file to speed up checking
-> > your schema. However, it must be unset to test all examples with your schema.
-> 
-> 
-> There is a dependent patch which adds iommu-ranges, I had tried with that
-> locally and it passes.
+SGksCgpJIGZpcnN0IGVuY291bnRlcmVkIHRoaXMgaXNzdWUgb24gTGludXggNi4xOC41OCBk
+dXJpbmcgYSBtdWx0aS10aHJlYWRlZApUQ1AgcmVjZWl2ZSB3b3JrbG9hZCB3aXRoIHZpcnRp
+by1uZXQgaW4gS1ZNIGd1ZXN0cywgYW5kIHRoZW4gaW52ZXN0aWdhdGVkCnRoZSBOQVBJL3Zp
+cnRxdWV1ZSBjb21wbGV0aW9uIG9yZGVyaW5nLgoKVGhlIG9ic2VydmVkIHN5bXB0b20gd2Fz
+IGEgcGVyc2lzdGVudCBSWCBzdGFsbDogdGhlIFJYIHZpcnRxdWV1ZSBoYWQKdW5jb25zdW1l
+ZCB1c2VkIGVudHJpZXMsIGJ1dCBub3RpZmljYXRpb25zIHdlcmUgZGlzYWJsZWQsIE5BUEkg
+aGFkIG5vCm93bmVyIGFuZCBpdHMgd2F0Y2hkb2cgdGltZXIgd2FzIGluYWN0aXZlLiBUaGUg
+cmVjZWl2aW5nIFRDUCB0aHJlYWRzCnJlbWFpbmVkIGJsb2NrZWQgd2FpdGluZyBmb3IgZGF0
+YS4KCkEgZGV0ZXJtaW5pc3RpYyBLVW5pdCBmYXVsdC1pbmplY3Rpb24gdGVzdCBhbHNvIHJl
+cHJvZHVjZWQgdGhlCm5vdGlmaWNhdGlvbi1sb3NzIG9yZGVyaW5nIHVzaW5nIHRoZSBwcm9k
+dWN0aW9uIE5BUEkgY29tcGxldGlvbiBBUElzCmFuZCB3YXRjaGRvZy4gVGhlIHRlc3QgZGVs
+aWJlcmF0ZWx5IGRlbGF5cyB0aGUgb2xkIGNhbGxlciB1bnRpbCBhCnN1Y2Nlc3NvciBwb2xs
+IGhhcyByZWFybWVkIGNhbGxiYWNrcyBhbmQgY29tcGxldGVkLiBUaGUgcHJvcG9zZWQgZml4
+CnBhc3NlcyB0aGUgc2FtZSB0ZXN0LiAKClRoZSBvcmlnaW5hbCBidWcgcmVwb3J0IGRlc2Ny
+aWJlcyB0aGUgc3ltcHRvbXMgYW5kIGNvbXBsZXRpb24gcmFjZToKaHR0cHM6Ly9sb3JlLmtl
+cm5lbC5vcmcvbmV0ZGV2L3RlbmNlbnRfQUE0RjM5REE3QURFMzMwQzcyMUMwM0FBQTgzMkI5
+MkRENjA4QHFxLmNvbS8KClRoYW5rcywKQ29uZ2ppZSBaaG91Cg==
 
-Where in the patch does it say that? The maintainer applying this series 
-needs to know about the dependency, hence the report.
-
-b4 provides for ways to define the base and any dependencies. Use that 
-and then you won't get this report.
-
-Rob
