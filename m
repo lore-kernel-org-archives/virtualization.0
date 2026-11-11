@@ -1,58 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794356266;
-	b=Hs8ywwfglZo4xZydU6PrjLLpsafMetlopcDcDDhb48YGCyytx8abO4tOS7k632iDbOun
-	 kPynZrp5B5WgQNDBh63G58+m29mH1TAuo3aimbd3JGx1Br0KJzXpo/U+S6xLutUaH8Cb3
-	 ECu4Th87tdESDxKc6kK3dQH1xu53Sur1VbUSeeB5SyuNfzIGFtMpWkD9czPPi2usR0Trs
-	 VhD5oWP84K4qILqZRzpKOPpI3kcbueSYsbpuz9sdUs38PjgVoVeq8QQww+W32CbT1H1al
-	 uCI0Y6jShAMqXMhFWYWrkyW2vEohFYsGX2oAMoeQ7x8gKrcKakbuurAiiWSnWzLxs4w==
+	t=1794356374;
+	b=2LVnoHrbYJxoWVnu/CWqhN9gR5DQu8dO6Qo3ohYBvlM7FJ/DAfdEYGBM4cXKTNjdRIAK
+	 2c2NkWVHFrACfPSvsvGtWsXIDomIxOv9qCjuuwm4Jl/0hLLh4hI9BYbM2QLYjTeGPa4IG
+	 j1VSbISchU80QmAgkoxTDnRypcdtr1AYGlgxpPNOKiG/i8Rg8BMwlneaxn7IYl6lqrxNt
+	 xq2XogSBQMgHcOwYFtkczstudfVBycRxrvS9E8qcVWcLhjMUtiq9WQCBPlJi2AgXJTzCg
+	 9iTyMfWdeh5NEndRZkJ8khXF0Dcv5ugg6RdjtOY0bZ+Z8xcObbBR+XDvplHY7VR3eUg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794356266;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794356374;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=n9EkYwWQcCGTYc2XHZRjpMsJdFASlNxnszN8JwS8YsI=;
-	b=pvsk/8C585clTuh29uPRxOvfwcsCTiKRS/NBfJ0HTeu2t+PB/R/aTO1M1Eubi6E3j71/
-	 97r1F95FTzMlTqkVurdtP1HjwX1xkv5THrcuh903sVtTYr98sVRT+kkR25y5VnwGV9jvl
-	 mk1EIF3S7wvRr11IhBHwjommXouRYTHPdUYao6fAF+yRDp8Z1thoprxdT1ZBp8mtKQQXx
-	 yvKWbUHAAHEZs9cINBEoTGTbTyyZzIg8dfR+blHKEc4e2mEqylEIQU8NWpTHxcYUPJjWa
-	 4MWLrMR82ALi8cctpsK0avSl3hjEy7hDV5TFDo0Y3aMNz+rk0gLBkx/+uIJxZ7dXftg==
+	bh=ogfz79difxh0Ntyd67EY00mxmQpDbvdQQkn7ymIdiYQ=;
+	b=GUwpWsL07pKrW0aAK4zBuollLW5yLDc7G8F1yD+lzg75SABHbdyatIJtm7va/Y6ypaR2
+	 YLyo1WFsx3mNl+XVeZOIPZIZ9BAo5PEVN/xmzer1+Wfk5b5HrPTZRMnpgCYPL8Fxt0LIG
+	 27HSc4THlsZ+R5gRVpfR9hbiyr1qiqpyPYSuYcOKntGV8odEWK1bgab/V6AaaWhR5uIPi
+	 Fs7zWqs/oV9YIxZ5206n1/XWfVr8RNJ9rHSPBFOS4DUzvqFZ7/Ri5HUXTR/j1c4YKWOs3
+	 MfwBspylNvOUJGScPPnbxKMvGoihV+ip3P5Jf8UlD25RYA5gXFwcIvbUczXdRa+SaFA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=j1VYoMqP;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=C7t3kTw4;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33C52606A31C
-	for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 00:17:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59A67606A321
+	for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 00:19:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=j1VYoMqP
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 943CF1F0089F;
-	Wed, 11 Nov 2026 00:17:45 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=C7t3kTw4
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9149A1F0089F;
+	Wed, 11 Nov 2026 00:19:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794356265;
-	bh=n9EkYwWQcCGTYc2XHZRjpMsJdFASlNxnszN8JwS8YsI=;
+	s=k20260515; t=1794356373;
+	bh=ogfz79difxh0Ntyd67EY00mxmQpDbvdQQkn7ymIdiYQ=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=j1VYoMqPHWdeHF42nnxM4Y7RwR71TjViV+9pKNz0QYLC21C0MkoDXcKqix0hHtMTg
-	 IVrfsOrGd0AHS0UZp4GWuDRnu6BFiaU5rhec+sbJk/f7TMg9dSV6TpM6jptL9Ew+Tp
-	 6CNvteqhSwbD5m9J1sU0gJEw5+ybcnL8XHV96FW6v1yOgPl97gkQOIPsS7uDAWysrM
-	 PoNwa92dEGmgHI+0QfLC8X9Msn70MQxwczFL6yzUrRjkROSgdc7zl+IgDYSTfShPZE
-	 veYAbfkW6WkhQ9AaYmeIE+2o8JXIcC7wxEOVyAYmAE9IyIGTL0Y/iM2BhFlVMnnjRf
-	 l7ODJEXOz4d6g==
-Message-ID: <sashiko-outbox-208008@kernel.org>
+	b=C7t3kTw42ou2SSr1rvXZ9IPI7xGzXpRC+iR5FdcILnXA6CfEPI/ZaAcEJvXak5XXN
+	 S3OGGUO+S7riNtqJaK8yoF+a6DKgcSBeVILUDQKTc42bXqJtsepyqqHbEtNs4FRj1u
+	 P332ZX8E2z2qXMt2KxrbLj4iaMzfN1OoneOypAeyMoUmUVOFiJUppGUpwgCBV3xkNv
+	 m6ipLC92AnUYSCgzyBXcKB1R6Q6nZ79V0qSNwch9H/Z48H1rFkdR7nacjmE+DvElTS
+	 RfI4nIdRdb7q+43fKICly8jOy7+v1d0u20sMKYYSojwxwITAEMB/w7/Oh352WR3O3M
+	 Nv3EBOhqNl00w==
+Message-ID: <sashiko-outbox-208011@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v24 04/16] ALSA: pcm: notify drivers after linked
- prepare completes
+Subject: Re: [PATCH v24 13/16] ALSA: virtio: prioritize capture period work
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Joonho Lee" <mynameisjune111@gmail.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, "Eugenio
  Perez" <eperezma@redhat.com>
-In-Reply-To: <20261111000543.28550-5-mynameisjune111@gmail.com>
+In-Reply-To: <20261111000543.28550-14-mynameisjune111@gmail.com>
 References: <20261111000543.28550-1-mynameisjune111@gmail.com>
- <20261111000543.28550-5-mynameisjune111@gmail.com>
+ <20261111000543.28550-14-mynameisjune111@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 11 Nov 2026 00:17:45 +0000
+Date: Wed, 11 Nov 2026 00:19:33 +0000
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -62,31 +61,11 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 
-> A linked prepare can finish one member before another member's driver
-> prepare or reset fails. Drivers that admit transfers after their own
-> prepare callback can then accept an ACK while the group action is still
-> incomplete.
->=20
-> Add an optional prepare_complete callback. After all sleeping prepare
-> and reset actions have succeeded, take the group and member PCM locks,
-> publish every PREPARED state, and notify opted-in drivers before
-> releasing those locks. Keep the buffer locks and access gates held
-> throughout the operation. A concurrent DROP observes the group before or
-> after this commit point.
->=20
-> On a driver error, notify only the attempted prefix, including the
-> failing member. Opted-in members in that prefix return to SETUP. Leave
-> unreached members untouched. Preflight failures have no completion
-> callback. Preserve SUSPENDED and DISCONNECTED states if finalization
-> finds either in the affected group or prefix. Successful driver actions
-> canceled by such a state return -ESTRPIPE or -EBADFD, respectively. A
-> driver error keeps its original return value. DISCONNECTED takes
-> precedence when a linked group contains both terminal states.
->=20
-> Do not generate a stop-timer event while closing prepare admission.
-> Ordinary legacy drivers keep their existing successful preparation and
-> pointer rebasing. The new callback runs with the group and member locks
-> held and must neither sleep nor acquire another PCM stream lock.
+> Use system_highpri_wq for capture progress notifications. Capture now
+> always uses request-owned storage. Playback keeps the ordinary
+> workqueue. This preserves the priority proposal separately from recovery
+> and accounting. It provides no hard real-time guarantee and cannot
+> prevent reader overruns.
 >=20
 > Assisted-by: LLM
 > Signed-off-by: Joonho Lee <mynameisjune111@gmail.com>
@@ -95,5 +74,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261111000543.2855=
-0-1-mynameisjune111@gmail.com?part=3D4
+0-1-mynameisjune111@gmail.com?part=3D13
 
