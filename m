@@ -1,63 +1,58 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=124.126.103.232
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794384662;
-	b=ESKa1jjRpq+FwcRvwguYMaHb8Das1DuHPhD4CooiH9bCTlcerup+8TuZZyiXS0IWF2FX
-	 pYiZ+jM8uj500QN1UlymYWsbYzIZOeBHU4EjkA6YcXNtI8I86WP3QHo2xep/jejEBcM4l
-	 zxKbQE3S7bCVB1cw0AWwt1IVlV6TAGZJH36GBxnESAki8PB4bACRImSKLUDbavZJyrRSR
-	 na+JTMFLrD/XBRrejxY0GlYE3dp9ZX9kQgqa9clcAi4aGXdpCnPdQ5Fg98U6SiGLLC7Ut
-	 hldNwMsFgmu3dLT42i16AtEwGLThc5SKIuef0BNYLoIdVjE4MCcPJsr4GLVAU5xVbhQ==
+	t=1794387016;
+	b=pJqJpUIC+V4aDQVtW3/pJ7N7bm9BVtaaV053100qYmhz9iQVcYwACPPQ1QjX+HtFqcf7
+	 VgzyHxq9q+WAer7n/4xZGRl+KWbPP28DS8E7raLjgBdutX4AXx1mHBX1DG91I9cQCuawG
+	 sjt1OBBn2FXtslrFEDqUIOQEidedADPECyk3ozTTh0S6sGrdVdIFJZzGEcnXTP9X0GmFI
+	 W9OYbPEoU4y3U+L0vKPRX2UGIVYdGeYImba4ypXWgs/mrXGFbTI2E2oUkejtIGMFcjgJo
+	 cifssE7owZPBkFMJ8TCPc9nQPTDu0rTgocrJhZtesKlkGrofrjlguXwOnU59MBLiIMw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794384662;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=iOIeZv+xZF8BtnRxapOwV0sVr/Zsn6NcAiif3hZWdvQ=;
-	b=AiU4y21+qYvnu29vpEIeBUFF4CgfBy9tqt1mz7LLtr/rRpaSDEemxEPa/z9TzSWM2SN3
-	 NOhlq4LloaHBrC7A3Go43rIg4T3uapuRJfDrHz8AYMLsQ2CUmwTUOt7+OUVellnX2DOGw
-	 sxoQB/6Ufk3MSn/d6rzpY782IaQhTzHJvkGI9tWlHpJg7d9bJlfquIEWo0oJyL0i+tr18
-	 O9U4+bG8lhZI69C9C1iL4xUfYk+No4fdlzCzKwDteiJD/3BXc4NhW+tU2FYr5bTqR35/C
-	 hpF5A1AKKuOGxWH4ThVk/wrEc2F6vZlU7iF15IuZ3c9yHMRxn0t2EyGiMh2VirdQHog==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794387016;
+	h=DMARC-Filter:X-UUID:X-CID-P-RULE:X-CID-O-INFO:X-CID-META:X-CID-BVR:
+	 X-CID-BAS:X-CID-FACTOR:X-CID-RHF:X-UUID:X-User:Received:Message-ID:
+	 Date:MIME-Version:User-Agent:Subject:To:Cc:References:
+	 Content-Language:From:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=Dyi44XrPNZ+h4KSieqNDltLyYDUp+MK/l2iG04ch2ZY=;
+	b=qhW0UfQG7XFb5Qw8S6Wj1SMK1ptMEnZiPlD/JcQ0w2IJcLdvTVP9wdCoi8PKBYs0TjIV
+	 /3rFjvtPh9IQRIGWQVzPYIQ/CHoZWED/fdxcm+1x+vKTTGzuXKlKKDM3sFg9+YWKeDism
+	 u85sX4xR6GzylorB5TKIQK/CUetEGF6zbiapi1ZkUUsBwVylNsioTIaNofjPTxs6eJZo6
+	 XIWuKZJcdRBUkpRnu4/eQiA0jtk8rlAQbB8AH5ifg8wsotqEuFghoCPH1406v6eSTDqgd
+	 j7FSUSziErGbXBasKhLhzL+K7jCRqvRC1JsfTk/ZzktigVBVMZ3EKVV6GUJC5sWF5kA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LOB+0xhE;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=none header.from=kylinos.cn;
+	spf=pass smtp.mailfrom=kylinos.cn;
+	arc=none smtp.remote-ip=124.126.103.232
+Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90FD4606A321;
-	Wed, 11 Nov 2026 08:11:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LOB+0xhE
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9574A1F00A06;
-	Wed, 11 Nov 2026 08:11:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794384662;
-	bh=iOIeZv+xZF8BtnRxapOwV0sVr/Zsn6NcAiif3hZWdvQ=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=LOB+0xhETQ3vZMIg0adLD9hp5Rtnl/fj7End7gKSDSsjSaVydYMn5xYLPTU7iZneR
-	 vRnRQFGdvAvWnkZr0G08cmRHFKhyKXqJTQ5g5ZtxMPCrqY1WXiLoMWeuFMgDsjrEJD
-	 KEq+b2/yTwyP6qOyEaBZzGbtW24w1nxNCWc4EN6DyxXnc/FfMbJvmjk9aB6Ck9Qy5b
-	 kj6aMu6sybyBYUHrROe65d+AyNn7C5Ka458BaU85qKmdeSq/zr+FnjFuyJv3BZ5QUl
-	 lViwhs+HcyXu3CLBoEzUga7BXuEQu50LaDi1LPHxtMakqhDv4D44yUH8Wy7F52BabB
-	 i4jPIyOU6r0QQ==
-Date: Wed, 11 Nov 2026 10:10:57 +0200
-From: Leon Romanovsky <leon@kernel.org>
-To: "Popov, Pavel E" <pavel.e.popov@intel.com>
-Cc: Bjorn Helgaas <bhelgaas@google.com>,
-	Logan Gunthorpe <logang@deltatee.com>,
-	Lukas Wunner <lukas@wunner.de>, Jim Chow <jim.chow@broadcom.com>,
-	Radu Rugina <radu.rugina@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Wei Liu <wei.liu@kernel.org>, Michael Kelley <mhklinux@outlook.com>,
-	Nathan Ciobanu <nathan.d.ciobanu@linux.intel.com>,
-	"bcm-kernel-feedback-list@broadcom.com" <bcm-kernel-feedback-list@broadcom.com>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
-	"linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v4 0/2] PCI/P2PDMA: Allow P2PDMA on Intel Xeon server CPUs
-Message-ID: <20261111081057.GP8635@unreal>
-References: <20261020173736.81755-1-pavel.e.popov@intel.com>
- <LV2PR11MB6070064A9E674EBDFB1A3B20B2712@LV2PR11MB6070.namprd11.prod.outlook.com>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E2A3606A327;
+	Wed, 11 Nov 2026 08:50:14 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8E2A3606A327
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
+X-UUID: e5d51c96ddac11f19a56ed5b684f684d-20261111
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.3.19,REQID:70de7592-74cc-407f-a7ce-20aa329763cf,IP:0,U
+	RL:25,TC:0,Content:0,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION
+	:release,TS:25
+X-CID-META: VersionHash:7db8b62,CLOUDID:1a2a5734b3bf66cc1711c3c22ae16d56,BulkI
+	D:nil,BulkQuantity:0,SF:80|81|82|83|102|865|898,TC:nil,Content:0|15|50|99,
+	EDM:-3,IP:nil,URL:11|94|82|1,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0
+	,OSI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
+X-CID-BVR: 2,SSN|SDN
+X-CID-BAS: 2,SSN|SDN,0,_
+X-CID-FACTOR: TF_CID_SPAM_SNR,TF_CID_SPAM_ULN
+X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
+X-UUID: e5d51c96ddac11f19a56ed5b684f684d-20261111
+X-User: liwang@kylinos.cn
+Received: from [10.42.16.85] [(10.44.16.150)] by mailgw.kylinos.cn
+	(envelope-from <liwang@kylinos.cn>)
+	(Generic MTA with TLSv1.3 TLS_AES_128_GCM_SHA256 128/128)
+	with ESMTP id 1586439326; Wed, 11 Nov 2026 16:50:08 +0800
+Message-ID: <656d0e00-01a6-4e90-a924-4ad2329c3d74@kylinos.cn>
+Date: Wed, 11 Nov 2026 16:50:05 +0800
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -67,95 +62,104 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <LV2PR11MB6070064A9E674EBDFB1A3B20B2712@LV2PR11MB6070.namprd11.prod.outlook.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/3] virtiofs: fix use-after-free of fs->tag on device
+ removal
+To: Miklos Szeredi <mszeredi@redhat.com>, fuse-devel@lists.linux.dev
+Cc: German Maglione <gmaglione@redhat.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, virtualization@lists.linux.dev,
+ stable@vger.kernel.org, Sashiko <sashiko-bot@kernel.org>
+References: <20261105150943.86650-1-mszeredi@redhat.com>
+ <20261105150943.86650-2-mszeredi@redhat.com>
+Content-Language: en-GB
+From: Li Wang <liwang@kylinos.cn>
+In-Reply-To: <20261105150943.86650-2-mszeredi@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Wed, Nov 11, 2026 at 03:48:07AM +0000, Popov, Pavel E wrote:
-> Hi Bjorn,
+Hi Miklos,
+
+On 05/11/2026 23:09, Miklos Szeredi wrote:
+> The virtio_fs object is refcounted via its kobject, so a mount can keep it
+> alive well beyond the lifetime of the virtio device binding.  The tag
+> string, however, was allocated with devm_kmalloc() and is therefore freed
+> by devres_release_all() as soon as the device is unbound, i.e. right after
+> virtio_fs_remove() returns (see device_unbind_cleanup() in
+> drivers/base/dd.c).
 > 
-> Gentle ping on this series. Is this OK for v7.5?
-
-I would say no. An Intel employee was asked to clean up an Intel-created
-mess while upstreaming an Intel-specific patch.
-
-Peer-to-peer is a general concept, and the code should reflect that. It is
-reasonable to expect you to join the effort and help clean it up.
-
-Thanks
-
+> virtio_fs_get_tree() looks up the instance, takes a kobject reference and
+> then drops virtio_fs_mutex before doing the sleepable part of the mount
+> (allocations, fuse_conn_init(), sget_fc()).  A concurrent device removal
+> can complete in that window:
 > 
-> Thanks,
-> Pavel
+>   CPU 0 (mount)                         CPU 1 (remove)
+>   -------------                         --------------
+>   virtio_fs_get_tree()
+>     virtio_fs_find_instance()
+>     // reference taken, mutex dropped
+>                                         virtio_fs_remove()
+>                                           list_del_init(&fs->list);
+>                                         // driver core unbinds device
+>                                         // devres frees fs->tag
+>   virtio_fs_fill_super()
+>     mutex_lock(&virtio_fs_mutex);
+>     if (list_empty(&fs->list))
+>             pr_info(... fs->tag);   <-- use-after-free
 > 
-> > -----Original Message-----
-> > From: Popov, Pavel E <pavel.e.popov@intel.com>
-> > Sent: Tuesday, October 20, 2026 10:38 AM
-> > To: Bjorn Helgaas <bhelgaas@google.com>; Logan Gunthorpe
-> > <logang@deltatee.com>
-> > Cc: Popov, Pavel E <pavel.e.popov@intel.com>; Leon Romanovsky
-> > <leon@kernel.org>; Lukas Wunner <lukas@wunner.de>; Jim Chow
-> > <jim.chow@broadcom.com>; Radu Rugina <radu.rugina@broadcom.com>;
-> > Alexey Makhalov <alexey.makhalov@broadcom.com>; Wei Liu
-> > <wei.liu@kernel.org>; Michael Kelley <mhklinux@outlook.com>; Nathan
-> > Ciobanu <nathan.d.ciobanu@linux.intel.com>; bcm-kernel-feedback-
-> > list@broadcom.com; virtualization@lists.linux.dev; linux-
-> > hyperv@vger.kernel.org; linux-pci@vger.kernel.org; linux-
-> > kernel@vger.kernel.org
-> > Subject: [PATCH v4 0/2] PCI/P2PDMA: Allow P2PDMA on Intel Xeon server
-> > CPUs
-> > 
-> > VMware and Hyper-V expose passthrough devices to guest VMs without an
-> > explicit host bridge device. Consequently, host_bridge_whitelist() cannot
-> > automatically identify the underlying host bridge structure, causing Peer-to-
-> > Peer DMA (P2PDMA) requests to be rejected unless the device IDs are
-> > explicitly listed in pci_p2pdma_whitelist[]. To enable P2PDMA on Intel hosts,
-> > this series extends cpu_supports_p2pdma(), which so far covers AMD Zen and
-> > newer, with an explicit list of Intel Xeon server generations.
-> > 
-> > Patch 1 moves the CONFIG_X86 #ifdef out of cpu_supports_p2pdma().
-> > Patch 2 is the v3 patch rebased on it, with Logan's Reviewed-by carried over;
-> > the Xeon list and the check are unchanged.
-> > 
-> > Changes in v4:
-> > - Add 1/2, moving the CONFIG_X86 #ifdef out of cpu_supports_p2pdma()
-> >   (Logan Gunthorpe, Leon Romanovsky)
-> > - Keep the #ifdef around the asm/ includes, as these headers exist
-> >   only on x86 (Bjorn Helgaas)
-> > 
-> > Changes in v3:
-> > - Drop the hypervisor check and move the Xeon list into
-> >   cpu_supports_p2pdma(), next to the AMD check, as suggested by Logan
-> >   Gunthorpe and Leon Romanovsky [1]
-> > - Fold the VMware and Hyper-V patches into one, as the check no longer
-> >   depends on the hypervisor
-> > 
-> > Changes in v2:
-> > - Replace the Skylake-and-newer threshold with an explicit list of Intel
-> >   Xeon server generations, from Skylake-SP to Diamond Rapids (Logan
-> >   Gunthorpe)
-> > - Move the CONFIG_X86 #ifdef out of hypervisor_supports_p2pdma()
-> >   (Logan Gunthorpe)
-> > - Rebased on current mainline
-> > 
-> > [1] https://lore.kernel.org/r/20261016153147.GC219304@unreal
-> > 
-> > v3: https://lore.kernel.org/r/20261020151305.65218-1-
-> > pavel.e.popov@intel.com
-> > v2: https://lore.kernel.org/r/20261016223402.19991-1-
-> > pavel.e.popov@intel.com
-> > v1: https://lore.kernel.org/r/20261009154034.82321-1-
-> > pavel.e.popov@intel.com
-> > 
-> > Pavel Popov (2):
-> >   PCI/P2PDMA: Move CONFIG_X86 #ifdef out of cpu_supports_p2pdma()
-> >   PCI/P2PDMA: Allow P2PDMA on Intel Xeon server CPUs
-> > 
-> >  drivers/pci/p2pdma.c | 33 +++++++++++++++++++++++++++++++--
-> >  1 file changed, 31 insertions(+), 2 deletions(-)
-> > 
-> > 
-> > base-commit: c03c1a14507dfaf8b856c2608f9ac216021fc222
-> > --
-> > 2.53.0
+> The virtio_fs object itself is still valid here, only its tag has been
+> freed behind its back.
 > 
+> Fix the lifetime mismatch at the source: allocate the tag with kmalloc()
+> and free it from virtio_fs_ktype_release(), so that it lives exactly as
+> long as the object embedding it.  All probe error paths already drop the
+> final kobject reference, so they are covered.  Merely dropping the tag
+> from the error message would paper over this instance while leaving a
+> devres pointer embedded in an object that routinely outlives its device.
+> 
+> The other readers of fs->tag are unaffected: tag_show() is fenced off by
+> the kobject_del() in virtio_fs_remove(), the automatic KOBJ_REMOVE uevent
+> is emitted from __kobject_del() while the device is still bound, and both
+> virtio_fs_add_instance() and virtio_fs_find_instance() only walk instances
+> still on virtio_fs_instances.
+> 
+> Fixes: a62a8ef9d97d ("virtio-fs: add virtiofs filesystem")
+> Cc: <stable@vger.kernel.org>
+> Reported-by: Sashiko <sashiko-bot@kernel.org>
+> Closes: https://sashiko.dev/#/bug/linux-0328b3a1-043b-468e-8425-6a613d91b5ef
+> Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+> ---
+>  fs/fuse/virtio_fs.c | 9 +++++++--
+>  1 file changed, 7 insertions(+), 2 deletions(-)
+> 
+> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+> index ba8d79c4bcac..ef58bedc3941 100644
+> --- a/fs/fuse/virtio_fs.c
+> +++ b/fs/fuse/virtio_fs.c
+> ...
+> -/* Read filesystem name from virtio config into fs->tag (must kfree()). */
+> +/*
+> + * Read filesystem name from virtio config into fs->tag.  Freed by
+> + * virtio_fs_ktype_release() so that it stays valid for as long as the
+> + * virtio_fs object itself, which may outlive the virtio device.
+> + */
+>  static int virtio_fs_read_tag(struct virtio_device *vdev, struct virtio_fs *fs)
+>  {
+>  	char tag_buf[sizeof_field(struct virtio_fs_config, tag)];
+> @@ -505,7 +510,7 @@ static int virtio_fs_read_tag(struct virtio_device *vdev, struct virtio_fs *fs)
+>  		end = &tag_buf[sizeof(tag_buf)];
+>  
+>  	len = end - tag_buf;
+> -	fs->tag = devm_kmalloc(&vdev->dev, len + 1, GFP_KERNEL);
+> +	fs->tag = kmalloc(len + 1, GFP_KERNEL);
+
+The fix for the UAF issue regarding fs->tag looks good to me.
+
+However, while looking at this, I happened to notice another similar potential issue: when the DAX mode 
+is enabled for file read/write, the DAX window is mapped via devm_memremap_pages and unmapped when the device 
+is unbound. Although as far as I know, the corresponding QEMU changes for DAX mode don't seem to have landed 
+in QEMU upstream, fs->window_kaddr and other established page table mappings still point to this memory region.
+Perhaps we should also look into cleaning them up?
+
+Reviewed-by: Li Wang <liwang@kylinos.cn>
+
