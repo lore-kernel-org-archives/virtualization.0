@@ -1,113 +1,113 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=205.220.180.131
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794381420;
-	b=TdgGMyBRgfj8zu8+mwp36eUJtCTqtS4PWbMLoQqWCSOHCn5jC5JirTTetZoEMWSfCgH4
-	 EEqWD1zo5nojfIKTofBbjg9qe/XVOSxneKu5ruZP7BrZQDVJWsGtmefnzjjCaSqhKQE2c
-	 5YOL8istbwmG/2QXQ6ocQIziS+foqEsS5BbbByokiBjEqMu1EpG3/UHydQtnJ710q0V6N
-	 w6OINgpA56pya+FdvYha/xQj0XdSqFZouvISad6Qcd0yJ3e6JEaupbA0gd0e/Pip4cEeh
-	 9OdB98yL3c4J6dpssZZv1IWnLdTGEqlpse7GqX4vE9uQ/OvJYiNuZZdKQSMhfVNinWQ==
+	t=1794381694;
+	b=GfEymWb6IbVxMnA6rHZq0QrPtXbeuMbWyOjjLrBJbXKyHnP819Q/x3Ms/o7KsoxuIML/
+	 0ufT3xtz414cxZhwNrAHka8XKpxOblJ9K5h5nWid+vdzQQW6FSX/PCKJsyIhuAI6uGt/Y
+	 J68VZiMfNkHfverBN0e4Hb9Pix2B5Y1IU96R1BBnyOLScFlwNGzqUFFPaVHbAqX6dzeoW
+	 egoPEMcMmM8p9/NufOW1AG/Iw7b5T0bQr+KWw1xqT8hOeBcik5WI9KvU3yf5TCZwoHxp/
+	 0zMe7TtRH1mbtnUc8nxAW/e6jHeyNbHgMmljrC+wNBXoRs2GDa1bl0bGUeqqRptlAcw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794381420;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794381694;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:
 	 DKIM-Signature:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:X-Received:Received:From:
 	 X-Google-Original-From:Message-ID:Date:MIME-Version:User-Agent:
 	 Subject:To:Cc:References:Content-Language:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding:X-Proofpoint-Spam-Details-Enc:
-	 X-Authority-Analysis:X-Proofpoint-GUID:X-Proofpoint-ORIG-GUID:
-	 X-Proofpoint-Spam-Info:X-Proofpoint-Virus-Version:
+	 Content-Transfer-Encoding:X-Proofpoint-Spam-Info:X-Authority-Analysis:
+	 X-Proofpoint-GUID:X-Proofpoint-Spam-Details-Enc:
+	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Virus-Version:
 	 X-Proofpoint-Spam-Details;
-	bh=YEaA1DBqarKKF3iwyyd4vyG/r+VkRfbWN3BmJSY+Swo=;
-	b=cbpkVRRYLXfIBGmNSYw5axFOkwgqd3MIyW27V4kjodVg2DgoEPomYpxd7ckmpQ6gu3Xd
-	 9Kj+kwH/ycKC/TKYej5hnTsfETuZLxpnpc0SdJOs4N6vfbtDl8n07kAtruidMdxB/U+xY
-	 0tSkxgua/ZM3e+IlO2/Op1hmueC970rxmoNuwhG5hj3hDkSbDt6pU5qFuHEUGlGvlXCRU
-	 GSnoa5V/P7fVUcjKWLfIcTTSbsTizkvChuXooeRi3Db5r7SrX6F2se90GwGn6s4yCYguL
-	 13dRvEhWlbcfzWDBfRljH1w6nZP/77XyA8cr5FNdiOFPQ5zY0BMp9NNmnxetMjlGCKw==
+	bh=E36nUJlmupCRlPI23cpWhu71/+TGCX9VO1VgPG365Bc=;
+	b=14kncqZucTE0RUW+sIAyH5Sr+k7HMLNml/GUh4F9dhWaUG4Ermdj7IJg6IS5xFMZ/K4P
+	 kInBbjWMatQhhxogME8xFp5hTHOiXFadaueOHTI2R3Pe9vY5hS06sYOiJKekndA8VeoyD
+	 mNs26KYBjCYxD7PnpO2QRDxv+2WyCWcmfaRaJCjC+RMv0qVGuLcefYk+GVw4tr2vMjTQ4
+	 22EzRi2++iZUblItoexxxM+Y7G7KRokGMemwxqFq8TuU/GxeBcXd48aK1PIFKPOYYll6j
+	 9nFFpGnCXuZcdaCGOnr+GteWvaicjNOK6cmN8F1AEKZhKNlJ7hzlzjURJi67pQxrPxQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=oss.qualcomm.com;
 	spf=pass smtp.mailfrom=oss.qualcomm.com;
-	dkim=pass header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=AJ28w226;
-	dkim=pass header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=ZUrIdzxl;
+	dkim=pass header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=kyTGiJMP;
+	dkim=pass header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b="PvGYNu1/";
 	arc=none smtp.remote-ip=205.220.180.131
 Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D51A606A321
-	for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 07:16:59 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4D51A606A321
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 755C4606A321
+	for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 07:21:33 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 755C4606A321
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=AJ28w226;
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=ZUrIdzxl
-Received: from pps.filterd (m0279869.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AB5KdHw2017809
-	for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 07:16:58 GMT
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=kyTGiJMP;
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=PvGYNu1/
+Received: from pps.filterd (m0279868.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AB5KpsQ1052622
+	for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 07:21:32 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
 	cc:content-transfer-encoding:content-type:date:from:in-reply-to
 	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	YEaA1DBqarKKF3iwyyd4vyG/r+VkRfbWN3BmJSY+Swo=; b=AJ28w226MFP5hSwG
-	ryter7C+4olREoV/fXQItH4QRipQ6BroKfgt0EKlAZq8fRpE5UmZykQMOMtL4sUN
-	ARhPHcEFAZbaKpIVIX829uS7iq/QsQXFoEQX1g6dugu3r5ZfoqnadsM2CvUa0feq
-	onzIAzcj0aWBx+CgKRe7N+2AkBSP5dpyEk2qwCRm2HfeZxqlk/MawAoNmjHCo9W/
-	JK00ETbgKOJgYLSS1iO2p+lteqjsgnfvkGtn4nP9eJRtrV4hGDeMoUyD1NH0/gud
-	+sjb2P9upntHaFbB2GUqGf/cAadxpw13XyocA7A2P6/g9Os/P0LZZvJSjkO0m9Q1
-	zsGoLg==
-Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com [209.85.214.200])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4hv97caf2m-1
+	E36nUJlmupCRlPI23cpWhu71/+TGCX9VO1VgPG365Bc=; b=kyTGiJMPKLkSsQxY
+	YyShBsVrJd4hS1jvae3ghDzUj0bu++it2pLqGix760acTRzksw+/9IKAMhz7i7/6
+	fTfGuTVCQiOw0Crw80NrroJ2iYfYAM+Xs+pWTdOxoX9pdoRziPwsgEcUvjpg8We2
+	Cyg1zodg/RRUfQDC8yTPwcN2d3fV21xWiIF1NQixWN+Du1xCs2szfeGea8fCe1KL
+	QhsF3/rTpit1jZB2mb4GaeZsCxIPGgJ3dspccfg6ErReu1osM5Mkyv2TdnrhbrHX
+	RLHeM1QNWhZZEigr3GLmgzzr83vBGv+uwLEkF9ivaH81mRwl2X2c/mXzKE+VAl2v
+	C1f1/Q==
+Received: from mail-pf1-f200.google.com (mail-pf1-f200.google.com [209.85.210.200])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4hvdrh1bm2-1
 	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 07:16:58 +0000 (GMT)
-Received: by mail-pl1-f200.google.com with SMTP id d9443c01a7336-2e95f8543c9so40290725ad.3
-        for <virtualization@lists.linux.dev>; Tue, 10 Nov 2026 23:16:57 -0800 (PST)
+	for <virtualization@lists.linux.dev>; Wed, 11 Nov 2026 07:21:32 +0000 (GMT)
+Received: by mail-pf1-f200.google.com with SMTP id d2e1a72fcca58-8b69b8c6dd5so3695128b3a.3
+        for <virtualization@lists.linux.dev>; Tue, 10 Nov 2026 23:21:31 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1794381417; x=1794986217; darn=lists.linux.dev;
+        d=oss.qualcomm.com; s=google; t=1794381691; x=1794986491; darn=lists.linux.dev;
         h=content-transfer-encoding:content-type:in-reply-to:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=YEaA1DBqarKKF3iwyyd4vyG/r+VkRfbWN3BmJSY+Swo=;
-        b=ZUrIdzxlKBWlB/LqTb7njJ/Fdw2pmvJEVZgbHrzmLdUxXEzRQ1OwlM/LZCW7WJ3umR
-         SslMyO/mknFgPwLjf6ZE8KFyLvbUD7rIlNJo4nKaLw3JvCaVTbk4mqyXGEIkawrqFKDS
-         S0rJQF6HDvEaz12bo2l0o/vvl43Xzdf0y5/NxXj8rT+6f5RE5T7oT2lMQQNu/uH7kIVV
-         SyEKjvBrxik3Ld0tGbCmiClYDNmlNl9ut4cWRCkja2kC0Ba+I+3k1SQMDzBo5pCusVBT
-         7qGm8O1A5fieGJmKrhSFjmkkgTMlC8itQ17ZrMYFXiep3aKPVclDEaHaf2h8O+sysTMp
-         W6Lg==
+        bh=E36nUJlmupCRlPI23cpWhu71/+TGCX9VO1VgPG365Bc=;
+        b=PvGYNu1/XotkirzPy/P2TwwcJiOhF52OyJ1aM9cwGXSNaOEMfyQfA67+VGymbauJsh
+         I70gVNScE8PLfXyKd9yX3uePoCzO4gUo59ukB/KU6mdKbotGW3N+asB3nmSNQGLS3Hso
+         rMlApJovFcIIYRk/GP93th0/9aqLrGbo1WzRnjSuwMwUgD4uG26Lzufsaa9vvhoJ/ybi
+         fFYadakdLxxWp1TXpbXVHWF/R4pLSFV3nfdKcXlNwiG2J9/FdpMB598/fB6DmQHG80br
+         0FRYZGYQpWlNxnarZEEc8eA/dQAxbkGVn0hD+9KkitEbFiwuHBZq/WdmUNrl3yHo0S/M
+         9ixQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794381417; x=1794986217;
+        d=1e100.net; s=20260707; t=1794381691; x=1794986491;
         h=content-transfer-encoding:content-type:in-reply-to:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to:content-type;
-        bh=YEaA1DBqarKKF3iwyyd4vyG/r+VkRfbWN3BmJSY+Swo=;
-        b=GTF8k75XrFZ/I2Pf0kBg9J0gzqpttFMCSumuWMTqCZDtnFp/oqTLnaWC6XsjtZ1bKN
-         MuqolIOldDKIq78TSGnuQNJydsFPRzbRxQlzyOYpHTlOolXIBV1dpnIN94JUZD58YZ0M
-         PMWpezVAjdulxjzYIT32VE/nb/STm9H3UAMvsXjtynZMROkYswcUvPPtqkJEAYt2Kjpv
-         JHNukcPjG0sKl0VVUaNnuGerPYG8dRl97oOp9iU9IZ+31s32qlhSzMtQE1AEm23VqGhN
-         tyzLnDmh8K6c1UyJ/WljvswSuv3RAqH5tCbH0Tibv4x5k7uPBJ5a+nwmzDnBKqAqTpeD
-         C8aw==
-X-Forwarded-Encrypted: i=1; AL+hErFqxdityz7OyiGvfNAJr1l1b9UD670ayuGLpyeK2WUyxRIdFoDyXGLFITnyDSOcv7hCU7PZAWFTHI1MMKtUng==@lists.linux.dev
-X-Gm-Message-State: APuU4Z8OxTXPBlsxA+m+8zWhKCP2glY1TlpIYLRvwqd1l4xpmX5cioy7
-	DFrn/Tw6rxZwtY5VSyz9nCS34zKyiUDDCXgpBFAubxRbvpkDJMtiIl3Egb9RvArEPRHyVgpHneD
-	2+uLR6rL6byU7OI+YFpQm6FVktqGofjNkwyXf1MwYF4v3EaF3z56Eutjb9I+G8A/xetXdZQ==
-X-Gm-Gg: AYBFou3mAP7A2FNKbYsqpSQ6brPjEDdt7GLlRUXMdVGY/apjOfna313QP8e8R4u6F9b
-	2h/vwhp2vjK0U4FJMFMg0kLaMTCoNPUs3/GRvVSk+G2c7dCqu0BW4beKOWfUabmYVc13UtImTZM
-	LzUa5AeZMRHrTPM7zOzH+g2WSiJlnbFsyh0kPXjsaK3m/+3Nzv0U5nh8BsrIHmSi69r+/NUEdxu
-	9yeZJusQ/IE1KA48Aqv3VFblf4dp0XsaWZijK+Hnh7sv8ZH+qzsgnXaS6TcKRMdAc+wzseyMGUf
-	zlDCPqD7SILWGXkjj7N5jlS+z4kwSPtmN7qNNb+oE4n6aO8kyC0A2LTuM3zUQl9sawV1GvP4yfQ
-	G6lKi9gKrucUBWwXP0VMJaKo7XngW19KTgy6TDdTu6hztJsZ860kzL3NtiLNuZ9Sud9cronhiF3
-	nE4uYAXeM=
-X-Received: by 2002:a17:903:3c27:b0:2e6:7c6:8d40 with SMTP id d9443c01a7336-2edd7a03c19mr16642165ad.27.1794381416964;
-        Tue, 10 Nov 2026 23:16:56 -0800 (PST)
-X-Received: by 2002:a17:903:3c27:b0:2e6:7c6:8d40 with SMTP id d9443c01a7336-2edd7a03c19mr16641935ad.27.1794381416369;
-        Tue, 10 Nov 2026 23:16:56 -0800 (PST)
+        bh=E36nUJlmupCRlPI23cpWhu71/+TGCX9VO1VgPG365Bc=;
+        b=bBntp2wtxOiD43Hcv03BmgbtZdRapw41GdOnXse20az4HsmejvR1brGr1xOnwJ3Gah
+         M3mWdIs7279qFFHhMYicfyfVxwqVNOAOi7uioD+qE6GodZHagtwXfDr2q7xsppCNp5Zi
+         ftf7MF1aaO9Tf0XTMNZfOYm5NHouAHvDDSdsyJh9nIaraK3VFCI3glxNBkcEs7K6oH7N
+         VTQrgvQl8l/IqP6O69NTy3Ck60gx214rvV1HPeZQTJphsrP4G0ZIN2crUmDsXZ4ZhXtp
+         AnIYSDdJOwWmo36PHI/M5X8KiD5kBjGC0m0N8Wswj4V9wbajR0fbqBc9Sz8uIB9kN2zj
+         hFNA==
+X-Forwarded-Encrypted: i=1; AL+hErEZGD74JmUw/H4jsomYjVvCRZ72u4D9rwDoNZ/pQyDsFX9SIaP1G6fHV4InRKw9U8V33wB6XjILxDujcaglBA==@lists.linux.dev
+X-Gm-Message-State: APuU4Z8hycBECuRnn+2LKPjCd3oD3gPd8nmX3uC5ptWi0eFVal+De/YL
+	zesZUa6mqkOZRdRHKJqqVmocEAsRWMg0wbue1ES0BRaonwMuELKC6WyAyTQUfRwfk0ky5pFFqPe
+	J9YolWx0RaOGeIUs3Fwtqb9HRNAsdbeVlUYKE2BjHLQalFWRk8UBFIIDfBqVOkLdqdGhnwg==
+X-Gm-Gg: AYBFou2knPtc31mhCbSW9ChgZZQzBWhUNG26jZ+KuWn5BkEYMx/Y9vFBpPmoFpIv4Xj
+	E6XLYN/ZvvBZbQDKfMCd90lSioEsN2uwBxQ+EvFKYSYOEQXccme7OaL9MjIm85qIRsHlhnJYD2+
+	l+A+rFbAs4E0ObMYeve1v/VimLbzZg/0Y2jiixB3G3n0FWzbfruuyISkVIC6P6y/C6RROtA9dd0
+	VT+5g3oxNqaIHVN0zGeMbbDPKSqEiX1ZzPKmGjW4hMlbjQ0aYfwjVWaq91H/V/Cf9lIh8H4MRuH
+	MIeGxGfRI1+bO4DqwRJGpkCBUM4A6mycgXy7/SNE3vFdBLM68XZRr0b5RorQY5OyEpSbH0nlyg7
+	Re3eu6IofrqgIT71ZqHw0RkeU5E3UW4XnYL8IfgPPLhEyOixTQ/M6ZC+28IRRPtv9g5cLIlAsjj
+	jgkou+OCM=
+X-Received: by 2002:a05:6a00:3c86:b0:88b:72d6:b438 with SMTP id d2e1a72fcca58-8bc1bec662dmr1861278b3a.29.1794381690749;
+        Tue, 10 Nov 2026 23:21:30 -0800 (PST)
+X-Received: by 2002:a05:6a00:3c86:b0:88b:72d6:b438 with SMTP id d2e1a72fcca58-8bc1bec662dmr1861216b3a.29.1794381690017;
+        Tue, 10 Nov 2026 23:21:30 -0800 (PST)
 Received: from [10.204.79.28] ([202.46.23.25])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2edb6d7bf46sm18117315ad.31.2026.11.10.23.16.44
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8baab8dccc7sm1725318b3a.52.2026.11.10.23.21.18
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 10 Nov 2026 23:16:55 -0800 (PST)
+        Tue, 10 Nov 2026 23:21:29 -0800 (PST)
 From: Jayant Shekhar <jayant.shekhar@oss.qualcomm.com>
 X-Google-Original-From: Jayant Shekhar <jshekhar.shekhar@oss.qualcomm.com>
-Message-ID: <177ad2ea-6cf4-40b1-af3c-0d85ad96cc08@oss.qualcomm.com>
-Date: Wed, 11 Nov 2026 12:46:43 +0530
+Message-ID: <5126ee96-1109-4e5e-8b55-3351bad25d29@oss.qualcomm.com>
+Date: Wed, 11 Nov 2026 12:51:16 +0530
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Post: <mailto:virtualization@lists.linux.dev>
@@ -118,7 +118,7 @@ List-Owner: <mailto:virtualization+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 10/23] drm/msm/dcp: Add HFI DSI and panel commands
+Subject: Re: [PATCH v2 15/23] drm/msm/dcp: Add DCP DSI host and panel support
 To: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>,
         Jayant Shekhar <jayant.shekhar@oss.qualcomm.com>
 Cc: Rob Clark <robin.clark@oss.qualcomm.com>,
@@ -153,668 +153,1347 @@ Cc: Rob Clark <robin.clark@oss.qualcomm.com>,
         linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
         linaro-mm-sig@lists.linaro.org, iommu@lists.linux.dev
 References: <20261026-jshekhar-dcp-hlos-v2-0-7cf014efdee1@oss.qualcomm.com>
- <20261026-jshekhar-dcp-hlos-v2-10-7cf014efdee1@oss.qualcomm.com>
- <ebhoujzyf4fn5v3gfmgrskjw646d2e7l5b3yr4pyq2wh4vrclq@5a6vx4zx55w3>
+ <20261026-jshekhar-dcp-hlos-v2-15-7cf014efdee1@oss.qualcomm.com>
+ <evgqb4hmoxz5pvzulcl75fmi4hwauhquzbwvc6ngkz33rsrl3a@tnolis72u5vu>
 Content-Language: en-US
-In-Reply-To: <ebhoujzyf4fn5v3gfmgrskjw646d2e7l5b3yr4pyq2wh4vrclq@5a6vx4zx55w3>
+In-Reply-To: <evgqb4hmoxz5pvzulcl75fmi4hwauhquzbwvc6ngkz33rsrl3a@tnolis72u5vu>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTExMDAyOCBTYWx0ZWRfX//C+76T/BN73
- 5xht4vVt32g4lqWRW6tiCQDo55jFaUQ9XCNbcg1qgAcyk6Sn3vuFMtRZO40yYFCcu+zpZnoj8cw
- h5XnkjMq0DTxn9H1o7/0RJIj0v/u8Ns7jUItcC0Q2aPqtyHwBQEsygq8tyei2hP9vG5vDIG0uDN
- y38GNwdF6JysY795GvolyIG+BVMXMomsIq8lRrTd1o0ixT6cRcGKds7NwjqKcMEMxbLQZHRqnd4
- uHMGM9qa7NpE7wn7L8kr2gaI0c57Gn0po6IhcvouBBtg+11NIlcv4XT7tH2PQx8F25n1xvvDRMb
- 8ok8XFe1t6FBlgmEOTXOcSWFkNHWWVAz/scDTYKD3MlW4gSvRbPBjMFKJ7CRQSkqDym1ko3Bhbr
- qcpYUN7QklRuN6WLBtL3FkIPrgL+S1RR3VD8c5RbKq1QkBKUYxiexE2VDb5aOZRKGB+N8GyYVg/
- 6T/BrsoP5RWtUCEoWgA==
-X-Authority-Analysis: v=2.4 cv=cJl1IVeN c=1 sm=1 tr=0 ts=6af4166a cx=c_pps
- a=IZJwPbhc+fLeJZngyXXI0A==:117 a=ZePRamnt/+rB5gQjfz0u9A==:17
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTExMDAyOSBTYWx0ZWRfX95cP0NM+zQhG
+ mzwx+cgK1z2cDj30xOVJ9+DalcvNzyG6kt7YXPxgK2H7fuoZ4QiEef+b6MD9YFGaK9oKarER5Wx
+ JZZ7vb1gFtz5h1LbWhPPv1T52s8gyxM=
+X-Authority-Analysis: v=2.4 cv=PoQG/AM3 c=1 sm=1 tr=0 ts=6af4177c cx=c_pps
+ a=mDZGXZTwRPZaeRUbqKGCBw==:117 a=ZePRamnt/+rB5gQjfz0u9A==:17
  a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=_glEPmIy2e8OvE2BGh3C:22
- a=EUspDBNiAAAA:8 a=CbyQB27IJ3HHEvoKa4cA:9 a=QEXdDO2ut3YA:10
- a=uG9DUKGECoFWVXl0Dc02:22
-X-Proofpoint-GUID: zC5jfSC-a4qkJ0-H1GbM3B909IqGLDMM
-X-Proofpoint-ORIG-GUID: zC5jfSC-a4qkJ0-H1GbM3B909IqGLDMM
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTExMDAyOCBTYWx0ZWRfX/nr5Rdm+iHT/
- K8a0JNO/lMad4sOTIrL/1cAXMyFGiwr/2cM10xvyghFPAuVnOCprXxBvOiXgq5sl0XYerEI89oe
- sADAfS567TyjslxB64h46DbjIModmkk=
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=ZpdpYltYx_vBUK5n70dp:22
+ a=EUspDBNiAAAA:8 a=5KJyw0EJLqpdfcsonpYA:9 a=QEXdDO2ut3YA:10
+ a=zc0IvFSfCIW2DFIPzwfm:22
+X-Proofpoint-GUID: OaTs5swdyg8KORo5WxCZgvwIbufqcCct
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTExMDAyOSBTYWx0ZWRfX9JStYvvDv0cW
+ 3phGlYsJ62V+bnPMdQTuFg7TpCuFqBp2Ex5iY0iM48r4ah3eb01jiqMl+SkToo/VQs79cSUGXi0
+ lMofJ8rdbLB5BCdq+/+7beag7I8EHT+T/iIWxkucGT4SGESF9+nXmGGc922GH1VPPV+LoirtRxY
+ vlDIXmcx8iVN+K+BkafF0ll8C49eqsx5ojxnOQ1OMmDZECdqN0mia8fF87lrtsBONgiQjIWBkBX
+ 1MJaBeoJSKf0OPS3kmmn5efQXnvaYoBSv0hOa6/QxjXj7frOARWsXgF5Xsdg0p72ikbp7MyDmB6
+ SXB15j6nr4su5PKpArhi2T5OAKdReRn+pQZux2PX15F1LTafPVnywpIOAX10r0d+qPKcczYDPjC
+ ZZut6RNrvmyUP/lb1ZMy+e+QVpoU5DziKd/F3Q0ZFLWhZCBLof5hwZdN/W9lISF19IOf1zCeGpY
+ LgWAX6sjRBjEBK6GVGA==
+X-Proofpoint-ORIG-GUID: OaTs5swdyg8KORo5WxCZgvwIbufqcCct
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
  definitions=2026-11-11_02,2026-11-06_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 impostorscore=0 malwarescore=0 phishscore=0 suspectscore=0
- priorityscore=1501 spamscore=0 clxscore=1015 adultscore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611110028
+ lowpriorityscore=0 suspectscore=0 clxscore=1015 priorityscore=1501
+ malwarescore=0 bulkscore=0 adultscore=0 impostorscore=0 spamscore=0
+ phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2611040001
+ definitions=main-2611110029
 
 
-On 27-10-2026 16:36, Dmitry Baryshkov wrote:
-> On Mon, Oct 26, 2026 at 11:51:20AM +0530, Jayant Shekhar wrote:
->> Translate DSI host and panel operations into HFI commands. Firmware
->> owns the DSI hardware, so mode validation, display power, panel setup,
->> and DCS transfers must cross the HFI interface instead of accessing
->> controller registers from Linux.
+On 26-10-2026 16:38, Dmitry Baryshkov wrote:
+> On Mon, Oct 26, 2026 at 11:51:25AM +0530, Jayant Shekhar wrote:
+>> Expose the DCP DSI host and panel as DRM-facing objects. The DCP
+>> display path needs a host, panel configuration, bridge state, DSC
+>> setup, DCS transfer buffers, and panel lifetime management before it
+>> can drive a physical display.
 >>
->> Implement DSI mode validation, display session and power management,
->> panel initialization, and DCS transfer helpers while keeping them
->> separate from generic display commands.
+>> Implement the MIPI DSI host, panel-device support, bridge state,
+>> DSC configuration, DCS transfers, and DSI buffer management.
 >>
 >> Assisted-by: LLM
 >> Signed-off-by: Jayant Shekhar <jayant.shekhar@oss.qualcomm.com>
 >> ---
->>   drivers/gpu/drm/msm/Makefile                |   2 +
->>   drivers/gpu/drm/msm/dcp/dcp_dsi_panel.h     |  81 ++++
->>   drivers/gpu/drm/msm/dcp/dcp_hfi.h           |  25 ++
->>   drivers/gpu/drm/msm/dcp/dcp_hfi_dsi.c       | 252 ++++++++++++
->>   drivers/gpu/drm/msm/dcp/dcp_hfi_dsi_panel.c | 592 ++++++++++++++++++++++++++++
-> Please stop calling it a panel. There can be any bridge after the DSI
-> device. From the Linux point of view, drm_panel is a subclass of
-> drm_bridge.
->
->>   5 files changed, 952 insertions(+)
+>>   drivers/gpu/drm/msm/Makefile             |    1 +
+>>   drivers/gpu/drm/msm/dcp/dcp_dsi_bridge.c | 1110 ++++++++++++++++++++++++++++++
+>>   drivers/gpu/drm/msm/dcp/dcp_dsi_bridge.h |   76 ++
+>>   drivers/gpu/drm/msm/dcp/dcp_dsi_panel.h  |   13 +
+>>   4 files changed, 1200 insertions(+)
 >>
 >> diff --git a/drivers/gpu/drm/msm/Makefile b/drivers/gpu/drm/msm/Makefile
->> index bdc5e3b8efa7..77c268aabca6 100644
+>> index 4024f6b1e3cf..9f0a9bfeb2a7 100644
 >> --- a/drivers/gpu/drm/msm/Makefile
 >> +++ b/drivers/gpu/drm/msm/Makefile
->> @@ -74,6 +74,8 @@ msm-display-$(CONFIG_DRM_MSM_MDP5) += \
->>   msm-display-$(CONFIG_DRM_MSM_DCP) += \
+>> @@ -75,6 +75,7 @@ msm-display-$(CONFIG_DRM_MSM_DCP) += \
+>>   	dcp/dcp_crtc.o \
+>>   	dcp/dcp_dpu_kms.o \
+>>   	dcp/dcp_plane.o \
+>> +	dcp/dcp_dsi_bridge.o \
 >>   	dcp/dcp_hfi_core.o \
 >>   	dcp/dcp_hfi_crtc.o \
->> +	dcp/dcp_hfi_dsi.o \
->> +	dcp/dcp_hfi_dsi_panel.o \
->>   	dcp/dcp_hfi_encoder.o \
->>   	dcp/dcp_hfi_kms.o \
->>   	dcp/dcp_hfi_plane.o \
->> diff --git a/drivers/gpu/drm/msm/dcp/dcp_dsi_panel.h b/drivers/gpu/drm/msm/dcp/dcp_dsi_panel.h
+>>   	dcp/dcp_hfi_dsi.o \
+>> diff --git a/drivers/gpu/drm/msm/dcp/dcp_dsi_bridge.c b/drivers/gpu/drm/msm/dcp/dcp_dsi_bridge.c
 >> new file mode 100644
->> index 000000000000..a8898e469b44
+>> index 000000000000..b3e782b8f047
 >> --- /dev/null
->> +++ b/drivers/gpu/drm/msm/dcp/dcp_dsi_panel.h
->> @@ -0,0 +1,81 @@
->> +/* SPDX-License-Identifier: GPL-2.0-only */
->> +/*
->> + * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
->> + *
->> + * DCP DSI panel configuration shared by the HFI panel implementation and
-> What if there is a DSI2DPI or DSI2LVDS bridge and then DPI or LVDS
-> panel?
->
->> + * the DRM DSI bridge.
->> + */
->> +
->> +#ifndef __DCP_DSI_PANEL_H__
->> +#define __DCP_DSI_PANEL_H__
->> +
->> +#include <linux/dma-mapping.h>
->> +#include <linux/sizes.h>
->> +#include <linux/types.h>
->> +
->> +#define DCP_DSI_MAX_PHY_TIMINGS	32
->> +
->> +/**
->> + * struct dcp_dsi_hfi_panel_config - Complete HFI PANEL_INIT configuration.
->> + *
->> + * This contains the bridge-owned panel configuration plus the
->> + * mode-dependent values assembled before the HFI PANEL_INIT command.
->> + */
->> +struct dcp_dsi_hfi_panel_config {
->> +	u32 display_type;
->> +	u32 num_ctrls;
->> +	u32 ctrl_indices[4];
->> +	u32 num_phys;
->> +	u32 phy_indices[4];
->> +	u32 vsync_source;
->> +	u32 te_dcs_command;
->> +	u32 dma_trigger;
->> +	u32 stream_trigger;
->> +	u32 wr_mem_start;
->> +	u32 wr_mem_continue;
->> +	u32 dma_sched_line;
->> +	u32 dma_sched_window;
->> +	u32 phy_type;
->> +	bool cphy_mode;
->> +	bool lp11_init;
->> +	bool ulps_supported;
->> +	bool bllp_eof_power_mode;
->> +	bool bllp_power_mode;
->> +	u32 lane_map;
->> +	u32 color_order;
->> +	u32 esd_mode;
->> +	u32 jitter_numer;
->> +	u32 jitter_denom;
->> +	dma_addr_t dcs_tx_dva;
->> +	dma_addr_t dcs_tx_iova;
->> +	u32 dcs_tx_buf_size;
->> +	u32 phy_timings[DCP_DSI_MAX_PHY_TIMINGS];
->> +	u32 num_phy_timings;
->> +	bool dsc_enabled;
->> +	u32 dsc_version_major;
->> +	u32 dsc_version_minor;
->> +	u32 dsc_scr_version;
->> +	u32 dsc_slice_height;
->> +	u32 dsc_slice_width;
->> +	u32 dsc_slices_per_pkt;
->> +	u32 dsc_bits_per_component;
->> +	u32 dsc_pps_delay_ms;
->> +	u32 dsc_bits_per_pixel;
->> +	u32 dsc_chroma_format;
->> +	u32 dsc_color_space;
->> +	u32 dsc_block_prediction_enable;
-> Why do you need to copy those? Can't you use struct drm_dsc directly?
-> Having it as a non-NULL pointer would have saved you from having
-> the dsc_enabled flag.
->
-
-Will remove in v3.
-
-
->> +	/* Optional DSC rate-control override panel configuration. */
->> +	bool dsc_rc_override;
->> +	u8 dsc_rc_min_qp[15];
->> +	u8 dsc_rc_max_qp[15];
->> +	u8 dsc_rc_bpg_offsets[15];
->> +	u32 topology_mixer_count;
->> +	u32 topology_enc_count;
->> +	u32 topology_intf_count;
->> +};
->> +
->> +/* DCS buffers use IOVAs directly in the firmware command descriptor. */
->> +#define DCP_DSI_DCS_TX_BUF_SIZE	SZ_4K
->> +#define DCP_DSI_DCS_RX_BUF_SIZE	SZ_4K
->> +
->> +#endif /* __DCP_DSI_PANEL_H__ */
->> diff --git a/drivers/gpu/drm/msm/dcp/dcp_hfi.h b/drivers/gpu/drm/msm/dcp/dcp_hfi.h
->> index 6d3eadb5e811..88d73de69383 100644
->> --- a/drivers/gpu/drm/msm/dcp/dcp_hfi.h
->> +++ b/drivers/gpu/drm/msm/dcp/dcp_hfi.h
->> @@ -242,6 +242,31 @@ int dcp_hfi_send_resource_register(struct dcp_hfi *hfi);
->>   int dcp_hfi_set_display_property(struct dcp_hfi *hfi, u32 session_id,
->>   				 u32 prop_id, u32 value);
->>   
->> +struct dcp_dsi_hfi_panel_config;
->> +int dcp_hfi_panel_init(struct dcp_hfi *hfi, u32 intf_idx,
->> +		       const struct drm_display_mode *mode,
->> +		       const struct mipi_dsi_device *dsi,
->> +		       const struct dcp_dsi_hfi_panel_config *cfg);
->> +int dcp_hfi_display_enable(struct dcp_hfi *hfi, u32 intf_idx,
->> +			   u32 display_id, u32 *session_id);
->> +int dcp_hfi_display_close(struct dcp_hfi *hfi, u32 session_id);
->> +int dcp_hfi_display_mode_validate(struct dcp_hfi *hfi, u32 session_id,
->> +				  const struct drm_display_mode *mode,
->> +				  u64 clk_rate_hz);
->> +int dcp_hfi_display_set_mode(struct dcp_hfi *hfi, u32 session_id,
->> +			     const struct drm_display_mode *mode,
->> +			     u64 clk_rate_hz);
->> +int dcp_hfi_display_power_register(struct dcp_hfi *hfi, u32 session_id);
->> +int dcp_hfi_display_power_control_ack(struct dcp_hfi *hfi, u32 session_id,
->> +				      u32 packet_id);
->> +int dcp_hfi_display_post_enable(struct dcp_hfi *hfi, u32 session_id);
->> +int dcp_hfi_display_disable(struct dcp_hfi *hfi, u32 session_id);
->> +int dcp_hfi_display_post_disable(struct dcp_hfi *hfi, u32 session_id);
->> +ssize_t dcp_hfi_dcs_transfer(struct dcp_hfi *hfi, u32 session_id,
->> +			     const struct mipi_dsi_msg *msg,
->> +			     void *tx_buf, dma_addr_t tx_iova,
->> +			     void *rx_buf, dma_addr_t rx_iova,
->> +			     u32 post_wait_ms, u32 ctrl_idx);
->>   #endif /* __DCP_HFI_H__ */
->>   void dcp_hfi_set_power_control_cb(struct dcp_hfi *hfi, void *priv,
->>   				  void (*cb)(void *priv, u32 display_id,
->> diff --git a/drivers/gpu/drm/msm/dcp/dcp_hfi_dsi.c b/drivers/gpu/drm/msm/dcp/dcp_hfi_dsi.c
->> new file mode 100644
->> index 000000000000..fbeec03cf90d
->> --- /dev/null
->> +++ b/drivers/gpu/drm/msm/dcp/dcp_hfi_dsi.c
->> @@ -0,0 +1,252 @@
+>> +++ b/drivers/gpu/drm/msm/dcp/dcp_dsi_bridge.c
+>> @@ -0,0 +1,1110 @@
 >> +// SPDX-License-Identifier: GPL-2.0-only
 >> +/*
 >> + * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
 >> + *
->> + * HFI commands for the DSI display-session lifecycle.
->> + * Panel initialization and DCS transfers are implemented in dcp_hfi_dsi_panel.c.
+>> + * DCP DSI bridge driver.
+>> + *
+>> + * Implements a DRM bridge for DSI displays in the DCP firmware-delegated
+>> + * architecture. DCP firmware owns the DSI PHY and controller; this driver
+>> + * uses HFI commands to configure DSI parameters rather than direct register
+>> + * writes.
 >> + */
 >> +
->> +#include <linux/device.h>
+>> +#include <linux/component.h>
+>> +#include <linux/cleanup.h>
+>> +#include <linux/completion.h>
+>> +#include <linux/dma-mapping.h>
+>> +#include <linux/iommu.h>
+>> +#include <linux/jiffies.h>
+>> +#include <linux/math64.h>
+>> +#include <linux/mutex.h>
+>> +#include <linux/of.h>
+>> +#include <linux/slab.h>
+>> +#include <linux/workqueue.h>
+>> +
+>> +#include <drm/display/drm_dsc.h>
+>> +#include <drm/display/drm_dsc_helper.h>
+>> +#include <drm/drm_atomic_helper.h>
+>> +#include <drm/drm_bridge.h>
+>> +#include <drm/drm_connector.h>
+>> +#include <drm/drm_encoder.h>
+>> +#include <drm/drm_mipi_dsi.h>
 >> +#include <drm/drm_modes.h>
+>> +#include <drm/drm_of.h>
 >> +
+>> +#include <video/mipi_display.h>
+>> +
+>> +#include "dcp_crtc.h"
+>> +#include "dcp_dsi_bridge.h"
+>> +#include "dcp_dpu_kms.h"
 >> +#include "dcp_hfi.h"
->> +#include "dcp_hfi_priv.h"
->> +#include "hfi/hfi_commands_display.h"
->> +#include "hfi/hfi_defs_common.h"
->> +#include "hfi/hfi_defs_display.h"
->> +#include "hfi/hfi_packet.h"
->> +#include "hfi/hfi_packer.h"
->> +#include "hfi/hfi_properties_display.h"
+>> +#include "hfi/hfi_defs_panel.h"
 >> +
->> +static void dcp_hfi_fill_mode_info(struct hfi_display_mode_info *info,
->> +				   const struct drm_display_mode *mode)
+>> +struct dcp_dsi_bridge_state {
+>> +	struct drm_bridge_state base;
+>> +	struct dcp_dsi_panel_state panel_state;
+>> +	int prepare_error;
+>> +};
+>> +
+>> +#define to_dcp_dsi_bridge_state(s) \
+>> +	container_of(s, struct dcp_dsi_bridge_state, base)
+>> +
+>> +static struct dcp_dsi_bridge_state *
+>> +dcp_dsi_bridge_get_state(struct dcp_dsi_bridge *bridge)
 >> +{
->> +	memset(info, 0, sizeof(*info));
->> +	info->size            = sizeof(*info);
->> +	info->h_active        = mode->hdisplay;
->> +	info->h_back_porch    = mode->htotal - mode->hsync_end;
->> +	info->h_sync_width    = mode->hsync_end - mode->hsync_start;
->> +	info->h_front_porch   = mode->hsync_start - mode->hdisplay;
->> +	info->h_skew          = mode->hskew;
->> +	info->h_sync_polarity = !!(mode->flags & DRM_MODE_FLAG_PHSYNC);
->> +	info->v_active        = mode->vdisplay;
->> +	info->v_back_porch    = mode->vtotal - mode->vsync_end;
->> +	info->v_sync_width    = mode->vsync_end - mode->vsync_start;
->> +	info->v_front_porch   = mode->vsync_start - mode->vdisplay;
->> +	info->v_sync_polarity = !!(mode->flags & DRM_MODE_FLAG_PVSYNC);
->> +	info->refresh_rate    = drm_mode_vrefresh(mode);
->> +	info->clk_rate_hz_lo = lower_32_bits((u64)mode->clock * 1000);
->> +	info->clk_rate_hz_hi = upper_32_bits((u64)mode->clock * 1000);
+>> +	return to_dcp_dsi_bridge_state(drm_priv_to_bridge_state(bridge->bridge.base.state));
 >> +}
 >> +
->> +static void dcp_hfi_dump_mode_info(struct dcp_hfi *hfi, const char *cmd,
->> +				   u32 session_id,
->> +				   const struct hfi_display_mode_info *info)
+>> +static struct drm_bridge_state *
+>> +dcp_dsi_bridge_atomic_create_state(struct drm_bridge *bridge)
 >> +{
->> +	dev_dbg(hfi->dev,
->> +		"HFI %s s=%u h=%u/%u/%u/%u v=%u/%u/%u/%u p=%u/%u r=%u clk=%llu sz=%u\n",
->> +		cmd, session_id,
->> +		info->h_active, info->h_back_porch, info->h_sync_width,
->> +		info->h_front_porch,
->> +		info->v_active, info->v_back_porch, info->v_sync_width,
->> +		info->v_front_porch,
->> +		info->h_sync_polarity, info->v_sync_polarity,
->> +		info->refresh_rate,
->> +		(u64)info->clk_rate_hz_lo | ((u64)info->clk_rate_hz_hi << 32),
->> +		info->size);
+>> +	struct dcp_dsi_bridge_state *state;
+>> +	struct dcp_dsi_bridge *dsi_bridge = to_dcp_dsi_bridge(bridge);
+>> +
+>> +	state = kzalloc_obj(*state);
+>> +	if (!state)
+>> +		return ERR_PTR(-ENOMEM);
+>> +
+>> +	__drm_atomic_helper_bridge_state_init(&state->base, bridge);
+>> +	state->panel_state.topology_mixer_count =
+>> +		dsi_bridge->hfi_panel_config.topology_mixer_count;
+>> +	state->panel_state.topology_enc_count =
+>> +		dsi_bridge->hfi_panel_config.topology_enc_count;
+>> +	state->panel_state.topology_intf_count =
+>> +		dsi_bridge->hfi_panel_config.topology_intf_count;
+>> +	return &state->base;
 >> +}
 >> +
->> +int dcp_hfi_display_mode_validate(struct dcp_hfi *hfi, u32 session_id,
->> +				  const struct drm_display_mode *mode, u64 clk_rate_hz)
+>> +static struct drm_bridge_state *
+>> +dcp_dsi_bridge_atomic_duplicate_state(struct drm_bridge *bridge)
 >> +{
->> +	struct hfi_display_mode_info info;
->> +	int ret;
+>> +	struct dcp_dsi_bridge_state *state, *old_state;
 >> +
->> +	dcp_hfi_fill_mode_info(&info, mode);
->> +	info.clk_rate_hz_lo = lower_32_bits(clk_rate_hz);
->> +	info.clk_rate_hz_hi = upper_32_bits(clk_rate_hz);
->> +	dcp_hfi_dump_mode_info(hfi, "HFI MODE_VALIDATE", session_id, &info);
+>> +	if (WARN_ON(!bridge->base.state))
+>> +		return NULL;
 >> +
->> +	ret = dcp_hfi_send_sync(hfi,
->> +				HFI_COMMAND_DISPLAY_MODE_VALIDATE,
->> +				HFI_CMD_BUFF_DISPLAY, session_id,
->> +				HFI_PAYLOAD_U32_ARRAY,
->> +				&info, sizeof(info),
->> +				HFI_TX_FLAGS_RESPONSE_REQUIRED |
->> +				HFI_TX_FLAGS_NON_DISCARDABLE,
->> +				NULL, 0,
->> +				DCP_HFI_TIMEOUT_MODE_MS);
+>> +	state = kzalloc_obj(*state);
+>> +	if (!state)
+>> +		return NULL;
 >> +
->> +	return ret;
+>> +	old_state = to_dcp_dsi_bridge_state(drm_priv_to_bridge_state(bridge->base.state));
+>> +	__drm_atomic_helper_bridge_duplicate_state(bridge, &state->base);
+>> +	state->panel_state = old_state->panel_state;
+>> +	return &state->base;
 >> +}
 >> +
->> +int dcp_hfi_display_set_mode(struct dcp_hfi *hfi, u32 session_id,
->> +			     const struct drm_display_mode *mode, u64 clk_rate_hz)
+>> +static void dcp_dsi_bridge_atomic_destroy_state(struct drm_bridge *bridge,
+>> +						struct drm_bridge_state *bridge_state)
 >> +{
->> +	struct hfi_display_mode_info info;
->> +	int ret;
->> +
->> +	dcp_hfi_fill_mode_info(&info, mode);
->> +	info.clk_rate_hz_lo = lower_32_bits(clk_rate_hz);
->> +	info.clk_rate_hz_hi = upper_32_bits(clk_rate_hz);
->> +	dcp_hfi_dump_mode_info(hfi, "HFI SET_MODE", session_id, &info);
->> +
->> +	ret = dcp_hfi_send_sync(hfi,
->> +				HFI_COMMAND_DISPLAY_SET_MODE,
->> +				HFI_CMD_BUFF_DISPLAY, session_id,
->> +				HFI_PAYLOAD_U32_ARRAY,
->> +				&info, sizeof(info),
->> +				HFI_TX_FLAGS_RESPONSE_REQUIRED |
->> +				HFI_TX_FLAGS_NON_DISCARDABLE,
->> +				NULL, 0,
->> +				DCP_HFI_TIMEOUT_MODE_MS);
->> +
->> +	return ret;
+>> +	kfree(to_dcp_dsi_bridge_state(bridge_state));
 >> +}
 >> +
->> +int dcp_hfi_display_power_register(struct dcp_hfi *hfi, u32 session_id)
+>> +static void
+>> +dcp_dsi_bridge_build_hfi_config(struct dcp_dsi_bridge *dsi_bridge,
+>> +				const struct dcp_dsi_bridge_state *state,
+>> +				struct dcp_dsi_hfi_panel_config *cfg)
 >> +{
->> +	return dcp_hfi_send_sync(hfi,
->> +				 HFI_COMMAND_DISPLAY_POWER_REGISTER,
->> +				 HFI_CMD_BUFF_DISPLAY, session_id,
->> +				 HFI_PAYLOAD_NONE, NULL, 0,
->> +				 HFI_TX_FLAGS_RESPONSE_REQUIRED |
->> +				 HFI_TX_FLAGS_NON_DISCARDABLE,
->> +				 NULL, 0,
->> +				 DCP_HFI_TIMEOUT_DISPLAY_MS);
+>> +	*cfg = dsi_bridge->hfi_panel_config;
+>> +	cfg->topology_mixer_count = state->panel_state.topology_mixer_count;
+>> +	cfg->topology_enc_count = state->panel_state.topology_enc_count;
+>> +	cfg->topology_intf_count = state->panel_state.topology_intf_count;
 >> +}
 >> +
->> +int dcp_hfi_display_power_control_ack(struct dcp_hfi *hfi, u32 session_id,
->> +				      u32 packet_id)
+>> +static void dcp_dsi_host_dev_release(struct device *dev)
 >> +{
->> +	struct dcp_hfi_buf *buf;
->> +	struct hfi_cmd_buff_hdl hdl;
->> +	struct hfi_header_info hdr_info;
->> +	struct hfi_packet_info pkt_info;
->> +	int ret;
->> +
->> +	buf = dcp_hfi_buf_alloc(hfi);
->> +	if (!buf)
->> +		return -ENOMEM;
->> +
->> +	hdl.cmd_buffer = buf->data;
->> +	hdl.size       = DCP_HFI_BUF_SIZE;
->> +
->> +	hdr_info.num_packets   = 0;
->> +	hdr_info.cmd_buff_type = HFI_CMD_BUFF_DISPLAY;
->> +	hdr_info.object_id     = session_id;
->> +	hdr_info.header_id     = dcp_hfi_next_packet_id(hfi);
->> +
->> +	ret = hfi_create_header(&hdl, &hdr_info);
->> +	if (ret)
->> +		goto err_free_buf;
->> +
->> +	pkt_info.cmd          = HFI_COMMAND_DISPLAY_POWER_CONTROL;
->> +	pkt_info.id           = session_id & 0xFFFF;
->> +	pkt_info.flags        = HFI_RX_FLAGS_SUCCESS;
->> +	pkt_info.packet_id    = packet_id;
->> +	pkt_info.payload_type = HFI_PAYLOAD_NONE;
->> +	pkt_info.payload_size = 0;
->> +	pkt_info.payload_ptr  = NULL;
->> +
->> +	ret = hfi_create_packet_header(&hdl, &pkt_info);
->> +	if (ret)
->> +		goto err_free_buf;
->> +
->> +	return dcp_hfi_send_cmd_async(hfi, buf, hfi_get_header_size(&hdl), NULL);
->> +
->> +err_free_buf:
->> +	dcp_hfi_buf_free(hfi, buf);
->> +	return ret;
+>> +	of_node_put(dev->of_node);
 >> +}
 >> +
->> +int dcp_hfi_display_enable(struct dcp_hfi *hfi, u32 intf_idx, u32 display_id,
->> +			   u32 *session_id)
+>> +static bool dcp_dsi_bridge_cmd_mode(const struct dcp_dsi_bridge *dsi_bridge)
 >> +{
->> +	int ret;
+>> +	return dsi_bridge->dsi_device &&
+>> +		!(dsi_bridge->dsi_device->mode_flags & MIPI_DSI_MODE_VIDEO);
+>> +}
 >> +
->> +	ret = dcp_hfi_send_sync(hfi,
->> +				HFI_COMMAND_DISPLAY_ENABLE,
->> +				HFI_CMD_BUFF_DISPLAY, display_id,
->> +				HFI_PAYLOAD_NONE, NULL, 0,
->> +				HFI_TX_FLAGS_RESPONSE_REQUIRED |
->> +				HFI_TX_FLAGS_NON_DISCARDABLE,
->> +				NULL, 0,
->> +				DCP_HFI_TIMEOUT_DISPLAY_MS);
->> +	if (ret) {
->> +		dev_err(hfi->dev,
->> +			"HFI DISPLAY_ENABLE intf=%u display_id=%u failed: %d\n",
->> +			intf_idx, display_id, ret);
->> +		return ret;
+>> +static u64 dcp_dsi_link_clock(const struct dcp_dsi_bridge *dsi_bridge,
+>> +			      const struct dcp_dsi_hfi_panel_config *cfg,
+>> +			      const struct drm_display_mode *mode)
+>> +{
+>> +	const struct mipi_dsi_device *dsi = dsi_bridge->dsi_device;
+>> +	int bpp;
+>> +	u32 bpp_x16;
+>> +
+>> +	bpp = mipi_dsi_pixel_format_to_bpp(dsi->format);
+>> +	if (bpp < 0)
+>> +		return 0;
+>> +
+>> +	bpp_x16 = cfg->dsc_enabled && cfg->dsc_bits_per_pixel ?
+>> +		cfg->dsc_bits_per_pixel : bpp << 4;
+>> +
+>> +	if (dsi->hs_rate)
+>> +		return dsi->hs_rate;
+>> +
+>> +	return div_u64((u64)mode->clock * 1000 * bpp_x16, dsi->lanes * 16);
+>> +}
+>> +
+>> +static void dcp_dsi_power_control_work(struct work_struct *work)
+>> +{
+>> +	struct dcp_dsi_bridge *dsi_bridge =
+>> +		container_of(work, struct dcp_dsi_bridge, power_control_work);
+>> +	struct dcp_dpu_kms *kms = dsi_bridge->kms;
+>> +
+>> +	dcp_hfi_display_power_control_ack(kms->hfi,
+>> +					  dsi_bridge->session_id,
+>> +					  dsi_bridge->power_packet_id);
+>> +
+>> +	complete(&dsi_bridge->power_done);
+>> +}
+>> +
+>> +static void dcp_dsi_power_control_cb(void *priv, u32 display_id,
+>> +				     u32 power_mask, bool enable,
+>> +				     u32 packet_id)
+>> +{
+>> +	struct dcp_dpu_kms *kms = priv;
+>> +	struct dcp_dsi_bridge *dsi_bridge = NULL;
+>> +	int idx;
+>> +
+>> +	for (idx = 0; idx < ARRAY_SIZE(kms->dsi_bridge); idx++) {
+>> +		struct dcp_dsi_bridge *b = kms->dsi_bridge[idx];
+>> +
+>> +		if (b && b->session_id == display_id) {
+>> +			dsi_bridge = b;
+>> +			break;
+>> +		}
 >> +	}
 >> +
->> +	*session_id = display_id;
+>> +	if (!dsi_bridge) {
+>> +		dev_warn(kms->pm_dev,
+>> +			 "DSI: power_control for unknown display_id=%u\n", display_id);
+>> +		return;
+>> +	}
+>> +
+>> +	dsi_bridge->power_packet_id = packet_id;
+>> +	schedule_work(&dsi_bridge->power_control_work);
+>> +}
+>> +
+>> +static const struct component_ops dcp_dsi_component_ops;
+>> +
+>> +static int dcp_dsi_host_attach(struct mipi_dsi_host *host,
+>> +			       struct mipi_dsi_device *dsi)
+>> +{
+>> +	struct dcp_dsi_bridge *dsi_bridge = to_dcp_dsi_host(host);
+>> +	struct dcp_dsi_hfi_panel_config *cfg = &dsi_bridge->hfi_panel_config;
+>> +	int ret;
+>> +
+>> +	if (!dsi->lanes || dsi->lanes > 4)
+>> +		return -EINVAL;
+>> +
+>> +	cfg->dsc_enabled = false;
+>> +	cfg->dsc_version_major = 0;
+>> +	cfg->dsc_version_minor = 0;
+>> +	cfg->dsc_scr_version = 0;
+>> +	cfg->dsc_slice_height = 0;
+>> +	cfg->dsc_slice_width = 0;
+>> +	cfg->dsc_slices_per_pkt = 0;
+>> +	cfg->dsc_bits_per_component = 0;
+>> +	cfg->dsc_pps_delay_ms = 0;
+>> +	cfg->dsc_bits_per_pixel = 0;
+>> +	cfg->dsc_chroma_format = 0;
+>> +	cfg->dsc_color_space = 0;
+>> +	cfg->dsc_block_prediction_enable = 0;
+>> +	cfg->dsc_rc_override = false;
+>> +	memset(cfg->dsc_rc_min_qp, 0, sizeof(cfg->dsc_rc_min_qp));
+>> +	memset(cfg->dsc_rc_max_qp, 0, sizeof(cfg->dsc_rc_max_qp));
+>> +	memset(cfg->dsc_rc_bpg_offsets, 0, sizeof(cfg->dsc_rc_bpg_offsets));
+>> +
+>> +	switch (dsi->format) {
+>> +	case MIPI_DSI_FMT_RGB888:
+>> +	case MIPI_DSI_FMT_RGB666:
+>> +	case MIPI_DSI_FMT_RGB666_PACKED:
+>> +	case MIPI_DSI_FMT_RGB565:
+>> +	case MIPI_DSI_FMT_RGB101010:
+>> +		break;
+>> +	default:
+>> +		dev_err(&dsi->dev, "unsupported pixel format %u\n", dsi->format);
+>> +		return -EINVAL;
+>> +	}
+>> +
+>> +	dsi_bridge->dsi_device = dsi;
+>> +
+>> +	if (dsi->dsc) {
+>> +		struct drm_dsc_config *dsc = dsi->dsc;
+>> +		u32 chroma_format = 0;
+>> +		u32 color_space = 0;
+>> +
+>> +		if (dsc->native_422)
+>> +			chroma_format = 1;
+>> +		else if (dsc->native_420)
+>> +			chroma_format = 2;
+>> +		if (dsc->native_422 || dsc->native_420)
+>> +			color_space = 1;
+>> +
+>> +		cfg->dsc_enabled                 = true;
+>> +		cfg->dsc_version_major           = dsc->dsc_version_major;
+>> +		cfg->dsc_version_minor           = dsc->dsc_version_minor;
+>> +		cfg->dsc_scr_version              = 0;
+>> +		cfg->dsc_slice_height             = dsc->slice_height;
+>> +		cfg->dsc_slice_width              = dsc->slice_width;
+>> +		cfg->dsc_slices_per_pkt           = 1;
+>> +		cfg->dsc_bits_per_component       = dsc->bits_per_component;
+>> +		cfg->dsc_pps_delay_ms             = 0;
+>> +		cfg->dsc_bits_per_pixel           = dsc->bits_per_pixel;
+>> +		cfg->dsc_chroma_format            = chroma_format;
+>> +		cfg->dsc_color_space              = color_space;
+>> +		cfg->dsc_block_prediction_enable  = dsc->block_pred_enable;
+>> +
+>> +		dev_dbg(&dsi->dev,
+>> +			"DSI%u: DSC enabled: version=%u.%u slice=%ux%u bpc=%u bpp=%u.%u\n",
+>> +			dsi_bridge->intf_idx, dsc->dsc_version_major,
+>> +			dsc->dsc_version_minor, dsc->slice_width,
+>> +			dsc->slice_height, dsc->bits_per_component,
+>> +			dsc->bits_per_pixel >> 4, (dsc->bits_per_pixel & 0xf) * 100 / 16);
+> I'd rather see this happen at the atomic_check state. We are trying to
+> shift towards that model.
+>
+
+Sure, will update in v3
+
+
+>> +	}
+>> +
+>> +	ret = component_add(&dsi_bridge->dsi_host_dev,
+>> +			    &dcp_dsi_component_ops);
+>> +	if (ret)
+>> +		return ret;
+>> +	dsi_bridge->component_added = true;
+> What for? Can the bridge really be attached twice?
+>
 >> +
 >> +	return 0;
 >> +}
 >> +
->> +int dcp_hfi_display_post_enable(struct dcp_hfi *hfi, u32 session_id)
+>> +static int dcp_dsi_host_detach(struct mipi_dsi_host *host,
+>> +			       struct mipi_dsi_device *dsi)
 >> +{
->> +	return dcp_hfi_send_sync(hfi,
->> +				 HFI_COMMAND_DISPLAY_POST_ENABLE,
->> +				 HFI_CMD_BUFF_DISPLAY, session_id,
->> +				 HFI_PAYLOAD_NONE, NULL, 0,
->> +				 HFI_TX_FLAGS_RESPONSE_REQUIRED |
->> +				 HFI_TX_FLAGS_NON_DISCARDABLE,
->> +				 NULL, 0,
->> +				 DCP_HFI_TIMEOUT_DISPLAY_MS);
+>> +	struct dcp_dsi_bridge *dsi_bridge = to_dcp_dsi_host(host);
+>> +
+>> +	if (dsi_bridge->component_added) {
+>> +		component_del(&dsi_bridge->dsi_host_dev,
+>> +			      &dcp_dsi_component_ops);
+>> +		dsi_bridge->component_added = false;
+> Can it be detached twice? How? Why?
+>
+>> +	}
+>> +	dsi_bridge->panel_bridge = NULL;
+>> +	dsi_bridge->dsi_device = NULL;
+>> +	dsi_bridge->hfi_panel_config.dsc_enabled = false;
+> Why do you need to NULL all of that?
+>
+>> +	return 0;
 >> +}
 >> +
->> +int dcp_hfi_display_disable(struct dcp_hfi *hfi, u32 session_id)
+>> +static ssize_t dcp_dsi_host_transfer(struct mipi_dsi_host *host,
+>> +				     const struct mipi_dsi_msg *msg)
 >> +{
->> +	return dcp_hfi_send_sync(hfi,
->> +				 HFI_COMMAND_DISPLAY_DISABLE,
->> +				 HFI_CMD_BUFF_DISPLAY, session_id,
->> +				 HFI_PAYLOAD_NONE, NULL, 0,
->> +				 HFI_TX_FLAGS_RESPONSE_REQUIRED |
->> +				 HFI_TX_FLAGS_NON_DISCARDABLE,
->> +				 NULL, 0,
->> +				 DCP_HFI_TIMEOUT_DISPLAY_MS);
+>> +	struct dcp_dsi_bridge *dsi_bridge = to_dcp_dsi_host(host);
+>> +	struct dcp_dpu_kms *kms = dsi_bridge->kms;
+>> +	u32 session_id;
+>> +	bool temporary_session = false;
+>> +	ssize_t ret;
+>> +
+>> +	guard(mutex)(&dsi_bridge->session_lock);
+>> +	if (!dsi_bridge->dcs_tx_buf)
+>> +		return -ENODEV;
+>> +
+>> +	/* Serialize DCS transfers */
+>> +	guard(mutex)(&dsi_bridge->dcs_lock);
+>> +
+>> +	if (dsi_bridge->session_open) {
+>> +		session_id = dsi_bridge->session_id;
+>> +	} else {
+>> +		/*
+>> +		 * mipi_dsi_host_ops::transfer() may be called while the host is
+>> +		 * disabled. Open a transaction-only DCP session in that case;
+>> +		 * atomic_pre_enable() will create the full display session later.
+>> +		 */
+>> +		ret = dcp_hfi_display_enable(kms->hfi, dsi_bridge->intf_idx,
+>> +					     dsi_bridge->fw_display_id,
+>> +					     &session_id);
+>> +		if (ret)
+>> +			return ret;
+>> +
+>> +		temporary_session = true;
+>> +	}
+> Nice
+>
+>> +
+>> +	ret = dcp_hfi_dcs_transfer(kms->hfi, session_id, msg,
+>> +				   dsi_bridge->dcs_tx_buf, dsi_bridge->dcs_tx_iova,
+>> +				   dsi_bridge->dcs_rx_buf, dsi_bridge->dcs_rx_iova, 0,
+>> +				   dsi_bridge->hfi_panel_config.ctrl_indices[0]);
+>> +	if (temporary_session) {
+>> +		int close_ret = dcp_hfi_display_close(kms->hfi, session_id);
+>> +
+>> +		if (ret >= 0 && close_ret)
+>> +			ret = close_ret;
+>> +	}
+>> +	if (ret < 0)
+>> +		dev_warn(kms->pm_dev,
+>> +			 "DSI%u: live DCS command transfer failed: %zd\n",
+>> +			 dsi_bridge->intf_idx, ret);
+>> +
+>> +	return ret;
 >> +}
 >> +
->> +int dcp_hfi_display_post_disable(struct dcp_hfi *hfi, u32 session_id)
+>> +static int dcp_dsi_component_bind(struct device *dev,
+>> +				  struct device *master, void *data)
 >> +{
->> +	return dcp_hfi_send_sync(hfi,
->> +				 HFI_COMMAND_DISPLAY_POST_DISABLE,
->> +				 HFI_CMD_BUFF_DISPLAY, session_id,
->> +				 HFI_PAYLOAD_NONE, NULL, 0,
->> +				 HFI_TX_FLAGS_RESPONSE_REQUIRED |
->> +				 HFI_TX_FLAGS_NON_DISCARDABLE,
->> +				 NULL, 0,
->> +				 DCP_HFI_TIMEOUT_DISPLAY_MS);
+>> +	struct dcp_dsi_bridge *dsi_bridge =
+>> +		container_of(dev, struct dcp_dsi_bridge, dsi_host_dev);
+>> +
+>> +	dsi_bridge->panel_bridge =
+>> +		devm_drm_of_get_bridge(dev, dsi_bridge->dcp_np,
+>> +				       dsi_bridge->dcp_port, 0);
+>> +	if (IS_ERR(dsi_bridge->panel_bridge)) {
+>> +		int ret = PTR_ERR(dsi_bridge->panel_bridge);
+>> +
+>> +		dsi_bridge->panel_bridge = NULL;
+>> +		return ret;
+>> +	}
+>> +
+>> +	return 0;
 >> +}
 >> +
->> +int dcp_hfi_display_close(struct dcp_hfi *hfi, u32 session_id)
+>> +static void dcp_dsi_component_unbind(struct device *dev,
+>> +				     struct device *master, void *data)
 >> +{
+>> +	struct dcp_dsi_bridge *dsi_bridge =
+>> +		container_of(dev, struct dcp_dsi_bridge, dsi_host_dev);
+>> +
+>> +	dsi_bridge->panel_bridge = NULL;
+>> +}
+>> +
+>> +static const struct component_ops dcp_dsi_component_ops = {
+>> +	.bind = dcp_dsi_component_bind,
+>> +	.unbind = dcp_dsi_component_unbind,
+>> +};
+>> +
+>> +static const struct mipi_dsi_host_ops dcp_dsi_host_ops = {
+>> +	.attach   = dcp_dsi_host_attach,
+>> +	.detach   = dcp_dsi_host_detach,
+>> +	.transfer = dcp_dsi_host_transfer,
+>> +};
+>> +
+>> +static int dcp_dsi_bridge_attach(struct drm_bridge *bridge,
+>> +				 struct drm_encoder *encoder,
+>> +				 enum drm_bridge_attach_flags flags)
+>> +{
+>> +	struct dcp_dsi_bridge *dsi_bridge = to_dcp_dsi_bridge(bridge);
+>> +	struct drm_bridge *panel_bridge;
 >> +	int ret;
 >> +
->> +	ret = dcp_hfi_display_disable(hfi, session_id);
+>> +	panel_bridge = dsi_bridge->panel_bridge;
+>> +	if (!panel_bridge)
+>> +		return -EPROBE_DEFER;
+>> +
+>> +	ret = drm_bridge_attach(encoder, panel_bridge, bridge, flags);
 >> +	if (ret) {
->> +		dev_warn(hfi->dev, "HFI DISPLAY_DISABLE failed: %d\n", ret);
+>> +		drm_err(bridge->dev,
+>> +			"DSI%u: panel bridge attach failed: %d\n",
+>> +			dsi_bridge->intf_idx, ret);
 >> +		return ret;
 >> +	}
 >> +
->> +	ret = dcp_hfi_display_post_disable(hfi, session_id);
->> +	if (ret) {
->> +		dev_warn(hfi->dev, "HFI DISPLAY_POST_DISABLE failed: %d\n", ret);
->> +		return ret;
+>> +	drm_dbg_driver(dsi_bridge->kms->dev,
+>> +		       "DSI%u: panel bridge attached\n",
+>> +		       dsi_bridge->intf_idx);
+>> +
+>> +	dcp_hfi_set_power_control_cb(dsi_bridge->kms->hfi,
+>> +				     dsi_bridge->kms, dcp_dsi_power_control_cb);
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +static u32 dcp_dsi_bridge_get_mixer_count(struct dcp_dsi_bridge *dsi_bridge,
+>> +					  const struct dcp_dsi_hfi_panel_config *cfg,
+>> +					  const struct drm_display_mode *mode)
+>> +{
+>> +	u32 mixer_count = cfg->topology_mixer_count;
+>> +
+>> +	if (!mixer_count)
+>> +		mixer_count = 1;
+>> +
+>> +	if (dsi_bridge->dsi_device && dsi_bridge->dsi_device->dsc) {
+>> +		const struct drm_dsc_config *dsc = dsi_bridge->dsi_device->dsc;
+>> +
+>> +		if (dsc->slice_count)
+>> +			mixer_count = dsc->slice_count;
+>> +		else if (dsc->slice_width && mode->hdisplay)
+>> +			mixer_count = DIV_ROUND_UP(mode->hdisplay,
+>> +						   dsc->slice_width);
 >> +	}
-> Why are there two types of calls, pre and post? Should they go to the
-> corresponding separate DRM callbacks?
+>> +
+>> +	return mixer_count;
+>> +}
+>> +
+>> +static void dcp_dsi_bridge_publish_session(struct dcp_dsi_bridge *dsi_bridge)
+>> +{
+>> +	struct dcp_dpu_kms *kms = dsi_bridge->kms;
+>> +	struct drm_crtc *crtc;
+>> +
+>> +	crtc = dcp_dpu_kms_get_crtc(kms, dsi_bridge->fw_display_id);
+>> +	if (crtc)
+>> +		dcp_crtc_set_session(crtc, dsi_bridge->session_id);
+>> +	else
+>> +		drm_err(kms->dev, "DSI%u: no CRTC for session %u\n",
+>> +			dsi_bridge->intf_idx, dsi_bridge->session_id);
+>> +}
+>> +
+>> +static void dcp_dsi_bridge_clear_session(struct dcp_dsi_bridge *dsi_bridge)
+>> +{
+>> +	dcp_crtc_clear_session(dcp_dpu_kms_get_crtc(dsi_bridge->kms,
+>> +						    dsi_bridge->fw_display_id));
+>> +}
+>> +
+>> +static int dcp_dsi_bridge_setup_dsc(struct dcp_dsi_bridge *dsi_bridge,
+>> +				    struct dcp_dsi_hfi_panel_config *cfg,
+>> +				    const struct drm_display_mode *mode)
+>> +{
+>> +	struct drm_dsc_config *dsc = dsi_bridge->dsi_device->dsc;
+>> +	enum drm_dsc_params_type params_type;
+>> +	unsigned int i;
+>> +	int ret;
+>> +
+>> +	dsc->pic_width = mode->hdisplay;
+>> +	dsc->pic_height = mode->vdisplay;
+>> +	dsc->convert_rgb = !dsc->native_422 && !dsc->native_420;
+>> +	dsc->slice_chunk_size = DIV_ROUND_UP(dsc->slice_width *
+>> +					dsc->bits_per_pixel, 8 * 16);
+>> +	dsc->simple_422 = 0;
+>> +	dsc->vbr_enable = 0;
+>> +
+>> +	if (dsc->dsc_version_major != 1)
+>> +		return -EOPNOTSUPP;
+>> +
+>> +	switch (dsc->dsc_version_minor) {
+>> +	case 1:
+>> +		if (dsc->native_422 || dsc->native_420)
+>> +			return -EOPNOTSUPP;
+>> +		params_type = DRM_DSC_1_1_PRE_SCR;
+>> +		break;
+>> +	case 2:
+>> +		if (dsc->native_422)
+>> +			params_type = DRM_DSC_1_2_422;
+>> +		else if (dsc->native_420)
+>> +			params_type = DRM_DSC_1_2_420;
+>> +		else
+>> +			params_type = DRM_DSC_1_2_444;
+>> +		break;
+>> +	default:
+>> +		return -EOPNOTSUPP;
+>> +	}
+>> +
+>> +	drm_dsc_set_const_params(dsc);
+>> +	drm_dsc_set_rc_buf_thresh(dsc);
+>> +	ret = drm_dsc_setup_rc_params(dsc, params_type);
+>> +	if (ret)
+>> +		return ret;
+>> +
+>> +	dsc->initial_scale_value = drm_dsc_initial_scale_value(dsc);
+>> +	dsc->line_buf_depth = dsc->bits_per_component + 1;
+>> +	ret = drm_dsc_compute_rc_parameters(dsc);
+>> +	if (ret)
+>> +		return ret;
+>> +
+>> +	for (i = 0; i < ARRAY_SIZE(cfg->dsc_rc_min_qp); i++) {
+>> +		cfg->dsc_rc_min_qp[i] = dsc->rc_range_params[i].range_min_qp;
+>> +		cfg->dsc_rc_max_qp[i] = dsc->rc_range_params[i].range_max_qp;
+>> +		cfg->dsc_rc_bpg_offsets[i] = dsc->rc_range_params[i].range_bpg_offset;
+>> +	}
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +int dcp_dsi_bridge_prepare_session(struct dcp_dsi_bridge *dsi_bridge,
+>> +				   const struct drm_display_mode *mode)
+>> +{
+>> +	struct dcp_dpu_kms *kms = dsi_bridge->kms;
+>> +	struct dcp_dsi_bridge_state *state = dcp_dsi_bridge_get_state(dsi_bridge);
+>> +	struct dcp_dsi_hfi_panel_config cfg;
+>> +	int ret;
+>> +	u32 opened_session_id;
+>> +
+>> +	if (!mode)
+>> +		return -ENODEV;
+>> +
+>> +	guard(mutex)(&dsi_bridge->session_lock);
+>> +	if (dsi_bridge->session_open)
+>> +		return 0;
+>> +
+>> +	dsi_bridge->session_id = dsi_bridge->fw_display_id;
+>> +
+>> +	if (!dsi_bridge->dsi_device)
+>> +		return -ENODEV;
+>> +
+>> +	dcp_dsi_bridge_build_hfi_config(dsi_bridge, state, &cfg);
+>> +
+>> +	if (dsi_bridge->dsi_device->dsc) {
+>
+> When is this going to be called?  There are panels which require
+> different DSC setup for different modes.
 >
 
-This display close function would be removed, its redundant.
+Sure, will address this in v3.
+
+
+>> +		ret = dcp_dsi_bridge_setup_dsc(dsi_bridge, &cfg, mode);
+>> +		if (ret) {
+>> +			drm_err(kms->dev, "DSI%u: DSC setup failed: %d\n",
+>> +				dsi_bridge->intf_idx, ret);
+>> +			goto err_close;
+>> +		}
+>> +	}
+>> +
+>> +	ret = dcp_hfi_panel_init(kms->hfi, dsi_bridge->intf_idx,
+>> +				 mode,
+>> +				 dsi_bridge->dsi_device,
+>> +				 &cfg);
+>> +	if (ret) {
+>> +		drm_err(kms->dev, "DSI%u: HFI PANEL_INIT failed: %d\n",
+>> +			dsi_bridge->intf_idx, ret);
+>> +		goto err_close;
+>> +	}
+>> +
+>> +	if (mode->clock) {
+>> +		u64 link_clock;
+>> +
+>> +		link_clock = dcp_dsi_link_clock(dsi_bridge, &cfg,
+>> +						mode);
+>> +		ret = dcp_hfi_display_mode_validate(kms->hfi,
+>> +						    dsi_bridge->session_id,
+>> +						    mode, link_clock);
+> mode validation should have happened at the atomic_check().
+>
+>> +		if (ret) {
+>> +			drm_err(kms->dev, "DSI%u: HFI MODE_VALIDATE failed: %d\n",
+>> +				dsi_bridge->intf_idx, ret);
+>> +			goto err_close;
+>> +		}
+>> +
+>> +		ret = dcp_hfi_display_set_mode(kms->hfi,
+>> +					       dsi_bridge->session_id,
+>> +					       mode,
+>> +					       dcp_dsi_link_clock(dsi_bridge, &cfg,
+>> +								  mode));
+>> +		if (ret) {
+>> +			drm_err(kms->dev, "DSI%u: HFI SET_MODE failed: %d\n",
+>> +				dsi_bridge->intf_idx, ret);
+>> +			goto err_close;
+>> +		}
+>> +	} else {
+>> +		drm_warn(kms->dev, "DSI%u: no valid mode, skipping SET_MODE\n",
+>> +			 dsi_bridge->intf_idx);
+>> +	}
+>> +
+>> +	dcp_hfi_set_power_control_cb(kms->hfi, kms,
+>> +				     dcp_dsi_power_control_cb);
+> And what happens when you add DP?
+>
+
+Will remove power register and power control, those are no-op now.
 
 
 >> +
->> +	ret = dcp_hfi_send_sync(hfi,
+>> +	reinit_completion(&dsi_bridge->power_done);
+>> +
+>> +	ret = dcp_hfi_display_power_register(kms->hfi, dsi_bridge->session_id);
+>> +	if (ret) {
+>> +		drm_err(kms->dev, "DSI%u: HFI POWER_REGISTER failed: %d\n",
+>> +			dsi_bridge->intf_idx, ret);
+>> +		goto err_close;
+>> +	}
+>> +
+>> +	ret = dcp_hfi_display_enable(kms->hfi,
+>> +				     dsi_bridge->intf_idx,
+>> +				     dsi_bridge->fw_display_id,
+>> +				     &opened_session_id);
+>> +	if (ret) {
+>> +		drm_err(kms->dev, "DSI%u: HFI DISPLAY_ENABLE failed: %d\n",
+>> +			dsi_bridge->intf_idx, ret);
+>> +		goto err_close;
+>> +	}
+>> +	dsi_bridge->session_id   = opened_session_id;
+>> +	dsi_bridge->session_open = true;
+>> +	dcp_dsi_bridge_publish_session(dsi_bridge);
+>> +
+>> +	drm_dbg_driver(kms->dev, "DSI%u: session prepared (session_id=%u)\n",
+>> +		       dsi_bridge->intf_idx, dsi_bridge->session_id);
+>> +	return 0;
+>> +
+>> +err_close:
+>> +	dcp_hfi_clear_power_control_cb(kms->hfi, kms);
+>> +	dcp_hfi_display_close(kms->hfi, dsi_bridge->session_id);
+>> +	dsi_bridge->session_id   = 0;
+>> +	dsi_bridge->session_open = false;
+>> +	dcp_dsi_bridge_clear_session(dsi_bridge);
+>> +
+>> +	return ret;
+>> +}
+>> +
+>> +static void dcp_dsi_bridge_atomic_pre_enable(struct drm_bridge *bridge,
+>> +					     struct drm_atomic_commit *state)
+>> +{
+>> +	struct dcp_dsi_bridge *dsi_bridge = to_dcp_dsi_bridge(bridge);
+>> +	int ret;
+>> +
+>> +	ret = dsi_bridge->session_open ? 0 : -ENODEV;
+>> +	dcp_dsi_bridge_get_state(dsi_bridge)->prepare_error = ret;
+>> +	if (ret)
+>> +		drm_err(bridge->dev, "DSI%u: session prepare failed: %d\n",
+>> +			dsi_bridge->intf_idx, ret);
+>> +}
+>> +
+>> +static void dcp_dsi_bridge_atomic_enable(struct drm_bridge *bridge,
+>> +					 struct drm_atomic_commit *state)
+>> +{
+>> +	struct dcp_dsi_bridge *dsi_bridge = to_dcp_dsi_bridge(bridge);
+>> +	struct dcp_dpu_kms *kms = dsi_bridge->kms;
+>> +	bool scan_start_registered = false;
+>> +	bool scan_complete_registered = false;
+>> +	bool autorefresh_enabled = false;
+>> +	int ret;
+>> +
+>> +	drm_dbg_driver(kms->dev,
+>> +		       "DSI%u: bridge atomic_enable (session_id=%u)\n",
+>> +		       dsi_bridge->intf_idx, dsi_bridge->session_id);
+>> +
+>> +	if (dcp_dsi_bridge_get_state(dsi_bridge)->prepare_error)
+>> +		return;
+>> +	if (!dsi_bridge->session_open)
+>> +		return;
+>> +
+>> +	ret = dcp_hfi_display_post_enable(kms->hfi, dsi_bridge->session_id);
+>> +	if (ret) {
+>> +		drm_err(bridge->dev,
+>> +			"DSI%u: HFI DISPLAY_POST_ENABLE failed: %d\n",
+>> +			dsi_bridge->intf_idx, ret);
+>> +		goto err_close;
+>> +	}
+>> +
+>> +	dcp_dsi_bridge_publish_session(dsi_bridge);
+>> +
+>> +	ret = dcp_hfi_display_event_register(kms->hfi,
+>> +					     dsi_bridge->session_id, HFI_EVENT_FRAME_SCAN_START);
+>> +	if (ret)
+>> +		goto err_close;
+>> +	scan_start_registered = true;
+>> +
+>> +	ret = dcp_hfi_display_event_register(kms->hfi,
+>> +					     dsi_bridge->session_id, HFI_EVENT_FRAME_SCAN_COMPLETE);
+>> +	if (ret)
+>> +		goto err_close;
+>> +	scan_complete_registered = true;
+>> +
+>> +	if (dcp_dsi_bridge_cmd_mode(dsi_bridge)) {
+>> +		ret = dcp_hfi_crtc_set_autorefresh(kms->hfi,
+>> +						   dsi_bridge->session_id, true, 1);
+>> +		if (ret) {
+>> +			drm_err(bridge->dev,
+>> +				"DSI%u: initial autorefresh setup failed: %d\n",
+>> +				dsi_bridge->intf_idx, ret);
+>> +			goto err_close;
+>> +		}
+>> +		autorefresh_enabled = true;
+>> +	}
+>> +
+>> +	drm_dbg_driver(bridge->dev,
+>> +		       "DSI%u: enable complete (session_id=%u)\n",
+>> +		       dsi_bridge->intf_idx, dsi_bridge->session_id);
+>> +	return;
+>> +
+>> +err_close:
+>> +	if (autorefresh_enabled)
+>> +		dcp_hfi_crtc_set_autorefresh(kms->hfi, dsi_bridge->session_id,
+>> +					     false, 0);
+>> +	if (scan_complete_registered)
+> Turn each of the booleans into a separate label.
+>
+
+Sure.
+
+
+>> +		dcp_hfi_display_event_deregister(kms->hfi, dsi_bridge->session_id,
+>> +						 HFI_EVENT_FRAME_SCAN_COMPLETE);
+>> +	if (scan_start_registered)
+>> +		dcp_hfi_display_event_deregister(kms->hfi, dsi_bridge->session_id,
+>> +						 HFI_EVENT_FRAME_SCAN_START);
+>> +	drm_err(bridge->dev,
+>> +		"DSI%u: bridge enable failed; session closed\n",
+>> +		dsi_bridge->intf_idx);
+>> +	dcp_hfi_display_close(kms->hfi, dsi_bridge->session_id);
+>> +	{
+>> +		guard(mutex)(&dsi_bridge->session_lock);
+> scoped_guard()
+>
+
+Sure.
+
+
+>> +		dsi_bridge->session_id   = 0;
+>> +		dsi_bridge->session_open = false;
+>> +	}
+>> +	dcp_dsi_bridge_clear_session(dsi_bridge);
+>> +}
+>> +
+>> +static void dcp_dsi_bridge_atomic_disable(struct drm_bridge *bridge,
+>> +					  struct drm_atomic_commit *state)
+>> +{
+>> +	struct dcp_dsi_bridge *dsi_bridge = to_dcp_dsi_bridge(bridge);
+>> +	struct dcp_dpu_kms *kms = dsi_bridge->kms;
+>> +	int ret;
+>> +
+>> +	drm_dbg_driver(kms->dev,
+>> +		       "DSI%u: atomic_disable (session_open=%d session_id=%u)\n",
+>> +		       dsi_bridge->intf_idx, dsi_bridge->session_open,
+>> +		       dsi_bridge->session_id);
+>> +
+>> +	guard(mutex)(&dsi_bridge->session_lock);
+>> +	if (!dsi_bridge->session_open)
+>> +		return;
+>> +
+>> +	if (dcp_dsi_bridge_cmd_mode(dsi_bridge)) {
+>> +		ret = dcp_hfi_crtc_set_autorefresh(kms->hfi,
+>> +						   dsi_bridge->session_id, false, 0);
+>> +		if (ret)
+>> +			drm_warn(bridge->dev,
+>> +				 "DSI%u: autorefresh disable failed: %d\n",
+>> +				 dsi_bridge->intf_idx, ret);
+>> +	}
+>> +
+>> +	dcp_hfi_display_event_deregister(kms->hfi, dsi_bridge->session_id,
+>> +					 HFI_EVENT_FRAME_SCAN_COMPLETE);
+>> +	dcp_hfi_display_event_deregister(kms->hfi, dsi_bridge->session_id,
+>> +					 HFI_EVENT_FRAME_SCAN_START);
+>> +
+>> +	ret = dcp_hfi_display_disable(kms->hfi, dsi_bridge->session_id);
+>> +	if (ret)
+>> +		drm_warn(bridge->dev,
+>> +			 "DSI%u: HFI DISPLAY_DISABLE failed: %d\n",
+>> +			 dsi_bridge->intf_idx, ret);
+>> +}
+>> +
+>> +static void dcp_dsi_bridge_atomic_post_disable(struct drm_bridge *bridge,
+>> +					       struct drm_atomic_commit *state)
+>> +{
+>> +	struct dcp_dsi_bridge *dsi_bridge = to_dcp_dsi_bridge(bridge);
+>> +	struct dcp_dpu_kms *kms = dsi_bridge->kms;
+>> +	int ret;
+>> +
+>> +	drm_dbg_driver(kms->dev,
+>> +		       "DSI%u: atomic_post_disable\n",
+>> +		       dsi_bridge->intf_idx);
+>> +
+>> +	guard(mutex)(&dsi_bridge->session_lock);
+>> +	if (!dsi_bridge->session_open)
+>> +		return;
+>> +
+>> +	ret = dcp_hfi_display_post_disable(kms->hfi, dsi_bridge->session_id);
+>> +	if (ret)
+>> +		drm_warn(bridge->dev,
+>> +			 "DSI%u: HFI DISPLAY_POST_DISABLE failed: %d\n",
+>> +			 dsi_bridge->intf_idx, ret);
+>> +
+>> +	ret = dcp_hfi_send_sync(kms->hfi,
 >> +				HFI_COMMAND_DISPLAY_CLOSE,
->> +				HFI_CMD_BUFF_DISPLAY, session_id,
+>> +				HFI_CMD_BUFF_DISPLAY, dsi_bridge->session_id,
 >> +				HFI_PAYLOAD_NONE, NULL, 0,
 >> +				HFI_TX_FLAGS_RESPONSE_REQUIRED |
 >> +				HFI_TX_FLAGS_NON_DISCARDABLE,
 >> +				NULL, 0,
->> +				DCP_HFI_TIMEOUT_DISPLAY_MS);
+>> +				2000 /* ms */);
 >> +	if (ret)
->> +		dev_warn(hfi->dev, "HFI DISPLAY_CLOSE failed: %d\n", ret);
+>> +		drm_warn(bridge->dev,
+>> +			 "DSI%u: HFI DISPLAY_CLOSE failed: %d\n",
+>> +			 dsi_bridge->intf_idx, ret);
 >> +
->> +	return ret;
+>> +	dsi_bridge->session_id   = 0;
+>> +	dsi_bridge->session_open = false;
+>> +
+>> +	dcp_dsi_bridge_clear_session(dsi_bridge);
 >> +}
->> diff --git a/drivers/gpu/drm/msm/dcp/dcp_hfi_dsi_panel.c b/drivers/gpu/drm/msm/dcp/dcp_hfi_dsi_panel.c
+>> +
+>> +static int dcp_dsi_bridge_atomic_check(struct drm_bridge *bridge,
+>> +				       struct drm_bridge_state *bridge_state,
+>> +				       struct drm_crtc_state *crtc_state,
+>> +				       struct drm_connector_state *conn_state)
+>> +{
+>> +	struct dcp_dsi_bridge *dsi_bridge = to_dcp_dsi_bridge(bridge);
+>> +	struct dcp_dsi_bridge_state *state =
+>> +		to_dcp_dsi_bridge_state(bridge_state);
+>> +	struct dcp_dpu_kms *kms = dsi_bridge->kms;
+>> +	const struct drm_display_mode *mode = &crtc_state->adjusted_mode;
+>> +	u32 max_width, max_height;
+>> +	u32 mixer_count, bpc;
+>> +
+>> +	state->prepare_error = 0;
+>> +
+>> +	if (!mode->clock || !drm_mode_vrefresh(mode))
+>> +		return -EINVAL;
+>> +
+>> +	if (dsi_bridge->dsi_device &&
+>> +	    (!dsi_bridge->dsi_device->lanes ||
+>> +	     !dcp_dsi_link_clock(dsi_bridge, &dsi_bridge->hfi_panel_config, mode)))
+>> +		return -EINVAL;
+>> +
+>> +	if (dsi_bridge->dsi_device && dsi_bridge->dsi_device->dsc) {
+>> +		state->panel_state.topology_mixer_count =
+>> +			dcp_dsi_bridge_get_mixer_count(dsi_bridge,
+>> +						       &dsi_bridge->hfi_panel_config, mode);
+>> +		state->panel_state.topology_enc_count =
+>> +			state->panel_state.topology_mixer_count;
+>> +		state->panel_state.topology_intf_count = 1;
+>> +	}
+>> +
+>> +	mixer_count = dcp_dsi_bridge_get_mixer_count(dsi_bridge,
+>> +						     &dsi_bridge->hfi_panel_config, mode);
+>> +	bpc = dsi_bridge->hfi_panel_config.dsc_bits_per_component ?
+>> +		dsi_bridge->hfi_panel_config.dsc_bits_per_component : 8;
+>> +	dcp_crtc_set_topology_state(crtc_state, mixer_count, bpc);
+>> +
+>> +	dcp_mode_limits(mode, kms->caps->max_width, kms->caps->max_height,
+>> +			&max_width, &max_height);
+>> +
+>> +	if (mode->hdisplay > max_width || mode->vdisplay > max_height) {
+>> +		drm_err(dsi_bridge->kms->dev,
+>> +			"DSI%u: mode %dx%d exceeds DCP caps %dx%d\n",
+>> +				 dsi_bridge->intf_idx, mode->hdisplay, mode->vdisplay,
+>> +				 kms->caps->max_width, kms->caps->max_height);
+> Don't let userspace spam the dmesg.
+>
+
+Comments to be addressed in v3.
+
+
+>> +		return -EINVAL;
+>> +	}
+>> +	return 0;
+>> +}
+>> +
+>> +static const struct drm_bridge_funcs dcp_dsi_bridge_funcs = {
+>> +	.attach                  = dcp_dsi_bridge_attach,
+>> +	.atomic_pre_enable       = dcp_dsi_bridge_atomic_pre_enable,
+>> +	.atomic_enable           = dcp_dsi_bridge_atomic_enable,
+>> +	.atomic_disable          = dcp_dsi_bridge_atomic_disable,
+>> +	.atomic_post_disable     = dcp_dsi_bridge_atomic_post_disable,
+>> +	.atomic_check            = dcp_dsi_bridge_atomic_check,
+>> +	.atomic_create_state     = dcp_dsi_bridge_atomic_create_state,
+>> +	.atomic_duplicate_state  = dcp_dsi_bridge_atomic_duplicate_state,
+>> +	.atomic_destroy_state    = dcp_dsi_bridge_atomic_destroy_state,
+>> +};
+>> +
+>> +#define DCP_DSI_DUAL_MAP_ALIGN	SZ_1K
+>> +
+>> +static int dcp_dsi_dual_map_buf(struct dcp_dpu_kms *kms,
+>> +				struct device *dma_dev, void *cpu_addr,
+>> +				dma_addr_t iova, size_t size, int prot)
+>> +{
+>> +	struct sg_table sgt = { 0 };
+>> +	struct iommu_domain *domain;
+>> +	ssize_t mapped;
+>> +	int ret;
+>> +
+>> +	if (!kms->iommu_dev || !cpu_addr || !iova ||
+>> +	    !IS_ALIGNED(iova, DCP_DSI_DUAL_MAP_ALIGN))
+>> +		return -EINVAL;
+>> +
+>> +	domain = iommu_get_domain_for_dev(kms->iommu_dev);
+>> +	if (!domain)
+>> +		return -ENODEV;
+>> +
+>> +	ret = dma_get_sgtable(dma_dev, &sgt, cpu_addr, iova, size);
+>> +	if (ret)
+>> +		return ret;
+>> +
+>> +	mapped = iommu_map_sgtable(domain, iova, &sgt, prot);
+>> +	if (mapped != PAGE_ALIGN(size)) {
+>> +		if (mapped > 0)
+>> +			iommu_unmap(domain, iova, mapped);
+>> +		ret = mapped < 0 ? mapped : -EIO;
+>> +		drm_err(kms->dev,
+>> +			"failed to dual-map iova=%pad into iommu_dev domain: %zd\n",
+>> +			&iova, mapped);
+>> +		sg_free_table(&sgt);
+>> +		return ret;
+>> +	}
+>> +
+>> +	sg_free_table(&sgt);
+>> +	return 0;
+>> +}
+>> +
+>> +static void dcp_dsi_dual_unmap_buf(struct dcp_dpu_kms *kms, dma_addr_t iova,
+>> +				   size_t size)
+>> +{
+>> +	struct iommu_domain *domain;
+>> +
+>> +	if (!kms->iommu_dev || !iova)
+>> +		return;
+>> +
+>> +	domain = iommu_get_domain_for_dev(kms->iommu_dev);
+>> +	if (!domain)
+>> +		return;
+>> +
+>> +	iommu_unmap(domain, iova, PAGE_ALIGN(size));
+>> +}
+>> +
+>> +static void dcp_dsi_init_hfi_panel_defaults(struct dcp_dsi_hfi_panel_config *cfg,
+>> +					    u32 intf_idx)
+>> +{
+>> +	memset(cfg, 0, sizeof(*cfg));
+>> +
+>> +	cfg->display_type = HFI_PANEL_DISPLAY_TYPE_BUILT_IN_0;
+>> +	cfg->num_ctrls = 1;
+>> +	cfg->ctrl_indices[0] = intf_idx;
+>> +	cfg->num_phys = 1;
+>> +	cfg->phy_indices[0] = intf_idx;
+>> +
+>> +	cfg->dma_trigger = HFI_PANEL_TRIGGER_SW;
+>> +	cfg->stream_trigger = HFI_PANEL_TRIGGER_NONE;
+>> +	cfg->te_dcs_command = 1;
+>> +	cfg->wr_mem_start = 0x2C;
+>> +	cfg->wr_mem_continue = 0x3C;
+>> +
+>> +	cfg->phy_type = HFI_PANEL_PHY_OLED;
+>> +	cfg->bllp_eof_power_mode = true;
+>> +	cfg->bllp_power_mode = true;
+>> +	cfg->lane_map = 1;
+>> +	cfg->color_order = 1;
+>> +
+>> +	cfg->jitter_numer = 4;
+>> +	cfg->jitter_denom = 1;
+>> +	cfg->dcs_tx_buf_size = DCP_DSI_DCS_TX_BUF_SIZE;
+>> +
+>> +	cfg->topology_mixer_count = 1;
+>> +	cfg->topology_intf_count = 1;
+>> +}
+>> +
+>> +struct drm_bridge *dcp_dsi_bridge_init(struct dcp_dpu_kms *kms,
+>> +				       struct device_node *np,
+>> +				       struct device_node *dcp_np,
+>> +				       u32 dcp_port, u32 intf_idx,
+>> +				       u32 fw_display_id)
+>> +{
+>> +	struct dcp_dsi_bridge *dsi_bridge;
+>> +	struct dcp_dsi_hfi_panel_config *cfg;
+>> +	struct device *dev = kms->pm_dev;
+>> +	struct device *dma_dev = kms->hfi->dma_dev;
+>> +	int ret;
+>> +
+>> +	dsi_bridge = devm_drm_bridge_alloc(dev, struct dcp_dsi_bridge,
+>> +					   bridge, &dcp_dsi_bridge_funcs);
+>> +	if (IS_ERR(dsi_bridge))
+>> +		return ERR_CAST(dsi_bridge);
+>> +
+>> +	dsi_bridge->dcp_np        = of_node_get(dcp_np);
+>> +	dsi_bridge->dcp_port      = dcp_port;
+>> +	dsi_bridge->kms           = kms;
+>> +	dsi_bridge->intf_idx      = intf_idx;
+>> +	dsi_bridge->fw_display_id = fw_display_id;
+>> +
+>> +	INIT_WORK(&dsi_bridge->power_control_work, dcp_dsi_power_control_work);
+>> +	init_completion(&dsi_bridge->power_done);
+>> +	mutex_init(&dsi_bridge->session_lock);
+>> +	mutex_init(&dsi_bridge->dcs_lock);
+>> +
+>> +	cfg = &dsi_bridge->hfi_panel_config;
+>> +	dcp_dsi_init_hfi_panel_defaults(cfg, intf_idx);
+>> +
+>> +	/*
+>> +	 * Allocate the buffers for the firmware DMA domain here. The second
+>> +	 * mapping into the display domain is deferred until msm_kms_init_vm()
+>> +	 * has installed the final display IOMMU domain.
+>> +	 */
+>> +	dsi_bridge->dcs_tx_buf = dma_alloc_coherent(dma_dev, DCP_DSI_DCS_TX_BUF_SIZE,
+>> +						    &dsi_bridge->dcs_tx_iova, GFP_KERNEL);
+>> +	if (!dsi_bridge->dcs_tx_buf) {
+>> +		ret = -ENOMEM;
+>> +		goto err_unwind_dma;
+>> +	}
+>> +
+>> +	dsi_bridge->hfi_panel_config.dcs_tx_dva = dsi_bridge->dcs_tx_iova;
+>> +	dsi_bridge->hfi_panel_config.dcs_tx_iova = dsi_bridge->dcs_tx_iova;
+>> +
+>> +	dsi_bridge->dcs_rx_buf = dma_alloc_coherent(dma_dev, DCP_DSI_DCS_RX_BUF_SIZE,
+>> +						    &dsi_bridge->dcs_rx_iova, GFP_KERNEL);
+>> +	if (!dsi_bridge->dcs_rx_buf) {
+>> +		ret = -ENOMEM;
+>> +		goto err_unwind_dma;
+>> +	}
+>> +
+>> +	device_initialize(&dsi_bridge->dsi_host_dev);
+>> +	dsi_bridge->dsi_host_dev.release = dcp_dsi_host_dev_release;
+>> +	dsi_bridge->dsi_host_dev.parent  = dev;
+>> +	dsi_bridge->dsi_host_dev.of_node = of_node_get(np);
+>> +	dev_set_name(&dsi_bridge->dsi_host_dev, "%pOFn", np);
+>> +	dsi_bridge->dsi_host.ops = &dcp_dsi_host_ops;
+>> +	dsi_bridge->dsi_host.dev = &dsi_bridge->dsi_host_dev;
+>> +
+>> +	ret = device_add(&dsi_bridge->dsi_host_dev);
+>> +	if (ret) {
+>> +		dev_err(dev,
+>> +			"DSI%u: failed to add dsi_host_dev: %d\n", intf_idx, ret);
+>> +		put_device(&dsi_bridge->dsi_host_dev);
+>> +		goto err_unwind_dma;
+>> +	}
+>> +
+>> +	ret = mipi_dsi_host_register(&dsi_bridge->dsi_host);
+>> +	if (ret) {
+>> +		dev_err(dev,
+>> +			"DSI%u: failed to register MIPI DSI host: %d\n",
+>> +			intf_idx, ret);
+>> +		device_del(&dsi_bridge->dsi_host_dev);
+>> +		put_device(&dsi_bridge->dsi_host_dev);
+>> +		goto err_unwind_dma;
+>> +	}
+>> +
+>> +	dsi_bridge->bridge.of_node = of_node_get(np);
+>> +	dsi_bridge->bridge.type    = DRM_MODE_CONNECTOR_DSI;
+>> +
+>> +	drm_bridge_add(&dsi_bridge->bridge);
+>> +
+>> +	return &dsi_bridge->bridge;
+>> +
+>> +err_unwind_dma:
+>> +	if (dsi_bridge->dcs_rx_buf) {
+>> +		dma_free_coherent(dma_dev, DCP_DSI_DCS_RX_BUF_SIZE,
+>> +				  dsi_bridge->dcs_rx_buf,
+>> +				  dsi_bridge->dcs_rx_iova);
+>> +	}
+>> +	if (dsi_bridge->dcs_tx_buf) {
+>> +		dma_free_coherent(dma_dev, DCP_DSI_DCS_TX_BUF_SIZE,
+>> +				  dsi_bridge->dcs_tx_buf,
+>> +				  dsi_bridge->dcs_tx_iova);
+>> +	}
+>> +	cancel_work_sync(&dsi_bridge->power_control_work);
+>> +	mutex_destroy(&dsi_bridge->session_lock);
+>> +	mutex_destroy(&dsi_bridge->dcs_lock);
+>> +	return ERR_PTR(ret);
+>> +}
+>> +
+>> +int dcp_dsi_bridge_map_buffers(struct dcp_dsi_bridge *dsi_bridge)
+>> +{
+>> +	struct dcp_dpu_kms *kms = dsi_bridge->kms;
+>> +	struct device *dma_dev = kms->hfi->dma_dev;
+>> +	int ret;
+>> +
+>> +	if (dsi_bridge->dcs_mapped)
+>> +		return 0;
+>> +
+>> +	ret = dcp_dsi_dual_map_buf(kms, dma_dev, dsi_bridge->dcs_tx_buf,
+>> +				   dsi_bridge->dcs_tx_iova,
+>> +				   DCP_DSI_DCS_TX_BUF_SIZE, IOMMU_READ);
+>> +	if (ret)
+>> +		return ret;
+>> +
+>> +	ret = dcp_dsi_dual_map_buf(kms, dma_dev, dsi_bridge->dcs_rx_buf,
+>> +				   dsi_bridge->dcs_rx_iova,
+>> +				   DCP_DSI_DCS_RX_BUF_SIZE, IOMMU_WRITE);
+>> +	if (ret) {
+>> +		dcp_dsi_dual_unmap_buf(kms, dsi_bridge->dcs_tx_iova,
+>> +				       DCP_DSI_DCS_TX_BUF_SIZE);
+>> +		return ret;
+>> +	}
+>> +
+>> +	dsi_bridge->dcs_mapped = true;
+>> +	drm_dbg_driver(kms->dev,
+>> +		       "DSI%u: mapped DCS buffers tx=%pad rx=%pad in display domain\n",
+>> +		       dsi_bridge->intf_idx, &dsi_bridge->dcs_tx_iova,
+>> +		       &dsi_bridge->dcs_rx_iova);
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +void dcp_dsi_bridge_unmap_buffers(struct dcp_dsi_bridge *dsi_bridge)
+>> +{
+>> +	struct dcp_dpu_kms *kms = dsi_bridge->kms;
+>> +
+>> +	if (!dsi_bridge->dcs_mapped)
+>> +		return;
+>> +
+>> +	dcp_dsi_dual_unmap_buf(kms, dsi_bridge->dcs_tx_iova,
+>> +			       DCP_DSI_DCS_TX_BUF_SIZE);
+>> +	dcp_dsi_dual_unmap_buf(kms, dsi_bridge->dcs_rx_iova,
+>> +			       DCP_DSI_DCS_RX_BUF_SIZE);
+>> +	dsi_bridge->dcs_mapped = false;
+>> +}
+>> +
+>> +void dcp_dsi_bridge_cleanup(struct dcp_dsi_bridge *dsi_bridge)
+>> +{
+>> +	struct device *dma_dev = dsi_bridge->kms->hfi->dma_dev;
+>> +
+>> +	dcp_hfi_clear_power_control_cb(dsi_bridge->kms->hfi, dsi_bridge->kms);
+>> +	cancel_work_sync(&dsi_bridge->power_control_work);
+>> +
+>> +	drm_bridge_remove(&dsi_bridge->bridge);
+>> +	of_node_put(dsi_bridge->bridge.of_node);
+>> +	of_node_put(dsi_bridge->dcp_np);
+>> +
+>> +	mipi_dsi_host_unregister(&dsi_bridge->dsi_host);
+>> +	device_del(&dsi_bridge->dsi_host_dev);
+>> +	put_device(&dsi_bridge->dsi_host_dev);
+>> +
+>> +	dcp_dsi_bridge_unmap_buffers(dsi_bridge);
+>> +	dma_free_coherent(dma_dev, DCP_DSI_DCS_TX_BUF_SIZE,
+>> +			  dsi_bridge->dcs_tx_buf, dsi_bridge->dcs_tx_iova);
+>> +
+>> +	dma_free_coherent(dma_dev, DCP_DSI_DCS_RX_BUF_SIZE,
+>> +			  dsi_bridge->dcs_rx_buf, dsi_bridge->dcs_rx_iova);
+>> +
+>> +	mutex_destroy(&dsi_bridge->session_lock);
+>> +	mutex_destroy(&dsi_bridge->dcs_lock);
+>> +}
+>> diff --git a/drivers/gpu/drm/msm/dcp/dcp_dsi_bridge.h b/drivers/gpu/drm/msm/dcp/dcp_dsi_bridge.h
 >> new file mode 100644
->> index 000000000000..b27fa8fa3160
+>> index 000000000000..f2c7abf23ac9
 >> --- /dev/null
->> +++ b/drivers/gpu/drm/msm/dcp/dcp_hfi_dsi_panel.c
->> @@ -0,0 +1,592 @@
->> +// SPDX-License-Identifier: GPL-2.0-only
+>> +++ b/drivers/gpu/drm/msm/dcp/dcp_dsi_bridge.h
+>> @@ -0,0 +1,76 @@
+>> +/* SPDX-License-Identifier: GPL-2.0-only */
 >> +/*
 >> + * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
 >> + *
->> + * HFI commands for panel initialization and DCS transfers.
->> + * Firmware owns the DSI controller and PHY.
+>> + * DCP DSI bridge state and panel configuration.
+>> + * DCP firmware owns the DSI PHY and controller; the bridge submits HFI commands.
 >> + */
 >> +
->> +#include <linux/device.h>
->> +#include <linux/math64.h>
->> +#include <drm/drm_modes.h>
+>> +#ifndef __DCP_DSI_BRIDGE_H__
+>> +#define __DCP_DSI_BRIDGE_H__
+>> +
+>> +#include <linux/completion.h>
+>> +#include <linux/dma-mapping.h>
+>> +#include <linux/ktime.h>
+>> +#include <linux/workqueue.h>
+>> +
+>> +#include <drm/drm_bridge.h>
+>> +#include <drm/drm_encoder.h>
 >> +#include <drm/drm_mipi_dsi.h>
+>> +#include <drm/drm_modes.h>
 >> +
 >> +#include "dcp_dsi_panel.h"
->> +#include "dcp_hfi.h"
->> +#include "dcp_hfi_priv.h"
->> +#include "hfi/hfi_commands_display.h"
->> +#include "hfi/hfi_commands_panel.h"
->> +#include "hfi/hfi_defs_common.h"
->> +#include "hfi/hfi_defs_panel.h"
->> +#include "hfi/hfi_packet.h"
->> +#include "hfi/hfi_packer.h"
->> +#include "hfi/hfi_properties_panel.h"
 >> +
->> +#define DCP_DSI_CTRL_CMD_READ              BIT(0)
->> +#define DCP_DSI_CTRL_CMD_FETCH_MEMORY      BIT(5)
->> +#define DCP_DSI_CTRL_CMD_LAST_COMMAND      BIT(6)
+>> +struct dcp_dpu_kms;
+>> +struct device_node;
 >> +
->> +static u32 dcp_bpp_to_hfi(u32 bpp)
->> +{
->> +	switch (bpp) {
->> +	case 16: return HFI_PANEL_BPP_16;
->> +	case 18: return HFI_PANEL_BPP_18;
->> +	case 30: return HFI_PANEL_BPP_30;
->> +	case 24:
->> +	default: return HFI_PANEL_BPP_24;
->> +	}
->> +}
+>> +struct dcp_dsi_bridge {
+>> +	struct drm_bridge    bridge;
+>> +	struct device        dsi_host_dev;
+>> +	struct mipi_dsi_host  dsi_host;
+>> +	struct mipi_dsi_device *dsi_device;
+>> +	struct drm_bridge *panel_bridge;
+>> +	bool component_added;
 >> +
->> +static u32 dcp_dsi_traffic_mode(const struct mipi_dsi_device *dsi)
->> +{
->> +	if (!(dsi->mode_flags & MIPI_DSI_MODE_VIDEO))
->> +		return HFI_PANEL_TRAFFIC_NON_BURST_SYNC_EVENT_MODE;
->> +	if (dsi->mode_flags & MIPI_DSI_MODE_VIDEO_BURST)
->> +		return HFI_PANEL_TRAFFIC_BURST_MODE;
->> +	if (dsi->mode_flags & MIPI_DSI_MODE_VIDEO_SYNC_PULSE)
->> +		return HFI_PANEL_TRAFFIC_NON_BURST_SYNC_PULSE_MODE;
->> +	return HFI_PANEL_TRAFFIC_NON_BURST_SYNC_EVENT_MODE;
->> +}
+>> +	struct dcp_dpu_kms  *kms;
+>> +	struct device_node  *dcp_np;
+>> +	u32                  dcp_port;
+>> +	u32                  intf_idx;
+>> +	u32                  fw_display_id;
+>> +	u32                  session_id;
+>> +	bool                 session_open;
+>> +	/* Protects session_id and session_open. */
+>> +	struct mutex         session_lock;
 >> +
->> +static u32 dcp_lanes_to_hfi(u32 num_lanes)
->> +{
->> +	u32 mask = 0;
+>> +	struct dcp_dsi_hfi_panel_config hfi_panel_config;
+>> +	/* Serializes DCS transfers. */
+>> +	struct mutex dcs_lock;
 >> +
->> +	if (num_lanes >= 1)
->> +		mask |= HFI_PANEL_LANE_0;
-> There is always at least one lane. Set the mask to HFI_PANEL_LANE_0.
+>> +	void       *dcs_tx_buf;
+>> +	dma_addr_t  dcs_tx_iova;
+>> +	void       *dcs_rx_buf;
+>> +	dma_addr_t  dcs_rx_iova;
+>> +	bool         dcs_mapped;
+>> +	struct work_struct power_control_work;
+>> +	struct completion  power_done;
+>> +	u32                power_packet_id;
+>> +};
+>> +
+>> +#define to_dcp_dsi_host(h) \
+>> +	container_of(h, struct dcp_dsi_bridge, dsi_host)
+>> +
+>> +#define to_dcp_dsi_bridge(b) \
+>> +	container_of(b, struct dcp_dsi_bridge, bridge)
+>> +
+>> +struct drm_bridge *dcp_dsi_bridge_init(struct dcp_dpu_kms *kms,
+>> +				       struct device_node *np,
+>> +				       struct device_node *dcp_np,
+>> +				       u32 dcp_port, u32 intf_idx,
+>> +				       u32 fw_display_id);
+>> +int dcp_dsi_bridge_map_buffers(struct dcp_dsi_bridge *dsi_bridge);
+>> +void dcp_dsi_bridge_unmap_buffers(struct dcp_dsi_bridge *dsi_bridge);
+>> +int dcp_dsi_bridge_prepare_session(struct dcp_dsi_bridge *dsi_bridge,
+>> +				   const struct drm_display_mode *mode);
+>> +void dcp_dsi_bridge_cleanup(struct dcp_dsi_bridge *dsi_bridge);
+>> +
+>> +#endif /* __DCP_DSI_BRIDGE_H__ */
+>> diff --git a/drivers/gpu/drm/msm/dcp/dcp_dsi_panel.h b/drivers/gpu/drm/msm/dcp/dcp_dsi_panel.h
+>> index a8898e469b44..cc4e9f4c6fc4 100644
+>> --- a/drivers/gpu/drm/msm/dcp/dcp_dsi_panel.h
+>> +++ b/drivers/gpu/drm/msm/dcp/dcp_dsi_panel.h
+>> @@ -74,6 +74,19 @@ struct dcp_dsi_hfi_panel_config {
+>>   	u32 topology_intf_count;
+>>   };
+>>   
+>> +/**
+>> + * struct dcp_dsi_panel_state - Mode-dependent DSI panel state.
+>> + *
+>> + * This state is owned by a DRM atomic bridge state. It is combined with
+>> + * the static panel configuration when constructing the HFI PANEL_INIT
+>> + * payload.
+>> + */
+>> +struct dcp_dsi_panel_state {
+>> +	u32 topology_mixer_count;
+>> +	u32 topology_enc_count;
+>> +	u32 topology_intf_count;
+> Why is it public? Who uses it?
 >
->> +	if (num_lanes >= 2)
->> +		mask |= HFI_PANEL_LANE_1;
->> +	if (num_lanes >= 3)
->> +		mask |= HFI_PANEL_LANE_2;
->> +	if (num_lanes >= 4)
->> +		mask |= HFI_PANEL_LANE_3;
+>> +};
 >> +
->> +	return mask ?: HFI_PANEL_LANE_0;
->> +}
->> +
->> +static bool dcp_hfi_panel_wait(struct dcp_hfi *hfi,
->> +			       struct dcp_hfi_completion *comp)
->> +{
->> +	unsigned long flags;
->> +
->> +	if (wait_for_completion_timeout(&comp->done,
->> +					msecs_to_jiffies(DCP_HFI_TIMEOUT_DISPLAY_MS)))
->> +		return false;
->> +
->> +	/* Serialize removal with response dispatch before the stack object dies. */
->> +	spin_lock_irqsave(&hfi->resp_drain_lock, flags);
->> +	dcp_hfi_pending_find(hfi, comp->packet_id);
->> +	spin_unlock_irqrestore(&hfi->resp_drain_lock, flags);
->> +	return true;
->> +}
->> +
->> +int dcp_hfi_panel_init(struct dcp_hfi *hfi, u32 intf_idx,
->> +		       const struct drm_display_mode *mode,
->> +		       const struct mipi_dsi_device *dsi,
->> +		       const struct dcp_dsi_hfi_panel_config *cfg)
->> +{
->> +	u32 num_lanes;
->> +	u32 bpp;
->> +	bool is_cmd_mode;
->> +	u32 display_type;
->> +	u32 vsync_source;
->> +	u32 traffic_mode;
->> +	u32 phy_type;
->> +
->> +	struct dcp_hfi_buf *buf1, *buf2;
->> +	struct hfi_cmd_buff_hdl hdl1, hdl2;
->> +	struct hfi_header_info hdr_info1, hdr_info2;
->> +	struct hfi_packet_info pkt_info;
->> +	struct dcp_hfi_completion comp1, comp2, comp3;
->> +	u32 payload[128];
->> +	u32 *p;
->> +	u32 packet_id, packet_id2, packet_id3;
->> +	u64 clk_hz;
->> +	int ret;
->> +	bool timeout1, timeout2, timeout3;
->> +	u32 link_bpp_x16;
-> Reverse christmas tree, apply universally to all your code.
->
->> +
->> +	if (!hfi || !mode || !dsi || !dsi->lanes || !cfg)
->> +		return -EINVAL;
-> And which of those can actually be passed as NULL?
->
->> +	if (cfg->num_ctrls > ARRAY_SIZE(cfg->ctrl_indices) ||
->> +	    cfg->num_phys > ARRAY_SIZE(cfg->phy_indices))
->> +		return -EINVAL;
->> +
->> +	display_type = cfg->display_type;
->> +	vsync_source = cfg->vsync_source;
->> +	phy_type = cfg->phy_type;
->> +	num_lanes = dsi->lanes;
->> +	bpp = mipi_dsi_pixel_format_to_bpp(dsi->format);
->> +	if (bpp < 0)
->> +		return -EINVAL;
->> +	is_cmd_mode = !(dsi->mode_flags & MIPI_DSI_MODE_VIDEO);
->> +	traffic_mode = dcp_dsi_traffic_mode(dsi);
->> +	link_bpp_x16 = bpp << 4;
->> +
->> +	buf1 = dcp_hfi_buf_alloc(hfi);
->> +	if (!buf1) {
->> +		dev_err(hfi->dev, "HFI PANEL_INIT: TX buffer exhausted\n");
->> +		return -ENOMEM;
->> +	}
->> +
->> +	hdl1.cmd_buffer = buf1->data;
->> +	hdl1.size       = DCP_HFI_BUF_SIZE;
->> +
->> +	hdr_info1.num_packets   = 0;
->> +	hdr_info1.cmd_buff_type = HFI_CMD_BUFF_DISPLAY;
->> +	hdr_info1.object_id     = intf_idx;
->> +	hdr_info1.header_id     = dcp_hfi_next_packet_id(hfi);
->> +
->> +	ret = hfi_create_header(&hdl1, &hdr_info1);
->> +	if (ret) {
->> +		dev_err(hfi->dev, "PANEL_INIT: hfi_create_header (A) failed: %d\n",
->> +			ret);
->> +		goto err_free_buf1;
->> +	}
->> +
->> +	{
-> Jayant, you really like to ignore comments. Please stop doing that. And
-> also please stop having unconditional nested blocks. If you need one,
-> extract it to a function.
->
-
-Sorry about that, probably missed at one place, had addressed all the 
-other places.
-
-All other comments including this to be addressed in v3.
-
-
->> +		u32 num_props = 0;
->> +
->> +		p = payload + 1;
->> +		num_props++;
->> +		p += HFI_PACK(p, HFI_PROPERTY_PANEL_TIMING_MODE_COUNT, 1);
->> +
->> +		/* DCS TX buffer is described by both DVA and IOVA properties. */
->> +		if (cfg->dcs_tx_iova && cfg->dcs_tx_dva &&
->> +		    !(cfg->dcs_tx_iova & 0x3ff) && !(cfg->dcs_tx_dva & 0x3ff)) {
->> +			num_props++;
->> +			p += HFI_PACK(p, HFI_PROPERTY_PANEL_DCS_CMD_TX_BUF_DVA,
->> +				       lower_32_bits(cfg->dcs_tx_dva),
->> +				       upper_32_bits(cfg->dcs_tx_dva),
->> +				       cfg->dcs_tx_buf_size, 0, 0);
->> +			num_props++;
->> +			p += HFI_PACK(p, HFI_PROPERTY_PANEL_DCS_CMD_TX_BUF_IOVA,
->> +				       lower_32_bits(cfg->dcs_tx_iova),
->> +				       upper_32_bits(cfg->dcs_tx_iova),
->> +				       cfg->dcs_tx_buf_size, 0, 0);
->> +		}
->> +		payload[0] = num_props;
->> +	}
->> +
+>>   /* DCS buffers use IOVAs directly in the firmware command descriptor. */
+>>   #define DCP_DSI_DCS_TX_BUF_SIZE	SZ_4K
+>>   #define DCP_DSI_DCS_RX_BUF_SIZE	SZ_4K
+>>
+>> -- 
+>> 2.43.0
+>>
